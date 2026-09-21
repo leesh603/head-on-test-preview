@@ -1,0 +1,82 @@
+/* Revision 142 — compact portrait-led mobile interface. */
+@media (max-width:720px){
+  body:not(.playing) main{padding:8px 10px 18px}
+  body:not(.playing) .field-top{height:24px;margin-bottom:6px}
+  body:not(.playing) .viewport{height:730px;min-height:0}
+  body:not(.playing) .field-bottom{display:none}
+  body:not(.playing) .hangar-copy{padding:18px 18px 20px;overflow-y:auto}
+  body:not(.playing) .hangar .mode-tabs{margin:174px 0 16px;gap:17px}
+  body:not(.playing) .hangar-ace{top:104px;right:-2%;width:64%;height:214px;object-fit:contain;object-position:center center}
+  body:not(.playing) .hangar-plane{top:132px;right:61%;width:31%}
+  body:not(.playing) .hangar:before{height:330px}
+  body:not(.playing) .hangar:after{background:linear-gradient(0deg,#171818 59%,transparent 76%)}
+  body:not(.playing) .hangar .sortie-dossier{margin-top:0}
+  body:not(.playing) .hangar-stamp{display:none}
+  body:not(.playing) aside{margin-top:10px;padding:15px 13px;display:grid;grid-template-columns:1fr}
+
+  body:not(.playing) aside .section-label:first-child,
+  body:not(.playing) aside .factions,
+  body:not(.playing) aside .pilot-frame,
+  body:not(.playing) aside .pilot-tabs,
+  body:not(.playing) aside .skill-info,
+  body:not(.playing) aside .selected-aircraft,
+  body:not(.playing) aside .weapon-spec,
+  body:not(.playing) aside .loadout,
+  body:not(.playing) aside .footnote{grid-column:1/-1;grid-row:auto}
+  body:not(.playing) aside .pilot-frame{height:176px;margin:0;overflow:hidden}
+  body:not(.playing) aside .pilot-frame .portrait{
+    width:100%;height:100%;background-size:contain!important;
+    background-position:right center!important;background-repeat:no-repeat!important;
+  }
+  body:not(.playing) aside .pilot-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(38px,auto);gap:6px;margin:9px 0 0}
+  body:not(.playing) aside .pilot-tabs button{min-height:38px;padding:6px 5px}
+  body:not(.playing) aside .skill-info{padding-top:16px}
+  body:not(.playing) aside .selected-aircraft{margin-top:18px;padding-top:8px;position:relative}
+  body:not(.playing) aside .selected-aircraft>.equipment-label{display:block;line-height:1.3;margin-bottom:5px;white-space:nowrap}
+  body:not(.playing) aside .selected-aircraft .pilot-aircraft{min-width:0;padding-top:8px;line-height:1.35}
+
+  .skill-cutin{
+    left:max(5px,env(safe-area-inset-left));right:auto;
+    bottom:max(132px,calc(env(safe-area-inset-bottom) + 116px));
+    width:132px;height:158px;max-width:36vw;max-height:30dvh;
+    grid-template-rows:minmax(0,1fr) auto;
+  }
+  .skill-cutin::before{left:-18px;right:-22px;bottom:35px;height:49px}
+  .cutin-portrait{inset:auto;width:100%;height:100%;background-size:contain!important;background-position:left bottom!important}
+  .cutin-caption{right:-18px;min-height:39px;padding:3px 5px;gap:2px}
+  .cutin-caption small{font-size:9px;line-height:1.2;letter-spacing:.2px}
+  .cutin-caption strong{font-size:12px;line-height:1.2}
+
+  .boss-arrival{
+    left:max(5px,env(safe-area-inset-left));right:auto;
+    bottom:max(132px,calc(env(safe-area-inset-bottom) + 116px));
+    width:220px;max-width:58vw;height:94px;gap:7px;padding-right:7px;
+  }
+  .boss-arrival .boss-portrait-window{flex:0 0 76px;width:76px;height:94px}
+  .boss-arrival .boss-portrait-window img{height:100%;width:100%;object-position:center 12%;transform:scale(1.28);transform-origin:center 18%}
+  .boss-arrival strong{font-size:13px;line-height:1.2}
+  .boss-arrival small{font-size:8px;line-height:1.2;letter-spacing:.2px}
+  .boss-arrival span{font-size:9px;line-height:1.25}
+
+  body.playing:not(.coop-playing) #ammoHud{
+    left:auto!important;right:max(8px,env(safe-area-inset-right))!important;
+    top:max(8px,env(safe-area-inset-top))!important;bottom:auto!important;
+  }
+}
+
+@media (max-width:380px){
+  body:not(.playing) .viewport{height:700px}
+  body:not(.playing) .hangar .mode-tabs{margin-top:158px}
+  body:not(.playing) .hangar-ace{top:98px;height:194px}
+  body:not(.playing) aside .pilot-frame{height:160px}
+  .skill-cutin{width:118px;height:145px;max-width:34vw}
+  .boss-arrival{width:196px;max-width:56vw;height:86px}
+  .boss-arrival .boss-portrait-window{flex-basis:68px;width:68px;height:86px}
+}
+
+@media (pointer:coarse) and (max-height:600px) and (min-width:600px){
+  .skill-cutin{left:5px;bottom:84px;width:112px;height:132px}
+  .boss-arrival{left:5px;bottom:84px;width:200px;height:82px}
+  .boss-arrival .boss-portrait-window{flex-basis:66px;width:66px;height:82px}
+  body.playing:not(.coop-playing) #ammoHud{left:auto!important;right:8px!important;top:6px!important;bottom:auto!important}
+}
