@@ -1,6 +1,6 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
 import {getLocale,subscribe} from './i18n.js?v=175';
-import {aircraftKey,aircraftPreviewURL} from './aircraft.js?v=190';
+import {aircraftKey,aircraftPreviewURL} from './aircraft.js?v=193';
 import {pilotEnglishNames} from './main-ui-art180.js?v=180';
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};

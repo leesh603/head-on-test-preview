@@ -21,14 +21,14 @@ import {missionNavigation,drawMissionRadar} from './navigation.js?v=128&b=128';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=116&b=117';
 import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft} from './campaign.js?v=174&b=174';
 import {drawCampaign} from './campaign-view.js?v=128&b=128';
-import {campaignArtReady} from './aircraft.js?v=190';
+import {campaignArtReady} from './aircraft.js?v=193';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady} from './icons.js?v=158';
 import {BattleMusic,musicModeForGame} from './music.js?v=116&b=117';
 import {sfx,setSfxMuted} from './sfx.js?v=185&b=185';
 import {portraitSources,portraitsReady} from './portraits.js?v=145&b=145';
 import {drawEquipment} from './equipment.js?v=116&b=117';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=160';
-import{planeSprite,planePreview,aircraftReady,aircraftKey}from'./aircraft.js?v=190';
+import{planeSprite,planePreview,aircraftReady,aircraftKey}from'./aircraft.js?v=193';
 import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale}from'./engine.js?v=187';
 import {TerrainRenderer,MountainField} from './alps-terrain117.js?v=182';
 const flightViewport=installFlightViewport(document,window);
@@ -312,7 +312,7 @@ draw=t=>{
 };
 
 const regionTextures={};for(const name of ['sea','trenches']){const im=new Image();im.src='./terrain-'+name+'.png?v=184';regionTextures[name]=im}
-const zeebruggeHarborTile=new Image();zeebruggeHarborTile.src='./terrain-zeebrugge-strip.png?v=190';
+const zeebruggeHarborTile=new Image();zeebruggeHarborTile.src='./terrain-zeebrugge-strip.png?v=193';
 const terrainAlpsAtlas=new Image();terrainAlpsAtlas.src='./terrain-alps-atlas.png?v=126';
 // The no-op constructors only keep the import-stripped offline smoke harness
 // inert; the hosted module always resolves the supplied Alps implementation.
