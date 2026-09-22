@@ -163,7 +163,7 @@ export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0
  if(!cache.has(cacheKey)){const source=cache.get(cacheKey)||build(redAce?'fokker':variant?'fokker_f1':standard?'fokker_standard':key);cache.set(cacheKey,source)}const sprite=damaged&&damageDecals.length?damagedSprite(cache.get(cacheKey),cacheKey):cache.get(cacheKey);
  c.save();c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.translate(Math.round(x),Math.round(y));c.rotate(a+Math.PI/2);
  const s=scale*.54;c.scale(s,s);
- if(shadow){if(!shadows.has(cacheKey)){const sh=document.createElement('canvas');sh.width=144;sh.height=160;const sc=sh.getContext('2d');sc.drawImage(sprite,0,0);sc.globalCompositeOperation='source-in';sc.fillStyle='#18271f';sc.fillRect(0,0,144,160);shadows.set(cacheKey,sh)}c.globalAlpha*=.26;c.drawImage(shadows.get(cacheKey),-72,-76)}
+ if(shadow){/* ground-shadow ghost removed — hangar-style clean draw */}
  else {c.drawImage(sprite,-72,-76);if(flash>0){const fk=damaged?cacheKey+'#d':cacheKey;if(!flashes.has(fk)){const f=document.createElement('canvas');f.width=144;f.height=160;const fc=f.getContext('2d');fc.drawImage(sprite,0,0);fc.globalCompositeOperation='source-in';fc.fillStyle='#fff1c9';fc.fillRect(0,0,144,160);flashes.set(fk,f)}c.globalAlpha*=Math.min(.9,flash/.16);c.drawImage(flashes.get(fk),-72,-76)}}
  c.restore();
 }
