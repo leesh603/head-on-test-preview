@@ -347,14 +347,8 @@ function paintZeebrugge(cx,cy,W,H){
    ctx.drawImage(img,dx,Math.round(wy-camera.y),dw,dh);
   }
   ctx.restore();
-  // Melt the strip's hard rim into the surrounding sea.
-  const feather=Math.min(110,dw*.24);
-  const gl=ctx.createLinearGradient(dx,0,dx+feather,0);
-  gl.addColorStop(0,'rgba(37,69,85,1)');gl.addColorStop(1,'rgba(37,69,85,0)');
-  ctx.fillStyle=gl;ctx.fillRect(dx,0,feather,H);
-  const gr=ctx.createLinearGradient(dx+dw-feather,0,dx+dw,0);
-  gr.addColorStop(0,'rgba(37,69,85,0)');gr.addColorStop(1,'rgba(37,69,85,1)');
-  ctx.fillStyle=gr;ctx.fillRect(dx+dw-feather,0,feather,H);
+  // The strip's outer columns are baked open water, so the rim lands on the
+  // sea terrain without a feather pass — no dissolving fragments.
   if(route){
    const a=Number.isFinite(route.a)?route.a:-Math.PI/2,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
    const point=(s,n)=>{const wx=route.x+hx*s+nx*n,wy=route.y+hy*s+ny*n;return [wx-camera.x,wy-camera.y];};
