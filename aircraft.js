@@ -194,22 +194,37 @@ export function planePreview(c,cx,cy,key,maxW,maxH){
  c.restore();
 }
 
-// Astra hangar shows the plane as an <img>; hand it the same pilot-aware,
-// content-cropped sprite the canvas previews use.
+// Astra hangar shows the plane as an <img>. Crop the native-res source PNG
+// (not the 144x160 gameplay bake) so large previews stay sharp; the HTTP cache
+// already holds the file from the loader, so this is a cheap re-decode.
+const previewURLs=new Map();
 export function aircraftPreviewURL(key){
  const redAce=key==='fokker_red',variant=key==='fokker_voss',standard=key==='fokker';
  const sourceKey=campaignSpriteAliases[key]||(redAce?'fokker':variant?'fokker_f1':standard?'fokker_standard':key);
- const at=INDIVIDUAL_KEYS.indexOf(sourceKey);
- // Only wait for this one sprite — the hangar shouldn't stall on ~60 loads.
- return (at<0?Promise.resolve():individualAircraftReady[at]).then(()=>{
-  if(!painted.has(sourceKey))return'';
-  const cacheKey=redAce?'fokker':variant?'fokker_voss':standard?'fokker_standard':key;
-  if(!cache.has(cacheKey))cache.set(cacheKey,build(redAce?'fokker':variant?'fokker_f1':standard?'fokker_standard':key));
-  const sprite=cache.get(cacheKey);const box=spriteContentBox(sprite);if(!box)return'';
-  const out=document.createElement('canvas');out.width=box[2];out.height=box[3];
-  const c=out.getContext('2d');c.drawImage(sprite,box[0],box[1],box[2],box[3],0,0,box[2],box[3]);
-  return out.toDataURL('image/png');
+ if(previewURLs.has(sourceKey))return previewURLs.get(sourceKey);
+ const p=new Promise(resolve=>{
+  const img=new Image();
+  img.onload=()=>{
+   const scan=document.createElement('canvas');scan.width=img.naturalWidth;scan.height=img.naturalHeight;
+   const sc=scan.getContext('2d',{willReadFrequently:true});sc.drawImage(img,0,0);
+   const pixels=sc.getImageData(0,0,scan.width,scan.height),rgba=pixels.data;
+   if(sourceKey==='nieuport_italian')for(let i=0;i<rgba.length;i+=4){const r=rgba[i],g=rgba[i+1],b=rgba[i+2];if(rgba[i+3]>0&&b>70&&b>r*1.18&&b>g*1.05){rgba[i]=55;rgba[i+1]=132;rgba[i+2]=78}}
+   clearAircraftMatte(sourceKey,rgba,scan.width,scan.height);clearCrewMatte(sourceKey,rgba,scan.width,scan.height);
+   sc.putImageData(pixels,0,0);
+   let minX=scan.width,minY=scan.height,maxX=-1,maxY=-1;
+   for(let y=0;y<scan.height;y++)for(let x=0;x<scan.width;x++)if(rgba[(y*scan.width+x)*4+3]>24){if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y}
+   if(maxX<minX){resolve('');return}
+   const bw=maxX-minX+1,bh=maxY-minY+1,k=Math.min(1,560/Math.max(bw,bh));
+   const out=document.createElement('canvas');out.width=Math.round(bw*k);out.height=Math.round(bh*k);
+   const c=out.getContext('2d');c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
+   c.drawImage(scan,minX,minY,bw,bh,0,0,out.width,out.height);
+   resolve(out.toDataURL('image/png'));
+  };
+  img.onerror=()=>resolve('');
+  const fileKey=sourceKey==='nieuport_italian'?'nieuport':sourceKey;
+  img.src=new URL(`./${fileKey}.png?v=190`,import.meta.url).href;
  });
+ previewURLs.set(sourceKey,p);return p;
 }
 
 // Campaign aircraft mostly have dedicated PNGs; only the Mark IV tank remains on
