@@ -1,5 +1,5 @@
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=212';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=212';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=213';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=213';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
