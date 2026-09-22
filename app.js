@@ -335,6 +335,9 @@ function paintZeebrugge(cx,cy,W,H){
  const camera={x:cx-W/2,y:cy-H/2};
  const route=game?.navalRoute;
  const img=zeebruggeHarborTile;
+ // Always lay open-sea water first — when the camera pans off the harbor strip
+ // the canvas still has a background (without this the framebuffer smears).
+ ctx.fillStyle='#204658';ctx.fillRect(0,0,W,H);
  if(img.naturalWidth){
   // Modest zoom: quays and docked ships read at map-object scale.
   const k=(W*0.9)/img.width,dw=Math.round(img.width*k),dh=Math.round(img.height*k);
