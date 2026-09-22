@@ -336,12 +336,13 @@ function paintZeebrugge(cx,cy,W,H){
  const img=zeebruggeHarborTile;
  terrainAlpsRenderer.draw(ctx,{key:'sea',camera,width:W,height:H});
  if(img.naturalWidth){
-  // One harbor strip column only — its dock edges meet open sea like a real
-  // port waterfront; sideways repeats are what read as pasted tiles.
-  const k=(W*0.9)/img.width,dw=Math.round(img.width*k),dh=Math.round(img.height*k);
+  // The strip is drawn wider than the screen and its draw offset is clamped
+  // so it always covers the viewport — the camera can never leave the harbor.
+  const k=(W*1.18)/img.width,dw=Math.round(img.width*k),dh=Math.round(img.height*k);
   const channelWorldX=(route?route.x:camera.x+W/2)-dw*.5;
   const period=dh,wy0=Math.floor(camera.y/period)*period;
-  const dx=Math.round(channelWorldX-camera.x);
+  let dx=Math.round(channelWorldX-camera.x);
+  dx=Math.max(W-dw,Math.min(0,dx));
   ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
   for(let wy=wy0;wy<camera.y+H+dh;wy+=dh){
    ctx.drawImage(img,dx,Math.round(wy-camera.y),dw,dh);
