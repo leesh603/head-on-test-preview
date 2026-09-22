@@ -72,12 +72,13 @@ body.astra-ui:not(.playing) #pilotTabs .pilot-tab-portrait{
     position:relative!important;
     inset:auto!important;
     grid-column:2!important;
-    grid-row:1!important;
+    grid-row:1/-1!important;
     justify-self:end!important;
     align-self:end!important;
 
     width:calc(100% + 16px)!important;
-    height:238px!important;
+    height:100%!important;
+    min-height:238px!important;
     max-width:none!important;
     margin:0 -2px 0 0!important;
 
