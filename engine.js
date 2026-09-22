@@ -1,6 +1,6 @@
 import {installRevision} from './rebalance103.js?v=128&b=128';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=172';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=193';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=188';
 import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=174';
 import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=165';
 import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=166';
@@ -441,7 +441,7 @@ Game.prototype.update=function(dt,input={}){
  if(this.bishopEmptyPending){this.bishopEmptyPending=false;this.ammo.fill(0);this.reloadTime=0;this.fire=.1;this.muzzleFlash=0;this.event('wave','폭격 종료 · 탄약 소진, 재장전 필요')}
  this.distance=(this.distance||0)+Math.hypot(this.x-x,this.y-y);
  const region=this.worldRegion();
- if(this.region!==region){this.region=region;this.clearRegionalHazards();if(this.mode!=='campaign')this.event('wave',(['전원 지대 · 기뢰지대','아드리아해 · 적 함대','참호 전선 · 대공포','도심','고공 전역','알프스 산맥','제브뤼헤 군항 · 해안포대'][region]||'새 전장')+' 진입')}
+ if(this.region!==region)this.enterRegion(region)
  if(this.state!=='playing')return;
  this.regionThreat=(this.regionThreat??20)-step;if(this.regionThreat<=0){this.regionThreat=24;if([1,7].includes(region)&&this.enemies.length<60)this.spawnEnemy(this.rng()<.12?'zeppelin':'bomber');this.spawnFlak()}
  for(const e of this.enemies){if(!e.bossPilot)continue;e.bossDash=Math.max(0,(e.bossDash||0)-step);if(this.sunStrikeContains(e))continue;e.abilityTimer-=step;if(e.abilityTimer<=0){e.abilityTimer=e.bossPilot==='bishop'?ENEMY_BOSS_BALANCE.bishopAbilityMin+this.rng()*ENEMY_BOSS_BALANCE.bishopAbilityVariance:7+this.rng()*3;this.aceAttack(e)}}
@@ -662,12 +662,22 @@ Game.prototype.healthSpeedFactor=function(){return 1};
 
 // Region identity is shared by simulation, drawing and hazards. Campaigns lock it.
 Game.prototype.worldRegion=function(){return this.lockedRegion??this.stageBoss?.stages.stageIndex??Math.floor((this.distance||0)/12000)%3};
+const REGION_LABELS53=Object.freeze(['전원 지대 · 기뢰지대','아드리아해 · 적 함대','참호 전선 · 대공포','포화의 참호전선','도심 전역','고공 전역','알프스 산맥','제브뤼헤 군항 · 해안포대']);
 Game.prototype.clearRegionalHazards=function(){
- this.hostileMinefields=(this.hostileMinefields||[]).filter(f=>f.region===this.region);
- this.flakBursts=[];this.bullets=this.bullets.filter(b=>b.hazardRegion===undefined||b.hazardRegion===this.region);
+ // Region transitions are explicit memory cleanup points. Preserve progression,
+ // persistent allies/enemies and reward drops; discard transient battlefield work.
+ for(const key of ['particles','flakBursts','gusts','bombZones','gasZones','fireZones','cannonImpacts','combatFX','enemyAirshipPasses','hostileMinefields','mines','grenades','friendlyBombs'])if(Array.isArray(this[key]))this[key]=[];
+ this.bullets=[];
  this.enemies=this.enemies.filter(e=>!e.navalVessel||[1,7].includes(this.region));
- if(this.region===5){this.enemies=this.enemies.filter(e=>!e.fieldUnit&&!e.surface);this.gasZones=[];this.fireZones=[];}
+ if(this.region===5)this.enemies=this.enemies.filter(e=>!e.fieldUnit&&!e.surface);
  this.lastRegionalHazard=-Infinity;
+};
+Game.prototype.enterRegion=function(region){
+ const previous=this.region;this.region=region;this.clearRegionalHazards();
+ if(this.mode==='campaign')return;
+ const label=REGION_LABELS53[region]||'새 전장';
+ if(previous!==undefined&&previous!==region)this.events.push({type:'regionTransition',region,previousRegion:previous,text:label});
+ this.event('wave',label+' 진입');
 };
 const _landFlak53=Game.prototype.spawnFlak;
 Game.prototype.spawnFlak=function(){
@@ -675,7 +685,7 @@ Game.prototype.spawnFlak=function(){
  if(this.t-(this.lastRegionalHazard??-Infinity)<8)return;
  this.lastRegionalHazard=this.t;
  if(region===0){this.spawnMinefield();return}
- if(region===1||region===6){this.spawnFleet();return}
+ if(region===1||region===7){this.spawnFleet();return}
  const start=this.bullets.length;_landFlak53.call(this);
  for(const b of this.bullets.slice(start))b.hazardRegion=2;
 };
@@ -694,10 +704,8 @@ Game.prototype.spawnFleet=function(){
  const harbor=this.worldRegion()===7&&this.navalRoute,route=this.navalRoute;
  let x,y,a=-Math.PI/2,side=1;
  if(harbor){
-  const hx=Math.cos(route.a),hy=Math.sin(route.a),nx=-hy,ny=hx;
-  // The painted harbor plate runs its channel on the route line; keep guard
-  // ships inside the water band, not on the quay fingers.
-  const along=(route.maxForward||0)+340+this.rng()*220,bank=Math.max(60,Math.min(140,(this.viewWidth||960)*.16));
+  side=this.rng()>.5?1:-1;const hx=Math.cos(route.a),hy=Math.sin(route.a),nx=-hy,ny=hx;
+  const along=(route.maxForward||0)+340+this.rng()*220,bank=Math.max(300,Math.min(430,(this.viewWidth||960)*.48));
   x=route.x+hx*along+nx*side*bank;y=route.y+hy*along+ny*side*bank;a=route.a;
  }else{
   const bearing=this.a+(this.rng()>.5?1:-1)*.9,d=360+this.rng()*100;x=this.x+Math.cos(bearing)*d;y=this.y+Math.sin(bearing)*d;
@@ -722,7 +730,7 @@ const _updateRegional53=Game.prototype.update;
 Game.prototype.update=function(dt,input={}){
  if(this.state!=='playing')return;const step=Math.min(.04,Math.max(0,dt));
  // Resolve a transition before any legacy timer emits its next hazard.
- const region=this.worldRegion();if(this.region!==region){this.region=region;this.clearRegionalHazards();if(this.mode!=='campaign')this.event('wave',(['전원 지대 · 기뢰지대','아드리아해 · 적 함대','참호 전선 · 대공포','도심','고공 전역','알프스 산맥','제브뤼헤 군항 · 해안포대'][region]||'새 전장')+' 진입')}
+ const region=this.worldRegion();if(this.region!==region)this.enterRegion(region)
  _updateRegional53.call(this,step,input);if(this.state!=='playing')return;
  for(const f of this.hostileMinefields||[]){
   f.warning-=step;f.life-=step;

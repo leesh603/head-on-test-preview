@@ -48,7 +48,7 @@ export class StageBossAddon {
     // Host returns CURRENT loop/player-count-scaled stats. This module adds no scaling.
     let tuning=this.hooks.getTuning({bossId,stageIndex:this.stages.stageIndex,loopIndex:this.stages.loopIndex});
     if(bossId==='ca4'||bossId==='gik')tuning={...tuning,geometryScale:1.45,motionMultiplier:0,mobileBoss:false};
-    if(bossId==='livens-flame-projector'||bossId==='minenwerfer-battery')tuning={...tuning,geometryScale:2.025,motionMultiplier:0,mobileBoss:false};
+    if(bossId==='livens-flame-projector'||bossId==='minenwerfer-battery')tuning={...tuning,geometryScale:1,motionMultiplier:0,mobileBoss:false};
     const entry=BOSS_CATALOG[bossId],faction=entry.faction==='neutral'?(this.stages.teamFaction==='central'?'entente':'central'):entry.faction;
     const encounter=createBossEncounter({id,bossId,tuning,x,y,rng:this.rng,faction,emit:event=>this.accept(event,id,tuning)});
     for(const b of encounter.bodies.values())if(b.support129)b.countMinions129=()=>this.hooks.countMinions(id);this.defeatSequence=null;this.bodyDefeats=[];this.stages.attach(encounter);this.hooks.onCue({type:'boss-enter',encounterId:id,bossId});return encounter;

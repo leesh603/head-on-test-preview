@@ -1,4 +1,4 @@
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=193';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=187';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=187';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=187';
 
@@ -78,7 +78,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    g.event('kill','');g.event('wave',BOSS_CATALOG[bossId].name+' 격파 · 다음 지역 진입');
    const hero=players(g)[0]||g;for(let i=0;i<9;i++){const a=i*.7;(g.drops||=[]).push({x:hero.x+Math.cos(a)*70,y:hero.y+Math.sin(a)*70,value:16,heal:i===0,bossReward:true})}
   },
-  onStageChange({stageIndex,loopIndex}){g.region=stageIndex;g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.clearRegionalHazards();g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=stageIndex===7?{x:g.x,y:g.y,a:Number.isFinite(g.a)?g.a:-Math.PI/2,maxForward:0}:null;g.event('wave',STAGE_NAMES[stageIndex]+' · '+(loopIndex+1)+'회차');},
+  onStageChange({stageIndex,loopIndex}){const previousRegion=g.region;g.region=stageIndex;g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.clearRegionalHazards();g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=stageIndex===7?{x:g.x,y:g.y,a:Number.isFinite(g.a)?g.a:-Math.PI/2,maxForward:0}:null;if(previousRegion!==undefined&&previousRegion!==stageIndex)g.events.push({type:'regionTransition',region:stageIndex,previousRegion,text:STAGE_NAMES[stageIndex]});g.event('wave',STAGE_NAMES[stageIndex]+' · '+(loopIndex+1)+'회차');},
   clearEncounterOwned(id){g.enemies=g.enemies.filter(e=>e.encounterId!==id);g.bullets=g.bullets.filter(b=>b.encounterId!==id);for(const p of players(g))for(const [key,s] of p.bossStatuses||[])if(s.encounterId===id)p.bossStatuses.delete(key);g.bossCues=[];}
  };
  g.stageBoss=new StageBossAddon({runId:g.runId||globalThis.crypto?.randomUUID?.()||'solo-'+Date.now(),teamFaction,hooks,rng:g.rng});
@@ -142,7 +142,7 @@ export function beginStageBossFrame(g,dt){
     x=route.x+hx*along+nx*sideOffset;y=route.y+hy*along+ny*sideOffset;
    }else{
     const structure=stage===3;
-    const forward=naval?Math.max(520,Math.min(760,(bounds.bottom-bounds.top)*1.05)):structure?Math.max(210,Math.min(300,(bounds.bottom-bounds.top)*.4)):rail?Math.max(460,Math.min(650,(bounds.bottom-bounds.top)*.82)):0;
+    const forward=naval?Math.max(520,Math.min(760,(bounds.bottom-bounds.top)*1.05)):structure?Math.max(520,Math.min(700,(bounds.bottom-bounds.top)*.95)):rail?Math.max(460,Math.min(650,(bounds.bottom-bounds.top)*.82)):0;
     const heading=Number.isFinite(g.a)?g.a:-Math.PI/2;
     x=g.x+(alpine?105:(naval||rail||structure)?Math.cos(heading)*forward:0);
     y=g.y+(alpine?-Math.max(165,Math.min(180,(bounds.bottom-bounds.top)*.24)):(naval||rail||structure)?Math.sin(heading)*forward:-Math.min(180,(bounds.bottom-bounds.top)*.22));
