@@ -2,12 +2,12 @@ import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './we
 import {fx,fxReady,fxTint} from './fx-art.js';
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=162';
 import {drawStageBoss} from './stageboss-view.js?v=116&b=117';
-import {planeSprite,aircraftKey} from './aircraft.js?v=116&b=117';
+import {planeSprite,aircraftKey} from './aircraft.js?v=209';
 import {drawEquipment} from './equipment.js?v=116&b=117';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire} from './projectiles.js?v=135&b=135';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=116&b=117';
 import {drawSpecialAmmoIcon} from './icons.js?v=158';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=186';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=208';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
 const xpGem=typeof Image!=='undefined'?new Image():null;if(xpGem)xpGem.src='./xp-gem.png?v=185';
