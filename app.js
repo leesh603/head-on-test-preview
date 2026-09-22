@@ -954,7 +954,7 @@ function installHeadOnTestLab(){
  const configureRegion=(run,region)=>{
   const addon=enableStageBoss(run,{teamFaction:PLANES[run.plane].faction});if(!addon)return null;
   addon.stages.stageIndex=region;addon.stages.orderPosition=addon.stages.order.indexOf(region);addon.stages.phase='explore';addon.stages.encounter=null;
-  run.region=region;run.stageStartDistance=run.distance||0;run.stageStartTime=run.t;run.clearRegionalHazards();
+  run.region=region;run.lockedRegion=region===7?7:undefined;run.stageStartDistance=run.distance||0;run.stageStartTime=run.t;run.clearRegionalHazards();
   run.bossBuildings=[];run.bossCues=[];run.navalRouteCues=new Set();run.navalApproachAt=null;
   run.navalRoute=(region===7||region===6)?{x:run.x,y:run.y,a:Number.isFinite(run.a)?run.a:-Math.PI/2,maxForward:0}:null;
   return addon;
