@@ -1,6 +1,6 @@
 import {drawRailDamage,drawRailTrack} from './rail-render129.js';
 import {fx,fxReady,fxImage} from './fx-art.js';
-import {drawEnemyProjectile} from './projectiles.js?v=131';
+import {drawEnemyProjectile} from './projectiles.js?v=135';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js';
 const supportImages129={ship:new Image(),cover:new Image()};supportImages129.ship.src='./stuttgart-open129.png';supportImages129.cover.src='./stuttgart-cover129.png';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=187';
@@ -234,6 +234,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    else{c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.fill();c.stroke();if(warning){const progress=clamp((h.age-h.delay)/h.warning,0,1);c.setLineDash([]);ring(h.x,h.y,h.radius*(1-progress),'#ffe6a5');c.beginPath();c.moveTo(h.x-8,h.y);c.lineTo(h.x+8,h.y);c.moveTo(h.x,h.y-8);c.lineTo(h.x,h.y+8);c.stroke();
      if(h.visual==='rail-shell'||h.visual==='observer-shell'){c.lineWidth=4;for(const q of [.62,.82,1])ring(h.x,h.y,h.radius*q,q===1?'#ff765e':'#ffd18499');c.fillStyle='#fff0bd';c.font='bold 13px monospace';c.textAlign='center';c.fillText(h.visual==='observer-shell'?'관측 포격':'열차포 낙탄',h.x,h.y-h.radius-12);}}
     else if(h.visual==='zubian-mortar'){for(const q of [.45,.72,1])ring(h.x,h.y,h.radius*q,q===1?'#e9c083':'#8bd0d199');pixelBlast(c,h.x,h.y,h.radius*.65,h.age,true);}
+    else if(h.visual==='carpet-bomb'){for(const q of [.5,.78,1])ring(h.x,h.y,h.radius*q,q===1?'#ffb57f':'#f2d69b');pixelBlast(c,h.x,h.y,h.radius*(.55+Math.min(1,h.age)*.5),h.age);}
    }
    c.restore();
   }

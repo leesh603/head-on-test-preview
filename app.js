@@ -9,7 +9,7 @@ import {drawStageBoss,updateStageBossHud,paintCity,paintSky} from './stageboss-v
 import {enableStageBoss} from './stageboss-host.js?v=187';
 import './hud-layout94.js?v=180';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=176';
-import {CoopGame,coopPlane} from './coop-engine.js?v=174';
+import {CoopGame,coopPlane} from './coop-engine.js?v=187';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=163';
 import {drawCoop} from './coop-view.js?v=163';
 import {drawSunStrike} from './sun-strike71.js?v=141&b=141';
