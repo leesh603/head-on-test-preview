@@ -336,8 +336,8 @@ function paintZeebrugge(cx,cy,W,H){
  if(!route)return;
  const a=Number.isFinite(route.a)?route.a:-Math.PI/2,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
  const sOf=(wx,wy)=>(wx-route.x)*hx+(wy-route.y)*hy;
- const wob=s=>Math.sin(s*.0013)*150+Math.sin(s*.0034)*70;
- const shoreN=s=>-560+wob(s);
+ const wob=s=>Math.sin(s*.0013)*90+Math.sin(s*.0034)*40;
+ const shoreN=s=>-420+wob(s);
  const pt=(s,n)=>[route.x+hx*s+nx*n-camera.x,route.y+hy*s+ny*n-camera.y];
  const corners=[[0,0],[W,0],[0,H],[W,H]].map(p=>sOf(camera.x+p[0],camera.y+p[1]));
  const sMin=Math.min(...corners)-360,sMax=Math.max(...corners)+360;
