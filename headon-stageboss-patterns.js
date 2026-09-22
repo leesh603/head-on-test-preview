@@ -321,9 +321,9 @@ const turnToward=(from,to,maxStep)=>from+Math.max(-maxStep,Math.min(maxStep,Math
 export class LivensFlameProjector extends PatternBoss {
   constructor(options){
     super({...options,kind:'livens-flame-projector',parts:[
-      {id:'tank-l1',x:-105,y:-58,radius:27},{id:'tank-l2',x:-105,y:28,radius:27},
-      {id:'tank-r1',x:105,y:-58,radius:27},{id:'tank-r2',x:105,y:28,radius:27},
-      {id:'pressure',x:0,y:62,radius:29},{id:'nozzle',x:0,y:-72,radius:31,angle:-Math.PI/2}
+      {id:'tank-l1',x:-155,y:-72,radius:42},{id:'tank-l2',x:-155,y:72,radius:42},
+      {id:'tank-r1',x:155,y:-72,radius:42},{id:'tank-r2',x:155,y:72,radius:42},
+      {id:'pressure',x:0,y:38,radius:38},{id:'nozzle',x:0,y:-32,radius:40,angle:-Math.PI/2}
     ]});
     this.phase='sealed';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
     this.nozzleAngle=-Math.PI/2;this.lockedFlameAngle=null;
@@ -358,8 +358,8 @@ export class LivensFlameProjector extends PatternBoss {
 export class MinenwerferBattery extends PatternBoss {
   constructor(options){
     super({...options,kind:'minenwerfer-battery',parts:[
-      {id:'gun-left',x:-92,y:-22,radius:28},{id:'gun-right',x:92,y:-22,radius:28},{id:'main-gun',x:0,y:-72,radius:34},
-      {id:'ammo-main',x:0,y:38,radius:29},{id:'crane',x:-62,y:66,radius:25},{id:'command',x:62,y:66,radius:25}
+      {id:'gun-left',x:-150,y:-28,radius:40},{id:'gun-right',x:150,y:-28,radius:40},{id:'main-gun',x:0,y:-25,radius:48},
+      {id:'ammo-main',x:0,y:105,radius:38},{id:'crane',x:72,y:-105,radius:32},{id:'command',x:-72,y:-105,radius:30}
     ]});
     this.phase='fortified';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
   }

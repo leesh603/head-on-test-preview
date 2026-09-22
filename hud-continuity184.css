@@ -86,7 +86,16 @@ body.astra-ui.playing #bossArrival.hc-ace-arrival strong{
   overflow:hidden;
   text-overflow:ellipsis;
 }
-body.astra-ui.playing #bossArrival.hc-ace-arrival #bossArrivalDetail{display:none!important}
+body.astra-ui.playing #bossArrival.hc-ace-arrival #bossArrivalDetail{
+  display:block!important;
+  margin-top:5px;
+  color:var(--ui-warn,#d8b575);
+  font:500 11px/1.3 var(--astra-numeric);
+  letter-spacing:.07em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 body.astra-ui.playing #bossArrival.hc-ace-arrival .hc-ace-sight{
   align-self:center;
   justify-self:center;

@@ -31,13 +31,7 @@ const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
 const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.png',a7vTurret:'./boss-a7v-turret-rebuild.png',markvHull:'./boss-mark-v-hull-rebuild.png',markvSponson:'./boss-mark-v-sponson-rebuild.png'}),rebuildArt=rebuildGroup.images;
 const harborGroup=createLazyImageGroup({base:'./boss-armored-harbor-main-base.png',craneArm:'./boss-armored-harbor-crane-arm.png',cranePivot:'./boss-armored-harbor-crane-pivot.png',ammo:'./boss-armored-harbor-ammo-storage.png',guns:'./boss-armored-harbor-gun-emplacements.png',facility:'./boss-armored-harbor-seaplane-facility.png'}),harborArt=harborGroup.images;
 const trenchGroup=createLazyImageGroup({
- livensBase:'./boss_livens_base187.png',livensBody:'./boss_livens_body_normal187.png',livensBodyDamaged:'./boss_livens_body_damaged187.png',livensBodyDestroyed:'./boss_livens_body_destroyed187.png',
- livensTank:'./boss_livens_tank_normal187.png',livensTankDamaged:'./boss_livens_tank_damaged187.png',livensTankDestroyed:'./boss_livens_tank_destroyed187.png',
- livensPressure:'./boss_livens_pressure_normal187.png',livensPressureDamaged:'./boss_livens_pressure_damaged187.png',livensPressureDestroyed:'./boss_livens_pressure_destroyed187.png',
- livensMount:'./boss_livens_nozzle_mount187.png',livensNozzle:'./boss_livens_nozzle_normal_pivot187.png',livensNozzleDamaged:'./boss_livens_nozzle_damaged_pivot187.png',livensNozzleDestroyed:'./boss_livens_nozzle_destroyed_pivot187.png',
- livensCoreClosed:'./boss_livens_core_closed187.png',livensCoreExposed:'./boss_livens_core_exposed187.png',livensCoreDestroyed:'./boss_livens_core_destroyed187.png',
- minenBase:'./boss_minenwerfer_base187.png',minenMain:'./boss_minenwerfer_main_normal187.png',minenMainDamaged:'./boss_minenwerfer_main_damaged187.png',minenMainDestroyed:'./boss_minenwerfer_main_destroyed187.png',
- minenSide:'./boss_minenwerfer_side_normal187.png',minenCrane:'./boss_minenwerfer_crane187.png',minenCommand:'./boss_minenwerfer_command187.png',minenAmmo:'./boss_minenwerfer_ammo_main187.png',minenCore:'./boss_minenwerfer_core187.png'
+ livensComposite:'./boss-livens-composite188.png',minenComposite:'./boss-minenwerfer-composite188.png'
 }),trenchBossArt=trenchGroup.images;
 const BOSS_KEYS_BY_REGION=Object.freeze({
  0:['parisGun','lincomparable'],1:['stuttgart','zubian'],2:['a7v','markv'],3:[],4:['londonApron','drachenNet'],5:['l70','hma23'],6:['gik','ca4'],7:[]
@@ -112,18 +106,9 @@ function drawBossPart(c,p,ring){
   if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd579aa');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
  }
  if(p.bodyKey==='livens-flame-projector'||p.bodyKey==='minenwerfer-battery'){
-  const damaged=p.hp<=p.maxHp*.5;let drawn=false;
-  const k=p.radius/({tank:27,pressure:29,nozzle:31,gun:28,ammo:29,crane:25,command:25}[p.partId.split('-')[0]]||28);
-  if(p.bodyKey==='livens-flame-projector'){
-   if(p.partId.startsWith('tank-'))drawn=drawTrenchImage(c,p.destroyed?trenchBossArt.livensTankDestroyed:damaged?trenchBossArt.livensTankDamaged:trenchBossArt.livensTank,p.x,p.y,94*k,74*k);
-   else if(p.partId==='pressure')drawn=drawTrenchImage(c,p.destroyed?trenchBossArt.livensPressureDestroyed:damaged?trenchBossArt.livensPressureDamaged:trenchBossArt.livensPressure,p.x,p.y,104*k,100*k);
-   else if(p.partId==='nozzle')drawn=drawTrenchImage(c,p.destroyed?trenchBossArt.livensNozzleDestroyed:damaged?trenchBossArt.livensNozzleDamaged:trenchBossArt.livensNozzle,p.x,p.y,150*k,150*k,(p.angle||0)-Math.PI/2);
-  }else{
-   const image=p.partId==='main-gun'?(p.destroyed?trenchBossArt.minenMainDestroyed:damaged?trenchBossArt.minenMainDamaged:trenchBossArt.minenMain):p.partId.startsWith('gun-')?trenchBossArt.minenSide:p.partId==='crane'?trenchBossArt.minenCrane:p.partId==='command'?trenchBossArt.minenCommand:p.partId==='ammo-main'?trenchBossArt.minenAmmo:trenchBossArt.minenCore;
-   drawn=drawTrenchImage(c,image,p.x,p.y,(p.partId==='main-gun'?104:86)*k,(p.partId==='main-gun'?106:96)*k,0,p.destroyed?.38:1);
-  }
-  if(!drawn){c.fillStyle=p.destroyed?'#302722':p.bodyKey==='livens-flame-projector'?'#59604a':'#5b5141';c.beginPath();c.arc(p.x,p.y,r*.76,0,Math.PI*2);c.fill();}
-  if(p.destroyed)bossSprite(c,11,p.x,p.y,r*1.4,r*1.4,0,.5);
+  // The production composites already contain every physical component. Parts
+  // stay interaction-only here so independent sprites cannot drift or double.
+  if(p.destroyed)bossSprite(c,11,p.x,p.y,r*1.45,r*1.45,0,.55);
   if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
  }
  if(p.bodyKey==='a7v-flak'){
@@ -232,14 +217,12 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    else if(b.assetKey==='drachen-net')drawBossArt(c,'drachenNet',315,250);
    else if(b.assetKey==='gik'||b.assetKey==='ca4'){drawBossArt(c,b.assetKey,b.assetKey==='gik'?300:330,b.assetKey==='gik'?235:250);}
    else if(b.assetKey==='livens-flame-projector'){
-    const damaged=b.hp<=b.maxHp*.5,body=b.destroying?trenchBossArt.livensBodyDestroyed:damaged?trenchBossArt.livensBodyDamaged:trenchBossArt.livensBody;
-    if(!drawTrenchImage(c,trenchBossArt.livensBase,0,0,310,171)){c.fillStyle='#383b30';c.fillRect(-150,-105,300,210);}
-    drawTrenchImage(c,body,0,4,128,154);drawTrenchImage(c,trenchBossArt.livensMount,0,-62,210,133);
-    drawTrenchImage(c,b.destroying?trenchBossArt.livensCoreDestroyed:b.coreVulnerable?trenchBossArt.livensCoreExposed:trenchBossArt.livensCoreClosed,0,28,88,132);
+    c.save();if(b.destroying)c.filter='grayscale(.72) brightness(.55)';else if(b.hp<=b.maxHp*.5)c.filter='saturate(.72) brightness(.82)';
+    if(!drawTrenchImage(c,trenchBossArt.livensComposite,0,0,520,390)){c.fillStyle='#383b30';c.fillRect(-250,-185,500,370);}c.restore();
    }
    else if(b.assetKey==='minenwerfer-battery'){
-    if(!drawTrenchImage(c,trenchBossArt.minenBase,0,0,286,205)){c.fillStyle='#4a4032';c.beginPath();c.arc(0,0,150,0,Math.PI*2);c.fill();}
-    if(b.coreVulnerable)drawTrenchImage(c,trenchBossArt.minenCore,0,25,118,84);
+    c.save();if(b.destroying)c.filter='grayscale(.72) brightness(.55)';else if(b.hp<=b.maxHp*.5)c.filter='saturate(.72) brightness(.82)';
+    if(!drawTrenchImage(c,trenchBossArt.minenComposite,0,0,500,375)){c.fillStyle='#4a4032';c.fillRect(-240,-175,480,350);}c.restore();
    }
    else if(b.assetKey==='a7v-flak'){const image=rebuildArt.a7vHull;if(image.naturalWidth){c.imageSmoothingEnabled=true;c.drawImage(image,-105,-129,210,258)}else drawBossArt(c,'a7v',172,258);}
    else if(b.assetKey==='mark-v-cruiser'){const image=rebuildArt.markvHull;if(image.naturalWidth){c.imageSmoothingEnabled=true;c.drawImage(image,-105,-129,210,258)}else drawBossArt(c,'markv',172,258);}
