@@ -21,14 +21,14 @@ import {missionNavigation,drawMissionRadar} from './navigation.js?v=128&b=128';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=116&b=117';
 import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft} from './campaign.js?v=174&b=174';
 import {drawCampaign} from './campaign-view.js?v=128&b=128';
-import {campaignArtReady} from './aircraft.js?v=191';
+import {campaignArtReady} from './aircraft.js?v=190';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady} from './icons.js?v=158';
 import {BattleMusic,musicModeForGame} from './music.js?v=116&b=117';
 import {sfx,setSfxMuted} from './sfx.js?v=185&b=185';
 import {portraitSources,portraitsReady} from './portraits.js?v=145&b=145';
 import {drawEquipment} from './equipment.js?v=116&b=117';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=160';
-import{planeSprite,planePreview,aircraftReady,aircraftKey}from'./aircraft.js?v=191';
+import{planeSprite,planePreview,aircraftReady,aircraftKey}from'./aircraft.js?v=190';
 import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale}from'./engine.js?v=187';
 import {TerrainRenderer,MountainField} from './alps-terrain117.js?v=182';
 const flightViewport=installFlightViewport(document,window);
@@ -312,7 +312,7 @@ draw=t=>{
 };
 
 const regionTextures={};for(const name of ['sea','trenches']){const im=new Image();im.src='./terrain-'+name+'.png?v=184';regionTextures[name]=im}
-const zeebruggeHarborTile=new Image();zeebruggeHarborTile.src='./terrain-zeebrugge-strip.png?v=191';
+const zeebruggeHarborTile=new Image();zeebruggeHarborTile.src='./terrain-zeebrugge-strip.png?v=190';
 const terrainAlpsAtlas=new Image();terrainAlpsAtlas.src='./terrain-alps-atlas.png?v=126';
 // The no-op constructors only keep the import-stripped offline smoke harness
 // inert; the hosted module always resolves the supplied Alps implementation.
@@ -988,7 +988,7 @@ function installHeadOnTestLab(){
   regions:HEADON_TEST_REGION_NAMES.map((name,id)=>({id,name})),
   pilots:Object.entries(PILOTS).map(([id,p])=>({id,name:p.name,faction:p.faction,plane:pilotPlane(id)}))
  };
- window.__HEADON_TEST__={catalog,start:startTest,status:()=>game?{state:game.state,region:game.worldRegion?.(),stageIndex:game.stageBoss?.stages?.stageIndex,phase:game.stageBoss?.stages?.phase,encounter:game.stageBoss?.stages?.encounter?.bossId||null,route:!!game.navalRoute,pilot:game.pilot,plane:game.plane,testMode:!!game.testMode}:null};
+ window.__HEADON_TEST__={catalog,start:startTest,status:()=>game?{state:game.state,region:game.worldRegion?.(),locked:game.lockedRegion,stageIndex:game.stageBoss?.stages?.stageIndex,phase:game.stageBoss?.stages?.phase,encounter:game.stageBoss?.stages?.encounter?.bossId||null,route:!!game.navalRoute,pilot:game.pilot,plane:game.plane,testMode:!!game.testMode}:null};
  const params=new URLSearchParams(location.search);
  if(params.get('headonTest')==='1'&&params.get('autostart')!=='0')queueMicrotask(()=>startTest({
   region:params.get('region'),pilot:params.get('pilot'),ace:params.get('ace'),boss:params.get('boss')==='1',
