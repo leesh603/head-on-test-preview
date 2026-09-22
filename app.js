@@ -324,7 +324,14 @@ function paintZeebrugge(cx,cy,W,H){
  const travel=Math.max(0,route?.maxForward??((game?.distance||0)-(game?.stageStartDistance||0)));
  const progress=Math.max(0,Math.min(1,travel/12000));
  const camera={x:cx-W/2,y:cy-H/2};
- terrainAlpsRenderer.draw(ctx,{key:'sea',camera,width:W,height:H});
+ // Open-water tile, world-locked: the atlas sea cell carries island blobs that
+ // read as corrupted smudges inside a narrow canal.
+ ctx.fillStyle='#174b68';ctx.fillRect(0,0,W,H);
+ const seaTile=regionTextures.sea;
+ if(seaTile?.naturalWidth){
+  const tile=512,ox=((-camera.x)%tile+tile)%tile-tile,oy=((-camera.y)%tile+tile)%tile-tile;
+  for(let x=ox;x<W;x+=tile)for(let y=oy;y<H;y+=tile)ctx.drawImage(seaTile,x,y,tile,tile);
+ }
  if(!route)return;
  const a=Number.isFinite(route.a)?route.a:-Math.PI/2,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
  const centerS=(cx-route.x)*hx+(cy-route.y)*hy,diag=Math.hypot(W,H);
