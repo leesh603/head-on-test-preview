@@ -1,4 +1,4 @@
-import {installRevision} from './rebalance103.js?v=128';
+import {installRevision} from './rebalance103.js?v=128&b=128';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=172';
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=187';
 import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=174';

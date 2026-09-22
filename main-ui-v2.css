@@ -426,3 +426,252 @@ body.astra-ui.playing .main-settings{display:none}
 
 /* Keep faction names on one line with installed Korean fonts. */
 body.astra-ui .factions button{width:auto;min-width:66px;flex:0 0 auto;white-space:nowrap}
+
+
+/* ==========================================================================
+   HUD SYSTEM 191 — single visual authority for combat instruments + notices.
+   Phase 1: survival/status, boss bar, toast, ace arrival, mission notice.
+   No runtime observers; presentation only.
+   ========================================================================== */
+body.astra-ui.playing{
+ --hud191-surface:linear-gradient(120deg,#1a211de8,#0a100ded);
+ --hud191-surface-strong:linear-gradient(120deg,#202923f2,#0c1310f2);
+ --hud191-edge:#c8c0a25f;
+ --hud191-edge-soft:#c8c0a22d;
+ --hud191-text:#eee9d8;
+ --hud191-muted:#b7b9aa;
+ --hud191-accent:#c7aa73;
+ --hud191-danger:#ad554b;
+ --hud191-ready:#8daa93;
+ --hud191-radius:3px;
+ --hud191-shadow:inset 0 1px #ece5ce12,inset 0 0 0 3px #0002,0 5px 18px #0005;
+}
+body.astra-ui.playing:not(.coop-playing) .flight-survival,
+body.astra-ui.playing:not(.coop-playing) .flight-status,
+body.astra-ui.playing #flightStack151 #stageBossHud,
+body.astra-ui.playing #flightNotices151 #toast,
+body.astra-ui.playing #flightNotices151 #bossArrival,
+body.astra-ui.playing #flightNotices151 #eventMissionHud,
+body.astra-ui.playing #flightNotices151 #campaignHud{
+ border:1px solid var(--hud191-edge);
+ border-radius:var(--hud191-radius);
+ background:var(--hud191-surface);
+ box-shadow:var(--hud191-shadow);
+ color:var(--hud191-text);
+}
+
+/* Left/right instruments share the same density and seams. */
+body.astra-ui.playing:not(.coop-playing) .flight-survival{
+ padding:12px 14px;
+}
+body.astra-ui.playing:not(.coop-playing) .flight-status{
+ padding:9px 8px 9px 13px;
+}
+body.astra-ui.playing #flightTop151 .health151 .bar,
+body.astra-ui.playing #flightTop151 #ammoHud .bar,
+body.astra-ui.playing #flightTop151 #xpHud>.bar,
+body.astra-ui.playing #flightStack151 #stageBossHud .bar{
+ overflow:hidden;
+ border:1px solid var(--hud191-edge-soft);
+ border-radius:1px;
+ background:#060b08a6;
+ box-shadow:inset 0 1px 2px #0009;
+}
+body.astra-ui.playing #flightTop151 #xpBar{background:var(--hud191-ready)}
+body.astra-ui.playing #flightStack151 #stageBossHp{background:linear-gradient(90deg,#7e3934,#aa5549)}
+
+/* Centre lane is one notice family: boss, mission, toast. */
+body.astra-ui.playing #flightCenter156{
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ gap:7px;
+ min-width:0;
+}
+body.astra-ui.playing #flightNotices151{
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ gap:6px;
+ min-width:0;
+ width:100%;
+}
+body.astra-ui.playing #flightStack151 #stageBossHud{
+ width:min(540px,100%);
+ max-width:540px;
+ box-sizing:border-box;
+ padding:8px 12px 9px;
+ font:600 13px/1.3 var(--astra-type);
+ letter-spacing:.01em;
+}
+body.astra-ui.playing #stageBossTitle{
+ color:var(--hud191-text);
+}
+body.astra-ui.playing #stageBossParts{
+ color:var(--hud191-muted);
+ font-weight:500;
+}
+
+/* Lightweight operational messages: same surface, brass accent only. */
+body.astra-ui.playing #flightNotices151 #toast{
+ position:static;
+ inset:auto;
+ transform:none;
+ width:auto;
+ max-width:min(460px,100%);
+ box-sizing:border-box;
+ padding:6px 13px;
+ border-left:3px solid #ae9160;
+ color:#dbc394;
+ font:500 11px/1.4 var(--astra-type);
+ letter-spacing:.01em;
+ text-align:center;
+ white-space:normal;
+ word-break:keep-all;
+ pointer-events:none;
+}
+
+/* Mission notice uses the same family, not a separate card language. */
+body.astra-ui.playing #flightNotices151 #eventMissionHud,
+body.astra-ui.playing #flightNotices151 #campaignHud{
+ position:static;
+ inset:auto;
+ transform:none;
+ box-sizing:border-box;
+ width:min(500px,100%);
+ max-width:500px;
+ margin:0;
+ padding:7px 12px;
+ border-left:3px solid var(--hud191-accent);
+ text-align:center;
+}
+body.astra-ui.playing #flightNotices151 #eventMissionHud{
+ gap:2px;
+}
+body.astra-ui.playing #flightNotices151 #eventMissionTitle{
+ color:var(--hud191-accent);
+ font:700 10px/1.2 var(--astra-type);
+ letter-spacing:.06em;
+}
+body.astra-ui.playing #flightNotices151 #eventMissionObjective,
+body.astra-ui.playing #flightNotices151 #eventMissionMeta{
+ color:var(--hud191-text);
+ font:500 10px/1.3 var(--astra-type);
+}
+
+/* Enemy ace: portrait is integrated into an instrument, not a pasted photo card. */
+body.astra-ui.playing #flightNotices151 #bossArrival{
+ position:static;
+ inset:auto;
+ transform:none;
+ display:grid;
+ grid-template-columns:92px minmax(0,1fr);
+ align-items:stretch;
+ gap:0;
+ width:min(390px,100%);
+ max-width:390px;
+ height:92px;
+ box-sizing:border-box;
+ padding:0;
+ overflow:hidden;
+ border-left:3px solid var(--hud191-danger);
+ pointer-events:none;
+}
+body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{
+ position:relative;
+ width:92px;
+ height:92px;
+ flex:none;
+ margin:0;
+ overflow:hidden;
+ background:linear-gradient(135deg,#283129,#101613);
+}
+body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window:after{
+ content:"";
+ position:absolute;
+ inset:0;
+ pointer-events:none;
+ background:linear-gradient(90deg,transparent 52%,#10161388 76%,#101613 100%);
+}
+body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window img{
+ display:block;
+ width:100%;
+ height:100%;
+ object-fit:cover;
+ object-position:center 10%;
+ transform:scale(1.06);
+ transform-origin:center 18%;
+ filter:saturate(.82) contrast(1.02) brightness(.94);
+}
+body.astra-ui.playing #flightNotices151 #bossArrival>div:last-child{
+ min-width:0;
+ align-self:center;
+ padding:10px 12px 9px 2px;
+}
+body.astra-ui.playing #flightNotices151 #bossArrival small{
+ display:block;
+ margin:0 0 4px;
+ color:var(--hud191-danger);
+ font:700 8px/1.2 var(--astra-type);
+ letter-spacing:.1em;
+}
+body.astra-ui.playing #flightNotices151 #bossArrival strong{
+ display:block;
+ min-width:0;
+ margin:0;
+ color:var(--hud191-text);
+ font:800 16px/1.24 var(--astra-type);
+ letter-spacing:-.025em;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+body.astra-ui.playing #flightNotices151 #bossArrivalDetail{
+ display:block;
+ min-width:0;
+ margin-top:4px;
+ color:var(--hud191-accent);
+ font:600 9px/1.2 var(--astra-numeric);
+ letter-spacing:.08em;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+
+/* Compact is the same interface, only denser. */
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing #flightCenter156{gap:5px}
+ body.astra-ui.playing #flightNotices151{gap:4px}
+ body.astra-ui.playing #flightStack151 #stageBossHud{
+  width:min(330px,72vw);
+  padding:6px 9px;
+  font-size:10px;
+ }
+ body.astra-ui.playing #flightNotices151 #toast{
+  max-width:min(320px,76vw);
+  padding:5px 9px;
+  font-size:9px;
+ }
+ body.astra-ui.playing #flightNotices151 #eventMissionHud,
+ body.astra-ui.playing #flightNotices151 #campaignHud{
+  width:min(330px,76vw);
+  padding:5px 8px;
+ }
+ body.astra-ui.playing #flightNotices151 #bossArrival{
+  width:min(286px,72vw);
+  height:78px;
+  grid-template-columns:74px minmax(0,1fr);
+ }
+ body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{
+  width:74px;
+  height:78px;
+ }
+ body.astra-ui.playing #flightNotices151 #bossArrival>div:last-child{padding:7px 8px 7px 2px}
+ body.astra-ui.playing #flightNotices151 #bossArrival small{font-size:7px;margin-bottom:2px}
+ body.astra-ui.playing #flightNotices151 #bossArrival strong{font-size:12px}
+ body.astra-ui.playing #flightNotices151 #bossArrivalDetail{font-size:7px;margin-top:3px}
+}
+@media(max-width:360px){
+ body.astra-ui.playing #flightNotices151 #bossArrival{width:min(250px,70vw);grid-template-columns:66px minmax(0,1fr);height:72px}
+ body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{width:66px;height:72px}
+}
