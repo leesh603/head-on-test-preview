@@ -308,7 +308,7 @@ const terrainAlpsAtlas=new Image();terrainAlpsAtlas.src='./terrain-alps-atlas.pn
 const TerrainRendererSafe=typeof TerrainRenderer==='undefined'?class{draw(){}}:TerrainRenderer;
 const MountainFieldSafe=typeof MountainField==='undefined'?class{constructor(){this.query=()=>[];this.step=()=>{};this.draw=()=>{}}}:MountainField;
 const terrainAlpsRenderer=new TerrainRendererSafe({atlas:terrainAlpsAtlas,detail:.72,tileSize:768});
-const terrainKeys=['rural','sea','trenches','trenches','city','sky','alps','zeebrugge'];
+const terrainKeys=['rural','sea','trenches','burning','city','sky','alps','zeebrugge'];
 const _ruralTerrain=terrain;
 function drawSeamlessRural(cx,cy,W,H){
  ctx.fillStyle='#758461';ctx.fillRect(0,0,W,H);const worldX=cx-W/2,worldY=cy-H/2;
