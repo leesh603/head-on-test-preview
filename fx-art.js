@@ -1,9 +1,13 @@
 // Unified hand-painted effect sprites. Each helper draws only when the PNG
 // loaded; callers keep their procedural drawing as the fallback path.
-const FX_FILES={};
+const FX_FILES={
+ gas:'fx_v3_gas',mine:'fx_v3_mine',grenade:'fx_v3_grenade',rocket:'fx_v3_rocket',
+ explosion0:'fx_v3_explosion0',explosion1:'fx_v3_explosion1',explosion2:'fx_v3_explosion2',explosion3:'fx_v3_explosion3',
+ mgTiers:'headon_mg_damage_fx_tiers'
+};
 const fxImgs={};
 export const fxArtReady=typeof Image==='undefined'?Promise.resolve():Promise.all(Object.entries(FX_FILES).map(([key,file])=>new Promise(res=>{
- const im=new Image();im.onload=()=>{fxImgs[key]=im;res()};im.onerror=()=>res();im.src='./'+file+'?v=196';
+ const im=new Image();im.onload=()=>{fxImgs[key]=im;res()};im.onerror=()=>res();im.src='./'+file+'?v=201';
 })));
 export function fxReady(key){return !!fxImgs[key]}
 export function fxImage(key){return fxImgs[key]||null}
@@ -33,4 +37,10 @@ export function fxTint(c,key,color,x,y,w,h=w,angle=0,alpha=1){
  const cv=fxTintedCanvas(key,color);if(!cv)return fx(c,key,x,y,w,h,angle,alpha);
  c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha=alpha;
  c.drawImage(cv,-w/2,-h/2,w,h);c.restore();return true;
+}
+// Draw one cell of a fixed-grid sprite atlas (col,row in cw×ch cells).
+export function fxCell(c,key,col,row,cw,ch,x,y,w,h=w,angle=0,alpha=1){
+ const im=fxImgs[key];if(!im)return false;
+ c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha=alpha;
+ c.drawImage(im,col*cw,row*ch,cw,ch,-w/2,-h/2,w,h);c.restore();return true;
 }
