@@ -220,7 +220,7 @@ body.astra-ui.playing #touch #touchSkill:after,body.astra-ui.playing #touch #tou
  .astra-home{display:flex;flex-direction:column;min-height:calc(100dvh - 66px);padding-bottom:calc(63px + env(safe-area-inset-bottom))}
  .astra-stage{display:flex;flex-direction:column;min-height:0;gap:0}
  .astra-hero{display:grid;grid-template-columns:minmax(0,58%) minmax(132px,42%);grid-template-rows:auto auto;min-height:0;padding:0 14px 17px;overflow:visible;align-items:stretch;background:linear-gradient(90deg,#07100bcf 0%,#07100b94 58%,#07100b1f 100%)}
- body.astra-ui:not(.playing) .hangar-ace{position:relative!important;inset:auto!important;grid-column:2;grid-row:1;width:100%!important;height:238px!important;max-height:none;align-self:end;object-fit:contain;object-position:right bottom;mask-image:linear-gradient(0deg,transparent,#000 12%);-webkit-mask-image:linear-gradient(0deg,transparent,#000 12%);opacity:.98}
+ body.astra-ui:not(.playing) .hangar-ace{position:relative!important;inset:auto!important;grid-column:2;grid-row:1;width:100%!important;height:238px!important;max-height:none;align-self:end;object-fit:contain;object-position:right bottom;mask-image:linear-gradient(180deg,transparent,#000 12%);-webkit-mask-image:linear-gradient(180deg,transparent,#000 12%);opacity:.98}
  .astra-dossier{display:contents;margin:0;width:auto;padding:0;background:none}
  .astra-identity{grid-column:1;grid-row:1;width:auto;max-width:none;align-self:center;padding:24px 8px 16px 4px;min-width:0}
  .astra-kicker{font-size:9px;letter-spacing:.1em;margin-bottom:8px;padding-left:7px;border-left-width:1px}
@@ -809,7 +809,7 @@ body.astra-ui #modal.choice-modal151 #modalActions:has(.choice:nth-child(4)){
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
  --hud191-choice-accent:#858c85;
  display:grid!important;
- grid-template-columns:76px minmax(0,1fr)!important;
+ grid-template-columns:96px minmax(0,1fr)!important;
  grid-template-rows:20px minmax(42px,auto) minmax(64px,1fr) 30px!important;
  gap:3px 10px!important;
  min-width:0!important;
@@ -871,9 +871,9 @@ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .choic
  grid-row:1/5!important;
  align-self:center!important;
  justify-self:center!important;
- width:66px!important;
- height:66px!important;
- max-width:66px!important;
+ width:88px!important;
+ height:88px!important;
+ max-width:88px!important;
  object-fit:contain;
  opacity:.95;
 }

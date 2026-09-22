@@ -119,8 +119,8 @@ export const AIRCRAFT_MASTER = Object.freeze(Object.fromEntries(identityRows.map
       aircraftId, modelName, faction, exclusivePilotId, baseAirframeId, simulationId,
       category: owner ? 'exclusive' : 'basic',
       tags: Object.freeze(tags),
-      displayNameKo: modelName + (owner ? ` (${owner[0]} 전용기)` : ''),
-      displayNameEn: modelName + (owner ? ` (${owner[1]}'s aircraft)` : ''),
+      displayNameKo: modelName + (owner ? ` (⁠${owner[0]} 전용기)` : ''),
+      displayNameEn: modelName + (owner ? ` (⁠${owner[1]}'s aircraft)` : ''),
     })];
   }
 )));

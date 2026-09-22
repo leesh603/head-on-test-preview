@@ -90,13 +90,11 @@ body.astra-ui:not(.playing) #pilotTabs .pilot-tab-portrait{
     filter:drop-shadow(-7px 7px 11px #0007) saturate(.95) contrast(1.02)!important;
 
     -webkit-mask-image:
-      linear-gradient(90deg,transparent 0,rgba(0,0,0,.5) 13%,rgba(0,0,0,.94) 27%,#000 38%,#000 100%),
-      linear-gradient(0deg,transparent 0,#000 9%,#000 100%);
+      linear-gradient(90deg,transparent 0,rgba(0,0,0,.5) 13%,rgba(0,0,0,.94) 27%,#000 38%,#000 100%);
     -webkit-mask-repeat:no-repeat;
     -webkit-mask-composite:source-in;
     mask-image:
-      linear-gradient(90deg,transparent 0,rgba(0,0,0,.5) 13%,rgba(0,0,0,.94) 27%,#000 38%,#000 100%),
-      linear-gradient(0deg,transparent 0,#000 9%,#000 100%);
+      linear-gradient(90deg,transparent 0,rgba(0,0,0,.5) 13%,rgba(0,0,0,.94) 27%,#000 38%,#000 100%);
     mask-repeat:no-repeat;
     mask-composite:intersect;
   }
