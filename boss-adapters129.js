@@ -1,4 +1,4 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=187&b=117';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=187';
 import {RailBossController} from './rail-boss129.js?v=177';
 import {StuttgartSupport} from './stuttgart129.js?v=183';
 

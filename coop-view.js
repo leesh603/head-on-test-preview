@@ -1,11 +1,11 @@
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=164';
 import {fx,fxReady,fxTint} from './fx-art.js';
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=162';
-import {drawStageBoss} from './stageboss-view.js?v=188&b=117';
-import {planeSprite,aircraftKey} from './aircraft.js?v=184&b=117';
-import {drawEquipment} from './equipment.js?v=201&b=201';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire} from './projectiles.js?v=135&b=135';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=201&b=201';
+import {drawStageBoss} from './stageboss-view.js?v=188';
+import {planeSprite,aircraftKey} from './aircraft.js?v=184';
+import {drawEquipment} from './equipment.js?v=201';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire} from './projectiles.js?v=135';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=201';
 import {drawSpecialAmmoIcon} from './icons.js?v=158';
 import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=187';
 

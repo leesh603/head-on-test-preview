@@ -4,7 +4,7 @@ import {drawEnemyProjectile} from './projectiles.js?v=135';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js';
 const supportImages129={ship:new Image(),cover:new Image()};supportImages129.ship.src='./stuttgart-open129.png';supportImages129.cover.src='./stuttgart-cover129.png';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=187';
-import {bossHudModel} from './headon-stageboss-hud.js?v=201&b=201';
+import {bossHudModel} from './headon-stageboss-hud.js?v=201';
 
 const bossArt={};
 for(const [key,src] of Object.entries({
