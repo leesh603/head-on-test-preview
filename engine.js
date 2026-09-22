@@ -1,13 +1,13 @@
-import {installRevision} from './rebalance103.js?v=210&b=210';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=210';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=210';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=210';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=210';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=210';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=210';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=210';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=210';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=210';
+import {installRevision} from './rebalance103.js?v=212&b=210';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=212';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=212';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=212';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=212';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=212';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=212';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=212';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=212';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=212';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -427,7 +427,7 @@ Game.prototype.update=function(dt,input={}){
  if(this.bishopEmptyPending){this.bishopEmptyPending=false;this.ammo.fill(0);this.reloadTime=0;this.fire=.1;this.muzzleFlash=0;this.event('wave','폭격 종료 · 탄약 소진, 재장전 필요')}
  this.distance=(this.distance||0)+Math.hypot(this.x-x,this.y-y);
  const region=this.worldRegion();
- if(this.region!==region){this.region=region;this.clearRegionalHazards();if(this.mode!=='campaign')this.event('wave',(['전원 지대 · 기뢰지대','아드리아해 · 적 함대','참호 전선 · 대공포','도심','고공 전역','알프스 산맥','제브뤼헤 군항 · 해안포대'][region]||'새 전장')+' 진입')}
+ if(this.region!==region)this.enterRegion(region)
  if(this.state!=='playing')return;
  this.regionThreat=(this.regionThreat??20)-step;if(this.regionThreat<=0){this.regionThreat=24;if([1,7].includes(region)&&this.enemies.length<60)this.spawnEnemy(this.rng()<.12?'zeppelin':'bomber');this.spawnFlak()}
  for(const e of this.enemies){if(!e.bossPilot)continue;e.bossDash=Math.max(0,(e.bossDash||0)-step);if(this.sunStrikeContains(e))continue;e.abilityTimer-=step;if(e.abilityTimer<=0){e.abilityTimer=e.bossPilot==='bishop'?ENEMY_BOSS_BALANCE.bishopAbilityMin+this.rng()*ENEMY_BOSS_BALANCE.bishopAbilityVariance:7+this.rng()*3;this.aceAttack(e)}}
@@ -648,12 +648,22 @@ Game.prototype.healthSpeedFactor=function(){return 1};
 
 // Region identity is shared by simulation, drawing and hazards. Campaigns lock it.
 Game.prototype.worldRegion=function(){return this.lockedRegion??this.stageBoss?.stages.stageIndex??Math.floor((this.distance||0)/12000)%3};
+const REGION_LABELS53=Object.freeze(['전원 지대 · 기뢰지대','아드리아해 · 적 함대','참호 전선 · 대공포','포화의 참호전선','도심 전역','고공 전역','알프스 산맥','제브뤼헤 군항 · 해안포대']);
 Game.prototype.clearRegionalHazards=function(){
- this.hostileMinefields=(this.hostileMinefields||[]).filter(f=>f.region===this.region);
- this.flakBursts=[];this.bullets=this.bullets.filter(b=>b.hazardRegion===undefined||b.hazardRegion===this.region);
+ // Region transitions are explicit memory cleanup points. Preserve progression,
+ // persistent allies/enemies and reward drops; discard transient battlefield work.
+ for(const key of ['particles','flakBursts','gusts','bombZones','gasZones','fireZones','cannonImpacts','combatFX','enemyAirshipPasses','hostileMinefields','mines','grenades','friendlyBombs'])if(Array.isArray(this[key]))this[key]=[];
+ this.bullets=[];
  this.enemies=this.enemies.filter(e=>!e.navalVessel||[1,7].includes(this.region));
- if(this.region===5){this.enemies=this.enemies.filter(e=>!e.fieldUnit&&!e.surface);this.gasZones=[];this.fireZones=[];}
+ if(this.region===5)this.enemies=this.enemies.filter(e=>!e.fieldUnit&&!e.surface);
  this.lastRegionalHazard=-Infinity;
+};
+Game.prototype.enterRegion=function(region){
+ const previous=this.region;this.region=region;this.clearRegionalHazards();
+ if(this.mode==='campaign')return;
+ const label=REGION_LABELS53[region]||'새 전장';
+ if(previous!==undefined&&previous!==region)this.events.push({type:'regionTransition',region,previousRegion:previous,text:label});
+ this.event('wave',label+' 진입');
 };
 const _landFlak53=Game.prototype.spawnFlak;
 Game.prototype.spawnFlak=function(){
@@ -661,7 +671,7 @@ Game.prototype.spawnFlak=function(){
  if(this.t-(this.lastRegionalHazard??-Infinity)<8)return;
  this.lastRegionalHazard=this.t;
  if(region===0){this.spawnMinefield();return}
- if(region===1||region===6){this.spawnFleet();return}
+ if(region===1||region===7){this.spawnFleet();return}
  const start=this.bullets.length;_landFlak53.call(this);
  for(const b of this.bullets.slice(start))b.hazardRegion=2;
 };
@@ -706,7 +716,7 @@ const _updateRegional53=Game.prototype.update;
 Game.prototype.update=function(dt,input={}){
  if(this.state!=='playing')return;const step=Math.min(.04,Math.max(0,dt));
  // Resolve a transition before any legacy timer emits its next hazard.
- const region=this.worldRegion();if(this.region!==region){this.region=region;this.clearRegionalHazards();if(this.mode!=='campaign')this.event('wave',(['전원 지대 · 기뢰지대','아드리아해 · 적 함대','참호 전선 · 대공포','도심','고공 전역','알프스 산맥','제브뤼헤 군항 · 해안포대'][region]||'새 전장')+' 진입')}
+ const region=this.worldRegion();if(this.region!==region)this.enterRegion(region)
  _updateRegional53.call(this,step,input);if(this.state!=='playing')return;
  for(const f of this.hostileMinefields||[]){
   f.warning-=step;f.life-=step;

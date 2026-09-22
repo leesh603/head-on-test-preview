@@ -1,4 +1,4 @@
-import {drawGameIcon} from './icons.js?v=210';
+import {drawGameIcon} from './icons.js?v=212';
 import {fx,fxReady} from './fx-art.js';
 export function drawGrenade(c,g,x,y){
  c.save();c.translate(x,y-g.height);c.rotate(g.phase==='flight'?g.age*7:0);
