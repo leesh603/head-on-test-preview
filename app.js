@@ -5,8 +5,8 @@ import {t,getLocale,setLocale,subscribe,initLocale,applyTranslations,rarityName,
 import {GamepadInput} from './gamepad-input.js?v=166';
 const fieldRecordLink=document.createElement('a');fieldRecordLink.href='./field-record.html';fieldRecordLink.target='_blank';fieldRecordLink.rel='noopener';fieldRecordLink.textContent=getLocale()==='en'?'Official Battle Record':'공식 전장 기록';fieldRecordLink.className='field-record-link';fieldRecordLink.style.cssText='display:block;margin:10px auto 0;text-align:center;color:#d7b26d;font-weight:800;text-decoration:none';document.getElementById('start')?.after(fieldRecordLink);
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=162';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky} from './stageboss-view.js?v=184';
-import {enableStageBoss} from './stageboss-host.js?v=186';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky} from './stageboss-view.js?v=187';
+import {enableStageBoss} from './stageboss-host.js?v=187';
 import './hud-layout94.js?v=180';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=176';
 import {CoopGame,coopPlane} from './coop-engine.js?v=174';
@@ -29,7 +29,7 @@ import {portraitSources,portraitsReady} from './portraits.js?v=145&b=145';
 import {drawEquipment} from './equipment.js?v=116&b=117';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=160';
 import{planeSprite,planePreview,aircraftReady,aircraftKey}from'./aircraft.js?v=190';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale}from'./engine.js?v=186';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale}from'./engine.js?v=187';
 import {TerrainRenderer,MountainField} from './alps-terrain117.js?v=182';
 const flightViewport=installFlightViewport(document,window);
 const ententeAirshipSprite=new Image();ententeAirshipSprite.src='./zeppelin-entente.png?v=116&b=117';
@@ -319,7 +319,7 @@ const terrainAlpsAtlas=new Image();terrainAlpsAtlas.src='./terrain-alps-atlas.pn
 const TerrainRendererSafe=typeof TerrainRenderer==='undefined'?class{draw(){}}:TerrainRenderer;
 const MountainFieldSafe=typeof MountainField==='undefined'?class{constructor(){this.query=()=>[];this.step=()=>{};this.draw=()=>{}}}:MountainField;
 const terrainAlpsRenderer=new TerrainRendererSafe({atlas:terrainAlpsAtlas,detail:.72,tileSize:768});
-const terrainKeys=['rural','sea','trenches','city','sky','alps','zeebrugge'];
+const terrainKeys=['rural','sea','trenches','trenches','city','sky','alps','zeebrugge'];
 const _ruralTerrain=terrain;
 function drawSeamlessRural(cx,cy,W,H){
  ctx.fillStyle='#758461';ctx.fillRect(0,0,W,H);const worldX=cx-W/2,worldY=cy-H/2;
@@ -329,61 +329,68 @@ function drawSeamlessRural(cx,cy,W,H){
  ctx.strokeStyle='#5d7d78';ctx.lineWidth=18;ctx.beginPath();for(let y=-30;y<H+40;y+=16){const wy=worldY+y,x=W*.61+Math.sin(wy*.0024)*88+Math.sin(wy*.006)*18;y<0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();ctx.strokeStyle='#a2b19377';ctx.lineWidth=2;ctx.stroke();
 }
 function paintZeebrugge(cx,cy,W,H){
- // Pre-baked harbor tile (terrain-zeebrugge-strip.png): the inner-harbor
- // channel strip cropped from the authored plate, muted, with its vertical
- // mirror appended — plain drawImage tiling, no runtime transforms.
+ // The base water is the same 'sea' terrain the Adriatic region renders, so
+ // the harbor dissolves into familiar open water instead of a forced grid.
  const camera={x:cx-W/2,y:cy-H/2};
  const route=game?.navalRoute;
  const img=zeebruggeHarborTile;
- // Always lay open-sea water first — when the camera pans off the harbor strip
- // the canvas still has a background (without this the framebuffer smears).
- ctx.fillStyle='#204658';ctx.fillRect(0,0,W,H);
+ terrainAlpsRenderer.draw(ctx,{key:'sea',camera,width:W,height:H});
  if(img.naturalWidth){
-  // Modest zoom: quays and docked ships read at map-object scale.
+  // One harbor strip column only — its dock edges meet open sea like a real
+  // port waterfront; sideways repeats are what read as pasted tiles.
   const k=(W*0.9)/img.width,dw=Math.round(img.width*k),dh=Math.round(img.height*k);
-  // The strip's channel sits mid-width; pin it on the sortie line.
   const channelWorldX=(route?route.x:camera.x+W/2)-dw*.5;
   const period=dh,wy0=Math.floor(camera.y/period)*period;
+  const dx=Math.round(channelWorldX-camera.x);
   ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
-  // The strip's edges are open water, so tiling sideways continues the port
-  // complex naturally instead of cutting to flat sea at the channel rim.
-  for(let col=-1;col<=1;col++){
-   const dx=Math.round(channelWorldX+col*dw-camera.x);
-   for(let wy=wy0;wy<camera.y+H+dh;wy+=dh){
-    ctx.drawImage(img,dx,Math.round(wy-camera.y),dw,dh);
-   }
+  for(let wy=wy0;wy<camera.y+H+dh;wy+=dh){
+   ctx.drawImage(img,dx,Math.round(wy-camera.y),dw,dh);
   }
   ctx.restore();
+  // Melt the strip's hard rim into the surrounding sea.
+  const feather=Math.min(110,dw*.24);
+  const gl=ctx.createLinearGradient(dx,0,dx+feather,0);
+  gl.addColorStop(0,'rgba(37,69,85,1)');gl.addColorStop(1,'rgba(37,69,85,0)');
+  ctx.fillStyle=gl;ctx.fillRect(dx,0,feather,H);
+  const gr=ctx.createLinearGradient(dx+dw-feather,0,dx+dw,0);
+  gr.addColorStop(0,'rgba(37,69,85,0)');gr.addColorStop(1,'rgba(37,69,85,1)');
+  ctx.fillStyle=gr;ctx.fillRect(dx+dw-feather,0,feather,H);
   if(route){
    const a=Number.isFinite(route.a)?route.a:-Math.PI/2,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
    const point=(s,n)=>{const wx=route.x+hx*s+nx*n,wy=route.y+hy*s+ny*n;return [wx-camera.x,wy-camera.y];};
-   // Escort traffic rides the painted channel: stay inside its water band.
+   // Escort traffic rides the painted channel — opaque, inside the water band.
    const base=Math.max(340,route.maxForward-1500),spacing=520;
    for(let i=0;i<6;i++){
-    const s=base+i*spacing,lateral=(i%2?-1:1)*(70+((i*40)%60)),p=point(s,lateral);
+    const s=base+i*spacing,lateral=(i%2?-1:1)*(28+((i*23)%30)),p=point(s,lateral);
     if(p[0]<-180||p[0]>W+180||p[1]<-180||p[1]>H+180)continue;
-    ctx.save();ctx.globalAlpha=.55;drawBattlefieldSprite(ctx,'ship',p[0],p[1],150,a+Math.PI/2);ctx.restore();
+    ctx.save();drawBattlefieldSprite(ctx,'ship',p[0],p[1],150,a+Math.PI/2);ctx.restore();
    }
   }
   return;
  }
- // Fallback while the plate streams in: open water, no channel furniture.
- ctx.fillStyle='#174b68';ctx.fillRect(0,0,W,H);
- const seaTile=regionTextures.sea;
- if(seaTile?.naturalWidth){
-  const tile=512,ox=((-camera.x)%tile+tile)%tile-tile,oy=((-camera.y)%tile+tile)%tile-tile;
-  for(let x=ox;x<W;x+=tile)for(let y=oy;y<H;y+=tile)ctx.drawImage(seaTile,x,y,tile,tile);
+}
+function paintTrenchHellOverlay(cx,cy,W,H){
+ const wx=cx-W/2,wy=cy-H/2,time=(globalThis.performance?.now?.()||0)/1000;
+ ctx.save();ctx.fillStyle='#27181142';ctx.fillRect(0,0,W,H);
+ const cell=190,minX=Math.floor(wx/cell)-1,maxX=Math.ceil((wx+W)/cell)+1,minY=Math.floor(wy/cell)-1,maxY=Math.ceil((wy+H)/cell)+1;
+ for(let gx=minX;gx<=maxX;gx++)for(let gy=minY;gy<=maxY;gy++){
+  const seed=Math.abs(Math.sin(gx*91.73+gy*47.19)*43758.5453)%1;if(seed<.63)continue;
+  const x=gx*cell-wx+cell*(.2+seed*.6),y=gy*cell-wy+cell*(.2+(seed*7%1)*.6),pulse=.72+.18*Math.sin(time*2+seed*20);
+  ctx.globalAlpha=.16*pulse;ctx.fillStyle='#ff7a38';ctx.beginPath();ctx.arc(x,y,12+seed*16,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=.11;ctx.fillStyle='#171817';ctx.beginPath();ctx.arc(x+10,y-24,24+seed*24,0,Math.PI*2);ctx.fill();
  }
+ ctx.restore();
 }
 function paintRegion(region,cx,cy,width=W,height=H){
  const W=width,H=height;
- if(region===6){paintZeebrugge(cx,cy,W,H);return;}
+ if(region===7){paintZeebrugge(cx,cy,W,H);return;}
  if(region>=0&&region<terrainKeys.length){
   terrainAlpsRenderer.draw(ctx,{key:terrainKeys[region],camera:{x:cx-W/2,y:cy-H/2},width:W,height:H});
-  if(region===5&&game?.alpsMountains)game.alpsMountains.draw(ctx,{camera:{x:cx-W/2,y:cy-H/2},width:W,height:H});
+  if(region===6&&game?.alpsMountains)game.alpsMountains.draw(ctx,{camera:{x:cx-W/2,y:cy-H/2},width:W,height:H});
+  if(region===3)paintTrenchHellOverlay(cx,cy,W,H);
   return;
  }
- if(region===4){paintSky(ctx,cx,cy,W,H);return}if(region===3){paintCity(ctx,cx,cy,W,H,PLANES[game?.plane]?.faction==='central'?'london':'berlin');return}
+ if(region===5){paintSky(ctx,cx,cy,W,H);return}if(region===4){paintCity(ctx,cx,cy,W,H,PLANES[game?.plane]?.faction==='central'?'london':'berlin');return}
  if(region===0){_ruralTerrain(cx,cy,W,H);return}
  const im=regionTextures[region===1?'sea':'trenches'];ctx.fillStyle=region===1?'#174b68':'#665440';ctx.fillRect(0,0,W,H);
  if(!im.naturalWidth)return;
@@ -398,7 +405,7 @@ terrain=(cx,cy)=>{
 const _worldDraw=draw;
 draw=t=>{
  _worldDraw(t);if(!game)return;
- ctx.save();ctx.font='12px monospace';ctx.textAlign='left';ctx.fillStyle='#f1edd0';ctx.fillText((game.mode==='campaign'?game.stage.region:['전원 지대','아드리아해','참호 전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항'][game.region||0])+' · 비행 '+((game.distance||0)/1000).toFixed(1)+' km',14,H-14);
+ ctx.save();ctx.font='12px monospace';ctx.textAlign='left';ctx.fillStyle='#f1edd0';ctx.fillText((game.mode==='campaign'?game.stage.region:['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항'][game.region||0])+' · 비행 '+((game.distance||0)/1000).toFixed(1)+' km',14,H-14);
  for(const e of game.enemies){if(!e.bossPilot)continue;const x=e.x-game.x+W/2,y=e.y-game.y+H/2;ctx.textAlign='center';ctx.fillStyle='#ffcf86';ctx.fillText(e.name,x,y-58)}
  if(game.wingBoost>0){ctx.strokeStyle='#f5e7ad';for(const a of game.allies){const x=a.x-game.x+W/2,y=a.y-game.y+H/2;ctx.beginPath();ctx.arc(x,y,28,0,Math.PI*2);ctx.stroke()}}
  ctx.restore();
