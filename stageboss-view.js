@@ -1,5 +1,5 @@
 import {drawRailDamage,drawRailTrack} from './rail-render129.js';
-import {fx,fxReady,fxImage} from './fx-art.js';
+import {fx,fxReady,fxImage} from './fx-art.js?v=193';
 import {drawEnemyProjectile} from './projectiles.js?v=131';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js';
 const supportImages129={ship:new Image(),cover:new Image()};supportImages129.ship.src='./stuttgart-open129.png';supportImages129.cover.src='./stuttgart-cover129.png';
