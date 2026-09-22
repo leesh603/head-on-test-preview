@@ -7,7 +7,7 @@
 /* Large hero portrait — PC / desktop */
 body.astra-ui:not(.playing) .hangar-ace.hangar-portrait186{
   --hp-scale-desktop:.98;
-  --hp-scale-mobile:.96;
+  --hp-scale-mobile:1.16;
   --hp-shift-desktop:0%;
   --hp-shift-mobile:0%;
 
@@ -28,12 +28,12 @@ body.astra-ui:not(.playing) .hangar-ace.hangar-portrait186{
 
   -webkit-mask-image:
     linear-gradient(90deg,#000 0 68%,rgba(0,0,0,.98) 76%,rgba(0,0,0,.56) 89%,transparent 100%),
-    linear-gradient(0deg,transparent 0,#000 7%,#000 100%);
+    linear-gradient(0deg,transparent 0,rgba(0,0,0,.3) 14%,#000 36%,#000 100%);
   -webkit-mask-repeat:no-repeat;
   -webkit-mask-composite:source-in;
   mask-image:
     linear-gradient(90deg,#000 0 68%,rgba(0,0,0,.98) 76%,rgba(0,0,0,.56) 89%,transparent 100%),
-    linear-gradient(0deg,transparent 0,#000 7%,#000 100%);
+    linear-gradient(0deg,transparent 0,rgba(0,0,0,.3) 14%,#000 36%,#000 100%);
   mask-repeat:no-repeat;
   mask-composite:intersect;
 }
@@ -91,11 +91,13 @@ body.astra-ui:not(.playing) #pilotTabs .pilot-tab-portrait{
     filter:drop-shadow(-7px 7px 11px #0007) saturate(.95) contrast(1.02)!important;
 
     -webkit-mask-image:
-      linear-gradient(90deg,transparent 0,rgba(0,0,0,.5) 13%,rgba(0,0,0,.94) 27%,#000 38%,#000 100%);
+      linear-gradient(90deg,transparent 0,rgba(0,0,0,.5) 13%,rgba(0,0,0,.94) 27%,#000 38%,#000 100%),
+      linear-gradient(0deg,transparent 0,rgba(0,0,0,.3) 12%,#000 34%,#000 100%);
     -webkit-mask-repeat:no-repeat;
     -webkit-mask-composite:source-in;
     mask-image:
-      linear-gradient(90deg,transparent 0,rgba(0,0,0,.5) 13%,rgba(0,0,0,.94) 27%,#000 38%,#000 100%);
+      linear-gradient(90deg,transparent 0,rgba(0,0,0,.5) 13%,rgba(0,0,0,.94) 27%,#000 38%,#000 100%),
+      linear-gradient(0deg,transparent 0,rgba(0,0,0,.3) 12%,#000 34%,#000 100%);
     mask-repeat:no-repeat;
     mask-composite:intersect;
   }
