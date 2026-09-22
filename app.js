@@ -345,8 +345,13 @@ function paintZeebrugge(cx,cy,W,H){
   const channelWorldX=(route?route.x:camera.x+W/2)-dw*.5;
   const period=dh,wy0=Math.floor(camera.y/period)*period;
   ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
-  for(let wy=wy0;wy<camera.y+H+dh;wy+=dh){
-   ctx.drawImage(img,Math.round(channelWorldX-camera.x),Math.round(wy-camera.y),dw,dh);
+  // The strip's edges are open water, so tiling sideways continues the port
+  // complex naturally instead of cutting to flat sea at the channel rim.
+  for(let col=-1;col<=1;col++){
+   const dx=Math.round(channelWorldX+col*dw-camera.x);
+   for(let wy=wy0;wy<camera.y+H+dh;wy+=dh){
+    ctx.drawImage(img,dx,Math.round(wy-camera.y),dw,dh);
+   }
   }
   ctx.restore();
   if(route){
