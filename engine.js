@@ -695,8 +695,9 @@ Game.prototype.spawnFleet=function(){
  let x,y,a=-Math.PI/2,side=1;
  if(harbor){
   const hx=Math.cos(route.a),hy=Math.sin(route.a),nx=-hy,ny=hx;
-  // Coast harbor keeps water on the +lateral side only; guard ships stay offshore.
-  const along=(route.maxForward||0)+340+this.rng()*220,bank=Math.max(300,Math.min(430,(this.viewWidth||960)*.48));
+  // The painted harbor plate runs its channel on the route line; keep guard
+  // ships inside the water band, not on the quay fingers.
+  const along=(route.maxForward||0)+340+this.rng()*220,bank=Math.max(60,Math.min(140,(this.viewWidth||960)*.16));
   x=route.x+hx*along+nx*side*bank;y=route.y+hy*along+ny*side*bank;a=route.a;
  }else{
   const bearing=this.a+(this.rng()>.5?1:-1)*.9,d=360+this.rng()*100;x=this.x+Math.cos(bearing)*d;y=this.y+Math.sin(bearing)*d;

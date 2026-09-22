@@ -302,6 +302,7 @@ draw=t=>{
 };
 
 const regionTextures={};for(const name of ['sea','trenches']){const im=new Image();im.src='./terrain-'+name+'.png?v=184';regionTextures[name]=im}
+const zeebruggeHarborTile=new Image();zeebruggeHarborTile.src='./terrain-zeebrugge-harbor.png?v=190';
 const terrainAlpsAtlas=new Image();terrainAlpsAtlas.src='./terrain-alps-atlas.png?v=126';
 // The no-op constructors only keep the import-stripped offline smoke harness
 // inert; the hosted module always resolves the supplied Alps implementation.
@@ -318,56 +319,44 @@ function drawSeamlessRural(cx,cy,W,H){
  ctx.strokeStyle='#5d7d78';ctx.lineWidth=18;ctx.beginPath();for(let y=-30;y<H+40;y+=16){const wy=worldY+y,x=W*.61+Math.sin(wy*.0024)*88+Math.sin(wy*.006)*18;y<0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();ctx.strokeStyle='#a2b19377';ctx.lineWidth=2;ctx.stroke();
 }
 function paintZeebrugge(cx,cy,W,H){
- // Coastal harbor: the whole ground is city blocks; the sea reaches in from one
- // side of the sortie route along a curved shoreline. No canal slot cut through
- // the middle of the map.
+ // Authored harbor plate: breakwaters, quay fingers and docked ships painted as
+ // one top-down map. World-locked and mirror-tiled vertically so it scrolls
+ // forever — no procedural canal/shoreline slicing through the city.
  const camera={x:cx-W/2,y:cy-H/2};
- terrainAlpsRenderer.draw(ctx,{key:'city',camera,width:W,height:H});
  const route=game?.navalRoute;
- if(!route)return;
- const a=Number.isFinite(route.a)?route.a:-Math.PI/2,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
- const centerS=(cx-route.x)*hx+(cy-route.y)*hy,diag=Math.hypot(W,H);
- const span=diag*1.8,outer=diag*2.4;
- const point=(s,n)=>{const wx=route.x+hx*s+nx*n,wy=route.y+hy*s+ny*n;return [wx-camera.x,wy-camera.y];};
- // Shoreline: lateral distance from the route where land ends; a slow swell
- // bends the coast instead of slicing the map in a straight line.
- const shoreN=s=>Math.max(96,Math.min(240,W*.24))+Math.sin(s*.0016)*46;
- const s0=centerS-span,s1=centerS+span,steps=24;
- ctx.save();ctx.beginPath();
- for(let i=0;i<=steps;i++){const s=s0+(s1-s0)*i/steps,p=point(s,shoreN(s));i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}
- ctx.lineTo(...point(s1,outer));ctx.lineTo(...point(s0,outer));ctx.closePath();ctx.clip();
+ const img=zeebruggeHarborTile;
+ if(img.naturalWidth){
+  const k=(W*1.55)/img.naturalWidth,dw=Math.round(img.naturalWidth*k),dh=Math.round(img.naturalHeight*k);
+  // The plate's main channel sits about mid-width; pin it on the sortie line.
+  const channelWorldX=(route?route.x:camera.x+W/2)-dw*.5;
+  const period=dh*2,wy0=Math.floor(camera.y/period)*period;
+  ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+  for(let wy=wy0;wy<camera.y+H+dh;wy+=dh){
+   const band=Math.round(wy/dh),py=Math.round(wy-camera.y);
+   ctx.save();ctx.translate(0,py);if(band%2){ctx.translate(0,dh);ctx.scale(1,-1)}
+   ctx.drawImage(img,Math.round(channelWorldX-camera.x),0,dw,dh);ctx.restore();
+  }
+  ctx.restore();
+  if(route){
+   const a=Number.isFinite(route.a)?route.a:-Math.PI/2,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
+   const point=(s,n)=>{const wx=route.x+hx*s+nx*n,wy=route.y+hy*s+ny*n;return [wx-camera.x,wy-camera.y];};
+   // Escort traffic rides the painted channel: stay inside its water band.
+   const base=Math.max(340,route.maxForward-1500),spacing=520;
+   for(let i=0;i<6;i++){
+    const s=base+i*spacing,lateral=(i%2?-1:1)*(70+((i*40)%60)),p=point(s,lateral);
+    if(p[0]<-180||p[0]>W+180||p[1]<-180||p[1]>H+180)continue;
+    ctx.save();ctx.globalAlpha=.55;drawBattlefieldSprite(ctx,'ship',p[0],p[1],150,a+Math.PI/2);ctx.restore();
+   }
+  }
+  return;
+ }
+ // Fallback while the plate streams in: open water, no channel furniture.
  ctx.fillStyle='#174b68';ctx.fillRect(0,0,W,H);
  const seaTile=regionTextures.sea;
  if(seaTile?.naturalWidth){
   const tile=512,ox=((-camera.x)%tile+tile)%tile-tile,oy=((-camera.y)%tile+tile)%tile-tile;
   for(let x=ox;x<W;x+=tile)for(let y=oy;y<H;y+=tile)ctx.drawImage(seaTile,x,y,tile,tile);
  }
- ctx.restore();
- // Quay promenade along the shoreline: a stone band sits astride the boundary
- // so the city meets water through a built edge, not a razor cut.
- const shorePath=()=>{ctx.beginPath();for(let i=0;i<=steps;i++){const s=s0+(s1-s0)*i/steps,p=point(s,shoreN(s));i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}};
- ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
- ctx.strokeStyle='#6f6a55';ctx.lineWidth=34;shorePath();ctx.stroke();
- ctx.strokeStyle='#9a9277';ctx.lineWidth=14;shorePath();ctx.stroke();
- ctx.strokeStyle='#343e3ecc';ctx.lineWidth=3;shorePath();ctx.stroke();
- // Foam line lapping just off the quay wall.
- ctx.strokeStyle='#bcd9d455';ctx.lineWidth=3;ctx.beginPath();
- for(let i=0;i<=steps;i++){const s=s0+(s1-s0)*i/steps,p=point(s,shoreN(s)+13);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}
- ctx.stroke();ctx.restore();
- const travel=Math.max(0,route?.maxForward??((game?.distance||0)-(game?.stageStartDistance||0)));
- const progress=Math.max(0,Math.min(1,travel/12000));
- // Dock traffic rides the water side only; the flight lane stays open.
- if(progress>.42){
-  const base=Math.max(6200,route.maxForward-1500),spacing=520;
-  for(let i=0;i<6;i++){
-   const s=base+i*spacing,lateral=shoreN(s)+128,p=point(s,lateral);
-   if(p[0]<-180||p[0]>W+180||p[1]<-180||p[1]>H+180)continue;
-   ctx.save();ctx.globalAlpha=.78;drawBattlefieldSprite(ctx,'ship',p[0],p[1],175,a+Math.PI/2);ctx.restore();
-  }
- }
- // A restrained centerline communicates the intended one-way sortie without becoming UI clutter.
- ctx.save();ctx.globalAlpha=.22;ctx.strokeStyle='#d7e8dd';ctx.lineWidth=2;ctx.setLineDash([18,24]);
- const l0=point(centerS-span,0),l1=point(centerS+span,0);ctx.beginPath();ctx.moveTo(...l0);ctx.lineTo(...l1);ctx.stroke();ctx.setLineDash([]);ctx.restore();
 }
 function paintRegion(region,cx,cy,width=W,height=H){
  const W=width,H=height;
