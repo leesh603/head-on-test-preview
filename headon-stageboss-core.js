@@ -1,7 +1,7 @@
 export class BossPart {
-  constructor({id,maxHp,x=0,y=0,radius=24,hittable=true,kind='weakpoint'}) {
+  constructor({id,maxHp,x=0,y=0,radius=24,hittable=true,kind='weakpoint',angle=0}) {
     if(!id||!Number.isFinite(maxHp)||maxHp<=0)throw new Error('Invalid part');
-    Object.assign(this,{id,maxHp,hp:maxHp,x,y,radius,hittable,kind});
+    Object.assign(this,{id,maxHp,hp:maxHp,x,y,radius,hittable,kind,angle});
   }
   get destroyed(){return this.hp<=0;}
   hit(damage){if(!Number.isFinite(damage)||damage<0)throw new Error('Invalid part damage');if(!this.hittable||this.destroyed)return 0;const dealt=Math.min(this.hp,damage);this.hp-=dealt;return dealt;}

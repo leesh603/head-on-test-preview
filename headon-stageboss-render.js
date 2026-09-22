@@ -2,7 +2,7 @@
 // main build's pixel atlas. Bodies stay top-down; part offsets are world-aligned.
 export const BOSS_ASSET_KEYS=Object.freeze([
   'paris-gun','lincomparable','sms-stuttgart','hms-zubian','hms-zubian-front','hms-zubian-rear',
-  'zeppelin-l70','hma23','a7v-flak','mark-v-cruiser','london-apron','drachen-net','gik','ca4','armored-harbor-fortress'
+  'zeppelin-l70','hma23','a7v-flak','mark-v-cruiser','livens-flame-projector','minenwerfer-battery','london-apron','drachen-net','gik','ca4','armored-harbor-fortress'
 ]);
 export function renderStageBossLayer(addon,{drawBody,drawPart,drawHazard}) {
   for(const fn of [drawBody,drawPart,drawHazard])if(typeof fn!=='function')throw new Error('Current pixel renderer adapters required');
@@ -16,7 +16,7 @@ export function renderStageBossLayer(addon,{drawBody,drawPart,drawHazard}) {
       destroying,destructionAge:destruction?.age||0,destructionDuration:destruction?.duration||0});
     if(b.dead)continue;
     for(const part of b.parts.values())drawPart({bodyKey:b.kind,phase:b.phase,partId:part.id,kind:part.kind,x:b.x+part.x,y:b.y+part.y,
-      hp:part.hp,maxHp:part.maxHp,destroyed:part.destroyed,hittable:part.hittable,radius:part.radius});
+      hp:part.hp,maxHp:part.maxHp,destroyed:part.destroyed,hittable:part.hittable,radius:part.radius,angle:part.angle||0});
   }
   addon.hazards.pool.visit(h=>{if(h.phase!=='waiting')drawHazard(h);});
 }

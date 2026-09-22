@@ -1,6 +1,6 @@
 import {installRevision} from './rebalance103.js?v=128&b=128';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=172';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=186';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=187';
 import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=174';
 import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=165';
 import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=166';
@@ -121,7 +121,7 @@ export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this
  let wave=this.t<60?1:this.t<120?2:3;if(wave!==this.wave){this.wave=wave;this.event('wave',wave===1?(this.doctrine+' · '+(DOCTRINE_BALANCE[this.doctrine]?.label||'')):wave===2?'제2파 · 추격기 접근':'제3파 · 전선 돌파')}
  this.eventTimer-=dt;if(this.eventTimer<=0){this.eventTimer=22+this.rng()*20;let roll=this.rng(),quiet=this.mobSpawnsSuppressed();if(roll<.35&&!quiet){for(let i=0;i<3;i++)this.spawnEnemy('hunter');this.event('wave','기습! 고속 추격 편대')}else if(roll<.6&&!quiet){this.spawnEnemy('bomber');this.spawnEnemy('bomber');this.event('wave','폭격 편대 통과')}else if(roll<.8||quiet){this.drops.push({x:this.x+Math.cos(this.a)*180,y:this.y+Math.sin(this.a)*180,value:0,heal:true,supply:true,vx:0,vy:0,life:14});this.event('wave','전방 수리 보급품!')}}
  // Independent patrols replace timed follower arrivals.
- this.flakTimer-=dt;if(this.t>28&&this.flakTimer<=0){this.flakTimer=(Math.max(10,27-this.t*.028)+this.rng()*6)*(this.region===2?.6:[1,6].includes(this.region)?1.4:1);this.spawnFlak()}
+ this.flakTimer-=dt;if(this.t>28&&this.flakTimer<=0){this.flakTimer=(Math.max(10,27-this.t*.028)+this.rng()*6)*(this.region===2?.6:[1,7].includes(this.region)?1.4:1);this.spawnFlak()}
  this.spawn-=dt;if(this.spawn<=0&&this.enemies.length<65&&!this.mobSpawnsSuppressed()){this.spawn=this.regularSpawnInterval?.()??2.8;this.spawnEnemy(this.spawnComposition())}else if(this.mobSpawnsSuppressed())this.spawn=Math.max(this.spawn,.5);
  this.supplyTimer-=dt;if(this.supplyTimer<=0){this.supplyTimer=30+this.rng()*24;let a=this.rng()*Math.PI*2,d=520;this.drops.push({x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,value:0,heal:true,supply:true,vx:-Math.cos(a)*78,vy:-Math.sin(a)*78,life:18})}
  this.runScheduledAces();
@@ -443,7 +443,7 @@ Game.prototype.update=function(dt,input={}){
  const region=this.worldRegion();
  if(this.region!==region){this.region=region;this.clearRegionalHazards();if(this.mode!=='campaign')this.event('wave',(['전원 지대 · 기뢰지대','아드리아해 · 적 함대','참호 전선 · 대공포','도심','고공 전역','알프스 산맥','제브뤼헤 군항 · 해안포대'][region]||'새 전장')+' 진입')}
  if(this.state!=='playing')return;
- this.regionThreat=(this.regionThreat??20)-step;if(this.regionThreat<=0){this.regionThreat=24;if([1,6].includes(region)&&this.enemies.length<60)this.spawnEnemy(this.rng()<.12?'zeppelin':'bomber');this.spawnFlak()}
+ this.regionThreat=(this.regionThreat??20)-step;if(this.regionThreat<=0){this.regionThreat=24;if([1,7].includes(region)&&this.enemies.length<60)this.spawnEnemy(this.rng()<.12?'zeppelin':'bomber');this.spawnFlak()}
  for(const e of this.enemies){if(!e.bossPilot)continue;e.bossDash=Math.max(0,(e.bossDash||0)-step);if(this.sunStrikeContains(e))continue;e.abilityTimer-=step;if(e.abilityTimer<=0){e.abilityTimer=e.bossPilot==='bishop'?ENEMY_BOSS_BALANCE.bishopAbilityMin+this.rng()*ENEMY_BOSS_BALANCE.bishopAbilityVariance:7+this.rng()*3;this.aceAttack(e)}}
 };
 
@@ -665,8 +665,8 @@ Game.prototype.worldRegion=function(){return this.lockedRegion??this.stageBoss?.
 Game.prototype.clearRegionalHazards=function(){
  this.hostileMinefields=(this.hostileMinefields||[]).filter(f=>f.region===this.region);
  this.flakBursts=[];this.bullets=this.bullets.filter(b=>b.hazardRegion===undefined||b.hazardRegion===this.region);
- this.enemies=this.enemies.filter(e=>!e.navalVessel||[1,6].includes(this.region));
- if(this.region===4){this.enemies=this.enemies.filter(e=>!e.fieldUnit&&!e.surface);this.gasZones=[];this.fireZones=[];}
+ this.enemies=this.enemies.filter(e=>!e.navalVessel||[1,7].includes(this.region));
+ if(this.region===5){this.enemies=this.enemies.filter(e=>!e.fieldUnit&&!e.surface);this.gasZones=[];this.fireZones=[];}
  this.lastRegionalHazard=-Infinity;
 };
 const _landFlak53=Game.prototype.spawnFlak;
@@ -691,7 +691,7 @@ Game.prototype.spawnMinefield=function(){
 Game.prototype.spawnFleet=function(){
  const live=this.enemies.filter(e=>e.navalVessel&&e.hp>0);
  if(live.length>=3)return;
- const harbor=this.worldRegion()===6&&this.navalRoute,route=this.navalRoute;
+ const harbor=this.worldRegion()===7&&this.navalRoute,route=this.navalRoute;
  let x,y,a=-Math.PI/2,side=1;
  if(harbor){
   const hx=Math.cos(route.a),hy=Math.sin(route.a),nx=-hy,ny=hx;
@@ -766,7 +766,7 @@ Game.prototype.update=function(dt,input={}){
 
 // Tethered observation balloons and a rail-bound field cannon (arcade roles).
 Game.prototype.spawnFieldUnit=function(kind){
- if([1,6].includes(this.worldRegion())||this.enemies.length>=65)return null;
+ if([1,7].includes(this.worldRegion())||this.enemies.length>=65)return null;
  const rail=kind==='railgun';if(this.enemies.filter(e=>e.hp>0&&e.fieldUnit===(rail?'railgun':'balloon')).length>=(rail?1:1))return null;
  const e=this.spawnEnemy('scout');if(!e)return null;const a=this.a+(this.rng()-.5)*1.5,d=330+this.rng()*100;
  const faction=PLANES[this.plane].faction==='central'?'entente':'central',sprite=rail?'railgun':faction==='central'?'drachen':'caquot';
@@ -796,16 +796,16 @@ Game.prototype.update=function(dt,input={}){
  _fieldUpdate56.call(this,step,input);if(this.state!=='playing')return;
  for(const e of this.enemies){if(!e.fieldUnit||e.hp<=0||!e.fieldSalvoLeft||this.sunStrikeContains(e))continue;e.fieldSalvoDelay-=step;if(e.fieldSalvoDelay<=0){e.fieldSalvoLeft--;e.fieldSalvoDelay=e.fieldUnit==='railgun'?.26:.38;this.fieldVolley(e)}}
  this.fieldUnitTimer=(this.fieldUnitTimer??34)-step;
- if(this.fieldUnitTimer<=0){this.fieldUnitTimer=this.mode==='campaign'?65:55;if(![1,6].includes(this.worldRegion())){this.fieldUnitWave=(this.fieldUnitWave||0)+1;this.spawnFieldUnit(this.fieldUnitWave%2===0?'railgun':'balloon')}}
+ if(this.fieldUnitTimer<=0){this.fieldUnitTimer=this.mode==='campaign'?65:55;if(![1,7].includes(this.worldRegion())){this.fieldUnitWave=(this.fieldUnitWave||0)+1;this.spawnFieldUnit(this.fieldUnitWave%2===0?'railgun':'balloon')}}
 };
 
 // Large targets use their visible elongated hull rather than an enlarged circle.
 Game.prototype.targetCollision=function(e,x,y,b){if(e.supportInvulnUntil>this.t)return false;if(e.stageBossBody)return stageBossCollision(this,e,x,y,b);const dx=x-e.x,dy=y-e.y;if(b?.actualExplosion)return dx*dx+dy*dy<b.explosionRadius*b.explosionRadius;const pad=b?.collisionRadius||0;if(e.hullLength){const a=e.a||0,u=dx*Math.cos(a)+dy*Math.sin(a),v=-dx*Math.sin(a)+dy*Math.cos(a);return (u/(e.hullLength+pad))**2+(v/(e.hullWidth+pad))**2<1}return Math.hypot(dx,dy)<enemyAircraftHitRadius(e)+pad};
-Game.prototype.spawnGas=function(){if(this.worldRegion()!==2||(this.gasZones||[]).length>=2)return;const a=this.a+(this.rng()-.5)*.7,d=230+this.rng()*60;this.gasZones??=[];this.gasZones.push({x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,r:185,warning:2.5,life:16.5});this.event('flak','독가스 살포 예고 · 노란 경계 밖으로 이동하세요')};
+Game.prototype.spawnGas=function(){if(![2,3].includes(this.worldRegion())||(this.gasZones||[]).length>=2)return;const a=this.a+(this.rng()-.5)*.7,d=230+this.rng()*60;this.gasZones??=[];this.gasZones.push({x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,r:185,warning:2.5,life:16.5});this.event('flak','독가스 살포 예고 · 노란 경계 밖으로 이동하세요')};
 const _gasUpdate57=Game.prototype.update;
 Game.prototype.update=function(dt,input={}){
  if(this.state!=='playing')return;const step=Math.min(.04,Math.max(0,dt));
- if(this.worldRegion()!==2){this.gasZones=[];this.inGas=false;this.gasExposure=0}
+ if(![2,3].includes(this.worldRegion())){this.gasZones=[];this.inGas=false;this.gasExposure=0}
  const inside=()=>this.worldRegion()===2&&(this.gasZones||[]).some(z=>z.warning<=0&&z.life>0&&Math.hypot(this.x-z.x,this.y-z.y)<z.r);
  const turn=this.turn;let control=input;
  if(inside()){this.turn*=.55;control={...input};const drift=Math.sin(this.t*2.4)*.22;if(Number.isFinite(control.angle))control.angle+=drift;else control.steer=(control.steer||0)+drift;}
@@ -1365,15 +1365,15 @@ Game.prototype.tickRevisionWorld=function(dt){
  this.fireZones=(this.fireZones||[]).filter(f=>f.life>0);
  for(const f of this.hostileMinefields||[])if(f.warning<=0)for(const m of f.mines){if(m.dead)continue;for(const p of ps)if(p.hp>0&&Math.hypot(p.x-m.x,p.y-m.y)<BATTLEFIELD113.mineTrigger){m.dead=true;if(this.players)this.hitPlayer(p,BATTLEFIELD113.mineDamage);else this.hit(BATTLEFIELD113.mineDamage);this.combatBlast(m.x,m.y,76,'enemy');break;}}
  for(const g of this.gusts||[]){if(!g.strong113){g.strong113=true;g.radius*=1.55;g.vx*=1.6;g.vy*=1.6;}for(const p of ps)if(p.hp>0&&Math.hypot(p.x-g.x,p.y-g.y)<g.radius){p.x+=g.vx*dt*.32;p.y+=g.vy*dt*.32;p.a+=Math.sin(this.t*9)*dt*.65;}}
- if(this.worldRegion()===4){if(!this.skyTimers113){this.skyTimers113={fieldUnitTimer:this.fieldUnitTimer,flakTimer:this.flakTimer};}this.gustTimer=Math.min(this.gustTimer??0,4.5);this.fieldUnitTimer=Infinity;this.flakTimer=Infinity;}else{if(this.skyTimers113){Object.assign(this,this.skyTimers113);this.skyTimers113=null;}if(Number.isFinite(this.gustTimer)&&this.gustTimer<120)this.gustTimer=Math.min(this.gustTimer,24);}
+ if(this.worldRegion()===5){if(!this.skyTimers113){this.skyTimers113={fieldUnitTimer:this.fieldUnitTimer,flakTimer:this.flakTimer};}this.gustTimer=Math.min(this.gustTimer??0,4.5);this.fieldUnitTimer=Infinity;this.flakTimer=Infinity;}else{if(this.skyTimers113){Object.assign(this,this.skyTimers113);this.skyTimers113=null;}if(Number.isFinite(this.gustTimer)&&this.gustTimer<120)this.gustTimer=Math.min(this.gustTimer,24);}
  for(const b of this.bullets){if(b.enemy&&(b.flak||b.naval||b.fieldShell)&&!b.threat113){b.threat113=true;b.vx*=1.3;b.vy*=1.3;b.damage*=1.15;}
   if((b.motorCannon||b.cow37)&&!b.recoil113){b.recoil113=true;b.collisionRadius=b.cow37?13:9;const p=ps.find(p=>p.id===b.ownerId)||ps[0];if(p){const kick=b.cow37?16:11;p.x-=Math.cos(p.a)*kick;p.y-=Math.sin(p.a)*kick;p.cannonRecoil129=.24;p.cannonKick129=kick;p.cannonKind129=b.cow37?'cow':'motor';}}
  }
 };
 const _flak113=Game.prototype.spawnFlak;
-Game.prototype.spawnFlak=function(){if(this.worldRegion()===4)return;return _flak113.call(this)};
+Game.prototype.spawnFlak=function(){if(this.worldRegion()===5)return;return _flak113.call(this)};
 const _scheduled113=Game.prototype.runScheduledAces;
-Game.prototype.runScheduledAces=function(){if(this.worldRegion()===4)return;return _scheduled113.call(this)};
+Game.prototype.runScheduledAces=function(){if(this.worldRegion()===5)return;return _scheduled113.call(this)};
 const _ace113=Game.prototype.aceAttack;
 Game.prototype.aceAttack=function(e){
  const result=_ace113.call(this,e);const p=this.enemyCombatTarget(e),aim=Math.atan2(p.y-e.y,p.x-e.x);

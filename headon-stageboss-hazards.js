@@ -7,6 +7,7 @@ const segmentDistance = (px,py,x0,y0,x1,y1) => {
 export function contains(h,p) {
   const radius=p.radius||0;
   if(h.kind==='rect')return Math.abs(p.x-h.x)<=h.width/2+radius&&Math.abs(p.y-h.y)<=h.height/2+radius;
+  if(h.kind==='beam'){const x1=h.x+Math.cos(h.angle)*h.length,y1=h.y+Math.sin(h.angle)*h.length;return segmentDistance(p.x,p.y,h.x,h.y,x1,y1)<=h.thickness/2+radius;}
   if(h.kind==='searchlight')return Math.hypot(p.x-h.x,p.y-h.y)<=h.radius+radius&&Math.abs(wrap(Math.atan2(p.y-h.y,p.x-h.x)-h.angle))<=h.halfAngle;
   return Math.hypot(p.x-h.x,p.y-h.y)<=h.radius+radius;
 }
@@ -17,15 +18,16 @@ export class BossHazards {
     this.pool=new FixedPool(capacity,()=>({hits:new Set()}));
   }
   spawn(spec) {
-    if(!['circle','rect','projectile','searchlight'].includes(spec.kind)||!spec.encounterId)throw new Error('Invalid hazard');
+    if(!['circle','rect','projectile','searchlight','beam'].includes(spec.kind)||!spec.encounterId)throw new Error('Invalid hazard');
     for(const key of ['x','y','damage'])if(!Number.isFinite(spec[key]))throw new Error('Invalid hazard '+key);
     if(spec.damage<0||!(spec.duration>0)||!Number.isFinite(spec.duration))throw new Error('Invalid hazard damage/duration');
+    if(spec.kind==='beam'&&(!(spec.length>0)||!(spec.thickness>0)||!Number.isFinite(spec.angle)))throw new Error('Invalid beam geometry');
     for(const key of ['delay','warning'])if(spec[key]!=null&&(!Number.isFinite(spec[key])||spec[key]<0))throw new Error('Invalid hazard phase');
     const h=this.pool.acquire();if(!h)return null;
     h.hits.clear();Object.assign(h,{
       id:'boss-hazard-'+(++this.serial),encounterId:spec.encounterId,bossId:spec.bossId,kind:spec.kind,
       x:spec.x,y:spec.y,vx:spec.vx||0,vy:spec.vy||0,radius:spec.radius||6,width:spec.width||1,height:spec.height||1,
-      angle:spec.angle||0,angularSpeed:spec.angularSpeed||0,halfAngle:spec.halfAngle||.15,
+      angle:spec.angle||0,angularSpeed:spec.angularSpeed||0,halfAngle:spec.halfAngle||.15,length:spec.length||1,thickness:spec.thickness||1,
       damage:spec.damage,age:0,delay:spec.delay||0,warning:spec.warning||0,duration:spec.duration,
       tickInterval:spec.tickInterval||.5,nextTick:0,phase:'waiting',once:!!spec.once,applied:false,activated:false,
       targetId:spec.targetId,lockAtWarning:!!spec.lockAtWarning,locked:false,offsetX:spec.offsetX||0,offsetY:spec.offsetY||0,

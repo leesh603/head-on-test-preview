@@ -1,9 +1,9 @@
 import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=183';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=149&b=149';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=187';
 
-// Alps is a sixth real stage.  The remaining terrain profiles are visual
-// variants only; they never create phantom stages in the campaign loop.
-export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'city', 'sky', 'alps', 'zeebrugge']);
+// Trench II is an independent battlefield between the original trenches and
+// later theaters. Stable stage IDs keep both trench maps in the endless loop.
+export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge']);
 export const BOSS_CATALOG = Object.freeze({
   'paris-gun': {name:'브루노 열차포', faction:'central', stage:0},
   lincomparable: {name:'520mm 열차포 · 랑콩파라블', faction:'entente', stage:0},
@@ -11,13 +11,15 @@ export const BOSS_CATALOG = Object.freeze({
   'hms-zubian': {name:'분열 구축함 · HMS 쥬비안', faction:'entente', stage:1},
   'a7v-flak': {name:'A7V 플라크판처', faction:'central', stage:2},
   'mark-v-cruiser': {name:'대공 육상 전함 · 마크 V 크루이저', faction:'entente', stage:2},
-  'drachen-net': {name:'드라헨 공중 기뢰 방어망', faction:'central', stage:3},
-  'london-apron': {name:'런던 에이프런 방공망', faction:'entente', stage:3},
-  'zeppelin-l70': {name:'슈퍼 체펠린 L 70', faction:'central', stage:4},
-  hma23: {name:'공중 항모 · HMA 23급', faction:'entente', stage:4},
-  gik: {name:'한자-브란덴부르크 G.IK', faction:'central', stage:5},
-  ca4: {name:'카프로니 Ca.4', faction:'entente', stage:5}
-  ,'armored-harbor-fortress': {name:'장갑 크레인 항구요새', faction:'neutral', stage:6}
+  'livens-flame-projector': {name:'리벤스 대형 화염방사기', faction:'entente', stage:3},
+  'minenwerfer-battery': {name:'미넨베르퍼 중박격포 진지', faction:'central', stage:3},
+  'drachen-net': {name:'드라헨 공중 기뢰 방어망', faction:'central', stage:4},
+  'london-apron': {name:'런던 에이프런 방공망', faction:'entente', stage:4},
+  'zeppelin-l70': {name:'슈퍼 체펠린 L 70', faction:'central', stage:5},
+  hma23: {name:'공중 항모 · HMA 23급', faction:'entente', stage:5},
+  gik: {name:'한자-브란덴부르크 G.IK', faction:'central', stage:6},
+  ca4: {name:'카프로니 Ca.4', faction:'entente', stage:6}
+  ,'armored-harbor-fortress': {name:'장갑 크레인 항구요새', faction:'neutral', stage:7}
 });
 const living = players => players.filter(p => p.alive);
 const randBetween = (rng,a,b) => a + (b-a)*rng();
@@ -314,6 +316,74 @@ export class ArmoredHarborFortress extends PatternBoss {
   }
 }
 
+
+const turnToward=(from,to,maxStep)=>from+Math.max(-maxStep,Math.min(maxStep,Math.atan2(Math.sin(to-from),Math.cos(to-from))));
+export class LivensFlameProjector extends PatternBoss {
+  constructor(options){
+    super({...options,kind:'livens-flame-projector',parts:[
+      {id:'tank-l1',x:-105,y:-58,radius:27},{id:'tank-l2',x:-105,y:28,radius:27},
+      {id:'tank-r1',x:105,y:-58,radius:27},{id:'tank-r2',x:105,y:28,radius:27},
+      {id:'pressure',x:0,y:62,radius:29},{id:'nozzle',x:0,y:-72,radius:31,angle:-Math.PI/2}
+    ]});
+    this.phase='sealed';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
+    this.nozzleAngle=-Math.PI/2;this.lockedFlameAngle=null;
+  }
+  onPartDestroyed(p){
+    if(p.id==='nozzle')this.command('cancel-hazards',{tag:'livens-flame'});
+    if(this.allDestroyed(['tank-l1','tank-l2','tank-r1','tank-r2','pressure','nozzle'])){
+      this.phase='core-exposed';this.coreVulnerable=true;this.command('phase-change',{phase:'exposed'});
+    }
+  }
+  update(dt,{players}){
+    this.x=this.anchorX;this.y=this.anchorY;
+    const nozzle=this.parts.get('nozzle'),target=this.target(players);
+    if(!nozzle.destroyed&&target&&this.lockedFlameAngle==null){
+      const desired=Math.atan2(target.y-(this.y+nozzle.y),target.x-(this.x+nozzle.x));
+      const damaged=nozzle.hp<=nozzle.maxHp*.5,rate=damaged?.48:.92;
+      this.nozzleAngle=turnToward(this.nozzleAngle,desired,rate*dt);nozzle.angle=this.nozzleAngle;
+    }
+    if(!nozzle.destroyed&&this.due('main-flame',dt,this.t.flameInterval||5.8)){
+      this.lockedFlameAngle=this.nozzleAngle;
+      const pressure=this.parts.get('pressure'),weakened=pressure.destroyed;
+      this.hazard('beam',{x:this.x+nozzle.x,y:this.y+nozzle.y,angle:this.lockedFlameAngle,length:weakened?390:560,thickness:weakened?38:54,
+        warning:weakened?1.4:1.15,duration:weakened?1.2:1.8,tickInterval:.22,damage:this.t.damage*(weakened?.65:1),visual:'livens-flame',tag:'livens-flame'});
+      this.command('flame-warning',{x:this.x+nozzle.x,y:this.y+nozzle.y,angle:this.lockedFlameAngle,seconds:weakened?1.4:1.15});
+      this.flameLockTime=(weakened?1.4:1.15)+(weakened?1.2:1.8);
+    }
+    if(this.flameLockTime>0){this.flameLockTime=Math.max(0,this.flameLockTime-dt);if(!this.flameLockTime)this.lockedFlameAngle=null;}
+    const broken=['tank-l1','tank-l2','tank-r1','tank-r2'].filter(id=>this.parts.get(id).destroyed);
+    if(broken.length&&this.due('leak-fire',dt,Math.max(2.2,5-broken.length*.55))){const id=broken[Math.floor(this.rng()*broken.length)],p=this.parts.get(id);this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:54,warning:.8,duration:2.2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak'});}
+  }
+}
+export class MinenwerferBattery extends PatternBoss {
+  constructor(options){
+    super({...options,kind:'minenwerfer-battery',parts:[
+      {id:'gun-left',x:-92,y:-22,radius:28},{id:'gun-right',x:92,y:-22,radius:28},{id:'main-gun',x:0,y:-72,radius:34},
+      {id:'ammo-main',x:0,y:38,radius:29},{id:'crane',x:-62,y:66,radius:25},{id:'command',x:62,y:66,radius:25}
+    ]});
+    this.phase='fortified';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
+  }
+  onPartDestroyed(p){
+    if(p.id==='ammo-main')this.command('ammo-cookoff',{x:this.x+p.x,y:this.y+p.y});
+    if(this.allDestroyed(['gun-left','gun-right','main-gun'])){this.phase='core-exposed';this.coreVulnerable=true;this.command('phase-change',{phase:'exposed'});}
+  }
+  mortar(partId,players,count,spread=58){
+    const gun=this.parts.get(partId),target=this.target(players);if(!gun||gun.destroyed||!target)return;
+    const command=this.parts.get('command'),ammo=this.parts.get('ammo-main'),warning=command.destroyed?1.45:1.05,scatter=command.destroyed?spread*1.45:spread;
+    count=Math.max(1,count-(ammo.destroyed?2:0));
+    for(let i=0;i<count;i++)this.hazard('circle',{x:target.x+(i-(count-1)/2)*scatter+(this.rng()-.5)*18,y:target.y+(target.vy||0)*.45,
+      radius:partId==='main-gun'?62:46,delay:i*.15,warning,duration:.3,once:true,damage:this.t.damage*(partId==='main-gun'?1.15:.72),visual:partId==='main-gun'?'minenwerfer-heavy':'minenwerfer-shell'});
+    this.command('muzzle',{x:this.x+gun.x,y:this.y+gun.y,partId});
+  }
+  update(dt,{players}){
+    this.x=this.anchorX;this.y=this.anchorY;
+    const crane=this.parts.get('crane'),reload=crane.destroyed?1.45:1;
+    if(this.due('left-barrage',dt,3.5*reload))this.mortar('gun-left',players,3);
+    if(this.due('right-barrage',dt,3.8*reload))this.mortar('gun-right',players,3);
+    if(this.due('main-barrage',dt,(this.t.mortarInterval||5.6)*reload))this.mortar('main-gun',players,6,52);
+  }
+}
+
 export class LondonApron extends PatternBoss {
   constructor(options) {
     super({...options,kind:'london-apron',parts:[-105,0,105].map((x,i)=>({id:'balloon-'+i,x,y:-58,radius:31}))});
@@ -356,6 +426,7 @@ export class DrachenMineNet extends PatternBoss {
 
 const constructors={'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttgart':Stuttgart,'hms-zubian':Zubian,
   'zeppelin-l70':ZeppelinL70,hma23:HMA23,'a7v-flak':A7VFlak,'mark-v-cruiser':MarkVCruiser,
+  'livens-flame-projector':LivensFlameProjector,'minenwerfer-battery':MinenwerferBattery,
   'london-apron':LondonApron,'drachen-net':DrachenMineNet,gik:GIK,ca4:Ca4,'armored-harbor-fortress':ArmoredHarborFortress};
 export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   const entry=BOSS_CATALOG[bossId],Ctor=constructors[bossId];if(!Ctor)throw new Error('Unknown boss: '+bossId);

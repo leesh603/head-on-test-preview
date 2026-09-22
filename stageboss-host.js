@@ -1,8 +1,8 @@
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=184';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=184';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=159';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=187';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=187';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=187';
 
-export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항'];
+export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const players=g=>g.players||[g];
@@ -29,7 +29,9 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     'hms-zubian':{broadsideInterval:1.2/density,mortarInterval:2.05,chargeInterval:3.05},
     'zeppelin-l70':{engineInterval:2.6,engineShotCount:3,suppressiveInterval:3.75,suppressiveCount:5,gasInterval:7.5},
     hma23:{launchInterval:2.8,panicInterval:2.55},
-    gik:{suppressiveInterval:3.4,suppressiveCount:5,rearFinalInterval:.65}
+    gik:{suppressiveInterval:3.4,suppressiveCount:5,rearFinalInterval:.65},
+    'livens-flame-projector':{flameInterval:6.2},
+    'minenwerfer-battery':{mortarInterval:5.8}
     ,'armored-harbor-fortress':{coastalInterval:2.5,craneInterval:4.8,harborLaunchInterval:5.6}
    }[bossId]||{};
    return {loopIndex:loop,projectileDensity:density,maxHp,partHp:maxHp*.12,damage:Math.round(18*(1+g.t/240)*(1+Math.min(.5,loop*.12))),bulletSpeed:270,coreRadius:150,
@@ -76,7 +78,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    g.event('kill','');g.event('wave',BOSS_CATALOG[bossId].name+' 격파 · 다음 지역 진입');
    const hero=players(g)[0]||g;for(let i=0;i<9;i++){const a=i*.7;(g.drops||=[]).push({x:hero.x+Math.cos(a)*70,y:hero.y+Math.sin(a)*70,value:16,heal:i===0,bossReward:true})}
   },
-  onStageChange({stageIndex,loopIndex}){g.region=stageIndex;g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.clearRegionalHazards();g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=stageIndex===6?{x:g.x,y:g.y,a:Number.isFinite(g.a)?g.a:-Math.PI/2,maxForward:0}:null;g.event('wave',STAGE_NAMES[stageIndex]+' · '+(loopIndex+1)+'회차');},
+  onStageChange({stageIndex,loopIndex}){g.region=stageIndex;g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.clearRegionalHazards();g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=stageIndex===7?{x:g.x,y:g.y,a:Number.isFinite(g.a)?g.a:-Math.PI/2,maxForward:0}:null;g.event('wave',STAGE_NAMES[stageIndex]+' · '+(loopIndex+1)+'회차');},
   clearEncounterOwned(id){g.enemies=g.enemies.filter(e=>e.encounterId!==id);g.bullets=g.bullets.filter(b=>b.encounterId!==id);for(const p of players(g))for(const [key,s] of p.bossStatuses||[])if(s.encounterId===id)p.bossStatuses.delete(key);g.bossCues=[];}
  };
  g.stageBoss=new StageBossAddon({runId:g.runId||globalThis.crypto?.randomUUID?.()||'solo-'+Date.now(),teamFaction,hooks,rng:g.rng});
@@ -118,31 +120,32 @@ export function beginStageBossFrame(g,dt){
  addon.reconcile({blocked:false});
  for(const p of players(g))for(const [id,s]of p.bossStatuses||[]){s.remaining-=dt;if(s.remaining<=0||!alive(p))p.bossStatuses.delete(id);}
  g.bossCues=g.bossCues.filter(c=>(c.life-=dt)>0);
- const stage=addon.stages.stageIndex,naval=stage===1||stage===6;
- let route=stage===6?g.navalRoute:null;
- if(stage===6&&!route)route=g.navalRoute={x:g.x,y:g.y,a:Number.isFinite(g.a)?g.a:-Math.PI/2,maxForward:0};
+ const stage=addon.stages.stageIndex,naval=stage===1||stage===7;
+ let route=stage===7?g.navalRoute:null;
+ if(stage===7&&!route)route=g.navalRoute={x:g.x,y:g.y,a:Number.isFinite(g.a)?g.a:-Math.PI/2,maxForward:0};
  if(route){const hx=Math.cos(route.a),hy=Math.sin(route.a),forward=(g.x-route.x)*hx+(g.y-route.y)*hy;route.maxForward=Math.max(route.maxForward||0,forward);}
- const travel=stage===6?Math.max(0,route.maxForward||0):(g.distance||0)-g.stageStartDistance,progress=Math.max(0,Math.min(1,travel/STAGE_BOSS_BALANCE.distance));
+ const travel=stage===7?Math.max(0,route.maxForward||0):(g.distance||0)-g.stageStartDistance,progress=Math.max(0,Math.min(1,travel/STAGE_BOSS_BALANCE.distance));
  if(naval&&addon.stages.phase==='explore'){
-  const messages=stage===6?[[.12,'군항 외곽 진입 · 방파제 수로를 따라 전진'],[.46,'내항 접근 · 부두 사이 주항로 유지'],[.76,'항만 중심부 진입 · 우현 요새 포대 확인']]:[[.12,'연안 이탈 · 함대 수색 개시'],[.46,'외해 진입 · 적 수상기 활동 포착'],[.76,'수평선에 적 군함 실루엣 확인']];
+  const messages=stage===7?[[.12,'군항 외곽 진입 · 방파제 수로를 따라 전진'],[.46,'내항 접근 · 부두 사이 주항로 유지'],[.76,'항만 중심부 진입 · 우현 요새 포대 확인']]:[[.12,'연안 이탈 · 함대 수색 개시'],[.46,'외해 진입 · 적 수상기 활동 포착'],[.76,'수평선에 적 군함 실루엣 확인']];
   g.navalRouteCues??=new Set();for(const [mark,message]of messages)if(progress>=mark&&!g.navalRouteCues.has(mark)){g.navalRouteCues.add(mark);g.event('wave',message);}
  }
  const ready=travel>=STAGE_BOSS_BALANCE.distance||g.t-g.stageStartTime>=STAGE_BOSS_BALANCE.deadline;
  if(addon.stages.phase==='explore'&&ready){
-  if(naval&&!g.navalApproachAt){g.navalApproachAt=g.t;g.event('wave',stage===6?'경고 · 장갑 항구요새 전면 도달':'경고 · 적 주력함이 전방에서 접근 중');g.event('heavyShot','');}
+  if(naval&&!g.navalApproachAt){g.navalApproachAt=g.t;g.event('wave',stage===7?'경고 · 장갑 항구요새 전면 도달':'경고 · 적 주력함이 전방에서 접근 중');g.event('heavyShot','');}
   if(!naval||g.t-g.navalApproachAt>=5.2){
-   const bounds=stageBossBounds(g),alpine=stage===5,rail=['paris-gun','lincomparable'].includes(addon.stages.bossId);
+   const bounds=stageBossBounds(g),alpine=stage===6,rail=['paris-gun','lincomparable'].includes(addon.stages.bossId);
    let x,y;
-   if(stage===6&&route){
+   if(stage===7&&route){
     // The harbor fortress is shore-mounted, never centered in the flight lane.
     const forward=Math.max(500,Math.min(700,(bounds.bottom-bounds.top)*.9)),sideOffset=Math.max(340,Math.min(460,(bounds.right-bounds.left)*.55));
     const hx=Math.cos(route.a),hy=Math.sin(route.a),nx=-hy,ny=hx,along=(route.maxForward||0)+forward;
     x=route.x+hx*along+nx*sideOffset;y=route.y+hy*along+ny*sideOffset;
    }else{
-    const forward=naval?Math.max(520,Math.min(760,(bounds.bottom-bounds.top)*1.05)):rail?Math.max(460,Math.min(650,(bounds.bottom-bounds.top)*.82)):0;
+    const structure=stage===3;
+    const forward=naval?Math.max(520,Math.min(760,(bounds.bottom-bounds.top)*1.05)):structure?Math.max(520,Math.min(700,(bounds.bottom-bounds.top)*.95)):rail?Math.max(460,Math.min(650,(bounds.bottom-bounds.top)*.82)):0;
     const heading=Number.isFinite(g.a)?g.a:-Math.PI/2;
-    x=g.x+(alpine?105:(naval||rail)?Math.cos(heading)*forward:0);
-    y=g.y+(alpine?-Math.max(165,Math.min(180,(bounds.bottom-bounds.top)*.24)):(naval||rail)?Math.sin(heading)*forward:-Math.min(180,(bounds.bottom-bounds.top)*.22));
+    x=g.x+(alpine?105:(naval||rail||structure)?Math.cos(heading)*forward:0);
+    y=g.y+(alpine?-Math.max(165,Math.min(180,(bounds.bottom-bounds.top)*.24)):(naval||rail||structure)?Math.sin(heading)*forward:-Math.min(180,(bounds.bottom-bounds.top)*.22));
    }
    addon.startBoss({x,y});g.navalApproachAt=null;
   }
@@ -161,7 +164,9 @@ const LARGE_AIRCRAFT_HULLS=Object.freeze({
  // inside the bomber while its movement path crosses them.
  gik:{halfWidth:128,halfHeight:150},
  ca4:{halfWidth:128,halfHeight:150},
- 'armored-harbor-fortress':{halfWidth:245,halfHeight:235}
+ 'armored-harbor-fortress':{halfWidth:245,halfHeight:235},
+ 'livens-flame-projector':{halfWidth:220,halfHeight:175},
+ 'minenwerfer-battery':{halfWidth:210,halfHeight:165}
 });
 export function separateLargeBossBodies(g){
  if(blocked(g))return;
