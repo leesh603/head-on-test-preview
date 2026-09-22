@@ -1,6 +1,6 @@
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // Rendering never changes projectile movement, damage or collision.
-import {fx,fxReady,fxTint} from './fx-art.js';
+import {fx,fxReady,fxTint} from './fx-art.js?v=193';
 export function projectileStyle(b){return b.hostileRocket?'rocket':b.flak?'flak':b.visualType||(b.naval?'naval':b.fieldShell?'balloon':b.heavy?'heavyBomber':'scout')}
 const TRACERS={scout:['#e7a06b',10,2],hunter:['#efb77f',14,2],bomber:['#dfbc7b',11,3],heavyBomber:['#e4ae72',15,3],boss:['#e58f7c',16,3],zeppelin:['#d8bb8b',12,3],railgun:['#efaa89',23,3],naval:['#dfaa82',16,3],balloon:['#dbbf8b',8,3],flak:['#dfac80',6,3],rocket:['#edac77',15,3]};
 const cannonAtlas=typeof Image==='undefined'?null:new Image();

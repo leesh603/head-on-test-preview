@@ -1,6 +1,6 @@
 import {installRevision} from './rebalance103.js?v=128&b=128';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=172';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=188';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=195';
 import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=174';
 import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=165';
 import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=166';
@@ -704,8 +704,10 @@ Game.prototype.spawnFleet=function(){
  const harbor=this.worldRegion()===7&&this.navalRoute,route=this.navalRoute;
  let x,y,a=-Math.PI/2,side=1;
  if(harbor){
-  side=this.rng()>.5?1:-1;const hx=Math.cos(route.a),hy=Math.sin(route.a),nx=-hy,ny=hx;
-  const along=(route.maxForward||0)+340+this.rng()*220,bank=Math.max(300,Math.min(430,(this.viewWidth||960)*.48));
+  const hx=Math.cos(route.a),hy=Math.sin(route.a),nx=-hy,ny=hx;
+  // The painted harbor plate runs its channel on the route line; keep guard
+  // ships inside the water band, not on the quay fingers.
+  const along=(route.maxForward||0)+340+this.rng()*220,bank=Math.max(60,Math.min(140,(this.viewWidth||960)*.16));
   x=route.x+hx*along+nx*side*bank;y=route.y+hy*along+ny*side*bank;a=route.a;
  }else{
   const bearing=this.a+(this.rng()>.5?1:-1)*.9,d=360+this.rng()*100;x=this.x+Math.cos(bearing)*d;y=this.y+Math.sin(bearing)*d;

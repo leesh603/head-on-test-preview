@@ -1,8 +1,7 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
 import {getLocale,subscribe} from './i18n.js?v=175';
-import {clearAircraftMatte} from './aircraft.js?v=116&b=117';
-import {clearCrewMatte} from './matte70.js?v=116&b=117';
-import {aircraftArt,pilotEnglishNames} from './main-ui-art180.js?v=180';
+import {aircraftKey,aircraftPreviewURL} from './aircraft.js?v=193';
+import {pilotEnglishNames} from './main-ui-art180.js?v=180';
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
 const put=(node,text)=>{if(node&&node.textContent!==text)node.textContent=text};
@@ -23,27 +22,12 @@ export function interfaceIcon(name,cls='astra-icon'){
  holder.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round">${paths[name]||paths.sortie}</svg>`;
  return holder;
 }
-// Reuse the production matte algorithm at native resolution. This cleans only
-// the hangar illustration; the 144px gameplay sprite and its collision stay intact.
-const rawHangarArt={fokker:'./fokker.png',baron_albatros:'./baron_albatros.png',albatros_d2:'./albatros_d2.png',nieuport_italian:'./nieuport.png'};
-const artCache=new Map();
-function hangarArt(key){
- if(!rawHangarArt[key])return Promise.resolve(aircraftArt[key]||'');
- if(artCache.has(key))return artCache.get(key);
- const pending=new Promise(resolve=>{const image=new Image();image.onerror=()=>resolve('');image.onload=()=>{
-  try{
-   const scan=document.createElement('canvas');scan.width=image.naturalWidth;scan.height=image.naturalHeight;
-   const c=scan.getContext('2d',{willReadFrequently:true});c.drawImage(image,0,0);
-   const pixels=c.getImageData(0,0,scan.width,scan.height),rgba=pixels.data;
-   if(key==='nieuport_italian')for(let i=0;i<rgba.length;i+=4){const r=rgba[i],g=rgba[i+1],b=rgba[i+2];if(rgba[i+3]>0&&b>70&&b>r*1.18&&b>g*1.05){rgba[i]=55;rgba[i+1]=132;rgba[i+2]=78}}
-   clearAircraftMatte(key,rgba,scan.width,scan.height);clearCrewMatte(key,rgba,scan.width,scan.height);c.putImageData(pixels,0,0);
-   let l=scan.width,t=scan.height,r=-1,b=-1;
-   for(let y=0;y<scan.height;y++)for(let x=0;x<scan.width;x++)if(rgba[(y*scan.width+x)*4+3]>128){l=Math.min(l,x);r=Math.max(r,x);t=Math.min(t,y);b=Math.max(b,y)}
-   if(r<l||b<t){resolve('');return}
-   const out=document.createElement('canvas');out.width=r-l+1;out.height=b-t+1;out.getContext('2d').drawImage(scan,l,t,out.width,out.height,0,0,out.width,out.height);resolve(out.toDataURL('image/png'));
-  }catch{resolve('')}
- };image.src=rawHangarArt[key]});artCache.set(key,pending);return pending;
-}
+// Hangar art comes straight from the game's painted sprite pipeline — the same
+// pilot-aware, content-cropped sprite the legacy roster canvases draw.
+// index.html gates first paint behind html.ui-pending; drop it when the first
+// hangar art resolves so the UI and the plane appear together. A 2.5s fallback
+// timer in the gate covers sprite-load failure.
+const clearFirstPaintGate=()=>document.documentElement.classList.remove('ui-pending');
 function ring(){
  const r=el('span','astra-dial');r.setAttribute('aria-hidden','true');
  r.innerHTML='<svg viewBox="0 0 100 100"><circle class="dial-track" cx="50" cy="50" r="45"/><circle class="dial-progress" cx="50" cy="50" r="45" pathLength="100"/></svg>';return r;
@@ -133,10 +117,11 @@ function install(){
   put(airRole,$('pilotAircraft').textContent.split(' · ').slice(1).join(' · '));
   const hasChoice=!$('baronAircraftChoice').classList.contains('hidden');previous.hidden=next.hidden=!hasChoice;
   previous.setAttribute('aria-label',en?'Switch aircraft':'이전 기체');next.setAttribute('aria-label',en?'Switch aircraft':'다음 기체');
-  if(aircraftId!==lastArt){lastArt=aircraftId;art.hidden=true;figure.classList.remove('has-art');
-   hangarArt(aircraftId).then(url=>{if(lastArt!==aircraftId)return;if(!url){art.removeAttribute('src');return}
-    art.onload=()=>{if(lastArt!==aircraftId)return;art.hidden=false;figure.classList.add('has-art')};
-    art.onerror=()=>{art.hidden=true;figure.classList.remove('has-art')};art.src=url;
+  const artKey=pilot+':'+aircraftId;
+  if(artKey!==lastArt){lastArt=artKey;art.hidden=true;figure.classList.remove('has-art');
+   aircraftPreviewURL(aircraftKey(aircraftId,false,pilot)).then(url=>{if(lastArt!==artKey)return;if(!url){art.removeAttribute('src');clearFirstPaintGate();return}
+    art.onload=()=>{if(lastArt!==artKey)return;art.hidden=false;figure.classList.add('has-art');clearFirstPaintGate()};
+    art.onerror=()=>{art.hidden=true;figure.classList.remove('has-art');clearFirstPaintGate()};art.src=url;
    });
   }
   art.alt=airName.textContent;
