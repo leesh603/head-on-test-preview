@@ -1,6 +1,6 @@
-import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,separatePlayerFromLargeBossBodies,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=187';
+import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=208';
 
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=162';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=208';
 import {attachAircraftPersonality} from './aircraft-personality164.js?v=174';
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.
@@ -158,7 +158,7 @@ export class CoopGame {
   if(inGas){p.turn*=.55;const drift=Math.sin(this.t*2.4)*.22;if(Number.isFinite(control.angle))control.angle+=drift;else control.steer=(control.steer||0)+drift}
   p.duoSpinStep=duo?Math.min(dt,active):0;p.flyAirframe(dt,control);p.duoSpinStep=0;p.turn=turn;
   const diving=p.pilot==='baron'&&!p.isRedHunter()&&p.skillTime>0,velocity=p.baseSpeed*p.healthSpeedFactor()*stageBossSpeed(p)*(boost?1.7:1)*(charge?4.6:diving?1.85:p.evadeTime>0?2.35:p.airframeSpeed??1)*(p.pursuitSpeedFactor??1);
-  p.x+=Math.cos(p.a)*velocity*dt;p.y+=Math.sin(p.a)*velocity*dt;this.constrainMove(p,oldX,oldY);separatePlayerFromLargeBossBodies(this);p.distance+=Math.hypot(p.x-oldX,p.y-oldY);
+  p.x+=Math.cos(p.a)*velocity*dt;p.y+=Math.sin(p.a)*velocity*dt;this.constrainMove(p,oldX,oldY);p.distance+=Math.hypot(p.x-oldX,p.y-oldY);
   p.updateTailLock(dt);
   if(charge){p.invuln=Math.max(p.invuln,dt+.02);p.a=p.chargeAngle;p.chargeTime=Math.max(0,p.chargeTime-dt);for(const e of this.enemies)if(e.hp>0&&!p.chargeHits.has(e)&&segmentDistance(e.x,e.y,oldX,oldY,p.x,p.y)<(e.heavyBomber?85:52)){p.chargeHits.add(e);this.emit(p,{x:e.x,y:e.y,vx:0,vy:0,life:.15,damage:p.damage*18,blast:true});this.combatBlast(e.x,e.y,48,'friendly')}}
   if(p.bishopTime>0){p.invuln=Math.max(p.invuln,dt+.05);p.bishopTime=Math.max(0,p.bishopTime-dt);p.bishopBombTimer-=dt;if(p.bishopDrops>0&&p.bishopBombTimer<=0){p.bishopDrops--;p.bishopBombTimer=.23;const target=this.enemies.filter(e=>e.hp>0).sort((a,b)=>squared(a,p)-squared(b,p))[0];this.blast(p,target?.x??p.x+Math.cos(p.a)*120,target?.y??p.y+Math.sin(p.a)*120,110,p.payloadPower(90))}if(p.bishopTime===0){p.bishopEmptyPending=true}}
