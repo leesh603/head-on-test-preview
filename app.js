@@ -324,9 +324,23 @@ function paintZeebrugge(cx,cy,W,H){
  // forever — no procedural canal/shoreline slicing through the city.
  const camera={x:cx-W/2,y:cy-H/2};
  const route=game?.navalRoute;
- const img=zeebruggeHarborTile;
- if(img.naturalWidth){
-  const k=(W*1.55)/img.naturalWidth,dw=Math.round(img.naturalWidth*k),dh=Math.round(img.naturalHeight*k);
+ // Bake once: mute the authored plate toward the flat palette of the other
+ // regions (desaturate, pull toward slate, soften detail at half resolution).
+ let img=zeebruggeHarborTile;
+ if(img.naturalWidth&&!img._plate){
+  const pc=document.createElement('canvas');pc.width=img.naturalWidth>>1;pc.height=img.naturalHeight>>1;
+  const pctx=pc.getContext('2d');pctx.imageSmoothingEnabled=true;pctx.imageSmoothingQuality='high';
+  pctx.drawImage(img,0,0,pc.width,pc.height);
+  const id=pctx.getImageData(0,0,pc.width,pc.height),d=id.data;
+  for(let i=0;i<d.length;i+=4){
+   const g=d[i]*.3+d[i+1]*.59+d[i+2]*.11;
+   d[i]=d[i]*.62+g*.38;d[i+1]=d[i+1]*.62+g*.38;d[i+2]=d[i+2]*.62+g*.38;
+   d[i]=d[i]*.82+38;d[i+1]=d[i+1]*.82+42;d[i+2]=d[i+2]*.82+50;
+  }
+  pctx.putImageData(id,0,0);img._plate=pc;
+ }
+ if(img._plate){img=img._plate;
+  const k=(W*1.55)/img.width,dw=Math.round(img.width*k),dh=Math.round(img.height*k);
   // The plate's main channel sits about mid-width; pin it on the sortie line.
   const channelWorldX=(route?route.x:camera.x+W/2)-dw*.5;
   const period=dh*2,wy0=Math.floor(camera.y/period)*period;
