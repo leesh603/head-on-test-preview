@@ -6,7 +6,7 @@ import {GamepadInput} from './gamepad-input.js?v=166';
 const fieldRecordLink=document.createElement('a');fieldRecordLink.href='./field-record.html';fieldRecordLink.target='_blank';fieldRecordLink.rel='noopener';fieldRecordLink.textContent=getLocale()==='en'?'Official Battle Record':'공식 전장 기록';fieldRecordLink.className='field-record-link';fieldRecordLink.style.cssText='display:block;margin:10px auto 0;text-align:center;color:#d7b26d;font-weight:800;text-decoration:none';document.getElementById('start')?.after(fieldRecordLink);
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=162';
 import {drawStageBoss,updateStageBossHud,paintCity,paintSky} from './stageboss-view.js?v=187';
-import {enableStageBoss} from './stageboss-host.js?v=187';
+import {enableStageBoss,STAGE_NAMES} from './stageboss-host.js?v=187';
 import './hud-layout94.js?v=180';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=176';
 import {CoopGame,coopPlane} from './coop-engine.js?v=174';
@@ -947,7 +947,7 @@ draw=frameTime=>{battlefieldMissionDraw(frameTime);const event=game?.battlefield
 
 // HEAD-ON Test Lab bridge. It is inert on production and only activates on the
 // repository's public GitHub Pages preview or local development hosts.
-const HEADON_TEST_REGION_NAMES=['전원 지대','아드리아해','참호 전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항'];
+const HEADON_TEST_REGION_NAMES=STAGE_NAMES;
 const HEADON_TEST_ALLOWED_HOSTS=new Set(['localhost','127.0.0.1','terminal.local','leesh603.github.io']);
 function installHeadOnTestLab(){
  const testHost=globalThis.location?.hostname||'';if(!HEADON_TEST_ALLOWED_HOSTS.has(testHost))return;
@@ -956,7 +956,7 @@ function installHeadOnTestLab(){
   addon.stages.stageIndex=region;addon.stages.orderPosition=addon.stages.order.indexOf(region);addon.stages.phase='explore';addon.stages.encounter=null;
   run.region=region;run.stageStartDistance=run.distance||0;run.stageStartTime=run.t;run.clearRegionalHazards();
   run.bossBuildings=[];run.bossCues=[];run.navalRouteCues=new Set();run.navalApproachAt=null;
-  run.navalRoute=region===6?{x:run.x,y:run.y,a:Number.isFinite(run.a)?run.a:-Math.PI/2,maxForward:0}:null;
+  run.navalRoute=(region===7||region===6)?{x:run.x,y:run.y,a:Number.isFinite(run.a)?run.a:-Math.PI/2,maxForward:0}:null;
   return addon;
  };
  const startTest=(options={})=>{
