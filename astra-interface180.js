@@ -1,6 +1,6 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
 import {getLocale,subscribe} from './i18n.js?v=175';
-import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=184';
+import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=206';
 import {clearCrewMatte} from './matte70.js?v=128';
 import {aircraftArt} from './main-ui-art180.js?v=180';
 const $=id=>document.getElementById(id);
@@ -25,12 +25,12 @@ export function interfaceIcon(name,cls='astra-icon'){
 }
 // Reuse the production matte algorithm at native resolution. This cleans only
 // the hangar illustration; the 144px gameplay sprite and its collision stay intact.
-const rawHangarArt={fokker:'./fokker.png?v=205&b=205',baron_albatros:'./baron_albatros.png?v=205&b=205',albatros_d2:'./albatros_d2.png?v=205&b=205',nieuport_italian:'./nieuport.png?v=205&b=205'};
+const rawHangarArt={fokker:'./fokker.png?v=206&b=206',baron_albatros:'./baron_albatros.png?v=206&b=206',albatros_d2:'./albatros_d2.png?v=206&b=206',nieuport_italian:'./nieuport.png?v=206&b=206'};
 const hangarKeyFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',fokker:'fokker_standard'};
 const artCache=new Map();
 function hangarArt(key){
  if(artCache.has(key))return artCache.get(key);
- const src=rawHangarArt[key]||`./${hangarKeyFile[key]||key}.png?v=205&b=205`;
+ const src=rawHangarArt[key]||`./${hangarKeyFile[key]||key}.png?v=206&b=206`;
  const pending=new Promise(resolve=>{const image=new Image();image.onerror=()=>resolve(aircraftArt[key]||'');image.onload=()=>{
   try{
    const scan=document.createElement('canvas');scan.width=image.naturalWidth;scan.height=image.naturalHeight;

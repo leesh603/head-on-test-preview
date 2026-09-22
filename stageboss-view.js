@@ -8,8 +8,8 @@ import {bossHudModel} from './headon-stageboss-hud.js?v=201';
 
 const bossArt={};
 for(const [key,src] of Object.entries({
- parisGun:'./boss-bruno-train115.png',lincomparable:'./boss-lincomparable94.png?v=205&b=205',stuttgart:'./boss-sms-stuttgart94.png',zubian:'./boss-hms-zubian94.png',
- l70:'./boss-zeppelin-l7094.png',hma23:'./boss-hma2394.png',a7v:'./boss-a7v-flak94.png',markv:'./boss-mark-v94.png',gik:'./boss-gik.png?v=205&b=205',ca4:'./boss-ca4.png?v=205&b=205',
+ parisGun:'./boss-bruno-train115.png',lincomparable:'./boss-lincomparable94.png?v=206&b=206',stuttgart:'./boss-sms-stuttgart94.png',zubian:'./boss-hms-zubian94.png',
+ l70:'./boss-zeppelin-l7094.png',hma23:'./boss-hma2394.png',a7v:'./boss-a7v-flak94.png',markv:'./boss-mark-v94.png',gik:'./boss-gik.png?v=206&b=206',ca4:'./boss-ca4.png?v=206&b=206',
  londonApron:'./boss-london-apron115.png',drachenNet:'./boss-drachen-net115.png'
 })){const image=new Image();image.src=src;bossArt[key]=image;}
 const rebuildArt={};
@@ -53,7 +53,7 @@ const zubianFrames={intact:[180,8,370,1001],front:[635,25,370,649],rear:[1020,41
 function drawZubianFrame(c,key,x,y,w,h){if(!zubianAtlas.naturalWidth)return;const f=zubianFrames[key];c.save();c.imageSmoothingEnabled=true;c.drawImage(zubianAtlas,f[0],f[1],f[2],f[3],x-w/2,y-h/2,w,h);c.restore();}
 const drawBossArt=(c,key,w,h)=>{const image=bossArt[key];if(image?.naturalWidth)c.drawImage(image,-w/2,-h/2,w,h)};
 const cityArt={};
-for(const [key,src] of Object.entries({london:'./terrain-city-london96.png?v=205&b=205',berlin:'./terrain-city-berlin96.png?v=205&b=205'})){
+for(const [key,src] of Object.entries({london:'./terrain-city-london96.png?v=206&b=206',berlin:'./terrain-city-berlin96.png?v=206&b=206'})){
  const image=new Image();image.src=src;cityArt[key]=image;
 }
 // Dedicated aircraft-style sprite atlas; collider sizes remain authoritative.
