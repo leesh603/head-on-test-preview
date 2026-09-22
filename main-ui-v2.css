@@ -823,17 +823,17 @@ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
  border:1px solid #c8c0a23a!important;
  border-left:3px solid var(--hud191-choice-accent)!important;
  border-radius:3px!important;
- background:linear-gradient(120deg,#18201bf0,#0b110ef5)!important;
- box-shadow:inset 0 1px #e8e1ca0c!important;
+ background:linear-gradient(90deg,var(--hud191-choice-tint,transparent),transparent 58%),linear-gradient(120deg,#18201bf0,#0b110ef5)!important;
+ box-shadow:inset 0 1px #e8e1ca0c,inset 0 0 22px var(--hud191-choice-glow,transparent)!important;
  color:#eee9d8!important;
  transform:none!important;
  animation:none!important;
 }
-body.astra-ui #modal.choice-modal151 #modalActions .rarity-normal{--hud191-choice-accent:#858c85}
-body.astra-ui #modal.choice-modal151 #modalActions .rarity-magic{--hud191-choice-accent:#7191a8}
-body.astra-ui #modal.choice-modal151 #modalActions .rarity-rare{--hud191-choice-accent:#b7a067}
-body.astra-ui #modal.choice-modal151 #modalActions .rarity-unique{--hud191-choice-accent:#a8768e}
-body.astra-ui #modal.choice-modal151 #modalActions .rarity-legendary{--hud191-choice-accent:#bea878}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-normal{--hud191-choice-accent:#99a3a8;--hud191-choice-tint:#99a3a812}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-magic{--hud191-choice-accent:#5fc2b4;--hud191-choice-tint:#5fc2b414}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-rare{--hud191-choice-accent:#6fb0f2;--hud191-choice-tint:#6fb0f216}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-unique{--hud191-choice-accent:#e587c7;--hud191-choice-tint:#e587c716}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-legendary{--hud191-choice-accent:#ffc95e;--hud191-choice-tint:#ffc95e1e;--hud191-choice-glow:#ffc95e14}
 
 /* Retire old metallic sweep / decorative corner treatment. */
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:before,
@@ -849,7 +849,7 @@ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .rarit
  align-self:center;
  margin:0!important;
  color:var(--hud191-choice-accent)!important;
- opacity:.72!important;
+ opacity:1!important;
  font:700 9px/1.2 var(--astra-numeric)!important;
  letter-spacing:.12em!important;
 }
