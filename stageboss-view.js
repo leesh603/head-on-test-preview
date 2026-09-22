@@ -262,7 +262,10 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      const ring=trenchFx.minenRing;
      if(warning){const strip=ring?.naturalWidth?ring:null;
       if(strip){const cols=3,fw=strip.naturalWidth/cols,fh=strip.naturalHeight,fi=Math.min(cols-1,Math.floor(clamp((h.age-h.delay)/h.warning,0,.999)*cols));
-       c.save();c.translate(h.x,h.y);const s=h.radius*2.1;c.globalAlpha=.95;c.drawImage(strip,fi*fw,0,fw,fh,-s/2,-s/2,s,s);c.restore();}
+       c.save();c.translate(h.x,h.y);const s=h.radius*2.1;c.globalAlpha=.95;c.drawImage(strip,fi*fw,0,fw,fh,-s/2,-s/2,s,s);c.restore();
+       const trail=trenchFx.minenTrail,prog=clamp((h.age-h.delay)/h.warning,0,.999);
+       if(trail?.naturalWidth&&prog>.45){const tc=5,tw=trail.naturalWidth/tc,th=trail.naturalHeight,ti=Math.min(tc-1,Math.floor((prog-.45)/.55*tc)),ts=h.radius*2.6;
+        c.save();c.translate(h.x,h.y-h.radius*.9);c.globalAlpha=.92;c.drawImage(trail,ti*tw,0,tw,th,-ts/2,-ts/2,ts,ts);c.restore();}}
       else{c.strokeStyle='#e0a35c';for(const q of [.5,.78,1])ring(h.x,h.y,h.radius*q,'#e0a35c88');}}
      else{const boom=(h.visual==='minenwerfer-heavy'?trenchFx.minenImpactH:trenchFx.minenImpactS)||ring;
       if(boom?.naturalWidth)drawTrenchImage(c,boom,h.x,h.y,h.radius*2.5,h.radius*2.5,0,.95);
