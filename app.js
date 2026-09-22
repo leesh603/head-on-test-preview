@@ -200,7 +200,7 @@ function renderRankingMedals(rows,heading=t('ranking.serverPriority')){
 syncServerRanking=async()=>{const run=game;if(game?.mode==='campaign'||game?.mode==='coop2')return;try{const res=await fetch('/api/rankings',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nickname,score:game.priorityKills||0,pilot:PILOTS[pilot].name,season:'priority-161'})});if(!res.ok)return;const rows=await res.json();if(game!==run)return;renderRankingMedals(rows)}catch{}};
 
 
-const fieldArt={};for(const [key,file] of Object.entries({flak:'fx-flak',gust:'gust',stork:'portrait-stork',staaken:'staaken','handley-page':'handley-page'})){const im=new Image();im.src=`./${file}.png?v=116&b=117`;fieldArt[key]=im}
+const fieldArt={};for(const [key,file] of Object.entries({flak:'flak-burst',gust:'gust',stork:'portrait-stork',staaken:'staaken','handley-page':'handley-page'})){const im=new Image();im.src=`./${file}.png?v=116&b=117`;fieldArt[key]=im}
 function drawFieldArt(key,x,y,w,h,a=0,alpha=1,flip=false){const im=fieldArt[key];if(!im?.naturalWidth)return;ctx.save();ctx.translate(Math.round(x),Math.round(y));ctx.rotate(a);if(flip)ctx.scale(-1,1);ctx.globalAlpha=alpha;ctx.imageSmoothingEnabled=false;ctx.drawImage(im,-w/2,-h/2,w,h);ctx.restore()}
 const _fieldSupport=drawSupport;
 drawSupport=()=>{
@@ -706,7 +706,7 @@ show('soloRanking',!game&&selectedMode==='endless');
 
 // Revision 119 — high-detail battlefields, faction durability mark, and a
 // cleaner pilot roster. These are presentation-only and do not alter combat.
-const highTerrainProfile={rural:{cell:0,base:'#424b3b'},sea:{cell:1,base:'#254555',strength:.46},trenches:{cell:2,base:'#4c443b'},sky:{cell:3,base:'#3d5367'},city:{cell:4,base:'#454746'},alps:{cell:5,base:'#414e56'},zeebrugge:{cell:1,base:'#183e50'}};
+const highTerrainProfile={rural:{cell:0,base:'#424b3b'},sea:{cell:1,base:'#254555',strength:.46},trenches:{cell:2,base:'#4c443b'},burning:{cell:9,base:'#433d37',strength:.57},sky:{cell:3,base:'#3d5367'},city:{cell:4,base:'#454746'},alps:{cell:5,base:'#414e56'},zeebrugge:{cell:1,base:'#183e50'}};
 TerrainRendererSafe.prototype.tile=function(key){
  if(this.tiles.has(key))return this.tiles.get(key);const p=highTerrainProfile[key]||highTerrainProfile.rural,c=this.canvasFactory(512,512),g=c.getContext('2d');g.fillStyle=p.base;g.fillRect(0,0,512,512);
  if(this.atlas&&(this.atlas.naturalWidth||this.atlas.width)){const aw=this.atlas.naturalWidth||this.atlas.width,ah=this.atlas.naturalHeight||this.atlas.height,col=p.cell%5,row=Math.floor(p.cell/5),x0=Math.round(col*aw/5),x1=Math.round((col+1)*aw/5),y0=Math.round(row*ah/2),y1=Math.round((row+1)*ah/2),inset=3;g.globalAlpha=p.strength??.97;g.imageSmoothingEnabled=true;g.drawImage(this.atlas,x0+inset,y0+inset,x1-x0-inset*2,y1-y0-inset*2,0,0,512,512);g.globalAlpha=1;}
