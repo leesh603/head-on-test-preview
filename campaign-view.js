@@ -1,4 +1,4 @@
-import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=214';
+import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=215';
 import {SPRITE_ALIASES} from './campaign.js?v=214&b=210';
 import {drawEquipment} from './equipment.js?v=214&b=210';
 registerCampaignSpriteAliases(SPRITE_ALIASES);
