@@ -1,16 +1,16 @@
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=164';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=210';
 import {fx,fxReady,fxTint} from './fx-art.js';
-import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=162';
-import {drawStageBoss} from './stageboss-view.js?v=116&b=117';
-import {planeSprite,aircraftKey} from './aircraft.js?v=209';
-import {drawEquipment} from './equipment.js?v=116&b=117';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire} from './projectiles.js?v=135&b=135';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=116&b=117';
-import {drawSpecialAmmoIcon} from './icons.js?v=158';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=208';
+import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=210';
+import {drawStageBoss} from './stageboss-view.js?v=210&b=210';
+import {planeSprite,aircraftKey} from './aircraft.js?v=210';
+import {drawEquipment} from './equipment.js?v=210&b=210';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire} from './projectiles.js?v=210&b=210';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=210&b=210';
+import {drawSpecialAmmoIcon} from './icons.js?v=210';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=210';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
-const xpGem=typeof Image!=='undefined'?new Image():null;if(xpGem)xpGem.src='./xp-gem.png?v=185';
+const xpGem=typeof Image!=='undefined'?new Image():null;if(xpGem)xpGem.src='./xp-gem.png?v=210';
 export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt}){
  const t=g.t,z=g.camera.zoom;c.save();c.scale(z,z);terrain(g.x,g.y,W/z,H/z);c.restore();drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});c.save();c.translate(W/2,H/2);c.scale(z,z);c.translate(-g.x,-g.y);
  drawBattlefieldFire(c,g);for(const e of g.enemyAirshipPasses||[])drawZeppelin(c,e.x,e.y,e.a,.72,false,'central');

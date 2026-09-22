@@ -1,15 +1,15 @@
 import {drawRailDamage,drawRailTrack} from './rail-render129.js';
 import {fx,fxReady,fxImage} from './fx-art.js';
-import {drawEnemyProjectile} from './projectiles.js?v=131';
+import {drawEnemyProjectile} from './projectiles.js?v=210';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js';
 const supportImages129={ship:new Image(),cover:new Image()};supportImages129.ship.src='./stuttgart-open129.png';supportImages129.cover.src='./stuttgart-cover129.png';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=187';
-import {bossHudModel} from './headon-stageboss-hud.js?v=116&b=117';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=210';
+import {bossHudModel} from './headon-stageboss-hud.js?v=210&b=210';
 
 const bossArt={};
 for(const [key,src] of Object.entries({
- parisGun:'./boss-bruno-train115.png',lincomparable:'./boss-lincomparable94.png?v=116&b=117',stuttgart:'./boss-sms-stuttgart94.png',zubian:'./boss-hms-zubian94.png',
- l70:'./boss-zeppelin-l7094.png',hma23:'./boss-hma2394.png',a7v:'./boss-a7v-flak94.png',markv:'./boss-mark-v94.png',gik:'./boss-gik.png?v=116&b=117',ca4:'./boss-ca4.png?v=116&b=117',
+ parisGun:'./boss-bruno-train115.png',lincomparable:'./boss-lincomparable94.png?v=210&b=210',stuttgart:'./boss-sms-stuttgart94.png',zubian:'./boss-hms-zubian94.png',
+ l70:'./boss-zeppelin-l7094.png',hma23:'./boss-hma2394.png',a7v:'./boss-a7v-flak94.png',markv:'./boss-mark-v94.png',gik:'./boss-gik.png?v=210&b=210',ca4:'./boss-ca4.png?v=210&b=210',
  londonApron:'./boss-london-apron115.png',drachenNet:'./boss-drachen-net115.png'
 })){const image=new Image();image.src=src;bossArt[key]=image;}
 const rebuildArt={};
@@ -48,12 +48,12 @@ function drawRailConsist181(c,b){
  c.drawImage(images.engine,-130,-195,260,390);c.restore();
 }
 const LARGE_HULLS=Object.freeze({gik:{halfWidth:128,halfHeight:150},ca4:{halfWidth:128,halfHeight:150},'armored-harbor-fortress':{halfWidth:245,halfHeight:235}});
-const zubianAtlas=new Image();zubianAtlas.src='./zubian-atlas.png?v=103';
+const zubianAtlas=new Image();zubianAtlas.src='./zubian-atlas.png?v=210';
 const zubianFrames={intact:[180,8,370,1001],front:[635,25,370,649],rear:[1020,416,369,593]};
 function drawZubianFrame(c,key,x,y,w,h){if(!zubianAtlas.naturalWidth)return;const f=zubianFrames[key];c.save();c.imageSmoothingEnabled=true;c.drawImage(zubianAtlas,f[0],f[1],f[2],f[3],x-w/2,y-h/2,w,h);c.restore();}
 const drawBossArt=(c,key,w,h)=>{const image=bossArt[key];if(image?.naturalWidth)c.drawImage(image,-w/2,-h/2,w,h)};
 const cityArt={};
-for(const [key,src] of Object.entries({london:'./terrain-city-london96.png?v=116&b=117',berlin:'./terrain-city-berlin96.png?v=116&b=117'})){
+for(const [key,src] of Object.entries({london:'./terrain-city-london96.png?v=210&b=210',berlin:'./terrain-city-berlin96.png?v=210&b=210'})){
  const image=new Image();image.src=src;cityArt[key]=image;
 }
 // Dedicated aircraft-style sprite atlas; collider sizes remain authoritative.

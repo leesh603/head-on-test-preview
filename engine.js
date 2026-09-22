@@ -1,13 +1,13 @@
-import {installRevision} from './rebalance103.js?v=128&b=128';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=172';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=187';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=174';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=165';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=166';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=167';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=169';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=170';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=171';
+import {installRevision} from './rebalance103.js?v=210&b=210';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=210';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=210';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=210';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=210';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=210';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=210';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=210';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=210';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=210';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -37,20 +37,6 @@ export const WEAPONS={
 
 export const PILOTS={baron:{name:'만프레드 폰 리히트호펜',alias:'THE RED BARON',faction:'central',portrait:0,skill:'플라잉 서커스',desc:'3초간 무적 급강하. 속도와 연사력이 크게 증가합니다.',cooldown:12},fonck:{name:'르네 폰크',alias:'THE PRECISION ACE',faction:'entente',portrait:1,skill:'필살의 일제사격',desc:'4초간 전방으로 강력한 관통탄을 발사합니다.',cooldown:11},voss:{name:'베르너 포스',alias:'THE LONE HUSSAR',faction:'central',portrait:2,skill:'역전 선회',desc:'즉시 180° 선회하고 1.7초간 무적. 추격 탄환을 제거합니다.',cooldown:18},boelcke:{name:'오스왈드 뵐케',alias:'THE FATHER OF FIGHTERS',faction:'central',portrait:0,skill:'뵐케의 십계명',desc:'전투 규율을 지켜 4초간 공격력과 선회력이 상승합니다.',cooldown:13},collishaw:{name:'레이몬드 콜리쇼',alias:'THE BLACK FLIGHT',faction:'entente',portrait:1,skill:'검은 편대 강습',desc:'순간적으로 숍위드 삼엽기 3대가 나타나 전방을 일제 사격합니다.',cooldown:14},baracca:{name:'프란체스코 바라카',alias:'THE ACE OF THE CAVALRY',faction:'entente',portrait:0,skill:'검은 말의 질주',desc:'검은 말이 수평으로 전장을 가르며 적 편대를 쓸어버립니다.',cooldown:16}};
 export const UPGRADES=[{id:'damage',name:'스팬다우 LMG 08/15',desc:'기관총 공격력 +30%',apply:g=>g.damage*=1.3},{id:'rate',name:'동조 장치 · 싱크로나이저',desc:'기관총 발사 간격 −18%',apply:g=>g.rate*=.82},{id:'spread',name:'집중 일제사격',desc:'총구별 추가 탄환 +1 · 탄약 소모 증가 (최대 5발)',apply:g=>g.shots=Math.min(5,g.shots+1)},{id:'rockets',name:'르 프리외르 로켓',desc:'전방 직진 로켓 1발이 주기적으로 추가 발사됩니다.',apply:g=>g.rockets=(g.rockets||0)+1},{id:'mines',name:'접촉식 공중 기뢰',desc:'뒤쪽에 기뢰를 투하해 접근한 적에게 폭발 피해를 줍니다.',apply:g=>g.mineCount=(g.mineCount||0)+1},{id:'armor',name:'합판 모노코크 동체',desc:'최대 내구도 +25, 내구도 40 회복',apply:g=>{g.maxHp+=25;g.hp=Math.min(g.maxHp,g.hp+40)}},{id:'turn',name:'적층 목재 프로펠러',desc:'선회 속도 +20%, 비행 속도 +6%',apply:g=>{g.turn*=1.2;g.speed*=1.06}},{id:'magnet',name:'관측병의 전장 지도',desc:'경험치 회수 범위 +70%',apply:g=>g.magnet*=1.7},{id:'repair',name:'비행장 정비반',desc:'내구도 55 회복',apply:g=>g.hp=Math.min(g.maxHp,g.hp+55)},{id:'cooldown',name:'딕타 뵐케',desc:'액티브 재사용 시간 −20%',apply:g=>g.cooldownMult*=.8}];
-const LARGE_BOMBER_HULL={gik:[140,164],ca4:[140,164]};
-// This player-side pass runs immediately after input movement, before bullets
-// and hazards.  The host repeats it after boss movement at frame end.
-export function separatePlayerFromLargeBossBodies(g){
- if(g.state!=='playing')return;const bodies=g.stageBoss?.stages.encounter?.bodies;if(!bodies)return;
- const roster=g.players||[g];for(const body of bodies.values()){
-  const size=LARGE_BOMBER_HULL[body.kind];if(!size||body.dead)continue;
-  for(const p of roster){if(p.hp<=0||(p.status&&p.status!=='alive'))continue;
-   const rx=size[0]+(p.collisionRadius||12),ry=size[1]+(p.collisionRadius||12);let dx=p.x-body.x,dy=p.y-body.y,q=Math.hypot(dx/rx,dy/ry);
-   if(q>=1)continue;if(q<1e-5){p.x=body.x;p.y=body.y+ry*1.12;continue;}
-   const scale=1.12/q;p.x=body.x+dx*scale;p.y=body.y+dy*scale;
-  }
- }
-}
 UPGRADES.push({id:'wingman',name:'레전드리 윙맨 · 정예 편대',desc:'정예 윙맨 1기 영구 합류. 일반 지원기 대비 공격력 +45%, 연사 +20%. 최대 2회 획득.',apply:g=>g.permanentWingman=(g.permanentWingman||0)+1});
 UPGRADES.push({id:'regen',name:'현장 정비공의 오일 펌프',desc:'초당 내구도 0.75 회복. (최대 내구도까지)',apply:g=>g.regen=(g.regen||0)+.75});
 export const angleDiff=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
@@ -98,7 +84,7 @@ export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this
  spawnEnemy(type){let a=this.rng()*Math.PI*2,d=400+this.rng()*160;let boss=type==='boss';const scale=1+this.t/150;const bossScale=1+this.t/95;const baseHp=type==='zeppelin'?220:type==='bomber'?50:type==='hunter'?30:22;let e={x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,a:a+Math.PI,type,faction:PLANES[this.plane].faction==='central'?'entente':'central',ace:PLANES[this.plane].faction==='entente'&&(type==='scout'||type==='hunter')&&this.t>35&&this.rng()<.07,hp:boss?Math.round(520*bossScale):Math.round(baseHp*scale),maxHp:boss?Math.round(520*bossScale):Math.round(baseHp*scale),hitFlash:0,smokeTimer:0,speed:(boss?125:type==='zeppelin'?42:type==='bomber'?65:type==='hunter'?117:90)*(boss?1+this.t/500:1+this.t/700),fire:1+this.rng()*2,wobble:this.rng()*6};this.enemies.push(e)}
  hit(n){if(this.invuln>0)return;this.hp=Math.max(0,this.hp-n);this.invuln=.75;this.hitFlash=.16;this.smoke(this.x,this.y,true);this.shake=7;this.burst(this.x,this.y,'#ffce8e',9);this.event('hit','');if(this.hp<=0){this.state='lost';this.score=this.kills*100+Math.floor(this.t)*10;this.event('end','작전 실패')}}
  update(dt,input={}){if(this.state!=='playing')return;dt=Math.min(.04,Math.max(0,dt));this.t+=dt;this.muzzleFlash=Math.max(0,this.muzzleFlash-dt);this.hitFlash=Math.max(0,this.hitFlash-dt);this.smokeTimer-=dt;if(this.hp<this.maxHp*.6&&this.smokeTimer<=0){this.smoke(this.x-Math.cos(this.a)*12,this.y-Math.sin(this.a)*12,this.hp<this.maxHp*.3);this.smokeTimer=.12}this.cooldown=Math.max(0,this.cooldown-dt);this.evadeCooldown=Math.max(0,this.evadeCooldown-dt);this.evadeTime=Math.max(0,this.evadeTime-dt);this.skillTime=Math.max(0,this.skillTime-dt);this.invuln=Math.max(0,this.invuln-dt);this.shake=Math.max(0,this.shake-dt*22);this.flyAirframe(dt,input);
- let diving=this.pilot==='baron'&&!this.isRedHunter()&&this.skillTime>0;let evading=this.evadeTime>0;let velocity=this.speed*stageBossSpeed(this)*(this.chargeTime>0?4.6:diving?1.85:evading?2.35:(this.airframeSpeed??1))*(this.pursuitSpeedFactor??1);this.x+=Math.cos(this.a)*velocity*dt;this.y+=Math.sin(this.a)*velocity*dt;separatePlayerFromLargeBossBodies(this);// Resolve player-driven entry before enemy shots and hazards are evaluated.
+ let diving=this.pilot==='baron'&&!this.isRedHunter()&&this.skillTime>0;let evading=this.evadeTime>0;let velocity=this.speed*stageBossSpeed(this)*(this.chargeTime>0?4.6:diving?1.85:evading?2.35:(this.airframeSpeed??1))*(this.pursuitSpeedFactor??1);this.x+=Math.cos(this.a)*velocity*dt;this.y+=Math.sin(this.a)*velocity*dt;// Resolve player-driven entry before enemy shots and hazards are evaluated.
  const wasReloading=this.reloadTime>0;
  if(wasReloading){this.reloadTime=Math.max(0,this.reloadTime-dt);this.fire=0;if(this.reloadTime===0){this.ammo.fill(this.weapon.belt);this.event('loaded','재장전 완료')}}
  else if(!this.cow37&&(input.inputMode!=='gamepad'||input.fireHeld)){this.fire-=dt;if(this.bishopTime>0)this.fire=Math.max(this.fire,.1);let volleys=0;while(this.fire<=0&&this.reloadTime===0&&volleys++<8){

@@ -1,6 +1,6 @@
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=187';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=187';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=187';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=210';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=210';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=210';
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
@@ -156,36 +156,7 @@ export function beginStageBossFrame(g,dt){
   for(const key of ['fieldUnitTimer','regionThreat','flakTimer'])if(g[key]!==Infinity)g[key]=Math.max(g[key]||0,dt+.1)+dt;
   for(const key of ['nextHeavyAt','_zeppelinSchedule'])if(g[key]!==Infinity)g[key]=Math.max(g[key]||0,g.t+dt+.1)+dt;
  }
- syncStageBossTargets(g);separateLargeBossBodies(g);updateMinions(g,dt);
-}
-const LARGE_AIRCRAFT_HULLS=Object.freeze({
- // The artwork is much larger than the weak-point circles.  These ellipses
- // cover the visible fuselage and wings so a player can never remain hidden
- // inside the bomber while its movement path crosses them.
- gik:{halfWidth:128,halfHeight:150},
- ca4:{halfWidth:128,halfHeight:150},
- 'armored-harbor-fortress':{halfWidth:245,halfHeight:235},
- 'livens-flame-projector':{halfWidth:220,halfHeight:175},
- 'minenwerfer-battery':{halfWidth:210,halfHeight:165}
-});
-export function separateLargeBossBodies(g){
- if(blocked(g))return;
- const bodies=g.stageBoss?.stages.encounter?.bodies;
- if(!bodies)return;
- for(const body of bodies.values()){
-  const hull=LARGE_AIRCRAFT_HULLS[body.kind];if(!hull||body.dead)continue;
-  for(const p of players(g)){
-   if(!alive(p))continue;
-   const radius=p.collisionRadius||12,rx=hull.halfWidth+radius,ry=hull.halfHeight+radius;
-   let dx=p.x-body.x,dy=p.y-body.y,q=Math.hypot(dx/rx,dy/ry);
-   if(q>=1)continue;
-   // Exact centre overlaps have no usable normal.  Eject toward the lower
-   // screen edge, which keeps the player in the playable approach lane.
-   if(q<1e-5){dx=0;dy=ry*1.12;q=1;}
-   else {const scale=(1.12/q);dx*=scale;dy*=scale;}
-   p.x=body.x+dx;p.y=body.y+dy;
-  }
- }
+ syncStageBossTargets(g);updateMinions(g,dt);
 }
 export function endStageBossFrame(g,dt){
  separateAces(g,dt);
@@ -197,7 +168,7 @@ export function endStageBossFrame(g,dt){
  if(g.state==='lost'||g.state==='won'){addon.dispose();return;}
  // The host has already resolved its entire upgrade queue/loss state this frame.
  const bounds=stageBossBounds(g);const frame={paused:blocked(g),players:players(g).map(p=>({id:p.id||'p1',alive:alive(p),x:p.x,y:p.y,vx:Number.isFinite(p.previousX)?(p.x-p.previousX)/Math.max(dt,1/120):0,vy:Number.isFinite(p.previousY)?(p.y-p.previousY)/Math.max(dt,1/120):0,radius:12})),bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings};
- addon.tick(dt,frame);addon.reconcile({blocked:blocked(g)});separateLargeBossBodies(g);syncStageBossTargets(g);
+ addon.tick(dt,frame);addon.reconcile({blocked:blocked(g)});syncStageBossTargets(g);
  if(g.state==='lost')addon.dispose();
 }
 // Shared by solo and co-op; bounded lateral clearance without changing aim/HP.

@@ -1,4 +1,4 @@
-import {clearCrewMatte} from './matte70.js?v=128';
+import {clearCrewMatte} from './matte70.js?v=210';
 // Hand-authored game-native pixel sprites. All detail is rasterized once on an
 // integer grid; Canvas scaling keeps the same pixels in flight and the roster.
 const AIRFRAMES={
@@ -36,7 +36,7 @@ const individualAircraftReady=['fokker','fokker_standard','fokker_f1','albatros'
   const scan=document.createElement('canvas');scan.width=img.naturalWidth;scan.height=img.naturalHeight;const sc=scan.getContext('2d',{willReadFrequently:true});sc.drawImage(img,0,0);const pixels=sc.getImageData(0,0,scan.width,scan.height),rgba=pixels.data;if(key==='nieuport_italian')for(let i=0;i<rgba.length;i+=4){const r=rgba[i],g=rgba[i+1],b=rgba[i+2];if(rgba[i+3]>0&&b>70&&b>r*1.18&&b>g*1.05){rgba[i]=55;rgba[i+1]=132;rgba[i+2]=78}}clearAircraftMatte(key,rgba,scan.width,scan.height);clearCrewMatte(key,rgba,scan.width,scan.height);sc.putImageData(pixels,0,0);let minX=scan.width,minY=scan.height,maxX=-1,maxY=-1;
   for(let y=0;y<scan.height;y++)for(let x=0;x<scan.width;x++)if(rgba[(y*scan.width+x)*4+3]>128){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}
   if(maxX>=minX&&maxY>=minY){const out=document.createElement('canvas');out.width=288;out.height=320;const oc=out.getContext('2d');oc.imageSmoothingEnabled=true;oc.imageSmoothingQuality='high';const w=maxX-minX+1,h=maxY-minY+1,k=Math.min(228/w,264/h)*spriteScale(key),dw=Math.round(w*k),dh=Math.round(h*k);oc.drawImage(scan,minX,minY,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);painted.set(key,out);cache.clear();shadows.clear();flashes.clear()}resolve(true);
- };img.onerror=()=>resolve(false);const sourceKey=key==='nieuport_italian'?'nieuport':key;img.src=new URL(`./${sourceKey}.png?v=206&b=206`,import.meta.url).href;
+ };img.onerror=()=>resolve(false);const sourceKey=key==='nieuport_italian'?'nieuport':key;img.src=new URL(`./${sourceKey}.png?v=210&b=210`,import.meta.url).href;
 }));
 // The four aces once cut from this 2x2 atlas now ship as individual PNGs and are
 // loaded through individualAircraftReady; keeping the list empty skips the atlas
@@ -60,7 +60,7 @@ const newAceAircraftReady=!NEW_ACE_AIRCRAFT.length?Promise.resolve(true):new Pro
    if(maxX<minX||maxY<minY)return;const out=document.createElement('canvas');out.width=288;out.height=320;const oc=out.getContext('2d');oc.imageSmoothingEnabled=true;oc.imageSmoothingQuality='high';
    const w=maxX-minX+1,h=maxY-minY+1,k=Math.min(236/w,272/h)*spriteScale(key),dw=Math.round(w*k),dh=Math.round(h*k);oc.drawImage(scan,minX,minY,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);painted.set(key,out);
   });cache.clear();shadows.clear();flashes.clear();resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./new-aces-aircraft124.png?v=206&b=206',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./new-aces-aircraft124.png?v=210&b=210',import.meta.url).href;
 });
 // Painted battle-damage marks (bullet holes, torn canvas, scorch) applied over the
 // authored sprites once a hull drops below half durability.
@@ -76,7 +76,7 @@ const damageDecalReady=new Promise(resolve=>{
    if(!any){damageDecals.push(null);continue}
    const cell=document.createElement('canvas');cell.width=r-l+1;cell.height=b-t+1;cell.getContext('2d').drawImage(sc,l,t,r-l+1,b-t+1,0,0,r-l+1,b-t+1);damageDecals.push(cell);
   }damageCache.clear();resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./damage-decals.png?v=206&b=206',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./damage-decals.png?v=210&b=210',import.meta.url).href;
 });
 // Deterministic per-airframe mark layout so a plane's scars stay put between frames.
 function damageSeed(key){let h=2166136261;for(const ch of key){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
@@ -181,5 +181,5 @@ export const campaignArtReady=new Promise(resolve=>{
    const [x,y,w,h]=boxes[i],k=Math.min(228/w,264/h),dw=Math.round(w*k),dh=Math.round(h*k);
    c.drawImage(img,cell%3*512+x,Math.floor(cell/3)*512+y,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);painted.set(key,out);
   }cache.clear();shadows.clear();flashes.clear();resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./campaign-units.png?v=206&b=206',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./campaign-units.png?v=210&b=210',import.meta.url).href;
 });

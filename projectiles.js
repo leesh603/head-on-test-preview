@@ -4,7 +4,7 @@ import {fx,fxReady,fxTint} from './fx-art.js';
 export function projectileStyle(b){return b.hostileRocket?'rocket':b.flak?'flak':b.visualType||(b.naval?'naval':b.fieldShell?'balloon':b.heavy?'heavyBomber':'scout')}
 const TRACERS={scout:['#e7a06b',10,2],hunter:['#efb77f',14,2],bomber:['#dfbc7b',11,3],heavyBomber:['#e4ae72',15,3],boss:['#e58f7c',16,3],zeppelin:['#d8bb8b',12,3],railgun:['#efaa89',23,3],naval:['#dfaa82',16,3],balloon:['#dbbf8b',8,3],flak:['#dfac80',6,3],rocket:['#edac77',15,3]};
 const cannonAtlas=typeof Image==='undefined'?null:new Image();
-if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.png?v=135';
+if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.png?v=210';
 export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
  if(!b.enemy||b.life<=0)return;const kind=projectileStyle(b),[color,length,width]=TRACERS[kind]||TRACERS.scout;
  c.save();c.translate(Math.round(x),Math.round(y));c.rotate(Math.atan2(b.vy,b.vx));

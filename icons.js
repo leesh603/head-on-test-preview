@@ -24,12 +24,12 @@ const DIRECT_ICONS=Object.freeze({
  'ironCross-central':'medal_award_pour_le_merite.png','ironCross-entente':'medal_award_british_victoria_cross.png'
 });
 const atlasReady=Promise.all([
- loadIconAtlas('./icons51.png?v=128',5,4,keys,true),
- loadIconAtlas('./controls53.png?v=128',2,2,['control','turn','command','cooldown']),
- loadIconAtlas('./special-ammo-icons92.png?v=128',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
- loadIconAtlas('./legendary-icons103.png?v=128',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
- loadIconAtlas('./gun-atlas114.png?v=128',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
- loadIconAtlas('./legendary-icons109.png?v=128',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
+ loadIconAtlas('./icons51.png?v=210',5,4,keys,true),
+ loadIconAtlas('./controls53.png?v=210',2,2,['control','turn','command','cooldown']),
+ loadIconAtlas('./special-ammo-icons92.png?v=210',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
+ loadIconAtlas('./legendary-icons103.png?v=210',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
+ loadIconAtlas('./gun-atlas114.png?v=210',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
+ loadIconAtlas('./legendary-icons109.png?v=210',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
  loadIconAtlas('./relic-maxim-belt128.png',1,1,['maximBelt'],true),
  loadIconAtlas('./relic-steel-plate128.png',1,1,['steelPlate'],true),
  loadIconAtlas('./relic-immelmann-manual128.png',1,1,['immelmannManual'],true),
@@ -37,7 +37,7 @@ const atlasReady=Promise.all([
  loadIconAtlas('./relic-sacred-cowling128.png',1,1,['sacredCowling'],true)
 ]);
 export const iconsReady=atlasReady.then(async results=>{
- const direct=await Promise.all(Object.entries(DIRECT_ICONS).map(([key,file])=>loadDirectIcon('./augmentation-icons/'+file+'?v=150',key)));
+ const direct=await Promise.all(Object.entries(DIRECT_ICONS).map(([key,file])=>loadDirectIcon('./augmentation-icons/'+file+'?v=210',key)));
  return results.every(Boolean)&&direct.every(Boolean);
 });
 export function drawGameIcon(c,key,x,y,size){const f=frames.get(key);if(!f)return;const k=size/Math.max(f.w,f.h);c.save();c.imageSmoothingEnabled=f.smooth;c.drawImage(f.atlas,f.x,f.y,f.w,f.h,x-f.w*k/2,y-f.h*k/2,f.w*k,f.h*k);c.restore()}
