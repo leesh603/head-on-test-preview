@@ -24,6 +24,10 @@ export function interfaceIcon(name,cls='astra-icon'){
 }
 // Hangar art comes straight from the game's painted sprite pipeline — the same
 // pilot-aware, content-cropped sprite the legacy roster canvases draw.
+// index.html gates first paint behind html.ui-pending; drop it when the first
+// hangar art resolves so the UI and the plane appear together. A 2.5s fallback
+// timer in the gate covers sprite-load failure.
+const clearFirstPaintGate=()=>document.documentElement.classList.remove('ui-pending');
 function ring(){
  const r=el('span','astra-dial');r.setAttribute('aria-hidden','true');
  r.innerHTML='<svg viewBox="0 0 100 100"><circle class="dial-track" cx="50" cy="50" r="45"/><circle class="dial-progress" cx="50" cy="50" r="45" pathLength="100"/></svg>';return r;
@@ -31,8 +35,6 @@ function ring(){
 function install(){
  if(!$('hangar')||document.body.classList.contains('astra-ui'))return;
  document.body.classList.add('astra-ui');
- // First-paint gate from index.html: drop it now so the legacy roster never flashes.
- document.documentElement.classList.remove('ui-pending');
  const hangar=$('hangar'),roster=$('flightRoster');
  const stage=el('div','astra-stage'),home=el('div','astra-home'),hero=el('section','astra-hero'),dossier=el('div','astra-dossier');
  const kicker=el('div','astra-kicker'),title=el('h1','astra-pilot-title'),english=el('p','astra-pilot-english');
@@ -117,9 +119,9 @@ function install(){
   previous.setAttribute('aria-label',en?'Switch aircraft':'이전 기체');next.setAttribute('aria-label',en?'Switch aircraft':'다음 기체');
   const artKey=pilot+':'+aircraftId;
   if(artKey!==lastArt){lastArt=artKey;art.hidden=true;figure.classList.remove('has-art');
-   aircraftPreviewURL(aircraftKey(aircraftId,false,pilot)).then(url=>{if(lastArt!==artKey)return;if(!url){art.removeAttribute('src');return}
-    art.onload=()=>{if(lastArt!==artKey)return;art.hidden=false;figure.classList.add('has-art')};
-    art.onerror=()=>{art.hidden=true;figure.classList.remove('has-art')};art.src=url;
+   aircraftPreviewURL(aircraftKey(aircraftId,false,pilot)).then(url=>{if(lastArt!==artKey)return;if(!url){art.removeAttribute('src');clearFirstPaintGate();return}
+    art.onload=()=>{if(lastArt!==artKey)return;art.hidden=false;figure.classList.add('has-art');clearFirstPaintGate()};
+    art.onerror=()=>{art.hidden=true;figure.classList.remove('has-art');clearFirstPaintGate()};art.src=url;
    });
   }
   art.alt=airName.textContent;
