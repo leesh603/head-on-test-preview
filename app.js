@@ -322,60 +322,9 @@ function drawSeamlessRural(cx,cy,W,H){
  ctx.strokeStyle='#5d7d78';ctx.lineWidth=18;ctx.beginPath();for(let y=-30;y<H+40;y+=16){const wy=worldY+y,x=W*.61+Math.sin(wy*.0024)*88+Math.sin(wy*.006)*18;y<0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();ctx.strokeStyle='#a2b19377';ctx.lineWidth=2;ctx.stroke();
 }
 function paintZeebrugge(cx,cy,W,H){
- // Use the established sea/city atlases in world space. Curved banks, quay
- // cuts and dock traffic are deterministic, so no tile seam can cross the camera.
- const route=game?.navalRoute;
- const travel=Math.max(0,route?.maxForward??((game?.distance||0)-(game?.stageStartDistance||0)));
- const progress=Math.max(0,Math.min(1,travel/12000));
  const camera={x:cx-W/2,y:cy-H/2};
  if(zeeWaterTile.naturalWidth){const t=zeeWaterTile.naturalWidth,sx=Math.floor(camera.x/t)-1,sy=Math.floor(camera.y/t)-1,ex=Math.ceil((camera.x+W)/t),ey=Math.ceil((camera.y+H)/t);for(let ty=sy;ty<=ey;ty++)for(let tx=sx;tx<=ex;tx++)ctx.drawImage(zeeWaterTile,tx*t-camera.x,ty*t-camera.y)}
  else terrainAlpsRenderer.draw(ctx,{key:'sea',camera,width:W,height:H});
- if(!route)return;
- const a=Number.isFinite(route.a)?route.a:-Math.PI/2,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
- const centerS=(cx-route.x)*hx+(cy-route.y)*hy,diag=Math.hypot(W,H),span=diag*1.15;
- const point=(s,n)=>[route.x+hx*s+nx*n-camera.x,route.y+hy*s+ny*n-camera.y];
- // Keep 70–80% of the screen as readable water. Low-frequency world-space
- // bends avoid ruler-straight banks without introducing repeating plate edges.
- const baseHalf=Math.max(126,Math.min(390,W*(.39-.025*Math.sin(progress*Math.PI))));
- const halfAt=(s,side)=>baseHalf+Math.sin(s*.00073+side*1.9)*18+Math.sin(s*.00191-side*.8)*7;
- const samples=18,s0=centerS-span,s1=centerS+span;
- const shore=side=>{const pts=[];for(let i=0;i<=samples;i++){const s=s0+(s1-s0)*i/samples;pts.push(point(s,side*halfAt(s,side)));}return pts;};
- const left=shore(-1),right=shore(1),outer=diag*1.8;
- const paintBank=(edge,side)=>{
-  const q=[...edge];q.push(point(s1,side*outer),point(s0,side*outer));
-  ctx.save();ctx.beginPath();ctx.moveTo(...q[0]);for(let i=1;i<q.length;i++)ctx.lineTo(...q[i]);ctx.closePath();ctx.clip();
-  const bankGrad=ctx.createLinearGradient(0,0,side>0?-W:W,0);bankGrad.addColorStop(0,'#7a735c');bankGrad.addColorStop(.08,'#6c6650');bankGrad.addColorStop(1,'#59543f');
-  ctx.fillStyle=bankGrad;ctx.fillRect(0,0,W,H);ctx.restore();
-  ctx.save();ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#8f866c';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(...edge[0]);for(let i=1;i<edge.length;i++)ctx.lineTo(...edge[i]);ctx.stroke();
-  ctx.strokeStyle='#28393b99';ctx.lineWidth=2;ctx.stroke();ctx.restore();
- };
- paintBank(left,-1);paintBank(right,1);
- // Sparse quays are positioned on a long world grid with alternating offsets.
- // They read as a harbor but never form a repeated full-screen tile.
- const zee=(key,s,n,scale=1,vflip=false,rot=0)=>{
-  const f=ZEE_CELLS[key];if(!f||!zeeHarborAtlas.naturalWidth)return;
-  const p=point(s,n);ctx.save();ctx.translate(p[0],p[1]);ctx.rotate(a+rot);ctx.scale(1,vflip?-1:1);
-  ctx.drawImage(zeeHarborAtlas,f[0],f[1],f[2],f[3],-f[2]*scale/2,-f[3]*scale/2,f[2]*scale,f[3]*scale);ctx.restore();
- };
- // Approved harbor atlas: quay pieces, docked traffic and channel markers stay
- // world-anchored like the old procedural quays, so nothing drifts or tiles.
- const cell=760,first=Math.floor((s0-200)/cell)-1,last=Math.ceil((s1+200)/cell)+1;
- if(progress>.12)for(let k=first;k<=last;k++){
-  const s=k*cell+((k&1)?170:-80),side=(k&1)?1:-1,m=Math.abs(k)%4;
-  zee(m===0?'lighthouse':m===1?'breakwater':m===2?'dock':'crane',s,side*(halfAt(s,side)-12),m===0?.95:.88,side>0);
-  if(Math.abs(k)%3===0)zee('coal',s+120,side*(halfAt(s,side)+38),.8,side>0);
- }
- if(progress>.28)for(let k=first;k<=last;k++){
-  if(k%2)continue;const side=((k/2)&1)?1:-1,s=k*cell+250,p=point(s,side*(halfAt(s,side)-74));
-  if(p[0]<-150||p[0]>W+150||p[1]<-150||p[1]>H+150)continue;
-  zee('freighter',s,side*(halfAt(s,side)-74),.74,side>0);
-  zee(Math.abs(k)%4?'buoy1':'buoy3',s+140,side*(halfAt(s,side)-46),.8);
-  if(Math.abs(k)%3===0)zee('patrol',s+300,-side*(halfAt(s,-side)-66),.7,side<0,-Math.PI/2);
- }
- // Gentle foam follows the same shoreline and hides texture-to-water aliasing.
- ctx.save();ctx.lineCap='round';ctx.setLineDash([9,17]);ctx.strokeStyle='#c8ddd066';ctx.lineWidth=2;
- for(const edge of [left,right]){ctx.beginPath();ctx.moveTo(...edge[0]);for(let i=1;i<edge.length;i++)ctx.lineTo(...edge[i]);ctx.stroke();}
- ctx.setLineDash([]);ctx.restore();
 }
 function paintTrenchHellOverlay(cx,cy,W,H){
  const wx=cx-W/2,wy=cy-H/2,time=(globalThis.performance?.now?.()||0)/1000;
