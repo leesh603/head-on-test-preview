@@ -350,9 +350,9 @@ function paintZeebrugge(cx,cy,W,H){
   pctx.putImageData(id,0,0);img._plate=pc;
  }
  if(img._plate){img=img._plate;
-  // Zoom the plate so its central channel spans about one screen width —
-  // ~45% of the plate is water/docks around the sortie line.
-  const k=(W*2.2)/img.width,dw=Math.round(img.width*k),dh=Math.round(img.height*k);
+  // Keep the plate at a modest zoom: ~one screen width of harbor visible —
+  // larger k made docks and ships read as giant blobs on small screens.
+  const k=(W*1.05)/img.width,dw=Math.round(img.width*k),dh=Math.round(img.height*k);
   // The plate's main channel sits about mid-width; pin it on the sortie line.
   const channelWorldX=(route?route.x:camera.x+W/2)-dw*.5;
   const period=dh*2,wy0=Math.floor(camera.y/period)*period;
