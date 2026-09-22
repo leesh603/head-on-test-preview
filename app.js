@@ -6,10 +6,10 @@ import {GamepadInput} from './gamepad-input.js?v=166';
 const fieldRecordLink=document.createElement('a');fieldRecordLink.href='./field-record.html';fieldRecordLink.target='_blank';fieldRecordLink.rel='noopener';fieldRecordLink.textContent=getLocale()==='en'?'Official Battle Record':'공식 전장 기록';fieldRecordLink.className='field-record-link';fieldRecordLink.style.cssText='display:block;margin:10px auto 0;text-align:center;color:#d7b26d;font-weight:800;text-decoration:none';document.getElementById('start')?.after(fieldRecordLink);
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=162';
 import {drawStageBoss,updateStageBossHud,paintCity,paintSky} from './stageboss-view.js?v=188';
-import {enableStageBoss} from './stageboss-host.js?v=208';
+import {enableStageBoss} from './stageboss-host.js?v=187';
 import './hud-layout94.js?v=180';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=176';
-import {CoopGame,coopPlane} from './coop-engine.js?v=208';
+import {CoopGame,coopPlane} from './coop-engine.js?v=174';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=163';
 import {drawCoop} from './coop-view.js?v=163';
 import {drawSunStrike} from './sun-strike71.js?v=141&b=141';
@@ -21,15 +21,15 @@ import {missionNavigation,drawMissionRadar} from './navigation.js?v=128&b=128';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=116&b=117';
 import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft} from './campaign.js?v=174&b=174';
 import {drawCampaign} from './campaign-view.js?v=128&b=128';
-import {campaignArtReady} from './aircraft.js?v=207';
+import {campaignArtReady} from './aircraft.js?v=184';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady} from './icons.js?v=158';
 import {BattleMusic,musicModeForGame} from './music.js?v=116&b=117';
 import {sfx,setSfxMuted} from './sfx.js?v=185&b=185';
 import {portraitSources,portraitsReady} from './portraits.js?v=145&b=145';
 import {drawEquipment} from './equipment.js?v=116&b=117';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=160';
-import{planeSprite,aircraftReady,aircraftKey}from'./aircraft.js?v=207';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale}from'./engine.js?v=208';
+import{planeSprite,aircraftReady,aircraftKey}from'./aircraft.js?v=184';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale}from'./engine.js?v=187';
 import {TerrainRenderer,MountainField} from './alps-terrain117.js?v=182';
 const flightViewport=installFlightViewport(document,window);
 const ententeAirshipSprite=new Image();ententeAirshipSprite.src='./zeppelin-entente.png?v=116&b=117';
@@ -200,7 +200,7 @@ function renderRankingMedals(rows,heading=t('ranking.serverPriority')){
 syncServerRanking=async()=>{const run=game;if(game?.mode==='campaign'||game?.mode==='coop2')return;try{const res=await fetch('/api/rankings',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nickname,score:game.priorityKills||0,pilot:PILOTS[pilot].name,season:'priority-161'})});if(!res.ok)return;const rows=await res.json();if(game!==run)return;renderRankingMedals(rows)}catch{}};
 
 
-const fieldArt={};for(const [key,file] of Object.entries({flak:'flak-burst',gust:'gust',stork:'portrait-stork',staaken:'staaken','handley-page':'handley-page'})){const im=new Image();im.src=`./${file}.png?v=116&b=117`;fieldArt[key]=im}
+const fieldArt={};for(const [key,file] of Object.entries({flak:'fx-flak',gust:'gust',stork:'portrait-stork',staaken:'staaken','handley-page':'handley-page'})){const im=new Image();im.src=`./${file}.png?v=116&b=117`;fieldArt[key]=im}
 function drawFieldArt(key,x,y,w,h,a=0,alpha=1,flip=false){const im=fieldArt[key];if(!im?.naturalWidth)return;ctx.save();ctx.translate(Math.round(x),Math.round(y));ctx.rotate(a);if(flip)ctx.scale(-1,1);ctx.globalAlpha=alpha;ctx.imageSmoothingEnabled=false;ctx.drawImage(im,-w/2,-h/2,w,h);ctx.restore()}
 const _fieldSupport=drawSupport;
 drawSupport=()=>{
@@ -308,7 +308,7 @@ const terrainAlpsAtlas=new Image();terrainAlpsAtlas.src='./terrain-alps-atlas.pn
 const TerrainRendererSafe=typeof TerrainRenderer==='undefined'?class{draw(){}}:TerrainRenderer;
 const MountainFieldSafe=typeof MountainField==='undefined'?class{constructor(){this.query=()=>[];this.step=()=>{};this.draw=()=>{}}}:MountainField;
 const terrainAlpsRenderer=new TerrainRendererSafe({atlas:terrainAlpsAtlas,detail:.72,tileSize:768});
-const terrainKeys=['rural','sea','trenches','burning','city','sky','alps','zeebrugge'];
+const terrainKeys=['rural','sea','trenches','trenches','city','sky','alps','zeebrugge'];
 const _ruralTerrain=terrain;
 function drawSeamlessRural(cx,cy,W,H){
  ctx.fillStyle='#758461';ctx.fillRect(0,0,W,H);const worldX=cx-W/2,worldY=cy-H/2;
@@ -706,7 +706,7 @@ show('soloRanking',!game&&selectedMode==='endless');
 
 // Revision 119 — high-detail battlefields, faction durability mark, and a
 // cleaner pilot roster. These are presentation-only and do not alter combat.
-const highTerrainProfile={rural:{cell:0,base:'#424b3b'},sea:{cell:1,base:'#254555',strength:.46},trenches:{cell:2,base:'#4c443b'},burning:{cell:9,base:'#433d37',strength:.57},sky:{cell:3,base:'#3d5367'},city:{cell:4,base:'#454746'},alps:{cell:5,base:'#414e56'},zeebrugge:{cell:1,base:'#183e50'}};
+const highTerrainProfile={rural:{cell:0,base:'#424b3b'},sea:{cell:1,base:'#254555',strength:.46},trenches:{cell:2,base:'#4c443b'},sky:{cell:3,base:'#3d5367'},city:{cell:4,base:'#454746'},alps:{cell:5,base:'#414e56'},zeebrugge:{cell:1,base:'#183e50'}};
 TerrainRendererSafe.prototype.tile=function(key){
  if(this.tiles.has(key))return this.tiles.get(key);const p=highTerrainProfile[key]||highTerrainProfile.rural,c=this.canvasFactory(512,512),g=c.getContext('2d');g.fillStyle=p.base;g.fillRect(0,0,512,512);
  if(this.atlas&&(this.atlas.naturalWidth||this.atlas.width)){const aw=this.atlas.naturalWidth||this.atlas.width,ah=this.atlas.naturalHeight||this.atlas.height,col=p.cell%5,row=Math.floor(p.cell/5),x0=Math.round(col*aw/5),x1=Math.round((col+1)*aw/5),y0=Math.round(row*ah/2),y1=Math.round((row+1)*ah/2),inset=3;g.globalAlpha=p.strength??.97;g.imageSmoothingEnabled=true;g.drawImage(this.atlas,x0+inset,y0+inset,x1-x0-inset*2,y1-y0-inset*2,0,0,512,512);g.globalAlpha=1;}
@@ -954,7 +954,7 @@ draw=frameTime=>{battlefieldMissionDraw(frameTime);const event=game?.battlefield
 
 // HEAD-ON Test Lab bridge. It is inert on production and only activates on the
 // repository's public GitHub Pages preview or local development hosts.
-const HEADON_TEST_REGION_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항'];
+const HEADON_TEST_REGION_NAMES=['전원 지대','아드리아해','참호 전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항'];
 const HEADON_TEST_ALLOWED_HOSTS=new Set(['localhost','127.0.0.1','terminal.local','leesh603.github.io']);
 function installHeadOnTestLab(){
  const testHost=globalThis.location?.hostname||'';if(!HEADON_TEST_ALLOWED_HOSTS.has(testHost))return;

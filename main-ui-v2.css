@@ -675,3 +675,357 @@ body.astra-ui.playing #flightNotices151 #bossArrivalDetail{
  body.astra-ui.playing #flightNotices151 #bossArrival{width:min(250px,70vw);grid-template-columns:66px minmax(0,1fr);height:72px}
  body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{width:66px;height:72px}
 }
+
+
+/* ==========================================================================
+   HUD SYSTEM 191 — Phase 2
+   Active cut-in + reinforcement + special equipment.
+   Same Astra HUD surfaces; rarity/equipment only changes the accent.
+   ========================================================================== */
+
+/* ACTIVE CUT-IN — compact flight instrument, not a separate poster/card theme. */
+body.astra-ui.playing #skillCutin{
+ left:max(26px,env(safe-area-inset-left));
+ right:auto;
+ bottom:max(126px,calc(env(safe-area-inset-bottom) + 104px));
+ width:300px;
+ height:94px;
+ display:grid;
+ grid-template-columns:88px minmax(0,1fr);
+ grid-template-rows:1fr;
+ overflow:hidden;
+ border:1px solid var(--hud191-edge);
+ border-left:3px solid var(--hud191-accent);
+ border-radius:var(--hud191-radius);
+ background:var(--hud191-surface-strong);
+ box-shadow:var(--hud191-shadow);
+ animation:cutin-enter .18s ease-out;
+}
+body.astra-ui.playing #skillCutin:before{
+ display:none;
+}
+body.astra-ui.playing #skillCutin .cutin-portrait{
+ position:relative;
+ inset:auto;
+ grid-column:1;
+ grid-row:1;
+ width:88px;
+ height:94px;
+ overflow:hidden;
+ background-size:cover!important;
+ background-position:center 10%!important;
+ filter:saturate(.82) contrast(1.02) brightness(.94);
+}
+body.astra-ui.playing #skillCutin .cutin-portrait:after{
+ content:"";
+ position:absolute;
+ inset:0;
+ background:linear-gradient(90deg,transparent 50%,#10171388 76%,#101713 100%);
+ pointer-events:none;
+}
+body.astra-ui.playing #skillCutin .cutin-caption{
+ position:relative;
+ inset:auto;
+ grid-column:2;
+ grid-row:1;
+ min-width:0;
+ align-self:center;
+ display:flex;
+ flex-direction:column;
+ justify-content:center;
+ gap:4px;
+ padding:10px 12px 10px 3px;
+ background:none;
+}
+body.astra-ui.playing #skillCutin .cutin-caption small{
+ min-width:0;
+ margin:0;
+ color:var(--hud191-muted);
+ font:600 9px/1.2 var(--astra-type);
+ letter-spacing:.04em;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+body.astra-ui.playing #skillCutin .cutin-caption strong{
+ min-width:0;
+ color:var(--hud191-accent);
+ font:800 15px/1.25 var(--astra-type);
+ letter-spacing:-.015em;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+
+/* UPGRADE / SPECIAL EQUIPMENT — one Astra selection shell. */
+body.astra-ui #modal.choice-modal151{
+ background:#07100ed6;
+ backdrop-filter:blur(5px);
+}
+body.astra-ui #modal.choice-modal151 .modal-card{
+ width:min(980px,calc(100vw - 48px));
+ max-width:980px;
+ max-height:calc(100dvh - 48px);
+ overflow:auto;
+ overflow-x:hidden;
+ box-sizing:border-box;
+ padding:18px;
+ border:1px solid var(--hud191-edge,#c8c0a25f);
+ border-top:1px solid var(--hud191-edge,#c8c0a25f);
+ border-radius:4px;
+ background:linear-gradient(120deg,#1a211df5,#0a100df8);
+ box-shadow:inset 0 1px #ece5ce12,inset 0 0 0 3px #0002,0 22px 65px #000b;
+ color:#eee9d8;
+}
+body.astra-ui #modal.choice-modal151 #modalTag{
+ margin:0 0 5px;
+ color:#c7aa73;
+ font:600 9px/1.2 var(--astra-numeric);
+ letter-spacing:.14em;
+}
+body.astra-ui #modal.choice-modal151 #modalTitle{
+ margin:0;
+ color:#eee9d8;
+ font:800 23px/1.25 var(--astra-type);
+ letter-spacing:-.025em;
+}
+body.astra-ui #modal.choice-modal151 #modalText{
+ margin:5px 0 13px;
+ color:#b7b9aa;
+ font:400 11px/1.45 var(--astra-type);
+}
+body.astra-ui #modal.choice-modal151 #modalActions,
+body.astra-ui #modal.choice-modal151 #modalActions:has(.choice:nth-child(4)){
+ display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:8px;
+ align-items:stretch;
+}
+body.astra-ui #modal.choice-modal151 #modalActions:has(.choice:nth-child(4)){
+ grid-template-columns:repeat(4,minmax(0,1fr));
+}
+
+/* All rarity cards share structure; rarity is a restrained left seam + label. */
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
+ --hud191-choice-accent:#858c85;
+ display:grid!important;
+ grid-template-columns:76px minmax(0,1fr)!important;
+ grid-template-rows:20px minmax(42px,auto) minmax(64px,1fr) 30px!important;
+ gap:3px 10px!important;
+ min-width:0!important;
+ height:206px!important;
+ min-height:206px!important;
+ max-height:206px!important;
+ padding:11px 11px!important;
+ overflow:hidden;
+ align-items:start!important;
+ justify-items:stretch!important;
+ border:1px solid #c8c0a23a!important;
+ border-left:3px solid var(--hud191-choice-accent)!important;
+ border-radius:3px!important;
+ background:linear-gradient(120deg,#18201bf0,#0b110ef5)!important;
+ box-shadow:inset 0 1px #e8e1ca0c!important;
+ color:#eee9d8!important;
+ transform:none!important;
+ animation:none!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-normal{--hud191-choice-accent:#858c85}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-magic{--hud191-choice-accent:#7191a8}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-rare{--hud191-choice-accent:#b7a067}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-unique{--hud191-choice-accent:#a8768e}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-legendary{--hud191-choice-accent:#bea878}
+
+/* Retire old metallic sweep / decorative corner treatment. */
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:before,
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:after{
+ display:none!important;
+ animation:none!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .rarity-label160{
+ position:static!important;
+ grid-column:2!important;
+ grid-row:1!important;
+ justify-self:end;
+ align-self:center;
+ margin:0!important;
+ color:var(--hud191-choice-accent)!important;
+ opacity:.72!important;
+ font:700 9px/1.2 var(--astra-numeric)!important;
+ letter-spacing:.12em!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .effect-category151{
+ grid-column:2!important;
+ grid-row:1!important;
+ justify-self:start!important;
+ align-self:center!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ background:none!important;
+ color:#aeb2a5!important;
+ font:600 9px/1.2 var(--astra-type)!important;
+ letter-spacing:.03em!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .choice-icon{
+ grid-column:1!important;
+ grid-row:1/5!important;
+ align-self:center!important;
+ justify-self:center!important;
+ width:66px!important;
+ height:66px!important;
+ max-width:66px!important;
+ object-fit:contain;
+ opacity:.95;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>b{
+ grid-column:2!important;
+ grid-row:2!important;
+ align-self:center!important;
+ min-width:0;
+ margin:0!important;
+ color:#eee9d8!important;
+ font:800 14px/1.3 var(--astra-type)!important;
+ text-align:left!important;
+ letter-spacing:-.015em!important;
+ display:-webkit-box!important;
+ -webkit-line-clamp:2!important;
+ -webkit-box-orient:vertical!important;
+ overflow:hidden!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>span:not(.cumulative151),
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:has(.cumulative151:not(:empty))>span:not(.cumulative151){
+ grid-column:2!important;
+ grid-row:3!important;
+ align-self:start!important;
+ min-width:0;
+ margin:0!important;
+ color:#c5c8ba!important;
+ font:400 11px/1.45 var(--astra-type)!important;
+ display:-webkit-box!important;
+ -webkit-line-clamp:4!important;
+ -webkit-box-orient:vertical!important;
+ overflow:hidden!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>.cumulative151{
+ grid-column:2!important;
+ grid-row:4!important;
+ align-self:end!important;
+ width:100%!important;
+ margin:0!important;
+ padding:5px 0 0!important;
+ border-top:1px solid #c8c0a226!important;
+ color:#c9b889!important;
+ font:600 9px/1.25 var(--astra-numeric)!important;
+ white-space:normal!important;
+ overflow:hidden!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:hover,
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:focus-visible{
+ outline:1px solid #d7ceb06e!important;
+ outline-offset:1px!important;
+ filter:brightness(1.06);
+ background:linear-gradient(120deg,#202a23f4,#0c1310f7)!important;
+}
+
+/* Special equipment is premium by accent, not by switching to another theme. */
+body.astra-ui #modal.choice-modal151.special-draft156 .modal-card{
+ border-color:#bba97a66;
+}
+body.astra-ui #modal.choice-modal151.special-draft156 #modalTitle{
+ color:#e9dfc7;
+}
+body.astra-ui #modal.choice-modal151.special-draft156 #modalActions .rarity-legendary{
+ background:linear-gradient(120deg,#20251ff4,#10130ff7)!important;
+ border-color:#bcae8248!important;
+ border-left-color:#bea878!important;
+}
+body.astra-ui #modal.choice-modal151 .legendary-reroll115{
+ grid-column:1/-1;
+ min-height:38px;
+ margin-top:1px;
+ border:1px solid #a697704d;
+ border-radius:3px;
+ background:#111813d8;
+ color:#d8ccb0;
+ font:600 10px/1.2 var(--astra-type);
+}
+
+/* Inventory chips use exactly the same instrument surface. */
+body.astra-ui.playing #legendaryInventory .legendary-badge{
+ width:34px;
+ height:34px;
+ padding:0;
+ border:1px solid #b7a77769;
+ border-radius:3px;
+ background:var(--hud191-surface);
+ box-shadow:var(--hud191-shadow);
+}
+body.astra-ui.playing #legendaryInventory .legendary-tip156{
+ border:1px solid var(--hud191-edge);
+ border-radius:3px;
+ background:var(--hud191-surface-strong);
+ box-shadow:var(--hud191-shadow);
+ color:var(--hud191-text);
+ font:10px/1.4 var(--astra-type);
+}
+
+/* Mobile = same cards, reduced density; never horizontal scroll. */
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing #skillCutin{
+  left:max(8px,env(safe-area-inset-left));
+  bottom:max(118px,calc(env(safe-area-inset-bottom) + 102px));
+  width:min(230px,58vw);
+  height:72px;
+  grid-template-columns:66px minmax(0,1fr);
+ }
+ body.astra-ui.playing #skillCutin .cutin-portrait{width:66px;height:72px}
+ body.astra-ui.playing #skillCutin .cutin-caption{padding:7px 8px 7px 2px;gap:2px}
+ body.astra-ui.playing #skillCutin .cutin-caption small{font-size:7px}
+ body.astra-ui.playing #skillCutin .cutin-caption strong{font-size:11px}
+
+ body.astra-ui #modal.choice-modal151 .modal-card{
+  width:calc(100vw - 12px);
+  max-width:none;
+  max-height:calc(100dvh - 12px);
+  padding:10px 8px;
+ }
+ body.astra-ui #modal.choice-modal151 #modalTitle{font-size:19px}
+ body.astra-ui #modal.choice-modal151 #modalText{font-size:10px;margin-bottom:8px}
+ body.astra-ui #modal.choice-modal151 #modalActions,
+ body.astra-ui #modal.choice-modal151 #modalActions:has(.choice:nth-child(4)){
+  grid-template-columns:1fr;
+  gap:5px;
+  overflow-x:hidden;
+ }
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
+  grid-template-columns:54px minmax(0,1fr)!important;
+  grid-template-rows:16px 34px 48px 25px!important;
+  height:132px!important;
+  min-height:132px!important;
+  max-height:132px!important;
+  padding:7px 8px!important;
+  gap:2px 8px!important;
+ }
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .choice-icon{
+  width:48px!important;height:48px!important;max-width:48px!important
+ }
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .rarity-label160,
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .effect-category151{font-size:7px!important}
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>b{font-size:12px!important}
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>span:not(.cumulative151),
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:has(.cumulative151:not(:empty))>span:not(.cumulative151){
+  font-size:9px!important;line-height:1.35!important;-webkit-line-clamp:3!important
+ }
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>.cumulative151{font-size:8px!important;padding-top:3px!important}
+}
+
+@media(max-height:550px) and (pointer:coarse) and (orientation:landscape){
+ body.astra-ui #modal.choice-modal151 #modalActions,
+ body.astra-ui #modal.choice-modal151 #modalActions:has(.choice:nth-child(4)){
+  grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
+  height:116px!important;min-height:116px!important;max-height:116px!important;
+  grid-template-rows:15px 30px 42px 21px!important;
+ }
+}
