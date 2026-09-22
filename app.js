@@ -309,6 +309,9 @@ const terrainAlpsAtlas=new Image();terrainAlpsAtlas.src='./terrain-alps-atlas.pn
 const TerrainRendererSafe=typeof TerrainRenderer==='undefined'?class{draw(){}}:TerrainRenderer;
 const MountainFieldSafe=typeof MountainField==='undefined'?class{constructor(){this.query=()=>[];this.step=()=>{};this.draw=()=>{}}}:MountainField;
 const terrainAlpsRenderer=new TerrainRendererSafe({atlas:terrainAlpsAtlas,detail:.72,tileSize:768});
+const zeeWaterTile=new Image();zeeWaterTile.src='./terrain-zeebrugge-water189.png?v=212';
+const zeeHarborAtlas=new Image();zeeHarborAtlas.src='./zeebrugge-harbor-atlas189.png?v=212';
+const ZEE_CELLS=Object.freeze({lighthouse:[36,62,147,168],breakwater:[202,123,167,76],dock:[411,117,171,105],crane:[631,75,99,149],freighter:[148,319,239,84],patrol:[65,326,31,112],coal:[438,348,113,64],buoy1:[612,307,29,55],buoy3:[703,323,24,38]});
 const terrainKeys=['rural','sea','trenches','burning','city','sky','alps','zeebrugge'];
 const _ruralTerrain=terrain;
 function drawSeamlessRural(cx,cy,W,H){
@@ -325,7 +328,8 @@ function paintZeebrugge(cx,cy,W,H){
  const travel=Math.max(0,route?.maxForward??((game?.distance||0)-(game?.stageStartDistance||0)));
  const progress=Math.max(0,Math.min(1,travel/12000));
  const camera={x:cx-W/2,y:cy-H/2};
- terrainAlpsRenderer.draw(ctx,{key:'sea',camera,width:W,height:H});
+ if(zeeWaterTile.naturalWidth){const t=zeeWaterTile.naturalWidth,sx=Math.floor(camera.x/t)-1,sy=Math.floor(camera.y/t)-1,ex=Math.ceil((camera.x+W)/t),ey=Math.ceil((camera.y+H)/t);for(let ty=sy;ty<=ey;ty++)for(let tx=sx;tx<=ex;tx++)ctx.drawImage(zeeWaterTile,tx*t-camera.x,ty*t-camera.y)}
+ else terrainAlpsRenderer.draw(ctx,{key:'sea',camera,width:W,height:H});
  if(!route)return;
  const a=Number.isFinite(route.a)?route.a:-Math.PI/2,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
  const centerS=(cx-route.x)*hx+(cy-route.y)*hy,diag=Math.hypot(W,H),span=diag*1.15;
@@ -347,25 +351,25 @@ function paintZeebrugge(cx,cy,W,H){
  paintBank(left,-1);paintBank(right,1);
  // Sparse quays are positioned on a long world grid with alternating offsets.
  // They read as a harbor but never form a repeated full-screen tile.
- const drawQuay=(s,side,depth,length)=>{
-  const n=side*halfAt(s,side),p0=point(s-length/2,n),p1=point(s+length/2,n);
-  const p2=point(s+length/2,n-side*depth),p3=point(s-length/2,n-side*depth),poly=[p0,p1,p2,p3];
-  ctx.save();ctx.beginPath();ctx.moveTo(...poly[0]);for(let i=1;i<poly.length;i++)ctx.lineTo(...poly[i]);ctx.closePath();ctx.clip();
-  terrainAlpsRenderer.draw(ctx,{key:'city',camera,width:W,height:H});ctx.restore();
-  ctx.save();ctx.strokeStyle='#897f65';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(...poly[0]);for(let i=1;i<poly.length;i++)ctx.lineTo(...poly[i]);ctx.closePath();ctx.stroke();
-  ctx.strokeStyle='#263638aa';ctx.lineWidth=1.5;ctx.stroke();ctx.restore();
+ const zee=(key,s,n,scale=1,vflip=false,rot=0)=>{
+  const f=ZEE_CELLS[key];if(!f||!zeeHarborAtlas.naturalWidth)return;
+  const p=point(s,n);ctx.save();ctx.translate(p[0],p[1]);ctx.rotate(a+rot);ctx.scale(1,vflip?-1:1);
+  ctx.drawImage(zeeHarborAtlas,f[0],f[1],f[2],f[3],-f[2]*scale/2,-f[3]*scale/2,f[2]*scale,f[3]*scale);ctx.restore();
  };
+ // Approved harbor atlas: quay pieces, docked traffic and channel markers stay
+ // world-anchored like the old procedural quays, so nothing drifts or tiles.
  const cell=760,first=Math.floor((s0-200)/cell)-1,last=Math.ceil((s1+200)/cell)+1;
- for(let k=first;k<=last;k++){
-  const s=k*cell+((k&1)?170:-80),side=(k&1)?1:-1;
-  if(progress>.12)drawQuay(s,side,44+(Math.abs(k)%3)*9,115+(Math.abs(k)%2)*34);
+ if(progress>.12)for(let k=first;k<=last;k++){
+  const s=k*cell+((k&1)?170:-80),side=(k&1)?1:-1,m=Math.abs(k)%4;
+  zee(m===0?'lighthouse':m===1?'breakwater':m===2?'dock':'crane',s,side*(halfAt(s,side)-12),m===0?.95:.88,side>0);
+  if(Math.abs(k)%3===0)zee('coal',s+120,side*(halfAt(s,side)+38),.8,side>0);
  }
- // Existing naval sprite art is reused at restrained scale and remains outside
- // the central combat lane. Its world anchors are stable in every direction.
  if(progress>.28)for(let k=first;k<=last;k++){
-  if(k%2)continue;const side=((k/2)&1)?1:-1,s=k*cell+250,n=side*(halfAt(s,side)-42),p=point(s,n);
-  if(p[0]<-130||p[0]>W+130||p[1]<-130||p[1]>H+130)continue;
-  ctx.save();ctx.globalAlpha=.72;drawBattlefieldSprite(ctx,'ship',p[0],p[1],118,a+(side>0?Math.PI/2:-Math.PI/2));ctx.restore();
+  if(k%2)continue;const side=((k/2)&1)?1:-1,s=k*cell+250,p=point(s,side*(halfAt(s,side)-74));
+  if(p[0]<-150||p[0]>W+150||p[1]<-150||p[1]>H+150)continue;
+  zee('freighter',s,side*(halfAt(s,side)-74),.74,side>0);
+  zee(Math.abs(k)%4?'buoy1':'buoy3',s+140,side*(halfAt(s,side)-46),.8);
+  if(Math.abs(k)%3===0)zee('patrol',s+300,-side*(halfAt(s,-side)-66),.7,side<0,-Math.PI/2);
  }
  // Gentle foam follows the same shoreline and hides texture-to-water aliasing.
  ctx.save();ctx.lineCap='round';ctx.setLineDash([9,17]);ctx.strokeStyle='#c8ddd066';ctx.lineWidth=2;
