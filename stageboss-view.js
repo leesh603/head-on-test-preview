@@ -75,13 +75,14 @@ function drawBossPart(c,p,ring){
  }
  if(p.bodyKey==='livens-flame-projector'||p.bodyKey==='minenwerfer-battery'){
   const damaged=p.hp<=p.maxHp*.5;let drawn=false;
+  const k=p.radius/({tank:27,pressure:29,nozzle:31,gun:28,ammo:29,crane:25,command:25}[p.partId.split('-')[0]]||28);
   if(p.bodyKey==='livens-flame-projector'){
-   if(p.partId.startsWith('tank-'))drawn=drawTrenchImage(c,p.destroyed?trenchBossArt.livensTankDestroyed:damaged?trenchBossArt.livensTankDamaged:trenchBossArt.livensTank,p.x,p.y,94,74);
-   else if(p.partId==='pressure')drawn=drawTrenchImage(c,p.destroyed?trenchBossArt.livensPressureDestroyed:damaged?trenchBossArt.livensPressureDamaged:trenchBossArt.livensPressure,p.x,p.y,104,100);
-   else if(p.partId==='nozzle')drawn=drawTrenchImage(c,p.destroyed?trenchBossArt.livensNozzleDestroyed:damaged?trenchBossArt.livensNozzleDamaged:trenchBossArt.livensNozzle,p.x,p.y,150,150,(p.angle||0)-Math.PI/2);
+   if(p.partId.startsWith('tank-'))drawn=drawTrenchImage(c,p.destroyed?trenchBossArt.livensTankDestroyed:damaged?trenchBossArt.livensTankDamaged:trenchBossArt.livensTank,p.x,p.y,94*k,74*k);
+   else if(p.partId==='pressure')drawn=drawTrenchImage(c,p.destroyed?trenchBossArt.livensPressureDestroyed:damaged?trenchBossArt.livensPressureDamaged:trenchBossArt.livensPressure,p.x,p.y,104*k,100*k);
+   else if(p.partId==='nozzle')drawn=drawTrenchImage(c,p.destroyed?trenchBossArt.livensNozzleDestroyed:damaged?trenchBossArt.livensNozzleDamaged:trenchBossArt.livensNozzle,p.x,p.y,150*k,150*k,(p.angle||0)-Math.PI/2);
   }else{
    const image=p.partId==='main-gun'?(p.destroyed?trenchBossArt.minenMainDestroyed:damaged?trenchBossArt.minenMainDamaged:trenchBossArt.minenMain):p.partId.startsWith('gun-')?trenchBossArt.minenSide:p.partId==='crane'?trenchBossArt.minenCrane:p.partId==='command'?trenchBossArt.minenCommand:p.partId==='ammo-main'?trenchBossArt.minenAmmo:trenchBossArt.minenCore;
-   drawn=drawTrenchImage(c,image,p.x,p.y,p.partId==='main-gun'?104:86,p.partId==='main-gun'?106:96,0,p.destroyed?.38:1);
+   drawn=drawTrenchImage(c,image,p.x,p.y,(p.partId==='main-gun'?104:86)*k,(p.partId==='main-gun'?106:96)*k,0,p.destroyed?.38:1);
   }
   if(!drawn){c.fillStyle=p.destroyed?'#302722':p.bodyKey==='livens-flame-projector'?'#59604a':'#5b5141';c.beginPath();c.arc(p.x,p.y,r*.76,0,Math.PI*2);c.fill();}
   if(p.destroyed)bossSprite(c,11,p.x,p.y,r*1.4,r*1.4,0,.5);
@@ -174,7 +175,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    const ship=b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart',rail=['paris-gun','lincomparable'].includes(b.assetKey),structure=['livens-flame-projector','minenwerfer-battery'].includes(b.assetKey);
    if(ship){for(let i=0;i<12;i++){const drift=(b.motionTime*32+i*13)%155;c.fillStyle=i%2?'#d7f1de99':'#6eb9b777';const w=18+drift*.3;c.fillRect(-w/2,125+drift,w,4);}}
 
-   if(!rail){c.scale(structure?1:2.025,structure?1:2.025);c.translate(0,b.recoil*18);}
+   if(!rail){const bs=structure?(b.t?.geometryScale||2.025):2.025;c.scale(bs,bs);c.translate(0,b.recoil*18);}
    if(b.recoil>0){pixelBlast(c,0,-100,24,b.motionTime);c.fillStyle='#d6d2b04d';c.fillRect(-13,-160,26,48);}
    if(rail){drawRailConsist181(c,b);}
    else if(b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart'){
