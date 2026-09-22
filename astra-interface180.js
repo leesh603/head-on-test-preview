@@ -25,12 +25,12 @@ export function interfaceIcon(name,cls='astra-icon'){
 }
 // Reuse the production matte algorithm at native resolution. This cleans only
 // the hangar illustration; the 144px gameplay sprite and its collision stay intact.
-const rawHangarArt={fokker:'./fokker.png',baron_albatros:'./baron_albatros.png',albatros_d2:'./albatros_d2.png',nieuport_italian:'./nieuport.png'};
+const rawHangarArt={fokker:'./fokker.png?v=201&b=201',baron_albatros:'./baron_albatros.png?v=201&b=201',albatros_d2:'./albatros_d2.png?v=201&b=201',nieuport_italian:'./nieuport.png?v=201&b=201'};
 const artCache=new Map();
 function hangarArt(key){
- if(!rawHangarArt[key])return Promise.resolve(aircraftArt[key]||'');
  if(artCache.has(key))return artCache.get(key);
- const pending=new Promise(resolve=>{const image=new Image();image.onerror=()=>resolve('');image.onload=()=>{
+ const src=rawHangarArt[key]||`./${key}.png?v=201&b=201`;
+ const pending=new Promise(resolve=>{const image=new Image();image.onerror=()=>resolve(aircraftArt[key]||'');image.onload=()=>{
   try{
    const scan=document.createElement('canvas');scan.width=image.naturalWidth;scan.height=image.naturalHeight;
    const c=scan.getContext('2d',{willReadFrequently:true});c.drawImage(image,0,0);
@@ -42,7 +42,7 @@ function hangarArt(key){
    if(r<l||b<t){resolve('');return}
    const out=document.createElement('canvas');out.width=r-l+1;out.height=b-t+1;out.getContext('2d').drawImage(scan,l,t,out.width,out.height,0,0,out.width,out.height);resolve(out.toDataURL('image/png'));
   }catch{resolve('')}
- };image.src=rawHangarArt[key]});artCache.set(key,pending);return pending;
+ };image.src=src});artCache.set(key,pending);return pending;
 }
 function ring(){
  const r=el('span','astra-dial');r.setAttribute('aria-hidden','true');
