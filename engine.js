@@ -694,7 +694,8 @@ Game.prototype.spawnFleet=function(){
  const harbor=this.worldRegion()===6&&this.navalRoute,route=this.navalRoute;
  let x,y,a=-Math.PI/2,side=1;
  if(harbor){
-  side=this.rng()>.5?1:-1;const hx=Math.cos(route.a),hy=Math.sin(route.a),nx=-hy,ny=hx;
+  const hx=Math.cos(route.a),hy=Math.sin(route.a),nx=-hy,ny=hx;
+  // Coast harbor keeps water on the +lateral side only; guard ships stay offshore.
   const along=(route.maxForward||0)+340+this.rng()*220,bank=Math.max(300,Math.min(430,(this.viewWidth||960)*.48));
   x=route.x+hx*along+nx*side*bank;y=route.y+hy*along+ny*side*bank;a=route.a;
  }else{
