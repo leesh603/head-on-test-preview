@@ -7,7 +7,7 @@ const FX_FILES={
 };
 const fxImgs={};
 export const fxArtReady=typeof Image==='undefined'?Promise.resolve():Promise.all(Object.entries(FX_FILES).map(([key,file])=>new Promise(res=>{
- const im=new Image();im.onload=()=>{fxImgs[key]=im;res()};im.onerror=()=>res();im.src='./'+file+'?v=201';
+ const im=new Image();im.onload=()=>{fxImgs[key]=im;res()};im.onerror=()=>res();im.src='./'+file+'.png?v=201';
 })));
 export function fxReady(key){return !!fxImgs[key]}
 export function fxImage(key){return fxImgs[key]||null}
