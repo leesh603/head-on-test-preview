@@ -31,6 +31,8 @@ function ring(){
 function install(){
  if(!$('hangar')||document.body.classList.contains('astra-ui'))return;
  document.body.classList.add('astra-ui');
+ // First-paint gate from index.html: drop it now so the legacy roster never flashes.
+ document.documentElement.classList.remove('ui-pending');
  const hangar=$('hangar'),roster=$('flightRoster');
  const stage=el('div','astra-stage'),home=el('div','astra-home'),hero=el('section','astra-hero'),dossier=el('div','astra-dossier');
  const kicker=el('div','astra-kicker'),title=el('h1','astra-pilot-title'),english=el('p','astra-pilot-english');
