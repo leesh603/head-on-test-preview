@@ -1,14 +1,6 @@
 // Unified hand-painted effect sprites. Each helper draws only when the PNG
 // loaded; callers keep their procedural drawing as the fallback path.
-const FX_FILES={
- muzzle:'fx-muzzle.png',
- tracerAmber:'fx-tracer-amber.png',tracerOrange:'fx-tracer-orange.png',tracerCream:'fx-tracer-cream.png',
- smokeWisp:'fx-smoke-wisp.png',smokeGray:'fx-smoke-gray.png',smokeDark:'fx-smoke-dark.png',smokePuff:'fx-smoke-puff.png',
- explosion0:'fx-explosion-0.png',explosion1:'fx-explosion-1.png',explosion2:'fx-explosion-2.png',explosion3:'fx-explosion-3.png',
- fire:'fx-fire.png',rocket:'fx-rocket.png',bomb:'fx-bomb.png',grenade:'fx-grenade.png',flak:'fx-flak.png',
- spark:'fx-spark.png',mine:'fx-mine.png',torpedo:'fx-torpedo.png',waterColumn:'fx-water-column.png',
- gas:'fx-gas.png',searchlight:'fx-searchlight.png',sunshaft:'fx-sunshaft.png',cloud:'fx-cloud.png',shell:'fx-shell.png'
-};
+const FX_FILES={}
 const fxImgs={};
 export const fxArtReady=typeof Image==='undefined'?Promise.resolve():Promise.all(Object.entries(FX_FILES).map(([key,file])=>new Promise(res=>{
  const im=new Image();im.onload=()=>{fxImgs[key]=im;res()};im.onerror=()=>res();im.src='./'+file+'?v=fx2';
