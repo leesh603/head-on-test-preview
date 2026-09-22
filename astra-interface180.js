@@ -1,6 +1,6 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
 import {getLocale,subscribe} from './i18n.js?v=175';
-import {clearAircraftMatte} from './aircraft.js?v=184';
+import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=184';
 import {clearCrewMatte} from './matte70.js?v=128';
 import {aircraftArt} from './main-ui-art180.js?v=180';
 const $=id=>document.getElementById(id);
@@ -123,7 +123,7 @@ function install(){
  function sync(){
   const en=getLocale()==='en',selectedButton=$('pilotTabs').querySelector('[data-pilot-id].active');
   if(!selectedButton)return;
-  const pilot=selectedButton.dataset.pilotId,aircraftId=$('aircraftSelect103').value;
+  const pilot=selectedButton.dataset.pilotId,aircraftId=aircraftKey($('aircraftSelect103').value,false,pilot);
   put(title,$('hangarName').textContent);
   put(english,$('pilotAlias').textContent);
   put(kicker,en?'PILOT / SELECTED ACE':'파일럿 / 출격 대기');
