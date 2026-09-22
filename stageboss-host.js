@@ -162,11 +162,9 @@ const LARGE_AIRCRAFT_HULLS=Object.freeze({
  // The artwork is much larger than the weak-point circles.  These ellipses
  // cover the visible fuselage and wings so a player can never remain hidden
  // inside the bomber while its movement path crosses them.
+ // Ground fortifications are omitted: a plane can always fly over them.
  gik:{halfWidth:128,halfHeight:150},
- ca4:{halfWidth:128,halfHeight:150},
- 'armored-harbor-fortress':{halfWidth:245,halfHeight:235},
- 'livens-flame-projector':{halfWidth:220,halfHeight:175},
- 'minenwerfer-battery':{halfWidth:210,halfHeight:165}
+ ca4:{halfWidth:128,halfHeight:150}
 });
 export function separateLargeBossBodies(g){
  if(blocked(g))return;
