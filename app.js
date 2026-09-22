@@ -6,7 +6,7 @@ import {GamepadInput} from './gamepad-input.js?v=166';
 const fieldRecordLink=document.createElement('a');fieldRecordLink.href='./field-record.html';fieldRecordLink.target='_blank';fieldRecordLink.rel='noopener';fieldRecordLink.textContent=getLocale()==='en'?'Official Battle Record':'공식 전장 기록';fieldRecordLink.className='field-record-link';fieldRecordLink.style.cssText='display:block;margin:10px auto 0;text-align:center;color:#d7b26d;font-weight:800;text-decoration:none';document.getElementById('start')?.after(fieldRecordLink);
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=162';
 import {drawStageBoss,updateStageBossHud,paintCity,paintSky} from './stageboss-view.js?v=193';
-import {enableStageBoss,STAGE_NAMES} from './stageboss-host.js?v=187';
+import {enableStageBoss,STAGE_NAMES} from './stageboss-host.js?v=193';
 import './hud-layout94.js?v=180';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=176';
 import {CoopGame,coopPlane} from './coop-engine.js?v=174';
