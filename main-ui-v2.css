@@ -998,7 +998,7 @@ body.astra-ui.playing #legendaryInventory .legendary-tip156{
   overflow-x:hidden;
  }
  body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
-  grid-template-columns:54px minmax(0,1fr)!important;
+  grid-template-columns:68px minmax(0,1fr)!important;
   grid-template-rows:16px 34px 48px 25px!important;
   height:132px!important;
   min-height:132px!important;
@@ -1007,7 +1007,7 @@ body.astra-ui.playing #legendaryInventory .legendary-tip156{
   gap:2px 8px!important;
  }
  body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .choice-icon{
-  width:48px!important;height:48px!important;max-width:48px!important
+  width:60px!important;height:60px!important;max-width:60px!important
  }
  body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .rarity-label160,
  body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .effect-category151{font-size:7px!important}
