@@ -343,19 +343,24 @@ function paintZeebrugge(cx,cy,W,H){
   for(let x=ox;x<W;x+=tile)for(let y=oy;y<H;y+=tile)ctx.drawImage(seaTile,x,y,tile,tile);
  }
  ctx.restore();
- // Quay edge along the shoreline.
- ctx.save();ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();
- for(let i=0;i<=steps;i++){const s=s0+(s1-s0)*i/steps,p=point(s,shoreN(s));i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}
- ctx.strokeStyle='#9a9277';ctx.lineWidth=7;ctx.stroke();
- ctx.strokeStyle='#343e3ecc';ctx.lineWidth=2.5;ctx.stroke();
- ctx.restore();
+ // Quay promenade along the shoreline: a stone band sits astride the boundary
+ // so the city meets water through a built edge, not a razor cut.
+ const shorePath=()=>{ctx.beginPath();for(let i=0;i<=steps;i++){const s=s0+(s1-s0)*i/steps,p=point(s,shoreN(s));i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}};
+ ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+ ctx.strokeStyle='#6f6a55';ctx.lineWidth=34;shorePath();ctx.stroke();
+ ctx.strokeStyle='#9a9277';ctx.lineWidth=14;shorePath();ctx.stroke();
+ ctx.strokeStyle='#343e3ecc';ctx.lineWidth=3;shorePath();ctx.stroke();
+ // Foam line lapping just off the quay wall.
+ ctx.strokeStyle='#bcd9d455';ctx.lineWidth=3;ctx.beginPath();
+ for(let i=0;i<=steps;i++){const s=s0+(s1-s0)*i/steps,p=point(s,shoreN(s)+13);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}
+ ctx.stroke();ctx.restore();
  const travel=Math.max(0,route?.maxForward??((game?.distance||0)-(game?.stageStartDistance||0)));
  const progress=Math.max(0,Math.min(1,travel/12000));
  // Dock traffic rides the water side only; the flight lane stays open.
  if(progress>.42){
   const base=Math.max(6200,route.maxForward-1500),spacing=520;
   for(let i=0;i<6;i++){
-   const s=base+i*spacing,lateral=shoreN(s)+86,p=point(s,lateral);
+   const s=base+i*spacing,lateral=shoreN(s)+128,p=point(s,lateral);
    if(p[0]<-180||p[0]>W+180||p[1]<-180||p[1]>H+180)continue;
    ctx.save();ctx.globalAlpha=.78;drawBattlefieldSprite(ctx,'ship',p[0],p[1],175,a+Math.PI/2);ctx.restore();
   }
