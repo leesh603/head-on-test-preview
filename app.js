@@ -1,5 +1,5 @@
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=164';
-import {fx,fxReady,fxTint} from './fx-art.js?v=193';
+import {fx,fxReady,fxTint} from './fx-art.js?v=196';
 import {CATEGORIES,categoryName,reinforcementName,buildStats,cumulativeText,cleanDescription} from './reinforcement-ui151.js?v=175';
 import {t,getLocale,setLocale,subscribe,initLocale,applyTranslations,rarityName,upgradeDescription as translatedUpgradeDescription,pilotName,aircraftName,weaponName,activeName,passiveName,pilotDescription,passiveDescription,aircraftRole,airframeHistory,airframeTip} from './i18n.js?v=175';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=188';
