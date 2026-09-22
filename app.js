@@ -312,6 +312,8 @@ draw=t=>{
 };
 
 const regionTextures={};for(const name of ['sea','trenches']){const im=new Image();im.src='./terrain-'+name+'.png?v=184';regionTextures[name]=im}
+const harborSeaTile=new Image();harborSeaTile.src='./terrain-harbor-sea.png?v=193';
+const harborDockTile=new Image();harborDockTile.src='./terrain-harbor-dock.png?v=193';
 const terrainAlpsAtlas=new Image();terrainAlpsAtlas.src='./terrain-alps-atlas.png?v=126';
 // The no-op constructors only keep the import-stripped offline smoke harness
 // inert; the hosted module always resolves the supplied Alps implementation.
@@ -328,10 +330,15 @@ function drawSeamlessRural(cx,cy,W,H){
  ctx.strokeStyle='#5d7d78';ctx.lineWidth=18;ctx.beginPath();for(let y=-30;y<H+40;y+=16){const wy=worldY+y,x=W*.61+Math.sin(wy*.0024)*88+Math.sin(wy*.006)*18;y<0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();ctx.strokeStyle='#a2b19377';ctx.lineWidth=2;ctx.stroke();
 }
 function paintZeebrugge(cx,cy,W,H){
- // Open sea everywhere; a dock district meets the water along one wavy
- // shoreline beside the naval route — same terrains the other regions tile.
+ // Newly painted harbor tiles: sea everywhere; a dock district meets the
+ // water along one wavy shoreline beside the naval route.
  const camera={x:cx-W/2,y:cy-H/2};
- terrainAlpsRenderer.draw(ctx,{key:'sea',camera,width:W,height:H});
+ const fill=(img,fallback)=>{
+  if(!img.naturalWidth){ctx.fillStyle=fallback;ctx.fillRect(0,0,W,H);return}
+  const T=512,ox=((-camera.x)%T+T)%T-T,oy=((-camera.y)%T+T)%T-T;
+  for(let x=ox;x<W;x+=T)for(let y=oy;y<H;y+=T)ctx.drawImage(img,x,y,T,T);
+ };
+ fill(harborSeaTile,'#1d4a5e');
  const route=game?.navalRoute;
  if(!route)return;
  const a=Number.isFinite(route.a)?route.a:-Math.PI/2,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
@@ -347,7 +354,7 @@ function paintZeebrugge(cx,cy,W,H){
  for(let s=sMin;s<=sMax;s+=60){const p=pt(s,shoreN(s));s===sMin?ctx.moveTo(p[0],p[1]):ctx.lineTo(p[0],p[1]);}
  const far=Math.max(W,H)*2+400,e1=pt(sMax,-far),e2=pt(sMin,-far);
  ctx.lineTo(e1[0],e1[1]);ctx.lineTo(e2[0],e2[1]);ctx.closePath();ctx.clip();
- terrainAlpsRenderer.draw(ctx,{key:'city',camera,width:W,height:H});
+ fill(harborDockTile,'#57544c');
  ctx.restore();
  // Stone quay wall along the shoreline.
  ctx.save();ctx.beginPath();
