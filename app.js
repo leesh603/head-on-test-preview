@@ -340,9 +340,11 @@ function paintZeebrugge(cx,cy,W,H){
  // scroll loop needs no per-frame flip transforms (GPU smear on some drivers).
  let img=zeebruggeHarborTile;
  if(img.naturalWidth&&!img._plate){
-  const pc=document.createElement('canvas');pc.width=img.naturalWidth>>1;pc.height=img.naturalHeight>>1;
+  // Crop to the inner-harbor strip: parallel quay fingers + channel, skipping
+  // the diagonal breakwaters near the plate edges that read as giant shapes.
+  const pc=document.createElement('canvas');pc.width=img.naturalWidth>>1;pc.height=(img.naturalHeight-430)>>1;
   const pctx=pc.getContext('2d');pctx.imageSmoothingEnabled=true;pctx.imageSmoothingQuality='high';
-  pctx.drawImage(img,0,0,pc.width,pc.height);
+  pctx.drawImage(img,0,215,img.naturalWidth,img.naturalHeight-430,0,0,pc.width,pc.height);
   const id=pctx.getImageData(0,0,pc.width,pc.height),d=id.data;
   for(let i=0;i<d.length;i+=4){
    const g=d[i]*.3+d[i+1]*.59+d[i+2]*.11;
@@ -356,9 +358,9 @@ function paintZeebrugge(cx,cy,W,H){
   img._plate=tc;
  }
  if(img._plate){img=img._plate;
-  // Keep the plate at a modest zoom: ~one screen width of harbor visible —
-  // larger k made docks and ships read as giant blobs on small screens.
-  const k=(W*1.05)/img.width,dw=Math.round(img.width*k),dh=Math.round(img.height*k);
+  // Modest zoom: quays and docked ships read at map-object scale, not giant
+  // blobs — roughly the scale the other regions draw their props at.
+  const k=(W*0.7)/img.width,dw=Math.round(img.width*k),dh=Math.round(img.height*k);
   // The plate's main channel sits about mid-width; pin it on the sortie line.
   const channelWorldX=(route?route.x:camera.x+W/2)-dw*.5;
   const period=dh,wy0=Math.floor(camera.y/period)*period;
