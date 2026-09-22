@@ -312,7 +312,7 @@ draw=t=>{
 };
 
 const regionTextures={};for(const name of ['sea','trenches']){const im=new Image();im.src='./terrain-'+name+'.png?v=184';regionTextures[name]=im}
-const zeebruggeHarborTile=new Image();zeebruggeHarborTile.src='./terrain-zeebrugge-harbor.png?v=190';
+const zeebruggeHarborTile=new Image();zeebruggeHarborTile.src='./terrain-zeebrugge-strip.png?v=190';
 const terrainAlpsAtlas=new Image();terrainAlpsAtlas.src='./terrain-alps-atlas.png?v=126';
 // The no-op constructors only keep the import-stripped offline smoke harness
 // inert; the hosted module always resolves the supplied Alps implementation.
@@ -329,39 +329,16 @@ function drawSeamlessRural(cx,cy,W,H){
  ctx.strokeStyle='#5d7d78';ctx.lineWidth=18;ctx.beginPath();for(let y=-30;y<H+40;y+=16){const wy=worldY+y,x=W*.61+Math.sin(wy*.0024)*88+Math.sin(wy*.006)*18;y<0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();ctx.strokeStyle='#a2b19377';ctx.lineWidth=2;ctx.stroke();
 }
 function paintZeebrugge(cx,cy,W,H){
- // Authored harbor plate: breakwaters, quay fingers and docked ships painted as
- // one top-down map. World-locked and mirror-tiled vertically so it scrolls
- // forever — no procedural canal/shoreline slicing through the city.
+ // Pre-baked harbor tile (terrain-zeebrugge-strip.png): the inner-harbor
+ // channel strip cropped from the authored plate, muted, with its vertical
+ // mirror appended — plain drawImage tiling, no runtime transforms.
  const camera={x:cx-W/2,y:cy-H/2};
  const route=game?.navalRoute;
- // Bake once: mute the authored plate toward the flat palette of the other
- // regions (desaturate, pull toward slate, soften detail at half resolution),
- // then stack [plate; vertically mirrored plate] into one tall tile so the
- // scroll loop needs no per-frame flip transforms (GPU smear on some drivers).
- let img=zeebruggeHarborTile;
- if(img.naturalWidth&&!img._plate){
-  // Crop to the inner-harbor strip: parallel quay fingers + channel, skipping
-  // the diagonal breakwaters near the plate edges that read as giant shapes.
-  const pc=document.createElement('canvas');pc.width=img.naturalWidth>>1;pc.height=(img.naturalHeight-430)>>1;
-  const pctx=pc.getContext('2d');pctx.imageSmoothingEnabled=true;pctx.imageSmoothingQuality='high';
-  pctx.drawImage(img,0,215,img.naturalWidth,img.naturalHeight-430,0,0,pc.width,pc.height);
-  const id=pctx.getImageData(0,0,pc.width,pc.height),d=id.data;
-  for(let i=0;i<d.length;i+=4){
-   const g=d[i]*.3+d[i+1]*.59+d[i+2]*.11;
-   d[i]=d[i]*.62+g*.38;d[i+1]=d[i+1]*.62+g*.38;d[i+2]=d[i+2]*.62+g*.38;
-   d[i]=d[i]*.82+38;d[i+1]=d[i+1]*.82+42;d[i+2]=d[i+2]*.82+50;
-  }
-  pctx.putImageData(id,0,0);
-  const tc=document.createElement('canvas');tc.width=pc.width;tc.height=pc.height*2;
-  const tctx=tc.getContext('2d');tctx.drawImage(pc,0,0);
-  tctx.save();tctx.translate(0,tc.height);tctx.scale(1,-1);tctx.drawImage(pc,0,0);tctx.restore();
-  img._plate=tc;
- }
- if(img._plate){img=img._plate;
-  // Modest zoom: quays and docked ships read at map-object scale, not giant
-  // blobs — roughly the scale the other regions draw their props at.
-  const k=(W*0.7)/img.width,dw=Math.round(img.width*k),dh=Math.round(img.height*k);
-  // The plate's main channel sits about mid-width; pin it on the sortie line.
+ const img=zeebruggeHarborTile;
+ if(img.naturalWidth){
+  // Modest zoom: quays and docked ships read at map-object scale.
+  const k=(W*0.9)/img.width,dw=Math.round(img.width*k),dh=Math.round(img.height*k);
+  // The strip's channel sits mid-width; pin it on the sortie line.
   const channelWorldX=(route?route.x:camera.x+W/2)-dw*.5;
   const period=dh,wy0=Math.floor(camera.y/period)*period;
   ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
