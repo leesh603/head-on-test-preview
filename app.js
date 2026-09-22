@@ -312,7 +312,6 @@ draw=t=>{
 };
 
 const regionTextures={};for(const name of ['sea','trenches']){const im=new Image();im.src='./terrain-'+name+'.png?v=184';regionTextures[name]=im}
-const zeebruggeHarborTile=new Image();zeebruggeHarborTile.src='./terrain-zeebrugge-strip.png?v=193';
 const terrainAlpsAtlas=new Image();terrainAlpsAtlas.src='./terrain-alps-atlas.png?v=126';
 // The no-op constructors only keep the import-stripped offline smoke harness
 // inert; the hosted module always resolves the supplied Alps implementation.
@@ -329,39 +328,52 @@ function drawSeamlessRural(cx,cy,W,H){
  ctx.strokeStyle='#5d7d78';ctx.lineWidth=18;ctx.beginPath();for(let y=-30;y<H+40;y+=16){const wy=worldY+y,x=W*.61+Math.sin(wy*.0024)*88+Math.sin(wy*.006)*18;y<0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();ctx.strokeStyle='#a2b19377';ctx.lineWidth=2;ctx.stroke();
 }
 function paintZeebrugge(cx,cy,W,H){
- // The base water is the same 'sea' terrain the Adriatic region renders, so
- // the harbor dissolves into familiar open water instead of a forced grid.
+ // Open sea everywhere; a dock district meets the water along one wavy
+ // shoreline beside the naval route — same terrains the other regions tile.
  const camera={x:cx-W/2,y:cy-H/2};
- const route=game?.navalRoute;
- const img=zeebruggeHarborTile;
  terrainAlpsRenderer.draw(ctx,{key:'sea',camera,width:W,height:H});
- if(img.naturalWidth){
-  // The strip is drawn wider than the screen and its draw offset is clamped
-  // so it always covers the viewport — the camera can never leave the harbor.
-  const k=(W*1.18)/img.width,dw=Math.round(img.width*k),dh=Math.round(img.height*k);
-  const channelWorldX=(route?route.x:camera.x+W/2)-dw*.5;
-  const period=dh,wy0=Math.floor(camera.y/period)*period;
-  let dx=Math.round(channelWorldX-camera.x);
-  dx=Math.max(W-dw,Math.min(0,dx));
-  ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
-  for(let wy=wy0;wy<camera.y+H+dh;wy+=dh){
-   ctx.drawImage(img,dx,Math.round(wy-camera.y),dw,dh);
-  }
-  ctx.restore();
-  // The strip's outer columns are baked open water, so the rim lands on the
-  // sea terrain without a feather pass — no dissolving fragments.
-  if(route){
-   const a=Number.isFinite(route.a)?route.a:-Math.PI/2,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
-   const point=(s,n)=>{const wx=route.x+hx*s+nx*n,wy=route.y+hy*s+ny*n;return [wx-camera.x,wy-camera.y];};
-   // Escort traffic rides the painted channel — opaque, inside the water band.
-   const base=Math.max(340,route.maxForward-1500),spacing=520;
-   for(let i=0;i<6;i++){
-    const s=base+i*spacing,lateral=(i%2?-1:1)*(28+((i*23)%30)),p=point(s,lateral);
-    if(p[0]<-180||p[0]>W+180||p[1]<-180||p[1]>H+180)continue;
-    ctx.save();drawBattlefieldSprite(ctx,'ship',p[0],p[1],150,a+Math.PI/2);ctx.restore();
-   }
-  }
-  return;
+ const route=game?.navalRoute;
+ if(!route)return;
+ const a=Number.isFinite(route.a)?route.a:-Math.PI/2,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
+ const sOf=(wx,wy)=>(wx-route.x)*hx+(wy-route.y)*hy;
+ const wob=s=>Math.sin(s*.0013)*150+Math.sin(s*.0034)*70;
+ const shoreN=s=>-560+wob(s);
+ const pt=(s,n)=>[route.x+hx*s+nx*n-camera.x,route.y+hy*s+ny*n-camera.y];
+ const corners=[[0,0],[W,0],[0,H],[W,H]].map(p=>sOf(camera.x+p[0],camera.y+p[1]));
+ const sMin=Math.min(...corners)-360,sMax=Math.max(...corners)+360;
+ // Land mass: shoreline path closed far into the dock side, filled with the
+ // same city terrain the urban region tiles.
+ ctx.save();ctx.beginPath();
+ for(let s=sMin;s<=sMax;s+=60){const p=pt(s,shoreN(s));s===sMin?ctx.moveTo(p[0],p[1]):ctx.lineTo(p[0],p[1]);}
+ const far=Math.max(W,H)*2+400,e1=pt(sMax,-far),e2=pt(sMin,-far);
+ ctx.lineTo(e1[0],e1[1]);ctx.lineTo(e2[0],e2[1]);ctx.closePath();ctx.clip();
+ terrainAlpsRenderer.draw(ctx,{key:'city',camera,width:W,height:H});
+ ctx.restore();
+ // Stone quay wall along the shoreline.
+ ctx.save();ctx.beginPath();
+ for(let s=sMin;s<=sMax;s+=60){const p=pt(s,shoreN(s));s===sMin?ctx.moveTo(p[0],p[1]):ctx.lineTo(p[0],p[1]);}
+ ctx.strokeStyle='#8d8172';ctx.lineWidth=30;ctx.stroke();
+ ctx.strokeStyle='#5c5347';ctx.lineWidth=3;ctx.stroke();
+ ctx.restore();
+ // Piers jutting into the channel with moored craft — deterministic by s.
+ const hash=i=>{let n=Math.sin(i*127.1)*43758.5453;return n-Math.floor(n)};
+ ctx.save();
+ for(let i=Math.floor(sMin/260);i*260<sMax;i++){
+  const s=i*260+hash(i)*90,r=hash(i*3+7);
+  if(r<.38)continue;
+  const n0=shoreN(s)+6,ext=95+r*85,pA=pt(s,n0),pB=pt(s,n0+ext);
+  ctx.strokeStyle='#4f4438';ctx.lineWidth=26;ctx.lineCap='butt';
+  ctx.beginPath();ctx.moveTo(pA[0],pA[1]);ctx.lineTo(pB[0],pB[1]);ctx.stroke();
+  ctx.strokeStyle='#7a6c58';ctx.lineWidth=4;ctx.stroke();
+  if(r>.8){const m=pt(s+36,n0+ext*.66);ctx.save();ctx.globalAlpha=.95;drawBattlefieldSprite(ctx,'ship',m[0],m[1],118,a+Math.PI/2);ctx.restore();}
+ }
+ ctx.restore();
+ // Escort traffic rides the channel — opaque, inside the water band.
+ const base=Math.max(340,route.maxForward-1500),spacing=520;
+ for(let i=0;i<6;i++){
+  const s=base+i*spacing,lateral=(i%2?-1:1)*(28+((i*23)%30)),p=pt(s,lateral);
+  if(p[0]<-180||p[0]>W+180||p[1]<-180||p[1]>H+180)continue;
+  ctx.save();drawBattlefieldSprite(ctx,'ship',p[0],p[1],150,a+Math.PI/2);ctx.restore();
  }
 }
 function paintTrenchHellOverlay(cx,cy,W,H){
