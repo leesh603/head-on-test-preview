@@ -335,7 +335,9 @@ function paintZeebrugge(cx,cy,W,H){
  const camera={x:cx-W/2,y:cy-H/2};
  const route=game?.navalRoute;
  // Bake once: mute the authored plate toward the flat palette of the other
- // regions (desaturate, pull toward slate, soften detail at half resolution).
+ // regions (desaturate, pull toward slate, soften detail at half resolution),
+ // then stack [plate; vertically mirrored plate] into one tall tile so the
+ // scroll loop needs no per-frame flip transforms (GPU smear on some drivers).
  let img=zeebruggeHarborTile;
  if(img.naturalWidth&&!img._plate){
   const pc=document.createElement('canvas');pc.width=img.naturalWidth>>1;pc.height=img.naturalHeight>>1;
@@ -347,7 +349,11 @@ function paintZeebrugge(cx,cy,W,H){
    d[i]=d[i]*.62+g*.38;d[i+1]=d[i+1]*.62+g*.38;d[i+2]=d[i+2]*.62+g*.38;
    d[i]=d[i]*.82+38;d[i+1]=d[i+1]*.82+42;d[i+2]=d[i+2]*.82+50;
   }
-  pctx.putImageData(id,0,0);img._plate=pc;
+  pctx.putImageData(id,0,0);
+  const tc=document.createElement('canvas');tc.width=pc.width;tc.height=pc.height*2;
+  const tctx=tc.getContext('2d');tctx.drawImage(pc,0,0);
+  tctx.save();tctx.translate(0,tc.height);tctx.scale(1,-1);tctx.drawImage(pc,0,0);tctx.restore();
+  img._plate=tc;
  }
  if(img._plate){img=img._plate;
   // Keep the plate at a modest zoom: ~one screen width of harbor visible —
@@ -355,12 +361,10 @@ function paintZeebrugge(cx,cy,W,H){
   const k=(W*1.05)/img.width,dw=Math.round(img.width*k),dh=Math.round(img.height*k);
   // The plate's main channel sits about mid-width; pin it on the sortie line.
   const channelWorldX=(route?route.x:camera.x+W/2)-dw*.5;
-  const period=dh*2,wy0=Math.floor(camera.y/period)*period;
+  const period=dh,wy0=Math.floor(camera.y/period)*period;
   ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
   for(let wy=wy0;wy<camera.y+H+dh;wy+=dh){
-   const band=Math.round(wy/dh),py=Math.round(wy-camera.y);
-   ctx.save();ctx.translate(0,py);if(band%2){ctx.translate(0,dh);ctx.scale(1,-1)}
-   ctx.drawImage(img,Math.round(channelWorldX-camera.x),0,dw,dh);ctx.restore();
+   ctx.drawImage(img,Math.round(channelWorldX-camera.x),Math.round(wy-camera.y),dw,dh);
   }
   ctx.restore();
   if(route){
