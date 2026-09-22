@@ -25,21 +25,25 @@ function decorateAce(){
   }
 }
 
+let syncingModal=false;
 function syncModal(){
   const modal=$("modal");
-  if(!modal)return;
+  if(!modal||syncingModal)return;
+  syncingModal=true;
+  try{
   const pause=modal.classList.contains("build-modal151") && !!$("build151");
   const ranking=!!$("rankingPanel") || $("modalTag")?.textContent?.trim()==="RANKING MODE";
   modal.classList.toggle("hc-pause-modal",pause);
   modal.classList.toggle("hc-ranking-modal",!pause&&ranking);
   if(pause){
-    if($("modalTag"))$("modalTag").textContent="PAUSED";
-    if($("modalTitle"))$("modalTitle").textContent="일시 정지";
-    if($("modalText"))$("modalText").textContent="";
+    if($("modalTag")&&$("modalTag").textContent!=="PAUSED")$("modalTag").textContent="PAUSED";
+    if($("modalTitle")&&$("modalTitle").textContent!=="일시 정지")$("modalTitle").textContent="일시 정지";
+    if($("modalText")&&$("modalText").textContent!=="")$("modalText").textContent="";
   }else if(ranking){
-    if($("modalTag"))$("modalTag").textContent="RANKING";
-    if($("modalTitle"))$("modalTitle").textContent="출격 기록";
+    if($("modalTag")&&$("modalTag").textContent!=="RANKING")$("modalTag").textContent="RANKING";
+    if($("modalTitle")&&$("modalTitle").textContent!=="출격 기록")$("modalTitle").textContent="출격 기록";
   }
+  }finally{syncingModal=false}
 }
 
 function install(){
