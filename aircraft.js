@@ -35,8 +35,8 @@ const individualAircraftReady=['fokker','fokker_standard','fokker_f1','albatros'
  const img=new Image();img.onload=()=>{
   const scan=document.createElement('canvas');scan.width=img.naturalWidth;scan.height=img.naturalHeight;const sc=scan.getContext('2d',{willReadFrequently:true});sc.drawImage(img,0,0);const pixels=sc.getImageData(0,0,scan.width,scan.height),rgba=pixels.data;if(key==='nieuport_italian')for(let i=0;i<rgba.length;i+=4){const r=rgba[i],g=rgba[i+1],b=rgba[i+2];if(rgba[i+3]>0&&b>70&&b>r*1.18&&b>g*1.05){rgba[i]=55;rgba[i+1]=132;rgba[i+2]=78}}clearAircraftMatte(key,rgba,scan.width,scan.height);clearCrewMatte(key,rgba,scan.width,scan.height);sc.putImageData(pixels,0,0);let minX=scan.width,minY=scan.height,maxX=-1,maxY=-1;
   for(let y=0;y<scan.height;y++)for(let x=0;x<scan.width;x++)if(rgba[(y*scan.width+x)*4+3]>128){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}
-  if(maxX>=minX&&maxY>=minY){const out=document.createElement('canvas');out.width=144;out.height=160;const oc=out.getContext('2d');oc.imageSmoothingEnabled=true;oc.imageSmoothingQuality='high';const w=maxX-minX+1,h=maxY-minY+1,k=Math.min(114/w,132/h)*spriteScale(key),dw=Math.round(w*k),dh=Math.round(h*k);oc.drawImage(scan,minX,minY,w,h,Math.round((144-dw)/2),Math.round(76-dh/2),dw,dh);painted.set(key,out);cache.clear();shadows.clear();flashes.clear()}resolve(true);
- };img.onerror=()=>resolve(false);const sourceKey=key==='nieuport_italian'?'nieuport':key;img.src=new URL(`./${sourceKey}.png?v=116&b=117`,import.meta.url).href;
+  if(maxX>=minX&&maxY>=minY){const out=document.createElement('canvas');out.width=144;out.height=160;const oc=out.getContext('2d');oc.imageSmoothingEnabled=false;const w=maxX-minX+1,h=maxY-minY+1,k=Math.min(114/w,132/h)*spriteScale(key),dw=Math.round(w*k),dh=Math.round(h*k);oc.drawImage(scan,minX,minY,w,h,Math.round((144-dw)/2),Math.round(76-dh/2),dw,dh);painted.set(key,out);cache.clear();shadows.clear();flashes.clear()}resolve(true);
+ };img.onerror=()=>resolve(false);const sourceKey=key==='nieuport_italian'?'nieuport':key;img.src=new URL(`./${sourceKey}.png?v=190`,import.meta.url).href;
 }));
 // The four aces once cut from this 2x2 atlas now ship as individual PNGs and are
 // loaded through individualAircraftReady; keeping the list empty skips the atlas
@@ -57,7 +57,7 @@ const newAceAircraftReady=!NEW_ACE_AIRCRAFT.length?Promise.resolve(true):new Pro
    sc.drawImage(img,(index%2)*cellW,Math.floor(index/2)*cellH,cellW,cellH,0,0,cellW,cellH);
    const pixels=sc.getImageData(0,0,cellW,cellH),rgba=pixels.data;clearNavyAtlasMatte(rgba,cellW,cellH);sc.putImageData(pixels,0,0);
    let minX=cellW,minY=cellH,maxX=-1,maxY=-1;for(let y=0;y<cellH;y++)for(let x=0;x<cellW;x++)if(rgba[(y*cellW+x)*4+3]>128){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}
-   if(maxX<minX||maxY<minY)return;const out=document.createElement('canvas');out.width=144;out.height=160;const oc=out.getContext('2d');oc.imageSmoothingEnabled=true;oc.imageSmoothingQuality='high';
+   if(maxX<minX||maxY<minY)return;const out=document.createElement('canvas');out.width=144;out.height=160;const oc=out.getContext('2d');oc.imageSmoothingEnabled=false;
    const w=maxX-minX+1,h=maxY-minY+1,k=Math.min(118/w,136/h)*spriteScale(key),dw=Math.round(w*k),dh=Math.round(h*k);oc.drawImage(scan,minX,minY,w,h,Math.round((144-dw)/2),Math.round(76-dh/2),dw,dh);painted.set(key,out);
   });cache.clear();shadows.clear();flashes.clear();resolve(true);
  };img.onerror=()=>resolve(false);img.src=new URL('./new-aces-aircraft124.png?v=127&b=127',import.meta.url).href;
@@ -76,7 +76,7 @@ const damageDecalReady=new Promise(resolve=>{
    if(!any){damageDecals.push(null);continue}
    const cell=document.createElement('canvas');cell.width=r-l+1;cell.height=b-t+1;cell.getContext('2d').drawImage(sc,l,t,r-l+1,b-t+1,0,0,r-l+1,b-t+1);damageDecals.push(cell);
   }damageCache.clear();resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./damage-decals.png?v=116&b=117',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./damage-decals.png?v=190',import.meta.url).href;
 });
 // Deterministic per-airframe mark layout so a plane's scars stay put between frames.
 function damageSeed(key){let h=2166136261;for(const ch of key){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
@@ -160,10 +160,36 @@ export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0
  // loading (or if an asset fails). A blank frame is preferable to a visual swap.
  if(!painted.has(sourceKey))return;
  if(!cache.has(cacheKey)){const source=cache.get(cacheKey)||build(redAce?'fokker':variant?'fokker_f1':standard?'fokker_standard':key);cache.set(cacheKey,source)}const sprite=damaged&&damageDecals.length?damagedSprite(cache.get(cacheKey),cacheKey):cache.get(cacheKey);
- c.save();c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.translate(Math.round(x),Math.round(y));c.rotate(a+Math.PI/2);
+ c.save();c.imageSmoothingEnabled=false;c.translate(Math.round(x),Math.round(y));c.rotate(a+Math.PI/2);
  const s=scale*.54;c.scale(s,s);
  if(shadow){if(!shadows.has(cacheKey)){const sh=document.createElement('canvas');sh.width=144;sh.height=160;const sc=sh.getContext('2d');sc.drawImage(sprite,0,0);sc.globalCompositeOperation='source-in';sc.fillStyle='#18271f';sc.fillRect(0,0,144,160);shadows.set(cacheKey,sh)}c.globalAlpha*=.26;c.drawImage(shadows.get(cacheKey),-72,-76)}
  else {c.drawImage(sprite,-72,-76);if(flash>0){const fk=damaged?cacheKey+'#d':cacheKey;if(!flashes.has(fk)){const f=document.createElement('canvas');f.width=144;f.height=160;const fc=f.getContext('2d');fc.drawImage(sprite,0,0);fc.globalCompositeOperation='source-in';fc.fillStyle='#fff1c9';fc.fillRect(0,0,144,160);flashes.set(fk,f)}c.globalAlpha*=Math.min(.9,flash/.16);c.drawImage(flashes.get(fk),-72,-76)}}
+ c.restore();
+}
+
+// Hangar/roster previews draw every plane at one display size — the baked sprite
+// is wingspan-normalized for gameplay, which would make scouts look tiny next to
+// two-seaters on selection cards.
+const previewBoxes=new Map();
+function spriteContentBox(sprite){
+ if(!previewBoxes.has(sprite)){
+  const w=sprite.width,h=sprite.height,d=sprite.getContext('2d').getImageData(0,0,w,h).data;
+  let minX=w,minY=h,maxX=-1,maxY=-1;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>24){if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y}
+  previewBoxes.set(sprite,maxX>=minX?[minX,minY,maxX-minX+1,maxY-minY+1]:null);
+ }
+ return previewBoxes.get(sprite);
+}
+export function planePreview(c,cx,cy,key,maxW,maxH){
+ const redAce=key==='fokker_red',variant=key==='fokker_voss',standard=key==='fokker';
+ const sourceKey=campaignSpriteAliases[key]||(redAce?'fokker':variant?'fokker_f1':standard?'fokker_standard':key);
+ if(!painted.has(sourceKey))return;
+ if(!cache.has(redAce?'fokker':variant?'fokker_voss':standard?'fokker_standard':key))cache.set(redAce?'fokker':variant?'fokker_voss':standard?'fokker_standard':key,build(redAce?'fokker':variant?'fokker_f1':standard?'fokker_standard':key));
+ const sprite=cache.get(redAce?'fokker':variant?'fokker_voss':standard?'fokker_standard':key);
+ const box=spriteContentBox(sprite);if(!box)return;
+ const k=Math.min(maxW/box[2],maxH/box[3]);
+ c.save();c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
+ c.drawImage(sprite,box[0],box[1],box[2],box[3],Math.round(cx-box[2]*k/2),Math.round(cy-box[3]*k/2),Math.round(box[2]*k),Math.round(box[3]*k));
  c.restore();
 }
 
@@ -175,11 +201,11 @@ export function registerCampaignSpriteAliases(aliases){Object.assign(campaignSpr
 export const campaignArtReady=new Promise(resolve=>{
  const img=new Image();img.onload=()=>{
   for(const [i,key] of ['markiv'].entries()){
-   const out=document.createElement('canvas');out.width=144;out.height=160;const c=out.getContext('2d');c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
+   const out=document.createElement('canvas');out.width=144;out.height=160;const c=out.getContext('2d');c.imageSmoothingEnabled=false;
    const boxes=[[75,18,364,445]];
    const cell=i===0?5:i;
    const [x,y,w,h]=boxes[i],k=Math.min(114/w,132/h),dw=Math.round(w*k),dh=Math.round(h*k);
    c.drawImage(img,cell%3*512+x,Math.floor(cell/3)*512+y,w,h,Math.round((144-dw)/2),Math.round(76-dh/2),dw,dh);painted.set(key,out);
   }cache.clear();shadows.clear();flashes.clear();resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./campaign-units.png?v=116&b=117',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./campaign-units.png?v=190',import.meta.url).href;
 });
