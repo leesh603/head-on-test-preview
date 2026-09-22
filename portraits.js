@@ -2,7 +2,7 @@ import {clearCrewMatte} from './matte70.js?v=128&b=128';
 // Use the cleaned canvas for every portrait surface, including boss arrivals.
 export const portraitSources={};
 const legacyPortraits=['baron','voss','boelcke','immelmann','udet','fonck','collishaw','baracca','guynemer','bishop','goering','mannock','mckeever','huffzky','hawker','berthold','jacobs','rickenbacker','ball','barker','luke','brumowski','gontermann'].map(id=>new Promise(resolve=>{
- const img=new Image(),key=id==='mckeever'?'mckeever-powell129':id,url=`./portrait-${key}.png?v=200&b=200`;
+ const img=new Image(),key=id==='mckeever'?'mckeever-powell129':id,url=`./portrait-${key}.png?v=145&b=145`;
  // Never leave a portrait surface blank while the cleaned canvas is loading.
  portraitSources[id]=url;
  img.onload=()=>{

@@ -1,13 +1,13 @@
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=164';
-import {fx,fxReady,fxTint} from './fx-art.js?v=201';
+import {fx,fxReady,fxTint} from './fx-art.js';
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=162';
-import {drawStageBoss} from './stageboss-view.js?v=195';
-import {planeSprite,aircraftKey} from './aircraft.js?v=205';
+import {drawStageBoss} from './stageboss-view.js?v=116&b=117';
+import {planeSprite,aircraftKey} from './aircraft.js?v=116&b=117';
 import {drawEquipment} from './equipment.js?v=116&b=117';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire} from './projectiles.js?v=135&b=135';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=116&b=117';
 import {drawSpecialAmmoIcon} from './icons.js?v=158';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=201';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=186';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
 const xpGem=typeof Image!=='undefined'?new Image():null;if(xpGem)xpGem.src='./xp-gem.png?v=185';
@@ -55,7 +55,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt}){
   if(p.isRedHunter()&&p.skillTime>0){c.save();c.translate(p.x,p.y);c.rotate(p.a);if(fxReady('sunshaft')){for(let i=0;i<5;i++){const a=(i/4*2-1)*SUN_STRIKE.halfAngle*.9,L=SUN_STRIKE.range*.8;fx(c,'sunshaft',Math.cos(a)*L*.5-30,Math.sin(a)*L*.5,L,140+((i*53)%80),a,.5);}}else{c.fillStyle='#ffe8b330';c.beginPath();c.moveTo(0,0);c.arc(0,0,SUN_STRIKE.range,-SUN_STRIKE.halfAngle,SUN_STRIKE.halfAngle);c.closePath();c.fill();}c.restore()}
   if(p.skillTime>0&&!['nungesser','berthold','wolff'].includes(p.pilot))ring(p.x,p.y,35+Math.sin(t*10)*4,'#ffe2a4',1);
   if(p.chargeTime>0||p.upgrades.redScarf){c.strokeStyle=p.chargeTime>0?'#ffe3a680':'#d6f6efa8';c.lineWidth=2;for(const off of [-24,24]){const x=p.x-Math.sin(p.a)*off,y=p.y+Math.cos(p.a)*off,len=p.chargeTime>0?150:70;c.beginPath();c.moveTo(x,y);c.lineTo(x-Math.cos(p.a)*len,y-Math.sin(p.a)*len);c.stroke()}}
-  c.globalAlpha=p.invuln>0&&isFinite(p.invuln)&&Math.floor(t*15)%2?.55:1;sprite(p,aircraftKey(p.plane,false,p.pilot));c.globalAlpha=1;const color=p.id==='p1'?'#74d9fb':'#ffcd78';ring(p.x,p.y,39,color,1.5);c.fillStyle=color;c.textAlign='center';c.font='bold 14px sans-serif';c.fillText(p.id.toUpperCase(),p.x,p.y+54);
+  c.globalAlpha=p.invuln>0&&Math.floor(t*15)%2?.55:1;sprite(p,aircraftKey(p.plane,false,p.pilot));c.globalAlpha=1;const color=p.id==='p1'?'#74d9fb':'#ffcd78';ring(p.x,p.y,39,color,1.5);c.fillStyle=color;c.textAlign='center';c.font='bold 14px sans-serif';c.fillText(p.id.toUpperCase(),p.x,p.y+54);
  if(p.muzzleFlash>0&&p.reloadTime===0)for(let gun=0;gun<p.weapon.guns;gun++){const ga=p.gunDirection(gun),mx=p.x+Math.cos(ga)*27,my=p.y+Math.sin(ga)*27;if(!fx(c,'muzzle',mx+Math.cos(ga)*6,my+Math.sin(ga)*6,16,16,ga)){c.fillStyle='#fff4ca';c.fillRect(mx-2,my-2,5,5)}}
  }
  for(const p of g.players){if(p.status!=='alive'||!p.tailTargetId)continue;const e=g.enemies.find(e=>e.hp>0&&e.tailId===p.tailTargetId);if(!e)continue;const progress=p.tailLockFraction(),color=p.id==='p1'?'#74d9fb':'#ffcd78';c.strokeStyle=p.tailLocked?'#ff7258':color;c.lineWidth=p.tailLocked?3:2;c.beginPath();c.arc(e.x,e.y,38,-Math.PI/2,-Math.PI/2+Math.PI*2*progress);c.stroke();c.fillStyle=p.tailLocked?'#fff0c0':color;c.font='bold 12px sans-serif';c.textAlign='center';c.fillText(p.tailLocked?'꼬리 우위 ×'+TAILING_BALANCE.damageMultiplier.toFixed(2):p.id.toUpperCase()+' 후방 '+Math.round(progress*100)+'%',e.x,e.y-48)}

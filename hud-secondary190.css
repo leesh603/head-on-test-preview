@@ -1,0 +1,440 @@
+/*
+ * HEAD-ON secondary HUD / 190
+ * Safe presentation pass: CSS + direct class hooks only.
+ * No MutationObserver, no polling, no frame-loop DOM work.
+ * Scope: enemy ace arrival, pause/build screen, sortie ranking.
+ */
+
+body.astra-ui{
+  --hud190-panel:var(--hud-panel,linear-gradient(120deg,#1b231eea,#0b120fed));
+  --hud190-edge:var(--hud-edge,#c7c0a36b);
+  --hud190-shadow:var(--hud-shadow,inset 0 1px #eae5cd12,inset 0 0 0 3px #0002,0 4px 16px #0005);
+  --hud190-text:var(--ui-text,#f1e9d8);
+  --hud190-muted:var(--ui-muted,#b4b6a7);
+  --hud190-warn:var(--ui-warn,#d8b575);
+  --hud190-danger:var(--ui-danger,#ae5147);
+  --hud190-ready:var(--ui-ready,#8aaf99);
+}
+
+/* =========================================================
+   ENEMY ACE — same instrument language as live HUD.
+   ========================================================= */
+body.astra-ui.playing #flightNotices151 #bossArrival{
+  position:relative;
+  inset:auto;
+  width:min(420px,calc(100vw - 52px));
+  max-width:100%;
+  height:108px;
+  display:grid;
+  grid-template-columns:112px minmax(0,1fr);
+  align-items:stretch;
+  gap:0;
+  padding:0;
+  overflow:hidden;
+  border:1px solid var(--hud190-edge);
+  border-left:3px solid var(--hud190-danger);
+  border-radius:3px;
+  background:var(--hud190-panel);
+  box-shadow:var(--hud190-shadow);
+  color:var(--hud190-text);
+}
+body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{
+  position:relative;
+  width:112px;
+  height:108px;
+  flex:none;
+  overflow:hidden;
+  border:0;
+  background:linear-gradient(135deg,#283129,#101613);
+}
+body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(90deg,transparent 52%,#11181480 77%,#111814 100%);
+}
+body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position:center 11%;
+  transform:scale(1.08);
+  transform-origin:center 18%;
+  filter:saturate(.83) contrast(1.03) brightness(.94);
+  -webkit-mask-image:linear-gradient(90deg,#000 0 72%,rgba(0,0,0,.82) 84%,transparent 100%);
+  mask-image:linear-gradient(90deg,#000 0 72%,rgba(0,0,0,.82) 84%,transparent 100%);
+}
+body.astra-ui.playing #flightNotices151 #bossArrival>div:last-child{
+  min-width:0;
+  align-self:center;
+  padding:13px 14px 12px 4px;
+}
+body.astra-ui.playing #flightNotices151 #bossArrival small{
+  margin:0 0 5px;
+  color:var(--hud190-danger);
+  font:700 9px/1.2 var(--astra-type);
+  letter-spacing:.08em;
+}
+body.astra-ui.playing #flightNotices151 #bossArrival strong{
+  display:block;
+  min-width:0;
+  margin:0;
+  color:var(--hud190-text);
+  font:800 18px/1.25 var(--astra-type);
+  letter-spacing:-.025em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+body.astra-ui.playing #flightNotices151 #bossArrivalDetail{
+  display:block;
+  min-width:0;
+  margin-top:5px;
+  color:var(--hud190-warn);
+  font:500 10px/1.25 var(--astra-numeric);
+  letter-spacing:.08em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* =========================================================
+   PAUSE — current HUD panel expanded, not a new menu theme.
+   ========================================================= */
+body.astra-ui #modal.build-modal151{
+  background:#07100ed6;
+  backdrop-filter:blur(5px);
+}
+body.astra-ui #modal.build-modal151 .modal-card{
+  width:min(800px,calc(100vw - 48px));
+  max-width:800px;
+  max-height:calc(100dvh - 48px);
+  overflow:auto;
+  overflow-x:hidden;
+  padding:20px;
+  border:1px solid var(--hud190-edge);
+  border-top:1px solid var(--hud190-edge);
+  border-radius:4px;
+  background:var(--hud190-panel);
+  box-shadow:var(--hud190-shadow),0 24px 70px #000b;
+  color:var(--hud190-text);
+}
+body.astra-ui #modal.build-modal151 #modalTag{
+  display:block!important;
+  margin:0 0 8px;
+  color:var(--hud190-warn);
+  font:600 9px/1.2 var(--astra-numeric);
+  letter-spacing:.15em;
+}
+body.astra-ui #modal.build-modal151 #modalTitle:empty,
+body.astra-ui #modal.build-modal151 #modalText:empty{
+  display:none;
+}
+body.astra-ui #modal.build-modal151 #build151{
+  display:grid;
+  gap:12px;
+  margin:0;
+  padding-top:10px;
+  border-top:1px solid #bdb69a2d;
+}
+body.astra-ui #modal.build-modal151 #build151>section{
+  min-width:0;
+  padding:13px 14px;
+  border:1px solid #9e987c40;
+  border-radius:3px;
+  background:#0d14118a;
+}
+body.astra-ui #modal.build-modal151 #build151 h3{
+  margin:0 0 4px;
+  color:var(--hud190-text);
+  font:700 16px/1.3 var(--astra-type);
+  letter-spacing:-.015em;
+}
+body.astra-ui #modal.build-modal151 .build-meta151{
+  margin:0 0 11px;
+  color:var(--hud190-muted);
+  font:400 11px/1.45 var(--astra-numeric);
+}
+body.astra-ui #modal.build-modal151 .build-stats151{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+}
+body.astra-ui #modal.build-modal151 .build-stats151>div{
+  min-width:0;
+  gap:4px;
+  padding:8px 9px;
+  border:0;
+  border-left:2px solid #849d8870;
+  background:#171f1a72;
+  font-size:12px;
+}
+body.astra-ui #modal.build-modal151 .build-stats151 b{
+  color:#ebe7d6;
+  font-weight:700;
+}
+body.astra-ui #modal.build-modal151 #build151 h4{
+  margin:11px 0 6px;
+  color:#c7baa0;
+  font:600 10px/1.2 var(--astra-type);
+  letter-spacing:.06em;
+}
+body.astra-ui #modal.build-modal151 .build-chips151{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+}
+body.astra-ui #modal.build-modal151 .build-chip151,
+body.astra-ui #modal.build-modal151 .empty151{
+  max-width:100%;
+  min-height:26px;
+  display:inline-flex;
+  align-items:center;
+  padding:4px 7px;
+  border:1px solid #a59d8244;
+  border-radius:2px;
+  background:#141b177d;
+  color:#dedccb;
+  font:500 10px/1.25 var(--astra-type);
+  overflow-wrap:anywhere;
+}
+body.astra-ui #modal.build-modal151 #modalActions{
+  position:sticky;
+  bottom:-20px;
+  z-index:2;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+  margin:13px 0 -20px;
+  padding:10px 0 3px;
+  background:linear-gradient(180deg,transparent 0,#101713 28%);
+}
+body.astra-ui #modal.build-modal151 #modalActions button{
+  min-width:0;
+  min-height:42px;
+  margin:0;
+  padding:8px 10px;
+  border:1px solid #c2bca04b;
+  border-radius:3px;
+  background:#101813e0;
+  color:var(--hud190-text);
+  box-shadow:none;
+  font:600 12px/1.2 var(--astra-type);
+  white-space:normal;
+}
+body.astra-ui #modal.build-modal151 #modalActions button:first-child{
+  border-color:#ad6b55a8;
+  background:linear-gradient(115deg,#7e382fd9,#471c19d9);
+}
+body.astra-ui #modal.build-modal151 #modalActions button:hover{
+  border-color:#c4b68785;
+  background:#273028de;
+}
+
+/* =========================================================
+   SORTIE RECORD / RANKING — main UI panel language.
+   ========================================================= */
+body.astra-ui #modal.ranking-modal190{
+  background:#07100ed6;
+  backdrop-filter:blur(5px);
+}
+body.astra-ui #modal.ranking-modal190 .modal-card{
+  width:min(720px,calc(100vw - 48px));
+  max-width:720px;
+  max-height:calc(100dvh - 48px);
+  overflow:auto;
+  overflow-x:hidden;
+  padding:20px;
+  border:1px solid var(--hud190-edge);
+  border-radius:4px;
+  background:linear-gradient(120deg,#19221dea,#0b120fed);
+  box-shadow:var(--hud190-shadow),0 24px 70px #000b;
+  color:var(--hud190-text);
+}
+body.astra-ui #modal.ranking-modal190 #modalTag{
+  margin:0 0 4px;
+  color:var(--hud190-warn);
+  font:600 9px/1.2 var(--astra-numeric);
+  letter-spacing:.14em;
+}
+body.astra-ui #modal.ranking-modal190 #modalTitle{
+  margin:0;
+  color:var(--hud190-text);
+  font:800 24px/1.25 var(--astra-type);
+  letter-spacing:-.035em;
+}
+body.astra-ui #modal.ranking-modal190 #modalText{
+  margin:5px 0 11px;
+  color:var(--hud190-muted);
+  font:400 11px/1.4 var(--astra-type);
+}
+body.astra-ui #modal.ranking-modal190 #rankingPanel{
+  margin:0;
+  padding-top:11px;
+  border-top:1px solid #bdb69a30;
+}
+body.astra-ui #modal.ranking-modal190 .ranking-faction-tabs{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:5px;
+  margin:0 0 9px;
+}
+body.astra-ui #modal.ranking-modal190 .ranking-faction-tabs button{
+  min-width:0;
+  min-height:34px;
+  padding:7px 8px;
+  border:1px solid #8f8c794a;
+  border-radius:2px;
+  background:#101813bc;
+  color:var(--hud190-muted);
+  font:600 10px/1.2 var(--astra-type);
+}
+body.astra-ui #modal.ranking-modal190 .ranking-faction-tabs button.selected{
+  border-color:#b49b68ad;
+  background:#31372dd1;
+  color:var(--hud190-text);
+}
+body.astra-ui #modal.ranking-modal190 .ranking-medal-list{
+  margin:0;
+  padding:0;
+  display:grid;
+  gap:0;
+  list-style:none;
+  border:1px solid #8e8a763b;
+  background:#09100dc7;
+}
+body.astra-ui #modal.ranking-modal190 .ranking-medal-list li{
+  min-width:0;
+  min-height:48px;
+  display:grid;
+  grid-template-columns:36px minmax(0,1fr);
+  align-items:center;
+  gap:9px;
+  margin:0;
+  padding:6px 10px;
+  border-bottom:1px solid #bdb69a1e;
+  color:#dedccd;
+  font:500 11px/1.35 var(--astra-type);
+  overflow-wrap:anywhere;
+}
+body.astra-ui #modal.ranking-modal190 .ranking-medal-list li:last-child{
+  border-bottom:0;
+}
+body.astra-ui #modal.ranking-modal190 .ranking-medal{
+  width:30px;
+  height:30px;
+  flex:none;
+}
+body.astra-ui #modal.ranking-modal190 #modalActions{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:10px;
+}
+body.astra-ui #modal.ranking-modal190 #modalActions button{
+  min-width:140px;
+  min-height:40px;
+  margin:0;
+  border:1px solid #aa94686b;
+  border-radius:3px;
+  background:#141d18;
+  color:var(--hud190-text);
+  font:600 11px/1.2 var(--astra-type);
+}
+
+/* =========================================================
+   MOBILE / SMALL VIEWPORTS
+   ========================================================= */
+@media(max-width:720px),(pointer:coarse){
+  body.astra-ui.playing #flightNotices151 #bossArrival{
+    width:min(310px,74vw);
+    height:86px;
+    grid-template-columns:82px minmax(0,1fr);
+  }
+  body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{
+    width:82px;
+    height:86px;
+  }
+  body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window img{
+    transform:scale(1.05);
+    object-position:center 10%;
+  }
+  body.astra-ui.playing #flightNotices151 #bossArrival>div:last-child{
+    padding:9px 8px 8px 2px;
+  }
+  body.astra-ui.playing #flightNotices151 #bossArrival small{font-size:7px;margin-bottom:3px}
+  body.astra-ui.playing #flightNotices151 #bossArrival strong{font-size:13px}
+  body.astra-ui.playing #flightNotices151 #bossArrivalDetail{font-size:8px;margin-top:3px}
+
+  body.astra-ui #modal.build-modal151 .modal-card,
+  body.astra-ui #modal.ranking-modal190 .modal-card{
+    width:calc(100vw - 16px);
+    max-width:none;
+    max-height:calc(100dvh - 16px);
+    padding:12px;
+  }
+
+  body.astra-ui #modal.build-modal151 #build151{
+    gap:9px;
+    padding-top:8px;
+  }
+  body.astra-ui #modal.build-modal151 #build151>section{
+    padding:10px;
+  }
+  body.astra-ui #modal.build-modal151 .build-stats151{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:5px;
+  }
+  body.astra-ui #modal.build-modal151 .build-stats151>div{
+    padding:7px;
+    font-size:10px;
+  }
+  body.astra-ui #modal.build-modal151 #modalActions{
+    bottom:-12px;
+    margin-bottom:-12px;
+  }
+  body.astra-ui #modal.build-modal151 #modalActions button{
+    min-height:39px;
+    padding:7px 5px;
+    font-size:10px;
+  }
+
+  body.astra-ui #modal.ranking-modal190 #modalTitle{
+    font-size:21px;
+  }
+  body.astra-ui #modal.ranking-modal190 .ranking-faction-tabs button{
+    padding:6px 4px;
+    font-size:9px;
+  }
+  body.astra-ui #modal.ranking-modal190 .ranking-medal-list li{
+    min-height:42px;
+    grid-template-columns:28px minmax(0,1fr);
+    gap:7px;
+    padding:5px 7px;
+    font-size:9px;
+  }
+  body.astra-ui #modal.ranking-modal190 .ranking-medal{
+    width:24px;
+    height:24px;
+  }
+}
+
+@media(max-width:390px){
+  body.astra-ui #modal.build-modal151 .build-stats151{
+    grid-template-columns:1fr;
+  }
+  body.astra-ui #modal.build-modal151 #modalActions{
+    grid-template-columns:1fr;
+  }
+  body.astra-ui #modal.ranking-modal190 #modalActions button{
+    width:100%;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  body.astra-ui.playing #flightNotices151 #bossArrival{
+    animation:none!important;
+    transition:none!important;
+  }
+}

@@ -17,12 +17,12 @@ function ac(){
 }
 function tone(f0,f1,d,v,type='square',cut=1600,when=0,att=.004){
   if(active>28)return;
-  const j=.94+Math.random()*.12;f0*=j;if(f1!==f0)f1*=j;
-  const t=ctx.currentTime+when,o=ctx.createOscillator(),g=ctx.createGain();
+  const t=ctx.currentTime+when,o=ctx.createOscillator(),g=ctx.createGain(),f=ctx.createBiquadFilter();
   o.type=type;o.frequency.setValueAtTime(f0,t);if(f1!==f0)o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+d);
+  f.type='lowpass';f.frequency.value=cut;
   g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v*master,t+Math.min(att,d*.3));g.gain.exponentialRampToValueAtTime(.0001,t+d);
-  o.connect(g);g.connect(bus);o.start(t);o.stop(t+d+.03);
-  active++;o.onended=()=>{active--;o.disconnect();g.disconnect()};
+  o.connect(f);f.connect(g);g.connect(bus);o.start(t);o.stop(t+d+.03);
+  active++;o.onended=()=>{active--;o.disconnect();f.disconnect();g.disconnect()};
 }
 function hiss(f0,f1,d,v,type='bandpass',Q=.8,when=0,att=.003){
   if(active>28)return;
@@ -33,33 +33,50 @@ function hiss(f0,f1,d,v,type='bandpass',Q=.8,when=0,att=.003){
   n.connect(f);f.connect(g);g.connect(bus);n.start(t);n.stop(t+d+.03);
   active++;n.onended=()=>{active--;n.disconnect();f.disconnect();g.disconnect()};
 }
-// Original pre-layering voices: one oscillator per event, the game's first
-// envelope shape (f -> f*.45 exponential, gain -> .001), ~±6% pitch jitter
-// applied inside tone(). Keep to single tones — no noise layers, no chords.
 const VOICES={
-  shot(){tone(120,54,.035,.133,'square')},
-  enemyShot(){tone(85,38,.065,.185,'sawtooth')},
-  heavyShot(){tone(85,38,.065,.518,'sawtooth')},
-  impact(){tone(210,95,.055,.48,'triangle')},
-  hit(){tone(110,50,.1,.26,'sawtooth')},
-  kill(){tone(80,36,.1,.26,'square')},
-  explosion(){tone(48,22,.25,.518,'sawtooth')},
-  rocket(){tone(190,86,.065,.518,'sawtooth')},
-  flak(){tone(600,270,.17,.26,'triangle')},
-  skill(){tone(350,158,.3,.26,'sawtooth')},
-  reload(){tone(160,72,.14,.44,'triangle')},
-  loaded(){tone(560,252,.1,.26,'triangle')},
-  levelup(){tone(880,396,.2,.26,'triangle')},
-  wave(){tone(600,270,.17,.26,'triangle')},
-  ally(){tone(600,270,.17,.26,'triangle')},
-  pickup(){tone(750,338,.12,.26,'triangle')},
-  bossSting(){tone(90,40,.6,.2,'sawtooth')},
-  launch(){tone(520,234,.15,.26,'square')},
-  balloon(){tone(80,36,.12,.26,'square')},
-  heal(){tone(960,432,.09,.2,'triangle')},
-  engineTick(reload){const f=reload?58:76;tone(f,f*.45,.13,.133,'sawtooth');tone(f*2.05,f*.92,.08,.067,'triangle')},
-  victory(){tone(660,297,.4,.15,'triangle')},
-  defeat(){tone(140,63,.5,.15,'sawtooth')}
+  // Player machine guns: a bright crack over a short mechanical body.
+  shot(){tone(760,190,.05,.05,'square',2600);hiss(3200,900,.04,.05,'bandpass',1);tone(165,80,.03,.04,'square',900)},
+  // Enemy guns: thinner, duller crack.
+  enemyShot(){tone(430,140,.06,.038,'sawtooth',1400);hiss(1900,500,.05,.032,'bandpass',.8)},
+  // Cannon-class fire: deep bark with air displacement.
+  heavyShot(){tone(190,60,.12,.09,'sawtooth',800);hiss(900,200,.1,.06,'lowpass',.5);tone(60,40,.1,.06,'sine',300)},
+  // Round hitting an airframe: thud + tearing ping.
+  impact(){tone(215,60,.07,.09,'triangle',1100);hiss(2400,600,.05,.05,'bandpass',1);tone(92,50,.05,.06,'sine',400)},
+  // Player takes damage: metal clang plus a short warning blip.
+  hit(){tone(240,80,.12,.12,'sawtooth',1600);hiss(1200,300,.1,.08,'bandpass',.7);tone(620,600,.09,.03,'square',2000,.05)},
+  // Kill: sub boom, rolling noise, hot debris sparkle.
+  kill(){tone(100,32,.32,.16,'sine',300);hiss(2000,150,.3,.14,'lowpass',.4);hiss(4500,2000,.08,.05,'highpass',.8)},
+  // Big detonations (grenades, flak walls, hull breaks): crack + long roll.
+  explosion(){tone(70,26,.45,.2,'sine',240);hiss(2800,120,.42,.2,'lowpass',.35);hiss(5000,2500,.06,.07,'highpass',1);tone(160,60,.09,.08,'sawtooth',1000)},
+  // Rocket salvo: launch pop into a rising whoosh.
+  rocket(){hiss(400,2400,.3,.09,'bandpass',1.4);tone(280,900,.28,.05,'sawtooth',1800);tone(120,70,.1,.07,'square',700)},
+  // Flak airburst near the plane: muffled pop then crackle.
+  flak(){tone(300,90,.14,.08,'sawtooth',900);hiss(3200,900,.16,.07,'bandpass',.9);tone(95,45,.14,.08,'sine',350)},
+  // Skill trigger: three rising brass hits with a shimmer on top.
+  skill(){tone(392,392,.09,.06,'sawtooth',2200);tone(523,523,.1,.06,'sawtooth',2400,.07);tone(659,659,.14,.06,'sawtooth',2600,.14);hiss(2400,4800,.22,.03,'highpass',1)},
+  // Belt reload: two bolt clicks. Loaded: confident clack + confirm.
+  reload(){tone(520,340,.04,.05,'square',1600);tone(300,220,.05,.06,'square',1200,.06)},
+  loaded(){tone(340,340,.05,.05,'square',1400);tone(560,560,.08,.05,'square',1800,.05)},
+  // Field upgrade: bright four-note arp.
+  levelup(){for(let i=0;i<4;i++)tone([523,659,784,1046][i],[523,659,784,1046][i],.12,.05,'triangle',2600,i*.07)},
+  // Wave / signal toast stingers.
+  wave(){tone(660,660,.07,.04,'triangle',1800);tone(880,880,.09,.04,'triangle',2000,.08)},
+  ally(){tone(523,523,.08,.05,'triangle',2000);tone(659,659,.1,.05,'triangle',2200,.09)},
+  // Supply pickup / ammo restock: bright chime.
+  pickup(){tone(880,1320,.09,.05,'triangle',2600);tone(1320,1760,.07,.035,'sine',3200,.05)},
+  // Boss arrival: low brass hit over a timpani swell.
+  bossSting(){tone(49,49,.9,.16,'sawtooth',500);tone(55,55,.9,.13,'sawtooth',400);tone(98,98,.7,.08,'sawtooth',800,.25);hiss(300,90,1,.1,'lowpass',.4)},
+  // Sortie launch: engine spool-up.
+  launch(){tone(55,110,.5,.1,'sawtooth',600);hiss(200,900,.5,.04,'bandpass',.8)},
+  // Balloon burst: taut fabric pop plus pressure release.
+  balloon(){tone(500,60,.22,.14,'sine',800);hiss(4000,300,.2,.12,'bandpass',.6);tone(1300,400,.06,.04,'square',3000)},
+  // Repair pickup: soft double chime.
+  heal(){tone(720,720,.06,.05,'sine',2200);tone(960,960,.09,.05,'sine',2600,.07)},
+  // Engine idle: one propeller/exhaust beat per call (the host fires it on an interval).
+  engineTick(reload){const f=reload?.72:1;tone(58*f,42*f,.11,.085,'sawtooth',300);hiss(700,180,.08,.05,'lowpass',.5);tone(117*f,90*f,.07,.028,'triangle',500)},
+  // Run results.
+  victory(){for(let i=0;i<5;i++)tone([57,60,64,67,72][i],[57,60,64,67,72][i],.5-i*.05,.06,'triangle',2400,i*.11)},
+  defeat(){for(let i=0;i<4;i++)tone([64,60,57,50][i],[64,60,57,50][i],.55,.06,'sawtooth',1200,i*.16)}
 };
 export function sfx(name,arg){
   if(muted||!VOICES[name])return;

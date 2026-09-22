@@ -1,6 +1,6 @@
-import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,separatePlayerFromLargeBossBodies,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=201';
+import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,separatePlayerFromLargeBossBodies,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=186';
 
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=199';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=162';
 import {attachAircraftPersonality} from './aircraft-personality164.js?v=174';
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.
@@ -137,7 +137,7 @@ export class CoopGame {
     if(e.heavyBomber){e.bombTimer=(e.bombTimer??3)-dt;if(e.bombTimer<=0&&Math.hypot(e.x-p.x,e.y-p.y)<650){e.bombTimer=6;for(let i=0;i<3;i++){const delay=1.5+i*.22;this.bombZones.push({x:p.x+Math.cos(p.a)*(i-1)*95,y:p.y+Math.sin(p.a)*(i-1)*95,sx:e.x,sy:e.y,delay,maxDelay:delay,radius:52,damage:22+Math.floor(this.t/90)})}this.event('bombWarning','폭격 투하! 붉은 표적을 벗어나세요')}}
     if(e.bossPilot){stepTimer(e,'bossDash',dt);e.abilityTimer-=dt;if(e.abilityTimer<=0){e.abilityTimer=e.bossPilot==='bishop'?ENEMY_BOSS_BALANCE.bishopAbilityMin+this.rng()*ENEMY_BOSS_BALANCE.bishopAbilityVariance:7+this.rng()*3;this.aceAttack(e)}}
    }
-   if(!e.surface&&!e.stageBossBody&&!e.bossMinion&&!e.heavyBomber&&!e.bossPilot&&e.type!=='boss'&&e.type!=='zeppelin'){for(const player of this.living())if(Math.hypot(e.x-player.x,e.y-player.y)<(e.contactRadius??19))this.hitPlayer(player,15);for(const patrol of this.patrols)if(patrol.hp>0&&Math.hypot(e.x-patrol.x,e.y-patrol.y)<24)this.hitPatrol(patrol,18)}
+   if(!e.surface){for(const player of this.living())if(Math.hypot(e.x-player.x,e.y-player.y)<(e.contactRadius??(e.heavyBomber?48:e.type==='boss'?ENEMY_MOVEMENT_BALANCE.aceContactRadius:e.type==='zeppelin'?42:19)))this.hitPlayer(player,e.type==='boss'?22:e.type==='zeppelin'?18:15);for(const patrol of this.patrols)if(patrol.hp>0&&Math.hypot(e.x-patrol.x,e.y-patrol.y)<24)this.hitPatrol(patrol,18)}
    const leader=e.formationLeader;if(leader?.hp>0&&this.enemies.includes(leader)&&!sun){e.x+=(leader.x-Math.cos(leader.a)*e.formationBack-Math.sin(leader.a)*e.formationOffset-e.x)*Math.min(1,dt*3);e.y+=(leader.y-Math.sin(leader.a)*e.formationBack+Math.cos(leader.a)*e.formationOffset-e.y)*Math.min(1,dt*3);e.a=leader.a}if(e.navalVessel){e.life-=dt;if(e.life<=0)e.expired=true}
   }
  }
