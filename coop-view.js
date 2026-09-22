@@ -2,7 +2,7 @@ import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './we
 import {fx,fxReady,fxTint} from './fx-art.js';
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=162';
 import {drawStageBoss} from './stageboss-view.js?v=116&b=117';
-import {planeSprite,aircraftKey} from './aircraft.js?v=206';
+import {planeSprite,aircraftKey} from './aircraft.js?v=207';
 import {drawEquipment} from './equipment.js?v=116&b=117';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire} from './projectiles.js?v=135&b=135';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=116&b=117';
