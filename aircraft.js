@@ -37,7 +37,7 @@ const individualAircraftReady=INDIVIDUAL_KEYS.map(key=>new Promise(resolve=>{
   const scan=document.createElement('canvas');scan.width=img.naturalWidth;scan.height=img.naturalHeight;const sc=scan.getContext('2d',{willReadFrequently:true});sc.drawImage(img,0,0);const pixels=sc.getImageData(0,0,scan.width,scan.height),rgba=pixels.data;if(key==='nieuport_italian')for(let i=0;i<rgba.length;i+=4){const r=rgba[i],g=rgba[i+1],b=rgba[i+2];if(rgba[i+3]>0&&b>70&&b>r*1.18&&b>g*1.05){rgba[i]=55;rgba[i+1]=132;rgba[i+2]=78}}clearAircraftMatte(key,rgba,scan.width,scan.height);clearCrewMatte(key,rgba,scan.width,scan.height);sc.putImageData(pixels,0,0);let minX=scan.width,minY=scan.height,maxX=-1,maxY=-1;
   for(let y=0;y<scan.height;y++)for(let x=0;x<scan.width;x++)if(rgba[(y*scan.width+x)*4+3]>128){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}
   if(maxX>=minX&&maxY>=minY){const out=document.createElement('canvas');out.width=144;out.height=160;const oc=out.getContext('2d');oc.imageSmoothingEnabled=true;oc.imageSmoothingQuality='high';const w=maxX-minX+1,h=maxY-minY+1,k=Math.min(114/w,132/h)*spriteScale(key),dw=Math.round(w*k),dh=Math.round(h*k);oc.drawImage(scan,minX,minY,w,h,Math.round((144-dw)/2),Math.round(76-dh/2),dw,dh);painted.set(key,out);cache.clear();shadows.clear();flashes.clear()}resolve(true);
- };img.onerror=()=>resolve(false);const sourceKey=key==='nieuport_italian'?'nieuport':key;img.src=new URL(`./${sourceKey}.png?v=194`,import.meta.url).href;
+ };img.onerror=()=>resolve(false);const sourceKey=key==='nieuport_italian'?'nieuport':key;img.src=new URL(`./${sourceKey}.png?v=202`,import.meta.url).href;
 }));
 // The four aces once cut from this 2x2 atlas now ship as individual PNGs and are
 // loaded through individualAircraftReady; keeping the list empty skips the atlas
@@ -222,7 +222,7 @@ export function aircraftPreviewURL(key){
   };
   img.onerror=()=>resolve('');
   const fileKey=sourceKey==='nieuport_italian'?'nieuport':sourceKey;
-  img.src=new URL(`./${fileKey}.png?v=194`,import.meta.url).href;
+  img.src=new URL(`./${fileKey}.png?v=202`,import.meta.url).href;
  });
  previewURLs.set(sourceKey,p);return p;
 }
