@@ -1,0 +1,89 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+body{background:#3a3f3a;color:#eee;font:13px monospace;margin:0;padding:10px}
+.row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.lbl{width:150px;text-align:right;color:#d8c491;white-space:pre-line}
+canvas{background:#778563;flex:none}
+.tag{position:absolute;top:2px;left:4px;color:#fff;font:10px monospace;opacity:.8}
+.wrap{position:relative}
+</style></head><body>
+<div class="row"><div class="lbl">효과</div><div class="wrap"><canvas width="360" height="80" id="hdrOld"></canvas><div class="tag">BEFORE (기존 코드)</div></div><div class="wrap"><canvas width="360" height="80" id="hdrNew"></canvas><div class="tag">AFTER (신규 에셋)</div></div></div>
+<div id="rows"></div>
+<script type="module">
+import {fx,fxReady,fxTint,fxArtReady} from './fx-art.js';
+import {drawEquipment} from './equipment.js?v=116&b=117';
+const ROWS=[
+ ['적 총탄 (scout)','tracer'],
+ ['아군 총탄','playerTracer'],
+ ['머즐 플래시','muzzle'],
+ ['피탄 버스트','spark'],
+ ['엔진 연기','smoke'],
+ ['일반 폭발','explosion'],
+ ['수류탄 폭발','grenadeBlast'],
+ ['로켓','rocket'],
+ ['폭탄 투하 표시','bomb'],
+ ['기뢰','mine'],
+ ['어뢰','torpedo'],
+ ['수기둥','waterColumn'],
+ ['독가스','gas'],
+ ['검색등','searchlight'],
+ ['태양광 (레드헌터)','sunshaft'],
+ ['화재 지대','fire'],
+ ['구름','cloud'],
+ ['대공포 폭발','flak'],
+];
+// ---- BEFORE renderers (verbatim procedural drawing) ----
+function oldTracer(c,x,y){c.save();c.translate(x,y);c.globalAlpha=.2;c.fillStyle='#e7a06b';c.fillRect(-15,-1,7,2);c.globalAlpha=.5;c.fillRect(-8,-1,5.5,2);c.globalAlpha=1;c.fillRect(-2.5,-1,4.5,2);c.fillStyle='#fff0cc';c.fillRect(-1,-.5,3,1);c.restore()}
+function oldPlayerTracer(c,x,y){c.save();c.strokeStyle='#f8df87';c.lineWidth=2;c.beginPath();c.moveTo(x,y);c.lineTo(x-14,y-8);c.stroke();c.restore()}
+function oldMuzzle(c,x,y){c.fillStyle='#ffbb58';c.fillRect(x-3,y-3,6,6);c.fillStyle='#fff4ca';c.fillRect(x-1,y-1,3,3)}
+function oldSpark(c,x,y){for(const [dx,dy,s,col] of [[-8,-4,4,'#f2aa52'],[6,3,3,'#f2aa52'],[-2,7,3,'#f5d38b'],[4,-9,2,'#f5d38b'],[0,0,3,'#fff4ca']]){c.fillStyle=col;c.fillRect(x+dx,y+dy,s,s)}}
+function oldSmoke(c,x,y){c.globalAlpha=.5;c.fillStyle='#8a8d84';c.fillRect(x-6,y-6,12,12);c.fillRect(x+6,y-10,10,10);c.globalAlpha=.3;c.fillRect(x-12,y+4,9,9);c.globalAlpha=1}
+function oldExplosion(c,x,y){const img=new Image();img.onload=()=>{c.save();c.globalAlpha=.8;c.drawImage(img,x-30,y-30,60,60);c.strokeStyle='#ffe6a580';c.lineWidth=3;c.beginPath();c.arc(x,y,20,0,6.28);c.stroke();c.restore()};img.src='./flak-burst.png'}
+function oldGrenadeBlast(c,x,y){const q=.4;c.save();c.translate(x,y);c.globalAlpha=(1-q)*.8;const r=12+24*q,glow=c.createRadialGradient(0,0,2,0,0,r);glow.addColorStop(0,'#fff3ca');glow.addColorStop(.3,'#d3934f');glow.addColorStop(1,'#51483a00');c.fillStyle=glow;c.beginPath();c.arc(0,0,r,0,6.28);c.fill();c.strokeStyle='#c8b490';c.lineWidth=1;for(let i=0;i<13;i++){const a=i*2.399,r2=12+q*80*(.65+(i%3)*.12);c.beginPath();c.moveTo(Math.cos(a)*r2,Math.sin(a)*r2);c.lineTo(Math.cos(a)*(r2+4),Math.sin(a)*(r2+4));c.stroke()}c.restore()}
+function oldRocket(c,x,y){drawEquipment(c,'rocket',x,y,Math.PI/2,46)}
+function oldBomb(c,x,y){drawEquipment(c,'rocket',x,y,Math.PI/2,38);c.strokeStyle='#ff855a';c.lineWidth=2;c.beginPath();c.arc(x,y,30,0,6.28);c.stroke()}
+function oldMine(c,x,y){drawEquipment(c,'mine',x,y,0,30)}
+function oldTorpedo(c,x,y){c.save();c.translate(x,y);c.globalAlpha=.48;c.fillStyle='#6e7f7d';c.beginPath();c.moveTo(26,0);c.quadraticCurveTo(10,-13,-23,-11);c.lineTo(-35,-6);c.lineTo(-35,6);c.quadraticCurveTo(8,14,26,0);c.fill();c.strokeStyle='#d8e0d3';c.stroke();c.restore()}
+function oldWaterColumn(c,x,y){const bands=[.18,.27,.22,.32,.38,.31,.43,.35,.48,.4,.54,.46];const H=64,W=30,top=y-H/2;for(let i=0;i<bands.length;i++){const w=W*bands[i];c.fillStyle=i%3===0?'#65aeb7':i%3===1?'#83c5c7':'#9bd2ce';c.fillRect(Math.round(x-w),top+i*H/12,w*2,H/12+1)}}
+function oldGas(c,x,y){c.fillStyle='#72842e55';c.beginPath();c.arc(x,y,34,0,6.28);c.fill();for(let i=0;i<9;i++){const a=i*2.4,r=34*(.25+(i%3)*.14);c.fillStyle=i%2?'#b4b9542d':'#637c3c40';c.beginPath();c.arc(x+Math.cos(a)*r,y+Math.sin(a)*r,10,0,6.28);c.fill()}}
+function oldSearchlight(c,x,y){const a=-Math.PI/2.4,g=c.createRadialGradient(x,y,0,x,y,60);g.addColorStop(0,'#fff1bc4d');g.addColorStop(.65,'#f3dfa621');g.addColorStop(1,'#f3dfa600');c.fillStyle=g;c.beginPath();c.moveTo(x,y);c.arc(x,y,60,a-.3,a+.3);c.fill()}
+function oldSunshaft(c,x,y){c.save();c.translate(x,y);for(let i=0;i<11;i++){const a=(i/10*2-1)*.35;c.fillStyle=`rgba(255,231,169,${.055+.025*Math.sin(i)})`;c.beginPath();c.moveTo(-20,0);c.lineTo(Math.cos(a-.006)*70,Math.sin(a-.006)*70);c.lineTo(Math.cos(a+.006)*70,Math.sin(a+.006)*70);c.fill()}c.restore()}
+function oldFire(c,x,y){for(let i=0;i<10;i++){const a=i*2.399,r=Math.sqrt(i/10)*26,px=x+Math.cos(a)*r,py=y+Math.sin(a)*r,h=8+(i%3)*5;c.fillStyle='#b56534';c.fillRect(px-6,py-8,12,9);c.fillRect(px-4,py-h,8,h);c.fillStyle='#e3a34d';c.fillRect(px-3,py-h+5,6,h-3);c.fillStyle='#f5d38b';c.fillRect(px-1,py-4,3,4)}}
+function oldCloud(c,x,y){c.globalAlpha=.3;c.fillStyle='#d3dedd';c.fillRect(x-40,y-14,80,22);c.fillRect(x-20,y-24,44,34);c.globalAlpha=1}
+function oldFlak(c,x,y){const img=new Image();img.onload=()=>c.drawImage(img,x-26,y-26,52,52);img.src='./flak-burst.png'}
+// ---- AFTER renderers ----
+function newTracer(c,x,y){fxTint(c,'tracerAmber','#e7a06b',x,y,26,12)}
+function newPlayerTracer(c,x,y){fxTint(c,'tracerAmber','#f8df87',x,y,30,12,Math.atan2(-8,-14))}
+function newMuzzle(c,x,y){fx(c,'muzzle',x,y,34,34)}
+function newSpark(c,x,y){fxTint(c,'spark','#f2aa52',x,y,58,58)}
+function newSmoke(c,x,y){fx(c,'smokeGray',x,y,46,46);fx(c,'smokeWisp',x+22,y-14,34,34,.7)}
+function newExplosion(c,x,y){fx(c,'explosion1',x-30,y,52,52);fx(c,'explosion2',x+25,y,58,58);c.strokeStyle='#ffe6a580';c.lineWidth=2;c.beginPath();c.arc(x,y,26,0,6.28);c.stroke()}
+function newGrenadeBlast(c,x,y){fx(c,'explosion2',x,y,56,56);c.save();c.translate(x,y);c.globalAlpha=.35;c.strokeStyle='#c8b490';for(let i=0;i<13;i++){const a=i*2.399,r=20;c.beginPath();c.moveTo(Math.cos(a)*r,Math.sin(a)*r);c.lineTo(Math.cos(a)*(r+5),Math.sin(a)*(r+5));c.stroke()}c.restore()}
+function newRocket(c,x,y){fx(c,'rocket',x,y,96,28,0)}
+function newBomb(c,x,y){fx(c,'bomb',x,y,70,35,0);c.strokeStyle='#ff855a';c.lineWidth=2;c.beginPath();c.arc(x,y,30,0,6.28);c.stroke()}
+function newMine(c,x,y){fx(c,'mine',x,y,36,36)}
+function newTorpedo(c,x,y){fx(c,'torpedo',x,y,110,34,0)}
+function newWaterColumn(c,x,y){fx(c,'waterColumn',x,y,80,72,0)}
+function newGas(c,x,y){c.fillStyle='#72842e55';c.beginPath();c.arc(x,y,34,0,6.28);c.fill();fx(c,'gas',x,y,58,52,.4,.6)}
+function newSearchlight(c,x,y){const a=-Math.PI/2.4;fx(c,'searchlight',x+Math.cos(a)*28,y+Math.sin(a)*28,62,44,a,.85)}
+function newSunshaft(c,x,y){for(let i=0;i<3;i++){const a=(i/2*2-1)*.3;fx(c,'sunshaft',x+Math.cos(a)*18,y+Math.sin(a)*18,80,34,a,.55)}}
+function newFire(c,x,y){fx(c,'fire',x-8,y-4,34,40,.4,.85);fx(c,'fire',x+14,y+2,26,31,1.2,.7);fx(c,'smokeDark',x+2,y-22,30,26,0,.45)}
+function newCloud(c,x,y){fx(c,'cloud',x,y,74,42,0,.75)}
+function newFlak(c,x,y){fx(c,'flak',x,y,52,52)}
+const OLD={tracer:oldTracer,playerTracer:oldPlayerTracer,muzzle:oldMuzzle,spark:oldSpark,smoke:oldSmoke,explosion:oldExplosion,grenadeBlast:oldGrenadeBlast,rocket:oldRocket,bomb:oldBomb,mine:oldMine,torpedo:oldTorpedo,waterColumn:oldWaterColumn,gas:oldGas,searchlight:oldSearchlight,sunshaft:oldSunshaft,fire:oldFire,cloud:oldCloud,flak:oldFlak};
+const NEW={tracer:newTracer,playerTracer:newPlayerTracer,muzzle:newMuzzle,spark:newSpark,smoke:newSmoke,explosion:newExplosion,grenadeBlast:newGrenadeBlast,rocket:newRocket,bomb:newBomb,mine:newMine,torpedo:newTorpedo,waterColumn:newWaterColumn,gas:newGas,searchlight:newSearchlight,sunshaft:newSunshaft,fire:newFire,cloud:newCloud,flak:newFlak};
+const rowsEl=document.getElementById('rows');
+function build(){
+ rowsEl.innerHTML='';
+ for(const [label,key] of ROWS){
+  const row=document.createElement('div');row.className='row';
+  row.innerHTML=`<div class="lbl">${label}</div>`;
+  const wO=document.createElement('div');wO.className='wrap';const cO=document.createElement('canvas');cO.width=360;cO.height=80;wO.append(cO);
+  const wN=document.createElement('div');wN.className='wrap';const cN=document.createElement('canvas');cN.width=360;cN.height=80;wN.append(cN);
+  row.append(wO,wN);rowsEl.append(row);
+  const gO=cO.getContext('2d'),gN=cN.getContext('2d');
+  OLD[key](gO,180,40);NEW[key](gN,180,40);
+ }
+}
+fxArtReady.then(build);
+setTimeout(build,1500);setTimeout(build,3000);
+</script></body></html>

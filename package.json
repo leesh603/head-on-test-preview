@@ -1,0 +1,17 @@
+{
+  "name": "head-on-aces",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-worker.mjs",
+    "test": "node --test tests/*.test.mjs && node tests/app-smoke.cjs",
+    "test:assets": "node tests/assets51.cjs",
+    "dev": "vite",
+    "test:campaign-art": "node tests/campaign-art52.cjs",
+    "test:art53": "node tests/art53.cjs",
+    "test:art57": "node tests/art57.cjs"
+  },
+  "devDependencies": {
+    "vite": "^8.3.0"
+  }
+}

@@ -1,0 +1,100 @@
+/* HEAD-ON sortie cover. Scope layout changes to the hangar, preserving flight HUD. */
+body:not(.playing){background:#141515;color:#eeeade}
+body:not(.playing) header{border-color:#eeeade20;height:70px}
+.brand .edition{color:#c2bcb1;border-color:#eeeade30;font-size:13px}
+.wordmark{display:inline-flex;align-items:center;white-space:nowrap;font-family:Impact,'Arial Narrow',sans-serif;font-weight:900;line-height:1;letter-spacing:-.045em;color:#eeeade}
+.brand-mark .wordmark{font-size:27px}
+.wordmark .logo-dash{font:inherit;color:#ba4238;font-size:.62em;margin:0 .09em;letter-spacing:-.1em}
+.wordmark .sight-o{display:inline-block;position:relative;flex:none;width:.64em;height:.69em;border:.065em solid currentColor;border-radius:50%;margin:0 .035em 0 .055em;color:inherit;font-size:1em}
+.sight-o:before,.sight-o:after{content:'';position:absolute;background:currentColor;left:50%;top:50%;transform:translate(-50%,-50%)}
+.sight-o:before{height:.035em;width:.85em}.sight-o:after{width:.035em;height:.91em}
+.sight-o i{position:absolute;inset:30%;border:.022em solid currentColor;border-radius:50%;background:#ba4238}
+body:not(.playing) main{max-width:1680px;grid-template-columns:minmax(0,1fr) 340px;gap:0;padding:20px 36px 30px}
+body:not(.playing) .field-top{padding-right:22px;color:#b7b3a9}
+body:not(.playing) .viewport{height:790px;border:0;border-radius:0;box-shadow:none;background:#1d1e1d}
+body:not(.playing) .field-bottom{padding-right:22px}
+.hangar{background:#1d1e1d;container-type:inline-size}
+.hangar-sky{background:linear-gradient(90deg,#1c1d1df5,#2020206b),url('terrain-trenches.png') center/cover;filter:grayscale(1);opacity:.3}
+.hangar:before{content:'';position:absolute;width:36%;height:110%;right:12%;top:-5%;background:#8f302d;transform:skew(-15deg);z-index:-2;opacity:.8;pointer-events:none}
+.hangar:after{background:linear-gradient(0deg,#171818 0%,#17181800 45%),linear-gradient(90deg,#171818aa,transparent 58%);z-index:0}
+.hangar-copy{width:100%;height:100%;padding:38px 5%;align-items:flex-start;justify-content:flex-start;overflow-y:auto;scrollbar-width:thin;z-index:2}
+.hangar .eyebrow{order:-2;color:#c4bfb3;font-size:12px;letter-spacing:.2em;margin:0 0 10px}
+.hangar h1{order:-1;font-size:clamp(70px,16.8cqw,174px);line-height:1;margin:0;letter-spacing:0;width:100%;font-weight:900;flex-shrink:0}
+.hangar h1 .wordmark{font-size:inherit;color:#eeeade;font-weight:900}
+.hangar h1 .logo-dash{color:#c85244}
+.hangar h1 .sight-o{color:#eeeade}
+.hangar .subhead{order:-1;font-size:16px;letter-spacing:.45em;color:#d4cabe;margin:15px 0 28px}
+.hangar .mode-tabs{border:0;border-bottom:1px solid #d6cabb55;background:transparent;border-radius:0;padding:0;gap:18px;margin:0 0 36px;flex-shrink:0}
+.hangar .mode-tabs button{border-radius:0;padding:10px 0;min-height:44px;font-size:15px;color:#b8b5ad;border-bottom:3px solid transparent}
+.hangar .mode-tabs button.active{background:transparent;color:#fff1df;border-bottom-color:#c85244;box-shadow:none}
+.hangar-ace{z-index:1;right:-5%;bottom:2%;height:70%;width:61%;object-fit:contain;object-position:right bottom;opacity:1;filter:saturate(.65) drop-shadow(-14px 12px 18px #0008);pointer-events:none}
+.hangar-plane{z-index:1;right:29%;top:27%;width:23%;height:auto;transform:rotate(-29deg);opacity:1;filter:drop-shadow(4px 12px 5px #0007);pointer-events:none}
+.hangar .sortie-dossier{max-width:46%;padding:0 0 0 14px;border-left:2px solid #b64035;background:none;text-shadow:0 2px 6px #141515;margin-top:30px}
+.hangar .dossier-heading{gap:8px 14px}.hangar .dossier-heading>span{color:#bfb6a9;font-size:12px;letter-spacing:.05em}
+.hangar .roster-jump{color:#e2bbaa;font-size:14px}
+.hangar .sortie-dossier h2{font-size:clamp(24px,3.2cqw,34px);line-height:1.3;margin:14px 0 10px;word-break:keep-all;color:#f1e9dd}
+.hangar .sortie-dossier p{color:#c8b6a4;font-size:14px}
+.hangar .nickname-field{width:300px;max-width:45%;margin-top:26px;color:#d6cec2}
+.hangar .nickname-field input{background:#151616ce;border:0;border-bottom:1px solid #aea697;border-radius:0;height:44px;padding-left:0}
+.hangar .nickname-field>small,.hangar .nickname-field #nicknameHint{color:#aba69c}
+.hangar .primary{width:300px;max-width:45%;position:relative;bottom:auto;border-radius:0;border:1px solid #cc5b4d;background:#b43b32;color:#fff5e9;box-shadow:none;margin-top:18px;min-height:56px}
+.hangar .primary:hover{background:#cb493c;border-color:#e67d64;color:white}
+.hangar .start-hint{max-width:45%;color:#bcb6ad;margin-top:18px;gap:6px 12px}.hangar .start-hint kbd{background:#171818;border-color:#ccc3b044;color:#d5cec1;border-radius:2px}
+.hangar-stamp{z-index:2;right:25px;bottom:25px;text-align:right;color:#b7ada0;border-top:1px solid #e1d4ba55;max-width:40%;letter-spacing:.06em;font-size:12px}
+.hangar-stamp b{font-size:14px;color:#eee2cf;letter-spacing:0}
+body:not(.playing) aside{margin-top:44px;border:0;border-radius:0;border-left:1px solid #b5a99640;background:#1b1c1c;padding:24px}
+body:not(.playing) aside button{border-radius:2px}
+body:not(.playing) .factions{background:#141515;border-radius:0;border-color:#6f6b6144}
+body:not(.playing) .factions button.active{background:#51413a;box-shadow:none;color:#f6e9d7}
+body:not(.playing) .pilot-frame{border-radius:0;background:#30302c;border-color:#8c81774d}
+body:not(.playing) .pilot-tabs button{background:transparent;border-color:#6d685e66;color:#bcb7ad}
+body:not(.playing) .pilot-tabs button.active{color:#f4e8d9;border-color:#b94c3f;box-shadow:inset 3px 0 #b94c3f;background:#9c463016}
+body:not(.playing) .selected-aircraft{border-radius:0;background:#292722}
+body:not(.playing) footer{color:#9a968b}
+/* Campaign keeps the complete scrollable briefing and immediately usable launch action. */
+.campaign-selected .hangar-copy{width:100%;padding:30px 5%}
+.campaign-selected .hangar h1{font-size:56px;margin:0}.campaign-selected .hangar .eyebrow{font-size:12px}
+.campaign-selected .hangar .subhead{display:none}.campaign-selected .hangar .mode-tabs{margin:20px 0}
+.campaign-selected .hangar-ace{opacity:.14;height:74%}.campaign-selected .hangar-plane{opacity:.16;right:8%;top:18%;width:20%}
+.campaign-selected .hangar .sortie-dossier{margin-top:20px;max-width:85%}
+.campaign-selected .hangar-stamp{display:none}.campaign-selected .hangar .primary{position:sticky;bottom:0;max-width:100%;box-shadow:0 -10px 20px #191a1a}
+@media(max-width:1100px) and (min-width:721px){
+ body:not(.playing) main{grid-template-columns:minmax(0,1fr) 290px;padding:16px 20px}
+ body:not(.playing) aside{padding:16px}.hangar-ace{right:-17%;width:72%;height:63%}
+ .hangar-plane{right:16%;top:24%;width:26%}.hangar .sortie-dossier{max-width:54%}.hangar .nickname-field,.hangar .primary,.hangar .start-hint{max-width:54%}
+}
+@media(max-width:720px){
+ body:not(.playing) header{height:60px;padding:0 16px}.brand-mark .wordmark{font-size:24px}.brand .edition{display:none}
+ body:not(.playing) main{display:block;padding:10px 12px 24px}
+ body:not(.playing) .field-top{height:28px;margin-bottom:8px;padding:0;font-size:12px}
+ body:not(.playing) .viewport{height:890px;min-height:0}
+ .hangar-copy{padding:24px 22px;width:100%;overflow-y:auto}
+ .hangar h1{font-size:17cqw;flex-shrink:0}.hangar .eyebrow{font-size:12px;letter-spacing:.12em}
+ .hangar .subhead{font-size:14px;letter-spacing:.35em;margin:10px 0 0}
+ .hangar .mode-tabs{margin:250px 0 22px;gap:24px;width:100%;flex-shrink:0}
+ .hangar:before{height:440px;top:0;right:16%;width:39%}
+ .hangar-ace{height:270px;width:70%;right:0;top:138px;bottom:auto;object-position:right bottom;opacity:1}
+ .hangar-plane{top:166px;right:58%;width:35%;opacity:1;transform:rotate(-28deg)}
+ .hangar:after{background:linear-gradient(0deg,#171818 52%,transparent 70%)}
+ .hangar .sortie-dossier{margin-top:0;max-width:100%;width:100%;padding-left:12px}
+ .hangar .sortie-dossier h2{font-size:26px;max-width:100%;margin:10px 0 6px}
+ .hangar .nickname-field{width:100%;max-width:100%;margin-top:20px}
+ .hangar .primary{max-width:100%;width:100%;min-height:56px;margin-top:16px}
+ .hangar .start-hint{max-width:100%;margin-top:14px}
+ .hangar-stamp{display:block;top:341px;bottom:auto;left:22px;right:auto;max-width:46%;font-size:12px;text-align:left;padding-top:6px;background:#181919bb}
+ .hangar-stamp b{font-size:13px}
+ body:not(.playing) aside{margin-top:20px;border:1px solid #b5a99640;padding:20px}
+ .campaign-selected .hangar-copy{padding:24px 22px}.campaign-selected .hangar h1{font-size:46px}
+ .campaign-selected .hangar .mode-tabs{margin:18px 0}.campaign-selected .hangar-ace{top:110px;height:430px;opacity:.1}
+ .campaign-selected .hangar .sortie-dossier{max-width:100%}.campaign-selected .hangar .primary{position:sticky}
+}
+/* Paired crews share the same frame without clipping the second crew member. */
+.duo-selected .hangar-ace{width:75%;height:72%;right:-10%;bottom:2%;object-fit:contain;object-position:right bottom}
+.duo-selected .pilot-frame .portrait{background-size:var(--pilot-portrait-size,auto 100%)!important;background-position:center bottom!important}
+.duo-selected .cutin-portrait{background-size:contain!important;background-position:center top!important}
+.campaign-selected.duo-selected .hangar-ace{opacity:.14}
+@media(max-width:720px){.duo-selected .hangar-ace{width:94%;height:285px;right:-3%;top:126px;bottom:auto}.campaign-selected.duo-selected .hangar-ace{top:110px;height:430px;opacity:.1}}
+
+/* Anchor the crew at the top of its frame even when width limits its height. */
+.duo-selected .hangar-ace{top:20%;bottom:auto;object-position:right top}
+@media(max-width:720px){.duo-selected .hangar-ace{top:112px;bottom:auto;object-position:right top}}
