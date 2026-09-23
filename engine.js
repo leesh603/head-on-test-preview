@@ -806,7 +806,7 @@ Game.prototype.update=function(dt,input={}){
  try{_gasUpdate57.call(this,step,control)}finally{this.turn=turn}
  if(this.state!=='playing')return;
  for(const z of this.gasZones||[]){z.warning-=step;z.life-=step}this.gasZones=(this.gasZones||[]).filter(z=>z.life>0);this.inGas=inside();
- if(this.inGas){this.gasExposure=(this.gasExposure||0)+step;if(this.gasExposure>=1){this.gasExposure-=1;if(this.invuln<=0){const prior=this.invuln;this.hit(6);this.invuln=prior;}}}else this.gasExposure=0;
+ if(this.inGas&&!this.grunkreuz){this.gasExposure=(this.gasExposure||0)+step;if(this.gasExposure>=1){this.gasExposure-=1;if(this.invuln<=0){const prior=this.invuln;this.hit(6);this.invuln=prior;}}}else this.gasExposure=0;
  if(this.state!=='playing')return;
  this.gasTimer=(this.gasTimer??12)-step;if(this.gasTimer<=0){this.gasTimer=28;if(this.worldRegion()===2)this.spawnGas()}
 };
@@ -1231,7 +1231,7 @@ Game.prototype.update=function(dt,input={}){
 
 // Revision 109 — expanded legendary arsenal and periodic defensive relics.
 export const COW37_BALANCE=Object.freeze({interval:1,damage:280,speed:430,belt:24,reload:4.6});
-export const LEGENDARY_DEFENSE_BALANCE=Object.freeze({rankinInterval:3.2,rankinRange:500,rankinRearArcDegrees:240,rankinRearDamageMultiplier:.2,fogInterval:12,fogDuration:3});
+export const LEGENDARY_DEFENSE_BALANCE=Object.freeze({rankinInterval:3.2,rankinRange:500,rankinRearArcDegrees:240,rankinRearDamageMultiplier:.2,fogInterval:12,fogDuration:3,grunkreuzInterval:8,grunkreuzRadius:150,grunkreuzFraction:.04,grunkreuzMinIntervalFactor:.5});
 const _ensureDoctrine109=Game.prototype.ensureRevisionPilot;
 Game.prototype.ensureRevisionPilot=function(){
  if(!this.doctrine109Ready){
@@ -1252,12 +1252,16 @@ const legendary109=[
  {id:'cow37',name:'COW 37mm 기관포',desc:'기존 기관총 교체. 1초마다 기본 피해 280의 중포탄 1발, 24발 탄창, 재장전 4.6초. 기관총 개조 적용. 한 출격 1회.'},
  {id:'rankinShell',name:'랭킨 대공 파편탄',desc:'3.2초마다 후방 240°·500 범위의 적 탄환을 파편 폭발로 제거합니다. 뒤에서 맞는 탄환 피해는 80% 감소합니다. 한 출격 1회.'},
  {id:'kaiserFog',name:'카이저의 안개',desc:'12초마다 3초간 안개 속에 숨습니다. 적의 사격·추적 대상에서 제외되고 어그로를 초기화합니다. 기존 탄환은 남습니다. 한 출격 1회.'},
+ {id:'grunkreuz',name:'녹십자 (Grünkreuz)',desc:'독가스 피해에 면역됩니다. 8초마다 주변 150px에 최대 내구도의 4% 피해를 주는 독가스를 분출합니다. 분출 간격은 액티브 재사용 감소 효과를 받습니다(최대 50%). 한 출격 1회.'},
  {id:'maximBelt',name:'맥심의 무한 탄띠',desc:'기관총 탄약이 무제한이 되어 재장전 없이 계속 사격합니다. 특수 COW 기관포에는 적용되지 않습니다. 한 출격 1회.'}
 ];
 for(const relic of legendary109)if(!LEGENDARIES.some(item=>item.id===relic.id)){LEGENDARIES.push(relic);UPGRADES.push({...relic,legendary:true,apply:()=>{}})}
 export function tickLegendaryDefenses(owner,world,dt){
  if(owner.rankinShell){owner.rankinTimer=(owner.rankinTimer??LEGENDARY_DEFENSE_BALANCE.rankinInterval)-dt;if(owner.rankinTimer<=0){owner.rankinTimer+=LEGENDARY_DEFENSE_BALANCE.rankinInterval;const ca=Math.cos(owner.a),sa=Math.sin(owner.a),half=LEGENDARY_DEFENSE_BALANCE.rankinRearArcDegrees*Math.PI/360;let removed=0;for(const b of world.bullets||[]){if(!b.enemy||b.life<=0)continue;const dx=b.x-owner.x,dy=b.y-owner.y,d=Math.hypot(dx,dy);if(d>LEGENDARY_DEFENSE_BALANCE.rankinRange)continue;const rear=Math.abs(angleDiff(Math.atan2(dy,dx),owner.a+Math.PI));if(rear<=half){b.life=0;removed++}}owner.rankinFlash=.5;owner.burst(owner.x-ca*28,owner.y-sa*28,'#ddd8c1',Math.min(26,10+removed));owner.event('wave',`랭킨 파편탄 · 후방 탄막 ${removed}발 제거`)}}
  owner.rankinFlash=Math.max(0,(owner.rankinFlash||0)-dt);
+ if(owner.grunkreuz){owner.grunkreuzTimer=(owner.grunkreuzTimer??LEGENDARY_DEFENSE_BALANCE.grunkreuzInterval)-dt;if(owner.grunkreuzTimer<=0){const factor=Math.max(LEGENDARY_DEFENSE_BALANCE.grunkreuzMinIntervalFactor,owner.cooldownMult||1);owner.grunkreuzTimer+=LEGENDARY_DEFENSE_BALANCE.grunkreuzInterval*factor;const dmg=Math.max(1,Math.round(owner.maxHp*LEGENDARY_DEFENSE_BALANCE.grunkreuzFraction)),r=LEGENDARY_DEFENSE_BALANCE.grunkreuzRadius;world.grunkreuzPuffs??=[];world.grunkreuzPuffs.push({x:owner.x,y:owner.y,r,life:1.6,maxLife:1.6});let hitN=0;for(const e of world.enemies||[]){if(e.hp<=0||e.grunkreuzDead)continue;if(Math.hypot(e.x-owner.x,e.y-owner.y)>r)continue;e.hp-=dmg;hitN++;if(e.hp<=0){e.grunkreuzDead=true;if(world.handleDeath)world.handleDeath(e,{patrol:false,ownerId:owner.id});else{owner.kills=(owner.kills||0)+1;if(e.bossPilot||['boss','zeppelin','bomber'].includes(e.type))owner.priorityKills=(owner.priorityKills||0)+1;if(e.type==='zeppelin'&&world.wreckGust)world.wreckGust(e);world.burst?.(e.x,e.y,'#f2aa52',30);world.event?.('kill','')}}}owner.burst?.(owner.x,owner.y,'#a4c46a',16);if(hitN)owner.event?.('wave',`녹십자 독가스 분출 · ${hitN}기 피해`)}}
+ for(const p of world.grunkreuzPuffs||[])p.life-=dt;
+ if(world.grunkreuzPuffs)world.grunkreuzPuffs=world.grunkreuzPuffs.filter(p=>p.life>0);
  if(owner.kaiserFog){owner.kaiserFogTimer=(owner.kaiserFogTimer??LEGENDARY_DEFENSE_BALANCE.fogInterval)-dt;if(owner.kaiserFogTimer<=0){owner.kaiserFogTimer+=LEGENDARY_DEFENSE_BALANCE.fogInterval;owner.kaiserFogTime=LEGENDARY_DEFENSE_BALANCE.fogDuration;for(const e of world.enemies||[]){if(!e.targetPlayerId||e.targetPlayerId===owner.id)e.targetPlayerId=null;e.patrolTarget=null;e.fire=Math.max(e.fire||0,.65)}owner.event('wave','카이저의 안개 · 적 추적 해제')}owner.kaiserFogTime=Math.max(0,(owner.kaiserFogTime||0)-dt)}
 }
 const _legendaryUpgrade109=Game.prototype.upgrade;
@@ -1267,6 +1271,7 @@ Game.prototype.upgrade=function(id,rarity='normal'){
  else if(id==='cow37'){this.cow37=true;this.unlimitedAmmo=false;this.cow37Timer=.15;this.weapon={name:'COW 37mm 기관포',caliber:'37 mm',guns:1,belt:COW37_BALANCE.belt,rpm:Math.round(60/COW37_BALANCE.interval),reload:COW37_BALANCE.reload};this.ammo=[COW37_BALANCE.belt];this.reloadTime=0;this.fire=0;}
  else if(id==='rankinShell'){this.rankinShell=true;this.rankinTimer=LEGENDARY_DEFENSE_BALANCE.rankinInterval;}
  else if(id==='kaiserFog'){this.kaiserFog=true;this.kaiserFogTimer=LEGENDARY_DEFENSE_BALANCE.fogInterval;this.kaiserFogTime=0;}
+ else if(id==='grunkreuz'){this.grunkreuz=true;this.grunkreuzTimer=LEGENDARY_DEFENSE_BALANCE.grunkreuzInterval*Math.max(LEGENDARY_DEFENSE_BALANCE.grunkreuzMinIntervalFactor,this.cooldownMult||1);}
  else if(id==='maximBelt'){this.unlimitedAmmo=true;this.reloadTime=0;this.ammo.fill(this.weapon.belt);}
 };
 const _legendaryTarget109=Game.prototype.enemyCombatTarget;

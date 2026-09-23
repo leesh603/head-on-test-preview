@@ -19,7 +19,7 @@ const BUILD_IDENTITY_BY_ID=Object.freeze({
  damage:'GUN',rate:'GUN',spread:'GUN',turn:'SPEED',mercedesEngine:'SPEED',rockets:'EXPLOSIVE',mines:'EXPLOSIVE',explosives:'EXPLOSIVE',combinedProjectiles:'EXPLOSIVE',
  command:'FORMATION',wingman:'FORMATION',bomber:'FORMATION',fighterSupply:'FORMATION',armor:'SURVIVAL',regen:'SURVIVAL',cooldown:'SURVIVAL',
  amatolCharge:'EXPLOSIVE',lufberyCircle:'FORMATION',redScarf:'SPEED',prancingHorse:'SPEED',ironCross:'SURVIVAL',telescope:'GUN',flightGloves:'GUN',sparkPlug:'SURVIVAL',goeringBaton:'FORMATION',
- immelmannManual:'SPEED',motorCannon:'EXPLOSIVE',loEmblem:'GUN',sacredCowling:'SPEED',steelPlate:'SURVIVAL',mauserAceKiller:'GUN',rearGunner:'GUN',quadLewis:'GUN',cow37:'GUN',rankinShell:'SURVIVAL',kaiserFog:'SURVIVAL',fogCompass:'SURVIVAL',maximBelt:'GUN'
+ immelmannManual:'SPEED',motorCannon:'EXPLOSIVE',loEmblem:'GUN',sacredCowling:'SPEED',steelPlate:'SURVIVAL',mauserAceKiller:'GUN',rearGunner:'GUN',quadLewis:'GUN',cow37:'GUN',rankinShell:'SURVIVAL',kaiserFog:'SURVIVAL',grunkreuz:'SURVIVAL',fogCompass:'SURVIVAL',maximBelt:'GUN'
 });
 export const buildIdentityFor=id=>BUILD_IDENTITY_BY_ID[id]||null;
 const committedIdentities=g=>new Set(Object.keys(g.upgrades||{}).filter(id=>g.upgrades[id]).map(buildIdentityFor).filter(Boolean));
@@ -55,6 +55,7 @@ const SPECIAL=[
  ['quadLewis','쿼드 루이스 기관총','일반 발사체 상한을 넘어 총구별 기관총 탄환 +4.'],
  ['cow37','COW 37MM 기관포','기존 기관총을 교체합니다. 발사 간격 1초, 기본 피해 280, 탄창 24발, 재장전 4.6초.'],
  ['rankinShell','랭킨 대공 파편탄','3.2초마다 후방 220°·500 범위의 적 탄환을 제거하고 파편 피해를 줍니다.'],
+ ['grunkreuz','녹십자 (Grünkreuz)','독가스 면역. 8초마다 주변 150px에 최대 내구도의 4% 피해 독가스 분출. 분출 간격은 액티브 재사용 감소 적용(최대 50%).'],
  ['kaiserFog','브록식 연막장치','12초마다 3초간 연막에 숨어 적 추적에서 제외되고 어그로가 초기화됩니다.'],
  ['fogCompass','C-O 5/17 에어로 컴퍼스','경험치와 수리 아이템의 획득 반경이 크게 증가합니다.'],
  ['maximBelt','프리도 연속 급탄 링크','기관총 탄띠 용량이 증가하고 재장전 시간이 감소합니다.']
@@ -182,6 +183,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    case 'quadLewis':this.shots=(this.shots||1)+4;break;
    case 'cow37':this.cow37=true;this.unlimitedAmmo=false;this.cow37Timer=.15;this.weapon={name:'COW 37mm 기관포',caliber:'37 mm',guns:1,belt:COW37_BALANCE.belt,rpm:Math.round(60/COW37_BALANCE.interval),reload:COW37_BALANCE.reload};this.ammo=[COW37_BALANCE.belt];this.reloadTime=0;this.fire=0;break;
    case 'rankinShell':this.rankinShrapnel=true;this.rankinShrapnelTimer=AUGMENTATION_OVERHAUL_BALANCE.rankinInterval;break;
+   case 'grunkreuz':this.grunkreuz=true;this.grunkreuzTimer=8;break;
    case 'kaiserFog':this.brockSmoke=true;this.brockSmokeTimer=AUGMENTATION_OVERHAUL_BALANCE.smokeInterval;this.kaiserFogTime=0;break;
    case 'fogCompass':this.magnet=Math.max(this.magnet,AUGMENTATION_OVERHAUL_BALANCE.compassRadius);break;
    case 'maximBelt':{const old=this.weapon.belt,thisBase=this.baseBeltCapacity??old,next=Math.round(thisBase*AUGMENTATION_OVERHAUL_BALANCE.pridoBelt);this.baseBeltCapacity=thisBase;this.weapon.belt=Math.max(old,next);this.ammo=this.ammo.map(n=>Math.min(this.weapon.belt,n+this.weapon.belt-old));this.weapon.reload=Math.max(.45,this.weapon.reload*AUGMENTATION_OVERHAUL_BALANCE.pridoReload);break;}
