@@ -2,6 +2,7 @@
 // oscillators plus filtered noise, matching the music.js approach. No audio
 // assets, no external requests.
 let ctx=null,bus=null,noise=null,active=0,muted=false,master=1;
+const jit=f=>f*(0.94+Math.random()*0.12); // ±6% pitch drift so repeat hits never sound identical
 export function setSfxMuted(v){muted=v}
 export function setSfxVolume(v){master=Math.max(0,Math.min(1,v))}
 function ac(){
@@ -16,7 +17,7 @@ function ac(){
   return ctx?.state;
 }
 function tone(f0,f1,d,v,type='square',cut=1600,when=0,att=.004){
-  if(active>28)return;
+  if(active>44)return;
   const t=ctx.currentTime+when,o=ctx.createOscillator(),g=ctx.createGain(),f=ctx.createBiquadFilter();
   o.type=type;o.frequency.setValueAtTime(f0,t);if(f1!==f0)o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+d);
   f.type='lowpass';f.frequency.value=cut;
@@ -25,7 +26,7 @@ function tone(f0,f1,d,v,type='square',cut=1600,when=0,att=.004){
   active++;o.onended=()=>{active--;o.disconnect();f.disconnect();g.disconnect()};
 }
 function hiss(f0,f1,d,v,type='bandpass',Q=.8,when=0,att=.003){
-  if(active>28)return;
+  if(active>44)return;
   const t=ctx.currentTime+when,n=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();
   n.buffer=noise;n.loop=true;
   f.type=type;f.frequency.setValueAtTime(f0,t);if(f1!==f0)f.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+d);f.Q.value=Q;
@@ -35,23 +36,23 @@ function hiss(f0,f1,d,v,type='bandpass',Q=.8,when=0,att=.003){
 }
 const VOICES={
   // Player machine guns: a bright crack over a short mechanical body.
-  shot(){tone(760,190,.05,.05,'square',2600);hiss(3200,900,.04,.05,'bandpass',1);tone(165,80,.03,.04,'square',900)},
+  shot(){tone(jit(760),190,.05,.05,'square',2600);hiss(jit(3200),900,.04,.05,'bandpass',1);tone(jit(165),80,.03,.04,'square',900)},
   // Enemy guns: thinner, duller crack.
-  enemyShot(){tone(430,140,.06,.038,'sawtooth',1400);hiss(1900,500,.05,.032,'bandpass',.8)},
+  enemyShot(){tone(jit(430),140,.06,.038,'sawtooth',1400);hiss(jit(1900),500,.05,.032,'bandpass',.8)},
   // Cannon-class fire: deep bark with air displacement.
-  heavyShot(){tone(190,60,.12,.09,'sawtooth',800);hiss(900,200,.1,.06,'lowpass',.5);tone(60,40,.1,.06,'sine',300)},
-  // Round hitting an airframe: thud + tearing ping.
-  impact(){tone(215,60,.07,.09,'triangle',1100);hiss(2400,600,.05,.05,'bandpass',1);tone(92,50,.05,.06,'sine',400)},
-  // Player takes damage: metal clang plus a short warning blip.
-  hit(){tone(240,80,.12,.12,'sawtooth',1600);hiss(1200,300,.1,.08,'bandpass',.7);tone(620,600,.09,.03,'square',2000,.05)},
-  // Kill: sub boom, rolling noise, hot debris sparkle.
-  kill(){tone(100,32,.32,.16,'sine',300);hiss(2000,150,.3,.14,'lowpass',.4);hiss(4500,2000,.08,.05,'highpass',.8)},
-  // Big detonations (grenades, flak walls, hull breaks): crack + long roll.
-  explosion(){tone(70,26,.45,.2,'sine',240);hiss(2800,120,.42,.2,'lowpass',.35);hiss(5000,2500,.06,.07,'highpass',1);tone(160,60,.09,.08,'sawtooth',1000)},
+  heavyShot(){tone(jit(190),60,.12,.09,'sawtooth',800);hiss(900,200,.1,.06,'lowpass',.5);tone(jit(60),40,.1,.06,'sine',300);tone(90,45,.14,.05,'sine',220,.04)},
+  // Round hitting an airframe: thud + tearing ping + brief canvas flutter.
+  impact(){tone(jit(215),60,.07,.1,'triangle',1100);hiss(jit(2400),600,.05,.055,'bandpass',1);tone(92,50,.05,.06,'sine',400);hiss(3600,900,.03,.03,'bandpass',2,.02)},
+  // Player takes damage: metal clang, splinter tear, warning blip.
+  hit(){tone(jit(240),80,.12,.14,'sawtooth',1600);hiss(jit(1200),300,.1,.09,'bandpass',.7);tone(620,600,.09,.03,'square',2000,.05);hiss(2600,700,.05,.04,'bandpass',1.6,.012);tone(140,60,.08,.07,'sine',300,.015)},
+  // Kill: sub boom, rolling noise, airframe tear, hot debris sparkle.
+  kill(){tone(100,32,.32,.18,'sine',300);tone(46,24,.4,.14,'sine',170,.01);hiss(2000,150,.3,.15,'lowpass',.4);hiss(4500,2000,.08,.05,'highpass',.8);hiss(jit(1400),300,.2,.08,'bandpass',.9,.05)},
+  // Big detonations (grenades, flak walls, hull breaks): sub thump, crack, long roll, crackle tail.
+  explosion(){tone(70,26,.45,.22,'sine',240);tone(38,22,.6,.2,'sine',160,.008);hiss(2800,120,.42,.22,'lowpass',.35);hiss(5000,2500,.06,.07,'highpass',1);tone(160,60,.09,.08,'sawtooth',1000);hiss(900,60,.5,.11,'lowpass',.3,.02);hiss(5400,1600,.16,.05,'bandpass',1.4,.08)},
   // Rocket salvo: launch pop into a rising whoosh.
   rocket(){hiss(400,2400,.3,.09,'bandpass',1.4);tone(280,900,.28,.05,'sawtooth',1800);tone(120,70,.1,.07,'square',700)},
-  // Flak airburst near the plane: muffled pop then crackle.
-  flak(){tone(300,90,.14,.08,'sawtooth',900);hiss(3200,900,.16,.07,'bandpass',.9);tone(95,45,.14,.08,'sine',350)},
+  // Flak airburst near the plane: muffled pop, crackle, far echo.
+  flak(){tone(jit(300),90,.14,.08,'sawtooth',900);hiss(jit(3200),900,.16,.07,'bandpass',.9);tone(95,45,.14,.08,'sine',350);tone(180,60,.22,.045,'sine',280,.14)},
   // Skill trigger: three rising brass hits with a shimmer on top.
   skill(){tone(392,392,.09,.06,'sawtooth',2200);tone(523,523,.1,.06,'sawtooth',2400,.07);tone(659,659,.14,.06,'sawtooth',2600,.14);hiss(2400,4800,.22,.03,'highpass',1)},
   // Belt reload: two bolt clicks. Loaded: confident clack + confirm.
@@ -69,11 +70,11 @@ const VOICES={
   // Sortie launch: engine spool-up.
   launch(){tone(55,110,.5,.1,'sawtooth',600);hiss(200,900,.5,.04,'bandpass',.8)},
   // Balloon burst: taut fabric pop plus pressure release.
-  balloon(){tone(500,60,.22,.14,'sine',800);hiss(4000,300,.2,.12,'bandpass',.6);tone(1300,400,.06,.04,'square',3000)},
+  balloon(){tone(500,60,.22,.14,'sine',800);hiss(4000,300,.2,.12,'bandpass',.6);tone(1300,400,.06,.04,'square',3000);tone(70,30,.3,.12,'sine',260,.03)},
   // Repair pickup: soft double chime.
   heal(){tone(720,720,.06,.05,'sine',2200);tone(960,960,.09,.05,'sine',2600,.07)},
   // Engine idle: one propeller/exhaust beat per call (the host fires it on an interval).
-  engineTick(reload){const f=reload?.72:1;tone(58*f,42*f,.11,.085,'sawtooth',300);hiss(700,180,.08,.05,'lowpass',.5);tone(117*f,90*f,.07,.028,'triangle',500)},
+  engineTick(reload){const f=(reload?.72:1)*jit(1);tone(58*f,42*f,.11,.085,'sawtooth',300);hiss(700,180,.08,.05,'lowpass',.5);tone(117*f,90*f,.07,.028,'triangle',500)},
   // Run results.
   victory(){for(let i=0;i<5;i++)tone([57,60,64,67,72][i],[57,60,64,67,72][i],.5-i*.05,.06,'triangle',2400,i*.11)},
   defeat(){for(let i=0;i<4;i++)tone([64,60,57,50][i],[64,60,57,50][i],.55,.06,'sawtooth',1200,i*.16)}

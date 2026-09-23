@@ -91,14 +91,28 @@ export class BattleMusic {
     n.connect(f);f.connect(g);g.connect(this.layer||this.bus);n.start(time);n.stop(time+.17);
     n.onended=()=>{n.disconnect();f.disconnect();g.disconnect()};
   }
+  // Continuous regional ambience: a filtered-noise bed under each map's score.
+  // Each entry: [bandpass center Hz, Q, peak gain, optional second layer freq].
+  amb(mode,t,dur){
+    if(!this.noise)return;
+    const A={rural:[170,1.1,.02],sea:[230,.6,.055],trench:[150,.9,.04],city:[340,1.6,.016],sky:[950,.35,.06],alps:[1250,.4,.05],zeebrugge:[270,.6,.05]}[mode]||[300,1,.02];
+    const c=this.ctx,n=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
+    n.buffer=this.noise;n.loop=true;n.playbackRate.value=.9+Math.random()*.2;
+    f.type='bandpass';f.frequency.setValueAtTime(A[0],t);f.frequency.linearRampToValueAtTime(A[0]*(0.85+Math.random()*.3),t+dur);f.Q.value=A[1];
+    g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(A[2],t+Math.min(dur*.35,2.5));g.gain.linearRampToValueAtTime(.0001,t+dur);
+    n.connect(f);f.connect(g);g.connect(this.layer||this.bus);n.start(t);n.stop(t+dur+.05);
+    n.onended=()=>{n.disconnect();f.disconnect();g.disconnect()};
+  }
   mapStep(mode,i,t,b){
     const s=THEMES[mode],bar=Math.floor(i/s.steps),p=i%s.steps,section=Math.floor(bar/8)%4;
     const root=s.roots[bar%8],melody=s.melody[Math.floor(bar/2)%4];
     const open=section===2,full=section===1||section===3;
     if(p===0){
+      this.amb(mode,t,b*s.steps);
       this.tone(root-12,t,b*s.steps*.8,.19,'triangle',450);
       for(const off of [0,3,7])this.tone(root+off,t,b*s.steps*.95,.028,'sawtooth',mode==='sea'?850:mode==='zeebrugge'?500:650,.24);
     }
+    if(p===6&&(mode==='sky'||mode==='alps'||mode==='sea'||mode==='zeebrugge'))this.amb(mode,t,b*(s.steps-6));
     if(mode==='rural'){
       // Low bowed pulse and restrained horn calls: a weary battlefield march.
       if(p%2===0||(!open&&p===7))this.tone(root+[0,0,7,0,0,0,3,1][p],t,b*1.35,.13,'sawtooth',560,.055);
