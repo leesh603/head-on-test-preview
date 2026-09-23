@@ -1,6 +1,6 @@
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=214';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=214';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=214';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=190';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=190';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=190';
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
@@ -14,7 +14,7 @@ export function stageSpawnInterval(g,interval){return normalSpawnInterval(interv
 
 export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
  if(g.mode==='campaign'||g.stageBoss)return g.stageBoss;
- g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=null;
+ g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.trenchApproachAt=null;g.navalRoute=null;
  const hitPlayer=(id,damage,source)=>{if(blocked(g))return;const p=players(g).find(p=>(p.id||'p1')===id);if(!p||!alive(p))return;const percent=({'rail-shell':.06,'rail-shell-outer':.045,'alps-cannon':.05,'torpedo-charge':.05,'zubian-mortar':.04,'carpet-bomb':.04,'observer-shell':.04,'black-flak':.03})[source?.visual]||0,finalDamage=damage+p.maxHp*percent;if(g.players)g.hitPlayer(p,finalDamage);else g.hit(finalDamage);if(source?.visual==='torpedo-charge'){g.combatBlast(p.x,p.y,54,'enemy');g.shake=Math.max(g.shake,10);}else if(source?.visual==='zubian-shell')g.combatBlast(p.x,p.y,24,'enemy');};
  const hooks={
   getTuning({bossId}){
@@ -30,8 +30,8 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     'zeppelin-l70':{engineInterval:2.6,engineShotCount:3,suppressiveInterval:3.75,suppressiveCount:5,gasInterval:7.5},
     hma23:{launchInterval:2.8,panicInterval:2.55},
     gik:{suppressiveInterval:3.4,suppressiveCount:5,rearFinalInterval:.65},
-    'livens-flame-projector':{flameInterval:6.2},
-    'minenwerfer-battery':{mortarInterval:5.8}
+    'livens-flame-projector':{flameInterval:5.8},
+    'minenwerfer-battery':{mortarInterval:4.45}
     ,'armored-harbor-fortress':{coastalInterval:2.5,craneInterval:4.8,harborLaunchInterval:5.6}
    }[bossId]||{};
    return {loopIndex:loop,projectileDensity:density,maxHp,partHp:maxHp*.12,damage:Math.round(18*(1+g.t/240)*(1+Math.min(.5,loop*.12))),bulletSpeed:270,coreRadius:150,
@@ -54,7 +54,10 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
   onCue(event){
    const body=g.stageBoss?.stages.encounter?.bodies.get(event.bossId),x=event.x??body?.x??g.x,y=event.y??body?.y??g.y;
    if(event.type==='boss-enter'){g.event('wave','지역 보스 출현! · '+BOSS_CATALOG[event.bossId].name);g.event('heavyShot','');}
-   else if(event.type==='hazard-activated'&&event.kind==='circle')g.combatBlast(event.x,event.y,event.radius,'enemy');
+   else if(event.type==='hazard-activated'&&event.kind==='circle'&&!['livens-gas','livens-steam','livens-cookoff','minenwerfer-shell','minenwerfer-heavy'].includes(event.visual))g.combatBlast(event.x,event.y,event.radius,'enemy');
+   else if(event.type==='fuel-cookoff'){g.event('wave','연료 탱크 파열 · 누출 지대를 피하세요');g.shake=Math.max(g.shake,5);}
+   else if(event.type==='ammo-cookoff'){g.combatBlast(event.x,event.y,82,'enemy');g.event('wave','박격포 탄약고 유폭 · 포격 밀도 감소');g.shake=Math.max(g.shake,10);}
+   else if(event.type==='siege-ready')g.event('wave',event.phase==='livens'?'화염방사기 가압 완료 · 예고선을 벗어나세요':'박격포 관측 완료 · 포격 대형의 빈틈으로 이동하세요');
    else if(event.type==='part-destroyed'){const part=body?.parts.get(event.partId);g.combatBlast(x+(part?.x||0),y+(part?.y||0),46,'enemy');g.shake=Math.max(g.shake,7);}
    else if(event.type==='ammo-detonation'){g.combatBlast(event.x,event.y,105,'enemy');g.shake=Math.max(g.shake,12);g.event('wave','항구요새 탄약고 유폭 · 중앙 회전축 방호 약화');}
    else if(event.type==='rail-car-detached'){g.combatBlast(event.x,event.y,58,'enemy');g.shake=Math.max(g.shake,8);g.event('wave','열차 객차 파괴 · 기관차 방호 약화');}
@@ -71,14 +74,14 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    else if(event.type==='charge-warning'||event.type==='reentry-warning')g.bossCues.push({...event,life:event.seconds});
    else if(event.type==='rail-aim')g.bossCues.push({...event,targetX:event.target.x,targetY:event.target.y,life:event.seconds});
    else if(event.type==='cannon-aim')g.bossCues.push({...event,targetX:event.x+Math.cos(event.angle)*event.length,targetY:event.y+Math.sin(event.angle)*event.length,life:1.7});
-   else if(event.type==='phase-change')g.event('wave','보스 전술 변화 · '+({exposed:'본체 노출',enraged:'대공포 집중 사격',reveal:'구름 은폐 해제',escort:'호위 차량 접근',locomotive:'기관차 노출','seaplane-support':'수상기 지원편대','breached':'외곽 장갑 붕괴','final-core':'중앙 지휘시설 노출'}[event.phase]||event.phase));
+   else if(event.type==='phase-change')g.event('wave','보스 전술 변화 · '+({exposed:'본체 노출',depressurized:'압력 계통 파괴 · 화염 사거리 감소','fuel-rupture':'연료 계통 파열 · 누출 지대 발생','ranging-lost':'관측소 파괴 · 낙탄 예고 연장','counter-battery':'포대 일부 파괴 · 남은 포대만 사격',enraged:'대공포 집중 사격',reveal:'구름 은폐 해제',escort:'호위 차량 접근',locomotive:'기관차 노출','seaplane-support':'수상기 지원편대','breached':'외곽 장갑 붕괴','final-core':'중앙 지휘시설 노출'}[event.phase]||event.phase));
   },
   onEncounterCleared({id,bossId}){
    g.kills++;g.priorityKills=(g.priorityKills||0)+1;const owner=players(g).find(p=>(p.id||'p1')===g.stageBossLastOwner);if(g.players&&owner)owner.kills++;
    g.event('kill','');g.event('wave',BOSS_CATALOG[bossId].name+' 격파 · 다음 지역 진입');
    const hero=players(g)[0]||g;for(let i=0;i<9;i++){const a=i*.7;(g.drops||=[]).push({x:hero.x+Math.cos(a)*70,y:hero.y+Math.sin(a)*70,value:16,heal:i===0,bossReward:true})}
   },
-  onStageChange({stageIndex,loopIndex}){g.region=stageIndex;g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.clearRegionalHazards();g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=stageIndex===7?{x:g.x,y:g.y,a:Number.isFinite(g.a)?g.a:-Math.PI/2,maxForward:0}:null;g.event('wave',STAGE_NAMES[stageIndex]+' · '+(loopIndex+1)+'회차');},
+  onStageChange({stageIndex,loopIndex}){g.region=stageIndex;g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.clearRegionalHazards();g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.trenchApproachAt=null;g.navalRoute=stageIndex===7?{x:g.x,y:g.y,a:Number.isFinite(g.a)?g.a:-Math.PI/2,maxForward:0}:null;g.event('wave',STAGE_NAMES[stageIndex]+' · '+(loopIndex+1)+'회차');},
   clearEncounterOwned(id){g.enemies=g.enemies.filter(e=>e.encounterId!==id);g.bullets=g.bullets.filter(b=>b.encounterId!==id);for(const p of players(g))for(const [key,s] of p.bossStatuses||[])if(s.encounterId===id)p.bossStatuses.delete(key);g.bossCues=[];}
  };
  g.stageBoss=new StageBossAddon({runId:g.runId||globalThis.crypto?.randomUUID?.()||'solo-'+Date.now(),teamFaction,hooks,rng:g.rng});
@@ -120,7 +123,7 @@ export function beginStageBossFrame(g,dt){
  addon.reconcile({blocked:false});
  for(const p of players(g))for(const [id,s]of p.bossStatuses||[]){s.remaining-=dt;if(s.remaining<=0||!alive(p))p.bossStatuses.delete(id);}
  g.bossCues=g.bossCues.filter(c=>(c.life-=dt)>0);
- const stage=addon.stages.stageIndex,naval=stage===1||stage===7;
+ const stage=addon.stages.stageIndex,naval=stage===1||stage===7,structure=stage===3;
  let route=stage===7?g.navalRoute:null;
  if(stage===7&&!route)route=g.navalRoute={x:g.x,y:g.y,a:Number.isFinite(g.a)?g.a:-Math.PI/2,maxForward:0};
  if(route){const hx=Math.cos(route.a),hy=Math.sin(route.a),forward=(g.x-route.x)*hx+(g.y-route.y)*hy;route.maxForward=Math.max(route.maxForward||0,forward);}
@@ -132,7 +135,9 @@ export function beginStageBossFrame(g,dt){
  const ready=travel>=STAGE_BOSS_BALANCE.distance||g.t-g.stageStartTime>=STAGE_BOSS_BALANCE.deadline;
  if(addon.stages.phase==='explore'&&ready){
   if(naval&&!g.navalApproachAt){g.navalApproachAt=g.t;g.event('wave',stage===7?'경고 · 장갑 항구요새 전면 도달':'경고 · 적 주력함이 전방에서 접근 중');g.event('heavyShot','');}
-  if(!naval||g.t-g.navalApproachAt>=5.2){
+  if(structure&&!g.trenchApproachAt){g.trenchApproachAt=g.t;g.event('wave','경고 · 전방 중포대 진지 확인 · 공격 예고 후 교전');g.event('heavyShot','');}
+  const approachReady=naval?g.t-g.navalApproachAt>=5.2:structure?g.t-g.trenchApproachAt>=3.2:true;
+  if(approachReady){
    const bounds=stageBossBounds(g),alpine=stage===6,rail=['paris-gun','lincomparable'].includes(addon.stages.bossId);
    let x,y;
    if(stage===7&&route){
@@ -141,13 +146,14 @@ export function beginStageBossFrame(g,dt){
     const hx=Math.cos(route.a),hy=Math.sin(route.a),nx=-hy,ny=hx,along=(route.maxForward||0)+forward;
     x=route.x+hx*along+nx*sideOffset;y=route.y+hy*along+ny*sideOffset;
    }else{
-    const structure=stage===3;
-    const forward=naval?Math.max(520,Math.min(760,(bounds.bottom-bounds.top)*1.05)):structure?Math.max(520,Math.min(700,(bounds.bottom-bounds.top)*.95)):rail?Math.max(460,Math.min(650,(bounds.bottom-bounds.top)*.82)):0;
+    // Trench II structures enter at the visible upper edge. Their own 2.2 s
+    // arming gate prevents attacks from starting while the art is still off-screen.
+    const forward=naval?Math.max(520,Math.min(760,(bounds.bottom-bounds.top)*1.05)):structure?Math.max(300,Math.min(360,(bounds.bottom-bounds.top)*.5)):rail?Math.max(460,Math.min(650,(bounds.bottom-bounds.top)*.82)):0;
     const heading=Number.isFinite(g.a)?g.a:-Math.PI/2;
     x=g.x+(alpine?105:(naval||rail||structure)?Math.cos(heading)*forward:0);
     y=g.y+(alpine?-Math.max(165,Math.min(180,(bounds.bottom-bounds.top)*.24)):(naval||rail||structure)?Math.sin(heading)*forward:-Math.min(180,(bounds.bottom-bounds.top)*.22));
    }
-   addon.startBoss({x,y});g.navalApproachAt=null;
+   addon.startBoss({x,y});g.navalApproachAt=null;g.trenchApproachAt=null;
   }
  }
  // Heavy ambient hazards pause in the introductory boss encounter; aircraft and

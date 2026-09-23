@@ -1,5 +1,5 @@
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=214';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=214';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=190';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=214&b=210';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -326,33 +326,64 @@ export class LivensFlameProjector extends PatternBoss {
       {id:'pressure',x:0,y:38,radius:38},{id:'nozzle',x:0,y:-32,radius:40,angle:-Math.PI/2}
     ]});
     this.phase='sealed';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
-    this.nozzleAngle=-Math.PI/2;this.lockedFlameAngle=null;
+    this.nozzleAngle=-Math.PI/2;this.lockedFlameAngle=null;this.entryAge=0;this.engaged=false;this.flamePass=0;
+  }
+  brokenTanks(){return ['tank-l1','tank-l2','tank-r1','tank-r2'].filter(id=>this.parts.get(id).destroyed);}
+  updateExposure(){
+    const pressure=this.parts.get('pressure').destroyed,nozzle=this.parts.get('nozzle').destroyed,tanks=this.brokenTanks().length;
+    if(!this.coreVulnerable&&((pressure&&tanks>=3)||(nozzle&&tanks>=4))){
+      this.phase='core-exposed';this.coreVulnerable=true;this.command('phase-change',{phase:'exposed'});
+    }else if(!this.coreVulnerable&&pressure&&this.phase==='sealed'){
+      this.phase='depressurized';this.command('phase-change',{phase:this.phase});
+    }else if(!this.coreVulnerable&&tanks>=2&&this.phase==='sealed'){
+      this.phase='fuel-rupture';this.command('phase-change',{phase:this.phase});
+    }
   }
   onPartDestroyed(p){
     if(p.id==='nozzle')this.command('cancel-hazards',{tag:'livens-flame'});
-    if(this.allDestroyed(['tank-l1','tank-l2','tank-r1','tank-r2','pressure','nozzle'])){
-      this.phase='core-exposed';this.coreVulnerable=true;this.command('phase-change',{phase:'exposed'});
+    if(p.id.startsWith('tank-')){
+      this.command('fuel-cookoff',{x:this.x+p.x,y:this.y+p.y,partId:p.id});
+      this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:58,warning:.7,duration:.34,once:true,damage:this.t.damage*.82,visual:'livens-cookoff'});
     }
+    this.updateExposure();
+  }
+  ready(players,dt){
+    this.entryAge+=dt;if(this.engaged)return true;
+    const near=living(players).reduce((best,p)=>Math.min(best,Math.hypot(p.x-this.x,p.y-this.y)),Infinity);
+    if(this.entryAge<2.2||near>760)return false;
+    this.engaged=true;this.timers.set('main-flame',1.15);this.command('siege-ready',{phase:'livens'});
+    return true;
+  }
+  flameCurtain(nozzle,weakened){
+    this.lockedFlameAngle=this.nozzleAngle;
+    const laneOffsets=[-.48,-.24,0,.24,.48],safeLane=(this.flamePass*2+1)%laneOffsets.length,warning=weakened?1.65:1.45,duration=weakened?.9:1.08;
+    for(let lane=0;lane<laneOffsets.length;lane++){
+      if(lane===safeLane)continue;
+      const offset=laneOffsets[lane],sweep=Math.sign(offset||((this.flamePass&1)?1:-1))*(weakened?.025:.04);
+      this.hazard('beam',{x:this.x+nozzle.x,y:this.y+nozzle.y,angle:this.lockedFlameAngle+offset,length:weakened?620:760,thickness:weakened?54:64,
+        delay:Math.abs(lane-2)*.06,angularSpeed:sweep,warning,duration,tickInterval:.3,damage:this.t.damage*(weakened?.44:.58),visual:'livens-flame',tag:'livens-flame'});
+    }
+    this.command('flame-warning',{x:this.x+nozzle.x,y:this.y+nozzle.y,angle:this.lockedFlameAngle,safeOffset:laneOffsets[safeLane],seconds:warning});
+    this.flameLockTime=warning+duration+.16;this.flamePass++;
   }
   update(dt,{players}){
-    this.x=this.anchorX;this.y=this.anchorY;
+    this.x=this.anchorX;this.y=this.anchorY;if(!this.ready(players,dt))return;
     const nozzle=this.parts.get('nozzle'),target=this.target(players);
     if(!nozzle.destroyed&&target&&this.lockedFlameAngle==null){
       const desired=Math.atan2(target.y-(this.y+nozzle.y),target.x-(this.x+nozzle.x));
-      const damaged=nozzle.hp<=nozzle.maxHp*.5,rate=damaged?.48:.92;
+      const damaged=nozzle.hp<=nozzle.maxHp*.5,rate=damaged?1.35:2.15;
       this.nozzleAngle=turnToward(this.nozzleAngle,desired,rate*dt);nozzle.angle=this.nozzleAngle;
     }
-    if(!nozzle.destroyed&&this.due('main-flame',dt,this.t.flameInterval||5.8)){
-      this.lockedFlameAngle=this.nozzleAngle;
-      const pressure=this.parts.get('pressure'),weakened=pressure.destroyed;
-      this.hazard('beam',{x:this.x+nozzle.x,y:this.y+nozzle.y,angle:this.lockedFlameAngle,length:weakened?390:560,thickness:weakened?38:54,
-        warning:weakened?1.4:1.15,duration:weakened?1.2:1.8,tickInterval:.22,damage:this.t.damage*(weakened?.65:1),visual:'livens-flame',tag:'livens-flame'});
-      this.command('flame-warning',{x:this.x+nozzle.x,y:this.y+nozzle.y,angle:this.lockedFlameAngle,seconds:weakened?1.4:1.15});
-      this.flameLockTime=(weakened?1.4:1.15)+(weakened?1.2:1.8);
-    }
+    const pressure=this.parts.get('pressure'),weakened=pressure.destroyed,broken=this.brokenTanks();
+    if(!nozzle.destroyed&&this.due('main-flame',dt,(this.t.flameInterval||5.8)*(weakened?1.12:1)))this.flameCurtain(nozzle,weakened);
     if(this.flameLockTime>0){this.flameLockTime=Math.max(0,this.flameLockTime-dt);if(!this.flameLockTime)this.lockedFlameAngle=null;}
-    const broken=['tank-l1','tank-l2','tank-r1','tank-r2'].filter(id=>this.parts.get(id).destroyed);
-    if(broken.length&&this.due('leak-fire',dt,Math.max(2.2,5-broken.length*.55))){const id=broken[Math.floor(this.rng()*broken.length)],p=this.parts.get(id);this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:54,warning:.8,duration:2.2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak'});}
+    if(broken.length&&this.due('leak-gas',dt,Math.max(3.1,6.1-broken.length*.72))){
+      const id=broken[Math.floor(this.rng()*broken.length)],p=this.parts.get(id);
+      this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:66,warning:.45,duration:3.6,tickInterval:.55,damage:this.t.damage*.3,visual:'livens-gas'});
+    }
+    if(weakened&&this.due('pressure-vent',dt,6.6)){
+      const p=this.parts.get('pressure');this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:50,warning:.55,duration:2.4,tickInterval:.6,damage:this.t.damage*.22,visual:'livens-steam'});
+    }
   }
 }
 export class MinenwerferBattery extends PatternBoss {
@@ -362,25 +393,59 @@ export class MinenwerferBattery extends PatternBoss {
       {id:'ammo-main',x:0,y:105,radius:38},{id:'crane',x:72,y:-105,radius:32},{id:'command',x:-72,y:-105,radius:30}
     ]});
     this.phase='fortified';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
+    this.entryAge=0;this.engaged=false;this.patternIndex=0;this.gunCursor=0;
   }
+  liveGuns(){return ['gun-left','main-gun','gun-right'].filter(id=>!this.parts.get(id).destroyed);}
   onPartDestroyed(p){
     if(p.id==='ammo-main')this.command('ammo-cookoff',{x:this.x+p.x,y:this.y+p.y});
-    if(this.allDestroyed(['gun-left','gun-right','main-gun'])){this.phase='core-exposed';this.coreVulnerable=true;this.command('phase-change',{phase:'exposed'});}
+    const guns=this.liveGuns();
+    if(!guns.length&&!this.coreVulnerable){this.phase='core-exposed';this.coreVulnerable=true;this.command('phase-change',{phase:'exposed'});}
+    else if(p.id==='command'&&!this.coreVulnerable){this.phase='ranging-lost';this.command('phase-change',{phase:this.phase});}
+    else if(p.id.startsWith('gun-')||p.id==='main-gun'){this.phase='counter-battery';this.command('phase-change',{phase:this.phase});}
   }
-  mortar(partId,players,count,spread=58){
-    const gun=this.parts.get(partId),target=this.target(players);if(!gun||gun.destroyed||!target)return;
-    const command=this.parts.get('command'),ammo=this.parts.get('ammo-main'),warning=command.destroyed?1.45:1.05,scatter=command.destroyed?spread*1.45:spread;
-    count=Math.max(1,count-(ammo.destroyed?2:0));
-    for(let i=0;i<count;i++)this.hazard('circle',{x:target.x+(i-(count-1)/2)*scatter+(this.rng()-.5)*18,y:target.y+(target.vy||0)*.45,
-      radius:partId==='main-gun'?62:46,delay:i*.15,warning,duration:.3,once:true,damage:this.t.damage*(partId==='main-gun'?1.15:.72),visual:partId==='main-gun'?'minenwerfer-heavy':'minenwerfer-shell'});
-    this.command('muzzle',{x:this.x+gun.x,y:this.y+gun.y,partId});
+  ready(players,dt){
+    this.entryAge+=dt;if(this.engaged)return true;
+    const near=living(players).reduce((best,p)=>Math.min(best,Math.hypot(p.x-this.x,p.y-this.y)),Infinity);
+    if(this.entryAge<2.2||near>760)return false;
+    this.engaged=true;this.timers.set('battery-cycle',1.2);this.command('siege-ready',{phase:'minenwerfer'});
+    return true;
+  }
+  warning(){return this.parts.get('command').destroyed?1.65:1.22;}
+  shell(x,y,{heavy=false,delay=0}={}){
+    this.hazard('circle',{x,y,radius:heavy?68:44,delay,warning:this.warning(),duration:heavy?.44:.34,once:true,
+      damage:this.t.damage*(heavy?1.05:.62),visual:heavy?'minenwerfer-heavy':'minenwerfer-shell'});
+  }
+  walkingBarrage(target,gunId){
+    const ammo=this.parts.get('ammo-main').destroyed,count=ammo?7:9,lead=.68;
+    let dx=target.vx||0,dy=target.vy||0,len=Math.hypot(dx,dy);
+    if(len<20){dx=target.x-this.x;dy=target.y-this.y;len=Math.max(1,Math.hypot(dx,dy));}
+    dx/=len;dy/=len;const tx=target.x+(target.vx||0)*lead,ty=target.y+(target.vy||0)*lead;
+    for(let i=0;i<count;i++){const step=(i-(count-1)/2)*64;this.shell(tx+dx*step,ty+dy*step,{heavy:gunId==='main-gun'&&i===Math.floor(count/2),delay:i*.1});}
+  }
+  boxedBarrage(target,gunId){
+    const ammo=this.parts.get('ammo-main').destroyed,grid=[-144,-48,48,144],safeRow=Math.floor(this.patternIndex/2)%4,safeCol=(this.patternIndex*2)%3;
+    let fired=0;for(let row=0;row<4;row++)for(let col=0;col<4;col++){
+      if(row===safeRow&&(col===safeCol||col===safeCol+1))continue;
+      if(ammo&&(row+col)%3===0)continue;
+      this.shell(target.x+grid[col],target.y+grid[row],{heavy:gunId==='main-gun'&&fired===0,delay:fired++*.055});
+    }
+  }
+  heavySalvo(target,gunId){
+    const ammo=this.parts.get('ammo-main').destroyed,count=ammo?8:12,gap=(this.patternIndex*3)%count,lead=this.parts.get('command').destroyed?.32:.7;
+    const tx=target.x+(target.vx||0)*lead,ty=target.y+(target.vy||0)*lead,ring=148;
+    this.shell(tx,ty,{heavy:true});
+    for(let i=0;i<count;i++){if(i===gap||i===(gap+1)%count)continue;const a=i*Math.PI*2/count;this.shell(tx+Math.cos(a)*ring,ty+Math.sin(a)*ring,{heavy:gunId==='main-gun'&&i===(gap+2)%count,delay:.1+i*.055});}
   }
   update(dt,{players}){
-    this.x=this.anchorX;this.y=this.anchorY;
-    const crane=this.parts.get('crane'),reload=crane.destroyed?1.45:1;
-    if(this.due('left-barrage',dt,3.5*reload))this.mortar('gun-left',players,3);
-    if(this.due('right-barrage',dt,3.8*reload))this.mortar('gun-right',players,3);
-    if(this.due('main-barrage',dt,(this.t.mortarInterval||5.6)*reload))this.mortar('main-gun',players,6,52);
+    this.x=this.anchorX;this.y=this.anchorY;if(!this.ready(players,dt))return;
+    const guns=this.liveGuns();if(!guns.length)return;
+    const reload=this.parts.get('crane').destroyed?1.32:1;
+    if(this.due('battery-cycle',dt,(this.t.mortarInterval||4.45)*reload)){
+      const target=this.target(players);if(!target)return;
+      const gunId=guns[this.gunCursor++%guns.length],gun=this.parts.get(gunId),pattern=this.patternIndex++%3;
+      this.command('muzzle',{x:this.x+gun.x,y:this.y+gun.y,partId:gunId});
+      if(pattern===0)this.walkingBarrage(target,gunId);else if(pattern===1)this.boxedBarrage(target,gunId);else this.heavySalvo(target,gunId);
+    }
   }
 }
 
