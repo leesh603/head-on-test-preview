@@ -129,7 +129,7 @@ function drawPilotPassives(g,x,y,t,point){
  if(g.ballCloak>0){ctx.save();const fade=Math.min(1,g.ballCloak*3);for(let i=0;i<9;i++){const ga=t*.55+i*.7,rr=12+((i*53)%30);ctx.globalAlpha=.4*fade;ctx.fillStyle='#eef0e2';ctx.beginPath();ctx.ellipse(x+Math.cos(ga)*rr,y+Math.sin(ga)*rr*.8,11+(i*29)%8,8+(i*17)%6,ga,0,Math.PI*2);ctx.fill()}ctx.restore()}
  if(g.pilot==='ball'&&g.ballAlone){ctx.save();const ph=(t*.9)%1;ctx.globalAlpha=(1-ph)*.4;ctx.strokeStyle='#e8ecdf';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(x,y,30+ph*18,0,Math.PI*2);ctx.stroke();ctx.restore()}
  if((g.brumAllyCount||0)>0){ctx.save();const n=Math.min(4,g.brumAllyCount);ctx.globalAlpha=.7;for(let i=0;i<n;i++){const ga=t*1.8+i*Math.PI*2/n;ctx.fillStyle='#e86a5a';ctx.beginPath();ctx.arc(x+Math.cos(ga)*42,y+Math.sin(ga)*42,2.8,0,Math.PI*2);ctx.fill()}ctx.restore()}
- const pl=g.pl,pil=pl.pilot||g.pilot;
+ const pl=g.pl||g,pil=pl.pilot||g.pilot;
  // Tail-lock (all pilots): brackets on the tailed enemy, gold when locked
  // Fonck: gold precision reticle ahead of the nose
  if(pil==='fonck'&&pl.muzzleFlash>0){ctx.save();const nx=x+Math.cos(g.a)*30,ny=y+Math.sin(g.a)*30;ctx.globalAlpha=.85;ctx.strokeStyle='#ffe08a';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(nx,ny,6.5,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(nx-10,ny);ctx.lineTo(nx+10,ny);ctx.moveTo(nx,ny-10);ctx.lineTo(nx,ny+10);ctx.stroke();ctx.restore()}
