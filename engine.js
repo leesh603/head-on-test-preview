@@ -660,7 +660,6 @@ Game.prototype.clearRegionalHazards=function(){
 };
 Game.prototype.enterRegion=function(region){
  const previous=this.region;this.region=region;this.clearRegionalHazards();
- if(this.mode==='campaign')return;
  const label=REGION_LABELS53[region]||'새 전장';
  if(previous!==undefined&&previous!==region)this.events.push({type:'regionTransition',region,previousRegion:previous,text:label});
  this.event('wave',label+' 진입');
@@ -1168,7 +1167,7 @@ Game.prototype.update=function(dt,input={}){const before=this.bullets.length;_fo
 
 // Revision 108 — Werner Voss's reverse-turn must be a visible escape and re-entry,
 // not just a heading flip. The same pattern is applied to his ace-boss attack.
-export const VOSS_REVERSE=Object.freeze({duration:1,invulnerability:1,speedMultiplier:2.35,afterimageInterval:.075,afterimageLife:1,afterimageFireDelay:.18,afterimageFireInterval:.42,bossSpeedMultiplier:3});
+export const VOSS_REVERSE=Object.freeze({duration:1,invulnerability:1,speedMultiplier:2.35,afterimageInterval:.075,afterimageLife:2.4,afterimageFireDelay:.18,afterimageFireInterval:.42,bossSpeedMultiplier:3});
 PILOTS.voss.skill='역전 선회 · 유령 돌파';
 PILOTS.voss.desc='즉시 180° 반전 · 화면의 적 탄막 삭제 · 1초 무적. 1초간 이동속도 +135%와 잔상을 남기며 돌파합니다.';
 const _vossReverseSkill=Game.prototype.skill;
@@ -1217,14 +1216,14 @@ Game.prototype.update=function(dt,input={}){
   this.vossAfterimages??=[];this.vossAfterimageClock=(this.vossAfterimageClock||0)+step;
   while(this.vossAfterimageClock>=VOSS_REVERSE.afterimageInterval){this.vossAfterimageClock-=VOSS_REVERSE.afterimageInterval;this.vossAfterimages.push({x:beforeX,y:beforeY,a:beforeA,life:VOSS_REVERSE.afterimageLife,maxLife:VOSS_REVERSE.afterimageLife})}
  }
- if(this.vossAfterimages)for(const ghost of this.vossAfterimages){ghost.life-=step;if(ghost.life>0){ghost.fire=(ghost.fire??VOSS_REVERSE.afterimageFireDelay)-step;if(ghost.fire<=0){ghost.fire=VOSS_REVERSE.afterimageFireInterval;let tgt=null,best=620*620;for(const en of this.enemies){if(en.hp<=0)continue;const d=(en.x-ghost.x)**2+(en.y-ghost.y)**2;if(d<best){best=d;tgt=en}}if(tgt){const aim=Math.atan2(tgt.y-ghost.y,tgt.x-ghost.x);this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*430,vy:Math.sin(aim)*430,life:1.4,enemy:false,ownerId:this.id,ghost:true,damage:8,hit:new Set()})}}}}
+ if(this.vossAfterimages)for(const ghost of this.vossAfterimages){ghost.life-=step;if(ghost.life>0){let tgt=null,best=620*620;for(const en of this.enemies){if(en.hp<=0)continue;const d=(en.x-ghost.x)**2+(en.y-ghost.y)**2;if(d<best){best=d;tgt=en}}if(tgt){const ga=Math.atan2(tgt.y-ghost.y,tgt.x-ghost.x);ghost.a=ga;if(best>90*90){ghost.x+=Math.cos(ga)*170*step;ghost.y+=Math.sin(ga)*170*step}}ghost.fire=(ghost.fire??VOSS_REVERSE.afterimageFireDelay)-step;if(ghost.fire<=0){ghost.fire=VOSS_REVERSE.afterimageFireInterval;if(tgt){const aim=Math.atan2(tgt.y-ghost.y,tgt.x-ghost.x);this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*430,vy:Math.sin(aim)*430,life:1.4,enemy:false,ownerId:this.id,ghost:true,damage:8,hit:new Set()})}}}}
  if(this.vossAfterimages)this.vossAfterimages=this.vossAfterimages.filter(ghost=>ghost.life>0).slice(-10);
  for(const e of this.enemies||[]){
   if(e.vossInvuln>0)e.vossInvuln=Math.max(0,e.vossInvuln-step);
   if(e.vossReverse>0){e.vossReverse=Math.max(0,e.vossReverse-step);e.vossTrails??=[];e.vossTrailClock=(e.vossTrailClock||0)+step;
    while(e.vossTrailClock>=VOSS_REVERSE.afterimageInterval){e.vossTrailClock-=VOSS_REVERSE.afterimageInterval;e.vossTrails.push({x:e.x,y:e.y,a:e.a,life:VOSS_REVERSE.afterimageLife,maxLife:VOSS_REVERSE.afterimageLife})}
   }
-  if(e.vossTrails)for(const ghost of e.vossTrails){ghost.life-=step;if(ghost.life>0){ghost.fire=(ghost.fire??VOSS_REVERSE.afterimageFireDelay)-step;if(ghost.fire<=0){ghost.fire=VOSS_REVERSE.afterimageFireInterval;let tx=this.x,ty=this.y,best=(this.x-ghost.x)**2+(this.y-ghost.y)**2;for(const a of this.allies||[]){if(a.life<=0)continue;const d=(a.x-ghost.x)**2+(a.y-ghost.y)**2;if(d<best){best=d;tx=a.x;ty=a.y}}for(const p of this.players||[]){if(!(p.hp>0))continue;const d=(p.x-ghost.x)**2+(p.y-ghost.y)**2;if(d<best){best=d;tx=p.x;ty=p.y}}const aim=Math.atan2(ty-ghost.y,tx-ghost.x);this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*175,vy:Math.sin(aim)*175,life:2.8,enemy:true,visualType:'boss',damage:Math.round(6*(1+this.t/240)*(e.aceDamageMultiplier||1))})}}}
+  if(e.vossTrails)for(const ghost of e.vossTrails){ghost.life-=step;if(ghost.life>0){{let tx=this.x,ty=this.y,best=(this.x-ghost.x)**2+(this.y-ghost.y)**2;for(const a of this.allies||[]){if(a.life<=0)continue;const d=(a.x-ghost.x)**2+(a.y-ghost.y)**2;if(d<best){best=d;tx=a.x;ty=a.y}}for(const p of this.players||[]){if(!(p.hp>0))continue;const d=(p.x-ghost.x)**2+(p.y-ghost.y)**2;if(d<best){best=d;tx=p.x;ty=p.y}}const ga=Math.atan2(ty-ghost.y,tx-ghost.x);ghost.a=ga;if(best>90*90){ghost.x+=Math.cos(ga)*150*step;ghost.y+=Math.sin(ga)*150*step}ghost.fire=(ghost.fire??VOSS_REVERSE.afterimageFireDelay)-step;if(ghost.fire<=0){ghost.fire=VOSS_REVERSE.afterimageFireInterval;const aim=ga;this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*175,vy:Math.sin(aim)*175,life:2.8,enemy:true,visualType:'boss',damage:Math.round(6*(1+this.t/240)*(e.aceDamageMultiplier||1))})}}}}
   if(e.vossTrails)e.vossTrails=e.vossTrails.filter(ghost=>ghost.life>0).slice(-10);
  }
 };
@@ -1353,7 +1352,7 @@ Game.prototype.tickRevisionWorld=function(dt){
   if(e.disengageUntil>this.t)e.fire=Math.max(e.fire,.15);
   if(e.sunBlindUntil>this.t)for(const p of ps){const a=Math.atan2(p.y-e.y,p.x-e.x);if(Math.hypot(p.x-e.x,p.y-e.y)<470&&Math.abs(angleDiff(a,e.a))<.7)p.fire=Math.max(p.fire,.12);}
  }
-  if(this.players)for(const p of this.players){if(!(p.hp>0))continue;p.vossAfterimages??=[];for(const ghost of p.vossAfterimages){if(ghost.life>0){ghost.fire=(ghost.fire??.18)-dt;if(ghost.fire<=0){ghost.fire=.42;let tgt=null,best=620*620;for(const en of this.enemies){if(en.hp<=0)continue;const d2=(en.x-ghost.x)**2+(en.y-ghost.y)**2;if(d2<best){best=d2;tgt=en}}if(tgt){const aim=Math.atan2(tgt.y-ghost.y,tgt.x-ghost.x);this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*430,vy:Math.sin(aim)*430,life:1.4,enemy:false,ownerId:p.id,ghost:true,damage:8,hit:new Set()})}}}}}}
+  if(this.players)for(const p of this.players){if(!(p.hp>0))continue;p.vossAfterimages??=[];for(const ghost of p.vossAfterimages){if(ghost.life>0){let tgt=null,best=620*620;for(const en of this.enemies){if(en.hp<=0)continue;const d2=(en.x-ghost.x)**2+(en.y-ghost.y)**2;if(d2<best){best=d2;tgt=en}}if(tgt){const ga=Math.atan2(tgt.y-ghost.y,tgt.x-ghost.x);ghost.a=ga;if(best>90*90){ghost.x+=Math.cos(ga)*170*dt;ghost.y+=Math.sin(ga)*170*dt}}ghost.fire=(ghost.fire??.18)-dt;if(ghost.fire<=0){ghost.fire=.42;if(tgt){const aim=Math.atan2(tgt.y-ghost.y,tgt.x-ghost.x);this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*430,vy:Math.sin(aim)*430,life:1.4,enemy:false,ownerId:p.id,ghost:true,damage:8,hit:new Set()})}}}}}}
  for(const f of this.fireZones||[]){f.life-=dt;f.tick-=dt;if(f.tick>0||f.life<=0)continue;f.tick=.5;
   for(const p of ps)if(p.hp>0&&Math.hypot(p.x-f.x,p.y-f.y)<f.radius){if(this.players)this.hitPlayer(p,BATTLEFIELD113.fireDamage*.5);else this.hit(BATTLEFIELD113.fireDamage*.5);}
   for(const e of this.enemies)if(e.hp>0&&!e.stageBossBody&&Math.hypot(e.x-f.x,e.y-f.y)<f.radius){
