@@ -10,7 +10,7 @@ import {enableStageBoss} from './stageboss-host.js?v=190';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=214';
 import './hud-layout94.js?v=214';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=214';
-import {CoopGame,coopPlane} from './coop-engine.js?v=236';
+import {CoopGame,coopPlane} from './coop-engine.js?v=237&b=238';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=214';
 import {drawCoop} from './coop-view.js?v=238';
 import {drawSunStrike} from './sun-strike71.js?v=223&b=220';
@@ -31,7 +31,7 @@ import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=190&b=210';
 import {drawEquipment} from './equipment.js?v=215&b=211';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=214';
 import{planeSprite,aircraftReady,aircraftKey,hangarArtReady}from'./aircraft.js?v=220';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from'./engine.js?v=236';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from'./engine.js?v=237&b=238';
 import {TerrainRenderer,MountainField} from './alps-terrain117.js?v=214';
 const flightViewport=installFlightViewport(document,window);
 const ententeAirshipSprite=new Image();ententeAirshipSprite.src='./zeppelin-entente.webp?v=214&b=214';
@@ -419,7 +419,7 @@ draw=t=>{
 // Persistent, compact inventory above touch controls; one badge per legendary.
 let legendarySignature='';
 const _hud51=hud;
-const RELIC_COOLDOWNS={grunkreuz:{rem:g=>g.grunkreuzTimer??0,iv:g=>LEGENDARY_DEFENSE_BALANCE.grunkreuzInterval*Math.max(LEGENDARY_DEFENSE_BALANCE.grunkreuzMinIntervalFactor,g.cooldownMult||1)},rankinShell:{rem:g=>g.rankinTimer??0,iv:()=>LEGENDARY_DEFENSE_BALANCE.rankinInterval},kaiserFog:{rem:g=>g.kaiserFogTimer??0,iv:()=>LEGENDARY_DEFENSE_BALANCE.fogInterval},motorCannon:{rem:g=>g.motorCannonTimer??0,iv:g=>g.ordnanceInterval?g.ordnanceInterval(LEGENDARY_BALANCE.motorCannonInterval):LEGENDARY_BALANCE.motorCannonInterval}};
+const RELIC_COOLDOWNS={grunkreuz:{rem:g=>g.grunkreuzOn>0?0:(g.grunkreuzOff??0),iv:()=>LEGENDARY_DEFENSE_BALANCE.grunkreuzOffDuration},rankinShell:{rem:g=>g.rankinTimer??0,iv:()=>LEGENDARY_DEFENSE_BALANCE.rankinInterval},kaiserFog:{rem:g=>g.kaiserFogTimer??0,iv:()=>LEGENDARY_DEFENSE_BALANCE.fogInterval},motorCannon:{rem:g=>g.motorCannonTimer??0,iv:g=>g.ordnanceInterval?g.ordnanceInterval(LEGENDARY_BALANCE.motorCannonInterval):LEGENDARY_BALANCE.motorCannonInterval}};
 const soloRelicRefs=[],coopRelicRefs={p1:[],p2:[]};
 const BOSS_CUTIN_ART={'paris-gun':'boss-art-paris-gun.webp?v=257&b=216','lincomparable':'boss-art-lincomparable.webp?v=257&b=216','sms-stuttgart':'boss-art-sms-stuttgart.webp?v=257&b=216','hms-zubian':'boss-art-hms-zubian.webp?v=257&b=216','a7v-flak':'boss-art-a7v-flak.webp?v=257&b=216','mark-v-cruiser':'boss-art-mark-v-cruiser.webp?v=257&b=216','livens-flame-projector':'boss-art-livens-flame-projector.webp?v=257&b=216','minenwerfer-battery':'boss-art-minenwerfer-battery.webp?v=257&b=216','drachen-net':'boss-art-drachen-net.webp?v=257&b=216','london-apron':'boss-art-london-apron.webp?v=257&b=216','zeppelin-l70':'boss-art-zeppelin-l70.webp?v=257&b=216','hma23':'boss-art-hma23.webp?v=257&b=216','gik':'boss-art-gik.webp?v=257&b=216','ca4':'boss-art-ca4.webp?v=257&b=216','armored-harbor-fortress':'boss-art-armored-harbor-fortress.webp?v=257&b=216'};;
 function setBossCutin(imgSrc,name,kicker,detail){$('bossCutinImg').src=imgSrc;$('bossCutinImg').alt=name;$('bossCutinKicker').textContent=kicker;$('bossCutinName').textContent=name;$('bossCutinDetail').textContent=detail||''}

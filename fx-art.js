@@ -8,8 +8,8 @@ export const FX56=!FX_OFF&&!FX56_OFF;
 const FX56_FILES={
  rocket:'fx-pack-v189/projectiles/rocket-le-prieur.webp',mine:'fx-combat-iron-mine.webp',
  shell:'fx-combat-mortar-shell.webp',bomb:'fx-combat-mortar-shell.webp',
- explosion0:'fx-combat-blast-0.webp',explosion1:'fx-combat-blast-1.webp',
- explosion2:'fx-combat-blast-2.webp',explosion3:'fx-combat-blast-3.webp',
+ explosion0:'fx-explosion-0.webp',explosion1:'fx-explosion-1.webp',
+ explosion2:'fx-explosion-2.webp',explosion3:'fx-explosion-3.webp',
  smokeDark:'fx-combat-engine-smoke.webp',smokeGray:'fx-combat-gun-smoke.webp',
  smokeWisp:'fx-combat-gun-smoke.webp',smokePuff:'fx-combat-gun-smoke.webp',
  fire:'fx-combat-ground-fire.webp',flak:'fx-combat-flak-burst.webp'
