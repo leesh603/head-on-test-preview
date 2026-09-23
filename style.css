@@ -105,3 +105,14 @@ body.assets-ready #bootSplash,body.boot-ready #bootSplash{display:none}
 @keyframes bootCiDrift{0%,100%{transform:translateY(0);text-shadow:0 0 12px rgba(233,226,206,.05)}50%{transform:translateY(-6px);text-shadow:0 6px 26px rgba(233,226,206,.26)}}
 #bootSplash::after{content:'';position:absolute;left:50%;top:58%;width:130px;height:2px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,#b25142,transparent);animation:bootCiBar 2.8s ease-in-out infinite}
 @keyframes bootCiBar{0%,100%{transform:translateX(-50%) scaleX(.5);opacity:.28}50%{transform:translateX(-50%) scaleX(1);opacity:.7}}
+
+#bossWarning{position:fixed;inset:0;z-index:70;pointer-events:none;animation:warnShake .12s linear 8}
+#bossWarning .warn-band{position:absolute;left:0;right:0;height:34px;background:repeating-linear-gradient(-45deg,#c03028 0 18px,#1c100c 18px 36px);opacity:.94;animation:warnScroll .5s linear infinite}
+#bossWarning .warn-band.top{top:0}
+#bossWarning .warn-band.bottom{bottom:0}
+#bossWarning .warn-core{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:radial-gradient(ellipse at center,transparent 34%,rgba(140,20,14,.3) 100%)}
+#bossWarning .warn-core b{font:800 clamp(46px,9vw,88px)/1 'Oswald','Noto Sans KR',sans-serif;letter-spacing:.14em;color:#ff3b2e;text-shadow:0 0 22px rgba(255,60,40,.85),0 0 64px rgba(255,60,40,.45);animation:warnFlicker .24s steps(2) infinite}
+#bossWarning .warn-core span{font:600 15px/1.4 'Noto Sans KR',sans-serif;color:#ffd9c9;letter-spacing:.3em;text-transform:uppercase;animation:warnFlicker .48s steps(2) infinite}
+@keyframes warnScroll{to{background-position:36px 0}}
+@keyframes warnFlicker{50%{opacity:.32}}
+@keyframes warnShake{0%,100%{transform:translate(0,0)}25%{transform:translate(0,2px)}75%{transform:translate(0,-2px)}}
