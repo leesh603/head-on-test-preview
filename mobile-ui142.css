@@ -36,16 +36,13 @@
   body:not(.playing) aside .selected-aircraft .pilot-aircraft{min-width:0;padding-top:8px;line-height:1.35}
 
   .skill-cutin{
-    left:max(5px,env(safe-area-inset-left));right:auto;
-    bottom:max(132px,calc(env(safe-area-inset-bottom) + 116px));
-    width:132px;height:158px;max-width:36vw;max-height:30dvh;
-    grid-template-rows:minmax(0,1fr) auto;
+    left:0;right:auto;
+    bottom:calc(max(96px,env(safe-area-inset-bottom)) + 60px);
   }
-  .skill-cutin::before{left:-18px;right:-22px;bottom:35px;height:49px}
-  .cutin-portrait{inset:auto;width:100%;height:100%;background-size:contain!important;background-position:left bottom!important}
-  .cutin-caption{right:-18px;min-height:39px;padding:3px 5px;gap:2px}
-  .cutin-caption small{font-size:9px;line-height:1.2;letter-spacing:.2px}
-  .cutin-caption strong{font-size:12px;line-height:1.2}
+  body.astra-ui.playing #skillCutin .cutin-portrait{width:min(138px,34vw);height:min(170px,24dvh)}
+  body.astra-ui.playing #skillCutin .cutin-caption{margin:0 0 12px -10px;padding:6px 14px 7px 20px}
+  body.astra-ui.playing #skillCutin .cutin-caption small{font-size:8px;letter-spacing:.1em}
+  body.astra-ui.playing #skillCutin .cutin-caption strong{font-size:14px}
 
   .boss-arrival{
     left:max(5px,env(safe-area-inset-left));right:auto;
@@ -69,13 +66,13 @@
   body:not(.playing) .hangar .mode-tabs{margin-top:158px}
   body:not(.playing) .hangar-ace{top:98px;height:194px}
   body:not(.playing) aside .pilot-frame{height:160px}
-  .skill-cutin{width:118px;height:145px;max-width:34vw}
+  .skill-cutin{max-width:44vw}
   .boss-arrival{width:196px;max-width:56vw;height:86px}
   .boss-arrival .boss-portrait-window{flex-basis:68px;width:68px;height:86px}
 }
 
 @media (pointer:coarse) and (max-height:600px) and (min-width:600px){
-  .skill-cutin{left:5px;bottom:84px;width:112px;height:132px}
+  .skill-cutin{bottom:76px}
   .boss-arrival{left:5px;bottom:84px;width:200px;height:82px}
   .boss-arrival .boss-portrait-window{flex-basis:66px;width:66px;height:82px}
   body.playing:not(.coop-playing) #ammoHud{left:auto!important;right:8px!important;top:6px!important;bottom:auto!important}
