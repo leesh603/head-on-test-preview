@@ -6,7 +6,7 @@ const FX_OFF=typeof location!=='undefined'&&new URLSearchParams(location.search)
 const FX56_OFF=typeof location!=='undefined'&&new URLSearchParams(location.search).get('fx56')==='0';
 export const FX56=!FX_OFF&&!FX56_OFF;
 const FX56_FILES={
- rocket:'fx-combat-le-prieur.webp',mine:'fx-combat-iron-mine.webp',
+ rocket:'fx-pack-v189/projectiles/rocket-le-prieur.webp',mine:'fx-combat-iron-mine.webp',
  shell:'fx-combat-mortar-shell.webp',bomb:'fx-combat-mortar-shell.webp',
  explosion0:'fx-combat-blast-0.webp',explosion1:'fx-combat-blast-1.webp',
  explosion2:'fx-combat-blast-2.webp',explosion3:'fx-combat-blast-3.webp',

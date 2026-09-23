@@ -4,7 +4,7 @@ import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './pl
 import {drawStageBoss} from './stageboss-view.js?v=197&b=212';
 import {planeSprite,aircraftKey} from './aircraft.js?v=220';
 import {drawEquipment} from './equipment.js?v=215&b=211';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=217&b=212';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=217&b=214';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=215&b=211';
 import {drawSpecialAmmoIcon} from './icons.js?v=215';
 import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=236';
