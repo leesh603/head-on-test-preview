@@ -34,7 +34,21 @@ const fits=[
  ['Hansa-Brandenburg W.29','hb_w29','albatros','central'],['Friedrichshafen FF.33','ff33','re7','central',1],
  ['Felixstowe F.2','felixstowe_f2','re7','entente',1],
  ['Schütte-Lanz SL.11','shuttelanz_sl11','re7','central',0],['Parseval PL','parseval','re7','central',0],
- ['Caquot Balloon','caquot_balloon','re7','entente',0]
+ ['Caquot Balloon','caquot_balloon','re7','entente',0],
+ ['Albatros D.Va · 야스타 4','jasta4_albatros','albatros','central'],['Albatros D.Va · 야스타 5','jasta5_albatros','albatros','central'],['Albatros D.Va · 야스타 78b','jasta78b_albatros','albatros','central'],
+ ['Albatros D.Va · 키센베르트','kissenberth_albatros','albatros','central'],['Albatros D.Va · 알멘룰더','allmenroder_albatros','albatros','central'],
+ ['Fokker Dr.I · 로타르','lothar_dr1','fokker','central'],['Fokker Dr.I · 볼리외','beaulieu_dr1','fokker','central'],['Fokker Dr.I · 마이','mai_dr1','fokker','central'],['Fokker Dr.I · 한텔만','hantelmann_dr1','fokker','central'],
+ ['Fokker D.VII · 야스타 11','jasta11_fokkerd7','fokkerd7','central'],['Fokker D.VII · 야스타 18','jasta18_fokkerd7','fokkerd7','central'],['Fokker D.VII · 야스타 43','jasta43_fokkerd7','fokkerd7','central'],
+ ['Fokker D.VII · 가브리엘','gabriel_fokkerd7','fokkerd7','central'],['Fokker D.VII · 귀링','jasta27_fokkerd7','fokkerd7','central'],
+ ['Pfalz D.XII · 보이머','baeumer_pfalz','pfalz_d12','central'],['Pfalz D.XII · 데겔로프','degelow_pfalz','pfalz_d12','central'],
+ ['Phönix D.I · 링케-크로퍼드','linke_crawford_phonix','phonix_d1','central'],['Phönix D.I · 키스','kiss_phonix','phonix_d1','central'],['Aviatik D.I · 아리기','arigi_aviatik','aviatik_d1','central'],
+ ['Gotha G.IV · 야간형','gotha_night','gotha','central',1],['Staaken R.VI · 심녹색','staaken_dark','gotha','central',1],
+ ['Sopwith Camel · 로이 브라운','brown_camel','camel','entente'],['Sopwith Camel · 맥엘로이','mcelroy_camel','camel','entente'],['Sopwith Camel · 대즐위장','dazzle_camel','camel','entente'],
+ ['Nieuport 17 · 러프버리','lufbery_nieuport17','nieuport','entente'],['Nieuport 23 · 도름','dorme_nieuport','nieuport','entente'],['Nieuport · 뮨르메스터','meulemeester_nieuport','nieuport','entente'],
+ ['Nieuport 28 · 제27대대','eagle_nieuport28','nieuport28','entente'],['Hanriot HD.1 · 코펜스','coppens_hanriot','hanriot','entente'],
+ ['SPAD XIII · 마동','madon_spad','spad','entente'],['SPAD · 타라콘','tarascon_spad','spad','entente'],['SPAD XIII · 보요','boyau_spad','spad','entente'],['SPAD XIII · 제94대대','hatring_spad','spad','entente'],
+ ['S.E.5a · 스프링스','springs_se5a','se5a','entente'],['S.E.5a · 프록터','proctor_se5a','se5a','entente'],['S.E.5a · 제60대대','checker_se5a','se5a','entente'],
+ ['SVA.5 · 루포','ruffo_sva5','ansaldo_sva5','entente'],['Macchi M.5 · 피에로치','pierozzi_macchi','albatros','entente']
 ];
 // Campaign-specific flight fits: game estimates, not historical test measurements.
 const campaignFlight={
@@ -96,10 +110,14 @@ for(const [name,id,base,faction,guns] of fits){
  }
  if(campaignFlight[id]&&id!=='albatros_d2'){const [family,speed,turn,drag,recovery,role]=campaignFlight[id];const original=AIRFRAME_PROFILES[family];const handling=Object.freeze({...original,speed,turn,drag,recovery,role,left:1,history:id==='bristol'?original.history:name+'의 임무와 기체 계열을 반영한 캠페인용 비행 설정입니다. 세부 수치는 게임용 추정치입니다.',tip:id==='bristol'?original.tip:(turn>=3.3?'민첩한 방향 전환을 활용하세요. 급선회 후 직진하면 속도가 회복됩니다.':speed>=160?'속도를 살려 통과 사격하고 넓게 돌아오세요.':'미리 진로를 정해 부드럽게 도세요. 급선회 후에는 속도 회복에 여유를 주세요.')});Object.assign(PLANES[id],{speed,turn,role,handling,personality:personalityFor(family)||PLANES[family]?.personality||PLANES[id].personality})}
  configureAirframeBalance(PLANES[id],({be2c:100,dh2:85,aviatik:110,strutter:110,nieuport11:80,nieuport28:95,fokker_e1:80,albatros_d2:110,albatros_d5:115,oeffag:120,pup:90,dh5:95,bristol:130,halberstadt:120,albatros_d5a:120,spad7:115,hanriot:95,re8:120,dh4:125,siemens_d4:110,roland_d6:105,hannover_cl3:120,dfw_cv:115,junkers_j1:170,gotha:220,bristol_m1:85,dolphin:105,snipe:115,fe2b:115,gunbus:100,morane_ai:85,aeg_g4:200,friedrichshafen_g3:190,breguet14:130,voisin8:160,caudron_g4:150,ssw_d3:100,pfalz_d12:115,phonix_d1:110,aviatik_d1:105,junkers_d1:125,ansaldo_sva5:95,hb_w29:90,ff33:110,felixstowe_f2:230,shuttelanz_sl11:280,parseval:220,caquot_balloon:90})[id]??PLANES[id].hp);
- const OWN_ART=['be2c','aviatik','strutter','nieuport11','nieuport28','hanriot','pup','dh5','re8','dh4','albatros_d2','albatros_d5a','siemens_d4','roland_d6','hannover_cl3','dfw_cv','junkers_j1','gotha','bristol_m1','dolphin','snipe','fe2b','gunbus','morane_ai','aeg_g4','friedrichshafen_g3','breguet14','voisin8','caudron_g4','ssw_d3','pfalz_d12','phonix_d1','aviatik_d1','junkers_d1','ansaldo_sva5','hb_w29','ff33','felixstowe_f2','shuttelanz_sl11','parseval','caquot_balloon'];
+ const OWN_ART=['be2c','aviatik','strutter','nieuport11','nieuport28','hanriot','pup','dh5','re8','dh4','albatros_d2','albatros_d5a','siemens_d4','roland_d6','hannover_cl3','dfw_cv','junkers_j1','gotha','bristol_m1','dolphin','snipe','fe2b','gunbus','morane_ai','aeg_g4','friedrichshafen_g3','breguet14','voisin8','caudron_g4','ssw_d3','pfalz_d12','phonix_d1','aviatik_d1','junkers_d1','ansaldo_sva5','hb_w29','ff33','felixstowe_f2','shuttelanz_sl11','parseval','caquot_balloon','jasta4_albatros','jasta5_albatros','jasta78b_albatros','kissenberth_albatros','allmenroder_albatros','lothar_dr1','beaulieu_dr1','mai_dr1','hantelmann_dr1','jasta11_fokkerd7','jasta18_fokkerd7','jasta43_fokkerd7','gabriel_fokkerd7','jasta27_fokkerd7','baeumer_pfalz','degelow_pfalz','linke_crawford_phonix','kiss_phonix','arigi_aviatik','gotha_night','staaken_dark','brown_camel','mcelroy_camel','dazzle_camel','lufbery_nieuport17','dorme_nieuport','meulemeester_nieuport','eagle_nieuport28','coppens_hanriot','madon_spad','tarascon_spad','boyau_spad','hatring_spad','springs_se5a','proctor_se5a','checker_se5a','ruffo_sva5','pierozzi_macchi'];
  const REMAP={halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',dh2:'airco_dh2',albatros_d5:'albatros_d5a'};
  if(id!==base&&!OWN_ART.includes(id))SPRITE_ALIASES[id]=REMAP[id]??base;
 }
+// Livery variants for the flying-circus look: base sprite key -> alternate painted liveries.
+export const LIVERY_POOL={fokker:['lothar_dr1','beaulieu_dr1','mai_dr1','hantelmann_dr1','jasta11_fokkerd7','jasta18_fokkerd7','jasta27_fokkerd7','jasta43_fokkerd7','gabriel_fokkerd7','kissenberth_albatros','allmenroder_albatros','jasta4_albatros','jasta5_albatros','jasta78b_albatros','baeumer_pfalz','degelow_pfalz','linke_crawford_phonix','kiss_phonix','arigi_aviatik'],albatros:['jasta4_albatros','jasta5_albatros','jasta78b_albatros','kissenberth_albatros','allmenroder_albatros','degelow_pfalz','baeumer_pfalz'],nieuport:['dorme_nieuport','meulemeester_nieuport','lufbery_nieuport17','eagle_nieuport28'],camel:['dazzle_camel','mcelroy_camel','brown_camel','coppens_hanriot'],spad:['hatring_spad','madon_spad','tarascon_spad','boyau_spad'],se5a:['springs_se5a','proctor_se5a','checker_se5a']};
+// Deterministic per-enemy pick: wobble is a stable per-unit rng value (0..6).
+export function liveryVariant(e,base){const pool=LIVERY_POOL[base];if(!pool||e.wobble==null||e.wobble%1<.62)return base;return pool[Math.floor(e.wobble/6*pool.length)%pool.length]}
 export function historicalAircraft(stage){const id=AIRCRAFT_IDS[stage.defaultAircraft.split(' / ')[0]];if(!id)throw Error('Unknown historical aircraft: '+stage.defaultAircraft);return id}
 export function sortieAircraft(stage,pilot,free=false,cleared=false,baronAircraft='fokker'){
  if(!PILOTS[pilot]||PILOTS[pilot].faction!==stageFaction(stage))throw Error('다른 진영의 파일럿입니다.');
