@@ -934,8 +934,9 @@ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>.cumul
  border-top:1px solid #c8c0a226!important;
  color:#c9b889!important;
  font:600 9px/1.25 var(--astra-numeric)!important;
- white-space:normal!important;
+ white-space:nowrap!important;
  overflow:hidden!important;
+ text-overflow:ellipsis!important;
 }
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:hover,
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:focus-visible{
