@@ -1486,6 +1486,7 @@ Game.prototype.beginRevisionFrame=function(dt,input={}){
   if(pl.pilot==='brumowski')pl.brumAllyCount=(world.allies||[]).filter(a=>a.life>0).length;
   if(pl.immelmannGhosts){for(const gh of pl.immelmannGhosts)gh.life-=dt;pl.immelmannGhosts=pl.immelmannGhosts.filter(gh=>gh.life>0)}
   if(pl.pilot==='immelmann'&&pl.evadeTime>0){pl._immGhost=(pl._immGhost||0)-dt;if(pl._immGhost<=0){pl._immGhost=.055;(pl.immelmannGhosts??=[]).push({x:pl.x,y:pl.y,a:pl.a,life:1.15,maxLife:1.15})}}
+  if(pl.ballCloak>0){pl._ballCloud=(pl._ballCloud||0)-dt;if(pl._ballCloud<=0){pl._ballCloud=.05;const j=this.rng()*Math.PI*2,rr=4+this.rng()*24;world.particles.push({x:pl.x+Math.cos(j)*rr,y:pl.y+Math.sin(j)*rr,vx:(this.rng()-.5)*16,vy:(this.rng()-.5)*16,life:1.5+this.rng()*.4,maxLife:2,smoke:true,muzzleSmoke:true,size:12+this.rng()*10,color:'#eceee0'})}}
  }
  if(this.pilot==='nungesser'){
   const low=Math.min(1,Math.max(0,(1-this.hp/this.maxHp)/.8));const speed=1+low*NEW_ACE_BALANCE124.nungesserMaxSpeedBonus,fire=1+low*NEW_ACE_BALANCE124.nungesserMaxFireRateBonus;this.baseSpeed*=speed;this.speed*=speed;this.rate/=fire;this.passiveStrength=low;

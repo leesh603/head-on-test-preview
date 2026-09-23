@@ -10,9 +10,9 @@ import {enableStageBoss} from './stageboss-host.js?v=190';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=214';
 import './hud-layout94.js?v=214';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=214';
-import {CoopGame,coopPlane} from './coop-engine.js?v=233';
+import {CoopGame,coopPlane} from './coop-engine.js?v=234';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=214';
-import {drawCoop} from './coop-view.js?v=235';
+import {drawCoop} from './coop-view.js?v=236';
 import {drawSunStrike} from './sun-strike71.js?v=223&b=220';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=217&b=212';
 import {installFlightViewport} from './flight-viewport.js?v=214';
@@ -30,7 +30,7 @@ import {portraitSources,portraitsReady} from './portraits.js?v=216&b=211';
 import {drawEquipment} from './equipment.js?v=215&b=211';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=214';
 import{planeSprite,aircraftReady,aircraftKey,hangarArtReady}from'./aircraft.js?v=220';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from'./engine.js?v=233';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from'./engine.js?v=234';
 import {TerrainRenderer,MountainField} from './alps-terrain117.js?v=214';
 const flightViewport=installFlightViewport(document,window);
 const ententeAirshipSprite=new Image();ententeAirshipSprite.src='./zeppelin-entente.webp?v=214&b=214';
@@ -124,6 +124,7 @@ function drawPilotPassives(g,x,y,t,point){
  if(g.loewenhardtEngaged){ctx.save();const pulse=.55+.35*Math.sin(t*9);ctx.globalAlpha=.85;ctx.strokeStyle=`rgba(255,214,74,${pulse})`;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(x,y,36,g.a-Math.PI/2.8,g.a+Math.PI/2.8);ctx.stroke();ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(x,y,44,g.a-Math.PI/4,g.a+Math.PI/4);ctx.stroke();for(let i=0;i<3;i++){const ga=g.a-Math.PI/3+i*Math.PI/3;ctx.fillStyle='#ffe98a';ctx.beginPath();ctx.arc(x+Math.cos(ga)*36,y+Math.sin(ga)*36,2.4,0,Math.PI*2);ctx.fill()}ctx.restore()}
  if(g.fxOverheat>0){ctx.save();ctx.globalAlpha=.55*g.fxOverheat;const nx=x+Math.cos(g.a)*14,ny=y+Math.sin(g.a)*14;ctx.fillStyle='#ff8a3c';ctx.beginPath();ctx.arc(nx,ny,7+Math.sin(t*30)*2.4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffd27a';ctx.beginPath();ctx.arc(nx,ny,3.4,0,Math.PI*2);ctx.fill();ctx.restore()}
  if((g.rickCount||0)>=2){ctx.save();const n=Math.min(5,g.rickCount);ctx.globalAlpha=.75;for(let i=0;i<n;i++){const ga=t*2.2+i*Math.PI*2/n;ctx.fillStyle=i%2?'#cfe6ff':'#9fc8ff';ctx.beginPath();ctx.arc(x+Math.cos(ga)*46,y+Math.sin(ga)*46,2.6,0,Math.PI*2);ctx.fill()}ctx.restore()}
+ if(g.ballCloak>0){ctx.save();const fade=Math.min(1,g.ballCloak*3);for(let i=0;i<9;i++){const ga=t*.55+i*.7,rr=12+((i*53)%30);ctx.globalAlpha=.4*fade;ctx.fillStyle='#eef0e2';ctx.beginPath();ctx.ellipse(x+Math.cos(ga)*rr,y+Math.sin(ga)*rr*.8,11+(i*29)%8,8+(i*17)%6,ga,0,Math.PI*2);ctx.fill()}ctx.restore()}
  if(g.pilot==='ball'&&g.ballAlone){ctx.save();const ph=(t*.9)%1;ctx.globalAlpha=(1-ph)*.4;ctx.strokeStyle='#e8ecdf';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(x,y,30+ph*18,0,Math.PI*2);ctx.stroke();ctx.restore()}
  if((g.brumAllyCount||0)>0){ctx.save();const n=Math.min(4,g.brumAllyCount);ctx.globalAlpha=.7;for(let i=0;i<n;i++){const ga=t*1.8+i*Math.PI*2/n;ctx.fillStyle='#e86a5a';ctx.beginPath();ctx.arc(x+Math.cos(ga)*42,y+Math.sin(ga)*42,2.8,0,Math.PI*2);ctx.fill()}ctx.restore()}
 }

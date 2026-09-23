@@ -7,7 +7,7 @@ import {drawEquipment} from './equipment.js?v=215&b=211';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=217&b=212';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=215&b=211';
 import {drawSpecialAmmoIcon} from './icons.js?v=215';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=233';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=234';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
 const xpGem=null;
@@ -43,6 +43,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt}){
  for(const p of g.players){for(const wing of p.formationWings||[]){c.globalAlpha=wing.alpha||0;sprite(wing,'collishaw_sopwith');c.globalAlpha=1}for(const wing of p.divingSquadron||[])sprite(wing,'se5a');for(const gh of p.immelmannGhosts||[]){const al=Math.min(1,gh.life/gh.maxLife*1.4)*.85;c.save();c.translate(gh.x,gh.y);c.rotate(gh.a);c.globalAlpha=al;c.strokeStyle='#2b3442';c.lineWidth=4.5;c.lineCap='round';c.beginPath();c.moveTo(-21,-7);c.quadraticCurveTo(-7,-22,16,-8);c.moveTo(-21,7);c.quadraticCurveTo(-7,22,16,8);c.moveTo(-21,-7);c.lineTo(-21,7);c.stroke();c.fillStyle='#2b3442';c.beginPath();c.ellipse(-9,0,12,3.6,0,0,Math.PI*2);c.fill();c.restore()}
    if(p.loewenhardtEngaged){const pulse=.55+.35*Math.sin(t*9);c.save();c.globalAlpha=.85;c.strokeStyle=`rgba(255,214,74,${pulse})`;c.lineWidth=2.5;c.beginPath();c.arc(p.x,p.y,36,p.a-Math.PI/2.8,p.a+Math.PI/2.8);c.stroke();c.lineWidth=1.4;c.beginPath();c.arc(p.x,p.y,44,p.a-Math.PI/4,p.a+Math.PI/4);c.stroke();c.restore()}
    if(p.fxOverheat>0){c.save();c.globalAlpha=.55*p.fxOverheat;const nx=p.x+Math.cos(p.a)*14,ny=p.y+Math.sin(p.a)*14;c.fillStyle='#ff8a3c';c.beginPath();c.arc(nx,ny,7+Math.sin(t*30)*2.4,0,Math.PI*2);c.fill();c.fillStyle='#ffd27a';c.beginPath();c.arc(nx,ny,3.4,0,Math.PI*2);c.fill();c.restore()}
+   if(p.ballCloak>0){const fade=Math.min(1,p.ballCloak*3);c.save();for(let i=0;i<9;i++){const ga=t*.55+i*.7,rr=12+((i*53)%30);c.globalAlpha=.4*fade;c.fillStyle='#eef0e2';c.beginPath();c.ellipse(p.x+Math.cos(ga)*rr,p.y+Math.sin(ga)*rr*.8,11+(i*29)%8,8+(i*17)%6,ga,0,Math.PI*2);c.fill()}c.restore()}
    for(const ship of p.airshipFleet||[])if(ship.age>=0&&ship.age<6)drawZeppelin(c,ship.x,ship.y,ship.a,ship.scale||.825,false,'central')}
  for(const b of g.friendlyBombers){const im=fieldArt[b.airframe];if(im?.naturalWidth)drawFieldArt(b.airframe,b.x,b.y,150,150*im.naturalHeight/im.naturalWidth,b.a+Math.PI/2)}
  for(const b of g.friendlyBombs){const f=1-b.life/b.maxLife;if(!fx(c,'bomb',b.sx+(b.x-b.sx)*f,b.sy+(b.y-b.sy)*f,40,20,Math.atan2(b.y-b.sy,b.x-b.sx)))drawEquipment(c,'rocket',b.sx+(b.x-b.sx)*f,b.sy+(b.y-b.sy)*f,Math.atan2(b.y-b.sy,b.x-b.sx)+Math.PI/2,38);ring(b.x,b.y,22,'#a2eddb70')}
