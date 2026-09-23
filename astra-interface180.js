@@ -164,6 +164,7 @@ function install(){
    let caption=button.querySelector('.astra-pilot-caption');if(!caption){caption=el('small','astra-pilot-caption');button.append(caption)}put(caption,alias);
   }
   if(lastPilot!==pilot){lastPilot=pilot;const tabs=$('pilotTabs');const l=selectedButton.offsetLeft-tabs.offsetLeft;if(l<tabs.scrollLeft||l+selectedButton.offsetWidth>tabs.scrollLeft+tabs.clientWidth)tabs.scrollLeft=Math.max(0,l-tabs.clientWidth/2+selectedButton.offsetWidth/2)}
+  document.body.classList.add('boot-ready');
  }
  new MutationObserver(schedule).observe($('pilotTabs'),{childList:true});
  new MutationObserver(schedule).observe($('aircraftSelect103'),{childList:true});
