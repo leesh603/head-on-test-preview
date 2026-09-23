@@ -7,7 +7,7 @@ export const AUGMENTATION_OVERHAUL_BALANCE=Object.freeze({
  cowlingRange:260,cowlingDamage:1.25,cowlingMinReceived:.80,
  scarffInterval:.72,scarffDamage:8,scarffRange:560,scarffTurnRate:66*Math.PI/180,
  telescopeTurnRate:.90,telescopeBudget:.30,telescopeCone:.36,telescopeWindow:.80,telescopeRange:620,
- mauserInterval:.45,mauserDamage:10,mauserEliteMultiplier:3,mauserAceMultiplier:10,mauserAngle:.55,mauserRange:420,
+ mauserInterval:.65,mauserDamage:18,mauserEliteMultiplier:3,mauserAceMultiplier:160/18,mauserAngle:.55,mauserRange:320,mauserScalingFactor:.75,
  rankinInterval:3.2,rankinRange:500,rankinRearArcDegrees:220,rankinDamage:32,
  smokeInterval:12,smokeDuration:3,compassRadius:480,pridoBelt:1.75,pridoReload:.65,
  amatolRadiusMultiplier:1.4,amatolDamageMultiplier:1.4
@@ -49,7 +49,7 @@ const SPECIAL=[
  ['loEmblem','LO! 페인팅 엠블럼','최대 내구도 −50%, 기관총·폭발물·편대 피해 +30%, 편대 연사 +30%, 이동 속도·선회력 +20%.'],
  ['sacredCowling','황제의 얼굴 카울링','근거리 적에게 주는 피해 +25%. 적이 가까울수록 받는 탄환 피해가 최대 20% 감소합니다.'],
  ['steelPlate','J형 장갑 캡슐','기관총·소구경 탄환 피해 −30%, 이동 속도·선회력 −10%.'],
- ['mauserAceKiller',"마우저 C96 ‘에이스 킬러’",'0.45초마다 420 범위 자동 조준. 일반 10, 정예 30, 적 에이스 100 피해. 후반 회차에는 피해와 발사 빈도가 완만히 상승합니다.'],
+ ['mauserAceKiller',"마우저 C96 ‘에이스 킬러’",'0.65초마다 320 범위 내 에이스→정예→일반 우선 조준. 피해 18/54/160. 기관총·폭발물 강화 효과를 각각 75%씩 합산 적용받습니다.'],
  ['boelckeDicta','뵐케의 금언집','경험치 획득량 +30%. 협동에서는 보유자에게만 적용됩니다.'],
  ['rearGunner','스카프링 총좌','기본 기관총 사격 방향이 초당 약 66°로 회전합니다. 완전 후방 조준 약 2.7초. 총기 수·탄약 소모는 유지됩니다.'],
  ['quadLewis','쿼드 루이스 기관총','일반 발사체 상한을 넘어 총구별 기관총 탄환 +4.'],
@@ -234,7 +234,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  const oldIncoming=Game.prototype.incomingDamageMultiplier;
  Game.prototype.incomingDamageMultiplier=function(source){let mult=oldIncoming.call(this,source);if(this.prancingHorse&&source){const incoming=Math.atan2(source.y-this.y,source.x-this.x);if(Math.abs(angleDiff(incoming,this.a))<Math.PI/2){mult*=AUGMENTATION_OVERHAUL_BALANCE.frontDamageReduction;this.prancingHorseFlash160=.34}}if(this.jArmorCapsule&&source?.bullet&&!source.bullet.flak&&!source.bullet.heavyShell&&!source.bullet.gas)mult*=AUGMENTATION_OVERHAUL_BALANCE.jCapsuleBullet;if(this.sacredCowling&&source?.bullet){const d=Math.hypot(source.x-this.x,source.y-this.y);if(d<AUGMENTATION_OVERHAUL_BALANCE.cowlingRange)mult*=1-(1-AUGMENTATION_OVERHAUL_BALANCE.cowlingMinReceived)*(1-d/AUGMENTATION_OVERHAUL_BALANCE.cowlingRange)}return mult*this.lufberyDamageMultiplier()};
  const oldRound=Game.prototype.roundDamageMultiplier;
- Game.prototype.roundDamageMultiplier=function(b,e){let mult=oldRound.call(this,b,e);if(b.mauserRound&&(e.ace||e.bossPilot||e.type==='boss'))mult*=AUGMENTATION_OVERHAUL_BALANCE.mauserAceMultiplier;if(this.sacredCowling&&Math.hypot(e.x-this.x,e.y-this.y)<=AUGMENTATION_OVERHAUL_BALANCE.cowlingRange)mult*=AUGMENTATION_OVERHAUL_BALANCE.cowlingDamage;return mult};
+ Game.prototype.roundDamageMultiplier=function(b,e){let mult=oldRound.call(this,b,e);if(b.mauserRound){if(e.ace||e.bossPilot||e.type==='boss')mult*=AUGMENTATION_OVERHAUL_BALANCE.mauserAceMultiplier;else if(this.eliteEnemies?.members?.includes(e))mult*=AUGMENTATION_OVERHAUL_BALANCE.mauserEliteMultiplier;}if(this.sacredCowling&&Math.hypot(e.x-this.x,e.y-this.y)<=AUGMENTATION_OVERHAUL_BALANCE.cowlingRange)mult*=AUGMENTATION_OVERHAUL_BALANCE.cowlingDamage;return mult};
 
  const distanceTo=(g,e)=>Math.hypot(e.x-g.x,e.y-g.y);
  const mauserTarget=g=>{
@@ -243,7 +243,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   const elite=(g.eliteEnemies?.members||[]).filter(valid).sort((a,b)=>distanceTo(g,a)-distanceTo(g,b))[0];if(elite)return elite;
   return normal.filter(e=>!e.ace&&!e.bossPilot&&e.type!=='boss').sort((a,b)=>distanceTo(g,a)-distanceTo(g,b))[0];
  };
- const mauserScaling=g=>{const loop=Math.max(0,g.stageBoss?.stages.loopIndex||0),late=Math.min(1.4,Math.max(0,((g.t||0)-120)/360));return{interval:AUGMENTATION_OVERHAUL_BALANCE.mauserInterval/(1+loop*.16+late*.2),damage:AUGMENTATION_OVERHAUL_BALANCE.mauserDamage*(1+loop*.2+late*.28)}};
+ const mauserScaling=g=>{const f=AUGMENTATION_OVERHAUL_BALANCE.mauserScalingFactor;return{interval:AUGMENTATION_OVERHAUL_BALANCE.mauserInterval,damage:AUGMENTATION_OVERHAUL_BALANCE.mauserDamage*(1+(g.gunUpgradeBonus||0)*f+(g.explosiveBonus||0)*f)}};
  const nearest=(g,range=Infinity)=>g.enemies.filter(e=>e.hp>0&&Math.hypot(e.x-g.x,e.y-g.y)<=range).sort((a,b)=>Math.hypot(a.x-g.x,a.y-g.y)-Math.hypot(b.x-g.x,b.y-g.y))[0];
  Game.prototype.tickAugmentationSystems=function(dt){
   this.redGhosts162=(this.redGhosts162||[]).filter(g=>(g.life-=dt)>0);
@@ -265,7 +265,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   }
   const world=this.combatWorld(),push=b=>{b.ownerId??=this.id;b.enemy=false;b.hit??=new Set();world.bullets.push(b)};
   if(this.mccuddenRepair){this.mccuddenRepairTimer-=dt;if(this.mccuddenRepairTimer<=0){this.mccuddenRepairTimer+=AUGMENTATION_OVERHAUL_BALANCE.repairInterval;const before=this.hp;this.hp=Math.min(this.maxHp,this.hp+this.maxHp*AUGMENTATION_OVERHAUL_BALANCE.repairFraction);if(this.hp>before){this.repairFlash151=.75;this.event('ally','비상수선 · 내구도 20% 회복')}}}
-  if(this.mauserAceKiller){this.mauserTimer-=dt;if(this.mauserTimer<=0){const target=mauserTarget(this);if(target){const scaled=mauserScaling(this);this.mauserTimer+=scaled.interval;const a=Math.atan2(target.y-this.y,target.x-this.x);this.mauserAim156=a;this.mauserTarget156=target;this.mauserFlash160=.12;push({x:this.x+Math.cos(a)*16,y:this.y+Math.sin(a)*16,vx:Math.cos(a)*420,vy:Math.sin(a)*420,life:.72,mauserRound:true,mauserTarget:target,specialColor:'#a98cff',damage:scaled.damage})}else this.mauserTimer=.10}}
+  if(this.mauserAceKiller){this.mauserTimer-=dt;if(this.mauserTimer<=0){const target=mauserTarget(this);if(target){const scaled=mauserScaling(this);this.mauserTimer+=scaled.interval;const a=Math.atan2(target.y-this.y,target.x-this.x);this.mauserAim156=a;this.mauserTarget156=target;this.mauserFlash160=.12;push({x:this.x+Math.cos(a)*16,y:this.y+Math.sin(a)*16,vx:Math.cos(a)*420,vy:Math.sin(a)*420,life:.72,mauserRound:true,mauserTarget:target,specialColor:'#a98cff',damage:scaled.damage})}else this.mauserTimer=.3}}
   this.mauserFlash160=Math.max(0,(this.mauserFlash160||0)-dt);
   if(this.rankinShrapnel){this.rankinShrapnelTimer-=dt;if(this.rankinShrapnelTimer<=0){this.rankinShrapnelTimer+=AUGMENTATION_OVERHAUL_BALANCE.rankinInterval;let removed=0;const half=AUGMENTATION_OVERHAUL_BALANCE.rankinRearArcDegrees*Math.PI/360;for(const b of world.bullets){if(!b.enemy||b.life<=0)continue;const d=Math.hypot(b.x-this.x,b.y-this.y),rear=Math.abs(angleDiff(Math.atan2(b.y-this.y,b.x-this.x),this.a+Math.PI));if(d<=AUGMENTATION_OVERHAUL_BALANCE.rankinRange&&rear<=half){b.life=0;removed++}}for(const e of this.enemies){const d=Math.hypot(e.x-this.x,e.y-this.y),rear=Math.abs(angleDiff(Math.atan2(e.y-this.y,e.x-this.x),this.a+Math.PI));if(e.hp>0&&d<=AUGMENTATION_OVERHAUL_BALANCE.rankinRange&&rear<=half)push({x:e.x,y:e.y,vx:0,vy:0,life:.1,blast:true,damage:this.payloadPower(AUGMENTATION_OVERHAUL_BALANCE.rankinDamage)})}this.rankinFlash=.5;this.event('wave',`랭킨 파편탄 · 후방 탄막 ${removed}발 제거`)}}
   if(this.brockSmoke){this.brockSmokeTimer-=dt;if(this.brockSmokeTimer<=0){this.brockSmokeTimer+=AUGMENTATION_OVERHAUL_BALANCE.smokeInterval;this.kaiserFogTime=AUGMENTATION_OVERHAUL_BALANCE.smokeDuration;for(const e of this.enemies){if(!e.targetPlayerId||e.targetPlayerId===this.id)e.targetPlayerId=null;e.patrolTarget=null;e.fire=Math.max(e.fire||0,.65)}this.event('wave','브록식 연막 · 적 추적 해제')}this.kaiserFogTime=Math.max(0,(this.kaiserFogTime||0)-dt)}
