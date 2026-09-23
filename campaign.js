@@ -1,4 +1,4 @@
-import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=223';
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=224';
 import {CAMPAIGN_DATA} from './campaign-data.js?v=214&b=210';
 import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=218';
 export const STAGES=[...CAMPAIGN_DATA.stages].sort((a,b)=>a.faction.localeCompare(b.faction)||a.historicalAnchorDate.localeCompare(b.historicalAnchorDate)||a.id.localeCompare(b.id));
@@ -195,7 +195,7 @@ export class CampaignGame extends Game{
   if(index===2&&this.stage.id==='A-03'){for(let i=0;i<2;i++)this.spawnThreat()}
   if(index===1&&['A-03','A-07','A-09','C-06'].includes(this.stage.id))this.spawnFlak();
  }
- spawnEnemy(type){super.spawnEnemy(type);const e=this.enemies.at(-1);if(!e||!this.stage)return;e.ace=false;e.faction=stageFaction(this.stage)==='central'?'entente':'central';if(!e.bossPilot&&!e.heavyBomber&&type!=='zeppelin')e.escortPlane=this.enemyAircraft();const id=e.bossPlane||e.escortPlane||e.plane||e.airframe,regular=['scout','hunter'].includes(e.type)&&!e.formationLeader&&!e.missionTarget&&!e.bossPilot;attachAircraftPersonality(PLANES,e,id,{retuneCruise:regular});return e}
+ spawnEnemy(type){super.spawnEnemy(type);const e=this.enemies.at(-1);if(!e||!this.stage)return;e.ace=false;e.faction=stageFaction(this.stage)==='central'?'entente':'central';if(!e.bossPilot&&!e.heavyBomber&&type!=='zeppelin')e.escortPlane=e.escortPlane||this.enemyAircraft();const id=e.bossPlane||e.escortPlane||e.plane||e.airframe,regular=['scout','hunter'].includes(e.type)&&!e.formationLeader&&!e.missionTarget&&!e.bossPilot;attachAircraftPersonality(PLANES,e,id,{retuneCruise:regular});return e}
  enemyAircraft(){const names=this.stage.enemyDisplayPool||[];const known=names.map(n=>AIRCRAFT_IDS[n]).filter(id=>id&&PLANES[id].faction!==stageFaction(this.stage));return known[Math.floor(this.rng()*known.length)]||(stageFaction(this.stage)==='central'?'camel':'albatros')}
  spawnThreat(){if(this.enemies.length>18)return;const e=this.spawnEnemy('hunter');e.hp=e.maxHp=25+this.stage.difficulty*5;e.speed=85+this.stage.difficulty*5;e.fire=2.4;applyEnemyMovementLimits(this,e);}
  spawnMissionTarget(i,index){
