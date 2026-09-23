@@ -266,10 +266,11 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    if(warning)c.setLineDash([6,5]);
    if(cityHazard(c,h,ring)){c.restore();return;}
    if(h.kind==='beam'){const x2=h.x+Math.cos(h.angle)*h.length,y2=h.y+Math.sin(h.angle)*h.length;c.lineCap='round';
-    if(h.visual==='livens-flame'&&!warning){
-     c.lineWidth=h.thickness*.72;c.strokeStyle='#b64b243d';c.beginPath();c.moveTo(h.x,h.y);c.lineTo(x2,y2);c.stroke();
-     const step=64,count=Math.max(2,Math.floor(h.length/step));for(let i=1;i<=count;i++){const d=Math.min(h.length,i*step),wave=Math.sin(h.age*18+i*1.7)*h.thickness*.11;
-      drawTrenchFx(c,trenchFxArt.flame,h.x+Math.cos(h.angle)*d-Math.sin(h.angle)*wave,h.y+Math.sin(h.angle)*d+Math.cos(h.angle)*wave,94,48,h.angle,.72);}
+    if(h.visual==='livens-flame'){
+     if(warning){c.lineWidth=8;c.strokeStyle='#ffcf7daa';c.setLineDash([7,10]);c.beginPath();c.moveTo(h.x,h.y);c.lineTo(x2,y2);c.stroke();c.setLineDash([6,5]);}
+     else{c.lineWidth=h.thickness*.3;c.strokeStyle='#ff9c4a22';c.beginPath();c.moveTo(h.x,h.y);c.lineTo(x2,y2);c.stroke();
+      const step=32,count=Math.max(2,Math.floor(h.length/step));for(let i=1;i<=count;i++){const d=Math.min(h.length,i*step),wave=Math.sin(h.age*22+i*1.9)*h.thickness*.17;
+       drawTrenchFx(c,trenchFxArt.flame,h.x+Math.cos(h.angle)*d-Math.sin(h.angle)*wave,h.y+Math.sin(h.angle)*d+Math.cos(h.angle)*wave,118,62,h.angle,.92);}}
     }else{c.lineWidth=h.thickness;c.strokeStyle=warning?'#ffb45f44':'#ff6a2dcc';c.beginPath();c.moveTo(h.x,h.y);c.lineTo(x2,y2);c.stroke();c.lineWidth=Math.max(4,h.thickness*.34);c.strokeStyle=warning?'#ffe0a866':'#fff0a8';c.stroke();}}
    else if(h.kind==='searchlight'){if(fxReady('searchlight')&&!warning)fx(c,'searchlight',h.x+Math.cos(h.angle)*h.radius*.55,h.y+Math.sin(h.angle)*h.radius*.55,h.radius*1.3,h.radius*h.halfAngle*1.5,h.angle,.8);const glow=c.createRadialGradient(h.x,h.y,0,h.x,h.y,h.radius);glow.addColorStop(0,warning?'#f8e5a526':'#fff1bc4d');glow.addColorStop(.65,warning?'#ead18f0d':'#f3dfa621');glow.addColorStop(1,'#f3dfa600');c.fillStyle=glow;c.beginPath();c.moveTo(h.x,h.y);c.arc(h.x,h.y,h.radius,h.angle-h.halfAngle,h.angle+h.halfAngle);c.closePath();c.fill();if(warning){c.strokeStyle='#d9c89755';c.lineWidth=1;c.stroke();}}
    else if(h.kind==='rect'){
