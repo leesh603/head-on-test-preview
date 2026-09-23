@@ -1,5 +1,5 @@
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=217';
-import {fx,fxReady,fxTint,FX56} from './fx-art.js?v=275';
+import {fx,fxReady,fxTint,FX56} from './fx-art.js?v=276';
 import {CATEGORIES,categoryName,reinforcementName,buildStats,cumulativeText,cleanDescription} from './reinforcement-ui151.js?v=214';
 import {t,getLocale,setLocale,subscribe,initLocale,applyTranslations,rarityName,upgradeDescription as translatedUpgradeDescription,pilotName,aircraftName,weaponName,activeName,passiveName,pilotDescription,passiveDescription,aircraftRole,airframeHistory,airframeTip} from './i18n.js?v=217';
 import {GamepadInput} from './gamepad-input.js?v=214';
