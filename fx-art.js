@@ -7,12 +7,12 @@ const FX56_OFF=typeof location!=='undefined'&&new URLSearchParams(location.searc
 export const FX56=!FX_OFF&&!FX56_OFF;
 const FX56_FILES={
  rocket:'fx-pack-v189/projectiles/rocket-le-prieur.webp',mine:'fx-combat-iron-mine.webp',
- shell:'fx-combat-mortar-shell.webp',bomb:'fx-combat-mortar-shell.webp',
+ shell:'fx-pack-v189/projectiles/shell-37mm.webp',bomb:'fx-pack-v189/projectiles/shell-naval.webp',
  explosion0:'fx-explosion-0.webp',explosion1:'fx-explosion-1.webp',
  explosion2:'fx-explosion-2.webp',explosion3:'fx-explosion-3.webp',
- smokeDark:'fx-combat-engine-smoke.webp',smokeGray:'fx-combat-gun-smoke.webp',
- smokeWisp:'fx-combat-gun-smoke.webp',smokePuff:'fx-combat-gun-smoke.webp',
- fire:'fx-combat-ground-fire.webp',flak:'fx-combat-flak-burst.webp'
+ smokeDark:'fx-pack-v189/gas-smoke/smoke-damage.webp',smokeGray:'fx-pack-v189/gas-smoke/smoke-engine.webp',
+ smokeWisp:'fx-pack-v189/gas-smoke/gas-dissipate.webp',smokePuff:'fx-pack-v189/gas-smoke/smoke-gun.webp',
+ fire:'fx-pack-v189/gas-smoke/fire-aircraft.webp',flak:'fx-pack-v189/explosions/flak-airburst.webp'
 };
 const FX_FILES=FX_OFF?{}:Object.assign({
  rocket:'fx-pack-v189/projectiles/rocket-le-prieur.webp',
