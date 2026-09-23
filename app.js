@@ -17,7 +17,7 @@ import {drawSunStrike} from './sun-strike71.js?v=223&b=220';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=217&b=212';
 import {installFlightViewport} from './flight-viewport.js?v=214';
 import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174.js?v=214';
-import {drawGas} from './gas-view.js?v=217&b=230';
+import {drawGas} from './gas-view.js?v=218&b=231';
 import {missionNavigation,drawMissionRadar} from './navigation.js?v=214&b=210';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=215&b=211';
 import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=226&b=221';
