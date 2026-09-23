@@ -1,6 +1,6 @@
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=214&b=210';
 import {RailBossController} from './rail-boss129.js?v=214';
-import {StuttgartSupport} from './stuttgart129.js?v=214';
+import {StuttgartSupport} from './stuttgart129.js?v=277';
 
 export class RailAdapter extends BaseBoss {
  constructor(o,kind){
@@ -11,6 +11,7 @@ export class RailAdapter extends BaseBoss {
   ];
   super({...o,maxHp:o.tuning.maxHp,parts:cars});this.t=o.tuning;this.kind=kind;this.faction=o.faction;this.ownsMotion129=true;
   this.railCarOrder=['car-rear','car-middle','car-front'];this.coreVulnerable=false;this.runawayTriggered129=false;this.derailed129=false;
+  this.walkingBarrage129=null;
   const aimSeconds=this.t.warningSeconds||1.9,cycle=this.t.railCycle||8,trackHalfLength=this.t.railHalfLength||560,moveSeconds=this.t.railMoveSeconds||5.2;
   // Stage 1 is a pursuit encounter: keep the train moving across a long visible
   // section before every firing stop. The destructible rail remains fixed in
@@ -29,13 +30,9 @@ export class RailAdapter extends BaseBoss {
    if(heavy){
     this.emit({type:'hazard',bossId:this.id,kind:'circle',x:e.target.x,y:e.target.y,warning:.02,delay:0,duration:.65,once:true,radius:165,damage:this.t.damage*.86,visual:'rail-shell-outer'});
     this.emit({type:'hazard',bossId:this.id,kind:'circle',x:e.target.x,y:e.target.y,warning:.02,delay:0,duration:.65,once:true,radius:92,damage:this.t.damage*.74,visual:'rail-shell'});
-    this.emit({type:'hazard',bossId:this.id,kind:'circle',x:e.target.x,y:e.target.y,warning:.04,delay:.5,duration:2.2,once:false,tickInterval:.7,radius:132,damage:this.t.damage*.22,visual:'rail-smoke'});
+    this.emit({type:'hazard',bossId:this.id,kind:'circle',x:e.target.x,y:e.target.y,warning:.04,delay:.5,duration:1.8,once:false,tickInterval:.7,radius:132,damage:this.t.damage*.22,visual:'rail-smoke'});
     this.recoilKick129=55;
-   }else for(let i=0;i<count;i++){
-    const lead=i/(Math.max(1,count-1)),side=i%2?1:-1;
-    this.emit({type:'hazard',bossId:this.id,kind:'circle',x:e.target.x+(e.target.vx||0)*lead*.9+side*(i?24:0),y:e.target.y+(e.target.vy||0)*lead*.9,warning:.02,delay:i*.16,duration:.65,once:true,radius:108,damage:this.t.damage,visual:'rail-shell'});
-   }
-   if(!heavy&&(this.t.loopIndex||0)>0){const dodge=96+Math.min(70,(this.t.loopIndex-1)*20),side=this.rail129.shot%2?1:-1;this.emit({type:'hazard',bossId:this.id,kind:'circle',x:e.target.x+(e.target.vx||0)*1.15+side*dodge,y:e.target.y+(e.target.vy||0)*1.15,warning:.72,delay:.18,duration:.55,once:true,radius:94,damage:this.t.damage*.9,visual:'rail-shell'});}
+   }else this.walkingBarrage129={target:e.target,count,index:0,clock:0};
    this.emit({type:'heavy-gun-fired',bossId:this.id,x:this.x,y:this.y});
   }
  }
@@ -46,7 +43,15 @@ export class RailAdapter extends BaseBoss {
   if(next)next.hittable=true;
   else{this.coreVulnerable=true;this.phase='locomotive';this.emit({type:'phase-change',bossId:this.id,phase:'locomotive'});}
  }
- update(dt,ctx){const rail=this.rail129;if(this.recoilKick129>0&&rail.phase==='recoil'&&!rail.broken){const kick=Math.min(this.recoilKick129,dt*180);rail.s=Math.max(0,Math.min(rail.length,rail.s-rail.direction*kick));this.recoilKick129-=kick;}rail.update(dt,ctx);Object.assign(this,rail.pose);if(!this.runawayTriggered129)this.phase=this.coreVulnerable?'locomotive':rail.phase;}
+ update(dt,ctx){const rail=this.rail129;if(this.recoilKick129>0&&rail.phase==='recoil'&&!rail.broken){const kick=Math.min(this.recoilKick129,dt*180);rail.s=Math.max(0,Math.min(rail.length,rail.s-rail.direction*kick));this.recoilKick129-=kick;}rail.update(dt,ctx);Object.assign(this,rail.pose);
+  const barrage=this.walkingBarrage129;if(barrage){barrage.clock-=dt;while(barrage.index<barrage.count&&barrage.clock<=0){const i=barrage.index++,p=ctx.players?.find(p=>p.alive!==false),sample=i===0?barrage.target:p||barrage.target;
+   const vx=sample.vx||0,vy=sample.vy||0,speed=Math.hypot(vx,vy),sideX=speed>10?-vy/speed:1,sideY=speed>10?vx/speed:0;
+   const lead=i===0?0:i===1?.55:i===4?.3:.4,side=i===2?78:i===3?-78:0;
+   const bounds=ctx.bounds,margin=85,x=sample.x+vx*lead+sideX*side,y=sample.y+vy*lead+sideY*side;
+   this.emit({type:'hazard',bossId:this.id,kind:'circle',x:bounds?Math.max(bounds.left+margin,Math.min(bounds.right-margin,x)):x,y:bounds?Math.max(bounds.top+margin,Math.min(bounds.bottom-margin,y)):y,warning:.85,delay:0,duration:.35,once:true,radius:88,damage:this.t.damage,visual:'rail-shell'});
+   barrage.clock+=.32;
+  }if(barrage.index>=barrage.count)this.walkingBarrage129=null;}
+  if(!this.runawayTriggered129)this.phase=this.coreVulnerable?'locomotive':rail.phase;}
  locateHit(s){
   const r=this.rail129.railTarget;
   if(!this.rail129.broken){

@@ -9,7 +9,7 @@ export class StuttgartSupport {
   for(const f of [onDamage,spawnSeaplane,countSeaplanes,clearOwned,onCleared])if(typeof f!=='function')throw new Error('Missing host hook');
   Object.assign(this,{id,tuning:{...tuning},x,y,width,height,angle,onDamage,spawnSeaplane,countSeaplanes,clearOwned,onCleared,onCue});
   this.maxHp=tuning.maxHp;this.hp=this.maxHp;this.phase=1;this.time=0;this.phaseAge=0;this.dead=false;this.cleaned=false;this.notified=false;
-  this.fireClock=1.8;this.spawnClock=tuning.spawnInterval;this.linkedLaunchClock=0;this.volley=0;this.fireSide=0;this.fxSerial=0;this.cover=null;
+  this.fireClock=1.8;this.spawnClock=tuning.spawnInterval;this.linkedLaunchClock=0;this.volley=0;this.fireSide=0;this.fxSerial=0;this.cover=null;this.sortieLaunched=false;
   this.parts=new Map([['cover',0,.213,.125,.157,.18],['fuel',.084,.24,.032,.105,.10],['gun0',-.12,-.324,.048,.033,.06],['gun1',.12,-.324,.048,.033,.06],['gun2',-.165,-.045,.048,.033,.06],['gun3',.165,-.045,.048,.033,.06]].map(([id,nx,ny,rx,ry,hp])=>[id,{id,nx,ny,rx,ry,hp:hp*this.maxHp,maxHp:hp*this.maxHp}]));
   this.projectiles=new FixedPool(256,()=>({hits:new Set()}));this.effects=new FixedPool(160);this.damageSerial=0;
  }
@@ -25,15 +25,18 @@ export class StuttgartSupport {
  hit({partId='hull',damage}){
   if(!Number.isFinite(damage)||damage<0)throw new Error('Invalid damage');if(this.dead)return{damage:0,blocked:true};
   const p=this.parts.get(partId);if(partId!=='hull'&&(!p||!this.hittable(p)))return{damage:0,blocked:true};
-  const dealt=Math.min(this.hp,p?Math.min(p.hp,damage):damage);if(p)p.hp-=dealt;this.hp-=dealt;
+  // A heavy hit may reach a phase boundary, but cannot erase its sortie.
+  const floor=this.phase===1?this.maxHp*.55:this.phase===2?this.maxHp*.28:this.phase===3&&this.phaseAge<.65?this.maxHp*.08:0;
+  const dealt=Math.min(Math.max(0,this.hp-floor),p?Math.min(p.hp,damage):damage);if(p)p.hp-=dealt;this.hp-=dealt;
   if(p&&p.hp<=0){const q=this.world(p.nx,p.ny);this.onCue({type:'part-destroyed',encounterId:this.id,partId,x:q.x,y:q.y});this.fx('burst',q.x,q.y,34,.9);
    if(partId==='fuel'&&this.hp>0){this.hp=Math.max(0,this.hp-this.maxHp*.10);this.onCue({type:'fuel-detonation',encounterId:this.id,...q});}
   }
   if(this.hp<=0){this.dead=true;this.clean();}
   else if(this.phase===1&&(this.hp<=this.maxHp*.55||this.parts.get('cover').hp<=0))this.openHangar();
+  else if(this.phase===2&&this.sortieLaunched&&this.hp<=this.maxHp*.28)this.enterFullSortie();
   return{damage:dealt,partId,partDestroyed:p?.hp<=0,defeated:this.dead};
  }
- openHangar(){if(this.phase!==1||this.dead)return;this.phase=2;this.phaseAge=0;this.parts.get('cover').hp=0;
+ openHangar(){if(this.phase!==1||this.dead)return;this.phase=2;this.phaseAge=0;this.parts.get('cover').hp=0;this.spawnClock=Math.min(this.spawnClock,.35);
   const q=this.world(HANGAR.x,HANGAR.y),a=this.angle;this.cover={x:q.x,y:q.y,angle:a,age:0,vx:Math.cos(a)*110,vy:Math.sin(a)*110};
   this.fx('burst',q.x,q.y,62,.9);for(let i=0;i<10;i++)this.fx('debris',q.x,q.y,3,1.7,{vx:Math.cos(i*2.4)*90,vy:Math.sin(i*2.4)*90});
   this.onCue({type:'hangar-cover-ejected',encounterId:this.id,...q});
@@ -44,7 +47,7 @@ export class StuttgartSupport {
  fire(players){const side=this.fireSide++%2,indices=side?[1,3]:[0,2];for(const i of indices){const p=this.parts.get('gun'+i);if(p.hp<=0)continue;const q=this.world(p.nx,p.ny),a=this.angle+(side?0:Math.PI)+Math.sin(this.volley*.4)*.3;
    const n=Math.max(1,Math.ceil(5*(this.tuning.projectileDensity??1)));for(let j=0;j<n;j++)this.shoot(q.x,q.y,a+(n===1?0:j/(n-1)-.5)*.6);this.fx('muzzle',q.x,q.y,15,.20,{angle:a});
   }
-  if(this.volley++%2===1){const alive=players.filter(p=>p.alive);if(alive.length){const p=alive[(this.volley>>1)%alive.length];for(const d of [-64,64])this.flak(p.x+d,p.y);if(this.phase>=2)this.linkedLaunchClock=this.phase===3 ? .82 : 1.02;}}
+  if(this.volley++%2===1){const alive=players.filter(p=>p.alive);if(alive.length){const p=alive[(this.volley>>1)%alive.length];if(this.phase===1||this.countSeaplanes(this.id)===0)for(const d of [-64,64])this.flak(p.x+d,p.y);}}
   this.onCue({type:'aa-volley',encounterId:this.id,x:this.x,y:this.y});
  }
  launch(players=[]){if(this.phase<2||this.parts.get('fuel').hp<=0)return;
@@ -52,12 +55,13 @@ export class StuttgartSupport {
   const q=this.world(0,.445),angle=this.angle+Math.PI,target=players.filter(p=>p.alive)[this.volley%Math.max(1,players.filter(p=>p.alive).length)];
   let accepted=0;for(let i=0;i<count;i++){const lane=(i-(count-1)/2)*42,nx=q.x-Math.sin(angle)*lane,ny=q.y+Math.cos(angle)*lane;
    if(this.spawnSeaplane({ownerId:this.id,faction:'central',x:nx,y:ny,angle,kind:'floatplane',behavior:'attack-pass',formationIndex:i,formationCount:count,
-    passTargetX:(target?.x??q.x+Math.cos(angle)*520)+(target?.vx||0)*.9,passTargetY:(target?.y??q.y+Math.sin(angle)*520)+(target?.vy||0)*.9,invulnerableSeconds:.45})!==false)accepted++;}
-  if(accepted){this.fx('wake',q.x,q.y,22,.8,{angle:this.angle});this.onCue({type:'seaplane-launch',encounterId:this.id,count:accepted,...q});}
+    passTargetX:(target?.x??q.x+Math.cos(angle)*520)+(target?.vx||0)*.9,passTargetY:(target?.y??q.y+Math.sin(angle)*520)+(target?.vy||0)*.9,fire:1+i*.18,invulnerableSeconds:.45})!==false)accepted++;}
+  if(accepted){this.sortieLaunched=true;this.fx('wake',q.x,q.y,22,.8,{angle:this.angle});this.onCue({type:'seaplane-launch',encounterId:this.id,count:accepted,...q});if(this.hp<=this.maxHp*.28)this.enterFullSortie();}
  }
+ enterFullSortie(){if(this.phase!==2)return;this.phase=3;this.phaseAge=0;this.spawnClock=Math.min(this.spawnClock,.25);this.onCue({type:'phase-change',encounterId:this.id,phase:'full-sortie'});}
  tick(dt,{players,paused=false,transitionBlocked=false}){
   if(paused)return;if(!Number.isFinite(dt)||dt<0)throw new Error('Invalid dt');if(this.dead){this.clean();if(!transitionBlocked&&!this.notified){this.notified=true;this.onCleared(this.snapshot());}return;}
-  this.time+=dt;this.phaseAge+=dt;if(this.phase===2&&this.hp<=this.maxHp*.28){this.phase=3;this.phaseAge=0;this.onCue({type:'phase-change',encounterId:this.id,phase:'full-sortie'});}this.angle=(this.angle+this.tuning.rotationSpeed*dt)%(Math.PI*2); // fixed center
+  this.time+=dt;this.phaseAge+=dt;this.angle=(this.angle+this.tuning.rotationSpeed*dt)%(Math.PI*2); // fixed center
   if(this.cover){this.cover.age+=dt;this.cover.x+=this.cover.vx*dt;this.cover.y+=this.cover.vy*dt;this.cover.angle+=dt*1.2;if(this.cover.age>=1.8)this.cover=null;}
   this.fireClock-=dt;if(this.fireClock<=0){const base=this.phase===1?1.35:this.phase===2?1.2:1.05;this.fireClock=(this.fireSide%2?base:base+0.55)/(this.tuning.projectileDensity??1);this.fire(players);}
   this.spawnClock-=dt;if(this.spawnClock<=0){this.spawnClock=this.tuning.spawnInterval*(this.phase===3 ? .72 : 1);this.launch(players);}
