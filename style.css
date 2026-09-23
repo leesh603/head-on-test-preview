@@ -106,6 +106,7 @@ body:not(.assets-ready) .portrait,body:not(.assets-ready) .hangar-ace,body:not(.
 @keyframes bootLetter{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes bootDash{from{opacity:0;transform:scaleX(0)}to{opacity:1;transform:scaleX(1)}}
 body.assets-ready #bootSplash,body.boot-ready #bootSplash{display:none}
+html:has(body:not(.assets-ready):not(.boot-ready)),body:not(.assets-ready):not(.boot-ready){overflow:hidden}
 
 @keyframes bootCiDrift{0%,100%{transform:translateY(0);text-shadow:0 0 12px rgba(233,226,206,.05)}50%{transform:translateY(-6px);text-shadow:0 6px 26px rgba(233,226,206,.26)}}
 #bootSplash::after{content:'';position:absolute;left:50%;top:58%;width:130px;height:2px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,#b25142,transparent);animation:bootCiBar 2.8s ease-in-out infinite}

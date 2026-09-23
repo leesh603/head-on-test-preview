@@ -1,4 +1,4 @@
-import {drawEnemyProjectile} from './projectiles.js?v=276&b=277';
+import {drawEnemyProjectile} from './projectiles.js?v=278&b=278';
 import {HANGAR} from './stuttgart129.js?v=277';
 // Geometry masks remove the source canvas outside the drawn silhouette at render time.
 // Never color-key gray pixels: doing so also erases metal highlights inside the ship.
