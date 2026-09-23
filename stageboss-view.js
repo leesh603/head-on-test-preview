@@ -1,9 +1,9 @@
 import {drawRailDamage,drawRailTrack} from './rail-render129.js';
 import {fx,fxReady,fxImage,FX56} from './fx-art.js?v=276';
 import {drawEnemyProjectile} from './projectiles.js?v=217&b=214';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=276';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=277';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=190';
-import {bossHudModel} from './headon-stageboss-hud.js?v=190&b=117';
+import {bossHudModel} from './headon-stageboss-hud.js?v=277&b=277';
 
 function createLazyImageGroup(sources){
  const cache={},pending={};

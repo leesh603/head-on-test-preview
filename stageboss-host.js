@@ -1,5 +1,5 @@
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=190';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=190';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=277';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=277';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=190';
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항'];
@@ -46,7 +46,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    const n=g.enemies.length;let result;g.bossMechanicSpawn=true;try{result=g.spawnEnemy(spec.minion==='autocannon'?'bomber':'hunter')}finally{g.bossMechanicSpawn=false}const e=result||g.enemies[g.enemies.length-1];if(g.enemies.length===n||!e)return;
    Object.assign(e,{id:spec.id,encounterId:spec.encounterId,faction:spec.faction,bossMinion:true,behavior:spec.behavior,
     x:spec.x,y:spec.y,escortPlane:spec.minion==='seaplane'||spec.minion==='seaplane-central'?'hansa_brandenburg_cc':spec.minion==='seaplane-entente'?'macchi_m5':spec.minion==='sopwith-camel'?'camel':spec.faction==='central'?'albatros':'sopwith',
-    surface:spec.minion==='autocannon',stationary:spec.minion==='autocannon',groundEscort:spec.minion==='autocannon',a:spec.minion==='autocannon'?(spec.vx<0?Math.PI:0):(spec.a??e.a),vx:spec.vx||0,life:spec.behavior==='attack-pass'?6.2:18,fire:1.2,
+    surface:spec.minion==='autocannon',stationary:spec.minion==='autocannon',groundEscort:spec.minion==='autocannon',a:spec.minion==='autocannon'?(spec.vx<0?Math.PI:0):(spec.a??e.a),vx:spec.vx||0,life:spec.behavior==='attack-pass'?6.2:18,fire:spec.fire??1.2,
     passTargetX:spec.passTargetX,passTargetY:spec.passTargetY,formationIndex:spec.formationIndex,formationCount:spec.formationCount,supportInvulnUntil:g.t+(spec.invulnerableSeconds||0)});
   },
   countMinions(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&e.hp>0).length;},
