@@ -1,0 +1,1055 @@
+/* Astra interface / 180. A single responsive layout; no viewport-percentage
+   positioning of text panels, no gameplay renderer or world-scale changes. */
+:root{--ui-bg:#0d1413;--ui-panel:#141c19;--ui-text:#f1e9d8;--ui-muted:#b4b6a7;--ui-action:#84352d;--ui-warn:#d8b575;--ui-danger:#ae5147;--ui-ready:#8aaf99;--ui-neutral:#707a6e;--astra-line:#bdb69a55;--astra-type:"Noto Sans CJK KR","Noto Sans KR",Arial,sans-serif;--astra-numeric:"Arial Narrow","Noto Sans CJK KR",sans-serif}
+body.astra-ui{font-family:var(--astra-type);color:var(--ui-text)}
+body.astra-ui [hidden]{display:none!important}
+.astra-icon{display:inline-flex;width:26px;height:26px;flex-shrink:0;color:var(--ui-warn)}
+.astra-icon svg,.astra-control-icon svg,.astra-ability-icon svg{width:100%;height:100%;display:block}
+body.astra-ui button:focus-visible,body.astra-ui a:focus-visible{outline:2px solid #e5c27e;outline-offset:5px}
+/* Flight-ready hangar */
+body.astra-ui:not(.playing){margin:0;overflow-x:hidden;overflow-y:auto;min-height:100dvh;background:#0b1211}
+body.astra-ui:not(.playing):before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,#09110ee0,#09110ea6 48%,#09110ee8),url('terrain-trenches.webp') center/cover;opacity:.75}
+body.astra-ui:not(.playing)>header{position:relative;inset:auto;z-index:24;display:flex;justify-content:space-between;align-items:center;height:92px;min-height:92px;padding:12px 40px;margin:0;border:0;border-bottom:1px solid #c5bea060;background:linear-gradient(100deg,#0b1311d9,#0b1311a8);gap:24px}
+body.astra-ui:not(.playing)>header .brand{display:flex;flex-shrink:0;padding:0;line-height:1;text-decoration:none}
+body.astra-ui:not(.playing)>header .brand-mark{display:block}
+body.astra-ui:not(.playing)>header .wordmark{display:inline-flex;align-items:center;font-family:Impact,"Arial Narrow",var(--astra-type);font-size:60px;font-weight:900;letter-spacing:-3px;line-height:1;color:#e9e2ce;text-shadow:0 1px #eae5d866,0 3px 10px #0005}
+body.astra-ui:not(.playing)>header .logo-dash{font-size:.42em;letter-spacing:-.1em;color:#b25142}
+body.astra-ui:not(.playing)>header .sight-o{width:.8em;height:.8em;margin:0 .05em;transform:none}
+body.astra-ui:not(.playing)>header .edition,body.astra-ui:not(.playing)>header .header-right{display:none}
+body.astra-ui:not(.playing) main{display:block;width:100%;max-width:none;padding:0;margin:0;height:auto}
+body.astra-ui:not(.playing) .field{width:100%;height:auto;min-width:0;margin:0;border:0;box-shadow:none}
+body.astra-ui:not(.playing) #viewport{position:relative;inset:auto;width:100%;height:auto!important;min-height:0;border:0;overflow:visible;background:transparent;aspect-ratio:auto}
+body.astra-ui:not(.playing) .field-top,body.astra-ui:not(.playing) .field-bottom,body.astra-ui:not(.playing)>footer,body.astra-ui:not(.playing) .map-label,body.astra-ui:not(.playing) #game,body.astra-ui:not(.playing) .vignette{display:none}
+body.astra-ui:not(.playing) #hangar{position:relative;inset:auto;height:auto;min-height:0;display:block;padding:0;overflow:visible;isolation:isolate;background:transparent}
+body.astra-ui:not(.playing) #hangar:before,body.astra-ui:not(.playing) #hangar:after,body.astra-ui:not(.playing) .hangar-sky,body.astra-ui:not(.playing) .hangar-copy,body.astra-ui:not(.playing) #hangarPlane,body.astra-ui:not(.playing) .hangar-stamp{display:none}
+.astra-home{min-height:calc(100dvh - 92px);display:grid;grid-template-rows:1fr auto;position:relative}
+.astra-stage{display:grid;grid-template-columns:51% 49%;min-height:520px}
+.astra-hero{position:relative;min-width:0;isolation:isolate;overflow:hidden}
+body.astra-ui:not(.playing) .hangar-ace{position:absolute!important;inset:auto!important;left:-2%!important;bottom:0!important;width:57%!important;height:100%!important;max-width:none;object-fit:contain;object-position:left bottom;opacity:1;z-index:-1;filter:drop-shadow(14px 10px 16px #0009);transform:none;mask-image:linear-gradient(0deg,transparent,#000 8%);-webkit-mask-image:linear-gradient(0deg,transparent,#000 8%)}
+.astra-dossier{position:relative;width:51%;margin:0 0 0 49%;padding:clamp(40px,6vh,72px) 26px 30px 10px}
+.astra-kicker{font-size:11px;letter-spacing:.2em;line-height:1.4;font-weight:500;color:#c3c0ab;border-left:2px solid #c9c0a0;padding-left:10px;margin:0 0 18px}
+body.astra-ui #hangar .astra-pilot-title{font:900 clamp(32px,4.15vw,72px)/1.15 var(--astra-type);letter-spacing:-.05em;word-break:keep-all;overflow-wrap:anywhere;color:#f4ecd7;text-shadow:0 2px 0 #a79e7533,0 5px 16px #0008;margin:0;max-width:100%}
+.astra-pilot-english{font:500 clamp(11px,1vw,17px)/1.7 var(--astra-numeric);letter-spacing:.2em;margin:10px 0 32px;color:#e2e2d5;overflow-wrap:anywhere;text-transform:uppercase}
+body.astra-ui:not(.playing) .skill-info{display:flex;position:static;inset:auto;flex-direction:column;gap:30px;padding:0;margin:0;width:100%;border:0;background:none;max-width:none;grid-column:auto;grid-row:auto}
+body.astra-ui #hangar .skill-info>.astra-ability{display:grid;grid-template-columns:68px minmax(0,1fr);align-items:center;gap:16px}
+.astra-ability-icon{display:grid;place-items:center;width:68px;height:68px;padding:16px;color:#eac8a0;background:radial-gradient(circle at 35% 24%,#813c2877,#291917aa 70%);border:1.5px solid #bb5040;border-radius:50%;box-shadow:inset 0 0 0 4px #0f141333,0 4px 14px #0004}
+.astra-passive .astra-ability-icon{border-color:#c4a36d;color:#d9b77e;background:radial-gradient(circle at 35% 24%,#74664444,#141b16aa 70%)}
+.astra-ability-copy{min-width:0;display:block!important;padding:0!important;border:0!important}
+body.astra-ui .skill-info .astra-ability-label{display:block;font:500 10px/1.2 var(--astra-type);letter-spacing:.16em;color:#c2b5a0;margin:0 0 6px}
+body.astra-ui .skill-info b{display:block;font-size:clamp(16px,1.35vw,23px);font-weight:800;line-height:1.35;color:#edeadb;word-break:keep-all;overflow-wrap:anywhere}
+body.astra-ui .skill-info p{font-size:clamp(12px,.95vw,16px);line-height:1.65;color:#cdd0c4;margin:7px 0 0;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+/* Aircraft art, rating, and weapon data occupy separate grid cells. */
+.astra-aircraft{min-width:0;display:grid;align-content:center;padding:30px 38px 30px 18px;border-left:1px solid #c8c1a044;background:linear-gradient(90deg,#09110e18,#09110e66)}
+body.astra-ui:not(.playing) .selected-aircraft{position:relative;inset:auto;display:grid;grid-template-columns:minmax(0,56fr) minmax(0,44fr);grid-template-rows:auto 1fr auto;column-gap:14px;row-gap:18px;width:100%;height:auto;max-height:none;min-height:420px;padding:0;margin:0;background:none;border:0}
+.astra-aircraft-heading{grid-column:2;grid-row:1;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.astra-aircraft-heading>div{min-width:0;flex:1;text-align:left}
+.astra-aircraft-heading h2{font-size:clamp(20px,1.7vw,30px);font-weight:900;letter-spacing:-.035em;line-height:1.3;margin:0;color:#f0e8d4;word-break:keep-all;overflow-wrap:anywhere}
+.astra-aircraft-heading p{font-size:clamp(11px,.95vw,16px);color:#cccdbd;line-height:1.55;word-break:keep-all;margin:7px 0 0}
+.astra-aircraft-prev,.astra-aircraft-next,.astra-rail-prev,.astra-rail-next{flex:0 0 28px;width:28px;height:44px;min-height:44px;padding:0;display:grid;place-items:center;border:0;border-radius:0;background:transparent;box-shadow:none;cursor:pointer;color:#f0ead9}
+.astra-aircraft-prev .astra-icon,.astra-aircraft-next .astra-icon,.astra-rail-prev .astra-icon,.astra-rail-next .astra-icon{color:inherit;width:30px;height:30px}
+.astra-aircraft-prev svg,.astra-rail-prev svg{transform:rotate(180deg)}
+.astra-aircraft-prev:hover,.astra-aircraft-next:hover,.astra-rail-prev:hover,.astra-rail-next:hover{background:#a99a5c19;color:#ffe2a9}
+.astra-aircraft-figure{grid-column:1;grid-row:1/4;position:relative;min-width:0;display:grid;place-items:center;min-height:360px;overflow:visible}
+.astra-aircraft-art{display:block;width:100%;max-width:100%;height:100%;max-height:490px;object-fit:contain;object-position:center;filter:drop-shadow(7px 16px 8px #0009);image-rendering:auto;pointer-events:none}
+body.astra-ui:not(.playing) #selectedAircraft{position:static;inset:auto;width:100%;height:auto;max-height:430px;object-fit:contain;transform:none;opacity:1}
+body.astra-ui:not(.playing) .astra-aircraft-figure:not(.use-canvas) #selectedAircraft{display:none}
+.astra-aircraft-data{grid-column:2;grid-row:2;min-width:0;align-self:center}
+body.astra-ui:not(.playing) #airframeStats{display:grid;grid-template-columns:1fr;gap:15px;padding:0;margin:0;border:0}
+body.astra-ui #airframeStats .airframe-archetype{display:none}
+body.astra-ui .airframe-rating-row{display:grid;grid-template-columns:75px minmax(40px,1fr) 40px;align-items:center;gap:10px;min-width:0;margin:0}
+body.astra-ui .airframe-rating-row b{font:500 14px/1.35 var(--astra-type);color:#dde1d5;white-space:nowrap}
+body.astra-ui .airframe-rating-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;width:100%;min-width:0;align-items:stretch}
+body.astra-ui .airframe-rating-bar i{height:13px;background:#dee4d019;border:0;box-shadow:inset 0 1px 1px #ffffff09}
+body.astra-ui .airframe-rating-bar i.active{background:linear-gradient(110deg,#789d86,#95b8a1);box-shadow:inset 0 1px #d7eadb33}
+.astra-rating-value{font:500 14px/1.3 var(--astra-numeric);color:#e8e9da;white-space:nowrap;text-align:right}
+.astra-base-hp{display:grid;grid-template-columns:68px minmax(0,1fr) 40px;align-items:center;gap:12px;border-top:1px solid var(--astra-line);margin-top:25px;padding-top:20px;font-size:14px;color:#e3e4d5}
+.astra-base-hp-track{display:block;height:13px;background:#acc2aa29}
+.astra-base-hp-track i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#789c85,#9cbaa0);box-shadow:inset 0 1px #e1ead839}
+.astra-base-hp>b{font:500 16px var(--astra-numeric);text-align:right}
+body.astra-ui:not(.playing) .weapon-spec{display:block;position:static;inset:auto;width:100%;margin:22px 0 0;padding:15px 0 0;border:0;border-top:1px solid var(--astra-line);background:none}
+body.astra-ui .weapon-spec .equipment-label{color:#a4aea3;font:500 10px var(--astra-type);letter-spacing:.14em}
+body.astra-ui .weapon-spec strong{display:block;color:#e5e5d5;font:600 14px/1.6 var(--astra-type);margin:8px 0 4px;word-break:keep-all;overflow-wrap:anywhere}
+body.astra-ui .weapon-spec small{display:block;color:#b9beb1;font:400 11px/1.6 var(--astra-type);word-break:keep-all;overflow-wrap:anywhere;margin:0}
+body.astra-ui .astra-growth{grid-column:2;grid-row:3;margin:0;color:#8b9c8d;font:400 10px/1.65 var(--astra-type);text-align:left;word-break:keep-all}
+/* Live pilot roster; one horizontal rail for either faction. */
+.astra-lower{display:grid;grid-template-columns:62% 38%;gap:0;padding:0 36px 22px 24px;border-top:1px solid #c9c2a56b;background:linear-gradient(0deg,#0a1111df,#10181477)}
+body.astra-ui:not(.playing) #flightRoster{position:static;inset:auto;display:block;width:100%;height:auto;max-height:none;min-height:0;padding:0 30px 0 0;margin:0;border:0;background:none;box-shadow:none;overflow:visible;pointer-events:auto}
+.astra-rail-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;height:40px;margin:3px 24px 8px;color:#a3ada0}
+.astra-rail-heading>span{font-size:10px;letter-spacing:.15em}
+.astra-rail-heading>small{font:500 10px var(--astra-numeric);letter-spacing:.15em}
+body.astra-ui:not(.playing) .factions{position:static;inset:auto;display:flex;width:auto;gap:14px;margin:0;padding:0;background:none;border:0}
+body.astra-ui .factions button{display:flex;align-items:center;gap:5px;min-height:32px;height:32px;padding:3px 4px;border:0;border-bottom:1px solid transparent;border-radius:0;background:none;color:#93a095;font-size:11px;box-shadow:none}
+body.astra-ui .factions .faction-emblem{width:14px;height:14px;object-fit:contain;opacity:.7}
+body.astra-ui .factions button.active{color:#e1d7bb;border-bottom-color:#b69d69;background:none}
+.astra-pilot-rail{display:grid;grid-template-columns:28px minmax(0,1fr) 28px;gap:12px;align-items:center}
+body.astra-ui:not(.playing) #pilotTabs{position:relative;inset:auto;display:flex;flex-wrap:nowrap;grid-column:auto;gap:18px;width:100%;height:auto;min-height:0;padding:4px 3px 8px;margin:0;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none}
+#pilotTabs::-webkit-scrollbar{display:none}
+body.astra-ui:not(.playing) #pilotTabs button{position:relative;flex:0 0 calc((100% - 72px)/5);min-width:0;height:188px;min-height:188px;padding:0 0 38px;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;border:0;border-radius:0;background:none;box-shadow:none;color:#eeecdf;overflow:visible;scroll-snap-align:center;transition:transform .16s ease}
+body.astra-ui:not(.playing) #pilotTabs .pilot-tab-portrait{position:relative;inset:auto;display:block;width:100%;height:150px;min-height:150px;object-fit:cover;object-position:50% 8%;border:1px solid #b9b5a156;border-radius:3px;background:radial-gradient(ellipse at 50% 25%,#494b4055,#151b1699);filter:saturate(.6) brightness(.85);opacity:1;pointer-events:none;box-shadow:inset 0 1px #eeeecc22}
+body.astra-ui:not(.playing) #pilotTabs button.active{border:0;background:none;box-shadow:none}
+body.astra-ui:not(.playing) #pilotTabs button.active .pilot-tab-portrait{border-color:#e6cb8c;box-shadow:0 0 0 1px #e0ba75,0 0 12px #d5a94d38;filter:none;background:radial-gradient(ellipse at 45% 40%,#65655466,#1d211699)}
+body.astra-ui #pilotTabs button:hover .pilot-tab-portrait{filter:none;border-color:#d5cba5}
+body.astra-ui:not(.playing) #pilotTabs .pilot-tab-label{position:absolute;inset:auto 0 15px;display:block;width:100%;font:600 13px/1.45 var(--astra-type);white-space:nowrap;text-overflow:ellipsis;text-align:center;overflow:hidden;padding:0;margin:0}
+.astra-pilot-caption{position:absolute;left:0;right:0;bottom:0;text-align:center;font:400 9px/1.4 var(--astra-type);color:#b5bbae;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.astra-ui #pilotTabs .pilot-medal{display:none}
+.astra-launch{align-self:center;min-width:0;padding:12px 8px 0 22px}
+body.astra-ui:not(.playing) #start{position:relative;inset:auto;display:flex;justify-content:center;align-items:center;gap:20px;width:100%;max-width:none;min-height:140px;height:auto;padding:22px 24px;margin:0;color:#faf0d8;border:1px solid #c66e53;border-radius:4px;background:linear-gradient(115deg,#914132eb,#581e1de8),url('terrain-trenches.webp') center/300px;box-shadow:inset 0 0 0 3px #361e1940,inset 0 0 0 4px #d6805255,inset 0 1px #ffd6a977,0 10px 30px #0007;cursor:pointer;isolation:isolate;pointer-events:auto;transition:filter .15s,transform .15s}
+body.astra-ui:not(.playing) #start:before{content:"";position:absolute;inset:9px;pointer-events:none;border:1px solid #d4956655;background:radial-gradient(circle at 0 0,#caaa78 2px,#3e1f1c 3px,transparent 4px),radial-gradient(circle at 100% 0,#caaa78 2px,#3e1f1c 3px,transparent 4px),radial-gradient(circle at 0 100%,#caaa78 2px,#3e1f1c 3px,transparent 4px),radial-gradient(circle at 100% 100%,#caaa78 2px,#3e1f1c 3px,transparent 4px)}
+body.astra-ui:not(.playing) #start:hover{filter:brightness(1.13)}
+body.astra-ui:not(.playing) #start:active{transform:translateY(2px)}
+body.astra-ui #start strong{font:900 clamp(34px,4.2vw,70px)/1.1 var(--astra-type);letter-spacing:.015em;white-space:nowrap}
+.astra-sortie-plane{display:block;width:74px;height:65px;padding-right:22px;margin-right:6px;border-right:1px solid #d9be9066;color:#eeddb4}
+.astra-sortie-plane svg{width:100%;height:100%;transform:rotate(-35deg);stroke-width:2.2}
+body.astra-ui #start .astra-sortie-english{font:400 clamp(12px,1.5vw,24px)/1 var(--astra-numeric);letter-spacing:.13em}
+body.astra-ui #start .astra-sortie-arrow{display:block;width:34px;height:34px;margin:0;color:#edddbf;font-size:0}
+.astra-sortie-arrow svg{width:100%;height:100%}
+.astra-launch-hint{text-align:center;margin:15px 0 0;font-size:9px;letter-spacing:.15em;color:#91a091}
+/* Navigation remains connected to the actual ranking, coop, records and settings. */
+.main-operations{position:static;inset:auto;width:auto;display:flex;align-items:center;justify-content:flex-end;gap:0;margin:0;padding:0;border:0;background:none;pointer-events:auto}
+.main-operations [data-action]{display:flex;gap:15px;align-items:center;justify-content:center;min-height:46px;padding:0 24px;border:0;border-right:1px solid #d2c29933;border-radius:0;background:none;color:#eeeadc;text-decoration:none;font:500 16px/1.4 var(--astra-type);cursor:pointer;box-shadow:none}
+.main-operations [data-action="sortie"]{display:none}
+.main-operations [data-action]:last-child{border-right:0;padding-right:0}
+.main-operations [data-action]:hover,.main-operations [data-action="coop"].active{color:#f0d196;background:#d7cbad09}
+.operation-label-short{display:none}
+.astra-mobile-settings{display:none}
+.main-settings{position:fixed;inset:78px 26px auto auto;z-index:100;width:270px;padding:22px;border:1px solid #a1977955;border-radius:4px;background:linear-gradient(125deg,#253029,#101916);color:#e9e4d4;box-shadow:0 15px 70px #000b;pointer-events:auto}
+.main-settings strong{display:block;margin-bottom:12px;font-size:17px}
+.main-settings button{display:block;width:100%;margin:8px 0;min-height:44px;border:1px solid #c2bca03b;background:#0d14117a;color:#e7e2cf;text-align:left;padding:10px}
+.main-settings label{display:block;margin-top:16px}
+.main-settings select{width:100%;min-height:40px;background:#16221a;color:#ddd6c0}
+body.astra-ui:not(.playing) #coopPanel:not(.hidden){grid-column:1/-1;grid-row:2;position:relative;inset:auto;width:calc(100% - 64px);max-width:none;margin:12px 32px;z-index:2;background:#14221bf5;border:1px solid #8b906866;padding:20px;color:#e1dbc9}
+body.astra-ui.coop-selected .astra-lower{grid-row:3}
+/* Active combat: inset seams and legible live instruments. */
+body.astra-ui.playing{--hud-panel:linear-gradient(120deg,#1b231eea,#0b120fed);--hud-edge:#c7c0a36b;--hud-shadow:inset 0 1px #eae5cd12,inset 0 0 0 3px #0002,0 4px 16px #0005}
+body.astra-ui.playing #flightStack151{top:max(22px,env(safe-area-inset-top));left:max(26px,env(safe-area-inset-left));right:max(26px,env(safe-area-inset-right));width:auto}
+body.astra-ui.playing #flightTop151{grid-template-columns:minmax(360px,450px) minmax(0,1fr) auto;gap:28px;align-items:start}
+body.astra-ui.playing:not(.coop-playing) .flight-survival{width:100%;min-width:0;max-width:none;padding:13px 15px 12px;border:1px solid var(--hud-edge);border-radius:4px;background:var(--hud-panel);box-shadow:var(--hud-shadow);color:var(--ui-text)}
+body.astra-ui.playing #flightTop151 #hud{width:100%!important;max-width:none!important;margin:0;padding:0}
+body.astra-ui.playing #flightTop151 .health151{width:100%!important;display:grid;grid-template-columns:34px 88px minmax(0,1fr);gap:10px;align-items:center;padding:0;margin:0}
+body.astra-ui.playing #flightTop151 .health151>small{font:600 16px/1.3 var(--astra-type);letter-spacing:0;margin:0;color:#e5e5d6}
+body.astra-ui.playing #healthText{display:flex;align-items:baseline;justify-content:space-between;gap:4px;font:500 17px/1.25 var(--astra-numeric);letter-spacing:0;margin:0;white-space:nowrap;color:#edead9}
+body.astra-ui.playing #healthSlash151,body.astra-ui.playing #healthMax151{color:#c1c5b3;font:inherit}
+body.astra-ui.playing #healthCurrent151{font:inherit;color:#f4efdb}
+body.astra-ui.playing #flightTop151 .health151 .bar{height:14px;min-width:0;margin:0;border:1px solid #dad8bd30;border-radius:0;background:#d3d1bf16;box-shadow:inset 0 1px 2px #0008}
+body.astra-ui.playing #healthBar{background:linear-gradient(90deg,#81a58e,#96b9a0)!important;box-shadow:inset 0 1px #e2f0ce38;border-radius:0}
+body.astra-ui.playing .astra-low-health #healthBar{background:linear-gradient(90deg,#963e36,#d18461)!important}
+body.astra-ui.playing #flightTop151 #ammoHud{grid-template-columns:34px 88px minmax(0,1fr) 32px;grid-template-rows:auto auto;gap:5px 10px;padding:0;margin:10px 0 0}
+body.astra-ui.playing #flightTop151 #ammoHud:before{content:'탄약';font:500 13px/1.2 var(--astra-type);letter-spacing:0;color:#dce0d1}
+html[lang=en] body.astra-ui.playing #flightTop151 #ammoHud:before{content:'AMMO';font-size:10px}
+body.astra-ui.playing #flightTop151 #ammoCount{font:500 14px/1.3 var(--astra-numeric);letter-spacing:0}
+body.astra-ui.playing #flightTop151 #ammoHud .bar{height:12px;border:1px solid #8f805f73;border-radius:1px;background:#080b09a8;box-shadow:inset 0 1px 3px #000b}
+body.astra-ui.playing #flightTop151 #ammoProgress{width:var(--astra-ammo,100%)!important;border-radius:0;background:linear-gradient(180deg,#d8bb74 0%,#b9975a 55%,#93744198 100%);box-shadow:inset 0 1px #f0d69455,inset 0 -1px #231d16;transition:width .1s linear}
+body.astra-ui.playing #flightTop151 #ammoHud>div>small{font:400 12px/1.3 var(--astra-numeric);letter-spacing:.035em;color:#c2c6b6;margin:2px 0 0;grid-column:1/4}
+body.astra-ui.playing #flightTop151 #reload{width:32px;min-width:32px;height:32px;min-height:32px;border:1px solid #c2bca070;background:linear-gradient(120deg,#323a2c99,#131a12aa);border-radius:2px;color:#eee6cc;font:500 15px var(--astra-numeric);grid-row:1/3;box-shadow:inset 0 1px #eeeedd15}
+body.astra-ui.playing #flightTop151 #reload:disabled{opacity:.5}
+.astra-reload-readout{display:none;grid-template-columns:auto 48px minmax(40px,1fr);align-items:center;gap:10px;margin:9px 0 0;padding:8px 0 0;border-top:1px solid #afa88228;font-size:12px;color:#e4bc73}
+.astra-reloading .astra-reload-readout{display:grid}
+.astra-reload-readout>b{font:500 12px var(--astra-numeric)}
+.astra-reload-track{display:block;height:7px;background:#090f0b77;border:1px solid #c1b18566}
+.astra-reload-track i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ba8e4c,#efca84)}
+body.astra-ui.playing:not(.coop-playing) .flight-status{display:grid;grid-template-columns:minmax(0,1fr) 54px;gap:16px;padding:10px 9px 10px 14px;width:270px;min-width:0;border:1px solid var(--hud-edge);border-radius:4px;background:var(--hud-panel);box-shadow:var(--hud-shadow)}
+body.astra-ui.playing .flight-status-panel{min-width:0;gap:6px;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+body.astra-ui.playing #flightTop151 #clock{font:600 24px/1.1 var(--astra-numeric);letter-spacing:.03em;color:#f4eddb}
+body.astra-ui.playing #flightTop151 .compact-kills{justify-content:space-between;gap:10px}
+body.astra-ui.playing #flightTop151 .compact-kills>span{font:400 14px/1.3 var(--astra-type);color:#cfcebc}
+body.astra-ui.playing #flightTop151 .compact-kills b{font:500 16px/1.3 var(--astra-numeric)}
+body.astra-ui.playing #flightTop151 #xpHud>span{font:400 13px/1.2 var(--astra-numeric);letter-spacing:.1em;background:none;padding:0}
+body.astra-ui.playing #flightTop151 #xpHud>.bar{display:block;height:9px;min-width:0;background:#dce1c81a;border-radius:0}
+body.astra-ui.playing #flightTop151 #xpBar{background:#91af97;border-radius:0}
+body.astra-ui.playing #flightTop151 #pause{width:54px;min-width:54px;min-height:54px;height:100%;border:1px solid #d1c9a989;border-radius:2px;background:linear-gradient(135deg,#2c352566,#0a100f80);font-size:29px;line-height:1;color:#ece8d8;box-shadow:inset 0 0 0 3px #c2c4ac08}
+body.astra-ui.playing #flightTop151 #pause:hover{background:#8d472759}
+body.astra-ui.playing #flightCenter156{gap:8px}
+body.astra-ui.playing #flightStack151 #stageBossHud{max-width:540px;padding:8px 14px;border:1px solid var(--hud-edge);border-radius:3px;background:var(--hud-panel);box-shadow:var(--hud-shadow);font:600 16px/1.3 var(--astra-type)}
+body.astra-ui.playing #flightStack151 #stageBossHud .bar{height:14px;background:#04090666;border:1px solid #c7c1a55c;border-radius:0;margin-top:6px}
+body.astra-ui.playing #stageBossHp{background:linear-gradient(90deg,#843e37,#b45b4e);border-radius:0}
+body.astra-ui.playing #flightNotices151 #toast{white-space:normal;word-break:keep-all;padding:7px 16px;font:500 13px/1.5 var(--astra-type);color:#e2c08a;border:1px solid #bd9c6355;border-radius:2px;background:linear-gradient(90deg,#13180dd9,#242819e8,#13180dd9);max-width:460px}
+body.astra-ui.playing #flightNotices151 #bossArrival{background:var(--hud-panel);border:1px solid #b8946170;border-radius:3px}
+body.astra-ui.playing #flightNotices151 #bossArrival strong{font-size:17px;color:#e4c188}
+body.astra-ui.playing #flightNotices151 #bossArrivalDetail{font-size:12px}
+.astra-control-icon{display:block;grid-column:1;grid-row:1/3;width:46px;height:46px;color:#e8c997}
+.astra-dial{position:absolute;inset:7px;pointer-events:none;color:#d1ad6c}
+.astra-dial svg{width:100%;height:100%;overflow:visible;transform:rotate(-90deg)}
+.astra-dial circle{fill:none;stroke-width:4}
+.dial-track{stroke:#c5c0a027}
+.dial-progress{stroke:currentColor;stroke-dasharray:100;stroke-dashoffset:calc(100 - var(--ready,1)*100);transition:stroke-dashoffset .1s linear}
+body.astra-ui.playing #touch #skillButtonIcon,body.astra-ui.playing #touch #maneuverButtonIcon{display:none}
+body.astra-ui.playing #touch #touchSkill,body.astra-ui.playing #touch #touchEvade{opacity:1;border-color:#c6bd9977;color:#eae2ca;background:var(--hud-panel);box-shadow:var(--hud-shadow)}
+body.astra-ui.playing #touch #touchSkill:disabled,body.astra-ui.playing #touch #touchEvade:disabled{opacity:.82;background:var(--hud-panel);color:#c8c3ae}
+body.astra-ui.playing #touch #touchSkill:after,body.astra-ui.playing #touch #touchEvade:after{display:none}
+@media(hover:hover) and (pointer:fine){
+ body.astra-ui.playing #touch{left:max(26px,env(safe-area-inset-left));right:auto;bottom:max(32px,env(safe-area-inset-bottom));width:auto;display:flex}
+ body.astra-ui.playing #touch .touch-actions{display:flex;flex-direction:row;gap:10px;align-items:stretch}
+ body.astra-ui.playing #touch #touchSkill,body.astra-ui.playing #touch #touchEvade{display:grid;grid-template-columns:48px auto 1fr;grid-template-rows:1fr 1fr;gap:5px 12px;padding:13px 16px;width:208px;min-width:208px;height:88px;min-height:88px;border:1px solid var(--hud-edge);border-radius:3px;align-items:center;justify-items:start}
+ body.astra-ui.playing #touch #touchSkill{order:0}body.astra-ui.playing #touch #touchEvade{order:1}
+ body.astra-ui.playing #touch .flight-key156{grid-column:2;grid-row:1;font:600 13px var(--astra-numeric);background:none;color:#f0e8d5;padding:0;border:0;align-self:end;letter-spacing:0}
+ body.astra-ui.playing #touch #skillButtonText,body.astra-ui.playing #touch #maneuverButtonText{grid-column:3;grid-row:1;align-self:end;font:500 13px/1.4 var(--astra-type);color:#eae7d6}
+ body.astra-ui.playing #touch #skillButtonState,body.astra-ui.playing #touch #maneuverButtonState{grid-column:2/4;grid-row:2;font:700 19px/1.3 var(--astra-type);color:#e3d4b4;align-self:start}
+ body.astra-ui.playing #touch .astra-dial{display:none}
+ body.astra-ui.playing #touch #touchEvade .astra-control-icon{border:3px solid #aea98a3b;border-radius:50%;padding:8px}
+ body.astra-ui.playing .map-label{left:28px;bottom:12px;font-size:10px;opacity:.65}
+}
+/* Tablet / narrow desktop keeps true grid structure rather than fixed offsets. */
+@media(min-width:721px) and (max-width:1200px){
+ body.astra-ui:not(.playing)>header{padding:12px 24px;height:78px;min-height:78px}
+ body.astra-ui:not(.playing)>header .wordmark{font-size:47px}
+ .main-operations [data-action]{font-size:12px;gap:8px;padding:0 14px}.main-operations .astra-icon{width:23px;height:23px}
+ .astra-home{min-height:calc(100dvh - 78px)}.astra-stage{grid-template-columns:48% 52%;min-height:470px}
+ .astra-dossier{margin-left:35%;width:65%;padding:45px 20px 20px 10px;background:linear-gradient(90deg,transparent,#0a120dbc 40%)}
+ body.astra-ui:not(.playing) .hangar-ace{width:75%!important;left:-19%!important}
+ body.astra-ui #hangar .astra-pilot-title{font-size:42px}.astra-pilot-english{font-size:11px;letter-spacing:.13em;margin-bottom:24px}
+ body.astra-ui #hangar .skill-info>.astra-ability{grid-template-columns:48px minmax(0,1fr);gap:10px}.astra-ability-icon{width:48px;height:48px;padding:11px}
+ body.astra-ui .skill-info b{font-size:16px}body.astra-ui .skill-info p{font-size:12px}
+ .astra-aircraft{padding:24px 22px 20px 10px}body.astra-ui:not(.playing) .selected-aircraft{grid-template-columns:minmax(0,44fr) minmax(0,56fr);column-gap:8px;row-gap:12px}
+ .astra-aircraft-heading{grid-column:1/-1;justify-content:center}.astra-aircraft-heading>div{flex:none;text-align:center}
+ .astra-aircraft-heading h2{font-size:23px}.astra-aircraft-figure{grid-row:2/4;min-height:230px}.astra-aircraft-art{width:100%;max-height:320px}
+ body.astra-ui .airframe-rating-row{grid-template-columns:62px minmax(30px,1fr) 28px;gap:6px}body.astra-ui .airframe-rating-row b{font-size:11px}.astra-rating-value{font-size:11px}
+ .astra-base-hp{grid-template-columns:60px 1fr 32px;font-size:12px;gap:6px}body.astra-ui .weapon-spec strong{font-size:12px}body.astra-ui .weapon-spec small{font-size:10px}
+ .astra-lower{grid-template-columns:62% 38%;padding:0 16px 16px 8px}body.astra-ui:not(.playing) #flightRoster{padding-right:12px}
+ .astra-pilot-rail{gap:5px;grid-template-columns:22px minmax(0,1fr) 22px}body.astra-ui:not(.playing) #pilotTabs{gap:12px}
+ body.astra-ui:not(.playing) #pilotTabs button{flex-basis:calc((100% - 36px)/4);height:155px;min-height:155px}
+ body.astra-ui:not(.playing) #pilotTabs .pilot-tab-portrait{height:117px;min-height:117px}
+ .astra-launch{padding-left:12px}body.astra-ui:not(.playing) #start{min-height:112px;gap:12px;padding:18px 14px}.astra-sortie-plane{display:none}body.astra-ui #start strong{font-size:48px}
+ body.astra-ui.playing #flightTop151{grid-template-columns:360px 1fr auto;gap:14px}body.astra-ui.playing:not(.coop-playing) .flight-status{width:228px}
+}
+/* Mobile hangar: authored for portrait, natural flow, no fixed page height. */
+@media(max-width:720px){
+ body.astra-ui:not(.playing)>header{height:66px;min-height:66px;padding:10px 18px;padding-top:max(10px,env(safe-area-inset-top));gap:10px;background:#091210d9}
+ body.astra-ui:not(.playing)>header .wordmark{font-size:40px;letter-spacing:-2px}
+ .astra-mobile-settings{display:grid;place-items:center;min-width:44px;width:44px;height:44px;padding:9px;border:0;background:none;color:#efead7}
+ .astra-mobile-settings .astra-icon{width:25px;height:25px;color:#eee8d4}
+ .astra-home{display:flex;flex-direction:column;min-height:calc(100dvh - 66px);padding-bottom:calc(63px + env(safe-area-inset-bottom))}
+ .astra-stage{display:flex;flex-direction:column;min-height:0;gap:0}
+ .astra-hero{display:grid;grid-template-columns:minmax(0,58%) minmax(132px,42%);grid-template-rows:auto auto;min-height:0;padding:0 14px 17px;overflow:visible;align-items:stretch;background:linear-gradient(90deg,#07100bcf 0%,#07100b94 58%,#07100b1f 100%)}
+ body.astra-ui:not(.playing) .hangar-ace{position:relative!important;inset:auto!important;grid-column:2;grid-row:1;width:100%!important;height:238px!important;max-height:none;align-self:end;object-fit:contain;object-position:right bottom;mask-image:linear-gradient(180deg,transparent,#000 12%);-webkit-mask-image:linear-gradient(180deg,transparent,#000 12%);opacity:.98}
+ .astra-dossier{display:contents;margin:0;width:auto;padding:0;background:none}
+ .astra-identity{grid-column:1;grid-row:1;width:auto;max-width:none;align-self:center;padding:24px 8px 16px 4px;min-width:0}
+ .astra-kicker{font-size:9px;letter-spacing:.1em;margin-bottom:8px;padding-left:7px;border-left-width:1px}
+ body.astra-ui #hangar .astra-pilot-title{font-size:38px;line-height:1.2;max-width:100%;letter-spacing:-.045em}
+ .astra-pilot-english{font-size:10px;line-height:1.5;letter-spacing:.13em;margin:5px 0 19px;width:100%;color:#edead8;text-shadow:0 2px 4px #000}
+ body.astra-ui:not(.playing) .skill-info{grid-column:1/-1;grid-row:2;gap:14px;width:100%;max-width:none;padding:0 4px}
+ body.astra-ui #hangar .skill-info>.astra-ability{grid-template-columns:42px minmax(0,1fr);gap:11px}
+ .astra-ability-icon{width:42px;height:42px;padding:10px;border-width:1px;box-shadow:inset 0 0 0 2px #090e1155,0 2px 6px #0003}
+ body.astra-ui .skill-info .astra-ability-label{font-size:8px;letter-spacing:.08em;margin:0 0 3px;color:#d6c7ac}
+ body.astra-ui .skill-info b{font-size:13px;line-height:1.4;font-weight:800;color:#faf3e3;text-shadow:0 2px 5px #000}
+ body.astra-ui .skill-info p{font-size:10px;line-height:1.55;margin:3px 0 0;color:#e1e0d0;text-shadow:0 1px 4px #000}
+ .astra-aircraft{margin:0 13px;padding:12px 12px 9px;border:1px solid #ada9936b;border-radius:4px;background:linear-gradient(125deg,#19251bcc,#08100dec);box-shadow:inset 0 1px #e0dac513}
+ body.astra-ui:not(.playing) .selected-aircraft{grid-template-columns:minmax(0,44fr) minmax(0,56fr);grid-template-rows:auto 1fr auto;min-height:0;gap:10px 10px;padding:0}
+ .astra-aircraft-heading{grid-column:1/-1;grid-row:1;justify-content:center;gap:12px}
+ .astra-aircraft-heading>div{flex:none;max-width:calc(100% - 80px);text-align:center}
+ .astra-aircraft-heading h2{font-size:20px;letter-spacing:-.03em}
+ .astra-aircraft-heading p{font-size:10px;line-height:1.3;margin:4px 0 0}
+ .astra-aircraft-prev,.astra-aircraft-next{width:22px;flex-basis:22px;min-height:34px;height:34px}
+ .astra-aircraft-prev .astra-icon,.astra-aircraft-next .astra-icon{width:23px;height:23px}
+ .astra-aircraft-figure{grid-column:1;grid-row:2/4;min-height:170px;align-self:stretch}
+ .astra-aircraft-art{width:100%;height:100%;max-height:228px;filter:drop-shadow(4px 9px 4px #0007)}
+ .astra-aircraft-data{grid-column:2;grid-row:2;align-self:start}
+ body.astra-ui:not(.playing) #airframeStats{display:grid;gap:8px}
+ body.astra-ui .airframe-rating-row{grid-template-columns:51px minmax(30px,1fr) 25px;gap:5px}
+ body.astra-ui .airframe-rating-row b{font-size:9px;font-weight:500;letter-spacing:-.03em;line-height:1.3}
+ body.astra-ui .airframe-rating-bar{gap:2px}
+ body.astra-ui .airframe-rating-bar i{height:8px}
+ .astra-rating-value{font-size:9px}
+ .astra-base-hp{grid-template-columns:44px minmax(0,1fr) 25px;gap:6px;margin-top:12px;padding-top:9px;font-size:9px;border-top-color:#b6b79b36}
+ .astra-base-hp-track{height:7px}.astra-base-hp>b{font-size:10px}
+ body.astra-ui:not(.playing) .weapon-spec{margin:10px 0 0;padding:8px 0 0}
+ body.astra-ui .weapon-spec .equipment-label{font-size:8px;letter-spacing:0}
+ body.astra-ui .weapon-spec strong{font-size:9px;line-height:1.5;margin:4px 0}
+ body.astra-ui .weapon-spec small{font-size:8px;line-height:1.5}
+ body.astra-ui .astra-growth{grid-column:1/-1;grid-row:4;text-align:center;font-size:8px;line-height:1.45;margin:0;color:#a7b2a0}
+ .astra-lower{display:flex;flex-direction:column;padding:0 14px 12px;border:0;background:none;gap:0}
+ body.astra-ui:not(.playing) #flightRoster{position:static;display:block;width:100%;height:auto;max-height:none;padding:0;margin:0;border:0;background:none}
+ .astra-rail-heading{height:28px;margin:5px 10px 3px;gap:8px}
+ .astra-rail-heading>span{font-size:8px;letter-spacing:.1em}.astra-rail-heading>small{font-size:8px}
+ body.astra-ui:not(.playing) .factions{gap:12px;position:static;width:auto;inset:auto;margin:0}
+ body.astra-ui .factions button{min-height:26px;height:26px;font-size:9px;padding:0 2px}.factions .faction-emblem{display:none!important}
+ .astra-pilot-rail{grid-template-columns:18px minmax(0,1fr) 18px;gap:8px}
+ .astra-rail-prev,.astra-rail-next{width:18px;min-width:18px;height:42px;padding:0}
+ .astra-rail-prev .astra-icon,.astra-rail-next .astra-icon{width:22px;height:22px}
+ body.astra-ui:not(.playing) #pilotTabs{gap:14px;padding:4px 2px 7px}
+ body.astra-ui:not(.playing) #pilotTabs button{flex:0 0 calc((100% - 28px)/3);height:132px;min-height:132px;padding:0 0 21px}
+ body.astra-ui:not(.playing) #pilotTabs .pilot-tab-portrait{height:106px;min-height:106px;object-position:50% 6%;border-radius:2px}
+ body.astra-ui:not(.playing) #pilotTabs .pilot-tab-label{font-size:10px;bottom:0;line-height:1.5;font-weight:700}
+ .astra-pilot-caption{display:none}
+ .astra-launch{padding:4px 4px 0;align-self:stretch}
+ body.astra-ui:not(.playing) #start{min-height:70px;padding:14px 16px;gap:15px;border-radius:3px}
+ body.astra-ui #start strong{font-size:38px;line-height:1.1;letter-spacing:.03em}
+ .astra-sortie-plane{display:none}
+ body.astra-ui #start .astra-sortie-english{font-size:15px;letter-spacing:.13em}
+ body.astra-ui #start .astra-sortie-arrow{width:28px;height:28px}
+ .astra-launch-hint{display:none}
+ .main-operations{position:fixed;left:16px;right:16px;bottom:0;z-index:25;justify-content:space-around;gap:0;min-height:58px;padding:8px 0 calc(8px + env(safe-area-inset-bottom));border-top:1px solid #c3bca15c;background:#0b1411f5;backdrop-filter:blur(12px)}
+ .main-operations [data-action]{flex:1;min-width:0;min-height:32px;font-size:12px;gap:9px;padding:0 12px;border-right:1px solid #ada68b6b}
+ .main-operations [data-action]:last-child{padding-right:12px}
+ .main-operations .astra-icon{width:22px;height:22px}
+ .operation-label-full{display:none}.operation-label-short{display:inline}
+ .main-operations [data-action="coop"],.main-operations [data-action="sortie"]{display:none!important}
+ body.astra-ui.playing .main-operations{display:none}
+ .main-settings{top:58px;left:auto;right:14px;width:min(280px,calc(100vw - 28px));padding:18px}
+ body.astra-ui:not(.playing) #coopPanel:not(.hidden){width:calc(100% - 26px);margin:12px 13px}
+}
+/* Small and coarse screens share the same physical controls; hit areas never shrink with labels. */
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing #flightStack151{top:max(12px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));width:auto}
+ body.astra-ui.playing #flightTop151{display:grid;grid-template-columns:minmax(0,1fr) 126px;gap:10px 8px;align-items:start}
+ body.astra-ui.playing:not(.coop-playing) .flight-survival{grid-column:1;grid-row:1;width:100%;min-width:0;max-width:none;padding:9px 10px;border-radius:3px}
+ body.astra-ui.playing #flightTop151 .health151{grid-template-columns:20px 63px minmax(24px,1fr);gap:5px}
+ body.astra-ui.playing #flightTop151 .health151>small{font-size:10px;line-height:1.3}
+ body.astra-ui.playing #healthText{font-size:12px;line-height:1.3;gap:2px;letter-spacing:0}
+ body.astra-ui.playing #flightTop151 .health151 .bar{height:9px}
+ body.astra-ui.playing #flightTop151 #ammoHud{grid-template-columns:20px 63px minmax(24px,1fr);grid-template-rows:auto;gap:5px;margin-top:9px}
+ body.astra-ui.playing #flightTop151 #ammoHud:before{font-size:9px}
+ body.astra-ui.playing #flightTop151 #ammoCount{font-size:11px;line-height:1.3}
+ body.astra-ui.playing #flightTop151 #ammoHud .bar{height:9px}
+ body.astra-ui.playing #flightTop151 #ammoHud>div>small{display:none}
+ .astra-reload-readout{grid-template-columns:auto 32px 1fr;gap:6px;font-size:9px;margin-top:7px;padding-top:5px}
+ .astra-reload-readout>b{font-size:9px}.astra-reload-track{height:5px}
+ body.astra-ui.playing:not(.coop-playing) .flight-status{grid-column:2;grid-row:1;width:126px;padding:7px 6px 7px 8px;grid-template-columns:minmax(0,1fr) 35px;gap:5px;border-radius:3px;align-items:center}
+ body.astra-ui.playing .flight-status-panel{gap:5px}
+ body.astra-ui.playing #flightTop151 #clock{font:600 17px/1 var(--astra-numeric);letter-spacing:.025em}
+ body.astra-ui.playing #flightTop151 .compact-kills{gap:3px;justify-content:flex-start}
+ body.astra-ui.playing #flightTop151 .compact-kills>span{font-size:9px;line-height:1.1}
+ body.astra-ui.playing #flightTop151 .compact-kills b{font-size:10px;line-height:1.1;letter-spacing:0}
+ body.astra-ui.playing #flightTop151 #xpHud{gap:5px}
+ body.astra-ui.playing #flightTop151 #xpHud>span{font-size:9px;letter-spacing:0;line-height:1}
+ body.astra-ui.playing #flightTop151 #xpHud>.bar{display:block!important;min-width:12px;flex:1;height:4px;border:0}
+ body.astra-ui.playing #flightTop151 #pause{width:35px;min-width:35px;height:35px;min-height:35px;border-radius:50%;padding:0;align-self:center;font-size:17px;border-color:#ddd6b5b3;background:#121a13e6}
+ body.astra-ui.playing #flightCenter156{grid-column:1/-1;grid-row:2;gap:6px;width:100%;max-width:none}
+ body.astra-ui.playing #flightStack151 #stageBossHud{width:92%;max-width:420px;padding:6px 10px;border-radius:2px;font-size:11px}
+ body.astra-ui.playing #flightStack151 #stageBossHud .bar{height:10px;margin-top:4px}
+ body.astra-ui.playing #flightNotices151 #toast{max-width:92%;font-size:10px;line-height:1.45;padding:6px 10px}
+ body.astra-ui.playing #flightNotices151 #bossArrival{max-width:92%;padding:5px 10px}
+ body.astra-ui.playing #flightNotices151 #bossArrival strong{font-size:12px}
+ body.astra-ui.playing #flightNotices151 #bossArrivalDetail{font-size:9px}
+ body.astra-ui.playing #touch{position:absolute;display:flex;left:max(16px,env(safe-area-inset-left));right:max(16px,env(safe-area-inset-right));bottom:max(35px,env(safe-area-inset-bottom));align-items:flex-end;justify-content:space-between;width:auto}
+ body.astra-ui.playing #touch #stick{position:relative;display:grid;place-items:center;width:130px;height:130px;border:1px solid #ddd5b380;border-radius:50%;background:radial-gradient(circle,#818c7b1c,#1220190c 65%,#0b151530);box-shadow:inset 0 0 0 1px #eee1ba15,0 1px 8px #0002}
+ body.astra-ui.playing #touch #stick:before{content:"";position:absolute;inset:31px;border:1px solid #d1d0b85c;border-radius:50%;pointer-events:none}
+ body.astra-ui.playing #touch #stick>span{width:42px;height:42px;min-width:42px;background:radial-gradient(circle at 33% 26%,#d2cbb17a,#676c595b);border:1px solid #ebe2c6ae;box-shadow:inset 0 1px 5px #f1eaca36,0 2px 6px #0003;border-radius:50%;z-index:1}
+ body.astra-ui.playing #stickCaption{display:block;position:absolute;top:calc(100% + 9px);left:0;right:0;margin:0;font:400 11px/1.2 var(--astra-type);color:#dbd4ba;text-align:center;letter-spacing:.025em}
+ body.astra-ui.playing #touch .touch-actions{display:grid;grid-template-columns:58px 80px;grid-template-rows:80px 80px;gap:10px;justify-items:center;align-items:center}
+ body.astra-ui.playing #touch #touchSkill,body.astra-ui.playing #touch #touchEvade{display:flex;position:relative;flex-direction:column;justify-content:center;align-items:center;padding:12px 4px 8px;width:80px;min-width:80px;height:80px;min-height:80px;border:1px solid #e3d7b5b3;border-radius:50%;gap:1px}
+ body.astra-ui.playing #touch #touchSkill{grid-column:2;grid-row:1}
+ body.astra-ui.playing #touch #touchEvade{grid-column:2;grid-row:2}
+ body.astra-ui.playing #touch #reload{grid-column:1;grid-row:2;position:relative;inset:auto;width:58px;min-width:58px;height:58px;min-height:58px;border:1px solid #e6d5ada1;border-radius:50%;padding:0;background:var(--hud-panel);font-size:0;color:#d6c69e;box-shadow:var(--hud-shadow);touch-action:none}
+ body.astra-ui.playing #touch #reload:before{content:"";position:absolute;inset:17px;background:currentColor;mask:url('astra-reload180.svg') center/contain no-repeat;-webkit-mask:url('astra-reload180.svg') center/contain no-repeat}
+ body.astra-ui.playing #touch #reload:after{content:'재장전';position:absolute;top:calc(100% + 8px);left:-8px;right:-8px;font:400 10px/1.2 var(--astra-type);color:#e7d8b8;letter-spacing:0;white-space:nowrap}
+ html[lang=en] body.astra-ui.playing #touch #reload:after{content:'RELOAD';font-size:9px}
+ body.astra-ui.playing #touch #reload:disabled{opacity:.58}
+ body.astra-ui.playing #touch .astra-control-icon{width:24px;height:24px;color:#e7cea0;z-index:1;flex:none}
+ body.astra-ui.playing #touch #touchEvade .astra-control-icon{width:27px;height:27px}
+ body.astra-ui.playing #touch .flight-key156{display:none}
+ body.astra-ui.playing #touch #skillButtonText,body.astra-ui.playing #touch #maneuverButtonText{font:400 9px/1.2 var(--astra-type);color:#d9d4bd;letter-spacing:0;margin:1px 0 0;z-index:1}
+ body.astra-ui.playing #touch #skillButtonState,body.astra-ui.playing #touch #maneuverButtonState{font:700 12px/1.3 var(--astra-type);color:#e8d8b6;letter-spacing:0;z-index:1}
+ body.astra-ui.playing #touch .astra-dial{inset:4px;color:#e0b366}
+ body.astra-ui.playing #touch .dial-progress{stroke-width:3}
+ body.astra-ui.playing .map-label{bottom:6px;left:16px;font-size:9px;line-height:1.4;opacity:.62}
+}
+@media(max-width:360px){
+ body.astra-ui.playing #flightTop151{grid-template-columns:minmax(0,1fr) 115px;gap:8px 6px}
+ body.astra-ui.playing:not(.coop-playing) .flight-status{width:115px;grid-template-columns:minmax(0,1fr) 30px;padding:7px 5px}
+ body.astra-ui.playing #flightTop151 #pause{width:30px;min-width:30px;height:30px;min-height:30px;font-size:15px}
+ body.astra-ui.playing:not(.coop-playing) .flight-survival{padding:9px 7px}
+ body.astra-ui.playing #flightTop151 .health151,body.astra-ui.playing #flightTop151 #ammoHud{grid-template-columns:18px 58px minmax(18px,1fr);gap:4px}
+ body.astra-ui.playing #touch #stick{width:110px;height:110px}
+ body.astra-ui.playing #touch .touch-actions{grid-template-columns:52px 76px;gap:8px}
+ body.astra-ui.playing #touch #reload{width:52px;height:52px;min-width:52px;min-height:52px}
+ body.astra-ui #hangar .astra-pilot-title{font-size:34px}.astra-aircraft-heading h2{font-size:18px}
+ body.astra-ui .airframe-rating-row{grid-template-columns:45px minmax(25px,1fr) 23px;gap:4px}
+ body.astra-ui .airframe-rating-row b{font-size:8px}.astra-rating-value{font-size:8px}
+}
+@media(max-height:550px) and (pointer:coarse) and (orientation:landscape){
+ body.astra-ui.playing #flightTop151{grid-template-columns:minmax(250px,310px) minmax(0,1fr) 126px}
+ body.astra-ui.playing:not(.coop-playing) .flight-status{grid-column:3}
+ body.astra-ui.playing #flightCenter156{grid-column:2;grid-row:1}
+ body.astra-ui.playing #touch{bottom:22px}
+ body.astra-ui.playing #touch #stick{width:105px;height:105px}
+ body.astra-ui.playing #touch .touch-actions{grid-template-columns:52px 68px 68px;grid-template-rows:68px}
+ body.astra-ui.playing #touch #reload{grid-column:1;grid-row:1;width:52px;height:52px;min-width:52px;min-height:52px}
+ body.astra-ui.playing #touch #touchSkill{grid-column:2;grid-row:1;width:68px;height:68px;min-width:68px;min-height:68px}
+ body.astra-ui.playing #touch #touchEvade{grid-column:3;grid-row:1;width:68px;height:68px;min-width:68px;min-height:68px}
+ body.astra-ui.playing .astra-control-icon{width:20px;height:20px}
+}
+@media(prefers-reduced-motion:reduce){body.astra-ui *,body.astra-ui *:before,body.astra-ui *:after{scroll-behavior:auto!important;transition:none!important;animation-duration:.001ms!important;animation-iteration-count:1!important}}
+
+/* Source labels remain accessible to app.js; their structured readout is presentation-only. */
+body.astra-ui .weapon-spec #weaponSpec,body.astra-ui .weapon-spec #weaponDetail{display:none}
+body.astra-ui .weapon-spec .astra-weapon-name{margin:6px 0 4px}
+body.astra-ui .weapon-spec .astra-weapon-meta{color:#d4d4bf}
+body.astra-ui .weapon-spec .astra-weapon-rate{margin-top:3px}
+body.astra-ui:not(.playing)>header .sight-o i{background:none;width:5px;height:5px;border:1px solid currentColor;border-radius:50%;box-shadow:none}
+@media(max-width:720px){
+ body.astra-ui.playing #legendaryInventory{top:calc(max(12px,env(safe-area-inset-top)) + 132px);right:max(14px,env(safe-area-inset-right));bottom:auto;max-width:160px;justify-content:flex-end;z-index:7}
+ .astra-hero{min-height:244px}.astra-dossier{padding-top:20px;padding-bottom:14px}
+ .astra-pilot-english{margin-bottom:15px}body.astra-ui:not(.playing) .skill-info{gap:10px}
+ body.astra-ui .weapon-spec .astra-weapon-name{font-size:9px;line-height:1.4;margin:3px 0}
+ body.astra-ui .weapon-spec .astra-weapon-meta,body.astra-ui .weapon-spec .astra-weapon-rate{font-size:8px;line-height:1.4;margin:2px 0}
+ body.astra-ui:not(.playing) .selected-aircraft{gap:8px 8px;grid-template-columns:minmax(0,43fr) minmax(0,57fr)}
+ .astra-aircraft-figure{min-height:160px}.astra-aircraft-art{max-height:196px}
+ body.astra-ui .astra-growth{font-size:7px;line-height:1.4;letter-spacing:0}
+ body.astra-ui .airframe-rating-row{gap:4px}
+ body.astra-ui:not(.playing)>header #mainOperations{position:static;display:none}
+ body.astra-ui:not(.playing) .astra-home>.main-operations{position:static;display:flex;margin:4px 16px 0;min-height:48px;max-height:none;backdrop-filter:none;padding:9px 0 max(10px,env(safe-area-inset-bottom));background:none}
+ .astra-home{padding-bottom:0}.astra-lower{padding-bottom:4px}
+}
+@media(max-height:550px) and (pointer:coarse) and (orientation:landscape){
+ body.astra-ui.playing #legendaryInventory{top:auto;right:max(230px,calc(env(safe-area-inset-right) + 220px));bottom:max(18px,env(safe-area-inset-bottom));max-width:150px}
+}
+/* Explicitly retire inherited ID-specific health constraints from interface58. */
+body.astra-ui.playing #flightTop151 .health151{max-width:none!important;background:none;box-shadow:none}
+body.astra-ui.playing #flightTop151 #healthText{font:500 17px/1.25 var(--astra-numeric);gap:4px}
+body.astra-ui.playing #flightTop151 #healthCurrent151,body.astra-ui.playing #flightTop151 #healthMax151,body.astra-ui.playing #flightTop151 #healthSlash151{font:inherit}
+body.astra-ui.playing #flightTop151 #hud{min-height:0;height:auto}
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing #flightTop151 #healthText{font:500 12px/1.3 var(--astra-numeric);gap:2px}
+ body.astra-ui.playing #flightTop151 #pause{width:44px;min-width:44px;height:44px;min-height:44px;font-size:21px}
+ body.astra-ui.playing:not(.coop-playing) .flight-status{grid-template-columns:minmax(0,1fr) 44px;gap:4px;padding-left:7px;padding-right:4px}
+ body.astra-ui.playing #touch #skillButtonText,body.astra-ui.playing #touch #maneuverButtonText,body.astra-ui.playing #touch #skillButtonState,body.astra-ui.playing #touch #maneuverButtonState{align-self:center;justify-self:center;text-align:center;grid-column:auto;grid-row:auto}
+ body.astra-ui.playing #touch #touchEvade .astra-control-icon{padding:0;border:0;border-radius:0}
+}
+@media(max-width:720px){
+ body.astra-ui .astra-aircraft-data .astra-base-hp{margin-top:9px;padding-top:7px}
+ body.astra-ui:not(.playing) #airframeStats{gap:6px}
+ body.astra-ui .astra-aircraft-data .weapon-spec{margin-top:8px;padding-top:6px;line-height:1.2}
+ body.astra-ui .weapon-spec .equipment-label{display:block;line-height:1.2}
+ body.astra-ui .astra-growth{grid-row:3}
+ .astra-aircraft-figure{grid-row:2}
+ body.astra-ui:not(.playing) .selected-aircraft{grid-template-rows:auto auto auto}
+ .astra-hero{min-height:234px}.astra-dossier{padding-bottom:8px;padding-top:17px}
+ body.astra-ui:not(.playing) .skill-info{gap:9px}.astra-pilot-english{margin-bottom:12px}
+}
+
+/* Verified refinement: prevent inherited aircraft-button chrome and preserve focus. */
+body.astra-ui .astra-aircraft-heading>button{background:transparent;box-shadow:none;border:0;border-radius:0;padding:0}
+body.astra-ui .astra-aircraft-heading>button:hover{background:#e6d4a80d;color:#f5dfac}
+body.astra-ui .astra-aircraft-figure{overflow:hidden}
+body.astra-ui.playing .main-settings{display:none}
+@media(min-width:721px){body.astra-ui .astra-aircraft-data{position:relative;z-index:1}}
+
+/* Keep faction names on one line with installed Korean fonts. */
+body.astra-ui .factions button{width:auto;min-width:66px;flex:0 0 auto;white-space:nowrap}
+
+
+/* ==========================================================================
+   HUD SYSTEM 191 — single visual authority for combat instruments + notices.
+   Phase 1: survival/status, boss bar, toast, ace arrival, mission notice.
+   No runtime observers; presentation only.
+   ========================================================================== */
+body.astra-ui.playing{
+ --hud191-surface:linear-gradient(120deg,#1a211de8,#0a100ded);
+ --hud191-surface-strong:linear-gradient(120deg,#202923f2,#0c1310f2);
+ --hud191-edge:#c8c0a25f;
+ --hud191-edge-soft:#c8c0a22d;
+ --hud191-text:#eee9d8;
+ --hud191-muted:#b7b9aa;
+ --hud191-accent:#c7aa73;
+ --hud191-danger:#ad554b;
+ --hud191-ready:#8daa93;
+ --hud191-radius:3px;
+ --hud191-shadow:inset 0 1px #ece5ce12,inset 0 0 0 3px #0002,0 5px 18px #0005;
+}
+body.astra-ui.playing:not(.coop-playing) .flight-survival,
+body.astra-ui.playing:not(.coop-playing) .flight-status,
+body.astra-ui.playing #flightStack151 #stageBossHud,
+body.astra-ui.playing #flightNotices151 #toast,
+body.astra-ui.playing #flightNotices151 #bossArrival,
+body.astra-ui.playing #flightNotices151 #eventMissionHud,
+body.astra-ui.playing #flightNotices151 #campaignHud{
+ border:1px solid var(--hud191-edge);
+ border-radius:var(--hud191-radius);
+ background:var(--hud191-surface);
+ box-shadow:var(--hud191-shadow);
+ color:var(--hud191-text);
+}
+
+/* Left/right instruments share the same density and seams. */
+body.astra-ui.playing:not(.coop-playing) .flight-survival{
+ padding:12px 14px;
+}
+body.astra-ui.playing:not(.coop-playing) .flight-status{
+ padding:9px 8px 9px 13px;
+}
+body.astra-ui.playing #flightTop151 .health151 .bar,
+body.astra-ui.playing #flightTop151 #ammoHud .bar,
+body.astra-ui.playing #flightTop151 #xpHud>.bar,
+body.astra-ui.playing #flightStack151 #stageBossHud .bar{
+ overflow:hidden;
+ border:1px solid var(--hud191-edge-soft);
+ border-radius:1px;
+ background:#060b08a6;
+ box-shadow:inset 0 1px 2px #0009;
+}
+body.astra-ui.playing #flightTop151 #xpBar{background:var(--hud191-ready)}
+body.astra-ui.playing #flightStack151 #stageBossHp{background:linear-gradient(90deg,#7e3934,#aa5549)}
+
+/* Centre lane is one notice family: boss, mission, toast. */
+body.astra-ui.playing #flightCenter156{
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ gap:7px;
+ min-width:0;
+}
+body.astra-ui.playing #flightNotices151{
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ gap:6px;
+ min-width:0;
+ width:100%;
+}
+body.astra-ui.playing #flightStack151 #stageBossHud{
+ width:min(540px,100%);
+ max-width:540px;
+ box-sizing:border-box;
+ padding:8px 12px 9px;
+ font:600 13px/1.3 var(--astra-type);
+ letter-spacing:.01em;
+}
+body.astra-ui.playing #stageBossTitle{
+ color:var(--hud191-text);
+}
+body.astra-ui.playing #stageBossParts{
+ color:var(--hud191-muted);
+ font-weight:500;
+}
+
+/* Lightweight operational messages: same surface, brass accent only. */
+body.astra-ui.playing #flightNotices151 #toast{
+ position:static;
+ inset:auto;
+ transform:none;
+ width:auto;
+ max-width:min(460px,100%);
+ box-sizing:border-box;
+ padding:6px 13px;
+ border-left:3px solid #ae9160;
+ color:#dbc394;
+ font:500 11px/1.4 var(--astra-type);
+ letter-spacing:.01em;
+ text-align:center;
+ white-space:normal;
+ word-break:keep-all;
+ pointer-events:none;
+}
+
+/* Mission notice uses the same family, not a separate card language. */
+body.astra-ui.playing #flightNotices151 #eventMissionHud,
+body.astra-ui.playing #flightNotices151 #campaignHud{
+ position:static;
+ inset:auto;
+ transform:none;
+ box-sizing:border-box;
+ width:min(500px,100%);
+ max-width:500px;
+ margin:0;
+ padding:7px 12px;
+ border-left:3px solid var(--hud191-accent);
+ text-align:center;
+}
+body.astra-ui.playing #flightNotices151 #eventMissionHud{
+ gap:2px;
+}
+body.astra-ui.playing #flightNotices151 #eventMissionTitle{
+ color:var(--hud191-accent);
+ font:700 10px/1.2 var(--astra-type);
+ letter-spacing:.06em;
+}
+body.astra-ui.playing #flightNotices151 #eventMissionObjective,
+body.astra-ui.playing #flightNotices151 #eventMissionMeta{
+ color:var(--hud191-text);
+ font:500 10px/1.3 var(--astra-type);
+}
+
+/* Enemy ace: portrait is integrated into an instrument, not a pasted photo card. */
+body.astra-ui.playing #flightNotices151 #bossArrival{
+ position:static;
+ inset:auto;
+ transform:none;
+ display:grid;
+ grid-template-columns:92px minmax(0,1fr);
+ align-items:stretch;
+ gap:0;
+ width:min(390px,100%);
+ max-width:390px;
+ height:92px;
+ box-sizing:border-box;
+ padding:0;
+ overflow:hidden;
+ border-left:3px solid var(--hud191-danger);
+ pointer-events:none;
+}
+body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{
+ position:relative;
+ width:92px;
+ height:92px;
+ flex:none;
+ margin:0;
+ overflow:hidden;
+ background:linear-gradient(135deg,#283129,#101613);
+}
+body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window:after{
+ content:"";
+ position:absolute;
+ inset:0;
+ pointer-events:none;
+ background:linear-gradient(90deg,transparent 52%,#10161388 76%,#101613 100%);
+}
+body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window img{
+ display:block;
+ width:100%;
+ height:100%;
+ object-fit:cover;
+ object-position:center 10%;
+ transform:scale(1.06);
+ transform-origin:center 18%;
+ filter:saturate(.82) contrast(1.02) brightness(.94);
+}
+body.astra-ui.playing #flightNotices151 #bossArrival>div:last-child{
+ min-width:0;
+ align-self:center;
+ padding:10px 12px 9px 2px;
+}
+body.astra-ui.playing #flightNotices151 #bossArrival small{
+ display:block;
+ margin:0 0 4px;
+ color:var(--hud191-danger);
+ font:700 8px/1.2 var(--astra-type);
+ letter-spacing:.1em;
+}
+body.astra-ui.playing #flightNotices151 #bossArrival strong{
+ display:block;
+ min-width:0;
+ margin:0;
+ color:var(--hud191-text);
+ font:800 16px/1.24 var(--astra-type);
+ letter-spacing:-.025em;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+body.astra-ui.playing #flightNotices151 #bossArrivalDetail{
+ display:block;
+ min-width:0;
+ margin-top:4px;
+ color:var(--hud191-accent);
+ font:600 9px/1.2 var(--astra-numeric);
+ letter-spacing:.08em;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+
+/* Compact is the same interface, only denser. */
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing #flightCenter156{gap:5px}
+ body.astra-ui.playing #flightNotices151{gap:4px}
+ body.astra-ui.playing #flightStack151 #stageBossHud{
+  width:min(330px,72vw);
+  padding:6px 9px;
+  font-size:10px;
+ }
+ body.astra-ui.playing #flightNotices151 #toast{
+  max-width:min(320px,76vw);
+  padding:5px 9px;
+  font-size:9px;
+ }
+ body.astra-ui.playing #flightNotices151 #eventMissionHud,
+ body.astra-ui.playing #flightNotices151 #campaignHud{
+  width:min(330px,76vw);
+  padding:5px 8px;
+ }
+ body.astra-ui.playing #flightNotices151 #bossArrival{
+  width:min(286px,72vw);
+  height:78px;
+  grid-template-columns:74px minmax(0,1fr);
+ }
+ body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{
+  width:74px;
+  height:78px;
+ }
+ body.astra-ui.playing #flightNotices151 #bossArrival>div:last-child{padding:7px 8px 7px 2px}
+ body.astra-ui.playing #flightNotices151 #bossArrival small{font-size:7px;margin-bottom:2px}
+ body.astra-ui.playing #flightNotices151 #bossArrival strong{font-size:12px}
+ body.astra-ui.playing #flightNotices151 #bossArrivalDetail{font-size:7px;margin-top:3px}
+}
+@media(max-width:360px){
+ body.astra-ui.playing #flightNotices151 #bossArrival{width:min(250px,70vw);grid-template-columns:66px minmax(0,1fr);height:72px}
+ body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{width:66px;height:72px}
+}
+
+
+/* ==========================================================================
+   HUD SYSTEM 191 — Phase 2
+   Active cut-in + reinforcement + special equipment.
+   Same Astra HUD surfaces; rarity/equipment only changes the accent.
+   ========================================================================== */
+
+/* ACTIVE CUT-IN — cinematic slash-in: large portrait + astra caption band. */
+body.astra-ui.playing #skillCutin{
+ left:0;
+ right:auto;
+ bottom:calc(max(24px,env(safe-area-inset-bottom)) + 88px);
+ width:auto;
+ height:auto;
+ display:grid;
+ grid-template-columns:auto minmax(0,1fr);
+ grid-template-rows:1fr;
+ align-items:end;
+ overflow:visible;
+ border:0;
+ border-radius:0;
+ background:none;
+ box-shadow:none;
+ animation:cutin-life156 2.15s cubic-bezier(.18,.8,.3,1) forwards;
+ pointer-events:none;
+}
+@keyframes cutin-life156{
+ 0%{opacity:0;transform:translateX(-64px)}
+ 8%{opacity:1;transform:translateX(0)}
+ 80%{opacity:1;transform:translateX(0)}
+ 100%{opacity:0;transform:translateX(-26px)}
+}
+body.astra-ui.playing #skillCutin:before{display:none}
+body.astra-ui.playing #skillCutin .cutin-portrait{
+ position:relative;
+ inset:auto;
+ grid-column:1;
+ grid-row:1;
+ width:min(236px,30vw);
+ height:min(288px,36dvh);
+ overflow:visible;
+ background-size:contain!important;
+ background-position:left bottom!important;
+ filter:saturate(.9) contrast(1.02) drop-shadow(9px 9px 14px #000a);
+ -webkit-mask-image:linear-gradient(90deg,#000 64%,transparent 96%);
+ mask-image:linear-gradient(90deg,#000 64%,transparent 96%);
+}
+body.astra-ui.playing #skillCutin .cutin-portrait:after{
+ content:"";
+ position:absolute;
+ left:8%;right:18%;bottom:6px;
+ height:2px;
+ background:linear-gradient(90deg,var(--cutin-accent,var(--hud191-accent)),transparent 88%);
+ opacity:.75;
+}
+body.astra-ui.playing #skillCutin .cutin-caption{
+ position:relative;
+ inset:auto;
+ grid-column:2;
+ grid-row:1;
+ min-width:0;
+ align-self:end;
+ display:flex;
+ flex-direction:column;
+ justify-content:flex-end;
+ gap:3px;
+ margin:0 0 20px -14px;
+ padding:9px 26px 10px 34px;
+ background:linear-gradient(90deg,#0d1714f2 72%,#0d171488 92%,transparent);
+ border-left:3px solid var(--cutin-accent,var(--hud191-accent));
+ clip-path:polygon(0 0,100% 0,94% 100%,0 100%);
+ animation:cutin-caption-in156 .3s .14s cubic-bezier(.2,.9,.3,1) backwards;
+}
+@keyframes cutin-caption-in156{
+ from{opacity:0;transform:translateX(-34px)}
+ to{opacity:1;transform:translateX(0)}
+}
+body.astra-ui.playing #skillCutin .cutin-caption small{
+ min-width:0;
+ margin:0;
+ color:var(--hud191-muted);
+ font:700 10px/1.25 var(--astra-type);
+ letter-spacing:.14em;
+ text-transform:uppercase;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+body.astra-ui.playing #skillCutin .cutin-caption strong{
+ min-width:0;
+ color:var(--hud191-accent);
+ font:800 20px/1.2 var(--astra-type);
+ letter-spacing:-.01em;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ text-shadow:0 2px 10px #000c;
+}
+
+/* UPGRADE / SPECIAL EQUIPMENT — one Astra selection shell. */
+body.astra-ui #modal.choice-modal151{
+ background:#07100ed6;
+ backdrop-filter:blur(5px);
+}
+body.astra-ui #modal.choice-modal151 .modal-card{
+ width:min(980px,calc(100vw - 48px));
+ max-width:980px;
+ max-height:calc(100dvh - 48px);
+ overflow:auto;
+ overflow-x:hidden;
+ box-sizing:border-box;
+ padding:18px;
+ border:1px solid var(--hud191-edge,#c8c0a25f);
+ border-top:1px solid var(--hud191-edge,#c8c0a25f);
+ border-radius:4px;
+ background:linear-gradient(120deg,#1a211df5,#0a100df8);
+ box-shadow:inset 0 1px #ece5ce12,inset 0 0 0 3px #0002,0 22px 65px #000b;
+ color:#eee9d8;
+}
+body.astra-ui #modal.choice-modal151 #modalTag{
+ margin:0 0 5px;
+ color:#c7aa73;
+ font:600 9px/1.2 var(--astra-numeric);
+ letter-spacing:.14em;
+}
+body.astra-ui #modal.choice-modal151 #modalTitle{
+ margin:0;
+ color:#eee9d8;
+ font:800 23px/1.25 var(--astra-type);
+ letter-spacing:-.025em;
+}
+body.astra-ui #modal.choice-modal151 #modalText{
+ margin:5px 0 13px;
+ color:#b7b9aa;
+ font:400 11px/1.45 var(--astra-type);
+}
+body.astra-ui #modal.choice-modal151 #modalActions,
+body.astra-ui #modal.choice-modal151 #modalActions:has(.choice:nth-child(4)){
+ display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:8px;
+ align-items:stretch;
+}
+body.astra-ui #modal.choice-modal151 #modalActions:has(.choice:nth-child(4)){
+ grid-template-columns:repeat(4,minmax(0,1fr));
+}
+
+/* All rarity cards share structure; rarity is a restrained left seam + label. */
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
+ --hud191-choice-accent:#858c85;
+ display:grid!important;
+ grid-template-columns:96px minmax(0,1fr)!important;
+ grid-template-rows:20px minmax(42px,auto) minmax(64px,1fr) 30px!important;
+ gap:3px 10px!important;
+ min-width:0!important;
+ height:206px!important;
+ min-height:206px!important;
+ max-height:206px!important;
+ padding:11px 11px!important;
+ overflow:hidden;
+ align-items:start!important;
+ justify-items:stretch!important;
+ border:1px solid #c8c0a23a!important;
+ border-left:3px solid var(--hud191-choice-accent)!important;
+ border-radius:3px!important;
+ background:linear-gradient(90deg,var(--hud191-choice-tint,transparent),transparent 58%),linear-gradient(120deg,#18201bf0,#0b110ef5)!important;
+ box-shadow:inset 0 1px #e8e1ca0c,inset 0 0 22px var(--hud191-choice-glow,transparent)!important;
+ color:#eee9d8!important;
+ transform:none!important;
+ animation:none!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-normal{--hud191-choice-accent:#99a3a8;--hud191-choice-tint:#99a3a812}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-magic{--hud191-choice-accent:#5fc2b4;--hud191-choice-tint:#5fc2b414}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-rare{--hud191-choice-accent:#6fb0f2;--hud191-choice-tint:#6fb0f216}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-unique{--hud191-choice-accent:#e587c7;--hud191-choice-tint:#e587c716}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-legendary{--hud191-choice-accent:#ffc95e;--hud191-choice-tint:#ffc95e1e;--hud191-choice-glow:#ffc95e14}
+
+/* Retire old metallic sweep / decorative corner treatment. */
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:before,
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:after{
+ display:none!important;
+ animation:none!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .rarity-label160{
+ position:static!important;
+ grid-column:2!important;
+ grid-row:1!important;
+ justify-self:end;
+ align-self:center;
+ margin:0!important;
+ color:var(--hud191-choice-accent)!important;
+ opacity:1!important;
+ font:700 9px/1.2 var(--astra-numeric)!important;
+ letter-spacing:.12em!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .effect-category151{
+ grid-column:2!important;
+ grid-row:1!important;
+ justify-self:start!important;
+ align-self:center!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ background:none!important;
+ color:#aeb2a5!important;
+ font:600 9px/1.2 var(--astra-type)!important;
+ letter-spacing:.03em!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .choice-icon{
+ grid-column:1!important;
+ grid-row:1/5!important;
+ align-self:center!important;
+ justify-self:center!important;
+ width:88px!important;
+ height:88px!important;
+ max-width:88px!important;
+ object-fit:contain;
+ opacity:.95;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>b{
+ grid-column:2!important;
+ grid-row:2!important;
+ align-self:center!important;
+ min-width:0;
+ margin:0!important;
+ color:#eee9d8!important;
+ font:800 14px/1.3 var(--astra-type)!important;
+ text-align:left!important;
+ letter-spacing:-.015em!important;
+ display:-webkit-box!important;
+ -webkit-line-clamp:2!important;
+ -webkit-box-orient:vertical!important;
+ overflow:hidden!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>span:not(.cumulative151),
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:has(.cumulative151:not(:empty))>span:not(.cumulative151){
+ grid-column:2!important;
+ grid-row:3!important;
+ align-self:start!important;
+ min-width:0;
+ margin:0!important;
+ color:#c5c8ba!important;
+ font:400 11px/1.45 var(--astra-type)!important;
+ display:-webkit-box!important;
+ -webkit-line-clamp:6!important;
+ -webkit-box-orient:vertical!important;
+ overflow:hidden!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>.cumulative151{
+ grid-column:2!important;
+ grid-row:4!important;
+ align-self:end!important;
+ width:100%!important;
+ height:auto!important;
+ margin:0!important;
+ padding:5px 0 0!important;
+ border-top:1px solid #c8c0a226!important;
+ color:#c9b889!important;
+ font:600 9px/1.25 var(--astra-numeric)!important;
+ white-space:nowrap!important;
+ overflow:hidden!important;
+ text-overflow:ellipsis!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:hover,
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:focus-visible{
+ outline:1px solid #d7ceb06e!important;
+ outline-offset:1px!important;
+ filter:brightness(1.06);
+ background:linear-gradient(120deg,#202a23f4,#0c1310f7)!important;
+}
+
+/* Special equipment is premium by accent, not by switching to another theme. */
+body.astra-ui #modal.choice-modal151.special-draft156 .modal-card{
+ border-color:#bba97a66;
+}
+body.astra-ui #modal.choice-modal151.special-draft156 #modalTitle{
+ color:#e9dfc7;
+}
+body.astra-ui #modal.choice-modal151.special-draft156 #modalActions .rarity-legendary{
+ background:linear-gradient(120deg,#20251ff4,#10130ff7)!important;
+ border-color:#bcae8248!important;
+ border-left-color:#bea878!important;
+}
+body.astra-ui #modal.choice-modal151 .legendary-reroll115{
+ grid-column:1/-1;
+ min-height:38px;
+ margin-top:1px;
+ border:1px solid #a697704d;
+ border-radius:3px;
+ background:#111813d8;
+ color:#d8ccb0;
+ font:600 10px/1.2 var(--astra-type);
+}
+
+/* Inventory chips use exactly the same instrument surface. */
+body.astra-ui.playing #legendaryInventory .legendary-badge{
+ width:34px;
+ height:34px;
+ padding:0;
+ border:1px solid #b7a77769;
+ border-radius:3px;
+ background:var(--hud191-surface);
+ box-shadow:var(--hud191-shadow);
+}
+body.astra-ui.playing #legendaryInventory .legendary-tip156{
+ border:1px solid var(--hud191-edge);
+ border-radius:3px;
+ background:var(--hud191-surface-strong);
+ box-shadow:var(--hud191-shadow);
+ color:var(--hud191-text);
+ font:10px/1.4 var(--astra-type);
+}
+
+/* Mobile = same cards, reduced density; never horizontal scroll. */
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing #skillCutin{
+  left:max(8px,env(safe-area-inset-left));
+  bottom:max(118px,calc(env(safe-area-inset-bottom) + 102px));
+  width:min(230px,58vw);
+  height:72px;
+  grid-template-columns:66px minmax(0,1fr);
+ }
+ body.astra-ui.playing #skillCutin .cutin-portrait{width:66px;height:72px}
+ body.astra-ui.playing #skillCutin .cutin-caption{padding:7px 8px 7px 2px;gap:2px}
+ body.astra-ui.playing #skillCutin .cutin-caption small{font-size:7px}
+ body.astra-ui.playing #skillCutin .cutin-caption strong{font-size:11px}
+
+ body.astra-ui #modal.choice-modal151 .modal-card{
+  width:calc(100vw - 12px);
+  max-width:none;
+  max-height:calc(100dvh - 12px);
+  padding:10px 8px;
+ }
+ body.astra-ui #modal.choice-modal151 #modalTitle{font-size:19px}
+ body.astra-ui #modal.choice-modal151 #modalText{font-size:10px;margin-bottom:8px}
+ body.astra-ui #modal.choice-modal151 #modalActions,
+ body.astra-ui #modal.choice-modal151 #modalActions:has(.choice:nth-child(4)){
+  grid-template-columns:1fr;
+  gap:5px;
+  overflow-x:hidden;
+ }
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
+  grid-template-columns:68px minmax(0,1fr)!important;
+  grid-template-rows:16px 34px 48px 25px!important;
+  height:132px!important;
+  min-height:132px!important;
+  max-height:132px!important;
+  padding:7px 8px!important;
+  gap:2px 8px!important;
+ }
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .choice-icon{
+  width:60px!important;height:60px!important;max-width:60px!important
+ }
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .rarity-label160,
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .effect-category151{font-size:7px!important}
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>b{font-size:12px!important}
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>span:not(.cumulative151),
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:has(.cumulative151:not(:empty))>span:not(.cumulative151){
+  font-size:9px!important;line-height:1.35!important;-webkit-line-clamp:unset!important;overflow:visible!important
+ }
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>.cumulative151{font-size:8px!important;padding-top:3px!important}
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
+  height:auto!important;min-height:150px!important;max-height:none!important;
+  grid-template-rows:16px minmax(30px,auto) minmax(40px,auto) auto!important;
+ }
+}
+
+@media(max-height:550px) and (pointer:coarse) and (orientation:landscape){
+ body.astra-ui #modal.choice-modal151 #modalActions,
+ body.astra-ui #modal.choice-modal151 #modalActions:has(.choice:nth-child(4)){
+  grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
+  height:116px!important;min-height:116px!important;max-height:116px!important;
+  grid-template-rows:15px 30px 42px 21px!important;
+ }
+}
