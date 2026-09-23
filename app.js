@@ -24,7 +24,7 @@ import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liver
 import {drawCampaign} from './campaign-view.js?v=215&b=211';
 import {campaignArtReady} from './aircraft.js?v=220';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady} from './icons.js?v=216';
-import {BattleMusic,musicModeForGame} from './music.js?v=224&b=212';
+import {BattleMusic,musicModeForGame} from './music.js?v=225&b=213';
 import {sfx,setSfxMuted} from './sfx.js?v=224&b=212';
 import {portraitSources,portraitsReady} from './portraits.js?v=217&b=212';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=190&b=210';
