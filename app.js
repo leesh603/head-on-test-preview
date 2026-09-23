@@ -12,7 +12,7 @@ import './hud-layout94.js?v=214';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=214';
 import {CoopGame,coopPlane} from './coop-engine.js?v=235';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=214';
-import {drawCoop} from './coop-view.js?v=237';
+import {drawCoop} from './coop-view.js?v=238';
 import {drawSunStrike} from './sun-strike71.js?v=223&b=220';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=217&b=212';
 import {installFlightViewport} from './flight-viewport.js?v=214';
@@ -35,7 +35,7 @@ import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilot
 import {TerrainRenderer,MountainField} from './alps-terrain117.js?v=214';
 const flightViewport=installFlightViewport(document,window);
 const ententeAirshipSprite=new Image();ententeAirshipSprite.src='./zeppelin-entente.webp?v=214&b=214';
-const zeppelinSprite=new Image();zeppelinSprite.src='./zeppelin.webp?v=214&b=214';
+const zeppelinSprite=new Image();zeppelinSprite.src='./zeppelin.webp?v=214&b=214';const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=257&b=215';
 const globalZeppelinSprite=zeppelinSprite;
 const TRANSPARENT_PORTRAIT='data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 const eliteAssets=createEliteAssets({
@@ -124,18 +124,17 @@ function drawPilotPassives(g,x,y,t,point){
  for(const gh of g.immelmannGhosts||[]){const[gx,gy]=point(gh.x,gh.y);drawEagleGhost(ctx,gx,gy,gh.a,Math.min(1,gh.life/gh.maxLife*1.4)*.85)}
  if(g.loewenhardtEngaged){ctx.save();const pulse=.55+.35*Math.sin(t*9);ctx.globalAlpha=.85;ctx.strokeStyle=`rgba(255,214,74,${pulse})`;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(x,y,36,g.a-Math.PI/2.8,g.a+Math.PI/2.8);ctx.stroke();ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(x,y,44,g.a-Math.PI/4,g.a+Math.PI/4);ctx.stroke();for(let i=0;i<3;i++){const ga=g.a-Math.PI/3+i*Math.PI/3;ctx.fillStyle='#ffe98a';ctx.beginPath();ctx.arc(x+Math.cos(ga)*36,y+Math.sin(ga)*36,2.4,0,Math.PI*2);ctx.fill()}ctx.restore()}
  if(g.fxOverheat>0){ctx.save();ctx.globalAlpha=.55*g.fxOverheat;const nx=x+Math.cos(g.a)*14,ny=y+Math.sin(g.a)*14;ctx.fillStyle='#ff8a3c';ctx.beginPath();ctx.arc(nx,ny,7+Math.sin(t*30)*2.4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffd27a';ctx.beginPath();ctx.arc(nx,ny,3.4,0,Math.PI*2);ctx.fill();ctx.restore()}
- if(g.pilot==='rickenbacker'&&(g.rickActive||g.skillTime)>0){const ph=t*3.1,ea=.32;ctx.save();ctx.globalAlpha=.8;ctx.strokeStyle='rgba(255,226,140,.85)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y,58,30,ea,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=.22;ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(x,y,58,30,ea,0,Math.PI*2);ctx.stroke();ctx.restore();const ce=Math.cos(ea),se=Math.sin(ea),ox=Math.cos(ph)*58,oy=Math.sin(ph)*30;const px=x+ox*ce-oy*se,py=y+ox*se+oy*ce;const ra=Math.atan2(Math.cos(ph)*30,Math.sin(ph)*58)+ea;ctx.save();ctx.translate(px,py);ctx.globalAlpha=.95;planeSprite(ctx,0,0,ra,aircraftKey(plane,false,'rickenbacker'),.52,false,false);ctx.restore()}
+ if(g.pilot==='rickenbacker'&&(g.rickActive||g.skillTime)>0){const ph=t*3.1,ea=.32;ctx.save();ctx.globalAlpha=.8;ctx.strokeStyle='rgba(255,226,140,.85)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y,58,30,ea,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=.22;ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(x,y,58,30,ea,0,Math.PI*2);ctx.stroke();ctx.restore()}
  if((g.rickCount||0)>=2){ctx.save();const n=Math.min(5,g.rickCount);ctx.globalAlpha=.75;for(let i=0;i<n;i++){const ga=t*2.2+i*Math.PI*2/n;ctx.fillStyle=i%2?'#cfe6ff':'#9fc8ff';ctx.beginPath();ctx.arc(x+Math.cos(ga)*46,y+Math.sin(ga)*46,2.6,0,Math.PI*2);ctx.fill()}ctx.restore()}
- if(g.ballCloak>0){ctx.save();const fade=Math.min(1,g.ballCloak*3);for(let i=0;i<9;i++){const ga=t*.55+i*.7,rr=12+((i*53)%30);ctx.globalAlpha=.4*fade;ctx.fillStyle='#eef0e2';ctx.beginPath();ctx.ellipse(x+Math.cos(ga)*rr,y+Math.sin(ga)*rr*.8,11+(i*29)%8,8+(i*17)%6,ga,0,Math.PI*2);ctx.fill()}ctx.restore()}
+ if(g.ballCloak>0&&ballCloudSprite.naturalWidth){ctx.save();const fade=Math.min(1,g.ballCloak*3);for(let i=0;i<7;i++){const ga=t*.5+i*.9,rr=10+((i*53)%26),sc=.16+(i*29)%10*.014;ctx.globalAlpha=.5*fade*(i%2?.85:1);ctx.save();ctx.translate(x+Math.cos(ga)*rr,y+Math.sin(ga)*rr*.75);ctx.rotate(ga*.4);ctx.drawImage(ballCloudSprite,-160*sc,-100*sc,320*sc,200*sc);ctx.restore()}ctx.restore()}
  if(g.pilot==='ball'&&g.ballAlone){ctx.save();const ph=(t*.9)%1;ctx.globalAlpha=(1-ph)*.4;ctx.strokeStyle='#e8ecdf';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(x,y,30+ph*18,0,Math.PI*2);ctx.stroke();ctx.restore()}
  if((g.brumAllyCount||0)>0){ctx.save();const n=Math.min(4,g.brumAllyCount);ctx.globalAlpha=.7;for(let i=0;i<n;i++){const ga=t*1.8+i*Math.PI*2/n;ctx.fillStyle='#e86a5a';ctx.beginPath();ctx.arc(x+Math.cos(ga)*42,y+Math.sin(ga)*42,2.8,0,Math.PI*2);ctx.fill()}ctx.restore()}
  const pl=g.pl||g,pil=pl.pilot||g.pilot;
  // Tail-lock (all pilots): brackets on the tailed enemy, gold when locked
  // Fonck: gold precision reticle ahead of the nose
  if(pil==='fonck'&&pl.muzzleFlash>0){ctx.save();const nx=x+Math.cos(g.a)*30,ny=y+Math.sin(g.a)*30;ctx.globalAlpha=.85;ctx.strokeStyle='#ffe08a';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(nx,ny,6.5,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(nx-10,ny);ctx.lineTo(nx+10,ny);ctx.moveTo(nx,ny-10);ctx.lineTo(nx,ny+10);ctx.stroke();ctx.restore()}
- // Baracca & Immelmann: single heavy gun — bigger muzzle bloom
+ // Baracca: head-on duel arc
  if(pil==='baracca'&&(g.enemies||[]).some(e=>{if(e.hp<=0)return false;const d=(e.x-pl.x)**2+(e.y-pl.y)**2;return d<520*520&&Math.abs(Math.atan2(Math.sin(Math.atan2(e.y-pl.y,e.x-pl.x)-g.a),Math.cos(Math.atan2(e.y-pl.y,e.x-pl.x)-g.a)))<Math.PI/3})){ctx.save();const pulse=.6+.3*Math.sin(t*10);ctx.globalAlpha=.8;ctx.strokeStyle=`rgba(224,58,42,${pulse})`;ctx.lineWidth=2.6;ctx.beginPath();ctx.arc(x,y,44,g.a-Math.PI/3,g.a+Math.PI/3);ctx.stroke();ctx.lineWidth=1.2;ctx.strokeStyle=`rgba(255,214,150,${pulse})`;ctx.beginPath();ctx.arc(x,y,52,g.a-Math.PI/4,g.a+Math.PI/4);ctx.stroke();ctx.restore()}
- if(pil==='immelmann'&&pl.weapon?.guns===1&&pl.muzzleFlash>0){ctx.save();const nx=x+Math.cos(g.a)*30,ny=y+Math.sin(g.a)*30;ctx.globalAlpha=.9;ctx.fillStyle='#ff9a3c';ctx.beginPath();ctx.arc(nx,ny,9+Math.sin(t*40)*2,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff1c0';ctx.beginPath();ctx.arc(nx,ny,4,0,Math.PI*2);ctx.fill();ctx.restore()}
  // Jacobs: little black devils, one per kill-stack (max 3)
  if(pil==='immelmann'&&(pl.eagleTime||0)>0){ctx.save();const f=Math.min(1,pl.eagleTime);ctx.globalAlpha=.5+.3*Math.sin(t*14);ctx.strokeStyle='#7fd4ff';ctx.lineWidth=2.4;ctx.beginPath();ctx.arc(x,y,40,g.a-Math.PI/2-.9,g.a-Math.PI/2+.9);ctx.stroke();ctx.globalAlpha=.85*f;ctx.strokeStyle='#cfeeff';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(x,y,34,g.a-Math.PI/2-.65,g.a-Math.PI/2+.65);ctx.stroke();ctx.restore()}
  if(pil==='jacobs'&&(pl.jacobsStacks||0)>0){ctx.save();for(let i=0;i<pl.jacobsStacks;i++){const ga=t*2.4+i*Math.PI*2/3+.6,ox=x+Math.cos(ga)*34,oy=y+Math.sin(ga)*34+Math.sin(t*6+i)*2;ctx.globalAlpha=.92;ctx.translate(ox,oy);ctx.rotate(ga+Math.PI/2);ctx.fillStyle='#1c1410';ctx.beginPath();ctx.arc(0,-2,4.4,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(-3.6,-4.5);ctx.lineTo(-6.5,-10.5);ctx.lineTo(-1,-6.5);ctx.closePath();ctx.moveTo(3.6,-4.5);ctx.lineTo(6.5,-10.5);ctx.lineTo(1,-6.5);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(-3.4,1.5);ctx.quadraticCurveTo(-7.5,5,-5,9);ctx.lineTo(0,6.5);ctx.lineTo(5,9);ctx.quadraticCurveTo(7.5,5,3.4,1.5);ctx.closePath();ctx.fill();ctx.fillStyle='#ff4a3a';ctx.beginPath();ctx.arc(-1.5,-2.6,1,0,Math.PI*2);ctx.arc(1.5,-2.6,1,0,Math.PI*2);ctx.fill();ctx.setTransform(1,0,0,1,0,0)}ctx.restore()}
