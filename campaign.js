@@ -24,7 +24,17 @@ const fits=[
  ['Junkers J.I','junkers_j1','albatros','central',1],['Gotha G.V','gotha','re7','central',1],
  ['Bristol M.1','bristol_m1','pup','entente',1],['Sopwith Dolphin','dolphin','se5a','entente'],
  ['Sopwith Snipe','snipe','camel','entente'],['F.E.2b','fe2b','strutter','entente',1],
- ['Vickers F.B.5','gunbus','strutter','entente',1],['Morane-Saulnier A.I','morane_ai','nieuport','entente',1]
+ ['Vickers F.B.5','gunbus','strutter','entente',1],['Morane-Saulnier A.I','morane_ai','nieuport','entente',1],
+ ['AEG G.IV','aeg_g4','re7','central',1],['Friedrichshafen G.III','friedrichshafen_g3','re7','central',1],
+ ['Breguet 14','breguet14','re7','entente',1],['Voisin VIII','voisin8','re7','entente',1],
+ ['Caudron G.4','caudron_g4','re7','entente',1],
+ ['Siemens-Schuckert D.III','ssw_d3','albatros','central'],['Pfalz D.XII','pfalz_d12','albatros','central'],
+ ['Phönix D.I','phonix_d1','albatros','central'],['Aviatik D.I Berg','aviatik_d1','albatros','central'],
+ ['Junkers D.I','junkers_d1','albatros','central'],['Ansaldo SVA.5','ansaldo_sva5','spad','entente'],
+ ['Hansa-Brandenburg W.29','hb_w29','albatros','central'],['Friedrichshafen FF.33','ff33','re7','central',1],
+ ['Felixstowe F.2','felixstowe_f2','re7','entente',1],
+ ['Schütte-Lanz SL.11','shuttelanz_sl11','re7','central',0],['Parseval PL','parseval','re7','central',0],
+ ['Caquot Balloon','caquot_balloon','re7','entente',0]
 ];
 // Campaign-specific flight fits: game estimates, not historical test measurements.
 const campaignFlight={
@@ -58,7 +68,24 @@ const campaignFlight={
  snipe:['camel',166,3.7,.17,1.2,'캐멀 후계 전투기'],
  fe2b:['re7',118,2.5,.21,.8,'초기 푸셔 복좌기'],
  gunbus:['re7',108,2.3,.22,.7,'초기 푸셔 전투기'],
- morane_ai:['nieuport',140,3.8,.2,1.05,'파라솔 단엽기']
+ morane_ai:['nieuport',140,3.8,.2,1.05,'파라솔 단엽기'],
+ aeg_g4:['re7',108,1.9,.24,.62,'쌍발 중폭격기'],
+ friedrichshafen_g3:['re7',104,1.85,.24,.6,'쌍발 폭격기'],
+ breguet14:['re7',130,2.35,.21,.85,'주간 폭격기'],
+ voisin8:['re7',106,2.15,.23,.7,'푸셔 포격기'],
+ caudron_g4:['re7',112,2.3,.21,.75,'쌍발 정찰기'],
+ ssw_d3:['albatros',172,3.6,.16,1.25,'고속 상승 전투기'],
+ pfalz_d12:['albatros',162,3.05,.17,1.1,'후기형 전투기'],
+ phonix_d1:['albatros',160,3.05,.17,1.1,'오스트리아 전투기'],
+ aviatik_d1:['albatros',158,3.2,.17,1.1,'버그 스카우트'],
+ junkers_d1:['albatros',176,3.05,.17,1.2,'전금속 단엽 전투기'],
+ ansaldo_sva5:['spad',188,2.95,.15,1.3,'고속 정찰 전투기'],
+ hb_w29:['albatros',150,3.2,.18,1.05,'수상 전투기'],
+ ff33:['re7',100,2.25,.22,.7,'수상 정찰기'],
+ felixstowe_f2:['re7',96,1.7,.25,.55,'대형 비행정'],
+ shuttelanz_sl11:['re7',62,1.05,.3,.38,'경질 비행선'],
+ parseval:['re7',58,1.15,.3,.42,'비경질 비행선'],
+ caquot_balloon:['re7',22,.4,.35,.3,'관측 기구']
 };
 export const AIRCRAFT_IDS={},SPRITE_ALIASES={};
 for(const [name,id,base,faction,guns] of fits){
@@ -68,8 +95,8 @@ for(const [name,id,base,faction,guns] of fits){
   Object.defineProperty(WEAPONS,id,{value:{...WEAPONS[base],...(guns===undefined?{}:{guns}),...(guns===0?{name:'전방 고정총 없음'}:{})},enumerable:false});
  }
  if(campaignFlight[id]&&id!=='albatros_d2'){const [family,speed,turn,drag,recovery,role]=campaignFlight[id];const original=AIRFRAME_PROFILES[family];const handling=Object.freeze({...original,speed,turn,drag,recovery,role,left:1,history:id==='bristol'?original.history:name+'의 임무와 기체 계열을 반영한 캠페인용 비행 설정입니다. 세부 수치는 게임용 추정치입니다.',tip:id==='bristol'?original.tip:(turn>=3.3?'민첩한 방향 전환을 활용하세요. 급선회 후 직진하면 속도가 회복됩니다.':speed>=160?'속도를 살려 통과 사격하고 넓게 돌아오세요.':'미리 진로를 정해 부드럽게 도세요. 급선회 후에는 속도 회복에 여유를 주세요.')});Object.assign(PLANES[id],{speed,turn,role,handling,personality:personalityFor(family)||PLANES[family]?.personality||PLANES[id].personality})}
- configureAirframeBalance(PLANES[id],({be2c:100,dh2:85,aviatik:110,strutter:110,nieuport11:80,nieuport28:95,fokker_e1:80,albatros_d2:110,albatros_d5:115,oeffag:120,pup:90,dh5:95,bristol:130,halberstadt:120,albatros_d5a:120,spad7:115,hanriot:95,re8:120,dh4:125,siemens_d4:110,roland_d6:105,hannover_cl3:120,dfw_cv:115,junkers_j1:170,gotha:220,bristol_m1:85,dolphin:105,snipe:115,fe2b:115,gunbus:100,morane_ai:85})[id]??PLANES[id].hp);
- const OWN_ART=['be2c','aviatik','strutter','nieuport11','nieuport28','hanriot','pup','dh5','re8','dh4','albatros_d2','albatros_d5a','siemens_d4','roland_d6','hannover_cl3','dfw_cv','junkers_j1','gotha','bristol_m1','dolphin','snipe','fe2b','gunbus','morane_ai'];
+ configureAirframeBalance(PLANES[id],({be2c:100,dh2:85,aviatik:110,strutter:110,nieuport11:80,nieuport28:95,fokker_e1:80,albatros_d2:110,albatros_d5:115,oeffag:120,pup:90,dh5:95,bristol:130,halberstadt:120,albatros_d5a:120,spad7:115,hanriot:95,re8:120,dh4:125,siemens_d4:110,roland_d6:105,hannover_cl3:120,dfw_cv:115,junkers_j1:170,gotha:220,bristol_m1:85,dolphin:105,snipe:115,fe2b:115,gunbus:100,morane_ai:85,aeg_g4:200,friedrichshafen_g3:190,breguet14:130,voisin8:160,caudron_g4:150,ssw_d3:100,pfalz_d12:115,phonix_d1:110,aviatik_d1:105,junkers_d1:125,ansaldo_sva5:95,hb_w29:90,ff33:110,felixstowe_f2:230,shuttelanz_sl11:280,parseval:220,caquot_balloon:90})[id]??PLANES[id].hp);
+ const OWN_ART=['be2c','aviatik','strutter','nieuport11','nieuport28','hanriot','pup','dh5','re8','dh4','albatros_d2','albatros_d5a','siemens_d4','roland_d6','hannover_cl3','dfw_cv','junkers_j1','gotha','bristol_m1','dolphin','snipe','fe2b','gunbus','morane_ai','aeg_g4','friedrichshafen_g3','breguet14','voisin8','caudron_g4','ssw_d3','pfalz_d12','phonix_d1','aviatik_d1','junkers_d1','ansaldo_sva5','hb_w29','ff33','felixstowe_f2','shuttelanz_sl11','parseval','caquot_balloon'];
  const REMAP={halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',dh2:'airco_dh2',albatros_d5:'albatros_d5a'};
  if(id!==base&&!OWN_ART.includes(id))SPRITE_ALIASES[id]=REMAP[id]??base;
 }
