@@ -68,7 +68,6 @@ function drawEquipmentEffects151(c,p,x,y){
   for(const side of [-1,1]){c.globalAlpha=q*.55;c.strokeStyle='#cbd3c2';c.lineWidth=1.5;c.beginPath();c.moveTo(26,side*18);c.bezierCurveTo(8,side*38,-28,side*34,-52-(1-q)*24,side*20);c.stroke();}c.restore();
  }
  if(p.upgrades?.mercedesEngine){const output=Math.max(0,Math.min(1,p.mercedesOutput160||0));c.save();c.globalAlpha=.18+output*.28;c.strokeStyle='#c6d0c6';c.lineWidth=1+output*.7;for(const side of [-1,1]){c.beginPath();c.moveTo(-25,side*8);c.quadraticCurveTo(-40-output*13,side*(10+Math.sin(t*18)*2),-52-output*24,side*12);c.stroke()}c.restore()}
- if(p.upgrades?.loEmblem){c.strokeStyle='#d96d6477';c.lineWidth=3;c.beginPath();c.ellipse(0,0,40,31,0,0,Math.PI*2);c.stroke();c.strokeStyle='#f0a38a33';c.lineWidth=7;c.stroke()}
  if(p.sacredCowling){
   c.save();c.lineCap='round';
   const near=(p.enemies||p.world?.enemies||[]).some(e=>e.hp>0&&Math.hypot(e.x-p.x,e.y-p.y)<260),strength=near?1:.55;

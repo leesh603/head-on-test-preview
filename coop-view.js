@@ -1,6 +1,6 @@
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=216';
 import {fx,fxReady,fxTint} from './fx-art.js';
-import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=214';
+import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=215';
 import {drawStageBoss} from './stageboss-view.js?v=197&b=212';
 import {planeSprite,aircraftKey} from './aircraft.js?v=220';
 import {drawEquipment} from './equipment.js?v=215&b=211';
