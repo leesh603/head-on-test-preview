@@ -1,4 +1,4 @@
-import {installRevision} from './rebalance103.js?v=214&b=210';
+import {installRevision} from './rebalance103.js?v=215&b=212';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=214';
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=190';
 import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=218';
@@ -477,17 +477,17 @@ export const SPECIAL_AMMO=Object.freeze({
 });
 export const GOERING_WING_BOOST=Object.freeze({duration:5,damageMultiplier:3,fireRateMultiplier:2});
 export const LEGENDARIES=[
- {id:'redScarf',name:'붉은남작의 머플러',desc:'이동 속도 +45%, 경험치 회수 반경 +120 (최대 480). 한 출격 1회.'},
- {id:'prancingHorse',name:'바라카의 도약하는 말',desc:'0.7초마다 비행 경로에 피해 80의 공중 기뢰를 설치합니다. 폭발물 강화 적용. 한 출격 1회.'},
- {id:'ironCross',name:'철십자훈장',desc:'현재 최대 내구도 +60%. 현재 내구도 비율을 유지하고 파일럿 액티브를 강화합니다. 다른 내구도 강화과 합쳐도 추가 내구도는 최대 +180. 한 출격 1회.'},
- {id:'telescope',name:'르네 퐁크의 망원경',desc:'기관총·로켓·아군 편대 탄환 사거리: 현재 화면 끝까지. 기관총 공격력 +15%. 한 출격 1회.'},
+ {id:'redScarf',name:'붉은남작의 머플러',desc:'이동 속도 +45%, 적 후방 추적 판정 거리 +25%·고정 시간 −35%. 한 출격 1회.'},
+ {id:'prancingHorse',name:'바라카의 검은 말 문장',desc:'이동 속도 +20%, 전방에서 받는 피해 −25%. 한 출격 1회.'},
+ {id:'ironCross',name:'푸르 르 메리트',desc:'파일럿 액티브가 강화되고 재사용 대기시간이 20% 감소합니다. 한 출격 1회.'},
+ {id:'telescope',name:'르네 퐁크의 망원경',desc:'전방 약 21° 안의 적을 초점 포착하여 초기 0.8초 동안 최대 17° 조준 보정. 한 출격 1회.'},
  {id:'flightGloves',name:'빌리 비숍의 비행장갑',desc:'모든 무기 발사 간격 −40% · 재장전 시간 −55% (파일럿 액티브 재사용 대기시간 제외). 한 출격 1회.'},
- {id:'sparkPlug',name:'리켄베커의 스파크 플러그',desc:'초당 최대 내구도의 2.5% 회복. 일반 회복 강화의 최대치와 별도로 적용됩니다. 한 출격 1회.'},
- {id:'goeringBaton',name:'헤르만 괴링의 지휘봉',desc:'상시 윙맨 +3. 윙맨 공격력 +25%. 한 출격 1회.'},
- {id:'immelmannManual',name:'임멜만 턴 교범',desc:'선회기동 재사용 대기시간 −50%, 기동 무적 1.05초. 한 출격 1회.'},
- {id:'motorCannon',name:'기네메르의 37MM 모터카농',desc:'3초마다 전방으로 피해 180의 거대한 대구경 관통탄을 단발 사격합니다. 한 출격 1회.'},
- {id:'loEmblem',name:'LO! 페인팅 엠블럼',desc:'공격력 +15%. 내구도가 낮을수록 추가 증가하며 빈사 상태에서 최대 +100%. 한 출격 1회.'},
- {id:'sacredCowling',name:'신성한 정면 카울링',desc:'베르너 포스의 녹색 얼굴 문양. 선회력 +60%, 선회 중 속도 손실 제거, 선회기동 쿨다운 −20%. 한 출격 1회.'}
+ {id:'sparkPlug',name:'맥커든의 비상수선키트',desc:'10초마다 최대 내구도의 20%를 회복합니다. 한 출격 1회.'},
+ {id:'goeringBaton',name:'전투비행대 총동원령',desc:'상시 윙맨 +3, 윙맨 피해 +25%. 한 출격 1회.'},
+ {id:'immelmannManual',name:'임멜만의 기동전술 교본',desc:'선회기동 재사용 대기시간 −50%, 기동 무적 1.05초. 한 출격 1회.'},
+ {id:'motorCannon',name:'기네메르의 37mm 모퇴르 카농',desc:'3초마다 전방으로 피해 180의 거대한 37mm 관통탄을 발사합니다. 한 출격 1회.'},
+ {id:'loEmblem',name:'LO! 페인팅 엠블럼',desc:'최대 내구도 −50%, 기관총·폭발물·편대 피해 +30%, 이동 속도·선회력 +20%. 한 출격 1회.'},
+ {id:'sacredCowling',name:'황제의 얼굴 카울링',desc:'근거리 적에게 주는 피해 +25%. 적이 가까울수록 받는 탄환 피해가 최대 20% 감소합니다. 한 출격 1회.'}
 ];
 for(const u of LEGENDARIES)UPGRADES.push({...u,legendary:true,apply:()=>{}});
 const tierIndex=rarity=>rarity==='rare'?2:rarity==='magic'?1:0;

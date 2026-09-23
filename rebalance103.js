@@ -21,8 +21,8 @@ export function installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDAR
  PILOTS.collishaw.desc='6초간 검은 삼엽기 2기 추가. 좌우 기동하며 0.24초마다 관통 사격. 무적 없음.';
  PILOTS.goering.desc='상시 윙맨 2기. 5초간 자신의 윙맨 공격력 3배·공격속도 2배.';
  PILOTS.immelmann.cooldown=11;
-  const descriptions={prancingHorse:'이동속도 +20%, 전방에서 받는 피해 −25%.',ironCross:'액티브 재사용 시간 −20%. 파일럿별 액티브 지속시간·탄막·편대 규모 강화.',steelPlate:'최대 내구도 ×1.5. 현재 내구도 비율 유지. 한 출격 1회.',loEmblem:'최대 체력 −50%. 공격력·폭발물·지원기 피해 +30%, 속도·선회 +20%, 연사·장전·액티브 회전율 강화.',sacredCowling:'선회력 +60%, 선회 중 속도 손실 제거, 선회기동 쿨다운 −50%.',boelckeDicta:'후방 공격 피해 +30%. 꼬리잡기 보너스와 함께 적용.',fogCompass:'경험치 획득량 +30%. 2인 모드에서도 소유자에게만 적용.',rearGunner:'전방 사격과 함께 후방 기관총 1문 발사. 이미 후방사수가 있으면 선택지에서 제외.'};
- const names={steelPlate:'베르토홀트의 철혈 방탄강철판',boelckeDicta:'뵐케의 금언집',fogCompass:'안개 속의 나침반',rearGunner:'후방사수 탑승'};
+  const descriptions={prancingHorse:'이동 속도 +20%, 전방에서 받는 피해 −25%.',ironCross:'파일럿 액티브가 강화되고 재사용 대기시간이 20% 감소합니다.',steelPlate:'기관총·소구경 탄환 피해 −30%, 이동 속도·선회력 −10%. 한 출격 1회.',loEmblem:'최대 내구도 −50%. 기관총·폭발물·편대 피해 +30%, 이동 속도·선회력 +20%.',sacredCowling:'근거리 적에게 주는 피해 +25%. 적이 가까울수록 받는 탄환 피해가 최대 20% 감소합니다.',boelckeDicta:'경험치 획득량 +30%. 협동에서는 보유자에게만 적용됩니다.',fogCompass:'경험치와 수리 아이템의 획득 반경이 크게 증가합니다.',rearGunner:'기본 기관총 사격 방향이 초당 약 66°로 회전합니다. 완전 후방 조준 약 2.7초. 총기 수·탄약 소모는 유지됩니다.'};
+ const names={steelPlate:'J형 장갑 캡슐',boelckeDicta:'뵐케의 금언집',fogCompass:'C-O 5/17 에어로 컴퍼스',rearGunner:'스카프링 총좌'};
  for(const[id,desc]of Object.entries(descriptions)){let l=LEGENDARIES.find(u=>u.id===id);if(!l){l={id,name:names[id]};LEGENDARIES.push(l);UPGRADES.push({...l,legendary:true,apply:()=>{}})}l.desc=desc;Object.assign(UPGRADES.find(u=>u.id===id),l);}
  const oldUpgrade=Game.prototype.upgrade;
  Game.prototype.upgrade=function(id,rarity='normal'){
