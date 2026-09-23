@@ -95,3 +95,9 @@ html.flight-fullscreen,html.flight-fullscreen body{overflow:hidden!important;wid
 /* Retired portrait sheets and procedural aircraft never reach a visible frame. */
 .portrait,.cutin-portrait{background-image:none}
 body:not(.assets-ready) .portrait,body:not(.assets-ready) .hangar-ace,body:not(.assets-ready) .hangar-plane,body:not(.assets-ready) #selectedAircraft,body:not(.assets-ready) #coopPlane2{opacity:0!important}
+/* Boot splash covers the page until every asset and the astra layout is ready —
+   the legacy markup can no longer paint a frame first. */
+#bootSplash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#0b1211;color:#e9e2ce}
+#bootSplash b{font:900 clamp(44px,9vw,96px)/1 Impact,'Arial Narrow',sans-serif;letter-spacing:-2px}
+#bootSplash span{color:#b25142}
+body.assets-ready #bootSplash{display:none}

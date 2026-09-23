@@ -50,7 +50,7 @@ function ring(){
  r.innerHTML='<svg viewBox="0 0 100 100"><circle class="dial-track" cx="50" cy="50" r="45"/><circle class="dial-progress" cx="50" cy="50" r="45" pathLength="100"/></svg>';return r;
 }
 function install(){
- if(!$('hangar')||document.body.classList.contains('astra-ui'))return;
+ if(!$('hangar')||$('hangar .astra-home'))return;
  document.body.classList.add('astra-ui');
  const hangar=$('hangar'),roster=$('flightRoster');
  const stage=el('div','astra-stage'),home=el('div','astra-home'),hero=el('section','astra-hero'),dossier=el('div','astra-dossier');
