@@ -609,7 +609,7 @@ PILOTS.boelcke.desc='3초간 기관총 공격력 ×1.8. 무적 효과 없음.';
 PILOTS.collishaw.desc='플레이어와 같은 크기의 검은 삼엽기 3대가 완만하게 좌우 기동하며 5.2초간 사격. 무적 없음.';
 PILOTS.baracca.desc='0.9초 무적 직선 돌격. 경로 피해는 기관총 강화에 비례.';
 PILOTS.bishop.desc='기관총 사거리 −55%, 공격력 +80%. 2.4초 무적 폭격 후 탄약 소진.';
-Game.prototype.skillDuration=function(){if(this.isRedHunter())return 4*(this.skillEnhanced?1.35:1);return ({baron:3,fonck:4,voss:1,boelcke:PILOT_BALANCE.boelckeDuration,collishaw:5.2,baracca:.9,immelmann:2.8,udet:5,guynemer:3,bishop:2.4,goering:GOERING_WING_BOOST.duration,mannock:7.2,mckeever:5,huffzky:5})[this.pilot]||3};
+Game.prototype.skillDuration=function(){if(this.isRedHunter())return 4*(this.skillEnhanced?1.35:1);const d=({baron:3,fonck:4,voss:1,boelcke:PILOT_BALANCE.boelckeDuration,collishaw:5.2,baracca:.9,immelmann:2.8,udet:5,guynemer:3,bishop:2.4,goering:GOERING_WING_BOOST.duration,mannock:7.2,mckeever:5,huffzky:5})[this.pilot]||3;return this.skillEnhanced&&['mckeever','huffzky'].includes(this.pilot)?d*1.35:d};
 Game.prototype.skillRecovery=function(){return PILOT_BALANCE.recovery[this.isRedHunter()?'baron_albatros':this.pilot]??6};
 Game.prototype.skillCooldown=function(){return Math.max(pilotLoadout(this.pilot,this.plane).cooldown*Math.max(.5,this.cooldownMult),this.skillDuration()+this.skillRecovery())};
 Game.prototype.blackFlightAim=function(wing,heading){let aim=heading,best=650*650;for(const e of this.enemies){if(e.hp<=0)continue;const dx=e.x-wing.x,dy=e.y-wing.y,d=dx*dx+dy*dy,a=Math.atan2(dy,dx);if(d<best&&Math.abs(angleDiff(a,heading))<=.8){best=d;aim=a}}return aim};
@@ -1426,7 +1426,7 @@ for(const[key,base]of Object.entries(ACE_LIVERIES165)){PLANES[key]={...PLANES[ba
 const _jacobsSkill165=Game.prototype.skill;
 Game.prototype.skill=function(){
  if(this.pilot!=='jacobs')return _jacobsSkill165.call(this);
- this.ensureRevisionPilot();if(this.state!=='playing'||this.hp<=0||this.cooldown>0)return false;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.invuln=Math.max(this.invuln,.8);this.burst(this.x,this.y,'#8a8f7a',18);this.event('skill',PILOTS.jacobs.skill);return true;
+ this.ensureRevisionPilot();if(this.state!=='playing'||this.hp<=0||this.cooldown>0)return false;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.invuln=Math.max(this.invuln,.8*(this.skillEnhanced?1.35:1));this.burst(this.x,this.y,'#8a8f7a',18);this.event('skill',PILOTS.jacobs.skill);return true;
 };
 const _jacobsDuration165=Game.prototype.skillDuration;
 Game.prototype.skillDuration=function(){return this.pilot==='jacobs'?4*(this.skillEnhanced?1.35:1):_jacobsDuration165.call(this)};
@@ -1446,7 +1446,7 @@ Game.prototype.skill=function(){
  if(!['wolff','loewenhardt','mccudden','nungesser'].includes(this.pilot))return _newAceSkill124.call(this);
  this.ensureRevisionPilot();if(this.state!=='playing'||this.hp<=0||this.cooldown>0)return false;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();
  if(this.pilot==='wolff'){this.wolffSkillDuration=this.skillTime;this.wolffDiveAnnounced=false;this.burst(this.x,this.y,'#dbe6c0',16)}
- else if(this.pilot==='loewenhardt'){this.loewenhardtSkillDuration=this.skillTime;this.invuln=Math.max(this.invuln,NEW_ACE_BALANCE124.loewenhardtDiveSeconds);this.burst(this.x,this.y,'#ffd84b',18)}
+ else if(this.pilot==='loewenhardt'){this.loewenhardtSkillDuration=this.skillTime;this.invuln=Math.max(this.invuln,NEW_ACE_BALANCE124.loewenhardtDiveSeconds*(this.skillEnhanced?1.35:1));this.burst(this.x,this.y,'#ffd84b',18)}
  else if(this.pilot==='mccudden'){const world=this.combatWorld(),count=this.skillEnhanced?4:3;for(let i=0;i<count;i++){const a=this.a+Math.PI/2+i*Math.PI*2/count;world.drops.push({x:this.x+Math.cos(a)*85,y:this.y+Math.sin(a)*85,vx:0,vy:0,life:25,value:0,heal:true,supply:true,healFraction:NEW_ACE_BALANCE124.mccuddenRepairFraction/3,ownerId:this.id});}this.event('wave',`수리 보급품 ${count}개 투하 · 아군도 회수 가능`)}
  else {this.invuln=Math.max(this.invuln,this.skillTime);this.burst(this.x,this.y,'#1d1822',26)}
  this.aceHeading129=this.a;this.event('skill',PILOTS[this.pilot].skill);return true;
@@ -1575,9 +1575,9 @@ const _aces1918Skill=Game.prototype.skill;
 Game.prototype.skill=function(){
  if(!ACES1918_IDS.includes(this.pilot))return _aces1918Skill.call(this);
  this.ensureRevisionPilot();if(this.state!=='playing'||this.hp<=0||this.cooldown>0)return false;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();
- if(this.pilot==='ball'){this.ballCloak=1.5;this.ballGhost={x:this.x,y:this.y,a:this.a,speed:this.speed,hp:1};this.invuln=Math.max(this.invuln,1.6);this.ballAmbush=0;this.burst(this.x,this.y,'#e8ecdf',24)}
- else if(this.pilot==='gontermann')this.invuln=Math.max(this.invuln,.6);
- else if(this.pilot==='brumowski'){const world=typeof this.combatWorld==='function'?this.combatWorld():this;const list=world&&world.allies;const live=list?list.filter(a=>a.orbit&&a.life>0):[];for(let i=live.length;i<2;i++){if(typeof this.spawnAlly==='function'){this.spawnAlly();Object.assign(this.allies.at(-1),{plane:'brumowski_albatros',life:15,orbit:true})}else if(list)list.push({slot:list.length+i,x:(this.x||0)-45,y:(this.y||0)+(i?70:-70),a:this.a||0,life:15,fire:.35,plane:'brumowski_albatros',ownerId:this.id||'p1',orbit:true})}}
+ if(this.pilot==='ball'){const eh=this.skillEnhanced?1.35:1;this.ballCloak=1.5*eh;this.ballGhost={x:this.x,y:this.y,a:this.a,speed:this.speed,hp:1};this.invuln=Math.max(this.invuln,1.6*eh);this.ballAmbush=0;this.burst(this.x,this.y,'#e8ecdf',24)}
+ else if(this.pilot==='gontermann')this.invuln=Math.max(this.invuln,.6*(this.skillEnhanced?1.35:1));
+ else if(this.pilot==='brumowski'){const world=typeof this.combatWorld==='function'?this.combatWorld():this;const list=world&&world.allies;const live=list?list.filter(a=>a.orbit&&a.life>0):[];for(let i=live.length;i<2;i++){if(typeof this.spawnAlly==='function'){this.spawnAlly();Object.assign(this.allies.at(-1),{plane:'brumowski_albatros',life:15*(this.skillEnhanced?1.35:1),orbit:true})}else if(list)list.push({slot:list.length+i,x:(this.x||0)-45,y:(this.y||0)+(i?70:-70),a:this.a||0,life:15*(this.skillEnhanced?1.35:1),fire:.35,plane:'brumowski_albatros',ownerId:this.id||'p1',orbit:true})}}
  this.event('skill',PILOTS[this.pilot].skill);return true;
 };
 const _aces1918Duration=Game.prototype.skillDuration;
