@@ -134,10 +134,10 @@ function install(){
   put(airRole,$('pilotAircraft').textContent.split(' · ').slice(1).join(' · '));
   const hasChoice=!$('baronAircraftChoice').classList.contains('hidden');previous.hidden=next.hidden=!hasChoice;
   previous.setAttribute('aria-label',en?'Switch aircraft':'이전 기체');next.setAttribute('aria-label',en?'Switch aircraft':'다음 기체');
-  if(aircraftId!==lastArt){lastArt=aircraftId;art.hidden=true;figure.classList.remove('has-art');
-   hangarArt(aircraftId).then(url=>{if(lastArt!==aircraftId)return;if(!url){art.removeAttribute('src');return}
-    art.onload=()=>{if(lastArt!==aircraftId)return;art.hidden=false;figure.classList.add('has-art')};
-    art.onerror=()=>{art.hidden=true;figure.classList.remove('has-art')};art.src=url;
+  if(aircraftId!==lastArt){lastArt=aircraftId;
+   hangarArt(aircraftId).then(url=>{if(lastArt!==aircraftId)return;if(!url){art.hidden=true;art.removeAttribute('src');figure.classList.remove('has-art');figure.classList.add('use-canvas');return}
+    art.onload=()=>{if(lastArt!==aircraftId)return;art.hidden=false;figure.classList.add('has-art');figure.classList.remove('use-canvas')};
+    art.onerror=()=>{art.hidden=true;figure.classList.remove('has-art');figure.classList.add('use-canvas')};art.src=url;
    });
   }
   art.alt=airName.textContent;

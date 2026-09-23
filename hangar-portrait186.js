@@ -37,7 +37,7 @@ function syncPortrait186(){
   portrait186.classList.add("hangar-portrait186");
   if(id)portrait186.dataset.pilotId=id;
   portrait186.style.setProperty("--hp-scale-desktop",String(tune.desktop??base.desktop));
-  portrait186.style.setProperty("--hp-scale-mobile",String(tune.mobile??base.mobile));
+  portrait186.style.setProperty("--hp-scale-mobile",String((tune.mobile??base.mobile)*1.7));
   portrait186.style.setProperty("--hp-shift-desktop","0%");
   portrait186.style.setProperty("--hp-shift-mobile","0%");
 }

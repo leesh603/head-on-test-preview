@@ -56,7 +56,8 @@ export const SPECIAL_AIRCRAFT_PERSONALITIES=freeze({
 });
 
 export const AIRCRAFT_PERSONALITY_ALIASES=freeze({
- fokker_red:'fokker',fokker_voss:'fokker',fokker_standard:'fokker','white-fokkerdv55':'fokkerd7'
+ fokker_red:'fokker',fokker_voss:'fokker',fokker_standard:'fokker','white-fokkerdv55':'fokkerd7',
+ collishaw_sopwith:'sopwith',goering_fokkerd7:'fokkerd7',guynemer_spad:'spad12',udet_fokkerdv:'fokkerdv',baracca_nieuport:'nieuport_italian',berthold_pfalz:'pfalz_d3a'
 });
 
 export function resolveAircraftPersonalityId(id){return AIRCRAFT_PERSONALITY_ALIASES[id]||id}
