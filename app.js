@@ -957,7 +957,7 @@ function installHeadOnTestLab(){
   regions:HEADON_TEST_REGION_NAMES.map((name,id)=>({id,name})),
   pilots:Object.entries(PILOTS).map(([id,p])=>({id,name:p.name,faction:p.faction,plane:pilotPlane(id)}))
  };
- window.__HEADON_TEST__={catalog,start:startTest,status:()=>game?{state:game.state,region:game.worldRegion?.(),pilot:game.pilot,plane:game.plane,testMode:!!game.testMode}:null};
+ window.__HEADON_TEST__={catalog,start:startTest,status:()=>game?{state:game.state,region:game.worldRegion?.(),pilot:game.pilot,plane:game.plane,testMode:!!game.testMode}:null,debug:()=>game};
  const params=new URLSearchParams(location.search);
  if(params.get('headonTest')==='1'&&params.get('autostart')!=='0')queueMicrotask(()=>startTest({
   region:params.get('region'),pilot:params.get('pilot'),ace:params.get('ace'),boss:params.get('boss')==='1',
