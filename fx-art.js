@@ -12,7 +12,7 @@ const FX56_FILES={
  explosion2:'fx-explosion-2.webp',explosion3:'fx-explosion-3.webp',
  smokeDark:'fx-pack-v189/gas-smoke/smoke-damage.webp',smokeGray:'fx-pack-v189/gas-smoke/smoke-engine.webp',
  smokeWisp:'fx-pack-v189/gas-smoke/gas-dissipate.webp',smokePuff:'fx-pack-v189/gas-smoke/smoke-gun.webp',
- fire:'fx-pack-v189/gas-smoke/fire-aircraft.webp',flak:'fx-pack-v189/explosions/flak-airburst.webp'
+ fire:'fx-pack-v189/gas-smoke/fire-aircraft.webp',flak:'fx-combat-flak-burst.webp'
 };
 const FX_FILES=FX_OFF?{}:Object.assign({
  rocket:'fx-pack-v189/projectiles/rocket-le-prieur.webp',
@@ -34,11 +34,7 @@ const FX_FILES=FX_OFF?{}:Object.assign({
  explosion1:'fx-pack-v189/explosions/explosion-air-1.webp',
  explosion2:'fx-pack-v189/explosions/explosion-air-2.webp',
  explosion3:'fx-pack-v189/explosions/explosion-air-3.webp',
- explosionGround:'fx-pack-v189/explosions/explosion-ground.webp',
- heavyBomb:'fx-pack-v189/explosions/explosion-heavy-bomb.webp',
- flakBurst:'fx-pack-v189/explosions/flak-airburst.webp',
  waterColumn:'fx-pack-v189/explosions/splash-naval.webp',
- fireWreck:'fx-pack-v189/explosions/fire-wreck.webp',
  fire:'fx-pack-v189/gas-smoke/fire-aircraft.webp',
  fireSmall:'fx-pack-v189/gas-smoke/fire-small.webp',
  smokePuff:'fx-pack-v189/gas-smoke/smoke-gun.webp',
@@ -53,7 +49,7 @@ const FX_FILES=FX_OFF?{}:Object.assign({
 },FX56_OFF?{}:FX56_FILES);
 const fxImgs={};
 export const fxArtReady=typeof Image==='undefined'?Promise.resolve():Promise.all(Object.entries(FX_FILES).map(([key,file])=>new Promise(res=>{
- const im=new Image();im.onload=()=>{fxImgs[key]=im;res()};im.onerror=()=>res();im.src='./'+file+'?v=fx4';
+ const im=new Image();im.onload=()=>{fxImgs[key]=im;res()};im.onerror=()=>res();im.src='./'+file+'?v=fx5';
 })));
 export function fxReady(key){return !!fxImgs[key]}
 export function fxImage(key){return fxImgs[key]||null}
