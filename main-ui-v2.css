@@ -266,8 +266,8 @@ body.astra-ui.playing #touch #touchSkill:after,body.astra-ui.playing #touch #tou
  .astra-rail-prev,.astra-rail-next{width:18px;min-width:18px;height:42px;padding:0}
  .astra-rail-prev .astra-icon,.astra-rail-next .astra-icon{width:22px;height:22px}
  body.astra-ui:not(.playing) #pilotTabs{gap:14px;padding:4px 2px 7px}
- body.astra-ui:not(.playing) #pilotTabs button{flex:0 0 calc((100% - 28px)/3);height:150px;min-height:150px;padding:0 0 21px}
- body.astra-ui:not(.playing) #pilotTabs .pilot-tab-portrait{height:124px;min-height:124px;object-position:50% 6%;border-radius:2px}
+ body.astra-ui:not(.playing) #pilotTabs button{flex:0 0 calc((100% - 28px)/3);height:132px;min-height:132px;padding:0 0 21px}
+ body.astra-ui:not(.playing) #pilotTabs .pilot-tab-portrait{height:106px;min-height:106px;object-position:50% 6%;border-radius:2px}
  body.astra-ui:not(.playing) #pilotTabs .pilot-tab-label{font-size:10px;bottom:0;line-height:1.5;font-weight:700}
  .astra-pilot-caption{display:none}
  .astra-launch{padding:4px 4px 0;align-self:stretch}
