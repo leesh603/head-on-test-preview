@@ -1,5 +1,5 @@
-import {installRevision} from './rebalance103.js?v=215&b=212';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=214';
+import {installRevision} from './rebalance103.js?v=216&b=212';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=216';
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=190';
 import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=218';
 import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=214';
@@ -486,7 +486,7 @@ export const LEGENDARIES=[
  {id:'goeringBaton',name:'전투비행대 총동원령',desc:'상시 윙맨 +3, 윙맨 피해 +25%. 한 출격 1회.'},
  {id:'immelmannManual',name:'임멜만의 기동전술 교본',desc:'선회기동 재사용 대기시간 −50%, 기동 무적 1.05초. 한 출격 1회.'},
  {id:'motorCannon',name:'기네메르의 37mm 모퇴르 카농',desc:'3초마다 전방으로 피해 180의 거대한 37mm 관통탄을 발사합니다. 한 출격 1회.'},
- {id:'loEmblem',name:'LO! 페인팅 엠블럼',desc:'최대 내구도 −50%, 기관총·폭발물·편대 피해 +30%, 이동 속도·선회력 +20%. 한 출격 1회.'},
+ {id:'loEmblem',name:'LO! 페인팅 엠블럼',desc:'최대 내구도 −50%, 기관총·폭발물·편대 피해 +30%, 편대 연사 +30%, 이동 속도·선회력 +20%. 한 출격 1회.'},
  {id:'sacredCowling',name:'황제의 얼굴 카울링',desc:'근거리 적에게 주는 피해 +25%. 적이 가까울수록 받는 탄환 피해가 최대 20% 감소합니다. 한 출격 1회.'}
 ];
 for(const u of LEGENDARIES)UPGRADES.push({...u,legendary:true,apply:()=>{}});
