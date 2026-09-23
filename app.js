@@ -727,8 +727,10 @@ const hudWithRefinedFactionMark120=hud;hud=()=>{hudWithRefinedFactionMark120();d
 // The hangar is revealed only after every portrait, aircraft and icon used by
 // the current build is ready. This prevents the retired sheets from flashing
 // for a frame before the authored asset replaces them.
+const bootAt=performance.now();
 Promise.all([portraitsReady,aircraftReady,campaignArtReady,iconsReady]).then(()=>{
- document.body.classList.add('assets-ready');roster();applyPilotPortrait('cutinPortrait');
+ const reveal=()=>{document.body.classList.add('assets-ready');roster();applyPilotPortrait('cutinPortrait')};
+ const left=3400-(performance.now()-bootAt);left>0?setTimeout(reveal,left):reveal();
 }).catch(()=>{document.body.classList.add('assets-ready');roster();});
 
 // Shared reinforcement presentation for solo, co-op, and special rerolls.
