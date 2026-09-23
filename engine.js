@@ -1,4 +1,4 @@
-import {installRevision} from './rebalance103.js?v=216&b=212';
+import {installRevision} from './rebalance103.js?v=217&b=212';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=217';
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=190';
 import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=218';
@@ -44,12 +44,12 @@ export const highRiskDamage=(base,maxHp,source={})=>base+(maxHp||0)*(source.maxH
 PLANES.fokkerdv={...PLANES.fokker,name:'포커 D.VIII · LO',role:'무모한 강습',wings:1,speed:153,hp:105};
 PLANES.spad12={...PLANES.spad,name:'SPAD XII · 황새',role:'중포 강습',speed:158,hp:115};
 WEAPONS.fokkerdv={...WEAPONS.fokker};WEAPONS.spad12={...WEAPONS.spad};
-PILOTS.fonck.passive='정밀 사격술';PILOTS.fonck.passiveDesc='기관총 피해 +15%.';PILOTS.baracca.passive='단발 중구경';PILOTS.baracca.passiveDesc='단발 기관총 피해 +45%.';PILOTS.immelmann.passive='단발 중구경';PILOTS.immelmann.passiveDesc='단발 기관총 피해 +45%. 선회기동 후 2초간 사격 +50%.';PILOTS.udet={name:'에른스트 우데트',alias:'LO · THE DAREDEVIL',faction:'central',portrait:0,skill:'무모한 기동술',desc:'현재 체력 10%를 소모하고 5초간 이동속도 +70%, 발사속도 +140%.',cooldown:22};
+PILOTS.udet={name:'에른스트 우데트',alias:'LO · THE DAREDEVIL',faction:'central',portrait:0,skill:'무모한 기동술',desc:'현재 체력 10%를 소모하고 5초간 이동속도 +70%, 발사속도 +140%.',cooldown:22};
 PILOTS.guynemer={name:'조르즈 기네미르',alias:'THE STORK',faction:'entente',portrait:1,skill:'황새의 강타',desc:'황새가 전장을 가로지르며 3차례 강타합니다.',cooldown:25};
 PLANES.re7={...PLANES.camel,name:'R.E.7 복좌기',role:'근거리 강습',speed:128,hp:125,turn:2.4};
 PLANES.fokkerd7={...PLANES.albatros,name:'포커 D.VII · 백색',role:'편대 지휘',speed:147,hp:115};
 WEAPONS.re7={...WEAPONS.camel,name:'Lewis',guns:1};WEAPONS.fokkerd7={...WEAPONS.fokker};
-PILOTS.bishop.passive='근접 돌격';PILOTS.bishop.passiveDesc='피해 ×1.8, 기관총 사거리가 짧습니다.';PILOTS.bishop={name:'빌리 비숍',alias:'GUERRILLA NIGHT',faction:'entente',portrait:1,skill:'게릴라 나이트',desc:'기관총 사거리 −55%, 공격력 +80%. 화면 밖으로 상승 후 재진입하며 8발 폭격.',cooldown:25};
+PILOTS.bishop={name:'빌리 비숍',alias:'GUERRILLA NIGHT',faction:'entente',portrait:1,skill:'게릴라 나이트',desc:'기관총 사거리 −55%, 공격력 +80%. 화면 밖으로 상승 후 재진입하며 8발 폭격.',cooldown:25};
 PILOTS.goering={name:'헤르만 괴링',alias:'WHITE FLIGHT LEADER',faction:'central',portrait:0,skill:'백색 편대 · 집중 포화',desc:'상시 윙맨 1기와 출격합니다. 5초간 자신의 모든 윙맨 공격력 3배, 발사 속도 2배.',cooldown:27};
 export const PILOT_PLANES={baron:'fokker_red',voss:'fokker_voss',boelcke:'albatros',immelmann:'eindecker',fonck:'camel',collishaw:'sopwith',baracca:'nieuport',udet:'fokkerdv',guynemer:'spad12',bishop:'re7',goering:'fokkerd7',mannock:'se5a'};
 export const DOCTRINE_BALANCE=Object.freeze({
@@ -93,7 +93,7 @@ export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this
   for(let gun=0;gun<this.weapon.guns;gun++){
    const rounds=Math.min(this.shots,this.ammo[gun]),offset=this.weapon.bidirectional?0:(gun-(this.weapon.guns-1)/2)*8,gunAngle=this.gunDirection(gun);
    for(let i=0;i<rounds;i++){const fan=this.pilot==='fonck'&&this.skillTime>0?.16:.11,a=gunAngle+(i-(rounds-1)/2)*fan,tailTargetId=this.tailLocked?this.tailTargetId:null;
-    const round={x:this.x+Math.cos(gunAngle)*23-Math.sin(gunAngle)*offset,y:this.y+Math.sin(gunAngle)*23+Math.cos(gunAngle)*offset,vx:Math.cos(a)*520,vy:Math.sin(a)*520,life:this.longRange?this.shotLifetime(520):['bishop','mannock'].includes(this.pilot)?.6:1.35,enemy:false,ownerId:this.id,gun,damage:this.damage*skillDamage*(this.immerBoost>0?1.5:1),pierce:false,hit:new Set(),tailBonus:!!tailTargetId,tailTargetId,immer:this.immerBoost>0||undefined};
+    const round={x:this.x+Math.cos(gunAngle)*23-Math.sin(gunAngle)*offset,y:this.y+Math.sin(gunAngle)*23+Math.cos(gunAngle)*offset,vx:Math.cos(a)*520,vy:Math.sin(a)*520,life:this.longRange?this.shotLifetime(520):['bishop','mannock'].includes(this.pilot)?.6:1.35,enemy:false,ownerId:this.id,gun,damage:this.damage*skillDamage,pierce:false,hit:new Set(),tailBonus:!!tailTargetId,tailTargetId,eagle:this.eagleTime>0||undefined};
     this.bullets.push(this.applySpecialRound(round,null));
    }if(!this.unlimitedAmmo)this.ammo[gun]-=rounds?Math.max(1,rounds-(this.freeVolleyShots||0)):0;this.roundsFired+=rounds;
   }this.muzzleFlash=.055;this.event('shot','');
@@ -601,7 +601,7 @@ PLANES.eindecker={name:'포커 E.III 아인데커',role:'단엽 반전기동형'
 WEAPONS.eindecker={...WEAPONS.fokker,guns:1,reload:2.1};
 PLANES.se5a={name:'S.E.5a',role:'근거리 편대 강습',faction:'entente',speed:168,turn:2.9,hp:110,rate:.18,color:'#7c8051',wings:2};
 WEAPONS.se5a={...WEAPONS.camel,name:'Vickers / Lewis',guns:2};
-PILOTS.mannock.passive='74비행단 지휘';PILOTS.mannock.passiveDesc='아군·윙맨 연사 +15%.';PILOTS.mannock={name:'믹 매녹',alias:'74 SQUADRON',faction:'entente',portrait:1,skill:'74비행단 교차 급강하',desc:'기관총 사거리 −55%. S.E.5a 7대가 위→아래 한 번, 오른쪽→왼쪽 한 번 교차 관통 사격.',cooldown:28};
+PILOTS.mannock={name:'믹 매녹',alias:'74 SQUADRON',faction:'entente',portrait:1,skill:'74비행단 교차 급강하',desc:'기관총 사거리 −55%. S.E.5a 7대가 위→아래 한 번, 오른쪽→왼쪽 한 번 교차 관통 사격.',cooldown:28};
 PILOTS.baron.cooldown=20;PILOTS.baron.desc='3초간 속도·연사 강화. 무적은 처음 1.4초만 적용.';
 PILOTS.voss.desc='즉시 180° 선회하며 적 탄환을 제거합니다. 무적 1초.';
 PILOTS.immelmann.desc='아인데커로 상승 반전 후 관통 사격. 무적 1.1초.';
@@ -1487,7 +1487,6 @@ Game.prototype.beginRevisionFrame=function(dt,input={}){
   if(pl.pilot==='brumowski')pl.brumAllyCount=(world.allies||[]).filter(a=>a.life>0).length;
   if(pl.pilot==='jacobs'){const k=this.kills||0;if(k>(pl._jkSeen||0)){pl.jacobsStacks=Math.min(3,(pl.jacobsStacks||0)+(k-(pl._jkSeen||0)));pl.jacobsStackTime=3}pl._jkSeen=k;pl.jacobsStackTime=Math.max(0,(pl.jacobsStackTime||0)-dt);if(pl.jacobsStackTime<=0)pl.jacobsStacks=0}
   if(pl.immelmannGhosts){for(const gh of pl.immelmannGhosts)gh.life-=dt;pl.immelmannGhosts=pl.immelmannGhosts.filter(gh=>gh.life>0)}
-  if(pl.pilot==='immelmann'){if(pl.evadeTime>0&&!pl._immWasEvading)pl.immerBoost=2;pl._immWasEvading=pl.evadeTime>0;pl.immerBoost=Math.max(0,(pl.immerBoost||0)-dt)}
   if(pl.pilot==='immelmann'&&pl.evadeTime>0){pl._immGhost=(pl._immGhost||0)-dt;if(pl._immGhost<=0){pl._immGhost=.055;(pl.immelmannGhosts??=[]).push({x:pl.x,y:pl.y,a:pl.a,life:1.15,maxLife:1.15})}}
   if(pl.ballCloak>0){pl._ballCloud=(pl._ballCloud||0)-dt;if(pl._ballCloud<=0){pl._ballCloud=.05;const j=this.rng()*Math.PI*2,rr=4+this.rng()*24;world.particles.push({x:pl.x+Math.cos(j)*rr,y:pl.y+Math.sin(j)*rr,vx:(this.rng()-.5)*16,vy:(this.rng()-.5)*16,life:1.5+this.rng()*.4,maxLife:2,smoke:true,muzzleSmoke:true,size:12+this.rng()*10,color:'#eceee0'})}}
  }
