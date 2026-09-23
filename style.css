@@ -98,6 +98,10 @@ body:not(.assets-ready) .portrait,body:not(.assets-ready) .hangar-ace,body:not(.
 /* Boot splash covers the page until every asset and the astra layout is ready —
    the legacy markup can no longer paint a frame first. */
 #bootSplash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#0b1211;color:#e9e2ce}
-#bootSplash b{font:900 clamp(44px,9vw,96px)/1 Impact,'Arial Narrow',sans-serif;letter-spacing:-2px}
+#bootSplash b{font:900 clamp(44px,9vw,96px)/1 Impact,'Arial Narrow',sans-serif;letter-spacing:-2px;animation:bootCiDrift 2.8s ease-in-out infinite}
 #bootSplash span{color:#b25142}
 body.assets-ready #bootSplash,body.boot-ready #bootSplash{display:none}
+
+@keyframes bootCiDrift{0%,100%{transform:translateY(0);text-shadow:0 0 12px rgba(233,226,206,.05)}50%{transform:translateY(-6px);text-shadow:0 6px 26px rgba(233,226,206,.26)}}
+#bootSplash::after{content:'';position:absolute;left:50%;top:58%;width:130px;height:2px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,#b25142,transparent);animation:bootCiBar 2.8s ease-in-out infinite}
+@keyframes bootCiBar{0%,100%{transform:translateX(-50%) scaleX(.5);opacity:.28}50%{transform:translateX(-50%) scaleX(1);opacity:.7}}

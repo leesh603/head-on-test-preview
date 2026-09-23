@@ -224,7 +224,7 @@ const _coopVoss113=CoopGame.prototype.updatePlayer;
 CoopGame.prototype.updatePlayer=function(p,dt,input){
  const active=p.vossReverse>0,base=p.baseSpeed;
  if(active)p.baseSpeed*=2.35;
- try{return _coopVoss113.call(this,p,dt,input)}finally{p.baseSpeed=base;if(active){p.vossReverse=Math.max(0,p.vossReverse-dt);p.vossAfterimages??=[];p.vossAfterimageClock=(p.vossAfterimageClock||0)+dt;if(p.vossAfterimageClock>=.075){p.vossAfterimageClock=0;p.vossAfterimages.push({x:p.x,y:p.y,a:p.a,life:.42,maxLife:.42})}}for(const d of p.vossAfterimages||[])d.life-=dt;p.vossAfterimages=(p.vossAfterimages||[]).filter(d=>d.life>0).slice(-10);}
+ try{return _coopVoss113.call(this,p,dt,input)}finally{p.baseSpeed=base;if(active){p.vossReverse=Math.max(0,p.vossReverse-dt);p.vossAfterimages??=[];p.vossAfterimageClock=(p.vossAfterimageClock||0)+dt;if(p.vossAfterimageClock>=0){p.vossAfterimageClock=-1;for(let i=0;i<6;i++){const d=p.a+i*Math.PI/3;p.vossAfterimages.push({x:p.x+Math.cos(d)*14,y:p.y+Math.sin(d)*14,a:d,drift:d,life:2.4,maxLife:2.4})}}}p.vossAfterimages=(p.vossAfterimages||[]).filter(d=>d.life>0).slice(-6);}
 };
 
 // Read-only world helpers reuse the current single-player combat catalog and hazards.

@@ -1167,9 +1167,9 @@ Game.prototype.update=function(dt,input={}){const before=this.bullets.length;_fo
 
 // Revision 108 — Werner Voss's reverse-turn must be a visible escape and re-entry,
 // not just a heading flip. The same pattern is applied to his ace-boss attack.
-export const VOSS_REVERSE=Object.freeze({duration:1,invulnerability:1,speedMultiplier:2.35,afterimageInterval:.075,afterimageLife:2.4,afterimageFireDelay:.18,afterimageFireInterval:.42,bossSpeedMultiplier:3});
-PILOTS.voss.skill='역전 선회 · 유령 돌파';
-PILOTS.voss.desc='즉시 180° 반전 · 화면의 적 탄막 삭제 · 1초 무적. 1초간 이동속도 +135%와 잔상을 남기며 돌파합니다.';
+export const VOSS_REVERSE=Object.freeze({duration:1,invulnerability:1,speedMultiplier:2.35,afterimageInterval:.075,afterimageLife:2.4,afterimageCount:6,afterimageScatterSpeed:165,afterimageFireDelay:.18,afterimageFireInterval:.42,bossSpeedMultiplier:3});
+PILOTS.voss.skill='7대1';
+PILOTS.voss.desc='즉시 180° 반전 · 화면의 적 탄막 삭제 · 1초 무적. 주변에 잔상 6기를 생성해 사방으로 흩어지며 사격합니다.';
 const _vossReverseSkill=Game.prototype.skill;
 const _vossReverseDuration=Game.prototype.skillDuration;
 Game.prototype.skillDuration=function(){return this.pilot==='voss'?VOSS_REVERSE.duration*(this.skillEnhanced?1.35:1):_vossReverseDuration.call(this)};
@@ -1180,7 +1180,7 @@ Game.prototype.skill=function(){
  this.a+=Math.PI;this.bullets=this.bullets.filter(b=>!b.enemy);
  this.vossReverse=this.skillDuration();
  this.invuln=Math.max(this.invuln,VOSS_REVERSE.invulnerability);
- this.vossAfterimages=[];this.vossAfterimageClock=0;
+ this.vossAfterimages=[];this.vossAfterimageClock=0;for(let i=0;i<VOSS_REVERSE.afterimageCount;i++){const d=this.a+i*Math.PI*2/VOSS_REVERSE.afterimageCount;this.vossAfterimages.push({x:this.x+Math.cos(d)*14,y:this.y+Math.sin(d)*14,a:d,drift:d,life:VOSS_REVERSE.afterimageLife,maxLife:VOSS_REVERSE.afterimageLife})}
  this.burst(this.x,this.y,'#f1dca0',25);
  this.event('skill',PILOTS.voss.skill);this.event('wave','베르너 포스 · 탄막 제거 / 유령 돌파');
  return true;
@@ -1191,7 +1191,7 @@ Game.prototype.aceAttack=function(e){
  if(e?.bossPilot==='voss'){
   e.vossReverse=VOSS_REVERSE.duration;
   e.vossInvuln=VOSS_REVERSE.invulnerability;
-  e.vossTrails=[];e.vossTrailClock=0;
+  e.vossTrails=[];e.vossTrailClock=0;for(let i=0;i<VOSS_REVERSE.afterimageCount;i++){const d=e.a+i*Math.PI*2/VOSS_REVERSE.afterimageCount;e.vossTrails.push({x:e.x+Math.cos(d)*14,y:e.y+Math.sin(d)*14,a:d,drift:d,life:VOSS_REVERSE.afterimageLife,maxLife:VOSS_REVERSE.afterimageLife})}
   // The boss reverse-turn blows away shots already closing on the aircraft,
   // while its own new volley remains as the re-entry threat.
   this.bullets=this.bullets.filter(b=>b.enemy);
@@ -1213,18 +1213,14 @@ Game.prototype.update=function(dt,input={}){
  if(active&&Number.isFinite(savedBase))this.baseSpeed=savedBase;
  if(active){
   this.vossReverse=Math.max(0,this.vossReverse-step);
-  this.vossAfterimages??=[];this.vossAfterimageClock=(this.vossAfterimageClock||0)+step;
-  while(this.vossAfterimageClock>=VOSS_REVERSE.afterimageInterval){this.vossAfterimageClock-=VOSS_REVERSE.afterimageInterval;this.vossAfterimages.push({x:beforeX,y:beforeY,a:beforeA,life:VOSS_REVERSE.afterimageLife,maxLife:VOSS_REVERSE.afterimageLife})}
- }
- if(this.vossAfterimages)for(const ghost of this.vossAfterimages){ghost.life-=step;if(ghost.life>0){let tgt=null,best=620*620;for(const en of this.enemies){if(en.hp<=0)continue;const d=(en.x-ghost.x)**2+(en.y-ghost.y)**2;if(d<best){best=d;tgt=en}}if(tgt){const ga=Math.atan2(tgt.y-ghost.y,tgt.x-ghost.x);ghost.a=ga;if(best>90*90){ghost.x+=Math.cos(ga)*170*step;ghost.y+=Math.sin(ga)*170*step}}ghost.fire=(ghost.fire??VOSS_REVERSE.afterimageFireDelay)-step;if(ghost.fire<=0){ghost.fire=VOSS_REVERSE.afterimageFireInterval;if(tgt){const aim=Math.atan2(tgt.y-ghost.y,tgt.x-ghost.x);this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*430,vy:Math.sin(aim)*430,life:1.4,enemy:false,ownerId:this.id,ghost:true,damage:8,hit:new Set()})}}}}
- if(this.vossAfterimages)this.vossAfterimages=this.vossAfterimages.filter(ghost=>ghost.life>0).slice(-10);
+  }
+ if(this.vossAfterimages)for(const ghost of this.vossAfterimages){ghost.life-=step;if(ghost.life>0){const d0=ghost.drift??ghost.a;ghost.x+=Math.cos(d0)*VOSS_REVERSE.afterimageScatterSpeed*step;ghost.y+=Math.sin(d0)*VOSS_REVERSE.afterimageScatterSpeed*step;ghost.a=d0;let tgt=null,best=620*620;for(const en of this.enemies){if(en.hp<=0)continue;const d=(en.x-ghost.x)**2+(en.y-ghost.y)**2;if(d<best){best=d;tgt=en}}ghost.fire=(ghost.fire??VOSS_REVERSE.afterimageFireDelay)-step;if(ghost.fire<=0){ghost.fire=VOSS_REVERSE.afterimageFireInterval;if(tgt){const aim=Math.atan2(tgt.y-ghost.y,tgt.x-ghost.x);this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*430,vy:Math.sin(aim)*430,life:1.4,enemy:false,ownerId:this.id,ghost:true,damage:8,hit:new Set()})}}}}
+ if(this.vossAfterimages)this.vossAfterimages=this.vossAfterimages.filter(ghost=>ghost.life>0).slice(-6);
  for(const e of this.enemies||[]){
   if(e.vossInvuln>0)e.vossInvuln=Math.max(0,e.vossInvuln-step);
-  if(e.vossReverse>0){e.vossReverse=Math.max(0,e.vossReverse-step);e.vossTrails??=[];e.vossTrailClock=(e.vossTrailClock||0)+step;
-   while(e.vossTrailClock>=VOSS_REVERSE.afterimageInterval){e.vossTrailClock-=VOSS_REVERSE.afterimageInterval;e.vossTrails.push({x:e.x,y:e.y,a:e.a,life:VOSS_REVERSE.afterimageLife,maxLife:VOSS_REVERSE.afterimageLife})}
-  }
-  if(e.vossTrails)for(const ghost of e.vossTrails){ghost.life-=step;if(ghost.life>0){{let tx=this.x,ty=this.y,best=(this.x-ghost.x)**2+(this.y-ghost.y)**2;for(const a of this.allies||[]){if(a.life<=0)continue;const d=(a.x-ghost.x)**2+(a.y-ghost.y)**2;if(d<best){best=d;tx=a.x;ty=a.y}}for(const p of this.players||[]){if(!(p.hp>0))continue;const d=(p.x-ghost.x)**2+(p.y-ghost.y)**2;if(d<best){best=d;tx=p.x;ty=p.y}}const ga=Math.atan2(ty-ghost.y,tx-ghost.x);ghost.a=ga;if(best>90*90){ghost.x+=Math.cos(ga)*150*step;ghost.y+=Math.sin(ga)*150*step}ghost.fire=(ghost.fire??VOSS_REVERSE.afterimageFireDelay)-step;if(ghost.fire<=0){ghost.fire=VOSS_REVERSE.afterimageFireInterval;const aim=ga;this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*175,vy:Math.sin(aim)*175,life:2.8,enemy:true,visualType:'boss',damage:Math.round(6*(1+this.t/240)*(e.aceDamageMultiplier||1))})}}}}
-  if(e.vossTrails)e.vossTrails=e.vossTrails.filter(ghost=>ghost.life>0).slice(-10);
+  if(e.vossReverse>0){e.vossReverse=Math.max(0,e.vossReverse-step);e.vossTrails??=[]}
+  if(e.vossTrails)for(const ghost of e.vossTrails){ghost.life-=step;if(ghost.life>0){{const d0=ghost.drift??ghost.a;ghost.x+=Math.cos(d0)*VOSS_REVERSE.afterimageScatterSpeed*step;ghost.y+=Math.sin(d0)*VOSS_REVERSE.afterimageScatterSpeed*step;ghost.a=d0;let tx=this.x,ty=this.y,best=(this.x-ghost.x)**2+(this.y-ghost.y)**2;for(const a of this.allies||[]){if(a.life<=0)continue;const d=(a.x-ghost.x)**2+(a.y-ghost.y)**2;if(d<best){best=d;tx=a.x;ty=a.y}}for(const p of this.players||[]){if(!(p.hp>0))continue;const d=(p.x-ghost.x)**2+(p.y-ghost.y)**2;if(d<best){best=d;tx=p.x;ty=p.y}}const ga=Math.atan2(ty-ghost.y,tx-ghost.x);ghost.fire=(ghost.fire??VOSS_REVERSE.afterimageFireDelay)-step;if(ghost.fire<=0){ghost.fire=VOSS_REVERSE.afterimageFireInterval;const aim=ga;this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*175,vy:Math.sin(aim)*175,life:2.8,enemy:true,visualType:'boss',damage:Math.round(6*(1+this.t/240)*(e.aceDamageMultiplier||1))})}}}}
+  if(e.vossTrails)e.vossTrails=e.vossTrails.filter(ghost=>ghost.life>0).slice(-6);
  }
 };
 
@@ -1348,11 +1344,11 @@ Game.prototype.tickRevisionWorld=function(dt){
  this.cannonImpacts=(this.cannonImpacts||[]).filter(f=>(f.life-=dt)>0);
  for(const e of this.enemies){
   if(e.bossPilot&&!this.sunStrikeContains(e)&&Number.isFinite(e.abilityTimer))e.abilityTimer-=dt*(.35+Math.min(1.5,loop*.3));
-  if(this.players){e.vossInvuln=Math.max(0,(e.vossInvuln||0)-dt);if(e.vossReverse>0){e.vossReverse=Math.max(0,e.vossReverse-dt);e.vossTrails??=[];e.vossTrailClock=(e.vossTrailClock||0)+dt;if(e.vossTrailClock>=.075){e.vossTrailClock=0;e.vossTrails.push({x:e.x,y:e.y,a:e.a,life:.42,maxLife:.42});}}for(const d of e.vossTrails||[])d.life-=dt;e.vossTrails=(e.vossTrails||[]).filter(d=>d.life>0).slice(-10);
+  if(this.players){e.vossInvuln=Math.max(0,(e.vossInvuln||0)-dt);if(e.vossReverse>0)e.vossReverse=Math.max(0,e.vossReverse-dt);e.vossTrails=(e.vossTrails||[]).filter(d=>d.life>0).slice(-6);
   if(e.disengageUntil>this.t)e.fire=Math.max(e.fire,.15);
   if(e.sunBlindUntil>this.t)for(const p of ps){const a=Math.atan2(p.y-e.y,p.x-e.x);if(Math.hypot(p.x-e.x,p.y-e.y)<470&&Math.abs(angleDiff(a,e.a))<.7)p.fire=Math.max(p.fire,.12);}
  }
-  if(this.players)for(const p of this.players){if(!(p.hp>0))continue;p.vossAfterimages??=[];for(const ghost of p.vossAfterimages){if(ghost.life>0){let tgt=null,best=620*620;for(const en of this.enemies){if(en.hp<=0)continue;const d2=(en.x-ghost.x)**2+(en.y-ghost.y)**2;if(d2<best){best=d2;tgt=en}}if(tgt){const ga=Math.atan2(tgt.y-ghost.y,tgt.x-ghost.x);ghost.a=ga;if(best>90*90){ghost.x+=Math.cos(ga)*170*dt;ghost.y+=Math.sin(ga)*170*dt}}ghost.fire=(ghost.fire??.18)-dt;if(ghost.fire<=0){ghost.fire=.42;if(tgt){const aim=Math.atan2(tgt.y-ghost.y,tgt.x-ghost.x);this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*430,vy:Math.sin(aim)*430,life:1.4,enemy:false,ownerId:p.id,ghost:true,damage:8,hit:new Set()})}}}}}}
+  if(this.players)for(const p of this.players){if(!(p.hp>0))continue;p.vossAfterimages??=[];for(const ghost of p.vossAfterimages){ghost.life-=dt;if(ghost.life>0){const d0=ghost.drift??ghost.a;ghost.x+=Math.cos(d0)*165*dt;ghost.y+=Math.sin(d0)*165*dt;ghost.a=d0;let tgt=null,best=620*620;for(const en of this.enemies){if(en.hp<=0)continue;const d2=(en.x-ghost.x)**2+(en.y-ghost.y)**2;if(d2<best){best=d2;tgt=en}}ghost.fire=(ghost.fire??.18)-dt;if(ghost.fire<=0){ghost.fire=.42;if(tgt){const aim=Math.atan2(tgt.y-ghost.y,tgt.x-ghost.x);this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*430,vy:Math.sin(aim)*430,life:1.4,enemy:false,ownerId:p.id,ghost:true,damage:8,hit:new Set()})}}}}}}
  for(const f of this.fireZones||[]){f.life-=dt;f.tick-=dt;if(f.tick>0||f.life<=0)continue;f.tick=.5;
   for(const p of ps)if(p.hp>0&&Math.hypot(p.x-f.x,p.y-f.y)<f.radius){if(this.players)this.hitPlayer(p,BATTLEFIELD113.fireDamage*.5);else this.hit(BATTLEFIELD113.fireDamage*.5);}
   for(const e of this.enemies)if(e.hp>0&&!e.stageBossBody&&Math.hypot(e.x-f.x,e.y-f.y)<f.radius){
