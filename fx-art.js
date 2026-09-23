@@ -53,7 +53,7 @@ const FX_FILES=FX_OFF?{}:Object.assign({
 },FX56_OFF?{}:FX56_FILES);
 const fxImgs={};
 export const fxArtReady=typeof Image==='undefined'?Promise.resolve():Promise.all(Object.entries(FX_FILES).map(([key,file])=>new Promise(res=>{
- const im=new Image();im.onload=()=>{fxImgs[key]=im;res()};im.onerror=()=>res();im.src='./'+file+'?v=fx3';
+ const im=new Image();im.onload=()=>{fxImgs[key]=im;res()};im.onerror=()=>res();im.src='./'+file+'?v=fx4';
 })));
 export function fxReady(key){return !!fxImgs[key]}
 export function fxImage(key){return fxImgs[key]||null}
