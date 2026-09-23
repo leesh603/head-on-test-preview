@@ -929,6 +929,7 @@ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>.cumul
  grid-row:4!important;
  align-self:end!important;
  width:100%!important;
+ height:auto!important;
  margin:0!important;
  padding:5px 0 0!important;
  border-top:1px solid #c8c0a226!important;
