@@ -6,14 +6,19 @@ const portrait186=document.getElementById("hangarPortrait");
 const tabs186=document.getElementById("pilotTabs");
 
 const PORTRAIT_TUNE186=Object.freeze({
-  mckeever:{desktop:.91,mobile:.88},
-  huffzky:{desktop:.91,mobile:.88},
-  bishop:{desktop:.96,mobile:.94},
-  mannock:{desktop:.96,mobile:.94},
-  mccudden:{desktop:.97,mobile:.95},
+  mckeever:{desktop:.91,mobile:.88,liftD:-10,liftM:-13},
+  huffzky:{desktop:.91,mobile:.88,liftD:-4,liftM:-6},
+  bishop:{desktop:.96,mobile:.94,liftD:4,liftM:5},
+  mannock:{desktop:.96,mobile:.94,liftD:-4,liftM:-6},
+  mccudden:{desktop:.97,mobile:.95,liftD:-4,liftM:-6},
   nungesser:{desktop:.97,mobile:.95},
-  wolff:{desktop:.98,mobile:.96},
-  loewenhardt:{desktop:.98,mobile:.96}
+  wolff:{desktop:.98,mobile:.96,liftD:-4,liftM:-6},
+  loewenhardt:{desktop:.98,mobile:.96,liftD:-4,liftM:-6},
+  boelcke:{liftD:-4,liftM:-6},
+  udet:{liftD:-4,liftM:-6},
+  berthold:{liftD:-4,liftM:-6},
+  jacobs:{liftD:-4,liftM:-6},
+  fonck:{liftD:4,liftM:5}
 });
 
 function activePilot186(){
@@ -40,6 +45,8 @@ function syncPortrait186(){
   portrait186.style.setProperty("--hp-scale-mobile",String((tune.mobile??base.mobile)*1.35));
   portrait186.style.setProperty("--hp-shift-desktop","0%");
   portrait186.style.setProperty("--hp-shift-mobile","0%");
+  portrait186.style.setProperty("--hp-lift-desktop",(tune.liftD??0)+"%");
+  portrait186.style.setProperty("--hp-lift-mobile",(tune.liftM??0)+"%");
 }
 
 if(portrait186){

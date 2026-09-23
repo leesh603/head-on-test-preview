@@ -10,6 +10,8 @@ body.astra-ui:not(.playing) .hangar-ace.hangar-portrait186{
   --hp-scale-mobile:1.34;
   --hp-shift-desktop:0%;
   --hp-shift-mobile:0%;
+  --hp-lift-desktop:0%;
+  --hp-lift-mobile:0%;
 
   position:absolute!important;
   inset:auto!important;
@@ -20,7 +22,7 @@ body.astra-ui:not(.playing) .hangar-ace.hangar-portrait186{
   max-width:none!important;
   object-fit:contain!important;
   object-position:left bottom!important;
-  transform:translateX(var(--hp-shift-desktop)) scale(var(--hp-scale-desktop))!important;
+  transform:translate(var(--hp-shift-desktop),var(--hp-lift-desktop)) scale(var(--hp-scale-desktop))!important;
   transform-origin:left bottom!important;
   opacity:.985!important;
   z-index:-1!important;
@@ -84,7 +86,7 @@ body.astra-ui:not(.playing) #pilotTabs .pilot-tab-portrait{
 
     object-fit:contain!important;
     object-position:right bottom!important;
-    transform:translateX(var(--hp-shift-mobile)) scale(var(--hp-scale-mobile))!important;
+    transform:translate(var(--hp-shift-mobile),var(--hp-lift-mobile)) scale(var(--hp-scale-mobile))!important;
     transform-origin:right bottom!important;
     opacity:.99!important;
     z-index:0!important;
