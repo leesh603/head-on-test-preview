@@ -1,7 +1,7 @@
 import {drawRailDamage,drawRailTrack} from './rail-render129.js';
 import {fx,fxReady,fxImage,FX56} from './fx-art.js';
-import {drawEnemyProjectile} from './projectiles.js?v=216';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js';
+import {drawEnemyProjectile} from './projectiles.js?v=217&b=212';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=212';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=190';
 import {bossHudModel} from './headon-stageboss-hud.js?v=190&b=117';
 
