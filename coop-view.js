@@ -10,7 +10,7 @@ import {drawSpecialAmmoIcon} from './icons.js?v=214';
 import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=221';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
-const xpGem=typeof Image!=='undefined'?new Image():null;if(xpGem)xpGem.src='./xp-gem.png?v=210';
+const xpGem=null;
 export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt}){
  const t=g.t,z=g.camera.zoom;c.save();c.scale(z,z);terrain(g.x,g.y,W/z,H/z);c.restore();drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});c.save();c.translate(W/2,H/2);c.scale(z,z);c.translate(-g.x,-g.y);
  drawBattlefieldFire(c,g);for(const e of g.enemyAirshipPasses||[])drawZeppelin(c,e.x,e.y,e.a,.72,false,'central');
