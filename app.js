@@ -10,9 +10,9 @@ import {enableStageBoss} from './stageboss-host.js?v=190';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=214';
 import './hud-layout94.js?v=214';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=214';
-import {CoopGame,coopPlane} from './coop-engine.js?v=227';
+import {CoopGame,coopPlane} from './coop-engine.js?v=228';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=214';
-import {drawCoop} from './coop-view.js?v=230';
+import {drawCoop} from './coop-view.js?v=231';
 import {drawSunStrike} from './sun-strike71.js?v=223&b=220';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=217&b=212';
 import {installFlightViewport} from './flight-viewport.js?v=214';
@@ -30,7 +30,7 @@ import {portraitSources,portraitsReady} from './portraits.js?v=216&b=211';
 import {drawEquipment} from './equipment.js?v=215&b=211';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=214';
 import{planeSprite,aircraftReady,aircraftKey,hangarArtReady}from'./aircraft.js?v=220';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale}from'./engine.js?v=227';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale}from'./engine.js?v=228';
 import {TerrainRenderer,MountainField} from './alps-terrain117.js?v=214';
 const flightViewport=installFlightViewport(document,window);
 const ententeAirshipSprite=new Image();ententeAirshipSprite.src='./zeppelin-entente.webp?v=214&b=214';
@@ -251,7 +251,7 @@ draw=t=>{
   if(b.rocket){const a=Math.atan2(b.vy,b.vx);if(FX56){fx(ctx,'smokePuff',x-Math.cos(a)*19,y-Math.sin(a)*19,12,10,0,.22)}else{ctx.strokeStyle='#ff982baa';ctx.lineWidth=b.special?5:3;ctx.beginPath();ctx.moveTo(x-Math.cos(a)*15,y-Math.sin(a)*15);ctx.lineTo(x-Math.cos(a)*34,y-Math.sin(a)*34);ctx.stroke()}continue}
   if(!b.enemy||b.flak)continue;
   drawEnemyProjectile(ctx,b,x,y,t);
-  if(b.hostileRocket){if(!fx(ctx,'rocket',x,y,50,15,Math.atan2(b.vy,b.vx)))drawEquipment(ctx,'rocket',x,y,Math.atan2(b.vy,b.vx)+Math.PI/2,46);}
+  if(b.hostileRocket){ctx.save();ctx.translate(x,y);ctx.rotate(Math.atan2(b.vy,b.vx));ctx.fillStyle='#f2a144';ctx.beginPath();ctx.moveTo(-14,0);ctx.lineTo(-26,-4);ctx.lineTo(-26,4);ctx.closePath();ctx.fill();ctx.fillStyle='#4a3f30';ctx.beginPath();ctx.ellipse(0,0,14,4.5,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#8a2f22';ctx.beginPath();ctx.ellipse(9,0,4.5,3.4,0,0,Math.PI*2);ctx.fill();ctx.restore()}
 
  }
  for(const e of game.enemies){if(!(e.muzzleFlash>0))continue;

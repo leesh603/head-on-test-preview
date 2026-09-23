@@ -1217,14 +1217,14 @@ Game.prototype.update=function(dt,input={}){
   this.vossAfterimages??=[];this.vossAfterimageClock=(this.vossAfterimageClock||0)+step;
   while(this.vossAfterimageClock>=VOSS_REVERSE.afterimageInterval){this.vossAfterimageClock-=VOSS_REVERSE.afterimageInterval;this.vossAfterimages.push({x:beforeX,y:beforeY,a:beforeA,life:VOSS_REVERSE.afterimageLife,maxLife:VOSS_REVERSE.afterimageLife})}
  }
- if(this.vossAfterimages)for(const ghost of this.vossAfterimages)ghost.life-=step;
+ if(this.vossAfterimages)for(const ghost of this.vossAfterimages){ghost.life-=step;if(ghost.life>0){ghost.fire=(ghost.fire??VOSS_REVERSE.afterimageFireDelay)-step;if(ghost.fire<=0){ghost.fire=VOSS_REVERSE.afterimageFireInterval;let tgt=null,best=620*620;for(const en of this.enemies){if(en.hp<=0)continue;const d=(en.x-ghost.x)**2+(en.y-ghost.y)**2;if(d<best){best=d;tgt=en}}if(tgt){const aim=Math.atan2(tgt.y-ghost.y,tgt.x-ghost.x);this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*430,vy:Math.sin(aim)*430,life:1.4,enemy:false,ownerId:this.id,ghost:true,damage:8,hit:new Set()})}}}}
  if(this.vossAfterimages)this.vossAfterimages=this.vossAfterimages.filter(ghost=>ghost.life>0).slice(-10);
  for(const e of this.enemies||[]){
   if(e.vossInvuln>0)e.vossInvuln=Math.max(0,e.vossInvuln-step);
   if(e.vossReverse>0){e.vossReverse=Math.max(0,e.vossReverse-step);e.vossTrails??=[];e.vossTrailClock=(e.vossTrailClock||0)+step;
    while(e.vossTrailClock>=VOSS_REVERSE.afterimageInterval){e.vossTrailClock-=VOSS_REVERSE.afterimageInterval;e.vossTrails.push({x:e.x,y:e.y,a:e.a,life:VOSS_REVERSE.afterimageLife,maxLife:VOSS_REVERSE.afterimageLife})}
   }
-  if(e.vossTrails)for(const ghost of e.vossTrails){ghost.life-=step;if(ghost.life>0){ghost.fire=(ghost.fire??VOSS_REVERSE.afterimageFireDelay)-step;if(ghost.fire<=0){ghost.fire=VOSS_REVERSE.afterimageFireInterval;const aim=Math.atan2(this.y-ghost.y,this.x-ghost.x);this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*175,vy:Math.sin(aim)*175,life:2.8,enemy:true,visualType:'boss',damage:Math.round(6*(1+this.t/240)*(e.aceDamageMultiplier||1))})}}}
+  if(e.vossTrails)for(const ghost of e.vossTrails){ghost.life-=step;if(ghost.life>0){ghost.fire=(ghost.fire??VOSS_REVERSE.afterimageFireDelay)-step;if(ghost.fire<=0){ghost.fire=VOSS_REVERSE.afterimageFireInterval;let tx=this.x,ty=this.y,best=(this.x-ghost.x)**2+(this.y-ghost.y)**2;for(const a of this.allies||[]){if(a.life<=0)continue;const d=(a.x-ghost.x)**2+(a.y-ghost.y)**2;if(d<best){best=d;tx=a.x;ty=a.y}}for(const p of this.players||[]){if(!(p.hp>0))continue;const d=(p.x-ghost.x)**2+(p.y-ghost.y)**2;if(d<best){best=d;tx=p.x;ty=p.y}}const aim=Math.atan2(ty-ghost.y,tx-ghost.x);this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*175,vy:Math.sin(aim)*175,life:2.8,enemy:true,visualType:'boss',damage:Math.round(6*(1+this.t/240)*(e.aceDamageMultiplier||1))})}}}
   if(e.vossTrails)e.vossTrails=e.vossTrails.filter(ghost=>ghost.life>0).slice(-10);
  }
 };
@@ -1349,7 +1349,8 @@ Game.prototype.tickRevisionWorld=function(dt){
  this.cannonImpacts=(this.cannonImpacts||[]).filter(f=>(f.life-=dt)>0);
  for(const e of this.enemies){
   if(e.bossPilot&&!this.sunStrikeContains(e)&&Number.isFinite(e.abilityTimer))e.abilityTimer-=dt*(.35+Math.min(1.5,loop*.3));
-  if(this.players){e.vossInvuln=Math.max(0,(e.vossInvuln||0)-dt);if(e.vossReverse>0){e.vossReverse=Math.max(0,e.vossReverse-dt);e.vossTrails??=[];e.vossTrailClock=(e.vossTrailClock||0)+dt;if(e.vossTrailClock>=.075){e.vossTrailClock=0;e.vossTrails.push({x:e.x,y:e.y,a:e.a,life:.42,maxLife:.42});}}for(const d of e.vossTrails||[])d.life-=dt;e.vossTrails=(e.vossTrails||[]).filter(d=>d.life>0).slice(-10);}
+  if(this.players){e.vossInvuln=Math.max(0,(e.vossInvuln||0)-dt);if(e.vossReverse>0){e.vossReverse=Math.max(0,e.vossReverse-dt);e.vossTrails??=[];e.vossTrailClock=(e.vossTrailClock||0)+dt;if(e.vossTrailClock>=.075){e.vossTrailClock=0;e.vossTrails.push({x:e.x,y:e.y,a:e.a,life:.42,maxLife:.42});}}for(const d of e.vossTrails||[])d.life-=dt;e.vossTrails=(e.vossTrails||[]).filter(d=>d.life>0).slice(-10);
+  if(this.players)for(const p of this.players){if(!(p.hp>0))continue;p.vossAfterimages??=[];for(const ghost of p.vossAfterimages){ghost.life-=dt;if(ghost.life>0){ghost.fire=(ghost.fire??.18)-dt;if(ghost.fire<=0){ghost.fire=.42;let tgt=null,best=620*620;for(const en of this.enemies){if(en.hp<=0)continue;const d2=(en.x-ghost.x)**2+(en.y-ghost.y)**2;if(d2<best){best=d2;tgt=en}}if(tgt){const aim=Math.atan2(tgt.y-ghost.y,tgt.x-ghost.x);this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*430,vy:Math.sin(aim)*430,life:1.4,enemy:false,ownerId:p.id,ghost:true,damage:8,hit:new Set()})}}}}p.vossAfterimages=p.vossAfterimages.filter(g=>g.life>0).slice(-10);}}
   if(e.disengageUntil>this.t)e.fire=Math.max(e.fire,.15);
   if(e.sunBlindUntil>this.t)for(const p of ps){const a=Math.atan2(p.y-e.y,p.x-e.x);if(Math.hypot(p.x-e.x,p.y-e.y)<470&&Math.abs(angleDiff(a,e.a))<.7)p.fire=Math.max(p.fire,.12);}
  }
