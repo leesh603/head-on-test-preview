@@ -14,27 +14,27 @@ function loadDirectIcon(file,key){return new Promise(resolve=>{const icon=new Im
  c.putImageData(pixels,0,0);let l=w,r=0,t=h,b=0;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>0){l=Math.min(l,x);r=Math.max(r,x);t=Math.min(t,y);b=Math.max(b,y)}frames.set(key,{atlas:canvas,x:l,y:t,w:r-l+1,h:b-t+1,smooth:true,direct:true});
  }else frames.set(key,{atlas:icon,x:0,y:0,w:icon.naturalWidth,h:icon.naturalHeight,smooth:true,direct:true});resolve(true)};icon.onerror=()=>resolve(false);icon.src=file})}
 const DIRECT_ICONS=Object.freeze({
- 'cooldown-central':'medal_general_central.png','cooldown-entente':'medal_general_entente.png',
- damage:'armor_piercing_ammo.png',rate:'synchronization_gear.png',rockets:'le_prieur_rocket_launcher.png',mines:'grenade_throwing_gear.png',
- explosives:'high_quality_powder.png',command:'squadron_flight_manual.png',turn:'laminated_wood_propeller.png',armor:'plywood_monocoque_fuselage.png',regen:'mechanics_oil_pump.png',
+ 'cooldown-central':'medal_general_central.webp','cooldown-entente':'medal_general_entente.webp',
+ damage:'armor_piercing_ammo.webp',rate:'synchronization_gear.webp',rockets:'le_prieur_rocket_launcher.webp',mines:'grenade_throwing_gear.webp',
+ explosives:'high_quality_powder.webp',command:'squadron_flight_manual.webp',turn:'laminated_wood_propeller.webp',armor:'plywood_monocoque_fuselage.webp',regen:'mechanics_oil_pump.webp',
 
- bomber:'bombing_request_carrier_pigeon.png',wingman:'wingman_joining.png',fighterSupply:'new_fighter_supply.png',mercedesEngine:'high_output_mercedes_engine.png',spread:'wide_barrage_firing_device.png',combinedProjectiles:'combined_projectile_distributor.png',
- amatolCharge:'amatol_high_explosive_charge.png',lufberyCircle:'lufbery_circle.png',
- sparkPlug:'mccudden_emergency_repair_kit.png',goeringBaton:'squadron_general_mobilization.png',steelPlate:'j_type_armor_capsule.png',mauserAceKiller:'mauser_c96_ace_killer.png',rearGunner:'scarff_ring_gun_mount.png',kaiserFog:'brock_smoke_device.png',fogCompass:'co_5_17_aero_compass.png',
- 'ironCross-central':'medal_award_pour_le_merite.png','ironCross-entente':'medal_award_british_victoria_cross.png'
+ bomber:'bombing_request_carrier_pigeon.webp',wingman:'wingman_joining.webp',fighterSupply:'new_fighter_supply.webp',mercedesEngine:'high_output_mercedes_engine.webp',spread:'wide_barrage_firing_device.webp',combinedProjectiles:'combined_projectile_distributor.webp',
+ amatolCharge:'amatol_high_explosive_charge.webp',lufberyCircle:'lufbery_circle.webp',
+ sparkPlug:'mccudden_emergency_repair_kit.webp',goeringBaton:'squadron_general_mobilization.webp',steelPlate:'j_type_armor_capsule.webp',mauserAceKiller:'mauser_c96_ace_killer.webp',rearGunner:'scarff_ring_gun_mount.webp',kaiserFog:'brock_smoke_device.webp',fogCompass:'co_5_17_aero_compass.webp',
+ 'ironCross-central':'medal_award_pour_le_merite.webp','ironCross-entente':'medal_award_british_victoria_cross.webp'
 });
 const atlasReady=Promise.all([
- loadIconAtlas('./icons51.png?v=210',5,4,keys,true),
- loadIconAtlas('./controls53.png?v=210',2,2,['control','turn','command','cooldown']),
- loadIconAtlas('./special-ammo-icons92.png?v=210',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
- loadIconAtlas('./legendary-icons103.png?v=210',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
- loadIconAtlas('./gun-atlas114.png?v=210',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
- loadIconAtlas('./legendary-icons109.png?v=210',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
- loadIconAtlas('./relic-maxim-belt128.png',1,1,['maximBelt'],true),
- loadIconAtlas('./relic-steel-plate128.png',1,1,['steelPlate'],true),
- loadIconAtlas('./relic-immelmann-manual128.png',1,1,['immelmannManual'],true),
- loadIconAtlas('./relic-lo-emblem128.png',1,1,['loEmblem'],true),
- loadIconAtlas('./relic-sacred-cowling128.png',1,1,['sacredCowling'],true)
+ loadIconAtlas('./icons51.webp?v=210',5,4,keys,true),
+ loadIconAtlas('./controls53.webp?v=210',2,2,['control','turn','command','cooldown']),
+ loadIconAtlas('./special-ammo-icons92.webp?v=210',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
+ loadIconAtlas('./legendary-icons103.webp?v=210',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
+ loadIconAtlas('./gun-atlas114.webp?v=210',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
+ loadIconAtlas('./legendary-icons109.webp?v=210',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
+ loadIconAtlas('./relic-maxim-belt128.webp',1,1,['maximBelt'],true),
+ loadIconAtlas('./relic-steel-plate128.webp',1,1,['steelPlate'],true),
+ loadIconAtlas('./relic-immelmann-manual128.webp',1,1,['immelmannManual'],true),
+ loadIconAtlas('./relic-lo-emblem128.webp',1,1,['loEmblem'],true),
+ loadIconAtlas('./relic-sacred-cowling128.webp',1,1,['sacredCowling'],true)
 ]);
 export const iconsReady=atlasReady.then(async results=>{
  const direct=await Promise.all(Object.entries(DIRECT_ICONS).map(([key,file])=>loadDirectIcon('./augmentation-icons/'+file+'?v=210',key)));

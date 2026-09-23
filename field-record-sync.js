@@ -11,7 +11,7 @@ for(const item of DATA.legendary){
 }
 
 // Replace the retired zero-byte preview and provide stable fallbacks for every ace.
-DATA.images.p_nungesser='./portrait-nungesser-field.png';
+DATA.images.p_nungesser='./portrait-nungesser-field.webp';
 const PORTRAIT_FALLBACKS=Object.fromEntries(DATA.pilots.map(p=>[p.key,p.portrait]));
 document.addEventListener('error',event=>{
   const image=event.target;

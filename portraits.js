@@ -2,7 +2,7 @@ import {clearCrewMatte} from './matte70.js?v=214&b=210';
 // Use the cleaned canvas for every portrait surface, including boss arrivals.
 export const portraitSources={};
 const legacyPortraits=['baron','voss','boelcke','immelmann','udet','fonck','collishaw','baracca','guynemer','bishop','goering','mannock','mckeever','huffzky','hawker','berthold','jacobs','rickenbacker','ball','barker','luke','brumowski','gontermann'].map(id=>new Promise(resolve=>{
- const img=new Image(),key=id==='mckeever'?'mckeever-powell129':id,url=`./portrait-${key}.png?v=214&b=217`;
+ const img=new Image(),key=id==='mckeever'?'mckeever-powell129':id,url=`./portrait-${key}.webp?v=214&b=217`;
  // Never leave a portrait surface blank while the cleaned canvas is loading.
  portraitSources[id]=url;
  img.onload=()=>{
@@ -19,7 +19,7 @@ const legacyPortraits=['baron','voss','boelcke','immelmann','udet','fonck','coll
 }));
 
 const NEW_ACE_PORTRAITS=['wolff','loewenhardt','mccudden','nungesser'];
-for(const id of NEW_ACE_PORTRAITS)portraitSources[id]=`./portrait-${id}-field.png?v=214&b=217`;
+for(const id of NEW_ACE_PORTRAITS)portraitSources[id]=`./portrait-${id}-field.webp?v=214&b=217`;
 function clearNavyMatte(data,w,h){
  const seen=new Uint8Array(w*h),queue=new Int32Array(w*h);let head=0,tail=0;
  const matte=i=>{const r=data[i],g=data[i+1],b=data[i+2];return b<82&&g<66&&r<50&&b>=g*.92&&g>=r*.92};
@@ -27,8 +27,8 @@ function clearNavyMatte(data,w,h){
  for(let x=0;x<w;x++)add(x,0);for(let y=0;y<h;y++){add(0,y);add(w-1,y)}
  while(head<tail){const n=queue[head++],x=n%w,y=Math.floor(n/w);add(x-1,y);add(x+1,y);add(x,y-1);add(x,y+1)}
 }
-// The four aces once cut from new-aces-portraits124.png now ship as cleaned
-// portrait-*-field.png files (assigned above); the navy-matte atlas pass is
+// The four aces once cut from new-aces-portraits124.webp now ship as cleaned
+// portrait-*-field.webp files (assigned above); the navy-matte atlas pass is
 // retired so it can no longer overwrite them with half-cleared cells.
 const newAcePortraitsReady=Promise.resolve(true);
 export const portraitsReady=Promise.all([...legacyPortraits,newAcePortraitsReady]);

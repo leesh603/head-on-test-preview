@@ -12,8 +12,8 @@ function loadImage(source) {
 
 export function createEliteAssets(options = {}) {
   return {
-    lePrieur: loadImage(options.lePrieur || './assets/le-prieur-squadron.png'),
-    schlachtstaffel: loadImage(options.schlachtstaffel || './assets/halberstadt-cliv-squadron.png'),
+    lePrieur: loadImage(options.lePrieur || './assets/le-prieur-squadron.webp'),
+    schlachtstaffel: loadImage(options.schlachtstaffel || './assets/halberstadt-cliv-squadron.webp'),
     rocket: loadImage(options.rocket),
     crop: {...defaultCrop, ...(options.crop || {})},
     drawPlayerRocket: options.drawPlayerRocket || null
@@ -93,8 +93,8 @@ export function renderEliteLayer(ctx, system, camera, assets, time = 0) {
 
 export function assertEliteAssetsReady(assets) {
   const missing = [];
-  if (!assets?.lePrieur?.naturalWidth && !assets?.lePrieur?.width) missing.push('le-prieur-squadron.png');
-  if (!assets?.schlachtstaffel?.naturalWidth && !assets?.schlachtstaffel?.width) missing.push('halberstadt-cliv-squadron.png');
+  if (!assets?.lePrieur?.naturalWidth && !assets?.lePrieur?.width) missing.push('le-prieur-squadron.webp');
+  if (!assets?.schlachtstaffel?.naturalWidth && !assets?.schlachtstaffel?.width) missing.push('halberstadt-cliv-squadron.webp');
   if (missing.length) throw new Error(`Elite patch assets unavailable: ${missing.join(', ')}`);
   return true;
 }

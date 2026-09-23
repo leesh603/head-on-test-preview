@@ -10,7 +10,7 @@ canvas{background:#778563;flex:none}
 <div id="rows"></div>
 <script type="module">
 import {fx,fxReady,fxTint,fxArtReady} from './fx-art.js';
-import {drawEquipment} from './equipment.js?v=214&b=210';
+import {drawEquipment} from './equipment.js?v=215&b=211';
 const ROWS=[
  ['적 총탄 (scout)','tracer'],
  ['아군 총탄','playerTracer'],
@@ -37,7 +37,7 @@ function oldPlayerTracer(c,x,y){c.save();c.strokeStyle='#f8df87';c.lineWidth=2;c
 function oldMuzzle(c,x,y){c.fillStyle='#ffbb58';c.fillRect(x-3,y-3,6,6);c.fillStyle='#fff4ca';c.fillRect(x-1,y-1,3,3)}
 function oldSpark(c,x,y){for(const [dx,dy,s,col] of [[-8,-4,4,'#f2aa52'],[6,3,3,'#f2aa52'],[-2,7,3,'#f5d38b'],[4,-9,2,'#f5d38b'],[0,0,3,'#fff4ca']]){c.fillStyle=col;c.fillRect(x+dx,y+dy,s,s)}}
 function oldSmoke(c,x,y){c.globalAlpha=.5;c.fillStyle='#8a8d84';c.fillRect(x-6,y-6,12,12);c.fillRect(x+6,y-10,10,10);c.globalAlpha=.3;c.fillRect(x-12,y+4,9,9);c.globalAlpha=1}
-function oldExplosion(c,x,y){const img=new Image();img.onload=()=>{c.save();c.globalAlpha=.8;c.drawImage(img,x-30,y-30,60,60);c.strokeStyle='#ffe6a580';c.lineWidth=3;c.beginPath();c.arc(x,y,20,0,6.28);c.stroke();c.restore()};img.src='./flak-burst.png'}
+function oldExplosion(c,x,y){const img=new Image();img.onload=()=>{c.save();c.globalAlpha=.8;c.drawImage(img,x-30,y-30,60,60);c.strokeStyle='#ffe6a580';c.lineWidth=3;c.beginPath();c.arc(x,y,20,0,6.28);c.stroke();c.restore()};img.src='./flak-burst.webp'}
 function oldGrenadeBlast(c,x,y){const q=.4;c.save();c.translate(x,y);c.globalAlpha=(1-q)*.8;const r=12+24*q,glow=c.createRadialGradient(0,0,2,0,0,r);glow.addColorStop(0,'#fff3ca');glow.addColorStop(.3,'#d3934f');glow.addColorStop(1,'#51483a00');c.fillStyle=glow;c.beginPath();c.arc(0,0,r,0,6.28);c.fill();c.strokeStyle='#c8b490';c.lineWidth=1;for(let i=0;i<13;i++){const a=i*2.399,r2=12+q*80*(.65+(i%3)*.12);c.beginPath();c.moveTo(Math.cos(a)*r2,Math.sin(a)*r2);c.lineTo(Math.cos(a)*(r2+4),Math.sin(a)*(r2+4));c.stroke()}c.restore()}
 function oldRocket(c,x,y){drawEquipment(c,'rocket',x,y,Math.PI/2,46)}
 function oldBomb(c,x,y){drawEquipment(c,'rocket',x,y,Math.PI/2,38);c.strokeStyle='#ff855a';c.lineWidth=2;c.beginPath();c.arc(x,y,30,0,6.28);c.stroke()}
@@ -49,7 +49,7 @@ function oldSearchlight(c,x,y){const a=-Math.PI/2.4,g=c.createRadialGradient(x,y
 function oldSunshaft(c,x,y){c.save();c.translate(x,y);for(let i=0;i<11;i++){const a=(i/10*2-1)*.35;c.fillStyle=`rgba(255,231,169,${.055+.025*Math.sin(i)})`;c.beginPath();c.moveTo(-20,0);c.lineTo(Math.cos(a-.006)*70,Math.sin(a-.006)*70);c.lineTo(Math.cos(a+.006)*70,Math.sin(a+.006)*70);c.fill()}c.restore()}
 function oldFire(c,x,y){for(let i=0;i<10;i++){const a=i*2.399,r=Math.sqrt(i/10)*26,px=x+Math.cos(a)*r,py=y+Math.sin(a)*r,h=8+(i%3)*5;c.fillStyle='#b56534';c.fillRect(px-6,py-8,12,9);c.fillRect(px-4,py-h,8,h);c.fillStyle='#e3a34d';c.fillRect(px-3,py-h+5,6,h-3);c.fillStyle='#f5d38b';c.fillRect(px-1,py-4,3,4)}}
 function oldCloud(c,x,y){c.globalAlpha=.3;c.fillStyle='#d3dedd';c.fillRect(x-40,y-14,80,22);c.fillRect(x-20,y-24,44,34);c.globalAlpha=1}
-function oldFlak(c,x,y){const img=new Image();img.onload=()=>c.drawImage(img,x-26,y-26,52,52);img.src='./flak-burst.png'}
+function oldFlak(c,x,y){const img=new Image();img.onload=()=>c.drawImage(img,x-26,y-26,52,52);img.src='./flak-burst.webp'}
 // ---- AFTER renderers ----
 function newTracer(c,x,y){fxTint(c,'tracerAmber','#e7a06b',x,y,26,12)}
 function newPlayerTracer(c,x,y){fxTint(c,'tracerAmber','#f8df87',x,y,30,12,Math.atan2(-8,-14))}

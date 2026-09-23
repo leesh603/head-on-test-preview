@@ -8,7 +8,7 @@ body.astra-ui [hidden]{display:none!important}
 body.astra-ui button:focus-visible,body.astra-ui a:focus-visible{outline:2px solid #e5c27e;outline-offset:5px}
 /* Flight-ready hangar */
 body.astra-ui:not(.playing){margin:0;overflow-x:hidden;overflow-y:auto;min-height:100dvh;background:#0b1211}
-body.astra-ui:not(.playing):before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,#09110ee0,#09110ea6 48%,#09110ee8),url('terrain-trenches.png') center/cover;opacity:.75}
+body.astra-ui:not(.playing):before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,#09110ee0,#09110ea6 48%,#09110ee8),url('terrain-trenches.webp') center/cover;opacity:.75}
 body.astra-ui:not(.playing)>header{position:relative;inset:auto;z-index:24;display:flex;justify-content:space-between;align-items:center;height:92px;min-height:92px;padding:12px 40px;margin:0;border:0;border-bottom:1px solid #c5bea060;background:linear-gradient(100deg,#0b1311d9,#0b1311a8);gap:24px}
 body.astra-ui:not(.playing)>header .brand{display:flex;flex-shrink:0;padding:0;line-height:1;text-decoration:none}
 body.astra-ui:not(.playing)>header .brand-mark{display:block}
@@ -93,7 +93,7 @@ body.astra-ui:not(.playing) #pilotTabs .pilot-tab-label{position:absolute;inset:
 .astra-pilot-caption{position:absolute;left:0;right:0;bottom:0;text-align:center;font:400 9px/1.4 var(--astra-type);color:#b5bbae;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.astra-ui #pilotTabs .pilot-medal{display:none}
 .astra-launch{align-self:center;min-width:0;padding:12px 8px 0 22px}
-body.astra-ui:not(.playing) #start{position:relative;inset:auto;display:flex;justify-content:center;align-items:center;gap:20px;width:100%;max-width:none;min-height:140px;height:auto;padding:22px 24px;margin:0;color:#faf0d8;border:1px solid #c66e53;border-radius:4px;background:linear-gradient(115deg,#914132eb,#581e1de8),url('terrain-trenches.png') center/300px;box-shadow:inset 0 0 0 3px #361e1940,inset 0 0 0 4px #d6805255,inset 0 1px #ffd6a977,0 10px 30px #0007;cursor:pointer;isolation:isolate;pointer-events:auto;transition:filter .15s,transform .15s}
+body.astra-ui:not(.playing) #start{position:relative;inset:auto;display:flex;justify-content:center;align-items:center;gap:20px;width:100%;max-width:none;min-height:140px;height:auto;padding:22px 24px;margin:0;color:#faf0d8;border:1px solid #c66e53;border-radius:4px;background:linear-gradient(115deg,#914132eb,#581e1de8),url('terrain-trenches.webp') center/300px;box-shadow:inset 0 0 0 3px #361e1940,inset 0 0 0 4px #d6805255,inset 0 1px #ffd6a977,0 10px 30px #0007;cursor:pointer;isolation:isolate;pointer-events:auto;transition:filter .15s,transform .15s}
 body.astra-ui:not(.playing) #start:before{content:"";position:absolute;inset:9px;pointer-events:none;border:1px solid #d4956655;background:radial-gradient(circle at 0 0,#caaa78 2px,#3e1f1c 3px,transparent 4px),radial-gradient(circle at 100% 0,#caaa78 2px,#3e1f1c 3px,transparent 4px),radial-gradient(circle at 0 100%,#caaa78 2px,#3e1f1c 3px,transparent 4px),radial-gradient(circle at 100% 100%,#caaa78 2px,#3e1f1c 3px,transparent 4px)}
 body.astra-ui:not(.playing) #start:hover{filter:brightness(1.13)}
 body.astra-ui:not(.playing) #start:active{transform:translateY(2px)}

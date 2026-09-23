@@ -1,12 +1,12 @@
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=215';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=216';
 import {fx,fxReady,fxTint} from './fx-art.js';
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=214';
-import {drawStageBoss} from './stageboss-view.js?v=195&b=210';
-import {planeSprite,aircraftKey} from './aircraft.js?v=218';
-import {drawEquipment} from './equipment.js?v=214&b=210';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire} from './projectiles.js?v=215&b=210';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=214&b=210';
-import {drawSpecialAmmoIcon} from './icons.js?v=214';
+import {drawStageBoss} from './stageboss-view.js?v=196&b=211';
+import {planeSprite,aircraftKey} from './aircraft.js?v=219';
+import {drawEquipment} from './equipment.js?v=215&b=211';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire} from './projectiles.js?v=216&b=211';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=215&b=211';
+import {drawSpecialAmmoIcon} from './icons.js?v=215';
 import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=221';
 
 // Every combat layer uses the same world transform; rendering never edits the session.

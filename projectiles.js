@@ -17,7 +17,7 @@ export function friendlyTracerColor(b,gunUpgradeBonus=0){
  return '#'+a.map((v,j)=>Math.round(v+(z[j]-v)*t).toString(16).padStart(2,'0')).join('');
 }
 const cannonAtlas=typeof Image==='undefined'?null:new Image();
-if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.png?v=210';
+if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.webp?v=210';
 export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
  if(!b.enemy||b.life<=0)return;const kind=projectileStyle(b),[color,length,width]=TRACERS[kind]||TRACERS.scout;
  c.save();c.translate(Math.round(x),Math.round(y));c.rotate(Math.atan2(b.vy,b.vx));
