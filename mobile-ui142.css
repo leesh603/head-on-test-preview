@@ -5,7 +5,7 @@
   body:not(.playing) .viewport{height:730px;min-height:0}
   body:not(.playing) .field-bottom{display:none}
   body:not(.playing) .hangar-copy{padding:18px 18px 20px;overflow-y:auto}
-  body:not(.playing) .hangar .mode-tabs{margin:174px 0 16px;gap:17px}
+  body:not(.playing) .hangar .mode-tabs{margin:112px 0 16px;gap:17px}
   body:not(.playing) .hangar-ace{top:104px;right:-2%;width:64%;height:214px;object-fit:contain;object-position:center center}
   body:not(.playing) .hangar-plane{top:132px;right:61%;width:31%}
   body:not(.playing) .hangar:before{height:330px}
@@ -63,7 +63,7 @@
 
 @media (max-width:380px){
   body:not(.playing) .viewport{height:700px}
-  body:not(.playing) .hangar .mode-tabs{margin-top:158px}
+  body:not(.playing) .hangar .mode-tabs{margin-top:104px}
   body:not(.playing) .hangar-ace{top:98px;height:194px}
   body:not(.playing) aside .pilot-frame{height:160px}
   .skill-cutin{max-width:44vw}

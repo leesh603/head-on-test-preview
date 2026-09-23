@@ -1168,7 +1168,7 @@ Game.prototype.update=function(dt,input={}){const before=this.bullets.length;_fo
 
 // Revision 108 — Werner Voss's reverse-turn must be a visible escape and re-entry,
 // not just a heading flip. The same pattern is applied to his ace-boss attack.
-export const VOSS_REVERSE=Object.freeze({duration:1,invulnerability:1,speedMultiplier:2.35,afterimageInterval:.075,afterimageLife:.42,bossSpeedMultiplier:3});
+export const VOSS_REVERSE=Object.freeze({duration:1,invulnerability:1,speedMultiplier:2.35,afterimageInterval:.075,afterimageLife:1,afterimageFireDelay:.18,afterimageFireInterval:.42,bossSpeedMultiplier:3});
 PILOTS.voss.skill='역전 선회 · 유령 돌파';
 PILOTS.voss.desc='즉시 180° 반전 · 화면의 적 탄막 삭제 · 1초 무적. 1초간 이동속도 +135%와 잔상을 남기며 돌파합니다.';
 const _vossReverseSkill=Game.prototype.skill;
@@ -1224,7 +1224,7 @@ Game.prototype.update=function(dt,input={}){
   if(e.vossReverse>0){e.vossReverse=Math.max(0,e.vossReverse-step);e.vossTrails??=[];e.vossTrailClock=(e.vossTrailClock||0)+step;
    while(e.vossTrailClock>=VOSS_REVERSE.afterimageInterval){e.vossTrailClock-=VOSS_REVERSE.afterimageInterval;e.vossTrails.push({x:e.x,y:e.y,a:e.a,life:VOSS_REVERSE.afterimageLife,maxLife:VOSS_REVERSE.afterimageLife})}
   }
-  if(e.vossTrails)for(const ghost of e.vossTrails)ghost.life-=step;
+  if(e.vossTrails)for(const ghost of e.vossTrails){ghost.life-=step;if(ghost.life>0){ghost.fire=(ghost.fire??VOSS_REVERSE.afterimageFireDelay)-step;if(ghost.fire<=0){ghost.fire=VOSS_REVERSE.afterimageFireInterval;const aim=Math.atan2(this.y-ghost.y,this.x-ghost.x);this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*175,vy:Math.sin(aim)*175,life:2.8,enemy:true,visualType:'boss',damage:Math.round(6*(1+this.t/240)*(e.aceDamageMultiplier||1))})}}}
   if(e.vossTrails)e.vossTrails=e.vossTrails.filter(ghost=>ghost.life>0).slice(-10);
  }
 };

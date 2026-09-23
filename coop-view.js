@@ -7,7 +7,7 @@ import {drawEquipment} from './equipment.js?v=215&b=211';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=217&b=212';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=215&b=211';
 import {drawSpecialAmmoIcon} from './icons.js?v=215';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=224';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=225';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
 const xpGem=null;
