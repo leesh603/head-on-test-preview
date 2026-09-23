@@ -284,7 +284,7 @@ draw=t=>{
   if(b.rocket){const a=Math.atan2(b.vy,b.vx);if(FX56){fx(ctx,'smokePuff',x-Math.cos(a)*19,y-Math.sin(a)*19,12,10,0,.22)}else{ctx.strokeStyle='#ff982baa';ctx.lineWidth=b.special?5:3;ctx.beginPath();ctx.moveTo(x-Math.cos(a)*15,y-Math.sin(a)*15);ctx.lineTo(x-Math.cos(a)*34,y-Math.sin(a)*34);ctx.stroke()}continue}
   if(!b.enemy||b.flak)continue;
   drawEnemyProjectile(ctx,b,x,y,t);
-  if(b.hostileRocket){ctx.save();ctx.translate(x,y);ctx.rotate(Math.atan2(b.vy,b.vx));ctx.fillStyle='#f2a144';ctx.beginPath();ctx.moveTo(-14,0);ctx.lineTo(-26,-4);ctx.lineTo(-26,4);ctx.closePath();ctx.fill();ctx.fillStyle='#4a3f30';ctx.beginPath();ctx.ellipse(0,0,14,4.5,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#8a2f22';ctx.beginPath();ctx.ellipse(9,0,4.5,3.4,0,0,Math.PI*2);ctx.fill();ctx.restore()}
+  if(b.hostileRocket){const a=Math.atan2(b.vy,b.vx);fxTint(ctx,'smokePuff','#ff9a4a',x-Math.cos(a)*14,y-Math.sin(a)*14,18,15);if(!fx(ctx,'rocket',x,y,FX56?13:52,FX56?36:16,a+(FX56?Math.PI/2:0))){ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.fillStyle='#f2a144';ctx.beginPath();ctx.moveTo(-14,0);ctx.lineTo(-26,-4);ctx.lineTo(-26,4);ctx.closePath();ctx.fill();ctx.fillStyle='#4a3f30';ctx.beginPath();ctx.ellipse(0,0,14,4.5,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#8a2f22';ctx.beginPath();ctx.ellipse(9,0,4.5,3.4,0,0,Math.PI*2);ctx.fill();ctx.restore()}}
 
  }
  for(const e of game.enemies){if(!(e.muzzleFlash>0))continue;

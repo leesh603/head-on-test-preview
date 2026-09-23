@@ -6,8 +6,8 @@ const portrait186=document.getElementById("hangarPortrait");
 const tabs186=document.getElementById("pilotTabs");
 
 const PORTRAIT_TUNE186=Object.freeze({
-  mckeever:{desktop:.91,mobile:.88,liftD:-10,liftM:-13},
-  huffzky:{desktop:.91,mobile:.88,liftD:-4,liftM:-6},
+  mckeever:{desktop:.82,mobile:.62,liftD:-6,liftM:-8},
+  huffzky:{desktop:.85,mobile:.66,liftD:-4,liftM:-6},
   bishop:{desktop:.96,mobile:.94,liftD:4,liftM:5},
   mannock:{desktop:.96,mobile:.94,liftD:-4,liftM:-6},
   mccudden:{desktop:.97,mobile:.95,liftD:-4,liftM:-6},

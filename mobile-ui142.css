@@ -4,7 +4,7 @@
   body:not(.playing) .field-top{height:24px;margin-bottom:6px}
   body:not(.playing) .viewport{height:730px;min-height:0}
   body:not(.playing) .field-bottom{display:none}
-  body:not(.playing) .hangar-copy{padding:18px 18px 20px;overflow-y:auto}
+  body:not(.playing) .hangar-copy{padding:10px 18px 20px;overflow-y:auto}
   body:not(.playing) .hangar .mode-tabs{margin:112px 0 16px;gap:17px}
   body:not(.playing) .hangar-ace{top:104px;right:-2%;width:64%;height:214px;object-fit:contain;object-position:center center}
   body:not(.playing) .hangar-plane{top:132px;right:61%;width:31%}
@@ -77,3 +77,4 @@
   .boss-arrival .boss-portrait-window{flex-basis:66px;width:66px;height:82px}
   body.playing:not(.coop-playing) #ammoHud{left:auto!important;right:8px!important;top:6px!important;bottom:auto!important}
 }
+body:not(.playing) aside .section-label{margin:2px 0 7px}body:not(.playing) aside .factions{margin-bottom:7px}
