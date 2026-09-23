@@ -7,7 +7,7 @@ import {drawEquipment} from './equipment.js?v=215&b=211';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=217&b=212';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=215&b=211';
 import {drawSpecialAmmoIcon} from './icons.js?v=215';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=232';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=233';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
 const xpGem=null;
@@ -40,9 +40,9 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt}){
  }
  for(const a of g.allies){sprite(a,a.plane,.78);if(g.player(a.ownerId)?.wingBoost>0)ring(a.x,a.y,28,'#f5e7ad',2)}
  for(const patrol of g.patrols){if(patrol.hp<=0)continue;sprite(patrol,patrol.plane,.9);c.fillStyle='#83dce9';c.fillRect(patrol.x-16,patrol.y+34,32*patrol.hp/patrol.maxHp,3)}
- for(const p of g.players){for(const wing of p.formationWings||[]){c.globalAlpha=wing.alpha||0;sprite(wing,'collishaw_sopwith');c.globalAlpha=1}for(const wing of p.divingSquadron||[])sprite(wing,'se5a');for(const gh of p.immelmannGhosts||[]){const al=Math.min(1,gh.life/gh.maxLife*1.4)*.55;c.save();c.translate(gh.x,gh.y);c.rotate(gh.a);c.globalAlpha=al;c.strokeStyle='#39434f';c.lineWidth=3;c.lineCap='round';c.beginPath();c.moveTo(-16,-5);c.quadraticCurveTo(-5,-17,12,-6);c.moveTo(-16,5);c.quadraticCurveTo(-5,17,12,6);c.moveTo(-16,-5);c.lineTo(-16,5);c.stroke();c.fillStyle='#39434f';c.beginPath();c.ellipse(-7,0,9,2.6,0,0,Math.PI*2);c.fill();c.restore()}
+ for(const p of g.players){for(const wing of p.formationWings||[]){c.globalAlpha=wing.alpha||0;sprite(wing,'collishaw_sopwith');c.globalAlpha=1}for(const wing of p.divingSquadron||[])sprite(wing,'se5a');for(const gh of p.immelmannGhosts||[]){const al=Math.min(1,gh.life/gh.maxLife*1.4)*.85;c.save();c.translate(gh.x,gh.y);c.rotate(gh.a);c.globalAlpha=al;c.strokeStyle='#2b3442';c.lineWidth=4.5;c.lineCap='round';c.beginPath();c.moveTo(-21,-7);c.quadraticCurveTo(-7,-22,16,-8);c.moveTo(-21,7);c.quadraticCurveTo(-7,22,16,8);c.moveTo(-21,-7);c.lineTo(-21,7);c.stroke();c.fillStyle='#2b3442';c.beginPath();c.ellipse(-9,0,12,3.6,0,0,Math.PI*2);c.fill();c.restore()}
    if(p.loewenhardtEngaged){const pulse=.55+.35*Math.sin(t*9);c.save();c.globalAlpha=.85;c.strokeStyle=`rgba(255,214,74,${pulse})`;c.lineWidth=2.5;c.beginPath();c.arc(p.x,p.y,36,p.a-Math.PI/2.8,p.a+Math.PI/2.8);c.stroke();c.lineWidth=1.4;c.beginPath();c.arc(p.x,p.y,44,p.a-Math.PI/4,p.a+Math.PI/4);c.stroke();c.restore()}
-   if(p.fxOverheat>0){c.save();c.globalAlpha=.55*p.fxOverheat;const nx=p.x+Math.cos(p.a)*14,ny=p.y+Math.sin(p.a)*14;c.fillStyle='#ff8a3c';c.beginPath();c.arc(nx,ny,4+Math.sin(t*30)*1.6,0,Math.PI*2);c.fill();c.fillStyle='#ffd27a';c.beginPath();c.arc(nx,ny,2.2,0,Math.PI*2);c.fill();c.restore()}
+   if(p.fxOverheat>0){c.save();c.globalAlpha=.55*p.fxOverheat;const nx=p.x+Math.cos(p.a)*14,ny=p.y+Math.sin(p.a)*14;c.fillStyle='#ff8a3c';c.beginPath();c.arc(nx,ny,7+Math.sin(t*30)*2.4,0,Math.PI*2);c.fill();c.fillStyle='#ffd27a';c.beginPath();c.arc(nx,ny,3.4,0,Math.PI*2);c.fill();c.restore()}
    for(const ship of p.airshipFleet||[])if(ship.age>=0&&ship.age<6)drawZeppelin(c,ship.x,ship.y,ship.a,ship.scale||.825,false,'central')}
  for(const b of g.friendlyBombers){const im=fieldArt[b.airframe];if(im?.naturalWidth)drawFieldArt(b.airframe,b.x,b.y,150,150*im.naturalHeight/im.naturalWidth,b.a+Math.PI/2)}
  for(const b of g.friendlyBombs){const f=1-b.life/b.maxLife;if(!fx(c,'bomb',b.sx+(b.x-b.sx)*f,b.sy+(b.y-b.sy)*f,40,20,Math.atan2(b.y-b.sy,b.x-b.sx)))drawEquipment(c,'rocket',b.sx+(b.x-b.sx)*f,b.sy+(b.y-b.sy)*f,Math.atan2(b.y-b.sy,b.x-b.sx)+Math.PI/2,38);ring(b.x,b.y,22,'#a2eddb70')}

@@ -1479,13 +1479,13 @@ Game.prototype.beginRevisionFrame=function(dt,input={}){
  }else if(this.pilot==='loewenhardt')this.aceSkillPhase=null;
  for(const pl of this.players||[this]){
   if(!pl||!(pl.hp>0))continue;
-  if(pl.pilot==='udet'){const low=1-pl.hp/pl.maxHp;if(low>=.5){pl.fxOverheat=Math.min(1,(low-.5)*2+.35);pl._udetSpark=(pl._udetSpark||0)-dt;if(pl._udetSpark<=0){pl._udetSpark=.13;const j=this.rng(),j2=this.rng();world.particles.push({x:pl.x+Math.cos(pl.a)*12,y:pl.y+Math.sin(pl.a)*12,vx:-Math.cos(pl.a)*30+(j-.5)*46,vy:-Math.sin(pl.a)*30+(j2-.5)*46,life:.45,maxLife:.45,size:1.6+j*1.8,color:j2<.55?'#ffb45e':'#ff6436'})}}else pl.fxOverheat=0}
+  if(pl.pilot==='udet'){const low=1-pl.hp/pl.maxHp;if(low>=.5){pl.fxOverheat=Math.min(1,(low-.5)*2+.35);pl._udetSpark=(pl._udetSpark||0)-dt;if(pl._udetSpark<=0){pl._udetSpark=.07;const j=this.rng(),j2=this.rng();world.particles.push({x:pl.x+Math.cos(pl.a)*12,y:pl.y+Math.sin(pl.a)*12,vx:-Math.cos(pl.a)*30+(j-.5)*46,vy:-Math.sin(pl.a)*30+(j2-.5)*46,life:.6,maxLife:.6,size:2.4+j*2.4,color:j2<.55?'#ffb45e':'#ff6436'})}}else pl.fxOverheat=0}
   if(pl.pilot==='loewenhardt'){pl.loewenhardtEngaged=false;for(const e of this.enemies){if(e.hp<=0||e.surface||e.dying)continue;const dx=e.x-pl.x,dy=e.y-pl.y;if(dx*dx+dy*dy>176400)continue;let d=Math.atan2(dy,dx)-pl.a;d=Math.atan2(Math.sin(d),Math.cos(d));if(Math.abs(d)<Math.PI/3){pl.loewenhardtEngaged=true;break}}}
   if(pl.pilot==='rickenbacker'){let n=0;for(const e of this.enemies)if(e.hp>0&&!e.surface&&Math.hypot(e.x-pl.x,e.y-pl.y)<700)n++;pl.rickCount=n}
   if(pl.pilot==='ball')pl.ballAlone=!(world.allies||[]).some(a=>a.life>0&&Math.hypot(a.x-pl.x,a.y-pl.y)<320)&&!(this.players||[]).some(p2=>p2!==pl&&p2.hp>0&&Math.hypot(p2.x-pl.x,p2.y-pl.y)<320);
   if(pl.pilot==='brumowski')pl.brumAllyCount=(world.allies||[]).filter(a=>a.life>0).length;
   if(pl.immelmannGhosts){for(const gh of pl.immelmannGhosts)gh.life-=dt;pl.immelmannGhosts=pl.immelmannGhosts.filter(gh=>gh.life>0)}
-  if(pl.pilot==='immelmann'&&pl.evadeTime>0){pl._immGhost=(pl._immGhost||0)-dt;if(pl._immGhost<=0){pl._immGhost=.075;(pl.immelmannGhosts??=[]).push({x:pl.x,y:pl.y,a:pl.a,life:.85,maxLife:.85})}}
+  if(pl.pilot==='immelmann'&&pl.evadeTime>0){pl._immGhost=(pl._immGhost||0)-dt;if(pl._immGhost<=0){pl._immGhost=.055;(pl.immelmannGhosts??=[]).push({x:pl.x,y:pl.y,a:pl.a,life:1.15,maxLife:1.15})}}
  }
  if(this.pilot==='nungesser'){
   const low=Math.min(1,Math.max(0,(1-this.hp/this.maxHp)/.8));const speed=1+low*NEW_ACE_BALANCE124.nungesserMaxSpeedBonus,fire=1+low*NEW_ACE_BALANCE124.nungesserMaxFireRateBonus;this.baseSpeed*=speed;this.speed*=speed;this.rate/=fire;this.passiveStrength=low;

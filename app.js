@@ -10,9 +10,9 @@ import {enableStageBoss} from './stageboss-host.js?v=190';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=214';
 import './hud-layout94.js?v=214';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=214';
-import {CoopGame,coopPlane} from './coop-engine.js?v=232';
+import {CoopGame,coopPlane} from './coop-engine.js?v=233';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=214';
-import {drawCoop} from './coop-view.js?v=234';
+import {drawCoop} from './coop-view.js?v=235';
 import {drawSunStrike} from './sun-strike71.js?v=223&b=220';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=217&b=212';
 import {installFlightViewport} from './flight-viewport.js?v=214';
@@ -30,7 +30,7 @@ import {portraitSources,portraitsReady} from './portraits.js?v=216&b=211';
 import {drawEquipment} from './equipment.js?v=215&b=211';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=214';
 import{planeSprite,aircraftReady,aircraftKey,hangarArtReady}from'./aircraft.js?v=220';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from'./engine.js?v=232';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from'./engine.js?v=233';
 import {TerrainRenderer,MountainField} from './alps-terrain117.js?v=214';
 const flightViewport=installFlightViewport(document,window);
 const ententeAirshipSprite=new Image();ententeAirshipSprite.src='./zeppelin-entente.webp?v=214&b=214';
@@ -118,11 +118,11 @@ function drawPixelHeart(c,x,y,size,color='#17131c'){const s=Math.max(1,Math.roun
 function terrain(cx,cy,width=W,height=H){const W=width,H=height;ctx.fillStyle='#778563';ctx.fillRect(0,0,W,H);const tile=140;let sx=Math.floor((cx-W/2)/tile),sy=Math.floor((cy-H/2)/tile);const noise=(x,y)=>{let n=Math.sin(x*127.1+y*311.7)*43758.5453;return n-Math.floor(n)};for(let x=sx;x<sx+W/tile+2;x++)for(let y=sy;y<sy+H/tile+2;y++){let px=Math.floor(x*tile-cx+W/2),py=Math.floor(y*tile-cy+H/2),n=noise(x,y);ctx.fillStyle=['#758461','#7d8966','#81906c','#71815e','#6d7e5d'][Math.floor(n*5)];ctx.fillRect(px,py,138,138);ctx.fillStyle='#94a27733';for(let i=10;i<135;i+=13)ctx.fillRect(px+i,py+3,2,130);ctx.fillStyle='#4b604543';ctx.fillRect(px,py,140,3);if(n>.7){for(let j=0;j<7;j++){let tx=px+noise(x+j,y+3)*130,ty=py+noise(x+9,y+j)*130;ctx.fillStyle='#465f3d';ctx.fillRect(tx,ty,9,9);ctx.fillStyle='#567044';ctx.fillRect(tx-2,ty-3,9,8)}}if(n<.1){ctx.fillStyle='#586143';ctx.fillRect(px+43,py+48,29,20);ctx.fillStyle='#b3a487';ctx.fillRect(px+42,py+43,26,18);ctx.fillStyle='#71634d';ctx.fillRect(px+39,py+41,32,6)}}
  // A winding river and broken trench lines follow persistent world coordinates.
  ctx.strokeStyle='#667f76';ctx.lineWidth=38;ctx.beginPath();for(let yy=-30;yy<H+40;yy+=15){let wy=cy-H/2+yy,xx=Math.sin(wy*.002)*180+240-cx+W/2;yy===-30?ctx.moveTo(xx,yy):ctx.lineTo(xx,yy)}ctx.stroke();ctx.strokeStyle='#93a28a66';ctx.lineWidth=3;ctx.stroke();ctx.strokeStyle='#655c44';ctx.lineWidth=5;ctx.beginPath();for(let yy=-20;yy<H+30;yy+=15){let wy=cy-H/2+yy,xx=-210+Math.sin(wy*.008)*45+(Math.floor(wy/22)%2)*12-cx+W/2;yy===-20?ctx.moveTo(xx,yy):ctx.lineTo(xx,yy)}ctx.stroke()}
-function drawEagleGhost(ctx,x,y,a,al){ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.globalAlpha=Math.max(0,al);ctx.strokeStyle='#39434f';ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-16,-5);ctx.quadraticCurveTo(-5,-17,12,-6);ctx.moveTo(-16,5);ctx.quadraticCurveTo(-5,17,12,6);ctx.moveTo(-16,-5);ctx.lineTo(-16,5);ctx.stroke();ctx.fillStyle='#39434f';ctx.beginPath();ctx.ellipse(-7,0,9,2.6,0,0,Math.PI*2);ctx.fill();ctx.restore()}
+function drawEagleGhost(ctx,x,y,a,al){ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.globalAlpha=Math.max(0,al);ctx.strokeStyle='#2b3442';ctx.lineWidth=4.5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-21,-7);ctx.quadraticCurveTo(-7,-22,16,-8);ctx.moveTo(-21,7);ctx.quadraticCurveTo(-7,22,16,8);ctx.moveTo(-21,-7);ctx.lineTo(-21,7);ctx.stroke();ctx.fillStyle='#2b3442';ctx.beginPath();ctx.ellipse(-9,0,12,3.6,0,0,Math.PI*2);ctx.fill();ctx.restore()}
 function drawPilotPassives(g,x,y,t,point){
- for(const gh of g.immelmannGhosts||[]){const[gx,gy]=point(gh.x,gh.y);drawEagleGhost(ctx,gx,gy,gh.a,Math.min(1,gh.life/gh.maxLife*1.4)*.55)}
+ for(const gh of g.immelmannGhosts||[]){const[gx,gy]=point(gh.x,gh.y);drawEagleGhost(ctx,gx,gy,gh.a,Math.min(1,gh.life/gh.maxLife*1.4)*.85)}
  if(g.loewenhardtEngaged){ctx.save();const pulse=.55+.35*Math.sin(t*9);ctx.globalAlpha=.85;ctx.strokeStyle=`rgba(255,214,74,${pulse})`;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(x,y,36,g.a-Math.PI/2.8,g.a+Math.PI/2.8);ctx.stroke();ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(x,y,44,g.a-Math.PI/4,g.a+Math.PI/4);ctx.stroke();for(let i=0;i<3;i++){const ga=g.a-Math.PI/3+i*Math.PI/3;ctx.fillStyle='#ffe98a';ctx.beginPath();ctx.arc(x+Math.cos(ga)*36,y+Math.sin(ga)*36,2.4,0,Math.PI*2);ctx.fill()}ctx.restore()}
- if(g.fxOverheat>0){ctx.save();ctx.globalAlpha=.55*g.fxOverheat;const nx=x+Math.cos(g.a)*14,ny=y+Math.sin(g.a)*14;ctx.fillStyle='#ff8a3c';ctx.beginPath();ctx.arc(nx,ny,4+Math.sin(t*30)*1.6,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffd27a';ctx.beginPath();ctx.arc(nx,ny,2.2,0,Math.PI*2);ctx.fill();ctx.restore()}
+ if(g.fxOverheat>0){ctx.save();ctx.globalAlpha=.55*g.fxOverheat;const nx=x+Math.cos(g.a)*14,ny=y+Math.sin(g.a)*14;ctx.fillStyle='#ff8a3c';ctx.beginPath();ctx.arc(nx,ny,7+Math.sin(t*30)*2.4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffd27a';ctx.beginPath();ctx.arc(nx,ny,3.4,0,Math.PI*2);ctx.fill();ctx.restore()}
  if((g.rickCount||0)>=2){ctx.save();const n=Math.min(5,g.rickCount);ctx.globalAlpha=.75;for(let i=0;i<n;i++){const ga=t*2.2+i*Math.PI*2/n;ctx.fillStyle=i%2?'#cfe6ff':'#9fc8ff';ctx.beginPath();ctx.arc(x+Math.cos(ga)*46,y+Math.sin(ga)*46,2.6,0,Math.PI*2);ctx.fill()}ctx.restore()}
  if(g.pilot==='ball'&&g.ballAlone){ctx.save();const ph=(t*.9)%1;ctx.globalAlpha=(1-ph)*.4;ctx.strokeStyle='#e8ecdf';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(x,y,30+ph*18,0,Math.PI*2);ctx.stroke();ctx.restore()}
  if((g.brumAllyCount||0)>0){ctx.save();const n=Math.min(4,g.brumAllyCount);ctx.globalAlpha=.7;for(let i=0;i<n;i++){const ga=t*1.8+i*Math.PI*2/n;ctx.fillStyle='#e86a5a';ctx.beginPath();ctx.arc(x+Math.cos(ga)*42,y+Math.sin(ga)*42,2.8,0,Math.PI*2);ctx.fill()}ctx.restore()}
