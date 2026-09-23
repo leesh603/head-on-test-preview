@@ -7,7 +7,7 @@ import {drawEquipment} from './equipment.js?v=215&b=211';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=217&b=212';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=215&b=211';
 import {drawSpecialAmmoIcon} from './icons.js?v=215';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=230';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=231';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
 const xpGem=null;
@@ -35,6 +35,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt}){
   else if(e.type==='zeppelin')drawZeppelin(c,e.x,e.y,e.a,.92,e.hitFlash>0,e.faction);
   else{const key=e.escortPlane||e.bossPlane||(e.faction==='entente'?(e.type==='hunter'?'nieuport':'camel'):(e.type==='hunter'?'fokker_standard':'albatros'));sprite(e,key,enemyAircraftScale(e),true)}
   if(e.aceInvuln124>0)ring(e.x,e.y,42+Math.sin(t*20)*4,'#35253d',2);
+  if(e.vossSurge){const n2=Math.min(7,Math.max(3,e.vossSurgeCount||3));ring(e.x,e.y,50,'rgba(255,222,140,.4)',1.5);for(let i=0;i<n2;i++){const ga=t*2.3+i*Math.PI*2/n2;c.fillStyle=i%2?'#ffe6a2':'#cfe6ff';c.beginPath();c.arc(e.x+Math.cos(ga)*50,e.y+Math.sin(ga)*50,3,0,Math.PI*2);c.fill()}}
   if(e.bossPilot||e.fieldUnit||e.heavyBomber||e.type==='zeppelin'){const offset=e.fieldUnit?e.rail?125:190:e.type==='zeppelin'?70:e.bossPilot?42:65;c.fillStyle='#172b23';c.fillRect(e.x-42,e.y-offset,84,5);c.fillStyle='#ed9d66';c.fillRect(e.x-42,e.y-offset,84*Math.max(0,e.hp/e.maxHp),5);c.font='14px sans-serif';c.textAlign='center';c.fillStyle='#ffe3aa';c.fillText(e.name||'비행선',e.x,e.y-offset-8)}
  }
  for(const a of g.allies){sprite(a,a.plane,.78);if(g.player(a.ownerId)?.wingBoost>0)ring(a.x,a.y,28,'#f5e7ad',2)}
