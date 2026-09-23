@@ -20,7 +20,7 @@ import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174
 import {drawGas} from './gas-view.js?v=276&b=277';
 import {missionNavigation,drawMissionRadar} from './navigation.js?v=214&b=210';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=215&b=211';
-import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=226&b=221';
+import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=280&b=281';
 import {drawCampaign} from './campaign-view.js?v=215&b=211';
 import {campaignArtReady} from './aircraft.js?v=220';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady} from './icons.js?v=216';
