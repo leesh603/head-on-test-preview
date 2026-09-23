@@ -1,5 +1,5 @@
 import {drawGameIcon} from './icons.js?v=214';
-import {fx,fxReady} from './fx-art.js';
+import {fx,fxReady,FX56} from './fx-art.js';
 export function drawGrenade(c,g,x,y){
  c.save();c.translate(x,y-g.height);c.rotate(g.phase==='flight'?g.age*7:0);
  if(!fx(c,'grenade',0,0,26,26))drawGameIcon(c,'mines',0,0,23);
@@ -8,8 +8,8 @@ export function drawGrenade(c,g,x,y){
 export function drawGrenadeBlast(c,f,x,y){
  const q=1-f.life/f.maxLife;
  if(fxReady('explosion1')){
-  const d=f.radius*2*(.5+q*.8),frame=Math.min(3,Math.floor(q*4));
-  fx(c,'explosion'+frame,x,y,d,d);return;
+  const d=FX56?Math.min(108,Math.max(38,f.radius*1.2))*(.72+q*.28):f.radius*2*(.5+q*.8),frame=Math.min(3,Math.floor(q*4));
+  FX56?fx(c,'explosion'+frame,x,y,d,d,0,Math.min(1,(1-q)*2.2)):fx(c,'explosion'+frame,x,y,d,d);return;
  }c.save();c.translate(x,y);c.globalAlpha=(1-q)*.8;
  const r=12+24*q,glow=c.createRadialGradient(0,0,2,0,0,r);glow.addColorStop(0,'#fff3ca');glow.addColorStop(.3,'#d3934f');glow.addColorStop(1,'#51483a00');c.fillStyle=glow;c.beginPath();c.arc(0,0,r,0,Math.PI*2);c.fill();
  // Fine fragments show the unchanged 110-unit damage boundary without a giant fireball.

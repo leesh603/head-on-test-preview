@@ -1,6 +1,6 @@
 import {drawRailDamage,drawRailTrack} from './rail-render129.js';
-import {fx,fxReady,fxImage} from './fx-art.js';
-import {drawEnemyProjectile} from './projectiles.js?v=214';
+import {fx,fxReady,fxImage,FX56} from './fx-art.js';
+import {drawEnemyProjectile} from './projectiles.js?v=215';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=190';
 import {bossHudModel} from './headon-stageboss-hud.js?v=190&b=117';
@@ -167,7 +167,7 @@ function cityHazard(c,h,ring){
  }
  if(h.visual==='black-flak'){
   if(warning){c.fillStyle='#d2aa5a10';c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.fill();c.strokeStyle='#e6bc77';c.lineWidth=1.5;c.setLineDash([6,5]);c.stroke();c.setLineDash([]);ring(h.x,h.y,h.radius*(1-clamp((h.age-h.delay)/h.warning,0,1)),'#f2d69b');}
-  else{const fade=Math.min(1,(h.duration-age)*2);c.setLineDash([]);for(let i=0;i<5;i++){const a=i*2.4,dist=h.radius*(.12+age*.13),x=h.x+Math.cos(a)*dist,y=h.y+Math.sin(a)*dist;c.save();c.filter='brightness(.45)';bossSprite(c,11,x,y,h.radius*(.7+age*.35),h.radius*(.7+age*.35),a,fade*.8);c.restore()}if(age<.3)pixelBlast(c,h.x,h.y,h.radius*(.65+age),age);}
+  else{const fade=Math.min(1,(h.duration-age)*2);c.setLineDash([]);for(let i=0;i<5;i++){const a=i*2.4,dist=h.radius*(.12+age*.13),x=h.x+Math.cos(a)*dist,y=h.y+Math.sin(a)*dist;if(FX56){if(!fx(c,'flak',x,y,Math.min(70,h.radius*.7),Math.min(70,h.radius*.7),0,fade*.7)){c.save();c.filter='brightness(.45)';bossSprite(c,11,x,y,h.radius*(.7+age*.35),h.radius*(.7+age*.35),a,fade*.8);c.restore()}}else{c.save();c.filter='brightness(.45)';bossSprite(c,11,x,y,h.radius*(.7+age*.35),h.radius*(.7+age*.35),a,fade*.8);c.restore()}}if(age<.3)pixelBlast(c,h.x,h.y,h.radius*(.65+age),age);}
   return true;
  }
  return false;
@@ -309,7 +309,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     if(warning){const progress=clamp((h.age-h.delay)/h.warning,0,1);c.setLineDash([]);ring(h.x,h.y,h.radius*(1-progress),'#ffe6a5');c.beginPath();c.moveTo(h.x-8,h.y);c.lineTo(h.x+8,h.y);c.moveTo(h.x,h.y-8);c.lineTo(h.x,h.y+8);c.stroke();
      if(h.visual==='minenwerfer-heavy'||h.visual==='minenwerfer-shell'){c.fillStyle='#fff0bd';c.font='bold 12px monospace';c.textAlign='center';c.fillText(h.visual==='minenwerfer-heavy'?'중박격포':'낙탄',h.x,h.y-h.radius-10);}
      if(h.visual==='rail-shell'||h.visual==='observer-shell'){c.lineWidth=4;for(const q of [.62,.82,1])ring(h.x,h.y,h.radius*q,q===1?'#ff765e':'#ffd18499');c.fillStyle='#fff0bd';c.font='bold 13px monospace';c.textAlign='center';c.fillText(h.visual==='observer-shell'?'관측 포격':'열차포 낙탄',h.x,h.y-h.radius-12);}}
-    else if(h.visual==='zubian-mortar'){for(const q of [.45,.72,1])ring(h.x,h.y,h.radius*q,q===1?'#e9c083':'#8bd0d199');pixelBlast(c,h.x,h.y,h.radius*.65,h.age,true);}
+    else if(h.visual==='zubian-mortar'){if(FX56){const age=Math.max(0,h.age-h.delay-h.warning);ring(h.x,h.y,h.radius,'#d8b27b88');if(age<.36){const frame=Math.min(3,Math.floor(age/.09));if(!fx(c,'explosion'+frame,h.x,h.y,Math.min(128,h.radius*1.15),Math.min(128,h.radius*1.15),0,1-age/.36))pixelBlast(c,h.x,h.y,h.radius*.65,h.age,true)}else fx(c,'smokeDark',h.x,h.y,56,46,0,Math.min(.35,(h.duration-age)*.2))}else{for(const q of [.45,.72,1])ring(h.x,h.y,h.radius*q,q===1?'#e9c083':'#8bd0d199');pixelBlast(c,h.x,h.y,h.radius*.65,h.age,true)}}
    }
    c.restore();
   }
