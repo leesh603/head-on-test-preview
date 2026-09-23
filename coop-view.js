@@ -1,4 +1,4 @@
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=216';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=217';
 import {fx,fxReady,fxTint} from './fx-art.js';
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=215';
 import {drawStageBoss} from './stageboss-view.js?v=197&b=212';
@@ -21,9 +21,9 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt}){
  const heart=(x,y,size,color)=>{const s=Math.max(1,Math.round(size/4));c.fillStyle=color;c.fillRect(x-2*s,y-s,s,s);c.fillRect(x+s,y-s,s,s);c.fillRect(x-3*s,y,6*s,s);c.fillRect(x-2*s,y+s,4*s,s);c.fillRect(x-s,y+2*s,2*s,s)};
  const sprite=(p,key,scale=1,enemy=false)=>{const q=playerPose(p,p.x,p.y);if(!enemy){drawRedGhosts162(c,p,p.x,p.y,planeSprite,key);drawPlayerAura(c,p,q.x,q.y);}planeSprite(c,q.x+14,q.y+20,p.a,key,scale*q.scale,enemy,true);planeSprite(c,q.x,q.y,p.a,key,scale*q.scale,enemy,false,p.hitFlash||0)};
  for(const gas of g.gasZones){c.fillStyle=gas.warning>0?'#d6b74722':'#72842e55';c.beginPath();c.arc(gas.x,gas.y,gas.r,0,Math.PI*2);c.fill();ring(gas.x,gas.y,gas.r,'#d6c66b');c.fillStyle='#f8ebae';c.font='14px sans-serif';c.textAlign='center';c.fillText(gas.warning>0?'독가스 살포 '+gas.warning.toFixed(1)+'초':'독가스 · 조종 저하 / 지속 피해',gas.x,gas.y-gas.r-12)}
- for(const field of g.hostileMinefields){ring(field.x,field.y,field.radius,field.warning>0?'#ffe0a199':'#e58b6c88');for(const m of field.mines)if(!m.dead){if(!fx(c,'mine',m.x,m.y,30,30))drawEquipment(c,'mine',m.x,m.y,0,28);ring(m.x,m.y,18,'#ff876e')}}
+ for(const field of g.hostileMinefields){ring(field.x,field.y,field.radius,field.warning>0?'#ffe0a199':'#e58b6c88');for(const m of field.mines)if(!m.dead){if(!fx(c,'mine',m.x,m.y,60,60))drawEquipment(c,'mine',m.x,m.y,0,56);ring(m.x,m.y,18,'#ff876e')}}
  for(const d of g.drops){if(d.dead)continue;if(d.specialAmmo){ring(d.x,d.y,24+Math.sin(t*6)*3,SPECIAL_AMMO[d.specialAmmo]?.color||'#ffd36f',2);drawSpecialAmmoIcon(c,d.specialAmmo,d.x,d.y+Math.sin(t*4)*2,42)}else if(d.heal||d.supply){ring(d.x,d.y,22+Math.sin(t*5)*3,'#9cffb4');drawEquipment(c,'repair',d.x,d.y+Math.sin(t*3)*2,0,40)}else{if(xpGem?.naturalWidth)c.drawImage(xpGem,d.x-9,d.y-9,18,18);else{c.fillStyle='#63d5ec';c.fillRect(d.x-3,d.y-3,6,6)}}}
- for(const grenade of g.grenades||[])drawGrenade(c,grenade,grenade.x,grenade.y);for(const m of g.mines){if(!fx(c,'mine',m.x,m.y,30,30))drawEquipment(c,'mine',m.x,m.y,0,30);if(m.legendary||m.arm===0)ring(m.x,m.y,22+Math.sin(t*5)*3,m.legendary?'#ffd56f99':'#ffcc6677')}
+ for(const grenade of g.grenades||[])drawGrenade(c,grenade,grenade.x,grenade.y);for(const m of g.mines){if(!fx(c,'mine',m.x,m.y,60,60))drawEquipment(c,'mine',m.x,m.y,0,60);if(m.legendary||m.arm===0)ring(m.x,m.y,22+Math.sin(t*5)*3,m.legendary?'#ffd56f99':'#ffcc6677')}
  for(const e of g.enemies){
   if(e.stageBossBody)continue;
   if(e.crashing){const key=e.escortPlane||e.bossPlane||(e.faction==='entente'?(e.type==='hunter'?'nieuport':'camel'):(e.type==='hunter'?'fokker_standard':'albatros'));sprite(e,key,enemyAircraftScale(e),true);continue}
