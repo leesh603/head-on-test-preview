@@ -635,7 +635,7 @@ modal=(tag,title,text,buttons)=>{
 // terrain module.  Damage remains on the game's established invulnerability
 // and death paths; no preview input, HP, or parallel combat loop is used.
 function tickAlpsTerrain(g,dt){
- if(!g||g.state!=='playing'||g.worldRegion?.()!==5)return;
+ if(!g||g.state!=='playing'||g.worldRegion?.()!==6)return;
  const roster=g.players||[g];
  if(!g.alpsMountains){
   g.alpsMountains=new MountainFieldSafe({seed:Math.floor((g.runSeed||g.t||17)*97)+17,
