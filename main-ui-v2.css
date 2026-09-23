@@ -920,7 +920,7 @@ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:has(.c
  color:#c5c8ba!important;
  font:400 11px/1.45 var(--astra-type)!important;
  display:-webkit-box!important;
- -webkit-line-clamp:4!important;
+ -webkit-line-clamp:6!important;
  -webkit-box-orient:vertical!important;
  overflow:hidden!important;
 }
@@ -1034,9 +1034,13 @@ body.astra-ui.playing #legendaryInventory .legendary-tip156{
  body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>b{font-size:12px!important}
  body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>span:not(.cumulative151),
  body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:has(.cumulative151:not(:empty))>span:not(.cumulative151){
-  font-size:9px!important;line-height:1.35!important;-webkit-line-clamp:3!important
+  font-size:9px!important;line-height:1.35!important;-webkit-line-clamp:unset!important;overflow:visible!important
  }
  body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>.cumulative151{font-size:8px!important;padding-top:3px!important}
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
+  height:auto!important;min-height:150px!important;max-height:none!important;
+  grid-template-rows:16px minmax(30px,auto) minmax(40px,auto) auto!important;
+ }
 }
 
 @media(max-height:550px) and (pointer:coarse) and (orientation:landscape){
