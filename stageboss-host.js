@@ -223,6 +223,12 @@ export function endStageBossFrame(g,dt){
  // The host has already resolved its entire upgrade queue/loss state this frame.
  const bounds=stageBossBounds(g);const frame={paused:blocked(g),players:players(g).map(p=>({id:p.id||'p1',alive:alive(p),x:p.x,y:p.y,vx:Number.isFinite(p.previousX)?(p.x-p.previousX)/Math.max(dt,1/120):0,vy:Number.isFinite(p.previousY)?(p.y-p.previousY)/Math.max(dt,1/120):0,radius:12})),bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings};
  addon.tick(dt,frame);addon.reconcile({blocked:blocked(g)});separateLargeBossBodies(g);syncStageBossTargets(g);
+ // Aerial aprons are solid barriers: aircraft that wander into the mesh are caught.
+ const nets=activeEncounter?[...activeEncounter.bodies.values()].filter(b=>!b.dead&&['london-apron','drachen-net'].includes(b.kind)):[];
+ for(const e of g.enemies){
+  if(e.hp<=0||e.stageBossBody||e.bossMinion||e.crashing||e.crashed||e.surface||e.navalVessel||e.groundEscort||e.fieldUnit||e.stationary)continue;
+  for(const b of nets){const dx=e.x-b.x,dy=e.y-b.y;if((dx/190)**2+(dy/120)**2<1){e.hp=0;g.combatBlast(e.x,e.y,26,'friendly');for(let k=0;k<4;k++)g.smoke?.(e.x+(g.rng()-.5)*20,e.y+(g.rng()-.5)*20,true);break;}}
+ }
  if(g.state==='lost')addon.dispose();
 }
 // Shared by solo and co-op; bounded lateral clearance without changing aim/HP.
