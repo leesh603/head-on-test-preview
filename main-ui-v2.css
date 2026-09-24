@@ -1056,6 +1056,8 @@ body.astra-ui.playing #legendaryInventory .legendary-tip156{
 
 /* iPad/tablet: park relic badges below the top bar so they clear the touch
    action buttons at bottom-right. Phones keep the landscape rail rule. */
-@media(pointer:coarse) and (min-height:551px){
- body.astra-ui.playing #legendaryInventory{top:calc(max(12px,env(safe-area-inset-top)) + 132px);right:max(14px,env(safe-area-inset-right));bottom:auto;max-width:160px;justify-content:flex-end;z-index:7}
+body.astra-ui.playing #legendaryInventory{top:calc(max(12px,env(safe-area-inset-top)) + 132px);right:max(14px,env(safe-area-inset-right));bottom:auto;max-width:160px;justify-content:flex-end;z-index:7}
+/* Landscape phones (short height) keep badges docked beside the touch buttons. */
+@media(max-height:550px) and (pointer:coarse) and (orientation:landscape){
+ body.astra-ui.playing #legendaryInventory{top:auto;right:max(230px,calc(env(safe-area-inset-right) + 220px));bottom:max(18px,env(safe-area-inset-bottom));max-width:150px}
 }
