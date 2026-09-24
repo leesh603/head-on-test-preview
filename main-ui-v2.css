@@ -699,7 +699,7 @@ body.astra-ui.playing #skillCutin{
  border-radius:0;
  background:none;
  box-shadow:none;
- animation:cutin-life156 2.15s cubic-bezier(.18,.8,.3,1) forwards;
+ animation:cutin-enter .32s cubic-bezier(.16,1,.3,1);
  pointer-events:none;
 }
 @keyframes cutin-life156{
