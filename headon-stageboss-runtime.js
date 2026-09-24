@@ -1,5 +1,5 @@
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=302&b=302';
-import {BossHazards} from './headon-stageboss-hazards.js?v=302&b=302';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=303&b=303';
+import {BossHazards} from './headon-stageboss-hazards.js?v=303&b=303';
 
 export class BossStages {
   constructor({teamFaction,stageIndex=0,loopIndex=0,rng=Math.random}) {
