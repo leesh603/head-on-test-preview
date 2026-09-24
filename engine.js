@@ -1,18 +1,18 @@
-import {installRevision} from './rebalance103.js?v=304&b=304';
-import {installCloudCover} from './cloud-cover1.js?v=304&b=304';
-import {installFleet} from './fleet-naval1.js?v=304&b=304';
-import {installTrenchWar} from './trench-war1.js?v=304&b=304';
-import {installCityAir} from './city-air1.js?v=304&b=304';
-import {installRegionDoctrine} from './region-doctrine1.js?v=304&b=304';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=304';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=304&b=304';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=304';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=304';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=304';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=304';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=304';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=304';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=304';
+import {installRevision} from './rebalance103.js?v=305&b=305';
+import {installCloudCover} from './cloud-cover1.js?v=305&b=305';
+import {installFleet} from './fleet-naval1.js?v=305&b=305';
+import {installTrenchWar} from './trench-war1.js?v=305&b=305';
+import {installCityAir} from './city-air1.js?v=305&b=305';
+import {installRegionDoctrine} from './region-doctrine1.js?v=305&b=305';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=305';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=305&b=305';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=305';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=305';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=305';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=305';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=305';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=305';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=305';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -705,11 +705,15 @@ Game.prototype.spawnFleet=function(){
  const live=this.enemies.filter(e=>e.navalVessel&&e.hp>0);
  if(live.length>=3)return;
  const harbor=this.worldRegion()===7&&this.navalRoute,route=this.navalRoute;
+ // The illustrated inner harbor is occupied by piers; surface fleets belong
+ // to the outer approach, not on top of the fortress quay.
+ if(harbor&&(route.maxForward||0)>=10400)return;
  let x,y,a=-Math.PI/2,side=1;
  if(harbor){
   side=this.rng()>.5?1:-1;const hx=Math.cos(route.a),hy=Math.sin(route.a),nx=-hy,ny=hx;
-  const along=(route.maxForward||0)+340+this.rng()*220,bank=Math.max(300,Math.min(430,(this.viewWidth||960)*.48));
-  x=route.x+hx*along+nx*side*bank;y=route.y+hy*along+ny*side*bank;a=route.a;
+  const along=(route.maxForward||0)+340+this.rng()*220;
+  const bank=route.bankAt?.(along,side)??430,waterSide=Math.max(85,Math.min(400,bank-85));
+  x=route.x+hx*along+nx*side*waterSide;y=route.y+hy*along+ny*side*waterSide;a=route.a;
  }else{
   const bearing=this.a+(this.rng()>.5?1:-1)*.9,d=360+this.rng()*100;x=this.x+Math.cos(bearing)*d;y=this.y+Math.sin(bearing)*d;
  }
