@@ -313,13 +313,29 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     else if(h.visual==='apron-net'||h.visual==='drachen-mine-net'){
      c.fillStyle=warning?'#e5c2761a':'#5d514544';c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);c.strokeStyle=warning?'#f2cf7c':'#b2aa91';c.lineWidth=warning?2:3;c.strokeRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);
      if(!warning){const step=h.visual==='apron-net'?28:52;c.lineWidth=1;c.strokeStyle='#b8b5a488';for(let x=h.x-h.width/2+step;x<h.x+h.width/2;x+=step){c.beginPath();c.moveTo(x,h.y-h.height/2);c.lineTo(x,h.y+h.height/2);c.stroke()}for(let y=h.y-h.height/2+step;y<h.y+h.height/2;y+=step){c.beginPath();c.moveTo(h.x-h.width/2,y);c.lineTo(h.x+h.width/2,y);c.stroke()}if(h.visual==='drachen-mine-net')for(let i=-3;i<=3;i++){const x=h.x+i*52,y=h.y+(Math.abs(i)%2?32:-24);if(!fx(c,'mine',x,y,34,34)){c.fillStyle='#5a554b';c.beginPath();c.arc(x,y,13,0,Math.PI*2);c.fill();c.strokeStyle='#d0a56e';for(let k=0;k<8;k++){const a=k*Math.PI/4;c.beginPath();c.moveTo(x+Math.cos(a)*11,y+Math.sin(a)*11);c.lineTo(x+Math.cos(a)*18,y+Math.sin(a)*18);c.stroke()}}}}
+    }else if(h.visual==='gas-fire'){
+     if(warning){// Hatched danger strip, not a plain box — same telegraph language as bomb zones.
+      c.fillStyle='#d2aa5a14';c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);
+      c.strokeStyle='#e6bc77';c.lineWidth=1.5;c.setLineDash([7,6]);c.strokeRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);c.setLineDash([]);
+      c.strokeStyle='#e6bc7788';c.lineWidth=1;c.beginPath();
+      for(let x=h.x-h.width/2;x<h.x+h.width/2;x+=18){c.moveTo(x,h.y-h.height/2);c.lineTo(x+9,h.y+h.height/2)}c.stroke();
+      const prog=clamp((h.age-h.delay)/h.warning,0,1);
+      c.strokeStyle='#f2d69b';c.lineWidth=2.5;c.strokeRect(h.x-h.width/2,h.y-h.height/2,h.width*prog,h.height);}
+     else{const img=fxImage('flameJet'),ar=img?img.naturalWidth/img.naturalHeight:2.4;
+      c.fillStyle='#ef604f18';c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);
+      if(img?.naturalWidth){const n=Math.min(14,Math.ceil(h.width/64)),jetLen=h.height*1.5,jetH=h.width/n*1.5;
+       for(let i=0;i<n;i++){const x=h.x-h.width/2+(i+.5)*h.width/n,wob=Math.sin(i*2.7+h.age*3)*4;
+        c.save();c.translate(x,h.y+h.height/2+6);c.rotate(-Math.PI/2+wob*.012);
+        c.globalAlpha=.92;c.drawImage(img,0,-jetH/2,jetLen,jetH);
+        c.globalCompositeOperation='screen';c.globalAlpha=.5;c.drawImage(img,jetLen*.14,-jetH*.3,jetLen*.82,jetH*.6);
+        c.restore();}
+       const m=Math.min(8,Math.ceil(h.width/130));
+       for(let i=0;i<m;i++){const x=h.x-h.width/2+(i+.5)*h.width/m;fx(c,'smokeDark',x+Math.sin(i*3+h.age*2)*6,h.y-h.height*.5,96,h.height*1.15,0,.42);}}
+      else{const n=Math.min(26,Math.ceil(h.width/44));for(let i=0;i<n;i++){const x=h.x-h.width/2+(i+.5)*h.width/n,wob=Math.sin(i*2.7+h.age*3)*5;
+       if(!fx(c,'fire',x,h.y+8+wob*.4,54,h.height*.95,0,.92))bossSprite(c,12,x,h.y,36,h.height,0,.85);
+       fx(c,'smokeDark',x,h.y-h.height*.42+wob*.3,64,h.height*.9,0,.5);}}}
     }else{c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);c.strokeRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);if(!warning){
-     if(h.visual==='gas-fire'){
-      const n=Math.min(26,Math.ceil(h.width/44));
-      for(let i=0;i<n;i++){const x=h.x-h.width/2+(i+.5)*h.width/n,wob=Math.sin(i*2.7+h.age*3)*5;
-       if(!fx(c,'fire',x,h.y+8+wob*.4,54,h.height*.95,0,.92)){bossSprite(c,12,x,h.y,36,h.height,0,.85);}
-       fx(c,'smokeDark',x,h.y-h.height*.42+wob*.3,64,h.height*.9,0,.5);}
-     }else{const n=Math.min(24,Math.ceil(h.width/38));for(let i=0;i<n;i++){const x=h.x-h.width/2+(i+.5)*h.width/n;bossSprite(c,15,x,h.y,36,Math.max(28,h.height*1.25),Math.PI/2,.85);}}
+     const n=Math.min(24,Math.ceil(h.width/38));for(let i=0;i<n;i++){const x=h.x-h.width/2+(i+.5)*h.width/n;bossSprite(c,15,x,h.y,36,Math.max(28,h.height*1.25),Math.PI/2,.85);}
     }}
    }
    else if(h.kind==='projectile'){
