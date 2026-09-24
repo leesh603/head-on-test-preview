@@ -12,7 +12,7 @@ export function renderStageBossLayer(addon,{drawBody,drawPart,drawHazard}) {
     if(b.dead&&!destroying)continue;
     if(b.hidden&&!destroying)continue;
     const railCars=b.rail129?[...b.parts.values()].filter(p=>p.kind==='rail-car').map(p=>({id:p.id,x:p.x,y:p.y,hp:p.hp,maxHp:p.maxHp,destroyed:p.destroyed,hittable:p.hittable})):null;
-    const layeredParts=['livens-flame-projector','minenwerfer-battery','armored-harbor-fortress'].includes(b.kind)?[...b.parts.values()].map(p=>({id:p.id,hp:p.hp,maxHp:p.maxHp,destroyed:p.destroyed,hittable:p.hittable,angle:p.angle||0})):null;
+    const layeredParts=['livens-flame-projector','minenwerfer-battery','armored-harbor-fortress'].includes(b.kind)?[...b.parts.values()].map(p=>({id:p.id,x:p.x,y:p.y,hp:p.hp,maxHp:p.maxHp,destroyed:p.destroyed,hittable:p.hittable,angle:p.angle||0})):null;
     drawBody({assetKey:b.kind,phase:b.phase,x:b.x,y:b.y,coreVulnerable:b.coreVulnerable,hp:b.hp,maxHp:b.maxHp,motionTime:b.motionTime||0,recoil:b.recoil||0,splitAge:b.splitAge||0,stateAge:b.stateAge||0,splitGap:b.splitGap||0,craneAngle:b.craneAngle||0,nozzleAngle:b.nozzleAngle,engaged:!!b.engaged,lockedFlameAngle:b.lockedFlameAngle,parts:layeredParts,railCars,railBroken:!!b.rail129?.broken,railDirection:b.rail129?.direction||1,
       destroying,destructionAge:destruction?.age||0,destructionDuration:destruction?.duration||0});
     if(b.dead)continue;
