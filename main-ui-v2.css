@@ -173,8 +173,8 @@ body.astra-ui.playing #flightNotices151 #bossArrivalDetail{font-size:12px}
 .astra-dial circle{fill:none;stroke-width:4}
 .dial-track{stroke:#c5c0a027}
 .dial-progress{stroke:currentColor;stroke-dasharray:100;stroke-dashoffset:calc(100 - var(--ready,1)*100);transition:stroke-dashoffset .1s linear}
-body.astra-ui.playing #touch #maneuverButtonIcon{display:none}
-body.astra-ui.playing #touch #skillButtonIcon{display:block;grid-column:1;grid-row:1/3;width:46px;height:46px}
+body.astra-ui.playing #touch #skillButtonIcon,body.astra-ui.playing #touch #maneuverButtonIcon{display:none}
+body.astra-ui.playing #touch .astra-skill-emblem{object-fit:contain;border-radius:4px}
 body.astra-ui.playing #touch #touchSkill,body.astra-ui.playing #touch #touchEvade{opacity:1;border-color:#c6bd9977;color:#eae2ca;background:var(--hud-panel);box-shadow:var(--hud-shadow)}
 body.astra-ui.playing #touch #touchSkill:disabled,body.astra-ui.playing #touch #touchEvade:disabled{opacity:.82;background:var(--hud-panel);color:#c8c3ae}
 body.astra-ui.playing #touch #touchSkill:after,body.astra-ui.playing #touch #touchEvade:after{display:none}
@@ -337,7 +337,6 @@ body.astra-ui.playing #touch #touchSkill:after,body.astra-ui.playing #touch #tou
  html[lang=en] body.astra-ui.playing #touch #reload:after{content:'RELOAD';font-size:9px}
  body.astra-ui.playing #touch #reload:disabled{opacity:.58}
  body.astra-ui.playing #touch .astra-control-icon{width:24px;height:24px;color:#e7cea0;z-index:1;flex:none}
- body.astra-ui.playing #touch #skillButtonIcon{width:27px;height:27px;flex:none}
  body.astra-ui.playing #touch #touchEvade .astra-control-icon{width:27px;height:27px}
  body.astra-ui.playing #touch .flight-key156{display:none}
  body.astra-ui.playing #touch #skillButtonText,body.astra-ui.playing #touch #maneuverButtonText{font:400 9px/1.2 var(--astra-type);color:#d9d4bd;letter-spacing:0;margin:1px 0 0;z-index:1}
