@@ -1,5 +1,5 @@
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=317&b=317';
-import {BossHazards} from './headon-stageboss-hazards.js?v=317&b=317';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=3188&b=318';
+import {BossHazards} from './headon-stageboss-hazards.js?v=3188&b=318';
 
 export class BossStages {
   constructor({teamFaction,stageIndex=0,loopIndex=0,rng=Math.random}) {
@@ -100,7 +100,8 @@ export class StageBossAddon {
   }
   beginDefeat(encounter) {
     const bodies=[...encounter.bodies.values()].map(b=>({id:b.id,kind:b.kind,x:b.x,y:b.y}));
-    this.defeatSequence={encounterId:encounter.id,bossId:encounter.bossId,age:0,duration:2.65,pulse:0,bodies};
+    const sinking=/^(sms-stuttgart|hms-zubian|armored-harbor-fortress)$/.test(encounter.bossId);
+    this.defeatSequence={encounterId:encounter.id,bossId:encounter.bossId,age:0,duration:sinking?4.4:2.65,pulse:0,bodies};
     this.hazards.clear(encounter.id);this.hooks.clearEncounterOwned(encounter.id);
     this.hooks.onCue({type:'boss-destruction-start',encounterId:encounter.id,bossId:encounter.bossId,bodies});
   }
