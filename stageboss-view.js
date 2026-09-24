@@ -77,8 +77,7 @@ function drawRailConsist181(c,b){
   const wreckImage=wreckImages[key]; // Load only the active train's wreck art.
   if(!car.destroyed){c.drawImage(images[key],-130,car.y-195,260,390);continue}
   c.save();c.translate(0,car.y);c.rotate(.025);
-  if(wreckImage.naturalWidth){c.drawImage(wreckImage,-130,-195,260,390);
-   c.globalCompositeOperation='source-atop';c.fillStyle='rgba(10,8,6,.45)';c.fillRect(-130,-195,260,390);c.globalCompositeOperation='source-over';}
+  if(wreckImage.naturalWidth){c.filter='brightness(.45) saturate(.5)';c.drawImage(wreckImage,-130,-195,260,390);c.filter='none';}
   else {c.filter='brightness(.38) saturate(.55)';c.drawImage(images[key],-130,-195,260,390);c.filter='none';}
   for(let k=0;k<4;k++){const t=((b.motionTime||0)*1.4+k*.83)%1,puffY=-60-t*130,puffX=Math.sin(k*2.1+t*5)*14-8;c.fillStyle=`rgba(52,44,40,${(1-t)*.29})`;c.beginPath();c.arc(puffX,puffY,8+t*13,0,Math.PI*2);c.fill()}
   c.restore()}
