@@ -1,5 +1,5 @@
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=318&b=318';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=318&b=318';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=319&b=319';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=319&b=319';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -356,14 +356,24 @@ export class ArmoredHarborFortress extends PatternBoss {
 const turnToward=(from,to,maxStep)=>from+Math.max(-maxStep,Math.min(maxStep,Math.atan2(Math.sin(to-from),Math.cos(to-from))));
 export class LivensFlameProjector extends PatternBoss {
   constructor(options){
-    super({...options,kind:'livens-flame-projector',parts:[
-      {id:'tank-l1',x:-174,y:-15,radius:64},{id:'tank-l2',x:-174,y:100,radius:64},
-      {id:'tank-r1',x:171,y:-15,radius:64},{id:'tank-r2',x:171,y:100,radius:64},
-      {id:'pressure',x:0,y:69,radius:48},{id:'nozzle',x:-3,y:-51,radius:40,angle:-Math.PI/2}
+    super({...options,coreRadius:68,kind:'livens-flame-projector',parts:[
+      {id:'tank-l1',x:-155,y:-72,radius:42},{id:'tank-l2',x:-155,y:72,radius:42},
+      {id:'tank-r1',x:155,y:-72,radius:42},{id:'tank-r2',x:155,y:72,radius:42},
+      {id:'pressure',x:0,y:72,radius:42},{id:'nozzle',x:0,y:-98,radius:58,angle:-Math.PI/2}
     ]});
     this.phase='sealed';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
     this.nozzleAngle=-Math.PI/2;this.lockedFlameAngle=null;
     this.flameCount=0;this.flameMode='track';this.flameAngSpeed=0;this.flameWarn=0;this.flameAge=0;this.spinRate=1.55;
+  }
+  locateHit({x,y,radius=0}){
+    const nozzle=this.parts.get('nozzle');
+    if(!nozzle.destroyed){
+      const dx=Math.cos(this.nozzleAngle),dy=Math.sin(this.nozzleAngle);
+      const px=x-this.x-nozzle.x,py=y-this.y-nozzle.y;
+      const along=Math.max(0,Math.min(85,px*dx+py*dy));
+      if(Math.hypot(px-along*dx,py-along*dy)<=34+radius)return{partId:'nozzle'};
+    }
+    return super.locateHit({x,y,radius});
   }
   // The turret is the boss's only attack — it can be battered but only
   // collapses near the end of the fight (core hp <= 20%).
@@ -375,8 +385,9 @@ export class LivensFlameProjector extends PatternBoss {
     return super.hit(attack);
   }
   onPartDestroyed(p){
-    if(p.id==='nozzle')this.command('cancel-hazards',{tag:'livens-flame'});
+    if(p.id==='nozzle'){this.command('cancel-hazards',{tag:'livens-flame'});this.lockedFlameAngle=null;this.flameLockTime=0;this.flameMode='track';}
     if(p.id.startsWith('tank-'))this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:54,warning:.65,duration:2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak',tag:'livens-leak'});
+    if(p.id==='pressure')this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:68,warning:.8,duration:.4,once:true,damage:this.t.damage*.75,visual:'livens-pressure'});
     // The turret (nozzle) only collapses in the last phase — the core opens
     // once the fuel/pressure system is wrecked; the nozzle keeps fighting.
     if(this.allDestroyed(['tank-l1','tank-l2','tank-r1','tank-r2','pressure'])){
@@ -411,9 +422,12 @@ export class LivensFlameProjector extends PatternBoss {
       else if(this.flameCount%3===2){mode='sweep';dur=weakened?1.5:2.2;const span=.9,dir=this.flameCount%2?-1:1;angSpeed=dir*span/dur;startAngle=this.nozzleAngle-Math.sign(angSpeed)*span/2;telegraphHalf=span/2;}
       this.flameMode=mode;this.flameAngSpeed=angSpeed;this.flameWarn=warn;this.flameAge=0;this.flameCount++;
       this.lockedFlameAngle=startAngle;
-      this.hazard('beam',{x:this.x+nozzle.x,y:this.y+nozzle.y,angle:startAngle,angularSpeed:angSpeed,telegraphHalf,length:weakened?390:560,thickness:weakened?38:54,
+      // Beam pivots at the turret mount so sweep/spin origins track the nozzle;
+      // the flame itself is drawn from the muzzle (85px ahead) in the view.
+      const muzzleX=this.x+nozzle.x,muzzleY=this.y+nozzle.y;
+      this.hazard('beam',{x:muzzleX,y:muzzleY,angle:startAngle,angularSpeed:angSpeed,telegraphHalf,length:(weakened?390:560)+85,thickness:weakened?38:54,
         warning:warn,duration:dur,tickInterval:.22,damage:this.t.damage*(weakened?.65:1),visual:'livens-flame',tag:'livens-flame'});
-      this.command('flame-warning',{x:this.x+nozzle.x,y:this.y+nozzle.y,angle:startAngle,seconds:warn});
+      this.command('flame-warning',{x:muzzleX,y:muzzleY,angle:startAngle,seconds:warn});
       this.flameLockTime=warn+dur;
     }
     if(this.flameLockTime>0){this.flameLockTime=Math.max(0,this.flameLockTime-dt);if(!this.flameLockTime){this.lockedFlameAngle=null;this.flameMode='track';}}
