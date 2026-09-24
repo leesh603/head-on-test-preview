@@ -306,7 +306,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      c.save();c.imageSmoothingEnabled=true;c.translate(0,60-wreck*210);c.rotate(Math.sin(b.destructionAge*.7)*.08);
      c.globalAlpha=Math.min(1,wreck*2)*Math.max(0,1-wreck*.55);c.drawImage(foam,-fw/2,-fh/2,fw,fh);c.restore();}}
    if(b.destroying&&!rail){c.globalAlpha=.2+.3*(1-wreck);c.fillStyle='#171c19';for(let i=0;i<18;i++)c.fillRect(-70+(i*29)%140,-105+(i*47)%210,18+(i%3)*6,14+(i%2)*8);}
-   if(!b.coreVulnerable&&!b.destroying&&!b.assetKey.startsWith('hms-zubian'))ring(0,0,76,'#bdd8df66');c.restore();
+   if(!b.coreVulnerable&&!b.destroying&&!b.assetKey.startsWith('hms-zubian')&&!['london-apron','drachen-net'].includes(b.assetKey))ring(0,0,76,'#bdd8df66');c.restore();
   },
   drawPart(p){if(layer==='hazards')return;
    if(p.kind==='engine'&&!p.hittable&&!p.destroyed)return;
