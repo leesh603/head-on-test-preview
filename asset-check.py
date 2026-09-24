@@ -25,4 +25,20 @@ if missing:
     for r, src in missing:
         print(f'  {r}  (referenced in {src})')
     sys.exit(1)
-print(f'asset check ok — {len(refs)} references verified')
+
+# Dynamic sprite pools: keys quoted inside HEAVY_BOMBERS*/HEAVY_BOMBERS_SEA lists
+# resolve to ./<key>.webp at draw time (drawFieldArt). Verify each exists.
+pool_missing = []
+eng = open('engine.js', encoding='utf-8', errors='ignore').read() if os.path.exists('engine.js') else ''
+for m in re.finditer(r"HEAVY_BOMBERS(?:_SEA)?\s*=\s*\{(.*?)\}", eng, re.S):
+    for key in re.findall(r"'([a-z0-9_\-]+)'", m.group(1)):
+        if not os.path.exists(key + '.webp'):
+            pool_missing.append(key)
+pool_missing = sorted(set(pool_missing))
+if pool_missing:
+    print('MISSING POOL SPRITES (HEAVY_BOMBERS keys → .webp):')
+    for k in pool_missing:
+        print(f'  {k}.webp')
+    sys.exit(1)
+
+print(f'asset check ok — {len(refs)} references verified, pool keys ok')

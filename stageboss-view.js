@@ -1,9 +1,9 @@
-import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=298&b=298';
-import {fx,fxReady,fxImage} from './fx-art.js?v=298';
-import {drawEnemyProjectile} from './projectiles.js?v=298&b=298';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=298';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=298';
-import {bossHudModel} from './headon-stageboss-hud.js?v=298&b=298';
+import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=299&b=299';
+import {fx,fxReady,fxImage} from './fx-art.js?v=299';
+import {drawEnemyProjectile} from './projectiles.js?v=299&b=299';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=299';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=299';
+import {bossHudModel} from './headon-stageboss-hud.js?v=299&b=299';
 
 function createLazyImageGroup(sources){
  const cache={},pending={};
@@ -23,8 +23,8 @@ function createLazyImageGroup(sources){
 const supportGroup=createLazyImageGroup({ship:'./stuttgart-open129.webp',cover:'./stuttgart-cover129.webp'}),supportImages129=supportGroup.images;
 
 const bossSources={
- parisGun:'./boss-bruno-train115.webp',lincomparable:'./boss-lincomparable94.webp?v=298&b=298',stuttgart:'./boss-sms-stuttgart94.webp',zubian:'./boss-hms-zubian94.webp',
- l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=298&b=298',ca4:'./boss-ca4.webp?v=298&b=298',
+ parisGun:'./boss-bruno-train115.webp',lincomparable:'./boss-lincomparable94.webp?v=299&b=299',stuttgart:'./boss-sms-stuttgart94.webp',zubian:'./boss-hms-zubian94.webp',
+ l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=299&b=299',ca4:'./boss-ca4.webp?v=299&b=299',
  londonApron:'./boss-london-apron115.webp',drachenNet:'./boss-drachen-net115.webp'
 };
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
@@ -63,8 +63,8 @@ const railConsistSources={
  lincomparable:{engine:'./rail-boss-lincomparable-engine181.webp',front:'./rail-boss-lincomparable-front181.webp',middle:'./rail-boss-lincomparable-middle181.webp',rear:'./rail-boss-lincomparable-rear181.webp'}
 };
 const railWreckSources={
- parisGun:{engine:'./rail-boss-bruno-engine-wreck192.webp?v=298&b=298',front:'./rail-boss-bruno-front-wreck192.webp?v=298&b=298',middle:'./rail-boss-bruno-middle-wreck192.webp?v=298&b=298',rear:'./rail-boss-bruno-rear-wreck192.webp?v=298&b=298'},
- lincomparable:{engine:'./rail-boss-lincomparable-engine-wreck192.webp?v=298&b=298',front:'./rail-boss-lincomparable-front-wreck192.webp?v=298&b=298',middle:'./rail-boss-lincomparable-middle-wreck192.webp?v=298&b=298',rear:'./rail-boss-lincomparable-rear-wreck192.webp?v=298&b=298'}
+ parisGun:{engine:'./rail-boss-bruno-engine-wreck192.webp?v=299&b=299',front:'./rail-boss-bruno-front-wreck192.webp?v=299&b=299',middle:'./rail-boss-bruno-middle-wreck192.webp?v=299&b=299',rear:'./rail-boss-bruno-rear-wreck192.webp?v=299&b=299'},
+ lincomparable:{engine:'./rail-boss-lincomparable-engine-wreck192.webp?v=299&b=299',front:'./rail-boss-lincomparable-front-wreck192.webp?v=299&b=299',middle:'./rail-boss-lincomparable-middle-wreck192.webp?v=299&b=299',rear:'./rail-boss-lincomparable-rear-wreck192.webp?v=299&b=299'}
 };
 const railGroups={},railConsistArt={},railWreckGroups={},railWreckArt={};
 for(const [set,sources] of Object.entries(railConsistSources)){const group=createLazyImageGroup(sources);railGroups[set]=group;railConsistArt[set]=group.images;const wreckGroup=createLazyImageGroup(railWreckSources[set]);railWreckGroups[set]=wreckGroup;railWreckArt[set]=wreckGroup.images;}
@@ -85,11 +85,11 @@ function drawRailConsist181(c,b){
  c.drawImage(engine,-130,-195,260,390);c.restore();
 }
 const LARGE_HULLS=Object.freeze({gik:{halfWidth:128,halfHeight:150},ca4:{halfWidth:128,halfHeight:150},'armored-harbor-fortress':{halfWidth:245,halfHeight:235}});
-const zubianGroup=createLazyImageGroup({atlas:'./zubian-atlas.webp?v=298'}),zubianArt=zubianGroup.images;
+const zubianGroup=createLazyImageGroup({atlas:'./zubian-atlas.webp?v=299'}),zubianArt=zubianGroup.images;
 const zubianFrames={intact:[90,4,185,500],front:[317,12,185,324],rear:[510,208,184,296]};
 function drawZubianFrame(c,key,x,y,w,h){const zubianAtlas=zubianArt.atlas;if(!zubianAtlas.naturalWidth)return;const f=zubianFrames[key];c.save();c.imageSmoothingEnabled=true;c.drawImage(zubianAtlas,f[0],f[1],f[2],f[3],x-w/2,y-h/2,w,h);c.restore();}
 const drawBossArt=(c,key,w,h)=>{const image=bossArt[key];if(image?.naturalWidth)c.drawImage(image,-w/2,-h/2,w,h)};
-const cityGroup=createLazyImageGroup({london:'./terrain-city-london96.webp?v=298&b=298',berlin:'./terrain-city-berlin96.webp?v=298&b=298'}),cityArt=cityGroup.images;
+const cityGroup=createLazyImageGroup({london:'./terrain-city-london96.webp?v=299&b=299',berlin:'./terrain-city-berlin96.webp?v=299&b=299'}),cityArt=cityGroup.images;
 // Dedicated aircraft-style sprite atlas; collider sizes remain authoritative.
 const partGroup=createLazyImageGroup({atlas:'./boss-parts100.webp'}),partArt=partGroup.images;
 function bossSprite(c,index,x,y,w,h,angle=0,alpha=1){
@@ -294,8 +294,12 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      // the danger thickness so the art never drifts from the hitbox.
      const nozzle=12,img=fxImage('flameJet'),ar=img?img.naturalWidth/img.naturalHeight:3.15;
      c.translate(h.x,h.y);c.rotate(h.angle);
-     if(warning){const jetLen=h.length-nozzle,tipW=Math.max(64,jetLen),jetH=Math.max(h.thickness*1.7,tipW/ar);
-      c.globalAlpha*=.4;c.drawImage(img,nozzle,-jetH/2,jetLen*1.18,jetH);}
+     if(warning){// Fan telegraph only — same style as other bombing warnings, no sprite preview.
+      const half=Math.atan((h.thickness*1.6)/h.length);
+      c.fillStyle='#d2aa5a12';c.beginPath();c.moveTo(nozzle,0);c.arc(nozzle,0,h.length-nozzle,-half,half);c.closePath();c.fill();
+      c.strokeStyle='#e6bc77';c.lineWidth=1.5;c.setLineDash([7,6]);c.beginPath();c.moveTo(nozzle,0);c.arc(nozzle,0,h.length-nozzle,-half,half);c.closePath();c.stroke();c.setLineDash([]);
+      const prog=clamp((h.age-h.delay)/h.warning,0,1);
+      c.strokeStyle='#f2d69b';c.beginPath();c.moveTo(nozzle,0);c.arc(nozzle,0,(h.length-nozzle)*prog,-half,half);c.closePath();c.stroke();}
      else{const activeAge=Math.max(0,h.age-h.delay-h.warning);
       // Fire travels from the muzzle outward; the jet grows to full length
       // over ~0.45s instead of appearing as a finished image.
