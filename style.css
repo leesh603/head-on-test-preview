@@ -131,6 +131,13 @@ html:has(body:not(.assets-ready):not(.boot-ready)),body:not(.assets-ready):not(.
 .boss-cutin-caption small{display:block;font-size:12px;letter-spacing:3px;color:#ffc9b8;margin-bottom:4px}
 .boss-cutin-caption strong{display:block;font-size:26px;font-weight:800;line-height:1.15;color:#ff8a68}
 .boss-cutin-caption span{display:block;font-size:12px;color:#f2ded2;margin-top:4px}
+.boss-cutin.skill-side{left:0;right:auto;animation-name:bosscutin-enter-l}
+.boss-cutin.skill-side::before{right:-20px;left:-80px;transform:skewY(6deg);background:linear-gradient(90deg,#2a0f0cdd,transparent);border-bottom-color:#e8c95a}
+.boss-cutin.skill-side .boss-cutin-art img{left:4px;right:auto}
+.boss-cutin.skill-side .boss-cutin-caption{inset:auto 0 0 -14px;text-align:left}
+.boss-cutin.skill-side .boss-cutin-caption strong{color:#f0d489}
+.boss-cutin.skill-side .boss-cutin-caption small{color:#f0dfae}
 @keyframes bosscutin-enter{from{opacity:0;transform:translateX(70px)}to{opacity:1;transform:none}}
-@media(max-width:720px),(pointer:coarse){.boss-cutin{width:58vw;height:30dvh;bottom:150px}.boss-cutin::before{bottom:38px;height:66px}.boss-cutin-art{bottom:56px}.boss-cutin-caption{right:-6px}.boss-cutin-caption strong{font-size:17px}.boss-cutin-caption small{font-size:10px}}
+@keyframes bosscutin-enter-l{from{opacity:0;transform:translateX(-70px)}to{opacity:1;transform:none}}
+@media(max-width:720px),(pointer:coarse){.boss-cutin{width:58vw;height:30dvh;bottom:150px}.boss-cutin::before{bottom:38px;height:66px}.boss-cutin-art{bottom:56px}.boss-cutin-caption{right:-6px}.boss-cutin-caption strong{font-size:17px}.boss-cutin-caption small{font-size:10px}.boss-cutin.skill-side .boss-cutin-caption{left:-6px;right:auto}}
 @media(prefers-reduced-motion:reduce){.boss-cutin,.boss-cutin::before{animation:none}}
