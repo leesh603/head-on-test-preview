@@ -77,7 +77,8 @@ function drawRailConsist181(c,b){
   const wreckImage=wreckImages[key]; // Load only the active train's wreck art.
   if(!car.destroyed){c.drawImage(images[key],-130,car.y-195,260,390);continue}
   c.save();c.translate(0,car.y);c.rotate(.025);
-  if(wreckImage.naturalWidth)c.drawImage(wreckImage,-130,-195,260,390);
+  if(wreckImage.naturalWidth){c.drawImage(wreckImage,-130,-195,260,390);
+   c.globalCompositeOperation='source-atop';c.fillStyle='rgba(10,8,6,.45)';c.fillRect(-130,-195,260,390);c.globalCompositeOperation='source-over';}
   else {c.filter='brightness(.38) saturate(.55)';c.drawImage(images[key],-130,-195,260,390);c.filter='none';}
   for(let k=0;k<4;k++){const t=((b.motionTime||0)*1.4+k*.83)%1,puffY=-60-t*130,puffX=Math.sin(k*2.1+t*5)*14-8;c.fillStyle=`rgba(52,44,40,${(1-t)*.29})`;c.beginPath();c.arc(puffX,puffY,8+t*13,0,Math.PI*2);c.fill()}
   c.restore()}
@@ -86,6 +87,7 @@ function drawRailConsist181(c,b){
 }
 const LARGE_HULLS=Object.freeze({gik:{halfWidth:128,halfHeight:150},ca4:{halfWidth:128,halfHeight:150},'armored-harbor-fortress':{halfWidth:245,halfHeight:235}});
 const zubianGroup=createLazyImageGroup({atlas:'./zubian-atlas.webp?v=318'}),zubianArt=zubianGroup.images;
+const sinkFoamGroup=createLazyImageGroup({foam:'./ship-sinkfoam.webp?v=318'}),sinkFoamArt=sinkFoamGroup.images;
 const zubianFrames={intact:[90,4,185,500],front:[317,12,185,324],rear:[510,208,184,296]};
 function drawZubianFrame(c,key,x,y,w,h){const zubianAtlas=zubianArt.atlas;if(!zubianAtlas.naturalWidth)return;const f=zubianFrames[key];c.save();c.imageSmoothingEnabled=true;c.drawImage(zubianAtlas,f[0],f[1],f[2],f[3],x-w/2,y-h/2,w,h);c.restore();}
 const drawBossArt=(c,key,w,h)=>{const image=bossArt[key];if(image?.naturalWidth)c.drawImage(image,-w/2,-h/2,w,h)};
@@ -230,7 +232,10 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     if(w0>0){c.translate(0,w0*260);c.rotate(w0*.3);c.globalAlpha*=Math.max(0,1-w0*.9);}
     drawSupportShip(c,b.destroying?{...body.support129,dead:false}:body.support129,supportImages129);
     c.restore();
-    if(w0>0){c.fillStyle='#eaf6f0';for(let k=0;k<9;k++){const sq=Math.sin(k*4.7+b.destructionAge*9)*.5+.5;c.globalAlpha=(1-w0*.4)*(.2+.35*sq);c.fillRect(b.x-110+k*26,b.y+95+w0*40+Math.sin(k*2.3)*7,14+24*w0,5)}c.globalAlpha=1;}
+    if(w0>0){const foam=sinkFoamArt.foam;
+     if(foam?.naturalWidth){const f=Math.min(1,w0*1.3),fw=240+f*180,fh=fw*foam.naturalHeight/foam.naturalWidth;
+      c.save();c.imageSmoothingEnabled=true;c.translate(b.x,b.y+60+w0*50);c.rotate(Math.sin(b.destructionAge*.7)*.08);
+      c.globalAlpha=Math.min(1,w0*2)*Math.max(0,1-w0*.55);c.drawImage(foam,-fw/2,-fh/2,fw,fh);c.restore();}}
    }return;}
    c.save();const wreck=b.destroying?Math.min(1,b.destructionAge/Math.max(.1,b.destructionDuration)):0;
    const sinking=wreck>0&&(['sms-stuttgart','armored-harbor-fortress'].includes(b.assetKey)||b.assetKey.startsWith('hms-zubian'));
@@ -290,10 +295,10 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     if(harborArt.guns.naturalWidth){const cw=harborArt.guns.naturalWidth/2,ch=harborArt.guns.naturalHeight/2;for(const [id,sx,x] of [['gun-left',0,-91],['gun-right',1,91]])if(!dead(id))c.drawImage(harborArt.guns,sx*cw,0,cw,ch,x-38,62-38,76,76);}
    }
    else drawBossArt(c,'markv',172,258);
-   if(sinking){c.save();c.globalAlpha=1;c.strokeStyle='#eaf6f0';c.lineWidth=3;
-    for(let k=0;k<3;k++){const f=Math.min(1,wreck*1.4+k*.12);c.globalAlpha=Math.max(0,.5-f*.42);c.beginPath();c.ellipse(0,40+wreck*60,60+f*90,(18+f*22)*(1-.3*k),0,0,Math.PI*2);c.stroke();}
-    c.fillStyle='#eaf6f0';for(let k=0;k<10;k++){const bx=Math.sin(k*5.1)*80,by=60+wreck*90+Math.sin(b.destructionAge*6+k)*14;c.globalAlpha=Math.max(0,.5-wreck*.4);c.fillRect(bx-3,by-3,6,6);}
-    c.restore();}
+   if(sinking){const foam=sinkFoamArt.foam;
+    if(foam?.naturalWidth){const f=Math.min(1,wreck*1.3),fw=220+f*180,fh=fw*foam.naturalHeight/foam.naturalWidth;
+     c.save();c.imageSmoothingEnabled=true;c.translate(0,60-wreck*210);c.rotate(Math.sin(b.destructionAge*.7)*.08);
+     c.globalAlpha=Math.min(1,wreck*2)*Math.max(0,1-wreck*.55);c.drawImage(foam,-fw/2,-fh/2,fw,fh);c.restore();}}
    if(b.destroying&&!rail){c.globalAlpha=.2+.3*(1-wreck);c.fillStyle='#171c19';for(let i=0;i<18;i++)c.fillRect(-70+(i*29)%140,-105+(i*47)%210,18+(i%3)*6,14+(i%2)*8);}
    if(!b.coreVulnerable&&!b.destroying&&!b.assetKey.startsWith('hms-zubian'))ring(0,0,76,'#bdd8df66');c.restore();
   },
