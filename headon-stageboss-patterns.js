@@ -377,7 +377,9 @@ export class LivensFlameProjector extends PatternBoss {
   onPartDestroyed(p){
     if(p.id==='nozzle')this.command('cancel-hazards',{tag:'livens-flame'});
     if(p.id.startsWith('tank-'))this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:54,warning:.65,duration:2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak',tag:'livens-leak'});
-    if(this.allDestroyed(['tank-l1','tank-l2','tank-r1','tank-r2','pressure','nozzle'])){
+    // The turret (nozzle) only collapses in the last phase — the core opens
+    // once the fuel/pressure system is wrecked; the nozzle keeps fighting.
+    if(this.allDestroyed(['tank-l1','tank-l2','tank-r1','tank-r2','pressure'])){
       this.phase='core-exposed';this.coreVulnerable=true;this.command('phase-change',{phase:'exposed'});
     }
   }
