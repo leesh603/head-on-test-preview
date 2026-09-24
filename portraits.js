@@ -1,4 +1,4 @@
-import {clearCrewMatte} from './matte70.js?v=214&b=210';
+import {clearCrewMatte} from './matte70.js?v=288&b=288';
 // Use the cleaned canvas for every portrait surface, including boss arrivals.
 export const portraitSources={};
 const legacyPortraits=['baron','voss','boelcke','immelmann','udet','fonck','collishaw','baracca','guynemer','bishop','goering','mannock','mckeever','huffzky','hawker','berthold','jacobs','rickenbacker','ball','barker','luke','brumowski','gontermann'].map(id=>new Promise(resolve=>{
