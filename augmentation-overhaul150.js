@@ -209,7 +209,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   this.queueExplosionDamage(victim.x,victim.y,Math.max(24,(source.explosionBaseRadius||60)*.6),(source.explosionBaseDamage??source.explosionDamage??source.damage)*.3,{secondaryExplosion:true,grenade:!!source.grenadeExplosion});return true;
  };
  Game.prototype.launchUpgradeRocket=function(){
-  const base=Math.max(1,Math.min(5,this.rockets||1)),count=Math.min(5,base+(this.projectileDistributorLevel||0));this.rocketFire=this.ordnanceInterval(2.6/(1+base*.3));const speed=520,spread=.075;
+  const base=Math.max(1,Math.min(5,this.rockets||1)),count=Math.min(5,base+(this.projectileDistributorLevel||0));this.rocketFire=this.ordnanceInterval(2.6/(1+base*.3));const speed=520,spread=.05;
   for(let i=0;i<count;i++){const a=this.a+(i-(count-1)/2)*spread,damage=this.payloadPower(78+(base-1)*4);this.bullets.push({x:this.x+Math.cos(a)*30,y:this.y+Math.sin(a)*30,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:this.longRange?this.shotLifetime(speed):2.4,enemy:false,ownerId:this.id,damage,rocket:true,upgradeRocket:true,explosionDamage:damage,explosionBaseRadius:84,collisionRadius:12,hit:new Set()})}this.burst(this.x+Math.cos(this.a)*25,this.y+Math.sin(this.a)*25,'#ffcf83',8+count);
  };
 
