@@ -320,19 +320,22 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    if(h.kind==='beam'){const x2=h.x+Math.cos(h.angle)*h.length,y2=h.y+Math.sin(h.angle)*h.length;
     if(h.visual==='apron-wire'){
      c.translate(h.x,h.y);c.rotate(h.angle);c.lineCap='round';c.setLineDash([]);
-     // Catenary-sagged steel cable with barbed wraps and anchor stakes.
-     const sag=7,seg=Math.max(6,Math.round(h.length/46));
-     for(const [lift,color,width] of [[-3,warning?'#eac981aa':'#2e3638',3.4],[0,warning?'#fff1b7aa':'#9fb0ac',2],[2.4,warning?'#eedca788':'#5e6d6a',1.2]]){
-      c.strokeStyle=color;c.lineWidth=width;c.beginPath();
-      for(let i=0;i<=seg;i++){const px=i/seg*h.length,py=lift+Math.sin(i/seg*Math.PI)*sag;i?c.lineTo(px,py):c.moveTo(px,py)}c.stroke();}
-     // Barb tufts along the cable.
-     c.strokeStyle=warning?'#fff1baaa':'#d8c08a';c.lineWidth=1;
-     for(let d=9;d<h.length;d+=11){const py=Math.sin(d/h.length*Math.PI)*sag;c.beginPath();
-      c.moveTo(d-2.6,py-3.4);c.lineTo(d+2.6,py+3.4);c.moveTo(d-2.6,py+3.4);c.lineTo(d+2.6,py-3.4);c.stroke();}
-     // X-frame anchor stakes every ~130px with a second barbed strand below.
-     for(let d=24;d<h.length;d+=130){c.strokeStyle=warning?'#e8c47fbb':'#3f4a44';c.lineWidth=3;
-      c.beginPath();c.moveTo(d-6,-14);c.lineTo(d+6,14);c.moveTo(d+6,-14);c.lineTo(d-6,14);c.stroke();
-      c.strokeStyle='#c8b98a99';c.lineWidth=1;c.beginPath();c.arc(d,0,3.4,0,Math.PI*2);c.stroke();}
+     if(warning){c.strokeStyle='#e8c47f66';c.lineWidth=1.5;c.setLineDash([7,9]);c.beginPath();c.moveTo(0,0);c.lineTo(h.length,0);c.stroke();c.setLineDash([]);}
+     else{
+      // Heavy steel wire apron: dark twisted strands with sharp barbs.
+      const sag=9,seg=Math.max(8,Math.round(h.length/40));
+      for(const [lift,color,width] of [[-4.5,'#22292b',2.6],[-1.5,'#4a5652',1.6],[1.8,'#171d1f',2.4],[4.6,'#39444a',1.4]]){
+       c.strokeStyle=color;c.lineWidth=width;c.beginPath();
+       for(let i=0;i<=seg;i++){const px=i/seg*h.length,py=lift+Math.sin(i/seg*Math.PI)*sag;i?c.lineTo(px,py):c.moveTo(px,py)}c.stroke();}
+      // Sharp barb knots alternating sides — dark metal, not glowing sparks.
+      for(let d=8;d<h.length;d+=13){const py=Math.sin(d/h.length*Math.PI)*sag,k=d%26<13?-1:1;
+       c.strokeStyle='#0e1416';c.lineWidth=1.6;c.beginPath();
+       c.moveTo(d-3.4,py-4.2*k);c.lineTo(d+3.4,py+4.2*k);c.stroke();
+       c.strokeStyle='#8a967f';c.lineWidth=.8;c.beginPath();
+       c.moveTo(d-2.2,py-2.8*k);c.lineTo(d+2.2,py+2.8*k);c.stroke();}
+      // Tension clamp collars where strands bind.
+      for(let d=Math.max(40,h.length*.22);d<h.length;d+=h.length*.3){c.strokeStyle='#57635c';c.lineWidth=4.5;c.beginPath();c.moveTo(d,-7);c.lineTo(d,7);c.stroke();c.strokeStyle='#1a2123';c.lineWidth=2;c.beginPath();c.moveTo(d,-7);c.lineTo(d,7);c.stroke();}
+     }
     }else if(h.visual==='livens-flame'&&fxReady('flameJet')){
      // Continuous painted jet leaving the barrel muzzle; its visible length
      // grows along the beam so the flame reads as one stream, not tiles.
