@@ -1,4 +1,5 @@
 // Excel revision 103. Unspecified numbers are explicit first-playtest tuning.
+import {WING_PLANES} from './engine.js?v=281';
 export const REVISION_BALANCE=Object.freeze({soloCap:12,coopCap:18,soloRegular:10,coopRegular:11,interval:1.6,coopInterval:1.65,countrysideInterval:1,countrysideCoopInterval:1.15,frontReduction:.25,rearBonus:.3,compassXp:1.3});
 export function installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDARIES,UPGRADES){
  const newPlanes={
@@ -159,7 +160,7 @@ export function installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDAR
    [['airco_dh2','airco_dh2','airco_dh2','nieuport24'],['airco_dh2','nieuport24','nieuport24','camel'],['airco_dh2','nieuport24','camel','camel','se5a'],['airco_dh2','nieuport24','camel','se5a','spad']];
   return [...pools[phase]];
  };
- Game.prototype.friendlyAircraftMix=function(faction){return this.aircraftMix(faction,this.t)};
+ Game.prototype.friendlyAircraftMix=function(faction){const pool=WING_PLANES[faction];return pool?[...pool]:this.aircraftMix(faction,this.t)};
  Game.prototype.queueBossLevel=function(){this.bossLevelRewards=(this.bossLevelRewards||0)+1};
  Game.prototype.resolveBossLevels=function(){
   if(!this.bossLevelRewards||this.state!=='playing')return false;
