@@ -19,8 +19,15 @@ const CLOUD_PICK=Object.freeze({
 });
 export const CLOUD_CONCEAL=Object.freeze({partial:.7,normal:1.2,elite:1.6,ace:2,boss:1.8,reacquire:1,reacquireAce:.6,reacquireBoss:.45,aimWobble:55,enemyHide:.4,darkRange:250});
 const MAX_CLOUDS=9;
-let _cloudImg;
-function cloudImg(){if(_cloudImg===undefined){_cloudImg=new Image();_cloudImg.src='./fx-ball-cloud.webp?v=257&b=215'}return _cloudImg}
+const CLOUD_IMGS={cumulus:['fx-cloud-cumulus-0','fx-cloud-cumulus-1','fx-cloud-cumulus-2'],bank:['fx-cloud-bank-0','fx-cloud-bank-1'],dark:['fx-cloud-dark-0','fx-cloud-dark-1'],wispy:['fx-cloud-wispy-0','fx-cloud-wispy-1']};
+const _imgCache={};
+function cloudImg(type,seed){
+ const list=CLOUD_IMGS[type]||CLOUD_IMGS.cumulus;
+ const key=list[Math.floor(((seed||0)/6.283)*list.length)%list.length];
+ let im=_imgCache[key];
+ if(im===undefined){im=new Image();im.src=`./${key}.webp?v=283&b=283`;im.onload=()=>{_imgCache[key]=im};_imgCache[key]=im}
+ return im;
+}
 
 export function installCloudCover(Game){
  const P=Game.prototype;
@@ -97,23 +104,20 @@ export function installCloudCover(Game){
 }
 
 export function drawCloudCover(c,game,{point,scale=1,region}){
- const img=cloudImg();
- if(!img||!img.naturalWidth)return;
+ const cw=c.canvas.width,ch=c.canvas.height;
  for(const cl of game.clouds||[]){
   const t=CLOUD_TYPES[cl.type];
   const [sx,sy]=point(cl.x,cl.y);
   const w=t.rx*2*scale,h=t.ry*2*scale;
-  if(sx<-w||sx>W()+w||sy<-h||sy>H()+h)continue;
+  if(sx<-w||sx>cw+w||sy<-h||sy>ch+h)continue;
+  const img=cloudImg(cl.type,cl.seed);
+  if(!img||!img.naturalWidth)continue;
   c.save();
   c.translate(sx,sy);
   if(cl.mirror)c.scale(-1,1);
   c.rotate(Math.sin(cl.seed)*.14);
   c.globalAlpha=t.alpha*(region===6?.62:1);
-  if(t.dark)c.filter='brightness(.48) saturate(.7)';
-  else if(cl.type==='wispy')c.filter='saturate(.8)';
   c.drawImage(img,-w/2,-h/2,w,h);
   c.restore();
  }
- function W(){return c.canvas.width}
- function H(){return c.canvas.height}
 }
