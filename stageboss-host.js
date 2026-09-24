@@ -83,6 +83,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    else if(event.type==='charge-warning'||event.type==='reentry-warning')g.bossCues.push({...event,life:event.seconds});
    else if(event.type==='rail-aim')g.bossCues.push({...event,targetX:event.target.x,targetY:event.target.y,life:event.seconds});
    else if(event.type==='cannon-aim')g.bossCues.push({...event,targetX:event.x+Math.cos(event.angle)*event.length,targetY:event.y+Math.sin(event.angle)*event.length,life:1.7});
+   else if(event.type==='gas-zone'){(g.gasZones??=[]).push({x:event.x,y:event.y,r:event.radius||130,warning:1.6,life:event.life||9});}
    else if(event.type==='phase-change')g.event('wave','보스 전술 변화 · '+({exposed:'본체 노출',enraged:'대공포 집중 사격',reveal:'구름 은폐 해제',escort:'호위 차량 접근',locomotive:'기관차 노출','seaplane-support':'수상기 지원편대','breached':'외곽 장갑 붕괴','final-core':'중앙 지휘시설 노출'}[event.phase]||event.phase));
   },
   onEncounterCleared({id,bossId}){
@@ -119,7 +120,7 @@ export function damageStageBoss(g,e,b,damage){
 function updateMinions(g,dt){
  for(const e of g.enemies){if(!e.bossMinion||e.hp<=0)continue;const p=g.enemyCombatTarget(e);if(!p||p.hp<=0)continue;
   e.life=(e.life??18)-dt;if(e.life<=0){e.hp=0;continue}
-  if(e.surface){e.x+=e.vx*dt;e.a=e.vx<0?Math.PI:0;}else if(e.behavior==='attack-pass'){
+  if(e.surface){e.x+=e.vx*dt;e.a=e.vx<0?Math.PI:0;const viewH=g.viewHeight||640,floorY=g.y+viewH*.34;e.y=Math.max(e.y,floorY);}else if(e.behavior==='attack-pass'){
    e.passAge=(e.passAge||0)+dt;if(!e.passLocked){const a=Math.atan2((e.passTargetY??p.y)-e.y,(e.passTargetX??p.x)-e.x);e.a=a;e.passLocked=true;e.speed=Math.max(205,e.speed||0);}
    const lane=((e.formationIndex||0)-((e.formationCount||1)-1)/2)*9;e.x+=Math.cos(e.a)*e.speed*dt-Math.sin(e.a)*Math.sin(e.passAge*2.2)*lane*dt;e.y+=Math.sin(e.a)*e.speed*dt+Math.cos(e.a)*Math.sin(e.passAge*2.2)*lane*dt;
   }else{const a=Math.atan2(p.y-e.y,p.x-e.x),delta=Math.atan2(Math.sin(a-e.a),Math.cos(a-e.a));e.a+=clamp(delta,-2*dt,2*dt);e.x+=Math.cos(e.a)*e.speed*dt;e.y+=Math.sin(e.a)*e.speed*dt;}

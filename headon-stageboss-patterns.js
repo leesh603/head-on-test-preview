@@ -368,6 +368,9 @@ export class LivensFlameProjector extends PatternBoss {
   }
   update(dt,{players}){
     this.x=this.anchorX;this.y=this.anchorY;
+    if((this._gasTier??4)>0&&this.hp<=this.maxHp*(this._gasTier)*.25){this._gasTier--;
+      for(let i=0;i<3;i++){const a=this.rng()*6.28,d=60+this.rng()*90;this.command('gas-zone',{x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,radius:120+this.rng()*40,life:8});}
+      this.command('phase-change',{phase:'gas-vent'});}
     const nozzle=this.parts.get('nozzle'),target=this.target(players);
     if(!nozzle.destroyed&&target&&this.lockedFlameAngle==null){
       const desired=Math.atan2(target.y-(this.y+nozzle.y),target.x-(this.x+nozzle.x));
@@ -411,6 +414,9 @@ export class MinenwerferBattery extends PatternBoss {
   }
   update(dt,{players}){
     this.x=this.anchorX;this.y=this.anchorY;
+    if((this._gasTier??4)>0&&this.hp<=this.maxHp*(this._gasTier)*.25){this._gasTier--;
+      for(let i=0;i<3;i++){const a=this.rng()*6.28,d=60+this.rng()*90;this.command('gas-zone',{x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,radius:120+this.rng()*40,life:8});}
+      this.command('phase-change',{phase:'gas-vent'});}
     this.volleyClock-=dt;
     if(this.volleyClock>0)return;
     const order=['gun-left','gun-right','main-gun'],id=order[this.volleyStep];

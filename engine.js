@@ -875,7 +875,7 @@ const _gasUpdate57=Game.prototype.update;
 Game.prototype.update=function(dt,input={}){
  if(this.state!=='playing')return;const step=Math.min(.04,Math.max(0,dt));
  if(![2,3].includes(this.worldRegion())){this.gasZones=[];this.inGas=false;this.gasExposure=0}
- const inside=()=>this.worldRegion()===2&&(this.gasZones||[]).some(z=>z.warning<=0&&z.life>0&&Math.hypot(this.x-z.x,this.y-z.y)<z.r);
+ const inside=()=>[2,3].includes(this.worldRegion())&&(this.gasZones||[]).some(z=>z.warning<=0&&z.life>0&&Math.hypot(this.x-z.x,this.y-z.y)<z.r);
  const turn=this.turn;let control=input;
  if(inside()){this.turn*=.55;control={...input};const drift=Math.sin(this.t*2.4)*.22;if(Number.isFinite(control.angle))control.angle+=drift;else control.steer=(control.steer||0)+drift;}
  try{_gasUpdate57.call(this,step,control)}finally{this.turn=turn}
