@@ -57,7 +57,7 @@ export function fxImage(key){return fxImgs[key]||null}
 export function fx(c,key,x,y,w,h=w,angle=0,alpha=1){
  const im=fxImgs[key];if(!im)return false;
  c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha*=alpha;
- if(FX56){c.imageSmoothingEnabled=false;c.drawImage(im,-w/2,-h/2,w,h)}
+ if(FX56&&FX_FILES[key].startsWith('fx-pack-v189/')){c.imageSmoothingEnabled=false;c.drawImage(im,-w/2,-h/2,w,h)}
  else{const k=Math.min(w/im.naturalWidth,h/im.naturalHeight),dw=im.naturalWidth*k,dh=im.naturalHeight*k;
   c.drawImage(im,-dw/2,-dh/2,dw,dh)}
  c.restore();return true;
@@ -80,6 +80,7 @@ export function fxTintedCanvas(key,color){
 export function fxTint(c,key,color,x,y,w,h=w,angle=0,alpha=1){
  const cv=fxTintedCanvas(key,color);if(!cv)return fx(c,key,x,y,w,h,angle,alpha);
  c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha*=alpha;
- if(FX56)c.imageSmoothingEnabled=false;
- c.drawImage(cv,-w/2,-h/2,w,h);c.restore();return true;
+ if(FX56&&FX_FILES[key].startsWith('fx-pack-v189/')){c.imageSmoothingEnabled=false;c.drawImage(cv,-w/2,-h/2,w,h)}
+ else{const k=Math.min(w/cv.width,h/cv.height),dw=cv.width*k,dh=cv.height*k;c.drawImage(cv,-dw/2,-dh/2,dw,dh)}
+ c.restore();return true;
 }

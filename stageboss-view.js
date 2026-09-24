@@ -1,7 +1,7 @@
 import {drawRailDamage,drawRailTrack} from './rail-render129.js';
-import {fx,fxReady,fxImage,FX56} from './fx-art.js?v=278';
-import {drawEnemyProjectile} from './projectiles.js?v=278&b=278';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=278';
+import {fx,fxReady,fxImage,FX56} from './fx-art.js?v=279';
+import {drawEnemyProjectile} from './projectiles.js?v=279&b=279';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=279';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=190';
 import {bossHudModel} from './headon-stageboss-hud.js?v=277&b=277';
 
@@ -62,7 +62,7 @@ export function prepareStageBossAssets(region){
  return Promise.all(jobs);
 }
 const drawTrenchImage=(c,image,x,y,w,h,angle=0,alpha=1)=>{if(!image?.naturalWidth)return false;c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha=alpha;c.imageSmoothingEnabled=true;c.drawImage(image,-w/2,-h/2,w,h);c.restore();return true;};
-const drawTrenchFx=(c,image,x,y,w,h=w,angle=0,alpha=1)=>{if(!image?.naturalWidth)return false;c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha=alpha;c.imageSmoothingEnabled=false;c.drawImage(image,-w/2,-h/2,w,h);c.restore();return true;};
+const drawTrenchFx=(c,image,x,y,w,h=w,angle=0,alpha=1,fit=false)=>{if(!image?.naturalWidth)return false;c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha=alpha;if(fit){const k=Math.min(w/image.naturalWidth,h/image.naturalHeight),dw=image.naturalWidth*k,dh=image.naturalHeight*k;c.drawImage(image,-dw/2,-dh/2,dw,dh)}else{c.imageSmoothingEnabled=false;c.drawImage(image,-w/2,-h/2,w,h)}c.restore();return true;};
 const railConsistSources={
  parisGun:{engine:'./rail-boss-bruno-engine181.webp',front:'./rail-boss-bruno-front181.webp',middle:'./rail-boss-bruno-middle181.webp',rear:'./rail-boss-bruno-rear181.webp'},
  lincomparable:{engine:'./rail-boss-lincomparable-engine181.webp',front:'./rail-boss-lincomparable-front181.webp',middle:'./rail-boss-lincomparable-middle181.webp',rear:'./rail-boss-lincomparable-rear181.webp'}
@@ -309,7 +309,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     if(!warning&&(trenchBlast||gas||steam)){
      const fade=clamp(1-(h.age-h.delay-h.warning)/Math.max(.01,h.duration),0,1);
      if(trenchBlast){const heavy=h.visual==='minenwerfer-heavy',cap=h.radius*(heavy?3.4:2.9),age=Math.max(0,h.age-h.delay-h.warning);
-      if(age<.45){const frame=Math.min(3,Math.floor(age/.12)),img=[trenchFxArt.exp0,trenchFxArt.exp1,trenchFxArt.exp2,trenchFxArt.exp3][frame],sz=Math.min(cap,h.radius*1.5+age*160);drawTrenchFx(c,img,h.x,h.y,sz,sz,0,Math.min(1,(1-age/.45)*1.4+.3))}
+      if(age<.45){const frame=Math.min(3,Math.floor(age/.12)),img=[trenchFxArt.exp0,trenchFxArt.exp1,trenchFxArt.exp2,trenchFxArt.exp3][frame],sz=Math.min(cap,h.radius*1.5+age*160);drawTrenchFx(c,img,h.x,h.y,sz,sz,0,Math.min(1,(1-age/.45)*1.4+.3),true)}
       else drawTrenchFx(c,trenchFxArt.smoke,h.x,h.y,h.radius*2.2,h.radius*2,-h.age*.04,.3*fade);}
      else if(gas)drawTrenchFx(c,trenchFxArt.gas,h.x,h.y,h.radius*2.65,h.radius*2.35,h.age*.035,.34+.24*fade);
      else drawTrenchFx(c,trenchFxArt.smoke,h.x,h.y,h.radius*2.25,h.radius*2.05,-h.age*.04,.26+.28*fade);
