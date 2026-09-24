@@ -1,8 +1,8 @@
-import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=319&b=319';
+import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=320&b=320';
 
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=319&b=319';
-import {attachAircraftPersonality} from './aircraft-personality164.js?v=319';
-import {installCloudCover} from './cloud-cover1.js?v=319&b=319';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=320&b=320';
+import {attachAircraftPersonality} from './aircraft-personality164.js?v=320';
+import {installCloudCover} from './cloud-cover1.js?v=320&b=320';
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.
 export const COOP_BALANCE=Object.freeze({spawn:1,ordinaryHp:1.15,heavyHp:1.65,enemyCap:28,xp:.6,revive:15,reviveHp:1,reviveAmmo:.5,reviveInvuln:2,minZoom:.75});
@@ -33,7 +33,7 @@ export class PlayerState {
  checkLevel(){/* Growth is committed once by the world's ordered queue. */}
 }
 // Reuse authored abilities and upgrade rules, not any legacy world-update wrapper.
-for(const method of ['launchUpgradeRocket','ensureRevisionPilot','beginRevisionFrame','endRevisionFrame','incomingDamageMultiplier','skill','evade','reload','upgrade','addGunBonus','addMobility','rollChoices','rerollChoices','canRerollChoices','rerollLegendaryChoices','legendaryChance','legendaryCount','levelRequirement','payloadPower','supportPower','skillCooldown','skillDuration','skillRecovery','normalGunMultiplier','blackFlightAim','isRedHunter','shotLifetime','healthSpeedFactor','flyAirframe','duoVolley','legendaryDamageMultiplier','sunStrikeContains','combatWorld','tailEligible','tailIdFor','updateTailLock','tailLockFraction','giveSpecialAmmo','consumeSpecialRound','specialAmmoStatus','applySpecialRound','roundDamageMultiplier','specialRoundImpact','tickAugmentationSystems','augmentationDescription','guideTelescope','gunDirection','throwGrenades','tickGrenades','ordnanceInterval','explosionRadius','explosionDamage','queueExplosionDamage','spawnAmatolSecondary','cannonMuzzleSmoke','permanentWingPlane','permanentWingCount','lufberyDamageMultiplier','wingFormationOffset','wingFormationTarget','applyFighterSupplyToWings'])PlayerState.prototype[method]=Game.prototype[method];
+for(const method of ['launchUpgradeRocket','ensureRevisionPilot','beginRevisionFrame','endRevisionFrame','incomingDamageMultiplier','skill','evade','reload','upgrade','addGunBonus','addMobility','rollChoices','rerollChoices','canRerollChoices','rerollLegendaryChoices','legendaryChance','legendaryCount','levelRequirement','payloadPower','supportPower','skillCooldown','skillDuration','skillRecovery','normalGunMultiplier','blackFlightAim','isRedHunter','shotLifetime','healthSpeedFactor','flyAirframe','duoVolley','legendaryDamageMultiplier','sunStrikeContains','combatWorld','tailEligible','tailIdFor','updateTailLock','tailLockFraction','giveSpecialAmmo','consumeSpecialRound','specialAmmoStatus','applySpecialRound','roundDamageMultiplier','specialRoundImpact','tickAugmentationSystems','augmentationDescription','guideTelescope','gunDirection','throwGrenades','tickGrenades','ordnanceInterval','explosionRadius','explosionDamage','queueExplosionDamage','spawnAmatolSecondary','cannonMuzzleSmoke','permanentWingPlane','permanentWingCount','lufberyDamageMultiplier','wingFormationOffset','wingFormationTarget','applyFighterSupplyToWings','isDreideckerPilot','huntTargetAlive','huntTier','pickHuntTarget','patchEliteHuntDamage'])PlayerState.prototype[method]=Game.prototype[method];
 
 export class CoopGame {
  constructor(config,{rng=Math.random,runId=globalThis.crypto?.randomUUID?.()||`coop-${Date.now()}-${Math.random().toString(36).slice(2)}`}={}){
@@ -158,7 +158,7 @@ export class CoopGame {
   const inGas=this.region===2&&this.gasZones.some(z=>z.warning<=0&&z.life>0&&Math.hypot(p.x-z.x,p.y-z.y)<z.r),turn=p.turn;
   if(inGas){p.turn*=.55;const drift=Math.sin(this.t*2.4)*.22;if(Number.isFinite(control.angle))control.angle+=drift;else control.steer=(control.steer||0)+drift}
   p.duoSpinStep=duo?Math.min(dt,active):0;p.flyAirframe(dt,control);p.duoSpinStep=0;p.turn=turn;
-  const diving=p.pilot==='baron'&&!p.isRedHunter()&&p.skillTime>0,velocity=p.baseSpeed*p.healthSpeedFactor()*stageBossSpeed(p)*(boost?1.7:1)*(charge?4.6:diving?1.85:p.evadeTime>0?2.35:p.airframeSpeed??1)*(p.pursuitSpeedFactor??1);
+  const velocity=p.baseSpeed*p.healthSpeedFactor()*stageBossSpeed(p)*(boost?1.7:1)*(charge?4.6:p.evadeTime>0?2.35:p.airframeSpeed??1)*(p.pursuitSpeedFactor??1);
   p.x+=Math.cos(p.a)*velocity*dt;p.y+=Math.sin(p.a)*velocity*dt;this.constrainMove(p,oldX,oldY);p.distance+=Math.hypot(p.x-oldX,p.y-oldY);
   p.updateTailLock(dt);
   if(charge){p.invuln=Math.max(p.invuln,dt+.02);p.a=p.chargeAngle;p.chargeTime=Math.max(0,p.chargeTime-dt);for(const e of this.enemies)if(e.hp>0&&!p.chargeHits.has(e)&&segmentDistance(e.x,e.y,oldX,oldY,p.x,p.y)<(e.heavyBomber?85:52)){p.chargeHits.add(e);this.emit(p,{x:e.x,y:e.y,vx:0,vy:0,life:.15,damage:p.damage*18,blast:true});this.combatBlast(e.x,e.y,48,'friendly','charge')}}
@@ -168,7 +168,7 @@ export class CoopGame {
   if(p.unlimitedAmmo){p.reloadTime=0;p.ammo.fill(p.weapon.belt)}
   if(p.reloadTime>0){p.reloadTime=Math.max(0,p.reloadTime-dt);p.fire=0;if(p.reloadTime===0){p.ammo.fill(p.weapon.belt);p.event('loaded','재장전 완료')}}
   else if(!p.cow37){p.fire-=dt;if(p.bishopTime>0)p.fire=Math.max(p.fire,.1);let volleys=0;while(p.fire<=0&&p.reloadTime===0&&volleys++<8){
-   if(p.ammo.every(n=>n===0)){p.reload();break}p.fire+=Math.max(.02,p.rate/(diving?2.8:1)/(boost?2.4:1));
+   if(p.ammo.every(n=>n===0)){p.reload();break}p.fire+=Math.max(.02,p.rate/(boost?2.4:1));
    for(let gun=0;gun<p.weapon.guns;gun++){const rounds=Math.min(p.shots,p.ammo[gun]),offset=p.weapon.bidirectional?0:(gun-(p.weapon.guns-1)/2)*8,ga=p.gunDirection(gun);for(let i=0;i<rounds;i++){const a=ga+(i-(rounds-1)/2)*.11,tailTargetId=p.tailLocked?p.tailTargetId:null,round={x:p.x+Math.cos(ga)*23-Math.sin(ga)*offset,y:p.y+Math.sin(ga)*23+Math.cos(ga)*offset,vx:Math.cos(a)*520,vy:Math.sin(a)*520,life:['bishop','mannock'].includes(p.pilot)?.6:1.35,gun,damage:p.damage*p.normalGunMultiplier()/Math.sqrt(p.shots),tailBonus:!!tailTargetId,tailTargetId};this.emit(p,p.applySpecialRound(round,null))}if(!p.unlimitedAmmo)p.ammo[gun]-=rounds?Math.max(1,rounds-(p.freeVolleyShots||0)):0;p.roundsFired+=rounds}p.muzzleFlash=.055;p.event('shot','');if(p.ammo.every(n=>n===0))p.reload();
   }}
   if(p.bishopEmptyPending){p.bishopEmptyPending=false;if(!p.unlimitedAmmo)p.ammo.fill(0);p.reloadTime=0;p.fire=.1;p.muzzleFlash=0}
