@@ -1,10 +1,10 @@
-import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=321&b=321';
-import {fx,fxReady,fxImage} from './fx-art.js?v=321';
-import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=321&b=321';
-import {drawLivensFlame} from './livens-fire195.js?v=321';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=321';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=321';
-import {bossHudModel} from './headon-stageboss-hud.js?v=321&b=321';
+import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=322&b=322';
+import {fx,fxReady,fxImage} from './fx-art.js?v=322';
+import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=322&b=322';
+import {drawLivensFlame} from './livens-fire195.js?v=322';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=322';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=322';
+import {bossHudModel} from './headon-stageboss-hud.js?v=322&b=322';
 
 function createLazyImageGroup(sources){
  const cache={},pending={};
@@ -24,8 +24,8 @@ function createLazyImageGroup(sources){
 const supportGroup=createLazyImageGroup({ship:'./stuttgart-open129.webp',cover:'./stuttgart-cover129.webp'}),supportImages129=supportGroup.images;
 
 const bossSources={
- parisGun:'./boss-bruno-train115.webp',lincomparable:'./boss-lincomparable94.webp?v=321&b=321',stuttgart:'./boss-sms-stuttgart94.webp',zubian:'./boss-hms-zubian94.webp',
- l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=321&b=321',ca4:'./boss-ca4.webp?v=321&b=321',
+ parisGun:'./boss-bruno-train115.webp',lincomparable:'./boss-lincomparable94.webp?v=322&b=322',stuttgart:'./boss-sms-stuttgart94.webp',zubian:'./boss-hms-zubian94.webp',
+ l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=322&b=322',ca4:'./boss-ca4.webp?v=322&b=322',
  londonApron:'./boss-london-apron115.webp',drachenNet:'./boss-drachen-net115.webp'
 };
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
@@ -94,8 +94,8 @@ const railConsistSources={
  lincomparable:{engine:'./rail-boss-lincomparable-engine181.webp',front:'./rail-boss-lincomparable-front181.webp',middle:'./rail-boss-lincomparable-middle181.webp',rear:'./rail-boss-lincomparable-rear181.webp'}
 };
 const railWreckSources={
- parisGun:{engine:'./rail-boss-bruno-engine-wreck192.webp?v=321&b=321',front:'./rail-boss-bruno-front-wreck192.webp?v=321&b=321',middle:'./rail-boss-bruno-middle-wreck192.webp?v=321&b=321',rear:'./rail-boss-bruno-rear-wreck192.webp?v=321&b=321'},
- lincomparable:{engine:'./rail-boss-lincomparable-engine-wreck192.webp?v=321&b=321',front:'./rail-boss-lincomparable-front-wreck192.webp?v=321&b=321',middle:'./rail-boss-lincomparable-middle-wreck192.webp?v=321&b=321',rear:'./rail-boss-lincomparable-rear-wreck192.webp?v=321&b=321'}
+ parisGun:{engine:'./rail-boss-bruno-engine-wreck192.webp?v=322&b=322',front:'./rail-boss-bruno-front-wreck192.webp?v=322&b=322',middle:'./rail-boss-bruno-middle-wreck192.webp?v=322&b=322',rear:'./rail-boss-bruno-rear-wreck192.webp?v=322&b=322'},
+ lincomparable:{engine:'./rail-boss-lincomparable-engine-wreck192.webp?v=322&b=322',front:'./rail-boss-lincomparable-front-wreck192.webp?v=322&b=322',middle:'./rail-boss-lincomparable-middle-wreck192.webp?v=322&b=322',rear:'./rail-boss-lincomparable-rear-wreck192.webp?v=322&b=322'}
 };
 const railGroups={},railConsistArt={},railWreckGroups={},railWreckArt={};
 for(const [set,sources] of Object.entries(railConsistSources)){const group=createLazyImageGroup(sources);railGroups[set]=group;railConsistArt[set]=group.images;const wreckGroup=createLazyImageGroup(railWreckSources[set]);railWreckGroups[set]=wreckGroup;railWreckArt[set]=wreckGroup.images;}
@@ -121,12 +121,12 @@ function drawRailConsist181(c,b){
  c.drawImage(engine,-130,-195,260,390);c.restore();
 }
 const LARGE_HULLS=Object.freeze({gik:{halfWidth:128,halfHeight:150},ca4:{halfWidth:128,halfHeight:150},'armored-harbor-fortress':{halfWidth:245,halfHeight:235}});
-const zubianGroup=createLazyImageGroup({atlas:'./zubian-atlas.webp?v=321'}),zubianArt=zubianGroup.images;
-const sinkFoamGroup=createLazyImageGroup({foam:'./ship-sinkfoam.webp?v=321'}),sinkFoamArt=sinkFoamGroup.images;
+const zubianGroup=createLazyImageGroup({atlas:'./zubian-atlas.webp?v=322'}),zubianArt=zubianGroup.images;
+const sinkFoamGroup=createLazyImageGroup({foam:'./ship-sinkfoam.webp?v=322'}),sinkFoamArt=sinkFoamGroup.images;
 const zubianFrames={intact:[90,4,185,500],front:[317,12,185,324],rear:[510,208,184,296]};
 function drawZubianFrame(c,key,x,y,w,h){const zubianAtlas=zubianArt.atlas;if(!zubianAtlas.naturalWidth)return;const f=zubianFrames[key];c.save();c.imageSmoothingEnabled=true;c.drawImage(zubianAtlas,f[0],f[1],f[2],f[3],x-w/2,y-h/2,w,h);c.restore();}
 const drawBossArt=(c,key,w,h)=>{const image=bossArt[key];if(image?.naturalWidth)c.drawImage(image,-w/2,-h/2,w,h)};
-const cityGroup=createLazyImageGroup({london:'./terrain-city-london96.webp?v=321&b=321',berlin:'./terrain-city-berlin96.webp?v=321&b=321'}),cityArt=cityGroup.images;
+const cityGroup=createLazyImageGroup({london:'./terrain-city-london96.webp?v=322&b=322',berlin:'./terrain-city-berlin96.webp?v=322&b=322'}),cityArt=cityGroup.images;
 // Dedicated aircraft-style sprite atlas; collider sizes remain authoritative.
 const partGroup=createLazyImageGroup({atlas:'./boss-parts100.webp'}),partArt=partGroup.images;
 function bossSprite(c,index,x,y,w,h,angle=0,alpha=1){
@@ -369,7 +369,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      // Beam pivots at the turret mount; the continuous flame runs from the muzzle.
      const muzzle=85,range=h.length-muzzle;
      if(warning){c.translate(h.x,h.y);c.rotate(h.angle);c.lineCap='round';
-      const half=h.telegraphHalf||Math.atan((h.thickness*1.6)/range);
+      const half=h.telegraphHalf||Math.atan((h.thickness*2.6)/range);
       c.fillStyle='#d2aa5a12';c.beginPath();c.moveTo(muzzle,0);c.arc(muzzle,0,range,-half,half);c.closePath();c.fill();
       c.strokeStyle='#e6bc77';c.lineWidth=1.5;c.setLineDash([7,6]);c.beginPath();c.moveTo(muzzle,0);c.arc(muzzle,0,range,-half,half);c.closePath();c.stroke();c.setLineDash([]);
       const prog=clamp((h.age-h.delay)/h.warning,0,1);

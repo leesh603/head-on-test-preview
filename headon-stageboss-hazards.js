@@ -1,5 +1,5 @@
 import {FixedPool} from './headon-stageboss-pool.js';
-import {livensFlameSpan} from './livens-fire195.js?v=321';
+import {livensFlameSpan} from './livens-fire195.js?v=322';
 const wrap = angle => Math.atan2(Math.sin(angle),Math.cos(angle));
 const segmentDistance = (px,py,x0,y0,x1,y1) => {
   const dx=x1-x0,dy=y1-y0,len=dx*dx+dy*dy,t=len?Math.max(0,Math.min(1,((px-x0)*dx+(py-y0)*dy)/len)):0;
@@ -10,14 +10,17 @@ export function contains(h,p) {
   if(h.kind==='rect')return Math.abs(p.x-h.x)<=h.width/2+radius&&Math.abs(p.y-h.y)<=h.height/2+radius;
   if(h.kind==='beam'){
     if(h.visual==='livens-flame'){
-      // The beam pivots at the turret mount; the flame runs from the muzzle.
+      // The beam pivots at the turret mount; the flame is a cone from the muzzle.
       const muzzle=85,flameLen=Math.max(1,h.length-muzzle),span=livensFlameSpan({...h,length:flameLen});
       const tail=muzzle+span.tail,front=muzzle+span.front;
       if(front<=tail)return false;
       const dx=Math.cos(h.angle),dy=Math.sin(h.angle);
-      const along=Math.max(tail,Math.min(front,(p.x-h.x)*dx+(p.y-h.y)*dy));
-      const halfWidth=h.thickness*(.08+.42*Math.sqrt(Math.max(0,(along-muzzle)/flameLen)))*.8*Math.max(0,Math.min(1,(front-along)/45,(along-tail)/12));
-      return segmentDistance(p.x,p.y,h.x+dx*tail,h.y+dy*tail,h.x+dx*front,h.y+dy*front)<=halfWidth+radius;
+      const along=(p.x-h.x)*dx+(p.y-h.y)*dy;
+      if(along<tail-radius||along>front+radius)return false;
+      const perp=Math.abs(-(p.x-h.x)*dy+(p.y-h.y)*dx);
+      const q=Math.max(0,(along-muzzle)/flameLen);
+      const half=h.thickness*(.5+2.1*q)*Math.max(0,Math.min(1,(front-along)/45,(along-tail)/14));
+      return perp<=half+radius;
     }
     const x1=h.x+Math.cos(h.angle)*h.length,y1=h.y+Math.sin(h.angle)*h.length;return segmentDistance(p.x,p.y,h.x,h.y,x1,y1)<=h.thickness/2+radius;
   }
