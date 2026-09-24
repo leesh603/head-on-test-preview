@@ -1,0 +1,12 @@
+fokkerd7: {"stats": {"hp": 125, "speed": 157, "turn": 3.55}, "weapon": {"name": "Spandau LMG 08/15", "caliber": "7.92 mm", "guns": 2, "belt": 224, "rpm": 450, "profiles": ["spandau", "spandau"]}}
+sopwith: {"stats": {"hp": 95, "speed": 148, "turn": 3.9}, "weapon": {"name": "Vickers", "caliber": ".303", "guns": 2, "belt": 288, "rpm": 450, "profiles": ["vickers", "vickers"]}}
+spad12: {"stats": {"hp": 115, "speed": 169, "turn": 2.6}, "weapon": {"name": "Vickers", "caliber": ".303", "guns": 2, "belt": 288, "rpm": 450, "profiles": ["vickers", "vickers"]}}
+fokkerdv: {"stats": {"hp": 105, "speed": 164, "turn": 3.7}, "weapon": {"name": "Spandau LMG 08/15", "caliber": "7.92 mm", "guns": 2, "belt": 224, "rpm": 450, "profiles": ["spandau", "spandau"]}}
+nieuport: {"stats": {"hp": 85, "speed": 145, "turn": 4}, "weapon": {"name": "Vickers", "caliber": ".303", "guns": 1, "belt": 288, "rpm": 450, "profiles": ["vickers"]}}
+pfalz_d3a: {"stats": {"hp": 130, "speed": 151, "turn": 3.15}, "weapon": {"name": "Spandau LMG 08/15", "caliber": "7.92 mm", "guns": 2, "belt": 224, "rpm": 450, "profiles": ["spandau", "spandau"]}}
+spad: {"stats": {"hp": 120, "speed": 181, "turn": 2.45}, "weapon": {"name": "Vickers", "caliber": ".303", "guns": 2, "belt": 288, "rpm": 450, "profiles": ["vickers", "vickers"]}}
+se5a: {"stats": {"hp": 125, "speed": 177, "turn": 2.9}, "weapon": {"name": "Vickers", "caliber": ".303", "guns": 2, "belt": 288, "rpm": 450, "profiles": ["vickers", "vickers"]}}
+snipe: {"stats": {"hp": 115, "speed": 166, "turn": 3.7}, "weapon": {"name": "Vickers", "caliber": ".303", "guns": 2, "belt": 288, "rpm": 450, "profiles": ["vickers", "vickers"]}}
+nieuport28: {"stats": {"hp": 95, "speed": 150, "turn": 3.8}, "weapon": {"name": "Vickers", "caliber": ".303", "guns": 1, "belt": 288, "rpm": 450, "profiles": ["vickers"]}}
+fokker: {"stats": {"hp": 100, "speed": 134, "turn": 4.3}, "weapon": {"name": "Spandau LMG 08/15", "caliber": "7.92 mm", "guns": 2, "belt": 224, "rpm": 450, "profiles": ["spandau", "spandau"]}}
+albatros: {"stats": {"hp": 115, "speed": 144, "turn": 2.95}, "weapon": {"name": "Spandau LMG 08/15", "caliber": "7.92 mm", "guns": 2, "belt": 224, "rpm": 450, "profiles": ["spandau", "spandau"]}}

@@ -1,6 +1,6 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=214&b=210';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=286&b=286';
 import {RailBossController} from './rail-boss129.js?v=214';
-import {StuttgartSupport} from './stuttgart129.js?v=284&b=284';
+import {StuttgartSupport} from './stuttgart129.js?v=286&b=286';
 
 export class RailAdapter extends BaseBoss {
  constructor(o,kind){
@@ -28,8 +28,9 @@ export class RailAdapter extends BaseBoss {
   if(e.type==='fire'){
    const heavy=this.kind==='lincomparable',count=heavy?1:(this.t.shellCount||5);
    if(heavy){
-    this.emit({type:'hazard',bossId:this.id,kind:'circle',x:e.target.x,y:e.target.y,warning:.02,delay:0,duration:.65,once:true,radius:165,damage:this.t.damage*.86,visual:'rail-shell-outer'});
     this.emit({type:'hazard',bossId:this.id,kind:'circle',x:e.target.x,y:e.target.y,warning:.02,delay:0,duration:.65,once:true,radius:92,damage:this.t.damage*.74,visual:'rail-shell'});
+    // Shockwave: telegraphed ring the player must vacate before it activates.
+    this.emit({type:'hazard',bossId:this.id,kind:'circle',x:e.target.x,y:e.target.y,warning:.55,delay:.28,duration:.4,once:true,radius:245,damage:this.t.damage*.62,visual:'rail-shock'});
     this.emit({type:'hazard',bossId:this.id,kind:'circle',x:e.target.x,y:e.target.y,warning:.04,delay:.5,duration:1.8,once:false,tickInterval:.7,radius:132,damage:this.t.damage*.22,visual:'rail-smoke'});
     this.recoilKick129=55;
    }else this.walkingBarrage129={target:e.target,count,index:0,clock:0};

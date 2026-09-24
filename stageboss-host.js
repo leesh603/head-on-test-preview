@@ -1,5 +1,5 @@
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=284&b=284';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=284&b=284';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=286&b=286';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=286&b=286';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=190';
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항'];
@@ -67,7 +67,9 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    else if(event.type==='hazard-activated'&&event.kind==='circle')g.combatBlast(event.x,event.y,event.radius,'enemy');
    else if(event.type==='part-destroyed'){const part=body?.parts.get(event.partId);g.combatBlast(x+(part?.x||0),y+(part?.y||0),46,'enemy');g.shake=Math.max(g.shake,7);}
    else if(event.type==='ammo-detonation'){g.combatBlast(event.x,event.y,105,'enemy');g.shake=Math.max(g.shake,12);g.event('wave','항구요새 탄약고 유폭 · 중앙 회전축 방호 약화');}
-   else if(event.type==='rail-car-detached'){g.combatBlast(event.x,event.y,58,'enemy');g.shake=Math.max(g.shake,8);g.event('wave','열차 객차 파괴 · 기관차 방호 약화');}
+   else if(event.type==='rail-car-detached'){g.combatBlast(event.x,event.y,58,'enemy');g.shake=Math.max(g.shake,8);
+    for(let i=0;i<4;i++){const ox=(g.rng?g.rng()-.5:Math.random()-.5)*120,oy=(i-1.5)*55+(g.rng?g.rng()-.5:Math.random()-.5)*30,r=24+((i*37)%3)*14;g.combatBlast(event.x+ox,event.y+oy,r,'enemy');if(g.burst)g.burst(event.x+ox,event.y+oy,'#ffd06a',6);if(g.smoke)g.smoke(event.x+ox,event.y+oy,true)}
+    g.event('wave','열차 객차 파괴 · 기관차 방호 약화');}
    else if(event.type==='rail-runaway'){g.event('wave','기관차 폭주! · 선로에서 이탈하기 전에 추격하세요');g.shake=Math.max(g.shake,6);}
    else if(event.type==='rail-derail'){g.combatBlast(x,y,96,'enemy');g.shake=Math.max(g.shake,12);g.event('wave','기관차 탈선 · 최종 코어 노출');}
    else if(event.type==='body-defeated'&&event.kind?.startsWith('hms-zubian-')){g.combatBlast(x,y,82,'enemy');g.shake=Math.max(g.shake,10);}
