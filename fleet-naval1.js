@@ -1,7 +1,7 @@
 // Moving fleet system — Adriatic (region 1) and Zeebrugge harbor (region 7).
 // Ships sail real headings, fire from actual gun positions on the hull, and are
 // faction-owned: hostile ships hunt the player, friendly ships engage aircraft.
-import {PLANES} from './engine.js?v=292&b=292';
+import {PLANES} from './engine.js?v=293&b=293';
 export const SHIP_TYPES=Object.freeze({
  dd:{name:'구축함',hp:150,drawnH:300,speed:26,guns:[96,-99],salvo:5,spread:.15,shellSpeed:215,interval:3.2,width:88},
  aa:{name:'대공순양함',hp:340,drawnH:380,speed:17,guns:[79,5,-39,-98],salvo:3,spread:.09,shellSpeed:205,interval:4.6,width:205}
@@ -9,7 +9,7 @@ export const SHIP_TYPES=Object.freeze({
 const SHIP_IMG={ent_dd:'fx-ship-ent-dd',cen_dd:'fx-ship-cen-dd',ent_aa:'fx-ship-ent-aa',cen_aa:'fx-ship-cen-aa'};
 const MAX_FLEET_SHIPS=6;
 let _shipImgs={};
-function shipImg(key){let im=_shipImgs[key];if(im===undefined){im=new Image();im.src=`./${key}.webp?v=292&b=292`;im.onload=()=>{_shipImgs[key]=im};_shipImgs[key]=im}return im}
+function shipImg(key){let im=_shipImgs[key];if(im===undefined){im=new Image();im.src=`./${key}.webp?v=293&b=293`;im.onload=()=>{_shipImgs[key]=im};_shipImgs[key]=im}return im}
 
 export function installFleet(Game){
  for(const k of [...Object.values(SHIP_IMG),'fx-city-aagun','fx-city-ammo','fx-harbor-seaplane-base','fx-harbor-mole'])shipImg(k);
@@ -211,6 +211,35 @@ export function drawFleetLayer(c,game,{point}){
  const cw=c.canvas.width,ch=c.canvas.height;
  const q=game._harborQuay;
  if(q){
+  // Coastline: a landmass fills the landward side of the quay line so the harbor
+  // reads as a defended coast, not objects floating on open sea.
+  const hx=Math.cos(q.h||0),hy=Math.sin(q.h||0),nx=-hy,ny=hx;
+  const jag=t=>Math.sin(t*.012+q.x*.013)*26+Math.sin(t*.031)*11;
+  const N=1700,DEPTH=2600,pts=[];
+  for(let t=-N;t<=N;t+=140)pts.push([t,jag(t)]);
+  c.save();c.beginPath();
+  let first=true;
+  for(const [t,j] of pts){const [sx,sy]=point(q.x+nx*t+hx*j,q.y+ny*t+hy*j);first?c.moveTo(sx,sy):c.lineTo(sx,sy);first=false}
+  const farA=point(q.x+nx*N+hx*DEPTH,q.y+ny*N+hy*DEPTH),farB=point(q.x-nx*N+hx*DEPTH,q.y-ny*N+hy*DEPTH);
+  c.lineTo(farA[0],farA[1]);c.lineTo(farB[0],farB[1]);c.closePath();
+  c.fillStyle='#778563';c.fill();
+  // Rural-look texture patches on the landmass (deterministic, cheap).
+  c.fillStyle='#6d7e5d';
+  for(let i=0;i<26;i++){const t=-N+((i*613)%3400),d=60+((i*397)%400),j=jag(t)+d;
+   const [sx,sy]=point(q.x+nx*t+hx*j,q.y+ny*t+hy*j);c.fillRect(sx-26,sy-16,52,32)}
+  c.fillStyle='#81906c';
+  for(let i=0;i<18;i++){const t=-N+((i*827)%3400),d=120+((i*521)%680),j=jag(t)+d;
+   const [sx,sy]=point(q.x+nx*t+hx*j,q.y+ny*t+hy*j);c.fillRect(sx-34,sy-11,68,22)}
+  // Sandy foreshore band + foam line along the jagged shoreline.
+  c.fillStyle='#a89a72';
+  c.beginPath();first=true;
+  for(const [t,j] of pts){const [sx,sy]=point(q.x+nx*t+hx*(j-52),q.y+ny*t+hy*(j-52));first?c.moveTo(sx,sy):c.lineTo(sx,sy);first=false}
+  for(let i=pts.length-1;i>=0;i--){const [t,j]=pts[i];const [sx,sy]=point(q.x+nx*t+hx*j,q.y+ny*t+hy*j);c.lineTo(sx,sy)}
+  c.closePath();c.fill();
+  c.strokeStyle='#dfe8d8';c.lineWidth=2.4;c.globalAlpha=.8;
+  c.beginPath();first=true;
+  for(const [t,j] of pts){const [sx,sy]=point(q.x+nx*t+hx*(j-8),q.y+ny*t+hy*(j-8));first?c.moveTo(sx,sy):c.lineTo(sx,sy);first=false}
+  c.stroke();c.globalAlpha=1;c.restore();
   const mi=shipImg('fx-harbor-mole');
   if(mi&&mi.naturalWidth){const [x,y]=point(q.x,q.y),w=1650,h=w*mi.naturalHeight/mi.naturalWidth;
    if(x>-w&&x<cw+w&&y>-w&&y<ch+w){c.save();c.translate(x,y);c.rotate(q.a);c.drawImage(mi,-w/2,-h/2,w,h);c.restore()}}
