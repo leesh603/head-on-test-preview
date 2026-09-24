@@ -143,7 +143,7 @@ export function drawFleetLayer(c,game,{point}){
  for(const e of game.enemies||[]){
   if(!e.movingShip||e.hp<=0)continue;
   const t=SHIP_TYPES[e.shipClass],key=`${e.faction==='entente'?'ent':'cen'}_${e.shipClass}`;
-  const img=shipImg(key);
+  const img=shipImg(SHIP_IMG[key]||key);
   const [x,y]=point(e.x,e.y);
   const h=t.drawnH,w=h*(img?.naturalWidth?img.naturalWidth/img.naturalHeight:(t.width/t.drawnH));
   if(x<-h||x>cw+h||y<-h||y>ch+h)continue;
