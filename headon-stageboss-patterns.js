@@ -61,6 +61,7 @@ class ZubianHalf extends PatternBoss {
     this.protection=Math.max(0,(this.protection||0)-dt);
     this.coreVulnerable=this.protection<=0;
     const partner=[...this.encounter?.bodies.values()||[]].find(b=>b!==this&&b.kind?.startsWith('hms-zubian-'));
+    if(partner&&!partner.dead){const dx=this.x-partner.x,dy=this.y-partner.y,d=Math.hypot(dx,dy),min=250;if(d>1e-3&&d<min){const push=(min-d)*.55;this.x+=dx/d*push;this.y+=dy/d*push;partner.x-=dx/d*push;partner.y-=dy/d*push;}}
     if(partner?.dead&&!this.soloEnraged){this.soloEnraged=true;this.command('phase-change',{phase:this.role+'-last-stand'});}
     if(this.role==='front'&&this.soloEnraged&&this.due('front-barrage',dt,2.6)){const p=this.target(players);if(p)for(let i=-1;i<=1;i++)this.hazard('circle',{x:p.x+i*54,y:p.y+(p.vy||0)*.55,radius:46,delay:.18+Math.abs(i)*.12,warning:.9,once:true,visual:'zubian-mortar'});}
     if(this.role==='rear') {
@@ -265,11 +266,11 @@ export class Ca4 extends AlpsPatternBoss {
     const imbalance=(this.part('leftEngine').destroyed?1:0)-(this.part('rightEngine').destroyed?1:0);this.cruise(dt,{kind:'ca4',engineLoss:engines,imbalance});
     if(this.phase===1&&(this.hp<=this.maxHp*.67||engines)){this.setPhase(2);this.hidden=true;this.reentry=1.9;this.reentrySide=this.rng()<.5?-1:1;this.entryX=this.reentrySide<0?bounds.left+90:bounds.right-90;this.entryY=bounds.top+105;this.command('hide',{peakId:peaks[0]?.id||null});this.command('reentry-warning',{x:this.entryX,y:bounds.top-30,targetX:(bounds.left+bounds.right)/2,targetY:bounds.bottom-80,seconds:this.reentry});}
     if(this.phase===2&&this.hp<=this.maxHp*.33){this.setPhase(3);this.part('bombBay').hittable=true;}
-    if(this.hidden){this.reentry=Math.max(0,this.reentry-dt);if(this.reentry>0)return;this.hidden=false;this.resetRoute(this.entryX,this.entryY);this.bayExpose=2.4;this.part('bombBay').hittable=true;const target=this.target(players),cx=target?.x??(bounds.left+bounds.right)/2;for(let row=0;row<6;row++)this.hazard('circle',{x:cx+(row-2.5)*58,y:bounds.top+(bounds.bottom-bounds.top)*(.32+row*.085),radius:38,delay:row*.13,warning:.9,duration:.25,once:true,damage:this.t.damage,visual:'carpet-bomb'});this.command('phase-change',{phase:'bomb-bay-exposed'});}
+    if(this.hidden){this.reentry=Math.max(0,this.reentry-dt);if(this.reentry>0)return;this.hidden=false;this.resetRoute(this.entryX,this.entryY);this.bayExpose=2.4;this.part('bombBay').hittable=true;const target=this.target(players),cx=target?.x??(bounds.left+bounds.right)/2;for(let row=0;row<6;row++)this.hazard('circle',{x:cx+(row-2.5)*62+randBetween(this.rng,-22,22),y:bounds.top+(bounds.bottom-bounds.top)*(.32+row*.085)+randBetween(this.rng,-20,18),radius:44+randBetween(this.rng,-6,14),delay:row*.13+randBetween(this.rng,0,.1),warning:.95,duration:.28,once:true,damage:this.t.damage,visual:'carpet-bomb'});this.command('phase-change',{phase:'bomb-bay-exposed'});}
     if(this.phase===2&&this.bayExpose>0){this.bayExpose=Math.max(0,this.bayExpose-dt);if(this.bayExpose===0)this.part('bombBay').hittable=false;}
     const w=bounds.right-bounds.left;
     if(this.due('ca4-bombs',dt,this.phase===3?2.8:4.6)){const open=[-1,0,1][(this.bombLane=(this.bombLane??-1)+1)%3];
-      for(let lane=-1;lane<=1;lane++)if(lane!==open)for(let row=0;row<4;row++)this.hazard('circle',{x:bounds.left+w*(.5+lane*.24),y:bounds.top+(bounds.bottom-bounds.top)*(.42+row*.12),radius:Math.min(42,w*.045),delay:row*.16,warning:1.1,duration:.25,once:true,damage:this.t.damage*.85,visual:'alps-flak'});}
+      for(let lane=-1;lane<=1;lane++)if(lane!==open)for(let row=0;row<4;row++)this.hazard('circle',{x:bounds.left+w*(.5+lane*.24)+randBetween(this.rng,-w*.05,w*.05),y:bounds.top+(bounds.bottom-bounds.top)*(.42+row*.12)+randBetween(this.rng,-34,26),radius:Math.min(64,w*.062)+randBetween(this.rng,-8,10),delay:row*.16+randBetween(this.rng,0,.12),warning:1.15,duration:.28,once:true,damage:this.t.damage*.85,visual:'alps-flak'});}
     if(this.due('ca4-guns',dt,1.05)){this.aimedFan('frontGun',players,3,.42,.78);this.aimedFan('rearGun',players,3,.42,.78);}
   }
 }
@@ -284,7 +285,7 @@ export class A7VFlak extends PatternBoss {
     for(const p of players){const key=p.id??p,age=isIlluminated(p)?Math.min(.7,(this.illumination.get(key)||0)+dt):0;this.illumination.set(key,age);}
     const lightCount=(this.t.loopIndex||0)>0?3:2;
     if(this.phase!=='exposed'&&this.due('lights',dt,(this.t.lightInterval||9)*(this.phase==='weakened'?.88:1)))for(let i=0;i<lightCount;i++)this.hazard('searchlight',{
-      x:bounds.left+(i+.5)*(bounds.right-bounds.left)/lightCount,y:bounds.top,angle:Math.PI/2+(i-(lightCount-1)/2)*.45,
+      x:this.x+(i-(lightCount-1)/2)*46,y:this.y+30,angle:Math.PI/2+(i-(lightCount-1)/2)*.4,
       angularSpeed:(i%2?-.3:.3),halfAngle:.14,radius:(bounds.bottom-bounds.top)*1.3,
       duration:7.5,warning:.8,damage:0,tickInterval:.2,visual:'searchlight'});
     if(this.phase==='exposed'){if(this.due('exposed-flak',dt,2.4)){const p=this.target(players);if(p)this.hazard('circle',{x:p.x+(p.vx||0)*.45,y:p.y+(p.vy||0)*.45,radius:64,warning:.72,duration:.45,once:true,damage:this.t.damage*1.15,visual:'black-flak'});}return;}

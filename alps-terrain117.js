@@ -62,7 +62,8 @@ export class MountainField {
  }
  draw(ctx,{camera,width,height}){const peaks=this.query({left:camera.x-100,top:camera.y-100,right:camera.x+width+100,bottom:camera.y+height+100});ctx.save();ctx.translate(-camera.x,-camera.y);
   for(const p of peaks){const path=()=>{ctx.beginPath();p.points.forEach((v,i)=>i?ctx.lineTo(v.x,v.y):ctx.moveTo(v.x,v.y));ctx.closePath();},sprite=peakSprites[p.variant],w=p.hitRx*2.1,h=p.hitRy*2.1;
-   if(sprite?.naturalWidth){ctx.save();ctx.imageSmoothingEnabled=true;ctx.drawImage(sprite,p.x-w/2,p.y-h/2,w,h);ctx.restore();continue;}
+   // Peaks are hazards to dodge: a red warning outline marks the collision shape.
+   if(sprite?.naturalWidth){ctx.save();ctx.imageSmoothingEnabled=true;ctx.drawImage(sprite,p.x-w/2,p.y-h/2,w,h);ctx.strokeStyle='#ff5f3fd9';ctx.lineWidth=2.4;path();ctx.stroke();ctx.strokeStyle='#ffd9a066';ctx.lineWidth=1;path();ctx.stroke();ctx.restore();continue;}
    // Shadow extends downwind; only the outlined polygon is solid. No invisible broad collider.
    for(const [dx,dy,color] of [[13,16,'#26394366'],[25,31,'#182a3588']]){ctx.save();ctx.translate(dx,dy);path();ctx.fillStyle=color;ctx.fill();ctx.restore();}
    path();ctx.fillStyle='#59636b';ctx.fill();const apex=p.apex;
@@ -70,7 +71,7 @@ export class MountainField {
    ctx.strokeStyle='#89949a88';ctx.lineWidth=1.4;for(const ridge of [p.leftRidge,p.rightRidge]){ctx.beginPath();ctx.moveTo(apex.x,apex.y);ctx.lineTo(ridge.x,ridge.y);ctx.stroke();}
    // One restrained snow cap keeps aircraft silhouettes readable on both desktop and mobile.
    ctx.beginPath();ctx.moveTo(apex.x,apex.y-6);ctx.lineTo(apex.x+p.radius*.18,apex.y+p.radius*.19);ctx.lineTo(apex.x,apex.y+p.radius*.10);ctx.lineTo(apex.x-p.radius*.17,apex.y+p.radius*.16);ctx.closePath();ctx.fillStyle='#a5b1b5';ctx.fill();
-   path();ctx.strokeStyle='#9c9278';ctx.lineWidth=1.6;ctx.stroke();
+   path();ctx.strokeStyle='#ff5f3fcc';ctx.lineWidth=2.2;ctx.stroke();
   }ctx.restore();return peaks;
  }
  reset(){this.contacts.clear();this.cache.clear();this.time=0;}
