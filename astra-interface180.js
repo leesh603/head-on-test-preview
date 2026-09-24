@@ -1,8 +1,8 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
-import {getLocale,subscribe} from './i18n.js?v=217';
-import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=288&b=288';
-import {clearCrewMatte} from './matte70.js?v=288&b=288';
-import {aircraftArt} from './main-ui-art180.js?v=215';
+import {getLocale,subscribe} from './i18n.js?v=291';
+import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=291&b=291';
+import {clearCrewMatte} from './matte70.js?v=291&b=291';
+import {aircraftArt} from './main-ui-art180.js?v=291';
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
 const put=(node,text)=>{if(node&&node.textContent!==text)node.textContent=text};
@@ -25,12 +25,12 @@ export function interfaceIcon(name,cls='astra-icon'){
 }
 // Reuse the production matte algorithm at native resolution. This cleans only
 // the hangar illustration; the 144px gameplay sprite and its collision stay intact.
-const rawHangarArt={fokker:'./fokker.webp?v=214&b=214',baron_albatros:'./baron_albatros.webp?v=214&b=214',albatros_d2:'./albatros_d2.webp?v=214&b=214',nieuport_italian:'./nieuport.webp?v=214&b=214'};
+const rawHangarArt={fokker:'./fokker.webp?v=291&b=291',baron_albatros:'./baron_albatros.webp?v=291&b=291',albatros_d2:'./albatros_d2.webp?v=291&b=291',nieuport_italian:'./nieuport.webp?v=291&b=291'};
 const hangarKeyFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',fokker:'fokker_standard'};
 const artCache=new Map();
 function hangarArt(key){
  if(artCache.has(key))return artCache.get(key);
- const src=rawHangarArt[key]||`./${hangarKeyFile[key]||key}.webp?v=214&b=214`;
+ const src=rawHangarArt[key]||`./${hangarKeyFile[key]||key}.webp?v=291&b=291`;
  const pending=new Promise(resolve=>{const image=new Image();image.onerror=()=>resolve(aircraftArt[key]||'');image.onload=()=>{
   try{
    const scan=document.createElement('canvas');scan.width=image.naturalWidth;scan.height=image.naturalHeight;
