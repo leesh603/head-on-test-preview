@@ -78,8 +78,7 @@ function drawRailConsist181(c,b){
   if(!car.destroyed){c.drawImage(images[key],-130,car.y-195,260,390);continue}
   // Destroyed car: wreck image under a rolling explosion cluster, then the
   // car is consumed and leaves an empty gap in the consist.
-  if(car.destroyedAt==null)car.destroyedAt=b.motionTime||0;
-  const age=(b.motionTime||0)-car.destroyedAt;
+  const age=(b.motionTime||0)-(car.destroyedAt??b.motionTime??0);
   if(age>=1.35)continue;
   c.save();c.translate(0,car.y);c.rotate(.025);
   const fade=Math.max(0,1-age/1.05);
