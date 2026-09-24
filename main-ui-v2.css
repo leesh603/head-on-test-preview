@@ -177,6 +177,7 @@ body.astra-ui.playing #touch #skillButtonIcon,body.astra-ui.playing #touch #mane
 body.astra-ui.playing #touch .astra-skill-emblem{object-fit:contain;border-radius:4px}
 body.astra-ui.playing #touch #touchSkill,body.astra-ui.playing #touch #touchEvade{opacity:1;border-color:#c6bd9977;color:#eae2ca;background:var(--hud-panel);box-shadow:var(--hud-shadow)}
 body.astra-ui.playing #touch #touchSkill:disabled,body.astra-ui.playing #touch #touchEvade:disabled{opacity:.82;background:var(--hud-panel);color:#c8c3ae}
+body.astra-ui.playing #touch #touchSkill:disabled .astra-skill-emblem{filter:saturate(.15) brightness(.62)}
 body.astra-ui.playing #touch #touchSkill:after,body.astra-ui.playing #touch #touchEvade:after{display:none}
 @media(hover:hover) and (pointer:fine){
  body.astra-ui.playing #touch{left:max(26px,env(safe-area-inset-left));right:auto;bottom:max(32px,env(safe-area-inset-bottom));width:auto;display:flex}
