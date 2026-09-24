@@ -7,11 +7,12 @@ export const SHIP_TYPES=Object.freeze({
  aa:{name:'대공순양함',hp:340,drawnH:380,speed:17,guns:[79,5,-39,-98],salvo:3,spread:.09,shellSpeed:205,interval:4.6,width:205}
 });
 const SHIP_IMG={ent_dd:'fx-ship-ent-dd',cen_dd:'fx-ship-cen-dd',ent_aa:'fx-ship-ent-aa',cen_aa:'fx-ship-cen-aa'};
-const MAX_FLEET_SHIPS=5;
+const MAX_FLEET_SHIPS=6;
 let _shipImgs={};
 function shipImg(key){let im=_shipImgs[key];if(im===undefined){im=new Image();im.src=`./${key}.webp?v=283&b=283`;im.onload=()=>{_shipImgs[key]=im};_shipImgs[key]=im}return im}
 
 export function installFleet(Game){
+ for(const k of [...Object.values(SHIP_IMG),'fx-city-aagun','fx-city-ammo','boss-armored-harbor-seaplane-facility'])shipImg(k);
  const P=Game.prototype;
  P.spawnMovingFleet=function(faction){
   const region=this.worldRegion();
@@ -21,9 +22,9 @@ export function installFleet(Game){
   const playerSide=(typeof PLANES==='object'&&this.plane&&PLANES[this.plane])?PLANES[this.plane].faction:'entente';
   const side=faction??(playerSide==='central'?'entente':'central');
   const harbor=region===7&&this.navalRoute;
-  const heading=harbor?this.navalRoute.a:this.a+(this.rng()-.5)*.5;
+  const heading=harbor?this.navalRoute.a:this.a+(this.rng()-.5)*.45;
   const hx=Math.cos(heading),hy=Math.sin(heading),nx=-hy,ny=hx;
-  const ahead=650+this.rng()*350,lateral=(this.rng()>.5?1:-1)*(520+this.rng()*320);
+  const ahead=480+this.rng()*280,lateral=(this.rng()>.5?1:-1)*(180+this.rng()*240);
   const bx=this.x+hx*ahead+nx*lateral,by=this.y+hy*ahead+ny*lateral;
   const comp=['aa','dd','dd'].slice(0,Math.min(3,Math.max(1,MAX_FLEET_SHIPS-live)));
   const ships=[];
@@ -76,9 +77,9 @@ export function installFleet(Game){
   const ahead=560+this.rng()*160,lateral=(this.rng()>.5?1:-1)*(240+this.rng()*120);
   const bx=this.x+hx*ahead+nx*lateral,by=this.y+hy*ahead+ny*lateral;
   const defs=[
-   {kind:'gun',name:'해안포대',hp:220,fire:3,sprite:'fx-city-aagun',size:96},
-   {kind:'base',name:'수상기 기지',hp:260,fire:8,sprite:'boss-armored-harbor-seaplane-facility',size:150},
-   {kind:'depot',name:'탄약고',hp:140,fire:0,sprite:'boss-armored-harbor-ammo-storage',size:110}
+   {kind:'gun',name:'해안포대',hp:220,fire:3,sprite:'fx-city-aagun',size:170},
+   {kind:'base',name:'수상기 기지',hp:260,fire:8,sprite:'boss-armored-harbor-seaplane-facility',size:260},
+   {kind:'depot',name:'탄약고',hp:140,fire:0,sprite:'fx-city-ammo',size:150}
   ];
   for(let i=0;i<defs.length;i++){
    const d=defs[i],e=this.spawnEnemy('bomber');if(!e)break;
@@ -86,6 +87,32 @@ export function installFleet(Game){
    Object.assign(e,{type:'facility',harborFacility:d.kind,facSprite:d.sprite,facSize:d.size,name:d.name,x:bx+nx*off+hx*along,y:by+ny*off+hy*along,a:heading+Math.PI/2,speed:0,stationary:true,surface:true,hitRadius:d.size*.48,hp:d.hp,maxHp:d.hp,fire:d.fire,ace:false,escortPlane:undefined,hazardRegion:7,xpValue:d.kind==='depot'?6:12,baseTimer:0,gunFire:3});
   }
   this.event('flak','군항 방어시설 발견 — 우선순위를 선택하세요');
+ };
+ // Anchored friendly patrol boats dress the harbor and provide flak cover.
+ P.spawnMooredShips=function(){
+  if(this.worldRegion()!==7||this._mooredSpawned)return;
+  this._mooredSpawned=true;
+  const side=PLANES[this.plane]?.faction??'entente',heading=(this.navalRoute?this.navalRoute.a:this.a);
+  const hx=Math.cos(heading),hy=Math.sin(heading),nx=-hy,ny=hx;
+  for(let i=0;i<3;i++){
+   const cls=i===0?'aa':'dd',t=SHIP_TYPES[cls],e=this.spawnEnemy('bomber');if(!e)break;
+   const off=(i-1)*420+(this.rng()-.5)*120,along=380+this.rng()*300+i*220;
+   const bx=this.x+hx*along+nx*off,by=this.y+hy*along+ny*off;
+   Object.assign(e,{type:'ship',shipClass:cls,faction:side,name:'정박 '+(cls==='aa'?'방공함':'초계함'),x:bx,y:by,a:heading+(this.rng()-.5)*.6,course:0,weave:0,speed:0,stationary:true,surface:true,navalVessel:true,movingShip:true,moored:true,hitRadius:cls==='aa'?72:52,hullLength:cls==='aa'?190:150,hullWidth:cls==='aa'?102:44,hp:t.hp,maxHp:t.hp,fire:3+i*1.7,ace:false,escortPlane:undefined,life:120,hazardRegion:7,xpValue:0});
+  }
+ };
+ // Distant friendly patrols cross the Adriatic horizon as ambient traffic.
+ P.spawnDistantPatrol=function(){
+  if(this.worldRegion()!==1)return;
+  const live=this.enemies.filter(e=>e.navalVessel&&e.hp>0).length;
+  if(live>=MAX_FLEET_SHIPS||this.enemies.length>62)return;
+  const side=PLANES[this.plane]?.faction??'entente';
+  const heading=this.a+(this.rng()>.5?1:-1)*(.3+this.rng()*.3);
+  const hx=Math.cos(heading),hy=Math.sin(heading),nx=-hy,ny=hx;
+  const bx=this.x+hx*(600+this.rng()*300)+nx*(this.rng()>.5?1:-1)*(560+this.rng()*300);
+  const by=this.y+hy*(600+this.rng()*300)+ny*(this.rng()>.5?1:-1)*(560+this.rng()*300);
+  const cls=this.rng()<.4?'aa':'dd',t=SHIP_TYPES[cls],e=this.spawnEnemy('bomber');if(!e)return;
+  Object.assign(e,{type:'ship',shipClass:cls,faction:side,name:(side==='entente'?'연합국 ':'중앙국가 ')+t.name,x:bx,y:by,a:heading,course:heading,weave:this.rng()*6.28,speed:t.speed,stationary:false,surface:true,navalVessel:true,movingShip:true,patrolShip:true,hitRadius:cls==='aa'?72:52,hullLength:cls==='aa'?190:150,hullWidth:cls==='aa'?102:44,hp:t.hp,maxHp:t.hp,fire:6+this.rng()*4,ace:false,escortPlane:undefined,life:60,hazardRegion:1,xpValue:cls==='aa'?16:9});
  };
  P._friendlyShipFire=function(e,t){
   let best=null,bd=850*850;
@@ -113,14 +140,26 @@ export function installFleet(Game){
     if((e.spot||0)>=4&&!e.spotted){e.spotted=true;this.fleetBoostUntil=(this.t||0)+20;this.spawnMovingFleet();this.event('flak','수상기가 함대에 위치를 송신 — 지원 함대 접근 중')}
    }
    if(!e.movingShip||e.hp<=0)continue;
-   e.weave+=step*.5;
-   const weave=Math.sin(e.weave)*.12,heading=e.course+weave;
-   e.x+=Math.cos(heading)*e.speed*step;e.y+=Math.sin(heading)*e.speed*step;e.a=heading;
+   if(!e.moored){
+    e.weave+=step*.5;
+    const weave=Math.sin(e.weave)*.12,heading=e.course+weave;
+    e.x+=Math.cos(heading)*e.speed*step;e.y+=Math.sin(heading)*e.speed*step;e.a=heading;
+   }
    if(Math.hypot(e.x-this.x,e.y-this.y)>2600)e.expired=true;
   }
+  // Ambient fleet cadence — the sea should regularly show real ships.
+  if(region===1){
+   this.fleetAmbient=(this.fleetAmbient??14)-step;
+   if(this.fleetAmbient<=0){this.fleetAmbient=30+this.rng()*10;
+    const liveShips=this.enemies.filter(e=>e.navalVessel&&e.hp>0&&!e.patrolShip).length;
+    if(liveShips<3&&this.enemies.length<62)this.spawnMovingFleet();
+    else if(this.enemies.length<62)this.spawnDistantPatrol();
+   }
+  }else this.fleetAmbient=14;
   // Harbor facilities tick: coastal gun fire, seaplane-base reinforcement, depot blast.
   if(region===7){
    if(!this._harborSpawned)this.spawnHarborFacilities();
+   if(!this._mooredSpawned)this.spawnMooredShips();
    for(const e of this.enemies){
     if(!e.harborFacility)continue;
     if(e.hp<=0){
@@ -185,9 +224,8 @@ export function drawFleetLayer(c,game,{point}){
   if(img&&img.naturalWidth){
    c.save();c.translate(x,y);c.rotate(e.a+Math.PI/2);
    c.drawImage(img,-w/2,-h/2,w,h);
-   // Wake trail behind the stern.
-   c.globalAlpha=.3;c.fillStyle='#cfe0dd';
-   c.beginPath();c.ellipse(0,h*.42,w*.28,h*.1,0,0,Math.PI*2);c.fill();
+   if(!e.moored){c.globalAlpha=.3;c.fillStyle='#cfe0dd';
+   c.beginPath();c.ellipse(0,h*.42,w*.28,h*.1,0,0,Math.PI*2);c.fill()}
    c.restore();
   }
   c.fillStyle='#24332b';c.fillRect(x-22,y+h*.55,44,4);
