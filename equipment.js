@@ -2,7 +2,7 @@
 const atlas = new Image();
 const sprites = {};
 const repair = new Image();
-repair.src = './repair-pickup.webp?v=291&b=291';
+repair.src = './repair-pickup.webp?v=292&b=292';
 atlas.onload = () => {
   const names = ['rocket', 'mine', 'gun'];
   names.forEach((name, i) => {
@@ -20,7 +20,7 @@ atlas.onload = () => {
     sprites[name]={x:left+minX,y:minY,w:maxX-minX+1,h:maxY-minY+1};
   });
 };
-atlas.src = './equipment-atlas.webp?v=291&b=291';
+atlas.src = './equipment-atlas.webp?v=292&b=292';
 export function drawEquipment(ctx, name, x, y, rotation=0, size=40){
   if(name==='repair'){
     if(!repair.complete||!repair.naturalWidth)return;
