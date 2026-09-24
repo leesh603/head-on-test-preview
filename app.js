@@ -6,7 +6,7 @@ import {GamepadInput} from './gamepad-input.js?v=318';
 const fieldRecordLink=document.createElement('a');fieldRecordLink.href='./field-record.html';fieldRecordLink.target='_blank';fieldRecordLink.rel='noopener';fieldRecordLink.textContent=getLocale()==='en'?'Official Battle Record':'공식 전장 기록';fieldRecordLink.className='field-record-link';fieldRecordLink.style.cssText='display:block;margin:10px auto 0;text-align:center;color:#d7b26d;font-weight:800;text-decoration:none';document.getElementById('start')?.after(fieldRecordLink);
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=318&b=318';
 import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=318&b=318';
-import {enableStageBoss,stageBossBounds,harborBankOffset} from './stageboss-host.js?v=318&b=318';
+import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=318&b=318';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=318';
 import './hud-layout94.js?v=318';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=318';
@@ -453,7 +453,7 @@ function paintZeebrugge(cx,cy,W,H){
  const a=Number.isFinite(route.a)?route.a:-Math.PI/2,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
  const centerS=(cx-route.x)*hx+(cy-route.y)*hy,diag=Math.hypot(W,H),span=diag*1.15;
  const point=(s,n)=>[route.x+hx*s+nx*n-camera.x,route.y+hy*s+ny*n-camera.y];
- const halfAt=(s,side)=>route.bankAt?route.bankAt(s,side):(side>0?430:430);
+ const halfAt=(s,side)=>harborRouteHalfWidth(s);
  const samples=18,s0=centerS-span,s1=centerS+span;
  const shore=side=>{const pts=[];for(let i=0;i<=samples;i++){const s=s0+(s1-s0)*i/samples;pts.push(point(s,side*halfAt(s,side)));}return pts;};
  const left=shore(-1),right=shore(1);
@@ -468,7 +468,7 @@ function paintZeebrugge(cx,cy,W,H){
  }
  for(let k=first;k<=last;k++){
   if(k%2)continue;const side=((k/2)&1)?1:-1,s=k*cell+250;if(s<5400||s>10400)continue;
-  const n=side*(halfAt(s,side)-95),p=point(s,n);
+  const n=side*(halfAt(s,side)+110),p=point(s,n);
   if(p[0]<-130||p[0]>W+130||p[1]<-130||p[1]>H+130)continue;
   ctx.save();ctx.globalAlpha=.72;drawBattlefieldSprite(ctx,'ship',p[0],p[1],118,a+(side>0?Math.PI/2:-Math.PI/2));ctx.restore();
  }
