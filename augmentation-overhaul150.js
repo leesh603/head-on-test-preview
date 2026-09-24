@@ -161,7 +161,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    case 'bomber':this.bomberLevel=Math.min(5,(this.bomberLevel||0)+1);this.bomberTimer=Math.min(this.bomberTimer??2,2);break;
    case 'wingman':this.permanentWingman=Math.min(7,(this.permanentWingman||0)+1);break;
    case 'fighterSupply':{const plane=PLANES[this.plane].faction==='central'?'fokkerd7':'camel';for(const wing of this.combatWorld().allies||[])if(wing.permanent&&(!this.id||wing.ownerId===this.id))wing.plane=plane;break;}
-   case 'amatolCharge':case 'lufberyCircle':break;
+   case 'amatolCharge':case 'lufberyCircle':case 'urLeica':break;
    case 'mercedesEngine':this.enemyCruiseReference??=this.baseSpeed??this.speed;this.speed*=AUGMENTATION_OVERHAUL_BALANCE.mercedesBaseSpeed;if(this.baseSpeed)this.baseSpeed*=AUGMENTATION_OVERHAUL_BALANCE.mercedesBaseSpeed;this.mercedesOutput160=0;this.mercedesHeading160=this.a;break;
    case 'spread':this.shots=Math.min(5,(this.shots||1)+1);this.freeVolleyShots=(this.freeVolleyShots||0)+1;break;
    case 'combinedProjectiles':this.projectileDistributorLevel=Math.min(4,(this.projectileDistributorLevel||0)+1);break;

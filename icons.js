@@ -1,6 +1,6 @@
 // Trim generated atlas cells by alpha once; preserve the established upgrade illustrations.
 const keys=['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','legacyExtraMagazine','cooldown','control','turn','command','damage','rate','spread','rockets','mines','armor','magnet','repair','regen'];
-export const LEGENDARY_ICON_KEYS=Object.freeze(['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','goeringBaton','immelmannManual','motorCannon','loEmblem','sacredCowling','steelPlate','mauserAceKiller','boelckeDicta','fogCompass','rearGunner','quadLewis','cow37','rankinShell','kaiserFog','grunkreuz','maximBelt','amatolCharge','lufberyCircle']);
+export const LEGENDARY_ICON_KEYS=Object.freeze(['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','goeringBaton','immelmannManual','motorCannon','loEmblem','sacredCowling','steelPlate','mauserAceKiller','boelckeDicta','fogCompass','rearGunner','quadLewis','cow37','rankinShell','kaiserFog','grunkreuz','maximBelt','amatolCharge','lufberyCircle','urLeica']);
 const frames=new Map();
 function loadIconAtlas(file,columns,rows,names,smooth=false){return new Promise(resolve=>{const atlas=new Image();atlas.onload=()=>{
  const c=document.createElement('canvas');c.width=atlas.naturalWidth;c.height=atlas.naturalHeight;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(atlas,0,0);const d=ctx.getImageData(0,0,c.width,c.height).data;
@@ -22,7 +22,8 @@ const DIRECT_ICONS=Object.freeze({
  amatolCharge:'amatol_high_explosive_charge.webp',lufberyCircle:'lufbery_circle.webp',
  sparkPlug:'mccudden_emergency_repair_kit.webp',goeringBaton:'squadron_general_mobilization.webp',steelPlate:'j_type_armor_capsule.webp',mauserAceKiller:'mauser_c96_ace_killer.webp',rearGunner:'scarff_ring_gun_mount.webp',kaiserFog:'brock_smoke_device.webp',grunkreuz:'grunkreuz.webp',fogCompass:'co_5_17_aero_compass.webp',
  'ironCross-central':'medal_award_pour_le_merite.webp','ironCross-entente':'medal_award_british_victoria_cross.webp',
- emblemCentral:'emblem_bare_central.webp',emblemEntente:'emblem_bare_entente.webp'
+ emblemCentral:'emblem_bare_central.webp',emblemEntente:'emblem_bare_entente.webp',
+ urLeica:'ur_leica_camera.webp'
 });
 const atlasReady=Promise.all([
  loadIconAtlas('./icons51.webp?v=319',5,4,keys,true),

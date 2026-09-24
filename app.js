@@ -229,7 +229,7 @@ $('start').onclick=()=>start();
 setInterval(()=>setBgmMode(musicModeForGame(game)),240);
 
 // Replace the legacy score ladder without redeclaring its module bindings.
-saveRanking=()=>{if(game?.mode==='campaign'||game?.mode==='coop2')return [];let rows=[];try{rows=JSON.parse(localStorage.getItem('headon-priority-ranking-161')||'[]')}catch{}rows.push({name:nickname||t('pilot.anonymous'),score:game.priorityKills||0,time:Math.floor(game.t),pilot:PILOTS[pilot].name});rows.sort((a,b)=>b.score-a.score);rows=rows.slice(0,10);try{localStorage.setItem('headon-priority-ranking-161',JSON.stringify(rows))}catch{}return rows};
+saveRanking=()=>{if(game?.mode==='campaign'||game?.mode==='coop2')return [];let rows=[];try{rows=JSON.parse(localStorage.getItem('headon-priority-ranking-161')||'[]')}catch{}rows.push({name:nickname||t('pilot.anonymous'),score:game.recordedKills?game.recordedKills():(game.priorityKills||0),time:Math.floor(game.t),pilot:PILOTS[pilot].name});rows.sort((a,b)=>b.score-a.score);rows=rows.slice(0,10);try{localStorage.setItem('headon-priority-ranking-161',JSON.stringify(rows))}catch{}return rows};
 rankingText=rows=>rows.length===0?t('ranking.emptyPriority'):rows.map((r,i)=>`${[t('ranking.medal.centralDisplay'),t('ranking.medal.ironCross'),t('ranking.medal.ententeDisplay')][i]||String(i+1)+'.'} ${r.name} · ${pilotName(r.pilot,PILOTS[r.pilot]?.name||r.pilot||t('ranking.missingPilot'))} — ${t('ranking.rowPriority',{rank:i+1,name:r.name,pilot:pilotName(r.pilot,PILOTS[r.pilot]?.name||r.pilot||t('ranking.missingPilot')),score:Number(r.score).toLocaleString()}).split(' — ').at(-1)}`).join('\n');
 function renderRankingMedals(rows,heading=t('ranking.serverPriority')){
  const box=$('modalText');box.replaceChildren();const title=document.createElement('strong');title.textContent=heading;box.append(title);
@@ -238,7 +238,7 @@ function renderRankingMedals(rows,heading=t('ranking.serverPriority')){
   if(i===0){badge.src='./medal55.webp?v=319&b=319';badge.alt='1 · '+t('ranking.medal.centralDisplay');}else{badge.width=42;badge.height=42;badge.setAttribute('aria-label',(i+1)+' · '+(i===1?t('ranking.medal.ironCross'):t('ranking.medal.ententeDisplay')));drawGameIcon(badge.getContext('2d'),i===1?'ironCross':'victoriaCross',21,21,38);}
   const text=document.createElement('span');text.textContent=t('ranking.rowPriority',{rank:i+1,name:r.name,pilot:pilotName(r.pilot,PILOTS[r.pilot]?.name||r.pilot||t('ranking.missingPilot')),score:Number(r.score).toLocaleString()});row.append(badge,text);list.append(row);});box.append(list);
 }
-syncServerRanking=async()=>{const run=game;if(game?.mode==='campaign'||game?.mode==='coop2')return;try{const res=await fetch('/api/rankings',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nickname,score:game.priorityKills||0,pilot:PILOTS[pilot].name,season:'priority-161'})});if(!res.ok)return;const rows=await res.json();if(game!==run)return;renderRankingMedals(rows)}catch{}};
+syncServerRanking=async()=>{const run=game;if(game?.mode==='campaign'||game?.mode==='coop2')return;try{const res=await fetch('/api/rankings',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nickname,score:game.recordedKills?game.recordedKills():(game.priorityKills||0),pilot:PILOTS[pilot].name,season:'priority-161'})});if(!res.ok)return;const rows=await res.json();if(game!==run)return;renderRankingMedals(rows)}catch{}};
 
 
 const fieldArt={};const FIELD_ART_FILE={flak:'flak-burst',gust:'gust',stork:'portrait-stork'};
@@ -659,14 +659,14 @@ function coopEvents(){
 }
 function coopRankingText(rows){return rows.length?rows.map((r,i)=>`${['🥇','🥈','🥉'][i]||i+1+'.'} ${r.players.map(p=>p.name+' ('+pilotName(p.pilot,PILOTS[p.pilot]?.name||p.pilot)+')').join(' + ')}\n${t('coop.team',{faction:t(r.faction==='central'?'faction.central':'faction.entente')})} · ${t('coop.result.summary',{score:r.score,seconds:r.durationSeconds})}`).join('\n\n'):t('coop.ranking.empty')}
 function showSoloResult(run){
- best=Math.max(best,run.priorityKills||0);try{localStorage.setItem('headon-priority-best-161',best)}catch{}
+ best=Math.max(best,run.recordedKills?run.recordedKills():(run.priorityKills||0));try{localStorage.setItem('headon-priority-best-161',best)}catch{}
  $('record').textContent=t('record.best',{score:best});showEndNickname(run,false);
 }
 function showEndNickname(run,coop){
  keys={};coopInput.clear();joy=null;show('touch',false);show('skillCutin',false);
  let submitted=false;const players=coop?run.players:[{pilot:run.pilot}];
  const detail=players.map((p,i)=>(coop?'P'+(i+1)+' · ':'')+pilotName(p.pilot,PILOTS[p.pilot].name)).join(' + ')+
- '\n'+t('result.detail',{kills:run.priorityKills||0,seconds:Math.floor(run.t)});
+ '\n'+t('result.detail',{kills:run.recordedKills?run.recordedKills():(run.priorityKills||0),seconds:Math.floor(run.t)});
  const inputs=[];
  const submit=()=>{
   if(submitted||game!==run)return;submitted=true;
