@@ -22,15 +22,15 @@ const DIRECT_ICONS=Object.freeze({
  amatolCharge:'amatol_high_explosive_charge.webp',lufberyCircle:'lufbery_circle.webp',
  sparkPlug:'mccudden_emergency_repair_kit.webp',goeringBaton:'squadron_general_mobilization.webp',steelPlate:'j_type_armor_capsule.webp',mauserAceKiller:'mauser_c96_ace_killer.webp',rearGunner:'scarff_ring_gun_mount.webp',kaiserFog:'brock_smoke_device.webp',grunkreuz:'grunkreuz.webp',fogCompass:'co_5_17_aero_compass.webp',
  'ironCross-central':'medal_award_pour_le_merite.webp','ironCross-entente':'medal_award_british_victoria_cross.webp',
- emblemCentral:'skill_emblem_central.webp',emblemEntente:'skill_emblem_entente.webp'
+ emblemCentral:'emblem_bare_central.webp',emblemEntente:'emblem_bare_entente.webp'
 });
 const atlasReady=Promise.all([
- loadIconAtlas('./icons51.webp?v=300',5,4,keys,true),
- loadIconAtlas('./controls53.webp?v=300',2,2,['control','turn','command','cooldown']),
- loadIconAtlas('./special-ammo-icons92.webp?v=300',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
- loadIconAtlas('./legendary-icons103.webp?v=300',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
- loadIconAtlas('./gun-atlas114.webp?v=300',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
- loadIconAtlas('./legendary-icons109.webp?v=300',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
+ loadIconAtlas('./icons51.webp?v=301',5,4,keys,true),
+ loadIconAtlas('./controls53.webp?v=301',2,2,['control','turn','command','cooldown']),
+ loadIconAtlas('./special-ammo-icons92.webp?v=301',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
+ loadIconAtlas('./legendary-icons103.webp?v=301',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
+ loadIconAtlas('./gun-atlas114.webp?v=301',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
+ loadIconAtlas('./legendary-icons109.webp?v=301',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
  loadIconAtlas('./relic-maxim-belt128.webp',1,1,['maximBelt'],true),
  loadIconAtlas('./relic-steel-plate128.webp',1,1,['steelPlate'],true),
  loadIconAtlas('./relic-immelmann-manual128.webp',1,1,['immelmannManual'],true),
@@ -38,7 +38,7 @@ const atlasReady=Promise.all([
  loadIconAtlas('./relic-sacred-cowling128.webp',1,1,['sacredCowling'],true)
 ]);
 export const iconsReady=atlasReady.then(async results=>{
- const direct=await Promise.all(Object.entries(DIRECT_ICONS).map(([key,file])=>loadDirectIcon('./augmentation-icons/'+file+'?v=300',key)));
+ const direct=await Promise.all(Object.entries(DIRECT_ICONS).map(([key,file])=>loadDirectIcon('./augmentation-icons/'+file+'?v=301',key)));
  return results.every(Boolean)&&direct.every(Boolean);
 });
 export function drawGameIcon(c,key,x,y,size){const f=frames.get(key);if(!f)return;const k=size/Math.max(f.w,f.h);c.save();c.imageSmoothingEnabled=f.smooth;c.drawImage(f.atlas,f.x,f.y,f.w,f.h,x-f.w*k/2,y-f.h*k/2,f.w*k,f.h*k);c.restore()}

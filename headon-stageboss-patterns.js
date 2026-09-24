@@ -1,5 +1,5 @@
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=300&b=300';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=300&b=300';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=301&b=301';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=301&b=301';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -159,8 +159,13 @@ export class ZeppelinL70 extends PatternBoss {
         if(p&&live.length){const engine=live[Math.floor(this.broadside/2)%live.length],x=this.x+engine.x,y=this.y+engine.y;
           this.fan(x,y,Math.atan2(p.y-y,p.x-x),this.t.engineShotCount||3,.55);}
       }
-      if(this.due('gas',dt,this.t.gasInterval||6))this.hazard('rect',{x:(bounds.left+bounds.right)/2,y:bounds.bottom-45,
-        width:bounds.right-bounds.left,height:90,warning:1.3,duration:5,tickInterval:.5,visual:'gas-fire'});
+      if(this.due('gas',dt,this.t.gasInterval||6)){
+        const left=bounds.left,right=bounds.right;
+        for(let i=0;i<8;i++){
+          const bx=left+((i+this.rng()*.8)/8)*(right-left),by=bounds.bottom-45+(this.rng()-.5)*60;
+          this.hazard('circle',{x:bx,y:by,delay:this.rng()*.7,radius:44+this.rng()*14,warning:1.3,once:true,visual:'carpet-bomb'});
+        }
+      }
     }
   }
 }
