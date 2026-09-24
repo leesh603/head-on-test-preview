@@ -55,7 +55,7 @@ export class RailAdapter extends BaseBoss {
   if(!this.runawayTriggered129)this.phase=this.coreVulnerable?'locomotive':rail.phase;}
  locateHit(s){
   const r=this.rail129.railTarget;
-  if(!this.rail129.broken){
+  if(!this.rail129.broken&&r){
    const dx=s.x-(s.previousX??s.x),dy=s.y-(s.previousY??s.y),x=s.previousX??s.x,y=s.previousY??s.y,l=dx*dx+dy*dy,t=l?Math.max(0,Math.min(1,((r.x-x)*dx+(r.y-y)*dy)/l)):0;
    if(Math.hypot(x+dx*t-r.x,y+dy*t-r.y)<=r.radius+(s.radius||0))return {partId:'rail'};
   }

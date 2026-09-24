@@ -77,7 +77,8 @@ export function installCloudCover(Game){
   const thr=boss?CLOUD_CONCEAL.boss:ace?CLOUD_CONCEAL.ace:elite?CLOUD_CONCEAL.elite:CLOUD_CONCEAL.normal;
   const reacq=boss?CLOUD_CONCEAL.reacquireBoss:ace?CLOUD_CONCEAL.reacquireAce:elite?.8:CLOUD_CONCEAL.reacquire;
   if(conceal>=thr){
-   if(!e._cloudGhost)e._cloudGhost={x:c.x,y:c.y,a:c.a||0};
+   if(!e._cloudGhost){const lead=620+(e.speed||0)*1.2,ga=c.a||0;
+    e._cloudGhost={x:c.x+Math.cos(ga)*lead,y:c.y+Math.sin(ga)*lead,a:ga,fogHidden:true}}
    e._cloudReacq=(this.t||0)+reacq;
    return e._cloudGhost;
   }

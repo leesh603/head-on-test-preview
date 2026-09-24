@@ -25,12 +25,12 @@ const DIRECT_ICONS=Object.freeze({
  emblemCentral:'skill_emblem_central.webp',emblemEntente:'skill_emblem_entente.webp'
 });
 const atlasReady=Promise.all([
- loadIconAtlas('./icons51.webp?v=210',5,4,keys,true),
- loadIconAtlas('./controls53.webp?v=210',2,2,['control','turn','command','cooldown']),
- loadIconAtlas('./special-ammo-icons92.webp?v=210',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
- loadIconAtlas('./legendary-icons103.webp?v=210',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
- loadIconAtlas('./gun-atlas114.webp?v=210',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
- loadIconAtlas('./legendary-icons109.webp?v=210',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
+ loadIconAtlas('./icons51.webp?v=289',5,4,keys,true),
+ loadIconAtlas('./controls53.webp?v=289',2,2,['control','turn','command','cooldown']),
+ loadIconAtlas('./special-ammo-icons92.webp?v=289',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
+ loadIconAtlas('./legendary-icons103.webp?v=289',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
+ loadIconAtlas('./gun-atlas114.webp?v=289',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
+ loadIconAtlas('./legendary-icons109.webp?v=289',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
  loadIconAtlas('./relic-maxim-belt128.webp',1,1,['maximBelt'],true),
  loadIconAtlas('./relic-steel-plate128.webp',1,1,['steelPlate'],true),
  loadIconAtlas('./relic-immelmann-manual128.webp',1,1,['immelmannManual'],true),

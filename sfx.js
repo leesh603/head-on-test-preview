@@ -73,7 +73,7 @@ const VOICES={
   launch(){tone(55,110,.5,.1,'sawtooth',600);hiss(200,900,.5,.04,'bandpass',.8)},
   // Rail-boss arrival: deep locomotive horn — a low two-chime blast with a
   // breathy steam attack, short fade, then a quieter answer from further off.
-  trainWhistle(){for(const [f,v]of [[233,.1],[294,.085]]){tone(f*1.06,f,1.9,v,'sawtooth',520,.0,.09);tone(f*1.067,f*1.007,1.9,v*.55,'sawtooth',520,0,.09)}hiss(900,300,.5,.06,'lowpass',.5);hiss(2600,900,.4,.03,'bandpass',.6,.06);tone(92,68,1.7,.06,'sine',220,.02);for(const [f,v]of [[233,.05],[294,.04]])tone(f*1.05,f,.7,v,'sawtooth',520,2.25,.06)},
+  trainWhistle(){for(const [f,v]of [[233,.34],[294,.28],[175,.2]]){tone(f*1.06,f,1.9,v,'sawtooth',520,.0,.1);tone(f*1.067,f*1.007,1.9,v*.6,'sawtooth',520,0,.1)}hiss(900,300,.55,.11,'lowpass',.5);hiss(2600,900,.45,.06,'bandpass',.6,.06);tone(92,68,1.7,.14,'sine',220,.02);for(const [f,v]of [[233,.16],[294,.13]])tone(f*1.05,f,.7,v,'sawtooth',520,2.25,.07)},
   // Balloon burst: taut fabric pop plus pressure release.
   balloon(){tone(500,60,.22,.14,'sine',800);hiss(4000,300,.2,.12,'bandpass',.6);tone(1300,400,.06,.04,'square',3000);tone(70,30,.3,.12,'sine',260,.03)},
   // Repair pickup: soft double chime.
