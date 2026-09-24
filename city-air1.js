@@ -145,4 +145,4 @@ export function drawCityAirLayer(c,game,{point}){
  }
 };
 const _cityImgs={};
-function cityImg(k){let i=_cityImgs[k];if(!i){i=new Image();i.src=`./${k}.webp?v=303&b=303`;i.onload=()=>{i.naturalWidth=i.naturalWidth||i.width};_cityImgs[k]=i}return i}
+function cityImg(k){let i=_cityImgs[k];if(!i){i=new Image();i.src=`./${k}.webp?v=304&b=304`;i.onload=()=>{i.naturalWidth=i.naturalWidth||i.width};_cityImgs[k]=i}return i}

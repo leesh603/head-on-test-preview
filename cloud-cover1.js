@@ -25,7 +25,7 @@ function cloudImg(type,seed){
  const list=CLOUD_IMGS[type]||CLOUD_IMGS.cumulus;
  const key=list[Math.floor(((seed||0)/6.283)*list.length)%list.length];
  let im=_imgCache[key];
- if(im===undefined){im=new Image();im.src=`./${key}.webp?v=303&b=303`;im.onload=()=>{_imgCache[key]=im};_imgCache[key]=im}
+ if(im===undefined){im=new Image();im.src=`./${key}.webp?v=304&b=304`;im.onload=()=>{_imgCache[key]=im};_imgCache[key]=im}
  return im;
 }
 
@@ -63,7 +63,7 @@ export function installCloudCover(Game){
    if(!(p.hp>0)){p.cloudConceal=0;p.cloudDepth=0;p.inDarkCloud=false;continue}
    const depth=this.cloudDepthAt(p.x,p.y);
    p.cloudDepth=depth;p.inDarkCloud=this.inCloudType(p.x,p.y,'dark');
-   if(depth>=1)p.cloudConceal=(p.cloudConceal||0)+step;else p.cloudConceal=Math.max(0,(p.cloudConceal||0)-step*2.2);
+   if(depth>=1)p.cloudConceal=(p.cloudConceal||0)+step*1.5;else p.cloudConceal=Math.max(0,(p.cloudConceal||0)-step*.5);
   }
   for(const e of this.enemies||[])e._cloudHide=this.cloudDepthAt(e.x,e.y)>=1?(e._cloudHide||0)+step:0;
  };
