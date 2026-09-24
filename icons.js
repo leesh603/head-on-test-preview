@@ -21,7 +21,8 @@ const DIRECT_ICONS=Object.freeze({
  bomber:'bombing_request_carrier_pigeon.webp',wingman:'wingman_joining.webp',fighterSupply:'new_fighter_supply.webp',mercedesEngine:'high_output_mercedes_engine.webp',spread:'wide_barrage_firing_device.webp',combinedProjectiles:'combined_projectile_distributor.webp',
  amatolCharge:'amatol_high_explosive_charge.webp',lufberyCircle:'lufbery_circle.webp',
  sparkPlug:'mccudden_emergency_repair_kit.webp',goeringBaton:'squadron_general_mobilization.webp',steelPlate:'j_type_armor_capsule.webp',mauserAceKiller:'mauser_c96_ace_killer.webp',rearGunner:'scarff_ring_gun_mount.webp',kaiserFog:'brock_smoke_device.webp',grunkreuz:'grunkreuz.webp',fogCompass:'co_5_17_aero_compass.webp',
- 'ironCross-central':'medal_award_pour_le_merite.webp','ironCross-entente':'medal_award_british_victoria_cross.webp'
+ 'ironCross-central':'medal_award_pour_le_merite.webp','ironCross-entente':'medal_award_british_victoria_cross.webp',
+ emblemCentral:'skill_emblem_central.webp',emblemEntente:'skill_emblem_entente.webp'
 });
 const atlasReady=Promise.all([
  loadIconAtlas('./icons51.webp?v=210',5,4,keys,true),
