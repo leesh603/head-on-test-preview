@@ -20,24 +20,24 @@ function createLazyImageGroup(sources){
   release(keys=Object.keys(cache)){for(const key of keys){if(cache[key]){try{delete cache[key].lowDetail}catch{}}delete cache[key];delete pending[key]}}
  };
 }
-const supportGroup=createLazyImageGroup({ship:'./stuttgart-open129.png',cover:'./stuttgart-cover129.png'}),supportImages129=supportGroup.images;
+const supportGroup=createLazyImageGroup({ship:'./stuttgart-open129.webp',cover:'./stuttgart-cover129.webp'}),supportImages129=supportGroup.images;
 
 const bossSources={
- parisGun:'./boss-bruno-train115.png',lincomparable:'./boss-lincomparable94.png?v=116&b=117',stuttgart:'./boss-sms-stuttgart94.png',zubian:'./boss-hms-zubian94.png',
- l70:'./boss-zeppelin-l7094.png',hma23:'./boss-hma2394.png',a7v:'./boss-a7v-flak94.png',markv:'./boss-mark-v94.png',gik:'./boss-gik.png?v=116&b=117',ca4:'./boss-ca4.png?v=116&b=117',
- londonApron:'./boss-london-apron115.png',drachenNet:'./boss-drachen-net115.png'
+ parisGun:'./boss-bruno-train115.webp',lincomparable:'./boss-lincomparable94.webp?v=116&b=117',stuttgart:'./boss-sms-stuttgart94.webp',zubian:'./boss-hms-zubian94.webp',
+ l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=116&b=117',ca4:'./boss-ca4.webp?v=116&b=117',
+ londonApron:'./boss-london-apron115.webp',drachenNet:'./boss-drachen-net115.webp'
 };
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
-const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.png',a7vTurret:'./boss-a7v-turret-rebuild.png',markvHull:'./boss-mark-v-hull-rebuild.png',markvSponson:'./boss-mark-v-sponson-rebuild.png'}),rebuildArt=rebuildGroup.images;
-const harborGroup=createLazyImageGroup({base:'./boss-armored-harbor-main-base.png',craneArm:'./boss-armored-harbor-crane-arm.png',cranePivot:'./boss-armored-harbor-crane-pivot.png',ammo:'./boss-armored-harbor-ammo-storage.png',guns:'./boss-armored-harbor-gun-emplacements.png',facility:'./boss-armored-harbor-seaplane-facility.png'}),harborArt=harborGroup.images;
+const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.webp',a7vTurret:'./boss-a7v-turret-rebuild.webp',markvHull:'./boss-mark-v-hull-rebuild.webp',markvSponson:'./boss-mark-v-sponson-rebuild.webp'}),rebuildArt=rebuildGroup.images;
+const harborGroup=createLazyImageGroup({base:'./boss-armored-harbor-main-base.webp',craneArm:'./boss-armored-harbor-crane-arm.webp',cranePivot:'./boss-armored-harbor-crane-pivot.webp',ammo:'./boss-armored-harbor-ammo-storage.webp',guns:'./boss-armored-harbor-gun-emplacements.webp',facility:'./boss-armored-harbor-seaplane-facility.webp'}),harborArt=harborGroup.images;
 const trenchGroup=createLazyImageGroup({
- livensBase:'./boss_livens_base187.png',livensBody:'./boss_livens_body_normal187.png',livensBodyDamaged:'./boss_livens_body_damaged187.png',livensBodyDestroyed:'./boss_livens_body_destroyed187.png',
- livensTank:'./boss_livens_tank_normal187.png',livensTankDamaged:'./boss_livens_tank_damaged187.png',livensTankDestroyed:'./boss_livens_tank_destroyed187.png',
- livensPressure:'./boss_livens_pressure_normal187.png',livensPressureDamaged:'./boss_livens_pressure_damaged187.png',livensPressureDestroyed:'./boss_livens_pressure_destroyed187.png',
- livensMount:'./boss_livens_nozzle_mount187.png',livensNozzle:'./boss_livens_nozzle_normal_pivot187.png',livensNozzleDamaged:'./boss_livens_nozzle_damaged_pivot187.png',livensNozzleDestroyed:'./boss_livens_nozzle_destroyed_pivot187.png',
- livensCoreClosed:'./boss_livens_core_closed187.png',livensCoreExposed:'./boss_livens_core_exposed187.png',livensCoreDestroyed:'./boss_livens_core_destroyed187.png',
- minenBase:'./boss_minenwerfer_base187.png',minenMain:'./boss_minenwerfer_main_normal187.png',minenMainDamaged:'./boss_minenwerfer_main_damaged187.png',minenMainDestroyed:'./boss_minenwerfer_main_destroyed187.png',
- minenSide:'./boss_minenwerfer_side_normal187.png',minenCrane:'./boss_minenwerfer_crane187.png',minenCommand:'./boss_minenwerfer_command187.png',minenAmmo:'./boss_minenwerfer_ammo_main187.png',minenCore:'./boss_minenwerfer_core187.png'
+ livensBase:'./boss_livens_base187.webp',livensBody:'./boss_livens_body_normal187.webp',livensBodyDamaged:'./boss_livens_body_damaged187.webp',livensBodyDestroyed:'./boss_livens_body_destroyed187.webp',
+ livensTank:'./boss_livens_tank_normal187.webp',livensTankDamaged:'./boss_livens_tank_damaged187.webp',livensTankDestroyed:'./boss_livens_tank_destroyed187.webp',
+ livensPressure:'./boss_livens_pressure_normal187.webp',livensPressureDamaged:'./boss_livens_pressure_damaged187.webp',livensPressureDestroyed:'./boss_livens_pressure_destroyed187.webp',
+ livensMount:'./boss_livens_nozzle_mount187.webp',livensNozzle:'./boss_livens_nozzle_normal_pivot187.webp',livensNozzleDamaged:'./boss_livens_nozzle_damaged_pivot187.webp',livensNozzleDestroyed:'./boss_livens_nozzle_destroyed_pivot187.webp',
+ livensCoreClosed:'./boss_livens_core_closed187.webp',livensCoreExposed:'./boss_livens_core_exposed187.webp',livensCoreDestroyed:'./boss_livens_core_destroyed187.webp',
+ minenBase:'./boss_minenwerfer_base187.webp',minenMain:'./boss_minenwerfer_main_normal187.webp',minenMainDamaged:'./boss_minenwerfer_main_damaged187.webp',minenMainDestroyed:'./boss_minenwerfer_main_destroyed187.webp',
+ minenSide:'./boss_minenwerfer_side_normal187.webp',minenCrane:'./boss_minenwerfer_crane187.webp',minenCommand:'./boss_minenwerfer_command187.webp',minenAmmo:'./boss_minenwerfer_ammo_main187.webp',minenCore:'./boss_minenwerfer_core187.webp'
 }),trenchBossArt=trenchGroup.images;
 const BOSS_KEYS_BY_REGION=Object.freeze({
  0:['parisGun','lincomparable'],1:['stuttgart','zubian'],2:['a7v','markv'],3:[],4:['londonApron','drachenNet'],5:['l70','hma23'],6:['gik','ca4'],7:[]
@@ -84,13 +84,13 @@ function drawRailConsist181(c,b){
  c.drawImage(engine,-130,-195,260,390);c.restore();
 }
 const LARGE_HULLS=Object.freeze({gik:{halfWidth:128,halfHeight:150},ca4:{halfWidth:128,halfHeight:150},'armored-harbor-fortress':{halfWidth:245,halfHeight:235}});
-const zubianGroup=createLazyImageGroup({atlas:'./zubian-atlas.png?v=103'}),zubianArt=zubianGroup.images;
+const zubianGroup=createLazyImageGroup({atlas:'./zubian-atlas.webp?v=103'}),zubianArt=zubianGroup.images;
 const zubianFrames={intact:[180,8,370,1001],front:[635,25,370,649],rear:[1020,416,369,593]};
 function drawZubianFrame(c,key,x,y,w,h){const zubianAtlas=zubianArt.atlas;if(!zubianAtlas.naturalWidth)return;const f=zubianFrames[key];c.save();c.imageSmoothingEnabled=true;c.drawImage(zubianAtlas,f[0],f[1],f[2],f[3],x-w/2,y-h/2,w,h);c.restore();}
 const drawBossArt=(c,key,w,h)=>{const image=bossArt[key];if(image?.naturalWidth)c.drawImage(image,-w/2,-h/2,w,h)};
-const cityGroup=createLazyImageGroup({london:'./terrain-city-london96.png?v=116&b=117',berlin:'./terrain-city-berlin96.png?v=116&b=117'}),cityArt=cityGroup.images;
+const cityGroup=createLazyImageGroup({london:'./terrain-city-london96.webp?v=116&b=117',berlin:'./terrain-city-berlin96.webp?v=116&b=117'}),cityArt=cityGroup.images;
 // Dedicated aircraft-style sprite atlas; collider sizes remain authoritative.
-const partGroup=createLazyImageGroup({atlas:'./boss-parts100.png'}),partArt=partGroup.images;
+const partGroup=createLazyImageGroup({atlas:'./boss-parts100.webp'}),partArt=partGroup.images;
 function bossSprite(c,index,x,y,w,h,angle=0,alpha=1){
  const partAtlas=partArt.atlas;if(!partAtlas.naturalWidth)return;
  const cell=partAtlas.naturalWidth/4,row=partAtlas.naturalHeight/4;
@@ -150,7 +150,7 @@ export function updateStageBossHud(g){
  const coop=active&&g.mode==='coop2';document.getElementById('coopXpHud').classList.toggle('hidden',!coop);
  if(coop)for(const p of g.players){document.getElementById(p.id+'XpLabel').textContent=p.id.toUpperCase()+' · LV. '+p.level;document.getElementById(p.id+'XpBar').style.width=Math.min(100,p.xp/p.need*100)+'%';}
 }
-const buildingGroup=createLazyImageGroup({atlas:'./city-buildings107.png'}),buildingArt=buildingGroup.images;
+const buildingGroup=createLazyImageGroup({atlas:'./city-buildings107.webp'}),buildingArt=buildingGroup.images;
 // Source rectangles preserve the roof silhouettes and real transparent margins.
 const buildingFrames=[[218,7,280,610],[758,5,288,610],[209,630,302,608],[744,630,306,609]];
 export function drawBossBuildings(c,g){
