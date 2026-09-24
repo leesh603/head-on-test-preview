@@ -799,6 +799,71 @@ Game.prototype.update=function(dt,input={}){
  if(this.fieldUnitTimer<=0){this.fieldUnitTimer=this.mode==='campaign'?65:55;if(![1,7].includes(this.worldRegion())){this.fieldUnitWave=(this.fieldUnitWave||0)+1;this.spawnFieldUnit(this.fieldUnitWave%2===0?'railgun':'balloon')}}
 };
 
+// 전원 지대 signature — artillery observation network. Balloons build SPOTTED on an
+// exposed player (cloud cover breaks observation); a dedicated observed battery
+// fires on a 7s cadence, tightened to 4.5s while SPOTTED. Killing a balloon
+// blacks the network out for 12s.
+const _obsUpdate59=Game.prototype.update;
+Game.prototype.update=function(dt,input={}){
+ _obsUpdate59.call(this,dt,input);
+ if(this.state!=='playing')return;
+ const step=Math.min(.04,Math.max(0,dt)),t=this.t||0;
+ if(this.worldRegion()!==0){this.spottedUntil=0;return}
+ for(const e of this.enemies){if(e.fieldUnit==='balloon'&&e.hp<=0&&!e._obsDown){e._obsDown=1;this.obsBlackoutUntil=t+12;this.spottedUntil=0;this.event('flak','관측기구 격추 · 적 포병 관측망 붕괴 — 12초간 관측포격 중단')}}
+ const netDown=(this.obsBlackoutUntil||0)>t;
+ const exposed=!netDown&&(this.cloudConceal||0)<.7;
+ for(const e of this.enemies){
+  if(e.fieldUnit!=='balloon'||e.hp<=0)continue;
+  const d=Math.hypot(e.x-this.x,e.y-this.y);
+  if(d<720&&exposed)e.observe=(e.observe||0)+step;else e.observe=Math.max(0,(e.observe||0)-step*1.6);
+  if(e.observe>=3&&(this.spottedUntil||0)<=t){this.spottedUntil=t+10;this.event('flak','SPOTTED — 관측망에 포착됐습니다 · 대공포 연사 강화 10초')}
+ }
+ const netUp=this.enemies.some(e=>e.fieldUnit==='balloon'&&e.hp>0&&e.fieldRegion===0);
+ if(!netUp||netDown)return;
+ const spotted=(this.spottedUntil||0)>t;
+ this.obsFireT=(this.obsFireT??5)-step;
+ if(this.obsFireT<=0){this.obsFireT=spotted?4.5:7;this.observedVolley(spotted)}
+};
+Game.prototype.observedVolley=function(spotted){
+ if(this.sunStrikeContains({x:this.x,y:this.y,hp:1}))return;
+ const edge=Math.floor(this.rng()*4);let x,y;
+ if(edge<1){x=this.x-360+this.rng()*720;y=this.y-300}else if(edge<2){x=this.x+360;y=this.y-300+this.rng()*600}else if(edge<3){x=this.x-360+this.rng()*720;y=this.y+300}else{x=this.x-360;y=this.y-300+this.rng()*600}
+ const lead=spotted?.95:.55,aim=Math.atan2(this.y-y+Math.sin(this.a||0)*(this.speed||0)*lead,this.x-x+Math.cos(this.a||0)*(this.speed||0)*lead);
+ const n=spotted?9:7,spread=spotted?.095:.12,dmg=Math.round(13*(1+this.t/260));
+ for(let i=0;i<n;i++){const a=aim+(i-(n-1)/2)*spread;this.bullets.push({x,y,vx:Math.cos(a)*190,vy:Math.sin(a)*190,life:4.2,enemy:true,flak:true,damage:dmg})}
+ this.burst(x,y,'#efb35d',12);this.event('enemyShot','');
+};
+
+// 알프스 signature — ridge forewarning. Regular aircraft can spawn tucked behind a
+// peak: they hold inside the ridge silhouette ~0.9s while a shadow mark telegraphs
+// the emergence, then fly out on their original heading.
+const _ridgeSpawn61=Game.prototype.spawnEnemy;
+Game.prototype.spawnEnemy=function(type){
+ const e=_ridgeSpawn61.call(this,type);
+ if(!e||this.worldRegion()!==6||!this.alpsMountains)return e;
+ if(['scout','hunter','bomber'].includes(e.type)&&!e.fieldUnit&&!e.bossPilot&&!e.stageBossBody){
+  const peaks=this.alpsMountains.query({left:e.x-160,top:e.y-160,right:e.x+160,bottom:e.y+160});
+  if(peaks.length){
+   const peak=peaks.reduce((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)<Math.hypot(b.x-e.x,b.y-e.y)?a:b);
+   e._ridgeWarn=.9;e._ridgePeak=peak;e.fire=Math.max(e.fire,1.2);
+   const dir=Math.atan2(this.y-peak.y,this.x-peak.x),rx=peak.hitRx||peak.radius||60,ry=peak.hitRy||peak.radius||60;
+   this._ridgeMarks??=[];
+   this._ridgeMarks.push({x:peak.x+Math.cos(dir)*rx*.85,y:peak.y+Math.sin(dir)*ry*.85,t:.9,max:.9});
+   e.x=peak.x;e.y=peak.y;
+  }
+ }
+ return e;
+};
+const _ridgeUpdate61=Game.prototype.update;
+Game.prototype.update=function(dt,input={}){
+ _ridgeUpdate61.call(this,dt,input);
+ if(this.state!=='playing')return;
+ const step=Math.min(.04,Math.max(0,dt));
+ if(this._ridgeMarks?.length){for(const m of this._ridgeMarks)m.t-=step;this._ridgeMarks=this._ridgeMarks.filter(m=>m.t>0)}
+ if(this.worldRegion()!==6)return;
+ for(const e of this.enemies){if(e._ridgeWarn>0){e._ridgeWarn-=step;if(e._ridgePeak){e.x=e._ridgePeak.x;e.y=e._ridgePeak.y}}}
+};
+
 // Large targets use their visible elongated hull rather than an enlarged circle.
 Game.prototype.targetCollision=function(e,x,y,b){if(e.supportInvulnUntil>this.t)return false;if(e.stageBossBody)return stageBossCollision(this,e,x,y,b);const dx=x-e.x,dy=y-e.y;if(b?.actualExplosion)return dx*dx+dy*dy<b.explosionRadius*b.explosionRadius;const pad=b?.collisionRadius||0;if(e.hullLength){const a=e.a||0,u=dx*Math.cos(a)+dy*Math.sin(a),v=-dx*Math.sin(a)+dy*Math.cos(a);return (u/(e.hullLength+pad))**2+(v/(e.hullWidth+pad))**2<1}return Math.hypot(dx,dy)<enemyAircraftHitRadius(e)+pad};
 Game.prototype.spawnGas=function(){if(![2,3].includes(this.worldRegion())||(this.gasZones||[]).length>=2)return;const a=this.a+(this.rng()-.5)*.7,d=230+this.rng()*60;this.gasZones??=[];this.gasZones.push({x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,r:185,warning:2.5,life:16.5});this.event('flak','독가스 살포 예고 · 노란 경계 밖으로 이동하세요')};

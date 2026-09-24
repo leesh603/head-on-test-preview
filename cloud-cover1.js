@@ -120,4 +120,16 @@ export function drawCloudCover(c,game,{point,scale=1,region}){
   c.drawImage(img,-w/2,-h/2,w,h);
   c.restore();
  }
+ // Alpine ridge telegraphs: soft shadow marks where a squadron is about to crest.
+ for(const m of game._ridgeMarks||[]){
+  const [mx,my]=point(m.x,m.y),k=1-m.t/m.max;
+  c.save();c.translate(mx,my);
+  c.globalAlpha=.5+.3*Math.sin(k*22);
+  c.fillStyle='#1a1c18';
+  c.beginPath();c.ellipse(0,0,(14+26*k)*scale,(9+13*k)*scale,0,0,Math.PI*2);c.fill();
+  c.globalAlpha=.35;
+  c.strokeStyle='#d8d2b8';c.lineWidth=1.5*scale;
+  c.beginPath();c.ellipse(0,0,(22+34*k)*scale,(13+17*k)*scale,0,0,Math.PI*2);c.stroke();
+  c.restore();
+ }
 }
