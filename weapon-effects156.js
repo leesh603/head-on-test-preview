@@ -1,5 +1,5 @@
-import {drawGameIcon} from './icons.js?v=303';
-import {fx,fxReady,FX56} from './fx-art.js?v=303';
+import {drawGameIcon} from './icons.js?v=304';
+import {fx,fxReady,FX56} from './fx-art.js?v=304';
 export function drawGrenade(c,g,x,y){
  c.save();c.translate(x,y-g.height);c.rotate(g.phase==='flight'?g.age*7:0);
  if(!fx(c,'grenade',0,0,52,52))drawGameIcon(c,'mines',0,0,46);
@@ -42,7 +42,7 @@ export function drawFxExplosion(c,f,x,y,radius=0){
 // Approved four-stage Amatol artwork. Ordinary grenade and mine effects keep
 // their existing renderer; this layer is used only by Amatol-tagged blasts.
 const amatolEffect=typeof Image==='undefined'?null:new Image();
-if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=303';
+if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=304';
 const AMATOL_FRAMES=[[19,319,306,315],[321,261,427,427],[744,227,475,503],[1209,245,463,489]];
 export function drawAmatolBlast(c,f,x,y){
  if(!amatolEffect?.complete||!amatolEffect.naturalWidth)return;
