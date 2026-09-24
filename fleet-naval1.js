@@ -13,6 +13,7 @@ function shipImg(key){let im=_shipImgs[key];if(im===undefined){im=new Image();im
 
 export function installFleet(Game){
  for(const k of Object.values(SHIP_IMG))shipImg(k);
+ shipImg('ship-wake');shipImg('ship-bowwave');
  const P=Game.prototype;
  P.spawnMovingFleet=function(faction){
   const region=this.worldRegion();
@@ -153,23 +154,15 @@ export function drawFleetLayer(c,game,{point}){
    // resting on the surface far below, not floating at the plane's level.
    c.fillStyle='#0d2229';c.globalAlpha=.34;
    c.beginPath();c.ellipse(0,4,w*.62,h*.52,0,0,Math.PI*2);c.fill();
-   // Stern wake: long tapered foam wash + hull-side streaks trailing behind.
+   // Stern wake + bow spray: painted foam assets (approved illustration style),
+   // trailing behind the hull in ship-local space.
    if(!e.moored){
-    c.fillStyle='#cfe0dd';c.globalAlpha=.36;
-    c.beginPath();c.moveTo(-w*.32,h*.28);c.quadraticCurveTo(0,h*.42,w*.32,h*.28);
-    c.quadraticCurveTo(w*.2,h*.95,0,h*1.18);c.quadraticCurveTo(-w*.2,h*.95,-w*.32,h*.28);c.fill();
-    // churned foam core
-    c.globalAlpha=.5;c.fillStyle='#eef6f3';
-    c.beginPath();c.moveTo(-w*.16,h*.30);c.quadraticCurveTo(0,h*.42,w*.16,h*.30);
-    c.quadraticCurveTo(w*.08,h*.82,0,h*.98);c.quadraticCurveTo(-w*.08,h*.82,-w*.16,h*.30);c.fill();
-    // hull-side foam streaks
-    c.strokeStyle='#dfecea';c.lineWidth=Math.max(2,w*.05);c.lineCap='round';c.globalAlpha=.5;
-    for(const s of [-1,1]){c.beginPath();c.moveTo(s*w*.34,-h*.18);c.quadraticCurveTo(s*w*.42,h*.15,s*w*.3,h*.62);c.stroke()}
-    // bow wave spray at the stem
-    c.globalAlpha=.55;c.fillStyle='#eef6f3';
-    c.beginPath();c.ellipse(0,-h*.46,w*.34,h*.08,0,0,Math.PI*2);c.fill();
-    c.globalAlpha=.4;c.fillStyle='#fff';
-    c.beginPath();c.ellipse(0,-h*.49,w*.2,h*.045,0,0,Math.PI*2);c.fill();}
+    const wake=shipImg('ship-wake'),bow=shipImg('ship-bowwave');
+    if(wake?.naturalWidth){const ww=w*1.5,wh=ww*wake.naturalHeight/wake.naturalWidth;
+     c.globalAlpha=.85;c.drawImage(wake,-ww/2,h*.16,ww,wh);}
+    if(bow?.naturalWidth){const bw=w*.9,bh=bw*bow.naturalHeight/bow.naturalWidth;
+     c.globalAlpha=.8;c.drawImage(bow,-bw/2,-h*.5-bh*.55,bw,bh);}
+   }
    c.globalAlpha=.96;c.drawImage(img,-w/2,-h/2,w,h);
    c.restore();
   }
