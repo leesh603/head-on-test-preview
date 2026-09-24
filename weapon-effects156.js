@@ -19,10 +19,23 @@ export function drawGrenadeBlast(c,f,x,y){
 }
 
 // Shared painted burst for generic combat explosions (combatFX layer).
+// kind varies size and lingering smoke so each blast source reads differently.
+const FX_BLAST_KINDS={
+ blast:{size:1,smoke:1,smokeKey:'smokeGray'},
+ mine:{size:1.2,smoke:2,smokeKey:'smokeDark'},
+ bomb:{size:1.35,smoke:3,smokeKey:'smokeDark'},
+ charge:{size:1.1,smoke:1,smokeKey:'smokeGray'},
+ cannon:{size:.8,smoke:1,smokeKey:'smokeGray'},
+ hydrogen:{size:1.7,smoke:3,smokeKey:'smokeDark'}
+};
 export function drawFxExplosion(c,f,x,y,radius=0){
  const q=Math.max(0,Math.min(.999,1-f.life/f.maxLife)),frame=Math.min(3,Math.floor(q*4));
- const d=Math.max(30,(radius||f.radius||60)*2.2*(.55+q*.6));
+ const kind=FX_BLAST_KINDS[f.kind]||FX_BLAST_KINDS.blast;
+ const d=Math.max(30,(radius||f.radius||60)*2.2*(.55+q*.6))*kind.size;
  if(!fx(c,'explosion'+frame,x,y,d,d,0,Math.min(1,(1-q)*2.4)))return false;
+ if(q>.5&&kind.smoke){const sq=(q-.5)/.5;
+  for(let i=0;i<kind.smoke;i++){const a=i*2.1+x*.01,ox=Math.cos(a)*d*.2,oy=-d*.1*(i+1)-sq*d*.12;
+   fx(c,kind.smokeKey,x+ox,y+oy,d*.55,d*.42,sq*.6,Math.min(.3,(1-sq)*.4));}}
  return true;
 }
 

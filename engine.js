@@ -291,8 +291,8 @@ PILOTS.guynemer.cooldown=26;
 PILOTS.baracca.skill='카발리노 람판테 · 일직선 돌격';
 PILOTS.baracca.desc='1.2초간 바라보는 방향으로 고속 돌격합니다. 돌격 중 무적이며 경로상의 적에게 관통 피해.';
 PILOTS.baracca.cooldown=28;
-Game.prototype.combatBlast=function(x,y,radius,side='enemy'){
- this.combatFX??=[];this.combatFX.push({x,y,radius,side,life:.65,maxLife:.65});
+Game.prototype.combatBlast=function(x,y,radius,side='enemy',kind='blast'){
+ this.combatFX??=[];this.combatFX.push({x,y,radius,side,kind,life:.65,maxLife:.65});
  this.burst(x,y,side==='enemy'?'#ff8542':'#ffd58a',18);this.smoke(x,y,true);
  this.shake=Math.max(this.shake,Math.hypot(x-this.x,y-this.y)<240?5:1);
  this.event('explosion',side);
@@ -341,7 +341,7 @@ Game.prototype.update=function(dt,input={}){
   const dx=this.x-oldX,dy=this.y-oldY,length=dx*dx+dy*dy;
   for(const e of this.enemies){const p=length?Math.max(0,Math.min(1,((e.x-oldX)*dx+(e.y-oldY)*dy)/length)):0;
    if(e.hp>0&&!this.chargeHits.has(e)&&Math.hypot(e.x-oldX-dx*p,e.y-oldY-dy*p)<(e.heavyBomber?85:52)){
-    this.chargeHits.add(e);this.bullets.push({x:e.x,y:e.y,vx:0,vy:0,life:.15,enemy:false,ownerId:this.id,damage:this.damage*18,hit:new Set(),blast:true});this.combatBlast(e.x,e.y,48,'friendly');
+    this.chargeHits.add(e);this.bullets.push({x:e.x,y:e.y,vx:0,vy:0,life:.15,enemy:false,ownerId:this.id,damage:this.damage*18,hit:new Set(),blast:true});this.combatBlast(e.x,e.y,48,'friendly','charge');
    }
   }
  }
@@ -358,7 +358,7 @@ Game.prototype.update=function(dt,input={}){
    this.event('bombWarning','폭격 투하! 붉은 표적을 벗어나세요');
   }
  }
- for(const z of this.bombZones){z.delay-=step;if(z.delay<=0){this.combatBlast(z.x,z.y,z.radius);if(Math.hypot(this.x-z.x,this.y-z.y)<z.radius)this.hit(highRiskDamage(z.damage,this.maxHp,z))}}
+ for(const z of this.bombZones){z.delay-=step;if(z.delay<=0){this.combatBlast(z.x,z.y,z.radius,'enemy','bomb');if(Math.hypot(this.x-z.x,this.y-z.y)<z.radius)this.hit(highRiskDamage(z.damage,this.maxHp,z))}}
  this.bombZones=this.bombZones.filter(z=>z.delay>0);
 };
 
@@ -720,8 +720,8 @@ Game.prototype.update=function(dt,input={}){
  for(const f of this.hostileMinefields||[]){
   f.warning-=step;f.life-=step;
   for(const m of f.mines){if(m.dead)continue;
-   for(const b of this.bullets){if(b.enemy||b.life<=0)continue;if(Math.hypot(b.x-m.x,b.y-m.y)<20){m.hp-=b.damage;if(!b.pierce)b.life=0;if(m.hp<=0){m.dead=true;this.combatBlast(m.x,m.y,32,'friendly');break}}}
-   if(!m.dead&&f.warning<=0&&Math.hypot(this.x-m.x,this.y-m.y)<25){m.dead=true;this.hit(22);this.combatBlast(m.x,m.y,58,'enemy')}
+   for(const b of this.bullets){if(b.enemy||b.life<=0)continue;if(Math.hypot(b.x-m.x,b.y-m.y)<20){m.hp-=b.damage;if(!b.pierce)b.life=0;if(m.hp<=0){m.dead=true;this.combatBlast(m.x,m.y,32,'friendly','mine');break}}}
+   if(!m.dead&&f.warning<=0&&Math.hypot(this.x-m.x,this.y-m.y)<25){m.dead=true;this.hit(22);this.combatBlast(m.x,m.y,58,'enemy','mine')}
   }
  }
  this.hostileMinefields=(this.hostileMinefields||[]).filter(f=>f.life>0&&f.region===this.worldRegion()&&f.mines.some(m=>!m.dead));
@@ -1136,7 +1136,7 @@ Game.prototype.roundDamageMultiplier=function(b,e){
 };
 Game.prototype.specialRoundImpact=function(b,e){
  const world=this.combatWorld();if(b.upgradeRocket&&!b.rocketDetonated){b.rocketDetonated=true;this.queueExplosionDamage(b.x,b.y,84,b.damage*.5,{exclude:e})}
- if(b.cow37||b.motorCannon)world.combatBlast?.(e.x,e.y,b.cow37?38:30,'friendly');
+ if(b.cow37||b.motorCannon)world.combatBlast?.(e.x,e.y,b.cow37?38:30,'friendly','cannon');
 };
 Game.prototype.dropSpecialAmmo=function(){return null};
 Game.prototype.dropObservationRepair=function(e){
@@ -1337,7 +1337,7 @@ Game.prototype.dogfightSteering=function(e,contact,dt,baseTurn){
 Game.prototype.wreckGust=function(e){
  if(e.fireCreated)return;e.fireCreated=true;this.fireZones??=[];
  this.fireZones.push({x:e.x,y:e.y,radius:BATTLEFIELD113.fireRadius,life:BATTLEFIELD113.fireLife,maxLife:BATTLEFIELD113.fireLife,tick:0});
- this.fireZones=this.fireZones.slice(-8);this.combatBlast(e.x,e.y,95,'enemy');this.event('flak','수소 화재 · 적과 아군 모두 접근 금지');
+ this.fireZones=this.fireZones.slice(-8);this.combatBlast(e.x,e.y,95,'enemy','hydrogen');this.event('flak','수소 화재 · 적과 아군 모두 접근 금지');
 };
 const _tickThreat113=Game.prototype.tickRevisionWorld;
 Game.prototype.tickRevisionWorld=function(dt){
@@ -1359,7 +1359,7 @@ Game.prototype.tickRevisionWorld=function(dt){
   for(const a of [...this.allies||[],...this.patrols||[],...this.friendlyBombers||[]])if(Math.hypot(a.x-f.x,a.y-f.y)<f.radius){a.hp=(a.hp??60)-8;if(a.hp<=0)a.life=0;}
  }
  this.fireZones=(this.fireZones||[]).filter(f=>f.life>0);
- for(const f of this.hostileMinefields||[])if(f.warning<=0)for(const m of f.mines){if(m.dead)continue;for(const p of ps)if(p.hp>0&&Math.hypot(p.x-m.x,p.y-m.y)<BATTLEFIELD113.mineTrigger){m.dead=true;if(this.players)this.hitPlayer(p,BATTLEFIELD113.mineDamage);else this.hit(BATTLEFIELD113.mineDamage);this.combatBlast(m.x,m.y,76,'enemy');break;}}
+ for(const f of this.hostileMinefields||[])if(f.warning<=0)for(const m of f.mines){if(m.dead)continue;for(const p of ps)if(p.hp>0&&Math.hypot(p.x-m.x,p.y-m.y)<BATTLEFIELD113.mineTrigger){m.dead=true;if(this.players)this.hitPlayer(p,BATTLEFIELD113.mineDamage);else this.hit(BATTLEFIELD113.mineDamage);this.combatBlast(m.x,m.y,76,'enemy','mine');break;}}
  for(const g of this.gusts||[]){if(!g.strong113){g.strong113=true;g.radius*=1.55;g.vx*=1.6;g.vy*=1.6;}for(const p of ps)if(p.hp>0&&Math.hypot(p.x-g.x,p.y-g.y)<g.radius){p.x+=g.vx*dt*.32;p.y+=g.vy*dt*.32;p.a+=Math.sin(this.t*9)*dt*.65;}}
  if(this.worldRegion()===5){if(!this.skyTimers113){this.skyTimers113={fieldUnitTimer:this.fieldUnitTimer,flakTimer:this.flakTimer};}this.gustTimer=Math.min(this.gustTimer??0,4.5);this.fieldUnitTimer=Infinity;this.flakTimer=Infinity;}else{if(this.skyTimers113){Object.assign(this,this.skyTimers113);this.skyTimers113=null;}if(Number.isFinite(this.gustTimer)&&this.gustTimer<120)this.gustTimer=Math.min(this.gustTimer,24);}
  for(const b of this.bullets){if(b.enemy&&(b.flak||b.naval||b.fieldShell)&&!b.threat113){b.threat113=true;b.vx*=1.3;b.vy*=1.3;b.damage*=1.15;}
