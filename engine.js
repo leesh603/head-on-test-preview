@@ -1,6 +1,7 @@
 import {installRevision} from './rebalance103.js?v=283&b=283';
 import {installCloudCover} from './cloud-cover1.js?v=283&b=283';
 import {installFleet} from './fleet-naval1.js?v=283&b=283';
+import {installTrenchWar} from './trench-war1.js?v=283&b=283';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=281';
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=283&b=283';
 import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=218';
@@ -1227,6 +1228,7 @@ Game.prototype.update=function(dt,input={}){
 installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDARIES,UPGRADES);
 installCloudCover(Game);
 installFleet(Game);
+installTrenchWar(Game);
 
 // Upgrade rockets share one launch path in solo and co-op, always straight flight.
 Game.prototype.launchUpgradeRocket=function(){
