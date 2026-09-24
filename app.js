@@ -456,15 +456,7 @@ function paintZeebrugge(cx,cy,W,H){
  const halfAt=(s,side)=>route.bankAt?route.bankAt(s,side):(side>0?430:430);
  const samples=18,s0=centerS-span,s1=centerS+span;
  const shore=side=>{const pts=[];for(let i=0;i<=samples;i++){const s=s0+(s1-s0)*i/samples;pts.push(point(s,side*halfAt(s,side)));}return pts;};
- const left=shore(-1),right=shore(1),outer=diag*1.8;
- const paintBank=(edge,side)=>{
-  const q=[...edge];q.push(point(s1,side*outer),point(s0,side*outer));
-  ctx.save();ctx.beginPath();ctx.moveTo(...q[0]);for(let i=1;i<q.length;i++)ctx.lineTo(...q[i]);ctx.closePath();ctx.clip();
-  terrainAlpsRenderer.draw(ctx,{key:'city',camera,width:W,height:H});ctx.restore();
-  ctx.save();ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#8f866c';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(...edge[0]);for(let i=1;i<edge.length;i++)ctx.lineTo(...edge[i]);ctx.stroke();
-  ctx.strokeStyle='#28393b99';ctx.lineWidth=2;ctx.stroke();ctx.restore();
- };
- paintBank(left,-1);paintBank(right,1);
+ const left=shore(-1),right=shore(1);
  const cell=760,first=Math.floor((s0-200)/cell)-1,last=Math.ceil((s1+200)/cell)+1;
  const landmark=harborLandmark();
  if(landmark){
