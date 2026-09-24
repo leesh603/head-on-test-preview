@@ -1,8 +1,8 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
-import {getLocale,subscribe} from './i18n.js?v=293';
-import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=297&b=297';
-import {clearCrewMatte} from './matte70.js?v=297&b=297';
-import {aircraftArt} from './main-ui-art180.js?v=293';
+import {getLocale,subscribe} from './i18n.js?v=298';
+import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=298&b=298';
+import {clearCrewMatte} from './matte70.js?v=298&b=298';
+import {aircraftArt} from './main-ui-art180.js?v=298';
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
 const put=(node,text)=>{if(node&&node.textContent!==text)node.textContent=text};
@@ -25,12 +25,12 @@ export function interfaceIcon(name,cls='astra-icon'){
 }
 // Reuse the production matte algorithm at native resolution. This cleans only
 // the hangar illustration; the 144px gameplay sprite and its collision stay intact.
-const rawHangarArt={fokker:'./fokker.webp?v=297&b=297',baron_albatros:'./baron_albatros.webp?v=297&b=297',albatros_d2:'./albatros_d2.webp?v=297&b=297',nieuport_italian:'./nieuport.webp?v=297&b=297'};
+const rawHangarArt={fokker:'./fokker.webp?v=298&b=298',baron_albatros:'./baron_albatros.webp?v=298&b=298',albatros_d2:'./albatros_d2.webp?v=298&b=298',nieuport_italian:'./nieuport.webp?v=298&b=298'};
 const hangarKeyFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',fokker:'fokker_standard'};
 const artCache=new Map();
 function hangarArt(key){
  if(artCache.has(key))return artCache.get(key);
- const src=rawHangarArt[key]||`./${hangarKeyFile[key]||key}.webp?v=297&b=297`;
+ const src=rawHangarArt[key]||`./${hangarKeyFile[key]||key}.webp?v=298&b=298`;
  const pending=new Promise(resolve=>{const image=new Image();image.onerror=()=>resolve(aircraftArt[key]||'');image.onload=()=>{
   try{
    const scan=document.createElement('canvas');scan.width=image.naturalWidth;scan.height=image.naturalHeight;
@@ -61,7 +61,8 @@ function install(){
  const legacy=el('div','astra-legacy');legacy.hidden=true;
  legacy.append($('hangarName'),$('hangarSkill'),$('pilotName'),$('pilotAlias'));
  const skills=roster.querySelector('.skill-info');
- const active=el('div','astra-ability astra-active'),activeMark=interfaceIcon('active','astra-ability-icon'),activeCopy=el('div','astra-ability-copy');
+ const active=el('div','astra-ability astra-active'),activeMark=el('span','astra-ability-icon'),emblemImg=el('img','astra-emblem-img');
+ emblemImg.alt='';emblemImg.decoding='async';activeMark.append(emblemImg);const activeCopy=el('div','astra-ability-copy');
  const activeLabel=el('small','astra-ability-label');
  activeCopy.append(activeLabel,$('skillName'),$('skillDesc'));
  active.append(activeMark,activeCopy);
@@ -128,6 +129,8 @@ function install(){
   put(english,$('pilotAlias').textContent);
   put(kicker,en?'PILOT / SELECTED ACE':'파일럿 / 출격 대기');
   put(activeLabel,en?'ACTIVE':'액티브');put(passiveLabel,en?'PASSIVE':'패시브');
+  const f=$('central')?.classList.contains('active')?'central':'entente',emblemSrc=`./augmentation-icons/skill_emblem_${f}.webp?v=298`;
+  if(emblemImg.getAttribute('src')!==emblemSrc)emblemImg.src=emblemSrc;
   const raw=$('passive103').textContent,index=raw.indexOf(' · ');
   put(passiveName,index>=0?raw.slice(0,index):'');put(passiveDesc,index>=0?raw.slice(index+3):raw);
   const option=$('aircraftSelect103').selectedOptions?.[0];put(airName,(option?.textContent||$('pilotAircraft').textContent).split(' · ')[0]);

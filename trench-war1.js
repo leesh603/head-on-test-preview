@@ -1,6 +1,6 @@
 // Region 2 trench creeping barrage + region 3 smoke-front concealment layer.
 // Preserves gasZones/flak systems; adds moving shell barrage and ground haze.
-import {TAILING_BALANCE} from './engine.js?v=297&b=297';
+import {TAILING_BALANCE} from './engine.js?v=298&b=298';
 export const TRENCH_BALANCE=Object.freeze({
  barrageGapMin:40,barrageGapMax:55,barrageWarn:2.2,barrageHalfWidth:65,barrageSpeed:40,
  barrageTravel:1500,playerHit:.13,hitCooldown:1.35,enemyHit:.3,lullAfter:5,
