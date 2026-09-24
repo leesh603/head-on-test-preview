@@ -122,7 +122,7 @@ export function installFleet(Game){
   const aim=Math.atan2(best.y-e.y,best.x-e.x);
   for(const along of t.guns){
    const gx=e.x+Math.cos(e.a)*along,gy=e.y+Math.sin(e.a)*along;
-   for(let i=0;i<2;i++){const h=aim+(i-.5)*.1;this.bullets.push({x:gx,y:gy,vx:Math.cos(h)*240,vy:Math.sin(h)*240,life:3.6,patrol:true,fireZone:true,ally:true,damage:11})}
+   for(let i=0;i<2;i++){const h=aim+(i-.5)*.1;this.bullets.push({x:gx,y:gy,vx:Math.cos(h)*240,vy:Math.sin(h)*240,life:3.6,patrol:true,fireZone:true,ally:true,damage:11,hit:new Set()})}
    this.burst(gx,gy,'#b9f2de',4);
   }
   e.muzzleFlash=.16;
