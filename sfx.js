@@ -48,7 +48,7 @@ const VOICES={
   // Kill: sub boom, rolling noise, airframe tear, hot debris sparkle.
   kill(){tone(100,32,.32,.18,'sine',300);tone(46,24,.4,.14,'sine',170,.01);hiss(2000,150,.3,.15,'lowpass',.4);hiss(4500,2000,.08,.05,'highpass',.8);hiss(jit(1400),300,.2,.08,'bandpass',.9,.05)},
   // Big detonations (grenades, flak walls, hull breaks): sub thump, crack, long roll, crackle tail.
-  explosion(){tone(70,26,.45,.22,'sine',240);tone(38,22,.6,.2,'sine',160,.008);hiss(2800,120,.42,.22,'lowpass',.35);hiss(5000,2500,.06,.07,'highpass',1);tone(160,60,.09,.08,'sawtooth',1000);hiss(900,60,.5,.11,'lowpass',.3,.02);hiss(5400,1600,.16,.05,'bandpass',1.4,.08)},
+  explosion(){tone(88,24,.5,.24,'sine',260);tone(44,20,.7,.18,'sine',170,.01);tone(150,52,.16,.1,'triangle',900);hiss(jit(1900),160,.4,.2,'lowpass',.55,.01);hiss(620,120,.5,.16,'lowpass',.6,.02);hiss(jit(3200),700,.22,.03,'bandpass',1.2,.09)},
   // Rocket salvo: launch pop into a rising whoosh.
   rocket(){hiss(400,2400,.3,.09,'bandpass',1.4);tone(280,900,.28,.05,'sawtooth',1800);tone(120,70,.1,.07,'square',700)},
   // Flak airburst near the plane: muffled pop, crackle, far echo.
@@ -67,6 +67,8 @@ const VOICES={
   pickup(){tone(880,1320,.09,.05,'triangle',2600);tone(1320,1760,.07,.035,'sine',3200,.05)},
   // Boss arrival: low brass hit over a timpani swell.
   bossSting(){tone(49,49,.9,.16,'sawtooth',500);tone(55,55,.9,.13,'sawtooth',400);tone(98,98,.7,.08,'sawtooth',800,.25);hiss(300,90,1,.1,'lowpass',.4)},
+  // Enemy ace arrival: sharp bandit snarl — rising twin brass over an engine whine.
+  aceSting(){tone(330,392,.16,.08,'sawtooth',2400);tone(415,494,.16,.07,'sawtooth',2400,.1);tone(220,180,.3,.09,'sawtooth',1400,.02);hiss(jit(2400),900,.35,.05,'bandpass',1.2,.04);tone(110,55,.4,.07,'sine',500,.28)},
   // Sortie launch: engine spool-up.
   launch(){tone(55,110,.5,.1,'sawtooth',600);hiss(200,900,.5,.04,'bandpass',.8)},
   // Balloon burst: taut fabric pop plus pressure release.
