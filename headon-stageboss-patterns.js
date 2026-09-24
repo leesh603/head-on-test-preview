@@ -357,9 +357,9 @@ const turnToward=(from,to,maxStep)=>from+Math.max(-maxStep,Math.min(maxStep,Math
 export class LivensFlameProjector extends PatternBoss {
   constructor(options){
     super({...options,kind:'livens-flame-projector',parts:[
-      {id:'tank-l1',x:-139,y:35,radius:50},{id:'tank-l2',x:-139,y:116,radius:50},
-      {id:'tank-r1',x:143,y:35,radius:50},{id:'tank-r2',x:143,y:116,radius:50},
-      {id:'pressure',x:20,y:100,radius:55},{id:'nozzle',x:28,y:-41,radius:40,angle:-Math.PI/2}
+      {id:'tank-l1',x:-174,y:-15,radius:64},{id:'tank-l2',x:-174,y:100,radius:64},
+      {id:'tank-r1',x:171,y:-15,radius:64},{id:'tank-r2',x:171,y:100,radius:64},
+      {id:'pressure',x:0,y:69,radius:48},{id:'nozzle',x:-3,y:-51,radius:40,angle:-Math.PI/2}
     ]});
     this.phase='sealed';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
     this.nozzleAngle=-Math.PI/2;this.lockedFlameAngle=null;

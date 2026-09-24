@@ -224,8 +224,22 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
  const ring=(x,y,r,color)=>{c.strokeStyle=color;c.lineWidth=2;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.stroke();};
  renderStageBossLayer(addon,{
   drawBody(b){if(layer==='hazards')return;
-   if(b.assetKey==='sms-stuttgart'){const body=[...addon.stages.encounter.bodies.values()].find(v=>v.support129);if(body&&supportImages129.ship.naturalWidth&&supportImages129.cover.naturalWidth){c.save();c.imageSmoothingEnabled=true;drawSupportShip(c,b.destroying?{...body.support129,dead:false}:body.support129,supportImages129);c.restore();}return;}
-   c.save();const wreck=b.destroying?Math.min(1,b.destructionAge/Math.max(.1,b.destructionDuration)):0;c.translate(b.x+(wreck?Math.sin(b.destructionAge*43)*4:0),b.y+(wreck?Math.cos(b.destructionAge*37)*4:0));
+   if(b.assetKey==='sms-stuttgart'){const body=[...addon.stages.encounter.bodies.values()].find(v=>v.support129);if(body&&supportImages129.ship.naturalWidth&&supportImages129.cover.naturalWidth){
+    const w0=b.destroying?Math.min(1,b.destructionAge/Math.max(.1,b.destructionDuration)):0;
+    c.save();c.imageSmoothingEnabled=true;
+    if(w0>0){c.translate(0,w0*150);c.rotate(w0*.13);c.globalAlpha*=Math.max(0,1-w0*.85);}
+    drawSupportShip(c,b.destroying?{...body.support129,dead:false}:body.support129,supportImages129);
+    c.restore();
+    if(w0>0){c.fillStyle='#eaf6f0';for(let k=0;k<9;k++){const sq=Math.sin(k*4.7+b.destructionAge*9)*.5+.5;c.globalAlpha=(1-w0*.4)*(.2+.35*sq);c.fillRect(b.x-110+k*26,b.y+95+w0*40+Math.sin(k*2.3)*7,14+24*w0,5)}c.globalAlpha=1;}
+   }return;}
+   c.save();const wreck=b.destroying?Math.min(1,b.destructionAge/Math.max(.1,b.destructionDuration)):0;
+   const sinking=wreck>0&&(['sms-stuttgart','armored-harbor-fortress'].includes(b.assetKey)||b.assetKey.startsWith('hms-zubian'));
+   c.translate(b.x+(wreck&&!sinking?Math.sin(b.destructionAge*43)*4:0),b.y+(wreck&&!sinking?Math.cos(b.destructionAge*37)*4:0));
+   if(sinking){ // vessels list and submerge beneath the surface
+    c.translate(0,wreck*150);
+    c.rotate((b.assetKey==='armored-harbor-fortress'?-1:1)*wreck*.13);
+    c.globalAlpha*=Math.max(0,1-wreck*.85);
+   }
    const ship=b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart',rail=['paris-gun','lincomparable'].includes(b.assetKey),structure=['livens-flame-projector','minenwerfer-battery'].includes(b.assetKey);
    if(ship){for(let i=0;i<12;i++){const drift=(b.motionTime*32+i*13)%155;c.fillStyle=i%2?'#d7f1de99':'#6eb9b777';const w=18+drift*.3;c.fillRect(-w/2,125+drift,w,4);}}
 
@@ -253,10 +267,10 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     const part=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id),imageFor=(p,normal,damaged,destroyed)=>p?.destroyed?destroyed:p&&p.hp<=p.maxHp*.5?damaged:normal;
     if(!trenchBossArt.livensBase.naturalWidth){if(!drawTrenchImage(c,trenchBossArt.livensComposite,0,0,520,390)){c.fillStyle='#383b30';c.fillRect(-250,-185,500,370);}}
     else{
-     drawTrenchImage(c,trenchBossArt.livensComposite,0,0,522,405);
+     drawTrenchImage(c,trenchBossArt.livensComposite,0,0,522,391);
      const nozzle=part('nozzle'),nozzleImage=imageFor(nozzle,trenchBossArt.livensPivot,trenchBossArt.livensPivotDamaged,trenchBossArt.livensPivotDestroyed);
-     drawTrenchImage(c,nozzleImage,28,-41,315,315,(b.nozzleAngle??-Math.PI/2)-Math.PI);
-     if(!nozzle?.destroyed&&b.lockedFlameAngle==null){c.globalAlpha=.42;c.strokeStyle='#f0c57c';c.lineWidth=1;c.setLineDash([5,7]);c.beginPath();c.moveTo(28+Math.cos(b.nozzleAngle)*60,-41+Math.sin(b.nozzleAngle)*60);c.lineTo(28+Math.cos(b.nozzleAngle)*132,-41+Math.sin(b.nozzleAngle)*132);c.stroke();c.setLineDash([]);}
+     drawTrenchImage(c,nozzleImage,-3,-51,288,288,(b.nozzleAngle??-Math.PI/2)-Math.PI);
+     if(!nozzle?.destroyed&&b.lockedFlameAngle==null){c.globalAlpha=.42;c.strokeStyle='#f0c57c';c.lineWidth=1;c.setLineDash([5,7]);c.beginPath();c.moveTo(-3+Math.cos(b.nozzleAngle)*66,-51+Math.sin(b.nozzleAngle)*66);c.lineTo(-3+Math.cos(b.nozzleAngle)*140,-51+Math.sin(b.nozzleAngle)*140);c.stroke();c.setLineDash([]);}
     }
     c.restore();
    }
@@ -338,10 +352,16 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
        const lanes=1+Math.round(t*3.2);
        const sz=thick*(1.05+t*.55); // near-square sprites, no stretching
        for(let j=0;j<lanes;j++){
+        // Each tongue dies out at its own range — a ragged, dissipating tip
+        // instead of a hard vertical cutoff.
+        const own=.66+.34*((i*7+j*13)%11)/11; // per-sprite reach fraction
+        if(t>own)continue;
+        const fade=Math.min(1,(own-t)/(own*.32));
         const spread=lanes===1?0:(j/(lanes-1)-.5)*hw*1.6;
         const jy=spread+Math.sin(h.age*15+i*2.2+j*3.1)*thick*.24;
-        const w=sz*(1.35+Math.sin(h.age*19+i*2.9+j*1.3)*.2),dh=sz;
-        c.globalAlpha=.8+Math.sin(h.age*21+i*1.7+j)*.15;
+        const sc=.55+.45*fade;
+        const w=sz*(1.35+Math.sin(h.age*19+i*2.9+j*1.3)*.2)*sc,dh=sz*sc;
+        c.globalAlpha=(.8+Math.sin(h.age*21+i*1.7+j)*.15)*fade;
         c.drawImage(src[(i+j)%src.length],d-w*.5,jy-dh/2,w,dh);}}
       // Smoke puffs drifting off the flame tip.
       if(sw2&&jetLen>60)for(let k=0;k<3;k++){
