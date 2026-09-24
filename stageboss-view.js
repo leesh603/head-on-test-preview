@@ -135,8 +135,15 @@ function drawBossPart(c,p,ring){
   if(p.destroyed){bossSprite(c,11,p.x,p.y,r*2.35,r*2.35,0,.55);return;}
   if(p.hittable){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
  }
- if(['gik','ca4','zeppelin-l70','hma23'].includes(p.bodyKey)){
+ if(['gik','ca4'].includes(p.bodyKey)){
   if(p.destroyed){const g=c.createRadialGradient(p.x,p.y,2,p.x,p.y,r*1.2);g.addColorStop(0,'rgba(20,17,14,.9)');g.addColorStop(.6,'rgba(60,48,36,.5)');g.addColorStop(1,'rgba(60,48,36,0)');c.fillStyle=g;c.beginPath();c.arc(p.x,p.y,r*1.2,0,Math.PI*2);c.fill();}
+  if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd579aa');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
+ }
+ if(['zeppelin-l70','hma23'].includes(p.bodyKey)){
+  // Underslung pods drawn in profile (atlas 4) — the head-on propeller sprite
+  // read as a row of broken bombers at this scale.
+  if(p.destroyed){const g=c.createRadialGradient(p.x,p.y,2,p.x,p.y,r*1.2);g.addColorStop(0,'rgba(20,17,14,.9)');g.addColorStop(.6,'rgba(60,48,36,.5)');g.addColorStop(1,'rgba(60,48,36,0)');c.fillStyle=g;c.beginPath();c.arc(p.x,p.y,r*1.2,0,Math.PI*2);c.fill();}
+  else bossSprite(c,4,p.x,p.y,r*2.1,r*1.5,Math.PI/2,.95);
   if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd579aa');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
  }
  const index=p.partId==='truss'?0:p.partId==='muzzle'?1:p.partId==='hangar'?2:p.partId==='crane'?3:p.partId==='capsule'?4:p.kind==='engine'?5:p.partId.startsWith('port-')?6:p.bodyKey==='a7v-flak'?7:8;
@@ -272,6 +279,16 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      for(let d=24;d<h.length;d+=130){c.strokeStyle=warning?'#e8c47fbb':'#3f4a44';c.lineWidth=3;
       c.beginPath();c.moveTo(d-6,-14);c.lineTo(d+6,14);c.moveTo(d+6,-14);c.lineTo(d-6,14);c.stroke();
       c.strokeStyle='#c8b98a99';c.lineWidth=1;c.beginPath();c.arc(d,0,3.4,0,Math.PI*2);c.stroke();}
+    }else if(h.visual==='livens-flame'&&fxReady('flameJet')){
+     // Approved painted jet — stretched along the hazard beam; width follows
+     // the danger thickness so the art never drifts from the hitbox.
+     const nozzle=12,jetLen=h.length-nozzle;
+     c.translate(h.x,h.y);c.rotate(h.angle);
+     const tipW=Math.max(64,jetLen),img=fxImage('flameJet'),ar=img?img.naturalWidth/img.naturalHeight:3.15;
+     const jetH=Math.max(h.thickness*1.7,tipW/ar);
+     if(warning)c.globalAlpha*=.4;
+     c.drawImage(img,nozzle,-jetH/2,jetLen*1.18,jetH);
+     if(!warning){c.globalCompositeOperation='screen';c.drawImage(img,nozzle+jetLen*.12,-jetH*.32,jetLen*.9,jetH*.64);c.globalCompositeOperation='source-over';}
     }else{c.lineCap='round';c.lineWidth=h.thickness;c.strokeStyle=warning?'#ffb45f44':'#ff6a2dcc';c.beginPath();c.moveTo(h.x,h.y);c.lineTo(x2,y2);c.stroke();c.lineWidth=Math.max(4,h.thickness*.34);c.strokeStyle=warning?'#ffe0a866':'#fff0a8';c.stroke();}}
    else if(h.kind==='searchlight'){if(fxReady('searchlight')&&!warning)fx(c,'searchlight',h.x+Math.cos(h.angle)*h.radius*.55,h.y+Math.sin(h.angle)*h.radius*.55,h.radius*1.3,h.radius*h.halfAngle*1.5,h.angle,.8);const glow=c.createRadialGradient(h.x,h.y,0,h.x,h.y,h.radius);glow.addColorStop(0,warning?'#f8e5a526':'#fff1bc4d');glow.addColorStop(.65,warning?'#ead18f0d':'#f3dfa621');glow.addColorStop(1,'#f3dfa600');c.fillStyle=glow;c.beginPath();c.moveTo(h.x,h.y);c.arc(h.x,h.y,h.radius,h.angle-h.halfAngle,h.angle+h.halfAngle);c.closePath();c.fill();if(warning){c.strokeStyle='#d9c89755';c.lineWidth=1;c.stroke();}}
    else if(h.kind==='rect'){
