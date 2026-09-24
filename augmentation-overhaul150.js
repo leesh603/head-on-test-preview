@@ -244,7 +244,15 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   return normal.filter(e=>!e.ace&&!e.bossPilot&&e.type!=='boss').sort((a,b)=>distanceTo(g,a)-distanceTo(g,b))[0];
  };
  const mauserScaling=g=>{const f=AUGMENTATION_OVERHAUL_BALANCE.mauserScalingFactor;return{interval:AUGMENTATION_OVERHAUL_BALANCE.mauserInterval,damage:AUGMENTATION_OVERHAUL_BALANCE.mauserDamage*(1+(g.gunUpgradeBonus||0)*f+(g.explosiveBonus||0)*f)}};
- const nearest=(g,range=Infinity)=>g.enemies.filter(e=>e.hp>0&&Math.hypot(e.x-g.x,e.y-g.y)<=range).sort((a,b)=>Math.hypot(a.x-g.x,a.y-g.y)-Math.hypot(b.x-g.x,b.y-g.y))[0];
+ const nearest=(g,range=Infinity)=>{
+  let best=null,bd=range;
+  const scan=e=>{if(!e||e.hp<=0)return;const d=Math.hypot(e.x-g.x,e.y-g.y);if(d<=bd){bd=d;best=e}};
+  for(const e of g.enemies)scan(e);
+  // Stage-boss bodies live outside g.enemies — the Scarff ring must see them too.
+  const bodies=g.stageBoss?.stages?.encounter?.bodies;
+  if(bodies)for(const b of bodies.values())scan(b);
+  return best;
+ };
  Game.prototype.tickAugmentationSystems=function(dt){
   this.redGhosts162=(this.redGhosts162||[]).filter(g=>(g.life-=dt)>0);
   if(this.pilot==='baron'&&!this.isRedHunter()&&this.skillTime>0){
