@@ -1,5 +1,5 @@
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=292&b=292';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=292&b=292';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=293&b=293';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=293&b=293';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -450,7 +450,7 @@ export class LondonApron extends PatternBoss {
 
 export class DrachenMineNet extends PatternBoss {
   constructor(options) {
-    const mines=[-2,-1,0,1,2].map((n,i)=>({id:'mine-'+i,x:n*42,y:55+Math.abs(n)*18,radius:16,maxHp:options.tuning.partHp*.34}));
+    const mines=[-2,-1,0,1,2].map((n,i)=>({id:'mine-'+i,x:n*42,y:55+Math.abs(n)*18,radius:27,maxHp:options.tuning.partHp*.34}));
     super({...options,kind:'drachen-net',parts:[{id:'balloon',x:0,y:-72,radius:38},{id:'winch',x:0,y:112,radius:27},...mines]});
     this.phase='observed';this.coreVulnerable=false;this.mineWave=0;
   }

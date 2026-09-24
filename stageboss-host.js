@@ -1,6 +1,6 @@
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=292&b=292';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=292&b=292';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=292';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=293&b=293';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=293&b=293';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=293';
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
@@ -178,23 +178,7 @@ const LARGE_AIRCRAFT_HULLS=Object.freeze({
  ca4:{halfWidth:128,halfHeight:150}
 });
 export function separateLargeBossBodies(g){
- if(blocked(g))return;
- const bodies=g.stageBoss?.stages.encounter?.bodies;
- if(!bodies)return;
- for(const body of bodies.values()){
-  const hull=LARGE_AIRCRAFT_HULLS[body.kind];if(!hull||body.dead)continue;
-  for(const p of players(g)){
-   if(!alive(p))continue;
-   const radius=p.collisionRadius||12,rx=hull.halfWidth+radius,ry=hull.halfHeight+radius;
-   let dx=p.x-body.x,dy=p.y-body.y,q=Math.hypot(dx/rx,dy/ry);
-   if(q>=1)continue;
-   // Exact centre overlaps have no usable normal.  Eject toward the lower
-   // screen edge, which keeps the player in the playable approach lane.
-   if(q<1e-5){dx=0;dy=ry*1.12;q=1;}
-   else {const scale=(1.12/q);dx*=scale;dy*=scale;}
-   p.x=body.x+dx;p.y=body.y+dy;
-  }
- }
+ // Every aircraft is passable in HEAD-ON — players always fly through boss bodies.
 }
 export function endStageBossFrame(g,dt){
  separateAces(g,dt);
