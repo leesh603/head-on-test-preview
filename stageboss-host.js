@@ -226,8 +226,8 @@ export function endStageBossFrame(g,dt){
  // Aerial aprons are solid barriers: aircraft that wander into the mesh are caught.
  const nets=activeEncounter?[...activeEncounter.bodies.values()].filter(b=>!b.dead&&['london-apron','drachen-net'].includes(b.kind)):[];
  for(const e of g.enemies){
-  if(e.hp<=0||e.stageBossBody||e.bossMinion||e.crashing||e.crashed||e.surface||e.navalVessel||e.groundEscort||e.fieldUnit||e.stationary)continue;
-  for(const b of nets){const dx=e.x-b.x,dy=e.y-b.y;if((dx/190)**2+(dy/120)**2<1){e.hp=0;g.combatBlast(e.x,e.y,26,'friendly');for(let k=0;k<4;k++)g.smoke?.(e.x+(g.rng()-.5)*20,e.y+(g.rng()-.5)*20,true);break;}}
+  if(e.hp<=0||e.stageBossBody||e.bossMinion||e.crashing||e.crashed||e.surface||e.navalVessel||e.groundEscort||e.fieldUnit==='railgun'||e.stationary)continue;
+  for(const b of nets){const dx=e.x-b.x,dy=e.y-b.y;if((dx/330)**2+(dy/235)**2<1){e.hp=0;g.combatBlast(e.x,e.y,26,'friendly');for(let k=0;k<4;k++)g.smoke?.(e.x+(g.rng()-.5)*20,e.y+(g.rng()-.5)*20,true);break;}}
  }
  if(g.state==='lost')addon.dispose();
 }

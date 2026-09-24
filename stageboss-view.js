@@ -79,11 +79,11 @@ function drawRailConsist181(c,b){
   // Destroyed car: wreck image under a rolling explosion cluster, then the
   // car is consumed and leaves an empty gap in the consist.
   const age=(b.motionTime||0)-(car.destroyedAt??b.motionTime??0);
-  if(age>=1.35)continue;
+  if(age>=3.0)continue;
   c.save();c.translate(0,car.y);c.rotate(.025);
-  const fade=Math.max(0,1-age/1.05);
+  const fade=Math.max(0,1-age/2.4);
   if(wreckImage.naturalWidth&&fade>0){c.globalAlpha=fade;c.drawImage(wreckImage,-130,-195,260,390);c.globalAlpha=1;}
-  for(let k=0;k<7;k++){const e=clamp((age*1.5-k*.13),0,1);if(e<=0||e>=1)continue;const ex=Math.sin(k*2.31)*78,ey=-135+(k%3)*130+Math.sin(k*5.7)*46,fr=Math.min(3,Math.floor(e*4));fx(c,(k%2?'explosionOily':'explosion')+fr,ex,ey,(120+70*e),(120+70*e),0,.95*(1-e*.4));}
+  for(let k=0;k<7;k++){const e=clamp((age*.9-k*.28),0,1);if(e<=0||e>=1)continue;const ex=Math.sin(k*2.31)*78,ey=-135+(k%3)*130+Math.sin(k*5.7)*46,fr=Math.min(3,Math.floor(e*4));fx(c,(k%2?'explosionOily':'explosion')+fr,ex,ey,(120+70*e),(120+70*e),0,.95*(1-e*.4));}
   for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.37)%1;fx(c,'smokeDark',Math.sin(k*4.1)*60,-90-s*170,120+s*150,120+s*150,0,(1-s)*.42);}
   c.restore()}
  const engineWreck=wreckImages.engine,engine=b.destroying&&engineWreck.naturalWidth?engineWreck:images.engine;
