@@ -1061,3 +1061,17 @@ body.astra-ui.playing #legendaryInventory{top:calc(max(12px,env(safe-area-inset-
 @media(max-height:550px) and (pointer:coarse) and (orientation:landscape){
  body.astra-ui.playing #legendaryInventory{top:auto;right:max(230px,calc(env(safe-area-inset-right) + 220px));bottom:max(18px,env(safe-area-inset-bottom));max-width:150px}
 }
+
+/* Skill activation: restore the original large portrait card (boss-arrival
+   style) — framed pilot portrait + name + skill on the left edge. */
+body.astra-ui #skillCutin{position:absolute;left:18px;bottom:calc(max(22px,env(safe-area-inset-bottom)) + 96px);z-index:6;display:flex;align-items:stretch;gap:0;width:300px;max-width:66%;height:150px;border:1px solid #ac746157;border-left:3px solid var(--cutin-accent,#ffcf78);border-radius:9px;background:linear-gradient(110deg,#3a2527f5,#142633f2);box-shadow:0 8px 30px #0004;overflow:hidden;pointer-events:none;animation:cutin-enter .22s ease-out}
+body.astra-ui #skillCutin .cutin-portrait{position:static!important;flex:0 0 108px;width:108px;height:auto;border-right:1px solid #ac746133;background-size:auto 100%;background-position:center bottom;background-repeat:no-repeat}
+body.astra-ui #skillCutin .cutin-caption{position:static;display:flex;flex-direction:column;justify-content:center;gap:5px;padding:0 14px;background:none;text-shadow:0 2px 5px #000}
+body.astra-ui #skillCutin .cutin-caption small{letter-spacing:.8px;font-size:13px;color:#e6ddc2}
+body.astra-ui #skillCutin .cutin-caption strong{font-size:20px;font-weight:800;color:#ffe3a2;letter-spacing:.5px}
+@media(max-width:720px){
+ body.astra-ui #skillCutin{left:10px;bottom:calc(max(18px,env(safe-area-inset-bottom)) + 88px);width:236px;max-width:62%;height:118px}
+ body.astra-ui #skillCutin .cutin-portrait{flex-basis:80px;width:80px}
+ body.astra-ui #skillCutin .cutin-caption small{font-size:11px}
+ body.astra-ui #skillCutin .cutin-caption strong{font-size:16px}
+}
