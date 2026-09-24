@@ -28,6 +28,7 @@ export class BossHazards {
       id:'boss-hazard-'+(++this.serial),encounterId:spec.encounterId,bossId:spec.bossId,kind:spec.kind,
       x:spec.x,y:spec.y,vx:spec.vx||0,vy:spec.vy||0,radius:spec.radius||6,width:spec.width||1,height:spec.height||1,
       angle:spec.angle||0,angularSpeed:spec.angularSpeed||0,halfAngle:spec.halfAngle||.15,length:spec.length||1,thickness:spec.thickness||1,
+      endX:spec.endX??null,endY:spec.endY??null,endVx:spec.endVx||0,
       damage:spec.damage,age:0,delay:spec.delay||0,warning:spec.warning||0,duration:spec.duration,
       tickInterval:spec.tickInterval||.5,nextTick:0,phase:'waiting',once:!!spec.once,applied:false,activated:false,
       targetId:spec.targetId,lockAtWarning:!!spec.lockAtWarning,locked:false,offsetX:spec.offsetX||0,offsetY:spec.offsetY||0,
@@ -49,6 +50,7 @@ export class BossHazards {
       const elapsed=Math.min(h.duration,Math.max(0,h.age-start));
       const activeDt=elapsed-Math.min(h.duration,Math.max(0,before-start)),oldX=h.x,oldY=h.y;
       h.x+=h.vx*activeDt;h.y+=h.vy*activeDt;h.angle+=h.angularSpeed*activeDt;
+      if(h.kind==='beam'&&h.endX!==null){h.endX+=h.endVx*activeDt;h.angle=Math.atan2(h.endY-h.y,h.endX-h.x);h.length=Math.hypot(h.endX-h.x,h.endY-h.y);}
       if(h.kind==='projectile') {
         for(const p of players)if(h.active&&p.alive&&!h.hits.has(p.id)&&segmentDistance(p.x,p.y,oldX,oldY,h.x,h.y)<=h.radius+(p.radius||0)) {
           h.hits.add(p.id);this.onDamage(p.id,h.damage,h);
