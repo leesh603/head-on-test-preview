@@ -1,11 +1,11 @@
-import {installRevision} from './rebalance103.js?v=283&b=283';
-import {installCloudCover} from './cloud-cover1.js?v=283&b=283';
-import {installFleet} from './fleet-naval1.js?v=285&b=285';
-import {installTrenchWar} from './trench-war1.js?v=283&b=283';
-import {installCityAir} from './city-air1.js?v=283&b=283';
-import {installRegionDoctrine} from './region-doctrine1.js?v=283&b=283';
+import {installRevision} from './rebalance103.js?v=286&b=286';
+import {installCloudCover} from './cloud-cover1.js?v=286&b=286';
+import {installFleet} from './fleet-naval1.js?v=286&b=286';
+import {installTrenchWar} from './trench-war1.js?v=286&b=286';
+import {installCityAir} from './city-air1.js?v=286&b=286';
+import {installRegionDoctrine} from './region-doctrine1.js?v=286&b=286';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=281';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=285&b=285';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=286&b=286';
 import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=218';
 import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=214';
 import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=214';
@@ -399,7 +399,7 @@ Game.prototype.spawnEnemy=function(type){
  if(!this.bossDeck?.length){this.bossDeck=Object.keys(PILOTS).filter(id=>PILOTS[id].faction!==PLANES[this.plane].faction);for(let i=this.bossDeck.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[this.bossDeck[i],this.bossDeck[j]]=[this.bossDeck[j],this.bossDeck[i]]}}
  const threatWeight=.12+.88*Math.min(1,this.t/600);const weights=this.bossDeck.map(id=>['baron','fonck'].includes(id)?threatWeight:1);let roll=this.rng()*weights.reduce((a,b)=>a+b,0),pick=weights.length-1;for(let i=0;i<weights.length;i++){roll-=weights[i];if(roll<=0){pick=i;break}}
  e.bossPilot=this.bossDeck.splice(pick,1)[0];e.bossPlane=PILOT_PLANES[e.bossPilot];e.name=PILOTS[e.bossPilot].name;e.ace=true;
- e.hp=e.maxHp=Math.round(700*(1+this.t/150));e.abilityTimer=4;e.fire=.8;e.encounterPending=true;if(e.bossPilot==='baron')e.speed*=2.4;
+ e.hp=e.maxHp=Math.round(700*(1+this.t/150));e.abilityTimer=4;e.fire=.8;e.encounterPending=true;e.aceSpawnT=this.t;if(e.bossPilot==='baron')e.speed*=2.4;
  if(e.bossPilot==='bishop'){e.hp=e.maxHp=Math.round(e.maxHp*ENEMY_BOSS_BALANCE.bishopHpMultiplier);e.speed*=1.1;e.abilityTimer=ENEMY_BOSS_BALANCE.bishopFirstAbility;e.fire=.5}
  this.event('wave','적 에이스 · '+e.name+' / '+PILOTS[e.bossPilot].skill);
 };
@@ -441,7 +441,7 @@ Game.prototype.update=function(dt,input={}){
  if(this.region!==region)this.enterRegion(region)
  if(this.state!=='playing')return;
  this.regionThreat=(this.regionThreat??20)-step;if(this.regionThreat<=0){this.regionThreat=24;if([1,7].includes(region)&&this.enemies.length<60)this.spawnEnemy(this.rng()<.12?'zeppelin':'bomber');this.spawnFlak()}
- for(const e of this.enemies){if(!e.bossPilot)continue;e.bossDash=Math.max(0,(e.bossDash||0)-step);if(this.sunStrikeContains(e))continue;e.abilityTimer-=step;if(e.abilityTimer<=0){e.abilityTimer=e.bossPilot==='bishop'?ENEMY_BOSS_BALANCE.bishopAbilityMin+this.rng()*ENEMY_BOSS_BALANCE.bishopAbilityVariance:7+this.rng()*3;this.aceAttack(e)}}
+ for(const e of this.enemies){if(!e.bossPilot)continue;e.bossDash=Math.max(0,(e.bossDash||0)-step);if(e.aceRetreat){e.a=Math.atan2(e.y-this.y,e.x-this.x);e.x+=Math.cos(e.a)*e.speed*1.15*step;e.y+=Math.sin(e.a)*e.speed*1.15*step;e.fire=9;if(Math.hypot(e.x-this.x,e.y-this.y)>1500){e.expired=true;if(!e.crashing&&!e.crashed)e.hp=-1}continue}if(this.sunStrikeContains(e))continue;if((e.aceSpawnT??this.t)&&this.t-e.aceSpawnT>75){e.aceRetreat=true;this.event('wave',e.name+' · 이탈 — 교전 한계 초과');continue}e.abilityTimer-=step;if(e.abilityTimer<=0){e.abilityTimer=e.bossPilot==='bishop'?ENEMY_BOSS_BALANCE.bishopAbilityMin+this.rng()*ENEMY_BOSS_BALANCE.bishopAbilityVariance:7+this.rng()*3;this.aceAttack(e)}}
 };
 
 Game.prototype.wreckGust=function(e){

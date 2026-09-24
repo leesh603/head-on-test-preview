@@ -71,8 +71,9 @@ const VOICES={
   aceSting(){tone(330,392,.16,.08,'sawtooth',2400);tone(415,494,.16,.07,'sawtooth',2400,.1);tone(220,180,.3,.09,'sawtooth',1400,.02);hiss(jit(2400),900,.35,.05,'bandpass',1.2,.04);tone(110,55,.4,.07,'sine',500,.28)},
   // Sortie launch: engine spool-up.
   launch(){tone(55,110,.5,.1,'sawtooth',600);hiss(200,900,.5,.04,'bandpass',.8)},
-  // Rail-boss arrival: long three-chime steam whistle over a hiss of escaping steam.
-  trainWhistle(){for(const [f,v]of [[392,.075],[494,.068],[622,.06]]){tone(f,f,1.7,v,'sawtooth',750);tone(f*1.007,f*1.007,1.7,v*.6,'sawtooth',750)}hiss(4200,700,.45,.05,'bandpass',.7);hiss(1800,500,1.2,.028,'bandpass',.5,.1);tone(98,90,1.5,.05,'sine',260);for(const [f,v]of [[392,.05],[494,.045],[622,.04]])tone(f,f,.55,v,'sawtooth',750,2.05)},
+  // Rail-boss arrival: deep locomotive horn — a low two-chime blast with a
+  // breathy steam attack, short fade, then a quieter answer from further off.
+  trainWhistle(){for(const [f,v]of [[233,.1],[294,.085]]){tone(f*1.06,f,1.9,v,'sawtooth',520,.0,.09);tone(f*1.067,f*1.007,1.9,v*.55,'sawtooth',520,0,.09)}hiss(900,300,.5,.06,'lowpass',.5);hiss(2600,900,.4,.03,'bandpass',.6,.06);tone(92,68,1.7,.06,'sine',220,.02);for(const [f,v]of [[233,.05],[294,.04]])tone(f*1.05,f,.7,v,'sawtooth',520,2.25,.06)},
   // Balloon burst: taut fabric pop plus pressure release.
   balloon(){tone(500,60,.22,.14,'sine',800);hiss(4000,300,.2,.12,'bandpass',.6);tone(1300,400,.06,.04,'square',3000);tone(70,30,.3,.12,'sine',260,.03)},
   // Repair pickup: soft double chime.

@@ -11,9 +11,9 @@ const timber=(c,image,x,y,w=120,h=9)=>{
 export function drawRailTrack(c,boss,image){
  if(!boss.railTarget||boss.dead||!image?.naturalWidth)return;
  c.save();c.translate(boss.from.x,boss.from.y);c.rotate(Math.atan2(boss.axis.y,boss.axis.x)-Math.PI/2);c.imageSmoothingEnabled=true;
- const end=(boss.railTarget.x-boss.from.x)*boss.axis.x+(boss.railTarget.y-boss.from.y)*boss.axis.y,stop=end+340;
- for(let y=-950;y<stop;y+=19){if(boss.broken&&Math.abs(y-end)<27)continue;timber(c,image,0,y);}
- for(let y=-950;y<stop;y+=42){
+ const end=(boss.railTarget.x-boss.from.x)*boss.axis.x+(boss.railTarget.y-boss.from.y)*boss.axis.y,stop=end+1800;
+ for(let y=-1800;y<stop;y+=19){if(boss.broken&&Math.abs(y-end)<27)continue;timber(c,image,0,y);}
+ for(let y=-1800;y<stop;y+=42){
   const h=Math.min(42,stop-y),segments=boss.broken?[[y,Math.min(y+h,end-22)],[Math.max(y,end+22),y+h]]:[[y,y+h]];
   for(const [a,b] of segments)if(b>a)for(const side of [0,1])steel(c,image,side?46:-46,a,b-a,side);
  }
