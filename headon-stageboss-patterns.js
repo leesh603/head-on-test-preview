@@ -1,5 +1,5 @@
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=307&b=307';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=307&b=307';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=317&b=317';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=317&b=317';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -357,9 +357,9 @@ const turnToward=(from,to,maxStep)=>from+Math.max(-maxStep,Math.min(maxStep,Math
 export class LivensFlameProjector extends PatternBoss {
   constructor(options){
     super({...options,kind:'livens-flame-projector',parts:[
-      {id:'tank-l1',x:-155,y:-72,radius:42},{id:'tank-l2',x:-155,y:72,radius:42},
-      {id:'tank-r1',x:155,y:-72,radius:42},{id:'tank-r2',x:155,y:72,radius:42},
-      {id:'pressure',x:0,y:38,radius:38},{id:'nozzle',x:0,y:-32,radius:40,angle:-Math.PI/2}
+      {id:'tank-l1',x:-139,y:35,radius:50},{id:'tank-l2',x:-139,y:116,radius:50},
+      {id:'tank-r1',x:143,y:35,radius:50},{id:'tank-r2',x:143,y:116,radius:50},
+      {id:'pressure',x:20,y:100,radius:55},{id:'nozzle',x:28,y:-41,radius:40,angle:-Math.PI/2}
     ]});
     this.phase='sealed';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
     this.nozzleAngle=-Math.PI/2;this.lockedFlameAngle=null;
