@@ -1,5 +1,5 @@
-import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=3188&b=318';
-import {CAMPAIGN_DATA} from './campaign-data.js?v=3188&b=318';
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=318&b=318';
+import {CAMPAIGN_DATA} from './campaign-data.js?v=318&b=318';
 import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=318';
 export const STAGES=[...CAMPAIGN_DATA.stages].sort((a,b)=>a.faction.localeCompare(b.faction)||a.historicalAnchorDate.localeCompare(b.historicalAnchorDate)||a.id.localeCompare(b.id));
 export const stageFaction=s=>s.faction==='allies'?'entente':'central';
