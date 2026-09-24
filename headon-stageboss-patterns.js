@@ -1,5 +1,5 @@
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=320&b=320';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=320&b=320';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=321&b=321';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=321&b=321';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -359,62 +359,57 @@ export class LivensFlameProjector extends PatternBoss {
     super({...options,coreRadius:68,kind:'livens-flame-projector',parts:[
       {id:'tank-l1',x:-155,y:-72,radius:42},{id:'tank-l2',x:-155,y:72,radius:42},
       {id:'tank-r1',x:155,y:-72,radius:42},{id:'tank-r2',x:155,y:72,radius:42},
-      {id:'pressure',x:0,y:72,radius:42},{id:'nozzle',x:0,y:-98,radius:58,angle:-Math.PI/2}
+      {id:'pressure',x:0,y:72,radius:42}
     ]});
     this.phase='sealed';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
-    this.nozzleAngle=-Math.PI/2;this.lockedFlameAngle=null;
+    // The armored nozzle is a permanent mount, not a destructible weakpoint.
+    this.nozzleMount={x:0,y:-98,length:85};this.nozzleAngle=-Math.PI/2;this.lockedFlameAngle=null;
     this.flameCount=0;this.flameMode='track';this.flameAngSpeed=0;this.flameWarn=0;this.flameAge=0;this.spinRate=1.55;
   }
   locateHit({x,y,radius=0}){
-    const nozzle=this.parts.get('nozzle');
-    if(!nozzle.destroyed){
-      const dx=Math.cos(this.nozzleAngle),dy=Math.sin(this.nozzleAngle);
-      const px=x-this.x-nozzle.x,py=y-this.y-nozzle.y;
-      const along=Math.max(0,Math.min(85,px*dx+py*dy));
-      if(Math.hypot(px-along*dx,py-along*dy)<=34+radius)return{partId:'nozzle'};
+    for(const p of this.parts.values())if(p.hittable&&!p.destroyed){
+      const dx=x-this.x-p.x,dy=y-this.y-p.y;
+      // The horizontal fuel vessels use their visible atlas footprint.
+      const inside=p.id.startsWith('tank-')
+        ?(dx/(74+radius))**2+(dy/(45+radius))**2<=1
+        :Math.hypot(dx,dy)<=p.radius+radius;
+      if(inside)return{partId:p.id};
     }
-    return super.locateHit({x,y,radius});
+    return Math.hypot(x-this.x,y-this.y)<=this.coreRadius+radius?{partId:null}:null;
   }
-  // The turret is the boss's only attack — it can be battered but only
-  // collapses near the end of the fight (core hp <= 20%).
-  hit(attack){
-    if(attack.partId==='nozzle'&&this.hp>this.maxHp*.2){
-      const n=this.parts.get('nozzle'),floor=n.maxHp*.3;
-      if(n&&!n.destroyed&&n.hp>floor)return super.hit({...attack,damage:Math.min(attack.damage,n.hp-floor)});
-    }
-    return super.hit(attack);
+  hitAt({x,y,radius=0,damage}){
+    const target=this.locateHit({x,y,radius});
+    return target?this.hit({...target,damage}):{damage:0,miss:true};
   }
+  suppressive(){/* Livens attacks through its persistent flamethrower and fuel leaks. */}
   onPartDestroyed(p){
-    if(p.id==='nozzle'){this.command('cancel-hazards',{tag:'livens-flame'});this.lockedFlameAngle=null;this.flameLockTime=0;this.flameMode='track';}
     if(p.id.startsWith('tank-'))this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:54,warning:.65,duration:2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak',tag:'livens-leak'});
     if(p.id==='pressure')this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:68,warning:.8,duration:.4,once:true,damage:this.t.damage*.75,visual:'livens-pressure'});
-    // The turret (nozzle) only collapses in the last phase — the core opens
-    // once the fuel/pressure system is wrecked; the nozzle keeps fighting.
+    // The core opens once the fuel/pressure system is wrecked; the nozzle
+    // mount keeps fighting until the boss itself is destroyed.
     if(this.allDestroyed(['tank-l1','tank-l2','tank-r1','tank-r2','pressure'])){
       this.phase='core-exposed';this.coreVulnerable=true;this.command('phase-change',{phase:'exposed'});
     }
   }
   update(dt,{players}){
+    if(this.dead)return;
     this.x=this.anchorX;this.y=this.anchorY;
     if((this._gasTier??4)>0&&this.hp<=this.maxHp*(this._gasTier)*.25){this._gasTier--;
       for(let i=0;i<3;i++){const a=this.rng()*6.28,d=60+this.rng()*90;this.command('gas-zone',{x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,radius:120+this.rng()*40,life:8});}
       this.command('phase-change',{phase:'gas-vent'});}
-    const nozzle=this.parts.get('nozzle'),target=this.target(players);
+    const nozzle=this.nozzleMount,target=this.target(players);
     const finalPhase=this.hp<=this.maxHp*.22;
-    if(!nozzle.destroyed){
-      if(finalPhase){this.nozzleAngle+=this.spinRate*dt;nozzle.angle=this.nozzleAngle;} // 360° rampage
-      else if(this.lockedFlameAngle!=null){
-        // Burst in flight: frozen during the warning, sweeps during the burn.
-        this.flameAge+=dt;
-        if(this.flameMode!=='track'&&this.flameAge>this.flameWarn){this.nozzleAngle+=this.flameAngSpeed*dt;nozzle.angle=this.nozzleAngle;}
-      }
-      else if(target){
-        const desired=Math.atan2(target.y-(this.y+nozzle.y),target.x-(this.x+nozzle.x));
-        const damaged=nozzle.hp<=nozzle.maxHp*.5,rate=damaged?.48:.92;
-        this.nozzleAngle=turnToward(this.nozzleAngle,desired,rate*dt);nozzle.angle=this.nozzleAngle;
-      }
+    if(finalPhase){this.nozzleAngle+=this.spinRate*dt;} // 360° rampage
+    else if(this.lockedFlameAngle!=null){
+      // Burst in flight: frozen during the warning, sweeps during the burn.
+      this.flameAge+=dt;
+      if(this.flameMode!=='track'&&this.flameAge>this.flameWarn)this.nozzleAngle+=this.flameAngSpeed*dt;
     }
-    if(!nozzle.destroyed&&this.due('main-flame',dt,this.t.flameInterval||5.8)){
+    else if(target){
+      const desired=Math.atan2(target.y-(this.y+nozzle.y),target.x-(this.x+nozzle.x));
+      this.nozzleAngle=turnToward(this.nozzleAngle,desired,.92*dt);
+    }
+    if(this.due('main-flame',dt,this.t.flameInterval||5.8)){
       const pressure=this.parts.get('pressure'),weakened=pressure.destroyed;
       const warn=weakened?1.4:1.15;
       let mode='track',angSpeed=0,dur=weakened?1.2:1.8,telegraphHalf=0,startAngle=this.nozzleAngle;
@@ -423,9 +418,9 @@ export class LivensFlameProjector extends PatternBoss {
       this.flameMode=mode;this.flameAngSpeed=angSpeed;this.flameWarn=warn;this.flameAge=0;this.flameCount++;
       this.lockedFlameAngle=startAngle;
       // Beam pivots at the turret mount so sweep/spin origins track the nozzle;
-      // the flame itself is drawn from the muzzle (85px ahead) in the view.
+      // the flame itself is drawn from the muzzle in the view.
       const muzzleX=this.x+nozzle.x,muzzleY=this.y+nozzle.y;
-      this.hazard('beam',{x:muzzleX,y:muzzleY,angle:startAngle,angularSpeed:angSpeed,telegraphHalf,length:(weakened?390:560)+85,thickness:weakened?38:54,
+      this.hazard('beam',{x:muzzleX,y:muzzleY,angle:startAngle,angularSpeed:angSpeed,telegraphHalf,length:(weakened?390:560)+nozzle.length,thickness:weakened?38:54,
         warning:warn,duration:dur,tickInterval:.22,damage:this.t.damage*(weakened?.65:1),visual:'livens-flame',tag:'livens-flame'});
       this.command('flame-warning',{x:muzzleX,y:muzzleY,angle:startAngle,seconds:warn});
       this.flameLockTime=warn+dur;
