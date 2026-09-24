@@ -1,7 +1,7 @@
 // Moving fleet system — Adriatic (region 1) and Zeebrugge harbor (region 7).
 // Ships sail real headings, fire from actual gun positions on the hull, and are
 // faction-owned: hostile ships hunt the player, friendly ships engage aircraft.
-import {PLANES} from './engine.js?v=302&b=302';
+import {PLANES} from './engine.js?v=303&b=303';
 export const SHIP_TYPES=Object.freeze({
  dd:{name:'구축함',hp:150,drawnH:300,speed:26,guns:[96,-99],salvo:5,spread:.15,shellSpeed:215,interval:3.2,width:88},
  aa:{name:'대공순양함',hp:340,drawnH:380,speed:17,guns:[79,5,-39,-98],salvo:3,spread:.09,shellSpeed:205,interval:4.6,width:205}
@@ -9,7 +9,7 @@ export const SHIP_TYPES=Object.freeze({
 const SHIP_IMG={ent_dd:'fx-ship-ent-dd',cen_dd:'fx-ship-cen-dd',ent_aa:'fx-ship-ent-aa',cen_aa:'fx-ship-cen-aa'};
 const MAX_FLEET_SHIPS=6;
 let _shipImgs={};
-function shipImg(key){let im=_shipImgs[key];if(im===undefined){im=new Image();im.src=`./${key}.webp?v=302&b=302`;im.onload=()=>{_shipImgs[key]=im};_shipImgs[key]=im}return im}
+function shipImg(key){let im=_shipImgs[key];if(im===undefined){im=new Image();im.src=`./${key}.webp?v=303&b=303`;im.onload=()=>{_shipImgs[key]=im};_shipImgs[key]=im}return im}
 
 export function installFleet(Game){
  for(const k of Object.values(SHIP_IMG))shipImg(k);
@@ -145,7 +145,7 @@ export function drawFleetLayer(c,game,{point}){
   const t=SHIP_TYPES[e.shipClass],key=`${e.faction==='entente'?'ent':'cen'}_${e.shipClass}`;
   const img=shipImg(SHIP_IMG[key]||key);
   const [x,y]=point(e.x,e.y);
-  const h=t.drawnH*.72,w=h*(img?.naturalWidth?img.naturalWidth/img.naturalHeight:(t.width/t.drawnH));
+  const h=t.drawnH*.9,w=h*(img?.naturalWidth?img.naturalWidth/img.naturalHeight:(t.width/t.drawnH));
   if(x<-h||x>cw+h||y<-h||y>ch+h)continue;
   if(img&&img.naturalWidth){
    c.save();c.translate(x,y);c.rotate(e.a+Math.PI/2);
@@ -153,13 +153,24 @@ export function drawFleetLayer(c,game,{point}){
    // resting on the surface far below, not floating at the plane's level.
    c.fillStyle='#0d2229';c.globalAlpha=.34;
    c.beginPath();c.ellipse(0,4,w*.62,h*.52,0,0,Math.PI*2);c.fill();
-   // Stern wake: tapered foam wash trailing behind a moving vessel.
-   if(!e.moored){c.fillStyle='#cfe0dd';c.globalAlpha=.30;
-    c.beginPath();c.moveTo(-w*.3,h*.30);c.quadraticCurveTo(0,h*.40,w*.3,h*.30);
-    c.quadraticCurveTo(w*.16,h*.78,0,h*.92);c.quadraticCurveTo(-w*.16,h*.78,-w*.3,h*.30);c.fill();
-    c.globalAlpha=.4;c.fillStyle='#e8f2ef';
-    c.beginPath();c.ellipse(0,-h*.42,w*.3,h*.07,0,0,Math.PI*2);c.fill();}
-   c.globalAlpha=.94;c.drawImage(img,-w/2,-h/2,w,h);
+   // Stern wake: long tapered foam wash + hull-side streaks trailing behind.
+   if(!e.moored){
+    c.fillStyle='#cfe0dd';c.globalAlpha=.36;
+    c.beginPath();c.moveTo(-w*.32,h*.28);c.quadraticCurveTo(0,h*.42,w*.32,h*.28);
+    c.quadraticCurveTo(w*.2,h*.95,0,h*1.18);c.quadraticCurveTo(-w*.2,h*.95,-w*.32,h*.28);c.fill();
+    // churned foam core
+    c.globalAlpha=.5;c.fillStyle='#eef6f3';
+    c.beginPath();c.moveTo(-w*.16,h*.30);c.quadraticCurveTo(0,h*.42,w*.16,h*.30);
+    c.quadraticCurveTo(w*.08,h*.82,0,h*.98);c.quadraticCurveTo(-w*.08,h*.82,-w*.16,h*.30);c.fill();
+    // hull-side foam streaks
+    c.strokeStyle='#dfecea';c.lineWidth=Math.max(2,w*.05);c.lineCap='round';c.globalAlpha=.5;
+    for(const s of [-1,1]){c.beginPath();c.moveTo(s*w*.34,-h*.18);c.quadraticCurveTo(s*w*.42,h*.15,s*w*.3,h*.62);c.stroke()}
+    // bow wave spray at the stem
+    c.globalAlpha=.55;c.fillStyle='#eef6f3';
+    c.beginPath();c.ellipse(0,-h*.46,w*.34,h*.08,0,0,Math.PI*2);c.fill();
+    c.globalAlpha=.4;c.fillStyle='#fff';
+    c.beginPath();c.ellipse(0,-h*.49,w*.2,h*.045,0,0,Math.PI*2);c.fill();}
+   c.globalAlpha=.96;c.drawImage(img,-w/2,-h/2,w,h);
    c.restore();
   }
  }

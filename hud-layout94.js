@@ -1,6 +1,6 @@
 // One shared flow: survival instruments left, boss/warning center, status right. ResizeObserver measures actual boxes.
-const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href='./reinforcement151.css?v=302';if(!document.querySelector('link[href*="reinforcement151.css"]'))document.head.append(sheet);
-const polished=document.createElement('link');polished.rel='stylesheet';polished.href='./flight-polish156.css?v=302';if(!document.querySelector('link[href*="flight-polish156.css"]'))document.head.append(polished);
+const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href='./reinforcement151.css?v=303';if(!document.querySelector('link[href*="reinforcement151.css"]'))document.head.append(sheet);
+const polished=document.createElement('link');polished.rel='stylesheet';polished.href='./flight-polish156.css?v=303';if(!document.querySelector('link[href*="flight-polish156.css"]'))document.head.append(polished);
 const install=()=>{
  const $=id=>document.getElementById(id),viewport=$('viewport'),box=(id,cls)=>{const el=document.createElement('div');if(id)el.id=id;if(cls)el.className=cls;return el},stack=box('flightStack151'),top=box('flightTop151'),survival=box(null,'flight-survival'),status=box(null,'flight-status'),statusPanel=box(null,'flight-status-panel'),center=box('flightCenter156'),notices=box('flightNotices151');
  viewport.append(stack);stack.append(top);
