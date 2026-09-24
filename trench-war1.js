@@ -104,14 +104,14 @@ export function drawTrenchLayer(c,game,{point}){
   const sx=Math.cos(b.dir),sy=Math.sin(b.dir);
   if(b.warn>0){
    c.save();c.globalAlpha=.5+.3*Math.sin(performance.now()/120);c.strokeStyle='#8a6a3a';c.lineWidth=2;
-   for(let l=-B.barrageHalfWidth;l<=B.barrageHalfWidth;l+=45){
+   for(let l=-TRENCH_BALANCE.barrageHalfWidth;l<=TRENCH_BALANCE.barrageHalfWidth;l+=45){
     const[x0,y0]=point(b.x+nx*l+sx*b.pos*0,b.y+ny*l+sy*0);
     c.beginPath();c.moveTo(x0-6,y0);c.lineTo(x0+6,y0);c.moveTo(x0,y0-6);c.lineTo(x0,y0+6);c.stroke();
    }
    c.restore();
   }else{
    c.save();
-   for(let l=-B.barrageHalfWidth;l<=B.barrageHalfWidth;l+=34){
+   for(let l=-TRENCH_BALANCE.barrageHalfWidth;l<=TRENCH_BALANCE.barrageHalfWidth;l+=34){
     const a=b.pos+((l*37)%40)-20;
     const[x0,y0]=point(b.x+sx*a+nx*l,b.y+sy*a+ny*l);
     if(x0<-40||x0>cw+40||y0<-40||y0>ch+40)continue;
