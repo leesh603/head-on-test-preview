@@ -175,9 +175,9 @@ function installHud(){
  const reload=$('reload'),ammo=$('ammoHud'),survival=document.querySelector('.flight-survival');if(!reload||!survival)return;
  for(const [id,name]of [['touchSkill','active'],['touchEvade','maneuver']]){
   const button=$(id);
-  // touchSkill already has the skillButtonIcon canvas painted with the
-  // faction emblem — only the evade button needs an inline icon.
-  if(name==='active')button.prepend(ring());
+  if(name==='active'){const f=$('central')?.classList.contains('active')?'central':'entente';
+   const img=el('img','astra-control-icon astra-skill-emblem');img.alt='';img.decoding='async';
+   img.src=`./augmentation-icons/skill_emblem_${f}.webp?v=299`;button.prepend(img,ring());}
   else button.prepend(interfaceIcon(name,'astra-control-icon'),ring());
  }
  const readout=el('div','astra-reload-readout'),caption=el('span'),seconds=el('b'),track=el('span','astra-reload-track'),fill=el('i');track.append(fill);readout.append(caption,seconds,track);survival.append(readout);
