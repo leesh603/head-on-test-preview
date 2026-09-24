@@ -18,7 +18,7 @@ export class BaseBoss {
     if(!Number.isFinite(damage)||damage<0)throw new Error('Invalid damage');
     if(this.dead)return{damage:0,blocked:true};
     if(partId){const p=this.parts.get(partId);if(!p)return{damage:0,blocked:true};const before=p.destroyed,dealt=p.hit(damage);
-      if(!before&&p.destroyed){this.emit({type:'part-destroyed',bossId:this.id,partId});this.onPartDestroyed(p);}
+      if(!before&&p.destroyed){p.destroyedAt=this.motionTime||0;this.emit({type:'part-destroyed',bossId:this.id,partId});this.onPartDestroyed(p);}
       return{damage:dealt,partId,partDestroyed:!before&&p.destroyed};}
     if(!this.coreVulnerable)return{damage:0,blocked:true};
     const dealt=Math.min(this.hp,damage);this.hp-=dealt;
