@@ -51,7 +51,8 @@ const FX_FILES=FX_OFF?{}:Object.assign({
  gas:'fx-pack-v189/gas-smoke/gas-broad.webp',
  gasSmall:'fx-pack-v189/gas-smoke/gas-small.webp',
  exhaust:'fx-pack-v189/gas-smoke/exhaust-rocket.webp',
- vaporTrail:'fx-pack-v189/gas-smoke/vapor-trail.webp'
+ vaporTrail:'fx-pack-v189/gas-smoke/vapor-trail.webp',
+ flameJet:'fx-flame-jet.webp'
 },FX56_OFF?{}:FX56_FILES);
 const fxImgs={};
 export const fxArtReady=typeof Image==='undefined'?Promise.resolve():Promise.all(Object.entries(FX_FILES).map(([key,file])=>new Promise(res=>{

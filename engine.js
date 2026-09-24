@@ -275,13 +275,20 @@ Game.prototype.update=function(dt,input={}){
 };
 
 // Heavy, opposing-faction bombers are periodic enemies, never selectable aircraft.
+const HEAVY_BOMBERS={central:[['staaken','체펠린 슈타켄 R.VI'],['gotha','고타 G.V 중폭격기'],['aeg_g4','AEG G.IV 중폭격기'],['friedrichshafen_g3','프리드리히스하펜 G.III']],
+ entente:[['handley-page','핸들리 페이지 O/400'],['voisin8','부아생 VIII 야간폭격기'],['caudron_g4','코드롱 G.4 폭격기'],['fe2b','F.E.2b 푸셔 폭격기'],['breguet14','브레게 14 주간폭격기']]};
+const HEAVY_BOMBERS_SEA={central:[],entente:[['felixstowe_f2','펠릭스토우 F.2 비행정']]};
+Game.prototype._pickHeavy=function(){
+ const sea=[1,7].includes(this.worldRegion?.()??-1);
+ const pool=[...(HEAVY_BOMBERS[this.faction==='central'?'entente':'central']||[]),...(sea?(HEAVY_BOMBERS_SEA[this.faction==='central'?'entente':'central']||[]):[])];
+ return pool[Math.floor(this.rng()*pool.length)]||HEAVY_BOMBERS.entente[0];
+};
 const _spawnWithHeavy=Game.prototype.spawnEnemy;
 Game.prototype.spawnEnemy=function(type){
  _spawnWithHeavy.call(this,type==='heavyBomber'?'bomber':type);
  if(type!=='heavyBomber')return;
  const e=this.enemies.at(-1);e.heavyBomber=true;e.ace=false;
- e.airframe=e.faction==='central'?'staaken':'handley-page';
- e.name=e.faction==='central'?'체펠린 슈타켄 R.VI':'핸들리 페이지 O/400';
+ const pick=this._pickHeavy();e.airframe=pick[0];e.name=pick[1];
  e.maxHp=e.hp=Math.round(650*(1+this.t/160));e.speed=52*(1+this.t/900);e.fire=2.8;
 };
 const _updateWithHeavy=Game.prototype.update;
@@ -594,7 +601,7 @@ Game.prototype.update=function(dt,input={}){
  this.friendlyBombers??=[];this.friendlyBombs??=[];
  if(this.bomberLevel){this.bomberTimer=(this.bomberTimer??2)-step;if(this.bomberTimer<=0){
   this.bomberTimer=Math.max(10,18-(this.bomberLevel-1)*2);const a=this.a;
-  this.friendlyBombers.push({ox:this.x,oy:this.y,x:this.x-Math.cos(a)*650,y:this.y-Math.sin(a)*650,a,age:0,drop:.8,left:5,airframe:PLANES[this.plane].faction==='central'?'staaken':'handley-page'});
+  this.friendlyBombers.push({ox:this.x,oy:this.y,x:this.x-Math.cos(a)*650,y:this.y-Math.sin(a)*650,a,age:0,drop:.8,left:5,airframe:[...(HEAVY_BOMBERS[PLANES[this.plane].faction]||[]),...([1,7].includes(this.worldRegion?.()??-1)?(HEAVY_BOMBERS_SEA[PLANES[this.plane].faction]||[]):[])][Math.floor(this.rng()*([...(HEAVY_BOMBERS[PLANES[this.plane].faction]||[]),...([1,7].includes(this.worldRegion?.()??-1)?(HEAVY_BOMBERS_SEA[PLANES[this.plane].faction]||[]):[])].length))][0]});
   this.event('ally','아군 폭격대 진입 · 폭탄 5발 투하');
  }}
  for(const b of this.friendlyBombers){b.age+=step;const d=-650+b.age*480;b.x=b.ox+Math.cos(b.a)*d;b.y=b.oy+Math.sin(b.a)*d;b.drop-=step;
