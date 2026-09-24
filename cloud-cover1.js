@@ -25,7 +25,7 @@ function cloudImg(type,seed){
  const list=CLOUD_IMGS[type]||CLOUD_IMGS.cumulus;
  const key=list[Math.floor(((seed||0)/6.283)*list.length)%list.length];
  let im=_imgCache[key];
- if(im===undefined){im=new Image();im.src=`./${key}.webp?v=283&b=283`;im.onload=()=>{_imgCache[key]=im};_imgCache[key]=im}
+ if(im===undefined){im=new Image();im.src=`./${key}.webp?v=291&b=291`;im.onload=()=>{_imgCache[key]=im};_imgCache[key]=im}
  return im;
 }
 
