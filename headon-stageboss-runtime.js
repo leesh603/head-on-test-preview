@@ -64,7 +64,7 @@ export class StageBossAddon {
       this.hooks.spawnMinion({...event,encounterId,id:this.runId+':boss-minion:'+this.serial++});
     }else if(event.type==='body-defeated') {
       const body=this.stages.encounter?.bodies.get(event.bossId),zubianHalf=body?.kind?.startsWith('hms-zubian-');
-      if(zubianHalf&&!this.bodyDefeats.some(d=>d.id===body.id))this.bodyDefeats.push({id:body.id,kind:body.kind,x:body.x,y:body.y,age:0,duration:1.35});
+      if(zubianHalf&&!this.bodyDefeats.some(d=>d.id===body.id))this.bodyDefeats.push({id:body.id,kind:body.kind,x:body.x,y:body.y,age:0,duration:3.2});
       this.hooks.onCue({...event,encounterId,x:body?.x,y:body?.y,kind:body?.kind});
     }else if(event.type==='building-impact') {
       if(!this.frameContext||!this.hooks.onBuildingImpact({...event,encounterId}))return;
