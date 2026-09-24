@@ -46,7 +46,7 @@ const TRANSPARENT_PORTRAIT='data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAA
 const eliteAssets=createEliteAssets({
  lePrieur:'./elite-patch/assets/le-prieur-squadron.webp?v=210',
  schlachtstaffel:'./elite-patch/assets/halberstadt-cliv-squadron.webp?v=210',
- drawPlayerRocket:(c,x,y,angle,size)=>{if(!fx(c,'rocket',x,y,size,size*.3,angle))drawEquipment(c,'rocket',x,y,angle,size)}
+ drawPlayerRocket:(c,x,y,angle,size)=>{if(!fx(c,'rocket',x,y,size,size*.3,angle-Math.PI/2))drawEquipment(c,'rocket',x,y,angle,size)}
 });
 installHeadOnElitePatch(Game,{
  planes:PLANES,
