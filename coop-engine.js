@@ -2,6 +2,7 @@ import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,h
 
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=283&b=283';
 import {attachAircraftPersonality} from './aircraft-personality164.js?v=218';
+import {installCloudCover} from './cloud-cover1.js?v=283&b=283';
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.
 export const COOP_BALANCE=Object.freeze({spawn:1,ordinaryHp:1.15,heavyHp:1.65,enemyCap:28,xp:.6,revive:15,reviveHp:1,reviveAmmo:.5,reviveInvuln:2,minZoom:.75});
@@ -229,3 +230,6 @@ CoopGame.prototype.updatePlayer=function(p,dt,input){
 
 // Read-only world helpers reuse the current single-player combat catalog and hazards.
 for(const method of ['runScheduledAces','supportAuraAt','enemyCapacity','isOpeningCountryside','regularEnemyLimit','regularSpawnInterval','aircraftMix','friendlyAircraftMix','queueBossLevel','resolveBossLevels','spawnComposition','canSpawnRevision','tickRevisionWorld','revisionDecoyTarget','burst','smoke','combatBlast','aceWaveCount','nextAceWaveAt','prepareBossWave','worldRegion','clearRegionalHazards','spawnMinefield','spawnGas','wreckGust','patrolCanEngage','spawnPatrol','hitPatrol','updatePatrols','targetCollision','canHitTarget','fieldVolley','combatWorld','dropSpecialAmmo','dropObservationRepair','dogfightSteering','tickBattleDirector','beginBattleDirectorPattern','canOfferBattlefieldEvent','offerBattlefieldEvent','acceptBattlefieldEvent','declineBattlefieldEvent','tickBattlefieldEvents','tickRivalAce','mobSpawnsSuppressed'])CoopGame.prototype[method]=Game.prototype[method];
+
+// Cloud concealment: per-player conceal timers + enemy lock-breaking, same rules as solo.
+installCloudCover(CoopGame);
