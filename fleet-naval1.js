@@ -50,6 +50,7 @@ export function installFleet(Game){
  };
  const _fleetFire61=Game.prototype.fireEnemy;
  Game.prototype.fireEnemy=function(e){
+  if(e.harborFacility){e.fire=5;return}
   if(!e.movingShip)return _fleetFire61.call(this,e);
   const t=SHIP_TYPES[e.shipClass],boost=(this.fleetBoostUntil||0)>(this.t||0)?.7:1;
   e.fire=t.interval*boost;
@@ -66,6 +67,25 @@ export function installFleet(Game){
    this.burst(gx,gy,'#ffd9a0',5);
   }
   e.gunAim=aim;e.muzzleFlash=.16;this.event('enemyShot','');
+ };
+ // Zeebrugge harbor defense network — destructible facilities the player prioritizes.
+ P.spawnHarborFacilities=function(){
+  if(this.worldRegion()!==7||this._harborSpawned)return;
+  this._harborSpawned=true;
+  const route=this.navalRoute,heading=route?route.a:this.a,hx=Math.cos(heading),hy=Math.sin(heading),nx=-hy,ny=hx;
+  const ahead=560+this.rng()*160,lateral=(this.rng()>.5?1:-1)*(240+this.rng()*120);
+  const bx=this.x+hx*ahead+nx*lateral,by=this.y+hy*ahead+ny*lateral;
+  const defs=[
+   {kind:'gun',name:'해안포대',hp:220,fire:3,sprite:'fx-city-aagun',size:96},
+   {kind:'base',name:'수상기 기지',hp:260,fire:8,sprite:'boss-armored-harbor-seaplane-facility',size:150},
+   {kind:'depot',name:'탄약고',hp:140,fire:0,sprite:'boss-armored-harbor-ammo-storage',size:110}
+  ];
+  for(let i=0;i<defs.length;i++){
+   const d=defs[i],e=this.spawnEnemy('bomber');if(!e)break;
+   const off=(i-1)*230,along=i*140-70;
+   Object.assign(e,{type:'facility',harborFacility:d.kind,facSprite:d.sprite,facSize:d.size,name:d.name,x:bx+nx*off+hx*along,y:by+ny*off+hy*along,a:heading+Math.PI/2,speed:0,stationary:true,surface:true,hitRadius:d.size*.48,hp:d.hp,maxHp:d.hp,fire:d.fire,ace:false,escortPlane:undefined,hazardRegion:7,xpValue:d.kind==='depot'?6:12,baseTimer:0,gunFire:3});
+  }
+  this.event('flak','군항 방어시설 발견 — 우선순위를 선택하세요');
  };
  P._friendlyShipFire=function(e,t){
   let best=null,bd=850*850;
@@ -98,6 +118,39 @@ export function installFleet(Game){
    e.x+=Math.cos(heading)*e.speed*step;e.y+=Math.sin(heading)*e.speed*step;e.a=heading;
    if(Math.hypot(e.x-this.x,e.y-this.y)>2600)e.expired=true;
   }
+  // Harbor facilities tick: coastal gun fire, seaplane-base reinforcement, depot blast.
+  if(region===7){
+   if(!this._harborSpawned)this.spawnHarborFacilities();
+   for(const e of this.enemies){
+    if(!e.harborFacility)continue;
+    if(e.hp<=0){
+     if(e.harborFacility==='depot'&&!e._blasted){e._blasted=true;this.combatBlast(e.x,e.y,185,'enemy','depot');
+      for(const foe of this.enemies)if(foe.hp>0&&Math.hypot(foe.x-e.x,foe.y-e.y)<185){foe.hp-=95;foe.hitFlash=.3}
+      if(Math.hypot(this.x-e.x,this.y-e.y)<185)this.hit(32);
+      this.event('flak','탄약고 폭발 — 주변이 초토화됐습니다')}
+     continue;
+    }
+    if(Math.hypot(e.x-this.x,e.y-this.y)>2500){e.expired=true;continue}
+    if(e.harborFacility==='gun'){
+     e.gunFire-=step;
+     if(e.gunFire<=0&&Math.hypot(e.x-this.x,e.y-this.y)<1100){e.gunFire=5.5;
+      const lead=Math.hypot(e.x-this.x,e.y-this.y)/230;
+      const tx=this.x+Math.cos(this.a||0)*(this.speed||0)*lead,ty=this.y+Math.sin(this.a||0)*(this.speed||0)*lead;
+      const aim=Math.atan2(ty-e.y,tx-e.x);
+      for(let i=-1;i<=1;i++){const h=aim+i*.13;this.bullets.push({x:e.x,y:e.y,vx:Math.cos(h)*230,vy:Math.sin(h)*230,life:4.8,enemy:true,heavy:true,naval:true,hazardRegion:7,damage:Math.round(20*(1+this.t/300))})}
+      this.burst(e.x,e.y,'#ffd9a0',8);e.muzzleFlash=.16;this.event('enemyShot','');
+     }
+    }else if(e.harborFacility==='base'){
+     e.baseTimer=(e.baseTimer||6)-step;
+     if(e.baseTimer<=0){e.baseTimer=27;
+      if(this.enemies.filter(s=>s.seaplane&&s.hp>0).length<3&&this.enemies.length<58){
+       const s=this.spawnEnemy('scout');
+       if(s)Object.assign(s,{seaplane:true,name:'수상기',x:e.x,y:e.y,speed:88,hp:30,maxHp:30,ace:false});
+      }
+     }
+    }
+   }
+  }else this._harborSpawned=false;
   // Ambient recon planes over the sea.
   if([1,7].includes(region)){
    this.reconTimer=(this.reconTimer??18)-step;
@@ -116,6 +169,13 @@ export function installFleet(Game){
 export function drawFleetLayer(c,game,{point}){
  const cw=c.canvas.width,ch=c.canvas.height;
  for(const e of game.enemies||[]){
+  if(e.harborFacility&&e.hp>0){
+   const img=shipImg(e.facSprite),[x,y]=point(e.x,e.y),s=e.facSize;
+   if(x<-s||x>cw+s||y<-s||y>ch+s)continue;
+   if(img&&img.naturalWidth){c.save();c.translate(x,y);c.rotate(e.a-Math.PI/2);c.drawImage(img,-s/2,-s/2,s,s);c.restore()}
+   c.fillStyle='#24332b';c.fillRect(x-20,y+s*.55,40,4);c.fillStyle='#de9b73';c.fillRect(x-20,y+s*.55,40*e.hp/e.maxHp,4);
+   continue;
+  }
   if(!e.movingShip||e.hp<=0)continue;
   const t=SHIP_TYPES[e.shipClass],key=`${e.faction==='entente'?'ent':'cen'}_${e.shipClass}`;
   const img=shipImg(key);
