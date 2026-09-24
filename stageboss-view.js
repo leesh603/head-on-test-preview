@@ -1,9 +1,9 @@
-import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=312&b=312';
-import {fx,fxReady,fxImage} from './fx-art.js?v=312';
-import {drawEnemyProjectile} from './projectiles.js?v=312&b=312';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=312';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=312';
-import {bossHudModel} from './headon-stageboss-hud.js?v=312&b=312';
+import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=313&b=313';
+import {fx,fxReady,fxImage} from './fx-art.js?v=313';
+import {drawEnemyProjectile} from './projectiles.js?v=313&b=313';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=313';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=313';
+import {bossHudModel} from './headon-stageboss-hud.js?v=313&b=313';
 
 function createLazyImageGroup(sources){
  const cache={},pending={};
@@ -23,8 +23,8 @@ function createLazyImageGroup(sources){
 const supportGroup=createLazyImageGroup({ship:'./stuttgart-open129.webp',cover:'./stuttgart-cover129.webp'}),supportImages129=supportGroup.images;
 
 const bossSources={
- parisGun:'./boss-bruno-train115.webp',lincomparable:'./boss-lincomparable94.webp?v=312&b=312',stuttgart:'./boss-sms-stuttgart94.webp',zubian:'./boss-hms-zubian94.webp',
- l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=312&b=312',ca4:'./boss-ca4.webp?v=312&b=312',
+ parisGun:'./boss-bruno-train115.webp',lincomparable:'./boss-lincomparable94.webp?v=313&b=313',stuttgart:'./boss-sms-stuttgart94.webp',zubian:'./boss-hms-zubian94.webp',
+ l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=313&b=313',ca4:'./boss-ca4.webp?v=313&b=313',
  londonApron:'./boss-london-apron115.webp',drachenNet:'./boss-drachen-net115.webp'
 };
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
@@ -63,8 +63,8 @@ const railConsistSources={
  lincomparable:{engine:'./rail-boss-lincomparable-engine181.webp',front:'./rail-boss-lincomparable-front181.webp',middle:'./rail-boss-lincomparable-middle181.webp',rear:'./rail-boss-lincomparable-rear181.webp'}
 };
 const railWreckSources={
- parisGun:{engine:'./rail-boss-bruno-engine-wreck192.webp?v=312&b=312',front:'./rail-boss-bruno-front-wreck192.webp?v=312&b=312',middle:'./rail-boss-bruno-middle-wreck192.webp?v=312&b=312',rear:'./rail-boss-bruno-rear-wreck192.webp?v=312&b=312'},
- lincomparable:{engine:'./rail-boss-lincomparable-engine-wreck192.webp?v=312&b=312',front:'./rail-boss-lincomparable-front-wreck192.webp?v=312&b=312',middle:'./rail-boss-lincomparable-middle-wreck192.webp?v=312&b=312',rear:'./rail-boss-lincomparable-rear-wreck192.webp?v=312&b=312'}
+ parisGun:{engine:'./rail-boss-bruno-engine-wreck192.webp?v=313&b=313',front:'./rail-boss-bruno-front-wreck192.webp?v=313&b=313',middle:'./rail-boss-bruno-middle-wreck192.webp?v=313&b=313',rear:'./rail-boss-bruno-rear-wreck192.webp?v=313&b=313'},
+ lincomparable:{engine:'./rail-boss-lincomparable-engine-wreck192.webp?v=313&b=313',front:'./rail-boss-lincomparable-front-wreck192.webp?v=313&b=313',middle:'./rail-boss-lincomparable-middle-wreck192.webp?v=313&b=313',rear:'./rail-boss-lincomparable-rear-wreck192.webp?v=313&b=313'}
 };
 const railGroups={},railConsistArt={},railWreckGroups={},railWreckArt={};
 for(const [set,sources] of Object.entries(railConsistSources)){const group=createLazyImageGroup(sources);railGroups[set]=group;railConsistArt[set]=group.images;const wreckGroup=createLazyImageGroup(railWreckSources[set]);railWreckGroups[set]=wreckGroup;railWreckArt[set]=wreckGroup.images;}
@@ -85,11 +85,11 @@ function drawRailConsist181(c,b){
  c.drawImage(engine,-130,-195,260,390);c.restore();
 }
 const LARGE_HULLS=Object.freeze({gik:{halfWidth:128,halfHeight:150},ca4:{halfWidth:128,halfHeight:150},'armored-harbor-fortress':{halfWidth:245,halfHeight:235}});
-const zubianGroup=createLazyImageGroup({atlas:'./zubian-atlas.webp?v=312'}),zubianArt=zubianGroup.images;
+const zubianGroup=createLazyImageGroup({atlas:'./zubian-atlas.webp?v=313'}),zubianArt=zubianGroup.images;
 const zubianFrames={intact:[90,4,185,500],front:[317,12,185,324],rear:[510,208,184,296]};
 function drawZubianFrame(c,key,x,y,w,h){const zubianAtlas=zubianArt.atlas;if(!zubianAtlas.naturalWidth)return;const f=zubianFrames[key];c.save();c.imageSmoothingEnabled=true;c.drawImage(zubianAtlas,f[0],f[1],f[2],f[3],x-w/2,y-h/2,w,h);c.restore();}
 const drawBossArt=(c,key,w,h)=>{const image=bossArt[key];if(image?.naturalWidth)c.drawImage(image,-w/2,-h/2,w,h)};
-const cityGroup=createLazyImageGroup({london:'./terrain-city-london96.webp?v=312&b=312',berlin:'./terrain-city-berlin96.webp?v=312&b=312'}),cityArt=cityGroup.images;
+const cityGroup=createLazyImageGroup({london:'./terrain-city-london96.webp?v=313&b=313',berlin:'./terrain-city-berlin96.webp?v=313&b=313'}),cityArt=cityGroup.images;
 // Dedicated aircraft-style sprite atlas; collider sizes remain authoritative.
 const partGroup=createLazyImageGroup({atlas:'./boss-parts100.webp'}),partArt=partGroup.images;
 function bossSprite(c,index,x,y,w,h,angle=0,alpha=1){
@@ -304,18 +304,21 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
       // Flame tongues emitted from the muzzle one after another — they travel
       // down the beam and chain into a moving stream, not a static image.
       const reach=Math.min(1,activeAge/.5),jetLen=(h.length-muzzle)*reach,thick=h.thickness;
-      const sw=img.naturalWidth,sh=img.naturalHeight,step=thick*.95,scroll=(h.age*780)%step;
-      c.save();c.beginPath();c.rect(muzzle-30,-thick*2.6,jetLen+90,thick*5.2);c.clip();
+      const step=thick*.85,scroll=(h.age*760)%step;
+      const tongues=[1,2,3].map(k=>fxImage('flameTongue'+k)).filter(i=>i?.naturalWidth);
+      c.save();c.beginPath();c.rect(muzzle-30,-thick*2.6,jetLen+90,thick*5.6);c.clip();
       // Fixed taper at the muzzle so the stream visibly leaves the barrel.
-      const head=step*2.1;c.globalAlpha=.95;
-      c.drawImage(img,0,sh*.28,sw*.16,sh*.44,muzzle,-thick*.9,head,thick*1.8);
+      const head=step*2.4;c.globalAlpha=.95;
+      c.drawImage(img,muzzle,-thick*.9,head,thick*1.8);
+      // Feathered-edge tongues overlapped while scrolling — they merge into
+      // one moving stream with no visible cut seams.
+      const src=tongues.length?tongues:[img];
       for(let i=0;i<Math.ceil(jetLen/step)+1;i++){
        const d=muzzle+((i*step+scroll)%Math.max(step,jetLen));
        const t=Math.min(1,(d-muzzle)/Math.max(1,jetLen));
-       const sx=sw*(.3+((i*37)%4)*.04),cw=sw*.22;
-       const dw=step*2.6,dh=thick*(1.5+t*2.1),jy=Math.sin(h.age*17+i*2.4)*thick*.28;
-       c.globalAlpha=.82+Math.sin(h.age*23+i*1.9)*.12;
-       c.drawImage(img,sx,sh*.12,cw,sh*.76,d-dw*.35,jy-dh/2,dw,dh);}
+       const dw=step*3.1,dh=thick*(1.4+t*1.9),jy=Math.sin(h.age*17+i*2.4)*thick*.3;
+       c.globalAlpha=.8+Math.sin(h.age*23+i*1.9)*.14;
+       c.drawImage(src[i%src.length],d-dw*.42,jy-dh/2,dw,dh);}
       c.globalAlpha=1;c.restore();}
     }else{c.lineCap='round';c.lineWidth=h.thickness;c.strokeStyle=warning?'#ffb45f44':'#ff6a2dcc';c.beginPath();c.moveTo(h.x,h.y);c.lineTo(x2,y2);c.stroke();c.lineWidth=Math.max(4,h.thickness*.34);c.strokeStyle=warning?'#ffe0a866':'#fff0a8';c.stroke();}}
    else if(h.kind==='searchlight'){if(fxReady('searchlight')&&!warning)fx(c,'searchlight',h.x+Math.cos(h.angle)*h.radius*.55,h.y+Math.sin(h.angle)*h.radius*.55,h.radius*1.3,h.radius*h.halfAngle*1.5,h.angle,.8);const glow=c.createRadialGradient(h.x,h.y,0,h.x,h.y,h.radius);glow.addColorStop(0,warning?'#f8e5a526':'#fff1bc4d');glow.addColorStop(.65,warning?'#ead18f0d':'#f3dfa621');glow.addColorStop(1,'#f3dfa600');c.fillStyle=glow;c.beginPath();c.moveTo(h.x,h.y);c.arc(h.x,h.y,h.radius,h.angle-h.halfAngle,h.angle+h.halfAngle);c.closePath();c.fill();if(warning){c.strokeStyle='#d9c89755';c.lineWidth=1;c.stroke();}}
