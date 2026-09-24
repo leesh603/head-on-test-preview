@@ -12,7 +12,7 @@ let _shipImgs={};
 function shipImg(key){let im=_shipImgs[key];if(im===undefined){im=new Image();im.src=`./${key}.webp?v=293&b=293`;im.onload=()=>{_shipImgs[key]=im};_shipImgs[key]=im}return im}
 
 export function installFleet(Game){
- for(const k of [...Object.values(SHIP_IMG),'fx-city-aagun','fx-city-ammo','fx-harbor-seaplane-base','fx-harbor-mole'])shipImg(k);
+ for(const k of Object.values(SHIP_IMG))shipImg(k);
  const P=Game.prototype;
  P.spawnMovingFleet=function(faction){
   const region=this.worldRegion();
@@ -51,7 +51,6 @@ export function installFleet(Game){
  };
  const _fleetFire61=Game.prototype.fireEnemy;
  Game.prototype.fireEnemy=function(e){
-  if(e.harborFacility){e.fire=5;return}
   if(!e.movingShip)return _fleetFire61.call(this,e);
   const t=SHIP_TYPES[e.shipClass],boost=(this.fleetBoostUntil||0)>(this.t||0)?.7:1;
   e.fire=t.interval*boost;
@@ -68,39 +67,6 @@ export function installFleet(Game){
    this.burst(gx,gy,'#ffd9a0',5);
   }
   e.gunAim=aim;e.muzzleFlash=.16;this.event('enemyShot','');
- };
- // Zeebrugge harbor defense network — destructible facilities the player prioritizes.
- P.spawnHarborFacilities=function(){
-  if(this.worldRegion()!==7||this._harborSpawned)return;
-  this._harborSpawned=true;
-  const route=this.navalRoute,heading=route?route.a:this.a,hx=Math.cos(heading),hy=Math.sin(heading),nx=-hy,ny=hx;
-  const ahead=560+this.rng()*160,lateral=(this.rng()>.5?1:-1)*(240+this.rng()*120);
-  const bx=this.x+hx*ahead+nx*lateral,by=this.y+hy*ahead+ny*lateral;
-  this._harborQuay={x:bx,y:by,a:heading+Math.PI/2,h:heading};
-  const defs=[
-   {kind:'gun',name:'해안포대',hp:220,fire:3,sprite:'fx-city-aagun',size:170,off:-380},
-   {kind:'base',name:'수상기 기지',hp:260,fire:8,sprite:'fx-harbor-seaplane-base',size:300,off:0},
-   {kind:'depot',name:'탄약고',hp:140,fire:0,sprite:'fx-city-ammo',size:150,off:380}
-  ];
-  for(let i=0;i<defs.length;i++){
-   const d=defs[i],e=this.spawnEnemy('bomber');if(!e)break;
-   Object.assign(e,{type:'facility',harborFacility:d.kind,facSprite:d.sprite,facSize:d.size,name:d.name,x:bx+nx*d.off+hx*80,y:by+ny*d.off+hy*80,a:heading+Math.PI/2,speed:0,stationary:true,surface:true,hitRadius:d.size*.48,hp:d.hp,maxHp:d.hp,fire:d.fire,ace:false,escortPlane:undefined,hazardRegion:7,xpValue:d.kind==='depot'?6:12,baseTimer:0,gunFire:3});
-  }
-  this.event('flak','군항 방어시설 발견 — 우선순위를 선택하세요');
- };
- // Anchored friendly patrol boats dress the harbor and provide flak cover.
- P.spawnMooredShips=function(){
-  if(this.worldRegion()!==7||this._mooredSpawned)return;
-  this._mooredSpawned=true;
-  const side=PLANES[this.plane]?.faction??'entente',q=this._harborQuay,heading=(this.navalRoute?this.navalRoute.a:this.a);
-  const hx=Math.cos(heading),hy=Math.sin(heading),nx=-hy,ny=hx;
-  const qx=q?q.x:this.x,qy=q?q.y:this.y,seaOff=-150;
-  const offs=[-480,100,540];
-  for(let i=0;i<3;i++){
-   const cls=i===0?'aa':'dd',t=SHIP_TYPES[cls],e=this.spawnEnemy('bomber');if(!e)break;
-   const bx=qx+nx*offs[i]+hx*seaOff,by=qy+ny*offs[i]+hy*seaOff;
-   Object.assign(e,{type:'ship',shipClass:cls,faction:side,name:'정박 '+(cls==='aa'?'방공함':'초계함'),x:bx,y:by,a:(q?q.a:heading)+(i%2?-.06:.06),course:0,weave:0,speed:0,stationary:true,surface:true,navalVessel:true,movingShip:true,moored:true,hitRadius:cls==='aa'?72:52,hullLength:cls==='aa'?190:150,hullWidth:cls==='aa'?102:44,hp:t.hp,maxHp:t.hp,fire:3+i*1.7,ace:false,escortPlane:undefined,life:120,hazardRegion:7,xpValue:0});
-  }
  };
  // Distant friendly patrols cross the Adriatic horizon as ambient traffic.
  P.spawnDistantPatrol=function(){
@@ -157,41 +123,6 @@ export function installFleet(Game){
     else if(this.enemies.length<62)this.spawnDistantPatrol();
    }
   }else this.fleetAmbient=14;
-  // Harbor facilities tick: coastal gun fire, seaplane-base reinforcement, depot blast.
-  if(region===7){
-   if(!this._harborSpawned)this.spawnHarborFacilities();
-   if(!this._mooredSpawned)this.spawnMooredShips();
-   for(const e of this.enemies){
-    if(!e.harborFacility)continue;
-    if(e.hp<=0){
-     if(e.harborFacility==='depot'&&!e._blasted){e._blasted=true;this.combatBlast(e.x,e.y,185,'enemy','depot');
-      for(const foe of this.enemies)if(foe.hp>0&&Math.hypot(foe.x-e.x,foe.y-e.y)<185){foe.hp-=95;foe.hitFlash=.3}
-      if(Math.hypot(this.x-e.x,this.y-e.y)<185)this.hit(32);
-      this.event('flak','탄약고 폭발 — 주변이 초토화됐습니다')}
-     continue;
-    }
-    if(Math.hypot(e.x-this.x,e.y-this.y)>2500){e.expired=true;continue}
-    if(e.harborFacility==='gun'){
-     e.gunFire-=step;
-     if(e.gunFire<=0&&Math.hypot(e.x-this.x,e.y-this.y)<1100){e.gunFire=5.5;
-      const lead=Math.hypot(e.x-this.x,e.y-this.y)/230;
-      const tx=this.x+Math.cos(this.a||0)*(this.speed||0)*lead,ty=this.y+Math.sin(this.a||0)*(this.speed||0)*lead;
-      const aim=Math.atan2(ty-e.y,tx-e.x);
-      for(let i=-1;i<=1;i++){const h=aim+i*.13;this.bullets.push({x:e.x,y:e.y,vx:Math.cos(h)*230,vy:Math.sin(h)*230,life:4.8,enemy:true,heavy:true,naval:true,hazardRegion:7,damage:Math.round(20*(1+this.t/300))})}
-      this.burst(e.x,e.y,'#ffd9a0',8);e.muzzleFlash=.16;this.event('enemyShot','');
-     }
-    }else if(e.harborFacility==='base'){
-     e.baseTimer=(e.baseTimer||6)-step;
-     if(e.baseTimer<=0){e.baseTimer=27;
-      if(this.enemies.filter(s=>s.seaplane&&s.hp>0).length<3&&this.enemies.length<58){
-       const s=this.spawnEnemy('scout');
-       if(s)Object.assign(s,{seaplane:true,name:'수상기',x:e.x,y:e.y,speed:88,hp:30,maxHp:30,ace:false});
-      }
-     }
-    }
-   }
-   if(this._harborQuay&&Math.hypot(this._harborQuay.x-this.x,this._harborQuay.y-this.y)>2950)this._harborQuay=null;
-  }else this._harborSpawned=false;
   // Ambient recon planes over the sea.
   if([1,7].includes(region)){
    this.reconTimer=(this.reconTimer??18)-step;
@@ -209,49 +140,7 @@ export function installFleet(Game){
 
 export function drawFleetLayer(c,game,{point}){
  const cw=c.canvas.width,ch=c.canvas.height;
- const q=game._harborQuay;
- if(q){
-  // Coastline: a landmass fills the landward side of the quay line so the harbor
-  // reads as a defended coast, not objects floating on open sea.
-  const hx=Math.cos(q.h||0),hy=Math.sin(q.h||0),nx=-hy,ny=hx;
-  const jag=t=>Math.sin(t*.012+q.x*.013)*26+Math.sin(t*.031)*11;
-  const N=1700,DEPTH=2600,pts=[];
-  for(let t=-N;t<=N;t+=140)pts.push([t,jag(t)]);
-  c.save();c.beginPath();
-  let first=true;
-  for(const [t,j] of pts){const [sx,sy]=point(q.x+nx*t+hx*j,q.y+ny*t+hy*j);first?c.moveTo(sx,sy):c.lineTo(sx,sy);first=false}
-  const farA=point(q.x+nx*N+hx*DEPTH,q.y+ny*N+hy*DEPTH),farB=point(q.x-nx*N+hx*DEPTH,q.y-ny*N+hy*DEPTH);
-  c.lineTo(farA[0],farA[1]);c.lineTo(farB[0],farB[1]);c.closePath();
-  c.fillStyle='#778563';c.fill();
-  // Rural-look texture patches on the landmass (deterministic, cheap).
-  c.fillStyle='#6d7e5d';
-  for(let i=0;i<26;i++){const t=-N+((i*613)%3400),d=60+((i*397)%400),j=jag(t)+d;
-   const [sx,sy]=point(q.x+nx*t+hx*j,q.y+ny*t+hy*j);c.fillRect(sx-26,sy-16,52,32)}
-  c.fillStyle='#81906c';
-  for(let i=0;i<18;i++){const t=-N+((i*827)%3400),d=120+((i*521)%680),j=jag(t)+d;
-   const [sx,sy]=point(q.x+nx*t+hx*j,q.y+ny*t+hy*j);c.fillRect(sx-34,sy-11,68,22)}
-  // Sandy foreshore band + foam line along the jagged shoreline.
-  c.fillStyle='#a89a72';
-  c.beginPath();first=true;
-  for(const [t,j] of pts){const [sx,sy]=point(q.x+nx*t+hx*(j-52),q.y+ny*t+hy*(j-52));first?c.moveTo(sx,sy):c.lineTo(sx,sy);first=false}
-  for(let i=pts.length-1;i>=0;i--){const [t,j]=pts[i];const [sx,sy]=point(q.x+nx*t+hx*j,q.y+ny*t+hy*j);c.lineTo(sx,sy)}
-  c.closePath();c.fill();
-  c.strokeStyle='#dfe8d8';c.lineWidth=2.4;c.globalAlpha=.8;
-  c.beginPath();first=true;
-  for(const [t,j] of pts){const [sx,sy]=point(q.x+nx*t+hx*(j-8),q.y+ny*t+hy*(j-8));first?c.moveTo(sx,sy):c.lineTo(sx,sy);first=false}
-  c.stroke();c.globalAlpha=1;c.restore();
-  const mi=shipImg('fx-harbor-mole');
-  if(mi&&mi.naturalWidth){const [x,y]=point(q.x,q.y),w=1650,h=w*mi.naturalHeight/mi.naturalWidth;
-   if(x>-w&&x<cw+w&&y>-w&&y<ch+w){c.save();c.translate(x,y);c.rotate(q.a);c.drawImage(mi,-w/2,-h/2,w,h);c.restore()}}
- }
  for(const e of game.enemies||[]){
-  if(e.harborFacility&&e.hp>0){
-   const img=shipImg(e.facSprite),[x,y]=point(e.x,e.y),s=e.facSize;
-   if(x<-s||x>cw+s||y<-s||y>ch+s)continue;
-   if(img&&img.naturalWidth){c.save();c.translate(x,y);c.rotate(e.a-Math.PI/2);c.drawImage(img,-s/2,-s/2,s,s);c.restore()}
-   c.fillStyle='#24332b';c.fillRect(x-20,y+s*.55,40,4);c.fillStyle='#de9b73';c.fillRect(x-20,y+s*.55,40*e.hp/e.maxHp,4);
-   continue;
-  }
   if(!e.movingShip||e.hp<=0)continue;
   const t=SHIP_TYPES[e.shipClass],key=`${e.faction==='entente'?'ent':'cen'}_${e.shipClass}`;
   const img=shipImg(key);
