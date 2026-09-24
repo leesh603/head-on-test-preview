@@ -76,10 +76,16 @@ function drawRailConsist181(c,b){
  for(const [id,key] of [['car-rear','rear'],['car-middle','middle'],['car-front','front']]){const car=cars.get(id);if(!car)continue;
   const wreckImage=wreckImages[key]; // Load only the active train's wreck art.
   if(!car.destroyed){c.drawImage(images[key],-130,car.y-195,260,390);continue}
+  // Destroyed car: wreck image under a rolling explosion cluster, then the
+  // car is consumed and leaves an empty gap in the consist.
+  if(car.destroyedAt==null)car.destroyedAt=b.motionTime||0;
+  const age=(b.motionTime||0)-car.destroyedAt;
+  if(age>=1.35)continue;
   c.save();c.translate(0,car.y);c.rotate(.025);
-  if(wreckImage.naturalWidth){c.filter='brightness(.62) saturate(.55)';c.drawImage(wreckImage,-130,-195,260,390);c.filter='none';}
-  else {c.filter='brightness(.38) saturate(.55)';c.drawImage(images[key],-130,-195,260,390);c.filter='none';}
-  for(let k=0;k<4;k++){const t=((b.motionTime||0)*1.4+k*.83)%1,puffY=-60-t*130,puffX=Math.sin(k*2.1+t*5)*14-8;c.fillStyle=`rgba(52,44,40,${(1-t)*.29})`;c.beginPath();c.arc(puffX,puffY,8+t*13,0,Math.PI*2);c.fill()}
+  const fade=Math.max(0,1-age/1.05);
+  if(wreckImage.naturalWidth&&fade>0){c.globalAlpha=fade;c.drawImage(wreckImage,-130,-195,260,390);c.globalAlpha=1;}
+  for(let k=0;k<7;k++){const e=clamp((age*1.5-k*.13),0,1);if(e<=0||e>=1)continue;const ex=Math.sin(k*2.31)*78,ey=-135+(k%3)*130+Math.sin(k*5.7)*46,fr=Math.min(3,Math.floor(e*4));fx(c,(k%2?'explosionOily':'explosion')+fr,ex,ey,(120+70*e),(120+70*e),0,.95*(1-e*.4));}
+  for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.37)%1;fx(c,'smokeDark',Math.sin(k*4.1)*60,-90-s*170,120+s*150,120+s*150,0,(1-s)*.42);}
   c.restore()}
  const engineWreck=wreckImages.engine,engine=b.destroying&&engineWreck.naturalWidth?engineWreck:images.engine;
  c.drawImage(engine,-130,-195,260,390);c.restore();
@@ -122,8 +128,10 @@ function drawBossPart(c,p,ring,t=0){
  }
  if(p.bodyKey==='drachen-net'&&p.partId?.startsWith('mine-')&&!p.destroyed){if(!fx(c,'mine',p.x,p.y,r*2,r*2)){c.fillStyle='#5a554b';c.beginPath();c.arc(p.x,p.y,r*.62,0,Math.PI*2);c.fill();c.strokeStyle='#d0a56e';for(let k=0;k<8;k++){const a=k*Math.PI/4;c.beginPath();c.moveTo(p.x+Math.cos(a)*r*.55,p.y+Math.sin(a)*r*.55);c.lineTo(p.x+Math.cos(a)*r*.9,p.y+Math.sin(a)*r*.9);c.stroke()}}}
  if(p.bodyKey==='london-apron'||p.bodyKey==='drachen-net'){
+  // No part rings/bars on the net structure — ringed circles around balloons
+  // read as planes trapped in the mesh. The balloons are the obvious targets.
   if(p.destroyed){const g=c.createRadialGradient(p.x,p.y,2,p.x,p.y,r*1.15);g.addColorStop(0,'rgba(24,20,16,.92)');g.addColorStop(.62,'rgba(52,42,32,.55)');g.addColorStop(1,'rgba(52,42,32,0)');c.fillStyle=g;c.beginPath();c.arc(p.x,p.y,r*1.15,0,Math.PI*2);c.fill();c.strokeStyle='#5a4a38aa';c.lineWidth=1.5;for(let i=0;i<5;i++){const a=i*1.31+p.x*.01;c.beginPath();c.moveTo(p.x+Math.cos(a)*r*.4,p.y+Math.sin(a)*r*.4);c.lineTo(p.x+Math.cos(a)*(r*.8+i%2*r*.3),p.y+Math.sin(a)*(r*.8+i%2*r*.3));c.stroke()}}
-  if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd579aa');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
+  return;
  }
  if(p.bodyKey==='livens-flame-projector'||p.bodyKey==='minenwerfer-battery'){
   // The production composites already contain every physical component. Parts
