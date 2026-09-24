@@ -10,6 +10,12 @@ const FX56_FILES={
  shell:'fx-pack-v189/projectiles/shell-37mm.webp',bomb:'fx-pack-v189/projectiles/shell-naval.webp',
  explosion0:'fx-explosion-0.webp',explosion1:'fx-explosion-1.webp',
  explosion2:'fx-explosion-2.webp',explosion3:'fx-explosion-3.webp',
+ explosionOily0:'fx-explosion-oily-0.webp',explosionOily1:'fx-explosion-oily-1.webp',
+ explosionOily2:'fx-explosion-oily-2.webp',explosionOily3:'fx-explosion-oily-3.webp',
+ explosionHot0:'fx-explosion-hot-0.webp',explosionHot1:'fx-explosion-hot-1.webp',
+ explosionHot2:'fx-explosion-hot-2.webp',explosionHot3:'fx-explosion-hot-3.webp',
+ explosionDust0:'fx-explosion-dust-0.webp',explosionDust1:'fx-explosion-dust-1.webp',
+ explosionDust2:'fx-explosion-dust-2.webp',explosionDust3:'fx-explosion-dust-3.webp',
  smokeDark:'fx-pack-v189/gas-smoke/smoke-damage.webp',smokeGray:'fx-pack-v189/gas-smoke/smoke-engine.webp',
  smokeWisp:'fx-pack-v189/gas-smoke/gas-dissipate.webp',smokePuff:'fx-pack-v189/gas-smoke/smoke-gun.webp',
  fire:'fx-pack-v189/gas-smoke/fire-aircraft.webp',flak:'fx-combat-flak-burst.webp'
