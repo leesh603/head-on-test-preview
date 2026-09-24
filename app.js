@@ -465,19 +465,7 @@ function paintZeebrugge(cx,cy,W,H){
   ctx.strokeStyle='#28393b99';ctx.lineWidth=2;ctx.stroke();ctx.restore();
  };
  paintBank(left,-1);paintBank(right,1);
- const drawQuay=(s,side,depth,length)=>{
-  const n=side*halfAt(s,side),p0=point(s-length/2,n),p1=point(s+length/2,n);
-  const p2=point(s+length/2,n-side*depth),p3=point(s-length/2,n-side*depth),poly=[p0,p1,p2,p3];
-  ctx.save();ctx.beginPath();ctx.moveTo(...poly[0]);for(let i=1;i<poly.length;i++)ctx.lineTo(...poly[i]);ctx.closePath();ctx.clip();
-  terrainAlpsRenderer.draw(ctx,{key:'city',camera,width:W,height:H});ctx.restore();
-  ctx.save();ctx.strokeStyle='#897f65';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(...poly[0]);for(let i=1;i<poly.length;i++)ctx.lineTo(...poly[i]);ctx.closePath();ctx.stroke();
-  ctx.strokeStyle='#263638aa';ctx.lineWidth=1.5;ctx.stroke();ctx.restore();
- };
  const cell=760,first=Math.floor((s0-200)/cell)-1,last=Math.ceil((s1+200)/cell)+1;
- for(let k=first;k<=last;k++){
-  const s=k*cell+((k&1)?170:-80),side=(k&1)?1:-1;
-  if(s>7600&&s<10800)drawQuay(s,side,44+(Math.abs(k)%3)*9,115+(Math.abs(k)%2)*34);
- }
  const landmark=harborLandmark();
  if(landmark){
   const p=point(12100,150),height=2400,width=height*landmark.width/landmark.height;
