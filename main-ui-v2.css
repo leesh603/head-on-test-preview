@@ -138,8 +138,8 @@ body.astra-ui.playing #flightTop151 #ammoHud{grid-template-columns:34px 88px min
 body.astra-ui.playing #flightTop151 #ammoHud:before{content:'탄약';font:500 13px/1.2 var(--astra-type);letter-spacing:0;color:#dce0d1}
 html[lang=en] body.astra-ui.playing #flightTop151 #ammoHud:before{content:'AMMO';font-size:10px}
 body.astra-ui.playing #flightTop151 #ammoCount{font:500 14px/1.3 var(--astra-numeric);letter-spacing:0}
-body.astra-ui.playing #flightTop151 #ammoHud .bar{height:12px;border:1px solid #8f805f73;border-radius:1px;background:#080b09a8;box-shadow:inset 0 1px 3px #000b}
-body.astra-ui.playing #flightTop151 #ammoProgress{width:var(--astra-ammo,100%)!important;border-radius:0;background:linear-gradient(180deg,#d8bb74 0%,#b9975a 55%,#93744198 100%);box-shadow:inset 0 1px #f0d69455,inset 0 -1px #231d16;transition:width .1s linear}
+body.astra-ui.playing #flightTop151 #ammoHud .bar{height:14px;border:1px solid #dad8bd30;border-radius:0;background:#d3d1bf16;box-shadow:inset 0 1px 2px #0008}
+body.astra-ui.playing #flightTop151 #ammoProgress{width:var(--astra-ammo,100%)!important;border-radius:0;background:linear-gradient(90deg,#81a58e,#96b9a0);box-shadow:inset 0 1px #e2f0ce38;transition:width .1s linear}
 body.astra-ui.playing #flightTop151 #ammoHud>div>small{font:400 12px/1.3 var(--astra-numeric);letter-spacing:.035em;color:#c2c6b6;margin:2px 0 0;grid-column:1/4}
 body.astra-ui.playing #flightTop151 #reload{width:32px;min-width:32px;height:32px;min-height:32px;border:1px solid #c2bca070;background:linear-gradient(120deg,#323a2c99,#131a12aa);border-radius:2px;color:#eee6cc;font:500 15px var(--astra-numeric);grid-row:1/3;box-shadow:inset 0 1px #eeeedd15}
 body.astra-ui.playing #flightTop151 #reload:disabled{opacity:.5}
