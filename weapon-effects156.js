@@ -1,5 +1,5 @@
-import {drawGameIcon} from './icons.js?v=334';
-import {fx,fxReady,FX56} from './fx-art.js?v=334';
+import {drawGameIcon} from './icons.js?v=335';
+import {fx,fxReady,FX56} from './fx-art.js?v=335';
 export function drawGrenade(c,g,x,y){
  c.save();c.translate(x,y-g.height);c.rotate(g.phase==='flight'?g.age*7:0);
  if(!fx(c,'grenade',0,0,52,52))drawGameIcon(c,'mines',0,0,46);
@@ -9,7 +9,8 @@ export function drawGrenadeBlast(c,f,x,y){
  const q=1-f.life/f.maxLife;
  if(fxReady('explosion1')){
   const d=FX56?Math.min(108,Math.max(38,f.radius*1.2))*(.72+q*.28):f.radius*2*(.5+q*.8),frame=Math.min(3,Math.floor(q*4));
-  FX56?fx(c,'explosion'+frame,x,y,d,d,0,Math.min(1,(1-q)*2.2)):fx(c,'explosion'+frame,x,y,d,d);return;
+  const grenadeSet=fxReady('pop0')?'pop':'explosion';
+  FX56?fx(c,grenadeSet+frame,x,y,d,d,0,Math.min(1,(1-q)*2.2)):fx(c,grenadeSet+frame,x,y,d,d);return;
  }c.save();c.translate(x,y);c.globalAlpha=(1-q)*.8;
  const r=12+24*q,glow=c.createRadialGradient(0,0,2,0,0,r);glow.addColorStop(0,'#fff3ca');glow.addColorStop(.3,'#d3934f');glow.addColorStop(1,'#51483a00');c.fillStyle=glow;c.beginPath();c.arc(0,0,r,0,Math.PI*2);c.fill();
  // Fine fragments show the unchanged 110-unit damage boundary without a giant fireball.
@@ -22,6 +23,12 @@ export function drawGrenadeBlast(c,f,x,y){
 // kind varies size and lingering smoke so each blast source reads differently.
 const FX_BLAST_KINDS={
  blast:{size:1,smoke:1,smokeKey:'smokeGray',set:'explosion'},
+ aircraft:{size:1,smoke:1,smokeKey:'smokeGray',set:'explosion'},
+ pop:{size:.7,smoke:1,smokeKey:'smokePuff',set:'pop'},
+ shell:{size:1.15,smoke:2,smokeKey:'smokeHeavy',set:'shellBurst',ring:true},
+ structure:{size:1.5,smoke:3,smokeKey:'smokeHeavy',set:'structure',ring:true,debris:true},
+ bossFinal:{size:2.1,smoke:4,smokeKey:'smokeHeavy',set:'bossBlast',ring:true,debris:true},
+ mineBlast:{size:1.25,smoke:2,smokeKey:'mist',set:'mineBlast',cool:true},
  mine:{size:1.2,smoke:2,smokeKey:'smokeDark',set:'explosionOily'},
  bomb:{size:1.35,smoke:3,smokeKey:'smokeDark',set:'explosionDust'},
  charge:{size:1.1,smoke:1,smokeKey:'smokeGray',set:'explosionHot'},
@@ -36,13 +43,17 @@ export function drawFxExplosion(c,f,x,y,radius=0){
  if(q>.5&&kind.smoke){const sq=(q-.5)/.5;
   for(let i=0;i<kind.smoke;i++){const a=i*2.1+x*.01,ox=Math.cos(a)*d*.2,oy=-d*.1*(i+1)-sq*d*.12;
    fx(c,kind.smokeKey,x+ox,y+oy,d*.55,d*.42,sq*.6,Math.min(.3,(1-sq)*.4));}}
+ // expanding shock ring + tumbling shard silhouettes for heavy tiers
+ if(kind.ring&&q>.12&&q<.6){const rq=(q-.12)/.48;fx(c,'shockRing',x,y,d*(1.15+rq*.95),d*(1.15+rq*.95),0,(1-rq)*.45);}
+ if(kind.debris&&q>.25&&q<.85){const dq=(q-.25)/.6;for(let i=0;i<3;i++){const a=i*2.1+x*.013+y*.017;
+  fx(c,'debrisShard',x+Math.cos(a)*d*.5*dq,y+Math.sin(a)*d*.5*dq+dq*dq*d*.16,d*.32,d*.32,a+q*4,(1-dq)*.8);}}
  return true;
 }
 
 // Approved four-stage Amatol artwork. Ordinary grenade and mine effects keep
 // their existing renderer; this layer is used only by Amatol-tagged blasts.
 const amatolEffect=typeof Image==='undefined'?null:new Image();
-if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=334';
+if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=335';
 const AMATOL_FRAMES=[[19,319,306,315],[321,261,427,427],[744,227,475,503],[1209,245,463,489]];
 export function drawAmatolBlast(c,f,x,y){
  if(!amatolEffect?.complete||!amatolEffect.naturalWidth)return;
