@@ -1,7 +1,7 @@
 // Moving fleet system — Adriatic (region 1) and Zeebrugge harbor (region 7).
 // Ships sail real headings, fire from actual gun positions on the hull, and are
 // faction-owned: hostile ships hunt the player, friendly ships engage aircraft.
-import {PLANES} from './engine.js?v=329&b=326';
+import {PLANES} from './engine.js?v=330&b=326';
 export const SHIP_TYPES=Object.freeze({
  dd:{name:'구축함',hp:150,drawnH:300,speed:26,guns:[96,-99],salvo:5,spread:.15,shellSpeed:215,interval:3.2,width:88},
  aa:{name:'대공순양함',hp:340,drawnH:380,speed:17,guns:[79,5,-39,-98],salvo:3,spread:.09,shellSpeed:205,interval:4.6,width:205}
@@ -9,7 +9,7 @@ export const SHIP_TYPES=Object.freeze({
 const SHIP_IMG={ent_dd:'fx-ship-ent-dd',cen_dd:'fx-ship-cen-dd',ent_aa:'fx-ship-ent-aa',cen_aa:'fx-ship-cen-aa'};
 const MAX_FLEET_SHIPS=6;
 let _shipImgs={};
-function shipImg(key){let im=_shipImgs[key];if(im===undefined){im=new Image();im.src=`./${key}.webp?v=329&b=326`;im.onload=()=>{_shipImgs[key]=im};_shipImgs[key]=im}return im}
+function shipImg(key){let im=_shipImgs[key];if(im===undefined){im=new Image();im.src=`./${key}.webp?v=330&b=326`;im.onload=()=>{_shipImgs[key]=im};_shipImgs[key]=im}return im}
 
 export function installFleet(Game){
  for(const k of Object.values(SHIP_IMG))shipImg(k);

@@ -1,16 +1,16 @@
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=329&b=326';
-import {fx,fxReady,fxTint} from './fx-art.js?v=329';
-import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=329&b=326';
-import {drawStageBoss} from './stageboss-view.js?v=329&b=326';
-import {planeSprite,aircraftKey} from './aircraft.js?v=329&b=326';
-import {drawEquipment} from './equipment.js?v=329&b=326';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=329&b=326';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=329&b=326';
-import {drawSpecialAmmoIcon} from './icons.js?v=329';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=329&b=326';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=330&b=326';
+import {fx,fxReady,fxTint} from './fx-art.js?v=330';
+import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=330&b=326';
+import {drawStageBoss} from './stageboss-view.js?v=330&b=326';
+import {planeSprite,aircraftKey} from './aircraft.js?v=330&b=326';
+import {drawEquipment} from './equipment.js?v=330&b=326';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=330&b=326';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=330&b=326';
+import {drawSpecialAmmoIcon} from './icons.js?v=330';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=330&b=326';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
-const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=329&b=326';
+const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=330&b=326';
 export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fieldArtImg,groundLayer}){
  const t=g.t,z=g.camera.zoom;c.save();c.scale(z,z);terrain(g.x,g.y,W/z,H/z);c.restore();drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});c.save();c.translate(W/2,H/2);c.scale(z,z);c.translate(-g.x,-g.y);
  groundLayer?.();drawBattlefieldFire(c,g);for(const e of g.enemyAirshipPasses||[])drawZeppelin(c,e.x,e.y,e.a,.72,false,'central');
