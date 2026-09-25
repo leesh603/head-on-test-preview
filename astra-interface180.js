@@ -1,8 +1,8 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
-import {getLocale,subscribe} from './i18n.js?v=335';
-import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=335&b=326';
-import {clearCrewMatte} from './matte70.js?v=335&b=326';
-import {aircraftArt} from './main-ui-art180.js?v=335';
+import {getLocale,subscribe} from './i18n.js?v=336';
+import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=336&b=326';
+import {clearCrewMatte} from './matte70.js?v=336&b=326';
+import {aircraftArt} from './main-ui-art180.js?v=336';
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
 const put=(node,text)=>{if(node&&node.textContent!==text)node.textContent=text};
@@ -25,12 +25,12 @@ export function interfaceIcon(name,cls='astra-icon'){
 }
 // Reuse the production matte algorithm at native resolution. This cleans only
 // the hangar illustration; the 144px gameplay sprite and its collision stay intact.
-const rawHangarArt={fokker:'./fokker.webp?v=335&b=326',baron_albatros:'./baron_albatros.webp?v=335&b=326',albatros_d2:'./albatros_d2.webp?v=335&b=326',nieuport_italian:'./nieuport.webp?v=335&b=326'};
+const rawHangarArt={fokker:'./fokker.webp?v=336&b=326',baron_albatros:'./baron_albatros.webp?v=336&b=326',albatros_d2:'./albatros_d2.webp?v=336&b=326',nieuport_italian:'./nieuport.webp?v=336&b=326'};
 const hangarKeyFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',fokker:'fokker_standard'};
 const artCache=new Map();
 function hangarArt(key){
  if(artCache.has(key))return artCache.get(key);
- const src=rawHangarArt[key]||`./${hangarKeyFile[key]||key}.webp?v=335&b=326`;
+ const src=rawHangarArt[key]||`./${hangarKeyFile[key]||key}.webp?v=336&b=326`;
  const pending=new Promise(resolve=>{const image=new Image();image.onerror=()=>resolve(aircraftArt[key]||'');image.onload=()=>{
   try{
    const scan=document.createElement('canvas');scan.width=image.naturalWidth;scan.height=image.naturalHeight;
@@ -177,7 +177,7 @@ function installHud(){
   const button=$(id);
   if(name==='active'){const f=$('central')?.classList.contains('active')?'central':'entente';
    const img=el('img','astra-control-icon astra-skill-emblem');img.alt='';img.decoding='async';
-   img.src=`./augmentation-icons/emblem_bare_${f}.webp?v=335`;button.prepend(img,ring());}
+   img.src=`./augmentation-icons/emblem_bare_${f}.webp?v=336`;button.prepend(img,ring());}
   else button.prepend(interfaceIcon(name,'astra-control-icon'),ring());
  }
  const readout=el('div','astra-reload-readout'),caption=el('span'),seconds=el('b'),track=el('span','astra-reload-track'),fill=el('i');track.append(fill);readout.append(caption,seconds,track);survival.append(readout);

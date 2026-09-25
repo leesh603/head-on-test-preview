@@ -1,0 +1,11 @@
+<!doctype html><html><body style="background:#2a2f26;margin:0;font-family:monospace;color:#d8d2b8">
+<canvas id="c"></canvas><script>
+const names=['pop0','pop1','pop2','pop3','shellBurst0','shellBurst1','shellBurst2','shellBurst3','structure0','structure1','structure2','structure3','bossBlast0','bossBlast1','bossBlast2','bossBlast3','mineBlast0','mineBlast1','mineBlast2','mineBlast3','fireEngine','fireWing','smokeTrail','smokeHeavy','splashTiny','splashShell','wakeFast','foamRing','muzzleTwin','muzzleHeavy','muzzleRear','muzzlePistol','dustPuff','dirtBurst','debrisShard','sunshaft','windStreak','mist','torpedo','shockRing'];
+const file=k=>'fx-'+k.replace(/[A-Z]/g,m=>'-'+m.toLowerCase()).replace(/^(\d)/,'-$1').replace(/-/g,m=>m)+'.webp';
+// simpler: numeric suffix style fx-pop-0.webp
+const f=k=>{const m=k.match(/^([a-zA-Z]+?)(\d)$/);return m?`fx-${m[1].toLowerCase()}-${m[2]}.webp`:`fx-${k.replace(/([a-z])([A-Z])/g,'$1-$2').toLowerCase()}.webp`};
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');const cols=8,cell=150;cv.width=cols*cell;cv.height=Math.ceil(names.length/cols)*cell;
+let i=0;
+function next(){if(i>=names.length)return;const k=names[i],img=new Image();img.onload=()=>{const x=(i%cols)*cell,y=(i/cols|0)*cell;ctx.strokeStyle='#555';ctx.strokeRect(x+2,y+2,cell-4,cell-4);const s=Math.min((cell-30)/img.width,(cell-30)/img.height,1.6);const w=img.width*s,h=img.height*s;ctx.drawImage(img,x+(cell-w)/2,y+(cell-h)/2-8,w,h);ctx.fillStyle='#d8d2b8';ctx.font='10px monospace';ctx.fillText(k,x+6,y+cell-8);i++;next()};img.onerror=()=>{ctx.fillStyle='red';ctx.fillText('MISSING '+k,(i%cols)*cell+6,(i/cols|0)*cell+20);i++;next()};img.src='http://localhost:8791/'+f(k)+'?t='+Date.now()}
+next();
+</script></body></html>
