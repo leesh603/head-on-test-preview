@@ -1,19 +1,19 @@
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=333';
-import {installRevision} from './rebalance103.js?v=333&b=326';
-import {installCloudCover} from './cloud-cover1.js?v=333&b=326';
-import {installFleet} from './fleet-naval1.js?v=333&b=326';
-import {installTrenchWar} from './trench-war1.js?v=333&b=326';
-import {installCityAir} from './city-air1.js?v=333&b=326';
-import {installRegionDoctrine} from './region-doctrine1.js?v=333&b=326';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=333';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=333&b=326';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=333';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=333';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=333';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=333';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=333';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=333';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=333';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=334';
+import {installRevision} from './rebalance103.js?v=334&b=326';
+import {installCloudCover} from './cloud-cover1.js?v=334&b=326';
+import {installFleet} from './fleet-naval1.js?v=334&b=326';
+import {installTrenchWar} from './trench-war1.js?v=334&b=326';
+import {installCityAir} from './city-air1.js?v=334&b=326';
+import {installRegionDoctrine} from './region-doctrine1.js?v=334&b=326';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=334';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=334&b=326';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=334';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=334';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=334';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=334';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=334';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=334';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=334';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -1507,7 +1507,7 @@ WEAPONS.nungesser_nieuport24={...WEAPONS.nieuport24,name:'Vickers',guns:1,gunPro
 Object.assign(PILOTS,{
  wolff:{name:'쿠르트 볼프',alias:'ZARTE BLÜMLEIN',faction:'central',portrait:16,passive:'여린 작은꽃',passiveDesc:'3초 무피격마다 공격력 +5%·속도 +3%, 최대 6중첩. 강화 중 흰 꽃잎이 날리며, 피격 시 초기화.',skill:'붐 앤 줌',desc:'0.75초간 고도를 얻은 뒤 급강하. 하강할수록 가속하며 공격력 +55%, 공격속도 +80%, 선회력 −50%.',cooldown:PILOT_BALANCE.cooldowns.wolff},
  loewenhardt:{name:'에리히 뢰벤하르트',alias:'YELLOW PERIL',faction:'central',portrait:17,passive:'노란색 포커를 타는 미친놈',passiveDesc:'적과 정면으로 마주칠 때 기관총 피해 +35%.',skill:'라이징 스트라이크',desc:'0.55초간 하방으로 진입한 뒤 수직 상승 사격. 상승할수록 속도가 감소하며 공격속도 +200%, 공격력 +45%, 선회력 −65%.',cooldown:PILOT_BALANCE.cooldowns.loewenhardt},
- mccudden:{name:'제임스 맥커든',alias:'THE ENGINEERING ACE',faction:'entente',portrait:18,passive:'엔지니어링 에이스',passiveDesc:'모든 레벨업에서 선택지가 3개가 아닌 4개로 제시됩니다.',skill:'슈퍼 엔지니어링',desc:'주변에 수리 보급품 3개를 투하합니다. 개당 최대 HP의 11.7% 회복. 철십자훈장 강화 시 4개 투하. 협동 아군도 회수 가능.',cooldown:PILOT_BALANCE.cooldowns.mccudden},
+ mccudden:{name:'제임스 맥커든',alias:'THE ENGINEERING ACE',faction:'entente',portrait:18,passive:'엔지니어링 에이스',passiveDesc:'모든 레벨업에서 선택지가 4개로 제시되며, 한 번 무료로 다시 추첨할 수 있습니다.',skill:'슈퍼 엔지니어링',desc:'주변에 수리 보급품 3개를 투하합니다. 개당 최대 HP의 11.7% 회복. 철십자훈장 강화 시 4개 투하. 협동 아군도 회수 가능.',cooldown:PILOT_BALANCE.cooldowns.mccudden},
  nungesser:{name:'샤를 너겐서',alias:'THE KNIGHT OF DEATH',faction:'entente',portrait:19,passive:'죽음의 기사',passiveDesc:'내구도가 낮을수록 공격속도 최대 +60%, 이동속도 최대 +35%. 원형 게이지가 현재 강화 정도를 표시합니다.',skill:'불사조의 집념',desc:'3초간 완전 무적 상태로 버팁니다.',cooldown:PILOT_BALANCE.cooldowns.nungesser}
 });
 Object.assign(PILOT_PLANES,{wolff:'wolff_albatros',loewenhardt:'loewenhardt_fokkerd7',mccudden:'mccudden_se5a',nungesser:'nungesser_nieuport24'});
@@ -1679,7 +1679,7 @@ Object.assign(PILOTS,{
  barker:{name:'빌리 바커',alias:'THE LAST STAND',faction:'entente',portrait:23,passive:'불굴의 각성',passiveDesc:'피격될 때마다 3초간 기관총 공격력 +13%, 최대 3중첩.',skill:'새니에트의 기적',desc:'6초간 사망 불가 — 어떤 피해도 체력을 1 아래로 떨어뜨리지 못합니다. 각성 중첩 상한이 5로 늘어납니다.',cooldown:24},
  luke:{name:'프랭크 루크',alias:'THE ARIZONA BALLOON BUSTER',faction:'entente',portrait:24,passive:'기구 사냥꾼',passiveDesc:'기구·폭격기·에이스급 대형 표적 피해 +20%.',skill:'소이탄 연쇄 폭파',desc:'6초간 대형 표적 적중 시 그 자리에서 폭발이 일어나 반경 110px 내 다른 적들에게도 피해를 입힙니다.',cooldown:18},
  brumowski:{name:'고트빈 브루모프스키',alias:'THE RED HAWK OF AUSTRIA',faction:'central',portrait:25,passive:'붉은 편대장',passiveDesc:'출격 중인 아군·윙맨 1기당 기관총 공격력 +8% (최대 +24%).',skill:'붉은 비행대의 진',desc:'붉은 알바트로스 호위 2기를 소집해 15초간 자신 주위를 러프버리 선회하며 접근하는 적을 제압합니다.',cooldown:20},
- gontermann:{name:'하인리히 곤터만',alias:'THE NIGHTMARE OF THE FRONT',faction:'central',portrait:26,passive:'기구 학살자',passiveDesc:'기구·폭격기·에이스급 대형 표적 피해 +15%.',skill:'불꽃의 급강하',desc:'5초간 전탄이 소이탄이 됩니다 — 적중한 적은 3초간 화상 피해를 받고, 대형 표적에는 즉발 폭발 피해 +50%.',cooldown:18}
+ gontermann:{name:'하인리히 곤터만',alias:'THE NIGHTMARE OF THE FRONT',faction:'central',portrait:26,passive:'기구 학살자',passiveDesc:'기구·폭격기·에이스급 대형 표적 피해 +15%. 재장전 시간 −12%.',skill:'불꽃의 급강하',desc:'5초간 전탄이 소이탄이 됩니다 — 적중한 적은 3초간 화상 피해를 받고, 대형 표적에는 즉발 폭발 피해 +50%.',cooldown:18}
 });
 const ACES1918_IDS=Object.keys(ACES1918).map(k=>k.split('_')[0]);
 const ACES1918_BIG=e=>e&&(e.type==='zeppelin'||e.type==='bomber'||e.type==='boss'||e.heavyBomber||e.bossPilot||e.balloon||e.fieldUnit==='balloon');

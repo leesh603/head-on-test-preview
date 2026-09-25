@@ -1,4 +1,19 @@
 // Keep the official field record aligned with the live augmentation catalog.
+// Game text (name, alias, skill, passive, descriptions) is pulled from the live
+// engine — PILOTS/pilotLoadout are the single source so record entries can
+// never drift from what the game actually shows.
+import{PILOTS,PILOT_PLANES,pilotLoadout}from'./engine.js?v=334';
+for(const p of DATA.pilots){
+  const loadout=PILOTS[p.key]?pilotLoadout(p.key,PILOT_PLANES[p.key]||'fokker'):null;
+  if(!loadout)continue;
+  if(loadout.name)p.name=loadout.name;
+  if(loadout.alias)p.alias=loadout.alias;
+  if(loadout.skill)p.skill=loadout.skill;
+  if(loadout.desc)p.desc=loadout.desc;
+  if(loadout.passive)p.passive=loadout.passive;
+  if(loadout.passiveDesc)p.passiveDesc=loadout.passiveDesc;
+}
+
 const CURRENT_SPECIAL_DESCRIPTIONS={
   '르네 퐁크의 망원경':'전방 약 21° 안의 적을 초점 포착하여 초기 0.8초 동안 최대 17° 조준 보정. 보정 궤적과 표적 표시가 나타납니다.',
   "마우저C96 '에이스킬러'":'근거리 적을 자동 조준해 권총탄을 발사합니다. 일반 적 피해는 낮고 에이스에게 큰 피해를 줍니다.',
