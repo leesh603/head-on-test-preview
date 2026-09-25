@@ -1,19 +1,19 @@
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=332';
-import {installRevision} from './rebalance103.js?v=332&b=326';
-import {installCloudCover} from './cloud-cover1.js?v=332&b=326';
-import {installFleet} from './fleet-naval1.js?v=332&b=326';
-import {installTrenchWar} from './trench-war1.js?v=332&b=326';
-import {installCityAir} from './city-air1.js?v=332&b=326';
-import {installRegionDoctrine} from './region-doctrine1.js?v=332&b=326';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=332';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=332&b=326';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=332';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=332';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=332';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=332';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=332';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=332';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=332';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=333';
+import {installRevision} from './rebalance103.js?v=333&b=326';
+import {installCloudCover} from './cloud-cover1.js?v=333&b=326';
+import {installFleet} from './fleet-naval1.js?v=333&b=326';
+import {installTrenchWar} from './trench-war1.js?v=333&b=326';
+import {installCityAir} from './city-air1.js?v=333&b=326';
+import {installRegionDoctrine} from './region-doctrine1.js?v=333&b=326';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=333';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=333&b=326';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=333';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=333';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=333';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=333';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=333';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=333';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=333';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -1689,7 +1689,7 @@ Game.prototype.skill=function(){
  this.ensureRevisionPilot();if(this.state!=='playing'||this.hp<=0||this.cooldown>0)return false;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();
  if(this.pilot==='ball'){const eh=this.skillEnhanced?1.35:1;this.ballCloak=1.5*eh;this.ballGhost={x:this.x,y:this.y,a:this.a,speed:this.speed,hp:1};this.invuln=Math.max(this.invuln,1.6*eh);this.ballAmbush=0;this.burst(this.x,this.y,'#e8ecdf',24)}
  else if(this.pilot==='gontermann')this.invuln=Math.max(this.invuln,.6*(this.skillEnhanced?1.35:1));
- else if(this.pilot==='brumowski'){const world=typeof this.combatWorld==='function'?this.combatWorld():this;const list=world&&world.allies;const live=list?list.filter(a=>a.orbit&&a.life>0):[];for(let i=live.length;i<2;i++){if(typeof this.spawnAlly==='function'){this.spawnAlly();Object.assign(this.allies.at(-1),{plane:'brumowski_albatros',life:15*(this.skillEnhanced?1.35:1),orbit:true})}else if(list)list.push({slot:list.length+i,x:(this.x||0)-45,y:(this.y||0)+(i?70:-70),a:this.a||0,life:15*(this.skillEnhanced?1.35:1),fire:.35,plane:'brumowski_albatros',ownerId:this.id||'p1',orbit:true})}}
+ else if(this.pilot==='brumowski'){const world=typeof this.combatWorld==='function'?this.combatWorld():this;const list=world&&world.allies;const live=list?list.filter(a=>a.orbit&&a.life>0):[];for(let i=live.length;i<2;i++){if(typeof this.spawnAlly==='function'&&Array.isArray(this.allies)){this.spawnAlly();Object.assign(this.allies.at(-1),{plane:'brumowski_albatros',life:15*(this.skillEnhanced?1.35:1),orbit:true})}else if(list)list.push({slot:list.length+i,x:(this.x||0)-45,y:(this.y||0)+(i?70:-70),a:this.a||0,life:15*(this.skillEnhanced?1.35:1),fire:.35,plane:'brumowski_albatros',ownerId:this.id||'p1',orbit:true})}}
  this.event('skill',PILOTS[this.pilot].skill);return true;
 };
 const _aces1918Duration=Game.prototype.skillDuration;
