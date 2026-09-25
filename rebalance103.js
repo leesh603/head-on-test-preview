@@ -1,5 +1,5 @@
 // Excel revision 103. Unspecified numbers are explicit first-playtest tuning.
-import {WING_PLANES} from './engine.js?v=326&b=326';
+import {WING_PLANES} from './engine.js?v=327&b=326';
 export const REVISION_BALANCE=Object.freeze({soloCap:12,coopCap:18,soloRegular:10,coopRegular:11,interval:1.6,coopInterval:1.65,countrysideInterval:1,countrysideCoopInterval:1.15,frontReduction:.25,rearBonus:.3,compassXp:1.3});
 export function installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDARIES,UPGRADES){
  const newPlanes={
