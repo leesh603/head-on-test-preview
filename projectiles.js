@@ -1,6 +1,6 @@
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // Rendering never changes projectile movement, damage or collision.
-import {fx,fxReady,fxTint,FX56} from './fx-art.js?v=330';
+import {fx,fxReady,fxTint,FX56} from './fx-art.js?v=331';
 export function projectileStyle(b){return b.hostileRocket?'rocket':b.flak?'flak':b.visualType||(b.naval?'naval':b.fieldShell?'balloon':b.heavy?'heavyBomber':'scout')}
 const TRACERS={scout:['#e7a06b',10,2],hunter:['#efb77f',14,2],bomber:['#dfbc7b',11,3],heavyBomber:['#e4ae72',15,3],boss:['#e58f7c',16,3],zeppelin:['#d8bb8b',12,3],railgun:['#efaa89',23,3],naval:['#dfaa82',16,3],balloon:['#dbbf8b',8,3],flak:['#dfac80',6,3],rocket:['#edac77',15,3]};
 // gunUpgradeBonus is the cumulative machine-gun attack bonus, not temporary
@@ -17,7 +17,7 @@ export function friendlyTracerColor(b,gunUpgradeBonus=0){
  return '#'+a.map((v,j)=>Math.round(v+(z[j]-v)*t).toString(16).padStart(2,'0')).join('');
 }
 const cannonAtlas=typeof Image==='undefined'?null:new Image();
-if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.webp?v=330';
+if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.webp?v=331';
 export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
  if(!b.enemy||b.life<=0)return;const kind=projectileStyle(b),[color,length,width]=TRACERS[kind]||TRACERS.scout;
  c.save();c.translate(Math.round(x),Math.round(y));c.rotate(Math.atan2(b.vy,b.vx));
@@ -62,7 +62,7 @@ export function drawCannonProjectile(c,b,x,y){
 export function drawBattlefieldFire(c,g,point=(x,y)=>[x,y]){
  for(const e of g.enemies||[])if(e.sunBlindUntil>g.t){const[x,y]=point(e.x,e.y);c.save();c.translate(x,y);c.rotate(e.a);
   if(fxReady('sunshaft')){fx(c,'sunshaft',250,0,520,260,0,.5)}else{c.globalAlpha=.12;c.fillStyle='#e5ca7c';c.beginPath();c.moveTo(0,0);c.arc(0,0,470,-.7,.7);c.closePath();c.fill();c.globalAlpha=.35;c.fillStyle='#f1dca4';for(let i=-2;i<=2;i++){c.save();c.rotate(i*.22);c.fillRect(20,-1,160+Math.abs(i)*25,2);c.restore();}}c.restore();}
- for(const f of g.cannonImpacts||[]){const[x,y]=point(f.x,f.y);c.save();c.globalAlpha=f.life/.38;c.strokeStyle='#d6bf88';c.lineWidth=2;c.beginPath();c.arc(x,y,8+(1-f.life/.38)*20,0,Math.PI*2);c.stroke();c.restore();if(fxReady('spark'))fx(c,'spark',x,y,26,26,0,f.life/.38);}
+ for(const f of g.cannonImpacts||[]){const[x,y]=point(f.x,f.y);fx(c,'armorSpark',x,y,25,25,0,Math.min(1,f.life/.2));}
  for(const f of g.fireZones||[]){const[x,y]=point(f.x,f.y),fade=Math.min(1,f.life/1.5);c.save();c.globalAlpha=.13*fade;c.fillStyle='#c57138';c.beginPath();c.arc(x,y,f.radius,0,Math.PI*2);c.fill();
   if(fxReady('fire')){
    c.globalAlpha=1;

@@ -1,8 +1,9 @@
-import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=330&b=326';
+import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=331';
+import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=331&b=326';
 
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=330&b=326';
-import {attachAircraftPersonality} from './aircraft-personality164.js?v=330';
-import {installCloudCover} from './cloud-cover1.js?v=330&b=326';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=331&b=326';
+import {attachAircraftPersonality} from './aircraft-personality164.js?v=331';
+import {installCloudCover} from './cloud-cover1.js?v=331&b=326';
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.
 export const COOP_BALANCE=Object.freeze({spawn:1,ordinaryHp:1.15,heavyHp:1.65,enemyCap:28,xp:.6,revive:15,reviveHp:1,reviveAmmo:.5,reviveInvuln:2,minZoom:.75});
@@ -56,16 +57,16 @@ export class CoopGame {
  pause(){if(this.state==='lost')return;this.manualPaused=true;if(!this.activeUpgrade)this.state='paused'}
  resume(){if(this.state==='lost'||this.activeUpgrade||this.pendingLevelUps.length)return false;this.manualPaused=false;this.state='playing';return true}
  tagSummons(p){for(const key of ['formationWings','divingSquadron','airshipFleet'])for(const unit of p[key]||[])unit.ownerId=p.id}
- emit(p,b){b.ownerId=p.id;b.enemy=false;b.hit??=new Set();if(p.longRange&&!b.rangeExtended&&Math.hypot(b.vx,b.vy)>0){b.life=Math.max(b.life,p.shotLifetime(Math.hypot(b.vx,b.vy)));b.rangeExtended=true}this.bullets.push(b);return b}
+ emit(p,b){preparePersonalRound1918(p,b);b.ownerId=p.id;b.enemy=false;b.hit??=new Set();if(p.longRange&&!b.rangeExtended&&Math.hypot(b.vx,b.vy)>0){b.life=Math.max(b.life,p.shotLifetime(Math.hypot(b.vx,b.vy)));b.rangeExtended=true}this.bullets.push(b);return b}
  blast(p,x,y,radius,damage){p?.queueExplosionDamage(x,y,radius,damage)}
  ensureWingmen(){for(const p of this.players){if(!live(p))continue;let active=p.permanentWingCount();while(active<(p.permanentWingman||0)){const slot=active++,target=p.wingFormationTarget({slot},p.permanentWingman);this.allies.push({ownerId:p.id,slot,permanent:true,life:1e9,x:target.x,y:target.y,a:p.a,fire:.18,plane:p.permanentWingPlane()})}}for(const a of this.allies)attachAircraftPersonality(PLANES,a,a.plane)}
  hitPlayer(p,damage,{gas=false}={}){
-  if(!live(p)||p.invuln>0||this.state==='lost')return false;p.hp=Math.max(0,p.hp-damage*p.incomingDamageMultiplier(p.damageSource));p.invuln=gas?0:.75;p.hitFlash=.16;this.shake=7;p.smoke(p.x,p.y,true);p.burst(p.x,p.y,'#ffce8e',9);p.event('hit','');
+  if(!live(p)||p.invuln>0||this.state==='lost')return false;p.hp=Math.max(0,p.hp-barkerDamage1918(p,damage*p.incomingDamageMultiplier(p.damageSource)));p.invuln=gas?0:.75;p.hitFlash=.16;this.shake=7;p.smoke(p.x,p.y,true);p.burst(p.x,p.y,'#ffce8e',9);p.event('hit','');
   if(p.hp<=0)this.downPlayer(p);return true;
  }
  downPlayer(p){
   if(p.status==='downed')return;p.status='downed';p.hp=0;p.respawnRemaining=COOP_BALANCE.revive;p.downedCooldown=Math.max(p.cooldown,5);
-  for(const key of ['skillTime','chargeTime','bishopTime','bishopDrops','salvoWaves','udetBoost','wingBoost','evadeTime','invuln','muzzleFlash','crossfireFlash'])p[key]=0;
+  for(const key of ['skillTime','chargeTime','bishopTime','bishopDrops','salvoWaves','udetBoost','wingBoost','evadeTime','invuln','muzzleFlash','crossfireFlash','barkerStacks','barkerStackTime','ballCloak','ballAmbush'])p[key]=0;p.ballGhost=null;
   p.formationWings=[];p.divingSquadron=[];p.airshipFleet=[];p.mannockPass=0;p.mannockPassTimer=Infinity;
   this.allies=this.allies.filter(a=>a.ownerId!==p.id);this.friendlyBombers=this.friendlyBombers.filter(b=>b.ownerId!==p.id);
   p.event('downed',`${p.id.toUpperCase()} 격추 · 동료가 15초 생존하면 복귀`);if(!this.living().length)this.finish();
@@ -102,7 +103,7 @@ export class CoopGame {
   this.flakBursts.push({x:origin.x,y:origin.y,a:aim,life:7,maxLife:7});this.burst(origin.x,origin.y,'#efb35d',12);this.event('flak','대공포 발사! 탄막을 피하세요');
  }
  reserveEnemySlots(){/* Do not delete existing enemies. */}
- enemyCombatTarget(e){const decoy=this.revisionDecoyTarget(e);if(decoy)return decoy;const patrol=e.patrolTarget;if(patrol?.hp>0&&patrol.life>0&&this.patrols.includes(patrol)&&this.patrolCanEngage(e,patrol))return patrol;const alive=this.living().filter(p=>(p.kaiserFogTime||0)<=0),current=this.player(e.targetPlayerId);let closest=alive.reduce((best,p)=>!best||squared(p,e)<squared(best,e)?p:best,null);if(current&&live(current)&&(current.kaiserFogTime||0)<=0&&closest&&squared(current,e)<squared(closest,e)*1.6)closest=current;e.targetPlayerId=closest?.id;return closest||{x:e.x+Math.cos(e.a)*420,y:e.y+Math.sin(e.a)*420,a:e.a,fogHidden:true}}
+ enemyCombatTarget(e){const decoy=this.revisionDecoyTarget(e);if(decoy)return decoy;const patrol=e.patrolTarget;if(patrol?.hp>0&&patrol.life>0&&this.patrols.includes(patrol)&&this.patrolCanEngage(e,patrol))return patrol;const alive=this.living().filter(p=>(p.kaiserFogTime||0)<=0),current=this.player(e.targetPlayerId);let closest=alive.reduce((best,p)=>!best||squared(p,e)<squared(best,e)?p:best,null);if(current&&live(current)&&(current.kaiserFogTime||0)<=0&&closest&&squared(current,e)<squared(closest,e)*1.6)closest=current;e.targetPlayerId=closest?.id;return (closest?.pilot==='ball'&&closest.ballCloak>0&&closest.ballGhost?closest.ballGhost:closest)||{x:e.x+Math.cos(e.a)*420,y:e.y+Math.sin(e.a)*420,a:e.a,fogHidden:true}}
  sunStrikeContains(e){return this.players.some(p=>live(p)&&p.sunStrikeContains(e))}
  resolveHostileRound(b,x0,y0){const dx=b.x-x0,dy=b.y-y0,length=dx*dx+dy*dy;let first=Infinity,hit=null;for(const target of [...this.living(),...this.patrols.filter(p=>p.hp>0&&p.life>0)]){const radius=(target.id?10:16)+(b.flak?6:0),ox=x0-target.x,oy=y0-target.y,c=ox*ox+oy*oy-radius*radius;let t=0;if(c>0){if(!length)continue;const dot=ox*dx+oy*dy,disc=dot*dot-length*c;if(disc<0)continue;t=(-dot-Math.sqrt(disc))/length;if(t<0||t>1)continue}if(t<first){first=t;hit=target}}if(hit){if(hit.id){hit.damageSource={x:x0,y:y0,bullet:b};this.hitPlayer(hit,highRiskDamage(b.damage,hit.maxHp,b));hit.damageSource=null;}else this.hitPatrol(hit,b.damage);b.life=0}}
  handleDeath(e,b){if(e.stageBossBody||e.deathHandled||e.hp>0)return;e.deathHandled=true;const credited=!b.patrol||e.playerHit,owner=this.player(b.ownerId);owner?.spawnAmatolSecondary(e,b);if(credited){this.kills++;if(owner)owner.kills++;if(!e.surface&&!e.fieldUnit&&(e.bossPilot||['boss','zeppelin','bomber'].includes(e.type)))this.priorityKills++}else this.patrolKills=(this.patrolKills||0)+1;if(e.type==='zeppelin')this.wreckGust(e);this.burst(e.x,e.y,'#f2aa52',30);this.smoke(e.x,e.y,true);this.event('kill','');if(e.type==='boss'){this.bossKilled=true;if(owner&&live(owner))owner.hp=Math.min(owner.maxHp,owner.hp+owner.maxHp*DURABILITY_BALANCE.repairPickupFraction)}if(credited){const big=e.bossPilot||e.type==='boss';if(big)for(let gi=0;gi<5;gi++)this.drops.push({id:this.nextEntityId++,x:e.x+Math.cos(gi*1.26)*44,y:e.y+Math.sin(gi*1.26)*44,value:14,heal:false});this.drops.push({id:this.nextEntityId++,x:e.x,y:e.y,value:big?30:e.heavyBomber?16:e.type==='bomber'?3:(e.xpValue||1),heal:big||this.rng()<.03});Game.prototype.dropObservationRepair.call(this,e)}}
@@ -150,7 +151,7 @@ export class CoopGame {
   for(const f of this.flakBursts)f.life-=dt;this.flakBursts=this.flakBursts.filter(f=>f.life>0);for(const fx of this.combatFX)fx.life-=dt;this.combatFX=this.combatFX.filter(f=>f.life>0).slice(-35);
  }
  updatePlayer(p,dt,input){
-  const revisionPrior=p.beginRevisionFrame(dt,input);
+  const previousRounds=p.roundsFired;const revisionPrior=p.beginRevisionFrame(dt,input);
   const oldX=p.x,oldY=p.y,active=p.skillTime,charge=p.chargeTime>0,duo=['mckeever','huffzky'].includes(p.pilot),boost=p.udetBoost>0;
   for(const key of ['muzzleFlash','hitFlash','cooldown','evadeCooldown','evadeTime','skillTime','invuln','wingBoost','crossfireFlash'])stepTimer(p,key,dt);
   p.smokeTimer-=dt;if(p.hp<p.maxHp*.6&&p.smokeTimer<=0){p.smoke(p.x-Math.cos(p.a)*12,p.y-Math.sin(p.a)*12,p.hp<p.maxHp*.3);p.smokeTimer=.12}
@@ -185,7 +186,7 @@ export class CoopGame {
   for(const ship of p.airshipFleet){ship.age+=dt;if(ship.age<=0||ship.age>6)continue;const step=Math.min(dt,ship.age);ship.x+=Math.cos(ship.a)*ship.speed*step;ship.y+=Math.sin(ship.a)*ship.speed*step;ship.fire-=step;ship.pulse-=step;ship.flash=Math.max(0,ship.flash-step);if(ship.fire<=0){ship.fire+=.7;ship.flash=.12;for(const side of [-1,1])for(const spread of [-.2,0,.2]){const a=ship.a+side*Math.PI/2+spread;this.emit(p,{x:ship.x+Math.cos(a)*38,y:ship.y+Math.sin(a)*38,vx:Math.cos(a)*360,vy:Math.sin(a)*360,life:1.15,ally:true,airshipSupport:true,damage:p.supportPower(8)})}}if(ship.pulse<=0){ship.pulse+=.5;for(const e of this.enemies){if(e.hp<=0)continue;const dx=e.x-ship.x,dy=e.y-ship.y,u=dx*Math.cos(ship.a)+dy*Math.sin(ship.a),v=-dx*Math.sin(ship.a)+dy*Math.cos(ship.a);if((u/110)**2+(v/48)**2<=1)this.emit(p,{x:e.x,y:e.y,vx:0,vy:0,life:.1,ally:true,airshipSupport:true,blast:true,damage:p.supportPower(20)})}}}p.airshipFleet=p.airshipFleet.filter(s=>s.age<6);
   if(p.bomberLevel){p.bomberTimer=(p.bomberTimer??2)-dt;if(p.bomberTimer<=0){p.bomberTimer=Math.max(10,18-(p.bomberLevel-1)*2);this.friendlyBombers.push({ownerId:p.id,ox:p.x,oy:p.y,x:p.x-Math.cos(p.a)*650,y:p.y-Math.sin(p.a)*650,a:p.a,age:0,drop:.8,left:5,airframe:this.teamFaction==='central'?'staaken':'handley-page'})}}
   const regen=Math.min(DURABILITY_BALANCE.regenCap,p.regen||0)+(p.legendaryRegen||0);p.hp=Math.min(p.maxHp,p.hp+(DURABILITY_BALANCE.baseRegenHpPerSecond+p.maxHp*regen)*dt);
-  this.tagSummons(p);p.endRevisionFrame(revisionPrior);
+  this.tagSummons(p);p.endRevisionFrame(revisionPrior);advancePersonal1918(p,dt,previousRounds);
  }
  updateSupport(dt){
   for(const a of this.allies){const p=this.player(a.ownerId);if(!p||!live(p)){a.life=0;continue}a.life-=dt;const target=p.wingFormationTarget(a,p.permanentWingCount()),response=2.6*Math.max(.75,Math.min(1.25,a.personality?.acceleration??1));a.a=p.a;a.x+=(target.x-a.x)*Math.min(1,dt*response);a.y+=(target.y-a.y)*Math.min(1,dt*response);a.fire-=dt;if(a.fire<=0){a.fire=.42*(p.upgrades.fighterSupply?.9:1)/((p.wingBoost>0?GOERING_WING_BOOST.fireRateMultiplier:1)*(1+(p.commandRateBonus||0)));let nearest=null,best=Infinity;for(const e of this.enemies)if(e.hp>0){const d=squared(e,a);if(d<best){best=d;nearest=e}}if(nearest){const aim=Math.atan2(nearest.y-a.y,nearest.x-a.x);this.emit(p,{x:a.x+Math.cos(aim)*23,y:a.y+Math.sin(aim)*23,vx:Math.cos(aim)*470,vy:Math.sin(aim)*470,life:1.5,ally:true,damage:p.supportPower(7.44)*(p.wingmanDamageMult||1)*(p.wingBoost>0?GOERING_WING_BOOST.damageMultiplier:1)*(p.upgrades.fighterSupply?1.2:1)})}}}
@@ -209,7 +210,7 @@ export class CoopGame {
   const aliveAtStart=this.living(),downAtStart=this.players.filter(p=>!live(p)),origins=new Map(aliveAtStart.map(p=>[p,{x:p.x,y:p.y}]));this.tickRevisionWorld(step);this.t+=step;this.worldTicks++;this.shake=Math.max(0,this.shake-step*22);
   let distance=0;for(const p of aliveAtStart){const {x,y}=origins.get(p);this.updatePlayer(p,step,inputs[p.id]||{});distance+=Math.hypot(p.x-x,p.y-y)}this.distance+=distance/(aliveAtStart.length||1);
   const region=this.worldRegion();if(region!==this.region){this.region=region;this.clearRegionalHazards();this.event('wave',['전원 지대 · 기뢰지대','아드리아해 · 적 함대','참호 전선 · 대공포'][region]+' 진입')}
-  this.tickBattleDirector(step);this.tickBattlefieldEvents();if(this.state!=='playing')return;this.updateSchedules(step);this.ensureWingmen();this.updateSupport(step);this.updatePatrols(step);this.updateEnemies(step);if(this.state==='lost')return;this.updateOrdnance(step);this.tickRivalAce(step);if(this.state==='lost')return;this.updateHazards(step);
+  this.tickBattleDirector(step);this.tickBattlefieldEvents();if(this.state!=='playing')return;this.updateSchedules(step);this.ensureWingmen();this.updateSupport(step);this.updatePatrols(step);this.updateEnemies(step);if(this.state==='lost')return;for(const e of advanceBurns1918(this,step))this.handleDeath(e,{ownerId:e.burnOwnerId,burn:true});this.updateOrdnance(step);this.tickRivalAce(step);if(this.state==='lost')return;this.updateHazards(step);
   if(!this.living().length){this.finish();return}
   // Loss takes precedence over rescue and upgrades in the same simulation tick.
   for(const p of downAtStart){p.respawnRemaining=Math.max(0,p.respawnRemaining-step);if(p.respawnRemaining<=1e-9)this.revive(p)}

@@ -54,21 +54,44 @@ export function createHeadOnHost(game, bindings = {}) {
   };
 }
 
+// First contact of a swept circular projectile. Explosions are stationary areas.
+function eliteContact(projectile, member, radius) {
+  const x1=projectile.x,y1=projectile.y;
+  if (![x1,y1,member.x,member.y,radius].every(Number.isFinite)) return Infinity;
+  const swept=!projectile.actualExplosion;
+  const x0=swept&&Number.isFinite(projectile.previousX)?projectile.previousX:x1;
+  const y0=swept&&Number.isFinite(projectile.previousY)?projectile.previousY:y1;
+  const dx=x1-x0,dy=y1-y0,ox=x0-member.x,oy=y0-member.y;
+  const c=ox*ox+oy*oy-radius*radius;
+  if(c<=0)return 0;
+  const length=dx*dx+dy*dy;
+  if(!length)return Infinity;
+  const dot=ox*dx+oy*dy,disc=dot*dot-length*c;
+  if(disc<0)return Infinity;
+  const t=(-dot-Math.sqrt(disc))/length;
+  return t>=0&&t<=1?t:Infinity;
+}
+
 export function routeFriendlyProjectileHits(game, system, bindings = {}) {
-  const list = bindings.getFriendlyProjectiles?.(game) || game.bullets || [];
-  for (const projectile of list) {
-    if (projectile.enemy || projectile.life <= 0) continue;
-    projectile.eliteHits ||= new Set();
-    for (const member of system.members) {
-      if (projectile.eliteHits.has(member.id)) continue;
-      const radius = (bindings.getEliteHitRadius?.(member) || (member.eliteKind === 'schlachtstaffel' ? 24 : 18)) + (projectile.actualExplosion ? projectile.explosionRadius || 0 : 0);
-      if (Math.hypot(projectile.x - member.x, projectile.y - member.y) > radius) continue;
+  const list=bindings.getFriendlyProjectiles?.(game)||game.bullets||[];
+  for(const projectile of list){
+    if(projectile.enemy||projectile.life<=0)continue;
+    projectile.eliteHits||=new Set();
+    const pad=Math.max(0,(projectile.actualExplosion?projectile.explosionRadius:projectile.collisionRadius)||0);
+    const contacts=[];
+    for(const member of system.members){
+      if(projectile.eliteHits.has(member.id)||member.hp<=0||member.alive===false)continue;
+      const body=bindings.getEliteHitRadius?.(member)??(member.eliteKind==='schlachtstaffel'?24:18);
+      const t=eliteContact(projectile,member,body+pad);
+      if(Number.isFinite(t))contacts.push({member,t});
+    }
+    contacts.sort((a,b)=>a.t-b.t);
+    for(const {member} of contacts){
       projectile.eliteHits.add(member.id);
-      const damage = projectile.mauserRound ? (projectile.damage || 1) * 3 : (projectile.damage || 1);
-      system.damageMember(member, damage, {projectile});
-      bindings.onEliteImpact?.(game, member, projectile);
-      if (!projectile.pierce) projectile.life = 0;
-      break;
+      const damage=projectile.mauserRound?(projectile.damage||1)*3:(projectile.damage||1);
+      system.damageMember(member,damage,{projectile});
+      bindings.onEliteImpact?.(game,member,projectile);
+      if(!projectile.pierce){projectile.life=0;break;}
     }
   }
 }
@@ -85,6 +108,7 @@ export function installHeadOnElitePatch(GameClass, bindings = {}, options = {}) 
   const originalUpdate = GameClass.prototype.update;
   if (typeof originalUpdate !== 'function') throw new TypeError('HEAD-ON Game.update was not found');
   GameClass.prototype.update = function elitePatchedUpdate(dt, input) {
+    for(const b of bindings.getFriendlyProjectiles?.(this)||this.bullets||[]){b.previousX=b.x;b.previousY=b.y;}
     const result = originalUpdate.call(this, dt, input);
     if ((bindings.isPlaying?.(this) ?? this.state === 'playing')) {
       const system = attachEliteSystem(this, bindings, options);
