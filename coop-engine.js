@@ -1,9 +1,9 @@
-import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=331';
-import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=331&b=326';
+import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=332';
+import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=332&b=326';
 
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=331&b=326';
-import {attachAircraftPersonality} from './aircraft-personality164.js?v=331';
-import {installCloudCover} from './cloud-cover1.js?v=331&b=326';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=332&b=326';
+import {attachAircraftPersonality} from './aircraft-personality164.js?v=332';
+import {installCloudCover} from './cloud-cover1.js?v=332&b=326';
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.
 export const COOP_BALANCE=Object.freeze({spawn:1,ordinaryHp:1.15,heavyHp:1.65,enemyCap:28,xp:.6,revive:15,reviveHp:1,reviveAmmo:.5,reviveInvuln:2,minZoom:.75});
@@ -24,7 +24,7 @@ export class PlayerState {
   if(pilot==='bishop')this.damage*=1.8;
   this.permanentWingman=pilot==='goering'?1:0;this.allyPlane=fit.faction==='central'?'fokker_standard':'camel';this.baseSpeed=this.speed;this.enemyCruiseReference=this.speed;this.ensureRevisionPilot();
  }
- get rng(){return this.world.rng} get t(){return this.world.t}
+ get rng(){return this.world.rng} get t(){return this.world.t} get smokeZones(){return this.world.smokeZones}
  get state(){return this.world.state} set state(_value){/* A personal upgrade cannot resume the shared world. */}
  get bullets(){return this.world.bullets} set bullets(value){this.world.bullets=value}
  get enemies(){return this.world.enemies} get viewWidth(){return this.world.viewWidth/this.world.camera.zoom} get viewHeight(){return this.world.viewHeight/this.world.camera.zoom}
@@ -33,8 +33,10 @@ export class PlayerState {
  burst(...args){this.world.burst(...args)} smoke(...args){this.world.smoke(...args)} combatBlast(...args){this.world.combatBlast(...args)}
  checkLevel(){/* Growth is committed once by the world's ordered queue. */}
 }
-// Reuse authored abilities and upgrade rules, not any legacy world-update wrapper.
-for(const method of ['launchUpgradeRocket','ensureRevisionPilot','beginRevisionFrame','endRevisionFrame','incomingDamageMultiplier','skill','evade','reload','upgrade','addGunBonus','addMobility','rollChoices','rerollChoices','canRerollChoices','rerollLegendaryChoices','legendaryChance','legendaryCount','levelRequirement','payloadPower','supportPower','skillCooldown','skillDuration','skillRecovery','normalGunMultiplier','blackFlightAim','isRedHunter','shotLifetime','healthSpeedFactor','flyAirframe','duoVolley','legendaryDamageMultiplier','sunStrikeContains','combatWorld','inSmoke','tailEligible','tailIdFor','updateTailLock','tailLockFraction','giveSpecialAmmo','consumeSpecialRound','specialAmmoStatus','applySpecialRound','roundDamageMultiplier','specialRoundImpact','tickAugmentationSystems','augmentationDescription','guideTelescope','gunDirection','throwGrenades','tickGrenades','ordnanceInterval','explosionRadius','explosionDamage','queueExplosionDamage','spawnAmatolSecondary','cannonMuzzleSmoke','permanentWingPlane','permanentWingCount','lufberyDamageMultiplier','wingFormationOffset','wingFormationTarget','applyFighterSupplyToWings','isDreideckerPilot','huntTargetAlive','huntTier','pickHuntTarget','patchEliteHuntDamage'])PlayerState.prototype[method]=Game.prototype[method];
+// PlayerState inherits every Game behavior it does not override, so abilities and
+// upgrade rules added to the engine reach co-op automatically — a manual method
+// allowlist silently broke whenever the engine grew a new dependency.
+Object.setPrototypeOf(PlayerState.prototype,Game.prototype);
 
 export class CoopGame {
  constructor(config,{rng=Math.random,runId=globalThis.crypto?.randomUUID?.()||`coop-${Date.now()}-${Math.random().toString(36).slice(2)}`}={}){
@@ -229,8 +231,9 @@ CoopGame.prototype.updatePlayer=function(p,dt,input){
  try{return _coopVoss113.call(this,p,dt,input)}finally{p.baseSpeed=base;if(active){p.vossReverse=Math.max(0,p.vossReverse-dt);p.vossAfterimages??=[];p.vossAfterimageClock=(p.vossAfterimageClock||0)+dt;if(p.vossAfterimageClock>=0){p.vossAfterimageClock=-1;for(let i=0;i<6;i++){const d=p.a+i*Math.PI/3;p.vossAfterimages.push({x:p.x+Math.cos(d)*14,y:p.y+Math.sin(d)*14,a:d,drift:d,life:2.4,maxLife:2.4})}}}p.vossAfterimages=(p.vossAfterimages||[]).filter(d=>d.life>0).slice(-6);}
 };
 
-// Read-only world helpers reuse the current single-player combat catalog and hazards.
-for(const method of ['runScheduledAces','supportAuraAt','enemyCapacity','isOpeningCountryside','regularEnemyLimit','regularSpawnInterval','aircraftMix','friendlyAircraftMix','queueBossLevel','resolveBossLevels','spawnComposition','canSpawnRevision','tickRevisionWorld','revisionDecoyTarget','burst','smoke','combatBlast','aceWaveCount','nextAceWaveAt','prepareBossWave','worldRegion','clearRegionalHazards','spawnMinefield','spawnGas','wreckGust','patrolCanEngage','spawnPatrol','hitPatrol','updatePatrols','targetCollision','canHitTarget','fieldVolley','combatWorld','dropSpecialAmmo','dropObservationRepair','dogfightSteering','tickBattleDirector','beginBattleDirectorPattern','canOfferBattlefieldEvent','offerBattlefieldEvent','acceptBattlefieldEvent','declineBattlefieldEvent','tickBattlefieldEvents','tickRivalAce','mobSpawnsSuppressed','_pickHeavy'])CoopGame.prototype[method]=Game.prototype[method];
+// Read-only world helpers come from Game too: CoopGame keeps its own update/spawn
+// implementations as own-prototype methods and inherits the rest of the catalog.
+Object.setPrototypeOf(CoopGame.prototype,Game.prototype);
 
 // Cloud concealment: per-player conceal timers + enemy lock-breaking, same rules as solo.
 installCloudCover(CoopGame);
