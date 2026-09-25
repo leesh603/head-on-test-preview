@@ -1,6 +1,6 @@
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=334&b=326';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=334&b=326';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=334';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=335&b=326';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=335&b=326';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=335';
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
@@ -32,7 +32,7 @@ export function stageSpawnInterval(g,interval){return normalSpawnInterval(interv
 export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
  if(g.mode==='campaign'||g.stageBoss)return g.stageBoss;
  g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=null;
- const hitPlayer=(id,damage,source)=>{if(blocked(g))return;const p=players(g).find(p=>(p.id||'p1')===id);if(!p||!alive(p))return;const percent=({'rail-shell':.06,'rail-shell-outer':.045,'alps-cannon':.05,'torpedo-charge':.05,'zubian-mortar':.04,'carpet-bomb':.04,'observer-shell':.04,'black-flak':.03})[source?.visual]||0,finalDamage=damage+p.maxHp*percent;if(g.players)g.hitPlayer(p,finalDamage);else g.hit(finalDamage);if(source?.visual==='torpedo-charge'){g.combatBlast(p.x,p.y,54,'enemy');g.shake=Math.max(g.shake,10);}else if(source?.visual==='zubian-shell')g.combatBlast(p.x,p.y,24,'enemy');};
+ const hitPlayer=(id,damage,source)=>{if(blocked(g))return;const p=players(g).find(p=>(p.id||'p1')===id);if(!p||!alive(p))return;const percent=({'rail-shell':.06,'rail-shell-outer':.045,'alps-cannon':.05,'torpedo-charge':.05,'zubian-mortar':.04,'carpet-bomb':.04,'observer-shell':.04,'black-flak':.03})[source?.visual]||0,finalDamage=damage+p.maxHp*percent;if(g.players)g.hitPlayer(p,finalDamage);else g.hit(finalDamage);if(source?.visual==='torpedo-charge'){g.combatBlast(p.x,p.y,54,'enemy','mineBlast');g.shake=Math.max(g.shake,10);}else if(source?.visual==='zubian-shell')g.combatBlast(p.x,p.y,24,'enemy','pop');};
  const hooks={
   getTuning({bossId}){
    // Reuse the current ace HP/time growth and current heavy coop multiplier once.
@@ -67,7 +67,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     passTargetX:spec.passTargetX,passTargetY:spec.passTargetY,formationIndex:spec.formationIndex,formationCount:spec.formationCount,supportInvulnUntil:g.t+(spec.invulnerableSeconds||0)});
   },
   countMinions(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&e.hp>0).length;},
-  onBuildingImpact(event){const b=g.bossBuildings.find(b=>!b.destroyed&&Math.abs(event.x-b.x)<=b.w/2+8&&Math.abs(event.y-b.y)<=b.h/2);if(!b)return false;b.destroyed=true;g.combatBlast(b.x,b.y,55,'enemy');return true;},
+  onBuildingImpact(event){const b=g.bossBuildings.find(b=>!b.destroyed&&Math.abs(event.x-b.x)<=b.w/2+8&&Math.abs(event.y-b.y)<=b.h/2);if(!b)return false;b.destroyed=true;g.combatBlast(b.x,b.y,55,'enemy','structure');return true;},
   onCue(event){
    const body=g.stageBoss?.stages.encounter?.bodies.get(event.bossId),x=event.x??body?.x??g.x,y=event.y??body?.y??g.y;
    if(event.type==='spawn-minefield'){
@@ -81,19 +81,21 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
         warning:event.warning,life:event.life,region:g.worldRegion(),mines,encounterId:g.stageBoss.stages.encounter.id});}
    }
    if(event.type==='boss-enter'){g.event('wave','지역 보스 출현! · '+BOSS_CATALOG[event.bossId].name);g.event('heavyShot','');}
-   else if(event.type==='hazard-activated'&&event.kind==='circle')g.combatBlast(event.x,event.y,event.radius,'enemy');
-   else if(event.type==='part-destroyed'){const part=body?.parts.get(event.partId);g.combatBlast(x+(part?.x||0),y+(part?.y||0),46,'enemy');g.shake=Math.max(g.shake,7);}
-   else if(event.type==='ammo-detonation'){g.combatBlast(event.x,event.y,105,'enemy');g.shake=Math.max(g.shake,12);g.event('wave','항구요새 탄약고 유폭 · 중앙 회전축 방호 약화');}
-   else if(event.type==='rail-car-detached'){g.combatBlast(event.x,event.y,58,'enemy');g.shake=Math.max(g.shake,8);
-    for(let i=0;i<4;i++){const ox=(g.rng?g.rng()-.5:Math.random()-.5)*120,oy=(i-1.5)*55+(g.rng?g.rng()-.5:Math.random()-.5)*30,r=24+((i*37)%3)*14;g.combatBlast(event.x+ox,event.y+oy,r,'enemy');if(g.burst)g.burst(event.x+ox,event.y+oy,'#ffd06a',6);if(g.smoke)g.smoke(event.x+ox,event.y+oy,true)}
+   else if(event.type==='hazard-activated'&&event.kind==='circle'){
+    const SHELL_VISUALS=new Set(['rail-shell','rail-shell-outer','observer-shell','zubian-mortar','naval-gun','alps-cannon','black-flak','zubian-shell','coastal-shell','building-debris']),sea=[1,7].includes(g.worldRegion?.()??-1);
+    g.combatBlast(event.x,event.y,event.radius,'enemy',event.visual==='carpet-bomb'?'bomb':event.visual==='torpedo-charge'?'mineBlast':SHELL_VISUALS.has(event.visual)?(sea?'mineBlast':'shell'):'blast');}
+   else if(event.type==='part-destroyed'){const part=body?.parts.get(event.partId);g.combatBlast(x+(part?.x||0),y+(part?.y||0),46,'enemy','structure');g.shake=Math.max(g.shake,7);}
+   else if(event.type==='ammo-detonation'){g.combatBlast(event.x,event.y,105,'enemy','structure');g.shake=Math.max(g.shake,12);g.event('wave','항구요새 탄약고 유폭 · 중앙 회전축 방호 약화');}
+   else if(event.type==='rail-car-detached'){g.combatBlast(event.x,event.y,58,'enemy','structure');g.shake=Math.max(g.shake,8);
+    for(let i=0;i<4;i++){const ox=(g.rng?g.rng()-.5:Math.random()-.5)*120,oy=(i-1.5)*55+(g.rng?g.rng()-.5:Math.random()-.5)*30,r=24+((i*37)%3)*14;g.combatBlast(event.x+ox,event.y+oy,r,'enemy','structure');if(g.burst)g.burst(event.x+ox,event.y+oy,'#ffd06a',6);if(g.smoke)g.smoke(event.x+ox,event.y+oy,true)}
     g.event('wave','열차 객차 파괴 · 기관차 방호 약화');}
    else if(event.type==='rail-runaway'){g.event('wave','기관차 폭주! · 선로에서 이탈하기 전에 추격하세요');g.shake=Math.max(g.shake,6);}
-   else if(event.type==='rail-derail'){g.combatBlast(x,y,96,'enemy');g.shake=Math.max(g.shake,12);g.event('wave','기관차 탈선 · 최종 코어 노출');}
-   else if(event.type==='body-defeated'&&event.kind?.startsWith('hms-zubian-')){g.combatBlast(x,y,82,'enemy');g.shake=Math.max(g.shake,10);}
-   else if(event.type==='mine-chain'){g.combatBlast(event.x,event.y,event.radius||72,'enemy');g.shake=Math.max(g.shake,9);for(const e of g.enemies)if(e.hp>0&&!e.stageBossBody&&Math.hypot(e.x-event.x,e.y-event.y)<(event.radius||72))e.hp-=65;g.stageBoss?.hitAt({x:event.x,y:event.y,radius:event.radius||72,damage:65,faction:g.teamFaction});}
-   else if(['split','misfire'].includes(event.type)){g.combatBlast(x,y,event.type==='split'?78:92,'enemy');g.shake=Math.max(g.shake,8);}
+   else if(event.type==='rail-derail'){g.combatBlast(x,y,96,'enemy','structure');g.shake=Math.max(g.shake,12);g.event('wave','기관차 탈선 · 최종 코어 노출');}
+   else if(event.type==='body-defeated'&&event.kind?.startsWith('hms-zubian-')){g.combatBlast(x,y,82,'enemy','bossFinal');g.shake=Math.max(g.shake,10);}
+   else if(event.type==='mine-chain'){g.combatBlast(event.x,event.y,event.radius||72,'enemy',[1,7].includes(g.worldRegion?.()??-1)?'mineBlast':'shell');g.shake=Math.max(g.shake,9);for(const e of g.enemies)if(e.hp>0&&!e.stageBossBody&&Math.hypot(e.x-event.x,e.y-event.y)<(event.radius||72))e.hp-=65;g.stageBoss?.hitAt({x:event.x,y:event.y,radius:event.radius||72,damage:65,faction:g.teamFaction});}
+   else if(['split','misfire'].includes(event.type)){g.combatBlast(x,y,event.type==='split'?78:92,'enemy','structure');g.shake=Math.max(g.shake,8);}
    else if(event.type==='boss-destruction-start'){g.event('wave',BOSS_CATALOG[event.bossId].name+' 붕괴 중!');g.shake=Math.max(g.shake,8);if(['zeppelin-l70','hma23'].includes(event.bossId))for(const b of event.bodies||[])g.wreckGust(b);}
-   else if(event.type==='boss-destruction-pulse'){g.combatBlast(event.x,event.y,event.radius,'enemy');g.shake=Math.max(g.shake,event.final?13:8);}
+   else if(event.type==='boss-destruction-pulse'){g.combatBlast(event.x,event.y,event.radius,'enemy',event.final?'bossFinal':'structure');g.shake=Math.max(g.shake,event.final?13:8);}
    else if(event.type==='heavy-gun-fired'){g.event('heavyShot','');g.shake=Math.max(g.shake,7);}
    else if(event.type==='muzzle'){g.burst(event.x,event.y,'#ffe0a2',12);g.shake=Math.max(g.shake,3);}
    else if(event.type==='camera-shake')g.shake=Math.max(g.shake,event.strength||5);

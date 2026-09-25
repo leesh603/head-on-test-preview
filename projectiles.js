@@ -1,6 +1,6 @@
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // Rendering never changes projectile movement, damage or collision.
-import {fx,fxReady,fxTint,FX56} from './fx-art.js?v=334';
+import {fx,fxReady,fxTint,FX56} from './fx-art.js?v=335';
 export function projectileStyle(b){return b.hostileRocket?'rocket':b.flak?'flak':b.visualType||(b.naval?'naval':b.fieldShell?'balloon':b.heavy?'heavyBomber':'scout')}
 const TRACERS={scout:['#e7a06b',10,2],hunter:['#efb77f',14,2],bomber:['#dfbc7b',11,3],heavyBomber:['#e4ae72',15,3],boss:['#e58f7c',16,3],zeppelin:['#d8bb8b',12,3],railgun:['#efaa89',23,3],naval:['#dfaa82',16,3],balloon:['#dbbf8b',8,3],flak:['#dfac80',6,3],rocket:['#edac77',15,3]};
 // gunUpgradeBonus is the cumulative machine-gun attack bonus, not temporary
@@ -17,7 +17,7 @@ export function friendlyTracerColor(b,gunUpgradeBonus=0){
  return '#'+a.map((v,j)=>Math.round(v+(z[j]-v)*t).toString(16).padStart(2,'0')).join('');
 }
 const cannonAtlas=typeof Image==='undefined'?null:new Image();
-if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.webp?v=334';
+if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.webp?v=335';
 export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
  if(!b.enemy||b.life<=0)return;const kind=projectileStyle(b),[color,length,width]=TRACERS[kind]||TRACERS.scout;
  c.save();c.translate(Math.round(x),Math.round(y));c.rotate(Math.atan2(b.vy,b.vx));
@@ -68,8 +68,9 @@ export function drawBattlefieldFire(c,g,point=(x,y)=>[x,y]){
    c.globalAlpha=1;
    const n=Math.max(3,Math.round(f.radius/26));
    for(let i=0;i<n;i++){const a=i*2.399,r=Math.sqrt((i+.5)/n)*f.radius*.7,px=x+Math.cos(a)*r,py=y+Math.sin(a)*r,s=34+((i*37)%22);
-    if(FX56){fx(c,'fire',px,py,s,s*.6,0,fade*.7);if(i%2)fx(c,'smokeDark',px,py-s*.5,s*.8,s*.6,0,fade*.24)}
-    else{fx(c,'fire',px,py,s,s*1.2,i*1.7,fade*.8);if(i%2)fx(c,'smokeDark',px,py-s*.7,s*1.1,s,i*.9,fade*.4)}}
+    const fireKey=fxReady('fireGround')?'fireGround':'fire';
+    if(FX56){fx(c,fireKey,px,py,s,s*.6,i*1.7,fade*.7);if(i%2)fx(c,'smokeDark',px,py-s*.5,s*.8,s*.6,0,fade*.24)}
+    else{fx(c,fireKey,px,py,s,s*1.2,i*1.7,fade*.8);if(i%2)fx(c,'smokeDark',px,py-s*.7,s*1.1,s,i*.9,fade*.4)}}
   }else for(let i=0;i<38;i++){const a=i*2.399,r=Math.sqrt((i+.5)/38)*f.radius*.92,phase=(g.t*2+i*.37)%1,px=Math.round(x+Math.cos(a)*r),py=Math.round(y+Math.sin(a)*r),h=8+Math.round((1-phase)*14);c.globalAlpha=fade*(.5+.5*(1-phase));c.fillStyle='#b56534';c.fillRect(px-6,py-8,12,9);c.fillRect(px-4,py-h,8,h);c.fillRect(px+3,py-h+4,3,7);c.fillStyle='#e3a34d';c.fillRect(px-3,py-h+5,6,h-3);c.fillRect(px-5,py-5,9,5);c.fillStyle='#f5d38b';c.fillRect(px-1,py-4,3,4);c.globalAlpha=.25*fade;c.fillStyle='#686a60';c.fillRect(px-3,py-h-8-phase*14,6,6);}
   c.restore();
  }
