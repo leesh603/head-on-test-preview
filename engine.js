@@ -1,18 +1,19 @@
-import {installRevision} from './rebalance103.js?v=330&b=326';
-import {installCloudCover} from './cloud-cover1.js?v=330&b=326';
-import {installFleet} from './fleet-naval1.js?v=330&b=326';
-import {installTrenchWar} from './trench-war1.js?v=330&b=326';
-import {installCityAir} from './city-air1.js?v=330&b=326';
-import {installRegionDoctrine} from './region-doctrine1.js?v=330&b=326';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=330';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=330&b=326';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=330';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=330';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=330';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=330';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=330';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=330';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=330';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=331';
+import {installRevision} from './rebalance103.js?v=331&b=326';
+import {installCloudCover} from './cloud-cover1.js?v=331&b=326';
+import {installFleet} from './fleet-naval1.js?v=331&b=326';
+import {installTrenchWar} from './trench-war1.js?v=331&b=326';
+import {installCityAir} from './city-air1.js?v=331&b=326';
+import {installRegionDoctrine} from './region-doctrine1.js?v=331&b=326';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=331';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=331&b=326';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=331';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=331';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=331';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=331';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=331';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=331';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=331';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -80,7 +81,7 @@ export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this
 
  upgrade(id,rarity='normal'){if(this.state!=='upgrade')return;let u=UPGRADES.find(u=>u.id===id);if(!u)return;u.apply(this);if(rarity==='rare'){u.apply(this)}else if(rarity==='unique'){u.apply(this);u.apply(this);if(id==='rockets')this.rocketFire=0;if(id==='mines')this.mineTimer=0}this.upgrades[id]=(this.upgrades[id]||0)+1;this.state='playing';this.checkLevel()}
  checkLevel(){if(this.xp>=this.need&&this.state==='playing'){this.xp-=this.need;this.level++;this.baseLevelNeed=Math.ceil(this.baseLevelNeed*1.28);this.need=this.levelRequirement(this.baseLevelNeed);this.state='upgrade';this.event('upgrade','전술 개조')}}
- burst(x,y,color,n=8){for(let i=0;i<n;i++){let a=this.rng()*Math.PI*2,s=20+this.rng()*90;this.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.4+this.rng()*.5,color})}}
+ burst(x,y,color,n=8){if(color==='#f2aa52'&&n>=26){this.combatFX??=[];if(!this.combatFX.some(f=>f.killExplosion&&f.life>.38&&Math.hypot(f.x-x,f.y-y)<8))this.combatFX.push({x,y,radius:n>=36?46:34,life:.48,maxLife:.48,killExplosion:true,side:'friendly'})}for(let i=0;i<n;i++){let a=this.rng()*Math.PI*2,s=20+this.rng()*90;this.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.4+this.rng()*.5,color})}}
  smoke(x,y,heavy=false){this.particles.push({x,y,vx:(this.rng()-.5)*18,vy:-10-this.rng()*12,life:heavy?.85:.6,maxLife:heavy?.85:.6,smoke:true,size:heavy?7:4,color:heavy?'#343a35':'#bac1ae'})}
  supportPlane(){if(this.pilot==='goering')return 'fokkerd7';if(this.pilot==='collishaw')return 'collishaw_sopwith';const choices=(WING_PLANES[PLANES[this.plane].faction]||[]).filter(id=>id!==this.plane&&PLANES[id]);return choices.length?choices[Math.floor(this.rng()*choices.length)]:this.allyPlane}
  permanentWingPlane(){if(this.pilot==='goering')return 'fokkerd7';if(this.pilot==='collishaw')return 'collishaw_sopwith';const choices=(WING_PLANES[PLANES[this.plane].faction]||[]).filter(id=>id!==this.plane);return choices.length?choices[Math.floor(this.rng()*choices.length)]:this.allyPlane}
@@ -1696,7 +1697,7 @@ Game.prototype.skillDuration=function(){const d=({rickenbacker:4,ball:1.5,barker
 const _aces1918Gun=Game.prototype.normalGunMultiplier;
 Game.prototype.normalGunMultiplier=function(){let m=_aces1918Gun.call(this);
  if(this.pilot==='rickenbacker'){let n=0;for(const e of this.enemies)if(e.hp>0&&!e.surface&&Math.hypot(e.x-this.x,e.y-this.y)<700)n++;m*=1+Math.min(5,n)*.06}
- else if(this.pilot==='ball'){if(this.ballAmbush>0)m*=2.2;else{const world=typeof this.combatWorld==='function'?this.combatWorld():this;const alone=!(world.allies||[]).some(a=>a.life>0&&Math.hypot(a.x-this.x,a.y-this.y)<320)&&!(this.players||[]).some(p=>p!==this&&Math.hypot((p.x||0)-this.x,(p.y||0)-this.y)<320);if(alone)m*=1.15}}
+ else if(this.pilot==='ball'){if(this.ballAmbush>0)m*=2.2;else{const world=typeof this.combatWorld==='function'?this.combatWorld():this;const alone=!(world.allies||[]).some(a=>a.life>0&&Math.hypot(a.x-this.x,a.y-this.y)<320)&&!(world.players||[]).some(p=>p!==this&&p.hp>0&&p.status!=='downed'&&Math.hypot((p.x||0)-this.x,(p.y||0)-this.y)<320);if(alone)m*=1.15}}
  else if(this.pilot==='barker')m*=1+(this.barkerStacks||0)*.13;
  else if(this.pilot==='brumowski'){const world=typeof this.combatWorld==='function'?this.combatWorld():this;const n=(world.allies||[]).filter(a=>a.life>0).length;m*=1+Math.min(3,n)*.08}
  return m};
@@ -1715,18 +1716,22 @@ Game.prototype.mobSpawnsSuppressed=function(){
  return false;
 };
 Game.prototype.enemyCombatTarget=function(e){const c=_aces1918Contact.call(this,e);if(this.pilot==='ball'&&this.ballCloak>0&&c===this&&this.ballGhost)return this.ballGhost;return c};
+const _aces1918ApplyRound=Game.prototype.applySpecialRound;
+Game.prototype.applySpecialRound=function(b,type){return preparePersonalRound1918(this,_aces1918ApplyRound.call(this,b,type))};
 const _aces1918Impact=Game.prototype.specialRoundImpact;
 Game.prototype.specialRoundImpact=function(b,e){_aces1918Impact.call(this,b,e);
- if(b.burn&&e.hp>0){e.burnTime=3;e.burnDps=Math.max(e.burnDps||0,b.damage*.32)}
+ if(b.burn&&e.hp>0){e.burnTime=3;const dps=b.damage*.32;if(dps>=(e.burnDps||0)){e.burnDps=dps;e.burnOwnerId=b.ownerId??this.id}}
  if(this.pilot==='luke'&&this.skillTime>0&&ACES1918_BIG(e))this.queueExplosionDamage(b.x,b.y,110,b.damage*.6,{exclude:e})};
 const _aces1918Update=Game.prototype.update;
-Game.prototype.update=function(dt,input={}){const before=this.bullets.length;_aces1918Update.call(this,dt,input);const step=Math.min(.04,Math.max(0,dt));
- if(this.pilot==='gontermann'&&this.skillTime>0)for(const b of this.bullets.slice(before)){if(b.enemy||b.ally||b.formation||b.patrol)continue;b.burn=3;b.specialColor='#ff9a3c'}
- if(this.pilot==='barker'){if(this.barkerStackTime>0){this.barkerStackTime-=step;if(this.barkerStackTime<=0)this.barkerStacks=0}}
- if(this.pilot==='ball'){if(this.ballCloak>0){this.ballCloak-=step;const g=this.ballGhost;if(g){g.x+=Math.cos(g.a)*g.speed*step;g.y+=Math.sin(g.a)*g.speed*step}this.invuln=Math.max(this.invuln,step+.02);this._ballPuff=(this._ballPuff||0)-step;if(this._ballPuff<=0){this._ballPuff=.09;this.smoke(this.x+(this.rng()-.5)*40,this.y+(this.rng()-.5)*40,false)}if(this.ballCloak<=0){this.ballAmbush=2;this.burst(this.x,this.y,'#f4f0dc',18)}}else if(this.ballAmbush>0)this.ballAmbush-=step}
- if(this.pilot==='rickenbacker'&&this.skillTime>0){if(this._rickFired===undefined)this._rickFired=this.roundsFired;else if(this.roundsFired>this._rickFired){this._rickFired=this.roundsFired;let n=0;for(const e of this.enemies){if(n>=7)break;if(e.hp<=0||e.surface||Math.hypot(e.x-this.x,e.y-this.y)>780)continue;const a=Math.atan2(e.y-this.y,e.x-this.x);this.bullets.push({x:this.x+Math.cos(a)*24,y:this.y+Math.sin(a)*24,vx:Math.cos(a)*580,vy:Math.sin(a)*580,life:1.5,enemy:false,ownerId:this.id,damage:this.damage*.85,pierce:true,specialColor:'#cfe4ff',hit:new Set(),formation:true});n++}}}
- if(this.pilot==='brumowski'){const world=typeof this.combatWorld==='function'?this.combatWorld():this;for(const a of world.allies||[])if(a.orbit&&a.life>0){const ang=(this.t||0)*1.5+(a.slot||0)*Math.PI,tx=(this.x||0)+Math.cos(ang)*115,ty=(this.y||0)+Math.sin(ang)*115;a.x+=(tx-a.x)*Math.min(1,step*6);a.y+=(ty-a.y)*Math.min(1,step*6);a.a=ang+Math.PI/2}}
- for(const e of this.enemies){if(e.burnTime>0){e.burnTime-=step;e.hp-=e.burnDps*step;this._burnFx=(this._burnFx||0)-step;if(this._burnFx<=0){this._burnFx=.13;this.smoke(e.x,e.y,false);this.burst(e.x,e.y,'#ff9a3c',3)}if(e.hp<=0&&!e.burnCounted){e.burnCounted=true;this.kills++;if(e.bossPilot||e.type==='boss'||e.type==='zeppelin'||e.type==='bomber')this.priorityKills=(this.priorityKills||0)+1;if(e.type==='zeppelin'&&this.wreckGust)this.wreckGust(e);this.burst(e.x,e.y,'#f2aa52',30);this.event('kill',e.fieldUnit==='balloon'?'balloon':'');{const big=e.bossPilot||e.type==='boss';if(big)for(let gi=0;gi<5;gi++)this.drops.push({x:e.x+Math.cos(gi*1.26)*44,y:e.y+Math.sin(gi*1.26)*44,value:14,heal:false});this.drops.push({x:e.x,y:e.y,value:big?30:e.heavyBomber?16:e.type==='bomber'?3:(e.xpValue||1),heal:big||this.rng()<.1})}}}else e.burnDps=0}};
+Game.prototype.update=function(dt,input={}){
+ const wasPlaying=this.state==='playing',previousRounds=this.roundsFired;
+ const result=_aces1918Update.call(this,dt,input);
+ if(!wasPlaying||this.state!=='playing')return result;
+ const step=Math.min(.04,Math.max(0,dt));
+ advancePersonal1918(this,step,previousRounds);
+ for(const e of advanceBurns1918(this,step)){this.kills++;if(e.bossPilot||e.type==='boss'||e.type==='zeppelin'||e.type==='bomber')this.priorityKills=(this.priorityKills||0)+1;if(e.type==='zeppelin'&&this.wreckGust)this.wreckGust(e);this.burst(e.x,e.y,'#f2aa52',30);this.event('kill',e.fieldUnit==='balloon'?'balloon':'');{const big=e.bossPilot||e.type==='boss';if(big)for(let gi=0;gi<5;gi++)this.drops.push({x:e.x+Math.cos(gi*1.26)*44,y:e.y+Math.sin(gi*1.26)*44,value:14,heal:false});this.drops.push({x:e.x,y:e.y,value:big?30:e.heavyBomber?16:e.type==='bomber'?3:(e.xpValue||1),heal:big||this.rng()<.1})}}
+ return result;
+};
 const _aces1918AceAttack=Game.prototype.aceAttack;
 Game.prototype.aceAttack=function(e){
  if(e.bossPilot==='brumowski'){const live=this.enemies.filter(x=>x.hp>0&&x.escortPlane==='brumowski_albatros').length;for(let i=live;i<2&&this.enemies.length<60;i++){const wing=this.spawnEnemy('hunter');if(!wing)break;wing.x=e.x+(i?70:-70);wing.y=e.y+40;wing.hp=wing.maxHp=80*(1+this.t/180);wing.escortPlane='brumowski_albatros';attachAircraftPersonality(PLANES,wing,wing.escortPlane,{retuneCruise:true});wing.fire=.3}}

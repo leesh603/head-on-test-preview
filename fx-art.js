@@ -1,3 +1,7 @@
+// Union pack: Pro's 196 combat atlas takes precedence for the keys it covers
+// (explosion0-3, fire, smoke*, spark, armorSpark, gas, gasThin); every other key
+// stays on the approved v189 set below. ?fx=0 keeps the procedural rollback.
+import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,fx as fx196Draw,fxTintedCanvas as fx196TintedCanvas,fxTint as fx196Tint} from './combat-fx196.js?v=331';
 // Combat FX pack v189 — approved sprite set lives in fx-pack-v189/ and maps onto
 // the keys already called by the renderers. Unmapped keys stay procedural.
 // Rollback: append ?fx=0 to the URL — FX_FILES empties and every call site
@@ -55,13 +59,15 @@ const FX_FILES=FX_OFF?{}:Object.assign({
  flameJet:'fx-flame-jet.webp',flameTongue1:'fx-flame-tongue-1.webp',flameTongue2:'fx-flame-tongue-2.webp',flameTongue3:'fx-flame-tongue-3.webp'
 },FX56_OFF?{}:FX56_FILES);
 const fxImgs={};
-export const fxArtReady=typeof Image==='undefined'?Promise.resolve():Promise.all(Object.entries(FX_FILES).map(([key,file])=>new Promise(res=>{
+const fx189Ready=typeof Image==='undefined'?Promise.resolve():Promise.all(Object.entries(FX_FILES).map(([key,file])=>new Promise(res=>{
  const im=new Image();im.onload=()=>{fxImgs[key]=im;res()};im.onerror=()=>res();im.src='./'+file+'?v=fx5';
 })));
-export function fxReady(key){return !!fxImgs[key]}
-export function fxImage(key){return fxImgs[key]||null}
+export const fxArtReady=Promise.all([fx189Ready,fx196ArtReady]);
+export function fxReady(key){return fx196Ready(key)||!!fxImgs[key]}
+export function fxImage(key){return fx196Image(key)||fxImgs[key]||null}
 // Draw sprite centered at x,y, rotated to angle (0 = sprite's natural right/up orientation), fit inside w×h.
 export function fx(c,key,x,y,w,h=w,angle=0,alpha=1){
+ if(fx196Ready(key))return fx196Draw(c,key,x,y,w,h,angle,alpha);
  const im=fxImgs[key];if(!im)return false;
  c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha*=alpha;
  if(FX56&&FX_FILES[key].startsWith('fx-pack-v189/')){c.imageSmoothingEnabled=false;c.drawImage(im,-w/2,-h/2,w,h)}
@@ -72,6 +78,7 @@ export function fx(c,key,x,y,w,h=w,angle=0,alpha=1){
 const tintCache=new Map();
 // Lazily bake a color-multiplied copy so painted shading survives tinting.
 export function fxTintedCanvas(key,color){
+ if(fx196Ready(key))return fx196TintedCanvas(key,color);
  const im=fxImgs[key];if(!im)return null;
  const ck=key+color;let c=tintCache.get(ck);
  if(c===undefined){
@@ -85,6 +92,7 @@ export function fxTintedCanvas(key,color){
  return c;
 }
 export function fxTint(c,key,color,x,y,w,h=w,angle=0,alpha=1){
+ if(fx196Ready(key))return fx196Tint(c,key,color,x,y,w,h,angle,alpha);
  const cv=fxTintedCanvas(key,color);if(!cv)return fx(c,key,x,y,w,h,angle,alpha);
  c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha*=alpha;
  if(FX56&&FX_FILES[key].startsWith('fx-pack-v189/')){c.imageSmoothingEnabled=false;c.drawImage(cv,-w/2,-h/2,w,h)}
