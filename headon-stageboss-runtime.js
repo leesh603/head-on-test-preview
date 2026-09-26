@@ -16,7 +16,7 @@ export class BossStages {
   poll() {if(this.phase==='boss'&&this.encounter.completed){this.phase='clear-pending';return true;}return false;}
   advance(blocked=false) {
     if(blocked||this.phase!=='clear-pending'||!this.encounter.completed)return null;
-    const id=this.encounter.id;this.orderPosition=this.order.indexOf(this.stageIndex)+1;
+    const id=this.encounter.id;const pos=this.order.indexOf(this.stageIndex);this.orderPosition=pos<0?this.order.length:pos+1;
     if(this.orderPosition>=this.order.length){this.loopIndex++;this.orderPosition=0;const previous=this.stageIndex;this.order=STAGES.map((_,i)=>i).filter(i=>i!==8);for(let i=this.order.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[this.order[i],this.order[j]]=[this.order[j],this.order[i]]}if(this.order[0]===previous)[this.order[0],this.order[1]]=[this.order[1],this.order[0]];}
     this.stageIndex=this.order[this.orderPosition];
     this.phase='explore';this.encounter=null;
