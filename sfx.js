@@ -69,7 +69,7 @@ const VOICES={
   approachWarning(){tone(172,228,.24,.045,'sawtooth',650);hiss(820,360,.35,.03,'bandpass',1)},
   shipBreak(){tone(93,27,.75,.07,'sawtooth',250);hiss(2300,260,.55,.055,'bandpass',.6);hiss(900,350,.75,.03,'lowpass',.4,.25)},
   uiSelect(){hiss(2100,900,.025,.023,'bandpass',1.5);tone(180,100,.025,.018,'triangle',700)},
-  environment(region){if(region===1||region===7)hiss(520,280,1.3,.009,'bandpass',.35);else if(region===5||region===6)hiss(1500,850,1.4,.008,'bandpass',.4);else{tone(46,25,.6,.014,'sine',130);hiss(280,100,.8,.01,'lowpass',.4)}},
+  environment(region){if(region===1||region===7)hiss(520,280,1.3,.009,'bandpass',.35);else if(region===5){hiss(2600,1900,1.5,.005,'highpass',.3);tone(210,195,1,.003,'triangle',60)}else if(region===6)hiss(1500,850,1.4,.008,'bandpass',.4);else{tone(46,25,.6,.014,'sine',130);hiss(280,100,.8,.01,'lowpass',.4)}},
   // Brief propeller rush and mechanical rattle, below weapon volume.
   headOn(){hiss(320,950,.16,.045,'bandpass',.6);tone(92,140,.14,.035,'sawtooth',450);hiss(1400,420,.09,.022,'bandpass',1,.08)},
   // Player machine guns: a bright crack over a short mechanical body.
