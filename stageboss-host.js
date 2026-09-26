@@ -157,7 +157,7 @@ function updateMinions(g,dt){
    const lane=((e.formationIndex||0)-((e.formationCount||1)-1)/2)*9;e.x+=Math.cos(e.a)*e.speed*dt-Math.sin(e.a)*Math.sin(e.passAge*2.2)*lane*dt;e.y+=Math.sin(e.a)*e.speed*dt+Math.cos(e.a)*Math.sin(e.passAge*2.2)*lane*dt;
   }else{const a=Math.atan2(p.y-e.y,p.x-e.x),delta=Math.atan2(Math.sin(a-e.a),Math.cos(a-e.a));e.a+=clamp(delta,-2*dt,2*dt);e.x+=Math.cos(e.a)*e.speed*dt;e.y+=Math.sin(e.a)*e.speed*dt;}
   if(e.behavior==='suicide-dive'&&Math.hypot(e.x-p.x,e.y-p.y)<25){if(g.players)g.hitPlayer(p,18);else g.hit(18);e.hp=0;g.combatBlast(e.x,e.y,35,'enemy');continue;}
-  e.fire-=dt;if(e.fire<=0&&(e.behavior!=='attack-pass'||e.passAge>.65&&e.passAge<3.4)){e.fire=e.surface ? 1.5 : e.behavior==='attack-pass' ? .48 : 2.5;const a=e.behavior==='attack-pass'?e.a:Math.atan2(p.y-e.y,p.x-e.x);g.bullets.push({x:e.x,y:e.y,vx:Math.cos(a)*210,vy:Math.sin(a)*210,life:4,enemy:true,visualType:e.surface?'flak':'fighter',damage:Math.round(9*(1+g.t/240)),encounterId:e.encounterId});}
+  e.fire-=dt;if(e.fire<=0&&(e.behavior!=='attack-pass'||e.passAge>.65&&e.passAge<3.4)){e.fire=e.surface ? 1.5 : e.type==='zeppelin' ? 3.4 : e.behavior==='attack-pass' ? .48 : 2.5;const a=e.behavior==='attack-pass'?e.a:Math.atan2(p.y-e.y,p.x-e.x);const zep=e.type==='zeppelin';for(let j=0;j<(zep?3:1);j++){const aa=a+(j-1)*.14;g.bullets.push({x:e.x+(zep?Math.cos(e.a)*(j-1)*60:0),y:e.y+(zep?Math.sin(e.a)*(j-1)*60:0),vx:Math.cos(aa)*(zep?185:210),vy:Math.sin(aa)*(zep?185:210),life:zep?5:4,enemy:true,visualType:zep?'zeppelin':e.surface?'flak':'fighter',damage:Math.round((zep?14:9)*(1+g.t/240)),encounterId:e.encounterId});}}
  }
 }
 export function beginStageBossFrame(g,dt){

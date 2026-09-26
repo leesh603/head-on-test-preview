@@ -146,7 +146,9 @@ export class ZeppelinL70 extends PatternBoss {
   }
   onPartDestroyed(p) {if(p.id==='capsule'&&this.phase==='cloud'){this.phase='reveal';this.phaseTime=this.t.revealSeconds||1;this.command('phase-change',{phase:this.phase});}}
   update(dt,{players,bounds}) {
-    if(!this.escortCalled&&this.hp<=this.maxHp*.35){this.escortCalled=true;for(let i=0;i<3;i++){const a=Math.PI*.5+(i-1)*.5;this.command('spawn-minion',{minion:'airship',faction:this.faction,x:this.x+Math.cos(a)*160,y:this.y+Math.sin(a)*150,behavior:'escort'});}this.command('phase-change',{phase:'escort-call'});}
+    if(!this.escortCalled&&this.hp<=this.maxHp*.35){this.escortCalled=true;const side=this.rng()<.5?-1:1,sx=side>0?bounds.right+190:bounds.left-190;
+      for(let i=0;i<3;i++){const x=sx+side*i*130,y=bounds.top-150-i*80;this.command('spawn-minion',{minion:'airship',faction:this.faction,x,y,a:Math.atan2(bounds.top*.4-y,(bounds.left+bounds.right)/2-x),behavior:'escort'});}
+      this.command('phase-change',{phase:'escort-call'});}
     if(this.phase==='cloud') {
       const live=living(players),p=live[this.cursor%Math.max(1,live.length)],c=this.parts.get('capsule');
       if(p){c.x+=(p.x-this.x-c.x)*Math.min(1,dt*1.2);c.y+=(p.y-this.y-c.y)*Math.min(1,dt*1.2);}
@@ -188,8 +190,10 @@ export class HMA23 extends PatternBoss {
     for(let i=0;i<count;i++){const heading=a+(count===1?0:(i/(count-1)-.5)*.9);this.hazard('projectile',{x:this.x,y:this.y,vx:Math.cos(heading)*this.t.bulletSpeed*.78,vy:Math.sin(heading)*this.t.bulletSpeed*.78,radius:5,damage:Math.min(30,Math.round(this.t.damage*.7)),visual:'carrier-flak'});}
   }
   suppressive(){/* carrier fire is handled by the capped carrierFan pattern */}
-  update(dt,{players}) {
-    if(!this.escortCalled&&this.hp<=this.maxHp*.35){this.escortCalled=true;for(let i=0;i<3;i++){const a=Math.PI*.5+(i-1)*.5;this.command('spawn-minion',{minion:'airship',faction:this.faction,x:this.x+Math.cos(a)*160,y:this.y+Math.sin(a)*150,behavior:'escort'});}this.command('phase-change',{phase:'escort-call'});}
+  update(dt,{players,bounds}) {
+    if(!this.escortCalled&&this.hp<=this.maxHp*.35){this.escortCalled=true;const side=this.rng()<.5?-1:1,sx=side>0?bounds.right+190:bounds.left-190;
+      for(let i=0;i<3;i++){const x=sx+side*i*130,y=bounds.top-150-i*80;this.command('spawn-minion',{minion:'airship',faction:this.faction,x,y,a:Math.atan2(bounds.top*.4-y,(bounds.left+bounds.right)/2-x),behavior:'escort'});}
+      this.command('phase-change',{phase:'escort-call'});}
     if(this.phase==='launching') {
       if(this.due('launch-wave',dt,this.t.launchInterval||3)){
         const ports=[...this.parts.values()].filter(p=>!p.destroyed),target=this.target(players);
