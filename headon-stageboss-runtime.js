@@ -4,7 +4,7 @@ import {BossHazards} from './headon-stageboss-hazards.js?v=340&b=340';
 export class BossStages {
   constructor({teamFaction,stageIndex=0,loopIndex=0,rng=Math.random}) {
     if(!['central','entente'].includes(teamFaction)||!Number.isInteger(stageIndex)||stageIndex<0||stageIndex>=STAGES.length||!Number.isInteger(loopIndex)||loopIndex<0)throw new Error('Invalid current stage/faction');
-    Object.assign(this,{teamFaction,stageIndex,loopIndex,rng});this.order=[0,1,7,2,3,5,6,4,8];this.orderPosition=this.order.indexOf(stageIndex);this.phase='explore';this.encounter=null;
+    Object.assign(this,{teamFaction,stageIndex,loopIndex,rng});this.order=[0,1,7,2,3,5,6,4];this.orderPosition=this.order.indexOf(stageIndex);this.phase='explore';this.encounter=null;
   }
   get stage(){return STAGES[this.stageIndex];}
   get bossId(){return Object.keys(BOSS_CATALOG).find(id=>BOSS_CATALOG[id].stage===this.stageIndex&&(BOSS_CATALOG[id].faction==='neutral'||BOSS_CATALOG[id].faction!==this.teamFaction));}
@@ -17,7 +17,7 @@ export class BossStages {
   advance(blocked=false) {
     if(blocked||this.phase!=='clear-pending'||!this.encounter.completed)return null;
     const id=this.encounter.id;this.orderPosition=this.order.indexOf(this.stageIndex)+1;
-    if(this.orderPosition>=this.order.length){this.loopIndex++;this.orderPosition=0;const previous=this.stageIndex;this.order=STAGES.map((_,i)=>i);for(let i=this.order.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[this.order[i],this.order[j]]=[this.order[j],this.order[i]]}if(this.order[0]===previous)[this.order[0],this.order[1]]=[this.order[1],this.order[0]];}
+    if(this.orderPosition>=this.order.length){this.loopIndex++;this.orderPosition=0;const previous=this.stageIndex;this.order=STAGES.map((_,i)=>i).filter(i=>i!==8);for(let i=this.order.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[this.order[i],this.order[j]]=[this.order[j],this.order[i]]}if(this.order[0]===previous)[this.order[0],this.order[1]]=[this.order[1],this.order[0]];}
     this.stageIndex=this.order[this.orderPosition];
     this.phase='explore';this.encounter=null;
     return{completedId:id,stage:this.stage,stageIndex:this.stageIndex,loopIndex:this.loopIndex};
