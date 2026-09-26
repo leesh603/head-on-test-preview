@@ -1,7 +1,7 @@
 // Union pack: Pro's 196 combat atlas takes precedence for the keys it covers
 // (explosion0-3, fire, smoke*, spark, armorSpark, gas, gasThin); every other key
 // stays on the approved v189 set below. ?fx=0 keeps the procedural rollback.
-import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,fx as fx196Draw,fxTintedCanvas as fx196TintedCanvas,fxTint as fx196Tint} from './combat-fx196.js?v=337';
+import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,fx as fx196Draw,fxTintedCanvas as fx196TintedCanvas,fxTint as fx196Tint} from './combat-fx196.js?v=338';
 // Combat FX pack v189 — approved sprite set lives in fx-pack-v189/ and maps onto
 // the keys already called by the renderers. Unmapped keys stay procedural.
 // Rollback: append ?fx=0 to the URL — FX_FILES empties and every call site
@@ -10,7 +10,7 @@ const FX_OFF=typeof location!=='undefined'&&new URLSearchParams(location.search)
 const FX56_OFF=typeof location!=='undefined'&&new URLSearchParams(location.search).get('fx56')==='0';
 export const FX56=!FX_OFF&&!FX56_OFF;
 const FX56_FILES={
- rocket:'fx-le-prieur.webp',mine:'fx-mine-body.webp',
+ rocket:'fx-pack-v189/projectiles/rocket-le-prieur.webp',mine:'fx-mine-body.webp',
  shell:'fx-shell-heavy.webp',bomb:'fx-bomb-body.webp',
  explosion0:'fx-airblast-0.webp',explosion1:'fx-airblast-1.webp',
  explosion2:'fx-airblast-2.webp',explosion3:'fx-airblast-3.webp',
@@ -25,7 +25,7 @@ const FX56_FILES={
  fire:'fx-fire-engine.webp',flak:'fx-combat-flak-burst.webp'
 };
 const FX_FILES=FX_OFF?{}:Object.assign({
- rocket:'fx-le-prieur.webp',
+ rocket:'fx-pack-v189/projectiles/rocket-le-prieur.webp',
  rocketHeavy:'fx-pack-v189/projectiles/rocket-heavy.webp',
  muzzle:'fx-pack-v189/projectiles/muzzle-flash.webp',
  bomb:'fx-bomb-body.webp',
@@ -72,7 +72,7 @@ const FX_FILES=FX_OFF?{}:Object.assign({
  dustPuff:'fx-dust-puff.webp',dirtBurst:'fx-dirt-burst.webp',debrisShard:'fx-debris-shard.webp',dirtMix:'fx-dirt-mix.webp',
  sunshaft:'fx-sunshaft.webp',windStreak:'fx-wind-streak.webp',mist:'fx-mist.webp',
  torpedo:'fx-torpedo.webp',shockRing:'fx-shock-ring.webp',searchlight:'fx-city-searchlight.webp',
- mortarShell:'fx-mortar-shell.webp',lePrieur:'fx-le-prieur.webp',bombBody:'fx-bomb-body.webp',grenadeBody:'fx-grenade-body.webp',
+ mortarShell:'fx-mortar-shell.webp',lePrieur:'fx-combat-le-prieur.webp',bombBody:'fx-bomb-body.webp',grenadeBody:'fx-grenade-body.webp',
  mineBody:'fx-mine-body.webp',shellHeavy:'fx-shell-heavy.webp',incendiary:'fx-incendiary.webp'
 },FX56_OFF?{}:FX56_FILES);
 const fxImgs={};
