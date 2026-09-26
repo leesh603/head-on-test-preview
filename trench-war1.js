@@ -89,7 +89,7 @@ export function installTrenchWar(Game,TAILING_BALANCE){
  };
 };
 export function drawTrenchLayer(c,game,{point}){
- const b=game.barrage,cw=game.viewWidth||c.canvas.width,ch=game.viewHeight||c.canvas.height;
+ const b=game.barrage,cw=c.canvas.width,ch=c.canvas.height;
  for(const z of game.smokeZones||[]){
   if(z.expired)continue;const[x,y]=point(z.x,z.y);
   if(x<-z.r||x>cw+z.r||y<-z.r||y>ch+z.r)continue;
