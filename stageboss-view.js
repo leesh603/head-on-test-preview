@@ -150,6 +150,32 @@ function bossSprite(c,index,x,y,w,h,angle=0,alpha=1){
  c.save();c.translate(Math.round(x),Math.round(y));c.rotate(angle);c.globalAlpha*=alpha;c.imageSmoothingEnabled=false;
  c.drawImage(partAtlas,(index%4)*cell,Math.floor(index/4)*row,cell,row,-w/2,-h/2,w,h);c.restore();
 }
+// iOS Safari drops to a software canvas path for every ctx.filter call, which
+// punishes long sessions; burn/damage looks are baked once into offscreen
+// canvases instead.
+const bakedCellCache=new Map();
+function bakedCell(index,filter){
+ const partAtlas=partArt.atlas;if(!partAtlas.naturalWidth)return null;
+ const key=index+'|'+filter,prev=bakedCellCache.get(key);if(prev)return prev;
+ const cell=partAtlas.naturalWidth/4,row=partAtlas.naturalHeight/4,cv=document.createElement('canvas');
+ cv.width=cell;cv.height=row;const cc=cv.getContext('2d');cc.filter=filter;
+ cc.drawImage(partAtlas,(index%4)*cell,Math.floor(index/4)*row,cell,row,0,0,cell,row);
+ bakedCellCache.set(key,cv);return cv;
+}
+function bossSpriteFiltered(c,index,filter,x,y,w,h,angle=0,alpha=1){
+ const baked=bakedCell(index,filter);
+ if(!baked)return bossSprite(c,index,x,y,w,h,angle,alpha);
+ c.save();c.translate(Math.round(x),Math.round(y));c.rotate(angle);c.globalAlpha*=alpha;c.imageSmoothingEnabled=false;
+ c.drawImage(baked,-w/2,-h/2,w,h);c.restore();
+}
+const bakedImageCache=new Map();
+function bakedImage(image,filter){
+ if(!image?.naturalWidth)return null;
+ const key=image.src?image.src+'|'+filter:image,prev=bakedImageCache.get(key);if(prev)return prev;
+ const cv=document.createElement('canvas');cv.width=image.naturalWidth;cv.height=image.naturalHeight;
+ const cc=cv.getContext('2d');cc.filter=filter;cc.drawImage(image,0,0);
+ bakedImageCache.set(key,cv);return cv;
+}
 function pixelBlast(c,x,y,r,age=0,water=false){bossSprite(c,water?13:12,x,y,r*2,r*2,water?0:age*.15)}
 // Destroyed part: scorched crater with torn plating, a flickering fire core,
 // sparks climbing out of it and a smoke column drifting upward.
@@ -206,8 +232,9 @@ function drawBossPart(c,p,ring,t=0){
  if(p.bodyKey==='armored-harbor-fortress'){
   if(p.partId==='crane-pivot'&&p.destroyed&&p.phase==='final-core'&&harborArt.cranePivot.naturalWidth){
    const scale=2.025,size=300*scale,bodyX=p.x+78*scale,bodyY=p.y-13*scale;
-   c.save();c.imageSmoothingEnabled=true;c.filter='grayscale(.55) brightness(.7) sepia(.25)';
-   c.drawImage(harborArt.cranePivot,bodyX-size/2,bodyY-size/2,size,size);c.restore();
+   const bakedCrane=bakedImage(harborArt.cranePivot,'grayscale(.55) brightness(.7) sepia(.25)');
+   c.save();c.imageSmoothingEnabled=true;
+   c.drawImage(bakedCrane||harborArt.cranePivot,bodyX-size/2,bodyY-size/2,size,size);c.restore();
    ring(p.x,p.y,r*1.35,'#ffb55fcc');ring(p.x,p.y,r*.72,'#fff0b0bb');return;
   }
   if(p.destroyed){partWreck(c,p,r,t);return;}
@@ -220,7 +247,7 @@ function drawBossPart(c,p,ring,t=0){
  if(['zeppelin-l70','hma23'].includes(p.bodyKey)){
   // Underslung pods drawn in profile (atlas 4) — the head-on propeller sprite
   // read as a row of broken bombers at this scale.
-  if(p.destroyed){c.save();c.filter='grayscale(1) brightness(.4)';bossSprite(c,4,p.x,p.y,r*2.1,r*1.5,Math.PI/2,.8);c.restore();
+  if(p.destroyed){bossSpriteFiltered(c,4,'grayscale(1) brightness(.4)',p.x,p.y,r*2.1,r*1.5,Math.PI/2,.8);
    bossSprite(c,9,p.x,p.y,r*1.7,r*1.7,0,.9);}
   else bossSprite(c,4,p.x,p.y,r*2.1,r*1.5,Math.PI/2,.95);
   if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd579aa');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
@@ -229,7 +256,7 @@ function drawBossPart(c,p,ring,t=0){
  const angle=p.bodyKey==='a7v-flak'?({front:0,right:Math.PI/2,rear:Math.PI,left:-Math.PI/2}[p.partId]||0):p.partId==='sponson-right'?Math.PI:0;
  if(p.destroyed){
   // Preserve each original part's silhouette beneath torn armor instead of substituting an AA gun.
-  c.save();c.filter='grayscale(1) brightness(.35)';bossSprite(c,index,p.x,p.y,r*2.1,r*2.1,angle);c.restore();
+  bossSpriteFiltered(c,index,'grayscale(1) brightness(.35)',p.x,p.y,r*2.1,r*2.1,angle);
   bossSprite(c,9,p.x,p.y,r*1.65,r*1.65,angle,.92);
  }else bossSprite(c,index,p.x,p.y,r*2.1,r*2.1,angle);
  if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd57988');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}
@@ -259,7 +286,7 @@ function cityHazard(c,h,ring){
  }
  if(h.visual==='black-flak'){
   if(warning){c.fillStyle='#d2aa5a10';c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.fill();c.strokeStyle='#e6bc77';c.lineWidth=1.5;c.setLineDash([6,5]);c.stroke();c.setLineDash([]);ring(h.x,h.y,h.radius*(1-clamp((h.age-h.delay)/h.warning,0,1)),'#f2d69b');}
-  else{const fade=Math.min(1,(h.duration-age)*2);c.setLineDash([]);for(let i=0;i<5;i++){const a=i*2.4,dist=h.radius*(.12+age*.13),x=h.x+Math.cos(a)*dist,y=h.y+Math.sin(a)*dist;c.save();c.filter='brightness(.45)';bossSprite(c,11,x,y,h.radius*(.7+age*.35),h.radius*(.7+age*.35),a,fade*.8);c.restore()}if(age<.3)pixelBlast(c,h.x,h.y,h.radius*(.65+age),age);}
+  else{const fade=Math.min(1,(h.duration-age)*2);c.setLineDash([]);for(let i=0;i<5;i++){const a=i*2.4,dist=h.radius*(.12+age*.13),x=h.x+Math.cos(a)*dist,y=h.y+Math.sin(a)*dist;bossSpriteFiltered(c,11,'brightness(.45)',x,y,h.radius*(.7+age*.35),h.radius*(.7+age*.35),a,fade*.8)}if(age<.3)pixelBlast(c,h.x,h.y,h.radius*(.65+age),age);}
   return true;
  }
  return false;
@@ -334,12 +361,12 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    else if(b.assetKey==='gik'||b.assetKey==='ca4'){drawBossArt(c,b.assetKey,b.assetKey==='gik'?300:330,b.assetKey==='gik'?235:250);}
    else if(b.assetKey==='livens-flame-projector'){
     if(trenchBossArt.livensBase.naturalWidth)drawLivens(c,b);
-    else{c.save();if(b.destroying)c.filter='grayscale(.72) brightness(.55)';else if(b.hp<=b.maxHp*.5)c.filter='saturate(.72) brightness(.82)';
-     if(!drawTrenchImage(c,trenchBossArt.livensComposite,0,0,520,390)){c.fillStyle='#383b30';c.fillRect(-250,-185,500,370);}c.restore();}
+    else{const livensSrc=b.destroying?bakedImage(trenchBossArt.livensComposite,'grayscale(.72) brightness(.55)'):b.hp<=b.maxHp*.5?bakedImage(trenchBossArt.livensComposite,'saturate(.72) brightness(.82)'):null;
+     if(!drawTrenchImage(c,livensSrc||trenchBossArt.livensComposite,0,0,520,390)){c.fillStyle='#383b30';c.fillRect(-250,-185,500,370);}}
    }
    else if(b.assetKey==='minenwerfer-battery'){
-    c.save();if(b.destroying)c.filter='grayscale(.72) brightness(.55)';else if(b.hp<=b.maxHp*.5)c.filter='saturate(.72) brightness(.82)';
-    if(!drawTrenchImage(c,trenchBossArt.minenComposite,0,0,500,375)){c.fillStyle='#4a4032';c.fillRect(-240,-175,480,350);}c.restore();
+    const minenSrc=b.destroying?bakedImage(trenchBossArt.minenComposite,'grayscale(.72) brightness(.55)'):b.hp<=b.maxHp*.5?bakedImage(trenchBossArt.minenComposite,'saturate(.72) brightness(.82)'):null;
+    if(!drawTrenchImage(c,minenSrc||trenchBossArt.minenComposite,0,0,500,375)){c.fillStyle='#4a4032';c.fillRect(-240,-175,480,350);}
    }
    else if(b.assetKey==='a7v-flak'){const image=rebuildArt.a7vHull;if(image.naturalWidth){c.imageSmoothingEnabled=true;c.drawImage(image,-105,-129,210,258)}else drawBossArt(c,'a7v',172,258);}
    else if(b.assetKey==='mark-v-cruiser'){const image=rebuildArt.markvHull;if(image.naturalWidth){c.imageSmoothingEnabled=true;c.drawImage(image,-105,-129,210,258)}else drawBossArt(c,'markv',172,258);}
@@ -356,7 +383,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     const dead=id=>b.parts?.find?.(p=>p.id===id)?.destroyed||b.parts?.get?.(id)?.destroyed,partById=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
     // wrecked=true renders the live sprite through a burn filter — same trick
     // the harbor crane pivot uses — instead of a separate wreck asset.
-    const put=(key,x,y,w,h,roll=0,wrecked=false)=>{const im=treffasArt[key];if(!im?.naturalWidth)return false;c.save();c.translate(x,y);c.rotate(roll);if(wrecked)c.filter='grayscale(.62) brightness(.52) sepia(.35)';c.imageSmoothingEnabled=true;c.drawImage(im,-w/2,-h/2,w,h);c.restore();return true;};
+    const put=(key,x,y,w,h,roll=0,wrecked=false)=>{const im=wrecked?bakedImage(treffasArt[key],'grayscale(.62) brightness(.52) sepia(.35)')||treffasArt[key]:treffasArt[key];if(!im?.naturalWidth)return false;c.save();c.translate(x,y);c.rotate(roll);c.imageSmoothingEnabled=true;c.drawImage(im,-w/2,-h/2,w,h);c.restore();return true;};
     if(b.destroying){put('hull',0,-22,84,125,0,true);put('wheel',-60,59,66,157,0,true);put('wheelR',60,59,66,157,0,true);put('turret',0,-88,57,76,0,true);put('tail',0,81,27,114);}
     else{
      // Drums first, hull over the hubs, gun turret and rear post on top.
