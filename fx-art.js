@@ -74,7 +74,7 @@ const FX_FILES=FX_OFF?{}:Object.assign({
  torpedo:'fx-torpedo.webp',shockRing:'fx-shock-ring.webp',searchlight:'fx-city-searchlight.webp',
  mortarShell:'fx-mortar-shell.webp',lePrieur:'fx-combat-le-prieur.webp',bombBody:'fx-bomb-body.webp',grenadeBody:'fx-grenade-body.webp',
 mineBody:'fx-mine-body.webp',shellHeavy:'fx-shell-heavy.webp',incendiary:'fx-incendiary.webp',
-// Boss-pair debris set — Tsar Tank crush debris + rail-carrier wreck shards
+// Boss-pair debris set — Treffas-Wagen crush debris + rail-carrier wreck shards
 rockChunk0:'fx-rock-chunk-0.webp',rockChunk1:'fx-rock-chunk-1.webp',rockChunk2:'fx-rock-chunk-2.webp',rockChunk3:'fx-rock-chunk-3.webp',rockChunk4:'fx-rock-chunk-4.webp',rockChunk5:'fx-rock-chunk-5.webp',
 metalShard0:'fx-metal-shard-0.webp',metalShard1:'fx-metal-shard-1.webp',metalShard2:'fx-metal-shard-2.webp',metalShard3:'fx-metal-shard-3.webp',metalShard4:'fx-metal-shard-4.webp',metalShard5:'fx-metal-shard-5.webp'
 },FX56_OFF?{}:FX56_FILES);

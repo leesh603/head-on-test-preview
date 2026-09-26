@@ -49,7 +49,7 @@ export class StageBossAddon {
     let tuning=this.hooks.getTuning({bossId,stageIndex:this.stages.stageIndex,loopIndex:this.stages.loopIndex});
     if(bossId==='ca4'||bossId==='gik')tuning={...tuning,geometryScale:1.45,motionMultiplier:0,mobileBoss:false};
     if(bossId==='livens-flame-projector'||bossId==='minenwerfer-battery')tuning={...tuning,geometryScale:1,motionMultiplier:0,mobileBoss:false};
-    if(bossId==='tsar-tank')tuning={...tuning,geometryScale:1.15,mobileBoss:false};
+    if(bossId==='treffas-wagen')tuning={...tuning,geometryScale:1.15,mobileBoss:false};
     if(bossId==='fliegerzug')tuning={...tuning,railCycle:11,warningSeconds:1.7};
     const entry=BOSS_CATALOG[bossId],faction=entry.faction==='neutral'?(this.stages.teamFaction==='central'?'entente':'central'):entry.faction;
     const encounter=createBossEncounter({id,bossId,tuning,x,y,rng:this.rng,faction,emit:event=>this.accept(event,id,tuning)});

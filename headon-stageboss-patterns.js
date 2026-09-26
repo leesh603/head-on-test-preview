@@ -21,7 +21,7 @@ export const BOSS_CATALOG = Object.freeze({
   ca4: {name:'카프로니 Ca.4', faction:'entente', stage:6}
   ,'armored-harbor-fortress': {name:'장갑 크레인 항구요새', faction:'neutral', stage:7}
   ,'fliegerzug': {name:'무인기 모함열차 · 플리거주크', faction:'entente', stage:8}
-  ,'tsar-tank': {name:'차르 탱크 · 거륜 육상전함', faction:'central', stage:8}
+  ,'treffas-wagen': {name:'대공개조형 트레파스바겐 · 거륜 육상전함', faction:'central', stage:8}
 });
 const living = players => players.filter(p => p.alive);
 const randBetween = (rng,a,b) => a + (b-a)*rng();
@@ -607,26 +607,26 @@ export class Fliegerzug extends RailAdapter {
   }
 }
 
-// Tsar Tank advances on its giant front wheels, crushing terrain into debris
+// Treffas-Wagen rolls forward on its twin drum wheels, crushing terrain into debris
 // sprays. Wheels are mobility, the turret is the gun: break wheels to halt the
 // advance (it digs in and fires harder), break everything to expose the hull.
-export class TsarTank extends PatternBoss {
+export class TreffasWagen extends PatternBoss {
   constructor(options){
-    super({...options,kind:'tsar-tank',coreRadius:options.tuning.coreRadius||86,parts:[
-      {id:'wheel-left',x:-111,y:-14,radius:56,maxHp:options.tuning.partHp*1.2},
-      {id:'wheel-right',x:111,y:-14,radius:56,maxHp:options.tuning.partHp*1.2},
-      {id:'turret',x:0,y:-86,radius:32,maxHp:options.tuning.partHp*1.3},
-      {id:'rudder',x:0,y:86,radius:26}
+    super({...options,kind:'treffas-wagen',coreRadius:options.tuning.coreRadius||86,parts:[
+      {id:'wheel-left',x:-60,y:59,radius:52,maxHp:options.tuning.partHp*1.2},
+      {id:'wheel-right',x:60,y:59,radius:52,maxHp:options.tuning.partHp*1.2},
+      {id:'turret',x:0,y:-88,radius:30,maxHp:options.tuning.partHp*1.3},
+      {id:'rudder',x:0,y:81,radius:24}
     ]});
     this.phase='advance';this.coreVulnerable=false;this.ownsMotion129=true;
     this.anchorX=this.x;this.startY=this.y;this.anchorY=this.y;this.wheelRoll=0;this.motionTime=0;
-    this.timers.set('tsar-mortar',2.2);this.timers.set('tsar-mg',1.1);this.timers.set('tsar-debris',.5);
+    this.timers.set('treffas-mortar',2.2);this.timers.set('treffas-mg',1.1);this.timers.set('treffas-debris',.5);
   }
   wheelsAlive(){return ['wheel-left','wheel-right'].filter(id=>!this.parts.get(id).destroyed).length;}
   wheelBias(){const l=this.parts.get('wheel-left'),r=this.parts.get('wheel-right');return l.destroyed&&!r.destroyed?-1:!l.destroyed&&r.destroyed?1:0;}
   onPartDestroyed(){
     if(this.allDestroyed(['wheel-left','wheel-right'])&&this.phase==='advance'){
-      // A halted Tsar Tank digs in as a gun platform instead of dying.
+      // A halted Treffas-Wagen digs in as a gun platform instead of dying.
       this.phase='crippled';this.command('phase-change',{phase:'crippled'});
     }
     if(this.allDestroyed(['wheel-left','wheel-right','turret','rudder'])&&!this.coreVulnerable){
@@ -635,7 +635,7 @@ export class TsarTank extends PatternBoss {
   }
   debrisBurst(x,y,count,spread,damage){
     for(let i=0;i<count;i++){const a=(this.wheelBias()||1)*.9+(this.rng()-.5)*spread*2+(i-(count-1)/2)*spread/(count/2);
-      this.hazard('projectile',{x,y,vx:Math.cos(a)*195,vy:Math.sin(a)*195+40,radius:9,duration:1.5,once:true,damage,visual:'tsar-debris'});}
+      this.hazard('projectile',{x,y,vx:Math.cos(a)*195,vy:Math.sin(a)*195+40,radius:9,duration:1.5,once:true,damage,visual:'treffas-debris'});}
   }
   update(dt,{players,bounds}){
     if(this.dead)return;
@@ -653,23 +653,23 @@ export class TsarTank extends PatternBoss {
     if(speed>0&&(!last||Math.hypot(this.x-last.x,this.y-last.y)>30))this._churn.push({x:this.x,y:this.y+58});
     if(this._churn.length>110)this._churn.splice(0,this._churn.length-110);
     // Wheels shed dirt and rock sideways as they crush the ground.
-    if(speed>0&&this.due('tsar-debris',dt,enraged?.42:.6)){
+    if(speed>0&&this.due('treffas-debris',dt,enraged?.42:.6)){
       for(const id of ['wheel-left','wheel-right']){const w=this.parts.get(id);if(w.destroyed)continue;
         const side=id==='wheel-left'?-1:1,wx=this.x+w.x,wy=this.y+w.y;
-        this.hazard('projectile',{x:wx,y:wy+24,vx:side*(150+this.rng()*70),vy:30+this.rng()*80,radius:9,duration:1.5,once:true,damage:this.t.damage*.38,visual:'tsar-debris'});
-        if(this.rng()<.5)this.hazard('projectile',{x:wx,y:wy+24,vx:side*(60+this.rng()*50),vy:120+this.rng()*60,radius:9,duration:1.6,once:true,damage:this.t.damage*.38,visual:'tsar-debris'});
+        this.hazard('projectile',{x:wx,y:wy+24,vx:side*(150+this.rng()*70),vy:30+this.rng()*80,radius:9,duration:1.5,once:true,damage:this.t.damage*.38,visual:'treffas-debris'});
+        if(this.rng()<.5)this.hazard('projectile',{x:wx,y:wy+24,vx:side*(60+this.rng()*50),vy:120+this.rng()*60,radius:9,duration:1.6,once:true,damage:this.t.damage*.38,visual:'treffas-debris'});
       }
     }
-    if(crippled&&this.due('tsar-burst',dt,2.4))this.debrisBurst(this.x,this.y-40,10,.62,this.t.damage*.42);
+    if(crippled&&this.due('treffas-burst',dt,2.4))this.debrisBurst(this.x,this.y-40,10,.62,this.t.damage*.42);
     const turret=this.parts.get('turret');
-    if(turret&&!turret.destroyed&&this.due('tsar-mortar',dt,(crippled?3.4:enraged?3.1:4.8))){
+    if(turret&&!turret.destroyed&&this.due('treffas-mortar',dt,(crippled?3.4:enraged?3.1:4.8))){
       const p=this.target(players);if(p){const shots=enraged||crippled?4:3;
         for(let i=0;i<shots;i++)this.hazard('circle',{x:p.x+(p.vx||0)*.5+(i-(shots-1)/2)*62,y:p.y+(p.vy||0)*.5+randBetween(this.rng,-20,20),radius:52,delay:i*.16,warning:1.05,duration:.4,once:true,damage:this.t.damage*.95,visual:'minenwerfer-shell',sourceX:this.x+turret.x,sourceY:this.y+turret.y});
         this.command('muzzle',{x:this.x+turret.x,y:this.y+turret.y,partId:'turret'});}
     }
-    if(this.due('tsar-mg',dt,crippled?2.2:2.9)){
+    if(this.due('treffas-mg',dt,crippled?2.2:2.9)){
       const p=this.target(players);
-      if(p)for(const side of [-1,1]){const mx=this.x+side*64,my=this.y-20,a=Math.atan2(p.y-my,p.x-mx);this.fan(mx,my,a,3,.3,this.t.bulletSpeed*.95,'tsar-mg');}
+      if(p)for(const side of [-1,1]){const mx=this.x+side*64,my=this.y-20,a=Math.atan2(p.y-my,p.x-mx);this.fan(mx,my,a,3,.3,this.t.bulletSpeed*.95,'treffas-mg');}
     }
   }
 }
@@ -678,7 +678,7 @@ const constructors={'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttg
   'zeppelin-l70':ZeppelinL70,hma23:HMA23,'a7v-flak':A7VFlak,'mark-v-cruiser':MarkVCruiser,
   'livens-flame-projector':LivensFlameProjector,'minenwerfer-battery':MinenwerferBattery,
   'london-apron':LondonApron,'drachen-net':DrachenMineNet,gik:GIK,ca4:Ca4,'armored-harbor-fortress':ArmoredHarborFortress,
-  fliegerzug:Fliegerzug,'tsar-tank':TsarTank};
+  fliegerzug:Fliegerzug,'treffas-wagen':TreffasWagen};
 export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   const entry=BOSS_CATALOG[bossId],Ctor=constructors[bossId];if(!Ctor)throw new Error('Unknown boss: '+bossId);
   const body=new Ctor({id:id+':body',tuning,x,y,emit,rng,faction:faction||entry.faction,coreRadius:tuning.coreRadius||100});
