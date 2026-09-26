@@ -173,7 +173,7 @@ export function installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDAR
   const live=this.enemies.filter(e=>e.hp>0);const reserved=this.stageBoss?.stages.phase==='boss'?Math.max(0,2-live.filter(e=>e.stageBossBody).length):0,aceReserve=type==='boss'?0:1;if(live.length+reserved+aceReserve>=this.enemyCapacity())return false;
   const regularAircraft=live.filter(e=>!e.bossPilot&&!e.heavyBomber&&['scout','hunter','bomber'].includes(e.type));
   if(!this.bossMechanicSpawn&&['scout','hunter','bomber'].includes(type)&&regularAircraft.length>=this.regularEnemyLimit())return false;
-  if(type==='zeppelin'&&live.some(e=>e.type==='zeppelin'))return false;
+  if(type==='zeppelin'&&!this.bossMechanicSpawn&&live.some(e=>e.type==='zeppelin'))return false;
   if(type==='heavyBomber'&&live.some(e=>e.heavyBomber))return false;
   if(!this.bossMechanicSpawn&&type==='bomber'&&live.filter(e=>e.type==='bomber'&&!e.heavyBomber&&!e.surface).length>=2)return false;
   return true;
