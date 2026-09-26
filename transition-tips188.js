@@ -62,7 +62,7 @@ export const REGION_TRANSITION_TIPS=Object.freeze({
  8:Object.freeze([
   {id:'cambrai-bug',ko:'자폭 무인기는 접근하기 전에 격추하세요.',en:'Shoot down the suicide drones before they close in.'},
   {id:'cambrai-cars',ko:'플리거주크의 화차를 순서대로 부수면 기관차가 노출됩니다.',en:'Destroy the Fliegerzug cars in order to expose the locomotive.'},
-  {id:'cambrai-wheels',ko:'차르 탱크는 차륜을 부수면 전진이 멈춥니다.',en:'Breaking the Tsar Tank wheels halts its advance.'}
+  {id:'cambrai-wheels',ko:'트레파스바겐은 차륜을 부수면 전진이 멈춥니다.',en:'Breaking the Treffas-Wagen wheels halts its advance.'}
  ])
 });
 

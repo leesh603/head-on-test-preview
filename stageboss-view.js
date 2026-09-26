@@ -29,7 +29,7 @@ const bossSources={
  parisGun:'./boss-bruno-train115.webp',lincomparable:'./boss-lincomparable94.webp?v=340&b=340',stuttgart:'./boss-sms-stuttgart94.webp',zubian:'./boss-hms-zubian94.webp',
  l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=340&b=340',ca4:'./boss-ca4.webp?v=340&b=340',
  londonApron:'./boss-london-apron115.webp',drachenNet:'./boss-drachen-net115.webp',
- railCarrier:'./boss-art-rail-carrier.webp?v=340',tsarTank:'./boss-art-tsar-tank.webp?v=340'
+ railCarrier:'./boss-art-rail-carrier.webp?v=340',treffasWagen:'./boss-art-treffas-wagen.webp?v=340'
 };
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
 const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.webp',a7vTurret:'./boss-a7v-turret-rebuild.webp',markvHull:'./boss-mark-v-hull-rebuild.webp',markvSponson:'./boss-mark-v-sponson-rebuild.webp'}),rebuildArt=rebuildGroup.images;
@@ -46,7 +46,7 @@ const trenchGroup=createLazyImageGroup({
 // Four authored RGBA frames, graded/packed offline; no runtime filter or canvas copy.
 const impactGroup=createLazyImageGroup({atlas:'./fx-mortar-impact340.webp'}),impactArt=impactGroup.images;
 const BOSS_KEYS_BY_REGION=Object.freeze({
- 0:['parisGun','lincomparable'],1:['stuttgart','zubian'],2:['a7v','markv'],3:[],4:['londonApron','drachenNet'],5:['l70','hma23'],6:['gik','ca4'],7:[],8:['railCarrier','tsarTank']
+ 0:['parisGun','lincomparable'],1:['stuttgart','zubian'],2:['a7v','markv'],3:[],4:['londonApron','drachenNet'],5:['l70','hma23'],6:['gik','ca4'],7:[],8:['railCarrier','treffasWagen']
 });
 export function prepareStageBossAssets(region){
  const jobs=[];
@@ -59,7 +59,7 @@ export function prepareStageBossAssets(region){
  if(region===3){jobs.push(trenchGroup.preload());jobs.push(impactGroup.preload())}else impactGroup.release();
  if(region===4){jobs.push(cityGroup.preload());jobs.push(buildingGroup.preload())}
  if(region===7)jobs.push(harborGroup.preload());
- if(region===8){jobs.push(railGroups.railCarrier.preload());jobs.push(railWreckGroups.railCarrier.preload());jobs.push(tsarGroup.preload());jobs.push(bugGroup.preload());}else{tsarGroup.release();bugGroup.release()}
+ if(region===8){jobs.push(railGroups.railCarrier.preload());jobs.push(railWreckGroups.railCarrier.preload());jobs.push(treffasGroup.preload());jobs.push(bugGroup.preload());}else{treffasGroup.release();bugGroup.release()}
  if(region>=0)jobs.push(partGroup.preload());else{partGroup.release();skyCloud113=null}
  return Promise.all(jobs);
 }
@@ -105,9 +105,9 @@ const railWreckSources={
  lincomparable:{engine:'./rail-boss-lincomparable-engine-wreck192.webp?v=340&b=340',front:'./rail-boss-lincomparable-front-wreck192.webp?v=340&b=340',middle:'./rail-boss-lincomparable-middle-wreck192.webp?v=340&b=340',rear:'./rail-boss-lincomparable-rear-wreck192.webp?v=340&b=340'},
  railCarrier:{engine:'./boss-rail-carrier-loco-wreck.webp?v=340',front:'./boss-rail-carrier-flak-wreck.webp?v=340',middle:'./boss-rail-carrier-launch-wreck.webp?v=340',rear:'./boss-rail-carrier-hangar-wreck.webp?v=340'}
 };
-// Fliegerzug munition + Tsar Tank separable parts (part-destroyed gimmick swaps to *-wreck).
+// Fliegerzug munition + Treffas-Wagen separable parts (destroyed parts get a burn filter).
 const bugGroup=createLazyImageGroup({folded:'./boss-bug-folded.webp?v=340',flight:'./boss-bug-flight.webp?v=340'}),bugArt=bugGroup.images;
-const tsarGroup=createLazyImageGroup({wheel:'./boss-tsar-tank-wheel.webp?v=340',wheelR:'./boss-tsar-tank-wheel-r.webp?v=340',hull:'./boss-tsar-tank-hull.webp?v=340',turret:'./boss-tsar-tank-turret.webp?v=340',tail:'./boss-tsar-tank-tail.webp?v=340'}),tsarArt=tsarGroup.images;
+const treffasGroup=createLazyImageGroup({wheel:'./boss-treffas-wheel.webp?v=340',wheelR:'./boss-treffas-wheel-r.webp?v=340',hull:'./boss-treffas-hull.webp?v=340',turret:'./boss-treffas-turret.webp?v=340',tail:'./boss-treffas-tail.webp?v=340'}),treffasArt=treffasGroup.images;
 const railGroups={},railConsistArt={},railWreckGroups={},railWreckArt={};
 for(const [set,sources] of Object.entries(railConsistSources)){const group=createLazyImageGroup(sources);railGroups[set]=group;railConsistArt[set]=group.images;const wreckGroup=createLazyImageGroup(railWreckSources[set]);railWreckGroups[set]=wreckGroup;railWreckArt[set]=wreckGroup.images;}
 function drawRailConsist181(c,b){
@@ -171,7 +171,7 @@ function drawBossPart(c,p,ring,t=0){
  if(['paris-gun','lincomparable','sms-stuttgart','fliegerzug'].includes(p.bodyKey)||p.bodyKey.startsWith('hms-zubian')){
   return;
  }
- if(p.bodyKey==='tsar-tank'){
+ if(p.bodyKey==='treffas-wagen'){
   // Wreck sprites live inside the body composite; parts stay interaction-only.
   if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
  }
@@ -308,11 +308,11 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     c.rotate((b.assetKey==='armored-harbor-fortress'?-1:1)*wreck*.3);
     c.globalAlpha*=Math.max(0,1-wreck*.9);
    }
-   const ship=b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart',rail=['paris-gun','lincomparable','fliegerzug'].includes(b.assetKey),structure=['livens-flame-projector','minenwerfer-battery','tsar-tank'].includes(b.assetKey);
+   const ship=b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart',rail=['paris-gun','lincomparable','fliegerzug'].includes(b.assetKey),structure=['livens-flame-projector','minenwerfer-battery','treffas-wagen'].includes(b.assetKey);
    if(ship){for(let i=0;i<12;i++){const drift=(b.motionTime*32+i*13)%155;c.fillStyle=i%2?'#d7f1de99':'#6eb9b777';const w=18+drift*.3;c.fillRect(-w/2,125+drift,w,4);}}
 
-   // Churned-earth trail under the Tsar Tank, in world space before any scale.
-   if(b.assetKey==='tsar-tank'&&b.churn?.length){c.save();for(let i=0;i<b.churn.length;i++){const pt=b.churn[i],f=i/b.churn.length;c.globalAlpha=.1+f*.22;c.fillStyle='#33291d';for(const s of [-1,1]){c.beginPath();c.ellipse(pt.x-b.x+s*88*1.15,pt.y-b.y,34*(.6+f*.5),16*(.6+f*.4),0,0,Math.PI*2);c.fill();}}c.restore();}
+   // Churned-earth trail under the Treffas-Wagen, in world space before any scale.
+   if(b.assetKey==='treffas-wagen'&&b.churn?.length){c.save();for(let i=0;i<b.churn.length;i++){const pt=b.churn[i],f=i/b.churn.length;c.globalAlpha=.1+f*.22;c.fillStyle='#33291d';for(const s of [-1,1]){c.beginPath();c.ellipse(pt.x-b.x+s*66,pt.y-b.y,34*(.6+f*.5),16*(.6+f*.4),0,0,Math.PI*2);c.fill();}}c.restore();}
    if(!rail&&!structure){c.scale(2.025,2.025);c.translate(0,b.recoil*18);}
    if(b.recoil>0&&!structure){pixelBlast(c,0,-100,24,b.motionTime);c.fillStyle='#d6d2b04d';c.fillRect(-13,-160,26,48);}
    if(rail){drawRailConsist181(c,b);}
@@ -352,20 +352,20 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     if(!dead('crane-pivot')&&harborArt.cranePivot.naturalWidth)c.drawImage(harborArt.cranePivot,-size/2,-size/2,size,size);
     if(harborArt.guns.naturalWidth){const cw=harborArt.guns.naturalWidth/2,ch=harborArt.guns.naturalHeight/2;for(const [id,sx,x] of [['gun-left',0,-91],['gun-right',1,91]])if(!dead(id))c.drawImage(harborArt.guns,sx*cw,0,cw,ch,x-38,62-38,76,76);}
    }
-   else if(b.assetKey==='tsar-tank'){
-    const dead=id=>b.parts?.find?.(p=>p.id===id)?.destroyed||b.parts?.get?.(id)?.destroyed,tsarPart=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
+   else if(b.assetKey==='treffas-wagen'){
+    const dead=id=>b.parts?.find?.(p=>p.id===id)?.destroyed||b.parts?.get?.(id)?.destroyed,partById=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
     // wrecked=true renders the live sprite through a burn filter — same trick
     // the harbor crane pivot uses — instead of a separate wreck asset.
-    const put=(key,x,y,w,h,roll=0,wrecked=false)=>{const im=tsarArt[key];if(!im?.naturalWidth)return false;c.save();c.translate(x,y);c.rotate(roll);if(wrecked)c.filter='grayscale(.62) brightness(.52) sepia(.35)';c.imageSmoothingEnabled=true;c.drawImage(im,-w/2,-h/2,w,h);c.restore();return true;};
-    if(b.destroying){put('hull',0,0,165,196,0,true);put('wheel',-111,-14,60,201,0,true);put('wheelR',111,-14,60,201,0,true);put('turret',0,-86,42,55,0,true);put('tail',0,86,50,58);}
+    const put=(key,x,y,w,h,roll=0,wrecked=false)=>{const im=treffasArt[key];if(!im?.naturalWidth)return false;c.save();c.translate(x,y);c.rotate(roll);if(wrecked)c.filter='grayscale(.62) brightness(.52) sepia(.35)';c.imageSmoothingEnabled=true;c.drawImage(im,-w/2,-h/2,w,h);c.restore();return true;};
+    if(b.destroying){put('hull',0,-22,84,125,0,true);put('wheel',-60,59,66,157,0,true);put('wheelR',60,59,66,157,0,true);put('turret',0,-88,57,76,0,true);put('tail',0,81,27,114);}
     else{
-     // Wheels first, hull over the hubs, turret and steering tail on top.
+     // Drums first, hull over the hubs, gun turret and rear post on top.
      const wobble=Math.sin((b.wheelRoll||0)*9)*.05;
-     for(const [id,key] of [['wheel-left','wheel'],['wheel-right','wheelR']]){const p=tsarPart(id);if(!p)continue;
-      put(key,p.x,p.y,60,201,wobble*(id==='wheel-left'?1:-1),p.destroyed);}
-     put('hull',0,0,165,196);
-     const tp=tsarPart('turret');if(tp)put('turret',0,-86,42,55,0,tp.destroyed);
-     const rp=tsarPart('rudder');if(!rp||!rp.destroyed)put('tail',0,86,50,58);
+     for(const [id,key] of [['wheel-left','wheel'],['wheel-right','wheelR']]){const p=partById(id);if(!p)continue;
+      put(key,p.x,p.y,66,157,wobble*(id==='wheel-left'?1:-1),p.destroyed);}
+     put('hull',0,-22,84,125);
+     const tp=partById('turret');if(tp)put('turret',0,-88,57,76,0,tp.destroyed);
+     const rp=partById('rudder');if(!rp||!rp.destroyed)put('tail',0,81,27,114);
     }
    }
    else drawBossArt(c,'markv',172,258);
@@ -456,7 +456,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    else if(h.kind==='projectile'){
     if(h.visual==='torpedo-charge'){const a=Math.atan2(h.vy,h.vx),speed=Math.hypot(h.vx,h.vy),wake=Math.min(190,92+speed*.12),closing=Math.max(0,1-(h.life||0)/.32);c.save();c.translate(h.x,h.y);c.rotate(a);fx(c,'wakeFast',-wake*.46,0,wake*1.1,32,0,.5);c.globalAlpha=.38;c.strokeStyle='#d9eee9';c.lineCap='round';for(const side of [-1,1]){c.lineWidth=3;c.beginPath();c.moveTo(-12,side*9);c.bezierCurveTo(-wake*.34,side*(12+speed*.018),-wake*.72,side*(22+speed*.024),-wake,side*(34+speed*.02));c.stroke();c.globalAlpha=.22;c.lineWidth=8;c.beginPath();c.moveTo(-24,side*12);c.bezierCurveTo(-wake*.38,side*17,-wake*.78,side*29,-wake,side*40);c.stroke();c.globalAlpha=.38}c.globalAlpha=.48;if(!fx(c,'torpedo',0,0,64,20,0,.96)){c.fillStyle='#6e7f7d';c.beginPath();c.moveTo(26,0);c.quadraticCurveTo(10,-13,-23,-11);c.lineTo(-35,-6);c.lineTo(-35,6);c.quadraticCurveTo(8,14,26,0);c.fill();c.strokeStyle='#d8e0d3';c.lineWidth=1;c.stroke();}if(closing>0){c.globalAlpha=.28+.24*closing;c.strokeStyle='#eef5e8';c.lineWidth=2+closing*2;for(const side of [-1,1]){c.beginPath();c.moveTo(20,side*2);c.quadraticCurveTo(36,side*(8+closing*9),50+closing*15,side*(15+closing*12));c.stroke()}}c.restore();c.save();c.globalAlpha=.18;c.strokeStyle='#e6b37f';c.lineWidth=1;c.beginPath();c.arc(h.x,h.y,h.radius,-.62,.62);c.stroke();c.restore();}
     else if(h.visual==='building-debris')bossSprite(c,10,h.x,h.y,h.radius*3.4,h.radius*3.4,Math.atan2(h.vy,h.vx)+Math.PI/2);
-    else if(h.visual==='tsar-debris'){const idx=[...(h.id||'x')].reduce((n,ch)=>n+ch.charCodeAt(0),0)%6;if(!fx(c,'rockChunk'+idx,h.x,h.y,h.radius*2.6,h.radius*2.6,Math.atan2(h.vy,h.vx),.95))drawEnemyProjectile(c,{enemy:true,life:1,visualType:'boss',vx:h.vx,vy:h.vy},h.x,h.y,0,z);}
+    else if(h.visual==='treffas-debris'){const idx=[...(h.id||'x')].reduce((n,ch)=>n+ch.charCodeAt(0),0)%6;if(!fx(c,'rockChunk'+idx,h.x,h.y,h.radius*2.6,h.radius*2.6,Math.atan2(h.vy,h.vx),.95))drawEnemyProjectile(c,{enemy:true,life:1,visualType:'boss',vx:h.vx,vy:h.vy},h.x,h.y,0,z);}
     else drawEnemyProjectile(c,{enemy:true,life:1,visualType:'boss',vx:h.vx,vy:h.vy},h.x,h.y,0,z);
    }
    else{if(!warning&&(h.visual==='livens-leak'||h.visual==='livens-pressure')){
