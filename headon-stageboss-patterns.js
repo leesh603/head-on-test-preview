@@ -146,8 +146,8 @@ export class ZeppelinL70 extends PatternBoss {
   }
   onPartDestroyed(p) {if(p.id==='capsule'&&this.phase==='cloud'){this.phase='reveal';this.phaseTime=this.t.revealSeconds||1;this.command('phase-change',{phase:this.phase});}}
   update(dt,{players,bounds}) {
-    if(!this.escortCalled&&this.hp<=this.maxHp*.35){this.escortCalled=true;const side=this.rng()<.5?-1:1,sx=side>0?bounds.right+190:bounds.left-190;
-      for(let i=0;i<3;i++){const x=sx+side*i*130,y=bounds.top-150-i*80;this.command('spawn-minion',{minion:'airship',faction:this.faction,x,y,a:Math.atan2(bounds.top*.4-y,(bounds.left+bounds.right)/2-x),behavior:'escort'});}
+    if(!this.escortCalled&&this.hp<=this.maxHp*.35){this.escortCalled=true;const p0=this.target(players)||{x:this.x,y:this.y+bounds.bottom-bounds.top},side=this.rng()<.5?-1:1;
+      for(let i=0;i<3;i++){const x=p0.x+side*(520+i*100),y=p0.y-480-i*80;this.command('spawn-minion',{minion:'airship',faction:this.faction,x,y,a:Math.atan2(p0.y-y,p0.x-x),behavior:'escort'});}
       this.command('phase-change',{phase:'escort-call'});}
     if(this.phase==='cloud') {
       const live=living(players),p=live[this.cursor%Math.max(1,live.length)],c=this.parts.get('capsule');
@@ -165,9 +165,9 @@ export class ZeppelinL70 extends PatternBoss {
           this.fan(x,y,Math.atan2(p.y-y,p.x-x),this.t.engineShotCount||3,.55);}
       }
       if(this.due('gas',dt,this.t.gasInterval||6)){
-        const left=bounds.left,right=bounds.right;
-        for(let i=0;i<8;i++){
-          const bx=left+((i+this.rng()*.8)/8)*(right-left),by=bounds.bottom-45+(this.rng()-.5)*60;
+        const p=this.target(players);
+        if(p)for(let i=0;i<8;i++){
+          const bx=p.x+randBetween(this.rng,-190,190),by=p.y+randBetween(this.rng,-150,150);
           this.hazard('circle',{x:bx,y:by,delay:this.rng()*.7,radius:44+this.rng()*14,warning:1.3,once:true,visual:'carpet-bomb'});
         }
       }
@@ -191,8 +191,8 @@ export class HMA23 extends PatternBoss {
   }
   suppressive(){/* carrier fire is handled by the capped carrierFan pattern */}
   update(dt,{players,bounds}) {
-    if(!this.escortCalled&&this.hp<=this.maxHp*.35){this.escortCalled=true;const side=this.rng()<.5?-1:1,sx=side>0?bounds.right+190:bounds.left-190;
-      for(let i=0;i<3;i++){const x=sx+side*i*130,y=bounds.top-150-i*80;this.command('spawn-minion',{minion:'airship',faction:this.faction,x,y,a:Math.atan2(bounds.top*.4-y,(bounds.left+bounds.right)/2-x),behavior:'escort'});}
+    if(!this.escortCalled&&this.hp<=this.maxHp*.35){this.escortCalled=true;const p0=this.target(players)||{x:this.x,y:this.y+bounds.bottom-bounds.top},side=this.rng()<.5?-1:1;
+      for(let i=0;i<3;i++){const x=p0.x+side*(520+i*100),y=p0.y-480-i*80;this.command('spawn-minion',{minion:'airship',faction:this.faction,x,y,a:Math.atan2(p0.y-y,p0.x-x),behavior:'escort'});}
       this.command('phase-change',{phase:'escort-call'});}
     if(this.phase==='launching') {
       if(this.due('launch-wave',dt,this.t.launchInterval||3)){
