@@ -9,8 +9,16 @@ export const TERRAIN_PROFILES=Object.freeze({
  channel:{name:'영국 해협',cell:6,base:'#304a56',strength:.59},
  desert:{name:'중동 사막',cell:7,base:'#71634a',strength:.58},
  night:{name:'야간 공습',cell:8,base:'#232b34',strength:.58},
- burning:{name:'불타는 전선',cell:9,base:'#433d37',strength:.57}
+ burning:{name:'불타는 전선',cell:9,base:'#433d37',strength:.57},
+ // Cambrai ships as its own painterly tile instead of an atlas cell.
+ cambrai:{name:'캉브레 들판',src:'./terrain-cambrai.webp?v=340&b=340',base:'#655d45',strength:.82}
 });
+const profileImages=new Map();
+function profileImage(key){
+ const p=TERRAIN_PROFILES[key];if(!p.src)return null;
+ if(!profileImages.has(key)&&typeof Image!=='undefined'){const image=new Image();image.src=p.src;profileImages.set(key,image);}
+ return profileImages.get(key)||null;
+}
 export const ALPS_PEAK_VARIANTS=Object.freeze([
  {id:'sharp',src:'./alps-peak-sharp182.webp',rx:1,ry:1},
  {id:'ridge',src:'./alps-peak-ridge182.webp',rx:1.35,ry:.75},
@@ -23,7 +31,14 @@ export class TerrainRenderer {
  constructor({atlas=null,tileSize=768,detail=1,canvasFactory}={}){this.atlas=atlas;this.tileSize=positive(tileSize,'tileSize');this.detail=clamp(detail,.25,1);this.tiles=new Map();this.canvasFactory=canvasFactory??((w,h)=>{const c=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(w,h):document.createElement('canvas');c.width=w;c.height=h;return c;});}
  setAtlas(atlas){this.atlas=atlas;this.tiles.clear();}
  setDetail(detail){this.detail=clamp(detail,.25,1);this.tiles.clear();}
- tile(key){if(this.tiles.has(key))return this.tiles.get(key);const p=TERRAIN_PROFILES[key];if(!p)throw new Error('Unknown terrain '+key);
+ tile(key){const p=TERRAIN_PROFILES[key];if(!p)throw new Error('Unknown terrain '+key);
+  // Per-profile tile art (cambrai) renders straight from its own texture; cache
+  // the composite only once the image is actually decoded so the first frames
+  // never freeze a bare base-color tile.
+  if(p.src){const im=profileImage(key),ready=im?.complete&&im.naturalWidth;
+   if(!ready){const warm=this.canvasFactory(160,160),wg=warm.getContext('2d');wg.fillStyle=p.base;wg.fillRect(0,0,160,160);return warm;}
+   if(!this.tiles.has(key)){const c=this.canvasFactory(160,160),g=c.getContext('2d');g.fillStyle=p.base;g.fillRect(0,0,160,160);g.globalAlpha=p.strength*this.detail;g.imageSmoothingEnabled=true;g.drawImage(im,3,3,im.naturalWidth-6,im.naturalHeight-6,0,0,160,160);g.globalAlpha=1;this.tiles.set(key,c);}return this.tiles.get(key);}
+  if(this.tiles.has(key))return this.tiles.get(key);
   // Pre-render once at 160 logical pixels; suppress small high-frequency texture detail.
   const c=this.canvasFactory(160,160),g=c.getContext('2d');g.fillStyle=p.base;g.fillRect(0,0,160,160);
   if(this.atlas?.width){const col=p.cell%5,row=Math.floor(p.cell/5),x0=Math.round(col*this.atlas.width/5),x1=Math.round((col+1)*this.atlas.width/5),y0=Math.round(row*this.atlas.height/2),y1=Math.round((row+1)*this.atlas.height/2),inset=3;g.globalAlpha=p.strength*this.detail;g.imageSmoothingEnabled=true;g.drawImage(this.atlas,x0+inset,y0+inset,x1-x0-inset*2,y1-y0-inset*2,0,0,160,160);g.globalAlpha=1;}

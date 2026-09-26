@@ -6,7 +6,8 @@ export const REGION_TRANSITION_LABELS=Object.freeze({
  4:Object.freeze({ko:'도심 전역',en:'Urban Front'}),
  5:Object.freeze({ko:'고공 전역',en:'High Altitude Front'}),
  6:Object.freeze({ko:'알프스 산맥',en:'Alpine Front'}),
- 7:Object.freeze({ko:'제브뤼헤 군항 · 해안포대',en:'Zeebrugge Harbor Front'})
+ 7:Object.freeze({ko:'제브뤼헤 군항 · 해안포대',en:'Zeebrugge Harbor Front'}),
+ 8:Object.freeze({ko:'캉브레 들판 · 무인기 모함',en:'Cambrai Fields · Drone Carrier'})
 });
 
 export const COMMON_TRANSITION_TIPS=Object.freeze([
@@ -57,6 +58,11 @@ export const REGION_TRANSITION_TIPS=Object.freeze({
   {id:'harbor-guns',ko:'항구요새 포대를 부수면 함포 탄막이 줄어듭니다.',en:'Destroy harbor fortress gun emplacements to reduce shell fire.'},
   {id:'harbor-crane',ko:'크레인 암이 남아 있으면 기뢰 공격이 계속됩니다.',en:'As long as the crane arm survives, mine attacks continue.'},
   {id:'harbor-seaplane',ko:'수상기 시설을 부수면 지원기 출격을 막습니다.',en:'Destroy the seaplane facility to stop support launches.'}
+ ]),
+ 8:Object.freeze([
+  {id:'cambrai-bug',ko:'자폭 무인기는 접근하기 전에 격추하세요.',en:'Shoot down the suicide drones before they close in.'},
+  {id:'cambrai-cars',ko:'플리거주크의 화차를 순서대로 부수면 기관차가 노출됩니다.',en:'Destroy the Fliegerzug cars in order to expose the locomotive.'},
+  {id:'cambrai-wheels',ko:'차르 탱크는 차륜을 부수면 전진이 멈춥니다.',en:'Breaking the Tsar Tank wheels halts its advance.'}
  ])
 });
 

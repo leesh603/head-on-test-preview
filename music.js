@@ -17,7 +17,8 @@ const BOSS_TRACKS={
  'drachen-net':'net','london-apron':'net',
  'zeppelin-l70':'airship',hma23:'airship',
  gik:'bomber',ca4:'bomber',
- 'armored-harbor-fortress':'fortress'
+ 'armored-harbor-fortress':'fortress',
+ 'fliegerzug':'railgun','tsar-tank':'landship'
 };
 // Per-family tempo and bar-root progressions; each family also has its own
 // pattern branch in bossStep.
