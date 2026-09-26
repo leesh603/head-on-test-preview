@@ -4,7 +4,7 @@ import {BossHazards} from './headon-stageboss-hazards.js?v=340&b=340';
 export class BossStages {
   constructor({teamFaction,stageIndex=0,loopIndex=0,rng=Math.random}) {
     if(!['central','entente'].includes(teamFaction)||!Number.isInteger(stageIndex)||stageIndex<0||stageIndex>=STAGES.length||!Number.isInteger(loopIndex)||loopIndex<0)throw new Error('Invalid current stage/faction');
-    Object.assign(this,{teamFaction,stageIndex,loopIndex,rng});this.order=[0,1,7,2,3,5,6,4];this.orderPosition=this.order.indexOf(stageIndex);this.phase='explore';this.encounter=null;
+    Object.assign(this,{teamFaction,stageIndex,loopIndex,rng});this.order=[0,1,7,2,3,5,6,4,8];this.orderPosition=this.order.indexOf(stageIndex);this.phase='explore';this.encounter=null;
   }
   get stage(){return STAGES[this.stageIndex];}
   get bossId(){return Object.keys(BOSS_CATALOG).find(id=>BOSS_CATALOG[id].stage===this.stageIndex&&(BOSS_CATALOG[id].faction==='neutral'||BOSS_CATALOG[id].faction!==this.teamFaction));}
@@ -49,6 +49,8 @@ export class StageBossAddon {
     let tuning=this.hooks.getTuning({bossId,stageIndex:this.stages.stageIndex,loopIndex:this.stages.loopIndex});
     if(bossId==='ca4'||bossId==='gik')tuning={...tuning,geometryScale:1.45,motionMultiplier:0,mobileBoss:false};
     if(bossId==='livens-flame-projector'||bossId==='minenwerfer-battery')tuning={...tuning,geometryScale:1,motionMultiplier:0,mobileBoss:false};
+    if(bossId==='tsar-tank')tuning={...tuning,geometryScale:1.15,mobileBoss:false};
+    if(bossId==='fliegerzug')tuning={...tuning,railCycle:11,warningSeconds:1.7};
     const entry=BOSS_CATALOG[bossId],faction=entry.faction==='neutral'?(this.stages.teamFaction==='central'?'entente':'central'):entry.faction;
     const encounter=createBossEncounter({id,bossId,tuning,x,y,rng:this.rng,faction,emit:event=>this.accept(event,id,tuning)});
     for(const b of encounter.bodies.values())if(b.support129)b.countMinions129=()=>this.hooks.countMinions(id);this.defeatSequence=null;this.bodyDefeats=[];this.stages.attach(encounter);this.hooks.onCue({type:'boss-enter',encounterId:id,bossId});return encounter;

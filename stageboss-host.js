@@ -3,7 +3,7 @@ import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=340&b=340';
 import {bossSoundFor} from './boss-feedback.js?v=340';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=340';
 
-export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항'];
+export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const players=g=>g.players||[g];
@@ -66,6 +66,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     x:spec.x,y:spec.y,escortPlane:spec.minion==='seaplane'||spec.minion==='seaplane-central'?'hansa_brandenburg_cc':spec.minion==='seaplane-entente'?'macchi_m5':spec.minion==='sopwith-camel'?'camel':spec.faction==='central'?'albatros':'sopwith',
     surface:spec.minion==='autocannon',stationary:spec.minion==='autocannon',groundEscort:spec.minion==='autocannon',a:spec.minion==='autocannon'?(spec.vx<0?Math.PI:0):(spec.a??e.a),vx:spec.vx||0,life:spec.behavior==='attack-pass'?6.2:18,fire:spec.fire??1.2,
     passTargetX:spec.passTargetX,passTargetY:spec.passTargetY,formationIndex:spec.formationIndex,formationCount:spec.formationCount,supportInvulnUntil:g.t+(spec.invulnerableSeconds||0)});
+   if(spec.minion==='bug')Object.assign(e,{bugDrone:true,hp:Math.max(12,Math.round(e.maxHp*.4)),maxHp:Math.max(12,Math.round(e.maxHp*.4)),speed:178,fire:Infinity});
   },
   countMinions(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&e.hp>0).length;},
   onBuildingImpact(event){const b=g.bossBuildings.find(b=>!b.destroyed&&Math.abs(event.x-b.x)<=b.w/2+8&&Math.abs(event.y-b.y)<=b.h/2);if(!b)return false;b.destroyed=true;g.combatBlast(b.x,b.y,55,'enemy','structure');return true;},
@@ -172,7 +173,7 @@ export function beginStageBossFrame(g,dt){
  if(addon.stages.phase==='explore'&&ready){
   if(naval&&!g.navalApproachAt){g.navalApproachAt=g.t;g.event('wave',stage===7?'경고 · 장갑 항구요새 전면 도달':'경고 · 적 주력함이 전방에서 접근 중');g.event('heavyShot','');}
   if(!naval||g.t-g.navalApproachAt>=5.2){
-   const bounds=stageBossBounds(g),alpine=stage===6,rail=['paris-gun','lincomparable'].includes(addon.stages.bossId);
+   const bounds=stageBossBounds(g),alpine=stage===6,rail=['paris-gun','lincomparable','fliegerzug'].includes(addon.stages.bossId);
    let x,y;
    if(stage===7&&route){
     // The illustrated central quay sits inside the right shoreline at this

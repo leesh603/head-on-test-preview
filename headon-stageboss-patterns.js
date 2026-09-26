@@ -3,7 +3,7 @@ import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=34
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
-export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge']);
+export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai']);
 export const BOSS_CATALOG = Object.freeze({
   'paris-gun': {name:'브루노 열차포', faction:'central', stage:0},
   lincomparable: {name:'520mm 열차포 · 랑콩파라블', faction:'entente', stage:0},
@@ -20,6 +20,8 @@ export const BOSS_CATALOG = Object.freeze({
   gik: {name:'한자-브란덴부르크 G.IK', faction:'central', stage:6},
   ca4: {name:'카프로니 Ca.4', faction:'entente', stage:6}
   ,'armored-harbor-fortress': {name:'장갑 크레인 항구요새', faction:'neutral', stage:7}
+  ,'fliegerzug': {name:'무인기 모함열차 · 플리거주크', faction:'central', stage:8}
+  ,'tsar-tank': {name:'차르 탱크 · 거륜 육상전함', faction:'entente', stage:8}
 });
 const living = players => players.filter(p => p.alive);
 const randBetween = (rng,a,b) => a + (b-a)*rng();
@@ -562,10 +564,121 @@ export class DrachenMineNet extends PatternBoss {
   }
 }
 
+// Fliegerzug is an armored train whose wagons launch Kettering Bugs and escort
+// fighters instead of carrying a heavy gun — the rail chassis, car hit chain,
+// runaway and derail all stay on the shared rail controller.
+export class Fliegerzug extends RailAdapter {
+  constructor(options){super(options,'fliegerzug');this.kind='fliegerzug';this.bugSalvo=null;}
+  railEvent(e){
+    if(e.type==='fire'){
+      // A firing stop becomes a launch cycle: bugs run down the rails and dive.
+      this.bugSalvo={count:2+((this.t.loopIndex||0)>0?1:0),clock:0};
+      this.emit({type:'heavy-gun-fired',bossId:this.id,x:this.x,y:this.y});
+      this.emit({type:'bug-salvo',bossId:this.id,x:this.x,y:this.y});
+      return;
+    }
+    // No gun onboard: do not telegraph a shell target on the rail segment.
+    if(e.type==='aim')return;
+    super.railEvent(e);
+  }
+  launchBug(car,players){
+    this.emit({type:'spawn-minion',bossId:this.id,faction:this.faction,minion:'bug',x:this.x+car.x,y:this.y+car.y,behavior:'suicide-dive',a:Math.PI/2});
+  }
+  update(dt,ctx){
+    super.update(dt,ctx);
+    if(this.dead)return;
+    const players=ctx.players||[],car=id=>this.parts.get(id);
+    const launch=car('car-middle'),hangar=car('car-rear'),flak=car('car-front');
+    const salvo=this.bugSalvo;
+    if(salvo&&launch&&!launch.destroyed){
+      salvo.clock-=dt;
+      while(salvo.count>0&&salvo.clock<=0){salvo.count--;salvo.clock+=.5;this.launchBug(launch,players);}
+      if(salvo.count<=0)this.bugSalvo=null;
+    }else this.bugSalvo=null;
+    if(launch&&!launch.destroyed&&this.due('bug-trickle',dt,4.6))this.launchBug(launch,players);
+    if(hangar&&!hangar.destroyed&&this.due('hangar-launch',dt,this.phase==='derailed'?9.5:6.4)){
+      const p=players.find(p=>p.alive!==false);
+      this.emit({type:'spawn-minion',bossId:this.id,faction:this.faction,minion:'escort',x:this.x+hangar.x,y:this.y+hangar.y,behavior:'attack-pass',a:Math.PI/2,passTargetX:p?.x??this.x,passTargetY:(p?.y??this.y)+130,invulnerableSeconds:.5});
+    }
+    if(flak&&!flak.destroyed&&this.due('flak-car',dt,2.7)){
+      const p=players.find(p=>p.alive!==false);
+      if(p)this.emit({type:'hazard',bossId:this.id,kind:'circle',x:p.x+(p.vx||0)*.4,y:p.y+(p.vy||0)*.4,radius:56,warning:.95,duration:.45,once:true,damage:this.t.damage*.9,visual:'black-flak',sourcePartId:'car-front'});
+    }
+  }
+}
+
+// Tsar Tank advances on its giant front wheels, crushing terrain into debris
+// sprays. Wheels are mobility, the turret is the gun: break wheels to halt the
+// advance (it digs in and fires harder), break everything to expose the hull.
+export class TsarTank extends PatternBoss {
+  constructor(options){
+    super({...options,kind:'tsar-tank',coreRadius:options.tuning.coreRadius||86,parts:[
+      {id:'wheel-left',x:-88,y:-102,radius:52,maxHp:options.tuning.partHp*1.2},
+      {id:'wheel-right',x:88,y:-102,radius:52,maxHp:options.tuning.partHp*1.2},
+      {id:'turret',x:0,y:8,radius:44,maxHp:options.tuning.partHp*1.3},
+      {id:'rudder',x:0,y:128,radius:26}
+    ]});
+    this.phase='advance';this.coreVulnerable=false;this.ownsMotion129=true;
+    this.anchorX=this.x;this.startY=this.y;this.anchorY=this.y;this.wheelRoll=0;this.motionTime=0;
+    this.timers.set('tsar-mortar',2.2);this.timers.set('tsar-mg',1.1);this.timers.set('tsar-debris',.5);
+  }
+  wheelsAlive(){return ['wheel-left','wheel-right'].filter(id=>!this.parts.get(id).destroyed).length;}
+  wheelBias(){const l=this.parts.get('wheel-left'),r=this.parts.get('wheel-right');return l.destroyed&&!r.destroyed?-1:!l.destroyed&&r.destroyed?1:0;}
+  onPartDestroyed(){
+    if(this.allDestroyed(['wheel-left','wheel-right'])&&this.phase==='advance'){
+      // A halted Tsar Tank digs in as a gun platform instead of dying.
+      this.phase='crippled';this.command('phase-change',{phase:'crippled'});
+    }
+    if(this.allDestroyed(['wheel-left','wheel-right','turret','rudder'])&&!this.coreVulnerable){
+      this.coreVulnerable=true;this.phase='exposed';this.command('phase-change',{phase:'exposed'});
+    }
+  }
+  debrisBurst(x,y,count,spread,damage){
+    for(let i=0;i<count;i++){const a=(this.wheelBias()||1)*.9+(this.rng()-.5)*spread*2+(i-(count-1)/2)*spread/(count/2);
+      this.hazard('projectile',{x,y,vx:Math.cos(a)*195,vy:Math.sin(a)*195+40,radius:9,duration:1.5,once:true,damage,visual:'tsar-debris'});}
+  }
+  update(dt,{players,bounds}){
+    if(this.dead)return;
+    const wheels=this.wheelsAlive(),crippled=wheels===0;
+    if(!crippled&&this.phase==='advance'&&this.hp<=this.maxHp*.3){this.phase='enraged';this.command('phase-change',{phase:'enraged'});}
+    const enraged=this.phase==='enraged',speed=crippled?0:30*(enraged?1.6:1)*(this.wheelBias()?.55:1);
+    // The motion clock feeds both the churn trail and the wheel rotation art.
+    this.wheelRoll+=speed*dt*.05;
+    this.anchorY+=speed*dt;
+    const limit=this.startY+330;if(this.anchorY>limit)this.anchorY=limit;
+    this.y=this.anchorY+Math.sin(this.motionTime*.4)*10;
+    this.x=this.anchorX+Math.sin(this.motionTime*.23)*120+this.wheelBias()*55;
+    // Wheels leave churned ground behind; the view consumes this trail.
+    this._churn??=[];const last=this._churn[this._churn.length-1];
+    if(speed>0&&(!last||Math.hypot(this.x-last.x,this.y-last.y)>30))this._churn.push({x:this.x,y:this.y+58});
+    if(this._churn.length>110)this._churn.splice(0,this._churn.length-110);
+    // Wheels shed dirt and rock sideways as they crush the ground.
+    if(speed>0&&this.due('tsar-debris',dt,enraged?.42:.6)){
+      for(const id of ['wheel-left','wheel-right']){const w=this.parts.get(id);if(w.destroyed)continue;
+        const side=id==='wheel-left'?-1:1,wx=this.x+w.x,wy=this.y+w.y;
+        this.hazard('projectile',{x:wx,y:wy+24,vx:side*(150+this.rng()*70),vy:30+this.rng()*80,radius:9,duration:1.5,once:true,damage:this.t.damage*.38,visual:'tsar-debris'});
+        if(this.rng()<.5)this.hazard('projectile',{x:wx,y:wy+24,vx:side*(60+this.rng()*50),vy:120+this.rng()*60,radius:9,duration:1.6,once:true,damage:this.t.damage*.38,visual:'tsar-debris'});
+      }
+    }
+    if(crippled&&this.due('tsar-burst',dt,2.4))this.debrisBurst(this.x,this.y-40,10,.62,this.t.damage*.42);
+    const turret=this.parts.get('turret');
+    if(turret&&!turret.destroyed&&this.due('tsar-mortar',dt,(crippled?3.4:enraged?3.1:4.8))){
+      const p=this.target(players);if(p){const shots=enraged||crippled?4:3;
+        for(let i=0;i<shots;i++)this.hazard('circle',{x:p.x+(p.vx||0)*.5+(i-(shots-1)/2)*62,y:p.y+(p.vy||0)*.5+randBetween(this.rng,-20,20),radius:52,delay:i*.16,warning:1.05,duration:.4,once:true,damage:this.t.damage*.95,visual:'minenwerfer-shell',sourceX:this.x+turret.x,sourceY:this.y+turret.y});
+        this.command('muzzle',{x:this.x+turret.x,y:this.y+turret.y,partId:'turret'});}
+    }
+    if(this.due('tsar-mg',dt,crippled?2.2:2.9)){
+      const p=this.target(players);
+      if(p)for(const side of [-1,1]){const mx=this.x+side*64,my=this.y-20,a=Math.atan2(p.y-my,p.x-mx);this.fan(mx,my,a,3,.3,this.t.bulletSpeed*.95,'tsar-mg');}
+    }
+  }
+}
+
 const constructors={'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttgart':Stuttgart,'hms-zubian':Zubian,
   'zeppelin-l70':ZeppelinL70,hma23:HMA23,'a7v-flak':A7VFlak,'mark-v-cruiser':MarkVCruiser,
   'livens-flame-projector':LivensFlameProjector,'minenwerfer-battery':MinenwerferBattery,
-  'london-apron':LondonApron,'drachen-net':DrachenMineNet,gik:GIK,ca4:Ca4,'armored-harbor-fortress':ArmoredHarborFortress};
+  'london-apron':LondonApron,'drachen-net':DrachenMineNet,gik:GIK,ca4:Ca4,'armored-harbor-fortress':ArmoredHarborFortress,
+  fliegerzug:Fliegerzug,'tsar-tank':TsarTank};
 export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   const entry=BOSS_CATALOG[bossId],Ctor=constructors[bossId];if(!Ctor)throw new Error('Unknown boss: '+bossId);
   const body=new Ctor({id:id+':body',tuning,x,y,emit,rng,faction:faction||entry.faction,coreRadius:tuning.coreRadius||100});
