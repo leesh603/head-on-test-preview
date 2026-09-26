@@ -1,9 +1,10 @@
+import {drawGasVeil3} from './atmosphere-role3.js?v=340';
 import {fx} from './fx-art.js?v=340';
 // Danger boundary uses collision radius; translucent painted clouds are decorative.
 export function drawGasCloud196(c,z,x,y,time=0){
   const warning=z.warning>0;
   c.save();
-  if(!warning){
+  if(!warning&&!drawGasVeil3(c,z,x,y,time,false)){
     for(let i=0;i<5;i++){
       const a=i*2.399+time*.025,r=i?z.r*.36:0;
       fx(c,i%2?'gasThin':'gas',x+Math.cos(a)*r,y+Math.sin(a)*r,z.r*1.38,z.r*1.38,i*.7+time*.018,.22);

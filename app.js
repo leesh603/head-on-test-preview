@@ -1,3 +1,4 @@
+import {drawGust3} from './atmosphere-role3.js?v=340';
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=340&b=340';
 import {fx,fxReady,fxTint,FX56,clearFxTintCache} from './fx-art.js?v=340';
 import {CATEGORIES,categoryName,reinforcementName,buildStats,cumulativeText,cleanDescription} from './reinforcement-ui151.js?v=340';
@@ -283,7 +284,7 @@ drawSupport=()=>{
  for(const e of game.enemies){if(!e.navalVessel||e.hp<=0||e.movingShip)continue;const[x,y]=point(e.x,e.y);drawBattlefieldSprite(ctx,'ship',x,y,320,e.a+Math.PI/2);ctx.fillStyle='#24332b';ctx.fillRect(x-22,y+172,44,4);ctx.fillStyle='#de9b73';ctx.fillRect(x-22,y+172,44*e.hp/e.maxHp,4)}
  for(const f of game.hostileMinefields||[]){const[x,y]=point(f.x,f.y);ctx.save();ctx.strokeStyle=f.warning>0?'#ffe0a199':'#e58b6c88';ctx.lineWidth=2;ctx.setLineDash([6,9]);ctx.beginPath();ctx.arc(x,y,f.radius,0,6.283);ctx.stroke();ctx.setLineDash([]);ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffd2a9';ctx.fillText(f.warning>0?(getLocale()==='en'?'Mine active '+f.warning.toFixed(1)+'s':'기뢰 활성화 '+f.warning.toFixed(1)+'초'):(getLocale()==='en'?'Minefield':'기뢰지대'),x,y-f.radius-9);for(const m of f.mines){if(m.dead)continue;const[mx,my]=point(m.x,m.y);if(!fx(ctx,'mine',mx,my,60,60))drawEquipment(ctx,'mine',mx,my,0,56);ctx.strokeStyle=f.warning>0?'#ffe0a188':'#ff876e';ctx.beginPath();ctx.arc(mx,my,18,0,6.283);ctx.stroke()}ctx.restore()}
  for(const b of game.bullets){if(!b.flak)continue;const [x,y]=point(b.x,b.y);drawFieldArt('flak',x,y,42,42,ambient*.2,.9);drawEnemyProjectile(ctx,b,x,y,ambient)}
- for(const g of game.gusts||[]){const [x,y]=point(g.x,g.y);const opacity=Math.min(.85,g.life,6-g.life);drawFieldArt('gust',x,y,g.radius*2.6,g.radius*2.6,g.a+ambient*.15,opacity);if(fxReady('windStreak'))for(let i=0;i<3;i++){const wa=(g.a||0)+i*1.1+ambient*.4;fx(ctx,'windStreak',x+Math.cos(wa)*g.radius*.32,y+Math.sin(wa)*g.radius*.32,g.radius*1.7,g.radius*.5,wa,opacity*.55)}}
+ for(const g of game.gusts||[]){const [x,y]=point(g.x,g.y);if(drawGust3(ctx,g,x,y,ambient))continue;const opacity=Math.min(.85,g.life,6-g.life);drawFieldArt('gust',x,y,g.radius*2.6,g.radius*2.6,g.a+ambient*.15,opacity);if(fxReady('windStreak'))for(let i=0;i<3;i++){const wa=(g.a||0)+i*1.1+ambient*.4;fx(ctx,'windStreak',x+Math.cos(wa)*g.radius*.32,y+Math.sin(wa)*g.radius*.32,g.radius*1.7,g.radius*.5,wa,opacity*.55)}}
 };
 
 function drawUpgradeIcon(canvas,id,owner=game){

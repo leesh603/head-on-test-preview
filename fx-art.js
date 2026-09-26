@@ -6,6 +6,8 @@ import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,
 // the keys already called by the renderers. Unmapped keys stay procedural.
 // Rollback: append ?fx=0 to the URL — FX_FILES empties and every call site
 // falls back to procedural drawing exactly as before.
+import {FX3,roleArtReady,roleReady,roleDraw,roleImage} from './fx-role3.js?v=340';
+export {FX3};
 const FX_OFF=typeof location!=='undefined'&&new URLSearchParams(location.search).get('fx')==='0';
 const FX56_OFF=typeof location!=='undefined'&&new URLSearchParams(location.search).get('fx56')==='0';
 export const FX56=!FX_OFF&&!FX56_OFF;
@@ -88,16 +90,17 @@ const fx189Ready=typeof Image==='undefined'?Promise.resolve():fx196ArtReady.then
  }));
  const im=await imageLoads.get(file);if(im)fxImgs[key]=im;
 })));
-export const fxArtReady=Promise.all([fx189Ready,fx196ArtReady]);
-export function fxReady(key){return !FX_OFF&&(fx196Ready(key)||!!fxImgs[key])}
-export function fxImage(key){return FX_OFF?null:fx196Image(key)||fxImgs[key]||null}
+export const fxArtReady=Promise.all([fx189Ready,fx196ArtReady,roleArtReady]);
+export function fxReady(key){return !FX_OFF&&(roleReady(key)||fx196Ready(key)||!!fxImgs[key])}
+export function fxImage(key){return FX_OFF?null:roleImage(key)||fx196Image(key)||fxImgs[key]||null}
 // Draw sprite centered at x,y, rotated to angle (0 = sprite's natural right/up orientation), fit inside w×h.
 export function fx(c,key,x,y,w,h=w,angle=0,alpha=1){
  if(FX_OFF)return false;
+ if(roleReady(key))return roleDraw(c,key,x,y,w,h,angle,alpha);
  if(fx196Ready(key))return fx196Draw(c,key,x,y,w,h,angle,alpha);
  const im=fxImgs[key];if(!im)return false;
  c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha*=alpha;
- if(FX56&&FX_FILES[key].startsWith('fx-pack-v189/')){c.imageSmoothingEnabled=false;c.drawImage(im,-w/2,-h/2,w,h)}
+ if(FX56&&FX_FILES[key]?.startsWith('fx-pack-v189/')){c.imageSmoothingEnabled=false;c.drawImage(im,-w/2,-h/2,w,h)}
  else{const k=Math.min(w/im.naturalWidth,h/im.naturalHeight),dw=im.naturalWidth*k,dh=im.naturalHeight*k;
   c.drawImage(im,-dw/2,-dh/2,dw,dh)}
  c.restore();return true;
@@ -109,8 +112,8 @@ export function clearFxTintCache(){for(const cv of tintCache.values())if(cv)cv.w
 // Lazily bake a color-multiplied copy so painted shading survives tinting.
 export function fxTintedCanvas(key,color){
  if(FX_OFF)return null;
- if(fx196Ready(key))return fx196TintedCanvas(key,color);
- const im=fxImgs[key];if(!im)return null;
+ if(!roleReady(key)&&fx196Ready(key))return fx196TintedCanvas(key,color);
+ const im=roleImage(key)||fxImgs[key];if(!im)return null;
  const ck=key+color;let c=tintCache.get(ck);
  if(c===undefined){
   c=null;if(typeof document!=='undefined'){
@@ -129,10 +132,10 @@ export function fxTintedCanvas(key,color){
 }
 export function fxTint(c,key,color,x,y,w,h=w,angle=0,alpha=1){
  if(FX_OFF)return false;
- if(fx196Ready(key))return fx196Tint(c,key,color,x,y,w,h,angle,alpha);
+ if(!roleReady(key)&&fx196Ready(key))return fx196Tint(c,key,color,x,y,w,h,angle,alpha);
  const cv=fxTintedCanvas(key,color);if(!cv)return fx(c,key,x,y,w,h,angle,alpha);
  c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha*=alpha;
- if(FX56&&FX_FILES[key].startsWith('fx-pack-v189/')){c.imageSmoothingEnabled=false;c.drawImage(cv,-w/2,-h/2,w,h)}
+ if(FX56&&FX_FILES[key]?.startsWith('fx-pack-v189/')){c.imageSmoothingEnabled=false;c.drawImage(cv,-w/2,-h/2,w,h)}
  else{const k=Math.min(w/cv.width,h/cv.height),dw=cv.width*k,dh=cv.height*k;c.drawImage(cv,-dw/2,-dh/2,dw,dh)}
  c.restore();return true;
 }

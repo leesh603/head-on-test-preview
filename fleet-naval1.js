@@ -2,6 +2,7 @@
 // Ships sail real headings, fire from actual gun positions on the hull, and are
 // faction-owned: hostile ships hunt the player, friendly ships engage aircraft.
 import {PLANES} from './engine.js?v=340&b=340';
+import {fx,fxReady,FX3} from './fx-art.js?v=340';
 export const SHIP_TYPES=Object.freeze({
  dd:{name:'구축함',hp:150,drawnH:300,speed:26,guns:[96,-99],salvo:5,spread:.15,shellSpeed:215,interval:3.2,width:88},
  aa:{name:'대공순양함',hp:340,drawnH:380,speed:17,guns:[79,5,-39,-98],salvo:3,spread:.09,shellSpeed:205,interval:4.6,width:205}
@@ -158,9 +159,11 @@ export function drawFleetLayer(c,game,{point}){
    // trailing behind the hull in ship-local space.
    if(!e.moored){
     const wake=shipImg('ship-wake'),bow=shipImg('ship-bowwave');
-    if(wake?.naturalWidth){const ww=w*1.5,wh=ww*wake.naturalHeight/wake.naturalWidth;
+    if(FX3&&fxReady('shipWake3')){const speed=Math.max(0,Math.min(1,(e.speed||0)/26)),ww=w*(1.25+speed*.25),wh=Math.min(h*1.25,w*(2.2+speed));c.globalAlpha=1;fx(c,'shipWake3',0,h*.34+wh*.5,ww,wh,0,.2+speed*.2)}
+    else if(wake?.naturalWidth){const ww=w*1.5,wh=ww*wake.naturalHeight/wake.naturalWidth;
      c.globalAlpha=.85;c.drawImage(wake,-ww/2,h*.16,ww,wh);}
-    if(bow?.naturalWidth){const bw=w*.9,bh=bw*bow.naturalHeight/bow.naturalWidth;
+    if(FX3&&fxReady('shipBow3')){c.globalAlpha=1;fx(c,'shipBow3',0,-h*.42,w*1.08,w*.64,0,.46)}
+    else if(bow?.naturalWidth){const bw=w*.9,bh=bw*bow.naturalHeight/bow.naturalWidth;
      c.globalAlpha=.8;c.drawImage(bow,-bw/2,-h*.5-bh*.55,bw,bh);}
    }
    c.globalAlpha=.96;c.drawImage(img,-w/2,-h/2,w,h);

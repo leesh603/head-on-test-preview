@@ -1,5 +1,5 @@
 import {drawGameIcon} from './icons.js?v=340';
-import {fx,fxReady,FX56} from './fx-art.js?v=340';
+import {fx,fxReady,FX56,FX3} from './fx-art.js?v=340';
 export function drawGrenade(c,g,x,y){
  c.save();c.translate(x,y-g.height);c.rotate(g.phase==='flight'?g.age*7:0);
  if(!fx(c,'grenade',0,0,52,52))drawGameIcon(c,'mines',0,0,46);
@@ -36,8 +36,12 @@ const FX_BLAST_KINDS={
  hydrogen:{size:1.7,smoke:3,smokeKey:'smokeHeavy',set:'bossBlast',ring:true,debris:true}
 };
 export function drawFxExplosion(c,f,x,y,radius=0){
+ if(f.fxOnly&&!FX3)return true;
+ if(f.mortarOverlay&&FX3&&fxReady('mortarImpact0'))return true;
  const q=Math.max(0,Math.min(.999,1-f.life/f.maxLife)),frame=Math.min(3,Math.floor(q*4));
- const kind=FX_BLAST_KINDS[f.kind]||FX_BLAST_KINDS.blast;
+ if(drawRoleExplosion(c,f,x,y,radius,q,frame))return true;
+ const legacy={aircraftHeavy:'structure',aircraftMedium:'blast'};
+ const kind=FX_BLAST_KINDS[legacy[f.kind]||f.kind]||FX_BLAST_KINDS.blast;
  const d=Math.max(30,(radius||f.radius||60)*2.2*(.55+q*.6))*kind.size;
  if(!fx(c,kind.set+frame,x,y,d,d,0,Math.min(1,(1-q)*2.4)))return false;
  if(q>.5&&kind.smoke){const sq=(q-.5)/.5;
@@ -50,12 +54,49 @@ export function drawFxExplosion(c,f,x,y,radius=0){
  return true;
 }
 
+// Source tags are visual metadata only; all damage/lifetimes stay in the engine.
+function drawRoleExplosion(c,f,x,y,radius,q,frame){
+ if(!FX3)return false;
+ const source=f.fxSource||f.kind,r=radius||f.radius||60,fade=Math.min(1,(1-q)*2.4);
+ const families={cow:'cowImpact',moteur:'moteurImpact',lePrieur:'lePrieurImpact',bomb:'mortarImpact',mortar:'mortarImpact'};
+ if(families[source]){
+  const size={cow:1.95,moteur:1.7,lePrieur:1.35,bomb:2,mortar:2.15}[source];
+  const d=Math.min(source==='bomb'||source==='mortar'?240:150,Math.max(30,r*size))*(.86+q*.28);
+  return fx(c,families[source]+frame,x,y,d,d,0,fade);
+ }
+ if(source==='navalMG'||source==='navalMedium'){
+  if(!fxReady('navalSplash3'))return false;const medium=source==='navalMedium',d=(medium?64:27)*(.72+q*.45);
+  fx(c,'navalSplash3',x,y,d,d,0,(1-q)*(medium?.72:.62));if(medium&&q>.3)fx(c,'navalFoam3',x,y,d*1.12,d*1.12,0,(1-q)*.24);return true;
+ }
+ if(source==='mineBlast'||source==='mineSea'||source==='navalShell'){
+  if(!fxReady('navalSplash3')||!fxReady('navalFoam3'))return false;
+  const d=Math.min(250,Math.max(54,r*2.2));
+  const shell=source==='navalShell';
+  if(q<.65)fx(c,'navalSplash3',x,y,d*(.55+q*.7),d*(.55+q*.7),shell?.35:0,fade*(1-q)*(shell?1:.7));
+  if(!shell||q>.25)fx(c,'navalFoam3',x,y,d*(.7+q*.65),d*(.7+q*.65),0,fade*(shell?.32:.65));return true;
+ }
+ if(source==='mine'||source==='mineAir'){
+  const d=Math.min(155,Math.max(44,r*1.65))*(.8+q*.3);
+  return fx(c,'shellBurst'+frame,x,y,d,d,0,fade);
+ }
+ if(source==='aircraftHeavy'||source==='aircraftMedium'){
+  const heavy=source==='aircraftHeavy',d=Math.min(heavy?220:155,r*(heavy?3:2.5))*(.75+q*.4);
+  if(!fx(c,(heavy?'bossBlast':'airblast')+frame,x,y,d,d,0,fade))return false;
+  if(heavy&&q>.35)fx(c,'smokeOil',x,y,d*.75,d*.75,0,(1-q)*.25);
+  return true;
+ }
+ return false;
+}
+
 // Approved four-stage Amatol artwork. Ordinary grenade and mine effects keep
 // their existing renderer; this layer is used only by Amatol-tagged blasts.
 const amatolEffect=typeof Image==='undefined'?null:new Image();
 if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=340';
 const AMATOL_FRAMES=[[19,319,306,315],[321,261,427,427],[744,227,475,503],[1209,245,463,489]];
 export function drawAmatolBlast(c,f,x,y){
+ if(FX3&&fxReady('bossBlast0')){const q=Math.max(0,Math.min(.999,1-f.life/f.maxLife)),d=Math.min(f.secondaryExplosion?120:260,f.radius*2.15)*(.82+q*.18);
+  fx(c,(f.secondaryExplosion?'structure':'bossBlast')+Math.floor(q*4),x,y,d,d,0,Math.min(1,(1-q)*3));return;
+ }
  if(!amatolEffect?.complete||!amatolEffect.naturalWidth)return;
  const q=Math.max(0,Math.min(.999,1-f.life/f.maxLife)),frame=AMATOL_FRAMES[Math.min(3,Math.floor(q*4))],[sx,sy,sw,sh]=frame;
  const diameter=Math.min(f.secondaryExplosion?120:260,f.radius*2.15)*(0.82+q*.18);
