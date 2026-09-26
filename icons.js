@@ -1,6 +1,6 @@
 // Trim generated atlas cells by alpha once; preserve the established upgrade illustrations.
 const keys=['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','legacyExtraMagazine','cooldown','control','turn','command','damage','rate','spread','rockets','mines','armor','magnet','repair','regen'];
-export const LEGENDARY_ICON_KEYS=Object.freeze(['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','goeringBaton','immelmannManual','motorCannon','loEmblem','sacredCowling','steelPlate','mauserAceKiller','boelckeDicta','fogCompass','rearGunner','quadLewis','cow37','rankinShell','kaiserFog','grunkreuz','maximBelt','amatolCharge','lufberyCircle','urLeica']);
+export const LEGENDARY_ICON_KEYS=Object.freeze(['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','goeringBaton','immelmannManual','motorCannon','loEmblem','sacredCowling','steelPlate','mauserAceKiller','boelckeDicta','fogCompass','rearGunner','quadLewis','cow37','rankinShell','kaiserFog','grunkreuz','maximBelt','amatolCharge','lufberyCircle','urLeica','badinGauge']);
 const frames=new Map();
 function loadIconAtlas(file,columns,rows,names,smooth=false){return new Promise(resolve=>{const atlas=new Image();atlas.onload=()=>{
  const c=document.createElement('canvas');c.width=atlas.naturalWidth;c.height=atlas.naturalHeight;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(atlas,0,0);const d=ctx.getImageData(0,0,c.width,c.height).data;
@@ -23,15 +23,15 @@ const DIRECT_ICONS=Object.freeze({
  sparkPlug:'mccudden_emergency_repair_kit.webp',goeringBaton:'squadron_general_mobilization.webp',steelPlate:'j_type_armor_capsule.webp',mauserAceKiller:'mauser_c96_ace_killer.webp',rearGunner:'scarff_ring_gun_mount.webp',kaiserFog:'brock_smoke_device.webp',grunkreuz:'grunkreuz.webp',fogCompass:'co_5_17_aero_compass.webp',
  'ironCross-central':'medal_award_pour_le_merite.webp','ironCross-entente':'medal_award_british_victoria_cross.webp',
  emblemCentral:'emblem_bare_central.webp',emblemEntente:'emblem_bare_entente.webp',
- urLeica:'ur_leica_camera.webp'
+ urLeica:'ur_leica_camera.webp',badinGauge:'badin_gauge.webp'
 });
 const atlasReady=Promise.all([
- loadIconAtlas('./icons51.webp?v=339',5,4,keys,true),
- loadIconAtlas('./controls53.webp?v=339',2,2,['control','turn','command','cooldown']),
- loadIconAtlas('./special-ammo-icons92.webp?v=339',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
- loadIconAtlas('./legendary-icons103.webp?v=339',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
- loadIconAtlas('./gun-atlas114.webp?v=339',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
- loadIconAtlas('./legendary-icons109.webp?v=339',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
+ loadIconAtlas('./icons51.webp?v=340',5,4,keys,true),
+ loadIconAtlas('./controls53.webp?v=340',2,2,['control','turn','command','cooldown']),
+ loadIconAtlas('./special-ammo-icons92.webp?v=340',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
+ loadIconAtlas('./legendary-icons103.webp?v=340',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
+ loadIconAtlas('./gun-atlas114.webp?v=340',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
+ loadIconAtlas('./legendary-icons109.webp?v=340',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
  loadIconAtlas('./relic-maxim-belt128.webp',1,1,['maximBelt'],true),
  loadIconAtlas('./relic-steel-plate128.webp',1,1,['steelPlate'],true),
  loadIconAtlas('./relic-immelmann-manual128.webp',1,1,['immelmannManual'],true),
@@ -39,7 +39,7 @@ const atlasReady=Promise.all([
  loadIconAtlas('./relic-sacred-cowling128.webp',1,1,['sacredCowling'],true)
 ]);
 export const iconsReady=atlasReady.then(async results=>{
- const direct=await Promise.all(Object.entries(DIRECT_ICONS).map(([key,file])=>loadDirectIcon('./augmentation-icons/'+file+'?v=339',key)));
+ const direct=await Promise.all(Object.entries(DIRECT_ICONS).map(([key,file])=>loadDirectIcon('./augmentation-icons/'+file+'?v=340',key)));
  return results.every(Boolean)&&direct.every(Boolean);
 });
 export function drawGameIcon(c,key,x,y,size){const f=frames.get(key);if(!f)return;const k=size/Math.max(f.w,f.h);c.save();c.imageSmoothingEnabled=f.smooth;c.drawImage(f.atlas,f.x,f.y,f.w,f.h,x-f.w*k/2,y-f.h*k/2,f.w*k,f.h*k);c.restore()}

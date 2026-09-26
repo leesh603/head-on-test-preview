@@ -1,9 +1,9 @@
-import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=339';
-import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=339&b=326';
+import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=340';
+import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=340&b=326';
 
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=339&b=326';
-import {attachAircraftPersonality} from './aircraft-personality164.js?v=339';
-import {installCloudCover} from './cloud-cover1.js?v=339&b=326';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=340&b=326';
+import {attachAircraftPersonality} from './aircraft-personality164.js?v=340';
+import {installCloudCover} from './cloud-cover1.js?v=340&b=326';
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.
 export const COOP_BALANCE=Object.freeze({spawn:1,ordinaryHp:1.15,heavyHp:1.65,enemyCap:28,xp:.6,revive:15,reviveHp:1,reviveAmmo:.5,reviveInvuln:2,minZoom:.75});
@@ -147,7 +147,7 @@ export class CoopGame {
  }
  updateHazards(dt){
   for(const z of this.bombZones){z.delay-=dt;if(z.delay<=0){this.combatBlast(z.x,z.y,z.radius,'enemy','bomb');for(const p of this.living())if(Math.hypot(p.x-z.x,p.y-z.y)<z.radius)this.hitPlayer(p,highRiskDamage(z.damage,p.maxHp,z))}}this.bombZones=this.bombZones.filter(z=>z.delay>0);
-  for(const f of this.hostileMinefields){f.warning-=dt;f.life-=dt;for(const m of f.mines){if(m.dead)continue;for(const b of this.bullets){if(b.enemy||b.life<=0)continue;if(Math.hypot(b.x-m.x,b.y-m.y)<20){m.hp-=b.damage;if(!b.pierce)b.life=0;if(m.hp<=0){m.dead=true;this.combatBlast(m.x,m.y,32,'friendly','mine');break}}}if(!m.dead&&f.warning<=0){const targets=this.living().filter(p=>Math.hypot(p.x-m.x,p.y-m.y)<25);if(targets.length){m.dead=true;for(const p of targets)this.hitPlayer(p,22);this.combatBlast(m.x,m.y,58,'enemy','mine')}}}}this.hostileMinefields=this.hostileMinefields.filter(f=>f.life>0&&f.region===this.region&&f.mines.some(m=>!m.dead));
+  for(const f of this.hostileMinefields){f.warning-=dt;f.life-=dt;for(const m of f.mines){if(m.dead)continue;for(const b of this.bullets){if(b.enemy||b.life<=0)continue;if(Math.hypot(b.x-m.x,b.y-m.y)<20){m.hp-=b.damage;if(!b.pierce)b.life=0;if(m.hp<=0){m.dead=true;this.combatBlast(m.x,m.y,32,'friendly','mine');break}}}if(!m.dead&&f.warning<=0){const targets=this.living().filter(p=>Math.hypot(p.x-m.x,p.y-m.y)<25);if(targets.length){m.dead=true;for(const p of targets)this.hitPlayer(p,22);this.combatBlast(m.x,m.y,58,'enemy','mine')}}if(!m.dead&&f.warning<=0){for(const e of this.enemies){if(e.hp<=0||e.surface||e.navalVessel||e.stationary||e.fieldUnit||e.stageBossBody||e.bossMinion)continue;if(Math.hypot(e.x-m.x,e.y-m.y)<27){m.dead=true;e.hp-=30;e.hitFlash=.24;this.combatBlast(m.x,m.y,58,'enemy','mine');break}}}}}this.hostileMinefields=this.hostileMinefields.filter(f=>f.life>0&&f.region===this.region&&f.mines.some(m=>!m.dead));
   if(this.region!==2)this.gasZones=[];for(const z of this.gasZones){z.warning-=dt;z.life-=dt}this.gasZones=this.gasZones.filter(z=>z.life>0);for(const p of this.living()){p.inGas=this.gasZones.some(z=>z.warning<=0&&Math.hypot(p.x-z.x,p.y-z.y)<z.r);if(p.inGas&&!p.grunkreuz){p.gasExposure=(p.gasExposure||0)+dt;if(p.gasExposure>=1){p.gasExposure-=1;this.hitPlayer(p,6,{gas:true})}}else p.gasExposure=0}
   for(const g of this.gusts){g.life-=dt;g.x+=g.vx*dt;g.y+=g.vy*dt;g.hitPlayers??=new Set();for(const p of this.living())if(!g.hitPlayers.has(p.id)&&Math.hypot(g.x-p.x,g.y-p.y)<g.radius){g.hitPlayers.add(p.id);p.gustDisorient=1.35;p.gustOffset=(this.rng()-.5)*2.2;p.a+=p.gustOffset*.35;this.shake=9;p.event('flak','돌풍에 휘말렸다! 조준이 흔들린다')}}this.gusts=this.gusts.filter(g=>g.life>0);
   for(const f of this.flakBursts)f.life-=dt;this.flakBursts=this.flakBursts.filter(f=>f.life>0);for(const fx of this.combatFX)fx.life-=dt;this.combatFX=this.combatFX.filter(f=>f.life>0).slice(-35);
