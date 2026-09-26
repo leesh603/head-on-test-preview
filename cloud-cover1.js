@@ -107,7 +107,7 @@ export function installCloudCover(Game){
 }
 
 export function drawCloudCover(c,game,{point,scale=1,region}){
- const cw=c.canvas.width,ch=c.canvas.height;
+ const cw=game.viewWidth||c.canvas.width,ch=game.viewHeight||c.canvas.height;
  for(const cl of game.clouds||[]){
   const t=CLOUD_TYPES[cl.type];
   const [sx,sy]=point(cl.x,cl.y);

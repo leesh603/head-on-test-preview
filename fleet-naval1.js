@@ -1,7 +1,7 @@
 // Moving fleet system — Adriatic (region 1) and Zeebrugge harbor (region 7).
 // Ships sail real headings, fire from actual gun positions on the hull, and are
 // faction-owned: hostile ships hunt the player, friendly ships engage aircraft.
-import {PLANES} from './engine.js?v=340&b=340';
+import {PLANES} from './engine.js?v=340&b=340&thermal=20260926r1';
 import {fx,fxReady,FX3} from './fx-art.js?v=340';
 export const SHIP_TYPES=Object.freeze({
  dd:{name:'구축함',hp:150,drawnH:300,speed:26,guns:[96,-99],salvo:5,spread:.15,shellSpeed:215,interval:3.2,width:88},
@@ -141,7 +141,7 @@ export function installFleet(Game){
 }
 
 export function drawFleetLayer(c,game,{point}){
- const cw=c.canvas.width,ch=c.canvas.height;
+ const cw=game.viewWidth||c.canvas.width,ch=game.viewHeight||c.canvas.height;
  for(const e of game.enemies||[]){
   if(!e.movingShip||e.hp<=0)continue;
   const t=SHIP_TYPES[e.shipClass],key=`${e.faction==='entente'?'ent':'cen'}_${e.shipClass}`;

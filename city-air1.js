@@ -111,7 +111,7 @@ export function installCityAir(Game){
  };
 };
 export function drawCityAirLayer(c,game,{point}){
- const cw=c.canvas.width,ch=c.canvas.height,B=CITY_BALANCE;
+ const cw=game.viewWidth||c.canvas.width,ch=game.viewHeight||c.canvas.height,B=CITY_BALANCE;
  for(const w of game.windStreams||[]){
   if(w.expired)continue;
   const fade=Math.min(1,w.life/8);
