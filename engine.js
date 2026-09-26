@@ -689,6 +689,7 @@ Game.prototype.clearRegionalHazards=function(){
  this.bullets=[];
  this.enemies=this.enemies.filter(e=>!e.navalVessel||[1,7].includes(this.region));
  if(this.region===5)this.enemies=this.enemies.filter(e=>!e.fieldUnit&&!e.surface);
+ if(this.region===6)this.enemies=this.enemies.filter(e=>e.fieldUnit!=='railgun'&&!e.surface);
  this.lastRegionalHazard=-Infinity;
 };
 Game.prototype.enterRegion=function(region){
@@ -799,6 +800,7 @@ Game.prototype.update=function(dt,input={}){
 Game.prototype.spawnFieldUnit=function(kind){
  if([1,7].includes(this.worldRegion())||this.enemies.length>=65)return null;
  const rail=kind==='railgun';if(this.enemies.filter(e=>e.hp>0&&e.fieldUnit===(rail?'railgun':'balloon')).length>=(rail?1:1))return null;
+ if(rail&&[5,6].includes(this.worldRegion()))return null;
  const e=this.spawnEnemy('scout');if(!e)return null;const a=this.a+(this.rng()-.5)*1.5,d=330+this.rng()*100;
  const faction=PLANES[this.plane].faction==='central'?'entente':'central',sprite=rail?'railgun':faction==='central'?'drachen':'caquot';
  Object.assign(e,{type:rail?'railgun':'balloon',fieldUnit:rail?'railgun':'balloon',fieldSprite:sprite,faction,name:rail?'중열차포':sprite==='drachen'?'드라헨 관측기구':'캉코 관측기구',x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,a:-Math.PI/2,speed:0,stationary:true,surface:rail,ace:false,escortPlane:undefined,hp:rail?600:780,maxHp:rail?600:780,hitRadius:rail?74:114,hullLength:rail?92:170,hullWidth:rail?52:72,fire:2.5,fieldRegion:this.worldRegion()});
