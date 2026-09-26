@@ -240,7 +240,7 @@ function cityHazard(c,h,ring){
  }
  if(h.visual==='black-flak'){
   if(warning){c.fillStyle='#d2aa5a10';c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.fill();c.strokeStyle='#e6bc77';c.lineWidth=1.5;c.setLineDash([6,5]);c.stroke();c.setLineDash([]);ring(h.x,h.y,h.radius*(1-clamp((h.age-h.delay)/h.warning,0,1)),'#f2d69b');}
-  else{const fade=Math.min(1,(h.duration-age)*2);c.setLineDash([]);for(let i=0;i<5;i++){const a=i*2.4,dist=h.radius*(.12+age*.13),x=h.x+Math.cos(a)*dist,y=h.y+Math.sin(a)*dist;if(!fx(c,'flakSmoke',x,y,h.radius*(.7+age*.35),h.radius*(.7+age*.35),a,fade*.8)){c.save();c.filter='brightness(.45)';bossSprite(c,11,x,y,h.radius*(.7+age*.35),h.radius*(.7+age*.35),a,fade*.8);c.restore()}}if(age<.3)pixelBlast(c,h.x,h.y,h.radius*(.65+age),age);}
+  else{const fade=Math.min(1,(h.duration-age)*2);c.setLineDash([]);for(let i=0;i<5;i++){const a=i*2.4,dist=h.radius*(.12+age*.13),x=h.x+Math.cos(a)*dist,y=h.y+Math.sin(a)*dist;c.save();c.filter='brightness(.45)';bossSprite(c,11,x,y,h.radius*(.7+age*.35),h.radius*(.7+age*.35),a,fade*.8);c.restore()}if(age<.3)pixelBlast(c,h.x,h.y,h.radius*(.65+age),age);}
   return true;
  }
  return false;
@@ -437,7 +437,7 @@ export function paintSky(c,cx,cy,W,H){
  if(!skyCloud113){skyCloud113=document.createElement('canvas');skyCloud113.width=skyCloud113.height=128;const q=skyCloud113.getContext('2d');q.imageSmoothingEnabled=false;const w=partAtlas.naturalWidth/4,h=partAtlas.naturalHeight/4;q.drawImage(partAtlas,3*w,2*h,w,h,0,0,128,128);q.globalCompositeOperation='source-in';q.fillStyle='#d3dedd';q.fillRect(0,0,128,128);}
  c.save();c.imageSmoothingEnabled=false;
  for(const layer of [0,1]){const tile=layer?440:620,parallax=layer?.35:.16,px=cx*parallax,py=cy*parallax,sx=Math.floor(px/tile)-1,sy=Math.floor(py/tile)-1;
-  for(let ix=sx;ix<(px+W)/tile+1;ix++)for(let iy=sy;iy<(py+H)/tile+1;iy++){const seed=Math.abs(Math.sin(ix*12.7+iy*37.3+layer)*437.4)%1,x=ix*tile-px+seed*80,y=iy*tile-py+seed*100,w=tile*(.65+seed*.35);c.globalAlpha=layer?.24:.13;const cloudIm=fxImage('cloud')||skyCloud113;c.drawImage(cloudIm,x,y,w,w*.55);c.drawImage(cloudIm,x+w*.36,y-w*.08,w*.75,w*.45);}
+  for(let ix=sx;ix<(px+W)/tile+1;ix++)for(let iy=sy;iy<(py+H)/tile+1;iy++){const seed=Math.abs(Math.sin(ix*12.7+iy*37.3+layer)*437.4)%1,x=ix*tile-px+seed*80,y=iy*tile-py+seed*100,w=tile*(.65+seed*.35);c.globalAlpha=layer?.24:.13;const cloudIm=skyCloud113;c.drawImage(cloudIm,x,y,w,w*.55);c.drawImage(cloudIm,x+w*.36,y-w*.08,w*.75,w*.45);}
  }c.restore();
 }
 
