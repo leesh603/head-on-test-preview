@@ -1,5 +1,5 @@
-import {drawGameIcon} from './icons.js?v=336';
-import {fx,fxReady,FX56} from './fx-art.js?v=336';
+import {drawGameIcon} from './icons.js?v=337';
+import {fx,fxReady,FX56} from './fx-art.js?v=337';
 export function drawGrenade(c,g,x,y){
  c.save();c.translate(x,y-g.height);c.rotate(g.phase==='flight'?g.age*7:0);
  if(!fx(c,'grenade',0,0,52,52))drawGameIcon(c,'mines',0,0,46);
@@ -22,18 +22,18 @@ export function drawGrenadeBlast(c,f,x,y){
 // Shared painted burst for generic combat explosions (combatFX layer).
 // kind varies size and lingering smoke so each blast source reads differently.
 const FX_BLAST_KINDS={
- blast:{size:1,smoke:1,smokeKey:'smokeGray',set:'explosion'},
- aircraft:{size:1,smoke:1,smokeKey:'smokeGray',set:'explosion'},
+ blast:{size:1,smoke:1,smokeKey:'smokeGray',set:'airblast'},
+ aircraft:{size:1,smoke:1,smokeKey:'smokeGray',set:'airblast'},
  pop:{size:.7,smoke:1,smokeKey:'smokePuff',set:'pop'},
  shell:{size:1.15,smoke:2,smokeKey:'smokeHeavy',set:'shellBurst',ring:true},
  structure:{size:1.5,smoke:3,smokeKey:'smokeHeavy',set:'structure',ring:true,debris:true},
  bossFinal:{size:2.1,smoke:4,smokeKey:'smokeHeavy',set:'bossBlast',ring:true,debris:true},
  mineBlast:{size:1.25,smoke:2,smokeKey:'mist',set:'mineBlast',cool:true},
- mine:{size:1.2,smoke:2,smokeKey:'smokeDark',set:'explosionOily'},
- bomb:{size:1.35,smoke:3,smokeKey:'smokeDark',set:'explosionDust'},
- charge:{size:1.1,smoke:1,smokeKey:'smokeGray',set:'explosionHot'},
- cannon:{size:.8,smoke:1,smokeKey:'smokeGray',set:'explosionHot'},
- hydrogen:{size:1.7,smoke:3,smokeKey:'smokeDark',set:'explosionOily'}
+ mine:{size:1.2,smoke:2,smokeKey:'smokeHeavy',set:'shellBurst'},
+ bomb:{size:1.35,smoke:3,smokeKey:'smokeHeavy',set:'bombfx',ring:true,debris:true},
+ charge:{size:1.1,smoke:1,smokeKey:'smokeGray',set:'shellBurst'},
+ cannon:{size:.8,smoke:1,smokeKey:'smokeGray',set:'pop'},
+ hydrogen:{size:1.7,smoke:3,smokeKey:'smokeHeavy',set:'bossBlast',ring:true,debris:true}
 };
 export function drawFxExplosion(c,f,x,y,radius=0){
  const q=Math.max(0,Math.min(.999,1-f.life/f.maxLife)),frame=Math.min(3,Math.floor(q*4));
@@ -53,7 +53,7 @@ export function drawFxExplosion(c,f,x,y,radius=0){
 // Approved four-stage Amatol artwork. Ordinary grenade and mine effects keep
 // their existing renderer; this layer is used only by Amatol-tagged blasts.
 const amatolEffect=typeof Image==='undefined'?null:new Image();
-if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=336';
+if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=337';
 const AMATOL_FRAMES=[[19,319,306,315],[321,261,427,427],[744,227,475,503],[1209,245,463,489]];
 export function drawAmatolBlast(c,f,x,y){
  if(!amatolEffect?.complete||!amatolEffect.naturalWidth)return;
