@@ -34,7 +34,9 @@ export class BaseBoss {
   }
   locateHit({x,y,radius=0}) {
     for(const p of this.parts.values())if(p.hittable&&!p.destroyed&&Math.hypot(x-(this.x+p.x),y-(this.y+p.y))<=p.radius+radius)return{partId:p.id};
-    return Math.hypot(x-this.x,y-this.y)<=this.coreRadius+radius?{partId:null}:null;
+    // A protected core is not an opaque collision disc: outer hull overlap
+    // must not consume bullets before they reach a required inner weakpoint.
+    return this.coreVulnerable&&Math.hypot(x-this.x,y-this.y)<=this.coreRadius+radius?{partId:null}:null;
   }
   hitAt({x,y,radius=0,damage}) {
     // Part-first single route prevents one bullet damaging both a part and hull.

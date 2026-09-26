@@ -1,5 +1,5 @@
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=340&b=326';
-import {BossHazards} from './headon-stageboss-hazards.js?v=340&b=326';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=340&b=340';
+import {BossHazards} from './headon-stageboss-hazards.js?v=340&b=340';
 
 export class BossStages {
   constructor({teamFaction,stageIndex=0,loopIndex=0,rng=Math.random}) {
@@ -62,6 +62,7 @@ export class StageBossAddon {
     else if(event.type==='spawn-minion') {
       if(this.hooks.countMinions(encounterId)>=this.minionCap){this.metrics.minionsDenied++;return;}
       this.hooks.spawnMinion({...event,encounterId,id:this.runId+':boss-minion:'+this.serial++});
+      this.hooks.onCue({...event,type:'minion-launched',encounterId});
     }else if(event.type==='body-defeated') {
       const body=this.stages.encounter?.bodies.get(event.bossId),zubianHalf=body?.kind?.startsWith('hms-zubian-');
       if(zubianHalf&&!this.bodyDefeats.some(d=>d.id===body.id))this.bodyDefeats.push({id:body.id,kind:body.kind,x:body.x,y:body.y,age:0,duration:3.2});
