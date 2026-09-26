@@ -325,7 +325,7 @@ Game.prototype.enemyVolley=function(e,followup=false){
  const speed=heavy?235:bomber?210:185,power=1+this.t/240;
  const offsets=e.type==='zeppelin'?[-95,0,95]:heavy?[-42,42]:[0];e.muzzleFlash=.14;e.gunAim=aim;
  for(let j=0;j<n;j++){
-  const offset=offsets[j%offsets.length],a=aim+(e.type==='boss'?(j/(n-1)-.5)*.9:(j-(n-1)/2)*(heavy?.13:.15))+(followup?.035:0);
+  const offset=offsets[j%offsets.length],a=aim+(e.type==='boss'?(j/(n-1)-.5)*.9:(j-(n-1)/2)*(e.type==='zeppelin'?.07:heavy?.13:.15))+(followup?.035:0);
   this.bullets.push({x:e.x+(e.type==='zeppelin'?Math.cos(e.a)*offset:Math.cos(e.a)*22-Math.sin(e.a)*offset),y:e.y+(e.type==='zeppelin'?Math.sin(e.a)*offset:Math.sin(e.a)*22+Math.cos(e.a)*offset),vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:4,enemy:true,heavy,visualType:e.type==='boss'||e.bossPilot?'boss':heavy?'heavyBomber':e.type,damage:Math.round((heavy?14:9)*power*(e.aceDamageMultiplier||1)*(e.vossSurge?1.3:1))});
  }
  this.event(heavy?'heavyShot':'enemyShot','');
