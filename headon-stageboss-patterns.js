@@ -1,5 +1,5 @@
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=340&b=340';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=340&b=340';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=338&b=326';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=338&b=326';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -542,35 +542,16 @@ export class LondonApron extends PatternBoss {
 
 export class DrachenMineNet extends PatternBoss {
   constructor(options) {
-    const mines=[-2,-1,0,1,2].map((n,i)=>({id:'mine-'+i,x:n*42,y:55+Math.abs(n)*18,radius:27,maxHp:options.tuning.partHp*.34}));
-    super({...options,kind:'drachen-net',parts:[{id:'balloon',x:0,y:-72,radius:38},{id:'winch',x:0,y:112,radius:27},...mines]});
-    this.phase='observed';this.coreVulnerable=false;this.mineWave=0;
+    super({...options,kind:'drachen-net',parts:[{id:'balloon',x:0,y:-72,radius:38},{id:'winch',x:0,y:112,radius:27}]});
+    this.phase='observed';this.coreVulnerable=false;
   }
   onPartDestroyed(p) {
     if(p.id==='balloon'){this.command('cancel-hazards',{tag:'observer-artillery'});this.command('phase-change',{phase:'observer-destroyed'});}
     if(p.id==='winch')this.command('phase-change',{phase:'winch-destroyed'});
     if(this.parts.get('balloon').destroyed&&this.parts.get('winch').destroyed){this.coreVulnerable=true;this.phase='core-exposed';this.command('phase-change',{phase:'exposed'});}
-    if(p.id.startsWith('mine-'))this.command('mine-chain',{x:this.x+p.x,y:this.y+p.y,radius:72});
   }
   update(dt,{players,bounds}) {
     const exposed=this.coreVulnerable;
-    if(this.due('mine-salvo',dt,exposed?2.2:this.parts.get('winch').destroyed?4.6:3.6)){
-      const target=this.target(players),w=bounds.right-bounds.left,h=bounds.bottom-bounds.top,points=[];
-      if(target){
-        const cx=Math.max(bounds.left+w*.22,Math.min(bounds.right-w*.22,target.x+(target.vx||0)*.65));
-        if(this.mineWave++%2===0){
-          const angle=Math.atan2((target.vy||-1),(target.vx||0));
-          for(let i=0;i<8;i++){const a=angle+(i-3.5)*.27,d=125+(i%2)*55;
-            points.push({x:cx+Math.cos(a)*d,y:target.y+Math.sin(a)*d});}
-        }else{
-          const gate=[0,2,4][Math.floor(this.mineWave/2-1)%3],step=Math.max(52,Math.min(78,w/6));
-          for(let row=0;row<2;row++)for(let col=0;col<5;col++)if(col!==gate){
-            points.push({x:cx+(col-2+(row?.18:0))*step,y:target.y+(target.vy||-1)*.55-120-row*Math.max(58,h*.075)});}
-        }
-        if(exposed)for(let i=0;i<10;i++){const a=this.rng()*6.28,d=95+this.rng()*135;points.push({x:cx+Math.cos(a)*d,y:target.y+Math.sin(a)*d*.8});}
-        this.command('spawn-minefield',{points:points.filter(q=>q.x>bounds.left+25&&q.x<bounds.right-25&&q.y>bounds.top+25&&q.y<bounds.bottom-25&&Math.hypot(q.x-target.x,q.y-target.y)>75),warning:exposed?.55:.75,life:exposed?12:9,maxMines:exposed?Math.min(30,24+(this.t.loopIndex||0)*3):Math.min(22,16+(this.t.loopIndex||0)*2)});
-      }
-    }
     const observer=!this.parts.get('balloon').destroyed;
     const loop=this.t.loopIndex||0,artilleryInterval=Math.max(.82,1.75-loop*.16);
     if(observer&&this.due('observer-flak',dt,artilleryInterval)){const p=this.target(players);if(p){const lead=Math.min(.62,.3+loop*.07),scatter=Math.max(7,30-loop*6),x=p.x+(p.vx||0)*lead+randBetween(this.rng,-scatter,scatter),y=p.y+(p.vy||0)*lead+randBetween(this.rng,-scatter,scatter);this.hazard('circle',{x,y,radius:62,warning:Math.max(1.05,1.35-loop*.06),duration:.5,once:true,damage:Math.round(this.t.damage*1.35),visual:'observer-shell',tag:'observer-artillery'});}}
