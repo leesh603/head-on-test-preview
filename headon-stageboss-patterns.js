@@ -254,7 +254,7 @@ export class GIK extends AlpsPatternBoss {
     if(this.phase===1&&(this.hp<=this.maxHp*.70||engines||cannon.destroyed)){this.setPhase(2);this.hidden=true;this.reentry=1.9;this.reentrySide=this.rng()<.5?-1:1;this.entryX=this.reentrySide<0?bounds.left+90:bounds.right-90;this.entryY=bounds.top+105;this.command('hide',{peakId:peaks[0]?.id||null});this.command('reentry-warning',{x:this.entryX,y:bounds.top-30,targetX:(bounds.left+bounds.right)/2,targetY:bounds.bottom-80,seconds:this.reentry});}
     if(this.hidden){this.reentry=Math.max(0,this.reentry-dt);if(this.reentry>0)return;this.hidden=false;this.resetRoute(this.entryX,this.entryY);const w=bounds.right-bounds.left,bh=bounds.bottom-bounds.top;
       const open=Math.floor(this.rng()*8);
-      for(let i=0;i<16;i++){const col=Math.floor(this.rng()*8);if(col===open)continue;
+      for(let i=0;i<16;i++){const col=(i*3+Math.floor(this.rng()*3))%8;if(col===open)continue;
        this.hazard('circle',{x:bounds.left+w*(.12+col*.094)+randBetween(this.rng,-w*.05,w*.05),y:bounds.top+bh*randBetween(this.rng,.28,.72),radius:Math.min(100,w*.078)*randBetween(this.rng,.75,1.25),delay:this.rng()*.85,warning:1.3,duration:.3,once:true,damage:this.t.damage*1.1,visual:'carpet-bomb'});}
       this.command('phase-change',{phase:'carpet-bomb'});}
     if(this.phase===2&&(this.hp<=this.maxHp*.32||cannon.destroyed))this.setPhase(3);
@@ -288,7 +288,7 @@ export class Ca4 extends AlpsPatternBoss {
     if(this.phase===2&&this.hp<=this.maxHp*.33){this.setPhase(3);this.part('bombBay').hittable=true;}
     if(this.hidden){this.reentry=Math.max(0,this.reentry-dt);if(this.reentry>0)return;this.hidden=false;this.resetRoute(this.entryX,this.entryY);this.bayExpose=2.4;this.part('bombBay').hittable=true;const target=this.target(players),w=bounds.right-bounds.left,bh=bounds.bottom-bounds.top;
       const open=Math.floor(this.rng()*8);
-      for(let i=0;i<16;i++){const col=Math.floor(this.rng()*8);if(col===open)continue;
+      for(let i=0;i<16;i++){const col=(i*3+Math.floor(this.rng()*3))%8;if(col===open)continue;
        this.hazard('circle',{x:bounds.left+w*(.12+col*.094)+randBetween(this.rng,-w*.05,w*.05),y:bounds.top+bh*randBetween(this.rng,.28,.72),radius:Math.min(100,w*.078)*randBetween(this.rng,.75,1.25),delay:this.rng()*.85,warning:1.3,duration:.3,once:true,damage:this.t.damage*1.1,visual:'carpet-bomb'});}
       this.command('phase-change',{phase:'bomb-bay-exposed'});}
     if(this.phase===2&&this.bayExpose>0){this.bayExpose=Math.max(0,this.bayExpose-dt);if(this.bayExpose===0)this.part('bombBay').hittable=false;}
