@@ -547,7 +547,7 @@ const _drawBomberSupport=draw;
 draw=t=>{
  _drawBomberSupport(t);if(!game)return;
  ctx.save();
- for(const b of game.friendlyBombers||[]){const x=b.x-game.x+W/2,y=b.y-game.y+H/2,im=fieldArt[b.airframe];if(!im?.naturalWidth)continue;const w=150,h=w*im.naturalHeight/im.naturalWidth;
+ for(const b of game.friendlyBombers||[]){const x=b.x-game.x+W/2,y=b.y-game.y+H/2,im=fieldArtImg(b.airframe);if(!im?.naturalWidth)continue;const w=150,h=w*im.naturalHeight/im.naturalWidth;
   drawFieldArt(b.airframe,x+14,y+18,w,h,b.a+Math.PI/2,.25);drawFieldArt(b.airframe,x,y,w,h,b.a+Math.PI/2,1);
   ctx.fillStyle='#b4f4dd';ctx.font='12px monospace';ctx.textAlign='center';ctx.fillText(getLocale()==='en'?'Friendly Bombers':'아군 폭격대',x,y-h/2-12);
  }
