@@ -1,9 +1,9 @@
 import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=340';
-import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=340&b=340&thermal=20260926r1';
+import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=340&b=340';
 
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=340&b=340';
 import {attachAircraftPersonality} from './aircraft-personality164.js?v=340';
-import {installCloudCover} from './cloud-cover1.js?v=340&b=340&thermal=20260926r1';
+import {installCloudCover} from './cloud-cover1.js?v=340&b=340';
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.
 export const COOP_BALANCE=Object.freeze({spawn:1,ordinaryHp:1.15,heavyHp:1.65,enemyCap:28,xp:.6,revive:15,reviveHp:1,reviveAmmo:.5,reviveInvuln:2,minZoom:.75});
@@ -198,11 +198,10 @@ export class CoopGame {
  }
  updateOrdnance(dt){
   for(const m of this.mines){if(m.grenade){m.x+=(m.vx||0)*dt;m.y+=(m.vy||0)*dt;m.vx*=.985;m.vy*=.985}m.life-=dt;m.arm=Math.max(0,m.arm-dt);if(m.life>0&&m.arm===0&&this.enemies.some(e=>e.hp>0&&Math.hypot(e.x-m.x,e.y-m.y)<(m.special?48:72))){this.blast(this.player(m.ownerId),m.x,m.y,m.special?90:110,m.damage,'mineAir');m.life=0}}this.mines=this.mines.filter(m=>m.life>0);
-  this.prepareProjectileCandidates();
   for(const b of this.bullets){if(this.state==='lost')return;if(b.life<=0)continue;const owner=this.player(b.ownerId);if(owner?.longRange&&!b.rangeExtended&&Math.hypot(b.vx,b.vy)>0){b.life=Math.max(b.life,owner.shotLifetime(Math.hypot(b.vx,b.vy)));b.rangeExtended=true}
    if(b.fonckSeeker){const target=this.enemies.filter(e=>e.hp>0&&!b.hit.has(e)).sort((a,c)=>squared(a,b)-squared(c,b))[0];if(target){const a=Math.atan2(target.y-b.y,target.x-b.x);b.vx=Math.cos(a)*680;b.vy=Math.sin(a)*680}}
    const x=b.x,y=b.y;b.previousX=x;b.previousY=y;b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life<=0)continue;if(b.enemy){this.resolveHostileRound(b,x,y);continue}
-   b.hit??=new Set();for(const e of this.projectileCandidates(b)){if(e.hp<=0||e.deathHandled||b.hit.has(e)||b.patrol&&!b.fireZone&&!this.patrolCanEngage(e,b))continue;if(this.targetCollision(e,b.x,b.y,b)){damageStageBoss(this,e,b,b.damage*(b.patrol?1:(owner?.globalDamageMult||1)*(owner?.legendaryDamageMultiplier()||1)*(owner?.roundDamageMultiplier(b,e)||1)));if(!b.patrol)e.playerHit=true;e.hitFlash=.24;b.hit.add(e);owner?.specialRoundImpact(b,e);this.event('impact','');this.burst(b.x,b.y,b.specialColor||'#fff0bb',3);if(!b.pierce)b.life=0;this.handleDeath(e,b);if(!b.pierce||b.life<=0)break}}if(b.actualExplosion)b.life=0
+   b.hit??=new Set();for(const e of this.enemies){if(e.hp<=0||e.deathHandled||b.hit.has(e)||b.patrol&&!b.fireZone&&!this.patrolCanEngage(e,b))continue;if(this.targetCollision(e,b.x,b.y,b)){damageStageBoss(this,e,b,b.damage*(b.patrol?1:(owner?.globalDamageMult||1)*(owner?.legendaryDamageMultiplier()||1)*(owner?.roundDamageMultiplier(b,e)||1)));if(!b.patrol)e.playerHit=true;e.hitFlash=.24;b.hit.add(e);owner?.specialRoundImpact(b,e);this.event('impact','');this.burst(b.x,b.y,b.specialColor||'#fff0bb',3);if(!b.pierce)b.life=0;this.handleDeath(e,b);if(!b.pierce||b.life<=0)break}}if(b.actualExplosion)b.life=0
   }
   this.bullets=this.bullets.filter(b=>b.life>0);this.enemies=this.enemies.filter(e=>{if(e.crashed)return false;if(e.crashing)return Math.hypot(e.x-this.x,e.y-this.y)<1300;if(e.hp<=0&&(e.bossPilot||e.type==='boss')&&!e.stageBossBody&&!e.bossMinion&&Math.hypot(e.x-this.x,e.y-this.y)<1300){e.crashing=true;e.crashT=1.15;e.crashDir=e.a+Math.PI/2+(this.rng()-.5)*.9;e.crashSpeed=Math.max(120,e.speed*1.2);e.crashSpin=(this.rng()<.5?-1:1)*(2.4+this.rng()*2.2);e.crashSmoke=0;e.hp=0;return true}return e.hp>0&&!e.expired&&(e.stageBossBody||e.type==='boss'||Math.hypot(e.x-this.x,e.y-this.y)<Math.max(1100,Math.hypot(this.viewWidth,this.viewHeight)/this.camera.zoom))});
  }
@@ -218,7 +217,7 @@ export class CoopGame {
   // Loss takes precedence over rescue and upgrades in the same simulation tick.
   for(const p of downAtStart){p.respawnRemaining=Math.max(0,p.respawnRemaining-step);if(p.respawnRemaining<=1e-9)this.revive(p)}
   this.updateCamera(step);this.updateDrops(step);
-  for(const p of this.particles){p.x+=p.vx*step;p.y+=p.vy*step;p.life-=step}this.particles=this.particles.filter(p=>p.life>0).slice(-(this.visualParticleLimit||450));
+  for(const p of this.particles){p.x+=p.vx*step;p.y+=p.vy*step;p.life-=step}this.particles=this.particles.filter(p=>p.life>0).slice(-450);
   this.score=this.priorityKills;this.queueLevels();endStageBossFrame(this,step);this.resolveBossLevels();
  }
 }
