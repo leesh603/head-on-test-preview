@@ -20,8 +20,8 @@ export const BOSS_CATALOG = Object.freeze({
   gik: {name:'한자-브란덴부르크 G.IK', faction:'central', stage:6},
   ca4: {name:'카프로니 Ca.4', faction:'entente', stage:6}
   ,'armored-harbor-fortress': {name:'장갑 크레인 항구요새', faction:'neutral', stage:7}
-  ,'fliegerzug': {name:'무인기 모함열차 · 플리거주크', faction:'central', stage:8}
-  ,'tsar-tank': {name:'차르 탱크 · 거륜 육상전함', faction:'entente', stage:8}
+  ,'fliegerzug': {name:'무인기 모함열차 · 플리거주크', faction:'entente', stage:8}
+  ,'tsar-tank': {name:'차르 탱크 · 거륜 육상전함', faction:'central', stage:8}
 });
 const living = players => players.filter(p => p.alive);
 const randBetween = (rng,a,b) => a + (b-a)*rng();
@@ -613,10 +613,10 @@ export class Fliegerzug extends RailAdapter {
 export class TsarTank extends PatternBoss {
   constructor(options){
     super({...options,kind:'tsar-tank',coreRadius:options.tuning.coreRadius||86,parts:[
-      {id:'wheel-left',x:-88,y:-102,radius:52,maxHp:options.tuning.partHp*1.2},
-      {id:'wheel-right',x:88,y:-102,radius:52,maxHp:options.tuning.partHp*1.2},
-      {id:'turret',x:0,y:8,radius:44,maxHp:options.tuning.partHp*1.3},
-      {id:'rudder',x:0,y:128,radius:26}
+      {id:'wheel-left',x:-111,y:-14,radius:56,maxHp:options.tuning.partHp*1.2},
+      {id:'wheel-right',x:111,y:-14,radius:56,maxHp:options.tuning.partHp*1.2},
+      {id:'turret',x:0,y:-86,radius:32,maxHp:options.tuning.partHp*1.3},
+      {id:'rudder',x:0,y:86,radius:26}
     ]});
     this.phase='advance';this.coreVulnerable=false;this.ownsMotion129=true;
     this.anchorX=this.x;this.startY=this.y;this.anchorY=this.y;this.wheelRoll=0;this.motionTime=0;
