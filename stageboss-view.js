@@ -28,7 +28,8 @@ const supportGroup=createLazyImageGroup({ship:'./stuttgart-open129.webp',cover:'
 const bossSources={
  parisGun:'./boss-bruno-train115.webp',lincomparable:'./boss-lincomparable94.webp?v=340&b=340',stuttgart:'./boss-sms-stuttgart94.webp',zubian:'./boss-hms-zubian94.webp',
  l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=340&b=340',ca4:'./boss-ca4.webp?v=340&b=340',
- londonApron:'./boss-london-apron115.webp',drachenNet:'./boss-drachen-net115.webp'
+ londonApron:'./boss-london-apron115.webp',drachenNet:'./boss-drachen-net115.webp',
+ railCarrier:'./boss-art-rail-carrier.webp?v=340',tsarTank:'./boss-art-tsar-tank.webp?v=340'
 };
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
 const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.webp',a7vTurret:'./boss-a7v-turret-rebuild.webp',markvHull:'./boss-mark-v-hull-rebuild.webp',markvSponson:'./boss-mark-v-sponson-rebuild.webp'}),rebuildArt=rebuildGroup.images;
@@ -95,12 +96,17 @@ function drawLivens(c,b){
 }
 const railConsistSources={
  parisGun:{engine:'./rail-boss-bruno-engine181.webp',front:'./rail-boss-bruno-front181.webp',middle:'./rail-boss-bruno-middle181.webp',rear:'./rail-boss-bruno-rear181.webp'},
- lincomparable:{engine:'./rail-boss-lincomparable-engine181.webp',front:'./rail-boss-lincomparable-front181.webp',middle:'./rail-boss-lincomparable-middle181.webp',rear:'./rail-boss-lincomparable-rear181.webp'}
+ lincomparable:{engine:'./rail-boss-lincomparable-engine181.webp',front:'./rail-boss-lincomparable-front181.webp',middle:'./rail-boss-lincomparable-middle181.webp',rear:'./rail-boss-lincomparable-rear181.webp'},
+ railCarrier:{engine:'./boss-rail-carrier-loco.webp?v=340',front:'./boss-rail-carrier-flak.webp?v=340',middle:'./boss-rail-carrier-launch.webp?v=340',rear:'./boss-rail-carrier-hangar.webp?v=340'}
 };
 const railWreckSources={
  parisGun:{engine:'./rail-boss-bruno-engine-wreck192.webp?v=340&b=340',front:'./rail-boss-bruno-front-wreck192.webp?v=340&b=340',middle:'./rail-boss-bruno-middle-wreck192.webp?v=340&b=340',rear:'./rail-boss-bruno-rear-wreck192.webp?v=340&b=340'},
- lincomparable:{engine:'./rail-boss-lincomparable-engine-wreck192.webp?v=340&b=340',front:'./rail-boss-lincomparable-front-wreck192.webp?v=340&b=340',middle:'./rail-boss-lincomparable-middle-wreck192.webp?v=340&b=340',rear:'./rail-boss-lincomparable-rear-wreck192.webp?v=340&b=340'}
+ lincomparable:{engine:'./rail-boss-lincomparable-engine-wreck192.webp?v=340&b=340',front:'./rail-boss-lincomparable-front-wreck192.webp?v=340&b=340',middle:'./rail-boss-lincomparable-middle-wreck192.webp?v=340&b=340',rear:'./rail-boss-lincomparable-rear-wreck192.webp?v=340&b=340'},
+ railCarrier:{engine:'./boss-rail-carrier-loco-wreck.webp?v=340',front:'./boss-rail-carrier-flak-wreck.webp?v=340',middle:'./boss-rail-carrier-launch-wreck.webp?v=340',rear:'./boss-rail-carrier-hangar-wreck.webp?v=340'}
 };
+// Fliegerzug munition + Tsar Tank separable parts (part-destroyed gimmick swaps to *-wreck).
+const bugGroup=createLazyImageGroup({folded:'./boss-bug-folded.webp?v=340',flight:'./boss-bug-flight.webp?v=340'}),bugArt=bugGroup.images;
+const tsarGroup=createLazyImageGroup({wheel:'./boss-tsar-tank-wheel.webp?v=340',hull:'./boss-tsar-tank-hull.webp?v=340',turret:'./boss-tsar-tank-turret.webp?v=340',tail:'./boss-tsar-tank-tail.webp?v=340',wheelWreck:'./boss-tsar-tank-wheel-wreck.webp?v=340',hullWreck:'./boss-tsar-tank-hull-wreck.webp?v=340',turretWreck:'./boss-tsar-tank-turret-wreck.webp?v=340'}),tsarArt=tsarGroup.images;
 const railGroups={},railConsistArt={},railWreckGroups={},railWreckArt={};
 for(const [set,sources] of Object.entries(railConsistSources)){const group=createLazyImageGroup(sources);railGroups[set]=group;railConsistArt[set]=group.images;const wreckGroup=createLazyImageGroup(railWreckSources[set]);railWreckGroups[set]=wreckGroup;railWreckArt[set]=wreckGroup.images;}
 function drawRailConsist181(c,b){
