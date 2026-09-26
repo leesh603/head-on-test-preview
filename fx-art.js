@@ -73,8 +73,7 @@ const FX_FILES=FX_OFF?{}:Object.assign({
  sunshaft:'fx-sunshaft.webp',windStreak:'fx-wind-streak.webp',mist:'fx-mist.webp',
  torpedo:'fx-torpedo.webp',shockRing:'fx-shock-ring.webp',searchlight:'fx-city-searchlight.webp',
  mortarShell:'fx-mortar-shell.webp',lePrieur:'fx-combat-le-prieur.webp',bombBody:'fx-bomb-body.webp',grenadeBody:'fx-grenade-body.webp',
-  cloud:'fx-cloud.webp',propBlur:'fx-prop-blur.webp',oilTrail:'fx-oil-trail.webp',flakSmoke:'fx-flak-smoke.webp',shipSmoke:'fx-ship-smoke.webp',medalFlare:'fx-medal-flare.webp',dirtColumn:'fx-dirt-column.webp',wreckGround:'fx-wreck-ground.webp',balloonBurn:'fx-balloon-burn.webp',netWire:'fx-net-wire.webp',windStreak2:'fx-wind-streak-2.webp',
- mineBody:'fx-mine-body.webp',shellHeavy:'fx-shell-heavy.webp',incendiary:'fx-incendiary.webp'
+mineBody:'fx-mine-body.webp',shellHeavy:'fx-shell-heavy.webp',incendiary:'fx-incendiary.webp'
 },FX56_OFF?{}:FX56_FILES);
 const fxImgs={};
 const fx189Ready=typeof Image==='undefined'?Promise.resolve():Promise.all(Object.entries(FX_FILES).map(([key,file])=>new Promise(res=>{

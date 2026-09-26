@@ -1,7 +1,6 @@
 // Region 2 trench creeping barrage + region 3 smoke-front concealment layer.
 // Preserves gasZones/flak systems; adds moving shell barrage and ground haze.
 import {TAILING_BALANCE} from './engine.js?v=338&b=326';
-import {fx} from './fx-art.js?v=338';
 export const TRENCH_BALANCE=Object.freeze({
  barrageGapMin:40,barrageGapMax:55,barrageWarn:2.2,barrageHalfWidth:65,barrageSpeed:40,
  barrageTravel:1500,playerHit:.13,hitCooldown:1.35,enemyHit:.3,lullAfter:5,
@@ -116,9 +115,9 @@ export function drawTrenchLayer(c,game,{point}){
     const a=b.pos+((l*37)%40)-20;
     const[x0,y0]=point(b.x+sx*a+nx*l,b.y+sy*a+ny*l);
     if(x0<-40||x0>cw+40||y0<-40||y0>ch+40)continue;
-    if(!fx(c,'dirtColumn',x0,y0,64,64,0,.8)){const g=c.createRadialGradient(x0,y0,2,x0,y0,26);
+    const g=c.createRadialGradient(x0,y0,2,x0,y0,26);
     g.addColorStop(0,'rgba(96,74,50,.55)');g.addColorStop(.6,'rgba(70,58,40,.28)');g.addColorStop(1,'rgba(70,58,40,0)');
-    c.fillStyle=g;c.beginPath();c.arc(x0,y0,26,0,7);c.fill();}
+    c.fillStyle=g;c.beginPath();c.arc(x0,y0,26,0,7);c.fill();
    }
    c.restore();
   }
