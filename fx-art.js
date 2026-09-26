@@ -1,7 +1,7 @@
 // Union pack: Pro's 196 combat atlas takes precedence for the keys it covers
 // (explosion0-3, fire, smoke*, spark, armorSpark, gas, gasThin); every other key
 // stays on the approved v189 set below. ?fx=0 keeps the procedural rollback.
-import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,fx as fx196Draw,fxTintedCanvas as fx196TintedCanvas,fxTint as fx196Tint} from './combat-fx196.js?v=339';
+import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,fx as fx196Draw,fxTintedCanvas as fx196TintedCanvas,fxTint as fx196Tint} from './combat-fx196.js?v=340';
 // Combat FX pack v189 — approved sprite set lives in fx-pack-v189/ and maps onto
 // the keys already called by the renderers. Unmapped keys stay procedural.
 // Rollback: append ?fx=0 to the URL — FX_FILES empties and every call site

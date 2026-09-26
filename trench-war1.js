@@ -1,12 +1,11 @@
 // Region 2 trench creeping barrage + region 3 smoke-front concealment layer.
 // Preserves gasZones/flak systems; adds moving shell barrage and ground haze.
-import {TAILING_BALANCE} from './engine.js?v=339&b=326';
 export const TRENCH_BALANCE=Object.freeze({
  barrageGapMin:40,barrageGapMax:55,barrageWarn:2.2,barrageHalfWidth:65,barrageSpeed:40,
  barrageTravel:1500,playerHit:.13,hitCooldown:1.35,enemyHit:.3,lullAfter:5,
  smokeMax:3,smokeR:190,smokeLife:50,smokeDrift:14,smokeGap:14,aimCut:.45,tailCut:.65
 });
-export function installTrenchWar(Game){
+export function installTrenchWar(Game,TAILING_BALANCE){
  const P=Game.prototype,B=TRENCH_BALANCE;
  P.spawnBarrage=function(){
   const dir=this.a,side=(this.rng()>.5?1:-1);

@@ -1,19 +1,19 @@
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=339';
-import {installRevision} from './rebalance103.js?v=339&b=326';
-import {installCloudCover} from './cloud-cover1.js?v=339&b=326';
-import {installFleet} from './fleet-naval1.js?v=339&b=326';
-import {installTrenchWar} from './trench-war1.js?v=339&b=326';
-import {installCityAir} from './city-air1.js?v=339&b=326';
-import {installRegionDoctrine} from './region-doctrine1.js?v=339&b=326';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=339';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=339&b=326';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=339';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=339';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=339';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=339';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=339';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=339';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=339';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=340';
+import {installRevision} from './rebalance103.js?v=340&b=326';
+import {installCloudCover} from './cloud-cover1.js?v=340&b=326';
+import {installFleet} from './fleet-naval1.js?v=340&b=326';
+import {installTrenchWar} from './trench-war1.js?v=340&b=326';
+import {installCityAir} from './city-air1.js?v=340&b=326';
+import {installRegionDoctrine} from './region-doctrine1.js?v=340&b=326';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=340';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=340&b=326';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=340';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=340';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=340';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=340';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=340';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=340';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=340';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -124,11 +124,11 @@ export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this
  this.supplyTimer-=dt;if(this.supplyTimer<=0){this.supplyTimer=30+this.rng()*24;let a=this.rng()*Math.PI*2,d=520;this.drops.push({x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,value:0,heal:true,supply:true,vx:-Math.cos(a)*78,vy:-Math.sin(a)*78,life:18})}
  this.runScheduledAces();
  this.ensureWingmen();const permanentCount=this.permanentWingCount();
- for(let a of this.allies){a.life-=dt;let target;if(a.permanent)target=this.wingFormationTarget(a,permanentCount);else{const slot=a.slot??this.allies.indexOf(a),row=Math.floor(slot/2),side=slot%2?-1:1,back=45+row*65,off=side*(70+row*34);target={x:this.x-Math.cos(this.a)*back-Math.sin(this.a)*off,y:this.y-Math.sin(this.a)*back+Math.cos(this.a)*off}}a.a=this.a;const response=2.6*Math.max(.75,Math.min(1.25,a.personality?.acceleration??1));a.x+=(target.x-a.x)*Math.min(1,dt*response);a.y+=(target.y-a.y)*Math.min(1,dt*response);a.fire-=dt;if(a.fire<=0){a.fire=.42*(a.permanent&&this.upgrades.fighterSupply?.9:1)/((this.wingBoost>0?GOERING_WING_BOOST.fireRateMultiplier:1)*(1+(this.commandRateBonus||0))*((this.pilot==='mannock'||(this.players||[]).some(p=>p.pilot==='mannock'))?1.15:1));let nearest=null,best=Infinity;for(const e of this.enemies)if(e.hp>0){const d=(e.x-a.x)**2+(e.y-a.y)**2;if(d<best){best=d;nearest=e}}if(nearest){let aa=Math.atan2(nearest.y-a.y,nearest.x-a.x);this.bullets.push({x:a.x+Math.cos(aa)*23,y:a.y+Math.sin(aa)*23,vx:Math.cos(aa)*470,vy:Math.sin(aa)*470,life:1.5,enemy:false,ownerId:this.id,ally:true,damage:this.supportPower(7.44)*(this.wingmanDamageMult||1)*(this.wingBoost>0?GOERING_WING_BOOST.damageMultiplier:1)*(a.permanent&&this.upgrades.fighterSupply?1.2:1),hit:new Set()});this.burst(a.x+Math.cos(aa)*22,a.y+Math.sin(aa)*22,'#b9f2de',2)}}}
+ for(let a of this.allies){a.life-=dt;let target;if(a.permanent)target=this.wingFormationTarget(a,permanentCount);else{const slot=a.slot??this.allies.indexOf(a),row=Math.floor(slot/2),side=slot%2?-1:1,back=45+row*65,off=side*(70+row*34);target={x:this.x-Math.cos(this.a)*back-Math.sin(this.a)*off,y:this.y-Math.sin(this.a)*back+Math.cos(this.a)*off}}a.a=this.a;const response=2.6*Math.max(.75,Math.min(1.25,a.personality?.acceleration??1));a.x+=(target.x-a.x)*Math.min(1,dt*response);a.y+=(target.y-a.y)*Math.min(1,dt*response);{const bodies=this.stageBoss?.stages?.encounter?.bodies;if(bodies)for(const body of bodies.values()){if(body.dead)continue;for(const part of body.parts.values()){if(part.destroyed)continue;const dx=a.x-(body.x+part.x),dy=a.y-(body.y+part.y),d=Math.hypot(dx,dy),r=(part.radius||30)+26;if(d<r&&d>0.01){a.x+=dx/d*(r-d)*.7;a.y+=dy/d*(r-d)*.7}}}}a.fire-=dt;if(a.fire<=0){a.fire=.42*(a.permanent&&this.upgrades.fighterSupply?.9:1)/((this.wingBoost>0?GOERING_WING_BOOST.fireRateMultiplier:1)*(1+(this.commandRateBonus||0))*((this.pilot==='mannock'||(this.players||[]).some(p=>p.pilot==='mannock'))?1.15:1));let nearest=null,best=Infinity;for(const e of this.enemies)if(e.hp>0){const d=(e.x-a.x)**2+(e.y-a.y)**2;if(d<best){best=d;nearest=e}}if(nearest){let aa=Math.atan2(nearest.y-a.y,nearest.x-a.x);this.bullets.push({x:a.x+Math.cos(aa)*23,y:a.y+Math.sin(aa)*23,vx:Math.cos(aa)*470,vy:Math.sin(aa)*470,life:1.5,enemy:false,ownerId:this.id,ally:true,damage:this.supportPower(7.44)*(this.wingmanDamageMult||1)*(this.wingBoost>0?GOERING_WING_BOOST.damageMultiplier:1)*(a.permanent&&this.upgrades.fighterSupply?1.2:1),hit:new Set()});this.burst(a.x+Math.cos(aa)*22,a.y+Math.sin(aa)*22,'#b9f2de',2)}}}
  this.allies=this.allies.filter(a=>a.life>0);
  for(let e of this.enemies){if(e.stageBossBody||e.bossMinion)continue;if(e.crashing){e.crashT-=dt;e.a+=e.crashSpin*dt;e.x+=Math.cos(e.crashDir)*e.crashSpeed*dt;e.y+=Math.sin(e.crashDir)*e.crashSpeed*dt;e.crashSpeed=Math.max(30,e.crashSpeed*(1-.7*dt));e.crashSmoke-=dt;if(e.crashSmoke<=0){e.crashSmoke=.045;this.smoke(e.x+(this.rng()-.5)*10,e.y+(this.rng()-.5)*10,true)}if(e.crashT<=0){e.crashed=true;this.burst(e.x,e.y,'#f2aa52',36,'bomb');for(let k=0;k<9;k++)this.smoke(e.x+(this.rng()-.5)*26,e.y+(this.rng()-.5)*26,true);this.event('kill','')}continue}e.hitFlash=Math.max(0,(e.hitFlash||0)-dt);e.smokeTimer=(e.smokeTimer||0)-dt;if(e.hp<e.maxHp&&e.smokeTimer<=0){this.smoke(e.x-Math.cos(e.a)*12,e.y-Math.sin(e.a)*12,e.hp/e.maxHp<.4);e.smokeTimer=e.hp/e.maxHp<.4?.07:.16}const contact=this.enemyCombatTarget(e),energySpeed=e.energySpeed??1;// Bombers fly a straight bombing run past the player — no fighter-style
 // circling, just a gentle weave on course.
-let max=this.sunStrikeContains(e)||e.stationary?0:e.bossDash>0?0:e.heavyBomber?.3:e.type==='boss'?2.0:e.type==='hunter'?1.7:e.type==='zeppelin'?.42:.85,steering=e.type==='bomber'?{turn:max>0?(e.heavyBomber?.12:.16):0,delta:0}:this.dogfightSteering(e,contact,dt,max);if(e.type==='bomber')steering.delta=Math.cos(this.t*.6+e.wobble)*steering.turn*dt;e.a+=Math.max(-steering.turn*dt,Math.min(steering.turn*dt,steering.delta));const sunlightSpeed=this.sunStrikeContains(e)?SUN_STRIKE.speedMultiplier:1;e.x+=Math.cos(e.a)*e.speed*energySpeed*(e.bossDash>0?ENEMY_MOVEMENT_BALANCE.dashMultiplier:1)*sunlightSpeed*dt;e.y+=Math.sin(e.a)*e.speed*energySpeed*(e.bossDash>0?ENEMY_MOVEMENT_BALANCE.dashMultiplier:1)*sunlightSpeed*dt;if(!this.sunStrikeContains(e)){e.fire-=dt*(e.vossSurge?1.25:1);if(e.fire<0)this.fireEnemy(e);}if(!e.surface)for(const p of this.patrols||[])if(p.hp>0&&Math.hypot(e.x-p.x,e.y-p.y)<24)this.hitPatrol(p,18);if(!e.surface&&Math.hypot(e.x-this.x,e.y-this.y)<(e.contactRadius??(e.heavyBomber?48:e.type==='boss'?ENEMY_MOVEMENT_BALANCE.aceContactRadius:e.type==='zeppelin'?42:19)))this.hit(e.type==='boss'?22:e.type==='zeppelin'?18:15)}
+let max=this.sunStrikeContains(e)||e.stationary?0:e.bossDash>0?0:e.heavyBomber?.3:e.type==='boss'?2.0:e.type==='hunter'?1.7:e.type==='zeppelin'?.42:.85,steering=e.type==='bomber'?{turn:max>0?(e.heavyBomber?.12:.16):0,delta:0}:this.dogfightSteering(e,contact,dt,max);if(e.type==='bomber')steering.delta=Math.cos(this.t*.6+e.wobble)*steering.turn*dt;e.a+=Math.max(-steering.turn*dt,Math.min(steering.turn*dt,steering.delta));const sunlightSpeed=this.sunStrikeContains(e)?SUN_STRIKE.speedMultiplier:1;e.x+=Math.cos(e.a)*e.speed*energySpeed*(e.bossDash>0?ENEMY_MOVEMENT_BALANCE.dashMultiplier:1)*sunlightSpeed*dt;e.y+=Math.sin(e.a)*e.speed*energySpeed*(e.bossDash>0?ENEMY_MOVEMENT_BALANCE.dashMultiplier:1)*sunlightSpeed*dt;if(!e.surface&&!e.stationary){const bodies=this.stageBoss?.stages?.encounter?.bodies;if(bodies)for(const body of bodies.values()){if(body.dead)continue;for(const part of body.parts.values()){if(part.destroyed)continue;const dx=e.x-(body.x+part.x),dy=e.y-(body.y+part.y),d=Math.hypot(dx,dy),r=(part.radius||30)+30;if(d<r&&d>0.01){e.x+=dx/d*(r-d)*.6;e.y+=dy/d*(r-d)*.6}}}}if(!this.sunStrikeContains(e)){e.fire-=dt*(e.vossSurge?1.25:1);if(e.fire<0)this.fireEnemy(e);}if(!e.surface)for(const p of this.patrols||[])if(p.hp>0&&Math.hypot(e.x-p.x,e.y-p.y)<24)this.hitPatrol(p,18);if(!e.surface&&Math.hypot(e.x-this.x,e.y-this.y)<(e.contactRadius??(e.heavyBomber?48:e.type==='boss'?ENEMY_MOVEMENT_BALANCE.aceContactRadius:e.type==='zeppelin'?42:19)))this.hit(e.type==='boss'?22:e.type==='zeppelin'?18:15)}
  for(let b of this.bullets){const bx=b.x,by=b.y;b.previousX=bx;b.previousY=by;b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life<=0)continue;if(b.enemy){this.resolveHostileRound(b,bx,by)}else{for(let e of this.enemies){b.hit??=new Set();if(e.hp<=0||b.hit.has(e)||!this.canHitTarget(e,b)||(b.patrol&&!b.fireZone&&!this.patrolCanEngage(e,b)))continue;if(this.targetCollision(e,b.x,b.y,b)){damageStageBoss(this,e,b,b.damage*(b.patrol?1:(this.globalDamageMult||1)*this.legendaryDamageMultiplier()*this.roundDamageMultiplier(b,e)));if(!b.patrol)e.playerHit=true;e.hitFlash=.24;b.hit.add(e);this.specialRoundImpact(b,e);this.event('impact','');this.burst(b.x,b.y,b.specialColor||'#fff0bb',9);this.smoke(e.x,e.y,true);if(!b.patrol)this.shake=Math.max(this.shake,1.6);if(!b.pierce)b.life=0;if(e.hp<=0&&!e.stageBossBody){this.spawnAmatolSecondary?.(e,b);const credited=!b.patrol||e.playerHit;if(credited&&e===this.huntTarget)e._huntCredit=true;if(credited)this.kills++;else this.patrolKills=(this.patrolKills||0)+1;if(credited&&(e.bossPilot||e.type==='boss'||e.type==='zeppelin'||e.type==='bomber'))this.priorityKills=(this.priorityKills||0)+1;if(e.type==='zeppelin')this.wreckGust(e);this.burst(e.x,e.y,'#f2aa52',e.navalVessel||e.type==='zeppelin'||e.fieldUnit||e.heavyBomber||e.bossPilot||e.type==='boss'?36:30,e.navalVessel?'mineBlast':e.type==='zeppelin'||e.fieldUnit||e.heavyBomber||e.bossPilot||e.type==='boss'?'structure':undefined);if(!b.patrol)this.shake=Math.max(this.shake,3);for(let k=0;k<5;k++)this.smoke(e.x+(this.rng()-.5)*15,e.y+(this.rng()-.5)*15,true);this.event('kill',e.fieldUnit==='balloon'?'balloon':'');if(e.type==='boss'){this.bossKilled=true;this.hp=Math.min(this.maxHp,this.hp+this.maxHp*DURABILITY_BALANCE.repairPickupFraction)}if(credited){{const big=e.bossPilot||e.type==='boss';if(big)for(let gi=0;gi<5;gi++)this.drops.push({x:e.x+Math.cos(gi*1.26)*44,y:e.y+Math.sin(gi*1.26)*44,value:14,heal:false});this.drops.push({x:e.x,y:e.y,value:big?30:e.heavyBomber?16:e.type==='bomber'?3:(e.xpValue||1),heal:big||this.rng()<.1})};this.dropObservationRepair(e)}}if(!b.pierce||b.life<=0)break}}}if(b.actualExplosion)b.life=0}
  this.enemies=this.enemies.filter(e=>{if(e.crashed)return false;if(e.crashing)return Math.hypot(e.x-this.x,e.y-this.y)<1300;if(e.hp<=0&&(e.bossPilot||e.type==='boss')&&!e.stageBossBody&&!e.bossMinion&&Math.hypot(e.x-this.x,e.y-this.y)<1300){e.crashing=true;e.crashT=1.15;e.crashDir=e.a+Math.PI/2+(this.rng()-.5)*.9;e.crashSpeed=Math.max(120,e.speed*1.2);e.crashSpin=(this.rng()<.5?-1:1)*(2.4+this.rng()*2.2);e.crashSmoke=0;e.hp=0;return true}return e.hp>0&&(e.missionTarget||e.type==='boss'||Math.hypot(e.x-this.x,e.y-this.y)<1100)});this.bullets=this.bullets.filter(b=>b.life>0);for(let d of this.drops){if(d.supply){d.x+=d.vx*dt;d.y+=d.vy*dt;d.life-=dt}let dist=Math.hypot(d.x-this.x,d.y-this.y);if(!d.supply&&dist<this.magnet){let a=Math.atan2(this.y-d.y,this.x-d.x);d.x+=Math.cos(a)*330*(1+Math.max(0,Math.min(360,this.magnet-120))/360)*dt;d.y+=Math.sin(a)*330*(1+Math.max(0,Math.min(360,this.magnet-120))/360)*dt}if(dist<20){this.xp+=d.value*(this.xpGainMult||1);if(d.heal)this.hp=Math.min(this.maxHp,this.hp+this.maxHp*(d.healFraction??DURABILITY_BALANCE.repairPickupFraction));if(d.specialAmmo)this.giveSpecialAmmo(d.specialAmmo,d.rounds);d.dead=true;this.event('pickup',d.heal?'heal':'xp')}}
  this.drops=this.drops.filter(d=>!d.dead&&(d.life===undefined||d.life>0)&&Math.hypot(d.x-this.x,d.y-this.y)<1500).slice(-250);for(let p of this.particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}this.particles=this.particles.filter(p=>p.life>0).slice(-450);
@@ -143,7 +143,7 @@ const _skillBalanced=Game.prototype.skill;
 const _upgradeBalanced=Game.prototype.upgrade;
 Game.prototype.update=function(dt,input={}){
 
-  if(!this._turnBalanceApplied){this.turn*=.72;this._turnBalanceApplied=true;this.baseSpeed=this.speed;this.enemyCruiseReference=this.speed}
+  if(!this._turnBalanceApplied){this.turn*=.72;this._turnBalanceApplied=true;this.baseSpeed=this.speed;this._badinInit=this.speed;this.enemyCruiseReference=this.speed}
   const oldSpeed=this.speed;this.speed=this.baseSpeed*this.healthSpeedFactor();
   _updateBalanced.call(this,dt,input);this.speed=oldSpeed;
 };
@@ -461,7 +461,17 @@ Game.prototype.wreckGust=function(e){
 };
 
 // Separate weapon families: gun upgrades never silently multiply every payload.
-Game.prototype.payloadPower=function(base){return base*(1+(this.explosiveBonus||0))*(this.doctrine==='강습 편대'?1.15:1)};
+Game.prototype.payloadPower=function(base){return base*(1+(this.explosiveBonus||0))*(1+this.badinDamageBonus())*(this.doctrine==='강습 편대'?1.15:1)};
+// 바댕 속도계: sustained bonus over the airframe's base cruise speed counts; momentary
+// evade/skill/boost bursts freeze the measured value rather than inflating it.
+Game.prototype.badinDamageBonus=function(){
+ if(!this.upgrades?.badinGauge)return 0;
+ const cruise=this.baseSpeed||this.speed,base=this._badinInit||cruise;
+ const burst=this.skillTime>0||this.evadeTime>0||this.udetBoost>0||this.dreideckerActive||this.dreideckerChase>0||this.huntBoost>0||this.aceRetreat129;
+ if(!burst)this._badinSustained=cruise;
+ const sustained=this._badinSustained??cruise;
+ return Math.max(0,Math.min(.6,(sustained-base)/base*1.5));
+};
 Game.prototype.supportPower=function(base){return base*(1+(this.commandBonus||0))*(this.doctrine==='강습 편대'?1.15:1)};
 export const AUGMENT_BALANCE=Object.freeze({damage:[.18,.27,.36],turn:[.2,.32,.45],speed:[.05,.08,.12],energyRecovery:[.08,.12,.18],turnCap:1.5,speedCap:.4,energyRecoveryCap:.6,support:[.3,.5,.75],spreadBonus:[0,.08,.16],armorHeal:[.08,.12,.18]});
 Game.prototype.addGunBonus=function(amount){const before=this.gunUpgradeBonus||0;this.gunUpgradeBonus=before+amount;this.damage*=(1+this.gunUpgradeBonus)/(1+before)};
@@ -625,7 +635,7 @@ WEAPONS.eindecker={...WEAPONS.fokker,guns:1,reload:2.1};
 PLANES.se5a={name:'S.E.5a',role:'근거리 편대 강습',faction:'entente',speed:168,turn:2.9,hp:110,rate:.18,color:'#7c8051',wings:2};
 WEAPONS.se5a={...WEAPONS.camel,name:'Vickers / Lewis',guns:2};
 PILOTS.mannock={name:'믹 매녹',alias:'74 SQUADRON',faction:'entente',portrait:1,skill:'74비행단 교차 급강하',desc:'기관총 사거리 −55%. S.E.5a 7대가 위→아래 한 번, 오른쪽→왼쪽 한 번 교차 관통 사격.',cooldown:28};
-PILOTS.baron.cooldown=18;PILOTS.baron.skill='드라이데커';PILOTS.baron.passive='사냥 본능';PILOTS.baron.passiveDesc='강한 적을 오래 추적할수록 해당 대상에게 주는 피해가 증가합니다. 사냥감 격추 시 잠시 빨라집니다.';PILOTS.baron.desc='속도를 낮춰 극단적으로 선회합니다. 적의 후방을 잡으면 즉시 추격 가속합니다.';
+PILOTS.baron.cooldown=15;PILOTS.baron.skill='드라이데커';PILOTS.baron.passive='사냥 본능';PILOTS.baron.passiveDesc='강한 적을 오래 추적할수록 해당 대상에게 주는 피해가 증가합니다. 사냥감 격추 시 잠시 빨라집니다.';PILOTS.baron.desc='속도를 낮춰 극단적으로 선회합니다. 적의 후방을 잡으면 즉시 추격 가속합니다.';
 PILOTS.voss.desc='즉시 180° 선회하며 적 탄환을 제거합니다. 무적 1초.';
 PILOTS.immelmann.desc='아인데커로 상승 반전 후 관통 사격. 무적 1.1초.';
 PILOTS.boelcke.desc='3초간 기관총 공격력 ×1.8. 무적 효과 없음.';
@@ -749,6 +759,7 @@ Game.prototype.update=function(dt,input={}){
   for(const m of f.mines){if(m.dead)continue;
    for(const b of this.bullets){if(b.enemy||b.life<=0)continue;if(Math.hypot(b.x-m.x,b.y-m.y)<20){m.hp-=b.damage;if(!b.pierce)b.life=0;if(m.hp<=0){m.dead=true;this.combatBlast(m.x,m.y,32,'friendly','mine');break}}}
    if(!m.dead&&f.warning<=0&&Math.hypot(this.x-m.x,this.y-m.y)<25){m.dead=true;this.hit(22);this.combatBlast(m.x,m.y,58,'enemy','mine')}
+   if(!m.dead&&f.warning<=0){for(const e of this.enemies){if(e.hp<=0||e.surface||e.navalVessel||e.stationary||e.fieldUnit||e.stageBossBody||e.bossMinion)continue;if(Math.hypot(e.x-m.x,e.y-m.y)<27){m.dead=true;e.hp-=30;e.hitFlash=.24;this.combatBlast(m.x,m.y,58,'enemy','mine');break}}}
   }
  }
  this.hostileMinefields=(this.hostileMinefields||[]).filter(f=>f.life>0&&f.region===this.worldRegion()&&f.mines.some(m=>!m.dead));
@@ -1224,6 +1235,7 @@ Game.prototype.specialAmmoStatus=function(){return null};
 Game.prototype.applySpecialRound=function(round){return round};
 Game.prototype.roundDamageMultiplier=function(b,e){
  let mult=b.tailBonus&&b.tailTargetId===e.tailId?TAILING_BALANCE.damageMultiplier:1;
+ if(b&&!b.enemy&&!b.patrol&&!b.formation&&!b.ally&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.actualExplosion&&!b.blast&&!b.mauserRound&&!b.fonckSeeker)mult*=1+this.badinDamageBonus();
  return mult;
 };
 Game.prototype.specialRoundImpact=function(b,e){
@@ -1246,7 +1258,7 @@ Game.prototype.update=function(dt,input={}){
 installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDARIES,UPGRADES);
 installCloudCover(Game);
 installFleet(Game);
-installTrenchWar(Game);
+installTrenchWar(Game,TAILING_BALANCE);
 installCityAir(Game);
 installRegionDoctrine(Game);
 
@@ -1456,7 +1468,7 @@ Game.prototype.tickRevisionWorld=function(dt){
   for(const a of [...this.allies||[],...this.patrols||[],...this.friendlyBombers||[]])if(Math.hypot(a.x-f.x,a.y-f.y)<f.radius){a.hp=(a.hp??60)-8;if(a.hp<=0)a.life=0;}
  }
  this.fireZones=(this.fireZones||[]).filter(f=>f.life>0);
- for(const f of this.hostileMinefields||[])if(f.warning<=0)for(const m of f.mines){if(m.dead)continue;for(const p of ps)if(p.hp>0&&Math.hypot(p.x-m.x,p.y-m.y)<BATTLEFIELD113.mineTrigger){m.dead=true;if(this.players)this.hitPlayer(p,BATTLEFIELD113.mineDamage);else this.hit(BATTLEFIELD113.mineDamage);this.combatBlast(m.x,m.y,76,'enemy','mine');break;}}
+ for(const f of this.hostileMinefields||[])if(f.warning<=0)for(const m of f.mines){if(m.dead)continue;for(const p of ps)if(p.hp>0&&Math.hypot(p.x-m.x,p.y-m.y)<BATTLEFIELD113.mineTrigger){m.dead=true;if(this.players)this.hitPlayer(p,BATTLEFIELD113.mineDamage);else this.hit(BATTLEFIELD113.mineDamage);this.combatBlast(m.x,m.y,76,'enemy','mine');break;}if(!m.dead){for(const e of this.enemies){if(e.hp<=0||e.surface||e.navalVessel||e.stationary||e.fieldUnit||e.stageBossBody||e.bossMinion)continue;if(Math.hypot(e.x-m.x,e.y-m.y)<BATTLEFIELD113.mineTrigger*.7){m.dead=true;e.hp-=BATTLEFIELD113.mineDamage;e.hitFlash=.24;this.combatBlast(m.x,m.y,76,'enemy','mine');break}}}}
  for(const g of this.gusts||[]){if(!g.strong113){g.strong113=true;g.radius*=1.55;g.vx*=1.6;g.vy*=1.6;}for(const p of ps)if(p.hp>0&&Math.hypot(p.x-g.x,p.y-g.y)<g.radius){p.x+=g.vx*dt*.32;p.y+=g.vy*dt*.32;p.a+=Math.sin(this.t*9)*dt*.65;}}
  if(this.worldRegion()===5){if(!this.skyTimers113){this.skyTimers113={fieldUnitTimer:this.fieldUnitTimer,flakTimer:this.flakTimer};}this.gustTimer=Math.min(this.gustTimer??0,4.5);this.fieldUnitTimer=Infinity;this.flakTimer=Infinity;}else{if(this.skyTimers113){Object.assign(this,this.skyTimers113);this.skyTimers113=null;}if(Number.isFinite(this.gustTimer)&&this.gustTimer<120)this.gustTimer=Math.min(this.gustTimer,24);}
  for(const b of this.bullets){if(b.enemy&&(b.flak||b.naval||b.fieldShell)&&!b.threat113){b.threat113=true;b.vx*=1.3;b.vy*=1.3;b.damage*=1.15;}
