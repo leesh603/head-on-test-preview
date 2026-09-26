@@ -106,7 +106,7 @@ const railWreckSources={
 };
 // Fliegerzug munition + Tsar Tank separable parts (part-destroyed gimmick swaps to *-wreck).
 const bugGroup=createLazyImageGroup({folded:'./boss-bug-folded.webp?v=340',flight:'./boss-bug-flight.webp?v=340'}),bugArt=bugGroup.images;
-const tsarGroup=createLazyImageGroup({wheel:'./boss-tsar-tank-wheel.webp?v=340',hull:'./boss-tsar-tank-hull.webp?v=340',turret:'./boss-tsar-tank-turret.webp?v=340',tail:'./boss-tsar-tank-tail.webp?v=340',wheelWreck:'./boss-tsar-tank-wheel-wreck.webp?v=340',hullWreck:'./boss-tsar-tank-hull-wreck.webp?v=340',turretWreck:'./boss-tsar-tank-turret-wreck.webp?v=340'}),tsarArt=tsarGroup.images;
+const tsarGroup=createLazyImageGroup({wheel:'./boss-tsar-tank-wheel.webp?v=340',wheelR:'./boss-tsar-tank-wheel-r.webp?v=340',hull:'./boss-tsar-tank-hull.webp?v=340',turret:'./boss-tsar-tank-turret.webp?v=340',tail:'./boss-tsar-tank-tail.webp?v=340',wheelWreck:'./boss-tsar-tank-wheel-wreck.webp?v=340',hullWreck:'./boss-tsar-tank-hull-wreck.webp?v=340',turretWreck:'./boss-tsar-tank-turret-wreck.webp?v=340'}),tsarArt=tsarGroup.images;
 const railGroups={},railConsistArt={},railWreckGroups={},railWreckArt={};
 for(const [set,sources] of Object.entries(railConsistSources)){const group=createLazyImageGroup(sources);railGroups[set]=group;railConsistArt[set]=group.images;const wreckGroup=createLazyImageGroup(railWreckSources[set]);railWreckGroups[set]=wreckGroup;railWreckArt[set]=wreckGroup.images;}
 function drawRailConsist181(c,b){
