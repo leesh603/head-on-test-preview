@@ -846,7 +846,15 @@ show('soloRanking',!game&&selectedMode==='endless');
 // Revision 119 — high-detail battlefields, faction durability mark, and a
 // cleaner pilot roster. These are presentation-only and do not alter combat.
 const highTerrainProfile={rural:{cell:0,base:'#424b3b'},sea:{cell:1,base:'#254555',strength:.46},trenches:{cell:2,base:'#4c443b'},burning:{cell:9,base:'#433d37',strength:.57},sky:{cell:3,base:'#3d5367'},city:{cell:4,base:'#454746'},alps:{cell:5,base:'#414e56'},zeebrugge:{cell:1,base:'#183e50'}};
+const terrainCambraiImage=new Image();terrainCambraiImage.src='./terrain-cambrai.webp?v=340';terrainCambraiImage.onload=()=>terrainAlpsRenderer.tiles?.delete?.('cambrai');
 TerrainRendererSafe.prototype.tile=function(key){
+ if(key==='cambrai'){
+  if(this.tiles.has(key))return this.tiles.get(key);
+  const c=this.canvasFactory(768,768),g=c.getContext('2d');g.fillStyle='#655d45';g.fillRect(0,0,768,768);
+  if(terrainCambraiImage.naturalWidth){g.imageSmoothingEnabled=true;g.drawImage(terrainCambraiImage,3,3,terrainCambraiImage.naturalWidth-6,terrainCambraiImage.naturalHeight-6,0,0,768,768);}
+  if(terrainCambraiImage.naturalWidth)this.tiles.set(key,c);else return c;
+  return c;
+ }
  if(this.tiles.has(key))return this.tiles.get(key);const p=highTerrainProfile[key]||highTerrainProfile.rural,c=this.canvasFactory(512,512),g=c.getContext('2d');g.fillStyle=p.base;g.fillRect(0,0,512,512);
  if(this.atlas&&(this.atlas.naturalWidth||this.atlas.width)){const aw=this.atlas.naturalWidth||this.atlas.width,ah=this.atlas.naturalHeight||this.atlas.height,col=p.cell%5,row=Math.floor(p.cell/5),x0=Math.round(col*aw/5),x1=Math.round((col+1)*aw/5),y0=Math.round(row*ah/2),y1=Math.round((row+1)*ah/2),inset=3;g.globalAlpha=p.strength??.97;g.imageSmoothingEnabled=true;g.drawImage(this.atlas,x0+inset,y0+inset,x1-x0-inset*2,y1-y0-inset*2,0,0,512,512);g.globalAlpha=1;}
  this.tiles.set(key,c);return c;

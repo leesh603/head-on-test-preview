@@ -107,7 +107,7 @@ const railWreckSources={
 };
 // Fliegerzug munition + Tsar Tank separable parts (part-destroyed gimmick swaps to *-wreck).
 const bugGroup=createLazyImageGroup({folded:'./boss-bug-folded.webp?v=340',flight:'./boss-bug-flight.webp?v=340'}),bugArt=bugGroup.images;
-const tsarGroup=createLazyImageGroup({wheel:'./boss-tsar-tank-wheel.webp?v=340',wheelR:'./boss-tsar-tank-wheel-r.webp?v=340',hull:'./boss-tsar-tank-hull.webp?v=340',turret:'./boss-tsar-tank-turret.webp?v=340',tail:'./boss-tsar-tank-tail.webp?v=340',wheelWreck:'./boss-tsar-tank-wheel-wreck.webp?v=340',hullWreck:'./boss-tsar-tank-hull-wreck.webp?v=340',turretWreck:'./boss-tsar-tank-turret-wreck.webp?v=340'}),tsarArt=tsarGroup.images;
+const tsarGroup=createLazyImageGroup({wheel:'./boss-tsar-tank-wheel.webp?v=340',wheelR:'./boss-tsar-tank-wheel-r.webp?v=340',hull:'./boss-tsar-tank-hull.webp?v=340',turret:'./boss-tsar-tank-turret.webp?v=340',tail:'./boss-tsar-tank-tail.webp?v=340'}),tsarArt=tsarGroup.images;
 const railGroups={},railConsistArt={},railWreckGroups={},railWreckArt={};
 for(const [set,sources] of Object.entries(railConsistSources)){const group=createLazyImageGroup(sources);railGroups[set]=group;railConsistArt[set]=group.images;const wreckGroup=createLazyImageGroup(railWreckSources[set]);railWreckGroups[set]=wreckGroup;railWreckArt[set]=wreckGroup.images;}
 function drawRailConsist181(c,b){
@@ -118,7 +118,10 @@ function drawRailConsist181(c,b){
  const carDim=set==='railCarrier'?[124,400]:[260,390];
  for(const [id,key] of [['car-rear','rear'],['car-middle','middle'],['car-front','front']]){const car=cars.get(id);if(!car)continue;
   const wreckImage=wreckImages[key]; // Load only the active train's wreck art.
-  if(!car.destroyed){c.drawImage(images[key],-carDim[0]/2,car.y-carDim[1]/2,carDim[0],carDim[1]);continue}
+  if(!car.destroyed){c.drawImage(images[key],-carDim[0]/2,car.y-carDim[1]/2,carDim[0],carDim[1]);
+   // Launch car carries folded Kettering Bugs on its cradles.
+   if(set==='railCarrier'&&key==='middle'&&bugArt.folded?.naturalWidth)for(const by of [-95,5,95])c.drawImage(bugArt.folded,-24,car.y+by-52,48,104);
+   continue}
   // Destroyed car: wreck image under a rolling explosion cluster, then the
   // car is consumed and leaves an empty gap in the consist.
   const age=(b.motionTime||0)-(car.destroyedAt??b.motionTime??0);
@@ -351,16 +354,18 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    }
    else if(b.assetKey==='tsar-tank'){
     const dead=id=>b.parts?.find?.(p=>p.id===id)?.destroyed||b.parts?.get?.(id)?.destroyed,tsarPart=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
-    const put=(key,x,y,w,h,roll=0)=>{const im=tsarArt[key];if(!im?.naturalWidth)return false;c.save();c.translate(x,y);c.rotate(roll);c.globalAlpha*=1;c.imageSmoothingEnabled=true;c.drawImage(im,-w/2,-h/2,w,h);c.restore();return true;};
-    if(b.destroying){put('hullWreck',0,0,196,193);put('wheelWreck',-101,-117,72,240);put('wheelWreck',101,-117,72,240);put('turretWreck',0,8,78,95);put('tail',0,128,50,48);}
+    // wrecked=true renders the live sprite through a burn filter — same trick
+    // the harbor crane pivot uses — instead of a separate wreck asset.
+    const put=(key,x,y,w,h,roll=0,wrecked=false)=>{const im=tsarArt[key];if(!im?.naturalWidth)return false;c.save();c.translate(x,y);c.rotate(roll);if(wrecked)c.filter='grayscale(.62) brightness(.52) sepia(.35)';c.imageSmoothingEnabled=true;c.drawImage(im,-w/2,-h/2,w,h);c.restore();return true;};
+    if(b.destroying){put('hull',0,0,165,196,0,true);put('wheel',-111,-14,60,201,0,true);put('wheelR',111,-14,60,201,0,true);put('turret',0,-86,42,55,0,true);put('tail',0,86,50,58);}
     else{
      // Wheels first, hull over the hubs, turret and steering tail on top.
      const wobble=Math.sin((b.wheelRoll||0)*9)*.05;
      for(const [id,key] of [['wheel-left','wheel'],['wheel-right','wheelR']]){const p=tsarPart(id);if(!p)continue;
-      if(p.destroyed)put('wheelWreck',p.x,p.y,72,240);else put(key,p.x,p.y,72,240,wobble*(id==='wheel-left'?1:-1));}
-     put('hull',0,0,196,193);
-     const tp=tsarPart('turret');if(tp)put(tp.destroyed?'turretWreck':'turret',0,8,78,95);
-     const rp=tsarPart('rudder');if(!rp||!rp.destroyed)put('tail',0,128,50,48);
+      put(key,p.x,p.y,60,201,wobble*(id==='wheel-left'?1:-1),p.destroyed);}
+     put('hull',0,0,165,196);
+     const tp=tsarPart('turret');if(tp)put('turret',0,-86,42,55,0,tp.destroyed);
+     const rp=tsarPart('rudder');if(!rp||!rp.destroyed)put('tail',0,86,50,58);
     }
    }
    else drawBossArt(c,'markv',172,258);

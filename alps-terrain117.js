@@ -37,7 +37,10 @@ export class TerrainRenderer {
   // never freeze a bare base-color tile.
   if(p.src){const im=profileImage(key),ready=im?.complete&&im.naturalWidth;
    if(!ready){const warm=this.canvasFactory(160,160),wg=warm.getContext('2d');wg.fillStyle=p.base;wg.fillRect(0,0,160,160);return warm;}
-   if(!this.tiles.has(key)){const c=this.canvasFactory(160,160),g=c.getContext('2d');g.fillStyle=p.base;g.fillRect(0,0,160,160);g.globalAlpha=p.strength*this.detail;g.imageSmoothingEnabled=true;g.drawImage(im,3,3,im.naturalWidth-6,im.naturalHeight-6,0,0,160,160);g.globalAlpha=1;this.tiles.set(key,c);}return this.tiles.get(key);}
+   // Own-texture profiles keep their painterly detail by compositing at world
+   // tile size; the shared 160px cell size would smear them into plain color.
+   const res=this.tileSize;
+   if(!this.tiles.has(key)){const c=this.canvasFactory(res,res),g=c.getContext('2d');g.fillStyle=p.base;g.fillRect(0,0,res,res);g.globalAlpha=p.strength*this.detail;g.imageSmoothingEnabled=true;g.drawImage(im,3,3,im.naturalWidth-6,im.naturalHeight-6,0,0,res,res);g.globalAlpha=1;this.tiles.set(key,c);}return this.tiles.get(key);}
   if(this.tiles.has(key))return this.tiles.get(key);
   // Pre-render once at 160 logical pixels; suppress small high-frequency texture detail.
   const c=this.canvasFactory(160,160),g=c.getContext('2d');g.fillStyle=p.base;g.fillRect(0,0,160,160);
