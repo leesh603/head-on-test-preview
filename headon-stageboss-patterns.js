@@ -1,5 +1,5 @@
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=339&b=326';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=339&b=326';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=340&b=326';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=340&b=326';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -271,7 +271,10 @@ export class Ca4 extends AlpsPatternBoss {
     const imbalance=(this.part('leftEngine').destroyed?1:0)-(this.part('rightEngine').destroyed?1:0);this.cruise(dt,{kind:'ca4',engineLoss:engines,imbalance});
     if(this.phase===1&&(this.hp<=this.maxHp*.67||engines)){this.setPhase(2);this.hidden=true;this.reentry=1.9;this.reentrySide=this.rng()<.5?-1:1;this.entryX=this.reentrySide<0?bounds.left+90:bounds.right-90;this.entryY=bounds.top+105;this.command('hide',{peakId:peaks[0]?.id||null});this.command('reentry-warning',{x:this.entryX,y:bounds.top-30,targetX:(bounds.left+bounds.right)/2,targetY:bounds.bottom-80,seconds:this.reentry});}
     if(this.phase===2&&this.hp<=this.maxHp*.33){this.setPhase(3);this.part('bombBay').hittable=true;}
-    if(this.hidden){this.reentry=Math.max(0,this.reentry-dt);if(this.reentry>0)return;this.hidden=false;this.resetRoute(this.entryX,this.entryY);this.bayExpose=2.4;this.part('bombBay').hittable=true;const target=this.target(players),cx=target?.x??(bounds.left+bounds.right)/2;for(let row=0;row<6;row++)this.hazard('circle',{x:cx+(row-2.5)*62+randBetween(this.rng,-22,22),y:bounds.top+(bounds.bottom-bounds.top)*(.32+row*.085)+randBetween(this.rng,-20,18),radius:44+randBetween(this.rng,-6,14),delay:row*.13+randBetween(this.rng,0,.1),warning:.95,duration:.28,once:true,damage:this.t.damage,visual:'carpet-bomb'});this.command('phase-change',{phase:'bomb-bay-exposed'});}
+    if(this.hidden){this.reentry=Math.max(0,this.reentry-dt);if(this.reentry>0)return;this.hidden=false;this.resetRoute(this.entryX,this.entryY);this.bayExpose=2.4;this.part('bombBay').hittable=true;const target=this.target(players),w=bounds.right-bounds.left,bh=bounds.bottom-bounds.top;
+      const open=Math.floor(this.rng()*8);
+      for(let col=0;col<8;col++){if(col===open)continue;const bx=bounds.left+w*(.12+col*.094);for(let row=0;row<2;row++)this.hazard('circle',{x:bx+randBetween(this.rng,-16,16),y:bounds.top+bh*(.3+row*.34)+randBetween(this.rng,-14,14),radius:Math.min(100,w*.078)+randBetween(this.rng,-8,12),delay:col*.1+row*.05+randBetween(this.rng,0,.08),warning:1.3,duration:.3,once:true,damage:this.t.damage*1.1,visual:'carpet-bomb'});}
+      this.command('phase-change',{phase:'bomb-bay-exposed'});}
     if(this.phase===2&&this.bayExpose>0){this.bayExpose=Math.max(0,this.bayExpose-dt);if(this.bayExpose===0)this.part('bombBay').hittable=false;}
     const w=bounds.right-bounds.left;
     if(this.due('ca4-bombs',dt,this.phase===3?2.8:4.6)){const open=[-1,0,1][(this.bombLane=(this.bombLane??-1)+1)%3];
@@ -344,6 +347,15 @@ export class ArmoredHarborFortress extends PatternBoss {
     const guns=['gun-left','gun-right'].map(id=>this.parts.get(id)).filter(p=>!p.destroyed);
     if(guns.length&&this.due('harbor-guns',dt,(this.t.coastalInterval||2.5)*(guns.length===1?.88:1))){const gun=guns[this.gunSide++%guns.length],p=this.target(players);if(p){const x=this.x+gun.x,y=this.y+gun.y,a=Math.atan2(p.y-y,p.x-x);this.command('muzzle',{x,y,partId:gun.id});this.fan(x,y,a,5,.72,this.t.bulletSpeed*.82,'harbor-shell');}}
     if(!this.parts.get('crane-arm').destroyed&&this.due('crane-mines',dt,this.t.craneInterval||4.8)){const p=this.target(players);if(p)for(let i=0;i<5;i++){const a=this.craneAngle+(i-2)*.23,d=75+i*28;this.hazard('circle',{x:p.x+Math.cos(a)*d,y:p.y+Math.sin(a)*d,radius:38,delay:i*.14,warning:1.05,duration:.3,once:true,damage:this.t.damage*.75,visual:'harbor-mine'});}}
+    if(bounds&&this.due('harbor-minefield',dt,this.phase==='final-core'?3.2:6.4)){
+      const p=this.target(players),w=bounds.right-bounds.left;
+      if(p){
+        const cx=Math.max(bounds.left+w*.24,Math.min(bounds.right-w*.24,p.x+(p.vx||0)*.7)),gate=[0,2,4][(this._mineFieldWave=(this._mineFieldWave??0)+1)%3],step=Math.max(52,Math.min(72,w/7)),points=[];
+        for(let row=0;row<2;row++)for(let col=0;col<5;col++)if(col!==gate)points.push({x:cx+(col-2)*step,y:p.y-100-row*64+(this._mineFieldWave%2?28:0)});
+        if(this.phase==='final-core')for(let i=0;i<6;i++){const a=this.rng()*6.28,d=90+this.rng()*110;points.push({x:cx+Math.cos(a)*d,y:p.y+Math.sin(a)*d*.7});}
+        this.command('spawn-minefield',{points:points.filter(q=>q.x>bounds.left+25&&q.x<bounds.right-25&&q.y>bounds.top+25&&q.y<bounds.bottom-25&&Math.hypot(q.x-p.x,q.y-p.y)>75),warning:.8,life:9,maxMines:this.phase==='final-core'?20:14});
+      }
+    }
     if(this.phase!=='coastal-battery'&&!this.parts.get('seaplane-facility').destroyed&&this.due('harbor-seaplanes',dt,this.t.harborLaunchInterval||5.6)){
       const p=this.target(players),count=this.phase==='final-core'?3:2,a=Math.PI/2,q={x:this.x+this.parts.get('seaplane-facility').x,y:this.y+this.parts.get('seaplane-facility').y};
       for(let i=0;i<count;i++)this.command('spawn-minion',{minion:this.faction==='central'?'seaplane-central':'seaplane-entente',faction:this.faction,x:q.x+(i-(count-1)/2)*42,y:q.y-30,a,behavior:'attack-pass',formationIndex:i,formationCount:count,passTargetX:(p?.x??q.x)+(p?.vx||0)*.8,passTargetY:(p?.y??bounds.bottom)+(p?.vy||0)*.8,invulnerableSeconds:.4});
@@ -452,7 +464,7 @@ export class MinenwerferBattery extends PatternBoss {
       radius:partId==='main-gun'?62:46,delay:i*.15,warning,duration:.3,once:true,damage:this.t.damage*(partId==='main-gun'?1.15:.72),visual:partId==='main-gun'?'minenwerfer-heavy':'minenwerfer-shell'});
     this.command('muzzle',{x:this.x+gun.x,y:this.y+gun.y,partId});
   }
-  update(dt,{players}){
+  update(dt,{players,bounds}){
     this.x=this.anchorX;this.y=this.anchorY;
     if((this._gasTier??4)>0&&this.hp<=this.maxHp*(this._gasTier)*.25){this._gasTier--;
       for(let i=0;i<3;i++){const a=this.rng()*6.28,d=60+this.rng()*90;this.command('gas-zone',{x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,radius:120+this.rng()*40,life:8});}
@@ -508,7 +520,8 @@ export class DrachenMineNet extends PatternBoss {
     if(p.id.startsWith('mine-'))this.command('mine-chain',{x:this.x+p.x,y:this.y+p.y,radius:72});
   }
   update(dt,{players,bounds}) {
-    if(!this.parts.get('winch').destroyed&&this.due('mine-salvo',dt,5.1)){
+    const exposed=this.coreVulnerable;
+    if(this.due('mine-salvo',dt,exposed?2.2:this.parts.get('winch').destroyed?4.6:3.6)){
       const target=this.target(players),w=bounds.right-bounds.left,h=bounds.bottom-bounds.top,points=[];
       if(target){
         const cx=Math.max(bounds.left+w*.22,Math.min(bounds.right-w*.22,target.x+(target.vx||0)*.65));
@@ -521,7 +534,8 @@ export class DrachenMineNet extends PatternBoss {
           for(let row=0;row<2;row++)for(let col=0;col<5;col++)if(col!==gate){
             points.push({x:cx+(col-2+(row?.18:0))*step,y:target.y+(target.vy||-1)*.55-120-row*Math.max(58,h*.075)});}
         }
-        this.command('spawn-minefield',{points:points.filter(q=>q.x>bounds.left+25&&q.x<bounds.right-25&&q.y>bounds.top+25&&q.y<bounds.bottom-25&&Math.hypot(q.x-target.x,q.y-target.y)>75),warning:.75,life:9,maxMines:Math.min(22,16+(this.t.loopIndex||0)*2)});
+        if(exposed)for(let i=0;i<10;i++){const a=this.rng()*6.28,d=95+this.rng()*135;points.push({x:cx+Math.cos(a)*d,y:target.y+Math.sin(a)*d*.8});}
+        this.command('spawn-minefield',{points:points.filter(q=>q.x>bounds.left+25&&q.x<bounds.right-25&&q.y>bounds.top+25&&q.y<bounds.bottom-25&&Math.hypot(q.x-target.x,q.y-target.y)>75),warning:exposed?.55:.75,life:exposed?12:9,maxMines:exposed?Math.min(30,24+(this.t.loopIndex||0)*3):Math.min(22,16+(this.t.loopIndex||0)*2)});
       }
     }
     const observer=!this.parts.get('balloon').destroyed;
