@@ -76,14 +76,21 @@ const FX_FILES=FX_OFF?{}:Object.assign({
 mineBody:'fx-mine-body.webp',shellHeavy:'fx-shell-heavy.webp',incendiary:'fx-incendiary.webp'
 },FX56_OFF?{}:FX56_FILES);
 const fxImgs={};
-const fx189Ready=typeof Image==='undefined'?Promise.resolve():Promise.all(Object.entries(FX_FILES).map(([key,file])=>new Promise(res=>{
- const im=new Image();im.onload=()=>{fxImgs[key]=im;res()};im.onerror=()=>res();im.src='./'+file+'?v=fx5';
+// Aliases share one decoded image; atlas-covered keys need no second bitmap.
+const imageLoads=new Map();
+const fx189Ready=typeof Image==='undefined'?Promise.resolve():fx196ArtReady.then(()=>Promise.all(Object.entries(FX_FILES).map(async([key,file])=>{
+ if(fx196Ready(key))return;
+ if(!imageLoads.has(file))imageLoads.set(file,new Promise(res=>{
+  const im=new Image();im.onload=()=>{im.onload=im.onerror=null;res(im)};im.onerror=()=>{im.onload=im.onerror=null;res(null)};im.src='./'+file+'?v=fx5';
+ }));
+ const im=await imageLoads.get(file);if(im)fxImgs[key]=im;
 })));
 export const fxArtReady=Promise.all([fx189Ready,fx196ArtReady]);
-export function fxReady(key){return fx196Ready(key)||!!fxImgs[key]}
-export function fxImage(key){return fx196Image(key)||fxImgs[key]||null}
+export function fxReady(key){return !FX_OFF&&(fx196Ready(key)||!!fxImgs[key])}
+export function fxImage(key){return FX_OFF?null:fx196Image(key)||fxImgs[key]||null}
 // Draw sprite centered at x,y, rotated to angle (0 = sprite's natural right/up orientation), fit inside w×h.
 export function fx(c,key,x,y,w,h=w,angle=0,alpha=1){
+ if(FX_OFF)return false;
  if(fx196Ready(key))return fx196Draw(c,key,x,y,w,h,angle,alpha);
  const im=fxImgs[key];if(!im)return false;
  c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha*=alpha;
@@ -93,22 +100,32 @@ export function fx(c,key,x,y,w,h=w,angle=0,alpha=1){
  c.restore();return true;
 }
 const tintCache=new Map();
+let tintPixels=0;
+const TINT_PIXEL_BUDGET=1024*1024;
+export function clearFxTintCache(){for(const cv of tintCache.values())if(cv)cv.width=cv.height=0;tintCache.clear();tintPixels=0}
 // Lazily bake a color-multiplied copy so painted shading survives tinting.
 export function fxTintedCanvas(key,color){
+ if(FX_OFF)return null;
  if(fx196Ready(key))return fx196TintedCanvas(key,color);
  const im=fxImgs[key];if(!im)return null;
  const ck=key+color;let c=tintCache.get(ck);
  if(c===undefined){
   c=null;if(typeof document!=='undefined'){
-   const cv=document.createElement('canvas');cv.width=im.naturalWidth;cv.height=im.naturalHeight;
-   const g=cv.getContext('2d');g.drawImage(im,0,0);g.globalCompositeOperation='multiply';g.fillStyle=color;g.fillRect(0,0,cv.width,cv.height);
-   g.globalCompositeOperation='destination-in';g.drawImage(im,0,0);c=cv;
+   const cv=document.createElement('canvas'),scale=Math.min(1,512/Math.max(im.naturalWidth,im.naturalHeight));cv.width=Math.max(1,Math.round(im.naturalWidth*scale));cv.height=Math.max(1,Math.round(im.naturalHeight*scale));
+   const g=cv.getContext('2d');if(!g)return null;g.drawImage(im,0,0,cv.width,cv.height);g.globalCompositeOperation='multiply';g.fillStyle=color;g.fillRect(0,0,cv.width,cv.height);
+   g.globalCompositeOperation='destination-in';g.drawImage(im,0,0,cv.width,cv.height);c=cv;
   }
+  while(tintCache.size&&(tintCache.size>=24||tintPixels+(c?c.width*c.height:0)>TINT_PIXEL_BUDGET)){
+   const oldest=tintCache.keys().next().value,cv=tintCache.get(oldest);tintCache.delete(oldest);
+   if(cv){tintPixels-=cv.width*cv.height;cv.width=cv.height=0}
+  }
+  tintPixels+=c?c.width*c.height:0;
   tintCache.set(ck,c);
  }
  return c;
 }
 export function fxTint(c,key,color,x,y,w,h=w,angle=0,alpha=1){
+ if(FX_OFF)return false;
  if(fx196Ready(key))return fx196Tint(c,key,color,x,y,w,h,angle,alpha);
  const cv=fxTintedCanvas(key,color);if(!cv)return fx(c,key,x,y,w,h,angle,alpha);
  c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha*=alpha;

@@ -43,7 +43,17 @@ function spawnTargets(game,event){
  if(event.type===P.HIGH_VALUE_TARGET){
   const e=markTarget(game.spawnEnemy?.('hunter'),event);if(e){Object.assign(e,{eventCommander:true,hp:Math.round((e.maxHp||e.hp||30)*2.15),xpValue:(e.xpValue||1)+8});e.maxHp=e.hp;targets.push(e);const count=(game.viewWidth||960)<=BATTLEFIELD_EVENT_BALANCE.compactWidth?2:3;for(let i=0;i<count;i++){const wing=game.spawnEnemy?.('hunter');if(!wing)continue;Object.assign(wing,{eventEscort:true,battlefieldEventId:event.id,battlefieldEventType:event.type,x:e.x+(i-(count-1)/2)*72,y:e.y+70,a:e.a,formationLeader:e,formationBack:70,formationOffset:(i-(count-1)/2)*72,fire:.7})}}
  }else if(event.type===P.BOMBER_INTERCEPT){
-  for(let i=0;i<2;i++){const e=markTarget(game.spawnEnemy?.('bomber'),event);if(e){const p=playerFor(game),heading=Math.atan2(e.y-p.y,e.x-p.x);Object.assign(e,{eventExitHeading:heading,eventExitOrigin:{x:e.x,y:e.y},eventExit:true,fire:1.1});targets.push(e)}}
+  const p=playerFor(game),rng=game.rng?.()??Math.random(),count=(game.viewWidth||960)<=BATTLEFIELD_EVENT_BALANCE.compactWidth?3:3+Math.floor(rng*3);
+  const heading=p.a+(rng<.5?1:-1)*Math.PI/2,dx=Math.cos(heading),dy=Math.sin(heading),span=Math.max(420,(game.viewWidth||960)*.65);
+  const cx=p.x+Math.cos(p.a)*180,cy=p.y+Math.sin(p.a)*180,previous=game.bossMechanicSpawn;
+  // One bounded event group may exceed the ordinary two-bomber ambient cap.
+  try{game.bossMechanicSpawn=true;for(let i=0;i<count;i++){
+   const e=markTarget(game.spawnEnemy?.('bomber'),event);if(!e)continue;
+   const side=(i%2?1:-1)*Math.ceil(i/2)*68,back=Math.ceil(i/2)*78;
+   const x=cx-dx*(span+back)-dy*side,y=cy-dy*(span+back)+dx*side;
+   Object.assign(e,{x,y,a:heading,eventExitHeading:heading,eventExitOrigin:{x,y},eventExitDistance:span*2+220,eventExit:true,fire:1.1+i*.25});
+   if(targets.length)e.speed=targets[0].speed;targets.push(e);
+  }}finally{game.bossMechanicSpawn=previous}
  }else if(event.type===P.ACE_CHALLENGE){
   // This intentionally uses the normal ace path so an event ace retains the
   // established Rival escape contract; offers are already blocked while one lives.
@@ -64,6 +74,7 @@ function scheduleNext(game,state){
 
 function finish(game,state,outcome,reason){
  const event=state.current;if(!event)return false;
+ for(const target of event.targets||[]){target.missionTarget=false;target.eventExit=false;delete target.eventExitOrigin}
  if(outcome==='completed'){
   const p=playerFor(game),reward=event.type===P.ACE_CHALLENGE?70:event.type===P.BOMBER_INTERCEPT?55:event.type===P.HIGH_VALUE_TARGET?45:40;
   for(let i=0;i<4;i++){(game.drops||=[]).push({x:p.x+Math.cos(i*1.7)*46,y:p.y+Math.sin(i*1.7)*46,value:i<3?Math.floor(reward/4):reward-3*Math.floor(reward/4),heal:false,battlefieldEvent:true})}
@@ -78,7 +89,7 @@ function tick(game){
  if(event?.status==='active'){
   const dt=Math.max(0,Math.min(.08,now-(event.lastTickAt??now)));event.lastTickAt=now;
   if(event.type===P.RESCUE){const rescue=event.rescue,threats=(game.enemies||[]).filter(e=>e.hp>0&&e.eventRescueThreat&&e.battlefieldEventId===event.id&&Math.hypot(e.x-rescue.x,e.y-rescue.y)<BATTLEFIELD_EVENT_BALANCE.rescueThreatRange);if(threats.length){rescue.hp=Math.max(0,rescue.hp-BATTLEFIELD_EVENT_BALANCE.rescueThreatDamage*threats.length*dt);if(rescue.hp<=0)rescue.life=0}if(!rescue||rescue.life<=0||!game.allies?.includes(rescue))return finish(game,state,'failed','rescueLost');if(now>=event.endsAt)return finish(game,state,'completed')}
-  else if(event.type===P.BOMBER_INTERCEPT){for(const target of event.targets||[])if(target.hp>0&&target.eventExitOrigin){target.a=target.eventExitHeading;target.x+=Math.cos(target.a)*(target.speed||65)*dt;target.y+=Math.sin(target.a)*(target.speed||65)*dt;if(Math.hypot(target.x-target.eventExitOrigin.x,target.y-target.eventExitOrigin.y)>=BATTLEFIELD_EVENT_BALANCE.bomberExitDistance)return finish(game,state,'failed','targetEscaped')}if(event.targets?.length&&event.targets.every(target=>target.hp<=0||target.deathHandled))return finish(game,state,'completed')}
+  else if(event.type===P.BOMBER_INTERCEPT){for(const target of event.targets||[])if(target.hp>0&&target.eventExitOrigin){target.a=target.eventExitHeading;if(Math.hypot(target.x-target.eventExitOrigin.x,target.y-target.eventExitOrigin.y)>=(target.eventExitDistance||BATTLEFIELD_EVENT_BALANCE.bomberExitDistance))return finish(game,state,'failed','targetEscaped')}if(event.targets?.length&&event.targets.every(target=>target.hp<=0||target.deathHandled))return finish(game,state,'completed')}
   else if(event.targets?.some(target=>target.rivalEscaped))return finish(game,state,'failed','targetEscaped');
   else if(event.targets?.length&&event.targets.every(target=>target.hp<=0||target.deathHandled))return finish(game,state,'completed');
   if(now>=event.deadline)return finish(game,state,'failed','timeExpired');

@@ -1,9 +1,28 @@
 // Layered procedural SFX — every combat feedback voice is synthesized from
 // oscillators plus filtered noise, matching the music.js approach. No audio
 // assets, no external requests.
-let ctx=null,bus=null,noise=null,active=0,muted=false,master=1;
+let ctx=null,bus=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
+const sources=new Map(),lastVoices=new Map();
+const PRIORITY={engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0};
+const INTERVAL={engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
+let inputMedia=null;
+const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
+export function stopSfx(){for(const [source,entry]of sources){try{source.stop()}catch{}entry.release()}lastVoices.clear()}
+export function setSfxPaused(v){if(paused===!!v)return;paused=!!v;if(paused)stopSfx()}
+export function sfxStats(){return{active:sources.size,limit:sourceLimit(),muted,paused}}
+function reserve(){
+ const limit=sourceLimit(),budget=priority<2?limit-8:limit;
+ if(sources.size<budget)return true;
+ if(priority<2)return false;
+ for(const [source,entry]of sources)if(entry.priority<priority){try{source.stop()}catch{}entry.release();return true}
+ return false;
+}
+function track(source,filter,gain){
+ const release=()=>{if(!sources.delete(source))return;source.onended=null;source.disconnect();filter.disconnect();gain.disconnect()};
+ sources.set(source,{priority,release});source.onended=release;
+}
 const jit=f=>f*(0.94+Math.random()*0.12); // ±6% pitch drift so repeat hits never sound identical
-export function setSfxMuted(v){muted=v}
+export function setSfxMuted(v){muted=!!v;if(muted)stopSfx()}
 export function setSfxVolume(v){master=Math.max(0,Math.min(1,v))}
 function ac(){
   if(ctx)return ctx.state;
@@ -17,24 +36,42 @@ function ac(){
   return ctx?.state;
 }
 function tone(f0,f1,d,v,type='square',cut=1600,when=0,att=.004){
-  if(active>44)return;
+  if(!reserve())return;
   const t=ctx.currentTime+when,o=ctx.createOscillator(),g=ctx.createGain(),f=ctx.createBiquadFilter();
   o.type=type;o.frequency.setValueAtTime(f0,t);if(f1!==f0)o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+d);
   f.type='lowpass';f.frequency.value=cut;
   g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v*master,t+Math.min(att,d*.3));g.gain.exponentialRampToValueAtTime(.0001,t+d);
   o.connect(f);f.connect(g);g.connect(bus);o.start(t);o.stop(t+d+.03);
-  active++;o.onended=()=>{active--;o.disconnect();f.disconnect();g.disconnect()};
+  track(o,f,g);
 }
 function hiss(f0,f1,d,v,type='bandpass',Q=.8,when=0,att=.003){
-  if(active>44)return;
+  if(!reserve())return;
   const t=ctx.currentTime+when,n=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();
   n.buffer=noise;n.loop=true;
   f.type=type;f.frequency.setValueAtTime(f0,t);if(f1!==f0)f.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+d);f.Q.value=Q;
   g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v*master,t+Math.min(att,d*.3));g.gain.exponentialRampToValueAtTime(.0001,t+d);
   n.connect(f);f.connect(g);g.connect(bus);n.start(t);n.stop(t+d+.03);
-  active++;n.onended=()=>{active--;n.disconnect();f.disconnect();g.disconnect()};
+  track(n,f,g);
 }
 const VOICES={
+  // Mechanical/material cues follow actual boss actions, not a generic beep.
+  mortarLaunch(){tone(135,46,.22,.075,'sine',440);hiss(680,180,.16,.065,'bandpass',.7);hiss(1250,500,.44,.018,'bandpass',3,.14)},
+  earthImpact(){tone(78,28,.34,.09,'sine',250);hiss(1100,170,.48,.075,'lowpass',.6);hiss(2700,850,.09,.035,'bandpass',1.2)},
+  waterImpact(){hiss(1900,430,.62,.065,'bandpass',.45);tone(68,35,.3,.045,'sine',240);hiss(3600,1700,.2,.022,'highpass',.5,.14)},
+  navalGun(){tone(104,31,.32,.1,'sine',300);hiss(2100,230,.26,.085,'lowpass',.5);tone(58,30,.38,.032,'sine',180,.15)},
+  armorOpen(){hiss(1800,480,.24,.045,'bandpass',2);tone(142,84,.2,.035,'triangle',650);hiss(2600,1600,.045,.05,'highpass',.8,.23)},
+  metalBreak(){hiss(3200,700,.3,.065,'bandpass',2);tone(237,107,.24,.05,'triangle',1600);tone(419,171,.17,.025,'square',2100,.07)},
+  winchRelease(){for(let i=0;i<3;i++)hiss(2100,1200,.035,.035,'bandpass',2,i*.055);tone(176,88,.3,.028,'sawtooth',600,.1)},
+  railClatter(){for(let i=0;i<4;i++){tone(93,45,.06,.034,'triangle',350,i*.12);hiss(1100,450,.04,.024,'bandpass',.8,i*.12)}},
+  flameValve(){hiss(1600,420,.5,.055,'bandpass',1.2);tone(122,75,.12,.035,'triangle',550)},
+  flameBurn(){hiss(480,180,.85,.065,'lowpass',.5);hiss(1300,680,.55,.032,'bandpass',.4)},
+  formationPass(){tone(82,120,.65,.045,'sawtooth',360);tone(89,126,.7,.025,'sawtooth',400);hiss(540,260,.8,.025,'lowpass',.5)},
+  approachWarning(){tone(172,228,.24,.045,'sawtooth',650);hiss(820,360,.35,.03,'bandpass',1)},
+  shipBreak(){tone(93,27,.75,.07,'sawtooth',250);hiss(2300,260,.55,.055,'bandpass',.6);hiss(900,350,.75,.03,'lowpass',.4,.25)},
+  uiSelect(){hiss(2100,900,.025,.023,'bandpass',1.5);tone(180,100,.025,.018,'triangle',700)},
+  environment(region){if(region===1||region===7)hiss(520,280,1.3,.009,'bandpass',.35);else if(region===5||region===6)hiss(1500,850,1.4,.008,'bandpass',.4);else{tone(46,25,.6,.014,'sine',130);hiss(280,100,.8,.01,'lowpass',.4)}},
+  // Brief propeller rush and mechanical rattle, below weapon volume.
+  headOn(){hiss(320,950,.16,.045,'bandpass',.6);tone(92,140,.14,.035,'sawtooth',450);hiss(1400,420,.09,.022,'bandpass',1,.08)},
   // Player machine guns: a bright crack over a short mechanical body.
   shot(){tone(jit(760),190,.05,.05,'square',2600);hiss(jit(3200),900,.04,.05,'bandpass',1);tone(jit(165),80,.03,.04,'square',900)},
   // Enemy guns: thinner, duller crack.
@@ -92,9 +129,13 @@ const VOICES={
   defeat(){for(let i=0;i<4;i++)tone([64,60,57,50][i],[64,60,57,50][i],.55,.06,'sawtooth',1200,i*.16)}
 };
 export function sfx(name,arg){
-  if(muted||!VOICES[name])return;
+  if(muted||(paused&&name!=='uiSelect')||!VOICES[name])return;
   if(!ctx&&ac()===undefined)return;
   if(!ctx)return;
-  try{ctx.resume()}catch{}
-  try{VOICES[name](arg)}catch{}
+  if(ctx.state==='closed')return;
+  if(ctx.state!=='running'&&!resuming){try{resuming=Promise.resolve(ctx.resume()).catch(()=>{}).finally(()=>{resuming=null})}catch{}}
+  const now=ctx.currentTime;
+  if(now-(lastVoices.get(name)??-Infinity)<(INTERVAL[name]||0))return;
+  lastVoices.set(name,now);priority=PRIORITY[name]??2;
+  try{VOICES[name](arg)}catch{}finally{priority=0}
 }

@@ -1,7 +1,7 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
 import {getLocale,subscribe} from './i18n.js?v=340';
-import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=340&b=326';
-import {clearCrewMatte} from './matte70.js?v=340&b=326';
+import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=340&b=340';
+import {clearCrewMatte} from './matte70.js?v=340&b=340';
 import {aircraftArt} from './main-ui-art180.js?v=340';
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
@@ -25,12 +25,12 @@ export function interfaceIcon(name,cls='astra-icon'){
 }
 // Reuse the production matte algorithm at native resolution. This cleans only
 // the hangar illustration; the 144px gameplay sprite and its collision stay intact.
-const rawHangarArt={fokker:'./fokker.webp?v=340&b=326',baron_albatros:'./baron_albatros.webp?v=340&b=326',albatros_d2:'./albatros_d2.webp?v=340&b=326',nieuport_italian:'./nieuport.webp?v=340&b=326'};
+const rawHangarArt={fokker:'./fokker.webp?v=340&b=340',baron_albatros:'./baron_albatros.webp?v=340&b=340',albatros_d2:'./albatros_d2.webp?v=340&b=340',nieuport_italian:'./nieuport.webp?v=340&b=340'};
 const hangarKeyFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',fokker:'fokker_standard'};
 const artCache=new Map();
 function hangarArt(key){
  if(artCache.has(key))return artCache.get(key);
- const src=rawHangarArt[key]||`./${hangarKeyFile[key]||key}.webp?v=340&b=326`;
+ const src=rawHangarArt[key]||`./${hangarKeyFile[key]||key}.webp?v=340&b=340`;
  const pending=new Promise(resolve=>{const image=new Image();image.onerror=()=>resolve(aircraftArt[key]||'');image.onload=()=>{
   try{
    const scan=document.createElement('canvas');scan.width=image.naturalWidth;scan.height=image.naturalHeight;
@@ -50,7 +50,7 @@ function ring(){
  r.innerHTML='<svg viewBox="0 0 100 100"><circle class="dial-track" cx="50" cy="50" r="45"/><circle class="dial-progress" cx="50" cy="50" r="45" pathLength="100"/></svg>';return r;
 }
 function install(){
- if(!$('hangar')||$('hangar .astra-home'))return;
+ if(!$('hangar')||document.querySelector('#hangar .astra-home'))return;
  document.body.classList.add('astra-ui');
  const hangar=$('hangar'),roster=$('flightRoster');
  const stage=el('div','astra-stage'),home=el('div','astra-home'),hero=el('section','astra-hero'),dossier=el('div','astra-dossier');
@@ -185,7 +185,7 @@ function installHud(){
  function syncReadout(){
   const en=getLocale()==='en',reloading=ammo.classList.contains('reloading');
   survival.classList.toggle('astra-reloading',reloading);put(caption,en?'RELOADING':'재장전');
-  const text=reload.getAttribute('aria-label')||'',remaining=text.match(/(\d+(?:\.\d+)?)\s*s/);
+  const text=reload.getAttribute('aria-label')||'',remaining=text.match(/(\d+(?:\.\d+)?)\s*(?:s|초)/);
   put(seconds,remaining?remaining[1]+(en?'s':'초'):'');
   const progress=$('ammoProgress').style.width;fill.style.width=reloading?progress:'0%';
   const counts=$('ammoCount').textContent.match(/(\d+)\s*\/\s*(\d+)/);

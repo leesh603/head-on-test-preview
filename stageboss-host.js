@@ -1,5 +1,6 @@
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=340&b=326';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=340&b=326';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=340&b=340';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=340&b=340';
+import {bossSoundFor} from './boss-feedback.js?v=340';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=340';
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항'];
@@ -70,6 +71,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
   onBuildingImpact(event){const b=g.bossBuildings.find(b=>!b.destroyed&&Math.abs(event.x-b.x)<=b.w/2+8&&Math.abs(event.y-b.y)<=b.h/2);if(!b)return false;b.destroyed=true;g.combatBlast(b.x,b.y,55,'enemy','structure');return true;},
   onCue(event){
    const body=g.stageBoss?.stages.encounter?.bodies.get(event.bossId),x=event.x??body?.x??g.x,y=event.y??body?.y??g.y;
+   const sound=bossSoundFor(event,body?.kind||event.bossId);if(sound)g.event('bossSound',sound);
    if(event.type==='spawn-minefield'){
     g.hostileMinefields??=[];
     const owned=g.hostileMinefields.filter(f=>f.encounterId===g.stageBoss?.stages.encounter?.id);
@@ -96,14 +98,14 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    else if(['split','misfire'].includes(event.type)){g.combatBlast(x,y,event.type==='split'?78:92,'enemy','structure');g.shake=Math.max(g.shake,8);}
    else if(event.type==='boss-destruction-start'){g.event('wave',BOSS_CATALOG[event.bossId].name+' 붕괴 중!');g.shake=Math.max(g.shake,8);if(['zeppelin-l70','hma23'].includes(event.bossId))for(const b of event.bodies||[])g.wreckGust(b);}
    else if(event.type==='boss-destruction-pulse'){g.combatBlast(event.x,event.y,event.radius,'enemy',event.final?'bossFinal':'structure');g.shake=Math.max(g.shake,event.final?13:8);}
-   else if(event.type==='heavy-gun-fired'){g.event('heavyShot','');g.shake=Math.max(g.shake,7);}
+   else if(event.type==='heavy-gun-fired'){g.shake=Math.max(g.shake,7);}
    else if(event.type==='muzzle'){g.burst(event.x,event.y,'#ffe0a2',12);g.shake=Math.max(g.shake,3);}
    else if(event.type==='camera-shake')g.shake=Math.max(g.shake,event.strength||5);
    else if(event.type==='charge-warning'||event.type==='reentry-warning')g.bossCues.push({...event,life:event.seconds});
    else if(event.type==='rail-aim')g.bossCues.push({...event,targetX:event.target.x,targetY:event.target.y,life:event.seconds});
    else if(event.type==='cannon-aim')g.bossCues.push({...event,targetX:event.x+Math.cos(event.angle)*event.length,targetY:event.y+Math.sin(event.angle)*event.length,life:1.7});
    else if(event.type==='gas-zone'){(g.gasZones??=[]).push({x:event.x,y:event.y,r:event.radius||130,warning:1.6,life:event.life||9});}
-   else if(event.type==='phase-change')g.event('wave','보스 전술 변화 · '+({exposed:'본체 노출',enraged:'대공포 집중 사격',reveal:'구름 은폐 해제',escort:'호위 차량 접근',locomotive:'기관차 노출','seaplane-support':'수상기 지원편대','breached':'외곽 장갑 붕괴','final-core':'중앙 지휘시설 노출'}[event.phase]||event.phase));
+   else if(event.type==='phase-change')g.event('bossPhase',event.phase);
   },
   onEncounterCleared({id,bossId}){
    g.kills++;g.priorityKills=(g.priorityKills||0)+1;const owner=players(g).find(p=>(p.id||'p1')===g.stageBossLastOwner);if(g.players&&owner)owner.kills++;
