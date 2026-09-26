@@ -1,7 +1,7 @@
 // Union pack: Pro's 196 combat atlas takes precedence for the keys it covers
 // (explosion0-3, fire, smoke*, spark, armorSpark, gas, gasThin); every other key
 // stays on the approved v189 set below. ?fx=0 keeps the procedural rollback.
-import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,fx as fx196Draw,fxTintedCanvas as fx196TintedCanvas,fxTint as fx196Tint} from './combat-fx196.js?v=339';
+import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,fx as fx196Draw,fxTintedCanvas as fx196TintedCanvas,fxTint as fx196Tint} from './combat-fx196.js?v=338';
 // Combat FX pack v189 — approved sprite set lives in fx-pack-v189/ and maps onto
 // the keys already called by the renderers. Unmapped keys stay procedural.
 // Rollback: append ?fx=0 to the URL — FX_FILES empties and every call site
@@ -73,6 +73,7 @@ const FX_FILES=FX_OFF?{}:Object.assign({
  sunshaft:'fx-sunshaft.webp',windStreak:'fx-wind-streak.webp',mist:'fx-mist.webp',
  torpedo:'fx-torpedo.webp',shockRing:'fx-shock-ring.webp',searchlight:'fx-city-searchlight.webp',
  mortarShell:'fx-mortar-shell.webp',lePrieur:'fx-combat-le-prieur.webp',bombBody:'fx-bomb-body.webp',grenadeBody:'fx-grenade-body.webp',
+  cloud:'fx-cloud.webp',propBlur:'fx-prop-blur.webp',oilTrail:'fx-oil-trail.webp',flakSmoke:'fx-flak-smoke.webp',shipSmoke:'fx-ship-smoke.webp',medalFlare:'fx-medal-flare.webp',dirtColumn:'fx-dirt-column.webp',wreckGround:'fx-wreck-ground.webp',balloonBurn:'fx-balloon-burn.webp',netWire:'fx-net-wire.webp',windStreak2:'fx-wind-streak-2.webp',
  mineBody:'fx-mine-body.webp',shellHeavy:'fx-shell-heavy.webp',incendiary:'fx-incendiary.webp'
 },FX56_OFF?{}:FX56_FILES);
 const fxImgs={};
