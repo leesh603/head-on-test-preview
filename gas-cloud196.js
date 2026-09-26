@@ -7,7 +7,7 @@ export function drawGasCloud196(c,z,x,y,time=0){
   if(!warning&&!drawGasVeil3(c,z,x,y,time,false)){
     for(let i=0;i<5;i++){
       const a=i*2.399+time*.025,r=i?z.r*.36:0;
-      fx(c,i%2?'gasThin':'gas',x+Math.cos(a)*r,y+Math.sin(a)*r,z.r*1.38,z.r*1.38,i*.7+time*.018,.22);
+      fx(c,i%2?'gasThin':'gas',x+Math.cos(a)*r,y+Math.sin(a)*r,z.r*1.38,z.r*1.38,i*.7+time*.018,.4);
     }
   }
   c.globalAlpha*=warning?.8:.55;c.lineWidth=warning?1.8:1.2;
