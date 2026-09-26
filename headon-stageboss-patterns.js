@@ -146,6 +146,7 @@ export class ZeppelinL70 extends PatternBoss {
   }
   onPartDestroyed(p) {if(p.id==='capsule'&&this.phase==='cloud'){this.phase='reveal';this.phaseTime=this.t.revealSeconds||1;this.command('phase-change',{phase:this.phase});}}
   update(dt,{players,bounds}) {
+    if(!this.escortCalled&&this.hp<=this.maxHp*.35){this.escortCalled=true;for(let i=0;i<3;i++){const a=Math.PI*.5+(i-1)*.5;this.command('spawn-minion',{minion:'airship',faction:this.faction,x:this.x+Math.cos(a)*160,y:this.y+Math.sin(a)*150,behavior:'escort'});}this.command('phase-change',{phase:'escort-call'});}
     if(this.phase==='cloud') {
       const live=living(players),p=live[this.cursor%Math.max(1,live.length)],c=this.parts.get('capsule');
       if(p){c.x+=(p.x-this.x-c.x)*Math.min(1,dt*1.2);c.y+=(p.y-this.y-c.y)*Math.min(1,dt*1.2);}
@@ -188,6 +189,7 @@ export class HMA23 extends PatternBoss {
   }
   suppressive(){/* carrier fire is handled by the capped carrierFan pattern */}
   update(dt,{players}) {
+    if(!this.escortCalled&&this.hp<=this.maxHp*.35){this.escortCalled=true;for(let i=0;i<3;i++){const a=Math.PI*.5+(i-1)*.5;this.command('spawn-minion',{minion:'airship',faction:this.faction,x:this.x+Math.cos(a)*160,y:this.y+Math.sin(a)*150,behavior:'escort'});}this.command('phase-change',{phase:'escort-call'});}
     if(this.phase==='launching') {
       if(this.due('launch-wave',dt,this.t.launchInterval||3)){
         const ports=[...this.parts.values()].filter(p=>!p.destroyed),target=this.target(players);
@@ -234,16 +236,22 @@ export class GIK extends AlpsPatternBoss {
     {id:'rightEngine',x:68,y:-8,radius:27,maxHp:options.tuning.maxHp*.072,kind:'engine'},
     {id:'cannon',x:0,y:-118,radius:25,maxHp:options.tuning.maxHp*.065},
     {id:'rearGun',x:0,y:108,radius:21,maxHp:options.tuning.maxHp*.052}
-  ]});this.phase=1;}
+  ]});this.phase=1;this.reentry=0;}
+  locateHit(spec){return this.hidden?null:super.locateHit(spec);}
   hit(attack){
+    if(this.hidden)return{damage:0,blocked:true};
     if(attack.partId)return super.hit(attack);
     const floor=this.phase===1?.7:this.phase===2?.32:0;
     return super.hit({...attack,damage:Math.min(attack.damage,Math.max(0,this.hp-this.maxHp*floor))});
   }
-  update(dt,{players,bounds}){
+  update(dt,{players,bounds,peaks=[]}){
     const cannon=this.part('cannon'),engines=[this.part('leftEngine'),this.part('rightEngine')].filter(p=>p.destroyed).length;
     const imbalance=(this.part('leftEngine').destroyed?1:0)-(this.part('rightEngine').destroyed?1:0);this.cruise(dt,{kind:'gik',engineLoss:engines,imbalance});
-    if(this.phase===1&&(this.hp<=this.maxHp*.70||engines||cannon.destroyed))this.setPhase(2);
+    if(this.phase===1&&(this.hp<=this.maxHp*.70||engines||cannon.destroyed)){this.setPhase(2);this.hidden=true;this.reentry=1.9;this.reentrySide=this.rng()<.5?-1:1;this.entryX=this.reentrySide<0?bounds.left+90:bounds.right-90;this.entryY=bounds.top+105;this.command('hide',{peakId:peaks[0]?.id||null});this.command('reentry-warning',{x:this.entryX,y:bounds.top-30,targetX:(bounds.left+bounds.right)/2,targetY:bounds.bottom-80,seconds:this.reentry});}
+    if(this.hidden){this.reentry=Math.max(0,this.reentry-dt);if(this.reentry>0)return;this.hidden=false;this.resetRoute(this.entryX,this.entryY);const w=bounds.right-bounds.left,bh=bounds.bottom-bounds.top;
+      const open=Math.floor(this.rng()*8);
+      for(let col=0;col<8;col++){if(col===open)continue;const bx=bounds.left+w*(.12+col*.094);for(let row=0;row<2;row++)this.hazard('circle',{x:bx+randBetween(this.rng,-16,16),y:bounds.top+bh*(.3+row*.34)+randBetween(this.rng,-14,14),radius:Math.min(100,w*.078)+randBetween(this.rng,-8,12),delay:col*.1+row*.05+randBetween(this.rng,0,.08),warning:1.3,duration:.3,once:true,damage:this.t.damage*1.1,visual:'carpet-bomb'});}
+      this.command('phase-change',{phase:'carpet-bomb'});}
     if(this.phase===2&&(this.hp<=this.maxHp*.32||cannon.destroyed))this.setPhase(3);
     if(this.phase<3&&cannon&&!cannon.destroyed&&this.due('alps-cannon',dt,this.phase===1?3.6:2.15)){
       const p=this.target(players); if(p){const x=this.x+cannon.x,y=this.y+cannon.y,a=Math.atan2(p.y-y,p.x-x);this.command('cannon-aim',{x,y,angle:a,length:Math.hypot(bounds.right-bounds.left,bounds.bottom-bounds.top)});this.hazard('projectile',{x,y,vx:Math.cos(a)*this.t.bulletSpeed*1.45,vy:Math.sin(a)*this.t.bulletSpeed*1.45,radius:11,damage:this.t.damage*2.4,duration:4,warning:1.7,visual:'alps-cannon'});this.command('heavy-gun-fired');}}

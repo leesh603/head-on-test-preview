@@ -61,12 +61,13 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
   onStatus(id,status){const p=players(g).find(p=>(p.id||'p1')===id);if(!p||!alive(p)||blocked(g))return;p.bossStatuses??=new Map();p.bossStatuses.set(status.sourceId,{...status,remaining:status.seconds});},
   onBarrierContact(id,h){const p=players(g).find(p=>(p.id||'p1')===id);if(!p||!alive(p)||blocked(g))return;const x=p.x,y=p.y,d=waterBarrierDisplacement({...p,radius:12},h);p.x+=d.x;p.y+=d.y;if(g.players)g.constrainMove(p,x,y);},
   spawnMinion(spec){
-   const n=g.enemies.length;let result;g.bossMechanicSpawn=true;try{result=g.spawnEnemy(spec.minion==='autocannon'?'bomber':'hunter')}finally{g.bossMechanicSpawn=false}const e=result||g.enemies[g.enemies.length-1];if(g.enemies.length===n||!e)return;
+   const n=g.enemies.length;let result;g.bossMechanicSpawn=true;try{result=g.spawnEnemy(spec.minion==='airship'?'zeppelin':spec.minion==='autocannon'?'bomber':'hunter')}finally{g.bossMechanicSpawn=false}const e=result||g.enemies[g.enemies.length-1];if(g.enemies.length===n||!e)return;
    Object.assign(e,{id:spec.id,encounterId:spec.encounterId,faction:spec.faction,bossMinion:true,behavior:spec.behavior,
-    x:spec.x,y:spec.y,escortPlane:spec.minion==='seaplane'||spec.minion==='seaplane-central'?'hansa_brandenburg_cc':spec.minion==='seaplane-entente'?'macchi_m5':spec.minion==='sopwith-camel'?'camel':spec.faction==='central'?'albatros':'sopwith',
-    surface:spec.minion==='autocannon',stationary:spec.minion==='autocannon',groundEscort:spec.minion==='autocannon',a:spec.minion==='autocannon'?(spec.vx<0?Math.PI:0):(spec.a??e.a),vx:spec.vx||0,life:spec.behavior==='attack-pass'?6.2:18,fire:spec.fire??1.2,
+    x:spec.x,y:spec.y,escortPlane:spec.minion==='seaplane'||spec.minion==='seaplane-central'?'hansa_brandenburg_cc':spec.minion==='seaplane-entente'?'macchi_m5':spec.minion==='sopwith-camel'?'camel':spec.minion==='airship'?undefined:spec.faction==='central'?'albatros':'sopwith',
+    surface:spec.minion==='autocannon',stationary:spec.minion==='autocannon',groundEscort:spec.minion==='autocannon',a:spec.minion==='autocannon'?(spec.vx<0?Math.PI:0):(spec.a??e.a),vx:spec.vx||0,life:spec.behavior==='attack-pass'?6.2:spec.minion==='airship'?90:18,fire:spec.fire??1.2,
     passTargetX:spec.passTargetX,passTargetY:spec.passTargetY,formationIndex:spec.formationIndex,formationCount:spec.formationCount,supportInvulnUntil:g.t+(spec.invulnerableSeconds||0)});
    if(spec.minion==='bug')Object.assign(e,{bugDrone:true,hp:Math.max(12,Math.round(e.maxHp*.4)),maxHp:Math.max(12,Math.round(e.maxHp*.4)),speed:178,fire:Infinity});
+   if(spec.minion==='airship')Object.assign(e,{summonDone:true,hp:Math.round(e.maxHp*.5),maxHp:Math.round(e.maxHp*.5),fire:2.6});
   },
   countMinions(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&e.hp>0).length;},
   onBuildingImpact(event){const b=g.bossBuildings.find(b=>!b.destroyed&&Math.abs(event.x-b.x)<=b.w/2+8&&Math.abs(event.y-b.y)<=b.h/2);if(!b)return false;b.destroyed=true;g.combatBlast(b.x,b.y,55,'enemy','structure');return true;},
