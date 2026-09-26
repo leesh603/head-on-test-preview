@@ -1,6 +1,6 @@
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // Rendering never changes projectile movement, damage or collision.
-import {fx,fxReady,fxTint,FX56} from './fx-art.js?v=340';
+import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=340';
 export function projectileStyle(b){return b.hostileRocket?'rocket':b.flak?'flak':b.visualType||(b.naval?'naval':b.fieldShell?'balloon':b.heavy?'heavyBomber':'scout')}
 const TRACERS={scout:['#e7a06b',10,2],hunter:['#efb77f',14,2],bomber:['#dfbc7b',11,3],heavyBomber:['#e4ae72',15,3],boss:['#e58f7c',16,3],zeppelin:['#d8bb8b',12,3],railgun:['#efaa89',23,3],naval:['#dfaa82',16,3],balloon:['#dbbf8b',8,3],flak:['#dfac80',6,3],rocket:['#edac77',15,3]};
 // gunUpgradeBonus is the cumulative machine-gun attack bonus, not temporary
@@ -31,6 +31,7 @@ export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
  }
  if(kind==='railgun'&&fxReady('shell')){FX56?fx(c,'shell',-8,0,9,27,Math.PI/2):fx(c,'shell',-8,0,30,9);c.restore();return}
  if(kind==='rocket'&&fxReady('rocket')){fx(c,'rocket',-4,0,34,10);c.restore();return}
+ if(FX3&&fxReady('tracerOrange')){fx(c,'tracerOrange',-length*.35,0,length+10,Math.max(4,width*1.8),0,.92);c.restore();return}
  const head=kind==='rocket'?-15:2;
  // Two short, fading rectangular tail segments echo the aircraft pixel grid.
  c.globalAlpha=.2;c.fillStyle=color;c.fillRect(head-length-7,-width/2,7,width);
@@ -44,8 +45,13 @@ export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
 export function drawCannonProjectile(c,b,x,y){
  if(b.life<=0)return;const cow=!!b.cow37;
  c.save();c.translate(Math.round(x),Math.round(y));c.rotate(Math.atan2(b.vy,b.vx));
- // Reuse the production rocket's painted metal and plume pixels. The short
- // grey plume is part of the sprite, keeping it readable on mobile canvases.
+ // Reuse the existing high-resolution horizontal metal shells, without rocket flame.
+ if(FX3&&fxReady(cow?'shellHeavy':'shellAuto')){
+  if(!cow)fx(c,'gunSmoke',-17,0,19,8,0,.28);
+  fx(c,cow?'shellHeavy':'shellAuto',0,0,cow?24:31,cow?8:7);
+  c.restore();return;
+ }
+ // Original cannon atlas remains the rollback and loading fallback.
  if(cannonAtlas&&cannonAtlas.complete&&cannonAtlas.naturalWidth){
   const sw=cannonAtlas.naturalWidth/2,sh=cannonAtlas.naturalHeight,dw=cow?24:20,dh=cow?56:49;
   c.imageSmoothingEnabled=false;c.rotate(Math.PI/2);
@@ -60,10 +66,20 @@ export function drawCannonProjectile(c,b,x,y){
 }
 // Deterministic, bounded pixel embers; no per-frame sprite allocation or gradients.
 export function drawBattlefieldFire(c,g,point=(x,y)=>[x,y]){
+ if(FX3&&fxReady('fireWing'))for(const e of g.enemies||[]){
+  if(!(e.hp>0&&e.hp<e.maxHp*.35)||e.surface||e.fieldUnit||e.stageBossBody||e.crashing)continue;
+  const a=e.a||0,[x,y]=point(e.x-Math.sin(a)*15,e.y+Math.cos(a)*15);
+  fx(c,'fireWing',x,y,26,22,a+Math.PI/2,.42);
+ }
  for(const e of g.enemies||[])if(e.sunBlindUntil>g.t){const[x,y]=point(e.x,e.y);c.save();c.translate(x,y);c.rotate(e.a);
   if(fxReady('sunshaft')){fx(c,'sunshaft',250,0,520,260,0,.5)}else{c.globalAlpha=.12;c.fillStyle='#e5ca7c';c.beginPath();c.moveTo(0,0);c.arc(0,0,470,-.7,.7);c.closePath();c.fill();c.globalAlpha=.35;c.fillStyle='#f1dca4';for(let i=-2;i<=2;i++){c.save();c.rotate(i*.22);c.fillRect(20,-1,160+Math.abs(i)*25,2);c.restore();}}c.restore();}
- for(const f of g.cannonImpacts||[]){const[x,y]=point(f.x,f.y);fx(c,'armorSpark',x,y,25,25,0,Math.min(1,f.life/.2));}
- for(const f of g.fireZones||[]){const[x,y]=point(f.x,f.y),fade=Math.min(1,f.life/1.5);c.save();c.globalAlpha=.13*fade;c.fillStyle='#c57138';c.beginPath();c.arc(x,y,f.radius,0,Math.PI*2);c.fill();
+ for(const f of g.cannonImpacts||[]){if(FX3&&fxReady('cowImpact0'))continue;const[x,y]=point(f.x,f.y);fx(c,'armorSpark',x,y,25,25,0,Math.min(1,f.life/.2));}
+ for(const f of g.fireZones||[]){const[x,y]=point(f.x,f.y),fade=Math.min(1,f.life/1.5);
+  if(FX3&&fxReady('fireGround')){const d=f.radius*1.8,pulse=.92+Math.sin((g.t||0)*7+f.x)*.08;
+   fx(c,'fireGround',x,y,d,d,0,fade*.82*pulse);fx(c,'fireEngine',x-f.radius*.3,y+f.radius*.14,d*.52,d*.52,.4,fade*.65);
+   fx(c,'smokeOil',x+f.radius*.3,y-f.radius*.18,d*.65,d*.65,0,fade*.16);continue;
+  }
+  c.save();c.globalAlpha=.13*fade;c.fillStyle='#c57138';c.beginPath();c.arc(x,y,f.radius,0,Math.PI*2);c.fill();
   if(fxReady('fire')){
    c.globalAlpha=1;
    const n=Math.max(3,Math.round(f.radius/26));

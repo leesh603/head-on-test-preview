@@ -197,9 +197,10 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  Game.prototype.ordnanceInterval=function(interval){return interval*(this.upgrades?.flightGloves?.6:1)};
  Game.prototype.explosionRadius=function(radius){return radius*(this.upgrades?.amatolCharge?AUGMENTATION_OVERHAUL_BALANCE.amatolRadiusMultiplier:1)};
  Game.prototype.explosionDamage=function(damage,{secondaryExplosion=false}={}){return damage*(this.upgrades?.amatolCharge&&!secondaryExplosion?AUGMENTATION_OVERHAUL_BALANCE.amatolDamageMultiplier:1)};
- Game.prototype.queueExplosionDamage=function(x,y,baseRadius,damage,{secondaryExplosion=false,exclude=null,grenade=false}={}){
+ Game.prototype.queueExplosionDamage=function(x,y,baseRadius,damage,{secondaryExplosion=false,exclude=null,grenade=false,fxSource=null}={}){
   const world=this.combatWorld(),radius=this.explosionRadius(baseRadius),baseDamage=damage,finalDamage=this.explosionDamage(damage,{secondaryExplosion}),amatol=!!this.upgrades?.amatolCharge;
   if(grenade){world.combatFX??=[];world.combatFX.push({x,y,radius,side:'friendly',grenade:true,amatol,secondaryExplosion,life:secondaryExplosion?.24:.32,maxLife:secondaryExplosion?.24:.32});world.event('explosion','friendly')}else world.combatBlast(x,y,radius,'friendly');
+  if(fxSource){const effect=world.combatFX?.at(-1);if(effect)effect.fxSource=fxSource}
   if(amatol){const fx=world.combatFX?.at(-1);if(fx){fx.amatol=true;fx.secondaryExplosion=secondaryExplosion;fx.fragmentSecondary=secondaryExplosion}}
   const hit=new Set();if(exclude)hit.add(exclude);
   world.bullets.push({x,y,vx:0,vy:0,life:.15,enemy:false,ownerId:this.id,damage:finalDamage,hit,pierce:true,blast:true,actualExplosion:true,collisionRadius:radius,explosionRadius:radius,explosionDamage:finalDamage,explosionBaseDamage:baseDamage,explosionBaseRadius:baseRadius,secondaryExplosion,fragmentSecondary:secondaryExplosion,grenadeExplosion:grenade});

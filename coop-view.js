@@ -1,3 +1,4 @@
+import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=340';
 import {drawGasCloud196} from './gas-cloud196.js?v=340';
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=340&b=340';
 import {fx,fxReady,fxTint} from './fx-art.js?v=340';
@@ -65,7 +66,8 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  for(const zone of g.bombZones){const progress=1-zone.delay/zone.maxDelay;c.fillStyle='#ff3c202a';c.beginPath();c.arc(zone.x,zone.y,zone.radius,0,Math.PI*2);c.fill();ring(zone.x,zone.y,zone.radius,'#ff855a');ring(zone.x,zone.y,Math.max(0,zone.radius*(1-progress)),'#ff855a')}
  for(const fxf of g.combatFX){const f=1-fxf.life/fxf.maxLife;if(fxf.amatol){drawAmatolBlast(c,fxf,fxf.x,fxf.y);continue}if(fxf.grenade){drawGrenadeBlast(c,fxf,fxf.x,fxf.y);continue}if(!drawFxExplosion(c,fxf,fxf.x,fxf.y))drawFieldArt('flak',fxf.x,fxf.y,fxf.radius*(1+f)*2,fxf.radius*(1+f)*2,0,Math.min(1,fxf.life*3))}
  for(const f of g.flakBursts)drawBattlefieldSprite(c,'aa',f.x,f.y,66);
- for(const gust of g.gusts)drawFieldArt('gust',gust.x,gust.y,gust.radius*2.6,gust.radius*2.6,gust.a+t*.15,Math.max(0,Math.min(.85,gust.life,6-gust.life)));
+ for(const gust of g.gusts)if(!drawGust3(c,gust,gust.x,gust.y,t))drawFieldArt('gust',gust.x,gust.y,gust.radius*2.6,gust.radius*2.6,gust.a+t*.15,Math.max(0,Math.min(.85,gust.life,6-gust.life)));
+ for(const p of g.grunkreuzPuffs||[])drawGasVeil3(c,p,p.x,p.y,t);
  for(const particle of g.particles){const smokeLife=particle.smoke?Math.max(0,particle.life/particle.maxLife):0;c.globalAlpha=particle.smoke?smokeLife*(particle.muzzleSmoke?.88:.65):Math.min(1,particle.life*3);if(particle.petal){drawPetalParticle(c,particle,particle.x,particle.y);continue}if(particle.heart){heart(particle.x,particle.y,particle.size,particle.color);continue}c.fillStyle=particle.color;const size=particle.smoke?particle.size+(1-smokeLife)*(particle.muzzleSmoke?15:10):3;
   if(!particle.smoke&&fxReady('spark')){fxTint(c,'spark',particle.color,particle.x,particle.y,size*4,size*4);continue}
   if(particle.smoke){const lum=parseInt(particle.color?.slice(1,3)||'88',16),sKey=particle.muzzleSmoke?'smokePuff':lum<110?'smokeDark':lum>170?'smokeWisp':'smokeGray';if(fx(c,sKey,particle.x,particle.y,size*2.4,size*2.4)){c.globalAlpha=1;continue}}

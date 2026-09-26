@@ -1,3 +1,4 @@
+import {roleReady,roleDraw} from './fx-role3.js?v=340';
 // Dense roaring fuel stream in the battlefield fire palette: a bright core
 // wrapped in thick orange masses, a ragged dark fringe, licks that break the
 // outline and embers scattering beyond the cone. Collision and drawing share
@@ -10,6 +11,16 @@ export function drawLivensFlame(c,h){
  const {t,front,tail}=livensFlameSpan(h);if(front<=tail)return;
  c.save();c.translate(h.x,h.y);c.rotate(h.angle);
  const L=h.length,hw=q=>h.thickness*(.5+2.1*q);
+ if(roleReady('fireEngine')){
+  // Clip the artwork to the same travelling front and tail used for damage.
+  c.beginPath();c.rect(tail,-hw(1),front-tail,hw(1)*2);c.clip();
+  const step=Math.max(14,(front-tail)/26);
+  for(let x=tail;x<front;x+=step){const width=Math.max(20,hw(x/L)*2),fade=Math.min(1,(front-x)/24,(x-tail+step)/20);
+   roleDraw(c,'fireGround',x+step*.5,0,Math.max(38,step*3.2),width*1.35,0,fade*.88);
+   roleDraw(c,'fireEngine',x+step*.5,Math.sin(x*.13+t*5)*width*.09,Math.max(32,step*2.8),width,Math.PI/2,fade*.65);
+  }
+  c.restore();return;
+ }
  // Ragged deep-red fringe; slightly oversized so the body never looks thin.
  for(let x=tail+6;x<=front;x+=10){
   const H=hw(x/L),n=Math.max(2,H/10|0);
