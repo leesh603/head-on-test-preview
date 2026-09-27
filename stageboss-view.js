@@ -33,7 +33,7 @@ const bossSources={
  londonApron:'./boss-london-apron115.webp',drachenNet:'./boss-drachen-net115.webp',
  railCarrier:'./boss-art-rail-carrier.webp?v=340',treffasWagen:'./boss-art-treffas-wagen.webp?v=343',
  mark4:'./boss-mark4.webp?v=344',mark4Wreck:'./boss-mark4-wreck.webp?v=344',morser:'./boss-morser.webp?v=344',morserWreck:'./boss-morser-wreck.webp?v=344',
- staaken:'./staaken_dark.webp?v=345',staakenWreck:'./boss-staaken-wreck.webp?v=345',searchlight:'./boss-searchlight.webp?v=344',searchlightWreck:'./boss-searchlight-wreck.webp?v=344'
+ staaken:'./staaken_dark.webp?v=346',staakenWreck:'./boss-staaken-wreck.webp?v=345',searchlight:'./boss-searchlight.webp?v=344',searchlightWreck:'./boss-searchlight-wreck.webp?v=344'
 };
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
 const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.webp',a7vTurret:'./boss-a7v-turret-rebuild.webp',markvHull:'./boss-mark-v-hull-rebuild.webp',markvSponson:'./boss-mark-v-sponson-rebuild.webp'}),rebuildArt=rebuildGroup.images;
