@@ -1,14 +1,14 @@
 import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=340&b=340';
-import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=340';
-import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=340&b=340';
-import {drawLivensFlame} from './livens-fire195.js?v=349';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=340';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=344';
-import {bossHudModel} from './headon-stageboss-hud.js?v=340&b=340';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=349';
-import {planeSprite} from './aircraft.js?v=340&b=340';
-import {getLocale} from './i18n.js?v=340';
-import {drawAADefense,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=344';
+import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=351';
+import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=351';
+import {drawLivensFlame} from './livens-fire195.js?v=351';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=351';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=351';
+import {bossHudModel} from './headon-stageboss-hud.js?v=351';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=351';
+import {planeSprite} from './aircraft.js?v=351';
+import {getLocale} from './i18n.js?v=351';
+import {drawAADefense,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=351';
 
 function createLazyImageGroup(sources){
  const cache={},pending={};
@@ -136,14 +136,6 @@ function drawRailConsist181(c,b){
  c.save();c.imageSmoothingEnabled=true;
  if(b.phase==='derailed'){c.rotate(.16);c.translate(28,8);}
  const carDim=set==='railCarrier'?[124,400]:[260,390];
- if(set==='railCarrier'){
-  // Solid armored hull under the lattice car art — the cut-outs alone read as
-  // a transparent ghost train against the terrain.
-  const ys=[...cars.values()].map(car=>car.y),top=Math.min(...ys,0)-192,bottom=Math.max(...ys,0)+192;
-  c.fillStyle='#43413a';c.beginPath();c.arc(0,top,58,Math.PI,0,true);c.rect(-58,top,116,bottom-top);c.arc(0,bottom,58,0,Math.PI);c.fill();
-  c.fillStyle='#565349';c.fillRect(-51,top+12,102,bottom-top-24);
-  c.fillStyle='#38352e';for(const y of ys)c.fillRect(-51,y+178,102,9);
- }
  for(const [id,key] of [['car-rear','rear'],['car-middle','middle'],['car-front','front']]){const car=cars.get(id);if(!car)continue;
   const wreckImage=wreckImages[key]; // Load only the active train's wreck art.
   if(!car.destroyed){c.drawImage(images[key],-carDim[0]/2,car.y-carDim[1]/2,carDim[0],carDim[1]);
@@ -154,7 +146,6 @@ function drawRailConsist181(c,b){
   if(age>=3.0)continue;
   c.save();c.translate(0,car.y);c.rotate(.025);
   const fade=Math.max(0,1-age/2.4);
-  if(set==='railCarrier'){c.fillStyle='#1f1b17';c.fillRect(-62,-192,124,384);} // burned-out section on the hull
   if(wreckImage.naturalWidth&&fade>0){c.globalAlpha=fade;c.drawImage(wreckImage,-carDim[0]/2,-carDim[1]/2,carDim[0],carDim[1]);c.globalAlpha=1;}
   for(let k=0;k<7;k++){const e=clamp((age*.9-k*.28),0,1);if(e<=0||e>=1)continue;const ex=Math.sin(k*2.31)*78,ey=-135+(k%3)*130+Math.sin(k*5.7)*46,fr=Math.min(3,Math.floor(e*4));fx(c,(k%2?'explosionOily':'explosion')+fr,ex,ey,(120+70*e),(120+70*e),0,.95*(1-e*.4));}
   for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.37)%1;fx(c,'smokeDark',Math.sin(k*4.1)*60,-90-s*170,120+s*150,120+s*150,0,(1-s)*.42);}
@@ -453,7 +444,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     const partById=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
     // The assembled atlas reads as the actual vehicle; the cut-out parts looked
     // broken at this scale. Destroyed parts get a scorch patch + smoke instead.
-    const atlas=bossArt.treffasWagen;
+    const atlas=null; // assemble from the independently destructible authored parts below
     const roll=Math.sin((b.wheelRoll||0)*9)*.04;
     if(atlas?.naturalWidth){
      const im=b.destroying?(bakedImage(atlas,'grayscale(.62) brightness(.52) sepia(.35)')||atlas):atlas;

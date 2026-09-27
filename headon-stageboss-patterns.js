@@ -934,11 +934,13 @@ export class MorserBattery extends PatternBoss {
   }
   liveGuns(){return ['gun-1','gun-2','gun-3'].filter(id=>!this.parts.get(id).destroyed);}
   onPartDestroyed(p){
+    if(p.id.startsWith('gun-'))this.command('cancel-hazards',{tag:'morser-'+p.id});
     // Shell store cooks: one big blast under the battery once the ammo pit dies.
     if(p.id==='ammo'&&!this.ammoCooked){
       this.ammoCooked=true;const blast=Math.min(this.hp,this.maxHp*.14);this.hp-=blast;
-      this.command('internal-explosion',{x:this.x,y:this.y+96,damage:blast});
-      this.hazard('circle',{x:this.x,y:this.y+96,radius:130,warning:.6,duration:.6,once:true,damage:this.t.damage*1.4,visual:'shell',sourceX:this.x,sourceY:this.y+96});
+      const x=this.x+p.x,y=this.y+p.y;
+      this.command('internal-explosion',{x,y,damage:blast});
+      this.hazard('circle',{x,y,radius:130,warning:.6,duration:.6,once:true,damage:this.t.damage*1.4,visual:'shell',sourceX:x,sourceY:y,tag:'morser-ammo'});
     }
     if(!this.liveGuns().length&&!this.coreVulnerable){
       this.coreVulnerable=true;this.phase='exposed';this.command('phase-change',{phase:'exposed'});
@@ -953,7 +955,7 @@ export class MorserBattery extends PatternBoss {
         const gun=this.parts.get(id),p=this.target(players);
         if(p){
           const lead=Math.min(.75,.35+loop*.06),tx=p.x+(p.vx||0)*lead,ty=p.y+(p.vy||0)*lead;
-          this.hazard('circle',{x:tx,y:ty,radius:86,warning:2.1,duration:.55,once:true,damage:Math.round(this.t.damage*1.5),visual:'morser-shell',sourceX:this.x+gun.x,sourceY:this.y+gun.y,tag:'morser-artillery'});
+          this.hazard('circle',{x:tx,y:ty,radius:86,warning:2.1,duration:.55,once:true,damage:Math.round(this.t.damage*1.5),visual:'morser-shell',sourceX:this.x+gun.x,sourceY:this.y+gun.y,tag:'morser-'+id});
           this.command('muzzle',{x:this.x+gun.x,y:this.y+gun.y,partId:id});
         }
       }
@@ -1033,6 +1035,8 @@ export class LondonSearchlight extends PatternBoss {
   }
   liveParts(){return ['light','gun','ammo'].filter(id=>!this.parts.get(id).destroyed);}
   onPartDestroyed(p){
+    if(p.id==='light')this.command('cancel-hazards',{tag:'london-beam'});
+    if(p.id==='gun')this.command('cancel-hazards',{tag:'london-flak'});
     if(p.id==='ammo'&&!this.ammoCooked){
       this.ammoCooked=true;const blast=Math.min(this.hp,this.maxHp*.1);this.hp-=blast;
       this.command('internal-explosion',{x:this.x-70,y:this.y+55,damage:blast});
