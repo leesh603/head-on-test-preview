@@ -31,7 +31,8 @@ const bossSources={
  l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=340&b=340',ca4:'./boss-ca4.webp?v=340&b=340',
  londonApron:'./boss-london-apron115.webp',drachenNet:'./boss-drachen-net115.webp',
  railCarrier:'./boss-art-rail-carrier.webp?v=340',treffasWagen:'./boss-art-treffas-wagen.webp?v=340',
- mark4:'./boss-mark4.webp?v=340',mark4Wreck:'./boss-mark4-wreck.webp?v=340',morser:'./boss-morser.webp?v=340',morserWreck:'./boss-morser-wreck.webp?v=340'
+ mark4:'./boss-mark4.webp?v=340',mark4Wreck:'./boss-mark4-wreck.webp?v=340',morser:'./boss-morser.webp?v=340',morserWreck:'./boss-morser-wreck.webp?v=340',
+ staaken:'./staaken_dark.webp?v=340',staakenWreck:'./boss-staaken-wreck.webp?v=340',searchlight:'./boss-searchlight.webp?v=340',searchlightWreck:'./boss-searchlight-wreck.webp?v=340'
 };
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
 const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.webp',a7vTurret:'./boss-a7v-turret-rebuild.webp',markvHull:'./boss-mark-v-hull-rebuild.webp',markvSponson:'./boss-mark-v-sponson-rebuild.webp'}),rebuildArt=rebuildGroup.images;
@@ -48,7 +49,7 @@ const trenchGroup=createLazyImageGroup({
 // Four authored RGBA frames, graded/packed offline; no runtime filter or canvas copy.
 const impactGroup=createLazyImageGroup({atlas:'./fx-mortar-impact340.webp'}),impactArt=impactGroup.images;
 const BOSS_KEYS_BY_REGION=Object.freeze({
- 0:['parisGun','lincomparable'],1:['stuttgart','zubian'],2:['a7v','markv'],3:[],4:['londonApron','drachenNet'],5:['l70','hma23'],6:['gik','ca4'],7:[],8:['railCarrier','treffasWagen'],10:['mark4','mark4Wreck','morser','morserWreck']
+ 0:['parisGun','lincomparable'],1:['stuttgart','zubian'],2:['a7v','markv'],3:[],4:['londonApron','drachenNet'],5:['l70','hma23'],6:['gik','ca4'],7:[],8:['railCarrier','treffasWagen'],10:['mark4','mark4Wreck','morser','morserWreck'],11:['staaken','staakenWreck','searchlight','searchlightWreck']
 });
 export function prepareStageBossAssets(region){
  const jobs=[];
@@ -258,6 +259,11 @@ function drawBossPart(c,p,ring,t=0){
   if(p.destroyed)return;
   if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r*.7,p.y+r*.62,r*1.4,4);c.fillStyle='#efb96f';c.fillRect(p.x-r*.7,p.y+r*.62,r*1.4*p.hp/p.maxHp,4);}return;
  }
+ if(p.bodyKey==='staaken-rvi'||p.bodyKey==='london-searchlight'){
+  // Composite bodies paint the hardware; parts stay interaction markers only.
+  if(p.destroyed)return;
+  if(p.hittable){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
+ }
  if(p.bodyKey==='a7v-flak'){
   if(p.destroyed){partWreck(c,p,r,t);return;}
   if(!p.destroyed&&rebuildArt.a7vTurret.naturalWidth){const angle={front:-Math.PI/2,rear:Math.PI/2,left:Math.PI,right:0}[p.partId]||0;c.save();c.translate(p.x,p.y);c.rotate(angle);c.imageSmoothingEnabled=true;c.drawImage(rebuildArt.a7vTurret,-47,-47,94,94);c.restore();}
@@ -377,7 +383,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     c.rotate((b.assetKey==='armored-harbor-fortress'?-1:1)*wreck*.3);
     c.globalAlpha*=Math.max(0,1-wreck*.9);
    }
-   const ship=b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart',rail=['paris-gun','lincomparable','fliegerzug'].includes(b.assetKey),structure=['livens-flame-projector','minenwerfer-battery','treffas-wagen','morser-battery'].includes(b.assetKey),plane=['jasta11-circus','naval10-black-flight'].includes(b.assetKey);
+   const ship=b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart',rail=['paris-gun','lincomparable','fliegerzug'].includes(b.assetKey),structure=['livens-flame-projector','minenwerfer-battery','treffas-wagen','morser-battery','staaken-rvi','london-searchlight'].includes(b.assetKey),plane=['jasta11-circus','naval10-black-flight'].includes(b.assetKey);
    if(ship){for(let i=0;i<12;i++){const drift=(b.motionTime*32+i*13)%155;c.fillStyle=i%2?'#d7f1de99':'#6eb9b777';const w=18+drift*.3;c.fillRect(-w/2,125+drift,w,4);}}
 
    // Churned-earth trail under the Treffas-Wagen, in world space before any scale.
@@ -461,6 +467,27 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      c.save();c.translate(p.x,p.y);c.rotate(rock*(id==='tank-lead'?1:id==='tank-left'?-1.2:1.2));c.imageSmoothingEnabled=true;
      c.drawImage(im,-w/2,-h/2,w,h);c.restore();
     }
+   }
+   else if(b.assetKey==='staaken-rvi'){
+    const partById=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
+    const im=b.destroying?(bossArt.staakenWreck||bossArt.staaken):bossArt.staaken;
+    if(im?.naturalWidth){c.save();c.imageSmoothingEnabled=true;
+     if(b.phase==='doomed')c.rotate(.06);
+     c.drawImage(im,-190,-125,380,250);c.restore();}
+    // Dead nacelles burn in place on the wing.
+    if(!b.destroying)for(const id of ['eng-0','eng-1','eng-2','eng-3']){const p=partById(id);if(!p?.destroyed)continue;
+     c.fillStyle='#141109dd';c.beginPath();c.ellipse(p.x,p.y,26,20,0,0,Math.PI*2);c.fill();
+     fx(c,'fireEngine',p.x,p.y-8,30,30,0,.8);
+     for(let k=0;k<2;k++){const s=((b.motionTime||0)*.5+k*.5)%1;fx(c,'smokeDark',p.x+Math.sin(k*4.3)*12,p.y-16-s*56,22+s*36,22+s*36,0,(1-s)*.5);}}
+   }
+   else if(b.assetKey==='london-searchlight'){
+    const partById=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
+    const im=b.destroying?(bossArt.searchlightWreck||bossArt.searchlight):bossArt.searchlight;
+    if(im?.naturalWidth){c.save();c.imageSmoothingEnabled=true;c.drawImage(im,-170,-175,340,350);c.restore();}
+    // Knocked-out positions get a char patch + smoke over the composite art.
+    if(!b.destroying)for(const id of ['light','gun','ammo']){const p=partById(id);if(!p?.destroyed)continue;
+     c.fillStyle='#191512cc';c.beginPath();c.ellipse(p.x,p.y,p.radius||46,(p.radius||46)*.86,0,0,Math.PI*2);c.fill();
+     for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.33)%1;fx(c,'smokeDark',p.x+Math.sin(k*4.1)*22,p.y-24-s*64,24+s*38,24+s*38,0,(1-s)*.5);}}
    }
    else if(b.assetKey==='morser-battery'){
     const partById=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);

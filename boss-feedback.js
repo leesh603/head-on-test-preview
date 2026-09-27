@@ -7,7 +7,8 @@ export const BOSS_NAMES_EN=Object.freeze({
  'a7v-flak':'A7V Flakpanzer','mark-v-cruiser':'Mark V land cruiser','livens-flame-projector':'Livens flame projector','minenwerfer-battery':'Minenwerfer battery',
  'drachen-net':'Drachen mine network','london-apron':'London balloon apron','zeppelin-l70':'Zeppelin L 70',hma23:'HMA 23 carrier',gik:'Hansa-Brandenburg G.IK',ca4:'Caproni Ca.4','armored-harbor-fortress':'Armored harbor fortress',
  'fliegerzug':'Fliegerzug drone carrier','treffas-wagen':'Treffas-Wagen landship',
- 'jasta11-circus':'JASTA 11 · FLYING CIRCUS','naval10-black-flight':'NAVAL 10 · BLACK FLIGHT'
+ 'jasta11-circus':'JASTA 11 · FLYING CIRCUS','naval10-black-flight':'NAVAL 10 · BLACK FLIGHT',
+ 'staaken-rvi':'Staaken R.VI giant bomber','london-searchlight':'London searchlight battery'
 });
 export function bossTactic(encounter,locale='ko'){
  const bodies=[...encounter?.bodies.values()||[]].filter(b=>!b.dead),b=bodies[0];if(!b)return '';
@@ -31,6 +32,8 @@ export function bossTactic(encounter,locale='ko'){
   case 'treffas-wagen':return b.coreVulnerable?text('본체 노출 · 집중 사격','Hull exposed · concentrate fire'):b.phase==='crippled'?text('차륜 붕괴 · 제자리 포격 중 — 본체 코어 공략','Wheels down · dug-in barrage — hit the hull'):gone('wheel-left')||gone('wheel-right')?text('남은 차륜을 부수면 전진이 멈춤','Break the last wheel to halt its advance'):text('차륜이 뿜는 파편을 피하며 차륜과 포탑 파괴','Dodge debris spray · break wheels and turret');
   case 'jasta11-circus':return text('좌우 공격축을 맡은 편대기를 격추해 포위망을 약화 · 리히트호펜 직접 격추 가능','Break the wing attack lanes to weaken the trap · Richthofen is always vulnerable');
   case 'naval10-black-flight':return text('2기조의 미끼와 사냥꾼을 분리 · 한 기가 사라지면 짝의 협공이 중단됨','Split each bait-hunter pair · losing either aircraft breaks that pair attack');
+  case 'staaken-rvi':return b.phase==='doomed'?text('엔진 전부 파괴 · 노출된 동체 집중 공격','All engines down · strike the exposed fuselage'):text('엔진 4기를 파괴해 비행을 멈추고 동체 노출','Destroy the four engines to expose the fuselage');
+  case 'london-searchlight':return b.coreVulnerable?text('방공 진지 무력화 · 지휘 벙커 공격','Battery silenced · attack the command bunker'):gone('light')?text('탐조등 파괴됨 · 고사포와 탄약고 공략','Searchlight down · break the gun and shell racks'):text('탐조등 빔을 피하고 고사포·탄약고·등을 모두 파괴','Stay out of the beam · destroy gun, lamp and racks');
   default:return '';
  }
 }

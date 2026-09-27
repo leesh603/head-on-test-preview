@@ -685,7 +685,7 @@ Game.prototype.healthSpeedFactor=function(){return 1};
 
 // Region identity is shared by simulation, drawing and hazards. Campaigns lock it.
 Game.prototype.worldRegion=function(){return this.lockedRegion??this.stageBoss?.stages.stageIndex??Math.floor((this.distance||0)/12000)%3};
-const REGION_LABELS53=Object.freeze(['전원 지대 · 기뢰지대','아드리아해 · 적 함대','참호 전선 · 대공포','포화의 참호전선','도심 전역','고공 전역','알프스 산맥','제브뤼헤 군항 · 해안포대','캉브레 들판 · 무인기 모함','아라스 상공 · 적 비행단','솜 강전선 · 전차 돌파전']);
+const REGION_LABELS53=Object.freeze(['전원 지대 · 기뢰지대','아드리아해 · 적 함대','참호 전선 · 대공포','포화의 참호전선','도심 전역','고공 전역','알프스 산맥','제브뤼헤 군항 · 해안포대','캉브레 들판 · 무인기 모함','아라스 상공 · 적 비행단','솜 강전선 · 전차 돌파전','런던 대공습 · 야간 폭격']);
 Game.prototype.clearRegionalHazards=function(){
  this._projectileGrid?.clear();
  // Region transitions are explicit memory cleanup points. Preserve progression,

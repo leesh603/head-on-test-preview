@@ -3,7 +3,7 @@ import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=34
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
-export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai', 'arras', 'somme']);
+export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai', 'arras', 'somme', 'london']);
 export const BOSS_CATALOG = Object.freeze({
   'paris-gun': {name:'브루노 열차포', faction:'central', stage:0},
   lincomparable: {name:'520mm 열차포 · 랑콩파라블', faction:'entente', stage:0},
@@ -26,6 +26,8 @@ export const BOSS_CATALOG = Object.freeze({
   ,'naval10-black-flight': {name:'네이벌 10 — 블랙 플라이트', faction:'entente', stage:9, pilot:'collishaw', formationSize:5}
   ,'mark4-wedge': {name:'마크 IV 쐐기 전차대', faction:'entente', stage:10}
   ,'morser-battery': {name:'21cm 뫼르저 중박격포대', faction:'central', stage:10}
+  ,'staaken-rvi': {name:'슈타켄 R.VI 거폭격기', faction:'central', stage:11}
+  ,'london-searchlight': {name:'런던 탐조등 방공진지', faction:'entente', stage:11}
 });
 const living = players => players.filter(p => p.alive);
 const randBetween = (rng,a,b) => a + (b-a)*rng();
@@ -881,12 +883,113 @@ export class MorserBattery extends PatternBoss {
   }
 }
 
+// The Staaken R.VI giant bomber: its four engine nacelles are the hittable
+// parts. Each dead engine sags the bomber lower on its patrol; when the last
+// engine dies the fuselage core opens and the giant goes into its death glide.
+export class StaakenRVI extends PatternBoss {
+  constructor(options){
+    super({...options,kind:'staaken-rvi',coreRadius:options.tuning.coreRadius||62,parts:[
+      {id:'eng-0',x:-106,y:-12,radius:23,maxHp:options.tuning.partHp*1.8},
+      {id:'eng-1',x:-37,y:-12,radius:23,maxHp:options.tuning.partHp*1.8},
+      {id:'eng-2',x:37,y:-12,radius:23,maxHp:options.tuning.partHp*1.8},
+      {id:'eng-3',x:106,y:-12,radius:23,maxHp:options.tuning.partHp*1.8}
+    ]});
+    this.coreVulnerable=false;this.ownsMotion129=true;this.phase='raid';
+    this.anchorX=this.x;this.anchorY=this.y;this.gunSide=-1;this.doomedAt=null;
+  }
+  liveEngines(){return ['eng-0','eng-1','eng-2','eng-3'].filter(id=>!this.parts.get(id).destroyed);}
+  onPartDestroyed(p){
+    if(p.id.startsWith('eng-')&&!this.liveEngines().length){
+      this.phase='doomed';this.coreVulnerable=true;this.doomedAt=this.motionTime||0;
+      this.command('phase-change',{phase:'doomed'});this.timers.set('dump',.6);
+    }
+  }
+  update(dt,{players,bounds}){
+    if(this.dead)return;
+    const live=this.liveEngines().length,mt=this.motionTime||0,doomed=this.phase==='doomed';
+    // Long lateral bombing run; dead engines shorten the span and sag her lower.
+    const span=(doomed?60:120+live*16)*Math.min(1,(bounds.right-bounds.left)/620);
+    this.x=this.anchorX+Math.sin(mt*.14)*span;
+    this.y=this.anchorY+(4-live)*(doomed?46:22)+Math.sin(mt*.19+1.3)*14
+      +(doomed?Math.min(150,(mt-this.doomedAt)*12):0);
+    // Stick bombing: a row of bursts laid along the run toward the target.
+    if(!doomed&&this.due('stick',dt,Math.max(4.6,6.4-(this.t.loopIndex||0)*.35))){
+      const p=this.target(players);
+      if(p){const dx=p.x-this.x,dy=p.y-this.y,d=Math.max(1,Math.hypot(dx,dy)),ux=dx/d,uy=dy/d;
+        for(let i=0;i<5;i++)this.hazard('circle',{x:this.x+ux*(70+i*58)+randBetween(this.rng,-16,16),y:this.y+uy*(70+i*58),delay:i*.15,radius:54,warning:1.05,duration:.42,once:true,damage:Math.round(this.t.damage*1.35),visual:'carpet-bomb',tag:'staaken-stick'});
+        this.command('muzzle',{x:this.x,y:this.y+60});}
+    }
+    // Nose and ventral gunners alternate streams at close attackers.
+    if(this.due('para',dt,(this.t.suppressiveInterval||2.7)*.88)){
+      const p=this.target(players);
+      if(p&&Math.hypot(p.x-this.x,p.y-this.y)<780){const gy=(this.gunSide*=-1)>0?88:-120,mx=this.x,my=this.y+gy,a=Math.atan2(p.y-my,p.x-mx);
+        this.command('muzzle',{x:mx,y:my});this.fan(mx,my,a,3,.24,this.t.bulletSpeed*.92,'staaken-mg');}
+    }
+    if(doomed&&this.due('dump',dt,9)){
+      const p=this.target(players),cx=p?p.x:this.x,cy=p?p.y:this.y+200;
+      for(let i=0;i<7;i++)this.hazard('circle',{x:cx+(i-3)*62+randBetween(this.rng,-20,20),y:cy+randBetween(this.rng,-30,60),delay:.1+i*.09,radius:58,warning:1.15,duration:.45,once:true,damage:Math.round(this.t.damage*1.3),visual:'carpet-bomb',tag:'staaken-dump'});
+    }
+    if(!doomed&&!live&&!this.coreVulnerable){this.coreVulnerable=true;this.phase='doomed';}
+  }
+  suppressive(){/* defence comes from the gunner fans, not a generic spray */}
+}
+
+// London night defence: a rotating searchlight beam marks whoever it catches
+// (the hazard pool lights them), and the AA gun spends its flak on lit targets
+// first. The command bunker core opens once the gun, the lamp and the shell
+// racks are all knocked out.
+export class LondonSearchlight extends PatternBoss {
+  constructor(options){
+    super({...options,kind:'london-searchlight',coreRadius:options.tuning.coreRadius||70,parts:[
+      {id:'light',x:-55,y:-70,radius:46,maxHp:options.tuning.partHp*1.6},
+      {id:'gun',x:56,y:-27,radius:50,maxHp:options.tuning.partHp*2},
+      {id:'ammo',x:-70,y:55,radius:42,maxHp:options.tuning.partHp*1.2}
+    ]});
+    this.coreVulnerable=false;this.ownsMotion129=true;this.phase='watch';this.beamSide=-1;this.timers.set('flak',2.2);
+  }
+  liveParts(){return ['light','gun','ammo'].filter(id=>!this.parts.get(id).destroyed);}
+  onPartDestroyed(p){
+    if(p.id==='ammo'&&!this.ammoCooked){
+      this.ammoCooked=true;const blast=Math.min(this.hp,this.maxHp*.1);this.hp-=blast;
+      this.command('internal-explosion',{x:this.x-70,y:this.y+55,damage:blast});
+      this.hazard('circle',{x:this.x-70,y:this.y+55,radius:112,warning:.6,duration:.55,once:true,damage:this.t.damage*1.3,visual:'shell',sourceX:this.x-70,sourceY:this.y+55});
+    }
+    if(!this.liveParts().length&&!this.coreVulnerable){
+      this.coreVulnerable=true;this.phase='exposed';this.command('phase-change',{phase:'exposed'});
+    }
+  }
+  update(dt,{players,bounds,isIlluminated}){
+    if(this.dead)return;
+    const light=!this.parts.get('light').destroyed,gun=!this.parts.get('gun').destroyed,slow=this.parts.get('ammo').destroyed;
+    // The lamp sweeps a full-height cone back and forth across the field.
+    if(light&&this.due('beam',dt,slow?13:9.4)){
+      const side=this.beamSide*=-1,span=Math.max(bounds.bottom-bounds.top,520);
+      this.hazard('searchlight',{x:this.x-55,y:this.y-70,angle:-Math.PI/2+side*.55,angularSpeed:-side*.3,halfAngle:.16,radius:span,duration:6.2,warning:.7,damage:0,tickInterval:.2,visual:'searchlight',tag:'london-beam'});
+    }
+    // The 3-inch gun prioritises whoever the beam has lit.
+    if(gun&&this.due('flak',dt,(slow?7.4:3.9))){
+      const lit=(players||[]).filter(p=>p.alive&&isIlluminated?.(p));
+      const p=lit[0]||this.target(players);
+      if(p){const gx=this.x+56,gy=this.y-27,lead=lit.length?.6:.3,spread=lit.length?28:78,count=lit.length?3:2;
+        const tx=p.x+(p.vx||0)*lead,ty=p.y+(p.vy||0)*lead;
+        for(let i=0;i<count;i++)this.hazard('circle',{x:tx+randBetween(this.rng,-spread,spread),y:ty+randBetween(this.rng,-spread,spread),delay:i*.22,radius:lit.length?46:54,warning:lit.length?.95:1.3,duration:.4,once:true,damage:Math.round(this.t.damage*1.25),visual:'black-flak',sourceX:gx,sourceY:gy,tag:'london-flak'});
+        this.command('muzzle',{x:gx,y:gy,partId:'gun'});}
+    }
+    // Sandbag MG nests brush off anyone diving the pit.
+    if(this.due('london-defend',dt,this.liveParts().length?3.4:2.7)){
+      const p=this.target(players);
+      if(p&&Math.hypot(p.x-this.x,p.y-this.y)<480){const a=Math.atan2(p.y-this.y,p.x-this.x);this.fan(this.x,this.y+96,a,3,.3,this.t.bulletSpeed*.85,'london-mg');}
+    }
+    if(!this.liveParts().length&&!this.coreVulnerable){this.coreVulnerable=true;this.phase='exposed';}
+  }
+}
+
 const constructors={'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttgart':Stuttgart,'hms-zubian':Zubian,
   'zeppelin-l70':ZeppelinL70,hma23:HMA23,'a7v-flak':A7VFlak,'mark-v-cruiser':MarkVCruiser,
   'livens-flame-projector':LivensFlameProjector,'minenwerfer-battery':MinenwerferBattery,
   'london-apron':LondonApron,'drachen-net':DrachenMineNet,gik:GIK,ca4:Ca4,'armored-harbor-fortress':ArmoredHarborFortress,
   fliegerzug:Fliegerzug,'treffas-wagen':TreffasWagen,'jasta11-circus':JastaCircus,'naval10-black-flight':Naval10BlackFlight,
-  'mark4-wedge':Mark4Wedge,'morser-battery':MorserBattery};
+  'mark4-wedge':Mark4Wedge,'morser-battery':MorserBattery,'staaken-rvi':StaakenRVI,'london-searchlight':LondonSearchlight};
 export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   const entry=BOSS_CATALOG[bossId],Ctor=constructors[bossId];if(!Ctor)throw new Error('Unknown boss: '+bossId);
   const body=new Ctor({id:id+':body',tuning,x,y,emit,rng,faction:faction||entry.faction,coreRadius:tuning.coreRadius||100});

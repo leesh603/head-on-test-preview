@@ -449,7 +449,7 @@ function harborLandmark(){
  }
  return zeebruggeHarborBlend=c;
 }
-const terrainKeys=['rural','sea','trenches','burning','city','sky','alps','zeebrugge','cambrai','arras','somme'];
+const terrainKeys=['rural','sea','trenches','burning','city','sky','alps','zeebrugge','cambrai','arras','somme','london'];
 const _ruralTerrain=terrain;
 function drawSeamlessRural(cx,cy,W,H){
  ctx.fillStyle='#758461';ctx.fillRect(0,0,W,H);const worldX=cx-W/2,worldY=cy-H/2;
@@ -537,7 +537,7 @@ terrain=(cx,cy)=>{
 const _worldDraw=draw;
 draw=t=>{
  _worldDraw(t);if(!game)return;
- ctx.save();ctx.font='12px monospace';ctx.textAlign='left';ctx.fillStyle='#f1edd0';ctx.fillText((game.mode==='campaign'?game.stage.region:['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선'][game.region||0])+' · 비행 '+((game.distance||0)/1000).toFixed(1)+' km',14,H-14);
+ ctx.save();ctx.font='12px monospace';ctx.textAlign='left';ctx.fillStyle='#f1edd0';ctx.fillText((game.mode==='campaign'?game.stage.region:['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'][game.region||0])+' · 비행 '+((game.distance||0)/1000).toFixed(1)+' km',14,H-14);
  for(const e of game.enemies){if(!e.bossPilot)continue;const x=e.x-game.x+W/2,y=e.y-game.y+H/2;ctx.textAlign='center';ctx.fillStyle='#ffcf86';ctx.fillText(e.name,x,y-58)}
  if(game.wingBoost>0){ctx.strokeStyle='#f5e7ad';for(const a of game.allies){const x=a.x-game.x+W/2,y=a.y-game.y+H/2;ctx.beginPath();ctx.arc(x,y,28,0,Math.PI*2);ctx.stroke()}}
  ctx.restore();
@@ -850,9 +850,10 @@ const highTerrainProfile={rural:{cell:0,base:'#424b3b'},sea:{cell:1,base:'#25455
 const terrainCambraiImage=new Image();terrainCambraiImage.src='./terrain-cambrai.webp?v=340';terrainCambraiImage.onload=()=>terrainAlpsRenderer.tiles?.delete?.('cambrai');
 const terrainArrasImage=new Image();terrainArrasImage.src='./terrain-arras.webp?v=340';terrainArrasImage.onload=()=>terrainAlpsRenderer.tiles?.delete?.('arras');
 const terrainSommeImage=new Image();terrainSommeImage.src='./terrain-somme.webp?v=340';terrainSommeImage.onload=()=>terrainAlpsRenderer.tiles?.delete?.('somme');
+const terrainLondonImage=new Image();terrainLondonImage.src='./terrain-london.webp?v=340';terrainLondonImage.onload=()=>terrainAlpsRenderer.tiles?.delete?.('london');
 TerrainRendererSafe.prototype.tile=function(key){
- if(key==='cambrai'||key==='arras'||key==='somme'){
-  const im=key==='cambrai'?terrainCambraiImage:key==='arras'?terrainArrasImage:terrainSommeImage,base=key==='cambrai'?'#655d45':key==='arras'?'#4d5a66':'#5a5244';
+ if(key==='cambrai'||key==='arras'||key==='somme'||key==='london'){
+  const im=key==='cambrai'?terrainCambraiImage:key==='arras'?terrainArrasImage:key==='london'?terrainLondonImage:terrainSommeImage,base=key==='cambrai'?'#655d45':key==='arras'?'#4d5a66':key==='london'?'#232a36':'#5a5244';
   if(this.tiles.has(key))return this.tiles.get(key);
   const c=this.canvasFactory(768,768),g=c.getContext('2d');g.fillStyle=base;g.fillRect(0,0,768,768);
   if(im.naturalWidth){g.imageSmoothingEnabled=true;g.drawImage(im,3,3,im.naturalWidth-6,im.naturalHeight-6,0,0,768,768);}
@@ -1113,7 +1114,7 @@ draw=frameTime=>{battlefieldMissionDraw(frameTime);const event=game?.battlefield
 
 // HEAD-ON Test Lab bridge. It is inert on production and only activates on the
 // repository's public GitHub Pages preview or local development hosts.
-const HEADON_TEST_REGION_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선'];
+const HEADON_TEST_REGION_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'];
 const HEADON_TEST_ALLOWED_HOSTS=new Set(['localhost','127.0.0.1','terminal.local','leesh603.github.io']);
 function installHeadOnTestLab(){
  const testHost=globalThis.location?.hostname||'';if(!HEADON_TEST_ALLOWED_HOSTS.has(testHost))return;
