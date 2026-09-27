@@ -33,7 +33,7 @@ const bossSources={
  londonApron:'./boss-london-apron115.webp',drachenNet:'./boss-drachen-net115.webp',
  railCarrier:'./boss-art-rail-carrier.webp?v=340',treffasWagen:'./boss-art-treffas-wagen.webp?v=343',
  mark4:'./boss-mark4.webp?v=344',mark4Wreck:'./boss-mark4-wreck.webp?v=344',morser:'./boss-morser.webp?v=344',morserWreck:'./boss-morser-wreck.webp?v=344',
- staaken:'./staaken_dark.webp?v=346',staakenWreck:'./boss-staaken-wreck.webp?v=345',searchlight:'./boss-searchlight.webp?v=344',searchlightWreck:'./boss-searchlight-wreck.webp?v=344'
+ staaken:'./staaken_dark.webp?v=346',staakenWreck:'./boss-staaken-wreck.webp?v=345',searchlight:'./boss-searchlight.webp?v=347',searchlightWreck:'./boss-searchlight-wreck.webp?v=347'
 };
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
 const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.webp',a7vTurret:'./boss-a7v-turret-rebuild.webp',markvHull:'./boss-mark-v-hull-rebuild.webp',markvSponson:'./boss-mark-v-sponson-rebuild.webp'}),rebuildArt=rebuildGroup.images;
@@ -491,7 +491,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    else if(b.assetKey==='london-searchlight'){
     const partById=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
     const im=b.destroying?(bossArt.searchlightWreck||bossArt.searchlight):bossArt.searchlight;
-    if(im?.naturalWidth){c.save();c.imageSmoothingEnabled=true;c.drawImage(im,-170,-175,340,350);c.restore();}
+    if(im?.naturalWidth){c.save();c.imageSmoothingEnabled=true;const wr=im.naturalHeight/im.naturalWidth,w=440,h=w*wr;c.drawImage(im,-w/2,-h/2,w,h);c.restore();}
     // Knocked-out positions get a wreck sprite + smoke over the composite art.
     if(!b.destroying)for(const id of ['light','gun','ammo']){const p=partById(id);if(!p?.destroyed)continue;
      const im=partWreckArt[id==='light'?'light':'gun'],r=p.radius||46;
