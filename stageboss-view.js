@@ -466,13 +466,15 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    }
    else if(b.assetKey==='mark4-wedge'){
     const partById=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
-    const rock=Math.sin((b.motionTime||0)*6)*.025;
+    // Formation rocks as one body; track dust sells the crawl.
+    const t=b.motionTime||0,rock=Math.sin(t*4.2)*.014;
     for(const [id,w,h] of [['tank-lead',120,200],['tank-left',120,200],['tank-right',120,200]]){
      const p=partById(id);if(!p)continue;
      const wreck=p.destroyed||b.destroying,im=wreck?bossArt.mark4Wreck||bossArt.mark4:bossArt.mark4;
      if(!im?.naturalWidth)continue;
-     c.save();c.translate(p.x,p.y);c.rotate(rock*(id==='tank-lead'?1:id==='tank-left'?-1.2:1.2));c.imageSmoothingEnabled=true;
+     c.save();c.translate(p.x,p.y+Math.sin(t*4.2+(id==='tank-lead'?0:1.4))*2.2);c.rotate(rock);c.imageSmoothingEnabled=true;
      c.drawImage(im,-w/2,-h/2,w,h);c.restore();
+     if(!wreck&&(t*3+id.length)%1<.5)fx(c,'dustPuff',p.x+(id==='tank-left'?-58:id==='tank-right'?58:(Math.sin(t*7)*55)),p.y+92,26+((t*3)%1)*20,26+((t*3)%1)*20,0,.32);
     }
    }
    else if(b.assetKey==='staaken-rvi'){
