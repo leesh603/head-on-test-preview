@@ -31,8 +31,8 @@ const bossSources={
  l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=340&b=340',ca4:'./boss-ca4.webp?v=340&b=340',
  londonApron:'./boss-london-apron115.webp',drachenNet:'./boss-drachen-net115.webp',
  railCarrier:'./boss-art-rail-carrier.webp?v=340',treffasWagen:'./boss-art-treffas-wagen.webp?v=340',
- mark4:'./boss-mark4.webp?v=340',mark4Wreck:'./boss-mark4-wreck.webp?v=340',morser:'./boss-morser.webp?v=340',morserWreck:'./boss-morser-wreck.webp?v=340',
- staaken:'./staaken_dark.webp?v=340',staakenWreck:'./boss-staaken-wreck.webp?v=340',searchlight:'./boss-searchlight.webp?v=340',searchlightWreck:'./boss-searchlight-wreck.webp?v=340'
+ mark4:'./boss-mark4.webp?v=342',mark4Wreck:'./boss-mark4-wreck.webp?v=342',morser:'./boss-morser.webp?v=342',morserWreck:'./boss-morser-wreck.webp?v=342',
+ staaken:'./staaken_dark.webp?v=340',staakenWreck:'./boss-staaken-wreck.webp?v=342',searchlight:'./boss-searchlight.webp?v=342',searchlightWreck:'./boss-searchlight-wreck.webp?v=342'
 };
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
 const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.webp',a7vTurret:'./boss-a7v-turret-rebuild.webp',markvHull:'./boss-mark-v-hull-rebuild.webp',markvSponson:'./boss-mark-v-sponson-rebuild.webp'}),rebuildArt=rebuildGroup.images;
@@ -101,16 +101,16 @@ function drawLivens(c,b){
 const railConsistSources={
  parisGun:{engine:'./rail-boss-bruno-engine181.webp',front:'./rail-boss-bruno-front181.webp',middle:'./rail-boss-bruno-middle181.webp',rear:'./rail-boss-bruno-rear181.webp'},
  lincomparable:{engine:'./rail-boss-lincomparable-engine181.webp',front:'./rail-boss-lincomparable-front181.webp',middle:'./rail-boss-lincomparable-middle181.webp',rear:'./rail-boss-lincomparable-rear181.webp'},
- railCarrier:{engine:'./boss-rail-carrier-loco.webp?v=340',front:'./boss-rail-carrier-flak.webp?v=340',middle:'./boss-rail-carrier-launch.webp?v=339',rear:'./boss-rail-carrier-hangar.webp?v=339'}
+ railCarrier:{engine:'./boss-rail-carrier-loco.webp?v=342',front:'./boss-rail-carrier-flak.webp?v=342',middle:'./boss-rail-carrier-launch.webp?v=342',rear:'./boss-rail-carrier-hangar.webp?v=342'}
 };
 const railWreckSources={
  parisGun:{engine:'./rail-boss-bruno-engine-wreck192.webp?v=340&b=340',front:'./rail-boss-bruno-front-wreck192.webp?v=340&b=340',middle:'./rail-boss-bruno-middle-wreck192.webp?v=340&b=340',rear:'./rail-boss-bruno-rear-wreck192.webp?v=340&b=340'},
  lincomparable:{engine:'./rail-boss-lincomparable-engine-wreck192.webp?v=340&b=340',front:'./rail-boss-lincomparable-front-wreck192.webp?v=340&b=340',middle:'./rail-boss-lincomparable-middle-wreck192.webp?v=340&b=340',rear:'./rail-boss-lincomparable-rear-wreck192.webp?v=340&b=340'},
- railCarrier:{engine:'./boss-rail-carrier-loco-wreck.webp?v=340',front:'./boss-rail-carrier-flak-wreck.webp?v=340',middle:'./boss-rail-carrier-launch-wreck.webp?v=339',rear:'./boss-rail-carrier-hangar-wreck.webp?v=339'}
+ railCarrier:{engine:'./boss-rail-carrier-loco-wreck.webp?v=342',front:'./boss-rail-carrier-flak-wreck.webp?v=342',middle:'./boss-rail-carrier-launch-wreck.webp?v=342',rear:'./boss-rail-carrier-hangar-wreck.webp?v=342'}
 };
 // Fliegerzug munition + Treffas-Wagen separable parts (destroyed parts get a burn filter).
 const bugGroup=createLazyImageGroup({folded:'./boss-bug-folded.webp?v=340',flight:'./boss-bug-flight.webp?v=340'}),bugArt=bugGroup.images;
-const treffasGroup=createLazyImageGroup({wheel:'./boss-treffas-wheel.webp?v=339',wheelR:'./boss-treffas-wheel-r.webp?v=339',hull:'./boss-treffas-hull.webp?v=339',turret:'./boss-treffas-turret.webp?v=339',tail:'./boss-treffas-tail.webp?v=339'}),treffasArt=treffasGroup.images;
+const treffasGroup=createLazyImageGroup({wheel:'./boss-treffas-wheel.webp?v=342',wheelR:'./boss-treffas-wheel-r.webp?v=342',hull:'./boss-treffas-hull.webp?v=342',turret:'./boss-treffas-turret.webp?v=342',tail:'./boss-treffas-tail.webp?v=342'}),treffasArt=treffasGroup.images;
 const railGroups={},railConsistArt={},railWreckGroups={},railWreckArt={};
 for(const [set,sources] of Object.entries(railConsistSources)){const group=createLazyImageGroup(sources);railGroups[set]=group;railConsistArt[set]=group.images;const wreckGroup=createLazyImageGroup(railWreckSources[set]);railWreckGroups[set]=wreckGroup;railWreckArt[set]=wreckGroup.images;}
 function drawRailConsist181(c,b){
