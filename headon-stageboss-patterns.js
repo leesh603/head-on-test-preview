@@ -22,8 +22,8 @@ export const BOSS_CATALOG = Object.freeze({
   ,'armored-harbor-fortress': {name:'장갑 크레인 항구요새', faction:'neutral', stage:7}
   ,'fliegerzug': {name:'무인기 모함열차 · 플리거주크', faction:'entente', stage:8}
   ,'treffas-wagen': {name:'대공개조형 트레파스바겐 · 거륜 육상전함', faction:'central', stage:8}
-  ,'jasta11-circus': {name:'야스타 11 · 붉은 서커스', faction:'central', stage:9}
-  ,'fe2b-flight': {name:'F.E.2b 비행 관 편대', faction:'entente', stage:9}
+  ,'jasta11-circus': {name:'야스타 11 플라잉 서커스', faction:'central', stage:9, pilot:'baron', formationSize:5}
+  ,'naval10-black-flight': {name:'네이벌 10 — 블랙 플라이트', faction:'entente', stage:9, pilot:'collishaw', formationSize:5}
 });
 const living = players => players.filter(p => p.alive);
 const randBetween = (rng,a,b) => a + (b-a)*rng();
@@ -672,15 +672,14 @@ export class TreffasWagen extends PatternBoss {
   }
 }
 
-// Bloody April (stage 9): the boss is a multi-aircraft wing, not a vehicle.
-// The body IS the formation leader — it flies like an ace and keeps
-// respawning wingmen on station. Killing the leader ends the encounter even
-// with wingmen still airborne.
+// Bloody April (stage 9): the body is the formation leader.  Its four named
+// wingmen are real, destructible aircraft and are launched once only.  Losing
+// a member permanently removes that attack lane or pair for the encounter.
 class FormationAceBoss extends PatternBoss {
-  constructor({wingman,...options}) {
+  constructor({wingmen,...options}) {
     super({...options,parts:[]});
-    this.coreRadius=30;this.ownsMotion129=true;this.a=-Math.PI/2;this.support129=true;
-    this.phase='intercept';this.wingman=wingman;this.slotCursor=0;this.timers.set('wing-spawn',0);
+    this.coreRadius=30;this.ownsMotion129=true;this.a=-Math.PI/2;this.formationBoss129=true;
+    this.phase='intercept';this.wingmen=wingmen;this.formationTotal=wingmen.length+1;this.wingLaunched=false;
   }
   steer(dt,tx,ty,turnRate){
     const a=Math.atan2(ty-this.y,tx-this.x),delta=Math.atan2(Math.sin(a-this.a),Math.cos(a-this.a));
@@ -692,65 +691,80 @@ class FormationAceBoss extends PatternBoss {
     this.x=Math.max(bounds.left+36,Math.min(bounds.right-36,this.x));
     this.y=Math.max(bounds.top+36,Math.min(bounds.bottom-36,this.y));
   }
-  // Wingmen stream in from just above the visible top edge and slot behind
-  // the leader; the escort behavior keeps them there.
-  maintainWing(dt,{bounds}){
-    if(!this.due('wing-spawn',dt,this.wingman.respawnEvery))return;
-    const span=bounds.right-bounds.left;let issued=0;
-    while((this.countMinions129?.()||0)<this.wingman.count&&issued++<this.wingman.count){
-      const i=this.slotCursor++;
-      const x=bounds.left+span*((i%4)+.5)/4,y=bounds.top-70;
-      this.command('spawn-minion',{minion:this.wingman.minion,faction:this.faction,plane:this.wingman.liveries[i%this.wingman.liveries.length],
-        behavior:this.wingman.behavior,leaderId:this.id,rearGunner:!!this.wingman.rearGunner,
-        formationIndex:i%this.wingman.count,formationCount:this.wingman.count,
-        x,y,a:Math.PI/2,life:this.wingman.life,fire:this.wingman.fire,maxSpeed:this.wingman.maxSpeed});
+  liveWingmen(){return this.formationStatus129?.()||[];}
+  launchWing(bounds){
+    if(this.wingLaunched)return;this.wingLaunched=true;
+    const span=bounds.right-bounds.left,hp=Math.max(90,Math.round(this.t.maxHp*.072));
+    for(let i=0;i<this.wingmen.length;i++){
+      const wing=this.wingmen[i],x=bounds.left+span*(i+.5)/this.wingmen.length,y=bounds.top-76-(i%2)*28;
+      this.command('spawn-minion',{minion:'formation-fighter',faction:this.faction,plane:wing.plane,behavior:wing.behavior,leaderId:this.id,
+        formationIndex:i,formationCount:this.wingmen.length,formationRole:wing.role,formationSide:wing.side,formationRank:wing.rank,
+        pairId:wing.pairId,callSign:wing.callSign,name:wing.callSign,x,y,a:Math.PI/2,life:1e9,fire:.45+i*.11,
+        maxSpeed:wing.maxSpeed,hp,visualScale:1,persistent:true});
     }
+  }
+  setFormationPhase(phase,p,age,duration){
+    const velocity=Math.hypot(p.vx||0,p.vy||0),heading=velocity>18?Math.atan2(p.vy,p.vx):(Number.isFinite(p.a)?p.a:-Math.PI/2);
+    if(this.phase!==phase){this.phase=phase;this.command('phase-change',{phase});
+      if(['concentrated-assault','sun-hunt','headon-assault'].includes(phase))this.command('reentry-warning',{x:this.x,y:this.y,targetX:p.x,targetY:p.y,seconds:.75});}
+    this.formationOrder={phase,age,duration,playerX:p.x,playerY:p.y,playerHeading:heading};
   }
 }
 export class JastaCircus extends FormationAceBoss {
   constructor(options) {
-    super({...options,kind:'jasta11-circus',wingman:{minion:'circus-wing',behavior:'circus-escort',count:4,respawnEvery:3.0,life:90,fire:1.05,maxSpeed:235,
-      liveries:['jasta11a_albatros','jasta11b_albatros','jasta11c_albatros','jasta11d_albatros']}});
-    this.speed=196;this.aceCycle=0;
+    super({...options,kind:'jasta11-circus',wingmen:[
+      {role:'left-outer',side:-1,rank:1,plane:'jasta11a_albatros',callSign:'Kurt Wolff',behavior:'jasta-formation',maxSpeed:235},
+      {role:'left-inner',side:-1,rank:0,plane:'jasta11b_albatros',callSign:'Karl Allmenröder',behavior:'jasta-formation',maxSpeed:232},
+      {role:'right-inner',side:1,rank:0,plane:'jasta11c_albatros',callSign:'Karl Emil Schaefer',behavior:'jasta-formation',maxSpeed:232},
+      {role:'right-outer',side:1,rank:1,plane:'jasta11d_albatros',callSign:'Lothar von Richthofen',behavior:'jasta-formation',maxSpeed:235}
+    ]});
+    this.leaderPilot='baron';this.callSign='Manfred von Richthofen';this.speed=196;this.aceCycle=0;
   }
   update(dt,{players,bounds}) {
     const p=living(players).reduce((m,q)=>!m||Math.hypot(q.x-this.x,q.y-this.y)<Math.hypot(m.x-this.x,m.y-this.y)?q:m,null);if(!p)return;
-    this.aceCycle+=dt;
-    // Richthofen orbits above the fight, then dives through it. The bracket
-    // pressure meanwhile comes from the wingmen's crossing fire.
-    const dive=(this.aceCycle%12)>7.4;
-    if(dive)this.steer(dt,p.x+(p.vx||0)*.3,p.y+(p.vy||0)*.3,3.0);
-    else{const ang=this.aceCycle*.85;this.steer(dt,p.x+Math.cos(ang)*360,p.y-230+Math.sin(ang)*140,1.7);}
-    this.move(dt,this.speed*(dive?1.3:.82),bounds);
+    this.launchWing(bounds);this.aceCycle+=dt;const cycle=this.aceCycle%24;
+    const [phase,age,duration]=cycle<6?['encirclement',cycle,6]:cycle<12.5?['echelon-assault',cycle-6,6.5]:cycle<19?['concentrated-assault',cycle-12.5,6.5]:['sun-hunt',cycle-19,5];
+    this.setFormationPhase(phase,p,age,duration);const h=this.formationOrder.playerHeading,hx=Math.cos(h),hy=Math.sin(h),nx=-hy,ny=hx;
+    let tx=p.x-hx*260,ty=p.y-hy*260,turn=1.65,mult=.86;
+    if(phase==='echelon-assault'){tx=p.x-hx*330+nx*170;ty=p.y-hy*330+ny*170;turn=2.05;mult=1.02;}
+    if(phase==='concentrated-assault'){const commit=age>3.25;tx=commit?p.x+(p.vx||0)*.45:p.x-hx*290;ty=commit?p.y+(p.vy||0)*.45:p.y-hy*290;turn=commit?3.15:1.8;mult=commit?1.34:.9;}
+    if(phase==='sun-hunt'){tx=age<2?p.x+nx*310-hx*250:p.x+(p.vx||0)*.55;ty=age<2?p.y+ny*310-hy*250:p.y+(p.vy||0)*.55;turn=3.25;mult=age<2?1.05:1.42;}
+    this.steer(dt,tx,ty,turn);this.move(dt,this.speed*mult,bounds);
     const {pa,rel,dist}=this.aimAt(p);
-    if(Math.abs(rel)<.5&&dist<640&&this.due('jasta-mg',dt,dive?.8:1.2)){
+    const committed=phase==='concentrated-assault'&&age>3.25||phase==='sun-hunt'&&age>2;
+    if(Math.abs(rel)<.48&&dist<640&&this.due('jasta-mg',dt,committed?.62:1.18)){
       const mx=this.x+Math.cos(this.a)*32,my=this.y+Math.sin(this.a)*32;
       this.fan(mx,my,pa,2,.08,this.t.bulletSpeed*1.15,'jasta-mg');this.command('muzzle',{x:mx,y:my});
     }
-    this.maintainWing(dt,{bounds});
+    this.formationOrder.leaderCommitted=committed;this.formationOrder.liveRoles=this.liveWingmen().map(w=>w.role);
   }
 }
-export class Fe2bFlight extends FormationAceBoss {
+export class Naval10BlackFlight extends FormationAceBoss {
   constructor(options) {
-    super({...options,kind:'fe2b-flight',wingman:{minion:'pusher-plane',behavior:'pusher-escort',count:5,respawnEvery:4.2,life:110,fire:1.5,maxSpeed:150,rearGunner:true,
-      liveries:['fe2b']}});
-    this.speed=108;this.orbitDir=1;
+    super({...options,kind:'naval10-black-flight',wingmen:[
+      {role:'a-bait',pairId:'a',side:-1,rank:0,plane:'collishaw_sopwith',callSign:'Black Prince',behavior:'black-flight-formation',maxSpeed:238},
+      {role:'a-hunter',pairId:'a',side:-1,rank:1,plane:'collishaw_sopwith',callSign:'Black Death',behavior:'black-flight-formation',maxSpeed:242},
+      {role:'b-bait',pairId:'b',side:1,rank:0,plane:'collishaw_sopwith',callSign:'Black Roger',behavior:'black-flight-formation',maxSpeed:238},
+      {role:'b-hunter',pairId:'b',side:1,rank:1,plane:'collishaw_sopwith',callSign:'Black Sheep',behavior:'black-flight-formation',maxSpeed:242}
+    ]});
+    this.leaderPilot='collishaw';this.callSign='Black Maria';this.speed=202;this.aceCycle=0;
   }
   update(dt,{players,bounds}) {
     const p=living(players).reduce((m,q)=>!m||Math.hypot(q.x-this.x,q.y-this.y)<Math.hypot(m.x-this.x,m.y-this.y)?q:m,null);if(!p)return;
-    // Slow defensive ring over the field — the flight lumbers in a wide
-    // circle near the player rather than chasing.
-    const ang=this.motionTime*.32*this.orbitDir,tx=p.x+Math.cos(ang)*300,ty=p.y+Math.sin(ang)*300*.55-80;
-    this.steer(dt,tx,ty,1.15);
-    this.move(dt,this.speed,bounds);
+    this.launchWing(bounds);this.aceCycle+=dt;const cycle=this.aceCycle%26;
+    const [phase,age,duration]=cycle<6?['pair-split',cycle,6]:cycle<13?['bait-hunter',cycle-6,7]:cycle<20?['cross-attack',cycle-13,7]:['headon-assault',cycle-20,6];
+    this.setFormationPhase(phase,p,age,duration);const h=this.formationOrder.playerHeading,hx=Math.cos(h),hy=Math.sin(h),nx=-hy,ny=hx;
+    let tx=p.x-hx*300,ty=p.y-hy*300,turn=1.7,mult=.88;
+    if(phase==='bait-hunter'){tx=p.x-hx*330+nx*Math.sin(age*.7)*110;ty=p.y-hy*330+ny*Math.sin(age*.7)*110;}
+    if(phase==='cross-attack'){tx=p.x-hx*250-nx*190;ty=p.y-hy*250-ny*190;turn=2;mult=1.02;}
+    if(phase==='headon-assault'){const commit=age>2.7;tx=commit?p.x+(p.vx||0)*.5:p.x+hx*330;ty=commit?p.y+(p.vy||0)*.5:p.y+hy*330;turn=commit?3.3:2.1;mult=commit?1.42:1.02;}
+    this.steer(dt,tx,ty,turn);this.move(dt,this.speed*mult,bounds);
     const {pa,rel,dist}=this.aimAt(p);
-    if(dist<580&&this.due('fe2b-gun',dt,1.35)){
-      // Pusher nose gun forward, observer Lewis gun aft — the rear arc is the
-      // dangerous one for anyone trying to tail them.
-      if(Math.abs(rel)>2.1){const mx=this.x-Math.cos(this.a)*30,my=this.y-Math.sin(this.a)*30;this.fan(mx,my,pa,2,.1,this.t.bulletSpeed*.95,'fe2b-rear');this.command('muzzle',{x:mx,y:my});}
-      else if(Math.abs(rel)<.55){const mx=this.x+Math.cos(this.a)*30,my=this.y+Math.sin(this.a)*30;this.fan(mx,my,pa,1,0,this.t.bulletSpeed,'fe2b-nose');this.command('muzzle',{x:mx,y:my});}
+    const committed=phase==='headon-assault'&&age>2.7;
+    if(Math.abs(rel)<.46&&dist<610&&this.due('black-maria-gun',dt,committed?.56:1.28)){
+      const mx=this.x+Math.cos(this.a)*30,my=this.y+Math.sin(this.a)*30;this.fan(mx,my,pa,committed?2:1,.07,this.t.bulletSpeed*1.12,'black-flight-mg');this.command('muzzle',{x:mx,y:my});
     }
-    this.maintainWing(dt,{bounds});
+    const live=this.liveWingmen();this.formationOrder.liveRoles=live.map(w=>w.role);this.formationOrder.completePairs=['a','b'].filter(id=>live.filter(w=>w.pairId===id).length===2);
   }
 }
 
@@ -758,7 +772,7 @@ const constructors={'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttg
   'zeppelin-l70':ZeppelinL70,hma23:HMA23,'a7v-flak':A7VFlak,'mark-v-cruiser':MarkVCruiser,
   'livens-flame-projector':LivensFlameProjector,'minenwerfer-battery':MinenwerferBattery,
   'london-apron':LondonApron,'drachen-net':DrachenMineNet,gik:GIK,ca4:Ca4,'armored-harbor-fortress':ArmoredHarborFortress,
-  fliegerzug:Fliegerzug,'treffas-wagen':TreffasWagen,'jasta11-circus':JastaCircus,'fe2b-flight':Fe2bFlight};
+  fliegerzug:Fliegerzug,'treffas-wagen':TreffasWagen,'jasta11-circus':JastaCircus,'naval10-black-flight':Naval10BlackFlight};
 export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   const entry=BOSS_CATALOG[bossId],Ctor=constructors[bossId];if(!Ctor)throw new Error('Unknown boss: '+bossId);
   const body=new Ctor({id:id+':body',tuning,x,y,emit,rng,faction:faction||entry.faction,coreRadius:tuning.coreRadius||100});

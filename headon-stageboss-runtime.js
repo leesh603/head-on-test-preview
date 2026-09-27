@@ -53,7 +53,7 @@ export class StageBossAddon {
     if(bossId==='fliegerzug')tuning={...tuning,railCycle:11,warningSeconds:1.7};
     const entry=BOSS_CATALOG[bossId],faction=entry.faction==='neutral'?(this.stages.teamFaction==='central'?'entente':'central'):entry.faction;
     const encounter=createBossEncounter({id,bossId,tuning,x,y,rng:this.rng,faction,emit:event=>this.accept(event,id,tuning)});
-    for(const b of encounter.bodies.values())if(b.support129)b.countMinions129=()=>this.hooks.countMinions(id);this.defeatSequence=null;this.bodyDefeats=[];this.stages.attach(encounter);this.hooks.onCue({type:'boss-enter',encounterId:id,bossId});return encounter;
+    for(const b of encounter.bodies.values())if(b.support129||b.formationBoss129){b.countMinions129=()=>this.hooks.countMinions(id);b.formationStatus129=()=>this.hooks.formationStatus?.(id)||[];}this.defeatSequence=null;this.bodyDefeats=[];this.stages.attach(encounter);this.hooks.onCue({type:'boss-enter',encounterId:id,bossId});return encounter;
   }
   accept(event,encounterId,tuning) {
     if(this.ended)return;

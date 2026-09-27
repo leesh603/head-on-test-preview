@@ -22,6 +22,8 @@ export {BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS};
 export {BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES};
 export {RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES};
 export {BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor};
+const BLOODY_APRIL_BOSS_PILOTS=new Set(['baron','collishaw']);
+const stageAceEligible=(game,id)=>game.worldRegion?.()!==9||!BLOODY_APRIL_BOSS_PILOTS.has(id);
 // Pilot balance pass 89: role-aware cooldowns; shared by solo, campaign and co-op.
 export const PILOT_BALANCE=Object.freeze({
  cooldowns:Object.freeze({baron:18,baron_albatros:18,fonck:16,voss:12,boelcke:12,collishaw:20,baracca:12,udet:18,guynemer:22,bishop:22,goering:22,immelmann:14,mannock:28,mckeever:20,huffzky:20,wolff:18,loewenhardt:17,mccudden:24,nungesser:20,jacobs:16}),
@@ -401,14 +403,14 @@ Game.prototype.spawnEnemy=function(type){
  if(type==='boss'){
   const live=new Set(this.enemies.filter(e=>e.hp>0&&e.bossPilot).map(e=>e.bossPilot));
   if(live.size>=8)return;
-  const available=Object.keys(PILOTS).filter(id=>PILOTS[id].faction!==PLANES[this.plane].faction&&!live.has(id));
+  const available=Object.keys(PILOTS).filter(id=>PILOTS[id].faction!==PLANES[this.plane].faction&&!live.has(id)&&stageAceEligible(this,id));
   this.bossDeck=[...new Set(this.bossDeck||[])].filter(id=>available.includes(id));
   if(!this.bossDeck.length){this.bossDeck=available;for(let i=this.bossDeck.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[this.bossDeck[i],this.bossDeck[j]]=[this.bossDeck[j],this.bossDeck[i]]}}
   if(!this.bossDeck.length)return;
  }
  _worldSpawn.call(this,type);const e=this.enemies.at(-1);e.ace=false;if(type==='zeppelin'){e.hp=e.maxHp=Math.round(e.hp*1.6);e.hitRadius=90;e.hullLength=170;e.hullWidth=45;}
  if(type!=='boss')return;
- if(!this.bossDeck?.length){this.bossDeck=Object.keys(PILOTS).filter(id=>PILOTS[id].faction!==PLANES[this.plane].faction);for(let i=this.bossDeck.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[this.bossDeck[i],this.bossDeck[j]]=[this.bossDeck[j],this.bossDeck[i]]}}
+ if(!this.bossDeck?.length){this.bossDeck=Object.keys(PILOTS).filter(id=>PILOTS[id].faction!==PLANES[this.plane].faction&&stageAceEligible(this,id));for(let i=this.bossDeck.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[this.bossDeck[i],this.bossDeck[j]]=[this.bossDeck[j],this.bossDeck[i]]}}
  const threatWeight=.12+.88*Math.min(1,this.t/600);const weights=this.bossDeck.map(id=>['baron','fonck'].includes(id)?threatWeight:1);let roll=this.rng()*weights.reduce((a,b)=>a+b,0),pick=weights.length-1;for(let i=0;i<weights.length;i++){roll-=weights[i];if(roll<=0){pick=i;break}}
  e.bossPilot=this.bossDeck.splice(pick,1)[0];e.bossPlane=PILOT_PLANES[e.bossPilot];e.name=PILOTS[e.bossPilot].name;e.ace=true;
  e.hp=e.maxHp=Math.round(700*(1+this.t/150));e.abilityTimer=4;e.fire=.8;e.encounterPending=true;e.aceSpawnT=this.t;if(e.bossPilot==='baron')e.speed*=2.4;
@@ -1177,10 +1179,11 @@ Game.prototype.aceWaveCount=function(time=this.t){return Math.min(8,time>=720?5+
 Game.prototype.nextAceWaveAt=function(time=this.t){return time<185?185:time<300?300:time<420?420:time<600?600:time<720?720:720+(Math.floor((time-720)/120)+1)*120};
 Game.prototype.prepareBossWave=function(count){
  const live=new Set(this.enemies.filter(e=>e.hp>0&&e.bossPilot).map(e=>e.bossPilot));
- const available=Object.keys(PILOTS).filter(id=>PILOTS[id].faction!==PLANES[this.plane].faction&&!live.has(id));
+ const available=Object.keys(PILOTS).filter(id=>PILOTS[id].faction!==PLANES[this.plane].faction&&!live.has(id)&&stageAceEligible(this,id));
  count=Math.min(count,8-live.size,available.length);
+ this.bossDeck=[...new Set(this.bossDeck||[])].filter(id=>available.includes(id));
  if((this.bossDeck?.length||0)>=count)return count;
- this.bossDeck=Object.keys(PILOTS).filter(id=>PILOTS[id].faction!==PLANES[this.plane].faction);
+ this.bossDeck=[...available];
  for(let i=this.bossDeck.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[this.bossDeck[i],this.bossDeck[j]]=[this.bossDeck[j],this.bossDeck[i]]}
  return count;
 };
