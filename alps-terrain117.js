@@ -14,7 +14,10 @@ export const TERRAIN_PROFILES=Object.freeze({
  cambrai:{name:'캉브레 들판',src:'./terrain-cambrai.webp?v=340&b=340',base:'#655d45',strength:.82},
  // Bloody April: cold high-altitude haze over faint Arras fields — minimal
  // ground detail, the map reads as an air combat arena.
- arras:{name:'아라스 상공',src:'./terrain-arras.webp?v=340&b=340',base:'#4d5a66',strength:.85}
+ arras:{name:'아라스 상공',src:'./terrain-arras.webp?v=340&b=340',base:'#4d5a66',strength:.85},
+ // Somme: churned crater field, zigzag trenches and smoke over mud — the first
+ // tank assault. Low contrast keeps the shell-impact warnings legible.
+ somme:{name:'솜 강전선',src:'./terrain-somme.webp?v=340&b=340',base:'#5a5244',strength:.85}
 });
 const profileImages=new Map();
 function profileImage(key){

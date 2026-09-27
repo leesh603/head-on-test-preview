@@ -30,7 +30,8 @@ const bossSources={
  parisGun:'./boss-bruno-train115.webp',lincomparable:'./boss-lincomparable94.webp?v=340&b=340',stuttgart:'./boss-sms-stuttgart94.webp',zubian:'./boss-hms-zubian94.webp',
  l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=340&b=340',ca4:'./boss-ca4.webp?v=340&b=340',
  londonApron:'./boss-london-apron115.webp',drachenNet:'./boss-drachen-net115.webp',
- railCarrier:'./boss-art-rail-carrier.webp?v=340',treffasWagen:'./boss-art-treffas-wagen.webp?v=340'
+ railCarrier:'./boss-art-rail-carrier.webp?v=340',treffasWagen:'./boss-art-treffas-wagen.webp?v=340',
+ mark4:'./boss-mark4.webp?v=340',mark4Wreck:'./boss-mark4-wreck.webp?v=340',morser:'./boss-morser.webp?v=340',morserWreck:'./boss-morser-wreck.webp?v=340'
 };
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
 const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.webp',a7vTurret:'./boss-a7v-turret-rebuild.webp',markvHull:'./boss-mark-v-hull-rebuild.webp',markvSponson:'./boss-mark-v-sponson-rebuild.webp'}),rebuildArt=rebuildGroup.images;
@@ -47,7 +48,7 @@ const trenchGroup=createLazyImageGroup({
 // Four authored RGBA frames, graded/packed offline; no runtime filter or canvas copy.
 const impactGroup=createLazyImageGroup({atlas:'./fx-mortar-impact340.webp'}),impactArt=impactGroup.images;
 const BOSS_KEYS_BY_REGION=Object.freeze({
- 0:['parisGun','lincomparable'],1:['stuttgart','zubian'],2:['a7v','markv'],3:[],4:['londonApron','drachenNet'],5:['l70','hma23'],6:['gik','ca4'],7:[],8:['railCarrier','treffasWagen']
+ 0:['parisGun','lincomparable'],1:['stuttgart','zubian'],2:['a7v','markv'],3:[],4:['londonApron','drachenNet'],5:['l70','hma23'],6:['gik','ca4'],7:[],8:['railCarrier','treffasWagen'],10:['mark4','mark4Wreck','morser','morserWreck']
 });
 export function prepareStageBossAssets(region){
  const jobs=[];
@@ -246,6 +247,17 @@ function drawBossPart(c,p,ring,t=0){
   if(p.destroyed)partWreck(c,p,r,t);
   if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
  }
+ if(p.bodyKey==='morser-battery'){
+  // Composite art already shows every pit; parts only carry ring + hp bar.
+  if(p.destroyed)return;
+  if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
+ }
+ if(p.bodyKey==='mark4-wedge'){
+  // Tanks are painted by the body composite; destroyed hulls keep the wreck
+  // art instead of a generic scorch patch.
+  if(p.destroyed)return;
+  if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r*.7,p.y+r*.62,r*1.4,4);c.fillStyle='#efb96f';c.fillRect(p.x-r*.7,p.y+r*.62,r*1.4*p.hp/p.maxHp,4);}return;
+ }
  if(p.bodyKey==='a7v-flak'){
   if(p.destroyed){partWreck(c,p,r,t);return;}
   if(!p.destroyed&&rebuildArt.a7vTurret.naturalWidth){const angle={front:-Math.PI/2,rear:Math.PI/2,left:Math.PI,right:0}[p.partId]||0;c.save();c.translate(p.x,p.y);c.rotate(angle);c.imageSmoothingEnabled=true;c.drawImage(rebuildArt.a7vTurret,-47,-47,94,94);c.restore();}
@@ -365,7 +377,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     c.rotate((b.assetKey==='armored-harbor-fortress'?-1:1)*wreck*.3);
     c.globalAlpha*=Math.max(0,1-wreck*.9);
    }
-   const ship=b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart',rail=['paris-gun','lincomparable','fliegerzug'].includes(b.assetKey),structure=['livens-flame-projector','minenwerfer-battery','treffas-wagen'].includes(b.assetKey),plane=['jasta11-circus','naval10-black-flight'].includes(b.assetKey);
+   const ship=b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart',rail=['paris-gun','lincomparable','fliegerzug'].includes(b.assetKey),structure=['livens-flame-projector','minenwerfer-battery','treffas-wagen','morser-battery'].includes(b.assetKey),plane=['jasta11-circus','naval10-black-flight'].includes(b.assetKey);
    if(ship){for(let i=0;i<12;i++){const drift=(b.motionTime*32+i*13)%155;c.fillStyle=i%2?'#d7f1de99':'#6eb9b777';const w=18+drift*.3;c.fillRect(-w/2,125+drift,w,4);}}
 
    // Churned-earth trail under the Treffas-Wagen, in world space before any scale.
@@ -438,6 +450,27 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      c.fillStyle='#191512cc';c.beginPath();c.ellipse(p.x,p.y,r*1.2,r*1.05,0,0,Math.PI*2);c.fill();
      for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.33)%1;fx(c,'smokeDark',p.x+Math.sin(k*3.7)*r*.5,p.y-s*r*1.6,30+s*44,30+s*44,0,(1-s)*.5);}
      c.strokeStyle='#5a4a38aa';c.lineWidth=1.5;for(let k=0;k<4;k++){const a=k*1.7+p.y*.02;c.beginPath();c.moveTo(p.x+Math.cos(a)*r*.3,p.y+Math.sin(a)*r*.3);c.lineTo(p.x+Math.cos(a)*r*1.3,p.y+Math.sin(a)*r*1.3);c.stroke()}}
+   }
+   else if(b.assetKey==='mark4-wedge'){
+    const partById=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
+    const rock=Math.sin((b.motionTime||0)*6)*.025;
+    for(const [id,w,h] of [['tank-lead',120,200],['tank-left',120,200],['tank-right',120,200]]){
+     const p=partById(id);if(!p)continue;
+     const wreck=p.destroyed||b.destroying,im=wreck?bossArt.mark4Wreck||bossArt.mark4:bossArt.mark4;
+     if(!im?.naturalWidth)continue;
+     c.save();c.translate(p.x,p.y);c.rotate(rock*(id==='tank-lead'?1:id==='tank-left'?-1.2:1.2));c.imageSmoothingEnabled=true;
+     c.drawImage(im,-w/2,-h/2,w,h);c.restore();
+    }
+   }
+   else if(b.assetKey==='morser-battery'){
+    const partById=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
+    const gunIds=['gun-1','gun-2','gun-3'];
+    const im=b.destroying?(bossArt.morserWreck||bossArt.morser):bossArt.morser;
+    if(im?.naturalWidth){c.save();c.imageSmoothingEnabled=true;c.drawImage(im,-260,-236,520,472);c.restore();}
+    // Dead pits get a char patch + smoke so the battery visibly loses lanes.
+    if(!b.destroying)for(const id of gunIds){const p=partById(id);if(!p?.destroyed)continue;
+     c.fillStyle='#191512cc';c.beginPath();c.ellipse(p.x,p.y,58,50,0,0,Math.PI*2);c.fill();
+     for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.33)%1;fx(c,'smokeDark',p.x+Math.sin(k*4.1)*26,p.y-30-s*70,26+s*40,26+s*40,0,(1-s)*.5);}}
    }
    else if(plane){
     // Formation bosses fly painted aircraft sprites, not composite vehicles.

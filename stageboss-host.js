@@ -3,7 +3,7 @@ import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=340&b=340&c=8';
 import {bossSoundFor} from './boss-feedback.js?v=340';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=340';
 
-export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공'];
+export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const players=g=>g.players||[g];
@@ -65,6 +65,8 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     ,'armored-harbor-fortress':{coastalInterval:2.5,craneInterval:4.8,harborLaunchInterval:5.6}
     ,fliegerzug:{warningSeconds:1.7,railCycle:11}
     ,'treffas-wagen':{geometryScale:1.2,mobileBoss:false,coreRadius:76}
+    ,'mark4-wedge':{geometryScale:1,mobileBoss:false,coreRadius:70}
+    ,'morser-battery':{geometryScale:1.1,mobileBoss:false,motionMultiplier:0,coreRadius:84}
    }[bossId]||{};
    return {loopIndex:loop,projectileDensity:density,maxHp,partHp:maxHp*.12,damage:Math.round(18*(1+g.t/240)*(1+Math.min(.5,loop*.12))),bulletSpeed:270,coreRadius:150,
     mobileBoss:true,motionMultiplier:Math.min(2.5,1+loop*.25),patternMultiplier:Math.min(3,1+loop*.35),geometryScale:2.025,splitProtection:5,fireInterval:6,waterInterval:3.8,launchInterval:3,enrageInterval:1.1,broadsideInterval:1.8/density,mortarInterval:1.8,chargeInterval:2.7,suppressiveInterval:3.1/density,suppressiveCount:7,
