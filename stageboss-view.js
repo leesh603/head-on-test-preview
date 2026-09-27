@@ -43,8 +43,7 @@ const trenchGroup=createLazyImageGroup({
  livensMount:'./boss_livens_nozzle_mount187.webp',livensNozzle:'./boss_livens_nozzle_normal_pivot187.webp',livensTurret:'./boss-livens-turret2x.webp',
  livensCoreClosed:'./boss_livens_core_closed187.webp',livensCoreExposed:'./boss_livens_core_exposed187.webp',livensCoreDestroyed:'./boss_livens_core_destroyed187.webp',
  livensPipeL:'./boss_livens_pipe_l_normal194.png',livensPipeR:'./boss_livens_pipe_r_normal194.png',livensPipeLBroken:'./boss_livens_pipe_l_broken194.png',livensPipeRBroken:'./boss_livens_pipe_r_broken194.png',
- minenBase:'./boss_minenwerfer_base187.webp',minenMain:'./boss_minenwerfer_main_normal187.webp',minenMainDamaged:'./boss_minenwerfer_main_damaged187.webp',minenMainDestroyed:'./boss_minenwerfer_main_destroyed187.webp',
- minenSide:'./boss_minenwerfer_side_normal187.webp',minenAmmo:'./boss_minenwerfer_ammo_main187.webp',
+ minenComposite:'./boss-minenwerfer-composite188.webp',
  livensComposite:'./boss-livens-composite317.webp',livensPivot:'./boss-livens-pivot317.webp',livensPivotDamaged:'./boss-livens-pivot-damaged317.webp',livensPivotDestroyed:'./boss-livens-pivot-destroyed317.webp'
 }),trenchBossArt=trenchGroup.images;
 // Four authored RGBA frames, graded/packed offline; no runtime filter or canvas copy.
@@ -106,13 +105,10 @@ function drawMinenwerfer(c,b){
  const parts=b.parts?.filter?b.parts:[...b.parts?.values?.()||[]];
  c.save();c.imageSmoothingEnabled=true;
  for(const p of parts){
-  const id=p.partId||p.id,x=p.x,y=p.y,dead=b.destroying||p.destroyed,damaged=!dead&&p.hp<=p.maxHp*.5,side=id==='gun-left'?-1:id==='gun-right'?1:0;
-  drawTrenchImage(c,trenchBossArt.minenBase,x,y+10,176,132);
-  if(!dead)drawTrenchImage(c,trenchBossArt.minenAmmo,x+side*44+(side?0:48),y+45,64,58,side*.04);
-  if(dead)drawTrenchImage(c,trenchBossArt.minenMainDestroyed,x,y-13,side?94:108,side?112:128,side*.045);
-  else if(side)drawTrenchImage(c,trenchBossArt.minenSide,x,y-15,92,110,side*.045);
-  else drawTrenchImage(c,damaged?trenchBossArt.minenMainDamaged:trenchBossArt.minenMain,x,y-18,108,128);
-  if(damaged){fx(c,'smokeTrail',x+side*8,y-42,54,30,-Math.PI/2,.2);fx(c,'fireEngine',x-side*12,y-12,26,26,0,.42);}
+  const x=p.x,y=p.y,dead=b.destroying||p.destroyed,damaged=!dead&&p.hp<=p.maxHp*.5;
+  const composite=dead?bakedImage(trenchBossArt.minenComposite,'grayscale(.72) brightness(.55)'):damaged?bakedImage(trenchBossArt.minenComposite,'saturate(.72) brightness(.82)'):trenchBossArt.minenComposite;
+  drawTrenchImage(c,composite||trenchBossArt.minenComposite,x,y,250,188);
+  if(damaged){fx(c,'smokeTrail',x+8,y-58,62,34,-Math.PI/2,.2);fx(c,'fireEngine',x-12,y-18,28,28,0,.42);}
   if(dead){fx(c,'fireGround',x-12,y+4,42,42,0,.58);fx(c,'smokeHeavy',x+10,y-34,64,64,0,.24);for(let i=0;i<2;i++)fx(c,'debrisShard',x+(i?31:-27),y+28-i*13,24,18,(i?1:-1)*.7,.65);}
  }
  c.restore();

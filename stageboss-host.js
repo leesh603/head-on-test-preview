@@ -1,8 +1,8 @@
 
 import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=338&b=326&c=9';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=338&b=326&c=9';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=352c=9';
 import {bossSoundFor} from './boss-feedback.js?v=338&c=9';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=338';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=338';
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});

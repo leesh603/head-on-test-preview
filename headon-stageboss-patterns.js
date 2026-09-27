@@ -510,7 +510,7 @@ export class MinenwerferBattery extends PatternBoss {
   constructor(options){
     const originalHp=options.tuning.maxHp,gunHp=originalHp*.4,tuning={...options.tuning,maxHp:gunHp*3};
     super({...options,tuning,coreRadius:64,kind:'minenwerfer-battery',parts:[
-      {id:'gun-left',x:-130,y:-18,radius:58,maxHp:gunHp},{id:'main-gun',x:0,y:-50,radius:62,maxHp:gunHp},{id:'gun-right',x:130,y:-18,radius:58,maxHp:gunHp}
+      {id:'gun-left',x:-220,y:18,radius:105,maxHp:gunHp},{id:'main-gun',x:0,y:-36,radius:110,maxHp:gunHp},{id:'gun-right',x:220,y:18,radius:105,maxHp:gunHp}
     ]});
     this.phase='cross-barrage';this.coreVulnerable=true;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
     this.shotSerial=0;this.baseVolleyCount=0;this.specialWave=0;this.specialClock=8.4;this._gasTier=3;
