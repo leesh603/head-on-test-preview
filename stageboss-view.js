@@ -62,7 +62,8 @@ export function prepareStageBossAssets(region){
  if(region===3){jobs.push(trenchGroup.preload());jobs.push(impactGroup.preload())}else impactGroup.release();
  if(region===4){jobs.push(cityGroup.preload());jobs.push(buildingGroup.preload())}
  if(region===7)jobs.push(harborGroup.preload());
- if(region===8){jobs.push(railGroups.railCarrier.preload());jobs.push(railWreckGroups.railCarrier.preload());jobs.push(treffasGroup.preload());jobs.push(bugGroup.preload());}else{treffasGroup.release();bugGroup.release()}
+ if(region===8){jobs.push(railGroups.railCarrier.preload());jobs.push(railWreckGroups.railCarrier.preload());jobs.push(treffasGroup.preload());jobs.push(bugGroup.preload());jobs.push(partWreckGroup.preload());}else{treffasGroup.release();bugGroup.release();partWreckGroup.release()}
+ if(region===10||region===11)jobs.push(partWreckGroup.preload());
  if(region>=0)jobs.push(partGroup.preload());else{partGroup.release();skyCloud113=null}
  return Promise.all(jobs);
 }
@@ -111,6 +112,8 @@ const railWreckSources={
 // Fliegerzug munition + Treffas-Wagen separable parts (destroyed parts get a burn filter).
 const bugGroup=createLazyImageGroup({folded:'./boss-bug-folded.webp?v=342',flight:'./boss-bug-flight.webp?v=342'}),bugArt=bugGroup.images;
 const treffasGroup=createLazyImageGroup({wheel:'./boss-treffas-wheel.webp?v=342',wheelR:'./boss-treffas-wheel-r.webp?v=342',hull:'./boss-treffas-hull.webp?v=342',turret:'./boss-treffas-turret.webp?v=342',tail:'./boss-treffas-tail.webp?v=342'}),treffasArt=treffasGroup.images;
+// Wreck sprites drawn over destroyed boss parts (wheels, turrets, gun pits...).
+const partWreckGroup=createLazyImageGroup({wheel:'./boss-part-wreck-wheel.webp?v=343',turret:'./boss-part-wreck-turret.webp?v=343',tail:'./boss-part-wreck-tail.webp?v=343',light:'./boss-part-wreck-light.webp?v=343',gun:'./boss-part-wreck-gun.webp?v=343',pit:'./boss-part-wreck-pit.webp?v=343'}),partWreckArt=partWreckGroup.images;
 const railGroups={},railConsistArt={},railWreckGroups={},railWreckArt={};
 for(const [set,sources] of Object.entries(railConsistSources)){const group=createLazyImageGroup(sources);railGroups[set]=group;railConsistArt[set]=group.images;const wreckGroup=createLazyImageGroup(railWreckSources[set]);railWreckGroups[set]=wreckGroup;railWreckArt[set]=wreckGroup.images;}
 function drawRailConsist181(c,b){
@@ -446,10 +449,10 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      const tp=partById('turret');if(tp)put('turret',tp.x,tp.y,62,92,0,tp.destroyed||b.destroying);
      const rp=partById('rudder');if(rp)put('tail',rp.x,rp.y,34,110,0,rp.destroyed||b.destroying);
     }
-    // Per-part destruction: charred plate over the hit zone.
-    if(!b.destroying)for(const [id,r] of [['wheel-left',34],['wheel-right',34],['turret',30],['rudder',26]]){const p=partById(id);if(!p?.destroyed)continue;
-     c.fillStyle='#19151255';c.beginPath();c.ellipse(p.x,p.y,r*.8,r*.68,0,0,Math.PI*2);c.fill();
-     for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.33)%1;fx(c,'smokeDark',p.x+Math.sin(k*3.7)*r*.5,p.y-s*r*1.6,30+s*44,30+s*44,0,(1-s)*.5);}}
+    // Per-part destruction: wreck sprite + smoke over the hit zone.
+    if(!b.destroying)for(const [id,key,w,h] of [['wheel-left','wheel',64,120],['wheel-right','wheel',64,120],['turret','turret',52,86],['rudder','tail',30,84]]){const p=partById(id);if(!p?.destroyed)continue;
+     const im=partWreckArt[key];if(im?.naturalWidth){c.save();c.translate(p.x,p.y);c.imageSmoothingEnabled=true;c.drawImage(im,-w/2,-h/2,w,h);c.restore();}
+     for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.33)%1;fx(c,'smokeDark',p.x+Math.sin(k*3.7)*17,p.y-s*54,30+s*44,30+s*44,0,(1-s)*.5);}}
    }
    else if(b.assetKey==='mark4-wedge'){
     const partById=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
@@ -470,7 +473,6 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      c.drawImage(im,-190,-125,380,250);c.restore();}
     // Dead nacelles burn in place on the wing.
     if(!b.destroying)for(const id of ['eng-0','eng-1','eng-2','eng-3']){const p=partById(id);if(!p?.destroyed)continue;
-     c.fillStyle='#14110955';c.beginPath();c.ellipse(p.x,p.y,18,13,0,0,Math.PI*2);c.fill();
      fx(c,'fireEngine',p.x,p.y-8,30,30,0,.8);
      for(let k=0;k<2;k++){const s=((b.motionTime||0)*.5+k*.5)%1;fx(c,'smokeDark',p.x+Math.sin(k*4.3)*12,p.y-16-s*56,22+s*36,22+s*36,0,(1-s)*.5);}}
    }
@@ -478,9 +480,10 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     const partById=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
     const im=b.destroying?(bossArt.searchlightWreck||bossArt.searchlight):bossArt.searchlight;
     if(im?.naturalWidth){c.save();c.imageSmoothingEnabled=true;c.drawImage(im,-170,-175,340,350);c.restore();}
-    // Knocked-out positions get a char patch + smoke over the composite art.
+    // Knocked-out positions get a wreck sprite + smoke over the composite art.
     if(!b.destroying)for(const id of ['light','gun','ammo']){const p=partById(id);if(!p?.destroyed)continue;
-     c.fillStyle='#19151255';c.beginPath();c.ellipse(p.x,p.y,(p.radius||46)*.6,(p.radius||46)*.52,0,0,Math.PI*2);c.fill();
+     const im=partWreckArt[id==='light'?'light':'gun'],r=p.radius||46;
+     if(im?.naturalWidth){const w=r*1.5,h=w*im.naturalHeight/im.naturalWidth;c.save();c.translate(p.x,p.y);c.imageSmoothingEnabled=true;c.drawImage(im,-w/2,-h/2,w,h);c.restore();}
      for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.33)%1;fx(c,'smokeDark',p.x+Math.sin(k*4.1)*22,p.y-24-s*64,24+s*38,24+s*38,0,(1-s)*.5);}}
    }
    else if(b.assetKey==='morser-battery'){
@@ -488,9 +491,9 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     const gunIds=['gun-1','gun-2','gun-3'];
     const im=b.destroying?(bossArt.morserWreck||bossArt.morser):bossArt.morser;
     if(im?.naturalWidth){c.save();c.imageSmoothingEnabled=true;c.drawImage(im,-260,-236,520,472);c.restore();}
-    // Dead pits get a char patch + smoke so the battery visibly loses lanes.
+    // Dead pits get a wreck sprite + smoke so the battery visibly loses lanes.
     if(!b.destroying)for(const id of gunIds){const p=partById(id);if(!p?.destroyed)continue;
-     c.fillStyle='#19151255';c.beginPath();c.ellipse(p.x,p.y,40,34,0,0,Math.PI*2);c.fill();
+     const im=partWreckArt.pit;if(im?.naturalWidth){c.save();c.translate(p.x,p.y);c.imageSmoothingEnabled=true;c.drawImage(im,-48,-46,96,92);c.restore();}
      for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.33)%1;fx(c,'smokeDark',p.x+Math.sin(k*4.1)*26,p.y-30-s*70,26+s*40,26+s*40,0,(1-s)*.5);}}
    }
    else if(plane){
