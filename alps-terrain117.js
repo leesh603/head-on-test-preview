@@ -17,7 +17,10 @@ export const TERRAIN_PROFILES=Object.freeze({
  arras:{name:'아라스 상공',src:'./terrain-arras.webp?v=340&b=340',base:'#4d5a66',strength:.85},
  // Somme: churned crater field, zigzag trenches and smoke over mud — the first
  // tank assault. Low contrast keeps the shell-impact warnings legible.
- somme:{name:'솜 강전선',src:'./terrain-somme.webp?v=340&b=340',base:'#5a5244',strength:.85}
+ somme:{name:'솜 강전선',src:'./terrain-somme.webp?v=340&b=340',base:'#5a5244',strength:.85},
+ // London raid: night navy street grid, the Thames band and fires. Kept dark so
+ // searchlight cones and warning circles stay legible.
+ london:{name:'런던 대공습',src:'./terrain-london.webp?v=340&b=340',base:'#232a36',strength:.85}
 });
 const profileImages=new Map();
 function profileImage(key){
