@@ -19,7 +19,7 @@ export function drawGasVeil3(c,z,x,y,time=0,boundary=true){
  roleDraw(c,'gasCloud'+frame,x,y,diameter,diameter,turn,.95*fade);
  roleDraw(c,'gasCloud'+Math.min(3,frame+1),x+Math.cos(turn+2)*z.r*.28,y+Math.sin(turn+2)*z.r*.22,diameter*.8,diameter*.68,-turn,.66*fade);
  // Green cast over the smoke atlas — reads as gas, not fog.
- c.save();c.globalAlpha*=fade*.34;const grad=c.createRadialGradient(x,y,diameter*.12,x,y,diameter*.58);grad.addColorStop(0,'#6da32e');grad.addColorStop(1,'#47682000');c.fillStyle=grad;c.beginPath();c.arc(x,y,diameter*.6,0,Math.PI*2);c.fill();c.restore();
+ if(c.createRadialGradient){c.save();c.globalAlpha*=fade*.34;const grad=c.createRadialGradient(x,y,diameter*.12,x,y,diameter*.58);grad.addColorStop(0,'#6da32e');grad.addColorStop(1,'#47682000');c.fillStyle=grad;c.beginPath();c.arc(x,y,diameter*.6,0,Math.PI*2);c.fill();c.restore();}
  if(boundary){c.save();c.globalAlpha*=fade*.55;c.strokeStyle='#a2a36c';c.lineWidth=1.2;c.setLineDash([5,9]);c.beginPath();c.arc(x,y,z.r,0,Math.PI*2);c.stroke();c.restore();}
  return true;
 }

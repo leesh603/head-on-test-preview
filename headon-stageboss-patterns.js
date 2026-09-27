@@ -710,7 +710,7 @@ class FormationAceBoss extends PatternBoss {
 export class JastaCircus extends FormationAceBoss {
   constructor(options) {
     super({...options,kind:'jasta11-circus',wingman:{minion:'circus-wing',behavior:'circus-escort',count:4,respawnEvery:3.0,life:90,fire:1.05,maxSpeed:235,
-      liveries:['wolff_albatros','allmenroder_albatros','kissenberth_albatros','jasta4_albatros','jasta5_albatros']}});
+      liveries:['jasta11a_albatros','jasta11b_albatros','jasta11c_albatros','jasta11d_albatros']}});
     this.speed=196;this.aceCycle=0;
   }
   update(dt,{players,bounds}) {
