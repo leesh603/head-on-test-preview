@@ -256,11 +256,14 @@ function drawBossPart(c,p,ring,t=0){
   if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd579aa');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
  }
  if(['zeppelin-l70','hma23'].includes(p.bodyKey)){
-  // Underslung pods drawn in profile (atlas 4) — the head-on propeller sprite
-  // read as a row of broken bombers at this scale.
-  if(p.destroyed){bossSpriteFiltered(c,4,'grayscale(1) brightness(.4)',p.x,p.y,r*2.1,r*1.5,Math.PI/2,.8);
-   bossSprite(c,9,p.x,p.y,r*1.7,r*1.7,0,.9);}
-  else bossSprite(c,4,p.x,p.y,r*2.1,r*1.5,Math.PI/2,.95);
+  const carrier=p.bodyKey==='hma23',partSprite=carrier?6:4;
+  // L70 keeps underslung engine pods; HMA uses the authored launch-port cradle
+  // so the two airships no longer share one row of identical components.
+  if(p.destroyed){bossSpriteFiltered(c,partSprite,'grayscale(1) brightness(.4)',p.x,p.y,r*2.1,r*1.5,Math.PI/2,.8);
+   bossSprite(c,9,p.x,p.y,r*(carrier ? .72 : .9),r*(carrier ? .72 : .9),0,carrier ? .55 : .72);}
+  else bossSprite(c,partSprite,p.x,p.y,r*2.1,r*1.5,Math.PI/2,.95);
+  if(carrier&&!p.destroyed){const side=Number(p.partId.slice(5))<2?-1:1;c.strokeStyle='#d5c28a99';c.lineWidth=2;c.beginPath();c.moveTo(p.x-side*r*.2,p.y+r*.2);c.lineTo(p.x+side*r*1.15,p.y+r*.8);c.stroke();c.strokeStyle='#4e685f';c.lineWidth=1;c.beginPath();c.moveTo(p.x-side*r*.1,p.y-r*.05);c.lineTo(p.x+side*r,p.y+r*.55);c.stroke();}
+  if(!carrier&&p.destroyed){fx(c,'fireEngine',p.x,p.y-r*.15,r*1.25,r*1.25,0,.72);if(Math.floor(t*3+p.x*.1)%2===0)fx(c,'smokeDark',p.x,p.y-r*.85,r*2.2,r*2.2,0,.32);}
   if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd579aa');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
  }
  const index=p.partId==='truss'?0:p.partId==='muzzle'?1:p.partId==='hangar'?2:p.partId==='crane'?3:p.partId==='capsule'?4:p.kind==='engine'?5:p.partId.startsWith('port-')?6:p.bodyKey==='a7v-flak'?7:8;
@@ -494,19 +497,20 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
       for(let x=h.x-h.width/2;x<h.x+h.width/2;x+=18){c.moveTo(x,h.y-h.height/2);c.lineTo(x+9,h.y+h.height/2)}c.stroke();
       const prog=clamp((h.age-h.delay)/h.warning,0,1);
       c.strokeStyle='#f2d69b';c.lineWidth=2.5;c.strokeRect(h.x-h.width/2,h.y-h.height/2,h.width*prog,h.height);}
-     else{const img=fxImage('flameJet'),ar=img?img.naturalWidth/img.naturalHeight:2.4;
-      c.fillStyle='#ef604f18';c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);
-      if(img?.naturalWidth){const n=Math.min(14,Math.ceil(h.width/64)),jetLen=h.height*1.5,jetH=h.width/n*1.5;
-       for(let i=0;i<n;i++){const x=h.x-h.width/2+(i+.5)*h.width/n,wob=Math.sin(i*2.7+h.age*3)*4;
-        c.save();c.translate(x,h.y+h.height/2+6);c.rotate(-Math.PI/2+wob*.012);
+     else{const img=fxImage('flameJet'),vertical=h.height>h.width,w=vertical?h.height:h.width,height=vertical?h.width:h.height,lowDetail=(c.canvas?.width||999)<900;
+      c.save();c.translate(h.x,h.y);if(vertical)c.rotate(Math.PI/2);
+      c.fillStyle='#ef604f18';c.fillRect(-w/2,-height/2,w,height);
+      if(img?.naturalWidth){const n=Math.min(lowDetail?6:10,Math.ceil(w/64)),jetLen=height*1.5,jetH=w/n*1.5;
+       for(let i=0;i<n;i++){const x=-w/2+(i+.5)*w/n,wob=Math.sin(i*2.7+h.age*3)*4;
+        c.save();c.translate(x,height/2+6);c.rotate(-Math.PI/2+wob*.012);
         c.globalAlpha=.92;c.drawImage(img,0,-jetH/2,jetLen,jetH);
         c.globalCompositeOperation='screen';c.globalAlpha=.5;c.drawImage(img,jetLen*.14,-jetH*.3,jetLen*.82,jetH*.6);
         c.restore();}
-       const m=Math.min(8,Math.ceil(h.width/130));
-       for(let i=0;i<m;i++){const x=h.x-h.width/2+(i+.5)*h.width/m;fx(c,'smokeDark',x+Math.sin(i*3+h.age*2)*6,h.y-h.height*.5,96,h.height*1.15,0,.42);}}
-      else{const n=Math.min(26,Math.ceil(h.width/44));for(let i=0;i<n;i++){const x=h.x-h.width/2+(i+.5)*h.width/n,wob=Math.sin(i*2.7+h.age*3)*5;
-       if(!fx(c,'fire',x,h.y+8+wob*.4,54,h.height*.95,0,.92))bossSprite(c,12,x,h.y,36,h.height,0,.85);
-       fx(c,'smokeDark',x,h.y-h.height*.42+wob*.3,64,h.height*.9,0,.5);}}}
+       const m=Math.min(lowDetail?3:6,Math.ceil(w/130));
+       for(let i=0;i<m;i++){const x=-w/2+(i+.5)*w/m;fx(c,'smokeDark',x+Math.sin(i*3+h.age*2)*6,-height*.5,96,height*1.15,0,.42);}}
+      else{const n=Math.min(lowDetail?12:20,Math.ceil(w/44));for(let i=0;i<n;i++){const x=-w/2+(i+.5)*w/n,wob=Math.sin(i*2.7+h.age*3)*5;
+       if(!fx(c,'fire',x,8+wob*.4,54,height*.95,0,.92))bossSprite(c,12,x,0,36,height,0,.85);
+       fx(c,'smokeDark',x,-height*.42+wob*.3,64,height*.9,0,.5);}}c.restore();}
     }else{c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);c.strokeRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);if(!warning){
      const n=Math.min(24,Math.ceil(h.width/38));for(let i=0;i<n;i++){const x=h.x-h.width/2+(i+.5)*h.width/n;bossSprite(c,15,x,h.y,36,Math.max(28,h.height*1.25),Math.PI/2,.85);}
     }}
