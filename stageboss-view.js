@@ -436,11 +436,6 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     if(atlas?.naturalWidth){
      const im=b.destroying?(bakedImage(atlas,'grayscale(.62) brightness(.52) sepia(.35)')||atlas):atlas;
      c.save();c.translate(0,10);c.rotate(roll);c.imageSmoothingEnabled=true;
-     // Chassis plate under the atlas — the art has open gaps between the wheels
-     // and hull that let the terrain show through and read as a ghost vehicle.
-     c.fillStyle='#33302a';c.beginPath();c.ellipse(-94,95,52,120,0,0,Math.PI*2);c.ellipse(94,95,52,120,0,0,Math.PI*2);c.fill();
-     c.fillRect(-96,-140,192,270);c.beginPath();c.ellipse(0,-55,58,110,0,0,Math.PI*2);c.fill();
-     c.fillStyle='#262420';c.fillRect(-14,80,28,110);
      c.drawImage(im,-150,-200,300,400);c.restore();
     }else{
      const put=(key,x,y,w,h,rl=0,wrecked=false)=>{const im=wrecked?bakedImage(treffasArt[key],'grayscale(.62) brightness(.52) sepia(.35)')||treffasArt[key]:treffasArt[key];if(!im?.naturalWidth)return false;c.save();c.translate(x,y);c.rotate(rl);c.imageSmoothingEnabled=true;c.drawImage(im,-w/2,-h/2,w,h);c.restore();return true;};
