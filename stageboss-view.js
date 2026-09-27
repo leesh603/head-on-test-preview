@@ -116,17 +116,18 @@ function drawRailConsist181(c,b){
  if(!images.engine.naturalWidth){drawBossArt(c,set,164*2.025,246*2.025);return;}
  c.save();c.imageSmoothingEnabled=true;
  if(b.phase==='derailed'){c.rotate(.16);c.translate(28,8);}
- const carDim=set==='railCarrier'?[124,175]:[260,390];
- // railCarrier: the per-car cut-outs read as a transparent ghost — draw the
- // assembled 4-car atlas instead, aligned so car centers land on the parts.
+ const carDim=set==='railCarrier'?[124,400]:[260,390];
  if(set==='railCarrier'){
-  const atlas=bossArt.railCarrier;
-  if(atlas?.naturalWidth)c.drawImage(atlas,-156,-78,311,622);else drawBossArt(c,set,164*2.025,246*2.025);
+  // Solid armored hull under the lattice car art — the cut-outs alone read as
+  // a transparent ghost train against the terrain.
+  const ys=[...cars.values()].map(car=>car.y),top=Math.min(...ys,0)-205,bottom=Math.max(...ys,0)+205;
+  c.fillStyle='#36322b';c.beginPath();c.arc(0,top,73,Math.PI,0,true);c.rect(-73,top,146,bottom-top);c.arc(0,bottom,73,0,Math.PI);c.fill();
+  c.fillStyle='#4b463d';c.fillRect(-62,top+14,124,bottom-top-28);
+  c.fillStyle='#2a2722';for(const y of ys)c.fillRect(-62,y+182,124,10);
  }
  for(const [id,key] of [['car-rear','rear'],['car-middle','middle'],['car-front','front']]){const car=cars.get(id);if(!car)continue;
   const wreckImage=wreckImages[key]; // Load only the active train's wreck art.
-  if(!car.destroyed){
-   if(set!=='railCarrier')c.drawImage(images[key],-carDim[0]/2,car.y-carDim[1]/2,carDim[0],carDim[1]);
+  if(!car.destroyed){c.drawImage(images[key],-carDim[0]/2,car.y-carDim[1]/2,carDim[0],carDim[1]);
    continue}
   // Destroyed car: wreck image under a rolling explosion cluster, then the
   // car is consumed and leaves an empty gap in the consist.
@@ -134,13 +135,13 @@ function drawRailConsist181(c,b){
   if(age>=3.0)continue;
   c.save();c.translate(0,car.y);c.rotate(.025);
   const fade=Math.max(0,1-age/2.4);
-  if(set==='railCarrier'){c.fillStyle='#211c16';c.fillRect(-60,-86,120,172);} // mask the still-intact car in the atlas
+  if(set==='railCarrier'){c.fillStyle='#1f1b17';c.fillRect(-62,-192,124,384);} // burned-out section on the hull
   if(wreckImage.naturalWidth&&fade>0){c.globalAlpha=fade;c.drawImage(wreckImage,-carDim[0]/2,-carDim[1]/2,carDim[0],carDim[1]);c.globalAlpha=1;}
   for(let k=0;k<7;k++){const e=clamp((age*.9-k*.28),0,1);if(e<=0||e>=1)continue;const ex=Math.sin(k*2.31)*78,ey=-135+(k%3)*130+Math.sin(k*5.7)*46,fr=Math.min(3,Math.floor(e*4));fx(c,(k%2?'explosionOily':'explosion')+fr,ex,ey,(120+70*e),(120+70*e),0,.95*(1-e*.4));}
   for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.37)%1;fx(c,'smokeDark',Math.sin(k*4.1)*60,-90-s*170,120+s*150,120+s*150,0,(1-s)*.42);}
   c.restore()}
  const engineWreck=wreckImages.engine,engine=b.destroying&&engineWreck.naturalWidth?engineWreck:images.engine;
- if(set!=='railCarrier')c.drawImage(engine,-carDim[0]/2,-carDim[1]/2,carDim[0],carDim[1]);
+ c.drawImage(engine,-carDim[0]/2,-carDim[1]/2,carDim[0],carDim[1]);
  // Keep the launch payload readable above the intentionally overlapping consist.
  if(set==='railCarrier'&&bugArt.folded?.naturalWidth){const launch=cars.get('car-middle');if(launch&&!launch.destroyed)for(const [x,y] of [[-22,72],[22,72],[0,123]])c.drawImage(bugArt.folded,x-20,launch.y+y-44,40,88);}
  c.restore();
@@ -397,7 +398,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     const roll=Math.sin((b.wheelRoll||0)*9)*.04;
     if(atlas?.naturalWidth){
      const im=b.destroying?(bakedImage(atlas,'grayscale(.62) brightness(.52) sepia(.35)')||atlas):atlas;
-     c.save();c.translate(0,8);c.rotate(roll);c.imageSmoothingEnabled=true;c.drawImage(im,-115,-153,230,306);c.restore();
+     c.save();c.translate(0,10);c.rotate(roll);c.imageSmoothingEnabled=true;c.drawImage(im,-150,-200,300,400);c.restore();
     }else{
      const put=(key,x,y,w,h,rl=0,wrecked=false)=>{const im=wrecked?bakedImage(treffasArt[key],'grayscale(.62) brightness(.52) sepia(.35)')||treffasArt[key]:treffasArt[key];if(!im?.naturalWidth)return false;c.save();c.translate(x,y);c.rotate(rl);c.imageSmoothingEnabled=true;c.drawImage(im,-w/2,-h/2,w,h);c.restore();return true;};
      const wobble=Math.sin((b.wheelRoll||0)*9)*.05;
@@ -409,7 +410,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     }
     // Per-part destruction: charred plate over the hit zone.
     if(!b.destroying)for(const [id,r] of [['wheel-left',34],['wheel-right',34],['turret',30],['rudder',26]]){const p=partById(id);if(!p?.destroyed)continue;
-     c.fillStyle='#191512';c.beginPath();c.ellipse(p.x,p.y,r*1.7,r*1.5,0,0,Math.PI*2);c.fill();
+     c.fillStyle='#191512cc';c.beginPath();c.ellipse(p.x,p.y,r*1.2,r*1.05,0,0,Math.PI*2);c.fill();
      for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.33)%1;fx(c,'smokeDark',p.x+Math.sin(k*3.7)*r*.5,p.y-s*r*1.6,30+s*44,30+s*44,0,(1-s)*.5);}
      c.strokeStyle='#5a4a38aa';c.lineWidth=1.5;for(let k=0;k<4;k++){const a=k*1.7+p.y*.02;c.beginPath();c.moveTo(p.x+Math.cos(a)*r*.3,p.y+Math.sin(a)*r*.3);c.lineTo(p.x+Math.cos(a)*r*1.3,p.y+Math.sin(a)*r*1.3);c.stroke()}}
    }
