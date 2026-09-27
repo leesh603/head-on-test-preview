@@ -1,20 +1,20 @@
-import {EnemyCollisionGrid} from './collision-grid.js?v=340&b=340';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=340';
-import {installRevision} from './rebalance103.js?v=340&b=340';
-import {installCloudCover} from './cloud-cover1.js?v=340&b=340';
-import {installFleet} from './fleet-naval1.js?v=340&b=340';
-import {installTrenchWar} from './trench-war1.js?v=340&b=340';
-import {installCityAir} from './city-air1.js?v=340&b=340';
-import {installRegionDoctrine} from './region-doctrine1.js?v=340&b=340';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=340';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=340&b=340';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=340';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=340';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=340';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=340';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=340';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=340';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=340';
+import {EnemyCollisionGrid} from './collision-grid.js?v=338&b=326';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=338';
+import {installRevision} from './rebalance103.js?v=338&b=326';
+import {installCloudCover} from './cloud-cover1.js?v=338&b=326';
+import {installFleet} from './fleet-naval1.js?v=338&b=326';
+import {installTrenchWar} from './trench-war1.js?v=338&b=326';
+import {installCityAir} from './city-air1.js?v=338&b=326';
+import {installRegionDoctrine} from './region-doctrine1.js?v=338&b=326';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=338';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=aa20260927';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=338';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=338';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=338';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=338';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=338';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=338';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=338';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -763,12 +763,12 @@ Game.prototype.update=function(dt,input={}){
  for(const f of this.hostileMinefields||[]){
   f.warning-=step;f.life-=step;
   for(const m of f.mines){if(m.dead)continue;
-   for(const b of this.bullets){if(b.enemy||b.life<=0)continue;if(Math.hypot(b.x-m.x,b.y-m.y)<20){m.hp-=b.damage;if(!b.pierce)b.life=0;if(m.hp<=0){m.dead=true;this.combatBlast(m.x,m.y,32,'friendly','mine');break}}}
-   if(!m.dead&&f.warning<=0&&Math.hypot(this.x-m.x,this.y-m.y)<25){m.dead=true;this.hit(22);this.combatBlast(m.x,m.y,58,'enemy','mine')}
+    for(const b of this.bullets){if(b.enemy||b.life<=0)continue;if(Math.hypot(b.x-m.x,b.y-m.y)<20){m.hp-=b.damage;if(!b.pierce)b.life=0;if(m.hp<=0){m.dead=true;if(!m.bossMine)this.combatBlast(m.x,m.y,32,'friendly','mine');break}}}
+    if(!m.dead&&f.warning<=0&&Math.hypot(this.x-m.x,this.y-m.y)<25){m.dead=true;this.hit(22);if(!m.bossMine)this.combatBlast(m.x,m.y,58,'enemy','mine')}
    if(!m.dead&&f.warning<=0){for(const e of this.enemies){if(e.hp<=0||e.surface||e.navalVessel||e.stationary||e.fieldUnit||e.stageBossBody||e.bossMinion)continue;if(Math.hypot(e.x-m.x,e.y-m.y)<27){m.dead=true;e.hp-=30;e.hitFlash=.24;this.combatBlast(m.x,m.y,58,'enemy','mine');if(e.hp<=0&&!e.deathCounted){e.deathCounted=true;this.kills++;if(e.bossPilot||e.type==='boss'||e.type==='zeppelin'||e.type==='bomber')this.priorityKills=(this.priorityKills||0)+1;if(e.type==='zeppelin')this.wreckGust(e);this.event('kill','');if(e.type==='boss'){this.bossKilled=true;this.hp=Math.min(this.maxHp,this.hp+this.maxHp*DURABILITY_BALANCE.repairPickupFraction)}{const big=e.bossPilot||e.type==='boss';if(big)for(let gi=0;gi<5;gi++)this.drops.push({x:e.x+Math.cos(gi*1.26)*44,y:e.y+Math.sin(gi*1.26)*44,value:14,heal:false});this.drops.push({x:e.x,y:e.y,value:big?30:e.heavyBomber?16:e.type==='bomber'?3:(e.xpValue||1),heal:big||this.rng()<.1});this.dropObservationRepair(e)}}break}}}
   }
  }
- this.hostileMinefields=(this.hostileMinefields||[]).filter(f=>f.life>0&&f.region===this.worldRegion()&&f.mines.some(m=>!m.dead));
+  this.hostileMinefields=(this.hostileMinefields||[]).filter(f=>f.life>0&&f.region===this.worldRegion()&&f.mines.some(m=>!m.dead||f.encounterId&&!m.chainHandled));
  for(const e of this.enemies)if(e.navalVessel){e.life-=step;if(e.life<=0)e.expired=true}
  this.enemies=this.enemies.filter(e=>!e.expired);
 };
