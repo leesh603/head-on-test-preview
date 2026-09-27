@@ -69,7 +69,7 @@ export function prepareStageBossAssets(region){
  if(region>=0)jobs.push(partGroup.preload());else{partGroup.release();skyCloud113=null}
  return Promise.all(jobs);
 }
-const drawTrenchImage=(c,image,x,y,w,h,angle=0,alpha=1)=>{if(!image?.naturalWidth)return false;c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha=alpha;c.imageSmoothingEnabled=true;c.drawImage(image,-w/2,-h/2,w,h);c.restore();return true;};
+const drawTrenchImage=(c,image,x,y,w,h,angle=0,alpha=1)=>{if(!(image?.naturalWidth||image?.width))return false;c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha=alpha;c.imageSmoothingEnabled=true;c.drawImage(image,-w/2,-h/2,w,h);c.restore();return true;};
 // All three damage states share fixed atlas rectangles and mounting coordinates.
 const drawLivensPart=(c,row,state,x,y,width)=>{
  const image=trenchBossArt.livensParts;if(!image?.naturalWidth)return;
@@ -460,7 +460,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      c.save();c.translate(0,10);c.rotate(roll);c.imageSmoothingEnabled=true;
      c.drawImage(im,-150,-200,300,400);c.restore();
     }else{
-     const put=(key,x,y,w,h,rl=0,wrecked=false)=>{const im=wrecked?bakedImage(treffasArt[key],'grayscale(.62) brightness(.52) sepia(.35)')||treffasArt[key]:treffasArt[key];if(!im?.naturalWidth)return false;c.save();c.translate(x,y);c.rotate(rl);c.imageSmoothingEnabled=true;c.drawImage(im,-w/2,-h/2,w,h);c.restore();return true;};
+     const put=(key,x,y,w,h,rl=0,wrecked=false)=>{const im=wrecked?bakedImage(treffasArt[key],'grayscale(.62) brightness(.52) sepia(.35)')||treffasArt[key]:treffasArt[key];if(!(im?.naturalWidth||im?.width))return false;c.save();c.translate(x,y);c.rotate(rl);c.imageSmoothingEnabled=true;c.drawImage(im,-w/2,-h/2,w,h);c.restore();return true;};
      const wobble=Math.sin((b.wheelRoll||0)*9)*.05;
      for(const [id,key] of [['wheel-left','wheel'],['wheel-right','wheelR']]){const p=partById(id);if(!p)continue;
       put(key,p.x,p.y,72,168,wobble*(id==='wheel-left'?1:-1),p.destroyed||b.destroying);}
