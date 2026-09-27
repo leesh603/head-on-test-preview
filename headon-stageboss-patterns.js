@@ -3,7 +3,7 @@ import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=34
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
-export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai']);
+export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai', 'arras']);
 export const BOSS_CATALOG = Object.freeze({
   'paris-gun': {name:'브루노 열차포', faction:'central', stage:0},
   lincomparable: {name:'520mm 열차포 · 랑콩파라블', faction:'entente', stage:0},
@@ -22,6 +22,8 @@ export const BOSS_CATALOG = Object.freeze({
   ,'armored-harbor-fortress': {name:'장갑 크레인 항구요새', faction:'neutral', stage:7}
   ,'fliegerzug': {name:'무인기 모함열차 · 플리거주크', faction:'entente', stage:8}
   ,'treffas-wagen': {name:'대공개조형 트레파스바겐 · 거륜 육상전함', faction:'central', stage:8}
+  ,'jasta11-circus': {name:'야스타 11 · 붉은 서커스', faction:'central', stage:9}
+  ,'fe2b-flight': {name:'F.E.2b 비행 관 편대', faction:'entente', stage:9}
 });
 const living = players => players.filter(p => p.alive);
 const randBetween = (rng,a,b) => a + (b-a)*rng();
@@ -669,11 +671,93 @@ export class TreffasWagen extends PatternBoss {
   }
 }
 
+// Bloody April (stage 9): the boss is a multi-aircraft wing, not a vehicle.
+// The body IS the formation leader — it flies like an ace and keeps
+// respawning wingmen on station. Killing the leader ends the encounter even
+// with wingmen still airborne.
+class FormationAceBoss extends PatternBoss {
+  constructor({wingman,...options}) {
+    super({...options,parts:[]});
+    this.coreRadius=30;this.ownsMotion129=true;this.a=-Math.PI/2;this.support129=true;
+    this.phase='intercept';this.wingman=wingman;this.slotCursor=0;this.timers.set('wing-spawn',0);
+  }
+  steer(dt,tx,ty,turnRate){
+    const a=Math.atan2(ty-this.y,tx-this.x),delta=Math.atan2(Math.sin(a-this.a),Math.cos(a-this.a));
+    const tr=turnRate*dt;this.a+=Math.max(-tr,Math.min(tr,delta));
+  }
+  aimAt(p){const pa=Math.atan2(p.y-this.y,p.x-this.x);return{pa,rel:Math.atan2(Math.sin(pa-this.a),Math.cos(pa-this.a)),dist:Math.hypot(p.x-this.x,p.y-this.y)};}
+  move(dt,speed,bounds){
+    this.x+=Math.cos(this.a)*speed*dt;this.y+=Math.sin(this.a)*speed*dt;
+    this.x=Math.max(bounds.left+36,Math.min(bounds.right-36,this.x));
+    this.y=Math.max(bounds.top+36,Math.min(bounds.bottom-36,this.y));
+  }
+  // Wingmen stream in from just above the visible top edge and slot behind
+  // the leader; the escort behavior keeps them there.
+  maintainWing(dt,{bounds}){
+    if(!this.due('wing-spawn',dt,this.wingman.respawnEvery))return;
+    const span=bounds.right-bounds.left;let issued=0;
+    while((this.countMinions129?.()||0)<this.wingman.count&&issued++<this.wingman.count){
+      const i=this.slotCursor++;
+      const x=bounds.left+span*((i%4)+.5)/4,y=bounds.top-70;
+      this.command('spawn-minion',{minion:this.wingman.minion,faction:this.faction,plane:this.wingman.liveries[i%this.wingman.liveries.length],
+        behavior:this.wingman.behavior,leaderId:this.id,rearGunner:!!this.wingman.rearGunner,
+        formationIndex:i%this.wingman.count,formationCount:this.wingman.count,
+        x,y,a:Math.PI/2,life:this.wingman.life,fire:this.wingman.fire,maxSpeed:this.wingman.maxSpeed});
+    }
+  }
+}
+export class JastaCircus extends FormationAceBoss {
+  constructor(options) {
+    super({...options,kind:'jasta11-circus',wingman:{minion:'circus-wing',behavior:'circus-escort',count:4,respawnEvery:3.0,life:90,fire:1.05,maxSpeed:235,
+      liveries:['wolff_albatros','allmenroder_albatros','kissenberth_albatros','jasta4_albatros','jasta5_albatros']}});
+    this.speed=196;this.aceCycle=0;
+  }
+  update(dt,{players,bounds}) {
+    const p=living(players).reduce((m,q)=>!m||Math.hypot(q.x-this.x,q.y-this.y)<Math.hypot(m.x-this.x,m.y-this.y)?q:m,null);if(!p)return;
+    this.aceCycle+=dt;
+    // Richthofen orbits above the fight, then dives through it. The bracket
+    // pressure meanwhile comes from the wingmen's crossing fire.
+    const dive=(this.aceCycle%12)>7.4;
+    if(dive)this.steer(dt,p.x+(p.vx||0)*.3,p.y+(p.vy||0)*.3,3.0);
+    else{const ang=this.aceCycle*.85;this.steer(dt,p.x+Math.cos(ang)*360,p.y-230+Math.sin(ang)*140,1.7);}
+    this.move(dt,this.speed*(dive?1.3:.82),bounds);
+    const {pa,rel,dist}=this.aimAt(p);
+    if(Math.abs(rel)<.5&&dist<640&&this.due('jasta-mg',dt,dive?.8:1.2)){
+      const mx=this.x+Math.cos(this.a)*32,my=this.y+Math.sin(this.a)*32;
+      this.fan(mx,my,pa,2,.08,this.t.bulletSpeed*1.15,'jasta-mg');this.command('muzzle',{x:mx,y:my});
+    }
+    this.maintainWing(dt,{bounds});
+  }
+}
+export class Fe2bFlight extends FormationAceBoss {
+  constructor(options) {
+    super({...options,kind:'fe2b-flight',wingman:{minion:'pusher-plane',behavior:'pusher-escort',count:5,respawnEvery:4.2,life:110,fire:1.5,maxSpeed:150,rearGunner:true,
+      liveries:['fe2b']}});
+    this.speed=108;this.orbitDir=1;
+  }
+  update(dt,{players,bounds}) {
+    const p=living(players).reduce((m,q)=>!m||Math.hypot(q.x-this.x,q.y-this.y)<Math.hypot(m.x-this.x,m.y-this.y)?q:m,null);if(!p)return;
+    // Slow defensive ring over the field — the flight lumbers in a wide
+    // circle near the player rather than chasing.
+    const ang=this.motionTime*.32*this.orbitDir,tx=p.x+Math.cos(ang)*300,ty=p.y+Math.sin(ang)*300*.55-80;
+    this.steer(dt,tx,ty,1.15);
+    this.move(dt,this.speed,bounds);
+    const {pa,rel,dist}=this.aimAt(p);
+    if(dist<580&&this.due('fe2b-gun',dt,1.35)){
+      // Pusher nose gun forward, observer Lewis gun aft — the rear arc is the
+      // dangerous one for anyone trying to tail them.
+      if(Math.abs(rel)>2.1){const mx=this.x-Math.cos(this.a)*30,my=this.y-Math.sin(this.a)*30;this.fan(mx,my,pa,2,.1,this.t.bulletSpeed*.95,'fe2b-rear');this.command('muzzle',{x:mx,y:my});}
+      else if(Math.abs(rel)<.55){const mx=this.x+Math.cos(this.a)*30,my=this.y+Math.sin(this.a)*30;this.fan(mx,my,pa,1,0,this.t.bulletSpeed,'fe2b-nose');this.command('muzzle',{x:mx,y:my});}
+    }
+    this.maintainWing(dt,{bounds});
+  }
+}
+
 const constructors={'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttgart':Stuttgart,'hms-zubian':Zubian,
   'zeppelin-l70':ZeppelinL70,hma23:HMA23,'a7v-flak':A7VFlak,'mark-v-cruiser':MarkVCruiser,
   'livens-flame-projector':LivensFlameProjector,'minenwerfer-battery':MinenwerferBattery,
   'london-apron':LondonApron,'drachen-net':DrachenMineNet,gik:GIK,ca4:Ca4,'armored-harbor-fortress':ArmoredHarborFortress,
-  fliegerzug:Fliegerzug,'treffas-wagen':TreffasWagen};
+  fliegerzug:Fliegerzug,'treffas-wagen':TreffasWagen,'jasta11-circus':JastaCircus,'fe2b-flight':Fe2bFlight};
 export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   const entry=BOSS_CATALOG[bossId],Ctor=constructors[bossId];if(!Ctor)throw new Error('Unknown boss: '+bossId);
   const body=new Ctor({id:id+':body',tuning,x,y,emit,rng,faction:faction||entry.faction,coreRadius:tuning.coreRadius||100});

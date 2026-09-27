@@ -8,7 +8,7 @@ export function musicModeForGame(game){
   if(game.enemies.some(e=>e.hp>0&&e.type==='boss'))return 'boss';
   return MAP_KEYS[game.worldRegion()]||'rural';
 }
-const MAP_KEYS=['rural','sea','trench','trench','city','sky','alps','zeebrugge'];
+const MAP_KEYS=['rural','sea','trench','trench','city','sky','alps','zeebrugge','zeebrugge','sky'];
 // Stage-boss id -> score family. Related boss pairs share a family.
 const BOSS_TRACKS={
  'paris-gun':'railgun',lincomparable:'railgun',
@@ -18,7 +18,8 @@ const BOSS_TRACKS={
  'zeppelin-l70':'airship',hma23:'airship',
  gik:'bomber',ca4:'bomber',
  'armored-harbor-fortress':'fortress',
- 'fliegerzug':'railgun','treffas-wagen':'landship'
+ 'fliegerzug':'railgun','treffas-wagen':'landship',
+ 'jasta11-circus':'bomber','fe2b-flight':'airship'
 };
 // Per-family tempo and bar-root progressions; each family also has its own
 // pattern branch in bossStep.

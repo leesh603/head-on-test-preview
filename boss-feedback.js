@@ -6,7 +6,8 @@ export const BOSS_NAMES_EN=Object.freeze({
  'paris-gun':'Bruno railway gun',lincomparable:"520mm L’Incomparable",'sms-stuttgart':'SMS Stuttgart','hms-zubian':'HMS Zubian',
  'a7v-flak':'A7V Flakpanzer','mark-v-cruiser':'Mark V land cruiser','livens-flame-projector':'Livens flame projector','minenwerfer-battery':'Minenwerfer battery',
  'drachen-net':'Drachen mine network','london-apron':'London balloon apron','zeppelin-l70':'Zeppelin L 70',hma23:'HMA 23 carrier',gik:'Hansa-Brandenburg G.IK',ca4:'Caproni Ca.4','armored-harbor-fortress':'Armored harbor fortress',
- 'fliegerzug':'Fliegerzug drone carrier','treffas-wagen':'Treffas-Wagen landship'
+ 'fliegerzug':'Fliegerzug drone carrier','treffas-wagen':'Treffas-Wagen landship',
+ 'jasta11-circus':'Jasta 11 Red Circus','fe2b-flight':'F.E.2b pusher flight'
 });
 export function bossTactic(encounter,locale='ko'){
  const bodies=[...encounter?.bodies.values()||[]].filter(b=>!b.dead),b=bodies[0];if(!b)return '';
@@ -28,6 +29,8 @@ export function bossTactic(encounter,locale='ko'){
   case 'armored-harbor-fortress':return b.coreVulnerable?text('중앙 지휘시설 노출 · 남은 포대 주의','Command core exposed · watch surviving guns'):b.parts.get('crane-pivot')?.hittable?text('크레인 회전축 노출 · 파괴하면 중앙 코어 개방','Crane pivot exposed · destroy it to open the core'):text('외곽 3부위 파괴 → 회전축 · 탄약고 유폭 활용','Break 3 outer parts → pivot · detonate the ammo store');
   case 'fliegerzug':return b.phase==='runaway'?text('폭주 경로 이탈 → 탈선 후 기관차 공격','Clear the runaway track → strike after derailment'):b.phase==='derailed'?text('탈선 직후 · 노출된 기관차 집중 사격','Derailed · pour fire into the exposed locomotive'):b.coreVulnerable?text('기관차 노출 · 사격 후 이동 경로 추적','Locomotive exposed · follow its launch stops'):gone('car-middle')?text('발사대 파괴됨 · 격납 화차의 호위 출격 차단','Launch car down · stop hangar fighter launches'):gone('car-rear')?text('격납 화차 파괴됨 · 대공 화차와 발사대 공략','Hangar down · break the flak and launch cars'):text('후미 격납 화차부터 순서대로 파괴','Destroy cars rear-first · shoot the rail to halt it');
   case 'treffas-wagen':return b.coreVulnerable?text('본체 노출 · 집중 사격','Hull exposed · concentrate fire'):b.phase==='crippled'?text('차륜 붕괴 · 제자리 포격 중 — 본체 코어 공략','Wheels down · dug-in barrage — hit the hull'):gone('wheel-left')||gone('wheel-right')?text('남은 차륜을 부수면 전진이 멈춤','Break the last wheel to halt its advance'):text('차륜이 뿜는 파편을 피하며 차륜과 포탑 파괴','Dodge debris spray · break wheels and turret');
+  case 'jasta11-circus':return text('편대장(완전 빨간 기체)만 쓰러뜨리면 승리 · 윙맨은 재편성됨','Only the all-red leader counts · wingmen re-form');
+  case 'fe2b-flight':return text('후방 사수 주의 — 꼬리 접근 금지 · 정면에서 편대장 공격','Rear gunners bite — never tail · hit the leader head-on');
   default:return '';
  }
 }
