@@ -1,5 +1,5 @@
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=340&b=340';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=340&b=340';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=340&b=340&c=8';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=340&b=340&c=8';
 import {bossSoundFor} from './boss-feedback.js?v=340';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=340';
 
@@ -51,6 +51,8 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     'livens-flame-projector':{flameInterval:6.2},
     'minenwerfer-battery':{mortarInterval:5.8}
     ,'armored-harbor-fortress':{coastalInterval:2.5,craneInterval:4.8,harborLaunchInterval:5.6}
+    ,fliegerzug:{warningSeconds:1.7,railCycle:11}
+    ,'treffas-wagen':{geometryScale:1.2,mobileBoss:false,coreRadius:76}
    }[bossId]||{};
    return {loopIndex:loop,projectileDensity:density,maxHp,partHp:maxHp*.12,damage:Math.round(18*(1+g.t/240)*(1+Math.min(.5,loop*.12))),bulletSpeed:270,coreRadius:150,
     mobileBoss:true,motionMultiplier:Math.min(2.5,1+loop*.25),patternMultiplier:Math.min(3,1+loop*.35),geometryScale:2.025,splitProtection:5,fireInterval:6,waterInterval:3.8,launchInterval:3,enrageInterval:1.1,broadsideInterval:1.8/density,mortarInterval:1.8,chargeInterval:2.7,suppressiveInterval:3.1/density,suppressiveCount:7,
@@ -67,7 +69,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     surface:spec.minion==='autocannon',stationary:spec.minion==='autocannon',groundEscort:spec.minion==='autocannon',a:spec.minion==='autocannon'?(spec.vx<0?Math.PI:0):(spec.a??e.a),vx:spec.vx||0,life:spec.life??(spec.behavior==='attack-pass'?6.2:spec.minion==='airship'?90:18),fire:spec.fire??1.2,
     passTargetX:spec.passTargetX,passTargetY:spec.passTargetY,formationIndex:spec.formationIndex,formationCount:spec.formationCount,supportInvulnUntil:g.t+(spec.invulnerableSeconds||0),
     escortLeaderId:spec.leaderId,rearGunner:!!spec.rearGunner,maxSpeed:spec.maxSpeed});
-   if(spec.minion==='bug')Object.assign(e,{bugDrone:true,hp:Math.max(12,Math.round(e.maxHp*.4)),maxHp:Math.max(12,Math.round(e.maxHp*.4)),speed:178,fire:Infinity});
+   if(spec.minion==='bug')Object.assign(e,{bugDrone:true,hp:Math.max(12,Math.round(e.maxHp*.35)),maxHp:Math.max(12,Math.round(e.maxHp*.35)),speed:spec.speed??166,contactDamage:spec.contactDamage??14,fire:Infinity});
    if(spec.minion==='airship')Object.assign(e,{summonDone:true,hp:Math.round(e.maxHp*.5),maxHp:Math.round(e.maxHp*.5),fire:2.6,speed:Math.max(e.speed||0,95)});
   },
   countMinions(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&e.hp>0).length;},
@@ -170,7 +172,7 @@ function updateMinions(g,dt){
     e.x+=Math.cos(e.a)*spd*dt;e.y+=Math.sin(e.a)*spd*dt;
    }else{e.behavior='chase'}
   }else{const a=Math.atan2(p.y-e.y,p.x-e.x),delta=Math.atan2(Math.sin(a-e.a),Math.cos(a-e.a));e.a+=clamp(delta,-2*dt,2*dt);e.x+=Math.cos(e.a)*e.speed*dt;e.y+=Math.sin(e.a)*e.speed*dt;}
-  if(e.behavior==='suicide-dive'&&Math.hypot(e.x-p.x,e.y-p.y)<25){if(g.players)g.hitPlayer(p,18);else g.hit(18);e.hp=0;g.combatBlast(e.x,e.y,35,'enemy');continue;}
+  if(e.behavior==='suicide-dive'&&Math.hypot(e.x-p.x,e.y-p.y)<25){const damage=e.contactDamage??18;if(g.players)g.hitPlayer(p,damage);else g.hit(damage);e.hp=0;g.combatBlast(e.x,e.y,35,'enemy');continue;}
   const aim=Math.atan2(p.y-e.y,p.x-e.x),rel=Math.atan2(Math.sin(aim-(e.a||0)),Math.cos(aim-(e.a||0))),pd=Math.hypot(p.x-e.x,p.y-e.y);
   const gated=e.behavior==='attack-pass'?e.passAge>.65&&e.passAge<3.4:e.behavior==='circus-escort'?Math.abs(rel)<.62&&pd<580:e.behavior==='pusher-escort'?pd<600:true;
   e.fire-=dt;if(e.fire<=0&&gated){e.fire=e.surface ? 1.5 : e.type==='zeppelin' ? 3.4 : e.behavior==='attack-pass' ? .48 : e.behavior==='circus-escort' ? 1.05 : e.behavior==='pusher-escort' ? 1.45 : 2.5;const a=e.behavior==='attack-pass'?e.a:aim;const zep=e.type==='zeppelin',rear=e.rearGunner&&Math.abs(rel)>1.9;const shots=zep?3:rear?2:1;for(let j=0;j<shots;j++){const aa=a+(j-1)*(zep?.14:.08),mx=e.x+(zep?Math.cos(e.a)*(j-1)*60:rear?-Math.cos(e.a)*24:0),my=e.y+(zep?Math.sin(e.a)*(j-1)*60:rear?-Math.sin(e.a)*24:0);g.bullets.push({x:mx,y:my,vx:Math.cos(aa)*(zep?185:210),vy:Math.sin(aa)*(zep?185:210),life:zep?5:4,enemy:true,visualType:zep?'zeppelin':e.surface?'flak':'fighter',damage:Math.round((zep?14:9)*(1+g.t/240)),encounterId:e.encounterId});}}
