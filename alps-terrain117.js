@@ -11,7 +11,10 @@ export const TERRAIN_PROFILES=Object.freeze({
  night:{name:'야간 공습',cell:8,base:'#232b34',strength:.58},
  burning:{name:'불타는 전선',cell:9,base:'#433d37',strength:.57},
  // Cambrai ships as its own painterly tile instead of an atlas cell.
- cambrai:{name:'캉브레 들판',src:'./terrain-cambrai.webp?v=340&b=340',base:'#655d45',strength:.82}
+ cambrai:{name:'캉브레 들판',src:'./terrain-cambrai.webp?v=340&b=340',base:'#655d45',strength:.82},
+ // Bloody April: cold high-altitude haze over faint Arras fields — minimal
+ // ground detail, the map reads as an air combat arena.
+ arras:{name:'아라스 상공',src:'./terrain-arras.webp?v=340&b=340',base:'#4d5a66',strength:.85}
 });
 const profileImages=new Map();
 function profileImage(key){

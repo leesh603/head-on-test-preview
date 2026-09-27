@@ -4,7 +4,7 @@ import {BossHazards} from './headon-stageboss-hazards.js?v=340&b=340';
 export class BossStages {
   constructor({teamFaction,stageIndex=0,loopIndex=0,rng=Math.random}) {
     if(!['central','entente'].includes(teamFaction)||!Number.isInteger(stageIndex)||stageIndex<0||stageIndex>=STAGES.length||!Number.isInteger(loopIndex)||loopIndex<0)throw new Error('Invalid current stage/faction');
-    Object.assign(this,{teamFaction,stageIndex,loopIndex,rng});this.order=[0,1,7,2,3,5,6,4];this.orderPosition=this.order.indexOf(stageIndex);this.phase='explore';this.encounter=null;
+    Object.assign(this,{teamFaction,stageIndex,loopIndex,rng});this.order=[0,1,7,2,3,5,6,4,9];this.orderPosition=this.order.indexOf(stageIndex);this.phase='explore';this.encounter=null;
   }
   get stage(){return STAGES[this.stageIndex];}
   get bossId(){return Object.keys(BOSS_CATALOG).find(id=>BOSS_CATALOG[id].stage===this.stageIndex&&(BOSS_CATALOG[id].faction==='neutral'||BOSS_CATALOG[id].faction!==this.teamFaction));}

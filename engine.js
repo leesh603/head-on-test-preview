@@ -683,7 +683,7 @@ Game.prototype.healthSpeedFactor=function(){return 1};
 
 // Region identity is shared by simulation, drawing and hazards. Campaigns lock it.
 Game.prototype.worldRegion=function(){return this.lockedRegion??this.stageBoss?.stages.stageIndex??Math.floor((this.distance||0)/12000)%3};
-const REGION_LABELS53=Object.freeze(['전원 지대 · 기뢰지대','아드리아해 · 적 함대','참호 전선 · 대공포','포화의 참호전선','도심 전역','고공 전역','알프스 산맥','제브뤼헤 군항 · 해안포대','캉브레 들판 · 무인기 모함']);
+const REGION_LABELS53=Object.freeze(['전원 지대 · 기뢰지대','아드리아해 · 적 함대','참호 전선 · 대공포','포화의 참호전선','도심 전역','고공 전역','알프스 산맥','제브뤼헤 군항 · 해안포대','캉브레 들판 · 무인기 모함','아라스 상공 · 적 비행단']);
 Game.prototype.clearRegionalHazards=function(){
  this._projectileGrid?.clear();
  // Region transitions are explicit memory cleanup points. Preserve progression,
@@ -691,7 +691,7 @@ Game.prototype.clearRegionalHazards=function(){
  for(const key of ['particles','flakBursts','gusts','bombZones','gasZones','fireZones','cannonImpacts','combatFX','enemyAirshipPasses','hostileMinefields','mines','grenades','friendlyBombs'])if(Array.isArray(this[key]))this[key]=[];
  this.bullets=[];
  this.enemies=this.enemies.filter(e=>!e.navalVessel||[1,7].includes(this.region));
- if(this.region===5)this.enemies=this.enemies.filter(e=>!e.fieldUnit&&!e.surface);
+ if([5,9].includes(this.region))this.enemies=this.enemies.filter(e=>!e.fieldUnit&&!e.surface);
  if(this.region===6)this.enemies=this.enemies.filter(e=>e.fieldUnit!=='railgun'&&!e.surface);
  this.lastRegionalHazard=-Infinity;
 };
@@ -1490,13 +1490,13 @@ Game.prototype.tickRevisionWorld=function(dt){
  this.fireZones=(this.fireZones||[]).filter(f=>f.life>0);
  for(const f of this.hostileMinefields||[])if(f.warning<=0)for(const m of f.mines){if(m.dead)continue;for(const p of ps)if(p.hp>0&&Math.hypot(p.x-m.x,p.y-m.y)<BATTLEFIELD113.mineTrigger){m.dead=true;if(this.players)this.hitPlayer(p,BATTLEFIELD113.mineDamage);else this.hit(BATTLEFIELD113.mineDamage);this.combatBlast(m.x,m.y,76,'enemy','mine');break;}if(!m.dead){for(const e of this.enemies){if(e.hp<=0||e.surface||e.navalVessel||e.stationary||e.fieldUnit||e.stageBossBody||e.bossMinion)continue;if(Math.hypot(e.x-m.x,e.y-m.y)<BATTLEFIELD113.mineTrigger*.7){m.dead=true;e.hp-=BATTLEFIELD113.mineDamage;e.hitFlash=.24;this.combatBlast(m.x,m.y,76,'enemy','mine');break}}}}
  for(const g of this.gusts||[]){if(!g.strong113){g.strong113=true;g.radius*=1.55;g.vx*=1.6;g.vy*=1.6;}for(const p of ps)if(p.hp>0&&Math.hypot(p.x-g.x,p.y-g.y)<g.radius){p.x+=g.vx*dt*.32;p.y+=g.vy*dt*.32;p.a+=Math.sin(this.t*9)*dt*.65;}}
- if(this.worldRegion()===5){if(!this.skyTimers113){this.skyTimers113={fieldUnitTimer:this.fieldUnitTimer,flakTimer:this.flakTimer};}this.gustTimer=Math.min(this.gustTimer??0,4.5);this.fieldUnitTimer=Infinity;this.flakTimer=Infinity;}else{if(this.skyTimers113){Object.assign(this,this.skyTimers113);this.skyTimers113=null;}if(Number.isFinite(this.gustTimer)&&this.gustTimer<120)this.gustTimer=Math.min(this.gustTimer,24);}
+ if([5,9].includes(this.worldRegion())){if(!this.skyTimers113){this.skyTimers113={fieldUnitTimer:this.fieldUnitTimer,flakTimer:this.flakTimer};}this.gustTimer=Math.min(this.gustTimer??0,4.5);this.fieldUnitTimer=Infinity;this.flakTimer=Infinity;}else{if(this.skyTimers113){Object.assign(this,this.skyTimers113);this.skyTimers113=null;}if(Number.isFinite(this.gustTimer)&&this.gustTimer<120)this.gustTimer=Math.min(this.gustTimer,24);}
  for(const b of this.bullets){if(b.enemy&&(b.flak||b.naval||b.fieldShell)&&!b.threat113){b.threat113=true;b.vx*=1.3;b.vy*=1.3;b.damage*=1.15;}
   if((b.motorCannon||b.cow37)&&!b.recoil113){b.recoil113=true;b.collisionRadius=b.cow37?13:9;const p=ps.find(p=>p.id===b.ownerId)||ps[0];if(p){const kick=b.cow37?16:11;p.x-=Math.cos(p.a)*kick;p.y-=Math.sin(p.a)*kick;p.cannonRecoil129=.24;p.cannonKick129=kick;p.cannonKind129=b.cow37?'cow':'motor';}}
  }
 };
 const _flak113=Game.prototype.spawnFlak;
-Game.prototype.spawnFlak=function(){if(this.worldRegion()===5)return;return _flak113.call(this)};
+Game.prototype.spawnFlak=function(){if([5,9].includes(this.worldRegion()))return;return _flak113.call(this)};
 const _scheduled113=Game.prototype.runScheduledAces;
 Game.prototype.runScheduledAces=function(){if(this.worldRegion()===5)return;return _scheduled113.call(this)};
 const _ace113=Game.prototype.aceAttack;

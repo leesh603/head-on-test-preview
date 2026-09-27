@@ -449,7 +449,7 @@ function harborLandmark(){
  }
  return zeebruggeHarborBlend=c;
 }
-const terrainKeys=['rural','sea','trenches','burning','city','sky','alps','zeebrugge','cambrai'];
+const terrainKeys=['rural','sea','trenches','burning','city','sky','alps','zeebrugge','cambrai','arras'];
 const _ruralTerrain=terrain;
 function drawSeamlessRural(cx,cy,W,H){
  ctx.fillStyle='#758461';ctx.fillRect(0,0,W,H);const worldX=cx-W/2,worldY=cy-H/2;
@@ -537,7 +537,7 @@ terrain=(cx,cy)=>{
 const _worldDraw=draw;
 draw=t=>{
  _worldDraw(t);if(!game)return;
- ctx.save();ctx.font='12px monospace';ctx.textAlign='left';ctx.fillStyle='#f1edd0';ctx.fillText((game.mode==='campaign'?game.stage.region:['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판'][game.region||0])+' · 비행 '+((game.distance||0)/1000).toFixed(1)+' km',14,H-14);
+ ctx.save();ctx.font='12px monospace';ctx.textAlign='left';ctx.fillStyle='#f1edd0';ctx.fillText((game.mode==='campaign'?game.stage.region:['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공'][game.region||0])+' · 비행 '+((game.distance||0)/1000).toFixed(1)+' km',14,H-14);
  for(const e of game.enemies){if(!e.bossPilot)continue;const x=e.x-game.x+W/2,y=e.y-game.y+H/2;ctx.textAlign='center';ctx.fillStyle='#ffcf86';ctx.fillText(e.name,x,y-58)}
  if(game.wingBoost>0){ctx.strokeStyle='#f5e7ad';for(const a of game.allies){const x=a.x-game.x+W/2,y=a.y-game.y+H/2;ctx.beginPath();ctx.arc(x,y,28,0,Math.PI*2);ctx.stroke()}}
  ctx.restore();
@@ -848,12 +848,14 @@ show('soloRanking',!game&&selectedMode==='endless');
 // cleaner pilot roster. These are presentation-only and do not alter combat.
 const highTerrainProfile={rural:{cell:0,base:'#424b3b'},sea:{cell:1,base:'#254555',strength:.46},trenches:{cell:2,base:'#4c443b'},burning:{cell:9,base:'#433d37',strength:.57},sky:{cell:3,base:'#3d5367'},city:{cell:4,base:'#454746'},alps:{cell:5,base:'#414e56'},zeebrugge:{cell:1,base:'#183e50'}};
 const terrainCambraiImage=new Image();terrainCambraiImage.src='./terrain-cambrai.webp?v=340';terrainCambraiImage.onload=()=>terrainAlpsRenderer.tiles?.delete?.('cambrai');
+const terrainArrasImage=new Image();terrainArrasImage.src='./terrain-arras.webp?v=340';terrainArrasImage.onload=()=>terrainAlpsRenderer.tiles?.delete?.('arras');
 TerrainRendererSafe.prototype.tile=function(key){
- if(key==='cambrai'){
+ if(key==='cambrai'||key==='arras'){
+  const im=key==='cambrai'?terrainCambraiImage:terrainArrasImage,base=key==='cambrai'?'#655d45':'#4d5a66';
   if(this.tiles.has(key))return this.tiles.get(key);
-  const c=this.canvasFactory(768,768),g=c.getContext('2d');g.fillStyle='#655d45';g.fillRect(0,0,768,768);
-  if(terrainCambraiImage.naturalWidth){g.imageSmoothingEnabled=true;g.drawImage(terrainCambraiImage,3,3,terrainCambraiImage.naturalWidth-6,terrainCambraiImage.naturalHeight-6,0,0,768,768);}
-  if(terrainCambraiImage.naturalWidth)this.tiles.set(key,c);else return c;
+  const c=this.canvasFactory(768,768),g=c.getContext('2d');g.fillStyle=base;g.fillRect(0,0,768,768);
+  if(im.naturalWidth){g.imageSmoothingEnabled=true;g.drawImage(im,3,3,im.naturalWidth-6,im.naturalHeight-6,0,0,768,768);}
+  if(im.naturalWidth)this.tiles.set(key,c);else return c;
   return c;
  }
  if(this.tiles.has(key))return this.tiles.get(key);const p=highTerrainProfile[key]||highTerrainProfile.rural,c=this.canvasFactory(512,512),g=c.getContext('2d');g.fillStyle=p.base;g.fillRect(0,0,512,512);
@@ -1110,7 +1112,7 @@ draw=frameTime=>{battlefieldMissionDraw(frameTime);const event=game?.battlefield
 
 // HEAD-ON Test Lab bridge. It is inert on production and only activates on the
 // repository's public GitHub Pages preview or local development hosts.
-const HEADON_TEST_REGION_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판'];
+const HEADON_TEST_REGION_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공'];
 const HEADON_TEST_ALLOWED_HOSTS=new Set(['localhost','127.0.0.1','terminal.local','leesh603.github.io']);
 function installHeadOnTestLab(){
  const testHost=globalThis.location?.hostname||'';if(!HEADON_TEST_ALLOWED_HOSTS.has(testHost))return;

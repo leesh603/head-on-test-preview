@@ -6,6 +6,7 @@ import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=340
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=340';
 import {bossHudModel} from './headon-stageboss-hud.js?v=340&b=340';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=340';
+import {planeSprite} from './aircraft.js?v=340&b=340';
 import {getLocale} from './i18n.js?v=340';
 
 function createLazyImageGroup(sources){
@@ -335,12 +336,12 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     c.rotate((b.assetKey==='armored-harbor-fortress'?-1:1)*wreck*.3);
     c.globalAlpha*=Math.max(0,1-wreck*.9);
    }
-   const ship=b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart',rail=['paris-gun','lincomparable','fliegerzug'].includes(b.assetKey),structure=['livens-flame-projector','minenwerfer-battery','treffas-wagen'].includes(b.assetKey);
+   const ship=b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart',rail=['paris-gun','lincomparable','fliegerzug'].includes(b.assetKey),structure=['livens-flame-projector','minenwerfer-battery','treffas-wagen'].includes(b.assetKey),plane=['jasta11-circus','fe2b-flight'].includes(b.assetKey);
    if(ship){for(let i=0;i<12;i++){const drift=(b.motionTime*32+i*13)%155;c.fillStyle=i%2?'#d7f1de99':'#6eb9b777';const w=18+drift*.3;c.fillRect(-w/2,125+drift,w,4);}}
 
    // Churned-earth trail under the Treffas-Wagen, in world space before any scale.
    if(b.assetKey==='treffas-wagen'&&b.churn?.length){c.save();for(let i=0;i<b.churn.length;i++){const pt=b.churn[i],f=i/b.churn.length;c.globalAlpha=.1+f*.22;c.fillStyle='#33291d';for(const s of [-1,1]){c.beginPath();c.ellipse(pt.x-b.x+s*66,pt.y-b.y,34*(.6+f*.5),16*(.6+f*.4),0,0,Math.PI*2);c.fill();}}c.restore();}
-   if(!rail&&!structure){c.scale(2.025,2.025);c.translate(0,b.recoil*18);}
+   if(!rail&&!structure&&!plane){c.scale(2.025,2.025);c.translate(0,b.recoil*18);}
    if(b.recoil>0&&!structure){pixelBlast(c,0,-100,24,b.motionTime);c.fillStyle='#d6d2b04d';c.fillRect(-13,-160,26,48);}
    if(rail){drawRailConsist181(c,b);}
    else if(b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart'){
@@ -394,6 +395,12 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      const tp=partById('turret');if(tp)put('turret',0,-88,57,76,0,tp.destroyed);
      const rp=partById('rudder');if(!rp||!rp.destroyed)put('tail',0,81,27,114);
     }
+   }
+   else if(plane){
+    // Formation bosses fly painted aircraft sprites, not composite vehicles.
+    const key=b.assetKey==='jasta11-circus'?'baron_albatros':'fe2b';
+    const scale=b.assetKey==='jasta11-circus'?1.55:1.9;
+    planeSprite(c,0,0,(b.a??-Math.PI/2),key,scale,true,false,b.hitFlash||0,b.hp<=b.maxHp*.5);
    }
    else drawBossArt(c,'markv',172,258);
    if(sinking){const foam=sinkFoamArt.foam;

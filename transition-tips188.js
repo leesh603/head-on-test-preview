@@ -7,7 +7,8 @@ export const REGION_TRANSITION_LABELS=Object.freeze({
  5:Object.freeze({ko:'고공 전역',en:'High Altitude Front'}),
  6:Object.freeze({ko:'알프스 산맥',en:'Alpine Front'}),
  7:Object.freeze({ko:'제브뤼헤 군항 · 해안포대',en:'Zeebrugge Harbor Front'}),
- 8:Object.freeze({ko:'캉브레 들판 · 무인기 모함',en:'Cambrai Fields · Drone Carrier'})
+ 8:Object.freeze({ko:'캉브레 들판 · 무인기 모함',en:'Cambrai Fields · Drone Carrier'}),
+ 9:Object.freeze({ko:'아라스 상공 · 적 비행단',en:'Arras Sky · Enemy Flying Circus'})
 });
 
 export const COMMON_TRANSITION_TIPS=Object.freeze([
@@ -63,6 +64,11 @@ export const REGION_TRANSITION_TIPS=Object.freeze({
   {id:'cambrai-bug',ko:'자폭 무인기는 접근하기 전에 격추하세요.',en:'Shoot down the suicide drones before they close in.'},
   {id:'cambrai-cars',ko:'플리거주크의 화차를 순서대로 부수면 기관차가 노출됩니다.',en:'Destroy the Fliegerzug cars in order to expose the locomotive.'},
   {id:'cambrai-wheels',ko:'트레파스바겐은 차륜을 부수면 전진이 멈춥니다.',en:'Breaking the Treffas-Wagen wheels halts its advance.'}
+ ]),
+ 9:Object.freeze([
+ {id:'arras-leader',ko:'붉은 서커스는 편대장을 격추하면 전투가 끝납니다.',en:'Down the red circus leader to end the fight.'},
+ {id:'arras-wingmen',ko:'윙맨은 편대장이 살아있는 한 계속 재편성됩니다.',en:'Wingmen keep re-forming while the leader lives.'},
+ {id:'arras-rear',ko:'푸셔 편대는 꼬리 뒤에서도 사격합니다 — 후방 접근에 주의하세요.',en:'Pusher crews still shoot when you are behind — mind the rear approach.'}
  ])
 });
 
