@@ -1,67 +1,61 @@
-// Dense roaring fuel stream in the battlefield fire palette: a bright core
-// wrapped in thick orange masses, a ragged dark fringe, licks that break the
-// outline and embers scattering beyond the cone. Collision and drawing share
-// the travelling front, the trailing cutoff and the widening cone profile.
-export function livensFlameSpan(h){
+import {fxImage} from './fx-art.js?v=340';
+
+// Collision and drawing share the same travelling front and trailing cutoff.
+// Keep this function allocation-free: it runs for rendering and every hazard hit test.
+export function livensFlameSpan(h,length=h.length){
  const t=Math.max(0,h.age-(h.delay||0)-(h.warning||0)),travel=.28;
- return {t,front:Math.min(h.length,t*h.length/travel),tail:Math.max(0,(t-(h.duration-travel))*h.length/travel)};
+ return {t,front:Math.min(length,t*length/travel),tail:Math.max(0,(t-(h.duration-travel))*length/travel)};
 }
+
+const clamp01=n=>Math.max(0,Math.min(1,n));
+export function livensFlameHalfWidth(h,along,span=livensFlameSpan(h),length=h.length){
+ if(along<span.tail||along>span.front)return 0;
+ const q=Math.max(0,along/Math.max(1,length));
+ return h.thickness*(.5+2.1*q)*clamp01(Math.min((span.front-along)/45,(along-span.tail)/14));
+}
+function flameSilhouette(c,start,end,height,t,scale,color){
+ const steps=14,len=end-start;c.beginPath();
+ for(let i=0;i<=steps;i++){const q=i/steps,x=start+len*q,edge=Math.sin(q*Math.PI),w=height*scale*edge*(.82+.12*Math.sin(t*9+i*2.17)+.06*Math.sin(t*15-i*.83));c.lineTo(x,-w);}
+ for(let i=steps;i>=0;i--){const q=i/steps,x=start+len*q,edge=Math.sin(q*Math.PI),w=height*scale*edge*(.84+.11*Math.sin(t*8+i*1.71)+.05*Math.sin(t*13+i*.69));c.lineTo(x,w);}
+ c.closePath();c.fillStyle=color;c.fill();
+}
+
+// One authored jet plus a tiny bounded fallback replaces the former thousands of
+// per-frame rectangles. The sprite keeps a continuous bright core and ragged edge;
+// scaling only the live span makes both arrival and withdrawal read as flowing fuel.
 export function drawLivensFlame(c,h){
- const {t,front,tail}=livensFlameSpan(h);if(front<=tail)return;
- c.save();c.translate(h.x,h.y);c.rotate(h.angle);
- const L=h.length,hw=q=>h.thickness*(.5+2.1*q);
- // Ragged deep-red fringe; slightly oversized so the body never looks thin.
- for(let x=tail+6;x<=front;x+=10){
-  const H=hw(x/L),n=Math.max(2,H/10|0);
-  for(let i=0;i<n;i++){
-   const off=Math.sin(i*2.1+x*.013)*H*1.02,py=off+Math.sin(t*6+x*.23+i*2.9)*4;
-   const s=7+(((i*5)+(x|0))%4)*3;
-   c.globalAlpha=Math.min(1,(front-x)/50,(x-tail)/12)*(.5+.3*Math.sin(t*7+x*.41+i));
-   c.fillStyle='#8a3a16';c.fillRect(x+Math.sin(i*7.3+x*.05)*5-s*.5,py-s*.3,s,s*.6);
-  }
+ const {t,front,tail}=livensFlameSpan(h),span=front-tail;if(!(span>0))return;
+ const alpha=clamp01(span/72),jet=fxImage('flameJet'),samples=16;
+ let maxHalf=1;for(let i=0;i<=samples;i++)maxHalf=Math.max(maxHalf,livensFlameHalfWidth(h,tail+span*i/samples,{front,tail}));
+ const height=maxHalf*2.08;
+ c.save();c.translate(h.x,h.y);c.rotate(h.angle);c.globalAlpha*=alpha;
+ // This ragged outer fuel fringe uses the exact collision profile. It keeps the
+ // damage edge visible even where the authored bright jet is naturally narrower.
+ const edgeXs=[];for(let i=0;i<=samples;i++)edgeXs.push(tail+span*i/samples);
+ // Preserve both taper corners, plus the point where they cross on short spans.
+ edgeXs.push(Math.min(front,tail+14),Math.max(tail,front-45),tail+span*14/59);edgeXs.sort((a,b)=>a-b);
+ const profile=edgeXs.filter((x,i)=>!i||x-edgeXs[i-1]>.01);
+ c.beginPath();for(const x of profile)c.lineTo(x,-livensFlameHalfWidth(h,x,{front,tail}));
+ for(let i=profile.length-1;i>=0;i--){const x=profile[i];c.lineTo(x,livensFlameHalfWidth(h,x,{front,tail}));}
+ c.closePath();c.globalAlpha*=.74;c.fillStyle='#8b3515';c.fill();c.globalAlpha/=.74;
+ if(jet?.naturalWidth){
+  const breathe=1+.025*Math.sin(t*13),drawH=height*breathe;
+  c.imageSmoothingEnabled=true;c.drawImage(jet,tail,-drawH/2,span,drawH);
+  // A low-alpha offset pass supplies motion without spawning particles or canvases.
+  c.globalCompositeOperation='screen';c.globalAlpha*=.14;
+  c.drawImage(jet,tail-span*.008,-drawH*.47,span*(1.012+.008*Math.sin(t*17)),drawH*.94);
+ }else{
+  flameSilhouette(c,tail,front,height*.5,t,1,'#843313');
+  flameSilhouette(c,tail,front,height*.43,t+.17,.78,'#e26319');
+  flameSilhouette(c,tail,front,height*.3,t+.31,.48,'#ffd36b');
  }
- // Dense orange body fill.
- for(let x=tail+4;x<=front;x+=8){
-  const H=hw(x/L)*.88,n=Math.max(2,H/7|0);
-  for(let i=0;i<n;i++){
-   const off=Math.sin(i*2.4+x*.07)*H,py=off+Math.sin(t*9+x*.29+i*3.1)*3;
-   const s=9+(((i*3)+(x|0))%5)*2;
-   c.globalAlpha=Math.min(1,(front-x)/60,(x-tail)/10)*(.75+.25*Math.sin(t*10+x*.37+i*1.7));
-   c.fillStyle='#c4651f';c.fillRect(x+Math.sin(i*5.1+x*.11)*4-s*.5,py-s*.35,s,s*.7);
-   if(((i+(x|0))%2)===0){c.fillStyle='#e08a2c';c.fillRect(x+Math.sin(i*5.1+x*.11)*4-s*.3,py-s*.55,s*.6,s*.7);}
-  }
- }
- // Hot core, brightest near the muzzle and along the axis.
- for(let x=tail+2;x<=front;x+=7){
-  const H=hw(x/L)*(.42-.12*(x/L)),n=Math.max(1,H/6|0);
-  for(let i=0;i<n;i++){
-   const off=Math.sin(i*2.7+x*.09)*H,s=6+(((i*7)+(x|0))%4)*2;
-   c.globalAlpha=Math.min(1,(front-x)/70)*(.8+.2*Math.sin(t*12+x*.53+i));
-   c.fillStyle=(x<front*.4||Math.abs(off)<H*.4)?'#f5e2a0':'#e8a34d';
-   c.fillRect(x+Math.sin(i*3.9)*3-s*.5,off-s*.4,s,s*.8);
-  }
- }
- // Licks that leap past the cone outline.
- for(let i=0;i<18;i++){
-  const x=tail+(front-tail)*((i*.618+t*.15)%1);if(x>front)continue;
-  const H=hw(x/L),side=i%2?1:-1,lip=H*(1.04+.24*Math.sin(t*11+i*2.2)),s=5+(i%3)*3;
-  c.globalAlpha=.55+.3*Math.sin(t*13+i*4.1);
-  c.fillStyle='#c4651f';c.fillRect(x,side*lip-s*.5,s,s);
-  c.fillStyle='#e8a34d';c.fillRect(x+s*.2,side*lip-s*.5-s*.6,s*.5,s*.6);
- }
- // Spent embers scatter beyond the flame edges.
- for(let i=0;i<46;i++){
-  const p=(t*(.6+i*.03)+i*.137)%1,x=p*L;if(x<tail||x>front+40)continue;
-  const H=hw(x/L),spread=H*(.5+((i*7)%10)/8)+Math.sin(i*9.3)*20;
-  const y=Math.sin(i*2.399+t*(2+i%3))*spread;
-  c.globalAlpha=Math.sin(p*Math.PI)*(.5+.4*((i%3)/2));
-  c.fillStyle=i%4===0?'#f5d38b':(i%4===1?'#e0912e':'#b0521a');
-  c.fillRect(x+Math.sin(i*4.7)*10,y,2+(i%3),1.6);
- }
- // Dark smoke riding the spent far edge.
- for(let i=0;i<8;i++){
-  const x=front-30+i*4+Math.sin(t*3+i)*6,y=Math.sin(i*2.1)*hw(1)*(.6+.06*i),s=14+((i*5)%12);
-  c.globalAlpha=.16;c.fillStyle='#3a2a20';c.fillRect(x-s/2,y-s/2,s,s*.7);
+ // A small fixed ember budget preserves speed cues around the flame edge.
+ c.globalCompositeOperation='source-over';
+ const embers=(c.canvas?.width||999)<900?6:10;
+ for(let i=0;i<embers;i++){
+  const p=(i*.618+t*(.48+i*.013))%1,x=tail+span*p;
+  const edge=Math.sin(p*Math.PI),side=i%2?1:-1,y=side*height*(.24+.18*((i*7)%5)/4)*edge+Math.sin(t*8+i*2.3)*5;
+  c.globalAlpha=alpha*(.35+.45*Math.sin(p*Math.PI));c.fillStyle=i%3?'#e87724':'#ffe19a';c.fillRect(x,y,2+(i%2),2);
  }
  c.restore();
 }

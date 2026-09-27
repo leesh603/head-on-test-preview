@@ -150,7 +150,7 @@ export function damageStageBoss(g,e,b,damage){
  if(blocked(g)||b.patrol)return;const body=e.stageBossBody;
  const hit=body.locateHit({x:b.x,y:b.y,previousX:b.previousX,previousY:b.previousY,radius:b.collisionRadius||0});if(!hit)return;
  const result=g.stageBoss.hit({bodyId:body.id,...hit,damage,faction:g.teamFaction});
- if(result.damage>0)g.stageBossLastOwner=b.ownerId||'p1';
+ if(result.damage>0)g.stageBossLastOwner=b.ownerId||'p1';else if(result?.blocked&&hit.partId==='absorb')g.burst(b.x,b.y,'#ffd9a8',5);
 }
 function updateMinions(g,dt){
  for(const e of g.enemies){if(!e.bossMinion||e.hp<=0)continue;const p=g.enemyCombatTarget(e);if(!p||p.hp<=0)continue;

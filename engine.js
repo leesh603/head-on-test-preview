@@ -637,7 +637,7 @@ WEAPONS.eindecker={...WEAPONS.fokker,guns:1,reload:2.1};
 PLANES.se5a={name:'S.E.5a',role:'근거리 편대 강습',faction:'entente',speed:168,turn:2.9,hp:110,rate:.18,color:'#7c8051',wings:2};
 WEAPONS.se5a={...WEAPONS.camel,name:'Vickers / Lewis',guns:2};
 PILOTS.mannock={name:'믹 매녹',alias:'74 SQUADRON',faction:'entente',portrait:1,skill:'74비행단 교차 급강하',desc:'기관총 사거리 −55%. S.E.5a 7대가 위→아래 한 번, 오른쪽→왼쪽 한 번 교차 관통 사격.',cooldown:28};
-PILOTS.baron.cooldown=15;PILOTS.baron.skill='드라이데커';PILOTS.baron.passive='사냥 본능';PILOTS.baron.passiveDesc='강한 적을 오래 추적할수록 해당 대상에게 주는 피해가 증가합니다. 사냥감 격추 시 잠시 빨라집니다.';PILOTS.baron.desc='속도를 낮춰 극단적으로 선회합니다. 적의 후방을 잡으면 즉시 추격 가속합니다.';
+PILOTS.baron.cooldown=15;PILOTS.baron.skill='드라이데커';PILOTS.baron.passive='사냥 본능';PILOTS.baron.passiveDesc='강한 적을 오래 추적할수록 해당 대상에게 주는 피해가 증가합니다. 사냥감 격추 시 잠시 빨라집니다.';PILOTS.baron.desc='발동 시 1초간 무적. 속도를 낮춰 극단적으로 선회하며, 적의 후방을 잡으면 즉시 추격 가속합니다.';
 PILOTS.voss.desc='즉시 180° 선회하며 적 탄환을 제거합니다. 무적 1초.';
 PILOTS.immelmann.desc='아인데커로 상승 반전 후 관통 사격. 무적 1.1초.';
 PILOTS.boelcke.desc='3초간 기관총 공격력 ×1.8. 무적 효과 없음.';
@@ -1465,7 +1465,9 @@ Game.prototype.dogfightSteering=function(e,contact,dt,baseTurn){
 };
 Game.prototype.wreckGust=function(e){
  if(e.fireCreated)return;e.fireCreated=true;this.fireZones??=[];
- this.fireZones.push({x:e.x,y:e.y,radius:BATTLEFIELD113.fireRadius,life:BATTLEFIELD113.fireLife,maxLife:BATTLEFIELD113.fireLife,tick:0});
+ const seed=Math.abs(Math.trunc(e.x*31+e.y*17))%997;
+ this.fireZones.push({x:e.x,y:e.y,radius:BATTLEFIELD113.fireRadius,life:BATTLEFIELD113.fireLife,maxLife:BATTLEFIELD113.fireLife,tick:0,
+  wreck:true,angle:Number.isFinite(e.a)?e.a:0,seed});
  this.fireZones=this.fireZones.slice(-8);this.combatBlast(e.x,e.y,95,'enemy','hydrogen');this.event('flak','수소 화재 · 적과 아군 모두 접근 금지');
 };
 const _tickThreat113=Game.prototype.tickRevisionWorld;
@@ -1814,7 +1816,9 @@ const _driBeginFrame=Game.prototype.beginRevisionFrame;
 Game.prototype.beginRevisionFrame=function(dt,input={}){
  const prior=_driBeginFrame.call(this,dt,input);
  const dri=this.isDreideckerPilot();
+ const wasDriActive=this.dreideckerActive;
  this.dreideckerActive=dri&&this.skillTime>0;
+ if(this.dreideckerActive&&!wasDriActive)this.invuln=Math.max(this.invuln||0,1);
  if(dri){
   const t=this.huntTarget;
   if(t&&!this.huntTargetAlive(t)){
@@ -1835,7 +1839,6 @@ Game.prototype.beginRevisionFrame=function(dt,input={}){
   const chase=this.dreideckerChase>0;
   const speedMult=chase?RICHTHOFEN_DRI_BALANCE.chaseSpeed:this.dreideckerActive?RICHTHOFEN_DRI_BALANCE.dreideckerSpeed:this.huntBoost>0?RICHTHOFEN_DRI_BALANCE.killBoostSpeed:1;
   if(speedMult!==1){this.baseSpeed=(this.baseSpeed||this.speed)*speedMult;this.speed*=speedMult}
-  if(this.dreideckerActive)this.turn*=RICHTHOFEN_DRI_BALANCE.dreideckerTurn;
   const turnRate=dt>0?Math.abs(angleDiff(this.a,this._driPrevA??this.a))/dt:0;this._driPrevA=this.a;this._driTurnRate=turnRate;
   if(this.dreideckerActive){
    this._driGhostClock=(this._driGhostClock||0)+dt;

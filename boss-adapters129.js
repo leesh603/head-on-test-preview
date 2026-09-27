@@ -60,7 +60,7 @@ export class RailAdapter extends BaseBoss {
    if(Math.hypot(x+dx*t-r.x,y+dy*t-r.y)<=r.radius+(s.radius||0))return {partId:'rail'};
   }
   const ellipseHit=(cx,cy,rx,ry)=>{const x=s.previousX??s.x,y=s.previousY??s.y,dx=s.x-x,dy=s.y-y,nx=x-cx,ny=y-cy,ax=dx/rx,ay=dy/ry,bx=nx/rx,by=ny/ry,l=ax*ax+ay*ay,t=l?Math.max(0,Math.min(1,-(bx*ax+by*ay)/l)):0,qx=bx+ax*t,qy=by+ay*t,shot=(s.radius||0)/Math.min(rx,ry);return qx*qx+qy*qy<=(1+shot)*(1+shot);};
-  for(const id of this.railCarOrder){const p=this.parts.get(id);if(!p?.hittable||p.destroyed)continue;if(ellipseHit(this.x+p.x,this.y+p.y,p.radius,p.hitRadiusY||p.radius))return {partId:id};}
+  for(const id of this.railCarOrder){const p=this.parts.get(id);if(!p||p.destroyed)continue;if(ellipseHit(this.x+p.x,this.y+p.y,p.radius,p.hitRadiusY||p.radius))return p.hittable?{partId:id}:{partId:'absorb'};}
   return this.coreVulnerable&&ellipseHit(this.x,this.y,68,188)?{partId:null}:null;
  }
  hit(s){
