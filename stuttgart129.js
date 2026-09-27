@@ -33,7 +33,7 @@ export class StuttgartSupport {
   }
   if(this.hp<=0){this.dead=true;this.clean();}
   else if(this.phase===1&&(this.hp<=this.maxHp*.55||this.parts.get('cover').hp<=0))this.openHangar();
-  else if(this.phase===2&&this.sortieLaunched&&this.hp<=this.maxHp*.28)this.enterFullSortie();
+  else if(this.phase===2&&(this.sortieLaunched||this.parts.get('fuel').hp<=0)&&this.hp<=this.maxHp*.28)this.enterFullSortie();
   return{damage:dealt,partId,partDestroyed:p?.hp<=0,defeated:this.dead};
  }
  openHangar(){if(this.phase!==1||this.dead)return;this.phase=2;this.phaseAge=0;this.parts.get('cover').hp=0;this.spawnClock=Math.min(this.spawnClock,.35);
