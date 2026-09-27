@@ -7,7 +7,7 @@ import {t,getLocale,setLocale,subscribe,initLocale,applyTranslations,rarityName,
 import {GamepadInput} from './gamepad-input.js?v=338';
 const fieldRecordLink=document.createElement('a');fieldRecordLink.href='./field-record.html';fieldRecordLink.target='_blank';fieldRecordLink.rel='noopener';fieldRecordLink.textContent=getLocale()==='en'?'Official Battle Record':'공식 전장 기록';fieldRecordLink.className='field-record-link';fieldRecordLink.style.cssText='display:block;margin:10px auto 0;text-align:center;color:#d7b26d;font-weight:800;text-decoration:none';document.getElementById('start')?.after(fieldRecordLink);
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=338&b=326';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=349';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=352';
 import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=349';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=338';
 import './hud-layout94.js?v=338';
@@ -31,7 +31,7 @@ import {BattleMusic,musicModeForGame} from './music.js?v=338&b=326';
 import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=338';
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=338';
 import {portraitSources,portraitsReady} from './portraits.js?v=338&b=326';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=349';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=352';
 import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=349';
 import {drawEquipment} from './equipment.js?v=338&b=326';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=338';
