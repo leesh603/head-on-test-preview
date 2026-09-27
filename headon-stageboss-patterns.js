@@ -12,7 +12,7 @@ export const BOSS_CATALOG = Object.freeze({
   'a7v-flak': {name:'A7V 플라크판처', faction:'central', stage:2},
   'mark-v-cruiser': {name:'대공 육상 전함 · 마크 V 크루이저', faction:'entente', stage:2},
   'livens-flame-projector': {name:'리벤스 대형 화염방사기', faction:'entente', stage:3},
-  'minenwerfer-battery': {name:'미넨베르퍼 중박격포 진지', faction:'central', stage:3},
+  'minenwerfer-battery': {name:'미넨베르퍼 교차 포격 진지', faction:'central', stage:3},
   'drachen-net': {name:'드라헨 공중 기뢰 방어망', faction:'central', stage:4},
   'london-apron': {name:'런던 에이프런 방공망', faction:'entente', stage:4},
   'zeppelin-l70': {name:'슈퍼 체펠린 L 70', faction:'central', stage:5},
@@ -497,7 +497,7 @@ export class LivensFlameProjector extends PatternBoss {
       // the flame itself is drawn from the muzzle in the view.
       const muzzleX=this.x+nozzle.x,muzzleY=this.y+nozzle.y;
       this.hazard('beam',{x:muzzleX,y:muzzleY,angle:startAngle,angularSpeed:angSpeed,telegraphHalf,length:(weakened?390:560)+nozzle.length,thickness:weakened?38:54,
-        warning:warn,duration:dur,tickInterval:.22,damage:this.t.damage*(weakened?.65:1),visual:'livens-flame',tag:'livens-flame'});
+        muzzleLength:nozzle.length,warning:warn,duration:dur,tickInterval:.22,damage:this.t.damage*(weakened?.65:1),visual:'livens-flame',tag:'livens-flame'});
       this.command('flame-warning',{x:muzzleX,y:muzzleY,angle:startAngle,seconds:warn});
       this.flameLockTime=warn+dur;
     }
@@ -508,46 +508,88 @@ export class LivensFlameProjector extends PatternBoss {
 }
 export class MinenwerferBattery extends PatternBoss {
   constructor(options){
-    super({...options,kind:'minenwerfer-battery',parts:[
-      {id:'gun-left',x:-150,y:-28,radius:40},{id:'gun-right',x:150,y:-28,radius:40},{id:'main-gun',x:0,y:-25,radius:48},
-      {id:'ammo-main',x:0,y:105,radius:38},{id:'crane',x:72,y:-105,radius:32},{id:'command',x:-72,y:-105,radius:30}
+    const originalHp=options.tuning.maxHp,gunHp=originalHp*.4,tuning={...options.tuning,maxHp:gunHp*3};
+    super({...options,tuning,coreRadius:64,kind:'minenwerfer-battery',parts:[
+      {id:'gun-left',x:-130,y:-18,radius:58,maxHp:gunHp},{id:'main-gun',x:0,y:-50,radius:62,maxHp:gunHp},{id:'gun-right',x:130,y:-18,radius:58,maxHp:gunHp}
     ]});
-    this.phase='fortified';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
-    this.volleyStep=0;this.volleyClock=1;this.volleyPattern=0;this._gasTier=3;
+    this.phase='cross-barrage';this.coreVulnerable=true;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
+    this.shotSerial=0;this.baseVolleyCount=0;this.specialWave=0;this.specialClock=8.4;this._gasTier=3;
+    for(const [i,id] of ['gun-left','main-gun','gun-right'].entries())this.timers.set('emplacement-'+id,.16+i*.9);
+  }
+  suppressive(){/* The three emplacements own every Minenwerfer attack. */}
+  liveGuns(){return [...this.parts.values()].filter(p=>!p.destroyed);}
+  locateHit({x,y,radius=0}){
+    for(const p of this.parts.values())if(!p.destroyed&&Math.hypot(x-this.x-p.x,y-this.y-p.y)<=p.radius+radius)return{partId:p.id};
+    return null;
+  }
+  hitAt({x,y,radius=0,damage}){const target=this.locateHit({x,y,radius});return target?this.hit({...target,damage}):{damage:0,miss:true};}
+  hit(attack){
+    if(!attack.partId||!this.parts.has(attack.partId))return{damage:0,blocked:true};
+    const result=super.hit(attack);this.hp=this.liveGuns().reduce((n,p)=>n+p.hp,0);
+    if(this.hp<=0&&!this.dead){this.dead=true;this.phase='defeated';this.emit({type:'body-defeated',bossId:this.id});}
+    return result;
   }
   onPartDestroyed(p){
-    if(p.id==='ammo-main'){this.hp=Math.max(1,this.hp-this.maxHp*.1);this.command('ammo-cookoff',{x:this.x+p.x,y:this.y+p.y});}
-    if(this.allDestroyed(['gun-left','gun-right','main-gun'])){this.phase='core-exposed';this.coreVulnerable=true;this.command('phase-change',{phase:'exposed'});}
+    this.command('cancel-hazards',{tag:'minenwerfer-'+p.id});
+    this.command('ammo-cookoff',{x:this.x+p.x,y:this.y+p.y,partId:p.id});
+    const alive=this.liveGuns().length;
+    if(alive===2){this.phase='weakened';this.specialClock=Math.max(this.specialClock,10.5);this.command('phase-change',{phase:'weakened'});}
+    else if(alive===1){this.phase='final-assault';this.specialClock=7.5;this.command('phase-change',{phase:'final-assault'});}
   }
-  mortar(partId,players,count,spread=58){
-    const gun=this.parts.get(partId),target=this.target(players);if(!gun||gun.destroyed||!target)return;
-    const command=this.parts.get('command'),ammo=this.parts.get('ammo-main'),warning=command.destroyed?1.45:1.05,scatter=command.destroyed?spread*1.45:spread;
-    count=Math.max(1,count-(ammo.destroyed?2:0));
-    const side=partId==='gun-left'?-1:partId==='gun-right'?1:0,lead=command.destroyed?0:side===0?1.05:.35;
-    const vx=target.vx||0,vy=target.vy||0,speed=Math.hypot(vx,vy),dx=speed>10?vx/speed:0,dy=speed>10?vy/speed:1;
-    const pattern=side===0?this.volleyPattern++%3:0;
-    for(let i=0;i<count;i++){
-      const offset=(i-(count-1)/2)*scatter,along=pattern===1?offset:0,across=pattern===1?0:offset;
-      const x=target.x+vx*lead+dx*along-dy*across+side*35+(this.rng()-.5)*18;
-      const y=target.y+vy*lead+dy*along+dx*across+(pattern===2?(i%2?50:-50):0);
-      this.hazard('circle',{x,y,sourceX:this.x+gun.x,sourceY:this.y+gun.y,
-        radius:partId==='main-gun'?62:46,delay:i*.15,warning,duration:.65,once:true,damage:this.t.damage*(partId==='main-gun'?1.15:.72),visual:partId==='main-gun'?'minenwerfer-heavy':'minenwerfer-shell'});
-    }
-    this.command('mortar-launch',{x:this.x+gun.x,y:this.y+gun.y,partId});
-    this.command('muzzle',{x:this.x+gun.x,y:this.y+gun.y,partId});
+  aimPoint(gun,target,serial,bounds){
+    const vx=target.vx||0,vy=target.vy||0,speed=Math.hypot(vx,vy),dx=speed>12?vx/speed:0,dy=speed>12?vy/speed:-1;
+    let x=target.x,y=target.y;
+    if(gun.id==='main-gun'){x+=vx*.78;y+=vy*.78;}
+    else if(gun.id==='gun-right'){
+      const side=serial%2?1:-1;x+=vx*.38-dy*side*96;y+=vy*.38+dx*side*96;
+    }else{x+=vx*.12;y+=vy*.12;}
+    x+=(this.rng()-.5)*14;y+=(this.rng()-.5)*14;
+    if(bounds){x=Math.max(bounds.left+34,Math.min(bounds.right-34,x));y=Math.max(bounds.top+34,Math.min(bounds.bottom-34,y));}
+    return{x,y,dx,dy};
+  }
+  shell(gun,x,y,{delay=0,warning=1.02,heavy=false,damage=.78}={}){
+    this.hazard('circle',{x,y,sourceX:this.x+gun.x,sourceY:this.y+gun.y,radius:heavy?58:48,delay,warning,duration:.62,once:true,
+      damage:this.t.damage*damage,visual:heavy?'minenwerfer-heavy':'minenwerfer-shell',tag:'minenwerfer-'+gun.id});
+  }
+  launch(gun,players,bounds,triple=false){
+    const target=this.target(players);if(!gun||gun.destroyed||!target)return;
+    const aim=this.aimPoint(gun,target,this.shotSerial++,bounds),count=triple?3:1;
+    for(let i=0;i<count;i++){const along=triple?(i-1)*58:0;this.shell(gun,aim.x+aim.dx*along,aim.y+aim.dy*along,{delay:i*.32,heavy:gun.id==='main-gun',damage:gun.id==='main-gun'?.9:.76});}
+    this.command('mortar-launch',{x:this.x+gun.x,y:this.y+gun.y,partId:gun.id});
+    this.command('muzzle',{x:this.x+gun.x,y:this.y+gun.y,partId:gun.id});
+  }
+  cooperative(players,bounds,guns){
+    const target=this.target(players);if(!target||guns.length!==3)return;
+    const speed=Math.hypot(target.vx||0,target.vy||0),heading=speed>12?Math.atan2(target.vy,target.vx):-Math.PI/2;
+    const gap=Math.round(((heading+Math.PI)/(Math.PI*2))*6)%6;
+    let shot=0;
+    for(let slot=0;slot<6;slot++)if(slot!==gap){const gun=guns[shot%guns.length],a=slot*Math.PI/3,r=112;
+      let x=target.x+Math.cos(a)*r,y=target.y+Math.sin(a)*r;if(bounds){x=Math.max(bounds.left+34,Math.min(bounds.right-34,x));y=Math.max(bounds.top+34,Math.min(bounds.bottom-34,y));}
+      this.shell(gun,x,y,{delay:shot*.1,warning:1.08,heavy:gun.id==='main-gun',damage:.7});shot++;}
+    for(const gun of guns)this.command('mortar-launch',{x:this.x+gun.x,y:this.y+gun.y,partId:gun.id});
+  }
+  focused(players,bounds,guns){
+    const target=this.target(players);if(!target)return;const count=guns.length===3?8:6;
+    for(let i=0;i<count;i++){const gun=guns[i%guns.length],aim=this.aimPoint(gun,target,this.shotSerial++,bounds),walk=(i-(count-1)/2)*24;
+      this.shell(gun,aim.x+aim.dx*walk,aim.y+aim.dy*walk,{delay:i*(2.35/(count-1)),warning:.72,heavy:gun.id==='main-gun',damage:.68});}
+    for(const gun of guns)this.command('mortar-launch',{x:this.x+gun.x,y:this.y+gun.y,partId:gun.id});
   }
   update(dt,{players,bounds}){
+    if(this.dead)return;
     this.x=this.anchorX;this.y=this.anchorY;
     if(this._gasTier>0&&this.hp<=this.maxHp*this._gasTier*.25){this._gasTier--;
       for(let i=0;i<3;i++){const a=this.rng()*6.28,d=60+this.rng()*90;this.command('gas-zone',{x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,radius:120+this.rng()*40,life:8});}
       this.command('phase-change',{phase:'gas-vent'});}
-    this.volleyClock-=dt;
-    if(this.volleyClock>0)return;
-    const order=['gun-left','gun-right','main-gun'],id=order[this.volleyStep];
-    this.mortar(id,players,id==='main-gun'?6:3,id==='main-gun'?52:58);
-    this.volleyStep=(this.volleyStep+1)%3;
-    const reload=this.parts.get('crane').destroyed?1.45:1;
-    this.volleyClock=(this.volleyStep===0?2.3:1.75)*reload;
+    const guns=this.liveGuns(),alive=guns.length,interval=alive===3?(this.t.mortarInterval||2.7):alive===2?2.4:2;
+    for(const gun of guns)if(this.due('emplacement-'+gun.id,dt,interval)){
+      const cadence=alive===1?4:7,triple=(++this.baseVolleyCount)%cadence===0;this.launch(gun,players,bounds,triple);
+    }
+    this.specialClock-=dt*(this.t.patternMultiplier||1);
+    if(this.specialClock<=0){
+      if(alive===3){this.specialWave++%2?this.focused(players,bounds,guns):this.cooperative(players,bounds,guns);this.specialClock=9.6;}
+      else if(alive===2){this.focused(players,bounds,guns);this.specialClock=11.4;}
+      else this.specialClock=7.5;
+    }
   }
 }
 
