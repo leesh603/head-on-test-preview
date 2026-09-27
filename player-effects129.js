@@ -90,6 +90,7 @@ function drawPrecisionEquipment156(c,p,x,y){
  }
  c.save();c.rotate(p.a);
  if(held.redScarf){c.strokeStyle='#98545188';c.lineWidth=1.5;for(const side of [-1,1]){c.beginPath();c.moveTo(-23,side*11);c.quadraticCurveTo(-42,side*14+Math.sin(t*9)*3,-64,side*12);c.stroke()}}
+ if(held.badinGauge&&typeof p.badinDamageBonus==='function'){const bb=p.badinDamageBonus();if(bb>0){const q=Math.min(1,bb/.6);c.save();c.globalAlpha=.18+q*.5;c.strokeStyle='#9adbe8';c.lineWidth=1.3;for(const side of [-1,1])for(let i=0;i<3;i++){const yy=side*(7+i*4),len=12+q*22,wave=Math.sin(t*14+i*2.1)*2;c.beginPath();c.moveTo(-27-i*3,yy+wave);c.lineTo(-27-i*3-len,yy+wave);c.stroke()}c.globalAlpha=.55+q*.4;c.lineWidth=1.6;c.strokeStyle='#d8f2f8';c.beginPath();c.arc(0,-30,9,Math.PI*1.15,Math.PI*1.85);c.stroke();const needle=Math.PI*1.5+(q-.5)*.7;c.beginPath();c.moveTo(0,-30);c.lineTo(Math.cos(needle)*7,-30+Math.sin(needle)*7);c.stroke();c.restore()}}
  if(held.immelmannManual&&p.evadeTime>0){c.strokeStyle='#c8d6d09c';c.lineWidth=1;for(let i=0;i<3;i++){c.beginPath();c.arc(-8,0,28+i*6,1.9,4.1);c.stroke()}}
  if(held.flightGloves&&p.muzzleFlash>0){c.strokeStyle='#cfbc9277';for(const side of [-1,1]){c.beginPath();c.moveTo(20,side*8);c.lineTo(31,side*8);c.stroke()}}
  if(held.maximBelt&&p.reloadTime>0){c.strokeStyle='#cfbc9288';for(let i=0;i<5;i++){const yy=-12+i*5;c.beginPath();c.moveTo(-23,yy);c.lineTo(-19,yy);c.stroke()}}

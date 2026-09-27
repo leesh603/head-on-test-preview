@@ -75,9 +75,19 @@ export function drawBattlefieldFire(c,g,point=(x,y)=>[x,y]){
   if(fxReady('sunshaft')){fx(c,'sunshaft',250,0,520,260,0,.5)}else{c.globalAlpha=.12;c.fillStyle='#e5ca7c';c.beginPath();c.moveTo(0,0);c.arc(0,0,470,-.7,.7);c.closePath();c.fill();c.globalAlpha=.35;c.fillStyle='#f1dca4';for(let i=-2;i<=2;i++){c.save();c.rotate(i*.22);c.fillRect(20,-1,160+Math.abs(i)*25,2);c.restore();}}c.restore();}
  for(const f of g.cannonImpacts||[]){if(FX3&&fxReady('cowImpact0'))continue;const[x,y]=point(f.x,f.y);fx(c,'armorSpark',x,y,25,25,0,Math.min(1,f.life/.2));}
  for(const f of g.fireZones||[]){const[x,y]=point(f.x,f.y),fade=Math.min(1,f.life/1.5);
-  if(FX3&&fxReady('fireGround')){const d=f.radius*1.8,pulse=.92+Math.sin((g.t||0)*7+f.x)*.08;
-   fx(c,'fireGround',x,y,d,d,0,fade*.82*pulse);fx(c,'fireEngine',x-f.radius*.3,y+f.radius*.14,d*.52,d*.52,.4,fade*.65);
-   fx(c,'smokeOil',x+f.radius*.3,y-f.radius*.18,d*.65,d*.65,0,fade*.16);continue;
+  if(FX3&&fxReady('fireGround')){
+   const d=f.radius*2,seed=f.seed||0,phase=(g.t||0)*6.5+seed*.17,pulse=.94+Math.sin(phase)*.06;
+   const angle=f.angle||0,ca=Math.cos(angle),sa=Math.sin(angle),lowDetail=(c.canvas?.width||999)<900;
+   fx(c,'fireGround',x,y,d,d,((seed%17)-8)*.08,fade*.9*pulse);
+   if(f.wreck&&!lowDetail)for(let i=0;i<2;i++){const side=i?1:-1,along=(i?-.14:.08)*f.radius,across=side*(.18+(seed%5)*.015)*f.radius;
+    fx(c,'metalShard'+((seed+i)%6),x+ca*along-sa*across,y+sa*along+ca*across,42+i*7,30+i*5,angle+side*(.35+i*.42),fade*.72);}
+   const flames=lowDetail?1:2;
+   for(let i=0;i<flames;i++){const side=i?1:-1,along=(i?-.23:.28)*f.radius,across=side*.2*f.radius,s=d*(i?.48:.56)*pulse;
+    fx(c,'fireEngine',x+ca*along-sa*across,y+sa*along+ca*across,s,s,angle+side*.45,fade*(i?.58:.72));}
+   fx(c,'fireFlash',x-ca*f.radius*.06,y-sa*f.radius*.06,d*.42,d*.42,phase*.02,fade*(.16+.08*Math.sin(phase)));
+   fx(c,'smokeOil',x+ca*f.radius*.24-sa*f.radius*.12,y+sa*f.radius*.24+ca*f.radius*.12,d*.62,d*.62,angle,fade*.18);
+   if(f.wreck&&!lowDetail)fx(c,'wreckSmoke',x-ca*f.radius*.22,y-sa*f.radius*.22,d*.7,d*.58,angle,fade*.13);
+   continue;
   }
   c.save();c.globalAlpha=.13*fade;c.fillStyle='#c57138';c.beginPath();c.arc(x,y,f.radius,0,Math.PI*2);c.fill();
   if(fxReady('fire')){
