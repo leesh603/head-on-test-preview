@@ -76,11 +76,12 @@ export class BossEncounter {
     if(typeof b.suppressive==='function')b.suppressive(dt,ctx.players);
   }}
   snapshot() {
-    let hp=0,aliveParts=0,totalParts=0,shielded=false;const phases=[];
+    let hp=0,aliveParts=0,totalParts=0,shielded=false,formationAlive=0,formationTotal=0;const phases=[];
     for(const b of this.bodies.values()){
       hp+=Math.max(0,b.hp);shielded||=!b.dead&&!b.coreVulnerable;phases.push(b.phase);
+      if(b.formationTotal){formationTotal+=b.formationTotal;formationAlive+=b.dead?0:1+(b.formationStatus129?.().length||0);}
       for(const p of b.parts.values()){totalParts++;if(!p.destroyed)aliveParts++;}
     }
-    return{id:this.id,bossId:this.bossId,hp,maxHp:this.maxHpBudget,shielded,aliveParts,totalParts,phases,completed:this.completed};
+    return{id:this.id,bossId:this.bossId,hp,maxHp:this.maxHpBudget,shielded,aliveParts,totalParts,formationAlive,formationTotal,phases,completed:this.completed};
   }
 }

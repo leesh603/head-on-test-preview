@@ -19,7 +19,7 @@ const BOSS_TRACKS={
  gik:'bomber',ca4:'bomber',
  'armored-harbor-fortress':'fortress',
  'fliegerzug':'railgun','treffas-wagen':'landship',
- 'jasta11-circus':'bomber','fe2b-flight':'airship'
+ 'jasta11-circus':'duel','naval10-black-flight':'duel'
 };
 // Per-family tempo and bar-root progressions; each family also has its own
 // pattern branch in bossStep.

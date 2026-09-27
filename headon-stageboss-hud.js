@@ -21,7 +21,7 @@ export function bindStageBossHUD({bossSlot,xpBindings=[]}) {
   return {
     render(encounter) {
       const b=bossHudModel(encounter);root.hidden=!b;if(!b)return;
-      title.textContent=`${b.name} · ${b.shielded?'본체 보호 · ':''}남은 부위 ${b.aliveParts}/${b.totalParts}`;
+      title.textContent=b.formationTotal?`${b.name} · 편대 생존 ${b.formationAlive}/${b.formationTotal}`:`${b.name} · ${b.shielded?'본체 보호 · ':''}남은 부위 ${b.aliveParts}/${b.totalParts}`;
       fill.style.width=`${b.fraction*100}%`;track.setAttribute('aria-valuemax',String(b.maxHp));track.setAttribute('aria-valuenow',String(b.hp));
     },
     destroy() {

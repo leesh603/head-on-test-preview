@@ -267,7 +267,7 @@ export function updateStageBossHud(g){
  const active=!!g?.stageBoss&&g.state!=='lost'&&g.stageBoss.stages.phase!=='clear-pending',model=active?bossHudModel(g.stageBoss.stages.encounter):null;
  document.body.classList.toggle('stageboss-playing',active);
  const slot=document.getElementById('stageBossHud');slot.classList.toggle('hidden',!model);
- if(model){const en=getLocale()==='en';document.getElementById('stageBossTitle').textContent=(en?(BOSS_NAMES_EN[model.bossId]||model.name):model.name)+(g.stageBoss.defeatSequence?(en?' · BREAKING UP':' · 붕괴 중'):model.shielded?(en?' · ARMORED':' · 본체 보호'):'');document.getElementById('stageBossParts').textContent=(en?'Parts ':'부위 ')+model.aliveParts+'/'+model.totalParts+' · '+Math.ceil(model.hp)+' / '+Math.round(model.maxHp);let hint=document.getElementById('stageBossTactic');if(!hint){hint=document.createElement('small');hint.id='stageBossTactic';slot.append(hint)}const tactic=bossTactic(g.stageBoss.stages.encounter,getLocale());if(hint.textContent!==tactic)hint.textContent=tactic;const bar=document.getElementById('stageBossHp');bar.style.width=model.fraction*100+'%';slot.setAttribute('aria-valuenow',String(Math.ceil(model.hp)));slot.setAttribute('aria-valuemax',String(Math.round(model.maxHp)));}
+ if(model){const en=getLocale()==='en';document.getElementById('stageBossTitle').textContent=(en?(BOSS_NAMES_EN[model.bossId]||model.name):model.name)+(g.stageBoss.defeatSequence?(en?' · BREAKING UP':' · 붕괴 중'):model.shielded?(en?' · ARMORED':' · 본체 보호'):'');document.getElementById('stageBossParts').textContent=(model.formationTotal?(en?'Formation ':'편대 생존 ')+model.formationAlive+'/'+model.formationTotal:(en?'Parts ':'부위 ')+model.aliveParts+'/'+model.totalParts)+' · '+Math.ceil(model.hp)+' / '+Math.round(model.maxHp);let hint=document.getElementById('stageBossTactic');if(!hint){hint=document.createElement('small');hint.id='stageBossTactic';slot.append(hint)}const tactic=bossTactic(g.stageBoss.stages.encounter,getLocale());if(hint.textContent!==tactic)hint.textContent=tactic;const bar=document.getElementById('stageBossHp');bar.style.width=model.fraction*100+'%';slot.setAttribute('aria-valuenow',String(Math.ceil(model.hp)));slot.setAttribute('aria-valuemax',String(Math.round(model.maxHp)));}
  const coop=active&&g.mode==='coop2';document.getElementById('coopXpHud').classList.toggle('hidden',!coop);
  if(coop)for(const p of g.players){document.getElementById(p.id+'XpLabel').textContent=p.id.toUpperCase()+' · LV. '+p.level;document.getElementById(p.id+'XpBar').style.width=Math.min(100,p.xp/p.need*100)+'%';}
 }
@@ -337,7 +337,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     c.rotate((b.assetKey==='armored-harbor-fortress'?-1:1)*wreck*.3);
     c.globalAlpha*=Math.max(0,1-wreck*.9);
    }
-   const ship=b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart',rail=['paris-gun','lincomparable','fliegerzug'].includes(b.assetKey),structure=['livens-flame-projector','minenwerfer-battery','treffas-wagen'].includes(b.assetKey),plane=['jasta11-circus','fe2b-flight'].includes(b.assetKey);
+   const ship=b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart',rail=['paris-gun','lincomparable','fliegerzug'].includes(b.assetKey),structure=['livens-flame-projector','minenwerfer-battery','treffas-wagen'].includes(b.assetKey),plane=['jasta11-circus','naval10-black-flight'].includes(b.assetKey);
    if(ship){for(let i=0;i<12;i++){const drift=(b.motionTime*32+i*13)%155;c.fillStyle=i%2?'#d7f1de99':'#6eb9b777';const w=18+drift*.3;c.fillRect(-w/2,125+drift,w,4);}}
 
    // Churned-earth trail under the Treffas-Wagen, in world space before any scale.
@@ -399,9 +399,8 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    }
    else if(plane){
     // Formation bosses fly painted aircraft sprites, not composite vehicles.
-    const key=b.assetKey==='jasta11-circus'?'baron_albatros':'fe2b';
-    const scale=b.assetKey==='jasta11-circus'?1.55:1.9;
-    planeSprite(c,0,0,(b.a??-Math.PI/2),key,scale,true,false,b.hitFlash||0,b.hp<=b.maxHp*.5);
+    const key=b.assetKey==='jasta11-circus'?'baron_albatros':'collishaw_sopwith';
+    planeSprite(c,0,0,(b.a??-Math.PI/2),key,1,true,false,b.hitFlash||0,b.hp<=b.maxHp*.5);
    }
    else drawBossArt(c,'markv',172,258);
    if(sinking){const foam=sinkFoamArt.foam;
