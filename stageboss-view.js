@@ -120,10 +120,10 @@ function drawRailConsist181(c,b){
  if(set==='railCarrier'){
   // Solid armored hull under the lattice car art — the cut-outs alone read as
   // a transparent ghost train against the terrain.
-  const ys=[...cars.values()].map(car=>car.y),top=Math.min(...ys,0)-205,bottom=Math.max(...ys,0)+205;
-  c.fillStyle='#43413a';c.beginPath();c.arc(0,top,63,Math.PI,0,true);c.rect(-63,top,126,bottom-top);c.arc(0,bottom,63,0,Math.PI);c.fill();
-  c.fillStyle='#565349';c.fillRect(-55,top+14,110,bottom-top-28);
-  c.fillStyle='#38352e';for(const y of ys)c.fillRect(-55,y+182,110,10);
+  const ys=[...cars.values()].map(car=>car.y),top=Math.min(...ys,0)-192,bottom=Math.max(...ys,0)+192;
+  c.fillStyle='#43413a';c.beginPath();c.arc(0,top,58,Math.PI,0,true);c.rect(-58,top,116,bottom-top);c.arc(0,bottom,58,0,Math.PI);c.fill();
+  c.fillStyle='#565349';c.fillRect(-51,top+12,102,bottom-top-24);
+  c.fillStyle='#38352e';for(const y of ys)c.fillRect(-51,y+178,102,9);
  }
  for(const [id,key] of [['car-rear','rear'],['car-middle','middle'],['car-front','front']]){const car=cars.get(id);if(!car)continue;
   const wreckImage=wreckImages[key]; // Load only the active train's wreck art.
