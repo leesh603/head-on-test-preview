@@ -6,8 +6,8 @@ import {t,getLocale,setLocale,subscribe,initLocale,applyTranslations,rarityName,
 import {GamepadInput} from './gamepad-input.js?v=340';
 const fieldRecordLink=document.createElement('a');fieldRecordLink.href='./field-record.html';fieldRecordLink.target='_blank';fieldRecordLink.rel='noopener';fieldRecordLink.textContent=getLocale()==='en'?'Official Battle Record':'공식 전장 기록';fieldRecordLink.className='field-record-link';fieldRecordLink.style.cssText='display:block;margin:10px auto 0;text-align:center;color:#d7b26d;font-weight:800;text-decoration:none';document.getElementById('start')?.after(fieldRecordLink);
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=340&b=340';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=340&b=340';
-import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=340&b=340';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=340&b=340&c=8';
+import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=340&b=340&c=8';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=340';
 import './hud-layout94.js?v=340';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=340';
@@ -1143,7 +1143,8 @@ function installHeadOnTestLab(){
    game.spawnEnemy('boss');
   }
   if(options.boss&&addon){
-   const distance=region===6?760:560,angle=Number.isFinite(game.a)?game.a:-Math.PI/2;
+   // Immediate test bosses must enter the viewport without a long steering run.
+   const distance=region===6?620:360,angle=Number.isFinite(game.a)?game.a:-Math.PI/2;
    addon.startBoss({x:game.x+Math.cos(angle)*distance,y:game.y+Math.sin(angle)*distance});
   }
   game.event('wave','TEST LAB · '+HEADON_TEST_REGION_NAMES[region]);

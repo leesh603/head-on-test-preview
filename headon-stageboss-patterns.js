@@ -579,7 +579,8 @@ export class Fliegerzug extends RailAdapter {
     super.railEvent(e);
   }
   launchBug(car,players){
-    this.emit({type:'spawn-minion',bossId:this.id,faction:this.faction,minion:'bug',x:this.x+car.x,y:this.y+car.y,behavior:'suicide-dive',a:Math.PI/2});
+    const target=players.find(p=>p.alive!==false),angle=target?Math.atan2(target.y-(this.y+car.y),target.x-(this.x+car.x)):Math.PI/2;
+    this.emit({type:'spawn-minion',bossId:this.id,faction:this.faction,minion:'bug',x:this.x+car.x,y:this.y+car.y,behavior:'suicide-dive',a:angle,speed:166,life:13,contactDamage:Math.min(22,Math.round(this.t.damage*.78))});
   }
   update(dt,ctx){
     super.update(dt,ctx);
@@ -589,17 +590,17 @@ export class Fliegerzug extends RailAdapter {
     const salvo=this.bugSalvo;
     if(salvo&&launch&&!launch.destroyed){
       salvo.clock-=dt;
-      while(salvo.count>0&&salvo.clock<=0){salvo.count--;salvo.clock+=.5;this.launchBug(launch,players);}
+      while(salvo.count>0&&salvo.clock<=0){salvo.count--;salvo.clock+=.65;this.launchBug(launch,players);}
       if(salvo.count<=0)this.bugSalvo=null;
     }else this.bugSalvo=null;
-    if(launch&&!launch.destroyed&&this.due('bug-trickle',dt,4.6))this.launchBug(launch,players);
-    if(hangar&&!hangar.destroyed&&this.due('hangar-launch',dt,this.phase==='derailed'?9.5:6.4)){
+    if(launch&&!launch.destroyed&&this.due('bug-trickle',dt,5.4))this.launchBug(launch,players);
+    if(hangar&&!hangar.destroyed&&this.due('hangar-launch',dt,this.phase==='derailed'?10.5:7.6)){
       const p=players.find(p=>p.alive!==false);
       this.emit({type:'spawn-minion',bossId:this.id,faction:this.faction,minion:'escort',x:this.x+hangar.x,y:this.y+hangar.y,behavior:'attack-pass',a:Math.PI/2,passTargetX:p?.x??this.x,passTargetY:(p?.y??this.y)+130,invulnerableSeconds:.5});
     }
-    if(flak&&!flak.destroyed&&this.due('flak-car',dt,2.7)){
+    if(flak&&!flak.destroyed&&this.due('flak-car',dt,3.2)){
       const p=players.find(p=>p.alive!==false);
-      if(p)this.emit({type:'hazard',bossId:this.id,kind:'circle',x:p.x+(p.vx||0)*.4,y:p.y+(p.vy||0)*.4,radius:56,warning:.95,duration:.45,once:true,damage:this.t.damage*.9,visual:'black-flak',sourcePartId:'car-front'});
+      if(p)this.emit({type:'hazard',bossId:this.id,kind:'circle',x:p.x+(p.vx||0)*.4,y:p.y+(p.vy||0)*.4,radius:52,warning:1.1,duration:.4,once:true,damage:this.t.damage*.82,visual:'black-flak',sourcePartId:'car-front'});
     }
   }
 }
@@ -622,7 +623,7 @@ export class TreffasWagen extends PatternBoss {
   wheelsAlive(){return ['wheel-left','wheel-right'].filter(id=>!this.parts.get(id).destroyed).length;}
   wheelBias(){const l=this.parts.get('wheel-left'),r=this.parts.get('wheel-right');return l.destroyed&&!r.destroyed?-1:!l.destroyed&&r.destroyed?1:0;}
   onPartDestroyed(){
-    if(this.allDestroyed(['wheel-left','wheel-right'])&&this.phase==='advance'){
+    if(this.allDestroyed(['wheel-left','wheel-right'])&&['advance','enraged'].includes(this.phase)){
       // A halted Treffas-Wagen digs in as a gun platform instead of dying.
       this.phase='crippled';this.command('phase-change',{phase:'crippled'});
     }
@@ -650,14 +651,14 @@ export class TreffasWagen extends PatternBoss {
     if(speed>0&&(!last||Math.hypot(this.x-last.x,this.y-last.y)>30))this._churn.push({x:this.x,y:this.y+58});
     if(this._churn.length>110)this._churn.splice(0,this._churn.length-110);
     // Wheels shed dirt and rock sideways as they crush the ground.
-    if(speed>0&&this.due('treffas-debris',dt,enraged?.42:.6)){
+    if(speed>0&&this.due('treffas-debris',dt,enraged?.65:.85)){
       for(const id of ['wheel-left','wheel-right']){const w=this.parts.get(id);if(w.destroyed)continue;
         const side=id==='wheel-left'?-1:1,wx=this.x+w.x,wy=this.y+w.y;
-        this.hazard('projectile',{x:wx,y:wy+24,vx:side*(150+this.rng()*70),vy:30+this.rng()*80,radius:9,duration:1.5,once:true,damage:this.t.damage*.38,visual:'treffas-debris'});
-        if(this.rng()<.5)this.hazard('projectile',{x:wx,y:wy+24,vx:side*(60+this.rng()*50),vy:120+this.rng()*60,radius:9,duration:1.6,once:true,damage:this.t.damage*.38,visual:'treffas-debris'});
+        this.hazard('projectile',{x:wx,y:wy+24,vx:side*(135+this.rng()*55),vy:28+this.rng()*62,radius:7,duration:1.35,once:true,damage:this.t.damage*.28,visual:'treffas-debris'});
+        if(this.rng()<.25)this.hazard('projectile',{x:wx,y:wy+24,vx:side*(55+this.rng()*45),vy:105+this.rng()*50,radius:7,duration:1.45,once:true,damage:this.t.damage*.28,visual:'treffas-debris'});
       }
     }
-    if(crippled&&this.due('treffas-burst',dt,2.4))this.debrisBurst(this.x,this.y-40,10,.62,this.t.damage*.42);
+    if(crippled&&this.due('treffas-burst',dt,3.2))this.debrisBurst(this.x,this.y-40,8,.58,this.t.damage*.32);
     const turret=this.parts.get('turret');
     if(turret&&!turret.destroyed&&this.due('treffas-mortar',dt,(crippled?3.4:enraged?3.1:4.8))){
       const p=this.target(players);if(p){const shots=enraged||crippled?4:3;

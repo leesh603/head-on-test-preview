@@ -3,7 +3,7 @@ import {drawGasCloud196} from './gas-cloud196.js?v=340';
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=340&b=340';
 import {fx,fxReady,fxTint} from './fx-art.js?v=340';
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=340&b=340';
-import {drawStageBoss} from './stageboss-view.js?v=340&b=340';
+import {drawStageBoss} from './stageboss-view.js?v=340&b=340&c=8';
 import {planeSprite,aircraftKey} from './aircraft.js?v=340&b=340';
 import {drawEquipment} from './equipment.js?v=340&b=340';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=340&b=340';
