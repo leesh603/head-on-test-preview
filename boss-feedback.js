@@ -4,7 +4,7 @@ const PHASES={exposed:['본체 노출','Hull exposed'],crippled:['차륜 붕괴 
 export function bossPhaseLabel(phase,locale='ko'){const words=PHASES[phase];return words?words[locale==='en'?1:0]:pair('보스 전술 변화','Boss tactics changed',locale)}
 export const BOSS_NAMES_EN=Object.freeze({
  'paris-gun':'Bruno railway gun',lincomparable:"520mm L’Incomparable",'sms-stuttgart':'SMS Stuttgart','hms-zubian':'HMS Zubian',
- 'a7v-flak':'A7V Flakpanzer','mark-v-cruiser':'Mark V land cruiser','livens-flame-projector':'Livens flame projector','minenwerfer-battery':'Minenwerfer battery',
+ 'a7v-flak':'A7V Flakpanzer','mark-v-cruiser':'Mark V land cruiser','livens-flame-projector':'Livens flame projector','minenwerfer-battery':'Minenwerfer crossfire battery',
  'drachen-net':'Drachen mine network','london-apron':'London balloon apron','zeppelin-l70':'Zeppelin L 70',hma23:'HMA 23 carrier',gik:'Hansa-Brandenburg G.IK',ca4:'Caproni Ca.4','armored-harbor-fortress':'Armored harbor fortress',
  'fliegerzug':'Fliegerzug drone carrier','treffas-wagen':'Treffas-Wagen landship',
  'jasta11-circus':'JASTA 11 · FLYING CIRCUS','naval10-black-flight':'NAVAL 10 · BLACK FLIGHT',
@@ -19,10 +19,10 @@ export function bossTactic(encounter,locale='ko'){
   case 'sms-stuttgart':return b.support129?.phase===1?text('격납고 덮개 파괴 → 연료와 함포 공략','Break the hangar cover → attack fuel and turrets'):text('연료 파괴로 지원기 차단 · 함포별 화망 제거','Destroy fuel to stop launches · silence each turret');
   case 'hms-zubian':return bodies.length>1?text('앞 선체 돌진 회피 · 뒤 선체 박격포 우선 공략','Dodge the bow charge · silence the stern mortars'):text('접합부 파괴 후 두 선체를 각각 격파','Break the seam, then defeat both hull halves');
   case 'a7v-flak':return b.coreVulnerable?text('포탑 무력화 · 노출된 본체 공격','Turrets disabled · strike the exposed hull'):text('탐조등 이탈 · 포탑 4개를 파괴해 본체 노출','Leave searchlights · destroy all four turrets');
-  case 'mark-v-cruiser':return b.phase==='final-assault'?text('포곽 2개 파괴 · 전진하는 본체 공격','Both sponsons down · attack the advancing hull'):text('좌우 포곽을 파괴해 해당 방향 탄막 약화','Destroy each sponson to open its firing lane');
+  case 'mark-v-cruiser':return b.phase==='final-assault'?text('최후 돌진 · 이동하며 본체 집중 사격','Final advance · keep moving and attack the hull'):text('좌우 포곽 파괴로 측면 화망과 호위 차단','Destroy side sponsons to cut fire and escorts');
   case 'livens-flame-projector':return b.coreVulnerable?text('코어 노출 · 회전 화염의 뒤를 따라 공격','Core exposed · attack behind the rotating flame'):text('압력장치로 화염 약화 · 연료통 4개 파괴','Break pressure to weaken flame · destroy four tanks');
-  case 'minenwerfer-battery':return b.coreVulnerable?text('포대 무력화 · 중앙 코어 집중 사격','Guns disabled · attack the central core'):text('지휘소: 예측 약화 · 크레인: 장전 지연 · 포 3문 파괴','Command: worse aim · crane: slower reload · destroy 3 guns');
-  case 'drachen-net':return b.coreVulnerable?text('윈치·관측기구 파괴 · 본체 공격','Winch and spotter down · strike the core'):gone('balloon')?text('정밀 포격 중단 · 기뢰를 쏴 통로 개척','Spotter down · shoot mines to open a route'):text('기뢰를 쏴 연쇄폭발 · 윈치 파괴로 배치 중단','Shoot mines for chain blasts · destroy the winch to stop deployment');
+  case 'minenwerfer-battery':{const live=[...b.parts.values()].filter(p=>!p.destroyed).length;return live===1?text('최후 진지 · 빠른 포격과 3연사를 피해 마무리','Last emplacement · evade rapid fire and triple salvos'):live===2?text('화력 감소 · 남은 두 진지의 교차 예측을 분리','Firepower reduced · split the two remaining firing lanes'):text('좌 추적 · 중앙 예측 · 우 회피 차단 — 포위망의 탈출구 확인','Left tracks · center leads · right blocks — find the encirclement gap');}
+  case 'drachen-net':return b.coreVulnerable?text('본체 노출 · 기뢰 틈새로 진입','Core exposed · approach through mine gaps'):gone('balloon')?text('관측 포격 중단 · 윈치 파괴로 본체 노출','Spotter silenced · destroy the winch to expose the core'):text('관측 기구로 포격 차단 · 윈치로 기뢰 약화','Destroy the balloon to stop spotting · winch slows mines');
   case 'london-apron':return b.coreVulnerable?text('방벽 해체 · 중앙 윈치 공격','Barrier dismantled · attack the central winch'):text('기구 3개 파괴 · 각 기구의 와이어가 해제됨','Destroy 3 balloons · each removes its own wires');
   case 'zeppelin-l70':return b.phase==='cloud'?text('구름 아래 관측 곤돌라를 파괴해 폭격 요새 노출','Destroy the gondola beneath the cloud to reveal the bombing fortress'):b.lastStand?text('수소 화염 회랑 경고 · 엔진을 부숴 측면포와 기동 약화','Hydrogen fire corridor · break engines to reduce guns and drift'):text('엔진 파괴로 측면포·기동·본체 방어 약화','Destroy engines to reduce broadsides, drift and hull protection');
   case 'hma23':return b.coreVulnerable?text('최종 편대 출격 · 측면 대공포를 피해 항모 본체 공격','Final sortie · evade alternating deck flak and strike the carrier'):text('발진구별 좌우 공격로 확인 · 4개를 파괴해 장갑 해제','Read each port’s attack lane · destroy all four to expose the hull');
@@ -43,7 +43,7 @@ export function bossTactic(encounter,locale='ko'){
 export function bossSoundFor(event,kind=''){
  const type=event.type,visual=event.visual||'';
  if(type==='phase-change'||type==='hangar-cover-ejected')return 'armorOpen';
- if(type==='part-destroyed'||type==='rail-car-detached'||type==='rail-break')return 'metalBreak';
+ if(type==='part-destroyed'||type==='ammo-cookoff'||type==='rail-car-detached'||type==='rail-break')return 'metalBreak';
  if(type==='flame-warning')return 'flameValve';
  if(type==='mortar-launch')return 'mortarLaunch';
  if(type==='crane-drop'||type==='spawn-minefield')return 'winchRelease';
@@ -67,4 +67,3 @@ export function bossSoundFor(event,kind=''){
  }
  return null;
 }
-

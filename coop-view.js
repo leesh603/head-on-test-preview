@@ -2,15 +2,15 @@ import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=338';
 import {drawGasCloud196} from './gas-cloud196.js?v=338';
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=338&b=326';
 import {fx,fxReady,fxTint} from './fx-art.js?v=338';
-import {drawAADefense} from './aa-defense-art.js?v=aa20260927';
+import {drawAADefense} from './aa-defense-art.js?v=349';
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=338&b=326';
-import {drawStageBoss} from './stageboss-view.js?v=aa20260927';
+import {drawStageBoss} from './stageboss-view.js?v=349';
 import {planeSprite,aircraftKey} from './aircraft.js?v=338&b=326';
 import {drawEquipment} from './equipment.js?v=338&b=326';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=338&b=326';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=338&b=326';
 import {drawSpecialAmmoIcon} from './icons.js?v=338';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=aa20260927';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=349';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
 const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=338&b=326';

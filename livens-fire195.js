@@ -1,61 +1,84 @@
-import {fxImage} from './fx-art.js?v=340';
+import {fx,fxImage} from './fx-art.js?v=338';
+
+// Physics owns one pooled beam. Rendering samples it into a small fixed atlas
+// budget instead of allocating hundreds of particles or runtime canvases.
+const PC_STREAM_SEGMENTS=8,MOBILE_STREAM_SEGMENTS=6;
+const PC_TONGUES=5,MOBILE_TONGUES=3;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),clamp01=v=>clamp(v,0,1);
+const curvePoint={x:0,y:0,a:0};
+
+function fallbackJet(c,p,w,h,alpha,phase){
+ // Asset rollback/load failure still needs a readable damaging stream. This
+ // stays bounded to the same segment count and matches the collision width.
+ c.save();c.translate(p.x,p.y);c.rotate(p.a);c.globalAlpha*=alpha;
+ c.fillStyle='#b84b18';c.beginPath();c.moveTo(-w*.52,0);
+ c.bezierCurveTo(-w*.34,-h*.42,-w*.12,-h*.5,0,-h*.5);
+ c.bezierCurveTo(w*.2,-h*(.48+.02*Math.sin(phase)),w*.4,-h*.3,w*.52,0);
+ c.bezierCurveTo(w*.38,h*.3,w*.18,h*(.48+.02*Math.cos(phase)),0,h*.5);
+ c.bezierCurveTo(-w*.14,h*.5,-w*.36,h*.4,-w*.52,0);c.closePath();c.fill();
+ c.globalAlpha*=.82;c.fillStyle='#f3c56b';c.beginPath();c.moveTo(-w*.45,0);
+ c.bezierCurveTo(-w*.18,-h*.22,w*.16,-h*.14,w*.43,0);
+ c.bezierCurveTo(w*.14,h*.13,-w*.2,h*.2,-w*.45,0);c.closePath();c.fill();c.restore();
+}
+function drawJet(c,p,w,h,alpha,phase){
+ const img=fxImage('flameJet');
+ if(!img?.naturalWidth){fallbackJet(c,p,w,h,alpha,phase);return false;}
+ c.save();c.translate(p.x,p.y);c.rotate(p.a);c.globalAlpha*=alpha;c.drawImage(img,-w/2,-h/2,w,h);c.restore();return true;
+}
 
 // Collision and drawing share the same travelling front and trailing cutoff.
-// Keep this function allocation-free: it runs for rendering and every hazard hit test.
 export function livensFlameSpan(h,length=h.length){
  const t=Math.max(0,h.age-(h.delay||0)-(h.warning||0)),travel=.28;
  return {t,front:Math.min(length,t*length/travel),tail:Math.max(0,(t-(h.duration-travel))*length/travel)};
 }
-
-const clamp01=n=>Math.max(0,Math.min(1,n));
 export function livensFlameHalfWidth(h,along,span=livensFlameSpan(h),length=h.length){
  if(along<span.tail||along>span.front)return 0;
  const q=Math.max(0,along/Math.max(1,length));
  return h.thickness*(.5+2.1*q)*clamp01(Math.min((span.front-along)/45,(along-span.tail)/14));
 }
-function flameSilhouette(c,start,end,height,t,scale,color){
- const steps=14,len=end-start;c.beginPath();
- for(let i=0;i<=steps;i++){const q=i/steps,x=start+len*q,edge=Math.sin(q*Math.PI),w=height*scale*edge*(.82+.12*Math.sin(t*9+i*2.17)+.06*Math.sin(t*15-i*.83));c.lineTo(x,-w);}
- for(let i=steps;i>=0;i--){const q=i/steps,x=start+len*q,edge=Math.sin(q*Math.PI),w=height*scale*edge*(.84+.11*Math.sin(t*8+i*1.71)+.05*Math.sin(t*13+i*.69));c.lineTo(x,w);}
- c.closePath();c.fillStyle=color;c.fill();
+export function livensFlameSegmentCount(h,mobile=false){
+ const {front,tail}=livensFlameSpan(h),cap=mobile?MOBILE_STREAM_SEGMENTS:PC_STREAM_SEGMENTS;
+ return front<=tail?0:Math.max(1,Math.min(cap,Math.ceil((front-tail)/66)));
 }
+export function livensFlameVisualAngle(h,q){
+ // Far fuel retains a bounded amount of its previous heading during a sweep.
+ const bend=-clamp((h.angularSpeed||0)*.22,-.12,.12);
+ return h.angle+bend*clamp01(q);
+}
+function curvedPoint(h,d){
+ const L=Math.max(1,h.length),bend=-clamp((h.angularSpeed||0)*.22,-.12,.12),k=bend/L;
+ if(Math.abs(k)<1e-5){curvePoint.x=h.x+Math.cos(h.angle)*d;curvePoint.y=h.y+Math.sin(h.angle)*d;curvePoint.a=h.angle;return curvePoint;}
+ const a=h.angle+k*d;
+ curvePoint.x=h.x+(Math.sin(a)-Math.sin(h.angle))/k;curvePoint.y=h.y+(Math.cos(h.angle)-Math.cos(a))/k;curvePoint.a=a;return curvePoint;
+}
+export function drawLivensFlame(c,h,{mobile=false}={}){
+ const flameSpan=livensFlameSpan(h),{t,front,tail}=flameSpan,span=front-tail;if(span<=0)return;
+ const count=livensFlameSegmentCount(h,mobile),step=span/count;
+ c.save();c.globalCompositeOperation='source-over';
 
-// One authored jet plus a tiny bounded fallback replaces the former thousands of
-// per-frame rectangles. The sprite keeps a continuous bright core and ragged edge;
-// scaling only the live span makes both arrival and withdrawal read as flowing fuel.
-export function drawLivensFlame(c,h){
- const {t,front,tail}=livensFlameSpan(h),span=front-tail;if(!(span>0))return;
- const alpha=clamp01(span/72),jet=fxImage('flameJet'),samples=16;
- let maxHalf=1;for(let i=0;i<=samples;i++)maxHalf=Math.max(maxHalf,livensFlameHalfWidth(h,tail+span*i/samples,{front,tail}));
- const height=maxHalf*2.08;
- c.save();c.translate(h.x,h.y);c.rotate(h.angle);c.globalAlpha*=alpha;
- // This ragged outer fuel fringe uses the exact collision profile. It keeps the
- // damage edge visible even where the authored bright jet is naturally narrower.
- const edgeXs=[];for(let i=0;i<=samples;i++)edgeXs.push(tail+span*i/samples);
- // Preserve both taper corners, plus the point where they cross on short spans.
- edgeXs.push(Math.min(front,tail+14),Math.max(tail,front-45),tail+span*14/59);edgeXs.sort((a,b)=>a-b);
- const profile=edgeXs.filter((x,i)=>!i||x-edgeXs[i-1]>.01);
- c.beginPath();for(const x of profile)c.lineTo(x,-livensFlameHalfWidth(h,x,{front,tail}));
- for(let i=profile.length-1;i>=0;i--){const x=profile[i];c.lineTo(x,livensFlameHalfWidth(h,x,{front,tail}));}
- c.closePath();c.globalAlpha*=.74;c.fillStyle='#8b3515';c.fill();c.globalAlpha/=.74;
- if(jet?.naturalWidth){
-  const breathe=1+.025*Math.sin(t*13),drawH=height*breathe;
-  c.imageSmoothingEnabled=true;c.drawImage(jet,tail,-drawH/2,span,drawH);
-  // A low-alpha offset pass supplies motion without spawning particles or canvases.
-  c.globalCompositeOperation='screen';c.globalAlpha*=.14;
-  c.drawImage(jet,tail-span*.008,-drawH*.47,span*(1.012+.008*Math.sin(t*17)),drawH*.94);
- }else{
-  flameSilhouette(c,tail,front,height*.5,t,1,'#843313');
-  flameSilhouette(c,tail,front,height*.43,t+.17,.78,'#e26319');
-  flameSilhouette(c,tail,front,height*.3,t+.31,.48,'#ffd36b');
+ // Narrow white-hot muzzle, overlapping widening body, and no exposed seams.
+ for(let i=0;i<count;i++){
+  const d=tail+(i+.5)*step,p=curvedPoint(h,d),half=livensFlameHalfWidth(h,d,flameSpan,h.length);
+  const width=Math.max(58,step*2.05),height=Math.max(24,half*2),alpha=.76+.16*Math.sin(t*11+i*2.3);
+  drawJet(c,p,width,height,alpha,t*9+i*1.7);
  }
- // A small fixed ember budget preserves speed cues around the flame edge.
- c.globalCompositeOperation='source-over';
- const embers=(c.canvas?.width||999)<900?6:10;
- for(let i=0;i<embers;i++){
-  const p=(i*.618+t*(.48+i*.013))%1,x=tail+span*p;
-  const edge=Math.sin(p*Math.PI),side=i%2?1:-1,y=side*height*(.24+.18*((i*7)%5)/4)*edge+Math.sin(t*8+i*2.3)*5;
-  c.globalAlpha=alpha*(.35+.45*Math.sin(p*Math.PI));c.fillStyle=i%3?'#e87724':'#ffe19a';c.fillRect(x,y,2+(i%2),2);
+
+ // The broad end breaks into a few authored tongues instead of a rigid cone.
+ const tongueCount=mobile?MOBILE_TONGUES:PC_TONGUES;
+ for(let i=0;i<tongueCount;i++){
+  const u=tongueCount===1?1:i/(tongueCount-1),d=tail+span*(.54+u*.43),p=curvedPoint(h,d);
+  const half=Math.max(18,livensFlameHalfWidth(h,d,flameSpan,h.length)),side=i%2?1:-1;
+  const offset=side*half*(.28+.34*u),key='flameTongue'+(1+i%3),a=p.a+side*(.08+.08*u);
+  fx(c,key,p.x-Math.sin(p.a)*offset,p.y+Math.cos(p.a)*offset,Math.max(40,step*1.35),Math.max(42,half*(.72+.24*u)),a,.82);
+ }
+
+ // Fixed flash/smoke budget: 16 atlas draws on PC, 11 on mobile at maximum.
+ const muzzle=curvedPoint(h,Math.max(tail,Math.min(front,16)));
+ fx(c,'fireFlash',muzzle.x,muzzle.y,mobile?28:34,mobile?28:34,muzzle.a,.9);
+ const smokeCount=mobile?1:2;
+ for(let i=0;i<smokeCount;i++){
+  const p=curvedPoint(h,Math.max(tail,front-18-i*24)),side=i?1:-1,size=mobile?48:58;
+  fx(c,'smokeTrail',p.x-Math.sin(p.a)*side*10,p.y+Math.cos(p.a)*side*10,size,size*.55,p.a,.18);
  }
  c.restore();
 }

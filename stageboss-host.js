@@ -1,7 +1,8 @@
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=aa20260927';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=aa20260927';
-import {bossSoundFor} from './boss-feedback.js?v=aa20260927';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=aa20260927';
+
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=338&b=326&c=9';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=338&b=326&c=9';
+import {bossSoundFor} from './boss-feedback.js?v=338&c=9';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=338';
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
@@ -61,7 +62,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     hma23:{launchInterval:2.8,panicInterval:2.55},
     gik:{suppressiveInterval:3.4,suppressiveCount:5,rearFinalInterval:.65},
     'livens-flame-projector':{flameInterval:6.2},
-    'minenwerfer-battery':{mortarInterval:5.8}
+    'minenwerfer-battery':{mortarInterval:2.7}
     ,'armored-harbor-fortress':{coastalInterval:2.5,craneInterval:4.8,harborLaunchInterval:5.6}
     ,'mark4-wedge':{geometryScale:1,mobileBoss:false,coreRadius:70}
     ,'morser-battery':{geometryScale:1.1,mobileBoss:false,motionMultiplier:0,coreRadius:84}
@@ -116,8 +117,9 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     // The shared hazard renderer already animates this ground impact. Avoid a
     // second aerial fireball on top, while preserving all original events.
     if(['minenwerfer-heavy','minenwerfer-shell'].includes(event.visual)){const effect=g.combatFX?.at(-1);if(effect)effect.mortarOverlay=true}}
-    else if(event.type==='part-destroyed'){const part=body?.parts.get(event.partId);g.combatBlast(x+(part?.x||0),y+(part?.y||0),46,'enemy','structure');g.shake=Math.max(g.shake,7);
+   else if(event.type==='part-destroyed'){const part=body?.parts.get(event.partId),minen=body?.kind==='minenwerfer-battery';g.combatBlast(x+(part?.x||0),y+(part?.y||0),minen?34:46,'enemy','structure');g.shake=Math.max(g.shake,minen?5:7);
      if(['a7v-flak','mark-v-cruiser','drachen-net','london-apron'].includes(body?.kind))(g.aaEffects??=[]).push({x:x+(part?.x||0),y:y+(part?.y||0),age:0,life:.9,size:90,kind:'aaWreckSmoke'});}
+   else if(event.type==='ammo-cookoff'){g.combatBlast(event.x,event.y,82,'enemy','structure');if(g.burst)g.burst(event.x,event.y,'#ffbb62',10);if(g.smoke){g.smoke(event.x-18,event.y+8,true);g.smoke(event.x+22,event.y-5,true)}g.shake=Math.max(g.shake,9);}
    else if(event.type==='ammo-detonation'){g.combatBlast(event.x,event.y,105,'enemy','structure');g.shake=Math.max(g.shake,12);g.event('wave','항구요새 탄약고 유폭 · 중앙 회전축 방호 약화');}
    else if(event.type==='rail-car-detached'){g.combatBlast(event.x,event.y,58,'enemy','structure');g.shake=Math.max(g.shake,8);
     for(let i=0;i<4;i++){const ox=(g.rng?g.rng()-.5:Math.random()-.5)*120,oy=(i-1.5)*55+(g.rng?g.rng()-.5:Math.random()-.5)*30,r=24+((i*37)%3)*14;g.combatBlast(event.x+ox,event.y+oy,r,'enemy','structure');if(g.burst)g.burst(event.x+ox,event.y+oy,'#ffd06a',6);if(g.smoke)g.smoke(event.x+ox,event.y+oy,true)}

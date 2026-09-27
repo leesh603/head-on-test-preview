@@ -1,5 +1,5 @@
 import {FixedPool} from './headon-stageboss-pool.js';
-import {livensFlameSpan,livensFlameHalfWidth} from './livens-fire195.js?v=340';
+import {livensFlameHalfWidth,livensFlameSpan} from './livens-fire195.js?v=338&b=326&c=9';
 const wrap = angle => Math.atan2(Math.sin(angle),Math.cos(angle));
 const segmentDistance = (px,py,x0,y0,x1,y1) => {
   const dx=x1-x0,dy=y1-y0,len=dx*dx+dy*dy,t=len?Math.max(0,Math.min(1,((px-x0)*dx+(py-y0)*dy)/len)):0;
@@ -11,7 +11,7 @@ export function contains(h,p) {
   if(h.kind==='beam'){
     if(h.visual==='livens-flame'){
       // The beam pivots at the turret mount; the flame is a cone from the muzzle.
-      const muzzle=85,flameLen=Math.max(1,h.length-muzzle),span=livensFlameSpan(h,flameLen);
+      const muzzle=h.muzzleLength||85,flameLen=Math.max(1,h.length-muzzle),span=livensFlameSpan(h,flameLen);
       const tail=muzzle+span.tail,front=muzzle+span.front;
       if(front<=tail)return false;
       const dx=Math.cos(h.angle),dy=Math.sin(h.angle);
@@ -47,6 +47,7 @@ export class BossHazards {
       damage:spec.damage,age:0,delay:spec.delay||0,warning:spec.warning||0,duration:spec.duration,
       tickInterval:spec.tickInterval||.5,nextTick:0,phase:'waiting',once:!!spec.once,applied:false,activated:false,
       targetId:spec.targetId,lockAtWarning:!!spec.lockAtWarning,locked:false,offsetX:spec.offsetX||0,offsetY:spec.offsetY||0,telegraphHalf:spec.telegraphHalf||0,
+      muzzleLength:spec.muzzleLength||0,
       sourceX:spec.sourceX??null,sourceY:spec.sourceY??null,
       blocks:!!spec.blocks,piercing:!!spec.piercing,visual:spec.visual||spec.kind,tag:spec.tag||null
     });return h;
