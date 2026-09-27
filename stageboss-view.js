@@ -448,9 +448,8 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     }
     // Per-part destruction: charred plate over the hit zone.
     if(!b.destroying)for(const [id,r] of [['wheel-left',34],['wheel-right',34],['turret',30],['rudder',26]]){const p=partById(id);if(!p?.destroyed)continue;
-     c.fillStyle='#191512cc';c.beginPath();c.ellipse(p.x,p.y,r*1.2,r*1.05,0,0,Math.PI*2);c.fill();
-     for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.33)%1;fx(c,'smokeDark',p.x+Math.sin(k*3.7)*r*.5,p.y-s*r*1.6,30+s*44,30+s*44,0,(1-s)*.5);}
-     c.strokeStyle='#5a4a38aa';c.lineWidth=1.5;for(let k=0;k<4;k++){const a=k*1.7+p.y*.02;c.beginPath();c.moveTo(p.x+Math.cos(a)*r*.3,p.y+Math.sin(a)*r*.3);c.lineTo(p.x+Math.cos(a)*r*1.3,p.y+Math.sin(a)*r*1.3);c.stroke()}}
+     c.fillStyle='#19151255';c.beginPath();c.ellipse(p.x,p.y,r*.8,r*.68,0,0,Math.PI*2);c.fill();
+     for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.33)%1;fx(c,'smokeDark',p.x+Math.sin(k*3.7)*r*.5,p.y-s*r*1.6,30+s*44,30+s*44,0,(1-s)*.5);}}
    }
    else if(b.assetKey==='mark4-wedge'){
     const partById=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
@@ -471,7 +470,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      c.drawImage(im,-190,-125,380,250);c.restore();}
     // Dead nacelles burn in place on the wing.
     if(!b.destroying)for(const id of ['eng-0','eng-1','eng-2','eng-3']){const p=partById(id);if(!p?.destroyed)continue;
-     c.fillStyle='#141109dd';c.beginPath();c.ellipse(p.x,p.y,26,20,0,0,Math.PI*2);c.fill();
+     c.fillStyle='#14110955';c.beginPath();c.ellipse(p.x,p.y,18,13,0,0,Math.PI*2);c.fill();
      fx(c,'fireEngine',p.x,p.y-8,30,30,0,.8);
      for(let k=0;k<2;k++){const s=((b.motionTime||0)*.5+k*.5)%1;fx(c,'smokeDark',p.x+Math.sin(k*4.3)*12,p.y-16-s*56,22+s*36,22+s*36,0,(1-s)*.5);}}
    }
@@ -481,7 +480,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     if(im?.naturalWidth){c.save();c.imageSmoothingEnabled=true;c.drawImage(im,-170,-175,340,350);c.restore();}
     // Knocked-out positions get a char patch + smoke over the composite art.
     if(!b.destroying)for(const id of ['light','gun','ammo']){const p=partById(id);if(!p?.destroyed)continue;
-     c.fillStyle='#191512cc';c.beginPath();c.ellipse(p.x,p.y,p.radius||46,(p.radius||46)*.86,0,0,Math.PI*2);c.fill();
+     c.fillStyle='#19151255';c.beginPath();c.ellipse(p.x,p.y,(p.radius||46)*.6,(p.radius||46)*.52,0,0,Math.PI*2);c.fill();
      for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.33)%1;fx(c,'smokeDark',p.x+Math.sin(k*4.1)*22,p.y-24-s*64,24+s*38,24+s*38,0,(1-s)*.5);}}
    }
    else if(b.assetKey==='morser-battery'){
@@ -491,7 +490,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     if(im?.naturalWidth){c.save();c.imageSmoothingEnabled=true;c.drawImage(im,-260,-236,520,472);c.restore();}
     // Dead pits get a char patch + smoke so the battery visibly loses lanes.
     if(!b.destroying)for(const id of gunIds){const p=partById(id);if(!p?.destroyed)continue;
-     c.fillStyle='#191512cc';c.beginPath();c.ellipse(p.x,p.y,58,50,0,0,Math.PI*2);c.fill();
+     c.fillStyle='#19151255';c.beginPath();c.ellipse(p.x,p.y,40,34,0,0,Math.PI*2);c.fill();
      for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.33)%1;fx(c,'smokeDark',p.x+Math.sin(k*4.1)*26,p.y-30-s*70,26+s*40,26+s*40,0,(1-s)*.5);}}
    }
    else if(plane){
