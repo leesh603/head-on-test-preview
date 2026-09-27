@@ -121,9 +121,9 @@ function drawRailConsist181(c,b){
   // Solid armored hull under the lattice car art — the cut-outs alone read as
   // a transparent ghost train against the terrain.
   const ys=[...cars.values()].map(car=>car.y),top=Math.min(...ys,0)-205,bottom=Math.max(...ys,0)+205;
-  c.fillStyle='#36322b';c.beginPath();c.arc(0,top,73,Math.PI,0,true);c.rect(-73,top,146,bottom-top);c.arc(0,bottom,73,0,Math.PI);c.fill();
-  c.fillStyle='#4b463d';c.fillRect(-62,top+14,124,bottom-top-28);
-  c.fillStyle='#2a2722';for(const y of ys)c.fillRect(-62,y+182,124,10);
+  c.fillStyle='#43413a';c.beginPath();c.arc(0,top,63,Math.PI,0,true);c.rect(-63,top,126,bottom-top);c.arc(0,bottom,63,0,Math.PI);c.fill();
+  c.fillStyle='#565349';c.fillRect(-55,top+14,110,bottom-top-28);
+  c.fillStyle='#38352e';for(const y of ys)c.fillRect(-55,y+182,110,10);
  }
  for(const [id,key] of [['car-rear','rear'],['car-middle','middle'],['car-front','front']]){const car=cars.get(id);if(!car)continue;
   const wreckImage=wreckImages[key]; // Load only the active train's wreck art.
@@ -398,7 +398,13 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     const roll=Math.sin((b.wheelRoll||0)*9)*.04;
     if(atlas?.naturalWidth){
      const im=b.destroying?(bakedImage(atlas,'grayscale(.62) brightness(.52) sepia(.35)')||atlas):atlas;
-     c.save();c.translate(0,10);c.rotate(roll);c.imageSmoothingEnabled=true;c.drawImage(im,-150,-200,300,400);c.restore();
+     c.save();c.translate(0,10);c.rotate(roll);c.imageSmoothingEnabled=true;
+     // Chassis plate under the atlas — the art has open gaps between the wheels
+     // and hull that let the terrain show through and read as a ghost vehicle.
+     c.fillStyle='#33302a';c.beginPath();c.ellipse(-94,95,52,120,0,0,Math.PI*2);c.ellipse(94,95,52,120,0,0,Math.PI*2);c.fill();
+     c.fillRect(-96,-140,192,270);c.beginPath();c.ellipse(0,-55,58,110,0,0,Math.PI*2);c.fill();
+     c.fillStyle='#262420';c.fillRect(-14,80,28,110);
+     c.drawImage(im,-150,-200,300,400);c.restore();
     }else{
      const put=(key,x,y,w,h,rl=0,wrecked=false)=>{const im=wrecked?bakedImage(treffasArt[key],'grayscale(.62) brightness(.52) sepia(.35)')||treffasArt[key]:treffasArt[key];if(!im?.naturalWidth)return false;c.save();c.translate(x,y);c.rotate(rl);c.imageSmoothingEnabled=true;c.drawImage(im,-w/2,-h/2,w,h);c.restore();return true;};
      const wobble=Math.sin((b.wheelRoll||0)*9)*.05;
