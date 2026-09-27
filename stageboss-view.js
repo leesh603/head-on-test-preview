@@ -109,7 +109,7 @@ const railWreckSources={
  railCarrier:{engine:'./boss-rail-carrier-loco-wreck.webp?v=342',front:'./boss-rail-carrier-flak-wreck.webp?v=342',middle:'./boss-rail-carrier-launch-wreck.webp?v=342',rear:'./boss-rail-carrier-hangar-wreck.webp?v=342'}
 };
 // Fliegerzug munition + Treffas-Wagen separable parts (destroyed parts get a burn filter).
-const bugGroup=createLazyImageGroup({folded:'./boss-bug-folded.webp?v=340',flight:'./boss-bug-flight.webp?v=340'}),bugArt=bugGroup.images;
+const bugGroup=createLazyImageGroup({folded:'./boss-bug-folded.webp?v=342',flight:'./boss-bug-flight.webp?v=342'}),bugArt=bugGroup.images;
 const treffasGroup=createLazyImageGroup({wheel:'./boss-treffas-wheel.webp?v=342',wheelR:'./boss-treffas-wheel-r.webp?v=342',hull:'./boss-treffas-hull.webp?v=342',turret:'./boss-treffas-turret.webp?v=342',tail:'./boss-treffas-tail.webp?v=342'}),treffasArt=treffasGroup.images;
 const railGroups={},railConsistArt={},railWreckGroups={},railWreckArt={};
 for(const [set,sources] of Object.entries(railConsistSources)){const group=createLazyImageGroup(sources);railGroups[set]=group;railConsistArt[set]=group.images;const wreckGroup=createLazyImageGroup(railWreckSources[set]);railWreckGroups[set]=wreckGroup;railWreckArt[set]=wreckGroup.images;}
