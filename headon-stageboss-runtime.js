@@ -1,5 +1,5 @@
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=340&b=340&c=8';
-import {BossHazards} from './headon-stageboss-hazards.js?v=340&b=340';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=aa20260927';
+import {BossHazards} from './headon-stageboss-hazards.js?v=aa20260927';
 
 export class BossStages {
   constructor({teamFaction,stageIndex=0,loopIndex=0,rng=Math.random}) {
@@ -141,3 +141,4 @@ export class StageBossAddon {
     this.defeatSequence=null;this.bodyDefeats=[];
   }
 }
+

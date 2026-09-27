@@ -1,5 +1,5 @@
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=340&b=340';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=340&b=340';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=338&b=326';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=338&b=326';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -318,6 +318,7 @@ export class Ca4 extends AlpsPatternBoss {
 }
 
 export class A7VFlak extends PatternBoss {
+  suppressive(){/* attacks come only from live turrets */ }
   constructor(options) {
     super({...options,kind:'a7v-flak',parts:[{id:'front',x:-45,y:-78},{id:'rear',x:45,y:32},{id:'left',x:-45,y:32},{id:'right',x:45,y:-78}].map(p=>({...p,radius:24}))});
     this.phase='fortress';this.coreVulnerable=false;this.turretOrder=['front','left','rear','right'];this.turretCursor=0;this.illumination=new Map();this.timers.set('lights',.5);this.timers.set('turret-cycle',.8);
@@ -330,27 +331,47 @@ export class A7VFlak extends PatternBoss {
       x:this.x+(i-(lightCount-1)/2)*46,y:this.y+30,angle:Math.PI/2+(i-(lightCount-1)/2)*.4,
       angularSpeed:(i%2?-.3:.3),halfAngle:.14,radius:(bounds.bottom-bounds.top)*1.3,
       duration:7.5,warning:.8,damage:0,tickInterval:.2,visual:'searchlight'});
-    if(this.phase==='exposed'){if(this.due('exposed-flak',dt,2.4)){const p=this.target(players);if(p)this.hazard('circle',{x:p.x+(p.vx||0)*.45,y:p.y+(p.vy||0)*.45,radius:64,warning:.72,duration:.45,once:true,damage:this.t.damage*1.15,visual:'black-flak'});}return;}
-    const interval=(this.t.flakInterval||2.8)*(this.phase==='weakened'?.88:1)/Math.max(1,this.parts.size);
-    if(this.due('turret-cycle',dt,interval)){let turret;for(let i=0;i<this.turretOrder.length;i++){const id=this.turretOrder[this.turretCursor++%this.turretOrder.length],candidate=this.parts.get(id);if(!candidate.destroyed){turret=candidate;break;}}
-      const p=this.target(players);if(turret&&p){const locked=(this.illumination.get(p.id??p)||0)>=.5,scatter=locked?10:85,lead=locked?.28:0;this.command('muzzle',{x:this.x+turret.x,y:this.y+turret.y,partId:turret.id});this.hazard('circle',{x:p.x+(p.vx||0)*lead+randBetween(this.rng,-scatter,scatter),y:p.y+(p.vy||0)*lead+randBetween(this.rng,-scatter,scatter),radius:55,warning:locked?.78:1,duration:.5,once:true,visual:'black-flak',sourcePartId:turret.id});}}
+    if(this.phase==='exposed')return; // A destroyed turret cannot keep firing through the hull.
+    const live=this.turretOrder.filter(id=>!this.parts.get(id).destroyed);
+    if(live.length&&this.due('turret-cycle',dt,(this.t.flakInterval||3.2)/live.length)){
+      const p=this.target(players);if(!p)return;
+      const dx=p.x-this.x,dy=p.y-this.y;
+      const arc={front:dy<40,rear:dy>-40,left:dx<40,right:dx>-40};
+      let turret=null;
+      for(let i=0;i<4;i++){const id=this.turretOrder[this.turretCursor++%4];if(arc[id]&&!this.parts.get(id).destroyed){turret=this.parts.get(id);break;}}
+      if(!turret)return; // Destroying a quadrant opens a real firing blind spot.
+      const locked=(this.illumination.get(p.id??p)||0)>=.55,lead=locked?.52:.16,scatter=locked?15:72;
+      const sx=this.x+turret.x,sy=this.y+turret.y;
+      turret.angle=Math.atan2(p.y-sy,p.x-sx)+Math.PI/2;
+      this.command('muzzle',{x:sx,y:sy,partId:turret.id});
+      this.hazard('circle',{x:p.x+(p.vx||0)*lead+randBetween(this.rng,-scatter,scatter),
+        y:p.y+(p.vy||0)*lead+randBetween(this.rng,-scatter,scatter),radius:locked?49:57,
+        warning:locked?.88:1.22,duration:.44,once:true,damage:this.t.damage*(locked?1.3:1),
+        visual:'aa-flak',sourceX:sx,sourceY:sy,sourcePartId:turret.id});
+    }
   }
 }
 
 export class MarkVCruiser extends PatternBoss {
-  constructor(options) {super({...options,kind:'mark-v-cruiser',parts:[{id:'sponson-left',x:-80,y:0,radius:28},{id:'sponson-right',x:80,y:0,radius:28}]});this.phase='barrage';this.sponsonSide=1;this.barrageDirection=1;this.escortCountdown=0;}
-  hit(attack){if(attack.partId)return super.hit(attack);const floor=this.phase==='barrage'?this.maxHp*.5:this.phase==='escort'?this.maxHp*.25:0;
-    const result=super.hit({...attack,damage:Math.min(attack.damage,Math.max(0,this.hp-floor))});if(!this.dead&&this.hp<=floor){if(this.phase==='barrage'){this.phase='escort';this.command('phase-change',{phase:'escort'});}else if(this.phase==='escort'){this.phase='final-assault';this.command('phase-change',{phase:'final-assault'});}}return result;}
-  onPartDestroyed(){const live=[...this.parts.values()].filter(p=>!p.destroyed);if(!live.length&&this.phase!=='final-assault'){this.phase='final-assault';this.coreVulnerable=true;this.command('phase-change',{phase:this.phase});}else if(live.length&&this.phase==='barrage'){this.phase='escort';this.command('phase-change',{phase:this.phase});}}
+  suppressive(){/* sponson lanes and exposed hull own the barrage */ }
+  constructor(options) {super({...options,kind:'mark-v-cruiser',parts:[{id:'sponson-left',x:-80,y:0,radius:37},{id:'sponson-right',x:80,y:0,radius:37}]});this.phase='barrage';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;this.sponsonSide=1;}
+  onPartDestroyed(){const live=[...this.parts.values()].filter(p=>!p.destroyed);if(!live.length){this.phase='final-assault';this.coreVulnerable=true;this.command('phase-change',{phase:this.phase});}else{this.phase='breached';this.command('phase-change',{phase:this.phase});}}
   update(dt,{bounds,players=[]}) {
-    if(this.hp<=this.maxHp*.25&&this.phase!=='final-assault'){this.phase='final-assault';this.coreVulnerable=true;this.command('phase-change',{phase:this.phase});}
-    if(this.hp<=this.maxHp*.5&&this.phase==='barrage'){this.phase='escort';this.command('phase-change',{phase:this.phase});}
     const live=[...this.parts.values()].filter(p=>!p.destroyed);
-    if(live.length&&this.due('sponson-cycle',dt,(this.t.beamInterval||4.5)*(live.length===1 ? .88 : 1)/Math.max(1,live.length))){let part;for(let i=0;i<2;i++){const id=this.sponsonSide>0?'sponson-left':'sponson-right';this.sponsonSide*=-1;const candidate=this.parts.get(id);if(!candidate.destroyed){part=candidate;break;}}const p=this.target(players);if(part&&p){const side=part.id==='sponson-left'?-1:1,mx=this.x+part.x+side*42,my=this.y+part.y;this.command('muzzle',{x:mx,y:my,partId:part.id});this.fan(mx,my,Math.atan2(p.y-my,p.x-mx),6,.82);}}
-    if(this.due('advance-barrage',dt,this.phase==='final-assault'?2.35:4.6)){const p=this.target(players);if(p){const direction=this.barrageDirection;this.barrageDirection*=-1;const center=p.x+(p.vx||0)*.35;for(let i=0;i<5;i++)this.hazard('circle',{x:Math.max(bounds.left+50,Math.min(bounds.right-50,center+direction*(i-2)*48)),y:p.y+(p.vy||0)*.35-40+i*24,radius:this.phase==='final-assault'?48:42,delay:i*.16,warning:.9,duration:.28,once:true,visual:'mark-v-barrage'});if(this.phase==='escort')this.escortCountdown=Math.max(this.escortCountdown,1.15);}}
-    if(this.phase==='escort'&&this.due('escort',dt,this.t.escortInterval||4))this.escortCountdown=Math.max(this.escortCountdown,1.15);
-    if(this.escortCountdown>0&&(this.escortCountdown-=dt)<=0)for(const side of [-1,1])if(!this.parts.get(side<0?'sponson-left':'sponson-right').destroyed)this.command('spawn-minion',{minion:'autocannon',x:side<0?bounds.left-20:bounds.right+20,y:bounds.bottom-100,behavior:'side-ambush',vx:-side*this.t.bulletSpeed*.65});
-    if(this.phase==='final-assault'){const p=this.target(players);if(p){const a=Math.atan2(p.y-this.y,p.x-this.x),step=Math.min(18*dt,Math.hypot(p.x-this.x,p.y-this.y));this.x+=Math.cos(a)*step;this.y+=Math.sin(a)*step;}}
+    const p=this.target(players);
+    if(p){this.x+=Math.max(-11*dt,Math.min(11*dt,Math.max(this.anchorX-70,Math.min(this.anchorX+70,p.x))-this.x));}
+    this.y=Math.min(this.anchorY+Math.min(110,(bounds.bottom-bounds.top)*.2),this.y+(live.length?10:15)*dt);
+    if(live.length&&this.due('sponson-cycle',dt,live.length===2?1.8:2.7)){
+      let part;for(let i=0;i<2;i++){const id=this.sponsonSide>0?'sponson-left':'sponson-right';this.sponsonSide*=-1;if(!this.parts.get(id).destroyed){part=this.parts.get(id);break;}}
+      if(part&&p){const side=part.id==='sponson-left'?-1:1,mx=this.x+part.x+side*30,my=this.y+part.y;
+        const targetX=Math.max(bounds.left+30,Math.min(bounds.right-30,p.x+side*65)),angle=Math.atan2(p.y-my,targetX-mx);
+        this.command('muzzle',{x:mx,y:my,partId:part.id});
+        for(let i=0;i<7;i++){const a=angle+(i-3)*.105;
+          this.hazard('projectile',{x:mx,y:my,delay:i*.095,vx:Math.cos(a)*this.t.bulletSpeed*.85,vy:Math.sin(a)*this.t.bulletSpeed*.85,
+            radius:7,warning:0,duration:3.1,damage:this.t.damage*.75,visual:'aa-shell',tag:part.id});}
+      }
+    }
+    if(!live.length&&p&&this.due('hull-gun',dt,2.4)){const a=Math.atan2(p.y-this.y,p.x-this.x);this.fan(this.x,this.y+65,a,4,.28,this.t.bulletSpeed*.75,'aa-shell');}
   }
 }
 
@@ -531,49 +552,70 @@ export class MinenwerferBattery extends PatternBoss {
 }
 
 export class LondonApron extends PatternBoss {
+  suppressive(){/* the changing cable wall is the encounter's attack */ }
   constructor(options) {
-    super({...options,kind:'london-apron',parts:[-105,0,105].map((x,i)=>({id:'balloon-'+i,x,y:-58,radius:31}))});
+    super({...options,kind:'london-apron',parts:[-105,0,105].map((x,i)=>({id:'balloon-'+i,x,y:-58,radius:48}))});
     this.phase='barrier';this.coreVulnerable=false;this.apronLane=-1;this.wireWave=0;
   }
   onPartDestroyed(part) {
     this.command('cancel-hazards',{tag:'apron-'+part.id});
-    if(this.allDestroyed(['balloon-0','balloon-1','balloon-2'])){this.phase='winch-exposed';this.coreVulnerable=true;this.command('phase-change',{phase:this.phase});}
+    this.command('aa-effect',{x:this.x+part.x,y:this.y+part.y,kind:'aaBalloonBurst',size:132,life:.48});
+    if(this.allDestroyed(['balloon-0','balloon-1','balloon-2'])){
+      this.phase='winch-exposed';this.coreVulnerable=true;this.command('phase-change',{phase:this.phase});
+      this.command('aa-effect',{x:this.x,y:this.y+75,kind:'aaWireSnap',size:160,life:.55});
+    }
   }
   update(dt,{players,bounds}) {
-    if(this.phase==='barrier'&&this.due('apron',dt,4.4)){
-      const width=bounds.right-bounds.left,gapX=Math.max(bounds.left+width*.24,Math.min(bounds.right-width*.24,this.x+[-.23,0,.23][++this.apronLane%3]*width)),closing=++this.wireWave%3===0;
-      for(const balloon of this.parts.values())if(!balloon.destroyed)for(const sign of [-1,1]){
-        const startX=this.x+balloon.x+sign*13,startY=this.y+balloon.y+24;
-        let endX=startX+sign*(closing?70:105);
-        if(Math.abs(endX-gapX)<84)endX=gapX+(endX<gapX?-84:84);
-        endX=Math.max(bounds.left+20,Math.min(bounds.right-20,endX));
-        const endY=Math.max(startY+130,Math.min(this.y+360,bounds.bottom-25)),dx=endX-startX,dy=endY-startY;
-        this.hazard('beam',{x:startX,y:startY,angle:Math.atan2(dy,dx),length:Math.hypot(dx,dy),thickness:9,
-          warning:.95,duration:3.35,tickInterval:.55,damage:Math.round(this.t.damage*1.35),
-          endX,endY,endVx:closing?Math.sign(gapX-endX)*11:0,visual:'apron-wire',tag:'apron-'+balloon.id});
+    if(this.phase==='barrier'&&this.due('apron',dt,5.4)){
+      const width=bounds.right-bounds.left,closing=++this.wireWave%3===0;
+      const gapWidth=Math.max(110,Math.min(closing?132:190,width*(closing?.23:.31)));
+      const gapX=bounds.left+width*[.28,.5,.72][++this.apronLane%3],gapLeft=gapX-gapWidth/2,gapRight=gapX+gapWidth/2;
+      const y=Math.max(bounds.top+110,Math.min(bounds.bottom-135,this.y+155));
+      // A balloon owns precisely one third of each wall. Split at the opening,
+      // so the visual cable and the collision segments share identical endpoints.
+      for(let i=0;i<3;i++){
+        const balloon=this.parts.get('balloon-'+i);if(balloon.destroyed)continue;
+        const left=bounds.left+20+i*(width-40)/3,right=bounds.left+20+(i+1)*(width-40)/3;
+        for(const [start,end] of [[left,Math.min(right,gapLeft)],[Math.max(left,gapRight),right]]){
+          if(end-start<16)continue;
+          this.hazard('beam',{x:start,y,angle:0,length:end-start,thickness:10,warning:1.15,duration:3.75,
+            tickInterval:.55,damage:Math.round(this.t.damage*1.2),sourceX:this.x+balloon.x,sourceY:this.y+balloon.y+balloon.radius*.35,
+            visual:'apron-wire',tag:'apron-'+balloon.id});
+        }
       }
-      this.command('safe-corridor',{x:gapX,y:this.y+200,width:168,seconds:4.3});
+      this.command('safe-corridor',{x:gapX,y,width:gapWidth,seconds:4.9});
     }
-    if(this.due('lights',dt,7.2))for(const side of [-1,1])this.hazard('searchlight',{x:this.x+side*210,y:bounds.bottom,angle:-Math.PI/2-side*.24,angularSpeed:side*.28,halfAngle:.13,radius:bounds.bottom-bounds.top,duration:5.8,warning:.65,damage:0,tickInterval:.2,visual:'searchlight'});
   }
 }
 
 export class DrachenMineNet extends PatternBoss {
+  suppressive(){/* mine placement and observation artillery own this encounter */ }
   constructor(options) {
-    super({...options,kind:'drachen-net',parts:[{id:'balloon',x:0,y:-72,radius:38},{id:'winch',x:0,y:112,radius:27}]});
-    this.phase='observed';this.coreVulnerable=false;
+    super({...options,kind:'drachen-net',parts:[{id:'balloon',x:0,y:-72,radius:67},{id:'winch',x:0,y:35,radius:39}]});
+    this.phase='observed';this.coreVulnerable=false;this.netWave=0;this.timers.set('mine-lay',1.4);
   }
   onPartDestroyed(p) {
-    if(p.id==='balloon'){this.command('cancel-hazards',{tag:'observer-artillery'});this.command('phase-change',{phase:'observer-destroyed'});}
-    if(p.id==='winch')this.command('phase-change',{phase:'winch-destroyed'});
+    if(p.id==='balloon'){this.command('cancel-hazards',{tag:'observer-artillery'});this.command('phase-change',{phase:'observer-destroyed'});
+      this.command('aa-effect',{x:this.x+p.x,y:this.y+p.y,kind:'aaBalloonBurst',size:165,life:.5});}
+    if(p.id==='winch'){this.command('phase-change',{phase:'winch-destroyed'});
+      this.command('aa-effect',{x:this.x+p.x,y:this.y+p.y,kind:'aaWinchSpark',size:125,life:.5});}
     if(this.parts.get('balloon').destroyed&&this.parts.get('winch').destroyed){this.coreVulnerable=true;this.phase='core-exposed';this.command('phase-change',{phase:'exposed'});}
   }
   update(dt,{players,bounds}) {
-    const exposed=this.coreVulnerable;
-    const observer=!this.parts.get('balloon').destroyed;
-    const loop=this.t.loopIndex||0,artilleryInterval=Math.max(.82,1.75-loop*.16);
-    if(observer&&this.due('observer-flak',dt,artilleryInterval)){const p=this.target(players);if(p){const lead=Math.min(.62,.3+loop*.07),scatter=Math.max(7,30-loop*6),x=p.x+(p.vx||0)*lead+randBetween(this.rng,-scatter,scatter),y=p.y+(p.vy||0)*lead+randBetween(this.rng,-scatter,scatter);this.hazard('circle',{x,y,radius:62,warning:Math.max(1.05,1.35-loop*.06),duration:.5,once:true,damage:Math.round(this.t.damage*1.35),visual:'observer-shell',tag:'observer-artillery'});}}
-    if(observer&&this.due('observer-light',dt,6.5))this.hazard('searchlight',{x:this.x,y:bounds.bottom,angle:-Math.PI/2,angularSpeed:.34,halfAngle:.12,radius:bounds.bottom-bounds.top,duration:5,warning:.6,damage:0,tickInterval:.2,visual:'searchlight'});
+    const observer=!this.parts.get('balloon').destroyed,winch=!this.parts.get('winch').destroyed,p=this.target(players);
+    if(winch&&p&&this.due('mine-lay',dt,observer?5.5:7.1)){
+      const width=bounds.right-bounds.left,columns=Math.max(4,Math.min(8,Math.floor(width/75)));
+      const pitch=Math.min(72,(width-80)/(columns-1)),start=Math.max(bounds.left+40,Math.min(bounds.right-40-(columns-1)*pitch,p.x-(columns-1)*pitch/2));
+      const opening=(++this.netWave%columns),y=Math.max(bounds.top+95,Math.min(bounds.bottom-95,p.y-70));
+      const points=[];for(let i=0;i<columns;i++)if(Math.abs(i-opening)>0)
+        points.push({x:start+i*pitch,y:y+(i%2?18:-18)});
+      this.command('spawn-minefield',{points,warning:1.25,life:12,maxMines:16});
+      this.command('mine-lay',{x:this.x,y:this.y+this.parts.get('winch').y});
+    }
+    if(observer&&p&&this.due('observer-flak',dt,3.8)){const lead=.4,scatter=winch?24:68;
+      this.hazard('circle',{x:p.x+(p.vx||0)*lead+randBetween(this.rng,-scatter,scatter),
+        y:p.y+(p.vy||0)*lead+randBetween(this.rng,-scatter,scatter),radius:53,warning:1.25,duration:.38,once:true,
+        damage:this.t.damage,visual:'observer-shell',tag:'observer-artillery'});}
   }
 }
 
@@ -729,7 +771,7 @@ class FormationAceBoss extends PatternBoss {
 export class JastaCircus extends FormationAceBoss {
   constructor(options) {
     super({...options,kind:'jasta11-circus',wingmen:[
-{role:'left-outer',side:-1,rank:1,plane:'jasta11a_albatros',callSign:'Kurt Wolff',behavior:'jasta-formation',maxSpeed:235},
+      {role:'left-outer',side:-1,rank:1,plane:'jasta11a_albatros',callSign:'Kurt Wolff',behavior:'jasta-formation',maxSpeed:235},
       {role:'left-inner',side:-1,rank:0,plane:'jasta11b_albatros',callSign:'Karl Allmenröder',behavior:'jasta-formation',maxSpeed:232},
       {role:'right-inner',side:1,rank:0,plane:'jasta11c_albatros',callSign:'Karl Emil Schaefer',behavior:'jasta-formation',maxSpeed:232},
       {role:'right-outer',side:1,rank:1,plane:'jasta11d_albatros',callSign:'Lothar von Richthofen',behavior:'jasta-formation',maxSpeed:235}
