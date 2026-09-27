@@ -3,7 +3,7 @@ import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=34
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
-export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai', 'arras']);
+export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai', 'arras', 'somme']);
 export const BOSS_CATALOG = Object.freeze({
   'paris-gun': {name:'브루노 열차포', faction:'central', stage:0},
   lincomparable: {name:'520mm 열차포 · 랑콩파라블', faction:'entente', stage:0},
@@ -24,6 +24,8 @@ export const BOSS_CATALOG = Object.freeze({
   ,'treffas-wagen': {name:'대공개조형 트레파스바겐 · 거륜 육상전함', faction:'central', stage:8}
   ,'jasta11-circus': {name:'야스타 11 플라잉 서커스', faction:'central', stage:9, pilot:'baron', formationSize:5}
   ,'naval10-black-flight': {name:'네이벌 10 — 블랙 플라이트', faction:'entente', stage:9, pilot:'collishaw', formationSize:5}
+  ,'mark4-wedge': {name:'마크 IV 쐐기 전차대', faction:'entente', stage:10}
+  ,'morser-battery': {name:'21cm 뫼르저 중박격포대', faction:'central', stage:10}
 });
 const living = players => players.filter(p => p.alive);
 const randBetween = (rng,a,b) => a + (b-a)*rng();
@@ -780,11 +782,111 @@ export class Naval10BlackFlight extends FormationAceBoss {
   }
 }
 
+// Somme (stage 10): the wedge is one body whose three rhomboid tanks are the
+// destructible parts. Tanks advance slowly and lay lateral sponson fire plus
+// MG bursts; when the last hull dies a weak command core is exposed at the
+// wedge centroid for the kill shot.
+export class Mark4Wedge extends PatternBoss {
+  constructor(options){
+    super({...options,kind:'mark4-wedge',coreRadius:options.tuning.coreRadius||70,parts:[
+      {id:'tank-lead',x:0,y:-118,radius:62,maxHp:options.tuning.partHp*2.6},
+      {id:'tank-left',x:-168,y:64,radius:62,maxHp:options.tuning.partHp*2.6},
+      {id:'tank-right',x:168,y:64,radius:62,maxHp:options.tuning.partHp*2.6}
+    ]});
+    this.coreVulnerable=false;this.ownsMotion129=true;this.phase='advance';
+    this.anchorX=this.x;this.anchorY=this.y;this.startY=this.y;
+    this.timers.set('mark4-mg',1.4);
+  }
+  liveTanks(){return ['tank-lead','tank-left','tank-right'].filter(id=>!this.parts.get(id).destroyed);}
+  onPartDestroyed(){
+    if(!this.liveTanks().length&&!this.coreVulnerable){
+      this.coreVulnerable=true;this.phase='exposed';this.command('phase-change',{phase:'exposed'});
+    }
+  }
+  update(dt,{players,bounds}){
+    if(this.dead)return;
+    const live=this.liveTanks(),enraged=this.hp<=this.maxHp*.35&&live.length===1;
+    // The wedge grinds forward; with fewer tanks it speeds up but sways less.
+    const speed=(20+ (3-live.length)*6)*(enraged?1.35:1);
+    this.anchorY+=speed*dt;const limit=this.startY+310;if(this.anchorY>limit)this.anchorY=limit;
+    this.y=this.anchorY+Math.sin(this.motionTime*.33)*8;
+    this.x=this.anchorX+Math.sin(this.motionTime*.21)*(40+live.length*24);
+    // Each tank has its own gun cadence; destroying a tank removes that lane.
+    for(const id of live){
+      const tank=this.parts.get(id);
+      if(this.due(id+'-sponson',dt,(enraged?3.4:4.6)+this.rng()*1.2)){
+        const gx=this.x+tank.x,gy=this.y+tank.y,p=this.target(players);
+        if(p){
+          // 6-pounder shells land in a short lateral line beside the target.
+          const side=id==='tank-left'?-1:id==='tank-right'?1:0;
+          for(let i=-1;i<=1;i++)this.hazard('circle',{x:p.x+i*70+side*30,y:p.y+(p.vy||0)*.4,radius:50,warning:1.15,duration:.4,delay:.14+Math.abs(i)*.12,once:true,damage:this.t.damage*.82,visual:'shell',sourceX:gx,sourceY:gy});
+          this.command('muzzle',{x:gx,y:gy,partId:id});
+        }
+      }
+    }
+    if(live.length&&this.due('mark4-mg',dt,enraged?2.2:3.1)){
+      const id=live[Math.floor(this.rng()*live.length)],tank=this.parts.get(id),p=this.target(players);
+      if(p){const mx=this.x+tank.x,my=this.y+tank.y+38,a=Math.atan2(p.y-my,p.x-mx);this.fan(mx,my,a,3,.26,this.t.bulletSpeed*.95,'mark4-mg');}
+    }
+    if(!live.length&&!this.coreVulnerable){this.coreVulnerable=true;this.phase='exposed';}
+  }
+}
+
+// The Mörser battery is fixed: three gun pits fire arcing heavy shells with a
+// long landing warning. Knocking out a pit removes its firing lane; when all
+// tubes are dead the shell-store core cooks off and becomes the kill target.
+export class MorserBattery extends PatternBoss {
+  constructor(options){
+    super({...options,kind:'morser-battery',coreRadius:options.tuning.coreRadius||80,parts:[
+      {id:'gun-1',x:-150,y:-40,radius:54,maxHp:options.tuning.partHp*2.2},
+      {id:'gun-2',x:0,y:-95,radius:54,maxHp:options.tuning.partHp*2.2},
+      {id:'gun-3',x:150,y:-40,radius:54,maxHp:options.tuning.partHp*2.2},
+      {id:'ammo',x:0,y:96,radius:40,maxHp:options.tuning.partHp*1.4}
+    ]});
+    this.coreVulnerable=false;this.ownsMotion129=true;
+    this.timers.set('morser-defend',2.6);
+  }
+  liveGuns(){return ['gun-1','gun-2','gun-3'].filter(id=>!this.parts.get(id).destroyed);}
+  onPartDestroyed(p){
+    // Shell store cooks: one big blast under the battery once the ammo pit dies.
+    if(p.id==='ammo'&&!this.ammoCooked){
+      this.ammoCooked=true;const blast=Math.min(this.hp,this.maxHp*.14);this.hp-=blast;
+      this.command('internal-explosion',{x:this.x,y:this.y+96,damage:blast});
+      this.hazard('circle',{x:this.x,y:this.y+96,radius:130,warning:.6,duration:.6,once:true,damage:this.t.damage*1.4,visual:'shell',sourceX:this.x,sourceY:this.y+96});
+    }
+    if(!this.liveGuns().length&&!this.coreVulnerable){
+      this.coreVulnerable=true;this.phase='exposed';this.command('phase-change',{phase:'exposed'});
+    }
+  }
+  update(dt,{players,bounds}){
+    if(this.dead)return;
+    const guns=this.liveGuns(),loop=this.t.loopIndex||0;
+    // Arcing fire: each live gun drops a warning circle on a player with lead.
+    for(const id of guns){
+      if(this.due(id+'-fire',dt,Math.max(4.4,7.2-loop*.5)+this.rng()*1.6)){
+        const gun=this.parts.get(id),p=this.target(players);
+        if(p){
+          const lead=Math.min(.75,.35+loop*.06),tx=p.x+(p.vx||0)*lead,ty=p.y+(p.vy||0)*lead;
+          this.hazard('circle',{x:tx,y:ty,radius:86,warning:2.1,duration:.55,once:true,damage:Math.round(this.t.damage*1.5),visual:'morser-shell',sourceX:this.x+gun.x,sourceY:this.y+gun.y,tag:'morser-artillery'});
+          this.command('muzzle',{x:this.x+gun.x,y:this.y+gun.y,partId:id});
+        }
+      }
+    }
+    // Close defence: MG nests sweep anyone diving the pits.
+    if(this.due('morser-defend',dt,guns.length?3.4:2.6)){
+      const p=this.target(players);
+      if(p&&Math.hypot(p.x-this.x,p.y-this.y)<560)for(const id of guns.length?guns:['ammo']){const g=this.parts.get(id);const mx=this.x+g.x,my=this.y+g.y,a=Math.atan2(p.y-my,p.x-mx);this.fan(mx,my,a,3,.3,this.t.bulletSpeed*.85,'morser-mg');}
+    }
+    if(!guns.length&&!this.coreVulnerable){this.coreVulnerable=true;this.phase='exposed';}
+  }
+}
+
 const constructors={'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttgart':Stuttgart,'hms-zubian':Zubian,
   'zeppelin-l70':ZeppelinL70,hma23:HMA23,'a7v-flak':A7VFlak,'mark-v-cruiser':MarkVCruiser,
   'livens-flame-projector':LivensFlameProjector,'minenwerfer-battery':MinenwerferBattery,
   'london-apron':LondonApron,'drachen-net':DrachenMineNet,gik:GIK,ca4:Ca4,'armored-harbor-fortress':ArmoredHarborFortress,
-  fliegerzug:Fliegerzug,'treffas-wagen':TreffasWagen,'jasta11-circus':JastaCircus,'naval10-black-flight':Naval10BlackFlight};
+  fliegerzug:Fliegerzug,'treffas-wagen':TreffasWagen,'jasta11-circus':JastaCircus,'naval10-black-flight':Naval10BlackFlight,
+  'mark4-wedge':Mark4Wedge,'morser-battery':MorserBattery};
 export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   const entry=BOSS_CATALOG[bossId],Ctor=constructors[bossId];if(!Ctor)throw new Error('Unknown boss: '+bossId);
   const body=new Ctor({id:id+':body',tuning,x,y,emit,rng,faction:faction||entry.faction,coreRadius:tuning.coreRadius||100});

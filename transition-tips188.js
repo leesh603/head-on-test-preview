@@ -8,7 +8,8 @@ export const REGION_TRANSITION_LABELS=Object.freeze({
  6:Object.freeze({ko:'알프스 산맥',en:'Alpine Front'}),
  7:Object.freeze({ko:'제브뤼헤 군항 · 해안포대',en:'Zeebrugge Harbor Front'}),
  8:Object.freeze({ko:'캉브레 들판 · 무인기 모함',en:'Cambrai Fields · Drone Carrier'}),
- 9:Object.freeze({ko:'아라스 상공 · 적 비행단',en:'Arras Sky · Enemy Flying Circus'})
+ 9:Object.freeze({ko:'아라스 상공 · 적 비행단',en:'Arras Sky · Enemy Flying Circus'}),
+ 10:Object.freeze({ko:'솜 강전선 · 전차 돌파전',en:'Somme Front · Tank Breakthrough'})
 });
 
 export const COMMON_TRANSITION_TIPS=Object.freeze([
