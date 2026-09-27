@@ -71,7 +71,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     escortLeaderId:spec.leaderId,rearGunner:!!spec.rearGunner,maxSpeed:spec.maxSpeed,formationRole:spec.formationRole,formationSide:spec.formationSide,formationRank:spec.formationRank,
     pairId:spec.pairId,callSign:spec.callSign,name:spec.name||spec.callSign||e.name,visualScale:spec.visualScale,missionTarget:!!spec.persistent});
    if(spec.hp){e.hp=e.maxHp=Math.round(spec.hp*heavyHp);e.coopHpApplied=heavyHp;}
-   if(spec.minion==='bug')Object.assign(e,{bugDrone:true,hp:Math.max(12,Math.round(e.maxHp*.4)),maxHp:Math.max(12,Math.round(e.maxHp*.4)),speed:spec.speed??178,contactDamage:spec.contactDamage??14,fire:Infinity});
+   if(spec.minion==='bug')Object.assign(e,{bugDrone:true,hp:Math.max(12,Math.round(e.maxHp*.4)),maxHp:Math.max(12,Math.round(e.maxHp*.4)),speed:spec.speed??178,contactDamage:spec.contactDamage??14,fire:Infinity}); C:/Users/ADMINI~1/AppData/Local/Temp/t_stageboss-host.js
    if(spec.minion==='airship')Object.assign(e,{summonDone:true,hp:Math.round(e.maxHp*.5),maxHp:Math.round(e.maxHp*.5),fire:2.6,speed:Math.max(e.speed||0,95)});
   },
   countMinions(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&e.hp>0).length;},
@@ -155,6 +155,29 @@ export function damageStageBoss(g,e,b,damage){
  const hit=body.locateHit({x:b.x,y:b.y,previousX:b.previousX,previousY:b.previousY,radius:b.collisionRadius||0});if(!hit)return;
  const result=g.stageBoss.hit({bodyId:body.id,...hit,damage,faction:g.teamFaction});
  if(result.damage>0)g.stageBossLastOwner=b.ownerId||'p1';else if(result?.blocked&&hit.partId==='absorb')g.burst(b.x,b.y,'#ffd9a8',5);
+}
+function steerFormationMinion(e,tx,ty,dt,turnRate,speed){
+ const a=Math.atan2(ty-e.y,tx-e.x),delta=Math.atan2(Math.sin(a-e.a),Math.cos(a-e.a));e.a+=clamp(delta,-turnRate*dt,turnRate*dt);
+ const distance=Math.hypot(tx-e.x,ty-e.y),pace=Math.min(e.maxSpeed||speed,Math.max(speed*.72,distance*1.35));e.x+=Math.cos(e.a)*pace*dt;e.y+=Math.sin(e.a)*pace*dt;
+}
+function updateFormationMinion(g,e,p,leader,dt){
+ const order=leader?.formationOrder;if(!order)return false;const h=order.playerHeading??p.a??-Math.PI/2,hx=Math.cos(h),hy=Math.sin(h),nx=-hy,ny=hx,side=e.formationSide||1,rank=e.formationRank||0;
+ let tx,ty,turn=2.45,speed=e.behavior==='black-flight-formation'?210:205;
+ if(e.behavior==='jasta-formation'){
+  if(order.phase==='encirclement'){const lateral=210+rank*92,forward=rank?125:45;tx=p.x+hx*forward+nx*side*lateral;ty=p.y+hy*forward+ny*side*lateral;turn=2.25;}
+  else if(order.phase==='echelon-assault'){const back=110+(e.formationIndex||0)*72;tx=p.x-hx*back+nx*side*34;ty=p.y-hy*back+ny*side*34;turn=2.75;speed=222;}
+  else if(order.phase==='concentrated-assault'){const commit=order.age>2.1+(e.formationIndex||0)*.22,back=commit?-95:205-rank*35;tx=p.x-hx*back+nx*side*(135-rank*24);ty=p.y-hy*back+ny*side*(135-rank*24);turn=commit?3.2:2.45;speed=commit?232:210;}
+  else{tx=leader.x-Math.cos(leader.a)*(115+rank*45)-Math.sin(leader.a)*side*(78+rank*45);ty=leader.y-Math.sin(leader.a)*(115+rank*45)+Math.cos(leader.a)*side*(78+rank*45);turn=2.65;speed=218;}
+  e.pairComplete=true;
+ }else if(e.behavior==='black-flight-formation'){
+  const status=leader.formationStatus129?.()||[],pairComplete=status.filter(w=>w.pairId===e.pairId).length===2,pairSide=e.pairId==='a'?-1:1;e.pairComplete=pairComplete;
+  if(!pairComplete){tx=leader.x-Math.cos(leader.a)*(150+rank*55)-Math.sin(leader.a)*pairSide*105;ty=leader.y-Math.sin(leader.a)*(150+rank*55)+Math.cos(leader.a)*pairSide*105;turn=1.75;speed=188;e.regrouping=true;}
+  else if(order.phase==='pair-split'){tx=p.x+nx*pairSide*255+hx*(rank?105:-55);ty=p.y+ny*pairSide*255+hy*(rank?105:-55);turn=2.15;speed=205;e.regrouping=false;}
+  else if(order.phase==='bait-hunter'){const hunter=e.formationRole?.endsWith('hunter'),forward=hunter?-185:135,lateral=pairSide*(hunter?-55:70);tx=p.x+hx*forward+nx*lateral;ty=p.y+hy*forward+ny*lateral;turn=hunter?3.15:2.45;speed=hunter?235:212;e.regrouping=false;}
+  else if(order.phase==='cross-attack'){const delay=e.pairId==='b'?1.05:0,through=order.age>delay+1.5?1:-1,lateral=pairSide*through*300,stagger=rank?75:-45;tx=p.x+nx*lateral+hx*stagger;ty=p.y+ny*lateral+hy*stagger;turn=3;speed=232;e.regrouping=false;}
+  else{tx=p.x+nx*pairSide*(235+rank*45)-hx*(80+rank*65);ty=p.y+ny*pairSide*(235+rank*45)-hy*(80+rank*65);turn=2.35;speed=210;e.regrouping=false;}
+ }
+ steerFormationMinion(e,tx,ty,dt,turn,speed);return true;
 }
 function steerFormationMinion(e,tx,ty,dt,turnRate,speed){
  const a=Math.atan2(ty-e.y,tx-e.x),delta=Math.atan2(Math.sin(a-e.a),Math.cos(a-e.a));e.a+=clamp(delta,-turnRate*dt,turnRate*dt);

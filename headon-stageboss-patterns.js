@@ -137,20 +137,23 @@ export class ZeppelinL70 extends PatternBoss {
     const parts=[{id:'capsule',x:0,y:150,radius:23}];
     for(let i=0;i<7;i++)parts.push({id:'engine-'+i,x:(i-3)*34,y:45,radius:19,hittable:false,kind:'engine'});
     super({...options,parts,kind:'zeppelin-l70'});this.phase='cloud';this.coreVulnerable=false;this.phaseTime=0;
-    this.broadside=0;
+    this.broadside=0;this.gasSide=-1;this.lastStand=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
   }
+  liveEngines(){return [...this.parts.values()].filter(p=>p.kind==='engine'&&!p.destroyed);}
   hit(attack) {
     if(!attack.partId&&this.phase==='exposed'){
-      const engines=[...this.parts.values()].filter(p=>p.kind==='engine'&&!p.destroyed).length;
+      const engines=this.liveEngines().length;
       return super.hit({...attack,damage:attack.damage*(engines>=5?.6:engines>=3?.8:1)});
     }
     return super.hit(attack);
   }
   onPartDestroyed(p) {if(p.id==='capsule'&&this.phase==='cloud'){this.phase='reveal';this.phaseTime=this.t.revealSeconds||1;this.command('phase-change',{phase:this.phase});}}
   update(dt,{players,bounds}) {
-    if(!this.escortCalled&&this.hp<=this.maxHp*.35){this.escortCalled=true;const p0=this.target(players)||{x:this.x,y:this.y+bounds.bottom-bounds.top},side=this.rng()<.5?-1:1;
-      for(let i=0;i<3;i++){const x=p0.x+side*(520+i*100),y=p0.y-480-i*80;this.command('spawn-minion',{minion:'airship',faction:this.faction,x,y,a:Math.atan2(p0.y-y,p0.x-x),behavior:'escort'});}
-      this.command('phase-change',{phase:'escort-call'});}
+    const engines=this.liveEngines(),mt=this.motionTime||0,span=this.phase==='cloud'?150:72+engines.length*11;
+    // A cloud fortress makes long lateral bombing runs. Engine losses visibly
+    // shorten that run instead of sharing the generic mobile-boss wobble.
+    this.x=this.anchorX+Math.sin(mt*.22)*span;this.y=this.anchorY+Math.sin(mt*.13+1.1)*20;
+    if(!this.lastStand&&this.hp<=this.maxHp*.35){this.lastStand=true;this.command('phase-change',{phase:'gas-vent'});this.timers.set('gas',Math.min(this.timers.get('gas')??Infinity,.5));}
     if(this.phase==='cloud') {
       const live=living(players),p=live[this.cursor%Math.max(1,live.length)],c=this.parts.get('capsule');
       if(p){c.x+=(p.x-this.x-c.x)*Math.min(1,dt*1.2);c.y+=(p.y-this.y-c.y)*Math.min(1,dt*1.2);}
@@ -161,48 +164,57 @@ export class ZeppelinL70 extends PatternBoss {
       this.phaseTime-=dt;if(this.phaseTime<=0){this.phase='exposed';this.coreVulnerable=true;for(const p of this.parts.values())if(p.kind==='engine')p.hittable=true;this.command('phase-change',{phase:this.phase});}
     } else if(this.phase==='exposed') {
       if(this.due('broadside',dt,this.t.engineInterval||2.6)){
-        const side=this.broadside++%2,live=[...this.parts.values()].filter(p=>p.kind==='engine'&&!p.destroyed&&(+p.id.slice(7)%2)===side);
+        const side=this.broadside++%2,live=engines.filter(p=>(+p.id.slice(7)%2)===side);
         const p=this.target(players);
-        if(p&&live.length){const engine=live[Math.floor(this.broadside/2)%live.length],x=this.x+engine.x,y=this.y+engine.y;
-          this.fan(x,y,Math.atan2(p.y-y,p.x-x),this.t.engineShotCount||3,.55);}
+        if(p)for(const engine of live){const x=this.x+engine.x,y=this.y+engine.y;
+          this.command('muzzle',{x,y,partId:engine.id});this.fan(x,y,Math.atan2(p.y-y,p.x-x),this.t.engineShotCount||2,.2,this.t.bulletSpeed,'l70-broadside');}
       }
-      if(this.due('gas',dt,this.t.gasInterval||6)){
+      if(this.due('gas',dt,(this.t.gasInterval||6)*(this.lastStand ? .72 : 1))){
         const p=this.target(players);
-        if(p)for(let i=0;i<8;i++){
-          const bx=p.x+randBetween(this.rng,-190,190),by=p.y+randBetween(this.rng,-150,150);
-          this.hazard('circle',{x:bx,y:by,delay:this.rng()*.7,radius:44+this.rng()*14,warning:1.3,once:true,visual:'carpet-bomb'});
-        }
+        if(p){const horizontal=(this.gasSide*=-1)>0,pad=34,maxW=Math.max(120,bounds.right-bounds.left-pad*2),maxH=Math.max(120,bounds.bottom-bounds.top-pad*2);
+          const width=horizontal?Math.min(520,maxW):86,height=horizontal?86:Math.min(480,maxH);
+          const x=Math.max(bounds.left+width/2+pad,Math.min(bounds.right-width/2-pad,p.x+(p.vx||0)*.45));
+          const y=Math.max(bounds.top+height/2+pad,Math.min(bounds.bottom-height/2-pad,p.y+(p.vy||0)*.45));
+          this.hazard('rect',{x,y,width,height,warning:1.35,duration:2.2,tickInterval:.55,damage:this.t.damage*.7,visual:'gas-fire',tag:'l70-fire-corridor'});}
       }
     }
   }
+  suppressive(){/* L70 pressure comes only from visible engines and bombing corridors. */}
 }
 
 export class HMA23 extends PatternBoss {
   constructor(options) {
     super({...options,kind:'hma23',parts:Array.from({length:4},(_,i)=>({id:'port-'+i,x:(i-1.5)*60,y:50,radius:25}))});
-    this.phase='launching';this.coreVulnerable=false;this.launchSide=0;
+    this.phase='launching';this.coreVulnerable=false;this.launchSide=0;this.flakSide=-1;this.reserveReady=false;
+    this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
   }
-  onPartDestroyed() {if(this.allDestroyed([...this.parts.keys()])){this.phase='exposed';this.coreVulnerable=true;this.command('phase-change',{phase:this.phase});}}
+  onPartDestroyed() {if(this.allDestroyed([...this.parts.keys()])){this.phase='exposed';this.coreVulnerable=true;this.reserveReady=true;this.command('phase-change',{phase:this.phase});}}
   carrierFan(players) {
     const p=this.target(players);if(!p)return;
-    const count=Math.max(3,Math.ceil(5*(this.t.projectileDensity??1))),a=Math.atan2(p.y-this.y,p.x-this.x);
+    const side=this.flakSide*=-1,x=this.x+side*112,y=this.y+48;
+    const count=Math.max(3,Math.ceil(5*(this.t.projectileDensity??1))),a=Math.atan2(p.y-y,p.x-x);
     // The carrier is a sustained area-denial boss.  Its individual flak
     // rounds stay survivable even after long-run scaling instead of becoming
     // 40–50 damage one-shots.
-    for(let i=0;i<count;i++){const heading=a+(count===1?0:(i/(count-1)-.5)*.9);this.hazard('projectile',{x:this.x,y:this.y,vx:Math.cos(heading)*this.t.bulletSpeed*.78,vy:Math.sin(heading)*this.t.bulletSpeed*.78,radius:5,damage:Math.min(30,Math.round(this.t.damage*.7)),visual:'carrier-flak'});}
+    this.command('muzzle',{x,y,side});
+    for(let i=0;i<count;i++){const heading=a+(count===1?0:(i/(count-1)-.5)*.9);this.hazard('projectile',{x,y,vx:Math.cos(heading)*this.t.bulletSpeed*.78,vy:Math.sin(heading)*this.t.bulletSpeed*.78,radius:5,damage:Math.min(30,Math.round(this.t.damage*.7)),visual:'carrier-flak'});}
   }
   suppressive(){/* carrier fire is handled by the capped carrierFan pattern */}
   update(dt,{players,bounds}) {
-    if(!this.escortCalled&&this.hp<=this.maxHp*.35){this.escortCalled=true;const p0=this.target(players)||{x:this.x,y:this.y+bounds.bottom-bounds.top},side=this.rng()<.5?-1:1;
-      for(let i=0;i<3;i++){const x=p0.x+side*(520+i*100),y=p0.y-480-i*80;this.command('spawn-minion',{minion:'airship',faction:this.faction,x,y,a:Math.atan2(p0.y-y,p0.x-x),behavior:'escort'});}
-      this.command('phase-change',{phase:'escort-call'});}
+    const mt=this.motionTime||0;this.x=this.anchorX+Math.sin(mt*.31)*42;this.y=this.anchorY+Math.sin(mt*.17+2)*12;
+    if(this.reserveReady){this.reserveReady=false;const target=this.target(players);for(let i=0;i<4;i++){const ox=(i-1.5)*60,side=ox<0?-1:1;
+      this.command('spawn-minion',{minion:'sopwith-camel',x:this.x+ox,y:this.y+45,behavior:'attack-pass',fullSortie:true,
+        formationIndex:i,formationCount:4,passTargetX:(target?.x??this.x)+side*150,passTargetY:(target?.y??this.y+300)+(i-1.5)*24});}
+      this.command('phase-change',{phase:'full-sortie'});}
     if(this.phase==='launching') {
       if(this.due('launch-wave',dt,this.t.launchInterval||3)){
         const ports=[...this.parts.values()].filter(p=>!p.destroyed),target=this.target(players);
         const count=Math.min(ports.length,ports.length>=3?3:2);
         for(let i=0;i<count;i++){const port=ports[(this.launchSide+i)%ports.length];
+          const side=port.x<0?-1:1;
           this.command('spawn-minion',{minion:'sopwith-camel',x:this.x+port.x,y:this.y+port.y,behavior:'attack-pass',
-            formationIndex:i,formationCount:count,passTargetX:target?.x??this.x,passTargetY:target?.y??this.y+300});}
+            launchPortId:port.id,launchSide:side,formationIndex:i,formationCount:count,
+            passTargetX:(target?.x??this.x)+side*135,passTargetY:(target?.y??this.y+300)+(i-(count-1)/2)*32});}
         if(ports.length)this.launchSide=(this.launchSide+count)%ports.length;
       }
     } else if(this.due('panic',dt,this.t.panicInterval||2.7)) {
@@ -713,10 +725,10 @@ class FormationAceBoss extends PatternBoss {
 export class JastaCircus extends FormationAceBoss {
   constructor(options) {
     super({...options,kind:'jasta11-circus',wingmen:[
-      {role:'left-outer',side:-1,rank:1,plane:'jasta11a_albatros',callSign:'Kurt Wolff',behavior:'jasta-formation',maxSpeed:235},
+{role:'left-outer',side:-1,rank:1,plane:'jasta11a_albatros',callSign:'Kurt Wolff',behavior:'jasta-formation',maxSpeed:235},
       {role:'left-inner',side:-1,rank:0,plane:'jasta11b_albatros',callSign:'Karl Allmenröder',behavior:'jasta-formation',maxSpeed:232},
       {role:'right-inner',side:1,rank:0,plane:'jasta11c_albatros',callSign:'Karl Emil Schaefer',behavior:'jasta-formation',maxSpeed:232},
-      {role:'right-outer',side:1,rank:1,plane:'jasta11d_albatros',callSign:'Lothar von Richthofen',behavior:'jasta-formation',maxSpeed:235}
+      {role:'right-outer',side:1,rank:1,plane:'jasta11d_albatros',callSign:'Lothar von Richthofen',behavior:'jasta-formation',maxSpeed:235} C:/Users/ADMINI~1/AppData/Local/Temp/t_headon-stageboss-patterns.js
     ]});
     this.leaderPilot='baron';this.callSign='Manfred von Richthofen';this.speed=196;this.aceCycle=0;
   }
