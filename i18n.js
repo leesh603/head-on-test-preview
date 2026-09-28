@@ -1,4 +1,4 @@
-import {getAircraftDisplayName} from './aircraft-master.js?v=389';
+import {getAircraftDisplayName} from './aircraft-master.js?v=390';
 
 const STORAGE_KEY='headon-locale';
 const SUPPORTED=new Set(['ko','en']);
