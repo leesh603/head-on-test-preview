@@ -1,8 +1,8 @@
 
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=364';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=364';
-import {bossSoundFor} from './boss-feedback.js?v=364';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=364';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=365';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=365';
+import {bossSoundFor} from './boss-feedback.js?v=365';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=365';
 
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'];
@@ -87,7 +87,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     escortLeaderId:spec.leaderId,rearGunner:!!spec.rearGunner,maxSpeed:spec.maxSpeed,formationRole:spec.formationRole,formationSide:spec.formationSide,formationRank:spec.formationRank,
     pairId:spec.pairId,callSign:spec.callSign,callSignKo:spec.callSignKo,name:spec.name||spec.callSign||e.name,visualScale:spec.visualScale,missionTarget:!!spec.persistent});
    if(spec.hp){e.hp=e.maxHp=Math.round(spec.hp*heavyHp);e.coopHpApplied=heavyHp;}
-   if(spec.minion==='bug')Object.assign(e,{bugDrone:true,hp:Math.max(12,Math.round(e.maxHp*.4)),maxHp:Math.max(12,Math.round(e.maxHp*.4)),speed:spec.speed||178,fire:Infinity,launchAge:0,launchSeconds:spec.launchSeconds||.6,launchHeading:spec.launchHeading??spec.a??-Math.PI/2,contactDamage:spec.contactDamage??18});
+   if(spec.minion==='bug')Object.assign(e,{bugDrone:true,hp:Math.max(12,Math.round(e.maxHp*.4)),maxHp:Math.max(12,Math.round(e.maxHp*.4)),speed:spec.speed||178,fire:Infinity,launchAge:0,launchSeconds:spec.launchSeconds||.6,launchHeading:spec.launchHeading??spec.a??-Math.PI/2,contactDamage:spec.contactDamage??18,bugTargetX:spec.passTargetX,bugTargetY:spec.passTargetY,bugAge:0});
    if(spec.minion==='airship')Object.assign(e,{summonDone:true,bossAirship:true,hp:Math.round(e.maxHp*.5),maxHp:Math.round(e.maxHp*.5),fire:2.6,speed:Math.max(e.speed||0,95)});
   },
   countMinions(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&!e.bossAirship&&e.hp>0).length;},
@@ -211,9 +211,23 @@ function updateFormationMinion(g,e,p,leader,dt){
 function updateMinions(g,dt){
  for(const e of g.enemies){if(!e.bossMinion||e.hp<=0)continue;e.hitFlash=Math.max(0,(e.hitFlash||0)-dt);const formation=e.behavior==='jasta-formation'||e.behavior==='black-flight-formation',p=formationDefenderTarget(g,e)||g.enemyCombatTarget(e);if(!p||p.hp<=0)continue;
   e.life=(e.life??18)-dt;if(e.life<=0){e.hp=0;continue}
-  if(e.bugDrone)e.launchAge=(e.launchAge||0)+dt;
-  if(e.bugDrone&&e.launchAge<(e.launchSeconds||.6)){e.a=e.launchHeading;e.x+=Math.cos(e.a)*e.speed*dt;e.y+=Math.sin(e.a)*e.speed*dt;}
-  else if(e.surface){e.x+=e.vx*dt;e.a=e.vx<0?Math.PI:0;const viewH=g.viewHeight||640,floorY=g.y+viewH*.34;e.y=Math.max(e.y,floorY);}else if(e.behavior==='attack-pass'){
+   if(e.behavior==='bug-strike'){
+    // The 1918 aerial torpedo commits to the sampled impact point at launch.
+    // No continuous player homing or modern drone orbit/retarget behaviour.
+    const tx=e.bugTargetX,ty=e.bugTargetY,a=Math.atan2(ty-e.y,tx-e.x);
+    const delta=Math.atan2(Math.sin(a-e.a),Math.cos(a-e.a));
+    if((e.bugAge||0)<.7)e.a+=clamp(delta,-.38*dt,.38*dt);
+    e.bugAge=(e.bugAge||0)+dt;
+    const step=Math.min(e.speed*dt,Math.hypot(tx-e.x,ty-e.y));e.x+=Math.cos(e.a)*step;e.y+=Math.sin(e.a)*step;
+    if(Math.hypot(e.x-tx,e.y-ty)<24){
+      for(const target of players(g))if(alive(target)&&Math.hypot(e.x-target.x,e.y-target.y)<39){
+        if(g.players)g.hitPlayer(target,e.contactDamage);else g.hit(e.contactDamage);}
+      e.hp=0;g.combatBlast(e.x,e.y,42,'enemy','mineBlast');
+    }
+    continue;
+   }
+
+  if(e.surface){e.x+=e.vx*dt;e.a=e.vx<0?Math.PI:0;const viewH=g.viewHeight||640,floorY=g.y+viewH*.34;e.y=Math.max(e.y,floorY);}else if(e.behavior==='attack-pass'){
    e.passAge=(e.passAge||0)+dt;if(!e.passLocked){const a=Math.atan2((e.passTargetY??p.y)-e.y,(e.passTargetX??p.x)-e.x);e.a=a;e.passLocked=true;e.speed=Math.max(205,e.speed||0);}
    const lane=((e.formationIndex||0)-((e.formationCount||1)-1)/2)*9;e.x+=Math.cos(e.a)*e.speed*dt-Math.sin(e.a)*Math.sin(e.passAge*2.2)*lane*dt;e.y+=Math.sin(e.a)*e.speed*dt+Math.cos(e.a)*Math.sin(e.passAge*2.2)*lane*dt;
   }else if(e.behavior==='jasta-formation'||e.behavior==='black-flight-formation'){
@@ -233,7 +247,6 @@ function updateMinions(g,dt){
     e.x+=Math.cos(e.a)*spd*dt;e.y+=Math.sin(e.a)*spd*dt;
    }else{e.behavior='chase'}
   }else{const a=Math.atan2(p.y-e.y,p.x-e.x),delta=Math.atan2(Math.sin(a-e.a),Math.cos(a-e.a));e.a+=clamp(delta,-2*dt,2*dt);e.x+=Math.cos(e.a)*e.speed*dt;e.y+=Math.sin(e.a)*e.speed*dt;}
-  if(e.behavior==='suicide-dive'&&Math.hypot(e.x-p.x,e.y-p.y)<25){if(g.players)g.hitPlayer(p,e.contactDamage??18);else g.hit(e.contactDamage??18);e.hp=0;g.combatBlast(e.x,e.y,35,'enemy');continue;}
   const aim=Math.atan2(p.y-e.y,p.x-e.x),rel=Math.atan2(Math.sin(aim-(e.a||0)),Math.cos(aim-(e.a||0))),pd=Math.hypot(p.x-e.x,p.y-e.y);
   const leader=g.stageBoss?.stages.encounter?.bodies.get(e.escortLeaderId),order=leader?.formationOrder;
   const paired=e.behavior!=='black-flight-formation'||e.pairComplete,phaseReady=order?.phase!=='cross-attack'||order.age>(e.pairId==='b'?1.05:0);
