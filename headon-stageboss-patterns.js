@@ -331,7 +331,7 @@ export class Ca4 extends AlpsPatternBoss {
 export class A7VFlak extends PatternBoss {
   suppressive(){/* attacks come only from live turrets */ }
   constructor(options) {
-    super({...options,kind:'a7v-flak',parts:[{id:'front',x:-40,y:-58},{id:'rear',x:40,y:20},{id:'left',x:-40,y:20},{id:'right',x:40,y:-58}].map(p=>({...p,radius:24}))});
+    super({...options,kind:'a7v-flak',parts:[{id:'front',x:-40,y:-58},{id:'rear',x:40,y:20},{id:'left',x:-40,y:20},{id:'right',x:40,y:-58}].map(p=>({...p,radius:24,maxHp:options.tuning.maxHp/4}))});
     this.phase='fortress';this.coreVulnerable=false;this.turretOrder=['front','left','rear','right'];this.turretCursor=0;this.illumination=new Map();this.timers.set('lights',.5);this.timers.set('turret-cycle',.8);
   }
   onPartDestroyed() {const lost=[...this.parts.values()].filter(p=>p.destroyed).length;
@@ -369,7 +369,7 @@ export class A7VFlak extends PatternBoss {
 
 export class MarkVCruiser extends PatternBoss {
   suppressive(){/* sponson lanes and exposed hull own the barrage */ }
-  constructor(options) {super({...options,kind:'mark-v-cruiser',parts:[{id:'sponson-left',x:-80,y:0,radius:37},{id:'sponson-right',x:80,y:0,radius:37}]});this.phase='barrage';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;this.sponsonSide=1;}
+  constructor(options) {super({...options,kind:'mark-v-cruiser',parts:[{id:'sponson-left',x:-80,y:0,radius:37,maxHp:options.tuning.maxHp/2},{id:'sponson-right',x:80,y:0,radius:37,maxHp:options.tuning.maxHp/2}]});this.phase='barrage';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;this.sponsonSide=1;}
   onPartDestroyed(){const live=[...this.parts.values()].filter(p=>!p.destroyed);
     this.hp-=this.maxHp/this.parts.size;
     if(!live.length){this.hp=0;this.dead=true;this.phase='defeated';this.emit({type:'body-defeated',bossId:this.id});return;}
@@ -626,21 +626,17 @@ export class Fliegerzug extends RailAdapter {
     // Seventy percent of the encounter budget is carried by the five wagons.
     this.maxHp=this.hp=Math.round(this.maxHp*1.5);
     const shares=[.14,.16,.12,.16,.12];
+    // Carriages are drawn 1.3x larger; hit volumes and spacing scale together.
     const cars=[
-      ['car-flak',174,78],['car-launch-a',348,78],['car-supply',522,78],
-      ['car-launch-b',696,78],['car-rear',870,78]
+      ['car-flak',226,101],['car-launch-a',452,101],['car-supply',679,101],
+      ['car-launch-b',905,101],['car-rear',1131,101]
     ];
     this.railCarOrder=cars.map(([id])=>id);
-    for(const [i,[id,y]] of cars.entries()){const p=new BossPart({id,kind:'rail-car',maxHp:Math.round(this.maxHp*shares[i]),x:0,y,radius:47,hittable:true});p.coupledY=y;this.parts.set(id,p);}
+    for(const [i,[id,y]] of cars.entries()){const p=new BossPart({id,kind:'rail-car',maxHp:Math.round(this.maxHp*shares[i]),x:0,y,radius:61,hittable:true});p.coupledY=y;this.parts.set(id,p);}
     for(const [id,,hitRadiusY] of cars)this.parts.get(id).hitRadiusY=hitRadiusY;
     this.bugSalvo=null;this.launchIndex=0;this.railCruiseSpeed=this.rail129.c.speed;this.baseReload=this.rail129.c.reloadSeconds;this.launchPrep=[];
   }
   liveLaunchers(){return ['car-launch-a','car-launch-b'].map(id=>this.parts.get(id)).filter(p=>!p.destroyed);}
-  hit(s){
-    const result=super.hit(s);
-    if(s.partId?.startsWith('car-')&&result.damage)this.hp=Math.max(1,this.hp-result.damage);
-    return result;
-  }
   carPoint(car,dx=0,dy=0){const a=car.angle||0;return{x:this.x+car.x+dx*Math.cos(a)-dy*Math.sin(a),y:this.y+car.y+dx*Math.sin(a)+dy*Math.cos(a)};}
   prepareBug(car){if(!car.destroyed&&!this.launchPrep.some(q=>q.car===car)){car.launchWarmup=1.15;this.launchPrep.push({car,left:1.15});}}
   onPartDestroyed(p){
@@ -650,6 +646,10 @@ export class Fliegerzug extends RailAdapter {
     for(let i=index;i<this.railCarOrder.length;i++){const q=this.parts.get(this.railCarOrder[i]);if(q.detachedPose)continue;
       const side=(index%2?-1:1);q.detachedPose={x:this.x+q.x,y:this.y+q.y,age:0,vx:side*(10+(i-index)*4),vy:this.rail129.velocity*this.rail129.direction*.65,spin:side*(.1+(i-index)*.025),angle:0};}
     this.emit({type:'rail-car-detached',bossId:this.id,partId:p.id,x:this.x+p.x,y:this.y+p.y});
+    // Every carriage carries an equal share of the hull gauge; losing the
+    // last one wrecks the whole train.
+    this.hp-=this.maxHp/this.railCarOrder.length;
+    if(this.hp<=0){this.hp=0;this.dead=true;this.phase='defeated';this.emit({type:'body-defeated',bossId:this.id});return;}
     if(this.railCarOrder.filter(id=>this.parts.get(id).destroyed).length>=3&&!this.coreVulnerable){
       this.coreVulnerable=true;this.phase='locomotive';this.emit({type:'phase-change',bossId:this.id,phase:'locomotive'});
     }
@@ -683,7 +683,7 @@ export class Fliegerzug extends RailAdapter {
     for(const id of this.railCarOrder){const p=this.parts.get(id);
       if(!p.destroyed&&this.carHit(s,p))return{partId:id};}
     if(!this.rail129.broken&&r&&ellipse(r.x,r.y,r.radius,r.radius))return{partId:'rail'};
-    return this.coreVulnerable&&ellipse(this.x,this.y,47,82)?{partId:null}:null;
+    return this.coreVulnerable&&ellipse(this.x,this.y,61,107)?{partId:null}:null;
   }
   carHit(s,p){
     const a=-(p.angle||0),ca=Math.cos(a),sa=Math.sin(a),cx=this.x+p.x,cy=this.y+p.y;
@@ -707,17 +707,17 @@ export class Fliegerzug extends RailAdapter {
     const salvo=this.bugSalvo;
     if(salvo){
       salvo.clock-=dt;
-      while(salvo.ports.length&&salvo.clock<=0){const port=salvo.ports.shift();salvo.clock+=.72;
+      while(salvo.ports.length&&salvo.clock<=0){const port=salvo.ports.shift();salvo.clock+=.5;
         if(!port.destroyed&&(!this.countMinions129||this.countMinions129()<5))this.prepareBug(port);}
       if(!salvo.ports.length)this.bugSalvo=null;
     }
     const supply=car('car-supply'),reload=(supply.destroyed?1.55:1);
-    if(ports.length&&this.due('bug-trickle',dt,(ports.length===2?6.4:9.2)*reload)){
+    if(ports.length&&this.due('bug-trickle',dt,(ports.length===2?4.2:6.0)*reload)){
       const port=ports[this.launchIndex++%ports.length];
       if(!this.countMinions129||this.countMinions129()<5)this.prepareBug(port);
     }
     const flak=car('car-flak');
-    if(flak&&!flak.destroyed&&this.due('flak-car',dt,3.2)){
+    if(flak&&!flak.destroyed&&this.due('flak-car',dt,2.1)){
       const p=players.find(p=>p.alive!==false);
       if(p){const {x,y}=this.carPoint(flak,0,-38);
         this.emit({type:'muzzle',bossId:this.id,x,y,partId:flak.id});
@@ -725,7 +725,7 @@ export class Fliegerzug extends RailAdapter {
           radius:49,warning:1.05,duration:.35,once:true,damage:this.t.damage*.78,visual:'black-flak',sourceX:x,sourceY:y});}
     }
     const rear=car('car-rear');
-    if(!rear.destroyed&&this.due('rear-mg',dt,4.1)){
+    if(!rear.destroyed&&this.due('rear-mg',dt,2.7)){
       const p=players.find(p=>p.alive!==false),{x,y}=this.carPoint(rear,0,-33);
       if(p){const a=Math.atan2(p.y-y,p.x-x);this.emit({type:'muzzle',bossId:this.id,x,y,partId:rear.id});
         for(const offset of [-.16,0,.16])this.emit({type:'hazard',bossId:this.id,kind:'projectile',x,y,
@@ -799,14 +799,14 @@ export class TreffasWagen extends PatternBoss {
     this._churn??=[];const last=this._churn[this._churn.length-1];
     if(moving&&(!last||Math.hypot(this.x-last.x,this.y-last.y)>30))this._churn.push({x:this.x,y:this.y+65});
     if(this._churn.length>110)this._churn.splice(0,this._churn.length-110);
-    if(moving&&this.due('treffas-debris',dt,lowHp?.7:.95)){
+    if(moving&&this.due('treffas-debris',dt,lowHp?.5:.65)){
       for(const id of ['wheel-left','wheel-right']){const w=this.parts.get(id);if(w.destroyed)continue;
         const side=id==='wheel-left'?-1:1,wx=this.x+w.x,wy=this.y+w.y+30;
         this.hazard('projectile',{x:wx,y:wy+24,vx:side*(135+this.rng()*55),vy:28+this.rng()*62,radius:7,duration:1.35,once:true,damage:this.t.damage*.28,visual:'treffas-debris'});
       }
     }
     const turret=this.parts.get('turret');
-    if(!turret.destroyed&&this.due('treffas-flak',dt,!moving?2.8:lowHp?3.2:4.35)){
+    if(!turret.destroyed&&this.due('treffas-flak',dt,!moving?1.9:lowHp?2.2:3.0)){
       const p=this.target(players);if(p){const focus=(this.flakPattern++%2)===0,count=focus?3:4;
         const tx=p.x+(p.vx||0)*.55,ty=p.y+(p.vy||0)*.55;
         const alongX=Math.abs(p.vx||0)>=Math.abs(p.vy||0);
@@ -817,7 +817,7 @@ export class TreffasWagen extends PatternBoss {
             radius:focus?43:47,delay:i*(focus?.15:.21),warning:1.08,duration:.34,once:true,
             damage:this.t.damage*.82,visual:'black-flak',sourceX:muzzle.x,sourceY:muzzle.y});}}
     }
-    if(this.due('treffas-mg',dt,turret.destroyed?3.25:4.4)){
+    if(this.due('treffas-mg',dt,turret.destroyed?2.2:3.0)){
       const p=this.target(players),side=this.cursor%2?-1:1,mx=this.x+side*49*Math.cos(this.heading)+27*Math.sin(this.heading),my=this.y+side*49*Math.sin(this.heading)-27*Math.cos(this.heading);
       if(p){const a=Math.atan2(p.y-my,p.x-mx);this.command('muzzle',{x:mx,y:my});this.fan(mx,my,a,2,.18,this.t.bulletSpeed*.8,'treffas-mg');}
     }

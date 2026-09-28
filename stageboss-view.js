@@ -138,7 +138,7 @@ function drawRailConsist181(c,b){
    const atlas=cambraiArt.atlas,wreck=cambraiArt.wreck;if(!atlas?.naturalWidth)return;
    const cars=new Map((b.railCars||[]).map(p=>[p.id,p]));
    const specs=[['car-rear',2,1],['car-launch-b',1,1],['car-supply',0,1],['car-launch-a',2,0],['car-flak',1,0]];
-   const drawCar=(im,col,row)=>c.drawImage(im,[185,650,1110][col],row?514:4,240,505,-54,-92,108,184);
+   const drawCar=(im,col,row)=>c.drawImage(im,[185,650,1110][col],row?514:4,240,505,-70,-120,140,239);
    c.save();c.imageSmoothingEnabled=true;
    for(const [id,col,row] of specs){const p=cars.get(id);if(!p)continue;
     const dead=p.destroyed||b.destroying,age=(b.motionTime||0)-(p.destroyedAt??b.motionTime??0);
@@ -152,8 +152,8 @@ function drawRailConsist181(c,b){
     }else{
      if(p.hp<p.maxHp){c.fillStyle='#17241e';c.fillRect(-40,63,80,4);c.fillStyle='#d9af69';c.fillRect(-40,63,80*p.hp/p.maxHp,4);}
      if(id.startsWith('car-launch')&&bugArt.folded?.naturalWidth&&!p.reloadVisual){
-      const bug=bugArt.folded,bw=69,bh=bw*bug.naturalHeight/bug.naturalWidth,prep=p.launchWarmup||0;
-      const py=prep?-(1-prep/1.15)*46:0;
+      const bug=bugArt.folded,bw=90,bh=bw*bug.naturalHeight/bug.naturalWidth,prep=p.launchWarmup||0;
+      const py=prep?-(1-prep/1.15)*60:0;
       c.drawImage(bug,-bw/2,py-bh/2,bw,bh);
       if(prep)fx(c,'smokeTrail',0,py+25,23,48,0,.55);
      }
@@ -297,12 +297,12 @@ function drawBossPart(c,p,ring,t=0){
   if(p.hittable){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
  }
  if(p.bodyKey==='a7v-flak'){
-  if(p.destroyed){partWreck(c,p,r,t);return;}
+  if(p.destroyed)return;
    if(!p.destroyed&&rebuildArt.a7vTurret.naturalWidth){const angle=p.angle||({front:-Math.PI/2,rear:Math.PI/2,left:Math.PI,right:0}[p.partId]||0);c.save();c.translate(p.x,p.y);c.rotate(angle);c.imageSmoothingEnabled=true;c.drawImage(rebuildArt.a7vTurret,-42,-42,84,84);c.restore();}
   if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd57988');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
  }
  if(p.bodyKey==='mark-v-cruiser'){
-  if(p.destroyed){partWreck(c,p,r,t);return;}
+  if(p.destroyed)return;
   if(!p.destroyed&&rebuildArt.markvSponson.naturalWidth){c.save();c.translate(p.x,p.y);if(p.partId==='sponson-right')c.scale(-1,1);c.imageSmoothingEnabled=true;c.drawImage(rebuildArt.markvSponson,-58,-58,116,116);c.restore();}
   if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd57988');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
  }
