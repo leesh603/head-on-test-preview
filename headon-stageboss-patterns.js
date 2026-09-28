@@ -1,7 +1,7 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=378';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=378';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=378';
-import {APRON,apronPose,apronPanelHull} from './london-apron369.js?v=378';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=379';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=379';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=379';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=379';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -610,80 +610,7 @@ export class MinenwerferBattery extends PatternBoss {
   }
 }
 
-export class LondonApron extends RegionalPatternBoss {
-  suppressive(){}
-  constructor(options) {
-    super({...options,kind:'london-apron',parts:[0,1,2].map(i=>({id:'balloon-'+i}))});
-    this.x=options.x;this.y=options.y;
-    const w=this.t.regionalViewWidth||960,h=this.t.regionalViewHeight||700;
-    this.apronScale=Math.max(.30,Math.min(.88,(w-56)/768,(h-220)/512))*1.3;this.regionalScale=this.apronScale;
-    for(const [i,p] of [...this.parts.values()].entries())Object.assign(p,{x:(APRON.centres[i]-384)*this.apronScale,y:(219-256)*this.apronScale,radius:27*this.apronScale,hitRadiusX:27*this.apronScale,hitRadiusY:30*this.apronScale});
-    this.regionalCore={x:0,y:(121-256)*this.apronScale,rx:121*this.apronScale,ry:57*this.apronScale};
-    this.phase='barrier';this.coreVulnerable=false;this.apronTime=0;this.apronStarted=false;this.ownsMotion129=true;
-  }
-  onPartDestroyed(part) {
-    this.command('cancel-hazards',{tag:'apron-'+part.id});
-    this.command('aa-effect',{x:this.x+part.x,y:this.y+part.y+28*this.apronScale,kind:'aaWireSnap',size:55*this.apronScale,life:.4});
-    if(this.allDestroyed(['balloon-0','balloon-1','balloon-2'])){
-      this.phase='rig-exposed';this.coreVulnerable=true;this.command('phase-change',{phase:this.phase});
-    }
-  }
-  update(dt,{players,bounds}) {
-    this.apronTime+=dt;
-    const live=[...this.parts.values()].filter(p=>!p.destroyed),lost=3-live.length;
-    const pose=apronPose(this.apronTime,lost);
-    for(const p of live){
-      const index=Number(p.id.at(-1)),tag='apron-'+p.id,vertices=apronPanelHull(index,pose,this.apronScale,this.x,this.y);
-      if(!this.apronStarted)this.hazard('net',{x:this.x,y:this.y,vertices,warning:1.5,duration:3600,tickInterval:.8,damage:this.t.damage*.65,blocks:true,visual:'apron-attached',tag});
-      this.command('apron-pose',{x:this.x,y:this.y,vertices,tag});
-    }
-    this.apronStarted=true;
-  }
-}
-
-export class DrachenMineNet extends RegionalPatternBoss {
-  suppressive(){/* mine placement and observation artillery own this encounter */ }
-  constructor(options) {
-    super({...options,kind:'drachen-net',parts:[{id:'balloon',x:0,y:-72,radius:67},{id:'winch',x:0,y:35,radius:39}]});
-    this.x=options.x;this.y=options.y;
-    this.cityArtScale=Math.max(.30,Math.min(.88,((this.t.regionalViewWidth||960)-56)/768,((this.t.regionalViewHeight||700)-220)/576))*1.3;
-    this.regionalScale=this.cityArtScale;
-    const s=this.cityArtScale;
-    Object.assign(this.parts.get('balloon'),{x:0,y:0,radius:48*s,hitRadiusX:48*s,hitRadiusY:48*s});
-    Object.assign(this.parts.get('winch'),{x:0,y:164*s,radius:51*s,hitRadiusX:51*s,hitRadiusY:51*s});
-    this.regionalCore={x:72*s,y:-130*s,rx:223*s,ry:66*s};
-    this.phase='observed';this.coreVulnerable=false;this.netWave=0;this.pendingMineSalvos=[];this.timers.set('mine-lay',1.4);
-  }
-  onPartDestroyed(p) {
-    if(p.id==='balloon'){this.command('cancel-hazards',{tag:'observer-artillery'});this.command('phase-change',{phase:'observer-destroyed'});
-      this.command('aa-effect',{x:this.x+p.x,y:this.y+p.y,kind:'aaWinchSpark',size:48*this.cityArtScale,life:.5});}
-    if(p.id==='winch'){this.command('phase-change',{phase:'winch-destroyed'});
-      this.pendingMineSalvos.length=0;
-      this.command('aa-effect',{x:this.x+p.x,y:this.y+p.y,kind:'aaWinchSpark',size:52*this.cityArtScale,life:.5});}
-    if(this.parts.get('balloon').destroyed&&this.parts.get('winch').destroyed){this.coreVulnerable=true;this.phase='core-exposed';this.command('phase-change',{phase:'exposed'});}
-  }
-  update(dt,{players,bounds}) {
-    const observer=!this.parts.get('balloon').destroyed,winch=!this.parts.get('winch').destroyed,p=this.target(players);
-    if(winch&&this.pendingMineSalvos.length){for(const salvo of this.pendingMineSalvos)salvo.delay-=dt;for(const salvo of this.pendingMineSalvos.filter(s=>s.delay<=0))
-      this.command('spawn-minefield',{...salvo,sourceX:this.x+this.parts.get('winch').x,sourceY:this.y+this.parts.get('winch').y});this.pendingMineSalvos=this.pendingMineSalvos.filter(s=>s.delay>0);}
-    if(winch&&p&&this.due('mine-lay',dt,observer?4.75:6.1)){
-      const width=bounds.right-bounds.left,height=bounds.bottom-bounds.top,mode=++this.netWave%4,points=[],clip=q=>q.x>bounds.left+28&&q.x<bounds.right-28&&q.y>bounds.top+42&&q.y<bounds.bottom-42;
-      const px=Math.max(bounds.left+110,Math.min(bounds.right-110,p.x+(p.vx||0)*.55)),py=Math.max(bounds.top+120,Math.min(bounds.bottom-105,p.y+(p.vy||0)*.35));
-      let warning=1.2;
-      if(mode===0){for(let i=0;i<9;i++){const a=this.rng()*Math.PI*2,d=75+this.rng()*170;points.push({x:px+Math.cos(a)*d,y:py+Math.sin(a)*d*.68});}}
-      else if(mode===1){const cols=Math.max(6,Math.min(9,Math.floor(width/70))),pitch=(width-90)/(cols-1),gate=(this.netWave*3)%cols;for(let row=0;row<2;row++)for(let i=0;i<cols;i++)if(Math.abs(i-gate)>0)points.push({x:bounds.left+45+i*pitch,y:py-88+row*72+(i%2?18:-18)});}
-      else if(mode===2){warning=2.05;for(let i=0;i<8;i++){const a=i*Math.PI/4+.22;points.push({x:px+Math.cos(a)*145,y:py+Math.sin(a)*105});}}
-      else{for(let i=0;i<7;i++)points.push({x:bounds.left+55+i*(width-110)/6,y:py-92+i*22});const second=[];for(let i=0;i<7;i++)second.push({x:bounds.right-55-i*(width-110)/6,y:py+92-i*22});this.pendingMineSalvos.push({delay:1.15,points:second.filter(clip),warning:.9,life:11,maxMines:22});}
-      const valid=points.filter(clip).filter(q=>Math.hypot(q.x-p.x,q.y-p.y)>62);
-      this.command('spawn-minefield',{points:valid,sourceX:this.x+this.parts.get('winch').x,sourceY:this.y+this.parts.get('winch').y,warning,life:12,maxMines:22});
-      this.command('mine-lay',{x:this.x,y:this.y+this.parts.get('winch').y,pattern:mode});
-    }
-    if(observer&&p&&this.due('observer-flak',dt,3.8)){const lead=.4,scatter=winch?24:68;
-      this.hazard('circle',{x:p.x+(p.vx||0)*lead+randBetween(this.rng,-scatter,scatter),
-        y:p.y+(p.vy||0)*lead+randBetween(this.rng,-scatter,scatter),radius:53,warning:1.25,duration:.38,once:true,
-        damage:this.t.damage,visual:'observer-shell',tag:'observer-artillery'});}
-  }
-}
+export {LondonApron,DrachenMineNet};
 
 // Cambrai: the armoured train's five independent wagons each remove a weapon
 // or change the launch schedule. The locomotive keeps the shared rail route.

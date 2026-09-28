@@ -51,16 +51,16 @@ export function drawAttachedApron(c,b,intact,damaged){
  const parts=b.parts||[],lost=parts.filter(p=>p.destroyed).length,pose=apronPose(b.apronTime||0,lost),s=b.apronScale||1;
  c.save();c.translate(b.x,b.y);c.imageSmoothingEnabled=true;
  if(b.destroying)c.globalAlpha*=Math.max(0,1-b.destructionAge/b.destructionDuration);
- // The three airships remain one rigid illustration. Only authored net bays
- // detach at their winch supports; no balloon sprites drift independently.
- c.drawImage(intact,0,0,intact.naturalWidth,216/512*intact.naturalHeight,-384*s,-256*s,768*s,216*s);
- if(b.coreVulnerable&&b.hp<b.maxHp*.5&&damaged?.naturalWidth)c.drawImage(damaged,256/768*damaged.naturalWidth,0,256/768*damaged.naturalWidth,216/512*damaged.naturalHeight,-128*s,-256*s,256*s,216*s);
+ // A balloon and its suspended bay form one falling assembly. Removing a
+ // support can never leave its net hovering or a weapon firing in empty air.
  for(let panel=0;panel<3;panel++){
-  const p=parts.find(p=>p.id==='balloon-'+panel),dead=p?.destroyed||b.destroying;
-  const age=dead?Math.max(0,(b.motionTime||0)-(p?.destroyedAt||0)):0;
-  if(dead&&age>=1.25)continue;
+  const p=parts.find(p=>p.id==='airship-'+panel),dead=p?.destroyed;
+  const age=dead?Math.max(0,(b.motionTime||0)-(p?.destroyedAt||0)+(b.destroying?b.destructionAge:0)):0;
+  if(dead&&age>=1.8)continue;
   const im=dead&&damaged?.naturalWidth?damaged:intact,x0=APRON.edges[panel],width=APRON.edges[panel+1]-x0;
-  c.save();if(dead){c.globalAlpha*=Math.max(0,1-age/1.25);c.translate(0,160*age*age*s);}
+  c.save();if(dead){c.globalAlpha*=Math.max(0,1-age/1.8);c.translate(p.x,p.y+170*age*age*s);c.rotate((panel===0?-1:1)*age*.19);c.scale(1-age*.12,1-age*.12);c.translate(-p.x,-p.y);}
+  const hull=(dead||p?.hp<p?.maxHp*.55)&&damaged?.naturalWidth?damaged:intact;
+  c.drawImage(hull,panel*256/768*hull.naturalWidth,0,256/768*hull.naturalWidth,216/512*hull.naturalHeight,(panel*256-384)*s,-256*s,256*s,216*s);
   for(let row=0;row<4;row++)for(let col=0;col<2;col++){
    const xa=x0+col*width/2,xb=x0+(col+1)*width/2,ya=216+row*74,yb=216+(row+1)*74;
    const src=[{x:xa,y:ya},{x:xb,y:ya},{x:xb,y:yb},{x:xa,y:yb}],dst=src.map(v=>apronPoint(v.x,v.y,pose,s));
@@ -72,11 +72,20 @@ export function drawAttachedApron(c,b,intact,damaged){
 }
 export function drawDrachenRig(c,b,intact,damaged){
  if(!intact?.naturalWidth)return;
- const s=b.cityArtScale||1,regions=[{id:'balloon',x:328,y:230,w:116,h:104},{id:'winch',x:326,y:398,w:116,h:140}];
- const active=regions.filter(r=>{const p=b.parts?.find(p=>p.id===r.id);return damaged?.naturalWidth&&(p?.destroyed||p?.hp<p?.maxHp*.5);});
+ const s=b.cityArtScale||1;
+ // Boundaries follow the silhouettes and cable bundles, not rectangular
+ // thirds (the large central hull overlaps the two smaller airships).
+ const left=[[0,0],[206,0],[206,155],[244,173],[262,220],[243,277],[299,288],[309,576],[0,576]];
+ const right=[[554,262],[768,235],[768,576],[470,576],[505,373],[545,351]];
+ const path=pts=>{c.moveTo(...pts[0]);for(const p of pts.slice(1))c.lineTo(...p);c.closePath();};
  c.save();c.translate(b.x,b.y);c.scale(s,s);c.translate(-384,-288);
- if(b.destroying)c.globalAlpha*=Math.max(0,1-b.destructionAge/b.destructionDuration);
- c.save();c.beginPath();c.rect(0,0,768,576);for(const r of active)c.rect(r.x,r.y,r.w,r.h);c.clip('evenodd');c.drawImage(intact,0,0,768,576);c.restore();
- for(const r of active)c.drawImage(damaged,r.x/768*damaged.naturalWidth,r.y/576*damaged.naturalHeight,r.w/768*damaged.naturalWidth,r.h/576*damaged.naturalHeight,r.x,r.y,r.w,r.h);
+ for(let i=0;i<3;i++){
+  const p=b.parts?.find(p=>p.id==='airship-'+i),dead=p?.destroyed;
+  const age=dead?Math.max(0,(b.motionTime||0)-(p.destroyedAt||0)+(b.destroying?b.destructionAge:0)):0;
+  if(dead&&age>=1.8)continue;
+  c.save();if(dead){const px=p.x/s+384,py=p.y/s+288;c.globalAlpha*=Math.max(0,1-age/1.8);c.translate(px,py+170*age*age);c.rotate((i===0?-1:1)*age*.19);c.scale(1-age*.12,1-age*.12);c.translate(-px,-py);}
+  c.beginPath();if(i===0)path(left);else if(i===2)path(right);else{c.rect(0,0,768,576);path(left);path(right);}c.clip(i===1?'evenodd':'nonzero');
+  c.drawImage((dead||p?.hp<p?.maxHp*.55)&&damaged?.naturalWidth?damaged:intact,0,0,768,576);c.restore();
+ }
  c.restore();
 }

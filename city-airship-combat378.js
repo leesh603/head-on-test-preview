@@ -1,0 +1,125 @@
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=379';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=379';
+import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=379';
+
+// Source-image coordinates are shared by hull hit tests, gun mounts and mines.
+export const CITY_HULLS={
+ 'london-apron':[[123,132,116,47],[384,123,121,56],[646,132,116,47]],
+ 'drachen-net':[[145,211,100,46],[454,159,242,71],[641,325,83,49]]
+};
+export const CITY_GUNS={'london-apron':[[123,193],[384,199],[646,193]],'drachen-net':[[163,300],[382,286],[632,422]]};
+export const DRACHEN_MINES=[[[264,326],[218,410]],[[382,452],[326,396],[417,360]],[[547,416],[492,345],[475,506]]];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+class CityAirships extends BaseBoss{
+ constructor(o,kind){
+  const hp=o.tuning.maxHp,parts=[0,1,2].map(i=>new BossPart({id:'airship-'+i,maxHp:hp/3}));
+  super({...o,maxHp:hp,parts});this.t=o.tuning;this.rng=o.rng||Math.random;this.kind=kind;this.faction=o.faction;
+  const w=this.t.regionalViewWidth||960,h=this.t.regionalViewHeight||700,height=kind==='london-apron'?512:576;
+  // Preserve the approved 1.3x PC size, but fit the complete silhouette on mobile.
+  this.cityArtScale=Math.max(.30,Math.min(1.144,(w-38)/768,(h-210)/height));
+  this.apronScale=this.cityArtScale;this.regionalScale=this.cityArtScale;this.sourceHeight=height;
+  for(const [i,p]of [...this.parts.values()].entries()){
+   const [x,y,rx,ry]=CITY_HULLS[kind][i],s=this.cityArtScale;
+   Object.assign(p,{x:(x-384)*s,y:(y-height/2)*s,radius:Math.max(rx,ry)*s,hitRadiusX:rx*s,hitRadiusY:ry*s});
+   this.timers.set('gun-'+i,1.3+i*.65);
+  }
+  this.ownsMotion129=true;this.coreVulnerable=true;this.phase='three-airships';this.gunQueue=[];this.netWave=0;
+ }
+ suppressive(){}
+ point(x,y){return{x:this.x+(x-384)*this.cityArtScale,y:this.y+(y-this.sourceHeight/2)*this.cityArtScale};}
+ live(){return [...this.parts.values()].filter(p=>!p.destroyed);}
+ command(type,spec={}){this.emit({...spec,type,bossId:this.id,faction:this.faction});}
+ hazard(kind,spec){this.command('hazard',{kind,damage:this.t.damage,warning:0,duration:5,...spec});}
+ locateHit(s){
+  if(this.dead)return null;
+  for(const p of this.live())if(intersectsEllipse(s,this.x+p.x,this.y+p.y,p.hitRadiusX,p.hitRadiusY))return{partId:p.id};
+  return this.rigHit(s);
+ }
+ rigHit(){return null;}
+ hitAt(s){const hit=this.locateHit(s);return hit?this.hit({...hit,damage:s.damage}):{damage:0,miss:true};}
+ hit({partId,damage}){
+  const indirect=partId?.startsWith('net-')||partId?.startsWith('rig-'),id=indirect?'airship-'+partId.at(-1):partId;
+  if(!id||this.dead)return{damage:0,blocked:true};
+  const result=super.hit({partId:id,damage:damage*(indirect?(this.kind==='london-apron'?.38:.65):1)});
+  this.hp=[...this.parts.values()].reduce((sum,p)=>sum+Math.max(0,p.hp),0);
+  if(this.hp<=.001&&!this.dead){this.hp=0;this.dead=true;this.phase='defeated';this.command('body-defeated');}
+  return result;
+ }
+ onPartDestroyed(p){
+  const index=Number(p.id.at(-1));this.gunQueue=this.gunQueue.filter(q=>q.index!==index);
+  this.command('cancel-hazards',{tag:'apron-'+p.id});
+  this.phase=this.live().length===1?'last-airship':'two-airships';
+  this.command('aa-effect',{...this.point(...CITY_GUNS[this.kind][index]),kind:'aaWireSnap',size:60*this.cityArtScale,life:.6});
+  this.command('phase-change',{phase:this.phase});
+ }
+ guns(dt,players){
+  const target=players.find(p=>p.alive);if(!target)return;
+  const live=this.live(),interval=live.length===1?2.6:3.6;
+  for(const p of live){const index=Number(p.id.at(-1));if(this.due('gun-'+index,dt,interval)){
+   const from=this.point(...CITY_GUNS[this.kind][index]);
+   const a=Math.atan2(target.y+(target.vy||0)*.18-from.y,target.x+(target.vx||0)*.18-from.x);
+   for(let j=0;j<5;j++)this.gunQueue.push({index,delay:.25+j*.115,angle:a+(j-2)*.055});
+  }}
+  for(const q of this.gunQueue)q.delay-=dt;
+  for(const q of this.gunQueue.filter(q=>q.delay<=0)){
+   if(this.parts.get('airship-'+q.index).destroyed)continue;
+   const from=this.point(...CITY_GUNS[this.kind][q.index]),speed=Math.max(245,this.t.bulletSpeed*.95);
+   this.hazard('projectile',{...from,vx:Math.cos(q.angle)*speed,vy:Math.sin(q.angle)*speed,radius:3,damage:this.t.damage*.32,duration:4.2,visual:'city-mg',tag:'gun-'+q.index});
+   this.command('muzzle',from);
+  }
+  this.gunQueue=this.gunQueue.filter(q=>q.delay>0);
+ }
+}
+
+export class LondonApron extends CityAirships{
+ constructor(o){super(o,'london-apron');this.apronTime=0;this.apronStarted=false;}
+ rigHit(s){
+  const pose=apronPose(this.apronTime,3-this.live().length),dx=s.x-(s.previousX??s.x),dy=s.y-(s.previousY??s.y),steps=Math.max(1,Math.ceil(Math.hypot(dx,dy)/10));
+  for(const p of this.live()){
+   const index=Number(p.id.at(-1)),v=apronPanelHull(index,pose,this.apronScale,this.x,this.y);
+   for(let i=0;i<=Math.min(steps,32);i++){const q=i/Math.min(steps,32);if(netContact({x:s.x-dx*(1-q),y:s.y-dy*(1-q),radius:s.radius||0},v))return{partId:'net-'+index};}
+  }return null;
+ }
+ update(dt,{players}){
+  if(this.dead)return;this.apronTime+=dt;this.guns(dt,players);
+  const pose=apronPose(this.apronTime,3-this.live().length);
+  for(const p of this.live()){
+   const index=Number(p.id.at(-1)),tag='apron-'+p.id,vertices=apronPanelHull(index,pose,this.apronScale,this.x,this.y);
+   if(!this.apronStarted)this.hazard('net',{x:this.x,y:this.y,vertices,warning:1.5,duration:3600,tickInterval:.8,damage:this.t.damage*.5,blocks:true,visual:'apron-attached',tag});
+   this.command('apron-pose',{x:this.x,y:this.y,vertices,tag});
+  }this.apronStarted=true;
+ }
+}
+
+export class DrachenMineNet extends CityAirships{
+ constructor(o){super(o,'drachen-net');this.mineQueue=[];this.mineSerial=0;this.timers.set('mine-lay',1.0);}
+ rigHit(s){for(const p of this.live()){const index=Number(p.id.at(-1));for(const [x,y]of DRACHEN_MINES[index]){const q=this.point(x,y);if(intersectsEllipse(s,q.x,q.y,24*this.cityArtScale,24*this.cityArtScale))return{partId:'rig-'+index};}}return null;}
+ onPartDestroyed(p){super.onPartDestroyed(p);this.mineQueue=this.mineQueue.filter(q=>q.index!==Number(p.id.at(-1)));}
+ update(dt,{players,bounds}){
+  if(this.dead)return;this.guns(dt,players);const target=players.find(p=>p.alive),live=this.live();
+  if(target&&this.due('mine-lay',dt,live.length===1?3.3:3.8)){
+   const mode=this.netWave++%4,count=live.length===1?7:10,w=bounds.right-bounds.left;
+   const cx=clamp(target.x+(target.vx||0)*.4,bounds.left+75,bounds.right-75),cy=clamp(target.y+(target.vy||0)*.4,bounds.top+90,bounds.bottom-90);
+   for(let i=0;i<count;i++){
+    const a=this.rng()*Math.PI*2,d=85+this.rng()*150;let x,y;
+    if(mode===0){x=cx+Math.cos(a)*d;y=cy+Math.sin(a)*d*.8;}
+    else if(mode===1){const gate=(this.netWave%3)*.25+.25,u=(i+.5)/count;if(Math.abs(u-gate)<.11)continue;x=bounds.left+35+u*(w-70);y=cy-90+(i%2)*65+(this.rng()-.5)*25;}
+    else if(mode===2){const angle=i/count*Math.PI*2+.3;x=cx+Math.cos(angle)*145;y=cy+Math.sin(angle)*105;}
+    else{x=bounds.left+45+(i%5)*(w-90)/4;y=cy+(i<5?-100:105)+(this.rng()-.5)*45;}
+    x=clamp(x,bounds.left+24,bounds.right-24);y=clamp(y,bounds.top+40,bounds.bottom-35);
+    if(Math.hypot(x-target.x,y-target.y)<65)continue;
+    const index=Number(live[i%live.length].id.at(-1));
+    this.mineQueue.push({index,slot:this.mineSerial++,delay:i*.13+(mode===3&&i>=5?.8:0),x,y,warning:mode===2?2.1:1.45});
+   }
+  }
+  for(const q of this.mineQueue)q.delay-=dt;
+  for(const q of this.mineQueue.filter(q=>q.delay<=0)){
+   if(this.parts.get('airship-'+q.index).destroyed)continue;
+   const mounts=DRACHEN_MINES[q.index],from=this.point(...mounts[q.slot%mounts.length]);
+   this.command('spawn-minefield',{points:[{x:q.x,y:q.y}],sourceX:from.x,sourceY:from.y,warning:q.warning,life:12,maxMines:26});
+   this.command('aa-effect',{...from,kind:'aaWinchSpark',size:30*this.cityArtScale,life:.22});
+  }
+  this.mineQueue=this.mineQueue.filter(q=>q.delay>0);
+ }
+}

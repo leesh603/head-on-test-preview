@@ -1,8 +1,8 @@
 
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=378';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=378';
-import {bossSoundFor} from './boss-feedback.js?v=378';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=378';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=379';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=379';
+import {bossSoundFor} from './boss-feedback.js?v=379';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=379';
 
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'];
@@ -102,7 +102,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     let existing=owned.reduce((n,f)=>n+f.mines.filter(m=>!m.dead).length,0);
      for(const f of owned)for(const m of f.mines){if(existing+event.points.length<=event.maxMines)break;if(!m.dead){m.dead=true;m.chainHandled=true;existing--;}}
     const deploying=Number.isFinite(event.sourceX)&&Number.isFinite(event.sourceY);
-    const mines=event.points.map(p=>({x:deploying?event.sourceX:p.x,y:deploying?event.sourceY:p.y,targetX:p.x,targetY:p.y,hp:18,dead:false,bossMine:true,chainHandled:false}));
+    const mines=event.points.map(p=>({x:deploying?event.sourceX:p.x,y:deploying?event.sourceY:p.y,targetX:p.x,targetY:p.y,hp:18,dead:false,bossMine:true,deploying,chainHandled:false}));
     if(mines.length){const mx=mines.reduce((n,m)=>n+m.x,0)/mines.length,my=mines.reduce((n,m)=>n+m.y,0)/mines.length;
       g.hostileMinefields.push({x:mx,y:my,radius:Math.max(60,...mines.map(m=>Math.hypot(m.x-mx,m.y-my)+20)),
         warning:event.warning,life:event.life,region:g.worldRegion(),mines,deploySeconds:deploying?event.warning:0,sourceX:event.sourceX,sourceY:event.sourceY,encounterId:g.stageBoss.stages.encounter.id});}
@@ -139,6 +139,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    else if(event.type==='boss-destruction-start'){g.event('wave',BOSS_CATALOG[event.bossId].name+' 붕괴 중!');g.shake=Math.max(g.shake,8);if(['zeppelin-l70','hma23'].includes(event.bossId))for(const b of event.bodies||[])g.wreckGust(b);}
    else if(event.type==='boss-destruction-pulse'){g.combatBlast(event.x,event.y,event.radius,'enemy',event.final?'bossFinal':'structure');g.shake=Math.max(g.shake,event.final?13:8);}
    else if(event.type==='heavy-gun-fired'){g.shake=Math.max(g.shake,7);}
+    else if(event.type==='muzzle'&&['london-apron','drachen-net'].includes(body?.kind)){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:.12,size:23*body.cityArtScale,kind:'aaMuzzle'});}
     else if(event.type==='muzzle'){if(['a7v-flak','mark-v-cruiser','fliegerzug','treffas-wagen','mark4-wedge','morser-battery','staaken-rvi','london-searchlight'].includes(body?.kind))(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:.23,size:44,kind:'aaMuzzle'});
      else g.burst(event.x,event.y,'#ffe0a2',12);g.shake=Math.max(g.shake,3);}
    else if(event.type==='camera-shake')g.shake=Math.max(g.shake,event.strength||5);
@@ -262,7 +263,7 @@ export function beginStageBossFrame(g,dt){
  g.bossCues=g.bossCues.filter(c=>(c.life-=dt)>0);
  // Warning-phase mines physically travel from the winch to their final slots;
  // collision stays disabled until they settle, and pause freezes both clocks.
- for(const field of g.hostileMinefields||[])if(field.encounterId&&field.deploySeconds>0){const q=clamp(1-field.warning/field.deploySeconds,0,1),ease=q*q*(3-2*q);for(const m of field.mines)if(!m.dead){m.x=field.sourceX+(m.targetX-field.sourceX)*ease;m.y=field.sourceY+(m.targetY-field.sourceY)*ease-Math.sin(q*Math.PI)*32;}if(q>=1)field.deploySeconds=0;}
+ for(const field of g.hostileMinefields||[])if(field.encounterId&&field.deploySeconds>0){const q=clamp(1-field.warning/field.deploySeconds,0,1),ease=q*q*(3-2*q);for(const m of field.mines)if(!m.dead){m.x=field.sourceX+(m.targetX-field.sourceX)*ease;m.y=field.sourceY+(m.targetY-field.sourceY)*ease-Math.sin(q*Math.PI)*32;m.deploying=q<1;}if(q>=1)field.deploySeconds=0;}
  const stage=addon.stages.stageIndex,naval=stage===1||stage===7;
  let route=stage===7?g.navalRoute:null;
  if(stage===7&&!route)route=g.navalRoute=createHarborRoute(g);
@@ -328,7 +329,7 @@ export function endStageBossFrame(g,dt){
   const queue=mines.filter(m=>m.dead&&!m.chainHandled);
   for(let i=0;i<queue.length&&i<32;i++){
    const mine=queue[i];if(mine.chainHandled)continue;mine.chainHandled=true;
-   for(const next of mines)if(!next.dead&&Math.hypot(next.x-mine.x,next.y-mine.y)<=86){next.dead=true;queue.push(next);}
+   for(const next of mines)if(!next.dead&&!next.deploying&&Math.hypot(next.x-mine.x,next.y-mine.y)<=86){next.dead=true;queue.push(next);}
    addon.hooks.onCue({type:'mine-chain',chainIndex:i,bossId:activeEncounter.bodies.values().next().value?.id,x:mine.x,y:mine.y,radius:72});
   }
  // The host has already resolved its entire upgrade queue/loss state this frame.
