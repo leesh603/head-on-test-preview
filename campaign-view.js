@@ -1,9 +1,9 @@
-import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=373';
-import {SPRITE_ALIASES} from './campaign.js?v=373';
-import {drawEquipment} from './equipment.js?v=373';
+import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=374';
+import {SPRITE_ALIASES} from './campaign.js?v=374';
+import {drawEquipment} from './equipment.js?v=374';
 registerCampaignSpriteAliases(SPRITE_ALIASES);
-import {drawBattlefieldSprite} from './battlefield-art.js?v=373';
-import {missionNavigation,navigationScreenPoint} from './navigation.js?v=373';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=374';
+import {missionNavigation,navigationScreenPoint} from './navigation.js?v=374';
 export function drawCampaign(c,g,W,H){
  if(g?.mode!=='campaign')return;const point=o=>[o.x-g.x+W/2,o.y-g.y+H/2];
  c.save();c.font='bold 12px sans-serif';c.textAlign='center';c.lineWidth=2;
