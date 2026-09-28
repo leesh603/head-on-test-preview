@@ -1,4 +1,4 @@
-import {drawGameIcon} from './icons.js?v=391';
+import {drawGameIcon} from './icons.js?v=392';
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
 export function playerPose(p,x,y){
  const t=Math.max(0,Math.min(1,(p.cannonRecoil129||0)/.24));
