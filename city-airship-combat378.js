@@ -1,6 +1,6 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=381';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=381';
-import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=381';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=384';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=384';
+import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=384';
 
 // Source-image coordinates are shared by hull hit tests, gun mounts and mines.
 export const CITY_HULLS={

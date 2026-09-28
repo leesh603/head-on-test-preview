@@ -12,7 +12,10 @@ export const BOSS_NAMES_EN=Object.freeze({
  'mark4-wedge':'Mark IV tank wedge','morser-battery':'21cm Mörser battery',
  'staaken-rvi':'Staaken R.VI giant bomber','london-searchlight':'London searchlight battery'
 });
+const TACTIC_RAIL_ONLY=new Set(['paris-gun','lincomparable']);
 export function bossTactic(encounter,locale='ko'){
+ // Tactic hints only ship for the rail guns — the rest read as noise.
+ if(!TACTIC_RAIL_ONLY.has(encounter?.bossId))return '';
  const bodies=[...encounter?.bodies.values()||[]].filter(b=>!b.dead),b=bodies[0];if(!b)return '';
  const text=(ko,en)=>pair(ko,en,locale),gone=id=>b.parts.get(id)?.destroyed;
  switch(encounter.bossId){

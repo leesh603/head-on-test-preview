@@ -1,5 +1,5 @@
-import {SUN_STRIKE} from './engine.js?v=383';
-import {fx,fxReady} from './fx-art.js?v=381';
+import {SUN_STRIKE} from './engine.js?v=384';
+import {fx,fxReady} from './fx-art.js?v=384';
 // Warm, restrained optical streaks; no strobe or additive whiteout.
 export function drawSunStrike(c,g,w,h){
  if(!g||!g.isRedHunter()||g.skillTime<=0)return;
