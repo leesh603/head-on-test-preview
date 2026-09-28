@@ -1,7 +1,7 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=374';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=374';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=374';
-import {APRON,apronPose,apronPanelHull} from './london-apron369.js?v=374';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=375';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=375';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=375';
+import {APRON,apronPose,apronPanelHull} from './london-apron369.js?v=375';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -700,19 +700,32 @@ export class Fliegerzug extends RailAdapter {
   constructor(options){
     super(options,'fliegerzug');
     for(const id of this.railCarOrder)this.parts.delete(id);
-    const carHp=this.t.railCarHp||this.t.partHp*.85;
+    // Seventy percent of the encounter budget is carried by the five wagons.
+    this.maxHp=this.hp=Math.round(this.maxHp*1.5);
+    const shares=[.14,.16,.12,.16,.12];
     const cars=[
-      ['car-flak',165,112],['car-launch-a',325,132],['car-supply',485,120],
-      ['car-launch-b',645,132],['car-rear',805,120]
+      ['car-flak',174,78],['car-launch-a',348,78],['car-supply',522,78],
+      ['car-launch-b',696,78],['car-rear',870,78]
     ];
     this.railCarOrder=cars.map(([id])=>id);
-    for(const [id,y,hitRadiusY] of cars)this.parts.set(id,new BossPart({id,kind:'rail-car',maxHp:carHp,x:0,y,radius:59,hittable:true}));
+    for(const [i,[id,y]] of cars.entries()){const p=new BossPart({id,kind:'rail-car',maxHp:Math.round(this.maxHp*shares[i]),x:0,y,radius:47,hittable:true});p.coupledY=y;this.parts.set(id,p);}
     for(const [id,,hitRadiusY] of cars)this.parts.get(id).hitRadiusY=hitRadiusY;
-    this.bugSalvo=null;this.launchIndex=0;this.railCruiseSpeed=this.rail129.c.speed;
+    this.bugSalvo=null;this.launchIndex=0;this.railCruiseSpeed=this.rail129.c.speed;this.baseReload=this.rail129.c.reloadSeconds;this.launchPrep=[];
   }
   liveLaunchers(){return ['car-launch-a','car-launch-b'].map(id=>this.parts.get(id)).filter(p=>!p.destroyed);}
+  hit(s){
+    const result=super.hit(s);
+    if(s.partId?.startsWith('car-')&&result.damage)this.hp=Math.max(1,this.hp-result.damage);
+    return result;
+  }
+  carPoint(car,dx=0,dy=0){const a=car.angle||0;return{x:this.x+car.x+dx*Math.cos(a)-dy*Math.sin(a),y:this.y+car.y+dx*Math.sin(a)+dy*Math.cos(a)};}
+  prepareBug(car){if(!car.destroyed&&!this.launchPrep.some(q=>q.car===car)){car.launchWarmup=1.15;this.launchPrep.push({car,left:1.15});}}
   onPartDestroyed(p){
     if(p.kind!=='rail-car')return;
+    // Coupling failure strands the trailing section at its WORLD position.
+    const index=this.railCarOrder.indexOf(p.id);
+    for(let i=index;i<this.railCarOrder.length;i++){const q=this.parts.get(this.railCarOrder[i]);if(q.detachedPose)continue;
+      const side=(index%2?-1:1);q.detachedPose={x:this.x+q.x,y:this.y+q.y,age:0,vx:side*(10+(i-index)*4),vy:this.rail129.velocity*this.rail129.direction*.65,spin:side*(.1+(i-index)*.025),angle:0};}
     this.emit({type:'rail-car-detached',bossId:this.id,partId:p.id,x:this.x+p.x,y:this.y+p.y});
     if(this.railCarOrder.filter(id=>this.parts.get(id).destroyed).length>=3&&!this.coreVulnerable){
       this.coreVulnerable=true;this.phase='locomotive';this.emit({type:'phase-change',bossId:this.id,phase:'locomotive'});
@@ -728,7 +741,8 @@ export class Fliegerzug extends RailAdapter {
     super.railEvent(e);
   }
   launchBug(car,players){
-    const target=players.find(p=>p.alive!==false),x=this.x+car.x,y=this.y+car.y-52;
+    const target=players.find(p=>p.alive!==false),{x,y}=this.carPoint(car,0,-64);
+    car.reloadVisual=2.4;this.emit({type:'muzzle',bossId:this.id,x,y,partId:car.id});
     const tx=(target?.x??x)+(target?.vx||0)*.65,ty=(target?.y??y+320)+(target?.vy||0)*.65;
     this.emit({type:'spawn-minion',bossId:this.id,faction:this.faction,minion:'bug',x,y,
       behavior:'bug-strike',a:Math.atan2(ty-y,tx-x),passTargetX:tx,passTargetY:ty,
@@ -743,39 +757,53 @@ export class Fliegerzug extends RailAdapter {
       const pad=(s.radius||0)/Math.min(rx,ry);
       return (bx+ax*t)**2+(by+ay*t)**2<=(1+pad)**2;
     };
-    if(!this.rail129.broken&&r&&ellipse(r.x,r.y,r.radius,r.radius))return{partId:'rail'};
     for(const id of this.railCarOrder){const p=this.parts.get(id);
-      if(!p.destroyed&&ellipse(this.x+p.x,this.y+p.y,p.radius,p.hitRadiusY))return{partId:id};}
-    return this.coreVulnerable&&ellipse(this.x,this.y,59,112)?{partId:null}:null;
+      if(!p.destroyed&&this.carHit(s,p))return{partId:id};}
+    if(!this.rail129.broken&&r&&ellipse(r.x,r.y,r.radius,r.radius))return{partId:'rail'};
+    return this.coreVulnerable&&ellipse(this.x,this.y,47,82)?{partId:null}:null;
+  }
+  carHit(s,p){
+    const a=-(p.angle||0),ca=Math.cos(a),sa=Math.sin(a),cx=this.x+p.x,cy=this.y+p.y;
+    const local=(x,y)=>({x:(x-cx)*ca-(y-cy)*sa,y:(x-cx)*sa+(y-cy)*ca});
+    const q=local(s.previousX??s.x,s.previousY??s.y),r=local(s.x,s.y),rx=p.radius+(s.radius||0),ry=p.hitRadiusY+(s.radius||0);
+    const dx=(r.x-q.x)/rx,dy=(r.y-q.y)/ry,x=q.x/rx,y=q.y/ry,d=dx*dx+dy*dy,t=d?Math.max(0,Math.min(1,-(x*dx+y*dy)/d)):0;
+    return (x+dx*t)**2+(y+dy*t)**2<=1;
   }
   update(dt,ctx){
     if(this.rail129.phase==='move')this.rail129.c.speed=this.railCruiseSpeed*(.36+.64*Math.min(1,this.rail129.time/.85));
     super.update(dt,ctx);
     if(this.dead)return;
+    for(const id of this.railCarOrder){const p=this.parts.get(id),q=p.detachedPose;p.reloadVisual=Math.max(0,(p.reloadVisual||0)-dt);
+      if(q){q.age+=dt;const decay=Math.exp(-1.1*dt);q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=decay;q.vy*=decay;
+        q.angle+=q.spin*Math.exp(-q.age*1.2)*dt;p.angle=q.angle+Math.sin(q.age*7)*.035*Math.exp(-q.age*.6);p.x=q.x-this.x;p.y=q.y-this.y;}
+    }
     const players=ctx.players||[],car=id=>this.parts.get(id),ports=this.liveLaunchers();
+    this.rail129.c.reloadSeconds=this.baseReload*(car('car-supply').destroyed?1.7:1);
+    for(const q of this.launchPrep){q.left-=dt;q.car.launchWarmup=Math.max(0,q.left);if(q.left<=0&&!q.car.destroyed&&(!this.countMinions129||this.countMinions129()<5))this.launchBug(q.car,players);}
+    this.launchPrep=this.launchPrep.filter(q=>q.left>0&&!q.car.destroyed);
     const salvo=this.bugSalvo;
     if(salvo){
       salvo.clock-=dt;
       while(salvo.ports.length&&salvo.clock<=0){const port=salvo.ports.shift();salvo.clock+=.72;
-        if(!port.destroyed&&(!this.countMinions129||this.countMinions129()<5))this.launchBug(port,players);}
+        if(!port.destroyed&&(!this.countMinions129||this.countMinions129()<5))this.prepareBug(port);}
       if(!salvo.ports.length)this.bugSalvo=null;
     }
     const supply=car('car-supply'),reload=(supply.destroyed?1.55:1);
     if(ports.length&&this.due('bug-trickle',dt,(ports.length===2?6.4:9.2)*reload)){
       const port=ports[this.launchIndex++%ports.length];
-      if(!this.countMinions129||this.countMinions129()<5)this.launchBug(port,players);
+      if(!this.countMinions129||this.countMinions129()<5)this.prepareBug(port);
     }
     const flak=car('car-flak');
     if(flak&&!flak.destroyed&&this.due('flak-car',dt,3.2)){
       const p=players.find(p=>p.alive!==false);
-      if(p){const x=this.x+flak.x,y=this.y+flak.y-38;
+      if(p){const {x,y}=this.carPoint(flak,0,-38);
         this.emit({type:'muzzle',bossId:this.id,x,y,partId:flak.id});
         this.emit({type:'hazard',bossId:this.id,kind:'circle',x:p.x+(p.vx||0)*.45,y:p.y+(p.vy||0)*.45,
           radius:49,warning:1.05,duration:.35,once:true,damage:this.t.damage*.78,visual:'black-flak',sourceX:x,sourceY:y});}
     }
     const rear=car('car-rear');
     if(!rear.destroyed&&this.due('rear-mg',dt,4.1)){
-      const p=players.find(p=>p.alive!==false),x=this.x+rear.x,y=this.y+rear.y-33;
+      const p=players.find(p=>p.alive!==false),{x,y}=this.carPoint(rear,0,-33);
       if(p){const a=Math.atan2(p.y-y,p.x-x);this.emit({type:'muzzle',bossId:this.id,x,y,partId:rear.id});
         for(const offset of [-.16,0,.16])this.emit({type:'hazard',bossId:this.id,kind:'projectile',x,y,
           vx:Math.cos(a+offset)*this.t.bulletSpeed*.83,vy:Math.sin(a+offset)*this.t.bulletSpeed*.83,
@@ -788,15 +816,17 @@ export class Fliegerzug extends RailAdapter {
 // sprays. Wheels are mobility, the turret is the gun: break wheels to halt the
 // advance (it digs in and fires harder), break everything to expose the hull.
 export class TreffasWagen extends PatternBoss {
+  suppressive(){/* Only surviving, visible weapon mounts fire. */}
   constructor(options){
     super({...options,kind:'treffas-wagen',coreRadius:options.tuning.coreRadius||62,parts:[
-      {id:'wheel-left',x:-100,y:12,radius:46,maxHp:options.tuning.partHp*1.2},
-      {id:'wheel-right',x:100,y:12,radius:46,maxHp:options.tuning.partHp*1.2},
-      {id:'turret',x:0,y:-82,radius:52,maxHp:options.tuning.partHp*1.3},
-      {id:'rudder',x:0,y:112,radius:26}
+      {id:'wheel-left',x:-112,y:-8,radius:31,maxHp:options.tuning.partHp*1.8},
+      {id:'wheel-right',x:112,y:-8,radius:31,maxHp:options.tuning.partHp*1.8},
+      {id:'turret',x:0,y:-96,radius:37,maxHp:options.tuning.partHp*1.8},
+      {id:'rudder',x:0,y:124,radius:29,maxHp:options.tuning.partHp*1.3}
     ]});
     this.phase='advance';this.coreVulnerable=false;this.ownsMotion129=true;
-    this.anchorX=this.x;this.startY=this.y;this.driveDistance=0;this.driveAge=0;this.wheelRoll=0;
+    this.anchorX=this.x;this.startY=this.y;this.driveDistance=0;this.driveAge=0;this.wheelRoll=0;this.driveDirection=1;this.driveVelocity=0;this.heading=0;
+    for(const p of this.parts.values()){p.mountX=p.x;p.mountY=p.y;}
     this.flakPattern=0;this.timers.set('treffas-flak',2.1);this.timers.set('treffas-mg',1.5);
   }
   wheelsAlive(){return ['wheel-left','wheel-right'].filter(id=>!this.parts.get(id).destroyed).length;}
@@ -809,7 +839,8 @@ export class TreffasWagen extends PatternBoss {
     if(lost>=2&&!this.coreVulnerable){this.coreVulnerable=true;this.command('phase-change',{phase:'hull-exposed'});}
   }
   locateHit(s){
-    const x0=s.previousX??s.x,y0=s.previousY??s.y,dx=s.x-x0,dy=s.y-y0;
+    const ca=Math.cos(-this.heading),sa=Math.sin(-this.heading),local=(x,y)=>({x:this.x+(x-this.x)*ca-(y-this.y)*sa,y:this.y+(x-this.x)*sa+(y-this.y)*ca});
+    const p0=local(s.previousX??s.x,s.previousY??s.y),p1=local(s.x,s.y),x0=p0.x,y0=p0.y,dx=p1.x-x0,dy=p1.y-y0;
     const ellipse=(cx,cy,rx,ry)=>{
       const ax=dx/rx,ay=dy/ry,bx=(x0-cx)/rx,by=(y0-cy)/ry,d=ax*ax+ay*ay;
       const t=d?Math.max(0,Math.min(1,-(bx*ax+by*ay)/d)):0;
@@ -818,8 +849,8 @@ export class TreffasWagen extends PatternBoss {
     };
     for(const id of ['turret','wheel-left','wheel-right','rudder']){
       const p=this.parts.get(id);if(p.destroyed)continue;
-      const [rx,ry]=id.startsWith('wheel')?[46,91]:id==='turret'?[51,54]:[25,33];
-      if(ellipse(this.x+p.x,this.y+p.y,rx,ry))return{partId:id};
+      const [rx,ry]=id.startsWith('wheel')?[30,129]:id==='turret'?[38,40]:[33,29];
+      if(ellipse(this.x+p.mountX,this.y+p.mountY,rx,ry))return{partId:id};
     }
     return this.coreVulnerable&&ellipse(this.x,this.y,53,105)?{partId:null}:null;
   }
@@ -827,13 +858,21 @@ export class TreffasWagen extends PatternBoss {
     if(this.dead)return;
     const wheels=this.wheelsAlive(),moving=wheels>0,lowHp=this.hp<=this.maxHp*.35;
     const speed=wheels===2?44:wheels===1?23:0;
-    if(moving){this.driveAge+=dt;this.driveDistance+=speed*dt;this.wheelRoll+=speed*dt/34;
-      this.y=this.startY+Math.sin(this.driveDistance/155)*145;
-      const rudderLost=this.parts.get('rudder').destroyed,steering=rudderLost?18:94;
-      this.x=this.anchorX+Math.sin(this.driveAge*(rudderLost ? 0.09 : 0.25))*steering
-        +this.wheelBias()*32+Math.sin(this.driveAge*4)*this.wheelBias()*5;}
-    if(moving&&bounds){const margin=Math.min(154,(bounds.right-bounds.left)/2);
-      this.x=Math.max(bounds.left+margin,Math.min(bounds.right-margin,this.x));}
+    if(moving){
+      this.driveAge+=dt;
+      // Wheel axes are longitudinal: acceleration, braking, then reverse.
+      const lower=this.startY+140,upper=this.startY-65;
+      if(this.y>=lower)this.driveDirection=-1;else if(this.y<=upper)this.driveDirection=1;
+      const desired=speed*this.driveDirection;
+      this.driveVelocity+=Math.max(-28*dt,Math.min(28*dt,desired-this.driveVelocity));
+      const rudderLost=this.parts.get('rudder').destroyed;
+      this.heading=(this.wheelBias()*(rudderLost?.13:.07)+(rudderLost?.035:0))*(1+.18*Math.sin(this.driveAge*2.2));
+      const travel=this.driveVelocity*dt;
+      this.x-=Math.sin(this.heading)*travel;this.y+=Math.cos(this.heading)*travel;
+      this.driveDistance+=travel;this.wheelRoll+=travel/34;
+      if(bounds){const margin=Math.min(153,(bounds.right-bounds.left)/2);this.x=Math.max(bounds.left+margin,Math.min(bounds.right-margin,this.x));}
+      for(const p of this.parts.values()){p.x=p.mountX*Math.cos(this.heading)-p.mountY*Math.sin(this.heading);p.y=p.mountX*Math.sin(this.heading)+p.mountY*Math.cos(this.heading);}
+    }else this.driveVelocity=0;
     this._churn??=[];const last=this._churn[this._churn.length-1];
     if(moving&&(!last||Math.hypot(this.x-last.x,this.y-last.y)>30))this._churn.push({x:this.x,y:this.y+65});
     if(this._churn.length>110)this._churn.splice(0,this._churn.length-110);
@@ -848,11 +887,12 @@ export class TreffasWagen extends PatternBoss {
       const p=this.target(players);if(p){const focus=(this.flakPattern++%2)===0,count=focus?3:4;
         const tx=p.x+(p.vx||0)*.55,ty=p.y+(p.vy||0)*.55;
         const alongX=Math.abs(p.vx||0)>=Math.abs(p.vy||0);
-        this.command('muzzle',{x:this.x+turret.x,y:this.y+turret.y-24,partId:'turret'});
+        const muzzle={x:this.x+Math.sin(this.heading)*147,y:this.y-Math.cos(this.heading)*147};
+        this.command('muzzle',{...muzzle,partId:'turret'});
         for(let i=0;i<count;i++){const offset=(i-(count-1)/2)*(focus?36:62);
           this.hazard('circle',{x:tx+(focus||alongX?offset:0),y:ty+(!focus&&!alongX?offset:0),
             radius:focus?43:47,delay:i*(focus?.15:.21),warning:1.08,duration:.34,once:true,
-            damage:this.t.damage*.82,visual:'black-flak',sourceX:this.x,sourceY:this.y-106});}}
+            damage:this.t.damage*.82,visual:'black-flak',sourceX:muzzle.x,sourceY:muzzle.y});}}
     }
     if(this.due('treffas-mg',dt,turret.destroyed?3.25:4.4)){
       const p=this.target(players),mx=this.x,my=this.y-55;
@@ -883,12 +923,12 @@ class FormationAceBoss extends PatternBoss {
   liveWingmen(){return this.formationStatus129?.()||[];}
   launchWing(bounds){
     if(this.wingLaunched)return;this.wingLaunched=true;
-    const span=bounds.right-bounds.left,hp=Math.max(150,Math.round(this.t.maxHp*.11));
+    const span=bounds.right-bounds.left,hp=Math.max(90,Math.round(this.t.maxHp*.072));
     for(let i=0;i<this.wingmen.length;i++){
       const wing=this.wingmen[i],x=bounds.left+span*(i+.5)/this.wingmen.length,y=bounds.top-76-(i%2)*28;
       this.command('spawn-minion',{minion:'formation-fighter',faction:this.faction,plane:wing.plane,behavior:wing.behavior,leaderId:this.id,
         formationIndex:i,formationCount:this.wingmen.length,formationRole:wing.role,formationSide:wing.side,formationRank:wing.rank,
-        pairId:wing.pairId,callSign:wing.callSign,callSignKo:wing.nameKo,name:wing.nameKo||wing.callSign,x,y,a:Math.PI/2,life:1e9,fire:.42+i*.1,
+        pairId:wing.pairId,callSign:wing.callSign,name:wing.callSign,x,y,a:Math.PI/2,life:1e9,fire:.45+i*.11,
         maxSpeed:wing.maxSpeed,hp,visualScale:1,persistent:true});
     }
   }

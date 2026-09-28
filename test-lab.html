@@ -45,7 +45,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <output id="bossState" style="font-size:11px;max-width:700px"></output>
 </div>
 </header>
-<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=374"></iframe></main>
+<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=375"></iframe></main>
 </div>
 <script>
 const $=id=>document.getElementById(id),frame=$('game');let api=null;
@@ -87,7 +87,7 @@ $('noFire').onchange=()=>{const g=api?.debug?.();if(g)g.fire=$('noFire').checked
 $('freeze').onchange=()=>{const g=api?.debug?.();if(g)g.state=$('freeze').checked?'paused':'playing';};
 setInterval(()=>{
  const g=api?.debug?.(),b=g?.stageBoss?.stages?.encounter?.bodies;const boss=b&&[...b.values()].find(b=>!b.dead);
- $('bossState').textContent=boss?boss.kind+' · '+boss.phase+' · t '+(boss.motionTime||0).toFixed(1)+' · '+[...boss.parts.values()].map(p=>p.id+': '+Math.ceil(p.hp)+'/'+Math.ceil(p.maxHp)+(p.destroyed?' 파괴':'')).join(' | ')+' · 장벽 '+(g.stageBoss?.hazards?.pool?.count||0):'';
+ $('bossState').textContent=boss?boss.kind+' · '+boss.phase+' · t '+(boss.motionTime||0).toFixed(1)+' · '+[...boss.parts.values()].map(p=>p.id+': '+Math.ceil(p.hp)+'/'+Math.ceil(p.maxHp)+(p.destroyed?' 파괴':'')).join(' | ')+' · 좌표 '+Math.round(boss.x)+','+Math.round(boss.y)+' · 차륜 '+(boss.wheelRoll||0).toFixed(2)+' · 무인폭탄기 '+(g.enemies?.filter(e=>e.behavior==='bug-strike'&&e.hp>0).length||0)+' · 장벽 '+(g.stageBoss?.hazards?.pool?.count||0):'';
 },250);
 $('patternStep').onclick=()=>{
  const game=api?.debug?.();if(game?.state==='paused'){game.state='playing';frame.contentDocument?.getElementById('modal')?.classList.add('hidden')}
