@@ -1,20 +1,20 @@
-import {drawRegionalBug} from './regional-boss-view352.js?v=391';
-import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=391';
-import {drawGasCloud196} from './gas-cloud196.js?v=391';
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=391';
-import {fx,fxReady,fxTint} from './fx-art.js?v=391';
-import {drawAADefense} from './aa-defense-art.js?v=391';
-import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=391';
-import {drawStageBoss} from './stageboss-view.js?v=391';
-import {planeSprite,aircraftKey} from './aircraft.js?v=391';
-import {drawEquipment} from './equipment.js?v=391';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=391';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=391';
-import {drawSpecialAmmoIcon} from './icons.js?v=391';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=391';
+import {drawRegionalBug} from './regional-boss-view352.js?v=392';
+import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=392';
+import {drawGasCloud196} from './gas-cloud196.js?v=392';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=392';
+import {fx,fxReady,fxTint} from './fx-art.js?v=392';
+import {drawAADefense} from './aa-defense-art.js?v=392';
+import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=392';
+import {drawStageBoss} from './stageboss-view.js?v=392';
+import {planeSprite,aircraftKey} from './aircraft.js?v=392';
+import {drawEquipment} from './equipment.js?v=392';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=392';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=392';
+import {drawSpecialAmmoIcon} from './icons.js?v=392';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=392';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
-const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=391&b=326';
+const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=392&b=326';
 export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fieldArtImg,groundLayer}){
  const t=g.t,z=g.camera.zoom;c.save();c.scale(z,z);terrain(g.x,g.y,W/z,H/z);c.restore();drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});c.save();c.translate(W/2,H/2);c.scale(z,z);c.translate(-g.x,-g.y);
  groundLayer?.();drawBattlefieldFire(c,g);for(const e of g.enemyAirshipPasses||[])drawZeppelin(c,e.x,e.y,e.a,.72,false,'central');
