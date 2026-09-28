@@ -1,5 +1,6 @@
 // Semantic asset keys, not generated replacement graphics. Map to the current
 // main build's pixel atlas. Bodies stay top-down; part offsets are world-aligned.
+import {netContact} from './london-apron369.js?v=369';
 export const BOSS_ASSET_KEYS=Object.freeze([
   'paris-gun','lincomparable','sms-stuttgart','hms-zubian','hms-zubian-front','hms-zubian-rear',
   'zeppelin-l70','hma23','a7v-flak','mark-v-cruiser','livens-flame-projector','minenwerfer-battery','london-apron','drachen-net','gik','ca4','armored-harbor-fortress','fliegerzug','treffas-wagen','mark4-wedge','morser-battery','staaken-rvi','london-searchlight'
@@ -14,6 +15,7 @@ export function renderStageBossLayer(addon,{drawBody,drawPart,drawHazard}) {
     const railCars=b.rail129?[...b.parts.values()].filter(p=>p.kind==='rail-car').map(p=>({id:p.id,x:p.x,y:p.y,hp:p.hp,maxHp:p.maxHp,destroyed:p.destroyed,hittable:p.hittable,destroyedAt:p.destroyedAt,detachedPose:p.detachedPose})):null;
     const layeredParts=['livens-flame-projector','minenwerfer-battery','armored-harbor-fortress','treffas-wagen','mark4-wedge','morser-battery','staaken-rvi','london-searchlight','london-apron','drachen-net','fliegerzug'].includes(b.kind)?[...b.parts.values()].map(p=>({id:p.id,x:p.x,y:p.y,hp:p.hp,maxHp:p.maxHp,destroyed:p.destroyed,hittable:p.hittable,angle:p.angle??0,radius:p.radius,hitRadiusX:p.hitRadiusX,hitRadiusY:p.hitRadiusY,drawWidth:p.drawWidth,drawHeight:p.drawHeight,hitFlash:p.hitFlash||0,destroyedAt:p.destroyedAt})):null;
     drawBody({assetKey:b.kind,phase:b.phase,x:b.x,y:b.y,a:b.a,coreVulnerable:b.coreVulnerable,hp:b.hp,maxHp:b.maxHp,motionTime:b.motionTime||0,recoil:b.recoil||0,splitAge:b.splitAge||0,stateAge:b.stateAge||0,splitGap:b.splitGap||0,craneAngle:b.craneAngle||0,nozzleAngle:b.nozzleAngle,engaged:!!b.engaged,lockedFlameAngle:b.lockedFlameAngle,parts:layeredParts,railCars,geometryScale:b.t?.geometryScale||1,regionalScale:b.regionalScale||1,railBodyScale:b.railBodyScale||1,regionalCore:b.regionalCore||null,launchStock:b.launchStock,hangarHatch:b.hangarHatch||0,flakAngle:b.flakAngle,lampAngle:b.lampAngle,beamRemaining:b.beamRemaining||0,lockProgress:b.lockProgress||0,railBroken:!!b.rail129?.broken,railDirection:b.rail129?.direction||1,wheelRoll:b.wheelRoll||0,churn:b._churn||null,
+      apronScale:b.apronScale,apronTime:b.apronTime,cityArtScale:b.cityArtScale,
       destroying,destructionAge:destruction?.age||0,destructionDuration:destruction?.duration||0});
     if(b.dead)continue;
     for(const part of b.parts.values())drawPart({bodyKey:b.kind,phase:b.phase,partId:part.id,kind:part.kind,x:b.x+part.x,y:b.y+part.y,
@@ -24,6 +26,7 @@ export function renderStageBossLayer(addon,{drawBody,drawPart,drawHazard}) {
 // Optional solid-water correction for a host collision resolver. Returns a
 // displacement; this module never takes over player movement or input.
 export function waterBarrierDisplacement(player,barrier) {
+  if(barrier.kind==='net')return netContact(player,barrier.vertices)||{x:0,y:0};
   if(barrier.kind==='beam'){
     const ax=barrier.x,ay=barrier.y,bx=ax+Math.cos(barrier.angle)*barrier.length,by=ay+Math.sin(barrier.angle)*barrier.length;
     const dx=bx-ax,dy=by-ay,len2=dx*dx+dy*dy,t=len2?Math.max(0,Math.min(1,((player.x-ax)*dx+(player.y-ay)*dy)/len2)):0;

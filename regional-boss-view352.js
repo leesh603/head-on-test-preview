@@ -1,20 +1,19 @@
-import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=368';
-import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=368';
-import {fx} from './fx-art.js?v=368';
-import {drawAADefense} from './aa-defense-art.js?v=368';
+import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=369';
+import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=369';
+import {fx} from './fx-art.js?v=369';
+import {drawAADefense} from './aa-defense-art.js?v=369';
 
 // These are authored/derived RGBA sprites, not canvas-painted replacement art.
 // Only the current battlefield's small atlas set remains resident.
 const SOURCES=Object.freeze({
  train:'./boss-fliegerzug-parts352.webp',treffas:'./boss-treffas-parts352.webp',support:'./boss-regional-support352.webp',
- apronNet:'./boss-london-apron-net-sweep.png?v=368',
  staaken:'./boss-staaken-body352.webp',staakenEngines:'./boss-staaken-engines352.webp',staakenWreck:'./boss-staaken-wreck352.webp',
- tank:'./boss-mark4.webp?v=368',tankWreck:'./boss-mark4-wreck.webp?v=368',
- morser:'./boss-morser.webp?v=368',morserWreck:'./boss-morser-wreck.webp?v=368',
- bugFolded:'./boss-cambrai-bug.webp?v=368',bugFlight:'./boss-cambrai-bug.webp?v=368',impact:'./fx-mortar-impact340.webp'
+ tank:'./boss-mark4.webp?v=369',tankWreck:'./boss-mark4-wreck.webp?v=369',
+ morser:'./boss-morser.webp?v=369',morserWreck:'./boss-morser-wreck.webp?v=369',
+ bugFolded:'./boss-cambrai-bug.webp?v=369',bugFlight:'./boss-cambrai-bug.webp?v=369',impact:'./fx-mortar-impact340.webp'
 });
 const SHEETS={train:'boss-fliegerzug-parts352',treffas:'boss-treffas-parts352',support:'boss-regional-support352',staakenEngines:'boss-staaken-engines352'};
-const REGION_KEYS={4:['support','apronNet'],8:['support','bugFlight','impact'],10:['support','tank','tankWreck','morser','morserWreck','impact'],11:['support','staaken','staakenEngines','staakenWreck','impact']};
+const REGION_KEYS={4:['support'],8:['support','bugFlight','impact'],10:['support','tank','tankWreck','morser','morserWreck','impact'],11:['support','staaken','staakenEngines','staakenWreck','impact']};
 const REQUIRED={'fliegerzug':['train','support','bugFolded'],'treffas-wagen':['treffas'],'mark4-wedge':['tank','tankWreck','support'],'morser-battery':['morser','morserWreck','support'],'staaken-rvi':['staaken','staakenEngines','staakenWreck'],'london-searchlight':['support'],'london-apron':['support'],'drachen-net':['support']};
 const cache=new Map();
 function load(key){
@@ -173,14 +172,9 @@ export function drawRegionalBossPart(c,p){
 }
 export function drawRegionalHazard(c,h,bossKind){
  if(!REGIONAL_BOSS_SET.has(bossKind))return false;
- if(h.visual==='apron-wire'){
-  const im=image('apronNet');if(!im.naturalWidth)return true;
-  const warning=h.phase==='warning',q=clamp((h.age-h.delay)/Math.max(.01,h.warning)),drawH=Math.max(48,h.thickness*1.65);
-  c.save();c.translate(h.x+Math.cos(h.angle)*h.length/2,h.y+Math.sin(h.angle)*h.length/2);c.rotate(h.angle);
-  c.imageSmoothingEnabled=true;c.globalAlpha*=warning?.2+.28*q:.94;
-  c.drawImage(im,-h.length/2,-drawH/2,h.length,drawH);
-  c.restore();return true;
- }
+ // The attached net is textured once with its parent body. Never paint a
+ // duplicate hazard-layer image over aircraft or an unrelated screen lane.
+ if(h.visual==='apron-attached'||h.visual==='apron-wire')return true;
  const artillery=['morser-shell','mark4-shell','treffas-shell','observer-shell','black-flak'].includes(h.visual)||(h.visual==='carpet-bomb'&&/^staaken-/.test(h.tag||''));
  if(!artillery||h.kind!=='circle')return false;
  const warning=h.phase==='warning',q=clamp((h.age-h.delay)/Math.max(.01,h.warning));c.save();

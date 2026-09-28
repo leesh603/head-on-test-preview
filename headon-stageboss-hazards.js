@@ -1,11 +1,13 @@
 import {FixedPool} from './headon-stageboss-pool.js';
-import {livensFlameHalfWidth,livensFlameSpan} from './livens-fire195.js?v=364';
+import {netContact} from './london-apron369.js?v=369';
+import {livensFlameHalfWidth,livensFlameSpan} from './livens-fire195.js?v=369';
 const wrap = angle => Math.atan2(Math.sin(angle),Math.cos(angle));
 const segmentDistance = (px,py,x0,y0,x1,y1) => {
   const dx=x1-x0,dy=y1-y0,len=dx*dx+dy*dy,t=len?Math.max(0,Math.min(1,((px-x0)*dx+(py-y0)*dy)/len)):0;
   return Math.hypot(px-x0-t*dx,py-y0-t*dy);
 };
 export function contains(h,p) {
+  if(h.kind==='net')return !!netContact(p,h.vertices);
   const radius=p.radius||0;
   if(h.kind==='rect')return Math.abs(p.x-h.x)<=h.width/2+radius&&Math.abs(p.y-h.y)<=h.height/2+radius;
   if(h.kind==='beam'){
@@ -33,7 +35,7 @@ export class BossHazards {
     this.pool=new FixedPool(capacity,()=>({hits:new Set()}));
   }
   spawn(spec) {
-    if(!['circle','rect','projectile','searchlight','beam'].includes(spec.kind)||!spec.encounterId)throw new Error('Invalid hazard');
+    if(!['circle','rect','projectile','searchlight','beam','net'].includes(spec.kind)||!spec.encounterId)throw new Error('Invalid hazard');
     for(const key of ['x','y','damage'])if(!Number.isFinite(spec[key]))throw new Error('Invalid hazard '+key);
     if(spec.damage<0||!(spec.duration>0)||!Number.isFinite(spec.duration))throw new Error('Invalid hazard damage/duration');
     if(spec.kind==='beam'&&(!(spec.length>0)||!(spec.thickness>0)||!Number.isFinite(spec.angle)))throw new Error('Invalid beam geometry');
@@ -49,7 +51,7 @@ export class BossHazards {
       targetId:spec.targetId,lockAtWarning:!!spec.lockAtWarning,locked:false,offsetX:spec.offsetX||0,offsetY:spec.offsetY||0,telegraphHalf:spec.telegraphHalf||0,
       muzzleLength:spec.muzzleLength||0,
       sourceX:spec.sourceX??null,sourceY:spec.sourceY??null,
-      blocks:!!spec.blocks,piercing:!!spec.piercing,visual:spec.visual||spec.kind,tag:spec.tag||null
+      blocks:!!spec.blocks,piercing:!!spec.piercing,visual:spec.visual||spec.kind,tag:spec.tag||null,vertices:spec.vertices||null
     });return h;
   }
   update(dt,{players,paused=false}) {
