@@ -1,16 +1,16 @@
-import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=392';
-import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=392';
-import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=392';
-import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=392';
-import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=392';
-import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=392';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=392';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=392';
-import {bossHudModel} from './headon-stageboss-hud.js?v=392';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=392';
-import {planeSprite} from './aircraft.js?v=392';
-import {getLocale} from './i18n.js?v=392';
-import {drawAADefense,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=392';
+import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=393';
+import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=393';
+import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=393';
+import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=393';
+import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=393';
+import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=393';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=393';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=393';
+import {bossHudModel} from './headon-stageboss-hud.js?v=393';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=393';
+import {planeSprite} from './aircraft.js?v=393';
+import {getLocale} from './i18n.js?v=393';
+import {drawAADefense,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=393';
 
 function createLazyImageGroup(sources){
  const cache={},pending={};
@@ -30,12 +30,12 @@ function createLazyImageGroup(sources){
 const supportGroup=createLazyImageGroup({ship:'./stuttgart-open129.webp',cover:'./stuttgart-cover129.webp'}),supportImages129=supportGroup.images;
 
 const bossSources={
- parisGun:'./boss-bruno-train115.webp',lincomparable:'./boss-lincomparable94.webp?v=392&b=340',stuttgart:'./boss-sms-stuttgart94.webp',zubian:'./boss-hms-zubian94.webp',
- l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=392&b=340',ca4:'./boss-ca4.webp?v=392&b=340',
- londonApron:'./boss-london-apron115.webp?v=392',londonApronDamage1:'./boss-london-apron-registered-damage369.png?v=392',drachenNet:'./boss-drachen-net115.webp?v=392',drachenLeft:'./boss-drachen-left380.webp?v=392',drachenCenter:'./boss-drachen-center380.webp?v=392',drachenRight:'./boss-drachen-right380.webp?v=392',
- railCarrier:'./boss-art-rail-carrier.webp?v=392',treffasWagen:'./boss-art-treffas-wagen.webp?v=392',
- mark4:'./boss-mark4.webp?v=392',mark4Wreck:'./boss-mark4-wreck.webp?v=392',morser:'./boss-morser.webp?v=392',morserWreck:'./boss-morser-wreck.webp?v=392',
- staaken:'./staaken_dark.webp?v=392',staakenWreck:'./boss-staaken-wreck.webp?v=392',searchlight:'./boss-searchlight.webp?v=392',searchlightWreck:'./boss-searchlight-wreck.webp?v=392'
+ parisGun:'./boss-bruno-train115.webp',lincomparable:'./boss-lincomparable94.webp?v=393&b=340',stuttgart:'./boss-sms-stuttgart94.webp',zubian:'./boss-hms-zubian94.webp',
+ l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=393&b=340',ca4:'./boss-ca4.webp?v=393&b=340',
+ londonApron:'./boss-london-apron115.webp?v=393',londonApronDamage1:'./boss-london-apron-registered-damage369.png?v=393',drachenNet:'./boss-drachen-net115.webp?v=393',drachenLeft:'./boss-drachen-left380.webp?v=393',drachenCenter:'./boss-drachen-center380.webp?v=393',drachenRight:'./boss-drachen-right380.webp?v=393',
+ railCarrier:'./boss-art-rail-carrier.webp?v=393',treffasWagen:'./boss-art-treffas-wagen.webp?v=393',
+ mark4:'./boss-mark4.webp?v=393',mark4Wreck:'./boss-mark4-wreck.webp?v=393',morser:'./boss-morser.webp?v=393',morserWreck:'./boss-morser-wreck.webp?v=393',
+ staaken:'./staaken_dark.webp?v=393',staakenWreck:'./boss-staaken-wreck.webp?v=393',searchlight:'./boss-searchlight.webp?v=393',searchlightWreck:'./boss-searchlight-wreck.webp?v=393'
 };
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
 const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.webp',a7vTurret:'./boss-a7v-turret-rebuild.webp',markvHull:'./boss-mark-v-hull-rebuild.webp',markvSponson:'./boss-mark-v-sponson-rebuild.webp'}),rebuildArt=rebuildGroup.images;
@@ -118,19 +118,19 @@ function drawMinenwerfer(c,b){
 const railConsistSources={
  parisGun:{engine:'./rail-boss-bruno-engine181.webp',front:'./rail-boss-bruno-front181.webp',middle:'./rail-boss-bruno-middle181.webp',rear:'./rail-boss-bruno-rear181.webp'},
  lincomparable:{engine:'./rail-boss-lincomparable-engine181.webp',front:'./rail-boss-lincomparable-front181.webp',middle:'./rail-boss-lincomparable-middle181.webp',rear:'./rail-boss-lincomparable-rear181.webp'},
- railCarrier:{engine:'./boss-rail-carrier-loco.webp?v=392',front:'./boss-rail-carrier-flak.webp?v=392',middle:'./boss-rail-carrier-launch.webp?v=392',rear:'./boss-rail-carrier-hangar.webp?v=392'}
+ railCarrier:{engine:'./boss-rail-carrier-loco.webp?v=393',front:'./boss-rail-carrier-flak.webp?v=393',middle:'./boss-rail-carrier-launch.webp?v=393',rear:'./boss-rail-carrier-hangar.webp?v=393'}
 };
 const railWreckSources={
- parisGun:{engine:'./rail-boss-bruno-engine-wreck192.webp?v=392&b=340',front:'./rail-boss-bruno-front-wreck192.webp?v=392&b=340',middle:'./rail-boss-bruno-middle-wreck192.webp?v=392&b=340',rear:'./rail-boss-bruno-rear-wreck192.webp?v=392&b=340'},
- lincomparable:{engine:'./rail-boss-lincomparable-engine-wreck192.webp?v=392&b=340',front:'./rail-boss-lincomparable-front-wreck192.webp?v=392&b=340',middle:'./rail-boss-lincomparable-middle-wreck192.webp?v=392&b=340',rear:'./rail-boss-lincomparable-rear-wreck192.webp?v=392&b=340'},
- railCarrier:{engine:'./boss-rail-carrier-loco-wreck.webp?v=392',front:'./boss-rail-carrier-flak-wreck.webp?v=392',middle:'./boss-rail-carrier-launch-wreck.webp?v=392',rear:'./boss-rail-carrier-hangar-wreck.webp?v=392'}
+ parisGun:{engine:'./rail-boss-bruno-engine-wreck192.webp?v=393&b=340',front:'./rail-boss-bruno-front-wreck192.webp?v=393&b=340',middle:'./rail-boss-bruno-middle-wreck192.webp?v=393&b=340',rear:'./rail-boss-bruno-rear-wreck192.webp?v=393&b=340'},
+ lincomparable:{engine:'./rail-boss-lincomparable-engine-wreck192.webp?v=393&b=340',front:'./rail-boss-lincomparable-front-wreck192.webp?v=393&b=340',middle:'./rail-boss-lincomparable-middle-wreck192.webp?v=393&b=340',rear:'./rail-boss-lincomparable-rear-wreck192.webp?v=393&b=340'},
+ railCarrier:{engine:'./boss-rail-carrier-loco-wreck.webp?v=393',front:'./boss-rail-carrier-flak-wreck.webp?v=393',middle:'./boss-rail-carrier-launch-wreck.webp?v=393',rear:'./boss-rail-carrier-hangar-wreck.webp?v=393'}
 };
 // Fliegerzug munition + Treffas-Wagen separable parts (destroyed parts get a burn filter).
-const bugGroup=createLazyImageGroup({folded:'./boss-cambrai-bug.webp?v=392',flight:'./boss-cambrai-bug.webp?v=392'}),bugArt=bugGroup.images;
-const cambraiGroup=createLazyImageGroup({atlas:'./boss-cambrai-train-atlas.webp?v=392',wreck:'./boss-cambrai-train-wreck-atlas.webp?v=392'}),cambraiArt=cambraiGroup.images;
-const treffasGroup=createLazyImageGroup({body:'./boss-cambrai-treffas-connected.webp?v=392',wreck:'./boss-cambrai-treffas-connected-wreck.webp?v=392'}),treffasArt=treffasGroup.images;
+const bugGroup=createLazyImageGroup({folded:'./boss-cambrai-bug.webp?v=393',flight:'./boss-cambrai-bug.webp?v=393'}),bugArt=bugGroup.images;
+const cambraiGroup=createLazyImageGroup({atlas:'./boss-cambrai-train-atlas.webp?v=393',wreck:'./boss-cambrai-train-wreck-atlas.webp?v=393'}),cambraiArt=cambraiGroup.images;
+const treffasGroup=createLazyImageGroup({body:'./boss-cambrai-treffas-connected.webp?v=393',wreck:'./boss-cambrai-treffas-connected-wreck.webp?v=393'}),treffasArt=treffasGroup.images;
 // Wreck sprites drawn over destroyed boss parts (wheels, turrets, gun pits...).
-const partWreckGroup=createLazyImageGroup({wheel:'./boss-part-wreck-wheel.webp?v=392',turret:'./boss-part-wreck-turret.webp?v=392',tail:'./boss-part-wreck-tail.webp?v=392',light:'./boss-part-wreck-light.webp?v=392',gun:'./boss-part-wreck-gun.webp?v=392',pit:'./boss-part-wreck-pit.webp?v=392'}),partWreckArt=partWreckGroup.images;
+const partWreckGroup=createLazyImageGroup({wheel:'./boss-part-wreck-wheel.webp?v=393',turret:'./boss-part-wreck-turret.webp?v=393',tail:'./boss-part-wreck-tail.webp?v=393',light:'./boss-part-wreck-light.webp?v=393',gun:'./boss-part-wreck-gun.webp?v=393',pit:'./boss-part-wreck-pit.webp?v=393'}),partWreckArt=partWreckGroup.images;
 const railGroups={},railConsistArt={},railWreckGroups={},railWreckArt={};
 for(const [set,sources] of Object.entries(railConsistSources)){const group=createLazyImageGroup(sources);railGroups[set]=group;railConsistArt[set]=group.images;const wreckGroup=createLazyImageGroup(railWreckSources[set]);railWreckGroups[set]=wreckGroup;railWreckArt[set]=wreckGroup.images;}
 function drawRailConsist181(c,b){
@@ -206,12 +206,35 @@ function drawFormationNameplate(c,x,y,name,viewWidth){
 function drawFormationEdgeBadge(c,x,y,a){
  c.save();c.translate(x,y);c.fillStyle='rgba(28,10,12,.94)';c.strokeStyle='#c85b48';c.lineWidth=2.5;c.beginPath();c.arc(0,0,18,0,Math.PI*2);c.fill();c.stroke();c.fillStyle='#f0d7a4';c.font='700 8px "Arial Narrow",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('BOSS',0,0);c.rotate(a);c.fillStyle='#c85b48';c.beginPath();c.moveTo(24,0);c.lineTo(17,-5);c.lineTo(17,5);c.closePath();c.fill();c.restore();
 }
-const zubianGroup=createLazyImageGroup({atlas:'./zubian-atlas.webp?v=392'}),zubianArt=zubianGroup.images;
-const sinkFoamGroup=createLazyImageGroup({foam:'./ship-sinkfoam.webp?v=392'}),sinkFoamArt=sinkFoamGroup.images;
+const zubianGroup=createLazyImageGroup({atlas:'./zubian-atlas.webp?v=393'}),zubianArt=zubianGroup.images;
+const sinkFoamGroup=createLazyImageGroup({foam:'./ship-sinkfoam.webp?v=393',splash:'./ship-sinksplash.webp?v=393',churn:'./ship-sinkchurn.webp?v=393'}),sinkFoamArt=sinkFoamGroup.images;
 const zubianFrames={intact:[90,4,185,500],front:[317,12,185,324],rear:[510,208,184,296]};
 function drawZubianFrame(c,key,x,y,w,h){const zubianAtlas=zubianArt.atlas;if(!zubianAtlas.naturalWidth)return;const f=zubianFrames[key];c.save();c.imageSmoothingEnabled=true;c.drawImage(zubianAtlas,f[0],f[1],f[2],f[3],x-w/2,y-h/2,w,h);c.restore();}
+// Water FX for sinking vessels, drawn in world space so the foam stays on the
+// surface while the hull slides beneath it.
+function drawSinkingWater(c,b,wreck){
+ const t=b.destructionAge||0,{splash,foam,churn}=sinkFoamArt,paint=(im,x,y,w,alpha,rot=0)=>{
+  if(!im?.naturalWidth||alpha<=0)return;
+  const h=w*im.naturalHeight/im.naturalWidth;
+  c.save();c.imageSmoothingEnabled=true;c.translate(x,y);c.rotate(rot);c.globalAlpha=alpha;c.drawImage(im,-w/2,-h/2,w,h);c.restore();};
+ // Roiling water band sits on the surface and widens as the hull goes under.
+ if(churn?.naturalWidth){
+  const f=clamp(wreck*1.3,0,1),w=(300+f*330)*(b.assetKey==='armored-harbor-fortress'?1.5:1);
+  paint(churn,b.x,b.y+46+Math.sin(t*.8)*5,w,Math.min(1,wreck*2.4)*.92,Math.sin(t*.45)*.04);
+  paint(churn,b.x+Math.sin(t*.6)*9,b.y+86+Math.cos(t*.7)*6,w*.62,Math.min(1,wreck*2)*.55,-Math.sin(t*.5)*.06);}
+ // Breach burst: one plume punches up as the deck disappears.
+ if(splash?.naturalWidth){
+  const q=clamp(wreck*1.5,0,1),w=200+q*260;
+  paint(splash,b.x,b.y+26,w,Math.min(1,wreck*3)*(1-q*.8)*.95);
+  const q2=clamp(wreck*1.5-.3,0,1);paint(splash,b.x+52,b.y+80,w*.58,Math.min(1,wreck*2.4)*(1-q2)*.5,.4);}
+ // Persistent foam collar stays at the waterline while the hull slides beneath.
+ if(foam?.naturalWidth)for(let i=0;i<3;i++){
+  const f=clamp(wreck*1.35-i*.16,0,1);if(f<=0)continue;
+  const fw=(185+f*240)*(i===1?.76:1);
+  paint(foam,b.x+Math.sin(i*2.1)*18,b.y+30+i*27+Math.sin(t*.9+i*2.4)*6,fw,Math.min(1,wreck*2.2)*Math.max(0,1-wreck*.6)*(.88-i*.18),Math.sin(t*.7+i*1.9)*.1);}
+}
 const drawBossArt=(c,key,w,h)=>{const image=bossArt[key];if(image?.naturalWidth)c.drawImage(image,-w/2,-h/2,w,h)};
-const cityGroup=createLazyImageGroup({london:'./terrain-city-london96.webp?v=392&b=340',berlin:'./terrain-city-berlin96.webp?v=392&b=340'}),cityArt=cityGroup.images;
+const cityGroup=createLazyImageGroup({london:'./terrain-city-london96.webp?v=393&b=340',berlin:'./terrain-city-berlin96.webp?v=393&b=340'}),cityArt=cityGroup.images;
 // Dedicated aircraft-style sprite atlas; collider sizes remain authoritative.
 const partGroup=createLazyImageGroup({atlas:'./boss-parts100.webp'}),partArt=partGroup.images;
 function bossSprite(c,index,x,y,w,h,angle=0,alpha=1){
@@ -405,10 +428,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     if(w0>0){c.translate(0,w0*260);c.rotate(w0*.3);c.globalAlpha*=Math.max(0,1-w0*.9);}
     drawSupportShip(c,b.destroying?{...body.support129,dead:false}:body.support129,supportImages129);
     c.restore();
-    if(w0>0){const foam=sinkFoamArt.foam;
-     if(foam?.naturalWidth){const f=Math.min(1,w0*1.3),fw=240+f*180,fh=fw*foam.naturalHeight/foam.naturalWidth;
-      c.save();c.imageSmoothingEnabled=true;c.translate(b.x,b.y+60+w0*50);c.rotate(Math.sin(b.destructionAge*.7)*.08);
-      c.globalAlpha=Math.min(1,w0*2)*Math.max(0,1-w0*.55);c.drawImage(foam,-fw/2,-fh/2,fw,fh);c.restore();}}
+    if(w0>0)drawSinkingWater(c,b,w0);
    }return;}
    c.save();const wreck=b.destroying?Math.min(1,b.destructionAge/Math.max(.1,b.destructionDuration)):0;
    const sinking=wreck>0&&(['sms-stuttgart','armored-harbor-fortress'].includes(b.assetKey)||b.assetKey.startsWith('hms-zubian'));
@@ -541,12 +561,9 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     planeSprite(c,0,0,(b.a??-Math.PI/2),key,1,true,false,b.hitFlash||0,b.hp<=b.maxHp*.5);
    }
    else drawBossArt(c,'markv',172,258);
-   if(sinking){const foam=sinkFoamArt.foam;
-    if(foam?.naturalWidth){const f=Math.min(1,wreck*1.3),fw=220+f*180,fh=fw*foam.naturalHeight/foam.naturalWidth;
-     c.save();c.imageSmoothingEnabled=true;c.translate(0,60-wreck*210);c.rotate(Math.sin(b.destructionAge*.7)*.08);
-     c.globalAlpha=Math.min(1,wreck*2)*Math.max(0,1-wreck*.55);c.drawImage(foam,-fw/2,-fh/2,fw,fh);c.restore();}}
    if(b.destroying&&!rail&&!structure){c.globalAlpha=.2+.3*(1-wreck);c.fillStyle='#171c19';for(let i=0;i<18;i++)c.fillRect(-70+(i*29)%140,-105+(i*47)%210,18+(i%3)*6,14+(i%2)*8);}
    if(!b.coreVulnerable&&!b.destroying&&!structure&&!b.assetKey.startsWith('hms-zubian')&&!['london-apron','drachen-net'].includes(b.assetKey))ring(0,0,76,'#bdd8df66');c.restore();
+   if(sinking)drawSinkingWater(c,b,wreck);
   },
   drawPart(p){if(layer==='hazards')return;
    if(p.kind==='engine'&&!p.hittable&&!p.destroyed)return;
