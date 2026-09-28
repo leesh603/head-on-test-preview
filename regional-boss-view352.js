@@ -1,20 +1,20 @@
-import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=364';
-import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=364';
-import {fx} from './fx-art.js?v=364';
-import {drawAADefense} from './aa-defense-art.js?v=364';
+import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=365';
+import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=365';
+import {fx} from './fx-art.js?v=365';
+import {drawAADefense} from './aa-defense-art.js?v=365';
 
 // These are authored/derived RGBA sprites, not canvas-painted replacement art.
 // Only the current battlefield's small atlas set remains resident.
 const SOURCES=Object.freeze({
  train:'./boss-fliegerzug-parts352.webp',treffas:'./boss-treffas-parts352.webp',support:'./boss-regional-support352.webp',
- apronNet:'./boss-london-apron-net-sweep.png?v=364',
+ apronNet:'./boss-london-apron-net-sweep.png?v=365',
  staaken:'./boss-staaken-body352.webp',staakenEngines:'./boss-staaken-engines352.webp',staakenWreck:'./boss-staaken-wreck352.webp',
- tank:'./boss-mark4.webp?v=364',tankWreck:'./boss-mark4-wreck.webp?v=364',
- morser:'./boss-morser.webp?v=364',morserWreck:'./boss-morser-wreck.webp?v=364',
- bugFolded:'./boss-bug-folded.webp?v=364',bugFlight:'./boss-bug-flight.webp?v=364',impact:'./fx-mortar-impact340.webp'
+ tank:'./boss-mark4.webp?v=365',tankWreck:'./boss-mark4-wreck.webp?v=365',
+ morser:'./boss-morser.webp?v=365',morserWreck:'./boss-morser-wreck.webp?v=365',
+ bugFolded:'./boss-cambrai-bug.webp?v=365',bugFlight:'./boss-cambrai-bug.webp?v=365',impact:'./fx-mortar-impact340.webp'
 });
 const SHEETS={train:'boss-fliegerzug-parts352',treffas:'boss-treffas-parts352',support:'boss-regional-support352',staakenEngines:'boss-staaken-engines352'};
-const REGION_KEYS={4:['support','apronNet'],8:['support','train','treffas','bugFolded','bugFlight','impact'],10:['support','tank','tankWreck','morser','morserWreck','impact'],11:['support','staaken','staakenEngines','staakenWreck','impact']};
+const REGION_KEYS={4:['support','apronNet'],8:['support','bugFlight','impact'],10:['support','tank','tankWreck','morser','morserWreck','impact'],11:['support','staaken','staakenEngines','staakenWreck','impact']};
 const REQUIRED={'fliegerzug':['train','support','bugFolded'],'treffas-wagen':['treffas'],'mark4-wedge':['tank','tankWreck','support'],'morser-battery':['morser','morserWreck','support'],'staaken-rvi':['staaken','staakenEngines','staakenWreck'],'london-searchlight':['support'],'london-apron':['support'],'drachen-net':['support']};
 const cache=new Map();
 function load(key){
@@ -65,7 +65,7 @@ function cable(c,x0,y0,x1,y1,broken=false){
  c.save();c.strokeStyle=broken?'#4c48417a':'#574f41b8';c.lineWidth=1.8;c.beginPath();c.moveTo(x0,y0);c.lineTo(broken?x0+(x1-x0)*.24:x1,broken?y0+(y1-y0)*.24:y1);c.stroke();c.restore();
 }
 export function drawRegionalBossBody(c,b){
- if(!REGIONAL_BOSS_SET.has(b.assetKey))return false;
+ if(!REGIONAL_BOSS_SET.has(b.assetKey)||b.assetKey==='fliegerzug'||b.assetKey==='treffas-wagen')return false;
  // The city encounters keep their approved full composite silhouettes. Only
  // hazards and restrained damage overlays are layered elsewhere.
  if(b.assetKey==='london-apron'||b.assetKey==='drachen-net')return false;
@@ -165,7 +165,7 @@ export function drawRegionalBossBody(c,b){
  c.restore();return true;
 }
 export function drawRegionalBossPart(c,p){
- if(!REGIONAL_BOSS_SET.has(p.bodyKey))return false;
+ if(!REGIONAL_BOSS_SET.has(p.bodyKey)||p.bodyKey==='fliegerzug'||p.bodyKey==='treffas-wagen')return false;
  if(p.bodyKey==='fliegerzug'||p.destroyed||!p.hittable)return true;
  const rx=p.hitRadiusX||p.radius,ry=p.hitRadiusY||p.radius;
  if(p.hp<p.maxHp){brackets(c,p.x,p.y,rx+3,ry+3,.55);c.save();c.fillStyle='#232820';c.fillRect(p.x-rx*.8,p.y+ry+6,rx*1.6,3);c.fillStyle='#d6b27d';c.fillRect(p.x-rx*.8,p.y+ry+6,rx*1.6*clamp(p.hp/p.maxHp),3);c.restore();}

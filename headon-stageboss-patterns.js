@@ -1,6 +1,6 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=364';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=364';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=364';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=365';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=365';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=365';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -21,7 +21,7 @@ export const BOSS_CATALOG = Object.freeze({
   gik: {name:'한자-브란덴부르크 G.IK', faction:'central', stage:6},
   ca4: {name:'카프로니 Ca.4', faction:'entente', stage:6}
   ,'armored-harbor-fortress': {name:'장갑 크레인 항구요새', faction:'neutral', stage:7}
-  ,'fliegerzug': {name:'무인기 모함열차 · 플리거주크', faction:'entente', stage:8}
+  ,'fliegerzug': {name:'무인폭탄기 모함열차 · 플리거주크', faction:'entente', stage:8}
   ,'treffas-wagen': {name:'대공개조형 트레파스바겐 · 거륜 육상전함', faction:'central', stage:8}
   ,'jasta11-circus': {name:'야스타 11 플라잉 서커스', faction:'central', stage:9, pilot:'baron', formationSize:5}
   ,'naval10-black-flight': {name:'네이벌 10 — 블랙 플라이트', faction:'entente', stage:9, pilot:'collishaw', formationSize:5}
@@ -680,61 +680,91 @@ export class DrachenMineNet extends RegionalPatternBoss {
   }
 }
 
-// Fliegerzug is an armored train whose wagons launch Kettering Bugs and escort
-// fighters instead of carrying a heavy gun — the rail chassis, car hit chain,
-// runaway and derail all stay on the shared rail controller.
+// Cambrai: the armoured train's five independent wagons each remove a weapon
+// or change the launch schedule. The locomotive keeps the shared rail route.
 export class Fliegerzug extends RailAdapter {
   constructor(options){
-    const mobile=(options.tuning.regionalViewWidth||960)<=600,h=options.tuning.regionalViewHeight||700,scale=mobile?Math.min(1,Math.max(180,h-380)/(RAIL_CAR_SIZE.height+RAIL_CAR_SIZE.pitch*3)):1;
-    const y=mobile&&Number.isFinite(options.tuning.regionalPlayerY)?options.tuning.regionalPlayerY-h/2+190+RAIL_CAR_SIZE.height*scale/2:options.y-RAIL_CAR_SIZE.spawnOffset;
-    super({...options,y},'fliegerzug');this.railBodyScale=scale;this.kind='fliegerzug';this.bugSalvo=null;this.launchStock=2;this.launchReload=0;this.hangarHatch=0;this.flakAngle=-Math.PI/2;
-    for(const id of this.railCarOrder){const p=this.parts.get(id);p.y=({'car-front':1,'car-middle':2,'car-rear':3}[id])*RAIL_CAR_SIZE.pitch*scale;p.radius=RAIL_CAR_SIZE.rx*scale;p.hitRadiusY=RAIL_CAR_SIZE.ry*scale;}
+    super(options,'fliegerzug');
+    for(const id of this.railCarOrder)this.parts.delete(id);
+    const carHp=this.t.railCarHp||this.t.partHp*.85;
+    const cars=[
+      ['car-flak',165,112],['car-launch-a',325,132],['car-supply',485,120],
+      ['car-launch-b',645,132],['car-rear',805,120]
+    ];
+    this.railCarOrder=cars.map(([id])=>id);
+    for(const [id,y,hitRadiusY] of cars)this.parts.set(id,new BossPart({id,kind:'rail-car',maxHp:carHp,x:0,y,radius:59,hittable:true}));
+    for(const [id,,hitRadiusY] of cars)this.parts.get(id).hitRadiusY=hitRadiusY;
+    this.bugSalvo=null;this.launchIndex=0;
   }
-  locateHit(s){
-    if(this.dead)return null;
-    const rail=this.rail129.railTarget;
-    for(const id of this.railCarOrder){const p=this.parts.get(id);if(p.destroyed)continue;const q=railLocalPose(this,p);
-      if(intersectsEllipse(s,q.x,q.y,RAIL_CAR_SIZE.rx*this.railBodyScale,RAIL_CAR_SIZE.ry*this.railBodyScale,q.angle))return p.hittable?{partId:id}:{partId:'absorb'};
+  liveLaunchers(){return ['car-launch-a','car-launch-b'].map(id=>this.parts.get(id)).filter(p=>!p.destroyed);}
+  onPartDestroyed(p){
+    if(p.kind!=='rail-car')return;
+    this.emit({type:'rail-car-detached',bossId:this.id,partId:p.id,x:this.x+p.x,y:this.y+p.y});
+    if(this.railCarOrder.filter(id=>this.parts.get(id).destroyed).length>=3&&!this.coreVulnerable){
+      this.coreVulnerable=true;this.phase='locomotive';this.emit({type:'phase-change',bossId:this.id,phase:'locomotive'});
     }
-    const q=railLocalPose(this);if(this.coreVulnerable&&intersectsEllipse(s,q.x,q.y,RAIL_CAR_SIZE.rx*this.railBodyScale,RAIL_CAR_SIZE.ry*this.railBodyScale,q.angle))return{partId:null};
-    if(!this.rail129.broken&&rail&&intersectsEllipse(s,rail.x,rail.y,rail.radius,rail.radius))return{partId:'rail'};return null;
   }
-  onPartDestroyed(p){if(p.kind==='rail-car')p.detachedPose=railLocalPose(this,p);super.onPartDestroyed(p);if(p.id==='car-middle'){this.bugSalvo=null;this.launchStock=0;}if(p.id==='car-rear')this.hangarHatch=0;}
   railEvent(e){
-    if(e.type==='aim'){
-      const car=this.parts.get('car-middle');if(car&&!car.destroyed){const q=railLocalPose(this,car);this.emit({type:'bug-launch-warning',bossId:this.id,x:q.x,y:q.y,angle:-Math.PI/2+q.angle,seconds:e.seconds});}
+    if(e.type==='fire'){
+      const ports=this.liveLaunchers();
+      if(ports.length){this.bugSalvo={ports,clock:0};this.emit({type:'bug-salvo',bossId:this.id,x:this.x,y:this.y});}
       return;
     }
-    if(e.type==='fire'){
-      this.bugSalvo={count:2+((this.t.loopIndex||0)>0?1:0),clock:0};
-      this.emit({type:'bug-salvo',bossId:this.id,x:this.x,y:this.y});return;
-    }
+    if(e.type==='aim')return;
     super.railEvent(e);
   }
   launchBug(car,players){
-    if(car.destroyed||this.launchStock<=0)return false;
-    const q=railLocalPose(this,car),slot=this.launchStock===2?-1:1,heading=-Math.PI/2+q.angle;
-    const s=this.railBodyScale,x=q.x+(Math.cos(q.angle)*slot*23-Math.sin(q.angle)*18)*s,y=q.y+(Math.sin(q.angle)*slot*23+Math.cos(q.angle)*18)*s;
-    this.launchStock--;this.launchReload=2.4;
-    this.emit({type:'spawn-minion',bossId:this.id,faction:this.faction,minion:'bug',x,y,behavior:'suicide-dive',a:heading,launchHeading:heading,launchSeconds:.6,speed:178,life:13,contactDamage:18});
-    this.emit({type:'bug-launch',bossId:this.id,x,y,angle:heading,seconds:.6});return true;
+    const target=players.find(p=>p.alive!==false),x=this.x+car.x,y=this.y+car.y-52;
+    const tx=(target?.x??x)+(target?.vx||0)*.65,ty=(target?.y??y+320)+(target?.vy||0)*.65;
+    this.emit({type:'spawn-minion',bossId:this.id,faction:this.faction,minion:'bug',x,y,
+      behavior:'bug-strike',a:Math.atan2(ty-y,tx-x),passTargetX:tx,passTargetY:ty,
+      launchPortId:car.id,speed:186,life:9.5,contactDamage:Math.min(22,Math.round(this.t.damage*.78))});
+  }
+  locateHit(s){
+    const r=this.rail129.railTarget;
+    const x0=s.previousX??s.x,y0=s.previousY??s.y,dx=s.x-x0,dy=s.y-y0;
+    const ellipse=(cx,cy,rx,ry)=>{
+      const ax=dx/rx,ay=dy/ry,bx=(x0-cx)/rx,by=(y0-cy)/ry,d=ax*ax+ay*ay;
+      const t=d?Math.max(0,Math.min(1,-(bx*ax+by*ay)/d)):0;
+      const pad=(s.radius||0)/Math.min(rx,ry);
+      return (bx+ax*t)**2+(by+ay*t)**2<=(1+pad)**2;
+    };
+    if(!this.rail129.broken&&r&&ellipse(r.x,r.y,r.radius,r.radius))return{partId:'rail'};
+    for(const id of this.railCarOrder){const p=this.parts.get(id);
+      if(!p.destroyed&&ellipse(this.x+p.x,this.y+p.y,p.radius,p.hitRadiusY))return{partId:id};}
+    return this.coreVulnerable&&ellipse(this.x,this.y,59,112)?{partId:null}:null;
   }
   update(dt,ctx){
-    super.update(dt,ctx);if(this.dead)return;
-    const players=ctx.players||[],launch=this.parts.get('car-middle'),hangar=this.parts.get('car-rear'),flak=this.parts.get('car-front');
-    this.hangarHatch=Math.max(0,this.hangarHatch-dt);
-    if(!launch.destroyed&&this.launchReload>0){this.launchReload=Math.max(0,this.launchReload-dt);if(!this.launchReload)this.launchStock=2;}
+    super.update(dt,ctx);
+    if(this.dead)return;
+    const players=ctx.players||[],car=id=>this.parts.get(id),ports=this.liveLaunchers();
     const salvo=this.bugSalvo;
-    if(salvo&&!launch.destroyed){salvo.clock-=dt;if(salvo.count>0&&salvo.clock<=0&&this.launchBug(launch,players)){salvo.count--;salvo.clock=.65;}if(salvo.count<=0)this.bugSalvo=null;}else this.bugSalvo=null;
-    if(!launch.destroyed&&!this.bugSalvo&&this.due('bug-trickle',dt,5.4))this.launchBug(launch,players);
-    if(!hangar.destroyed&&this.due('hangar-launch',dt,this.phase==='derailed'?10.5:7.6)){
-      const p=players.find(p=>p.alive!==false),q=railLocalPose(this,hangar);this.hangarHatch=1.4;
-      this.emit({type:'spawn-minion',bossId:this.id,faction:this.faction,minion:'escort',x:q.x,y:q.y,behavior:'attack-pass',a:Math.PI/2,passTargetX:p?.x??this.x,passTargetY:(p?.y??this.y)+130,invulnerableSeconds:.5});
+    if(salvo){
+      salvo.clock-=dt;
+      while(salvo.ports.length&&salvo.clock<=0){const port=salvo.ports.shift();salvo.clock+=.72;
+        if(!port.destroyed&&(!this.countMinions129||this.countMinions129()<5))this.launchBug(port,players);}
+      if(!salvo.ports.length)this.bugSalvo=null;
     }
-    if(!flak.destroyed){const p=players.find(p=>p.alive!==false),q=railLocalPose(this,flak);if(p)this.flakAngle=turnToward(this.flakAngle,Math.atan2(p.y-q.y,p.x-q.x),.9*dt);
-      if(p&&this.due('flak-car',dt,3.2)){const s=this.railBodyScale,sx=q.x+(Math.sin(q.angle)*8+Math.cos(this.flakAngle)*51.1)*s,sy=q.y+(-Math.cos(q.angle)*8+Math.sin(this.flakAngle)*51.1)*s;
-        this.emit({type:'muzzle',bossId:this.id,x:sx,y:sy,partId:'car-front'});
-        this.emit({type:'hazard',bossId:this.id,kind:'circle',x:p.x+(p.vx||0)*.4,y:p.y+(p.vy||0)*.4,radius:52,warning:1.1,duration:.4,once:true,damage:this.t.damage*.82,visual:'black-flak',sourcePartId:'car-front',sourceX:sx,sourceY:sy});}
+    const supply=car('car-supply'),reload=(supply.destroyed?1.55:1);
+    if(ports.length&&this.due('bug-trickle',dt,(ports.length===2?6.4:9.2)*reload)){
+      const port=ports[this.launchIndex++%ports.length];
+      if(!this.countMinions129||this.countMinions129()<5)this.launchBug(port,players);
+    }
+    const flak=car('car-flak');
+    if(flak&&!flak.destroyed&&this.due('flak-car',dt,3.2)){
+      const p=players.find(p=>p.alive!==false);
+      if(p){const x=this.x+flak.x,y=this.y+flak.y-38;
+        this.emit({type:'muzzle',bossId:this.id,x,y,partId:flak.id});
+        this.emit({type:'hazard',bossId:this.id,kind:'circle',x:p.x+(p.vx||0)*.45,y:p.y+(p.vy||0)*.45,
+          radius:49,warning:1.05,duration:.35,once:true,damage:this.t.damage*.78,visual:'black-flak',sourceX:x,sourceY:y});}
+    }
+    const rear=car('car-rear');
+    if(!rear.destroyed&&this.due('rear-mg',dt,4.1)){
+      const p=players.find(p=>p.alive!==false),x=this.x+rear.x,y=this.y+rear.y-33;
+      if(p){const a=Math.atan2(p.y-y,p.x-x);this.emit({type:'muzzle',bossId:this.id,x,y,partId:rear.id});
+        for(const offset of [-.16,0,.16])this.emit({type:'hazard',bossId:this.id,kind:'projectile',x,y,
+          vx:Math.cos(a+offset)*this.t.bulletSpeed*.83,vy:Math.sin(a+offset)*this.t.bulletSpeed*.83,
+          radius:5,damage:this.t.damage*.52,visual:'rail-mg'});}
     }
   }
 }
@@ -742,66 +772,74 @@ export class Fliegerzug extends RailAdapter {
 // Treffas-Wagen rolls forward on its twin drum wheels, crushing terrain into debris
 // sprays. Wheels are mobility, the turret is the gun: break wheels to halt the
 // advance (it digs in and fires harder), break everything to expose the hull.
-export class TreffasWagen extends RegionalPatternBoss {
-  suppressive(){/* Only the surviving turret and wheel hardware attack. */}
+export class TreffasWagen extends PatternBoss {
   constructor(options){
-    super({...options,kind:'treffas-wagen',coreRadius:options.tuning.coreRadius||86,parts:[
-      {id:'wheel-left',x:-60,y:59,radius:52,maxHp:options.tuning.partHp*1.2},
-      {id:'wheel-right',x:60,y:59,radius:52,maxHp:options.tuning.partHp*1.2},
-      {id:'turret',x:0,y:-88,radius:30,maxHp:options.tuning.partHp*1.3},
-      {id:'rudder',x:0,y:81,radius:24}
+    super({...options,kind:'treffas-wagen',coreRadius:options.tuning.coreRadius||62,parts:[
+      {id:'wheel-left',x:-100,y:12,radius:46,maxHp:options.tuning.partHp*1.2},
+      {id:'wheel-right',x:100,y:12,radius:46,maxHp:options.tuning.partHp*1.2},
+      {id:'turret',x:0,y:-82,radius:52,maxHp:options.tuning.partHp*1.3},
+      {id:'rudder',x:0,y:112,radius:26}
     ]});
     this.phase='advance';this.coreVulnerable=false;this.ownsMotion129=true;
-    this.anchorX=this.x;this.startY=this.y;this.anchorY=this.y;this.wheelRoll=0;this.motionTime=0;
-    this.parts.get('turret').angle=-Math.PI/2;this.timers.set('treffas-mortar',2.2);this.timers.set('treffas-mg',1.1);this.timers.set('treffas-debris',.5);
+    this.anchorX=this.x;this.startY=this.y;this.driveDistance=0;this.driveAge=0;this.wheelRoll=0;
+    this.flakPattern=0;this.timers.set('treffas-flak',2.1);this.timers.set('treffas-mg',1.5);
   }
   wheelsAlive(){return ['wheel-left','wheel-right'].filter(id=>!this.parts.get(id).destroyed).length;}
   wheelBias(){const l=this.parts.get('wheel-left'),r=this.parts.get('wheel-right');return l.destroyed&&!r.destroyed?-1:!l.destroyed&&r.destroyed?1:0;}
-  onPartDestroyed(){
-    if(this.allDestroyed(['wheel-left','wheel-right'])&&['advance','enraged'].includes(this.phase)){
-      // A halted Treffas-Wagen digs in as a gun platform instead of dying.
-      this.phase='crippled';this.command('phase-change',{phase:'crippled'});
-    }
-    if(this.allDestroyed(['wheel-left','wheel-right','turret','rudder'])&&!this.coreVulnerable){
-      this.coreVulnerable=true;this.phase='exposed';this.command('phase-change',{phase:'exposed'});
-    }
+  onPartDestroyed(p){
+    if(this.wheelsAlive()===0&&this.phase!=='emplacement'){
+      this.phase='emplacement';this.command('phase-change',{phase:'emplacement'});
+    }else if(p.id==='turret')this.command('phase-change',{phase:'flak-disabled'});
+    const lost=['wheel-left','wheel-right','turret','rudder'].filter(id=>this.parts.get(id).destroyed).length;
+    if(lost>=2&&!this.coreVulnerable){this.coreVulnerable=true;this.command('phase-change',{phase:'hull-exposed'});}
   }
-  debrisBurst(x,y,count,spread,damage){
-    for(let i=0;i<count;i++){const a=(this.wheelBias()||1)*.9+(this.rng()-.5)*spread*2+(i-(count-1)/2)*spread/(count/2);
-      this.hazard('projectile',{x,y,vx:Math.cos(a)*195,vy:Math.sin(a)*195+40,radius:9,duration:1.5,once:true,damage,visual:'treffas-debris'});}
+  locateHit(s){
+    const x0=s.previousX??s.x,y0=s.previousY??s.y,dx=s.x-x0,dy=s.y-y0;
+    const ellipse=(cx,cy,rx,ry)=>{
+      const ax=dx/rx,ay=dy/ry,bx=(x0-cx)/rx,by=(y0-cy)/ry,d=ax*ax+ay*ay;
+      const t=d?Math.max(0,Math.min(1,-(bx*ax+by*ay)/d)):0;
+      const pad=(s.radius||0)/Math.min(rx,ry);
+      return (bx+ax*t)**2+(by+ay*t)**2<=(1+pad)**2;
+    };
+    for(const id of ['turret','wheel-left','wheel-right','rudder']){
+      const p=this.parts.get(id);if(p.destroyed)continue;
+      const [rx,ry]=id.startsWith('wheel')?[46,91]:id==='turret'?[51,54]:[25,33];
+      if(ellipse(this.x+p.x,this.y+p.y,rx,ry))return{partId:id};
+    }
+    return this.coreVulnerable&&ellipse(this.x,this.y,53,105)?{partId:null}:null;
   }
   update(dt,{players,bounds}){
     if(this.dead)return;
-    const wheels=this.wheelsAlive(),crippled=wheels===0;
-    if(!crippled&&this.phase==='advance'&&this.hp<=this.maxHp*.3){this.phase='enraged';this.command('phase-change',{phase:'enraged'});}
-    const enraged=this.phase==='enraged',speed=crippled?0:30*(enraged?1.6:1)*(this.wheelBias()?.55:1);
-    // The motion clock feeds both the churn trail and the wheel rotation art.
-    this.wheelRoll+=speed*dt*.05;
-    this.anchorY+=speed*dt;
-    const limit=this.startY+330;if(this.anchorY>limit)this.anchorY=limit;
-    if(crippled){this.haltedX??=this.x;this.haltedY??=this.y;this.x=this.haltedX;this.y=this.haltedY;}
-    else{this.y=this.anchorY+Math.sin(this.motionTime*.4)*10;this.x=this.anchorX+Math.sin(this.motionTime*.23)*120+this.wheelBias()*55;}
-    // Wheels leave churned ground behind; the view consumes this trail.
+    const wheels=this.wheelsAlive(),moving=wheels>0,lowHp=this.hp<=this.maxHp*.35;
+    const speed=wheels===2?44:wheels===1?23:0;
+    if(moving){this.driveAge+=dt;this.driveDistance+=speed*dt;this.wheelRoll+=speed*dt/34;
+      this.y=this.startY+Math.sin(this.driveDistance/155)*145;
+      const rudderLost=this.parts.get('rudder').destroyed,steering=rudderLost?18:94;
+      this.x=this.anchorX+Math.sin(this.driveAge*(rudderLost ? 0.09 : 0.25))*steering
+        +this.wheelBias()*32+Math.sin(this.driveAge*4)*this.wheelBias()*5;}
     this._churn??=[];const last=this._churn[this._churn.length-1];
-    if(speed>0&&(!last||Math.hypot(this.x-last.x,this.y-last.y)>30))this._churn.push({x:this.x,y:this.y+58});
+    if(moving&&(!last||Math.hypot(this.x-last.x,this.y-last.y)>30))this._churn.push({x:this.x,y:this.y+65});
     if(this._churn.length>110)this._churn.splice(0,this._churn.length-110);
-    // Wheels shed dirt and rock sideways as they crush the ground.
-    if(speed>0&&this.due('treffas-debris',dt,enraged?.65:.85)){
+    if(moving&&this.due('treffas-debris',dt,lowHp?.7:.95)){
       for(const id of ['wheel-left','wheel-right']){const w=this.parts.get(id);if(w.destroyed)continue;
-        const side=id==='wheel-left'?-1:1,wx=this.x+w.x,wy=this.y+w.y;
+        const side=id==='wheel-left'?-1:1,wx=this.x+w.x,wy=this.y+w.y+30;
         this.hazard('projectile',{x:wx,y:wy+24,vx:side*(135+this.rng()*55),vy:28+this.rng()*62,radius:7,duration:1.35,once:true,damage:this.t.damage*.28,visual:'treffas-debris'});
-        if(this.rng()<.25)this.hazard('projectile',{x:wx,y:wy+24,vx:side*(55+this.rng()*45),vy:105+this.rng()*50,radius:7,duration:1.45,once:true,damage:this.t.damage*.28,visual:'treffas-debris'});
       }
     }
-    const turret=this.parts.get('turret'),aimTarget=living(players)[0];if(!turret.destroyed&&aimTarget)turret.angle=turnToward(turret.angle,Math.atan2(aimTarget.y-this.y-turret.y,aimTarget.x-this.x-turret.x),.75*dt);
-    if(turret&&!turret.destroyed&&this.due('treffas-mortar',dt,(crippled?3.4:enraged?3.1:4.8))){
-      const p=this.target(players);if(p){const shots=enraged||crippled?4:3,aim=turret.angle,muzzle=regionalMuzzle(this,'turret',aim,53);turret.angle=aim;
-        for(let i=0;i<shots;i++)this.hazard('circle',{x:p.x+(p.vx||0)*.5+(i-(shots-1)/2)*62,y:p.y+(p.vy||0)*.5+randBetween(this.rng,-20,20),radius:52,delay:i*.16,warning:1.05,duration:.4,once:true,damage:this.t.damage*.95,visual:'treffas-shell',sourceX:muzzle.x,sourceY:muzzle.y});
-        this.command('muzzle',{...muzzle,partId:'turret'});}
+    const turret=this.parts.get('turret');
+    if(!turret.destroyed&&this.due('treffas-flak',dt,!moving?2.8:lowHp?3.2:4.35)){
+      const p=this.target(players);if(p){const focus=(this.flakPattern++%2)===0,count=focus?3:4;
+        const tx=p.x+(p.vx||0)*.55,ty=p.y+(p.vy||0)*.55;
+        const alongX=Math.abs(p.vx||0)>=Math.abs(p.vy||0);
+        this.command('muzzle',{x:this.x+turret.x,y:this.y+turret.y-24,partId:'turret'});
+        for(let i=0;i<count;i++){const offset=(i-(count-1)/2)*(focus?36:62);
+          this.hazard('circle',{x:tx+(focus||alongX?offset:0),y:ty+(!focus&&!alongX?offset:0),
+            radius:focus?43:47,delay:i*(focus?.15:.21),warning:1.08,duration:.34,once:true,
+            damage:this.t.damage*.82,visual:'black-flak',sourceX:this.x,sourceY:this.y-106});}}
     }
-    if(!turret.destroyed&&this.due('treffas-mg',dt,crippled?2.2:2.9)){
-      const p=this.target(players);
-      if(p)for(const side of [-1,1]){const mx=this.x+side*64,my=this.y-20,a=Math.atan2(p.y-my,p.x-mx);this.fan(mx,my,a,3,.3,this.t.bulletSpeed*.95,'treffas-mg');}
+    if(this.due('treffas-mg',dt,turret.destroyed?3.25:4.4)){
+      const p=this.target(players),mx=this.x,my=this.y-55;
+      if(p){const a=Math.atan2(p.y-my,p.x-mx);this.command('muzzle',{x:mx,y:my});this.fan(mx,my,a,2,.18,this.t.bulletSpeed*.8,'treffas-mg');}
     }
   }
 }
