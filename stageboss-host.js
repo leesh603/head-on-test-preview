@@ -1,8 +1,8 @@
 
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=377';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=377';
-import {bossSoundFor} from './boss-feedback.js?v=377';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=377';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=378';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=378';
+import {bossSoundFor} from './boss-feedback.js?v=378';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=378';
 
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'];
@@ -129,7 +129,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     for(let i=0;i<4;i++){const ox=(g.rng?g.rng()-.5:Math.random()-.5)*120,oy=(i-1.5)*55+(g.rng?g.rng()-.5:Math.random()-.5)*30,r=24+((i*37)%3)*14;g.combatBlast(event.x+ox,event.y+oy,r,'enemy','structure');if(g.burst)g.burst(event.x+ox,event.y+oy,'#ffd06a',6);if(g.smoke)g.smoke(event.x+ox,event.y+oy,true)}
     g.event('wave','열차 객차 파괴 · 기관차 방호 약화');}
    else if(event.type==='rail-runaway'){g.event('wave','기관차 폭주! · 선로에서 이탈하기 전에 추격하세요');g.shake=Math.max(g.shake,6);}
-   else if(event.type==='ram-assault'){g.event('wave','무장 전멸 — 최후 돌진 개시!');g.shake=Math.max(g.shake,5);}
+
    else if(event.type==='rail-derail'){g.combatBlast(x,y,96,'enemy','structure');g.shake=Math.max(g.shake,12);g.event('wave','기관차 탈선 · 최종 코어 노출');}
    else if(event.type==='body-defeated'&&event.kind?.startsWith('hms-zubian-')){g.combatBlast(x,y,82,'enemy','bossFinal');g.shake=Math.max(g.shake,10);}
     else if(event.type==='mine-chain'){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:.52,kind:event.chainIndex?'aaChainBurst':'aaMineBurst'});

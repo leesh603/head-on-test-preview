@@ -1,7 +1,7 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=377';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=377';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=377';
-import {APRON,apronPose,apronPanelHull} from './london-apron369.js?v=377';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=378';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=378';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=378';
+import {APRON,apronPose,apronPanelHull} from './london-apron369.js?v=378';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -51,20 +51,6 @@ class PatternBoss extends BaseBoss {
       this.hazard('projectile',{x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,radius:5,...(visual?{visual}:null)});}
   }
   radial(count=24,speed=this.t.bulletSpeed) {count=Math.max(1,Math.ceil(count*(this.t.projectileDensity??1)));for(let i=0;i<count;i++)this.fan(this.x,this.y,i*Math.PI*2/count,1,0,speed);}
-  // Weaponless last stand: the hull charges the nearest player and hits on contact.
-  ramCharge(dt,{players,bounds},{speed=125,contact=100,cooldown=1.35}={}) {
-    this.ownsMotion129=true;
-    const p=living(players).reduce((m,q)=>!m||Math.hypot(q.x-this.x,q.y-this.y)<Math.hypot(m.x-this.x,m.y-this.y)?q:m,null)||this.target(players);
-    if(!p)return;
-    const tx=Math.max(bounds.left+30,Math.min(bounds.right-30,p.x)),ty=Math.max(bounds.top+30,Math.min(bounds.bottom+40,p.y));
-    const dx=tx-this.x,dy=ty-this.y,d=Math.hypot(dx,dy)||1,step=Math.min(speed*dt,d);
-    this.x+=dx/d*step;this.y+=dy/d*step;
-    if(Math.hypot(p.x-this.x,p.y-this.y)<contact&&this.due('ram-hit',dt,cooldown)){
-      this.command('muzzle',{x:this.x,y:this.y+40});
-      this.hazard('circle',{x:p.x,y:p.y,radius:46,warning:0,duration:.35,once:true,damage:0,visual:'ram-impact'});
-      this.emit({type:'support-damage',bossId:this.id,playerId:p.id??'p1',damage:Math.round(this.t.damage*1.6),source:{visual:'ram-impact'}});
-    }
-  }
   suppressive(dt,players) {
     if(!this.due('suppressive',dt,this.t.suppressiveInterval||3.1))return;
     const p=this.target(players);if(!p)return;const a=Math.atan2(p.y-this.y,p.x-this.x);
@@ -345,18 +331,22 @@ export class Ca4 extends AlpsPatternBoss {
 export class A7VFlak extends PatternBoss {
   suppressive(){/* attacks come only from live turrets */ }
   constructor(options) {
-    super({...options,kind:'a7v-flak',parts:[{id:'front',x:-45,y:-78},{id:'rear',x:45,y:32},{id:'left',x:-45,y:32},{id:'right',x:45,y:-78}].map(p=>({...p,radius:24}))});
+    super({...options,kind:'a7v-flak',parts:[{id:'front',x:-40,y:-58},{id:'rear',x:40,y:20},{id:'left',x:-40,y:20},{id:'right',x:40,y:-58}].map(p=>({...p,radius:24}))});
     this.phase='fortress';this.coreVulnerable=false;this.turretOrder=['front','left','rear','right'];this.turretCursor=0;this.illumination=new Map();this.timers.set('lights',.5);this.timers.set('turret-cycle',.8);
   }
-  onPartDestroyed() {const lost=[...this.parts.values()].filter(p=>p.destroyed).length;if(lost===4){this.coreVulnerable=true;this.phase='exposed';this.command('phase-change',{phase:'exposed'});this.emit({type:'ram-assault',bossId:this.id});}else if(lost>=2&&this.phase==='fortress'){this.phase='weakened';this.command('phase-change',{phase:'weakened'});}}
+  onPartDestroyed() {const lost=[...this.parts.values()].filter(p=>p.destroyed).length;
+    // Each turret carries an equal share of the hull gauge; the last one
+    // destroys the vehicle outright.
+    this.hp-=this.maxHp/this.parts.size;
+    if(this.hp<=0){this.hp=0;this.dead=true;this.phase='defeated';this.emit({type:'body-defeated',bossId:this.id});return;}
+    if(lost>=2&&this.phase==='fortress'){this.phase='weakened';this.command('phase-change',{phase:'weakened'});}}
   update(dt,{players,bounds,isIlluminated}) {
     for(const p of players){const key=p.id??p,age=isIlluminated(p)?Math.min(.7,(this.illumination.get(key)||0)+dt):0;this.illumination.set(key,age);}
     
     if(this.phase!=='exposed'&&this.due('lights',dt,(this.t.lightInterval||9)*(this.phase==='weakened'?.88:1)))this.hazard('searchlight',{
       x:this.x,y:this.y+30,angle:Math.PI/2,angularSpeed:.3,halfAngle:.17,radius:(bounds.bottom-bounds.top)*1.3,
-      angularSpeed:(i%2?-.3:.3),halfAngle:.14,radius:(bounds.bottom-bounds.top)*1.3,
       duration:7.5,warning:.8,damage:0,tickInterval:.2,visual:'searchlight'});
-    if(this.phase==='exposed'){this.ramCharge(dt,{players,bounds},{speed:130,contact:96});return;}
+
     const live=this.turretOrder.filter(id=>!this.parts.get(id).destroyed);
     if(live.length&&this.due('turret-cycle',dt,(this.t.flakInterval||3.2)/live.length)){
       const p=this.target(players);if(!p)return;
@@ -380,12 +370,14 @@ export class A7VFlak extends PatternBoss {
 export class MarkVCruiser extends PatternBoss {
   suppressive(){/* sponson lanes and exposed hull own the barrage */ }
   constructor(options) {super({...options,kind:'mark-v-cruiser',parts:[{id:'sponson-left',x:-80,y:0,radius:37},{id:'sponson-right',x:80,y:0,radius:37}]});this.phase='barrage';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;this.sponsonSide=1;}
-  onPartDestroyed(){const live=[...this.parts.values()].filter(p=>!p.destroyed);if(!live.length){this.phase='final-assault';this.coreVulnerable=true;this.command('phase-change',{phase:this.phase});this.emit({type:'ram-assault',bossId:this.id});}else{this.phase='breached';this.command('phase-change',{phase:this.phase});}}
+  onPartDestroyed(){const live=[...this.parts.values()].filter(p=>!p.destroyed);
+    this.hp-=this.maxHp/this.parts.size;
+    if(!live.length){this.hp=0;this.dead=true;this.phase='defeated';this.emit({type:'body-defeated',bossId:this.id});return;}
+    this.phase='breached';this.command('phase-change',{phase:this.phase});}
   update(dt,{bounds,players=[]}) {
     const live=[...this.parts.values()].filter(p=>!p.destroyed);
     const p=this.target(players);
-    if(!live.length){this.ramCharge(dt,{players,bounds},{speed:150,contact:118,cooldown:1.15});}
-    else{if(p){this.x+=Math.max(-11*dt,Math.min(11*dt,Math.max(this.anchorX-70,Math.min(this.anchorX+70,p.x))-this.x));}
+    if(live.length&&p){this.x+=Math.max(-11*dt,Math.min(11*dt,Math.max(this.anchorX-70,Math.min(this.anchorX+70,p.x))-this.x));
     this.y=Math.min(this.anchorY+Math.min(110,(bounds.bottom-bounds.top)*.2),this.y+10*dt);}
     if(live.length&&this.due('sponson-cycle',dt,live.length===2?1.8:2.7)){
       let part;for(let i=0;i<2;i++){const id=this.sponsonSide>0?'sponson-left':'sponson-right';this.sponsonSide*=-1;if(!this.parts.get(id).destroyed){part=this.parts.get(id);break;}}
