@@ -1,4 +1,4 @@
-import {livensFlameSpan,livensFlameHalfWidth,drawLivensFlame as drawLivensFlameStream} from './livens-fire195.js?v=393';
+import {livensFlameSpan,livensFlameHalfWidth} from './livens-fire195.js?v=393';
 
 // A whole pressure-fed flame field, never a chain of stretched plume sprites.
 // 18 prewarmed RGBA frames = 2.25 MiB. One image draw per beam on both devices.
@@ -67,15 +67,13 @@ let samples=0,totalMs=0,maxMs=0,lastDraw=0,frameMs=0,frameSamples=0,lastReport=0
 function report(start,c){
  if(!probe)return;const now=clock(),cost=now-start;totalMs+=cost;maxMs=Math.max(maxMs,cost);samples++;
  const gap=start-lastDraw;if(gap>0&&gap<100){frameMs+=gap;frameSamples++;}lastDraw=start;
- if(now-lastReport>1000){lastReport=now;c.canvas.setAttribute?.('data-livens-fx',JSON.stringify({version:383,frames:atlas.length,cacheBytes:atlas.length*W*H*4,draws:1,samples,meanMs:+(totalMs/samples).toFixed(3),maxMs:+maxMs.toFixed(3),activeFrameMs:frameSamples?+(frameMs/frameSamples).toFixed(2):null,bakeMs:+bakeMs.toFixed(2)}));}
+ if(now-lastReport>1000){lastReport=now;c.canvas.setAttribute?.('data-livens-fx',JSON.stringify({version:393,frames:atlas.length,cacheBytes:atlas.length*W*H*4,draws:1,samples,meanMs:+(totalMs/samples).toFixed(3),maxMs:+maxMs.toFixed(3),activeFrameMs:frameSamples?+(frameMs/frameSamples).toFixed(2):null,bakeMs:+bakeMs.toFixed(2)}));}
 }
-export function drawLivensFlame(c,h,{mobile=false}={}){
+export function drawLivensFlame(c,h){
  const start=probe?clock():0,span=livensFlameSpan(h),{front,tail,t}=span;
  if(front<=tail)return;
- // The atlas normally arrives from the region-3 preload; if that path was
- // skipped (or a later preload released it), requeue the bake and draw the
- // procedural stream so the flame can never silently vanish.
- if(!atlas.length){prepareLivensFlame();drawLivensFlameStream(c,h,{mobile});return;}
+ if(!atlas.length)prepareLivensFlame();
+ if(!atlas.length)return;
  const frame=atlas[Math.floor((t%LIVENS_FIRE_BUDGET.period)/LIVENS_FIRE_BUDGET.period*COUNT)%atlas.length];
  c.save();c.translate(h.x,h.y);c.rotate(h.angle);c.imageSmoothingEnabled=true;
  // Only the lifecycle envelope is clipped; the flow never stretches when it starts/stops.
