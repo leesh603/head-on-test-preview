@@ -34,9 +34,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <label class="check"><input id="invincible" type="checkbox" checked>무적</label>
 <label>화면<select id="viewport"><option value="auto">자동</option><option value="390x844">모바일 390×844</option><option value="1280x800">PC 1280×800</option></select></label>
 <button id="start" class="primary" type="button">선택 조건으로 시작</button>
-<button id="partHit" type="button" disabled>보스 부위 실탄 테스트</button>
-<label>타격<select id="hitTarget"><option value="0">첫 부위</option><option value="1">둘째 부위</option><option value="2">셋째 부위</option></select></label>
-<label class="check"><input id="lethal" type="checkbox" checked>부위 파괴</label>
+
 <label class="check"><input id="freeze" type="checkbox">관찰 일시정지</label>
 <label class="check"><input id="noFire" type="checkbox">자동사격 중지</label>
 <label class="check"><input id="hideHud" type="checkbox">관찰 HUD 숨김</label>
@@ -47,7 +45,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <output id="bossState" style="font-size:11px;max-width:700px"></output>
 </div>
 </header>
-<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=373"></iframe></main>
+<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=374"></iframe></main>
 </div>
 <script>
 const $=id=>document.getElementById(id),frame=$('game');let api=null;
@@ -78,7 +76,7 @@ frame.addEventListener('load',connect);
 $('start').onclick=()=>{
  if(!api)return;$('status').textContent='시작 중…';
  const result=api.start({region:Number($('region').value),pilot:$('pilot').value,ace:$('ace').value,boss:$('boss').checked,invincible:$('invincible').checked});
- $('partHit').disabled=!result;$('patternStep').disabled=!result;$('status').textContent=result?'실행 · '+result.plane+' · map '+result.region:'시작 실패';refreshOpen();
+ $('patternStep').disabled=!result;$('status').textContent=result?'실행 · '+result.plane+' · map '+result.region:'시작 실패';refreshOpen();
  if(result&&$('freeze').checked)api.debug().state='paused';
  if(result&&$('noFire').checked)api.debug().fire=Infinity;
  applyHud();
@@ -91,16 +89,6 @@ setInterval(()=>{
  const g=api?.debug?.(),b=g?.stageBoss?.stages?.encounter?.bodies;const boss=b&&[...b.values()].find(b=>!b.dead);
  $('bossState').textContent=boss?boss.kind+' · '+boss.phase+' · t '+(boss.motionTime||0).toFixed(1)+' · '+[...boss.parts.values()].map(p=>p.id+': '+Math.ceil(p.hp)+'/'+Math.ceil(p.maxHp)+(p.destroyed?' 파괴':'')).join(' | ')+' · 장벽 '+(g.stageBoss?.hazards?.pool?.count||0):'';
 },250);
-$('partHit').onclick=()=>{
- const game=api?.debug?.();if(game?.state==='paused'){game.state='playing';frame.contentDocument?.getElementById('modal')?.classList.add('hidden')}
- const bodies=game?.stageBoss?.stages?.encounter?.bodies;
- const boss=bodies&&[...bodies.values()].find(body=>!body.dead&&body.parts?.size);
- const part=boss&&[...boss.parts.values()][Number($('hitTarget').value)];
- if(!boss||!part){$('status').textContent='타격 가능한 보스 부위 없음';return}
- game.bullets.push({x:boss.x+part.x,y:boss.y+part.y,vx:0,vy:0,life:.3,enemy:false,ownerId:game.id,damage:$('lethal').checked?part.hp+1:part.maxHp*.3,collisionRadius:2,hit:new Set()});
- game.update(.04,{});if($('freeze').checked)game.state='paused';
- $('status').textContent='실탄 투입 · '+part.id;
-};
 $('patternStep').onclick=()=>{
  const game=api?.debug?.();if(game?.state==='paused'){game.state='playing';frame.contentDocument?.getElementById('modal')?.classList.add('hidden')}
  if(!game||game.state!=='playing'){$('status').textContent='진행 가능한 전투 없음';return}
