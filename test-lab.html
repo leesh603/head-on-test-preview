@@ -34,6 +34,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <label class="check"><input id="invincible" type="checkbox" checked>무적</label>
 <label>화면<select id="viewport"><option value="auto">자동</option><option value="390x844">모바일 390×844</option><option value="1280x800">PC 1280×800</option></select></label>
 <button id="start" class="primary" type="button">선택 조건으로 시작</button>
+<button id="partHit" type="button" disabled>보스 부위 실탄 테스트</button>
 <button id="reload" type="button">현재 브랜치 새로고침</button>
 <a id="open" class="action" target="_blank" rel="noopener">게임만 열기 ↗</a>
 <span id="status">게임 로딩 중…</span>
@@ -70,7 +71,15 @@ frame.addEventListener('load',connect);
 $('start').onclick=()=>{
  if(!api)return;$('status').textContent='시작 중…';
  const result=api.start({region:Number($('region').value),pilot:$('pilot').value,ace:$('ace').value,boss:$('boss').checked,invincible:$('invincible').checked});
- $('status').textContent=result?'실행 · '+result.plane+' · map '+result.region:'시작 실패';refreshOpen();
+ $('partHit').disabled=!result;$('status').textContent=result?'실행 · '+result.plane+' · map '+result.region:'시작 실패';refreshOpen();
+};
+$('partHit').onclick=()=>{
+ const game=api?.debug?.(),bodies=game?.stageBoss?.stages?.encounter?.bodies;
+ const boss=bodies&&[...bodies.values()].find(body=>!body.dead&&body.parts?.size);
+ const part=boss&&[...boss.parts.values()].find(p=>!p.destroyed&&p.hittable!==false);
+ if(!boss||!part){$('status').textContent='타격 가능한 보스 부위 없음';return}
+ game.bullets.push({x:boss.x+part.x,y:boss.y+part.y,vx:0,vy:0,life:.3,enemy:false,ownerId:game.id,damage:part.hp+1,collisionRadius:8,hit:new Set()});
+ $('status').textContent='실탄 투입 · '+part.id;
 };
 $('reload').onclick=()=>{api=null;$('status').textContent='새로고침 중…';frame.src='./index.html?headonTest=1&autostart=0&t='+Date.now()};
 $('pilot').onchange=refreshAce;$('region').onchange=refreshOpen;$('ace').onchange=refreshOpen;$('boss').onchange=refreshOpen;$('invincible').onchange=refreshOpen;$('viewport').onchange=applyViewport;
