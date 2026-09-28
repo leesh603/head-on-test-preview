@@ -1,7 +1,7 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=375';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=375';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=375';
-import {APRON,apronPose,apronPanelHull} from './london-apron369.js?v=375';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=376';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=376';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=376';
+import {APRON,apronPose,apronPanelHull} from './london-apron369.js?v=376';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.

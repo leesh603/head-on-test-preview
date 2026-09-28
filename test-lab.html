@@ -38,14 +38,16 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <label class="check"><input id="freeze" type="checkbox">관찰 일시정지</label>
 <label class="check"><input id="noFire" type="checkbox">자동사격 중지</label>
 <label class="check"><input id="hideHud" type="checkbox">관찰 HUD 숨김</label>
-<button id="patternStep" type="button" disabled>보스 패턴 2초 진행</button>
+<label>패턴 진행 조종<select id="stepControl"><option value="observe">관찰 · 위치 유지</option><option value="up">전진 ↑</option><option value="left">좌선회 ←</option><option value="right">우선회 →</option><option value="down">후진입 ↓</option></select></label>
+<label>진행 시간<select id="stepDuration"><option value="2">2초</option><option value="0.5">0.5초</option></select></label>
+<button id="patternStep" type="button" disabled>보스 패턴 진행</button>
 <button id="reload" type="button">현재 브랜치 새로고침</button>
 <a id="open" class="action" target="_blank" rel="noopener">게임만 열기 ↗</a>
 <span id="status">게임 로딩 중…</span>
 <output id="bossState" style="font-size:11px;max-width:700px"></output>
 </div>
 </header>
-<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=375"></iframe></main>
+<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=376"></iframe></main>
 </div>
 <script>
 const $=id=>document.getElementById(id),frame=$('game');let api=null;
@@ -87,14 +89,16 @@ $('noFire').onchange=()=>{const g=api?.debug?.();if(g)g.fire=$('noFire').checked
 $('freeze').onchange=()=>{const g=api?.debug?.();if(g)g.state=$('freeze').checked?'paused':'playing';};
 setInterval(()=>{
  const g=api?.debug?.(),b=g?.stageBoss?.stages?.encounter?.bodies;const boss=b&&[...b.values()].find(b=>!b.dead);
- $('bossState').textContent=boss?boss.kind+' · '+boss.phase+' · t '+(boss.motionTime||0).toFixed(1)+' · '+[...boss.parts.values()].map(p=>p.id+': '+Math.ceil(p.hp)+'/'+Math.ceil(p.maxHp)+(p.destroyed?' 파괴':'')).join(' | ')+' · 좌표 '+Math.round(boss.x)+','+Math.round(boss.y)+' · 차륜 '+(boss.wheelRoll||0).toFixed(2)+' · 무인폭탄기 '+(g.enemies?.filter(e=>e.behavior==='bug-strike'&&e.hp>0).length||0)+' · 장벽 '+(g.stageBoss?.hazards?.pool?.count||0):'';
+ $('bossState').textContent=boss?boss.kind+' · '+boss.phase+' · t '+(boss.motionTime||0).toFixed(1)+' · '+[...boss.parts.values()].map(p=>p.id+': '+Math.ceil(p.hp)+'/'+Math.ceil(p.maxHp)+(p.destroyed?' 파괴':'')).join(' | ')+' · 좌표 '+Math.round(boss.x)+','+Math.round(boss.y)+' · 기체 '+Math.round(g.x)+','+Math.round(g.y)+' · 차륜 '+(boss.wheelRoll||0).toFixed(2)+' · 무인폭탄기 '+(g.enemies?.filter(e=>e.behavior==='bug-strike'&&e.hp>0).length||0)+' · 장벽 '+(g.stageBoss?.hazards?.pool?.count||0):'';
 },250);
 $('patternStep').onclick=()=>{
  const game=api?.debug?.();if(game?.state==='paused'){game.state='playing';frame.contentDocument?.getElementById('modal')?.classList.add('hidden')}
  if(!game||game.state!=='playing'){$('status').textContent='진행 가능한 전투 없음';return}
  const px=game.x,py=game.y,pa=game.a;
- for(let i=0;i<50&&game.state==='playing';i++)game.update(.04,{});
- game.x=px;game.y=py;game.a=pa;
+ const control=$('stepControl').value,angle={up:-Math.PI/2,left:Math.PI,right:0,down:Math.PI/2}[control];
+ const frames=Math.round(Number($('stepDuration').value)/.02);
+ for(let i=0;i<frames&&game.state==='playing';i++)game.update(.02,{angle});
+ if(control==='observe'){game.x=px;game.y=py;game.a=pa;}
  if($('freeze').checked)game.state='paused';
  $('status').textContent='패턴 진행 · 기뢰 '+(game.hostileMinefields?.flatMap(f=>f.mines).length||0)+' · 장벽 '+(game.stageBoss?.hazards?.pool?.count||0);
 };
