@@ -492,23 +492,22 @@ export class LivensFlameProjector extends PatternBoss {
       this.command('phase-change',{phase:'gas-vent'});}
     const nozzle=this.nozzleMount,target=this.target(players);
     const finalPhase=this.hp<=this.maxHp*.22;
-    if(finalPhase){this.nozzleAngle+=this.spinRate*dt;} // 360° rampage
-    else if(this.lockedFlameAngle!=null){
-      // Burst in flight: frozen during the warning, sweeps during the burn.
-      this.flameAge+=dt;
-      if(this.flameMode!=='track'&&this.flameAge>this.flameWarn)this.nozzleAngle+=this.flameAngSpeed*dt;
-    }
-    else if(target){
+    // One clock drives mount pose and the pooled hazard, including partial
+    // frames across warning/end boundaries. Runtime advances hazards after us.
+    if(this.lockedFlameAngle==null&&finalPhase)this.nozzleAngle+=this.spinRate*dt;
+    else if(this.lockedFlameAngle==null&&target){
       const desired=Math.atan2(target.y-(this.y+nozzle.y),target.x-(this.x+nozzle.x));
       this.nozzleAngle=turnToward(this.nozzleAngle,desired,.92*dt);
     }
-    if(this.due('main-flame',dt,this.t.flameInterval||5.8)){
+    const flameDue=this.due('main-flame',dt,this.t.flameInterval||5.8);
+    if(flameDue&&this.lockedFlameAngle!=null)this.timers.set('main-flame',0);
+    if(flameDue&&this.lockedFlameAngle==null){
       const pressure=this.parts.get('pressure'),weakened=pressure.destroyed;
       const warn=weakened?1.4:1.15;
       let mode='track',angSpeed=0,dur=weakened?1.2:1.8,telegraphHalf=0,startAngle=this.nozzleAngle;
-      if(finalPhase){mode='spin';dur=4.4;angSpeed=this.spinRate;startAngle=this.nozzleAngle+angSpeed*warn;telegraphHalf=Math.PI;}
+      if(finalPhase){mode='spin';dur=4.4;angSpeed=this.spinRate;startAngle=this.nozzleAngle;telegraphHalf=Math.PI;}
       else if(this.flameCount%3===2){mode='sweep';dur=weakened?1.5:2.2;const span=.9,dir=this.flameCount%2?-1:1;angSpeed=dir*span/dur;startAngle=this.nozzleAngle-Math.sign(angSpeed)*span/2;telegraphHalf=span/2;}
-      this.flameMode=mode;this.flameAngSpeed=angSpeed;this.flameWarn=warn;this.flameAge=0;this.flameCount++;
+      this.flameMode=mode;this.flameAngSpeed=angSpeed;this.flameWarn=warn;this.flameDuration=dur;this.flameAge=0;this.flameCount++;
       this.lockedFlameAngle=startAngle;
       // Beam pivots at the turret mount so sweep/spin origins track the nozzle;
       // the flame itself is drawn from the muzzle in the view.
@@ -518,7 +517,13 @@ export class LivensFlameProjector extends PatternBoss {
       this.command('flame-warning',{x:muzzleX,y:muzzleY,angle:startAngle,seconds:warn});
       this.flameLockTime=warn+dur;
     }
-    if(this.flameLockTime>0){this.flameLockTime=Math.max(0,this.flameLockTime-dt);if(!this.flameLockTime){this.lockedFlameAngle=null;this.flameMode='track';}}
+    if(this.lockedFlameAngle!=null){
+      this.flameAge+=dt;
+      const burnAge=Math.min(this.flameDuration,Math.max(0,this.flameAge-this.flameWarn));
+      this.nozzleAngle=this.lockedFlameAngle+this.flameAngSpeed*burnAge;
+      this.flameLockTime=Math.max(0,this.flameWarn+this.flameDuration-this.flameAge);
+      if(!this.flameLockTime){this.lockedFlameAngle=null;this.flameMode='track';}
+    }
     const broken=['tank-l1','tank-l2','tank-r1','tank-r2'].filter(id=>this.parts.get(id).destroyed);
     if(broken.length&&this.due('leak-fire',dt,Math.max(2.2,5-broken.length*.55))){const id=broken[Math.floor(this.rng()*broken.length)],p=this.parts.get(id);this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:54,warning:.8,duration:2.2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak'});}
   }
