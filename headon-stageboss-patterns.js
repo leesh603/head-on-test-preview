@@ -1,7 +1,7 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=386';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=386';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=386';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=386';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=387';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=387';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=387';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=387';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -639,6 +639,17 @@ export class Fliegerzug extends RailAdapter {
   liveLaunchers(){return ['car-launch-a','car-launch-b'].map(id=>this.parts.get(id)).filter(p=>!p.destroyed);}
   carPoint(car,dx=0,dy=0){const a=car.angle||0;return{x:this.x+car.x+dx*Math.cos(a)-dy*Math.sin(a),y:this.y+car.y+dx*Math.sin(a)+dy*Math.cos(a)};}
   prepareBug(car){if(!car.destroyed&&!this.launchPrep.some(q=>q.car===car)){car.launchWarmup=1.15;this.launchPrep.push({car,left:1.15});}}
+  hit(spec){
+    const p=spec.partId?this.parts.get(spec.partId):null;
+    const r=super.hit(spec);
+    // Wagon damage drains the hull gauge directly — the train dies when it
+    // reaches zero, even if some carriages are still rolling.
+    if(p&&p.kind==='rail-car'&&r.damage>0&&!this.dead){
+      this.hp=Math.max(0,this.hp-r.damage);
+      if(this.hp<=0){this.dead=true;this.phase='defeated';this.emit({type:'body-defeated',bossId:this.id});}
+    }
+    return r;
+  }
   onPartDestroyed(p){
     if(p.kind!=='rail-car')return;
     // Coupling failure strands the trailing section at its WORLD position.
@@ -646,10 +657,8 @@ export class Fliegerzug extends RailAdapter {
     for(let i=index;i<this.railCarOrder.length;i++){const q=this.parts.get(this.railCarOrder[i]);if(q.detachedPose)continue;
       const side=(index%2?-1:1);q.detachedPose={x:this.x+q.x,y:this.y+q.y,age:0,vx:side*(10+(i-index)*4),vy:this.rail129.velocity*this.rail129.direction*.65,spin:side*(.1+(i-index)*.025),angle:0};}
     this.emit({type:'rail-car-detached',bossId:this.id,partId:p.id,x:this.x+p.x,y:this.y+p.y});
-    // Every carriage carries an equal share of the hull gauge; losing the
-    // last one wrecks the whole train.
-    this.hp-=this.maxHp/this.railCarOrder.length;
-    if(this.hp<=0){this.hp=0;this.dead=true;this.phase='defeated';this.emit({type:'body-defeated',bossId:this.id});return;}
+    // Losing the last carriage wrecks the whole train.
+    if(this.railCarOrder.every(id=>this.parts.get(id).destroyed)){this.hp=0;this.dead=true;this.phase='defeated';this.emit({type:'body-defeated',bossId:this.id});return;}
     if(this.railCarOrder.filter(id=>this.parts.get(id).destroyed).length>=3&&!this.coreVulnerable){
       this.coreVulnerable=true;this.phase='locomotive';this.emit({type:'phase-change',bossId:this.id,phase:'locomotive'});
     }
