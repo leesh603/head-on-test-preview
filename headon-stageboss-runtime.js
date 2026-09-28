@@ -1,5 +1,5 @@
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=368';
-import {BossHazards} from './headon-stageboss-hazards.js?v=368';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=369';
+import {BossHazards} from './headon-stageboss-hazards.js?v=369';
 
 export class BossStages {
   constructor({teamFaction,stageIndex=0,loopIndex=0,rng=Math.random}) {
@@ -60,6 +60,7 @@ export class StageBossAddon {
     if(event.type==='support-damage'){this.hooks.onDamage(event.playerId,event.damage,event.source);return;}if(event.type==='support-cleanup'){this.hooks.clearEncounterOwned(encounterId);return;}
     if(event.type==='hazard')this.hazards.spawn({...event,encounterId});
     else if(event.type==='cancel-hazards')this.hazards.clearTagged(encounterId,event.tag);
+    else if(event.type==='apron-pose')this.hazards.pool.visit(h=>{if(h.encounterId===encounterId&&h.tag===event.tag){h.vertices=event.vertices;h.x=event.x;h.y=event.y;}});
     else if(event.type==='regional-beam-pose'){
       const body=this.stages.encounter?.bodies.get(event.bossId);
       if(body?.kind==='london-searchlight'&&[event.x,event.y,event.angle].every(Number.isFinite))this.hazards.pool.visit(h=>{if(h.encounterId===encounterId&&h.bossId===event.bossId&&h.tag==='london-beam'&&h.kind==='searchlight'){h.x=event.x;h.y=event.y;h.angle=event.angle;}});
@@ -145,4 +146,3 @@ export class StageBossAddon {
     this.defeatSequence=null;this.bodyDefeats=[];
   }
 }
-
