@@ -1,17 +1,17 @@
-import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=367';
-import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=367';
-import {fx} from './fx-art.js?v=367';
-import {drawAADefense} from './aa-defense-art.js?v=367';
+import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=368';
+import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=368';
+import {fx} from './fx-art.js?v=368';
+import {drawAADefense} from './aa-defense-art.js?v=368';
 
 // These are authored/derived RGBA sprites, not canvas-painted replacement art.
 // Only the current battlefield's small atlas set remains resident.
 const SOURCES=Object.freeze({
  train:'./boss-fliegerzug-parts352.webp',treffas:'./boss-treffas-parts352.webp',support:'./boss-regional-support352.webp',
- apronNet:'./boss-london-apron-net-sweep.png?v=367',
+ apronNet:'./boss-london-apron-net-sweep.png?v=368',
  staaken:'./boss-staaken-body352.webp',staakenEngines:'./boss-staaken-engines352.webp',staakenWreck:'./boss-staaken-wreck352.webp',
- tank:'./boss-mark4.webp?v=367',tankWreck:'./boss-mark4-wreck.webp?v=367',
- morser:'./boss-morser.webp?v=367',morserWreck:'./boss-morser-wreck.webp?v=367',
- bugFolded:'./boss-cambrai-bug.webp?v=367',bugFlight:'./boss-cambrai-bug.webp?v=367',impact:'./fx-mortar-impact340.webp'
+ tank:'./boss-mark4.webp?v=368',tankWreck:'./boss-mark4-wreck.webp?v=368',
+ morser:'./boss-morser.webp?v=368',morserWreck:'./boss-morser-wreck.webp?v=368',
+ bugFolded:'./boss-cambrai-bug.webp?v=368',bugFlight:'./boss-cambrai-bug.webp?v=368',impact:'./fx-mortar-impact340.webp'
 });
 const SHEETS={train:'boss-fliegerzug-parts352',treffas:'boss-treffas-parts352',support:'boss-regional-support352',staakenEngines:'boss-staaken-engines352'};
 const REGION_KEYS={4:['support','apronNet'],8:['support','bugFlight','impact'],10:['support','tank','tankWreck','morser','morserWreck','impact'],11:['support','staaken','staakenEngines','staakenWreck','impact']};
