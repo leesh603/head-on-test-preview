@@ -86,9 +86,10 @@ $('partHit').onclick=()=>{
 $('patternStep').onclick=()=>{
  const game=api?.debug?.();if(game?.state==='paused'){game.state='playing';frame.contentDocument?.getElementById('modal')?.classList.add('hidden')}
  if(!game||game.state!=='playing'){$('status').textContent='진행 가능한 전투 없음';return}
+ const px=game.x,py=game.y,pa=game.a;
  for(let i=0;i<50&&game.state==='playing';i++)game.update(.04,{});
- const encounter=game.stageBoss?.stages?.encounter,boss=encounter&&[...encounter.bodies.values()][0];
- $('status').textContent='패턴 진행 · 기뢰 '+(game.hostileMinefields?.flatMap(f=>f.mines).length||0)+' · 장벽 '+(boss?.hazards?.length||0);
+ game.x=px;game.y=py;game.a=pa;
+ $('status').textContent='패턴 진행 · 기뢰 '+(game.hostileMinefields?.flatMap(f=>f.mines).length||0)+' · 장벽 '+(game.stageBoss?.hazards?.pool?.count||0);
 };
 $('reload').onclick=()=>{api=null;$('status').textContent='새로고침 중…';frame.src='./index.html?headonTest=1&autostart=0&t='+Date.now()};
 $('pilot').onchange=refreshAce;$('region').onchange=refreshOpen;$('ace').onchange=refreshOpen;$('boss').onchange=refreshOpen;$('invincible').onchange=refreshOpen;$('viewport').onchange=applyViewport;
