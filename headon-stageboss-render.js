@@ -1,6 +1,6 @@
 // Semantic asset keys, not generated replacement graphics. Map to the current
 // main build's pixel atlas. Bodies stay top-down; part offsets are world-aligned.
-import {netContact} from './london-apron369.js?v=370';
+import {netContact} from './london-apron369.js?v=371';
 export const BOSS_ASSET_KEYS=Object.freeze([
   'paris-gun','lincomparable','sms-stuttgart','hms-zubian','hms-zubian-front','hms-zubian-rear',
   'zeppelin-l70','hma23','a7v-flak','mark-v-cruiser','livens-flame-projector','minenwerfer-battery','london-apron','drachen-net','gik','ca4','armored-harbor-fortress','fliegerzug','treffas-wagen','mark4-wedge','morser-battery','staaken-rvi','london-searchlight'
@@ -19,7 +19,7 @@ export function renderStageBossLayer(addon,{drawBody,drawPart,drawHazard}) {
       destroying,destructionAge:destruction?.age||0,destructionDuration:destruction?.duration||0});
     if(b.dead)continue;
     for(const part of b.parts.values())drawPart({bodyKey:b.kind,phase:b.phase,partId:part.id,kind:part.kind,x:b.x+part.x,y:b.y+part.y,
-      hp:part.hp,maxHp:part.maxHp,destroyed:part.destroyed,hittable:part.hittable,radius:part.radius,hitRadiusX:part.hitRadiusX,hitRadiusY:part.hitRadiusY,angle:part.angle||0});
+      hp:part.hp,maxHp:part.maxHp,destroyed:part.destroyed,hittable:part.hittable,radius:part.radius,hitRadiusX:part.hitRadiusX,hitRadiusY:part.hitRadiusY,angle:part.angle||0,destroyedAt:part.destroyedAt,motionTime:b.motionTime||0});
   }
   addon.hazards.pool.visit(h=>{if(h.phase!=='waiting')drawHazard(h);});
 }

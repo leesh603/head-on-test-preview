@@ -1,16 +1,16 @@
-import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=370';
-import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=370';
-import {fx} from './fx-art.js?v=370';
-import {drawAADefense} from './aa-defense-art.js?v=370';
+import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=371';
+import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=371';
+import {fx} from './fx-art.js?v=371';
+import {drawAADefense} from './aa-defense-art.js?v=371';
 
 // These are authored/derived RGBA sprites, not canvas-painted replacement art.
 // Only the current battlefield's small atlas set remains resident.
 const SOURCES=Object.freeze({
  train:'./boss-fliegerzug-parts352.webp',treffas:'./boss-treffas-parts352.webp',support:'./boss-regional-support352.webp',
  staaken:'./boss-staaken-body352.webp',staakenEngines:'./boss-staaken-engines352.webp',staakenWreck:'./boss-staaken-wreck352.webp',
- tank:'./boss-mark4.webp?v=370',tankWreck:'./boss-mark4-wreck.webp?v=370',
- morser:'./boss-morser.webp?v=370',morserWreck:'./boss-morser-wreck.webp?v=370',
- bugFolded:'./boss-cambrai-bug.webp?v=370',bugFlight:'./boss-cambrai-bug.webp?v=370',impact:'./fx-mortar-impact340.webp'
+ tank:'./boss-mark4.webp?v=371',tankWreck:'./boss-mark4-wreck.webp?v=371',
+ morser:'./boss-morser.webp?v=371',morserWreck:'./boss-morser-wreck.webp?v=371',
+ bugFolded:'./boss-cambrai-bug.webp?v=371',bugFlight:'./boss-cambrai-bug.webp?v=371',impact:'./fx-mortar-impact340.webp'
 });
 const SHEETS={train:'boss-fliegerzug-parts352',treffas:'boss-treffas-parts352',support:'boss-regional-support352',staakenEngines:'boss-staaken-engines352'};
 const REGION_KEYS={4:['support'],8:['support','bugFlight','impact'],10:['support','tank','tankWreck','morser','morserWreck','impact'],11:['support','staaken','staakenEngines','staakenWreck','impact']};
@@ -47,7 +47,8 @@ function smoke(c,p,t,width,dead){
  const damaged=dead||p.hp<p.maxHp*.5;if(!damaged)return;
  const q=(t*.34+p.x*.009)%1,s=width*(.5+Math.abs(q)*.5),a=dead?.35:.20;
  fx(c,'smokeDark',p.x+Math.sin(t+p.x)*width*.08,p.y-width*.23-Math.abs(q)*width*.5,s,s,0,a*(1-Math.abs(q)));
- if(dead)fx(c,'fireEngine',p.x,p.y+width*.1,width*.22,width*.22,0,.5);
+ const burn=dead&&p.destroyedAt!=null?clamp(1-(t-p.destroyedAt)/6,0,1):0;
+ if(burn>0)fx(c,'fireEngine',p.x,p.y+width*.1,width*.22*Math.max(.4,burn),width*.22*Math.max(.4,burn),0,.5*burn);
 }
 function brackets(c,x,y,rx,ry,alpha=.75){
  c.save();c.globalAlpha*=alpha;c.strokeStyle='#d7bc82';c.lineWidth=1.5;const n=Math.min(9,rx*.3);
