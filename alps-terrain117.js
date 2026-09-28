@@ -1,30 +1,49 @@
 import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js';
 export const TERRAIN_PROFILES=Object.freeze({
- rural:{name:'전원 지대',src:'./terrain-rural359.webp?v=393&b=326',base:'#424b3b',strength:1.25},
- sea:{name:'아드리아해',src:'./terrain-sea359r2.webp?v=393&b=326',base:'#254555',strength:1.11,tileSize:1254},
- trenches:{name:'참호 전선',src:'./terrain-trenches359r2.webp?v=393&b=326',base:'#4c443b',strength:1.22,tileSize:1254},
+ rural:{name:'전원 지대',src:'./terrain-rural359.webp?v=395&b=326',base:'#424b3b',strength:1.25},
+ sea:{name:'아드리아해',src:'./terrain-sea359r2.webp?v=395&b=326',base:'#254555',strength:1.11,tileSize:1254},
+ trenches:{name:'참호 전선',src:'./terrain-trenches359r2.webp?v=395&b=326',base:'#4c443b',strength:1.22,tileSize:1254},
  sky:{name:'창공',cell:3,base:'#3d5367',strength:1.25},
- city:{name:'도심 지대',src:'./terrain-city359.webp?v=393&b=326',base:'#454746',strength:1.22},
- alps:{name:'알프스 산맥',src:'./terrain-alps359.webp?v=393&b=326',base:'#414e56',strength:1.15},
+ city:{name:'도심 지대',src:'./terrain-city359.webp?v=395&b=326',base:'#454746',strength:1.22},
+ alps:{name:'알프스 산맥',src:'./terrain-alps359.webp?v=395&b=326',base:'#414e56',strength:1.15},
  channel:{name:'영국 해협',cell:6,base:'#304a56',strength:.59},
  desert:{name:'중동 사막',cell:7,base:'#71634a',strength:.58},
  night:{name:'야간 공습',cell:8,base:'#232b34',strength:.58},
- burning:{name:'불타는 전선',src:'./terrain-burning359r2.webp?v=393&b=326',base:'#433d37',strength:1.25,tileSize:1254},
+ burning:{name:'불타는 전선',src:'./terrain-burning359r2.webp?v=395&b=326',base:'#433d37',strength:1.25,tileSize:1254},
  // Cambrai ships as its own painterly tile instead of an atlas cell.
- cambrai:{name:'캉브레 들판',src:'./terrain-cambrai.webp?v=393&b=326',base:'#655d45',strength:.82},
+ cambrai:{name:'캉브레 들판',src:'./terrain-cambrai.webp?v=395&b=326',base:'#655d45',strength:.82},
  // Bloody April: cold high-altitude haze over faint Arras fields — minimal
  // ground detail, the map reads as an air combat arena.
- arras:{name:'아라스 상공',src:'./terrain-arras.webp?v=393&b=326',base:'#4d5a66',strength:.85}
- ,somme:{name:'솜 강전선',src:'./terrain-somme359r2.webp?v=393&b=326',base:'#5a5244',strength:1.11,tileSize:1254},
+ arras:{name:'아라스 상공',src:'./terrain-arras.webp?v=395&b=326',base:'#4d5a66',strength:.85}
+ ,somme:{name:'솜 강전선',src:'./terrain-somme359r2.webp?v=395&b=326',base:'#5a5244',strength:1.11,tileSize:1254},
  // London raid: night navy street grid, the Thames band and fires. Kept dark so
  // searchlight cones and warning circles stay legible.
- london:{name:'런던 대공습',src:'./terrain-london359r2.webp?v=393&b=326',base:'#232a36',strength:1.28,tileSize:1254}
+ london:{name:'런던 대공습',src:'./terrain-london359r2.webp?v=395&b=326',base:'#232a36',strength:1.28,tileSize:1254}
 });
+// Atmospheric perspective preserves texture resolution while narrowing the
+// ground's contrast/chroma. Combat sprites and hazard markings are drawn later.
+export const TERRAIN_ATMOSPHERE=Object.freeze({
+ rural:{color:'#8799a6',strength:.13},sea:{color:'#7192a6',strength:.12},
+ trenches:{color:'#89959c',strength:.16},burning:{color:'#879095',strength:.17},
+ city:{color:'#8293a1',strength:.16},sky:{color:'#91a8ba',strength:.05},
+ alps:{color:'#91a5b4',strength:.11},zeebrugge:{color:'#7794a3',strength:.12},
+ cambrai:{color:'#929eaa',strength:.10},arras:{color:'#96a7b4',strength:.04},
+ somme:{color:'#8c9b9f',strength:.14},london:{color:'#53677e',strength:.10}
+});
+export function applyTerrainAtmosphere(ctx,key,width,height){
+ const p=TERRAIN_ATMOSPHERE[key];if(!p)return;
+ ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha*=p.strength;
+ ctx.fillStyle=p.color;ctx.fillRect(0,0,width,height);ctx.restore();
+}
 const profileImages=new Map();
 function profileImage(key){
  const p=TERRAIN_PROFILES[key];if(!p.src)return null;
  if(!profileImages.has(key)&&typeof Image!=='undefined'){const image=new Image();image.src=p.src;profileImages.set(key,image);}
  return profileImages.get(key)||null;
+}
+// Warm a profile texture ahead of a region transition so the first tile never
+// flashes the bare base color while the image is still decoding.
+export function preloadTerrainProfile(key){profileImage(key);return true;
 }
 export const ALPS_PEAK_VARIANTS=Object.freeze([
  {id:'sharp',src:'./alps-peak-sharp182.webp',rx:1,ry:1},
@@ -50,7 +69,7 @@ export class TerrainRenderer {
  setAtlas(atlas){this.atlas=atlas;this.tiles.clear();}
  setDetail(detail){this.detail=clamp(detail,.25,1);this.tiles.clear();}
  sizeFor(key){return TERRAIN_PROFILES[key]?.tileSize??this.tileSize;}
- _rememberTile(key,c){this.tiles.set(key,c);let pixels=0;for(const t of this.tiles.values())pixels+=t.width*t.height;while(this.tiles.size>1&&(this.tiles.size>4||pixels>4*768*768)){const oldest=this.tiles.keys().next().value,t=this.tiles.get(oldest);pixels-=t.width*t.height;this.tiles.delete(oldest);}return c;}
+ _rememberTile(key,c){applyTerrainAtmosphere(c.getContext('2d'),key,c.width,c.height);this.tiles.set(key,c);let pixels=0;for(const t of this.tiles.values())pixels+=t.width*t.height;while(this.tiles.size>1&&(this.tiles.size>4||pixels>4*768*768)){const oldest=this.tiles.keys().next().value,t=this.tiles.get(oldest);pixels-=t.width*t.height;this.tiles.delete(oldest);}return c;}
  tile(key){const p=TERRAIN_PROFILES[key];if(!p)throw new Error('Unknown terrain '+key);
   // Per-profile tile art (cambrai) renders straight from its own texture; cache
   // the composite only once the image is actually decoded so the first frames
