@@ -624,8 +624,7 @@ export class LondonApron extends RegionalPatternBoss {
     super({...options,kind:'london-apron',parts:[0,1,2].map(i=>({id:'balloon-'+i}))});
     this.x=options.x;this.y=options.y;
     const w=this.t.regionalViewWidth||960,h=this.t.regionalViewHeight||700;
-    this.apronScale=Math.min(.88,(w-56)/768,(h-220)/512);
-    this.apronScale=Math.max(.30,this.apronScale);this.regionalScale=this.apronScale;
+    this.apronScale=Math.max(.30,Math.min(.88,(w-56)/768,(h-220)/512))*1.3;this.regionalScale=this.apronScale;
     for(const [i,p] of [...this.parts.values()].entries())Object.assign(p,{x:(APRON.centres[i]-384)*this.apronScale,y:(219-256)*this.apronScale,radius:27*this.apronScale,hitRadiusX:27*this.apronScale,hitRadiusY:30*this.apronScale});
     this.regionalCore={x:0,y:(121-256)*this.apronScale,rx:121*this.apronScale,ry:57*this.apronScale};
     this.phase='barrier';this.coreVulnerable=false;this.apronTime=0;this.apronStarted=false;this.ownsMotion129=true;
@@ -655,7 +654,7 @@ export class DrachenMineNet extends RegionalPatternBoss {
   constructor(options) {
     super({...options,kind:'drachen-net',parts:[{id:'balloon',x:0,y:-72,radius:67},{id:'winch',x:0,y:35,radius:39}]});
     this.x=options.x;this.y=options.y;
-    this.cityArtScale=Math.max(.30,Math.min(.88,((this.t.regionalViewWidth||960)-56)/768,((this.t.regionalViewHeight||700)-220)/576));
+    this.cityArtScale=Math.max(.30,Math.min(.88,((this.t.regionalViewWidth||960)-56)/768,((this.t.regionalViewHeight||700)-220)/576))*1.3;
     this.regionalScale=this.cityArtScale;
     const s=this.cityArtScale;
     Object.assign(this.parts.get('balloon'),{x:0,y:0,radius:48*s,hitRadiusX:48*s,hitRadiusY:48*s});
