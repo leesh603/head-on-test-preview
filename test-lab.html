@@ -94,7 +94,7 @@ $('patternStep').onclick=()=>{
 $('reload').onclick=()=>{api=null;$('status').textContent='새로고침 중…';frame.src='./index.html?headonTest=1&autostart=0&t='+Date.now()};
 $('pilot').onchange=refreshAce;$('region').onchange=refreshOpen;$('ace').onchange=refreshOpen;$('boss').onchange=refreshOpen;$('invincible').onchange=refreshOpen;$('viewport').onchange=applyViewport;
 applyViewport();refreshOpen();
-fetch('./test-build.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(v=>{if(v)$('build').textContent=(v.ref||'preview')+' · '+String(v.sha||'').slice(0,12)}).catch(()=>{});
+$('build').textContent='live-v'+(new URL(frame.src,location.href).searchParams.get('v')||'?');
 </script>
 </body>
 </html>
