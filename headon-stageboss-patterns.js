@@ -1,7 +1,7 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=376';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=376';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=376';
-import {APRON,apronPose,apronPanelHull} from './london-apron369.js?v=376';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=377';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=377';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=377';
+import {APRON,apronPose,apronPanelHull} from './london-apron369.js?v=377';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -894,7 +894,7 @@ export class TreffasWagen extends PatternBoss {
             damage:this.t.damage*.82,visual:'black-flak',sourceX:muzzle.x,sourceY:muzzle.y});}}
     }
     if(this.due('treffas-mg',dt,turret.destroyed?3.25:4.4)){
-      const p=this.target(players),mx=this.x,my=this.y-55;
+      const p=this.target(players),side=this.cursor%2?-1:1,mx=this.x+side*49*Math.cos(this.heading)+27*Math.sin(this.heading),my=this.y+side*49*Math.sin(this.heading)-27*Math.cos(this.heading);
       if(p){const a=Math.atan2(p.y-my,p.x-mx);this.command('muzzle',{x:mx,y:my});this.fan(mx,my,a,2,.18,this.t.bulletSpeed*.8,'treffas-mg');}
     }
   }
