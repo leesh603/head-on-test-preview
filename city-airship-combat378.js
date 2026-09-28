@@ -1,6 +1,6 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=384';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=384';
-import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=384';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=385';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=385';
+import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=385';
 
 // Source-image coordinates are shared by hull hit tests, gun mounts and mines.
 export const CITY_HULLS={
@@ -16,8 +16,8 @@ class CityAirships extends BaseBoss{
   const hp=o.tuning.maxHp,parts=[0,1,2].map(i=>new BossPart({id:'airship-'+i,maxHp:hp/3}));
   super({...o,maxHp:hp,parts});this.t=o.tuning;this.rng=o.rng||Math.random;this.kind=kind;this.faction=o.faction;
   const w=this.t.regionalViewWidth||960,h=this.t.regionalViewHeight||700,height=kind==='london-apron'?512:576;
-  // Preserve the approved 1.3x PC size, but fit the complete silhouette on mobile.
-  this.cityArtScale=Math.max(.30,Math.min(1.144,(w-38)/768,(h-210)/height));
+  // 2x silhouette on every viewport — same fit math, doubled budgets.
+  this.cityArtScale=Math.max(.30,Math.min(2.288,(w-38)/384,(h-210)/(height/2)));
   this.apronScale=this.cityArtScale;this.regionalScale=this.cityArtScale;this.sourceHeight=height;
   for(const [i,p]of [...this.parts.values()].entries()){
    const [x,y,rx,ry]=CITY_HULLS[kind][i],s=this.cityArtScale;
