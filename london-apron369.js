@@ -70,22 +70,27 @@ export function drawAttachedApron(c,b,intact,damaged){
  }
  c.restore();return true;
 }
-export function drawDrachenRig(c,b,intact,damaged){
- if(!intact?.naturalWidth)return;
+export function drawDrachenRig(c,b,atlases){
+ if(!atlases.every(im=>im?.naturalWidth))return;
  const s=b.cityArtScale||1;
- // Boundaries follow the silhouettes and cable bundles, not rectangular
- // thirds (the large central hull overlaps the two smaller airships).
- const left=[[0,0],[206,0],[206,155],[244,173],[262,220],[243,277],[299,288],[309,576],[0,576]];
- const right=[[554,262],[768,235],[768,576],[470,576],[505,373],[545,351]];
- const path=pts=>{c.moveTo(...pts[0]);for(const p of pts.slice(1))c.lineTo(...p);c.closePath();};
+ // Each atlas is an authored whole aircraft + its own suspended mines.
+ // Occluded hulls are painted in full: no polygon cuts through overlapping art.
+ const rects=[[17,100,240,399],[189,-89,530,655],[547,217,206,380]];
  c.save();c.translate(b.x,b.y);c.scale(s,s);c.translate(-384,-288);
- for(let i=0;i<3;i++){
+ const cable=(a,z)=>{
+  if(b.parts?.find(p=>p.id==='airship-'+a)?.destroyed||b.parts?.find(p=>p.id==='airship-'+z)?.destroyed)return;
+  const anchors=[[203,268],[414,259],[601,394]],[x,y]=anchors[a],[u,v]=anchors[z];
+  c.save();c.beginPath();c.moveTo(x,y);c.bezierCurveTo(x+(u-x)*.28,y+65,x+(u-x)*.72,v+65,u,v);
+  c.strokeStyle='#191711';c.lineWidth=4;c.stroke();c.strokeStyle='#746851';c.lineWidth=1.5;c.stroke();c.restore();
+ };
+ cable(0,1);cable(1,2);
+ for(const i of [1,0,2]){
   const p=b.parts?.find(p=>p.id==='airship-'+i),dead=p?.destroyed;
   const age=dead?Math.max(0,(b.motionTime||0)-(p.destroyedAt||0)+(b.destroying?b.destructionAge:0)):0;
   if(dead&&age>=1.8)continue;
   c.save();if(dead){const px=p.x/s+384,py=p.y/s+288;c.globalAlpha*=Math.max(0,1-age/1.8);c.translate(px,py+170*age*age);c.rotate((i===0?-1:1)*age*.19);c.scale(1-age*.12,1-age*.12);c.translate(-px,-py);}
-  c.beginPath();if(i===0)path(left);else if(i===2)path(right);else{c.rect(0,0,768,576);path(left);path(right);}c.clip(i===1?'evenodd':'nonzero');
-  c.drawImage((dead||p?.hp<p?.maxHp*.55)&&damaged?.naturalWidth?damaged:intact,0,0,768,576);c.restore();
+  const image=atlases[i],frame=dead||p?.hp<p?.maxHp*.55?1:0;
+  c.drawImage(image,frame*image.naturalWidth/2,0,image.naturalWidth/2,image.naturalHeight,...rects[i]);c.restore();
  }
  c.restore();
 }

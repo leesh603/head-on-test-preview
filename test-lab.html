@@ -48,7 +48,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <output id="bossState" style="font-size:11px;max-width:700px"></output>
 </div>
 </header>
-<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=380"></iframe></main>
+<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=381"></iframe></main>
 </div>
 <script>
 const $=id=>document.getElementById(id),frame=$('game');let api=null;
@@ -99,7 +99,7 @@ $('patternStep').onclick=()=>{
  const control=$('stepControl').value,angle={up:-Math.PI/2,left:Math.PI,right:0,down:Math.PI/2}[control];
  const frames=Math.round(Number($('stepDuration').value)/.02);
  // Normal flight input and the player's normal gun only: no injected bullets,
- // damage calls, teleports or modified boss HP in the airship check.
+ // damage calls or modified boss HP in the airship check.
  for(let i=0;i<frames&&game.state==='playing';i++){
   let steering=angle;
   if($('airshipAim').value!==''){
