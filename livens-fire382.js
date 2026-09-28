@@ -1,4 +1,4 @@
-import {livensFlameSpan,livensFlameHalfWidth,drawLivensFlame as drawLivensFlameStream} from './livens-fire195.js?v=390';
+import {livensFlameSpan,livensFlameHalfWidth,drawLivensFlame as drawLivensFlameStream} from './livens-fire195.js?v=391';
 
 // A whole pressure-fed flame field, never a chain of stretched plume sprites.
 // 18 prewarmed RGBA frames = 2.25 MiB. One image draw per beam on both devices.
