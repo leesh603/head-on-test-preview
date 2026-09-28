@@ -1,20 +1,20 @@
-import {EnemyCollisionGrid} from './collision-grid.js?v=359';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=359';
-import {installRevision} from './rebalance103.js?v=359';
-import {installCloudCover} from './cloud-cover1.js?v=359';
-import {installFleet} from './fleet-naval1.js?v=359';
-import {installTrenchWar} from './trench-war1.js?v=359';
-import {installCityAir} from './city-air1.js?v=359';
-import {installRegionDoctrine} from './region-doctrine1.js?v=359';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=359';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=359';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=359';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=359';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=359';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=359';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=359';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=359';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=359';
+import {EnemyCollisionGrid} from './collision-grid.js?v=360';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=360';
+import {installRevision} from './rebalance103.js?v=360';
+import {installCloudCover} from './cloud-cover1.js?v=360';
+import {installFleet} from './fleet-naval1.js?v=360';
+import {installTrenchWar} from './trench-war1.js?v=360';
+import {installCityAir} from './city-air1.js?v=360';
+import {installRegionDoctrine} from './region-doctrine1.js?v=360';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=360';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=360';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=360';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=360';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=360';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=360';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=360';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=360';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=360';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -383,7 +383,9 @@ Game.prototype.update=function(dt,input={}){
    this.event('bombWarning','폭격 투하! 붉은 표적을 벗어나세요');
   }
  }
- for(const z of this.bombZones){z.delay-=step;if(z.delay<=0){this.combatBlast(z.x,z.y,z.radius,'enemy','bomb');if(Math.hypot(this.x-z.x,this.y-z.y)<z.radius)this.hit(highRiskDamage(z.damage,this.maxHp,z))}}
+ for(const z of this.bombZones){z.delay-=step;if(z.delay<=0){this.combatBlast(z.x,z.y,z.radius,'enemy','bomb');
+  if(z.artyFire)for(const e of this.enemies){if(e.hp<=0||e.stageBossBody||e.bossMinion)continue;if(Math.hypot(e.x-z.x,e.y-z.y)<z.radius+12){e.hp-=Math.round(z.damage*1.9);e.hitFlash=.22;if(e.hp<=0&&!e.deathCounted){e.deathCounted=true;this.kills++;if(e.bossPilot||e.type==='boss'||e.type==='zeppelin'||e.type==='bomber')this.priorityKills=(this.priorityKills||0)+1;if(e.type==='zeppelin')this.wreckGust(e);this.event('kill','')}}}
+  if(Math.hypot(this.x-z.x,this.y-z.y)<z.radius)this.hit(highRiskDamage(z.damage,this.maxHp,z))}}
  this.bombZones=this.bombZones.filter(z=>z.delay>0);
 };
 
@@ -1858,4 +1860,21 @@ Game.prototype.beginRevisionFrame=function(dt,input={}){
   this.huntStreaks=(this.huntStreaks||[]).filter(s=>(s.life-=dt)>0);
  }
  return prior;
+};
+
+
+// 포화의 참호전선 (region 3) — 지속 격제 사격: 맵 전역에 주기적으로 포탄이 떨어지며
+// 아군·적군 모두 피해를 입는다 (bombZones의 artyFire 경로가 적에게도 피해를 준다).
+const _noMansArtyUpdate=Game.prototype.update;
+Game.prototype.update=function(dt,input={}){
+ _noMansArtyUpdate.call(this,dt,input);
+ if(this.state!=='playing'||this.worldRegion()!==3)return;
+ const step=Math.min(.04,Math.max(0,dt));
+ this.artyTimer=(this.artyTimer??7)-step;
+ if(this.artyTimer>0)return;
+ this.artyTimer=3.8+this.rng()*2.2;
+ const pool=[{x:this.x,y:this.y},...(this.enemies||[]).filter(e=>e.hp>0&&!e.stageBossBody&&!e.bossMinion)];
+ const tgt=pool[Math.floor(this.rng()*pool.length)];
+ this.bombZones.push({x:tgt.x+(this.rng()-.5)*240,y:tgt.y+(this.rng()-.5)*240,sx:tgt.x,sy:tgt.y-460,delay:1.6,maxDelay:1.6,radius:66,damage:15+Math.floor(this.t/140),artyFire:true});
+ if((this._artyToast??-99)<=this.t){this.event('bombWarning','포대 격제 사격 — 낙하지점을 피하세요');this._artyToast=this.t+16}
 };
