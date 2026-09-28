@@ -60,6 +60,10 @@ export class StageBossAddon {
     if(event.type==='support-damage'){this.hooks.onDamage(event.playerId,event.damage,event.source);return;}if(event.type==='support-cleanup'){this.hooks.clearEncounterOwned(encounterId);return;}
     if(event.type==='hazard')this.hazards.spawn({...event,encounterId});
     else if(event.type==='cancel-hazards')this.hazards.clearTagged(encounterId,event.tag);
+    else if(event.type==='regional-beam-pose'){
+      const body=this.stages.encounter?.bodies.get(event.bossId);
+      if(body?.kind==='london-searchlight'&&[event.x,event.y,event.angle].every(Number.isFinite))this.hazards.pool.visit(h=>{if(h.encounterId===encounterId&&h.bossId===event.bossId&&h.tag==='london-beam'&&h.kind==='searchlight'){h.x=event.x;h.y=event.y;h.angle=event.angle;}});
+    }
     else if(event.type==='status')this.hooks.onStatus(event.playerId,{...event.status,encounterId,sourceId:encounterId+':'+event.status.type});
     else if(event.type==='spawn-minion') {
       if(this.hooks.countMinions(encounterId)>=this.minionCap){this.metrics.minionsDenied++;return;}
