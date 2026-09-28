@@ -3,10 +3,10 @@ import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=381';
 import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=381';
 import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=381';
 import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=381';
-import {drawLivensFlame} from './livens-fire382.js?v=382';
+import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=383';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=381';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=381';
-import {bossHudModel} from './headon-stageboss-hud.js?v=382';
+import {bossHudModel} from './headon-stageboss-hud.js?v=383';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=381';
 import {planeSprite} from './aircraft.js?v=381';
 import {getLocale} from './i18n.js?v=381';
@@ -63,7 +63,7 @@ export function prepareStageBossAssets(region){
   if(region===2)jobs.push(rebuildGroup.preload());
   if([2,4,8,10,11].includes(region))jobs.push(prepareAADefenseAssets(region===4?['fx','drachen','london']:['fx']));
   else releaseAADefenseAssets();
- if(region===3){jobs.push(trenchGroup.preload());jobs.push(impactGroup.preload())}else impactGroup.release();
+ if(region===3){prepareLivensFlame();jobs.push(trenchGroup.preload());jobs.push(impactGroup.preload())}else{impactGroup.release();releaseLivensFlame();}
  if(region===4){jobs.push(cityGroup.preload());jobs.push(buildingGroup.preload())}
  if(region===7)jobs.push(harborGroup.preload());
  // Requested regional bosses use independent preloaded RGBA atlases above.
