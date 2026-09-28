@@ -1,6 +1,6 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=366';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=366';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=366';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=367';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=367';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=367';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -817,6 +817,8 @@ export class TreffasWagen extends PatternBoss {
       const rudderLost=this.parts.get('rudder').destroyed,steering=rudderLost?18:94;
       this.x=this.anchorX+Math.sin(this.driveAge*(rudderLost ? 0.09 : 0.25))*steering
         +this.wheelBias()*32+Math.sin(this.driveAge*4)*this.wheelBias()*5;}
+    if(moving&&bounds){const margin=Math.min(154,(bounds.right-bounds.left)/2);
+      this.x=Math.max(bounds.left+margin,Math.min(bounds.right-margin,this.x));}
     this._churn??=[];const last=this._churn[this._churn.length-1];
     if(moving&&(!last||Math.hypot(this.x-last.x,this.y-last.y)>30))this._churn.push({x:this.x,y:this.y+65});
     if(this._churn.length>110)this._churn.splice(0,this._churn.length-110);
