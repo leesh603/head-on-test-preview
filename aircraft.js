@@ -38,8 +38,15 @@ const loadPainted=key=>new Promise(resolve=>{
   const scan=document.createElement('canvas');scan.width=Math.ceil(img.naturalWidth/2);scan.height=Math.ceil(img.naturalHeight/2);const sc=scan.getContext('2d',{willReadFrequently:true});sc.drawImage(img,0,0,scan.width,scan.height);const pixels=sc.getImageData(0,0,scan.width,scan.height),rgba=pixels.data;if(key==='nieuport_italian')for(let i=0;i<rgba.length;i+=4){const r=rgba[i],g=rgba[i+1],b=rgba[i+2];if(rgba[i+3]>0&&b>70&&b>r*1.18&&b>g*1.05){rgba[i]=55;rgba[i+1]=132;rgba[i+2]=78}}clearAircraftMatte(key,rgba,scan.width,scan.height);clearCrewMatte(key,rgba,scan.width,scan.height);sc.putImageData(pixels,0,0);let minX=scan.width,minY=scan.height,maxX=-1,maxY=-1;
   for(let y=0;y<scan.height;y++)for(let x=0;x<scan.width;x++)if(rgba[(y*scan.width+x)*4+3]>128){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}
   if(maxX>=minX&&maxY>=minY){const out=document.createElement('canvas');out.width=288;out.height=320;const oc=out.getContext('2d');oc.imageSmoothingEnabled=true;oc.imageSmoothingQuality='high';const w=maxX-minX+1,h=maxY-minY+1,k=Math.min(228/w,264/h)*spriteScale(key),dw=Math.round(w*k),dh=Math.round(h*k);oc.drawImage(scan,minX,minY,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);const sil=document.createElement('canvas');sil.width=288;sil.height=320;const sx=sil.getContext('2d');sx.drawImage(out,0,0);sx.globalCompositeOperation='source-in';sx.fillStyle='#140f08';sx.fillRect(0,0,288,320);const rim=document.createElement('canvas');rim.width=288;rim.height=320;const rc=rim.getContext('2d');for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)if(dx*dx+dy*dy<=5)rc.drawImage(sil,dx,dy);rc.drawImage(out,0,0);painted.set(key,rim);cache.clear();shadows.clear();flashes.clear()}resolve(true);
- };let tries=0;img.onerror=()=>{if(++tries<3){img.src=img.src;return}resolve(false)};const sourceKey=key==='nieuport_italian'?'nieuport':key;const mechDir=new URLSearchParams(location.search).get('mech')==='0'?'':'mech/';img.src=new URL(`./${mechDir}${sourceKey}.webp?v=369&b=340`,import.meta.url).href;
+ };let tries=0;const sourceKey=key==='nieuport_italian'?'nieuport':key;const mechDir=new URLSearchParams(location.search).get('mech')==='0'?'':'mech/';const base=new URL(`./${mechDir}${sourceKey}.webp?v=369&b=340`,import.meta.url).href;
+ // A failed fetch must never cache the plane as permanently invisible: retry with
+ // a cache-busting tag so stale error responses and flaky mobile radio recover.
+ img.onerror=()=>{if(++tries<8){img.src=base+'&r='+tries;return}resolve(false)};img.src=base;
 });
+// Sprites that failed or arrived late get re-requested on demand instead of the
+// plane staying invisible for the rest of the session.
+const paintedPending=new Set();
+function ensurePainted(key){if(!key||painted.has(key)||paintedPending.has(key))return;paintedPending.add(key);loadPainted(key).finally(()=>paintedPending.delete(key))}
 export const hangarArtReady=Promise.all(HANGAR_KEYS.map(loadPainted));
 const individualAircraftReady=[hangarArtReady,hangarArtReady.then(()=>Promise.all(PAINTED_KEYS.filter(k=>!HANGAR_KEYS.includes(k)).map(loadPainted)))];
 // The four aces once cut from this 2x2 atlas now ship as individual PNGs and are
@@ -162,7 +169,7 @@ export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0
  const sourceKey=campaignSpriteAliases[key]||(redAce?'fokker':variant?'fokker_f1':standard?'fokker_standard':key);
  // Never fall back to the retired procedural planes while the authored art is
  // loading (or if an asset fails). A blank frame is preferable to a visual swap.
- if(!painted.has(sourceKey))return;
+ if(!painted.has(sourceKey)){ensurePainted(sourceKey);return}
  if(!cache.has(cacheKey)){const source=cache.get(cacheKey)||build(redAce?'fokker':variant?'fokker_f1':standard?'fokker_standard':key);cache.set(cacheKey,source)}const sprite=damaged&&damageDecals.length?damagedSprite(cache.get(cacheKey),cacheKey):cache.get(cacheKey);
  c.save();c.imageSmoothingEnabled=false;c.translate(Math.round(x),Math.round(y));c.rotate(a+Math.PI/2);
  const s=scale*.54;c.scale(s,s);

@@ -1,15 +1,15 @@
 import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js';
 export const TERRAIN_PROFILES=Object.freeze({
- rural:{name:'전원 지대',cell:0,wrap:1,src:'./terrain-rural.webp?v=369&b=340',base:'#424b3b',strength:.67},
- sea:{name:'아드리아해',cell:1,wrap:1,src:'./terrain-sea.webp?v=369&b=340',base:'#254555',strength:.66},
- trenches:{name:'참호 전선',cell:2,wrap:1,src:'./terrain-trenches.webp?v=369&b=340',base:'#4c443b',strength:.62},
- sky:{name:'창공',cell:3,wrap:1,src:'./terrain-sky.webp?v=369&b=340',base:'#3d5367',strength:.46},
- city:{name:'도심 지대',cell:4,wrap:1,src:'./terrain-city.webp?v=369&b=340',base:'#454746',strength:.60},
- alps:{name:'알프스 산맥',cell:5,wrap:1,src:'./terrain-alps-tile.webp?v=369&b=340',base:'#414e56',strength:.43},
+ rural:{name:'전원 지대',cell:0,base:'#424b3b',strength:.67},
+ sea:{name:'아드리아해',cell:1,base:'#254555',strength:.66},
+ trenches:{name:'참호 전선',cell:2,base:'#4c443b',strength:.62},
+ sky:{name:'창공',cell:3,base:'#3d5367',strength:.46},
+ city:{name:'도심 지대',cell:4,base:'#454746',strength:.60},
+ alps:{name:'알프스 산맥',cell:5,base:'#414e56',strength:.43},
  channel:{name:'영국 해협',cell:6,base:'#304a56',strength:.59},
  desert:{name:'중동 사막',cell:7,base:'#71634a',strength:.58},
  night:{name:'야간 공습',cell:8,base:'#232b34',strength:.58},
- burning:{name:'불타는 전선',cell:9,wrap:1,src:'./terrain-burning.webp?v=369&b=340',base:'#433d37',strength:.57},
+ burning:{name:'불타는 전선',cell:9,base:'#433d37',strength:.57},
  // Cambrai ships as its own painterly tile instead of an atlas cell.
  cambrai:{name:'캉브레 들판',src:'./terrain-cambrai.webp?v=369&b=326',base:'#655d45',strength:.82},
  // Bloody April: cold high-altitude haze over faint Arras fields — minimal
@@ -56,11 +56,9 @@ export class TerrainRenderer {
  }
  draw(ctx,{key,camera,width,height}){const tile=this.tile(key),s=this.tileSize;
   ctx.save();ctx.beginPath();ctx.rect(0,0,width,height);ctx.clip();ctx.imageSmoothingEnabled=false;ctx.fillStyle=TERRAIN_PROFILES[key].base;ctx.fillRect(0,0,width,height);
-  const nowrap=!!TERRAIN_PROFILES[key].wrap;
   for(let y=Math.floor(camera.y/s);y<=Math.floor((camera.y+height)/s);y++)for(let x=Math.floor(camera.x/s);x<=Math.floor((camera.x+width)/s);x++){
    // Mirrored repeats share the SAME boundary pixels on each edge, avoiding hard seams.
-   // Wrap profiles are already periodic: mirroring them would only kink features at edges.
-   const mx=nowrap?0:Math.abs(x%2),my=nowrap?0:Math.abs(y%2),dx=Math.floor(x*s-camera.x),dy=Math.floor(y*s-camera.y);ctx.save();ctx.translate(dx+(mx?s+1:-1),dy+(my?s+1:-1));ctx.scale(mx?-1:1,my?-1:1);
+   const mx=Math.abs(x%2),my=Math.abs(y%2),dx=Math.floor(x*s-camera.x),dy=Math.floor(y*s-camera.y);ctx.save();ctx.translate(dx+(mx?s+1:-1),dy+(my?s+1:-1));ctx.scale(mx?-1:1,my?-1:1);
    // Integer-aligned two-pixel overlap removes raster gaps while preserving the authored map.
    ctx.drawImage(tile,0,0,s+2,s+2);ctx.restore();
   }ctx.restore();
