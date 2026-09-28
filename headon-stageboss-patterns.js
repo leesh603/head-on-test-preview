@@ -1,6 +1,6 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=359';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=359';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=359';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=360';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=360';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=360';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -77,7 +77,7 @@ class ZubianHalf extends PatternBoss {
     this.protection=Math.max(0,(this.protection||0)-dt);
     this.coreVulnerable=this.protection<=0;
     const partner=[...this.encounter?.bodies.values()||[]].find(b=>b!==this&&b.kind?.startsWith('hms-zubian-'));
-    if(partner&&!partner.dead){const dx=this.x-partner.x,dy=this.y-partner.y,d=Math.hypot(dx,dy),min=250;if(d>1e-3&&d<min){const push=(min-d)*.55;this.x+=dx/d*push;this.y+=dy/d*push;partner.x-=dx/d*push;partner.y-=dy/d*push;}}
+    if(partner&&!partner.dead){const dx=this.x-partner.x,dy=this.y-partner.y,d=Math.hypot(dx,dy),min=250;if(d>1e-3&&d<min){const push=(min-d)*(this.splitAge<2.2?1.9:.55);this.x+=dx/d*push;this.y+=dy/d*push;partner.x-=dx/d*push;partner.y-=dy/d*push;}}
     if(partner?.dead&&!this.soloEnraged){this.soloEnraged=true;this.command('phase-change',{phase:this.role+'-last-stand'});}
     if(this.role==='front'&&this.soloEnraged&&this.due('front-barrage',dt,2.6)){const p=this.target(players);if(p)for(let i=-1;i<=1;i++)this.hazard('circle',{x:p.x+i*54,y:p.y+(p.vy||0)*.55,radius:46,delay:.18+Math.abs(i)*.12,warning:.9,once:true,visual:'zubian-mortar'});}
     if(this.role==='rear') {
@@ -137,7 +137,7 @@ export class Zubian extends PatternBoss {
     if(this.phase==='splitting'){
       this.splitGap=Math.min(92,this.stateAge/1.2*92);if(this.stateAge<1.2)return;
       if(!this.encounter)throw new Error('Zubian must belong to an encounter before splitting');
-      const children=['front','rear'].map((role,i)=>new ZubianHalf({id:this.id+'-'+role,role,tuning:{...this.t,maxHp:this.hp/2},x:this.x,y:this.y+(i?1:-1)*92,faction:this.faction,rng:this.rng,emit:this.emit,coreRadius:52*(this.t.geometryScale||1)}));
+      const children=['front','rear'].map((role,i)=>new ZubianHalf({id:this.id+'-'+role,role,tuning:{...this.t,maxHp:this.hp/2},x:this.x,y:this.y+(i?1:-1)*78,faction:this.faction,rng:this.rng,emit:this.emit,coreRadius:52*(this.t.geometryScale||1)}));
       this.encounter.replaceBody(this.id,children);for(const child of children){child.protection=this.t.splitProtection||0;child.coreVulnerable=!child.protection;}
       this.command('split',{children:children.map(b=>b.id),x:this.x,y:this.y});
     }
@@ -168,12 +168,13 @@ export class ZeppelinL70 extends PatternBoss {
     if(!this.lastStand&&this.hp<=this.maxHp*.35){this.lastStand=true;this.command('phase-change',{phase:'gas-vent'});this.timers.set('gas',Math.min(this.timers.get('gas')??Infinity,.5));}
     if(this.phase==='cloud') {
       const live=living(players),p=live[this.cursor%Math.max(1,live.length)],c=this.parts.get('capsule');
-      if(p){c.x+=(p.x-this.x-c.x)*Math.min(1,dt*1.2);c.y+=(p.y-this.y-c.y)*Math.min(1,dt*1.2);}
+      if(p){c.x+=(p.x-this.x-c.x)*Math.min(1,dt*.55);c.y+=(p.y-this.y-c.y)*Math.min(1,dt*.55);const dx=c.x,dy=c.y-150,d=Math.hypot(dx,dy),leash=95;if(d>leash){c.x=dx/d*leash;c.y=150+dy/d*leash;}}
       if(this.due('carpet',dt,this.t.bombInterval||4)) {
         const target=this.target(players);if(target)for(let i=0;i<5;i++)this.hazard('circle',{x:target.x+(i-2)*55+randBetween(this.rng,-30,30),y:target.y+randBetween(this.rng,-26,26),delay:this.rng()*.5,radius:45+randBetween(this.rng,-8,10),warning:1.2,once:true,visual:'carpet-bomb'});
       }
     } else if(this.phase==='reveal') {
-      this.phaseTime-=dt;if(this.phaseTime<=0){this.phase='exposed';this.coreVulnerable=true;for(const p of this.parts.values())if(p.kind==='engine')p.hittable=true;this.command('phase-change',{phase:this.phase});}
+      this.phaseTime-=dt;if(this.phaseTime<=0){this.phase='exposed';this.coreVulnerable=true;for(const p of this.parts.values())if(p.kind==='engine')p.hittable=true;this.command('phase-change',{phase:this.phase});
+        for(let i=0;i<3;i++)this.command('spawn-minion',{minion:'airship',faction:this.faction,x:this.x+(i-1)*170,y:this.y-140-(i%2)*40});}}
     } else if(this.phase==='exposed') {
       if(this.due('broadside',dt,this.t.engineInterval||2.6)){
         const side=this.broadside++%2,live=engines.filter(p=>(+p.id.slice(7)%2)===side);
@@ -214,6 +215,7 @@ export class HMA23 extends PatternBoss {
   suppressive(){/* carrier fire is handled by the capped carrierFan pattern */}
   update(dt,{players,bounds}) {
     const mt=this.motionTime||0;this.x=this.anchorX+Math.sin(mt*.31)*42;this.y=this.anchorY+Math.sin(mt*.17+2)*12;
+    if(!this.escortsSummoned){this.escortsSummoned=true;for(let i=0;i<3;i++)this.command('spawn-minion',{minion:'airship',faction:this.faction,x:this.x+(i-1)*170,y:this.y-150-(i%2)*40});}
     if(this.reserveReady){this.reserveReady=false;const target=this.target(players);for(let i=0;i<4;i++){const ox=(i-1.5)*60,side=ox<0?-1:1;
       this.command('spawn-minion',{minion:'sopwith-camel',x:this.x+ox,y:this.y+45,behavior:'attack-pass',fullSortie:true,
         formationIndex:i,formationCount:4,passTargetX:(target?.x??this.x)+side*150,passTargetY:(target?.y??this.y+300)+(i-1.5)*24});}
@@ -334,12 +336,13 @@ export class A7VFlak extends PatternBoss {
   onPartDestroyed() {const lost=[...this.parts.values()].filter(p=>p.destroyed).length;if(lost===4){this.coreVulnerable=true;this.phase='exposed';this.command('phase-change',{phase:'exposed'});}else if(lost>=2&&this.phase==='fortress'){this.phase='weakened';this.command('phase-change',{phase:'weakened'});}}
   update(dt,{players,bounds,isIlluminated}) {
     for(const p of players){const key=p.id??p,age=isIlluminated(p)?Math.min(.7,(this.illumination.get(key)||0)+dt):0;this.illumination.set(key,age);}
-    const lightCount=(this.t.loopIndex||0)>0?3:2;
-    if(this.phase!=='exposed'&&this.due('lights',dt,(this.t.lightInterval||9)*(this.phase==='weakened'?.88:1)))for(let i=0;i<lightCount;i++)this.hazard('searchlight',{
-      x:this.x+(i-(lightCount-1)/2)*46,y:this.y+30,angle:Math.PI/2+(i-(lightCount-1)/2)*.4,
+    
+    if(this.phase!=='exposed'&&this.due('lights',dt,(this.t.lightInterval||9)*(this.phase==='weakened'?.88:1)))this.hazard('searchlight',{
+      x:this.x,y:this.y+30,angle:Math.PI/2,angularSpeed:.3,halfAngle:.17,radius:(bounds.bottom-bounds.top)*1.3,
       angularSpeed:(i%2?-.3:.3),halfAngle:.14,radius:(bounds.bottom-bounds.top)*1.3,
       duration:7.5,warning:.8,damage:0,tickInterval:.2,visual:'searchlight'});
-    if(this.phase==='exposed')return; // A destroyed turret cannot keep firing through the hull.
+    if(this.phase==='exposed'){ // Turrets gone: the hull keeps a token MG so it never goes passive.
+      const p=living(players)[0]||this.target(players);if(p&&this.due('hull-mg',dt,2.1)){const mx=this.x,my=this.y-60;this.command('muzzle',{x:mx,y:my});this.fan(mx,my,Math.atan2(p.y-my,p.x-mx),3,.16,this.t.bulletSpeed*.8,'a7v-hull-mg');}return;}
     const live=this.turretOrder.filter(id=>!this.parts.get(id).destroyed);
     if(live.length&&this.due('turret-cycle',dt,(this.t.flakInterval||3.2)/live.length)){
       const p=this.target(players);if(!p)return;
@@ -379,7 +382,7 @@ export class MarkVCruiser extends PatternBoss {
             radius:7,warning:0,duration:3.1,damage:this.t.damage*.75,visual:'aa-shell',tag:part.id});}
       }
     }
-    if(!live.length&&p&&this.due('hull-gun',dt,2.4)){const a=Math.atan2(p.y-this.y,p.x-this.x);this.fan(this.x,this.y+65,a,4,.28,this.t.bulletSpeed*.75,'aa-shell');}
+    if(!live.length&&p&&this.due('hull-gun',dt,2.0)){const a=Math.atan2(p.y-this.y,p.x-this.x),mx=this.x,my=this.y+65;this.command('muzzle',{x:mx,y:my});this.fan(mx,my,a,5,.24,this.t.bulletSpeed*.75,'aa-shell');}
   }
 }
 
@@ -518,7 +521,7 @@ export class MinenwerferBattery extends PatternBoss {
   constructor(options){
     const originalHp=options.tuning.maxHp,gunHp=originalHp*.4,tuning={...options.tuning,maxHp:gunHp*3};
     super({...options,tuning,coreRadius:64,kind:'minenwerfer-battery',parts:[
-      {id:'gun-left',x:-220,y:18,radius:105,maxHp:gunHp},{id:'main-gun',x:0,y:-36,radius:110,maxHp:gunHp},{id:'gun-right',x:220,y:18,radius:105,maxHp:gunHp}
+      {id:'gun-left',x:-206,y:-12,radius:105,maxHp:gunHp},{id:'main-gun',x:-6,y:-70,radius:110,maxHp:gunHp},{id:'gun-right',x:192,y:26,radius:105,maxHp:gunHp}
     ]});
     this.phase='cross-barrage';this.coreVulnerable=true;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
     this.shotSerial=0;this.baseVolleyCount=0;this.specialWave=0;this.specialClock=8.4;this._gasTier=3;
@@ -817,12 +820,12 @@ class FormationAceBoss extends PatternBoss {
   liveWingmen(){return this.formationStatus129?.()||[];}
   launchWing(bounds){
     if(this.wingLaunched)return;this.wingLaunched=true;
-    const span=bounds.right-bounds.left,hp=Math.max(90,Math.round(this.t.maxHp*.072));
+    const span=bounds.right-bounds.left,hp=Math.max(150,Math.round(this.t.maxHp*.11));
     for(let i=0;i<this.wingmen.length;i++){
       const wing=this.wingmen[i],x=bounds.left+span*(i+.5)/this.wingmen.length,y=bounds.top-76-(i%2)*28;
       this.command('spawn-minion',{minion:'formation-fighter',faction:this.faction,plane:wing.plane,behavior:wing.behavior,leaderId:this.id,
         formationIndex:i,formationCount:this.wingmen.length,formationRole:wing.role,formationSide:wing.side,formationRank:wing.rank,
-        pairId:wing.pairId,callSign:wing.callSign,name:wing.callSign,x,y,a:Math.PI/2,life:1e9,fire:.45+i*.11,
+        pairId:wing.pairId,callSign:wing.callSign,callSignKo:wing.nameKo,name:wing.nameKo||wing.callSign,x,y,a:Math.PI/2,life:1e9,fire:.42+i*.1,
         maxSpeed:wing.maxSpeed,hp,visualScale:1,persistent:true});
     }
   }
@@ -836,12 +839,12 @@ class FormationAceBoss extends PatternBoss {
 export class JastaCircus extends FormationAceBoss {
   constructor(options) {
     super({...options,kind:'jasta11-circus',wingmen:[
-      {role:'left-outer',side:-1,rank:1,plane:'jasta11a_albatros',callSign:'Kurt Wolff',behavior:'jasta-formation',maxSpeed:235},
-      {role:'left-inner',side:-1,rank:0,plane:'jasta11b_albatros',callSign:'Karl Allmenröder',behavior:'jasta-formation',maxSpeed:232},
-      {role:'right-inner',side:1,rank:0,plane:'jasta11c_albatros',callSign:'Karl Emil Schaefer',behavior:'jasta-formation',maxSpeed:232},
-      {role:'right-outer',side:1,rank:1,plane:'jasta11d_albatros',callSign:'Lothar von Richthofen',behavior:'jasta-formation',maxSpeed:235}
+      {role:'left-outer',side:-1,rank:1,plane:'jasta11a_albatros',callSign:'Kurt Wolff',nameKo:'쿠르트 볼프',behavior:'jasta-formation',maxSpeed:235},
+      {role:'left-inner',side:-1,rank:0,plane:'jasta11b_albatros',callSign:'Karl Allmenröder',nameKo:'카를 알멘뢰더',behavior:'jasta-formation',maxSpeed:232},
+      {role:'right-inner',side:1,rank:0,plane:'jasta11c_albatros',callSign:'Karl Emil Schaefer',nameKo:'카를 에밀 셰퍼',behavior:'jasta-formation',maxSpeed:232},
+      {role:'right-outer',side:1,rank:1,plane:'jasta11d_albatros',callSign:'Lothar von Richthofen',nameKo:'로타어 폰 리히트호펜',behavior:'jasta-formation',maxSpeed:235}
     ]});
-    this.leaderPilot='baron';this.callSign='Manfred von Richthofen';this.speed=196;this.aceCycle=0;
+    this.leaderPilot='baron';this.callSign='Manfred von Richthofen';this.callSignKo='만프레트 폰 리히트호펜';this.speed=196;this.aceCycle=0;
   }
   update(dt,{players,bounds}) {
     const p=living(players).reduce((m,q)=>!m||Math.hypot(q.x-this.x,q.y-this.y)<Math.hypot(m.x-this.x,m.y-this.y)?q:m,null);if(!p)return;
@@ -865,12 +868,12 @@ export class JastaCircus extends FormationAceBoss {
 export class Naval10BlackFlight extends FormationAceBoss {
   constructor(options) {
     super({...options,kind:'naval10-black-flight',wingmen:[
-      {role:'a-bait',pairId:'a',side:-1,rank:0,plane:'collishaw_sopwith',callSign:'Black Prince',behavior:'black-flight-formation',maxSpeed:238},
-      {role:'a-hunter',pairId:'a',side:-1,rank:1,plane:'collishaw_sopwith',callSign:'Black Death',behavior:'black-flight-formation',maxSpeed:242},
-      {role:'b-bait',pairId:'b',side:1,rank:0,plane:'collishaw_sopwith',callSign:'Black Roger',behavior:'black-flight-formation',maxSpeed:238},
-      {role:'b-hunter',pairId:'b',side:1,rank:1,plane:'collishaw_sopwith',callSign:'Black Sheep',behavior:'black-flight-formation',maxSpeed:242}
+      {role:'a-bait',pairId:'a',side:-1,rank:0,plane:'collishaw_sopwith',callSign:'Black Prince',nameKo:'블랙 프린스',behavior:'black-flight-formation',maxSpeed:238},
+      {role:'a-hunter',pairId:'a',side:-1,rank:1,plane:'collishaw_sopwith',callSign:'Black Death',nameKo:'블랙 데스',behavior:'black-flight-formation',maxSpeed:242},
+      {role:'b-bait',pairId:'b',side:1,rank:0,plane:'collishaw_sopwith',callSign:'Black Roger',nameKo:'블랙 로저',behavior:'black-flight-formation',maxSpeed:238},
+      {role:'b-hunter',pairId:'b',side:1,rank:1,plane:'collishaw_sopwith',callSign:'Black Sheep',nameKo:'블랙 쉽',behavior:'black-flight-formation',maxSpeed:242}
     ]});
-    this.leaderPilot='collishaw';this.callSign='Black Maria';this.speed=202;this.aceCycle=0;
+    this.leaderPilot='collishaw';this.callSign='Black Maria';this.callSignKo='블랙 마리아';this.speed=202;this.aceCycle=0;
   }
   update(dt,{players,bounds}) {
     const p=living(players).reduce((m,q)=>!m||Math.hypot(q.x-this.x,q.y-this.y)<Math.hypot(m.x-this.x,m.y-this.y)?q:m,null);if(!p)return;
