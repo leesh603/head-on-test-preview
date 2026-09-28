@@ -1,24 +1,24 @@
 import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js';
 export const TERRAIN_PROFILES=Object.freeze({
- rural:{name:'전원 지대',cell:0,base:'#424b3b',strength:.67},
- sea:{name:'아드리아해',cell:1,base:'#254555',strength:.66},
- trenches:{name:'참호 전선',cell:2,base:'#4c443b',strength:.62},
- sky:{name:'창공',cell:3,base:'#3d5367',strength:.46},
- city:{name:'도심 지대',cell:4,base:'#454746',strength:.60},
- alps:{name:'알프스 산맥',cell:5,base:'#414e56',strength:.43},
+ rural:{name:'전원 지대',src:'./terrain-rural359.webp?v=388&b=326',base:'#424b3b',strength:1.25},
+ sea:{name:'아드리아해',src:'./terrain-sea.webp?v=388&b=326',base:'#254555',strength:1.11},
+ trenches:{name:'참호 전선',src:'./terrain-trenches.webp?v=388&b=326',base:'#4c443b',strength:1.22},
+ sky:{name:'창공',cell:3,base:'#3d5367',strength:1.25},
+ city:{name:'도심 지대',src:'./terrain-city359.webp?v=388&b=326',base:'#454746',strength:1.22},
+ alps:{name:'알프스 산맥',src:'./terrain-alps359.webp?v=388&b=326',base:'#414e56',strength:1.15},
  channel:{name:'영국 해협',cell:6,base:'#304a56',strength:.59},
  desert:{name:'중동 사막',cell:7,base:'#71634a',strength:.58},
  night:{name:'야간 공습',cell:8,base:'#232b34',strength:.58},
- burning:{name:'불타는 전선',cell:9,base:'#433d37',strength:.57},
+ burning:{name:'불타는 전선',cell:9,base:'#433d37',strength:.79},
  // Cambrai ships as its own painterly tile instead of an atlas cell.
- cambrai:{name:'캉브레 들판',src:'./terrain-cambrai.webp?v=387&b=326',base:'#655d45',strength:.82},
+ cambrai:{name:'캉브레 들판',src:'./terrain-cambrai.webp?v=388&b=326',base:'#655d45',strength:.82},
  // Bloody April: cold high-altitude haze over faint Arras fields — minimal
  // ground detail, the map reads as an air combat arena.
- arras:{name:'아라스 상공',src:'./terrain-arras.webp?v=387&b=326',base:'#4d5a66',strength:.85}
- ,somme:{name:'솜 강전선',src:'./terrain-somme.webp?v=387&b=326',base:'#5a5244',strength:.85},
+ arras:{name:'아라스 상공',src:'./terrain-arras.webp?v=388&b=326',base:'#4d5a66',strength:.85}
+ ,somme:{name:'솜 강전선',src:'./terrain-somme.webp?v=388&b=326',base:'#5a5244',strength:1.11},
  // London raid: night navy street grid, the Thames band and fires. Kept dark so
  // searchlight cones and warning circles stay legible.
- london:{name:'런던 대공습',src:'./terrain-london.webp?v=387&b=326',base:'#232a36',strength:.85}
+ london:{name:'런던 대공습',src:'./terrain-london.webp?v=388&b=326',base:'#232a36',strength:.83}
 });
 const profileImages=new Map();
 function profileImage(key){
@@ -34,6 +34,17 @@ export const ALPS_PEAK_VARIANTS=Object.freeze([
 const peakSprites=ALPS_PEAK_VARIANTS.map(variant=>{if(typeof Image==='undefined')return null;const image=new Image();image.src=variant.src;return image;});
 // Gameplay coordinates throughout are WORLD pixels. Camera is supplied by the host.
 // Ten visual profiles do not register ten gameplay stages.
+// Join narrow edge bands once, when a background is cached. No per-frame
+// filters or pixel reads, and no reflected buildings, rivers or ridgelines.
+export function joinTerrainEdges(canvas,border=24){
+ const g=canvas.getContext('2d');if(typeof g.getImageData!=='function')return canvas;
+ const w=canvas.width,h=canvas.height,im=g.getImageData(0,0,w,h),d=im.data;
+ const n=Math.min(border,Math.floor(Math.min(w,h)/4));
+ const pair=(a,b,t)=>{for(let k=0;k<3;k++){const x=d[a+k],y=d[b+k];d[a+k]=Math.round(x*(1-t)+y*t);d[b+k]=Math.round(y*(1-t)+x*t);}};
+ for(let i=0;i<n;i++){const t=.5*(1-i/n)**2;for(let y=0;y<h;y++)pair((y*w+i)*4,(y*w+w-1-i)*4,t);}
+ for(let i=0;i<n;i++){const t=.5*(1-i/n)**2;for(let x=0;x<w;x++)pair((i*w+x)*4,((h-1-i)*w+x)*4,t);}
+ g.putImageData(im,0,0);return canvas;
+}
 export class TerrainRenderer {
  constructor({atlas=null,tileSize=768,detail=1,canvasFactory}={}){this.atlas=atlas;this.tileSize=positive(tileSize,'tileSize');this.detail=clamp(detail,.25,1);this.tiles=new Map();this.canvasFactory=canvasFactory??((w,h)=>{const c=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(w,h):document.createElement('canvas');c.width=w;c.height=h;return c;});}
  setAtlas(atlas){this.atlas=atlas;this.tiles.clear();}
@@ -47,18 +58,19 @@ export class TerrainRenderer {
    // Own-texture profiles keep their painterly detail by compositing at world
    // tile size; the shared 160px cell size would smear them into plain color.
    const res=this.tileSize;
-   if(!this.tiles.has(key)){const c=this.canvasFactory(res,res),g=c.getContext('2d');g.fillStyle=p.base;g.fillRect(0,0,res,res);g.globalAlpha=p.strength*this.detail;g.imageSmoothingEnabled=true;g.drawImage(im,3,3,im.naturalWidth-6,im.naturalHeight-6,0,0,res,res);g.globalAlpha=1;this.tiles.set(key,c);}return this.tiles.get(key);}
+   if(!this.tiles.has(key)){const c=this.canvasFactory(res,res),g=c.getContext('2d');g.fillStyle=p.base;g.fillRect(0,0,res,res);g.globalAlpha=p.strength*this.detail;g.imageSmoothingEnabled=true;g.drawImage(im,3,3,im.naturalWidth-6,im.naturalHeight-6,0,0,res,res);g.globalAlpha=1;joinTerrainEdges(c);this.tiles.set(key,c);}return this.tiles.get(key);}
   if(this.tiles.has(key))return this.tiles.get(key);
   // Pre-render once at 160 logical pixels; suppress small high-frequency texture detail.
   const c=this.canvasFactory(160,160),g=c.getContext('2d');g.fillStyle=p.base;g.fillRect(0,0,160,160);
-  if(this.atlas?.width){const col=p.cell%5,row=Math.floor(p.cell/5),x0=Math.round(col*this.atlas.width/5),x1=Math.round((col+1)*this.atlas.width/5),y0=Math.round(row*this.atlas.height/2),y1=Math.round((row+1)*this.atlas.height/2),inset=3;g.globalAlpha=p.strength*this.detail;g.imageSmoothingEnabled=true;g.drawImage(this.atlas,x0+inset,y0+inset,x1-x0-inset*2,y1-y0-inset*2,0,0,160,160);g.globalAlpha=1;}
+  if(this.atlas?.width){const col=p.cell%5,row=Math.floor(p.cell/5),x0=Math.round(col*this.atlas.width/5),x1=Math.round((col+1)*this.atlas.width/5),y0=Math.round(row*this.atlas.height/2),y1=Math.round((row+1)*this.atlas.height/2),inset=3;g.globalAlpha=p.strength*this.detail;g.imageSmoothingEnabled=true;g.drawImage(this.atlas,x0+inset,y0+inset,x1-x0-inset*2,y1-y0-inset*2,0,0,160,160);g.globalAlpha=1;joinTerrainEdges(c);}
   this.tiles.set(key,c);return c;
  }
  draw(ctx,{key,camera,width,height}){const tile=this.tile(key),s=this.tileSize;
-  ctx.save();ctx.beginPath();ctx.rect(0,0,width,height);ctx.clip();ctx.imageSmoothingEnabled=false;ctx.fillStyle=TERRAIN_PROFILES[key].base;ctx.fillRect(0,0,width,height);
+  ctx.save();ctx.beginPath();ctx.rect(0,0,width,height);ctx.clip();ctx.imageSmoothingEnabled=true;ctx.fillStyle=TERRAIN_PROFILES[key].base;ctx.fillRect(0,0,width,height);
   for(let y=Math.floor(camera.y/s);y<=Math.floor((camera.y+height)/s);y++)for(let x=Math.floor(camera.x/s);x<=Math.floor((camera.x+width)/s);x++){
-   // Mirrored repeats share the SAME boundary pixels on each edge, avoiding hard seams.
-   const mx=Math.abs(x%2),my=Math.abs(y%2),dx=Math.floor(x*s-camera.x),dy=Math.floor(y*s-camera.y);ctx.save();ctx.translate(dx+(mx?s+1:-1),dy+(my?s+1:-1));ctx.scale(mx?-1:1,my?-1:1);
+   // Only the legacy painterly maps keep mirrored repeats; renewed backgrounds
+   // repeat by translation, so their terrain never turns into a kaleidoscope.
+   const mirror=key==='cambrai'||key==='arras',mx=mirror?Math.abs(x%2):0,my=mirror?Math.abs(y%2):0,dx=Math.floor(x*s-camera.x),dy=Math.floor(y*s-camera.y);ctx.save();ctx.translate(dx+(mx?s+1:-1),dy+(my?s+1:-1));ctx.scale(mx?-1:1,my?-1:1);
    // Integer-aligned two-pixel overlap removes raster gaps while preserving the authored map.
    ctx.drawImage(tile,0,0,s+2,s+2);ctx.restore();
   }ctx.restore();
