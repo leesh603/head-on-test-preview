@@ -40,7 +40,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <label class="check"><input id="hideHud" type="checkbox">관찰 HUD 숨김</label>
 <label>패턴 진행 조종<select id="stepControl"><option value="observe">관찰 · 위치 유지</option><option value="up">전진 ↑</option><option value="left">좌선회 ←</option><option value="right">우선회 →</option><option value="down">후진입 ↓</option></select></label>
 <label>진행 시간<select id="stepDuration"><option value="2">2초</option><option value="0.5">0.5초</option></select></label>
-<label>비행선 조준<select id="airshipAim"><option value="">수동 조종</option><option value="0">왼쪽 비행선</option><option value="1">중앙 비행선</option><option value="2">오른쪽 비행선</option></select></label>
+<label>보스 부위 조준<select id="airshipAim"><option value="">수동 조종</option><option value="0">왼쪽 비행선</option><option value="1">중앙 비행선</option><option value="2">오른쪽 비행선</option><option value="livens:tank-l1">리벤스 · 좌상 탱크</option><option value="livens:tank-l2">리벤스 · 좌하 탱크</option><option value="livens:tank-r1">리벤스 · 우상 탱크</option><option value="livens:tank-r2">리벤스 · 우하 탱크</option><option value="livens:pressure">리벤스 · 압력장치</option><option value="livens:core">리벤스 · 코어</option></select></label>
 <button id="patternStep" type="button" disabled>보스 패턴 진행</button>
 <button id="reload" type="button">현재 브랜치 새로고침</button>
 <a id="open" class="action" target="_blank" rel="noopener">게임만 열기 ↗</a>
@@ -48,7 +48,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <output id="bossState" style="font-size:11px;max-width:700px"></output>
 </div>
 </header>
-<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=383"></iframe></main>
+<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=394"></iframe></main>
 </div>
 <script>
 const $=id=>document.getElementById(id),frame=$('game');let api=null;
@@ -103,9 +103,11 @@ $('patternStep').onclick=()=>{
  for(let i=0;i<frames&&game.state==='playing';i++){
   let steering=angle;
   if($('airshipAim').value!==''){
-   const body=[...game.stageBoss?.stages?.encounter?.bodies?.values()||[]].find(b=>['london-apron','drachen-net'].includes(b.kind));
-   const part=body?.parts.get('airship-'+$('airshipAim').value);
-   if(part&&!part.destroyed)steering=Math.atan2(body.y+part.y-game.y,body.x+part.x-game.x);
+   const selected=$('airshipAim').value,livens=selected.startsWith('livens:');
+   const body=[...game.stageBoss?.stages?.encounter?.bodies?.values()||[]].find(b=>livens?b.kind==='livens-flame-projector':['london-apron','drachen-net'].includes(b.kind));
+   const part=body?.parts.get(livens?selected.slice(7):'airship-'+selected);
+   if(livens&&selected==='livens:core'&&body)steering=Math.atan2(body.y-game.y,body.x-game.x);
+   else if(part&&!part.destroyed)steering=Math.atan2(body.y+part.y-game.y,body.x+part.x-game.x);
   }
   game.update(.02,{angle:steering});
  }
