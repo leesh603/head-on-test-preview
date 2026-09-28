@@ -1,6 +1,6 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=361';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=361';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=361';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=362';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=362';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=362';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -174,7 +174,7 @@ export class ZeppelinL70 extends PatternBoss {
       }
     } else if(this.phase==='reveal') {
       this.phaseTime-=dt;if(this.phaseTime<=0){this.phase='exposed';this.coreVulnerable=true;for(const p of this.parts.values())if(p.kind==='engine')p.hittable=true;this.command('phase-change',{phase:this.phase});
-        for(let i=0;i<3;i++)this.command('spawn-minion',{minion:'airship',faction:this.faction,x:this.x+(i-1)*170,y:this.y-140-(i%2)*40});}}
+        for(let i=0;i<3;i++)this.command('spawn-minion',{minion:'airship',faction:this.faction,x:this.x+(i-1)*170,y:this.y-140-(i%2)*40});}
     } else if(this.phase==='exposed') {
       if(this.due('broadside',dt,this.t.engineInterval||2.6)){
         const side=this.broadside++%2,live=engines.filter(p=>(+p.id.slice(7)%2)===side);
@@ -608,35 +608,37 @@ export class LondonApron extends RegionalPatternBoss {
   suppressive(){/* the changing cable wall is the encounter's attack */ }
   constructor(options) {
     super({...options,kind:'london-apron',parts:[-105,0,105].map((x,i)=>({id:'balloon-'+i,x,y:-58,radius:48}))});
-    this.phase='barrier';this.coreVulnerable=false;this.apronLane=-1;this.wireWave=0;
+    this.phase='barrier';this.coreVulnerable=false;this.apronLane=-1;this.wireWave=0;this.timers.set('apron',1.35);
   }
   onPartDestroyed(part) {
     this.command('cancel-hazards',{tag:'apron-'+part.id});
     this.command('aa-effect',{x:this.x+part.x,y:this.y+part.y,kind:'aaBalloonBurst',size:132,life:.48});
     if(this.allDestroyed(['balloon-0','balloon-1','balloon-2'])){
-      this.phase='winch-exposed';this.coreVulnerable=true;this.command('phase-change',{phase:this.phase});
+      this.phase='rig-exposed';this.coreVulnerable=true;this.command('phase-change',{phase:this.phase});
       this.command('aa-effect',{x:this.x,y:this.y+75,kind:'aaWireSnap',size:160,life:.55});
     }
   }
   update(dt,{players,bounds}) {
-    if(this.phase==='barrier'&&this.due('apron',dt,5.4)){
-      const width=bounds.right-bounds.left,closing=++this.wireWave%3===0;
-      const gapWidth=Math.max(110,Math.min(closing?132:190,width*(closing?.23:.31)));
-      const gapX=bounds.left+width*[.28,.5,.72][++this.apronLane%3],gapLeft=gapX-gapWidth/2,gapRight=gapX+gapWidth/2;
-      const y=Math.max(bounds.top+110,Math.min(bounds.bottom-135,this.y+155));
-      // A balloon owns precisely one third of each wall. Split at the opening,
-      // so the visual cable and the collision segments share identical endpoints.
-      for(let i=0;i<3;i++){
-        const balloon=this.parts.get('balloon-'+i);if(balloon.destroyed)continue;
-        const left=bounds.left+20+i*(width-40)/3,right=bounds.left+20+(i+1)*(width-40)/3;
-        for(const [start,end] of [[left,Math.min(right,gapLeft)],[Math.max(left,gapRight),right]]){
-          if(end-start<16)continue;
-          this.hazard('beam',{x:start,y,angle:0,length:end-start,thickness:10,warning:1.15,duration:3.75,
-            tickInterval:.55,damage:Math.round(this.t.damage*1.2),sourceX:this.x+balloon.x,sourceY:this.y+balloon.y+balloon.radius*.35,
-            visual:'apron-wire',tag:'apron-'+balloon.id});
-        }
-      }
-      this.command('safe-corridor',{x:gapX,y,width:gapWidth,seconds:4.9,warning:1.15});
+    const live=[...this.parts.values()].filter(p=>!p.destroyed);if(!live.length)return;
+    const lost=3-live.length,interval=lost===0?5.25:lost===1?4.8:4.35;
+    if(this.phase!=='barrier'||!this.due('apron',dt,interval))return;
+    const width=bounds.right-bounds.left,height=bounds.bottom-bounds.top,mode=lost>=2?'sweep':['wall','sweep','shrink'][++this.wireWave%3];
+    const common={thickness:42,warning:1.15,duration:3.65,tickInterval:.55,damage:Math.round(this.t.damage*(lost?1.05:1.18)),blocks:true,visual:'apron-wire'};
+    if(mode==='wall'){
+      const gapWidth=Math.max(120,Math.min(190,width*.29)),gapX=bounds.left+width*[.27,.5,.73][++this.apronLane%3],gapLeft=gapX-gapWidth/2,gapRight=gapX+gapWidth/2;
+      const y=Math.max(bounds.top+105,Math.min(bounds.bottom-150,this.y+158));
+      for(const balloon of live){const i=Number(balloon.id.at(-1)),left=bounds.left+20+i*(width-40)/3,right=bounds.left+20+(i+1)*(width-40)/3;
+        for(const [start,end] of [[left,Math.min(right,gapLeft)],[Math.max(left,gapRight),right]])if(end-start>=28)
+          this.hazard('beam',{...common,x:start,y,angle:0,length:end-start,vy:22,sourceX:this.x+balloon.x,sourceY:this.y+balloon.y+balloon.radius*.35,tag:'apron-'+balloon.id});}
+      this.command('safe-corridor',{x:gapX,y,width:gapWidth,seconds:4.8,warning:common.warning});
+    }else if(mode==='sweep'){
+      const direction=this.wireWave%2?1:-1,travel=Math.max(135,width*.3),startX=direction>0?bounds.left+30:bounds.right-30;
+      for(const [i,balloon] of live.entries())this.hazard('beam',{...common,x:startX-direction*i*34,y:bounds.top+height*(.24+i*.18),angle:Math.PI/2,length:height*.58,vx:direction*travel/common.duration,duration:common.duration+.25,tag:'apron-'+balloon.id});
+    }else{
+      const margin=34,gap=Math.max(132,width*.34),travel=Math.max(48,(width-gap)/2-margin);
+      for(const [balloon,side] of [[this.parts.get('balloon-0'),1],[this.parts.get('balloon-2'),-1]])if(balloon&&!balloon.destroyed)
+        this.hazard('beam',{...common,x:side>0?bounds.left+margin:bounds.right-margin,y:bounds.top+height*.18,angle:Math.PI/2,length:height*.64,vx:side*travel/common.duration,duration:common.duration+.45,tag:'apron-'+balloon.id});
+      this.command('safe-corridor',{x:(bounds.left+bounds.right)/2,y:this.y,width:gap,seconds:4.95,warning:common.warning});
     }
   }
 }
@@ -645,25 +647,31 @@ export class DrachenMineNet extends RegionalPatternBoss {
   suppressive(){/* mine placement and observation artillery own this encounter */ }
   constructor(options) {
     super({...options,kind:'drachen-net',parts:[{id:'balloon',x:0,y:-72,radius:67},{id:'winch',x:0,y:35,radius:39}]});
-    this.phase='observed';this.coreVulnerable=false;this.netWave=0;this.timers.set('mine-lay',1.4);
+    this.phase='observed';this.coreVulnerable=false;this.netWave=0;this.pendingMineSalvos=[];this.timers.set('mine-lay',1.4);
   }
   onPartDestroyed(p) {
     if(p.id==='balloon'){this.command('cancel-hazards',{tag:'observer-artillery'});this.command('phase-change',{phase:'observer-destroyed'});
       this.command('aa-effect',{x:this.x+p.x,y:this.y+p.y,kind:'aaBalloonBurst',size:165,life:.5});}
     if(p.id==='winch'){this.command('phase-change',{phase:'winch-destroyed'});
+      this.pendingMineSalvos.length=0;
       this.command('aa-effect',{x:this.x+p.x,y:this.y+p.y,kind:'aaWinchSpark',size:125,life:.5});}
     if(this.parts.get('balloon').destroyed&&this.parts.get('winch').destroyed){this.coreVulnerable=true;this.phase='core-exposed';this.command('phase-change',{phase:'exposed'});}
   }
   update(dt,{players,bounds}) {
     const observer=!this.parts.get('balloon').destroyed,winch=!this.parts.get('winch').destroyed,p=this.target(players);
-    if(winch&&p&&this.due('mine-lay',dt,observer?5.5:7.1)){
-      const width=bounds.right-bounds.left,columns=Math.max(4,Math.min(8,Math.floor(width/75)));
-      const pitch=Math.min(72,(width-80)/(columns-1)),start=Math.max(bounds.left+40,Math.min(bounds.right-40-(columns-1)*pitch,p.x-(columns-1)*pitch/2));
-      const opening=(++this.netWave%columns),y=Math.max(bounds.top+95,Math.min(bounds.bottom-95,p.y-70));
-      const points=[];for(let i=0;i<columns;i++)if(Math.abs(i-opening)>0)
-        points.push({x:start+i*pitch,y:y+(i%2?18:-18)});
-      this.command('spawn-minefield',{points,sourceX:this.x+this.parts.get('winch').x,sourceY:this.y+this.parts.get('winch').y,warning:1.25,life:12,maxMines:16});
-      this.command('mine-lay',{x:this.x,y:this.y+this.parts.get('winch').y});
+    if(winch&&this.pendingMineSalvos.length){for(const salvo of this.pendingMineSalvos)salvo.delay-=dt;for(const salvo of this.pendingMineSalvos.filter(s=>s.delay<=0))
+      this.command('spawn-minefield',{...salvo,sourceX:this.x+this.parts.get('winch').x,sourceY:this.y+this.parts.get('winch').y});this.pendingMineSalvos=this.pendingMineSalvos.filter(s=>s.delay>0);}
+    if(winch&&p&&this.due('mine-lay',dt,observer?4.75:6.1)){
+      const width=bounds.right-bounds.left,height=bounds.bottom-bounds.top,mode=++this.netWave%4,points=[],clip=q=>q.x>bounds.left+28&&q.x<bounds.right-28&&q.y>bounds.top+42&&q.y<bounds.bottom-42;
+      const px=Math.max(bounds.left+110,Math.min(bounds.right-110,p.x+(p.vx||0)*.55)),py=Math.max(bounds.top+120,Math.min(bounds.bottom-105,p.y+(p.vy||0)*.35));
+      let warning=1.2;
+      if(mode===0){for(let i=0;i<9;i++){const a=this.rng()*Math.PI*2,d=75+this.rng()*170;points.push({x:px+Math.cos(a)*d,y:py+Math.sin(a)*d*.68});}}
+      else if(mode===1){const cols=Math.max(6,Math.min(9,Math.floor(width/70))),pitch=(width-90)/(cols-1),gate=(this.netWave*3)%cols;for(let row=0;row<2;row++)for(let i=0;i<cols;i++)if(Math.abs(i-gate)>0)points.push({x:bounds.left+45+i*pitch,y:py-88+row*72+(i%2?18:-18)});}
+      else if(mode===2){warning=2.05;for(let i=0;i<8;i++){const a=i*Math.PI/4+.22;points.push({x:px+Math.cos(a)*145,y:py+Math.sin(a)*105});}}
+      else{for(let i=0;i<7;i++)points.push({x:bounds.left+55+i*(width-110)/6,y:py-92+i*22});const second=[];for(let i=0;i<7;i++)second.push({x:bounds.right-55-i*(width-110)/6,y:py+92-i*22});this.pendingMineSalvos.push({delay:1.15,points:second.filter(clip),warning:.9,life:11,maxMines:22});}
+      const valid=points.filter(clip).filter(q=>Math.hypot(q.x-p.x,q.y-p.y)>62);
+      this.command('spawn-minefield',{points:valid,sourceX:this.x+this.parts.get('winch').x,sourceY:this.y+this.parts.get('winch').y,warning,life:12,maxMines:22});
+      this.command('mine-lay',{x:this.x,y:this.y+this.parts.get('winch').y,pattern:mode});
     }
     if(observer&&p&&this.due('observer-flak',dt,3.8)){const lead=.4,scatter=winch?24:68;
       this.hazard('circle',{x:p.x+(p.vx||0)*lead+randBetween(this.rng,-scatter,scatter),
