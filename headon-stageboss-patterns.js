@@ -1,6 +1,6 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=367';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=367';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=367';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=368';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=368';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=368';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -694,7 +694,7 @@ export class Fliegerzug extends RailAdapter {
     this.railCarOrder=cars.map(([id])=>id);
     for(const [id,y,hitRadiusY] of cars)this.parts.set(id,new BossPart({id,kind:'rail-car',maxHp:carHp,x:0,y,radius:59,hittable:true}));
     for(const [id,,hitRadiusY] of cars)this.parts.get(id).hitRadiusY=hitRadiusY;
-    this.bugSalvo=null;this.launchIndex=0;
+    this.bugSalvo=null;this.launchIndex=0;this.railCruiseSpeed=this.rail129.c.speed;
   }
   liveLaunchers(){return ['car-launch-a','car-launch-b'].map(id=>this.parts.get(id)).filter(p=>!p.destroyed);}
   onPartDestroyed(p){
@@ -735,6 +735,7 @@ export class Fliegerzug extends RailAdapter {
     return this.coreVulnerable&&ellipse(this.x,this.y,59,112)?{partId:null}:null;
   }
   update(dt,ctx){
+    if(this.rail129.phase==='move')this.rail129.c.speed=this.railCruiseSpeed*(.36+.64*Math.min(1,this.rail129.time/.85));
     super.update(dt,ctx);
     if(this.dead)return;
     const players=ctx.players||[],car=id=>this.parts.get(id),ports=this.liveLaunchers();
