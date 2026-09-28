@@ -1,17 +1,17 @@
-import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=362';
-import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=362';
-import {fx} from './fx-art.js?v=362';
-import {drawAADefense} from './aa-defense-art.js?v=362';
+import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=363';
+import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=363';
+import {fx} from './fx-art.js?v=363';
+import {drawAADefense} from './aa-defense-art.js?v=363';
 
 // These are authored/derived RGBA sprites, not canvas-painted replacement art.
 // Only the current battlefield's small atlas set remains resident.
 const SOURCES=Object.freeze({
  train:'./boss-fliegerzug-parts352.webp',treffas:'./boss-treffas-parts352.webp',support:'./boss-regional-support352.webp',
- apronNet:'./boss-london-apron-net-sweep.png?v=362',
+ apronNet:'./boss-london-apron-net-sweep.png?v=363',
  staaken:'./boss-staaken-body352.webp',staakenEngines:'./boss-staaken-engines352.webp',staakenWreck:'./boss-staaken-wreck352.webp',
- tank:'./boss-mark4.webp?v=362',tankWreck:'./boss-mark4-wreck.webp?v=362',
- morser:'./boss-morser.webp?v=362',morserWreck:'./boss-morser-wreck.webp?v=362',
- bugFolded:'./boss-bug-folded.webp?v=362',bugFlight:'./boss-bug-flight.webp?v=362',impact:'./fx-mortar-impact340.webp'
+ tank:'./boss-mark4.webp?v=363',tankWreck:'./boss-mark4-wreck.webp?v=363',
+ morser:'./boss-morser.webp?v=363',morserWreck:'./boss-morser-wreck.webp?v=363',
+ bugFolded:'./boss-bug-folded.webp?v=363',bugFlight:'./boss-bug-flight.webp?v=363',impact:'./fx-mortar-impact340.webp'
 });
 const SHEETS={train:'boss-fliegerzug-parts352',treffas:'boss-treffas-parts352',support:'boss-regional-support352',staakenEngines:'boss-staaken-engines352'};
 const REGION_KEYS={4:['support','apronNet'],8:['support','train','treffas','bugFolded','bugFlight','impact'],10:['support','tank','tankWreck','morser','morserWreck','impact'],11:['support','staaken','staakenEngines','staakenWreck','impact']};
