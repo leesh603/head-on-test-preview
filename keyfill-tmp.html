@@ -1,0 +1,42 @@
+<!doctype html><meta charset="utf-8"><div id="bar" style="font:12px monospace;color:#ddd"></div><canvas id="cv" style="display:none"></canvas>
+<script>
+// Flood-fill background keying: samples the corner color, removes only the
+// contiguous region reachable from the edges within a color tolerance, so
+// dark pixels INSIDE the subject survive.
+const q=new URLSearchParams(location.search);
+const SRC=q.get('src'),OUT=q.get('out'),TOL=+(q.get('tol')||42);
+const im=new Image();
+im.onload=()=>{
+ const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+ cv.width=im.naturalWidth;cv.height=im.naturalHeight;ctx.drawImage(im,0,0);
+ (async()=>{try{
+  const id=ctx.getImageData(0,0,cv.width,cv.height),d=id.data,W=cv.width,H=cv.height;
+  const ref=[d[0],d[1],d[2]];
+  const dist=i=>{const r=d[i]-ref[0],g=d[i+1]-ref[1],b=d[i+2]-ref[2];return Math.sqrt(r*r+g*g+b*b)};
+  const seen=new Uint8Array(W*H),stack=[];
+  for(let x=0;x<W;x++){stack.push(x,(H-1)*W+x)}
+  for(let y=0;y<H;y++){stack.push(y*W,y*W+W-1)}
+  while(stack.length){
+   const p=stack.pop();if(seen[p])continue;
+   if(dist(p*4)>TOL){seen[p]=1;continue}
+   seen[p]=1;d[p*4+3]=0;
+   const x=p%W,y=(p/W)|0;
+   if(x>0)stack.push(p-1);if(x<W-1)stack.push(p+1);if(y>0)stack.push(p-W);if(y<H-1)stack.push(p+W);
+  }
+  ctx.putImageData(id,0,0);
+  const px=ctx.getImageData(0,0,W,H).data;let x0=W,y0=H,x1=-1,y1=-1;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(px[(y*W+x)*4+3]>24){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+  const w=x1-x0+1,h=y1-y0+1;
+  const out=document.createElement('canvas');out.width=w;out.height=h;
+  out.getContext('2d').drawImage(cv,x0,y0,w,h,0,0,w,h);
+  const url=out.toDataURL('image/webp',.92);
+  const name=OUT.endsWith('.webp')?OUT:OUT+'.webp';
+  const r=await fetch('/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,data:url})});
+  document.getElementById('bar').textContent='SAVED '+name+':'+(r.ok?'ok':r.status)+' '+w+'x'+h;
+  fetch('/report?src='+SRC+'&log='+encodeURIComponent(document.getElementById('bar').textContent));
+ }catch(e){document.getElementById('bar').textContent='ERR '+(e.stack||e.message).slice(0,300);fetch('/report?src='+SRC+'&log='+encodeURIComponent(document.getElementById('bar').textContent))}
+ })();
+};
+im.onerror=()=>{document.getElementById('bar').textContent='LOADFAIL';fetch('/report?src='+SRC+'&log=LOADFAIL')};
+im.src='./raw/'+SRC;
+</script>

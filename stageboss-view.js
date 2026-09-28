@@ -1,4 +1,4 @@
-import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=355&b=340';
+import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=355';
 import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=355';
 import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=355';
 import {drawLivensFlame} from './livens-fire195.js?v=355';
