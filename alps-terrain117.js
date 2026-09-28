@@ -11,14 +11,14 @@ export const TERRAIN_PROFILES=Object.freeze({
  night:{name:'야간 공습',cell:8,base:'#232b34',strength:.58},
  burning:{name:'불타는 전선',cell:9,base:'#433d37',strength:.57},
  // Cambrai ships as its own painterly tile instead of an atlas cell.
- cambrai:{name:'캉브레 들판',src:'./terrain-cambrai.webp?v=338&b=326',base:'#655d45',strength:.82},
+ cambrai:{name:'캉브레 들판',src:'./terrain-cambrai.webp?v=355&b=326',base:'#655d45',strength:.82},
  // Bloody April: cold high-altitude haze over faint Arras fields — minimal
  // ground detail, the map reads as an air combat arena.
- arras:{name:'아라스 상공',src:'./terrain-arras.webp?v=338&b=326',base:'#4d5a66',strength:.85}
- ,somme:{name:'솜 강전선',src:'./terrain-somme.webp?v=338&b=326',base:'#5a5244',strength:.85},
+ arras:{name:'아라스 상공',src:'./terrain-arras.webp?v=355&b=326',base:'#4d5a66',strength:.85}
+ ,somme:{name:'솜 강전선',src:'./terrain-somme.webp?v=355&b=326',base:'#5a5244',strength:.85},
  // London raid: night navy street grid, the Thames band and fires. Kept dark so
  // searchlight cones and warning circles stay legible.
- london:{name:'런던 대공습',src:'./terrain-london.webp?v=338&b=326',base:'#232a36',strength:.85}
+ london:{name:'런던 대공습',src:'./terrain-london.webp?v=355&b=326',base:'#232a36',strength:.85}
 });
 const profileImages=new Map();
 function profileImage(key){
