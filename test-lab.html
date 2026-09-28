@@ -75,7 +75,8 @@ $('start').onclick=()=>{
  $('partHit').disabled=!result;$('patternStep').disabled=!result;$('status').textContent=result?'실행 · '+result.plane+' · map '+result.region:'시작 실패';refreshOpen();
 };
 $('partHit').onclick=()=>{
- const game=api?.debug?.(),bodies=game?.stageBoss?.stages?.encounter?.bodies;
+ const game=api?.debug?.();if(game?.state==='paused'){game.state='playing';frame.contentDocument?.getElementById('modal')?.classList.add('hidden')}
+ const bodies=game?.stageBoss?.stages?.encounter?.bodies;
  const boss=bodies&&[...bodies.values()].find(body=>!body.dead&&body.parts?.size);
  const part=boss&&[...boss.parts.values()].find(p=>!p.destroyed&&p.hittable!==false);
  if(!boss||!part){$('status').textContent='타격 가능한 보스 부위 없음';return}
@@ -83,7 +84,8 @@ $('partHit').onclick=()=>{
  $('status').textContent='실탄 투입 · '+part.id;
 };
 $('patternStep').onclick=()=>{
- const game=api?.debug?.();if(!game||game.state!=='playing'){$('status').textContent='진행 가능한 전투 없음';return}
+ const game=api?.debug?.();if(game?.state==='paused'){game.state='playing';frame.contentDocument?.getElementById('modal')?.classList.add('hidden')}
+ if(!game||game.state!=='playing'){$('status').textContent='진행 가능한 전투 없음';return}
  for(let i=0;i<50&&game.state==='playing';i++)game.update(.04,{});
  const encounter=game.stageBoss?.stages?.encounter,boss=encounter&&[...encounter.bodies.values()][0];
  $('status').textContent='패턴 진행 · 기뢰 '+(game.hostileMinefields?.flatMap(f=>f.mines).length||0)+' · 장벽 '+(boss?.hazards?.length||0);
