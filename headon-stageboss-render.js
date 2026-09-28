@@ -24,6 +24,14 @@ export function renderStageBossLayer(addon,{drawBody,drawPart,drawHazard}) {
 // Optional solid-water correction for a host collision resolver. Returns a
 // displacement; this module never takes over player movement or input.
 export function waterBarrierDisplacement(player,barrier) {
+  if(barrier.kind==='beam'){
+    const ax=barrier.x,ay=barrier.y,bx=ax+Math.cos(barrier.angle)*barrier.length,by=ay+Math.sin(barrier.angle)*barrier.length;
+    const dx=bx-ax,dy=by-ay,len2=dx*dx+dy*dy,t=len2?Math.max(0,Math.min(1,((player.x-ax)*dx+(player.y-ay)*dy)/len2)):0;
+    const qx=ax+dx*t,qy=ay+dy*t,px=player.x-qx,py=player.y-qy,dist=Math.hypot(px,py),limit=barrier.thickness/2+(player.radius||0);
+    if(dist>=limit)return{x:0,y:0};
+    const nx=dist>.001?px/dist:-dy/Math.max(1,Math.sqrt(len2)),ny=dist>.001?py/dist:dx/Math.max(1,Math.sqrt(len2)),push=limit-dist+.1;
+    return{x:nx*push,y:ny*push};
+  }
   const rx=barrier.width/2+(player.radius||0),ry=barrier.height/2+(player.radius||0);
   const dx=player.x-barrier.x,dy=player.y-barrier.y;
   if(Math.abs(dx)>rx||Math.abs(dy)>ry)return{x:0,y:0};

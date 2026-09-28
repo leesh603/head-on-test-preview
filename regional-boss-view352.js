@@ -1,19 +1,20 @@
-import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=361';
-import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=361';
-import {fx} from './fx-art.js?v=361';
-import {drawAADefense} from './aa-defense-art.js?v=361';
+import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=362';
+import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=362';
+import {fx} from './fx-art.js?v=362';
+import {drawAADefense} from './aa-defense-art.js?v=362';
 
 // These are authored/derived RGBA sprites, not canvas-painted replacement art.
 // Only the current battlefield's small atlas set remains resident.
 const SOURCES=Object.freeze({
  train:'./boss-fliegerzug-parts352.webp',treffas:'./boss-treffas-parts352.webp',support:'./boss-regional-support352.webp',
+ apronNet:'./boss-london-apron-net-sweep.png?v=362',
  staaken:'./boss-staaken-body352.webp',staakenEngines:'./boss-staaken-engines352.webp',staakenWreck:'./boss-staaken-wreck352.webp',
- tank:'./boss-mark4.webp?v=361',tankWreck:'./boss-mark4-wreck.webp?v=361',
- morser:'./boss-morser.webp?v=361',morserWreck:'./boss-morser-wreck.webp?v=361',
- bugFolded:'./boss-bug-folded.webp?v=361',bugFlight:'./boss-bug-flight.webp?v=361',impact:'./fx-mortar-impact340.webp'
+ tank:'./boss-mark4.webp?v=362',tankWreck:'./boss-mark4-wreck.webp?v=362',
+ morser:'./boss-morser.webp?v=362',morserWreck:'./boss-morser-wreck.webp?v=362',
+ bugFolded:'./boss-bug-folded.webp?v=362',bugFlight:'./boss-bug-flight.webp?v=362',impact:'./fx-mortar-impact340.webp'
 });
 const SHEETS={train:'boss-fliegerzug-parts352',treffas:'boss-treffas-parts352',support:'boss-regional-support352',staakenEngines:'boss-staaken-engines352'};
-const REGION_KEYS={4:['support'],8:['support','train','treffas','bugFolded','bugFlight','impact'],10:['support','tank','tankWreck','morser','morserWreck','impact'],11:['support','staaken','staakenEngines','staakenWreck','impact']};
+const REGION_KEYS={4:['support','apronNet'],8:['support','train','treffas','bugFolded','bugFlight','impact'],10:['support','tank','tankWreck','morser','morserWreck','impact'],11:['support','staaken','staakenEngines','staakenWreck','impact']};
 const REQUIRED={'fliegerzug':['train','support','bugFolded'],'treffas-wagen':['treffas'],'mark4-wedge':['tank','tankWreck','support'],'morser-battery':['morser','morserWreck','support'],'staaken-rvi':['staaken','staakenEngines','staakenWreck'],'london-searchlight':['support'],'london-apron':['support'],'drachen-net':['support']};
 const cache=new Map();
 function load(key){
@@ -65,6 +66,9 @@ function cable(c,x0,y0,x1,y1,broken=false){
 }
 export function drawRegionalBossBody(c,b){
  if(!REGIONAL_BOSS_SET.has(b.assetKey))return false;
+ // The city encounters keep their approved full composite silhouettes. Only
+ // hazards and restrained damage overlays are layered elsewhere.
+ if(b.assetKey==='london-apron'||b.assetKey==='drachen-net')return false;
  if(!REQUIRED[b.assetKey].every(key=>image(key).naturalWidth))return false;
  const parts=b.parts||[],part=id=>parts.find(p=>p.id===id),scale=b.regionalScale||b.geometryScale||1,t=b.motionTime||0;
  c.save();c.translate(b.x,b.y);c.imageSmoothingEnabled=true;
@@ -170,17 +174,11 @@ export function drawRegionalBossPart(c,p){
 export function drawRegionalHazard(c,h,bossKind){
  if(!REGIONAL_BOSS_SET.has(bossKind))return false;
  if(h.visual==='apron-wire'){
-  const warning=h.phase==='warning',q=clamp((h.age-h.delay)/Math.max(.01,h.warning)),x2=h.x+Math.cos(h.angle)*h.length,y2=h.y+Math.sin(h.angle)*h.length;
-  c.save();
-  if(h.sourceX!=null){c.strokeStyle='#786b5090';c.lineWidth=1.4;c.beginPath();c.moveTo(h.sourceX,h.sourceY);c.lineTo((h.x+x2)/2,(h.y+y2)/2);c.stroke();}
-  c.translate(h.x,h.y);c.rotate(h.angle);
-  if(warning){c.strokeStyle='#dec48d';c.globalAlpha=.3+.45*q;c.lineWidth=1.5;c.setLineDash([8,8]);c.beginPath();c.moveTo(0,0);c.lineTo(h.length,0);c.stroke();}
-  else{
-   // The active cable stays within the exact 10px collision thickness. No
-   // 9px sag outside the hit corridor and no false safe gap at the endpoints.
-   for(const [y,color] of [[-2.5,'#202824'],[0,'#b6ae8a'],[2.5,'#46514c']]){c.strokeStyle=color;c.lineWidth=1.8;c.beginPath();c.moveTo(0,y);c.lineTo(h.length,y);c.stroke();}
-   for(let x=18;x<h.length-10;x+=45)drawAADefense(c,'londonKnot',x,0,18,9);
-  }
+  const im=image('apronNet');if(!im.naturalWidth)return true;
+  const warning=h.phase==='warning',q=clamp((h.age-h.delay)/Math.max(.01,h.warning)),drawH=Math.max(48,h.thickness*1.65);
+  c.save();c.translate(h.x+Math.cos(h.angle)*h.length/2,h.y+Math.sin(h.angle)*h.length/2);c.rotate(h.angle);
+  c.imageSmoothingEnabled=true;c.globalAlpha*=warning?.2+.28*q:.94;
+  c.drawImage(im,-h.length/2,-drawH/2,h.length,drawH);
   c.restore();return true;
  }
  const artillery=['morser-shell','mark4-shell','treffas-shell','observer-shell','black-flak'].includes(h.visual)||(h.visual==='carpet-bomb'&&/^staaken-/.test(h.tag||''));
