@@ -15,10 +15,7 @@ export function installCityAir(Game){
   const bx=this.x+hx*ahead+nx*lateral,by=this.y+hy*ahead+ny*lateral;
   const defs=[
    {kind:'light',name:'탐조등 진지',hp:B.lightHp,r:B.lightR,sprite:'fx-city-searchlight',size:86,at:[-150,-60]},
-   {kind:'light',name:'탐조등 진지',hp:B.lightHp,r:B.lightR,sprite:'fx-city-searchlight',size:86,at:[150,40]},
-   {kind:'pit',name:'대공기관총 진지',hp:B.pitHp,r:B.pitR,sprite:'fx-city-aagun',size:80,at:[-60,140]},
-   {kind:'pit',name:'쌍기관총 진지',hp:B.pitHp,r:B.pitR,sprite:'fx-city-twinmg',size:72,at:[60,-150]},
-   {kind:'pit',name:'대공기관총 진지',hp:B.pitHp,r:B.pitR,sprite:'fx-city-aagun',size:80,at:[230,150]}
+   {kind:'light',name:'탐조등 진지',hp:B.lightHp,r:B.lightR,sprite:'fx-city-searchlight',size:86,at:[150,40]}
   ];
   for(const d of defs){
    const e=this.spawnEnemy('bomber');if(!e)break;
@@ -145,4 +142,4 @@ export function drawCityAirLayer(c,game,{point}){
  }
 };
 const _cityImgs={};
-function cityImg(k){let i=_cityImgs[k];if(!i){i=new Image();i.decoding='async';i.src=`./${k}.webp?v=362&b=340`;_cityImgs[k]=i}return i}
+function cityImg(k){let i=_cityImgs[k];if(!i){i=new Image();i.decoding='async';i.src=`./${k}.webp?v=363&b=340`;_cityImgs[k]=i}return i}
