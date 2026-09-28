@@ -1,4 +1,4 @@
-import {fx,fxImage} from './fx-art.js?v=357';
+import {fx,fxImage} from './fx-art.js?v=358';
 
 // Physics owns one pooled beam. Rendering samples it into a small fixed atlas
 // budget instead of allocating hundreds of particles or runtime canvases.
