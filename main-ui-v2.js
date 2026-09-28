@@ -31,8 +31,9 @@ if(hangar){
  settings.setAttribute('aria-label','Settings');
  const settingsTitle=document.createElement('strong');
  const soundButton=document.createElement('button');soundButton.type='button';soundButton.dataset.setting='sound';
+ const hiFpsButton=document.createElement('button');hiFpsButton.type='button';hiFpsButton.dataset.setting='hifps';
  const helpButton=document.createElement('button');helpButton.type='button';helpButton.dataset.setting='help';
- settings.append(settingsTitle,soundButton,helpButton);
+ settings.append(settingsTitle,soundButton,hiFpsButton,helpButton);
  hangar.append(nav,settings);
 
  const labels=()=>{
@@ -47,6 +48,8 @@ if(hangar){
   nav.setAttribute('aria-label',en?'Main operations':'주요 메뉴');
   settings.setAttribute('aria-label',t('settings.title'));settingsTitle.textContent=t('settings.title');
   soundButton.textContent=$('sound')?.textContent||t('menu.soundOff');helpButton.textContent=t('menu.help');
+  let hiFps=false;try{hiFps=localStorage.getItem('headon.hiFps')==='1'}catch(_){}
+  hiFpsButton.textContent=hiFps?t('settings.hiFpsOn'):t('settings.hiFpsOff');
  };
  const sync=()=>{
   labels();
@@ -69,6 +72,7 @@ if(hangar){
  settings.addEventListener('click',event=>{
   const action=event.target.closest('[data-setting]')?.dataset.setting;
   if(action==='sound')$('sound')?.click();
+  if(action==='hifps'){let on=false;try{on=localStorage.getItem('headon.hiFps')!=='1';localStorage.setItem('headon.hiFps',on?'1':'0')}catch(_){}window.dispatchEvent(new CustomEvent('headon:hifps',{detail:on}))}
   if(action==='help'){$('help')?.click();settings.hidden=true}
   sync();
  });
