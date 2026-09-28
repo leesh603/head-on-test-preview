@@ -1,14 +1,14 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=380';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=380';
-import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=380';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=381';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=381';
+import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=381';
 
 // Source-image coordinates are shared by hull hit tests, gun mounts and mines.
 export const CITY_HULLS={
  'london-apron':[[123,132,116,47],[384,123,121,56],[646,132,116,47]],
  'drachen-net':[[145,211,100,46],[454,159,242,71],[641,325,83,49]]
 };
-export const CITY_GUNS={'london-apron':[[123,193],[384,199],[646,193]],'drachen-net':[[163,300],[382,286],[632,422]]};
-export const DRACHEN_MINES=[[[264,326],[218,410]],[[382,452],[326,396],[417,360]],[[547,416],[492,345],[475,506]]];
+export const CITY_GUNS={'london-apron':[[123,193],[384,199],[646,193]],'drachen-net':[[154,295],[441,292],[641,432]]};
+export const DRACHEN_MINES=[[[116,425],[189,425]],[[316,397],[443,456],[590,397]],[[607,509],[678,509]]];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
 class CityAirships extends BaseBoss{
