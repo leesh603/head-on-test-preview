@@ -59,7 +59,7 @@ export function drawAttachedApron(c,b,intact,damaged){
   const p=parts.find(p=>p.id==='balloon-'+panel),dead=p?.destroyed||b.destroying;
   const age=dead?Math.max(0,(b.motionTime||0)-(p?.destroyedAt||0)):0;
   if(dead&&age>=1.25)continue;
-  const im=(dead||p?.hp<p?.maxHp*.5)&&damaged?.naturalWidth?damaged:intact,x0=APRON.edges[panel],width=APRON.edges[panel+1]-x0;
+  const im=dead&&damaged?.naturalWidth?damaged:intact,x0=APRON.edges[panel],width=APRON.edges[panel+1]-x0;
   c.save();if(dead){c.globalAlpha*=Math.max(0,1-age/1.25);c.translate(0,160*age*age*s);}
   for(let row=0;row<4;row++)for(let col=0;col<2;col++){
    const xa=x0+col*width/2,xb=x0+(col+1)*width/2,ya=216+row*74,yb=216+(row+1)*74;
