@@ -1,24 +1,24 @@
 import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js';
 export const TERRAIN_PROFILES=Object.freeze({
- rural:{name:'전원 지대',src:'./terrain-rural359.webp?v=400&b=326',base:'#424b3b',strength:1.25},
- sea:{name:'아드리아해',src:'./terrain-sea359r2.webp?v=400&b=326',base:'#254555',strength:1.11,tileSize:1254},
- trenches:{name:'참호 전선',src:'./terrain-trenches359r2.webp?v=400&b=326',base:'#4c443b',strength:1.22,tileSize:1254},
+ rural:{name:'전원 지대',src:'./terrain-rural359.webp?v=401&b=326',base:'#424b3b',strength:1.25},
+ sea:{name:'아드리아해',src:'./terrain-sea359r2.webp?v=401&b=326',base:'#254555',strength:1.11,tileSize:1254},
+ trenches:{name:'참호 전선',src:'./terrain-trenches359r2.webp?v=401&b=326',base:'#4c443b',strength:1.22,tileSize:1254},
  sky:{name:'창공',cell:3,base:'#3d5367',strength:1.25},
- city:{name:'도심 지대',src:'./terrain-city359.webp?v=400&b=326',base:'#454746',strength:1.22},
- alps:{name:'알프스 산맥',src:'./terrain-alps359.webp?v=400&b=326',base:'#414e56',strength:1.15},
+ city:{name:'도심 지대',src:'./terrain-city359.webp?v=401&b=326',base:'#454746',strength:1.22},
+ alps:{name:'알프스 산맥',src:'./terrain-alps359.webp?v=401&b=326',base:'#414e56',strength:1.15},
  channel:{name:'영국 해협',cell:6,base:'#304a56',strength:.59},
  desert:{name:'중동 사막',cell:7,base:'#71634a',strength:.58},
  night:{name:'야간 공습',cell:8,base:'#232b34',strength:.58},
- burning:{name:'불타는 전선',src:'./terrain-burning359r2.webp?v=400&b=326',base:'#433d37',strength:1.25,tileSize:1254},
+ burning:{name:'불타는 전선',src:'./terrain-burning359r2.webp?v=401&b=326',base:'#433d37',strength:1.25,tileSize:1254},
  // Cambrai ships as its own painterly tile instead of an atlas cell.
- cambrai:{name:'캉브레 들판',src:'./terrain-cambrai.webp?v=400&b=326',base:'#655d45',strength:.82},
+ cambrai:{name:'캉브레 들판',src:'./terrain-cambrai.webp?v=401&b=326',base:'#655d45',strength:.82},
  // Bloody April: cold high-altitude haze over faint Arras fields — minimal
  // ground detail, the map reads as an air combat arena.
- arras:{name:'아라스 상공',src:'./terrain-arras.webp?v=400&b=326',base:'#4d5a66',strength:.85}
- ,somme:{name:'솜 강전선',src:'./terrain-somme359r2.webp?v=400&b=326',base:'#5a5244',strength:1.11,tileSize:1254},
+ arras:{name:'아라스 상공',src:'./terrain-arras.webp?v=401&b=326',base:'#4d5a66',strength:.85}
+ ,somme:{name:'솜 강전선',src:'./terrain-somme359r2.webp?v=401&b=326',base:'#5a5244',strength:1.11,tileSize:1254},
  // London raid: night navy street grid, the Thames band and fires. Kept dark so
  // searchlight cones and warning circles stay legible.
- london:{name:'런던 대공습',src:'./terrain-london359r2.webp?v=400&b=326',base:'#232a36',strength:1.28,tileSize:1254}
+ london:{name:'런던 대공습',src:'./terrain-london359r2.webp?v=401&b=326',base:'#232a36',strength:1.28,tileSize:1254}
 });
 // Atmospheric perspective preserves texture resolution while narrowing the
 // ground's contrast/chroma. Combat sprites and hazard markings are drawn later.
