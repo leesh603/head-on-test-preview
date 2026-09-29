@@ -1175,3 +1175,20 @@ body.astra-ui.playing #modal #modalActions button:focus-visible{outline:2px soli
 body.astra-ui #modal.choice-modal151 #modalActions{grid-auto-rows:auto!important}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{align-self:stretch}
 body.astra-ui #modal.choice-modal151 .legendary-reroll115{height:40px!important;min-height:40px!important;max-height:40px!important;align-self:start;border-radius:12px!important;font-size:12px!important}
+/* Faction livery — Central = Feldgrau, Entente = Horizon Blue.
+   Set on <body> via .fac-central/.fac-entente; enemy surfaces read --enemy-fac. */
+body.astra-ui.fac-central{--fac:#7d8f83;--fac-deep:#5d6f66;--fac-bright:#9db3a5}
+body.astra-ui.fac-entente{--fac:#7c9bb8;--fac-deep:#5f7f9c;--fac-bright:#a7c2da}
+/* Hangar dossier: portrait ring + alias band pick up the selected side. */
+body.astra-ui:not(.playing) .pilot-frame{border-color:var(--fac-deep,#8c81774d)}
+body.astra-ui:not(.playing) .pilot-frame .portrait{box-shadow:inset 0 0 0 2px var(--fac-deep,#0000),0 0 26px -8px var(--fac,#0000)}
+body.astra-ui:not(.playing) .portrait-caption span{color:var(--fac-bright,#dfbf88)}
+body.astra-ui:not(.playing) .portrait-caption span::before{content:'';display:inline-block;width:22px;height:8px;margin-right:7px;background:var(--fac,#dfbf88);vertical-align:1px}
+body.astra-ui:not(.playing) .portrait-label b{color:var(--fac-bright,inherit)}
+/* Enemy ace surfaces: kicker, name strip and portrait lip follow the foe's side. */
+body.astra-ui.playing #flightNotices151 #bossArrival{border-left-color:var(--enemy-fac,var(--ho-oxblood))}
+body.astra-ui.playing #flightNotices151 #bossArrival small{color:var(--enemy-fac,var(--ho-brick))}
+body.astra-ui .boss-cutin::before{border-bottom-color:var(--enemy-fac,var(--ho-oxblood))}
+body.astra-ui .boss-cutin-caption small{color:var(--enemy-fac-soft,#d8b8a0)}
+body.astra-ui .boss-cutin-caption strong{color:var(--enemy-fac-strong,#df7a5e)}
+body.astra-ui .boss-cutin.skill-side::before{border-bottom-color:var(--fac,var(--ho-brass))}
