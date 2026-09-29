@@ -1,6 +1,6 @@
 # FX sample round (direction check — not merged, not deployed)
 
-Preview: open the game with `?fxs=1` (e.g. `index.html?fxs=1`). Without the flag nothing changes.
+On this branch the new FX are ON by default. `?fxs=0` rolls back to the previous FX.
 
 - `fx-sample-atlas.webp` / `.png` + `fx-sample.json` — sprite atlas and rects (2048×2048).
 - `../fx-sample-preview.js` — swaps FX keys for atlas cells behind `?fxs=1`; adds tracer, rocket trail and bomb-fall drawing hooks.
@@ -15,3 +15,11 @@ Round 2: glow budget cut (halos ~40%, cores smaller and cream, spark streaks hal
 
 Hooks touched (all gated by `FXS`): fx-art.js (`fx`, `fxTint`, `fxReady`, `fxImage`, tint cache),
 app.js (player tracer line, bomb-zone / friendly-bomb fall).
+
+Round 3: one explosion grammar for every blast (detonation jets + jagged core → mottled fireball with soot
+rolling over and fire breaking through → smoke with glowing pockets → residue). Lingering fire redrawn top-down.
+Added enemy tracer, gas clouds, mist, ship wake / bow spray; Livens flame uses the same palette.
+
+Round 4: ordnance and objects in the aircraft illustration style (rockets, bomb, shells, grenade, mine, torpedo),
+searchlight emplacement + lamp + beam, sun shaft, wind; clouds repainted in the smoke language. Player tracer
+heats with gun upgrades (orange → white); enemy tracer is crimson. City installations no longer draw a stray plane.

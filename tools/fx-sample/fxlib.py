@@ -391,14 +391,23 @@ def smoke_balls(cv, spheres, lit, shade_col, seed, alpha=1.0, fray=0.25, rim='#0
     paint_balls(cv, spheres, seed, fn, alpha, fray, kids=kids)
 
 
-def fire_balls(cv, spheres, seed, stops, heat=1.0, alpha=1.0, fray=0.2, kids=3, cool_edge=0.35):
+def fire_balls(cv, spheres, seed, stops, heat=1.0, alpha=1.0, fray=0.2, kids=3, cool_edge=0.35, mottle=0.0, limb=0.0,
+               grain=0.0):
+    """Fireball billows. mottle: per-billow heat spread (some burn bright, some dull red);
+    limb: darken billow rims toward smoky red; grain: streaky turbulence inside each billow."""
     n = noise(cv.h, cv.w, 8 * SS, seed + 21, 3)
+    g = brush(cv.h, cv.w, seed + 23, 6) if grain else None
+    rr = np.random.default_rng(seed + 31)
+    offs = rr.uniform(-1, 1, 4096)
     maxd = max(1.0, max(np.hypot(s[0] - np.mean([q[0] for q in spheres]), s[1] - np.mean([q[1] for q in spheres])) + s[2]
                         for s in spheres))
     def fn(lam, nz, i, depth, w):
         y0, y1, x0, x1 = w
         Y0 = n[y0:y1, x0:x1]
         t = (0.45 + 0.4 * nz + 0.25 * lam - cool_edge * depth / maxd) * heat
+        t = t + offs[i % 4096] * mottle - limb * (1 - nz) ** 2
+        if g is not None:
+            t = t + g[y0:y1, x0:x1] * grain
         t = np.clip(t + (Y0 - 0.5) * 0.18, 0, 1)
         return ramp(bands(t, 7, 0.55), stops), 1.0
     paint_balls(cv, spheres, seed, fn, alpha, fray, kids=kids)
@@ -428,3 +437,32 @@ def flame_tongue(cv, x0, y0, angle, length, width, seed, stops, alpha=1.0, turb=
     a = smooth(0.03, 0.22, field) * alpha
     cv.over(col, a)
     return field
+
+
+def fire_patch(cv, cx, cy, r, seed, stops, alpha=1.0, wind=(0.35, 0.25), flicker=0.45, heat=1.0, levels=7):
+    """Fire seen from ABOVE: a ragged burning blob, hottest at its heart, torn
+    edges pushed a little downwind. No side-view tongues."""
+    X, Y = cv.X / SS - cx, cv.Y / SS - cy
+    # downwind stretch: sample the falloff in a frame skewed by the wind
+    wx, wy = wind
+    along = X * wx + Y * wy
+    Xs = X - wx * np.clip(along, 0, None) * 0.55
+    Ys = Y - wy * np.clip(along, 0, None) * 0.55
+    d = np.sqrt(Xs * Xs + Ys * Ys) / r
+    n1 = noise(cv.h, cv.w, max(4, r * 0.55) * SS, seed, 4)
+    n2 = noise(cv.h, cv.w, max(3, r * 0.32) * SS, seed + 1, 2)
+    field = (1 - d) + (n1 - 0.5) * 0.8 + (n2 - 0.5) * flicker * 0.6
+    field = cv2.GaussianBlur(field.astype(np.float32), (0, 0), 0.8 * SS)
+    T = np.clip(field * 1.3 * heat, 0, 1)
+    col = ramp(bands(T, 5, 0.35), stops)
+    a = smooth(0.08, 0.26, field) * alpha
+    cv.over(col, a)
+    return field
+
+
+def char_patch(cv, cx, cy, r, seed, alpha=0.6, color='#241d17'):
+    """Scorched ground under a fire."""
+    X, Y = cv.X / SS - cx, cv.Y / SS - cy
+    n = noise(cv.h, cv.w, max(4, r * 0.5) * SS, seed, 3)
+    d = np.sqrt(X * X + Y * Y) / r + (n - 0.5) * 0.6
+    cv.over(np.broadcast_to(hexrgb(color), cv.rgb.shape).copy(), smooth(1.0, 0.5, d) * alpha)

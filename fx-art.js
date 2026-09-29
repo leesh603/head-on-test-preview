@@ -8,7 +8,7 @@ import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,
 // falls back to procedural drawing exactly as before.
 import {FX3,roleArtReady,roleReady,roleDraw,roleImage} from './fx-role3.js?v=426';
 // FX sample preview (?fxs=1 only).
-import {FXS,fxsReady,fxsHas,fxsDraw,fxsImage,fxsTintedCanvas,fxsTint,fxsRocketTrail} from './fx-sample-preview.js?v=1';
+import {FXS,fxsReady,fxsHas,fxsDraw,fxsImage,fxsTintedCanvas,fxsTint,fxsRocketTrail} from './fx-sample-preview.js?v=433';
 export {FXS};
 
 export {FX3};
@@ -87,8 +87,8 @@ metalShard0:'fx-metal-shard-0.webp',metalShard1:'fx-metal-shard-1.webp',metalSha
 const fxImgs={};
 // Aliases share one decoded image; atlas-covered keys need no second bitmap.
 const imageLoads=new Map();
-const fx189Ready=typeof Image==='undefined'?Promise.resolve():fx196ArtReady.then(()=>Promise.all(Object.entries(FX_FILES).map(async([key,file])=>{
- if(fx196Ready(key))return;
+const fx189Ready=typeof Image==='undefined'?Promise.resolve():Promise.all([fx196ArtReady,fxsReady]).then(()=>Promise.all(Object.entries(FX_FILES).map(async([key,file])=>{
+ if(fx196Ready(key)||fxsHas(key))return;
  if(!imageLoads.has(file))imageLoads.set(file,new Promise(res=>{
   const im=new Image();im.onload=()=>{im.onload=im.onerror=null;res(im)};im.onerror=()=>{im.onload=im.onerror=null;res(null)};im.src='./'+file+'?v=fx6';
  }));
