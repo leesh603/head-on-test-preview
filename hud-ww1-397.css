@@ -1192,3 +1192,19 @@ body.astra-ui .boss-cutin::before{border-bottom-color:var(--enemy-fac,var(--ho-o
 body.astra-ui .boss-cutin-caption small{color:var(--enemy-fac-soft,#d8b8a0)}
 body.astra-ui .boss-cutin-caption strong{color:var(--enemy-fac-strong,#df7a5e)}
 body.astra-ui .boss-cutin.skill-side::before{border-bottom-color:var(--fac,var(--ho-brass))}
+/* Settings + manual modals in the same dossier language as the pause card. */
+body.astra-ui #modal.settings-modal151 .modal-card,
+body.astra-ui #modal.manual-modal151 .modal-card{border-color:var(--ho-edge);border-top:2px solid var(--ho-brass);background:var(--ho-surface-strong);color:var(--ho-parchment);box-shadow:0 24px 80px #0009}
+body.astra-ui #modal.settings-modal151 #modalTag,
+body.astra-ui #modal.manual-modal151 #modalTag{color:var(--ho-brass);letter-spacing:.22em}
+body.astra-ui #modal.settings-modal151 #modalTitle,
+body.astra-ui #modal.manual-modal151 #modalTitle{color:var(--ho-parchment)}
+body.astra-ui #modal.settings-modal151 #modalText,
+body.astra-ui #modal.manual-modal151 #modalText{color:#c9c4b7}
+body.astra-ui #modal.manual-modal151 #modalText{border-left:2px solid var(--fac,var(--ho-oxblood));padding-left:16px;line-height:1.85}
+body.astra-ui #modal.settings-modal151 #modalActions{display:block;margin-top:16px;border-top:1px solid var(--ho-edge-soft)}
+body.astra-ui #modal.settings-modal151 #modalActions .primary{display:flex;justify-content:space-between;align-items:center;width:100%;margin:0;padding:14px 4px;background:none;border:0;border-bottom:1px solid var(--ho-edge-soft);border-radius:0;color:var(--ho-parchment);font-size:15px;font-weight:400;text-align:left;letter-spacing:.02em}
+body.astra-ui #modal.settings-modal151 #modalActions .primary:hover{background:#e8e2d408;color:var(--fac-bright,var(--ho-brass))}
+body.astra-ui #modal.settings-modal151 #modalActions .primary:last-child{margin-top:16px;padding:12px;border:1px solid var(--ho-edge);background:var(--ho-surface-flat);justify-content:center;color:var(--ho-brass);font-weight:700;letter-spacing:.12em}
+body.astra-ui #modal.settings-modal151 #modalActions .primary:last-child:hover{background:#23221f;border-color:#e8e2d440}
+body.astra-ui #modal.manual-modal151 #modalActions .primary{border:1px solid var(--ho-edge);background:var(--ho-surface-flat);color:var(--ho-brass);font-weight:700;letter-spacing:.12em}
