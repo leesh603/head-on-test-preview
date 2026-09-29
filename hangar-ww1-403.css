@@ -457,7 +457,7 @@ body.astra-ui:not(.playing){
            right panel = aircraft + stats, roster, sortie.
    ========================================================================== */
 body.astra-ui:not(.playing){
- --ho-keyart:url('lobby-keyart.webp?v=1');
+ --ho-keyart:url('lobby-keyart.webp?v=416');
  --ho-keyart-focus:34% 50%;
  --ho-keyart-focus-pc:50% 45%;
 }
