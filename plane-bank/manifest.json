@@ -37,7 +37,6 @@
     {"file": "rickenbacker_spad13.webp", "name": "SPAD XIII (Rickenbacker, 94th 'Hat in the Ring')", "nation": "usa", "role": "scout", "year": 1918},
     {"file": "fonck_spad13.webp", "name": "SPAD XIII (Fonck, SPA.103)", "nation": "france", "role": "scout", "year": 1918},
     {"file": "ball_se5.webp", "name": "SE5 (Albert Ball)", "nation": "britain", "role": "scout", "year": 1917},
-    {"file": "voss_fokkerf1.webp", "name": "Fokker F.I (Werner Voss)", "nation": "germany", "role": "triplane scout", "year": 1917},
     {"file": "berthold_fokkerd7.webp", "name": "Fokker D.VII (Berthold)", "nation": "germany", "role": "scout", "year": 1918},
     {"file": "goering_fokkerd7.webp", "name": "Fokker D.VII (Göring)", "nation": "germany", "role": "scout", "year": 1918},
     {"file": "schleich_albatros.webp", "name": "Albatros D.Va (von Schleich 'Black Knight')", "nation": "germany", "role": "scout", "year": 1918},
