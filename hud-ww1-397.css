@@ -719,3 +719,224 @@ body.astra-ui.playing #flightNotices151 #eventMissionMeta{font:600 12px/1.2 var(
  body.astra-ui.playing #flightNotices151 #eventMissionObjective{font-size:11px!important}
  body.astra-ui.playing #flightNotices151 #eventMissionMeta{font-size:11px!important}
 }
+
+/* ==========================================================================
+   18. CUT-INS — three different moments, three treatments.
+       · Player active  (.skill-side)          : full-width diagonal band,
+         portrait pops out of it, big italic skill name, speed lines.
+         Lower third only, 2.1s (matches app.js bossCutinUntil).
+       · Enemy ace      (default)              : compact dossier card,
+         right edge, head-and-shoulders crop — sized like the pills.
+       · Area boss      (img src boss-art-*)   : framed vehicle plate with
+         a hazard rule, bottom-right, art capped so it never floods.
+   ========================================================================== */
+
+/* ---------- 18a. Player active: band ---------- */
+@keyframes ho-band-in{0%{clip-path:polygon(0 30%,0 30%,0 100%,0 100%);opacity:1}100%{clip-path:polygon(0 30%,100% 0,100% 70%,0 100%);opacity:1}}
+@keyframes ho-life{0%,86%{opacity:1}100%{opacity:0}}
+@keyframes ho-speed{from{background-position:0 0}to{background-position:-240px 0}}
+@keyframes ho-pop{0%{transform:translateX(-60px) scale(.96);opacity:0}100%{transform:none;opacity:1}}
+@keyframes ho-title{0%{transform:translateX(40px);opacity:0;letter-spacing:.2em}100%{transform:none;opacity:1}}
+@keyframes ho-glint{0%{transform:translateX(-120%)}100%{transform:translateX(220%)}}
+
+body.astra-ui .boss-cutin.skill-side{
+ left:0!important;right:0!important;width:auto!important;height:124px!important;top:auto!important;
+ bottom:26%!important;overflow:visible;animation:ho-life 2.1s linear both!important;z-index:6;
+}
+body.astra-ui .boss-cutin.skill-side::before{
+ content:"";display:block!important;position:absolute;inset:0;left:0!important;right:0!important;bottom:0!important;height:auto!important;
+ transform:none!important;border:0!important;z-index:-1;
+ background:
+  repeating-linear-gradient(100deg,transparent 0 38px,#f1d79614 38px 40px,transparent 40px 90px),
+  linear-gradient(90deg,#1b1812f2 0%,#1b1812e6 55%,#1b181200 100%);
+ background-size:240px 100%,100% 100%;
+ clip-path:polygon(0 30%,100% 0,100% 70%,0 100%);
+ animation:ho-band-in .26s cubic-bezier(.2,.9,.3,1) both,ho-speed .5s linear infinite!important;
+ box-shadow:none;
+}
+/* Brass rules on both slanted edges + a glint that crosses once. */
+body.astra-ui .boss-cutin.skill-side::after{
+ content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+ background:linear-gradient(90deg,transparent,#f1d79655 45%,transparent 60%) 0 0/35% 100% no-repeat,
+            linear-gradient(174.5deg,transparent 0 calc(30% - 2px),#d6b25e 0 30%,transparent 0 calc(100% - 2px),#d6b25e 0) ;
+ clip-path:polygon(0 30%,100% 0,100% 70%,0 100%);
+ animation:ho-glint .9s .15s ease-out both;
+}
+body.astra-ui .boss-cutin.skill-side .boss-cutin-art{
+ position:absolute!important;inset:auto auto 0 3%!important;width:190px!important;height:210px!important;
+ filter:drop-shadow(0 8px 10px #000b)!important;
+ -webkit-mask-image:linear-gradient(180deg,#000 78%,transparent 100%);mask-image:linear-gradient(180deg,#000 78%,transparent 100%);
+ animation:ho-pop .32s .05s cubic-bezier(.2,.9,.3,1) both;
+}
+body.astra-ui .boss-cutin.skill-side .boss-cutin-art img{left:0!important;right:0!important;bottom:0;margin:auto;max-width:100%!important;max-height:100%!important}
+body.astra-ui .boss-cutin.skill-side .boss-cutin-caption{
+ position:absolute!important;inset:0 auto 0 calc(3% + 200px)!important;display:flex!important;flex-direction:column;justify-content:center;gap:2px;
+ min-width:0;max-width:none;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
+ -webkit-backdrop-filter:none;backdrop-filter:none;animation:ho-title .34s .1s cubic-bezier(.2,.9,.3,1) both;
+}
+body.astra-ui .boss-cutin.skill-side .boss-cutin-caption:before{display:none}
+body.astra-ui .boss-cutin.skill-side .boss-cutin-caption small:empty{display:block!important;font-size:0!important}
+body.astra-ui .boss-cutin.skill-side .boss-cutin-caption small:empty:before{content:"ACTIVE";font:800 11px/1 var(--astra-numeric);letter-spacing:.3em;color:var(--ho-ready)}
+body.astra-ui .boss-cutin.skill-side .boss-cutin-caption strong{
+ font:italic 900 clamp(30px,3.6vw,46px)/1.02 var(--astra-type)!important;letter-spacing:-.02em!important;color:#f7e2a6!important;
+ text-shadow:0 2px 0 #3a2a10,0 4px 12px #000c!important;white-space:nowrap;
+}
+body.astra-ui .boss-cutin.skill-side .boss-cutin-caption span{font:600 13px/1.2 var(--astra-type)!important;color:#d9ceb2!important;letter-spacing:.06em}
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui .boss-cutin.skill-side{height:92px!important;bottom:calc(max(22px,env(safe-area-inset-bottom)) + 196px)!important}
+ body.astra-ui .boss-cutin.skill-side .boss-cutin-art{width:118px!important;height:150px!important;left:2%!important}
+ body.astra-ui .boss-cutin.skill-side .boss-cutin-caption{left:calc(2% + 122px)!important;right:8px!important}
+ body.astra-ui .boss-cutin.skill-side .boss-cutin-caption strong{font-size:clamp(22px,7vw,30px)!important;white-space:normal}
+ body.astra-ui .boss-cutin.skill-side .boss-cutin-caption span{font-size:10px!important}
+ body.astra-ui .boss-cutin.skill-side .boss-cutin-caption small:empty:before{font-size:9px}
+}
+
+/* ---------- 18b. Enemy ace: compact dossier card ---------- */
+@keyframes ho-card-in{0%{transform:translateX(40px);opacity:0}100%{transform:none;opacity:1}}
+body.astra-ui .boss-cutin:not(.skill-side){
+ left:auto!important;right:max(14px,env(safe-area-inset-right))!important;top:auto!important;bottom:34%!important;
+ width:316px!important;height:104px!important;overflow:hidden;border:1px solid #c8513c80;border-radius:var(--ho-card-r);
+ background:linear-gradient(90deg,#1d100ef2,#15130ff5 55%)!important;box-shadow:var(--ho-lift)!important;
+ animation:ho-card-in .28s cubic-bezier(.2,.9,.3,1) both,ho-life 2.6s linear both!important;
+}
+body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-art{
+ position:absolute!important;inset:0 auto 0 0!important;width:104px!important;height:auto!important;filter:none!important;overflow:hidden;
+ background:radial-gradient(circle at 50% 30%,#3a1f18,#120c0a);border-right:1px solid #c8513c55;
+ -webkit-mask-image:none;mask-image:none;
+}
+body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-art img{
+ position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;
+ object-fit:cover;object-position:center 14%;transform:scale(1.12);transform-origin:center 20%;
+}
+body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption{
+ position:absolute!important;inset:0 0 0 104px!important;display:flex!important;flex-direction:column;justify-content:center;gap:3px;
+ min-width:0;max-width:none;padding:0 14px!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
+ -webkit-backdrop-filter:none;backdrop-filter:none;
+}
+body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption:before{left:104px;top:14px;bottom:14px}
+body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption strong{font:800 19px/1.15 var(--astra-type)!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption span{font-size:11px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui .boss-cutin:not(.skill-side){width:min(252px,70vw)!important;height:82px!important;bottom:calc(max(22px,env(safe-area-inset-bottom)) + 200px)!important}
+ body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-art{width:78px!important}
+ body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption{left:78px!important;padding:0 11px!important}
+ body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption:before{left:78px}
+ body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption strong{font-size:15px!important}
+ body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption small{font-size:8px!important}
+ body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption span{font-size:9px!important}
+}
+
+/* ---------- 18c. Area boss: framed vehicle plate ---------- */
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]){
+ width:min(400px,40vw)!important;height:auto!important;bottom:calc(max(22px,env(safe-area-inset-bottom)) + 86px)!important;
+ display:flex;flex-direction:column;border-color:#c8513c99;
+ background:linear-gradient(180deg,#1a1512f0,#110f0cf5)!important;
+}
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"])::before{
+ content:"";display:block!important;position:static!important;height:6px!important;transform:none!important;border:0!important;
+ background:repeating-linear-gradient(-45deg,#a3281c 0 8px,#15100b 8px 16px)!important;animation:none!important;
+}
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .boss-cutin-art{
+ position:relative!important;inset:auto!important;width:auto!important;height:min(170px,20dvh)!important;border-right:0;border-bottom:1px solid #c8513c44;
+ background:radial-gradient(ellipse at 50% 60%,#3a2a1c,#0f0d0a 75%);
+}
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .boss-cutin-art img{object-fit:contain;object-position:center;transform:none;padding:8px;box-sizing:border-box}
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .boss-cutin-caption{position:relative!important;inset:auto!important;padding:10px 16px 12px 18px!important}
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .boss-cutin-caption:before{left:0;top:12px;bottom:12px}
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .boss-cutin-caption strong{white-space:normal;font-size:18px!important}
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .boss-cutin-caption span{white-space:normal}
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]){width:min(270px,74vw)!important;bottom:calc(max(22px,env(safe-area-inset-bottom)) + 196px)!important}
+ body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .boss-cutin-art{height:min(110px,14dvh)!important}
+ body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .boss-cutin-caption strong{font-size:14px!important}
+}
+
+/* ==========================================================================
+   19. UPGRADE RARITY — five clear tiers.
+       normal = grey, magic = blue, rare = yellow, unique = pink,
+       special equipment (legendary) = gilt card with a slow foil sheen.
+   ========================================================================== */
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-normal{--hud191-choice-accent:#a4a7a8;--hud191-choice-tint:#a4a7a814}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-magic{--hud191-choice-accent:#5f9be0;--hud191-choice-tint:#5f9be022}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-rare{--hud191-choice-accent:#e6bf3e;--hud191-choice-tint:#e6bf3e22}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-unique{--hud191-choice-accent:#e07ab5;--hud191-choice-tint:#e07ab522}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-legendary{--hud191-choice-accent:#f0c860;--hud191-choice-tint:#f0c86030}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
+ border-color:color-mix(in srgb,var(--hud191-choice-accent) 45%,transparent)!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:before{height:3px!important}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .choice-icon{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--hud191-choice-accent) 55%,transparent),0 0 0 3px #0006!important}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .rarity-label160:before{
+ content:"";display:inline-block;width:6px;height:6px;margin:0 5px 1px 0;border-radius:50%;background:var(--hud191-choice-accent);vertical-align:middle;
+}
+/* Special equipment: gilt frame, warm field, foil sheen, filled tag. */
+@keyframes ho-foil{0%{transform:translateX(-130%) skewX(-18deg)}60%,100%{transform:translateX(330%) skewX(-18deg)}}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.rarity-legendary{
+ border:1px solid #f0c860!important;
+ background:radial-gradient(ellipse at 20% 0%,#f0c86033,transparent 60%),linear-gradient(180deg,#2e2716f5,#15120cf7)!important;
+ box-shadow:0 0 0 1px #f0c86040,inset 0 0 0 1px #fff0c21a,inset 0 0 26px #f0c86014!important;
+ overflow:hidden;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.rarity-legendary::after{
+ content:""!important;display:block!important;position:absolute;top:-10%;bottom:-10%;left:0;width:34%;pointer-events:none;
+ background:linear-gradient(90deg,transparent,#fff3cc2e,transparent)!important;animation:ho-foil 3.2s ease-in-out infinite!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.rarity-legendary .rarity-label160{background:linear-gradient(180deg,#f3d27a,#c99a3a)!important;color:#1a140a!important}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.rarity-legendary .rarity-label160:before{background:#1a140a}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.rarity-legendary>b{color:#f7e2a6!important}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.rarity-legendary .choice-icon{
+ background:radial-gradient(circle at 40% 35%,#5a4a24,#15110a 70%);box-shadow:inset 0 0 0 1px #f0c860,0 0 0 3px #0006,0 0 0 4px #f0c86055!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.rarity-legendary::after,
+ body.astra-ui .boss-cutin.skill-side::before{animation:none!important}
+}
+
+/* ==========================================================================
+   20. PAUSE / SETTINGS — centred, nothing clipped, words never split.
+   ========================================================================== */
+body.astra-ui.playing #modal:not(.choice-modal151) .modal-card{text-align:center;overflow-x:hidden}
+body.astra-ui.playing #modal:not(.choice-modal151) :is(#modalTag,#modalTitle,#modalText,#build151,#build151 h3,#build151 h4,.build-meta151){
+ text-align:center;word-break:keep-all!important;overflow-wrap:normal!important;white-space:normal;
+}
+body.astra-ui.playing #modal:not(.choice-modal151) #modalTag{margin-left:auto;margin-right:auto}
+body.astra-ui.playing #modal #build151 section{display:flex;flex-direction:column;align-items:center;min-width:0}
+body.astra-ui.playing #modal .build-stats151{justify-content:center;justify-items:center;width:100%}
+body.astra-ui.playing #modal .build-stats151>div{align-items:center;text-align:center;width:100%;box-sizing:border-box;word-break:keep-all}
+body.astra-ui.playing #modal .build-chips151{justify-content:center}
+body.astra-ui.playing #modal .build-chip151{word-break:keep-all;white-space:normal}
+body.astra-ui.playing #modal:not(.choice-modal151) #modalActions{justify-content:center}
+body.astra-ui.playing #modal:not(.choice-modal151) #modalActions button,
+body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary{
+ display:flex!important;align-items:center;justify-content:center!important;text-align:center!important;
+ white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;word-break:keep-all!important;
+ padding-left:14px!important;padding-right:14px!important;min-width:0!important;
+}
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing #modal.build-modal151 #modalActions{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important}
+ body.astra-ui.playing #modal.build-modal151 #modalActions button:first-child{grid-column:1/-1}
+}
+
+/* 21. Fixes: band built from two stacked clipped layers (brass edge behind,
+       dark band in front) with a background-position glint; ace-card
+       accent sits on the card edge; stat tiles centre as a row. */
+@keyframes ho-glint-bg{from{background-position:-40% 0,0 0,0 0}to{background-position:160% 0,-240px 0,0 0}}
+body.astra-ui .boss-cutin.skill-side::after{
+ content:""!important;position:absolute;inset:-2px 0;z-index:-2;transform:none!important;animation:none!important;
+ background:linear-gradient(90deg,#d6b25e 0%,#d6b25eaa 55%,#d6b25e00 100%)!important;
+ clip-path:polygon(0 30%,100% 0,100% 70%,0 100%);
+}
+body.astra-ui .boss-cutin.skill-side::before{
+ inset:2px 0!important;
+ background:
+  linear-gradient(90deg,transparent,#fff0c233,transparent) no-repeat,
+  repeating-linear-gradient(100deg,transparent 0 38px,#f1d7961a 38px 40px,transparent 40px 90px),
+  linear-gradient(90deg,#1b1812f5 0%,#1b1812e8 55%,#1b181200 100%)!important;
+ background-size:30% 100%,240px 100%,100% 100%!important;
+ animation:ho-band-in .26s cubic-bezier(.2,.9,.3,1) both,ho-glint-bg 1.6s linear infinite!important;
+}
+body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption:before{left:0!important}
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .boss-cutin-caption:before{left:0!important}
+body.astra-ui.playing #modal .build-stats151{display:flex!important;flex-wrap:wrap;justify-content:center;gap:8px}
+body.astra-ui.playing #modal .build-stats151>div{flex:0 1 200px}
+@media(prefers-reduced-motion:reduce){body.astra-ui .boss-cutin.skill-side::before{animation:ho-band-in .01s both!important}}
