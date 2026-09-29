@@ -1,5 +1,5 @@
 {
-  "note": "WWI aircraft sprite asset stock — NOT wired into the game. Keyed webp sprites generated via the fxgen painter pipeline (chroma-keyed painterly top-down art, alpha-cropped, max 768px). Batch 2: ace mounts + varied liveries.",
+  "note": "WWI aircraft sprite asset stock — NOT wired into the game. Keyed webp sprites generated via the fxgen painter pipeline (chroma-keyed painterly top-down art, alpha-cropped, max 768px). Batch 3: more historically-accurate ace mounts.",
   "generated": "2026-09-29",
   "sprites": [
     {"file": "sopwith_triplane.webp", "name": "Sopwith Triplane", "nation": "britain", "role": "scout", "year": 1917},
@@ -33,6 +33,22 @@
     {"file": "fokker_dr1_lothar.webp", "name": "Fokker Dr.I (Lothar v. Richthofen)", "nation": "germany", "role": "triplane scout", "year": 1918},
     {"file": "hanriot_hd1_coppens.webp", "name": "Hanriot HD.1 (Coppens)", "nation": "belgium", "role": "scout", "year": 1917},
     {"file": "albatros_d2_boelcke.webp", "name": "Albatros D.II (Boelcke)", "nation": "germany", "role": "scout", "year": 1916},
-    {"file": "breguet_14.webp", "name": "Breguet 14", "nation": "france", "role": "day bomber", "year": 1917}
+    {"file": "breguet_14.webp", "name": "Breguet 14", "nation": "france", "role": "day bomber", "year": 1917},
+    {"file": "rickenbacker_spad13.webp", "name": "SPAD XIII (Rickenbacker, 94th 'Hat in the Ring')", "nation": "usa", "role": "scout", "year": 1918},
+    {"file": "fonck_spad13.webp", "name": "SPAD XIII (Fonck, SPA.103)", "nation": "france", "role": "scout", "year": 1918},
+    {"file": "ball_se5.webp", "name": "SE5 (Albert Ball)", "nation": "britain", "role": "scout", "year": 1917},
+    {"file": "voss_fokkerf1.webp", "name": "Fokker F.I (Werner Voss)", "nation": "germany", "role": "triplane scout", "year": 1917},
+    {"file": "berthold_fokkerd7.webp", "name": "Fokker D.VII (Berthold)", "nation": "germany", "role": "scout", "year": 1918},
+    {"file": "goering_fokkerd7.webp", "name": "Fokker D.VII (Göring)", "nation": "germany", "role": "scout", "year": 1918},
+    {"file": "schleich_albatros.webp", "name": "Albatros D.Va (von Schleich 'Black Knight')", "nation": "germany", "role": "scout", "year": 1918},
+    {"file": "rumey_dri.webp", "name": "Fokker Dr.I (Fritz Rumey)", "nation": "germany", "role": "triplane scout", "year": 1918},
+    {"file": "bishop_nieuport17.webp", "name": "Nieuport 17 (Billy Bishop)", "nation": "britain/canada", "role": "scout", "year": 1917},
+    {"file": "hawker_dh2.webp", "name": "Airco DH.2 (Lanoe Hawker)", "nation": "britain", "role": "pusher scout", "year": 1916},
+    {"file": "kazakov_nieuport.webp", "name": "Nieuport 17 (Alexander Kazakov)", "nation": "russia", "role": "scout", "year": 1916},
+    {"file": "scaroni_hanriot.webp", "name": "Hanriot HD.1 (Scaroni)", "nation": "italy", "role": "scout", "year": 1918},
+    {"file": "jacobs_dri.webp", "name": "Fokker Dr.I (Josef Jacobs)", "nation": "germany", "role": "triplane scout", "year": 1918},
+    {"file": "loewenhardt_fokkerd7.webp", "name": "Fokker D.VII (Erich Löwenhardt)", "nation": "germany", "role": "scout", "year": 1918},
+    {"file": "mccudden_se5a.webp", "name": "SE5a (James McCudden)", "nation": "britain", "role": "scout", "year": 1917},
+    {"file": "linke_aviatik.webp", "name": "Aviatik (Berg) D.I (Linke-Crawford)", "nation": "austria-hungary", "role": "scout", "year": 1918}
   ]
 }
