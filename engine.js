@@ -1,20 +1,20 @@
-import {EnemyCollisionGrid} from './collision-grid.js?v=400';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=400';
-import {installRevision} from './rebalance103.js?v=400';
-import {installCloudCover} from './cloud-cover1.js?v=400';
-import {installFleet} from './fleet-naval1.js?v=400';
-import {installTrenchWar} from './trench-war1.js?v=400';
-import {installCityAir} from './city-air1.js?v=400';
-import {installRegionDoctrine} from './region-doctrine1.js?v=400';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=400';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=400';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=400';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=400';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=400';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=400';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=400';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=400';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=400';
+import {EnemyCollisionGrid} from './collision-grid.js?v=401';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=401';
+import {installRevision} from './rebalance103.js?v=401';
+import {installCloudCover} from './cloud-cover1.js?v=401';
+import {installFleet} from './fleet-naval1.js?v=401';
+import {installTrenchWar} from './trench-war1.js?v=401';
+import {installCityAir} from './city-air1.js?v=401';
+import {installRegionDoctrine} from './region-doctrine1.js?v=401';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=401';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=401';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=401';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=401';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=401';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=401';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=401';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=401';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=401';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -1244,7 +1244,7 @@ PILOTS.mannock.desc='기관총 사거리 −55%. S.E.5a 7대가 위→아래 한
 // Revision 91: sustained rear-quarter aim rewards dogfighting, while tethered
 // observation balloons release short, historically themed special-ammo belts.
 Game.prototype.combatWorld=function(){return this.world||this};
-Game.prototype.tailEligible=function(e){return !!(e&&e.hp>0&&!e.stationary&&!e.surface&&!e.fieldUnit&&!e.navalVessel&&!e.heavyBomber&&e.type!=='zeppelin')};
+Game.prototype.tailEligible=function(e){const airBody=e?.stageBossBody?.formationBoss129;return !!(e&&e.hp>0&&((!e.stationary&&!e.surface)||airBody)&&!e.fieldUnit&&!e.navalVessel&&!e.heavyBomber&&e.type!=='zeppelin')};
 Game.prototype.tailIdFor=function(e){if(e.tailId)return e.tailId;const world=this.combatWorld();world.tailEntitySequence=(world.tailEntitySequence||0)+1;return e.tailId=`tail-${world.tailEntitySequence}`};
 Game.prototype.updateTailLock=function(dt){
  if(this.hp<=0||this.status&&this.status!=='alive'){this.tailTargetId=null;this.tailLocked=false;this.tailProgress=0;return}
