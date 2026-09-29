@@ -1,5 +1,5 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
-import {getLocale,subscribe} from './i18n.js?v=426';
+import {getLocale,subscribe} from './i18n.js?v=428';
 import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=426';
 import {clearCrewMatte} from './matte70.js?v=426';
 import {aircraftArt} from './main-ui-art180.js?v=426';
