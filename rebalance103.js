@@ -1,5 +1,5 @@
 // Excel revision 103. Unspecified numbers are explicit first-playtest tuning.
-import {WING_PLANES} from './engine.js?v=426';
+import {WING_PLANES} from './engine.js?v=431';
 export const REVISION_BALANCE=Object.freeze({soloCap:12,coopCap:18,soloRegular:10,coopRegular:11,interval:1.6,coopInterval:1.65,countrysideInterval:1,countrysideCoopInterval:1.15,frontReduction:.25,rearBonus:.3,compassXp:1.3});
 export function installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDARIES,UPGRADES){
  const newPlanes={
@@ -14,7 +14,7 @@ export function installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDAR
  PILOTS.hawker={name:'라노 호커',alias:'VICTORIA CROSS',faction:'entente',portrait:1,skill:'모든 것을 공격하라',desc:'5초간 공격속도 +100%, 기관총 탄약 무제한.',cooldown:20};
  PILOTS.berthold={name:'루돌프 베르토홀트',alias:'THE IRON KNIGHT',faction:'central',portrait:0,skill:'불굴의 의지',desc:'5초간 받는 피해 65% 감소. 저체력 패시브와 중첩됩니다.',cooldown:20};
  PILOT_PLANES.hawker='airco_dh2';PILOT_PLANES.berthold='pfalz_d3a';
- const passives={baron:['사냥 본능','강한 적을 오래 추적할수록 해당 대상에게 주는 피해가 증가합니다. 사냥감 격추 시 잠시 빨라집니다.'],fonck:['명사수','기관총 피해 +15%, 사거리 +25%.'],voss:['고독한 늑대','400 범위 적 1기당 공격력·속도·선회 +4%, 최대 +24%.'],boelcke:['디 딕타 뵐케','360 범위 아군의 사격 피해 +25%.'],collishaw:['검은 편대','검은 삼엽기 윙맨 2기와 상시 출격.'],baracca:['기사도의 결투','적과 정면으로 마주칠 때 공격 피해 +30%.'],udet:['공중 곡예사','현재 체력이 100보다 낮으면 부족한 체력 1당 공격력 +0.5%, 속도·선회 +0.3%.'],guynemer:['모퇴르 카농','4초마다 피해 90의 대형 관통 기관포 발사.'],bishop:['초근접사격','기관총 공격력 +80%, 사거리 −55%.'],goering:['백색 편대 · 출격','백색 윙맨 2기와 상시 출격.'],immelmann:['독일의 독수리','선회기동·임멜만 턴 이후 3초간 공격력·공격속도·속도·선회 +20%.'],mannock:['외눈의 에이스','기관총 사거리 −55%. 아군·윙맨 연사 +15%.'],mckeever:['후방사수 · 파월','전방과 후방 동시 사격.'],huffzky:['매와 모기','전방과 후방 동시 사격.'],hawker:['빅토리아 십자훈장 수훈자','선회 속도 손실 −25%. 직진 유지 시 최대 속도 +20%.'],berthold:['철혈의 에이스','체력 50% 이하에서 받는 피해 25% 감소.']};
+ const passives={baron:['사냥 본능','강한 적을 오래 추적할수록 해당 대상에게 주는 피해가 증가합니다. 사냥감 격추 시 잠시 빨라집니다.'],fonck:['명사수','기관총 피해 +15%, 사거리 +25%.'],voss:['고독한 늑대','400 범위 적 1기당 공격력·속도·선회 +4%, 최대 +24%.'],boelcke:['디 딕타 뵐케','360 범위 아군의 사격 피해 +25%.'],collishaw:['검은 편대','검은 삼엽기 윙맨 2기와 상시 출격.'],baracca:['기사도의 결투','적과 정면으로 마주칠 때 공격 피해 +30%.'],udet:['공중 곡예사','최대 내구도 대비 잃은 비율에 따라 공격력 최대 +50%, 속도·선회 최대 +30%.'],guynemer:['모퇴르 카농','4초마다 피해 90의 대형 관통 기관포 발사.'],bishop:['초근접사격','기관총 공격력 +80%, 사거리 −55%.'],goering:['백색 편대 · 출격','백색 윙맨 2기와 상시 출격.'],immelmann:['독일의 독수리','선회기동·임멜만 턴 이후 3초간 공격력·공격속도·속도·선회 +20%.'],mannock:['외눈의 에이스','기관총 사거리 −55%. 아군·윙맨 연사 +15%.'],mckeever:['후방사수 · 파월','전방과 후방 동시 사격.'],huffzky:['매와 모기','전방과 후방 동시 사격.'],hawker:['빅토리아 십자훈장 수훈자','선회 속도 손실 −25%. 직진 유지 시 최대 속도 +20%.'],berthold:['철혈의 에이스','체력 50% 이하에서 받는 피해 25% 감소.']};
  for(const[id,[name,desc]]of Object.entries(passives)){PILOTS[id].passive=name;PILOTS[id].passiveDesc=desc;}
  Object.assign(PILOTS.fonck,{skill:'탄도학의 달인',desc:'4초간 전방 부채꼴 90도 범위로 발사한 기관총 탄환이 적을 유도 추적합니다.'});
  Object.assign(PILOTS.voss,{skill:'7대 1',desc:'4초간 비행 잔상을 남겨 적의 표적과 조준을 교란합니다. 무적·탄막 삭제 없음.'});
@@ -77,18 +77,18 @@ export function installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDAR
  const gun=Game.prototype.normalGunMultiplier;
  Game.prototype.normalGunMultiplier=function(){const aura=(this.combatWorld().players||[]).some(p=>p!==this&&p.hp>0&&p.pilot==='boelcke'&&Math.hypot(p.x-this.x,p.y-this.y)<360)?1.25:1;return (this.pilot==='boelcke'?1:gun.call(this))*(this.revisionDamageMult||1)*aura};
  Game.prototype.incomingDamageMultiplier=function(source){
-  let m=1;if(this.pilot==='berthold'){if(this.hp<=this.maxHp*.5)m*=.75;if(this.skillTime>0)m*=.35;}
+  let m=1;
   if(this.frontalProtection&&source&&Math.abs(Math.atan2(Math.sin(Math.atan2(source.y-this.y,source.x-this.x)-this.a),Math.cos(Math.atan2(source.y-this.y,source.x-this.x)-this.a)))<Math.PI/3)m*=1-this.frontalProtection;
   return m;
  };
  const hit=Game.prototype.hit;
- Game.prototype.hit=function(n){return hit.call(this,n*this.incomingDamageMultiplier(this.damageSource))};
+ Game.prototype.hit=function(n){if(this.invuln>0)return;const amount=n*this.incomingDamageMultiplier(this.damageSource);return hit.call(this,this.pilotDamageTaken?this.pilotDamageTaken(amount):amount)};
  const round=Game.prototype.applySpecialRound;
  Game.prototype.applySpecialRound=function(b,type){
   round.call(this,b,type);
   if(this.pilot==='fonck'){
    b.life*=1.25;
-   if(this.skillTime>0){b.fonckGuided=true;b.fonckSpreadRound=this.shots||1;b.guidedHeading=this.a;b.ownerId=this.id;}
+
   }
   if(this.rearGunner&&!this.weapon.bidirectional&&b.gun===0){const a=this.a+Math.PI;this.bullets.push({...b,x:this.x+Math.cos(a)*23,y:this.y+Math.sin(a)*23,vx:Math.cos(a)*520,vy:Math.sin(a)*520,ownerId:this.id,fonckGuided:false,hit:new Set(),rearGunnerRound:true});}
   return b;
@@ -97,14 +97,14 @@ export function installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDAR
  Game.prototype.roundDamageMultiplier=function(b,e){
   let mult=roundDamage.call(this,b,e);const a=Math.atan2(this.y-e.y,this.x-e.x),delta=Math.abs(Math.atan2(Math.sin(a-e.a),Math.cos(a-e.a))),rear=delta>Math.PI*.72,sun=this.isRedHunter()&&this.sunStrikeContains(e);
   if(rear||sun){mult*=1+(this.rearDamageBonus||0)+(this.isRedHunter?.()?.3:0);if(sun&&rear)mult*=1.2;if(sun&&!b.tailBonus)mult*=1.5;}
-  if(this.pilot==='baracca'&&delta<Math.PI/3)mult*=1.3;
+
   if(this.skillEnhanced&&(b.special||b.formation||b.duo||b.blast&&this.skillTime>0))mult*=1.3;
   return mult;
  };
  Game.prototype.beginRevisionFrame=function(dt,input={}){
   this.ensureRevisionPilot();const world=this.combatWorld();
   const nearby=this.enemies.filter(e=>e.hp>0&&Math.hypot(e.x-this.x,e.y-this.y)<400).length;
-  const wolf=this.pilot==='voss'?Math.min(6,nearby)*.04:0,udet=this.pilot==='udet'?Math.max(0,100-this.hp)/100:0,eagle=this.eagleTime>0?.2:0;
+  const wolf=this.pilot==='voss'?Math.min(6,nearby)*.04:0,udet=0,eagle=this.eagleTime>0?.2:0;
   this.revisionDamageMult=1+wolf+udet*.5+eagle;
   const yaw=Number.isFinite(input.angle)?Math.abs(Math.atan2(Math.sin(input.angle-this.a),Math.cos(input.angle-this.a))):Math.abs(input.steer||0);
   if(this.pilot==='hawker')this.straightCharge=Math.max(0,Math.min(1,(this.straightCharge||0)+(yaw<.12?dt/3:-dt*2)));
@@ -114,8 +114,7 @@ export function installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDAR
   this.rate/=(1+eagle)*(this.pilot==='hawker'&&this.skillTime>0?2:1);
   if(this.pilot==='hawker'&&this.skillTime>0)this.unlimitedAmmo=true;
   this.eagleTime=Math.max(0,(this.eagleTime||0)-dt);
-  if(this.pilot==='voss'&&this.skillTime>0){this.decoyTimer=(this.decoyTimer||0)-dt;if(this.decoyTimer<=0){this.decoyTimer=.16;world.revisionDecoys??=[];world.revisionDecoys.push({x:this.x,y:this.y,a:this.a,plane:this.plane,pilot:this.pilot,ownerId:this.id,life:1.2,hp:1,decoy:true});}}
-  if(this.pilot==='guynemer'){this.passiveCannonTimer=(this.passiveCannonTimer??0)-dt;if(this.passiveCannonTimer<=0){this.passiveCannonTimer=4;this.bullets.push({x:this.x,y:this.y,vx:Math.cos(this.a)*460,vy:Math.sin(this.a)*460,life:2.8,ownerId:this.id,enemy:false,motorCannon:true,pierce:true,collisionRadius:18,damage:this.payloadPower(90),hit:new Set()});}}
+  if(this.pilot==='guynemer'){this.passiveCannonTimer=(this.passiveCannonTimer??0)-dt;if(this.passiveCannonTimer<=0){this.passiveCannonTimer=4;this.cannonRecoil129=.24;this.cannonKick129=9;this.identityFx?.('muzzleHeavy',this.x+Math.cos(this.a)*26,this.y+Math.sin(this.a)*26,this.a,58,.15);this.bullets.push({x:this.x,y:this.y,vx:Math.cos(this.a)*460,vy:Math.sin(this.a)*460,life:2.8,ownerId:this.id,enemy:false,motorCannon:true,pierce:true,collisionRadius:18,damage:this.payloadPower(90),hit:new Set()});}}
   return prior;
  };
  Game.prototype.endRevisionFrame=function(prior){Object.assign(this,prior)};
@@ -196,3 +195,4 @@ export function installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDAR
  };
  Game.prototype.reserveEnemySlots=function(){/* Existing enemies stay on the battlefield. */};
 }
+

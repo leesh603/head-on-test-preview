@@ -3,18 +3,14 @@ const stepTime = dt => Number.isFinite(dt) ? Math.max(0, Math.min(.04, dt)) : 0;
 const playing = p => p.state === 'playing' && p.hp > 0 && p.status !== 'downed';
 
 export function preparePersonalRound1918(p, b) {
-  if (p.pilot === 'gontermann' && p.skillTime > 0 && !b.enemy && !b.ally && !b.formation && !b.patrol) {
-    b.burn = 3;
-    b.specialColor = '#ff9a3c';
-  }
   return b;
 }
 
 export function barkerDamage1918(p, damage) {
-  if (p.pilot !== 'barker' || !(damage > 0)) return damage;
-  p.barkerStacks = Math.min(p.skillTime > 0 ? 5 : 3, (p.barkerStacks || 0) + 1);
+  if (p.pilot !== 'barker' || !(damage > 0)) return p.pilotDamageTaken ? p.pilotDamageTaken(damage) : damage;
+  p.barkerStacks = Math.min(3, (p.barkerStacks || 0) + 1);
   p.barkerStackTime = 3;
-  return p.skillTime > 0 ? Math.min(damage, Math.max(0, p.hp - 1)) : damage;
+  return p.pilotDamageTaken ? p.pilotDamageTaken(damage) : damage;
 }
 
 export function advancePersonal1918(p, dt, previousRounds = p.roundsFired) {
@@ -32,7 +28,7 @@ export function advancePersonal1918(p, dt, previousRounds = p.roundsFired) {
         ghost.x += Math.cos(ghost.a) * ghost.speed * step;
         ghost.y += Math.sin(ghost.a) * ghost.speed * step;
       }
-      p.invuln = Math.max(p.invuln, step + .02);
+
       p._ballPuff = (p._ballPuff || 0) - step;
       if (p._ballPuff <= 0) {
         p._ballPuff = .09;
@@ -43,18 +39,6 @@ export function advancePersonal1918(p, dt, previousRounds = p.roundsFired) {
         p.burst(p.x, p.y, '#f4f0dc', 18);
       }
     } else if (p.ballAmbush > 0) p.ballAmbush = Math.max(0, p.ballAmbush - step);
-  }
-  if (p.pilot === 'rickenbacker' && p.skillTime > 0 && p.roundsFired > previousRounds) {
-    let count = 0;
-    for (const e of p.enemies) {
-      if (count >= 7) break;
-      if (e.hp <= 0 || e.surface || Math.hypot(e.x - p.x, e.y - p.y) > 780) continue;
-      const a = Math.atan2(e.y - p.y, e.x - p.x);
-      p.bullets.push({x:p.x + Math.cos(a)*24, y:p.y + Math.sin(a)*24,
-        vx:Math.cos(a)*580, vy:Math.sin(a)*580, life:1.5, enemy:false, ownerId:p.id,
-        damage:p.damage*.85, pierce:true, specialColor:'#d7c493', hit:new Set(), formation:true});
-      count++;
-    }
   }
   if (p.pilot === 'brumowski') {
     const world = p.combatWorld();
@@ -91,3 +75,4 @@ export function advanceBurns1918(world, dt) {
   }
   return killed;
 }
+

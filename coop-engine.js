@@ -1,7 +1,7 @@
-import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=426';
-import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=426';
+import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=431';
+import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=431';
 
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=426';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=431';
 import {attachAircraftPersonality} from './aircraft-personality164.js?v=426';
 import {installCloudCover} from './cloud-cover1.js?v=426';
 
@@ -21,7 +21,7 @@ export class PlayerState {
   this.rate=60/this.weapon.rpm;this.ammo=Array(this.weapon.guns).fill(this.weapon.belt);this.need=this.levelRequirement(6);
   this.doctrine=['강습 편대','고속 정찰','장기 초계'][Math.floor(this.rng()*3)];
   if(this.doctrine==='강습 편대'){this.damage*=1.15;this.reloadPenalty=1.15}else if(this.doctrine==='고속 정찰'){this.speed*=1.12;this.maxHp*=.9;this.hp=this.maxHp}else{this.maxHp+=15;this.hp=this.maxHp;this.rate*=1.08}
-  if(pilot==='bishop')this.damage*=1.8;
+
   this.permanentWingman=pilot==='goering'?1:0;this.allyPlane=fit.faction==='central'?'fokker_standard':'camel';this.baseSpeed=this.speed;this.enemyCruiseReference=this.speed;this.ensureRevisionPilot();
  }
  get rng(){return this.world.rng} get t(){return this.world.t} get smokeZones(){return this.world.smokeZones}
@@ -69,7 +69,7 @@ export class CoopGame {
  downPlayer(p){
   if(p.status==='downed')return;p.status='downed';p.hp=0;p.respawnRemaining=COOP_BALANCE.revive;p.downedCooldown=Math.max(p.cooldown,5);
   for(const key of ['skillTime','chargeTime','bishopTime','bishopDrops','salvoWaves','udetBoost','wingBoost','evadeTime','invuln','muzzleFlash','crossfireFlash','barkerStacks','barkerStackTime','ballCloak','ballAmbush'])p[key]=0;p.ballGhost=null;
-  p.formationWings=[];p.divingSquadron=[];p.airshipFleet=[];p.mannockPass=0;p.mannockPassTimer=Infinity;
+  if(p.pilotIdentity){p.pilotIdentity.debts=[];p.pilotIdentity.burns.clear();p.pilotIdentity.escape=null;p.pilotIdentity.barkerReady=false;p.pilotIdentity.fx=[];}p.formationWings=[];p.divingSquadron=[];p.airshipFleet=[];p.mannockPass=0;p.mannockPassTimer=Infinity;
   this.allies=this.allies.filter(a=>a.ownerId!==p.id);this.friendlyBombers=this.friendlyBombers.filter(b=>b.ownerId!==p.id);
   p.event('downed',`${p.id.toUpperCase()} 격추 · 동료가 15초 생존하면 복귀`);if(!this.living().length)this.finish();
  }
@@ -158,8 +158,8 @@ export class CoopGame {
   for(const f of this.flakBursts)f.life-=dt;this.flakBursts=this.flakBursts.filter(f=>f.life>0);for(const fx of this.combatFX)fx.life-=dt;this.combatFX=this.combatFX.filter(f=>f.life>0).slice(-35);
  }
  updatePlayer(p,dt,input){
-  const previousRounds=p.roundsFired;const revisionPrior=p.beginRevisionFrame(dt,input);
-  const oldX=p.x,oldY=p.y,active=p.skillTime,charge=p.chargeTime>0,duo=['mckeever','huffzky'].includes(p.pilot),boost=p.udetBoost>0;
+  const previousRounds=p.roundsFired;const revisionPrior=p.beginRevisionFrame(dt,input);if(!live(p)){p.endRevisionFrame(revisionPrior);return;}
+  const oldX=p.x,oldY=p.y,active=p.skillTime,charge=p.chargeTime>0,duo=false,boost=p.udetBoost>0;
   for(const key of ['muzzleFlash','hitFlash','cooldown','evadeCooldown','evadeTime','skillTime','invuln','wingBoost','crossfireFlash'])stepTimer(p,key,dt);
   p.smokeTimer-=dt;if(p.hp<p.maxHp*.6&&p.smokeTimer<=0){p.smoke(p.x-Math.cos(p.a)*12,p.y-Math.sin(p.a)*12,p.hp<p.maxHp*.3);p.smokeTimer=.12}
   let control={...input};if(p.gustDisorient>0){p.gustDisorient=Math.max(0,p.gustDisorient-dt);if(Number.isFinite(control.angle))control.angle+=p.gustOffset||0;else control.steer=(control.steer||0)+(p.gustOffset||0)*.65}
@@ -177,7 +177,7 @@ export class CoopGame {
   if(p.reloadTime>0){p.reloadTime=Math.max(0,p.reloadTime-dt);p.fire=0;if(p.reloadTime===0){p.ammo.fill(p.weapon.belt);p.event('loaded','재장전 완료')}}
   else if(!p.cow37){p.fire-=dt;if(p.bishopTime>0)p.fire=Math.max(p.fire,.1);let volleys=0;while(p.fire<=0&&p.reloadTime===0&&volleys++<8){
    if(p.ammo.every(n=>n===0)){p.reload();break}p.fire+=Math.max(.02,p.rate/(boost?2.4:1));
-   for(let gun=0;gun<p.weapon.guns;gun++){const rounds=Math.min(p.shots,p.ammo[gun]),offset=p.weapon.bidirectional?0:(gun-(p.weapon.guns-1)/2)*8,ga=p.gunDirection(gun);for(let i=0;i<rounds;i++){const a=ga+(i-(rounds-1)/2)*.11,tailTargetId=p.tailLocked?p.tailTargetId:null,round={x:p.x+Math.cos(ga)*23-Math.sin(ga)*offset,y:p.y+Math.sin(ga)*23+Math.cos(ga)*offset,vx:Math.cos(a)*520,vy:Math.sin(a)*520,life:['bishop','mannock'].includes(p.pilot)?.6:1.35,gun,damage:p.damage*p.normalGunMultiplier()/Math.sqrt(p.shots),tailBonus:!!tailTargetId,tailTargetId};this.emit(p,p.applySpecialRound(round,null))}if(!p.unlimitedAmmo)p.ammo[gun]-=rounds?Math.max(1,rounds-(p.freeVolleyShots||0)):0;p.roundsFired+=rounds}p.muzzleFlash=.055;p.event('shot','');if(p.ammo.every(n=>n===0))p.reload();
+   for(let gun=0;gun<p.weapon.guns;gun++){const rounds=Math.min(p.shots,p.ammo[gun]),offset=p.weapon.bidirectional?0:(gun-(p.weapon.guns-1)/2)*8,ga=p.gunDirection(gun);for(let i=0;i<rounds;i++){const a=ga+(i-(rounds-1)/2)*.11,tailTargetId=p.tailLocked?p.tailTargetId:null,round={x:p.x+Math.cos(ga)*23-Math.sin(ga)*offset,y:p.y+Math.sin(ga)*23+Math.cos(ga)*offset,vx:Math.cos(a)*520,vy:Math.sin(a)*520,life:1.35,gun,damage:p.damage*p.normalGunMultiplier()/Math.sqrt(p.shots),tailBonus:!!tailTargetId,tailTargetId};this.emit(p,p.applySpecialRound(round,null))}if(!p.unlimitedAmmo)p.ammo[gun]-=rounds?Math.max(1,rounds-(p.freeVolleyShots||0)):0;p.roundsFired+=rounds}p.muzzleFlash=.055;p.event('shot','');if(p.ammo.every(n=>n===0))p.reload();
   }}
   if(p.bishopEmptyPending){p.bishopEmptyPending=false;if(!p.unlimitedAmmo)p.ammo.fill(0);p.reloadTime=0;p.fire=.1;p.muzzleFlash=0}
   if(boost)stepTimer(p,'udetBoost',dt);
@@ -196,7 +196,7 @@ export class CoopGame {
   this.tagSummons(p);p.endRevisionFrame(revisionPrior);advancePersonal1918(p,dt,previousRounds);
  }
  updateSupport(dt){
-  for(const a of this.allies){const p=this.player(a.ownerId);if(!p||!live(p)){a.life=0;continue}a.life-=dt;a.invuln=Math.max(0,(a.invuln||0)-dt);a.hitFlash=Math.max(0,(a.hitFlash||0)-dt);const target=p.wingFormationTarget(a,p.permanentWingCount()),response=2.6*Math.max(.75,Math.min(1.25,a.personality?.acceleration??1));a.a=p.a;a.x+=(target.x-a.x)*Math.min(1,dt*response);a.y+=(target.y-a.y)*Math.min(1,dt*response);a.fire-=dt;if(a.fire<=0){a.fire=.42*(p.upgrades.fighterSupply?.9:1)/((p.wingBoost>0?GOERING_WING_BOOST.fireRateMultiplier:1)*(1+(p.commandRateBonus||0)));let nearest=null,best=Infinity;for(const e of this.enemies)if(e.hp>0){const d=squared(e,a);if(d<best){best=d;nearest=e}}if(nearest){const aim=Math.atan2(nearest.y-a.y,nearest.x-a.x);this.emit(p,{x:a.x+Math.cos(aim)*23,y:a.y+Math.sin(aim)*23,vx:Math.cos(aim)*470,vy:Math.sin(aim)*470,life:1.5,ally:true,damage:p.supportPower(7.44)*(p.wingmanDamageMult||1)*(p.wingBoost>0?GOERING_WING_BOOST.damageMultiplier:1)*(p.upgrades.fighterSupply?1.2:1)})}}}
+  for(const a of this.allies){const p=this.player(a.ownerId);if(!p||!live(p)){a.life=0;continue}if(p.updatePilotWing?.(a,dt))continue;a.life-=dt;a.invuln=Math.max(0,(a.invuln||0)-dt);a.hitFlash=Math.max(0,(a.hitFlash||0)-dt);const target=p.wingFormationTarget(a,p.permanentWingCount()),response=2.6*Math.max(.75,Math.min(1.25,a.personality?.acceleration??1));a.a=p.a;a.x+=(target.x-a.x)*Math.min(1,dt*response);a.y+=(target.y-a.y)*Math.min(1,dt*response);a.fire-=dt;if(a.fire<=0){a.fire=.42*(p.upgrades.fighterSupply?.9:1)/((p.wingBoost>0?GOERING_WING_BOOST.fireRateMultiplier:1)*(1+(p.commandRateBonus||0)));let nearest=null,best=Infinity;for(const e of this.enemies)if(e.hp>0){const d=squared(e,a);if(d<best){best=d;nearest=e}}if(nearest){const aim=Math.atan2(nearest.y-a.y,nearest.x-a.x);this.emit(p,{x:a.x+Math.cos(aim)*23,y:a.y+Math.sin(aim)*23,vx:Math.cos(aim)*470,vy:Math.sin(aim)*470,life:1.5,ally:true,damage:p.supportPower(7.44)*(p.wingmanDamageMult||1)*(p.wingBoost>0?GOERING_WING_BOOST.damageMultiplier:1)*(p.upgrades.fighterSupply?1.2:1)})}}}
   this.allies=this.allies.filter(a=>a.life>0);for(let i=0;i<this.allies.length;i++)for(let j=i+1;j<this.allies.length;j++){const a=this.allies[i],b=this.allies[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);if(d<42){const nx=d?dx/d:1,ny=d?dy/d:0,push=(42-d)*.5;a.x-=nx*push;a.y-=ny*push;b.x+=nx*push;b.y+=ny*push}}
   for(const b of this.friendlyBombers){const p=this.player(b.ownerId);if(!p||!live(p))continue;b.age+=dt;const d=-650+b.age*480;b.x=b.ox+Math.cos(b.a)*d;b.y=b.oy+Math.sin(b.a)*d;b.drop-=dt;if(b.left>0&&b.drop<=0){b.drop=.42;b.left--;const targets=this.enemies.filter(e=>e.hp>0&&Math.hypot(e.x-b.x,e.y-b.y)<650),target=targets[Math.floor(this.rng()*targets.length)];this.friendlyBombs.push({ownerId:b.ownerId,sx:b.x,sy:b.y,x:target?.x??b.x+Math.cos(b.a)*120,y:target?.y??b.y+Math.sin(b.a)*120,life:.55,maxLife:.55,damage:p.payloadPower(80),radius:100})}}this.friendlyBombers=this.friendlyBombers.filter(b=>b.age<3.6&&live(this.player(b.ownerId)));
   for(const b of this.friendlyBombs){b.life-=dt;if(b.life<=0)this.blast(this.player(b.ownerId),b.x,b.y,b.radius,b.damage,'bomb')}this.friendlyBombs=this.friendlyBombs.filter(b=>b.life>0);
