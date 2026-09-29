@@ -1078,7 +1078,7 @@ function syncBattlefieldEventUi(){
 }
 function syncRivalAceUi(){
  const notice=game?.rivalAceNotice,signature=notice?notice.id+':'+notice.phase+':'+getLocale():'';if(!notice||signature===shownRivalNotice)return;shownRivalNotice=signature;
- $('toast').textContent=t(`rival.${notice.phase}`,{name:notice.name});show('toast');toastUntil=performance.now()+2600;
+ $('toast').textContent=t(`rival.${notice.phase}`,{name:pilotName(notice.pilot,notice.name)});show('toast');toastUntil=performance.now()+2600;
 }
 const frameWithBattlefieldEvents=frame;
 frame=now=>{const run=game;frameWithBattlefieldEvents(now);if(run===game){syncBattlefieldEventUi();syncRivalAceUi()}};
