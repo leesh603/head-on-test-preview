@@ -1175,3 +1175,46 @@ body.astra-ui.playing #modal #modalActions button:focus-visible{outline:2px soli
 body.astra-ui #modal.choice-modal151 #modalActions{grid-auto-rows:auto!important}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{align-self:stretch}
 body.astra-ui #modal.choice-modal151 .legendary-reroll115{height:40px!important;min-height:40px!important;max-height:40px!important;align-self:start;border-radius:12px!important;font-size:12px!important}
+/* Faction livery — Central = Feldgrau, Entente = Horizon Blue.
+   Set on <body> via .fac-central/.fac-entente; enemy surfaces read --enemy-fac. */
+body.astra-ui.fac-central{--fac:#7d8f83;--fac-deep:#5d6f66;--fac-bright:#9db3a5}
+body.astra-ui.fac-entente{--fac:#7c9bb8;--fac-deep:#5f7f9c;--fac-bright:#a7c2da}
+/* Hangar dossier: portrait ring + alias band pick up the selected side. */
+body.astra-ui:not(.playing) .pilot-frame{border-color:var(--fac-deep,#8c81774d)}
+body.astra-ui:not(.playing) .pilot-frame .portrait{box-shadow:inset 0 0 0 2px var(--fac-deep,#0000),0 0 26px -8px var(--fac,#0000)}
+body.astra-ui:not(.playing) .portrait-caption span{color:var(--fac-bright,#dfbf88)}
+body.astra-ui:not(.playing) .portrait-caption span::before{content:'';display:inline-block;width:22px;height:8px;margin-right:7px;background:var(--fac,#dfbf88);vertical-align:1px}
+body.astra-ui:not(.playing) .portrait-label b{color:var(--fac-bright,inherit)}
+/* Enemy ace surfaces: kicker, name strip and portrait lip follow the foe's side. */
+body.astra-ui.playing #flightNotices151 #bossArrival{border-left-color:var(--enemy-fac,var(--ho-oxblood))}
+body.astra-ui.playing #flightNotices151 #bossArrival small{color:var(--enemy-fac,var(--ho-brick))}
+body.astra-ui .boss-cutin::before{border-bottom-color:var(--enemy-fac,var(--ho-oxblood))}
+body.astra-ui .boss-cutin-caption small{color:var(--enemy-fac-soft,#d8b8a0)}
+body.astra-ui .boss-cutin-caption strong{color:var(--enemy-fac-strong,#df7a5e)}
+body.astra-ui .boss-cutin.skill-side::before{border-bottom-color:var(--fac,var(--ho-brass))}
+/* Settings + manual modals in the same dossier language as the pause card. */
+body.astra-ui #modal.settings-modal151 .modal-card,
+body.astra-ui #modal.manual-modal151 .modal-card{border-color:var(--ho-edge);border-top:2px solid var(--ho-brass);background:var(--ho-surface-strong);color:var(--ho-parchment);box-shadow:0 24px 80px #0009}
+body.astra-ui #modal.settings-modal151 #modalTag,
+body.astra-ui #modal.manual-modal151 #modalTag{color:var(--ho-brass);letter-spacing:.22em}
+body.astra-ui #modal.settings-modal151 #modalTitle,
+body.astra-ui #modal.manual-modal151 #modalTitle{color:var(--ho-parchment)}
+body.astra-ui #modal.settings-modal151 #modalText,
+body.astra-ui #modal.manual-modal151 #modalText{color:#c9c4b7}
+body.astra-ui #modal.manual-modal151 #modalText{border-left:2px solid var(--fac,var(--ho-oxblood));padding-left:16px;line-height:1.85}
+body.astra-ui #modal.settings-modal151 #modalActions{display:block;margin-top:16px;border-top:1px solid var(--ho-edge-soft)}
+body.astra-ui #modal.settings-modal151 #modalActions .primary{display:flex;justify-content:space-between;align-items:center;width:100%;margin:0;padding:14px 4px;background:none;border:0;border-bottom:1px solid var(--ho-edge-soft);border-radius:0;color:var(--ho-parchment);font-size:15px;font-weight:400;text-align:left;letter-spacing:.02em}
+body.astra-ui #modal.settings-modal151 #modalActions .primary:hover{background:#e8e2d408;color:var(--fac-bright,var(--ho-brass))}
+body.astra-ui #modal.settings-modal151 #modalActions .primary:last-child{margin-top:16px;padding:12px;border:1px solid var(--ho-edge);background:var(--ho-surface-flat);justify-content:center;color:var(--ho-brass);font-weight:700;letter-spacing:.12em}
+body.astra-ui #modal.settings-modal151 #modalActions .primary:last-child:hover{background:#23221f;border-color:#e8e2d440}
+body.astra-ui #modal.manual-modal151 #modalActions .primary{border:1px solid var(--ho-edge);background:var(--ho-surface-flat);color:var(--ho-brass);font-weight:700;letter-spacing:.12em}
+
+body.astra-ui #bossWarning .warn-band{background:repeating-linear-gradient(-45deg,var(--enemy-fac,#8a2a20) 0 16px,#15100b 16px 32px)}
+body.astra-ui #bossWarning .warn-core b{color:var(--enemy-fac-strong,#d4493a)}
+body.astra-ui #bossWarning .warn-core span{color:var(--enemy-fac-soft,#eadcc6)}
+body.astra-ui.playing #flightNotices151 #bossArrival strong{color:var(--enemy-fac-strong,#f0e6d2)}
+body.astra-ui.playing #flightNotices151 #bossArrival{border-left-color:var(--enemy-fac,var(--ho-oxblood))!important}
+body.astra-ui.playing #flightNotices151 #bossArrival small{color:var(--enemy-fac,#ff8a70)!important}
+body.astra-ui.playing #flightNotices151 #bossArrival strong{color:var(--enemy-fac-strong,#f0e6d2)!important}
+body.astra-ui.playing #flightNotices151 #bossArrivalDetail{color:var(--enemy-fac-soft,var(--ho-muted))!important}
+body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{border-color:var(--enemy-fac-soft,var(--ho-edge))}
