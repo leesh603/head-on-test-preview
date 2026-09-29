@@ -130,7 +130,7 @@ function modal(tag,title,text,buttons){clearChoiceIconRefs();lastFocus=document.
 function resume(){if(game?.mode==='coop2'){if(game.resume()){coopInput.clear();last=performance.now();show('modal',false)}return}if(game?.state==='paused'){game.state='playing';show('modal',false);lastFocus?.focus({preventScroll:true})}}
 function pause(){if(game?.mode==='coop2'){pauseCoop();return}if(game?.state==='playing'){game.state='paused';keys={};joy=null;showBuildPause151()}else resume()}
 function help(){if(game?.mode==="coop2"){if(game.state==="playing")pauseCoop();return}if(game?.state==='upgrade'||game?.state==='lost'||game?.state==='won')return;let wasPlaying=game?.state==='playing';if(wasPlaying){game.state='paused';keys={};joy=null}modal('FLIGHT MANUAL',t('help.title'),t('help.text'),[{label:t('common.ok'),run:()=>{show('modal',false);if(wasPlaying)game.state='playing';else if(game?.state==='paused')pause();lastFocus?.focus({preventScroll:true})}}]);$('modal').classList.remove('build-modal151','settings-modal151');$('modal').classList.add('manual-modal151')}
-$('reload').onclick=()=>game?.reload();$('start').onclick=start;$('pilotNickname').onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();start()}};$('pause').onclick=pause;$('help').onclick=help;$('touchSkill').onclick=e=>{e.preventDefault();game?.skill()};$('touchSkill').onpointerdown=e=>{e.preventDefault();game?.skill()};$('touchEvade').onclick=e=>{e.preventDefault();game?.evade()};$('touchEvade').onpointerdown=e=>{e.preventDefault();game?.evade()};$('sound').onclick=()=>{muted=!muted;setSfxMuted(muted||sfxOff);$('sound').textContent=muted?'소리 OFF':'소리 ON';$('sound').setAttribute('aria-label',muted?'소리 켜기':'소리 끄기');sound()};
+$('reload').onclick=()=>game?.reload();$('start').onclick=sortie;$('pilotNickname').onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();sortie()}};$('pause').onclick=pause;$('help').onclick=help;$('touchSkill').onclick=e=>{e.preventDefault();game?.skill()};$('touchSkill').onpointerdown=e=>{e.preventDefault();game?.skill()};$('touchEvade').onclick=e=>{e.preventDefault();game?.evade()};$('touchEvade').onpointerdown=e=>{e.preventDefault();game?.evade()};$('sound').onclick=()=>{muted=!muted;setSfxMuted(muted||sfxOff);$('sound').textContent=muted?'소리 OFF':'소리 ON';$('sound').setAttribute('aria-label',muted?'소리 켜기':'소리 끄기');sound()};
 window.addEventListener('keydown',e=>{if(regionTransitionUntil>0)return;if(['INPUT','TEXTAREA'].includes(e.target?.tagName))return;if(game?.mode==='coop2'){coopInput.keydown(e,game,{choose:chooseCoop,pause:pauseCoop,highlight:highlightCoopChoice});return}if(e.code==='Tab'&&!$('modal').classList.contains('hidden')){const btns=[...$('modal').querySelectorAll('button,input')];if(e.shiftKey&&document.activeElement===btns[0]){e.preventDefault();btns.at(-1)?.focus({preventScroll:true})}else if(!e.shiftKey&&document.activeElement===btns.at(-1)){e.preventDefault();btns[0]?.focus({preventScroll:true})}return}if(!game)return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.repeat)return;if(e.code==='Space')game.evade();if(e.code==='KeyE')game.skill();if(e.code==='KeyR')game.reload();if(e.code==='KeyQ')game.changeAltitude?.();if(e.code==='KeyP'||e.code==='Escape')pause();if(game.state==='upgrade'&&/^Digit[1234]$/.test(e.code)){let pick=choices[Number(e.code.slice(-1))-1];if(pick)choose(pick.id,pick.rarity)}});window.addEventListener('keyup',e=>{delete keys[e.code];coopInput.release(e.code)});window.addEventListener('blur',()=>{keys={};joy=null;if(game?.mode==='coop2'){coopInput.clear();game.pause();if(game.state==='paused')showCoopPause()}else if(game?.state==='playing')pause()});document.addEventListener('visibilitychange',()=>{if(!document.hidden)return;if(game?.mode==='coop2'){coopInput.clear();game.pause();if(game.state==='paused')showCoopPause()}else if(game?.state==='playing')pause()});
 let stickId=null,lastStickTap=0;function moveStick(e){if(e.pointerId!==stickId)return;let r=$('stick').getBoundingClientRect(),dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,l=Math.hypot(dx,dy),m=Math.min(l,33);joy=l>8?Math.atan2(dy,dx):null;$('stick').firstElementChild.style.transform=`translate(${l?dx/l*m:0}px,${l?dy/l*m:0}px)`} $('stick').onpointerdown=e=>{if(performance.now()-lastStickTap<280)game?.evade();lastStickTap=performance.now();stickId=e.pointerId;$('stick').setPointerCapture(e.pointerId);moveStick(e)};$('stick').onpointermove=moveStick;for(let ev of ['pointerup','pointercancel','lostpointercapture'])$('stick').addEventListener(ev,()=>{stickId=null;joy=null;$('stick').firstElementChild.style.transform='none'});
 function choose(id,rarity='normal'){if(game?.state!=='upgrade')return;show('modal',false);game.upgrade(id,rarity);$('upgradesText').textContent=UPGRADES.filter(u=>game.upgrades[u.id]).map(u=>reinforcementName(u,game,PLANES)).join(' · ');sound(750,.12)}
@@ -264,7 +264,7 @@ modal=(tag,title,text,buttons)=>{
 const _startWithMusic=start;start=()=>{music.unlock();_startWithMusic();setBgmMode(musicModeForGame(game))};
 const _returnWithMusic=returnHangar;returnHangar=()=>{_returnWithMusic();stopBgm()};
 const _soundToggle=$('sound').onclick;$('sound').onclick=()=>{music.unlock();_soundToggle();if(muted)stopBgm();else setBgmMode(musicModeForGame(game))};
-$('start').onclick=()=>start();
+$('start').onclick=sortie;
 setInterval(()=>setBgmMode(document.hidden||regionTransitionUntil?'idle':musicModeForGame(game)),240);
 document.addEventListener('visibilitychange',()=>{if(document.hidden){setSfxPaused(true);stopBgm();if(game?.state==='playing')pause();keys={};joy=null;coopInput.reset();gamepadInput.reset()}else last=performance.now()});
 
@@ -887,10 +887,16 @@ const hudWithRefinedFactionMark120=hud;hud=()=>{hudWithRefinedFactionMark120();d
 const bootAt=performance.now();
 const terrainAtlasReady=new Promise(resolve=>{if(terrainAlpsAtlas.complete)resolve(terrainAlpsAtlas.naturalWidth>0);else{terrainAlpsAtlas.addEventListener('load',()=>resolve(true),{once:true});terrainAlpsAtlas.addEventListener('error',()=>resolve(false),{once:true})}});
 const warmStageAssetsReady=Promise.all([prepareStageBossAssets(0),prepareAADefenseAssets(['fx'])]).catch(()=>{});
-Promise.all([portraitsReady,aircraftReady,campaignArtReady,iconsReady,fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady]).then(()=>{
+// Split gate: the hangar only needs portraits/planes/icons, so reveal as soon
+// as those land. Battle assets (FX sprites, terrain, boss atlas) stream in the
+// background and are re-checked when the sortie button fires.
+const hangarReady=Promise.all([portraitsReady,aircraftReady,campaignArtReady,iconsReady]);
+const battleReady=Promise.all([fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady]);
+hangarReady.then(()=>{
  const reveal=()=>{document.body.classList.add('assets-ready');roster();applyPilotPortrait('cutinPortrait')};
- const left=3400-(performance.now()-bootAt);left>0?setTimeout(reveal,left):reveal();
+ const left=1000-(performance.now()-bootAt);left>0?setTimeout(reveal,left):reveal();
 }).catch(()=>{document.body.classList.add('assets-ready');roster();});
+function sortie(){document.body.classList.remove('assets-ready');const go=()=>{document.body.classList.add('assets-ready');start()};battleReady.then(go,go)}
 
 // Shared reinforcement presentation for solo, co-op, and special rerolls.
 const modalBefore151=modal;
@@ -936,7 +942,7 @@ draw=t=>{
 // always fall back to the standard free sortie path.
 const rosterWithCampaignGuard=roster;roster=()=>{normalizeSelectedMode();return rosterWithCampaignGuard()};
 const startWithCampaignGuard=start;start=()=>{normalizeSelectedMode();return startWithCampaignGuard()};
-$('start').onclick=start;
+$('start').onclick=sortie;
 
 // Locale presentation is installed last so it follows the final gameplay wrappers
 // without changing their state or control flow.
@@ -972,7 +978,7 @@ $('sound').onclick=()=>{soundWithLocale();refreshLocale()};
 subscribe(refreshLocale);refreshLocale();
 function refreshRuntimeAria(){$('record').textContent=t('record.best',{score:String(best).padStart(3,'0')});$('pause')?.setAttribute('aria-label',t('hud.pause').replace(/^Ⅱ\s*/,''));$('pause')?.setAttribute('title',t('hud.pause').replace(/^Ⅱ\s*/,'')+' · ESC');document.querySelector('.healthMark151')?.setAttribute('aria-label',t('ui.factionMark'))}
 subscribe(refreshRuntimeAria);refreshRuntimeAria();
-$('start').onclick=start;
+$('start').onclick=sortie;
 
 // Dynamic values originate in the gameplay data, so static DOM translation is
 // not enough after switching languages. Keep their IDs at the presentation
@@ -1054,7 +1060,7 @@ const pauseWithGamepad=pause;
 pause=()=>{gamepadInput.reset();const result=pauseWithGamepad();setSfxPaused(game?.state==='paused');return result};
 const helpWithGamepad=help;
 help=()=>{gamepadInput.reset();return helpWithGamepad()};
-$('start').onclick=start;$('pause').onclick=pause;$('help').onclick=help;
+$('start').onclick=sortie;$('pause').onclick=pause;$('help').onclick=help;
 
 // Battlefield Events use the dedicated offer shell and stop simulation while
 // the player makes a choice. The event core remains UI-agnostic for solo/co-op.
