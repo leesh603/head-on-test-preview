@@ -1,0 +1,264 @@
+/* ==========================================================================
+   HUD WW1 397 — one HEAD-ON visual language for in-game UI (Phase 1).
+   Loaded last. Presentation only: no layout re-parenting, no state, no JS.
+   Strategy: re-point the existing HUD tokens (--hud-*, --hud191-*) to a
+   single WWI palette, then restyle only the leftovers that still used
+   other themes (neon rarity, navy cut-in, glowing WARNING, cyan coop HUD).
+   Palette: warm gun-metal panels, brass rules, parchment type,
+   olive-sage survival, oxblood for enemies / danger.
+   ========================================================================== */
+
+body.astra-ui{
+ --ho-ink:#0f0e0a;
+ --ho-surface:linear-gradient(120deg,#23211aeb,#12110ced);
+ --ho-surface-strong:linear-gradient(120deg,#29261ef5,#141310f5);
+ --ho-surface-flat:#1a1913;
+ --ho-edge:#b39a6263;
+ --ho-edge-soft:#b39a622b;
+ --ho-brass:#c9a24a;
+ --ho-brass-soft:#b99a5c;
+ --ho-parchment:#ece3cb;
+ --ho-muted:#aba691;
+ --ho-numeral:#eddcae;
+ --ho-olive:#8fac78;
+ --ho-olive-deep:#6e8c5c;
+ --ho-cartridge:#cdb983;
+ --ho-cartridge-deep:#a18c57;
+ --ho-oxblood:#8d3327;
+ --ho-brick:#c65a44;
+ --ho-shadow:inset 0 1px #f2e6c410,inset 0 0 0 3px #0002,0 5px 16px #0006;
+ --ho-radius:3px;
+}
+
+/* 1. Token re-point: every rule already written against --hud-* / --hud191-*
+      picks up the unified palette without being rewritten. */
+body.astra-ui.playing{
+ --hud-panel:var(--ho-surface);
+ --hud-edge:var(--ho-edge);
+ --hud-shadow:var(--ho-shadow);
+ --hud191-surface:var(--ho-surface);
+ --hud191-surface-strong:var(--ho-surface-strong);
+ --hud191-edge:var(--ho-edge);
+ --hud191-edge-soft:var(--ho-edge-soft);
+ --hud191-text:var(--ho-parchment);
+ --hud191-muted:var(--ho-muted);
+ --hud191-accent:var(--ho-brass);
+ --hud191-danger:var(--ho-brick);
+ --hud191-ready:var(--ho-brass-soft);
+ --hud191-shadow:var(--ho-shadow);
+}
+
+/* 2. Survival / status instruments — HP, ammo, XP, kills, clock. */
+body.astra-ui.playing #flightTop151 .health151>small,
+body.astra-ui.playing #flightTop151 #ammoHud:before{color:var(--ho-muted)}
+body.astra-ui.playing #flightTop151 #healthText,
+body.astra-ui.playing #flightTop151 #healthCurrent151,
+body.astra-ui.playing #flightTop151 #healthMax151,
+body.astra-ui.playing #flightTop151 #ammoCount,
+body.astra-ui.playing #flightTop151 .compact-kills b{color:var(--ho-numeral)}
+body.astra-ui.playing #flightTop151 #healthSlash151{color:#8a846f}
+body.astra-ui.playing #flightTop151 #clock{color:var(--ho-numeral);text-shadow:0 1px 0 #000}
+body.astra-ui.playing #flightTop151 .compact-kills>span,
+body.astra-ui.playing #flightTop151 #xpHud>span{color:var(--ho-muted)}
+body.astra-ui.playing #flightTop151 #ammoHud>div>small{color:#b3ad96}
+
+/* HP = olive-sage, ammo = cartridge brass, XP = brass: each bar reads on its own. */
+body.astra-ui.playing #flightTop151 #healthBar,
+body.astra-ui.playing #healthBar{background:linear-gradient(90deg,var(--ho-olive-deep),var(--ho-olive))!important;box-shadow:inset 0 1px #eef3d42e}
+body.astra-ui.playing .astra-low-health #healthBar{background:linear-gradient(90deg,#7c2d24,var(--ho-brick))!important}
+body.astra-ui.playing #flightTop151 #ammoHud #ammoProgress{background:linear-gradient(90deg,var(--ho-cartridge-deep),var(--ho-cartridge));box-shadow:inset 0 1px #fff4d42a}
+body.astra-ui.playing #flightTop151 #ammoHud.reloading #ammoProgress{background:repeating-linear-gradient(-45deg,#8f7a45 0 5px,#6f5e35 5px 10px)}
+body.astra-ui.playing #flightTop151 #xpHud #xpBar{background:linear-gradient(90deg,#9c7d3a,var(--ho-brass))}
+
+/* Pause + reload keys: same brass-edged plate as the panels. */
+body.astra-ui.playing #flightTop151 #pause,
+body.astra-ui.playing #flightTop151 #reload{border-color:var(--ho-edge);background:var(--ho-surface-strong);color:var(--ho-parchment)}
+body.astra-ui.playing #flightTop151 #pause:hover,
+body.astra-ui.playing #flightTop151 #reload:hover{background:#5a261ecc;border-color:#b39a6299}
+
+/* 3. Boss HP bar — oxblood fill, parchment title, brass seam. */
+body.astra-ui.playing #flightStack151 #stageBossHud{border-top:2px solid var(--ho-oxblood)}
+body.astra-ui.playing #flightStack151 #stageBossHp{background:linear-gradient(90deg,#6e2a21,var(--ho-brick))}
+body.astra-ui.playing #stageBossTitle{color:var(--ho-parchment)}
+body.astra-ui.playing #stageBossParts{color:var(--ho-muted)}
+
+/* 4. Notices — toast, event mission, campaign strip share one plate. */
+body.astra-ui.playing #flightNotices151 #toast{border-left-color:var(--ho-brass);color:#e3cf9f}
+body.astra-ui.playing #flightNotices151 #eventMissionTitle{color:var(--ho-brass)}
+
+/* 5. Enemy ace arrival — oxblood seam, parchment name. */
+body.astra-ui.playing #flightNotices151 #bossArrival{border-left-color:var(--ho-oxblood)}
+body.astra-ui.playing #flightNotices151 #bossArrival small{color:var(--ho-brick)}
+body.astra-ui.playing #flightNotices151 #bossArrival strong{color:var(--ho-parchment)}
+body.astra-ui.playing #flightNotices151 #bossArrivalDetail{color:var(--ho-brass-soft)}
+body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{background:linear-gradient(135deg,#2c291f,#12110c)}
+body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window:after{background:linear-gradient(90deg,transparent 52%,#17150fa8 76%,#17150f 100%)}
+
+/* 6. BOSS WARNING — stencilled plate on a hazard band. No neon glow. */
+body.astra-ui #bossWarning .warn-band{height:24px;background:repeating-linear-gradient(-45deg,#8a2a20 0 16px,#15100b 16px 32px);opacity:.9;box-shadow:0 0 0 1px #0008}
+body.astra-ui #bossWarning .warn-core{background:radial-gradient(ellipse at center,transparent 40%,rgba(74,18,12,.24) 100%);gap:8px}
+body.astra-ui #bossWarning .warn-core b{
+ padding:8px clamp(28px,8vw,90px) 6px;
+ border-top:1px solid #b0453770;
+ border-bottom:1px solid #b0453770;
+ background:linear-gradient(90deg,transparent,#15100cd9 16%,#15100cd9 84%,transparent);
+ color:#d4493a;
+ letter-spacing:.2em;
+ text-shadow:0 2px 0 #140806,0 0 1px #000;
+}
+body.astra-ui #bossWarning .warn-core span{
+ padding:3px 14px;
+ background:#15100cb8;
+ color:#eadcc6;
+ letter-spacing:.22em;
+ text-shadow:0 1px 2px #000;
+}
+
+/* 7. Boss / player cut-in illustration — keep the art, drop the red glow. */
+body.astra-ui .boss-cutin::before{background:linear-gradient(270deg,#1d120ce6,transparent);border-bottom-color:var(--ho-oxblood)}
+body.astra-ui .boss-cutin-art{filter:drop-shadow(0 9px 11px #000c)}
+body.astra-ui .boss-cutin-caption small{color:#d8b8a0}
+body.astra-ui .boss-cutin-caption strong{color:#df7a5e}
+body.astra-ui .boss-cutin-caption span{color:#eadfcc}
+body.astra-ui .boss-cutin.skill-side::before{background:linear-gradient(90deg,#1c180fe6,transparent);border-bottom-color:var(--ho-brass)}
+body.astra-ui .boss-cutin.skill-side .boss-cutin-caption strong{color:#ecd08c}
+body.astra-ui .boss-cutin.skill-side .boss-cutin-caption small{color:#e3d4ae}
+
+/* 8. Skill cut-in card — warm gun-metal instead of navy. */
+body.astra-ui.playing #viewport #skillCutin{
+ border-color:var(--ho-edge);
+ border-left-color:var(--cutin-accent,var(--ho-brass));
+ border-radius:var(--ho-radius);
+ background:var(--ho-surface-strong);
+ box-shadow:var(--ho-shadow);
+}
+body.astra-ui.playing #viewport #skillCutin .cutin-portrait{border-right-color:var(--ho-edge-soft)}
+body.astra-ui.playing #viewport #skillCutin .cutin-caption small{color:var(--ho-muted)}
+body.astra-ui.playing #viewport #skillCutin .cutin-caption strong{color:#ecd08c;text-shadow:0 1px 3px #000}
+
+/* 9. Upgrade cards — rarity stays distinguishable, but as service-medal
+      colours (pewter / verdigris / steel / claret / gold), not neon. */
+body.astra-ui #modal.choice-modal151{background:#0c0b08d9}
+body.astra-ui #modal.choice-modal151 .modal-card{border-color:var(--ho-edge);border-top:2px solid var(--ho-brass);background:var(--ho-surface-strong);color:var(--ho-parchment)}
+body.astra-ui #modal.choice-modal151 #modalTag{color:var(--ho-brass)}
+body.astra-ui #modal.choice-modal151 #modalTitle{color:var(--ho-parchment)}
+body.astra-ui #modal.choice-modal151 #modalText{color:var(--ho-muted)}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
+ border-color:#b39a6238!important;
+ background:linear-gradient(90deg,var(--hud191-choice-tint,transparent),transparent 58%),linear-gradient(120deg,#23211af2,#12110cf5)!important;
+ color:var(--ho-parchment)!important;
+}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-normal{--hud191-choice-accent:#948f80;--hud191-choice-tint:#948f8010}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-magic{--hud191-choice-accent:#7fa46e;--hud191-choice-tint:#7fa46e14}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-rare{--hud191-choice-accent:#7e9cb0;--hud191-choice-tint:#7e9cb014}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-unique{--hud191-choice-accent:#b47a82;--hud191-choice-tint:#b47a8214}
+body.astra-ui #modal.choice-modal151 #modalActions .rarity-legendary{--hud191-choice-accent:#d6ab52;--hud191-choice-tint:#d6ab521c;--hud191-choice-glow:transparent}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>b{color:var(--ho-parchment)!important}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>span:not(.cumulative151){color:#c7c1ab!important}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>.cumulative151{border-top-color:#b39a6226!important;color:#cdb67f!important}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:hover,
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:focus-visible{
+ outline:1px solid #c9a24a8c!important;
+ background:linear-gradient(90deg,var(--hud191-choice-tint,transparent),transparent 58%),linear-gradient(120deg,#2b281ff4,#16150ff7)!important;
+}
+body.astra-ui #modal.choice-modal151.special-draft156 .modal-card{border-color:#c9a24a66}
+body.astra-ui #modal.choice-modal151 .legendary-reroll115{border-color:var(--ho-edge);background:var(--ho-surface-flat);color:#e0d2ae}
+.coop-p2-choice .choice.coop-current{outline-color:var(--ho-brass)}
+
+/* 10. Pause / settings shell — same plate, brass primary, dark secondaries. */
+body.astra-ui.playing #modal:not(.choice-modal151) .modal-card{
+ border:1px solid var(--ho-edge);
+ border-top:2px solid var(--ho-brass);
+ border-radius:var(--ho-radius);
+ background:var(--ho-surface-strong);
+ box-shadow:0 22px 60px #000b;
+ color:var(--ho-parchment);
+}
+body.astra-ui.playing #modal:not(.choice-modal151) #modalTag{color:var(--ho-brass)}
+body.astra-ui.playing #modal:not(.choice-modal151) #modalText{color:var(--ho-muted)}
+body.astra-ui.playing #modal.build-modal151 #modalActions{background:var(--ho-surface-flat);border-top:1px solid var(--ho-edge-soft)}
+body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary{
+ border:1px solid #d7b86f;
+ border-radius:var(--ho-radius);
+ background:linear-gradient(180deg,#cfae63,#b28f45);
+ color:var(--ho-ink);
+ box-shadow:inset 0 1px #fff1c455;
+}
+body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary+.primary{
+ border-color:var(--ho-edge);
+ background:#14130f;
+ color:var(--ho-parchment);
+ box-shadow:none;
+}
+body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary:hover{filter:brightness(1.08)}
+body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary+.primary:hover{background:#2a2419;border-color:#c9a24a99;filter:none}
+body.astra-ui.playing #modal #modalActions button:focus-visible{outline:2px solid var(--ho-brass);outline-offset:3px}
+
+/* 11. Special equipment badges. */
+body.astra-ui.playing #legendaryInventory .legendary-badge{border-color:#c9a24a70}
+
+/* 12. Campaign HUD — objective strip, radar, direction. */
+body.astra-ui.playing .campaign-hud strong,
+body.astra-ui.playing .campaign-hud #campaignObjective,
+body.astra-ui.playing .campaign-hud #navigationInstruction{background:#17150fe0;color:var(--ho-parchment)}
+body.astra-ui.playing .campaign-hud strong{border-color:var(--ho-edge);color:#ecd08c}
+body.astra-ui.playing .campaign-hud .mission-direction{background:#17150feb;border-color:var(--ho-edge);color:#ecd08c}
+body.astra-ui.playing .campaign-hud #navigationArrow{color:var(--ho-brass)}
+body.astra-ui.playing .campaign-hud button{border-color:var(--ho-edge);background:var(--ho-surface-strong);color:var(--ho-parchment)}
+body.astra-ui.playing .mission-map{border-color:var(--ho-edge);background:#17150fee;box-shadow:var(--ho-shadow)}
+body.astra-ui.playing .mission-map>span,
+body.astra-ui.playing .mission-map>small{color:var(--ho-muted)}
+
+/* 13. Co-op HUD — P1 verdigris / P2 brass (same hues as the in-world rings,
+       desaturated), one plate for both pilots and the team clock. */
+body.astra-ui.playing{--ho-p1:#86b9bf;--ho-p2:#d6b26e}
+body.astra-ui.playing #flightTop151 .coop-instrument,
+body.astra-ui.playing #flightTop151 .coop-team{border:1px solid var(--ho-edge);border-radius:var(--ho-radius);background:var(--ho-surface);box-shadow:var(--ho-shadow);color:var(--ho-parchment)}
+body.astra-ui.playing #flightTop151 .coop-instrument{border-left:3px solid var(--ho-p1)}
+body.astra-ui.playing #flightTop151 .coop-instrument.p2{border-left-color:var(--ho-p2)}
+body.astra-ui.playing .coop-instrument strong{color:var(--ho-p1)}
+body.astra-ui.playing .coop-instrument.p2 strong{color:var(--ho-p2)}
+body.astra-ui.playing .coop-instrument .bar{background:#060806a6;border:1px solid var(--ho-edge-soft)}
+body.astra-ui.playing .coop-instrument .bar i{background:linear-gradient(90deg,var(--ho-olive-deep),var(--ho-olive))}
+body.astra-ui.playing .coop-team b{font:600 22px/1.1 var(--astra-numeric);color:var(--ho-numeral);letter-spacing:.03em}
+body.astra-ui.playing .coop-team button{border:1px solid var(--ho-edge);border-radius:var(--ho-radius);background:var(--ho-surface-strong);color:var(--ho-parchment)}
+body.astra-ui.playing #coopXpHud>div{border:1px solid var(--ho-edge-soft);border-radius:var(--ho-radius);background:#17150fdd;color:var(--ho-muted)}
+body.astra-ui.playing #coopXpHud .bar{background:#060806a6}
+body.astra-ui.playing #p1XpBar{background:var(--ho-p1)}
+body.astra-ui.playing #p2XpBar{background:var(--ho-p2)}
+body.astra-ui.playing .coop-cutin{border:1px solid var(--ho-edge);border-left:3px solid var(--ho-p1);border-radius:var(--ho-radius);background:var(--ho-surface-strong);box-shadow:var(--ho-shadow)}
+body.astra-ui.playing .coop-cutin.p2{border-left-color:var(--ho-p2)}
+body.astra-ui.playing .coop-cutin small{color:var(--ho-muted)}
+body.astra-ui.playing .coop-cutin b{color:#ecd08c}
+
+/* 14. Touch controls — same plate/brass as the rest of the HUD. */
+body.astra-ui.playing #touch #touchSkill,
+body.astra-ui.playing #touch #touchEvade,
+body.astra-ui.playing #touch #reload{border-color:#c9a24a8a}
+body.astra-ui.playing #touch #skillButtonState,
+body.astra-ui.playing #touch #maneuverButtonState{color:var(--ho-numeral)}
+body.astra-ui.playing #touch #skillButtonText,
+body.astra-ui.playing #touch #maneuverButtonText,
+body.astra-ui.playing #touch #reload:after,
+body.astra-ui.playing #touch #stickCaption{color:#d6ceb4}
+body.astra-ui.playing #touch .astra-control-icon{color:#e2c586}
+body.astra-ui.playing #touch .astra-dial{color:var(--ho-brass)}
+body.astra-ui.playing #touch #stick{border-color:#d9cda666}
+
+/* 15. Legibility floor on phones — the densest labels were 7px. */
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing #flightNotices151 #bossArrival small{font-size:8px}
+ body.astra-ui.playing #flightNotices151 #bossArrivalDetail{font-size:8px}
+ body.astra-ui.playing #flightNotices151 #toast{font-size:10px}
+ body.astra-ui.playing #viewport #skillCutin .cutin-caption small{font-size:9px}
+ body.astra-ui.playing #viewport #skillCutin .cutin-caption strong{font-size:12px}
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .rarity-label160,
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .effect-category151{font-size:8px!important}
+ body.astra-ui #bossWarning .warn-band{height:16px}
+ body.astra-ui #bossWarning .warn-core span{font-size:11px;letter-spacing:.14em}
+}
+
+@media(prefers-reduced-motion:reduce){
+ body.astra-ui #bossWarning .warn-core b,
+ body.astra-ui #bossWarning .warn-core span{animation:none}
+}
