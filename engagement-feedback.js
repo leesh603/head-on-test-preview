@@ -1,3 +1,4 @@
+import {drawHeadOnEngagement} from './engagement-hud410.js?v=417';
 // Presentation only: no damage, steering, or target-lock changes.
 export function headOnTarget(player,enemies){
  if(!player||player.hp<=0||player.status&&player.status!=='alive')return null;
@@ -21,7 +22,7 @@ export function headOnFeedback(player,enemies,time){
   state.since??=time;
   if(time-state.since>=.09&&time>=state.next){state.until=time+.85;state.next=time+4;cue=true}
  }else state.since=null;
- return{visible:time<state.until,cue};
+ return{visible:time<state.until,cue,age:time-(state.until-.85),left:state.until-time};
 }
 export function drawHeadOnFeedback(ctx,game,width,height,play){
  if(!game||game.state!=='playing')return;
@@ -31,10 +32,10 @@ export function drawHeadOnFeedback(ctx,game,width,height,play){
   const feedback=headOnFeedback(p,game.enemies,game.t||0);
   if(feedback.cue)play('headOn');
   if(!feedback.visible)continue;
-  const x=(p.x-game.x)*zoom+width/2,y=(p.y-game.y)*zoom+height/2;
-  ctx.save();ctx.font='bold 12px sans-serif';ctx.textAlign='center';
-  ctx.lineWidth=3;ctx.strokeStyle='#24251f';ctx.fillStyle='#efd49b';
+  // Mark the enemy nose-on, in the same bracket + pill grammar as the tail marker.
+  const target=headOnTarget(p,game.enemies),anchor=target||p;
+  const x=(anchor.x-game.x)*zoom+width/2,y=(anchor.y-game.y)*zoom+height/2;
   const label=coop?(p.id?.toUpperCase()||'')+' · HEAD-ON':'HEAD-ON';
-  ctx.strokeText(label,x,y-62);ctx.fillText(label,x,y-62);ctx.restore();
+  drawHeadOnEngagement(ctx,x,target?y:y-10,label,feedback.age,Math.min(1,feedback.left/.2),!!target);
  }
 }

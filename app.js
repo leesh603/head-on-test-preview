@@ -29,7 +29,8 @@ import {campaignArtReady} from './aircraft.js?v=410';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady} from './icons.js?v=410';
 import {BattleMusic,musicModeForGame} from './music.js?v=410';
 import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=410';
-import {drawHeadOnFeedback} from './engagement-feedback.js?v=410';
+import {drawHeadOnFeedback} from './engagement-feedback.js?v=417';
+import {drawTailEngagement} from './engagement-hud410.js?v=417';
 import {portraitSources,portraitsReady} from './portraits.js?v=410';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=410';
 import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=410';
@@ -729,7 +730,7 @@ renderCoopSetup();
 
 // Revision 91 tactical overlays: tail-lock feedback and temporary ammunition belts.
 function drawTailMarker(c,target,player,point,color='#ffd36f'){
- if(!target||!player)return;const [x,y]=point(target.x,target.y),progress=player.tailLockFraction?.()||0,locked=!!player.tailLocked;c.save();c.strokeStyle=locked?'#ff7258':color;c.lineWidth=locked?3:2;c.beginPath();c.arc(x,y,36,-Math.PI/2,-Math.PI/2+Math.PI*2*progress);c.stroke();for(const side of [-1,1]){c.beginPath();c.moveTo(x+side*30,y-17);c.lineTo(x+side*38,y-17);c.lineTo(x+side*38,y-7);c.stroke()}c.fillStyle=locked?'#fff0c0':'#eadcae';c.font='bold 12px sans-serif';c.textAlign='center';c.fillText(locked?t('hud.tailAdvantage',{multiplier:TAILING_BALANCE.damageMultiplier.toFixed(2)}):t('hud.rearAim',{percent:Math.round(progress*100)}),x,y-45);c.restore();
+ if(!target||!player)return;const [x,y]=point(target.x,target.y),progress=player.tailLockFraction?.()||0,locked=!!player.tailLocked;drawTailEngagement(c,x,y,progress,locked,locked?t('hud.tailAdvantage',{multiplier:TAILING_BALANCE.damageMultiplier.toFixed(2)}):t('hud.rearAim',{percent:Math.round(progress*100)}));
 }
 const _tacticalDraw91=draw;
 draw=t=>{_tacticalDraw91(t);if(!game||game.mode==='coop2')return;const point=(x,y)=>[x-game.x+W/2,y-game.y+H/2];ctx.save();for(const d of game.drops||[])if(!d.dead&&d.specialAmmo){const [x,y]=point(d.x,d.y),spec=SPECIAL_AMMO[d.specialAmmo];ctx.strokeStyle=(spec?.color||'#ffd36f')+'bb';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,24+Math.sin(t*6)*3,0,Math.PI*2);ctx.stroke();drawSpecialAmmoIcon(ctx,d.specialAmmo,x,y+Math.sin(t*4)*2,42)}for(const b of game.bullets||[])if(b.life>0&&b.specialAmmo){const [x,y]=point(b.x,b.y);ctx.strokeStyle=b.specialColor;ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-b.vx*(b.specialAmmo==='tracer'?.032:.02),y-b.vy*(b.specialAmmo==='tracer'?.032:.02));ctx.stroke()}const target=game.enemies?.find(e=>e.tailId===game.tailTargetId&&e.hp>0);drawTailMarker(ctx,target,game,point);ctx.restore()};
