@@ -1213,3 +1213,8 @@ body.astra-ui #bossWarning .warn-band{background:repeating-linear-gradient(-45de
 body.astra-ui #bossWarning .warn-core b{color:var(--enemy-fac-strong,#d4493a)}
 body.astra-ui #bossWarning .warn-core span{color:var(--enemy-fac-soft,#eadcc6)}
 body.astra-ui.playing #flightNotices151 #bossArrival strong{color:var(--enemy-fac-strong,#f0e6d2)}
+body.astra-ui.playing #flightNotices151 #bossArrival{border-left-color:var(--enemy-fac,var(--ho-oxblood))!important}
+body.astra-ui.playing #flightNotices151 #bossArrival small{color:var(--enemy-fac,#ff8a70)!important}
+body.astra-ui.playing #flightNotices151 #bossArrival strong{color:var(--enemy-fac-strong,#f0e6d2)!important}
+body.astra-ui.playing #flightNotices151 #bossArrivalDetail{color:var(--enemy-fac-soft,var(--ho-muted))!important}
+body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{border-color:var(--enemy-fac-soft,var(--ho-edge))}
