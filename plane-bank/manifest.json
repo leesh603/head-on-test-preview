@@ -1,0 +1,22 @@
+{
+  "note": "WWI aircraft sprite asset stock — NOT wired into the game. Keyed webp sprites generated via the fxgen painter pipeline (chroma-keyed painterly top-down art, alpha-cropped, max 768px).",
+  "generated": "2026-09-29",
+  "sprites": [
+    {"file": "sopwith_triplane.webp", "name": "Sopwith Triplane", "nation": "britain", "role": "scout", "year": 1917},
+    {"file": "nieuport_17.webp", "name": "Nieuport 17", "nation": "france", "role": "scout", "year": 1916},
+    {"file": "avro_504.webp", "name": "Avro 504", "nation": "britain", "role": "trainer/bomber", "year": 1914},
+    {"file": "airco_dh9.webp", "name": "Airco DH.9", "nation": "britain", "role": "day bomber", "year": 1917},
+    {"file": "short_184.webp", "name": "Short 184", "nation": "britain", "role": "seaplane/torpedo", "year": 1915},
+    {"file": "curtiss_h12.webp", "name": "Curtiss H-12 Large America", "nation": "britain/us", "role": "flying boat", "year": 1917},
+    {"file": "martinsyde_buzzard.webp", "name": "Martinsyde F.4 Buzzard", "nation": "britain", "role": "scout", "year": 1918},
+    {"file": "salmson_2.webp", "name": "Salmson 2", "nation": "france", "role": "reconnaissance", "year": 1918},
+    {"file": "ilya_muromets.webp", "name": "Sikorsky Ilya Muromets", "nation": "russia", "role": "heavy bomber", "year": 1914},
+    {"file": "fokker_d8.webp", "name": "Fokker D.VIII", "nation": "germany", "role": "monoplane scout", "year": 1918},
+    {"file": "albatros_c3.webp", "name": "Albatros C.III", "nation": "germany", "role": "reconnaissance", "year": 1916},
+    {"file": "rumpler_c4.webp", "name": "Rumpler C.IV", "nation": "germany", "role": "high-altitude recon", "year": 1917},
+    {"file": "halberstadt_cl4.webp", "name": "Halberstadt CL.IV", "nation": "germany", "role": "escort/ground attack", "year": 1918},
+    {"file": "hansa_w12.webp", "name": "Hansa-Brandenburg W.12", "nation": "germany", "role": "floatplane fighter", "year": 1917},
+    {"file": "caproni_ca3.webp", "name": "Caproni Ca.3", "nation": "italy", "role": "heavy bomber", "year": 1916},
+    {"file": "etrich_taube.webp", "name": "Etrich Taube", "nation": "germany/austria", "role": "monoplane scout", "year": 1914}
+  ]
+}
