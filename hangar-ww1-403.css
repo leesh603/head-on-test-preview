@@ -11,22 +11,22 @@
    are aligned with the HUD.
    ========================================================================== */
 body.astra-ui:not(.playing){
- --ho-glass:linear-gradient(180deg,#26241cd9,#141310e0);
- --ho-glass-strong:linear-gradient(180deg,#2a271ff2,#151410f5);
- --ho-hair:#c9a24a3d;
- --ho-hair-strong:#c9a24a73;
+ --ho-glass:linear-gradient(180deg,#20201ed9,#121211e0);
+ --ho-glass-strong:linear-gradient(180deg,#242422f2,#131312f5);
+ --ho-hair:#e8e2d425;
+ --ho-hair-strong:#e8e2d440;
  --ho-lift:inset 0 1px 0 #fff2cf14,0 6px 18px #0007;
- --ho-ready:#d6b25e;
- --ho-parchment:#ece3cb;
- --ho-muted:#aba691;
- --ho-numeral:#eddcae;
+ --ho-ready:#e9e3d5;
+ --ho-parchment:#efebe2;
+ --ho-muted:#a3a095;
+ --ho-numeral:#f5f2ea;
  --ho-danger:#c8513c;
 }
 
 /* ---------- Shared plates (all sizes) ---------- */
 body.astra-ui:not(.playing) #hangar .astra-aircraft .selected-aircraft{border-radius:16px}
 body.astra-ui:not(.playing) #hangar .airframe-rating-bar i{border-radius:2px}
-body.astra-ui:not(.playing) #hangar .airframe-rating-bar i.active{background:linear-gradient(180deg,#e0c071,#b8913f)}
+body.astra-ui:not(.playing) #hangar .airframe-rating-bar i.active{background:linear-gradient(180deg,#ebe6db,#bdb7a9)}
 body.astra-ui:not(.playing) #hangar .astra-base-hp-track i{background:linear-gradient(90deg,#6e8c5c,#8fac78)}
 body.astra-ui:not(.playing) #hangar .astra-rating-value,
 body.astra-ui:not(.playing) #hangar .astra-base-hp>b{font-variant-numeric:tabular-nums;color:var(--ho-numeral)}
@@ -37,7 +37,7 @@ body.astra-ui:not(.playing) #hangar #pilotTabs button{border-radius:12px;overflo
 body.astra-ui:not(.playing) #hangar #pilotTabs button.active{box-shadow:0 0 0 2px var(--ho-ready),0 6px 16px #0008}
 body.astra-ui:not(.playing) #hangar .factions{border-radius:999px;padding:3px;background:#0e0d0acc;box-shadow:inset 0 0 0 1px var(--ho-hair)}
 body.astra-ui:not(.playing) #hangar .factions button{border-radius:999px!important;border:0!important}
-body.astra-ui:not(.playing) #hangar .factions button.active{background:linear-gradient(180deg,#3a3222,#221d14)!important;color:var(--ho-ready)!important;box-shadow:inset 0 0 0 1px var(--ho-hair-strong)}
+body.astra-ui:not(.playing) #hangar .factions button.active{background:linear-gradient(180deg,#3a3222,#1f1e1b)!important;color:var(--ho-ready)!important;box-shadow:inset 0 0 0 1px var(--ho-hair-strong)}
 body.astra-ui:not(.playing) #hangar #start{border-radius:16px!important}
 body.astra-ui:not(.playing) #mainOperations button,
 body.astra-ui:not(.playing) #mainOperations a{border-radius:999px}
@@ -103,7 +103,7 @@ body.astra-ui:not(.playing) .ho-air-more{display:none}
  body.astra-ui:not(.playing) #hangar .skill-info{display:flex!important;flex-direction:column;gap:6px!important;margin:0!important;padding:0!important;max-width:none!important}
  body.astra-ui:not(.playing) #hangar .skill-info>.astra-ability{
   grid-template-columns:30px minmax(0,1fr)!important;gap:9px!important;align-items:center;padding:6px 10px 6px 6px;
-  border-radius:14px;background:#15130fc4;box-shadow:inset 0 0 0 1px var(--ho-hair);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  border-radius:14px;background:#141413c4;box-shadow:inset 0 0 0 1px var(--ho-hair);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
  }
  body.astra-ui:not(.playing) #hangar .astra-ability-icon{width:30px!important;height:30px!important;padding:6px!important;box-sizing:border-box}
  body.astra-ui:not(.playing) #hangar .astra-ability-copy{display:grid!important;grid-template-columns:auto minmax(0,1fr);column-gap:7px;align-items:baseline;min-width:0}
@@ -183,7 +183,7 @@ body.astra-ui:not(.playing) .ho-air-more{display:none}
  body.astra-ui:not(.playing) #hangar #pilotTabs::-webkit-scrollbar{display:none}
  body.astra-ui:not(.playing) #hangar #pilotTabs button{
   flex:0 0 58px!important;width:58px!important;min-width:58px!important;height:58px!important;min-height:0!important;padding:0!important;margin:0!important;scroll-snap-align:start;
-  border:1px solid var(--ho-hair)!important;background:#15130f!important;opacity:.72;transition:opacity .15s,transform .15s;
+  border:1px solid var(--ho-hair)!important;background:#141413!important;opacity:.72;transition:opacity .15s,transform .15s;
  }
  body.astra-ui:not(.playing) #hangar #pilotTabs button.active{opacity:1;transform:translateY(-1px)}
  body.astra-ui:not(.playing) #hangar #pilotTabs .pilot-tab-portrait{width:100%!important;height:100%!important;object-fit:cover;object-position:center 18%;margin:0!important}
@@ -258,7 +258,7 @@ body.astra-ui:not(.playing) .ho-air-more{display:none}
  body.astra-ui:not(.playing) #hangar .astra-hero,
  body.astra-ui:not(.playing) #hangar .astra-aircraft{min-height:0!important}
  body.astra-ui:not(.playing) #hangar .astra-aircraft .selected-aircraft{
-  border:1px solid var(--ho-hair);background:linear-gradient(180deg,#1d1b15b8,#11100cc8);box-shadow:var(--ho-lift);
+  border:1px solid var(--ho-hair);background:linear-gradient(180deg,#1b1b19b8,#11100cc8);box-shadow:var(--ho-lift);
  }
  body.astra-ui:not(.playing) #pilotTabs .pilot-tab-portrait{border-radius:12px!important}
  body.astra-ui:not(.playing) #pilotTabs button.active .pilot-tab-portrait{box-shadow:0 0 0 2px var(--ho-ready),0 8px 18px #0009!important}
@@ -282,7 +282,7 @@ body.astra-ui:not(.playing) .ho-air-more{display:none}
  body.astra-ui:not(.playing) #hangar .astra-launch-hint{margin-top:6px!important}
 }
 @media(min-width:721px){
- body.astra-ui:not(.playing) #hangar .astra-aircraft .astra-aircraft-data{min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#c9a24a55 transparent}
+ body.astra-ui:not(.playing) #hangar .astra-aircraft .astra-aircraft-data{min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e8e2d434 transparent}
 }
 @media(min-width:721px) and (max-height:820px){
  body.astra-ui:not(.playing) #hangar #airframeStats{gap:5px!important}
@@ -298,37 +298,37 @@ body.astra-ui:not(.playing) .ho-air-more{display:none}
    sheet as the in-game pause; ranking rows become tiles, top three get
    gold / silver / bronze seams, faction filter is a pill segment.
    ========================================================================== */
-body.astra-ui:not(.playing) #modal:not(.choice-modal151){background:radial-gradient(ellipse at center,#15130fcc,#0a0907ee)!important;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+body.astra-ui:not(.playing) #modal:not(.choice-modal151){background:radial-gradient(ellipse at center,#141413cc,#0a0907ee)!important;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 body.astra-ui:not(.playing) #modal:not(.choice-modal151) .modal-card{
  border:1px solid var(--ho-hair-strong)!important;border-top:1px solid var(--ho-hair-strong)!important;border-radius:18px!important;
- background:linear-gradient(180deg,#2a271ff7,#151410fa)!important;box-shadow:0 24px 70px #000c!important;text-align:center;
+ background:linear-gradient(180deg,#242422f7,#131312fa)!important;box-shadow:0 24px 70px #000c!important;text-align:center;
 }
-body.astra-ui:not(.playing) #modal:not(.choice-modal151) #modalTag{display:inline-block;padding:3px 10px;border-radius:999px;background:#c9a24a22;color:var(--ho-ready)!important;letter-spacing:.14em}
+body.astra-ui:not(.playing) #modal:not(.choice-modal151) #modalTag{display:inline-block;padding:3px 10px;border-radius:999px;background:#e8e2d415;color:var(--ho-ready)!important;letter-spacing:.14em}
 body.astra-ui:not(.playing) #modal:not(.choice-modal151) :is(#modalTitle,#modalText){text-align:center;word-break:keep-all}
 body.astra-ui:not(.playing) #modal:not(.choice-modal151) #modalText{color:var(--ho-muted)!important}
 body.astra-ui:not(.playing) #modal:not(.choice-modal151) #modalActions{justify-content:center}
 body.astra-ui:not(.playing) #modal:not(.choice-modal151) #modalActions .primary{
- border-radius:999px!important;border:1px solid #d7b86f!important;background:linear-gradient(180deg,#cfae63,#b28f45)!important;color:#15130d!important;
+ border-radius:999px!important;border:1px solid #faf7f0!important;background:linear-gradient(180deg,#f3efe6,#d7d1c3)!important;color:#151514!important;
  display:flex!important;align-items:center;justify-content:center!important;text-align:center!important;white-space:nowrap;
 }
-body.astra-ui:not(.playing) #modal:not(.choice-modal151) #modalActions .primary+.primary{border-color:var(--ho-hair-strong)!important;background:#12110d!important;color:var(--ho-parchment)!important}
-body.astra-ui #modal .ranking-faction-tabs{display:inline-flex!important;gap:2px;padding:3px;margin:4px auto 12px!important;border-radius:999px;background:#0e0d0acc;box-shadow:inset 0 0 0 1px var(--ho-hair,#c9a24a3d)}
-body.astra-ui #modal .ranking-faction-tabs button{min-height:28px!important;padding:0 14px!important;border:0!important;border-radius:999px!important;background:none!important;color:var(--ho-muted,#aba691)!important;font-size:12px!important}
-body.astra-ui #modal .ranking-faction-tabs button.selected{background:linear-gradient(180deg,#3a3222,#221d14)!important;color:var(--ho-ready,#d6b25e)!important;box-shadow:inset 0 0 0 1px var(--ho-hair-strong,#c9a24a73)}
+body.astra-ui:not(.playing) #modal:not(.choice-modal151) #modalActions .primary+.primary{border-color:var(--ho-hair-strong)!important;background:#111110!important;color:var(--ho-parchment)!important}
+body.astra-ui #modal .ranking-faction-tabs{display:inline-flex!important;gap:2px;padding:3px;margin:4px auto 12px!important;border-radius:999px;background:#0e0d0acc;box-shadow:inset 0 0 0 1px var(--ho-hair,#e8e2d425)}
+body.astra-ui #modal .ranking-faction-tabs button{min-height:28px!important;padding:0 14px!important;border:0!important;border-radius:999px!important;background:none!important;color:var(--ho-muted,#a3a095)!important;font-size:12px!important}
+body.astra-ui #modal .ranking-faction-tabs button.selected{background:linear-gradient(180deg,#3a3222,#1f1e1b)!important;color:var(--ho-ready,#e9e3d5)!important;box-shadow:inset 0 0 0 1px var(--ho-hair-strong,#e8e2d440)}
 body.astra-ui #modal .ranking-medal-list{display:flex!important;flex-direction:column;gap:6px!important;margin:0 0 12px!important;padding:0!important;list-style:none;text-align:left;counter-reset:none}
 body.astra-ui #modal .ranking-medal-list li{
  position:relative;display:flex!important;align-items:center;gap:10px;min-height:44px;padding:5px 12px 5px 8px!important;margin:0!important;
- border-radius:12px;background:#100f0cc0;box-shadow:inset 0 0 0 1px var(--ho-hair,#c9a24a3d);color:#ddd4bc;font-size:12.5px;line-height:1.35;word-break:keep-all;
+ border-radius:12px;background:#0f0f0ec0;box-shadow:inset 0 0 0 1px var(--ho-hair,#e8e2d425);color:#ddd4bc;font-size:12.5px;line-height:1.35;word-break:keep-all;
 }
 body.astra-ui #modal .ranking-medal-list li .ranking-medal{flex:none;width:32px!important;height:32px!important;border-radius:50%}
-body.astra-ui #modal .ranking-medal-list li:nth-child(-n+3){padding-left:12px!important;color:var(--ho-parchment,#ece3cb);font-weight:600}
+body.astra-ui #modal .ranking-medal-list li:nth-child(-n+3){padding-left:12px!important;color:var(--ho-parchment,#efebe2);font-weight:600}
 body.astra-ui #modal .ranking-medal-list li:nth-child(-n+3):before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0}
 body.astra-ui #modal .ranking-medal-list li:nth-child(1):before{background:#e6bf3e}
 body.astra-ui #modal .ranking-medal-list li:nth-child(2):before{background:#c3c7c9}
 body.astra-ui #modal .ranking-medal-list li:nth-child(3):before{background:#c0814a}
-body.astra-ui #modal .ranking-medal-list li:nth-child(1){box-shadow:inset 0 0 0 1px #e6bf3e66;background:linear-gradient(90deg,#e6bf3e1c,#100f0cc0 60%)}
+body.astra-ui #modal .ranking-medal-list li:nth-child(1){box-shadow:inset 0 0 0 1px #e6bf3e66;background:linear-gradient(90deg,#e6bf3e1c,#0f0f0ec0 60%)}
 @media(max-width:720px){
  body.astra-ui:not(.playing) #modal:not(.choice-modal151) .modal-card{max-height:calc(100dvh - 24px)!important;overflow:auto}
- body.astra-ui:not(.playing) #modal:not(.choice-modal151) #modalActions{position:sticky;bottom:-18px;padding:10px 0 4px!important;background:linear-gradient(180deg,transparent,#151410 30%)}
+ body.astra-ui:not(.playing) #modal:not(.choice-modal151) #modalActions{position:sticky;bottom:-18px;padding:10px 0 4px!important;background:linear-gradient(180deg,transparent,#131312 30%)}
  body.astra-ui #modal .ranking-medal-list li{font-size:11.5px;min-height:40px}
 }
