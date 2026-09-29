@@ -2,7 +2,7 @@
 // One visual grammar for every "this enemy matters right now" cue:
 //   corner brackets on the target + a small charcoal pill label above it.
 //   tail  : bone brackets, progress ring fills; locked -> oxblood
-//   headOn: amber brackets that close in, "HEAD-ON" pill, nose-to-nose icon
+//   headOn: amber brackets that close in, "HEAD-ON" pill (text only)
 const FONT_FALLBACK = '"Noto Sans CJK KR","Noto Sans KR",Arial,sans-serif';
 let fontFamily = null;
 function family() {
@@ -74,36 +74,6 @@ export function drawPill(c, x, y, text, tone, { icon = null, progress = null, al
   return { w, h };
 }
 
-// Small glyphs for the pill. Aircraft are solid notched deltas (the map-marker
-// shape players already read as "a plane"), pointing along +x.
-function delta(c, x, y, s, angle) {
-  c.save(); c.translate(x, y); c.rotate(angle); c.scale(s, s);
-  c.beginPath(); c.moveTo(.55, 0); c.lineTo(-.45, -.42); c.lineTo(-.22, 0); c.lineTo(-.45, .42); c.closePath();
-  c.fill(); c.restore();
-}
-function iconTail(c, x, y, s, tone) {
-  // enemy inside our gunsight: ring with four ticks, delta at the centre
-  c.save(); c.strokeStyle = tone.line; c.fillStyle = tone.line; c.lineWidth = 1.4; c.lineCap = 'round';
-  const r = s * .56;
-  c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.stroke();
-  for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-    c.beginPath(); c.moveTo(x + dx * r * .72, y + dy * r * .72); c.lineTo(x + dx * r * 1.28, y + dy * r * 1.28); c.stroke();
-  }
-  delta(c, x + s * .04, y, s * .5, -Math.PI / 2);
-  c.restore();
-}
-function iconHeadOn(c, x, y, s, tone) {
-  // two aircraft nose to nose with a spark between them
-  c.save(); c.fillStyle = tone.line;
-  delta(c, x - s * .62, y, s * .72, 0);
-  delta(c, x + s * .62, y, s * .72, Math.PI);
-  c.beginPath();
-  const k = s * .2;
-  c.moveTo(x, y - k); c.lineTo(x + k * .3, y - k * .3); c.lineTo(x + k, y); c.lineTo(x + k * .3, y + k * .3);
-  c.lineTo(x, y + k); c.lineTo(x - k * .3, y + k * .3); c.lineTo(x - k, y); c.lineTo(x - k * .3, y - k * .3); c.closePath();
-  c.fill(); c.restore();
-}
-
 // Tail chase: progress ring + brackets on the target, pill above.
 export function drawTailEngagement(c, x, y, progress, locked, label) {
   const tone = locked ? ENGAGEMENT_TONES.locked : ENGAGEMENT_TONES.bone;
@@ -120,7 +90,7 @@ export function drawTailEngagement(c, x, y, progress, locked, label) {
   }
   c.restore();
   drawBrackets(c, x, y, 25, tone, locked ? 2.4 : 2);
-  drawPill(c, x, y - 52, label, tone, { icon: iconTail, progress: locked ? null : progress });
+  drawPill(c, x, y - 52, label, tone, { progress: locked ? null : progress });
 }
 
 // Head-on: amber brackets that snap inward during the cue, pill above.
@@ -129,5 +99,5 @@ export function drawHeadOnEngagement(c, x, y, label, age = 1, alpha = 1, onTarge
   const k = Math.min(1, age / 0.16);
   const gap = 25 + (1 - k) * 14;
   if (onTarget) { c.save(); c.globalAlpha *= alpha; drawBrackets(c, x, y, gap, tone, 2.2); c.restore(); }
-  drawPill(c, x, y - 52, label, tone, { icon: iconHeadOn, alpha });
+  drawPill(c, x, y - 52, label, tone, { alpha });
 }
