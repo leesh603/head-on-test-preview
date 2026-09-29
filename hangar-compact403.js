@@ -31,6 +31,79 @@ function installAircraft() {
   return true;
 }
 
+/* Skill details (phone + PC): tapping a skill opens a card with the full
+   in-game description and, for the active, its duration and cooldown.
+   Read-only: the numbers come from the same engine/i18n module instances the
+   game loaded (resolved by URL so no second copy is evaluated). */
+const moduleURL = name => performance.getEntriesByType('resource').map(e => e.name)
+  .find(n => new RegExp('/' + name.replace('.', '\\.') + '(\\?|$)').test(n));
+let modsPromise;
+const mods = () => modsPromise ||= (async () => {
+  const eu = moduleURL('engine.js'), iu = moduleURL('i18n.js');
+  if (!eu || !iu) return null;
+  try { const [engine, i18n] = await Promise.all([import(eu), import(iu)]); return { engine, i18n }; } catch { return null; }
+})();
+
+function currentLoadout(m) {
+  const pilot = document.querySelector('#pilotTabs button.active')?.dataset.pilotId;
+  const { PILOTS, PILOT_BALANCE } = m.engine;
+  const p = pilot && PILOTS[pilot];
+  if (!p) return null;
+  const hunterName = m.i18n.activeName('baron:baron_albatros', '태양을 등진 사냥꾼');
+  const hunter = pilot === 'baron' && document.getElementById('skillName')?.textContent.trim() === hunterName;
+  const id = hunter ? 'baron:baron_albatros' : pilot;
+  const plane = hunter ? 'baron_albatros' : '';
+  const desc = hunter ? '4초간 전방 범위의 적을 제압하고 후방타격 보너스를 적용합니다. 실제 후방에서 공격하면 추가 피해 +20%.' : p.desc;
+  const passiveDesc = hunter ? '이동속도·선회력 +12%.' : p.passiveDesc;
+  let duration = 0, cooldown = 0;
+  try {
+    const G = m.engine.Game.prototype;
+    const fake = { pilot, plane, cooldownMult: 1, skillEnhanced: false, isRedHunter: () => hunter, skillDuration: G.skillDuration, skillRecovery: G.skillRecovery };
+    duration = G.skillDuration.call(fake);
+    cooldown = G.skillCooldown.call(fake);
+  } catch { cooldown = hunter ? PILOT_BALANCE?.cooldowns?.baron_albatros : p.cooldown; }
+  return {
+    active: m.i18n.pilotDescription(id, desc),
+    passive: m.i18n.passiveDescription(id, passiveDesc),
+    duration, cooldown
+  };
+}
+
+const fmt = n => (Math.round(n * 10) / 10).toString();
+
+async function fillDetail(item) {
+  let pop = item.querySelector('.ho-skill-pop');
+  if (!pop) { pop = document.createElement('div'); pop.className = 'ho-skill-pop'; pop.setAttribute('role', 'note'); item.append(pop); }
+  const en = document.documentElement.lang === 'en';
+  const isActive = item.classList.contains('astra-active');
+  const name = item.querySelector('.astra-ability-copy b')?.textContent.trim() || '';
+  const short = item.querySelector('.astra-ability-copy p')?.textContent.trim() || '';
+  const render = (text, meta) => {
+    pop.replaceChildren();
+    const k = document.createElement('small'); k.className = 'ho-skill-kind'; k.textContent = isActive ? 'ACTIVE' : 'PASSIVE';
+    const h = document.createElement('strong'); h.textContent = name;
+    const d = document.createElement('p'); d.textContent = text;
+    pop.append(k, h, d);
+    if (meta?.length) {
+      const row = document.createElement('div'); row.className = 'ho-skill-meta';
+      for (const [label, value] of meta) { const c = document.createElement('span'); const b = document.createElement('b'); b.textContent = value; c.append(label + ' ', b); row.append(c); }
+      pop.append(row);
+    }
+  };
+  render(short);
+  const m = await mods();
+  const data = m && currentLoadout(m);
+  if (!data || !item.classList.contains('ho-tip')) return;
+  if (isActive) {
+    const meta = [];
+    if (data.duration > 0) meta.push([en ? 'Duration' : '지속', fmt(data.duration) + (en ? 's' : '초')]);
+    if (data.cooldown > 0) meta.push([en ? 'Cooldown' : '재사용', fmt(data.cooldown) + (en ? 's' : '초')]);
+    render(data.active || short, meta);
+  } else {
+    render(data.passive || short);
+  }
+}
+
 function installSkills() {
   const info = document.querySelector('#hangar .skill-info');
   const items = info ? [...info.querySelectorAll('.astra-ability')] : [];
@@ -42,19 +115,20 @@ function installSkills() {
     item.setAttribute('role', 'button');
     item.setAttribute('aria-expanded', 'false');
     const toggle = e => {
-      if (!mq.matches) return;
       e.stopPropagation();
       const open = !item.classList.contains('ho-tip');
       close();
       item.classList.toggle('ho-tip', open);
       item.setAttribute('aria-expanded', String(open));
+      if (open) fillDetail(item);
     };
     item.addEventListener('click', toggle);
     item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(e); } });
   });
   document.addEventListener('click', close);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
-  // A new pilot means new text: never leave a stale bubble open.
+  mq.addEventListener?.('change', close);
+  // A new pilot means new text: never leave a stale card open.
   new MutationObserver(close).observe(document.getElementById('skillName') || info, { childList: true, characterData: true, subtree: true });
   return true;
 }

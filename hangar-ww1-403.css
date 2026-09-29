@@ -757,3 +757,70 @@ body.astra-ui:not(.playing){
  body.astra-ui:not(.playing) #hangar .astra-ability-copy p{-webkit-line-clamp:2}
 }
 @media(prefers-reduced-motion:reduce){body.astra-ui:not(.playing) #hangar #start:before{animation:none!important;display:none!important}}
+
+/* ==========================================================================
+   SKILL DETAIL CARD (phone + PC) — tap/click a skill: full in-game text,
+   plus duration / cooldown for the active. Filled by hangar-compact403.js.
+   AIRCRAFT ROW (phone) — pilots with more than one aircraft get ‹ › around
+   the thumbnail so the choice is visible from the lobby.
+   ========================================================================== */
+body.astra-ui:not(.playing) #hangar .ho-skill-pop{display:none}
+body.astra-ui:not(.playing) #hangar .astra-ability.ho-tip .ho-skill-pop{
+ position:absolute;z-index:8;left:0;right:0;bottom:calc(100% + 10px);display:flex;flex-direction:column;gap:5px;box-sizing:border-box;
+ padding:13px 15px 14px;border-radius:16px;background:linear-gradient(180deg,#22221ffa,#171716fc);text-align:left;cursor:default;
+ box-shadow:inset 0 0 0 1px #ffffff26,0 16px 36px #000d;animation:ho-pop .16s ease-out;
+}
+body.astra-ui:not(.playing) #hangar .astra-active.ho-tip .ho-skill-pop{box-shadow:inset 3px 0 0 var(--hm-red),inset 0 0 0 1px #ffffff26,0 16px 36px #000d}
+body.astra-ui:not(.playing) #hangar .ho-skill-pop .ho-skill-kind{font:700 9.5px/1 var(--astra-numeric);letter-spacing:.2em;color:#b9b5aa}
+body.astra-ui:not(.playing) #hangar .astra-active .ho-skill-pop .ho-skill-kind{color:#f09a84}
+body.astra-ui:not(.playing) #hangar .ho-skill-pop strong{font:800 15px/1.3 var(--astra-type);color:var(--hm-text);word-break:keep-all}
+body.astra-ui:not(.playing) #hangar .ho-skill-pop p{display:block!important;margin:0!important;font:400 13px/1.55 var(--astra-type)!important;color:#dcd8ce!important;white-space:normal!important;word-break:keep-all;overflow:visible!important;-webkit-line-clamp:unset!important}
+body.astra-ui:not(.playing) #hangar .ho-skill-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+body.astra-ui:not(.playing) #hangar .ho-skill-meta span{display:inline-flex;align-items:baseline;gap:5px;padding:5px 10px;border-radius:999px;background:#ffffff0d;box-shadow:inset 0 0 0 1px #ffffff17;font:500 11.5px/1 var(--astra-type);color:var(--hm-sub)}
+body.astra-ui:not(.playing) #hangar .ho-skill-meta b{font:700 12px/1 var(--astra-numeric);color:var(--hm-text);font-variant-numeric:tabular-nums}
+@keyframes ho-pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){body.astra-ui:not(.playing) #hangar .astra-ability.ho-tip .ho-skill-pop{animation:none}}
+@media(max-width:720px){
+ /* the card replaces the old one-line bubble */
+ body.astra-ui:not(.playing) #hangar .astra-ability.ho-tip .astra-ability-copy p{display:none!important}
+ body.astra-ui:not(.playing) #hangar .astra-ability.ho-tip .ho-skill-pop{bottom:calc(100% + 8px)}
+}
+@media(min-width:721px){
+ body.astra-ui:not(.playing) #hangar .astra-hero .astra-dossier,
+ body.astra-ui:not(.playing) #hangar .astra-hero .skill-info,
+ body.astra-ui:not(.playing) #hangar .astra-hero .skill-info>.astra-ability{position:static!important}
+ body.astra-ui:not(.playing) #hangar .skill-info>.astra-ability{cursor:pointer;outline:none;border-radius:12px;margin:-6px!important;padding:6px!important;transition:background .15s}
+ body.astra-ui:not(.playing) #hangar .skill-info>.astra-ability:hover,
+ body.astra-ui:not(.playing) #hangar .skill-info>.astra-ability.ho-tip{background:#ffffff0c!important}
+ body.astra-ui:not(.playing) #hangar .skill-info>.astra-ability:focus-visible{box-shadow:inset 0 0 0 1px #ffffff55!important}
+ body.astra-ui:not(.playing) #hangar .astra-ability-copy b{display:flex!important;align-items:center;gap:6px}
+ body.astra-ui:not(.playing) #hangar .astra-ability-copy b:after{
+  content:"";flex:none;width:13px;height:13px;border-radius:50%;box-shadow:inset 0 0 0 1px #ffffff55;opacity:.7;
+  background:radial-gradient(circle,#fff 0 1.1px,transparent 1.5px) 50% 30%/100% 100% no-repeat,linear-gradient(#fff,#fff) 50% 68%/1.3px 4.5px no-repeat;
+ }
+ body.astra-ui:not(.playing) #hangar .astra-hero .ho-skill-pop{bottom:calc(100% + 12px)!important;padding:16px 18px 16px!important}
+ body.astra-ui:not(.playing) #hangar .ho-skill-pop strong{font-size:17px}
+ body.astra-ui:not(.playing) #hangar .ho-skill-pop p{font-size:13.5px!important}
+}
+
+@media(max-width:720px){
+ body.astra-ui:not(.playing) #hangar .astra-aircraft:not(.ho-open) .selected-aircraft{grid-template-columns:minmax(0,1fr) 26px 72px 26px!important;gap:0 4px!important;padding-right:66px!important}
+ body.astra-ui:not(.playing) #hangar .astra-aircraft:not(.ho-open) .astra-aircraft-heading{display:contents!important}
+ body.astra-ui:not(.playing) #hangar .astra-aircraft:not(.ho-open) .astra-aircraft-heading>div{grid-column:1!important;grid-row:1;margin-right:6px}
+ body.astra-ui:not(.playing) #hangar .astra-aircraft:not(.ho-open) .astra-aircraft-figure{grid-column:3!important;grid-row:1;width:72px!important;height:44px!important}
+ body.astra-ui:not(.playing) #hangar .astra-aircraft:not(.ho-open) .selected-aircraft:not(:has(.astra-aircraft-heading>button:not([hidden]))) .astra-aircraft-figure{grid-column:2/5!important;width:auto!important;justify-self:stretch}
+ body.astra-ui:not(.playing) #hangar .astra-aircraft:not(.ho-open) .astra-aircraft-heading>button:not([hidden]){
+  position:relative;z-index:2;display:grid!important;place-items:center;align-self:center;width:26px!important;height:26px!important;min-width:0!important;min-height:0!important;
+  padding:6px!important;margin:0!important;border:0!important;border-radius:50%!important;background:#ffffff12!important;box-shadow:inset 0 0 0 1px #ffffff22!important;color:var(--hm-text)!important;
+ }
+ body.astra-ui:not(.playing) #hangar .astra-aircraft:not(.ho-open) .astra-aircraft-heading>.astra-aircraft-prev{grid-column:2!important;grid-row:1}
+ body.astra-ui:not(.playing) #hangar .astra-aircraft:not(.ho-open) .astra-aircraft-heading>.astra-aircraft-next{grid-column:4!important;grid-row:1}
+ body.astra-ui:not(.playing) #hangar .astra-aircraft:not(.ho-open) .ho-air-more:after{content:"상세"!important;padding:7px 10px!important}
+ html[lang=en] body.astra-ui:not(.playing) #hangar .astra-aircraft:not(.ho-open) .ho-air-more:after{content:"Info"!important}
+}
+@media(max-width:720px){
+ body.astra-ui:not(.playing) #hangar .skill-info .astra-ability-copy b{display:block!important}
+ body.astra-ui:not(.playing) #hangar .astra-aircraft:not(.ho-open) .astra-aircraft-heading h2{
+  display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:2!important;overflow:hidden!important;word-break:normal!important;overflow-wrap:normal!important;
+ }
+}
