@@ -1,20 +1,20 @@
-import {drawRegionalBug} from './regional-boss-view352.js?v=416';
-import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=416';
-import {drawGasCloud196} from './gas-cloud196.js?v=416';
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=416';
-import {fx,fxReady,fxTint} from './fx-art.js?v=416';
-import {drawAADefense} from './aa-defense-art.js?v=416';
-import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=416';
-import {drawStageBoss} from './stageboss-view.js?v=416';
-import {planeSprite,aircraftKey} from './aircraft.js?v=416';
-import {drawEquipment} from './equipment.js?v=416';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=416';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=416';
-import {drawSpecialAmmoIcon} from './icons.js?v=416';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=416';
+import {drawRegionalBug} from './regional-boss-view352.js?v=417';
+import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=417';
+import {drawGasCloud196} from './gas-cloud196.js?v=417';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=417';
+import {fx,fxReady,fxTint} from './fx-art.js?v=417';
+import {drawAADefense} from './aa-defense-art.js?v=417';
+import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=417';
+import {drawStageBoss,drawBossHullArt} from './stageboss-view.js?v=417';
+import {planeSprite,aircraftKey} from './aircraft.js?v=417';
+import {drawEquipment} from './equipment.js?v=417';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=417';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=417';
+import {drawSpecialAmmoIcon} from './icons.js?v=417';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=417';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
-const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=416&b=326';
+const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=417&b=326';
 export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fieldArtImg,groundLayer}){
  const t=g.t,z=g.camera.zoom;c.save();c.scale(z,z);terrain(g.x,g.y,W/z,H/z);c.restore();drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});c.save();c.translate(W/2,H/2);c.scale(z,z);c.translate(-g.x,-g.y);
  groundLayer?.();drawBattlefieldFire(c,g);for(const e of g.enemyAirshipPasses||[])drawZeppelin(c,e.x,e.y,e.a,.72,false,'central');
@@ -37,7 +37,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
   else if(e.fieldUnit){if(e.rail){const r=e.rail;c.save();c.translate(r.x,r.y);c.rotate(r.angle);c.strokeStyle='#bec1ab';c.lineWidth=3;for(const off of [-8,8]){c.beginPath();c.moveTo(-r.half-25,off);c.lineTo(r.half+25,off);c.stroke()}c.restore()}drawBattlefieldSprite(c,e.fieldSprite,e.x,e.y,e.rail?210:354,e.rail?e.rail.angle+Math.PI/2:0)}
   else if(e.navalVessel)drawBattlefieldSprite(c,'ship',e.x,e.y,320,e.a+Math.PI/2);
   else if(e.heavyBomber){const im=(fieldArtImg?fieldArtImg(e.airframe):fieldArt[e.airframe]),w=e.airframe==='staaken'?178:158;if(im?.naturalWidth)drawFieldArt(e.airframe,e.x,e.y,w,w*im.naturalHeight/im.naturalWidth,e.a+Math.PI/2,e.hitFlash>0?.65:1)}
-  else if(e.type==='zeppelin')drawZeppelin(c,e.x,e.y,e.a,.92,e.hitFlash>0,e.faction);
+  else if(e.type==='zeppelin'){if(e.superAirship)drawBossHullArt(c,'l70',e.x,e.y,e.a+Math.PI,300,100,e.hitFlash>0)||drawZeppelin(c,e.x,e.y,e.a,.92,e.hitFlash>0,e.faction);else drawZeppelin(c,e.x,e.y,e.a,.92,e.hitFlash>0,e.faction)}
   else{const key=e.escortPlane||e.bossPlane||(e.faction==='entente'?(e.type==='hunter'?'nieuport':'camel'):(e.type==='hunter'?'fokker_standard':'albatros'));sprite(e,key,enemyAircraftScale(e),true)}
   if(e.aceInvuln124>0)ring(e.x,e.y,42+Math.sin(t*20)*4,'#35253d',2);
   if(e.vossSurge){const n2=Math.min(7,Math.max(3,e.vossSurgeCount||3));ring(e.x,e.y,50,'rgba(255,222,140,.4)',1.5);for(let i=0;i<n2;i++){const ga=t*2.3+i*Math.PI*2/n2;c.fillStyle=i%2?'#ffe6a2':'#cfe6ff';c.beginPath();c.arc(e.x+Math.cos(ga)*50,e.y+Math.sin(ga)*50,3,0,Math.PI*2);c.fill()}}
