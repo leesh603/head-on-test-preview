@@ -1208,3 +1208,8 @@ body.astra-ui #modal.settings-modal151 #modalActions .primary:hover{background:#
 body.astra-ui #modal.settings-modal151 #modalActions .primary:last-child{margin-top:16px;padding:12px;border:1px solid var(--ho-edge);background:var(--ho-surface-flat);justify-content:center;color:var(--ho-brass);font-weight:700;letter-spacing:.12em}
 body.astra-ui #modal.settings-modal151 #modalActions .primary:last-child:hover{background:#23221f;border-color:#e8e2d440}
 body.astra-ui #modal.manual-modal151 #modalActions .primary{border:1px solid var(--ho-edge);background:var(--ho-surface-flat);color:var(--ho-brass);font-weight:700;letter-spacing:.12em}
+
+body.astra-ui #bossWarning .warn-band{background:repeating-linear-gradient(-45deg,var(--enemy-fac,#8a2a20) 0 16px,#15100b 16px 32px)}
+body.astra-ui #bossWarning .warn-core b{color:var(--enemy-fac-strong,#d4493a)}
+body.astra-ui #bossWarning .warn-core span{color:var(--enemy-fac-soft,#eadcc6)}
+body.astra-ui.playing #flightNotices151 #bossArrival strong{color:var(--enemy-fac-strong,#f0e6d2)}
