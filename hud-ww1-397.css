@@ -940,3 +940,112 @@ body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .
 body.astra-ui.playing #modal .build-stats151{display:flex!important;flex-wrap:wrap;justify-content:center;gap:8px}
 body.astra-ui.playing #modal .build-stats151>div{flex:0 1 200px}
 @media(prefers-reduced-motion:reduce){body.astra-ui .boss-cutin.skill-side::before{animation:ho-band-in .01s both!important}}
+
+/* ==========================================================================
+   22. ARRIVAL CUT-INS, SECOND PASS — no box around the art.
+       Enemy ace / area boss: free-standing illustration (cutout, soft
+       shadow) at the right edge, smaller, with a pill name-tag tucked
+       against its base. The player band already says what the active is,
+       so the duplicate top toast is hidden while the band is up.
+   ========================================================================== */
+body.astra-ui.playing:has(#bossCutin.skill-side:not(.hidden)) #flightNotices151 #toast{display:none!important}
+
+@keyframes ho-slide-r{0%{transform:translateX(56px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes ho-tag-in{0%{transform:translateY(8px);opacity:0}100%{transform:none;opacity:1}}
+body.astra-ui .boss-cutin:not(.skill-side),
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]){
+ display:block;left:auto!important;right:max(8px,env(safe-area-inset-right))!important;top:auto!important;
+ bottom:calc(max(22px,env(safe-area-inset-bottom)) + 92px)!important;
+ width:230px!important;height:200px!important;overflow:visible!important;
+ border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
+ animation:ho-life 2.6s linear both!important;
+}
+body.astra-ui .boss-cutin:not(.skill-side)::before,
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"])::before{display:none!important}
+body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-art,
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .boss-cutin-art{
+ position:absolute!important;inset:0 0 30px 0!important;width:auto!important;height:auto!important;
+ border:0!important;background:none!important;overflow:visible!important;
+ filter:drop-shadow(0 6px 10px #000c) drop-shadow(0 0 1px #000)!important;
+ -webkit-mask-image:linear-gradient(180deg,#000 80%,transparent 100%);mask-image:linear-gradient(180deg,#000 80%,transparent 100%);
+ animation:ho-slide-r .32s cubic-bezier(.2,.9,.3,1) both;
+}
+body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-art img,
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .boss-cutin-art img{
+ position:absolute!important;inset:auto 0 0 auto!important;width:auto!important;height:auto!important;
+ max-width:100%!important;max-height:100%!important;object-fit:contain;transform:none!important;padding:0!important;
+}
+/* Name tag: a pill at the foot of the art, same plate as the HUD. */
+body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption,
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .boss-cutin-caption{
+ position:absolute!important;inset:auto 0 0 auto!important;display:flex!important;flex-direction:column;align-items:flex-end;gap:1px;
+ width:auto!important;min-width:0;max-width:260px;box-sizing:border-box;padding:7px 16px 8px 18px!important;
+ border:1px solid #c8513c80!important;border-radius:22px!important;background:var(--ho-glass-strong)!important;box-shadow:var(--ho-lift)!important;
+ text-align:right!important;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+ animation:ho-tag-in .3s .12s cubic-bezier(.2,.9,.3,1) both;
+}
+body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption:before{
+ left:9px!important;top:50%!important;bottom:auto!important;width:5px!important;height:5px!important;margin-top:-3px;border-radius:50%!important;background:var(--ho-danger)!important;
+}
+body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption small{font:700 9px/1.2 var(--astra-type)!important;letter-spacing:.12em!important}
+body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption strong,
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .boss-cutin-caption strong{
+ font:800 15px/1.2 var(--astra-type)!important;white-space:normal;overflow:visible;text-overflow:clip;word-break:keep-all;
+}
+body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption span{font-size:10px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+/* Area boss: wider art (vehicles are landscape), tactic line allowed to wrap. */
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]){width:300px!important;height:190px!important}
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .boss-cutin-caption{max-width:300px}
+body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .boss-cutin-caption span{white-space:normal}
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui .boss-cutin:not(.skill-side),
+ body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]){
+  bottom:calc(max(22px,env(safe-area-inset-bottom)) + 200px)!important;width:150px!important;height:140px!important;
+ }
+ body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]){width:200px!important;height:130px!important}
+ body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-art{bottom:26px!important}
+ body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption{max-width:200px!important;padding:5px 12px 6px 15px!important;border-radius:16px!important}
+ body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption small{font-size:7.5px!important}
+ body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption strong{font-size:12px!important}
+ body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption span{font-size:8.5px!important}
+}
+
+/* ==========================================================================
+   23. Special-equipment medals stack vertically under the pause key
+       (the slim strip freed that column). Tooltip opens to the left.
+   ========================================================================== */
+body.astra-ui.playing:not(.coop-playing) #viewport #legendaryInventory,
+body.astra-ui.playing.campaign-playing:not(.coop-playing) #viewport #legendaryInventory{
+ position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;
+ top:calc(22px + 36px + 8px);right:26px;bottom:auto;left:auto;width:36px;max-width:none;z-index:7;
+}
+body.astra-ui.playing:not(.coop-playing) #viewport #legendaryInventory .legendary-badge{width:36px!important;height:36px!important;flex:none}
+body.astra-ui.playing:not(.coop-playing) #viewport #legendaryInventory .legendary-tip156{
+ top:50%;bottom:auto;right:calc(100% + 10px);left:auto;transform:translateY(-50%);width:max-content;max-width:min(240px,60vw);white-space:normal;
+}
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing:not(.coop-playing) #viewport #legendaryInventory,
+ body.astra-ui.playing.campaign-playing:not(.coop-playing) #viewport #legendaryInventory{
+  top:calc(max(12px,env(safe-area-inset-top)) + var(--ho-pill-h) + 7px);right:max(12px,env(safe-area-inset-right));width:var(--ho-pill-h);gap:5px;
+ }
+ body.astra-ui.playing:not(.coop-playing) #viewport #legendaryInventory .legendary-badge{width:var(--ho-pill-h)!important;height:var(--ho-pill-h)!important}
+ body.astra-ui.playing:not(.coop-playing) #viewport #legendaryInventory .legendary-badge canvas{width:100%;height:100%}
+}
+/* Steady digits: numbers don't jitter as they tick. */
+body.astra-ui.playing #flightTop151 :is(#healthText,#ammoCount,#clock,#kills,#level){font-variant-numeric:tabular-nums}
+
+/* ==========================================================================
+   24. BOSS WARNING — bring back the red wash that sold the moment:
+       the whole screen floods red and pulses, bands stay, text sits on
+       its stencil plate (no neon glow).
+   ========================================================================== */
+@keyframes ho-red-wash{0%,100%{opacity:.75}50%{opacity:1}}
+body.astra-ui #bossWarning .warn-core{
+ background:radial-gradient(ellipse at center,rgba(150,22,14,.18) 0%,rgba(150,22,14,.38) 55%,rgba(120,12,8,.62) 100%)!important;
+ animation:ho-red-wash .6s ease-in-out infinite;
+}
+body.astra-ui #bossWarning .warn-band{height:30px;background:repeating-linear-gradient(-45deg,#b8281e 0 18px,#170d09 18px 36px)!important;opacity:.95}
+body.astra-ui #bossWarning .warn-core b{color:#ff4a3a!important;background:linear-gradient(90deg,transparent,#140807e6 14%,#140807e6 86%,transparent)!important;border-color:#ff4a3a80!important}
+@media(max-width:720px),(pointer:coarse){body.astra-ui #bossWarning .warn-band{height:20px}}
+@media(prefers-reduced-motion:reduce){body.astra-ui #bossWarning .warn-core{animation:none}}
+body.astra-ui #bossWarning .warn-core span{background:#140807e8!important;color:#f3e4cf!important;padding:4px 16px!important;border-radius:999px}

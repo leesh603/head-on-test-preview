@@ -1,8 +1,8 @@
 
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=400';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=400';
-import {bossSoundFor} from './boss-feedback.js?v=400';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=400';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=402';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=402';
+import {bossSoundFor} from './boss-feedback.js?v=402';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=402';
 
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'];
@@ -176,7 +176,8 @@ export function syncStageBossTargets(g){
  if(incoming.length)g.reserveEnemySlots(incoming.length);
  for(const body of bodies?.values()||[]){if(body.dead||g.enemies.some(e=>e.stageBossBody===body))continue;
   const e={stageBossBody:body,encounterId:encounter.id,id:body.id,type:'stageBoss',faction:body.faction,stationary:true,surface:true,missionTarget:true,a:-Math.PI/2,speed:0,fire:Infinity};
-  for(const key of ['x','y','hp','maxHp'])Object.defineProperty(e,key,{enumerable:true,get:()=>body[key]});g.enemies.push(e);
+  const synced=['x','y','hp','maxHp'];if(Number.isFinite(body.a))synced.push('a');
+  for(const key of synced)Object.defineProperty(e,key,{enumerable:true,get:()=>body[key]});g.enemies.push(e);
  }
 }
 export function stageBossCollision(g,e,x,y,b){const body=e.stageBossBody;if(!body)return null;if(blocked(g)||body.dead||g.stageBoss?.stages.encounter?.bodies.get(body.id)!==body)return false;return !!body.locateHit({x,y,previousX:b?.previousX??x,previousY:b?.previousY??y,radius:b?.collisionRadius||0});}

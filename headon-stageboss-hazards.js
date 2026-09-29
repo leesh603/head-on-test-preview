@@ -1,6 +1,6 @@
 import {FixedPool} from './headon-stageboss-pool.js';
-import {netContact} from './london-apron369.js?v=400';
-import {livensFlameHalfWidth,livensFlameSpan} from './livens-fire195.js?v=400';
+import {netContact} from './london-apron369.js?v=402';
+import {livensFlameHalfWidth,livensFlameSpan} from './livens-fire195.js?v=402';
 const wrap = angle => Math.atan2(Math.sin(angle),Math.cos(angle));
 const segmentDistance = (px,py,x0,y0,x1,y1) => {
   const dx=x1-x0,dy=y1-y0,len=dx*dx+dy*dy,t=len?Math.max(0,Math.min(1,((px-x0)*dx+(py-y0)*dy)/len)):0;
