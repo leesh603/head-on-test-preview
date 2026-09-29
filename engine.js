@@ -1,20 +1,20 @@
-import {EnemyCollisionGrid} from './collision-grid.js?v=399';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=399';
-import {installRevision} from './rebalance103.js?v=399';
-import {installCloudCover} from './cloud-cover1.js?v=399';
-import {installFleet} from './fleet-naval1.js?v=399';
-import {installTrenchWar} from './trench-war1.js?v=399';
-import {installCityAir} from './city-air1.js?v=399';
-import {installRegionDoctrine} from './region-doctrine1.js?v=399';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=399';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=399';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=399';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=399';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=399';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=399';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=399';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=399';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=399';
+import {EnemyCollisionGrid} from './collision-grid.js?v=400';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=400';
+import {installRevision} from './rebalance103.js?v=400';
+import {installCloudCover} from './cloud-cover1.js?v=400';
+import {installFleet} from './fleet-naval1.js?v=400';
+import {installTrenchWar} from './trench-war1.js?v=400';
+import {installCityAir} from './city-air1.js?v=400';
+import {installRegionDoctrine} from './region-doctrine1.js?v=400';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=400';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=400';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=400';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=400';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=400';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=400';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=400';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=400';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=400';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -154,7 +154,7 @@ Game.prototype.update=function(dt,input={}){
 Game.prototype.skill=function(){
   if(this.pilot!=='immelmann')return _skillBalanced.call(this);
   if(this.state!=='playing'||this.cooldown>0)return false;const p=PILOTS.immelmann;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.invuln=Math.max(this.invuln,this.skillEnhanced?1.35:1.1);this.a+=Math.PI;this.bullets=this.bullets.filter(b=>!b.enemy);this.burst(this.x,this.y,'#f1dca0',28);
-  const spread=this.skillEnhanced?3:2;for(let i=-spread;i<=spread;i++){const aa=this.a+i*.07;this.bullets.push({x:this.x+Math.cos(aa)*24,y:this.y+Math.sin(aa)*24,vx:Math.cos(aa)*620,vy:Math.sin(aa)*620,life:1.5,enemy:false,ownerId:this.id,damage:this.damage*PILOT_BALANCE.immelmannShot,pierce:true,hit:new Set(),formation:true})}this.event('skill',p.skill);return true;
+  const spread=this.skillEnhanced?3:2;for(let i=-spread;i<=spread;i++){const aa=this.a+i*.07;this.bullets.push({x:this.x+Math.cos(aa)*24,y:this.y+Math.sin(aa)*24,vx:Math.cos(aa)*620,vy:Math.sin(aa)*620,life:1.5,enemy:false,ownerId:this.id,damage:this.damage*PILOT_BALANCE.immelmannShot*(1+(this.commandBonus||0)),pierce:true,hit:new Set(),formation:true})}this.event('skill',p.skill);return true;
 };
 const _repairIndex=UPGRADES.findIndex(u=>u.id==='repair');if(_repairIndex>=0)UPGRADES.splice(_repairIndex,1);
 Game.prototype.upgrade=function(id,rarity='normal'){const beforeHp=this.hp,beforeTurn=this.turn;_upgradeBalanced.call(this,id,rarity);if(id==='armor')this.hp=Math.min(this.hp,beforeHp);if(id==='turn')this.turn=beforeTurn*(rarity==='unique'?1.08:rarity==='rare'?1.06:1.04)};
@@ -1065,14 +1065,14 @@ PILOTS.mannock.desc='기관총 사거리 −55%. S.E.5a 7대가 V자 편대로 �
 // Independent allied patrols are mortal combatants, not upgrade wingmen.
 export const PATROL_BALANCE=Object.freeze({initialDelay:2,reinforceEvery:13,batch:2,earlyCap:6,lateCap:8,lateAfter:120,hp:112,life:58,fireInterval:.38,damage:9,turn:2.25,range:380,maxAttackers:2,diversion:.4,passDistance:70,passDuration:.65});
 Game.prototype.patrolCanEngage=function(e,p={}){
- return e.hp>0&&!e.bossPilot&&!e.campaignAce&&!e.missionTarget&&!this.missionUnits?.has(e)&&!e.surface&&!e.stationary&&!e.fieldUnit&&!e.navalVessel&&!e.heavyBomber&&!['boss','zeppelin'].includes(e.type)&&(e.altitude===undefined||e.altitude===(p.altitude??this.altitude));
+ return e.hp>0&&!e.surface&&!e.stationary&&!e.fieldUnit&&!e.navalVessel&&!e.missionGround&&!e.groundEscort&&e.type!=='zeppelin'&&(e.altitude===undefined||e.altitude===(p.altitude??this.altitude));
 };
 Game.prototype.enemyCombatTarget=function(e){
  const target=e.patrolTarget;
  return target?.hp>0&&target.life>0&&(this.patrols||[]).includes(target)&&this.patrolCanEngage(e,target)?target:this;
 };
 Game.prototype.dogfightSteering=function(e,contact,dt,baseTurn){
- const eligible=this.patrolCanEngage(e)&&['scout','hunter'].includes(e.type)&&!e.formationLeader&&!e.missionTarget;if(!eligible)return{delta:angleDiff(Math.atan2(contact.y-e.y,contact.x-e.x),e.a),turn:baseTurn};
+ const eligible=this.patrolCanEngage(e)&&['scout','hunter'].includes(e.type)&&!e.formationLeader&&!e.missionGround;if(!eligible)return{delta:angleDiff(Math.atan2(contact.y-e.y,contact.x-e.x),e.a),turn:baseTurn};
  if(baseTurn<=0)return{delta:0,turn:0};
  const distanceToTarget=Math.hypot(contact.x-e.x,contact.y-e.y);
  e.dogfightCruise??=e.speed;
