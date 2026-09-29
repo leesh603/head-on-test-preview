@@ -19,3 +19,7 @@ app.js (player tracer line, bomb-zone / friendly-bomb fall).
 Round 3: one explosion grammar for every blast (detonation jets + jagged core → mottled fireball with soot
 rolling over and fire breaking through → smoke with glowing pockets → residue). Lingering fire redrawn top-down.
 Added enemy tracer, gas clouds, mist, ship wake / bow spray; Livens flame uses the same palette.
+
+Round 4: ordnance and objects in the aircraft illustration style (rockets, bomb, shells, grenade, mine, torpedo),
+searchlight emplacement + lamp + beam, sun shaft, wind; clouds repainted in the smoke language. Player tracer
+heats with gun upgrades (orange → white); enemy tracer is crimson. City installations no longer draw a stray plane.

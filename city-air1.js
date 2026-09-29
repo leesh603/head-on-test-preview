@@ -1,3 +1,4 @@
+import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=3';
 // Region 4 searchlight network + ground fire net; region 5 wind streams.
 // Buildings stay scenery: no collision structures. Guns fire only while player is ILLUMINATED.
 export const CITY_BALANCE=Object.freeze({
@@ -130,14 +131,16 @@ export function drawCityAirLayer(c,game,{point}){
   if(e.cityUnit==='light'){
    const beam=Math.min(1,(e.lockT||0)/B.lockTime);
    c.save();c.translate(x,y);c.rotate(e.scanA);
-   const g=c.createLinearGradient(0,0,B.beamRange,0);
+   if(fxsHas('searchlight'))fxsDraw(c,'searchlight',B.beamRange/2,0,B.beamRange,B.beamRange*Math.tan(B.beamHalf)*2.2,0,.8+.2*beam);
+   else{const g=c.createLinearGradient(0,0,B.beamRange,0);
    g.addColorStop(0,`rgba(235,225,180,${.2+.16*beam})`);g.addColorStop(1,'rgba(235,225,180,0)');
    c.fillStyle=g;c.beginPath();c.moveTo(0,0);
-   c.arc(0,0,B.beamRange,-B.beamHalf,B.beamHalf);c.closePath();c.fill();
+   c.arc(0,0,B.beamRange,-B.beamHalf,B.beamHalf);c.closePath();c.fill();}
    c.restore();
   }
-  const img=cityImg(e.facSprite);
-  if(img&&img.naturalWidth){c.save();c.translate(x,y);c.drawImage(img,-s/2,-s/2,s,s);c.restore()}
+  const img=fxsHas(e.facSprite)?fxsImage(e.facSprite):cityImg(e.facSprite);
+  if(img&&(img.naturalWidth||img.width)){c.save();c.translate(x,y);c.drawImage(img,-s/2,-s/2,s,s);c.restore()}
+  if(e.cityUnit==='light'&&fxsHas('searchlightLamp'))fxsDraw(c,'searchlightLamp',x,y,s*.6,s*.6,e.scanA);
   c.fillStyle='#24332b';c.fillRect(x-16,y+s*.5,32,3);c.fillStyle='#de9b73';c.fillRect(x-16,y+s*.5,32*e.hp/e.maxHp,3);
  }
 };

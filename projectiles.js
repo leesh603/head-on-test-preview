@@ -1,11 +1,14 @@
+import {FXS} from './fx-sample-preview.js?v=3';
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // Rendering never changes projectile movement, damage or collision.
-import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=423';
+import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=425';
 export function projectileStyle(b){return b.hostileRocket?'rocket':b.flak?'flak':b.visualType||(b.naval?'naval':b.fieldShell?'balloon':b.heavy?'heavyBomber':'scout')}
 const TRACERS={scout:['#e7a06b',10,2],hunter:['#efb77f',14,2],bomber:['#dfbc7b',11,3],heavyBomber:['#e4ae72',15,3],boss:['#e58f7c',16,3],zeppelin:['#d8bb8b',12,3],railgun:['#efaa89',23,3],naval:['#dfaa82',16,3],balloon:['#dbbf8b',8,3],flak:['#dfac80',6,3],rocket:['#edac77',15,3]};
 // gunUpgradeBonus is the cumulative machine-gun attack bonus, not temporary
 // skill damage. Interpolation avoids sudden color jumps at upgrade thresholds.
-const GUN_COLORS=[[0,[248,223,135]],[.3,[245,204,145]],[.6,[238,177,132]],[1,[222,147,119]],[1.6,[199,117,123]],[2.5,[173,111,131]]];
+// FX layer: rounds heat up with the gun upgrades — dull orange → amber → yellow → pale → white-hot.
+const GUN_COLORS=FXS?[[0,[226,120,50]],[.3,[236,146,58]],[.6,[244,176,76]],[1,[248,206,116]],[1.6,[250,230,178]],[2.5,[255,249,236]]]
+ :[[0,[248,223,135]],[.3,[245,204,145]],[.6,[238,177,132]],[1,[222,147,119]],[1.6,[199,117,123]],[2.5,[173,111,131]]];
 export function friendlyTracerColor(b,gunUpgradeBonus=0){
  if(b.mauserRound)return '#a98cff';
  if(b.specialColor)return b.specialColor;

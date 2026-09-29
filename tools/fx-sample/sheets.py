@@ -32,7 +32,9 @@ TITLES = {'A': ('A  기관총', '총구섬광 · 탄궤적 · 탄착'), 'B': ('B
           'E': ('E  기관포', 'COW 37mm 피격 4단 · 모터 캐논 피격 4단'),
           'F': ('F  대형 폭발', '폭격기·보스 격추 4단 · 지상 구조물 파괴 4단'),
           'G': ('G  대공포 · 수면 · 기타', '대공포 공중폭발 · 충격파 · 물보라 · 포말 · 흙먼지 · 흙 튐 · 날개 화재'),
-          'J': ('J  적 탄 · 가스 · 항적', '적 트레이서 · 독가스 4종 · 안개 · 선미 항적 · 선수 물보라')}
+          'J': ('J  적 탄 · 가스 · 항적', '적 트레이서 · 독가스 4종 · 안개 · 선미 항적 · 선수 물보라'),
+          'K': ('K  탄체 · 설치물', '르프리외르 로켓 · 중로켓 · 폭탄 · 포탄 4종 · 수류탄 · 기뢰 · 어뢰 · 탐조등 · 햇살 · 바람'),
+          'L': ('L  구름', '적운 3 · 층운 2 · 먹구름 2 · 새털구름 2')}
 W = 2000
 blocks = []
 for fam, keys in man['families'].items():
@@ -67,7 +69,7 @@ for fam, keys in man['families'].items():
 head = Image.new('RGB', (W, 110), BG)
 d = ImageDraw.Draw(head)
 d.text((20, 18), 'HEAD-ON FX 시안 · 스프라이트 아틀라스', fill=INK, font=font(36, True))
-d.text((20, 68), '각 칸 위: 중립 배경 / 아래: 실제 지형 · 작은 스프라이트는 2배 확대 · 원본 fx-sample/fx-sample-atlas.webp (2048×2048) · 3차 (폭발 재작업)',
+d.text((20, 68), '각 칸 위: 중립 배경 / 아래: 실제 지형 · 작은 스프라이트는 2배 확대 · 원본 fx-sample/fx-sample-atlas.webp (2048×2048) · 4차 (탄체 · 구름 · 탐조등)',
        fill=SUB, font=font(18))
 sheet = Image.new('RGB', (W, head.height + sum(b.height for b in blocks) + 10 * len(blocks)), BG)
 sheet.paste(head, (0, 0)); yy = head.height
@@ -85,6 +87,8 @@ SCENES = [
     ('fire', 1, '화염 · 폭발 · 연기', '격추 폭발 4단계(좌→우) · 소형 폭발 · 지면 화염', (600, 60, 1560, 540)),
     ('heavy', 1, '기관포 · 대형 폭발', '왼쪽: COW/모터 캐논 피격 · 오른쪽: 폭격기급 격추 · 구조물 파괴', (1400, 40, 2140, 640)),
     ('naval', 1, '수면 — 포탄 · 기관총 착탄', '물보라 3단계 · 기뢰 · 기관총 착탄 물튐 (아드리아해)', (600, 40, 1560, 640)),
+    ('clouds', 0, '구름', '적운 · 층운 · 새털구름 · 먹구름 — 연기와 같은 붓질, 가장자리는 옅게', (200, 40, 1400, 640)),
+    ('city', 0, '도심 — 탐조등 진지', '모래주머니 진지 + 회전하는 등 + 빛줄기 (적기 그림이 겹쳐 나오던 문제 수정)', (700, 60, 1900, 660)),
 ]
 CW, CH = 1600, 840
 for sid, idx, title, sub, zoom in SCENES:
@@ -115,3 +119,19 @@ for sid, idx, title, sub, zoom in SCENES:
         d.text((pad * 2 + CW, y + 12), '확대', fill=SUB, font=font(18))
     img.save(os.path.join(out, f'fx-scene-{sid}.png'))
     print('scene', sid, img.size)
+
+# tracer heat ramp strip
+imgs = []
+for i, lab in enumerate(['강화 0', '강화 중간', '강화 높음', '강화 최대']):
+    im = Image.open(os.path.join(stage, f'new-tracer-{i}.png')).convert('RGB').crop((1080, 160, 1480, 1000)).resize((300, 630))
+    t = Image.new('RGB', (300, 680), BG); t.paste(im, (0, 50))
+    ImageDraw.Draw(t).text((12, 12), lab, fill=INK, font=font(22, True)); imgs.append(t)
+head = 110
+strip = Image.new('RGB', (len(imgs) * 310 + 30, 680 + head), BG)
+d = ImageDraw.Draw(strip)
+d.text((24, 18), '내 탄 — 강화할수록 주황 → 흰색', fill=INK, font=font(36, True))
+d.text((24, 66), '기관총 공격력 강화 누적치에 따라 색이 부드럽게 달아오름 · 적 탄은 진홍색으로 구분', fill=SUB, font=font(20))
+for i, t in enumerate(imgs):
+    strip.paste(t, (24 + i * 310, head))
+strip.save(os.path.join(out, 'fx-tracer-ramp.png'))
+print('tracer strip', strip.size)

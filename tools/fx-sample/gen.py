@@ -18,6 +18,7 @@ import cv2
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(__file__))
+import objects as OBJ
 from fxlib import (Canvas, SS, hexrgb, ramp, smooth, noise, brush, radial, glow,  # noqa
                    streaks, line, shard, petal_flash, bands, smoke_balls, fire_balls, flame_tongue, fire_patch, char_patch)
 
@@ -507,8 +508,8 @@ def tracer_enemy():
     X, Y = cv.X / SS, cv.Y / SS
     along = smooth(0, 80, X)
     a = np.exp(-(np.abs(Y - 12) / (2.2 + 2.4 * along)) ** 2) * along * smooth(96, 84, X)
-    cv.over(np.broadcast_to(hexrgb('#e2552c'), cv.rgb.shape).copy(), a * 0.5)
-    line(cv, 20, 12, 88, 12, 3.6, '#ffe2b8', '#f07a3a', 1.0, taper=False)
+    cv.over(np.broadcast_to(hexrgb('#c8303c'), cv.rgb.shape).copy(), a * 0.5)
+    line(cv, 20, 12, 88, 12, 3.6, '#ffd8d4', '#e0404c', 1.0, taper=False)
     cv.a *= np.clip(smooth(14, 64, X) * 0.9 + np.exp(-((X - 86) ** 2) / 30) * 0.3, 0, 1)
     return cv
 
@@ -600,7 +601,21 @@ SPRITES = {
     # J
     'tracerEnemy': tracer_enemy, **{f'gasCloud{i}': (lambda i=i: gas_cloud(i)) for i in range(4)},
     'mistPuff': mist_puff, 'shipWake3': ship_wake, 'shipBow3': bow_wave,
+    # K  ordnance / objects (contain-fit)
+    'rocket': OBJ.rocket_le_prieur, 'rocketHeavy': OBJ.rocket_heavy, 'bombBody': OBJ.bomb_body,
+    'shellHeavy': lambda: OBJ.shell_body('heavy'), 'shellAuto': lambda: OBJ.shell_body('auto'),
+    'mortarShell': lambda: OBJ.shell_body('mortar'), 'incendiary': lambda: OBJ.shell_body('incendiary'),
+    'grenadeBody': OBJ.grenade_body, 'mineBody': OBJ.mine_body, 'torpedo': OBJ.torpedo_body,
+    'searchlight': OBJ.searchlight_beam, 'fx-city-searchlight': OBJ.searchlight_base,
+    'searchlightLamp': OBJ.searchlight_lamp, 'sunshaft': OBJ.sunshaft, 'windStreak': OBJ.wind_streak,
+    # L  clouds (keys match cloud-cover1.js image names)
+    **{f'fx-cloud-cumulus-{i}': (lambda i=i: OBJ.cloud_cumulus(i)) for i in range(3)},
+    **{f'fx-cloud-bank-{i}': (lambda i=i: OBJ.cloud_bank(i)) for i in range(2)},
+    **{f'fx-cloud-dark-{i}': (lambda i=i: OBJ.cloud_dark(i)) for i in range(2)},
+    **{f'fx-cloud-wispy-{i}': (lambda i=i: OBJ.cloud_wispy(i)) for i in range(2)},
 }
+CONTAIN = ['rocket', 'rocketHeavy', 'bombBody', 'shellHeavy', 'shellAuto', 'mortarShell', 'incendiary', 'grenadeBody',
+           'mineBody', 'torpedo']
 
 FAMILY = {
     'A': ['muzzle', 'muzzleTwin', 'muzzleHeavy', 'muzzleRear', 'tracerCore', 'tracerGlow', 'spark', 'hitPuff'],
@@ -612,6 +627,10 @@ FAMILY = {
     'F': [f'bossBlast{i}' for i in range(4)] + [f'structure{i}' for i in range(4)],
     'G': ['flak', 'shockRing', 'navalSplash3', 'navalFoam3', 'dustPuff', 'dirtBurst', 'fireWing'],
     'J': ['tracerEnemy'] + [f'gasCloud{i}' for i in range(4)] + ['mistPuff', 'shipWake3', 'shipBow3'],
+    'K': ['rocket', 'rocketHeavy', 'bombBody', 'shellHeavy', 'shellAuto', 'mortarShell', 'incendiary', 'grenadeBody',
+          'mineBody', 'torpedo', 'searchlight', 'fx-city-searchlight', 'searchlightLamp', 'sunshaft', 'windStreak'],
+    'L': [f'fx-cloud-cumulus-{i}' for i in range(3)] + [f'fx-cloud-bank-{i}' for i in range(2)] +
+         [f'fx-cloud-dark-{i}' for i in range(2)] + [f'fx-cloud-wispy-{i}' for i in range(2)],
 }
 
 
@@ -654,8 +673,8 @@ def main():
     cv2.imwrite(os.path.join(outdir, 'fx-sample-atlas.png'), cv2.cvtColor(atlas, cv2.COLOR_RGBA2BGRA))
     ok, buf = cv2.imencode('.webp', cv2.cvtColor(atlas, cv2.COLOR_RGBA2BGRA), [cv2.IMWRITE_WEBP_QUALITY, 100])
     open(os.path.join(outdir, 'fx-sample-atlas.webp'), 'wb').write(buf.tobytes())
-    manifest = {'version': 7, 'image': 'fx-sample-atlas.webp', 'size': [atlas.shape[1], atlas.shape[0]],
-                'families': FAMILY, 'rects': {k: list(map(int, v)) for k, v in rects.items()}}
+    manifest = {'version': 9, 'image': 'fx-sample-atlas.webp', 'size': [atlas.shape[1], atlas.shape[0]],
+                'families': FAMILY, 'contain': CONTAIN, 'rects': {k: list(map(int, v)) for k, v in rects.items()}}
     json.dump(manifest, open(os.path.join(outdir, 'fx-sample.json'), 'w'), indent=1)
     print('atlas', atlas.shape, 'webp', len(buf) // 1024, 'KB')
 
