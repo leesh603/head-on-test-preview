@@ -14,7 +14,7 @@ function eligible(game,e){
 }
 
 export function directorAircraftEligible(game,e){
- return !!(e?.hp>0&&game.mode!=='campaign'&&game.stageBoss?.stages?.phase!=='boss'&&game.patrolCanEngage(e,game)&&!e.bossPilot&&!e.ace&&!e.rivalAce&&!e.eliteKind&&!e.formationLeader&&!e.bossMinion&&!e.stageBossBody&&!e.battlefieldEventId&&(e.type==='bomber'||((e.type==='scout'||e.type==='hunter')&&e.personality&&!TWO_SEAT_ARCHETYPES.has(e.personality.archetype))));
+ return !!(e?.hp>0&&game.mode!=='campaign'&&game.stageBoss?.stages?.phase!=='boss'&&game.patrolCanEngage(e,game)&&!e.bossPilot&&!e.ace&&!e.rivalAce&&!e.eliteKind&&!e.formationLeader&&!e.bossMinion&&!e.stageBossBody&&!e.battlefieldEventId&&!e.missionTarget&&!e.heavyBomber&&(e.type==='bomber'||((e.type==='scout'||e.type==='hunter')&&e.personality&&!TWO_SEAT_ARCHETYPES.has(e.personality.archetype))));
 }
 
 function setState(e,state,duration=0){e.combatPassState=state;e.combatPassTimer=duration;}
