@@ -1,6 +1,6 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=409';
-import {RailBossController} from './rail-boss129.js?v=409';
-import {StuttgartSupport} from './stuttgart129.js?v=409';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=410';
+import {RailBossController} from './rail-boss129.js?v=410';
+import {StuttgartSupport} from './stuttgart129.js?v=410';
 
 export class RailAdapter extends BaseBoss {
  constructor(o,kind){
