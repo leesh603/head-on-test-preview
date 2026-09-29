@@ -1,20 +1,20 @@
-import {EnemyCollisionGrid} from './collision-grid.js?v=405';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=405';
-import {installRevision} from './rebalance103.js?v=405';
-import {installCloudCover} from './cloud-cover1.js?v=405';
-import {installFleet} from './fleet-naval1.js?v=405';
-import {installTrenchWar} from './trench-war1.js?v=405';
-import {installCityAir} from './city-air1.js?v=405';
-import {installRegionDoctrine} from './region-doctrine1.js?v=405';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=405';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=405';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=405';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=405';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=405';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=405';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=405';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=405';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=405';
+import {EnemyCollisionGrid} from './collision-grid.js?v=406';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=406';
+import {installRevision} from './rebalance103.js?v=406';
+import {installCloudCover} from './cloud-cover1.js?v=406';
+import {installFleet} from './fleet-naval1.js?v=406';
+import {installTrenchWar} from './trench-war1.js?v=406';
+import {installCityAir} from './city-air1.js?v=406';
+import {installRegionDoctrine} from './region-doctrine1.js?v=406';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=406';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=406';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=406';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=406';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=406';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=406';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=406';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=406';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=406';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -702,7 +702,7 @@ Game.prototype.clearRegionalHazards=function(){
 Game.prototype.enterRegion=function(region){
  const previous=this.region;this.region=region;this.clearRegionalHazards();
  const label=REGION_LABELS53[region]||'새 전장';
- if(previous!==undefined&&previous!==region)this.events.push({type:'regionTransition',region,previousRegion:previous,text:label});
+ if(previous!==undefined&&previous!==region){this.hp=this.maxHp;this.ammo.fill(this.weapon.belt);this.reloadTime=0;this.events.push({type:'regionTransition',region,previousRegion:previous,text:label})}
  this.event('wave',label+' 진입');
 };
 const _landFlak53=Game.prototype.spawnFlak;
