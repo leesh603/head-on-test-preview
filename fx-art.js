@@ -86,7 +86,7 @@ const imageLoads=new Map();
 const fx189Ready=typeof Image==='undefined'?Promise.resolve():fx196ArtReady.then(()=>Promise.all(Object.entries(FX_FILES).map(async([key,file])=>{
  if(fx196Ready(key))return;
  if(!imageLoads.has(file))imageLoads.set(file,new Promise(res=>{
-  const im=new Image();im.onload=()=>{im.onload=im.onerror=null;res(im)};im.onerror=()=>{im.onload=im.onerror=null;res(null)};im.src='./'+file+'?v=fx5';
+  const im=new Image();im.onload=()=>{im.onload=im.onerror=null;res(im)};im.onerror=()=>{im.onload=im.onerror=null;res(null)};im.src='./'+file+'?v=fx6';
  }));
  const im=await imageLoads.get(file);if(im)fxImgs[key]=im;
 })));
