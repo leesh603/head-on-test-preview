@@ -1,5 +1,5 @@
 import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js';
-import {headOnTarget} from './engagement-feedback.js?v=426';
+import {headOnTarget} from './engagement-feedback.js?v=438';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
@@ -15,7 +15,7 @@ export const pilotOwner=own;
 export const pilotHeadOn=(p,e)=>headOnTarget({...p,hp:1},[e])===e;
 export function installPilotIdentities(Game,PILOTS){
  for(const [id,copy]of Object.entries(PILOT_IDENTITY_COPY)){const p=PILOTS[id];if(!p)continue;const c=copy.ko;Object.assign(p,{passive:c.passive,skill:c.skill,passiveDesc:c.passiveDetail,desc:c.activeDetail});}
- PILOTS.berthold.name='루돌프 베르톨트';PILOTS.nungesser.name='샤를 넝제세르';PILOTS.guynemer.name='조르주 기네메르';
+ if(PILOTS.berthold)PILOTS.berthold.name='루돌프 베르톨트';if(PILOTS.nungesser)PILOTS.nungesser.name='샤를 넝제세르';if(PILOTS.guynemer)PILOTS.guynemer.name='조르주 기네메르';
  const oldEnsure=Game.prototype.ensureRevisionPilot;
  Game.prototype.ensureRevisionPilot=function(){oldEnsure.call(this);if(this.pilotIdentityReady)return;this.pilotIdentityReady=true;this.pilotIdentity={fx:[],burns:new Map(),debts:[],clock:0,grazeSeen:new WeakSet(),grazePasses:new Map(),bombs:[],switchSeen:new Map()};if(['boelcke','brumowski'].includes(this.pilot))this.permanentWingman=(this.permanentWingman||0)+2;};
  Game.prototype.identityState=function(){this.ensureRevisionPilot();return this.pilotIdentity};
