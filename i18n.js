@@ -1,4 +1,5 @@
 import {getAircraftDisplayName} from './aircraft-master.js?v=426';
+import {pilotIdentityCopy} from './pilot-identity-copy.js';
 
 const STORAGE_KEY='headon-locale';
 const SUPPORTED=new Set(['ko','en']);
@@ -89,10 +90,10 @@ export function upgradeDescription(id,fallback=''){return locale==='en'?(UPGRADE
 export function pilotName(id,fallback=''){return locale==='en'?(PILOT_NAMES_EN[id]||fallback):fallback}
 export function aircraftName(id,fallback='',pilotId=null){return getAircraftDisplayName(id,pilotId,locale,fallback)}
 export function weaponName(id,fallback=''){return locale==='en'?(WEAPON_NAMES_EN[id]||fallback):fallback}
-export function activeName(id,fallback=''){return locale==='en'?(ACTIVE_NAMES_EN[id]||fallback):fallback}
-export function passiveName(id,fallback=''){return locale==='en'?(PASSIVE_NAMES_EN[id]||fallback):fallback}
-export function pilotDescription(id,fallback=''){return locale==='en'?(PILOT_DESCRIPTIONS_EN[id]||fallback):fallback}
-export function passiveDescription(id,fallback=''){return locale==='en'?(PASSIVE_DESCRIPTIONS_EN[id]||fallback):fallback}
+export function activeName(id,fallback=''){const copy=pilotIdentityCopy(id,locale);if(copy)return copy.skill;return locale==='en'?(ACTIVE_NAMES_EN[id]||fallback):fallback}
+export function passiveName(id,fallback=''){const copy=pilotIdentityCopy(id,locale);if(copy)return copy.passive;return locale==='en'?(PASSIVE_NAMES_EN[id]||fallback):fallback}
+export function pilotDescription(id,fallback=''){const copy=pilotIdentityCopy(id,locale);if(copy)return copy.activeDetail;return locale==='en'?(PILOT_DESCRIPTIONS_EN[id]||fallback):fallback}
+export function passiveDescription(id,fallback=''){const copy=pilotIdentityCopy(id,locale);if(copy)return copy.passiveDetail;return locale==='en'?(PASSIVE_DESCRIPTIONS_EN[id]||fallback):fallback}
 export function aircraftRole(id,fallback=''){return locale==='en'?(AIRCRAFT_ROLES_EN[id]||fallback):fallback}
 export function airframeHistory(id,fallback=''){return locale==='en'?(AIRFRAME_HISTORY_EN[id]||fallback):fallback}
 export function airframeTip(id,fallback=''){return locale==='en'?(AIRFRAME_TIPS_EN[id]||fallback):fallback}
@@ -101,3 +102,4 @@ export function subscribe(listener){listeners.add(listener);return()=>listeners.
 export function applyTranslations(root=globalThis.document){if(!root)return;const doc=root.ownerDocument||root;if(doc.documentElement)doc.documentElement.lang=locale;if(doc.title!==undefined)doc.title=t('app.title');for(const [id,key] of Object.entries(STATIC_TEXT)){const el=doc.getElementById?.(id);if(el)el.textContent=t(key)}for(const [selector,key] of STATIC_SELECTORS){const el=doc.querySelector?.(selector);if(el)el.textContent=t(key)}for(const el of doc.querySelectorAll?.('[data-i18n]')||[])el.textContent=t(el.dataset.i18n);for(const el of doc.querySelectorAll?.('[data-i18n-aria-label]')||[])el.setAttribute('aria-label',t(el.dataset.i18nAriaLabel));const select=doc.getElementById?.('localeSelect');if(select)select.value=locale;return locale}
 export function setLocale(next){const normalized=SUPPORTED.has(next)?next:'ko';locale=normalized;try{globalThis.localStorage?.setItem(STORAGE_KEY,normalized)}catch{}applyTranslations();for(const listener of listeners)listener(normalized);return normalized}
 export function initLocale(){applyTranslations();return locale}
+

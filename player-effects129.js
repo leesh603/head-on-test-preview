@@ -6,27 +6,12 @@ export function playerPose(p,x,y){
  return {x:x-Math.cos(p.a)*kick,y:y-Math.sin(p.a)*kick,scale:p.aceScale129||1};
 }
 export function drawPlayerAura(c,p,x,y){
- drawPassiveGauge(c,p,x,y);
  drawEquipmentEffects151(c,p,x,y);
  drawPrecisionEquipment156(c,p,x,y);
- if(!(p.skillTime>0))return;
- c.save();c.translate(x,y);
- if(p.pilot==='nungesser'){
-  // The heart tip is local +Y: rotate it onto the aircraft's forward vector.
-  c.rotate(p.a-Math.PI/2);c.scale(.66,.66);
-  const pulse=.5+.5*Math.sin(p.skillTime*7),fade=Math.min(1,p.skillTime/.2);
-  c.beginPath();c.moveTo(0,53);
-  c.bezierCurveTo(-100,-7,-52,-73,0,-34);c.bezierCurveTo(52,-73,100,-7,0,53);c.closePath();
-  c.fillStyle='#100e19';c.globalAlpha=.34*fade;c.fill();
-  c.strokeStyle='#a697c7';c.lineJoin='round';c.globalAlpha=(.1+pulse*.04)*fade;c.lineWidth=7;c.stroke();
-  c.strokeStyle='#c1b2df';c.globalAlpha=(.48+pulse*.12)*fade;c.lineWidth=1.8;c.stroke();
-  // A restrained highlight at the forward tip makes rotation easy to read.
-  c.strokeStyle='#eee6ff';c.globalAlpha=.65*fade;c.lineWidth=1.6;c.beginPath();c.moveTo(-9,43);c.lineTo(0,53);c.lineTo(9,43);c.stroke();
- }else if(p.pilot==='berthold'){
-  const g=c.createRadialGradient(0,0,26,0,0,46);g.addColorStop(0,'#439bff00');g.addColorStop(.8,'#439bff22');g.addColorStop(1,'#95dcff88');
-  c.fillStyle=g;c.beginPath();c.arc(0,0,46,0,Math.PI*2);c.fill();c.strokeStyle='#8fd3ff';c.lineWidth=2;c.stroke();
- }
- c.restore();
+ if(p.ballCloak>0)fx(c,'mist',x,y,72,38,p.a,Math.min(.35,p.ballCloak*.3));
+ for(const gh of p.immelmannGhosts||[])fx(c,'windStreak',x+gh.x-p.x,y+gh.y-p.y,48,17,gh.a,.26*gh.life/gh.maxLife);
+ if(p.fxOverheat>0)fx(c,'muzzle',x+Math.cos(p.a)*24,y+Math.sin(p.a)*24,28,20,p.a,Math.min(.7,p.fxOverheat));
+ for(const f of p.pilotIdentity?.fx||[]){const q=Math.min(1,f.life/.1);fx(c,f.key,x+f.x-p.x,y+f.y-p.y,f.size,f.key==='windStreak'?f.size*.35:f.size,f.a,q*.72)}
 }
 
 // Same visual language as tail lock; derived from the real passive state.
@@ -138,3 +123,4 @@ export function drawRedGhosts162(c,p,x,y,sprite,key){
   c.globalAlpha=.38*Math.pow(Math.max(0,g.life/.32),1.25);c.drawImage(redGhostCanvas162,x+g.x-p.x-90,y+g.y-p.y-90);
  }c.restore();
 }
+

@@ -4,7 +4,6 @@ import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=426';
 import {bossSoundFor} from './boss-feedback.js?v=426';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=426';
 
-
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -109,10 +108,10 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    }
     if(event.type==='boss-enter'){g.event('wave','지역 보스 출현! · '+BOSS_CATALOG[event.bossId].name);g.event('heavyShot','');}
     else if(event.type==='aa-effect'){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:event.life||.5,size:event.size||115,kind:event.kind});}
+    else if(event.type==='hazard-activated'&&event.kind==='circle'&&(['morser-shell','mark4-shell','treffas-shell'].includes(event.visual)||event.visual==='carpet-bomb'&&body?.kind==='staaken-rvi')){g.shake=Math.max(g.shake,3);}
     else if(event.type==='hazard-activated'&&event.kind==='circle'&&event.visual?.startsWith('aa-')){
       // Authored AA atlas draws these effects; do not stack a generic blast.
     }
-    else if(event.type==='hazard-activated'&&event.kind==='circle'&&(['morser-shell','mark4-shell','treffas-shell'].includes(event.visual)||event.visual==='carpet-bomb'&&body?.kind==='staaken-rvi')){g.shake=Math.max(g.shake,3);}
     else if(event.type==='hazard-activated'&&event.kind==='circle'){
     const SHELL_VISUALS=new Set(['rail-shell','rail-shell-outer','observer-shell','zubian-mortar','naval-gun','alps-cannon','black-flak','zubian-shell','coastal-shell','building-debris']),sea=[1,7].includes(g.worldRegion?.()??-1);
     g.combatBlast(event.x,event.y,event.radius,'enemy',event.visual==='carpet-bomb'?'bomb':event.visual==='torpedo-charge'?'mineBlast':SHELL_VISUALS.has(event.visual)?(sea?'mineBlast':'shell'):'blast');
@@ -129,7 +128,6 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     for(let i=0;i<4;i++){const ox=(g.rng?g.rng()-.5:Math.random()-.5)*120,oy=(i-1.5)*55+(g.rng?g.rng()-.5:Math.random()-.5)*30,r=24+((i*37)%3)*14;g.combatBlast(event.x+ox,event.y+oy,r,'enemy','structure');if(g.burst)g.burst(event.x+ox,event.y+oy,'#ffd06a',6);if(g.smoke)g.smoke(event.x+ox,event.y+oy,true)}
     g.event('wave','열차 객차 파괴 · 기관차 방호 약화');}
    else if(event.type==='rail-runaway'){g.event('wave','기관차 폭주! · 선로에서 이탈하기 전에 추격하세요');g.shake=Math.max(g.shake,6);}
-
    else if(event.type==='rail-derail'){g.combatBlast(x,y,96,'enemy','structure');g.shake=Math.max(g.shake,12);g.event('wave','기관차 탈선 · 최종 코어 노출');}
    else if(event.type==='body-defeated'&&event.kind?.startsWith('hms-zubian-')){g.combatBlast(x,y,82,'enemy','bossFinal');g.shake=Math.max(g.shake,10);}
     else if(event.type==='mine-chain'){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:.52,kind:event.chainIndex?'aaChainBurst':'aaMineBurst'});
@@ -182,10 +180,14 @@ export function syncStageBossTargets(g){
 }
 export function stageBossCollision(g,e,x,y,b){const body=e.stageBossBody;if(!body)return null;if(blocked(g)||body.dead||g.stageBoss?.stages.encounter?.bodies.get(body.id)!==body)return false;return !!body.locateHit({x,y,previousX:b?.previousX??x,previousY:b?.previousY??y,radius:b?.collisionRadius||0});}
 export function damageStageBoss(g,e,b,damage){
- if(!e.stageBossBody){if(e.bossPilot==='berthold'){if(e.hp<=e.maxHp*.5)damage*=.75;if(e.ironWillUntil>g.t)damage*=.35;}e.hp-=damage;return;}
+ const notify=(target,pos)=>{for(const p of g.players||[g])p.identityImpact?.(b,e,target,pos)};
+ if(b.identityDotTarget&&b.identityDotTarget!==e&&!e.stageBossBody)return;
+ if(!e.stageBossBody){if(e.bossPilot==='berthold'){if(e.hp<=e.maxHp*.5)damage*=.75;if(e.ironWillUntil>g.t)damage*=.35;}e.hp-=damage;notify(e,e);return;}
  if(blocked(g)||b.patrol)return;const body=e.stageBossBody;
  const hit=body.locateHit({x:b.x,y:b.y,previousX:b.previousX,previousY:b.previousY,radius:b.collisionRadius||0});if(!hit)return;
+ const part=hit.partId?body.parts.get(hit.partId):null,target=part||body;if(b.identityDotTarget&&b.identityDotTarget!==target)return;
  const result=g.stageBoss.hit({bodyId:body.id,...hit,damage,faction:g.teamFaction});
+ if(result.damage>0){const raw=part&&body.support129?.parts.get(part.id),pos=raw?body.support129.world(raw.nx,raw.ny):{x:body.x+(part?.x||0),y:body.y+(part?.y||0)};notify(target,pos);}
  if(result.damage>0)g.stageBossLastOwner=b.ownerId||'p1';
 }
 function steerFormationMinion(e,tx,ty,dt,turnRate,speed){
@@ -229,7 +231,6 @@ function updateMinions(g,dt){
     }
     continue;
    }
-
   if(e.surface){e.x+=e.vx*dt;e.a=e.vx<0?Math.PI:0;const viewH=g.viewHeight||640,floorY=g.y+viewH*.34;e.y=Math.max(e.y,floorY);}else if(e.behavior==='attack-pass'){
    e.passAge=(e.passAge||0)+dt;if(!e.passLocked){const a=Math.atan2((e.passTargetY??p.y)-e.y,(e.passTargetX??p.x)-e.x);e.a=a;e.passLocked=true;e.speed=Math.max(205,e.speed||0);}
    const lane=((e.formationIndex||0)-((e.formationCount||1)-1)/2)*9;e.x+=Math.cos(e.a)*e.speed*dt-Math.sin(e.a)*Math.sin(e.passAge*2.2)*lane*dt;e.y+=Math.sin(e.a)*e.speed*dt+Math.cos(e.a)*Math.sin(e.passAge*2.2)*lane*dt;
@@ -355,3 +356,4 @@ export function separateAces(g,dt){
   a.x-=ux*move;a.y-=uy*move;b.x+=ux*move;b.y+=uy*move;
  }
 }
+

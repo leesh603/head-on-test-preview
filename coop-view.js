@@ -4,14 +4,14 @@ import {drawGasCloud196} from './gas-cloud196.js?v=426';
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=426';
 import {fx,fxReady,fxTint} from './fx-art.js?v=426';
 import {drawAADefense} from './aa-defense-art.js?v=426';
-import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=426';
+import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=431';
 import {drawStageBoss} from './stageboss-view.js?v=426';
 import {planeSprite,aircraftKey} from './aircraft.js?v=426';
 import {drawEquipment} from './equipment.js?v=426';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=426';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=426';
 import {drawSpecialAmmoIcon} from './icons.js?v=426';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=426';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=431';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
 const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=426&b=326';
@@ -96,4 +96,5 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  for(const b of g.bullets)if(b.enemy&&b.life>0)drawEnemyProjectile(c,b,b.x,b.y,t,z);
  c.restore();c.font='14px sans-serif';c.textAlign='left';c.fillStyle='#f1edd0';c.fillText((['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'][g.worldRegion?.()??g.region]||'전원 지대')+' · 팀 비행 '+(g.distance/1000).toFixed(1)+' km',14,H-14);
 }
+
 
