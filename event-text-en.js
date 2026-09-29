@@ -59,7 +59,26 @@ const EXACT = {
   '기습! 고속 추격 편대 ': 'Ambush! Fast pursuit flight',
   '제2파 · 추격기 접근': 'Wave 2 · pursuers inbound',
   '제3파 · 전선 돌파': 'Wave 3 · front breakthrough',
+  '알프스 봉우리 충돌 · 기체 손상': 'Alpine peak collision · airframe damaged',
+  '녹십자 분출 재충전': 'Green Cross vent recharging',
+  '부두 경비함 발견 · 주항로를 유지하세요': 'Harbour guard ship spotted · stay in the main channel',
+  '에이스 편대 등장': 'Ace formation incoming',
+  '적 에이스 출현': 'Enemy ace appears',
+  '경고 · 장갑 항구요새 전면 도달': 'Warning · armoured harbour fortress dead ahead',
+  '경고 · 적 주력함이 전방에서 접근 중': 'Warning · enemy capital ship closing ahead',
+  '2인 협동 · 서로의 꼬리를 지켜주세요': 'Two-ship co-op · watch each other’s six',
 };
+// Fragments of dynamically built toasts (name + fixed phrase). Longest first.
+const PHRASES = [
+  [' · 아군 지휘 편대 합류', ' · friendly command flight joins'], ['레일 위 이동 포대', 'rail-mounted mobile battery'], ['고정 위치에서 탄막 사격', 'barrage from a fixed position'],
+  ['협상국 비행선', 'Entente airship'], ['제플린', 'Zeppelin'], [' 격파 · 다음 지역 진입', ' destroyed · entering next area'], [' 붕괴 중!', ' breaking up!'],
+  [' · 같은 고도의 표적을 공격하세요', ' · attack targets at your altitude'], ['저고도', 'Low altitude'], ['중고도', 'Mid altitude'], ['고고도', 'High altitude'],
+  ['전원 지대 · 기뢰지대', 'Countryside · minefield'], ['아드리아해 · 적 함대', 'Adriatic · enemy fleet'], ['참호 전선 · 대공포', 'Trench front · flak'],
+  ['랭킨 파편탄 · 후방 탄막 ', 'Ranken darts · rear shots cleared: '], ['발 제거', ''], ['수리 보급품 ', 'Repair supplies ×'], ['개 투하 · 아군도 회수 가능', ' dropped · allies can collect too'],
+  ['임무 표적 ', 'Mission targets '], ['정찰 구역 ', 'Recon zones '], [' · 고속 패스', ' · high-speed pass'], [' · 이탈 — 교전 한계 초과', ' · breaking off — engagement limit reached'],
+  [' · 중기관총 탄막 주의', ' · watch for heavy MG fire'], [' · 출격 장비 배정', ' · sortie loadout assigned'], ['격추 목표', 'must destroy'], ['선택 교전', 'optional'],
+  [' 접근 · ', ' approaching · '], [' 출현 · ', ' appears · '], [' 출현', ' appears'], [' 확보', ' secured'], [' 진입', ' entered'],
+].sort((a, b) => b[0].length - a[0].length);
 const PREFIX = [
   ['SPOTTED — 관측망에 포착됐습니다 · 대공포 연사 강화 10초', 'SPOTTED — the spotting net has you · flak rate up for 10s'],
   ['지역 보스 출현! · ', 'Area boss! · '],
@@ -82,6 +101,7 @@ export function eventTextEN(text) {
   if (EXACT[text]) return EXACT[text];
   for (const [ko, en] of PREFIX) if (text.startsWith(ko)) text = en + text.slice(ko.length);
   for (const [ko, en] of NAMES) if (text.includes(ko)) text = text.split(ko).join(en());
+  for (const [ko, en] of PHRASES) if (text.includes(ko)) text = text.split(ko).join(en);
   return text;
 }
 export function installEventTextEN(...classes) {
