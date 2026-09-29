@@ -457,9 +457,10 @@ body.astra-ui:not(.playing){
            right panel = aircraft + stats, roster, sortie.
    ========================================================================== */
 body.astra-ui:not(.playing){
- --ho-keyart:url('lobby-keyart.webp?v=419');
- --ho-keyart-focus:34% 50%;
- --ho-keyart-focus-pc:50% 45%;
+ --ho-keyart:url('hangar-keyart-mobile.webp?v=422');
+ --ho-keyart-pc:url('hangar-keyart-pc.webp?v=422');
+ --ho-keyart-focus:50% 28%;
+ --ho-keyart-focus-pc:65% 30%;
 }
 
 /* ---------------------------------- PHONE --------------------------------- */
@@ -602,7 +603,7 @@ body.astra-ui:not(.playing){
    linear-gradient(90deg,#0b0b0a00 72%,#0b0b0a),
    linear-gradient(0deg,#0b0b0af2 0,#0b0b0a00 42%),
    linear-gradient(180deg,#0b0b0a8c 0,#0b0b0a00 28%),
-   var(--ho-keyart) var(--ho-keyart-focus-pc)/cover no-repeat,#0b0b0a;
+   var(--ho-keyart-pc) var(--ho-keyart-focus-pc)/cover no-repeat,#0b0b0a;
  }
  body.astra-ui:not(.playing) #hangar .astra-home:after{content:"";grid-column:2;grid-row:1/-1;z-index:-1;pointer-events:none;background:linear-gradient(180deg,#151514,#0e0e0d);box-shadow:inset 1px 0 0 #ffffff14}
  body.astra-ui:not(.playing) #hangar .astra-stage{display:contents!important}
