@@ -28,7 +28,10 @@ atlas = Image.open(os.path.join(ROOT, 'fx-sample', 'fx-sample-atlas.png')).conve
 terrain = Image.open(os.path.join(stage, 'old-mg-0.png')).convert('RGB').resize((1280, 720))
 TITLES = {'A': ('A  기관총', '총구섬광 · 탄궤적 · 탄착'), 'B': ('B  로켓', '분사 화염 · 비행 트레일 · 피격 폭발 4단'),
           'C': ('C  폭탄', '낙하 그림자 · 지면 폭발 4단 · 파편 · 잔연기'),
-          'D': ('D  화염 · 폭발 · 연기', '소형 4단 · 중형 4단 · 엔진 화염 · 섬광 · 지면 화염 · 화염분출 · 연기')}
+          'D': ('D  화염 · 폭발 · 연기', '소형 4단 · 중형 4단 · 엔진 화염 · 섬광 · 지면 화염 · 화염분출 · 연기'),
+          'E': ('E  기관포', 'COW 37mm 피격 4단 · 모터 캐논 피격 4단'),
+          'F': ('F  대형 폭발', '폭격기·보스 격추 4단 · 지상 구조물 파괴 4단'),
+          'G': ('G  대공포 · 수면 · 기타', '대공포 공중폭발 · 충격파 · 물보라 · 포말 · 흙먼지 · 흙 튐 · 날개 화재')}
 W = 2000
 blocks = []
 for fam, keys in man['families'].items():
@@ -63,7 +66,7 @@ for fam, keys in man['families'].items():
 head = Image.new('RGB', (W, 110), BG)
 d = ImageDraw.Draw(head)
 d.text((20, 18), 'HEAD-ON FX 시안 · 스프라이트 아틀라스', fill=INK, font=font(36, True))
-d.text((20, 68), '각 칸 위: 중립 배경 / 아래: 실제 지형 · 작은 스프라이트는 2배 확대 · 원본 fx-sample/fx-sample-atlas.webp (2048×1024)',
+d.text((20, 68), '각 칸 위: 중립 배경 / 아래: 실제 지형 · 작은 스프라이트는 2배 확대 · 원본 fx-sample/fx-sample-atlas.webp (2048×2048) · 발광 절감판',
        fill=SUB, font=font(18))
 sheet = Image.new('RGB', (W, head.height + sum(b.height for b in blocks) + 10 * len(blocks)), BG)
 sheet.paste(head, (0, 0)); yy = head.height
@@ -79,6 +82,8 @@ SCENES = [
     ('rocket', 1, '로켓 — 발사 · 비행 · 피격', '분사 화염 + 연기 트레일 · 피격 폭발 3단계(좌→우)', (800, 60, 1760, 760)),
     ('bomb', 1, '폭탄 — 투하 · 폭발 · 잔연기', '낙하(그림자) · 지면 폭발 4단계를 한 화면에 나란히 배치', (600, 100, 1400, 700)),
     ('fire', 1, '화염 · 폭발 · 연기', '격추 폭발 4단계(좌→우) · 소형 폭발 · 지면 화염', (600, 60, 1560, 540)),
+    ('heavy', 1, '기관포 · 대형 폭발', '왼쪽: COW/모터 캐논 피격 · 오른쪽: 폭격기급 격추 · 구조물 파괴', (1400, 40, 2140, 640)),
+    ('naval', 1, '수면 — 포탄 · 기관총 착탄', '물보라 3단계 · 기뢰 · 기관총 착탄 물튐 (아드리아해)', (600, 40, 1560, 640)),
 ]
 CW, CH = 1600, 840
 for sid, idx, title, sub, zoom in SCENES:
