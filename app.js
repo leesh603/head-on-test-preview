@@ -9,14 +9,14 @@ import {GamepadInput} from './gamepad-input.js?v=429';
 installEventTextEN(Game,CoopGame,CampaignGame);registerEventPilots(PILOTS);
 const fieldRecordLink=document.createElement('a');fieldRecordLink.href='./field-record.html';fieldRecordLink.target='_blank';fieldRecordLink.rel='noopener';fieldRecordLink.textContent=getLocale()==='en'?'Official Battle Record':'공식 전장 기록';fieldRecordLink.className='field-record-link';fieldRecordLink.style.cssText='display:block;margin:10px auto 0;text-align:center;color:#d7b26d;font-weight:800;text-decoration:none';document.getElementById('start')?.after(fieldRecordLink);
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=426';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=433';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=435';
 import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=433';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=426';
 import './hud-layout94.js?v=426';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=426';
 import {CoopGame,coopPlane} from './coop-engine.js?v=433';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=426';
-import {drawCoop} from './coop-view.js?v=433';
+import {drawCoop} from './coop-view.js?v=435';
 import {drawSunStrike} from './sun-strike71.js?v=433';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=433';
 import {installFlightViewport} from './flight-viewport.js?v=426';
@@ -555,7 +555,7 @@ const _worldDraw=draw;
 draw=t=>{
  _worldDraw(t);if(!game)return;
  ctx.save();ctx.font='12px monospace';ctx.textAlign='left';ctx.fillStyle='#f1edd0';ctx.fillText((game.mode==='campaign'?game.stage.region:(getLocale()==='en'?['Pastoral Minefields','Adriatic Sea Front','Trench Front','Saturated Trench Front','Urban Front','High Altitude Front','Alpine Front','Zeebrugge Harbor Front','Cambrai Fields','Arras Sky','Somme Front','London Raid']:['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'])[game.region||0])+(getLocale()==='en'?' · Flown ':' · 비행 ')+((game.distance||0)/1000).toFixed(1)+' km',14,H-14);
- for(const e of game.enemies){const label=e.bossPilot?e.name:e.bossMinion?(e.callSignKo||e.callSign):null;if(!label)continue;const x=e.x-game.x+W/2,y=e.y-game.y+H/2,oy=e.bossPilot?58:48;ctx.font='600 11px "Arial Narrow",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';const w=Math.ceil(ctx.measureText(label).width)+14,lx=Math.max(w/2+4,Math.min(W-w/2-4,x));ctx.fillStyle='rgba(18,13,11,.86)';ctx.fillRect(Math.round(lx-w/2),Math.round(y-oy-8),w,17);ctx.strokeStyle=e.bossPilot?'#a86a3d':'#743d35';ctx.lineWidth=1;ctx.strokeRect(Math.round(lx-w/2)+.5,Math.round(y-oy-8)+.5,w-1,16);ctx.fillStyle='#f0d7a4';ctx.fillText(label,Math.round(lx),Math.round(y-oy))}
+ for(const e of game.enemies){const label=e.bossPilot?pilotName(e.bossPilot,e.name):e.bossMinion?(getLocale()==='en'?(e.callSign||e.callSignKo):(e.callSignKo||e.callSign)):null;if(!label)continue;const x=e.x-game.x+W/2,y=e.y-game.y+H/2,oy=e.bossPilot?58:48;ctx.font='600 11px "Arial Narrow",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';const w=Math.ceil(ctx.measureText(label).width)+14,lx=Math.max(w/2+4,Math.min(W-w/2-4,x));ctx.fillStyle='rgba(18,13,11,.86)';ctx.fillRect(Math.round(lx-w/2),Math.round(y-oy-8),w,17);ctx.strokeStyle=e.bossPilot?'#a86a3d':'#743d35';ctx.lineWidth=1;ctx.strokeRect(Math.round(lx-w/2)+.5,Math.round(y-oy-8)+.5,w-1,16);ctx.fillStyle='#f0d7a4';ctx.fillText(label,Math.round(lx),Math.round(y-oy))}
  if(game.wingBoost>0){ctx.strokeStyle='#f5e7ad';for(const a of game.allies){const x=a.x-game.x+W/2,y=a.y-game.y+H/2;ctx.beginPath();ctx.arc(x,y,28,0,Math.PI*2);ctx.stroke()}}
  ctx.restore();
 };
