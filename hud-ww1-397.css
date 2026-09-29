@@ -10,19 +10,19 @@
 
 body.astra-ui{
  --ho-ink:#0f0e0a;
- --ho-surface:linear-gradient(120deg,#23211aeb,#12110ced);
- --ho-surface-strong:linear-gradient(120deg,#29261ef5,#141310f5);
+ --ho-surface:linear-gradient(120deg,#1f1f1deb,#111110ed);
+ --ho-surface-strong:linear-gradient(120deg,#232321f5,#121211f5);
  --ho-surface-flat:#1a1913;
- --ho-edge:#b39a6263;
- --ho-edge-soft:#b39a622b;
+ --ho-edge:#e8e2d43d;
+ --ho-edge-soft:#e8e2d41a;
  --ho-brass:#c9a24a;
- --ho-brass-soft:#b99a5c;
- --ho-parchment:#ece3cb;
- --ho-muted:#aba691;
- --ho-numeral:#eddcae;
+ --ho-brass-soft:#a8a497;
+ --ho-parchment:#efebe2;
+ --ho-muted:#a3a095;
+ --ho-numeral:#f5f2ea;
  --ho-olive:#8fac78;
  --ho-olive-deep:#6e8c5c;
- --ho-cartridge:#cdb983;
+ --ho-cartridge:#d4cfc3;
  --ho-cartridge-deep:#a18c57;
  --ho-oxblood:#8d3327;
  --ho-brick:#c65a44;
@@ -74,7 +74,7 @@ body.astra-ui.playing #flightTop151 #xpHud #xpBar{background:linear-gradient(90d
 body.astra-ui.playing #flightTop151 #pause,
 body.astra-ui.playing #flightTop151 #reload{border-color:var(--ho-edge);background:var(--ho-surface-strong);color:var(--ho-parchment)}
 body.astra-ui.playing #flightTop151 #pause:hover,
-body.astra-ui.playing #flightTop151 #reload:hover{background:#5a261ecc;border-color:#b39a6299}
+body.astra-ui.playing #flightTop151 #reload:hover{background:#5a261ecc;border-color:#e8e2d440}
 
 /* 3. Boss HP bar — oxblood fill, parchment title, brass seam. */
 body.astra-ui.playing #flightStack151 #stageBossHud{border-top:2px solid var(--ho-oxblood)}
@@ -83,7 +83,7 @@ body.astra-ui.playing #stageBossTitle{color:var(--ho-parchment)}
 body.astra-ui.playing #stageBossParts{color:var(--ho-muted)}
 
 /* 4. Notices — toast, event mission, campaign strip share one plate. */
-body.astra-ui.playing #flightNotices151 #toast{border-left-color:var(--ho-brass);color:#e3cf9f}
+body.astra-ui.playing #flightNotices151 #toast{border-left-color:var(--ho-brass);color:#e6e1d5}
 body.astra-ui.playing #flightNotices151 #eventMissionTitle{color:var(--ho-brass)}
 
 /* 5. Enemy ace arrival — oxblood seam, parchment name. */
@@ -91,8 +91,8 @@ body.astra-ui.playing #flightNotices151 #bossArrival{border-left-color:var(--ho-
 body.astra-ui.playing #flightNotices151 #bossArrival small{color:var(--ho-brick)}
 body.astra-ui.playing #flightNotices151 #bossArrival strong{color:var(--ho-parchment)}
 body.astra-ui.playing #flightNotices151 #bossArrivalDetail{color:var(--ho-brass-soft)}
-body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{background:linear-gradient(135deg,#2c291f,#12110c)}
-body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window:after{background:linear-gradient(90deg,transparent 52%,#17150fa8 76%,#17150f 100%)}
+body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{background:linear-gradient(135deg,#252523,#111110)}
+body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window:after{background:linear-gradient(90deg,transparent 52%,#151514a8 76%,#151514 100%)}
 
 /* 6. BOSS WARNING — stencilled plate on a hazard band. No neon glow. */
 body.astra-ui #bossWarning .warn-band{height:24px;background:repeating-linear-gradient(-45deg,#8a2a20 0 16px,#15100b 16px 32px);opacity:.9;box-shadow:0 0 0 1px #0008}
@@ -120,8 +120,8 @@ body.astra-ui .boss-cutin-art{filter:drop-shadow(0 9px 11px #000c)}
 body.astra-ui .boss-cutin-caption small{color:#d8b8a0}
 body.astra-ui .boss-cutin-caption strong{color:#df7a5e}
 body.astra-ui .boss-cutin-caption span{color:#eadfcc}
-body.astra-ui .boss-cutin.skill-side::before{background:linear-gradient(90deg,#1c180fe6,transparent);border-bottom-color:var(--ho-brass)}
-body.astra-ui .boss-cutin.skill-side .boss-cutin-caption strong{color:#ecd08c}
+body.astra-ui .boss-cutin.skill-side::before{background:linear-gradient(90deg,#1a1a18e6,transparent);border-bottom-color:var(--ho-brass)}
+body.astra-ui .boss-cutin.skill-side .boss-cutin-caption strong{color:#f1ece1}
 body.astra-ui .boss-cutin.skill-side .boss-cutin-caption small{color:#e3d4ae}
 
 /* 8. Skill cut-in card — warm gun-metal instead of navy. */
@@ -134,7 +134,7 @@ body.astra-ui.playing #viewport #skillCutin{
 }
 body.astra-ui.playing #viewport #skillCutin .cutin-portrait{border-right-color:var(--ho-edge-soft)}
 body.astra-ui.playing #viewport #skillCutin .cutin-caption small{color:var(--ho-muted)}
-body.astra-ui.playing #viewport #skillCutin .cutin-caption strong{color:#ecd08c;text-shadow:0 1px 3px #000}
+body.astra-ui.playing #viewport #skillCutin .cutin-caption strong{color:#f1ece1;text-shadow:0 1px 3px #000}
 
 /* 9. Upgrade cards — rarity stays distinguishable, but as service-medal
       colours (pewter / verdigris / steel / claret / gold), not neon. */
@@ -144,8 +144,8 @@ body.astra-ui #modal.choice-modal151 #modalTag{color:var(--ho-brass)}
 body.astra-ui #modal.choice-modal151 #modalTitle{color:var(--ho-parchment)}
 body.astra-ui #modal.choice-modal151 #modalText{color:var(--ho-muted)}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
- border-color:#b39a6238!important;
- background:linear-gradient(90deg,var(--hud191-choice-tint,transparent),transparent 58%),linear-gradient(120deg,#23211af2,#12110cf5)!important;
+ border-color:#e8e2d422!important;
+ background:linear-gradient(90deg,var(--hud191-choice-tint,transparent),transparent 58%),linear-gradient(120deg,#1f1f1df2,#111110f5)!important;
  color:var(--ho-parchment)!important;
 }
 body.astra-ui #modal.choice-modal151 #modalActions .rarity-normal{--hud191-choice-accent:#948f80;--hud191-choice-tint:#948f8010}
@@ -155,13 +155,13 @@ body.astra-ui #modal.choice-modal151 #modalActions .rarity-unique{--hud191-choic
 body.astra-ui #modal.choice-modal151 #modalActions .rarity-legendary{--hud191-choice-accent:#d6ab52;--hud191-choice-tint:#d6ab521c;--hud191-choice-glow:transparent}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>b{color:var(--ho-parchment)!important}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>span:not(.cumulative151){color:#c7c1ab!important}
-body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>.cumulative151{border-top-color:#b39a6226!important;color:#cdb67f!important}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>.cumulative151{border-top-color:#e8e2d417!important;color:#c9c4b7!important}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:hover,
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:focus-visible{
- outline:1px solid #c9a24a8c!important;
- background:linear-gradient(90deg,var(--hud191-choice-tint,transparent),transparent 58%),linear-gradient(120deg,#2b281ff4,#16150ff7)!important;
+ outline:1px solid #e8e2d440!important;
+ background:linear-gradient(90deg,var(--hud191-choice-tint,transparent),transparent 58%),linear-gradient(120deg,#252523f4,#16150ff7)!important;
 }
-body.astra-ui #modal.choice-modal151.special-draft156 .modal-card{border-color:#c9a24a66}
+body.astra-ui #modal.choice-modal151.special-draft156 .modal-card{border-color:#e8e2d43f}
 body.astra-ui #modal.choice-modal151 .legendary-reroll115{border-color:var(--ho-edge);background:var(--ho-surface-flat);color:#e0d2ae}
 .coop-p2-choice .choice.coop-current{outline-color:var(--ho-brass)}
 
@@ -178,9 +178,9 @@ body.astra-ui.playing #modal:not(.choice-modal151) #modalTag{color:var(--ho-bras
 body.astra-ui.playing #modal:not(.choice-modal151) #modalText{color:var(--ho-muted)}
 body.astra-ui.playing #modal.build-modal151 #modalActions{background:var(--ho-surface-flat);border-top:1px solid var(--ho-edge-soft)}
 body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary{
- border:1px solid #d7b86f;
+ border:1px solid #faf7f0;
  border-radius:var(--ho-radius);
- background:linear-gradient(180deg,#cfae63,#b28f45);
+ background:linear-gradient(180deg,#f3efe6,#d7d1c3);
  color:var(--ho-ink);
  box-shadow:inset 0 1px #fff1c455;
 }
@@ -191,21 +191,21 @@ body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary+.prima
  box-shadow:none;
 }
 body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary:hover{filter:brightness(1.08)}
-body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary+.primary:hover{background:#2a2419;border-color:#c9a24a99;filter:none}
+body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary+.primary:hover{background:#23221f;border-color:#e8e2d440;filter:none}
 body.astra-ui.playing #modal #modalActions button:focus-visible{outline:2px solid var(--ho-brass);outline-offset:3px}
 
 /* 11. Special equipment badges. */
-body.astra-ui.playing #legendaryInventory .legendary-badge{border-color:#c9a24a70}
+body.astra-ui.playing #legendaryInventory .legendary-badge{border-color:#e8e2d440}
 
 /* 12. Campaign HUD — objective strip, radar, direction. */
 body.astra-ui.playing .campaign-hud strong,
 body.astra-ui.playing .campaign-hud #campaignObjective,
-body.astra-ui.playing .campaign-hud #navigationInstruction{background:#17150fe0;color:var(--ho-parchment)}
-body.astra-ui.playing .campaign-hud strong{border-color:var(--ho-edge);color:#ecd08c}
-body.astra-ui.playing .campaign-hud .mission-direction{background:#17150feb;border-color:var(--ho-edge);color:#ecd08c}
+body.astra-ui.playing .campaign-hud #navigationInstruction{background:#151514e0;color:var(--ho-parchment)}
+body.astra-ui.playing .campaign-hud strong{border-color:var(--ho-edge);color:#f1ece1}
+body.astra-ui.playing .campaign-hud .mission-direction{background:#151514eb;border-color:var(--ho-edge);color:#f1ece1}
 body.astra-ui.playing .campaign-hud #navigationArrow{color:var(--ho-brass)}
 body.astra-ui.playing .campaign-hud button{border-color:var(--ho-edge);background:var(--ho-surface-strong);color:var(--ho-parchment)}
-body.astra-ui.playing .mission-map{border-color:var(--ho-edge);background:#17150fee;box-shadow:var(--ho-shadow)}
+body.astra-ui.playing .mission-map{border-color:var(--ho-edge);background:#151514ee;box-shadow:var(--ho-shadow)}
 body.astra-ui.playing .mission-map>span,
 body.astra-ui.playing .mission-map>small{color:var(--ho-muted)}
 
@@ -222,28 +222,28 @@ body.astra-ui.playing .coop-instrument .bar{background:#060806a6;border:1px soli
 body.astra-ui.playing .coop-instrument .bar i{background:linear-gradient(90deg,var(--ho-olive-deep),var(--ho-olive))}
 body.astra-ui.playing .coop-team b{font:600 22px/1.1 var(--astra-numeric);color:var(--ho-numeral);letter-spacing:.03em}
 body.astra-ui.playing .coop-team button{border:1px solid var(--ho-edge);border-radius:var(--ho-radius);background:var(--ho-surface-strong);color:var(--ho-parchment)}
-body.astra-ui.playing #coopXpHud>div{border:1px solid var(--ho-edge-soft);border-radius:var(--ho-radius);background:#17150fdd;color:var(--ho-muted)}
+body.astra-ui.playing #coopXpHud>div{border:1px solid var(--ho-edge-soft);border-radius:var(--ho-radius);background:#151514dd;color:var(--ho-muted)}
 body.astra-ui.playing #coopXpHud .bar{background:#060806a6}
 body.astra-ui.playing #p1XpBar{background:var(--ho-p1)}
 body.astra-ui.playing #p2XpBar{background:var(--ho-p2)}
 body.astra-ui.playing .coop-cutin{border:1px solid var(--ho-edge);border-left:3px solid var(--ho-p1);border-radius:var(--ho-radius);background:var(--ho-surface-strong);box-shadow:var(--ho-shadow)}
 body.astra-ui.playing .coop-cutin.p2{border-left-color:var(--ho-p2)}
 body.astra-ui.playing .coop-cutin small{color:var(--ho-muted)}
-body.astra-ui.playing .coop-cutin b{color:#ecd08c}
+body.astra-ui.playing .coop-cutin b{color:#f1ece1}
 
 /* 14. Touch controls — same plate/brass as the rest of the HUD. */
 body.astra-ui.playing #touch #touchSkill,
 body.astra-ui.playing #touch #touchEvade,
-body.astra-ui.playing #touch #reload{border-color:#c9a24a8a}
+body.astra-ui.playing #touch #reload{border-color:#e8e2d440}
 body.astra-ui.playing #touch #skillButtonState,
 body.astra-ui.playing #touch #maneuverButtonState{color:var(--ho-numeral)}
 body.astra-ui.playing #touch #skillButtonText,
 body.astra-ui.playing #touch #maneuverButtonText,
 body.astra-ui.playing #touch #reload:after,
 body.astra-ui.playing #touch #stickCaption{color:#d6ceb4}
-body.astra-ui.playing #touch .astra-control-icon{color:#e2c586}
+body.astra-ui.playing #touch .astra-control-icon{color:#e9e3d5}
 body.astra-ui.playing #touch .astra-dial{color:var(--ho-brass)}
-body.astra-ui.playing #touch #stick{border-color:#d9cda666}
+body.astra-ui.playing #touch #stick{border-color:#d9d5cb66}
 
 /* 15. Legibility floor on phones — the densest labels were 7px. */
 @media(max-width:720px),(pointer:coarse){
@@ -370,7 +370,7 @@ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .flight-surviva
  position:absolute;top:calc(100% + 4px);left:var(--ho-pill-pad);
  display:grid;grid-template-columns:auto 30px 56px;gap:6px;align-items:center;
  margin:0;padding:3px 9px;border:1px solid var(--ho-edge-soft);border-radius:10px;
- background:#17150fe6;color:#e3c687;font:500 10px/1.2 var(--astra-type);white-space:nowrap;
+ background:#151514e6;color:#e3c687;font:500 10px/1.2 var(--astra-type);white-space:nowrap;
 }
 
 /* ---- Right pill: time / kills / level ---- */
@@ -448,13 +448,13 @@ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #pause{
          accent : brass = you / ready, oxblood = enemy / danger
    ========================================================================== */
 body.astra-ui{
- --ho-glass:linear-gradient(180deg,#26241cd9,#141310e0);
- --ho-glass-strong:linear-gradient(180deg,#2a271ff2,#151410f5);
- --ho-hair:#c9a24a3d;
- --ho-hair-strong:#c9a24a73;
+ --ho-glass:linear-gradient(180deg,#20201ed9,#121211e0);
+ --ho-glass-strong:linear-gradient(180deg,#242422f2,#131312f5);
+ --ho-hair:#e8e2d425;
+ --ho-hair-strong:#e8e2d440;
  --ho-lift:inset 0 1px 0 #fff2cf14,0 6px 18px #0007;
  --ho-card-r:14px;
- --ho-ready:#d6b25e;
+ --ho-ready:#e9e3d5;
  --ho-danger:#c8513c;
 }
 body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .flight-survival,
@@ -532,7 +532,7 @@ body.astra-ui.playing:has(.flight-survival.astra-low-health) #viewport .vignette
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:1!important;
  }
  body.astra-ui.playing #touch #touchSkill:not(:disabled),
- body.astra-ui.playing #touch #touchEvade:not(:disabled){border-color:var(--ho-hair-strong)!important;box-shadow:0 0 0 2px #d6b25e22,var(--ho-lift)!important}
+ body.astra-ui.playing #touch #touchEvade:not(:disabled){border-color:var(--ho-hair-strong)!important;box-shadow:0 0 0 2px #e9e3d522,var(--ho-lift)!important}
  body.astra-ui.playing #touch .astra-dial{display:block!important;inset:3px;color:var(--ho-ready)}
  body.astra-ui.playing #touch .dial-track{stroke:#ffffff12}
  body.astra-ui.playing #touch .dial-progress{stroke-width:3.5}
@@ -544,9 +544,9 @@ body.astra-ui.playing:has(.flight-survival.astra-low-health) #viewport .vignette
  body.astra-ui.playing #touch #maneuverButtonState{font-family:var(--astra-numeric)!important}
  body.astra-ui.playing #touch #touchEvade .astra-control-icon{border:0!important;padding:0!important}
  body.astra-ui.playing #touch #reload{color:var(--ho-ready)}
- body.astra-ui.playing #touch #stick{border:1px solid #e6d7ae55!important;background:radial-gradient(circle,#26241c33,#0b0a0833 70%)!important;box-shadow:none!important}
- body.astra-ui.playing #touch #stick:before{border-color:#e6d7ae2a}
- body.astra-ui.playing #touch #stick>span{border:1px solid #f0e2bd99!important;background:radial-gradient(circle at 35% 30%,#efe3c2cc,#9d916fa6 70%)!important;box-shadow:0 2px 8px #0006!important}
+ body.astra-ui.playing #touch #stick{border:1px solid #e8e4da55!important;background:radial-gradient(circle,#20201e33,#0b0a0833 70%)!important;box-shadow:none!important}
+ body.astra-ui.playing #touch #stick:before{border-color:#e8e4da2a}
+ body.astra-ui.playing #touch #stick>span{border:1px solid #ece8de99!important;background:radial-gradient(circle at 35% 30%,#ece8decc,#9d916fa6 70%)!important;box-shadow:0 2px 8px #0006!important}
 }
 
 /* ---- 17c. Notices: toast + event mission + stage boss bar. ---- */
@@ -562,7 +562,7 @@ body.astra-ui.playing #flightNotices151 #campaignHud{
  border:1px solid var(--ho-hair)!important;border-left:1px solid var(--ho-hair)!important;border-radius:var(--ho-card-r)!important;
  background:var(--ho-glass-strong)!important;box-shadow:var(--ho-lift)!important;
 }
-body.astra-ui.playing #flightNotices151 #eventMissionTitle{display:inline-block;padding:2px 8px;border-radius:999px;background:#c9a24a22;color:var(--ho-ready)}
+body.astra-ui.playing #flightNotices151 #eventMissionTitle{display:inline-block;padding:2px 8px;border-radius:999px;background:#e8e2d415;color:var(--ho-ready)}
 body.astra-ui.playing #flightStack151 #stageBossHud{
  border:1px solid #c8513c55!important;border-top:1px solid #c8513c55!important;border-radius:var(--ho-card-r)!important;
  background:var(--ho-glass-strong)!important;box-shadow:var(--ho-lift)!important;padding:8px 14px 10px!important;
@@ -576,7 +576,7 @@ body.astra-ui.playing #flightNotices151 #bossArrival:not(.hidden){
  display:grid!important;grid-template-columns:52px minmax(0,1fr);align-items:center;gap:0 12px;
  width:auto!important;max-width:min(380px,100%);height:64px!important;padding:6px 22px 6px 6px!important;box-sizing:border-box;
  border:1px solid #c8513c66!important;border-left:1px solid #c8513c66!important;border-radius:999px!important;
- background:linear-gradient(90deg,#3a1712ee,#15130ff2 60%)!important;box-shadow:var(--ho-lift)!important;overflow:hidden;
+ background:linear-gradient(90deg,#3a1712ee,#141413f2 60%)!important;box-shadow:var(--ho-lift)!important;overflow:hidden;
 }
 body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{
  width:52px!important;height:52px!important;border-radius:50%;overflow:hidden;box-shadow:0 0 0 2px var(--ho-danger),0 0 0 4px #0008;background:#1a1712!important;
@@ -604,7 +604,7 @@ body.astra-ui .boss-cutin-caption strong{color:var(--ho-parchment)!important;fon
 body.astra-ui .boss-cutin-caption span{margin:0!important;color:var(--ho-muted)!important;font:500 12px/1.3 var(--astra-type)!important}
 body.astra-ui .boss-cutin.skill-side .boss-cutin-caption{inset:auto auto 0 12px!important;border-color:var(--ho-hair-strong)}
 body.astra-ui .boss-cutin.skill-side .boss-cutin-caption:before{background:var(--ho-ready)}
-body.astra-ui .boss-cutin.skill-side .boss-cutin-caption strong{color:#f1d796!important}
+body.astra-ui .boss-cutin.skill-side .boss-cutin-caption strong{color:#f4efe4!important}
 body.astra-ui .boss-cutin.skill-side .boss-cutin-caption small{color:var(--ho-ready)!important}
 @media(max-width:720px),(pointer:coarse){
  body.astra-ui .boss-cutin-art{bottom:44px}
@@ -622,42 +622,42 @@ body.astra-ui.playing #viewport #skillCutin{border:1px solid var(--ho-hair-stron
  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
 }
 .battlefield-event-shell .battlefield-event-panel:before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:3px;border-radius:0 3px 3px 0;background:var(--ho-ready)}
-.battlefield-event-shell .battlefield-event-panel small{display:inline-block;padding:3px 9px;border-radius:999px;background:#c9a24a22;color:var(--ho-ready);font:700 10px/1.2 var(--astra-type,sans-serif);letter-spacing:.14em}
+.battlefield-event-shell .battlefield-event-panel small{display:inline-block;padding:3px 9px;border-radius:999px;background:#e8e2d415;color:var(--ho-ready);font:700 10px/1.2 var(--astra-type,sans-serif);letter-spacing:.14em}
 .battlefield-event-shell .battlefield-event-panel h2{color:var(--ho-parchment);font-weight:800}
 .battlefield-event-shell .battlefield-event-panel p{color:var(--ho-muted)}
 .battlefield-event-shell .battlefield-event-actions button{
- min-height:40px;border-radius:999px!important;border:1px solid var(--ho-hair-strong)!important;background:#12110d!important;color:var(--ho-parchment)!important;font-weight:600;
+ min-height:40px;border-radius:999px!important;border:1px solid var(--ho-hair-strong)!important;background:#111110!important;color:var(--ho-parchment)!important;font-weight:600;
 }
 .battlefield-event-shell .battlefield-event-actions [data-event-action=accept]{
- border-color:#e0c27a!important;background:linear-gradient(180deg,#d3b267,#b08c43)!important;color:#15130d!important;font-weight:800;
+ border-color:#faf7f0!important;background:linear-gradient(180deg,#f3efe6,#d7d1c3)!important;color:#151514!important;font-weight:800;
 }
 
 /* ---- 17g. Special equipment: round medals top-right + equip moment. ---- */
 body.astra-ui.playing #legendaryInventory{gap:6px}
 body.astra-ui.playing #legendaryInventory .legendary-badge{
  width:36px!important;height:36px!important;border-radius:50%!important;border:1px solid var(--ho-hair-strong)!important;
- background:radial-gradient(circle at 35% 30%,#3a3424,#12110d 72%)!important;box-shadow:0 0 0 2px #0008,var(--ho-lift)!important;overflow:visible;
+ background:radial-gradient(circle at 35% 30%,#3a3424,#111110 72%)!important;box-shadow:0 0 0 2px #0008,var(--ho-lift)!important;overflow:visible;
 }
 body.astra-ui.playing #legendaryInventory .legendary-badge canvas{border-radius:50%}
 body.astra-ui.playing #legendaryInventory .legendary-tip156{
  padding:6px 12px!important;border:1px solid var(--ho-hair)!important;border-radius:10px!important;background:var(--ho-glass-strong)!important;
  color:var(--ho-parchment)!important;font:500 11px/1.4 var(--astra-type)!important;
 }
-@keyframes ho-equip{0%{box-shadow:0 0 0 0 #d6b25e99}100%{box-shadow:0 0 0 14px #d6b25e00}}
+@keyframes ho-equip{0%{box-shadow:0 0 0 0 #e9e3d599}100%{box-shadow:0 0 0 14px #e9e3d500}}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.equipping156{
  border-color:var(--ho-ready)!important;animation:ho-equip .28s ease-out!important;
 }
 
 /* ---- 17h. Upgrade selection: medal cards. ---- */
-body.astra-ui #modal.choice-modal151{background:radial-gradient(ellipse at center,#15130fcc,#0a0907ee)!important;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+body.astra-ui #modal.choice-modal151{background:radial-gradient(ellipse at center,#141413cc,#0a0907ee)!important;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 body.astra-ui #modal.choice-modal151 .modal-card{
  border:1px solid var(--ho-hair-strong)!important;border-top:1px solid var(--ho-hair-strong)!important;border-radius:18px!important;
  background:var(--ho-glass-strong)!important;box-shadow:0 24px 70px #000c!important;padding:20px!important;
 }
-body.astra-ui #modal.choice-modal151 #modalTag{display:inline-block;padding:3px 10px;border-radius:999px;background:#c9a24a22;color:var(--ho-ready)!important;letter-spacing:.14em}
+body.astra-ui #modal.choice-modal151 #modalTag{display:inline-block;padding:3px 10px;border-radius:999px;background:#e8e2d415;color:var(--ho-ready)!important;letter-spacing:.14em}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
  border:1px solid var(--ho-hair)!important;border-left:1px solid var(--ho-hair)!important;border-radius:var(--ho-card-r)!important;
- background:linear-gradient(180deg,var(--hud191-choice-tint,transparent),transparent 45%),linear-gradient(180deg,#24221bf2,#12110df5)!important;
+ background:linear-gradient(180deg,var(--hud191-choice-tint,transparent),transparent 45%),linear-gradient(180deg,#20201ef2,#111110f5)!important;
  box-shadow:inset 0 1px 0 #fff2cf12!important;transition:border-color .12s,transform .12s!important;
 }
 /* Rarity: a thin top rule + a pill tag with a dot, same colours as before. */
@@ -673,14 +673,14 @@ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .effec
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .choice-icon{
  border-radius:50%;background:radial-gradient(circle at 40% 35%,#35301f,#0f0e0b 70%);box-shadow:inset 0 0 0 1px var(--ho-hair),0 0 0 3px #0006;padding:6px;box-sizing:border-box;
 }
-body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>.cumulative151{border-top:1px dashed #c9a24a33!important;color:var(--ho-ready)!important}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>.cumulative151{border-top:1px dashed #e8e2d41f!important;color:var(--ho-ready)!important}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:hover,
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:focus-visible{
  outline:none!important;border-color:var(--hud191-choice-accent)!important;transform:translateY(-2px)!important;
  box-shadow:0 0 0 1px var(--hud191-choice-accent),0 10px 24px #0008!important;
 }
 body.astra-ui #modal.choice-modal151.special-draft156 .modal-card{border-color:#d6ab5299!important;box-shadow:0 0 0 1px #d6ab5233,0 24px 70px #000c!important}
-body.astra-ui #modal.choice-modal151.special-draft156 #modalTitle{color:#f1d796!important}
+body.astra-ui #modal.choice-modal151.special-draft156 #modalTitle{color:#f4efe4!important}
 body.astra-ui #modal.choice-modal151 .legendary-reroll115{border-radius:999px!important;border-color:var(--ho-hair-strong)!important}
 @media(max-width:720px),(pointer:coarse){
  body.astra-ui #modal.choice-modal151 .modal-card{border-radius:16px!important;padding:14px 10px!important}
@@ -689,14 +689,14 @@ body.astra-ui #modal.choice-modal151 .legendary-reroll115{border-radius:999px!im
 }
 
 /* ---- 17i. Pause / settings: rounded sheet, tiles, pill chips + buttons. ---- */
-body.astra-ui.playing #modal:not(.choice-modal151){background:radial-gradient(ellipse at center,#15130fcc,#0a0907ee);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+body.astra-ui.playing #modal:not(.choice-modal151){background:radial-gradient(ellipse at center,#141413cc,#0a0907ee);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 body.astra-ui.playing #modal:not(.choice-modal151) .modal-card{
  border:1px solid var(--ho-hair-strong)!important;border-top:1px solid var(--ho-hair-strong)!important;border-radius:18px!important;
  background:var(--ho-glass-strong)!important;box-shadow:0 24px 70px #000c!important;
 }
-body.astra-ui.playing #modal:not(.choice-modal151) #modalTag{display:inline-block!important;padding:3px 10px;border-radius:999px;background:#c9a24a22;color:var(--ho-ready)!important}
+body.astra-ui.playing #modal:not(.choice-modal151) #modalTag{display:inline-block!important;padding:3px 10px;border-radius:999px;background:#e8e2d415;color:var(--ho-ready)!important}
 body.astra-ui.playing #modal #build151 h4{color:var(--ho-ready);letter-spacing:.1em}
-body.astra-ui.playing #modal .build-stats151>div{border:1px solid var(--ho-hair)!important;border-left:1px solid var(--ho-hair)!important;border-radius:10px;background:#100f0cc0!important;color:var(--ho-muted)}
+body.astra-ui.playing #modal .build-stats151>div{border:1px solid var(--ho-hair)!important;border-left:1px solid var(--ho-hair)!important;border-radius:10px;background:#0f0f0ec0!important;color:var(--ho-muted)}
 body.astra-ui.playing #modal .build-stats151 b{color:var(--ho-parchment)}
 body.astra-ui.playing #modal .build-chip151{border-radius:999px!important;padding:4px 11px!important;border-color:var(--ho-hair)!important}
 body.astra-ui.playing #modal.build-modal151 #modalActions{border-top:1px solid var(--ho-hair)!important;background:transparent!important;gap:8px!important}
@@ -747,8 +747,8 @@ body.astra-ui .boss-cutin.skill-side::before{
  content:"";display:block!important;position:absolute;inset:0;left:0!important;right:0!important;bottom:0!important;height:auto!important;
  transform:none!important;border:0!important;z-index:-1;
  background:
-  repeating-linear-gradient(100deg,transparent 0 38px,#f1d79614 38px 40px,transparent 40px 90px),
-  linear-gradient(90deg,#1b1812f2 0%,#1b1812e6 55%,#1b181200 100%);
+  repeating-linear-gradient(100deg,transparent 0 38px,#f4efe414 38px 40px,transparent 40px 90px),
+  linear-gradient(90deg,#181817f2 0%,#181817e6 55%,#18181700 100%);
  background-size:240px 100%,100% 100%;
  clip-path:polygon(0 30%,100% 0,100% 70%,0 100%);
  animation:ho-band-in .26s cubic-bezier(.2,.9,.3,1) both,ho-speed .5s linear infinite!important;
@@ -757,8 +757,8 @@ body.astra-ui .boss-cutin.skill-side::before{
 /* Brass rules on both slanted edges + a glint that crosses once. */
 body.astra-ui .boss-cutin.skill-side::after{
  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
- background:linear-gradient(90deg,transparent,#f1d79655 45%,transparent 60%) 0 0/35% 100% no-repeat,
-            linear-gradient(174.5deg,transparent 0 calc(30% - 2px),#d6b25e 0 30%,transparent 0 calc(100% - 2px),#d6b25e 0) ;
+ background:linear-gradient(90deg,transparent,#f4efe455 45%,transparent 60%) 0 0/35% 100% no-repeat,
+            linear-gradient(174.5deg,transparent 0 calc(30% - 2px),#e9e3d5 0 30%,transparent 0 calc(100% - 2px),#e9e3d5 0) ;
  clip-path:polygon(0 30%,100% 0,100% 70%,0 100%);
  animation:ho-glint .9s .15s ease-out both;
 }
@@ -778,7 +778,7 @@ body.astra-ui .boss-cutin.skill-side .boss-cutin-caption:before{display:none}
 body.astra-ui .boss-cutin.skill-side .boss-cutin-caption small:empty{display:block!important;font-size:0!important}
 body.astra-ui .boss-cutin.skill-side .boss-cutin-caption small:empty:before{content:"ACTIVE";font:800 11px/1 var(--astra-numeric);letter-spacing:.3em;color:var(--ho-ready)}
 body.astra-ui .boss-cutin.skill-side .boss-cutin-caption strong{
- font:italic 900 clamp(30px,3.6vw,46px)/1.02 var(--astra-type)!important;letter-spacing:-.02em!important;color:#f7e2a6!important;
+ font:italic 900 clamp(30px,3.6vw,46px)/1.02 var(--astra-type)!important;letter-spacing:-.02em!important;color:#f7f2e6!important;
  text-shadow:0 2px 0 #3a2a10,0 4px 12px #000c!important;white-space:nowrap;
 }
 body.astra-ui .boss-cutin.skill-side .boss-cutin-caption span{font:600 13px/1.2 var(--astra-type)!important;color:#d9ceb2!important;letter-spacing:.06em}
@@ -796,7 +796,7 @@ body.astra-ui .boss-cutin.skill-side .boss-cutin-caption span{font:600 13px/1.2 
 body.astra-ui .boss-cutin:not(.skill-side){
  left:auto!important;right:max(14px,env(safe-area-inset-right))!important;top:auto!important;bottom:34%!important;
  width:316px!important;height:104px!important;overflow:hidden;border:1px solid #c8513c80;border-radius:var(--ho-card-r);
- background:linear-gradient(90deg,#1d100ef2,#15130ff5 55%)!important;box-shadow:var(--ho-lift)!important;
+ background:linear-gradient(90deg,#1d100ef2,#141413f5 55%)!important;box-shadow:var(--ho-lift)!important;
  animation:ho-card-in .28s cubic-bezier(.2,.9,.3,1) both,ho-life 2.6s linear both!important;
 }
 body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-art{
@@ -883,7 +883,7 @@ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.rarity
 }
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.rarity-legendary .rarity-label160{background:linear-gradient(180deg,#f3d27a,#c99a3a)!important;color:#1a140a!important}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.rarity-legendary .rarity-label160:before{background:#1a140a}
-body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.rarity-legendary>b{color:#f7e2a6!important}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.rarity-legendary>b{color:#f7f2e6!important}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.rarity-legendary .choice-icon{
  background:radial-gradient(circle at 40% 35%,#5a4a24,#15110a 70%);box-shadow:inset 0 0 0 1px #f0c860,0 0 0 3px #0006,0 0 0 4px #f0c86055!important;
 }
@@ -923,15 +923,15 @@ body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary{
 @keyframes ho-glint-bg{from{background-position:-40% 0,0 0,0 0}to{background-position:160% 0,-240px 0,0 0}}
 body.astra-ui .boss-cutin.skill-side::after{
  content:""!important;position:absolute;inset:-2px 0;z-index:-2;transform:none!important;animation:none!important;
- background:linear-gradient(90deg,#d6b25e 0%,#d6b25eaa 55%,#d6b25e00 100%)!important;
+ background:linear-gradient(90deg,#e9e3d5 0%,#e9e3d5aa 55%,#e9e3d500 100%)!important;
  clip-path:polygon(0 30%,100% 0,100% 70%,0 100%);
 }
 body.astra-ui .boss-cutin.skill-side::before{
  inset:2px 0!important;
  background:
   linear-gradient(90deg,transparent,#fff0c233,transparent) no-repeat,
-  repeating-linear-gradient(100deg,transparent 0 38px,#f1d7961a 38px 40px,transparent 40px 90px),
-  linear-gradient(90deg,#1b1812f5 0%,#1b1812e8 55%,#1b181200 100%)!important;
+  repeating-linear-gradient(100deg,transparent 0 38px,#f4efe41a 38px 40px,transparent 40px 90px),
+  linear-gradient(90deg,#181817f5 0%,#181817e8 55%,#18181700 100%)!important;
  background-size:30% 100%,240px 100%,100% 100%!important;
  animation:ho-band-in .26s cubic-bezier(.2,.9,.3,1) both,ho-glint-bg 1.6s linear infinite!important;
 }
@@ -1086,3 +1086,92 @@ body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .
  body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption span{font-size:9.5px!important}
  body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption:before{width:110px!important}
 }
+
+/* ==========================================================================
+   26. REFINE — restrained palette + pause sheet rebuilt on a grid.
+       Colour rule: charcoal glass, bone type, hairline neutrals. Brass is an
+       accent only (XP, special equipment, rare tier); danger stays oxblood.
+   ========================================================================== */
+body.astra-ui{--ho-ready:#e9e3d5;--ho-parchment:#efebe2;--ho-muted:#a3a095;--ho-numeral:#f5f2ea;--ho-hair:#ffffff17;--ho-hair-strong:#ffffff2b;
+ --ho-glass:linear-gradient(180deg,#1f1f1dde,#121211e6);--ho-glass-strong:linear-gradient(180deg,#242422f5,#131312f7)}
+/* Text wraps like a finished product: balanced headings, no orphan words. */
+body.astra-ui #modal :is(h2,h3,h4,#modalTitle,#modalText,.build-meta151,p){text-wrap:balance;word-break:keep-all;overflow-wrap:normal}
+
+/* ---- Pause / build sheet ---- */
+body.astra-ui.playing #modal.build-modal151 .modal-card{
+ box-sizing:border-box;width:min(560px,calc(100vw - 20px))!important;max-width:none!important;max-height:calc(100dvh - 20px)!important;
+ padding:20px 18px 0!important;overflow-y:auto;overflow-x:hidden;border-radius:20px!important;background:#161615f7!important;
+ border:1px solid var(--ho-hair-strong)!important;scrollbar-width:none;
+}
+body.astra-ui.playing #modal.build-modal151 .modal-card::-webkit-scrollbar{display:none}
+body.astra-ui.playing #modal.build-modal151 #modalTag{margin:0 auto 6px!important;padding:3px 10px!important;font-size:10px!important;background:#ffffff0f!important;color:var(--ho-muted)!important}
+body.astra-ui.playing #modal.build-modal151 #modalTitle{margin:0!important;font:800 21px/1.25 var(--astra-type)!important;color:var(--ho-parchment)!important}
+body.astra-ui.playing #modal.build-modal151 #modalText{margin:4px 0 0!important;font-size:12px!important;color:var(--ho-muted)!important}
+@media(pointer:coarse){body.astra-ui.playing #modal.build-modal151 #modalText{display:none}}
+body.astra-ui.playing #modal #build151{display:block!important;margin:14px 0 0!important}
+body.astra-ui.playing #modal #build151>section{display:block!important;margin:0 0 14px}
+body.astra-ui.playing #modal #build151 h3{margin:0!important;font:700 16px/1.3 var(--astra-type)!important;color:var(--ho-parchment)!important}
+body.astra-ui.playing #modal #build151 .build-meta151{margin:3px 0 12px!important;font-size:12px!important;line-height:1.45!important;color:var(--ho-muted)!important}
+/* Stat tiles: equal height, 2 up on phones, 3 up wider. */
+body.astra-ui.playing #modal #build151 .build-stats151{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:1fr;gap:8px!important;width:100%;
+}
+@media(min-width:540px){body.astra-ui.playing #modal #build151 .build-stats151{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+body.astra-ui.playing #modal #build151 .build-stats151>div{
+ display:flex!important;flex-direction:column;justify-content:center;align-items:center;gap:2px!important;min-height:64px;box-sizing:border-box;
+ padding:10px 8px!important;margin:0!important;border:0!important;border-radius:12px!important;
+ background:#ffffff08!important;box-shadow:inset 0 0 0 1px var(--ho-hair)!important;text-align:center;flex:initial!important;width:auto!important;
+}
+body.astra-ui.playing #modal #build151 .build-stats151 b{font:600 11px/1.3 var(--astra-type)!important;color:var(--ho-muted)!important;letter-spacing:.02em}
+body.astra-ui.playing #modal #build151 .build-stats151 span{font:600 13px/1.35 var(--astra-type)!important;color:var(--ho-numeral)!important;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* Section labels: small caps line with hairlines. */
+body.astra-ui.playing #modal #build151 h4{
+ display:flex!important;align-items:center;gap:10px;margin:16px 0 8px!important;font:600 11px/1 var(--astra-type)!important;letter-spacing:.14em!important;color:var(--ho-muted)!important;
+}
+body.astra-ui.playing #modal #build151 h4:before,body.astra-ui.playing #modal #build151 h4:after{content:"";flex:1;height:1px;background:var(--ho-hair)}
+body.astra-ui.playing #modal #build151 .build-chips151{display:flex!important;flex-wrap:wrap;justify-content:center;gap:6px!important}
+body.astra-ui.playing #modal #build151 .build-chip151{
+ display:inline-flex;align-items:center;gap:6px;padding:6px 11px 6px 9px!important;border-radius:999px!important;border:0!important;
+ background:#ffffff0a!important;box-shadow:inset 0 0 0 1px var(--ho-hair);color:var(--ho-parchment)!important;font:500 12px/1.2 var(--astra-type)!important;white-space:nowrap;
+}
+body.astra-ui.playing #modal #build151 .build-chip151:before{content:"";width:6px;height:6px;border-radius:50%;background:#a4a7a8;flex:none}
+body.astra-ui.playing #modal #build151 .build-chip151.rarity-magic:before{background:#5f9be0}
+body.astra-ui.playing #modal #build151 .build-chip151.rarity-rare:before{background:#e6bf3e}
+body.astra-ui.playing #modal #build151 .build-chip151.rarity-unique:before{background:#e07ab5}
+body.astra-ui.playing #modal #build151 .build-chip151.rarity-legendary{box-shadow:inset 0 0 0 1px #f0c86088;background:linear-gradient(180deg,#f0c86014,#f0c86008)!important;color:#f6e7bd!important}
+body.astra-ui.playing #modal #build151 .build-chip151.rarity-legendary:before{background:#f0c860}
+body.astra-ui.playing #modal #build151 .empty151{font-size:12px;color:#6f6c64}
+/* Sticky action bar: opaque, full-bleed, never overlaps content. */
+body.astra-ui.playing #modal.build-modal151 #modalActions{
+ position:sticky!important;bottom:0!important;z-index:2;display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;
+ margin:6px -18px 0!important;padding:12px 18px calc(14px + env(safe-area-inset-bottom))!important;
+ background:#161615!important;border-top:1px solid var(--ho-hair)!important;box-shadow:0 -12px 18px #161615;
+}
+body.astra-ui.playing #modal.build-modal151 #modalActions button{grid-column:auto!important;height:46px;min-height:46px!important;margin:0!important;font:700 14px/1 var(--astra-type)!important;border-radius:14px!important;white-space:nowrap!important}
+body.astra-ui.playing #modal.build-modal151 #modalActions button:first-child{grid-column:1/-1!important}
+body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary{border-radius:14px!important;box-shadow:none!important}
+body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary:first-child{background:#f3efe6!important;border-color:#f3efe6!important;color:#141413!important}
+body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary+.primary{background:#ffffff0a!important;border:1px solid var(--ho-hair-strong)!important;color:var(--ho-parchment)!important}
+body.astra-ui.playing #modal #modalActions button:focus-visible{outline:2px solid #f3efe6aa!important;outline-offset:2px}
+/* Settings sheet (same shell). */
+body.astra-ui.playing #modal:not(.choice-modal151):not(.build-modal151) .modal-card{border-radius:20px!important;background:#161615f7!important;width:min(460px,calc(100vw - 20px))!important}
+body.astra-ui.playing #modal:not(.choice-modal151):not(.build-modal151) #modalActions{display:flex!important;flex-direction:column;gap:8px!important}
+body.astra-ui.playing #modal:not(.choice-modal151):not(.build-modal151) #modalActions button{width:100%!important;height:46px;min-height:46px!important;border-radius:14px!important}
+
+/* ---- Upgrade cards: every card in a draft is the same height. ---- */
+body.astra-ui #modal.choice-modal151 #modalActions{grid-auto-rows:1fr}
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{height:100%!important;min-height:0!important;max-height:none!important}
+}
+body.astra-ui #modal.choice-modal151 .modal-card{background:#161615f7!important;border-color:var(--ho-hair-strong)!important}
+body.astra-ui #modal.choice-modal151 #modalTag{background:#ffffff0f!important;color:var(--ho-muted)!important}
+body.astra-ui #modal.choice-modal151 #modalTitle{color:var(--ho-parchment)!important}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{background:linear-gradient(180deg,var(--hud191-choice-tint,transparent),transparent 45%),#1b1b19!important}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>.cumulative151{color:#cfcabd!important;border-top-color:var(--ho-hair)!important}
+body.astra-ui #modal.choice-modal151 .legendary-reroll115{background:#ffffff08!important;color:var(--ho-parchment)!important}
+body.astra-ui.playing #modal #build151 .build-stats151>div{justify-self:stretch!important;align-self:stretch!important;width:100%!important;max-width:none!important;min-width:0!important}
+body.astra-ui.playing #modal #build151 .build-stats151 span{white-space:normal;text-wrap:balance}
+body.astra-ui.playing #modal #modalActions button:focus-visible{outline:2px solid #ffffff3d!important;outline-offset:3px}
+body.astra-ui #modal.choice-modal151 #modalActions{grid-auto-rows:auto!important}
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{align-self:stretch}
+body.astra-ui #modal.choice-modal151 .legendary-reroll115{height:40px!important;min-height:40px!important;max-height:40px!important;align-self:start;border-radius:12px!important;font-size:12px!important}
