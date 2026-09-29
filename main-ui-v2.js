@@ -1,4 +1,4 @@
-import {getLocale,subscribe,t} from './i18n.js?v=431';
+import {getLocale,subscribe,t} from './i18n.js?v=436';
 
 const $=id=>document.getElementById(id);
 const hangar=$('hangar');
