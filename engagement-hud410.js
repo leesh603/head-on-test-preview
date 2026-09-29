@@ -54,7 +54,7 @@ export function drawPill(c, x, y, text, tone, { icon = null, progress = null, al
   c.font = `700 11.5px ${family()}`;
   c.textBaseline = 'middle';
   const tw = c.measureText(text).width;
-  const iconW = icon ? 16 : 0;
+  const iconW = icon ? 24 : 0;
   const h = 22, padX = 10, w = Math.ceil(tw + padX * 2 + iconW);
   const left = Math.round(x - w / 2), top = Math.round(y - h / 2);
   c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 8; c.shadowOffsetY = 2;
@@ -62,7 +62,7 @@ export function drawPill(c, x, y, text, tone, { icon = null, progress = null, al
   c.fillStyle = tone.fill; c.fill();
   c.shadowColor = 'transparent';
   c.lineWidth = 1; c.strokeStyle = tone.edge; c.stroke();
-  if (icon) icon(c, left + padX + 5, y, 10, tone);
+  if (icon) icon(c, left + padX + 8, y, 13, tone);
   c.fillStyle = tone.text; c.textAlign = 'left';
   c.fillText(text, left + padX + iconW, y + 0.5);
   if (progress != null) {
@@ -74,19 +74,34 @@ export function drawPill(c, x, y, text, tone, { icon = null, progress = null, al
   return { w, h };
 }
 
-// Small glyphs for the pill.
+// Small glyphs for the pill. Aircraft are solid notched deltas (the map-marker
+// shape players already read as "a plane"), pointing along +x.
+function delta(c, x, y, s, angle) {
+  c.save(); c.translate(x, y); c.rotate(angle); c.scale(s, s);
+  c.beginPath(); c.moveTo(.55, 0); c.lineTo(-.45, -.42); c.lineTo(-.22, 0); c.lineTo(-.45, .42); c.closePath();
+  c.fill(); c.restore();
+}
 function iconTail(c, x, y, s, tone) {
-  // chevron behind a dot: "on his six"
-  c.save(); c.strokeStyle = tone.line; c.fillStyle = tone.line; c.lineWidth = 1.8; c.lineCap = 'round'; c.lineJoin = 'round';
-  c.beginPath(); c.moveTo(x - s * .5, y - s * .35); c.lineTo(x - s * .1, y); c.lineTo(x - s * .5, y + s * .35); c.stroke();
-  c.beginPath(); c.arc(x + s * .35, y, s * .22, 0, Math.PI * 2); c.fill(); c.restore();
+  // enemy inside our gunsight: ring with four ticks, delta at the centre
+  c.save(); c.strokeStyle = tone.line; c.fillStyle = tone.line; c.lineWidth = 1.4; c.lineCap = 'round';
+  const r = s * .56;
+  c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.stroke();
+  for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+    c.beginPath(); c.moveTo(x + dx * r * .72, y + dy * r * .72); c.lineTo(x + dx * r * 1.28, y + dy * r * 1.28); c.stroke();
+  }
+  delta(c, x + s * .04, y, s * .5, -Math.PI / 2);
+  c.restore();
 }
 function iconHeadOn(c, x, y, s, tone) {
-  // two chevrons pointing at each other: nose to nose
-  c.save(); c.strokeStyle = tone.line; c.lineWidth = 1.8; c.lineCap = 'round'; c.lineJoin = 'round';
-  c.beginPath(); c.moveTo(x - s * .6, y - s * .35); c.lineTo(x - s * .15, y); c.lineTo(x - s * .6, y + s * .35); c.stroke();
-  c.beginPath(); c.moveTo(x + s * .6, y - s * .35); c.lineTo(x + s * .15, y); c.lineTo(x + s * .6, y + s * .35); c.stroke();
-  c.restore();
+  // two aircraft nose to nose with a spark between them
+  c.save(); c.fillStyle = tone.line;
+  delta(c, x - s * .62, y, s * .72, 0);
+  delta(c, x + s * .62, y, s * .72, Math.PI);
+  c.beginPath();
+  const k = s * .2;
+  c.moveTo(x, y - k); c.lineTo(x + k * .3, y - k * .3); c.lineTo(x + k, y); c.lineTo(x + k * .3, y + k * .3);
+  c.lineTo(x, y + k); c.lineTo(x - k * .3, y + k * .3); c.lineTo(x - k, y); c.lineTo(x - k * .3, y - k * .3); c.closePath();
+  c.fill(); c.restore();
 }
 
 // Tail chase: progress ring + brackets on the target, pill above.
