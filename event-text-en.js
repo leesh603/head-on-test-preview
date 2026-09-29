@@ -1,7 +1,7 @@
 // English for in-game event toasts that were only written in Korean.
 // Presentation only: wraps Game#event to swap the display text when the
 // locale is English. Short technical tokens ('balloon', 'heal', …) pass through.
-import {getLocale} from './i18n.js?v=428';
+import {getLocale,activeName,pilotName} from './i18n.js?v=428';
 
 const EXACT = {
   '관측기구 격추 · 적 포병 관측망 붕괴 — 12초간 관측포격 중단': 'Observation balloon down · enemy spotting net broken — no observed fire for 12s',
@@ -67,10 +67,21 @@ const PREFIX = [
   ['적 에이스 · ', 'Enemy ace · '],
   ['연쇄 끊김 ', 'Chain broken '],
 ];
+// Pilot skill / name strings (Korean source) → English, filled from PILOTS at install.
+let NAMES = [];
+export function registerEventPilots(pilots) {
+  const m = new Map();
+  for (const [id, p] of Object.entries(pilots || {})) {
+    if (p?.skill && /[가-힣]/.test(p.skill)) m.set(p.skill, () => activeName(id, p.skill));
+    if (p?.name && /[가-힣]/.test(p.name)) m.set(p.name, () => pilotName(id, p.name));
+  }
+  NAMES = [...m].sort((a, b) => b[0].length - a[0].length);
+}
 export function eventTextEN(text) {
   if (typeof text !== 'string' || !/[가-힣]/.test(text)) return text;
   if (EXACT[text]) return EXACT[text];
-  for (const [ko, en] of PREFIX) if (text.startsWith(ko)) return en + text.slice(ko.length);
+  for (const [ko, en] of PREFIX) if (text.startsWith(ko)) text = en + text.slice(ko.length);
+  for (const [ko, en] of NAMES) if (text.includes(ko)) text = text.split(ko).join(en());
   return text;
 }
 export function installEventTextEN(...classes) {
