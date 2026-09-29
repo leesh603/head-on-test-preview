@@ -18,7 +18,7 @@ import cv2
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(__file__))
-from fxlib import (Canvas, SS, hexrgb, ramp, smooth, noise, brush, radial, glow,
+from fxlib import (Canvas, SS, hexrgb, ramp, smooth, noise, brush, radial, glow,  # noqa
                    streaks, line, shard, petal_flash, bands, smoke_balls, fire_balls, flame_tongue)
 
 
@@ -30,7 +30,7 @@ def smoke_layer(cv, spheres, lit, shadow, seed=0, alpha=1.0, warp=18, soft=3.0, 
 
 
 def fire_layer(cv, spheres, seed, heat=1.0, alpha=1.0, stops=None, core_bias=0.0, **_):
-    fire_balls(cv, spheres, seed, stops or FIRE, heat * (1 + core_bias), alpha)
+    fire_balls(cv, spheres, seed, stops or FIRE, heat * 0.93 * (1 + core_bias * 0.6), alpha)
 
 R = np.random.default_rng
 
@@ -41,7 +41,7 @@ SMOKE_LIT, SMOKE_SHADE = '#d9d0bd', '#6d6458'
 SOOT_LIT, SOOT_SHADE = '#9d9080', '#463d35'
 DUST_LIT, DUST_SHADE = '#cdb48c', '#6e5a40'
 FIRE = [(0.0, '#4a1c10'), (0.22, '#9c3218'), (0.42, '#dc5e24'), (0.62, '#f49a3e'),
-        (0.8, '#ffd27a'), (1.0, '#fff6dc')]
+        (0.8, '#f8b862'), (1.0, '#ffd998')]
 FIRE_COOL = [(0.0, '#3a1a12'), (0.3, '#7e2a16'), (0.55, '#c64a1e'), (0.8, '#ee8a34'), (1.0, '#ffc868')]
 
 
@@ -86,7 +86,7 @@ def muzzle(kind='single'):
         glow(cv, cx + 8 + ox, cy + oy, 18, '#ffb04a', 0.28, 1.6)
     for i, (ox, oy) in enumerate(offs):
         petal_flash(cv, cx + ox, cy + oy, L * (0.86 if kind == 'twin' else 1), W, seed + i * 7, lobes,
-                    edge='#e46a22', mid='#ffc452', core='#fffbea')
+                    edge='#d9601e', mid='#f7b24a', core='#ffe9c0')
         glow(cv, cx + 3 + ox, cy + oy, 6.5, '#fffdf2', 0.95, 1.4)
     return cv
 
@@ -94,7 +94,7 @@ def muzzle(kind='single'):
 def tracer_core():
     cv = Canvas(96, 24)
     # white-hot head on the right, short warm tail
-    line(cv, 8, 12, 88, 12, 4.2, '#fffef6', '#fff0c8', 1.0, taper=False)
+    line(cv, 8, 12, 88, 12, 3.8, '#fff3d6', '#f6d9a2', 1.0, taper=False)
     X, Y = cv.X / SS, cv.Y / SS
     fade = smooth(6, 60, X)  # tail fades to the left
     head = np.exp(-((X - 86) ** 2) / 30 - ((Y - 12) ** 2) / 8)
@@ -109,7 +109,7 @@ def tracer_glow():
     along = smooth(0, 80, X)
     a = np.exp(-(d / (2.4 + 3.2 * along)) ** 2) * along * smooth(96, 84, X)
     col = np.broadcast_to(hexrgb('#ffffff'), cv.rgb.shape).copy()
-    cv.over(col, a * 0.9)
+    cv.over(col, a * 0.6)
     return cv
 
 
@@ -139,7 +139,7 @@ def rocket_flame():
     """Exhaust at the nozzle, pointing LEFT (rocket flies right); nozzle at x=86."""
     cv = Canvas(96, 32)
     petal_flash(cv, 86, 16, 58, 8, 61, ((np.pi, 1.0, 1.0), (np.pi + 0.35, 0.35, 0.5), (np.pi - 0.35, 0.35, 0.5)),
-                edge='#d8561e', mid='#ffb648', core='#fffbe8', jag=0.25)
+                edge='#cc521c', mid='#f5a844', core='#ffe6bc', jag=0.25)
     glow(cv, 84, 16, 9, '#fffdf0', 0.9, 1.4)
     return cv
 
@@ -380,6 +380,198 @@ def smoke_heavy():
     return cv
 
 
+# ================================================================ E  CANNON (COW 37mm / moteur-canon)
+
+def cannon_impact(frame, heavy=True):
+    """Cannon shell hit: tight hot burst, dark fragments, grey-brown puff. Heavier than pop."""
+    S = 192 if heavy else 160
+    cv = Canvas(S, S)
+    c = S / 2
+    k = 1.0 if heavy else 0.8
+    seed = (300 if heavy else 320) + frame
+    if frame == 0:
+        glow(cv, c, c, 60 * k, '#ffc670', 0.3, 2.4)
+        fire_layer(cv, cluster(c, c, 10 * k, 8, 9 * k, 15 * k, seed), seed, 1.05, stops=FIRE, core_bias=0.12)
+        streaks(cv, c, c, 10, 8, 64 * k, 2.4, seed, '#fff1d2', '#f49a3a')
+        glow(cv, c, c, 12 * k, '#fffdf2', 0.9, 1.3)
+    elif frame == 1:
+        smoke_layer(cv, cluster(c, c, 26 * k, 12, 10 * k, 17 * k, seed), SOOT_LIT, SOOT_SHADE, seed, 0.9, 12)
+        fire_layer(cv, cluster(c, c, 18 * k, 10, 9 * k, 16 * k, seed + 1), seed, 0.95, stops=FIRE)
+        for i in range(6):
+            a = i * 1.047 + 0.4
+            shard(cv, c + np.cos(a) * 52 * k, c + np.sin(a) * 52 * k, 3.2 * k, a * 2, seed + i, '#2a241e', '#a08a6c')
+    elif frame == 2:
+        smoke_layer(cv, cluster(c, c - 3, 34 * k, 14, 11 * k, 19 * k, seed), SOOT_LIT, SOOT_SHADE, seed, 0.88, 14,
+                    glow=('#cf5c28', 22 * k, (c, c)))
+        embers(cv, c, c, 6, 22 * k, 60 * k, seed, 1.1, 0.7)
+    else:
+        smoke_layer(cv, cluster(c, c - 6, 40 * k, 14, 11 * k, 20 * k, seed), '#a39786', '#4c433a', seed, 0.55, 16, erode=0.6)
+    return cv
+
+
+# ================================================================ F  HEAVY (boss / aircraft heavy / structures)
+
+def boss_blast(frame):
+    """Heavy blast (bombers, bosses, hydrogen): big fireball rolling into oily black smoke."""
+    S = 256
+    cv = Canvas(S, S)
+    c = S / 2
+    seed = 340 + frame
+    if frame == 0:
+        glow(cv, c, c, 110, '#ffc670', 0.32, 2.4)
+        fire_layer(cv, cluster(c, c, 26, 14, 16, 30, seed), seed, 1.08, stops=FIRE, core_bias=0.14)
+        streaks(cv, c, c, 14, 24, 110, 3.0, seed, '#fff1d2', '#f49a3a')
+    elif frame == 1:
+        smoke_layer(cv, cluster(c, c, 70, 22, 18, 32, seed), '#6d6258', '#26211d', seed, 0.95, 20)
+        fire_layer(cv, cluster(c, c - 4, 52, 20, 18, 34, seed + 1), seed, 1.0, stops=FIRE, core_bias=0.05)
+        for i in range(8):
+            a = i * 0.785 + 0.3
+            shard(cv, c + np.cos(a) * 104, c + np.sin(a) * 104, 5.5, a * 2.1, seed + i, '#231e19', '#8e7a60')
+        embers(cv, c, c, 14, 60, 118, seed, 1.6, 0.9)
+    elif frame == 2:
+        smoke_layer(cv, [(c, c - 4, 44), (c - 20, c + 10, 34), (c + 22, c - 16, 34)] + cluster(c, c - 6, 80, 26, 20, 36, seed),
+                    '#6d6258', '#26211d', seed, 0.95, 24, glow=('#c9522a', 56, (c, c)))
+        embers(cv, c, c, 14, 40, 116, seed, 1.5, 0.85)
+    else:
+        smoke_layer(cv, [(c, c - 12, 40)] + cluster(c, c - 14, 90, 24, 20, 38, seed), '#77695d', '#2e2823', seed, 0.62, 28, erode=0.6)
+        embers(cv, c, c - 8, 5, 20, 80, seed, 1.2, 0.5)
+    return cv
+
+
+def structure_blast(frame):
+    """Ground structure destroyed: dust + timber/stone debris + short fire, brown-grey column."""
+    S = 256
+    cv = Canvas(S, S)
+    c = S / 2
+    seed = 360 + frame
+    if frame == 0:
+        smoke_layer(cv, [(c + np.cos(a) * 52, c + np.sin(a) * 52, 20) for a in np.linspace(0, 2 * np.pi, 12, endpoint=False)],
+                    DUST_LIT, DUST_SHADE, seed, 0.6, 14, erode=0.55)
+        glow(cv, c, c, 96, '#ffc670', 0.3, 2.4)
+        fire_layer(cv, cluster(c, c, 24, 12, 14, 26, seed), seed, 1.05, stops=FIRE, core_bias=0.12)
+    elif frame == 1:
+        for i in range(14):
+            a = i * 0.449 + 0.1
+            rr = R(seed + i).uniform(66, 110)
+            shard(cv, c + np.cos(a) * rr, c + np.sin(a) * rr, R(seed + i).uniform(3.5, 6.5), a, seed + i,
+                  '#3b3026', '#a48a68')
+        smoke_layer(cv, cluster(c, c, 64, 24, 16, 30, seed), DUST_LIT, DUST_SHADE, seed, 0.95, 20)
+        fire_layer(cv, cluster(c, c - 4, 32, 12, 14, 26, seed + 1), seed, 0.95, stops=FIRE)
+    elif frame == 2:
+        smoke_layer(cv, cluster(c, c + 4, 78, 26, 18, 34, seed), DUST_LIT, DUST_SHADE, seed, 0.95, 24)
+        smoke_layer(cv, cluster(c - 4, c - 12, 38, 8, 20, 30, seed + 3), SOOT_LIT, SOOT_SHADE, seed + 3, 0.8, 18,
+                    glow=('#c9522a', 34, (c, c - 6)))
+        embers(cv, c, c, 10, 30, 100, seed, 1.3, 0.7)
+    else:
+        X, Y = cv.X / SS, cv.Y / SS
+        n = noise(cv.h, cv.w, 22 * SS, seed, 3)
+        d = np.sqrt((X - c) ** 2 + (Y - c) ** 2) / 64 + (n - 0.5) * 0.5
+        cv.over(np.broadcast_to(hexrgb('#2a231c'), cv.rgb.shape).copy(), smooth(1.0, 0.45, d) * 0.6)
+        smoke_layer(cv, cluster(c, c - 10, 88, 24, 18, 34, seed), '#c2b49a', '#6a5d4c', seed, 0.6, 26, erode=0.6)
+    return cv
+
+
+# ================================================================ G  FLAK / SHOCK
+
+def flak():
+    """Anti-aircraft airburst: compact black puff with a dull red heart. Reads as danger, not fireworks."""
+    cv = Canvas(128, 128)
+    c = 64
+    smoke_layer(cv, cluster(c, c, 20, 12, 9, 15, 381), '#5b534c', '#1e1a17', 381, 0.95, 12, glow=('#b8452a', 14, (c, c)))
+    embers(cv, c, c, 6, 14, 40, 381, 1.1, 0.6, '#ffae5a')
+    return cv
+
+
+def shock_ring():
+    """Faint dust ring pushed out by a heavy blast (drawn large and transparent)."""
+    cv = Canvas(192, 192)
+    c = 96
+    X, Y = cv.X / SS - c, cv.Y / SS - c
+    d = np.sqrt(X * X + Y * Y)
+    n = noise(cv.h, cv.w, 10 * SS, 391, 3)
+    ring = np.exp(-((d - 78 + (n - 0.5) * 10) / 7) ** 2)
+    inner = np.exp(-((d - 70) / 14) ** 2) * 0.35
+    a = np.clip(ring * 0.75 + inner, 0, 1) * (0.6 + 0.4 * n)
+    col = ramp(np.clip(0.5 + (X * -0.5 + Y * -0.6) / 160, 0, 1), [(0, '#8e7b62'), (1, '#e3d4b6')])
+    cv.over(col, a)
+    return cv
+
+
+# ================================================================ H  WATER
+
+WATER_LIT, WATER_SHADE = '#f3f6f4', '#8ea4ab'
+
+
+def naval_splash():
+    """Shell / bullet splash seen from above: white crown of spray + droplets."""
+    cv = Canvas(160, 160)
+    c = 80
+    X, Y = cv.X / SS - c, cv.Y / SS - c
+    d = np.sqrt(X * X + Y * Y)
+    n = noise(cv.h, cv.w, 8 * SS, 401, 3)
+    ring = np.exp(-((d - 46 + (n - 0.5) * 14) / 10) ** 2) * 0.55
+    cv.over(np.broadcast_to(hexrgb('#dfeae8'), cv.rgb.shape).copy(), ring * (0.5 + 0.5 * n))
+    rr_ = R(404)
+    crown = []
+    for a in np.linspace(0, 2 * np.pi, 9, endpoint=False) + rr_.uniform(-0.25, 0.25, 9):
+        d_ = rr_.uniform(22, 34)
+        crown.append((c + np.cos(a) * d_, c + np.sin(a) * d_, rr_.uniform(7, 13)))
+    smoke_layer(cv, [(c, c, 20)] + crown + cluster(c, c, 16, 6, 8, 13, 402), WATER_LIT, WATER_SHADE, 402, 0.92, 10, erode=0.55)
+    r = R(403)
+    for i in range(22):
+        a = r.uniform(0, 2 * np.pi)
+        rr = r.uniform(44, 70)
+        glow(cv, c + np.cos(a) * rr, c + np.sin(a) * rr, r.uniform(1.6, 3.0), '#f4f8f6', 0.9, 1.2)
+    return cv
+
+
+def naval_foam():
+    """Settling foam ring on the water."""
+    cv = Canvas(192, 192)
+    c = 96
+    X, Y = cv.X / SS - c, cv.Y / SS - c
+    d = np.sqrt(X * X + Y * Y)
+    n = noise(cv.h, cv.w, 12 * SS, 411, 4)
+    f = noise(cv.h, cv.w, 4 * SS, 412, 3)
+    ring = np.exp(-((d - 58 + (n - 0.5) * 22) / 16) ** 2)
+    a = np.clip(ring * smooth(0.35, 0.7, f * 0.6 + n * 0.4), 0, 1) * 0.85
+    col = ramp(np.clip(0.45 + (X * -0.5 + Y * -0.6) / 180, 0, 1), [(0, '#a9bcc0'), (1, '#f4f7f5')])
+    cv.over(col, a)
+    return cv
+
+
+# ================================================================ I  MISC GROUND / WING
+
+def dust_puff():
+    cv = Canvas(96, 96)
+    smoke_layer(cv, cluster(48, 48, 20, 14, 7, 13, 421), DUST_LIT, DUST_SHADE, 421, 0.8, 12, erode=0.5)
+    return cv
+
+
+def dirt_burst():
+    """Dirt thrown up by a near miss: low dust fan + clods, no fire."""
+    cv = Canvas(160, 160)
+    c = 80
+    for i in range(12):
+        a = i * 0.5236 + 0.2
+        rr = R(430 + i).uniform(40, 66)
+        shard(cv, c + np.cos(a) * rr, c + np.sin(a) * rr, R(430 + i).uniform(2.5, 4.5), a, 430 + i, '#3b2c1f', '#9a7a52')
+    smoke_layer(cv, cluster(c, c, 34, 18, 9, 16, 431), DUST_LIT, DUST_SHADE, 431, 0.9, 14)
+    return cv
+
+
+def fire_wing():
+    """Burning wing fabric: short ragged flames streaming DOWN, lighter than an engine fire."""
+    cv = Canvas(128, 128)
+    c = 64
+    smoke_layer(cv, [(c + np.sin(i * 2.1) * 8, 78 + i * 8, 6 + i * 2) for i in range(5)], SOOT_LIT, SOOT_SHADE, 441, 0.6, 12,
+                erode=0.6)
+    for i, dx in enumerate((-16, -4, 8, 18)):
+        flame_tongue(cv, c + dx, 44 + abs(dx) * 0.3, np.pi / 2 + dx * 0.01, 38 - abs(dx) * 0.4, 7, 442 + i, FIRE, 0.95,
+                     turb=0.6)
+    return cv
+
+
 # ------------------------------------------------------------------ registry
 SPRITES = {
     # A
@@ -400,6 +592,18 @@ SPRITES = {
     'smokePuff': lambda: puff(221, SMOKE_LIT, SMOKE_SHADE, 96, 14, 8, 0.85),
     'smokeGray': lambda: puff(222, '#c4bcae', '#5f574d', 128, 22, 10, 0.9),
     'smokeDark': lambda: puff(223, SOOT_LIT, SOOT_SHADE, 128, 22, 10, 0.92),
+    # E
+    **{f'cowImpact{i}': (lambda i=i: cannon_impact(i, True)) for i in range(4)},
+    **{f'moteurImpact{i}': (lambda i=i: cannon_impact(i, False)) for i in range(4)},
+    # F
+    **{f'bossBlast{i}': (lambda i=i: boss_blast(i)) for i in range(4)},
+    **{f'structure{i}': (lambda i=i: structure_blast(i)) for i in range(4)},
+    # G
+    'flak': flak, 'shockRing': shock_ring,
+    # H
+    'navalSplash3': naval_splash, 'navalFoam3': naval_foam,
+    # I
+    'dustPuff': dust_puff, 'dirtBurst': dirt_burst, 'fireWing': fire_wing,
 }
 
 FAMILY = {
@@ -408,10 +612,13 @@ FAMILY = {
     'C': ['bombShadow'] + [f'mortarImpact{i}' for i in range(4)] + ['debrisShard', 'smokeHeavy'],
     'D': [f'pop{i}' for i in range(4)] + [f'airblast{i}' for i in range(4)] +
          ['fireEngine', 'fireFlash', 'fireGround', 'flameJet', 'smokeTrail', 'smokePuff', 'smokeGray', 'smokeDark'],
+    'E': [f'cowImpact{i}' for i in range(4)] + [f'moteurImpact{i}' for i in range(4)],
+    'F': [f'bossBlast{i}' for i in range(4)] + [f'structure{i}' for i in range(4)],
+    'G': ['flak', 'shockRing', 'navalSplash3', 'navalFoam3', 'dustPuff', 'dirtBurst', 'fireWing'],
 }
 
 
-def pack(images, width=1024, pad=2):
+def pack(images, width=2048, pad=2):
     """Shelf packer, tallest first. Returns atlas + rects."""
     order = sorted(images, key=lambda k: -images[k].shape[0])
     x = y = shelf = 0
@@ -450,7 +657,7 @@ def main():
     cv2.imwrite(os.path.join(outdir, 'fx-sample-atlas.png'), cv2.cvtColor(atlas, cv2.COLOR_RGBA2BGRA))
     ok, buf = cv2.imencode('.webp', cv2.cvtColor(atlas, cv2.COLOR_RGBA2BGRA), [cv2.IMWRITE_WEBP_QUALITY, 100])
     open(os.path.join(outdir, 'fx-sample-atlas.webp'), 'wb').write(buf.tobytes())
-    manifest = {'version': 2, 'image': 'fx-sample-atlas.webp', 'size': [atlas.shape[1], atlas.shape[0]],
+    manifest = {'version': 4, 'image': 'fx-sample-atlas.webp', 'size': [atlas.shape[1], atlas.shape[0]],
                 'families': FAMILY, 'rects': {k: list(map(int, v)) for k, v in rects.items()}}
     json.dump(manifest, open(os.path.join(outdir, 'fx-sample.json'), 'w'), indent=1)
     print('atlas', atlas.shape, 'webp', len(buf) // 1024, 'KB')
