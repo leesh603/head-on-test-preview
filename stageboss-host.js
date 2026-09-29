@@ -1,8 +1,8 @@
 
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=416';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=416';
-import {bossSoundFor} from './boss-feedback.js?v=416';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=416';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=417';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=417';
+import {bossSoundFor} from './boss-feedback.js?v=417';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=417';
 
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'];
@@ -89,7 +89,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    if(spec.hp){e.hp=e.maxHp=Math.round(spec.hp*heavyHp);e.coopHpApplied=heavyHp;}
    if(spec.minion==='bug')Object.assign(e,{bugDrone:true,hp:Math.max(12,Math.round(e.maxHp*.4)),maxHp:Math.max(12,Math.round(e.maxHp*.4)),speed:spec.speed||178,fire:Infinity,launchAge:0,launchSeconds:spec.launchSeconds||.6,launchHeading:spec.launchHeading??spec.a??-Math.PI/2,contactDamage:spec.contactDamage??18,bugTargetX:spec.passTargetX,bugTargetY:spec.passTargetY,bugAge:0});
    if(spec.minion==='airship')Object.assign(e,{summonDone:true,bossAirship:true,hp:Math.round(e.maxHp*.5),maxHp:Math.round(e.maxHp*.5),fire:2.6,speed:Math.max(e.speed||0,95)});
-   if(spec.minion==='super-airship')Object.assign(e,{summonDone:true,bossAirship:true,superAirship:true,name:'슈퍼 체펠린',hp:Math.round(e.maxHp*1.1),maxHp:Math.round(e.maxHp*1.1),fire:2.2,speed:Math.max(e.speed||0,105),visualScale:1.55});
+   if(spec.minion==='super-airship')Object.assign(e,{summonDone:true,bossAirship:true,superAirship:true,name:'체펠린 L 70',l70Hull:true,hp:Math.round(e.maxHp*1.1),maxHp:Math.round(e.maxHp*1.1),fire:2.2,speed:Math.max(e.speed||0,105),visualScale:1.55});
   },
   countMinions(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&!e.bossAirship&&e.hp>0).length;},
   formationStatus(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&e.hp>0).map(e=>({id:e.id,role:e.formationRole,pairId:e.pairId,x:e.x,y:e.y}));},
