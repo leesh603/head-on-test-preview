@@ -824,3 +824,17 @@ body.astra-ui:not(.playing) #hangar .ho-skill-meta b{font:700 12px/1 var(--astra
   display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:2!important;overflow:hidden!important;word-break:normal!important;overflow-wrap:normal!important;
  }
 }
+/* Pilot portrait lightbox — click the hangar portrait or dossier circle for the full illustration. */
+.portrait-lightbox{position:fixed;inset:0;z-index:960;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 42%,#1a1410ee 0%,#0b0907f4 72%);opacity:0;pointer-events:none;transition:opacity .22s ease}
+.portrait-lightbox:not(.hidden){opacity:1;pointer-events:auto}
+.portrait-lightbox .plb-frame{position:relative;display:flex;flex-direction:column;align-items:center;max-width:min(92vw,560px)}
+.portrait-lightbox img{max-width:100%;max-height:76vh;object-fit:contain;filter:drop-shadow(0 18px 44px #000c);animation:plb-rise .26s ease}
+.portrait-lightbox .plb-name{margin-top:14px;font-family:Georgia,'Times New Roman',serif;color:#e8d9bd;font-size:19px;letter-spacing:.14em;text-transform:uppercase}
+.portrait-lightbox .plb-alias{margin-top:3px;color:#b94c3f;font-size:12px;letter-spacing:.3em}
+.portrait-lightbox .plb-close{position:absolute;top:-4px;right:-44px;width:34px;height:34px;border-radius:50%;border:1px solid #8a7a5c66;background:#1c1713cc;color:#e8d9bd;font-size:18px;cursor:pointer;line-height:1}
+.portrait-lightbox .plb-close:hover{background:#3a2c20}
+@keyframes plb-rise{from{transform:translateY(14px) scale(.97);opacity:.4}to{transform:none;opacity:1}}
+#hangarPortrait{pointer-events:auto;cursor:zoom-in}
+#portrait{cursor:zoom-in}
+.pilot-tabs button .pilot-tab-portrait{pointer-events:none}
+@media(max-width:720px){.portrait-lightbox .plb-close{top:-38px;right:0}.portrait-lightbox img{max-height:70vh}}

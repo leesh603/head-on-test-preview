@@ -108,6 +108,9 @@ function show(id,on=true){$(id).classList.toggle('hidden',!on)}let baronAircraft
 const CHOICE_PORTRAIT_SCALE={huffzky:.82};
 function choicePortraitScale(id){return CHOICE_PORTRAIT_SCALE[id]||1}
 function applyPilotPortrait(target){if(!PILOTS[pilot]||!portraitSources[pilot])return;const el=$(target),choice=target==='portrait';el.style.backgroundImage=`url('${portraitSources[pilot]}')`;el.style.setProperty('--pilot-portrait-size','contain');el.style.backgroundSize=choice?'contain':'auto 100%';el.style.backgroundPosition=choice?'right bottom':'center bottom';el.style.backgroundRepeat='no-repeat';el.style.filter='drop-shadow(0 5px 8px #0008)'}
+function openPortraitLightbox(){if(!PILOTS[pilot])return;const src=portraitSources[pilot]||'portrait-'+pilot+'.webp?v=421&b=340';$('plbImg').src=src;const p=pilotLoadout(pilot,plane);$('plbName').textContent=p.name||PILOTS[pilot].name;$('plbAlias').textContent=p.alias||'';$('plbImg').alt=(p.name||'')+' 파일럿 일러스트';show('portraitLightbox')}
+$('plbClose').onclick=()=>show('portraitLightbox',false);$('portraitLightbox').onclick=e=>{if(e.target.id==='portraitLightbox')show('portraitLightbox',false)};window.addEventListener('keydown',e=>{if(e.code==='Escape'&&!$('portraitLightbox').classList.contains('hidden')){show('portraitLightbox',false);e.stopPropagation()}},true);$('portrait').onclick=openPortraitLightbox;$('hangarPortrait').onclick=openPortraitLightbox;.onclick=openPortraitLightbox;
+
 function prepareCutin(){applyPilotPortrait('cutinPortrait');const el=$('skillCutin');el.style.setProperty('--cutin-accent',faction==='central'?'#ffcf78':'#a2e2fa');el.style.animation='none';void el.offsetWidth;el.style.animation='';}
 // Labels only: retain the selected simulation ID, original fit and renderer.
 function displayAircraftName(pilotId,planeId){return aircraftName(planeId,pilotAircraftName(pilotId,planeId),pilotId)}
