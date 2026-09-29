@@ -13,7 +13,13 @@ const ALIAS = {
   explosionDust0: 'mortarImpact0', explosionDust1: 'mortarImpact1', explosionDust2: 'mortarImpact2', explosionDust3: 'mortarImpact3',
   smokeOil: 'smokeDark', engineSmoke: 'smokeGray', gunSmoke: 'smokePuff', wreckSmoke: 'smokeHeavy',
   smokeWisp: 'smokePuff', explosionSmoke: 'smokeHeavy', armorSpark: 'spark', fire: 'fireGround',
-  fireSmall: 'fireEngine', fireWing: 'fireEngine', ricochet: 'spark'
+  fireSmall: 'fireEngine', ricochet: 'spark',
+  shellBurst0: 'cowImpact0', shellBurst1: 'cowImpact1', shellBurst2: 'cowImpact2', shellBurst3: 'cowImpact3',
+  explosionHot0: 'cowImpact0', explosionHot1: 'cowImpact1', explosionHot2: 'cowImpact2', explosionHot3: 'cowImpact3',
+  explosionOily0: 'bossBlast0', explosionOily1: 'bossBlast1', explosionOily2: 'bossBlast2', explosionOily3: 'bossBlast3',
+  fire0: 'fireGround', fire1: 'fireGround', fire2: 'fireGround', fire3: 'fireGround',
+  splashTiny: 'navalSplash3', splashShell: 'navalSplash3', waterColumn: 'navalSplash3', foamRing: 'navalFoam3',
+  smokeDust: 'dustPuff', dirtMix: 'dustPuff', wreckGust: 'shockRing'
 };
 const rects = new Map();
 let atlas = null;
@@ -74,7 +80,7 @@ export function fxsTracer(c, x, y, vx, vy, color, weight = 2) {
   if (!fxsHas('tracerCore')) return false;
   const a = Math.atan2(vy, vx), len = 14 + weight * 5, th = 4.5 + weight * 1.5;
   const cx = x - Math.cos(a) * len * 0.42, cy = y - Math.sin(a) * len * 0.42;
-  fxsTint(c, 'tracerGlow', color, cx, cy, len * 1.15, th * 2.1, a, 0.75);
+  fxsTint(c, 'tracerGlow', color, cx, cy, len * 1.1, th * 1.8, a, 0.45);
   fxsDraw(c, 'tracerCore', cx, cy, len, th, a, 1);
   return true;
 }

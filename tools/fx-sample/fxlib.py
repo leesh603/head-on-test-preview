@@ -201,7 +201,21 @@ def radial(cv, cx, cy):
     return np.sqrt(dx * dx + dy * dy) / SS, np.arctan2(dy, dx)
 
 
+# Glow budget (round 2 feedback: "too much glow"). Halos are kept faint and
+# tight; hot cores are smaller and cream rather than pure white.
+HALO_K, CORE_K, CORE_R = 0.38, 0.72, 0.72
+STREAK_N, STREAK_L, STREAK_A = 0.5, 0.72, 0.6
+
+
 def glow(cv, cx, cy, r, color, strength=1.0, power=2.0):
+    if r > 14:
+        strength *= HALO_K
+        power = max(power, 2.6)
+    else:
+        strength *= CORE_K
+        r *= CORE_R
+        if color.lower() in ('#ffffff', '#fffdf2', '#fffdf0', '#fffbe8'):
+            color = '#ffeccb'
     d, _ = radial(cv, cx, cy)
     a = np.clip(1 - d / r, 0, 1) ** power * strength
     col = np.broadcast_to(hexrgb(color), cv.rgb.shape).copy()
@@ -232,6 +246,11 @@ def streaks(cv, cx, cy, n, r0, r1, width, seed, color_core='#fffbe8', color_edge
             alpha=1.0, spread=None, angle0=0.0, taper=True):
     """Radial spark streaks (tapered lines)."""
     r = np.random.default_rng(seed)
+    n = max(2, int(round(n * STREAK_N)))
+    r1 = r1 * STREAK_L
+    alpha = alpha * STREAK_A
+    if color_core.lower() in ('#ffffff', '#fffbe8', '#fff6d8'):
+        color_core = '#fff1d2'
     for i in range(n):
         a = angle0 + (r.uniform(-spread, spread) if spread is not None else r.uniform(0, 2 * np.pi))
         l0 = r0 * r.uniform(0.6, 1.0)
