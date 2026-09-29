@@ -262,3 +262,178 @@ body.astra-ui.playing #touch #stick{border-color:#d9cda666}
  body.astra-ui #bossWarning .warn-core b,
  body.astra-ui #bossWarning .warn-core span{animation:none}
 }
+
+/* ==========================================================================
+   16. COMPACT INSTRUMENT STRIP — the two big top panels become two slim
+       pills so the sky gets the screen back.
+       Left pill:  [heart] HP bar  115/115 | [round] ammo bar  392/448
+       Right pill: 00:03  [skull] 0  LV.1 (XP as a hairline along the bottom) + pause
+       Same live nodes (hud-layout94 / astra-interface180 keep ownership);
+       only their boxes change. Co-op keeps its own two-pilot panels.
+   ========================================================================== */
+body.astra-ui.playing{
+ --ho-pill-h:36px;
+ --ho-pill-pad:14px;
+ --ho-bar-w:120px;
+ --ho-bar-h:5px;
+ --ho-num:600 14px/1 var(--astra-numeric);
+ --ho-icon:13px;
+ --ho-heart:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21s-7.5-4.7-10-9.5C.3 8 2.3 3.5 6.4 3.5c2.3 0 3.9 1.2 5.6 3.2 1.7-2 3.3-3.2 5.6-3.2 4.1 0 6.1 4.5 4.4 8C19.5 16.3 12 21 12 21z'/%3E%3C/svg%3E");
+ --ho-round:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 24'%3E%3Cpath d='M6 0c1.6 1.4 3 3.6 3 6.5V8H3V6.5C3 3.6 4.4 1.4 6 0zM2.5 9h7v12.5c0 .8-.7 1.5-1.5 1.5H4c-.8 0-1.5-.7-1.5-1.5z'/%3E%3C/svg%3E");
+ --ho-skull:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M12 2C7.3 2 4 5.3 4 9.6c0 2.7 1.3 4.9 3.2 6.2V18c0 .6.4 1 1 1h1v2c0 .6.4 1 1 1h3.6c.6 0 1-.4 1-1v-2h1c.6 0 1-.4 1-1v-2.2c1.9-1.3 3.2-3.5 3.2-6.2C20 5.3 16.7 2 12 2zM8.9 8.3a1.9 1.9 0 1 1 0 3.8 1.9 1.9 0 0 1 0-3.8zm6.2 0a1.9 1.9 0 1 1 0 3.8 1.9 1.9 0 0 1 0-3.8zM12 13l1.4 2.2h-2.8z'/%3E%3C/svg%3E");
+}
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing{--ho-pill-h:30px;--ho-pill-pad:9px;--ho-bar-w:24px;--ho-bar-h:4px;--ho-num:600 10px/1 var(--astra-numeric);--ho-icon:10px;--ho-gap:4px;--ho-seam:7px;--ho-clock:12px}
+}
+@media(max-width:380px){
+ body.astra-ui.playing{--ho-pill-h:28px;--ho-pill-pad:7px;--ho-bar-w:16px;--ho-gap:3px;--ho-seam:5px}
+}
+
+/* Row: left pill, centre notices, right pill. */
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151{
+ grid-template-columns:auto minmax(0,1fr) auto;
+ gap:6px 10px;
+ align-items:start;
+}
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151{grid-template-columns:minmax(0,1fr) auto;gap:5px 6px}
+ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #flightCenter156{grid-column:1/-1;grid-row:2}
+}
+
+/* ---- Left pill: survival ---- */
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .flight-survival{
+ position:relative;
+ display:flex!important;
+ flex-direction:row!important;
+ flex-wrap:nowrap!important;
+ align-items:center;
+ gap:var(--ho-seam,10px);
+ box-sizing:border-box;
+ width:auto!important;
+ min-width:0;
+ max-width:100%;
+ height:var(--ho-pill-h);
+ padding:0 var(--ho-pill-pad);
+ border-radius:calc(var(--ho-pill-h) / 2);
+ justify-self:start;
+ overflow:visible;
+}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #hud{display:contents!important}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .health151,
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud{
+ display:flex!important;
+ flex:0 1 auto;
+ align-items:center;
+ gap:var(--ho-gap,6px);
+ width:auto!important;
+ min-width:auto;
+ margin:0!important;
+ padding:0!important;
+ background:none!important;
+ border:0;
+ box-shadow:none!important;
+ position:static!important;
+ grid-template-columns:none;
+}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud{padding-left:var(--ho-seam,10px)!important;border-left:1px solid var(--ho-edge-soft)!important;border-radius:0!important}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud>div{display:contents}
+/* Icons replace the HP / 탄약 words (text stays in the DOM for screen readers). */
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .health151>small{
+ flex:none;width:var(--ho-icon);height:var(--ho-icon);margin:0;font-size:0;line-height:0;overflow:hidden;
+ background:var(--ho-brick);-webkit-mask:var(--ho-heart) center/contain no-repeat;mask:var(--ho-heart) center/contain no-repeat;
+}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud:before,
+html[lang=en] body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud:before{
+ content:"";flex:none;width:calc(var(--ho-icon) * .55);height:var(--ho-icon);font-size:0;
+ background:var(--ho-brass);-webkit-mask:var(--ho-round) center/contain no-repeat;mask:var(--ho-round) center/contain no-repeat;
+}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud>div>small{display:none!important}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .health151 .bar,
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud .bar{
+ order:1;flex:0 1 var(--ho-bar-w);width:var(--ho-bar-w);min-width:14px;height:var(--ho-bar-h);margin:0!important;border:0;border-radius:2px;
+}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #healthText,
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoCount{
+ order:2;flex:none;display:inline-flex;gap:1px;margin:0;font:var(--ho-num);letter-spacing:0;word-spacing:-.18em;white-space:nowrap;color:var(--ho-numeral);
+}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #healthCurrent151,
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #healthMax151{font:inherit;color:inherit}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #healthSlash151{font:inherit;color:#8a846f}
+/* Desktop reload key rides the end of the pill. */
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud #reload{
+ order:3;flex:none;width:24px;min-width:24px;height:24px;min-height:24px;margin:0 0 0 2px;padding:0;
+ border-radius:50%;font:600 10px/1 var(--astra-numeric);
+}
+/* Reload countdown hangs just under the pill instead of growing it. */
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .astra-reloading .astra-reload-readout,
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .flight-survival.astra-reloading .astra-reload-readout{
+ position:absolute;top:calc(100% + 4px);left:var(--ho-pill-pad);
+ display:grid;grid-template-columns:auto 30px 56px;gap:6px;align-items:center;
+ margin:0;padding:3px 9px;border:1px solid var(--ho-edge-soft);border-radius:10px;
+ background:#17150fe6;color:#e3c687;font:500 10px/1.2 var(--astra-type);white-space:nowrap;
+}
+
+/* ---- Right pill: time / kills / level ---- */
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .flight-status{
+ display:flex!important;align-items:center;gap:6px;width:auto!important;min-width:0;height:var(--ho-pill-h);
+ padding:0!important;border:0!important;background:none!important;box-shadow:none!important;justify-self:end;
+}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .flight-status-panel{
+ position:relative;display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center;gap:var(--ho-seam,10px);box-sizing:border-box;
+ height:var(--ho-pill-h);padding:0 var(--ho-pill-pad);overflow:hidden;
+ border:1px solid var(--ho-edge);border-radius:calc(var(--ho-pill-h) / 2);background:var(--ho-surface);box-shadow:var(--ho-shadow);
+ grid-template-columns:none;
+}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .time{display:flex;align-items:center;margin:0;padding:0}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .time small{display:none}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #clock{font:700 var(--ho-clock,16px)/1 var(--astra-numeric);letter-spacing:.02em;color:var(--ho-numeral)}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .compact-kills{display:flex;align-items:center;gap:4px;margin:0;padding:0}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .compact-kills>span{
+ flex:none;width:var(--ho-icon);height:var(--ho-icon);font-size:0;line-height:0;overflow:hidden;
+ background:var(--ho-brass);-webkit-mask:var(--ho-skull) center/contain no-repeat;mask:var(--ho-skull) center/contain no-repeat;
+}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .compact-kills b{font:var(--ho-num);color:var(--ho-numeral)}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #xpHud{
+ position:static!important;inset:auto!important;display:flex!important;align-items:center;gap:0;margin:0;padding:0;background:none;border:0;box-shadow:none;width:auto;
+}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #xpHud>span{font:600 calc(var(--ho-icon) - 1px)/1 var(--astra-numeric);letter-spacing:.04em;color:var(--ho-muted);white-space:nowrap}
+/* XP becomes a brass hairline along the bottom of the pill. */
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #xpHud>.bar{
+ position:absolute;left:0;right:0;bottom:0;display:block!important;width:auto;min-width:0;height:2px;margin:0;border:0;border-radius:0;background:#0007;box-shadow:none;
+}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #pause{
+ flex:none;width:var(--ho-pill-h);min-width:var(--ho-pill-h);height:var(--ho-pill-h);min-height:var(--ho-pill-h);
+ padding:0;border:1px solid var(--ho-edge);border-radius:50%;background:var(--ho-surface-strong);box-shadow:var(--ho-shadow);
+ font:600 calc(var(--ho-icon) + 1px)/1 var(--astra-type);color:var(--ho-parchment);align-self:center;
+}
+
+/* ---- Bottom controls: smaller footprint, same layout. ---- */
+@media (min-width:721px) and (pointer:fine){
+ body.astra-ui.playing #touch #touchSkill,
+ body.astra-ui.playing #touch #touchEvade{width:168px;min-width:168px;height:58px;min-height:58px;padding:8px 12px;grid-template-columns:34px auto 1fr;gap:2px 9px}
+ body.astra-ui.playing #touch .astra-skill-emblem,
+ body.astra-ui.playing #touch .astra-control-icon{max-width:34px;max-height:34px}
+ body.astra-ui.playing #touch #skillButtonState,
+ body.astra-ui.playing #touch #maneuverButtonState{font-size:15px}
+ body.astra-ui.playing #touch .flight-key156,
+ body.astra-ui.playing #touch #skillButtonText,
+ body.astra-ui.playing #touch #maneuverButtonText{font-size:11px}
+}
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing #touch{bottom:max(22px,env(safe-area-inset-bottom))}
+ body.astra-ui.playing #touch #stick{width:108px;height:108px}
+ body.astra-ui.playing #touch #stick>span{width:36px;height:36px;min-width:36px}
+ body.astra-ui.playing #touch .touch-actions{grid-template-columns:48px 66px;grid-template-rows:66px 66px;gap:8px}
+ body.astra-ui.playing #touch #touchSkill,
+ body.astra-ui.playing #touch #touchEvade{width:66px;min-width:66px;height:66px;min-height:66px;padding:8px 3px 6px}
+ body.astra-ui.playing #touch #reload{width:48px;min-width:48px;height:48px;min-height:48px}
+ body.astra-ui.playing #touch #reload:before{inset:14px}
+ body.astra-ui.playing #touch .astra-control-icon{width:20px;height:20px}
+ body.astra-ui.playing #touch #touchEvade .astra-control-icon{width:22px;height:22px;padding:5px}
+ body.astra-ui.playing #touch #skillButtonText,
+ body.astra-ui.playing #touch #maneuverButtonText{font-size:8px}
+ body.astra-ui.playing #touch #skillButtonState,
+ body.astra-ui.playing #touch #maneuverButtonState{font-size:11px}
+ /* Relic badges sat under the old 110px HUD; follow the slimmer strip. */
+ body.astra-ui.playing #legendaryInventory{top:calc(max(12px,env(safe-area-inset-top)) + 46px)}
+}
