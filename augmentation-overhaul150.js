@@ -219,7 +219,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  Game.prototype.updateTailLock=function(dt){
   const clear=()=>{this.tailTargetId=null;this.tailLocked=false;this.tailProgress=0;this.tailGraceRemaining=0};
   if(this.hp<=0||this.status&&this.status!=='alive'){clear();return}
-  const eligible=e=>this.tailEligible(e)&&(!e.missionTarget||e.bossMinion||e.stageBossBody?.formationBoss129),range=this.redScarf?AUGMENTATION_OVERHAUL_BALANCE.redScarfRange:1,lockTime=TAILING_BALANCE.lockTime*(this.redScarf?AUGMENTATION_OVERHAUL_BALANCE.redScarfLockTime:1),within=(e,min,max,rearCone,aimCone)=>{const dx=e.x-this.x,dy=e.y-this.y,d=Math.hypot(dx,dy);if(d<min||d>max)return false;const behind=Math.abs(angleDiff(Math.atan2(this.y-e.y,this.x-e.x),e.a+Math.PI)),aim=Math.abs(angleDiff(Math.atan2(dy,dx),this.a));return behind<=rearCone&&aim<=aimCone};
+  const eligible=e=>this.tailEligible(e)&&(!e.missionTarget||!e.missionGround),range=this.redScarf?AUGMENTATION_OVERHAUL_BALANCE.redScarfRange:1,lockTime=TAILING_BALANCE.lockTime*(this.redScarf?AUGMENTATION_OVERHAUL_BALANCE.redScarfLockTime:1),within=(e,min,max,rearCone,aimCone)=>{const dx=e.x-this.x,dy=e.y-this.y,d=Math.hypot(dx,dy);if(d<min||d>max)return false;const behind=Math.abs(angleDiff(Math.atan2(this.y-e.y,this.x-e.x),e.a+Math.PI)),aim=Math.abs(angleDiff(Math.atan2(dy,dx),this.a));return behind<=rearCone&&aim<=aimCone};
   let current=this.tailTargetId?this.enemies.find(e=>e.tailId===this.tailTargetId):null;
   if(this.tailTargetId&&!eligible(current)){clear();current=null}
   if(this.tailLocked&&current){
