@@ -114,7 +114,7 @@ function install(){
  railPrev.addEventListener('click',()=>scrollRoster(-1));railNext.addEventListener('click',()=>scrollRoster(1));
  function scrollRoster(direction){const tabs=$('pilotTabs');tabs.scrollBy({left:direction*tabs.clientWidth*.8,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'})}
  function changeAircraft(direction){
-  if($('baronAircraftChoice').classList.contains('hidden'))return;
+  if($('baronAircraftChoice').classList.contains('hidden')||$('baronTriplane').disabled)return;
   const current=$('aircraftSelect103').value;const id=current==='baron_albatros'?'baronTriplane':'baronAlbatros';$(id).click();
  }
  previous.addEventListener('click',()=>changeAircraft(-1));next.addEventListener('click',()=>changeAircraft(1));
@@ -133,7 +133,7 @@ function install(){
   const option=$('aircraftSelect103').selectedOptions?.[0],airLabel=(option?.textContent||$('pilotAircraft').textContent).split(' · ')[0],airParen=airLabel.indexOf(' (');
  airName.innerHTML=airParen<0?airLabel:airLabel.slice(0,airParen)+'<br>'+airLabel.slice(airParen+1);
   put(airRole,$('pilotAircraft').textContent.split(' · ').slice(1).join(' · '));
-  const hasChoice=!$('baronAircraftChoice').classList.contains('hidden');previous.hidden=next.hidden=!hasChoice;
+  const hasChoice=!$('baronAircraftChoice').classList.contains('hidden')&&!$('baronTriplane').disabled;previous.hidden=next.hidden=!hasChoice;
   previous.setAttribute('aria-label',en?'Switch aircraft':'이전 기체');next.setAttribute('aria-label',en?'Switch aircraft':'다음 기체');
   if(aircraftId!==lastArt){lastArt=aircraftId;
    hangarArt(aircraftId).then(url=>{if(lastArt!==aircraftId)return;if(!url){art.hidden=true;art.removeAttribute('src');figure.classList.remove('has-art');figure.classList.add('use-canvas');return}
