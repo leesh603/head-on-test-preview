@@ -493,8 +493,8 @@ body.astra-ui.playing:has(.flight-survival.astra-low-health) #viewport .vignette
  body.astra-ui.playing #touch .touch-actions{gap:8px}
  body.astra-ui.playing #touch #touchSkill,
  body.astra-ui.playing #touch #touchEvade{
-  position:relative;display:grid!important;grid-template-columns:28px auto auto minmax(0,1fr);grid-template-rows:1fr;align-items:center;gap:0 8px;
-  width:196px;min-width:196px;height:44px;min-height:44px;padding:0 16px 0 7px;overflow:hidden;
+  position:relative;display:grid!important;grid-template-columns:28px auto auto minmax(max-content,1fr);grid-template-rows:1fr;align-items:center;gap:0 8px;
+  width:auto;min-width:196px;height:44px;min-height:44px;padding:0 16px 0 7px;overflow:hidden;
   border:1px solid var(--ho-hair)!important;border-radius:22px!important;background:var(--ho-glass)!important;box-shadow:var(--ho-lift)!important;
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:1!important;
  }
