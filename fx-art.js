@@ -7,6 +7,10 @@ import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,
 // Rollback: append ?fx=0 to the URL — FX_FILES empties and every call site
 // falls back to procedural drawing exactly as before.
 import {FX3,roleArtReady,roleReady,roleDraw,roleImage} from './fx-role3.js?v=418';
+// FX sample preview (?fxs=1 only).
+import {FXS,fxsReady,fxsHas,fxsDraw,fxsImage,fxsTintedCanvas,fxsTint,fxsRocketTrail} from './fx-sample-preview.js?v=1';
+export {FXS};
+
 export {FX3};
 const FX_OFF=typeof location!=='undefined'&&new URLSearchParams(location.search).get('fx')==='0';
 const FX56_OFF=typeof location!=='undefined'&&new URLSearchParams(location.search).get('fx56')==='0';
@@ -90,12 +94,14 @@ const fx189Ready=typeof Image==='undefined'?Promise.resolve():fx196ArtReady.then
  }));
  const im=await imageLoads.get(file);if(im)fxImgs[key]=im;
 })));
-export const fxArtReady=Promise.all([fx189Ready,fx196ArtReady,roleArtReady]);
-export function fxReady(key){return !FX_OFF&&(roleReady(key)||fx196Ready(key)||!!fxImgs[key])}
-export function fxImage(key){return FX_OFF?null:roleImage(key)||fx196Image(key)||fxImgs[key]||null}
+export const fxArtReady=Promise.all([fx189Ready,fx196ArtReady,roleArtReady,fxsReady]);
+export function fxReady(key){return !FX_OFF&&(fxsHas(key)||roleReady(key)||fx196Ready(key)||!!fxImgs[key])}
+export function fxImage(key){return FX_OFF?null:(fxsHas(key)&&fxsImage(key))||roleImage(key)||fx196Image(key)||fxImgs[key]||null}
 // Draw sprite centered at x,y, rotated to angle (0 = sprite's natural right/up orientation), fit inside w×h.
 export function fx(c,key,x,y,w,h=w,angle=0,alpha=1){
  if(FX_OFF)return false;
+ if(FXS&&key==='rocket')fxsRocketTrail(c,x,y,angle,w);
+ if(fxsHas(key))return fxsDraw(c,key,x,y,w,h,angle,alpha);
  if(roleReady(key))return roleDraw(c,key,x,y,w,h,angle,alpha);
  if(fx196Ready(key))return fx196Draw(c,key,x,y,w,h,angle,alpha);
  const im=fxImgs[key];if(!im)return false;
@@ -112,6 +118,7 @@ export function clearFxTintCache(){for(const cv of tintCache.values())if(cv)cv.w
 // Lazily bake a color-multiplied copy so painted shading survives tinting.
 export function fxTintedCanvas(key,color){
  if(FX_OFF)return null;
+ if(fxsHas(key))return fxsTintedCanvas(key,color);
  if(!roleReady(key)&&fx196Ready(key))return fx196TintedCanvas(key,color);
  const im=roleImage(key)||fxImgs[key];if(!im)return null;
  const ck=key+color;let c=tintCache.get(ck);
@@ -132,6 +139,7 @@ export function fxTintedCanvas(key,color){
 }
 export function fxTint(c,key,color,x,y,w,h=w,angle=0,alpha=1){
  if(FX_OFF)return false;
+ if(fxsHas(key))return fxsTint(c,key,color,x,y,w,h,angle,alpha);
  if(!roleReady(key)&&fx196Ready(key))return fx196Tint(c,key,color,x,y,w,h,angle,alpha);
  const cv=fxTintedCanvas(key,color);if(!cv)return fx(c,key,x,y,w,h,angle,alpha);
  c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha*=alpha;

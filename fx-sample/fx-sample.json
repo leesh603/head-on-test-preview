@@ -1,0 +1,279 @@
+{
+ "version": 2,
+ "image": "fx-sample-atlas.webp",
+ "size": [
+  1024,
+  2048
+ ],
+ "families": {
+  "A": [
+   "muzzle",
+   "muzzleTwin",
+   "muzzleHeavy",
+   "muzzleRear",
+   "tracerCore",
+   "tracerGlow",
+   "spark",
+   "hitPuff"
+  ],
+  "B": [
+   "rocketFlame",
+   "rocketTrail",
+   "lePrieurImpact0",
+   "lePrieurImpact1",
+   "lePrieurImpact2",
+   "lePrieurImpact3"
+  ],
+  "C": [
+   "bombShadow",
+   "mortarImpact0",
+   "mortarImpact1",
+   "mortarImpact2",
+   "mortarImpact3",
+   "debrisShard",
+   "smokeHeavy"
+  ],
+  "D": [
+   "pop0",
+   "pop1",
+   "pop2",
+   "pop3",
+   "airblast0",
+   "airblast1",
+   "airblast2",
+   "airblast3",
+   "fireEngine",
+   "fireFlash",
+   "fireGround",
+   "flameJet",
+   "smokeTrail",
+   "smokePuff",
+   "smokeGray",
+   "smokeDark"
+  ]
+ },
+ "rects": {
+  "mortarImpact0": [
+   0,
+   0,
+   256,
+   256
+  ],
+  "mortarImpact1": [
+   258,
+   0,
+   256,
+   256
+  ],
+  "mortarImpact2": [
+   516,
+   0,
+   256,
+   256
+  ],
+  "mortarImpact3": [
+   0,
+   258,
+   256,
+   256
+  ],
+  "lePrieurImpact0": [
+   258,
+   258,
+   192,
+   192
+  ],
+  "lePrieurImpact1": [
+   452,
+   258,
+   192,
+   192
+  ],
+  "lePrieurImpact2": [
+   646,
+   258,
+   192,
+   192
+  ],
+  "lePrieurImpact3": [
+   0,
+   516,
+   192,
+   192
+  ],
+  "smokeHeavy": [
+   194,
+   516,
+   192,
+   192
+  ],
+  "airblast0": [
+   388,
+   516,
+   192,
+   192
+  ],
+  "airblast1": [
+   582,
+   516,
+   192,
+   192
+  ],
+  "airblast2": [
+   776,
+   516,
+   192,
+   192
+  ],
+  "airblast3": [
+   0,
+   710,
+   192,
+   192
+  ],
+  "fireFlash": [
+   194,
+   710,
+   192,
+   192
+  ],
+  "fireGround": [
+   388,
+   710,
+   192,
+   192
+  ],
+  "pop0": [
+   582,
+   710,
+   128,
+   128
+  ],
+  "pop1": [
+   712,
+   710,
+   128,
+   128
+  ],
+  "pop2": [
+   842,
+   710,
+   128,
+   128
+  ],
+  "pop3": [
+   0,
+   904,
+   128,
+   128
+  ],
+  "fireEngine": [
+   130,
+   904,
+   128,
+   128
+  ],
+  "smokeGray": [
+   260,
+   904,
+   128,
+   128
+  ],
+  "smokeDark": [
+   390,
+   904,
+   128,
+   128
+  ],
+  "flameJet": [
+   520,
+   904,
+   256,
+   96
+  ],
+  "smokePuff": [
+   778,
+   904,
+   96,
+   96
+  ],
+  "smokeTrail": [
+   0,
+   1034,
+   256,
+   88
+  ],
+  "muzzle": [
+   258,
+   1034,
+   64,
+   64
+  ],
+  "muzzleTwin": [
+   324,
+   1034,
+   64,
+   64
+  ],
+  "muzzleHeavy": [
+   390,
+   1034,
+   64,
+   64
+  ],
+  "muzzleRear": [
+   456,
+   1034,
+   64,
+   64
+  ],
+  "hitPuff": [
+   522,
+   1034,
+   64,
+   64
+  ],
+  "debrisShard": [
+   588,
+   1034,
+   64,
+   64
+  ],
+  "spark": [
+   654,
+   1034,
+   48,
+   48
+  ],
+  "rocketTrail": [
+   704,
+   1034,
+   256,
+   48
+  ],
+  "rocketFlame": [
+   0,
+   1124,
+   96,
+   32
+  ],
+  "bombShadow": [
+   98,
+   1124,
+   64,
+   32
+  ],
+  "tracerCore": [
+   164,
+   1124,
+   96,
+   24
+  ],
+  "tracerGlow": [
+   262,
+   1124,
+   96,
+   24
+  ]
+ }
+}
