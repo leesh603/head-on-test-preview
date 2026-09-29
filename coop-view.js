@@ -1,20 +1,20 @@
-import {drawRegionalBug} from './regional-boss-view352.js?v=409';
-import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=409';
-import {drawGasCloud196} from './gas-cloud196.js?v=409';
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=409';
-import {fx,fxReady,fxTint} from './fx-art.js?v=409';
-import {drawAADefense} from './aa-defense-art.js?v=409';
-import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=409';
-import {drawStageBoss} from './stageboss-view.js?v=409';
-import {planeSprite,aircraftKey} from './aircraft.js?v=409';
-import {drawEquipment} from './equipment.js?v=409';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=409';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=409';
-import {drawSpecialAmmoIcon} from './icons.js?v=409';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=409';
+import {drawRegionalBug} from './regional-boss-view352.js?v=410';
+import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=410';
+import {drawGasCloud196} from './gas-cloud196.js?v=410';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=410';
+import {fx,fxReady,fxTint} from './fx-art.js?v=410';
+import {drawAADefense} from './aa-defense-art.js?v=410';
+import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=410';
+import {drawStageBoss} from './stageboss-view.js?v=410';
+import {planeSprite,aircraftKey} from './aircraft.js?v=410';
+import {drawEquipment} from './equipment.js?v=410';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=410';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=410';
+import {drawSpecialAmmoIcon} from './icons.js?v=410';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=410';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
-const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=409&b=326';
+const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=410&b=326';
 export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fieldArtImg,groundLayer}){
  const t=g.t,z=g.camera.zoom;c.save();c.scale(z,z);terrain(g.x,g.y,W/z,H/z);c.restore();drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});c.save();c.translate(W/2,H/2);c.scale(z,z);c.translate(-g.x,-g.y);
  groundLayer?.();drawBattlefieldFire(c,g);for(const e of g.enemyAirshipPasses||[])drawZeppelin(c,e.x,e.y,e.a,.72,false,'central');
@@ -26,7 +26,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  const sprite=(p,key,scale=1,enemy=false)=>{const q=playerPose(p,p.x,p.y);if(!enemy){drawRedGhosts162(c,p,p.x,p.y,planeSprite,key);drawPlayerAura(c,p,q.x,q.y);}if(!enemy||p.type!=='bomber'&&p.type!=='zeppelin')planeSprite(c,q.x+14,q.y+20,p.a,key,scale*q.scale,enemy,true);planeSprite(c,q.x,q.y,p.a,key,scale*q.scale,enemy,false,p.hitFlash||0)};
  for(const gas of g.gasZones){drawGasCloud196(c,gas,gas.x,gas.y,t);c.fillStyle='#e0dfb0';c.font='13px sans-serif';c.textAlign='center';c.fillText(gas.warning>0?'독가스 살포 '+gas.warning.toFixed(1)+'초':'독가스 · 조종 저하 / 지속 피해',gas.x,gas.y-gas.r-12)}
  for(const field of g.hostileMinefields){if(!field.encounterId)ring(field.x,field.y,field.radius,field.warning>0?'#ffe0a199':'#e58b6c88');for(const m of field.mines)if(!m.dead){if(m.bossMine)drawAADefense(c,'drachenMine',m.x,m.y,51,51);else if(!fx(c,'mine',m.x,m.y,60,60))drawEquipment(c,'mine',m.x,m.y,0,56);ring(m.x,m.y,18,field.warning>0?'#ffe0a188':'#ff876e')}}
- for(const d of g.drops){if(d.dead)continue;if(d.specialAmmo){ring(d.x,d.y,24+Math.sin(t*6)*3,SPECIAL_AMMO[d.specialAmmo]?.color||'#ffd36f',2);drawSpecialAmmoIcon(c,d.specialAmmo,d.x,d.y+Math.sin(t*4)*2,42)}else if(d.heal||d.supply){ring(d.x,d.y,22+Math.sin(t*5)*3,'#9cffb4');drawEquipment(c,'repair',d.x,d.y+Math.sin(t*3)*2,0,40)}else{if(xpGem?.naturalWidth)c.drawImage(xpGem,d.x-9,d.y-9,18,18);else{c.fillStyle='#63d5ec';c.fillRect(d.x-3,d.y-3,6,6)}}}
+ for(const d of g.drops){if(d.dead)continue;if(d.specialAmmo){ring(d.x,d.y,24+Math.sin(t*6)*3,SPECIAL_AMMO[d.specialAmmo]?.color||'#ffd36f',2);drawSpecialAmmoIcon(c,d.specialAmmo,d.x,d.y+Math.sin(t*4)*2,42)}else if(d.heal||d.supply){const pulse=22+Math.sin(t*5)*4;c.save();c.globalAlpha=.4;ring(d.x,d.y,pulse,'#5fff9e',7);c.globalAlpha=1;ring(d.x,d.y,pulse,'#9cffb4');c.fillStyle='rgba(210,255,224,.9)';for(let i=0;i<4;i++){const sa=t*2.6+i*Math.PI/2;c.beginPath();c.arc(d.x+Math.cos(sa)*(pulse+6),d.y+Math.sin(sa)*(pulse+6),1.7,0,Math.PI*2);c.fill()}c.restore();drawEquipment(c,'repair',d.x,d.y+Math.sin(t*3)*2,0,46)}else{if(xpGem?.naturalWidth)c.drawImage(xpGem,d.x-9,d.y-9,18,18);else{c.fillStyle='#63d5ec';c.fillRect(d.x-3,d.y-3,6,6)}}}
  for(const grenade of g.grenades||[])drawGrenade(c,grenade,grenade.x,grenade.y);for(const m of g.mines){if(!fx(c,'mine',m.x,m.y,60,60))drawEquipment(c,'mine',m.x,m.y,0,60);if(m.legendary||m.arm===0)ring(m.x,m.y,22+Math.sin(t*5)*3,m.legendary?'#ffd56f99':'#ffcc6677')}
  for(const e of g.enemies){
   if(e.stageBossBody)continue;
@@ -46,7 +46,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  }
  for(const a of g.allies){sprite(a,a.plane,.78);if(g.player(a.ownerId)?.wingBoost>0)ring(a.x,a.y,28,'#f5e7ad',2)}
  for(const patrol of g.patrols){if(patrol.hp<=0)continue;sprite(patrol,patrol.plane,.9);c.fillStyle='#83dce9';c.fillRect(patrol.x-16,patrol.y+34,32*patrol.hp/patrol.maxHp,3)}
- for(const p of g.players){for(const wing of p.formationWings||[]){c.globalAlpha=wing.alpha||0;sprite(wing,'collishaw_sopwith');c.globalAlpha=1}for(const wing of p.divingSquadron||[])sprite(wing,'se5a');for(const gh of p.immelmannGhosts||[]){const al=Math.min(1,gh.life/gh.maxLife*1.4)*.85;c.save();c.translate(gh.x,gh.y);c.rotate(gh.a);c.globalAlpha=al;c.strokeStyle='#2b3442';c.lineWidth=4.5;c.lineCap='round';c.beginPath();c.moveTo(-21,-7);c.quadraticCurveTo(-7,-22,16,-8);c.moveTo(-21,7);c.quadraticCurveTo(-7,22,16,8);c.moveTo(-21,-7);c.lineTo(-21,7);c.stroke();c.fillStyle='#2b3442';c.beginPath();c.ellipse(-9,0,12,3.6,0,0,Math.PI*2);c.fill();c.restore()}
+ for(const p of g.players){for(const wing of p.formationWings||[]){c.globalAlpha=wing.alpha||0;sprite(wing,'collishaw_sopwith');c.globalAlpha=1}for(const wing of p.divingSquadron||[])sprite(wing,'se5a');for(const gh of p.immelmannGhosts||[]){const al=Math.min(1,gh.life/gh.maxLife*1.4)*.85;c.save();c.translate(gh.x,gh.y);c.rotate(gh.a);c.globalAlpha=al;c.fillStyle='#2e3a48';c.beginPath();c.moveTo(23,0);c.lineTo(15,-3.6);c.lineTo(8,-4.4);c.quadraticCurveTo(3,-8,-2,-13);c.quadraticCurveTo(-5,-19,-4,-26);c.lineTo(-10,-24);c.quadraticCurveTo(-11,-15,-8,-9);c.quadraticCurveTo(-6,-5,-3.5,-4);c.lineTo(-15,-4.4);c.lineTo(-21,-2);c.lineTo(-23,0);c.lineTo(-21,2);c.lineTo(-15,4.4);c.lineTo(-3.5,4);c.quadraticCurveTo(-6,5,-8,9);c.quadraticCurveTo(-11,15,-10,24);c.lineTo(-4,26);c.quadraticCurveTo(-5,19,-2,13);c.quadraticCurveTo(3,8,8,4.4);c.lineTo(15,3.6);c.closePath();c.fill();c.fillStyle='#4a5a6c';c.beginPath();c.ellipse(4,0,10,3.4,0,0,Math.PI*2);c.fill();c.restore()}
    if(p.pilot==='rickenbacker'&&(p.rickActive||p.skillTime)>0){const ph=t*3.1,ea=.32;c.save();c.globalAlpha=.8;c.strokeStyle='rgba(255,226,140,.85)';c.lineWidth=2;c.beginPath();c.ellipse(p.x,p.y,58,30,ea,0,Math.PI*2);c.stroke();c.globalAlpha=.22;c.lineWidth=1;c.beginPath();c.ellipse(p.x,p.y,58,30,ea,0,Math.PI*2);c.stroke();c.restore()}
    if(p.loewenhardtEngaged){const pulse=.55+.35*Math.sin(t*9);c.save();c.globalAlpha=.85;c.strokeStyle=`rgba(255,214,74,${pulse})`;c.lineWidth=2.5;c.beginPath();c.arc(p.x,p.y,36,p.a-Math.PI/2.8,p.a+Math.PI/2.8);c.stroke();c.lineWidth=1.4;c.beginPath();c.arc(p.x,p.y,44,p.a-Math.PI/4,p.a+Math.PI/4);c.stroke();c.restore()}
    if(p.fxOverheat>0){c.save();c.globalAlpha=.55*p.fxOverheat;const nx=p.x+Math.cos(p.a)*14,ny=p.y+Math.sin(p.a)*14;c.fillStyle='#ff8a3c';c.beginPath();c.arc(nx,ny,7+Math.sin(t*30)*2.4,0,Math.PI*2);c.fill();c.fillStyle='#ffd27a';c.beginPath();c.arc(nx,ny,3.4,0,Math.PI*2);c.fill();c.restore()}

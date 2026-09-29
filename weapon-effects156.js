@@ -1,5 +1,5 @@
-import {drawGameIcon} from './icons.js?v=409';
-import {fx,fxReady,FX56,FX3} from './fx-art.js?v=409';
+import {drawGameIcon} from './icons.js?v=410';
+import {fx,fxReady,FX56,FX3} from './fx-art.js?v=410';
 export function drawGrenade(c,g,x,y){
  c.save();c.translate(x,y-g.height);c.rotate(g.phase==='flight'?g.age*7:0);
  if(!fx(c,'grenade',0,0,52,52))drawGameIcon(c,'mines',0,0,46);
@@ -35,6 +35,14 @@ const FX_BLAST_KINDS={
  cannon:{size:.8,smoke:1,smokeKey:'smokeGray',set:'pop'},
  hydrogen:{size:1.7,smoke:3,smokeKey:'smokeHeavy',set:'bossBlast',ring:true,debris:true}
 };
+// Ground strikes read as dirt + smoke today; a brief flash and a short-lived
+// ground flame sell that the ordnance actually burned.
+const GROUND_FLAME=new Set(['bomb','mortar','shell','mine','mineAir','charge','structure','hydrogen','minenwerfer-heavy','minenwerfer-shell','carpet-bomb','zubian-mortar']);
+function blastFlame(c,x,y,d,q){
+ if(!FX3||!fxReady('fireFlash'))return;
+ if(q<.3)fx(c,'fireFlash',x,y,d*.68,d*.68,0,(1-q/.3)*.8);
+ else if(q<.72)fx(c,'fireGround',x,y,d*.6,d*.6,0,(1-(q-.3)/.42)*.5);
+}
 export function drawFxExplosion(c,f,x,y,radius=0){
  if(f.fxOnly&&!FX3)return true;
  if(f.mortarOverlay&&FX3&&fxReady('mortarImpact0'))return true;
@@ -44,6 +52,7 @@ export function drawFxExplosion(c,f,x,y,radius=0){
  const kind=FX_BLAST_KINDS[legacy[f.kind]||f.kind]||FX_BLAST_KINDS.blast;
  const d=Math.max(30,(radius||f.radius||60)*2.2*(.55+q*.6))*kind.size;
  if(!fx(c,kind.set+frame,x,y,d,d,0,Math.min(1,(1-q)*2.4)))return false;
+ if(!kind.cool&&(GROUND_FLAME.has(f.fxSource)||GROUND_FLAME.has(f.kind)))blastFlame(c,x,y,d,q);
  if(q>.5&&kind.smoke){const sq=(q-.5)/.5;
   for(let i=0;i<kind.smoke;i++){const a=i*2.1+x*.01,ox=Math.cos(a)*d*.2,oy=-d*.1*(i+1)-sq*d*.12;
    fx(c,kind.smokeKey,x+ox,y+oy,d*.55,d*.42,sq*.6,Math.min(.3,(1-sq)*.4));}}
@@ -62,7 +71,9 @@ function drawRoleExplosion(c,f,x,y,radius,q,frame){
  if(families[source]){
   const size={cow:1.95,moteur:1.7,lePrieur:1.35,bomb:2,mortar:2.15}[source];
   const d=Math.min(source==='bomb'||source==='mortar'?240:150,Math.max(30,r*size))*(.86+q*.28);
-  return fx(c,families[source]+frame,x,y,d,d,0,fade);
+  const hit=fx(c,families[source]+frame,x,y,d,d,0,fade);
+  if(hit&&GROUND_FLAME.has(source))blastFlame(c,x,y,d,q);
+  return hit;
  }
  if(source==='navalMG'||source==='navalMedium'){
   if(!fxReady('navalSplash3'))return false;const medium=source==='navalMedium',d=(medium?64:27)*(.72+q*.45);
@@ -77,7 +88,9 @@ function drawRoleExplosion(c,f,x,y,radius,q,frame){
  }
  if(source==='mine'||source==='mineAir'){
   const d=Math.min(155,Math.max(44,r*1.65))*(.8+q*.3);
-  return fx(c,'shellBurst'+frame,x,y,d,d,0,fade);
+  const hit=fx(c,'shellBurst'+frame,x,y,d,d,0,fade);
+  if(hit)blastFlame(c,x,y,d,q);
+  return hit;
  }
  if(source==='aircraftHeavy'||source==='aircraftMedium'){
   const heavy=source==='aircraftHeavy',d=Math.min(heavy?220:155,r*(heavy?3:2.5))*(.75+q*.4);
@@ -91,7 +104,7 @@ function drawRoleExplosion(c,f,x,y,radius,q,frame){
 // Approved four-stage Amatol artwork. Ordinary grenade and mine effects keep
 // their existing renderer; this layer is used only by Amatol-tagged blasts.
 const amatolEffect=typeof Image==='undefined'?null:new Image();
-if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=409';
+if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=410';
 const AMATOL_FRAMES=[[19,319,306,315],[321,261,427,427],[744,227,475,503],[1209,245,463,489]];
 export function drawAmatolBlast(c,f,x,y){
  if(FX3&&fxReady('bossBlast0')){const q=Math.max(0,Math.min(.999,1-f.life/f.maxLife)),d=Math.min(f.secondaryExplosion?120:260,f.radius*2.15)*(.82+q*.18);
