@@ -1,10 +1,10 @@
-// FX SAMPLE PREVIEW (direction check only — not part of the game build).
-// Active only with ?fxs=1. Swaps the listed FX keys for the sample atlas in
+// HEAD-ON FX layer (painted atlas). ON by default on this branch; ?fxs=0 rolls
+// back to the previous FX (?fx=0 still disables all sprite FX). Swaps the listed FX keys for the sample atlas in
 // fx-sample/, adds tracer / rocket-trail / bomb-fall drawing hooks, and
 // otherwise leaves every renderer untouched. Remove this file and the few
 // `FXS` lines in fx-art.js / app.js to drop the preview.
 const params = typeof location === 'undefined' ? null : new URLSearchParams(location.search);
-export const FXS = params?.get('fxs') === '1';
+export const FXS = params?.get('fxs') !== '0' && params?.get('fx') !== '0';
 
 // Engine keys that resolve to a sample cell (aliases follow fx-role3's families).
 const ALIAS = {
@@ -12,14 +12,19 @@ const ALIAS = {
   bombfx0: 'mortarImpact0', bombfx1: 'mortarImpact1', bombfx2: 'mortarImpact2', bombfx3: 'mortarImpact3',
   explosionDust0: 'mortarImpact0', explosionDust1: 'mortarImpact1', explosionDust2: 'mortarImpact2', explosionDust3: 'mortarImpact3',
   smokeOil: 'smokeDark', engineSmoke: 'smokeGray', gunSmoke: 'smokePuff', wreckSmoke: 'smokeHeavy',
-  smokeWisp: 'smokePuff', explosionSmoke: 'smokeHeavy', armorSpark: 'spark', fire: 'fireGround',
+  smokeWisp: 'mistPuff', explosionSmoke: 'smokeHeavy', armorSpark: 'spark', fire: 'fireGround',
   fireSmall: 'fireEngine', ricochet: 'spark',
   shellBurst0: 'cowImpact0', shellBurst1: 'cowImpact1', shellBurst2: 'cowImpact2', shellBurst3: 'cowImpact3',
   explosionHot0: 'cowImpact0', explosionHot1: 'cowImpact1', explosionHot2: 'cowImpact2', explosionHot3: 'cowImpact3',
   explosionOily0: 'bossBlast0', explosionOily1: 'bossBlast1', explosionOily2: 'bossBlast2', explosionOily3: 'bossBlast3',
   fire0: 'fireGround', fire1: 'fireGround', fire2: 'fireGround', fire3: 'fireGround',
   splashTiny: 'navalSplash3', splashShell: 'navalSplash3', waterColumn: 'navalSplash3', foamRing: 'navalFoam3',
-  smokeDust: 'dustPuff', dirtMix: 'dustPuff', wreckGust: 'shockRing'
+  smokeDust: 'dustPuff', dirtMix: 'dustPuff', wreckGust: 'shockRing',
+  tracerOrange: 'tracerEnemy', tracerCream: 'tracerCore', tracerAmber: 'tracerCore', tracerViolet: 'tracerCore',
+  gas: 'gasCloud2', gasSmall: 'gasCloud0', gasThin: 'gasCloud3', mist: 'mistPuff', gunSmokeThin: 'smokePuff',
+  muzzlePistol: 'muzzle', debris: 'debrisShard',
+  mineBlast0: 'navalSplash3', mineBlast1: 'navalSplash3', mineBlast2: 'navalFoam3', mineBlast3: 'navalFoam3',
+  shipBow: 'shipBow3'
 };
 const rects = new Map();
 let atlas = null;

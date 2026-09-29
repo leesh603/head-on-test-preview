@@ -1,5 +1,5 @@
 
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=421';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=423';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=418';
 import {bossSoundFor} from './boss-feedback.js?v=418';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=418';

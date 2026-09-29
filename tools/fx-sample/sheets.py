@@ -31,7 +31,8 @@ TITLES = {'A': ('A  기관총', '총구섬광 · 탄궤적 · 탄착'), 'B': ('B
           'D': ('D  화염 · 폭발 · 연기', '소형 4단 · 중형 4단 · 엔진 화염 · 섬광 · 지면 화염 · 화염분출 · 연기'),
           'E': ('E  기관포', 'COW 37mm 피격 4단 · 모터 캐논 피격 4단'),
           'F': ('F  대형 폭발', '폭격기·보스 격추 4단 · 지상 구조물 파괴 4단'),
-          'G': ('G  대공포 · 수면 · 기타', '대공포 공중폭발 · 충격파 · 물보라 · 포말 · 흙먼지 · 흙 튐 · 날개 화재')}
+          'G': ('G  대공포 · 수면 · 기타', '대공포 공중폭발 · 충격파 · 물보라 · 포말 · 흙먼지 · 흙 튐 · 날개 화재'),
+          'J': ('J  적 탄 · 가스 · 항적', '적 트레이서 · 독가스 4종 · 안개 · 선미 항적 · 선수 물보라')}
 W = 2000
 blocks = []
 for fam, keys in man['families'].items():
@@ -66,7 +67,7 @@ for fam, keys in man['families'].items():
 head = Image.new('RGB', (W, 110), BG)
 d = ImageDraw.Draw(head)
 d.text((20, 18), 'HEAD-ON FX 시안 · 스프라이트 아틀라스', fill=INK, font=font(36, True))
-d.text((20, 68), '각 칸 위: 중립 배경 / 아래: 실제 지형 · 작은 스프라이트는 2배 확대 · 원본 fx-sample/fx-sample-atlas.webp (2048×2048) · 발광 절감판',
+d.text((20, 68), '각 칸 위: 중립 배경 / 아래: 실제 지형 · 작은 스프라이트는 2배 확대 · 원본 fx-sample/fx-sample-atlas.webp (2048×2048) · 3차 (폭발 재작업)',
        fill=SUB, font=font(18))
 sheet = Image.new('RGB', (W, head.height + sum(b.height for b in blocks) + 10 * len(blocks)), BG)
 sheet.paste(head, (0, 0)); yy = head.height
