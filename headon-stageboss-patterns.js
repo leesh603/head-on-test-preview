@@ -1,7 +1,7 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=410';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=410';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=410';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=410';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=418';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=418';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=418';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=418';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -151,7 +151,7 @@ export class ZeppelinL70 extends PatternBoss {
     for(let i=0;i<7;i++)parts.push({id:'engine-'+i,x:(i-3)*34,y:45,radius:19,hittable:false,kind:'engine'});
     super({...options,parts,kind:'zeppelin-l70'});this.phase='cloud';this.coreVulnerable=false;this.phaseTime=0;
     this.broadside=0;this.gasSide=-1;this.lastStand=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
-    this._summonTiers=[.75,.5,.3];this._summonCount=0;this._superSummoned=false;
+    this._summonTiers=[.75,.5,.3,.15];this._summonCount=0;
   }
   liveEngines(){return [...this.parts.values()].filter(p=>p.kind==='engine'&&!p.destroyed);}
   hit(attack) {
@@ -183,10 +183,8 @@ export class ZeppelinL70 extends PatternBoss {
         if(p)for(const engine of live){const x=this.x+engine.x,y=this.y+engine.y;
           this.command('muzzle',{x,y,partId:engine.id});this.fan(x,y,Math.atan2(p.y-y,p.x-x),this.t.engineShotCount||2,.2,this.t.bulletSpeed,'l70-broadside');}
       }
-      // Escort airships arrive as the hull bleeds, not all at once on reveal;
-      // the last reinforcement is the L70-class super airship itself.
+      // Escort airships arrive as the hull bleeds, not all at once on reveal.
       if(this._summonTiers.length&&this.hp<=this.maxHp*this._summonTiers[0]){this._summonTiers.shift();const ox=[-170,170,0][this._summonCount%3];this.command('spawn-minion',{minion:'airship',faction:this.faction,x:this.x+ox,y:this.y-140-(this._summonCount%2)*40});this._summonCount++;}
-      if(!this._superSummoned&&this.hp<=this.maxHp*.15){this._superSummoned=true;this.command('spawn-minion',{minion:'super-airship',faction:this.faction,x:this.x,y:this.y-170});}
       if(this.due('bombline',dt,(this.t.gasInterval||6)*(this.lastStand ? .72 : 1))){
         const p=this.target(players);
         if(p){const horizontal=(this.gasSide*=-1)>0,n=5,tx=p.x+(p.vx||0)*.4,ty=p.y+(p.vy||0)*.4;
