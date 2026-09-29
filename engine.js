@@ -1244,7 +1244,7 @@ PILOTS.mannock.desc='기관총 사거리 −55%. S.E.5a 7대가 위→아래 한
 // Revision 91: sustained rear-quarter aim rewards dogfighting, while tethered
 // observation balloons release short, historically themed special-ammo belts.
 Game.prototype.combatWorld=function(){return this.world||this};
-Game.prototype.tailEligible=function(e){const airBody=e?.stageBossBody?.formationBoss129;return !!(e&&e.hp>0&&((!e.stationary&&!e.surface)||airBody)&&!e.fieldUnit&&!e.navalVessel&&!e.heavyBomber&&e.type!=='zeppelin')};
+Game.prototype.tailEligible=function(e){const airBody=e?.stageBossBody?.formationBoss129;return !!(e&&e.hp>0&&((!e.stationary&&!e.surface)||airBody)&&!e.fieldUnit&&!e.navalVessel&&e.type!=='zeppelin')};
 Game.prototype.tailIdFor=function(e){if(e.tailId)return e.tailId;const world=this.combatWorld();world.tailEntitySequence=(world.tailEntitySequence||0)+1;return e.tailId=`tail-${world.tailEntitySequence}`};
 Game.prototype.updateTailLock=function(dt){
  if(this.hp<=0||this.status&&this.status!=='alive'){this.tailTargetId=null;this.tailLocked=false;this.tailProgress=0;return}
