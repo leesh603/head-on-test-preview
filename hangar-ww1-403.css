@@ -200,7 +200,7 @@ body.astra-ui:not(.playing){
  body.astra-ui:not(.playing) #hangar .astra-pilot-english{
   order:-1;display:flex;align-items:center;gap:7px;margin:0 0 6px!important;font:700 10px/1.2 var(--astra-numeric)!important;letter-spacing:.2em!important;color:#e6ded0!important;text-shadow:0 1px 6px #000;
  }
- body.astra-ui:not(.playing) #hangar .astra-pilot-english:before{content:"";flex:none;width:14px;height:3px;border-radius:2px;background:var(--hm-red)}
+ body.astra-ui:not(.playing) #hangar .astra-pilot-english:before{content:"";flex:none;width:14px;height:3px;border-radius:2px;background:var(--fac,var(--hm-red))}
  body.astra-ui:not(.playing) #hangar .astra-pilot-title{
   margin:0!important;max-width:none!important;text-align:left!important;font:900 clamp(25px,7.6vw,31px)/1.08 var(--astra-type)!important;letter-spacing:-.035em!important;
   color:var(--hm-text)!important;text-shadow:0 2px 18px #000d;word-break:keep-all;
@@ -494,7 +494,7 @@ body.astra-ui:not(.playing){
  body.astra-ui:not(.playing) #hangar .astra-hero #hangarPortrait{
   position:relative!important;inset:auto!important;grid-column:1!important;grid-row:1!important;width:58px!important;height:58px!important;min-width:0!important;min-height:0!important;max-height:none!important;
   border-radius:50%!important;object-fit:cover!important;object-position:56% 10%!important;scale:none!important;translate:none!important;rotate:none!important;transform:none!important;
-  background:#262522;box-shadow:0 0 0 2px #151514,0 0 0 3.5px var(--hm-red)!important;
+  background:#262522;box-shadow:0 0 0 2px #151514,0 0 0 3.5px var(--fac,var(--hm-red))!important;
  }
  body.astra-ui:not(.playing) #hangar .astra-hero .astra-dossier{
   position:static!important;inset:auto!important;grid-column:2!important;grid-row:1!important;display:flex!important;flex-direction:column;gap:7px;width:auto!important;height:auto!important;transform:none!important;
@@ -621,7 +621,7 @@ body.astra-ui:not(.playing){
   position:relative!important;inset:auto!important;left:auto!important;bottom:auto!important;grid-column:1!important;grid-row:1!important;align-self:start;
   width:100%!important;height:auto!important;aspect-ratio:4/5;min-height:0!important;min-width:0!important;max-height:none!important;max-width:none!important;
   object-fit:cover!important;object-position:58% 12%!important;border-radius:16px;transform:none!important;scale:none!important;translate:none!important;rotate:none!important;
-  -webkit-mask-image:none!important;mask-image:none!important;filter:none!important;opacity:1!important;z-index:auto!important;background:#232320;box-shadow:0 0 0 1px #ffffff26,inset 0 -3px 0 var(--hm-red);
+  -webkit-mask-image:none!important;mask-image:none!important;filter:none!important;opacity:1!important;z-index:auto!important;background:#232320;box-shadow:0 0 0 1px #ffffff26,inset 0 -3px 0 var(--fac,var(--hm-red));
  }
  body.astra-ui:not(.playing) #hangar .astra-hero .astra-dossier{
   position:relative!important;inset:auto!important;grid-column:2!important;grid-row:1!important;display:flex!important;flex-direction:column;justify-content:center;gap:14px;
@@ -630,7 +630,7 @@ body.astra-ui:not(.playing){
  body.astra-ui:not(.playing) #hangar .astra-kicker{display:none!important}
  body.astra-ui:not(.playing) #hangar .astra-identity{display:flex!important;flex-direction:column;margin:0!important;padding:0!important;text-align:left!important;max-width:none!important}
  body.astra-ui:not(.playing) #hangar .astra-pilot-english{order:-1;display:flex;align-items:center;gap:8px;margin:0 0 6px!important;font:700 10.5px/1.2 var(--astra-numeric)!important;letter-spacing:.2em!important;color:#c3beb2!important}
- body.astra-ui:not(.playing) #hangar .astra-pilot-english:before{content:"";width:16px;height:3px;border-radius:2px;background:var(--hm-red)}
+ body.astra-ui:not(.playing) #hangar .astra-pilot-english:before{content:"";width:16px;height:3px;border-radius:2px;background:var(--fac,var(--hm-red))}
  body.astra-ui:not(.playing) #hangar .astra-pilot-title{margin:0!important;max-width:none!important;font:900 clamp(22px,2vw,30px)/1.12 var(--astra-type)!important;letter-spacing:-.03em!important;color:var(--hm-text)!important;text-shadow:none!important;text-align:left!important;word-break:keep-all}
  body.astra-ui:not(.playing) #hangar .skill-info{display:grid!important;grid-template-columns:1fr 1fr;gap:16px!important;margin:0!important;padding:0!important;max-width:none!important;background:none!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
  body.astra-ui:not(.playing) #hangar .skill-info>.astra-ability{display:grid!important;grid-template-columns:32px minmax(0,1fr)!important;align-items:start;gap:10px!important;margin:0!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;min-width:0}
