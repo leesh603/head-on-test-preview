@@ -59,7 +59,46 @@ function installSkills() {
   return true;
 }
 
-function install() { return installAircraft() & installSkills(); }
+/* Key-art lobby (phone): the art and the logo end where the pilot row
+   starts. Measures only; writes one CSS variable on <body>. */
+function installArt() {
+  const stage = document.querySelector('#hangar .astra-stage');
+  const hero = document.querySelector('#hangar .astra-hero');
+  if (!stage || !hero) return false;
+  if (stage.dataset.hoArt) return true;
+  stage.dataset.hoArt = '1';
+  const set = () => {
+    if (!mq.matches) { document.body.style.removeProperty('--ho-art-h'); return; }
+    if (document.body.classList.contains('ho-sheet-open')) return;
+    const s = stage.getBoundingClientRect(), h = hero.getBoundingClientRect();
+    if (!s.height || !h.height) return;
+    document.body.style.setProperty('--ho-art-h', Math.round(h.top - s.top + 34) + 'px');
+  };
+  const ro = new ResizeObserver(set);
+  ro.observe(stage); ro.observe(hero);
+  addEventListener('resize', set);
+  mq.addEventListener?.('change', set);
+  set();
+  return true;
+}
+
+/* Icon-only nav: keep a hover tooltip / accessible name in the live language. */
+function installNavTitles() {
+  const nav = document.getElementById('mainOperations');
+  if (!nav) return false;
+  if (nav.dataset.hoTitles) return true;
+  nav.dataset.hoTitles = '1';
+  const sync = () => nav.querySelectorAll(':scope>button,:scope>a').forEach(b => {
+    const l = b.querySelector('.operation-label-full') || b.querySelector('.operation-label-short');
+    const txt = (l ? l.textContent : b.textContent).trim();
+    if (txt) b.title = txt;
+  });
+  new MutationObserver(sync).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+  sync();
+  return true;
+}
+
+function install() { return installAircraft() & installSkills() & installArt() & installNavTitles(); }
 
 if (!install()) {
   const obs = new MutationObserver(() => { if (install()) obs.disconnect(); });
