@@ -9,7 +9,7 @@ import {drawStageBoss} from './stageboss-view.js?v=426';
 import {planeSprite,aircraftKey} from './aircraft.js?v=426';
 import {drawEquipment} from './equipment.js?v=426';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=426';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=431';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=426';
 import {drawSpecialAmmoIcon} from './icons.js?v=426';
 import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=426';
 
