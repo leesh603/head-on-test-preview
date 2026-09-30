@@ -2,7 +2,7 @@ import {drawGameIcon} from './icons.js?v=446';
 import {fx,fxReady,FX56,FX3} from './fx-art.js?v=446';
 export function drawGrenade(c,g,x,y){
  c.save();c.translate(x,y-g.height);c.rotate(g.phase==='flight'?g.age*7:0);
- if(!fx(c,'grenade',0,0,52,52))drawGameIcon(c,'mines',0,0,46);
+ if(!fx(c,'grenade',0,0,36,36))drawGameIcon(c,'mines',0,0,30);
  if(g.phase==='fuse'){c.fillStyle='#f1cd8e';c.beginPath();c.arc(3,-8,1.4,0,Math.PI*2);c.fill()}c.restore();
 }
 export function drawGrenadeBlast(c,f,x,y){
