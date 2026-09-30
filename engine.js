@@ -1,22 +1,22 @@
-import {installPilotIdentities} from './pilot-identities.js?v=459';
-import {EnemyCollisionGrid} from './collision-grid.js?v=459';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=459';
-import {installRevision} from './rebalance103.js?v=459';
-import {installCloudCover} from './cloud-cover1.js?v=459';
-import {installFleet} from './fleet-naval1.js?v=459';
-import {installTrenchWar} from './trench-war1.js?v=459';
-import {installCityAir} from './city-air1.js?v=459';
-import {installRegionDoctrine} from './region-doctrine1.js?v=459';
-import {installLondonBattle} from './london-battle.js?v=459';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=459';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=459';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=459';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=459';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=459';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=459';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=459';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=459';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=459';
+import {installPilotIdentities} from './pilot-identities.js?v=460';
+import {EnemyCollisionGrid} from './collision-grid.js?v=460';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=460';
+import {installRevision} from './rebalance103.js?v=460';
+import {installCloudCover} from './cloud-cover1.js?v=460';
+import {installFleet} from './fleet-naval1.js?v=460';
+import {installTrenchWar} from './trench-war1.js?v=460';
+import {installCityAir} from './city-air1.js?v=460';
+import {installRegionDoctrine} from './region-doctrine1.js?v=460';
+import {installLondonBattle} from './london-battle.js?v=460';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=460';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=460';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=460';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=460';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=460';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=460';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=460';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=460';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=460';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -1643,7 +1643,9 @@ Game.prototype.beginRevisionFrame=function(dt,input={}){
  this.mccuddenRepairFlash=Math.max(0,(this.mccuddenRepairFlash||0)-dt);return prior;
 };
 const _newAceRoundDamage124=Game.prototype.roundDamageMultiplier;
-Game.prototype.roundDamageMultiplier=function(b,e){let mult=_newAceRoundDamage124.call(this,b,e);return mult};
+Game.prototype.roundDamageMultiplier=function(b,e){let mult=_newAceRoundDamage124.call(this,b,e);
+ if(this.pilot==='loewenhardt'&&b&&!b.enemy&&!b.patrol&&!b.formation&&!b.ally&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.actualExplosion&&!b.blast&&!b.mauserRound&&!b.fonckSeeker&&e&&e.hp>0){const dx=e.x-this.x,dy=e.y-this.y;if(dx*dx+dy*dy<=176400){let d=Math.atan2(dy,dx)-this.a;d=Math.atan2(Math.sin(d),Math.cos(d));if(Math.abs(d)<Math.PI/3)mult*=NEW_ACE_BALANCE124.loewenhardtFrontalDamage}}
+ return mult};
 
 // Revision 164 installs the authoritative three-card draft and McCudden reroll below.
 const _newAceCanHit124=Game.prototype.canHitTarget;
