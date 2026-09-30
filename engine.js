@@ -1624,6 +1624,7 @@ Game.prototype.beginRevisionFrame=function(dt,input={}){
  for(const pl of this.players||[this]){
   if(!pl||!(pl.hp>0))continue;
   if(pl.pilot==='loewenhardt'){pl.loewenhardtEngaged=false;for(const e of this.enemies){if(e.hp<=0||e.surface||e.dying)continue;const dx=e.x-pl.x,dy=e.y-pl.y;if(dx*dx+dy*dy>176400)continue;let d=Math.atan2(dy,dx)-pl.a;d=Math.atan2(Math.sin(d),Math.cos(d));if(Math.abs(d)<Math.PI/3){pl.loewenhardtEngaged=true;break}}}
+  if(pl.loewenhardtEngaged&&typeof pl.identityFx==='function'){pl._loewStream=(pl._loewStream||0)-dt;if(pl._loewStream<=0){pl._loewStream=.12;const px=Math.cos(pl.a),py=Math.sin(pl.a),nx=-py,ny=px;for(const side of[-1,1])pl.identityFx('windStreak',pl.x-px*12+nx*side*18,pl.y-py*12+ny*side*18,pl.a+side*.09,60,.3,{height:15,alpha:.52,color:'#ffd76a'});if((pl._loewMist=(pl._loewMist||0)+1)%4===0)pl.identityFx('mist',pl.x+px*18,pl.y+py*18,pl.a,52,.5,{alpha:.24,color:'#ffeab0'})}}
   if(pl.pilot==='rickenbacker'){let n=0;for(const e of this.enemies)if(e.hp>0&&!e.surface&&Math.hypot(e.x-pl.x,e.y-pl.y)<700)n++;pl.rickCount=n}
   pl.rickActive=pl.pilot==='rickenbacker'?pl.skillTime:0
   if(pl.pilot==='ball')pl.ballAlone=!(world.allies||[]).some(a=>a.life>0&&Math.hypot(a.x-pl.x,a.y-pl.y)<320)&&!(this.players||[]).some(p2=>p2!==pl&&p2.hp>0&&Math.hypot(p2.x-pl.x,p2.y-pl.y)<320);
