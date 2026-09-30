@@ -1,7 +1,7 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=447';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=447';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=447';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=447';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=448';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=448';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=448';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=448';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -1315,11 +1315,11 @@ export class LondonRaidApron extends LondonApron {
   if(p.id==='light'||p.id==='gun')this.command('phase-change',{phase:p.id==='light'?'blackout':'battery-silenced'});}
  update(dt,ctx){super.update(dt,ctx);const {players,bounds,isIlluminated}=ctx,light=this.parts.get('light'),gun=this.parts.get('gun');
   if(!light.destroyed&&this.due('raid-light',dt,8.8))this.hazard('searchlight',{x:this.x+light.x,y:this.y+light.y,angle:Math.PI/2-.65,angularSpeed:.27,halfAngle:.14,radius:Math.max(560,bounds.bottom-bounds.top),duration:5.2,warning:.75,damage:0,visual:'searchlight',tag:'raid-light'});
-  if(!gun.destroyed&&this.due('raid-flak',dt,4.3)){const p=players.find(p=>p.alive&&!p.londonRiver&&isIlluminated?.(p))||this.target(players);if(p){
+  if(!gun.destroyed&&this.due('raid-flak',dt,4.3)){const p=players.find(p=>p.alive&&!p.londonRiver&&isIlluminated?.(p))||players.find(p=>p.alive);if(p){
    const lit=!p.londonRiver&&!!isIlluminated?.(p),x=p.x+(p.vx||0)*(lit?.5:.2),y=p.y+(p.vy||0)*(lit?.5:.2);
    this.command('muzzle',{x:this.x+gun.x,y:this.y+gun.y,partId:'gun'});
    for(let i=0;i<(lit?3:2);i++)this.hazard('circle',{x:x+(i-.5)*66,y,delay:i*.25,radius:40,warning:lit?1.05:1.4,duration:.35,once:true,damage:this.t.damage,visual:'black-flak',sourceX:this.x+gun.x,sourceY:this.y+gun.y,tag:'raid-gun'});}}
-  if(this.coreVulnerable&&this.due('raid-final',dt,2.8)){const p=this.target(players);if(p)this.fan(this.x,this.y+75,Math.atan2(p.y-this.y-75,p.x-this.x),3,.3,this.t.bulletSpeed*.8,'london-mg');}
+  if(this.coreVulnerable&&this.due('raid-final',dt,2.8)){const p=players.find(p=>p.alive);if(p){const x=this.x,y=this.y+75,a=Math.atan2(p.y-y,p.x-x),speed=this.t.bulletSpeed*.8;for(let i=-1;i<=1;i++)this.hazard('projectile',{x,y,vx:Math.cos(a+i*.15)*speed,vy:Math.sin(a+i*.15)*speed,radius:5,visual:'london-mg'});}}
  }
 }
 
