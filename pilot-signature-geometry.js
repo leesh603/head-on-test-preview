@@ -9,5 +9,6 @@ export function signatureRingPose(p){
 export function signatureWingPositions(p){
  const allies=p.combatWorld?.().allies||p.allies||[];
  return allies.filter(a=>a.life>0&&(a.ownerId===(p.id||'p1')||(!p.world&&!p.players&&a.ownerId===undefined)))
-  .slice(0,6).map(a=>{const dx=a.x-p.x,dy=a.y-p.y;return {x:dx*Math.cos(p.a)+dy*Math.sin(p.a),y:-dx*Math.sin(p.a)+dy*Math.cos(p.a),a:(a.a||0)-p.a,fire:a.fire||0}});
+  .slice(0,6).map(a=>{const dx=a.x-p.x,dy=a.y-p.y;return {x:dx*Math.cos(p.a)+dy*Math.sin(p.a),y:-dx*Math.sin(p.a)+dy*Math.cos(p.a),a:(a.a||0)-p.a,fire:a.fire||0,muzzleFlash:a.muzzleFlash||0,muzzleAngle:(a.muzzleAngle??a.a??0)-p.a}});
 }
+

@@ -10,7 +10,7 @@ const alive=e=>e&&e.hp>0&&!e.crashed&&!e.rivalEscaped&&!e.expired;
 const own=p=>p.id||'p1';
 const personal=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.actualExplosion&&!b.blast&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.mauserRound;
 const commanders=new Set(['boelcke','goering','collishaw','brumowski']);
-const durations={fonck:4,voss:2.4,boelcke:6,udet:3,goering:5,immelmann:2.8,huffzky:5,berthold:5,jacobs:4,gontermann:5,brumowski:5,collishaw:6,guynemer:2.4,bishop:3,mannock:5,mckeever:5,hawker:5,nungesser:3,rickenbacker:4,ball:1.5,barker:6,luke:6};
+const durations={fonck:4,voss:2.4,boelcke:8,udet:3,goering:5,immelmann:2.8,huffzky:5,berthold:5,jacobs:4,gontermann:5,brumowski:5,collishaw:6,guynemer:2.4,bishop:3,mannock:5,mckeever:5,hawker:5,nungesser:3,rickenbacker:4,ball:1.5,barker:6,luke:6};
 export const PILOT_IDENTITY_BALANCE=Object.freeze({durations:Object.freeze(durations),focusCone:.13,focusRange:780,focusTime:1.5,grazeInner:18,grazeOuter:42,grazeStacks:3,grazeDuration:3,delayedFraction:.4,debtSeconds:4,energySeconds:3,turnSeconds:2,switchWindow:2,switchStacks:3,igniteSeconds:3,igniteInterval:.25,chainRadius:110,chainDamage:36,fxCap:24});
 export const pilotOwner=own;
 export const pilotHeadOn=(p,e)=>headOnTarget({...p,hp:1},[e])===e;
@@ -34,7 +34,8 @@ export function installPilotIdentities(Game,PILOTS){
   this.ensureRevisionPilot();if(this.state!=='playing'||this.hp<=0||this.cooldown>0||this.status==='downed')return false;
   const s=this.identityState();this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();s.activeAge=0;
   if(this.pilot==='voss'){this.invuln=Math.max(this.invuln,.45);const w=this.combatWorld();w.revisionDecoys??=[];for(let i=0;i<6;i++){const a=this.a+i*Math.PI/3;w.revisionDecoys.push({x:this.x,y:this.y,a,plane:this.plane,pilot:this.pilot,ownerId:own(this),life:1.2,hp:1,decoy:true,identityDecoy:true,vx:Math.cos(a)*140,vy:Math.sin(a)*140})}}
-  if(this.pilot==='immelmann'){this.a+=Math.PI;this.eagleTime=3;this.invuln=Math.max(this.invuln,.55);const spread=this.skillEnhanced?3:2;for(let i=-spread;i<=spread;i++)this.identityShot(this.a+i*.055,this.damage*3.5,{pierce:true,formation:true});for(let i=0;i<3;i++)this.identityFx('windStreak',this.x-Math.cos(this.a)*i*18,this.y-Math.sin(this.a)*i*18,this.a-i*.28,56,.3+i*.06);}
+  if(this.pilot==='immelmann'){this.bullets=this.bullets.filter(b=>!b.enemy);this.invuln=Math.max(this.invuln,this.skillEnhanced?1.35:1.1);this.immelmannTurn={heading:this.a,elapsed:0,spread:this.skillEnhanced?3:2,fired:false}}
+ if(this.pilot==='boelcke'){const w=this.combatWorld();w.allies??=[];const formationSize=this.skillEnhanced?5:4;for(let i=0;i<formationSize;i++)w.allies.push({ownerId:own(this),slot:(this.permanentWingman||0)+i,plane:this.plane,x:this.x,y:this.y,a:this.a,life:this.skillTime,fire:.85+Math.floor(i/2)*.12,temporary:true,boelckePincer:true})}
   if(this.pilot==='udet'){s.counter=s.grazes||0;s.grazes=0;s.grazeTime=0;this.invuln=Math.max(this.invuln,.3)}
   if(this.pilot==='goering')s.commandTarget=this.identityTarget();
   if(this.pilot==='guynemer'){s.cannonLeft=this.skillEnhanced?4:3;s.cannonTimer=0}

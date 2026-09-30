@@ -1218,3 +1218,45 @@ body.astra-ui.playing #flightNotices151 #bossArrival small{color:var(--enemy-fac
 body.astra-ui.playing #flightNotices151 #bossArrival strong{color:var(--enemy-fac-strong,#f0e6d2)!important}
 body.astra-ui.playing #flightNotices151 #bossArrivalDetail{color:var(--enemy-fac-soft,var(--ho-muted))!important}
 body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{border-color:var(--enemy-fac-soft,var(--ho-edge))}
+
+/* ---- Reload: plays inside the ammo pill instead of a floating readout ----
+   The countdown plate under the pill collided with toasts / callouts. While
+   reloading, a brass plate covers the ammo segment: it fills left→right with
+   reload progress, a stripe band slides through it, and the label sits on top.
+   On completion the segment gives one short brass flash. */
+body.astra-ui.playing:not(.coop-playing) #flightTop151 .astra-reload-readout{display:none!important}
+body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud,
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud{position:relative!important}
+body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud::after{
+ content:attr(data-reload-text);position:absolute;z-index:3;top:50%;left:4px;right:0;
+ height:calc(var(--ho-pill-h) - 10px);transform:translateY(-50%);box-sizing:border-box;
+ display:flex;align-items:center;justify-content:center;padding:0 8px;
+ border:1px solid #c9a24a66;border-radius:999px;pointer-events:none;overflow:hidden;
+ font:700 10px/1 var(--astra-numeric);letter-spacing:.12em;white-space:nowrap;color:#fff6df;
+ text-shadow:0 1px 1px #0009;
+ background:
+  repeating-linear-gradient(-45deg,#fff4d41c 0 5px,transparent 5px 11px),
+  linear-gradient(90deg,#8b6c2e 0,#c9a24a var(--astra-reload-p,0%),#1b1916 var(--astra-reload-p,0%),#141311 100%);
+ background-size:22px 22px,100% 100%;
+ opacity:0;visibility:hidden;
+}
+body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud.reloading::after{
+ opacity:1;visibility:visible;animation:ho-reload-in .14s ease-out both,ho-reload-stripes .6s linear infinite;
+}
+body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud.astra-reloaded:not(.reloading)::after{
+ content:"";visibility:visible;background:linear-gradient(90deg,#f5d58a,#c9a24a);border-color:#f5d58a;
+ animation:ho-reload-done .36s ease-out both;
+}
+body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud.reloading #reload,
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud.reloading #reload{overflow:hidden;color:transparent!important;text-indent:-99px}
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud::after{content:attr(data-reload-short);letter-spacing:.04em;padding:0 4px}
+ body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud.astra-reloaded:not(.reloading)::after{content:""}
+}
+@keyframes ho-reload-in{from{opacity:0;transform:translateY(-50%) scaleX(.92)}to{opacity:1;transform:translateY(-50%) scaleX(1)}}
+@keyframes ho-reload-stripes{to{background-position:22px 0,0 0}}
+@keyframes ho-reload-done{0%{opacity:.85}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){
+ body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud.reloading::after{animation:none}
+ body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud.astra-reloaded:not(.reloading)::after{animation:none;opacity:0}
+}
