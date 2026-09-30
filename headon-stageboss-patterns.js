@@ -1,7 +1,7 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=443';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=443';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=443';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=443';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=444';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=444';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=444';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=444';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -17,6 +17,7 @@ export const BOSS_CATALOG = Object.freeze({
   'minenwerfer-battery': {name:'미넨베르퍼 교차 포격 진지', faction:'central', stage:3},
   'drachen-net': {name:'드라헨 공중 기뢰 방어망', faction:'central', stage:4},
   'london-apron': {name:'런던 에이프런 방공망', faction:'entente', stage:11},
+  'flak-tower': {name:'방공탑', faction:'entente', stage:4},
   'zeppelin-l70': {name:'슈퍼 체펠린 L 70', faction:'central', stage:5},
   hma23: {name:'공중 항모 · HMA 23급', faction:'entente', stage:5},
   gik: {name:'한자-브란덴부르크 G.IK', faction:'central', stage:6},
@@ -1209,10 +1210,82 @@ export class LondonSearchlight extends RegionalPatternBoss {
   }
 }
 
+// Stage 4 entente: four flak towers hold the map corners. Every tower is a
+// self-contained emplacement — siege howitzer, acoustic horns and two AA
+// platforms surround a cupola core — and all four must fall to clear the stage.
+const FLAK_TOWER_PARTS=[
+  {id:'siege',x:-74,y:-101,radius:34},
+  {id:'ears',x:77,y:-96,radius:32},
+  {id:'gun-bl',x:-77,y:70,radius:32},
+  {id:'gun-br',x:74,y:72,radius:32}
+];
+class FlakTowerCell extends PatternBoss {
+  constructor(options){
+    super({...options,kind:'flak-tower-cell',parts:FLAK_TOWER_PARTS});
+    this.phase='listening';this.lockProgress=0;this.coreVulnerable=false;this.ownsMotion129=true;
+    const ears=this.parts.get('ears');if(ears)ears.angle=-Math.PI*.75;
+    for(const id of ['siege','gun-bl','gun-br']){const p=this.parts.get(id);if(p)p.angle=-Math.PI/2;}
+  }
+  suppressive(){}
+  onPartDestroyed(p){
+    if(p.id==='ears'){this.lockProgress=0;this.command('phase-change',{phase:'flak-deaf'});}
+    if([...this.parts.values()].every(x=>x.destroyed)&&!this.coreVulnerable){this.coreVulnerable=true;this.command('phase-change',{phase:'exposed'});}
+  }
+  update(dt,{players}){
+    const list=living(players);if(!list.length)return;
+    const siege=this.parts.get('siege'),ears=this.parts.get('ears');
+    const nearest=list.reduce((a,b)=>Math.hypot(a.x-this.x,a.y-this.y)<Math.hypot(b.x-this.x,b.y-this.y)?a:b);
+    let locked=null;
+    if(ears&&!ears.destroyed){
+      const aim=Math.atan2(nearest.y-this.y,nearest.x-this.x);
+      ears.angle=turnToward(ears.angle,aim,1.1*dt);
+      const off=Math.abs(Math.atan2(Math.sin(aim-ears.angle),Math.cos(aim-ears.angle)));
+      this.lockProgress=off<.5?this.lockProgress+dt:Math.max(0,this.lockProgress-dt*1.6);
+      if(this.lockProgress>=1.4)locked=nearest;
+    }else this.lockProgress=0;
+    if(siege&&!siege.destroyed){
+      const mx=this.x+siege.x,my=this.y+siege.y;
+      if(locked&&this.due('siege-locked',dt,5.4)){
+        const lead=1.15,tx=locked.x+(locked.vx||0)*lead,ty=locked.y+(locked.vy||0)*lead;
+        this.hazard('circle',{x:tx,y:ty,radius:102,delay:.22,warning:1.5,once:true,damage:this.t.damage*2.4,visual:'black-flak',tag:'flak-siege',sourceX:mx,sourceY:my});
+        siege.angle=Math.atan2(ty-my,tx-mx);this.command('muzzle',{x:mx,y:my});
+      }else if(ears?.destroyed&&this.due('siege-blind',dt,4.8)){
+        const p=this.target(list)||nearest;
+        for(let i=-1;i<=1;i++)this.hazard('circle',{x:p.x+i*100+randBetween(this.rng,-44,44),y:p.y+randBetween(this.rng,-36,64),radius:80,delay:.22+Math.abs(i)*.15,warning:1.35,once:true,visual:'black-flak',tag:'flak-siege',sourceX:mx,sourceY:my});
+        siege.angle=Math.atan2(p.y-my,p.x-mx);this.command('muzzle',{x:mx,y:my});
+      }
+    }
+    let i=0;
+    for(const id of ['gun-bl','gun-br']){
+      const gun=this.parts.get(id);i++;if(!gun||gun.destroyed)continue;
+      const mx=this.x+gun.x,my=this.y+gun.y;
+      gun.angle=turnToward(gun.angle,Math.atan2(nearest.y-my,nearest.x-mx),1.7*dt);
+      if(this.due('flak-'+id,dt,3.6+i*1.1)){
+        this.fan(mx,my,gun.angle,5,.66,this.t.bulletSpeed*.95,'black-flak');
+        this.command('muzzle',{x:mx,y:my});
+      }
+    }
+  }
+}
+export class FlakTowerNet extends PatternBoss {
+  constructor(options){super({...options,kind:'flak-tower'});this.phase='deploy';this.stateAge=0;this.coreVulnerable=false;this.ownsMotion129=true;}
+  suppressive(){}
+  update(dt,{bounds}){
+    this.stateAge+=dt;
+    if(this.stateAge<.6)return;
+    if(!this.encounter)throw new Error('flak-tower must belong to an encounter before deploying');
+    const w=bounds.right-bounds.left,h=bounds.bottom-bounds.top,ix=bounds.left+w*.13,ax=bounds.right-w*.13,iy=bounds.top+h*.15,ay=bounds.bottom-h*.15;
+    const corners=[[ix,iy],[ax,iy],[ix,ay],[ax,ay]];
+    const children=corners.map(([x,y],i)=>new FlakTowerCell({id:this.id+'-t'+i,tuning:{...this.t,maxHp:this.hp/4},x,y,faction:this.faction,rng:this.rng,emit:this.emit,coreRadius:44}));
+    this.encounter.replaceBody(this.id,children);
+    this.command('split',{children:children.map(b=>b.id),x:this.x,y:this.y});
+  }
+}
+
 const constructors={'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttgart':Stuttgart,'hms-zubian':Zubian,
   'zeppelin-l70':ZeppelinL70,hma23:HMA23,'a7v-flak':A7VFlak,'mark-v-cruiser':MarkVCruiser,
   'livens-flame-projector':LivensFlameProjector,'minenwerfer-battery':MinenwerferBattery,
-  'london-apron':LondonApron,'drachen-net':DrachenMineNet,gik:GIK,ca4:Ca4,'armored-harbor-fortress':ArmoredHarborFortress,
+  'london-apron':LondonApron,'drachen-net':DrachenMineNet,gik:GIK,ca4:Ca4,'armored-harbor-fortress':ArmoredHarborFortress,'flak-tower':FlakTowerNet,
   fliegerzug:Fliegerzug,'treffas-wagen':TreffasWagen,'jasta11-circus':JastaCircus,'naval10-black-flight':Naval10BlackFlight,
   'mark4-wedge':Mark4Wedge,'morser-battery':MorserBattery,'staaken-rvi':StaakenRVI,'london-searchlight':LondonSearchlight};
 export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {

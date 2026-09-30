@@ -17,7 +17,7 @@ const BOSS_TRACKS={
  'drachen-net':'net','london-apron':'net',
  'zeppelin-l70':'airship',hma23:'airship',
  gik:'bomber',ca4:'bomber',
- 'armored-harbor-fortress':'fortress',
+ 'armored-harbor-fortress':'fortress','flak-tower':'fortress',
  'fliegerzug':'railgun','treffas-wagen':'landship',
  'jasta11-circus':'duel','naval10-black-flight':'duel'
 };

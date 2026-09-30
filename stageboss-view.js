@@ -1,16 +1,16 @@
-import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=443';
-import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=443';
-import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=443';
-import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=443';
-import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=443';
-import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=443';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=443';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=443';
-import {bossHudModel} from './headon-stageboss-hud.js?v=443';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=443';
-import {planeSprite} from './aircraft.js?v=443';
-import {getLocale} from './i18n.js?v=443';
-import {drawAADefense,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=443';
+import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=444';
+import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=444';
+import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=444';
+import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=444';
+import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=444';
+import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=444';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=444';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=444';
+import {bossHudModel} from './headon-stageboss-hud.js?v=444';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=444';
+import {planeSprite} from './aircraft.js?v=444';
+import {getLocale} from './i18n.js?v=444';
+import {drawAADefense,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=444';
 
 function createLazyImageGroup(sources){
  const cache={},pending={};
@@ -39,6 +39,10 @@ const bossSources={
 };
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
 const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.webp',a7vTurret:'./boss-a7v-turret-rebuild.webp',markvHull:'./boss-mark-v-hull-rebuild.webp',markvSponson:'./boss-mark-v-sponson-rebuild.webp'}),rebuildArt=rebuildGroup.images;
+const flakTowerGroup=createLazyImageGroup({hull:'./boss-flak-tower-hull.webp?v=443',siege:'./boss-flak-tower-siege.webp?v=443',ears:'./boss-flak-tower-ears.webp?v=443',gun:'./boss-flak-tower-platform.webp?v=443'}),flakArt=flakTowerGroup.images;
+// Part sprites hold their ring disc off-center inside the frame; anchoring
+// shifts by these measured disc-center fractions so the disc lands on the part.
+const FLAK_PART_ART={siege:{im:'siege',dcx:.499,dcy:.489,forward:Math.PI/2},ears:{im:'ears',dcx:.401,dcy:.660,forward:Math.PI/4},'gun-bl':{im:'gun',dcx:.497,dcy:.482,forward:Math.PI/2},'gun-br':{im:'gun',dcx:.497,dcy:.482,forward:Math.PI/2}};
 const harborGroup=createLazyImageGroup({base:'./boss-armored-harbor-main-base.webp',craneArm:'./boss-armored-harbor-crane-arm.webp',cranePivot:'./boss-armored-harbor-crane-pivot.webp',ammo:'./boss-armored-harbor-ammo-storage.webp',guns:'./boss-armored-harbor-gun-emplacements.webp',facility:'./boss-armored-harbor-seaplane-facility.webp'}),harborArt=harborGroup.images;
 const trenchGroup=createLazyImageGroup({
  livensParts:'./boss_livens_parts195.webp',livensBase:'./boss_livens_base187.webp',
@@ -55,7 +59,7 @@ const BOSS_KEYS_BY_REGION=Object.freeze({
 });
 export function prepareStageBossAssets(region){
  const jobs=[prepareRegionalBossArt(region)];
- bossGroup.release();supportGroup.release();rebuildGroup.release();harborGroup.release();trenchGroup.release();zubianGroup.release();cityGroup.release();buildingGroup.release();
+ bossGroup.release();supportGroup.release();rebuildGroup.release();harborGroup.release();trenchGroup.release();zubianGroup.release();cityGroup.release();buildingGroup.release();flakTowerGroup.release();
  for(const group of [...Object.values(railGroups),...Object.values(railWreckGroups)])group.release();
  const bossKeys=BOSS_KEYS_BY_REGION[region]||[];if(bossKeys.length)jobs.push(bossGroup.preload(bossKeys));
  if(region===0)for(const group of Object.values(railGroups))jobs.push(group.preload());
@@ -64,7 +68,7 @@ export function prepareStageBossAssets(region){
   if([2,4,8,10,11].includes(region))jobs.push(prepareAADefenseAssets(region===4?['fx','drachen','london']:['fx']));
   else releaseAADefenseAssets();
  if(region===3){prepareLivensFlame();jobs.push(trenchGroup.preload());jobs.push(impactGroup.preload())}else{impactGroup.release();releaseLivensFlame();}
- if(region===4){jobs.push(cityGroup.preload());jobs.push(buildingGroup.preload())}
+ if(region===4){jobs.push(cityGroup.preload());jobs.push(buildingGroup.preload());jobs.push(flakTowerGroup.preload())}
  if(region===7)jobs.push(harborGroup.preload());
  // Requested regional bosses use independent preloaded RGBA atlases above.
  if(region===8){jobs.push(cambraiGroup.preload());jobs.push(treffasGroup.preload());jobs.push(bugGroup.preload());}else{cambraiGroup.release();treffasGroup.release();bugGroup.release();partWreckGroup.release();}
@@ -318,7 +322,14 @@ function drawBossPart(c,p,ring,t=0){
   // Wreck sprites live inside the body composite; parts stay interaction-only.
   if(p.hittable&&!p.destroyed){c.strokeStyle='#ffd57988';c.lineWidth=1.5;for(let i=0;i<4;i++){const a=i*Math.PI/2;c.beginPath();c.arc(p.x,p.y,r,a-.34,a+.34);c.stroke();}c.fillStyle='#202e28';c.fillRect(p.x-r*.72,p.y+r+5,r*1.44,3);c.fillStyle='#efb96f';c.fillRect(p.x-r*.72,p.y+r+5,r*1.44*p.hp/p.maxHp,3);}return;
  }
-  if(p.bodyKey==='london-apron'||p.bodyKey==='drachen-net'){
+  if(p.bodyKey==='flak-tower-cell'){
+  const spec=FLAK_PART_ART[p.partId],src=spec&&flakArt[spec.im];
+  const im=p.destroyed&&src?.naturalWidth?bakedImage(src,'grayscale(.85) brightness(.46) sepia(.3)'):src;
+  if(im?.naturalWidth){c.save();c.translate(p.x,p.y);c.rotate(p.angle+spec.forward);c.imageSmoothingEnabled=true;const s=r*2.6;c.drawImage(im,-s*spec.dcx,-s*spec.dcy,s,s);c.restore();}
+  if(p.destroyed)fx(c,'smokeHeavy',p.x,p.y-16,46,56,0,.45);
+  if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
+ }
+ if(p.bodyKey==='london-apron'||p.bodyKey==='drachen-net'){
    // Body rendering owns the separated intact/wreck sprites. These are the
    // same coordinates as the hittable parts, without composite scorch patches.
    return;
@@ -473,7 +484,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     c.rotate((b.assetKey==='armored-harbor-fortress'?-1:1)*wreck*.3);
     c.globalAlpha*=Math.max(0,1-wreck*.9);
    }
-   const ship=b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart',rail=['paris-gun','lincomparable','fliegerzug'].includes(b.assetKey),structure=['livens-flame-projector','minenwerfer-battery','treffas-wagen','morser-battery','staaken-rvi','london-searchlight'].includes(b.assetKey),plane=['jasta11-circus','naval10-black-flight'].includes(b.assetKey);
+   const ship=b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart',rail=['paris-gun','lincomparable','fliegerzug'].includes(b.assetKey),structure=['livens-flame-projector','minenwerfer-battery','treffas-wagen','morser-battery','staaken-rvi','london-searchlight','flak-tower-cell'].includes(b.assetKey),plane=['jasta11-circus','naval10-black-flight'].includes(b.assetKey);
    if(ship){const wa=sinkFoamArt.wake;if(wa?.naturalWidth){c.save();
     const stern=b.assetKey==='sms-stuttgart'?249:b.assetKey.endsWith('front')?273:b.assetKey.endsWith('rear')?251:421;
     const sway=Math.sin(b.motionTime*.7)*13,bob=Math.sin(b.motionTime*1.1)*.05;
@@ -597,6 +608,15 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     if(!b.destroying)for(const id of gunIds){const p=partById(id);if(!p?.destroyed)continue;
      const im=partWreckArt.pit;if(im?.naturalWidth){c.save();c.translate(p.x,p.y);c.imageSmoothingEnabled=true;c.drawImage(im,-48,-46,96,92);c.restore();}
      for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.33)%1;fx(c,'smokeDark',p.x+Math.sin(k*4.1)*26,p.y-30-s*70,26+s*40,26+s*40,0,(1-s)*.5);}}
+   }
+   else if(b.assetKey==='flak-tower-cell'){
+    const partById=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
+    const hull=b.destroying?bakedImage(flakArt.hull,'grayscale(.8) brightness(.5)'):flakArt.hull;
+    if(hull?.naturalWidth){c.save();c.imageSmoothingEnabled=true;c.drawImage(hull,-190,-190,380,380);c.restore();}
+    if(b.coreVulnerable&&!b.destroying)ring(0,0,46,'#ffd579bb');
+    // Dead mounts keep smoking over the parapet; the part pass draws wrecked art.
+    if(!b.destroying)for(const id of ['siege','ears','gun-bl','gun-br']){const p=partById(id);if(!p?.destroyed)continue;
+     for(let k=0;k<3;k++){const s=((b.motionTime||0)*.5+k*.33)%1;fx(c,'smokeDark',p.x+Math.sin(k*4.1)*20,p.y-18-s*58,22+s*34,22+s*34,0,(1-s)*.5);}}
    }
    else if(plane){
     // Formation bosses fly painted aircraft sprites, not composite vehicles.

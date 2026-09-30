@@ -1,8 +1,8 @@
 
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=443';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=443';
-import {bossSoundFor} from './boss-feedback.js?v=443';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=443';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=444';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=444';
+import {bossSoundFor} from './boss-feedback.js?v=444';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=444';
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
@@ -68,6 +68,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     ,'morser-battery':{geometryScale:1.1,mobileBoss:false,motionMultiplier:0,coreRadius:84}
     ,'staaken-rvi':{geometryScale:1,mobileBoss:false,coreRadius:62}
     ,'london-searchlight':{geometryScale:1,mobileBoss:false,motionMultiplier:0,coreRadius:70}
+    ,'flak-tower':{geometryScale:1,mobileBoss:false,motionMultiplier:0,coreRadius:150}
    }[bossId]||{};
    return {regionalViewWidth:g.viewWidth||960,regionalViewHeight:g.viewHeight||700,regionalPlayerY:g.y,loopIndex:loop,projectileDensity:density,maxHp,partHp:maxHp*.12,damage:Math.round(18*(1+g.t/240)*(1+Math.min(.5,loop*.12))),bulletSpeed:270,coreRadius:150,
     mobileBoss:true,motionMultiplier:Math.min(2.5,1+loop*.25),patternMultiplier:Math.min(3,1+loop*.35),geometryScale:2.025,splitProtection:5,fireInterval:6,waterInterval:3.8,launchInterval:3,enrageInterval:1.1,broadsideInterval:1.8/density,mortarInterval:1.8,chargeInterval:2.7,suppressiveInterval:3.1/density,suppressiveCount:7,
