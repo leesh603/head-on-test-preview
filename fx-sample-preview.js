@@ -32,7 +32,7 @@ const contain = new Set();
 let atlas = null;
 
 export const fxsReady = !FXS || typeof Image === 'undefined' ? Promise.resolve(false) :
-  fetch(new URL('./fx-sample/fx-sample.json', import.meta.url)).then(r => r.json()).then(m => new Promise(res => {
+  fetch(new URL('./fx-sample/fx-sample.json', import.meta.url), { cache: 'no-cache' }).then(r => r.json()).then(m => new Promise(res => {
     const im = new Image();
     im.onload = () => { atlas = im; for (const [k, r] of Object.entries(m.rects)) rects.set(k, r); for (const k of m.contain || []) contain.add(k); res(true); };
     im.onerror = () => res(false);
@@ -136,7 +136,7 @@ export function fxsBombFall(c, drawBody, sx, sy, tx, ty, p) {
 // their existing art on purpose.
 const BOOM = { atlas: null, rects: null, n: 20 };
 if (FXS && typeof Image !== 'undefined') {
-  fetch(new URL('./fx-sample/fx-boom.json', import.meta.url)).then(r => r.json()).then(m => {
+  fetch(new URL('./fx-sample/fx-boom.json', import.meta.url), { cache: 'no-cache' }).then(r => r.json()).then(m => {
     const im = new Image();
     im.onload = () => { BOOM.atlas = im; BOOM.rects = m.rects; BOOM.n = m.frames; };
     im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href;
@@ -187,22 +187,22 @@ function drawBoom(c, r, x, y, age) {
     c.globalAlpha = (1 - q) * .42; c.strokeStyle = r.fam === 'ground' ? '#e2d4b4' : '#fff2da'; c.lineWidth = Math.max(1.5, d0 * .03 * (1 - q));
     c.beginPath(); c.ellipse(0, 0, R, R * .96, 0, 0, Math.PI * 2); c.stroke(); }
   // dirt clods (ground) / flaming wreckage (air, heavy): arcing, trailing smoke
-  const frag = (k, flame) => { const a = hash(r.wx + k * 3.1, r.wy - k * 1.7) * Math.PI * 2, v = d0 * (flame ? 1.25 : 1.0) * (.6 + hash(k, r.wx) * .7), life = flame ? .95 : .7;
+  const frag = (k, flame) => { const a = hash(r.wx + k * 3.1, r.wy - k * 1.7) * Math.PI * 2, v = d0 * (flame ? 1.25 : 1.0) * (.6 + hash(k, r.wx) * .7), life = flame ? .8 : .7;
     if (age > life) return; const P = (t) => { const e = 1 - Math.exp(-3.2 * t); return [Math.cos(a) * v * e / 3.2 * 2.2, Math.sin(a) * v * e / 3.2 * 2.2 - (flame ? 0 : d0 * .5 * t * (1 - t / life) * 1.6)]; };
-    for (let j = 7; j >= 1; j--) { const ts = age - j * .045; if (ts < 0) continue; const [px, py] = P(ts), sz = d0 * (flame ? .09 : .07) * (1 + (age - ts) * 3.5);
-      c.globalAlpha = (1 - j / 8) * (1 - age / life) * (flame ? .75 : .55); c.drawImage(PUFF, px - sz, py - sz - (age - ts) * d0 * .05, sz * 2, sz * 2); }
+    for (let j = 7; j >= 1; j--) { const ts = age - j * .045; if (ts < 0) continue; const [px, py] = P(ts), sz = d0 * (flame ? .08 : .07) * (1 + (age - ts) * 3.5); if (flame && px * px + py * py < d0 * d0 * .12) continue;
+      c.globalAlpha = (1 - j / 8) * (1 - age / life) * (flame ? .95 : .55); c.drawImage(PUFF, px - sz, py - sz - (age - ts) * d0 * .05, sz * 2, sz * 2); }
     const [px, py] = P(age), f1 = 1 - age / life;
-    if (flame) { c.globalCompositeOperation = 'lighter'; c.globalAlpha = f1; const g = d0 * .08 * (.7 + f1 * .5); c.drawImage(GLOW, px - g, py - g, g * 2, g * 2); c.globalCompositeOperation = 'source-over'; }
+    if (flame) { if (px * px + py * py > d0 * d0 * .1) { c.globalCompositeOperation = 'lighter'; c.globalAlpha = f1 * .85; const g = d0 * .045 * (.6 + f1 * .6); c.drawImage(GLOW, px - g, py - g, g * 2, g * 2); c.globalCompositeOperation = 'source-over'; } }
     else { const [qx, qy] = P(Math.max(0, age - .05)); c.globalAlpha = Math.min(1, f1 * 2) * .7; c.strokeStyle = '#3a2d22'; c.lineCap = 'round'; c.lineWidth = Math.max(1.4, d0 * .011);
       c.beginPath(); c.moveTo(qx, qy); c.lineTo(px, py); c.stroke(); } };
   for (let k = 0; k < nDeb; k++) frag(k, false);
-  for (let k = 0; k < nFrag; k++) frag(k + 11, true); // under the fireball: trails never grey out its core
   // flipbook
   c.save(); c.translate(wind, -rise); c.rotate(r.rot + age * .05); c.imageSmoothingEnabled = true;
   const thin = age > fire ? 1 - .38 * Math.min(1, (age - fire) / (T * .5)) : 1;
   const draw = (j, a) => { const rc = BOOM.rects[r.fam + Math.min(n - 1, j)]; if (!rc || a <= 0) return; c.globalAlpha = a * fade * thin; c.drawImage(BOOM.atlas, rc[0], rc[1], rc[2], rc[3], -d / 2, -d / 2, d, d); };
   draw(i, 1); if (i < n - 1) draw(i + 1, u);
   c.restore();
+  for (let k = 0; k < nFrag; k++) frag(k + 11, true); // trails skip the core so the fireball stays clean
   c.restore(); return true;
 }
 export function fxsBoomTail(c, list, toScreen, t) {
