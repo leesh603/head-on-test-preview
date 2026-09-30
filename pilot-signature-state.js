@@ -26,7 +26,7 @@ export const PILOT_SIGNATURES=Object.freeze({
  ball:{start:'cloudAmbush',sustain:'concealment',symbol:null,reaction:'ambushShot'},
  barker:{start:'lastStand',sustain:'survival',symbol:null,reaction:'escape'},
  luke:{start:'incendiaryRun',sustain:'flameAttack',symbol:null,reaction:'burnKill'},
- baracca:{start:'cavalryCharge',sustain:'charge',symbol:'blackHorse',reaction:'headOn'},
+ baracca:{start:'headOn',sustain:'charge',symbol:'blackHorse',reaction:'headOn'},
  wolff:{start:'petalDive',sustain:'petals',symbol:'flower',reaction:'petalKill'},
  mccudden:{start:'fieldRepair',sustain:'maintenance',symbol:null,reaction:'repair'}
 });

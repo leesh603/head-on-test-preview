@@ -3,7 +3,7 @@ import {PILOT_SIGNATURES} from './pilot-signature-state.js';
 import {signatureWingPositions} from './pilot-signature-geometry.js';
 const TAU=Math.PI*2;
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
-const SYMBOL_ICONS=Object.freeze({blackHorse:'prancingHorse',lo:'loEmblem',vossCowling:'sacredCowling'});
+const SYMBOL_ICONS=Object.freeze({lo:'loEmblem',vossCowling:'sacredCowling'});
 export const UNRESOLVED_SIGNATURE_ART=Object.freeze(['wingedSword','blackDevil','skull','cigogne']);
 export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>false}){
  if(typeof fx!=='function'||typeof icon!=='function')throw new TypeError('Authored FX and icon renderers are required');
