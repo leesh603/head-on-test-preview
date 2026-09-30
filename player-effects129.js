@@ -1,5 +1,5 @@
-import {fx} from './fx-art.js?v=439';
-import {drawGameIcon} from './icons.js?v=439';
+import {fx} from './fx-art.js?v=440';
+import {drawGameIcon} from './icons.js?v=440';
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
 export function playerPose(p,x,y){
  const t=Math.max(0,Math.min(1,(p.cannonRecoil129||0)/.24));

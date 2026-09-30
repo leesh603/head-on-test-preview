@@ -1,16 +1,16 @@
-import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=439';
-import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=439';
-import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=439';
-import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=439';
-import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=439';
-import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=439';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=439';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=439';
-import {bossHudModel} from './headon-stageboss-hud.js?v=439';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=439';
-import {planeSprite} from './aircraft.js?v=439';
-import {getLocale} from './i18n.js?v=439';
-import {drawAADefense,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=439';
+import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=440';
+import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=440';
+import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=440';
+import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=440';
+import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=440';
+import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=440';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=440';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=440';
+import {bossHudModel} from './headon-stageboss-hud.js?v=440';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=440';
+import {planeSprite} from './aircraft.js?v=440';
+import {getLocale} from './i18n.js?v=440';
+import {drawAADefense,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=440';
 
 function createLazyImageGroup(sources){
  const cache={},pending={};
