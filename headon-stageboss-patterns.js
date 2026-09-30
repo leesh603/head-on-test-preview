@@ -1311,7 +1311,7 @@ export class LondonRaidApron extends LondonApron {
  constructor(options){super(options);this.kind='london-apron-raid';this.ownsMotion129=true;
   for(const [id,x,y,radius] of [['light',-94,92,26],['gun',94,92,29]])this.parts.set(id,new BossPart({id,x,y,radius,maxHp:this.t.maxHp*.13}));
   this.timers.set('raid-light',1.5);this.timers.set('raid-flak',3.2);}
- onPartDestroyed(p){if(p.id.startsWith('balloon-'))super.onPartDestroyed(p);else this.command('cancel-hazards',{tag:'raid-'+p.id});
+ onPartDestroyed(p){if(p.id.startsWith('airship-'))super.onPartDestroyed(p);else this.command('cancel-hazards',{tag:'raid-'+p.id});
   if(p.id==='light'||p.id==='gun')this.command('phase-change',{phase:p.id==='light'?'blackout':'battery-silenced'});}
  update(dt,ctx){super.update(dt,ctx);const {players,bounds,isIlluminated}=ctx,light=this.parts.get('light'),gun=this.parts.get('gun');
   if(!light.destroyed&&this.due('raid-light',dt,8.8))this.hazard('searchlight',{x:this.x+light.x,y:this.y+light.y,angle:Math.PI/2-.65,angularSpeed:.27,halfAngle:.14,radius:Math.max(560,bounds.bottom-bounds.top),duration:5.2,warning:.75,damage:0,visual:'searchlight',tag:'raid-light'});
