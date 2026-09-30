@@ -32,7 +32,7 @@ const contain = new Set();
 let atlas = null;
 
 export const fxsReady = !FXS || typeof Image === 'undefined' ? Promise.resolve(false) :
-  fetch(new URL('./fx-sample/fx-sample.json', import.meta.url)).then(r => r.json()).then(m => new Promise(res => {
+  fetch(new URL('./fx-sample/fx-sample.json', import.meta.url), { cache: 'no-cache' }).then(r => r.json()).then(m => new Promise(res => {
     const im = new Image();
     im.onload = () => { atlas = im; for (const [k, r] of Object.entries(m.rects)) rects.set(k, r); for (const k of m.contain || []) contain.add(k); res(true); };
     im.onerror = () => res(false);
@@ -127,5 +127,105 @@ export function fxsBombFall(c, drawBody, sx, sy, tx, ty, p) {
   // aim ring tightens
   c.save(); c.strokeStyle = 'rgba(245,230,200,.55)'; c.lineWidth = 1.2; c.setLineDash([3, 4]);
   c.beginPath(); c.arc(tx, ty, 28 - 12 * e, 0, Math.PI * 2); c.stroke(); c.restore();
+  return true;
+}
+
+// Volumetric explosion flipbooks (tools/fx-sample/boom.py → fx-sample/fx-boom.webp).
+// 20-frame sequences per family, cross-faded so the fireball grows and cools
+// continuously instead of stepping through four stills. Mine / naval blasts keep
+// their existing art on purpose.
+const BOOM = { atlas: null, rects: null, n: 20 };
+if (FXS && typeof Image !== 'undefined') {
+  fetch(new URL('./fx-sample/fx-boom.json', import.meta.url), { cache: 'no-cache' }).then(r => r.json()).then(m => {
+    const im = new Image();
+    im.onload = () => { BOOM.atlas = im; BOOM.rects = m.rects; BOOM.n = m.frames; };
+    im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href;
+  }).catch(() => {});
+}
+// Each blast is timed in real seconds, not in the engine's short lifetime:
+// fireball frames 0-7 play over `fire` s, the smoke frames stretch over the rest
+// and keep rising / thinning after the engine drops the combatFX entry.
+// Purely visual; engine timings, damage and radii are untouched.
+const BOOM_FAMILY = {
+  cow: ['hit', 2.6, 170], moteur: ['hit', 2.5, 160], lePrieur: ['hit', 2.3, 150], cannon: ['hit', 2.6, 130], pop: ['hit', 2.8, 120], charge: ['hit', 2.8, 180],
+  bomb: ['ground', 2.8, 280], mortar: ['ground', 2.9, 290], shell: ['ground', 2.6, 240], structure: ['ground', 2.6, 310], 'carpet-bomb': ['ground', 2.8, 280],
+  'zubian-mortar': ['ground', 2.8, 280], 'minenwerfer-heavy': ['ground', 2.8, 290], 'minenwerfer-shell': ['ground', 2.6, 250],
+  bossFinal: ['heavy', 3.1, 400], hydrogen: ['heavy', 3.2, 400], aircraftHeavy: ['heavy', 3.2, 320],
+  aircraft: ['air', 3.8, 230], aircraftMedium: ['air', 3.6, 240], blast: ['air', 2.9, 210]
+};
+//            fire s, total s, fragments, debris, ring, light, scorch
+const BOOM_TIME = {
+  hit:    [.16, .75, 0, 0, 0, .5, 0],
+  air:    [.26, 1.35, 4, 0, 0, .75, 0],
+  ground: [.30, 1.7, 0, 7, 1, .8, 1],
+  heavy:  [.42, 2.1, 6, 5, 1, .7, 0]
+};
+const BOOM_TAIL = new Map();
+let PUFF = null, GLOW = null;
+function boomSprites() {
+  if (PUFF || typeof document === 'undefined') return;
+  const mk = (stops) => { const k = document.createElement('canvas'); k.width = k.height = 64; const g = k.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    for (const [o, col] of stops) gr.addColorStop(o, col); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return k; };
+  PUFF = mk([[0, 'rgba(92,86,80,.55)'], [.55, 'rgba(84,78,72,.28)'], [1, 'rgba(80,74,68,0)']]);
+  GLOW = mk([[0, 'rgba(255,214,150,1)'], [.25, 'rgba(255,150,60,.55)'], [.6, 'rgba(230,90,30,.16)'], [1, 'rgba(200,60,20,0)']]);
+}
+const hash = (a, b) => { const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return s - Math.floor(s); };
+function drawBoom(c, r, x, y, age) {
+  const [fire, T, nFrag, nDeb, ring, light, scorch] = BOOM_TIME[r.fam], d0 = r.d, n = BOOM.n;
+  if (age >= T) return false;
+  const s = age / T, fade = r.fam === 'hit' || r.fam === 'air' ? 1 : Math.min(1, (1 - s) / .4);
+  // frame index: 0..7 over the fireball, 7..n-1 over the remaining time (ease-out so smoke lingers)
+  const fp = age < fire ? 7 * Math.pow(age / fire, .85) : 7 + (n - 8) * (1 - Math.pow(1 - (age - fire) / (T - fire), 1.6));
+  const i = Math.min(n - 1, Math.floor(fp)), u = fp - i, grow = .9 + .32 * Math.min(1, age / (T * .7));
+  const d = d0 * grow, rise = age > fire ? (age - fire) * d0 * .09 : 0, wind = age * d0 * .03;
+  c.save(); c.translate(x, y);
+  if (scorch) { c.globalAlpha = .38 * Math.min(1, age / .12) * Math.min(1, (T - age) / .6); c.globalCompositeOperation = 'multiply';
+    c.drawImage(PUFF, -d0 * .34, -d0 * .3, d0 * .68, d0 * .6); c.globalCompositeOperation = 'source-over'; }
+  if (light && age < fire * 1.3) { const a = Math.pow(1 - age / (fire * 1.3), 1.4) * light, R = d0 * (.9 + age / fire * .5);
+    c.globalCompositeOperation = 'screen'; c.globalAlpha = a * .5; c.drawImage(GLOW, -R, -R, R * 2, R * 2); c.globalCompositeOperation = 'source-over'; }
+  if (ring && age > .02 && age < .34) { const q = (age - .02) / .32, R = d0 * (.22 + q * .62);
+    c.globalAlpha = (1 - q) * .42; c.strokeStyle = r.fam === 'ground' ? '#e2d4b4' : '#fff2da'; c.lineWidth = Math.max(1.5, d0 * .03 * (1 - q));
+    c.beginPath(); c.ellipse(0, 0, R, R * .96, 0, 0, Math.PI * 2); c.stroke(); }
+  // dirt clods (ground) / flaming wreckage (air, heavy): arcing, trailing smoke
+  const frag = (k, flame) => { const a = hash(r.wx + k * 3.1, r.wy - k * 1.7) * Math.PI * 2, v = d0 * (flame ? 1.25 : 1.0) * (.6 + hash(k, r.wx) * .7), life = flame ? .8 : .7;
+    if (age > life) return; const P = (t) => { const e = 1 - Math.exp(-3.2 * t); return [Math.cos(a) * v * e / 3.2 * 2.2, Math.sin(a) * v * e / 3.2 * 2.2 - (flame ? 0 : d0 * .5 * t * (1 - t / life) * 1.6)]; };
+    for (let j = 7; j >= 1; j--) { const ts = age - j * .045; if (ts < 0) continue; const [px, py] = P(ts), sz = d0 * (flame ? .08 : .07) * (1 + (age - ts) * 3.5); if (flame && px * px + py * py < d0 * d0 * .12) continue;
+      c.globalAlpha = (1 - j / 8) * (1 - age / life) * (flame ? .95 : .55); c.drawImage(PUFF, px - sz, py - sz - (age - ts) * d0 * .05, sz * 2, sz * 2); }
+    const [px, py] = P(age), f1 = 1 - age / life;
+    if (flame) { if (px * px + py * py > d0 * d0 * .1) { c.globalCompositeOperation = 'lighter'; c.globalAlpha = f1 * .85; const g = d0 * .045 * (.6 + f1 * .6); c.drawImage(GLOW, px - g, py - g, g * 2, g * 2); c.globalCompositeOperation = 'source-over'; } }
+    else { const [qx, qy] = P(Math.max(0, age - .05)); c.globalAlpha = Math.min(1, f1 * 2) * .7; c.strokeStyle = '#3a2d22'; c.lineCap = 'round'; c.lineWidth = Math.max(1.4, d0 * .011);
+      c.beginPath(); c.moveTo(qx, qy); c.lineTo(px, py); c.stroke(); } };
+  for (let k = 0; k < nDeb; k++) frag(k, false);
+  // flipbook
+  c.save(); c.translate(wind, -rise); c.rotate(r.rot + age * .05); c.imageSmoothingEnabled = true;
+  const thin = age > fire ? 1 - .38 * Math.min(1, (age - fire) / (T * .5)) : 1;
+  const draw = (j, a) => { const rc = BOOM.rects[r.fam + Math.min(n - 1, j)]; if (!rc || a <= 0) return; c.globalAlpha = a * fade * thin; c.drawImage(BOOM.atlas, rc[0], rc[1], rc[2], rc[3], -d / 2, -d / 2, d, d); };
+  draw(i, 1); if (i < n - 1) draw(i + 1, u);
+  c.restore();
+  for (let k = 0; k < nFrag; k++) frag(k + 11, true); // trails skip the core so the fireball stays clean
+  c.restore(); return true;
+}
+export function fxsBoomTail(c, list, toScreen, t) {
+  if (!FXS || !BOOM.atlas || !BOOM_TAIL.size) return;
+  const live = new Set(list || []);
+  for (const [f, r] of BOOM_TAIL) {
+    if (r.end == null) { if (live.has(f) && f.life > 0) continue; r.end = t; }
+    const age = r.ml + (t - r.end);
+    if (!(t >= r.end) || r.end - t > 1) { BOOM_TAIL.delete(f); continue; }
+    const [x, y] = toScreen(r.wx, r.wy);
+    if (!drawBoom(c, r, x, y, age)) BOOM_TAIL.delete(f);
+  }
+}
+export function fxsBoom(c, f, x, y, radius = 0) {
+  if (!FXS || !BOOM.atlas) return false;
+  const src = f.fxSource || f.kind || (f.killExplosion ? 'aircraft' : ''), spec = BOOM_FAMILY[src];
+  if (!spec) return false;
+  boomSprites();
+  const [fam, k, cap] = spec, rr = radius || f.radius || 60;
+  let r = BOOM_TAIL.get(f);
+  if (!r) { r = { wx: f.x, wy: f.y, fam, d: Math.min(cap, Math.max(48, rr * k)), rot: (hash(f.x, f.y) - .5) * .5, ml: f.maxLife || .65 };
+    if (BOOM_TAIL.size < 96) BOOM_TAIL.set(f, r); }
+  const age = Math.max(0, Math.min(1, 1 - f.life / f.maxLife)) * r.ml;
+  drawBoom(c, r, x, y, age);
   return true;
 }

@@ -1,8 +1,8 @@
-import {fx} from './fx-art.js?v=351';
+import {fx} from './fx-art.js?v=457';
 import {drawGameIcon} from './icons.js?v=338';
 import {createPilotSignatureRenderer} from './pilot-signature-renderer.js';
 // Authored horse and checksum-verified archival Nungesser derivative.
-const files={blackHorse:'horse-emblem.webp',blackHeart:'pilot-mark-nungesser.webp'};
+const files={blackHeart:'pilot-mark-nungesser.webp'};
 const images=new Map();
 export const pilotSignatureArtReady=Promise.all(Object.entries(files).map(([key,file])=>new Promise(resolve=>{
  if(typeof Image==='undefined'){resolve(false);return}
