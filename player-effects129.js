@@ -1,6 +1,8 @@
-import {fx,fxTint} from './fx-art.js?v=452';
-import {planeSprite,aircraftKey} from './aircraft.js?v=452';
-import {drawGameIcon} from './icons.js?v=452';
+import {createSignatureView} from './pilot-signature-view.js';
+import {fx,fxTint} from './fx-art.js?v=453';
+import {planeSprite,aircraftKey} from './aircraft.js?v=453';
+import {drawGameIcon} from './icons.js?v=453';
+const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
 export function playerPose(p,x,y){
  const t=Math.max(0,Math.min(1,(p.cannonRecoil129||0)/.24));
@@ -15,6 +17,7 @@ export function drawPlayerAura(c,p,x,y){
  if(p.fxOverheat>0)fx(c,'muzzle',x+Math.cos(p.a)*24,y+Math.sin(p.a)*24,28,20,p.a,Math.min(.7,p.fxOverheat));
  for(const g of p.pilotIdentity?.feedback?.ghosts||[]){c.save();c.globalAlpha*=.3*Math.pow(Math.max(0,g.life/g.maxLife),.8);planeSprite(c,x+g.x-p.x,y+g.y-p.y,g.a,aircraftKey(g.plane,false,g.pilot),g.scale,false,false);c.restore()}
  for(const f of p.pilotIdentity?.fx||[]){const q=Math.min(1,f.life/.12),alpha=q*(f.alpha??.72),height=f.height??(f.key==='windStreak'?f.size*.35:f.size);if(f.color)fxTint(c,f.key,f.color,x+f.x-p.x,y+f.y-p.y,f.size,height,f.a,alpha);else fx(c,f.key,x+f.x-p.x,y+f.y-p.y,f.size,height,f.a,alpha)}
+ if(p.pilotSignatureState)drawPilotSignatureLayer(c,p,x,y);
 }
 
 // Same visual language as tail lock; derived from the real passive state.
