@@ -1,8 +1,8 @@
 
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=444';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=444';
-import {bossSoundFor} from './boss-feedback.js?v=444';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=444';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=445';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=445';
+import {bossSoundFor} from './boss-feedback.js?v=445';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=445';
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
@@ -120,7 +120,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     // The shared hazard renderer already animates this ground impact. Avoid a
     // second aerial fireball on top, while preserving all original events.
     if(['minenwerfer-heavy','minenwerfer-shell'].includes(event.visual)){const effect=g.combatFX?.at(-1);if(effect)effect.mortarOverlay=true}}
-   else if(event.type==='internal-explosion'&&['morser-battery','london-searchlight'].includes(body?.kind)){g.combatBlast(x,y,80,'enemy','structure');g.shake=Math.max(g.shake,8);}
+   else if(event.type==='internal-explosion'&&['morser-battery','london-searchlight','flak-tower-cell'].includes(body?.kind)){g.combatBlast(x,y,80,'enemy','structure');g.shake=Math.max(g.shake,8);}
    else if(event.type==='part-destroyed'){const part=body?.parts.get(event.partId),minen=body?.kind==='minenwerfer-battery',apron=body?.kind==='london-apron';g.combatBlast(x+(part?.x||0),y+(part?.y||0),apron?22*body.apronScale:minen?34:46,'enemy','structure');g.shake=Math.max(g.shake,apron?3:minen?5:7);
      if(['a7v-flak','mark-v-cruiser','drachen-net'].includes(body?.kind))(g.aaEffects??=[]).push({x:x+(part?.x||0),y:y+(part?.y||0),age:0,life:.9,size:90,kind:'aaWreckSmoke'});}
    else if(event.type==='ammo-cookoff'){g.combatBlast(event.x,event.y,82,'enemy','structure');if(g.burst)g.burst(event.x,event.y,'#ffbb62',10);if(g.smoke){g.smoke(event.x-18,event.y+8,true);g.smoke(event.x+22,event.y-5,true)}g.shake=Math.max(g.shake,9);}
