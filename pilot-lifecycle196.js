@@ -1,3 +1,4 @@
+import {signatureCue} from './pilot-signature-state.js';
 // Personal pilot state is advanced per living pilot; persistent damage is advanced once per world.
 const stepTime = dt => Number.isFinite(dt) ? Math.max(0, Math.min(.04, dt)) : 0;
 const playing = p => p.state === 'playing' && p.hp > 0 && p.status !== 'downed';
@@ -39,6 +40,19 @@ export function advancePersonal1918(p, dt, previousRounds = p.roundsFired) {
         p.burst(p.x, p.y, '#f4f0dc', 18);
       }
     } else if (p.ballAmbush > 0) p.ballAmbush = Math.max(0, p.ballAmbush - step);
+  }
+  if (p.pilot === 'rickenbacker' && p.skillTime > 0 && p.roundsFired > previousRounds) {
+    let count = 0;
+    for (const e of p.enemies) {
+      if (count >= 7) break;
+      if (e.hp <= 0 || e.surface || Math.hypot(e.x - p.x, e.y - p.y) > 780) continue;
+      const a = Math.atan2(e.y - p.y, e.x - p.x);
+      p.bullets.push({x:p.x + Math.cos(a)*24, y:p.y + Math.sin(a)*24,
+        vx:Math.cos(a)*580, vy:Math.sin(a)*580, life:1.5, enemy:false, ownerId:p.id,
+        damage:p.damage*.85, pierce:true, specialColor:'#d7c493', hit:new Set(), formation:true, rickRingRound:true});
+      count++;
+    }
+    if(count)signatureCue(p,'ringVolley',{life:.32});
   }
   if (p.pilot === 'brumowski') {
     const world = p.combatWorld();
