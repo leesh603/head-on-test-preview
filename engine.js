@@ -1,22 +1,22 @@
-import {installPilotIdentities} from './pilot-identities.js?v=455';
-import {EnemyCollisionGrid} from './collision-grid.js?v=455';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=455';
-import {installRevision} from './rebalance103.js?v=455';
-import {installCloudCover} from './cloud-cover1.js?v=455';
-import {installFleet} from './fleet-naval1.js?v=455';
-import {installTrenchWar} from './trench-war1.js?v=455';
-import {installCityAir} from './city-air1.js?v=455';
-import {installRegionDoctrine} from './region-doctrine1.js?v=455';
-import {installLondonBattle} from './london-battle.js?v=455';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=455';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=455';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=455';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=455';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=455';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=455';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=455';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=455';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=455';
+import {installPilotIdentities} from './pilot-identities.js?v=456';
+import {EnemyCollisionGrid} from './collision-grid.js?v=456';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=456';
+import {installRevision} from './rebalance103.js?v=456';
+import {installCloudCover} from './cloud-cover1.js?v=456';
+import {installFleet} from './fleet-naval1.js?v=456';
+import {installTrenchWar} from './trench-war1.js?v=456';
+import {installCityAir} from './city-air1.js?v=456';
+import {installRegionDoctrine} from './region-doctrine1.js?v=456';
+import {installLondonBattle} from './london-battle.js?v=456';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=456';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=456';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=456';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=456';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=456';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=456';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=456';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=456';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=456';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -315,7 +315,7 @@ Game.prototype.update=function(dt,input={}){
 PILOTS.guynemer.skill='황새 편대 · 로켓 폭우';
 PILOTS.guynemer.desc='3초간 날개에서 직진 로켓 48발을 연속 발사합니다.';
 PILOTS.guynemer.cooldown=26;
-PILOTS.baracca.skill='카발리노 람판테 · 일직선 돌격';
+PILOTS.baracca.skill='검은 말의 질주';
 PILOTS.baracca.desc='1.2초간 바라보는 방향으로 고속 돌격합니다. 돌격 중 무적이며 경로상의 적에게 관통 피해.';
 PILOTS.baracca.cooldown=28;
 Game.prototype.combatBlast=function(x,y,radius,side='enemy',kind='blast'){
@@ -1555,7 +1555,7 @@ Object.assign(PILOTS,{
  wolff:{name:'쿠르트 볼프',alias:'ZARTE BLÜMLEIN',faction:'central',portrait:16,passive:'여린 작은꽃',passiveDesc:'3초 무피격마다 공격력 +5%·속도 +3%, 최대 6중첩. 강화 중 흰 꽃잎이 날리며, 피격 시 초기화.',skill:'붐 앤 줌',desc:'0.75초간 고도를 얻은 뒤 급강하. 하강할수록 가속하며 공격력 +55%, 공격속도 +80%, 선회력 −50%.',cooldown:PILOT_BALANCE.cooldowns.wolff},
  loewenhardt:{name:'에리히 뢰벤하르트',alias:'YELLOW PERIL',faction:'central',portrait:17,passive:'노란색 포커를 타는 미친놈',passiveDesc:'적과 정면으로 마주칠 때 기관총 피해 +35%.',skill:'라이징 스트라이크',desc:'0.55초간 하방으로 진입한 뒤 수직 상승 사격. 상승할수록 속도가 감소하며 공격속도 +200%, 공격력 +45%, 선회력 −65%.',cooldown:PILOT_BALANCE.cooldowns.loewenhardt},
  mccudden:{name:'제임스 맥커든',alias:'THE ENGINEERING ACE',faction:'entente',portrait:18,passive:'엔지니어링 에이스',passiveDesc:'모든 레벨업에서 선택지가 4개로 제시되며, 한 번 무료로 다시 추첨할 수 있습니다.',skill:'슈퍼 엔지니어링',desc:'주변에 수리 보급품 3개를 투하합니다. 개당 최대 HP의 11.7% 회복. 철십자훈장 강화 시 4개 투하. 협동 아군도 회수 가능.',cooldown:PILOT_BALANCE.cooldowns.mccudden},
- nungesser:{name:'샤를 너겐서',alias:'THE KNIGHT OF DEATH',faction:'entente',portrait:19,passive:'죽음의 기사',passiveDesc:'내구도가 낮을수록 공격속도 최대 +60%, 이동속도 최대 +35%. 원형 게이지가 현재 강화 정도를 표시합니다.',skill:'불사조의 집념',desc:'3초간 완전 무적 상태로 버팁니다.',cooldown:PILOT_BALANCE.cooldowns.nungesser}
+ nungesser:{name:'샤를 너겐서',alias:'THE KNIGHT OF DEATH',faction:'entente',portrait:19,passive:'죽음의 기사',passiveDesc:'내구도가 낮을수록 공격속도 최대 +60%, 이동속도 최대 +35%. 검은 문장과 연기가 저체력 상태를 나타냅니다.',skill:'불사조의 집념',desc:'3초간 완전 무적 상태로 버팁니다.',cooldown:PILOT_BALANCE.cooldowns.nungesser}
 });
 Object.assign(PILOT_PLANES,{wolff:'wolff_albatros',loewenhardt:'loewenhardt_fokkerd7',mccudden:'mccudden_se5a',nungesser:'nungesser_nieuport24'});
 // Jacobs flies his famous black Dr.I; same airframe family, dedicated livery sprite.
@@ -1720,7 +1720,7 @@ installLondonBattle(Game);;
 const ACES1918={rickenbacker_spad:'spad',ball_se5a:'se5a',barker_snipe:'snipe',luke_nieuport28:'nieuport28',brumowski_albatros:'albatros',gontermann_fokker:'fokker'};
 const ACES1918_NAMES={rickenbacker_spad:'SPAD XIII · 리켄바커',ball_se5a:'S.E.5a · 앨버트 볼',barker_snipe:'숍위드 스나이프 · 바커',luke_nieuport28:'니외포르 28 · 프랭크 루크',brumowski_albatros:'알바트로스 D.III · 브루모프스키',gontermann_fokker:'포커 Dr.I · 곤터만'};
 Object.assign(PILOTS,{
- rickenbacker:{name:'에디 리켄바커',alias:'HAT IN THE RING',faction:'entente',portrait:21,passive:'일대칠의 배짱',passiveDesc:'반경 700px 내 적 1기당 기관총 공격력 +6% (최대 +30%). 포위될수록 강해집니다.',skill:'햇 인 더 링 록온',desc:'4초간 사격할 때마다 반경 780px 내 각 적에게 자동 조준되는 관통탄을 추가 발사합니다. 최대 7개 표적.',cooldown:17},
+ rickenbacker:{name:'에디 리켄바커',alias:'HAT IN THE RING',faction:'entente',portrait:21,passive:'일대칠의 배짱',passiveDesc:'반경 700px 내 적 1기당 기관총 공격력 +6% (최대 +30%). 포위될수록 강해집니다.',skill:'Hat in the Ring',desc:'4초간 사격할 때마다 반경 780px 내 각 적에게 자동 조준되는 관통탄을 추가 발사합니다. 최대 7개 표적.',cooldown:17},
  ball:{name:'앨버트 볼',alias:'LONE HAWK OF THE RFC',faction:'entente',portrait:22,passive:'고독한 사냥꾼',passiveDesc:'반경 320px 내에 아군·윙맨이 없으면 기관총 공격력 +15%.',skill:'구름 속의 매',desc:'1.5초간 구름에 은닉 — 적들이 사라진 지점의 잔상을 헛조준합니다. 재등장 후 2초간 공격력 ×2.2.',cooldown:16},
  barker:{name:'빌리 바커',alias:'THE LAST STAND',faction:'entente',portrait:23,passive:'불굴의 각성',passiveDesc:'피격될 때마다 3초간 기관총 공격력 +13%, 최대 3중첩.',skill:'새니에트의 기적',desc:'6초간 사망 불가 — 어떤 피해도 체력을 1 아래로 떨어뜨리지 못합니다. 각성 중첩 상한이 5로 늘어납니다.',cooldown:24},
  luke:{name:'프랭크 루크',alias:'THE ARIZONA BALLOON BUSTER',faction:'entente',portrait:24,passive:'기구 사냥꾼',passiveDesc:'기구·폭격기·에이스급 대형 표적 피해 +20%.',skill:'소이탄 연쇄 폭파',desc:'6초간 대형 표적 적중 시 그 자리에서 폭발이 일어나 반경 110px 내 다른 적들에게도 피해를 입힙니다.',cooldown:18},

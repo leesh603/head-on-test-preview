@@ -1,6 +1,6 @@
 import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js';
 import {installPilotFeedback} from './pilot-feedback.js';
-import {headOnTarget} from './engagement-feedback.js?v=455';
+import {headOnTarget} from './engagement-feedback.js?v=456';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
@@ -8,7 +8,7 @@ const delta=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const alive=e=>e&&e.hp>0&&!e.crashed&&!e.rivalEscaped&&!e.expired;
 const own=p=>p.id||'p1';
-const personal=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.actualExplosion&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.mauserRound;
+const personal=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.actualExplosion&&!b.blast&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.mauserRound;
 const commanders=new Set(['boelcke','goering','collishaw','brumowski']);
 const durations={fonck:4,voss:2.4,boelcke:6,udet:3,goering:5,immelmann:2.8,huffzky:5,berthold:5,jacobs:4,gontermann:5,brumowski:5,collishaw:6,guynemer:2.4,bishop:3,mannock:5,mckeever:5,hawker:5,nungesser:3,rickenbacker:4,ball:1.5,barker:6,luke:6};
 export const PILOT_IDENTITY_BALANCE=Object.freeze({durations:Object.freeze(durations),focusCone:.13,focusRange:780,focusTime:1.5,grazeInner:18,grazeOuter:42,grazeStacks:3,grazeDuration:3,delayedFraction:.4,debtSeconds:4,energySeconds:3,turnSeconds:2,switchWindow:2,switchStacks:3,igniteSeconds:3,igniteInterval:.25,chainRadius:110,chainDamage:36,fxCap:24});

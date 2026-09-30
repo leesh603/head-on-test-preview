@@ -12,7 +12,7 @@ export function installPilotSignatures(Game){
   const s=signatureState(this),lastHp=s.previous.hp,previousKills=s.lastKills??this.kills;
   if(Number.isFinite(lastHp)&&this.hp<lastHp)pilotSignatureReaction(this,'damage',{damage:lastHp-this.hp});
   advancePilotSignature(this,dt);
-  if(this.pilot==='baracca'&&this.prancingHorseFlash160>0&&signatureInterval(this,'horse',.5))signatureCue(this,'cavalryCharge',{life:.65,signatureStart:true});
+  if(this.pilot==='baracca'&&this.prancingHorseFlash160>0&&signatureInterval(this,'horse',.5))signatureCue(this,'headOn',{life:.32});
   if(this.pilot==='loewenhardt'&&this.aceSkillPhase!==s.lastPhase){
    if(this.aceSkillPhase==='vertical-fire')signatureCue(this,'climbSalvo',{life:.75,signatureStart:true});s.lastPhase=this.aceSkillPhase;
   }
@@ -24,6 +24,14 @@ export function installPilotSignatures(Game){
  };
  const skill=proto.skill;
  proto.skill=function(){const used=skill.call(this);if(used)activatePilotSignature(this);return used};
+ const hit=proto.hit;
+ proto.hit=function(damage){
+  if(this.pilot==='nungesser'&&this.state==='playing'&&this.hp>0&&this.skillTime>0&&this.invuln>0&&damage>0&&signatureInterval(this,'deflect',.12)){
+   const source=this.damageSource,dx=source?source.x-this.x:Math.cos(this.a)*22,dy=source?source.y-this.y:Math.sin(this.a)*22,d=Math.hypot(dx,dy)||1;
+   signatureCue(this,'phoenixDeflect',{x:this.x+dx/d*24,y:this.y+dy/d*24,life:.3});
+  }
+  return hit.call(this,damage);
+ };
  const round=proto.applySpecialRound;
  proto.applySpecialRound=function(b,type){
   const result=round.call(this,b,type);
@@ -35,7 +43,7 @@ export function installPilotSignatures(Game){
   const result=impact.call(this,b,e);
   if(b.enemy||b.ally||b.patrol||(b.ownerId!==undefined&&b.ownerId!==own(this)))return result;
   pilotSignatureReaction(this,'hit',{target:e,position:b});
-  if(this.pilot==='baracca'&&e&&Math.abs(angle(Math.atan2(e.y-this.y,e.x-this.x),this.a))<Math.PI/3&&Math.abs(angle(Math.atan2(this.y-e.y,this.x-e.x),e.a||0))<Math.PI/3&&signatureInterval(this,'horse',.6))signatureCue(this,'cavalryCharge',{life:.65,signatureStart:true});
+  if(this.pilot==='baracca'&&e&&Math.abs(angle(Math.atan2(e.y-this.y,e.x-this.x),this.a))<Math.PI/3&&Math.abs(angle(Math.atan2(this.y-e.y,this.x-e.x),e.a||0))<Math.PI/3&&signatureInterval(this,'horse',.6))signatureCue(this,'headOn',{life:.32});
   return result;
  };
 }
