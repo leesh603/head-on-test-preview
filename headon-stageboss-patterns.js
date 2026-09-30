@@ -1,7 +1,7 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=438';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=438';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=438';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=438';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=439';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=439';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=439';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=439';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -330,25 +330,85 @@ export class Ca4 extends AlpsPatternBoss {
   }
 }
 
-export class A7VFlak extends PatternBoss {
+// Ground armor changes position along its tracks, then brakes to fire. It
+// never follows the moving camera bounds or slides sideways toward a player.
+class TrenchArmor extends PatternBoss {
+  constructor(options){
+    super(options);this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
+    this.driveDirection=1;this.drivePause=0;this.driveMoving=false;
+  }
+  liveGuns(){return this.gunIds.map(id=>this.parts.get(id)).filter(p=>!p.destroyed);}
+  trackLoss(){return ['track-left','track-right'].filter(id=>this.parts.get(id).destroyed).length;}
+  drive(dt,speed){
+    this.driveMoving=false;const lost=this.trackLoss();if(lost===2)return;
+    if(this.drivePause>0){this.drivePause=Math.max(0,this.drivePause-dt);return;}
+    const destination=this.anchorY+(this.driveDirection>0?105:-25),step=speed*(lost?.38:1)*dt;
+    const before=this.y;this.y+=Math.max(-step,Math.min(step,destination-this.y));this.driveMoving=this.y!==before;
+    if(Math.abs(destination-this.y)<.01){this.driveDirection*=-1;this.drivePause=1.8;}
+  }
+  trackDestroyed(part){
+    if(part.kind!=='track')return false;
+    this.command('phase-change',{phase:this.trackLoss()===2?'tracks-disabled':'track-disabled'});return true;
+  }
+  muzzle(part,angle){
+    part.angle=angle+(this.kind==='mark-v-cruiser'?(part.id==='sponson-left'?Math.PI:0):0);part.recoil=.2;
+    const reach=(this.kind==='mark-v-cruiser'?24:20)*(this.t.geometryScale||1),x=this.x+part.x+Math.cos(angle)*reach,y=this.y+part.y+Math.sin(angle)*reach;
+    this.command('muzzle',{x,y,partId:part.id});return{x,y};
+  }
+  hullGun(dt,players,interval){
+    if(!this.due('hull-gun',dt,interval))return;const p=this.target(players);if(!p)return;
+    const x=this.x,y=this.y+106*(this.t.geometryScale||1),angle=Math.atan2(p.y-y,p.x-x);
+    this.command('muzzle',{x,y});
+    const count=Math.max(3,Math.ceil(5*(this.t.projectileDensity??1)));
+    for(let i=0;i<count;i++){const a=angle+(i-(count-1)/2)*.13;
+      this.hazard('projectile',{x,y,delay:i*.07,vx:Math.cos(a)*this.t.bulletSpeed*.82,vy:Math.sin(a)*this.t.bulletSpeed*.82,
+        radius:5,duration:3.2,damage:this.t.damage*.65,visual:'aa-shell',tag:'armor-hull-gun'});}
+  }
+}
+
+export class A7VFlak extends TrenchArmor {
   suppressive(){/* attacks come only from live turrets */ }
   constructor(options) {
-    super({...options,kind:'a7v-flak',parts:[{id:'front',x:0,y:-81},{id:'rear',x:0,y:81},{id:'left',x:-43,y:-2},{id:'right',x:44,y:-2}].map(p=>({...p,radius:24,maxHp:options.tuning.maxHp/4}))});
-    this.phase='fortress';this.coreVulnerable=false;this.turretOrder=['front','left','rear','right'];this.turretCursor=0;this.illumination=new Map();this.timers.set('lights',.5);this.timers.set('turret-cycle',.8);
+    super({...options,kind:'a7v-flak',parts:[
+      ...[{id:'front',x:0,y:-81},{id:'rear',x:0,y:81},{id:'left',x:-43,y:-2},{id:'right',x:44,y:-2}].map(p=>({...p,radius:24,maxHp:options.tuning.maxHp/4})),
+      ...[-1,1].map(side=>({id:side<0?'track-left':'track-right',kind:'track',x:side*43,y:67,radius:18,maxHp:options.tuning.partHp*.7}))
+    ]});
+    this.phase='fortress';this.coreVulnerable=false;this.gunIds=['front','left','rear','right'];this.turretOrder=this.gunIds;this.turretCursor=0;
+    this.illumination=new Map();this.barrageWave=0;this.timers.set('lights',.5);this.timers.set('turret-cycle',.8);
   }
-  onPartDestroyed() {const lost=[...this.parts.values()].filter(p=>p.destroyed).length;
-    // Each turret carries an equal share of the hull gauge; the last one
-    // destroys the vehicle outright.
-    this.hp-=this.maxHp/this.parts.size;
-    if(this.hp<=0){this.hp=0;this.dead=true;this.phase='defeated';this.emit({type:'body-defeated',bossId:this.id});return;}
-    if(lost>=2&&this.phase==='fortress'){this.phase='weakened';this.command('phase-change',{phase:'weakened'});}}
+  hit(attack){return super.hit(!attack.partId&&this.liveGuns().length>0?{...attack,damage:attack.damage*.45}:attack);}
+  onPartDestroyed(part) {
+    if(this.trackDestroyed(part))return;
+    this.command('cancel-hazards',{tag:'a7v-'+part.id});const left=this.liveGuns().length;
+    if(left<=2)this.coreVulnerable=true;
+    if(!left){this.phase='exposed';this.command('cancel-hazards',{tag:'a7v-lights'});this.command('phase-change',{phase:'exposed'});this.timers.set('hull-gun',1);}
+    else if(left<=2&&this.phase==='fortress'){this.phase='weakened';this.command('phase-change',{phase:'weakened'});}
+  }
   update(dt,{players,bounds,isIlluminated}) {
-    for(const p of players){const key=p.id??p,age=isIlluminated(p)?Math.min(.7,(this.illumination.get(key)||0)+dt):0;this.illumination.set(key,age);}
-    
-    if(this.phase!=='exposed'&&this.due('lights',dt,(this.t.lightInterval||9)*(this.phase==='weakened'?.88:1)))this.hazard('searchlight',{
-      x:this.x,y:this.y+30,angle:Math.PI/2,angularSpeed:.3,halfAngle:.17,radius:(bounds.bottom-bounds.top)*1.3,
-      duration:7.5,warning:.8,damage:0,tickInterval:.2,visual:'searchlight'});
-
+    this.drive(dt,this.phase==='exposed'?25:18);
+    for(const gun of this.liveGuns())gun.recoil=Math.max(0,(gun.recoil||0)-dt);
+    for(const p of players){const key=p.id??p,age=isIlluminated?.(p)?Math.min(.7,(this.illumination.get(key)||0)+dt):0;this.illumination.set(key,age);}
+    const lightCount=(this.t.loopIndex||0)>0?3:2;
+    if(this.phase!=='exposed'&&this.due('lights',dt,(this.t.lightInterval||9)*(this.phase==='weakened'?.88:1)))for(let i=0;i<lightCount;i++)this.hazard('searchlight',{
+      x:this.x+(i-(lightCount-1)/2)*46,y:this.y+30,angle:Math.PI/2+(i-(lightCount-1)/2)*.4,
+      angularSpeed:(i%2?-.3:.3),halfAngle:.14,radius:(bounds.bottom-bounds.top)*1.3,
+      duration:7.5,warning:.8,damage:0,tickInterval:.2,visual:'searchlight',tag:'a7v-lights'});
+    if(this.phase==='exposed'){this.hullGun(dt,players,2.15);return;}
+    // Four staggered impacts leave a full missing column as the escape lane.
+    // A fresh barrage also delays the regular lock-on shot, so both warnings
+    // cannot immediately fill that gap. Destroying its source cancels it.
+    const guns=this.liveGuns();
+    if(guns.length>=2&&this.due('cross-barrage',dt,this.phase==='weakened'?5.6:6.8)){
+      const p=this.target(players);if(p){
+        const width=bounds.right-bounds.left,columns=width<620?3:5,step=Math.min(110,(width-80)/(columns+1)),radius=Math.min(42,step*.36);
+        const cx=Math.max(bounds.left+step*(columns-1)/2+radius,Math.min(bounds.right-step*(columns-1)/2-radius,p.x+(p.vx||0)*.3));
+        const cy=Math.max(bounds.top+radius,Math.min(bounds.bottom-radius,p.y+(p.vy||0)*.3)),gap=this.barrageWave++%columns;
+        for(let i=0;i<columns;i++)if(i!==gap){const gun=guns[i%guns.length],tx=cx+(i-(columns-1)/2)*step,angle=Math.atan2(cy-this.y-gun.y,tx-this.x-gun.x),source=this.muzzle(gun,angle);
+          this.hazard('circle',{x:tx,y:cy,radius,delay:i*.14,warning:1.25,duration:.35,once:true,damage:this.t.damage*.9,
+            visual:'aa-flak',sourceX:source.x,sourceY:source.y,sourcePartId:gun.id,tag:'a7v-'+gun.id});}
+        this.timers.set('turret-cycle',2.15);this.drivePause=Math.max(this.drivePause,.6);
+      }
+    }
     const live=this.turretOrder.filter(id=>!this.parts.get(id).destroyed);
     if(live.length&&this.due('turret-cycle',dt,(this.t.flakInterval||3.2)/live.length)){
       const p=this.target(players);if(!p)return;
@@ -358,39 +418,50 @@ export class A7VFlak extends PatternBoss {
       for(let i=0;i<4;i++){const id=this.turretOrder[this.turretCursor++%4];if(arc[id]&&!this.parts.get(id).destroyed){turret=this.parts.get(id);break;}}
       if(!turret)return; // Destroying a quadrant opens a real firing blind spot.
       const locked=(this.illumination.get(p.id??p)||0)>=.55,lead=locked?.52:.16,scatter=locked?15:72;
-      const sx=this.x+turret.x,sy=this.y+turret.y;
-      turret.angle=Math.atan2(p.y-sy,p.x-sx);
-      this.command('muzzle',{x:sx,y:sy,partId:turret.id});
+      const angle=Math.atan2(p.y-this.y-turret.y,p.x-this.x-turret.x),source=this.muzzle(turret,angle);
       this.hazard('circle',{x:p.x+(p.vx||0)*lead+randBetween(this.rng,-scatter,scatter),
         y:p.y+(p.vy||0)*lead+randBetween(this.rng,-scatter,scatter),radius:locked?49:57,
         warning:locked?.88:1.22,duration:.44,once:true,damage:this.t.damage*(locked?1.3:1),
-        visual:'aa-flak',sourceX:sx,sourceY:sy,sourcePartId:turret.id});
+        visual:'aa-flak',sourceX:source.x,sourceY:source.y,sourcePartId:turret.id,tag:'a7v-'+turret.id});
     }
   }
 }
 
-export class MarkVCruiser extends PatternBoss {
+export class MarkVCruiser extends TrenchArmor {
   suppressive(){/* sponson lanes and exposed hull own the barrage */ }
-  constructor(options) {super({...options,kind:'mark-v-cruiser',parts:[{id:'sponson-left',x:-80,y:0,radius:37,maxHp:options.tuning.maxHp/2},{id:'sponson-right',x:80,y:0,radius:37,maxHp:options.tuning.maxHp/2}]});this.phase='barrage';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;this.sponsonSide=1;}
-  onPartDestroyed(){const live=[...this.parts.values()].filter(p=>!p.destroyed);
-    this.hp-=this.maxHp/this.parts.size;
-    if(!live.length){this.hp=0;this.dead=true;this.phase='defeated';this.emit({type:'body-defeated',bossId:this.id});return;}
-    this.phase='breached';this.command('phase-change',{phase:this.phase});}
+  constructor(options) {super({...options,kind:'mark-v-cruiser',parts:[
+    {id:'sponson-left',x:-80,y:0,radius:37,maxHp:options.tuning.maxHp/2},{id:'sponson-right',x:80,y:0,radius:37,maxHp:options.tuning.maxHp/2},
+    ...[-1,1].map(side=>({id:side<0?'track-left':'track-right',kind:'track',x:side*43,y:67,radius:18,maxHp:options.tuning.partHp*.7}))
+  ]});this.phase='barrage';this.coreVulnerable=false;this.sponsonSide=1;this.gunIds=['sponson-left','sponson-right'];}
+  hit(attack){return super.hit(!attack.partId&&this.liveGuns().length>0?{...attack,damage:attack.damage*.55}:attack);}
+  onPartDestroyed(part){
+    if(this.trackDestroyed(part))return;
+    this.command('cancel-hazards',{tag:part.id});this.coreVulnerable=true;
+    this.phase=this.liveGuns().length?'breached':'final-assault';this.command('phase-change',{phase:this.phase});this.timers.set('hull-gun',1.15);
+    if(this.phase==='final-assault')this.drivePause=0;
+  }
   update(dt,{bounds,players=[]}) {
-    const live=[...this.parts.values()].filter(p=>!p.destroyed);
+    const live=this.liveGuns();this.drive(dt,live.length?16:27);
+    for(const gun of live)gun.recoil=Math.max(0,(gun.recoil||0)-dt);
     const p=this.target(players);
-    if(live.length&&p){this.x+=Math.max(-11*dt,Math.min(11*dt,Math.max(this.anchorX-70,Math.min(this.anchorX+70,p.x))-this.x));
-    this.y=Math.min(this.anchorY+Math.min(110,(bounds.bottom-bounds.top)*.2),this.y+10*dt);}
+    if(live.length&&p&&this.due('sponson-crossfire',dt,live.length===2?6.2:7.4)){
+      const step=Math.min(115,(bounds.right-bounds.left)*.22),cy=p.y+(p.vy||0)*.35;
+      for(const gun of live){const side=gun.id==='sponson-left'?-1:1,tx=p.x+side*step,angle=Math.atan2(cy-this.y-gun.y,tx-this.x-gun.x),source=this.muzzle(gun,angle);
+        this.hazard('circle',{x:tx,y:cy,radius:42,warning:1.15,delay:side<0?0:.2,duration:.35,once:true,damage:this.t.damage,
+          visual:'aa-flak',sourceX:source.x,sourceY:source.y,sourcePartId:gun.id,tag:gun.id});}
+      this.timers.set('sponson-cycle',1.7);this.drivePause=Math.max(this.drivePause,.8);
+    }
     if(live.length&&this.due('sponson-cycle',dt,live.length===2?1.8:2.7)){
       let part;for(let i=0;i<2;i++){const id=this.sponsonSide>0?'sponson-left':'sponson-right';this.sponsonSide*=-1;if(!this.parts.get(id).destroyed){part=this.parts.get(id);break;}}
-      if(part&&p){const side=part.id==='sponson-left'?-1:1,mx=this.x+part.x+side*30,my=this.y+part.y;
-        const targetX=Math.max(bounds.left+30,Math.min(bounds.right-30,p.x+side*65)),angle=Math.atan2(p.y-my,targetX-mx);
-        this.command('muzzle',{x:mx,y:my,partId:part.id});
+      if(part&&p){const side=part.id==='sponson-left'?-1:1;
+        const targetX=Math.max(bounds.left+30,Math.min(bounds.right-30,p.x+side*65)),angle=Math.atan2(p.y-this.y-part.y,targetX-this.x-part.x),source=this.muzzle(part,angle);
         for(let i=0;i<7;i++){const a=angle+(i-3)*.105;
-          this.hazard('projectile',{x:mx,y:my,delay:i*.095,vx:Math.cos(a)*this.t.bulletSpeed*.85,vy:Math.sin(a)*this.t.bulletSpeed*.85,
+          this.hazard('projectile',{x:source.x,y:source.y,delay:i*.095,vx:Math.cos(a)*this.t.bulletSpeed*.85,vy:Math.sin(a)*this.t.bulletSpeed*.85,
             radius:7,warning:0,duration:3.1,damage:this.t.damage*.75,visual:'aa-shell',tag:part.id});}
+        this.drivePause=Math.max(this.drivePause,.45);
       }
     }
+    if(live.length<2)this.hullGun(dt,players,live.length?3.2:2.2);
   }
 }
 
