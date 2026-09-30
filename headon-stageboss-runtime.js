@@ -4,7 +4,7 @@ import {BossHazards} from './headon-stageboss-hazards.js?v=446';
 export class BossStages {
   constructor({teamFaction,stageIndex=0,loopIndex=0,rng=Math.random}) {
     if(!['central','entente'].includes(teamFaction)||!Number.isInteger(stageIndex)||stageIndex<0||stageIndex>=STAGES.length||!Number.isInteger(loopIndex)||loopIndex<0)throw new Error('Invalid current stage/faction');
-    Object.assign(this,{teamFaction,stageIndex,loopIndex,rng});this.order=[0,2,1,5,3,7,9,4,8,6];this.orderPosition=this.order.indexOf(stageIndex);this.phase='explore';this.encounter=null;
+    Object.assign(this,{teamFaction,stageIndex,loopIndex,rng});this.order=[0,2,1,5,3,7,9,4,8,11,6];this.orderPosition=this.order.indexOf(stageIndex);this.phase='explore';this.encounter=null;
   }
   get stage(){return STAGES[this.stageIndex];}
   get bossId(){return Object.keys(BOSS_CATALOG).find(id=>BOSS_CATALOG[id].stage===this.stageIndex&&(BOSS_CATALOG[id].faction==='neutral'||BOSS_CATALOG[id].faction!==this.teamFaction));}
@@ -72,7 +72,7 @@ export class StageBossAddon {
       this.hooks.onCue({...event,type:'minion-launched',encounterId});
     }else if(event.type==='body-defeated') {
       const body=this.stages.encounter?.bodies.get(event.bossId),zubianHalf=body?.kind?.startsWith('hms-zubian-');
-      if(zubianHalf&&!this.bodyDefeats.some(d=>d.id===body.id))this.bodyDefeats.push({id:body.id,kind:body.kind,x:body.x,y:body.y,age:0,duration:3.2});
+      if((zubianHalf||body?.kind==='gotha-raider')&&!this.bodyDefeats.some(d=>d.id===body.id))this.bodyDefeats.push({id:body.id,kind:body.kind,x:body.x,y:body.y,age:0,duration:zubianHalf?3.2:2.65});
       this.hooks.onCue({...event,encounterId,x:body?.x,y:body?.y,kind:body?.kind});
     }else if(event.type==='building-impact') {
       if(!this.frameContext||!this.hooks.onBuildingImpact({...event,encounterId}))return;
@@ -107,7 +107,7 @@ export class StageBossAddon {
     return true;
   }
   beginDefeat(encounter) {
-    const bodies=[...encounter.bodies.values()].map(b=>({id:b.id,kind:b.kind,x:b.x,y:b.y}));
+    const bodies=[...encounter.bodies.values()].filter(b=>b.kind!=='gotha-raider'||this.bodyDefeats.some(d=>d.id===b.id)).map(b=>({id:b.id,kind:b.kind,x:b.x,y:b.y}));
     const sinking=/^(sms-stuttgart|hms-zubian|armored-harbor-fortress)$/.test(encounter.bossId);
     this.defeatSequence={encounterId:encounter.id,bossId:encounter.bossId,age:0,duration:sinking?4.4:2.65,pulse:0,bodies};
     this.hazards.clear(encounter.id);this.hooks.clearEncounterOwned(encounter.id);

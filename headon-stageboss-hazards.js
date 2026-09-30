@@ -50,7 +50,7 @@ export class BossHazards {
       tickInterval:spec.tickInterval||.5,nextTick:0,phase:'waiting',once:!!spec.once,applied:false,activated:false,
       targetId:spec.targetId,lockAtWarning:!!spec.lockAtWarning,locked:false,offsetX:spec.offsetX||0,offsetY:spec.offsetY||0,telegraphHalf:spec.telegraphHalf||0,
       muzzleLength:spec.muzzleLength||0,
-      sourceX:spec.sourceX??null,sourceY:spec.sourceY??null,
+      sourceX:spec.sourceX??null,sourceY:spec.sourceY??null,airborneBomb:!!spec.airborneBomb,
       blocks:!!spec.blocks,piercing:!!spec.piercing,visual:spec.visual||spec.kind,tag:spec.tag||null,vertices:spec.vertices||null
     });return h;
   }

@@ -7,6 +7,7 @@ import {installFleet} from './fleet-naval1.js?v=446';
 import {installTrenchWar} from './trench-war1.js?v=446';
 import {installCityAir} from './city-air1.js?v=446';
 import {installRegionDoctrine} from './region-doctrine1.js?v=446';
+import {installLondonBattle} from './london-battle.js?v=446';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=446';
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=446';
 import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=446';
@@ -1706,7 +1707,8 @@ installBattleDirector(Game,{passStates:DOGFIGHT_PASS_STATES,directorAircraftElig
 // Offer optional risk/reward objectives only inside safe Director recovery beats.
 installBattlefieldEvents(Game);
 // Rival state is outermost so escape/return observes the final ace and tail systems.
-installRivalAce(Game,{PILOTS,PLANES,attachAircraftPersonality,angleDiff});
+installRivalAce(Game,{PILOTS,PLANES,attachAircraftPersonality,angleDiff})
+installLondonBattle(Game);;
 
 // Aces added in pass 2026: Rickenbacker, Ball, Barker, Luke (Entente) and
 // Brumowski, Gontermann (Central), each on a dedicated painted livery.
