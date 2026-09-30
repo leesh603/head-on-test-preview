@@ -1,22 +1,22 @@
-import {installPilotIdentities} from './pilot-identities.js?v=457';
-import {EnemyCollisionGrid} from './collision-grid.js?v=457';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=457';
-import {installRevision} from './rebalance103.js?v=457';
-import {installCloudCover} from './cloud-cover1.js?v=457';
-import {installFleet} from './fleet-naval1.js?v=457';
-import {installTrenchWar} from './trench-war1.js?v=457';
-import {installCityAir} from './city-air1.js?v=457';
-import {installRegionDoctrine} from './region-doctrine1.js?v=457';
-import {installLondonBattle} from './london-battle.js?v=457';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=457';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=457';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=457';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=457';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=457';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=457';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=457';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=457';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=457';
+import {installPilotIdentities} from './pilot-identities.js?v=458';
+import {EnemyCollisionGrid} from './collision-grid.js?v=458';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=458';
+import {installRevision} from './rebalance103.js?v=458';
+import {installCloudCover} from './cloud-cover1.js?v=458';
+import {installFleet} from './fleet-naval1.js?v=458';
+import {installTrenchWar} from './trench-war1.js?v=458';
+import {installCityAir} from './city-air1.js?v=458';
+import {installRegionDoctrine} from './region-doctrine1.js?v=458';
+import {installLondonBattle} from './london-battle.js?v=458';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=458';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=458';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=458';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=458';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=458';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=458';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=458';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=458';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=458';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -1624,6 +1624,7 @@ Game.prototype.beginRevisionFrame=function(dt,input={}){
  for(const pl of this.players||[this]){
   if(!pl||!(pl.hp>0))continue;
   if(pl.pilot==='loewenhardt'){pl.loewenhardtEngaged=false;for(const e of this.enemies){if(e.hp<=0||e.surface||e.dying)continue;const dx=e.x-pl.x,dy=e.y-pl.y;if(dx*dx+dy*dy>176400)continue;let d=Math.atan2(dy,dx)-pl.a;d=Math.atan2(Math.sin(d),Math.cos(d));if(Math.abs(d)<Math.PI/3){pl.loewenhardtEngaged=true;break}}}
+  if(pl.loewenhardtEngaged&&typeof pl.identityFx==='function'){pl._loewStream=(pl._loewStream||0)-dt;if(pl._loewStream<=0){pl._loewStream=.12;const px=Math.cos(pl.a),py=Math.sin(pl.a),nx=-py,ny=px;for(const side of[-1,1])pl.identityFx('windStreak',pl.x-px*12+nx*side*18,pl.y-py*12+ny*side*18,pl.a+side*.09,60,.3,{height:15,alpha:.52,color:'#ffd76a'});if((pl._loewMist=(pl._loewMist||0)+1)%4===0)pl.identityFx('mist',pl.x+px*18,pl.y+py*18,pl.a,52,.5,{alpha:.24,color:'#ffeab0'})}}
   if(pl.pilot==='rickenbacker'){let n=0;for(const e of this.enemies)if(e.hp>0&&!e.surface&&Math.hypot(e.x-pl.x,e.y-pl.y)<700)n++;pl.rickCount=n}
   pl.rickActive=pl.pilot==='rickenbacker'?pl.skillTime:0
   if(pl.pilot==='ball')pl.ballAlone=!(world.allies||[]).some(a=>a.life>0&&Math.hypot(a.x-pl.x,a.y-pl.y)<320)&&!(this.players||[]).some(p2=>p2!==pl&&p2.hp>0&&Math.hypot(p2.x-pl.x,p2.y-pl.y)<320);
