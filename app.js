@@ -16,7 +16,7 @@ import './hud-layout94.js?v=426';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=426';
 import {CoopGame,coopPlane} from './coop-engine.js?v=433';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=426';
-import {drawCoop} from './coop-view.js?v=439';
+import {drawCoop} from './coop-view.js?v=441';
 import {drawSunStrike} from './sun-strike71.js?v=433';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=439';
 import {installFlightViewport} from './flight-viewport.js?v=426';
@@ -30,7 +30,7 @@ import {campaignArtReady} from './aircraft.js?v=426';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady} from './icons.js?v=426';
 import {BattleMusic,musicModeForGame} from './music.js?v=426';
 import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=426';
-import {installEventTextEN,registerEventPilots} from './event-text-en.js?v=434';
+import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=440';
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=426';
 import {drawTailEngagement} from './engagement-hud410.js?v=426';
 import {portraitSources,portraitsReady} from './portraits.js?v=426';
@@ -295,7 +295,7 @@ drawSupport=()=>{
   if(e.rail){const r=e.rail,[rx,ry]=point(r.x,r.y);ctx.save();ctx.translate(rx,ry);ctx.rotate(r.angle);ctx.strokeStyle='#322c25';ctx.lineWidth=4;for(let pos=-r.half-20;pos<=r.half+20;pos+=18){ctx.beginPath();ctx.moveTo(pos,-13);ctx.lineTo(pos,13);ctx.stroke()}ctx.strokeStyle='#bec1ab';ctx.lineWidth=2;for(const off of [-8,8]){ctx.beginPath();ctx.moveTo(-r.half-25,off);ctx.lineTo(r.half+25,off);ctx.stroke()}ctx.restore();
    if(e.fire<.7){ctx.strokeStyle='#ffac7877';ctx.setLineDash([5,8]);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(W/2,H/2);ctx.stroke();ctx.setLineDash([])}
   }else{ctx.strokeStyle='#d4cbaa99';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y+75);ctx.lineTo(x+45,y+138);ctx.stroke();ctx.fillStyle='#4b4130';ctx.fillRect(x+41,y+135,8,5)}
-  ctx.shadowColor='#080f0ccc';ctx.shadowBlur=12;ctx.shadowOffsetX=9;ctx.shadowOffsetY=13;drawBattlefieldSprite(ctx,e.fieldSprite,x,y,e.rail?210:354,e.rail?e.rail.angle+Math.PI/2:0);ctx.shadowBlur=ctx.shadowOffsetX=ctx.shadowOffsetY=0;ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffce95';ctx.fillText(e.name,x,y-(e.rail?120:190));ctx.fillStyle='#172b23';ctx.fillRect(x-26,y+(e.rail?118:190),52,4);ctx.fillStyle='#e6b77d';ctx.fillRect(x-26,y+(e.rail?118:190),52*e.hp/e.maxHp,4);if(e.muzzleFlash>0){const ra=e.rail?e.rail.angle+Math.PI/2:0;fx(ctx,'muzzleHeavy',x+Math.cos(ra)*110,y+Math.sin(ra)*110,64,64,ra,Math.min(1,e.muzzleFlash*10));fx(ctx,'dustPuff',x-Math.cos(ra)*30,y-Math.sin(ra)*30,90,60,ra,.4)}ctx.restore();
+  ctx.shadowColor='#080f0ccc';ctx.shadowBlur=12;ctx.shadowOffsetX=9;ctx.shadowOffsetY=13;drawBattlefieldSprite(ctx,e.fieldSprite,x,y,e.rail?210:354,e.rail?e.rail.angle+Math.PI/2:0);ctx.shadowBlur=ctx.shadowOffsetX=ctx.shadowOffsetY=0;ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffce95';ctx.fillText(unitNameEN(e.name),x,y-(e.rail?120:190));ctx.fillStyle='#172b23';ctx.fillRect(x-26,y+(e.rail?118:190),52,4);ctx.fillStyle='#e6b77d';ctx.fillRect(x-26,y+(e.rail?118:190),52*e.hp/e.maxHp,4);if(e.muzzleFlash>0){const ra=e.rail?e.rail.angle+Math.PI/2:0;fx(ctx,'muzzleHeavy',x+Math.cos(ra)*110,y+Math.sin(ra)*110,64,64,ra,Math.min(1,e.muzzleFlash*10));fx(ctx,'dustPuff',x-Math.cos(ra)*30,y-Math.sin(ra)*30,90,60,ra,.4)}ctx.restore();
  }
  for(const f of game.flakBursts||[]){const [x,y]=point(f.x,f.y);ctx.save();ctx.globalAlpha=Math.min(1,f.life);drawBattlefieldSprite(ctx,'aa',x,y,66);ctx.restore();if(f.life>5.9)drawFieldArt('flak',x,y-12,44,44,0,Math.min(1,(f.life-5.9)*2))}
  for(const e of game.enemies){if(!e.navalVessel||e.hp<=0||e.movingShip)continue;const[x,y]=point(e.x,e.y);drawBattlefieldSprite(ctx,'ship',x,y,320,e.a+Math.PI/2);ctx.fillStyle='#24332b';ctx.fillRect(x-22,y+172,44,4);ctx.fillStyle='#de9b73';ctx.fillRect(x-22,y+172,44*e.hp/e.maxHp,4)}
@@ -319,7 +319,7 @@ draw=t=>{
   else{ctx.save();ctx.globalAlpha=.9;planeSprite(ctx,x,y,e.a,'gotha',2.1,true,false,e.hitFlash||0);ctx.restore()}
   ctx.fillStyle='#171f23';ctx.fillRect(x-48,y-h/2-16,96,5);
   ctx.fillStyle='#ed9d66';ctx.fillRect(x-48,y-h/2-16,96*Math.max(0,e.hp/e.maxHp),5);
-  ctx.fillStyle='#ffe3aa';ctx.font='11px monospace';ctx.textAlign='center';ctx.fillText(e.name,x,y-h/2-22);
+  ctx.fillStyle='#ffe3aa';ctx.font='11px monospace';ctx.textAlign='center';ctx.fillText(unitNameEN(e.name),x,y-h/2-22);
  }
 };
 
