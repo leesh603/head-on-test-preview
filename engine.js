@@ -1,22 +1,22 @@
-import {installPilotIdentities} from './pilot-identities.js?v=453';
-import {EnemyCollisionGrid} from './collision-grid.js?v=453';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=453';
-import {installRevision} from './rebalance103.js?v=453';
-import {installCloudCover} from './cloud-cover1.js?v=453';
-import {installFleet} from './fleet-naval1.js?v=453';
-import {installTrenchWar} from './trench-war1.js?v=453';
-import {installCityAir} from './city-air1.js?v=453';
-import {installRegionDoctrine} from './region-doctrine1.js?v=453';
-import {installLondonBattle} from './london-battle.js?v=453';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=453';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=453';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=453';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=453';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=453';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=453';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=453';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=453';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=453';
+import {installPilotIdentities} from './pilot-identities.js?v=454';
+import {EnemyCollisionGrid} from './collision-grid.js?v=454';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918} from './pilot-lifecycle196.js?v=454';
+import {installRevision} from './rebalance103.js?v=454';
+import {installCloudCover} from './cloud-cover1.js?v=454';
+import {installFleet} from './fleet-naval1.js?v=454';
+import {installTrenchWar} from './trench-war1.js?v=454';
+import {installCityAir} from './city-air1.js?v=454';
+import {installRegionDoctrine} from './region-doctrine1.js?v=454';
+import {installLondonBattle} from './london-battle.js?v=454';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=454';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=454';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=454';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=454';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=454';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=454';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=454';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=454';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=454';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -1618,6 +1618,9 @@ Game.prototype.beginRevisionFrame=function(dt,input={}){
    else {const q=Math.min(1,elapsed/NEW_ACE_BALANCE124.wolffClimbSeconds),ease=q*q*(3-2*q),curve=Math.sin(Math.PI*q);this.aceScale129=1+.055*ease;this.aceRetreat129=true;this.baseSpeed*=-.42*curve;this.speed*=-.42*curve;this.turn=0;this.fire=Math.max(this.fire,dt+.05);this.invuln=Math.max(this.invuln,dt+.06);}
   }else this.aceSkillPhase=null;
  }
+ if(this.pilot==='loewenhardt'&&this.skillTime>0){const duration=this.loewenhardtSkillDuration||this.skillDuration(),elapsed=duration-this.skillTime,climbing=elapsed>=NEW_ACE_BALANCE124.loewenhardtDiveSeconds;this.aceSkillPhase=climbing?'vertical-fire':'dive-under';
+  if(climbing){const q=Math.min(1,(elapsed-NEW_ACE_BALANCE124.loewenhardtDiveSeconds)/.9),ease=q*q*(3-2*q),entry=Math.sin(Math.min(1,q/.18)*Math.PI/2),climbSpeed=entry*(.92-.12*ease);this.aceScale129=.945+.055*ease;this.baseSpeed*=climbSpeed;this.speed*=climbSpeed;this.turn*=.52-.17*ease;this.rate/=1+(NEW_ACE_BALANCE124.loewenhardtSkillFireRate-1)*ease;this.revisionDamageMult*=1+(NEW_ACE_BALANCE124.loewenhardtSkillDamage-1)*ease}else{const q=Math.min(1,elapsed/NEW_ACE_BALANCE124.loewenhardtDiveSeconds),ease=q*q*(3-2*q),curve=Math.sin(Math.PI*q);this.aceScale129=1-.055*ease;this.aceRetreat129=true;this.baseSpeed*=-.38*curve;this.speed*=-.38*curve;this.turn=0;this.fire=Math.max(this.fire,dt+.05);this.invuln=Math.max(this.invuln,dt+.06);}
+ }else if(this.pilot==='loewenhardt')this.aceSkillPhase=null;
  for(const pl of this.players||[this]){
   if(!pl||!(pl.hp>0))continue;
   if(pl.pilot==='loewenhardt'){pl.loewenhardtEngaged=false;for(const e of this.enemies){if(e.hp<=0||e.surface||e.dying)continue;const dx=e.x-pl.x,dy=e.y-pl.y;if(dx*dx+dy*dy>176400)continue;let d=Math.atan2(dy,dx)-pl.a;d=Math.atan2(Math.sin(d),Math.cos(d));if(Math.abs(d)<Math.PI/3){pl.loewenhardtEngaged=true;break}}}
