@@ -1,4 +1,5 @@
 import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js';
+import {installPilotFeedback} from './pilot-feedback.js';
 import {headOnTarget} from './engagement-feedback.js?v=442';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
@@ -15,11 +16,11 @@ export const pilotOwner=own;
 export const pilotHeadOn=(p,e)=>headOnTarget({...p,hp:1},[e])===e;
 export function installPilotIdentities(Game,PILOTS){
  for(const [id,copy]of Object.entries(PILOT_IDENTITY_COPY)){const p=PILOTS[id];if(!p)continue;const c=copy.ko;Object.assign(p,{passive:c.passive,skill:c.skill,passiveDesc:c.passiveDetail,desc:c.activeDetail});}
- if(PILOTS.berthold)PILOTS.berthold.name='루돌프 베르톨트';if(PILOTS.nungesser)PILOTS.nungesser.name='샤를 넝제세르';if(PILOTS.guynemer)PILOTS.guynemer.name='조르주 기네메르';
+ PILOTS.berthold.name='루돌프 베르톨트';PILOTS.nungesser.name='샤를 넝제세르';PILOTS.guynemer.name='조르주 기네메르';
  const oldEnsure=Game.prototype.ensureRevisionPilot;
  Game.prototype.ensureRevisionPilot=function(){oldEnsure.call(this);if(this.pilotIdentityReady)return;this.pilotIdentityReady=true;this.pilotIdentity={fx:[],burns:new Map(),debts:[],clock:0,grazeSeen:new WeakSet(),grazePasses:new Map(),bombs:[],switchSeen:new Map()};if(['boelcke','brumowski'].includes(this.pilot))this.permanentWingman=(this.permanentWingman||0)+2;};
  Game.prototype.identityState=function(){this.ensureRevisionPilot();return this.pilotIdentity};
- Game.prototype.identityFx=function(key,x=this.x,y=this.y,a=this.a,size=48,life=.3){const s=this.identityState();s.fx.push({key,x,y,a,size,life,maxLife:life});if(s.fx.length>PILOT_IDENTITY_BALANCE.fxCap)s.fx.shift()};
+ Game.prototype.identityFx=function(key,x=this.x,y=this.y,a=this.a,size=48,life=.3,style={}){const s=this.identityState();s.fx.push({key,x,y,a,size,life,maxLife:life,...style});if(s.fx.length>PILOT_IDENTITY_BALANCE.fxCap)s.fx.shift()};
  Game.prototype.identityTarget=function(cone=.65,range=780,origin=this,heading=this.a){let picked=null,best=Infinity;for(const e of this.enemies||[]){if(!alive(e))continue;const d=distance(origin,e);if(d>range||Math.abs(delta(Math.atan2(e.y-origin.y,e.x-origin.x),heading))>cone)continue;if(d<best){best=d;picked=e}}return picked};
  Game.prototype.identityThreat=function(){const w=this.combatWorld(),friends=[...(w.players||[]).filter(p=>p!==this&&alive(p)),...(w.allies||[]).filter(a=>a.life>0),...(w.patrols||[]).filter(alive)];let target=null,best=Infinity;for(const e of this.enemies||[]){if(!alive(e)||e.surface)continue;for(const f of friends){const d=distance(e,f);if(d<400&&d<best&&Math.abs(delta(Math.atan2(f.y-e.y,f.x-e.x),e.a||0))<.65){best=d;target=e}}}return target};
  Game.prototype.identityShot=function(a,damage,extra={},origin=this){const speed=extra.speed||560,b={x:origin.x+Math.cos(a)*26,y:origin.y+Math.sin(a)*26,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:1.4,damage,enemy:false,ownerId:own(this),hit:new Set(),...extra};this.bullets.push(b);this.identityFx(b.motorCannon?'muzzleHeavy':b.gun===1?'muzzleRear':'muzzle',b.x,b.y,a,b.motorCannon?62:28,.13);return b};
@@ -42,14 +43,12 @@ export function installPilotIdentities(Game,PILOTS){
   if(this.pilot==='berthold')s.debts=s.debts.map(d=>({...d,remaining:Math.max(d.remaining,6)}));
   if(this.pilot==='barker'){s.barkerReady=true;s.escape=null}
   if(this.pilot==='ball'){this.ballCloak=this.skillTime;this.ballGhost={x:this.x,y:this.y,a:this.a,speed:this.speed,hp:1};this.ballAmbush=0;this.invuln=Math.max(this.invuln,.25)}
-  this.identityFx(this.pilot==='berthold'?'armorSpark':'windStreak',this.x,this.y,this.a,60,.35);
   this.event('skill',PILOTS[this.pilot].skill);return true;
  };
  const oldGun=Game.prototype.normalGunMultiplier;
  Game.prototype.normalGunMultiplier=function(){let m=oldGun.call(this),s=this.identityState();if(this.pilot==='udet')m*=1+(s.grazes||0)*.1+(this.skillTime>0?.2+(s.counter||0)*.1:0);if(this.pilot==='rickenbacker')m*=1+(s.switches||0)*(this.skillTime>0?.18:.1);if(this.pilot==='loewenhardt'&&this.skillTime>0)m*=1+.5*(s.diveEnergy||0);return m};
  const oldRound=Game.prototype.applySpecialRound;
  Game.prototype.applySpecialRound=function(b,type){oldRound.call(this,b,type);if(!personal(b))return b;const s=this.identityState();b.identityGun=true;b.identityOrigin={x:this.x,y:this.y,a:this.a};
-  if((this.pilot==='udet'&&(s.grazes>0||this.skillTime>0)||this.pilot==='bishop'&&this.identityTarget(.25,180)||this.pilot==='hawker'&&s.focus>.8)&&s.clock-(s.gunFxAt??-1)>.09){s.gunFxAt=s.clock;this.identityFx('muzzle',this.x+Math.cos(this.a)*29,this.y+Math.sin(this.a)*29,this.a,36,.13);}
   if(this.pilot==='fonck'){delete b.fonckGuided;delete b.fonckSeeker;if(this.skillTime>0)b.pierce=true;const speed=Math.hypot(b.vx,b.vy),a=this.a+delta(Math.atan2(b.vy,b.vx),this.a)*.25;b.vx=Math.cos(a)*speed;b.vy=Math.sin(a)*speed;}
   if(this.pilot==='hawker'){const speed=Math.hypot(b.vx,b.vy),a=this.a+delta(Math.atan2(b.vy,b.vx),this.a)*(1-.7*(s.focus||0));b.vx=Math.cos(a)*speed;b.vy=Math.sin(a)*speed;}
   if(this.pilot==='luke'){b.identityIgnite=true;b.specialColor='#d99658'}
@@ -115,21 +114,21 @@ export function installPilotIdentities(Game,PILOTS){
   if(this.pilot==='berthold'&&s.debts.length){let payment=0;for(const d of s.debts){const paid=Math.min(d.amount,d.amount*dt/Math.max(dt,d.remaining));d.amount-=paid;d.remaining-=dt;payment+=paid}s.debts=s.debts.filter(d=>d.amount>1e-8);if(payment>0&&payment<this.hp){this.hp-=payment}else if(payment>0){const inv=this.invuln;this.payingPilotDebt=true;this.invuln=0;try{if(this.world)this.world.hitPlayer(this,payment,{gas:true});else this.hit(payment)}finally{this.payingPilotDebt=false;this.invuln=inv}}}
   // Bounded personal burns use the ordinary projectile/death pipeline in both modes.
   for(const [target,burn]of s.burns){const dead=target.destroyed||target.dead||target.hp<=0;if(dead){s.burns.delete(target);continue}burn.time-=dt;if(burn.time<=0){s.burns.delete(target);continue}burn.tick-=dt;if(burn.tick<=0){burn.tick=.25;const body=burn.body,raw=burn.part&&body?.support129?.parts.get(target.id),pos=raw?body.support129.world(raw.nx,raw.ny):null,x=pos?.x??(body?body.x+(burn.part?target.x:0):burn.enemy.x),y=pos?.y??(body?body.y+(burn.part?target.y:0):burn.enemy.y);this.bullets.push({x,y,vx:0,vy:0,life:.12,damage:burn.damage,ownerId:own(this),enemy:false,hit:new Set(),identityDot:true,identityDotTarget:target,actualExplosion:true,collisionRadius:2,pierce:false});this.identityFx('fireEngine',x,y,0,30,.22)}}
-  if(active||this.pilot==='nungesser'&&this.hp/this.maxHp<.4||this.pilot==='jacobs'&&s.turnCharge>.5){s.trailClock=(s.trailClock||0)-dt;if(s.trailClock<=0){s.trailClock=.13;this.identityFx('windStreak',this.x-Math.cos(this.a)*26,this.y-Math.sin(this.a)*26,this.a,66,.3)}}
  };
  Game.prototype.updatePilotWing=function(a,dt){
   if(!commanders.has(this.pilot)||a.ownerId!==own(this))return false;
   const s=this.identityState(),active=this.skillTime>0,targets=this.enemies.filter(alive),slot=a.slot||0;let e=null;
   if(this.pilot==='goering'){if(!alive(s.commandTarget))s.commandTarget=this.identityTarget();e=active?s.commandTarget:null}
-  if(!e&&targets.length){targets.sort((a,b)=>distance(a,this)-distance(b,this));e=targets[(this.pilot==='boelcke'||this.pilot==='collishaw')?slot%targets.length:0]}
+  if(!e&&targets.length){targets.sort((a,b)=>distance(a,this)-distance(b,this));const distributed=this.pilot==='boelcke'||this.pilot==='collishaw';if(distributed){targets.splice(Math.max(1,(this.combatWorld().allies||[]).filter(a=>a.life>0&&a.ownerId===own(this)).length));const side=e=>-(e.x-this.x)*Math.sin(this.a)+(e.y-this.y)*Math.cos(this.a);targets.sort((a,b)=>side(b)-side(a))}e=targets[distributed?slot%targets.length:0]}
   let target=this.wingFormationTarget(a,this.permanentWingCount());
-  if(this.pilot==='boelcke'&&e){const side=slot%2?1:-1;target={x:e.x-Math.cos(e.a||0)*(active?120:180)-Math.sin(e.a||0)*side*65,y:e.y-Math.sin(e.a||0)*(active?120:180)+Math.cos(e.a||0)*side*65}}
-  if(this.pilot==='collishaw'){const side=slot%2?1:-1,off=active?220:110;target={x:this.x-Math.sin(this.a)*side*off+Math.cos(this.a)*50,y:this.y+Math.cos(this.a)*side*off+Math.sin(this.a)*50}}
+  if(this.pilot==='boelcke'&&e){const side=slot%2?-1:1,entry=active?Math.max(0,1-(s.activeAge||0)/1.1):0,off=65+entry*100;target={x:e.x-Math.cos(e.a||0)*(active?120:180)-Math.sin(e.a||0)*side*off,y:e.y-Math.sin(e.a||0)*(active?120:180)+Math.cos(e.a||0)*side*off}}
+  if(this.pilot==='collishaw'){const side=slot%2?-1:1,entry=active?Math.min(1,(s.activeAge||0)/.8):0,off=110+entry*110,forward=50+Math.sin(entry*Math.PI)*65;target={x:this.x-Math.sin(this.a)*side*off+Math.cos(this.a)*forward,y:this.y+Math.cos(this.a)*side*off+Math.sin(this.a)*forward}}
   if(this.pilot==='brumowski'&&active){const phase=s.clock*1.5+slot*Math.PI;target={x:this.x+Math.cos(phase)*100,y:this.y+Math.sin(phase)*100};e=targets.find(e=>distance(e,this)<340)||null;}
-  a.life-=dt;a.invuln=Math.max(0,(a.invuln||0)-dt);a.hitFlash=Math.max(0,(a.hitFlash||0)-dt);const move=clamp(dt*(active?3.5:2.6));a.x+=(target.x-a.x)*move;a.y+=(target.y-a.y)*move;a.a=e?Math.atan2(e.y-a.y,e.x-a.x):this.a;
+  a.life-=dt;a.invuln=Math.max(0,(a.invuln||0)-dt);a.hitFlash=Math.max(0,(a.hitFlash||0)-dt);const dx=target.x-a.x,dy=target.y-a.y,d=Math.hypot(dx,dy),move=Math.min(clamp(dt*(active?3.5:2.6)),dt*(active?330:250)/Math.max(1,d));a.x+=dx*move;a.y+=dy*move;const splitting=active&&['boelcke','collishaw','brumowski'].includes(this.pilot)&&(s.activeAge||0)<.65,heading=splitting&&d>20?Math.atan2(dy,dx):e?Math.atan2(e.y-a.y,e.x-a.x):this.a;a.a+=(delta(heading,a.a||0))*Math.min(1,dt*7);
   a.fire-=dt;if(e&&distance(e,a)<650&&a.fire<=0){a.fire=.58*(a.permanent&&this.upgrades?.fighterSupply?.9:1)/((1+(this.commandRateBonus||0))*((this.combatWorld().players||[this]).some(p=>p.pilot==='mannock'&&p.hp>0)?1.15:1)*(active?(this.pilot==='goering'?1.6:1.25):1));const rear=Math.abs(delta(Math.atan2(a.y-e.y,a.x-e.x),e.a||0))>Math.PI*.72;const bonus=active&&this.pilot==='goering'?1.65:active&&this.pilot==='boelcke'&&rear?1.5:1;this.identityShot(a.a,this.supportPower(5)*(this.wingmanDamageMult||1)*bonus*(a.permanent&&this.upgrades?.fighterSupply?1.2:1),{ally:true,speed:470},a)}
-  if(active){a.identityTrail=(a.identityTrail||0)-dt;if(a.identityTrail<=0){a.identityTrail=.25;this.identityFx('windStreak',a.x,a.y,a.a,48,.28)}}return true;
+  return true;
  };
  const oldTickWorld=Game.prototype.tickRevisionWorld;
  Game.prototype.tickRevisionWorld=function(dt){oldTickWorld.call(this,dt);for(const d of this.revisionDecoys||[])if(d.identityDecoy){d.x+=d.vx*dt;d.y+=d.vy*dt}};
+ installPilotFeedback(Game,PILOTS);
 }
