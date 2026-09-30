@@ -1,8 +1,8 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
-import {getLocale,subscribe} from './i18n.js?v=440';
-import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=440';
-import {clearCrewMatte} from './matte70.js?v=440';
-import {aircraftArt} from './main-ui-art180.js?v=440';
+import {getLocale,subscribe} from './i18n.js?v=441';
+import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=441';
+import {clearCrewMatte} from './matte70.js?v=441';
+import {aircraftArt} from './main-ui-art180.js?v=441';
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
 const put=(node,text)=>{if(node&&node.textContent!==text)node.textContent=text};
@@ -25,13 +25,14 @@ export function interfaceIcon(name,cls='astra-icon'){
 }
 // Reuse the production matte algorithm at native resolution. This cleans only
 // the hangar illustration; the 144px gameplay sprite and its collision stay intact.
-const rawHangarArt={loewenhardt_fokkerd7:'./mech/loewenhardt_fokkerd7.webp?v=426&b=340',goering_fokkerd7:'./mech/goering_fokkerd7.webp?v=426&b=340',mccudden_se5a:'./mech/mccudden_se5a.webp?v=426&b=340',fokker:'./fokker.webp?v=426&b=340',baron_albatros:'./baron_albatros.webp?v=426&b=340',albatros_d2:'./albatros_d2.webp?v=426&b=340',nieuport_italian:'./nieuport.webp?v=426&b=340'};
+const rawHangarArt={fokker:'./fokker.webp?v=426&b=340',baron_albatros:'./baron_albatros.webp?v=426&b=340',albatros_d2:'./albatros_d2.webp?v=426&b=340',nieuport_italian:'./nieuport.webp?v=426&b=340'};
 const hangarKeyFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',fokker:'fokker_standard'};
 const artCache=new Map();
 function hangarArt(key){
  if(artCache.has(key))return artCache.get(key);
  const src=rawHangarArt[key]||`./${hangarKeyFile[key]||key}.webp?v=426&b=340`;
- const pending=new Promise(resolve=>{const image=new Image();image.onerror=()=>resolve(aircraftArt[key]||'');image.onload=()=>{
+ const mechSrc='./mech/'+(hangarKeyFile[key]||key)+'.webp?v=426&b=340';
+ const pending=new Promise(resolve=>{const image=new Image();let fellBack=false;image.onerror=()=>{if(!fellBack&&src!==mechSrc){fellBack=true;image.src=mechSrc;return}resolve(aircraftArt[key]||'')};image.onload=()=>{
   try{
    const scan=document.createElement('canvas');scan.width=image.naturalWidth;scan.height=image.naturalHeight;
    const c=scan.getContext('2d',{willReadFrequently:true});c.drawImage(image,0,0);
