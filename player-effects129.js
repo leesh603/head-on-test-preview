@@ -1,3 +1,4 @@
+import {fx} from './fx-art.js?v=438';
 import {drawGameIcon} from './icons.js?v=438';
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
 export function playerPose(p,x,y){
