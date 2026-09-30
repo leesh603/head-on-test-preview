@@ -1,7 +1,7 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=445';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=445';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=445';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=445';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=446';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=446';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=446';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=446';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -606,7 +606,7 @@ export class MinenwerferBattery extends PatternBoss {
   constructor(options){
     const originalHp=options.tuning.maxHp,gunHp=originalHp*.4,tuning={...options.tuning,maxHp:gunHp*3};
     super({...options,tuning,coreRadius:64,kind:'minenwerfer-battery',parts:[
-      {id:'gun-left',x:-206,y:-12,radius:105,maxHp:gunHp},{id:'main-gun',x:-6,y:-70,radius:110,maxHp:gunHp},{id:'gun-right',x:192,y:26,radius:105,maxHp:gunHp}
+      {id:'gun-left',x:-540,y:-40,radius:105,maxHp:gunHp},{id:'main-gun',x:-15,y:-190,radius:110,maxHp:gunHp},{id:'gun-right',x:525,y:80,radius:105,maxHp:gunHp}
     ]});
     this.phase='cross-barrage';this.coreVulnerable=true;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
     this.shotSerial=0;this.baseVolleyCount=0;this.specialWave=0;this.specialClock=8.4;this._gasTier=3;
@@ -1297,8 +1297,10 @@ export class FlakTowerNet extends PatternBoss {
     this.stateAge+=dt;
     if(this.stateAge<.6)return;
     if(!this.encounter)throw new Error('flak-tower must belong to an encounter before deploying');
-    const w=bounds.right-bounds.left,h=bounds.bottom-bounds.top,ix=bounds.left+w*.13,ax=bounds.right-w*.13,iy=bounds.top+h*.15,ay=bounds.bottom-h*.15;
-    const corners=[[ix,iy],[ax,iy],[ix,ay],[ax,ay]];
+    // Map-scale grid: cells are spread over a wide rectangle around the deploy
+    // point (not the camera viewport) so the network covers the whole area.
+    const dx=Math.max(600,Math.min(760,(bounds.right-bounds.left)*.75)),fy=Math.max(500,Math.min(600,(bounds.bottom-bounds.top)*.85)),by=Math.max(320,Math.min(420,(bounds.bottom-bounds.top)*.55));
+    const corners=[[this.x-dx,this.y-fy],[this.x+dx,this.y-fy],[this.x-dx,this.y+by],[this.x+dx,this.y+by]];
     const children=corners.map(([x,y],i)=>new FlakTowerCell({id:this.id+'-t'+i,tuning:{...this.t,maxHp:this.hp/4},x,y,faction:this.faction,rng:this.rng,emit:this.emit,coreRadius:44}));
     this.encounter.replaceBody(this.id,children);
     this.command('split',{children:children.map(b=>b.id),x:this.x,y:this.y});
