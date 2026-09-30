@@ -1,6 +1,6 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=447';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=447';
-import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=447';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=448';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=448';
+import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=448';
 
 // Source-image coordinates are shared by hull hit tests, gun mounts and mines.
 export const CITY_HULLS={
@@ -14,7 +14,7 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 class CityAirships extends BaseBoss{
  constructor(o,kind){
   const hp=o.tuning.maxHp,parts=[0,1,2].map(i=>new BossPart({id:'airship-'+i,maxHp:hp/3}));
-  super({...o,maxHp:hp,parts});this.t=o.tuning;this.rng=o.rng||Math.random;this.kind=kind;this.faction=o.faction;
+  super({...o,maxHp:hp,parts});this.t=o.tuning;this.rng=o.rng||Math.random;this.kind=kind;this.cityArtKind=kind;this.faction=o.faction;
   const w=this.t.regionalViewWidth||960,h=this.t.regionalViewHeight||700,height=kind==='london-apron'?512:576;
   // 2x silhouette on every viewport — same fit math, doubled budgets.
   this.cityArtScale=Math.max(.30,Math.min(2.288,(w-38)/384,(h-210)/(height/2)));
@@ -41,7 +41,7 @@ class CityAirships extends BaseBoss{
  hit({partId,damage}){
   const indirect=partId?.startsWith('net-')||partId?.startsWith('rig-'),id=indirect?'airship-'+partId.at(-1):partId;
   if(!id||this.dead)return{damage:0,blocked:true};
-  const result=super.hit({partId:id,damage:damage*(indirect?(this.kind==='london-apron'?.38:.65):1)});
+  const result=super.hit({partId:id,damage:damage*(indirect?(this.cityArtKind==='london-apron'?.38:.65):1)});
   this.hp=[...this.parts.values()].reduce((sum,p)=>sum+Math.max(0,p.hp),0);
   if(this.hp<=.001&&!this.dead){this.hp=0;this.dead=true;this.phase='defeated';this.command('body-defeated');}
   return result;
@@ -50,21 +50,21 @@ class CityAirships extends BaseBoss{
   const index=Number(p.id.at(-1));this.gunQueue=this.gunQueue.filter(q=>q.index!==index);
   this.command('cancel-hazards',{tag:'apron-'+p.id});
   this.phase=this.live().length===1?'last-airship':'two-airships';
-  this.command('aa-effect',{...this.point(...CITY_GUNS[this.kind][index]),kind:'aaWireSnap',size:60*this.cityArtScale,life:.6});
+  this.command('aa-effect',{...this.point(...CITY_GUNS[this.cityArtKind][index]),kind:'aaWireSnap',size:60*this.cityArtScale,life:.6});
   this.command('phase-change',{phase:this.phase});
  }
  guns(dt,players){
   const target=players.find(p=>p.alive);if(!target)return;
   const live=this.live(),interval=live.length===1?2.6:3.6;
   for(const p of live){const index=Number(p.id.at(-1));if(this.due('gun-'+index,dt,interval)){
-   const from=this.point(...CITY_GUNS[this.kind][index]);
+   const from=this.point(...CITY_GUNS[this.cityArtKind][index]);
    const a=Math.atan2(target.y+(target.vy||0)*.18-from.y,target.x+(target.vx||0)*.18-from.x);
    for(let j=0;j<5;j++)this.gunQueue.push({index,delay:.25+j*.115,angle:a+(j-2)*.055});
   }}
   for(const q of this.gunQueue)q.delay-=dt;
   for(const q of this.gunQueue.filter(q=>q.delay<=0)){
    if(this.parts.get('airship-'+q.index).destroyed)continue;
-   const from=this.point(...CITY_GUNS[this.kind][q.index]),speed=Math.max(245,this.t.bulletSpeed*.95);
+   const from=this.point(...CITY_GUNS[this.cityArtKind][q.index]),speed=Math.max(245,this.t.bulletSpeed*.95);
    this.hazard('projectile',{...from,vx:Math.cos(q.angle)*speed,vy:Math.sin(q.angle)*speed,radius:3,damage:this.t.damage*.32,duration:4.2,visual:'city-mg',tag:'gun-'+q.index});
    this.command('muzzle',from);
   }
