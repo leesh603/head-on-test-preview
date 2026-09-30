@@ -161,12 +161,13 @@ const BOOM_TIME = {
   heavy:  [.42, 2.1, 6, 5, 1, .7, 0]
 };
 const BOOM_TAIL = new Map();
-let PUFF = null, GLOW = null;
+let PUFF = null, GLOW = null, SCORCH = null;
 function boomSprites() {
   if (PUFF || typeof document === 'undefined') return;
   const mk = (stops) => { const k = document.createElement('canvas'); k.width = k.height = 64; const g = k.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
     for (const [o, col] of stops) gr.addColorStop(o, col); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return k; };
   PUFF = mk([[0, 'rgba(92,86,80,.55)'], [.55, 'rgba(84,78,72,.28)'], [1, 'rgba(80,74,68,0)']]);
+  SCORCH = mk([[0, 'rgba(28,20,14,.78)'], [.55, 'rgba(34,26,18,.5)'], [1, 'rgba(40,30,20,0)']]);
   GLOW = mk([[0, 'rgba(255,214,150,1)'], [.25, 'rgba(255,150,60,.55)'], [.6, 'rgba(230,90,30,.16)'], [1, 'rgba(200,60,20,0)']]);
 }
 const hash = (a, b) => { const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return s - Math.floor(s); };
@@ -227,5 +228,59 @@ export function fxsBoom(c, f, x, y, radius = 0) {
     if (BOOM_TAIL.size < 96) BOOM_TAIL.set(f, r); }
   const age = Math.max(0, Math.min(1, 1 - f.life / f.maxLife)) * r.ml;
   drawBoom(c, r, x, y, age);
+  return true;
+}
+
+// Burning ground (hydrogen balloon fire, wreck fires): a scatter of looping flame tongues
+// (tools/fx-sample/flame.py) over a scorched, fire-lit patch, with smoke and embers rising.
+// Zone radius / life / damage stay in the engine; this only replaces the single painted blob.
+const FLAME = { atlas: null, rects: null, n: 12, v: 3 };
+if (FXS && typeof Image !== 'undefined') {
+  fetch(new URL('./fx-sample/fx-flame.json', import.meta.url), { cache: 'no-cache' }).then(r => r.json()).then(m => {
+    const im = new Image();
+    im.onload = () => { FLAME.atlas = im; FLAME.rects = m.rects; FLAME.n = m.frames; FLAME.v = m.variants; };
+    im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href;
+  }).catch(() => {});
+}
+export function fxsFireZone(c, f, x, y, t = 0, fade = 1) {
+  if (!FXS || !FLAME.atlas) return false;
+  boomSprites();
+  const R = f.radius || 100, seed = f.seed || Math.abs(Math.trunc((f.x || 0) * 31 + (f.y || 0) * 17)) % 997;
+  const left = f.maxLife ? Math.min(1, f.life / Math.min(2.5, f.maxLife)) : 1; // flames die down over the last seconds
+  const flick = .9 + .1 * Math.sin(t * 9.1 + seed) * Math.sin(t * 5.3);
+  c.save();
+  // scorched ground + firelight
+  c.globalAlpha = .75 * fade;
+  c.drawImage(SCORCH, x - R * .85, y - R * .7, R * 1.7, R * 1.4);
+  c.globalCompositeOperation = 'screen'; c.globalAlpha = .85 * fade * flick * (.4 + .6 * left);
+  c.drawImage(GLOW, x - R * 1.2, y - R * 1.05, R * 2.4, R * 2.1);
+  c.globalCompositeOperation = 'source-over';
+  // flames, back to front
+  const n = Math.max(5, Math.min(12, Math.round(R / 14))), list = [];
+  for (let i = 0; i < n; i++) {
+    const a = i * 2.39996 + seed * .7, rr = Math.sqrt((i + .5) / n) * R * .56 * (.85 + .3 * hash(seed, i));
+    list.push({ x: x + Math.cos(a) * rr, y: y + Math.sin(a) * rr * .8, h: R * (.66 + .44 * hash(i, seed)) * (1 - .4 * rr / R), v: (seed + i) % FLAME.v, ph: hash(i * 7, seed) });
+  }
+  list.sort((p, q) => p.y - q.y);
+  for (const p of list) {
+    const h = p.h * (.25 + .75 * left) * (.94 + .06 * flick), w = h * 64 / 96;
+    const fp = (t * 13 + p.ph * FLAME.n) % FLAME.n, i = Math.floor(fp), u = fp - i;
+    const draw = (j, al) => { const rc = FLAME.rects['flame' + p.v + '_' + (j % FLAME.n)]; if (!rc || al <= 0) return;
+      c.globalAlpha = al * fade; c.drawImage(FLAME.atlas, rc[0], rc[1], rc[2], rc[3], p.x - w / 2, p.y - h * .92, w, h); };
+    draw(i, 1); draw(i + 1, u);
+  }
+  // smoke columns and embers drifting up (looping, seeded)
+  for (let k = 0; k < 4; k++) {
+    const per = 2.6, q = ((t + k * per / 4 + hash(k, seed) * per) % per) / per, ox = (hash(seed, k + 3) - .5) * R * .9;
+    const sz = R * (.6 + q * .9);
+    fxsDraw(c, 'smokeDark', x + ox + q * R * .25, y - R * .15 - q * R * 1.1, sz, sz, k + q * .6, fade * .9 * Math.sin(q * Math.PI) * (.3 + .7 * left));
+  }
+  c.globalCompositeOperation = 'lighter';
+  for (let k = 0; k < 10; k++) {
+    const per = 1.3, q = ((t + hash(k, seed + 1) * per) % per) / per, ox = (hash(seed + 2, k) - .5) * R * 1.1;
+    const g = 3 + 3 * hash(k, 9); c.globalAlpha = fade * left * (1 - q) * .8;
+    c.drawImage(GLOW, x + ox + Math.sin(q * 6 + k) * 6 - g, y - q * R * .9 - g, g * 2, g * 2);
+  }
+  c.restore();
   return true;
 }
