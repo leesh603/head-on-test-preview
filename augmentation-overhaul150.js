@@ -119,26 +119,26 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  const shuffledPick=(g,pool)=>pool.length?pool[Math.floor(g.rng()*pool.length)]:null;
  const normalPick=function(g,rarity,picks,previous=[]){const used=new Set(picks.map(u=>u.id)),eligible=UPGRADES.filter(u=>!used.has(u.id)&&normalAllowed(g,u,rarity)),fresh=eligible.filter(u=>!previous.includes(u.id));return shuffledPick(g,fresh.length?fresh:eligible)};
  Game.prototype.rollChoices=function(){
-  const choiceCount=3;
+  const choiceCount=this.pilot==='mccudden'?4:3;
   const picks=[];for(let slot=0;slot<choiceCount;slot++){
    const r=this.rng();let rarity=r<AUGMENTATION_OVERHAUL_BALANCE.rarity.normal?'normal':r<AUGMENTATION_OVERHAUL_BALANCE.rarity.normal+AUGMENTATION_OVERHAUL_BALANCE.rarity.magic?'magic':r<1-AUGMENTATION_OVERHAUL_BALANCE.rarity.unique?'rare':'unique';
    let u=normalPick(this,rarity,picks,this.lastChoices||[]);if(!u)for(const fallback of ['normal','magic','rare','unique']){if(fallback===rarity)continue;u=normalPick(this,fallback,picks,this.lastChoices||[]);if(u){rarity=fallback;break}}if(u)picks.push({...u,rarity});
   }
   const offers=this.legendaryOffers??(this.legendaryOffered?1:0),limit=this.level>=20?4:this.level>=10?2:1,pool=LEGENDARIES.filter(u=>specialAllowed(this,u)&&!(this.seenLegendaries||[]).includes(u.id));
-  if(!this.mission?.unarmed&&offers<limit&&this.legendaryCount()<4&&pool.length>=choiceCount&&(this.rng()<this.legendaryChance()||this.level>=(offers===0?5:offers===1?12:22))){
-   picks.length=0;for(let i=pool.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}picks.push(...pool.slice(0,choiceCount).map(u=>namedSpecial(this,u)));this.legendaryOffered=true;this.legendaryOffers=offers+1;this.seenLegendaries??=[];this.seenLegendaries.push(...picks.map(u=>u.id));
+  if(!this.mission?.unarmed&&offers<limit&&this.legendaryCount()<4&&pool.length>=3&&(this.rng()<this.legendaryChance()||this.level>=(offers===0?5:offers===1?12:22))){
+   picks.length=0;for(let i=pool.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}picks.push(...pool.slice(0,3).map(u=>namedSpecial(this,u)));this.legendaryOffered=true;this.legendaryOffers=offers+1;this.seenLegendaries??=[];this.seenLegendaries.push(...picks.map(u=>u.id));
   }
   this.lastChoices=picks.map(u=>u.id);this.choiceDraftSerial=(this.choiceDraftSerial||0)+1;this.choiceRerollUsed=false;this.choiceDraftKind=picks.every(u=>u.rarity==='legendary')?'special':'normal';return picks;
  };
  Game.prototype.rerollLegendaryChoices=function(current=[]){
   return this.rerollChoices(current);
  };
- Game.prototype.canRerollChoices=function(current=[]){const state=this.state??this.combatWorld?.()?.state,special=current.length===3&&current.every(u=>(u.rarity||'legendary')==='legendary');return state==='upgrade'&&!this.choiceRerollUsed&&current.length===3&&new Set(current.map(u=>u.id)).size===3&&(this.pilot==='mccudden'||special)};
+ Game.prototype.canRerollChoices=function(current=[]){const state=this.state??this.combatWorld?.()?.state,special=current.length===3&&current.every(u=>(u.rarity||'legendary')==='legendary'),count=this.pilot==='mccudden'&&!special?4:3;return state==='upgrade'&&!this.choiceRerollUsed&&current.length===count&&new Set(current.map(u=>u.id)).size===count&&(this.pilot==='mccudden'||special)};
  Game.prototype.rerollChoices=function(current=[]){
   if(!this.canRerollChoices(current))return null;const special=current.every(u=>(u.rarity||'legendary')==='legendary'),previous=current.map(u=>u.id),picks=[];
   if(special){const eligible=LEGENDARIES.filter(u=>specialAllowed(this,u)),fresh=eligible.filter(u=>!previous.includes(u.id)),source=[...(fresh.length>=3?fresh:eligible)];for(let i=source.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[source[i],source[j]]=[source[j],source[i]]}picks.push(...source.slice(0,3).map(u=>namedSpecial(this,u)))}
   else for(const old of current){let rarity=old.rarity||'normal',u=normalPick(this,rarity,picks,previous);if(!u)for(const fallback of ['normal','magic','rare','unique']){if(fallback===rarity)continue;u=normalPick(this,fallback,picks,previous);if(u){rarity=fallback;break}}if(u)picks.push({...u,rarity})}
-  if(picks.length!==3||new Set(picks.map(u=>u.id)).size!==3)return null;this.choiceRerollUsed=true;this.lastChoices=picks.map(u=>u.id);if(special){this.seenLegendaries??=[];this.seenLegendaries.push(...picks.map(u=>u.id))}return picks;
+  if(picks.length!==current.length||new Set(picks.map(u=>u.id)).size!==current.length)return null;this.choiceRerollUsed=true;this.lastChoices=picks.map(u=>u.id);if(special){this.seenLegendaries??=[];this.seenLegendaries.push(...picks.map(u=>u.id))}return picks;
  };
 
  Game.prototype.upgrade=function(id,rarity='normal'){

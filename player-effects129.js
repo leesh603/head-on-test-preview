@@ -7,7 +7,8 @@ const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
 export function playerPose(p,x,y){
  const t=Math.max(0,Math.min(1,(p.cannonRecoil129||0)/.24));
  const kick=(p.cannonKick129||0)*Math.sin(t*Math.PI/2);
- return {x:x-Math.cos(p.a)*kick,y:y-Math.sin(p.a)*kick,scale:p.aceScale129||1};
+ const altitude=p.pilot==='immelmann'?(p.immelmannAltitude||0):0;
+ return {x:x-Math.cos(p.a)*kick,y:y-Math.sin(p.a)*kick,scale:(p.aceScale129||1)*(1-altitude*.28),shadowX:18+altitude*28,shadowY:28+altitude*36,shadowScale:1-altitude*.48,shadowAlpha:1-altitude*.55};
 }
 export function drawPlayerAura(c,p,x,y){
  drawEquipmentEffects151(c,p,x,y);

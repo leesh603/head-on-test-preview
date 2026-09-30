@@ -62,7 +62,7 @@ export function activatePilotSignature(p){
 export function advancePilotSignature(p,dt){
  const s=signatureState(p);if(!finite(dt)||dt<=0||!alive(p))return s;
  const step=Math.min(SIGNATURE_LIMITS.maxDt,dt),before=s.previous;s.clock+=step;
- s.effects=s.effects.filter(e=>{e.age+=step;e.life=Math.max(0,e.life-step);return e.life>0});
+ s.effects=s.effects.filter(e=>{e.age+=step;e.life=Math.max(0,e.life-step);if(e.kind==='incendiaryImpact'&&e.target){e.x=e.target.x;e.y=e.target.y;if(e.target.hp<=0){e.kind='burnKill';e.age=0;e.life=e.maxLife=.6;delete e.target}}return e.life>0});
  const profile=PILOT_SIGNATURES[p.pilot];if(!profile)return s;
  if(p.skillTime>0&&(!(before.skillTime>0)||p.skillTime>before.skillTime+.1))activatePilotSignature(p);
  const turn=wrap((p.a||0)-(before.a??p.a??0))/step,identity=p.pilotIdentity||{},graze=identity.grazes||0;
@@ -76,8 +76,9 @@ export function advancePilotSignature(p,dt){
 }
 export function pilotSignatureReaction(p,event,{target,position,gun=0,damage=0}={}){
  if(!alive(p))return null;const profile=PILOT_SIGNATURES[p.pilot];if(!profile)return null;
- if(event==='damage'&&['nungesser','berthold','barker'].includes(p.pilot)&&damage>0&&signatureInterval(p,'damage',.14))return signatureCue(p,profile.reaction,{life:.65,damage,symbol:profile.symbol});
+ if(event==='damage'&&['nungesser','berthold'].includes(p.pilot)&&damage>0&&signatureInterval(p,'damage',.14))return signatureCue(p,profile.reaction,{life:.65,damage,symbol:profile.symbol});
  if(event==='shot'&&signatureInterval(p,gun===1?'rearShot':'shot',.12))return signatureCue(p,'shotAccent',{life:.18,gun,style:profile.sustain,active:p.skillTime>0});
  if(event==='hit'&&target&&signatureInterval(p,'hit',.15)){const pos=position||target;return signatureCue(p,profile.reaction,{x:pos.x,y:pos.y,life:.45,active:p.skillTime>0})}
  return null;
 }
+

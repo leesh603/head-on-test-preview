@@ -166,7 +166,7 @@ export class CampaignGame extends Game{
  reload(){if(this.mission?.unarmed)return false;return super.reload()}
  unarmedChoices(choices,shift=0){
   const safe=['turn','armor','regen','cooldown'].map(id=>UPGRADES.find(u=>u.id===id)).filter(Boolean),start=(this.level+shift)%safe.length;
-  return choices.slice(0,3).map((choice,i)=>({...safe[(start+i)%safe.length],rarity:['normal','magic','rare'].includes(choice.rarity)?choice.rarity:'rare'}));
+  return choices.slice(0,this.pilot==='mccudden'?4:3).map((choice,i)=>({...safe[(start+i)%safe.length],rarity:['normal','magic','rare'].includes(choice.rarity)?choice.rarity:'rare'}));
  }
  rollChoices(){const choices=super.rollChoices();if(!this.mission.unarmed)return choices;this.unarmedChoiceShift=0;const safe=this.unarmedChoices(choices);this.lastChoices=safe.map(u=>u.id);return safe}
  rerollChoices(current=[]){const choices=super.rerollChoices(current);if(!choices||!this.mission.unarmed)return choices;this.unarmedChoiceShift=(this.unarmedChoiceShift||0)+1;const safe=this.unarmedChoices(choices,this.unarmedChoiceShift);this.lastChoices=safe.map(u=>u.id);return safe}
