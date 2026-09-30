@@ -38,7 +38,7 @@ const FX_FILES=FX_OFF?{}:Object.assign({
  shell:'fx-shell-heavy.webp',
  shellAuto:'fx-pack-v189/projectiles/shell-autocannon.webp',
  bulletBrass:'fx-pack-v189/projectiles/bullet-brass.webp',
- grenade:'fx-grenade-body.webp',
+ grenade:'fx-grenade-ww1.webp?v=446',
  tracerAmber:'fx-pack-v189/projectiles/tracer-amber.webp',
  tracerCream:'fx-pack-v189/projectiles/tracer-cream.webp',
  tracerOrange:'fx-pack-v189/projectiles/tracer-orange.webp',
@@ -78,7 +78,7 @@ const FX_FILES=FX_OFF?{}:Object.assign({
  dustPuff:'fx-dust-puff.webp',dirtBurst:'fx-dirt-burst.webp',debrisShard:'fx-debris-shard.webp',dirtMix:'fx-dirt-mix.webp',
  sunshaft:'fx-sunshaft.webp',windStreak:'fx-wind-streak.webp',mist:'fx-mist.webp',
  torpedo:'fx-torpedo.webp',shockRing:'fx-shock-ring.webp',searchlight:'fx-city-searchlight.webp',
- mortarShell:'fx-mortar-shell.webp',lePrieur:'fx-combat-le-prieur.webp',bombBody:'fx-bomb-body.webp',grenadeBody:'fx-grenade-body.webp',
+ mortarShell:'fx-mortar-shell.webp',lePrieur:'fx-combat-le-prieur.webp',bombBody:'fx-bomb-body.webp',grenadeBody:'fx-grenade-ww1.webp?v=446',
 mineBody:'fx-mine-body.webp',shellHeavy:'fx-shell-heavy.webp',incendiary:'fx-incendiary.webp',
 // Boss-pair debris set — Treffas-Wagen crush debris + rail-carrier wreck shards
 rockChunk0:'fx-rock-chunk-0.webp',rockChunk1:'fx-rock-chunk-1.webp',rockChunk2:'fx-rock-chunk-2.webp',rockChunk3:'fx-rock-chunk-3.webp',rockChunk4:'fx-rock-chunk-4.webp',rockChunk5:'fx-rock-chunk-5.webp',
