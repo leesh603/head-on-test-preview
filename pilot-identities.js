@@ -1,5 +1,5 @@
 import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js';
-import {headOnTarget} from './engagement-feedback.js?v=441';
+import {headOnTarget} from './engagement-feedback.js?v=442';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
