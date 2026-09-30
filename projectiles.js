@@ -103,9 +103,10 @@ export function drawBattlefieldFire(c,g,point=(x,y)=>[x,y]){
   if(FX3&&fxReady('fireGround')){
    const d=f.radius*2,seed=f.seed||0,phase=(g.t||0)*6.5+seed*.17,pulse=.94+Math.sin(phase)*.06;
    const angle=f.angle||0,ca=Math.cos(angle),sa=Math.sin(angle),lowDetail=(c.canvas?.width||999)<900;
-   if(f.wreck&&!lowDetail)for(let i=0;i<2;i++){const side=i?1:-1,along=(i?-.14:.08)*f.radius,across=side*(.18+(seed%5)*.015)*f.radius;
-    fx(c,'metalShard'+((seed+i)%6),x+ca*along-sa*across,y+sa*along+ca*across,42+i*7,30+i*5,angle+side*(.35+i*.42),fade*.72);}
-   if(FXS&&fxsFireZone(c,f,x,y,g.t||0,fade))continue;
+   const shards=()=>{if(f.wreck&&!lowDetail)for(let i=0;i<2;i++){const side=i?1:-1,along=(i?-.14:.08)*f.radius,across=side*(.18+(seed%5)*.015)*f.radius;
+    fx(c,'metalShard'+((seed+i)%6),x+ca*along-sa*across,y+sa*along+ca*across,42+i*7,30+i*5,angle+side*(.35+i*.42),fade*.72);}};
+   if(FXS&&fxsFireZone(c,f,x,y,g.t||0,fade,shards))continue;
+   shards();
    fx(c,'fireGround',x,y,d,d,((seed%17)-8)*.08,fade*.9*pulse);
    const flames=lowDetail?1:2;
    for(let i=0;i<flames;i++){const side=i?1:-1,along=(i?-.23:.28)*f.radius,across=side*.2*f.radius,s=d*(i?.48:.56)*pulse;

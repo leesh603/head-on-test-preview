@@ -242,7 +242,7 @@ if (FXS && typeof Image !== 'undefined') {
     im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href;
   }).catch(() => {});
 }
-export function fxsFireZone(c, f, x, y, t = 0, fade = 1) {
+export function fxsFireZone(c, f, x, y, t = 0, fade = 1, under = null) {
   if (!FXS || !FLAME.atlas) return false;
   boomSprites();
   const R = f.radius || 100, seed = f.seed || Math.abs(Math.trunc((f.x || 0) * 31 + (f.y || 0) * 17)) % 997;
@@ -255,6 +255,7 @@ export function fxsFireZone(c, f, x, y, t = 0, fade = 1) {
   c.globalCompositeOperation = 'screen'; c.globalAlpha = .85 * fade * flick * (.4 + .6 * left);
   c.drawImage(GLOW, x - R * 1.2, y - R * 1.05, R * 2.4, R * 2.1);
   c.globalCompositeOperation = 'source-over';
+  if (under) { c.save(); under(); c.restore(); }
   // flames, back to front
   const n = Math.max(5, Math.min(12, Math.round(R / 14))), list = [];
   for (let i = 0; i < n; i++) {
@@ -269,11 +270,11 @@ export function fxsFireZone(c, f, x, y, t = 0, fade = 1) {
       c.globalAlpha = al * fade; c.drawImage(FLAME.atlas, rc[0], rc[1], rc[2], rc[3], p.x - w / 2, p.y - h * .92, w, h); };
     draw(i, 1); draw(i + 1, u);
   }
-  // smoke columns and embers drifting up (looping, seeded)
-  for (let k = 0; k < 4; k++) {
-    const per = 2.6, q = ((t + k * per / 4 + hash(k, seed) * per) % per) / per, ox = (hash(seed, k + 3) - .5) * R * .9;
-    const sz = R * (.6 + q * .9);
-    fxsDraw(c, 'smokeDark', x + ox + q * R * .25, y - R * .15 - q * R * 1.1, sz, sz, k + q * .6, fade * .9 * Math.sin(q * Math.PI) * (.3 + .7 * left));
+  // smoke plume leaning downwind + embers drifting up (looping, seeded)
+  for (let k = 0; k < 6; k++) {
+    const per = 3.2, q = ((t + k * per / 6 + hash(k, seed) * per * .15) % per) / per, ox = (hash(seed, k + 3) - .5) * R * .7;
+    const sz = R * (.5 + q * 1.1);
+    fxsDraw(c, 'smokeHeavy', x + ox + q * R * .7, y - R * .2 - q * R * 1.0, sz, sz, k + q * .6, fade * Math.min(.85, 1.5 * Math.sin(Math.min(1, q * 2.5) * Math.PI * .5) * (1 - q)) * (.3 + .7 * left));
   }
   c.globalCompositeOperation = 'lighter';
   for (let k = 0; k < 10; k++) {
