@@ -10,7 +10,7 @@ export const BOSS_NAMES_EN=Object.freeze({
  'fliegerzug':'Fliegerzug aerial torpedo carrier','treffas-wagen':'Treffas-Wagen landship',
  'jasta11-circus':'JASTA 11 · FLYING CIRCUS','naval10-black-flight':'NAVAL 10 · BLACK FLIGHT',
  'mark4-wedge':'Mark IV tank wedge','morser-battery':'21cm Mörser battery',
- 'gotha-squadron':'Gotha night bomber squadron','london-apron-raid':'London balloon apron raid','staaken-rvi':'Staaken R.VI giant bomber','london-searchlight':'London searchlight battery','flak-tower':'London 13-pdr flak towers'
+ 'gotha-squadron':'Gotha night bomber squadron','london-apron-raid':'London balloon apron raid','staaken-rvi':'Staaken R.VI giant bomber','london-searchlight':'London searchlight battery','flak-tower':'QF 13-pounder flak towers'
 });
 const TACTIC_RAIL_ONLY=new Set(['paris-gun','lincomparable','a7v-flak','mark-v-cruiser','flak-tower']);
 export function bossTactic(encounter,locale='ko'){

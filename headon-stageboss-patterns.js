@@ -1,7 +1,7 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=450';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=450';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=450';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=450';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=451';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=451';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=451';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=451';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -17,7 +17,7 @@ export const BOSS_CATALOG = Object.freeze({
   'minenwerfer-battery': {name:'미넨베르퍼 교차 포격 진지', faction:'central', stage:3},
   'drachen-net': {name:'드라헨 공중 기뢰 방어망', faction:'central', stage:4},
   'london-apron-raid': {name:'런던 에이프런 방공망', faction:'entente', stage:11},
-  'flak-tower': {name:'런던 13파운드 방공탑', faction:'entente', stage:4},
+  'flak-tower': {name:'QF 13파운드 방공탑', faction:'entente', stage:4},
   'zeppelin-l70': {name:'슈퍼 체펠린 L 70', faction:'central', stage:5},
   hma23: {name:'공중 항모 · HMA 23급', faction:'entente', stage:5},
   gik: {name:'한자-브란덴부르크 G.IK', faction:'central', stage:6},
@@ -715,6 +715,13 @@ export class Fliegerzug extends RailAdapter {
   prepareBug(car){if(!car.destroyed&&!this.launchPrep.some(q=>q.car===car)){car.launchWarmup=1.15;this.launchPrep.push({car,left:1.15});}}
   hit(spec){
     const p=spec.partId?this.parts.get(spec.partId):null;
+    // Hull hits before the locomotive is exposed still land — the armoured
+    // cab just shrugs most of it off and can't be finished until three cars
+    // are gone (hull floor at 1 while invulnerable).
+    if(!spec.partId&&!this.coreVulnerable){
+      const dealt=Math.min(spec.damage*.22,Math.max(0,this.hp-1));this.hp-=dealt;
+      return{damage:dealt,blocked:dealt<=0};
+    }
     const r=super.hit(spec);
     // Wagon damage drains the hull gauge directly — the train dies when it
     // reaches zero, even if some carriages are still rolling.
@@ -766,7 +773,7 @@ export class Fliegerzug extends RailAdapter {
     for(const id of this.railCarOrder){const p=this.parts.get(id);
       if(!p.destroyed&&this.carHit(s,p))return{partId:id};}
     if(!this.rail129.broken&&r&&ellipse(r.x,r.y,r.radius,r.radius))return{partId:'rail'};
-    return this.coreVulnerable&&ellipse(this.x,this.y,61,107)?{partId:null}:null;
+    return ellipse(this.x,this.y,61,107)?{partId:null}:null;
   }
   carHit(s,p){
     const a=-(p.angle||0),ca=Math.cos(a),sa=Math.sin(a),cx=this.x+p.x,cy=this.y+p.y;
