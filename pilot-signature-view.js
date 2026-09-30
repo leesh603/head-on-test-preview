@@ -1,4 +1,4 @@
-import {fx} from './fx-art.js?v=457';
+import {fx} from './fx-art.js?v=458';
 import {drawGameIcon} from './icons.js?v=338';
 import {createPilotSignatureRenderer} from './pilot-signature-renderer.js';
 // Authored horse and checksum-verified archival Nungesser derivative.
