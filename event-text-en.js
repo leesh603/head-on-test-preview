@@ -1,7 +1,7 @@
 // English for in-game event toasts that were only written in Korean.
 // Presentation only: wraps Game#event to swap the display text when the
 // locale is English. Short technical tokens ('balloon', 'heal', …) pass through.
-import {getLocale,activeName,pilotName} from './i18n.js?v=446';
+import {getLocale,activeName,pilotName} from './i18n.js?v=447';
 
 const EXACT = {
   '관측기구 격추 · 적 포병 관측망 붕괴 — 12초간 관측포격 중단': 'Observation balloon down · enemy spotting net broken — no observed fire for 12s',
@@ -77,6 +77,10 @@ const PHRASES = [
   ['랭킨 파편탄 · 후방 탄막 ', 'Ranken darts · rear shots cleared: '], ['발 제거', ''], ['수리 보급품 ', 'Repair supplies ×'], ['개 투하 · 아군도 회수 가능', ' dropped · allies can collect too'],
   ['임무 표적 ', 'Mission targets '], ['정찰 구역 ', 'Recon zones '], [' · 고속 패스', ' · high-speed pass'], [' · 이탈 — 교전 한계 초과', ' · breaking off — engagement limit reached'],
   [' · 중기관총 탄막 주의', ' · watch for heavy MG fire'], [' · 출격 장비 배정', ' · sortie loadout assigned'], ['격추 목표', 'must destroy'], ['선택 교전', 'optional'],
+  ['체펠린 슈타켄 R.VI', 'Zeppelin-Staaken R.VI'], ['고타 G.V 중폭격기', 'Gotha G.V heavy bomber'], ['AEG G.IV 중폭격기', 'AEG G.IV heavy bomber'], ['프리드리히스하펜 G.III', 'Friedrichshafen G.III'],
+  ['핸들리 페이지 O/400', 'Handley Page O/400'], ['부아생 VIII 야간폭격기', 'Voisin VIII night bomber'], ['코드롱 G.4 폭격기', 'Caudron G.4 bomber'], ['F.E.2b 푸셔 폭격기', 'F.E.2b pusher bomber'], ['브레게 14 주간폭격기', 'Breguet 14 day bomber'],
+  ['중열차포', 'Railway gun'], ['드라헨 관측기구', 'Drachen observation balloon'], ['캉코 관측기구', 'Caquot observation balloon'], ['비행선', 'Airship'],
+  ['연합국 ', 'Entente '], ['중앙국가 ', 'Central '], ['대공순양함', 'AA cruiser'], ['구축함', 'destroyer'], ['수상 정찰기', 'seaplane scout'],
   [' 접근 · ', ' approaching · '], [' 출현 · ', ' appears · '], [' 출현', ' appears'], [' 확보', ' secured'], [' 진입', ' entered'],
 ].sort((a, b) => b[0].length - a[0].length);
 const PREFIX = [
@@ -96,6 +100,8 @@ export function registerEventPilots(pilots) {
   }
   NAMES = [...m].sort((a, b) => b[0].length - a[0].length);
 }
+// Also used for on-canvas unit nameplates (bombers, field units, ships).
+export function unitNameEN(name) { return getLocale() === 'en' ? eventTextEN(name) : name; }
 export function eventTextEN(text) {
   if (typeof text !== 'string' || !/[가-힣]/.test(text)) return text;
   if (EXACT[text]) return EXACT[text];
