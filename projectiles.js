@@ -1,6 +1,6 @@
 import {FXS} from './fx-sample-preview.js?v=433';
 // Muted tracer families: no black borders, outlined gems, or neon rings.
-// (FX layer exception: hostile bolts get a crimson body + soft dark bed for dodge readability.)
+// (FX layer exception: hostile bolts get a crimson body + white-hot tip for dodge readability.)
 // Rendering never changes projectile movement, damage or collision.
 import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=433';
 export function projectileStyle(b){return b.hostileRocket?'rocket':b.flak?'flak':b.visualType||(b.naval?'naval':b.fieldShell?'balloon':b.heavy?'heavyBomber':'scout')}
@@ -29,9 +29,9 @@ function enemyBolt(len,wid){
  if(typeof document==='undefined')return null;
  const pad=5,S=2,cv=document.createElement('canvas');cv.width=(len+pad*2)*S;cv.height=(wid+pad*2)*S;cv.pad=pad;const g=cv.getContext('2d');g.scale(S,S);
  const cy=pad+wid/2,cap=(x0,x1,h,fill)=>{g.beginPath();g.moveTo(x0+h/2,cy-h/2);g.lineTo(x1-h/2,cy-h/2);g.arc(x1-h/2,cy,h/2,-Math.PI/2,Math.PI/2);g.lineTo(x0+h/2,cy+h/2);g.arc(x0+h/2,cy,h/2,Math.PI/2,Math.PI*1.5);g.closePath();g.fillStyle=fill;g.fill()};
- // soft dark bed so the bolt separates from bright fields, sea and cloud
- g.filter='blur(1.6px)';cap(pad-1,pad+len+2,wid+3.5,'rgba(34,6,6,.55)');g.filter='none';
- const body=g.createLinearGradient(pad,0,pad+len,0);body.addColorStop(0,'rgba(214,38,44,0)');body.addColorStop(.35,'rgba(228,44,48,.75)');body.addColorStop(1,'#ff4b3e');
+ // faint warm bed (no hard outline) so the bolt still lifts off bright fields, sea and cloud
+ g.filter='blur(2.2px)';cap(pad,pad+len+1.5,wid+2.5,'rgba(120,20,14,.26)');g.filter='none';
+ const body=g.createLinearGradient(pad,0,pad+len,0);body.addColorStop(0,'rgba(222,48,46,0)');body.addColorStop(.35,'rgba(236,58,50,.8)');body.addColorStop(1,'#ff5a44');
  cap(pad,pad+len,wid,body);
  const core=g.createLinearGradient(pad+len*.35,0,pad+len,0);core.addColorStop(0,'rgba(255,214,190,0)');core.addColorStop(.6,'rgba(255,236,220,.9)');core.addColorStop(1,'#ffffff');
  cap(pad+len*.35,pad+len-.4,Math.max(1.5,wid*.5),core);
