@@ -716,9 +716,9 @@ function showEndNickname(run,coop){
   if(submitted||game!==run)return;submitted=true;
   if(coop){run.players.forEach((p,i)=>p.nickname=inputs[i].value.trim().slice(0,12)||'P'+(i+1));saveCoopResult(run);}
   else{nickname=inputs[0].value.trim().slice(0,12)||t('pilot.anonymous');const rows=saveRanking();
-   modal('SORTIE COMPLETE','출격 기록',detail+'\n\n'+t('result.local'),[{label:t('sortie.retry'),run:start},{label:t('sortie.pilotChange'),run:returnHangar}]);renderRankingMedals(rows,t('result.local')+' · '+t('ranking.priority'));syncServerRanking();}
+   modal('SORTIE COMPLETE',getLocale()==='en'?'Sortie Record':'출격 기록',detail+'\n\n'+t('result.local'),[{label:t('sortie.retry'),run:start},{label:t('sortie.pilotChange'),run:returnHangar}]);renderRankingMedals(rows,t('result.local')+' · '+t('ranking.priority'));syncServerRanking();}
  };
- modal('SORTIE COMPLETE','출격 종료 · 랭킹 등록',detail+'\n'+t('result.nicknamePrompt'),
+ modal('SORTIE COMPLETE',getLocale()==='en'?'Sortie Over · Submit to Ranking':'출격 종료 · 랭킹 등록',detail+'\n'+t('result.nicknamePrompt'),
  [{label:t('result.submit'),run:submit},{label:t('result.skip'),run:returnHangar}]);
  const form=document.createElement('div');form.className='result-nicknames';
  players.forEach((p,i)=>{const label=document.createElement('label'),input=document.createElement('input');
