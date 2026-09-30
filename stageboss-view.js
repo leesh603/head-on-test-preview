@@ -1,18 +1,19 @@
-import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=454';
-import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=454';
-import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=454';
-import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=454';
-import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=454';
-import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=454';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=454';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=454';
-import {bossHudModel} from './headon-stageboss-hud.js?v=454';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=454';
-import {planeSprite} from './aircraft.js?v=454';
-import {getLocale} from './i18n.js?v=454';
-import {londonStatus} from './london-battle.js?v=454';
-import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=454';
-import {drawAADefense,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=454';
+import {TRENCH_ARMOR_LAYOUT,armorAngleDelta} from './trench-armor-layout.js?v=455';
+import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=455';
+import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=455';
+import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=455';
+import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=455';
+import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=455';
+import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=455';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=455';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=455';
+import {bossHudModel} from './headon-stageboss-hud.js?v=455';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=455';
+import {planeSprite} from './aircraft.js?v=455';
+import {getLocale} from './i18n.js?v=455';
+import {londonStatus} from './london-battle.js?v=455';
+import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=455';
+import {drawAADefense,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=455';
 
 function createLazyImageGroup(sources){
  const cache={},pending={};
@@ -41,6 +42,7 @@ const bossSources={
 };
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
 const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.webp',a7vTurret:'./boss-a7v-turret-rebuild.webp',markvHull:'./boss-mark-v-hull-rebuild.webp',markvSponson:'./boss-mark-v-sponson-rebuild.webp'}),rebuildArt=rebuildGroup.images;
+const armorDamageGroup=createLazyImageGroup({a7vLeft:'./boss-a7v-track-left-20260930.webp',a7vRight:'./boss-a7v-track-right-20260930.webp',a7vBreached:'./boss-a7v-breached-20260930.webp',a7vWreck:'./boss-a7v-wreck-20260930.webp',a7vGunWreck:'./boss-a7v-gun-wreck-20260930.webp',markLeft:'./boss-mark-v-track-left-20260930.webp',markRight:'./boss-mark-v-track-right-20260930.webp',markBreached:'./boss-mark-v-breached-20260930.webp',markWreck:'./boss-mark-v-wreck-20260930.webp',markGunWreck:'./boss-mark-v-gun-wreck-20260930.webp'}),armorDamage=armorDamageGroup.images;
 const flakTowerGroup=createLazyImageGroup({hull:'./boss-flak-tower-hull.webp?v=443',siege:'./boss-flak-tower-siege.webp?v=443',ears:'./boss-flak-tower-ears.webp?v=443',gun:'./boss-flak-tower-platform.webp?v=443'}),flakArt=flakTowerGroup.images;
 // Part sprites hold their ring disc off-center inside the frame; anchoring
 // shifts by these measured disc-center fractions so the disc lands on the part.
@@ -61,12 +63,12 @@ const BOSS_KEYS_BY_REGION=Object.freeze({
 });
 export function prepareStageBossAssets(region){
  const jobs=[prepareRegionalBossArt(region)];releaseLondonArt();if(region===11)jobs.push(prepareLondonArt());
- bossGroup.release();supportGroup.release();rebuildGroup.release();harborGroup.release();trenchGroup.release();zubianGroup.release();cityGroup.release();buildingGroup.release();flakTowerGroup.release();
+ bossGroup.release();supportGroup.release();rebuildGroup.release();armorDamageGroup.release();harborGroup.release();trenchGroup.release();zubianGroup.release();cityGroup.release();buildingGroup.release();flakTowerGroup.release();
  for(const group of [...Object.values(railGroups),...Object.values(railWreckGroups)])group.release();
  const bossKeys=BOSS_KEYS_BY_REGION[region]||[];if(bossKeys.length)jobs.push(bossGroup.preload(bossKeys));
  if(region===0)for(const group of Object.values(railGroups))jobs.push(group.preload());
  if(region===1){jobs.push(supportGroup.preload());jobs.push(zubianGroup.preload());jobs.push(sinkFoamGroup.preload())}
-  if(region===2)jobs.push(rebuildGroup.preload());
+  if(region===2){jobs.push(rebuildGroup.preload());jobs.push(armorDamageGroup.preload())}
   if([2,4,8,10,11].includes(region))jobs.push(prepareAADefenseAssets([4,11].includes(region)?['fx','drachen','london']:['fx']));
   else releaseAADefenseAssets();
  if(region===3){prepareLivensFlame();jobs.push(trenchGroup.preload());jobs.push(impactGroup.preload())}else{impactGroup.release();releaseLivensFlame();}
@@ -284,28 +286,59 @@ function drawMarkSponson(c,gun,right,angle,size,recoil=0){
  c.translate((right?1:-1)*36*k,-16*k);c.rotate(angle);if(right)c.scale(-1,1);
  c.drawImage(gun,20,123,108,45,-108*k+recoil*8,-22*k,108*k,45*k);c.restore();
 }
-function drawTrenchArmorHull(c,b,image,fallback){
- if(!image.naturalWidth){drawBossArt(c,fallback,172,258);return;}
- const wreck=b.destroying?bakedImage(image,'grayscale(.85) brightness(.48) sepia(.3)'):null;
- c.imageSmoothingEnabled=true;c.drawImage(wreck||image,-105,-129,210,258);
- for(const part of b.parts||[]){
-  if(part.kind!=='track')continue;
-  if(part.destroyed||b.destroying){
-   const damaged=bakedImage(image,'grayscale(.9) brightness(.4) sepia(.3)');
-   if(damaged){c.save();c.beginPath();c.rect(part.id==='track-left'?-52:34,37,18,72);c.clip();c.drawImage(damaged,-105,-129,210,258);c.restore();}
-   if(!b.destroying)fx(c,'smokeHeavy',part.x/b.geometryScale,part.y/b.geometryScale-17,37,50,0,.52);
-  }else if(b.driveMoving){fx(c,'dustPuff',part.x/b.geometryScale,104,28,22,0,.4);}
+function drawArmorGun(c,part,kind,scale){
+ const mark=kind==='mark-v-cruiser',layout=TRENCH_ARMOR_LAYOUT[kind],k=layout.gunSize/(mark?640:320);
+ const image=part.destroyed?(mark?armorDamage.markGunWreck:armorDamage.a7vGunWreck):(mark?rebuildArt.markvSponson:rebuildArt.a7vTurret);
+ if(!image?.naturalWidth)return;
+ c.save();c.translate(part.localX/scale,part.localY/scale);
+ const base=layout.guns.find(g=>g.id===part.id).baseAngle,turn=armorAngleDelta(part.aimAngle??base,base);
+ if(mark){
+  const left=part.id==='sponson-left',sourceScale=image.naturalWidth/640;if(!left)c.scale(-1,1);
+  if(part.destroyed)c.drawImage(image,-390*k,-320*k,640*k,640*k);
+  else{
+   // Fixed armor housing + independently aiming barrel. Both use the same
+   // authored breech; rotating the entire sponson would tear it off the hull.
+   for(const [sx,sy,sw,sh] of [[250,0,390,640],[0,0,250,227],[0,307,250,333]])c.drawImage(image,sx*sourceScale,sy*sourceScale,sw*sourceScale,sh*sourceScale,(sx-390)*k,(sy-320)*k,sw*k,sh*k);
+   c.translate(-146*k,-50*k);c.rotate(left?turn:-turn);c.translate((part.recoil||0)*14,0);
+   c.drawImage(image,0,227*sourceScale,250*sourceScale,80*sourceScale,-244*k,-43*k,250*k,80*k);
+  }
+ }else{
+  c.rotate(base);
+  if(part.destroyed)c.drawImage(image,-138*k,-160*k,320*k,320*k);
+  else{
+   c.drawImage(image,0,0,182,320,-138*k,-160*k,182*k,320*k);
+   c.translate(44*k,0);c.rotate(turn);c.translate(-(part.recoil||0)*14,0);
+   c.drawImage(image,182,0,138,320,0,-160*k,138*k,320*k);
+  }
  }
- // During the final collapse the normal part pass is skipped. Keep authored
- // wrecked gun mounts on the chassis instead of making them disappear.
- if(b.destroying)for(const part of b.parts||[]){
-  if(part.kind==='track')continue;const mark=b.assetKey==='mark-v-cruiser',gun=mark?rebuildArt.markvSponson:rebuildArt.a7vTurret;
-  const dead=bakedImage(gun,'grayscale(.85) brightness(.46) sepia(.3)');if(!dead)continue;
-  c.save();c.translate(part.x/b.geometryScale,part.y/b.geometryScale);const size=(mark?116:94)/b.geometryScale;
-  if(mark)drawMarkSponson(c,dead,part.id==='sponson-right',part.angle,size);
-  else{c.rotate(part.angle);c.drawImage(dead,-size/2,-size/2,size,size);}c.restore();
- }
+ c.restore();
 }
+function drawTrenchArmor(c,b){
+ const mark=b.assetKey==='mark-v-cruiser',prefix=mark?'mark':'a7v',s=b.geometryScale||1;
+ const parts=b.parts||[],part=id=>parts.find(p=>p.id===id),left=part('track-left')?.destroyed,right=part('track-right')?.destroyed;
+ const key=b.destroying?'Wreck':left&&right?'Breached':left?'Left':right?'Right':null;
+ const image=key?armorDamage[prefix+key]:(mark?rebuildArt.markvHull:rebuildArt.a7vHull);
+ c.save();c.rotate(b.hullYaw||0);c.imageSmoothingEnabled=true;
+ if(Math.abs(b.driveVelocity||0)>2&&!b.destroying){
+  const y=b.driveVelocity<0?114:-114;
+  for(const side of [-1,1])if(!part(side<0?'track-left':'track-right')?.destroyed)fx(c,'dustPuff',side*TRENCH_ARMOR_LAYOUT[b.assetKey].trackX,y,52,36,0,.22);
+ }
+ if(image?.naturalWidth)c.drawImage(image,-128,-128,256,256);
+ else{const intact=mark?rebuildArt.markvHull:rebuildArt.a7vHull;if(intact.naturalWidth)c.drawImage(intact,-128,-128,256,256);}
+ if(!b.destroying&&!(left&&right)&&(b.coreVulnerable||part('engine-deck')?.destroyed)){
+  // The authored ruptured engine panel is the same registered hull patch.
+  const breached=armorDamage[prefix+'Breached'];if(breached.naturalWidth){c.save();c.beginPath();c.rect(-31,-61,62,99);c.clip();c.drawImage(breached,-128,-128,256,256);c.restore();}
+ }
+ for(const p of parts)if(p.kind==='armor-gun')drawArmorGun(c,b.destroying?{...p,destroyed:true}:p,b.assetKey,s);
+ for(const p of parts)if(p.destroyed&&!b.destroying){
+  const x=p.localX/s,y=p.localY/s;
+  fx(c,'smokeDark',x+Math.sin(b.motionTime*.4)*5,y-22,42,58,0,p.kind==='track'?.23:.35);
+ }
+ if(b.destroying)fx(c,'smokeHeavy',0,-24,130,155,0,.45);
+ c.restore();
+}
+
+
 // Destroyed part: scorched crater with torn plating.
 function partWreck(c,p,r,t){
  const g=c.createRadialGradient(p.x,p.y,2,p.x,p.y,r*1.25);
@@ -364,19 +397,8 @@ function drawBossPart(c,p,ring,t=0){
   if(p.hittable){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
  }
  if(p.bodyKey==='a7v-flak'||p.bodyKey==='mark-v-cruiser'){
-  const mark=p.bodyKey==='mark-v-cruiser';
-  if(p.kind!=='track'){
-   const image=mark?rebuildArt.markvSponson:rebuildArt.a7vTurret,gun=p.destroyed?bakedImage(image,'grayscale(.85) brightness(.46) sepia(.3)'):image;
-   if(gun?.naturalWidth||gun?.width){c.save();c.translate(p.x,p.y);c.imageSmoothingEnabled=true;const size=mark?r*1.55:r*2;
-    if(mark){
-     // The armored sponson stays bolted to the chassis. Only the authored
-     // cannon barrel turns; rotating the entire housing makes it float away.
-     drawMarkSponson(c,gun,p.partId==='sponson-right',p.angle,size,p.recoil||0);
-    }else{c.rotate(p.angle||({front:-Math.PI/2,rear:Math.PI/2,left:Math.PI,right:0}[p.partId]||0));c.translate(0,(p.recoil||0)*12);c.drawImage(gun,-size/2,-size/2,size,size);}
-    c.restore();}
-   if(p.destroyed)fx(c,'smokeHeavy',p.x,p.y-25,55,72,0,.48);
-  }
-  if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd57988');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
+  // All hardware is assembled in the body pass. Part pass only shows damage.
+  if(p.hittable&&!p.destroyed&&p.hp<p.maxHp){c.fillStyle='#202e28';c.fillRect(p.x-r*.65,p.y+r+4,r*1.3,3);c.fillStyle='#efb96f';c.fillRect(p.x-r*.65,p.y+r+4,r*1.3*p.hp/p.maxHp,3);}return;
  }
  if(p.bodyKey==='armored-harbor-fortress'){
   if(p.partId==='crane-pivot'&&p.destroyed&&p.phase==='final-core'&&harborArt.cranePivot.naturalWidth){
@@ -530,8 +552,8 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    else if(b.assetKey==='minenwerfer-battery'){
     drawMinenwerfer(c,b);
    }
-   else if(b.assetKey==='a7v-flak')drawTrenchArmorHull(c,b,rebuildArt.a7vHull,'a7v');
-   else if(b.assetKey==='mark-v-cruiser')drawTrenchArmorHull(c,b,rebuildArt.markvHull,'markv');
+   else if(b.assetKey==='a7v-flak')drawTrenchArmor(c,b);
+   else if(b.assetKey==='mark-v-cruiser')drawTrenchArmor(c,b);
    else if(b.assetKey==='armored-harbor-fortress'){
     const dead=id=>b.parts?.find(p=>p.id===id)?.destroyed,size=300;c.imageSmoothingEnabled=true;
     if(harborArt.base.naturalWidth)c.drawImage(harborArt.base,-size/2,-size/2,size,size);

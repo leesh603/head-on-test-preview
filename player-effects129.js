@@ -1,7 +1,7 @@
 import {createSignatureView} from './pilot-signature-view.js';
-import {fx,fxTint} from './fx-art.js?v=454';
-import {planeSprite,aircraftKey} from './aircraft.js?v=454';
-import {drawGameIcon} from './icons.js?v=454';
+import {fx,fxTint} from './fx-art.js?v=455';
+import {planeSprite,aircraftKey} from './aircraft.js?v=455';
+import {drawGameIcon} from './icons.js?v=455';
 const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
 export function playerPose(p,x,y){
