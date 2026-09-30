@@ -183,13 +183,17 @@ function installHud(){
   else button.prepend(interfaceIcon(name,'astra-control-icon'),ring());
  }
  const readout=el('div','astra-reload-readout'),caption=el('span'),seconds=el('b'),track=el('span','astra-reload-track'),fill=el('i');track.append(fill);readout.append(caption,seconds,track);survival.append(readout);
- const health=$('healthBar');
+ const health=$('healthBar');let wasReloading=false,reloadedTimer=0;
  function syncReadout(){
   const en=getLocale()==='en',reloading=ammo.classList.contains('reloading');
   survival.classList.toggle('astra-reloading',reloading);put(caption,en?'RELOADING':'재장전');
   const text=reload.getAttribute('aria-label')||'',remaining=text.match(/(\d+(?:\.\d+)?)\s*(?:s|초)/);
   put(seconds,remaining?remaining[1]+(en?'s':'초'):'');
   const progress=$('ammoProgress').style.width;fill.style.width=reloading?progress:'0%';
+  // Reload plays as an overlay inside the ammo pill (no floating readout that collides with toasts).
+  if(ammo){ammo.style.setProperty('--astra-reload-p',reloading?(progress||'0%'):'0%');ammo.dataset.reloadText=reloading?((en?'RELOADING':'재장전')+(seconds.textContent?' '+seconds.textContent:'')):'';ammo.dataset.reloadShort=reloading?(seconds.textContent||(en?'RELOAD':'장전')):'';
+   if(wasReloading&&!reloading){ammo.classList.remove('astra-reloaded');void ammo.offsetWidth;ammo.classList.add('astra-reloaded');clearTimeout(reloadedTimer);reloadedTimer=setTimeout(()=>ammo.classList.remove('astra-reloaded'),520)}}
+  wasReloading=reloading;
   const counts=$('ammoCount').textContent.match(/(\d+)\s*\/\s*(\d+)/);
   if(counts&&+counts[2])ammo.style.setProperty('--astra-ammo',Math.min(100,+counts[1]/+counts[2]*100)+'%');
   survival.classList.toggle('astra-low-health',parseFloat(health.style.width)<30);

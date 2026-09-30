@@ -9,9 +9,11 @@ export function preparePersonalRound1918(p, b) {
 
 export function barkerDamage1918(p, damage) {
   if (p.pilot !== 'barker' || !(damage > 0)) return p.pilotDamageTaken ? p.pilotDamageTaken(damage) : damage;
-  p.barkerStacks = Math.min(3, (p.barkerStacks || 0) + 1);
+  p.barkerStacks = Math.min(p.skillTime > 0 ? 5 : 3, (p.barkerStacks || 0) + 1);
   p.barkerStackTime = 3;
-  return p.pilotDamageTaken ? p.pilotDamageTaken(damage) : damage;
+  signatureCue(p,'battleDamage',{life:.85,count:p.barkerStacks});
+  const taken = p.pilotDamageTaken ? p.pilotDamageTaken(damage) : damage;
+  return p.skillTime > 0 ? Math.min(taken, Math.max(0, p.hp - 1)) : taken;
 }
 
 export function advancePersonal1918(p, dt, previousRounds = p.roundsFired) {

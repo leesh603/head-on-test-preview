@@ -18,7 +18,7 @@ export function installPilotSignatures(Game){
   }
   if(this.pilot==='guynemer'&&this.passiveCannonTimer>(s.lastCannonTimer??this.passiveCannonTimer)+.5)signatureCue(this,'cannonShot',{life:.35,signatureStart:true});
   s.lastCannonTimer=this.passiveCannonTimer;
-  if(this.pilot==='luke'&&this.skillTime>0&&this.kills>previousKills)signatureCue(this,'burnKill',{life:.55});
+  if(this.pilot==='boelcke'&&this.skillTime>0&&signatureInterval(this,'wingPaths',.12))for(const w of this.combatWorld().allies||[])if(w.boelckePincer&&w.life>0&&(w.ownerId===this.id||w.ownerId===undefined&&!this.world))signatureCue(this,'wingSlipstream',{x:w.x,y:w.y,a:w.a,life:.55});
   s.lastKills=this.kills;
   return prior;
  };
@@ -30,11 +30,12 @@ export function installPilotSignatures(Game){
    const source=this.damageSource,dx=source?source.x-this.x:Math.cos(this.a)*22,dy=source?source.y-this.y:Math.sin(this.a)*22,d=Math.hypot(dx,dy)||1;
    signatureCue(this,'phoenixDeflect',{x:this.x+dx/d*24,y:this.y+dy/d*24,life:.3});
   }
-  return hit.call(this,damage);
+  const before=this.barkerStackTime,accepted=this.pilot==='barker'&&damage>0&&this.invuln<=0&&this.hp>0&&this.state==='playing';const result=hit.call(this,damage);if(accepted&&this.barkerStackTime>=before)signatureCue(this,'battleDamage',{life:.85,count:this.barkerStacks||1});return result;
  };
  const round=proto.applySpecialRound;
  proto.applySpecialRound=function(b,type){
   const result=round.call(this,b,type);
+  if(this.pilot==='jacobs'&&this.skillTime>0&&Math.abs(signatureState(this).turnRate||0)>.35&&!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.actualExplosion&&!b.rocket&&!b.motorCannon&&!b.cow37&&b.gun!==undefined){const heading=Math.atan2(b.vy,b.vx),speed=Math.hypot(b.vx,b.vy);for(const side of [-1,1]){const a=heading+side*.24;this.bullets.push({...b,ownerId:this.id,enemy:false,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:Math.min(b.life,.55),damage:b.damage*.2,hit:new Set(),jacobsSuppress:true})}b.damage*=.6;}
   if(!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.actualExplosion&&(b.ownerId===undefined||b.ownerId===own(this)))pilotSignatureReaction(this,'shot',{gun:b.gun||0});
   return result;
  };
@@ -42,8 +43,10 @@ export function installPilotSignatures(Game){
  proto.specialRoundImpact=function(b,e){
   const result=impact.call(this,b,e);
   if(b.enemy||b.ally||b.patrol||(b.ownerId!==undefined&&b.ownerId!==own(this)))return result;
-  pilotSignatureReaction(this,'hit',{target:e,position:b});
+  if(this.pilot==='luke'&&this.skillTime>0&&e&&signatureInterval(this,'ignition',.12))signatureCue(this,'incendiaryImpact',{x:b.x,y:b.y,life:1.4,target:e});
+  else pilotSignatureReaction(this,'hit',{target:e,position:b});
   if(this.pilot==='baracca'&&e&&Math.abs(angle(Math.atan2(e.y-this.y,e.x-this.x),this.a))<Math.PI/3&&Math.abs(angle(Math.atan2(this.y-e.y,this.x-e.x),e.a||0))<Math.PI/3&&signatureInterval(this,'horse',.6))signatureCue(this,'headOn',{life:.32});
   return result;
  };
 }
+
