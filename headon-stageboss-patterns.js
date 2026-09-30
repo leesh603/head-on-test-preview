@@ -1,7 +1,7 @@
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=449';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=449';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=449';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=449';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=450';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=450';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=450';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=450';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -17,7 +17,7 @@ export const BOSS_CATALOG = Object.freeze({
   'minenwerfer-battery': {name:'미넨베르퍼 교차 포격 진지', faction:'central', stage:3},
   'drachen-net': {name:'드라헨 공중 기뢰 방어망', faction:'central', stage:4},
   'london-apron-raid': {name:'런던 에이프런 방공망', faction:'entente', stage:11},
-  'flak-tower': {name:'방공탑', faction:'entente', stage:4},
+  'flak-tower': {name:'런던 13파운드 방공탑', faction:'entente', stage:4},
   'zeppelin-l70': {name:'슈퍼 체펠린 L 70', faction:'central', stage:5},
   hma23: {name:'공중 항모 · HMA 23급', faction:'entente', stage:5},
   gik: {name:'한자-브란덴부르크 G.IK', faction:'central', stage:6},
@@ -1319,8 +1319,8 @@ export class LondonRaidApron extends LondonApron {
    const lit=!p.londonRiver&&!!isIlluminated?.(p),x=p.x+(p.vx||0)*(lit?.5:.2),y=p.y+(p.vy||0)*(lit?.5:.2);
    this.command('muzzle',{x:this.x+gun.x,y:this.y+gun.y,partId:'gun'});
    for(let i=0;i<(lit?3:2);i++)this.hazard('circle',{x:x+(i-.5)*66,y,delay:i*.25,radius:40,warning:lit?1.05:1.4,duration:.35,once:true,damage:this.t.damage,visual:'black-flak',sourceX:this.x+gun.x,sourceY:this.y+gun.y,tag:'raid-gun'});}}
-  if(this.due('raid-mines',dt,7.4)){const w=bounds.right-bounds.left,cx=this.x+(this.rng()-.5)*w*.5;
-   const pts=[0,1,2,3].map(i=>({x:Math.min(bounds.right-30,Math.max(bounds.left+30,cx+(i-1.5)*56+(this.rng()-.5)*30)),y:this.y+160+this.rng()*60+i*14}));
+  if(this.due('raid-mines',dt,7.4)){const w=bounds.right-bounds.left;
+   const pts=[0,1,2,3,4,5].map(()=>({x:Math.min(bounds.right-30,Math.max(bounds.left+30,bounds.left+30+this.rng()*(w-60))),y:this.y+120+this.rng()*Math.max(120,bounds.bottom-this.y-160)}));
    this.command('spawn-minefield',{points:pts,warning:1.15,life:11,maxMines:14,sourceX:this.x,sourceY:this.y+60});}
   if(this.coreVulnerable&&this.due('raid-final',dt,2.8)){const p=players.find(p=>p.alive);if(p){const x=this.x,y=this.y+75,a=Math.atan2(p.y-y,p.x-x),speed=this.t.bulletSpeed*.8;for(let i=-1;i<=1;i++)this.hazard('projectile',{x,y,vx:Math.cos(a+i*.15)*speed,vy:Math.sin(a+i*.15)*speed,radius:5,visual:'london-mg'});}}
  }
@@ -1343,18 +1343,19 @@ export class GothaRaider extends PatternBoss {
  abortRun(){if(this.runTarget)this.command('city-bomb-abort',{runId:this.runId});this.runTarget=null;this.runRemaining=0;}
  onPartDestroyed(p){if(p.id==='bomb-bay'){this.abortRun();this.phase='payload-lost';this.command('phase-change',{phase:this.phase});}
   if(p.id==='rear-gun')this.command('cancel-hazards',{tag:this.id+'-rear'});
-  if(!this.engines()){this.abortRun();this.phase='gliding';this.glideAge=0;this.command('phase-change',{phase:this.phase});}
+  if(!this.engines()){this.abortRun();this.phase='gliding';this.glideAge=0;this.command('phase-change',{phase:this.phase});this.command('aa-effect',{x:this.x,y:this.y,kind:'aaBalloonBurst',size:100,life:.55});}
   else if(p.id.startsWith('engine-'))this.command('phase-change',{phase:'engine-damaged'});}
  fly(dt,tx,ty,speed,turn=1.05){const goal=Math.atan2(ty-this.y,tx-this.x);let ux=Math.cos(goal),uy=Math.sin(goal);
   for(const b of this.encounter?.bodies.values()||[]){if(b===this||b.dead||b.kind!=='gotha-raider')continue;const dx=this.x-b.x,dy=this.y-b.y,d=Math.hypot(dx,dy);if(d>0&&d<210){const w=(210-d)/120;ux+=dx/d*w;uy+=dy/d*w;}}
   const want=Math.atan2(uy,ux),d=Math.atan2(Math.sin(want-this.a),Math.cos(want-this.a));this.a+=Math.max(-turn*dt,Math.min(turn*dt,d));this.x+=Math.cos(this.a)*speed*dt;this.y+=Math.sin(this.a)*speed*dt;this.rotateMounts();}
  update(dt,{players,bounds,londonTargets=[]}){const engines=this.engines(),speed=engines===2?78:engines===1?49:38;
   if(!engines){this.glideAge+=dt;
-   const sink=Math.min(150,26+this.glideAge*62),fwd=speed*(1-Math.min(.52,this.glideAge*.15));
-   this.a+=Math.sin(this.glideAge*1.6+this.slot*2)*dt*.55;
+   const spin=(this.slot%2?1:-1)*Math.min(2.2,.55+this.glideAge*.95);
+   this.a+=spin*dt;
+   const sink=Math.min(170,30+this.glideAge*75),fwd=speed*(1-Math.min(.6,this.glideAge*.2));
    this.x+=Math.cos(this.a)*fwd*dt;this.y+=Math.sin(this.a)*fwd*dt+sink*dt;this.rotateMounts();
-   if(this.due('glide-smoke',dt,.4))this.command('aa-effect',{x:this.x,y:this.y-24,kind:'aaWreckSmoke',size:60,life:.9});
-   if(this.glideAge>=6){super.hit({damage:this.hp});return;}}
+   if(this.due('glide-smoke',dt,.32))this.command('aa-effect',{x:this.x,y:this.y-18,kind:'aaWreckSmoke',size:66,life:.95});
+   if(this.glideAge>=4.6){super.hit({damage:this.hp});return;}}
   else{const targets=londonTargets.filter(t=>t.hp>0),bay=!this.parts.get('bomb-bay').destroyed;this.raidWait-=dt;
    if(!this.runTarget&&bay&&this.raidWait<=0){this.runTarget=targets.length?targets[(this.slot+this.raidSerial)%targets.length]:{id:'sector-'+this.slot,x:(bounds.left+bounds.right)/2+(this.slot-1)*120,y:(bounds.top+bounds.bottom)/2+80,hp:100};
     this.runRemaining=7;this.phase='bombing-run';this.runId=this.id+':run:'+this.raidSerial++;this.command('city-bomb-warning',{runId:this.runId,targetId:this.runTarget.id,x:this.runTarget.x,y:this.runTarget.y,seconds:7});}
