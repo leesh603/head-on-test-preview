@@ -1,4 +1,4 @@
-import {fx} from './fx-art.js?v=458';
+import {fx} from './fx-art.js?v=459';
 import {drawGameIcon} from './icons.js?v=338';
 import {createPilotSignatureRenderer} from './pilot-signature-renderer.js';
 // Checksum-verified archival insignia art.
