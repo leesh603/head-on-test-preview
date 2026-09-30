@@ -4,6 +4,7 @@ import {drawRegionalBug} from './regional-boss-view352.js?v=457';
 import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=457';
 import {drawGasCloud196} from './gas-cloud196.js?v=457';
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=457';
+import {fxsBoomTail} from './fx-sample-preview.js?v=457';
 import {fx,fxReady,fxTint} from './fx-art.js?v=457';
 import {drawAADefense} from './aa-defense-art.js?v=457';
 import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js';
