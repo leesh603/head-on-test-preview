@@ -1,6 +1,6 @@
-import {fx,fxTint} from './fx-art.js?v=442';
-import {planeSprite,aircraftKey} from './aircraft.js?v=442';
-import {drawGameIcon} from './icons.js?v=442';
+import {fx,fxTint} from './fx-art.js?v=443';
+import {planeSprite,aircraftKey} from './aircraft.js?v=443';
+import {drawGameIcon} from './icons.js?v=443';
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
 export function playerPose(p,x,y){
  const t=Math.max(0,Math.min(1,(p.cannonRecoil129||0)/.24));
