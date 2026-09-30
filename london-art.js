@@ -1,4 +1,4 @@
-import {fx} from './fx-art.js?v=455';
+import {fx} from './fx-art.js?v=456';
 import {drawAttachedApron} from './london-apron369.js?v=455';
 const paths={gotha:'./gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=455',apronDamage:'./boss-london-apron-registered-damage369.png?v=455'};
 let art={},artLoadP=null;

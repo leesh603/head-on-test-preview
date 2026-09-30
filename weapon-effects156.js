@@ -1,5 +1,6 @@
 import {drawGameIcon} from './icons.js?v=455';
-import {fx,fxReady,FX56,FX3} from './fx-art.js?v=455';
+import {fx,fxReady,FX56,FX3} from './fx-art.js?v=456';
+import {fxsBoom} from './fx-sample-preview.js?v=456';
 export function drawGrenade(c,g,x,y){
  c.save();c.translate(x,y-g.height);c.rotate(g.phase==='flight'?g.age*7:0);
  if(!fx(c,'grenade',0,0,36,36))drawGameIcon(c,'mines',0,0,30);
@@ -46,6 +47,7 @@ function blastFlame(c,x,y,d,q){
 export function drawFxExplosion(c,f,x,y,radius=0){
  if(f.fxOnly&&!FX3)return true;
  if(f.mortarOverlay&&FX3&&fxReady('mortarImpact0'))return true;
+ if(fxsBoom(c,f,x,y,radius))return true;
  const q=Math.max(0,Math.min(.999,1-f.life/f.maxLife)),frame=Math.min(3,Math.floor(q*4));
  if(drawRoleExplosion(c,f,x,y,radius,q,frame))return true;
  const legacy={aircraftHeavy:'structure',aircraftMedium:'blast'};

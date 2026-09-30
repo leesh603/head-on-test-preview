@@ -1,6 +1,6 @@
 
 import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=455';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=455';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=456';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=455';
 import {bossSoundFor} from './boss-feedback.js?v=455';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=455';
