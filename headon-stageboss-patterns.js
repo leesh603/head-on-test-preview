@@ -16,7 +16,7 @@ export const BOSS_CATALOG = Object.freeze({
   'livens-flame-projector': {name:'리벤스 대형 화염방사기', faction:'entente', stage:3},
   'minenwerfer-battery': {name:'미넨베르퍼 교차 포격 진지', faction:'central', stage:3},
   'drachen-net': {name:'드라헨 공중 기뢰 방어망', faction:'central', stage:4},
-  'london-apron': {name:'런던 에이프런 방공망', faction:'entente', stage:4},
+  'london-apron': {name:'런던 에이프런 방공망', faction:'entente', stage:11},
   'zeppelin-l70': {name:'슈퍼 체펠린 L 70', faction:'central', stage:5},
   hma23: {name:'공중 항모 · HMA 23급', faction:'entente', stage:5},
   gik: {name:'한자-브란덴부르크 G.IK', faction:'central', stage:6},
@@ -29,7 +29,7 @@ export const BOSS_CATALOG = Object.freeze({
   ,'mark4-wedge': {name:'마크 IV 쐐기 전차대', faction:'entente', stage:10}
   ,'morser-battery': {name:'21cm 뫼르저 중박격포대', faction:'central', stage:10}
   ,'staaken-rvi': {name:'슈타켄 R.VI 거폭격기', faction:'central', stage:11}
-  ,'london-searchlight': {name:'런던 탐조등 방공진지', faction:'entente', stage:11}
+  
 });
 const living = players => players.filter(p => p.alive);
 const randBetween = (rng,a,b) => a + (b-a)*rng();
