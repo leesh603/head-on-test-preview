@@ -6,10 +6,10 @@ import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './we
 import {fx,fxReady,fxTint} from './fx-art.js?v=433';
 import {drawAADefense} from './aa-defense-art.js?v=426';
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=426';
-import {drawStageBoss} from './stageboss-view.js?v=435';
+import {drawStageBoss} from './stageboss-view.js?v=439';
 import {planeSprite,aircraftKey} from './aircraft.js?v=426';
 import {drawEquipment} from './equipment.js?v=426';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=433';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=439';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=426';
 import {drawSpecialAmmoIcon} from './icons.js?v=426';
 import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=433';
