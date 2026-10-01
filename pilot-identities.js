@@ -1,6 +1,6 @@
 import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js';
 import {installPilotFeedback} from './pilot-feedback.js';
-import {headOnTarget} from './engagement-feedback.js?v=483';
+import {headOnTarget} from './engagement-feedback.js?v=484';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
@@ -36,7 +36,7 @@ export function installPilotIdentities(Game,PILOTS){
   if(this.pilot==='voss'){this.invuln=Math.max(this.invuln,.45);const w=this.combatWorld();w.revisionDecoys??=[];for(let i=0;i<6;i++){const a=this.a+i*Math.PI/3;w.revisionDecoys.push({x:this.x,y:this.y,a,plane:this.plane,pilot:this.pilot,ownerId:own(this),life:1.2,hp:1,decoy:true,identityDecoy:true,vx:Math.cos(a)*140,vy:Math.sin(a)*140})}}
   if(this.pilot==='immelmann'){this.bullets=this.bullets.filter(b=>!b.enemy);this.invuln=Math.max(this.invuln,this.skillEnhanced?1.35:1.1);this.immelmannTurn={heading:this.a,elapsed:0,spread:this.skillEnhanced?3:2,fired:false}}
  if(this.pilot==='boelcke'){const w=this.combatWorld();w.allies??=[];const formationSize=this.skillEnhanced?5:4;for(let i=0;i<formationSize;i++)w.allies.push({ownerId:own(this),slot:(this.permanentWingman||0)+i,plane:this.plane,x:this.x,y:this.y,a:this.a,life:this.skillTime,fire:.85+Math.floor(i/2)*.12,temporary:true,boelckePincer:true})}
-  if(this.pilot==='udet'){this.udetBoost=0;this.evadeTime=this.skillTime;this.evadeDirection=-(this.evadeDirection||1);this.invuln=Math.max(this.invuln,this.skillTime);this.fire=Math.min(this.fire,0)}
+  if(this.pilot==='udet'){this.udetBoost=0;this.evadeTime=this.skillTime;this.evadeDirection=-(this.evadeDirection||1);this.invuln=Math.max(this.invuln,this.skillTime);this.fire=Math.min(this.fire,0);s.udetActiveBonus=(s.grazes||0)*.1;s.grazes=0}
   if(this.pilot==='goering')s.commandTarget=this.identityTarget();
   if(this.pilot==='huffzky')s.bombTimer=0;
   if(this.pilot==='berthold')s.debts=s.debts.map(d=>({...d,remaining:Math.max(d.remaining,6)}));
@@ -64,6 +64,7 @@ export function installPilotIdentities(Game,PILOTS){
   if(this.pilot==='ball'&&this.ballAmbush>0&&s.alone&&Math.abs(delta(Math.atan2(origin.y-e.y,origin.x-e.x),e.a||0))>Math.PI*.72)m*=2.2;
   if(this.pilot==='luke'&&[...s.burns.values()].some(burn=>burn.enemy===e&&burn.time>0))m*=this.skillTime>0?1.55:1.2;
   if(this.pilot==='gontermann'&&b.identityPrepared&&e===b.identityTarget)m*=this.skillTime>0?1.6:1.2;
+  if(this.pilot==='udet')m*=this.skillTime>0?1.2+(s.udetActiveBonus||0):1+(s.grazes||0)*.1;
   return m;
  };
  Game.prototype.identityImpact=function(b,e,target=e,position=e){
@@ -93,6 +94,7 @@ export function installPilotIdentities(Game,PILOTS){
   for(const k of ['grazeTime','switchTime','handoffTime','ignitionCooldown','grazeCooldown'])s[k]=Math.max(0,(s[k]||0)-dt);if(!s.grazeTime)s.grazes=0;if(!s.switchTime)s.switches=0;
   for(const [e,t]of s.switchSeen)if(s.clock-t>3)s.switchSeen.delete(e);
   const yaw=Math.abs(delta(this.a,s.previousHeading??this.a))/dt;s.previousHeading=this.a;
+  if(this.pilot==='udet'){const live=new Set();for(const b of this.bullets){if(!b.enemy)continue;live.add(b);const d=distance(this,b),prev=s.grazePasses.get(b);if(d<PILOT_IDENTITY_BALANCE.grazeOuter){if(prev===undefined||d<prev)s.grazePasses.set(b,d)}else if(prev!==undefined){s.grazePasses.delete(b);if(prev>=PILOT_IDENTITY_BALANCE.grazeInner){s.grazes=Math.min(PILOT_IDENTITY_BALANCE.grazeStacks,(s.grazes||0)+1);s.grazeTime=PILOT_IDENTITY_BALANCE.grazeDuration}}}for(const b of s.grazePasses.keys())if(!live.has(b))s.grazePasses.delete(b)}
   if(['fonck','gontermann','hawker'].includes(this.pilot)){const target=this.identityTarget(.13);s.focus=target&&target===s.target?clamp((s.focus||0)+dt/(this.pilot==='hawker'?2:1.5)):0;s.target=target;}
   if(this.pilot==='gontermann'&&s.focus>.65&&s.clock-(s.prepareFxAt??-1)>.25){s.prepareFxAt=s.clock;this.identityFx('gunSmoke',this.x+Math.cos(this.a)*25,this.y+Math.sin(this.a)*25,this.a,20,.18)}
   if(this.pilot==='udet'&&active){this.turn*=1.3;this.speed*=1.2;this.baseSpeed*=1.2}
