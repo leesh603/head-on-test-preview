@@ -1,22 +1,22 @@
-import {installPilotIdentities} from './pilot-identities.js?v=483';
-import {EnemyCollisionGrid} from './collision-grid.js?v=483';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=483';
-import {installRevision} from './rebalance103.js?v=483';
-import {installCloudCover} from './cloud-cover1.js?v=483';
-import {installFleet} from './fleet-naval1.js?v=483';
-import {installTrenchWar} from './trench-war1.js?v=483';
-import {installCityAir} from './city-air1.js?v=483';
-import {installRegionDoctrine} from './region-doctrine1.js?v=483';
-import {installLondonBattle} from './london-battle.js?v=483';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=483';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=483';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=483';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=483';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=483';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=483';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=483';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=483';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=483';
+import {installPilotIdentities} from './pilot-identities.js?v=484';
+import {EnemyCollisionGrid} from './collision-grid.js?v=484';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=484';
+import {installRevision} from './rebalance103.js?v=484';
+import {installCloudCover} from './cloud-cover1.js?v=484';
+import {installFleet} from './fleet-naval1.js?v=484';
+import {installTrenchWar} from './trench-war1.js?v=484';
+import {installCityAir} from './city-air1.js?v=484';
+import {installRegionDoctrine} from './region-doctrine1.js?v=484';
+import {installLondonBattle} from './london-battle.js?v=484';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=484';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=484';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=484';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=484';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=484';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=484';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=484';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=484';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=484';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -517,7 +517,7 @@ export const SPECIAL_AMMO=Object.freeze({
  tracer:Object.freeze({name:'예광탄',rounds:500,color:'#ff5b45',desc:'빠른 탄속과 넓은 명중 판정'}),
  explosive:Object.freeze({name:'폭발탄',rounds:500,color:'#ffd06a',desc:'명중 지점 주변 적에게 유폭 피해'})
 });
-export const GOERING_WING_BOOST=Object.freeze({duration:5,damageMultiplier:3,fireRateMultiplier:2});
+export const GOERING_WING_BOOST=Object.freeze({duration:5,damageMultiplier:1.65,fireRateMultiplier:1.6});
 export const LEGENDARIES=[
  {id:'redScarf',name:'붉은남작의 머플러',desc:'이동 속도 +45%, 적 후방 추적 판정 거리 +25%·고정 시간 −35%. 한 출격 1회.'},
  {id:'prancingHorse',name:'바라카의 검은 말 문장',desc:'이동 속도 +20%, 전방에서 받는 피해 −25%. 한 출격 1회.'},
@@ -1583,7 +1583,7 @@ for(const[key,base]of Object.entries(ACE_LIVERIES165)){PLANES[key]={...PLANES[ba
 
 Game.prototype._sklJacobs=function(){
  if(this.pilot!=='jacobs')return this._sklVossReverse();
- this.ensureRevisionPilot();if(this.state!=='playing'||this.hp<=0||this.cooldown>0)return false;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.invuln=Math.max(this.invuln,.8*(this.skillEnhanced?1.35:1));this.burst(this.x,this.y,'#8a8f7a',18);this.event('skill',PILOTS.jacobs.skill);return true;
+ this.ensureRevisionPilot();if(this.state!=='playing'||this.hp<=0||this.cooldown>0)return false;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.burst(this.x,this.y,'#8a8f7a',18);this.event('skill',PILOTS.jacobs.skill);return true;
 };
 
 Game.prototype._durJacobs=function(){return this.pilot==='jacobs'?4*(this.skillEnhanced?1.35:1):this._durVoss()};
