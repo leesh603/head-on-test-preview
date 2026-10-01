@@ -6,17 +6,18 @@
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=478';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=479';
 
 const memo = new WeakMap();
 const st = g => { let s = memo.get(g); if (!s) memo.set(g, s = { tier: 0, burst: -9, burstAt: null, prey: null, trail: [], wing: [] }); return s; };
 const clamp = q => Math.max(0, Math.min(1, q));
-let VAPOR = null, EMBER = null;
+let VAPOR = null, EMBER = null, SOOTV = null;
 function sprites() {
   if (VAPOR || typeof document === 'undefined') return;
   const mk = stops => { const k = document.createElement('canvas'); k.width = k.height = 48; const x = k.getContext('2d'), gr = x.createRadialGradient(24, 24, 0, 24, 24, 24);
     for (const [o, c] of stops) gr.addColorStop(o, c); x.fillStyle = gr; x.fillRect(0, 0, 48, 48); return k; };
   VAPOR = mk([[0, 'rgba(150,40,32,.5)'], [.5, 'rgba(110,36,30,.24)'], [1, 'rgba(80,30,26,0)']]);
+  SOOTV = mk([[0, 'rgba(10,10,12,.7)'], [.5, 'rgba(10,10,12,.3)'], [1, 'rgba(10,10,12,0)']]);
   EMBER = mk([[0, 'rgba(255,236,200,1)'], [.25, 'rgba(255,140,70,.8)'], [.6, 'rgba(220,50,30,.25)'], [1, 'rgba(180,30,20,0)']]);
 }
 const hash = (a, b) => { const v = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return v - Math.floor(v); };
@@ -671,43 +672,36 @@ export function drawBaraccaLance(c, g, point, t, px, py, layer = 'back') {
     for (const p of m.wake) { const age = (t - p.t) / .35, [x, y] = point(p.x, p.y), w = 10 + 22 * age;
       c.globalAlpha = m.k * (1 - age) * .22; c.drawImage(VAPOR, x - w, y - w, w * 2, w * 2); }
   }
-  // black wedge: an arrowhead of dark, driven air closing around the plane, apex well ahead of the
-  // nose, swept flanks trailing past the wings. Body behind the plane, steel edges over it.
-  if (m.k > .01) {
-    const k = m.k, tip = 60 + 8 * k + Math.sin(t * 24) * 1.2, back = -40, half = 60 + 3 * Math.sin(t * 9);
-    const mv = m.mv;                                              // heading from actual travel during the dash
-    const ang = mv && Math.hypot(mv.dx, mv.dy) > 2 ? Math.atan2(mv.dy, mv.dx) : a;
+  // dark veil: a soft black membrane of driven air streaming around the plane and drawing to a
+  // point ahead — reads as a lance only through its silhouette. No outlines; built from layered,
+  // feathered smoke so the edges stay soft and keep moving.
+  if (layer === 'back' && m.k > .01) {
+    const k = m.k, mv = m.mv, ang = mv && Math.hypot(mv.dx, mv.dy) > 2 ? Math.atan2(mv.dy, mv.dx) : a;
     c.save(); c.translate(px, py); c.rotate(ang);
-    const shape = () => { c.beginPath(); c.moveTo(tip, 0);
-      c.quadraticCurveTo(14, -half * .8, back, -half); c.quadraticCurveTo(back + 26, -half * .4, back + 22, 0);
-      c.quadraticCurveTo(back + 26, half * .4, back, half); c.quadraticCurveTo(14, half * .8, tip, 0); c.closePath(); };
-    if (layer === 'back') {
-      const body = c.createLinearGradient(back, 0, tip, 0);
-      body.addColorStop(0, 'rgba(8,9,11,.15)'); body.addColorStop(.4, 'rgba(10,11,14,.62)'); body.addColorStop(1, 'rgba(6,7,9,.9)');
-      shape(); c.globalAlpha = k; c.fillStyle = body; c.fill();
-      for (let i = 0; i < 4; i++) {                              // dark streams pouring back along the flanks
-        const q = ((t * 6 + i / 4) % 1), side = i % 2 ? 1 : -1, x = tip - 20 - q * (tip - back + 30), y = side * (6 + (half - 6) * Math.min(1, (tip - x) / (tip - back)));
-        c.beginPath(); c.moveTo(x, y); c.lineTo(x - 26, y + side * 4);
-        c.globalAlpha = k * (1 - q) * .55; c.strokeStyle = '#0b0c0e'; c.lineWidth = 3; c.stroke();
-      }
-    } else {
-      for (const side of [-1, 1]) {                              // steel-lit leading edges, brightest at the apex
-        const edge = c.createLinearGradient(back, 0, tip, 0);
-        edge.addColorStop(0, 'rgba(210,220,228,0)'); edge.addColorStop(.6, 'rgba(210,220,228,.55)'); edge.addColorStop(1, 'rgba(255,255,255,.95)');
-        c.beginPath(); c.moveTo(tip, 0); c.quadraticCurveTo(14, side * half * .8, back, side * half);
-        c.globalAlpha = k; c.strokeStyle = 'rgba(0,0,0,.6)'; c.lineWidth = 3.4; c.stroke();
-        c.strokeStyle = edge; c.lineWidth = 1.5; c.stroke();
-      }
-      c.globalCompositeOperation = 'lighter'; const gl = 6 + 2 * Math.sin(t * 30);
-      c.globalAlpha = k * .8; c.drawImage(EMBER, tip - gl, -gl, gl * 2, gl * 2);
-      c.globalCompositeOperation = 'source-over';
+    const tip = 96 + 16 * k, back = -70;
+    // 1) soft body: several stacked, slightly jittered tapering sheets (feathered by alpha stacking)
+    for (let l = 0; l < 5; l++) {
+      const w = 34 + l * 7, j = Math.sin(t * 17 + l * 1.9) * 2, tp = tip - l * 9;
+      const gr = c.createLinearGradient(back, 0, tp, 0);
+      gr.addColorStop(0, 'rgba(6,7,9,0)'); gr.addColorStop(.4, 'rgba(8,9,11,' + (.26 - l * .03) + ')'); gr.addColorStop(.92, 'rgba(5,6,8,' + (.5 - l * .07) + ')'); gr.addColorStop(1, 'rgba(5,6,8,.2)');
+      c.beginPath(); c.moveTo(tp, j * .3);
+      c.bezierCurveTo(tp * .55, -w * .12 + j * .5, tp * .1, -w * .8, back, -w * .82 + j);
+      c.lineTo(back, w * .82 - j);
+      c.bezierCurveTo(tp * .1, w * .8, tp * .55, w * .12 - j * .5, tp, -j * .3); c.closePath();
+      c.globalAlpha = k; c.fillStyle = gr; c.fill();
     }
+    // 2) streaming smoke filaments peeling off the veil and rushing back past the plane
+    for (let i = 0; i < 16; i++) {
+      const q = ((t * 3.2 + hash(i, 5)) % 1), side = i % 2 ? 1 : -1, lane = .25 + .75 * hash(i, 11);
+      const x = tip * (1 - q * 1.15) - q * 90, wHere = 6 + 36 * lane * Math.min(1, (tip - x) / (tip - back));
+      const y = side * wHere + Math.sin(t * 9 + i) * 3, r = 6 + 16 * q;
+      c.globalAlpha = k * Math.sin(Math.PI * q) * .75; c.drawImage(SOOTV, x - r, y - r, r * 2, r * 2);
+    }
+    // 3) a dense, dark point where the veil gathers ahead of the nose
+    const pg = c.createRadialGradient(tip - 14, 0, 0, tip - 14, 0, 26);
+    pg.addColorStop(0, 'rgba(4,5,7,.55)'); pg.addColorStop(1, 'rgba(4,5,7,0)');
+    c.globalAlpha = k; c.fillStyle = pg; c.beginPath(); c.ellipse(tip - 14, 0, 30, 12, 0, 0, Math.PI * 2); c.fill();
     c.restore();
-  }
-  if (layer === 'front' && charging && t - (m.start ?? -9) < .3) {  // launch: a hard white flash ring off the tail as he spurs forward
-    const q = (t - m.start) / .3, bx = px - ca * 18, by = py - sa * 18;
-    c.beginPath(); c.ellipse(bx, by, 20 + 50 * q, (20 + 50 * q) * .45, a + Math.PI / 2, 0, Math.PI * 2);
-    c.globalAlpha = (1 - q) * .8; c.strokeStyle = '#ffffff'; c.lineWidth = 3 * (1 - q) + .5; c.stroke();
   }
   if (layer === 'front') for (const b of m.bursts) {          // impact: sparks thrown forward + shock ring
     const q = (t - b.t0) / .5, [x, y] = point(b.x, b.y);
