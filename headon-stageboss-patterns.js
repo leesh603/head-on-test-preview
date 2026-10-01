@@ -6,6 +6,7 @@ import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=46
 import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=469';
 import {GIK,Ca4} from './alps-bomber-combat.js?v=469';
 export {GIK,Ca4};
+import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=469';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -467,57 +468,89 @@ export class MarkVCruiser extends TrenchArmor {
 
 
 export class ArmoredHarborFortress extends PatternBoss {
-  constructor(options) {
-    super({...options,kind:'armored-harbor-fortress',parts:[
-      {id:'crane-arm',x:-78,y:13,radius:34,maxHp:options.tuning.partHp*1.05},
-      {id:'crane-pivot',x:-78,y:13,radius:29,maxHp:options.tuning.partHp*1.15,hittable:false},
-      {id:'ammo-storage',x:58,y:38,radius:34,maxHp:options.tuning.partHp*1.1},
-      {id:'gun-left',x:-91,y:62,radius:27},
-      {id:'gun-right',x:91,y:62,radius:27},
-      {id:'seaplane-facility',x:68,y:-58,radius:37,maxHp:options.tuning.partHp*1.1}
-    ]});
-    this.phase='coastal-battery';this.coreVulnerable=false;this.craneAngle=-.4;this.elapsed=0;this.gunSide=0;this.craneSwing=0;
-    this.externalParts=['crane-arm','ammo-storage','gun-left','gun-right','seaplane-facility'];
+  constructor(options){
+    const parts=HARBOR_PARTS.map(p=>({...p,maxHp:options.tuning.maxHp*(p.kind==='crane-arm'?.13:p.kind==='crane-pivot'?.10:p.kind==='harbor-gun'?.08:.12)}));
+    super({...options,kind:'armored-harbor-fortress',parts});
+    this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;this.phase='coastal-battery';this.coreVulnerable=false;
+    this.craneAngle=-.55;this.craneState='idle';this.craneClock=1.8;this.craneSerial=0;this.gunSide=0;this.elapsed=0;this.gunBursts=[];this.launchRun=null;
+    for(const spec of HARBOR_PARTS){const p=this.parts.get(spec.id);Object.assign(p,{localX:spec.x,localY:spec.y,drawWidth:spec.width,drawHeight:spec.height,cell:spec.cell,artAngle:spec.artAngle,launchWarmup:0,recoil:0});if(p.kind==='harbor-gun')p.angle=spec.artAngle;}
+    this.externalParts=['crane-arm','ammo-storage','gun-left','gun-right','gun-front-left','gun-front-right','seaplane-facility'];this.syncCrane();
   }
-  destroyedExternal(){return this.externalParts.filter(id=>this.parts.get(id).destroyed).length;}
+  pose(){return harborCranePose(this);}
+  liveGuns(){return [...this.parts.values()].filter(p=>p.kind==='harbor-gun'&&!p.destroyed);}
+  syncCrane(){const p=this.parts.get('crane-arm'),q=this.pose().arm;p.x=q.x-this.x;p.y=q.y-this.y;}
+  locateHit(shot){
+    if(this.dead)return null;const s=harborScale(this),pose=this.pose(),arm=this.parts.get('crane-arm');
+    for(const p of this.parts.values())if(p.id!=='crane-arm'&&p.hittable&&!p.destroyed&&harborSegmentHit(shot,{x:this.x+p.x,y:this.y+p.y},{x:this.x+p.x,y:this.y+p.y},p.radius))return{partId:p.id};
+    if(!arm.destroyed&&harborSegmentHit(shot,{x:pose.pivot.x+Math.cos(this.craneAngle)*20*s,y:pose.pivot.y+Math.sin(this.craneAngle)*20*s},pose.tip,14*s))return{partId:arm.id};
+    const core=harborPoint(this,0,-44);return this.coreVulnerable&&harborSegmentHit(shot,core,core,43*s)?{partId:null}:null;
+  }
+  hitAt(attack){const h=this.locateHit(attack);return h?this.hit({...h,damage:attack.damage}):{damage:0,miss:true};}
+  hit(attack){const result=super.hit(attack);if(attack.partId&&result.damage>0){this.hp=Math.max(this.coreVulnerable?0:this.maxHp*.45,this.hp-result.damage*.35);if(!this.hp&&!this.dead){this.dead=true;this.phase='defeated';this.command('body-defeated');result.bodyDefeated=true;}}return result;}
+  suppressive(){/* The crane, individual gun mounts and launch dock own attacks. */}
   onPartDestroyed(p){
+    if(p.kind==='harbor-gun'){this.gunBursts=this.gunBursts.filter(b=>b.partId!==p.id);this.command('cancel-hazards',{tag:'harbor-'+p.id});}
     if(p.id==='ammo-storage'&&!this.ammoDetonated){this.ammoDetonated=true;this.hp=Math.max(1,this.hp-this.maxHp*.15);this.command('ammo-detonation',{x:this.x+p.x,y:this.y+p.y});}
-    const lost=this.destroyedExternal();
+    if(p.id==='seaplane-facility'){this.launchRun=null;p.launchWarmup=0;this.command('phase-change',{phase:'harbor-launch-disabled'});}
+    if(p.id==='crane-arm'||p.id==='crane-pivot'){this.craneState='collapsed';this.command('cancel-hazards',{tag:'harbor-crane'});}
+    const lost=this.externalParts.filter(id=>this.parts.get(id).destroyed).length;
     if(lost>=1&&this.phase==='coastal-battery'){this.phase='seaplane-support';this.command('phase-change',{phase:this.phase});}
-    if(lost>=3&&this.phase!=='breached'&&this.phase!=='final-core'){this.phase='breached';this.parts.get('crane-pivot').hittable=true;this.command('phase-change',{phase:this.phase});}
-    if(p.id==='crane-pivot'){this.phase='final-core';this.coreVulnerable=true;this.hp=Math.min(this.hp,this.maxHp*.3);this.command('phase-change',{phase:this.phase});}
+    if((this.parts.get('crane-arm').destroyed||lost>=3)&&!this.parts.get('crane-pivot').destroyed){this.parts.get('crane-pivot').hittable=true;if(this.phase!=='breached'){this.phase='breached';this.command('phase-change',{phase:this.phase});}}
+    if(p.id==='crane-pivot'){
+      const arm=this.parts.get('crane-arm');if(!arm.destroyed){arm.hp=0;arm.destroyedAt=this.motionTime||0;this.command('part-destroyed',{partId:arm.id});}
+      this.phase='final-core';this.coreVulnerable=true;this.hp=Math.min(this.hp,this.maxHp*.42);this.command('phase-change',{phase:this.phase});
+    }
+  }
+  startCrane(players){
+    const target=this.target(players);if(!target)return;const pivot=this.pose().pivot,heading=Math.atan2(target.y-pivot.y,target.x-pivot.x),side=this.craneSerial++%2?1:-1;
+    this.craneStart=this.craneAngle+angleDelta(heading-side*.6,this.craneAngle);this.craneEnd=this.craneStart+side*1.2;
+    this.craneWarn=Math.max(1.15,Math.abs(this.craneStart-this.craneAngle)/.55+.04);this.craneClock=this.craneWarn;this.craneState='windup';
+    this.craneTarget={x:target.x+(target.vx||0)*.6,y:target.y+(target.vy||0)*.6};
+    const supplied=!this.parts.get('ammo-storage').destroyed;
+    this.hazard('circle',{...this.pose().load,radius:(supplied?18:9)*harborScale(this),warning:this.craneWarn,duration:2.8,tickInterval:.5,damage:this.t.damage*(supplied?.72:.5),visual:'harbor-swing',tag:'harbor-crane'});
+  }
+  dropMines(bounds){
+    if(this.parts.get('ammo-storage').destroyed||!bounds)return;const source=this.pose().load,target=this.craneTarget,points=[];
+    for(const offset of [-110,0,110]){const p={x:Math.max(bounds.left+44,Math.min(bounds.right-44,target.x+offset)),y:Math.max(bounds.top+44,Math.min(bounds.bottom-44,target.y-110))};if(!points.some(q=>Math.hypot(p.x-q.x,p.y-q.y)<50))points.push(p);}
+    this.command('spawn-minefield',{points,sourceX:source.x,sourceY:source.y,warning:1.2,life:8.5,maxMines:9});
+    this.command('crane-drop',{...source});
+  }
+  updateCrane(dt,players,bounds){
+    if(this.craneState==='collapsed')return;this.craneClock-=dt*((this.craneState==='idle'||this.craneState==='recover')?(this.t.patternMultiplier||1):1);
+    if(this.craneState==='idle'){if(this.craneClock<=0)this.startCrane(players);}
+    else if(this.craneState==='windup'){
+      this.craneAngle=turnToward(this.craneAngle,this.craneStart,.55*dt);
+      if(this.craneClock<=0){this.craneState='sweep';this.craneClock=2.8;this.craneAngle=this.craneStart;}
+    }else if(this.craneState==='sweep'){
+      const t=Math.min(1,Math.max(0,1-this.craneClock/2.8));this.craneAngle=this.craneStart+(this.craneEnd-this.craneStart)*(.5-.5*Math.cos(t*Math.PI));
+      if(this.craneClock<=0){this.dropMines(bounds);this.craneState='recover';this.craneClock=this.parts.get('ammo-storage').destroyed?4.1:2.8;this.command('cancel-hazards',{tag:'harbor-crane'});}
+    }else if(this.craneState==='recover'&&this.craneClock<=0){this.craneState='idle';this.craneClock=.1;}
+    const supplied=!this.parts.get('ammo-storage').destroyed;
+    this.syncCrane();this.command('harbor-load-pose',{...this.pose().load,radius:(supplied?18:9)*harborScale(this),damage:this.t.damage*(supplied?.72:.5),tag:'harbor-crane'});
+  }
+  updateGuns(dt,players){
+    const guns=this.liveGuns(),target=players.find(p=>p.alive);for(const gun of guns){gun.recoil=Math.max(0,gun.recoil-dt*3);if(target&&!this.gunBursts.some(b=>b.partId===gun.id))gun.angle=turnToward(gun.angle,Math.atan2(target.y-this.y-gun.y,target.x-this.x-gun.x),.72*dt);}
+    const supplied=!this.parts.get('ammo-storage').destroyed;
+    if(guns.length&&this.due('harbor-guns',dt,(this.t.coastalInterval||2.5)*(supplied?1:1.6))){const gun=guns[this.gunSide++%guns.length];this.gunBursts.push({partId:gun.id,left:supplied?3:1,clock:0});}
+    for(const burst of this.gunBursts){const gun=this.parts.get(burst.partId);if(gun.destroyed){burst.left=0;continue;}burst.clock-=dt;
+      if(burst.left>0&&burst.clock<=0){const q=harborMuzzle(this,gun),a=gun.angle;gun.recoil=1;this.command('muzzle',{...q,partId:gun.id});this.hazard('projectile',{...q,vx:Math.cos(a)*this.t.bulletSpeed*.82,vy:Math.sin(a)*this.t.bulletSpeed*.82,radius:6,damage:this.t.damage*.8,visual:'harbor-shell',tag:'harbor-'+gun.id});burst.left--;burst.clock+=.24;}}
+    this.gunBursts=this.gunBursts.filter(b=>b.left>0);
+  }
+  prepareSortie(players){const p=this.target(players);if(!p)return;this.launchRun={clock:1.05,index:0,target:{x:p.x+(p.vx||0)*.7,y:p.y+(p.vy||0)*.7}};this.parts.get('seaplane-facility').launchWarmup=1.05;}
+  updateSortie(dt,players){
+    const p=this.parts.get('seaplane-facility');if(p.destroyed)return;
+    if(!this.launchRun&&this.phase!=='coastal-battery'&&this.due('harbor-seaplanes',dt,this.t.harborLaunchInterval||5.6))this.prepareSortie(players);
+    const run=this.launchRun;if(!run)return;run.clock-=dt;p.launchWarmup=Math.max(0,run.clock);
+    if(run.clock<=1e-8){const q=harborLaunchPoint(this),i=run.index++;this.command('spawn-minion',{...q,minion:this.faction==='central'?'seaplane-central':'seaplane-entente',a:Math.PI/2,behavior:'attack-pass',formationIndex:i,formationCount:2,passTargetX:run.target.x+(i?90:-90),passTargetY:run.target.y,invulnerableSeconds:.4});run.clock=.24;if(run.index>=2){this.launchRun=null;p.launchWarmup=0;}}
   }
   update(dt,{players,bounds}){
-    this.elapsed+=dt;const arm=this.parts.get('crane-arm'),pivot=this.parts.get('crane-pivot');
-    if(!arm.destroyed&&!pivot.destroyed){
-      const p=this.target(players);if(p&&this.craneSwing<=0){const desired=Math.atan2(p.y-(this.y+arm.y),p.x-(this.x+arm.x));this.craneAngle=turnToward(this.craneAngle,desired,.42*dt)}
-      this.craneSwing=Math.max(0,this.craneSwing-dt);
-    }
-    if(this.phase==='coastal-battery'&&this.elapsed>=16){this.phase='seaplane-support';this.command('phase-change',{phase:this.phase});}
-    const guns=['gun-left','gun-right'].map(id=>this.parts.get(id)).filter(p=>!p.destroyed);
-    if(guns.length&&this.due('harbor-guns',dt,(this.t.coastalInterval||2.5)*(guns.length===1?.88:1))){const gun=guns[this.gunSide++%guns.length],p=this.target(players);if(p){const x=this.x+gun.x,y=this.y+gun.y,a=Math.atan2(p.y-y,p.x-x);this.command('muzzle',{x,y,partId:gun.id});this.fan(x,y,a,5,.72,this.t.bulletSpeed*.82,'harbor-shell');}}
-    if(!arm.destroyed&&!pivot.destroyed&&this.due('crane-mines',dt,this.t.craneInterval||4.8)){
-      this.craneSwing=1.5;const scale=this.t.geometryScale||1,originX=this.x+arm.x,originY=this.y+arm.y;
-      // Drops follow the visible boom, with a fixed warning before impact.
-      for(let i=0;i<3;i++){const reach=(125+i*30)*scale,a=this.craneAngle;this.hazard('circle',{x:originX+Math.cos(a)*reach,y:originY+Math.sin(a)*reach,radius:38,delay:i*.18,warning:1.05,duration:.3,once:true,damage:this.t.damage*.75,visual:'harbor-mine'});}
-      this.command('crane-drop',{x:originX,y:originY});
-    }
-    if(bounds&&this.due('harbor-minefield',dt,this.phase==='final-core'?3.2:6.4)){
-      const p=this.target(players),w=bounds.right-bounds.left;
-      if(p){
-        const cx=Math.max(bounds.left+w*.24,Math.min(bounds.right-w*.24,p.x+(p.vx||0)*.7)),gate=[0,2,4][(this._mineFieldWave=(this._mineFieldWave??0)+1)%3],step=Math.max(52,Math.min(72,w/7)),points=[];
-        for(let row=0;row<2;row++)for(let col=0;col<5;col++)if(col!==gate)points.push({x:cx+(col-2)*step,y:p.y-100-row*64+(this._mineFieldWave%2?28:0)});
-        if(this.phase==='final-core')for(let i=0;i<6;i++){const a=this.rng()*6.28,d=90+this.rng()*110;points.push({x:cx+Math.cos(a)*d,y:p.y+Math.sin(a)*d*.7});}
-        this.command('spawn-minefield',{points:points.filter(q=>q.x>bounds.left+25&&q.x<bounds.right-25&&q.y>bounds.top+25&&q.y<bounds.bottom-25&&Math.hypot(q.x-p.x,q.y-p.y)>75),warning:.8,life:9,maxMines:this.phase==='final-core'?20:14});
-      }
-    }
-    if(this.phase!=='coastal-battery'&&!this.parts.get('seaplane-facility').destroyed&&this.due('harbor-seaplanes',dt,this.t.harborLaunchInterval||5.6)){
-      const p=this.target(players),count=this.phase==='final-core'?3:2,a=Math.PI/2,q={x:this.x+this.parts.get('seaplane-facility').x,y:this.y+this.parts.get('seaplane-facility').y};
-      for(let i=0;i<count;i++)this.command('spawn-minion',{minion:this.faction==='central'?'seaplane-central':'seaplane-entente',faction:this.faction,x:q.x+(i-(count-1)/2)*42,y:q.y-30,a,behavior:'attack-pass',formationIndex:i,formationCount:count,passTargetX:(p?.x??q.x)+(p?.vx||0)*.8,passTargetY:(p?.y??bounds.bottom)+(p?.vy||0)*.8,invulnerableSeconds:.4});
-    }
-    if(this.phase==='final-core'&&this.due('last-barrage',dt,2.45)){const p=this.target(players);if(p)for(let i=0;i<5;i++)this.hazard('circle',{x:p.x+(i-2)*48,y:p.y+(p.vy||0)*.35,radius:44,delay:i*.12,warning:.76,duration:.3,once:true,damage:this.t.damage,visual:'harbor-shell'});}
+    this.x=this.anchorX;this.y=this.anchorY;this.elapsed+=dt;
+    if(this.phase==='coastal-battery'&&this.elapsed>=8){this.phase='seaplane-support';this.command('phase-change',{phase:this.phase});}
+    this.updateCrane(dt,players,bounds);this.updateGuns(dt,players);this.updateSortie(dt,players);
   }
 }
+
+const angleDelta=(to,from)=>Math.atan2(Math.sin(to-from),Math.cos(to-from));
 
 
 const turnToward=(from,to,maxStep)=>from+Math.max(-maxStep,Math.min(maxStep,Math.atan2(Math.sin(to-from),Math.cos(to-from))));
