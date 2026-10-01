@@ -13,7 +13,7 @@ const SOURCES=Object.freeze({
  bugFolded:'./boss-cambrai-bug.webp?v=426',bugFlight:'./boss-cambrai-bug.webp?v=426',impact:'./fx-mortar-impact340.webp'
 });
 const SHEETS={train:'boss-fliegerzug-parts352',treffas:'boss-treffas-parts352',support:'boss-regional-support352',staakenEngines:'boss-staaken-engines352'};
-const REGION_KEYS={4:['support'],8:['support','bugFlight','impact'],10:['support','tank','tankWreck','morser','morserWreck','impact'],11:['support','staaken','staakenEngines','staakenWreck','impact']};
+const REGION_KEYS={4:['support'],8:['support','bugFlight','impact'],10:[],11:['support','staaken','staakenEngines','staakenWreck','impact']};
 const REQUIRED={'fliegerzug':['train','support','bugFolded'],'treffas-wagen':['treffas'],'mark4-wedge':['tank','tankWreck','support'],'morser-battery':['morser','morserWreck','support'],'staaken-rvi':['staaken','staakenEngines','staakenWreck'],'london-searchlight':['support'],'london-apron':['support'],'drachen-net':['support']};
 const cache=new Map();
 function load(key){

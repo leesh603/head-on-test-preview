@@ -1,0 +1,3183 @@
+{
+  "renderer": "actual drawStageBoss, CoopGame, stageboss-host and TerrainRenderer via native Canvas",
+  "browser": false,
+  "terrainTextureAvailable": false,
+  "base": "5b9f3a870720dcc63f61fdc64b2fdfc21b7a32de",
+  "canvasStateBalanced": true,
+  "states": [
+    {
+      "file": "fortress-normal-pc.png",
+      "kind": "fortress",
+      "state": "normal",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "morser-battery",
+          "x": 0,
+          "y": -90,
+          "hp": 3465,
+          "maxHp": 3465,
+          "dead": false,
+          "phase": "observation",
+          "scale": 1,
+          "coreVulnerable": false,
+          "parts": [
+            {
+              "id": "gun-left",
+              "hp": 415.8,
+              "x": -249,
+              "y": 13,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "gun-right",
+              "hp": 415.8,
+              "x": 249,
+              "y": 13,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "twin-aa",
+              "hp": 623.6999999999999,
+              "x": 0,
+              "y": -8,
+              "angle": -1.6157963267948963
+            },
+            {
+              "id": "mg-left",
+              "hp": 190.575,
+              "x": -193,
+              "y": 110,
+              "angle": -1.4987963267948965
+            },
+            {
+              "id": "mg-right",
+              "hp": 190.575,
+              "x": 193,
+              "y": 110,
+              "angle": -1.6427963267948966
+            },
+            {
+              "id": "observer",
+              "hp": 259.875,
+              "x": 0,
+              "y": -121,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "ammo",
+              "hp": 311.84999999999997,
+              "x": 0,
+              "y": 122,
+              "angle": -1.5707963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fortress-windup-pc.png",
+      "kind": "fortress",
+      "state": "windup",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "morser-battery",
+          "x": 0,
+          "y": -90,
+          "hp": 3465,
+          "maxHp": 3465,
+          "dead": false,
+          "phase": "observation",
+          "scale": 1,
+          "coreVulnerable": false,
+          "parts": [
+            {
+              "id": "gun-left",
+              "hp": 415.8,
+              "x": -249,
+              "y": 13,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "gun-right",
+              "hp": 415.8,
+              "x": 249,
+              "y": 13,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "twin-aa",
+              "hp": 623.6999999999999,
+              "x": 0,
+              "y": -8,
+              "angle": -1.4207963267948975
+            },
+            {
+              "id": "mg-left",
+              "hp": 190.575,
+              "x": -193,
+              "y": 110,
+              "angle": -1.1867963267948962
+            },
+            {
+              "id": "mg-right",
+              "hp": 190.575,
+              "x": 193,
+              "y": 110,
+              "angle": -1.954796326794897
+            },
+            {
+              "id": "observer",
+              "hp": 259.875,
+              "x": 0,
+              "y": -121,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "ammo",
+              "hp": 311.84999999999997,
+              "x": 0,
+              "y": 122,
+              "angle": -1.5707963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fortress-release-pc.png",
+      "kind": "fortress",
+      "state": "release",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "morser-battery",
+          "x": 0,
+          "y": -90,
+          "hp": 3465,
+          "maxHp": 3465,
+          "dead": false,
+          "phase": "observation",
+          "scale": 1,
+          "coreVulnerable": false,
+          "parts": [
+            {
+              "id": "gun-left",
+              "hp": 415.8,
+              "x": -249,
+              "y": 13,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "gun-right",
+              "hp": 415.8,
+              "x": 249,
+              "y": 13,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "twin-aa",
+              "hp": 623.6999999999999,
+              "x": 0,
+              "y": -8,
+              "angle": -0.3707963267948997
+            },
+            {
+              "id": "mg-left",
+              "hp": 190.575,
+              "x": -193,
+              "y": 110,
+              "angle": 0.4932036732051048
+            },
+            {
+              "id": "mg-right",
+              "hp": 190.575,
+              "x": 193,
+              "y": 110,
+              "angle": -3.6162461075029673
+            },
+            {
+              "id": "observer",
+              "hp": 259.875,
+              "x": 0,
+              "y": -121,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "ammo",
+              "hp": 311.84999999999997,
+              "x": 0,
+              "y": 122,
+              "angle": -1.5707963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fortress-damage-pc.png",
+      "kind": "fortress",
+      "state": "damage",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "morser-battery",
+          "x": 0,
+          "y": -90,
+          "hp": 2309.076,
+          "maxHp": 3465,
+          "dead": false,
+          "phase": "observation",
+          "scale": 1,
+          "coreVulnerable": false,
+          "parts": [
+            {
+              "id": "gun-left",
+              "hp": 166.32000000000002,
+              "x": -249,
+              "y": 13,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "gun-right",
+              "hp": 166.32000000000002,
+              "x": 249,
+              "y": 13,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "twin-aa",
+              "hp": 249.47999999999996,
+              "x": 0,
+              "y": -8,
+              "angle": -1.660796326794896
+            },
+            {
+              "id": "mg-left",
+              "hp": 76.23,
+              "x": -193,
+              "y": 110,
+              "angle": -1.4267963267948964
+            },
+            {
+              "id": "mg-right",
+              "hp": 76.23,
+              "x": 193,
+              "y": 110,
+              "angle": -1.7147963267948967
+            },
+            {
+              "id": "observer",
+              "hp": 103.95000000000002,
+              "x": 0,
+              "y": -121,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "ammo",
+              "hp": 124.73999999999998,
+              "x": 0,
+              "y": 122,
+              "angle": -1.5707963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fortress-support-lost-pc.png",
+      "kind": "fortress",
+      "state": "support-lost",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "morser-battery",
+          "x": 0,
+          "y": -90,
+          "hp": 2730.42,
+          "maxHp": 3465,
+          "dead": false,
+          "phase": "core-exposed",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "gun-left",
+              "hp": 415.8,
+              "x": -249,
+              "y": 13,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "gun-right",
+              "hp": 415.8,
+              "x": 249,
+              "y": 13,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "twin-aa",
+              "hp": 623.6999999999999,
+              "x": 0,
+              "y": -8,
+              "angle": -3.8657963267949094
+            },
+            {
+              "id": "mg-left",
+              "hp": 190.575,
+              "x": -193,
+              "y": 110,
+              "angle": 0.4746534539131737
+            },
+            {
+              "id": "mg-right",
+              "hp": 190.575,
+              "x": 193,
+              "y": 110,
+              "angle": -3.6162461075029677
+            },
+            {
+              "id": "observer",
+              "hp": 0,
+              "x": 0,
+              "y": -121,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "ammo",
+              "hp": 0,
+              "x": 0,
+              "y": 122,
+              "angle": -1.5707963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fortress-immobilized-pc.png",
+      "kind": "fortress",
+      "state": "immobilized",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "morser-battery",
+          "x": 0,
+          "y": -90,
+          "hp": 2633.4,
+          "maxHp": 3465,
+          "dead": false,
+          "phase": "core-exposed",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "gun-left",
+              "hp": 0,
+              "x": -249,
+              "y": 13,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "gun-right",
+              "hp": 415.8,
+              "x": 249,
+              "y": 13,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "twin-aa",
+              "hp": 0,
+              "x": 0,
+              "y": -8,
+              "angle": -1.6157963267948963
+            },
+            {
+              "id": "mg-left",
+              "hp": 190.575,
+              "x": -193,
+              "y": 110,
+              "angle": 0.6612036732051049
+            },
+            {
+              "id": "mg-right",
+              "hp": 190.575,
+              "x": 193,
+              "y": 110,
+              "angle": -3.6162461075029677
+            },
+            {
+              "id": "observer",
+              "hp": 259.875,
+              "x": 0,
+              "y": -121,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "ammo",
+              "hp": 311.84999999999997,
+              "x": 0,
+              "y": 122,
+              "angle": -1.5707963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fortress-wreck-pc.png",
+      "kind": "fortress",
+      "state": "wreck",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "morser-battery",
+          "x": 0,
+          "y": -90,
+          "hp": 0,
+          "maxHp": 3465,
+          "dead": true,
+          "phase": "defeated",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "gun-left",
+              "hp": 0,
+              "x": -249,
+              "y": 13,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "gun-right",
+              "hp": 0,
+              "x": 249,
+              "y": 13,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "twin-aa",
+              "hp": 0,
+              "x": 0,
+              "y": -8,
+              "angle": -1.6157963267948963
+            },
+            {
+              "id": "mg-left",
+              "hp": 0,
+              "x": -193,
+              "y": 110,
+              "angle": -1.4987963267948965
+            },
+            {
+              "id": "mg-right",
+              "hp": 0,
+              "x": 193,
+              "y": 110,
+              "angle": -1.6427963267948966
+            },
+            {
+              "id": "observer",
+              "hp": 0,
+              "x": 0,
+              "y": -121,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "ammo",
+              "hp": 0,
+              "x": 0,
+              "y": 122,
+              "angle": -1.5707963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "landships-normal-pc.png",
+      "kind": "landships",
+      "state": "normal",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "mark4-wedge",
+          "role": "male",
+          "x": 0,
+          "y": -190,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 40,
+              "y": 20,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -40,
+              "y": 20,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 54,
+              "y": 22,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -54,
+              "y": 22,
+              "angle": 1.5707963267948966
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": -154.62513642444316,
+          "y": -24.05138137574979,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 40.2253958897013,
+              "y": 19.542710290970415,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -39.76940576659712,
+              "y": 20.454690537178795,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 54.24728568570873,
+              "y": 21.382983789291412,
+              "angle": 1.4987963267948965
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -53.74569655029413,
+              "y": 22.614157121672722,
+              "angle": 1.4987963267948965
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": 155.35308471273999,
+          "y": -24.043061592067698,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 40.2253958897013,
+              "y": 19.542710290970415,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -39.76940576659712,
+              "y": 20.454690537178795,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 54.24728568570873,
+              "y": 21.382983789291412,
+              "angle": 1.6427963267948966
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -53.74569655029413,
+              "y": 22.614157121672722,
+              "angle": 1.6427963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "landships-windup-pc.png",
+      "kind": "landships",
+      "state": "windup",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "mark4-wedge",
+          "role": "male",
+          "x": 0,
+          "y": -190,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 40,
+              "y": 20,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -40,
+              "y": 20,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 54,
+              "y": 22,
+              "angle": 1.7867963267948967
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -54,
+              "y": 22,
+              "angle": 1.5707963267948966
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": -152.99806255701614,
+          "y": -19.94175498807076,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 41.14134092519393,
+              "y": 17.532543080710337,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -38.71083901968461,
+              "y": 22.393546891728935,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 55.23699751082313,
+              "y": 18.678171912404046,
+              "angle": 1.1867963267948962
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -52.563445414762896,
+              "y": 25.240527057279152,
+              "angle": 1.1867963267948962
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": 156.87191681688358,
+          "y": -19.892216489417336,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 41.14134092519393,
+              "y": 17.532543080710337,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -38.71083901968461,
+              "y": 22.393546891728935,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 55.23699751082313,
+              "y": 18.678171912404046,
+              "angle": 1.954796326794897
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -52.563445414762896,
+              "y": 25.240527057279152,
+              "angle": 1.954796326794897
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "landships-release-pc.png",
+      "kind": "landships",
+      "state": "release",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "mark4-wedge",
+          "role": "male",
+          "x": 4.453299244488519,
+          "y": -181.2029721303027,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 41.95690669389966,
+              "y": 15.479598853956048,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -37.55782309950464,
+              "y": 24.277766042746094,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 56.09193858746517,
+              "y": 15.927787840752899,
+              "angle": 1.9150150097773644
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -51.252946633630636,
+              "y": 27.80531354561947,
+              "angle": 1.5707963267948966
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": -144.2088107586393,
+          "y": 2.175861830239966,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 44.30325820794192,
+              "y": 6.100927155803963,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -31.462696649408315,
+              "y": 31.78205027287116,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 58.2043283859049,
+              "y": 3.5008794817509603,
+              "angle": 0.7796074494727739
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -44.079710671517944,
+              "y": 38.170395689791675,
+              "angle": 0.415878689692866
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": 164.54561961989887,
+          "y": 2.6342139192403344,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 44.11399409688636,
+              "y": 7.345442452288051,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -32.34475041996225,
+              "y": 30.883929806136255,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 58.08273657118107,
+              "y": 5.13767577828583,
+              "angle": 2.675361440971984
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -45.13656852656456,
+              "y": 36.914633705980904,
+              "angle": 2.589753409372389
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "landships-damage-pc.png",
+      "kind": "landships",
+      "state": "damage",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "mark4-wedge",
+          "role": "male",
+          "x": 0,
+          "y": -190,
+          "hp": 822.3599999999999,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 55.44,
+              "x": 40,
+              "y": 20,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 55.44,
+              "x": -40,
+              "y": 20,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 83.16000000000001,
+              "x": 54,
+              "y": 22,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-right",
+              "hp": 83.16000000000001,
+              "x": -54,
+              "y": 22,
+              "angle": 1.5707963267948966
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": -154.25002728042043,
+          "y": -23.10285982871983,
+          "hp": 822.3599999999999,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 55.44,
+              "x": 40.44556414356845,
+              "y": 19.082880838817026,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 55.44,
+              "x": -39.53364315719469,
+              "y": 20.90672281156455,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 83.16000000000001,
+              "x": 54.48752147052069,
+              "y": 20.76318867610529,
+              "angle": 1.4267963267948964
+            },
+            {
+              "id": "sponson-right",
+              "hp": 83.16000000000001,
+              "x": -53.48440838550957,
+              "y": 23.225375339314443,
+              "angle": 1.4267963267948964
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": 155.70524467519328,
+          "y": -23.08578248652236,
+          "hp": 822.3599999999999,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 55.44,
+              "x": 40.44556414356845,
+              "y": 19.082880838817026,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 55.44,
+              "x": -39.53364315719469,
+              "y": 20.90672281156455,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 83.16000000000001,
+              "x": 54.487521470520676,
+              "y": 20.76318867610529,
+              "angle": 1.7147963267948967
+            },
+            {
+              "id": "sponson-right",
+              "hp": 83.16000000000001,
+              "x": -53.48440838550955,
+              "y": 23.225375339314443,
+              "angle": 1.7147963267948967
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "landships-support-lost-pc.png",
+      "kind": "landships",
+      "state": "support-lost",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "mark4-wedge",
+          "role": "male",
+          "x": 16.569940648459585,
+          "y": -156.85145661922485,
+          "hp": 822.3599999999999,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "exposed",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 44.666697350424116,
+              "y": 2.2104632558844344,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -28.56838901496201,
+              "y": 34.407079926808635,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 0,
+              "x": 58.28775288113979,
+              "y": -1.593067502392671,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-right",
+              "hp": 0,
+              "x": -40.579613712131476,
+              "y": 41.87236500335503,
+              "angle": 1.5707963267948966
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": -135.92191122699373,
+          "y": 23.394920008375863,
+          "hp": 822.3599999999999,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "exposed",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 44.501884223184106,
+              "y": 4.425189327737108,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -30.241281996100156,
+              "y": 32.946393781905016,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 0,
+              "x": 58.29496842291303,
+              "y": 1.3025577037398293,
+              "angle": 1.4987963267948965
+            },
+            {
+              "id": "sponson-right",
+              "hp": 0,
+              "x": -42.60830597312068,
+              "y": 39.80618371686651,
+              "angle": 1.4987963267948965
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": 168.4184030522016,
+          "y": 21.18977200684465,
+          "hp": 822.3599999999999,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "exposed",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 42.32984572035491,
+              "y": 14.428588333269204,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -36.940778098828304,
+              "y": 25.206723576322396,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 0,
+              "x": 56.47165826978829,
+              "y": 14.524180261214475,
+              "angle": 1.6427963267948966
+            },
+            {
+              "id": "sponson-right",
+              "hp": 0,
+              "x": -50.54368388610904,
+              "y": 29.074662839336284,
+              "angle": 1.6427963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "landships-immobilized-pc.png",
+      "kind": "landships",
+      "state": "immobilized",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "mark4-wedge",
+          "role": "male",
+          "x": 0,
+          "y": -190,
+          "hp": 933.2399999999999,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "tracks-disabled",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 0,
+              "x": 40,
+              "y": 20,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 0,
+              "x": -40,
+              "y": 20,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 54,
+              "y": 22,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -54,
+              "y": 22,
+              "angle": 1.5707963267948966
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": -143.33249329812293,
+          "y": 4.38865814469221,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 44.44985105073157,
+              "y": 4.920441196455634,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -30.60626358760345,
+              "y": 32.607616122711875,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 58.2768504855966,
+              "y": 1.9515884503191678,
+              "angle": 0.7805633726332235
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -43.04890427615567,
+              "y": 39.32927460076509,
+              "angle": 0.40725549134008443
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": 165.23305686330428,
+          "y": 4.912762012170475,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 44.03734104293255,
+              "y": 7.791828660105892,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -32.655867553844246,
+              "y": 30.554775638282514,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 58.02772622182292,
+              "y": 5.725643153844404,
+              "angle": 2.684373206029809
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -45.50810538382578,
+              "y": 36.455621574382846,
+              "angle": 2.5979202747551895
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "landships-wreck-pc.png",
+      "kind": "landships",
+      "state": "wreck",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "mark4-wedge",
+          "role": "male",
+          "x": 0,
+          "y": -190,
+          "hp": 0,
+          "maxHp": 1155,
+          "dead": true,
+          "phase": "defeated",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 0,
+              "x": 40,
+              "y": 20,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 0,
+              "x": -40,
+              "y": 20,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 0,
+              "x": 54,
+              "y": 22,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-right",
+              "hp": 0,
+              "x": -54,
+              "y": 22,
+              "angle": 1.5707963267948966
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": -151.4930206669209,
+          "y": -16.149493354412087,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 41.897781431318805,
+              "y": 15.638922953114008,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -37.64980722128249,
+              "y": 24.134871373186645,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 56.03100815602586,
+              "y": 16.14082169591633,
+              "angle": 0.898796326794896
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -51.35823652498593,
+              "y": 27.61035206301439,
+              "angle": 0.898796326794896
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": 158.2554706917258,
+          "y": -16.05396901726421,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 1,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 41.897781431318805,
+              "y": 15.638922953114008,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -37.64980722128249,
+              "y": 24.134871373186645,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 56.03100815602585,
+              "y": 16.14082169591633,
+              "angle": 2.242796326794897
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -51.35823652498591,
+              "y": 27.61035206301439,
+              "angle": 2.242796326794897
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fortress-normal-mobile.png",
+      "kind": "fortress",
+      "state": "normal",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "morser-battery",
+          "x": 0,
+          "y": -90,
+          "hp": 3465,
+          "maxHp": 3465,
+          "dead": false,
+          "phase": "observation",
+          "scale": 0.49117647058823527,
+          "coreVulnerable": false,
+          "parts": [
+            {
+              "id": "gun-left",
+              "hp": 415.8,
+              "x": -122.30294117647058,
+              "y": 6.385294117647064,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "gun-right",
+              "hp": 415.8,
+              "x": 122.30294117647058,
+              "y": 6.385294117647064,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "twin-aa",
+              "hp": 623.6999999999999,
+              "x": 0,
+              "y": -3.9294117647058755,
+              "angle": -1.6157963267948963
+            },
+            {
+              "id": "mg-left",
+              "hp": 190.575,
+              "x": -94.79705882352941,
+              "y": 54.02941176470588,
+              "angle": -1.4987963267948965
+            },
+            {
+              "id": "mg-right",
+              "hp": 190.575,
+              "x": 94.79705882352941,
+              "y": 54.02941176470588,
+              "angle": -1.6427963267948966
+            },
+            {
+              "id": "observer",
+              "hp": 259.875,
+              "x": 0,
+              "y": -59.432352941176475,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "ammo",
+              "hp": 311.84999999999997,
+              "x": 0,
+              "y": 59.923529411764704,
+              "angle": -1.5707963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fortress-windup-mobile.png",
+      "kind": "fortress",
+      "state": "windup",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "morser-battery",
+          "x": 0,
+          "y": -90,
+          "hp": 3465,
+          "maxHp": 3465,
+          "dead": false,
+          "phase": "observation",
+          "scale": 0.49117647058823527,
+          "coreVulnerable": false,
+          "parts": [
+            {
+              "id": "gun-left",
+              "hp": 415.8,
+              "x": -122.30294117647058,
+              "y": 6.385294117647064,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "gun-right",
+              "hp": 415.8,
+              "x": 122.30294117647058,
+              "y": 6.385294117647064,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "twin-aa",
+              "hp": 623.6999999999999,
+              "x": 0,
+              "y": -3.9294117647058755,
+              "angle": -1.4207963267948975
+            },
+            {
+              "id": "mg-left",
+              "hp": 190.575,
+              "x": -94.79705882352941,
+              "y": 54.02941176470588,
+              "angle": -1.1867963267948962
+            },
+            {
+              "id": "mg-right",
+              "hp": 190.575,
+              "x": 94.79705882352941,
+              "y": 54.02941176470588,
+              "angle": -1.954796326794897
+            },
+            {
+              "id": "observer",
+              "hp": 259.875,
+              "x": 0,
+              "y": -59.432352941176475,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "ammo",
+              "hp": 311.84999999999997,
+              "x": 0,
+              "y": 59.923529411764704,
+              "angle": -1.5707963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fortress-release-mobile.png",
+      "kind": "fortress",
+      "state": "release",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "morser-battery",
+          "x": 0,
+          "y": -90,
+          "hp": 3465,
+          "maxHp": 3465,
+          "dead": false,
+          "phase": "observation",
+          "scale": 0.49117647058823527,
+          "coreVulnerable": false,
+          "parts": [
+            {
+              "id": "gun-left",
+              "hp": 415.8,
+              "x": -122.30294117647058,
+              "y": 6.385294117647064,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "gun-right",
+              "hp": 415.8,
+              "x": 122.30294117647058,
+              "y": 6.385294117647064,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "twin-aa",
+              "hp": 623.6999999999999,
+              "x": 0,
+              "y": -3.9294117647058755,
+              "angle": -0.3707963267948997
+            },
+            {
+              "id": "mg-left",
+              "hp": 190.575,
+              "x": -94.79705882352941,
+              "y": 54.02941176470588,
+              "angle": 0.4932036732051048
+            },
+            {
+              "id": "mg-right",
+              "hp": 190.575,
+              "x": 94.79705882352941,
+              "y": 54.02941176470588,
+              "angle": -3.6347963267948984
+            },
+            {
+              "id": "observer",
+              "hp": 259.875,
+              "x": 0,
+              "y": -59.432352941176475,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "ammo",
+              "hp": 311.84999999999997,
+              "x": 0,
+              "y": 59.923529411764704,
+              "angle": -1.5707963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fortress-damage-mobile.png",
+      "kind": "fortress",
+      "state": "damage",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "morser-battery",
+          "x": 0,
+          "y": -90,
+          "hp": 2309.076,
+          "maxHp": 3465,
+          "dead": false,
+          "phase": "observation",
+          "scale": 0.49117647058823527,
+          "coreVulnerable": false,
+          "parts": [
+            {
+              "id": "gun-left",
+              "hp": 166.32000000000002,
+              "x": -122.30294117647058,
+              "y": 6.385294117647064,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "gun-right",
+              "hp": 166.32000000000002,
+              "x": 122.30294117647058,
+              "y": 6.385294117647064,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "twin-aa",
+              "hp": 249.47999999999996,
+              "x": 0,
+              "y": -3.9294117647058755,
+              "angle": -1.660796326794896
+            },
+            {
+              "id": "mg-left",
+              "hp": 76.23,
+              "x": -94.79705882352941,
+              "y": 54.02941176470588,
+              "angle": -1.4267963267948964
+            },
+            {
+              "id": "mg-right",
+              "hp": 76.23,
+              "x": 94.79705882352941,
+              "y": 54.02941176470588,
+              "angle": -1.7147963267948967
+            },
+            {
+              "id": "observer",
+              "hp": 103.95000000000002,
+              "x": 0,
+              "y": -59.432352941176475,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "ammo",
+              "hp": 124.73999999999998,
+              "x": 0,
+              "y": 59.923529411764704,
+              "angle": -1.5707963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fortress-support-lost-mobile.png",
+      "kind": "fortress",
+      "state": "support-lost",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "morser-battery",
+          "x": 0,
+          "y": -90,
+          "hp": 2730.42,
+          "maxHp": 3465,
+          "dead": false,
+          "phase": "core-exposed",
+          "scale": 0.49117647058823527,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "gun-left",
+              "hp": 415.8,
+              "x": -122.30294117647058,
+              "y": 6.385294117647064,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "gun-right",
+              "hp": 415.8,
+              "x": 122.30294117647058,
+              "y": 6.385294117647064,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "twin-aa",
+              "hp": 623.6999999999999,
+              "x": 0,
+              "y": -3.9294117647058755,
+              "angle": -3.8657963267949094
+            },
+            {
+              "id": "mg-left",
+              "hp": 190.575,
+              "x": -94.79705882352941,
+              "y": 54.02941176470588,
+              "angle": 1.385824627887998
+            },
+            {
+              "id": "mg-right",
+              "hp": 190.575,
+              "x": 94.79705882352941,
+              "y": 54.02941176470588,
+              "angle": -4.01821721023211
+            },
+            {
+              "id": "observer",
+              "hp": 0,
+              "x": 0,
+              "y": -59.432352941176475,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "ammo",
+              "hp": 0,
+              "x": 0,
+              "y": 59.923529411764704,
+              "angle": -1.5707963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fortress-immobilized-mobile.png",
+      "kind": "fortress",
+      "state": "immobilized",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "morser-battery",
+          "x": 0,
+          "y": -90,
+          "hp": 2633.4,
+          "maxHp": 3465,
+          "dead": false,
+          "phase": "core-exposed",
+          "scale": 0.49117647058823527,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "gun-left",
+              "hp": 0,
+              "x": -122.30294117647058,
+              "y": 6.385294117647064,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "gun-right",
+              "hp": 415.8,
+              "x": 122.30294117647058,
+              "y": 6.385294117647064,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "twin-aa",
+              "hp": 0,
+              "x": 0,
+              "y": -3.9294117647058755,
+              "angle": -1.6157963267948963
+            },
+            {
+              "id": "mg-left",
+              "hp": 190.575,
+              "x": -94.79705882352941,
+              "y": 54.02941176470588,
+              "angle": 0.6612036732051049
+            },
+            {
+              "id": "mg-right",
+              "hp": 190.575,
+              "x": 94.79705882352941,
+              "y": 54.02941176470588,
+              "angle": -3.8027963267948985
+            },
+            {
+              "id": "observer",
+              "hp": 259.875,
+              "x": 0,
+              "y": -59.432352941176475,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "ammo",
+              "hp": 311.84999999999997,
+              "x": 0,
+              "y": 59.923529411764704,
+              "angle": -1.5707963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "fortress-wreck-mobile.png",
+      "kind": "fortress",
+      "state": "wreck",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "morser-battery",
+          "x": 0,
+          "y": -90,
+          "hp": 0,
+          "maxHp": 3465,
+          "dead": true,
+          "phase": "defeated",
+          "scale": 0.49117647058823527,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "gun-left",
+              "hp": 0,
+              "x": -122.30294117647058,
+              "y": 6.385294117647064,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "gun-right",
+              "hp": 0,
+              "x": 122.30294117647058,
+              "y": 6.385294117647064,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "twin-aa",
+              "hp": 0,
+              "x": 0,
+              "y": -3.9294117647058755,
+              "angle": -1.6157963267948963
+            },
+            {
+              "id": "mg-left",
+              "hp": 0,
+              "x": -94.79705882352941,
+              "y": 54.02941176470588,
+              "angle": -1.4987963267948965
+            },
+            {
+              "id": "mg-right",
+              "hp": 0,
+              "x": 94.79705882352941,
+              "y": 54.02941176470588,
+              "angle": -1.6427963267948966
+            },
+            {
+              "id": "observer",
+              "hp": 0,
+              "x": 0,
+              "y": -59.432352941176475,
+              "angle": -1.5707963267948966
+            },
+            {
+              "id": "ammo",
+              "hp": 0,
+              "x": 0,
+              "y": 59.923529411764704,
+              "angle": -1.5707963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "landships-normal-mobile.png",
+      "kind": "landships",
+      "state": "normal",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "mark4-wedge",
+          "role": "male",
+          "x": 0,
+          "y": -156.8,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 26.720000000000002,
+              "y": 13.359999999999985,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -26.720000000000002,
+              "y": 13.360000000000014,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 36.072,
+              "y": 14.695999999999998,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -36.072,
+              "y": 14.695999999999998,
+              "angle": 1.5707963267948966
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": -103.28959113152803,
+          "y": -45.94632275900086,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 26.870564454320473,
+              "y": 13.054530474368242,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -26.565963052086886,
+              "y": 13.663733278835437,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 36.23718683805345,
+              "y": 14.283833171246663,
+              "angle": 1.4987963267948965
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -35.90212529559648,
+              "y": 15.106256957277381,
+              "angle": 1.4987963267948965
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": 103.77586058811033,
+          "y": -45.940765143501224,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 26.87056445432046,
+              "y": 13.054530474368235,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -26.56596305208687,
+              "y": 13.663733278835437,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 36.23718683805345,
+              "y": 14.283833171246663,
+              "angle": 1.6427963267948966
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -35.90212529559648,
+              "y": 15.106256957277381,
+              "angle": 1.6427963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "landships-windup-mobile.png",
+      "kind": "landships",
+      "state": "windup",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "mark4-wedge",
+          "role": "male",
+          "x": 0,
+          "y": -156.8,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 26.720000000000002,
+              "y": 13.359999999999985,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -26.720000000000002,
+              "y": 13.360000000000014,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 36.072,
+              "y": 14.695999999999998,
+              "angle": 1.7867963267948967
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -36.072,
+              "y": 14.695999999999998,
+              "angle": 1.5707963267948966
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": -102.20270578808677,
+          "y": -43.201092332031266,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 27.482415738029545,
+              "y": 11.711738777914505,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -25.858840465149314,
+              "y": 14.958889323674931,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 36.89831433722986,
+              "y": 12.477018837485904,
+              "angle": 1.1867963267948962
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -35.11238153706162,
+              "y": 16.860672074262474,
+              "angle": 1.1867963267948962
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": 104.79044043367828,
+          "y": -43.168000614930776,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 27.48241573802953,
+              "y": 11.711738777914505,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -25.858840465149328,
+              "y": 14.958889323674931,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 36.89831433722985,
+              "y": 12.477018837485904,
+              "angle": 1.954796326794897
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -35.11238153706161,
+              "y": 16.860672074262474,
+              "angle": 1.954796326794897
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "landships-release-mobile.png",
+      "kind": "landships",
+      "state": "release",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "mark4-wedge",
+          "role": "male",
+          "x": 2.974803895318333,
+          "y": -150.9235853830422,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 28.027213671524976,
+              "y": 10.340372034442652,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -25.0886258304691,
+              "y": 16.217547716554407,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 37.46941497642674,
+              "y": 10.639762277622935,
+              "angle": 1.888548482122269
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -34.23696835126527,
+              "y": 18.573949448473797,
+              "angle": 1.5707963267948966
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": -96.33148558677102,
+          "y": -28.426524297399695,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 29.59457648290521,
+              "y": 4.0754193400770475,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -21.017081361804756,
+              "y": 21.23040958227794,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 38.88049136178448,
+              "y": 2.3385874938096407,
+              "angle": 0.9825616517042065
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -29.44524672857399,
+              "y": 25.49782432078084,
+              "angle": 0.6887193852868684
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": 109.02846826475867,
+          "y": -27.871406789693243,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 28.993715404322742,
+              "y": 7.198087735859975,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -23.154699431281628,
+              "y": 18.87611968194221,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 38.41163879920559,
+              "y": 6.458142516185696,
+              "angle": 2.4510038139116945
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -31.988721228860342,
+              "y": 22.223485643396717,
+              "angle": 2.292703044498785
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "landships-damage-mobile.png",
+      "kind": "landships",
+      "state": "damage",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "mark4-wedge",
+          "role": "male",
+          "x": 0,
+          "y": -156.8,
+          "hp": 822.3599999999999,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 55.44,
+              "x": 26.720000000000002,
+              "y": 13.359999999999985,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 55.44,
+              "x": -26.720000000000002,
+              "y": 13.360000000000014,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 83.16000000000001,
+              "x": 36.072,
+              "y": 14.695999999999998,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-right",
+              "hp": 83.16000000000001,
+              "x": -36.072,
+              "y": 14.695999999999998,
+              "angle": 1.5707963267948966
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": -103.03901822332085,
+          "y": -45.31271036558484,
+          "hp": 822.3599999999999,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 55.44,
+              "x": 27.01763684790373,
+              "y": 12.747364400329772,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 55.44,
+              "x": -26.408473629006068,
+              "y": 13.96569083812512,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 83.16000000000001,
+              "x": 36.39766434230782,
+              "y": 13.869810035638334,
+              "angle": 1.4267963267948964
+            },
+            {
+              "id": "sponson-right",
+              "hp": 83.16000000000001,
+              "x": -35.72758480152038,
+              "y": 15.514550726662051,
+              "angle": 1.4267963267948964
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": 104.01110344302911,
+          "y": -45.301302700996935,
+          "hp": 822.3599999999999,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 55.44,
+              "x": 27.017636847903717,
+              "y": 12.747364400329772,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 55.44,
+              "x": -26.408473629006053,
+              "y": 13.96569083812512,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 83.16000000000001,
+              "x": 36.397664342307806,
+              "y": 13.869810035638334,
+              "angle": 1.7147963267948967
+            },
+            {
+              "id": "sponson-right",
+              "hp": 83.16000000000001,
+              "x": -35.72758480152039,
+              "y": 15.514550726662051,
+              "angle": 1.7147963267948967
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "landships-support-lost-mobile.png",
+      "kind": "landships",
+      "state": "support-lost",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "mark4-wedge",
+          "role": "male",
+          "x": 10.770969468400361,
+          "y": -135.26960785840143,
+          "hp": 822.3599999999999,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "exposed",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 29.818582264645677,
+              "y": 1.816631973339213,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -19.34445493745877,
+              "y": 22.764886627713025,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 0,
+              "x": 38.945820141373304,
+              "y": -0.620236661123613,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-right",
+              "hp": 0,
+              "x": -27.4242800814677,
+              "y": 27.659907122281055,
+              "angle": 1.5707963267948966
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": -90.79583669963186,
+          "y": -14.252193434404905,
+          "hp": 822.3599999999999,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "exposed",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 29.727258661086985,
+              "y": 2.9560264709283484,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -20.201176373394873,
+              "y": 22.00819104631258,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 0,
+              "x": 38.94103890650591,
+              "y": 0.8701085460981535,
+              "angle": 1.4987963267948965
+            },
+            {
+              "id": "sponson-right",
+              "hp": 0,
+              "x": -28.462348390044582,
+              "y": 26.590530722866863,
+              "angle": 1.4987963267948965
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": 111.87138629731064,
+          "y": -15.944215180995164,
+          "hp": 822.3599999999999,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "exposed",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 29.14227723603861,
+              "y": 6.57082015412586,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -22.74202246492385,
+              "y": 19.371329696355364,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 0,
+              "x": 38.54204242226277,
+              "y": 5.627838476759761,
+              "angle": 1.6427963267948966
+            },
+            {
+              "id": "sponson-right",
+              "hp": 0,
+              "x": -31.501762174036543,
+              "y": 22.908526358769585,
+              "angle": 1.6427963267948966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "landships-immobilized-mobile.png",
+      "kind": "landships",
+      "state": "immobilized",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "mark4-wedge",
+          "role": "male",
+          "x": 0,
+          "y": -156.8,
+          "hp": 933.2399999999999,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "tracks-disabled",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 0,
+              "x": 26.720000000000002,
+              "y": 13.359999999999985,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 0,
+              "x": -26.720000000000002,
+              "y": 13.360000000000014,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 36.072,
+              "y": 14.695999999999998,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -36.072,
+              "y": 14.695999999999998,
+              "angle": 1.5707963267948966
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": -95.7461055231461,
+          "y": -26.948376359345595,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 29.692500501888688,
+              "y": 3.2868547192323625,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -20.444984076519106,
+              "y": 21.781887569971534,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 38.92893612437853,
+              "y": 1.3036610848132035,
+              "angle": 0.9838954281308401
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -28.756668056471995,
+              "y": 26.27195543331108,
+              "angle": 0.6848185011864367
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": 109.37870061172194,
+          "y": -26.32065264580247,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 28.98420629956442,
+              "y": 7.236282552822985,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -23.179549821997043,
+              "y": 18.845595507957743,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 38.403096444716056,
+              "y": 6.508746688713437,
+              "angle": 2.4564151246300074
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -32.017974319391925,
+              "y": 22.181319178145365,
+              "angle": 2.298698398413108
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "landships-wreck-mobile.png",
+      "kind": "landships",
+      "state": "wreck",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "mark4-wedge",
+          "role": "male",
+          "x": 0,
+          "y": -156.8,
+          "hp": 0,
+          "maxHp": 1155,
+          "dead": true,
+          "phase": "defeated",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 0,
+              "x": 26.720000000000002,
+              "y": 13.359999999999985,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 0,
+              "x": -26.720000000000002,
+              "y": 13.360000000000014,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 0,
+              "x": 36.072,
+              "y": 14.695999999999998,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-right",
+              "hp": 0,
+              "x": -36.072,
+              "y": 14.695999999999998,
+              "angle": 1.5707963267948966
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": -101.19733780550315,
+          "y": -40.667861560747276,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 27.987717996120963,
+              "y": 10.446800532680157,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -25.15007122381671,
+              "y": 16.12209407728868,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 37.42871344822528,
+              "y": 10.782068892872111,
+              "angle": 0.9681423752726357
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -34.30730199869059,
+              "y": 18.443715178093612,
+              "angle": 0.898796326794896
+            }
+          ]
+        },
+        {
+          "kind": "mark4-wedge",
+          "role": "female",
+          "x": 105.7146544220729,
+          "y": -40.6040513035325,
+          "hp": 1155,
+          "maxHp": 1155,
+          "dead": false,
+          "phase": "advance",
+          "scale": 0.668,
+          "coreVulnerable": true,
+          "parts": [
+            {
+              "id": "track-left",
+              "hp": 138.6,
+              "x": 27.987717996120978,
+              "y": 10.446800532680157,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "track-right",
+              "hp": 138.6,
+              "x": -25.15007122381671,
+              "y": 16.12209407728868,
+              "angle": 1.5707963267948966
+            },
+            {
+              "id": "sponson-left",
+              "hp": 207.9,
+              "x": 37.42871344822527,
+              "y": 10.782068892872111,
+              "angle": 2.242796326794897
+            },
+            {
+              "id": "sponson-right",
+              "hp": 207.9,
+              "x": -34.30730199869059,
+              "y": 18.443715178093612,
+              "angle": 2.2227455774843623
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "loaded": [
+    "alps-peak-cliff182.webp",
+    "alps-peak-ridge182.webp",
+    "alps-peak-sharp182.webp",
+    "boss-mark1-hardware20261001.webp",
+    "boss-mark1-hulls20261001.webp",
+    "boss-parts100.webp",
+    "boss-schwaben-body20261001.webp",
+    "boss-schwaben-support20261001.webp",
+    "boss-schwaben-weapons20261001.webp",
+    "campaign-units.webp",
+    "cannon-projectiles135.webp",
+    "city-buildings107.webp",
+    "combat-fx196.webp",
+    "damage-decals.webp",
+    "fx-airblast-0.webp",
+    "fx-airblast-1.webp",
+    "fx-airblast-2.webp",
+    "fx-airblast-3.webp",
+    "fx-bomb-body.webp",
+    "fx-bombfx-0.webp",
+    "fx-bombfx-1.webp",
+    "fx-bombfx-2.webp",
+    "fx-bombfx-3.webp",
+    "fx-bossblast-0.webp",
+    "fx-bossblast-1.webp",
+    "fx-bossblast-2.webp",
+    "fx-bossblast-3.webp",
+    "fx-city-searchlight.webp",
+    "fx-combat-flak-burst.webp",
+    "fx-combat-le-prieur.webp",
+    "fx-debris-shard.webp",
+    "fx-dirt-burst.webp",
+    "fx-dirt-mix.webp",
+    "fx-dust-puff.webp",
+    "fx-engine-smoke.webp",
+    "fx-fire-engine.webp",
+    "fx-fire-flash.webp",
+    "fx-fire-ground.webp",
+    "fx-fire-wing.webp",
+    "fx-flame-jet.webp",
+    "fx-flame-tongue-1.webp",
+    "fx-flame-tongue-2.webp",
+    "fx-flame-tongue-3.webp",
+    "fx-foam-ring.webp",
+    "fx-gun-smoke.webp",
+    "fx-incendiary.webp",
+    "fx-metal-shard-0.webp",
+    "fx-metal-shard-1.webp",
+    "fx-metal-shard-2.webp",
+    "fx-metal-shard-3.webp",
+    "fx-metal-shard-4.webp",
+    "fx-metal-shard-5.webp",
+    "fx-mine-body.webp",
+    "fx-mineblast-0.webp",
+    "fx-mineblast-1.webp",
+    "fx-mineblast-2.webp",
+    "fx-mineblast-3.webp",
+    "fx-mist.webp",
+    "fx-mortar-shell.webp",
+    "fx-muzzle-heavy.webp",
+    "fx-muzzle-pistol.webp",
+    "fx-muzzle-rear.webp",
+    "fx-muzzle-twin.webp",
+    "fx-pack-v189/explosions/impact-aircraft-debris.webp",
+    "fx-pack-v189/explosions/impact-ricochet.webp",
+    "fx-pack-v189/gas-smoke/exhaust-rocket.webp",
+    "fx-pack-v189/gas-smoke/fire-small.webp",
+    "fx-pack-v189/gas-smoke/gas-small.webp",
+    "fx-pack-v189/gas-smoke/vapor-trail.webp",
+    "fx-pack-v189/projectiles/bullet-brass.webp",
+    "fx-pack-v189/projectiles/muzzle-flash.webp",
+    "fx-pack-v189/projectiles/rocket-heavy.webp",
+    "fx-pack-v189/projectiles/rocket-le-prieur.webp",
+    "fx-pack-v189/projectiles/shell-autocannon.webp",
+    "fx-pack-v189/projectiles/tracer-amber.webp",
+    "fx-pack-v189/projectiles/tracer-cream.webp",
+    "fx-pack-v189/projectiles/tracer-orange.webp",
+    "fx-pack-v189/projectiles/tracer-violet.webp",
+    "fx-pop-0.webp",
+    "fx-pop-1.webp",
+    "fx-pop-2.webp",
+    "fx-pop-3.webp",
+    "fx-rock-chunk-0.webp",
+    "fx-rock-chunk-1.webp",
+    "fx-rock-chunk-2.webp",
+    "fx-rock-chunk-3.webp",
+    "fx-rock-chunk-4.webp",
+    "fx-rock-chunk-5.webp",
+    "fx-role-split/atmosphere-smoke-gas.webp",
+    "fx-role-split/combat-families.webp",
+    "fx-role-split/naval-contact.webp",
+    "fx-role-split/role-impacts.webp",
+    "fx-role-split/surface-fire.webp",
+    "fx-role-split/weather-clouds.webp",
+    "fx-shell-heavy.webp",
+    "fx-shellburst-0.webp",
+    "fx-shellburst-1.webp",
+    "fx-shellburst-2.webp",
+    "fx-shellburst-3.webp",
+    "fx-ship-cen-aa.webp",
+    "fx-ship-cen-dd.webp",
+    "fx-ship-ent-aa.webp",
+    "fx-ship-ent-dd.webp",
+    "fx-shock-ring.webp",
+    "fx-smoke-dust.webp",
+    "fx-smoke-heavy.webp",
+    "fx-smoke-trail.webp",
+    "fx-splash-shell.webp",
+    "fx-splash-tiny.webp",
+    "fx-structure-0.webp",
+    "fx-structure-1.webp",
+    "fx-structure-2.webp",
+    "fx-structure-3.webp",
+    "fx-torpedo.webp",
+    "fx-wake-fast.webp",
+    "fx-water-column.webp",
+    "fx-wind-streak.webp",
+    "mech/aeg_g4.webp",
+    "mech/airco_dh2.webp",
+    "mech/albatros.webp",
+    "mech/albatros_d2.webp",
+    "mech/albatros_d5a.webp",
+    "mech/allmenroder_albatros.webp",
+    "mech/ansaldo_sva5.webp",
+    "mech/arigi_aviatik.webp",
+    "mech/aviatik.webp",
+    "mech/aviatik_d1.webp",
+    "mech/baeumer_pfalz.webp",
+    "mech/ball_se5a.webp",
+    "mech/baracca_nieuport.webp",
+    "mech/barker_snipe.webp",
+    "mech/baron_albatros.webp",
+    "mech/be2c.webp",
+    "mech/beaulieu_dr1.webp",
+    "mech/berthold_pfalz.webp",
+    "mech/boyau_spad.webp",
+    "mech/breguet14.webp",
+    "mech/bristol_duo.webp",
+    "mech/bristol_m1.webp",
+    "mech/brown_camel.webp",
+    "mech/brumowski_albatros.webp",
+    "mech/camel.webp",
+    "mech/caquot_balloon.webp",
+    "mech/caudron_g4.webp",
+    "mech/checker_se5a.webp",
+    "mech/collishaw_sopwith.webp",
+    "mech/coppens_hanriot.webp",
+    "mech/dazzle_camel.webp",
+    "mech/degelow_pfalz.webp",
+    "mech/dfw_cv.webp",
+    "mech/dh4.webp",
+    "mech/dh5.webp",
+    "mech/dolphin.webp",
+    "mech/dorme_nieuport.webp",
+    "mech/eagle_nieuport28.webp",
+    "mech/eindecker.webp",
+    "mech/fe2b.webp",
+    "mech/felixstowe_f2.webp",
+    "mech/ff33.webp",
+    "mech/fokker.webp",
+    "mech/fokker_f1.webp",
+    "mech/fokker_jacobs.webp",
+    "mech/fokker_standard.webp",
+    "mech/fokkerd7.webp",
+    "mech/fokkerdv.webp",
+    "mech/friedrichshafen_g3.webp",
+    "mech/gabriel_fokkerd7.webp",
+    "mech/goering_fokkerd7.webp",
+    "mech/gontermann_fokker.webp",
+    "mech/gotha.webp",
+    "mech/gotha_night.webp",
+    "mech/gunbus.webp",
+    "mech/guynemer_spad.webp",
+    "mech/halberstadt_duo.webp",
+    "mech/handley-page.webp",
+    "mech/hannover_cl3.webp",
+    "mech/hanriot.webp",
+    "mech/hansa_brandenburg_cc.webp",
+    "mech/hantelmann_dr1.webp",
+    "mech/hatring_spad.webp",
+    "mech/hb_w29.webp",
+    "mech/jasta11_fokkerd7.webp",
+    "mech/jasta11a_albatros.webp",
+    "mech/jasta11b_albatros.webp",
+    "mech/jasta11c_albatros.webp",
+    "mech/jasta11d_albatros.webp",
+    "mech/jasta18_fokkerd7.webp",
+    "mech/jasta27_fokkerd7.webp",
+    "mech/jasta43_fokkerd7.webp",
+    "mech/jasta4_albatros.webp",
+    "mech/jasta5_albatros.webp",
+    "mech/jasta78b_albatros.webp",
+    "mech/junkers_d1.webp",
+    "mech/junkers_j1.webp",
+    "mech/kiss_phonix.webp",
+    "mech/kissenberth_albatros.webp",
+    "mech/linke_crawford_phonix.webp",
+    "mech/loewenhardt_fokkerd7.webp",
+    "mech/lohner_l.webp",
+    "mech/lothar_dr1.webp",
+    "mech/lufbery_nieuport17.webp",
+    "mech/luke_nieuport28.webp",
+    "mech/macchi_m3.webp",
+    "mech/macchi_m5.webp",
+    "mech/madon_spad.webp",
+    "mech/mai_dr1.webp",
+    "mech/mccudden_se5a.webp",
+    "mech/mcelroy_camel.webp",
+    "mech/meulemeester_nieuport.webp",
+    "mech/morane_ai.webp",
+    "mech/nieuport.webp",
+    "mech/nieuport11.webp",
+    "mech/nieuport24.webp",
+    "mech/nieuport28.webp",
+    "mech/nungesser_nieuport24.webp",
+    "mech/parseval.webp",
+    "mech/pfalz_d12.webp",
+    "mech/pfalz_d3a.webp",
+    "mech/phonix_d1.webp",
+    "mech/pierozzi_macchi.webp",
+    "mech/proctor_se5a.webp",
+    "mech/pup.webp",
+    "mech/re7.webp",
+    "mech/re8.webp",
+    "mech/rickenbacker_spad.webp",
+    "mech/roland_d6.webp",
+    "mech/ruffo_sva5.webp",
+    "mech/se5a.webp",
+    "mech/shuttelanz_sl11.webp",
+    "mech/siemens_d4.webp",
+    "mech/snipe.webp",
+    "mech/sopwith.webp",
+    "mech/spad.webp",
+    "mech/spad12.webp",
+    "mech/springs_se5a.webp",
+    "mech/ssw_d3.webp",
+    "mech/staaken.webp",
+    "mech/staaken_dark.webp",
+    "mech/strutter.webp",
+    "mech/tarascon_spad.webp",
+    "mech/udet_fokkerdv.webp",
+    "mech/voisin8.webp",
+    "mech/wolff_albatros.webp",
+    "ship-bowwave.webp",
+    "terrain-arras.webp",
+    "terrain-city-london96.webp"
+  ],
+  "missing": [
+    "fx-aa-defense-atlas.webp",
+    "fx-grenade-ww1.webp",
+    "fx-sunshaft.webp",
+    "ship-wake.webp",
+    "terrain-alps359.webp",
+    "terrain-burning359r2.webp",
+    "terrain-cambrai.webp",
+    "terrain-city359.webp",
+    "terrain-rural359.webp",
+    "terrain-sea359r2.webp",
+    "terrain-somme359r2.webp",
+    "terrain-trenches359r2.webp"
+  ]
+}
