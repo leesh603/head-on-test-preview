@@ -648,9 +648,10 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    drawBossPart(c,p,ring,g?.t||0);
   },
    drawHazard(h){if(layer==='bodies')return;
-    const warning=h.phase==='warning';c.save();
+    const warning=h.phase==='warning';
+    if(h.visual==='harbor-swing'){c.save();c.setLineDash(warning?[5,5]:[]);c.strokeStyle=warning?'#dfbd82b3':'#cfad6b55';c.lineWidth=1.5;c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.stroke();c.restore();return;}
+    c.save();
     if(drawAlpsHazard(c,h,ring)){c.restore();return;}
-   if(h.visual==='harbor-swing'){c.setLineDash(warning?[5,5]:[]);c.strokeStyle=warning?'#dfbd82b3':'#cfad6b55';c.lineWidth=1.5;c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.stroke();c.restore();return;}
     if(drawRegionalHazard(c,h,addon.stages.encounter?.bodies.get(h.bossId)?.kind)){c.restore();return;}
     if(h.visual==='aa-flak'){
      const q=clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1);
