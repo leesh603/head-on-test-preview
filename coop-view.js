@@ -1,39 +1,41 @@
-import {getLocale} from './i18n.js?v=488';
-import {unitNameEN} from './event-text-en.js?v=488';
-import {drawRegionalBug} from './regional-boss-view352.js?v=488';
-import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=488';
-import {drawGasCloud196} from './gas-cloud196.js?v=488';
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=488';
-import {fxsBoomTail} from './fx-sample-preview.js?v=488';
-import {fx,fxReady,fxTint} from './fx-art.js?v=488';
-import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=488';
+import {getLocale} from './i18n.js?v=489';
+import {unitNameEN} from './event-text-en.js?v=489';
+import {drawRegionalBug} from './regional-boss-view352.js?v=489';
+import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=489';
+import {drawGasCloud196} from './gas-cloud196.js?v=489';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=489';
+import {fxsBoomTail} from './fx-sample-preview.js?v=489';
+import {fx,fxReady,fxTint} from './fx-art.js?v=489';
+import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=489';
 import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js';
-import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=488';
-import {drawStageBoss} from './stageboss-view.js?v=488';
-import {planeSprite,aircraftKey} from './aircraft.js?v=488';
-import {drawEquipment} from './equipment.js?v=488';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=488';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=488';
-import {drawSpecialAmmoIcon} from './icons.js?v=488';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=488';
+import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=489';
+import {drawStageBoss} from './stageboss-view.js?v=489';
+import {planeSprite,aircraftKey} from './aircraft.js?v=489';
+import {drawEquipment} from './equipment.js?v=489';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=489';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=489';
+import {drawSpecialAmmoIcon} from './icons.js?v=489';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=489';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
 const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=426&b=326';
 export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fieldArtImg,groundLayer}){
  const t=g.t,z=g.camera.zoom;c.save();c.scale(z,z);terrain(g.x,g.y,W/z,H/z);c.restore();drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});c.save();c.translate(W/2,H/2);c.scale(z,z);c.translate(-g.x,-g.y);
- groundLayer?.();drawBattlefieldFire(c,g);for(const e of g.enemyAirshipPasses||[])drawZeppelin(c,e.x,e.y,e.a,.72,false,'central');
+ groundLayer?.();drawBattlefieldFire(c,g);
+ const cl=(x,y,m)=>x<g.x-W/(2*z)-m||x>g.x+W/(2*z)+m||y<g.y-H/(2*z)-m||y>g.y+H/(2*z)+m;
+ for(const e of g.enemyAirshipPasses||[])if(!cl(e.x,e.y,260))drawZeppelin(c,e.x,e.y,e.a,.72,false,'central');
  for(const p of g.players)for(const d of p.vossAfterimages||[]){c.save();c.globalAlpha=.4*d.life/d.maxLife;planeSprite(c,d.x,d.y,d.a,aircraftKey(p.plane,false,p.pilot),1);c.restore();}
- for(const e of g.enemies)for(const d of e.vossTrails||[]){c.save();c.globalAlpha=.4*d.life/d.maxLife;planeSprite(c,d.x,d.y,d.a,e.bossPlane,enemyAircraftScale(e),true);c.restore();}
+ for(const e of g.enemies)for(const d of e.vossTrails||[]){if(cl(d.x,d.y,110))continue;c.save();c.globalAlpha=.4*d.life/d.maxLife;planeSprite(c,d.x,d.y,d.a,e.bossPlane,enemyAircraftScale(e),true);c.restore();}
  for(const d of g.revisionDecoys||[]){c.save();c.globalAlpha=Math.min(.45,d.life*.4);planeSprite(c,d.x,d.y,d.a,aircraftKey(d.plane,false,d.pilot),1);c.restore()}
  const ring=(x,y,r,color,width=2)=>{c.strokeStyle=color;c.lineWidth=width;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.stroke()};
  const heart=(x,y,size,color)=>{const s=Math.max(1,Math.round(size/4));c.fillStyle=color;c.fillRect(x-2*s,y-s,s,s);c.fillRect(x+s,y-s,s,s);c.fillRect(x-3*s,y,6*s,s);c.fillRect(x-2*s,y+s,4*s,s);c.fillRect(x-s,y+2*s,2*s,s)};
  const sprite=(p,key,scale=1,enemy=false)=>{const q=playerPose(p,p.x,p.y);if(!enemy){drawRedGhosts162(c,p,p.x,p.y,planeSprite,key);drawPlayerAura(c,p,q.x,q.y);}if(!enemy||p.type!=='bomber'&&p.type!=='zeppelin'){c.save();c.globalAlpha*=q.shadowAlpha;planeSprite(c,q.x+(p.pilot==='immelmann'?q.shadowX:14),q.y+(p.pilot==='immelmann'?q.shadowY:20)+q.height,p.a,key,scale*q.scale*q.shadowScale,enemy,true);c.restore();}planeSprite(c,q.x,q.y,p.a,key,scale*q.scale,enemy,false,p.hitFlash||0);if(!enemy)drawPilotSignatureFront(c,p,q.x,q.y)};
- for(const gas of g.gasZones){drawGasCloud196(c,gas,gas.x,gas.y,t);c.fillStyle='#e0dfb0';c.font='13px sans-serif';c.textAlign='center';c.fillText(gas.warning>0?'독가스 살포 '+gas.warning.toFixed(1)+'초':'독가스 · 조종 저하 / 지속 피해',gas.x,gas.y-gas.r-12)}
- for(const field of g.hostileMinefields){if(!field.encounterId)ring(field.x,field.y,field.radius,field.warning>0?'#ffe0a199':'#e58b6c88');for(const m of field.mines)if(!m.dead){drawDrachenMine(c,m.x,m.y,64,64);ring(m.x,m.y,18,field.warning>0?'#ffe0a188':'#ff876e')}}
- for(const d of g.drops){if(d.dead)continue;if(d.specialAmmo){ring(d.x,d.y,24+Math.sin(t*6)*3,SPECIAL_AMMO[d.specialAmmo]?.color||'#ffd36f',2);drawSpecialAmmoIcon(c,d.specialAmmo,d.x,d.y+Math.sin(t*4)*2,42)}else if(d.mccuddenSupply){drawMccuddenSupply(c,d,d.x,d.y)}else if(d.heal||d.supply){const pulse=22+Math.sin(t*5)*4;c.save();c.globalAlpha=.4;ring(d.x,d.y,pulse,'#5fff9e',7);c.globalAlpha=1;ring(d.x,d.y,pulse,'#9cffb4');c.fillStyle='rgba(210,255,224,.9)';for(let i=0;i<4;i++){const sa=t*2.6+i*Math.PI/2;c.beginPath();c.arc(d.x+Math.cos(sa)*(pulse+6),d.y+Math.sin(sa)*(pulse+6),1.7,0,Math.PI*2);c.fill()}c.restore();drawEquipment(c,'repair',d.x,d.y+Math.sin(t*3)*2,0,46)}else{if(xpGem?.naturalWidth)c.drawImage(xpGem,d.x-9,d.y-9,18,18);else{c.fillStyle='#63d5ec';c.fillRect(d.x-3,d.y-3,6,6)}}}
- for(const grenade of g.grenades||[])drawGrenade(c,grenade,grenade.x,grenade.y);for(const m of g.mines){drawDrachenMine(c,m.x,m.y,62,62);if(m.legendary||m.arm===0)ring(m.x,m.y,22+Math.sin(t*5)*3,m.legendary?'#ffd56f99':'#ffcc6677')}
+ for(const gas of g.gasZones){if(cl(gas.x,gas.y,(gas.r||80)+60))continue;drawGasCloud196(c,gas,gas.x,gas.y,t);c.fillStyle='#e0dfb0';c.font='13px sans-serif';c.textAlign='center';c.fillText(gas.warning>0?'독가스 살포 '+gas.warning.toFixed(1)+'초':'독가스 · 조종 저하 / 지속 피해',gas.x,gas.y-gas.r-12)}
+ for(const field of g.hostileMinefields){if(!field.encounterId)ring(field.x,field.y,field.radius,field.warning>0?'#ffe0a199':'#e58b6c88');for(const m of field.mines)if(!m.dead&&!cl(m.x,m.y,80)){drawDrachenMine(c,m.x,m.y,64,64);ring(m.x,m.y,18,field.warning>0?'#ffe0a188':'#ff876e')}}
+ for(const d of g.drops){if(d.dead||cl(d.x,d.y,70))continue;if(d.specialAmmo){ring(d.x,d.y,24+Math.sin(t*6)*3,SPECIAL_AMMO[d.specialAmmo]?.color||'#ffd36f',2);drawSpecialAmmoIcon(c,d.specialAmmo,d.x,d.y+Math.sin(t*4)*2,42)}else if(d.mccuddenSupply){drawMccuddenSupply(c,d,d.x,d.y)}else if(d.heal||d.supply){const pulse=22+Math.sin(t*5)*4;c.save();c.globalAlpha=.4;ring(d.x,d.y,pulse,'#5fff9e',7);c.globalAlpha=1;ring(d.x,d.y,pulse,'#9cffb4');c.fillStyle='rgba(210,255,224,.9)';for(let i=0;i<4;i++){const sa=t*2.6+i*Math.PI/2;c.beginPath();c.arc(d.x+Math.cos(sa)*(pulse+6),d.y+Math.sin(sa)*(pulse+6),1.7,0,Math.PI*2);c.fill()}c.restore();drawEquipment(c,'repair',d.x,d.y+Math.sin(t*3)*2,0,46)}else{if(xpGem?.naturalWidth)c.drawImage(xpGem,d.x-9,d.y-9,18,18);else{c.fillStyle='#63d5ec';c.fillRect(d.x-3,d.y-3,6,6)}}}
+ for(const grenade of g.grenades||[])if(!cl(grenade.x,grenade.y,80))drawGrenade(c,grenade,grenade.x,grenade.y);for(const m of g.mines){if(cl(m.x,m.y,80))continue;drawDrachenMine(c,m.x,m.y,62,62);if(m.legendary||m.arm===0)ring(m.x,m.y,22+Math.sin(t*5)*3,m.legendary?'#ffd56f99':'#ffcc6677')}
  for(const e of g.enemies){
-  if(e.stageBossBody||e.cityUnit)continue;
+  if(e.stageBossBody||e.cityUnit||cl(e.x,e.y,300))continue;
   if(e.crashing){const key=e.escortPlane||e.bossPlane||(e.faction==='entente'?(e.type==='hunter'?'nieuport':'camel'):(e.type==='hunter'?'fokker_standard':'albatros'));fx(c,'smokeTrail',e.x-Math.cos(e.a)*46,e.y-Math.sin(e.a)*46,128,44,e.a,.6);if(Math.floor(t*9+e.x*.11)%3===0)fx(c,'fireEngine',e.x,e.y,38,38,e.a+Math.PI/2,.85);sprite(e,key,enemyAircraftScale(e),true);continue}
   if(e.hp<=0)continue;
   if(e.groundEscort)drawBattlefieldSprite(c,'aa',e.x,e.y,96,e.a+Math.PI/2);
@@ -58,15 +60,15 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
    if(p.pilot==='voss'){const n=(g.enemies||[]).filter(e=>e.hp>0&&(e.x-p.x)**2+(e.y-p.y)**2<400*400).length;if(n>=2){c.save();const m=Math.min(6,n);c.globalAlpha=.75;for(let i=0;i<m;i++){const ga=t*2.6+i*Math.PI*2/m+.4;c.fillStyle=i%2?'#ff9a7a':'#e0523a';c.beginPath();c.arc(p.x+Math.cos(ga)*44,p.y+Math.sin(ga)*44,2.8,0,Math.PI*2);c.fill()}c.restore()}}
    if(p.pilot==='gontermann'){const heavy=(g.enemies||[]).filter(e=>e.hp>0&&(e.heavyBomber||e.zeppelin||e.boss||e.ace||e.big||e.stageBossBody||e.navalVessel||e.fieldUnit||e.type==='boss')&&(e.x-p.x)**2+(e.y-p.y)**2<700*700);if(heavy.length){c.save();heavy.slice(0,4).forEach((e,i)=>{const r=(e.r||18)+13+Math.sin(t*6+i)*3;if(p.pilot==='luke'){c.globalAlpha=.85;c.strokeStyle='#ffb43c';c.lineWidth=2;c.save();c.translate(e.x,e.y);c.rotate(t*1.5);c.beginPath();c.moveTo(0,-r);c.lineTo(r,0);c.lineTo(0,r);c.lineTo(-r,0);c.closePath();c.stroke();c.restore()}else{c.globalAlpha=.8;for(let j=0;j<3;j++){const ga=t*2+j*2.1;c.fillStyle=j%2?'#ff8a3c':'#ffce6a';c.beginPath();c.arc(e.x+Math.cos(ga)*r*.7,e.y+Math.sin(ga)*r*.7,2.4,0,Math.PI*2);c.fill()}}});c.restore()}}
    for(const ship of p.airshipFleet||[])if(ship.age>=0&&ship.age<6)drawZeppelin(c,ship.x,ship.y,ship.a,ship.scale||.825,false,'central')}
- for(const b of g.friendlyBombers){const im=(fieldArtImg?fieldArtImg(b.airframe):fieldArt[b.airframe]);if(im?.naturalWidth)drawFieldArt(b.airframe,b.x,b.y,150,150*im.naturalHeight/im.naturalWidth,b.a+Math.PI/2)}
- for(const b of g.friendlyBombs){const f=1-b.life/b.maxLife;if(!fx(c,'bomb',b.sx+(b.x-b.sx)*f,b.sy+(b.y-b.sy)*f,40,20,Math.atan2(b.y-b.sy,b.x-b.sx))&&!b.bishopBomb)drawEquipment(c,'rocket',b.sx+(b.x-b.sx)*f,b.sy+(b.y-b.sy)*f,Math.atan2(b.y-b.sy,b.x-b.sx)+Math.PI/2,38);if(!b.bishopBomb)ring(b.x,b.y,22,'#a2eddb70')}
- for(const b of g.bullets){if(b.life<=0)continue;if(b.enemy){continue}else if(b.rocket){if(!fx(c,'rocket',b.x,b.y,52,16,Math.atan2(b.vy,b.vx)))drawEquipment(c,'rocket',b.x,b.y,Math.atan2(b.vy,b.vx)+Math.PI/2,48)}else if(b.motorCannon||b.cow37){drawCannonProjectile(c,b,b.x,b.y)}else if(b.mannockPass){fx(c,b.mannockPass==='vertical'?'tracerCream':'tracerAmber',b.x,b.y,48,8,Math.atan2(b.vy,b.vx))}else if(b.fonckVolley){fx(c,'tracerCream',b.x,b.y,46,10,Math.atan2(b.vy,b.vx))}else if(b.fonckSeeker){c.save();c.translate(b.x,b.y);c.rotate(Math.atan2(b.vy,b.vx));if(!fx(c,'tracerCream',-6,0,46,10)){c.fillStyle='#fff0ad';c.fillRect(-22,b.motorCannon?-7:-3,b.motorCannon?45:30,b.motorCannon?14:6);c.fillStyle='#bd8745';c.fillRect(-15,-7,6,b.motorCannon?14:6)}c.restore()}else{const bc=(b.mauserRound?'#a98cff':b.eagle?'#9fdcff':b.specialColor)||(b.formation||b.ally?'#b9f2de':b.pierce?'#f8f5cd':friendlyTracerColor(b,g.gunUpgradeBonus)),bw=b.specialAmmo?4:b.formation||b.ally?4:2;if(!fxTint(c,'tracerAmber',bc,b.x,b.y,bw*11,bw*4,Math.atan2(b.vy,b.vx))){c.strokeStyle=bc;c.lineWidth=bw;c.beginPath();c.moveTo(b.x,b.y);c.lineTo(b.x-b.vx*(b.specialAmmo==='tracer'?.032:.018),b.y-b.vy*(b.specialAmmo==='tracer'?.032:.018));c.stroke()}}}
- for(const zone of g.bombZones){const progress=1-zone.delay/zone.maxDelay;c.fillStyle='#ff3c202a';c.beginPath();c.arc(zone.x,zone.y,zone.radius,0,Math.PI*2);c.fill();ring(zone.x,zone.y,zone.radius,'#ff855a');ring(zone.x,zone.y,Math.max(0,zone.radius*(1-progress)),'#ff855a')}
- for(const fxf of g.combatFX){const f=1-fxf.life/fxf.maxLife;if(fxf.amatol){drawAmatolBlast(c,fxf,fxf.x,fxf.y);continue}if(fxf.grenade){drawGrenadeBlast(c,fxf,fxf.x,fxf.y);continue}if(!drawFxExplosion(c,fxf,fxf.x,fxf.y))drawFieldArt('flak',fxf.x,fxf.y,fxf.radius*(1+f)*2,fxf.radius*(1+f)*2,0,Math.min(1,fxf.life*3))}
- for(const f of g.flakBursts)drawBattlefieldSprite(c,'aa',f.x,f.y,66);
- for(const gust of g.gusts)if(!drawGust3(c,gust,gust.x,gust.y,t))drawFieldArt('gust',gust.x,gust.y,gust.radius*2.6,gust.radius*2.6,gust.a+t*.15,Math.max(0,Math.min(.85,gust.life,6-gust.life)));
- for(const p of g.grunkreuzPuffs||[])drawGasVeil3(c,p,p.x,p.y,t);
- for(const particle of g.particles){const smokeLife=particle.smoke?Math.max(0,particle.life/particle.maxLife):0;c.globalAlpha=particle.smoke?smokeLife*(particle.muzzleSmoke?.88:.65):Math.min(1,particle.life*3);if(particle.petal){drawPetalParticle(c,particle,particle.x,particle.y);continue}if(particle.heart){heart(particle.x,particle.y,particle.size,particle.color);continue}c.fillStyle=particle.color;const size=particle.smoke?particle.size+(1-smokeLife)*(particle.muzzleSmoke?15:10):3;
+ for(const b of g.friendlyBombers){if(cl(b.x,b.y,200))continue;const im=(fieldArtImg?fieldArtImg(b.airframe):fieldArt[b.airframe]);if(im?.naturalWidth)drawFieldArt(b.airframe,b.x,b.y,150,150*im.naturalHeight/im.naturalWidth,b.a+Math.PI/2)}
+ for(const b of g.friendlyBombs){if(cl(b.x,b.y,80))continue;const f=1-b.life/b.maxLife;if(!fx(c,'bomb',b.sx+(b.x-b.sx)*f,b.sy+(b.y-b.sy)*f,40,20,Math.atan2(b.y-b.sy,b.x-b.sx))&&!b.bishopBomb)drawEquipment(c,'rocket',b.sx+(b.x-b.sx)*f,b.sy+(b.y-b.sy)*f,Math.atan2(b.y-b.sy,b.x-b.sx)+Math.PI/2,38);if(!b.bishopBomb)ring(b.x,b.y,22,'#a2eddb70')}
+ for(const b of g.bullets){if(b.life<=0||cl(b.x,b.y,80))continue;if(b.enemy){continue}else if(b.rocket){if(!fx(c,'rocket',b.x,b.y,52,16,Math.atan2(b.vy,b.vx)))drawEquipment(c,'rocket',b.x,b.y,Math.atan2(b.vy,b.vx)+Math.PI/2,48)}else if(b.motorCannon||b.cow37){drawCannonProjectile(c,b,b.x,b.y)}else if(b.mannockPass){fx(c,b.mannockPass==='vertical'?'tracerCream':'tracerAmber',b.x,b.y,48,8,Math.atan2(b.vy,b.vx))}else if(b.fonckVolley){fx(c,'tracerCream',b.x,b.y,46,10,Math.atan2(b.vy,b.vx))}else if(b.fonckSeeker){c.save();c.translate(b.x,b.y);c.rotate(Math.atan2(b.vy,b.vx));if(!fx(c,'tracerCream',-6,0,46,10)){c.fillStyle='#fff0ad';c.fillRect(-22,b.motorCannon?-7:-3,b.motorCannon?45:30,b.motorCannon?14:6);c.fillStyle='#bd8745';c.fillRect(-15,-7,6,b.motorCannon?14:6)}c.restore()}else{const bc=(b.mauserRound?'#a98cff':b.eagle?'#9fdcff':b.specialColor)||(b.formation||b.ally?'#b9f2de':b.pierce?'#f8f5cd':friendlyTracerColor(b,g.gunUpgradeBonus)),bw=b.specialAmmo?4:b.formation||b.ally?4:2;if(!fxTint(c,'tracerAmber',bc,b.x,b.y,bw*11,bw*4,Math.atan2(b.vy,b.vx))){c.strokeStyle=bc;c.lineWidth=bw;c.beginPath();c.moveTo(b.x,b.y);c.lineTo(b.x-b.vx*(b.specialAmmo==='tracer'?.032:.018),b.y-b.vy*(b.specialAmmo==='tracer'?.032:.018));c.stroke()}}}
+ for(const zone of g.bombZones){if(cl(zone.x,zone.y,zone.radius+20))continue;const progress=1-zone.delay/zone.maxDelay;c.fillStyle='#ff3c202a';c.beginPath();c.arc(zone.x,zone.y,zone.radius,0,Math.PI*2);c.fill();ring(zone.x,zone.y,zone.radius,'#ff855a');ring(zone.x,zone.y,Math.max(0,zone.radius*(1-progress)),'#ff855a')}
+ for(const fxf of g.combatFX){if(cl(fxf.x,fxf.y,(fxf.radius||60)*2+80))continue;const f=1-fxf.life/fxf.maxLife;if(fxf.amatol){drawAmatolBlast(c,fxf,fxf.x,fxf.y);continue}if(fxf.grenade){drawGrenadeBlast(c,fxf,fxf.x,fxf.y);continue}if(!drawFxExplosion(c,fxf,fxf.x,fxf.y))drawFieldArt('flak',fxf.x,fxf.y,fxf.radius*(1+f)*2,fxf.radius*(1+f)*2,0,Math.min(1,fxf.life*3))}
+ for(const f of g.flakBursts)if(!cl(f.x,f.y,90))drawBattlefieldSprite(c,'aa',f.x,f.y,66);
+ for(const gust of g.gusts)if(!cl(gust.x,gust.y,(gust.radius||60)*1.4+60)&&!drawGust3(c,gust,gust.x,gust.y,t))drawFieldArt('gust',gust.x,gust.y,gust.radius*2.6,gust.radius*2.6,gust.a+t*.15,Math.max(0,Math.min(.85,gust.life,6-gust.life)));
+ for(const p of g.grunkreuzPuffs||[])if(!cl(p.x,p.y,140))drawGasVeil3(c,p,p.x,p.y,t);
+ for(const particle of g.particles){if(cl(particle.x,particle.y,70))continue;const smokeLife=particle.smoke?Math.max(0,particle.life/particle.maxLife):0;c.globalAlpha=particle.smoke?smokeLife*(particle.muzzleSmoke?.88:.65):Math.min(1,particle.life*3);if(particle.petal){drawPetalParticle(c,particle,particle.x,particle.y);continue}if(particle.heart){heart(particle.x,particle.y,particle.size,particle.color);continue}c.fillStyle=particle.color;const size=particle.smoke?particle.size+(1-smokeLife)*(particle.muzzleSmoke?15:10):3;
   if(!particle.smoke&&fxReady('spark')){fxTint(c,'spark',particle.color,particle.x,particle.y,size*4,size*4);continue}
   if(particle.smoke){const lum=parseInt(particle.color?.slice(1,3)||'88',16),sKey=particle.muzzleSmoke?'smokePuff':lum<110?'smokeDark':lum>170?'smokeWisp':'smokeGray';if(fx(c,sKey,particle.x,particle.y,size*2.4,size*2.4)){c.globalAlpha=1;continue}}
   c.fillRect(particle.x-size/2,particle.y-size/2,size,size)}c.globalAlpha=1;
@@ -88,7 +90,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  if(p.mauserFlash160>0){const ma=p.mauserAim156??p.a;fx(c,'muzzlePistol',p.x+Math.cos(ma)*22,p.y+Math.sin(ma)*22,26,26,ma,Math.min(1,p.mauserFlash160*8))}
  }
  for(const p of g.players){if(p.status!=='alive'||!p.tailTargetId)continue;const e=g.enemies.find(e=>e.hp>0&&e.tailId===p.tailTargetId);if(!e)continue;const progress=p.tailLockFraction(),color=p.id==='p1'?'#74d9fb':'#ffcd78';c.strokeStyle=p.tailLocked?'#ff7258':color;c.lineWidth=p.tailLocked?3:2;c.beginPath();c.arc(e.x,e.y,38,-Math.PI/2,-Math.PI/2+Math.PI*2*progress);c.stroke();c.fillStyle=p.tailLocked?'#fff0c0':color;c.font='bold 12px sans-serif';c.textAlign='center';c.fillText(p.tailLocked?'꼬리 우위 ×'+TAILING_BALANCE.damageMultiplier.toFixed(2):p.id.toUpperCase()+' 후방 '+Math.round(progress*100)+'%',e.x,e.y-48)}
- for(const b of g.bullets)if(b.enemy&&b.life>0)drawEnemyProjectile(c,b,b.x,b.y,t,z);
+ for(const b of g.bullets)if(b.enemy&&b.life>0&&!cl(b.x,b.y,90))drawEnemyProjectile(c,b,b.x,b.y,t,z);
  c.restore();c.font='14px sans-serif';c.textAlign='left';c.fillStyle='#f1edd0';c.fillText((['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'][g.worldRegion?.()??g.region]||'전원 지대')+' · 팀 비행 '+(g.distance/1000).toFixed(1)+' km',14,H-14);
 }
 
