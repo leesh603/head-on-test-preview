@@ -1,8 +1,9 @@
-import {SUN_STRIKE} from './engine.js?v=477';
-import {fx,fxReady,fxTint} from './fx-art.js?v=477';
+import {SUN_STRIKE} from './engine.js?v=478';
+import {fx,fxReady,fxTint} from './fx-art.js?v=478';
 // Warm, restrained optical streaks; no strobe or additive whiteout.
 export function drawSunStrike(c,g,w,h){
  if(!g||!g.isRedHunter()||g.skillTime<=0)return;
+ if(globalThis.__hoSun?.has(g))return; // replaced by the sun-dive FX in passive-fx.js
  const fade=Math.min(1,(SUN_STRIKE.duration-g.skillTime)/.22,g.skillTime/.35);
  c.save();c.fillStyle=`rgba(13,17,21,${.09*fade})`;c.fillRect(0,0,w,h);
  c.translate(w/2,h/2);c.rotate(g.a);c.translate(38,0);
