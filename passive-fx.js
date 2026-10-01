@@ -1,12 +1,12 @@
 // Passive-state FX (sample: Richthofen "사냥 본능" / Hunting Instinct).
 // In-world effects rather than HUD marks. Purely visual: reads the engine's existing
 // hunt fields, never writes gameplay state.
-//   prey          -> trails a thin crimson vapour; it thickens with each hunt stack
+//   prey          -> four thin corner brackets (gold at tier III) and a thin crimson vapour; it thickens with each hunt stack
 //                    (tier I wisp -> II sheds embers -> III a burning red streamer)
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=464';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=465';
 
 const memo = new WeakMap();
 const st = g => { let s = memo.get(g); if (!s) memo.set(g, s = { tier: 0, burst: -9, burstAt: null, prey: null, trail: [], wing: [] }); return s; };
@@ -38,6 +38,15 @@ export function drawBaronHunt(c, g, point, t, px, py) {
     const hold = engaged ? 1 - .7 * clamp((since - (B.resetAfter - .6)) / .6) : 1;
     const lock = clamp(g.huntDesignate > 0 ? 1 - g.huntDesignate / .35 : 1);
     const k = (engaged ? [.4, .6, .78, .95][tier] : .28) * hold * lock;   // faint wisp when merely designated
+    // target mark: four thin corner brackets (snap in on designation, small pop per tier-up, gold at tier III)
+    { const [x, y] = point(tgt.x, tgt.y), sz = g.huntTargetElite ? 24 : tgt.heavyBomber ? 60 : tgt.bossPilot ? 46 : tgt.type === 'bomber' ? 34 : 28;
+      const pop = 1 + .12 * Math.max(0, 1 - (t - s.burst) / .22), r = (sz * .78 + 6) * (1 + (1 - lock) * .9) * pop, arm = Math.max(6, sz * .26);
+      c.lineCap = 'round'; c.lineJoin = 'round';
+      for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+        c.beginPath(); c.moveTo(x + sx * r, y + sy * (r - arm)); c.lineTo(x + sx * r, y + sy * r); c.lineTo(x + sx * (r - arm), y + sy * r);
+        c.globalAlpha = lock * .45; c.strokeStyle = 'rgba(20,6,4,.8)'; c.lineWidth = 3.6; c.stroke();
+        c.globalAlpha = lock * (engaged ? .95 : .7); c.strokeStyle = engaged && tier === 3 ? '#f3cf78' : '#e04a3a'; c.lineWidth = engaged ? 2.2 : 1.8; c.stroke();
+      } }
     const keep = .35 + .2 * tier;
     push(s.trail, { x: tgt.x, y: tgt.y }, t, keep);
     const n = s.trail.length;
