@@ -1,4 +1,4 @@
-import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=cambrai20261001';
+import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=480';
 import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=480';
 export {Mark1Landship as Mark4Wedge,SchwabenFortress as MorserBattery};
 import {sommeScale} from './somme-boss-layout.js?v=480';
