@@ -1,0 +1,1 @@
+{"method":"dogfightSteering","phases":["_stgBase","_stgCore113","_stgNewAce124","_stgBounded"],"aliasMap":{"_dogfight113":"_stgBase","_newAceDogfight124":"_stgCore113","_boundedEnemySteering163":"_stgNewAce124"},"keep":[],"repoints":[{"before":"installAircraftPersonality(Game","value":"Game.prototype.dogfightSteering=Game.prototype._stgBounded;"}]}
