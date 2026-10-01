@@ -9,7 +9,7 @@ export function installFlightViewport(doc,win){
  for(const type of ['gesturestart','gesturechange','gestureend'])doc.addEventListener(type,block,{passive:false});
  win.addEventListener('resize',resync);win.addEventListener('orientationchange',resync);win.visualViewport?.addEventListener('resize',resync);win.visualViewport?.addEventListener('scroll',resync);doc.addEventListener('fullscreenchange',resync);
  const coarse=()=>{try{return win.matchMedia?.('(pointer:coarse)')?.matches}catch(_){return false}};
- const enterFs=()=>{try{if(!doc.fullscreenElement&&coarse())doc.documentElement.requestFullscreen?.({navigationUI:'hide'})?.catch?.(()=>{})}catch(_){}};
+ const enterFs=force=>{try{if(!doc.fullscreenElement&&(force||coarse()))doc.documentElement.requestFullscreen?.({navigationUI:'hide'})?.catch?.(()=>{})}catch(_){}};
  const exitFs=()=>{try{if(doc.fullscreenElement)doc.exitFullscreen?.()?.catch?.(()=>{})}catch(_){}};
- return {lock(){if(!locked)scrollY=win.scrollY||0;locked=true;sync();enterFs();win.scrollTo?.({top:0,left:0,behavior:'instant'})},unlock(){locked=false;exitFs();doc.documentElement.style.removeProperty('--flight-height');win.scrollTo?.({top:scrollY,left:0,behavior:'instant'})}};
+ return {lock(){if(!locked)scrollY=win.scrollY||0;locked=true;sync();enterFs();win.scrollTo?.({top:0,left:0,behavior:'instant'})},unlock(){locked=false;exitFs();doc.documentElement.style.removeProperty('--flight-height');win.scrollTo?.({top:scrollY,left:0,behavior:'instant'})},fullscreen(){enterFs(true)}};
 }
