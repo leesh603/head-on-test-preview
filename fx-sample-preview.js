@@ -288,3 +288,59 @@ export function fxsFireZone(c, f, x, y, t = 0, fade = 1, under = null) {
   c.restore();
   return true;
 }
+
+// Flamethrower dressing for the Livens projector (drawn in the beam's local frame: x along the jet).
+// Wraps the baked flame field with: a white-hot nozzle bloom, a soft additive heat halo instead of
+// the hard clip edge, a rolling fireball head at the front, burning fuel droplets thrown ahead,
+// and oily black smoke boiling off the outer edges and the head and rising downwind.
+export function fxsFlameDressing(c, h, span, halfAt, frame) {
+  if (!FXS || typeof document === 'undefined') return false;
+  boomSprites(); if (!GLOW) return false;
+  const { front, tail, t } = span, L = front - tail; if (L <= 0) return false;
+  const seed = (h.id ? String(h.id).length * 13 : 7) + (h.bossId ? String(h.bossId).length : 0);
+  c.save(); c.translate(h.x, h.y); c.rotate(h.angle);
+  // soft heat halo: the flame field again, wider and additive, so edges glow instead of cutting off
+  if (frame) {
+    c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = .16;
+    c.beginPath(); const n = 24;
+    for (let i = 0; i <= n; i++) { const d = tail + L * i / n; c.lineTo(d, -halfAt(d) * 1.45 - 4); }
+    for (let i = n; i >= 0; i--) { const d = tail + L * i / n; c.lineTo(d, halfAt(d) * 1.45 + 4); }
+    c.closePath(); c.clip(); c.drawImage(frame, 0, -h.thickness * 3.6, h.length, h.thickness * 7.2); c.restore();
+  }
+  c.globalCompositeOperation = 'lighter';
+  // nozzle bloom
+  if (tail < 8) { const r = h.thickness * 1.6 * (.9 + .15 * Math.sin(t * 40));
+    c.globalAlpha = .9; c.drawImage(GLOW, -r * .4, -r, r * 2, r * 2); }
+  // rolling fireball head while the jet is still travelling / at full reach
+  const hw = Math.max(10, halfAt(Math.max(tail, front - 30)) || h.thickness);
+  c.globalCompositeOperation = 'source-over';
+  if (BOOM.atlas) for (let i = 0; i < 4; i++) {                 // rolling fireballs: painted explosion frames tumbling at the head
+    const ph = (t * 2.2 + i / 4) % 1, fi = 2 + Math.floor(ph * 5), rc = BOOM.rects['air' + fi]; if (!rc) continue;
+    const r = hw * (1.5 + .9 * ph) * (.85 + .3 * hash(i, seed)), x = front - hw * .9 + ph * hw * 1.4, y = (hash(i, seed + 2) - .5) * hw * 1.1;
+    c.save(); c.translate(x, y); c.rotate(i * 1.7 + t * 2); c.globalAlpha = .8 * (1 - ph * .7) * Math.min(1, L / 80);
+    c.drawImage(BOOM.atlas, rc[0], rc[1], rc[2], rc[3], -r, -r, r * 2, r * 2); c.restore();
+  }
+  c.globalCompositeOperation = 'lighter';
+  // burning droplets thrown ahead of / off the jet
+  for (let i = 0; i < 18; i++) {
+    const q = ((t * 1.9 + hash(i, seed + 3)) % 1), d = tail + L * (.35 + .65 * hash(i, seed)) + q * 70, side = (hash(seed, i) - .5) * 2;
+    if (d > front + 60) continue;
+    const y = side * (halfAt(Math.min(front, d)) || hw) * (.6 + q * .7) + q * q * 18, e = 3.2 * (1 - q) + 1;
+    c.globalAlpha = (1 - q) * .9; c.drawImage(GLOW, d - e, y - e, e * 2, e * 2);
+  }
+  c.globalCompositeOperation = 'source-over';
+  // oily smoke boiling off the edges and the head (drawn last so it veils the outer flame)
+  const puffs = Math.min(14, 4 + Math.floor(L / 40));
+  for (let i = 0; i < puffs; i++) {
+    const q = ((t * .9 + i / puffs + hash(i, seed + 7) * .3) % 1), along = tail + L * (.25 + .75 * hash(i, seed + 1));
+    const side = i % 2 ? 1 : -1, hwi = halfAt(Math.min(front, along)) || hw;
+    const x = along + q * 40, y = side * (hwi * .85 + q * 46), sz = (22 + hwi) * (.6 + q * 1.1);
+    fxsDraw(c, i % 3 ? 'smokeDark' : 'smokeHeavy', x, y, sz * 1.4, sz * 1.4, i + q, .85 * Math.sin(Math.PI * Math.min(1, q * 1.3)) * Math.min(1, L / 120));
+  }
+  for (let i = 0; i < 3; i++) {                                   // thick smoke cap rolling off the head
+    const q = ((t * 1.2 + i / 3) % 1), sz = hw * (2 + q * 2.2);
+    fxsDraw(c, 'smokeHeavy', front + hw * .6 + q * 40, (hash(i, seed) - .5) * hw * 1.4, sz, sz, i + q, .7 * Math.sin(Math.PI * Math.min(1, q * 1.4)));
+  }
+  c.restore();
+  return true;
+}
