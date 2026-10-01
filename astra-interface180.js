@@ -97,10 +97,11 @@ function install(){
  // Keep every legacy ID queried by roster(), start(), and locale updates.
  for(const child of [...roster.childNodes])legacy.append(child);
  roster.replaceChildren(railHead,rail);
- const launch=el('div','astra-launch'),launchHint=el('p','astra-launch-hint');
+ const launch=el('div','astra-launch'),launchHint=el('p','astra-launch-hint'),randomStart=el('button','astra-random-sortie');
+ randomStart.id='randomStart';randomStart.type='button';randomStart.hidden=document.body.classList.contains('coop-selected');
  const start=$('start');start.replaceChildren(interfaceIcon('passive','astra-sortie-plane'));
  const startLabel=el('strong'),startEnglish=el('span','astra-sortie-english');start.append(startLabel,startEnglish,interfaceIcon('sortie','astra-sortie-arrow'));
- launch.append(start,launchHint);
+ launch.append(start,randomStart,launchHint);
  lower.append(roster,launch);
  const coop=$('coopPanel');home.append(stage,coop,lower,legacy);hangar.append(home);
  const nav=$('mainOperations'),header=document.querySelector('body>header');
@@ -157,6 +158,7 @@ function install(){
   if(!start.contains(startLabel))start.replaceChildren(interfaceIcon('passive','astra-sortie-plane'),startLabel,startEnglish,interfaceIcon('sortie','astra-sortie-arrow'));
   put(startLabel,en?'SORTIE':'출격');put(startEnglish,en?'TAKE TO THE SKY':'SORTIE');
   start.setAttribute('aria-label',en?'Start sortie':'출격');
+  put(randomStart,en?'RANDOM SORTIE · +1 UPGRADE':'랜덤 출격 · 강화 1개');randomStart.setAttribute('aria-label',randomStart.textContent);
   put(launchHint,en?'AUTO FIRE · WASD / ARROWS TO FLY':'자동 사격 · WASD / 방향키로 조종');
   railPrev.setAttribute('aria-label',en?'Previous pilots':'이전 파일럿');railNext.setAttribute('aria-label',en?'Next pilots':'다음 파일럿');
   mobileSettings.setAttribute('aria-label',en?'Settings':'설정');
