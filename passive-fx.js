@@ -6,7 +6,7 @@
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=474';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=475';
 
 const memo = new WeakMap();
 const st = g => { let s = memo.get(g); if (!s) memo.set(g, s = { tier: 0, burst: -9, burstAt: null, prey: null, trail: [], wing: [] }); return s; };
@@ -171,6 +171,7 @@ export function drawBertholdWill(c, g, point, t, px, py) {
 
 // Single entry for the renderer. Returns true only when the pilot's legacy marker should be skipped.
 export function drawPassiveFx(c, g, point, t, px, py) {
+  sprites(); if (!EMBER) return false;
   if (g.pilot === 'baron') return drawBaronHunt(c, g, point, t, px, py);
   if (g.pilot === 'berthold') drawBertholdWill(c, g, point, t, px, py);
   else if (g.pilot === 'mannock') drawMannockCover(c, g, point, t);
@@ -181,6 +182,7 @@ export function drawPassiveFx(c, g, point, t, px, py) {
   else if (g.pilot === 'jacobs') drawJacobsFalcon(c, g, point, t, px, py);
   else if (g.pilot === 'gontermann') drawGontermannHeat(c, g, point, t, px, py);
   else if (g.pilot === 'barker') drawBarkerDefiance(c, g, point, t, px, py);
+  else if (g.pilot === 'nungesser') drawNungesserDeath(c, g, point, t, px, py);
   return false;
 }
 
@@ -529,9 +531,86 @@ export function drawMckeeverHandoff(c, g, point, t) {
   return true;
 }
 
+
+// ---- Nungesser "죽음의 기사" / Knight of Death: the lower his HP, the faster he fires and flies.
+//   a cold spectral glow gathers around his plane and pale blue-white wisps stream off the
+//   fuselage, growing as HP falls toward 20%
+export function drawNungesserDeath(c, g, point, t, px, py) {
+  if (g.pilot !== 'nungesser') return false;
+  sprites(); if (!VAPOR) return false;
+  const m = pst(g, () => ({ trail: [] }));
+  push(m.trail, { x: g.x, y: g.y, a: g.a || 0 }, t, .45);
+  const k = clamp((1 - (g.hp || 0) / Math.max(1, g.maxHp || 1)) / .8); if (k <= .03) return true;
+  c.save(); c.globalCompositeOperation = 'lighter';
+  const gr = c.createRadialGradient(px, py, 8, px, py, 40);
+  gr.addColorStop(0, 'rgba(150,200,255,' + (.14 * k) + ')'); gr.addColorStop(1, 'rgba(120,170,255,0)');
+  c.globalAlpha = .85 + .15 * Math.sin(t * 6); c.fillStyle = gr; c.beginPath(); c.arc(px, py, 40, 0, Math.PI * 2); c.fill();
+  const n = m.trail.length;
+  for (const side of [-1, 0, 1]) for (let i = 1; i < n; i++) {
+    const p0 = m.trail[i - 1], p1 = m.trail[i], u = i / n, off = side * 9;
+    const wob = (q, p) => Math.sin((t - p.t) * 22 + side * 2) * 3 * (t - p.t) * 3;
+    const [x0, y0] = point(p0.x - Math.sin(p0.a) * (off + wob(0, p0)) - Math.cos(p0.a) * 10, p0.y + Math.cos(p0.a) * (off + wob(0, p0)) - Math.sin(p0.a) * 10);
+    const [x1, y1] = point(p1.x - Math.sin(p1.a) * (off + wob(0, p1)) - Math.cos(p1.a) * 10, p1.y + Math.cos(p1.a) * (off + wob(0, p1)) - Math.sin(p1.a) * 10);
+    c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.lineCap = 'round';
+    c.globalAlpha = k * u * (side ? .45 : .7); c.strokeStyle = side ? '#9cc8ff' : '#e8f3ff'; c.lineWidth = (side ? 1.6 : 2.4) * (.4 + .6 * u) * (.7 + .5 * k); c.stroke();
+  }
+  c.restore();
+  return true;
+}
+
+// ---- Bishop "근접기습" / Close Ambush: inside 360 px, the closer the target the harder he hits (to +65%).
+//   his muzzle blaze swells as he closes in, and at point-blank range hot sparks spray off the
+//   flash toward the nearest enemy
+export function drawBishopClose(c, g, point, t, px, py) {
+  if (g.pilot !== 'bishop') return false;
+  sprites(); if (!EMBER) return false;
+  let best = null, bd = 360;
+  for (const e of g.enemies || []) { if (!(e.hp > 0) || e.surface) continue; const d = Math.hypot(e.x - g.x, e.y - g.y); if (d < bd) { bd = d; best = e; } }
+  if (!best) return true;
+  const p = 1 - bd / 360, firing = (g.muzzleFlash || 0) > 0; if (!firing || p <= .05) return true;
+  const a = g.a || 0, nx = px + Math.cos(a) * 26, ny = py + Math.sin(a) * 26, r = 8 + 18 * p;
+  c.save(); c.globalCompositeOperation = 'lighter';
+  c.globalAlpha = .4 + .5 * p; c.drawImage(EMBER, nx - r, ny - r, r * 2, r * 2);
+  if (p > .4) { const [ex, ey] = point(best.x, best.y), ta = Math.atan2(ey - ny, ex - nx);
+    for (let i = 0; i < 6; i++) { const q = ((t * 6 + i / 6) % 1), sa = ta + (hash(i, Math.floor(t * 6)) - .5) * .6, d = 8 + q * 40 * p, e = 2.2 * (1 - q) + .6;
+      c.globalAlpha = (1 - q) * p; c.drawImage(EMBER, nx + Math.cos(sa) * d - e, ny + Math.sin(sa) * d - e, e * 2, e * 2); } }
+  c.restore();
+  return true;
+}
+
+// ---- Boelcke "딕타 뵐케" / Dicta: +25% MG damage on an enemy's flank or rear.
+//   enemies that currently show him their flank or tail get a cold steel glint along the exposed
+//   side (the side facing him), so the openings in the furball read at a glance
+export function drawBoelckeDicta(c, g, point, t) {
+  if (g.pilot !== 'boelcke') return false;
+  sprites(); if (!EMBER) return false;
+  let n = 0;
+  c.save(); c.lineCap = 'round';
+  for (const e of g.enemies || []) {
+    if (n >= 4 || !(e.hp > 0) || e.surface || e.stageBossBody) continue;
+    const dx = g.x - e.x, dy = g.y - e.y, d = Math.hypot(dx, dy); if (d > 560 || d < 30) continue;
+    const toMe = Math.atan2(dy, dx), head = e.a ?? 0, off = Math.abs(Math.atan2(Math.sin(toMe - head), Math.cos(toMe - head)));
+    if (off < Math.PI / 3) continue;                              // he is in front of it: no opening
+    n++;
+    const [x, y] = point(e.x, e.y), R = sizeOf(e) * .95, k = clamp((off - Math.PI / 3) / .5) * clamp((560 - d) / 120);
+    const span = .9, sweep = (t * 1.8 + n) % 1;
+    c.beginPath(); c.arc(x, y, R, toMe - span / 2, toMe + span / 2);
+    c.globalAlpha = .35 * k; c.strokeStyle = '#9fb7cf'; c.lineWidth = 4; c.stroke();
+    c.globalAlpha = .85 * k; c.strokeStyle = '#eef5ff'; c.lineWidth = 1.4; c.stroke();
+    const ga = toMe - span / 2 + span * sweep;                    // glint running along the arc
+    c.globalCompositeOperation = 'lighter'; c.globalAlpha = k * (1 - Math.abs(sweep - .5) * 1.6);
+    c.drawImage(EMBER, x + Math.cos(ga) * R - 4, y + Math.sin(ga) * R - 4, 8, 8); c.globalCompositeOperation = 'source-over';
+  }
+  c.restore();
+  return true;
+}
+
 // Front layer (drawn after the player's plane): only effects that must sit over the plane.
 export function drawPassiveFxFront(c, g, point, t, px, py) {
+  sprites(); if (!EMBER) return;
   if (g.pilot === 'rickenbacker') drawRickenbackerRing(c, g, point, t, px, py, 'front');
   else if (g.pilot === 'luke') drawLukeIgnited(c, g, point, t);
   else if (g.pilot === 'mckeever') drawMckeeverHandoff(c, g, point, t);
+  else if (g.pilot === 'bishop') drawBishopClose(c, g, point, t, px, py);
+  else if (g.pilot === 'boelcke') drawBoelckeDicta(c, g, point, t);
 }
