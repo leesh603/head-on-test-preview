@@ -6,7 +6,7 @@
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=475';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=476';
 
 const memo = new WeakMap();
 const st = g => { let s = memo.get(g); if (!s) memo.set(g, s = { tier: 0, burst: -9, burstAt: null, prey: null, trail: [], wing: [] }); return s; };
@@ -172,7 +172,7 @@ export function drawBertholdWill(c, g, point, t, px, py) {
 // Single entry for the renderer. Returns true only when the pilot's legacy marker should be skipped.
 export function drawPassiveFx(c, g, point, t, px, py) {
   sprites(); if (!EMBER) return false;
-  if (g.pilot === 'baron') return drawBaronHunt(c, g, point, t, px, py);
+  if (g.pilot === 'baron') { drawRedFighter(c, g, point, t, px, py); return drawBaronHunt(c, g, point, t, px, py); }
   if (g.pilot === 'berthold') drawBertholdWill(c, g, point, t, px, py);
   else if (g.pilot === 'mannock') drawMannockCover(c, g, point, t);
   else if (g.pilot === 'fonck') drawFonckFocus(c, g, point, t);
@@ -600,6 +600,31 @@ export function drawBoelckeDicta(c, g, point, t) {
     const ga = toMe - span / 2 + span * sweep;                    // glint running along the arc
     c.globalCompositeOperation = 'lighter'; c.globalAlpha = k * (1 - Math.abs(sweep - .5) * 1.6);
     c.drawImage(EMBER, x + Math.cos(ga) * R - 4, y + Math.sin(ga) * R - 4, 8, 8); c.globalCompositeOperation = 'source-over';
+  }
+  c.restore();
+  return true;
+}
+
+
+// ---- Richthofen on the red Albatros ("붉은 전투기 조종사" / Red Fighter Pilot: +12% speed and turn).
+// No hunt marks on this airframe; the always-on agility shows in the air instead: in hard turns
+// crimson-tinged vortices peel off both wingtips, stronger the tighter he turns.
+export function drawRedFighter(c, g, point, t, px, py) {
+  if (g.pilot !== 'baron' || !g.isRedHunter?.()) return false;
+  const m = pst(g, () => ({ trail: [], a: g.a || 0, lt: t, rate: 0 }));
+  const dt = Math.max(1e-3, Math.min(.1, t - m.lt)), da = Math.atan2(Math.sin((g.a || 0) - m.a), Math.cos((g.a || 0) - m.a));
+  m.rate = m.rate * .8 + Math.abs(da / dt) * .2; m.a = g.a || 0; m.lt = t;
+  push(m.trail, { x: g.x, y: g.y, a: g.a || 0, k: clamp((m.rate - .5) / 1.4) }, t, .42);
+  const n = m.trail.length; if (n < 2) return true;
+  c.save(); c.lineCap = 'round';
+  for (const side of [-1, 1]) for (let i = 1; i < n; i++) {
+    const p0 = m.trail[i - 1], p1 = m.trail[i], k = (p0.k + p1.k) / 2; if (k <= .02) continue;
+    const u = i / n, off = 19;
+    const [x0, y0] = point(p0.x - Math.sin(p0.a) * off * side, p0.y + Math.cos(p0.a) * off * side);
+    const [x1, y1] = point(p1.x - Math.sin(p1.a) * off * side, p1.y + Math.cos(p1.a) * off * side);
+    c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1);
+    c.globalAlpha = k * u * .5; c.strokeStyle = '#c8352c'; c.lineWidth = 6 * u; c.stroke();
+    c.globalAlpha = k * u * .9; c.strokeStyle = '#fff0ea'; c.lineWidth = 1.8 * u; c.stroke();
   }
   c.restore();
   return true;
