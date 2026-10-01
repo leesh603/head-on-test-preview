@@ -238,7 +238,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
   }
   if(!active)return;
   switch(profile.sustain){
-   case 'charge':if(p.chargeTime>0)cavalrySlipstream(c,t,Math.min(1,p.chargeTime/.12));break;
+   case 'charge':if(p.chargeTime>0&&!globalThis.__hoLance?.has(p))cavalrySlipstream(c,t,Math.min(1,p.chargeTime/.12));break;
    case 'defyDeath':if(age>.65)crest(c,'blackHeart',age,.18,102);if(p.hitFlash>0)texture(c,'armorSpark',18,0,52,42,p.a,.65);break;
    case 'precision':if(shot)muzzleAt(c,30,0,0,'muzzleHeavy',1.05);break;
    case 'cannon':if(p.cannonRecoil129>0)flash(c,false,1.8,true);break;

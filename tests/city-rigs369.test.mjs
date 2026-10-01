@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {LondonApron,DrachenMineNet} from '../headon-stageboss-patterns.js?v=476';
+import {LondonApron,DrachenMineNet} from '../headon-stageboss-patterns.js?v=478';
 import {apronPose,apronPoint,apronPanelHull,netContact,drawAttachedApron} from '../london-apron369.js';
 const tuning={maxHp:1000,partHp:100,damage:10,bulletSpeed:100,geometryScale:2.025};
 for(const width of [390,1280])test(`registered hit geometry ${width}`,()=>{

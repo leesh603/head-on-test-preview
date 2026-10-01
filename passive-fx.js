@@ -6,7 +6,7 @@
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=476';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=478';
 
 const memo = new WeakMap();
 const st = g => { let s = memo.get(g); if (!s) memo.set(g, s = { tier: 0, burst: -9, burstAt: null, prey: null, trail: [], wing: [] }); return s; };
@@ -172,7 +172,7 @@ export function drawBertholdWill(c, g, point, t, px, py) {
 // Single entry for the renderer. Returns true only when the pilot's legacy marker should be skipped.
 export function drawPassiveFx(c, g, point, t, px, py) {
   sprites(); if (!EMBER) return false;
-  if (g.pilot === 'baron') { drawRedFighter(c, g, point, t, px, py); return drawBaronHunt(c, g, point, t, px, py); }
+  if (g.pilot === 'baron') { drawRedFighter(c, g, point, t, px, py); drawSunHunter(c, g, point, t, px, py, 'back'); return drawBaronHunt(c, g, point, t, px, py); }
   if (g.pilot === 'berthold') drawBertholdWill(c, g, point, t, px, py);
   else if (g.pilot === 'mannock') drawMannockCover(c, g, point, t);
   else if (g.pilot === 'fonck') drawFonckFocus(c, g, point, t);
@@ -183,6 +183,7 @@ export function drawPassiveFx(c, g, point, t, px, py) {
   else if (g.pilot === 'gontermann') drawGontermannHeat(c, g, point, t, px, py);
   else if (g.pilot === 'barker') drawBarkerDefiance(c, g, point, t, px, py);
   else if (g.pilot === 'nungesser') drawNungesserDeath(c, g, point, t, px, py);
+  else if (g.pilot === 'baracca') drawBaraccaLance(c, g, point, t, px, py, 'back');
   return false;
 }
 
@@ -630,10 +631,165 @@ export function drawRedFighter(c, g, point, t, px, py) {
   return true;
 }
 
+
+// ---- Baracca active "검은 말의 돌파" / Prancing-horse charge: a straight invulnerable dash that
+// pierces everything in its path.  Drawn as a cavalry lance charge: a long couched lance thrust
+// out ahead of the nose with an Italian tricolour pennant streaming off it, a pressure cone
+// splitting the air at the tip, speed streaks peeling past, and a spark burst + shock ring on
+// every plane the lance runs through.  (Lance replaced by a black wedge enveloping the plane.)
+export function drawBaraccaLance(c, g, point, t, px, py, layer = 'back') {
+  if (g.pilot !== 'baracca') return false;
+  sprites(); if (!EMBER) return false;
+  const m = pst(g, () => ({ k: 0, last: t, hits: 0, bursts: [], wake: [] }));
+  (globalThis.__hoLance ??= new WeakSet()).add(g);
+  const charging = (g.chargeTime || 0) > 0;
+  if (layer === 'back') {
+    const dt = Math.max(0, Math.min(.1, t - m.last)); m.last = t;
+    if (charging && !m.on) m.start = t; m.on = charging;
+    m.k = clamp(m.k + (charging ? dt / .08 : -dt / .25));
+    const hits = g.chargeHits?.size || 0;
+    if (charging && hits > m.hits) {                         // a new plane run through: burst at the nearest enemy ahead
+      let best = null, bd = 1e9;
+      for (const e of g.enemies || []) { if (!(e.hp >= 0)) continue; const d = Math.hypot(e.x - g.x, e.y - g.y); if (d < bd) { bd = d; best = e; } }
+      if (best && bd < 160) m.bursts.push({ x: best.x, y: best.y, a: g.a || 0, t0: t });
+    }
+    m.hits = charging ? hits : 0;
+    m.bursts = m.bursts.filter(b => t - b.t0 < .5);
+    if (m.px !== undefined && t > m.pt) { const dx = g.x - m.px, dy = g.y - m.py; if (Math.hypot(dx, dy) > 2) m.mv = { dx, dy }; }
+    m.px = g.x; m.py = g.y; m.pt = t;
+    push(m.wake, { x: g.x, y: g.y, a: g.a || 0 }, t, .35);
+  }
+  const a = g.a || 0, ca = Math.cos(a), sa = Math.sin(a);
+  c.save(); c.lineCap = 'round';
+  if (layer === 'back' && m.k > .01) {                        // speed streaks + churned air behind
+    for (let i = 0; i < 10; i++) {
+      const q = ((t * 5 + i / 10) % 1), side = (hash(i, 3) - .5) * 70, back = 20 + q * 150, len = 30 + 40 * hash(i, 7);
+      const x0 = px - ca * back - sa * side, y0 = py - sa * back + ca * side;
+      c.beginPath(); c.moveTo(x0, y0); c.lineTo(x0 - ca * len, y0 - sa * len);
+      c.globalAlpha = m.k * (1 - q) * .55; c.strokeStyle = '#f2f0e8'; c.lineWidth = 1.3; c.stroke();
+    }
+    for (const p of m.wake) { const age = (t - p.t) / .35, [x, y] = point(p.x, p.y), w = 10 + 22 * age;
+      c.globalAlpha = m.k * (1 - age) * .22; c.drawImage(VAPOR, x - w, y - w, w * 2, w * 2); }
+  }
+  // black wedge: an arrowhead of dark, driven air closing around the plane, apex well ahead of the
+  // nose, swept flanks trailing past the wings. Body behind the plane, steel edges over it.
+  if (m.k > .01) {
+    const k = m.k, tip = 60 + 8 * k + Math.sin(t * 24) * 1.2, back = -40, half = 60 + 3 * Math.sin(t * 9);
+    const mv = m.mv;                                              // heading from actual travel during the dash
+    const ang = mv && Math.hypot(mv.dx, mv.dy) > 2 ? Math.atan2(mv.dy, mv.dx) : a;
+    c.save(); c.translate(px, py); c.rotate(ang);
+    const shape = () => { c.beginPath(); c.moveTo(tip, 0);
+      c.quadraticCurveTo(14, -half * .8, back, -half); c.quadraticCurveTo(back + 26, -half * .4, back + 22, 0);
+      c.quadraticCurveTo(back + 26, half * .4, back, half); c.quadraticCurveTo(14, half * .8, tip, 0); c.closePath(); };
+    if (layer === 'back') {
+      const body = c.createLinearGradient(back, 0, tip, 0);
+      body.addColorStop(0, 'rgba(8,9,11,.15)'); body.addColorStop(.4, 'rgba(10,11,14,.62)'); body.addColorStop(1, 'rgba(6,7,9,.9)');
+      shape(); c.globalAlpha = k; c.fillStyle = body; c.fill();
+      for (let i = 0; i < 4; i++) {                              // dark streams pouring back along the flanks
+        const q = ((t * 6 + i / 4) % 1), side = i % 2 ? 1 : -1, x = tip - 20 - q * (tip - back + 30), y = side * (6 + (half - 6) * Math.min(1, (tip - x) / (tip - back)));
+        c.beginPath(); c.moveTo(x, y); c.lineTo(x - 26, y + side * 4);
+        c.globalAlpha = k * (1 - q) * .55; c.strokeStyle = '#0b0c0e'; c.lineWidth = 3; c.stroke();
+      }
+    } else {
+      for (const side of [-1, 1]) {                              // steel-lit leading edges, brightest at the apex
+        const edge = c.createLinearGradient(back, 0, tip, 0);
+        edge.addColorStop(0, 'rgba(210,220,228,0)'); edge.addColorStop(.6, 'rgba(210,220,228,.55)'); edge.addColorStop(1, 'rgba(255,255,255,.95)');
+        c.beginPath(); c.moveTo(tip, 0); c.quadraticCurveTo(14, side * half * .8, back, side * half);
+        c.globalAlpha = k; c.strokeStyle = 'rgba(0,0,0,.6)'; c.lineWidth = 3.4; c.stroke();
+        c.strokeStyle = edge; c.lineWidth = 1.5; c.stroke();
+      }
+      c.globalCompositeOperation = 'lighter'; const gl = 6 + 2 * Math.sin(t * 30);
+      c.globalAlpha = k * .8; c.drawImage(EMBER, tip - gl, -gl, gl * 2, gl * 2);
+      c.globalCompositeOperation = 'source-over';
+    }
+    c.restore();
+  }
+  if (layer === 'front' && charging && t - (m.start ?? -9) < .3) {  // launch: a hard white flash ring off the tail as he spurs forward
+    const q = (t - m.start) / .3, bx = px - ca * 18, by = py - sa * 18;
+    c.beginPath(); c.ellipse(bx, by, 20 + 50 * q, (20 + 50 * q) * .45, a + Math.PI / 2, 0, Math.PI * 2);
+    c.globalAlpha = (1 - q) * .8; c.strokeStyle = '#ffffff'; c.lineWidth = 3 * (1 - q) + .5; c.stroke();
+  }
+  if (layer === 'front') for (const b of m.bursts) {          // impact: sparks thrown forward + shock ring
+    const q = (t - b.t0) / .5, [x, y] = point(b.x, b.y);
+    c.globalCompositeOperation = 'lighter';
+    c.beginPath(); c.arc(x, y, 14 + 46 * (1 - Math.pow(1 - q, 3)), 0, Math.PI * 2);
+    c.globalAlpha = (1 - q) * .8; c.strokeStyle = '#fff3d6'; c.lineWidth = 3 * (1 - q) + .6; c.stroke();
+    for (let i = 0; i < 14; i++) { const sa2 = b.a + (hash(i, b.t0) - .5) * 2.2, d = (10 + 60 * hash(b.t0, i)) * (1 - Math.pow(1 - q, 2)), e = 3 * (1 - q) + .6;
+      c.globalAlpha = 1 - q; c.drawImage(EMBER, x + Math.cos(sa2) * d - e, y + Math.sin(sa2) * d - e, e * 2, e * 2); }
+    c.globalCompositeOperation = 'source-over';
+  }
+  c.restore();
+  return true;
+}
+
+
+// ---- Richthofen (red Albatros) active "태양을 등진 사냥꾼" / Hunter from the Sun: for 4 s enemies in
+// a 650 px / ±36° cone ahead can't fire.  Diving out of the sun: a blazing sun sits behind his
+// tail, hard god-rays fan forward through the cone with lens-flare ghosts along the axis, and
+// every enemy caught in it is dazzled (white glare star + flinching halo).
+export function drawSunHunter(c, g, point, t, px, py, layer = 'back') {
+  if (g.pilot !== 'baron' || !g.isRedHunter?.()) return false;
+  sprites(); if (!EMBER) return false;
+  const m = pst(g, () => ({}));
+  m.sun ??= { k: 0, last: t, t0: -9 };
+  const S = m.sun;
+  (globalThis.__hoSun ??= new WeakSet()).add(g);
+  const on = (g.skillTime || 0) > 0;
+  if (layer === 'back') { const dt = Math.max(0, Math.min(.1, t - S.last)); S.last = t; if (on && S.k === 0) S.t0 = t; S.k = clamp(S.k + (on ? dt / .25 : -dt / .35)); }
+  if (S.k <= .01) return true;
+  const k = S.k, a = g.a || 0, ca = Math.cos(a), sa = Math.sin(a), R = 650, half = Math.PI / 5;
+  const sx = px - ca * 70, sy = py - sa * 70;                    // the sun, just behind his tail
+  c.save();
+  if (layer === 'back') {
+    // god-rays: a fan of hard, slowly breathing beams through the strike cone
+    c.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 9; i++) {
+      const u = i / 8 * 2 - 1, ra = a + u * half * .95 + Math.sin(t * 1.3 + i) * .02, w = (.025 + .02 * hash(i, 4)) * (1 + .3 * Math.sin(t * 2.1 + i * 1.7));
+      const L = R * (.8 + .2 * hash(i, 9)), gr = c.createLinearGradient(sx, sy, sx + Math.cos(ra) * L, sy + Math.sin(ra) * L);
+      gr.addColorStop(0, 'rgba(255,240,200,.32)'); gr.addColorStop(.5, 'rgba(255,214,140,.12)'); gr.addColorStop(1, 'rgba(255,200,120,0)');
+      c.fillStyle = gr; c.globalAlpha = k; c.beginPath(); c.moveTo(sx, sy);
+      c.lineTo(sx + Math.cos(ra - w) * L, sy + Math.sin(ra - w) * L); c.lineTo(sx + Math.cos(ra + w) * L, sy + Math.sin(ra + w) * L); c.closePath(); c.fill();
+    }
+    // the sun disc + corona
+    const pulse = 1 + .06 * Math.sin(t * 5), flash = Math.max(0, 1 - (t - S.t0) / .35);
+    const cor = c.createRadialGradient(sx, sy, 0, sx, sy, 120 * pulse);
+    cor.addColorStop(0, 'rgba(255,255,240,.95)'); cor.addColorStop(.12, 'rgba(255,236,180,.8)'); cor.addColorStop(.35, 'rgba(255,190,110,.25)'); cor.addColorStop(1, 'rgba(255,160,80,0)');
+    c.globalAlpha = k; c.fillStyle = cor; c.beginPath(); c.arc(sx, sy, 120 * pulse, 0, Math.PI * 2); c.fill();
+    if (flash > 0) { c.globalAlpha = flash * .6; c.fillStyle = 'rgba(255,250,230,1)'; c.beginPath(); c.arc(sx, sy, 40 + 260 * (1 - flash), 0, Math.PI * 2); c.fill(); }
+    for (let i = 0; i < 6; i++) {                                // star spikes off the sun
+      const sa2 = t * .4 + i * Math.PI / 3, L = 70 + 20 * Math.sin(t * 3 + i);
+      c.beginPath(); c.moveTo(sx, sy); c.lineTo(sx + Math.cos(sa2) * L, sy + Math.sin(sa2) * L);
+      c.globalAlpha = k * .5; c.strokeStyle = '#fff6dc'; c.lineWidth = 1.5; c.stroke();
+    }
+  } else {
+    // lens-flare ghosts strung along the axis ahead, and dazzled enemies in the cone
+    c.globalCompositeOperation = 'lighter';
+    for (const [d, r, col] of [[120, 10, 'rgba(255,220,150,.35)'], [210, 18, 'rgba(160,220,255,.22)'], [300, 7, 'rgba(255,255,255,.4)'], [420, 26, 'rgba(255,190,120,.16)']]) {
+      const gx = sx + ca * d, gy = sy + sa * d, gr = c.createRadialGradient(gx, gy, 0, gx, gy, r);
+      gr.addColorStop(0, col); gr.addColorStop(.7, col.replace(/[\d.]+\)$/, '0.06)')); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      c.globalAlpha = k; c.fillStyle = gr; c.beginPath(); c.arc(gx, gy, r, 0, Math.PI * 2); c.fill();
+    }
+    let n = 0;
+    for (const e of g.enemies || []) {
+      if (n >= 8 || !g.sunStrikeContains?.(e)) continue; n++;
+      const [x, y] = point(e.x, e.y), tw = .8 + .2 * Math.sin(t * 17 + n), L = 14 * tw;
+      c.globalAlpha = k * .9; c.strokeStyle = '#ffffff'; c.lineWidth = 1.4;
+      c.beginPath(); c.moveTo(x - L, y - 6); c.lineTo(x + L, y - 6); c.moveTo(x, y - 6 - L); c.lineTo(x, y - 6 + L); c.stroke();
+      c.globalAlpha = k * .55; c.drawImage(EMBER, x - 12, y - 18, 24, 24);
+      c.beginPath(); c.arc(x, y, sizeOf(e) * (.9 + .08 * Math.sin(t * 9 + n)), 0, Math.PI * 2);
+      c.globalAlpha = k * .35; c.strokeStyle = '#ffe9b8'; c.lineWidth = 2; c.stroke();
+    }
+  }
+  c.restore();
+  return true;
+}
+
 // Front layer (drawn after the player's plane): only effects that must sit over the plane.
 export function drawPassiveFxFront(c, g, point, t, px, py) {
   sprites(); if (!EMBER) return;
   if (g.pilot === 'rickenbacker') drawRickenbackerRing(c, g, point, t, px, py, 'front');
+  else if (g.pilot === 'baracca') drawBaraccaLance(c, g, point, t, px, py, 'front');
+  else if (g.pilot === 'baron') drawSunHunter(c, g, point, t, px, py, 'front');
   else if (g.pilot === 'luke') drawLukeIgnited(c, g, point, t);
   else if (g.pilot === 'mckeever') drawMckeeverHandoff(c, g, point, t);
   else if (g.pilot === 'bishop') drawBishopClose(c, g, point, t, px, py);
