@@ -1,6 +1,0 @@
-{
-  "base": "641caba8176f75c0a887c14047868d3ec2408dbd",
-  "references": 270,
-  "missing": [],
-  "note": "Canonical main tree plus patch files; original large atlases remain present remotely."
-}
