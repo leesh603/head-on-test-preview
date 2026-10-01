@@ -204,7 +204,6 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
      texture(c,'smokeDark',Math.cos(a)*19-7,Math.sin(a)*21+drift,48+low*16,34+low*12,a,.06*low+.18*low*(.6+.4*Math.sin(t*1.4+i)**2));
     }
    }
-   if(active)crest(c,'blackHeart',t,.30,102);
    return;
   }
   if(p.pilot==='barker'){
@@ -239,7 +238,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
   if(!active)return;
   switch(profile.sustain){
    case 'charge':if(p.chargeTime>0&&!globalThis.__hoLance?.has(p))cavalrySlipstream(c,t,Math.min(1,p.chargeTime/.12));break;
-   case 'defyDeath':if(age>.65)crest(c,'blackHeart',age,.18,102);if(p.hitFlash>0)texture(c,'armorSpark',18,0,52,42,p.a,.65);break;
+   case 'defyDeath':if(p.hitFlash>0)texture(c,'armorSpark',18,0,52,42,p.a,.65);break;
    case 'precision':if(shot)muzzleAt(c,30,0,0,'muzzleHeavy',1.05);break;
    case 'cannon':if(p.cannonRecoil129>0)flash(c,false,1.8,true);break;
    case 'gunPlatform':if(shot){flash(c,false,1.5);texture(c,'smokePuff',41,0,38,24,0,.25)}break;
