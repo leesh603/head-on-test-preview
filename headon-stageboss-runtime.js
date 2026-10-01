@@ -1,4 +1,4 @@
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=468';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=alps20261001';
 import {BossHazards} from './headon-stageboss-hazards.js?v=468';
 
 export class BossStages {
