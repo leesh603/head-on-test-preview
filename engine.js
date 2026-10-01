@@ -1,22 +1,22 @@
-import {installPilotIdentities} from './pilot-identities.js?v=485';
-import {EnemyCollisionGrid} from './collision-grid.js?v=485';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=485';
-import {installRevision} from './rebalance103.js?v=485';
-import {installCloudCover} from './cloud-cover1.js?v=485';
-import {installFleet} from './fleet-naval1.js?v=485';
-import {installTrenchWar} from './trench-war1.js?v=485';
-import {installCityAir} from './city-air1.js?v=485';
-import {installRegionDoctrine} from './region-doctrine1.js?v=485';
-import {installLondonBattle} from './london-battle.js?v=485';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=485';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=485';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=485';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=485';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=485';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=485';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=485';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=485';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=485';
+import {installPilotIdentities} from './pilot-identities.js?v=486';
+import {EnemyCollisionGrid} from './collision-grid.js?v=486';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=486';
+import {installRevision} from './rebalance103.js?v=486';
+import {installCloudCover} from './cloud-cover1.js?v=486';
+import {installFleet} from './fleet-naval1.js?v=486';
+import {installTrenchWar} from './trench-war1.js?v=486';
+import {installCityAir} from './city-air1.js?v=486';
+import {installRegionDoctrine} from './region-doctrine1.js?v=486';
+import {installLondonBattle} from './london-battle.js?v=486';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=486';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=486';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=486';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=486';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=486';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=486';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=486';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=486';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=486';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -45,7 +45,6 @@ export const WEAPONS={
  spad:{name:'Vickers',caliber:'.303',guns:2,belt:500,rpm:450,reload:2.4},
  sopwith:{name:'Vickers',caliber:'.303',guns:2,belt:500,rpm:450,reload:2.4}
 };
-
 export const PILOTS={baron:{name:'만프레드 폰 리히트호펜',alias:'THE RED BARON',faction:'central',portrait:0,skill:'플라잉 서커스',desc:'3초간 무적 급강하. 속도와 연사력이 크게 증가합니다.',cooldown:12},fonck:{name:'르네 폰크',alias:'THE PRECISION ACE',faction:'entente',portrait:1,skill:'필살의 일제사격',desc:'4초간 전방으로 강력한 관통탄을 발사합니다.',cooldown:11},voss:{name:'베르너 포스',alias:'THE LONE HUSSAR',faction:'central',portrait:2,skill:'역전 선회',desc:'즉시 180° 선회하고 1.7초간 무적. 추격 탄환을 제거합니다.',cooldown:18},boelcke:{name:'오스왈드 뵐케',alias:'THE FATHER OF FIGHTERS',faction:'central',portrait:0,skill:'뵐케의 십계명',desc:'전투 규율을 지켜 4초간 공격력과 선회력이 상승합니다.',cooldown:13},collishaw:{name:'레이몬드 콜리쇼',alias:'THE BLACK FLIGHT',faction:'entente',portrait:1,skill:'검은 편대 강습',desc:'순간적으로 숍위드 삼엽기 3대가 나타나 전방을 일제 사격합니다.',cooldown:14},baracca:{name:'프란체스코 바라카',alias:'THE ACE OF THE CAVALRY',faction:'entente',portrait:0,skill:'검은 말의 질주',desc:'검은 말이 수평으로 전장을 가르며 적 편대를 쓸어버립니다.',cooldown:16}};
 export const UPGRADES=[{id:'damage',name:'스팬다우 LMG 08/15',desc:'기관총 공격력 +30%',apply:g=>g.damage*=1.3},{id:'rate',name:'동조 장치 · 싱크로나이저',desc:'기관총 발사 간격 −18%',apply:g=>g.rate*=.82},{id:'spread',name:'집중 일제사격',desc:'총구별 추가 탄환 +1 · 탄약 소모 증가 (최대 5발)',apply:g=>g.shots=Math.min(5,g.shots+1)},{id:'rockets',name:'르 프리외르 로켓',desc:'전방 직진 로켓 1발이 주기적으로 추가 발사됩니다.',apply:g=>g.rockets=(g.rockets||0)+1},{id:'mines',name:'접촉식 공중 기뢰',desc:'뒤쪽에 기뢰를 투하해 접근한 적에게 폭발 피해를 줍니다.',apply:g=>g.mineCount=(g.mineCount||0)+1},{id:'armor',name:'합판 모노코크 동체',desc:'최대 내구도 +25, 내구도 40 회복',apply:g=>{g.maxHp+=25;g.hp=Math.min(g.maxHp,g.hp+40)}},{id:'turn',name:'적층 목재 프로펠러',desc:'선회 속도 +20%, 비행 속도 +6%',apply:g=>{g.turn*=1.2;g.speed*=1.06}},{id:'magnet',name:'관측병의 전장 지도',desc:'경험치 회수 범위 +70%',apply:g=>g.magnet*=1.7},{id:'repair',name:'비행장 정비반',desc:'내구도 55 회복',apply:g=>g.hp=Math.min(g.maxHp,g.hp+55)},{id:'cooldown',name:'딕타 뵐케',desc:'액티브 재사용 시간 −20%',apply:g=>g.cooldownMult*=.8}];
 UPGRADES.push({id:'wingman',name:'레전드리 윙맨 · 정예 편대',desc:'정예 윙맨 1기 영구 합류. 일반 지원기 대비 공격력 +45%, 연사 +20%. 최대 2회 획득.',apply:g=>g.permanentWingman=(g.permanentWingman||0)+1});
@@ -55,13 +54,13 @@ export const highRiskDamage=(base,maxHp,source={})=>base+(maxHp||0)*(source.maxH
 PLANES.fokkerdv={...PLANES.fokker,name:'포커 D.VIII · LO',role:'무모한 강습',wings:1,speed:153,hp:105};
 PLANES.spad12={...PLANES.spad,name:'SPAD XII · 황새',role:'중포 강습',speed:158,hp:115};
 WEAPONS.fokkerdv={...WEAPONS.fokker};WEAPONS.spad12={...WEAPONS.spad};
-PILOTS.udet={name:'에른스트 우데트',alias:'LO · THE DAREDEVIL',faction:'central',portrait:0,skill:'무모한 기동술',desc:'현재 체력 10%를 소모하고 5초간 이동속도 +70%, 발사속도 +140%.',cooldown:22};
-PILOTS.guynemer={name:'조르즈 기네미르',alias:'THE STORK',faction:'entente',portrait:1,skill:'황새의 강타',desc:'황새가 전장을 가로지르며 3차례 강타합니다.',cooldown:25};
+PILOTS.udet={name:'에른스트 우데트',alias:'LO · THE DAREDEVIL',faction:'central',portrait:0,cooldown:22};
+PILOTS.guynemer={name:'조르즈 기네미르',alias:'THE STORK',faction:'entente',portrait:1,cooldown:25};
 PLANES.re7={...PLANES.camel,name:'R.E.7 복좌기',role:'근거리 강습',speed:128,hp:125,turn:2.4};
 PLANES.fokkerd7={...PLANES.albatros,name:'포커 D.VII · 백색',role:'편대 지휘',speed:147,hp:115};
 WEAPONS.re7={...WEAPONS.camel,name:'Lewis',guns:1};WEAPONS.fokkerd7={...WEAPONS.fokker};
-PILOTS.bishop={name:'빌리 비숍',alias:'GUERRILLA NIGHT',faction:'entente',portrait:1,skill:'게릴라 나이트',desc:'화면 밖으로 상승 후 급강하 재진입하며 실제 폭탄 8발을 투하합니다.',cooldown:25};
-PILOTS.goering={name:'헤르만 괴링',alias:'WHITE FLIGHT LEADER',faction:'central',portrait:0,skill:'백색 편대 · 집중 포화',desc:'상시 윙맨 1기와 출격합니다. 5초간 자신의 모든 윙맨 공격력 3배, 발사 속도 2배.',cooldown:27};
+PILOTS.bishop={name:'빌리 비숍',alias:'GUERRILLA NIGHT',faction:'entente',portrait:1,cooldown:25};
+PILOTS.goering={name:'헤르만 괴링',alias:'WHITE FLIGHT LEADER',faction:'central',portrait:0,cooldown:27};
 export const PILOT_PLANES={baron:'fokker_red',voss:'fokker_voss',boelcke:'albatros',immelmann:'eindecker',fonck:'camel',collishaw:'sopwith',baracca:'nieuport',udet:'fokkerdv',guynemer:'spad12',bishop:'re7',goering:'fokkerd7',mannock:'se5a'};
 export const DOCTRINE_BALANCE=Object.freeze({
  '강습 편대':Object.freeze({label:'화력 +15% / 장전 +15%',damage:1.15,reloadPenalty:1.15}),
@@ -80,10 +79,9 @@ export const WING_PLANES=Object.freeze({
 export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this.rng=rng;this.plane=plane;this.pilot=pilot;let p=PLANES[plane];this.x=0;this.y=0;this.a=-Math.PI/2;this.speed=p.speed*1.18;this.turn=p.turn*1.12;this.maxHp=p.hp;this.hp=p.hp;this.weapon={...WEAPONS[plane]};this.rate=60/this.weapon.rpm;this.ammo=Array(this.weapon.guns).fill(this.weapon.belt);this.reloadTime=0;this.roundsFired=0;this.muzzleFlash=0;this.damage=12;this.shots=1;this.rockets=0;this.mineCount=0;this.rocketFire=1.8;this.mineTimer=3;this.magnet=120;this.cooldownMult=1;this.t=0;this.kills=0;this.level=1;this.xp=0;this.baseLevelNeed=6;this.xpCostMultiplier=p.xpCostMultiplier??1;this.need=this.levelRequirement(6);this.enemies=[];this.allies=[];this.bullets=[];this.drops=[];this.mines=[];this.flakTimer=24;this.allyTimer=32;this.allyPlane=p.faction==='central'?'fokker':'camel';this.particles=[];this.events=[];this.upgrades={};this.state='playing';this.fire=0;this.spawn=0;this.supplyTimer=28;this.cooldown=0;this.evadeCooldown=0;this.evadeTime=0;this.evadeDirection=1;this.skillTime=0;this.invuln=1.5;this.bossSpawned=false;this.bossKilled=false;this.nextBossAt=80;this.wave=0;this.shake=0;this.score=0;this.hitFlash=0;this.smokeTimer=0;this.eventTimer=18+this.rng()*10;this.doctrine=['강습 편대','고속 정찰','장기 초계'][Math.floor(this.rng()*3)];if(this.doctrine==='강습 편대'){this.damage*=1.15;this.reloadPenalty=1.15}else if(this.doctrine==='고속 정찰'){this.speed*=1.12;this.maxHp*=.9;this.hp=this.maxHp}else{this.maxHp+=15;this.hp=this.maxHp;this.rate*=1.08}if(pilot==='goering'){this.permanentWingman=1;this.spawnAlly();Object.assign(this.allies.at(-1),{permanent:true,life:1e9})}this.ensureRevisionPilot();this.event('wave',this.doctrine+' · 출격 장비 배정')}
  rollChoices(){let pool=UPGRADES.filter(u=>u.id!=='wingman'&&(u.id!=='spread'||this.shots<5)&&(u.id!=='repair'||this.hp<this.maxHp));let fresh=pool.filter(u=>!(this.lastChoices||[]).includes(u.id));if(fresh.length>=3)pool=fresh;for(let i=pool.length-1;i>0;i--){let j=Math.floor(this.rng()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}let picks=pool.slice(0,3);if((this.upgrades.wingman||0)<2&&this.rng()<.03)picks[2]=UPGRADES.find(u=>u.id==='wingman');this.lastChoices=picks.map(u=>u.id);return picks}
  event(type,text){this.events.push({type,text})}
- _skillBase(){if(this.state!=='playing'||this.cooldown>0)return false;let p=PILOTS[this.pilot];this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();if(this.pilot==='collishaw')this.formationFire=0;if(this.pilot==='voss')this.invuln=Math.max(this.invuln,1);if(this.pilot==='voss'){this.a+=Math.PI;this.bullets=this.bullets.filter(b=>!b.enemy);this.burst(this.x,this.y,'#f1dca0',25)}this.event('skill',p.skill);return true}
+ _skillBase(){if(this.state!=='playing'||this.cooldown>0)return false;let p=PILOTS[this.pilot];this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.event('skill',p.skill);return true}
  evade(){if(this.state!=='playing'||this.evadeCooldown>0)return false;this.evadeCooldown=8;this.evadeTime=.82;this.evadeDirection*=-1;/* 넓은 선회로 적 후방 진입 창 확보 */this.a+=this.evadeDirection*Math.PI*.72;this.invuln=Math.max(this.invuln,.78);if(this.evadeCooldownMult)this.evadeCooldown*=this.evadeCooldownMult;if(this.evadeInvulnerability)this.invuln=Math.max(this.invuln,this.evadeInvulnerability);this.burst(this.x,this.y,'#d8e4d0',18);this.event('evade','선회기동기동');return true}
  reload(){if(this.unlimitedAmmo){this.reloadTime=0;this.ammo.fill(this.weapon.belt);return false}if(this.state!=='playing'||this.reloadTime>0||this.ammo.every(n=>n===this.weapon.belt))return false;this.reloadTime=this.weapon.reload*(this.reloadPenalty||1);if(this.pilot==='gontermann')this.reloadTime*=.88;this.fire=0;this.muzzleFlash=0;this.event('reload','재장전');return true}
-
  upgrade(id,rarity='normal'){if(this.state!=='upgrade')return;let u=UPGRADES.find(u=>u.id===id);if(!u)return;u.apply(this);if(rarity==='rare'){u.apply(this)}else if(rarity==='unique'){u.apply(this);u.apply(this);if(id==='rockets')this.rocketFire=0;if(id==='mines')this.mineTimer=0}this.upgrades[id]=(this.upgrades[id]||0)+1;this.state='playing';this.checkLevel()}
  checkLevel(){if(this.xp>=this.need&&this.state==='playing'){this.xp-=this.need;this.level++;this.baseLevelNeed=Math.ceil(this.baseLevelNeed*1.28);this.need=this.levelRequirement(this.baseLevelNeed);this.state='upgrade';this.event('upgrade','전술 개조')}}
  burst(x,y,color,n=8,kind){if(color==='#f2aa52'&&n>=26){this.combatFX??=[];if(!this.combatFX.some(f=>f.killExplosion&&f.life>.38&&Math.hypot(f.x-x,f.y-y)<8))this.combatFX.push({x,y,radius:n>=36?46:34,life:.48,maxLife:.48,killExplosion:true,side:'friendly',kind})}for(let i=0;i<n;i++){let a=this.rng()*Math.PI*2,s=20+this.rng()*90;this.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.4+this.rng()*.5,color})}}
@@ -130,7 +128,6 @@ export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this
   }this.muzzleFlash=.055;this.event('shot','');
   if(this.ammo.every(n=>n===0))this.reload();
  }}
-
  if(this.rockets>0){this.rocketFire-=dt;if(this.rocketFire<=0)this.launchUpgradeRocket()}if(this.mineCount>0){this.mineTimer-=dt;if(this.mineTimer<=0){this.mineTimer=this.ordnanceInterval(3.6/(1+this.mineCount*.3));this.throwGrenades()}}this.tickGrenades(dt);for(let m of this.mines){if(m.grenade){m.x+=(m.vx||0)*dt;m.y+=(m.vy||0)*dt;m.vx*=.985;m.vy*=.985}m.life-=dt;m.arm=Math.max(0,m.arm-dt);if(m.life>0&&m.arm===0&&this.enemies.some(e=>e.hp>0&&Math.hypot(e.x-m.x,e.y-m.y)<(m.special?62:88))){
  const radius=m.special?112:132;
  this.queueExplosionDamage(m.x,m.y,radius,m.damage,{fxSource:'mineAir'});m.life=0;
@@ -154,40 +151,19 @@ let max=this.sunStrikeContains(e)||e.stationary?0:e.bossDash>0?0:e.heavyBomber?.
  this.drops=this.drops.filter(d=>!d.dead&&(d.life===undefined||d.life>0)&&Math.hypot(d.x-this.x,d.y-this.y)<1500).slice(-250);for(let p of this.particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}this.particles=this.particles.filter(p=>p.life>0).slice(-450);
  if(this.hp<=0)return;this.score=this.kills*100+Math.floor(this.t)*10;this.checkLevel()}
 }
-
 // Balance pass and the compact Immelmann pilot are layered here so old saved
 // runs keep their state while every new sortie uses the slower turning curve.
-PILOTS.immelmann={name:'막스 임멜만',alias:'THE EAGLE OF LILLE',faction:'central',portrait:0,skill:'임멜만 턴',desc:'상승 반전으로 적 탄막을 털어내고 반대 방향으로 관통 급강하 사격을 합니다.',cooldown:16};
-
-
+PILOTS.immelmann={name:'막스 임멜만',alias:'THE EAGLE OF LILLE',faction:'central',portrait:0,cooldown:16};
 Game.prototype._updBalance=function(dt,input={}){
-
   if(!this._turnBalanceApplied){this.turn*=.72;this._turnBalanceApplied=true;this.baseSpeed=this.speed;this.enemyCruiseReference=this.speed}
   const oldSpeed=this.speed;this.speed=this.baseSpeed*this.healthSpeedFactor();
   this._updCore(dt,input);this.speed=oldSpeed;
 };
-Game.prototype._sklBalance=function(){
-  if(this.pilot!=='immelmann')return this._skillBase();
-  if(this.state!=='playing'||this.cooldown>0)return false;const p=PILOTS.immelmann;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.invuln=Math.max(this.invuln,this.skillEnhanced?1.35:1.1);this.bullets=this.bullets.filter(b=>!b.enemy);
-  this.immelmannTurn={heading:this.a,elapsed:0,spread:this.skillEnhanced?3:2,fired:false};this.event('skill',p.skill);return true;
-};
+Game.prototype._sklBalance=function(){return this._skillBase()};
 const _repairIndex=UPGRADES.findIndex(u=>u.id==='repair');if(_repairIndex>=0)UPGRADES.splice(_repairIndex,1);
-
 // Collishaw's Black Flight now crosses the screen as real attack aircraft,
 // while repair drops are rare enough to preserve the pressure of a sortie.
-PILOTS.collishaw.desc='검은 숍위드 삼엽기 3대가 빠르게 좌우를 가르며 직접 사격합니다.';
-
-
-Game.prototype._sklFormation=function(){
-  const activated=this._sklBalance();
-  if(activated&&this.pilot==='collishaw'){
-    this.skillTime=this.skillDuration();this.formationTime=this.skillTime;
-    this.formationClock=0;
-    this.formationWings=[-1,0,1].map((slot,i)=>({slot,phase:i*2.05,x:this.x,y:this.y,a:this.a,alpha:0,fire:0}));
-  }
-  return activated;
-};
-
+Game.prototype._sklFormation=function(){return this._sklBalance()};
 Game.prototype._spnPressure=function(type){
   if(type==='scout'&&this.t>28&&this.rng()<.28)type='hunter';
   else if(type==='hunter'&&this.t>72&&this.rng()<.16)type='bomber';
@@ -210,26 +186,12 @@ Game.prototype._updFormation=function(dt,input={}){
   const fresh=this.drops.slice(dropStart);
   for(const d of fresh)if(d.heal&&!d.supply&&this.rng()>.3)d.heal=false;
   if(fresh.some(d=>d.supply))this.supplyTimer=Math.max(this.supplyTimer,68+this.rng()*42);
-  if(this.pilot==='collishaw'&&this.skillTime>0){
-    this.formationClock=(this.formationClock||0)+dt;
-    const heading=this.a,side=heading+Math.PI/2,t=this.formationClock;
-    for(const wing of this.formationWings||[]){
-      pilotSupportPose(this,wing,dt,true);
-      wing.alpha=Math.min(1,wing.alpha+dt*8);wing.fire-=dt;
-      while(wing.fire<=0){wing.fire+=PILOT_BALANCE.blackFlightInterval/(1+(this.commandRateBonus||0));const aim=this.blackFlightAim(wing,wing.a),mx=wing.x+Math.cos(wing.a)*28,my=wing.y+Math.sin(wing.a)*28;wing.muzzleFlash=.08;wing.fireHeading=aim;this.bullets.push({x:mx,y:my,vx:Math.cos(aim)*500,vy:Math.sin(aim)*500,life:1.6,enemy:false,ownerId:this.id,damage:this.supportPower(PILOT_BALANCE.blackFlightDamage),pierce:true,hit:new Set(),formation:true,blackFlight:true});this.burst(mx,my,'#e9f0d8',2)}
-    }
-  }else if(this.formationWings){for(const wing of this.formationWings)wing.alpha=Math.max(0,wing.alpha-dt*5)}
 };
-
 // Baracca's emblem becomes a real diagonal attack run: the black horse crosses
 // the field while a short burst of piercing rounds follows its charge.
-
-
 // Historical name shown in the roster while keeping the Red Baron id for compatibility.
 PILOTS.baron.name='만프레드 폰 리히트호펜';
-
 // Intermittent turbulence: a visible gust can throw off the player's heading.
-
 Game.prototype._updEnvironment=function(dt,input={}){
   let control=input;
   if(this.gustDisorient>0){
@@ -259,30 +221,20 @@ Game.prototype._updEnvironment=function(dt,input={}){
   }
   this.gusts=this.gusts.filter(g=>g.life>0);
 };
-
-
-
-
 Game.prototype._sklNewAce=function(){
-  if(!['udet','guynemer','baracca'].includes(this.pilot))return this._sklFormation();
+  if(!['guynemer','baracca'].includes(this.pilot))return this._sklFormation();
   if(this.state!=='playing'||this.cooldown>0)return false;
   this.cooldown=this.skillCooldown();
   const activeDuration=this.skillDuration();
-  if(this.pilot==='udet'){this.skillTime=activeDuration;this.udetBoost=0;this.evadeTime=activeDuration;this.evadeDirection=-(this.evadeDirection||1);this.invuln=Math.max(this.invuln,activeDuration);this.fire=Math.min(this.fire,0)}
-  else if(this.pilot==='guynemer'){this.skillTime=activeDuration;this.salvoWaves=this.skillEnhanced?Math.ceil(activeDuration/.36):8;this.salvoTimer=0;this.invuln=Math.max(this.invuln,.65)}
+  if(this.pilot==='guynemer'){this.skillTime=activeDuration;this.salvoWaves=this.skillEnhanced?Math.ceil(activeDuration/.36):8;this.salvoTimer=0;this.invuln=Math.max(this.invuln,.65)}
   else{this.skillTime=activeDuration;this.chargeTime=activeDuration;this.chargeAngle=this.a;this.chargeHits=new Set();this.invuln=Math.max(this.invuln,.9)}
   this.event('skill',PILOTS[this.pilot].skill);return true;
 };
-
 Game.prototype._updNewAce=function(dt,input={}){
   if(this.state!=='playing')return;
-  const step=Math.min(.04,Math.max(0,dt)),boost=this.udetBoost>0,rate=this.rate,base=this.baseSpeed??this.speed;
-  if(boost){this.baseSpeed=base*1.7;this.rate=rate/2.4}
+  const step=Math.min(.04,Math.max(0,dt));
   this._updEnvironment(step,input);
-  if(boost){this.baseSpeed=base;this.rate=rate;this.udetBoost=Math.max(0,this.udetBoost-step)}
-
 };
-
 // Heavy, opposing-faction bombers are periodic enemies, never selectable aircraft.
 const HEAVY_BOMBERS={central:[['staaken','체펠린 슈타켄 R.VI'],['gotha','고타 G.V 중폭격기'],['aeg_g4','AEG G.IV 중폭격기'],['friedrichshafen_g3','프리드리히스하펜 G.III']],
  entente:[['handley-page','핸들리 페이지 O/400'],['voisin8','부아생 VIII 야간폭격기'],['caudron_g4','코드롱 G.4 폭격기'],['fe2b','F.E.2b 푸셔 폭격기'],['breguet14','브레게 14 주간폭격기']]};
@@ -292,7 +244,6 @@ Game.prototype._pickHeavy=function(){
  const pool=[...(HEAVY_BOMBERS[enemyFaction]||[]),...(sea?(HEAVY_BOMBERS_SEA[enemyFaction]||[]):[])];
  return pool[Math.floor(this.rng()*pool.length)]||HEAVY_BOMBERS.entente[0];
 };
-
 Game.prototype._spnHeavy=function(type){
  this._spnPressure(type==='heavyBomber'?'bomber':type);
  if(type!=='heavyBomber')return;
@@ -300,7 +251,6 @@ Game.prototype._spnHeavy=function(type){
  const pick=this._pickHeavy();e.airframe=pick[0];e.name=pick[1];
  e.maxHp=e.hp=Math.round(650*(1+this.t/160));e.speed=52*(1+this.t/900);e.fire=2.8;
 };
-
 Game.prototype._updHeavy=function(dt,input={}){
  this._updNewAce(dt,input);
  if(this.state!=='playing')return;
@@ -310,13 +260,8 @@ Game.prototype._updHeavy=function(dt,input={}){
   this.event('wave',heavy.name+' 출현 · 중기관총 탄막 주의');
  }
 };
-
 // Weapon-based ace specials reuse the game's detailed equipment sprites.
-PILOTS.guynemer.skill='황새 편대 · 로켓 폭우';
-PILOTS.guynemer.desc='3초간 날개에서 르 프리외르 로켓 48발을 여러 방향으로 연속 발사합니다.';
 PILOTS.guynemer.cooldown=26;
-PILOTS.baracca.skill='검은 말의 질주';
-PILOTS.baracca.desc='1.2초간 바라보는 방향으로 고속 돌격합니다. 돌격 중 무적이며 경로상의 적에게 관통 피해.';
 PILOTS.baracca.cooldown=28;
 Game.prototype.combatBlast=function(x,y,radius,side='enemy',kind='blast'){
  this.combatFX??=[];this.combatFX.push({x,y,radius,side,kind,life:.65,maxLife:.65});
@@ -341,7 +286,6 @@ Game.prototype._freBase=function(e){
  e.fire=e.heavyBomber?2.8:e.type==='boss'?.65/(e.aceAttackRate||1):e.type==='zeppelin'?2.1:e.type==='bomber'?1.5:2.5;
  this.enemyVolley(e);if(e.heavyBomber){e.burstLeft=2;e.burstDelay=.2}else if(e.type==='zeppelin'){e.fire=3.2;e.burstLeft=1;e.burstDelay=.3}
 };
-
 Game.prototype._updCombat=function(dt,input={}){
  if(this.state!=='playing')return;
  const step=Math.min(.04,Math.max(0,dt));
@@ -357,7 +301,6 @@ Game.prototype._updCombat=function(dt,input={}){
     for(let j=0;j<6;j++){const side=j<3?-1:1,angle=a+(j-2.5)*.16;
      this.bullets.push({x:this.x+Math.cos(a)*12-Math.sin(a)*side*23,y:this.y+Math.sin(a)*12+Math.cos(a)*side*23,vx:Math.cos(angle)*330,vy:Math.sin(angle)*330,life:this.longRange?this.shotLifetime(330):3.2,enemy:false,ownerId:this.id,damage:this.payloadPower(32.4),rocket:true,special:true,hit:new Set()});
     }this.event('rocketSalvo','');this.muzzleFlash=.12;
-
    }
   }
  }
@@ -391,8 +334,6 @@ Game.prototype._updCombat=function(dt,input={}){
   if(Math.hypot(this.x-z.x,this.y-z.y)<z.radius)this.hit(highRiskDamage(z.damage,this.maxHp,z))}}
  this.bombZones=this.bombZones.filter(z=>z.delay>0);
 };
-
-
 Game.prototype._updSpacing=function(dt,input={}){
  this._updCombat(dt,input);if(this.state!=='playing')return;
  for(let i=0;i<this.allies.length;i++)for(let j=i+1;j<this.allies.length;j++){
@@ -400,9 +341,7 @@ Game.prototype._updSpacing=function(dt,input={}){
   if(d<42){const nx=d>0?dx/d:1,ny=d>0?dy/d:0,push=(42-d)*.5;a.x-=nx*push;a.y-=ny*push;b.x+=nx*push;b.y+=ny*push}
  }
 };
-
 // Travel is accumulated from actual movement, including evasions and charges.
-
 Game.prototype._spnWorld=function(type){
  if(type==='zeppelin'&&!this._escortSummon&&this.enemies.filter(e=>e.type==='zeppelin'&&e.hp>0).length>=2)type='bomber';
  if(type==='boss'){
@@ -422,15 +361,7 @@ Game.prototype._spnWorld=function(type){
  if(e.bossPilot==='bishop'){e.hp=e.maxHp=Math.round(e.maxHp*ENEMY_BOSS_BALANCE.bishopHpMultiplier);e.speed*=1.1;e.abilityTimer=ENEMY_BOSS_BALANCE.bishopFirstAbility;e.fire=.5}
  this.event('wave','적 에이스 · '+e.name+' / '+PILOTS[e.bossPilot].skill);
 };
-
-Game.prototype._sklNewPilot=function(){
- if(!['bishop','goering'].includes(this.pilot))return this._sklNewAce();
- if(this.state!=='playing'||this.cooldown>0)return false;
- this.cooldown=this.skillCooldown();
- if(this.pilot==='bishop'){this.skillTime=this.bishopTime=this.skillDuration();this.invuln=Math.max(this.invuln,this.skillTime);this.bishopDrops=Math.ceil(8*(this.skillTime/2.4));this.bishopBombTimer=.65;this.bishopHeading=this.a}
- else{this.skillTime=this.wingBoost=this.skillDuration()}
- this.event('skill',PILOTS[this.pilot].skill);return true;
-};
+Game.prototype._sklNewPilot=function(){return this._sklNewAce()};
 Game.prototype._aatBase=function(e){
  const id=e.bossPilot;
  if(['baron','voss','baracca','immelmann'].includes(id)){e.a=Math.atan2(this.y-e.y,this.x-e.x);e.bossDash=1.1}
@@ -446,20 +377,10 @@ Game.prototype.bishopFlightHeight=function(){
  const elapsed=this.skillDuration()-this.bishopTime,q=elapsed<.5?Math.sin(elapsed/.5*Math.PI/2):Math.cos(Math.min(1,(elapsed-.5)/.55)*Math.PI/2);
  return Math.max(0,q)*(this.viewHeight||900)*.9;
 };
-
 Game.prototype._updWorld=function(dt,input={}){
  if(this.state!=='playing')return;
  const step=Math.min(.04,Math.max(0,dt)),x=this.x,y=this.y;
- this.wingBoost=Math.max(0,(this.wingBoost||0)-step);
- if(this.bishopTime>0){this.invuln=Math.max(this.invuln,step+.05);this.bishopTime=Math.max(0,this.bishopTime-step);if(this.bishopTime===0)this.bishopEmptyPending=true;this.bishopBombTimer-=step;
-  if(this.bishopDrops>0&&this.bishopBombTimer<=0){this.bishopDrops--;this.bishopBombTimer=.23;
-   const target=this.enemies.filter(e=>e.hp>0).sort((a,b)=>Math.hypot(a.x-this.x,a.y-this.y)-Math.hypot(b.x-this.x,b.y-this.y))[0];
-   const bx=target?.x??this.x+Math.cos(this.a)*120,by=target?.y??this.y+Math.sin(this.a)*120;
-   this.friendlyBombs.push({ownerId:this.id,sx:this.x,sy:this.y-this.bishopFlightHeight(),x:bx,y:by,life:.38,maxLife:.38,radius:110,damage:this.payloadPower(90),bishopBomb:true});
-  }
- }
  this._updSpacing(step,input);
- if(this.bishopEmptyPending){this.bishopEmptyPending=false;this.ammo.fill(0);this.reloadTime=0;this.fire=.1;this.muzzleFlash=0;this.event('wave','폭격 종료 · 탄약 소진, 재장전 필요')}
  this.distance=(this.distance||0)+Math.hypot(this.x-x,this.y-y);
  const region=this.worldRegion();
  if(this.region!==region)this.enterRegion(region)
@@ -467,13 +388,11 @@ Game.prototype._updWorld=function(dt,input={}){
  this.regionThreat=(this.regionThreat??20)-step;if(this.regionThreat<=0){this.regionThreat=24;if([1,7].includes(region)&&this.enemies.length<60)this.spawnEnemy(this.rng()<.12?'zeppelin':'bomber');this.spawnFlak()}
  for(const e of this.enemies){if(!e.bossPilot)continue;e.bossDash=Math.max(0,(e.bossDash||0)-step);if(e.aceRetreat){e.a=Math.atan2(e.y-this.y,e.x-this.x);e.x+=Math.cos(e.a)*e.speed*1.15*step;e.y+=Math.sin(e.a)*e.speed*1.15*step;e.fire=9;if(Math.hypot(e.x-this.x,e.y-this.y)>1500){e.expired=true;if(!e.crashing&&!e.crashed)e.hp=-1}continue}if(this.sunStrikeContains(e))continue;if((e.aceSpawnT??this.t)&&this.t-e.aceSpawnT>75){e.aceRetreat=true;this.event('wave',e.name+' · 이탈 — 교전 한계 초과');continue}e.abilityTimer-=step;if(e.abilityTimer<=0){e.abilityTimer=e.bossPilot==='bishop'?ENEMY_BOSS_BALANCE.bishopAbilityMin+this.rng()*ENEMY_BOSS_BALANCE.bishopAbilityVariance:7+this.rng()*3;this.aceAttack(e)}}
 };
-
 Game.prototype.wreckGust=function(e){
  this.gusts??=[];const a=Math.atan2(this.y-e.y,this.x-e.x);
  this.gusts.push({x:e.x,y:e.y,vx:Math.cos(a)*170,vy:Math.sin(a)*170,a:a+Math.PI/2,life:6,maxLife:6,radius:78,hit:false,wreck:true});
  this.event('flak','비행선 붕괴! 충격 돌풍 접근');
 };
-
 // Separate weapon families: gun upgrades never silently multiply every payload.
 Game.prototype.payloadPower=function(base){return base*(1+(this.explosiveBonus||0))*(1+this.badinDamageBonus())*(this.doctrine==='강습 편대'?1.15:1)};
 // 바댕 속도계: sustained bonus over the airframe's base cruise speed counts; momentary
@@ -481,7 +400,7 @@ Game.prototype.payloadPower=function(base){return base*(1+(this.explosiveBonus||
 Game.prototype.badinDamageBonus=function(){
  if(!this.upgrades?.badinGauge)return 0;
  const cruise=this.baseSpeed||this.speed,base=PLANES[this.plane]?.speed||cruise;
- const burst=this.skillTime>0||this.evadeTime>0||this.udetBoost>0||this.dreideckerActive||this.dreideckerChase>0||this.huntBoost>0||this.aceRetreat129;
+ const burst=this.skillTime>0||this.evadeTime>0||this.dreideckerActive||this.dreideckerChase>0||this.huntBoost>0||this.aceRetreat129;
  if(!burst)this._badinSustained=cruise;
  const sustained=this._badinSustained??cruise;
  return Math.max(0,Math.min(.6,(sustained-base)/base*1.5));
@@ -630,7 +549,6 @@ Game.prototype.upgrade=function(id,rarity='normal'){
  else if(id==='maximBelt'){this.unlimitedAmmo=true;this.reloadTime=0;this.ammo.fill(this.weapon.belt);}
  this.state='playing';this.checkLevel();
 };
-
 Game.prototype._updFriendlyBomber=function(dt,input={}){
  if(this.state!=='playing')return;const step=Math.min(.04,Math.max(0,dt));
  this._updWorld(step,input);if(this.state!=='playing')return;
@@ -649,36 +567,20 @@ Game.prototype._updFriendlyBomber=function(dt,input={}){
  for(const b of this.friendlyBombs){b.life-=step;if(b.life<=0)this.queueExplosionDamage(b.x,b.y,b.radius,b.damage,{fxSource:'bomb'})}
  this.friendlyBombs=this.friendlyBombs.filter(b=>b.life>0);
 };
-
 // Revision 51: bounded skill recovery, distinct airframes and the 74 Squadron.
 PLANES.eindecker={name:'포커 E.III 아인데커',role:'단엽 반전기동형',faction:'central',speed:140,turn:3.1,hp:95,rate:.2,color:'#c6b68b',wings:1};
 WEAPONS.eindecker={...WEAPONS.fokker,guns:1,reload:2.1};
 PLANES.se5a={name:'S.E.5a',role:'근거리 편대 강습',faction:'entente',speed:168,turn:2.9,hp:110,rate:.18,color:'#7c8051',wings:2};
 WEAPONS.se5a={...WEAPONS.camel,name:'Vickers / Lewis',guns:2};
-PILOTS.mannock={name:'믹 매녹',alias:'74 SQUADRON',faction:'entente',portrait:1,skill:'74비행단 교차 급강하',desc:'기관총 사거리 −55%. S.E.5a 7대가 위→아래 한 번, 오른쪽→왼쪽 한 번 교차 관통 사격.',cooldown:28};
-PILOTS.baron.cooldown=15;PILOTS.baron.skill='드라이데커';PILOTS.baron.passive='사냥 본능';PILOTS.baron.passiveDesc='강한 적을 오래 추적할수록 해당 대상에게 주는 피해가 증가합니다. 사냥감 격추 시 잠시 빨라집니다.';PILOTS.baron.desc='발동 시 1초간 무적. 속도를 낮춰 극단적으로 선회하며, 적의 후방을 잡으면 즉시 추격 가속합니다.';
-PILOTS.voss.desc='즉시 180° 선회하며 적 탄환을 제거합니다. 무적 1초.';
-PILOTS.immelmann.desc='상승해 정점에서 반전한 뒤 관통탄 5발로 재진입합니다. 탄막 제거·1.1초 무적·관통탄 피해 3.5배.';
-PILOTS.boelcke.desc='윙맨 4기가 좌우로 벌어져 같은 적의 후방을 협공합니다. 무적 효과 없음.';
-PILOTS.collishaw.desc='플레이어와 같은 크기의 검은 삼엽기 3대가 완만하게 좌우 기동하며 5.2초간 사격. 무적 없음.';
-PILOTS.baracca.desc='0.9초 무적 직선 돌격. 경로 피해는 기관총 강화에 비례.';
-PILOTS.bishop.desc='2.4초간 무적 상승·급강하 재진입, 실제 폭탄 8발 투하 후 탄약 소진.';
+PILOTS.mannock={name:'믹 매녹',alias:'74 SQUADRON',faction:'entente',portrait:1,cooldown:28};
+PILOTS.baron.cooldown=15;
 Game.prototype._durBase=function(){if(this.isRedHunter())return 4*(this.skillEnhanced?1.35:1);const d=({baron:4,fonck:4,voss:1,boelcke:PILOT_BALANCE.boelckeDuration,collishaw:5.2,baracca:.9,immelmann:2.8,udet:.55,guynemer:3,bishop:2.4,goering:GOERING_WING_BOOST.duration,mannock:7.2,mckeever:5,huffzky:5})[this.pilot]||3;return this.skillEnhanced&&['mckeever','huffzky'].includes(this.pilot)?d*1.35:d};
 Game.prototype.skillRecovery=function(){return PILOT_BALANCE.recovery[this.isRedHunter()?'baron_albatros':this.pilot]??6};
 Game.prototype.skillCooldown=function(){return Math.max(pilotLoadout(this.pilot,this.plane).cooldown*Math.max(.5,this.cooldownMult),this.skillDuration()+this.skillRecovery())};
 Game.prototype.blackFlightAim=function(wing,heading){const target=pilotWingTarget(this,wing);if(target)return Math.atan2(target.y-wing.y,target.x-wing.x);let aim=heading,best=650*650;for(const e of this.enemies){if(e.hp<=0)continue;const dx=e.x-wing.x,dy=e.y-wing.y,d=dx*dx+dy*dy,a=Math.atan2(dy,dx);if(d<best&&Math.abs(angleDiff(a,heading))<=.8){best=d;aim=a}}return aim};
 Game.prototype.normalGunMultiplier=function(){const single=['baracca','immelmann'].includes(this.pilot)&&this.weapon.guns===1?PILOT_BALANCE.singleGunMultiplier:1;let m=single*(this.pilot==='boelcke'&&this.skillTime>0?PILOT_BALANCE.boelckeDamage:1);if(this.pilot==='ball'){const w=this.combatWorld();const alone=![...(w.allies||[]),...(w.patrols||[])].some(a=>a.life>0&&(a.hp===undefined||a.hp>0)&&Math.hypot(a.x-this.x,a.y-this.y)<320)&&!(w.players||[]).some(p=>p!==this&&p.hp>0&&p.status!=='downed'&&Math.hypot(p.x-this.x,p.y-this.y)<320);if(alone)m*=1.15}else if(this.pilot==='barker')m*=1+(this.barkerStacks||0)*.13;else if(this.pilot==='brumowski'){const world=this.combatWorld();const n=(world.allies||[]).filter(a=>a.life>0&&(a.hp===undefined||a.hp>0)).length;m*=1+Math.min(3,n)*.08}return m};
 Game.prototype.shotLifetime=function(speed){return Math.hypot(this.viewWidth||960,this.viewHeight||900)/speed+1};
-
-Game.prototype._sklCore51=function(){
-  if(this.pilot!=='mannock')return this._sklNewPilot();
- if(this.state!=='playing'||this.cooldown>0)return false;
- this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.mannockPassTimer=Math.min(2.35,this.skillTime*.33);this.mannockPass=1;
- const w=this.viewWidth||960,h=this.viewHeight||900;
- this.divingSquadron=Array.from({length:7},(_,i)=>{const slot=i-3;return {x:this.x+slot*w*.12,y:this.y-h*.65-Math.abs(slot)*h*.12,a:Math.PI/2,age:0,speed:h*.58,fire:Math.abs(slot)*.04,pass:'vertical',hit:new Set()}});
- this.event('skill',PILOTS.mannock.skill);return true;
-};
-
+Game.prototype._sklCore51=function(){return this._sklNewPilot()};
 Game.prototype._updCore51=function(dt,input={}){
  if(this.state!=='playing')return;
  const step=Math.min(.04,Math.max(0,dt));
@@ -686,20 +588,10 @@ Game.prototype._updCore51=function(dt,input={}){
  // inside the older update layers; launch velocity remains constant.
  this._updFriendlyBomber(step,input);
  if(this.longRange)for(const b of this.bullets)if(!b.enemy&&!b.rangeExtended&&Math.hypot(b.vx,b.vy)>0){b.life=Math.max(b.life,this.shotLifetime(Math.hypot(b.vx,b.vy)));b.rangeExtended=true}
- if(this.state!=='playing')return;
- this.mannockPassTimer=(this.mannockPassTimer??Infinity)-step;
- if(this.mannockPass===1&&this.mannockPassTimer<=0){const w=this.viewWidth||960,h=this.viewHeight||900;this.mannockPass=2;this.divingSquadron.push(...Array.from({length:7},(_,i)=>{const slot=i-3;return {x:this.x+w*.68+Math.abs(slot)*w*.08,y:this.y+slot*h*.11,a:Math.PI,age:0,speed:w*.58,fire:Math.abs(slot)*.04,pass:'horizontal',hit:new Set()}}))}
- for(const wing of this.divingSquadron||[]){wing.muzzleFlash=Math.max(0,(wing.muzzleFlash||0)-step);wing.age+=step;const vertical=wing.pass!=='horizontal',oldX=wing.x,oldY=wing.y;wing.x+=Math.cos(wing.a)*wing.speed*step;wing.y+=Math.sin(wing.a)*wing.speed*step;wing.fire-=step;
-  if(wing.fire<=0){wing.muzzleFlash=.09;wing.fire=PILOT_BALANCE.mannockInterval/(1+(this.commandRateBonus||0));const dx=Math.cos(wing.a),dy=Math.sin(wing.a);this.bullets.push({x:wing.x+dx*25,y:wing.y+dy*25,vx:dx*620,vy:dy*620,life:this.longRange?this.shotLifetime(620):1.5,enemy:false,ownerId:this.id,mannockPass:wing.pass,formation:true,pierce:true,damage:this.supportPower(PILOT_BALANCE.mannockDamage),hit:new Set()})}
-  for(const e of this.enemies)if(e.hp>0&&!wing.hit.has(e)&&((vertical&&Math.abs(e.x-wing.x)<40&&e.y>=oldY-35&&e.y<=wing.y+35)||(!vertical&&Math.abs(e.y-wing.y)<40&&e.x<=oldX+35&&e.x>=wing.x-35))){wing.hit.add(e);this.bullets.push({x:e.x,y:e.y,vx:0,vy:0,life:.15,enemy:false,ownerId:this.id,damage:this.supportPower(PILOT_BALANCE.mannockContact),hit:new Set(),blast:true})}
- }
- this.divingSquadron=(this.divingSquadron||[]).filter(w=>w.age<4.6);
 };
-
 // Campaign integration: player travel speed is independent of current durability.
 Game.prototype.canHitTarget=function(e){return !(e?.vossInvuln>0)&&!(e?.aceInvuln124>0)};
 Game.prototype.healthSpeedFactor=function(){return 1};
-
 // Region identity is shared by simulation, drawing and hazards. Campaigns lock it.
 Game.prototype.worldRegion=function(){return this.lockedRegion??this.stageBoss?.stages.stageIndex??Math.floor((this.distance||0)/12000)%3};
 const REGION_LABELS53=Object.freeze(['전원 지대 · 기뢰지대','아드리아해 · 적 함대','참호 전선 · 대공포','포화의 참호전선','도심 전역','고공 전역','알프스 산맥','제브뤼헤 군항 · 해안포대','캉브레 들판 · 무인기 모함','아라스 상공 · 적 비행단','솜 강전선 · 전차 돌파전','런던 대공습 · 야간 폭격']);
@@ -720,7 +612,6 @@ Game.prototype.enterRegion=function(region){
  if(previous!==undefined&&previous!==region){this.hp=this.maxHp;this.ammo.fill(this.weapon.belt);this.reloadTime=0;this.events.push({type:'regionTransition',region,previousRegion:previous,text:label})}
  this.event('wave',label+' 진입');
 };
-
 Game.prototype.spawnMinefield=function(){
  this.hostileMinefields??=[];
  if(this.hostileMinefields.length>=3)return;
@@ -755,14 +646,12 @@ Game.prototype.spawnFleet=function(){
  }
  this.event('flak',harbor?'부두 경비함 발견 · 주항로를 유지하세요':'적 함대 접근 · 함선의 대공 탄막을 피하세요');
 };
-
 Game.prototype._freCore53=function(e){
  if(!e.navalVessel)return this._freBase(e);
  e.fire=3.4;const a=Math.atan2(this.y-e.y,this.x-e.x);e.gunAim=a;e.muzzleFlash=.16;
  for(const along of [-95,0,95])for(let i=-2;i<=2;i++){const heading=a+i*.17;this.bullets.push({x:e.x+Math.cos(e.a)*along,y:e.y+Math.sin(e.a)*along,vx:Math.cos(heading)*205,vy:Math.sin(heading)*205,life:4.2,enemy:true,heavy:true,naval:true,hazardRegion:e.hazardRegion??this.worldRegion(),damage:Math.round(13*(1+this.t/260))})}
  this.event('enemyShot','');
 };
-
 Game.prototype._updRegional=function(dt,input={}){
  if(this.state!=='playing')return;const step=Math.min(.04,Math.max(0,dt));
  // Resolve a transition before any legacy timer emits its next hazard.
@@ -780,9 +669,7 @@ Game.prototype._updRegional=function(dt,input={}){
  for(const e of this.enemies)if(e.navalVessel){e.life-=step;if(e.life<=0)e.expired=true}
  this.enemies=this.enemies.filter(e=>!e.expired);
 };
-
 // Enemy-only arrival formations; player abilities and upgrades are unchanged.
-
 Game.prototype._updEncounter=function(dt,input={}){
  if(this.state!=='playing')return;
  this._updRegional(dt,input);if(this.state!=='playing')return;
@@ -808,7 +695,6 @@ Game.prototype._updEncounter=function(dt,input={}){
   w.formationReturning=dist>leash;w.x+=(targetX-w.x)*Math.min(1,step*(dist>leash?4.8:3));w.y+=(targetY-w.y)*Math.min(1,step*(dist>leash?4.8:3));w.a=dist>leash?Math.atan2(b.y-w.y,b.x-w.x):b.a;
  }
 };
-
 // Tethered observation balloons and a rail-bound field cannon (arcade roles).
 Game.prototype.spawnFieldUnit=function(kind){
  if([1,7].includes(this.worldRegion())||this.enemies.length>=65)return null;
@@ -820,11 +706,9 @@ Game.prototype.spawnFieldUnit=function(kind){
  if(rail){e.rail={x:e.x,y:e.y,angle:Math.floor(this.rng()*4)*Math.PI/4,half:180,progress:0,direction:1,speed:42};e.a=e.rail.angle}
  this.event('flak',e.name+' 출현 · '+(rail?'레일 위 이동 포대':'고정 위치에서 탄막 사격'));return e;
 };
-
 Game.prototype._freField=function(e){
  if(!e.fieldUnit)return this._freCore53(e);
  const rail=e.fieldUnit==='railgun';e.fire=rail?5.8:6.6;e.fieldSalvoAim=Math.atan2(this.y-e.y,this.x-e.x);e.fieldBurstIndex=0;e.fieldSalvoLeft=2;e.fieldSalvoDelay=rail?.26:.38;this.fieldVolley(e);
-
 };
 Game.prototype.fieldVolley=function(e){
  if(e.hp<=0||this.sunStrikeContains(e))return;
@@ -834,7 +718,6 @@ Game.prototype.fieldVolley=function(e){
  else{for(let i=0;i<24;i++)emit(i*Math.PI/12+index*Math.PI/24,145+index*12,14);for(let i=0;i<9;i++)emit(aim+(i-4)*.085,210,18)}
  e.fieldBurstIndex=index+1;e.muzzleFlash=.22;this.event('enemyShot','');
 };
-
 Game.prototype._updField=function(dt,input={}){
  if(this.state!=='playing')return;const step=Math.min(.04,Math.max(0,dt)),region=this.worldRegion();
  this.enemies=this.enemies.filter(e=>!e.fieldUnit||e.fieldRegion===region);
@@ -844,12 +727,10 @@ Game.prototype._updField=function(dt,input={}){
  this.fieldUnitTimer=(this.fieldUnitTimer??34)-step;
  if(this.fieldUnitTimer<=0){this.fieldUnitTimer=this.mode==='campaign'?65:55;if(![1,7].includes(this.worldRegion())){this.fieldUnitWave=(this.fieldUnitWave||0)+1;this.spawnFieldUnit(this.fieldUnitWave%2===0?'railgun':'balloon')}}
 };
-
 // 전원 지대 signature — artillery observation network. Balloons build SPOTTED on an
 // exposed player (cloud cover breaks observation); a dedicated observed battery
 // fires on a 7s cadence, tightened to 4.5s while SPOTTED. Killing a balloon
 // blacks the network out for 12s.
-
 Game.prototype._updObservation=function(dt,input={}){
  this._updField(dt,input);
  if(this.state!=='playing')return;
@@ -879,11 +760,9 @@ Game.prototype.observedVolley=function(spotted){
  for(let i=0;i<n;i++){const a=aim+(i-(n-1)/2)*spread;this.bullets.push({x,y,vx:Math.cos(a)*190,vy:Math.sin(a)*190,life:4.2,enemy:true,flak:true,damage:dmg})}
  this.burst(x,y,'#efb35d',12);this.event('enemyShot','');
 };
-
 // 알프스 signature — ridge forewarning. Regular aircraft can spawn tucked behind a
 // peak: they hold inside the ridge silhouette ~0.9s while a shadow mark telegraphs
 // the emergence, then fly out on their original heading.
-
 Game.prototype._spnRidge=function(type){
  const e=this._spnWorld(type);
  if(!e||this.worldRegion()!==6||!this.alpsMountains)return e;
@@ -900,7 +779,6 @@ Game.prototype._spnRidge=function(type){
  }
  return e;
 };
-
 Game.prototype._updRidge=function(dt,input={}){
  this._updObservation(dt,input);
  if(this.state!=='playing')return;
@@ -909,7 +787,6 @@ Game.prototype._updRidge=function(dt,input={}){
  if(this.worldRegion()!==6)return;
  for(const e of this.enemies){if(e._ridgeWarn>0){e._ridgeWarn-=step;if(e._ridgePeak){e.x=e._ridgePeak.x;e.y=e._ridgePeak.y}}}
 };
-
 // Broad-phase bucket built once per tick after enemy movement; query preserves enemies array order.
 Game.prototype.prepareProjectileCandidates=function(){
  if(this.useCollisionGrid===false){this._projectileGrid?.clear();return;}
@@ -921,7 +798,6 @@ Game.prototype.projectileCandidates=function(b){
 // Large targets use their visible elongated hull rather than an enlarged circle.
 Game.prototype.targetCollision=function(e,x,y,b){if(e.supportInvulnUntil>this.t)return false;if(e.stageBossBody)return stageBossCollision(this,e,x,y,b);const dx=x-e.x,dy=y-e.y;if(b?.actualExplosion)return dx*dx+dy*dy<b.explosionRadius*b.explosionRadius;const pad=b?.collisionRadius||0;if(e.hullLength){const a=e.a||0,u=dx*Math.cos(a)+dy*Math.sin(a),v=-dx*Math.sin(a)+dy*Math.cos(a);return (u/(e.hullLength+pad))**2+(v/(e.hullWidth+pad))**2<1}return Math.hypot(dx,dy)<enemyAircraftHitRadius(e)+pad};
 Game.prototype.spawnGas=function(){if(![2,3].includes(this.worldRegion())||(this.gasZones||[]).length>=2)return;const a=this.a+(this.rng()-.5)*.7,d=230+this.rng()*60;this.gasZones??=[];this.gasZones.push({x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,r:185,warning:2.5,life:16.5});this.event('flak','독가스 살포 예고 · 노란 경계 밖으로 이동하세요')};
-
 Game.prototype._updGas=function(dt,input={}){
  if(this.state!=='playing')return;const step=Math.min(.04,Math.max(0,dt));
  if(![2,3].includes(this.worldRegion())){this.gasZones=[];this.inGas=false;this.gasExposure=0}
@@ -935,18 +811,13 @@ Game.prototype._updGas=function(dt,input={}){
  if(this.state!=='playing')return;
  this.gasTimer=(this.gasTimer??12)-step;if(this.gasTimer<=0){this.gasTimer=28;if(this.worldRegion()===2)this.spawnGas()}
 };
-
 // McKeever & Powell: dedicated Bristol fit; existing historical campaign fits remain intact.
 PLANES.bristol_duo={name:'브리스톨 F.2B 파이터',role:'전후방 교차 사격',faction:'entente',speed:145,turn:2.7,hp:125,rate:.2,color:'#a29365',wings:2};
 WEAPONS.bristol_duo={name:'Vickers / Lewis',caliber:'.303',guns:2,belt:500,rpm:450,reload:2.4,bidirectional:true};
-PILOTS.mckeever={name:'맥키버 & 파월',alias:'THE HAWK & THE GNAT',faction:'entente',portrait:1,skill:'호크 & 그나트 · 회전 난사',desc:'브리스톨 복좌기로 전방·후방 동시 사격. 액티브: 5초간 기체가 계속 회전하며 사방으로 기관총을 난사합니다.',cooldown:24};
+PILOTS.mckeever={name:'맥키버 & 파월',alias:'THE HAWK & THE GNAT',faction:'entente',portrait:1,cooldown:24};
 PILOT_PLANES.mckeever='bristol_duo';
-Game.prototype.duoVolley=function(){for(let i=0;i<4;i++){const a=this.a+i*Math.PI/2,gun=this.pilot==='huffzky'?(i<2?0:1):i%2,origin=this.pilot==='huffzky'?this.a+(gun===1?Math.PI:0):a;this.bullets.push({x:this.x+Math.cos(origin)*25,y:this.y+Math.sin(origin)*25,vx:Math.cos(a)*520,vy:Math.sin(a)*520,life:this.longRange?this.shotLifetime(520):1.35,enemy:false,ownerId:this.id,gun,crossfire:true,damage:this.damage*PILOT_BALANCE.duoDamage,hit:new Set()})}this.crossfireFlash=.06;this.event('shot','')};
-
-Game.prototype._sklDuo=function(){if(!['mckeever','huffzky'].includes(this.pilot))return this._sklCore51();if(this.state!=='playing'||this.cooldown>0)return false;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.crossfireTimer=.08;this.duoVolley();this.event('skill',PILOTS[this.pilot].skill);return true};
-
-Game.prototype._updDuo=function(dt,input={}){if(this.state!=='playing')return;const step=Math.min(.04,Math.max(0,dt)),active=0 /* personal rear-gunner logic replaces forced spin */;this.duoSpinStep=Math.min(step,active);this._updGas(step,input);this.duoSpinStep=0;if(this.state!=='playing')return;this.crossfireFlash=Math.max(0,(this.crossfireFlash||0)-step);if(active>0){this.crossfireTimer-=Math.min(step,active);while(this.crossfireTimer<=1e-9){this.crossfireTimer+=.08;this.duoVolley()}}};
-
+Game.prototype._sklDuo=function(){return this._sklCore51()};
+Game.prototype._updDuo=function(dt,input={}){if(this.state!=='playing')return;const step=Math.min(.04,Math.max(0,dt));this._updGas(step,input);};
 // Flight profiles: historical tendencies translated to bounded arcade handling.
 // Speed, turn, drag and recovery are game values, NOT measured historical data.
 export const AIRFRAME_PROFILES={
@@ -969,7 +840,6 @@ for(const [id,profile] of Object.entries(AIRFRAME_PROFILES)){
 }
 Game.prototype.flyAirframe=function(dt,input={}){
  if(this.aceRetreat129){this.a=this.aceHeading129;return}
- if(this.duoSpinStep>0){this.a+=Math.PI*2*this.duoSpinStep;return}
  const profile=PLANES[this.plane].handling||AIRFRAME_PROFILES.fokker;
  // Keep forced heading, evasion and the Baron's scripted dive at their existing speeds.
  if(this.chargeTime>0){this.a=this.chargeAngle;return}
@@ -990,7 +860,6 @@ Game.prototype.flyAirframe=function(dt,input={}){
  const rate=target<current?1.8:profile.recovery*acceleration*(1+(this.energyRecoveryBonus||0));
  this.airframeSpeed=current+(target-current)*(1-Math.exp(-rate*dt));
 };
-
 // Airframe durability is the existing HP pool, not an additional damage-reduction layer.
 export const AIRFRAME_DURABILITY={fokker:100,albatros:115,camel:100,sopwith:95,nieuport:85,spad:120,fokkerdv:105,spad12:115,re7:120,fokkerd7:125,eindecker:85,se5a:125,bristol_duo:130};
 export function configureAirframeBalance(p,hp){
@@ -1001,7 +870,6 @@ export function configureAirframeBalance(p,hp){
 }
 for(const [id,hp] of Object.entries(AIRFRAME_DURABILITY))configureAirframeBalance(PLANES[id],hp);
 Game.prototype.levelRequirement=function(base){return Math.max(1,Math.round(base*this.xpCostMultiplier))};
-
 // Richthofen keeps one pilot identity and can choose a second aircraft in free sorties.
 AIRFRAME_PROFILES.baron_albatros=Object.freeze({...AIRFRAME_PROFILES.albatros,history:'리히트호펜의 알바트로스 D.III 추가 기체입니다. 붉은 날개·목재색 동체는 요청한 게임용 도장입니다.',tip:'삼엽기보다 빠르고 넓게 선회합니다. 태양을 등진 사냥꾼으로 전방 사격을 봉쇄하고 안전한 진입선을 잡으세요.'});
 PLANES.baron_albatros={...PLANES.albatros,name:'알바트로스 D.III · 붉은 날개',handling:AIRFRAME_PROFILES.baron_albatros};
@@ -1013,18 +881,15 @@ configureAirframeBalance(PLANES.albatros_d2,110);configureAirframeBalance(PLANES
 PILOT_PLANES.boelcke='albatros_d2';
 export function pilotLoadout(pilot,plane){const p=PILOTS[pilot];return pilot==='baron'&&plane==='baron_albatros'?{...p,skill:'태양을 등진 사냥꾼',passive:'붉은 전투기 조종사',passiveDesc:'이동속도·선회력 +12%.',desc:'4초간 전방 범위의 적을 제압하고 후방타격 보너스를 적용합니다. 실제 후방에서 공격하면 추가 피해 +20%.',cooldown:PILOT_BALANCE.cooldowns.baron_albatros}:p}
 Game.prototype.isRedHunter=function(){return this.pilot==='baron'&&this.plane==='baron_albatros'};
-
 Game.prototype._sklAirframe=function(){if(!this.isRedHunter())return this._sklDuo();if(this.state!=='playing'||this.cooldown>0)return false;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.event('skill','태양을 등진 사냥꾼');return true};
-
 // Schlasta 15 counterpart: reuse the tested two-seat gun and crossfire paths.
 AIRFRAME_PROFILES.halberstadt_duo=Object.freeze({speed:133,turn:2.85,drag:.19,recovery:.95,role:'복좌 근접 지원기',history:'Halberstadt CL.II는 경량 복좌 호위·지상지원기입니다. 후프츠키와 에만은 Schlasta 15에서 함께 운용했습니다.',tip:'브리스톨보다 느리지만 레벨업 비용이 낮습니다. 전후방 사격과 회전 난사로 접근하는 적을 견제하세요.'});
 PLANES.halberstadt_duo={name:'할버슈타트 CL.II',faction:'central',speed:133,turn:2.85,hp:120,rate:.2,color:'#8b7455',wings:2,role:AIRFRAME_PROFILES.halberstadt_duo.role,handling:AIRFRAME_PROFILES.halberstadt_duo};
 WEAPONS.halberstadt_duo={name:'LMG 08/15 / Parabellum',caliber:'7.92 mm',guns:2,belt:500,rpm:450,reload:2.4,bidirectional:true};
-PILOTS.huffzky={name:'후프츠키 & 에만',alias:'SCHLASTA 15',faction:'central',portrait:0,skill:'슐라스타 15 · 회전 난사',desc:'할버슈타트 CL.II로 전방·후방 동시 사격. 액티브: 5초간 기체가 계속 회전하며 사방으로 기관총 난사. 프리드리히 후프츠키(조종) · 고트프리트 에만(후방 사수).',cooldown:24};
+PILOTS.huffzky={name:'후프츠키 & 에만',alias:'SCHLASTA 15',faction:'central',portrait:0,cooldown:24};
 PILOT_PLANES.huffzky='halberstadt_duo';
 AIRFRAME_DURABILITY.halberstadt_duo=120;
 configureAirframeBalance(PLANES.halberstadt_duo,120);
-
 // Sun-backed Strike: control only. Existing bullets and collisions remain live.
 export const SUN_STRIKE={duration:4,range:650,halfAngle:Math.PI/5,speedMultiplier:.5};
 Game.prototype.sunStrikeContains=function(e){
@@ -1035,39 +900,16 @@ Game.prototype.sunStrikeContains=function(e){
 for(const name of ['fireEnemy','enemyVolley','aceAttack']){
  const attack=Game.prototype[name];Game.prototype[name]=function(e,...args){if(this.sunStrikeContains(e))return;return attack.call(this,e,...args)};
 }
-
 // René Fonck: the skill inherits the player's extra gun rounds, but splits the
 // payload across the fan so a spread build gains coverage without a free burst.
-PILOTS.fonck.skill='필살의 일제사격';
-PILOTS.fonck.desc='전방 한 점으로 수렴하는 강력한 관통 일제사격을 발사합니다.';
-
-Game.prototype._sklFonckSeeker=function(){
- if(this.pilot!=='fonck')return this._sklAirframe();
- if(this.state!=='playing'||this.cooldown>0)return false;
-   const activeDuration=this.skillDuration();
-   this.cooldown=this.skillCooldown();this.skillTime=activeDuration;
- const speed=680,rounds=Math.max(1,this.shots||1),payload=this.damage*11/Math.sqrt(rounds);
- for(let i=0;i<rounds;i++){const offset=(i-(rounds-1)/2)*6,a=this.a+Math.atan2(-offset,190);
-  this.bullets.push({x:this.x+Math.cos(this.a)*30-Math.sin(this.a)*offset,y:this.y+Math.sin(this.a)*30+Math.cos(this.a)*offset,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:activeDuration,enemy:false,ownerId:this.id,fonckVolley:true,fonckSalvo:true,pierce:true,damage:payload,hit:new Set()});
- }
- this.muzzleFlash=.1;this.burst(this.x+Math.cos(this.a)*28,this.y+Math.sin(this.a)*28,'#fff0ad',22);this.shake=Math.max(this.shake,5);this.event('skill',PILOTS.fonck.skill);return true;
-};
-
+Game.prototype._sklFonckSeeker=function(){return this._sklAirframe()};
 Game.prototype._updFonckSeeker=function(dt,input={}){
- if(this.state==='playing')for(const b of this.bullets)if(b.fonckSeeker&&b.life>0){
-  let target=null,best=Infinity;
-  for(const e of this.enemies)if(e.hp>0&&!b.hit.has(e)){const d=(e.x-b.x)**2+(e.y-b.y)**2;if(d<best){best=d;target=e}}
-  if(target){const a=Math.atan2(target.y-b.y,target.x-b.x),speed=680;b.vx=Math.cos(a)*speed;b.vy=Math.sin(a)*speed;}
- }
  this._updDuo(dt,input);
 };
-
 // Francesco Baracca flies an Italian-marked Nieuport without altering other French Nieuport sorties.
 PLANES.nieuport_italian={...PLANES.nieuport,name:'니외포르 17 · 이탈리아 왕국'};
 WEAPONS.nieuport_italian={...WEAPONS.nieuport};
 PILOT_PLANES.baracca='nieuport_italian';
-PILOTS.mannock.desc='S.E.5a 7대가 수직·횡으로 두 차례 교차하며 관통 사격합니다.';
-
 // Independent allied patrols are mortal combatants, not upgrade wingmen.
 export const PATROL_BALANCE=Object.freeze({initialDelay:2,reinforceEvery:13,batch:2,earlyCap:6,lateCap:8,lateAfter:120,hp:112,life:58,fireInterval:.38,damage:9,turn:2.25,range:380,maxAttackers:2,diversion:.4,passDistance:70,passDuration:.65});
 Game.prototype.patrolCanEngage=function(e,p={}){
@@ -1175,13 +1017,11 @@ Game.prototype.updatePatrols=function(dt){
   }
  }
 };
-
 Game.prototype._updPatrol=function(dt,input={}){
  if(this.state!=='playing')return;
  const step=Math.min(.04,Math.max(0,dt));if(step>0)this.updatePatrols(step);
  this._updFonckSeeker(step,input);
 };
-
 // Revision 81: late double-ace waves and a relic set with distinct combat roles.
 Game.prototype.legendaryDamageMultiplier=function(){
  if(!this.lowHpDamage||!this.maxHp)return 1;
@@ -1204,7 +1044,6 @@ Game.prototype.prepareBossWave=function(count){
  for(let i=this.bossDeck.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[this.bossDeck[i],this.bossDeck[j]]=[this.bossDeck[j],this.bossDeck[i]]}
  return count;
 };
-
 Game.prototype._updLegendary=function(dt,input={}){
  if(this.state!=='playing')return;
  const step=Math.min(.04,Math.max(0,dt)),trailX=this.x,trailY=this.y;
@@ -1227,18 +1066,8 @@ Game.prototype._updLegendary=function(dt,input={}){
   this.mines.push({x:trailX-Math.cos(this.a)*22,y:trailY-Math.sin(this.a)*22,life:LEGENDARY_BALANCE.mineLife,arm:.25,damage:this.payloadPower(LEGENDARY_BALANCE.mineDamage),special:true,legendary:true});
  }
 };
-
 // Keep every briefing/cut-in in sync with the actual final skill implementation.
 for(const [id,pilot] of Object.entries(PILOTS))pilot.cooldown=PILOT_BALANCE.cooldowns[id];
-PILOTS.fonck.skill='필살의 일제사격';
-PILOTS.fonck.desc='강력한 전방 관통 일제사격. 4초간 기관총 탄도가 한 점으로 수렴하며 관통합니다.';
-PILOTS.boelcke.desc='4초간 기관총 공격력 2.2배. 무적 효과 없음.';
-PILOTS.immelmann.desc='단발 기관총 피해 +45%. 180° 반전하며 탄막 제거, 1.1초 무적, 3.5배 피해 관통탄 5발 발사.';
-PILOTS.baracca.desc='단발 기관총 피해 +45%. 0.9초 무적 직선 돌격. 경로 피해는 기관총 강화에 비례.';
-PILOTS.udet.desc='짧은 고속 회피 롤로 적탄을 피한 뒤 즉시 기관총 공격을 이어갑니다. 체력 소모 없음.';
-PILOTS.collishaw.desc='검은 삼엽기 3대가 5.2초간 좌우 기동하며 전방 적을 조준해 0.24초마다 관통 사격. 무적 없음.';
-PILOTS.mannock.desc='S.E.5a 7대가 위→아래 한 번, 오른쪽→왼쪽 한 번 교차 관통 사격.';
-
 // Revision 91: sustained rear-quarter aim rewards dogfighting, while tethered
 // observation balloons release short, historically themed special-ammo belts.
 Game.prototype.combatWorld=function(){return this.world||this};
@@ -1281,7 +1110,6 @@ Game.prototype.dropSpecialAmmo=function(){return null};
 Game.prototype.dropObservationRepair=function(e){
  if(e?.fieldUnit!=='balloon'||e.observationRepairDropped)return null;e.observationRepairDropped=true;const world=this.combatWorld(),drop={x:e.x,y:e.y,value:0,heal:true,healFraction:DURABILITY_BALANCE.repairPickupFraction,observationRepair:true};if(world.nextEntityId)drop.id=world.nextEntityId++;world.drops.push(drop);return drop;
 };
-
 Game.prototype._updTactical=function(dt,input={}){
  if(this.state!=='playing')return;
  this.resolveBossLevels?.();if(this.state!=='playing')return;
@@ -1289,7 +1117,6 @@ Game.prototype._updTactical=function(dt,input={}){
  const step=Math.min(.04,Math.max(0,dt));beginStageBossFrame(this,step);this.updateTailLock(step);
  this._updLegendary(step,input);endStageBossFrame(this,step);this.resolveBossLevels?.();
 };
-
 Game.prototype.update=Game.prototype._updTactical;
 Game.prototype.skill=Game.prototype._sklFonckSeeker;
 Game.prototype.spawnEnemy=Game.prototype._spnRidge;
@@ -1304,39 +1131,23 @@ installFleet(Game);
 installTrenchWar(Game,TAILING_BALANCE);
 installCityAir(Game);
 installRegionDoctrine(Game);
-
 // Upgrade rockets share one launch path in solo and co-op, always straight flight.
 Game.prototype.launchUpgradeRocket=function(){
  const level=Math.max(1,Math.min(6,this.rockets));this.rocketFire=2.6/(1+level*.3);
  const speed=520,spread=.075;for(let i=0;i<level;i++){const a=this.a+(i-(level-1)/2)*spread;this.bullets.push({x:this.x+Math.cos(a)*30,y:this.y+Math.sin(a)*30,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:this.longRange?this.shotLifetime(speed):2.4,enemy:false,ownerId:this.id,damage:this.payloadPower(78+(level-1)*4),rocket:true,upgradeRocket:true,collisionRadius:12,hit:new Set()});}
  this.burst(this.x+Math.cos(this.a)*25,this.y+Math.sin(this.a)*25,'#ffcf83',8+level);
 };
-
 // Fonck's ballistic mastery also guides and amplifies special cannon rounds;
 // cloned COW rounds retain the base gun's spread/shot upgrades after swapping.
 const _fonckCannonUpdate120=Game.prototype.update;
 Game.prototype._updFonckCannon=function(dt,input={}){const before=this.bullets.length;_fonckCannonUpdate120.call(this,dt,input);for(const b of this.bullets.slice(before)){if(!b||b.enemy||(!b.cow37&&!b.motorCannon))continue;if(this.pilot==='fonck'&&this.skillTime>0){b.fonckVolley=true;b.pierce=true;b.damage*=1.35;}const count=Math.max(1,this.shots||1),speed=Math.hypot(b.vx,b.vy);for(let n=1;n<count;n++){const a=Math.atan2(b.vy,b.vx)+(n-(count-1)/2)*.08;this.bullets.push({...b,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,hit:new Set()});}} };
-
 // Revision 108 — Werner Voss's reverse-turn must be a visible escape and re-entry,
 // not just a heading flip. The same pattern is applied to his ace-boss attack.
 export const VOSS_REVERSE=Object.freeze({duration:1,invulnerability:1,speedMultiplier:2.35,afterimageInterval:.075,afterimageLife:2.4,afterimageCount:6,afterimageScatterSpeed:165,afterimageFireDelay:.18,afterimageFireInterval:.42,bossSpeedMultiplier:3});
-PILOTS.voss.skill='7대1';
-PILOTS.voss.desc='즉시 180° 반전 · 화면의 적 탄막 삭제 · 1초 무적. 주변에 잔상 6기를 생성해 사방으로 흩어지며 사격합니다.';
 const _vossReverseSkill=Game.prototype.skill;
 const _vossReverseDuration=Game.prototype.skillDuration;
-Game.prototype._durVoss=function(){return this.pilot==='voss'?VOSS_REVERSE.duration*(this.skillEnhanced?1.35:1):_vossReverseDuration.call(this)};
-Game.prototype._sklVossReverse=function(){
- if(this.pilot!=='voss')return _vossReverseSkill.call(this);
- if(this.state!=='playing'||this.cooldown>0)return false;
- this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();
- this.a+=Math.PI;this.bullets=this.bullets.filter(b=>!b.enemy);
- this.vossReverse=this.skillDuration();
- this.invuln=Math.max(this.invuln,VOSS_REVERSE.invulnerability);
- this.vossAfterimages=[];this.vossAfterimageClock=0;for(let i=0;i<VOSS_REVERSE.afterimageCount;i++){const d=this.a+i*Math.PI*2/VOSS_REVERSE.afterimageCount;this.vossAfterimages.push({x:this.x+Math.cos(d)*14,y:this.y+Math.sin(d)*14,a:d,drift:d,life:VOSS_REVERSE.afterimageLife,maxLife:VOSS_REVERSE.afterimageLife})}
- this.burst(this.x,this.y,'#f1dca0',25);
- this.event('skill',PILOTS.voss.skill);this.event('wave','베르너 포스 · 7대1 / 탄막 제거');
- return true;
-};
+Game.prototype._durVoss=function(){return _vossReverseDuration.call(this)};
+Game.prototype._sklVossReverse=function(){return _vossReverseSkill.call(this)};
 const _vossReverseAce=Game.prototype.aceAttack;
 Game.prototype._aatVoss=function(e){
  const result=_vossReverseAce.call(this,e);
@@ -1351,22 +1162,10 @@ Game.prototype._aatVoss=function(e){
  }
  return result;
 };
-
-
 Game.prototype._updVossReverse=function(dt,input={}){
  if(this.state!=='playing')return this._updFonckCannon(dt,input);
  const step=Math.min(.04,Math.max(0,dt));
- const active=this.pilot==='voss'&&(this.vossReverse||0)>0;
- const beforeX=this.x,beforeY=this.y,beforeA=this.a;
- const savedBase=active?this.baseSpeed:undefined;
- if(active&&Number.isFinite(this.baseSpeed))this.baseSpeed*=VOSS_REVERSE.speedMultiplier;
  this._updFonckCannon(step,input);
- if(active&&Number.isFinite(savedBase))this.baseSpeed=savedBase;
- if(active){
-  this.vossReverse=Math.max(0,this.vossReverse-step);
-  }
- if(this.vossAfterimages)for(const ghost of this.vossAfterimages){ghost.life-=step;if(ghost.life>0){const d0=ghost.drift??ghost.a;ghost.x+=Math.cos(d0)*VOSS_REVERSE.afterimageScatterSpeed*step;ghost.y+=Math.sin(d0)*VOSS_REVERSE.afterimageScatterSpeed*step;ghost.a=d0;let tgt=null,best=620*620;for(const en of this.enemies){if(en.hp<=0)continue;const d=(en.x-ghost.x)**2+(en.y-ghost.y)**2;if(d<best){best=d;tgt=en}}ghost.fire=(ghost.fire??VOSS_REVERSE.afterimageFireDelay)-step;if(ghost.fire<=0){ghost.fire=VOSS_REVERSE.afterimageFireInterval;if(tgt){const aim=Math.atan2(tgt.y-ghost.y,tgt.x-ghost.x);this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*430,vy:Math.sin(aim)*430,life:1.4,enemy:false,ownerId:this.id,ghost:true,damage:8,hit:new Set()})}}}}
- if(this.vossAfterimages)this.vossAfterimages=this.vossAfterimages.filter(ghost=>ghost.life>0).slice(-6);
  for(const e of this.enemies||[]){
   if(e.vossInvuln>0)e.vossInvuln=Math.max(0,e.vossInvuln-step);
   if(e.bossPilot==='voss'){let n=0;for(const p of this.players||[this]){if(p&&p.hp>0&&Math.hypot(p.x-e.x,p.y-e.y)<420)n++}for(const a of this.allies||[])if(a.life>0&&Math.hypot(a.x-e.x,a.y-e.y)<420)n++;e.vossSurgeCount=n;e.vossSurge=n>=3}
@@ -1375,7 +1174,6 @@ Game.prototype._updVossReverse=function(dt,input={}){
   if(e.vossTrails)e.vossTrails=e.vossTrails.filter(ghost=>ghost.life>0).slice(-6);
  }
 };
-
 // Revision 109 — expanded legendary arsenal and periodic defensive relics.
 export const COW37_BALANCE=Object.freeze({interval:1,damage:280,speed:430,belt:24,reload:4.6});
 export const LEGENDARY_DEFENSE_BALANCE=Object.freeze({rankinInterval:3.2,rankinRange:500,rankinRearArcDegrees:240,rankinRearDamageMultiplier:.2,fogInterval:12,fogDuration:3,grunkreuzInterval:.35,grunkreuzRadius:130,grunkreuzFraction:.06,grunkreuzOnDuration:4.5,grunkreuzOffDuration:8});
@@ -1415,19 +1213,14 @@ export function tickLegendaryDefenses(owner,world,dt){
  if(world.grunkreuzPuffs){world.grunkreuzPuffs=world.grunkreuzPuffs.filter(p=>p.life>0);for(const e of world.enemies||[]){e.grunkreuzTick=(e.grunkreuzTick||0)-dt;if(e.hp<=0||e.grunkreuzTick>0||e.stageBossBody)continue;const puff=world.grunkreuzPuffs.find(p=>Math.hypot(e.x-p.x,e.y-p.y)<p.r);if(!puff)continue;e.grunkreuzTick=.6;e.hp-=puff.dmg||1;e.hitFlash=Math.max(e.hitFlash||0,.12);if(e.hp<=0){e.grunkreuzDead=true;const own=(world.players||[]).find(p=>p.id===puff.ownerId)||owner;if(world.handleDeath)world.handleDeath(e,{patrol:false,ownerId:puff.ownerId});else{own.kills=(own.kills||0)+1;if(e.bossPilot||['boss','zeppelin','bomber'].includes(e.type))own.priorityKills=(own.priorityKills||0)+1;if(e.type==='zeppelin'&&world.wreckGust)world.wreckGust(e);world.burst?.(e.x,e.y,'#f2aa52',30);world.event?.('kill','')}}}}
  if(owner.kaiserFog){owner.kaiserFogTimer=(owner.kaiserFogTimer??LEGENDARY_DEFENSE_BALANCE.fogInterval)-dt;if(owner.kaiserFogTimer<=0){owner.kaiserFogTimer+=LEGENDARY_DEFENSE_BALANCE.fogInterval;owner.kaiserFogTime=LEGENDARY_DEFENSE_BALANCE.fogDuration;for(const e of world.enemies||[]){if(!e.targetPlayerId||e.targetPlayerId===owner.id)e.targetPlayerId=null;e.patrolTarget=null;e.fire=Math.max(e.fire||0,.65)}owner.event('wave','카이저의 안개 · 적 추적 해제')}owner.kaiserFogTime=Math.max(0,(owner.kaiserFogTime||0)-dt)}
 }
-
-
 const _legendaryFireEnemy109=Game.prototype.fireEnemy;
 Game.prototype._freLegendary=function(e){if(this.kaiserFogTime>0){e.fire=.35;return}return _legendaryFireEnemy109.call(this,e)};
-
-
 Game.prototype._updLegendarySystems=function(dt,input={}){
  if(this.state!=='playing')return this._updVossReverse(dt,input);const step=Math.min(.04,Math.max(0,dt));
  tickLegendaryDefenses(this,this.combatWorld(),step);
  if(this.cow37&&(input.inputMode!=='gamepad'||input.fireHeld)){this.cow37Timer=(this.cow37Timer??.15)-step;if(this.reloadTime<=0&&this.cow37Timer<=0){if((this.ammo[0]||0)<=0)this.reload();else{this.cow37Timer+=this.ordnanceInterval(COW37_BALANCE.interval);this.ammo[0]--;this.roundsFired++;const a=this.a,fonck=this.pilot==='fonck'&&this.skillTime>0;this.bullets.push({x:this.x+Math.cos(a)*38,y:this.y+Math.sin(a)*38,vx:Math.cos(a)*COW37_BALANCE.speed,vy:Math.sin(a)*COW37_BALANCE.speed,life:2.5,enemy:false,ownerId:this.id,cow37:true,fonckVolley:fonck,pierce:true,collisionRadius:24,damage:this.payloadPower(COW37_BALANCE.damage)*(this.damage/12)*this.normalGunMultiplier()*(fonck?1.35:1),hit:new Set()});this.muzzleFlash=.2;this.shake=Math.max(this.shake,6);this.burst(this.x+Math.cos(a)*32,this.y+Math.sin(a)*32,'#e8d39a',16);this.cannonMuzzleSmoke('cow');this.event('shot','')}}}
  this._updVossReverse(step,input);
 };
-
 // Revision 113: shared battlefield threat layer, without replacing flight/weapon logic.
 export const BATTLEFIELD113=Object.freeze({fireLife:12,fireRadius:125,fireDamage:16,mineTrigger:43,mineDamage:30,aceCooldown:6.2});
 Game.prototype.cannonMuzzleSmoke=function(kind='motor'){
@@ -1457,7 +1250,6 @@ Game.prototype._asrProfile=function(b,type){
  if(profile&&!b.motorCannon&&!b.cow37){const a=Math.atan2(b.vy,b.vx)+(this.rng()-.5)*profile.spread*2,s=Math.hypot(b.vx,b.vy);b.vx=Math.cos(a)*s;b.vy=Math.sin(a)*s;b.damage*=profile.damage;}
  return b;
 };
-
 UPGRADES.find(u=>u.id==='damage').name='기관총 개조';
 const _spawn113=Game.prototype.spawnEnemy;
 Game.prototype._spnCore113=function(type,...args){
@@ -1484,11 +1276,10 @@ Game.prototype.tickRevisionWorld=function(dt){
  this.cannonImpacts=(this.cannonImpacts||[]).filter(f=>(f.life-=dt)>0);
  for(const e of this.enemies){
   if(e.bossPilot&&!this.sunStrikeContains(e)&&Number.isFinite(e.abilityTimer))e.abilityTimer-=dt*(.35+Math.min(1.5,loop*.3));
-  if(this.players){e.vossInvuln=Math.max(0,(e.vossInvuln||0)-dt);if(e.vossReverse>0)e.vossReverse=Math.max(0,e.vossReverse-dt);e.vossTrails=(e.vossTrails||[]).filter(d=>d.life>0).slice(-6);
+  if(this.players){e.vossInvuln=Math.max(0,(e.vossInvuln||0)-dt);if(e.vossReverse>0)e.vossReverse=Math.max(0,e.vossReverse-dt);e.vossTrails=(e.vossTrails||[]).filter(d=>d.life>0).slice(-6);}
   if(e.disengageUntil>this.t)e.fire=Math.max(e.fire,.15);
   if(e.sunBlindUntil>this.t)for(const p of ps){const a=Math.atan2(p.y-e.y,p.x-e.x);if(Math.hypot(p.x-e.x,p.y-e.y)<470&&Math.abs(angleDiff(a,e.a))<.7)p.fire=Math.max(p.fire,.12);}
  }
-  if(this.players)for(const p of this.players){if(!(p.hp>0))continue;p.vossAfterimages??=[];for(const ghost of p.vossAfterimages){ghost.life-=dt;if(ghost.life>0){const d0=ghost.drift??ghost.a;ghost.x+=Math.cos(d0)*165*dt;ghost.y+=Math.sin(d0)*165*dt;ghost.a=d0;let tgt=null,best=620*620;for(const en of this.enemies){if(en.hp<=0)continue;const d2=(en.x-ghost.x)**2+(en.y-ghost.y)**2;if(d2<best){best=d2;tgt=en}}ghost.fire=(ghost.fire??.18)-dt;if(ghost.fire<=0){ghost.fire=.42;if(tgt){const aim=Math.atan2(tgt.y-ghost.y,tgt.x-ghost.x);this.bullets.push({x:ghost.x+Math.cos(aim)*12,y:ghost.y+Math.sin(aim)*12,vx:Math.cos(aim)*430,vy:Math.sin(aim)*430,life:1.4,enemy:false,ownerId:p.id,ghost:true,damage:8,hit:new Set()})}}}}}}
  for(const f of this.fireZones||[]){f.life-=dt;f.tick-=dt;if(f.tick>0||f.life<=0)continue;f.tick=.5;
   for(const p of ps)if(p.hp>0&&Math.hypot(p.x-f.x,p.y-f.y)<f.radius){if(this.players)this.hitPlayer(p,BATTLEFIELD113.fireDamage*.5);else this.hit(BATTLEFIELD113.fireDamage*.5);}
   for(const e of this.enemies)if(e.hp>0&&!e.stageBossBody&&Math.hypot(e.x-f.x,e.y-f.y)<f.radius){
@@ -1516,7 +1307,6 @@ Game.prototype.tickRevisionWorld=function(dt){
 };
 const _scheduledAcesExt=Game.prototype.runScheduledAces;
 Game.prototype.runScheduledAces=function(){if(this.worldRegion()===5)return;return _scheduledAcesExt.call(this)};
-
 Game.prototype._aatAce113=function(e){
  const result=this._aatVoss(e);const p=this.enemyCombatTarget(e),aim=Math.atan2(p.y-e.y,p.x-e.x);
  e.skillUses=(e.skillUses||0)+1;e.disengageUntil=this.t+2.4;e.exitHeading=aim+(this.rng()<.5?1:-1)*1.15;
@@ -1528,7 +1318,6 @@ Game.prototype._aatAce113=function(e){
  }
  return result;
 };
-
 // Revision 124 — four faction-balanced aces and a boss-grade René Fonck barrage.
 export const NEW_ACE_BALANCE124=Object.freeze({
  wolffStackSeconds:3,wolffMaxStacks:6,wolffDamagePerStack:.05,wolffSpeedPerStack:.03,wolffClimbSeconds:.75,wolffDiveSpeed:2.05,wolffDiveDamage:1.55,wolffDiveFireRate:1.8,
@@ -1552,42 +1341,32 @@ WEAPONS.loewenhardt_fokkerd7={...WEAPONS.fokkerd7,name:'Spandau LMG 08/15',guns:
 WEAPONS.mccudden_se5a={...WEAPONS.se5a,name:'Vickers / Lewis',guns:2,gunProfile:'vickers',gunProfiles:['vickers','lewis']};
 WEAPONS.nungesser_nieuport24={...WEAPONS.nieuport24,name:'Vickers',guns:1,gunProfile:'vickers',gunProfiles:['vickers']};
 Object.assign(PILOTS,{
- wolff:{name:'쿠르트 볼프',alias:'ZARTE BLÜMLEIN',faction:'central',portrait:16,passive:'여린 작은꽃',passiveDesc:'3초 무피격마다 공격력 +5%·속도 +3%, 최대 6중첩. 강화 중 흰 꽃잎이 날리며, 피격 시 초기화.',skill:'붐 앤 줌',desc:'0.75초간 고도를 얻은 뒤 급강하. 하강할수록 가속하며 공격력 +55%, 공격속도 +80%, 선회력 −50%.',cooldown:PILOT_BALANCE.cooldowns.wolff},
- loewenhardt:{name:'에리히 뢰벤하르트',alias:'YELLOW PERIL',faction:'central',portrait:17,passive:'노란색 포커를 타는 미친놈',passiveDesc:'적과 정면으로 마주칠 때 기관총 피해 +35%.',skill:'라이징 스트라이크',desc:'0.55초간 하방으로 진입한 뒤 수직 상승 사격. 상승할수록 속도가 감소하며 공격속도 +200%, 공격력 +45%, 선회력 −65%.',cooldown:PILOT_BALANCE.cooldowns.loewenhardt},
- mccudden:{name:'제임스 맥커든',alias:'THE ENGINEERING ACE',faction:'entente',portrait:18,passive:'엔지니어링 에이스',passiveDesc:'모든 레벨업에서 선택지가 4개로 제시되며, 한 번 무료로 다시 추첨할 수 있습니다.',skill:'슈퍼 엔지니어링',desc:'주변에 수리 보급품 3개를 투하합니다. 개당 최대 HP의 11.7% 회복. 철십자훈장 강화 시 4개 투하. 협동 아군도 회수 가능.',cooldown:PILOT_BALANCE.cooldowns.mccudden},
- nungesser:{name:'샤를 너겐서',alias:'THE KNIGHT OF DEATH',faction:'entente',portrait:19,passive:'죽음의 기사',passiveDesc:'내구도가 낮을수록 공격속도 최대 +60%, 이동속도 최대 +35%. 검은 문장과 연기가 저체력 상태를 나타냅니다.',skill:'불사조의 집념',desc:'3초간 완전 무적 상태로 버팁니다.',cooldown:PILOT_BALANCE.cooldowns.nungesser}
+ wolff:{name:'쿠르트 볼프',alias:'ZARTE BLÜMLEIN',faction:'central',portrait:16,cooldown:PILOT_BALANCE.cooldowns.wolff},
+ loewenhardt:{name:'에리히 뢰벤하르트',alias:'YELLOW PERIL',faction:'central',portrait:17,cooldown:PILOT_BALANCE.cooldowns.loewenhardt},
+ mccudden:{name:'제임스 맥커든',alias:'THE ENGINEERING ACE',faction:'entente',portrait:18,cooldown:PILOT_BALANCE.cooldowns.mccudden},
+ nungesser:{name:'샤를 너겐서',alias:'THE KNIGHT OF DEATH',faction:'entente',portrait:19,cooldown:PILOT_BALANCE.cooldowns.nungesser}
 });
 Object.assign(PILOT_PLANES,{wolff:'wolff_albatros',loewenhardt:'loewenhardt_fokkerd7',mccudden:'mccudden_se5a',nungesser:'nungesser_nieuport24'});
 // Jacobs flies his famous black Dr.I; same airframe family, dedicated livery sprite.
 PLANES.fokker_jacobs={...PLANES.fokker,name:'포커 Dr.I · 야콥스',role:'근접 제압형',handling:PLANES.fokker.handling};
 WEAPONS.fokker_jacobs={...WEAPONS.fokker};
 configureAirframeBalance(PLANES.fokker_jacobs,110);
-Object.assign(PILOTS,{jacobs:{name:'요제프 야콥스',alias:'THE HAWK OF JASTA 7',faction:'central',portrait:0,passive:'야스타 7의 노련함',passiveDesc:'격추 시 3초간 연사 +10% 중첩 (최대 3단).',skill:'근접 제압 사격',desc:'4초간 기관총 공격력 ×1.9. 발동 시 0.8초 무적.',cooldown:PILOT_BALANCE.cooldowns.jacobs}});
+Object.assign(PILOTS,{jacobs:{name:'요제프 야콥스',alias:'THE HAWK OF JASTA 7',faction:'central',portrait:0,cooldown:PILOT_BALANCE.cooldowns.jacobs}});
 PILOT_PLANES.jacobs='fokker_jacobs';
 // Ace-specific liveries: pilots keep their generic airframe's stats but fly a
 // personally marked sprite instead of the shared one.
 const ACE_LIVERIES165={goering_fokkerd7:'fokkerd7',collishaw_sopwith:'sopwith',guynemer_spad:'spad12',udet_fokkerdv:'fokkerdv',baracca_nieuport:'nieuport_italian',berthold_pfalz:'pfalz_d3a'};
 const ACE_LIVERY_NAMES165={goering_fokkerd7:'포커 D.VII · 괴링 백색기',collishaw_sopwith:'숍위드 삼엽기 · 블랙 마리아',guynemer_spad:'SPAD XII · 뷔외 샤를',udet_fokkerdv:'포커 D.VIII · LO!',baracca_nieuport:'니외포르 17 · 카발리노 람판테',berthold_pfalz:'팔츠 D.IIIA · 날개검'};
 for(const[key,base]of Object.entries(ACE_LIVERIES165)){PLANES[key]={...PLANES[base],name:ACE_LIVERY_NAMES165[key],handling:PLANES[base].handling};WEAPONS[key]={...WEAPONS[base]};PILOT_PLANES[key.split('_')[0]]=key}
-
-Game.prototype._sklJacobs=function(){
- if(this.pilot!=='jacobs')return this._sklVossReverse();
- this.ensureRevisionPilot();if(this.state!=='playing'||this.hp<=0||this.cooldown>0)return false;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.burst(this.x,this.y,'#8a8f7a',18);this.event('skill',PILOTS.jacobs.skill);return true;
-};
-
-Game.prototype._durJacobs=function(){return this.pilot==='jacobs'?4*(this.skillEnhanced?1.35:1):this._durVoss()};
-
-
-
-Game.prototype._durNewAce124=function(){const base=({wolff:2.8,loewenhardt:2.4,mccudden:.55,nungesser:NEW_ACE_BALANCE124.nungesserInvulnerability})[this.pilot];return base===undefined?this._durJacobs():base*(this.skillEnhanced?1.35:1)};
-
+Game.prototype._sklJacobs=function(){return this._sklVossReverse()};
+Game.prototype._durJacobs=function(){return this._durVoss()};
+Game.prototype._durNewAce124=function(){const base=({wolff:2.8,loewenhardt:2.4,mccudden:.55})[this.pilot];return base===undefined?this._durJacobs():base*(this.skillEnhanced?1.35:1)};
 Game.prototype._sklNewAce124=function(){
- if(!['wolff','loewenhardt','mccudden','nungesser'].includes(this.pilot))return this._sklJacobs();
+ if(!['wolff','loewenhardt','mccudden'].includes(this.pilot))return this._sklJacobs();
  this.ensureRevisionPilot();if(this.state!=='playing'||this.hp<=0||this.cooldown>0)return false;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();
  if(this.pilot==='wolff'){this.wolffSkillDuration=this.skillTime;this.wolffDiveAnnounced=false;this.burst(this.x,this.y,'#dbe6c0',16)}
  else if(this.pilot==='loewenhardt'){this.loewenhardtSkillDuration=this.skillTime;this.invuln=Math.max(this.invuln,NEW_ACE_BALANCE124.loewenhardtDiveSeconds*(this.skillEnhanced?1.35:1));this.burst(this.x,this.y,'#ffd84b',18)}
  else if(this.pilot==='mccudden'){const world=this.combatWorld(),count=this.skillEnhanced?4:3;for(let i=0;i<count;i++){const a=this.a+Math.PI/2+i*Math.PI*2/count;const sx=this.x-Math.cos(this.a)*18,sy=this.y-Math.sin(this.a)*18,lx=this.x+Math.cos(a)*85,ly=this.y+Math.sin(a)*85;world.drops.push({x:sx,y:sy,vx:(lx-sx)/.65,vy:(ly-sy)/.65,landX:lx,landY:ly,fallTime:.65,dropHeading:a,mccuddenSupply:true,life:25,value:0,heal:true,supply:true,healFraction:NEW_ACE_BALANCE124.mccuddenRepairFraction/3,ownerId:this.id});}this.event('wave',`수리 보급품 ${count}개 투하 · 아군도 회수 가능`)}
- else {this.invuln=Math.max(this.invuln,this.skillTime);this.burst(this.x,this.y,'#1d1822',26)}
  this.aceHeading129=this.a;this.event('skill',PILOTS[this.pilot].skill);return true;
 };
 const _newAceIncoming124=Game.prototype.incomingDamageMultiplier;
@@ -1632,7 +1411,6 @@ Game.prototype.beginRevisionFrame=function(dt,input={}){
  if(this.pilot==='nungesser'){
   const low=Math.min(1,Math.max(0,(1-this.hp/this.maxHp)/.8));const speed=1+low*NEW_ACE_BALANCE124.nungesserMaxSpeedBonus,fire=1+low*NEW_ACE_BALANCE124.nungesserMaxFireRateBonus;this.baseSpeed*=speed;this.speed*=speed;this.rate/=fire;this.passiveStrength=low;
   // Passive strength is shown by the shared lock-style gauge, without particle clutter.
-
  }
  this.passiveStrength=this.pilot==='wolff'?this.wolffStacks/NEW_ACE_BALANCE124.wolffMaxStacks:this.passiveStrength;
  this.mccuddenRepairFlash=Math.max(0,(this.mccuddenRepairFlash||0)-dt);
@@ -1675,19 +1453,13 @@ const _newAceRoundDamage124=Game.prototype.roundDamageMultiplier;
 Game.prototype._rdmNewAce124=function(b,e){let mult=_newAceRoundDamage124.call(this,b,e);
  if(this.pilot==='loewenhardt'&&b&&!b.enemy&&!b.patrol&&!b.formation&&!b.ally&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.actualExplosion&&!b.blast&&!b.mauserRound&&!b.fonckSeeker&&e&&e.hp>0){const dx=e.x-this.x,dy=e.y-this.y;if(dx*dx+dy*dy<=176400){let d=Math.atan2(dy,dx)-this.a;d=Math.atan2(Math.sin(d),Math.cos(d));if(Math.abs(d)<Math.PI/3)mult*=NEW_ACE_BALANCE124.loewenhardtFrontalDamage}}
  return mult};
-
 // Revision 164 installs the authoritative three-card draft and McCudden reroll below.
-
-
-
 Game.prototype._spnNewAce124=function(type,...args){
  const e=this._spnCore113(type,...args);if(e?.bossPilot==='fonck'){
   if(!e.fonckThreatTuned124){e.fonckThreatTuned124=true;e.hp=e.maxHp=Math.round(e.maxHp*NEW_ACE_BALANCE124.fonckBossHpMultiplier)}this.fonckEncountered124=true;
  }return e;
 };
-
 Game.prototype._stgNewAce124=function(e,contact,dt,baseTurn){const result=this._stgCore113(e,contact,dt,baseTurn);if(e?.bossPilot==='fonck')result.turn*=1.35;return result};
-
 Game.prototype._aatNewAce124=function(e){
  const id=e?.bossPilot;if(!id)return this._aatAce113(e);const p=this.enemyCombatTarget(e),aim=Math.atan2(p.y-e.y,p.x-e.x);
  if(id==='fonck'){e.a=aim;e.fonckBarrage={time:NEW_ACE_BALANCE124.fonckBarrageDuration,shot:0,volley:0};e.abilityTimer=NEW_ACE_BALANCE124.fonckAbilityMin+this.rng()*NEW_ACE_BALANCE124.fonckAbilityVariance;e.fire=Math.max(e.fire,.2);this.event('wave','르네 퐁크 · 탄도학의 지옥');return true}
@@ -1697,27 +1469,20 @@ Game.prototype._aatNewAce124=function(e){
  if(id==='nungesser'){e.aceInvuln124=NEW_ACE_BALANCE124.nungesserInvulnerability;this.burst(e.x,e.y,'#1d1822',24);this.enemyVolley(e);this.event('wave','샤를 너겐서 · 불사조의 집념');return true}
  return this._aatAce113(e);
 };
-
-
 // Display names are pilot-aware; preserve the shared airframe key and its handling.
 PLANES.fokker.name='Fokker Dr.I';
 export function pilotAircraftName(pilot,plane){
  return pilot==='voss'&&plane==='fokker'?'Fokker F.I':PLANES[plane]?.name||plane;
 }
-
 Game.prototype.update=Game.prototype._updLegendarySystems;
 Game.prototype.applySpecialRound=Game.prototype._asrProfile;
 Game.prototype.roundDamageMultiplier=Game.prototype._rdmNewAce124;
 Game.prototype.aceAttack=Game.prototype._aatNewAce124;
 installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDARIES,TAILING_BALANCE,angleDiff,DURABILITY_BALANCE,AUGMENT_BALANCE,LEGENDARY_BALANCE,COW37_BALANCE,LEGENDARY_DEFENSE_BALANCE);
-
 // Apply one final cruise/turn guard after the older time, pressure and loop layers.
 // Signature attacks retain their short dash timer and immediately return to capped cruise.
-
 Game.prototype._spnBounded=function(type,...args){const e=this._spnNewAce124(type,...args);return applyEnemyMovementLimits(this,e)};
-
 Game.prototype._stgBounded=function(e,contact,dt,baseTurn){const result=this._stgNewAce124(e,contact,dt,baseTurn);if(e?.bossPilot)result.turn=Math.min(result.turn*(e.aceTurnMultiplier||1),ENEMY_MOVEMENT_BALANCE.aceTurnCap);return result};
-
 // Gameplay 2.0: install shared player/enemy/ally airframe personalities last,
 // after every legacy balance layer has registered its aircraft and steering hooks.
 Game.prototype.spawnEnemy=Game.prototype._spnBounded;
@@ -1736,7 +1501,6 @@ installBattlefieldEvents(Game);
 // Rival state is outermost so escape/return observes the final ace and tail systems.
 installRivalAce(Game,{PILOTS,PLANES,attachAircraftPersonality,angleDiff})
 installLondonBattle(Game);;
-
 // Aces added in pass 2026: Rickenbacker, Ball, Barker, Luke (Entente) and
 // Brumowski, Gontermann (Central), each on a dedicated painted livery.
 // PLANES/WEAPONS clones live at the end of campaign.js — its snipe/nieuport28
@@ -1744,30 +1508,19 @@ installLondonBattle(Game);;
 const ACES1918={rickenbacker_spad:'spad',ball_se5a:'se5a',barker_snipe:'snipe',luke_nieuport28:'nieuport28',brumowski_albatros:'albatros',gontermann_fokker:'fokker'};
 const ACES1918_NAMES={rickenbacker_spad:'SPAD XIII · 리켄바커',ball_se5a:'S.E.5a · 앨버트 볼',barker_snipe:'숍위드 스나이프 · 바커',luke_nieuport28:'니외포르 28 · 프랭크 루크',brumowski_albatros:'알바트로스 D.III · 브루모프스키',gontermann_fokker:'포커 Dr.I · 곤터만'};
 Object.assign(PILOTS,{
- rickenbacker:{name:'에디 리켄바커',alias:'HAT IN THE RING',faction:'entente',portrait:21,passive:'일대칠의 배짱',passiveDesc:'반경 700px 내 적 1기당 기관총 공격력 +6% (최대 +30%). 포위될수록 강해집니다.',skill:'Hat in the Ring',desc:'4초간 사격할 때마다 반경 780px 내 각 적에게 자동 조준되는 관통탄을 추가 발사합니다. 최대 7개 표적.',cooldown:17},
- ball:{name:'앨버트 볼',alias:'LONE HAWK OF THE RFC',faction:'entente',portrait:22,passive:'고독한 사냥꾼',passiveDesc:'반경 320px 내에 아군·윙맨이 없으면 기관총 공격력 +15%.',skill:'구름 속의 매',desc:'1.5초간 얇은 구름에 은닉해 적의 조준을 흘립니다. 재등장 후 2초간 기관총 기습 공격력 ×2.2.',cooldown:16},
- barker:{name:'빌리 바커',alias:'THE LAST STAND',faction:'entente',portrait:23,passive:'불굴의 각성',passiveDesc:'피격될 때마다 3초간 기관총 공격력 +13%, 최대 3중첩.',skill:'새니에트의 기적',desc:'6초간 사망 불가 — 어떤 피해도 체력을 1 아래로 떨어뜨리지 못합니다. 각성 중첩 상한이 5로 늘어납니다.',cooldown:24},
- luke:{name:'프랭크 루크',alias:'THE ARIZONA BALLOON BUSTER',faction:'entente',portrait:24,passive:'기구 사냥꾼',passiveDesc:'기구·폭격기·에이스급 대형 표적 피해 +20%.',skill:'소이탄 연쇄 폭파',desc:'6초간 대형 표적 적중 시 그 자리에서 폭발이 일어나 반경 110px 내 다른 적들에게도 피해를 입힙니다.',cooldown:18},
- brumowski:{name:'고트빈 브루모프스키',alias:'THE RED HAWK OF AUSTRIA',faction:'central',portrait:25,passive:'붉은 편대장',passiveDesc:'출격 중인 아군·윙맨 1기당 기관총 공격력 +8% (최대 +24%).',skill:'붉은 비행대의 진',desc:'붉은 알바트로스 호위 2기가 15초간 주변 적을 나눠 맡아 실제 기동과 사격으로 요격합니다.',cooldown:20},
- gontermann:{name:'하인리히 곤터만',alias:'THE NIGHTMARE OF THE FRONT',faction:'central',portrait:26,passive:'기구 학살자',passiveDesc:'기구·폭격기·에이스급 대형 표적 피해 +15%. 재장전 시간 −12%.',skill:'불꽃의 급강하',desc:'5초간 소이탄 사격이 전방 대형 표적에 집중됩니다. 탄착 부위에서 시작된 화재가 표면으로 번지며 3초간 화상 피해를 줍니다.',cooldown:18}
+ rickenbacker:{name:'에디 리켄바커',alias:'HAT IN THE RING',faction:'entente',portrait:21,cooldown:17},
+ ball:{name:'앨버트 볼',alias:'LONE HAWK OF THE RFC',faction:'entente',portrait:22,cooldown:16},
+ barker:{name:'빌리 바커',alias:'THE LAST STAND',faction:'entente',portrait:23,cooldown:24},
+ luke:{name:'프랭크 루크',alias:'THE ARIZONA BALLOON BUSTER',faction:'entente',portrait:24,cooldown:18},
+ brumowski:{name:'고트빈 브루모프스키',alias:'THE RED HAWK OF AUSTRIA',faction:'central',portrait:25,cooldown:20},
+ gontermann:{name:'하인리히 곤터만',alias:'THE NIGHTMARE OF THE FRONT',faction:'central',portrait:26,cooldown:18}
 });
 const ACES1918_IDS=Object.keys(ACES1918).map(k=>k.split('_')[0]);
 const ACES1918_BIG=e=>e&&(e.type==='zeppelin'||e.type==='bomber'||e.type==='boss'||e.heavyBomber||e.bossPilot||e.balloon||e.fieldUnit==='balloon');
-
-Game.prototype._sklAces1918=function(){
- if(!ACES1918_IDS.includes(this.pilot))return this._sklNewAce124();
- this.ensureRevisionPilot();if(this.state!=='playing'||this.hp<=0||this.cooldown>0)return false;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();
- if(this.pilot==='ball'){const eh=this.skillEnhanced?1.35:1;this.ballCloak=1.5*eh;this.ballGhost={x:this.x,y:this.y,a:this.a,speed:this.speed,hp:1};this.invuln=Math.max(this.invuln,1.6*eh);this.ballAmbush=0}
- else if(this.pilot==='gontermann')this.invuln=Math.max(this.invuln,.6*(this.skillEnhanced?1.35:1));
- else if(this.pilot==='brumowski'){const world=typeof this.combatWorld==='function'?this.combatWorld():this;const list=world&&world.allies;const live=list?list.filter(a=>a.orbit&&a.life>0&&(a.hp===undefined||a.hp>0)&&(a.ownerId===undefined||a.ownerId===this.id)):[];for(let i=live.length;i<2;i++){if(typeof this.spawnAlly==='function'&&Array.isArray(this.allies)){this.spawnAlly();Object.assign(this.allies.at(-1),{plane:'brumowski_albatros',life:15*(this.skillEnhanced?1.35:1),orbit:true,slot:i,ownerId:this.id||'p1'})}else if(list)list.push({slot:list.length+i,x:(this.x||0)-45,y:(this.y||0)+(i?70:-70),a:this.a||0,life:15*(this.skillEnhanced?1.35:1),fire:.35,plane:'brumowski_albatros',ownerId:this.id||'p1',orbit:true})}}
- this.event('skill',PILOTS[this.pilot].skill);return true;
-};
-
-Game.prototype._durAces1918=function(){const d=({rickenbacker:4,ball:1.5,barker:6,luke:6,gontermann:5,brumowski:4})[this.pilot];return d===undefined?this._durNewAce124():d*(this.skillEnhanced?1.35:1)};
+Game.prototype._sklAces1918=function(){return this._sklNewAce124()};
+Game.prototype._durAces1918=function(){return this._durNewAce124()};
 const _aces1918Round=Game.prototype.roundDamageMultiplier;
 Game.prototype._rdmAces1918=function(b,e){let m=_aces1918Round.call(this,b,e);return m};
-
-
 // Trash-mob pressure pauses while an ace duel event or a stage boss runs,
 // so single-combat challenges stay single.
 Game.prototype.mobSpawnsSuppressed=function(){
@@ -1777,10 +1530,8 @@ Game.prototype.mobSpawnsSuppressed=function(){
  if(this.enemies?.some(e=>e.hp>0&&e.bossPilot&&!e.expired&&!e.rivalEscaped))return true;
  return false;
 };
-
 const _aces1918ApplyRound=Game.prototype.applySpecialRound;
 Game.prototype._asrAces1918=function(b,type){return preparePersonalRound1918(this,_aces1918ApplyRound.call(this,b,type))};
-
 const _aces1918Update=Game.prototype.update;
 Game.prototype._updAces1918=function(dt,input={}){
  const wasPlaying=this.state==='playing',previousRounds=this.roundsFired;
@@ -1796,8 +1547,6 @@ Game.prototype._aatAces1918=function(e){
  if(e.bossPilot==='brumowski'){const live=this.enemies.filter(x=>x.hp>0&&x.escortPlane==='brumowski_albatros').length;for(let i=live;i<2&&this.enemies.length<60;i++){const wing=this.spawnEnemy('hunter');if(!wing)break;wing.x=e.x+(i?70:-70);wing.y=e.y+40;wing.hp=wing.maxHp=80*(1+this.t/180);wing.escortPlane='brumowski_albatros';attachAircraftPersonality(PLANES,wing,wing.escortPlane,{retuneCruise:true});wing.fire=.3}}
  else if(e.bossPilot==='rickenbacker'){const aim=Math.atan2(this.y-e.y,this.x-e.x);for(let i=-1;i<=1;i++)this.bullets.push({x:e.x,y:e.y,vx:Math.cos(aim+i*.11)*330,vy:Math.sin(aim+i*.11)*330,life:2,enemy:true,visualType:'boss',aceSpecial:true,damage:16*(e.aceDamageMultiplier||1)})}
  _aces1918AceAttack.call(this,e)};
-
-
 // ── Richthofen Dr.I rework — 사냥 본능 passive + Dreidecker active ──
 export const RICHTHOFEN_DRI_BALANCE=Object.freeze({
  stackInterval:.8,resetAfter:2.2,tierDamage:[1,1.15,1.3,1.45],
@@ -1828,15 +1577,10 @@ Game.prototype.patchEliteHuntDamage=function(){
  const damage=es.damageMember.bind(es),g=this;
  es.damageMember=(m,d,s={})=>{if(g.huntTarget===m&&g.huntTargetElite){g.huntEngaged=true;g.huntLastHit=g.t;d*=RICHTHOFEN_DRI_BALANCE.tierDamage[g.huntTier()]}const was=m.alive;const r=damage(m,d,s);if(was&&!m.alive)m._huntCredit=true;return r};
 };
-
 Game.prototype._rdmDri=function(b,e){let mult=this._rdmAces1918(b,e);
  if(e&&e===this.huntTarget&&!this.huntTargetElite){this.huntEngaged=true;this.huntLastHit=this.t;const tier=this.huntTier();mult*=RICHTHOFEN_DRI_BALANCE.tierDamage[tier];
   if(tier>=2)this.burst(b.x??e.x,b.y??e.y,tier>=3?'#7d1a1a':'#4d1010',tier>=3?7:4);
  }return mult};
-
-
-
-
 // 포화의 참호전선 (region 3) — 지속 격제 사격: 맵 전역에 주기적으로 포탄이 떨어지며
 // 아군·적군 모두 피해를 입는다 (bombZones의 artyFire 경로가 적에게도 피해를 준다).
 Game.prototype.update=Game.prototype._updAces1918;
@@ -1853,7 +1597,6 @@ Game.prototype._updNoMansArty=function(dt,input={}){
  this.bombZones.push({x:tgt.x+(this.rng()-.5)*240,y:tgt.y+(this.rng()-.5)*240,sx:tgt.x,sy:tgt.y-460,delay:1.6,maxDelay:1.6,radius:66,damage:15+Math.floor(this.t/140),artyFire:true});
  if((this._artyToast??-99)<=this.t){this.event('bombWarning','포대 격제 사격 — 낙하지점을 피하세요');this._artyToast=this.t+16}
 };
-
 // Apply pilot identities after every legacy player override.
 Game.prototype.update=Game.prototype._updNoMansArty;
 Game.prototype.skill=Game.prototype._sklAces1918;
@@ -1861,8 +1604,6 @@ Game.prototype.applySpecialRound=Game.prototype._asrAces1918;
 Game.prototype.roundDamageMultiplier=Game.prototype._rdmDri;
 Game.prototype.skillDuration=Game.prototype._durAces1918;
 installPilotIdentities(Game,PILOTS);
-
-
 // Signature presentation is installed after the final legacy pilot overrides.
 import {installPilotSignatures} from './pilot-signatures.js';
 installPilotSignatures(Game);
