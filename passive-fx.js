@@ -1,12 +1,12 @@
 // Passive-state FX (sample: Richthofen "사냥 본능" / Hunting Instinct).
 // In-world effects rather than HUD marks. Purely visual: reads the engine's existing
 // hunt fields, never writes gameplay state.
-//   prey          -> trails a thin crimson vapour; it thickens with each hunt stack
+//   prey          -> a gun-sight that settles with each stack (gold at tier III) and a thin crimson vapour; it thickens with each hunt stack
 //                    (tier I wisp -> II sheds embers -> III a burning red streamer)
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=465';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=466';
 
 const memo = new WeakMap();
 const st = g => { let s = memo.get(g); if (!s) memo.set(g, s = { tier: 0, burst: -9, burstAt: null, prey: null, trail: [], wing: [] }); return s; };
@@ -38,6 +38,23 @@ export function drawBaronHunt(c, g, point, t, px, py) {
     const hold = engaged ? 1 - .7 * clamp((since - (B.resetAfter - .6)) / .6) : 1;
     const lock = clamp(g.huntDesignate > 0 ? 1 - g.huntDesignate / .35 : 1);
     const k = (engaged ? [.4, .6, .78, .95][tier] : .28) * hold * lock;   // faint wisp when merely designated
+    // target mark: a gun-sight on the prey. It swings in on designation and the aim settles with
+    // each hunt stack (ring tightens, sway dies down); gold and dead-steady at tier III.
+    { const [tx, ty] = point(tgt.x, tgt.y), sz = g.huntTargetElite ? 24 : tgt.heavyBomber ? 60 : tgt.bossPilot ? 46 : tgt.type === 'bomber' ? 34 : 28;
+      const lvl = engaged ? tier : 0, settle = lvl / 3;
+      const sway = (1 - settle) * (engaged ? 3 : 5) * lock;
+      const x = tx + Math.sin(t * 2.3) * sway + (1 - lock) * sz * 1.4, y = ty + Math.cos(t * 1.7) * sway - (1 - lock) * sz * .8;
+      const pop = 1 + .1 * Math.max(0, 1 - (t - s.burst) / .22);
+      const R = (sz * (1.05 - .1 * settle) + 8) * (1 + (1 - lock) * .7) * pop;
+      const col = engaged && tier === 3 ? '#f3cf78' : '#ff5a44', w = engaged ? 1.8 : 1.4, al = lock * (engaged ? .95 : .7);
+      const stroke = () => { c.globalAlpha = al * .45; c.strokeStyle = 'rgba(20,6,4,.8)'; c.lineWidth = w + 2; c.stroke(); c.globalAlpha = al; c.strokeStyle = col; c.lineWidth = w; c.stroke(); };
+      c.lineCap = 'round';
+      c.beginPath(); c.arc(x, y, R, 0, Math.PI * 2); stroke();
+      const rot = (1 - lock) * 1.2;                               // cross-wires: open centre so the plane stays visible
+      c.beginPath();
+      for (let i = 0; i < 4; i++) { const a = rot + i * Math.PI / 2, ca = Math.cos(a), sa = Math.sin(a);
+        c.moveTo(x + ca * R * .55, y + sa * R * .55); c.lineTo(x + ca * R * 1.22, y + sa * R * 1.22); }
+      stroke(); }
     const keep = .35 + .2 * tier;
     push(s.trail, { x: tgt.x, y: tgt.y }, t, keep);
     const n = s.trail.length;
