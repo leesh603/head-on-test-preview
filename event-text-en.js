@@ -54,7 +54,7 @@ const EXACT = {
   '폭격 편대 통과': 'Bomber formation passing',
   '퐁크 조준선 · 옆으로 선회하세요': 'Fonck’s sightline · turn out of it',
   '함대 교차 해역 — 양측 대공 화망이 교차합니다': 'Fleet crossfire — flak from both flanks',
-  '항구요새 탄약고 유폭 · 중앙 회전축 방호 약화': 'Harbour fort magazine blown · central pivot armour weakened',
+  '항구요새 탄약고 유폭 · 기뢰 보급 중단·포격 약화': 'Harbour magazine blown · mine supply stopped, guns weakened',
   '후방 확보 · 추격 가속': 'Rear secured · pursuit surge',
   '기습! 고속 추격 편대 ': 'Ambush! Fast pursuit flight',
   '제2파 · 추격기 접근': 'Wave 2 · pursuers inbound',

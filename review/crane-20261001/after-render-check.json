@@ -1,0 +1,1005 @@
+{
+  "renderer": "test-preview drawStageBoss via native Canvas",
+  "browser": false,
+  "base": "d0ad86a698ff9f474ca93aa585ef972b0af9ff6e",
+  "canvasStateBalanced": true,
+  "states": [
+    {
+      "state": "normal",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "armored-harbor-fortress",
+          "phase": "coastal-battery",
+          "x": 0,
+          "y": 0,
+          "hp": 2400,
+          "craneState": "idle",
+          "craneAngle": -0.55,
+          "parts": [
+            {
+              "id": "crane-pivot",
+              "hp": 240,
+              "x": 0,
+              "y": -89.1,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "crane-arm",
+              "hp": 312,
+              "x": 170.9098535598794,
+              "y": -193.8857222198739,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "ammo-storage",
+              "hp": 288,
+              "x": 137.7,
+              "y": -64.8,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "seaplane-facility",
+              "hp": 288,
+              "x": 0,
+              "y": 184.275,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-left",
+              "hp": 192,
+              "x": -238.95,
+              "y": -95.175,
+              "angle": -3.032000000000006,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-right",
+              "hp": 192,
+              "x": 238.95,
+              "y": -95.175,
+              "angle": -0.10799999999999971,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-left",
+              "hp": 192,
+              "x": -210.6,
+              "y": 107.32499999999999,
+              "angle": 2.0879999999999943,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-right",
+              "hp": 192,
+              "x": 210.6,
+              "y": 107.32499999999999,
+              "angle": 1.0019999999999991,
+              "launchWarmup": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "state": "normal",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "armored-harbor-fortress",
+          "phase": "coastal-battery",
+          "x": 0,
+          "y": 0,
+          "hp": 2400,
+          "craneState": "idle",
+          "craneAngle": -0.55,
+          "parts": [
+            {
+              "id": "crane-pivot",
+              "hp": 240,
+              "x": 0,
+              "y": -89.1,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "crane-arm",
+              "hp": 312,
+              "x": 170.9098535598794,
+              "y": -193.8857222198739,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "ammo-storage",
+              "hp": 288,
+              "x": 137.7,
+              "y": -64.8,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "seaplane-facility",
+              "hp": 288,
+              "x": 0,
+              "y": 184.275,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-left",
+              "hp": 192,
+              "x": -238.95,
+              "y": -95.175,
+              "angle": -3.032000000000006,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-right",
+              "hp": 192,
+              "x": 238.95,
+              "y": -95.175,
+              "angle": -0.10799999999999971,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-left",
+              "hp": 192,
+              "x": -210.6,
+              "y": 107.32499999999999,
+              "angle": 2.0879999999999943,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-right",
+              "hp": 192,
+              "x": 210.6,
+              "y": 107.32499999999999,
+              "angle": 1.0019999999999991,
+              "launchWarmup": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "state": "windup",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "armored-harbor-fortress",
+          "phase": "coastal-battery",
+          "x": 0,
+          "y": 0,
+          "hp": 2400,
+          "craneState": "windup",
+          "craneAngle": 2.0199999999999982,
+          "parts": [
+            {
+              "id": "crane-pivot",
+              "hp": 240,
+              "x": 0,
+              "y": -89.1,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "crane-arm",
+              "hp": 312,
+              "x": -87.05593718806597,
+              "y": 91.48651507049885,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "ammo-storage",
+              "hp": 288,
+              "x": 137.7,
+              "y": -64.8,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "seaplane-facility",
+              "hp": 288,
+              "x": 0,
+              "y": 184.275,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-left",
+              "hp": 192,
+              "x": -238.95,
+              "y": -95.175,
+              "angle": -3.3200000000000096,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-right",
+              "hp": 192,
+              "x": 238.95,
+              "y": -95.175,
+              "angle": 0.18000000000000024,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-left",
+              "hp": 192,
+              "x": -210.6,
+              "y": 107.32499999999999,
+              "angle": 1.7999999999999936,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-right",
+              "hp": 192,
+              "x": 210.6,
+              "y": 107.32499999999999,
+              "angle": 1.2899999999999985,
+              "launchWarmup": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "state": "windup",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "armored-harbor-fortress",
+          "phase": "coastal-battery",
+          "x": 0,
+          "y": 0,
+          "hp": 2400,
+          "craneState": "windup",
+          "craneAngle": 2.0199999999999982,
+          "parts": [
+            {
+              "id": "crane-pivot",
+              "hp": 240,
+              "x": 0,
+              "y": -89.1,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "crane-arm",
+              "hp": 312,
+              "x": -87.05593718806597,
+              "y": 91.48651507049885,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "ammo-storage",
+              "hp": 288,
+              "x": 137.7,
+              "y": -64.8,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "seaplane-facility",
+              "hp": 288,
+              "x": 0,
+              "y": 184.275,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-left",
+              "hp": 192,
+              "x": -238.95,
+              "y": -95.175,
+              "angle": -3.3200000000000096,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-right",
+              "hp": 192,
+              "x": 238.95,
+              "y": -95.175,
+              "angle": 0.18000000000000024,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-left",
+              "hp": 192,
+              "x": -210.6,
+              "y": 107.32499999999999,
+              "angle": 1.7999999999999936,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-right",
+              "hp": 192,
+              "x": 210.6,
+              "y": 107.32499999999999,
+              "angle": 1.2899999999999985,
+              "launchWarmup": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "state": "sweep",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "armored-harbor-fortress",
+          "phase": "coastal-battery",
+          "x": 0,
+          "y": 0,
+          "hp": 2400,
+          "craneState": "sweep",
+          "craneAngle": 1.4954265486826572,
+          "parts": [
+            {
+              "id": "crane-pivot",
+              "hp": 240,
+              "x": 0,
+              "y": -89.1,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "crane-arm",
+              "hp": 312,
+              "x": 15.095454907403257,
+              "y": 110.80586000950186,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "ammo-storage",
+              "hp": 288,
+              "x": 137.7,
+              "y": -64.8,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "seaplane-facility",
+              "hp": 288,
+              "x": 0,
+              "y": 184.275,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-left",
+              "hp": 192,
+              "x": -238.95,
+              "y": -95.175,
+              "angle": -4.515200000000025,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-right",
+              "hp": 192,
+              "x": 238.95,
+              "y": -95.175,
+              "angle": 1.720799999999998,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-left",
+              "hp": 192,
+              "x": -210.6,
+              "y": 107.32499999999999,
+              "angle": 0.789521134422079,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-right",
+              "hp": 192,
+              "x": 210.6,
+              "y": 107.32499999999999,
+              "angle": 2.1646666334746336,
+              "launchWarmup": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "state": "sweep",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "armored-harbor-fortress",
+          "phase": "coastal-battery",
+          "x": 0,
+          "y": 0,
+          "hp": 2400,
+          "craneState": "sweep",
+          "craneAngle": 1.4954265486826572,
+          "parts": [
+            {
+              "id": "crane-pivot",
+              "hp": 240,
+              "x": 0,
+              "y": -89.1,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "crane-arm",
+              "hp": 312,
+              "x": 15.095454907403257,
+              "y": 110.80586000950186,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "ammo-storage",
+              "hp": 288,
+              "x": 137.7,
+              "y": -64.8,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "seaplane-facility",
+              "hp": 288,
+              "x": 0,
+              "y": 184.275,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-left",
+              "hp": 192,
+              "x": -238.95,
+              "y": -95.175,
+              "angle": -4.515200000000025,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-right",
+              "hp": 192,
+              "x": 238.95,
+              "y": -95.175,
+              "angle": 1.720799999999998,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-left",
+              "hp": 192,
+              "x": -210.6,
+              "y": 107.32499999999999,
+              "angle": 0.789521134422079,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-right",
+              "hp": 192,
+              "x": 210.6,
+              "y": 107.32499999999999,
+              "angle": 2.1646666334746336,
+              "launchWarmup": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "state": "damage",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "armored-harbor-fortress",
+          "phase": "breached",
+          "x": 0,
+          "y": 0,
+          "hp": 1771.2,
+          "craneState": "idle",
+          "craneAngle": -0.55,
+          "parts": [
+            {
+              "id": "crane-pivot",
+              "hp": 240,
+              "x": 0,
+              "y": -89.1,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "crane-arm",
+              "hp": 312,
+              "x": 170.9098535598794,
+              "y": -193.8857222198739,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "ammo-storage",
+              "hp": 0,
+              "x": 137.7,
+              "y": -64.8,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "seaplane-facility",
+              "hp": 0,
+              "x": 0,
+              "y": 184.275,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-left",
+              "hp": 0,
+              "x": -238.95,
+              "y": -95.175,
+              "angle": -3.032000000000006,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-right",
+              "hp": 192,
+              "x": 238.95,
+              "y": -95.175,
+              "angle": 0.32400000000000034,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-left",
+              "hp": 192,
+              "x": -210.6,
+              "y": 107.32499999999999,
+              "angle": 1.655999999999994,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-right",
+              "hp": 192,
+              "x": 210.6,
+              "y": 107.32499999999999,
+              "angle": 1.4339999999999982,
+              "launchWarmup": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "state": "damage",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "armored-harbor-fortress",
+          "phase": "breached",
+          "x": 0,
+          "y": 0,
+          "hp": 1771.2,
+          "craneState": "idle",
+          "craneAngle": -0.55,
+          "parts": [
+            {
+              "id": "crane-pivot",
+              "hp": 240,
+              "x": 0,
+              "y": -89.1,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "crane-arm",
+              "hp": 312,
+              "x": 170.9098535598794,
+              "y": -193.8857222198739,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "ammo-storage",
+              "hp": 0,
+              "x": 137.7,
+              "y": -64.8,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "seaplane-facility",
+              "hp": 0,
+              "x": 0,
+              "y": 184.275,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-left",
+              "hp": 0,
+              "x": -238.95,
+              "y": -95.175,
+              "angle": -3.032000000000006,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-right",
+              "hp": 192,
+              "x": 238.95,
+              "y": -95.175,
+              "angle": 0.32400000000000034,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-left",
+              "hp": 192,
+              "x": -210.6,
+              "y": 107.32499999999999,
+              "angle": 1.655999999999994,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-right",
+              "hp": 192,
+              "x": 210.6,
+              "y": 107.32499999999999,
+              "angle": 1.4339999999999982,
+              "launchWarmup": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "state": "exposed",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "armored-harbor-fortress",
+          "phase": "final-core",
+          "x": 0,
+          "y": 0,
+          "hp": 924,
+          "craneState": "collapsed",
+          "craneAngle": -0.55,
+          "parts": [
+            {
+              "id": "crane-pivot",
+              "hp": 0,
+              "x": 0,
+              "y": -89.1,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "crane-arm",
+              "hp": 0,
+              "x": 170.9098535598794,
+              "y": -193.8857222198739,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "ammo-storage",
+              "hp": 0,
+              "x": 137.7,
+              "y": -64.8,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "seaplane-facility",
+              "hp": 288,
+              "x": 0,
+              "y": 184.275,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-left",
+              "hp": 0,
+              "x": -238.95,
+              "y": -95.175,
+              "angle": -3.032000000000006,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-right",
+              "hp": 192,
+              "x": 238.95,
+              "y": -95.175,
+              "angle": 0.10800000000000025,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-left",
+              "hp": 192,
+              "x": -210.6,
+              "y": 107.32499999999999,
+              "angle": 1.8719999999999934,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-right",
+              "hp": 192,
+              "x": 210.6,
+              "y": 107.32499999999999,
+              "angle": 1.2179999999999986,
+              "launchWarmup": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "state": "exposed",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "armored-harbor-fortress",
+          "phase": "final-core",
+          "x": 0,
+          "y": 0,
+          "hp": 924,
+          "craneState": "collapsed",
+          "craneAngle": -0.55,
+          "parts": [
+            {
+              "id": "crane-pivot",
+              "hp": 0,
+              "x": 0,
+              "y": -89.1,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "crane-arm",
+              "hp": 0,
+              "x": 170.9098535598794,
+              "y": -193.8857222198739,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "ammo-storage",
+              "hp": 0,
+              "x": 137.7,
+              "y": -64.8,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "seaplane-facility",
+              "hp": 288,
+              "x": 0,
+              "y": 184.275,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-left",
+              "hp": 0,
+              "x": -238.95,
+              "y": -95.175,
+              "angle": -3.032000000000006,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-right",
+              "hp": 192,
+              "x": 238.95,
+              "y": -95.175,
+              "angle": 0.10800000000000025,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-left",
+              "hp": 192,
+              "x": -210.6,
+              "y": 107.32499999999999,
+              "angle": 1.8719999999999934,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-right",
+              "hp": 192,
+              "x": 210.6,
+              "y": 107.32499999999999,
+              "angle": 1.2179999999999986,
+              "launchWarmup": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "state": "wreck",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "armored-harbor-fortress",
+          "phase": "defeated",
+          "x": 0,
+          "y": 0,
+          "hp": 0,
+          "craneState": "collapsed",
+          "craneAngle": -0.55,
+          "parts": [
+            {
+              "id": "crane-pivot",
+              "hp": 0,
+              "x": 0,
+              "y": -89.1,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "crane-arm",
+              "hp": 0,
+              "x": 170.9098535598794,
+              "y": -193.8857222198739,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "ammo-storage",
+              "hp": 0,
+              "x": 137.7,
+              "y": -64.8,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "seaplane-facility",
+              "hp": 288,
+              "x": 0,
+              "y": 184.275,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-left",
+              "hp": 0,
+              "x": -238.95,
+              "y": -95.175,
+              "angle": -3.032000000000006,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-right",
+              "hp": 192,
+              "x": 238.95,
+              "y": -95.175,
+              "angle": 0.10800000000000025,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-left",
+              "hp": 192,
+              "x": -210.6,
+              "y": 107.32499999999999,
+              "angle": 1.8719999999999934,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-right",
+              "hp": 192,
+              "x": 210.6,
+              "y": 107.32499999999999,
+              "angle": 1.2179999999999986,
+              "launchWarmup": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "state": "wreck",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "armored-harbor-fortress",
+          "phase": "defeated",
+          "x": 0,
+          "y": 0,
+          "hp": 0,
+          "craneState": "collapsed",
+          "craneAngle": -0.55,
+          "parts": [
+            {
+              "id": "crane-pivot",
+              "hp": 0,
+              "x": 0,
+              "y": -89.1,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "crane-arm",
+              "hp": 0,
+              "x": 170.9098535598794,
+              "y": -193.8857222198739,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "ammo-storage",
+              "hp": 0,
+              "x": 137.7,
+              "y": -64.8,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "seaplane-facility",
+              "hp": 288,
+              "x": 0,
+              "y": 184.275,
+              "angle": 0,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-left",
+              "hp": 0,
+              "x": -238.95,
+              "y": -95.175,
+              "angle": -3.032000000000006,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-right",
+              "hp": 192,
+              "x": 238.95,
+              "y": -95.175,
+              "angle": 0.10800000000000025,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-left",
+              "hp": 192,
+              "x": -210.6,
+              "y": 107.32499999999999,
+              "angle": 1.8719999999999934,
+              "launchWarmup": 0
+            },
+            {
+              "id": "gun-front-right",
+              "hp": 192,
+              "x": 210.6,
+              "y": 107.32499999999999,
+              "angle": 1.2179999999999986,
+              "launchWarmup": 0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "missing": []
+}

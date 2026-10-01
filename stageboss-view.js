@@ -1,3 +1,4 @@
+import {drawHarborFortress} from './harbor-crane-render.js?v=crane20261001';
 import {drawZubianShip} from './adriatic-boss-render.js?v=466';
 import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=466';
 import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=466';
@@ -8,9 +9,9 @@ import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=466';
 import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=466';
 import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=466';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=466';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=466';
-import {bossHudModel} from './headon-stageboss-hud.js?v=466';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=466';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=crane20261001';
+import {bossHudModel} from './headon-stageboss-hud.js?v=crane20261001';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=crane20261001';
 import {planeSprite} from './aircraft.js?v=466';
 import {getLocale} from './i18n.js?v=466';
 import {londonStatus} from './london-battle.js?v=466';
@@ -49,7 +50,7 @@ const flakTowerGroup=createLazyImageGroup({hull:'./boss-flak-tower-hull.webp?v=4
 // Part sprites hold their ring disc off-center inside the frame; anchoring
 // shifts by these measured disc-center fractions so the disc lands on the part.
 const FLAK_PART_ART={siege:{im:'siege',dcx:.499,dcy:.489,forward:Math.PI/2},ears:{im:'ears',dcx:.401,dcy:.660,forward:Math.PI/4},'gun-bl':{im:'gun',dcx:.497,dcy:.482,forward:Math.PI/2},'gun-br':{im:'gun',dcx:.497,dcy:.482,forward:Math.PI/2}};
-const harborGroup=createLazyImageGroup({base:'./boss-armored-harbor-main-base.webp',craneArm:'./boss-armored-harbor-crane-arm.webp',cranePivot:'./boss-armored-harbor-crane-pivot.webp',ammo:'./boss-armored-harbor-ammo-storage.webp',guns:'./boss-armored-harbor-gun-emplacements.webp',facility:'./boss-armored-harbor-seaplane-facility.webp'}),harborArt=harborGroup.images;
+const harborGroup=createLazyImageGroup({base:'./boss-armored-harbor-main-base.webp',craneArm:'./boss-armored-harbor-crane-arm.webp',cranePivot:'./boss-armored-harbor-crane-pivot.webp',ammo:'./boss-armored-harbor-ammo-storage.webp',guns:'./boss-armored-harbor-gun-emplacements.webp',facility:'./boss-armored-harbor-seaplane-facility.webp',parts:'./harbor-parts-20261001.webp?v=crane20261001'}),harborArt=harborGroup.images;
 const trenchGroup=createLazyImageGroup({
  livensParts:'./boss_livens_parts195.webp',livensBase:'./boss_livens_base187.webp',
  livensMount:'./boss_livens_nozzle_mount187.webp',livensNozzle:'./boss_livens_nozzle_normal_pivot187.webp',livensTurret:'./boss-livens-turret2x.webp',
@@ -75,7 +76,7 @@ export function prepareStageBossAssets(region){
   else releaseAADefenseAssets();
  if(region===3){prepareLivensFlame();jobs.push(trenchGroup.preload());jobs.push(impactGroup.preload())}else{impactGroup.release();releaseLivensFlame();}
  if(region===4){jobs.push(cityGroup.preload());jobs.push(buildingGroup.preload());jobs.push(flakTowerGroup.preload())}
- if(region===7)jobs.push(harborGroup.preload());
+ if(region===7)jobs.push(harborGroup.preload(['base','cranePivot','guns','parts']));
  // Requested regional bosses use independent preloaded RGBA atlases above.
  if(region===8){jobs.push(cambraiGroup.preload());jobs.push(treffasGroup.preload());jobs.push(bugGroup.preload());}else{cambraiGroup.release();treffasGroup.release();bugGroup.release();partWreckGroup.release();}
  if(region>=0)jobs.push(partGroup.preload());else{partGroup.release();skyCloud113=null}
@@ -328,6 +329,7 @@ function partWreck(c,p,r,t){
  for(let i=0;i<6;i++){const a=i*1.07+p.x*.013;c.beginPath();c.moveTo(p.x+Math.cos(a)*r*.35,p.y+Math.sin(a)*r*.35);c.lineTo(p.x+Math.cos(a)*(r*.85+(i%2)*r*.3),p.y+Math.sin(a)*(r*.85+(i%2)*r*.3));c.stroke();}
 }
 function drawBossPart(c,p,ring,t=0){
+ if(p.bodyKey==='armored-harbor-fortress')return;
  if(p.bodyKey==='gotha-raider'||p.bodyKey==='london-apron-raid'){const r=p.radius;if(!p.destroyed&&(p.hp<p.maxHp||p.partId==='bomb-bay'&&p.phase==='bombing-run')){ring(p.x,p.y,r,'#efc98aaa');c.fillStyle='#1b242a';c.fillRect(p.x-r,p.y+r+4,r*2,3);c.fillStyle='#edb875';c.fillRect(p.x-r,p.y+r+4,r*2*p.hp/p.maxHp,3);}return;}
  if(drawRegionalBossPart(c,p))return;
  const r=p.radius;
@@ -470,6 +472,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
  const ring=(x,y,r,color)=>{c.strokeStyle=color;c.lineWidth=2;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.stroke();};
  renderStageBossLayer(addon,{
   drawBody(b){if(layer==='hazards')return;
+   if(b.assetKey==='armored-harbor-fortress'){const parts=harborArt.parts;drawHarborFortress(c,b,{base:harborArt.base,pivot:harborArt.cranePivot,ammo:parts.naturalWidth?null:harborArt.ammo,facility:parts.naturalWidth?null:harborArt.facility,guns:harborArt.guns,parts});return;}
    if(b.assetKey.startsWith('hms-zubian')){drawZubianShip(c,b,zubianArt);if(b.destroying)drawSinkingWater(c,b,Math.min(1,b.destructionAge/Math.max(.1,b.destructionDuration)));return;}
    if(b.assetKey==='gotha-raider'){drawGotha(c,b);return;}
    if(b.assetKey==='london-apron-raid'){drawLondonRaidApron(c,b);return;}
@@ -644,7 +647,8 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    drawBossPart(c,p,ring,g?.t||0);
   },
    drawHazard(h){if(layer==='bodies')return;
-    const warning=h.phase==='warning';c.save();
+    const warning=h.phase==='warning';
+   if(h.visual==='harbor-swing'){c.save();c.setLineDash(warning?[5,5]:[]);c.strokeStyle=warning?'#dfbd82b3':'#cfad6b55';c.lineWidth=1.5;c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.stroke();c.restore();return;}c.save();
     if(drawRegionalHazard(c,h,addon.stages.encounter?.bodies.get(h.bossId)?.kind)){c.restore();return;}
     if(h.visual==='aa-flak'){
      const q=clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1);
