@@ -258,7 +258,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
    case 'petals':petals(c,(t*.6)%1.3,5);break;
    case 'maintenance':texture(c,'gunSmoke',-30,0,45,27,Math.PI,.22*(1-clamp(age/4)));break;
    case 'pincer':for(const w of signatureWingPositions(p)){if(!w.muzzleFlash)continue;c.save();c.translate(w.x,w.y);c.rotate(w.muzzleAngle);flash(c,false,1.1);c.restore()}break;
-   case 'ringFlight':drawRickenbackerHalfRing(c,t,Math.min(1,p.skillTime/.15),false);break;
+   case 'ringFlight':if(!globalThis.__hoHoop?.has(p))drawRickenbackerHalfRing(c,t,Math.min(1,p.skillTime/.15),false);break;
    case 'rocketFlight':case 'pursuit':case 'decoy':case 'convergence':case 'guard':case 'splitFlight':case 'cover':break;
   }
  }
@@ -267,7 +267,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
   c.save();try{
    c.translate(x,y);if(layer!=='front')worldEffects(c,p);c.rotate(p.a);if(layer!=='front')continuous(c,p,profile,s);
    if(layer==='front'){
-    if(p.pilot==='rickenbacker'&&p.skillTime>0)drawRickenbackerHalfRing(c,s.clock,Math.min(1,p.skillTime/.15),true);
+    if(p.pilot==='rickenbacker'&&p.skillTime>0&&!globalThis.__hoHoop?.has(p))drawRickenbackerHalfRing(c,s.clock,Math.min(1,p.skillTime/.15),true);
     if(p.pilot==='baracca'&&(p.chargeTime>0||p.prancingHorseFlash160>0||s.effects.some(e=>e.kind==='cavalryGuard'))){
      c.save();c.rotate(Math.PI/2);c.globalAlpha*=.82;insignia(c,'baraccaHorse',0,5,16,s.clock);c.restore();
     }
