@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {LondonApron,DrachenMineNet} from '../headon-stageboss-patterns.js?v=469';
-import {apronPose,apronPoint,apronPanelHull,netContact,drawAttachedApron} from '../london-apron369.js';
+import {LondonApron,DrachenMineNet} from '../headon-stageboss-patterns.js?v=city20261001';
+import {apronPose,apronPoint,apronPanelHull,netContact,drawAttachedApron} from '../london-apron369.js?v=city20261001';
 const tuning={maxHp:1000,partHp:100,damage:10,bulletSpeed:100,geometryScale:2.025};
 for(const width of [390,1280])test(`registered hit geometry ${width}`,()=>{
  const b=new LondonApron({id:'test',x:500,y:500,tuning:{...tuning,regionalViewWidth:width,regionalViewHeight:800}});

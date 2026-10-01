@@ -1,4 +1,4 @@
-import {createSignatureView} from './pilot-signature-view.js';
+import {createSignatureView} from './pilot-signature-view.js?v=city20261001';
 import {fx,fxTint} from './fx-art.js?v=469';
 import {planeSprite,aircraftKey} from './aircraft.js?v=469';
 import {drawGameIcon} from './icons.js?v=469';

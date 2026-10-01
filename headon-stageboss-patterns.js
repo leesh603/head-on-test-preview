@@ -1,9 +1,11 @@
+import {FlakTowerNet} from './city-flak-combat.js?v=city20261001';
+export {FlakTowerNet} from './city-flak-combat.js?v=city20261001';
 import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose} from './adriatic-boss-layout.js?v=469';
 import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=469';
 import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=469';
 import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=469';
 import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=469';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=469';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=city20261001';
 import {GIK,Ca4} from './alps-bomber-combat.js?v=469';
 export {GIK,Ca4};
 import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=469';
@@ -1253,100 +1255,6 @@ export class LondonSearchlight extends RegionalPatternBoss {
 // Stage 4 entente: four flak towers hold the map corners. Every tower is a
 // self-contained emplacement — siege howitzer, acoustic horns and two AA
 // platforms surround a cupola core — and all four must fall to clear the stage.
-const FLAK_TOWER_PARTS=[
-  {id:'siege',x:-74,y:-101,radius:34},
-  {id:'ears',x:77,y:-96,radius:32},
-  {id:'gun-bl',x:-77,y:70,radius:32},
-  {id:'gun-br',x:74,y:72,radius:32}
-];
-class FlakTowerCell extends PatternBoss {
-  constructor(options){
-    super({...options,kind:'flak-tower-cell',parts:FLAK_TOWER_PARTS});
-    this.phase='listening';this.lockProgress=0;this.coreVulnerable=false;this.ownsMotion129=true;
-    const ears=this.parts.get('ears');if(ears)ears.angle=-Math.PI*.75;
-    for(const id of ['siege','gun-bl','gun-br']){const p=this.parts.get(id);if(p)p.angle=-Math.PI/2;}
-  }
-  suppressive(){}
-  hit(a){const r=super.hit(a);if(r.bodyDefeated){
-    this.hazard('circle',{x:this.x,y:this.y,radius:130,warning:.9,once:true,damage:this.t.damage*1.6,visual:'black-flak',tag:'flak-collapse'});
-    this.command('internal-explosion',{x:this.x,y:this.y});}return r;}
-  onPartDestroyed(p){
-    if(p.id==='ears'){this.lockProgress=0;this.command('phase-change',{phase:'flak-deaf'});}
-    if([...this.parts.values()].every(x=>x.destroyed)&&!this.coreVulnerable){this.coreVulnerable=true;this.command('phase-change',{phase:'exposed'});}
-  }
-  update(dt,{players,bounds}){
-    const list=living(players);if(!list.length)return;
-    const siege=this.parts.get('siege'),ears=this.parts.get('ears');
-    const nearest=list.reduce((a,b)=>Math.hypot(a.x-this.x,a.y-this.y)<Math.hypot(b.x-this.x,b.y-this.y)?a:b);
-    // Survivors fight harder as sibling towers fall.
-    this.enrage=1+[...this.encounter?.bodies.values()||[]].filter(b=>b!==this&&b.kind==='flak-tower-cell'&&b.dead).length*.22;
-    let locked=null;
-    if(ears&&!ears.destroyed){
-      const aim=Math.atan2(nearest.y-this.y,nearest.x-this.x);
-      ears.angle=turnToward(ears.angle,aim,1.1*dt);
-      const off=Math.abs(Math.atan2(Math.sin(aim-ears.angle),Math.cos(aim-ears.angle)));
-      this.lockProgress=off<.5?this.lockProgress+dt:Math.max(0,this.lockProgress-dt*1.6);
-      if(this.lockProgress>=1.4)locked=nearest;
-    }else this.lockProgress=0;
-    if(siege&&!siege.destroyed){
-      const mx=this.x+siege.x,my=this.y+siege.y;
-      if(locked&&this.due('siege-locked',dt,5.4/this.enrage)){
-        const lead=1.15,tx=locked.x+(locked.vx||0)*lead,ty=locked.y+(locked.vy||0)*lead;
-        this.hazard('circle',{x:tx,y:ty,radius:102,delay:.22,warning:1.5,once:true,damage:this.t.damage*2.4,visual:'black-flak',tag:'flak-siege',sourceX:mx,sourceY:my});
-        siege.angle=Math.atan2(ty-my,tx-mx);this.command('muzzle',{x:mx,y:my});
-      }else if(ears?.destroyed&&this.due('siege-blind',dt,4.8/this.enrage)){
-        const p=this.target(list)||nearest;
-        for(let i=-1;i<=1;i++)this.hazard('circle',{x:p.x+i*100+randBetween(this.rng,-44,44),y:p.y+randBetween(this.rng,-36,64),radius:80,delay:.22+Math.abs(i)*.15,warning:1.35,once:true,visual:'black-flak',tag:'flak-siege',sourceX:mx,sourceY:my});
-        siege.angle=Math.atan2(p.y-my,p.x-mx);this.command('muzzle',{x:mx,y:my});
-      }
-    }
-    // All towers that still have a howitzer drop shells on the same point at
-    // the same tick — the shared timer keeps the volley synchronized.
-    if(siege&&!siege.destroyed&&this.due('net-volley',dt,15)){
-      const lead=1.15,tx=nearest.x+(nearest.vx||0)*lead,ty=nearest.y+(nearest.vy||0)*lead;
-      const mx=this.x+siege.x,my=this.y+siege.y;
-      this.hazard('circle',{x:tx,y:ty,radius:110,delay:.3,warning:1.7,once:true,damage:this.t.damage*2.2,visual:'black-flak',tag:'flak-volley',sourceX:mx,sourceY:my});
-      siege.angle=Math.atan2(ty-my,tx-mx);
-      if(this.id.endsWith('-t0')&&!this.volleyAnnounced){this.volleyAnnounced=true;this.command('phase-change',{phase:'net-volley'});}
-    }
-    // Occasionally lobs a small mine cluster toward mid-map to constrict lanes.
-    if(bounds&&this.due('flak-mines',dt,26)){
-      const cx=(bounds.left+bounds.right)/2,cy=(bounds.top+bounds.bottom)/2,a=Math.atan2(cy-this.y,cx-this.x);
-      const pts=[];for(let k=0;k<4;k++){const d=95+k*58+randBetween(this.rng,-14,14),t=a+randBetween(this.rng,-.5,.5);pts.push({x:this.x+Math.cos(t)*d,y:this.y+Math.sin(t)*d});}
-      const legal=pts.filter(q=>q.x>bounds.left+30&&q.x<bounds.right-30&&q.y>bounds.top+30&&q.y<bounds.bottom-30);
-      if(legal.length)this.command('spawn-minefield',{points:legal,warning:.8,life:12,maxMines:16,sourceX:this.x,sourceY:this.y});
-    }
-    // Parapet machine guns hose everything that crowds the tower.
-    if(Math.hypot(nearest.x-this.x,nearest.y-this.y)<150&&this.due('parapet',dt,1.15))this.radial(12,this.t.bulletSpeed*.72);
-    let i=0;
-    for(const id of ['gun-bl','gun-br']){
-      const gun=this.parts.get(id);i++;if(!gun||gun.destroyed)continue;
-      const mx=this.x+gun.x,my=this.y+gun.y;
-      gun.angle=turnToward(gun.angle,Math.atan2(nearest.y-my,nearest.x-mx),1.7*dt);
-      if(this.due('flak-'+id,dt,(3.6+i*1.1)/this.enrage)){
-        this.fan(mx,my,gun.angle,5,.66,this.t.bulletSpeed*.95,'black-flak');
-        this.command('muzzle',{x:mx,y:my});
-      }
-    }
-  }
-}
-export class FlakTowerNet extends PatternBoss {
-  constructor(options){super({...options,kind:'flak-tower'});this.phase='deploy';this.stateAge=0;this.coreVulnerable=false;this.ownsMotion129=true;}
-  suppressive(){}
-  update(dt,{bounds}){
-    this.stateAge+=dt;
-    if(this.stateAge<.6)return;
-    if(!this.encounter)throw new Error('flak-tower must belong to an encounter before deploying');
-    // Map-scale grid: cells are spread over a wide rectangle around the deploy
-    // point (not the camera viewport) so the network covers the whole area.
-    const dx=Math.max(600,Math.min(760,(bounds.right-bounds.left)*.75)),fy=Math.max(500,Math.min(600,(bounds.bottom-bounds.top)*.85)),by=Math.max(320,Math.min(420,(bounds.bottom-bounds.top)*.55));
-    const corners=[[this.x-dx,this.y-fy],[this.x+dx,this.y-fy],[this.x-dx,this.y+by],[this.x+dx,this.y+by]];
-    const children=corners.map(([x,y],i)=>new FlakTowerCell({id:this.id+'-t'+i,tuning:{...this.t,maxHp:this.hp/4},x,y,faction:this.faction,rng:this.rng,emit:this.emit,coreRadius:44}));
-    this.encounter.replaceBody(this.id,children);
-    this.command('split',{children:children.map(b=>b.id),x:this.x,y:this.y});
-  }
-}
-
 export class LondonRaidApron extends LondonApron {
  constructor(options){super(options);this.kind='london-apron-raid';this.ownsMotion129=true;
   for(const [id,x,y,radius] of [['light',-94,92,26],['gun',94,92,29]])this.parts.set(id,new BossPart({id,x,y,radius,maxHp:this.t.maxHp*.13}));

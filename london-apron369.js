@@ -79,7 +79,7 @@ export function drawDrachenRig(c,b,atlases){
  c.save();c.translate(b.x,b.y);c.scale(s,s);c.translate(-384,-288);
  const cable=(a,z)=>{
   if(b.parts?.find(p=>p.id==='airship-'+a)?.destroyed||b.parts?.find(p=>p.id==='airship-'+z)?.destroyed)return;
-  const anchors=[[203,268],[414,259],[601,394]],[x,y]=anchors[a],[u,v]=anchors[z];
+  const anchors=[[203,268],[414,259],[601,394]],oa=b.cityRigOffsets?.[a]||[0,0],oz=b.cityRigOffsets?.[z]||[0,0],x=anchors[a][0]+oa[0],y=anchors[a][1]+oa[1],u=anchors[z][0]+oz[0],v=anchors[z][1]+oz[1];
   c.save();c.beginPath();c.moveTo(x,y);c.bezierCurveTo(x+(u-x)*.28,y+65,x+(u-x)*.72,v+65,u,v);
   c.strokeStyle='#191711';c.lineWidth=4;c.stroke();c.strokeStyle='#746851';c.lineWidth=1.5;c.stroke();c.restore();
  };
@@ -88,7 +88,7 @@ export function drawDrachenRig(c,b,atlases){
   const p=b.parts?.find(p=>p.id==='airship-'+i),dead=p?.destroyed;
   const age=dead?Math.max(0,(b.motionTime||0)-(p.destroyedAt||0)+(b.destroying?b.destructionAge:0)):0;
   if(dead&&age>=1.8)continue;
-  c.save();if(dead){const px=p.x/s+384,py=p.y/s+288;c.globalAlpha*=Math.max(0,1-age/1.8);c.translate(px,py+170*age*age);c.rotate((i===0?-1:1)*age*.19);c.scale(1-age*.12,1-age*.12);c.translate(-px,-py);}
+  c.save();const off=b.cityRigOffsets?.[i]||[0,0];c.translate(...off);if(dead){const px=p.x/s+384-off[0],py=p.y/s+288-off[1];c.globalAlpha*=Math.max(0,1-age/1.8);c.translate(px,py+170*age*age);c.rotate((i===0?-1:1)*age*.19);c.scale(1-age*.12,1-age*.12);c.translate(-px,-py);}
   const image=atlases[i],frame=dead||p?.hp<p?.maxHp*.55?1:0;
   c.drawImage(image,frame*image.naturalWidth/2,0,image.naturalWidth/2,image.naturalHeight,...rects[i]);c.restore();
  }
