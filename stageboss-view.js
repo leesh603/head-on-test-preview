@@ -19,7 +19,6 @@ import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAss
 import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=470';
 import {drawAlpsBomber,drawAlpsPart,drawAlpsWarnings,drawAlpsHazard} from './alps-bomber-render.js?v=470';
 import {drawHarborFortress} from './harbor-crane-render.js?v=470';
-import {drawAADefense,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=470';
 
 function createLazyImageGroup(sources){
  const cache={},pending={};
@@ -649,10 +648,10 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    drawBossPart(c,p,ring,g?.t||0);
   },
    drawHazard(h){if(layer==='bodies')return;
-    const warning=h.phase==='warning';c.save();
-    if(drawAlpsHazard(c,h,ring)){c.restore();return;}
     const warning=h.phase==='warning';
-   if(h.visual==='harbor-swing'){c.save();c.setLineDash(warning?[5,5]:[]);c.strokeStyle=warning?'#dfbd82b3':'#cfad6b55';c.lineWidth=1.5;c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.stroke();c.restore();return;}c.save();
+    if(h.visual==='harbor-swing'){c.save();c.setLineDash(warning?[5,5]:[]);c.strokeStyle=warning?'#dfbd82b3':'#cfad6b55';c.lineWidth=1.5;c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.stroke();c.restore();return;}
+    c.save();
+    if(drawAlpsHazard(c,h,ring)){c.restore();return;}
     if(drawRegionalHazard(c,h,addon.stages.encounter?.bodies.get(h.bossId)?.kind)){c.restore();return;}
     if(h.visual==='aa-flak'){
      const q=clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1);
