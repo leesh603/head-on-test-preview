@@ -1,9 +1,9 @@
-import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose} from './adriatic-boss-layout.js?v=466';
-import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=466';
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=466';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=466';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=466';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=466';
+import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose} from './adriatic-boss-layout.js?v=467';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=467';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=467';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=467';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=467';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=467';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
