@@ -1,3 +1,6 @@
+import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=somme20261001';
+export {Mark1Landship as Mark4Wedge,SchwabenFortress as MorserBattery};
+import {sommeScale} from './somme-boss-layout.js?v=somme20261001';
 import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose} from './adriatic-boss-layout.js?v=480';
 import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=480';
 import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=480';
@@ -33,8 +36,8 @@ export const BOSS_CATALOG = Object.freeze({
   ,'treffas-wagen': {name:'대공개조형 트레파스바겐 · 거륜 육상전함', faction:'central', stage:8}
   ,'jasta11-circus': {name:'야스타 11 플라잉 서커스', faction:'central', stage:9, pilot:'baron', formationSize:5}
   ,'naval10-black-flight': {name:'네이벌 10 — 블랙 플라이트', faction:'entente', stage:9, pilot:'collishaw', formationSize:5}
-  ,'mark4-wedge': {name:'마크 IV 쐐기 전차대', faction:'entente', stage:10}
-  ,'morser-battery': {name:'21cm 뫼르저 중박격포대', faction:'central', stage:10}
+  ,'mark4-wedge': {name:'마크 I 최초 랜드십 돌파대', faction:'entente', stage:10}
+  ,'morser-battery': {name:'슈바벤 보루 · 지하 방어요새', faction:'central', stage:10}
   ,'gotha-squadron': {name:'고타 야간 폭격전대', faction:'central', stage:11}
   
 });
@@ -1044,105 +1047,6 @@ export class Naval10BlackFlight extends FormationAceBoss {
   }
 }
 
-// Somme (stage 10): the wedge is one body whose three rhomboid tanks are the
-// destructible parts. Tanks advance slowly and lay lateral sponson fire plus
-// MG bursts; when the last hull dies a weak command core is exposed at the
-// wedge centroid for the kill shot.
-export class Mark4Wedge extends RegionalPatternBoss {
-  suppressive(){/* Each intact tank owns its own firing lane. */}
-  constructor(options){
-    super({...options,kind:'mark4-wedge',coreRadius:options.tuning.coreRadius||70,parts:[
-      {id:'tank-lead',x:0,y:-118,radius:62,maxHp:options.tuning.partHp*2.6},
-      {id:'tank-left',x:-168,y:64,radius:62,maxHp:options.tuning.partHp*2.6},
-      {id:'tank-right',x:168,y:64,radius:62,maxHp:options.tuning.partHp*2.6}
-    ]});
-    this.coreVulnerable=false;this.ownsMotion129=true;this.phase='advance';
-    this.anchorX=this.x;this.anchorY=this.y;this.startY=this.y;
-    this.timers.set('mark4-mg',1.4);
-    for(const [i,id] of ['tank-lead','tank-left','tank-right'].entries())this.timers.set(id+'-sponson',1.1+i*1.15);
-  }
-  liveTanks(){return ['tank-lead','tank-left','tank-right'].filter(id=>!this.parts.get(id).destroyed);}
-  onPartDestroyed(){
-    if(!this.liveTanks().length&&!this.coreVulnerable){
-      this.coreVulnerable=true;this.phase='exposed';this.command('phase-change',{phase:'exposed'});
-    }
-  }
-  update(dt,{players,bounds}){
-    if(this.dead)return;
-    const live=this.liveTanks(),enraged=this.hp<=this.maxHp*.35&&live.length===1;
-    // The wedge grinds forward; with fewer tanks it speeds up but sways less.
-    const speed=live.length?(20+(3-live.length)*6)*(enraged?1.35:1):0;
-    this.anchorY+=speed*dt;const limit=this.startY+310;if(this.anchorY>limit)this.anchorY=limit;
-    if(live.length){this.y=this.anchorY+Math.sin(this.motionTime*.33)*8;this.x=this.anchorX+Math.sin(this.motionTime*.21)*(40+live.length*24);}
-    // Each tank has its own gun cadence; destroying a tank removes that lane.
-    for(const id of live){
-      const tank=this.parts.get(id);
-      if(this.due(id+'-sponson',dt,(enraged?3.4:4.6)+this.rng()*1.2)){
-        const gx=this.x+tank.x,gy=this.y+tank.y,p=this.target(players);
-        if(p){
-          // 6-pounder shells land in a short lateral line beside the target.
-          const side=id==='tank-left'?-1:id==='tank-right'?1:(p.x<gx?-1:1),sx=gx+side*47*(this.regionalScale||1),sy=gy-4*(this.regionalScale||1);
-          for(let i=-1;i<=1;i++)this.hazard('circle',{x:p.x+i*70+side*30,y:p.y+(p.vy||0)*.4,radius:50,warning:1.15,duration:.4,delay:.14+Math.abs(i)*.12,once:true,damage:this.t.damage*.82,visual:'mark4-shell',sourceX:sx,sourceY:sy});
-          this.command('muzzle',{x:sx,y:sy,partId:id});
-        }
-      }
-    }
-    if(live.length&&this.due('mark4-mg',dt,enraged?2.2:3.1)){
-      const id=live[Math.floor(this.rng()*live.length)],tank=this.parts.get(id),p=this.target(players);
-      if(p){const mx=this.x+tank.x,my=this.y+tank.y+38,a=Math.atan2(p.y-my,p.x-mx);this.fan(mx,my,a,3,.26,this.t.bulletSpeed*.95,'mark4-mg');}
-    }
-    if(!live.length&&!this.coreVulnerable){this.coreVulnerable=true;this.phase='exposed';}
-  }
-}
-
-// The Mörser battery is fixed: three gun pits fire arcing heavy shells with a
-// long landing warning. Knocking out a pit removes its firing lane; when all
-// tubes are dead the shell-store core cooks off and becomes the kill target.
-export class MorserBattery extends RegionalPatternBoss {
-  constructor(options){
-    super({...options,kind:'morser-battery',coreRadius:options.tuning.coreRadius||80,parts:[
-      {id:'gun-1',x:-150,y:-40,radius:54,maxHp:options.tuning.partHp*2.2},
-      {id:'gun-2',x:0,y:-95,radius:54,maxHp:options.tuning.partHp*2.2},
-      {id:'gun-3',x:150,y:-40,radius:54,maxHp:options.tuning.partHp*2.2},
-      {id:'ammo',x:0,y:96,radius:40,maxHp:options.tuning.partHp*1.4}
-    ]});
-    this.coreVulnerable=false;this.ownsMotion129=true;this.phase='battery';this.shellSerial=0;
-    this.timers.set('morser-defend',2.6);for(let i=1;i<=3;i++)this.timers.set('gun-'+i+'-fire',1+(i-1)*1.3);
-  }
-  suppressive(){/* No invisible center gun or firing from a destroyed ammo store. */}
-  liveGuns(){return ['gun-1','gun-2','gun-3'].filter(id=>!this.parts.get(id).destroyed);}
-  onPartDestroyed(p){
-    if(p.id.startsWith('gun-'))this.command('cancel-hazards',{tag:'morser-'+p.id});
-    if(p.id==='ammo'&&!this.ammoCooked){
-      this.ammoCooked=true;const blast=Math.min(this.hp,this.maxHp*.14);this.hp-=blast;const x=this.x+p.x,y=this.y+p.y;
-      this.command('internal-explosion',{x,y,damage:blast});
-      this.hazard('circle',{x,y,radius:130,warning:.6,duration:.6,once:true,damage:this.t.damage*1.4,visual:'morser-shell',sourceX:x,sourceY:y,tag:'morser-ammo'});
-    }
-    this.command('phase-change',{phase:this.liveGuns().length?'battery-weakened':'exposed'});
-    if(!this.liveGuns().length&&!this.coreVulnerable){this.coreVulnerable=true;this.phase='exposed';}
-  }
-  update(dt,{players,bounds}){
-    if(this.dead)return;const guns=this.liveGuns(),loop=this.t.loopIndex||0;
-    for(const id of guns){
-      const interval=(Math.max(4.4,7.2-loop*.5)+.8)*(this.ammoCooked?1.35:1);
-      if(this.due(id+'-fire',dt,interval)){
-        const gun=this.parts.get(id),p=this.target(players);if(!p)continue;
-        const vx=p.vx||0,vy=p.vy||0,velocity=Math.hypot(vx,vy),nx=velocity>10?-vy/velocity:1,ny=velocity>10?vx/velocity:0;
-        const lead=id==='gun-1'?.15:id==='gun-2'?.7:.35,side=id==='gun-3'?(++this.shellSerial%2?1:-1)*105:0;
-        const mx=regionalMuzzle(this,id),tx=p.x+vx*lead+nx*side,ty=p.y+vy*lead+ny*side;
-        const count=!this.ammoCooked&&this.shellSerial++%3===2?2:1;
-        for(let i=0;i<count;i++){let x=tx+nx*i*94,y=ty+ny*i*94;
-          if(bounds){x=Math.max(bounds.left+36,Math.min(bounds.right-36,x));y=Math.max(bounds.top+36,Math.min(bounds.bottom-36,y));}
-          this.hazard('circle',{x,y,radius:86,warning:2.1,delay:i*.45,duration:.55,once:true,damage:Math.round(this.t.damage*1.5),visual:'morser-shell',sourceX:mx.x,sourceY:mx.y,tag:'morser-'+id});}
-        gun.firedAt=this.motionTime||0;this.command('muzzle',{...mx,partId:id});
-      }
-    }
-    if(guns.length&&this.due('morser-defend',dt,3.4)){
-      const p=this.target(players);if(p&&Math.hypot(p.x-this.x,p.y-this.y)<560)for(const id of guns){const q=this.parts.get(id),mx=this.x+q.x,my=this.y+q.y+38*(this.regionalScale||1);this.fan(mx,my,Math.atan2(p.y-my,p.x-mx),3,.3,this.t.bulletSpeed*.85,'morser-mg');}
-    }
-  }
-}
-
 // The Staaken R.VI giant bomber: its four engine nacelles are the hittable
 // parts. Each dead engine sags the bomber lower on its patrol; when the last
 // engine dies the fuselage core opens and the giant goes into its death glide.
@@ -1325,8 +1229,9 @@ const constructors={'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttg
   'livens-flame-projector':LivensFlameProjector,'minenwerfer-battery':MinenwerferBattery,
   'london-apron':LondonApron,'drachen-net':DrachenMineNet,gik:GIK,ca4:Ca4,'armored-harbor-fortress':ArmoredHarborFortress,'flak-tower':FlakTowerNet,
   fliegerzug:Fliegerzug,'treffas-wagen':TreffasWagen,'jasta11-circus':JastaCircus,'naval10-black-flight':Naval10BlackFlight,
-  'mark4-wedge':Mark4Wedge,'morser-battery':MorserBattery,'staaken-rvi':StaakenRVI,'london-searchlight':LondonSearchlight,'london-apron-raid':LondonRaidApron,'gotha-squadron':GothaRaider};
+  'mark4-wedge':Mark1Landship,'morser-battery':SchwabenFortress,'staaken-rvi':StaakenRVI,'london-searchlight':LondonSearchlight,'london-apron-raid':LondonRaidApron,'gotha-squadron':GothaRaider};
 export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
+  if(bossId==='mark4-wedge'){const scale=sommeScale(tuning,true),t={...tuning,maxHp:tuning.maxHp/3,sommeScale:scale};return new BossEncounter({id,bossId,bodies:[0,1,2].map(slot=>new Mark1Landship({id:id+':mark1:'+slot,slot,tuning:t,x:x+(slot===1?-155:slot===2?155:0)*scale,y:y+(slot===0?-100:65)*scale,emit,rng,faction:faction||'entente'}))});}
   if(bossId==='gotha-squadron'){const flightTuning={...tuning,maxHp:tuning.maxHp/3,partHp:tuning.partHp/3,geometryScale:1};return new BossEncounter({id,bossId,bodies:[0,1,2].map(slot=>new GothaRaider({id:id+':gotha:'+slot,slot,tuning:flightTuning,x:x+(slot-1)*215,y:y+(slot===1?0:-90),emit,rng,faction:faction||'central'}))});}
   const entry=BOSS_CATALOG[bossId]||{faction:bossId==='staaken-rvi'?'central':'entente'},Ctor=constructors[bossId];if(!Ctor)throw new Error('Unknown boss: '+bossId);
   const body=new Ctor({id:id+':body',tuning,x,y,emit,rng,faction:faction||entry.faction,coreRadius:tuning.coreRadius||100});

@@ -1,0 +1,18 @@
+{
+  "sourceMain": "ad93bb6878421bb3eb96ecb338a1c10c1cc589dc",
+  "localSyntaxModules": 116,
+  "localValidateMissingExistingBinaries": [
+    "boss-drachen-parts-v2.webp",
+    "terrain-alps-atlas.webp",
+    "terrain-zeebrugge-water.webp",
+    "repair-pickup.webp"
+  ],
+  "canonicalMissingTargets": [],
+  "canonicalExistingTargets": {
+    "boss-drachen-parts-v2.webp": "21e91002c70d4bf5141c63a366f5f46cb6029480",
+    "terrain-alps-atlas.webp": "b4be9ebf264b6b7ed5ff3826a9f47617cf5ee073",
+    "terrain-zeebrugge-water.webp": "657d7e4c7d4fbda456219214c7a9fc7d7e6a00f4",
+    "repair-pickup.webp": "2a624cf883a8b9b5dd883d59a78e33e564ebcdfa"
+  },
+  "localValidateNote": "Raw local gate reports 6 references to 4 binary files omitted from this checkout; all 4 are present in canonical main and preserved by the upload tree."
+}
