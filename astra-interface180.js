@@ -1,8 +1,8 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
-import {getLocale,subscribe} from './i18n.js?v=479';
-import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=479';
-import {clearCrewMatte} from './matte70.js?v=479';
-import {aircraftArt} from './main-ui-art180.js?v=479';
+import {getLocale,subscribe} from './i18n.js?v=480';
+import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=480';
+import {clearCrewMatte} from './matte70.js?v=480';
+import {aircraftArt} from './main-ui-art180.js?v=480';
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
 const put=(node,text)=>{if(node&&node.textContent!==text)node.textContent=text};
@@ -98,7 +98,7 @@ function install(){
  for(const child of [...roster.childNodes])legacy.append(child);
  roster.replaceChildren(railHead,rail);
  const launch=el('div','astra-launch'),launchHint=el('p','astra-launch-hint'),randomStart=el('button','astra-random-sortie');
- randomStart.id='randomStart';randomStart.type='button';randomStart.hidden=document.body.classList.contains('coop-selected');
+ randomStart.id='randomStart';randomStart.type='button';const randomIcon=el('span','astra-random-dice'),randomLabel=el('strong'),randomBadge=el('span','astra-random-badge');randomIcon.setAttribute('aria-hidden','true');randomStart.append(randomIcon,randomLabel,randomBadge);randomStart.hidden=document.body.classList.contains('coop-selected');
  const start=$('start');start.replaceChildren(interfaceIcon('passive','astra-sortie-plane'));
  const startLabel=el('strong'),startEnglish=el('span','astra-sortie-english');start.append(startLabel,startEnglish,interfaceIcon('sortie','astra-sortie-arrow'));
  launch.append(start,randomStart,launchHint);
@@ -158,7 +158,7 @@ function install(){
   if(!start.contains(startLabel))start.replaceChildren(interfaceIcon('passive','astra-sortie-plane'),startLabel,startEnglish,interfaceIcon('sortie','astra-sortie-arrow'));
   put(startLabel,en?'SORTIE':'출격');put(startEnglish,en?'TAKE TO THE SKY':'SORTIE');
   start.setAttribute('aria-label',en?'Start sortie':'출격');
-  put(randomStart,en?'RANDOM SORTIE · +1 UPGRADE':'랜덤 출격 · 강화 1개');randomStart.setAttribute('aria-label',randomStart.textContent);
+  put(randomLabel,en?'RANDOM SORTIE':'랜덤 출격');put(randomBadge,en?'+1 UPGRADE':'강화 +1');randomStart.setAttribute('aria-label',en?'Random sortie, +1 upgrade':'랜덤 출격 · 강화 1개');
   put(launchHint,en?'AUTO FIRE · WASD / ARROWS TO FLY':'자동 사격 · WASD / 방향키로 조종');
   railPrev.setAttribute('aria-label',en?'Previous pilots':'이전 파일럿');railNext.setAttribute('aria-label',en?'Next pilots':'다음 파일럿');
   mobileSettings.setAttribute('aria-label',en?'Settings':'설정');
