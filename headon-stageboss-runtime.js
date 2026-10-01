@@ -60,6 +60,9 @@ export class StageBossAddon {
     if(event.type==='support-damage'){this.hooks.onDamage(event.playerId,event.damage,event.source);return;}if(event.type==='support-cleanup'){this.hooks.clearEncounterOwned(encounterId);return;}
     if(event.type==='hazard')this.hazards.spawn({...event,encounterId});
     else if(event.type==='cancel-hazards')this.hazards.clearTagged(encounterId,event.tag);
+    else if(event.type==='harbor-load-pose'){
+      if([event.x,event.y,event.radius,event.damage].every(Number.isFinite)&&event.radius>0&&event.damage>=0)this.hazards.pool.visit(h=>{if(h.encounterId===encounterId&&h.bossId===event.bossId&&h.tag==='harbor-crane'){h.x=event.x;h.y=event.y;h.radius=event.radius;h.damage=event.damage;}});
+    }
     else if(event.type==='apron-pose')this.hazards.pool.visit(h=>{if(h.encounterId===encounterId&&h.tag===event.tag){h.vertices=event.vertices;h.x=event.x;h.y=event.y;}});
     else if(event.type==='regional-beam-pose'){
       const body=this.stages.encounter?.bodies.get(event.bossId);

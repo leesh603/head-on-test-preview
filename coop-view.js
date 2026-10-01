@@ -16,6 +16,7 @@ import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTra
 import {drawBattlefieldSprite} from './battlefield-art.js?v=469';
 import {drawSpecialAmmoIcon} from './icons.js?v=469';
 import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=469';
+import {drawAADefense} from './aa-defense-art.js?v=469';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
 const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=426&b=326';
