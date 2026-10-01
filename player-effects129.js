@@ -1,7 +1,7 @@
 import {createSignatureView} from './pilot-signature-view.js';
-import {fx,fxTint} from './fx-art.js?v=461';
-import {planeSprite,aircraftKey} from './aircraft.js?v=461';
-import {drawGameIcon} from './icons.js?v=461';
+import {fx,fxTint} from './fx-art.js?v=462';
+import {planeSprite,aircraftKey} from './aircraft.js?v=462';
+import {drawGameIcon} from './icons.js?v=462';
 import {drawCavalryGuard} from './pilot-directed-fx.js';
 const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
@@ -17,7 +17,7 @@ export function drawPlayerAura(c,p,x,y){
  drawPrecisionEquipment156(c,p,x,y);
  if(p.ballCloak>0)fx(c,'mist',x,y,72,38,p.a,Math.min(.35,p.ballCloak*.3));
  for(const gh of p.immelmannGhosts||[])fx(c,'windStreak',x+gh.x-p.x,y+gh.y-p.y,48,17,gh.a,.26*gh.life/gh.maxLife);
- if(p.fxOverheat>0)fx(c,'muzzle',x+Math.cos(p.a)*24,y+Math.sin(p.a)*24,28,20,p.a,Math.min(.7,p.fxOverheat));
+ if(p.fxOverheat>0&&p.pilot!=='udet')fx(c,'muzzle',x+Math.cos(p.a)*24,y+Math.sin(p.a)*24,28,20,p.a,Math.min(.7,p.fxOverheat));
  for(const g of p.pilotIdentity?.feedback?.ghosts||[]){c.save();c.globalAlpha*=.3*Math.pow(Math.max(0,g.life/g.maxLife),.8);planeSprite(c,x+g.x-p.x,y+g.y-p.y,g.a,aircraftKey(g.plane,false,g.pilot),g.scale,false,false);c.restore()}
  for(const f of p.pilotIdentity?.fx||[]){const q=Math.min(1,f.life/.12),alpha=q*(f.alpha??.72),height=f.height??(f.key==='windStreak'?f.size*.35:f.size);if(f.color)fxTint(c,f.key,f.color,x+f.x-p.x,y+f.y-p.y,f.size,height,f.a,alpha);else fx(c,f.key,x+f.x-p.x,y+f.y-p.y,f.size,height,f.a,alpha)}
  if(p.pilotSignatureState)drawPilotSignatureLayer(c,p,x,y);
