@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=480';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=480';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=481';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=481';
 export const CITY_FLAK_PARTS=Object.freeze([
  {id:'siege',x:-74,y:-101,radius:34,fraction:.16},
  {id:'ears',x:77,y:-96,radius:32,fraction:.10},
@@ -76,8 +76,9 @@ export class FlakTowerNet extends BaseBoss{
  update(dt){
   this.stateAge+=dt;if(this.stateAge<.6)return;
   if(!this.encounter)throw new Error('City tower network needs an encounter');
-  const s=Math.max(.32,Math.min(1,((this.t.regionalViewWidth||960)-48)/840,((this.t.regionalViewHeight||700)-100)/820));
-  const children=[[-230,-220],[230,-220],[-230,220],[230,220]].map(([x,y],index)=>new CityFlakCell({id:this.id+'-t'+index,index,x:this.x+x*s,y:this.y+y*s,faction:this.faction,emit:this.emit,tuning:{...this.t,maxHp:this.hp/4,cityScale:s}}));
+  const w=this.t.regionalViewWidth||960,h=this.t.regionalViewHeight||700,s=Math.max(.32,Math.min(1,(w-48)/840,(h-100)/820));
+  const mx=Math.max(40,w/2-190*s-30),my=Math.max(40,h/2-190*s-30);
+  const children=[[-mx,-my],[mx,-my],[-mx,my],[mx,my]].map(([x,y],index)=>new CityFlakCell({id:this.id+'-t'+index,index,x:this.x+x,y:this.y+y,faction:this.faction,emit:this.emit,tuning:{...this.t,maxHp:this.hp/4,cityScale:s}}));
   this.encounter.replaceBody(this.id,children);this.emit({type:'phase-change',bossId:this.id,phase:'city-network-deployed',faction:this.faction});
  }
 }
