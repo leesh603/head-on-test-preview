@@ -1,4 +1,4 @@
-import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=467';
+import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=468';
 // Region 4 searchlight network + ground fire net; region 5 wind streams.
 // Buildings stay scenery: no collision structures. Guns fire only while player is ILLUMINATED.
 export const CITY_BALANCE=Object.freeze({
