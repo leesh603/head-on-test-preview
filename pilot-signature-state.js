@@ -16,7 +16,7 @@ export const PILOT_SIGNATURES=Object.freeze({
  gontermann:{start:'fuseIgnition',sustain:'fuse',symbol:null,reaction:'fuseHit'},
  brumowski:{start:'skullGuard',sustain:'guard',symbol:'skull',reaction:'intercept'},
  collishaw:{start:'blackFlight',sustain:'splitFlight',symbol:null,reaction:'crossfire'},
- guynemer:{start:'storkCannon',sustain:'cannon',symbol:'cigogne',reaction:'cannonShot'},
+ guynemer:{start:'rocketSalvo',sustain:'rocketFlight',symbol:null,reaction:'cannonShot'},
  bishop:{start:'closeAttack',sustain:'closeFire',symbol:null,reaction:'closeHit'},
  mannock:{start:'coverOrder',sustain:'cover',symbol:null,reaction:'rescueShot'},
  mckeever:{start:'gunnerHandoff',sustain:'twoSeater',symbol:null,reaction:'handoff'},
@@ -26,7 +26,7 @@ export const PILOT_SIGNATURES=Object.freeze({
  ball:{start:'cloudAmbush',sustain:'concealment',symbol:null,reaction:'ambushShot'},
  barker:{start:'lastStand',sustain:'survival',symbol:null,reaction:'escape'},
  luke:{start:'incendiaryRun',sustain:'flameAttack',symbol:null,reaction:'burnKill'},
- baracca:{start:'headOn',sustain:'charge',symbol:'blackHorse',reaction:'headOn'},
+ baracca:{start:'cavalryCharge',sustain:'charge',symbol:null,reaction:'cavalryGuard'},
  wolff:{start:'petalDive',sustain:'petals',symbol:'flower',reaction:'petalKill'},
  mccudden:{start:'fieldRepair',sustain:'maintenance',symbol:null,reaction:'repair'}
 });

@@ -4,6 +4,19 @@ const stepTime = dt => Number.isFinite(dt) ? Math.max(0, Math.min(.04, dt)) : 0;
 const playing = p => p.state === 'playing' && p.hp > 0 && p.status !== 'downed';
 
 export function preparePersonalRound1918(p, b) {
+  if (p.pilot === 'gontermann' && p.skillTime > 0 && !b.enemy && !b.ally && !b.formation && !b.patrol) {
+    b.burn = 3;
+    b.gontermannIncendiary = true;
+    if(b.gun!==undefined && !b.rocket && !b.motorCannon && !b.cow37){
+      let target=null,best=780;
+      for(const e of p.enemies){
+        if(e.hp<=0||!(e.type==='zeppelin'||e.type==='bomber'||e.type==='boss'||e.heavyBomber||e.bossPilot||e.fieldUnit==='balloon'))continue;
+        const d=Math.hypot(e.x-p.x,e.y-p.y),a=Math.atan2(e.y-b.y,e.x-b.x);
+        if(d<best&&Math.abs(Math.atan2(Math.sin(a-p.a),Math.cos(a-p.a)))<Math.PI/3){target=e;best=d}
+      }
+      if(target){const a=Math.atan2(target.y-b.y,target.x-b.x),speed=Math.hypot(b.vx,b.vy);b.vx=Math.cos(a)*speed;b.vy=Math.sin(a)*speed;}
+    }
+  }
   return b;
 }
 
@@ -19,6 +32,7 @@ export function barkerDamage1918(p, damage) {
 export function advancePersonal1918(p, dt, previousRounds = p.roundsFired) {
   const step = stepTime(dt);
   if (!step || !playing(p)) return;
+  if (p.pilot === 'udet') p.udetGrazeTime = Math.max(0, (p.udetGrazeTime || 0) - step);
   if (p.pilot === 'barker' && p.barkerStackTime > 0) {
     p.barkerStackTime = Math.max(0, p.barkerStackTime - step);
     if (!p.barkerStackTime) p.barkerStacks = 0;
@@ -32,14 +46,9 @@ export function advancePersonal1918(p, dt, previousRounds = p.roundsFired) {
         ghost.y += Math.sin(ghost.a) * ghost.speed * step;
       }
 
-      p._ballPuff = (p._ballPuff || 0) - step;
-      if (p._ballPuff <= 0) {
-        p._ballPuff = .09;
-        p.smoke(p.x + (p.rng() - .5) * 40, p.y + (p.rng() - .5) * 40, false);
-      }
+      p.invuln = Math.max(p.invuln, step + .02);
       if (!p.ballCloak) {
         p.ballAmbush = 2;
-        p.burst(p.x, p.y, '#f4f0dc', 18);
       }
     } else if (p.ballAmbush > 0) p.ballAmbush = Math.max(0, p.ballAmbush - step);
   }
@@ -56,16 +65,47 @@ export function advancePersonal1918(p, dt, previousRounds = p.roundsFired) {
     }
     if(count)signatureCue(p,'ringVolley',{life:.32});
   }
-  if (p.pilot === 'brumowski') {
-    const world = p.combatWorld();
-    for (const a of world.allies || []) {
-      if (!a.orbit || a.life <= 0 || (world.players && a.ownerId !== p.id)) continue;
-      const angle = p.t*1.5 + (a.slot || 0)*Math.PI;
-      a.x += (p.x + Math.cos(angle)*115 - a.x)*Math.min(1, step*6);
-      a.y += (p.y + Math.sin(angle)*115 - a.y)*Math.min(1, step*6);
-      a.a = angle + Math.PI/2;
-    }
+}
+
+// Use the existing allied aircraft and projectiles; only these two pilots change targeting.
+export function pilotWingTarget(p, wing) {
+  if (!['collishaw','brumowski'].includes(p.pilot)) return null;
+  const world=p.combatWorld(),peers=[...(world.allies||[]),...(p.formationWings||[])];
+  if (wing.target?.hp>0 && world.enemies.includes(wing.target) && Math.hypot(wing.target.x-p.x,wing.target.y-p.y)<650) return wing.target;
+  let best=Infinity,target=null;
+  for (const e of world.enemies) {
+    if(e.hp<=0||e.surface||e.fieldUnit||Math.hypot(e.x-p.x,e.y-p.y)>650)continue;
+    const assigned=peers.filter(a=>a!==wing&&a.life!==0&&a.target===e&&(a.ownerId===undefined||a.ownerId===p.id)).length;
+    const score=Math.hypot(e.x-wing.x,e.y-wing.y)+assigned*650;
+    if(score<best){best=score;target=e}
   }
+  wing.target=target;return target;
+}
+export function pilotSupportPose(p,wing,dt,attack=false){
+  if(!(p.pilot==='collishaw'&&(wing.permanent||attack))&&!(p.pilot==='brumowski'&&wing.orbit))return false;
+  const target=pilotWingTarget(p,wing),side=(wing.slot||0)<0?-1:(wing.slot||0)%2?-1:1;
+  let x,y;
+  if(p.pilot==='collishaw'){
+    const forward=attack?135: -45,off=side*(attack?140+Math.abs(wing.slot||0)*38:85);
+    x=p.x+Math.cos(p.a)*forward-Math.sin(p.a)*off;y=p.y+Math.sin(p.a)*forward+Math.cos(p.a)*off;
+  }else{
+    const orbit=(p.t||0)*1.5+(wing.slot||0)*Math.PI;
+    const aim=target?Math.atan2(target.y-p.y,target.x-p.x):orbit;
+    x=p.x+Math.cos(aim)*95-Math.sin(aim)*side*65;y=p.y+Math.sin(aim)*95+Math.cos(aim)*side*65;
+  }
+  const response=Math.min(1,dt*4);wing.x+=(x-wing.x)*response;wing.y+=(y-wing.y)*response;
+  const aim=target?Math.atan2(target.y-wing.y,target.x-wing.x):p.a-side*(attack?.22:0);
+  const delta=Math.atan2(Math.sin(aim-wing.a),Math.cos(aim-wing.a));wing.a+=Math.max(-dt*4,Math.min(dt*4,delta));
+  wing.muzzleFlash=Math.max(0,(wing.muzzleFlash||0)-dt);return true;
+}
+export function udetGraze(p,b,x0,y0){
+  if(p.pilot!=='udet'||!playing(p)||p.invuln>0||!b.enemy||b.life<=0)return false;
+  const dx=b.x-x0,dy=b.y-y0,length=dx*dx+dy*dy;
+  const t=length?Math.max(0,Math.min(1,((p.x-x0)*dx+(p.y-y0)*dy)/length)):0;
+  const x=x0+dx*t,y=y0+dy*t,d=Math.hypot(p.x-x,p.y-y),radius=10+(b.flak?6:0);
+  if(d<=radius||d>radius+16||(b.udetGrazed||[]).includes(p.id||'p1'))return false;
+  (b.udetGrazed??=[]).push(p.id||'p1');p.udetGrazeTime=2;
+  signatureCue(p,'grazeRoll',{x,y,life:.5,direction:Math.sign(dx*(p.y-y)-dy*(p.x-x))||1,symbol:'lo'});return true;
 }
 
 // Return newly killed targets so each mode can use its existing one-time death/XP pipeline.
@@ -76,14 +116,15 @@ export function advanceBurns1918(world, dt) {
     if (e.hp <= 0 || !(e.burnTime > 0)) continue;
     const active = Math.min(step, e.burnTime);
     e.burnTime = Math.max(0, e.burnTime - step);
+    if(e.gontermannBurn)e.gontermannBurn.age+=active;
     e.hp -= Math.max(0, e.burnDps || 0)*active;
     e.burnFxTime = (e.burnFxTime || 0) - step;
-    if (e.burnFxTime <= 0) {
+    if (e.burnFxTime <= 0 && !e.gontermannBurn) {
       e.burnFxTime = .13;
       world.smoke(e.x, e.y, false);
       world.burst(e.x, e.y, '#ff9a3c', 3);
     }
-    if (!e.burnTime) e.burnDps = 0;
+    if (!e.burnTime) {e.burnDps = 0;delete e.gontermannBurn;}
     if (e.hp <= 0 && !e.burnCounted && !e.deathHandled) {
       e.burnCounted = true;
       killed.push(e);

@@ -1,9 +1,9 @@
 import './pilot-feedback-globals.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=442';
-import {CoopGame,coopPlane} from '../coop-engine.js?v=442';
-import {CampaignGame} from '../campaign.js?v=442';
+import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=459';
+import {CoopGame,coopPlane} from '../coop-engine.js?v=459';
+import {CampaignGame} from '../campaign.js?v=459';
 const solo=id=>new Game(coopPlane(id),id,()=>.5);
 const enemy=(x,y,a=Math.PI)=>({x,y,a,hp:10000,maxHp:10000,type:'scout',speed:0,fire:999,wobble:0});
 const quiet=g=>{for(const k of ['spawn','nextBossAt','_zeppelinSchedule','nextHeavyAt','eventTimer','allyTimer','flakTimer','regionThreat','gustTimer','supplyTimer','fieldUnitTimer','gasTimer','patrolTimer','threatTimer'])g[k]=Infinity;g.spawnEnemy=()=>null;g.checkLevel=()=>{};return g};
@@ -11,8 +11,8 @@ const frame=(p,dt=.02)=>{const old=p.beginRevisionFrame(dt,{});p.endRevisionFram
 
 test('legacy solo wings acquire one owner and execute commands; cooperative unowned wings never borrow an owner',()=>{
  for(const id of ['boelcke','collishaw','goering','brumowski']){
-  const p=solo(id);p.identityState();p.ensureWingmen();for(const a of p.allies)delete a.ownerId;
-  p.ensureWingmen();assert.equal(p.allies.length,2);assert.equal(p.permanentWingCount(),2);
+  const expected=id==='goering'?1:2;const p=solo(id);p.identityState();p.ensureWingmen();for(const a of p.allies)delete a.ownerId;
+  p.ensureWingmen();assert.equal(p.allies.length,expected);assert.equal(p.permanentWingCount(),expected);
   for(const a of p.allies){assert.equal(a.ownerId,'p1');assert.equal(p.updatePilotWing(a,.02),true)}
  }
  const w=new CoopGame([{pilot:'boelcke'},{pilot:'brumowski'}]);const stranger={x:0,y:0,a:0,slot:0,permanent:true,life:10,fire:1};w.allies.push(stranger);
@@ -33,7 +33,7 @@ test('Collishaw activation makes a physical outward flight and fires from two fl
 test('Boelcke wings divide two targets and make a visible flank-to-rear maneuver instead of extra summons',()=>{
  const p=solo('boelcke');p.x=p.y=p.a=0;p.identityState();p.ensureWingmen();p.enemies=[enemy(250,-60,0),enemy(320,60,0)];p.skill();
  let outward=false,flash=false;for(let t=0;t<3;t+=.02){frame(p);for(const a of p.allies){p.updatePilotWing(a,.02);outward||=Math.abs(a.y)>100;flash||=p.identityState().fx.some(f=>f.key==='muzzleTwin')}}
- assert(outward);assert.equal(p.allies.length,2);assert(p.allies[0].x<p.enemies[0].x&&p.allies[1].x<p.enemies[1].x);
+ assert(outward);assert.equal(p.allies.filter(a=>a.permanent).length,2);assert.equal(p.allies.length,6);assert(p.allies[0].x<p.enemies[0].x&&p.allies[1].x<p.enemies[1].x);
  assert(flash);assert(p.identityState().feedback.ghosts.length>0);
 });
 

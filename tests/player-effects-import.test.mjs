@@ -6,8 +6,11 @@ import {readFile} from 'node:fs/promises';
 // An undeclared fx reference must still throw, as it does in the browser.
 const data=s=>'data:text/javascript;base64,'+Buffer.from(s).toString('base64');
 const source=await readFile(new URL('../player-effects129.js',import.meta.url),'utf8');
-const moduleSource=source.replace(/(['"])\.\/fx-art\.js[^'"]*\1/g,JSON.stringify(data('export const fx=()=>true;')))
- .replace(/(['"])\.\/icons\.js[^'"]*\1/g,JSON.stringify(data('export const drawGameIcon=()=>true;')));
+const moduleSource=source.replace(/(['"])\.\/fx-art\.js[^'"]*\1/g,JSON.stringify(data('export const fx=()=>true,fxTint=()=>true;')))
+ .replace(/(['"])\.\/icons\.js[^'"]*\1/g,JSON.stringify(data('export const drawGameIcon=()=>true;')))
+ .replace(/(['"])\.\/pilot-signature-view\.js[^'"]*\1/g,JSON.stringify(data('export const createSignatureView=()=>()=>{};')))
+ .replace(/(['"])\.\/pilot-directed-fx\.js[^'"]*\1/g,JSON.stringify(data('export const drawCavalryGuard=()=>{};')))
+ .replace(/(['"])\.\/aircraft\.js[^'"]*\1/g,JSON.stringify(data('export const planeSprite=()=>{},aircraftKey=()=>"";')));
 const {drawPlayerAura}=await import(data(moduleSource));
 const ctx=new Proxy({},{get:(o,k)=>o[k]??(()=>{}),set:(o,k,v)=>(o[k]=v,true)});
 for(const [name,fields] of Object.entries({
