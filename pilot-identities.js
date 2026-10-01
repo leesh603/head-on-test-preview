@@ -1,6 +1,6 @@
 import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js';
 import {installPilotFeedback} from './pilot-feedback.js';
-import {headOnTarget} from './engagement-feedback.js?v=460';
+import {headOnTarget} from './engagement-feedback.js?v=461';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
@@ -123,8 +123,8 @@ export function installPilotIdentities(Game,PILOTS){
   if(this.pilot==='boelcke'&&e){const side=slot%2?-1:1,entry=active?Math.max(0,1-(s.activeAge||0)/1.1):0,off=65+entry*100;target={x:e.x-Math.cos(e.a||0)*(active?120:180)-Math.sin(e.a||0)*side*off,y:e.y-Math.sin(e.a||0)*(active?120:180)+Math.cos(e.a||0)*side*off}}
   if(this.pilot==='collishaw'){const side=slot%2?-1:1,entry=active?Math.min(1,(s.activeAge||0)/.8):0,off=110+entry*110,forward=50+Math.sin(entry*Math.PI)*65;target={x:this.x-Math.sin(this.a)*side*off+Math.cos(this.a)*forward,y:this.y+Math.cos(this.a)*side*off+Math.sin(this.a)*forward}}
   if(this.pilot==='brumowski'&&active){const phase=s.clock*1.5+slot*Math.PI;target={x:this.x+Math.cos(phase)*100,y:this.y+Math.sin(phase)*100};e=targets.find(e=>distance(e,this)<340)||null;}
-  a.life-=dt;a.invuln=Math.max(0,(a.invuln||0)-dt);a.hitFlash=Math.max(0,(a.hitFlash||0)-dt);const dx=target.x-a.x,dy=target.y-a.y,d=Math.hypot(dx,dy),move=Math.min(clamp(dt*(active?3.5:2.6)),dt*(active?330:250)/Math.max(1,d));a.x+=dx*move;a.y+=dy*move;const splitting=active&&['boelcke','collishaw','brumowski'].includes(this.pilot)&&(s.activeAge||0)<.65,heading=splitting&&d>20?Math.atan2(dy,dx):e?Math.atan2(e.y-a.y,e.x-a.x):this.a;a.a+=(delta(heading,a.a||0))*Math.min(1,dt*7);
-  a.fire-=dt;if(e&&distance(e,a)<650&&a.fire<=0){a.fire=.58*(a.permanent&&this.upgrades?.fighterSupply?.9:1)/((1+(this.commandRateBonus||0))*((this.combatWorld().players||[this]).some(p=>p.pilot==='mannock'&&p.hp>0)?1.15:1)*(active?(this.pilot==='goering'?1.6:1.25):1));const rear=Math.abs(delta(Math.atan2(a.y-e.y,a.x-e.x),e.a||0))>Math.PI*.72;const bonus=active&&this.pilot==='goering'?1.65:active&&this.pilot==='boelcke'&&rear?1.5:1;this.identityShot(a.a,this.supportPower(5)*(this.wingmanDamageMult||1)*bonus*(a.permanent&&this.upgrades?.fighterSupply?1.2:1),{ally:true,speed:470},a)}
+  a.life-=dt;a.invuln=Math.max(0,(a.invuln||0)-dt);a.hitFlash=Math.max(0,(a.hitFlash||0)-dt);a.muzzleFlash=Math.max(0,(a.muzzleFlash||0)-dt);const dx=target.x-a.x,dy=target.y-a.y,d=Math.hypot(dx,dy),move=Math.min(clamp(dt*(active?3.5:2.6)),dt*(active?330:250)/Math.max(1,d));a.x+=dx*move;a.y+=dy*move;const splitting=active&&['boelcke','collishaw','brumowski'].includes(this.pilot)&&(s.activeAge||0)<.65,heading=splitting&&d>20?Math.atan2(dy,dx):e?Math.atan2(e.y-a.y,e.x-a.x):this.a;a.a+=(delta(heading,a.a||0))*Math.min(1,dt*7);
+  a.fire-=dt;if(e&&distance(e,a)<650&&a.fire<=0){a.fire=.58*(a.permanent&&this.upgrades?.fighterSupply?.9:1)/((1+(this.commandRateBonus||0))*((this.combatWorld().players||[this]).some(p=>p.pilot==='mannock'&&p.hp>0)?1.15:1)*(active?(this.pilot==='goering'?1.6:1.25):1));const rear=Math.abs(delta(Math.atan2(a.y-e.y,a.x-e.x),e.a||0))>Math.PI*.72;const bonus=active&&this.pilot==='goering'?1.65:active&&this.pilot==='boelcke'&&rear?1.5:1;a.muzzleFlash=.09;a.fireHeading=a.a;this.identityShot(a.a,this.supportPower(5)*(this.wingmanDamageMult||1)*bonus*(a.permanent&&this.upgrades?.fighterSupply?1.2:1),{ally:true,speed:470},a)}
   return true;
  };
  const oldTickWorld=Game.prototype.tickRevisionWorld;

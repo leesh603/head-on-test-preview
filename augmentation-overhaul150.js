@@ -285,6 +285,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  };
  Game.prototype.gunDirection=function(gun=0){
   const base=this.a+(this.weapon.bidirectional&&gun===1?Math.PI:0);
+  if(this.pilot==='huffzky'&&gun===1){const rear=this.enemies.filter(e=>e.hp>0&&Math.hypot(e.x-this.x,e.y-this.y)<420&&Math.abs(angleDiff(Math.atan2(e.y-this.y,e.x-this.x),base))<Math.PI*.45).sort((a,b)=>Math.hypot(a.x-this.x,a.y-this.y)-Math.hypot(b.x-this.x,b.y-this.y))[0];return rear?Math.atan2(rear.y-this.y,rear.x-this.x):base;}
   if(!this.scarffRing)return base;
   return Number.isFinite(this.scarffAim)?this.scarffAim:base;
  };

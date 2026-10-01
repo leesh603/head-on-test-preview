@@ -12,7 +12,6 @@ export function installPilotSignatures(Game){
   const s=signatureState(this),lastHp=s.previous.hp,previousKills=s.lastKills??this.kills;
   if(Number.isFinite(lastHp)&&this.hp<lastHp)pilotSignatureReaction(this,'damage',{damage:lastHp-this.hp});
   advancePilotSignature(this,dt);
-  if(this.pilot==='baracca'&&this.prancingHorseFlash160>0&&signatureInterval(this,'horse',.5))signatureCue(this,'headOn',{life:.32});
   if(this.pilot==='loewenhardt'&&this.aceSkillPhase!==s.lastPhase){
    if(this.aceSkillPhase==='vertical-fire')signatureCue(this,'climbSalvo',{life:.75,signatureStart:true});s.lastPhase=this.aceSkillPhase;
   }
@@ -44,8 +43,8 @@ export function installPilotSignatures(Game){
   const result=impact.call(this,b,e);
   if(b.enemy||b.ally||b.patrol||(b.ownerId!==undefined&&b.ownerId!==own(this)))return result;
   if(this.pilot==='luke'&&this.skillTime>0&&e&&signatureInterval(this,'ignition',.12))signatureCue(this,'incendiaryImpact',{x:b.x,y:b.y,life:1.4,target:e});
-  else pilotSignatureReaction(this,'hit',{target:e,position:b});
-  if(this.pilot==='baracca'&&e&&Math.abs(angle(Math.atan2(e.y-this.y,e.x-this.x),this.a))<Math.PI/3&&Math.abs(angle(Math.atan2(this.y-e.y,this.x-e.x),e.a||0))<Math.PI/3&&signatureInterval(this,'horse',.6))signatureCue(this,'headOn',{life:.32});
+  else if(this.pilot!=='baracca')pilotSignatureReaction(this,'hit',{target:e,position:b});
+  if(this.pilot==='baracca'&&e&&!b.formation&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.actualExplosion&&!b.blast&&!b.mauserRound&&Math.abs(angle(Math.atan2(e.y-this.y,e.x-this.x),this.a))<Math.PI/3&&Math.abs(angle(Math.atan2(this.y-e.y,this.x-e.x),e.a||0))<Math.PI/3&&signatureInterval(this,'cavalryGuard',.12))signatureCue(this,'cavalryGuard',{life:.42,signatureStart:true});
   return result;
  };
 }

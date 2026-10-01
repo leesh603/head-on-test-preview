@@ -1,8 +1,8 @@
-import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta} from './trench-armor-layout.js?v=460';
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=460';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=460';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=460';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=460';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta} from './trench-armor-layout.js?v=461';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=461';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=461';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=461';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=461';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.

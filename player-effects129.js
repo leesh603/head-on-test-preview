@@ -1,14 +1,16 @@
 import {createSignatureView} from './pilot-signature-view.js';
-import {fx,fxTint} from './fx-art.js?v=460';
-import {planeSprite,aircraftKey} from './aircraft.js?v=460';
-import {drawGameIcon} from './icons.js?v=460';
+import {fx,fxTint} from './fx-art.js?v=461';
+import {planeSprite,aircraftKey} from './aircraft.js?v=461';
+import {drawGameIcon} from './icons.js?v=461';
+import {drawCavalryGuard} from './pilot-directed-fx.js';
 const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
 export function playerPose(p,x,y){
  const t=Math.max(0,Math.min(1,(p.cannonRecoil129||0)/.24));
  const kick=(p.cannonKick129||0)*Math.sin(t*Math.PI/2);
  const altitude=p.pilot==='immelmann'?(p.immelmannAltitude||0):0;
- return {x:x-Math.cos(p.a)*kick,y:y-Math.sin(p.a)*kick,scale:(p.aceScale129||1)*(1-altitude*.28),shadowX:18+altitude*28,shadowY:28+altitude*36,shadowScale:1-altitude*.48,shadowAlpha:1-altitude*.55};
+ const height=p.pilot==='bishop'?(p.bishopFlightHeight?.()||0):0,bishopAltitude=height/((p.viewHeight||900)*.9);
+ return {x:x-Math.cos(p.a)*kick,y:y-Math.sin(p.a)*kick-height,scale:(p.aceScale129||1)*(1-altitude*.28)*(1-bishopAltitude*.25),height,shadowX:18+altitude*28,shadowY:28+altitude*36,shadowScale:1-altitude*.48,shadowAlpha:1-altitude*.55};
 }
 export function drawPlayerAura(c,p,x,y){
  drawEquipmentEffects151(c,p,x,y);
@@ -53,7 +55,8 @@ export function drawPetalParticle(c,p,x,y){
 // Equipment overlays follow aircraft orientation without changing its sprite.
 function drawEquipmentEffects151(c,p,x,y){
  if(p.hp<=0)return;const t=p.t||0;c.save();c.translate(x,y);c.rotate(p.a);
- if(p.prancingHorseFlash160>0){
+ if(p.pilot==='baracca'&&p.prancingHorseFlash160>0)drawCavalryGuard(c,Math.min(1,p.prancingHorseFlash160/.34));
+ if(p.prancingHorseFlash160>0&&p.pilot!=='baracca'){
   const q=Math.min(1,p.prancingHorseFlash160/.34),r=36+(1-q)*28;
   c.save();c.lineCap='round';
   for(let i=0;i<3;i++){c.globalAlpha=q*(.65-i*.16);c.strokeStyle=i===0?'#e7e5cf':'#71847c';c.lineWidth=i===0?2:5;c.beginPath();c.ellipse(5-i*5,0,r-i*7,30-i*4,0,-1.18,1.18);c.stroke();}
