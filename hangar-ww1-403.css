@@ -919,31 +919,30 @@ body.astra-ui .main-settings label>span{display:none!important}
 .pilot-tabs button .pilot-tab-portrait{pointer-events:none}
 @media(max-width:720px){.portrait-lightbox .plb-close{top:-38px;right:0}.portrait-lightbox img{max-height:70vh}}
 
-/* ---- Random sortie: a secondary key in the same family as the sortie button ----
-   Was a square, green-tinted strip with its own type; now shares the sortie button's radius,
-   the hangar's warm dark surface and hairline, the display face, a dice glyph and a small
-   brass "+1 upgrade" tab. */
+/* ---- Random sortie: a quiet text action under the sortie key ----
+   No second boxed button (two stacked rounded slabs read as a duplicate). Just a dice glyph, the
+   label and a brass "+1" tag on the hangar background; hover lifts it to full text colour. */
 body.astra-ui:not(.playing) #hangar #randomStart.astra-random-sortie{
- display:flex!important;align-items:center;justify-content:center;gap:10px;width:100%;
- min-height:48px;margin:0!important;padding:0 16px!important;border-radius:16px!important;
- border:1px solid var(--hm-line2)!important;background:linear-gradient(180deg,#22211f,#181816)!important;
- box-shadow:inset 0 1px 0 #ffffff12,0 6px 18px #0008;color:var(--hm-text)!important;
- font:800 15px/1 var(--astra-type)!important;letter-spacing:.06em;cursor:pointer;
- transition:background .15s,border-color .15s,transform .08s;
+ display:flex!important;align-items:center;justify-content:center;gap:8px;align-self:center;width:auto!important;
+ min-height:36px;margin:2px auto 0!important;padding:6px 12px!important;border:0!important;border-radius:8px!important;
+ background:none!important;box-shadow:none!important;color:var(--hm-sub)!important;
+ font:700 14px/1 var(--astra-type)!important;letter-spacing:.04em;cursor:pointer;transition:color .15s,background .15s;
 }
-body.astra-ui:not(.playing) #hangar #randomStart.astra-random-sortie:hover{background:linear-gradient(180deg,#2a2926,#1d1d1b)!important;border-color:#c9a24a66!important}
-body.astra-ui:not(.playing) #hangar #randomStart.astra-random-sortie:active{transform:scale(.985)}
+body.astra-ui:not(.playing) #hangar #randomStart.astra-random-sortie:hover{color:var(--hm-text)!important;background:#ffffff0a!important}
+body.astra-ui:not(.playing) #hangar #randomStart.astra-random-sortie:hover .astra-random-dice{transform:rotate(-12deg)}
+body.astra-ui:not(.playing) #hangar #randomStart.astra-random-sortie:active{transform:translateY(1px)}
+body.astra-ui:not(.playing) #hangar #randomStart.astra-random-sortie:focus-visible{outline:2px solid #c9a24a88;outline-offset:2px}
 body.astra-ui:not(.playing) #hangar #randomStart.astra-random-sortie[hidden]{display:none!important}
 body.astra-ui:not(.playing) #hangar #randomStart strong{font:inherit;color:inherit}
 body.astra-ui:not(.playing) #hangar #randomStart .astra-random-dice{
- flex:none;width:18px;height:18px;background:#d9c08a;
+ flex:none;width:16px;height:16px;background:#c9a24a;transition:transform .2s;
  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm2.5 3a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm9 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM12 10.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM7.5 15a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm9 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z'/%3E%3C/svg%3E") center/contain no-repeat;
  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm2.5 3a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm9 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM12 10.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM7.5 15a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm9 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z'/%3E%3C/svg%3E") center/contain no-repeat;
 }
 body.astra-ui:not(.playing) #hangar #randomStart .astra-random-badge{
- flex:none;padding:4px 8px;border-radius:999px;background:#c9a24a22;border:1px solid #c9a24a55;
- color:#e7cf95;font:700 11px/1 var(--astra-numeric);letter-spacing:.04em;white-space:nowrap;
+ flex:none;color:#d9bb72;font:700 12px/1 var(--astra-numeric);letter-spacing:.02em;white-space:nowrap;
 }
+body.astra-ui:not(.playing) #hangar #randomStart .astra-random-badge:before{content:"·";margin-right:8px;color:var(--hm-dim)}
 @media(max-width:720px){
- body.astra-ui:not(.playing) #hangar #randomStart.astra-random-sortie{min-height:44px;border-radius:14px!important;font-size:14px!important;gap:8px}
+ body.astra-ui:not(.playing) #hangar #randomStart.astra-random-sortie{min-height:34px;font-size:13px!important;margin-top:0!important}
 }
