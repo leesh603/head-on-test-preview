@@ -1,8 +1,9 @@
+import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose} from './adriatic-boss-layout.js?v=adriatic20261001';
 import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=463';
 import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=463';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=463';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=463';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=463';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=adriatic20261001';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=adriatic20261001';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=adriatic20261001';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -72,56 +73,85 @@ export class ParisGun extends RailAdapter {constructor(o){super(o,'paris-gun')}}
 export class LIncomparable extends RailAdapter {constructor(o){super(o,'lincomparable')}}
 export class Stuttgart extends StuttgartAdapter {}
 
-class ZubianHalf extends PatternBoss {
+class NavalPatternBoss extends PatternBoss {
+  constructor(options){super(options);this.ownsMotion129=true;this.hullYaw=0;this.driveVelocity=0;for(const p of this.parts.values()){p.localX=p.x;p.localY=p.y;}}
+  syncParts(){for(const p of this.parts.values()){const q=navalPoint(this,p.localX,p.localY);p.x=q.x-this.x;p.y=q.y-this.y;}}
+  locateHit(shot){
+    for(const p of this.parts.values())if(p.hittable&&!p.destroyed){const q=navalPoint(this,p.localX,p.localY);if(navalSweptEllipse({...this,...q},shot,p.radius,p.radius))return{partId:p.id};}
+    const size=zubianSize(this);return this.coreVulnerable&&navalSweptEllipse(this,shot,size.width*.48,size.height*.49)?{partId:null}:null;
+  }
+  hitAt(shot){const hit=this.locateHit(shot);return hit?this.hit({...hit,damage:shot.damage}):{damage:0,miss:true};}
+  gun(){return this.parts.get(this.role==='rear'?'rearGun':'frontGun');}
+  engine(){return this.parts.get(this.role==='rear'?'rearEngine':'frontEngine');}
+  gunPoint(){const p=this.gun();return p?navalPoint(this,p.localX,p.localY):{x:this.x,y:this.y};}
+  suppressive(dt,players){
+    if(this.phase==='seam-warning'||this.phase==='splitting'||this.phase==='windup'||this.gun()?.destroyed)return;
+    if(!this.due('suppressive',dt,this.t.suppressiveInterval||3.1))return;
+    const p=this.target(players),q=this.gunPoint();if(!p)return;
+    this.command('muzzle',{...q,partId:this.gun()?.id});this.fan(q.x,q.y,Math.atan2(p.y-q.y,p.x-q.x),this.role?3:this.t.suppressiveCount||7,.56,this.t.bulletSpeed*.88,'zubian-shell');
+  }
+}
+class ZubianHalf extends NavalPatternBoss {
   hit(attack){if(this.protection>0)return{damage:0,blocked:true};return super.hit(attack);}
-  constructor({role,...options}) {super({...options,kind:'hms-zubian-'+role});this.role=role;this.phase=role==='front'?'front-hunt':'rear-mortar';this.chargeTime=0;this.mortarPattern=0;this.splitAge=1.2;this.splitX=this.x;this.splitY=this.y;}
+  constructor({role,hullYaw=0,inheritedParts,...options}) {
+    const positions=role==='front'?[['frontGun',0,-44,19],['frontEngine',0,56,22]]:[['rearGun',0,34,19],['rearEngine',0,-40,22]];
+    super({...options,parts:positions.map(([id,x,y,radius])=>({id,x,y,radius,maxHp:inheritedParts?.get(id)?.maxHp||options.tuning.partHp})),kind:'hms-zubian-'+role});
+    this.role=role;this.hullYaw=hullYaw;this.splitYaw=hullYaw;for(const p of this.parts.values()){const inherited=inheritedParts?.get(p.id);if(inherited)p.hp=inherited.hp;}
+    this.phase=role==='front'?'front-hunt':'rear-mortar';this.chargeTime=0;this.mortarPattern=0;this.splitAge=0;this.splitX=this.x;this.splitY=this.y;this.syncParts();
+  }
   update(dt,{players,bounds}) {
     this.splitAge+=dt;
     this.protection=Math.max(0,(this.protection||0)-dt);
     this.coreVulnerable=this.protection<=0;
     const partner=[...this.encounter?.bodies.values()||[]].find(b=>b!==this&&b.kind?.startsWith('hms-zubian-'));
-    if(partner&&!partner.dead){const dx=this.x-partner.x,dy=this.y-partner.y,d=Math.hypot(dx,dy),min=250;if(d>1e-3&&d<min){const push=(min-d)*(this.splitAge<2.2?1.9:.55);this.x+=dx/d*push;this.y+=dy/d*push;partner.x-=dx/d*push;partner.y-=dy/d*push;}}
     if(partner?.dead&&!this.soloEnraged){this.soloEnraged=true;this.command('phase-change',{phase:this.role+'-last-stand'});}
-    if(this.role==='front'&&this.soloEnraged&&this.due('front-barrage',dt,2.6)){const p=this.target(players);if(p)for(let i=-1;i<=1;i++)this.hazard('circle',{x:p.x+i*54,y:p.y+(p.vy||0)*.55,radius:46,delay:.18+Math.abs(i)*.12,warning:.9,once:true,visual:'zubian-mortar'});}
+    const oldX=this.x,oldY=this.y;
+    this.updateNaval(dt,players,bounds);
+    this.driveVelocity=Math.hypot(this.x-oldX,this.y-oldY)/Math.max(.001,dt);this.syncParts();
+  }
+  updateNaval(dt,players,bounds){
+    const mobility=this.engine()?.destroyed?.28:1;
     if(this.role==='rear') {
-      if(this.t.mobileBoss){this.x=this.splitX+Math.sin(this.splitAge*.65)*70;this.y=this.splitY+Math.sin(this.splitAge*.4)*24;}
-      if(this.due('mortar',dt,(this.t.mortarInterval||2.4)*(this.soloEnraged?.7:1))) {
+      if(this.t.mobileBoss){this.x+=Math.cos(this.splitAge*.18)*10*mobility*dt;this.y+=Math.sin(this.splitAge*.18)*5*mobility*dt;this.hullYaw=this.splitYaw+Math.sin(this.splitAge*.18)*.18;}
+      if(!this.gun()?.destroyed&&this.due('mortar',dt,(this.t.mortarInterval||2.4)*(this.soloEnraged?.7:1))) {
+        this.command('muzzle',{...this.gunPoint(),partId:'rearGun'});
         const p=this.target(players);if(p){const lead=.7,tx=p.x+(p.vx||0)*lead,ty=p.y+(p.vy||0)*lead;
          if(this.mortarPattern++%2===0)for(let i=-1;i<=1;i++)this.hazard('circle',{x:tx+i*78,y:ty,radius:58,delay:.18+Math.abs(i)*.12,warning:1.05,once:true,visual:'zubian-mortar'});
          else for(let i=0;i<5;i++)this.hazard('circle',{x:tx+(p.vx||0)*i*.16,y:ty+(p.vy||0)*i*.16,radius:52,delay:.12+i*.2,warning:1.05,once:true,visual:'zubian-mortar'});}
       }
-      if(this.soloEnraged&&this.due('rear-pass',dt,2.5)){const p=this.target(players);if(p)this.fan(this.x,this.y,Math.atan2(p.y-this.y,p.x-this.x),3,.28,this.t.bulletSpeed*.9,'zubian-shell');}return;
+      if(this.soloEnraged&&!this.gun()?.destroyed&&this.due('rear-pass',dt,2.5)){const p=this.target(players),q=this.gunPoint();if(p)this.fan(q.x,q.y,Math.atan2(p.y-q.y,p.x-q.x),3,.28,this.t.bulletSpeed*.9,'zubian-shell');}return;
     }
     if(this.phase==='charging') {
-      this.x=Math.max(bounds.left+35,Math.min(bounds.right-35,this.x+this.vx*dt));
-      this.y=Math.max(bounds.top+35,Math.min(bounds.bottom-35,this.y+this.vy*dt));
-      this.chargeTime-=dt;this.chargeGun=(this.chargeGun||0)-dt;if(this.chargeGun<=0){this.chargeGun=.24;const p=this.target(players);if(p)this.fan(this.x,this.y,Math.atan2(p.y-this.y,p.x-this.x),1,0,this.t.bulletSpeed*.9,'zubian-shell');}
+      this.x+=this.vx*mobility*dt;this.y+=this.vy*mobility*dt;
+      this.chargeTime-=dt;this.chargeGun=(this.chargeGun||0)-dt;if(this.chargeGun<=0&&!this.gun()?.destroyed){this.chargeGun=.35;const p=this.target(players),q=this.gunPoint();if(p){this.command('muzzle',{...q,partId:'frontGun'});this.fan(q.x,q.y,Math.atan2(p.y-q.y,p.x-q.x),1,0,this.t.bulletSpeed*.9,'zubian-shell');}}
       if(this.chargeTime<=0)this.phase='stalking';return;
     }
     if(this.phase==='windup') {
+      const delta=Math.atan2(Math.sin(this.chargeAngle+Math.PI/2-this.hullYaw),Math.cos(this.chargeAngle+Math.PI/2-this.hullYaw));this.hullYaw+=Math.max(-dt*.7,Math.min(dt*.7,delta));
       this.chargeTime-=dt;if(this.chargeTime<=0) {
         this.phase='charging';this.chargeTime=1.1;this.chargeGun=0;
-        this.hazard('projectile',{x:this.x,y:this.y,vx:this.vx,vy:this.vy,radius:35,duration:1.1,piercing:true,visual:'torpedo-charge'});
+        const q=this.chargeOrigin;this.hazard('projectile',{...q,vx:Math.cos(this.chargeAngle)*this.t.bulletSpeed*1.25,vy:Math.sin(this.chargeAngle)*this.t.bulletSpeed*1.25,radius:24,duration:2.4,piercing:true,visual:'torpedo-charge'});
       }return;
     }
-    const stalk=this.target(players);if(stalk){this.x+=Math.sign(stalk.x-this.x)*Math.min(Math.abs(stalk.x-this.x),dt*42);this.y+=Math.sin(this.splitAge*.75)*dt*12;}
+    const stalk=this.target(players);if(stalk&&this.t.mobileBoss){const heading=Math.atan2(stalk.y-this.y,stalk.x-this.x)+Math.PI/2,delta=Math.atan2(Math.sin(heading-this.hullYaw),Math.cos(heading-this.hullYaw));this.hullYaw+=Math.max(-dt*.18,Math.min(dt*.18,delta));this.x+=Math.sin(this.hullYaw)*dt*26*mobility;this.y-=Math.cos(this.hullYaw)*dt*26*mobility;}
     if(this.due('charge',dt,(this.t.chargeInterval||3.5)*(this.soloEnraged?.8:1))) {
-      const p=stalk||this.target(players);if(!p)return;const a=Math.atan2(p.y-this.y,p.x-this.x);
-      this.vx=Math.cos(a)*this.t.bulletSpeed*1.6;this.vy=Math.sin(a)*this.t.bulletSpeed*1.6;
+      const p=stalk||this.target(players);if(!p)return;const aim=Math.atan2(p.y-this.y,p.x-this.x),heading=this.hullYaw-Math.PI/2,delta=Math.atan2(Math.sin(aim-heading),Math.cos(aim-heading)),a=heading+Math.max(-.55,Math.min(.55,delta));
+      this.chargeAngle=a;this.vx=Math.cos(a)*78;this.vy=Math.sin(a)*78;
       this.phase='windup';this.chargeTime=1.1;
-      this.command('charge-warning',{x:this.x,y:this.y,targetX:this.x+Math.cos(a)*1400,targetY:this.y+Math.sin(a)*1400,seconds:1.1});
+      this.chargeOrigin=navalPoint({...this,hullYaw:a+Math.PI/2},0,-zubianSize(this).height*.42);
+      this.command('charge-warning',{...this.chargeOrigin,targetX:this.chargeOrigin.x+Math.cos(a)*810,targetY:this.chargeOrigin.y+Math.sin(a)*810,seconds:1.1});
       const rear=[...this.encounter?.bodies.values()||[]].find(b=>b.role==='rear'&&!b.dead);rear?.supportCharge?.(p,a);
     }
   }
-  supportCharge(p,chargeAngle){if(this.role!=='rear')return;const side=Math.sin(chargeAngle)>=0?1:-1,forwardX=Math.cos(chargeAngle),forwardY=Math.sin(chargeAngle),acrossX=-forwardY*side,acrossY=forwardX*side;
+  supportCharge(p,chargeAngle){if(this.role!=='rear'||this.gun()?.destroyed)return;const side=Math.sin(chargeAngle)>=0?1:-1,forwardX=Math.cos(chargeAngle),forwardY=Math.sin(chargeAngle),acrossX=-forwardY*side,acrossY=forwardX*side;
     const x=p.x+(p.vx||0)*.8+acrossX*135,y=p.y+(p.vy||0)*.8+acrossY*135;
     for(let i=0;i<3;i++)this.hazard('circle',{x:x+forwardX*(i-1)*58,y:y+forwardY*(i-1)*58,radius:42,delay:.35+i*.16,warning:1.05,once:true,visual:'zubian-mortar',tag:'zubian-crossfire'});}
 }
-export class Zubian extends PatternBoss {
+export class Zubian extends NavalPatternBoss {
   constructor(options) {super({...options,parts:[
-    {id:'frontEngine',x:-25,y:-48,radius:18},{id:'rearEngine',x:25,y:48,radius:18},
-    {id:'frontGun',x:0,y:-82,radius:17},{id:'rearGun',x:0,y:82,radius:17},{id:'seam',x:0,y:0,radius:20,kind:'seam'}
-  ],kind:'hms-zubian'});this.phase='intact';this.stateAge=0;this.splitGap=0;this.broadsideSide=-1;}
+    {id:'frontEngine',x:0,y:-38,radius:22},{id:'rearEngine',x:0,y:74,radius:22},
+    {id:'frontGun',x:0,y:-138,radius:19},{id:'rearGun',x:0,y:148,radius:19},{id:'seam',x:0,y:20,radius:24,kind:'seam'}
+  ],kind:'hms-zubian'});this.phase='intact';this.stateAge=0;this.splitGap=0;this.broadsideSide=-1;this.anchorX=this.x;this.anchorY=this.y;}
   beginSplit(){if(this.phase!=='intact')return;this.phase='seam-warning';this.stateAge=0;this.coreVulnerable=false;this.command('seam-warning',{x:this.x,y:this.y,seconds:1.5});}
   hit(attack) {
     if(!Number.isFinite(attack.damage)||attack.damage<0)throw new Error('Invalid damage');
@@ -133,14 +163,15 @@ export class Zubian extends PatternBoss {
   update(dt,{players}) {
     this.stateAge+=dt;
     if(this.phase==='intact'){
-      if(this.due('broadside',dt,this.t.broadsideInterval||2.8)){const side=this.broadsideSide*=-1;this.command('muzzle',{x:this.x+side*65,y:this.y,side});this.fan(this.x+side*65,this.y,side===1?0:Math.PI,7,1.15,this.t.bulletSpeed*.78,'zubian-shell');}
+      if(this.t.mobileBoss){const age=this.motionTime||this.stateAge,oldX=this.x,oldY=this.y,pace=this.parts.get('frontEngine').destroyed&&this.parts.get('rearEngine').destroyed?.35:1;this.x+=Math.cos(age*.12)*14*pace*dt;this.y-=Math.sin(age*.12)*8*pace*dt;this.hullYaw=Math.sin(age*.12)*.22;this.driveVelocity=Math.hypot(this.x-oldX,this.y-oldY)/Math.max(.001,dt);this.syncParts();}
+      if(this.due('broadside',dt,this.t.broadsideInterval||2.8)){const side=this.broadsideSide*=-1,gun=this.parts.get(side===1?'frontGun':'rearGun');if(!gun.destroyed){const q=navalPoint(this,side*65*(this.t.geometryScale||1),gun.localY);this.command('muzzle',{...q,side,partId:gun.id});this.fan(q.x,q.y,(side===1?0:Math.PI)+this.hullYaw,7,1.15,this.t.bulletSpeed*.78,'zubian-shell');}}
       return;
     }
     if(this.phase==='seam-warning'){if(this.stateAge>=1.5){this.phase='splitting';this.stateAge=0;this.command('split-start',{x:this.x,y:this.y});}return;}
     if(this.phase==='splitting'){
-      this.splitGap=Math.min(92,this.stateAge/1.2*92);if(this.stateAge<1.2)return;
+      const progress=Math.min(1,this.stateAge/1.2);this.splitGap=ZUBIAN_LAYOUT.splitGap*progress*progress*(3-2*progress);if(this.stateAge<1.2)return;
       if(!this.encounter)throw new Error('Zubian must belong to an encounter before splitting');
-      const children=['front','rear'].map((role,i)=>new ZubianHalf({id:this.id+'-'+role,role,tuning:{...this.t,maxHp:this.hp/2},x:this.x,y:this.y+(i?183:-175),faction:this.faction,rng:this.rng,emit:this.emit,coreRadius:52*(this.t.geometryScale||1)}));
+      const children=['front','rear'].map(role=>new ZubianHalf({id:this.id+'-'+role,role,tuning:{...this.t,maxHp:this.hp/2},...zubianSplitPose(this,role),hullYaw:this.hullYaw,inheritedParts:this.parts,faction:this.faction,rng:this.rng,emit:this.emit,coreRadius:52*(this.t.geometryScale||1)}));
       this.encounter.replaceBody(this.id,children);for(const child of children){child.protection=this.t.splitProtection||0;child.coreVulnerable=!child.protection;}
       this.command('split',{children:children.map(b=>b.id),x:this.x,y:this.y});
     }

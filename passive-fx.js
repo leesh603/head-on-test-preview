@@ -9,7 +9,7 @@
 //   3. that the stack is about to drop       -> lit segments dim and flicker in the last 0.6 s
 //                                               before the 2.2 s no-hit reset
 //   4. the kill reward (+20% speed, 4 s)     -> crimson aura + draining timer arc on your own plane
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=463';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=adriatic20261001';
 
 const RED = '#c8322a', RED_HOT = '#ff8a4c', RED_DEEP = '#5e1410', GOLD = '#f6cf72', AMBER = '#ffb04a';
 const memo = new WeakMap(); // per-game: last tier, pulse clock, kill flash

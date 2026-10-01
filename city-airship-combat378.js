@@ -1,4 +1,4 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=463';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=adriatic20261001';
 import {intersectsEllipse} from './regional-boss-layout352.js?v=463';
 import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=463';
 
