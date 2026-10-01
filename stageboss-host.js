@@ -122,7 +122,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     else if(event.type==='hazard-activated'&&event.visual==='harbor-swing'){
       // The attached payload remains intact throughout the physical sweep.
     }
-    else if(event.type==='hazard-activated'&&event.kind==='circle'&&(event.visual?.startsWith('aa-')||event.visual==='city-flak-shell'||event.visual?.startsWith('somme-')||event.visual==='black-flak'&&['fliegerzug','treffas-wagen'].includes(body?.kind))){
+    else if(event.type==='hazard-activated'&&event.kind==='circle'&&(event.visual?.startsWith('aa-')||event.visual==='city-flak-shell'||event.visual?.startsWith('somme-')||event.visual?.startsWith('rural-rail-')||event.visual==='black-flak'&&['fliegerzug','treffas-wagen'].includes(body?.kind))){
       // Authored AA atlas draws these effects; do not stack a generic blast.
     }
     else if(event.type==='hazard-activated'&&event.kind==='circle'){

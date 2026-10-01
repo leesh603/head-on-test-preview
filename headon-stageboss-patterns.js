@@ -1,3 +1,4 @@
+import {RuralRailBoss} from './rural-rail-combat.js?v=481';
 import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=481';
 import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=481';
 export {Mark1Landship as Mark4Wedge,SchwabenFortress as MorserBattery};
@@ -77,8 +78,8 @@ class RegionalPatternBoss extends PatternBoss {
   hitAt(attack){const hit=this.locateHit(attack);return hit?this.hit({...hit,damage:attack.damage}):{damage:0,miss:true};}
 }
 
-export class ParisGun extends RailAdapter {constructor(o){super(o,'paris-gun')}}
-export class LIncomparable extends RailAdapter {constructor(o){super(o,'lincomparable')}}
+export class ParisGun extends RuralRailBoss {constructor(o){super(o,'paris-gun')}}
+export class LIncomparable extends RuralRailBoss {constructor(o){super(o,'lincomparable')}}
 export class Stuttgart extends StuttgartAdapter {}
 
 class NavalPatternBoss extends PatternBoss {

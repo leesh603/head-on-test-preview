@@ -1,0 +1,9 @@
+  syntax: 122 modules checked
+  imports: 289 resolved, 6 skipped (dynamic/dev), 6 missing
+validate: 6 problem(s)
+  FAIL aa-defense-art.js: missing import/script target ./boss-drachen-parts-v2.webp?v=aa20260927
+  FAIL app.js: missing import/script target ./terrain-alps-atlas.webp?v=426
+  FAIL app.js: missing import/script target ./terrain-zeebrugge-water.webp?v=426
+  FAIL equipment.js: missing import/script target ./repair-pickup.webp?v=426&b=340
+  FAIL mapaudit.html: missing import/script target ./terrain-alps-atlas.webp
+  FAIL mapsian.html: missing import/script target ./terrain-alps-atlas.webp
