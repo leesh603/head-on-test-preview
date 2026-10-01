@@ -6,7 +6,7 @@
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=468';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=469';
 
 const memo = new WeakMap();
 const st = g => { let s = memo.get(g); if (!s) memo.set(g, s = { tier: 0, burst: -9, burstAt: null, prey: null, trail: [], wing: [] }); return s; };
@@ -173,5 +173,139 @@ export function drawBertholdWill(c, g, point, t, px, py) {
 export function drawPassiveFx(c, g, point, t, px, py) {
   if (g.pilot === 'baron') return drawBaronHunt(c, g, point, t, px, py);
   if (g.pilot === 'berthold') drawBertholdWill(c, g, point, t, px, py);
+  else if (g.pilot === 'mannock') drawMannockCover(c, g, point, t);
+  else if (g.pilot === 'fonck') drawFonckFocus(c, g, point, t);
+  else if (g.pilot === 'rickenbacker') drawRickenbackerSwitch(c, g, point, t, px, py);
+  else if (g.pilot === 'ball') drawBallLone(c, g, point, t, px, py);
   return false;
+}
+
+// ---- Mannock "동료의 수호자" / Guardian of Comrades: enemies lining up on an ally take +30% MG damage.
+//   threat      -> a short amber aim-glint off the enemy's nose toward the ally it is lining up
+//   marked foe  -> a slow ring of amber sparks orbits that enemy (it is the one to shoot)
+//   ally        -> a soft pale-gold guard glow while it is being covered
+const AMB = 'rgba(255,186,90,';
+export function drawMannockCover(c, g, point, t) {
+  if (g.pilot !== 'mannock' || typeof g.mannockCoverTarget !== 'function') return false;
+  sprites(); if (!EMBER) return false;
+  c.save(); c.lineCap = 'round';
+  let shown = 0;
+  for (const e of g.enemies || []) {
+    if (shown >= 4 || !(e.hp > 0)) continue;
+    const ally = g.mannockCoverTarget(e); if (!ally) continue;
+    if (Math.hypot(e.x - g.x, e.y - g.y) > 1100) continue;
+    shown++;
+    const [ex, ey] = point(e.x, e.y), [ax, ay] = point(ally.x, ally.y), d = Math.hypot(ax - ex, ay - ey) || 1, ux = (ax - ex) / d, uy = (ay - ey) / d;
+    // short aim glint off the enemy's nose toward the ally it is lining up (no screen-long lines)
+    { const L = Math.min(90, d * .45), gr = c.createLinearGradient(ex + ux * 22, ey + uy * 22, ex + ux * (22 + L), ey + uy * (22 + L));
+      gr.addColorStop(0, AMB + '.9)'); gr.addColorStop(1, AMB + '0)');
+      c.beginPath(); c.moveTo(ex + ux * 22, ey + uy * 22); c.lineTo(ex + ux * (22 + L), ey + uy * (22 + L));
+      c.globalAlpha = .9; c.strokeStyle = gr; c.lineWidth = 2.4; c.stroke(); }
+    // ally guard glow
+    c.globalCompositeOperation = 'lighter'; const gr = 30 + 3 * Math.sin(t * 4);
+    c.globalAlpha = .6; c.drawImage(EMBER, ax - gr, ay - gr, gr * 2, gr * 2);
+    // orbiting amber sparks on the marked enemy
+    const R = 30;
+    for (let i = 0; i < 6; i++) { const a = t * 2.2 + i * Math.PI / 3, s = 3.6 + 1.2 * Math.sin(t * 6 + i);
+      c.globalAlpha = .85; c.drawImage(EMBER, ex + Math.cos(a) * R - s, ey + Math.sin(a) * R - s, s * 2, s * 2); }
+    c.globalCompositeOperation = 'source-over';
+  }
+  c.restore();
+  return shown > 0;
+}
+
+// shared: a tiny per-game memo
+const pmemo = new WeakMap();
+const pst = (g, init) => { let s = pmemo.get(g); if (!s) pmemo.set(g, s = init()); return s; };
+const sizeOf = e => e.heavyBomber ? 60 : e.bossPilot ? 46 : e.type === 'bomber' ? 34 : 28;
+
+// ---- Fonck "정밀 조준" / Precision: hold the same target and damage climbs to +35%.
+//   four cold-white light shards close in on the target as the aim holds (iris focusing);
+//   when the focus is complete they meet in a crisp star glint that keeps twinkling
+export function drawFonckFocus(c, g, point, t) {
+  if (g.pilot !== 'fonck') return false;
+  sprites(); if (!EMBER) return false;
+  const s = g.pilotIdentity, e = s?.target, f = s?.focus || 0;
+  if (!e || !(e.hp > 0) || f <= 0) return false;
+  const [x, y] = point(e.x, e.y), sz = sizeOf(e), r = sz * (.45 + 1.25 * (1 - f)), rot = Math.PI / 4 + (1 - f) * .9;
+  c.save(); c.lineCap = 'round'; c.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 4; i++) {
+    const a = rot + i * Math.PI / 2, ca = Math.cos(a), sa = Math.sin(a), len = 6 + 10 * f;
+    c.beginPath(); c.moveTo(x + ca * (r + len), y + sa * (r + len)); c.lineTo(x + ca * r, y + sa * r);
+    c.globalAlpha = .25 + .6 * f; c.strokeStyle = '#9cc4ff'; c.lineWidth = 4; c.stroke();
+    c.globalAlpha = .5 + .5 * f; c.strokeStyle = '#f4f8ff'; c.lineWidth = 1.4; c.stroke();
+  }
+  if (f >= .999) {                                                   // full focus: twinkling star glint
+    const tw = .75 + .25 * Math.sin(t * 14), L = 14 * tw;
+    c.globalAlpha = .9; c.strokeStyle = '#ffffff'; c.lineWidth = 1.3;
+    c.beginPath(); c.moveTo(x - L, y); c.lineTo(x + L, y); c.moveTo(x, y - L); c.lineTo(x, y + L); c.stroke();
+    c.globalAlpha = .55 * tw; c.drawImage(EMBER, x - 9, y - 9, 18, 18);
+  }
+  c.restore();
+  return true;
+}
+
+// ---- Rickenbacker "빠른 표적전환" / Quick Switch: hitting a new enemy within 2 s stacks +10% (max 3, 3 s).
+//   each switch throws a quick white-blue arc from the last enemy to the new one;
+//   while stacks are live his plane streams red-white-blue ribbons from the wingtips (longer per stack)
+export function drawRickenbackerSwitch(c, g, point, t, px, py) {
+  if (g.pilot !== 'rickenbacker') return false;
+  sprites(); if (!EMBER) return false;
+  const s = g.pilotIdentity; if (!s) return false;
+  const m = pst(g, () => ({ prev: null, sw: 0, arc: null, wing: [] }));
+  const cur = s.lastHit && s.lastHit.hp > 0 ? { x: s.lastHit.x, y: s.lastHit.y } : null;
+  if ((s.switches || 0) > m.sw && m.prev && cur) m.arc = { a: m.prev, b: cur, t0: t };
+  m.sw = s.switches || 0; if (cur) m.prev = cur;
+  c.save(); c.lineCap = 'round';
+  if (m.arc) {
+    const q = (t - m.arc.t0) / .3;
+    if (q >= 0 && q < 1) {
+      const [ax, ay] = point(m.arc.a.x, m.arc.a.y), [bx, by] = point(m.arc.b.x, m.arc.b.y), mx = (ax + bx) / 2 - (by - ay) * .18, my = (ay + by) / 2 + (bx - ax) * .18;
+      const head = Math.min(1, q * 2.2), tail = Math.max(0, q * 2.2 - .9);
+      const P = u => { const v = 1 - u; return [v * v * ax + 2 * v * u * mx + u * u * bx, v * v * ay + 2 * v * u * my + u * u * by]; };
+      c.beginPath(); for (let k = 0; k <= 12; k++) { const [x, y] = P(tail + (head - tail) * k / 12); k ? c.lineTo(x, y) : c.moveTo(x, y); }
+      c.globalCompositeOperation = 'lighter'; c.globalAlpha = (1 - q) * .6; c.strokeStyle = '#7fb2ff'; c.lineWidth = 5; c.stroke();
+      c.globalAlpha = 1 - q; c.strokeStyle = '#ffffff'; c.lineWidth = 1.6; c.stroke();
+      const [hx, hy] = P(head); c.globalAlpha = 1 - q; c.drawImage(EMBER, hx - 6, hy - 6, 12, 12);
+      c.globalCompositeOperation = 'source-over';
+    }
+  }
+  const stacks = s.switches || 0, life = clamp((s.switchTime || 0) / .6);
+  push(m.wing, { x: g.x, y: g.y, a: g.a || 0 }, t, .12 + .1 * stacks);
+  if (stacks > 0) {
+    const span = 16, cols = ['#d23b33', '#f4f1ea', '#2f5fb0'];
+    for (const side of [-1, 1]) for (let band = 0; band < 3; band++) {
+      const off = span + (band - 1) * 2.2;
+      c.beginPath(); let first = true;
+      for (const p of m.wing) { const [x, y] = point(p.x - Math.sin(p.a) * off * side, p.y + Math.cos(p.a) * off * side); first ? c.moveTo(x, y) : c.lineTo(x, y); first = false; }
+      c.lineTo(px - Math.sin(g.a || 0) * off * side, py + Math.cos(g.a || 0) * off * side);
+      c.globalAlpha = .75 * life; c.strokeStyle = cols[band]; c.lineWidth = 1.8; c.stroke();
+    }
+  }
+  c.restore();
+  return true;
+}
+
+// ---- Ball "고독한 사냥꾼" / Lone Hunter: no ally within 320 px -> +15% MG damage.
+//   while he flies alone a cold moonlit sheen rims his plane and a thin silver vapour trails
+//   behind; it melts away as soon as a friendly comes close
+export function drawBallLone(c, g, point, t, px, py) {
+  if (g.pilot !== 'ball') return false;
+  sprites(); if (!VAPOR) return false;
+  const s = g.pilotIdentity, alone = !!s?.alone;
+  const m = pst(g, () => ({ k: 0, last: t, trail: [] }));
+  const dt = Math.max(0, Math.min(.1, t - m.last)); m.last = t;
+  m.k = clamp(m.k + (alone ? dt / .4 : -dt / .25));
+  push(m.trail, { x: g.x, y: g.y, a: g.a || 0 }, t, .5);
+  if (m.k <= .01) return true;
+  c.save(); c.lineCap = 'round';
+  c.beginPath(); let first = true;
+  for (const p of m.trail) { const [x, y] = point(p.x - Math.cos(p.a) * 16, p.y - Math.sin(p.a) * 16); first ? c.moveTo(x, y) : c.lineTo(x, y); first = false; }
+  c.globalAlpha = .22 * m.k; c.strokeStyle = '#dfe8f2'; c.lineWidth = 5; c.stroke();
+  c.globalAlpha = .4 * m.k; c.strokeStyle = '#ffffff'; c.lineWidth = 1.2; c.stroke();
+  const gr = c.createRadialGradient(px, py, 10, px, py, 40);
+  gr.addColorStop(0, 'rgba(210,225,245,0)'); gr.addColorStop(.6, 'rgba(200,220,245,.22)'); gr.addColorStop(1, 'rgba(190,210,240,0)');
+  c.globalCompositeOperation = 'lighter'; c.globalAlpha = m.k * (.85 + .15 * Math.sin(t * 2.4)); c.fillStyle = gr; c.beginPath(); c.arc(px, py, 40, 0, Math.PI * 2); c.fill();
+  c.restore();
+  return true;
 }
