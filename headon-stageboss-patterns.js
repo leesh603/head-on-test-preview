@@ -1,6 +1,6 @@
-import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=somme20261001';
+import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=480';
 export {Mark1Landship as Mark4Wedge,SchwabenFortress as MorserBattery};
-import {sommeScale} from './somme-boss-layout.js?v=somme20261001';
+import {sommeScale} from './somme-boss-layout.js?v=480';
 import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose} from './adriatic-boss-layout.js?v=480';
 import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=480';
 import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=480';
