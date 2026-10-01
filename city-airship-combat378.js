@@ -1,6 +1,6 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=481';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=481';
-import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=481';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=482';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=482';
+import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=482';
 
 // Source-image coordinates are shared by hull hit tests, gun mounts and mines.
 export const CITY_HULLS={
@@ -28,7 +28,7 @@ class CityAirships extends BaseBoss{
  }
  suppressive(){}
  point(x,y){return{x:this.x+(x-384)*this.cityArtScale,y:this.y+(y-this.sourceHeight/2)*this.cityArtScale};}
- live(){return [...this.parts.values()].filter(p=>!p.destroyed);}
+ live(){return [...this.parts.values()].filter(p=>!p.destroyed&&p.id.startsWith('airship-'));}
  command(type,spec={}){this.emit({...spec,type,bossId:this.id,faction:this.faction});}
  hazard(kind,spec){this.command('hazard',{kind,damage:this.t.damage,warning:0,duration:5,...spec});}
  locateHit(s){
@@ -42,7 +42,7 @@ class CityAirships extends BaseBoss{
   const indirect=partId?.startsWith('net-')||partId?.startsWith('rig-'),id=indirect?'airship-'+partId.at(-1):partId;
   if(!id||this.dead)return{damage:0,blocked:true};
   const result=super.hit({partId:id,damage:damage*(indirect?(this.cityArtKind==='london-apron'?.38:.65):1)});
-  this.hp=[...this.parts.values()].reduce((sum,p)=>sum+Math.max(0,p.hp),0);
+  this.hp=[...this.parts.values()].reduce((sum,p)=>sum+(p.id.startsWith('airship-')?Math.max(0,p.hp):0),0);
   if(this.hp<=.001&&!this.dead){this.hp=0;this.dead=true;this.phase='defeated';this.command('body-defeated');}
   return result;
  }
