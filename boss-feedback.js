@@ -44,7 +44,7 @@ export function bossTactic(encounter,locale='ko'){
   case 'morser-battery':return b.coreVulnerable?text('주포 3문 무력화 · 중앙 지휘 장치 공략','Three guns disabled · strike the command mechanism'):text('포좌마다 포격 중단 · 탄약고 파괴 시 재장전 지연','Each destroyed pit stops its shells · ammo loss slows reload');
   case 'staaken-rvi':return b.coreVulnerable?text('엔진 전부 정지 · 잔여 폭탄을 피하며 동체 공략','All engines stopped · evade the bomb dump and strike fuselage'):text('실제 엔진 4개를 파괴 · 연속 폭격과 사수 사격 주의','Destroy all four nacelles · avoid stick bombs and gunners');
   case 'london-searchlight':return b.coreVulnerable?text('방공 장치 무력화 · 중앙 발전·지휘 장치 노출','Defense disabled · command generator exposed'):gone('light')?text('추적 중단 · 포좌와 탄약고를 무력화','Tracking stopped · disable gun and ammunition'):text('탐조등에 오래 잡히면 집중 포격 · 광원 우선 파괴','Sustained illumination triggers focused flak · destroy the lamp');
-  case 'flak-tower':case 'flak-tower-cell':return b.coreVulnerable?text('방어 무장 전멸 · 큐폴라 코어를 공격','All mounts silenced · strike the cupola core'):gone('ears')?text('청음기 파괴 · 공성포가 맹포격으로 전환','Horns down · siege gun fires blind patterns'):text('네 꼭짓점의 방공탑 전멸 · 청음기 추적 전에 파괴 권장','Destroy all four corner towers · kill the acoustic horns early');
+  case 'flak-tower':case 'flak-tower-cell':return b.coreVulnerable?text('두 부위 파괴 · 열린 큐폴라 코어를 공격','Two mounts down · strike the open cupola'):gone('ears')?text('청음기 파괴 · 추적 중단, 고정 구역 포격 주의','Horns down · tracking stops; watch fixed blind sectors'):text('청음기로 추적 · 공성포/속사포를 끊고 두 부위 파괴 시 코어 개방','Silence tracking or guns · two broken mounts open each core');
   default:return '';
  }
 }
