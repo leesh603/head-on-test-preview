@@ -6,7 +6,7 @@
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=466';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=467';
 
 const memo = new WeakMap();
 const st = g => { let s = memo.get(g); if (!s) memo.set(g, s = { tier: 0, burst: -9, burstAt: null, prey: null, trail: [], wing: [] }); return s; };
@@ -105,4 +105,73 @@ export function drawBaronHunt(c, g, point, t, px, py) {
   } else s.wing = [];
   c.restore();
   return true;
+}
+
+// ---- Berthold "강철의 의지" / Iron Will: 40% of each hit is deferred and paid over 4 s.
+//   hit absorbed  -> a steel "clang": cold white-blue sparks glancing off the hull + a brief iron sheen ring
+//   damage owed   -> the plane trails dark oily smoke with a few embers while the deferred damage
+//                    is still being paid; thicker the more is owed, gone once the debt clears
+const bmemo = new WeakMap();
+const bst = g => { let s = bmemo.get(g); if (!s) bmemo.set(g, s = { owed: 0, clang: -9, seed: 0, trail: [] }); return s; };
+let STEEL = null, SOOT = null;
+function bsprites() {
+  if (STEEL || typeof document === 'undefined') return;
+  const mk = stops => { const k = document.createElement('canvas'); k.width = k.height = 48; const x = k.getContext('2d'), gr = x.createRadialGradient(24, 24, 0, 24, 24, 24);
+    for (const [o, c] of stops) gr.addColorStop(o, c); x.fillStyle = gr; x.fillRect(0, 0, 48, 48); return k; };
+  STEEL = mk([[0, 'rgba(255,255,255,1)'], [.25, 'rgba(200,225,255,.8)'], [.6, 'rgba(120,160,220,.22)'], [1, 'rgba(90,130,200,0)']]);
+  SOOT = mk([[0, 'rgba(38,34,32,.75)'], [.5, 'rgba(34,30,28,.38)'], [1, 'rgba(30,26,24,0)']]);
+}
+export function drawBertholdWill(c, g, point, t, px, py) {
+  if (g.pilot !== 'berthold') return false;
+  sprites(); bsprites(); if (!STEEL) return false;
+  const s = bst(g), debts = g.pilotIdentity?.debts || [];
+  const owed = debts.reduce((a, d) => a + (d.amount || 0), 0);
+  if (owed > s.owed + .5) { s.clang = t; s.seed = (s.seed + 1) % 97; }
+  s.owed = owed;
+  c.save();
+  // smoke while damage is owed
+  const k = clamp(owed / Math.max(8, (g.maxHp || 100) * .12));
+  push(s.trail, { x: g.x, y: g.y, a: g.a || 0 }, t, .55);
+  if (k > .02) {
+    const n = s.trail.length;
+    for (let i = 0; i < n - 1; i++) {
+      const p = s.trail[i], age = (t - p.t) / .55; if (i % 2) continue;
+      const bx = p.x - Math.cos(p.a) * 14, by = p.y - Math.sin(p.a) * 14, [x, y] = point(bx, by);
+      const w = 6 + 16 * age * (.6 + .6 * k), drift = (hash(p.t * 9, i) - .5) * 8 * age;
+      c.globalAlpha = (1 - age) * (.25 + .6 * k); c.drawImage(SOOT, x - w + drift, y - w - age * 6, w * 2, w * 2);
+    }
+    c.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < n - 1; i++) {
+      const p = s.trail[i], age = (t - p.t) / .55; if (hash(p.t * 17, 5) > .05 + .12 * k) continue;
+      const [x, y] = point(p.x - Math.cos(p.a) * 14, p.y - Math.sin(p.a) * 14), e = 1.6 + 1.6 * hash(p.t, 2);
+      c.globalAlpha = (1 - age) * .9; c.drawImage(EMBER, x - e + (hash(p.t, 6) - .5) * 10 * age, y - e - age * 8, e * 2, e * 2);
+    }
+    c.globalCompositeOperation = 'source-over';
+  }
+  // steel clang on each absorbed hit
+  const q = (t - s.clang) / .32;
+  if (q >= 0 && q < 1) {
+    c.globalCompositeOperation = 'lighter';
+    const r = 26 + 10 * (1 - Math.pow(1 - q, 3));
+    for (let j = 0; j < 3; j++) {                                  // three glinting armour-plate arcs, not a bubble
+      const a0 = hash(j, s.seed) * Math.PI * 2; c.beginPath(); c.arc(px, py, r, a0, a0 + .7);
+      c.globalAlpha = (1 - q) * .8; c.strokeStyle = '#dbe9ff'; c.lineWidth = 2.4 * (1 - q) + .6; c.stroke(); }
+    for (let i = 0; i < 9; i++) {
+      const a = hash(i, s.seed) * Math.PI * 2, d = (12 + 30 * hash(s.seed, i)) * (1 - Math.pow(1 - q, 2)), ln = 6 * (1 - q) + 2;
+      const x0 = px + Math.cos(a) * (14 + d), y0 = py + Math.sin(a) * (14 + d);
+      c.beginPath(); c.moveTo(x0, y0); c.lineTo(x0 + Math.cos(a) * ln, y0 + Math.sin(a) * ln);
+      c.globalAlpha = 1 - q; c.strokeStyle = '#f2f7ff'; c.lineWidth = 1.4; c.stroke();
+    }
+    c.globalAlpha = (1 - q) * .6; c.drawImage(STEEL, px - 22, py - 22, 44, 44);
+    c.globalCompositeOperation = 'source-over';
+  }
+  c.restore();
+  return true;
+}
+
+// Single entry for the renderer. Returns true only when the pilot's legacy marker should be skipped.
+export function drawPassiveFx(c, g, point, t, px, py) {
+  if (g.pilot === 'baron') return drawBaronHunt(c, g, point, t, px, py);
+  if (g.pilot === 'berthold') drawBertholdWill(c, g, point, t, px, py);
+  return false;
 }
