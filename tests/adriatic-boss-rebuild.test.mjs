@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createBossEncounter} from '../headon-stageboss-patterns.js?v=470';
-import {navalPoint,navalOverlap,zubianSize,zubianSplitPose} from '../adriatic-boss-layout.js?v=470';
+import {createBossEncounter} from '../headon-stageboss-patterns.js?v=471';
+import {navalPoint,navalOverlap,zubianSize,zubianSplitPose} from '../adriatic-boss-layout.js?v=471';
 
 const tuning={maxHp:2400,partHp:280,damage:18,bulletSpeed:270,geometryScale:2.025,mobileBoss:true,motionMultiplier:1,splitProtection:0,broadsideInterval:1.8,mortarInterval:2.05,chargeInterval:3.05,suppressiveInterval:3.1};
 const frame={players:[{id:'p1',alive:true,x:100,y:550,vx:30,vy:0,radius:12},{id:'p2',alive:true,x:600,y:600,vx:0,vy:-20,radius:12}],bounds:{left:-700,right:900,top:-600,bottom:950}};

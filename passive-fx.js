@@ -6,7 +6,7 @@
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=470';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=471';
 
 const memo = new WeakMap();
 const st = g => { let s = memo.get(g); if (!s) memo.set(g, s = { tier: 0, burst: -9, burstAt: null, prey: null, trail: [], wing: [] }); return s; };
@@ -177,6 +177,9 @@ export function drawPassiveFx(c, g, point, t, px, py) {
   else if (g.pilot === 'fonck') drawFonckFocus(c, g, point, t);
   else if (g.pilot === 'rickenbacker') { drawRickenbackerSwitch(c, g, point, t, px, py); drawRickenbackerRing(c, g, point, t, px, py); }
   else if (g.pilot === 'ball') drawBallLone(c, g, point, t, px, py);
+  else if (g.pilot === 'immelmann') drawImmelmannEagle(c, g, point, t, px, py);
+  else if (g.pilot === 'jacobs') drawJacobsFalcon(c, g, point, t, px, py);
+  else if (g.pilot === 'gontermann') drawGontermannHeat(c, g, point, t, px, py);
   return false;
 }
 
@@ -321,10 +324,11 @@ function hatGlyph(c, x, y, s) {                               // small Uncle-Sam
   c.fillStyle = '#1f3f86'; c.fillRect(-s * .38, -s * .04, s * .76, s * .16);          // band
   c.restore();
 }
-function tricolorRing(c, x, y, r, a, w = 1) {
-  for (const [dr, col, lw] of [[2.6 * w, '#1f3f86', 2.2 * w], [0, '#f4f1ea', 2 * w], [-2.4 * w, '#c8332b', 2.2 * w]]) {
-    c.beginPath(); c.arc(x, y, r + dr, 0, Math.PI * 2); c.globalAlpha = a; c.strokeStyle = col; c.lineWidth = lw; c.stroke();
-  }
+function tricolorRing(c, x, y, r, a, w = 1) {                    // the 94th's ring: a bold yellow hoop
+  c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2);
+  c.globalAlpha = a * .55; c.strokeStyle = 'rgba(40,24,4,.9)'; c.lineWidth = 6.4 * w; c.stroke();
+  c.globalAlpha = a; c.strokeStyle = '#f2c230'; c.lineWidth = 4.2 * w; c.stroke();
+  c.globalAlpha = a * .8; c.strokeStyle = '#fff1a8'; c.lineWidth = 1.2 * w; c.beginPath(); c.arc(x, y, r - 1 * w, Math.PI * 1.05, Math.PI * 1.7); c.stroke();
 }
 export function drawRickenbackerRing(c, g, point, t, px, py) {
   if (g.pilot !== 'rickenbacker') return false;
@@ -353,8 +357,83 @@ export function drawRickenbackerRing(c, g, point, t, px, py) {
   if (R.k > .01) {
     const kick = Math.max(0, 1 - (t - R.pulse) / .2), r = 40 + 5 * kick, a = R.k * (.85 + .15 * kick);
     tricolorRing(c, px, py, r, a);
-    const ha = -Math.PI / 2 + Math.sin(t * 1.6) * .25;
-    c.globalAlpha = R.k; hatGlyph(c, px + Math.cos(ha) * (r + 2), py + Math.sin(ha) * (r + 2) - 4, 13);
+    const ha = -Math.PI * .72 + Math.sin(t * 1.6) * .08, hx = px + Math.cos(ha) * r, hy = py + Math.sin(ha) * r;
+    c.save(); c.translate(hx, hy); c.rotate(-.42 + Math.sin(t * 1.6) * .06); c.globalAlpha = R.k; hatGlyph(c, 0, 0, 17); c.restore();
+  }
+  c.restore();
+  return true;
+}
+
+// ---- Immelmann "독일의 독수리" / Eagle: right after a big turn, 1.5 s of tighter spread and +20% fire rate.
+//   the turn he just made is drawn behind him as a pale-gold feathered swoosh that fades with the buff
+export function drawImmelmannEagle(c, g, point, t, px, py) {
+  if (g.pilot !== 'immelmann') return false;
+  sprites(); if (!EMBER) return false;
+  const m = pst(g, () => ({ trail: [], last: 0 }));
+  push(m.trail, { x: g.x, y: g.y, a: g.a || 0 }, t, .55);
+  const e = g.eagleTime || 0; if (e <= 0) return true;
+  const k = clamp(e / .4) * clamp((1.5 - e) / .08 + .3), n = m.trail.length;
+  c.save(); c.lineCap = 'round'; c.lineJoin = 'round';
+  for (let i = 1; i < n; i++) {                                     // tapered gold swoosh (older = thinner)
+    const p0 = m.trail[i - 1], p1 = m.trail[i], u = i / n, [x0, y0] = point(p0.x, p0.y), [x1, y1] = point(p1.x, p1.y);
+    c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1);
+    c.globalAlpha = k * u * .35; c.strokeStyle = '#f5d27a'; c.lineWidth = 2 + 9 * u; c.stroke();
+    c.globalAlpha = k * u * .8; c.strokeStyle = '#fff6da'; c.lineWidth = .8 + 1.6 * u; c.stroke();
+  }
+  c.globalCompositeOperation = 'lighter';                           // a few feathers peeling off the swoosh
+  for (let i = 0; i < n; i += 4) {
+    const p = m.trail[i]; if (hash(p.t * 11, 3) > .35) continue;
+    const age = (t - p.t) / .55, [x, y] = point(p.x, p.y), side = hash(p.t, 8) > .5 ? 1 : -1, d = 6 + 14 * age;
+    const fx = x - Math.sin(p.a) * d * side, fy = y + Math.cos(p.a) * d * side;
+    c.save(); c.translate(fx, fy); c.rotate(p.a + side * (.6 + age)); c.globalAlpha = k * (1 - age) * .9;
+    c.fillStyle = '#ffe9b0'; c.beginPath(); c.ellipse(0, 0, 5, 1.6, 0, 0, Math.PI * 2); c.fill(); c.restore();
+  }
+  c.restore();
+  return true;
+}
+
+// ---- Jacobs "선회전의 베테랑" / Black Falcon: stacks of extra fire rate (max 3).
+//   black-falcon wisps: a pair of dark vapour ribbons off the wingtips, heavier with each stack
+export function drawJacobsFalcon(c, g, point, t, px, py) {
+  if (g.pilot !== 'jacobs') return false;
+  sprites(); if (!VAPOR) return false;
+  const m = pst(g, () => ({ trail: [] }));
+  push(m.trail, { x: g.x, y: g.y, a: g.a || 0 }, t, .5);
+  const st = g.jacobsStacks || 0; if (st <= 0) return true;
+  const k = clamp((g.jacobsStackTime || 0) / .6);
+  c.save(); c.lineCap = 'round';
+  const W = (q, side) => { const off = 17; return point(q.x - Math.sin(q.a) * off * side - Math.cos(q.a) * 6, q.y + Math.cos(q.a) * off * side - Math.sin(q.a) * 6); };
+  const n = m.trail.length;
+  for (const side of [-1, 1]) for (let i = 1; i < n; i++) {        // tapered dark wingtip vapour, heavier per stack
+    const u = i / n, [x0, y0] = W(m.trail[i - 1], side), [x1, y1] = W(m.trail[i], side);
+    c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1);
+    c.globalAlpha = (.12 + .1 * st) * k * u; c.strokeStyle = '#151417'; c.lineWidth = (1 + 1.4 * st) * (.3 + .7 * u); c.stroke();
+  }
+  c.restore();
+  return true;
+}
+
+// ---- Gontermann "점화 조준" / Ignition Sight: hold aim 1.5 s -> incendiary rounds every 1.2 s.
+//   his gun muzzles heat up while the aim holds (dull red -> white-orange), and once primed a
+//   small flame licks from the muzzle and embers spill back off the nose
+export function drawGontermannHeat(c, g, point, t, px, py) {
+  if (g.pilot !== 'gontermann') return false;
+  sprites(); if (!EMBER) return false;
+  const f = g.pilotIdentity?.focus || 0; if (f <= .02) return true;
+  const a = g.a || 0, ca = Math.cos(a), sa = Math.sin(a), primed = f >= .999;
+  c.save(); c.globalCompositeOperation = 'lighter';
+  for (const side of [-1, 1]) {
+    const mx = px + ca * 22 - sa * 5 * side, my = py + sa * 22 + ca * 5 * side, r = 4 + 6 * f + (primed ? 2 * Math.sin(t * 20 + side) : 0);
+    c.globalAlpha = .35 + .55 * f; c.drawImage(EMBER, mx - r, my - r, r * 2, r * 2);
+    if (primed) {                                                   // flame lick off the muzzle
+      const L = 10 + 4 * Math.sin(t * 23 + side * 2);
+      const gr = c.createLinearGradient(mx, my, mx + ca * L, my + sa * L); gr.addColorStop(0, 'rgba(255,236,190,.95)'); gr.addColorStop(1, 'rgba(255,110,40,0)');
+      c.beginPath(); c.moveTo(mx, my); c.lineTo(mx + ca * L, my + sa * L); c.globalAlpha = .9; c.strokeStyle = gr; c.lineWidth = 3; c.lineCap = 'round'; c.stroke();
+    }
+  }
+  if (primed) for (let i = 0; i < 4; i++) {                        // embers spilling back
+    const q = ((t * 1.7 + i / 4) % 1), side = i % 2 ? 1 : -1, d = 18 - q * 34, e = 2.2 * (1 - q) + .6;
+    c.globalAlpha = (1 - q) * .9; c.drawImage(EMBER, px + ca * d - sa * (5 + q * 6) * side - e, py + sa * d + ca * (5 + q * 6) * side - e, e * 2, e * 2);
   }
   c.restore();
   return true;
