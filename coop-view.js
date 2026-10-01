@@ -1,21 +1,21 @@
-import {getLocale} from './i18n.js?v=467';
-import {unitNameEN} from './event-text-en.js?v=467';
-import {drawRegionalBug} from './regional-boss-view352.js?v=467';
-import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=467';
-import {drawGasCloud196} from './gas-cloud196.js?v=467';
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=467';
-import {fxsBoomTail} from './fx-sample-preview.js?v=467';
-import {fx,fxReady,fxTint} from './fx-art.js?v=467';
-import {drawAADefense} from './aa-defense-art.js?v=467';
+import {getLocale} from './i18n.js?v=468';
+import {unitNameEN} from './event-text-en.js?v=468';
+import {drawRegionalBug} from './regional-boss-view352.js?v=468';
+import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=468';
+import {drawGasCloud196} from './gas-cloud196.js?v=468';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=468';
+import {fxsBoomTail} from './fx-sample-preview.js?v=468';
+import {fx,fxReady,fxTint} from './fx-art.js?v=468';
+import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=468';
 import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js';
-import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=467';
-import {drawStageBoss} from './stageboss-view.js?v=467';
-import {planeSprite,aircraftKey} from './aircraft.js?v=467';
-import {drawEquipment} from './equipment.js?v=467';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=467';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=467';
-import {drawSpecialAmmoIcon} from './icons.js?v=467';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=467';
+import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=468';
+import {drawStageBoss} from './stageboss-view.js?v=468';
+import {planeSprite,aircraftKey} from './aircraft.js?v=468';
+import {drawEquipment} from './equipment.js?v=468';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=468';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=468';
+import {drawSpecialAmmoIcon} from './icons.js?v=468';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=468';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
 const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=426&b=326';
@@ -29,9 +29,9 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  const heart=(x,y,size,color)=>{const s=Math.max(1,Math.round(size/4));c.fillStyle=color;c.fillRect(x-2*s,y-s,s,s);c.fillRect(x+s,y-s,s,s);c.fillRect(x-3*s,y,6*s,s);c.fillRect(x-2*s,y+s,4*s,s);c.fillRect(x-s,y+2*s,2*s,s)};
  const sprite=(p,key,scale=1,enemy=false)=>{const q=playerPose(p,p.x,p.y);if(!enemy){drawRedGhosts162(c,p,p.x,p.y,planeSprite,key);drawPlayerAura(c,p,q.x,q.y);}if(!enemy||p.type!=='bomber'&&p.type!=='zeppelin'){c.save();c.globalAlpha*=q.shadowAlpha;planeSprite(c,q.x+(p.pilot==='immelmann'?q.shadowX:14),q.y+(p.pilot==='immelmann'?q.shadowY:20)+q.height,p.a,key,scale*q.scale*q.shadowScale,enemy,true);c.restore();}planeSprite(c,q.x,q.y,p.a,key,scale*q.scale,enemy,false,p.hitFlash||0);if(!enemy)drawPilotSignatureFront(c,p,q.x,q.y)};
  for(const gas of g.gasZones){drawGasCloud196(c,gas,gas.x,gas.y,t);c.fillStyle='#e0dfb0';c.font='13px sans-serif';c.textAlign='center';c.fillText(gas.warning>0?'독가스 살포 '+gas.warning.toFixed(1)+'초':'독가스 · 조종 저하 / 지속 피해',gas.x,gas.y-gas.r-12)}
- for(const field of g.hostileMinefields){if(!field.encounterId)ring(field.x,field.y,field.radius,field.warning>0?'#ffe0a199':'#e58b6c88');for(const m of field.mines)if(!m.dead){if(!drawAADefense(c,'drachenMine',m.x,m.y,51,51)&&!fx(c,'mine',m.x,m.y,60,60))drawEquipment(c,'mine',m.x,m.y,0,56);ring(m.x,m.y,18,field.warning>0?'#ffe0a188':'#ff876e')}}
+ for(const field of g.hostileMinefields){if(!field.encounterId)ring(field.x,field.y,field.radius,field.warning>0?'#ffe0a199':'#e58b6c88');for(const m of field.mines)if(!m.dead){drawDrachenMine(c,m.x,m.y,64,64);ring(m.x,m.y,18,field.warning>0?'#ffe0a188':'#ff876e')}}
  for(const d of g.drops){if(d.dead)continue;if(d.specialAmmo){ring(d.x,d.y,24+Math.sin(t*6)*3,SPECIAL_AMMO[d.specialAmmo]?.color||'#ffd36f',2);drawSpecialAmmoIcon(c,d.specialAmmo,d.x,d.y+Math.sin(t*4)*2,42)}else if(d.mccuddenSupply){drawMccuddenSupply(c,d,d.x,d.y)}else if(d.heal||d.supply){const pulse=22+Math.sin(t*5)*4;c.save();c.globalAlpha=.4;ring(d.x,d.y,pulse,'#5fff9e',7);c.globalAlpha=1;ring(d.x,d.y,pulse,'#9cffb4');c.fillStyle='rgba(210,255,224,.9)';for(let i=0;i<4;i++){const sa=t*2.6+i*Math.PI/2;c.beginPath();c.arc(d.x+Math.cos(sa)*(pulse+6),d.y+Math.sin(sa)*(pulse+6),1.7,0,Math.PI*2);c.fill()}c.restore();drawEquipment(c,'repair',d.x,d.y+Math.sin(t*3)*2,0,46)}else{if(xpGem?.naturalWidth)c.drawImage(xpGem,d.x-9,d.y-9,18,18);else{c.fillStyle='#63d5ec';c.fillRect(d.x-3,d.y-3,6,6)}}}
- for(const grenade of g.grenades||[])drawGrenade(c,grenade,grenade.x,grenade.y);for(const m of g.mines){if(!drawAADefense(c,'drachenMine',m.x,m.y,51,51)&&!fx(c,'mine',m.x,m.y,60,60))drawEquipment(c,'mine',m.x,m.y,0,60);if(m.legendary||m.arm===0)ring(m.x,m.y,22+Math.sin(t*5)*3,m.legendary?'#ffd56f99':'#ffcc6677')}
+ for(const grenade of g.grenades||[])drawGrenade(c,grenade,grenade.x,grenade.y);for(const m of g.mines){drawDrachenMine(c,m.x,m.y,62,62);if(m.legendary||m.arm===0)ring(m.x,m.y,22+Math.sin(t*5)*3,m.legendary?'#ffd56f99':'#ffcc6677')}
  for(const e of g.enemies){
   if(e.stageBossBody)continue;
   if(e.crashing){const key=e.escortPlane||e.bossPlane||(e.faction==='entente'?(e.type==='hunter'?'nieuport':'camel'):(e.type==='hunter'?'fokker_standard':'albatros'));fx(c,'smokeTrail',e.x-Math.cos(e.a)*46,e.y-Math.sin(e.a)*46,128,44,e.a,.6);if(Math.floor(t*9+e.x*.11)%3===0)fx(c,'fireEngine',e.x,e.y,38,38,e.a+Math.PI/2,.85);sprite(e,key,enemyAircraftScale(e),true);continue}

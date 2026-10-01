@@ -1,21 +1,21 @@
-import {drawZubianShip} from './adriatic-boss-render.js?v=467';
-import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=467';
-import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=467';
-import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=467';
-import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=467';
-import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=467';
-import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=467';
-import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=467';
-import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=467';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=467';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=467';
-import {bossHudModel} from './headon-stageboss-hud.js?v=467';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=467';
-import {planeSprite} from './aircraft.js?v=467';
-import {getLocale} from './i18n.js?v=467';
-import {londonStatus} from './london-battle.js?v=467';
-import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=467';
-import {drawAADefense,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=467';
+import {drawZubianShip} from './adriatic-boss-render.js?v=468';
+import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=468';
+import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=468';
+import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=468';
+import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=468';
+import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=468';
+import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=468';
+import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=468';
+import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=468';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=468';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=468';
+import {bossHudModel} from './headon-stageboss-hud.js?v=468';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=468';
+import {planeSprite} from './aircraft.js?v=468';
+import {getLocale} from './i18n.js?v=468';
+import {londonStatus} from './london-battle.js?v=468';
+import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=468';
+import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=468';
 
 function createLazyImageGroup(sources){
  const cache={},pending={};
@@ -32,7 +32,7 @@ function createLazyImageGroup(sources){
   release(keys=Object.keys(cache)){for(const key of keys){if(cache[key]){try{delete cache[key].lowDetail}catch{}}delete cache[key];delete pending[key]}}
  };
 }
-const supportGroup=createLazyImageGroup({ship:'./stuttgart-open129.webp',cover:'./stuttgart-cover129.webp',damage:'./stuttgart-damage-20261001.webp?v=467'}),supportImages129=supportGroup.images;
+const supportGroup=createLazyImageGroup({ship:'./stuttgart-open129.webp',cover:'./stuttgart-cover129.webp',damage:'./stuttgart-damage-20261001.webp?v=468'}),supportImages129=supportGroup.images;
 
 const bossSources={
  parisGun:'./boss-bruno-train115.webp',lincomparable:'./boss-lincomparable94.webp?v=426&b=340',stuttgart:'./boss-sms-stuttgart94.webp',zubian:'./boss-hms-zubian94.webp',
@@ -216,7 +216,7 @@ function drawFormationNameplate(c,x,y,name,viewWidth){
 function drawFormationEdgeBadge(c,x,y,a){
  c.save();c.translate(x,y);c.fillStyle='rgba(28,10,12,.94)';c.strokeStyle='#c85b48';c.lineWidth=2.5;c.beginPath();c.arc(0,0,18,0,Math.PI*2);c.fill();c.stroke();c.fillStyle='#f0d7a4';c.font='700 8px "Arial Narrow",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('BOSS',0,0);c.rotate(a);c.fillStyle='#c85b48';c.beginPath();c.moveTo(24,0);c.lineTo(17,-5);c.lineTo(17,5);c.closePath();c.fill();c.restore();
 }
-const zubianGroup=createLazyImageGroup({atlas:'./zubian-atlas.webp?v=426',damage:'./zubian-damage-20261001.webp?v=467'}),zubianArt=zubianGroup.images;
+const zubianGroup=createLazyImageGroup({atlas:'./zubian-atlas.webp?v=426',damage:'./zubian-damage-20261001.webp?v=468'}),zubianArt=zubianGroup.images;
 const sinkFoamGroup=createLazyImageGroup({foam:'./ship-sinkfoam.webp?v=426',splash:'./ship-sinksplash.webp?v=426',churn:'./ship-sinkchurn.webp?v=426',wake:'./ship-wake.webp?v=426'}),sinkFoamArt=sinkFoamGroup.images;
 const zubianFrames={intact:[180,8,370,1000],front:[634,24,370,648],rear:[1020,416,368,592]};
 function drawZubianFrame(c,key,x,y,w,h){const zubianAtlas=zubianArt.atlas;if(!zubianAtlas.naturalWidth)return;const f=zubianFrames[key];c.save();c.imageSmoothingEnabled=true;c.drawImage(zubianAtlas,f[0],f[1],f[2],f[3],x-w/2,y-h/2,w,h);c.restore();}
@@ -700,7 +700,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     if(h.visual==='water-column'){if(warning){c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);c.strokeRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);}else if(FX3&&fxReady('navalSplash3')){const q=clamp((h.age-h.delay-h.warning)/Math.max(.01,h.duration),0,1),d=Math.max(h.width,h.height)*1.25;fx(c,'navalSplash3',h.x,h.y,d,d,0,(1-q)*.8);fx(c,'navalFoam3',h.x,h.y,d*(.7+q*.65),d*(.7+q*.65),0,(1-q)*.55)}else if(!fx(c,'waterColumn',h.x,h.y,h.width*2.4,h.height*1.5,0,.95))drawWaterColumn(c,h);}
     else if(h.visual==='apron-net'||h.visual==='drachen-mine-net'){
      c.fillStyle=warning?'#e5c2761a':'#5d514544';c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);c.strokeStyle=warning?'#f2cf7c':'#b2aa91';c.lineWidth=warning?2:3;c.strokeRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);
-     if(!warning){const step=h.visual==='apron-net'?28:52;c.lineWidth=1;c.strokeStyle='#b8b5a488';for(let x=h.x-h.width/2+step;x<h.x+h.width/2;x+=step){c.beginPath();c.moveTo(x,h.y-h.height/2);c.lineTo(x,h.y+h.height/2);c.stroke()}for(let y=h.y-h.height/2+step;y<h.y+h.height/2;y+=step){c.beginPath();c.moveTo(h.x-h.width/2,y);c.lineTo(h.x+h.width/2,y);c.stroke()}if(h.visual==='drachen-mine-net')for(let i=-3;i<=3;i++){const x=h.x+i*52,y=h.y+(Math.abs(i)%2?32:-24);if(!drawAADefense(c,'drachenMine',x,y,40,40)&&!fx(c,'mine',x,y,34,34)){c.fillStyle='#5a554b';c.beginPath();c.arc(x,y,13,0,Math.PI*2);c.fill();c.strokeStyle='#d0a56e';for(let k=0;k<8;k++){const a=k*Math.PI/4;c.beginPath();c.moveTo(x+Math.cos(a)*11,y+Math.sin(a)*11);c.lineTo(x+Math.cos(a)*18,y+Math.sin(a)*18);c.stroke()}}}}
+     if(!warning){const step=h.visual==='apron-net'?28:52;c.lineWidth=1;c.strokeStyle='#b8b5a488';for(let x=h.x-h.width/2+step;x<h.x+h.width/2;x+=step){c.beginPath();c.moveTo(x,h.y-h.height/2);c.lineTo(x,h.y+h.height/2);c.stroke()}for(let y=h.y-h.height/2+step;y<h.y+h.height/2;y+=step){c.beginPath();c.moveTo(h.x-h.width/2,y);c.lineTo(h.x+h.width/2,y);c.stroke()}if(h.visual==='drachen-mine-net')for(let i=-3;i<=3;i++){const x=h.x+i*52,y=h.y+(Math.abs(i)%2?32:-24);drawDrachenMine(c,x,y,48,48);}}
     }else if(h.visual==='gas-fire'){
      if(warning){// Hatched danger strip, not a plain box — same telegraph language as bomb zones.
       c.fillStyle='#d2aa5a14';c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);
