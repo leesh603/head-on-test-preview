@@ -6,7 +6,7 @@
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=470';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=473';
 
 const memo = new WeakMap();
 const st = g => { let s = memo.get(g); if (!s) memo.set(g, s = { tier: 0, burst: -9, burstAt: null, prey: null, trail: [], wing: [] }); return s; };
@@ -173,5 +173,283 @@ export function drawBertholdWill(c, g, point, t, px, py) {
 export function drawPassiveFx(c, g, point, t, px, py) {
   if (g.pilot === 'baron') return drawBaronHunt(c, g, point, t, px, py);
   if (g.pilot === 'berthold') drawBertholdWill(c, g, point, t, px, py);
+  else if (g.pilot === 'mannock') drawMannockCover(c, g, point, t);
+  else if (g.pilot === 'fonck') drawFonckFocus(c, g, point, t);
+  else if (g.pilot === 'rickenbacker') { drawRickenbackerSwitch(c, g, point, t, px, py); drawRickenbackerRing(c, g, point, t, px, py, 'back'); }
+  else if (g.pilot === 'ball') drawBallLone(c, g, point, t, px, py);
+  else if (g.pilot === 'immelmann') drawImmelmannEagle(c, g, point, t, px, py);
+  else if (g.pilot === 'jacobs') drawJacobsFalcon(c, g, point, t, px, py);
+  else if (g.pilot === 'gontermann') drawGontermannHeat(c, g, point, t, px, py);
   return false;
+}
+
+// ---- Mannock "동료의 수호자" / Guardian of Comrades: enemies lining up on an ally take +30% MG damage.
+//   threat      -> a short amber aim-glint off the enemy's nose toward the ally it is lining up
+//   marked foe  -> a slow ring of amber sparks orbits that enemy (it is the one to shoot)
+//   ally        -> a soft pale-gold guard glow while it is being covered
+const AMB = 'rgba(255,186,90,';
+export function drawMannockCover(c, g, point, t) {
+  if (g.pilot !== 'mannock' || typeof g.mannockCoverTarget !== 'function') return false;
+  sprites(); if (!EMBER) return false;
+  c.save(); c.lineCap = 'round';
+  let shown = 0;
+  for (const e of g.enemies || []) {
+    if (shown >= 4 || !(e.hp > 0)) continue;
+    const ally = g.mannockCoverTarget(e); if (!ally) continue;
+    if (Math.hypot(e.x - g.x, e.y - g.y) > 1100) continue;
+    shown++;
+    const [ex, ey] = point(e.x, e.y), [ax, ay] = point(ally.x, ally.y), d = Math.hypot(ax - ex, ay - ey) || 1, ux = (ax - ex) / d, uy = (ay - ey) / d;
+    // short aim glint off the enemy's nose toward the ally it is lining up (no screen-long lines)
+    { const L = Math.min(90, d * .45), gr = c.createLinearGradient(ex + ux * 22, ey + uy * 22, ex + ux * (22 + L), ey + uy * (22 + L));
+      gr.addColorStop(0, AMB + '.9)'); gr.addColorStop(1, AMB + '0)');
+      c.beginPath(); c.moveTo(ex + ux * 22, ey + uy * 22); c.lineTo(ex + ux * (22 + L), ey + uy * (22 + L));
+      c.globalAlpha = .9; c.strokeStyle = gr; c.lineWidth = 2.4; c.stroke(); }
+    // ally guard glow
+    c.globalCompositeOperation = 'lighter'; const gr = 30 + 3 * Math.sin(t * 4);
+    c.globalAlpha = .6; c.drawImage(EMBER, ax - gr, ay - gr, gr * 2, gr * 2);
+    // orbiting amber sparks on the marked enemy
+    const R = 30;
+    for (let i = 0; i < 6; i++) { const a = t * 2.2 + i * Math.PI / 3, s = 3.6 + 1.2 * Math.sin(t * 6 + i);
+      c.globalAlpha = .85; c.drawImage(EMBER, ex + Math.cos(a) * R - s, ey + Math.sin(a) * R - s, s * 2, s * 2); }
+    c.globalCompositeOperation = 'source-over';
+  }
+  c.restore();
+  return shown > 0;
+}
+
+// shared: a tiny per-game memo
+const pmemo = new WeakMap();
+const pst = (g, init) => { let s = pmemo.get(g); if (!s) pmemo.set(g, s = init()); return s; };
+const sizeOf = e => e.heavyBomber ? 60 : e.bossPilot ? 46 : e.type === 'bomber' ? 34 : 28;
+
+// ---- Fonck "정밀 조준" / Precision: hold the same target and damage climbs to +35%.
+//   four cold-white light shards close in on the target as the aim holds (iris focusing);
+//   when the focus is complete they meet in a crisp star glint that keeps twinkling
+export function drawFonckFocus(c, g, point, t) {
+  if (g.pilot !== 'fonck') return false;
+  sprites(); if (!EMBER) return false;
+  const s = g.pilotIdentity, e = s?.target, f = s?.focus || 0;
+  if (!e || !(e.hp > 0) || f <= 0) return false;
+  const [x, y] = point(e.x, e.y), sz = sizeOf(e), r = sz * (.45 + 1.25 * (1 - f)), rot = Math.PI / 4 + (1 - f) * .9;
+  c.save(); c.lineCap = 'round'; c.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 4; i++) {
+    const a = rot + i * Math.PI / 2, ca = Math.cos(a), sa = Math.sin(a), len = 6 + 10 * f;
+    c.beginPath(); c.moveTo(x + ca * (r + len), y + sa * (r + len)); c.lineTo(x + ca * r, y + sa * r);
+    c.globalAlpha = .25 + .6 * f; c.strokeStyle = '#9cc4ff'; c.lineWidth = 4; c.stroke();
+    c.globalAlpha = .5 + .5 * f; c.strokeStyle = '#f4f8ff'; c.lineWidth = 1.4; c.stroke();
+  }
+  if (f >= .999) {                                                   // full focus: twinkling star glint
+    const tw = .75 + .25 * Math.sin(t * 14), L = 14 * tw;
+    c.globalAlpha = .9; c.strokeStyle = '#ffffff'; c.lineWidth = 1.3;
+    c.beginPath(); c.moveTo(x - L, y); c.lineTo(x + L, y); c.moveTo(x, y - L); c.lineTo(x, y + L); c.stroke();
+    c.globalAlpha = .55 * tw; c.drawImage(EMBER, x - 9, y - 9, 18, 18);
+  }
+  c.restore();
+  return true;
+}
+
+// ---- Rickenbacker "빠른 표적전환" / Quick Switch: hitting a new enemy within 2 s stacks +10% (max 3, 3 s).
+//   each switch throws a quick white-blue arc from the last enemy to the new one;
+//   while stacks are live his plane streams red-white-blue ribbons from the wingtips (longer per stack)
+export function drawRickenbackerSwitch(c, g, point, t, px, py) {
+  if (g.pilot !== 'rickenbacker') return false;
+  sprites(); if (!EMBER) return false;
+  const s = g.pilotIdentity; if (!s) return false;
+  const m = pst(g, () => ({ prev: null, sw: 0, arc: null, wing: [] }));
+  const cur = s.lastHit && s.lastHit.hp > 0 ? { x: s.lastHit.x, y: s.lastHit.y } : null;
+  if ((s.switches || 0) > m.sw && m.prev && cur) m.arc = { a: m.prev, b: cur, t0: t };
+  m.sw = s.switches || 0; if (cur) m.prev = cur;
+  c.save(); c.lineCap = 'round';
+  if (m.arc) {
+    const q = (t - m.arc.t0) / .3;
+    if (q >= 0 && q < 1) {
+      const [ax, ay] = point(m.arc.a.x, m.arc.a.y), [bx, by] = point(m.arc.b.x, m.arc.b.y), mx = (ax + bx) / 2 - (by - ay) * .18, my = (ay + by) / 2 + (bx - ax) * .18;
+      const head = Math.min(1, q * 2.2), tail = Math.max(0, q * 2.2 - .9);
+      const P = u => { const v = 1 - u; return [v * v * ax + 2 * v * u * mx + u * u * bx, v * v * ay + 2 * v * u * my + u * u * by]; };
+      c.beginPath(); for (let k = 0; k <= 12; k++) { const [x, y] = P(tail + (head - tail) * k / 12); k ? c.lineTo(x, y) : c.moveTo(x, y); }
+      c.globalCompositeOperation = 'lighter'; c.globalAlpha = (1 - q) * .6; c.strokeStyle = '#7fb2ff'; c.lineWidth = 5; c.stroke();
+      c.globalAlpha = 1 - q; c.strokeStyle = '#ffffff'; c.lineWidth = 1.6; c.stroke();
+      const [hx, hy] = P(head); c.globalAlpha = 1 - q; c.drawImage(EMBER, hx - 6, hy - 6, 12, 12);
+      c.globalCompositeOperation = 'source-over';
+    }
+  }
+  const stacks = s.switches || 0, life = clamp((s.switchTime || 0) / .6);
+  push(m.wing, { x: g.x, y: g.y, a: g.a || 0 }, t, .12 + .1 * stacks);
+  if (stacks > 0) {
+    const span = 16, cols = ['#d23b33', '#f4f1ea', '#2f5fb0'];
+    for (const side of [-1, 1]) for (let band = 0; band < 3; band++) {
+      const off = span + (band - 1) * 2.2;
+      c.beginPath(); let first = true;
+      for (const p of m.wing) { const [x, y] = point(p.x - Math.sin(p.a) * off * side, p.y + Math.cos(p.a) * off * side); first ? c.moveTo(x, y) : c.lineTo(x, y); first = false; }
+      c.lineTo(px - Math.sin(g.a || 0) * off * side, py + Math.cos(g.a || 0) * off * side);
+      c.globalAlpha = .75 * life; c.strokeStyle = cols[band]; c.lineWidth = 1.8; c.stroke();
+    }
+  }
+  c.restore();
+  return true;
+}
+
+// ---- Ball "고독한 사냥꾼" / Lone Hunter: no ally within 320 px -> +15% MG damage.
+//   while he flies alone a cold moonlit sheen rims his plane and a thin silver vapour trails
+//   behind; it melts away as soon as a friendly comes close
+export function drawBallLone(c, g, point, t, px, py) {
+  if (g.pilot !== 'ball') return false;
+  sprites(); if (!VAPOR) return false;
+  const s = g.pilotIdentity, alone = !!s?.alone;
+  const m = pst(g, () => ({ k: 0, last: t, trail: [] }));
+  const dt = Math.max(0, Math.min(.1, t - m.last)); m.last = t;
+  m.k = clamp(m.k + (alone ? dt / .4 : -dt / .25));
+  push(m.trail, { x: g.x, y: g.y, a: g.a || 0 }, t, .5);
+  if (m.k <= .01) return true;
+  c.save(); c.lineCap = 'round';
+  c.beginPath(); let first = true;
+  for (const p of m.trail) { const [x, y] = point(p.x - Math.cos(p.a) * 16, p.y - Math.sin(p.a) * 16); first ? c.moveTo(x, y) : c.lineTo(x, y); first = false; }
+  c.globalAlpha = .22 * m.k; c.strokeStyle = '#dfe8f2'; c.lineWidth = 5; c.stroke();
+  c.globalAlpha = .4 * m.k; c.strokeStyle = '#ffffff'; c.lineWidth = 1.2; c.stroke();
+  const gr = c.createRadialGradient(px, py, 10, px, py, 40);
+  gr.addColorStop(0, 'rgba(210,225,245,0)'); gr.addColorStop(.6, 'rgba(200,220,245,.22)'); gr.addColorStop(1, 'rgba(190,210,240,0)');
+  c.globalCompositeOperation = 'lighter'; c.globalAlpha = m.k * (.85 + .15 * Math.sin(t * 2.4)); c.fillStyle = gr; c.beginPath(); c.arc(px, py, 40, 0, Math.PI * 2); c.fill();
+  c.restore();
+  return true;
+}
+
+// ---- Rickenbacker active "햇 인 더 링" / Hat in the Ring: while active, every burst also fires
+// rounds at up to 7 enemies within 780 px. Show the squadron ring on himself and stamp it on
+// each enemy the burst reaches.
+// The 94th's hoop seen in perspective: a tilted yellow tube; the far half is drawn behind the
+// plane (back layer) and the near half over it (front layer), so it reads as a ring the plane
+// sits inside, like the hat being tossed through the squadron ring.
+function hoop(c, x, y, r, a, layer, tilt = -.38, squash = .42, w = 1) {
+  const from = layer === 'back' ? Math.PI : 0, to = layer === 'back' ? Math.PI * 2 : Math.PI;
+  const arc = () => { c.beginPath(); c.ellipse(x, y, r, r * squash, tilt, from, to); };
+  c.lineCap = 'round';
+  arc(); c.globalAlpha = a * .5; c.strokeStyle = 'rgba(40,22,2,.9)'; c.lineWidth = 7.5 * w; c.stroke();     // dark bed
+  arc(); c.globalAlpha = a; c.strokeStyle = layer === 'back' ? '#c99a1c' : '#f2c230'; c.lineWidth = 5.2 * w; c.stroke(); // far side a touch darker
+  c.beginPath(); c.ellipse(x, y - 1.2 * w, r, r * squash, tilt, from + .25, to - .25);                    // tube highlight
+  c.globalAlpha = a * (layer === 'back' ? .35 : .85); c.strokeStyle = '#fff3b0'; c.lineWidth = 1.4 * w; c.stroke();
+}
+function hatGlyph(c, x, y, s) {                               // small Uncle-Sam top hat
+  c.save(); c.translate(x, y);
+  c.fillStyle = '#1f3f86'; c.fillRect(-s * .62, s * .18, s * 1.24, s * .2);           // brim
+  c.fillStyle = '#f2efe6'; c.fillRect(-s * .38, -s * .62, s * .76, s * .82);          // crown
+  c.fillStyle = '#c8332b'; for (let i = 0; i < 3; i++) c.fillRect(-s * .38 + i * s * .26, -s * .62, s * .12, s * .82);
+  c.fillStyle = '#1f3f86'; c.fillRect(-s * .38, -s * .04, s * .76, s * .16);          // band
+  c.restore();
+}
+export function drawRickenbackerRing(c, g, point, t, px, py, layer = 'back') {
+  if (g.pilot !== 'rickenbacker') return false;
+  const m = pst(g, () => ({ prev: null, sw: 0, arc: null, wing: [] }));
+  m.ring ??= { k: 0, last: t, rounds: g.roundsFired || 0, stamps: [], pulse: -9 };
+  const R = m.ring;
+  (globalThis.__hoHoop ??= new WeakSet()).add(g);                 // the painted hoop replaces the legacy half-ring for this plane
+  if (layer === 'back') {                                       // state advances once per frame, on the back pass
+    const dt = Math.max(0, Math.min(.1, t - R.last)); R.last = t;
+    const active = g.skillTime > 0;
+    R.k = clamp(R.k + (active ? dt / .2 : -dt / .3));
+    if (active && (g.roundsFired || 0) > R.rounds) {            // a burst went out: stamp the same targets the engine picks
+      let n = 0;
+      for (const e of g.enemies || []) { if (n >= 7) break; if (!(e.hp > 0) || e.surface || Math.hypot(e.x - g.x, e.y - g.y) > 780) continue;
+        if (!R.stamps.some(s => s.e === e && t - s.t0 < .25)) R.stamps.push({ e, t0: t }); n++; }
+      if (n) R.pulse = t;
+    }
+    R.rounds = g.roundsFired || 0;
+    R.stamps = R.stamps.filter(s => t - s.t0 < .45 && s.e.hp > 0);
+  }
+  if (R.k <= .01 && !R.stamps.length) return true;
+  c.save();
+  for (const s of R.stamps) {                                   // hoop drops over each struck enemy, then fades
+    const q = (t - s.t0) / .45, [x, y] = point(s.e.x, s.e.y), sz = sizeOf(s.e);
+    const r = sz * (1.05 + .9 * Math.pow(1 - Math.min(1, q / .35), 2));
+    hoop(c, x, y, r, (1 - q) * .9, layer, -.38, .42, .8);
+  }
+  if (R.k > .01) {
+    const kick = Math.max(0, 1 - (t - R.pulse) / .2), r = 42 + 5 * kick, a = R.k * (.85 + .15 * kick), tilt = -.38 + Math.sin(t * 1.4) * .05;
+    if (layer === 'front') {                                    // hat tossed through the hoop's left rim, under the near arc
+      const hx = px - r * Math.cos(tilt) * .9, hy = py - r * Math.sin(tilt) * .9 - 8 + Math.sin(t * 1.6) * 1.2;   // brim sits on the left rim
+      c.save(); c.translate(hx, hy); c.rotate(-.5 + Math.sin(t * 1.6) * .05); c.globalAlpha = R.k; hatGlyph(c, 0, 0, 17); c.restore();
+    }
+    hoop(c, px, py, r, a, layer, tilt);
+  }
+  c.restore();
+  return true;
+}
+
+// ---- Immelmann "독일의 독수리" / Eagle: right after a big turn, 1.5 s of tighter spread and +20% fire rate.
+//   the turn he just made is drawn behind him as a pale-gold feathered swoosh that fades with the buff
+export function drawImmelmannEagle(c, g, point, t, px, py) {
+  if (g.pilot !== 'immelmann') return false;
+  sprites(); if (!EMBER) return false;
+  const m = pst(g, () => ({ trail: [], last: 0 }));
+  push(m.trail, { x: g.x, y: g.y, a: g.a || 0 }, t, .55);
+  const e = g.eagleTime || 0; if (e <= 0) return true;
+  const k = clamp(e / .4) * clamp((1.5 - e) / .08 + .3), n = m.trail.length;
+  c.save(); c.lineCap = 'round'; c.lineJoin = 'round';
+  for (let i = 1; i < n; i++) {                                     // tapered gold swoosh (older = thinner)
+    const p0 = m.trail[i - 1], p1 = m.trail[i], u = i / n, [x0, y0] = point(p0.x, p0.y), [x1, y1] = point(p1.x, p1.y);
+    c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1);
+    c.globalAlpha = k * u * .35; c.strokeStyle = '#f5d27a'; c.lineWidth = 2 + 9 * u; c.stroke();
+    c.globalAlpha = k * u * .8; c.strokeStyle = '#fff6da'; c.lineWidth = .8 + 1.6 * u; c.stroke();
+  }
+  c.globalCompositeOperation = 'lighter';                           // a few feathers peeling off the swoosh
+  for (let i = 0; i < n; i += 4) {
+    const p = m.trail[i]; if (hash(p.t * 11, 3) > .35) continue;
+    const age = (t - p.t) / .55, [x, y] = point(p.x, p.y), side = hash(p.t, 8) > .5 ? 1 : -1, d = 6 + 14 * age;
+    const fx = x - Math.sin(p.a) * d * side, fy = y + Math.cos(p.a) * d * side;
+    c.save(); c.translate(fx, fy); c.rotate(p.a + side * (.6 + age)); c.globalAlpha = k * (1 - age) * .9;
+    c.fillStyle = '#ffe9b0'; c.beginPath(); c.ellipse(0, 0, 5, 1.6, 0, 0, Math.PI * 2); c.fill(); c.restore();
+  }
+  c.restore();
+  return true;
+}
+
+// ---- Jacobs "선회전의 베테랑" / Black Falcon: stacks of extra fire rate (max 3).
+//   black-falcon wisps: a pair of dark vapour ribbons off the wingtips, heavier with each stack
+export function drawJacobsFalcon(c, g, point, t, px, py) {
+  if (g.pilot !== 'jacobs') return false;
+  sprites(); if (!VAPOR) return false;
+  const m = pst(g, () => ({ trail: [] }));
+  push(m.trail, { x: g.x, y: g.y, a: g.a || 0 }, t, .5);
+  const st = g.jacobsStacks || 0; if (st <= 0) return true;
+  const k = clamp((g.jacobsStackTime || 0) / .6);
+  c.save(); c.lineCap = 'round';
+  const W = (q, side) => { const off = 17; return point(q.x - Math.sin(q.a) * off * side - Math.cos(q.a) * 6, q.y + Math.cos(q.a) * off * side - Math.sin(q.a) * 6); };
+  const n = m.trail.length;
+  for (const side of [-1, 1]) for (let i = 1; i < n; i++) {        // tapered dark wingtip vapour, heavier per stack
+    const u = i / n, [x0, y0] = W(m.trail[i - 1], side), [x1, y1] = W(m.trail[i], side);
+    c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1);
+    c.globalAlpha = (.12 + .1 * st) * k * u; c.strokeStyle = '#151417'; c.lineWidth = (1 + 1.4 * st) * (.3 + .7 * u); c.stroke();
+  }
+  c.restore();
+  return true;
+}
+
+// ---- Gontermann "점화 조준" / Ignition Sight: hold aim 1.5 s -> incendiary rounds every 1.2 s.
+//   his gun muzzles heat up while the aim holds (dull red -> white-orange), and once primed a
+//   small flame licks from the muzzle and embers spill back off the nose
+export function drawGontermannHeat(c, g, point, t, px, py) {
+  if (g.pilot !== 'gontermann') return false;
+  sprites(); if (!EMBER) return false;
+  const f = g.pilotIdentity?.focus || 0; if (f <= .02) return true;
+  const a = g.a || 0, ca = Math.cos(a), sa = Math.sin(a), primed = f >= .999;
+  c.save(); c.globalCompositeOperation = 'lighter';
+  for (const side of [-1, 1]) {
+    const mx = px + ca * 22 - sa * 5 * side, my = py + sa * 22 + ca * 5 * side, r = 4 + 6 * f + (primed ? 2 * Math.sin(t * 20 + side) : 0);
+    c.globalAlpha = .35 + .55 * f; c.drawImage(EMBER, mx - r, my - r, r * 2, r * 2);
+    if (primed) {                                                   // flame lick off the muzzle
+      const L = 10 + 4 * Math.sin(t * 23 + side * 2);
+      const gr = c.createLinearGradient(mx, my, mx + ca * L, my + sa * L); gr.addColorStop(0, 'rgba(255,236,190,.95)'); gr.addColorStop(1, 'rgba(255,110,40,0)');
+      c.beginPath(); c.moveTo(mx, my); c.lineTo(mx + ca * L, my + sa * L); c.globalAlpha = .9; c.strokeStyle = gr; c.lineWidth = 3; c.lineCap = 'round'; c.stroke();
+    }
+  }
+  if (primed) for (let i = 0; i < 4; i++) {                        // embers spilling back
+    const q = ((t * 1.7 + i / 4) % 1), side = i % 2 ? 1 : -1, d = 18 - q * 34, e = 2.2 * (1 - q) + .6;
+    c.globalAlpha = (1 - q) * .9; c.drawImage(EMBER, px + ca * d - sa * (5 + q * 6) * side - e, py + sa * d + ca * (5 + q * 6) * side - e, e * 2, e * 2);
+  }
+  c.restore();
+  return true;
+}
+
+// Front layer (drawn after the player's plane): only effects that must sit over the plane.
+export function drawPassiveFxFront(c, g, point, t, px, py) {
+  if (g.pilot === 'rickenbacker') drawRickenbackerRing(c, g, point, t, px, py, 'front');
 }
