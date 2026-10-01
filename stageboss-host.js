@@ -4,6 +4,7 @@ import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=480';
 import {bossSoundFor} from './boss-feedback.js?v=480';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=480';
+import {advanceCambraiBug} from './cambrai-bug-flight.js?v=480';
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
@@ -90,7 +91,10 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     escortLeaderId:spec.leaderId,rearGunner:!!spec.rearGunner,maxSpeed:spec.maxSpeed,formationRole:spec.formationRole,formationSide:spec.formationSide,formationRank:spec.formationRank,
     pairId:spec.pairId,callSign:spec.callSign,callSignKo:spec.callSignKo,name:spec.name||spec.callSign||e.name,visualScale:spec.visualScale,missionTarget:!!spec.persistent});
    if(spec.hp){e.hp=e.maxHp=Math.round(spec.hp*heavyHp);e.coopHpApplied=heavyHp;}
-   if(spec.minion==='bug')Object.assign(e,{bugDrone:true,hp:Math.max(12,Math.round(e.maxHp*.4)),maxHp:Math.max(12,Math.round(e.maxHp*.4)),speed:spec.speed||178,fire:Infinity,launchAge:0,launchSeconds:spec.launchSeconds||.6,launchHeading:spec.launchHeading??spec.a??-Math.PI/2,contactDamage:spec.contactDamage??18,bugTargetX:spec.passTargetX,bugTargetY:spec.passTargetY,bugAge:0});
+   if(spec.minion==='bug'){
+    Object.assign(e,{bugDrone:true,hp:Math.max(12,Math.round(e.maxHp*.4)),maxHp:Math.max(12,Math.round(e.maxHp*.4)),speed:spec.speed||178,fire:Infinity,launchAge:0,launchSeconds:spec.launchSeconds||.6,launchHeading:spec.launchHeading??spec.a??-Math.PI/2,launchPortId:spec.launchPortId,contactDamage:spec.contactDamage??18,bugTargetX:spec.passTargetX,bugTargetY:spec.passTargetY,bugAge:0});
+    if(Number.isFinite(e.bugTargetX)&&Number.isFinite(e.bugTargetY))g.bossCues.push({type:'bug-flight-target',minionId:e.id,x:e.bugTargetX,y:e.bugTargetY,life:Math.hypot(e.bugTargetX-e.x,e.bugTargetY-e.y)/e.speed+.2});
+   }
    if(spec.minion==='airship')Object.assign(e,{summonDone:true,bossAirship:true,hp:Math.round(e.maxHp*.5),maxHp:Math.round(e.maxHp*.5),fire:2.6,speed:Math.max(e.speed||0,95)});
   },
   countMinions(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&!e.bossAirship&&e.hp>0).length;},
@@ -118,7 +122,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     else if(event.type==='hazard-activated'&&event.visual==='harbor-swing'){
       // The attached payload remains intact throughout the physical sweep.
     }
-    else if(event.type==='hazard-activated'&&event.kind==='circle'&&(event.visual?.startsWith('aa-')||event.visual==='city-flak-shell'||event.visual?.startsWith('somme-'))){
+    else if(event.type==='hazard-activated'&&event.kind==='circle'&&(event.visual?.startsWith('aa-')||event.visual==='city-flak-shell'||event.visual?.startsWith('somme-')||event.visual==='black-flak'&&['fliegerzug','treffas-wagen'].includes(body?.kind))){
       // Authored AA atlas draws these effects; do not stack a generic blast.
     }
     else if(event.type==='hazard-activated'&&event.kind==='circle'){
@@ -228,14 +232,7 @@ function updateMinions(g,dt){
  for(const e of g.enemies){if(!e.bossMinion||e.hp<=0)continue;e.hitFlash=Math.max(0,(e.hitFlash||0)-dt);const formation=e.behavior==='jasta-formation'||e.behavior==='black-flight-formation',p=formationDefenderTarget(g,e)||g.enemyCombatTarget(e);if(!p||p.hp<=0)continue;
   e.life=(e.life??18)-dt;if(e.life<=0){e.hp=0;continue}
    if(e.behavior==='bug-strike'){
-    // The 1918 aerial torpedo commits to the sampled impact point at launch.
-    // No continuous player homing or modern drone orbit/retarget behaviour.
-    const tx=e.bugTargetX,ty=e.bugTargetY,a=Math.atan2(ty-e.y,tx-e.x);
-    const delta=Math.atan2(Math.sin(a-e.a),Math.cos(a-e.a));
-    if((e.bugAge||0)<.7)e.a+=clamp(delta,-.38*dt,.38*dt);
-    e.bugAge=(e.bugAge||0)+dt;
-    const step=Math.min(e.speed*dt,Math.hypot(tx-e.x,ty-e.y));e.x+=Math.cos(e.a)*step;e.y+=Math.sin(e.a)*step;
-    if(Math.hypot(e.x-tx,e.y-ty)<24){
+    if(advanceCambraiBug(e,dt)){
       for(const target of players(g))if(alive(target)&&Math.hypot(e.x-target.x,e.y-target.y)<39){
         if(g.players)g.hitPlayer(target,e.contactDamage);else g.hit(e.contactDamage);}
       e.hp=0;g.combatBlast(e.x,e.y,42,'enemy','mineBlast');
@@ -273,7 +270,7 @@ export function beginStageBossFrame(g,dt){
  const addon=g.stageBoss;if(!addon||blocked(g)||dt<=0)return;
  addon.reconcile({blocked:false});
  for(const p of players(g))for(const [id,s]of p.bossStatuses||[]){s.remaining-=dt;if(s.remaining<=0||!alive(p))p.bossStatuses.delete(id);}
- g.bossCues=g.bossCues.filter(c=>(c.life-=dt)>0);
+ g.bossCues=g.bossCues.filter(c=>(c.life-=dt)>0&&(c.type!=='bug-flight-target'||g.enemies.some(e=>e.id===c.minionId&&e.hp>0)));
  tickLondonBattle(g,dt);if(blocked(g))return;
  // Warning-phase mines physically travel from the winch to their final slots;
  // collision stays disabled until they settle, and pause freezes both clocks.
