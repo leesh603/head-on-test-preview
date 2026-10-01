@@ -1,18 +1,19 @@
+import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=cambrai20261001';
 import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=480';
 import {sommeExtents} from './somme-boss-layout.js?v=480';
 import {drawZubianShip} from './adriatic-boss-render.js?v=480';
 import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=480';
 import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=480';
-import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=480';
+import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=cambrai20261001';
 import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=480';
 import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=480';
 import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=480';
 import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=480';
 import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=480';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=480';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=480';
-import {bossHudModel} from './headon-stageboss-hud.js?v=480';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=480';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=cambrai20261001';
+import {bossHudModel} from './headon-stageboss-hud.js?v=cambrai20261001';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=cambrai20261001';
 import {planeSprite} from './aircraft.js?v=480';
 import {getLocale} from './i18n.js?v=480';
 import {londonStatus} from './london-battle.js?v=480';
@@ -169,13 +170,17 @@ function drawRailConsist181(c,b){
     }else{
      if(p.hp<p.maxHp){c.fillStyle='#17241e';c.fillRect(-40,63,80,4);c.fillStyle='#d9af69';c.fillRect(-40,63,80*p.hp/p.maxHp,4);}
      if(id.startsWith('car-launch')&&bugArt.folded?.naturalWidth&&!p.reloadVisual){
-      const bug=bugArt.folded,bw=90,bh=bw*bug.naturalHeight/bug.naturalWidth,prep=p.launchWarmup||0;
-      const py=prep?-(1-prep/1.15)*60:0;
-      c.drawImage(bug,-bw/2,py-bh/2,bw,bh);
-      if(prep)fx(c,'smokeTrail',0,py+25,23,48,0,.55);
+      const bug=bugArt.folded,bw=72,bh=bw*bug.naturalHeight/bug.naturalWidth,prep=p.launchWarmup||0,target=p.launchTarget;
+      const progress=prep?Math.min(1,1-prep/1.15):0;
+      const dx=(target?.x??b.x+p.x)-(b.x+p.x),dy=(target?.y??b.y+p.y-320)-(b.y+p.y),a=Math.atan2(dy,dx)-(p.angle||0),run=Math.min(64,Math.hypot(dx,dy)*.35)*progress;
+      const rotation=Math.atan2(Math.sin(a+Math.PI/2),Math.cos(a+Math.PI/2))*Math.min(1,progress*2);
+      c.save();c.translate(Math.cos(a)*run,Math.sin(a)*run);c.rotate(rotation);c.drawImage(bug,-bw/2,-bh/2,bw,bh);c.restore();
      }
     }
     c.restore();
+   }
+   for(const p of cars.values())if(p.launchWarmup>0&&p.launchTarget&&!p.destroyed){
+    const t=p.launchTarget;c.save();c.strokeStyle='#e9c48c8a';c.lineWidth=1.4;c.setLineDash([5,8]);c.beginPath();c.moveTo(p.x,p.y);c.lineTo(t.x-b.x,t.y-b.y);c.stroke();c.beginPath();c.arc(t.x-b.x,t.y-b.y,39,0,Math.PI*2);c.stroke();c.restore();
    }
    c.save();if(b.phase==='derailed'){c.translate(18,6);c.rotate(.12);}
    drawCar(b.destroying&&wreck?.naturalWidth?wreck:atlas,0,0);c.restore();
@@ -368,8 +373,7 @@ function drawBossPart(c,p,ring,t=0){
   return;
  }
  if(p.bodyKey==='treffas-wagen'){
-  // Wreck sprites live inside the body composite; parts stay interaction-only.
-  if(p.hittable&&!p.destroyed){c.strokeStyle='#ffd57988';c.lineWidth=1.5;for(let i=0;i<4;i++){const a=i*Math.PI/2;c.beginPath();c.arc(p.x,p.y,r,a-.34,a+.34);c.stroke();}c.fillStyle='#202e28';c.fillRect(p.x-r*.72,p.y+r+5,r*1.44,3);c.fillStyle='#efb96f';c.fillRect(p.x-r*.72,p.y+r+5,r*1.44*p.hp/p.maxHp,3);}return;
+  if(p.hittable&&!p.destroyed&&p.hp<p.maxHp){c.fillStyle='#202e28';c.fillRect(p.x-22,p.y+21,44,3);c.fillStyle='#efb96f';c.fillRect(p.x-22,p.y+21,44*p.hp/p.maxHp,3);}return;
  }
  if(p.bodyKey==='flak-tower-cell')return;
  if(p.bodyKey==='london-apron'||p.bodyKey==='drachen-net'){
@@ -532,7 +536,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     c.restore();c.restore()}}
 
    // Churned-earth trail under the Treffas-Wagen, in world space before any scale.
-   if(b.assetKey==='treffas-wagen'&&b.churn?.length){c.save();for(let i=0;i<b.churn.length;i++){const pt=b.churn[i],f=i/b.churn.length;c.globalAlpha=.1+f*.22;c.fillStyle='#33291d';for(const s of [-1,1]){c.beginPath();c.ellipse(pt.x-b.x+s*72,pt.y-b.y,36*(.6+f*.5),17*(.6+f*.4),0,0,Math.PI*2);c.fill();}}c.restore();}
+   if(b.assetKey==='treffas-wagen'&&b.churn?.length){c.save();for(const pt of b.churn){c.save();c.translate(pt.x-b.x,pt.y-b.y);c.rotate(pt.heading||0);c.globalAlpha=Math.max(0,1-(pt.age||0)/12)*.25;c.fillStyle='#33291d';for(const side of [-1,1]){c.beginPath();c.ellipse(side*112,65,29,18,0,0,Math.PI*2);c.fill();}c.restore();}c.restore();}
    const trenchArmor=['a7v-flak','mark-v-cruiser'].includes(b.assetKey);
    if(trenchArmor)c.scale(b.geometryScale,b.geometryScale);
    else if(!rail&&!structure&&!plane){c.scale(2.025,2.025);c.translate(0,b.recoil*18);}
@@ -572,32 +576,10 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     if(harborArt.guns.naturalWidth){const cw=harborArt.guns.naturalWidth/2,ch=harborArt.guns.naturalHeight/2;for(const [id,sx,x] of [['gun-left',0,-91],['gun-right',1,91]])if(!dead(id))c.drawImage(harborArt.guns,sx*cw,0,cw,ch,x-38,62-38,76,76);}
    }
     else if(b.assetKey==='treffas-wagen'){
-     const intact=treffasArt.body,damaged=treffasArt.wreck;
-     if(intact?.naturalWidth){
-      const scale=310/intact.naturalWidth,w=310,h=intact.naturalHeight*scale;
-      const zones={'wheel-left':[0,60,305,1130],'wheel-right':[900,60,307,1130],turret:[385,42,440,340],rudder:[450,1010,315,265]};
-      const parts=b.parts||[],dead=id=>b.destroying||parts.find(p=>p.id===id)?.destroyed;
-      c.save();c.rotate(b.heading||0);c.imageSmoothingEnabled=true;
-      // The complete chassis always includes its drawn axle supports. Damage
-      // replaces registered regions of that same image, never floating pieces.
-      c.save();c.beginPath();c.rect(-w/2,-h/2,w,h);
-      for(const [id,[x,y,rw,rh]] of Object.entries(zones))if(dead(id))c.rect(x*scale-w/2,y*scale-h/2,rw*scale,rh*scale);
-      c.clip('evenodd');c.drawImage(intact,-w/2,-h/2,w,h);c.restore();
-      if(damaged?.naturalWidth)for(const [id,[x,y,rw,rh]] of Object.entries(zones))if(dead(id))
-        c.drawImage(damaged,x,y,rw,rh,x*scale-w/2,y*scale-h/2,rw*scale,rh*scale);
-      if(b.destroying&&damaged?.naturalWidth)c.drawImage(damaged,-w/2,-h/2,w,h);
-      for(const [id,sx] of [['wheel-left',110],['wheel-right',990]])if(!dead(id)){
-       const x=sx*scale-w/2,y=150*scale-h/2,tw=108*scale,th=950*scale;
-       const shift=(((b.wheelRoll||0)*34)%th+th)%th;
-       c.save();c.beginPath();c.rect(x,y,tw,th);c.clip();
-       for(const d of [-th,0,th])c.drawImage(intact,sx,150,108,950,x,y+d+shift,tw,th);
-       c.restore();
-      }
-      c.restore();
-      for(const p of parts)if(p.destroyed){const age=(b.motionTime||0)-(p.destroyedAt||0);
-       fx(c,'smokeDark',p.x,p.y-25,55,68,0,age<5?.4:.17);
-       if(age<4)fx(c,'fireGround',p.x,p.y,35,35,0,.7*(1-age/4));}
-     }
+     drawCambraiTreffas(c,b,treffasArt.body,treffasArt.wreck);
+     for(const p of b.parts||[])if(p.destroyed){const age=(b.motionTime||0)-(p.destroyedAt||0);
+      fx(c,'smokeDark',p.x,p.y-25,55,68,0,age<5?.4:.17);
+      if(age<4)fx(c,'fireGround',p.x,p.y,35,35,0,.7*(1-age/4));}
    }
    else if(b.assetKey==='mark4-wedge'){
     const partById=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id);
@@ -776,7 +758,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
   });
   if(layer!=='bodies')for(const effect of g.aaEffects||[])
     drawAADefense(c,effect.kind,effect.x,effect.y,effect.size||115,effect.size||115,0,Math.max(0,1-effect.age/effect.life));
-  if(layer!=='bodies')for(const b of addon.stages.encounter?.bodies.values()||[])if(!b.dead&&['gik','ca4'].includes(b.kind))drawAlpsWarnings(c,b);
+  if(layer!=='bodies')for(const b of addon.stages.encounter?.bodies.values()||[]){if(!b.dead&&['gik','ca4'].includes(b.kind))drawAlpsWarnings(c,b);if(!b.dead&&b.kind==='treffas-wagen')drawCambraiFlakWarning(c,b);}
   if(layer!=='bodies')for(const cue of g.bossCues){if(drawRegionalCue(c,cue))continue;c.strokeStyle='#ffce80';c.setLineDash([8,6]);c.beginPath();c.moveTo(cue.x,cue.y);c.lineTo(cue.targetX,cue.targetY);c.stroke();c.setLineDash([]);}
  c.restore();
  if(layer==='bodies')return;for(const b of addon.stages.encounter?.bodies.values()||[]){if(b.dead)continue;const hull=b.sommeBoss?sommeExtents(b):b.kind==='drachen-net'?{halfWidth:400*b.cityArtScale,halfHeight:360*b.cityArtScale}:b.kind==='flak-tower-cell'?{halfWidth:190*b.regionalScale,halfHeight:190*b.regionalScale}:ALPS_BOMBER_LAYOUT[b.kind]?alpsHullExtents(b):LARGE_HULLS[b.kind]||{halfWidth:0,halfHeight:0},sx=(b.x-g.x)*z+W/2,sy=(b.y-g.y)*z+H/2,hx=hull.halfWidth*z,hy=hull.halfHeight*z;const visW=Math.min(sx+hx,W-30)-Math.max(sx-hx,30),visH=Math.min(sy+hy,H-100)-Math.max(sy-hy,190),frac=(Math.max(0,visW)*Math.max(0,visH))/(Math.max(1,4*hx*hy)||1),formation=FORMATION_BOSS_KEYS.has(b.kind);if(frac>.45){if(formation)drawFormationNameplate(c,sx,sy-54*z,(getLocale()==='en'?(b.callSign||b.callSignKo):(b.callSignKo||b.callSign)),W);continue;}const x=clamp(sx,26,W-26),y=clamp(sy,190,H-100),a=Math.atan2(b.y-g.y,b.x-g.x);if(formation){drawFormationEdgeBadge(c,x,y,a);continue;}c.save();c.translate(x,y);c.rotate(a);c.fillStyle='#ffcd7c';c.beginPath();c.moveTo(12,0);c.lineTo(-7,-7);c.lineTo(-7,7);c.fill();c.restore();}

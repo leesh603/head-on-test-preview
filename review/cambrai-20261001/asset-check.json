@@ -1,0 +1,32 @@
+[
+  {
+    "path": "boss-cambrai-bug.webp",
+    "bytes": 4674,
+    "gitBlobSha": "184637ea34816ef97a4ff783cee80fad6092044f",
+    "unchanged": true
+  },
+  {
+    "path": "boss-cambrai-train-atlas.webp",
+    "bytes": 153142,
+    "gitBlobSha": "756bc0140ef292076ab9a041dbd18a1d97234a83",
+    "unchanged": true
+  },
+  {
+    "path": "boss-cambrai-train-wreck-atlas.webp",
+    "bytes": 212136,
+    "gitBlobSha": "85f4df05b5a8ba20faffc1b59eb7e68572a4e609",
+    "unchanged": true
+  },
+  {
+    "path": "boss-cambrai-treffas-connected-wreck.webp",
+    "bytes": 333234,
+    "gitBlobSha": "c9322eec5127ff5c696620005037ebe293bad0ae",
+    "unchanged": true
+  },
+  {
+    "path": "boss-cambrai-treffas-connected.webp",
+    "bytes": 238636,
+    "gitBlobSha": "9be61a646884ca5f0f1a990f0f00572701c87ce8",
+    "unchanged": true
+  }
+]

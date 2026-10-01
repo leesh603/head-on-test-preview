@@ -192,6 +192,9 @@ export function drawRegionalHazard(c,h,bossKind){
  c.restore();return true;
 }
 export function drawRegionalCue(c,cue){
+ if(cue.type==='bug-flight-target'){
+  c.save();c.strokeStyle='#ecc88fa8';c.lineWidth=1.5;c.setLineDash([5,7]);c.beginPath();c.arc(cue.x,cue.y,39,0,Math.PI*2);c.stroke();c.setLineDash([]);c.beginPath();c.moveTo(cue.x-7,cue.y);c.lineTo(cue.x+7,cue.y);c.moveTo(cue.x,cue.y-7);c.lineTo(cue.x,cue.y+7);c.stroke();c.restore();return true;
+ }
  if(cue.type==='safe-corridor'){
   c.save();c.globalAlpha=.45*clamp(cue.life/.4);c.strokeStyle='#d6d4ab';c.lineWidth=2;
   for(const side of [-1,1]){const x=cue.x+side*cue.width/2;c.beginPath();c.moveTo(x-side*12,cue.y-15);c.lineTo(x,cue.y-15);c.lineTo(x,cue.y+15);c.lineTo(x-side*12,cue.y+15);c.stroke();}c.restore();return true;
