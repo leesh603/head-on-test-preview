@@ -1,0 +1,33 @@
+{
+  "base": "641caba8176f75c0a887c14047868d3ec2408dbd",
+  "functionalFiles": [
+    "coop-engine.js",
+    "city-flak-combat.js",
+    "boss-feedback.js",
+    "headon-stageboss-render.js",
+    "london-apron369.js",
+    "city-defense.js",
+    "headon-stageboss-patterns.js",
+    "city-airship-combat378.js",
+    "stageboss-host.js",
+    "coop-view.js",
+    "city-air1.js",
+    "stageboss-view.js",
+    "tests/city-host.test.mjs",
+    "tests/city-defense-rebuild.test.mjs"
+  ],
+  "baselineExecutionRepairs": "baseline-parse-fix.json",
+  "otherSourceChanges": "JS cache identity only",
+  "originalSpritesMatchCanonical": [
+    "boss-drachen-left380.webp",
+    "boss-drachen-center380.webp",
+    "boss-drachen-right380.webp",
+    "boss-flak-tower-hull.webp",
+    "boss-flak-tower-siege.webp",
+    "boss-flak-tower-platform.webp",
+    "boss-flak-tower-ears.webp",
+    "terrain-city359.webp"
+  ],
+  "AlpsCraneAndNavalMainUpdatesPreserved": true,
+  "LondonCombatPreserved": true
+}

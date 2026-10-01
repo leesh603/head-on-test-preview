@@ -1,0 +1,4 @@
+  syntax: 112 modules checked
+  imports: 271 resolved, 6 skipped (dynamic/dev), 1 missing
+validate: 1 problem(s)
+  FAIL aa-defense-art.js: missing import/script target ./boss-drachen-parts-v2.webp?v=aa20260927

@@ -1,9 +1,9 @@
 
-import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=476';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=476';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=476';
-import {bossSoundFor} from './boss-feedback.js?v=476';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=476';
+import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=478';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=478';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=478';
+import {bossSoundFor} from './boss-feedback.js?v=478';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=478';
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
@@ -100,6 +100,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    handleLondonCue(g,event);
    const body=g.stageBoss?.stages.encounter?.bodies.get(event.bossId),x=event.x??body?.x??g.x,y=event.y??body?.y??g.y;
    const sound=bossSoundFor(event,body?.kind||event.bossId);if(sound)g.event('bossSound',sound);
+   if(event.type==='city-mine-lane'&&body?.kind==='drachen-net')for(const f of g.hostileMinefields||[])if(f.encounterId===event.encounterId)for(const m of f.mines)if(Math.abs((m.targetX??m.x)-event.x)<event.width/2){m.dead=true;m.chainHandled=true;}
    if(event.type==='spawn-minefield'){
     g.hostileMinefields??=[];
     const owned=g.hostileMinefields.filter(f=>f.encounterId===g.stageBoss?.stages.encounter?.id);
@@ -117,7 +118,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     else if(event.type==='hazard-activated'&&event.visual==='harbor-swing'){
       // The attached payload remains intact throughout the physical sweep.
     }
-    else if(event.type==='hazard-activated'&&event.kind==='circle'&&event.visual?.startsWith('aa-')){
+    else if(event.type==='hazard-activated'&&event.kind==='circle'&&(event.visual?.startsWith('aa-')||event.visual==='city-flak-shell')){
       // Authored AA atlas draws these effects; do not stack a generic blast.
     }
     else if(event.type==='hazard-activated'&&event.kind==='circle'){
@@ -301,7 +302,7 @@ export function beginStageBossFrame(g,dt){
     const forward=naval?Math.max(520,Math.min(760,(bounds.bottom-bounds.top)*1.05)):structure?Math.max(520,Math.min(700,(bounds.bottom-bounds.top)*.95)):rail?Math.max(460,Math.min(650,(bounds.bottom-bounds.top)*.82)):0;
     const heading=Number.isFinite(g.a)?g.a:-Math.PI/2;
     x=g.x+(alpine?105:(naval||rail||structure)?Math.cos(heading)*forward:0);
-    y=g.y+(alpine?-Math.max(165,Math.min(180,(bounds.bottom-bounds.top)*.24)):(naval||rail||structure)?Math.sin(heading)*forward:-Math.min(180,(bounds.bottom-bounds.top)*.22));
+    y=g.y+(alpine?-Math.max(165,Math.min(180,(bounds.bottom-bounds.top)*.24)):(naval||rail||structure)?Math.sin(heading)*forward:stage===4?0:-Math.min(180,(bounds.bottom-bounds.top)*.22));
    }
    addon.startBoss({x,y});g.navalApproachAt=null;
   }
