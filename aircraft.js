@@ -1,4 +1,4 @@
-import {clearCrewMatte} from './matte70.js?v=489';
+import {clearCrewMatte} from './matte70.js?v=490';
 // Hand-authored game-native pixel sprites. All detail is rasterized once on an
 // integer grid; Canvas scaling keeps the same pixels in flight and the roster.
 const AIRFRAMES={
@@ -174,7 +174,7 @@ export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0
  c.save();c.imageSmoothingEnabled=false;c.translate(Math.round(x),Math.round(y));c.rotate(a+Math.PI/2);
  const s=scale*.54;c.scale(s,s);
  if(shadow){if(!shadows.has(cacheKey)){const sh=document.createElement('canvas');sh.width=144;sh.height=160;const sc=sh.getContext('2d');sc.imageSmoothingEnabled=true;sc.imageSmoothingQuality='high';sc.drawImage(sprite,0,0,144,160);sc.globalCompositeOperation='source-in';sc.fillStyle='#18271f';sc.fillRect(0,0,144,160);shadows.set(cacheKey,sh)}c.globalAlpha*=.26;c.drawImage(shadows.get(cacheKey),-72,-76)}
- else {c.imageSmoothingEnabled=true;c.imageSmoothingQuality='low';c.drawImage(sprite,-72,-76,144,160);if(flash>0){const fk=damaged?cacheKey+'#d':cacheKey;if(!flashes.has(fk)){const f=document.createElement('canvas');f.width=144;f.height=160;const fc=f.getContext('2d');fc.imageSmoothingEnabled=true;fc.imageSmoothingQuality='high';fc.drawImage(sprite,0,0,144,160);fc.globalCompositeOperation='source-in';fc.fillStyle='#fff1c9';fc.fillRect(0,0,144,160);flashes.set(fk,f)}c.globalAlpha*=Math.min(.9,flash/.16);c.drawImage(flashes.get(fk),-72,-76)}}
+ else {c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(sprite,-72,-76,144,160);if(flash>0){const fk=damaged?cacheKey+'#d':cacheKey;if(!flashes.has(fk)){const f=document.createElement('canvas');f.width=144;f.height=160;const fc=f.getContext('2d');fc.imageSmoothingEnabled=true;fc.imageSmoothingQuality='high';fc.drawImage(sprite,0,0,144,160);fc.globalCompositeOperation='source-in';fc.fillStyle='#fff1c9';fc.fillRect(0,0,144,160);flashes.set(fk,f)}c.globalAlpha*=Math.min(.9,flash/.16);c.drawImage(flashes.get(fk),-72,-76)}}
  c.restore();
 }
 
