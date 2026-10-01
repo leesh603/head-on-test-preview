@@ -1,1 +1,0 @@
-{"method":"fireEnemy","phases":["_freBase","_freCore53","_freField","_freLegendary"],"aliasMap":{"_fireEnemy53":"_freBase","_fieldFire56":"_freCore53"},"keep":["_legendaryFireEnemy109"],"repoints":[{"before":"installRevision(Game","value":"Game.prototype.fireEnemy=Game.prototype._freField;"}]}
