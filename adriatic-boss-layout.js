@@ -26,3 +26,32 @@ export function separateZubianHalves(encounter){
  const shift=overlap.depth+.02,shareA=locked(a)?0:locked(b)?1:.5,shareB=1-shareA;
  a.x-=overlap.x*shift*shareA;a.y-=overlap.y*shift*shareA;b.x+=overlap.x*shift*shareB;b.y+=overlap.y*shift*shareB;
 }
+
+// Oriented-rectangle hulls for fleet traffic vs stage bosses. yaw follows the
+// same convention as navalPoint/navalOverlap: local +y runs along the hull.
+export function bossHullRect(b){
+ const kind=b.assetKey||b.kind||'',s=b.t?.geometryScale||b.geometryScale||1;
+ if(kind.startsWith('hms-zubian')){const z=zubianSize(b);return{x:b.x,y:b.y,w:z.width,h:z.height,yaw:b.hullYaw||0}}
+ if(kind==='sms-stuttgart')return{x:b.x,y:b.y,w:500*s,h:750*s,yaw:b.hullYaw||0}
+ if(kind==='armored-harbor-fortress')return{x:b.x,y:b.y,w:280*s,h:250*s,yaw:b.hullYaw||0}
+ return null;
+}
+export function hullOverlap(a,b,pad=10){
+ const axes=[[Math.cos(a.yaw),Math.sin(a.yaw)],[-Math.sin(a.yaw),Math.cos(a.yaw)],[Math.cos(b.yaw),Math.sin(b.yaw)],[-Math.sin(b.yaw),Math.cos(b.yaw)]];
+ const proj=(r,x,y)=>Math.abs(x*Math.cos(r.yaw)+y*Math.sin(r.yaw))*r.w/2+Math.abs(-x*Math.sin(r.yaw)+y*Math.cos(r.yaw))*r.h/2;
+ let best=null;for(const [x,y] of axes){const d=(b.x-a.x)*x+(b.y-a.y)*y,depth=proj(a,x,y)+proj(b,x,y)+pad-Math.abs(d);if(depth<=0)return null;if(!best||depth<best.depth)best={x:x*(d<0?-1:1),y:y*(d<0?-1:1),depth};}
+ return best;
+}
+// Push a fleet ship out of any boss hull it entered, then bend its heading
+// away so it keeps sailing instead of cutting straight back through.
+export function separateShipFromBosses(game,e){
+ const bodies=game.stageBoss?.stages?.encounter?.bodies;if(!bodies)return;
+ const ship={x:e.x,y:e.y,w:e.hullWidth||44,h:e.hullLength||150,yaw:(e.a||0)-Math.PI/2};
+ for(const b of bodies.values()){
+  if(b.dead)continue;const br=bossHullRect(b);if(!br)continue;
+  const ov=hullOverlap(br,ship,14);if(!ov)continue;
+  e.x+=ov.x*ov.depth;e.y+=ov.y*ov.depth;ship.x=e.x;ship.y=e.y;
+  const away=Math.atan2(ov.y,ov.x);
+  for(const key of ['course','a']){const d=Math.atan2(Math.sin(away-e[key]),Math.cos(away-e[key]));e[key]+=Math.max(-.06,Math.min(.06,d));}
+ }
+}

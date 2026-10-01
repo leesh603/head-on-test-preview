@@ -1,5 +1,5 @@
-import {ZUBIAN_LAYOUT,zubianSize} from './adriatic-boss-layout.js?v=468';
-import {fx,fxReady} from './fx-art.js?v=468';
+import {ZUBIAN_LAYOUT,zubianSize} from './adriatic-boss-layout.js?v=469';
+import {fx,fxReady} from './fx-art.js?v=469';
 
 // Source rectangles in the authored damage sheet; destinations are world units.
 export const ZUBIAN_DAMAGE_FRAMES=Object.freeze({
@@ -10,8 +10,8 @@ export const ZUBIAN_DAMAGE_FRAMES=Object.freeze({
 function atlasSprite(c,image,frame,x,y,width,height){if(!image?.naturalWidth)return false;c.drawImage(image,...frame,x-width/2,y-height/2,width,height);return true;}
 export function drawNavalWake(c,b,width,height){
  if(!fxReady('foamRing')||b.destroying||!(b.driveVelocity>1))return;
- const age=b.motionTime||b.time||0;c.save();c.globalAlpha*=Math.min(.5,b.driveVelocity/50);
- for(let i=0;i<4;i++){const t=(age*.45+i*.25)%1;fx(c,'foamRing',0,height*.4+t*height*.2,width*(.45+t*.75),width*(.13+t*.23),0,(1-t)*.48);}
+ const age=b.motionTime||b.time||0;c.save();c.globalAlpha*=Math.min(.6,b.driveVelocity/42);
+ for(let i=0;i<6;i++){const t=(age*.4+i*.16)%1;fx(c,'foamRing',0,height*.36+t*height*.46,width*(.38+t*1.05),width*(.11+t*.26),0,(1-t)*.52);}
  c.restore();
 }
 export function drawZubianShip(c,b,images){

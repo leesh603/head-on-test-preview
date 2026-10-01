@@ -1,8 +1,9 @@
 // Moving fleet system — Adriatic (region 1) and Zeebrugge harbor (region 7).
 // Ships sail real headings, fire from actual gun positions on the hull, and are
 // faction-owned: hostile ships hunt the player, friendly ships engage aircraft.
-import {PLANES} from './engine.js?v=468';
-import {fx,fxReady,FX3} from './fx-art.js?v=468';
+import {PLANES} from './engine.js?v=469';
+import {fx,fxReady,FX3} from './fx-art.js?v=469';
+import {separateShipFromBosses} from './adriatic-boss-layout.js?v=469';
 export const SHIP_TYPES=Object.freeze({
  dd:{name:'구축함',hp:150,drawnH:300,speed:26,guns:[96,-99],salvo:5,spread:.15,shellSpeed:215,interval:3.2,width:88},
  aa:{name:'대공순양함',hp:340,drawnH:380,speed:17,guns:[79,5,-39,-98],salvo:3,spread:.09,shellSpeed:205,interval:4.6,width:205}
@@ -108,6 +109,7 @@ export function installFleet(Game){
     if(exposed)e.spot=(e.spot||0)+step;else e.spot=Math.max(0,(e.spot||0)-step*1.4);
     if((e.spot||0)>=4&&!e.spotted){e.spotted=true;this.fleetBoostUntil=(this.t||0)+20;this.spawnMovingFleet();this.event('flak','수상기가 함대에 위치를 송신 — 지원 함대 접근 중')}
    }
+   if(e.navalVessel&&e.hp>0)separateShipFromBosses(this,e);
    if(!e.movingShip||e.hp<=0)continue;
    if(!e.moored){
     e.weave+=step*.5;
