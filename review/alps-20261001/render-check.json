@@ -1,0 +1,1849 @@
+{
+  "renderer": "test-preview drawStageBoss via native Canvas",
+  "browser": false,
+  "base": "88e5eea20c40a5ea7b2c7ebe38089f2643ca7bab",
+  "canvasStateBalanced": true,
+  "states": [
+    {
+      "kind": "gik",
+      "state": "normal",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "gik",
+          "phase": 1,
+          "x": 25.455805995986378,
+          "y": 13.775983816390742,
+          "hp": 2400,
+          "hullYaw": 0.11443331259766275,
+          "cannonLock": null,
+          "cannonRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 172.79999999999998,
+              "x": -88.36820527638433,
+              "y": -5.778001058393737,
+              "localX": -88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 172.79999999999998,
+              "x": 87.37480686288647,
+              "y": 14.421100016062791,
+              "localX": 88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "cannon",
+              "hp": 156,
+              "x": 20.36466747670617,
+              "y": -177.18352863221565,
+              "localX": 0,
+              "localY": -178.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 124.8,
+              "x": -20.033534672206883,
+              "y": 174.30249564632595,
+              "localX": 0,
+              "localY": 175.45,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "gik",
+      "state": "normal",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "gik",
+          "phase": 1,
+          "x": 25.455805995986378,
+          "y": 13.775983816390742,
+          "hp": 2400,
+          "hullYaw": 0.11443331259766275,
+          "cannonLock": null,
+          "cannonRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 172.79999999999998,
+              "x": -88.36820527638433,
+              "y": -5.778001058393737,
+              "localX": -88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 172.79999999999998,
+              "x": 87.37480686288647,
+              "y": 14.421100016062791,
+              "localX": 88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "cannon",
+              "hp": 156,
+              "x": 20.36466747670617,
+              "y": -177.18352863221565,
+              "localX": 0,
+              "localY": -178.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 124.8,
+              "x": -20.033534672206883,
+              "y": 174.30249564632595,
+              "localX": 0,
+              "localY": 175.45,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "gik",
+      "state": "warning",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "gik",
+          "phase": 1,
+          "x": 29.679834740608737,
+          "y": 16.031644392986816,
+          "hp": 2400,
+          "hullYaw": 0.060798102982735205,
+          "cannonLock": {
+            "angle": -1.6973885262704647,
+            "seconds": 1.25
+          },
+          "cannonRemaining": 1.17,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 172.79999999999998,
+              "x": -88.5508854922631,
+              "y": -1.0323170714978858,
+              "localX": -88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 172.79999999999998,
+              "x": 88.02226780137063,
+              "y": 9.71624264331594,
+              "localX": 88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "cannon",
+              "hp": 156,
+              "x": 10.8366626632959,
+              "y": -178.02047422227008,
+              "localX": 0,
+              "localY": -178.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 124.8,
+              "x": -10.660456766331745,
+              "y": 175.1258323649974,
+              "localX": 0,
+              "localY": 175.45,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "gik",
+      "state": "warning",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "gik",
+          "phase": 1,
+          "x": 29.679834740608737,
+          "y": 16.031644392986816,
+          "hp": 2400,
+          "hullYaw": 0.060798102982735205,
+          "cannonLock": {
+            "angle": -1.6973885262704647,
+            "seconds": 1.25
+          },
+          "cannonRemaining": 1.17,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 172.79999999999998,
+              "x": -88.5508854922631,
+              "y": -1.0323170714978858,
+              "localX": -88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 172.79999999999998,
+              "x": 88.02226780137063,
+              "y": 9.71624264331594,
+              "localX": 88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "cannon",
+              "hp": 156,
+              "x": 10.8366626632959,
+              "y": -178.02047422227008,
+              "localX": 0,
+              "localY": -178.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 124.8,
+              "x": -10.660456766331745,
+              "y": 175.1258323649974,
+              "localX": 0,
+              "localY": 175.45,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "gik",
+      "state": "release",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "gik",
+          "phase": 1,
+          "x": 87.36624044568252,
+          "y": 44.530615712570665,
+          "hp": 2400,
+          "hullYaw": -0.04205728221693362,
+          "cannonLock": null,
+          "cannonRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 172.79999999999998,
+              "x": -88.18889043854718,
+              "y": 8.065023448070185,
+              "localX": -88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 172.79999999999998,
+              "x": 88.55468093562489,
+              "y": 0.6272833408235243,
+              "localX": 88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "cannon",
+              "hp": 156,
+              "x": -7.498705190092949,
+              "y": -178.192289172321,
+              "localX": 0,
+              "localY": -178.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 124.8,
+              "x": 7.376775024400374,
+              "y": 175.29485357602312,
+              "localX": 0,
+              "localY": 175.45,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "gik",
+      "state": "release",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "gik",
+          "phase": 1,
+          "x": 87.36624044568252,
+          "y": 44.530615712570665,
+          "hp": 2400,
+          "hullYaw": -0.04205728221693362,
+          "cannonLock": null,
+          "cannonRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 172.79999999999998,
+              "x": -88.18889043854718,
+              "y": 8.065023448070185,
+              "localX": -88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 172.79999999999998,
+              "x": 88.55468093562489,
+              "y": 0.6272833408235243,
+              "localX": 88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "cannon",
+              "hp": 156,
+              "x": -7.498705190092949,
+              "y": -178.192289172321,
+              "localX": 0,
+              "localY": -178.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 124.8,
+              "x": 7.376775024400374,
+              "y": 175.29485357602312,
+              "localX": 0,
+              "localY": 175.45,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "gik",
+      "state": "engines",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "gik",
+          "phase": 2,
+          "x": 103.24362206439959,
+          "y": 42.75792563325598,
+          "hp": 2261.76,
+          "hullYaw": 0.24049814012971066,
+          "cannonLock": null,
+          "cannonRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 0,
+              "x": -86.94047101935644,
+              "y": -16.842787742308143,
+              "localX": -88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 172.79999999999998,
+              "x": 84.86824882310087,
+              "y": 25.292396914888016,
+              "localX": 88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "cannon",
+              "hp": 156,
+              "x": 42.48055502323875,
+              "y": -173.2169880378873,
+              "localX": 0,
+              "localY": -178.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 124.8,
+              "x": -41.78981429115356,
+              "y": 170.40045164702732,
+              "localX": 0,
+              "localY": 175.45,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "gik",
+      "state": "engines",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "gik",
+          "phase": 2,
+          "x": 103.24362206439959,
+          "y": 42.75792563325598,
+          "hp": 2261.76,
+          "hullYaw": 0.24049814012971066,
+          "cannonLock": null,
+          "cannonRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 0,
+              "x": -86.94047101935644,
+              "y": -16.842787742308143,
+              "localX": -88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 172.79999999999998,
+              "x": 84.86824882310087,
+              "y": 25.292396914888016,
+              "localX": 88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "cannon",
+              "hp": 156,
+              "x": 42.48055502323875,
+              "y": -173.2169880378873,
+              "localX": 0,
+              "localY": -178.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 124.8,
+              "x": -41.78981429115356,
+              "y": 170.40045164702732,
+              "localX": 0,
+              "localY": 175.45,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "gik",
+      "state": "guns",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "gik",
+          "phase": 1,
+          "x": 42.29558726674905,
+          "y": 22.677122265575406,
+          "hp": 2175.3599999999997,
+          "hullYaw": 0.15063745331830525,
+          "cannonLock": null,
+          "cannonRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 172.79999999999998,
+              "x": -88.1011558718655,
+              "y": -8.972810821657806,
+              "localX": -88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 172.79999999999998,
+              "x": 86.79556081384398,
+              "y": 17.574288691446796,
+              "localX": 88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "cannon",
+              "hp": 0,
+              "x": 26.764698689441516,
+              "y": -176.3302963306743,
+              "localX": 0,
+              "localY": -178.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 0,
+              "x": -26.329500336767673,
+              "y": 173.4631370407446,
+              "localX": 0,
+              "localY": 175.45,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "gik",
+      "state": "guns",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "gik",
+          "phase": 1,
+          "x": 42.29558726674905,
+          "y": 22.677122265575406,
+          "hp": 2175.3599999999997,
+          "hullYaw": 0.15063745331830525,
+          "cannonLock": null,
+          "cannonRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 172.79999999999998,
+              "x": -88.1011558718655,
+              "y": -8.972810821657806,
+              "localX": -88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 172.79999999999998,
+              "x": 86.79556081384398,
+              "y": 17.574288691446796,
+              "localX": 88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "cannon",
+              "hp": 0,
+              "x": 26.764698689441516,
+              "y": -176.3302963306743,
+              "localX": 0,
+              "localY": -178.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 0,
+              "x": -26.329500336767673,
+              "y": 173.4631370407446,
+              "localX": 0,
+              "localY": 175.45,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "gik",
+      "state": "critical",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "gik",
+          "phase": 3,
+          "x": 55.381725902229,
+          "y": 29.37911491400339,
+          "hp": 624,
+          "hullYaw": 0.19217785534144555,
+          "cannonLock": null,
+          "cannonRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 0,
+              "x": -87.6525259251166,
+              "y": -12.623775146395825,
+              "localX": -88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 0,
+              "x": 85.99085108055013,
+              "y": 21.16361335978927,
+              "localX": 88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "cannon",
+              "hp": 0,
+              "x": 34.06433431361284,
+              "y": -175.06668337456563,
+              "localX": 0,
+              "localY": -178.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 124.8,
+              "x": -33.510442698757345,
+              "y": 172.22007063676782,
+              "localX": 0,
+              "localY": 175.45,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "gik",
+      "state": "critical",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "gik",
+          "phase": 3,
+          "x": 55.381725902229,
+          "y": 29.37911491400339,
+          "hp": 624,
+          "hullYaw": 0.19217785534144555,
+          "cannonLock": null,
+          "cannonRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 0,
+              "x": -87.6525259251166,
+              "y": -12.623775146395825,
+              "localX": -88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 0,
+              "x": 85.99085108055013,
+              "y": 21.16361335978927,
+              "localX": 88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "cannon",
+              "hp": 0,
+              "x": 34.06433431361284,
+              "y": -175.06668337456563,
+              "localX": 0,
+              "localY": -178.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 124.8,
+              "x": -33.510442698757345,
+              "y": 172.22007063676782,
+              "localX": 0,
+              "localY": 175.45,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "gik",
+      "state": "wreck",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "gik",
+          "phase": "defeated",
+          "x": 55.381725902229,
+          "y": 29.37911491400339,
+          "hp": 0,
+          "hullYaw": 0.19217785534144555,
+          "cannonLock": null,
+          "cannonRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 0,
+              "x": -87.6525259251166,
+              "y": -12.623775146395825,
+              "localX": -88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 0,
+              "x": 85.99085108055013,
+              "y": 21.16361335978927,
+              "localX": 88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "cannon",
+              "hp": 0,
+              "x": 34.06433431361284,
+              "y": -175.06668337456563,
+              "localX": 0,
+              "localY": -178.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 124.8,
+              "x": -33.510442698757345,
+              "y": 172.22007063676782,
+              "localX": 0,
+              "localY": 175.45,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "gik",
+      "state": "wreck",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "gik",
+          "phase": "defeated",
+          "x": 55.381725902229,
+          "y": 29.37911491400339,
+          "hp": 0,
+          "hullYaw": 0.19217785534144555,
+          "cannonLock": null,
+          "cannonRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 0,
+              "x": -87.6525259251166,
+              "y": -12.623775146395825,
+              "localX": -88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 0,
+              "x": 85.99085108055013,
+              "y": 21.16361335978927,
+              "localX": 88.45,
+              "localY": 4.35,
+              "hittable": true
+            },
+            {
+              "id": "cannon",
+              "hp": 0,
+              "x": 34.06433431361284,
+              "y": -175.06668337456563,
+              "localX": 0,
+              "localY": -178.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 124.8,
+              "x": -33.510442698757345,
+              "y": 172.22007063676782,
+              "localX": 0,
+              "localY": 175.45,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ca4",
+      "state": "normal",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "ca4",
+          "phase": 1,
+          "x": 21.72961510909529,
+          "y": 13.449431922623935,
+          "hp": 2400,
+          "hullYaw": 0.11454955964873222,
+          "bombRunRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 151.2,
+              "x": -91.09520504978153,
+              "y": -45.510368235581836,
+              "localX": -95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "centerEngine",
+              "hp": 127.2,
+              "x": 18.980539697826966,
+              "y": 101.43422308461386,
+              "localX": 30.45,
+              "localY": 98.6,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 151.2,
+              "x": 99.05043018217711,
+              "y": -23.633499121494022,
+              "localX": 95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "bombBay",
+              "hp": 168.00000000000003,
+              "x": 3.314677138498155,
+              "y": -28.809944732114946,
+              "localX": 0,
+              "localY": -29,
+              "hittable": false
+            },
+            {
+              "id": "frontGun",
+              "hp": 112.8,
+              "x": 23.6999415402618,
+              "y": -205.99110483462184,
+              "localX": 0,
+              "localY": -207.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 112.8,
+              "x": -23.20273996948708,
+              "y": 201.6696131248046,
+              "localX": 0,
+              "localY": 203,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ca4",
+      "state": "normal",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "ca4",
+          "phase": 1,
+          "x": 21.72961510909529,
+          "y": 13.449431922623935,
+          "hp": 2400,
+          "hullYaw": 0.11454955964873222,
+          "bombRunRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 151.2,
+              "x": -91.09520504978153,
+              "y": -45.510368235581836,
+              "localX": -95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "centerEngine",
+              "hp": 127.2,
+              "x": 18.980539697826966,
+              "y": 101.43422308461386,
+              "localX": 30.45,
+              "localY": 98.6,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 151.2,
+              "x": 99.05043018217711,
+              "y": -23.633499121494022,
+              "localX": 95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "bombBay",
+              "hp": 168.00000000000003,
+              "x": 3.314677138498155,
+              "y": -28.809944732114946,
+              "localX": 0,
+              "localY": -29,
+              "hittable": false
+            },
+            {
+              "id": "frontGun",
+              "hp": 112.8,
+              "x": 23.6999415402618,
+              "y": -205.99110483462184,
+              "localX": 0,
+              "localY": -207.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 112.8,
+              "x": -23.20273996948708,
+              "y": 201.6696131248046,
+              "localX": 0,
+              "localY": 203,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ca4",
+      "state": "warning",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "ca4",
+          "phase": 1,
+          "x": 25.3426328357483,
+          "y": 15.669732383423643,
+          "hp": 2400,
+          "hullYaw": 0.125770664452412,
+          "bombRunRemaining": 1.17,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 151.2,
+              "x": -90.57880417101714,
+              "y": -46.52967047968994,
+              "localX": -95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "centerEngine",
+              "hp": 127.2,
+              "x": 17.841164597940992,
+              "y": 101.64081535381922,
+              "localX": 30.45,
+              "localY": 98.6,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 151.2,
+              "x": 99.30938277495997,
+              "y": -22.520579318847183,
+              "localX": 95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "bombBay",
+              "hp": 168.00000000000003,
+              "x": 3.6377410849761738,
+              "y": -28.770937416057134,
+              "localX": 0,
+              "localY": -29,
+              "hittable": true
+            },
+            {
+              "id": "frontGun",
+              "hp": 112.8,
+              "x": 26.00984875757965,
+              "y": -205.7122025248085,
+              "localX": 0,
+              "localY": -207.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 112.8,
+              "x": -25.464187594833223,
+              "y": 201.39656191239993,
+              "localX": 0,
+              "localY": 203,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ca4",
+      "state": "warning",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "ca4",
+          "phase": 1,
+          "x": 25.3426328357483,
+          "y": 15.669732383423643,
+          "hp": 2400,
+          "hullYaw": 0.125770664452412,
+          "bombRunRemaining": 1.17,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 151.2,
+              "x": -90.57880417101714,
+              "y": -46.52967047968994,
+              "localX": -95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "centerEngine",
+              "hp": 127.2,
+              "x": 17.841164597940992,
+              "y": 101.64081535381922,
+              "localX": 30.45,
+              "localY": 98.6,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 151.2,
+              "x": 99.30938277495997,
+              "y": -22.520579318847183,
+              "localX": 95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "bombBay",
+              "hp": 168.00000000000003,
+              "x": 3.6377410849761738,
+              "y": -28.770937416057134,
+              "localX": 0,
+              "localY": -29,
+              "hittable": true
+            },
+            {
+              "id": "frontGun",
+              "hp": 112.8,
+              "x": 26.00984875757965,
+              "y": -205.7122025248085,
+              "localX": 0,
+              "localY": -207.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 112.8,
+              "x": -25.464187594833223,
+              "y": 201.39656191239993,
+              "localX": 0,
+              "localY": 203,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ca4",
+      "state": "release",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "ca4",
+          "phase": 1,
+          "x": 75.2537590739182,
+          "y": 45.10917042064183,
+          "hp": 2400,
+          "hullYaw": 0.18609200018006097,
+          "bombRunRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 151.2,
+              "x": -87.6090311790285,
+              "y": -51.90556478714024,
+              "localX": -95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "centerEngine",
+              "hp": 127.2,
+              "x": 11.681323192688822,
+              "y": 102.53150339514168,
+              "localX": 30.45,
+              "localY": 98.6,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 151.2,
+              "x": 100.48640857712651,
+              "y": -16.492776942370675,
+              "localX": 95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "bombBay",
+              "hp": 168.00000000000003,
+              "x": 5.3655739158741795,
+              "y": -28.499309053962882,
+              "localX": 0,
+              "localY": -29,
+              "hittable": true
+            },
+            {
+              "id": "frontGun",
+              "hp": 112.8,
+              "x": 38.36385349850036,
+              "y": -203.7700597358346,
+              "localX": 0,
+              "localY": -207.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 112.8,
+              "x": -37.559017411119235,
+              "y": 199.4951633777402,
+              "localX": 0,
+              "localY": 203,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ca4",
+      "state": "release",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "ca4",
+          "phase": 1,
+          "x": 75.2537590739182,
+          "y": 45.10917042064183,
+          "hp": 2400,
+          "hullYaw": 0.18609200018006097,
+          "bombRunRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 151.2,
+              "x": -87.6090311790285,
+              "y": -51.90556478714024,
+              "localX": -95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "centerEngine",
+              "hp": 127.2,
+              "x": 11.681323192688822,
+              "y": 102.53150339514168,
+              "localX": 30.45,
+              "localY": 98.6,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 151.2,
+              "x": 100.48640857712651,
+              "y": -16.492776942370675,
+              "localX": 95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "bombBay",
+              "hp": 168.00000000000003,
+              "x": 5.3655739158741795,
+              "y": -28.499309053962882,
+              "localX": 0,
+              "localY": -29,
+              "hittable": true
+            },
+            {
+              "id": "frontGun",
+              "hp": 112.8,
+              "x": 38.36385349850036,
+              "y": -203.7700597358346,
+              "localX": 0,
+              "localY": -207.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 112.8,
+              "x": -37.559017411119235,
+              "y": 199.4951633777402,
+              "localX": 0,
+              "localY": 203,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ca4",
+      "state": "engines",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "ca4",
+          "phase": 2,
+          "x": 97.74787981631711,
+          "y": 46.561389898978945,
+          "hp": 2279.04,
+          "hullYaw": 0.24321258560247205,
+          "bombRunRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 0,
+              "x": -84.50288212822147,
+              "y": -56.82246837320523,
+              "localX": -95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "centerEngine",
+              "hp": 127.2,
+              "x": 5.808796485020821,
+              "y": 103.03116219569498,
+              "localX": 30.45,
+              "localY": 98.6,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 151.2,
+              "x": 101.26408642558623,
+              "y": -10.7291565554521,
+              "localX": 95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "bombBay",
+              "hp": 168.00000000000003,
+              "x": 6.983835123901983,
+              "y": -28.14651038694056,
+              "localX": 0,
+              "localY": -29,
+              "hittable": false
+            },
+            {
+              "id": "frontGun",
+              "hp": 112.8,
+              "x": 49.93442113589923,
+              "y": -201.247549266625,
+              "localX": 0,
+              "localY": -207.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 112.8,
+              "x": -48.88684586731393,
+              "y": 197.02557270858392,
+              "localX": 0,
+              "localY": 203,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ca4",
+      "state": "engines",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "ca4",
+          "phase": 2,
+          "x": 97.74787981631711,
+          "y": 46.561389898978945,
+          "hp": 2279.04,
+          "hullYaw": 0.24321258560247205,
+          "bombRunRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 0,
+              "x": -84.50288212822147,
+              "y": -56.82246837320523,
+              "localX": -95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "centerEngine",
+              "hp": 127.2,
+              "x": 5.808796485020821,
+              "y": 103.03116219569498,
+              "localX": 30.45,
+              "localY": 98.6,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 151.2,
+              "x": 101.26408642558623,
+              "y": -10.7291565554521,
+              "localX": 95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "bombBay",
+              "hp": 168.00000000000003,
+              "x": 6.983835123901983,
+              "y": -28.14651038694056,
+              "localX": 0,
+              "localY": -29,
+              "hittable": false
+            },
+            {
+              "id": "frontGun",
+              "hp": 112.8,
+              "x": 49.93442113589923,
+              "y": -201.247549266625,
+              "localX": 0,
+              "localY": -207.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 112.8,
+              "x": -48.88684586731393,
+              "y": 197.02557270858392,
+              "localX": 0,
+              "localY": 203,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ca4",
+      "state": "guns",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "ca4",
+          "phase": 1,
+          "x": 36.15567268171605,
+          "y": 22.266356332907073,
+          "hp": 2219.5200000000004,
+          "hullYaw": 0.15110486808554938,
+          "bombRunRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 151.2,
+              "x": -89.37107194157181,
+              "y": -48.809235806498705,
+              "localX": -95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "centerEngine",
+              "hp": 127.2,
+              "x": 15.26072580425241,
+              "y": 102.06014279789846,
+              "localX": 30.45,
+              "localY": 98.6,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 151.2,
+              "x": 99.84799492581698,
+              "y": -19.997697599824495,
+              "localX": 95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "bombBay",
+              "hp": 168.00000000000003,
+              "x": 4.365384576768818,
+              "y": -28.669555585968,
+              "localX": 0,
+              "localY": -29,
+              "hittable": false
+            },
+            {
+              "id": "frontGun",
+              "hp": 0,
+              "x": 31.21249972389706,
+              "y": -204.98732243967117,
+              "localX": 0,
+              "localY": -207.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 0,
+              "x": -30.557692037381734,
+              "y": 200.686889101776,
+              "localX": 0,
+              "localY": 203,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ca4",
+      "state": "guns",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "ca4",
+          "phase": 1,
+          "x": 36.15567268171605,
+          "y": 22.266356332907073,
+          "hp": 2219.5200000000004,
+          "hullYaw": 0.15110486808554938,
+          "bombRunRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 151.2,
+              "x": -89.37107194157181,
+              "y": -48.809235806498705,
+              "localX": -95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "centerEngine",
+              "hp": 127.2,
+              "x": 15.26072580425241,
+              "y": 102.06014279789846,
+              "localX": 30.45,
+              "localY": 98.6,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 151.2,
+              "x": 99.84799492581698,
+              "y": -19.997697599824495,
+              "localX": 95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "bombBay",
+              "hp": 168.00000000000003,
+              "x": 4.365384576768818,
+              "y": -28.669555585968,
+              "localX": 0,
+              "localY": -29,
+              "hittable": false
+            },
+            {
+              "id": "frontGun",
+              "hp": 0,
+              "x": 31.21249972389706,
+              "y": -204.98732243967117,
+              "localX": 0,
+              "localY": -207.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 0,
+              "x": -30.557692037381734,
+              "y": 200.686889101776,
+              "localX": 0,
+              "localY": 203,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ca4",
+      "state": "critical",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "ca4",
+          "phase": 3,
+          "x": 47.41861661823515,
+          "y": 29.036124077704695,
+          "hp": 105.59999999999997,
+          "hullYaw": 0.19378142785045618,
+          "bombRunRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 0,
+              "x": -87.20732099620255,
+              "y": -52.57768694670099,
+              "localX": -95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "centerEngine",
+              "hp": 0,
+              "x": 10.892577041946986,
+              "y": 102.61829400932979,
+              "localX": 30.45,
+              "localY": 98.6,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 0,
+              "x": 100.61025661248871,
+              "y": -15.719614001914014,
+              "localX": 95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "bombBay",
+              "hp": 0,
+              "x": 5.584556506785901,
+              "y": -28.457208728589585,
+              "localX": 0,
+              "localY": -29,
+              "hittable": true
+            },
+            {
+              "id": "frontGun",
+              "hp": 112.8,
+              "x": 39.92957902351921,
+              "y": -203.46904240941552,
+              "localX": 0,
+              "localY": -207.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 112.8,
+              "x": -39.09189554750133,
+              "y": 199.2004611001271,
+              "localX": 0,
+              "localY": 203,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ca4",
+      "state": "critical",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "ca4",
+          "phase": 3,
+          "x": 47.41861661823515,
+          "y": 29.036124077704695,
+          "hp": 105.59999999999997,
+          "hullYaw": 0.19378142785045618,
+          "bombRunRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 0,
+              "x": -87.20732099620255,
+              "y": -52.57768694670099,
+              "localX": -95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "centerEngine",
+              "hp": 0,
+              "x": 10.892577041946986,
+              "y": 102.61829400932979,
+              "localX": 30.45,
+              "localY": 98.6,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 0,
+              "x": 100.61025661248871,
+              "y": -15.719614001914014,
+              "localX": 95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "bombBay",
+              "hp": 0,
+              "x": 5.584556506785901,
+              "y": -28.457208728589585,
+              "localX": 0,
+              "localY": -29,
+              "hittable": true
+            },
+            {
+              "id": "frontGun",
+              "hp": 112.8,
+              "x": 39.92957902351921,
+              "y": -203.46904240941552,
+              "localX": 0,
+              "localY": -207.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 112.8,
+              "x": -39.09189554750133,
+              "y": 199.2004611001271,
+              "localX": 0,
+              "localY": 203,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ca4",
+      "state": "wreck",
+      "view": "pc",
+      "width": 1280,
+      "height": 800,
+      "bodies": [
+        {
+          "kind": "ca4",
+          "phase": "defeated",
+          "x": 47.41861661823515,
+          "y": 29.036124077704695,
+          "hp": 0,
+          "hullYaw": 0.19378142785045618,
+          "bombRunRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 0,
+              "x": -87.20732099620255,
+              "y": -52.57768694670099,
+              "localX": -95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "centerEngine",
+              "hp": 0,
+              "x": 10.892577041946986,
+              "y": 102.61829400932979,
+              "localX": 30.45,
+              "localY": 98.6,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 0,
+              "x": 100.61025661248871,
+              "y": -15.719614001914014,
+              "localX": 95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "bombBay",
+              "hp": 0,
+              "x": 5.584556506785901,
+              "y": -28.457208728589585,
+              "localX": 0,
+              "localY": -29,
+              "hittable": true
+            },
+            {
+              "id": "frontGun",
+              "hp": 112.8,
+              "x": 39.92957902351921,
+              "y": -203.46904240941552,
+              "localX": 0,
+              "localY": -207.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 112.8,
+              "x": -39.09189554750133,
+              "y": 199.2004611001271,
+              "localX": 0,
+              "localY": 203,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ca4",
+      "state": "wreck",
+      "view": "mobile",
+      "width": 390,
+      "height": 844,
+      "bodies": [
+        {
+          "kind": "ca4",
+          "phase": "defeated",
+          "x": 47.41861661823515,
+          "y": 29.036124077704695,
+          "hp": 0,
+          "hullYaw": 0.19378142785045618,
+          "bombRunRemaining": 0,
+          "parts": [
+            {
+              "id": "leftEngine",
+              "hp": 0,
+              "x": -87.20732099620255,
+              "y": -52.57768694670099,
+              "localX": -95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "centerEngine",
+              "hp": 0,
+              "x": 10.892577041946986,
+              "y": 102.61829400932979,
+              "localX": 30.45,
+              "localY": 98.6,
+              "hittable": true
+            },
+            {
+              "id": "rightEngine",
+              "hp": 0,
+              "x": 100.61025661248871,
+              "y": -15.719614001914014,
+              "localX": 95.7,
+              "localY": -34.8,
+              "hittable": true
+            },
+            {
+              "id": "bombBay",
+              "hp": 0,
+              "x": 5.584556506785901,
+              "y": -28.457208728589585,
+              "localX": 0,
+              "localY": -29,
+              "hittable": true
+            },
+            {
+              "id": "frontGun",
+              "hp": 112.8,
+              "x": 39.92957902351921,
+              "y": -203.46904240941552,
+              "localX": 0,
+              "localY": -207.35,
+              "hittable": true
+            },
+            {
+              "id": "rearGun",
+              "hp": 112.8,
+              "x": -39.09189554750133,
+              "y": 199.2004611001271,
+              "localX": 0,
+              "localY": 203,
+              "hittable": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "missing": []
+}

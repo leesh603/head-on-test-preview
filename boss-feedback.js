@@ -32,8 +32,8 @@ export function bossTactic(encounter,locale='ko'){
   case 'london-apron':return text('그물은 본체와 피해 공유 · 비행선 격추로 통로와 화망 동시 개방','Net damage transfers to its airship · down it to open a lane and silence its gun');
   case 'zeppelin-l70':return b.phase==='cloud'?text('구름 아래 관측 곤돌라를 파괴해 폭격 요새 노출','Destroy the gondola beneath the cloud to reveal the bombing fortress'):b.lastStand?text('수소 화염 회랑 경고 · 엔진을 부숴 측면포와 기동 약화','Hydrogen fire corridor · break engines to reduce guns and drift'):text('엔진 파괴로 측면포·기동·본체 방어 약화','Destroy engines to reduce broadsides, drift and hull protection');
   case 'hma23':return b.coreVulnerable?text('최종 편대 출격 · 측면 대공포를 피해 항모 본체 공격','Final sortie · evade alternating deck flak and strike the carrier'):text('발진구별 좌우 공격로 확인 · 4개를 파괴해 장갑 해제','Read each port’s attack lane · destroy all four to expose the hull');
-  case 'gik':return b.phase===3?text('최후 저공 포격 · 후방포 파괴 후 본체 공격','Final low barrage · silence rear gun and attack hull'):text('기관포로 중포 차단 · 엔진 파괴로 선회 둔화','Break the cannon · engine damage slows its patrol');
-  case 'ca4':return b.hidden?text('산 뒤 재진입 · 열린 폭격 통로로 회피','Re-entry from the peaks · use the open bombing lane'):b.parts.get('bombBay')?.hittable?text('폭탄창 개방 · 집중 사격으로 내부 유폭','Bomb bay open · concentrate fire for an internal blast'):text('엔진 파괴 후 재진입 때 폭탄창 공략','Damage engines · attack the bay during re-entry');
+  case 'gik':return b.cannonLock?text('중포 방향 고정 · 예고선 옆으로 회피, 포구 사격으로 발사 차단','Cannon locked · sidestep the line or destroy the muzzle'):gone('cannon')?text('중포 무력화 · 후방 사수와 연속 폭탄 주의','Cannon disabled · watch the rear gun and stick bombs'):text('전방 중포·후방 사수 · 엔진 파괴로 기동과 동체 방호 약화','Front cannon, rear gun · engines reduce speed and hull armor');
+  case 'ca4':return gone('bombBay')?text('폭탄창 유폭 · 폭격 중단, 남은 사수와 동체 공략','Payload ruptured · bombing stopped; attack surviving guns and hull'):b.parts.get('bombBay')?.hittable?text('폭탄창 개방 · 중앙창 사격으로 폭격 취소와 내부 유폭','Bomb bay open · hit the center hatch to cancel bombing and trigger cook-off'):text('3개 폭격로 중 빈 통로로 회피 · 엔진 파괴로 폭격 간격 증가','Use the open lane · engine losses delay bombing runs');
   case 'armored-harbor-fortress':return b.coreVulnerable?text('중앙 지휘시설 노출 · 남은 포대 주의','Command core exposed · watch surviving guns'):b.parts.get('crane-pivot')?.hittable?text('크레인 회전축 노출 · 파괴하면 중앙 코어 개방','Crane pivot exposed · destroy it to open the core'):text('외곽 3부위 파괴 → 회전축 · 탄약고 유폭 활용','Break 3 outer parts → pivot · detonate the ammo store');
    case 'fliegerzug':return b.phase==='runaway'?text('폭주 경로 이탈 → 탈선 후 기관차 공격','Clear the runaway track → strike after derailment'):b.phase==='derailed'?text('탈선 직후 · 노출된 기관차 집중 사격','Derailed · strike the locomotive'):b.coreVulnerable?text('기관차 방호 해제 · 남은 화차 화력 제거','Locomotive exposed · disable remaining wagons'):gone('car-launch-a')&&gone('car-launch-b')?text('양쪽 발진차 파괴 · 대공포차와 후미 화망 제거','Both launch cars down · disable flak and rear gun'):gone('car-launch-a')||gone('car-launch-b')?text('발진차 한 량 파괴 · 남은 무인폭탄기 발진 차단','One launch car down · stop the remaining unmanned bombers'):text('발진차 2량·대공포차·보급차 중 파괴 순서를 선택','Choose which launch, flak or supply car to disable');
    case 'treffas-wagen':return b.phase==='emplacement'?text('양쪽 차륜 파괴 · 고정식 대공포대 전환','Wheels down · fixed flak emplacement'):gone('turret')?text('포탑 파괴 · 플랙 중단, 차륜과 차체 공략','Turret down · flak disabled; strike wheels and hull'):b.coreVulnerable?text('차체 노출 · 포탑과 차륜도 계속 파괴 가능','Hull exposed · turret and wheels remain targets'):gone('wheel-left')||gone('wheel-right')?text('차륜 한쪽 파괴 · 남은 차륜으로 기동 중','One wheel down · mobility reduced'):text('대형 차륜과 대공포탑을 부수면 공격 양상이 달라짐','Destroy wheels or turret to change its attacks');
@@ -60,12 +60,12 @@ export function bossSoundFor(event,kind=''){
  if(type==='charge-warning'||type==='reentry-warning')return 'approachWarning';
  if(type==='aa-volley')return 'navalGun';
  if(type==='flak-burst')return 'flak';
- if(type==='muzzle')return /stuttgart|zubian|harbor/.test(kind)?'navalGun':kind==='minenwerfer-battery'?null:'heavyShot';
+ if(type==='muzzle')return ['gik','ca4'].includes(kind)?'enemyShot':/stuttgart|zubian|harbor/.test(kind)?'navalGun':kind==='minenwerfer-battery'?null:'heavyShot';
  if(type==='heavy-gun-fired')return 'heavyShot';
  if(type==='boss-destruction-start')return /stuttgart|zubian/.test(kind)?'shipBreak':'metalBreak';
  if(type==='hazard-activated'){
   if(visual==='livens-flame')return 'flameBurn';
-  if(event.kind==='projectile')return visual==='alps-cannon'?'heavyShot':'enemyShot';
+  if(event.kind==='projectile')return ['alps-cannon','alps-mg'].includes(visual)?null:'enemyShot';
   if(event.kind!=='circle')return null;
   if(/minenwerfer|rail-shell|observer-shell/.test(visual))return 'earthImpact';
   if(/zubian|naval|harbor/.test(visual))return 'waterImpact';

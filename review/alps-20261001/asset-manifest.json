@@ -1,0 +1,48 @@
+[
+  {
+    "path": "alps-gik-damage-20261001.webp",
+    "bytes": 464256,
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "layout": {
+      "columns": 3,
+      "rows": 2
+    },
+    "frames": [
+      "light-damage",
+      "engine-wreck",
+      "gun-wreck",
+      "payload-breach",
+      "critical",
+      "wreck"
+    ],
+    "reference": "boss-gik.webp",
+    "referenceBlob": "cf7fed97760f5bddd42ae37e8436fa6516d62580",
+    "alpha": true
+  },
+  {
+    "path": "alps-ca4-damage-20261001.webp",
+    "bytes": 633912,
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "layout": {
+      "columns": 3,
+      "rows": 2
+    },
+    "frames": [
+      "light-damage",
+      "engine-wreck",
+      "gun-wreck",
+      "payload-breach",
+      "critical",
+      "wreck"
+    ],
+    "reference": "boss-ca4.webp",
+    "referenceBlob": "5d7685f430ab4f09c2e6bc2ca289de88876ecb4e",
+    "alpha": true
+  }
+]
