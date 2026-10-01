@@ -1,6 +1,6 @@
-import {drawGameIcon} from './icons.js?v=485';
-import {fx,fxReady,FX56,FX3} from './fx-art.js?v=485';
-import {fxsBoom} from './fx-sample-preview.js?v=485';
+import {drawGameIcon} from './icons.js?v=486';
+import {fx,fxReady,FX56,FX3} from './fx-art.js?v=486';
+import {fxsBoom} from './fx-sample-preview.js?v=486';
 export function drawGrenade(c,g,x,y){
  c.save();c.translate(x,y-g.height);c.rotate(g.phase==='flight'?g.age*7:0);
  if(!fx(c,'grenade',0,0,36,36))drawGameIcon(c,'mines',0,0,30);
