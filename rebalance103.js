@@ -1,5 +1,5 @@
 // Excel revision 103. Unspecified numbers are explicit first-playtest tuning.
-import {WING_PLANES} from './engine.js?v=484';
+import {WING_PLANES} from './engine.js?v=485';
 export const REVISION_BALANCE=Object.freeze({soloCap:12,coopCap:18,soloRegular:10,coopRegular:11,interval:1.6,coopInterval:1.65,countrysideInterval:1,countrysideCoopInterval:1.15,frontReduction:.25,rearBonus:.3,compassXp:1.3});
 const pilotMachineGunRound=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.actualExplosion&&!b.blast&&!b.mauserRound;
  export function installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDARIES,UPGRADES){
@@ -176,7 +176,7 @@ const pilotMachineGunRound=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.roc
  Game.prototype.enemyCapacity=function(){return this.mode==='campaign'?65:this.mode==='coop2'?28:22};
  Game.prototype.isOpeningCountryside=function(){return this.mode!=='campaign'&&this.worldRegion()===0&&(this.stageBoss?.stages.loopIndex??0)===0&&this.t<120};
  Game.prototype.regularEnemyLimit=function(){if(this.stageBoss?.stages.phase==='boss')return this.mode==='coop2'?12:9;return this.mode==='coop2'?19:15};
- Game.prototype.regularSpawnInterval=function(){const interval=this.isOpeningCountryside()?(this.mode==='coop2'?REVISION_BALANCE.countrysideCoopInterval:REVISION_BALANCE.countrysideInterval):(this.mode==='coop2'?REVISION_BALANCE.coopInterval:REVISION_BALANCE.interval);return this.stageBoss?.stages.phase==='boss'?interval/0.75:interval};
+ Game.prototype.regularSpawnInterval=function(){const interval=this.isOpeningCountryside()?(this.mode==='coop2'?REVISION_BALANCE.countrysideCoopInterval:REVISION_BALANCE.countrysideInterval):(this.mode==='coop2'?REVISION_BALANCE.coopInterval:REVISION_BALANCE.interval);return (this.stageBoss?.stages.phase==='boss'?interval/0.75:interval)*.72};
  Game.prototype.aircraftMix=function(faction,time=this.t){
   const phase=time<120?0:time<300?1:time<480?2:3;
   const pools=faction==='central'?
