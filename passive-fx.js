@@ -6,7 +6,7 @@
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=469';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=470';
 
 const memo = new WeakMap();
 const st = g => { let s = memo.get(g); if (!s) memo.set(g, s = { tier: 0, burst: -9, burstAt: null, prey: null, trail: [], wing: [] }); return s; };
@@ -175,7 +175,7 @@ export function drawPassiveFx(c, g, point, t, px, py) {
   if (g.pilot === 'berthold') drawBertholdWill(c, g, point, t, px, py);
   else if (g.pilot === 'mannock') drawMannockCover(c, g, point, t);
   else if (g.pilot === 'fonck') drawFonckFocus(c, g, point, t);
-  else if (g.pilot === 'rickenbacker') drawRickenbackerSwitch(c, g, point, t, px, py);
+  else if (g.pilot === 'rickenbacker') { drawRickenbackerSwitch(c, g, point, t, px, py); drawRickenbackerRing(c, g, point, t, px, py); }
   else if (g.pilot === 'ball') drawBallLone(c, g, point, t, px, py);
   return false;
 }
@@ -306,6 +306,56 @@ export function drawBallLone(c, g, point, t, px, py) {
   const gr = c.createRadialGradient(px, py, 10, px, py, 40);
   gr.addColorStop(0, 'rgba(210,225,245,0)'); gr.addColorStop(.6, 'rgba(200,220,245,.22)'); gr.addColorStop(1, 'rgba(190,210,240,0)');
   c.globalCompositeOperation = 'lighter'; c.globalAlpha = m.k * (.85 + .15 * Math.sin(t * 2.4)); c.fillStyle = gr; c.beginPath(); c.arc(px, py, 40, 0, Math.PI * 2); c.fill();
+  c.restore();
+  return true;
+}
+
+// ---- Rickenbacker active "햇 인 더 링" / Hat in the Ring: while active, every burst also fires
+// rounds at up to 7 enemies within 780 px. Show the squadron ring on himself and stamp it on
+// each enemy the burst reaches.
+function hatGlyph(c, x, y, s) {                               // small Uncle-Sam top hat
+  c.save(); c.translate(x, y);
+  c.fillStyle = '#1f3f86'; c.fillRect(-s * .62, s * .18, s * 1.24, s * .2);           // brim
+  c.fillStyle = '#f2efe6'; c.fillRect(-s * .38, -s * .62, s * .76, s * .82);          // crown
+  c.fillStyle = '#c8332b'; for (let i = 0; i < 3; i++) c.fillRect(-s * .38 + i * s * .26, -s * .62, s * .12, s * .82);
+  c.fillStyle = '#1f3f86'; c.fillRect(-s * .38, -s * .04, s * .76, s * .16);          // band
+  c.restore();
+}
+function tricolorRing(c, x, y, r, a, w = 1) {
+  for (const [dr, col, lw] of [[2.6 * w, '#1f3f86', 2.2 * w], [0, '#f4f1ea', 2 * w], [-2.4 * w, '#c8332b', 2.2 * w]]) {
+    c.beginPath(); c.arc(x, y, r + dr, 0, Math.PI * 2); c.globalAlpha = a; c.strokeStyle = col; c.lineWidth = lw; c.stroke();
+  }
+}
+export function drawRickenbackerRing(c, g, point, t, px, py) {
+  if (g.pilot !== 'rickenbacker') return false;
+  const m = pst(g, () => ({ prev: null, sw: 0, arc: null, wing: [] }));
+  m.ring ??= { k: 0, last: t, rounds: g.roundsFired || 0, stamps: [], pulse: -9 };
+  const R = m.ring, dt = Math.max(0, Math.min(.1, t - R.last)); R.last = t;
+  const active = g.skillTime > 0;
+  R.k = clamp(R.k + (active ? dt / .2 : -dt / .3));
+  if (active && (g.roundsFired || 0) > R.rounds) {             // a burst went out: stamp the same targets the engine picks
+    let n = 0;
+    for (const e of g.enemies || []) { if (n >= 7) break; if (!(e.hp > 0) || e.surface || Math.hypot(e.x - g.x, e.y - g.y) > 780) continue;
+      if (!R.stamps.some(s => s.e === e && t - s.t0 < .25)) R.stamps.push({ e, t0: t }); n++; }
+    if (n) R.pulse = t;
+  }
+  R.rounds = g.roundsFired || 0;
+  R.stamps = R.stamps.filter(s => t - s.t0 < .45 && s.e.hp > 0);
+  if (R.k <= .01 && !R.stamps.length) return true;
+  c.save(); c.lineCap = 'round';
+  // stamps on the struck enemies: the ring snaps down onto each plane, then fades
+  for (const s of R.stamps) {
+    const q = (t - s.t0) / .45, [x, y] = point(s.e.x, s.e.y), sz = sizeOf(s.e);
+    const r = sz * (1.05 + .9 * Math.pow(1 - Math.min(1, q / .35), 2));
+    tricolorRing(c, x, y, r, (1 - q) * .9, .8);
+  }
+  // the ring on himself, with the hat riding the top; it kicks outward on each burst
+  if (R.k > .01) {
+    const kick = Math.max(0, 1 - (t - R.pulse) / .2), r = 40 + 5 * kick, a = R.k * (.85 + .15 * kick);
+    tricolorRing(c, px, py, r, a);
+    const ha = -Math.PI / 2 + Math.sin(t * 1.6) * .25;
+    c.globalAlpha = R.k; hatGlyph(c, px + Math.cos(ha) * (r + 2), py + Math.sin(ha) * (r + 2) - 4, 13);
+  }
   c.restore();
   return true;
 }
