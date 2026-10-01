@@ -1,4 +1,5 @@
-import {TRENCH_ARMOR_LAYOUT,armorAngleDelta} from './trench-armor-layout.js?v=462';
+import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=462';
+import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=462';
 import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=462';
 import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=462';
 import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=462';
@@ -287,31 +288,9 @@ function drawMarkSponson(c,gun,right,angle,size,recoil=0){
  c.drawImage(gun,20,123,108,45,-108*k+recoil*8,-22*k,108*k,45*k);c.restore();
 }
 function drawArmorGun(c,part,kind,scale){
- const mark=kind==='mark-v-cruiser',layout=TRENCH_ARMOR_LAYOUT[kind],k=layout.gunSize/(mark?640:320);
+ const mark=kind==='mark-v-cruiser';
  const image=part.destroyed?(mark?armorDamage.markGunWreck:armorDamage.a7vGunWreck):(mark?rebuildArt.markvSponson:rebuildArt.a7vTurret);
- if(!image?.naturalWidth)return;
- c.save();c.translate(part.localX/scale,part.localY/scale);
- const base=layout.guns.find(g=>g.id===part.id).baseAngle,turn=armorAngleDelta(part.aimAngle??base,base);
- if(mark){
-  const left=part.id==='sponson-left',sourceScale=image.naturalWidth/640;if(!left)c.scale(-1,1);
-  if(part.destroyed)c.drawImage(image,-390*k,-320*k,640*k,640*k);
-  else{
-   // Fixed armor housing + independently aiming barrel. Both use the same
-   // authored breech; rotating the entire sponson would tear it off the hull.
-   for(const [sx,sy,sw,sh] of [[250,0,390,640],[0,0,250,227],[0,307,250,333]])c.drawImage(image,sx*sourceScale,sy*sourceScale,sw*sourceScale,sh*sourceScale,(sx-390)*k,(sy-320)*k,sw*k,sh*k);
-   c.translate(-146*k,-50*k);c.rotate(left?turn:-turn);c.translate((part.recoil||0)*14,0);
-   c.drawImage(image,0,227*sourceScale,250*sourceScale,80*sourceScale,-244*k,-43*k,250*k,80*k);
-  }
- }else{
-  c.rotate(base);
-  if(part.destroyed)c.drawImage(image,-138*k,-160*k,320*k,320*k);
-  else{
-   c.drawImage(image,0,0,182,320,-138*k,-160*k,182*k,320*k);
-   c.translate(44*k,0);c.rotate(turn);c.translate(-(part.recoil||0)*14,0);
-   c.drawImage(image,182,0,138,320,0,-160*k,138*k,320*k);
-  }
- }
- c.restore();
+ drawTrenchArmorGun(c,part,kind,image,scale);
 }
 function drawTrenchArmor(c,b){
  const mark=b.assetKey==='mark-v-cruiser',prefix=mark?'mark':'a7v',s=b.geometryScale||1;
