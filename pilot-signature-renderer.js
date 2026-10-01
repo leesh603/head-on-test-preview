@@ -204,6 +204,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
      texture(c,'smokeDark',Math.cos(a)*19-7,Math.sin(a)*21+drift,48+low*16,34+low*12,a,.06*low+.18*low*(.6+.4*Math.sin(t*1.4+i)**2));
     }
    }
+   if(active)crest(c,'blackHeart',t,.30,102);
    return;
   }
   if(p.pilot==='barker'){

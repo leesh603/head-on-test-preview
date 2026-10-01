@@ -1,9 +1,9 @@
 import './pilot-feedback-globals.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=492';
-import {CoopGame,coopPlane} from '../coop-engine.js?v=492';
-import {CampaignGame} from '../campaign.js?v=492';
+import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=493';
+import {CoopGame,coopPlane} from '../coop-engine.js?v=493';
+import {CampaignGame} from '../campaign.js?v=493';
 const solo=id=>new Game(coopPlane(id),id,()=>.5);
 const enemy=(x,y,a=Math.PI)=>({x,y,a,hp:10000,maxHp:10000,type:'scout',speed:0,fire:999,wobble:0});
 const quiet=g=>{for(const k of ['spawn','nextBossAt','_zeppelinSchedule','nextHeavyAt','eventTimer','allyTimer','flakTimer','regionThreat','gustTimer','supplyTimer','fieldUnitTimer','gasTimer','patrolTimer','threatTimer'])g[k]=Infinity;g.spawnEnemy=()=>null;g.checkLevel=()=>{};return g};
