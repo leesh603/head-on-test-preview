@@ -1,4 +1,4 @@
-import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta} from './trench-armor-layout.js?v=462';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=462';
 import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=462';
 import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=462';
 import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=462';
@@ -370,20 +370,18 @@ class TrenchArmor extends PatternBoss {
     const p=players.find(p=>p.alive);if(!p)return;
     for(const gun of this.liveGuns()){
       const desired=Math.atan2(p.y-this.y-gun.y,p.x-this.x-gun.x)-this.hullYaw;
-      const arc=this.kind==='a7v-flak'?1.18:1.25;
+      const arc=this.layout.gunArc;
       const a=gun.baseAngle+Math.max(-arc,Math.min(arc,armorAngleDelta(desired,gun.baseAngle)));
-      gun.aimAngle+=Math.max(-1.65*dt,Math.min(1.65*dt,armorAngleDelta(a,gun.aimAngle)));
+      const step=this.layout.gunTurnSpeed*dt;
+      gun.aimAngle+=Math.max(-step,Math.min(step,armorAngleDelta(a,gun.aimAngle)));
       gun.angle=this.hullYaw+gun.aimAngle;gun.recoil=Math.max(0,gun.recoil-dt);
     }
   }
-  muzzle(gun,angle=gun.angle){
-    // Housing stays bolted down. The barrel rotates about its authored breech.
-    const s=this.t.geometryScale||1,mark=this.kind==='mark-v-cruiser';
-    const side=gun.id==='sponson-left'?-1:1;
-    const pivot=mark?armorRotate(side*23,-8,this.hullYaw):armorRotate(9,0,this.hullYaw+gun.baseAngle);
-    const reach=(mark?29:26)*s;
-    const x=this.x+gun.x+pivot.x*s+Math.cos(angle)*reach,y=this.y+gun.y+pivot.y*s+Math.sin(angle)*reach;
-    gun.recoil=.18;this.command('muzzle',{x,y,partId:gun.id});return{x,y};
+  muzzle(gun){
+    gun.recoil=.18;
+    const point=armorGunMuzzle(this.kind,gun,this.hullYaw,this.t.geometryScale||1);
+    const x=this.x+point.x,y=this.y+point.y;
+    this.command('muzzle',{x,y,partId:gun.id});return{x,y};
   }
   locateHit({x,y,radius=0}){
     const s=this.t.geometryScale||1,q=armorRotate(x-this.x,y-this.y,-this.hullYaw);
@@ -440,9 +438,8 @@ class TrenchArmor extends PatternBoss {
     this.hazard('circle',{x:this.x+engine.x,y:this.y+engine.y,radius:68,warning:1.25,duration:2.3,tickInterval:.8,damage:this.t.damage*.45,visual:'livens-leak',tag:'armor-engine-vent'});
   }
   impact(gun,x,y,{delay=0,radius=37,warning=1.22,damage=1}={}){
-    const desired=Math.atan2(y-this.y-gun.y,x-this.x-gun.x),arc=this.kind==='a7v-flak'?1.18:1.25;
-    const base=gun.baseAngle+this.hullYaw;
-    gun.aimAngle=gun.baseAngle+Math.max(-arc,Math.min(arc,armorAngleDelta(desired,base)));gun.angle=this.hullYaw+gun.aimAngle;
+    // The target sets the ballistic landing point. Never teleport a fixed
+    // casemate's barrel to that point when a volley is emitted.
     const m=this.muzzle(gun);
     this.hazard('circle',{x,y,radius,delay,warning,duration:.48,once:true,damage:this.t.damage*damage,
       visual:'aa-flak',sourceX:m.x,sourceY:m.y,sourcePartId:gun.id,tag:this.gunTag(gun)});
