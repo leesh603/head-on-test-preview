@@ -26,7 +26,8 @@ export function contains(h,p) {
     const x1=h.x+Math.cos(h.angle)*h.length,y1=h.y+Math.sin(h.angle)*h.length;return segmentDistance(p.x,p.y,h.x,h.y,x1,y1)<=h.thickness/2+radius;
   }
   if(h.kind==='searchlight')return Math.hypot(p.x-h.x,p.y-h.y)<=h.radius+radius&&Math.abs(wrap(Math.atan2(p.y-h.y,p.x-h.x)-h.angle))<=h.halfAngle;
-  return Math.hypot(p.x-h.x,p.y-h.y)<=h.radius+radius;
+  const distance=Math.hypot(p.x-h.x,p.y-h.y);
+  return distance<=h.radius+radius&&distance>=Math.max(0,(h.innerRadius||0)-radius);
 }
 export class BossHazards {
   constructor({capacity=512,onDamage,onStatus,onBarrierContact,onActivate=()=>{}}) {
@@ -50,6 +51,7 @@ export class BossHazards {
       tickInterval:spec.tickInterval||.5,nextTick:0,phase:'waiting',once:!!spec.once,applied:false,activated:false,
       targetId:spec.targetId,lockAtWarning:!!spec.lockAtWarning,locked:false,offsetX:spec.offsetX||0,offsetY:spec.offsetY||0,telegraphHalf:spec.telegraphHalf||0,
       muzzleLength:spec.muzzleLength||0,
+      innerRadius:spec.innerRadius||0,ringSpeed:spec.ringSpeed||0,ringWidth:spec.ringWidth||0,radiusStart:spec.radiusStart||0,radiusLimit:spec.radiusLimit||0,
       sourceX:spec.sourceX??null,sourceY:spec.sourceY??null,airborneBomb:!!spec.airborneBomb,
       blocks:!!spec.blocks,piercing:!!spec.piercing,visual:spec.visual||spec.kind,tag:spec.tag||null,vertices:spec.vertices||null
     });return h;
@@ -74,6 +76,13 @@ export class BossHazards {
         for(const p of players)if(h.active&&p.alive&&!h.hits.has(p.id)&&segmentDistance(p.x,p.y,oldX,oldY,h.x,h.y)<=h.radius+(p.radius||0)) {
           h.hits.add(p.id);this.onDamage(p.id,h.damage,h);
           if(!h.piercing){this.pool.release(h.index,h.generation);break;}
+        }
+      }else if(h.ringSpeed>0){
+        const previousElapsed=Math.max(0,elapsed-activeDt),previousRadius=Math.min(h.radiusLimit,h.radiusStart+h.ringSpeed*previousElapsed);
+        h.radius=Math.min(h.radiusLimit,h.radiusStart+h.ringSpeed*elapsed);h.innerRadius=Math.max(0,h.radius-h.ringWidth);
+        for(const p of players)if(p.alive&&!h.hits.has(p.id)){
+          const distance=Math.hypot(p.x-h.x,p.y-h.y),r=p.radius||0;
+          if(distance+r>=Math.max(0,previousRadius-h.ringWidth)&&distance-r<=h.radius){h.hits.add(p.id);this.onDamage(p.id,h.damage,h);}
         }
       }else {
         if(h.blocks)for(const p of players)if(p.alive&&contains(h,p))this.onBarrierContact(p.id,h);

@@ -1,0 +1,111 @@
+{
+  "base": "0fbf416f9f6a4b3980e76eb6898cd686bb6d51f2",
+  "baseTree": "629fe8fb56578294cbfab8cc8b9fb35bb2d7106c",
+  "canonicalBaselineTextMatchesRemote": true,
+  "approvedRuralArtUnchanged": [
+    {
+      "path": "rail-boss-bruno-engine-wreck192.webp",
+      "sha": "4220e14b8c9a7e79a966161270e68454c74b4662",
+      "size": 42630
+    },
+    {
+      "path": "rail-boss-bruno-engine181.webp",
+      "sha": "b0906a6a9d170021eecfea4d96bd85e721df5d70",
+      "size": 37122
+    },
+    {
+      "path": "rail-boss-bruno-front-wreck192.webp",
+      "sha": "b1538ddb07987c4923642ccc3bba6c3a72ebe24c",
+      "size": 36856
+    },
+    {
+      "path": "rail-boss-bruno-front181.webp",
+      "sha": "6c83257060fdc88d0cfa8f5add4cf88b67c33d81",
+      "size": 37520
+    },
+    {
+      "path": "rail-boss-bruno-middle-wreck192.webp",
+      "sha": "2e91e2f0be72399cc3440aa430f4bfb0714f2312",
+      "size": 41544
+    },
+    {
+      "path": "rail-boss-bruno-middle181.webp",
+      "sha": "32e6cab8a425bbc458fd179234d4e0ceb8ad15d3",
+      "size": 39628
+    },
+    {
+      "path": "rail-boss-bruno-rear-wreck192.webp",
+      "sha": "95fa97c40b1e686a33a44c186355b42c1565bd45",
+      "size": 38498
+    },
+    {
+      "path": "rail-boss-bruno-rear181.webp",
+      "sha": "ed8fcc99e8c8548e71123490033cbdcdd869a255",
+      "size": 38694
+    },
+    {
+      "path": "rail-boss-lincomparable-engine-wreck192.webp",
+      "sha": "4832a98f80ba25401cee54b6590212c71972f0a2",
+      "size": 44986
+    },
+    {
+      "path": "rail-boss-lincomparable-engine181.webp",
+      "sha": "dd88035d08c8058a84afb8318ba50dd315f8fc84",
+      "size": 36616
+    },
+    {
+      "path": "rail-boss-lincomparable-front-wreck192.webp",
+      "sha": "afeddcf68812ade8f6ead209e4f7f26c7d00ff1c",
+      "size": 44010
+    },
+    {
+      "path": "rail-boss-lincomparable-front181.webp",
+      "sha": "467d4ed85711abdc72c4ce78dd4ddeaf01a6f7c0",
+      "size": 45240
+    },
+    {
+      "path": "rail-boss-lincomparable-middle-wreck192.webp",
+      "sha": "8ed8bfe851648c4ed8462722f640b865f7ba1364",
+      "size": 46548
+    },
+    {
+      "path": "rail-boss-lincomparable-middle181.webp",
+      "sha": "77ae0d171d6865e5d45e6ab9ef501c259cec7528",
+      "size": 42190
+    },
+    {
+      "path": "rail-boss-lincomparable-rear-wreck192.webp",
+      "sha": "91628d26d910db1ede22bcd20a6c82babd3282e0",
+      "size": 43558
+    },
+    {
+      "path": "rail-boss-lincomparable-rear181.webp",
+      "sha": "c0a29bd459b3daafb871bd9d774dae6b95dce52f",
+      "size": 40632
+    }
+  ],
+  "localValidatorMissingBaselineFiles": [
+    {
+      "path": "boss-drachen-parts-v2.webp",
+      "sha": "21e91002c70d4bf5141c63a366f5f46cb6029480",
+      "size": 1066058
+    },
+    {
+      "path": "terrain-alps-atlas.webp",
+      "sha": "b4be9ebf264b6b7ed5ff3826a9f47617cf5ee073",
+      "size": 504148
+    },
+    {
+      "path": "terrain-zeebrugge-water.webp",
+      "sha": "657d7e4c7d4fbda456219214c7a9fc7d7e6a00f4",
+      "size": 32490
+    },
+    {
+      "path": "repair-pickup.webp",
+      "sha": "2a624cf883a8b9b5dd883d59a78e33e564ebcdfa",
+      "size": 16734
+    }
+  ],
+  "newModuleImportsResolved": true,
+  "latestV482NativeImagesIdenticalToV481": true
+}

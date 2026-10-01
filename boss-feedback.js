@@ -23,7 +23,8 @@ export function bossTactic(encounter,locale='ko'){
  const bodies=[...encounter?.bodies.values()||[]].filter(b=>!b.dead),b=bodies[0];if(!b)return '';
  const text=(ko,en)=>pair(ko,en,locale),gone=id=>b.parts.get(id)?.destroyed;
  switch(encounter.bossId){
-  case 'paris-gun':case 'lincomparable':return b.phase==='runaway'?text('폭주 경로 이탈 → 탈선 후 기관차 공격','Clear the runaway track → strike after derailment'):b.coreVulnerable?text('기관차 노출 · 사격 후 이동 경로 추적','Locomotive exposed · follow its firing stops'):text('후미 차량부터 파괴 · 레일 파괴로 이동 봉쇄','Break rear carriages first · shoot the rail to halt it');
+  case 'paris-gun':return b.phase==='runaway'?text('폭주 경로 이탈 → 탈선 후 기관차 공격','Clear the runaway track → strike after derailment'):b.coreVulnerable?text('기관차 노출 · 5발 순서를 읽고 빈 통로로 회피','Locomotive exposed · read the five-shot order and use its gaps'):gone('car-middle')?text('관측차 파괴 · 고정 포격, 탄약차 파괴로 재장전 지연','Observer down · blind barrage; ammo loss slows reload'):gone('car-rear')?text('후미 화망 중단 · 관측차를 파괴해 조준을 끊기','Rear gun silenced · break the observer to interrupt targeting'):text('대공 방어차 → 관측차 → 탄약차 · 레일 파괴로 이동 봉쇄','Defense → observer → ammunition · break the rail to halt movement');
+  case 'lincomparable':return b.phase==='runaway'?text('폭주 경로 이탈 → 탈선 후 기관차 공격','Clear the runaway track → strike after derailment'):b.phase==='derailed'?text('탈선한 기관차 집중 사격','Focus fire on the derailed locomotive'):b.coreVulnerable&&b.recovery>0?text('재장전 중 장갑 약화 · 기관차 집중 사격','Reload opens the armor · strike the locomotive'):b.coreVulnerable?text('충격파 안쪽으로 파고들거나 바깥으로 이탈 · 재장전 틈 공략','Dive inside the shock ring or escape outside · punish reload'):text('후미부터 파괴 · 충격파는 안쪽도 안전, 중심 연막 주의','Break the tail first · shock ring has a safe interior; avoid center smoke');
   case 'sms-stuttgart':return b.support129?.phase===1?text('보일러 파괴로 감속 · 덮개를 열어 연료 공략','Break boilers to slow the carrier · open the hangar'):text('연료로 출격 차단 · 함포 파괴로 포격 감소','Destroy fuel to stop sorties · silence each turret');
   case 'hms-zubian':return bodies.length>1?text('전방 돌파 예고 회피 · 후방 함포를 부숴 교차포격 차단','Evade the bow attack · break the stern gun to stop crossfire'):text('함포·기관 손상은 분리 후에도 유지 · 접합부 공략','Gun and engine damage persists after the split · attack the seam');
   case 'a7v-flak':return b.phase==='exposed'?text('차체 기관총 회피 · 노출된 본체 공격','Dodge the hull gun · strike the exposed chassis'):b.coreVulnerable?text('장갑 틈 노출 · 남은 포탑 또는 본체 공략','Armor breached · silence guns or attack the hull'):text('탐조등·교차 포격 회피 · 궤도로 기동 봉쇄','Evade spotlights and crossfire · break tracks to halt movement');
@@ -58,7 +59,7 @@ export function bossSoundFor(event,kind=''){
  if(type==='flame-warning')return 'flameValve';
  if(type==='mortar-launch')return 'mortarLaunch';
  if(type==='crane-drop'||type==='spawn-minefield')return 'winchRelease';
- if(type==='rail-aim'||type==='rail-runaway')return 'railClatter';
+ if(type==='rail-aim'||type==='rural-aim'||type==='rail-runaway')return 'railClatter';
  if(type==='seaplane-launch')return 'formationPass';
  if(type==='minion-launched')return 'formationPass';
  if(type==='charge-warning'||type==='reentry-warning')return 'approachWarning';
