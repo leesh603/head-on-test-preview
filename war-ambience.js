@@ -19,6 +19,15 @@ const CFG={
  11:{flash:.25,smoke:.35,aa:1},
 };
 
+let FLASH_SPRITE=null;
+const flashSprite=()=>{
+ if(FLASH_SPRITE)return FLASH_SPRITE;
+ const k=document.createElement('canvas');k.width=k.height=64;const g=k.getContext('2d');
+ const gr=g.createRadialGradient(32,32,0,32,32,32);
+ gr.addColorStop(0,'#ffd9a0');gr.addColorStop(.35,'#ff9a4a');gr.addColorStop(1,'#ff7a3800');
+ g.fillStyle=gr;g.fillRect(0,0,64,64);return FLASH_SPRITE=k;
+};
+
 export function drawWarAmbience(c,region,cx,cy,W,H,t){
  const cfg=CFG[region];if(!cfg)return;
  const wx=cx-W/2,wy=cy-H/2;
@@ -40,9 +49,7 @@ export function drawWarAmbience(c,region,cx,cy,W,H,t){
    const period=2.4+s*4,ph=(t+s*31)%period,on=ph<.34;
    if(!on)continue;
    const fade=1-ph/.34,x=gx*cell-wx+cell*(.1+(s*17%1)*.8),y=gy*cell-wy+cell*(.1+(s*23%1)*.8),r=6+s*20;
-   c.globalAlpha=.5*fade;const g=c.createRadialGradient(x,y,0,x,y,r*2.2);
-   g.addColorStop(0,'#ffd9a0');g.addColorStop(.35,'#ff9a4a');g.addColorStop(1,'#ff7a3800');
-   c.fillStyle=g;c.beginPath();c.arc(x,y,r*2.2,0,Math.PI*2);c.fill();
+   c.globalAlpha=.5*fade;c.drawImage(flashSprite(),x-r*2.2,y-r*2.2,r*4.4,r*4.4);
    c.globalAlpha=.25*fade;c.fillStyle='#3a2c1e';c.beginPath();c.arc(x+4,y-16,10+s*12,0,Math.PI*2);c.fill();
   }
  }
