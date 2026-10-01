@@ -242,9 +242,12 @@ if (FXS && typeof Image !== 'undefined') {
     im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href;
   }).catch(() => {});
 }
+let ZONE_T = -1, ZONE_N = 0; // per-frame budget: only the first few fire zones get smoke / cross-fades
 export function fxsFireZone(c, f, x, y, t = 0, fade = 1, under = null) {
   if (!FXS || !FLAME.atlas) return false;
   boomSprites();
+  if (t !== ZONE_T) { ZONE_T = t; ZONE_N = 0; }
+  const rich = ZONE_N++ < 3;
   const R = f.radius || 100, seed = f.seed || Math.abs(Math.trunc((f.x || 0) * 31 + (f.y || 0) * 17)) % 997;
   const left = f.maxLife ? Math.min(1, f.life / Math.min(2.5, f.maxLife)) : 1; // flames die down over the last seconds
   const flick = .9 + .1 * Math.sin(t * 9.1 + seed) * Math.sin(t * 5.3);
@@ -253,7 +256,7 @@ export function fxsFireZone(c, f, x, y, t = 0, fade = 1, under = null) {
   c.globalAlpha = .75 * fade;
   c.drawImage(SCORCH, x - R * .85, y - R * .7, R * 1.7, R * 1.4);
   c.globalCompositeOperation = 'screen'; c.globalAlpha = .85 * fade * flick * (.4 + .6 * left);
-  c.drawImage(GLOW, x - R * 1.2, y - R * 1.05, R * 2.4, R * 2.1);
+  c.drawImage(GLOW, x - R * .85, y - R * .75, R * 1.7, R * 1.5);
   c.globalCompositeOperation = 'source-over';
   if (under) { c.save(); under(); c.restore(); }
   // flames, back to front
@@ -268,16 +271,16 @@ export function fxsFireZone(c, f, x, y, t = 0, fade = 1, under = null) {
     const fp = (t * 13 + p.ph * FLAME.n) % FLAME.n, i = Math.floor(fp), u = fp - i;
     const draw = (j, al) => { const rc = FLAME.rects['flame' + p.v + '_' + (j % FLAME.n)]; if (!rc || al <= 0) return;
       c.globalAlpha = al * fade; c.drawImage(FLAME.atlas, rc[0], rc[1], rc[2], rc[3], p.x - w / 2, p.y - h * .92, w, h); };
-    draw(i, 1); draw(i + 1, u);
+    draw(i, 1); if (rich) draw(i + 1, u);
   }
   // smoke plume leaning downwind + embers drifting up (looping, seeded)
-  for (let k = 0; k < 6; k++) {
-    const per = 3.2, q = ((t + k * per / 6 + hash(k, seed) * per * .15) % per) / per, ox = (hash(seed, k + 3) - .5) * R * .7;
-    const sz = R * (.5 + q * 1.1);
-    fxsDraw(c, 'smokeHeavy', x + ox + q * R * .7, y - R * .2 - q * R * 1.0, sz, sz, k + q * .6, fade * Math.min(.85, 1.5 * Math.sin(Math.min(1, q * 2.5) * Math.PI * .5) * (1 - q)) * (.3 + .7 * left));
+  if (rich) for (let k = 0; k < 2; k++) {                       // two light puffs, not a column
+    const per = 3.4, q = ((t + k * per / 2 + hash(k, seed) * per * .15) % per) / per, ox = (hash(seed, k + 3) - .5) * R * .5;
+    const sz = R * (.45 + q * .6);
+    fxsDraw(c, 'smokeHeavy', x + ox + q * R * .5, y - R * .25 - q * R * .7, sz, sz, k + q * .6, fade * .5 * Math.sin(Math.min(1, q * 2.5) * Math.PI * .5) * (1 - q) * (.3 + .7 * left));
   }
   c.globalCompositeOperation = 'lighter';
-  for (let k = 0; k < 10; k++) {
+  for (let k = 0; k < (rich ? 6 : 3); k++) {
     const per = 1.3, q = ((t + hash(k, seed + 1) * per) % per) / per, ox = (hash(seed + 2, k) - .5) * R * 1.1;
     const g = 3 + 3 * hash(k, 9); c.globalAlpha = fade * left * (1 - q) * .8;
     c.drawImage(GLOW, x + ox + Math.sin(q * 6 + k) * 6 - g, y - q * R * .9 - g, g * 2, g * 2);
