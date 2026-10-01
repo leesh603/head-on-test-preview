@@ -1,22 +1,22 @@
-import {installPilotIdentities} from './pilot-identities.js?v=487';
-import {EnemyCollisionGrid} from './collision-grid.js?v=487';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=487';
-import {installRevision} from './rebalance103.js?v=487';
-import {installCloudCover} from './cloud-cover1.js?v=487';
-import {installFleet} from './fleet-naval1.js?v=487';
-import {installTrenchWar} from './trench-war1.js?v=487';
-import {installCityAir} from './city-air1.js?v=487';
-import {installRegionDoctrine} from './region-doctrine1.js?v=487';
-import {installLondonBattle} from './london-battle.js?v=487';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=487';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=487';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=487';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=487';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=487';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=487';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=487';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=487';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=487';
+import {installPilotIdentities} from './pilot-identities.js?v=488';
+import {EnemyCollisionGrid} from './collision-grid.js?v=488';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=488';
+import {installRevision} from './rebalance103.js?v=488';
+import {installCloudCover} from './cloud-cover1.js?v=488';
+import {installFleet} from './fleet-naval1.js?v=488';
+import {installTrenchWar} from './trench-war1.js?v=488';
+import {installCityAir} from './city-air1.js?v=488';
+import {installRegionDoctrine} from './region-doctrine1.js?v=488';
+import {installLondonBattle} from './london-battle.js?v=488';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=488';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=488';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=488';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=488';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=488';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=488';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=488';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=488';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=488';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -382,11 +382,6 @@ Game.prototype._updWorld=function(dt,input={}){
  if(this.state!=='playing')return;
  this.regionThreat=(this.regionThreat??20)-step;if(this.regionThreat<=0){this.regionThreat=24;if([1,7].includes(region)&&this.enemies.length<60)this.spawnEnemy(this.rng()<.12?'zeppelin':'bomber');this.spawnFlak()}
  for(const e of this.enemies){if(!e.bossPilot)continue;e.bossDash=Math.max(0,(e.bossDash||0)-step);if(e.aceRetreat){e.a=Math.atan2(e.y-this.y,e.x-this.x);e.x+=Math.cos(e.a)*e.speed*1.15*step;e.y+=Math.sin(e.a)*e.speed*1.15*step;e.fire=9;if(Math.hypot(e.x-this.x,e.y-this.y)>1500){e.expired=true;if(!e.crashing&&!e.crashed)e.hp=-1}continue}if(this.sunStrikeContains(e))continue;if((e.aceSpawnT??this.t)&&this.t-e.aceSpawnT>75){e.aceRetreat=true;this.event('wave',e.name+' · 이탈 — 교전 한계 초과');continue}e.abilityTimer-=step;if(e.abilityTimer<=0){e.abilityTimer=e.bossPilot==='bishop'?ENEMY_BOSS_BALANCE.bishopAbilityMin+this.rng()*ENEMY_BOSS_BALANCE.bishopAbilityVariance:7+this.rng()*3;this.aceAttack(e)}}
-};
-Game.prototype.wreckGust=function(e){
- this.gusts??=[];const a=Math.atan2(this.y-e.y,this.x-e.x);
- this.gusts.push({x:e.x,y:e.y,vx:Math.cos(a)*170,vy:Math.sin(a)*170,a:a+Math.PI/2,life:6,maxLife:6,radius:78,hit:false,wreck:true});
- this.event('flak','비행선 붕괴! 충격 돌풍 접근');
 };
 // Separate weapon families: gun upgrades never silently multiply every payload.
 Game.prototype.payloadPower=function(base){return base*(1+(this.explosiveBonus||0))*(1+this.badinDamageBonus())*(this.doctrine==='강습 편대'?1.15:1)};
@@ -1078,7 +1073,6 @@ Game.prototype.updateTailLock=function(dt){
 };
 Game.prototype.tailLockFraction=function(){return Math.max(0,Math.min(1,(this.tailProgress||0)/TAILING_BALANCE.lockTime))};
 Game.prototype.giveSpecialAmmo=function(){this.specialAmmoQueue=[];return false};
-Game.prototype.consumeSpecialRound=function(){this.specialAmmoQueue=[];return null};
 Game.prototype.specialAmmoStatus=function(){return null};
 Game.prototype._asrBase=function(round){return round};
 Game.prototype._rdmBase=function(b,e){
@@ -1101,16 +1095,14 @@ Game.prototype.specialRoundImpact=function(b,e){
  }
  if(b.burn&&e.hp>0){if(b.gontermannIncendiary){e.gontermannBurn={age:e.gontermannBurn?.age||0,x:b.x-e.x,y:b.y-e.y,a:e.a||0};}e.burnTime=3;const dps=b.damage*.32;if(dps>=(e.burnDps||0)){e.burnDps=dps;e.burnOwnerId=b.ownerId??this.id}}
 };
-Game.prototype.dropSpecialAmmo=function(){return null};
 Game.prototype.dropObservationRepair=function(e){
  if(e?.fieldUnit!=='balloon'||e.observationRepairDropped)return null;e.observationRepairDropped=true;const world=this.combatWorld(),drop={x:e.x,y:e.y,value:0,heal:true,healFraction:DURABILITY_BALANCE.repairPickupFraction,observationRepair:true};if(world.nextEntityId)drop.id=world.nextEntityId++;world.drops.push(drop);return drop;
 };
 Game.prototype._updTactical=function(dt,input={}){
  if(this.state!=='playing')return;
- this.resolveBossLevels?.();if(this.state!=='playing')return;
  if(this.mode!=='campaign'){this.checkLevel();if(this.state!=='playing')return;enableStageBoss(this,{teamFaction:PLANES[this.plane].faction});}
  const step=Math.min(.04,Math.max(0,dt));beginStageBossFrame(this,step);this.updateTailLock(step);
- this._updLegendary(step,input);endStageBossFrame(this,step);this.resolveBossLevels?.();
+ this._updLegendary(step,input);endStageBossFrame(this,step);
 };
 Game.prototype.update=Game.prototype._updTactical;
 Game.prototype.skill=Game.prototype._sklFonckSeeker;
@@ -1208,8 +1200,6 @@ export function tickLegendaryDefenses(owner,world,dt){
  if(world.grunkreuzPuffs){world.grunkreuzPuffs=world.grunkreuzPuffs.filter(p=>p.life>0);for(const e of world.enemies||[]){e.grunkreuzTick=(e.grunkreuzTick||0)-dt;if(e.hp<=0||e.grunkreuzTick>0||e.stageBossBody)continue;const puff=world.grunkreuzPuffs.find(p=>Math.hypot(e.x-p.x,e.y-p.y)<p.r);if(!puff)continue;e.grunkreuzTick=.6;e.hp-=puff.dmg||1;e.hitFlash=Math.max(e.hitFlash||0,.12);if(e.hp<=0){e.grunkreuzDead=true;const own=(world.players||[]).find(p=>p.id===puff.ownerId)||owner;if(world.handleDeath)world.handleDeath(e,{patrol:false,ownerId:puff.ownerId});else{own.kills=(own.kills||0)+1;if(e.bossPilot||['boss','zeppelin','bomber'].includes(e.type))own.priorityKills=(own.priorityKills||0)+1;if(e.type==='zeppelin'&&world.wreckGust)world.wreckGust(e);world.burst?.(e.x,e.y,'#f2aa52',30);world.event?.('kill','')}}}}
  if(owner.kaiserFog){owner.kaiserFogTimer=(owner.kaiserFogTimer??LEGENDARY_DEFENSE_BALANCE.fogInterval)-dt;if(owner.kaiserFogTimer<=0){owner.kaiserFogTimer+=LEGENDARY_DEFENSE_BALANCE.fogInterval;owner.kaiserFogTime=LEGENDARY_DEFENSE_BALANCE.fogDuration;for(const e of world.enemies||[]){if(!e.targetPlayerId||e.targetPlayerId===owner.id)e.targetPlayerId=null;e.patrolTarget=null;e.fire=Math.max(e.fire||0,.65)}owner.event('wave','카이저의 안개 · 적 추적 해제')}owner.kaiserFogTime=Math.max(0,(owner.kaiserFogTime||0)-dt)}
 }
-const _legendaryFireEnemy109=Game.prototype.fireEnemy;
-Game.prototype._freLegendary=function(e){if(this.kaiserFogTime>0){e.fire=.35;return}return _legendaryFireEnemy109.call(this,e)};
 Game.prototype._updLegendarySystems=function(dt,input={}){
  if(this.state!=='playing')return this._updVossReverse(dt,input);const step=Math.min(.04,Math.max(0,dt));
  tickLegendaryDefenses(this,this.combatWorld(),step);
@@ -1537,11 +1527,6 @@ Game.prototype._updAces1918=function(dt,input={}){
  for(const e of advanceBurns1918(this,step)){this.kills++;if(e.bossPilot||e.type==='boss'||e.type==='zeppelin'||e.type==='bomber')this.priorityKills=(this.priorityKills||0)+1;if(e.type==='zeppelin'&&this.wreckGust)this.wreckGust(e);this.burst(e.x,e.y,'#f2aa52',e.navalVessel||e.type==='zeppelin'||e.fieldUnit||e.heavyBomber||e.bossPilot||e.type==='boss'?36:30,e.navalVessel?'mineBlast':e.fieldUnit?'structure':e.type==='zeppelin'||e.heavyBomber||e.bossPilot||e.type==='boss'?'aircraftHeavy':e.type==='bomber'?'aircraftMedium':undefined);this.event('kill',e.fieldUnit==='balloon'?'balloon':'');{const big=e.bossPilot||e.type==='boss';if(big)for(let gi=0;gi<5;gi++)this.drops.push({x:e.x+Math.cos(gi*1.26)*44,y:e.y+Math.sin(gi*1.26)*44,value:14,heal:false});this.drops.push({x:e.x,y:e.y,value:big?30:e.heavyBomber?16:e.type==='bomber'?3:(e.xpValue||1),heal:big||this.rng()<.1})}}
  return result;
 };
-const _aces1918AceAttack=Game.prototype.aceAttack;
-Game.prototype._aatAces1918=function(e){
- if(e.bossPilot==='brumowski'){const live=this.enemies.filter(x=>x.hp>0&&x.escortPlane==='brumowski_albatros').length;for(let i=live;i<2&&this.enemies.length<60;i++){const wing=this.spawnEnemy('hunter');if(!wing)break;wing.x=e.x+(i?70:-70);wing.y=e.y+40;wing.hp=wing.maxHp=80*(1+this.t/180);wing.escortPlane='brumowski_albatros';attachAircraftPersonality(PLANES,wing,wing.escortPlane,{retuneCruise:true});wing.fire=.3}}
- else if(e.bossPilot==='rickenbacker'){const aim=Math.atan2(this.y-e.y,this.x-e.x);for(let i=-1;i<=1;i++)this.bullets.push({x:e.x,y:e.y,vx:Math.cos(aim+i*.11)*330,vy:Math.sin(aim+i*.11)*330,life:2,enemy:true,visualType:'boss',aceSpecial:true,damage:16*(e.aceDamageMultiplier||1)})}
- _aces1918AceAttack.call(this,e)};
 // ── Richthofen Dr.I rework — 사냥 본능 passive + Dreidecker active ──
 export const RICHTHOFEN_DRI_BALANCE=Object.freeze({
  stackInterval:.8,resetAfter:2.2,tierDamage:[1,1.15,1.3,1.45],

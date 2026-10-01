@@ -123,7 +123,7 @@ export function installBattleDirector(Game,deps={}){
  S=deps.passStates;directorAircraftEligible=deps.directorAircraftEligible;
  if(!S||typeof directorAircraftEligible!=='function')throw new Error('Battle Director requires dogfight pass dependencies');
  Game.prototype.tickBattleDirector=function(dt){return tickDirector(this,dt)};
- Game.prototype.beginBattleDirectorPattern=function(pattern){if(!Object.values(P).includes(pattern))return null;return beginPattern(this,directorState(this),pattern)};
+
  const regularLimit=Game.prototype.regularEnemyLimit;
  Game.prototype.regularEnemyLimit=function(){const base=regularLimit.call(this);if((this.viewWidth||960)>BATTLE_DIRECTOR_BALANCE.compactWidth)return base;return Math.min(base,this.mode==='coop2'?BATTLE_DIRECTOR_BALANCE.compactCoopCap:BATTLE_DIRECTOR_BALANCE.compactSoloCap)};
  const interval=Game.prototype.regularSpawnInterval;

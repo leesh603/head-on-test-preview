@@ -1,5 +1,5 @@
 // Excel revision 103. Unspecified numbers are explicit first-playtest tuning.
-import {WING_PLANES} from './engine.js?v=487';
+import {WING_PLANES} from './engine.js?v=488';
 export const REVISION_BALANCE=Object.freeze({soloCap:12,coopCap:18,soloRegular:10,coopRegular:11,interval:1.6,coopInterval:1.65,countrysideInterval:1,countrysideCoopInterval:1.15,frontReduction:.25,rearBonus:.3,compassXp:1.3});
 const pilotMachineGunRound=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.actualExplosion&&!b.blast&&!b.mauserRound;
  export function installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDARIES,UPGRADES){
@@ -182,12 +182,6 @@ const pilotMachineGunRound=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.roc
   return [...pools[phase]];
  };
  Game.prototype.friendlyAircraftMix=function(faction){const pool=WING_PLANES[faction];return pool?[...pool]:this.aircraftMix(faction,this.t)};
- Game.prototype.queueBossLevel=function(){this.bossLevelRewards=(this.bossLevelRewards||0)+1};
- Game.prototype.resolveBossLevels=function(){
-  if(!this.bossLevelRewards||this.state!=='playing')return false;
-  if(this.players){while(this.bossLevelRewards>0){for(const p of this.players)p.xp+=p.need;this.bossLevelRewards--;this.queueLevels()}return true}
-  this.xp+=this.need;this.bossLevelRewards--;this.checkLevel();return true;
- };
  Game.prototype.spawnComposition=function(){const r=this.rng(),t=this.t;return t<120?(r<.85?'scout':'hunter'):t<300?(r<.35?'scout':r<.85?'hunter':'bomber'):t<480?(r<.65?'hunter':r<.95?'bomber':'zeppelin'):(r<.55?'hunter':r<.88?'bomber':r<.97?'zeppelin':'heavyBomber')};
  Game.prototype.canSpawnRevision=function(type){
   if(this.mode==='campaign')return true;

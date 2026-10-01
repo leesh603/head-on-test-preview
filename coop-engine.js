@@ -1,9 +1,9 @@
-import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=487';
-import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=487';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=487';
-import {attachAircraftPersonality} from './aircraft-personality164.js?v=487';
-import {installCloudCover} from './cloud-cover1.js?v=487';
-import {tickCityDefense} from './city-defense.js?v=487';
+import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=488';
+import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=488';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=488';
+import {attachAircraftPersonality} from './aircraft-personality164.js?v=488';
+import {installCloudCover} from './cloud-cover1.js?v=488';
+import {tickCityDefense} from './city-defense.js?v=488';
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.
 export const COOP_BALANCE=Object.freeze({spawn:1,ordinaryHp:1.15,heavyHp:1.65,enemyCap:28,xp:.6,revive:15,reviveHp:1,reviveAmmo:.5,reviveInvuln:2,minZoom:.75});
@@ -210,7 +210,7 @@ export class CoopGame {
  }
  updateDrops(dt){let xp=0;for(const d of this.drops){if(d.dead)continue;if(d.supply){d.x+=(d.vx||0)*dt;d.y+=(d.vy||0)*dt;d.life-=dt;if(d.mccuddenSupply&&d.fallTime>0){d.fallTime=Math.max(0,d.fallTime-dt);if(!d.fallTime){d.x=d.landX;d.y=d.landY;d.vx=d.vy=0}}}const p=this.living().reduce((best,p)=>!best||squared(p,d)<squared(best,d)?p:best,null);if(!p)continue;const dist=Math.hypot(d.x-p.x,d.y-p.y);if(!d.supply&&dist<p.magnet){const a=Math.atan2(p.y-d.y,p.x-d.x),travel=Math.min(dist,330*(1+Math.max(0,Math.min(360,p.magnet-120))/360)*dt);d.x+=Math.cos(a)*travel;d.y+=Math.sin(a)*travel}if(dist<20&&!(d.fallTime>0)){if(d.mccuddenSupply)p.mccuddenRepairFlash=.4;d.dead=true;xp+=d.value||0;if(d.heal)p.hp=Math.min(p.maxHp,p.hp+p.maxHp*(d.healFraction??DURABILITY_BALANCE.repairPickupFraction));if(d.specialAmmo)p.giveSpecialAmmo(d.specialAmmo,d.rounds)}}this.drops=this.drops.filter(d=>!d.dead&&(d.life===undefined||d.life>0)&&Math.hypot(d.x-this.x,d.y-this.y)<1800).slice(-250);if(xp)for(const p of this.players)p.xp+=xp*COOP_BALANCE.xp*(p.xpGainMult||1);}
  update(dt,inputs={}){
-  if(this.state!=='playing')return;const step=clamp(dt,0,.04);if(!step)return;this.resolveBossLevels();this.queueLevels();if(this.state!=='playing')return;
+  if(this.state!=='playing')return;const step=clamp(dt,0,.04);if(!step)return;this.queueLevels();if(this.state!=='playing')return;
   enableStageBoss(this,{teamFaction:this.teamFaction,heavyHp:COOP_BALANCE.heavyHp});beginStageBossFrame(this,step);if(this.state!=='playing')return;
   const aliveAtStart=this.living(),downAtStart=this.players.filter(p=>!live(p)),origins=new Map(aliveAtStart.map(p=>[p,{x:p.x,y:p.y}]));this.tickRevisionWorld(step);this.t+=step;this.worldTicks++;this.shake=Math.max(0,this.shake-step*22);
   let distance=0;for(const p of aliveAtStart){const {x,y}=origins.get(p);this.updatePlayer(p,step,inputs[p.id]||{});distance+=Math.hypot(p.x-x,p.y-y)}this.distance+=distance/(aliveAtStart.length||1);
@@ -221,7 +221,7 @@ export class CoopGame {
   for(const p of downAtStart){p.respawnRemaining=Math.max(0,p.respawnRemaining-step);if(p.respawnRemaining<=1e-9)this.revive(p)}
   this.updateCamera(step);this.updateDrops(step);
   for(const p of this.particles){p.x+=p.vx*step;p.y+=p.vy*step;p.life-=step}this.particles=this.particles.filter(p=>p.life>0).slice(-450);
-  this.score=this.priorityKills;this.queueLevels();endStageBossFrame(this,step);this.resolveBossLevels();
+  this.score=this.priorityKills;this.queueLevels();endStageBossFrame(this,step);
  }
 }
 
