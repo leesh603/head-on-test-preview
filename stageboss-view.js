@@ -1,20 +1,20 @@
-import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=463';
-import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=463';
-import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=463';
-import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=463';
-import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=463';
-import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=463';
-import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=463';
-import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=463';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=463';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=463';
-import {bossHudModel} from './headon-stageboss-hud.js?v=463';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=463';
-import {planeSprite} from './aircraft.js?v=463';
-import {getLocale} from './i18n.js?v=463';
-import {londonStatus} from './london-battle.js?v=463';
-import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=463';
-import {drawAADefense,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=463';
+import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=464';
+import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=464';
+import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=464';
+import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=464';
+import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=464';
+import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=464';
+import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=464';
+import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=464';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=464';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=464';
+import {bossHudModel} from './headon-stageboss-hud.js?v=464';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=464';
+import {planeSprite} from './aircraft.js?v=464';
+import {getLocale} from './i18n.js?v=464';
+import {londonStatus} from './london-battle.js?v=464';
+import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=464';
+import {drawAADefense,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=464';
 
 function createLazyImageGroup(sources){
  const cache={},pending={};

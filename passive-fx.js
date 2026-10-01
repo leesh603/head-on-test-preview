@@ -1,108 +1,91 @@
 // Passive-state FX (sample: Richthofen "사냥 본능" / Hunting Instinct).
-// Purely visual: reads the engine's existing hunt fields, never writes gameplay state.
-//
-// What the player should be able to read at a glance:
-//   1. which enemy is the current prey       -> crimson lock brackets that snap in on designation
-//   2. how far the hunt bonus has stacked    -> three arc segments around the prey; the next one
-//                                               fills while you keep hitting, a pulse on each tier,
-//                                               and the live bonus (+15 / +30 / +45%) next to it
-//   3. that the stack is about to drop       -> lit segments dim and flicker in the last 0.6 s
-//                                               before the 2.2 s no-hit reset
-//   4. the kill reward (+20% speed, 4 s)     -> crimson aura + draining timer arc on your own plane
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=463';
+// In-world effects rather than HUD marks. Purely visual: reads the engine's existing
+// hunt fields, never writes gameplay state.
+//   prey          -> trails a thin crimson vapour; it thickens with each hunt stack
+//                    (tier I wisp -> II sheds embers -> III a burning red streamer)
+//   tier-up       -> a short spray of crimson sparks off the prey
+//   about to drop -> the streamer thins out over the last 0.6 s before the reset
+//   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=464';
 
-const RED = '#c8322a', RED_HOT = '#ff8a4c', RED_DEEP = '#5e1410', GOLD = '#f6cf72', AMBER = '#ffb04a';
-const memo = new WeakMap(); // per-game: last tier, pulse clock, kill flash
-const st = g => { let s = memo.get(g); if (!s) memo.set(g, s = { tier: 0, pulse: -9, pulseTier: 0, boost: 0, kill: -9 }); return s; };
-const ease = q => 1 - Math.pow(1 - Math.max(0, Math.min(1, q)), 3);
-
-function glowStroke(c, w, col, glow, a) {
-  c.save(); c.globalAlpha *= a * .45; c.strokeStyle = glow; c.lineWidth = w * 3.2; c.globalCompositeOperation = 'lighter'; c.stroke(); c.restore();
-  c.save(); c.globalAlpha *= a; c.strokeStyle = '#140504aa'; c.lineWidth = w + 2.2; c.stroke(); c.restore(); // dark bed so it reads on bright ground
-  c.save(); c.globalAlpha *= a; c.strokeStyle = col; c.lineWidth = w; c.stroke(); c.restore();
+const memo = new WeakMap();
+const st = g => { let s = memo.get(g); if (!s) memo.set(g, s = { tier: 0, burst: -9, burstAt: null, prey: null, trail: [], wing: [] }); return s; };
+const clamp = q => Math.max(0, Math.min(1, q));
+let VAPOR = null, EMBER = null;
+function sprites() {
+  if (VAPOR || typeof document === 'undefined') return;
+  const mk = stops => { const k = document.createElement('canvas'); k.width = k.height = 48; const x = k.getContext('2d'), gr = x.createRadialGradient(24, 24, 0, 24, 24, 24);
+    for (const [o, c] of stops) gr.addColorStop(o, c); x.fillStyle = gr; x.fillRect(0, 0, 48, 48); return k; };
+  VAPOR = mk([[0, 'rgba(150,40,32,.5)'], [.5, 'rgba(110,36,30,.24)'], [1, 'rgba(80,30,26,0)']]);
+  EMBER = mk([[0, 'rgba(255,236,200,1)'], [.25, 'rgba(255,140,70,.8)'], [.6, 'rgba(220,50,30,.25)'], [1, 'rgba(180,30,20,0)']]);
 }
-
-function label(c, text, x, y, col, a) {
-  c.save(); c.globalAlpha *= a; c.font = '700 11px "Bebas Neue","Oswald",system-ui,sans-serif'; c.textAlign = 'left'; c.textBaseline = 'middle';
-  c.lineWidth = 3; c.strokeStyle = '#120403d9'; c.strokeText(text, x, y); c.fillStyle = col; c.fillText(text, x, y); c.restore();
-}
+const hash = (a, b) => { const v = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return v - Math.floor(v); };
+// short world-space history (seconds); cleared if time runs backwards (restart)
+function push(list, p, t, keep) { if (list.length && list[list.length - 1].t > t) list.length = 0; const last = list[list.length - 1]; if (!last || t - last.t > 1 / 90) list.push({ ...p, t }); while (list.length && t - list[0].t > keep) list.shift(); }
 
 export function drawBaronHunt(c, g, point, t, px, py) {
   if (g.pilot !== 'baron') return false;
+  sprites(); if (!VAPOR) return false;
   const s = st(g);
   const tgt = g.huntTarget, alive = tgt && g.huntTargetAlive?.(tgt);
-  // ---- prey reticle
+  if (tgt !== s.prey) { s.prey = tgt; s.trail = []; s.tier = 0; }
+  c.save();
   if (alive) {
-    const [x, y] = point(tgt.x, tgt.y);
-    const sz = g.huntTargetElite ? 24 : tgt.heavyBomber ? 60 : tgt.bossPilot ? 46 : tgt.type === 'bomber' ? 34 : 28;
     const tier = g.huntTier ? g.huntTier() : 0, engaged = !!g.huntEngaged;
-    if (tier > s.tier) { s.pulse = t; s.pulseTier = tier; }
+    if (tier > s.tier) { s.burst = t; s.burstAt = { x: tgt.x, y: tgt.y }; }
     s.tier = tier;
-    const designate = g.huntDesignate > 0 ? 1 - g.huntDesignate / .35 : 1, lock = ease(designate);
-    const since = engaged ? t - (g.huntLastHit ?? t) : 0, warn = engaged && since > B.resetAfter - .6;
-    const flick = warn ? .45 + .55 * (Math.sin(t * 38) > 0 ? 1 : .35) : 1;
-    const R = sz * .85 + 10;
-    c.save(); c.translate(x, y); c.lineCap = 'round'; c.lineJoin = 'round';
-    // lock brackets: fly in from 2.2x on designation, breathe slowly while idle, clamp tight when engaged
-    const breathe = engaged ? 0 : Math.sin(t * 3.2) * 2, br = (R + 6 + breathe) * (1 + (1 - lock) * 1.2), arm = Math.max(8, sz * .36);
-    const rot = engaged ? 0 : (1 - lock) * .8;
-    c.rotate(rot);
-    for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
-      c.beginPath(); c.moveTo(sx * br, sy * (br - arm)); c.lineTo(sx * br, sy * br); c.lineTo(sx * (br - arm), sy * br);
-      glowStroke(c, 2.4, engaged ? RED_HOT : RED, RED, lock * (engaged ? 1 : .8));
+    const since = engaged ? t - (g.huntLastHit ?? t) : 0;
+    const hold = engaged ? 1 - .7 * clamp((since - (B.resetAfter - .6)) / .6) : 1;
+    const lock = clamp(g.huntDesignate > 0 ? 1 - g.huntDesignate / .35 : 1);
+    const k = (engaged ? [.4, .6, .78, .95][tier] : .28) * hold * lock;   // faint wisp when merely designated
+    const keep = .35 + .2 * tier;
+    push(s.trail, { x: tgt.x, y: tgt.y }, t, keep);
+    const n = s.trail.length;
+    for (let i = 0; i < n - 1; i++) {
+      const p = s.trail[i], age = (t - p.t) / keep, [x, y] = point(p.x, p.y);
+      const w = (6 + 4 * tier) * (.5 + age * 1.4), a = (1 - age) * (1 - age) * k * .5;
+      if (a <= .01) continue;
+      const drift = (hash(p.t * 10, i) - .5) * 6 * age;
+      c.globalAlpha = a; c.drawImage(VAPOR, x - w + drift, y - w + drift, w * 2, w * 2);
     }
-    c.rotate(-rot);
-    // ring-sight wires: four short cross-wire ticks and an inner bead, tighter when engaged
-    const wire = engaged ? .22 : .3;
-    for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + Math.PI / 4; c.beginPath(); c.moveTo(Math.cos(a) * R * (1 - wire), Math.sin(a) * R * (1 - wire)); c.lineTo(Math.cos(a) * R * (1 + .16), Math.sin(a) * R * (1 + .16)); glowStroke(c, 1.4, engaged ? RED_HOT : RED, RED, .8 * lock); }
-    // three tier segments (top -> clockwise), next one fills with hunt progress
-    const seg = Math.PI * 2 / 3, gap = .34, start = -Math.PI / 2 - seg / 2 + gap / 2;
-    const prog = engaged && tier < 3 ? ((g.huntEngage || 0) % B.stackInterval) / B.stackInterval : 0;
-    for (let i = 0; i < 3; i++) {
-      const a0 = start + i * seg, a1 = a0 + seg - gap;
-      c.beginPath(); c.arc(0, 0, R, a0, a1);
-      glowStroke(c, 1.6, RED_DEEP, RED_DEEP, .55 * lock);                            // empty track
-      if (i < tier) { c.beginPath(); c.arc(0, 0, R, a0, a1); glowStroke(c, 2.8, tier === 3 ? GOLD : AMBER, AMBER, lock * flick); }
-      else if (i === tier && prog > 0) { c.beginPath(); c.arc(0, 0, R, a0, a0 + (a1 - a0) * prog); glowStroke(c, 2.4, RED, RED, .85 * lock); }
+    if (engaged && tier >= 2) {                                            // embers shed from tier II up
+      c.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < n - 1; i++) {
+        const p = s.trail[i], age = (t - p.t) / keep; if (hash(p.t * 13, 7) > .1 + .08 * (tier - 2)) continue;
+        const [x, y] = point(p.x, p.y), e = 2 + 2 * hash(p.t * 7, 3);
+        c.globalAlpha = (1 - age) * hold * .9; c.drawImage(EMBER, x - e + (hash(p.t, 9) - .5) * 14 * age, y - e + (hash(p.t, 4) - .5) * 14 * age, e * 2, e * 2);
+      }
+      c.globalCompositeOperation = 'source-over';
     }
-    // tier-up pulse: a ring that kicks outward + brief bloom
-    const pq = (t - s.pulse) / .38;
-    if (pq >= 0 && pq < 1) {
-      c.beginPath(); c.arc(0, 0, R * (1 + ease(pq) * .75), 0, Math.PI * 2);
-      glowStroke(c, 3 * (1 - pq) + .6, s.pulseTier === 3 ? GOLD : RED_HOT, RED_HOT, 1 - pq);
+    if (engaged && tier === 3) {                                           // red heat on the prey at the top tier
+      const [x, y] = point(tgt.x, tgt.y), r = 22 + 3 * Math.sin(t * 9);
+      c.globalCompositeOperation = 'lighter'; c.globalAlpha = .28 * hold; c.drawImage(VAPOR, x - r, y - r, r * 2, r * 2); c.globalCompositeOperation = 'source-over';
     }
-    // tier chevrons + live bonus, under the target so they never fight the nameplate above it
-    if (engaged) {
-      const cy = br + 11, w = 7;
-      for (let i = 0; i < 3; i++) { const cx = (i - 1) * (w * 2 + 3); c.beginPath(); c.moveTo(cx - w, cy - 3); c.lineTo(cx, cy + 3); c.lineTo(cx + w, cy - 3);
-        glowStroke(c, i < tier ? 2.4 : 1.4, i < tier ? (tier === 3 ? GOLD : AMBER) : RED_DEEP, AMBER, (i < tier ? flick : .6) * lock); }
-      if (tier > 0) label(c, '+' + Math.round((B.tierDamage[tier] - 1) * 100) + '%', 3 * w + 6, cy, tier === 3 ? GOLD : '#ffb59f', lock * flick);
+  } else { s.trail = []; s.tier = 0; }
+  const bq = (t - s.burst) / .4;                                           // tier-up spark spray
+  if (bq >= 0 && bq < 1 && s.burstAt) {
+    const [x, y] = point(s.burstAt.x, s.burstAt.y);
+    c.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 10; i++) {
+      const a = hash(i, s.burst) * Math.PI * 2, d = (14 + 26 * hash(s.burst, i)) * (1 - Math.pow(1 - bq, 2)), e = 2.5 * (1 - bq) + .8;
+      c.globalAlpha = 1 - bq; c.drawImage(EMBER, x + Math.cos(a) * d - e, y + Math.sin(a) * d - e, e * 2, e * 2);
     }
-    c.restore();
+    c.globalCompositeOperation = 'source-over';
   }
-  // ---- kill reward on own plane: +20% speed for 4 s
-  const boost = g.huntBoost || 0;
-  if (boost > 0 && s.boost <= 0) s.kill = t;
-  s.boost = boost;
+  const boost = g.huntBoost || 0;                                          // kill reward: crimson wingtip vapour
   if (boost > 0) {
-    const q = boost / B.killBoostTime, fadeIn = Math.min(1, (t - s.kill) / .12);
-    c.save(); c.translate(px, py); c.lineCap = 'round';
-    const gr = c.createRadialGradient(0, 0, 6, 0, 0, 54);
-    gr.addColorStop(0, 'rgba(255,90,60,.34)'); gr.addColorStop(.55, 'rgba(210,40,30,.14)'); gr.addColorStop(1, 'rgba(160,20,20,0)');
-    c.globalCompositeOperation = 'lighter'; c.globalAlpha = fadeIn * (.8 + .2 * Math.sin(t * 12)); c.fillStyle = gr; c.beginPath(); c.arc(0, 0, 54, 0, Math.PI * 2); c.fill();
-    c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
-    // four notched pips = the 4 s reward, draining clockwise
-    const pips = 4, segA = Math.PI * 2 / pips, gapA = .22, left = q * pips;
-    for (let i = 0; i < pips; i++) {
-      const a0 = -Math.PI / 2 + i * segA + gapA / 2, a1 = a0 + segA - gapA, fill = Math.max(0, Math.min(1, left - i));
-      c.beginPath(); c.arc(0, 0, 40, a0, a1); glowStroke(c, 1.4, RED_DEEP, RED_DEEP, .55 * fadeIn);
-      if (fill > 0) { c.beginPath(); c.arc(0, 0, 40, a0, a0 + (a1 - a0) * fill); glowStroke(c, 3, RED_HOT, RED_HOT, fadeIn); }
+    const span = 17, a0 = g.a || 0;
+    push(s.wing, { x: g.x, y: g.y, a: a0 }, t, .32);
+    const fade = clamp(boost / .5) * clamp((B.killBoostTime - boost) / .1 + .2);
+    for (const side of [-1, 1]) {
+      c.beginPath(); let first = true;
+      for (const p of s.wing) { const [x, y] = point(p.x - Math.sin(p.a) * span * side, p.y + Math.cos(p.a) * span * side); if (first) { c.moveTo(x, y); first = false; } else c.lineTo(x, y); }
+      c.lineTo(px - Math.sin(a0) * span * side, py + Math.cos(a0) * span * side);
+      c.lineCap = 'round'; c.lineJoin = 'round';
+      c.globalAlpha = .35 * fade; c.strokeStyle = '#b8261e'; c.lineWidth = 4; c.stroke();
+      c.globalAlpha = .7 * fade; c.strokeStyle = '#ffd9cc'; c.lineWidth = 1.2; c.stroke();
     }
-    // kill confirmation burst
-    const kq = (t - s.kill) / .45;
-    if (kq >= 0 && kq < 1) { c.beginPath(); c.arc(0, 0, 40 + ease(kq) * 34, 0, Math.PI * 2); glowStroke(c, 3 * (1 - kq) + .5, GOLD, RED_HOT, 1 - kq); }
-    label(c, 'SPD +20%', 34, -38, '#ffcbb8', fadeIn * Math.min(1, boost / .5));
-    c.restore();
-  }
+  } else s.wing = [];
+  c.restore();
   return true;
 }

@@ -18,7 +18,7 @@ export const TERRAIN_PROFILES=Object.freeze({
  ,somme:{name:'솜 강전선',src:'./terrain-somme359r2.webp?v=426&b=326',base:'#5a5244',strength:1.11,tileSize:1254},
  // London raid: night navy street grid, the Thames band and fires. Kept dark so
  // searchlight cones and warning circles stay legible.
- london:{name:'런던 대공습',src:'./terrain-city-london96.webp?v=463',base:'#232a36',strength:1.28,tileSize:1254}
+ london:{name:'런던 대공습',src:'./terrain-city-london96.webp?v=464',base:'#232a36',strength:1.28,tileSize:1254}
 });
 // Atmospheric perspective preserves texture resolution while narrowing the
 // ground's contrast/chroma. Combat sprites and hazard markings are drawn later.
