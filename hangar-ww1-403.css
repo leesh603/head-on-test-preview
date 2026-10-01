@@ -946,3 +946,30 @@ body.astra-ui:not(.playing) #hangar #randomStart .astra-random-badge:before{cont
 @media(max-width:720px){
  body.astra-ui:not(.playing) #hangar #randomStart.astra-random-sortie{min-height:34px;font-size:13px!important;margin-top:0!important}
 }
+
+/* ---- Faction picker: emblems lead (iron cross / roundel) ----
+   The 13px greyed glyphs were barely visible and hidden on phones. Each faction is now a full-width
+   half of the control with a 26px emblem in full colour when chosen and a dim, desaturated one
+   when not; the chosen side gets a faction-coloured underline (iron grey / roundel red-blue). */
+body.astra-ui:not(.playing) #hangar .factions{flex:1 1 auto;min-width:0}
+body.astra-ui:not(.playing) #hangar .factions button{flex:1 1 0;justify-content:center;gap:9px!important;position:relative}
+body.astra-ui:not(.playing) #hangar .factions .faction-emblem{
+ display:block!important;width:24px!important;height:24px!important;object-fit:contain;opacity:.45;
+ filter:grayscale(1) brightness(.85);transition:opacity .15s,filter .15s,transform .15s;
+}
+body.astra-ui:not(.playing) #hangar .factions button:hover .faction-emblem{opacity:.75}
+body.astra-ui:not(.playing) #hangar .factions button.active .faction-emblem{opacity:1;filter:drop-shadow(0 1px 3px #000c);transform:scale(1.08)}
+body.astra-ui:not(.playing) #hangar .factions button:after{
+ content:"";position:absolute;left:18%;right:18%;bottom:3px;height:2px;border-radius:2px;background:transparent;transition:background .15s;
+}
+body.astra-ui:not(.playing) #hangar .factions #central.active:after{background:linear-gradient(90deg,#d9d6cf,#5b5a57)}
+body.astra-ui:not(.playing) #hangar .factions #entente.active:after{background:linear-gradient(90deg,#b3262f 0 50%,#2f5fa8 50%)}
+@media(min-width:721px){
+ body.astra-ui:not(.playing) #hangar .factions button{height:44px!important;font:800 15px/1 var(--astra-type)!important}
+}
+@media(max-width:720px){
+ body.astra-ui:not(.playing) #hangar .factions{gap:0!important}
+ body.astra-ui:not(.playing) #hangar .factions button{height:38px!important;font-size:14px!important;border-bottom:0!important}
+ body.astra-ui:not(.playing) #hangar .factions .faction-emblem{width:22px!important;height:22px!important}
+ body.astra-ui:not(.playing) #hangar .factions button:after{left:10%;right:10%;bottom:7px;height:3px}
+}
