@@ -24,6 +24,7 @@ import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTra
 import {installFlightViewport} from './flight-viewport.js?v=483';
 import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174.js?v=483';
 import {drawGas} from './gas-view.js?v=483';
+import {drawWarAmbience} from './war-ambience.js?v=483';
 import {missionNavigation,drawMissionRadar} from './navigation.js?v=483';
 import {drawBattlefieldSprite,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=483';
 import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=483';
@@ -510,6 +511,7 @@ function paintRegion(region,cx,cy,width=W,height=H){
   if(region===6&&game?.alpsMountains)game.alpsMountains.draw(ctx,{camera:{x:cx-W/2,y:cy-H/2},width:W,height:H});
   if(region===3)paintTrenchHellOverlay(cx,cy,W,H);
   if(region===11){ctx.save();ctx.fillStyle='#101b2c45';ctx.fillRect(0,0,W,H);ctx.restore();}
+  drawWarAmbience(ctx,region,cx,cy,W,H,(game?.t||0)+ambient);
   return;
  }
  if(region===5){paintSky(ctx,cx,cy,W,H);return}if(region===4){paintCity(ctx,cx,cy,W,H,PLANES[game?.plane]?.faction==='central'?'london':'berlin');return}

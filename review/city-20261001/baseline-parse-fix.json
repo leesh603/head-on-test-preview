@@ -1,8 +1,0 @@
-{
-  "base": "641caba8176f75c0a887c14047868d3ec2408dbd",
-  "files": [
-    "stageboss-view.js",
-    "coop-view.js"
-  ],
-  "change": "Removed duplicate AA imports and repeated warning declaration; balanced duplicated Canvas save introduced by the latest harbor/Alps merge. Before capture has only these execution repairs, city combat unchanged."
-}
