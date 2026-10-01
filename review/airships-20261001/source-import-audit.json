@@ -1,0 +1,14 @@
+{
+  "baseCommit": "6797ac040a46bc0ba1c02aaf4f84dc257c34c900",
+  "syntaxModules": 105,
+  "references": 249,
+  "unavailableLocallyButPresentInBaseTree": [
+    {
+      "file": "aa-defense-art.js",
+      "ref": "./boss-drachen-parts-v2.webp",
+      "local": false,
+      "repository": true
+    }
+  ],
+  "missing": []
+}

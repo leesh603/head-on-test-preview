@@ -9,13 +9,13 @@ import {fx,fxReady,fxTint} from './fx-art.js?v=464';
 import {drawAADefense} from './aa-defense-art.js?v=464';
 import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js';
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=464';
-import {drawStageBoss} from './stageboss-view.js?v=464';
+import {drawStageBoss} from './stageboss-view.js?v=airships20261001';
 import {planeSprite,aircraftKey} from './aircraft.js?v=464';
 import {drawEquipment} from './equipment.js?v=464';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=464';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=464';
 import {drawSpecialAmmoIcon} from './icons.js?v=464';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=464';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=airships20261001';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
 const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=426&b=326';

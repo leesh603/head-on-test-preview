@@ -1,4 +1,4 @@
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=464';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=airships20261001';
 import {BossHazards} from './headon-stageboss-hazards.js?v=464';
 
 export class BossStages {
@@ -109,7 +109,7 @@ export class StageBossAddon {
   beginDefeat(encounter) {
     const bodies=[...encounter.bodies.values()].filter(b=>b.kind!=='gotha-raider'||this.bodyDefeats.some(d=>d.id===b.id)).map(b=>({id:b.id,kind:b.kind,x:b.x,y:b.y}));
     const sinking=/^(sms-stuttgart|hms-zubian|armored-harbor-fortress)$/.test(encounter.bossId);
-    this.defeatSequence={encounterId:encounter.id,bossId:encounter.bossId,age:0,duration:sinking?4.4:2.65,pulse:0,bodies};
+    this.defeatSequence={encounterId:encounter.id,bossId:encounter.bossId,age:0,duration:/zeppelin|hma23/.test(encounter.bossId)?4.2:sinking?4.4:2.65,pulse:0,bodies};
     this.hazards.clear(encounter.id);this.hooks.clearEncounterOwned(encounter.id);
     this.hooks.onCue({type:'boss-destruction-start',encounterId:encounter.id,bossId:encounter.bossId,bodies});
   }
