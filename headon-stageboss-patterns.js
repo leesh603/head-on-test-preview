@@ -1,10 +1,10 @@
-import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose} from './adriatic-boss-layout.js?v=469';
-import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=469';
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=469';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=469';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=469';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=469';
-import {GIK,Ca4} from './alps-bomber-combat.js?v=469';
+import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose} from './adriatic-boss-layout.js?v=472';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=472';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=472';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=472';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=472';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=472';
+import {GIK,Ca4} from './alps-bomber-combat.js?v=472';
 export {GIK,Ca4};
 
 // Trench II is an independent battlefield between the original trenches and

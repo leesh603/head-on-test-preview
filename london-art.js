@@ -1,6 +1,6 @@
-import {fx} from './fx-art.js?v=469';
-import {drawAttachedApron} from './london-apron369.js?v=469';
-const paths={gotha:'./gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=469',apronDamage:'./boss-london-apron-registered-damage369.png?v=469'};
+import {fx} from './fx-art.js?v=472';
+import {drawAttachedApron} from './london-apron369.js?v=472';
+const paths={gotha:'./gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=472',apronDamage:'./boss-london-apron-registered-damage369.png?v=472'};
 let art={},artLoadP=null;
 export function releaseLondonArt(){art={};artLoadP=null;}
 export function prepareLondonArt(){return Promise.all(Object.entries(paths).map(([key,path])=>new Promise(resolve=>{const im=new Image();art[key]=im;im.decoding='async';im.onload=im.onerror=resolve;im.src=path;})));}

@@ -19,7 +19,7 @@ globalThis.document={createElement:name=>name==='canvas'?createCanvas(1,1):{},bo
 globalThis.window={addEventListener(){},matchMedia:()=>({matches:false})};
 const {drawStageBoss,prepareStageBossAssets}=await import(pathToFileURL(path.join(root,'stageboss-view.js')).href+'?v='+(process.env.ALPS_RENDER_PREFIX?'468':'alps20261001'));
 const {StageBossAddon}=await import(pathToFileURL(path.join(root,'headon-stageboss-runtime.js')).href+'?v='+(process.env.ALPS_RENDER_PREFIX?'468':'alps20261001'));
-const {fxArtReady}=await import(pathToFileURL(path.join(root,'fx-art.js')).href+'?v=469');
+const {fxArtReady}=await import(pathToFileURL(path.join(root,'fx-art.js')).href+'?v=472');
 const tune={maxHp:2400,partHp:288,damage:18,bulletSpeed:270,geometryScale:2.025,mobileBoss:true,motionMultiplier:1,patternMultiplier:1,projectileDensity:1,coastalInterval:2.5,craneInterval:4.8,harborLaunchInterval:5.6};
 function setup(kind){
  const addon=new StageBossAddon({runId:'render',teamFaction:kind==='gik'?'entente':'central',stageIndex:6,rng:()=>.5,hooks:{getTuning:()=>({...tune}),onDamage(){},onStatus(){},onBarrierContact(){},spawnMinion(){},countMinions:()=>0,onBuildingImpact:()=>false,onCue(){},onEncounterCleared(){},onStageChange(){},clearEncounterOwned(){}}});
