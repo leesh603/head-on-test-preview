@@ -557,10 +557,10 @@ export function upgradeDescription(id,rarity='normal',g){
  regen:`초당 최대 내구도 회복 +${[.6,1,1.5][t]}% (합계 최대 초당 4%).`})[id]||'';
 }
 for(const u of UPGRADES)u.desc=upgradeDescription(u.id,u.uniqueOnly?'unique':'normal');
-Game.prototype.rollChoices=function(){
+Game.prototype.rollChoices=function(forceRarity=null){
  const picks=[];
  for(let slot=0;slot<3;slot++){
-  const r=this.rng(),rarity=r<.6?'normal':r<.88?'rare':'unique';
+  const r=this.rng(),rarity=forceRarity||(r<.6?'normal':r<.88?'rare':'unique');
   let pool=UPGRADES.filter(u=>!picks.some(p=>p.id===u.id)&&(!u.uniqueOnly||rarity==='unique')&&
    (!u.legendary)&&(u.id!=='cooldown'||this.cooldownMult>.5&&this.skillCooldown()>this.skillDuration()+this.skillRecovery())&&(u.id!=='spread'||this.shots<5)&&(u.id!=='rockets'||this.rockets<6)&&(u.id!=='mines'||this.mineCount<6)&&
    (u.id!=='bomber'||(this.bomberLevel||0)<5)&&(u.id!=='regen'||(this.regen||0)<DURABILITY_BALANCE.regenCap-1e-9)&&(u.id!=='rate'||this.rate>.045+1e-9)&&(u.id!=='magnet'||this.magnet<480)&&(u.id!=='turn'||(this.turnUpgradeBonus||0)<AUGMENT_BALANCE.turnCap-1e-9||(this.speedUpgradeBonus||0)<AUGMENT_BALANCE.speedCap-1e-9)&&
@@ -570,7 +570,7 @@ Game.prototype.rollChoices=function(){
   const weighted=pool.flatMap(u=>u.uniqueOnly?[u,u,u]:[u]);const u=weighted[Math.floor(this.rng()*weighted.length)];if(u)picks.push({...u,rarity});
  }
  const legendaryOffers=this.legendaryOffers??(this.legendaryOffered?1:0),legendaryLimit=this.level>=20?4:this.level>=10?2:1,legendaryPool=this.mission?.unarmed||legendaryOffers>=legendaryLimit||this.legendaryCount()>=legendaryLimit?[]:LEGENDARIES.filter(u=>(u.id!=='rearGunner'||!this.weapon.bidirectional&&!this.rearGunner)&&!(u.id==='cow37'&&this.upgrades.quadLewis)&&!(u.id==='quadLewis'&&this.upgrades.cow37)&&!(u.id==='maximBelt'&&this.cow37)&&!this.upgrades[u.id]&&!(this.seenLegendaries||[]).includes(u.id));
- if(legendaryPool.length>=3&&(this.rng()<this.legendaryChance()||this.level>=(legendaryOffers===0?5:legendaryOffers===1?12:22))){
+ if(!forceRarity&&legendaryPool.length>=3&&(this.rng()<this.legendaryChance()||this.level>=(legendaryOffers===0?5:legendaryOffers===1?12:22))){
   const available=[...legendaryPool];picks.length=0;
   // One arsenal slot per legendary draft; remaining slots retain the full catalog.
   for(let slot=0;slot<3;slot++){const arsenal=available.filter(u=>['quadLewis','cow37','rankinShell','kaiserFog'].includes(u.id)),pool=slot===0&&arsenal.length?arsenal:available;const u=pool[Math.floor(this.rng()*pool.length)];if(!u)break;available.splice(available.indexOf(u),1);picks.push({...u,legendary:true,rarity:'legendary'})}
