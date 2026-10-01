@@ -1,6 +1,6 @@
 import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js';
 import {installPilotFeedback} from './pilot-feedback.js';
-import {headOnTarget} from './engagement-feedback.js?v=461';
+import {headOnTarget} from './engagement-feedback.js?v=462';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
@@ -10,7 +10,7 @@ const alive=e=>e&&e.hp>0&&!e.crashed&&!e.rivalEscaped&&!e.expired;
 const own=p=>p.id||'p1';
 const personal=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.actualExplosion&&!b.blast&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.mauserRound;
 const commanders=new Set(['boelcke','goering','collishaw','brumowski']);
-const durations={fonck:4,voss:2.4,boelcke:8,udet:3,goering:5,immelmann:2.8,huffzky:5,berthold:5,jacobs:4,gontermann:5,brumowski:5,collishaw:6,guynemer:2.4,bishop:3,mannock:5,mckeever:5,hawker:5,nungesser:3,rickenbacker:4,ball:1.5,barker:6,luke:6};
+const durations={fonck:4,voss:2.4,boelcke:8,udet:.55,goering:5,immelmann:2.8,huffzky:5,berthold:5,jacobs:4,gontermann:5,brumowski:5,collishaw:6,guynemer:2.4,bishop:3,mannock:5,mckeever:5,hawker:5,nungesser:3,rickenbacker:4,ball:1.5,barker:6,luke:6};
 export const PILOT_IDENTITY_BALANCE=Object.freeze({durations:Object.freeze(durations),focusCone:.13,focusRange:780,focusTime:1.5,grazeInner:18,grazeOuter:42,grazeStacks:3,grazeDuration:3,delayedFraction:.4,debtSeconds:4,energySeconds:3,turnSeconds:2,switchWindow:2,switchStacks:3,igniteSeconds:3,igniteInterval:.25,chainRadius:110,chainDamage:36,fxCap:24});
 export const pilotOwner=own;
 export const pilotHeadOn=(p,e)=>headOnTarget({...p,hp:1},[e])===e;
@@ -36,7 +36,7 @@ export function installPilotIdentities(Game,PILOTS){
   if(this.pilot==='voss'){this.invuln=Math.max(this.invuln,.45);const w=this.combatWorld();w.revisionDecoys??=[];for(let i=0;i<6;i++){const a=this.a+i*Math.PI/3;w.revisionDecoys.push({x:this.x,y:this.y,a,plane:this.plane,pilot:this.pilot,ownerId:own(this),life:1.2,hp:1,decoy:true,identityDecoy:true,vx:Math.cos(a)*140,vy:Math.sin(a)*140})}}
   if(this.pilot==='immelmann'){this.bullets=this.bullets.filter(b=>!b.enemy);this.invuln=Math.max(this.invuln,this.skillEnhanced?1.35:1.1);this.immelmannTurn={heading:this.a,elapsed:0,spread:this.skillEnhanced?3:2,fired:false}}
  if(this.pilot==='boelcke'){const w=this.combatWorld();w.allies??=[];const formationSize=this.skillEnhanced?5:4;for(let i=0;i<formationSize;i++)w.allies.push({ownerId:own(this),slot:(this.permanentWingman||0)+i,plane:this.plane,x:this.x,y:this.y,a:this.a,life:this.skillTime,fire:.85+Math.floor(i/2)*.12,temporary:true,boelckePincer:true})}
-  if(this.pilot==='udet'){s.counter=s.grazes||0;s.grazes=0;s.grazeTime=0;this.invuln=Math.max(this.invuln,.3)}
+  if(this.pilot==='udet'){this.udetBoost=0;this.evadeTime=this.skillTime;this.evadeDirection=-(this.evadeDirection||1);this.invuln=Math.max(this.invuln,this.skillTime);this.fire=Math.min(this.fire,0)}
   if(this.pilot==='goering')s.commandTarget=this.identityTarget();
   if(this.pilot==='guynemer'){s.cannonLeft=this.skillEnhanced?4:3;s.cannonTimer=0}
   if(this.pilot==='huffzky')s.bombTimer=0;
@@ -46,7 +46,7 @@ export function installPilotIdentities(Game,PILOTS){
   this.event('skill',PILOTS[this.pilot].skill);return true;
  };
  const oldGun=Game.prototype.normalGunMultiplier;
- Game.prototype.normalGunMultiplier=function(){let m=oldGun.call(this),s=this.identityState();if(this.pilot==='udet')m*=1+(s.grazes||0)*.1+(this.skillTime>0?.2+(s.counter||0)*.1:0);if(this.pilot==='rickenbacker')m*=1+(s.switches||0)*(this.skillTime>0?.18:.1);return m};
+ Game.prototype.normalGunMultiplier=function(){let m=oldGun.call(this),s=this.identityState();if(this.pilot==='rickenbacker')m*=1+(s.switches||0)*(this.skillTime>0?.18:.1);return m};
  const oldRound=Game.prototype.applySpecialRound;
  Game.prototype.applySpecialRound=function(b,type){oldRound.call(this,b,type);if(!personal(b))return b;const s=this.identityState();b.identityGun=true;b.identityOrigin={x:this.x,y:this.y,a:this.a};
   if(this.pilot==='fonck'){delete b.fonckGuided;delete b.fonckSeeker;if(this.skillTime>0)b.pierce=true;const speed=Math.hypot(b.vx,b.vy),a=this.a+delta(Math.atan2(b.vy,b.vx),this.a)*.25;b.vx=Math.cos(a)*speed;b.vy=Math.sin(a)*speed;}
@@ -96,7 +96,7 @@ export function installPilotIdentities(Game,PILOTS){
   const yaw=Math.abs(delta(this.a,s.previousHeading??this.a))/dt;s.previousHeading=this.a;
   if(['fonck','gontermann','hawker'].includes(this.pilot)){const target=this.identityTarget(.13);s.focus=target&&target===s.target?clamp((s.focus||0)+dt/(this.pilot==='hawker'?2:1.5)):0;s.target=target;}
   if(this.pilot==='gontermann'&&s.focus>.65&&s.clock-(s.prepareFxAt??-1)>.25){s.prepareFxAt=s.clock;this.identityFx('gunSmoke',this.x+Math.cos(this.a)*25,this.y+Math.sin(this.a)*25,this.a,20,.18)}
-  if(this.pilot==='udet'){for(const b of this.bullets){if(!b.enemy||b.life<=0||s.grazeSeen.has(b)||this.invuln>0)continue;const d=distance(this,b);if(d<42&&!s.grazePasses.has(b))s.grazePasses.set(b,{min:d,damageAt:s.lastDamage});}for(const [b,pass]of s.grazePasses){const d=distance(this,b);pass.min=Math.min(pass.min,d);if(d>42||b.life<=0){s.grazePasses.delete(b);s.grazeSeen.add(b);if(d>42&&b.life>0&&pass.min>18&&pass.damageAt===s.lastDamage&&!s.grazeCooldown){s.grazes=Math.min(3,(s.grazes||0)+1);s.grazeTime=3;s.grazeCooldown=.18;this.identityFx('windStreak',this.x,this.y,this.a,68,.24)}}}if(active){this.turn*=1.3;this.speed*=1.2;this.baseSpeed*=1.2}}
+  if(this.pilot==='udet'&&active){this.turn*=1.3;this.speed*=1.2;this.baseSpeed*=1.2}
   if(this.pilot==='voss'&&active){this.turn*=1.35;this.speed*=1.35;this.baseSpeed*=1.35}
   if(this.pilot==='jacobs'){s.turnCharge=clamp((s.turnCharge||0)+(yaw>.35?dt/2:-dt));this.energyRecoveryBonus=(this.energyRecoveryBonus||0)+.6;this.rate/=1+.3*s.turnCharge;this.handlingDragMult=(this.handlingDragMult??1)*(active?.45:.8);if(active)this.turn*=1.2;}
   if(this.pilot==='hawker')this.rate/=1+.3*(s.focus||0);

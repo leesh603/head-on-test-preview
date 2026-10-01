@@ -32,7 +32,6 @@ export function barkerDamage1918(p, damage) {
 export function advancePersonal1918(p, dt, previousRounds = p.roundsFired) {
   const step = stepTime(dt);
   if (!step || !playing(p)) return;
-  if (p.pilot === 'udet') p.udetGrazeTime = Math.max(0, (p.udetGrazeTime || 0) - step);
   if (p.pilot === 'barker' && p.barkerStackTime > 0) {
     p.barkerStackTime = Math.max(0, p.barkerStackTime - step);
     if (!p.barkerStackTime) p.barkerStacks = 0;
@@ -98,16 +97,6 @@ export function pilotSupportPose(p,wing,dt,attack=false){
   const delta=Math.atan2(Math.sin(aim-wing.a),Math.cos(aim-wing.a));wing.a+=Math.max(-dt*4,Math.min(dt*4,delta));
   wing.muzzleFlash=Math.max(0,(wing.muzzleFlash||0)-dt);return true;
 }
-export function udetGraze(p,b,x0,y0){
-  if(p.pilot!=='udet'||!playing(p)||p.invuln>0||!b.enemy||b.life<=0)return false;
-  const dx=b.x-x0,dy=b.y-y0,length=dx*dx+dy*dy;
-  const t=length?Math.max(0,Math.min(1,((p.x-x0)*dx+(p.y-y0)*dy)/length)):0;
-  const x=x0+dx*t,y=y0+dy*t,d=Math.hypot(p.x-x,p.y-y),radius=10+(b.flak?6:0);
-  if(d<=radius||d>radius+16||(b.udetGrazed||[]).includes(p.id||'p1'))return false;
-  (b.udetGrazed??=[]).push(p.id||'p1');p.udetGrazeTime=2;
-  signatureCue(p,'grazeRoll',{x,y,life:.5,direction:Math.sign(dx*(p.y-y)-dy*(p.x-x))||1,symbol:'lo'});return true;
-}
-
 // Return newly killed targets so each mode can use its existing one-time death/XP pipeline.
 export function advanceBurns1918(world, dt) {
   const step = stepTime(dt), killed = [];

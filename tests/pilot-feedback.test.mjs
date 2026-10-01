@@ -1,9 +1,9 @@
 import './pilot-feedback-globals.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=461';
-import {CoopGame,coopPlane} from '../coop-engine.js?v=461';
-import {CampaignGame} from '../campaign.js?v=461';
+import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=462';
+import {CoopGame,coopPlane} from '../coop-engine.js?v=462';
+import {CampaignGame} from '../campaign.js?v=462';
 const solo=id=>new Game(coopPlane(id),id,()=>.5);
 const enemy=(x,y,a=Math.PI)=>({x,y,a,hp:10000,maxHp:10000,type:'scout',speed:0,fire:999,wobble:0});
 const quiet=g=>{for(const k of ['spawn','nextBossAt','_zeppelinSchedule','nextHeavyAt','eventTimer','allyTimer','flakTimer','regionThreat','gustTimer','supplyTimer','fieldUnitTimer','gasTimer','patrolTimer','threatTimer'])g[k]=Infinity;g.spawnEnemy=()=>null;g.checkLevel=()=>{};return g};
@@ -37,13 +37,13 @@ test('Boelcke wings divide two targets and make a visible flank-to-rear maneuver
  assert(flash);assert(p.identityState().feedback.ghosts.length>0);
 });
 
-test('Udet real near-miss earns a visible cue; a distant pass or an actual hit earns none',()=>{
- for(const offset of [27,95,0]){
-  const p=quiet(solo('udet'));p.update(.016,{});p.x=p.y=p.a=0;p.invuln=0;p.identityState();const hp=p.hp;
-  p.bullets.push({x:-65,y:offset,vx:720,vy:0,life:1,enemy:true,damage:10});
-  let visible=false;for(let i=0;i<30;i++){p.update(.016,{});visible||=(p.identityState().feedback?.counterFlash||0)>0}
-  if(offset===27){assert(p.identityState().grazes>0);assert(visible);assert.equal(p.hp,hp)}else{assert.equal(p.identityState().grazes||0,0);assert.equal(visible,false)}
- }
+test('Udet below 50% durability overheats with sparks; healthy runs stay clean',()=>{
+ const g=quiet(solo('udet'));g.update(.016,{});g.maxHp=100;
+ g.hp=50;g.update(.016,{});assert.equal(g.fxOverheat,.35);
+ const spark=g.particles.find(p=>p.maxLife===.6&&(p.color==='#ffb45e'||p.color==='#ff6436'));
+ assert(spark,'expected an overheat spark');assert(Math.abs(spark.vx+Math.cos(g.a)*30)<=23);
+ g.hp=51;g.update(.016,{});assert.equal(g.fxOverheat,0);
+ g.hp=100;g.update(.016,{});assert.equal(g.fxOverheat,0);
 });
 
 test('all 27 active lifecycles stay bounded and clear transient feedback after expiry',()=>{

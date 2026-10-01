@@ -4,9 +4,9 @@ export const SIGNATURE_LIMITS=Object.freeze({effects:32,maxDt:.05,maxLife:2.4});
 export const PILOT_SIGNATURES=Object.freeze({
  baron:{start:'redHunt',sustain:'pursuit',symbol:'redBaron',reaction:'hunt'},
  fonck:{start:'sightConverge',sustain:'precision',symbol:'cigogne',reaction:'precisionHit'},
- voss:{start:'sixDirections',sustain:'decoy',symbol:'vossCowling',reaction:'encircled'},
+ voss:{start:'sixDirections',sustain:'decoy',symbol:'vossCowling',reaction:null},
  boelcke:{start:'pincerOrder',sustain:'pincer',symbol:null,reaction:'rearAttack'},
- udet:{start:'counterRoll',sustain:'roll',symbol:'lo',reaction:'graze'},
+ udet:{start:'counterRoll',sustain:'roll',symbol:null,reaction:null},
  goering:{start:'whiteCommand',sustain:'convergence',symbol:null,reaction:'commandHit'},
  immelmann:{start:'halfLoop',sustain:'reversal',symbol:null,reaction:'reverseShot'},
  huffzky:{start:'attackRun',sustain:'bombRun',symbol:null,reaction:'rearShot'},
@@ -65,20 +65,19 @@ export function advancePilotSignature(p,dt){
  s.effects=s.effects.filter(e=>{e.age+=step;e.life=Math.max(0,e.life-step);if(e.kind==='incendiaryImpact'&&e.target){e.x=e.target.x;e.y=e.target.y;if(e.target.hp<=0){e.kind='burnKill';e.age=0;e.life=e.maxLife=.6;delete e.target}}return e.life>0});
  const profile=PILOT_SIGNATURES[p.pilot];if(!profile)return s;
  if(p.skillTime>0&&(!(before.skillTime>0)||p.skillTime>before.skillTime+.1))activatePilotSignature(p);
- const turn=wrap((p.a||0)-(before.a??p.a??0))/step,identity=p.pilotIdentity||{},graze=identity.grazes||0;
- if(p.pilot==='udet'&&(graze>(before.grazes||0)||identity.grazeTime>(before.grazeTime||0)+.08))signatureCue(p,'grazeRoll',{life:.65,direction:Math.sign(turn)||1,symbol:'lo'});
+ const turn=wrap((p.a||0)-(before.a??p.a??0))/step,identity=p.pilotIdentity||{};
  if(p.pilot==='wolff'&&(p.wolffStacks||0)>(before.petals||0))signatureCue(p,'petalScatter',{life:1.2,count:Math.min(7,3+(p.wolffStacks||0))});
  if(p.pilot==='baron'&&p.huntBoost>0&&!(before.huntBoost>0))signatureCue(p,'huntConfirmation',{life:.65,symbol:'redBaron'});
  if(p.pilot==='barker'&&identity.escape&&!before.escape)signatureCue(p,'survivalBreak',{life:1.3});
  if(p.pilot==='ball'&&p.ballAmbush>0&&!(before.ambush>0))signatureCue(p,'ambushBreak',{life:.8});
- Object.assign(before,{a:p.a,skillTime:p.skillTime,grazes:graze,grazeTime:identity.grazeTime,petals:p.wolffStacks,huntBoost:p.huntBoost,escape:!!identity.escape,ambush:p.ballAmbush,hp:p.hp});
+ Object.assign(before,{a:p.a,skillTime:p.skillTime,petals:p.wolffStacks,huntBoost:p.huntBoost,escape:!!identity.escape,ambush:p.ballAmbush,hp:p.hp});
  s.turnRate=turn;s.activeAge=s.clock-s.activationTime;return s;
 }
 export function pilotSignatureReaction(p,event,{target,position,gun=0,damage=0}={}){
  if(!alive(p))return null;const profile=PILOT_SIGNATURES[p.pilot];if(!profile)return null;
  if(event==='damage'&&['nungesser','berthold'].includes(p.pilot)&&damage>0&&signatureInterval(p,'damage',.14))return signatureCue(p,profile.reaction,{life:.65,damage,symbol:profile.symbol});
  if(event==='shot'&&signatureInterval(p,gun===1?'rearShot':'shot',.12))return signatureCue(p,'shotAccent',{life:.18,gun,style:profile.sustain,active:p.skillTime>0});
- if(event==='hit'&&target&&signatureInterval(p,'hit',.15)){const pos=position||target;return signatureCue(p,profile.reaction,{x:pos.x,y:pos.y,life:.45,active:p.skillTime>0})}
+ if(event==='hit'&&profile.reaction&&target&&signatureInterval(p,'hit',.15)){const pos=position||target;return signatureCue(p,profile.reaction,{x:pos.x,y:pos.y,life:.45,active:p.skillTime>0})}
  return null;
 }
 
