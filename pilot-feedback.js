@@ -32,7 +32,7 @@ function startFeedback(p){
   case 'fonck':muzzle(p,p,false,false,.6);break;
   case 'guynemer':p.identityFx('gunSmoke',p.x,p.y,p.a,48,.42,{alpha:.55});break;
   case 'berthold':p.identityFx('armorSpark',p.x,p.y,p.a,66,.28);p.identityFx('gunSmoke',p.x,p.y,p.a,38,.6,{alpha:.35});break;
-  case 'gontermann':case 'luke':p.identityFx('incendiary',p.x+Math.cos(p.a)*30,p.y+Math.sin(p.a)*30,p.a,36,.38,{alpha:.85});muzzle(p);break;
+  case 'gontermann':case 'luke':p.identityFx('fireSmall',p.x+Math.cos(p.a)*26,p.y+Math.sin(p.a)*26,p.a,26,.32,{alpha:.85});p.identityFx('fireSmall',p.x-Math.cos(p.a)*18,p.y-Math.sin(p.a)*18,p.a+Math.PI,16,.26,{alpha:.55});muzzle(p);break;
   case 'mckeever':muzzle(p);muzzle(p,p,false,true);break;
   case 'huffzky':muzzle(p,p,false,true);wind(p,p,.6);break;
   case 'mccudden':p.identityFx('gunSmoke',p.x,p.y,p.a,50,.5,{alpha:.6});p.identityFx('metalShard0',p.x-22,p.y,p.a,18,.35);break;
@@ -64,7 +64,7 @@ export function installPilotFeedback(Game){
    if((s.grazes>0||active)&&stamp(this,'acrobatTrail',.2)){wind(this,this,active?1.4:.65);if(turned>.3||f.counterFlash>0)ghost(this)}
   }
   if(['fonck','gontermann','hawker'].includes(this.pilot)&&s.focus>=1&&!(before.focus>=1)){
-   muzzle(this,this,false,false,.8);if(this.pilot==='gontermann')this.identityFx('incendiary',this.x+Math.cos(this.a)*30,this.y+Math.sin(this.a)*30,this.a,32,.4);
+   muzzle(this,this,false,false,.8);if(this.pilot==='gontermann')this.identityFx('fireSmall',this.x+Math.cos(this.a)*28,this.y+Math.sin(this.a)*28,this.a,24,.34);
   }
   if(this.pilot==='loewenhardt'){
    if(s.energy>=1&&!(before.energy>=1)){wind(this,this,1.3);ghost(this)}

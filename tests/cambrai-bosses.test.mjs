@@ -1,9 +1,9 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {Fliegerzug,TreffasWagen} from '../headon-stageboss-patterns.js?v=498';
-import {treffasPoint,treffasGunMuzzle} from '../cambrai-layout.js?v=498';
-import {advanceCambraiBug} from '../cambrai-bug-flight.js?v=498';
-import {Game} from '../engine.js?v=498';import {CoopGame} from '../coop-engine.js?v=498';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame} from '../stageboss-host.js?v=498';
+import {Fliegerzug,TreffasWagen} from '../headon-stageboss-patterns.js?v=499';
+import {treffasPoint,treffasGunMuzzle} from '../cambrai-layout.js?v=499';
+import {advanceCambraiBug} from '../cambrai-bug-flight.js?v=499';
+import {Game} from '../engine.js?v=499';import {CoopGame} from '../coop-engine.js?v=499';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame} from '../stageboss-host.js?v=499';
 import {fixture,step} from './stageboss-fixture94.mjs';
 const tuning={maxHp:2400,partHp:288,damage:18,bulletSpeed:270,geometryScale:2.025};
 const frame={players:[{id:'p1',alive:true,x:-100,y:220,vx:20,vy:0},{id:'p2',alive:true,x:120,y:240,vx:0,vy:0}],bounds:{left:-480,right:480,top:-400,bottom:400}};
