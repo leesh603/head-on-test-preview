@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createBossEncounter} from '../headon-stageboss-patterns.js?v=499';
-import {StageBossAddon} from '../headon-stageboss-runtime.js?v=499';
-import {enableStageBoss} from '../stageboss-host.js?v=499';
-import {harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from '../harbor-crane-layout.js?v=499';
+import {createBossEncounter} from '../headon-stageboss-patterns.js?v=500';
+import {StageBossAddon} from '../headon-stageboss-runtime.js?v=500';
+import {enableStageBoss} from '../stageboss-host.js?v=500';
+import {harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from '../harbor-crane-layout.js?v=500';
 const tuning={maxHp:2400,partHp:288,damage:18,bulletSpeed:270,geometryScale:2.025,mobileBoss:true,motionMultiplier:1,patternMultiplier:1,projectileDensity:1,coastalInterval:2.5,harborLaunchInterval:5.6};
 const frame=()=>({players:[{id:'p1',alive:true,x:40,y:360,vx:12,vy:-8,radius:12}],bounds:{left:-900,top:-700,right:900,bottom:900}});
 function fixture(teamFaction='entente'){

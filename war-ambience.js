@@ -28,8 +28,9 @@ const flashSprite=()=>{
  g.fillStyle=gr;g.fillRect(0,0,64,64);return FLASH_SPRITE=k;
 };
 
-export function drawWarAmbience(c,region,cx,cy,W,H,t){
- const cfg=CFG[region];if(!cfg)return;
+export function drawWarAmbience(c,region,cx,cy,W,H,t,density=1){
+ const cfg0=CFG[region];if(!cfg0)return;
+ const cfg=density<1?{flash:(cfg0.flash||0)*density,smoke:(cfg0.smoke||0)*density,ember:(cfg0.ember||0)*density,aa:(cfg0.aa||0)*density,gull:(cfg0.gull||0)*density}:cfg0;
  const wx=cx-W/2,wy=cy-H/2;
  c.save();
  if(cfg.smoke){ // persistent smudge columns
