@@ -26,7 +26,7 @@ import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174
 import {drawGas} from './gas-view.js?v=497';
 import {drawWarAmbience} from './war-ambience.js?v=497';
 import {missionNavigation,drawMissionRadar} from './navigation.js?v=497';
-import {drawBattlefieldSprite,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=497';
+import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=497';
 import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=497';
 import {drawCampaign} from './campaign-view.js?v=497';
 import {campaignArtReady} from './aircraft.js?v=497';
@@ -267,7 +267,7 @@ drawSupport=()=>{
   if(e.rail){const r=e.rail,[rx,ry]=point(r.x,r.y);ctx.save();ctx.translate(rx,ry);ctx.rotate(r.angle);ctx.strokeStyle='#322c25';ctx.lineWidth=4;for(let pos=-r.half-20;pos<=r.half+20;pos+=18){ctx.beginPath();ctx.moveTo(pos,-13);ctx.lineTo(pos,13);ctx.stroke()}ctx.strokeStyle='#bec1ab';ctx.lineWidth=2;for(const off of [-8,8]){ctx.beginPath();ctx.moveTo(-r.half-25,off);ctx.lineTo(r.half+25,off);ctx.stroke()}ctx.restore();
    if(e.fire<.7){ctx.strokeStyle='#ffac7877';ctx.setLineDash([5,8]);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(W/2,H/2);ctx.stroke();ctx.setLineDash([])}
   }else{ctx.strokeStyle='#d4cbaa99';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y+75);ctx.lineTo(x+45,y+138);ctx.stroke();ctx.fillStyle='#4b4130';ctx.fillRect(x+41,y+135,8,5)}
-  ctx.shadowColor='#080f0ccc';ctx.shadowBlur=12;ctx.shadowOffsetX=9;ctx.shadowOffsetY=13;drawBattlefieldSprite(ctx,e.fieldSprite,x,y,e.rail?210:354,e.rail?e.rail.angle+Math.PI/2:0);ctx.shadowBlur=ctx.shadowOffsetX=ctx.shadowOffsetY=0;ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffce95';ctx.fillText(unitNameEN(e.name),x,y-(e.rail?120:190));ctx.fillStyle='#172b23';ctx.fillRect(x-26,y+(e.rail?118:190),52,4);ctx.fillStyle='#e6b77d';ctx.fillRect(x-26,y+(e.rail?118:190),52*e.hp/e.maxHp,4);if(e.muzzleFlash>0){const ra=e.rail?e.rail.angle+Math.PI/2:0;fx(ctx,'muzzleHeavy',x+Math.cos(ra)*110,y+Math.sin(ra)*110,64,64,ra,Math.min(1,e.muzzleFlash*10));fx(ctx,'dustPuff',x-Math.cos(ra)*30,y-Math.sin(ra)*30,90,60,ra,.4)}ctx.restore();
+  drawBattlefieldSpriteShadowed(ctx,e.fieldSprite,x,y,e.rail?210:354,e.rail?e.rail.angle+Math.PI/2:0);ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffce95';ctx.fillText(unitNameEN(e.name),x,y-(e.rail?120:190));ctx.fillStyle='#172b23';ctx.fillRect(x-26,y+(e.rail?118:190),52,4);ctx.fillStyle='#e6b77d';ctx.fillRect(x-26,y+(e.rail?118:190),52*e.hp/e.maxHp,4);if(e.muzzleFlash>0){const ra=e.rail?e.rail.angle+Math.PI/2:0;fx(ctx,'muzzleHeavy',x+Math.cos(ra)*110,y+Math.sin(ra)*110,64,64,ra,Math.min(1,e.muzzleFlash*10));fx(ctx,'dustPuff',x-Math.cos(ra)*30,y-Math.sin(ra)*30,90,60,ra,.4)}ctx.restore();
  }
  for(const f of game.flakBursts||[]){const [x,y]=point(f.x,f.y);if(x<-90||x>W+90||y<-90||y>H+90)continue;ctx.save();ctx.globalAlpha=Math.min(1,f.life);drawBattlefieldSprite(ctx,'aa',x,y,66);ctx.restore();if(f.life>5.9)drawFieldArt('flak',x,y-12,44,44,0,Math.min(1,(f.life-5.9)*2))}
  for(const e of game.enemies){if(!e.navalVessel||e.hp<=0||e.movingShip)continue;const[x,y]=point(e.x,e.y);if(x<-260||x>W+260||y<-260||y>H+260)continue;drawBattlefieldSprite(ctx,'ship',x,y,320,e.a+Math.PI/2);ctx.fillStyle='#24332b';ctx.fillRect(x-22,y+172,44,4);ctx.fillStyle='#de9b73';ctx.fillRect(x-22,y+172,44*e.hp/e.maxHp,4)}
