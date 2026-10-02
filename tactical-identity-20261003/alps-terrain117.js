@@ -1,4 +1,4 @@
-import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js?v=tactical20261003';
+import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js?v=tactical20261003b';
 export const TERRAIN_PROFILES=Object.freeze({
  rural:{name:'전원 지대',cell:0,base:'#424b3b',strength:.67},
  sea:{name:'아드리아해',cell:1,base:'#254555',strength:.66},
@@ -11,14 +11,14 @@ export const TERRAIN_PROFILES=Object.freeze({
  night:{name:'야간 공습',cell:8,base:'#232b34',strength:.58},
  burning:{name:'불타는 전선',cell:9,base:'#433d37',strength:.57},
  // Cambrai ships as its own painterly tile instead of an atlas cell.
- cambrai:{name:'캉브레 들판',src:'./terrain-cambrai.webp?v=tactical20261003',base:'#655d45',strength:.82},
+ cambrai:{name:'캉브레 들판',src:'./terrain-cambrai.webp?v=tactical20261003b',base:'#655d45',strength:.82},
  // Bloody April: cold high-altitude haze over faint Arras fields — minimal
  // ground detail, the map reads as an air combat arena.
- arras:{name:'아라스 상공',src:'./terrain-arras.webp?v=tactical20261003',base:'#4d5a66',strength:.85}
- ,somme:{name:'솜 강전선',src:'./terrain-somme.webp?v=tactical20261003',base:'#5a5244',strength:.85},
+ arras:{name:'아라스 상공',src:'./terrain-arras.webp?v=tactical20261003b',base:'#4d5a66',strength:.85}
+ ,somme:{name:'솜 강전선',src:'./terrain-somme.webp?v=tactical20261003b',base:'#5a5244',strength:.85},
  // London raid: night navy street grid, the Thames band and fires. Kept dark so
  // searchlight cones and warning circles stay legible.
- london:{name:'런던 대공습',src:'./terrain-london.webp?v=tactical20261003',base:'#232a36',strength:.85}
+ london:{name:'런던 대공습',src:'./terrain-london.webp?v=tactical20261003b',base:'#232a36',strength:.85}
 });
 const profileImages=new Map();
 function profileImage(key){
@@ -27,9 +27,9 @@ function profileImage(key){
  return profileImages.get(key)||null;
 }
 export const ALPS_PEAK_VARIANTS=Object.freeze([
- {id:'sharp',src:'./alps-peak-sharp182.webp?v=tactical20261003',rx:1,ry:1},
- {id:'ridge',src:'./alps-peak-ridge182.webp?v=tactical20261003',rx:1.35,ry:.75},
- {id:'cliff',src:'./alps-peak-cliff182.webp?v=tactical20261003',rx:1.2,ry:1}
+ {id:'sharp',src:'./alps-peak-sharp182.webp?v=tactical20261003b',rx:1,ry:1},
+ {id:'ridge',src:'./alps-peak-ridge182.webp?v=tactical20261003b',rx:1.35,ry:.75},
+ {id:'cliff',src:'./alps-peak-cliff182.webp?v=tactical20261003b',rx:1.2,ry:1}
 ]);
 const peakSprites=ALPS_PEAK_VARIANTS.map(variant=>{if(typeof Image==='undefined')return null;const image=new Image();image.src=variant.src;return image;});
 // Gameplay coordinates throughout are WORLD pixels. Camera is supplied by the host.

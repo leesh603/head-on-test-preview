@@ -1,8 +1,8 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
-import {getLocale,subscribe} from './i18n.js?v=tactical20261003';
-import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=tactical20261003';
-import {clearCrewMatte} from './matte70.js?v=tactical20261003';
-import {aircraftArt} from './main-ui-art180.js?v=tactical20261003';
+import {getLocale,subscribe} from './i18n.js?v=tactical20261003b';
+import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=tactical20261003b';
+import {clearCrewMatte} from './matte70.js?v=tactical20261003b';
+import {aircraftArt} from './main-ui-art180.js?v=tactical20261003b';
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
 const put=(node,text)=>{if(node&&node.textContent!==text)node.textContent=text};
@@ -25,12 +25,12 @@ export function interfaceIcon(name,cls='astra-icon'){
 }
 // Reuse the production matte algorithm at native resolution. This cleans only
 // the hangar illustration; the 144px gameplay sprite and its collision stay intact.
-const rawHangarArt={fokker:'./fokker.webp?v=tactical20261003',baron_albatros:'./baron_albatros.webp?v=tactical20261003',albatros_d2:'./albatros_d2.webp?v=tactical20261003',nieuport_italian:'./nieuport.webp?v=tactical20261003'};
+const rawHangarArt={fokker:'./fokker.webp?v=tactical20261003b',baron_albatros:'./baron_albatros.webp?v=tactical20261003b',albatros_d2:'./albatros_d2.webp?v=tactical20261003b',nieuport_italian:'./nieuport.webp?v=tactical20261003b'};
 const hangarKeyFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',fokker:'fokker_standard'};
 const artCache=new Map();
 function hangarArt(key){
  if(artCache.has(key))return artCache.get(key);
- const src=rawHangarArt[key]||`./${hangarKeyFile[key]||key}.webp?v=tactical20261003`;
+ const src=rawHangarArt[key]||`./${hangarKeyFile[key]||key}.webp?v=tactical20261003b`;
  const pending=new Promise(resolve=>{const image=new Image();image.onerror=()=>resolve(aircraftArt[key]||'');image.onload=()=>{
   try{
    const scan=document.createElement('canvas');scan.width=image.naturalWidth;scan.height=image.naturalHeight;
@@ -132,7 +132,7 @@ function install(){
   const raw=$('passive103').textContent,index=raw.indexOf(' · ');
   put(passiveName,index>=0?raw.slice(0,index):'');put(passiveDesc,index>=0?raw.slice(index+3):raw);
   const option=$('aircraftSelect103').selectedOptions?.[0];put(airName,(option?.textContent||$('pilotAircraft').textContent).split(' · ')[0]);
-  put(airRole,$('pilotAircraft').textContent.split(' · ').slice(1).join(' · '));
+  put(airRole,[$('pilotAircraft').textContent.split(' · ').slice(1).join(' · '),$('airframeTip').textContent].filter(Boolean).join(' · '));
   const hasChoice=!$('baronAircraftChoice').classList.contains('hidden');previous.hidden=next.hidden=!hasChoice;
   previous.setAttribute('aria-label',en?'Switch aircraft':'이전 기체');next.setAttribute('aria-label',en?'Switch aircraft':'다음 기체');
   if(aircraftId!==lastArt){lastArt=aircraftId;
@@ -179,7 +179,7 @@ function installHud(){
   const button=$(id);
   if(name==='active'){const f=$('central')?.classList.contains('active')?'central':'entente';
    const img=el('img','astra-control-icon astra-skill-emblem');img.alt='';img.decoding='async';
-   img.src=`./augmentation-icons/emblem_bare_${f}.webp?v=tactical20261003`;button.prepend(img,ring());}
+   img.src=`./augmentation-icons/emblem_bare_${f}.webp?v=tactical20261003b`;button.prepend(img,ring());}
   else button.prepend(interfaceIcon(name,'astra-control-icon'),ring());
  }
  const readout=el('div','astra-reload-readout'),caption=el('span'),seconds=el('b'),track=el('span','astra-reload-track'),fill=el('i');track.append(fill);readout.append(caption,seconds,track);survival.append(readout);

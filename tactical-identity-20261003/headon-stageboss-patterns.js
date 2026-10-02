@@ -1,6 +1,6 @@
-import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=tactical20261003';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=tactical20261003';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=tactical20261003';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=tactical20261003b';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=tactical20261003b';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=tactical20261003b';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
