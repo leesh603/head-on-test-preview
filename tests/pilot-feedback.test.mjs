@@ -1,9 +1,10 @@
 import './pilot-feedback-globals.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=497';
-import {CoopGame,coopPlane} from '../coop-engine.js?v=497';
-import {CampaignGame} from '../campaign.js?v=497';
+import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=498';
+import {advanceBurns1918} from '../pilot-lifecycle196.js?v=498';
+import {CoopGame,coopPlane} from '../coop-engine.js?v=498';
+import {CampaignGame} from '../campaign.js?v=498';
 const solo=id=>new Game(coopPlane(id),id,()=>.5);
 const enemy=(x,y,a=Math.PI)=>({x,y,a,hp:10000,maxHp:10000,type:'scout',speed:0,fire:999,wobble:0});
 const quiet=g=>{for(const k of ['spawn','nextBossAt','_zeppelinSchedule','nextHeavyAt','eventTimer','allyTimer','flakTimer','regionThreat','gustTimer','supplyTimer','fieldUnitTimer','gasTimer','patrolTimer','threatTimer'])g[k]=Infinity;g.spawnEnemy=()=>null;g.checkLevel=()=>{};return g};
@@ -54,4 +55,14 @@ test('all 27 active lifecycles stay bounded and clear transient feedback after e
   for(let t=0;t<duration+.8;t+=.04){g.update(.04,coop?[{},{}]:{});const s=p.identityState();assert(s.fx.length<=24,id);assert((s.feedback?.ghosts.length||0)<=8,id);assert(Number.isFinite(p.x+p.y+p.hp),id)}
   assert.equal(p.skillTime,0,id);const count=p.identityState().fx.length;assert.equal(p.skill(),false,id+' cooldown');assert.equal(p.identityState().fx.length,count);
  }
+});
+
+test('gontermann burn on a stageBoss proxy routes damage to the body, not the getter hp',()=>{
+ const hits=[];const body={hp:500,dead:false,hit(a){this.hp-=a.damage;hits.push(a.damage);return{damage:a.damage}}};
+ const proxy={x:0,y:0,burnTime:3,burnDps:40,stageBossBody:body};
+ Object.defineProperty(proxy,'hp',{get:()=>body.hp});
+ const world={state:'playing',enemies:[proxy],smoke(){},burst(){}};
+ advanceBurns1918(world,.02);assert.equal(hits.length,1);assert.ok(body.hp<500);
+ const e={hp:100,burnTime:3,burnDps:40,x:0,y:0};world.enemies=[e];
+ advanceBurns1918(world,.02);assert.ok(e.hp<100);
 });

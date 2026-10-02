@@ -106,7 +106,9 @@ export function advanceBurns1918(world, dt) {
     const active = Math.min(step, e.burnTime);
     e.burnTime = Math.max(0, e.burnTime - step);
     if(e.gontermannBurn)e.gontermannBurn.age+=active;
-    e.hp -= Math.max(0, e.burnDps || 0)*active;
+    const burnDamage = Math.max(0, e.burnDps || 0)*active;
+    if (e.stageBossBody) e.stageBossBody.hit({damage: burnDamage});
+    else e.hp -= burnDamage;
     e.burnFxTime = (e.burnFxTime || 0) - step;
     if (e.burnFxTime <= 0 && !e.gontermannBurn) {
       e.burnFxTime = .13;
@@ -114,7 +116,7 @@ export function advanceBurns1918(world, dt) {
       world.burst(e.x, e.y, '#ff9a3c', 3);
     }
     if (!e.burnTime) {e.burnDps = 0;delete e.gontermannBurn;}
-    if (e.hp <= 0 && !e.burnCounted && !e.deathHandled) {
+    if (e.hp <= 0 && !e.burnCounted && !e.deathHandled && !e.stageBossBody) {
       e.burnCounted = true;
       killed.push(e);
     }
