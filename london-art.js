@@ -1,5 +1,5 @@
-import {fx} from './fx-art.js?v=503';
-import {drawAttachedApron} from './london-apron369.js?v=503';
+import {fx} from './fx-art.js?v=504';
+import {drawAttachedApron} from './london-apron369.js?v=504';
 const paths={gotha:'./gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=483',apronDamage:'./boss-london-apron-registered-damage369.png?v=483'};
 let art={},artLoadP=null;
 export function releaseLondonArt(){art={};artLoadP=null;}
