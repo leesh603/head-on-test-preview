@@ -1,0 +1,35 @@
+name: deploy-slim
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Rebuild deploy-slim from main minus src-png
+        run: |
+          set -e
+          git config user.name "deploy-slim-bot"
+          git config user.email "deploy-slim-bot@users.noreply.github.com"
+          git fetch origin deploy-slim:refs/remotes/origin/deploy-slim || true
+          if git rev-parse --verify origin/deploy-slim >/dev/null 2>&1; then
+            git checkout -B deploy-slim origin/deploy-slim
+          else
+            git checkout -B deploy-slim origin/main
+          fi
+          git restore --source=main --staged --worktree -- :/
+          rm -rf src-png
+          git rm -r --ignore-unmatch --quiet src-png 2>/dev/null || true
+          if git diff --cached --quiet && git diff --quiet; then
+            echo "deploy-slim already up to date"
+          else
+            git add -A
+            git commit -m "deploy-slim: sync from main ${GITHUB_SHA::7}"
+            git push origin deploy-slim
+          fi

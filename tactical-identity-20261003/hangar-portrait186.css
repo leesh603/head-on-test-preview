@@ -1,0 +1,138 @@
+/*
+ * HEAD-ON hangar portrait continuity / 186
+ * Presentation-only. Keeps existing portrait assets and hangar logic.
+ * Goal: edge-anchored portraits, softer exits, fewer awkward crops on PC/mobile.
+ */
+
+/* Large hero portrait — PC / desktop */
+body.astra-ui:not(.playing) .hangar-ace.hangar-portrait186{
+  --hp-scale-desktop:.98;
+  --hp-scale-mobile:1.34;
+  --hp-shift-desktop:0%;
+  --hp-shift-mobile:0%;
+  --hp-lift-desktop:0%;
+  --hp-lift-mobile:0%;
+
+  position:absolute!important;
+  inset:auto!important;
+  left:-3%!important;
+  bottom:-1%!important;
+  width:68%!important;
+  height:102%!important;
+  max-width:none!important;
+  object-fit:contain!important;
+  object-position:left bottom!important;
+  transform:translate(var(--hp-shift-desktop),var(--hp-lift-desktop)) scale(var(--hp-scale-desktop))!important;
+  transform-origin:left bottom!important;
+  opacity:.985!important;
+  z-index:-1!important;
+  filter:drop-shadow(12px 10px 15px #0008) saturate(.94) contrast(1.02)!important;
+
+  -webkit-mask-image:
+    linear-gradient(90deg,#000 0 68%,rgba(0,0,0,.98) 76%,rgba(0,0,0,.56) 89%,transparent 100%),
+    linear-gradient(0deg,transparent 0,rgba(0,0,0,.3) 14%,#000 36%,#000 100%);
+  -webkit-mask-repeat:no-repeat;
+  -webkit-mask-composite:source-in;
+  mask-image:
+    linear-gradient(90deg,#000 0 68%,rgba(0,0,0,.98) 76%,rgba(0,0,0,.56) 89%,transparent 100%),
+    linear-gradient(0deg,transparent 0,rgba(0,0,0,.3) 14%,#000 36%,#000 100%);
+  mask-repeat:no-repeat;
+  mask-composite:intersect;
+}
+
+/* Keep text above the softened portrait edge. */
+body.astra-ui:not(.playing) .astra-dossier{
+  z-index:1;
+}
+
+/* Narrow desktop/tablet previously pushed portrait too far off-canvas. */
+@media(min-width:721px) and (max-width:1200px){
+  body.astra-ui:not(.playing) .hangar-ace.hangar-portrait186{
+    left:-5%!important;
+    width:70%!important;
+    height:101%!important;
+  }
+}
+
+/* Pilot rail: stop cover-cropping heads/shoulders. */
+body.astra-ui:not(.playing) #pilotTabs .pilot-tab-portrait{
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  padding:3px 2px 0!important;
+  background:
+    radial-gradient(ellipse at 50% 28%,#59605450,#182019c9 66%,#101612ef 100%)!important;
+}
+
+/* Mobile: portrait belongs to the outer/right edge, fading inward toward copy. */
+@media(max-width:720px){
+  body.astra-ui:not(.playing) .astra-hero{
+    padding-right:0!important;
+    overflow:hidden!important;
+  }
+
+  body.astra-ui:not(.playing) .hangar-ace.hangar-portrait186{
+    position:relative!important;
+    inset:auto!important;
+    grid-column:2!important;
+    grid-row:1/-1!important;
+    justify-self:end!important;
+    align-self:end!important;
+
+    width:calc(100% + 16px)!important;
+    height:100%!important;
+    min-height:238px!important;
+    max-width:none!important;
+    margin:0 -2px 0 0!important;
+
+    object-fit:contain!important;
+    object-position:right bottom!important;
+    transform:translate(var(--hp-shift-mobile),var(--hp-lift-mobile)) scale(var(--hp-scale-mobile))!important;
+    transform-origin:right bottom!important;
+    opacity:.99!important;
+    z-index:0!important;
+    filter:drop-shadow(-7px 7px 11px #0007) saturate(.95) contrast(1.02)!important;
+
+    -webkit-mask-image:
+      linear-gradient(90deg,transparent 0,rgba(0,0,0,.5) 13%,rgba(0,0,0,.94) 27%,#000 38%,#000 100%),
+      linear-gradient(0deg,transparent 0,rgba(0,0,0,.3) 12%,#000 34%,#000 100%);
+    -webkit-mask-repeat:no-repeat;
+    -webkit-mask-composite:source-in;
+    mask-image:
+      linear-gradient(90deg,transparent 0,rgba(0,0,0,.5) 13%,rgba(0,0,0,.94) 27%,#000 38%,#000 100%),
+      linear-gradient(0deg,transparent 0,rgba(0,0,0,.3) 12%,#000 34%,#000 100%);
+    mask-repeat:no-repeat;
+    mask-composite:intersect;
+  }
+
+  body.astra-ui:not(.playing) .astra-identity{
+    position:relative;
+    z-index:1;
+  }
+
+  body.astra-ui:not(.playing) #pilotTabs .pilot-tab-portrait{
+    padding:2px 1px 0!important;
+    object-position:center bottom!important;
+  }
+}
+
+@media(max-width:390px){
+  body.astra-ui:not(.playing) .hangar-ace.hangar-portrait186{
+    width:calc(100% + 12px)!important;
+    height:220px!important;
+  }
+}
+
+/* Graceful fallback for browsers that ignore mask-composite:
+   the primary horizontal soft edge still applies. */
+@supports not (mask-composite:intersect){
+  body.astra-ui:not(.playing) .hangar-ace.hangar-portrait186{
+    -webkit-mask-image:linear-gradient(90deg,#000 0 70%,rgba(0,0,0,.72) 88%,transparent 100%);
+    mask-image:linear-gradient(90deg,#000 0 70%,rgba(0,0,0,.72) 88%,transparent 100%);
+  }
+  @media(max-width:720px){
+    body.astra-ui:not(.playing) .hangar-ace.hangar-portrait186{
+      -webkit-mask-image:linear-gradient(90deg,transparent 0,rgba(0,0,0,.72) 18%,#000 38%,#000 100%);
+      mask-image:linear-gradient(90deg,transparent 0,rgba(0,0,0,.72) 18%,#000 38%,#000 100%);
+    }
+  }
+}

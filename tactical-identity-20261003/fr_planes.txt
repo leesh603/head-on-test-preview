@@ -1,0 +1,83 @@
+0 fokker | Fokker Dr.I | img=./fokker.webp
+1 albatros | 알바트로스 D.III | img=./albatros.webp
+2 camel | 소프위드 카멜 | img=./camel.webp
+3 sopwith | 숍위드 삼엽기 | img=./sopwith.webp
+4 nieuport | 뉴포르 17 | img=./nieuport.webp
+5 spad | SPAD XIII | img=./spad.webp
+6 fokkerdv | 포커 D.VIII · LO | img=./fokkerdv.webp
+7 spad12 | SPAD XII · 황새 | img=./spad12.webp
+8 re7 | R.E.7 복좌기 | img=./re7.webp
+9 fokkerd7 | 포커 D.VII · 백색 | img=./fokkerd7.webp
+10 eindecker | 포커 E.III 아인데커 | img=./eindecker.webp
+11 se5a | S.E.5a | img=./se5a.webp
+12 bristol_duo | 브리스톨 F.2B 파이터 | img=./bristol_duo.webp
+13 baron_albatros | 알바트로스 D.III · 붉은 날개 | img=./baron_albatros.webp
+14 albatros_d2 | 알바트로스 D.II | img=./albatros_d2.webp
+15 halberstadt_duo | 할버슈타트 CL.II | img=./halberstadt_duo.webp
+16 nieuport_italian | 니외포르 17 · 이탈리아 왕국 | img=./nieuport_italian.webp
+17 nieuport24 | 뉴포르 24 | img=./nieuport24.webp
+18 pfalz_d3a | 팔츠 D.IIIA · 푸른 날개 | img=./pfalz_d3a.webp
+19 airco_dh2 | 에어코 DH.2 | img=./airco_dh2.webp
+20 wolff_albatros | 알바트로스 D.III · 여린꽃 | img=./wolff_albatros.webp
+21 loewenhardt_fokkerd7 | 포커 D.VII · 노랑포커 | img=./loewenhardt_fokkerd7.webp
+22 mccudden_se5a | S.E.5a · 맥커든 개조형 | img=./mccudden_se5a.webp
+23 nungesser_nieuport24 | 뉴포르 24bis · 죽음의 기사 | img=./nungesser_nieuport24.webp
+24 fokker_f1 | Fokker F.I | img=./fokker_f1.webp
+25 be2c | B.E.2c | img=./be2c.webp
+26 aviatik | Aviatik C.I | img=./aviatik.webp
+27 strutter | Sopwith 1½ Strutter | img=./strutter.webp
+28 nieuport11 | Nieuport 11 Bébé | img=./nieuport11.webp
+29 nieuport28 | Nieuport 28 | img=./nieuport28.webp
+30 pup | Sopwith Pup | img=./pup.webp
+31 dh5 | Airco D.H.5 | img=./dh5.webp
+32 re8 | R.E.8 | img=./re8.webp
+33 dh4 | Airco D.H.4 | img=./dh4.webp
+34 albatros_d5a | Albatros D.Va | img=./albatros_d5a.webp
+35 hanriot | Hanriot HD.1 | img=./hanriot.webp
+36 fokker_jacobs | 포커 Dr.I · 야콥스 | img=./fokker_jacobs.webp
+37 siemens_d4 | 지멘스-슈커트 D.IV | img=./siemens_d4.webp
+38 roland_d6 | 롤란트 D.VIa | img=./roland_d6.webp
+39 hannover_cl3 | 하노버 CL.IIIa | img=./hannover_cl3.webp
+40 dfw_cv | DFW C.V | img=./dfw_cv.webp
+41 junkers_j1 | 융커스 J.I | img=./junkers_j1.webp
+42 gotha | 고타 G.V | img=./gotha.webp
+43 bristol_m1 | 브리스톨 M.1 | img=./bristol_m1.webp
+44 dolphin | 소프위드 돌핀 | img=./dolphin.webp
+45 snipe | 소프위드 스나이프 | img=./snipe.webp
+46 fe2b | F.E.2b 피 | img=./fe2b.webp
+47 gunbus | 비커스 F.B.5 건버스 | img=./gunbus.webp
+48 morane_ai | 모란-솔니에 A.I | img=./morane_ai.webp
+
+LEGENDARY:
+{"name": "아마톨 고폭 장약", "desc": "모든 실제 폭발 피해 반경 +40%. 폭발 격추 위치에 원 폭발 피해 30%의 재귀하지 않는 2차 파편폭발이 발생합니다.", "target": "특수장비", "icon": "./augmentation-icons/amatol_high_explosive
+{"name": "루프베리 서클", "desc": "생존한 상시 편대기 수에 따라 플레이어 받는 피해 −20%/−25%/−30%/−35%. 상시 편대기가 상호 엄호 대형으로 재배치됩니다.", "target": "특수장비", "icon": "./augmentation-icons/lufbery_circle.
+{"name": "붉은남작의 머플러", "desc": "이동 속도가 증가하고 적 후방 추적 판정 거리와 고정 시간이 개선됩니다.", "target": "특수장비", "icon": "./field-img-d1f09a84b3cdc742069b.webp"}
+{"name": "바라카의 검은 말 문장", "desc": "이동 속도 +20%, 전방에서 받는 피해 −25%.", "target": "특수장비", "icon": "./field-img-373735106c4559609042.webp"}
+{"name": "푸르 르 메리트 / 빅토리아 십자훈장", "desc": "파일럿 액티브 강화, 재사용 대기시간 −20%. 진영별 훈장 아이콘 사용.", "target": "특수장비", "icon": "./augmentation-icons/medal_award_pour_le_merite.webp"}
+{"name": "르네 퐁크의 망원경", "desc": "기관총 탄환이 약하게 유도됩니다. 직선 탄도를 유지하며 지나친 적을 재추적하지 않습니다.", "target": "특수장비", "icon": "./field-img-c62b13e488f9843573ea.webp"}
+{"name": "빌리비숍의 비행장갑", "desc": "기관총 발사 간격 −40%, 재장전 시간 −55%. 로켓·수류탄·COW 37mm·모퇴르 카농의 최종 사용 주기 ×0.60.", "target": "특수장비", "icon": "./field-img-4a8fcb98dd93e48b418a.webp"}
+{"name": "맥커든의 비상수선키트", "desc": "10초마다 최대 내구도의 20%를 회복합니다.", "target": "특수장비", "icon": "./augmentation-icons/mccudden_emergency_repair_kit.webp"}
+{"name": "전투비행대 총동원령", "desc": "상시 윙맨 +3, 윙맨 피해 +25%.", "target": "특수장비", "icon": "./augmentation-icons/squadron_general_mobilization.webp"}
+{"name": "임멜만의 기동전술 교본", "desc": "선회기동 재사용 대기시간 −50%, 기동 무적 1.05초.", "target": "특수장비", "icon": "./field-img-2a4a411f20ff71b28cfe.webp"}
+{"name": "기네메르의 37mm 모퇴르 카농", "desc": "3초마다 전방으로 거대한 37mm 관통탄을 발사합니다.", "target": "특수장비", "icon": "./field-img-defdef96b29d2e2f04e5.webp"}
+{"name": "LO! 페인팅 엠블럼", "desc": "최대 내구도 −50%, 기관총·폭발물·편대 피해 +30%, 이동 속도·선회력 +20%.", "target": "특수장비", "icon": "./field-img-625e5e1f5e5e8eef5d64.webp"}
+{"name": "황제의 얼굴 카울링", "desc": "근거리 적에게 주는 피해 +25%. 가까울수록 받는 탄환 피해 최대 20% 감소.", "target": "특수장비", "icon": "./field-img-8e245f003f5d36b98400.webp"}
+{"name": "J형 장갑 캡슐", "desc": "기관총·소구경 탄환 피해 −30%, 이동 속도·선회력 −10%.", "target": "특수장비", "icon": "./augmentation-icons/j_type_armor_capsule.webp"}
+{"name": "마우저C96 '에이스킬러'", "desc": "짧은 사거리 대각선 권총탄 자동 사격. 일반 적 피해는 낮고 에이스 피해는 높습니다.", "target": "특수장비", "icon": "./augmentation-icons/mauser_c96_ace_killer.webp"}
+{"name": "뵐케의 금언집", "desc": "경험치 획득량 +30%. 협동에서는 보유자에게만 적용.", "target": "특수장비", "icon": "./field-img-0ab5810e2825a688ac7d.webp"}
+{"name": "스카프링 총좌", "desc": "기본 기관총의 발사 방향이 회전합니다. 총기 수와 탄약 소모는 유지됩니다.", "target": "특수장비", "icon": "./augmentation-icons/scarff_ring_gun_mount.webp"}
+{"name": "쿼드 루이스 기관총", "desc": "일반 상한을 넘어 총구별 기관총 탄환 +4.", "target": "특수장비", "icon": "./field-img-e0d743f99a03187a4bcb.webp"}
+{"name": "COW 37MM 기관포", "desc": "기관총 교체. 발사 간격 1초, 기본 피해 280, 탄창 24발, 재장전 4.6초.", "target": "특수장비", "icon": "./field-img-6d483edca29d8118cede.webp"}
+{"name": "랭킨 대공 파편탄", "desc": "3.2초마다 후방 220°·500 범위 적 탄환 제거 및 파편 피해.", "target": "특수장비", "icon": "./field-img-3970c462d3c2837a0999.webp"}
+{"name": "브록식 연막장치", "desc": "12초마다 3초간 은폐, 적 추적 제외 및 어그로 초기화.", "target": "특수장비", "icon": "./augmentation-icons/brock_smoke_device.webp"}
+{"name": "C-O 5/17 에어로 컴퍼스", "desc": "경험치와 수리 아이템의 획득 반경이 크게 증가합니다.", "target": "특수장비", "icon": "./augmentation-icons/co_5_17_aero_compass.webp"}
+{"name": "프리도 연속 급탄 링크", "desc": "기관총 탄띠 용량 증가, 재장전 시간 감소.", "target": "특수장비", "icon": "./field-img-56fc8d2fd13bfd692a8b.webp"}
+
+UNIQUE:
+{"name": "폭격 요청 통신비둘기", "desc": "18초마다 폭격기 1대가 폭탄 5발을 투하합니다. 중복 시 2초 단축, 최소 10초.", "target": "유니크 강화", "icon": "./augmentation-icons/bombing_request_carrier_pigeon.webp"}
+{"name": "신형 전투기 보급", "desc": "현재와 이후 합류하는 상시 편대기를 상위 기종으로 변경합니다. 편대 피해 +20%, 발사 간격 −10%. 기체 수는 증가하지 않습니다.", "target": "유니크 강화", "icon": "./augmentation-icons/new_fighter
+{"name": "고출력 메르세데스 엔진", "desc": "이동 속도 +20%.", "target": "유니크 강화", "icon": "./augmentation-icons/high_output_mercedes_engine.webp"}
+{"name": "광역 탄막 사격 장치", "desc": "기관총 발사체 +1, 최대 5발. 추가 발사체는 탄약을 더 소모하지 않습니다.", "target": "유니크 강화", "icon": "./augmentation-icons/wide_barrage_firing_device.webp"}
+{"name": "복합 투사체 분배기", "desc": "로켓과 수류탄의 동시 발사체 +1. 각각 최대 5발.", "target": "유니크 강화", "icon": "./augmentation-icons/combined_projectile_distributor.webp"}
+
+NORMAL(count) 11
