@@ -1,9 +1,9 @@
 export const BATTLEFIELD_EVENT_TYPES=Object.freeze({
- HIGH_VALUE_TARGET:'HIGH_VALUE_TARGET',RESCUE:'RESCUE',BOMBER_INTERCEPT:'BOMBER_INTERCEPT',ACE_CHALLENGE:'ACE_CHALLENGE'
+ HIGH_VALUE_TARGET:'HIGH_VALUE_TARGET',RESCUE:'RESCUE',BOMBER_INTERCEPT:'BOMBER_INTERCEPT',ACE_CHALLENGE:'ACE_CHALLENGE',PHOTO_RECON:'PHOTO_RECON'
 });
 
 export const BATTLEFIELD_EVENT_BALANCE=Object.freeze({
- firstOfferAt:95,cooldownMin:120,cooldownMax:165,retryDelay:8,rescueDuration:18,objectiveTimeout:70,bomberExitDistance:980,rescueThreatRange:260,rescueThreatDamage:9,compactWidth:720,compactDangerCap:7,dangerCap:10
+ firstOfferAt:95,cooldownMin:120,cooldownMax:165,retryDelay:8,rescueDuration:18,objectiveTimeout:70,bomberExitDistance:980,rescueThreatRange:260,rescueThreatDamage:9,compactWidth:720,compactDangerCap:7,dangerCap:10,reconCount:5,reconCountCompact:4,reconRadius:130,reconMinGap:280,reconHold:1,reconTimeout:90
 });
 
 const TYPES=Object.values(BATTLEFIELD_EVENT_TYPES);
@@ -58,12 +58,22 @@ function spawnTargets(game,event){
   // This intentionally uses the normal ace path so an event ace retains the
   // established Rival escape contract; offers are already blocked while one lives.
   const e=markTarget(game.spawnEnemy?.('boss'),event);if(e){Object.assign(e,{eventAce:true,battlefieldEventAce:true,fire:.45});targets.push(e)}
+ }else if(event.type===P.PHOTO_RECON){
+  const p=playerFor(game),rng=game.rng??Math.random,compact=(game.viewWidth||960)<=BATTLEFIELD_EVENT_BALANCE.compactWidth;
+  const count=compact?BATTLEFIELD_EVENT_BALANCE.reconCountCompact:BATTLEFIELD_EVENT_BALANCE.reconCount;
+  const reach=Math.max(680,(game.viewWidth||960)*1.05),waypoints=[];
+  for(let i=0;i<count;i++){
+   let wp=null;
+   for(let tries=0;tries<24&&!wp;tries++){const ang=rng()*Math.PI*2,d=240+rng()*(reach-240),x=p.x+Math.cos(ang)*d,y=p.y+Math.sin(ang)*d;if(waypoints.every(w=>Math.hypot(w.x-x,w.y-y)>=BATTLEFIELD_EVENT_BALANCE.reconMinGap))wp={x,y,index:i,progress:0,done:false}}
+   waypoints.push(wp||{x:p.x+Math.cos(i*2.4)*reach*.72,y:p.y+Math.sin(i*2.4)*reach*.72,index:i,progress:0,done:false});
+  }
+  event.waypoints=waypoints;
  }else{
   const p=playerFor(game),ally={ownerId:p.id,eventRescue:true,life:BATTLEFIELD_EVENT_BALANCE.rescueDuration+2,hp:60,maxHp:60,x:p.x-Math.cos(p.a)*90,y:p.y-Math.sin(p.a)*90,a:p.a,fire:.3,plane:p.allyPlane||game.allyPlane};
   (game.allies||=[]).push(ally);event.rescue=ally;event.endsAt=(game.t||0)+BATTLEFIELD_EVENT_BALANCE.rescueDuration;
   for(let i=0;i<2;i++){const threat=game.spawnEnemy?.('hunter');if(threat)Object.assign(threat,{eventRescueThreat:true,battlefieldEventId:event.id,x:ally.x+(i?130:-130),y:ally.y-100,a:Math.PI/2,fire:.35})}
  }
- event.targets=targets;event.deadline=(game.t||0)+BATTLEFIELD_EVENT_BALANCE.objectiveTimeout;
+ event.targets=targets;event.deadline=(game.t||0)+(event.type===P.PHOTO_RECON?BATTLEFIELD_EVENT_BALANCE.reconTimeout:BATTLEFIELD_EVENT_BALANCE.objectiveTimeout);
  return event;
 }
 
@@ -76,7 +86,7 @@ function finish(game,state,outcome,reason){
  const event=state.current;if(!event)return false;
  for(const target of event.targets||[]){target.missionTarget=false;target.eventExit=false;delete target.eventExitOrigin}
  if(outcome==='completed'){
-  const p=playerFor(game),reward=event.type===P.ACE_CHALLENGE?70:event.type===P.BOMBER_INTERCEPT?55:event.type===P.HIGH_VALUE_TARGET?45:40;
+  const p=playerFor(game),reward=event.type===P.ACE_CHALLENGE?70:event.type===P.BOMBER_INTERCEPT?55:event.type===P.PHOTO_RECON?50:event.type===P.HIGH_VALUE_TARGET?45:40;
   for(let i=0;i<4;i++){(game.drops||=[]).push({x:p.x+Math.cos(i*1.7)*46,y:p.y+Math.sin(i*1.7)*46,value:i<3?Math.floor(reward/4):reward-3*Math.floor(reward/4),heal:false,battlefieldEvent:true})}
   (game.drops||=[]).push({x:p.x-60,y:p.y,value:0,heal:true,supply:true,life:16,vx:0,vy:0,battlefieldEvent:true});
  }
@@ -90,6 +100,11 @@ function tick(game){
   const dt=Math.max(0,Math.min(.08,now-(event.lastTickAt??now)));event.lastTickAt=now;
   if(event.type===P.RESCUE){const rescue=event.rescue,threats=(game.enemies||[]).filter(e=>e.hp>0&&e.eventRescueThreat&&e.battlefieldEventId===event.id&&Math.hypot(e.x-rescue.x,e.y-rescue.y)<BATTLEFIELD_EVENT_BALANCE.rescueThreatRange);if(threats.length){rescue.hp=Math.max(0,rescue.hp-BATTLEFIELD_EVENT_BALANCE.rescueThreatDamage*threats.length*dt);if(rescue.hp<=0)rescue.life=0}if(!rescue||rescue.life<=0||!game.allies?.includes(rescue))return finish(game,state,'failed','rescueLost');if(now>=event.endsAt)return finish(game,state,'completed')}
   else if(event.type===P.BOMBER_INTERCEPT){for(const target of event.targets||[])if(target.hp>0&&target.eventExitOrigin){target.a=target.eventExitHeading;if(Math.hypot(target.x-target.eventExitOrigin.x,target.y-target.eventExitOrigin.y)>=(target.eventExitDistance||BATTLEFIELD_EVENT_BALANCE.bomberExitDistance))return finish(game,state,'failed','targetEscaped')}if(event.targets?.length&&event.targets.every(target=>target.hp<=0||target.deathHandled))return finish(game,state,'completed')}
+  else if(event.type===P.PHOTO_RECON){
+   const p=playerFor(game),wp=(event.waypoints||[]).find(w=>!w.done);
+   if(wp){const inside=Math.hypot(p.x-wp.x,p.y-wp.y)<=BATTLEFIELD_EVENT_BALANCE.reconRadius;wp.progress=inside?wp.progress+dt:Math.max(0,wp.progress-dt*1.6);if(wp.progress>=BATTLEFIELD_EVENT_BALANCE.reconHold){wp.done=true;wp.doneAt=now;game.burst?.(wp.x,wp.y,'#a8e6f4',16)}}
+   if((event.waypoints||[]).length&&event.waypoints.every(w=>w.done))return finish(game,state,'completed');
+  }
   else if(event.targets?.some(target=>target.rivalEscaped))return finish(game,state,'failed','targetEscaped');
   else if(event.targets?.length&&event.targets.every(target=>target.hp<=0||target.deathHandled))return finish(game,state,'completed');
   if(now>=event.deadline)return finish(game,state,'failed','timeExpired');
