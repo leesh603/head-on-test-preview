@@ -1,6 +1,6 @@
-import {fx} from './fx-art.js?v=496';
-import {getLocale} from './i18n.js?v=496';
-import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=496';
+import {fx} from './fx-art.js?v=497';
+import {getLocale} from './i18n.js?v=497';
+import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=497';
 const circle=(c,x,y,r)=>{c.beginPath();c.arc(x,y,r,0,Math.PI*2);};
 // Called with the body's translation already applied. Original RGBA car art.
 export function drawRuralRail(c,b,images,wrecks){
