@@ -123,7 +123,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
    case 'wingedSword':crest(c,'wingedSword',q,.4,106);metal(c,q,4,.55);break;
    case 'blackDevil':texture(c,'smokeDark',-29-time*45,Math.sin(time*9)*9,48+time*24,30,Math.PI,.3);break;
    case 'storkCannon':crest(c,'cigogne',q,.26,90);texture(c,'gunSmoke',32,0,60,32,0,.4);break;
-   case 'fuseIgnition':texture(c,'incendiary',33,0,44,30,0,.8);break;
+   case 'fuseIgnition':texture(c,'fireSmall',30,0,26,23,0,.85);texture(c,'fireSmall',-8,15,17,15,.7,.5);texture(c,'fireSmall',-8,-15,17,15,-.7,.5);break;
    case 'incendiaryRun':texture(c,'gunSmoke',31,0,42,23,0,.3);break;
    case 'gunnerHandoff':flash(c,false,.7);flash(c,true,1.1);break;
    case 'rocketSalvo':for(const side of [-1,1])texture(c,'gunSmoke',12,side*23,32,15,0,.18);break;
@@ -244,7 +244,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
    case 'twoSeater':if(shot){flash(c,false,.65);flash(c,true,1.3)}break;
    case 'closeFire':if(shot)flash(c,false,1.8);break;
    case 'flameAttack':if(shot){flash(c,false,1.1);texture(c,'gunSmoke',37,0,29,17,0,.2)}break;
-   case 'fuse':if(shot)texture(c,'incendiary',36,0,35,18,0,.65);break;
+   case 'fuse':if(shot)texture(c,'fireSmall',34,0,21,17,0,.5);break;
    case 'concealment':if(p.ballCloak>0){texture(c,'mist',-14,-22,95,25,.05*Math.sin(t),.19);texture(c,'vaporTrail',-35,21,90,14,Math.PI,.17)}break;
    case 'survival':if(p.hp<Math.max(10,p.maxHp*.2))texture(c,'smokeDark',-39,0,62,28,Math.PI,.4);break;
    case 'petals':petals(c,(t*.6)%1.3,5);break;
