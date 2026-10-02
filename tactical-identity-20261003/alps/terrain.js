@@ -1,4 +1,4 @@
-import {hash,clamp,sweptPolygon,positive} from './geometry.js?v=tactical20261003';
+import {hash,clamp,sweptPolygon,positive} from './geometry.js?v=tactical20261003b';
 export const TERRAIN_PROFILES=Object.freeze({
  rural:{name:'전원 지대',cell:0,base:'#424b3b',strength:.67},
  sea:{name:'아드리아해',cell:1,base:'#254555',strength:.66},

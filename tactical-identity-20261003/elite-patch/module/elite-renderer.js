@@ -1,4 +1,4 @@
-import {ELITE_KINDS} from './elite-config.js?v=tactical20261003';
+import {ELITE_KINDS} from './elite-config.js?v=tactical20261003b';
 
 const defaultCrop = {};
 
@@ -12,8 +12,8 @@ function loadImage(source) {
 
 export function createEliteAssets(options = {}) {
   return {
-    lePrieur: loadImage(options.lePrieur || './assets/le-prieur-squadron.webp?v=tactical20261003'),
-    schlachtstaffel: loadImage(options.schlachtstaffel || './assets/halberstadt-cliv-squadron.webp?v=tactical20261003'),
+    lePrieur: loadImage(options.lePrieur || './assets/le-prieur-squadron.webp?v=tactical20261003b'),
+    schlachtstaffel: loadImage(options.schlachtstaffel || './assets/halberstadt-cliv-squadron.webp?v=tactical20261003b'),
     rocket: loadImage(options.rocket),
     crop: {...defaultCrop, ...(options.crop || {})},
     drawPlayerRocket: options.drawPlayerRocket || null
