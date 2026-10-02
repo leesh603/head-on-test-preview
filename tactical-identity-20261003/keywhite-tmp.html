@@ -1,0 +1,33 @@
+<!doctype html><meta charset="utf-8"><div id="bar" style="font:12px monospace;color:#ddd"></div><canvas id="cv" style="display:none"></canvas>
+<script>
+const q=new URLSearchParams(location.search);
+const SRC=q.get('src'),OUT=q.get('out'),TH=+(q.get('th')||235),WRECK=q.get('wreck');
+const im=new Image();
+im.onload=()=>{
+ const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+ cv.width=im.naturalWidth;cv.height=im.naturalHeight;ctx.drawImage(im,0,0);
+ (async()=>{try{
+  const id=ctx.getImageData(0,0,cv.width,cv.height),d=id.data;
+  for(let i=0;i<d.length;i+=4){const r=d[i],g=d[i+1],b=d[i+2];
+   const wh=Math.min(r,g,b);
+   if(wh>TH){d[i+3]=0;continue}
+   const edge=Math.max(0,(wh-(TH-40))/40);d[i+3]=Math.round(255*Math.min(1,1-edge*.6));
+  }
+  ctx.putImageData(id,0,0);
+  // trim
+  const p=ctx.getImageData(0,0,cv.width,cv.height).data;let x0=cv.width,y0=cv.height,x1=-1,y1=-1;
+  for(let y=0;y<cv.height;y++)for(let x=0;x<cv.width;x++)if(p[(y*cv.width+x)*4+3]>24){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+  const W=x1-x0+1,H=y1-y0+1;
+  const out=document.createElement('canvas');out.width=W;out.height=H;
+  out.getContext('2d').drawImage(cv,x0,y0,W,H,0,0,W,H);
+  const url=out.toDataURL('image/webp',.92);
+  const name=OUT.endsWith('.webp')?OUT:OUT+'.webp';
+  const r=await fetch('/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,data:url})});
+  document.getElementById('bar').textContent='SAVED '+name+':'+(r.ok?'ok':r.status)+' '+W+'x'+H;
+  fetch('/report?src='+SRC+'&log='+encodeURIComponent(document.getElementById('bar').textContent));
+ }catch(e){document.getElementById('bar').textContent='ERR '+(e.stack||e.message).slice(0,300);fetch('/report?src='+SRC+'&log='+encodeURIComponent(document.getElementById('bar').textContent))}
+ })();
+};
+im.onerror=()=>{document.getElementById('bar').textContent='LOADFAIL';fetch('/report?src='+SRC+'&log=LOADFAIL')};
+im.src='./raw/'+SRC;
+</script></body>
