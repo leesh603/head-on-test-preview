@@ -1,8 +1,8 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
-import {getLocale,subscribe} from './i18n.js?v=505';
-import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=505';
-import {clearCrewMatte} from './matte70.js?v=505';
-import {aircraftArt} from './main-ui-art180.js?v=505';
+import {getLocale,subscribe} from './i18n.js?v=506';
+import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=506';
+import {clearCrewMatte} from './matte70.js?v=506';
+import {aircraftArt} from './main-ui-art180.js?v=506';
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
 const put=(node,text)=>{if(node&&node.textContent!==text)node.textContent=text};
@@ -134,7 +134,7 @@ function install(){
   put(passiveName,index>=0?raw.slice(0,index):'');put(passiveDesc,index>=0?raw.slice(index+3):raw);
   const option=$('aircraftSelect103').selectedOptions?.[0],airLabel=(option?.textContent||$('pilotAircraft').textContent).split(' · ')[0],airParen=airLabel.indexOf(' (');
  airName.innerHTML=airParen<0?airLabel:airLabel.slice(0,airParen)+'<br>'+airLabel.slice(airParen+1);
-  put(airRole,$('pilotAircraft').textContent.split(' · ').slice(1).join(' · '));
+  put(airRole,[$('pilotAircraft').textContent.split(' · ').slice(1).join(' · '),$('airframeTip').textContent].filter(Boolean).join(' · '));
   const hasChoice=!$('baronAircraftChoice').classList.contains('hidden')&&!$('baronTriplane').disabled;previous.hidden=next.hidden=!hasChoice;
   previous.setAttribute('aria-label',en?'Switch aircraft':'이전 기체');next.setAttribute('aria-label',en?'Switch aircraft':'다음 기체');
   if(aircraftId!==lastArt){lastArt=aircraftId;

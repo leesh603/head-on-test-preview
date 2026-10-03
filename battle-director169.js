@@ -6,7 +6,7 @@ export const BATTLE_DIRECTOR_PATTERNS=Object.freeze({
 export const BATTLE_DIRECTOR_BALANCE=Object.freeze({
  firstSceneAt:18,sceneMin:22,sceneMax:28,recoveryDuration:7,recentWindow:3,
  compactWidth:720,compactSoloCap:8,compactCoopCap:10,soloCap:11,coopCap:14,actionInterval:.48,
- headOnIntent:6,crossIntent:6.5,pincerIntent:4.5,chaseIntent:5,escortIntent:7,bomberIntent:8
+ formationBreakDuration:2.6,headOnIntent:6,crossIntent:6.5,pincerIntent:4.5,chaseIntent:5,escortIntent:7,bomberIntent:8
 });
 
 const P=BATTLE_DIRECTOR_PATTERNS;
@@ -50,6 +50,7 @@ function planFor(pattern,time,compact){
 
 function beginPattern(game,state,pattern=choosePattern(game,state)){
  const now=game.t||0,compact=(game.viewWidth||960)<=BATTLE_DIRECTOR_BALANCE.compactWidth;
+ pattern=game.beginBattlefieldEngagement?.(pattern,state.sceneId+1,now+18)||pattern;
  state.pattern=pattern;state.startedAt=now;state.sceneId++;state.eliteRequested=false;
  state.endsAt=now+(pattern===P.RECOVERY?BATTLE_DIRECTOR_BALANCE.recoveryDuration:pattern===P.ACE_PRESSURE?20:BATTLE_DIRECTOR_BALANCE.sceneMin+(game.rng?.()??Math.random())*(BATTLE_DIRECTOR_BALANCE.sceneMax-BATTLE_DIRECTOR_BALANCE.sceneMin));
  state.nextActionAt=now+.35;state.queue=planFor(pattern,now,compact);state.history.push(pattern);state.history=state.history.slice(-6);
@@ -95,13 +96,56 @@ function place(game,e,layout,index,count){
  }
 }
 
+function linkFormation(game,e){
+ if(!regular(e)||!['scout','hunter'].includes(e.type))return;
+ const peers=game.enemies.filter(other=>other!==e&&regular(other)&&other.directorSceneId===e.directorSceneId&&['scout','hunter'].includes(other.type));
+ const leader=peers.find(other=>other.formationCommand)||peers[0]||e;
+ leader.formationCommand=true;leader.directorFormation=true;e.directorFormation=true;
+ if(leader!==e){e.formationLeader=leader;e.formationBack=70+Math.floor(peers.length/2)*38;e.formationOffset=(peers.length%2?1:-1)*(60+Math.floor(peers.length/2)*35)}
+ game.assignNormalFormationLivery?.(e,leader,peers.length);
+ const outcome=game.battlefieldEvents?.engagement;
+ if(outcome?.formationWeakened&&outcome.sceneId===e.directorSceneId&&outcome.endsAt>(game.t||0))game.breakEnemyFormation(e);
+}
+
+function breakFormation(game,e,duration=BATTLE_DIRECTOR_BALANCE.formationBreakDuration,leaderLost=false){
+ if(!e||e.hp<=0||e.surface||e.stationary||e.fieldUnit||e.navalVessel)return false;
+ const now=game.t||0;
+ const commander=e.formationLeader||e.formationResumeLeader;
+ leaderLost=leaderLost||!!(commander&&(commander.hp<=0||!(game.enemies||[]).includes(commander)));
+ // Leader death replaces a short live-leader disruption once; repeated explosions cannot extend it.
+ if(e.formationCollapseUntil>now&&(!leaderLost||e.formationDeathBreak))return false;
+ if(leaderLost)duration=BATTLE_DIRECTOR_BALANCE.formationBreakDuration;
+ e.formationDeathBreak=leaderLost;
+ const side=Math.sign(e.formationOffset)||e.combatPassSide||(game.rng?.()<.5?-1:1);
+ e.formationBreakHeading=e.a+side*1.05;e.formationCollapseUntil=now+duration;
+ e.formationResumeLeader=!leaderLost&&commander?.hp>0?commander:null;e.formationResumeCommand=!leaderLost&&!!(e.formationCommand||e.formationResumeCommand);
+ e.formationLeader=null;e.formationReturning=false;e.formationCommand=false;e.directorIntentUntil=0;e.directorEscort=null;
+ e.patrolTarget=null;e.personalityDecisionUntil=0;e.personalityManeuver=null;e.defensivePressure=false;
+ e.attackPassTime=0;e.attackPassHeading=null;e.reengageCooldown=duration;e.combatPassState=S.DISENGAGE;e.combatPassTimer=duration;e.combatPassWaypoint=null;e.combatPassHeading=e.formationBreakHeading;
+ e.fire=Math.max(e.fire||0,duration+.2);return true;
+}
+
+function maintainFormations(game){
+ const now=game.t||0;
+ for(const e of game.enemies||[]){
+  if(e.hp<=0)continue;
+  const leader=e.formationLeader||e.formationResumeLeader;
+  // Boss/ace escorts keep their existing encounter mechanics; only ordinary aircraft groups use this feature.
+  if(leader&&!leader.bossPilot&&!leader.stageBossBody&&!leader.bossMinion&&(leader.hp<=0||!(game.enemies||[]).includes(leader)))breakFormation(game,e,undefined,true);
+  if(e.formationCollapseUntil&&e.formationCollapseUntil<=now){
+   e.formationLeader=e.formationResumeLeader?.hp>0&&(game.enemies||[]).includes(e.formationResumeLeader)?e.formationResumeLeader:null;e.formationCommand=!!e.formationResumeCommand;e.formationResumeLeader=null;e.formationResumeCommand=false;
+   e.formationCollapseUntil=0;e.formationDeathBreak=false;e.formationBreakHeading=null;e.combatPassState=S.APPROACH;e.combatPassTimer=0;e.combatPassCooldown=.4;e.combatPassHeading=null;e.personalityDecisionUntil=0;e.patrolTarget=null;
+  }
+ }
+}
+
 function directorCap(game){
  const compact=(game.viewWidth||960)<=BATTLE_DIRECTOR_BALANCE.compactWidth,coop=game.mode==='coop2';
  return compact?(coop?BATTLE_DIRECTOR_BALANCE.compactCoopCap:BATTLE_DIRECTOR_BALANCE.compactSoloCap):(coop?BATTLE_DIRECTOR_BALANCE.coopCap:BATTLE_DIRECTOR_BALANCE.soloCap);
 }
 
 function tickDirector(game,dt){
- if(game.mode==='campaign'||game.state!=='playing')return;
+ if(game.state!=='playing')return;maintainFormations(game);if(game.mode==='campaign')return;
  const state=directorState(game),now=game.t||0;
  if(scriptedBoss(game)){state.pattern=null;state.queue.length=0;state.nextSceneAt=Math.max(state.nextSceneAt,now+5);game.battleDirectorPattern=null;return}
  if(state.pattern&&now>=state.endsAt){state.pattern=null;state.queue.length=0;state.nextSceneAt=now;game.battleDirectorPattern=null}
@@ -114,7 +158,7 @@ function tickDirector(game,dt){
  }
  if(now<state.nextActionAt||!state.queue.length)return;
  const live=(game.enemies||[]).filter(regular).length;if(live>=directorCap(game)){state.nextActionAt=now+.7;return}
- const next=state.queue.shift(),e=game.spawnEnemy?.(next.type);if(e)place(game,e,next.layout,next.index,next.count);
+ const next=state.queue.shift(),e=game.spawnEnemy?.(next.type);if(e){place(game,e,next.layout,next.index,next.count);linkFormation(game,e)}
  state.nextActionAt=now+BATTLE_DIRECTOR_BALANCE.actionInterval;
 }
 
@@ -122,12 +166,19 @@ export function installBattleDirector(Game,deps={}){
  if(Game.prototype.__battleDirector169)return;Game.prototype.__battleDirector169=true;
  S=deps.passStates;directorAircraftEligible=deps.directorAircraftEligible;
  if(!S||typeof directorAircraftEligible!=='function')throw new Error('Battle Director requires dogfight pass dependencies');
+ Game.prototype.maintainEnemyFormations=function(){return maintainFormations(this)};
+ Game.prototype.breakEnemyFormation=function(e,duration){const world=this.combatWorld?.()||this;if(e?.eliteKind)return world.eliteEnemies?.disruptFormation?.(e,duration)||false;return breakFormation(world,e,duration)};
+ const steering=Game.prototype.dogfightSteering;
+ Game.prototype.dogfightSteering=function(e,contact,dt,baseTurn){if(e?.formationCollapseUntil>(this.t||0))return{delta:Math.atan2(Math.sin(e.formationBreakHeading-e.a),Math.cos(e.formationBreakHeading-e.a)),turn:baseTurn*.85};return steering.call(this,e,contact,dt,baseTurn)};
+ const fire=Game.prototype.fireEnemy;
+ Game.prototype.fireEnemy=function(e,...args){if(e?.formationCollapseUntil>(this.t||0)){e.fire=Math.max(e.fire||0,e.formationCollapseUntil-(this.t||0)+.2);return}return fire.call(this,e,...args)};
  Game.prototype.tickBattleDirector=function(dt){return tickDirector(this,dt)};
+ Game.prototype.beginBattleDirectorPattern=function(pattern){if(!Object.values(P).includes(pattern))return null;return beginPattern(this,directorState(this),pattern)};
 
  const regularLimit=Game.prototype.regularEnemyLimit;
  Game.prototype.regularEnemyLimit=function(){const base=regularLimit.call(this);if((this.viewWidth||960)>BATTLE_DIRECTOR_BALANCE.compactWidth)return base;return Math.min(base,this.mode==='coop2'?BATTLE_DIRECTOR_BALANCE.compactCoopCap:BATTLE_DIRECTOR_BALANCE.compactSoloCap)};
  const interval=Game.prototype.regularSpawnInterval;
  Game.prototype.regularSpawnInterval=function(){const base=interval.call(this),pattern=this.battleDirectorPattern;if(pattern===P.RECOVERY)return base*3.2;if(pattern===P.ACE_PRESSURE||pattern===P.ELITE_FORMATION||pattern===P.BOMBER_RUN)return base*1.7;return pattern?base*1.25:base};
  const update=Game.prototype.update;
- Game.prototype.update=function(dt,input={}){const result=update.call(this,dt,input);this.tickBattleDirector(Math.min(.04,Math.max(0,dt||0)));return result};
+ Game.prototype.update=function(dt,input={}){if(this.state==='playing')maintainFormations(this);const result=update.call(this,dt,input);if(this.state==='playing')maintainFormations(this);this.tickBattleDirector(Math.min(.04,Math.max(0,dt||0)));return result};
 }

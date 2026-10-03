@@ -10,11 +10,11 @@ const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 const TWO_SEAT_ARCHETYPES=new Set(['DEFENSIVE_TWO_SEATER','OFFENSIVE_TWO_SEATER']);
 
 function eligible(game,e){
- return !!(e?.personality&&game.patrolCanEngage(e)&&['scout','hunter'].includes(e.type)&&!e.bossPilot&&!e.formationLeader&&!e.missionTarget&&!e.heavyBomber&&!e.surface&&!e.stationary&&!TWO_SEAT_ARCHETYPES.has(e.personality.archetype));
+ return !!(e?.personality&&game.patrolCanEngage(e)&&['scout','hunter'].includes(e.type)&&!e.bossPilot&&(!e.formationLeader||e.directorFormation)&&!e.missionTarget&&!e.heavyBomber&&!e.surface&&!e.stationary&&!TWO_SEAT_ARCHETYPES.has(e.personality.archetype));
 }
 
 export function directorAircraftEligible(game,e){
- return !!(e?.hp>0&&game.mode!=='campaign'&&game.stageBoss?.stages?.phase!=='boss'&&game.patrolCanEngage(e,game)&&!e.bossPilot&&!e.ace&&!e.rivalAce&&!e.eliteKind&&!e.formationLeader&&!e.bossMinion&&!e.stageBossBody&&!e.battlefieldEventId&&!e.missionTarget&&!e.heavyBomber&&(e.type==='bomber'||((e.type==='scout'||e.type==='hunter')&&e.personality&&!TWO_SEAT_ARCHETYPES.has(e.personality.archetype))));
+ return !!(e?.hp>0&&game.mode!=='campaign'&&game.stageBoss?.stages?.phase!=='boss'&&game.patrolCanEngage(e,game)&&!e.bossPilot&&!e.ace&&!e.rivalAce&&!e.eliteKind&&(!e.formationLeader||e.directorFormation)&&!e.bossMinion&&!e.stageBossBody&&!e.battlefieldEventId&&(e.type==='bomber'||((e.type==='scout'||e.type==='hunter')&&e.personality&&!TWO_SEAT_ARCHETYPES.has(e.personality.archetype))));
 }
 
 function setState(e,state,duration=0){e.combatPassState=state;e.combatPassTimer=duration;}

@@ -1,6 +1,7 @@
-import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=505';
-import {CAMPAIGN_DATA} from './campaign-data.js?v=505';
-import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=505';
+import {registerAircraftTiers} from './aircraft-tiers.js?v=506';
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=506';
+import {CAMPAIGN_DATA} from './campaign-data.js?v=506';
+import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=506';
 export const STAGES=[...CAMPAIGN_DATA.stages].sort((a,b)=>a.faction.localeCompare(b.faction)||a.historicalAnchorDate.localeCompare(b.historicalAnchorDate)||a.id.localeCompare(b.id));
 export const stageFaction=s=>s.faction==='allies'?'entente':'central';
 // Variant values are arcade fits derived from the existing family, not restored historical statistics.
@@ -227,7 +228,7 @@ export class CampaignGame extends Game{
   if(protect.length&&this.rng()<.55){const target=protect[Math.floor(this.rng()*protect.length)],a=Math.atan2(target.y-e.y,target.x-e.x);this.bullets.push({x:e.x,y:e.y,vx:Math.cos(a)*165,vy:Math.sin(a)*165,enemy:true,visualType:e.bossPilot?'boss':e.type,life:5,damage:11,convoyThreat:true});e.fire=2.2;return}
   super.fireEnemy(e);
  }
- awardXp(fraction){const remaining=this.objectiveXpBudget-this.objectiveXp,amount=Math.min(remaining,this.objectiveXpBudget*fraction);this.xp+=amount;this.objectiveXp+=amount;this.checkLevel()}
+ awardXp(fraction){const remaining=this.objectiveXpBudget-this.objectiveXp,amount=Math.min(remaining,this.objectiveXpBudget*fraction);this.xp+=amount*(PLANES[this.plane].xpGainMultiplier??1);this.objectiveXp+=amount;this.checkLevel()}
  countObjective(e){
   if(e.counted)return;e.counted=true;this.rallyPoint={x:e.x,y:e.y};this.completed++;this.campaignScore+=e.missionGround?100:e.type==='boss'?350:150;
   if(e.altitude!==undefined)this.altitudeClears[e.altitude]++;
@@ -303,3 +304,4 @@ export class CampaignGame extends Game{
 const ACES1918_LIVERY={rickenbacker_spad:'spad',ball_se5a:'se5a',barker_snipe:'snipe',luke_nieuport28:'nieuport28',brumowski_albatros:'albatros',gontermann_fokker:'fokker'};
 const ACES1918_LIVERY_NAMES={rickenbacker_spad:'SPAD XIII · 리켄바커',ball_se5a:'S.E.5a · 앨버트 볼',barker_snipe:'숍위드 스나이프 · 바커',luke_nieuport28:'니외포르 28 · 프랭크 루크',brumowski_albatros:'알바트로스 D.III · 브루모프스키',gontermann_fokker:'포커 Dr.I · 곤터만'};
 for(const[key,base]of Object.entries(ACES1918_LIVERY)){PLANES[key]={...PLANES[base],name:ACES1918_LIVERY_NAMES[key],handling:PLANES[base].handling,campaignOnly:false};WEAPONS[key]={...WEAPONS[base]};PILOT_PLANES[key.split('_')[0]]=key}
+registerAircraftTiers(PLANES);
