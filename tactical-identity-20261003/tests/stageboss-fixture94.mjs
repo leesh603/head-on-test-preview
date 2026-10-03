@@ -1,4 +1,4 @@
-import {StageBossAddon} from '../headon-stageboss-runtime.js?v=506';
+import {StageBossAddon} from '../headon-stageboss-runtime.js?v=505';
 // Test numbers only. Production MUST supply current already-scaled boss stats.
 export function fixture(options={}) {
   const log={damage:[],status:[],barrier:[],minions:[],buildings:[],cues:[],clears:[],stages:[],cleanup:[]};
