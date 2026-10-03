@@ -1162,7 +1162,16 @@ function installHeadOnTestLab(){
   regions:HEADON_TEST_REGION_NAMES.map((name,id)=>({id,name})),
   pilots:Object.entries(PILOTS).map(([id,p])=>({id,name:p.name,faction:p.faction,plane:pilotPlane(id)}))
  };
- window.__HEADON_TEST__={catalog,start:startTest,status:()=>game?{state:game.state,region:game.worldRegion?.(),pilot:game.pilot,plane:game.plane,testMode:!!game.testMode}:null,debug:()=>game};
+ const advanceVerdun=()=>{
+  const run=game;if(!run?.testMode||run.worldRegion?.()!==12||!['playing','paused'].includes(run.state))return false;
+  const paused=run.state==='paused';run.state='playing';
+  // QA only: fixed native engine substeps preserve projectile travel, timers,
+  // collision, hazards and collapse. No encounter HP/phase is assigned here.
+  for(let i=0;i<25&&game===run&&run.state==='playing';i++)run.update(.04,{});
+  events();hud();if(paused&&run.state==='playing')run.state='paused';
+  return true;
+ };
+ window.__HEADON_TEST__={catalog,start:startTest,status:()=>game?{state:game.state,region:game.worldRegion?.(),pilot:game.pilot,plane:game.plane,testMode:!!game.testMode}:null,debug:()=>game,advanceVerdun};
  const params=new URLSearchParams(location.search);
  if(params.get('headonTest')==='1'&&params.get('autostart')!=='0')queueMicrotask(()=>startTest({
   region:params.get('region'),pilot:params.get('pilot'),ace:params.get('ace'),boss:params.get('boss')==='1',
@@ -1170,5 +1179,4 @@ function installHeadOnTestLab(){
  }));
 }
 installHeadOnTestLab();
-
 
