@@ -21,12 +21,12 @@ export function tickVerdunBattle(g,dt){
   v.formationAt=v.age+18;
   // Existing formationLeader and dogfight AI; no ace-specific aircraft.
   if((g.enemies||[]).filter(e=>e.hp>0&&!e.surface).length<18){
-   const leaderBefore=g.enemies.length;g.bossMechanicSpawn=true;let leader;
+   const leaderBefore=g.enemies.length,previousMechanicSpawn=g.bossMechanicSpawn;g.bossMechanicSpawn=true;let leader;
    try{for(let i=0;i<3;i++){
     const before=g.enemies.length,result=g.spawnEnemy('hunter'),e=result||(g.enemies.length>before?g.enemies.at(-1):null);if(!e)continue;
     if(!leader){leader=e;leader.x=g.x-220;leader.y=g.y-480;leader.a=Math.atan2(g.y-leader.y,g.x-leader.x);}
     else{e.formationLeader=leader;e.formationBack=70;e.formationOffset=i===1?-80:80;e.x=leader.x+e.formationOffset;e.y=leader.y-70;}
-   }}finally{g.bossMechanicSpawn=false;}
+   }}finally{g.bossMechanicSpawn=previousMechanicSpawn;}
    if(g.enemies.length>leaderBefore)g.event('wave','베르됭 · 요새 접근로 적 편대');
   }
  }

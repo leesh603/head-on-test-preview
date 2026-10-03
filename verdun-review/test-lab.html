@@ -85,7 +85,6 @@ function refreshFort(){
  const b=fortress(),panel=$('fortControls');panel.style.display=b?'flex':'none';if(!b)return;
  if(fortId!==b.id){fortId=b.id;$('fortPart').replaceChildren(...[...b.parts.values()].map(p=>new Option(p.id,p.id)),new Option('중앙 핵심부','core'));}
  const p=b.parts.get($('fortPart').value),g=api.debug();
- const hazards=g.stageBoss.hazards?.pool?.items||[];
  $('fortStatus').textContent=b.kind+' · phase '+b.phase+' · HP '+Math.ceil(b.hp)+'/'+b.maxHp+' · '+(p?p.id+': '+Math.ceil(p.hp)+'/'+Math.ceil(p.maxHp)+' · '+(p.destroyed?'파괴':p.hittable?'노출':'장갑/은폐'):'core: '+(b.coreVulnerable?'노출':'봉쇄'))+' · 활성 부위 '+[...b.parts.values()].filter(p=>!p.destroyed&&p.active).length;
 }
 $('fortView').onclick=()=>{const b=fortress(),g=api.debug();if(!b||!g)return;g.x=b.x;g.y=b.y+110;g.a=-Math.PI/2;};
