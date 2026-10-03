@@ -16,6 +16,7 @@ export const DIRECTOR_LIVERIES=Object.freeze({central:Object.freeze(['jasta11_fo
 const playerFor=game=>game.players?.find(p=>p?.hp>0&&(!p.status||p.status==='alive'))||game;
 const activeAce=game=>(game.enemies||[]).some(e=>e.hp>0&&!e.expired&&!e.rivalEscaped&&(e.bossPilot||e.type==='boss'));
 const scriptedBoss=game=>game.stageBoss?.stages?.phase==='boss';
+const suspended=game=>scriptedBoss(game)||game.battlefieldEvents?.current?.status==='active'||!!game.londonBattle||(game.eliteEnemies?.active&&game.battleDirectorPattern!==P.ELITE_FORMATION);
 const regular=e=>e?.hp>0&&!e.bossPilot&&!e.heavyBomber&&!e.surface&&!e.stationary&&!e.missionTarget&&['scout','hunter','bomber'].includes(e.type);
 
 function directorState(game){
@@ -40,7 +41,7 @@ function choosePattern(game,state){
 
 function action(type,layout,count=1){return Array.from({length:count},(_,index)=>({type,layout,index,count}))}
 function planFor(pattern,time,compact){
- const pressure=time<120?1:time<360?2:compact?2:3;
+ const pressure=time<120?3:time<360?4:compact?2:5;
  if(pattern===P.HEAD_ON_PASS)return action('hunter','headOn',Math.max(2,pressure));
  if(pattern===P.CROSS_ATTACK)return action('hunter','cross',Math.max(2,pressure));
  if(pattern===P.PINCER)return action('hunter','pincer',2);
@@ -60,11 +61,12 @@ function beginPattern(game,state,pattern=choosePattern(game,state)){
  state.nextActionAt=now+.35;state.queue=planFor(pattern,now,compact);state.history.push(pattern);state.history=state.history.slice(-6);
  if(pattern===P.RECOVERY)state.combatSinceRecovery=0;else if(pattern!==P.ACE_PRESSURE)state.combatSinceRecovery++;
  game.battleDirectorPattern=pattern;game.spawn=Math.max(game.spawn||0,pattern===P.RECOVERY?BATTLE_DIRECTOR_BALANCE.recoveryDuration:1.2);
- if(pattern===P.RECOVERY){
-  const p=playerFor(game);
+ if(pattern!==P.ACE_PRESSURE){
+  const p=playerFor(game),duration=Math.max(1,state.endsAt-now);
   for(const e of game.enemies||[])if(directorAircraftEligible(game,e)){
+   if(e.directorSquad){releaseSquadMember(e);delete e.directorSquad;e.directorBreakUntil=state.endsAt}
    e.directorLayout='recovery';e.directorIntentUntil=state.endsAt;e.directorEscort=null;
-   e.combatPassState=S.DISENGAGE;e.combatPassTimer=BATTLE_DIRECTOR_BALANCE.recoveryDuration;
+   e.combatPassState=S.DISENGAGE;e.combatPassTimer=duration;
    e.combatPassHeading=Math.atan2(e.y-p.y,e.x-p.x);
   }
  }
@@ -104,7 +106,7 @@ function place(game,e,layout,index,count){
 }
 
 function joinSquadron(game,e,layout,index){
- const tactic=layout==='pincer'?'cross':layout==='bomber'&&game.battleDirectorPattern===P.ESCORT?'escort':layout;
+ const tactic=layout==='pincer'?'cross':layout==='bomber'&&(game.battleDirectorPattern===P.ESCORT||game.battleDirectorPattern===P.BOMBER_RUN)?'escort':layout;
  if(!['headOn','cross','chase','bait','escort','veteran'].includes(tactic))return;
  const previous=game.enemies.find(w=>w!==e&&w.directorSceneId===e.directorSceneId&&w.directorSquad?.tactic===tactic);
  const squad=previous?.directorSquad||{tactic,leader:e,members:[],target:playerFor(game),until:game.battleDirector.endsAt,startedAt:game.t||0};
@@ -242,7 +244,10 @@ function directorCap(game){
 function tickDirector(game,dt){
  if(game.state!=='playing')return;maintainFormations(game);if(game.mode==='campaign')return;
  const state=directorState(game),now=game.t||0;
- if(scriptedBoss(game)){state.pattern=null;state.queue.length=0;state.nextSceneAt=Math.max(state.nextSceneAt,now+5);game.battleDirectorPattern=null;return}
+ if(suspended(game)){state.suspended=true;for(const e of game.enemies||[])if(e.directorSquad){releaseSquadMember(e);delete e.directorSquad}state.pattern=null;state.queue.length=0;state.nextSceneAt=Math.max(state.nextSceneAt,now+5);state.nextActionAt=Infinity;game.battleDirectorPattern=null;return}
+ state.suspended=false;
+ const completed=state.pattern&&state.pattern!==P.RECOVERY&&state.pattern!==P.ELITE_FORMATION&&!state.queue.length&&now-state.startedAt>1.5&&!(game.enemies||[]).some(e=>e.directorSquad&&e.hp>0);
+ if(completed){beginPattern(game,state,P.RECOVERY);return}
  if(state.pattern&&now>=state.endsAt){state.pattern=null;state.queue.length=0;state.nextSceneAt=now;game.battleDirectorPattern=null}
  if(!state.pattern&&now>=state.nextSceneAt)beginPattern(game,state);
  if(!state.pattern)return;
@@ -278,6 +283,7 @@ export function installBattleDirector(Game,deps={}){
   if((this.t||0)<e.dangerAimUntil){e.fire=e.dangerAimUntil-(this.t||0);return false}
   e.dangerAimUntil=0;return true;
  };
+ Game.prototype.directorMobSpawnsSuppressed=function(){const state=this.battleDirector;return !!(state&&state.pattern&&!state.suspended&&state.pattern!==P.ACE_PRESSURE&&!activeAce(this))};
  Game.prototype.tickBattleDirector=function(dt){if(this.state==='playing')tickSquadrons(this,Math.min(.04,Math.max(0,dt||0)));return tickDirector(this,dt)};
  Game.prototype.beginBattleDirectorPattern=function(pattern){if(!Object.values(P).includes(pattern))return null;return beginPattern(this,directorState(this),pattern)};
 

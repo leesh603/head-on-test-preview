@@ -1,26 +1,26 @@
-import {installPilotIdentities} from './pilot-identities.js?v=508';
-import {EnemyCollisionGrid} from './collision-grid.js?v=508';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=508';
-import {installRevision} from './rebalance103.js?v=508';
-import {installCloudCover} from './cloud-cover1.js?v=508';
-import {installFleet} from './fleet-naval1.js?v=508';
-import {installTrenchWar} from './trench-war1.js?v=508';
-import {installCityAir} from './city-air1.js?v=508';
-import {installRegionDoctrine} from './region-doctrine1.js?v=508';
-import {installLondonBattle} from './london-battle.js?v=508';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=508';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=508';
-import {installBuildCombatIdentity} from './build-combat-identity.js?v=508';
-import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=508';
-import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=508';
-import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=508';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=508';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=508';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=508';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=508';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=508';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=508';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=508';
+import {installPilotIdentities} from './pilot-identities.js?v=509';
+import {EnemyCollisionGrid} from './collision-grid.js?v=509';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=509';
+import {installRevision} from './rebalance103.js?v=509';
+import {installCloudCover} from './cloud-cover1.js?v=509';
+import {installFleet} from './fleet-naval1.js?v=509';
+import {installTrenchWar} from './trench-war1.js?v=509';
+import {installCityAir} from './city-air1.js?v=509';
+import {installRegionDoctrine} from './region-doctrine1.js?v=509';
+import {installLondonBattle} from './london-battle.js?v=509';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=509';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=509';
+import {installBuildCombatIdentity} from './build-combat-identity.js?v=509';
+import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=509';
+import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=509';
+import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=509';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=509';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=509';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=509';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=509';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=509';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=509';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=509';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -184,7 +184,7 @@ Game.prototype._updFormation=function(dt,input={}){
   const oldBullets=new Set(this.bullets);
   this._updBalance(dt,input);
   if(!this._zeppelinSchedule)this._zeppelinSchedule=65;
-  if(this.state==='playing'&&this.t>=this._zeppelinSchedule){this.spawnEnemy('zeppelin');this._zeppelinSchedule=this.t+135+this.rng()*35;this.event('wave',(PLANES[this.plane].faction==='central'?'협상국 비행선':'제플린')+' 강습 · 대공 탄막을 돌파하라')}
+  if(this.state==='playing'&&this.t>=this._zeppelinSchedule&&!this.directorMobSpawnsSuppressed?.()){this.spawnEnemy('zeppelin');this._zeppelinSchedule=this.t+135+this.rng()*35;this.event('wave',(PLANES[this.plane].faction==='central'?'협상국 비행선':'제플린')+' 강습 · 대공 탄막을 돌파하라')}
   const pressure=Math.max(0,Math.min(1,(this.t-30)/120));
   for(const bullet of this.bullets)if(bullet.enemy&&!oldBullets.has(bullet)){bullet.damage=Math.round(bullet.damage*(1+pressure*.16));bullet.vx*=1+pressure*.05;bullet.vy*=1+pressure*.05}
   const fresh=this.drops.slice(dropStart);
@@ -259,7 +259,7 @@ Game.prototype._updHeavy=function(dt,input={}){
  this._updNewAce(dt,input);
  if(this.state!=='playing')return;
  if(this.nextHeavyAt===undefined)this.nextHeavyAt=65;
- if(this.t>=this.nextHeavyAt&&this.enemies.length<64&&!this.enemies.some(e=>e.heavyBomber)){
+ if(this.t>=this.nextHeavyAt&&this.enemies.length<64&&!this.enemies.some(e=>e.heavyBomber)&&!this.directorMobSpawnsSuppressed?.()){
   const heavy=this.spawnEnemy('heavyBomber');if(!heavy)return;this.nextHeavyAt=this.t+100+this.rng()*25;
   this.event('wave',heavy.name+' 출현 · 중기관총 탄막 주의');
  }
@@ -384,7 +384,7 @@ Game.prototype._updWorld=function(dt,input={}){
  const region=this.worldRegion();
  if(this.region!==region)this.enterRegion(region)
  if(this.state!=='playing')return;
- this.regionThreat=(this.regionThreat??20)-step;if(this.regionThreat<=0){this.regionThreat=24;if([1,7].includes(region)&&this.enemies.length<60)this.spawnEnemy(this.rng()<.12?'zeppelin':'bomber');this.spawnFlak()}
+ this.regionThreat=(this.regionThreat??20)-step;if(this.regionThreat<=0){this.regionThreat=24;if([1,7].includes(region)&&this.enemies.length<60&&!this.directorMobSpawnsSuppressed?.())this.spawnEnemy(this.rng()<.12?'zeppelin':'bomber');this.spawnFlak()}
  for(const e of this.enemies){if(!e.bossPilot)continue;e.bossDash=Math.max(0,(e.bossDash||0)-step);if(e.aceRetreat){e.a=Math.atan2(e.y-this.y,e.x-this.x);e.x+=Math.cos(e.a)*e.speed*1.15*step;e.y+=Math.sin(e.a)*e.speed*1.15*step;e.fire=9;if(Math.hypot(e.x-this.x,e.y-this.y)>1500){e.expired=true;if(!e.crashing&&!e.crashed)e.hp=-1}continue}if(this.sunStrikeContains(e))continue;if((e.aceSpawnT??this.t)&&this.t-e.aceSpawnT>75){e.aceRetreat=true;this.event('wave',e.name+' · 이탈 — 교전 한계 초과');continue}e.abilityTimer-=step;if(e.abilityTimer<=0){e.abilityTimer=e.bossPilot==='bishop'?ENEMY_BOSS_BALANCE.bishopAbilityMin+this.rng()*ENEMY_BOSS_BALANCE.bishopAbilityVariance:7+this.rng()*3;this.aceAttack(e)}}
 };
 // Separate weapon families: gun upgrades never silently multiply every payload.
@@ -1513,6 +1513,7 @@ Game.prototype._rdmAces1918=function(b,e){let m=_aces1918Round.call(this,b,e);re
 // Trash-mob pressure pauses while an ace duel event or a stage boss runs,
 // so single-combat challenges stay single.
 Game.prototype.mobSpawnsSuppressed=function(){
+ if(this.directorMobSpawnsSuppressed?.())return true;
  const ev=this.battlefieldEvents?.current;
  if(ev?.status==='active'&&ev.type==='ACE_CHALLENGE')return true;
  if(this.stageBoss?.stages?.phase==='boss')return true;
