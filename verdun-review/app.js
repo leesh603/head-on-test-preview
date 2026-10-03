@@ -1162,12 +1162,13 @@ function installHeadOnTestLab(){
   regions:HEADON_TEST_REGION_NAMES.map((name,id)=>({id,name})),
   pilots:Object.entries(PILOTS).map(([id,p])=>({id,name:p.name,faction:p.faction,plane:pilotPlane(id)}))
  };
- const advanceVerdun=()=>{
+ const advanceVerdun=(seconds=1)=>{
   const run=game;if(!run?.testMode||run.worldRegion?.()!==12||!['playing','paused'].includes(run.state))return false;
   const paused=run.state==='paused';run.state='playing';
   // QA only: fixed native engine substeps preserve projectile travel, timers,
   // collision, hazards and collapse. No encounter HP/phase is assigned here.
-  for(let i=0;i<25&&game===run&&run.state==='playing';i++)run.update(.04,{});
+  seconds=Math.max(.04,Math.min(1,Number(seconds)||1));
+  for(let elapsed=0;elapsed<seconds-1e-9&&game===run&&run.state==='playing';elapsed+=.04)run.update(Math.min(.04,seconds-elapsed),{});
   events();hud();if(paused&&run.state==='playing')run.state='paused';
   return true;
  };
@@ -1179,4 +1180,3 @@ function installHeadOnTestLab(){
  }));
 }
 installHeadOnTestLab();
-
