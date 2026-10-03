@@ -178,8 +178,8 @@ Game.prototype.skill=function(){
 };
 const _spawnEnemyPressure=Game.prototype.spawnEnemy;
 Game.prototype.spawnEnemy=function(type){
-  if(type==='scout'&&this.t>28&&this.rng()<.28)type='hunter';
-  else if(type==='hunter'&&this.t>72&&this.rng()<.16)type='bomber';
+  if(!this.directorSpawning&&type==='scout'&&this.t>28&&this.rng()<.28)type='hunter';
+  else if(!this.directorSpawning&&type==='hunter'&&this.t>72&&this.rng()<.16)type='bomber';
   _spawnEnemyPressure.call(this,type);
   const e=this.enemies.at(-1);if(!e)return;
   const ramp=Math.max(0,Math.min(1,(this.t-25)/120));

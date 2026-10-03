@@ -206,7 +206,9 @@ function tickDirector(game,dt){
  }
  if(now<state.nextActionAt||!state.queue.length)return;
  const live=(game.enemies||[]).filter(regular).length;if(live>=directorCap(game)){state.nextActionAt=now+.7;return}
- const next=state.queue.shift(),e=game.spawnEnemy?.(next.type);if(e)place(game,e,next.layout,next.index,next.count);
+ const next=state.queue.shift();let e;
+ game.directorSpawning=true;try{e=game.spawnEnemy?.(next.type)}finally{game.directorSpawning=false}
+ if(e)place(game,e,next.layout,next.index,next.count);
  state.nextActionAt=now+BATTLE_DIRECTOR_BALANCE.actionInterval;
 }
 
