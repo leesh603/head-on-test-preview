@@ -1,25 +1,26 @@
-import {installPilotIdentities} from './pilot-identities.js?v=505';
-import {EnemyCollisionGrid} from './collision-grid.js?v=505';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=505';
-import {installRevision} from './rebalance103.js?v=505';
-import {installCloudCover} from './cloud-cover1.js?v=505';
-import {installFleet} from './fleet-naval1.js?v=505';
-import {installTrenchWar} from './trench-war1.js?v=505';
-import {installCityAir} from './city-air1.js?v=505';
-import {installRegionDoctrine} from './region-doctrine1.js?v=505';
-import {installLondonBattle} from './london-battle.js?v=505';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=505';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=505';
-import {installBuildCombatIdentity} from './build-combat-identity.js?v=505';
-import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=505';
-import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=505';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=505';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=505';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=505';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=505';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=505';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=505';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=505';
+import {installPilotIdentities} from './pilot-identities.js?v=507';
+import {EnemyCollisionGrid} from './collision-grid.js?v=507';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=507';
+import {installRevision} from './rebalance103.js?v=507';
+import {installCloudCover} from './cloud-cover1.js?v=507';
+import {installFleet} from './fleet-naval1.js?v=507';
+import {installTrenchWar} from './trench-war1.js?v=507';
+import {installCityAir} from './city-air1.js?v=507';
+import {installRegionDoctrine} from './region-doctrine1.js?v=507';
+import {installLondonBattle} from './london-battle.js?v=507';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=507';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=507';
+import {installBuildCombatIdentity} from './build-combat-identity.js?v=507';
+import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=507';
+import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=507';
+import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=507';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=507';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=507';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=507';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=507';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=507';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=507';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=507';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -168,8 +169,8 @@ const _repairIndex=UPGRADES.findIndex(u=>u.id==='repair');if(_repairIndex>=0)UPG
 // while repair drops are rare enough to preserve the pressure of a sortie.
 Game.prototype._sklFormation=function(){return this._sklBalance()};
 Game.prototype._spnPressure=function(type){
-  if(type==='scout'&&this.t>28&&this.rng()<.28)type='hunter';
-  else if(type==='hunter'&&this.t>72&&this.rng()<.16)type='bomber';
+  if(!this.directorSpawning&&type==='scout'&&this.t>28&&this.rng()<.28)type='hunter';
+  else if(!this.directorSpawning&&type==='hunter'&&this.t>72&&this.rng()<.16)type='bomber';
   this._spnBase(type);
   const e=this.enemies.at(-1);if(!e)return;
   const ramp=Math.max(0,Math.min(1,(this.t-25)/120));
@@ -680,7 +681,7 @@ Game.prototype._updEncounter=function(dt,input={}){
    Object.assign(w,{type:'hunter',heavyBomber:false,x:boss.x-Math.cos(boss.a)*back-Math.sin(boss.a)*off,y:boss.y-Math.sin(boss.a)*back+Math.cos(boss.a)*off,a:boss.a,hp:collie?78:65,maxHp:collie?78:65,speed:boss.speed,fire:1.5+i*.16,ace:false,escortPlane:plane,blackFlightEscort:collie,formationLeader:boss,formationBack:back,formationOffset:off});attachAircraftPersonality(PLANES,w,plane);
   }
  }
- const step=Math.min(.04,Math.max(0,dt));for(const w of this.enemies){const b=w.formationLeader;if(!b||b.hp<=0||!this.enemies.includes(b)||w.directorFormation||this.sunStrikeContains(w))continue;
+ const step=Math.min(.04,Math.max(0,dt));for(const w of this.enemies){if(w.directorSquad)continue;const b=w.formationLeader;if(!b||b.hp<=0||!this.enemies.includes(b)||w.directorFormation||this.sunStrikeContains(w))continue;
  const x=b.x-Math.cos(b.a)*w.formationBack-Math.sin(b.a)*w.formationOffset,y=b.y-Math.sin(b.a)*w.formationBack+Math.cos(b.a)*w.formationOffset;
   /* 슈퍼 채플린/호위기는 리더와 520px 이상 벌어지면 복귀한다.  화면 끝까지
      플레이어를 추적하지 않고 편대 슬롯으로 돌아와 재교전하도록 유도한다. */
@@ -1483,7 +1484,7 @@ installDogfightDefense(Game,TAILING_BALANCE,AUGMENTATION_OVERHAUL_BALANCE,DOGFIG
 // Enemy fighters share the same turn-loss and straight-flight recovery model.
 installEnergyCombat(Game);
 // Compose bounded combat scenes after every legacy spawn and difficulty override.
-installBattleDirector(Game,{passStates:DOGFIGHT_PASS_STATES,directorAircraftEligible});
+installBattleDirector(Game,{passStates:DOGFIGHT_PASS_STATES,directorAircraftEligible,planes:PLANES,attachPersonality:attachAircraftPersonality,angleDiff});
 // Offer optional risk/reward objectives only inside safe Director recovery beats.
 installBattlefieldEvents(Game);
 // Rival state is outermost so escape/return observes the final ace and tail systems.
@@ -1594,3 +1595,4 @@ registerAircraftTiers(PLANES);
 Game.prototype.aircraftTailPursuit=function(){return aircraftTailPursuit(this)};
 installNormalFormationLiveries(Game,PLANES,attachAircraftPersonality);
 installBuildCombatIdentity(Game,{identityFor:buildIdentityFor});
+installAircraftCombatRoles(Game,PLANES,angleDiff);
