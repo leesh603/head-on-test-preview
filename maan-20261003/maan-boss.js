@@ -1,5 +1,5 @@
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=338&b=326';
-import {MAAN_LAYOUT,rotateMaan,segmentBox} from './maan-layout.js?v=maan20261003';
+import {MAAN_LAYOUT,rotateMaan,segmentBox} from './maan-layout.js?v=maan20261003r2';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 class DesertHull extends BaseBoss {
  constructor(o,kind){
@@ -23,9 +23,9 @@ class DesertHull extends BaseBoss {
   if(previous===0)this.command('maan-entry',{stage:'alarm',x:this.x,y:this.y});
   if(previous<2&&this.entryAge>=2)this.command('maan-entry',{stage:'ignition',x:this.x,y:this.y});
   if(previous<4&&this.entryAge>=4)this.command('maan-entry',{stage:'doors',x:this.x,y:this.y});
-  if(!this.entryAnchor)this.entryAnchor={x:this.x,y:this.y};
+  if(!this.entryAnchor)this.entryAnchor={x:this.x,y:this.kind==='wustenpanzer'?players[0].y+80-this.layout.height:this.y};
   const p=this.target(players),targetX=(bounds.left+bounds.right)/2,targetY=p?clamp(p.y-230,bounds.top+this.layout.height*.32,bounds.bottom-180):(bounds.top+bounds.bottom)/2-100;
-  this.entryTarget??={x:targetX,y:targetY};
+  this.entryTarget??={x:targetX,y:this.kind==='wustenpanzer'?this.entryAnchor.y+this.layout.height:targetY};
   const progress=clamp((this.entryAge-2)/5,0,1),smooth=progress*progress*(3-2*progress);
   this.x=this.entryAnchor.x+(this.entryTarget.x-this.entryAnchor.x)*smooth;this.y=this.entryAnchor.y+(this.entryTarget.y-this.entryAnchor.y)*smooth;
   if(this.entryAge>=this.entryDuration){this.coreVulnerable=true;for(const part of this.parts.values())part.hittable=true;this.phaseTo('advance');this.command('maan-entry',{stage:'engaged',x:this.x,y:this.y});}
