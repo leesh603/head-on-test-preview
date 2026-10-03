@@ -1,17 +1,21 @@
-import {MAAN_LAYOUT,rotateMaan} from './maan-layout.js?v=maan20261003r4';
+import {MAAN_LAYOUT,rotateMaan} from './maan-layout.js?v=maan20261003r6';
 import {fx} from './fx-art.js?v=351';
 const urls={terrain:'terrain-maan.webp',workshop:'maan-workshop.webp',wusten:'boss-maan-wusten.webp',wustenWreck:'boss-maan-wusten-wreck.webp',sinai:'boss-maan-sinai.webp',sinaiWreck:'boss-maan-sinai-wreck.webp',car:'boss-maan-rolls-royce.webp'};
 const images=new Map();
-const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+urls[key]+'?v=maan20261003r4';images.set(key,im);return im;};
+const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+urls[key]+'?v=maan20261003r6';images.set(key,im);return im;};
 export function prepareMaanAssets(region){if(region!==12){images.clear();return Promise.resolve();}return Promise.all(Object.keys(urls).map(key=>{const im=load(key);return im.complete?Promise.resolve():new Promise((resolve,reject)=>{im.onload=resolve;im.onerror=()=>reject(new Error('Ma’an asset: '+urls[key]));});}));}
 export function paintMaan(c,g,cx,cy,width,height){
+ c.fillStyle='#b69363';c.fillRect(0,0,width,height);
  const im=load('terrain');if(!im.naturalWidth)return;
  const tile=768,scale=tile/im.naturalWidth,fullH=im.naturalHeight*scale;
  const progress=Math.max(0,Math.min(1,((g?.distance||0)-(g?.stageStartDistance||0))/12000));
  const boss=g?.stageBoss?.stages.phase==='boss',pan=(boss?(g?.stageBoss?.stages.bossId==='sinai-landship'?.52:1):progress)*Math.max(0,fullH-height);
+ const encounter=boss?g.stageBoss.stages.encounter?.id:null;
+ if(boss&&g._maanGround?.encounter!==encounter)g._maanGround={encounter,y:cy};
+ const cameraPan=boss?-(cy-g._maanGround.y)*.3:0;
  const ox=((-(cx-(g?.maanStartX??cx))*.3-width/2)%tile+tile)%tile-tile;
  c.save();c.imageSmoothingEnabled=true;
- for(let x=ox;x<width;x+=tile)c.drawImage(im,x,-fullH+height+pan,tile,fullH);
+ for(let x=ox;x<width;x+=tile)c.drawImage(im,x,-fullH+height+pan+cameraPan,tile,fullH);
  c.restore();
 }
 function drawHullImage(c,im,layout){if(im.naturalWidth)c.drawImage(im,-layout.width/2,-layout.height/2,layout.width,layout.height);}
