@@ -94,7 +94,8 @@ $('fortShot').onclick=()=>{
  const p=b.parts.get($('fortPart').value),k=p||b.regionalCore,x=b.x+k.x,y=b.y+k.y;
  // Test stimuli travel through the real friendly projectile/swept collision
  // route. No direct boss HP, phase or part-state mutation is used here.
- for(let i=0;i<64;i++)g.bullets.push({x:x-14-i*.1,y,vx:520,vy:0,life:.3,enemy:false,ownerId:g.id,damage:g.damage,hit:new Set()});
+ const count=Math.min(64,Math.max(1,Math.ceil((p?.hp||b.hp)/g.damage)));
+ for(let i=0;i<count;i++)g.bullets.push({x:x-14-i*.1,y,vx:520,vy:0,life:.3,enemy:false,ownerId:g.id,damage:g.damage,hit:new Set()});
 };
 setInterval(refreshFort,200);
 $('reload').onclick=()=>{api=null;$('status').textContent='새로고침 중…';frame.src='./index.html?headonTest=1&autostart=0&t='+Date.now()};
