@@ -1,7 +1,7 @@
 import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js';
 import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=338&b=326';
 import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=338&b=326';
-import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=verdun20261003';
+import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=verdun20261003r2';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
