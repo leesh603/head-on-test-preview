@@ -734,7 +734,7 @@ body.astra-ui.playing #flightNotices151 #eventMissionMeta{font:600 12px/1.2 var(
 /* ---------- 18a. Player active: band ---------- */
 @keyframes ho-band-in{0%{clip-path:polygon(0 30%,0 30%,0 100%,0 100%);opacity:1}100%{clip-path:polygon(0 30%,100% 0,100% 70%,0 100%);opacity:1}}
 @keyframes ho-life{0%,86%{opacity:1}100%{opacity:0}}
-@keyframes ho-speed{from{background-position:0 0}to{background-position:-240px 0}}
+@keyframes ho-speed{from{background-position:0 0,0 0}to{background-position:-240px 0,0 0}}
 @keyframes ho-pop{0%{transform:translateX(-60px) scale(.96);opacity:0}100%{transform:none;opacity:1}}
 @keyframes ho-title{0%{transform:translateX(40px);opacity:0;letter-spacing:.2em}100%{transform:none;opacity:1}}
 @keyframes ho-glint{0%{transform:translateX(-120%)}100%{transform:translateX(220%)}}
