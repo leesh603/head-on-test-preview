@@ -42,6 +42,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <button id="fortView" type="button">요새 근처로 이동</button>
 <button id="fortPause" type="button">관찰 일시정지</button>
 <button id="fortShot" type="button">선택 부위 탄착 검사</button>
+<button id="fortStep" type="button">전투 1초 진행</button>
 <span id="fortStatus" style="font:11px ui-monospace,monospace"></span>
 </div>
 </div>
@@ -97,6 +98,7 @@ $('fortShot').onclick=()=>{
  const count=Math.min(64,Math.max(1,Math.ceil((p?.hp||b.hp)/g.damage)));
  for(let i=0;i<count;i++)g.bullets.push({x:x-14-i*.1,y,vx:520,vy:0,life:.3,enemy:false,ownerId:g.id,damage:g.damage,hit:new Set()});
 };
+$('fortStep').onclick=()=>api?.advanceVerdun?.();
 setInterval(refreshFort,200);
 $('reload').onclick=()=>{api=null;$('status').textContent='새로고침 중…';frame.src='./index.html?headonTest=1&autostart=0&t='+Date.now()};
 $('pilot').onchange=refreshAce;$('region').onchange=refreshOpen;$('ace').onchange=refreshOpen;$('boss').onchange=refreshOpen;$('invincible').onchange=refreshOpen;$('viewport').onchange=applyViewport;
