@@ -1,0 +1,10 @@
+{
+  "version": 189,
+  "sourceMain": "2ff75e6abd9f7191bf9715f2e9da4e364a4ac5fb",
+  "layout": { "columns": 4, "rows": 3 },
+  "atlases": {
+    "projectiles": ["tracer-amber", "tracer-cream", "tracer-orange", "tracer-violet", "bullet-brass", "shell-autocannon", "shell-37mm", "shell-naval", "rocket-le-prieur", "rocket-heavy", "grenade-aerial", "muzzle-flash"],
+    "explosions": ["explosion-air-0", "explosion-air-1", "explosion-air-2", "explosion-air-3", "impact-spark", "impact-ricochet", "impact-aircraft-debris", "flak-airburst", "explosion-ground", "explosion-heavy-bomb", "splash-naval", "fire-wreck"],
+    "gas-smoke": ["gas-small", "gas-medium", "gas-broad", "gas-dissipate", "smoke-gun", "smoke-engine", "smoke-damage", "smoke-oil", "fire-small", "fire-aircraft", "exhaust-rocket", "vapor-trail"]
+  }
+}
