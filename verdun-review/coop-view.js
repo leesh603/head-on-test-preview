@@ -5,13 +5,13 @@ import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './we
 import {fx,fxReady,fxTint} from './fx-art.js?v=351';
 import {drawAADefense} from './aa-defense-art.js?v=351';
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=338&b=326';
-import {drawStageBoss} from './stageboss-view.js?v=verdun20261003';
+import {drawStageBoss} from './stageboss-view.js?v=verdun20261003r2';
 import {planeSprite,aircraftKey} from './aircraft.js?v=351';
 import {drawEquipment} from './equipment.js?v=338&b=326';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=351';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=338&b=326';
 import {drawSpecialAmmoIcon} from './icons.js?v=338';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=verdun20261003';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=verdun20261003r2';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
 const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=338&b=326';
