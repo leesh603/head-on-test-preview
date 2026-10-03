@@ -1,7 +1,7 @@
-import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=510';
-import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=510';
-import {fx} from './fx-art.js?v=510';
-import {drawAADefense} from './aa-defense-art.js?v=510';
+import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=512';
+import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=512';
+import {fx} from './fx-art.js?v=512';
+import {drawAADefense} from './aa-defense-art.js?v=512';
 
 // These are authored/derived RGBA sprites, not canvas-painted replacement art.
 // Only the current battlefield's small atlas set remains resident.

@@ -1,5 +1,5 @@
-import {fx} from './fx-art.js?v=351';
-import {drawAADefense} from './aa-defense-art.js?v=351';
+import {fx} from './fx-art.js?v=512';
+import {drawAADefense} from './aa-defense-art.js?v=512';
 const paths={gotha:'./gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp'};
 let art={};
 export function releaseLondonArt(){art={};}
