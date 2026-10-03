@@ -1141,7 +1141,7 @@ function installHeadOnTestLab(){
   if(!game)return null;
   game.testMode=true;game.maanOrbit=options.orbit!==false;game.nextBossAt=Number.POSITIVE_INFINITY;
   const requestedRegion=Number.parseInt(options.region,10),region=Number.isInteger(requestedRegion)?Math.max(0,Math.min(HEADON_TEST_REGION_NAMES.length-1,requestedRegion)):0;
-  const addon=configureRegion(game,region);
+  const addon=configureRegion(game,region);if(region===12&&options.fire!==true)game.fire=Number.POSITIVE_INFINITY;
   if(options.invincible!==false)game.invuln=Number.POSITIVE_INFINITY;
   const ace=String(options.ace||'');
   if(ace){
@@ -1161,8 +1161,8 @@ function installHeadOnTestLab(){
   pilots:Object.entries(PILOTS).map(([id,p])=>({id,name:p.name,faction:p.faction,plane:pilotPlane(id)}))
  };
  const maanInspect=()=>{const sb=game?.stageBoss,b=[...sb?.stages.encounter?.bodies.values()||[]].find(b=>b.layout);return b?{kind:b.kind,phase:b.phase,entry:b.entryAge,hp:b.hp,maxHp:b.maxHp,yaw:b.hullYaw,parts:[...b.parts.values()].map(p=>({id:p.id,hp:p.hp,maxHp:p.maxHp,x:b.x+p.x,y:b.y+p.y,destroyed:p.destroyed})),cars:[...sb.stages.encounter.bodies.values()].filter(c=>c.leader&&!c.dead).length}:null;};
- const maanProbe=(id,mode='destroy')=>{const sb=game?.stageBoss,b=[...sb?.stages.encounter?.bodies.values()||[]].find(b=>b.layout);if(!b||b.entryAge<7)return false;if(id==='hull'){sb.hit({bodyId:b.id,damage:b.hp-b.maxHp*.24,faction:game.teamFaction});return true;}const p=b.parts.get(id);if(!p||p.destroyed)return false;const x=b.x+p.x,y=b.y+p.y;game.bullets.push({x,y,previousX:x,previousY:y-8,vx:0,vy:0,life:.4,damage:mode==='half'?p.maxHp*.55:p.maxHp*2,hit:new Set(),ownerId:'p1'});return true;};
- window.__HEADON_TEST__={catalog,start:startTest,maanInspect,maanProbe,maanOrbit:on=>{if(game?.testMode)game.maanOrbit=on;},status:()=>game?{state:game.state,region:game.worldRegion?.(),pilot:game.pilot,plane:game.plane,testMode:!!game.testMode}:null,debug:()=>game};
+ const maanProbe=(id,mode='destroy')=>{const sb=game?.stageBoss,b=[...sb?.stages.encounter?.bodies.values()||[]].find(b=>b.layout);if(!b||b.entryAge<7)return false;if(id==='hull'){sb.hit({bodyId:b.id,damage:Math.max(0,(b.hp-b.maxHp*.24)/(b.breached?1:.32)),faction:game.teamFaction});return true;}const p=b.parts.get(id);if(!p||p.destroyed)return false;const x=b.x+p.x,y=b.y+p.y;game.bullets.push({x,y,previousX:x,previousY:y-8,vx:0,vy:0,life:.4,damage:mode==='half'?p.maxHp*.55:p.maxHp*2,hit:new Set(),ownerId:'p1'});return true;};
+ window.__HEADON_TEST__={catalog,start:startTest,maanInspect,maanProbe,maanOrbit:on=>{if(game?.testMode)game.maanOrbit=on;},maanFire:on=>{if(game?.testMode)game.fire=on?0:Number.POSITIVE_INFINITY;},status:()=>game?{state:game.state,region:game.worldRegion?.(),pilot:game.pilot,plane:game.plane,testMode:!!game.testMode}:null,debug:()=>game};
  const params=new URLSearchParams(location.search);
  if(params.get('headonTest')==='1'&&params.get('autostart')!=='0')queueMicrotask(()=>startTest({
   region:params.get('region'),pilot:params.get('pilot'),ace:params.get('ace'),boss:params.get('boss')==='1',
