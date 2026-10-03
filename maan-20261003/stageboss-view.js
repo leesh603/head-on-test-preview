@@ -1,4 +1,4 @@
-import {prepareMaanAssets,drawMaanBoss} from './maan-view.js?v=maan20261003r2';
+import {prepareMaanAssets,drawMaanBoss} from './maan-view.js?v=maan20261003r4';
 import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js';
 import {drawTrenchArmorGun} from './trench-armor-gun-render.js';
 import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=340&b=340';
@@ -7,8 +7,8 @@ import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=351';
 import {drawLivensFlame} from './livens-fire195.js?v=351';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=351';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=351';
-import {bossHudModel} from './headon-stageboss-hud.js?v=maan20261003r2';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=maan20261003r2';
+import {bossHudModel} from './headon-stageboss-hud.js?v=maan20261003r4';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=maan20261003r4';
 import {planeSprite} from './aircraft.js?v=351';
 import {getLocale} from './i18n.js?v=351';
 import {londonStatus} from './london-battle.js?v=london20260930';
