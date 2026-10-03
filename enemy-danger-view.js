@@ -1,8 +1,15 @@
 // Threat cues are tied to an actual attack or formation role, using authored FX.
 export function drawEnemyDanger(ctx,e,x,y,time,fx,now){
  if(e.hp<=0||e.bossPilot||e.type==='boss'||e.surface||e.stationary)return;
- ctx.save();ctx.translate(x,y);ctx.rotate(e.a);
- if(e.isFormationCommander&&e.directorSquad&&!e.directorSquad.broken){
+ const commander=e.isFormationCommander&&e.directorSquad&&!e.directorSquad.broken;
+ ctx.save();ctx.translate(x,y);
+ if(commander){
+  // Floating command chevrons above the aircraft mark the squad leader.
+  ctx.strokeStyle='#e7d6a9';ctx.lineWidth=2;ctx.lineCap='round';
+  for(const dy of [-34,-27]){ctx.beginPath();ctx.moveTo(-6,dy-5);ctx.lineTo(0,dy);ctx.lineTo(6,dy-5);ctx.stroke()}
+ }
+ ctx.rotate(e.a);
+ if(commander){
   // Small linen command chevrons sit on the tail, like painted airframe marks.
   ctx.strokeStyle='#e7d6a9';ctx.lineWidth=1.6;ctx.lineCap='round';
   for(const back of [18,24]){ctx.beginPath();ctx.moveTo(-back-4,-4);ctx.lineTo(-back,0);ctx.lineTo(-back-4,4);ctx.stroke()}

@@ -1,4 +1,4 @@
-import {TRENCH_ARMOR_LAYOUT,armorGunTurn,armorGunRecoil} from './trench-armor-layout.js?v=507';
+import {TRENCH_ARMOR_LAYOUT,armorGunTurn,armorGunRecoil} from './trench-armor-layout.js?v=508';
 
 // Draw the existing authored pixels in two layers. The breech/armor stays
 // bolted to the chassis and occludes the rotating barrel root. No new art,
