@@ -1,6 +1,6 @@
-import {fx} from './fx-art.js?v=516';
-import {VERDUN_PART_FRAMES} from './verdun-art-layout.js?v=516';
-import {VERDUN_FORT_LAYOUT,verdunFortCollapseSites} from './verdun-fortresses.js?v=516';
+import {fx} from './fx-art.js?v=517';
+import {VERDUN_PART_FRAMES} from './verdun-art-layout.js?v=517';
+import {VERDUN_FORT_LAYOUT,verdunFortCollapseSites} from './verdun-fortresses.js?v=517';
 
 // Authored PNG/WebP atlas frames; no generated geometry or per-frame raster copy.
 const sources={map:'./terrain-verdun.webp?v=515',douaumont:'./boss-douaumont-atlas.webp?v=515',souville:'./boss-souville-atlas.webp?v=515',douaumontParts:'./boss-douaumont-parts.webp?v=515',souvilleParts:'./boss-souville-parts.webp?v=515'};
@@ -14,7 +14,9 @@ export function paintVerdun(c,g,cx,cy,w,h){
  // The plate pans around the fortress arena like real ground (clamped so the
  // authored edge never leaves the screen); no tiling, mirroring or patches.
  const anchorX=fort?.x??v?.x??cx,anchorY=fort?.y??v?.y??cy;
- const size=Math.max(im.naturalWidth,w*1.3,h*1.3),px=Math.max(w-size,Math.min(0,(w-size)/2-(cx-anchorX)*.5)),py=Math.max(h-size,Math.min(0,(h-size)/2-(cy-anchorY)*.5));
+ // World-speed pan keeps the fortress locked to its painted ground (slower
+ // parallax made the boss look like it floated over the terrain).
+ const size=Math.max(im.naturalWidth,w*1.3,h*1.3),px=Math.max(w-size,Math.min(0,(w-size)/2-(cx-anchorX))),py=Math.max(h-size,Math.min(0,(h-size)/2-(cy-anchorY)));
  c.imageSmoothingEnabled=true;c.drawImage(im,px,py,size,size);c.restore();
 }
 // Every fixed foundation keeps one measured mounting center through damage.
