@@ -47,12 +47,12 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 </div>
 </div>
 </header>
-<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0"></iframe></main>
+<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&build=verdun20261003r7"></iframe></main>
 </div>
 <script>
 const $=id=>document.getElementById(id),frame=$('game');let api=null;
 function query(){
- const p=new URLSearchParams({headonTest:'1',region:$('region').value,pilot:$('pilot').value,invincible:$('invincible').checked?'1':'0'});
+ const p=new URLSearchParams({headonTest:'1',build:'verdun20261003r7',region:$('region').value,pilot:$('pilot').value,invincible:$('invincible').checked?'1':'0'});
  if($('boss').checked)p.set('boss','1');if($('ace').value)p.set('ace',$('ace').value);return p;
 }
 function refreshOpen(){ $('open').href='./index.html?'+query().toString();$('fortStep').style.display=$('region').value==='12'?'':'none'; }
@@ -104,7 +104,7 @@ setInterval(refreshFort,200);
 $('reload').onclick=()=>{api=null;$('status').textContent='새로고침 중…';frame.src='./index.html?headonTest=1&autostart=0&t='+Date.now()};
 $('pilot').onchange=refreshAce;$('region').onchange=refreshOpen;$('ace').onchange=refreshOpen;$('boss').onchange=refreshOpen;$('invincible').onchange=refreshOpen;$('viewport').onchange=applyViewport;
 applyViewport();refreshOpen();
-fetch('./test-build.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(v=>{if(v)$('build').textContent=(v.ref||'preview')+' · '+String(v.sha||'').slice(0,12)}).catch(()=>{});
+fetch('./test-build.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(v=>{if(v)$('build').textContent=(v.ref||'preview')+' · '+String(v.sha||'').slice(0,16)}).catch(()=>{});
 </script>
 </body>
 </html>
