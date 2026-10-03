@@ -18,7 +18,7 @@ const legacyPortraits=['baron','voss','boelcke','immelmann','udet','fonck','coll
  };img.onerror=()=>resolve(false);img.src=url;
 }));
 
-const NEW_ACE_PORTRAITS=['wolff','loewenhardt','mccudden','nungesser','lothar','sachsenberg'];
+const NEW_ACE_PORTRAITS=['wolff','loewenhardt','mccudden','nungesser','lothar','sachsenberg','proctor','schleich','lufbery'];
 for(const id of NEW_ACE_PORTRAITS)portraitSources[id]=`./portrait-${id}-field.webp?v=426&b=340`;
 function clearNavyMatte(data,w,h){
  const seen=new Uint8Array(w*h),queue=new Int32Array(w*h);let head=0,tail=0;

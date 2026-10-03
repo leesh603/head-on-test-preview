@@ -47,8 +47,8 @@ test('Udet below 50% durability overheats with sparks; healthy runs stay clean',
  g.hp=100;g.update(.016,{});assert.equal(g.fxOverheat,0);
 });
 
-test('all 29 active lifecycles stay bounded and clear transient feedback after expiry',()=>{
- assert.equal(Object.keys(PILOTS).length,29);
+test('all 32 active lifecycles stay bounded and clear transient feedback after expiry',()=>{
+ assert.equal(Object.keys(PILOTS).length,32);
  for(const id of Object.keys(PILOTS))for(const enhanced of [false,true])for(const mode of ['solo','coop','campaign']){
   const coop=mode==='coop',g=quiet(coop?new CoopGame([{pilot:id},{pilot:id}]):mode==='campaign'?new CampaignGame(PILOTS[id].faction==='central'?'C-02':'A-02',id):solo(id)),p=coop?g.players[0]:g;p.invuln=100;p.skillEnhanced=enhanced;
   assert.equal(p.skill(),true,id);const duration=p.skillTime;
