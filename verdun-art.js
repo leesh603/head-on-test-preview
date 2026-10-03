@@ -1,6 +1,6 @@
-import {fx} from './fx-art.js?v=515';
-import {VERDUN_PART_FRAMES} from './verdun-art-layout.js?v=515';
-import {VERDUN_FORT_LAYOUT,verdunFortCollapseSites} from './verdun-fortresses.js?v=515';
+import {fx} from './fx-art.js?v=516';
+import {VERDUN_PART_FRAMES} from './verdun-art-layout.js?v=516';
+import {VERDUN_FORT_LAYOUT,verdunFortCollapseSites} from './verdun-fortresses.js?v=516';
 
 // Authored PNG/WebP atlas frames; no generated geometry or per-frame raster copy.
 const sources={map:'./terrain-verdun.webp?v=515',douaumont:'./boss-douaumont-atlas.webp?v=515',souville:'./boss-souville-atlas.webp?v=515',douaumontParts:'./boss-douaumont-parts.webp?v=515',souvilleParts:'./boss-souville-parts.webp?v=515'};
@@ -10,10 +10,11 @@ export function prepareVerdunAssets(){for(const key of Object.keys(sources))load
 export function releaseVerdunAssets(){for(const k of Object.keys(images)){images[k].src='';delete images[k];delete pending[k];}}
 export function paintVerdun(c,g,cx,cy,w,h){
  c.save();c.fillStyle='#55493a';c.fillRect(0,0,w,h);const im=load('map');if(!im?.naturalWidth){c.restore();return;}
- const v=g?.verdunBattle,anchorX=v?.x??cx,anchorY=v?.y??cy;
- // One continuous authored plate. The distant ground parallax never tiles,
- // mirrors or joins patches; aircraft/world hit positions remain unscaled.
- const size=Math.max(im.naturalWidth,w*1.3,h*1.3),px=Math.max(w-size,Math.min(0,(w-size)/2-(cx-anchorX)*.055)),py=Math.max(h-size,Math.min(0,(h-size)/2-(cy-anchorY)*.055));
+ const v=g?.verdunBattle,fort=[...g?.stageBoss?.stages.encounter?.bodies.values()||[]].find(b=>b.fortressBoss);
+ // The plate pans around the fortress arena like real ground (clamped so the
+ // authored edge never leaves the screen); no tiling, mirroring or patches.
+ const anchorX=fort?.x??v?.x??cx,anchorY=fort?.y??v?.y??cy;
+ const size=Math.max(im.naturalWidth,w*1.3,h*1.3),px=Math.max(w-size,Math.min(0,(w-size)/2-(cx-anchorX)*.5)),py=Math.max(h-size,Math.min(0,(h-size)/2-(cy-anchorY)*.5));
  c.imageSmoothingEnabled=true;c.drawImage(im,px,py,size,size);c.restore();
 }
 // Every fixed foundation keeps one measured mounting center through damage.
