@@ -1,4 +1,4 @@
-import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=maan20261003r4';
+import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=maan20261003r6';
 import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js';
 import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=338&b=326';
 import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=338&b=326';
