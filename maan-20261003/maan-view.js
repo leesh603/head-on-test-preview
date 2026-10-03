@@ -1,14 +1,14 @@
-import {MAAN_LAYOUT,rotateMaan} from './maan-layout.js?v=maan20261003r2';
+import {MAAN_LAYOUT,rotateMaan} from './maan-layout.js?v=maan20261003r4';
 import {fx} from './fx-art.js?v=351';
 const urls={terrain:'terrain-maan.webp',workshop:'maan-workshop.webp',wusten:'boss-maan-wusten.webp',wustenWreck:'boss-maan-wusten-wreck.webp',sinai:'boss-maan-sinai.webp',sinaiWreck:'boss-maan-sinai-wreck.webp',car:'boss-maan-rolls-royce.webp'};
 const images=new Map();
-const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+urls[key]+'?v=maan20261003r2';images.set(key,im);return im;};
+const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+urls[key]+'?v=maan20261003r4';images.set(key,im);return im;};
 export function prepareMaanAssets(region){if(region!==12){images.clear();return Promise.resolve();}return Promise.all(Object.keys(urls).map(key=>{const im=load(key);return im.complete?Promise.resolve():new Promise((resolve,reject)=>{im.onload=resolve;im.onerror=()=>reject(new Error('Ma’an asset: '+urls[key]));});}));}
 export function paintMaan(c,g,cx,cy,width,height){
  const im=load('terrain');if(!im.naturalWidth)return;
  const tile=768,scale=tile/im.naturalWidth,fullH=im.naturalHeight*scale;
  const progress=Math.max(0,Math.min(1,((g?.distance||0)-(g?.stageStartDistance||0))/12000));
- const boss=g?.stageBoss?.stages.phase==='boss',pan=(boss?1:progress)*Math.max(0,fullH-height);
+ const boss=g?.stageBoss?.stages.phase==='boss',pan=(boss?(g?.stageBoss?.stages.bossId==='sinai-landship'?.52:1):progress)*Math.max(0,fullH-height);
  const ox=((-(cx-(g?.maanStartX??cx))*.3-width/2)%tile+tile)%tile-tile;
  c.save();c.imageSmoothingEnabled=true;
  for(let x=ox;x<width;x+=tile)c.drawImage(im,x,-fullH+height+pan,tile,fullH);
@@ -40,6 +40,7 @@ export function drawMaanBoss(c,b){
  c.imageSmoothingEnabled=true;c.translate(b.x,b.y);c.rotate(b.hullYaw||0);
  if(b.kind==='maan-rolls-royce'){const im=load('car');if(im.naturalWidth)c.drawImage(im,-20,-35,40,70);c.restore();return true;}
  const l=b.layout,key=b.kind==='wustenpanzer'?'wusten':'sinai',base=load(key),wreck=load(key+'Wreck');
+ if(b.kind==='sinai-landship'&&b.entryAge<7)c.filter='brightness('+(.28+.72*Math.max(0,Math.min(1,(b.entryAge-3)/4)))+')';
  const parts=b.parts,broken=[...parts.values()].filter(p=>p.destroyed).length;
  if(b.dead){drawHullImage(c,wreck,l);}
  else if(!broken&&![...parts.values()].some(p=>p.hp<p.maxHp*.5)){drawHullImage(c,base,l);}
@@ -53,6 +54,7 @@ export function drawMaanBoss(c,b){
   }
   c.drawImage(b._maanSprite.canvas,-l.width/2,-l.height/2);
  }
+ c.filter='none';
  const time=b.motionTime||0;
  for(const p of parts.values())if(p.destroyed||p.hp<p.maxHp*.5){
   if(['fuel','engine','command'].includes(p.kind))fx(c,'fireSmall',p.localX,p.localY,42,55,0,.85);
@@ -65,7 +67,7 @@ export function drawMaanBoss(c,b){
  if(b.entryAge<7){
   const t=b.entryAge,origin=b.entryAnchor||b.entryOrigin;
   const count=b.kind==='wustenpanzer'?6:10;
-  for(let i=0;i<count;i++){const d=(t*.36+i/count)%1;fx(c,b.kind==='wustenpanzer'&&t<3?'smokeDark':'smokeGray',b.x+(i-count/2)*45+Math.sin(t+i)*25,b.y+130-d*260,115+d*95,90+d*90,0,(1-d)*.46);}
+  for(let i=0;i<count;i++){const d=(t*.36+i/count)%1;fx(c,b.kind==='wustenpanzer'&&t<3?'smokeDark':'smokeGray',b.x+(i-count/2)*45+Math.sin(t+i)*25,b.y+130-d*260,(b.kind==='sinai-landship'?185:115)+d*95,(b.kind==='sinai-landship'?145:90)+d*90,0,(1-d)*(b.kind==='sinai-landship'?.64:.46));}
  }
  return true;
 }
@@ -75,6 +77,7 @@ export function handleMaanCue(g,event,body){
   if(event.stage==='alarm')for(const p of g.players||[g])g.stageBoss?.hooks.onStatus(p.id||'p1',{type:'maan-arrival',seconds:7,speedFactor:.25});
   const messages=wusten?{alarm:'마안 철도공창 · 내부 경보',ignition:'거대 기관 시동 · 증기압 상승',doors:'철판 문 파열 · 사막 육상순양함 출격',engaged:'Wüstenpanzer · 냉각장치와 궤도 공략'}:{alarm:'사막 능선 너머 포격 · 장갑차 선행',ignition:'모래먼지 속 거대한 육상함 접근',doors:'Sinai Landship · 양측 호위 전개',engaged:'측면 일제사격 · 호위 장갑차 주의'};
   g.event('wave',messages[event.stage]||'');g.event('bossSound',event.stage==='alarm'?'approachWarning':event.stage==='doors'?'metalBreak':'heavyShot');
+  if(!wusten&&['alarm','ignition'].includes(event.stage))for(const dx of [-190,20,185]){g.combatBlast(g.x+dx,g.y-250-Math.abs(dx)*.2,35,'enemy','structure');g.smoke?.(g.x+dx,g.y-250,false);}
   if(event.stage==='doors')g.shake=Math.max(g.shake,10);
  }
  if(event.type==='maan-damage'){g.combatBlast(event.x,event.y,42,'enemy','structure');g.shake=Math.max(g.shake,6);}
