@@ -973,3 +973,8 @@ body.astra-ui:not(.playing) #hangar .factions #entente.active:after{background:l
  body.astra-ui:not(.playing) #hangar .factions .faction-emblem{width:22px!important;height:22px!important}
  body.astra-ui:not(.playing) #hangar .factions button:after{left:10%;right:10%;bottom:7px;height:3px}
 }
+
+/* Portrait lightbox zoom: tap the illustration to zoom at the tap point, tap again to release. */
+.portrait-lightbox .plb-frame{overflow:hidden;border-radius:6px}
+.portrait-lightbox img{cursor:zoom-in;transition:transform .24s ease;transform-origin:50% 50%}
+.portrait-lightbox img.plb-zoomed{cursor:zoom-out;transform:scale(2.1)}
