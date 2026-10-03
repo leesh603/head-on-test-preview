@@ -8,7 +8,7 @@ function load(key){if(images[key])return images[key];const im=new Image();im.dec
 export function prepareVerdunAssets(){for(const key of Object.keys(sources))load(key);return Promise.all(Object.values(pending));}
 export function releaseVerdunAssets(){for(const k of Object.keys(images)){images[k].src='';delete images[k];delete pending[k];}}
 export function paintVerdun(c,g,cx,cy,w,h){
- c.save();c.fillStyle='#47463d';c.fillRect(0,0,w,h);const im=images.map;if(!im?.naturalWidth){c.restore();return;}
+ c.save();c.fillStyle='#47463d';c.fillRect(0,0,w,h);const im=load('map');if(!im?.naturalWidth){c.restore();return;}
  const v=g?.verdunBattle,anchorX=v?.x??cx,anchorY=v?.y??cy;
  // One continuous authored plate. The distant ground parallax never tiles,
  // mirrors or joins patches; aircraft/world hit positions remain unscaled.
@@ -32,7 +32,7 @@ function drawPart(c,im,type,state,x,y,w,h,angle=0,sou=false){
  c.save();c.translate(x,y);c.rotate(angle);c.imageSmoothingEnabled=true;c.drawImage(im,sx,sy,sw,sh,-pivotX*w/sw,-pivotY*h/sh,w,h);c.restore();
 }
 export function drawVerdunFort(c,b,destruction={}){
- const sou=b.kind==='fort-souville',key=sou?'souville':'douaumont',im=images[key],parts=images[key+'Parts'],cfg=VERDUN_FORT_LAYOUT[b.kind];if(!cfg||!im?.naturalWidth)return;
+ const sou=b.kind==='fort-souville',key=sou?'souville':'douaumont',im=load(key),parts=load(key+'Parts'),cfg=VERDUN_FORT_LAYOUT[b.kind];if(!cfg||!im?.naturalWidth)return;
  const scale=b.fortScale||1,w=cfg.width*scale,h=cfg.height*scale,cw=im.naturalWidth/2,ch=im.naturalHeight,age=destruction.destructionAge||0;
  const collapsed=b.dead&&(!destruction.destroying||age>=4.15),sites=b.dead?verdunFortCollapseSites(b):[];
  c.save();c.translate(b.x,b.y);c.imageSmoothingEnabled=true;
@@ -72,7 +72,7 @@ export function drawVerdunEnvironment(c,g,layer){
  if(g?.stageBoss?.stages.stageIndex!==12)return;const v=g.verdunBattle;if(!v)return;
  if(layer==='bodies'){
   for(const b of g.verdunWrecks||[])drawVerdunFort(c,b);
-  const im=images.douaumontParts;for(const p of v.batteries)drawPart(c,im,'aa',0,p.x,p.y,64,66,0);
+  const im=load('douaumontParts');for(const p of v.batteries)drawPart(c,im,'aa',0,p.x,p.y,64,66,0);
   return;
  }
  for(const d of v.dust){const q=d.age/d.life,alpha=Math.sin(q*Math.PI)*.26;fx(c,'smokeDust',d.x,d.y-10*q,d.radius*(1+q),d.radius*(.8+q),0,alpha);}
