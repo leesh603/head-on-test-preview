@@ -1,26 +1,26 @@
-import {installPilotIdentities} from './pilot-identities.js?v=509';
-import {EnemyCollisionGrid} from './collision-grid.js?v=509';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=509';
-import {installRevision} from './rebalance103.js?v=509';
-import {installCloudCover} from './cloud-cover1.js?v=509';
-import {installFleet} from './fleet-naval1.js?v=509';
-import {installTrenchWar} from './trench-war1.js?v=509';
-import {installCityAir} from './city-air1.js?v=509';
-import {installRegionDoctrine} from './region-doctrine1.js?v=509';
-import {installLondonBattle} from './london-battle.js?v=509';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=509';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=509';
-import {installBuildCombatIdentity} from './build-combat-identity.js?v=509';
-import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=509';
-import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=509';
-import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=509';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=509';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=509';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=509';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=509';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=509';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=509';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=509';
+import {installPilotIdentities} from './pilot-identities.js?v=510';
+import {EnemyCollisionGrid} from './collision-grid.js?v=510';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=510';
+import {installRevision} from './rebalance103.js?v=510';
+import {installCloudCover} from './cloud-cover1.js?v=510';
+import {installFleet} from './fleet-naval1.js?v=510';
+import {installTrenchWar} from './trench-war1.js?v=510';
+import {installCityAir} from './city-air1.js?v=510';
+import {installRegionDoctrine} from './region-doctrine1.js?v=510';
+import {installLondonBattle} from './london-battle.js?v=510';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=510';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=510';
+import {installBuildCombatIdentity} from './build-combat-identity.js?v=510';
+import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=510';
+import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=510';
+import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=510';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=510';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=510';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=510';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=510';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=510';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=510';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=510';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -1502,8 +1502,13 @@ Object.assign(PILOTS,{
  barker:{name:'빌리 바커',alias:'THE LAST STAND',faction:'entente',portrait:23,cooldown:24},
  luke:{name:'프랭크 루크',alias:'THE ARIZONA BALLOON BUSTER',faction:'entente',portrait:24,cooldown:18},
  brumowski:{name:'고트빈 브루모프스키',alias:'THE RED HAWK OF AUSTRIA',faction:'central',portrait:25,cooldown:20},
- gontermann:{name:'하인리히 곤터만',alias:'THE NIGHTMARE OF THE FRONT',faction:'central',portrait:26,cooldown:18}
+ gontermann:{name:'하인리히 곤터만',alias:'THE NIGHTMARE OF THE FRONT',faction:'central',portrait:26,cooldown:18},
+ // 2026-10 additions: the Baron's brother (Jasta 11 head-on fighter) and
+ // the Imperial Navy's top ace on his all-metal Junkers D.I.
+ lothar:{name:'로타르 폰 리히트호펜',alias:"THE BARON'S BROTHER",faction:'central',portrait:27,cooldown:16},
+ sachsenberg:{name:'고트하르트 작센베르크',alias:'THE BALTIC EAGLE',faction:'central',portrait:28,cooldown:20}
 });
+PILOT_PLANES.lothar='lothar_dr1';PILOT_PLANES.sachsenberg='junkers_d1';
 const ACES1918_IDS=Object.keys(ACES1918).map(k=>k.split('_')[0]);
 const ACES1918_BIG=e=>e&&(e.type==='zeppelin'||e.type==='bomber'||e.type==='boss'||e.heavyBomber||e.bossPilot||e.balloon||e.fieldUnit==='balloon');
 Game.prototype._sklAces1918=function(){return this._sklNewAce124()};
@@ -1597,3 +1602,56 @@ Game.prototype.aircraftTailPursuit=function(){return aircraftTailPursuit(this)};
 installNormalFormationLiveries(Game,PLANES,attachAircraftPersonality);
 installBuildCombatIdentity(Game,{identityFor:buildIdentityFor});
 installAircraftCombatRoles(Game,PLANES,angleDiff);
+// Lothar v. Richthofen: head-on specialist — charges straight through a
+// formation and rams anyone in his gunsight arc. Sachsenberg: naval ace on the
+// all-metal Junkers D.I — climbs out of the fight, then dives through it.
+const _skill202610=Game.prototype.skill;
+Game.prototype.skill=function(){
+ if(!['lothar','sachsenberg'].includes(this.pilot))return _skill202610.call(this);
+ this.ensureRevisionPilot?.();if(this.state!=='playing'||this.hp<=0||this.cooldown>0)return false;
+ this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.aceHeading129=this.a;
+ if(this.pilot==='lothar'){this._lotharRammed=new Set();this.invuln=Math.max(this.invuln,.5);this.burst(this.x,this.y,'#ffc86a',14)}
+ if(this.pilot==='sachsenberg'){this._sachsenbergDur=this.skillTime;this._sachDiveTold=false;this.invuln=Math.max(this.invuln,.8);this.burst(this.x,this.y,'#b8d4e8',14)}
+ this.event('skill',PILOTS[this.pilot].skill);return true;
+};
+const _dur202610=Game.prototype.skillDuration;
+Game.prototype.skillDuration=function(){const base=({lothar:2.6,sachsenberg:3})[this.pilot];return base===undefined?_dur202610.call(this):base*(this.skillEnhanced?1.3:1)};
+const _rdm202610=Game.prototype.roundDamageMultiplier;
+Game.prototype.roundDamageMultiplier=function(b,e){
+ let mult=_rdm202610.call(this,b,e);
+ if(this.pilot==='lothar'&&b&&!b.enemy&&!b.patrol&&!b.formation&&!b.ally&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.actualExplosion&&!b.blast&&!b.mauserRound&&!b.fonckSeeker&&e&&e.hp>0){const dx=e.x-this.x,dy=e.y-this.y;if(dx*dx+dy*dy<=176400){let d=Math.atan2(dy,dx)-this.a;d=Math.atan2(Math.sin(d),Math.cos(d));const charging=this.skillTime>0;if(Math.abs(d)<(charging?.8:Math.PI/3))mult*=charging?1.55:1.25}}
+ return mult;
+};
+const _incoming202610=Game.prototype.incomingDamageMultiplier;
+Game.prototype.incomingDamageMultiplier=function(source){let mult=_incoming202610.call(this,source);if(this.pilot==='sachsenberg')mult*=.88;return mult};
+const _frame202610=Game.prototype.beginRevisionFrame;
+Game.prototype.beginRevisionFrame=function(dt,input={}){
+ const prior=_frame202610.call(this,dt,input);
+ for(const pl of this.players||[this]){
+  if(!pl||!(pl.hp>0))continue;
+  if(pl.pilot==='lothar'&&pl.skillTime>0){
+   pl.baseSpeed*=1.85;pl.speed*=1.85;pl.turn*=.5;pl.rate*=.55;pl.aceSkillPhase='charge';
+   pl._lotharFxT=(pl._lotharFxT||0)-dt;
+   if(pl._lotharFxT<=0){pl._lotharFxT=.05;for(const side of [-1,1])pl.identityFx?.('windStreak',pl.x-Math.cos(pl.a)*30-Math.sin(pl.a)*side*16,pl.y-Math.sin(pl.a)*30+Math.cos(pl.a)*side*16,pl.a,58,.4,{height:24,alpha:.75,color:'#ffd873'})}
+   (pl._lotharRammed??=new Set());
+   for(const e of this.enemies){if(e.hp<=0||e.stageBossBody||pl._lotharRammed.has(e))continue;const dx=e.x-pl.x,dy=e.y-pl.y;if(dx*dx+dy*dy>3025)continue;let d=Math.atan2(dy,dx)-pl.a;d=Math.atan2(Math.sin(d),Math.cos(d));if(Math.abs(d)<.7){pl._lotharRammed.add(e);e.hp-=240;e.hitFlash=.3;pl.identityFx?.('armorSpark',e.x,e.y,0,58,.3);this.combatBlast?.(e.x,e.y,40,'friendly','charge');this.burst(e.x,e.y,'#ffcf6a',22);this.shake=Math.max(this.shake,5);if(e.hp<=0&&!e.deathCounted){e.deathCounted=true;this.kills++;if(e.bossPilot||e.type==='boss'||e.type==='zeppelin'||e.type==='bomber')this.priorityKills=(this.priorityKills||0)+1;this.event('kill','')}else this.event('impact','')}}
+  }else if(pl.pilot==='lothar'&&!pl.skillTime)pl.aceSkillPhase=null;
+  if(pl.pilot==='sachsenberg'&&pl.skillTime>0){
+   const duration=pl._sachsenbergDur||pl.skillTime,elapsed=duration-pl.skillTime,diving=elapsed>=1;
+   pl._sachFxT=(pl._sachFxT||0)-dt;
+   if(!diving){const q=Math.min(1,elapsed),curve=Math.sin(Math.PI*q);pl.aceRetreat129=true;pl.baseSpeed*=-.32*curve;pl.speed*=-.32*curve;pl.turn=0;pl.invuln=Math.max(pl.invuln,dt+.06);pl.aceSkillPhase='climb';
+    if(pl._sachFxT<=0){pl._sachFxT=.06;for(const w of [-12,12])pl.identityFx?.('gunSmoke',pl.x-Math.sin(pl.a)*w,pl.y+Math.cos(pl.a)*w,pl.a,24,.45,{alpha:.45,color:'#e8eef4'})}}
+   else{const q=Math.min(1,(elapsed-1)/.65),ease=q*q*(3-2*q),entry=Math.sin(Math.min(1,q/.16)*Math.PI/2);pl.aceRetreat129=true;pl.baseSpeed*=entry*(1.35+.45*ease);pl.speed*=entry*(1.35+.45*ease);pl.turn*=.6-.12*ease;pl.rate*=.5;pl.revisionDamageMult*=1+.3*ease;pl.aceSkillPhase='dive';
+    if(pl._sachFxT<=0){pl._sachFxT=.045;for(const w of [-12,12])pl.identityFx?.('windStreak',pl.x-Math.cos(pl.a)*20-Math.sin(pl.a)*w,pl.y-Math.sin(pl.a)*20+Math.cos(pl.a)*w,pl.a,64,.36,{height:26,alpha:.8,color:'#cfe0ee'})}
+    if(!pl._sachDiveTold){pl._sachDiveTold=true;pl.identityFx?.('fireFlash',pl.x,pl.y,0,46,.3);this.combatBlast?.(pl.x,pl.y,26,'friendly','pop');this.burst(pl.x,pl.y,'#cfe0ee',16);this.event('wave','발트해의 매 · 급강하 사격')}}
+  }else if(pl.pilot==='sachsenberg'&&!pl.skillTime)pl.aceSkillPhase=null;
+ }
+ return prior;
+};
+const _aat202610=Game.prototype._aatBase;
+Game.prototype._aatBase=function(e){
+ const id=e.bossPilot;
+ if(id==='lothar'){e.a=Math.atan2(this.y-e.y,this.x-e.x);e.bossDash=1.3;this.burst(e.x,e.y,'#ffd873',12);for(let i=0;i<5;i++){const fa=e.a+(i-2)*.06;this.bullets.push({x:e.x,y:e.y,vx:Math.cos(fa)*380,vy:Math.sin(fa)*380,life:1.8,enemy:true,visualType:'boss',aceSpecial:true,damage:16*(e.aceDamageMultiplier||1)})}this.event('wave',e.name+' · '+PILOTS[id].skill);return}
+ if(id==='sachsenberg'){e.a=Math.atan2(this.y-e.y,this.x-e.x);e.bossDash=1.1;this.burst(e.x,e.y,'#cfe0ee',12);for(let i=0;i<8;i++){const fa=e.a+(i-3.5)*.05;this.bullets.push({x:e.x,y:e.y,vx:Math.cos(fa)*340,vy:Math.sin(fa)*340,life:2.2,enemy:true,heavy:i%3===0,visualType:'boss',aceSpecial:true,damage:14*(e.aceDamageMultiplier||1)})}this.event('wave',e.name+' · '+PILOTS[id].skill);return}
+ _aat202610.call(this,e);
+};

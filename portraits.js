@@ -1,4 +1,4 @@
-import {clearCrewMatte} from './matte70.js?v=509';
+import {clearCrewMatte} from './matte70.js?v=510';
 // Use the cleaned canvas for every portrait surface, including boss arrivals.
 export const portraitSources={};
 const legacyPortraits=['baron','voss','boelcke','immelmann','udet','fonck','collishaw','baracca','guynemer','bishop','goering','mannock','mckeever','huffzky','hawker','berthold','jacobs','rickenbacker','ball','barker','luke','brumowski','gontermann'].map(id=>new Promise(resolve=>{
@@ -18,7 +18,7 @@ const legacyPortraits=['baron','voss','boelcke','immelmann','udet','fonck','coll
  };img.onerror=()=>resolve(false);img.src=url;
 }));
 
-const NEW_ACE_PORTRAITS=['wolff','loewenhardt','mccudden','nungesser'];
+const NEW_ACE_PORTRAITS=['wolff','loewenhardt','mccudden','nungesser','lothar','sachsenberg'];
 for(const id of NEW_ACE_PORTRAITS)portraitSources[id]=`./portrait-${id}-field.webp?v=426&b=340`;
 function clearNavyMatte(data,w,h){
  const seen=new Uint8Array(w*h),queue=new Int32Array(w*h);let head=0,tail=0;

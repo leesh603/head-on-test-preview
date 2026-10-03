@@ -1,10 +1,10 @@
 import './pilot-feedback-globals.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=509';
-import {advanceBurns1918} from '../pilot-lifecycle196.js?v=509';
-import {CoopGame,coopPlane} from '../coop-engine.js?v=509';
-import {CampaignGame} from '../campaign.js?v=509';
+import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=510';
+import {advanceBurns1918} from '../pilot-lifecycle196.js?v=510';
+import {CoopGame,coopPlane} from '../coop-engine.js?v=510';
+import {CampaignGame} from '../campaign.js?v=510';
 const solo=id=>new Game(coopPlane(id),id,()=>.5);
 const enemy=(x,y,a=Math.PI)=>({x,y,a,hp:10000,maxHp:10000,type:'scout',speed:0,fire:999,wobble:0});
 const quiet=g=>{for(const k of ['spawn','nextBossAt','_zeppelinSchedule','nextHeavyAt','eventTimer','allyTimer','flakTimer','regionThreat','gustTimer','supplyTimer','fieldUnitTimer','gasTimer','patrolTimer','threatTimer'])g[k]=Infinity;g.spawnEnemy=()=>null;g.checkLevel=()=>{};return g};
@@ -47,8 +47,8 @@ test('Udet below 50% durability overheats with sparks; healthy runs stay clean',
  g.hp=100;g.update(.016,{});assert.equal(g.fxOverheat,0);
 });
 
-test('all 27 active lifecycles stay bounded and clear transient feedback after expiry',()=>{
- assert.equal(Object.keys(PILOTS).length,27);
+test('all 29 active lifecycles stay bounded and clear transient feedback after expiry',()=>{
+ assert.equal(Object.keys(PILOTS).length,29);
  for(const id of Object.keys(PILOTS))for(const enhanced of [false,true])for(const mode of ['solo','coop','campaign']){
   const coop=mode==='coop',g=quiet(coop?new CoopGame([{pilot:id},{pilot:id}]):mode==='campaign'?new CampaignGame(PILOTS[id].faction==='central'?'C-02':'A-02',id):solo(id)),p=coop?g.players[0]:g;p.invuln=100;p.skillEnhanced=enhanced;
   assert.equal(p.skill(),true,id);const duration=p.skillTime;
