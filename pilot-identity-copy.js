@@ -38,6 +38,12 @@ export const PILOT_IDENTITY_COPY={
  gontermann:entry(
  ['점화 조준','집중 소이탄','같은 표적의 사격선을 유지해 점화탄을 준비합니다.','조준을 유지한 표적에 강한 소이탄을 집중합니다.','780px / 전방 ±0.13rad에서 같은 표적을 1.5초 조준. 준비 후 1.2초마다 점화탄, 직접 피해 +20%. 화상 3초, 0.25초당 기본 기관총 피해의 45%. 재장전 −12%.','5초간 조준 준비 완료 상태의 모든 기관총탄이 지정 표적을 점화하며 직접 피해 +60%. 표적 변경 시 재조준.'],
  ['Ignition Sight','Focused Incendiaries','Hold one target in your firing line to prepare an incendiary.','Concentrate powerful incendiary fire on the prepared target.','Hold the same target within 780px / ±0.13rad for 1.5s. Then an incendiary every 1.2s: direct damage +20%; burn for 3s at 45% base gun damage every 0.25s. Reload −12%.','5s: every prepared gun round ignites the designated target and deals +60% direct damage. Changing targets resets preparation.']),
+ lothar:entry(
+ ['돌격 명수','난폭한 돌격','정면의 적에게 강한 일격을 꽂습니다.','기수를 들이박으며 편대를 정면으로 돌파합니다.','전방 60° 내 적에게 기관총 피해 +25%.','2.6초간 직선 돌격: 속도 +85%, 선회 −50%, 연사 +80%, 전방 피해 +55%. 기수 앞 55px의 적을 들이박아 240 피해 (대상당 1회). 발동 무적 0.5초.'],
+ ['Head-On Fighter','Reckless Charge','Strike hard at anything ahead of your nose.','Ram the nose through a formation head-on.','+25% gun damage on enemies within your front 60° arc.','2.6s straight charge: +85% speed, −50% turn, +80% fire rate, +55% frontal damage. Rams enemies within 55px of the nose for 240 damage once each. 0.5s initial invulnerability.']),
+ sachsenberg:entry(
+ ['전금속 기체','발트해의 매','융커스 전금속 기체가 피격 피해를 덜 받습니다.','급상승으로 빠져나간 뒤 급강하 사격으로 되돌아옵니다.','받는 피해 −12%.','3초간 2단 기동: 1초 급상승(무적) 후 2초 급강하 — 속도 최대 +80%, 연사 +100%, 피해 최대 +30%. 발동 무적 0.8초.'],
+ ['All-Metal Airframe','The Baltic Eagle','The all-metal Junkers shrugs off incoming fire.','Climb out of the fight, then return in a diving gun run.','Incoming damage −12%.','3s two-phase maneuver: 1s climb (invulnerable), then a 2s dive — up to +80% speed, +100% fire rate, +30% damage. 0.8s initial invulnerability.']),
  brumowski:entry(
  ['붉은 호위대','편대 재집결','자기 호위 편대와 함께 출격합니다.','자기 편대를 주변으로 모아 근접 위협을 막습니다.','상시 호위 편대 2기. 각 편대는 자기 지휘관에게 귀속.','5초간 자기 편대가 반경 100px로 재집결, 340px 내 적 우선 제압. 180px 내 자기 편대마다 받는 피해 −10%, 최대 −20%.'],
  ['Red Escort','Regroup the Flight','Deploy with your own escort flight.','Regroup your wingmen nearby to suppress close threats.','Two permanent escorts, assigned to their own commander.','5s: regroup into a 100px orbit, prioritize threats within 340px. Incoming damage −10% per own escort within 180px, max −20%.']),
