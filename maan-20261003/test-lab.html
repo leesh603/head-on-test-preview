@@ -36,7 +36,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <button id="start" class="primary" type="button">선택 조건으로 시작</button>
 <button id="reload" type="button">현재 브랜치 새로고침</button>
 <a id="open" class="action" target="_blank" rel="noopener">게임만 열기 ↗</a>
-<span id="status">게임 로딩 중…</span><div id="maanQa" hidden><select id="maanPart" aria-label="마안 검사 부위"></select><button id="maanHalf" type="button">손상탄</button><button id="maanBreak" type="button">파괴탄</button><button id="maanFinal" type="button">후반 페이즈</button><span id="maanState"></span></div>
+<span id="status">게임 로딩 중…</span><div id="maanQa" hidden><label class="check"><input id="maanOrbit" type="checkbox" checked>보스 주변 순회</label><select id="maanPart" aria-label="마안 검사 부위"></select><button id="maanHalf" type="button">손상탄</button><button id="maanBreak" type="button">파괴탄</button><button id="maanFinal" type="button">후반 페이즈</button><span id="maanState"></span></div>
 </div>
 </header>
 <main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0"></iframe></main>
@@ -69,17 +69,18 @@ async function connect(){
 frame.addEventListener('load',connect);
 $('start').onclick=()=>{
  if(!api)return;$('status').textContent='시작 중…';
- const result=api.start({region:Number($('region').value),pilot:$('pilot').value,ace:$('ace').value,boss:$('boss').checked,invincible:$('invincible').checked});
+ const result=api.start({region:Number($('region').value),pilot:$('pilot').value,ace:$('ace').value,boss:$('boss').checked,invincible:$('invincible').checked,orbit:$('maanOrbit').checked});
  $('status').textContent=result?'실행 · '+result.plane+' · map '+result.region:'시작 실패';refreshOpen();
 };
 $('reload').onclick=()=>{api=null;$('status').textContent='새로고침 중…';frame.src='./index.html?headonTest=1&autostart=0&t='+Date.now()};
 $('pilot').onchange=refreshAce;$('region').onchange=refreshOpen;$('ace').onchange=refreshOpen;$('boss').onchange=refreshOpen;$('invincible').onchange=refreshOpen;$('viewport').onchange=applyViewport;
 applyViewport();refreshOpen();
 fetch('./test-build.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(v=>{if(v)$('build').textContent=(v.ref||'preview')+' · '+String(v.sha||'').slice(0,12)}).catch(()=>{});
+$('maanOrbit').onchange=()=>api?.maanOrbit?.($('maanOrbit').checked);
 $('maanHalf').onclick=()=>api?.maanProbe?.($('maanPart').value,'half');
 $('maanBreak').onclick=()=>api?.maanProbe?.($('maanPart').value);
 $('maanFinal').onclick=()=>api?.maanProbe?.('hull');
-setInterval(()=>{const q=api?.maanInspect?.();$('maanQa').hidden=!q;if(!q)return;const old=$('maanPart').value;$('maanPart').replaceChildren(...q.parts.map(p=>new Option(p.id+(p.destroyed?' · 파괴됨':''),p.id)));if(q.parts.some(p=>p.id===old))$('maanPart').value=old;$('maanState').textContent=q.phase+' · 진입 '+q.entry.toFixed(1)+'s · 파괴 '+q.parts.filter(p=>p.destroyed).length+'/'+q.parts.length+' · 호위 '+q.cars;},400);
+setInterval(()=>{const q=api?.maanInspect?.();$('maanQa').hidden=!q;if(!q)return;const old=$('maanPart').value;$('maanPart').replaceChildren(...q.parts.map(p=>new Option(p.id+(p.destroyed?' · 파괴됨':' · '+Math.round(p.hp/p.maxHp*100)+'%'),p.id)));if(q.parts.some(p=>p.id===old))$('maanPart').value=old;$('maanState').textContent=q.phase+' · 진입 '+q.entry.toFixed(1)+'s · 파괴 '+q.parts.filter(p=>p.destroyed).length+'/'+q.parts.length+' · 호위 '+q.cars;},400);
 </script>
 </body>
 </html>

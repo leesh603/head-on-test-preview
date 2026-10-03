@@ -1,8 +1,8 @@
-import {MAAN_LAYOUT,rotateMaan} from './maan-layout.js?v=maan20261003';
+import {MAAN_LAYOUT,rotateMaan} from './maan-layout.js?v=maan20261003r2';
 import {fx} from './fx-art.js?v=351';
 const urls={terrain:'terrain-maan.webp',workshop:'maan-workshop.webp',wusten:'boss-maan-wusten.webp',wustenWreck:'boss-maan-wusten-wreck.webp',sinai:'boss-maan-sinai.webp',sinaiWreck:'boss-maan-sinai-wreck.webp',car:'boss-maan-rolls-royce.webp'};
 const images=new Map();
-const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+urls[key]+'?v=maan20261003';images.set(key,im);return im;};
+const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+urls[key]+'?v=maan20261003r2';images.set(key,im);return im;};
 export function prepareMaanAssets(region){if(region!==12){images.clear();return Promise.resolve();}return Promise.all(Object.keys(urls).map(key=>{const im=load(key);return im.complete?Promise.resolve():new Promise((resolve,reject)=>{im.onload=resolve;im.onerror=()=>reject(new Error('Ma’an asset: '+urls[key]));});}));}
 export function paintMaan(c,g,cx,cy,width,height){
  const im=load('terrain');if(!im.naturalWidth)return;
@@ -29,7 +29,15 @@ function regions(kind){
 }
 export function drawMaanBoss(c,b){
  if(!['wustenpanzer','sinai-landship','maan-rolls-royce'].includes(b.kind))return false;
- c.save();c.imageSmoothingEnabled=true;c.translate(b.x,b.y);c.rotate(b.hullYaw||0);
+ const factory=b.kind==='wustenpanzer'&&b.entryAnchor;
+ if(factory){const roof=load('workshop'),open=Math.max(0,Math.min(1,((b.entryAge||0)-3.8)/2));
+  if(roof.naturalWidth){const w=300,h=b.layout.height,x=factory.x-w/2,y=factory.y-h/2,door=18,cut=roof.naturalHeight*(h-door)/h;
+   c.drawImage(roof,0,0,roof.naturalWidth,cut,x,y,w,h-door);
+   for(const side of [0,1])c.drawImage(roof,side*roof.naturalWidth/2,cut,roof.naturalWidth/2,roof.naturalHeight-cut,x+side*w/2+(side?1:-1)*open*160,y+h-door,w/2,door);
+  }
+ }
+ c.save();if(factory&&b.entryAge<7){c.beginPath();c.rect(factory.x-1000,factory.y+b.layout.height/2-18,2000,2000);c.clip();}
+ c.imageSmoothingEnabled=true;c.translate(b.x,b.y);c.rotate(b.hullYaw||0);
  if(b.kind==='maan-rolls-royce'){const im=load('car');if(im.naturalWidth)c.drawImage(im,-20,-35,40,70);c.restore();return true;}
  const l=b.layout,key=b.kind==='wustenpanzer'?'wusten':'sinai',base=load(key),wreck=load(key+'Wreck');
  const parts=b.parts,broken=[...parts.values()].filter(p=>p.destroyed).length;
@@ -56,13 +64,6 @@ export function drawMaanBoss(c,b){
  c.restore();
  if(b.entryAge<7){
   const t=b.entryAge,origin=b.entryAnchor||b.entryOrigin;
-  if(b.kind==='wustenpanzer'){
-   // Split the actual illustrated workshop roof into two sliding leaves.
-   const roof=load('workshop'),open=Math.max(0,Math.min(1,(t-3.8)/2));
-   if(roof.naturalWidth){c.save();c.translate(origin.x,origin.y-100);const w=300,h=370;
-    c.drawImage(roof,0,0,roof.naturalWidth/2,roof.naturalHeight,-w/2-open*145,-h/2,w/2,h);
-    c.drawImage(roof,roof.naturalWidth/2,0,roof.naturalWidth/2,roof.naturalHeight,open*145,-h/2,w/2,h);c.restore();}
-  }
   const count=b.kind==='wustenpanzer'?6:10;
   for(let i=0;i<count;i++){const d=(t*.36+i/count)%1;fx(c,b.kind==='wustenpanzer'&&t<3?'smokeDark':'smokeGray',b.x+(i-count/2)*45+Math.sin(t+i)*25,b.y+130-d*260,115+d*95,90+d*90,0,(1-d)*.46);}
  }
