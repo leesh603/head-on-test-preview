@@ -1,10 +1,11 @@
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=514';
-import {BossHazards} from './headon-stageboss-hazards.js?v=514';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=515';
+import {verdunFortCollapseSites} from './verdun-fortresses.js?v=515';
+import {BossHazards} from './headon-stageboss-hazards.js?v=515';
 
 export class BossStages {
   constructor({teamFaction,stageIndex=0,loopIndex=0,rng=Math.random}) {
     if(!['central','entente'].includes(teamFaction)||!Number.isInteger(stageIndex)||stageIndex<0||stageIndex>=STAGES.length||!Number.isInteger(loopIndex)||loopIndex<0)throw new Error('Invalid current stage/faction');
-    Object.assign(this,{teamFaction,stageIndex,loopIndex,rng});this.order=[0,2,1,5,3,7,9,4,8,10,11,6];this.orderPosition=this.order.indexOf(stageIndex);this.phase='explore';this.encounter=null;
+    Object.assign(this,{teamFaction,stageIndex,loopIndex,rng});this.order=[0,2,1,5,3,7,9,4,8,10,11,6,12];this.orderPosition=this.order.indexOf(stageIndex);this.phase='explore';this.encounter=null;
   }
   get stage(){return STAGES[this.stageIndex];}
   get bossId(){return Object.keys(BOSS_CATALOG).find(id=>BOSS_CATALOG[id].stage===this.stageIndex&&(BOSS_CATALOG[id].faction==='neutral'||BOSS_CATALOG[id].faction!==this.teamFaction));}
@@ -51,6 +52,7 @@ export class StageBossAddon {
     if(bossId==='livens-flame-projector'||bossId==='minenwerfer-battery')tuning={...tuning,geometryScale:1,motionMultiplier:0,mobileBoss:false};
     if(bossId==='treffas-wagen')tuning={...tuning,geometryScale:1,mobileBoss:false};
     if(bossId==='fliegerzug')tuning={...tuning,railCycle:11,warningSeconds:1.7};
+    if(bossId==='fort-douaumont'||bossId==='fort-souville')tuning={...tuning,geometryScale:1,motionMultiplier:0,mobileBoss:false};
     const entry=BOSS_CATALOG[bossId],faction=entry.faction==='neutral'?(this.stages.teamFaction==='central'?'entente':'central'):entry.faction;
     const encounter=createBossEncounter({id,bossId,tuning,x,y,rng:this.rng,faction,emit:event=>this.accept(event,id,tuning)});
     for(const b of encounter.bodies.values())if(b.support129||b.formationBoss129||b.kind==='fliegerzug'){b.countMinions129=()=>this.hooks.countMinions(id);b.formationStatus129=()=>this.hooks.formationStatus?.(id)||[];}this.defeatSequence=null;this.bodyDefeats=[];this.stages.attach(encounter);this.hooks.onCue({type:'boss-enter',encounterId:id,bossId});return encounter;
@@ -112,12 +114,19 @@ export class StageBossAddon {
   beginDefeat(encounter) {
     const bodies=[...encounter.bodies.values()].filter(b=>b.kind!=='gotha-raider'||this.bodyDefeats.some(d=>d.id===b.id)).map(b=>({id:b.id,kind:b.kind,x:b.x,y:b.y}));
     const sinking=/^(sms-stuttgart|hms-zubian|armored-harbor-fortress)$/.test(encounter.bossId);
-    this.defeatSequence={encounterId:encounter.id,bossId:encounter.bossId,age:0,duration:sinking?4.4:2.65,pulse:0,bodies};
+    const fortress=[...encounter.bodies.values()].find(b=>b.fortressBoss),collapseSites=fortress?verdunFortCollapseSites(fortress):null;
+    this.defeatSequence={encounterId:encounter.id,bossId:encounter.bossId,age:0,duration:collapseSites?4.8:sinking?4.4:2.65,pulse:0,bodies,...(collapseSites?{collapseSites}:null)};
     this.hazards.clear(encounter.id);this.hooks.clearEncounterOwned(encounter.id);
     this.hooks.onCue({type:'boss-destruction-start',encounterId:encounter.id,bossId:encounter.bossId,bodies});
   }
   updateDefeat(dt) {
     const d=this.defeatSequence;if(!d)return;d.age=Math.min(d.duration,d.age+dt);
+    if(d.collapseSites){
+      while(d.pulse<d.collapseSites.length&&d.age>=d.collapseSites[d.pulse].at){
+        const q=d.collapseSites[d.pulse++];this.hooks.onCue({type:'boss-destruction-pulse',encounterId:d.encounterId,bossId:d.bossId,partId:q.partId,x:q.x,y:q.y,radius:q.radius,final:!!q.final});
+      }
+      return;
+    }
     const schedule=[0,.22,.48,.78,1.12,1.5,1.9,2.28,2.58];
     while(d.pulse<schedule.length&&d.age>=schedule[d.pulse]){
       const i=d.pulse++,body=d.bodies[i%d.bodies.length],airship=/zeppelin|hma23/.test(body.kind);

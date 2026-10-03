@@ -1,21 +1,21 @@
-import {getLocale} from './i18n.js?v=514';
-import {unitNameEN} from './event-text-en.js?v=514';
-import {drawRegionalBug} from './regional-boss-view352.js?v=514';
-import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=514';
-import {drawGasCloud196} from './gas-cloud196.js?v=514';
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=514';
-import {fxsBoomTail} from './fx-sample-preview.js?v=514';
-import {fx,fxReady,fxTint} from './fx-art.js?v=514';
-import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=514';
+import {getLocale} from './i18n.js?v=515';
+import {unitNameEN} from './event-text-en.js?v=515';
+import {drawRegionalBug} from './regional-boss-view352.js?v=515';
+import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=515';
+import {drawGasCloud196} from './gas-cloud196.js?v=515';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=515';
+import {fxsBoomTail} from './fx-sample-preview.js?v=515';
+import {fx,fxReady,fxTint} from './fx-art.js?v=515';
+import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=515';
 import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js';
-import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=514';
-import {drawStageBoss} from './stageboss-view.js?v=514';
-import {planeSprite,aircraftKey} from './aircraft.js?v=514';
-import {drawEquipment} from './equipment.js?v=514';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=514';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=514';
-import {drawSpecialAmmoIcon} from './icons.js?v=514';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=514';
+import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=515';
+import {drawStageBoss} from './stageboss-view.js?v=515';
+import {planeSprite,aircraftKey} from './aircraft.js?v=515';
+import {drawEquipment} from './equipment.js?v=515';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=515';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=515';
+import {drawSpecialAmmoIcon} from './icons.js?v=515';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=515';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
 const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=426&b=326';
@@ -91,7 +91,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  }
  for(const p of g.players){if(p.status!=='alive'||!p.tailTargetId)continue;const e=g.enemies.find(e=>e.hp>0&&e.tailId===p.tailTargetId);if(!e)continue;const progress=p.tailLockFraction(),color=p.id==='p1'?'#74d9fb':'#ffcd78';c.strokeStyle=p.tailLocked?'#ff7258':color;c.lineWidth=p.tailLocked?3:2;c.beginPath();c.arc(e.x,e.y,38,-Math.PI/2,-Math.PI/2+Math.PI*2*progress);c.stroke();c.fillStyle=p.tailLocked?'#fff0c0':color;c.font='bold 12px sans-serif';c.textAlign='center';c.fillText(p.tailLocked?'꼬리 우위 ×'+TAILING_BALANCE.damageMultiplier.toFixed(2):p.id.toUpperCase()+' 후방 '+Math.round(progress*100)+'%',e.x,e.y-48)}
  for(const b of g.bullets)if(b.enemy&&b.life>0&&!cl(b.x,b.y,90))drawEnemyProjectile(c,b,b.x,b.y,t,z);
- c.restore();c.font='14px sans-serif';c.textAlign='left';c.fillStyle='#f1edd0';c.fillText((['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'][g.worldRegion?.()??g.region]||'전원 지대')+' · 팀 비행 '+(g.distance/1000).toFixed(1)+' km',14,H-14);
+ c.restore();c.font='14px sans-serif';c.textAlign='left';c.fillStyle='#f1edd0';c.fillText((['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭'][g.worldRegion?.()??g.region]||'전원 지대')+' · 팀 비행 '+(g.distance/1000).toFixed(1)+' km',14,H-14);
 }
 
 
