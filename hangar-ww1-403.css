@@ -916,7 +916,7 @@ body.astra-ui .main-settings label>span{display:none!important}
 @keyframes plb-rise{from{transform:translateY(14px) scale(.97);opacity:.4}to{transform:none;opacity:1}}
 #hangarPortrait{pointer-events:auto;cursor:zoom-in}
 #portrait{cursor:zoom-in}
-.pilot-tabs button .pilot-tab-portrait{pointer-events:none}
+.pilot-tabs button .pilot-tab-portrait{pointer-events:auto;cursor:zoom-in}
 @media(max-width:720px){.portrait-lightbox .plb-close{top:-38px;right:0}.portrait-lightbox img{max-height:70vh}}
 
 /* ---- Random sortie: a quiet text action under the sortie key ----
