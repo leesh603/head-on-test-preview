@@ -1,8 +1,8 @@
 import './pilot-feedback-globals.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,VOSS_REVERSE} from '../engine.js?v=505';
-import {CoopGame,coopPlane} from '../coop-engine.js?v=505';
+import {Game,VOSS_REVERSE} from '../engine.js?v=506';
+import {CoopGame,coopPlane} from '../coop-engine.js?v=506';
 import {signatureState,advancePilotSignature,pilotSignatureReaction} from '../pilot-signature-state.js';
 import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js';
 

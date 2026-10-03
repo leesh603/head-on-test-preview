@@ -219,17 +219,17 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  Game.prototype.updateTailLock=function(dt){
   const clear=()=>{this.tailTargetId=null;this.tailLocked=false;this.tailProgress=0;this.tailGraceRemaining=0};
   if(this.hp<=0||this.status&&this.status!=='alive'){clear();return}
-  const eligible=e=>this.tailEligible(e)&&(!e.missionTarget||!e.missionGround),range=this.redScarf?AUGMENTATION_OVERHAUL_BALANCE.redScarfRange:1,lockTime=TAILING_BALANCE.lockTime*(this.redScarf?AUGMENTATION_OVERHAUL_BALANCE.redScarfLockTime:1),within=(e,min,max,rearCone,aimCone)=>{const dx=e.x-this.x,dy=e.y-this.y,d=Math.hypot(dx,dy);if(d<min||d>max)return false;const behind=Math.abs(angleDiff(Math.atan2(this.y-e.y,this.x-e.x),e.a+Math.PI)),aim=Math.abs(angleDiff(Math.atan2(dy,dx),this.a));return behind<=rearCone&&aim<=aimCone};
+  const eligible=e=>this.tailEligible(e),range=this.redScarf?AUGMENTATION_OVERHAUL_BALANCE.redScarfRange:1,lockTime=TAILING_BALANCE.lockTime*(this.redScarf?AUGMENTATION_OVERHAUL_BALANCE.redScarfLockTime:1),within=(e,min,max,rearCone,aimCone)=>{const dx=e.x-this.x,dy=e.y-this.y,d=Math.hypot(dx,dy);if(d<min||d>max)return false;const behind=Math.abs(angleDiff(Math.atan2(this.y-e.y,this.x-e.x),e.a+Math.PI)),aim=Math.abs(angleDiff(Math.atan2(dy,dx),this.a));return behind<=rearCone&&aim<=aimCone};
   let current=this.tailTargetId?this.enemies.find(e=>e.tailId===this.tailTargetId):null;
   if(this.tailTargetId&&!eligible(current)){clear();current=null}
   if(this.tailLocked&&current){
-   if(within(current,TAILING_BALANCE.maintainMinDistance,TAILING_BALANCE.maintainMaxDistance*range,TAILING_BALANCE.maintainRearCone,TAILING_BALANCE.maintainAimCone)){this.tailProgress=lockTime;this.tailGraceRemaining=TAILING_BALANCE.graceTime;return}
+   if(within(current,TAILING_BALANCE.maintainMinDistance,TAILING_BALANCE.maintainMaxDistance*range,TAILING_BALANCE.maintainRearCone,TAILING_BALANCE.maintainAimCone)){this.tailProgress=lockTime;this.tailGraceRemaining=TAILING_BALANCE.graceTime+(this.aircraftTailPursuit?.().tailGraceBonus||0);return}
    this.tailGraceRemaining=Math.max(0,(this.tailGraceRemaining??TAILING_BALANCE.graceTime)-dt);if(this.tailGraceRemaining>0)return;this.tailLocked=false;
   }
   let target=current&&within(current,TAILING_BALANCE.minDistance,TAILING_BALANCE.maxDistance*range,TAILING_BALANCE.rearCone,TAILING_BALANCE.aimCone)?current:null,best=target?0:Infinity;
   if(!target)for(const e of this.enemies){if(!eligible(e))continue;const dx=e.x-this.x,dy=e.y-this.y,d=Math.hypot(dx,dy);if(!within(e,TAILING_BALANCE.minDistance,TAILING_BALANCE.maxDistance*range,TAILING_BALANCE.rearCone,TAILING_BALANCE.aimCone))continue;const behind=Math.abs(angleDiff(Math.atan2(this.y-e.y,this.x-e.x),e.a+Math.PI)),aim=Math.abs(angleDiff(Math.atan2(dy,dx),this.a)),score=d+behind*90+aim*120;if(score<best){best=score;target=e}}
   if(!target){this.tailLocked=false;this.tailProgress=Math.max(0,(this.tailProgress||0)-dt*TAILING_BALANCE.decay);this.tailGraceRemaining=0;if(this.tailProgress<=0)this.tailTargetId=null;return}
-  const id=this.tailIdFor(target);if(this.tailTargetId!==id){this.tailProgress=0;this.tailGraceRemaining=0}this.tailTargetId=id;this.tailProgress=Math.min(lockTime,(this.tailProgress||0)+dt);this.tailLocked=this.tailProgress>=lockTime-1e-9;if(this.tailLocked)this.tailGraceRemaining=TAILING_BALANCE.graceTime;
+  const id=this.tailIdFor(target);if(this.tailTargetId!==id){this.tailProgress=0;this.tailGraceRemaining=0}this.tailTargetId=id;this.tailProgress=Math.min(lockTime,(this.tailProgress||0)+dt);this.tailLocked=this.tailProgress>=lockTime-1e-9;if(this.tailLocked)this.tailGraceRemaining=TAILING_BALANCE.graceTime+(this.aircraftTailPursuit?.().tailGraceBonus||0);
  };
  Game.prototype.tailLockFraction=function(){const lock=TAILING_BALANCE.lockTime*(this.redScarf?AUGMENTATION_OVERHAUL_BALANCE.redScarfLockTime:1);return Math.max(0,Math.min(1,(this.tailProgress||0)/lock))};
  const oldApply=Game.prototype.applySpecialRound;

@@ -88,8 +88,10 @@ export function routeFriendlyProjectileHits(game, system, bindings = {}) {
     contacts.sort((a,b)=>a.t-b.t);
     for(const {member} of contacts){
       projectile.eliteHits.add(member.id);
-      const damage=projectile.mauserRound?(projectile.damage||1)*3:(projectile.damage||1);
+      const owner=projectile.ownerId?game.players?.find(p=>p.id===projectile.ownerId)||game:game;
+      const damage=(projectile.mauserRound?(projectile.damage||1)*3:(projectile.damage||1))*(owner.roundDamageMultiplier?.(projectile,member)??1);
       system.damageMember(member,damage,{projectile});
+      owner.specialRoundImpact?.(projectile,member);
       bindings.onEliteImpact?.(game,member,projectile);
       if(!projectile.pierce){projectile.life=0;break;}
     }
