@@ -1,8 +1,8 @@
 import {EnemyCollisionGrid} from './collision-grid.js?v=338&b=326';
 import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=338';
-import {installRevision} from './rebalance103.js?v=roles20261003b';
+import {installRevision} from './rebalance103.js?v=roles20261003c';
 import {installCloudCover} from './cloud-cover1.js?v=338&b=326';
-import {installFleet} from './fleet-naval1.js?v=roles20261003b';
+import {installFleet} from './fleet-naval1.js?v=roles20261003c';
 import {installTrenchWar} from './trench-war1.js?v=338&b=326';
 import {installCityAir} from './city-air1.js?v=338&b=326';
 import {installRegionDoctrine} from './region-doctrine1.js?v=338&b=326';
@@ -10,11 +10,11 @@ import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITI
 import {installLondonBattle} from './london-battle.js?v=london20260930';
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=351';
 import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=338';
-import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=roles20261003b';
+import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=roles20261003c';
 import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=338';
 import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=338';
 import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=338';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=roles20261003b';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=roles20261003c';
 import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=338';
 import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=338';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};

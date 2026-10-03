@@ -8,6 +8,8 @@ export const AIRCRAFT_COMBAT_ROLES=Object.freeze({
  FORMATION:Object.freeze({id:'FORMATION',name:'편대전 특화형',nameEn:'Formation fighter',tip:'윙맨을 넓게 벌려 양쪽 사격선 확보',tipEn:'Wider wingman spacing opens flanking fire'})
 });
 const R=AIRCRAFT_COMBAT_ROLES;
+const growthCosts=Object.freeze({eindecker:.72,airco_dh2:.8});
+export const aircraftGrowthCost=(plane,fallback)=>growthCosts[plane]??fallback;
 const assigned=Object.freeze({
  eindecker:'GROWTH',airco_dh2:'GROWTH',
  sopwith:'FORMATION',collishaw_sopwith:'FORMATION',goering_fokkerd7:'FORMATION',fokkerd7:'FORMATION',bristol_duo:'FORMATION',halberstadt_duo:'FORMATION',
@@ -30,7 +32,12 @@ export function installAircraftCombatRoles(Game,planes,angleDiff){
  if(Game.prototype.__aircraftCombatRoles)return;Game.prototype.__aircraftCombatRoles=true;
  // Keep the existing levelRequirement and upgrade draft. Only these early fits
  // receive a lower cost; speed, durability, damage and tier remain authoritative.
- for(const [id,cost]of Object.entries({eindecker:.72,airco_dh2:.8}))if(planes[id])planes[id].xpCostMultiplier=cost;
+ for(const [id,cost]of Object.entries(growthCosts))if(planes[id])planes[id].xpCostMultiplier=cost;
+ const requirement=Game.prototype.levelRequirement;
+ Game.prototype.levelRequirement=function(base){
+  this.xpCostMultiplier=aircraftGrowthCost(this.plane,this.xpCostMultiplier);
+  return requirement.call(this,base);
+ };
  Game.prototype.aircraftCombatRole=function(){return aircraftCombatRole(this.plane,planes)};
  const fly=Game.prototype.flyAirframe;
  Game.prototype.flyAirframe=function(dt,input={}){
