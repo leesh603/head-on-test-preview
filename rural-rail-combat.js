@@ -1,6 +1,6 @@
-import {RailAdapter} from './boss-adapters129.js?v=507';
-import {BaseBoss} from './headon-stageboss-core.js?v=507';
-import {RURAL_RAIL,RURAL_CARS,ruralBarrage} from './rural-rail-layout.js?v=507';
+import {RailAdapter} from './boss-adapters129.js?v=508';
+import {BaseBoss} from './headon-stageboss-core.js?v=508';
+import {RURAL_RAIL,RURAL_CARS,ruralBarrage} from './rural-rail-layout.js?v=508';
 
 // Rural-only mechanics. The Cambrai carrier keeps its separate controller.
 export class RuralRailBoss extends RailAdapter {
