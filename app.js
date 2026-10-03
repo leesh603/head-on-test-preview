@@ -31,7 +31,7 @@ import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liver
 import {drawCampaign} from './campaign-view.js?v=506';
 import {campaignArtReady} from './aircraft.js?v=506';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady} from './icons.js?v=506';
-import {BattleMusic,musicModeForGame} from './music.js?v=506';
+import {BattleMusic,musicModeForGame,musicThreatForGame} from './music.js?v=506';
 import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=506';
 import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=506';
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=506';
@@ -238,7 +238,7 @@ const _startWithMusic=start;start=()=>{music.unlock();_startWithMusic();setBgmMo
 const _returnWithMusic=returnHangar;returnHangar=()=>{_returnWithMusic();stopBgm()};
 const _soundToggle=$('sound').onclick;$('sound').onclick=()=>{music.unlock();_soundToggle();if(muted)stopBgm();else setBgmMode(musicModeForGame(game))};
 $('start').onclick=sortie;
-setInterval(()=>setBgmMode(document.hidden||regionTransitionUntil?'idle':musicModeForGame(game)),240);
+setInterval(()=>{const off=document.hidden||regionTransitionUntil;setBgmMode(off?'idle':musicModeForGame(game));music.setThreat(off?0:musicThreatForGame(game))},240);
 document.addEventListener('visibilitychange',()=>{if(document.hidden){setSfxPaused(true);stopBgm();if(game?.state==='playing')pause();keys={};joy=null;coopInput.reset();gamepadInput.reset()}else last=performance.now()});
 
 // Replace the legacy score ladder without redeclaring its module bindings.
