@@ -1659,7 +1659,7 @@ Game.prototype._aatBase=function(e){
 // Aces round 3 (2026-10-03): Beauchamp-Proctor (84 Sqn's top scorer),
 // Eduard von Schleich "the Black Knight", and Lafayette's Raoul Lufbery.
 Object.assign(PILOTS,{
- proctor:{name:'앤드류 뷰챔프-프록터',alias:'THE ZEBRA ACE',faction:'entente',portrait:29,cooldown:16},
+ proctor:{name:'앤드류 뷰챔프-프록터',alias:'THE BALLOON BUSTER',faction:'entente',portrait:29,cooldown:16},
  schleich:{name:'에두아르트 폰 슐라이히',alias:'THE BLACK KNIGHT',faction:'central',portrait:30,cooldown:18},
  lufbery:{name:'라울 러프베리',alias:"LAFAYETTE'S WALL",faction:'entente',portrait:31,cooldown:17}
 });

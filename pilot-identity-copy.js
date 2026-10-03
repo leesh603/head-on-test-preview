@@ -45,8 +45,8 @@ export const PILOT_IDENTITY_COPY={
  ['전금속 기체','발트해의 매','융커스 전금속 기체가 피격 피해를 덜 받습니다.','급상승으로 빠져나간 뒤 급강하 사격으로 되돌아옵니다.','받는 피해 −12%.','3초간 2단 기동: 1초 급상승(무적) 후 2초 급강하 — 속도 최대 +80%, 연사 +100%, 피해 최대 +30%. 발동 무적 0.8초.'],
  ['All-Metal Airframe','The Baltic Eagle','The all-metal Junkers shrugs off incoming fire.','Climb out of the fight, then return in a diving gun run.','Incoming damage −12%.','3s two-phase maneuver: 1s climb (invulnerable), then a 2s dive — up to +80% speed, +100% fire rate, +30% damage. 0.8s initial invulnerability.']),
  proctor:entry(
- ['사격의 명수','얼룩말 살보','탄줄기를 하나로 모아 쏘는 명사수입니다.','모은 화력을 한 방향으로 쏟아붓습니다.','탄 퍼짐 −35%.','2.4초간 연사 +140%, 피해 +35%, 탄 퍼짐 −65%, 모든 탄 관통. 발동 무적 0.35초.'],
- ['Master Shot','Zebra Salvo','Fire every barrel as one.','Pour concentrated fire down one line.','Gun spread −35%.','2.4s: +140% fire rate, +35% damage, −65% spread, every round pierces. 0.35s initial invulnerability.']),
+ ['사격의 명수','버스터 살보','탄줄기를 하나로 모아 쏘는 명사수입니다.','모은 화력을 한 방향으로 쏟아붓습니다.','탄 퍼짐 −35%.','2.4초간 연사 +140%, 피해 +35%, 탄 퍼짐 −65%, 모든 탄 관통. 발동 무적 0.35초.'],
+ ['Master Shot','Buster Salvo','Fire every barrel as one.','Pour concentrated fire down one line.','Gun spread −35%.','2.4s: +140% fire rate, +35% damage, −65% spread, every round pierces. 0.35s initial invulnerability.']),
  schleich:entry(
  ['흑기사','흑기사의 진격','눈부신 용기로 피격을 덜 받습니다.','강철 갑주를 두른 듯 정면으로 밀고 들어갑니다.','받는 피해 −8%.','3초간 받는 피해 −55%, 속도 +40%, 선회 −25%. 발동 무적 0.6초.'],
  ['The Black Knight','Black Advance','Fearlessness absorbs part of every hit.','Push straight ahead as if armored in steel.','Incoming damage −8%.','3s: incoming damage −55%, +40% speed, −25% turn. 0.6s initial invulnerability.']),
