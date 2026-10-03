@@ -1141,6 +1141,7 @@ function installHeadOnTestLab(){
   plane=pilotPlane(pilot);roster();start();
   if(!game)return null;
   game.testMode=true;game.nextBossAt=Number.POSITIVE_INFINITY;
+  game.viewWidth=W;game.viewHeight=H;
   const requestedRegion=Number.parseInt(options.region,10),region=Number.isInteger(requestedRegion)?Math.max(0,Math.min(HEADON_TEST_REGION_NAMES.length-1,requestedRegion)):0;
   const addon=configureRegion(game,region);
   if(options.invincible!==false)game.invuln=Number.POSITIVE_INFINITY;
