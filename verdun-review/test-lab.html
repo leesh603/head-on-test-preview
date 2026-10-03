@@ -35,7 +35,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <label>화면<select id="viewport"><option value="auto">자동</option><option value="390x844">모바일 390×844</option><option value="1280x800">PC 1280×800</option></select></label>
 <button id="start" class="primary" type="button">선택 조건으로 시작</button>
 <button id="reload" type="button">현재 브랜치 새로고침</button>
-<button id="fortStep" type="button" style="display:none">전투 1초 진행</button>
+<button id="fortStep" type="button" style="display:none" title="Shift 클릭: 전투 0.1초 진행">전투 1초 진행</button>
 <a id="open" class="action" target="_blank" rel="noopener">게임만 열기 ↗</a>
 <span id="status">게임 로딩 중…</span>
 <div id="fortControls" hidden style="width:100%;display:none;gap:8px;align-items:center;flex-wrap:wrap">
@@ -99,7 +99,7 @@ $('fortShot').onclick=()=>{
  const count=Math.min(64,Math.max(1,Math.ceil((p?.hp||b.hp)/g.damage)));
  for(let i=0;i<count;i++)g.bullets.push({x:x-14-i*.1,y,vx:520,vy:0,life:.3,enemy:false,ownerId:g.id,damage:g.damage,hit:new Set()});
 };
-$('fortStep').onclick=()=>api?.advanceVerdun?.();
+$('fortStep').onclick=event=>api?.advanceVerdun?.(event.shiftKey?.1:1);
 setInterval(refreshFort,200);
 $('reload').onclick=()=>{api=null;$('status').textContent='새로고침 중…';frame.src='./index.html?headonTest=1&autostart=0&t='+Date.now()};
 $('pilot').onchange=refreshAce;$('region').onchange=refreshOpen;$('ace').onchange=refreshOpen;$('boss').onchange=refreshOpen;$('invincible').onchange=refreshOpen;$('viewport').onchange=applyViewport;
