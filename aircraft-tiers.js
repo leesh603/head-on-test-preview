@@ -89,7 +89,8 @@ const aliases={
  baeumer_pfalz:'pfalz_d12',degelow_pfalz:'pfalz_d12',linke_crawford_phonix:'phonix_d1',kiss_phonix:'phonix_d1',arigi_aviatik:'aviatik_d1',
  gotha_night:'gotha',staaken_dark:'gotha',brown_camel:'camel',mcelroy_camel:'camel',dazzle_camel:'camel',
  lufbery_nieuport17:'nieuport',dorme_nieuport:'nieuport',meulemeester_nieuport:'nieuport',eagle_nieuport28:'nieuport28',coppens_hanriot:'hanriot',
- madon_spad:'spad',tarascon_spad:'spad',boyau_spad:'spad',hatring_spad:'spad',springs_se5a:'se5a',proctor_se5a:'se5a',checker_se5a:'se5a',ruffo_sva5:'ansaldo_sva5',pierozzi_macchi:'macchi_m5'
+ madon_spad:'spad',tarascon_spad:'spad',boyau_spad:'spad',hatring_spad:'spad',springs_se5a:'se5a',proctor_se5a:'se5a',checker_se5a:'se5a',ruffo_sva5:'ansaldo_sva5',pierozzi_macchi:'macchi_m5',
+ schleich_albatros:'albatros'
 };
 const catalog={};
 for(const [id,tier,introduced,description,descriptionEn,identity,mechanics={}]of rows){

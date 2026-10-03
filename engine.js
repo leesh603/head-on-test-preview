@@ -1655,3 +1655,66 @@ Game.prototype._aatBase=function(e){
  if(id==='sachsenberg'){e.a=Math.atan2(this.y-e.y,this.x-e.x);e.bossDash=1.1;this.burst(e.x,e.y,'#cfe0ee',12);for(let i=0;i<8;i++){const fa=e.a+(i-3.5)*.05;this.bullets.push({x:e.x,y:e.y,vx:Math.cos(fa)*340,vy:Math.sin(fa)*340,life:2.2,enemy:true,heavy:i%3===0,visualType:'boss',aceSpecial:true,damage:14*(e.aceDamageMultiplier||1)})}this.event('wave',e.name+' · '+PILOTS[id].skill);return}
  _aat202610.call(this,e);
 };
+
+// Aces round 3 (2026-10-03): Beauchamp-Proctor (84 Sqn's top scorer),
+// Eduard von Schleich "the Black Knight", and Lafayette's Raoul Lufbery.
+Object.assign(PILOTS,{
+ proctor:{name:'앤드류 뷰챔프-프록터',alias:'THE ZEBRA ACE',faction:'entente',portrait:29,cooldown:16},
+ schleich:{name:'에두아르트 폰 슐라이히',alias:'THE BLACK KNIGHT',faction:'central',portrait:30,cooldown:18},
+ lufbery:{name:'라울 러프베리',alias:"LAFAYETTE'S WALL",faction:'entente',portrait:31,cooldown:17}
+});
+PILOT_PLANES.proctor='proctor_se5a';PILOT_PLANES.schleich='schleich_albatros';PILOT_PLANES.lufbery='lufbery_nieuport17';
+const _skill3=Game.prototype.skill;
+Game.prototype.skill=function(){
+ if(!['proctor','schleich','lufbery'].includes(this.pilot))return _skill3.call(this);
+ this.ensureRevisionPilot?.();if(this.state!=='playing'||this.hp<=0||this.cooldown>0)return false;
+ this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.aceHeading129=this.a;
+ if(this.pilot==='proctor'){this.invuln=Math.max(this.invuln,.35);this.burst(this.x,this.y,'#e8f0c8',14)}
+ if(this.pilot==='schleich'){this.invuln=Math.max(this.invuln,.6);this.burst(this.x,this.y,'#5a5f6a',18);this.identityFx?.('armorSpark',this.x,this.y,0,52,.4)}
+ if(this.pilot==='lufbery'){this.invuln=Math.max(this.invuln,.3);this.burst(this.x,this.y,'#9fb8d8',14)}
+ this.event('skill',PILOTS[this.pilot].skill);return true;
+};
+const _dur3=Game.prototype.skillDuration;
+Game.prototype.skillDuration=function(){const base=({proctor:2.4,schleich:3,lufbery:3})[this.pilot];return base===undefined?_dur3.call(this):base*(this.skillEnhanced?1.3:1)};
+const _incoming3=Game.prototype.incomingDamageMultiplier;
+Game.prototype.incomingDamageMultiplier=function(source){let mult=_incoming3.call(this,source);if(this.pilot==='schleich')mult*=this.skillTime>0?.45:.92;return mult};
+const _fan3=Game.prototype.buildGunFan;
+Game.prototype.buildGunFan=function(base){let f=_fan3.call(this,base);if(this.pilot==='proctor')f*=this.skillTime>0?.35:.65;return f};
+const _round3=Game.prototype.applySpecialRound;
+Game.prototype.applySpecialRound=function(b,type){const r=_round3.call(this,b,type);if(this.pilot==='proctor'&&this.skillTime>0)r.pierce=true;return r};
+const _dir3=Game.prototype.gunDirection;
+Game.prototype.gunDirection=function(gun=0){
+ const base=_dir3.call(this,gun);
+ if(this.pilot==='lufbery'&&this.skillTime>0&&gun!==1){const e=this.identityTarget?.(.4,620,this,this.a);if(e)return Math.atan2(e.y-this.y,e.x-this.x)}
+ return base;
+};
+const _frame3=Game.prototype.beginRevisionFrame;
+Game.prototype.beginRevisionFrame=function(dt,input={}){
+ const prior=_frame3.call(this,dt,input);
+ for(const pl of this.players||[this]){
+  if(!pl||!(pl.hp>0))continue;
+  if(pl.pilot==='proctor'&&pl.skillTime>0){
+   pl.rate*=.42;pl.revisionDamageMult*=1.35;pl.speed*=1.15;pl.baseSpeed*=1.15;pl.aceSkillPhase='salvo';
+   pl._proctorFxT=(pl._proctorFxT||0)-dt;if(pl._proctorFxT<=0){pl._proctorFxT=.06;pl.identityFx?.('gunSmoke',pl.x+Math.cos(pl.a)*22,pl.y+Math.sin(pl.a)*22,pl.a,20,.3,{alpha:.4})}
+  }else if(pl.pilot==='proctor'&&!pl.skillTime)pl.aceSkillPhase=null;
+  if(pl.pilot==='schleich'&&pl.skillTime>0){
+   pl.speed*=1.4;pl.baseSpeed*=1.4;pl.turn*=.75;pl.aceSkillPhase='advance';
+   pl._schleichFxT=(pl._schleichFxT||0)-dt;if(pl._schleichFxT<=0){pl._schleichFxT=.12;pl.identityFx?.('armorSpark',pl.x+(this.rng()-.5)*24,pl.y+(this.rng()-.5)*24,pl.a,30,.28,{alpha:.7})}
+  }else if(pl.pilot==='schleich'&&!pl.skillTime)pl.aceSkillPhase=null;
+  if(pl.pilot==='lufbery'){
+   pl.energyRecoveryBonus=(pl.energyRecoveryBonus||0)+.4;
+   if(pl.skillTime>0){pl.rate*=.7;pl.revisionDamageMult*=1.2;pl.aceSkillPhase='mark';
+    pl._lufberyFxT=(pl._lufberyFxT||0)-dt;if(pl._lufberyFxT<=0){pl._lufberyFxT=.09;pl.identityFx?.('muzzle',pl.x+Math.cos(pl.a)*25,pl.y+Math.sin(pl.a)*25,pl.a,24,.16,{alpha:.8})}
+   }else pl.aceSkillPhase=null;
+  }
+ }
+ return prior;
+};
+const _aat3=Game.prototype._aatBase;
+Game.prototype._aatBase=function(e){
+ const id=e.bossPilot;
+ if(id==='proctor'){const aim=Math.atan2(this.y-e.y,this.x-e.x)+Math.atan2(this.vy||0,this.vx||0)*.15;e.a=aim;this.burst(e.x,e.y,'#e8f0c8',10);for(let i=0;i<4;i++){const fa=aim+(i-1.5)*.045;this.bullets.push({x:e.x,y:e.y,vx:Math.cos(fa)*430,vy:Math.sin(fa)*430,life:1.7,enemy:true,visualType:'boss',aceSpecial:true,damage:17*(e.aceDamageMultiplier||1)})}this.event('wave',e.name+' · '+PILOTS[id].skill);return}
+ if(id==='schleich'){e.a=Math.atan2(this.y-e.y,this.x-e.x);e.bossDash=1.4;e.aceInvuln124=Math.max(e.aceInvuln124||0,.8);this.burst(e.x,e.y,'#5a5f6a',14);for(let i=0;i<6;i++){const fa=e.a+(i-2.5)*.07;this.bullets.push({x:e.x,y:e.y,vx:Math.cos(fa)*360,vy:Math.sin(fa)*360,life:2,enemy:true,visualType:'boss',aceSpecial:true,damage:15*(e.aceDamageMultiplier||1)})}this.event('wave',e.name+' · '+PILOTS[id].skill);return}
+ if(id==='lufbery'){const aim=Math.atan2(this.y-e.y,this.x-e.x);e.a=aim;this.burst(e.x,e.y,'#9fb8d8',10);for(let i=0;i<3;i++){const fa=aim+(i-1)*.03;this.bullets.push({x:e.x,y:e.y,vx:Math.cos(fa)*460,vy:Math.sin(fa)*460,life:1.6,enemy:true,visualType:'boss',aceSpecial:true,damage:18*(e.aceDamageMultiplier||1)})}this.event('wave',e.name+' · '+PILOTS[id].skill);return}
+ _aat3.call(this,e);
+};
