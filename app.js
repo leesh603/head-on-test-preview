@@ -39,7 +39,7 @@ import {campaignArtReady} from './aircraft.js?v=527';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady} from './icons.js?v=527';
 import {BattleMusic,musicModeForGame,musicThreatForGame} from './music.js?v=527';
 import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=527';
-import {attachCombatFeedback,combatVisualPose,drawCombatFeedback,combatCameraOffset} from './combat-feedback.js?v=527';
+import {attachCombatFeedback,combatVisualPose,drawCombatFeedback,combatCameraOffset,combatFlightSound} from './combat-feedback.js?v=527';
 import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=527';
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=527';
 import {drawTailEngagement} from './engagement-hud410.js?v=527';
@@ -1212,5 +1212,5 @@ function installHeadOnTestLab(){
   invincible:params.get('invincible')!=='0',baronAircraft:params.get('baronAircraft')
  }));
 }
-setInterval(()=>{if(game?.state==='playing'&&!muted&&!document.hidden&&!regionTransitionUntil)sfx('engineTick',game.reloadTime>0)},170);
+setInterval(()=>{if(game?.state==='playing'&&!muted&&!document.hidden&&!regionTransitionUntil)sfx('engineTick',combatFlightSound(game))},170);
 installHeadOnTestLab();

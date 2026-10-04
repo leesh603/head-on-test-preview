@@ -59,3 +59,19 @@ test('escort spawns visibly behind its bomber with the same heading',()=>{
  const bomber=g.enemies.find(e=>e.type==='bomber'),escorts=g.enemies.filter(e=>e.directorLayout==='escort');assert(bomber);assert.equal(escorts.length,2);
  for(const e of escorts){assert.equal(e.a,bomber.a);assert.equal(e.directorEscort,bomber);const forward=(e.x-bomber.x)*Math.cos(bomber.a)+(e.y-bomber.y)*Math.sin(bomber.a);assert(Math.abs(forward+90)<.001)}
 });
+
+test('clearing the directed group produces a real quiet gap instead of replacement spam',()=>{
+ const g=setup();g.t=300;g.beginBattleDirectorPattern(P.CROSS_ATTACK);
+ for(let i=0;i<12&&g.battleDirector.queue.length;i++){g.t+=.5;g.tickBattleDirector(.04)}
+ const originalEnd=g.battleDirector.endsAt;for(const e of g.enemies)e.hp=0;g.spawn=0;g.tickBattleDirector(.04);
+ assert.equal(g.battleDirector.phase,'quiet');assert(g.battleDirector.endsAt<originalEnd);assert(g.battleDirector.endsAt>g.t+2.5);assert(g.spawn>=3.2);
+ g.t+=2;g.tickBattleDirector(.04);assert.equal(g.battleDirector.phase,'quiet');assert.equal(g.battleDirector.queue.length,0);
+});
+
+test('formation loss breaks survivors once without touching stats or scripted enemies',()=>{
+ const g=setup();g.t=300;g.beginBattleDirectorPattern(P.CROSS_ATTACK);
+ for(let i=0;i<12&&g.battleDirector.queue.length;i++){g.t+=.5;g.tickBattleDirector(.04)}
+ const survivor=g.enemies[0],hp=survivor.hp,speed=survivor.speed;for(const e of g.enemies.slice(1))e.hp=0;g.t+=3;g.tickBattleDirector(.04);
+ assert.equal(survivor.combatPassState,'DISENGAGE');assert.equal(survivor.combatPassTimer,.85);assert.equal(survivor.hp,hp);assert.equal(survivor.speed,speed);
+ survivor.combatPassTimer=.2;g.tickBattleDirector(.04);assert(survivor.combatPassTimer<.5,'no repeated timer reset');
+});

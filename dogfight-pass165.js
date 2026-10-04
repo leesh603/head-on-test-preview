@@ -47,6 +47,11 @@ export function installDogfightPass(Game,angleDiff){
    return steer.call(this,e,contact,dt,baseTurn);
   };
 
+  // A brief shared entry heading makes the formation readable before individual
+  // pursuit begins. Defensive reactions always retain their existing priority.
+  if(directed&&e.directorRallyUntil>(this.t||0)&&distance>clamp(p.preferredRange*1.15,180,360))
+   return{delta:angleDiff(e.directorRallyHeading,e.a),turn:baseTurn*.55};
+
   if(e.combatPassState===DOGFIGHT_PASS_STATES.APPROACH){
    const result=base(),entryRange=clamp(p.preferredRange*1.15,180,360),entryCone=clamp(.78+(p.headOnBias-1)*.18,.62,.95);
    if(e.combatPassCooldown===0&&distance<=entryRange&&Math.abs(delta)<=entryCone){
@@ -87,7 +92,7 @@ export function installDogfightPass(Game,angleDiff){
   if(e.combatPassState===DOGFIGHT_PASS_STATES.COMMIT)
    return{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*.16};
   if(e.combatPassState===DOGFIGHT_PASS_STATES.DISENGAGE)
-   return{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*.14};
+   return{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*(e.directorBreakUntil>(this.t||0)?.55:.14)};
   if(e.combatPassState===DOGFIGHT_PASS_STATES.REPOSITION){
    const waypoint=e.combatPassWaypoint||contact;
    if(directed&&e.directorLayout==='chase'){

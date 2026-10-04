@@ -14,7 +14,7 @@ function audioHarness(mobile=false){
 
 test('flight and close-pass voices share source budgets and stop on pause',()=>{
  const {api,clock,created}=audioHarness(true);
- for(const [voice,arg] of [['materialImpact','fabric'],['materialImpact','wood'],['materialImpact','metal'],['whizz'],['closePass'],['airframeBreak']]){
+ for(const [voice,arg] of [['materialImpact','fabric'],['materialImpact','wood'],['materialImpact','metal'],['materialImpact',{material:'wood',streak:6}],['engineTick',{speed:.8,turn:4,damage:.8,duck:true}],['whizz'],['closePass'],['airframeBreak']]){
   api.stopSfx();clock.currentTime+=2;const before=created.length;api.sfx(voice,arg);assert(api.sfxStats().active>0,voice);const count=api.sfxStats().active;api.sfx(voice,arg);assert.equal(api.sfxStats().active,count,voice+' throttles');
   api.setSfxPaused(true);assert.equal(api.sfxStats().active,0);assert(created.slice(before).filter(n=>n.stopped).every(n=>n.disconnected));api.setSfxPaused(false);
  }
