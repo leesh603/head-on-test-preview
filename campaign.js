@@ -1,7 +1,7 @@
-import {registerAircraftTiers} from './aircraft-tiers.js?v=styles537';
-import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=styles537';
-import {CAMPAIGN_DATA} from './campaign-data.js?v=styles537';
-import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=styles537';
+import {registerAircraftTiers} from './aircraft-tiers.js?v=perf538';
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=perf538';
+import {CAMPAIGN_DATA} from './campaign-data.js?v=perf538';
+import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=perf538';
 export const STAGES=[...CAMPAIGN_DATA.stages].sort((a,b)=>a.faction.localeCompare(b.faction)||a.historicalAnchorDate.localeCompare(b.historicalAnchorDate)||a.id.localeCompare(b.id));
 export const stageFaction=s=>s.faction==='allies'?'entente':'central';
 // Variant values are arcade fits derived from the existing family, not restored historical statistics.

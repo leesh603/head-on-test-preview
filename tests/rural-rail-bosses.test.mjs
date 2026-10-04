@@ -1,8 +1,8 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {ParisGun,LIncomparable,Fliegerzug} from '../headon-stageboss-patterns.js?v=styles537';
+import {ParisGun,LIncomparable,Fliegerzug} from '../headon-stageboss-patterns.js?v=perf538';
 import {BossHazards,contains} from '../headon-stageboss-hazards.js';
-import {Game} from '../engine.js?v=styles537';import {CoopGame} from '../coop-engine.js?v=styles537';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame} from '../stageboss-host.js?v=styles537';
+import {Game} from '../engine.js?v=perf538';import {CoopGame} from '../coop-engine.js?v=perf538';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame} from '../stageboss-host.js?v=perf538';
 import {fixture,step} from './stageboss-fixture94.mjs';
 const tuning={maxHp:2400,partHp:288,damage:18,bulletSpeed:270,warningSeconds:1.55,railCycle:7.45,shellCount:5};
 const frame={players:[{id:'p1',alive:true,x:-80,y:130,vx:30,vy:0,radius:12},{id:'p2',alive:true,x:90,y:130,vx:0,vy:0,radius:12}],bounds:{left:-480,right:480,top:-400,bottom:400}};

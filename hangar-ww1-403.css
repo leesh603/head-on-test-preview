@@ -457,8 +457,8 @@ body.astra-ui:not(.playing){
            right panel = aircraft + stats, roster, sortie.
    ========================================================================== */
 body.astra-ui:not(.playing){
- --ho-keyart:url('hangar-keyart-mobile.webp?v=styles537');
- --ho-keyart-pc:url('hangar-keyart-pc.webp?v=styles537');
+ --ho-keyart:url('hangar-keyart-mobile.webp?v=perf538');
+ --ho-keyart-pc:url('hangar-keyart-pc.webp?v=perf538');
  --ho-keyart-focus:50% 28%;
  --ho-keyart-focus-pc:65% 30%;
 }
@@ -495,6 +495,7 @@ body.astra-ui:not(.playing){
   position:relative!important;inset:auto!important;grid-column:1!important;grid-row:1!important;width:58px!important;height:58px!important;min-width:0!important;min-height:0!important;max-height:none!important;
   border-radius:50%!important;object-fit:cover!important;object-position:56% 10%!important;scale:none!important;translate:none!important;rotate:none!important;transform:none!important;
   background:#262522;box-shadow:0 0 0 2px #151514,0 0 0 3.5px var(--fac,var(--hm-red))!important;
+  pointer-events:auto!important;cursor:zoom-in!important;
  }
  body.astra-ui:not(.playing) #hangar .astra-hero .astra-dossier{
   position:static!important;inset:auto!important;grid-column:2!important;grid-row:1!important;display:flex!important;flex-direction:column;gap:7px;width:auto!important;height:auto!important;transform:none!important;

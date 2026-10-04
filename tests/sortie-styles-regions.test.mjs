@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {Game,PLANES,PILOTS,angleDiff} from '../engine.js?v=styles537';
-import {coopPlane,CoopGame} from '../coop-engine.js?v=styles537';
-import '../campaign.js?v=styles537';
-import {SORTIE_COMBAT_STYLES as styles} from '../aircraft-combat-roles.js?v=styles537';
-import {tickRegionalConditions,REGION_COMBAT_EVENTS} from '../region-doctrine1.js?v=styles537';
+import {Game,PLANES,PILOTS,angleDiff} from '../engine.js?v=perf538';
+import {coopPlane,CoopGame} from '../coop-engine.js?v=perf538';
+import '../campaign.js?v=perf538';
+import {SORTIE_COMBAT_STYLES as styles} from '../aircraft-combat-roles.js?v=perf538';
+import {tickRegionalConditions,REGION_COMBAT_EVENTS} from '../region-doctrine1.js?v=perf538';
 const app=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8');
 const solo=[...app.match(/\(\{baron:baronAircraft,(.*?)\}\[id\]/s)[1].matchAll(/\w+:'([^']+)'/g)].map(m=>m[1]);
 const roster=[...new Set([...solo,'fokker','baron_albatros',...Object.keys(PILOTS).map(coopPlane)])];
@@ -45,7 +45,7 @@ test('styles yield priority to active skills and cannot add an enemy-only role',
  for(const id of roster){const g=make(id);g.skillTime=2;g.aircraftTurnTime=2;g.aircraftTurnSign=1;g.flyAirframe(.02,{steer:1});assert.equal(g.aircraftStyleActive,false);}
  assert(!styles.staaken);assert(!styles.jasta11_fokkerd7);
 });
-function scene(pattern){const g=make('camel');g.t=400;g.viewWidth=1280;g.beginBattleDirectorPattern(pattern);g.t+=.36;g.tickBattleDirector(.02);return g;}
+function scene(pattern){const g=make('camel');g.t=400;g.viewWidth=1280;g.beginBattleDirectorPattern(pattern);g.t+=.36;g.tickBattleDirector(.02);g.t+=.06;g.tickBattleDirector(.02);return g;}
 function move(g,seconds){for(let i=0;i<seconds/.02;i++){for(const e of g.enemies){const s=g.dogfightSteering(e,g,.02,1.7);e.a+=Math.max(-s.turn*.02,Math.min(s.turn*.02,s.delta));e.x+=Math.cos(e.a)*e.speed*.02;e.y+=Math.sin(e.a)*e.speed*.02;}g.t+=.02;g.tickBattleDirector(.02);}}
 test('CROSS and PINCER visibly separate before fire; then cross vs rear convergence',()=>{
  const cross=scene('CROSS_ATTACK'),pincer=scene('PINCER');

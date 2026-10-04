@@ -1,5 +1,5 @@
-import {ZUBIAN_LAYOUT,zubianSize} from './adriatic-boss-layout.js?v=styles537';
-import {fx,fxReady} from './fx-art.js?v=styles537';
+import {ZUBIAN_LAYOUT,zubianSize} from './adriatic-boss-layout.js?v=perf538';
+import {fx,fxReady} from './fx-art.js?v=perf538';
 
 // Source rectangles in the authored damage sheet; destinations are world units.
 export const ZUBIAN_DAMAGE_FRAMES=Object.freeze({
