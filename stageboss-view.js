@@ -1,4 +1,4 @@
-import {drawMaanBoss,prepareMaanAssets} from './maan-view.js?v=528';
+import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=528';
 import {verdunFortExtents} from './verdun-fortresses.js?v=528';
 import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=528';
 import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=528';
@@ -26,7 +26,6 @@ import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAss
 import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=528';
 import {drawAlpsBomber,drawAlpsPart,drawAlpsWarnings,drawAlpsHazard} from './alps-bomber-render.js?v=528';
 import {drawHarborFortress} from './harbor-crane-render.js?v=528';
-import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=528';
 
 function createLazyImageGroup(sources){
  const cache={},pending={};
