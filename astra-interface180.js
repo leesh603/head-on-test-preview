@@ -1,8 +1,8 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
-import {getLocale,subscribe} from './i18n.js?v=522';
-import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=522';
-import {clearCrewMatte} from './matte70.js?v=522';
-import {aircraftArt} from './main-ui-art180.js?v=522';
+import {getLocale,subscribe} from './i18n.js?v=523';
+import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=523';
+import {clearCrewMatte} from './matte70.js?v=523';
+import {aircraftArt} from './main-ui-art180.js?v=523';
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
 const put=(node,text)=>{if(node&&node.textContent!==text)node.textContent=text};
@@ -184,8 +184,6 @@ function installHud(){
    img.src=`./augmentation-icons/emblem_bare_${f}.webp?v=426`;button.prepend(img,ring());}
   else button.prepend(interfaceIcon(name,'astra-control-icon'),ring());
  }
- // Reload belt: cartridges fed into a canvas belt inside the ammo pill (styled in hud-ww1-397.css).
- if(ammo&&!ammo.querySelector('.ho-belt')){const belt=el('i','ho-belt');belt.setAttribute('aria-hidden','true');ammo.append(belt)}
  const readout=el('div','astra-reload-readout'),caption=el('span'),seconds=el('b'),track=el('span','astra-reload-track'),fill=el('i');track.append(fill);readout.append(caption,seconds,track);survival.append(readout);
  const health=$('healthBar');let wasReloading=false,reloadedTimer=0;
  function syncReadout(){
