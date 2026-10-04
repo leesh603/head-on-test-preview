@@ -13,8 +13,28 @@ export function radialStick(x=0,y=0,deadzone=GAMEPAD_DEADZONE){
  return{x:x/magnitude*scaled,y:y/magnitude*scaled,magnitude:scaled};
 }
 
+export const HAPTIC_PATTERNS=Object.freeze({
+ shot:{duration:24,weakMagnitude:.09,strongMagnitude:.015,priority:0,interval:95},
+ hit:{duration:85,weakMagnitude:.24,strongMagnitude:.3,priority:3,interval:120},
+ explosion:{duration:125,weakMagnitude:.3,strongMagnitude:.4,priority:2,interval:240},
+ pass:{duration:60,weakMagnitude:.28,strongMagnitude:.07,priority:1,interval:500}
+});
+
 export class GamepadInput{
  constructor(source=globalThis.navigator){this.source=source;this.inputMode='keyboard';this.index=null;this.fallback=null;this.previous=Array(10).fill(false);this.suppressActions=false}
+ setFeedbackEnabled(enabled){if(!enabled&&this.feedbackEnabled!==false){try{Promise.resolve(this.current()?.vibrationActuator?.reset?.()).catch(()=>{})}catch{}try{this.source?.vibrate?.(0)}catch{}this.feedbackUntil=0;this.feedbackPriority=-1}this.feedbackEnabled=!!enabled}
+ pulse(kind,now=globalThis.performance?.now?.()??Date.now()){
+  const pattern=HAPTIC_PATTERNS[kind];if(!pattern||this.feedbackEnabled===false)return false;
+  this.feedbackTimes??={};if(now-(this.feedbackTimes[kind]??-Infinity)<pattern.interval||now<(this.feedbackUntil||0)&&pattern.priority<(this.feedbackPriority??-1))return false;
+  const pad=this.inputMode==='gamepad'?this.current():null,actuator=pad?.vibrationActuator||pad?.hapticActuators?.[0];
+  try{
+   if(actuator?.playEffect)Promise.resolve(actuator.playEffect('dual-rumble',{startDelay:0,duration:pattern.duration,weakMagnitude:pattern.weakMagnitude,strongMagnitude:pattern.strongMagnitude})).catch(()=>{});
+   else if(actuator?.pulse)Promise.resolve(actuator.pulse(Math.max(pattern.weakMagnitude,pattern.strongMagnitude),pattern.duration)).catch(()=>{});
+   else if(this.inputMode==='touch'&&kind!=='shot'&&this.source?.vibrate)this.source.vibrate(kind==='hit'?22:kind==='explosion'?30:12);
+   else return false;
+  }catch{return false}
+  this.feedbackTimes[kind]=now;this.feedbackUntil=now+pattern.duration;this.feedbackPriority=pattern.priority;return true;
+ }
  pads(){try{return Array.from(this.source?.getGamepads?.()||[])}catch{return[]}}
  current(){
   const pads=this.pads(),known=this.index==null?null:pads[this.index];

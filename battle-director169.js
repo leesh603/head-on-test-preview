@@ -56,6 +56,7 @@ function planFor(pattern,time,compact){
 function beginPattern(game,state,pattern=choosePattern(game,state)){
  const now=game.t||0,compact=(game.viewWidth||960)<=BATTLE_DIRECTOR_BALANCE.compactWidth;
  pattern=game.beginBattlefieldEngagement?.(pattern,state.sceneId+1,now+18)||pattern;
+ const player=playerFor(game);state.anchor={x:player.x,y:player.y,a:player.a};state.phase=pattern===P.RECOVERY?'quiet':'approach';state.spawned=0;state.dispersed=false;
  state.pattern=pattern;state.startedAt=now;state.sceneId++;state.eliteRequested=false;
  state.endsAt=now+(pattern===P.RECOVERY?BATTLE_DIRECTOR_BALANCE.recoveryDuration:pattern===P.ACE_PRESSURE?20:BATTLE_DIRECTOR_BALANCE.sceneMin+(game.rng?.()??Math.random())*(BATTLE_DIRECTOR_BALANCE.sceneMax-BATTLE_DIRECTOR_BALANCE.sceneMin));
  state.nextActionAt=now+.35;state.queue=planFor(pattern,now,compact);state.history.push(pattern);state.history=state.history.slice(-6);
@@ -74,7 +75,7 @@ function beginPattern(game,state,pattern=choosePattern(game,state)){
 }
 
 function place(game,e,layout,index,count){
- const p=playerFor(game),a=Number.isFinite(p.a)?p.a:-Math.PI/2,side=index-(count-1)/2;
+ const p=game.battleDirector?.anchor||playerFor(game),a=Number.isFinite(p.a)?p.a:-Math.PI/2,side=index-(count-1)/2;
  let forward=500,lateral=side*115;
  if(layout==='cross'){forward=80;lateral=(index%2?1:-1)*500+side*55}
  else if(layout==='pincer'){forward=320;lateral=(index%2?1:-1)*360}
@@ -88,7 +89,7 @@ function place(game,e,layout,index,count){
  joinSquadron(game,e,layout,index);
  // Seed the existing pass states once. Waypoints are reused by the pass layer.
  const duration=BATTLE_DIRECTOR_BALANCE[`${layout}Intent`]||7;
- e.directorLayout=layout;e.directorIntentUntil=(game.t||0)+duration;
+ e.directorLayout=layout;e.directorAnchorHeading=a;e.directorIntentStartedAt=game.t||0;e.directorIntentUntil=(game.t||0)+duration;
  e.combatPassState=S.APPROACH;e.combatPassTimer=0;e.combatPassCooldown=0;e.combatPassSide=index%2?1:-1;
  if(layout==='cross'||layout==='bomber'){
   e.a=layout==='cross'?a+(index%2?-1:1)*Math.PI/2:a+Math.PI;
@@ -99,7 +100,8 @@ function place(game,e,layout,index,count){
   e.combatPassWaypoint={x:p.x+Math.cos(a)*front-Math.sin(a)*offset,y:p.y+Math.sin(a)*front+Math.cos(a)*offset};
   if(layout==='escort'){
    e.directorEscort=game.enemies.find(target=>target!==e&&target.hp>0&&target.type==='bomber'&&target.directorSceneId===e.directorSceneId)||null;
-   e.directorEscortOffset=side*95;
+   e.directorEscortOffset=count===1?95:side*150;
+   const bomber=e.directorEscort;if(bomber){const offset=e.directorEscortOffset;e.a=bomber.a;e.x=bomber.x-Math.cos(bomber.a)*90-Math.sin(bomber.a)*offset;e.y=bomber.y-Math.sin(bomber.a)*90+Math.cos(bomber.a)*offset;}
   }
  }
  if(e.isFormationCommander&&e.combatPassState===S.APPROACH)e.combatPassTimer=3;
@@ -241,6 +243,26 @@ function directorCap(game){
  return compact?(coop?BATTLE_DIRECTOR_BALANCE.compactCoopCap:BATTLE_DIRECTOR_BALANCE.compactSoloCap):(coop?BATTLE_DIRECTOR_BALANCE.coopCap:BATTLE_DIRECTOR_BALANCE.soloCap);
 }
 
+// Read the existing scene's surviving group; no new wave types or stat scaling.
+function sceneRhythm(game,state,now){
+ if(state.pattern===P.RECOVERY){state.phase='quiet';return}
+ if(state.pattern===P.ACE_PRESSURE||state.pattern===P.ELITE_FORMATION)return;
+ const age=now-state.startedAt,remaining=state.endsAt-now;
+ const group=(game.enemies||[]).filter(e=>e.hp>0&&e.directorSceneId===state.sceneId),live=group.length;
+ state.phase=remaining<=2.5?'quiet':remaining<=5?'cleanup':state.spawned>1&&live<=1&&!state.queue.length?'collapse':age<3?'approach':age<7?'formation':'melee';
+ if(state.phase==='cleanup'||state.phase==='quiet'){
+  // Pause only ordinary replacement spawns, leaving bosses, objectives and live
+  // bullets authoritative. The next scene still starts on the existing cadence.
+  game.spawn=Math.max(game.spawn||0,remaining+.4);
+  if(!state.dispersed){state.dispersed=true;const p=playerFor(game);
+   for(const e of group)if(directorAircraftEligible(game,e)){
+    e.directorLayout='recovery';e.directorIntentUntil=state.endsAt;e.directorEscort=null;
+    e.combatPassState=S.DISENGAGE;e.combatPassTimer=remaining;e.combatPassHeading=Math.atan2(e.y-p.y,e.x-p.x);
+   }
+  }
+ }
+}
+
 function tickDirector(game,dt){
  if(game.state!=='playing')return;maintainFormations(game);if(game.mode==='campaign')return;
  const state=directorState(game),now=game.t||0;
@@ -251,16 +273,17 @@ function tickDirector(game,dt){
  if(state.pattern&&now>=state.endsAt){state.pattern=null;state.queue.length=0;state.nextSceneAt=now;game.battleDirectorPattern=null}
  if(!state.pattern&&now>=state.nextSceneAt)beginPattern(game,state);
  if(!state.pattern)return;
+ sceneRhythm(game,state,now);
  game.eventTimer=Math.max(game.eventTimer||0,state.endsAt-now+.5);
  if(state.pattern===P.ELITE_FORMATION&&!state.eliteRequested){
   if(game.eliteEnemies&&!game.eliteEnemies.active&&!activeAce(game)){state.eliteRequested=!!game.eliteEnemies.spawnEncounter?.()}
   else if(now-state.startedAt>.8){state.queue=action('hunter','cross',(game.viewWidth||960)<=BATTLE_DIRECTOR_BALANCE.compactWidth?2:3);state.nextActionAt=now;state.eliteRequested=true}
  }
- if(now<state.nextActionAt||!state.queue.length)return;
+ if(state.phase==='quiet'||state.phase==='cleanup'||now<state.nextActionAt||!state.queue.length)return;
  const live=(game.enemies||[]).filter(regular).length;if(live>=directorCap(game)){state.nextActionAt=now+.7;return}
  const next=state.queue.shift();let e;
  game.directorSpawning=true;try{e=game.spawnEnemy?.(next.type)}finally{game.directorSpawning=false}
- if(e){place(game,e,next.layout,next.index,next.count);linkFormation(game,e)}
+ if(e){place(game,e,next.layout,next.index,next.count);linkFormation(game,e);state.spawned++}
  state.nextActionAt=now+BATTLE_DIRECTOR_BALANCE.actionInterval;
 }
 

@@ -1,6 +1,6 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=523';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=523';
-import {SCHWABEN_PARTS,MARK1_PARTS,sommeScale,sommePoint,syncSommeParts,sommeMuzzle,sommeExtents,separateLandships,clamp,turn,angleDelta} from './somme-boss-layout.js?v=523';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=524';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=524';
+import {SCHWABEN_PARTS,MARK1_PARTS,sommeScale,sommePoint,syncSommeParts,sommeMuzzle,sommeExtents,separateLandships,clamp,turn,angleDelta} from './somme-boss-layout.js?v=524';
 
 class SommeBoss extends BaseBoss{
  constructor(o,layout,kind,tank=false){
