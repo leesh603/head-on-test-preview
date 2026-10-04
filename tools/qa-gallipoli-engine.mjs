@@ -23,6 +23,12 @@ for(const mode of ['solo','coop'])for(const faction of ['central','entente'])for
  }
  assert.equal(b.entryAge,5);assert.equal(g.stageBoss.hazards.pool.dropped,0);assert(maxHazards<80);assert(maxSand<=(width<720?2:3));
  const frozen=JSON.stringify({clock:b.clock,entry:b.entryAge,x:b.x,y:b.y});g.state='paused';g.update(.5,{});assert.equal(JSON.stringify({clock:b.clock,entry:b.entryAge,x:b.x,y:b.y}),frozen);
- results.push({mode,faction,width,simulatedSeconds:60,state:'playing',boss:b.kind,maxHazards,maxSand,dropped:g.stageBoss.hazards.pool.dropped,hostDamage,pauseFrozen:true});
+ g.state='playing';
+ const proxy=g.enemies.find(q=>q.stageBossBody===b);assert(proxy);
+ for(const p of b.parts.values())if(!p.destroyed){const point={x:b.x+p.x,y:b.y+p.y},shot={...point,previousX:point.x,previousY:point.y,radius:1,ownerId:'p1'};assert(stageBossCollision(g,proxy,shot.x,shot.y,shot));damageStageBoss(g,proxy,shot,1e9);}
+ if(mode==='solo')g.update(.04,{inputMode:'gamepad',fireHeld:false,angle:0});else g.update(.04,{});
+ assert.equal(b.captured.size,3);assert.equal(b.coreVulnerable,true);
+ const core={x:b.x,y:b.y,previousX:b.x,previousY:b.y,radius:1,ownerId:'p1'};assert(stageBossCollision(g,proxy,core.x,core.y,core));damageStageBoss(g,proxy,core,1e9);assert(b.dead);
+ results.push({mode,faction,width,simulatedSeconds:60,state:'playing',boss:b.kind,maxHazards,maxSand,dropped:g.stageBoss.hazards.pool.dropped,hostDamage,pauseFrozen:true,allSectorsCaptured:true,nativeCoreDefeated:true});
 }
 mkdirSync(new URL('../qa/gallipoli/',import.meta.url),{recursive:true});writeFileSync(new URL('../qa/gallipoli/engine-results.json',import.meta.url),JSON.stringify(results,null,2));console.log(JSON.stringify(results));

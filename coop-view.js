@@ -11,7 +11,7 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=perf538';
 import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=perf538';
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=perf538';
-import {drawStageBoss} from './stageboss-view.js?v=perf538';
+import {drawStageBoss} from './stageboss-view.js?v=gallipoli540';
 import {planeSprite,aircraftKey} from './aircraft.js?v=perf538';
 import {drawEquipment} from './equipment.js?v=perf538';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=perf538';

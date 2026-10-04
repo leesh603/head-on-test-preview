@@ -1,28 +1,26 @@
 {
-  "gallipoli-fortress-atlas.webp": {
+  "gallipoli-siege-facilities.webp": {
     "size": [
-      1536,
-      1024
+      1254,
+      1254
     ],
-    "bytes": 616532,
     "alphaRange": [
       0,
-      254
+      255
     ],
     "cornerAlpha": [
       0,
       0,
-      0,
+      1,
       0
     ],
-    "opaquePixels": 742472
+    "brightRedOpaquePixels": 0
   },
-  "gallipoli-overlay-central.webp": {
+  "gallipoli-siege-star.webp": {
     "size": [
-      887,
-      887
+      1254,
+      1254
     ],
-    "bytes": 196226,
     "alphaRange": [
       0,
       255
@@ -33,14 +31,13 @@
       0,
       0
     ],
-    "opaquePixels": 326611
+    "brightRedOpaquePixels": 0
   },
-  "gallipoli-overlay-entente.webp": {
+  "gallipoli-siege-wing.webp": {
     "size": [
-      887,
-      887
+      1254,
+      1254
     ],
-    "bytes": 191498,
     "alphaRange": [
       0,
       255
@@ -51,14 +48,30 @@
       0,
       0
     ],
-    "opaquePixels": 326165
+    "brightRedOpaquePixels": 0
   },
-  "gallipoli-fortress-cut-in.webp": {
+  "gallipoli-siege-ground.webp": {
     "size": [
-      760,
-      520
+      1254,
+      1254
     ],
-    "bytes": 125712,
+    "alphaRange": [
+      255,
+      255
+    ],
+    "cornerAlpha": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "brightRedOpaquePixels": 0
+  },
+  "gallipoli-siege-bases.webp": {
+    "size": [
+      1254,
+      1254
+    ],
     "alphaRange": [
       0,
       255
@@ -69,6 +82,23 @@
       0,
       0
     ],
-    "opaquePixels": 185056
+    "brightRedOpaquePixels": 0
+  },
+  "gallipoli-siege-guns.webp": {
+    "size": [
+      1254,
+      1254
+    ],
+    "alphaRange": [
+      0,
+      255
+    ],
+    "cornerAlpha": [
+      1,
+      0,
+      1,
+      0
+    ],
+    "brightRedOpaquePixels": 0
   }
 }
