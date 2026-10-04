@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {GIK,Ca4} from '../alps-bomber-combat.js?v=528';
-import {ALPS_BOMBER_LAYOUT,alpsPoint,alpsMuzzle,alpsHullExtents} from '../alps-bomber-layout.js?v=528';
-import {StageBossAddon} from '../headon-stageboss-runtime.js?v=528';
-import {enableStageBoss,stageBossCollision,damageStageBoss} from '../stageboss-host.js?v=528';
-import {renderStageBossLayer} from '../headon-stageboss-render.js?v=528';
+import {GIK,Ca4} from '../alps-bomber-combat.js?v=529';
+import {ALPS_BOMBER_LAYOUT,alpsPoint,alpsMuzzle,alpsHullExtents} from '../alps-bomber-layout.js?v=529';
+import {StageBossAddon} from '../headon-stageboss-runtime.js?v=529';
+import {enableStageBoss,stageBossCollision,damageStageBoss} from '../stageboss-host.js?v=529';
+import {renderStageBossLayer} from '../headon-stageboss-render.js?v=529';
 
 const tuning={maxHp:2400,partHp:288,damage:18,bulletSpeed:270,geometryScale:1.45,mobileBoss:false,patternMultiplier:1,projectileDensity:1};
 const frame={players:[{id:'p1',alive:true,x:40,y:-400,vx:0,vy:0,radius:12},{id:'p2',alive:true,x:80,y:440,vx:0,vy:0,radius:12}],bounds:{left:-400,right:400,top:-500,bottom:550}};
