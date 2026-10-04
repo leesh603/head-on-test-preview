@@ -46,7 +46,7 @@ Built-in imagegen으로 기존 에셋을 참조해 제작했으며 CLI 생성은
 - 실제 Game/CoopGame 엔진 60초씩 × 솔로/협동 × 양 진영 × 폭 390/1440, 총 8개 시나리오 통과. native host 충돌·피해 경로 확인, 모두 playing 유지, hazards 최대 6~16, pool dropped 0, 전차 간 최소 여유 9.42 이상. [결과](qa/somme-r2/engine-results.json).
 - 실제 `renderStageBossLayer` → `drawSommeBoss`를 Skia Canvas에 연결해 PC 1440×1000/모바일 390×844 출력과 12초 전차 이동을 시각 점검했다. **브라우저 게임 스크린샷/터치 실기기 결과가 아닌 렌더 모듈 QA다.** 배경은 기존 솜강 텍스처를 QA에만 사용했다.
 - 120프레임 CPU 렌더+전체 RGBA readback 측정은 [render-metrics.json](qa/somme-r2/render-metrics.json). 실기기 FPS 측정이 아니다.
-- 기존 v519 라이브에서 두 보스의 동작·화면을 확인했다. **수정 브랜치 PC·모바일 브라우저 실플레이는 현재 미검증**. 브랜치 공개 파일 미리보기 경로에서 추가 확인을 시도하며 결과가 확인되면 이 문서를 갱신한다. main/본섭 배포로 검증을 우회하지 않는다.
+- 기존 v519 라이브에서 두 보스의 동작·화면을 확인했다. **수정 브랜치 PC·모바일 브라우저 실플레이는 미검증**. 공개된 커밋의 raw.githack.com 및 rawcdn.githack.com 미리보기에서 기존 aircraft.js/portraits.js/battlefield-art.js 로더에 Canvas getImageData 교차 출처 SecurityError가 발생했고, 테스트랩이 초기화되지 않았다. 미리보기 경로는 검증 통과가 아니며 main/본섭 배포는 수행하지 않았다. [관측 기록](qa/somme-r2/browser-check.json).
 
 ## 재현
 
