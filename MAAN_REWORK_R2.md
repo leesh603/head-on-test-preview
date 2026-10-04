@@ -59,7 +59,7 @@ Built-in imagegen 사용. 입력은 기존 정상/파괴 보스·공창·지형�
 - 실제 `drawStageBoss`의 bodies/hazards 경로와 `paintMaan`를 Skia Canvas로 렌더했다. PC 1440×1000/모바일 크기 390×844 정상·혼합 손상·출현 단계·포격 경고·경계 스크롤을 점검했다. 패턴 QA는 7초 출현 후 해당 공격 타이머만 앞당겨 경고 프레임을 재현한다. **브라우저 게임/터치 실기기 스크린샷이 아니다.**
 - 8초 출현 영상도 렌더 모듈 QA다. 실기기 FPS 주장은 하지 않는다. [CPU 렌더+RGBA readback 수치](qa/maan-r2/render-metrics.json), 에셋 누락 0.
 - 작업 시작 때 최신 main 라이브의 `app.js?v=526`에서 `SyntaxError: Illegal continue statement`로 게임 시작이 막혔다. 소스에서도 확인한 적 렌더 루프의 닫는 괄호 1개와 빠진 문장 구분자 1개만 브랜치에서 수정했다. 기존 공중전 기능/규칙은 바꾸지 않았다.
-- **수정 브랜치의 PC·모바일 브라우저 실플레이는 미검증.** main/본섭 배포를 하지 않았으며, 공개 커밋 미리보기 결과는 별도 [브라우저 기록](qa/maan-r2/browser-check.json)에 구분한다.
+- **수정 브랜치의 PC·모바일 브라우저 실플레이는 미검증.** main/본섭 배포를 하지 않았으며, 푸시된 구현 커밋 `1484ae91e4b967c372737e2a51080259c2b67016`의 rawcdn.githack.com 미리보기를 열었지만 기존 aircraft.js/battlefield-art.js/portraits.js 로더의 Canvas 교차 출처 SecurityError로 게임이 시작되지 않았다. 이 미리보기를 실플레이 통과로 처리하지 않았으며 보안/CORS 설정이나 해당 공통 로더는 변경하지 않았다. [브라우저 기록](qa/maan-r2/browser-check.json).
 
 ## 재현
 
