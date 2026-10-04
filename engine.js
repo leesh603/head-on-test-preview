@@ -1,26 +1,26 @@
-import {installPilotIdentities} from './pilot-identities.js?v=517';
-import {EnemyCollisionGrid} from './collision-grid.js?v=517';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=517';
-import {installRevision} from './rebalance103.js?v=517';
-import {installCloudCover} from './cloud-cover1.js?v=517';
-import {installFleet} from './fleet-naval1.js?v=517';
-import {installTrenchWar} from './trench-war1.js?v=517';
-import {installCityAir} from './city-air1.js?v=517';
-import {installRegionDoctrine} from './region-doctrine1.js?v=517';
-import {installLondonBattle} from './london-battle.js?v=517';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=517';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=517';
-import {installBuildCombatIdentity} from './build-combat-identity.js?v=517';
-import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=517';
-import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=517';
-import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=517';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=517';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=517';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=517';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=517';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=517';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=517';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=517';
+import {installPilotIdentities} from './pilot-identities.js?v=518';
+import {EnemyCollisionGrid} from './collision-grid.js?v=518';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=518';
+import {installRevision} from './rebalance103.js?v=518';
+import {installCloudCover} from './cloud-cover1.js?v=518';
+import {installFleet} from './fleet-naval1.js?v=518';
+import {installTrenchWar} from './trench-war1.js?v=518';
+import {installCityAir} from './city-air1.js?v=518';
+import {installRegionDoctrine} from './region-doctrine1.js?v=518';
+import {installLondonBattle} from './london-battle.js?v=518';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=518';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=518';
+import {installBuildCombatIdentity} from './build-combat-identity.js?v=518';
+import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=518';
+import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=518';
+import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=518';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=518';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=518';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=518';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=518';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=518';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=518';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=518';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -70,7 +70,7 @@ export const DOCTRINE_BALANCE=Object.freeze({
  '강습 편대':Object.freeze({label:'화력 +15% / 장전 +15%',damage:1.15,reloadPenalty:1.15}),
  '고속 정찰':Object.freeze({label:'속도 +12% / 내구도 −10%',speed:1.12,hp:0.9}),
  '장기 초계':Object.freeze({label:'내구도 +15 / 발사 간격 +8%',hpFlat:15,rate:1.08}),
- '신속 작전':Object.freeze({label:'경험치 +25% / 속도 +5%',xp:1.25,speed:1.05}),
+ '신속 작전':Object.freeze({label:'경험치 +10% / 속도 +5%',xp:1.10,speed:1.05}),
  '관측 비행':Object.freeze({label:'회수 반경 +35% / 경험치 +8%',magnet:1.35,xp:1.08}),
  '방어진지 엄호':Object.freeze({label:'내구도 +25 / 기관총 −8%',hpFlat:25,damage:.92})
 });

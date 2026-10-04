@@ -1,6 +1,6 @@
-import {fx} from './fx-art.js?v=517';
-import {VERDUN_PART_FRAMES} from './verdun-art-layout.js?v=517';
-import {VERDUN_FORT_LAYOUT,verdunFortCollapseSites} from './verdun-fortresses.js?v=517';
+import {fx} from './fx-art.js?v=518';
+import {VERDUN_PART_FRAMES} from './verdun-art-layout.js?v=518';
+import {VERDUN_FORT_LAYOUT,verdunFortCollapseSites} from './verdun-fortresses.js?v=518';
 
 // Authored PNG/WebP atlas frames; no generated geometry or per-frame raster copy.
 const sources={map:'./terrain-verdun.webp?v=515',douaumont:'./boss-douaumont-atlas.webp?v=515',souville:'./boss-souville-atlas.webp?v=515',douaumontParts:'./boss-douaumont-parts.webp?v=515',souvilleParts:'./boss-souville-parts.webp?v=515'};
