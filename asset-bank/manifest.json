@@ -1,34 +1,338 @@
 {
   "purpose": "Stock asset bank for HEAD-ON — pre-generated painterly sprites and terrain tiles, not yet registered in-game. Use candidates for new aces/bosses/stages.",
   "planes": {
-    "nieuport_11_bebe": { "name": "Nieuport 11 Bébé", "faction": "entente", "era": "1916" },
-    "nieuport_24": { "name": "Nieuport 24", "faction": "entente", "era": "1917" },
-    "sopwith_pup": { "name": "Sopwith Pup", "faction": "entente", "era": "1917" },
-    "sopwith_dolphin": { "name": "Sopwith Dolphin", "faction": "entente", "era": "1918" },
-    "sopwith_strutter": { "name": "Sopwith 1½ Strutter", "faction": "entente", "era": "1916" },
-    "dh4": { "name": "Airco DH.4", "faction": "entente", "era": "1917" },
-    "re8": { "name": "RE.8", "faction": "entente", "era": "1917" },
-    "pfalz_d12": { "name": "Pfalz D.XII", "faction": "central", "era": "1918" },
-    "junkers_d1": { "name": "Junkers D.I", "faction": "central", "era": "1918" },
-    "ssw_d4": { "name": "Siemens-Schuckert D.IV", "faction": "central", "era": "1918" },
-    "hp_o400": { "name": "Handley Page O/400", "faction": "entente", "era": "1918", "role": "heavy-bomber" },
-    "caudron_r11": { "name": "Caudron R.11", "faction": "entente", "era": "1918", "role": "escort-gunship" },
-    "staaken_r6": { "name": "Zeppelin-Staaken R.VI", "faction": "central", "era": "1917", "role": "giant-bomber" }
+    "nieuport_11_bebe": {
+      "name": "Nieuport 11 Bébé",
+      "faction": "entente",
+      "era": "1916"
+    },
+    "nieuport_24": {
+      "name": "Nieuport 24",
+      "faction": "entente",
+      "era": "1917"
+    },
+    "sopwith_pup": {
+      "name": "Sopwith Pup",
+      "faction": "entente",
+      "era": "1917"
+    },
+    "sopwith_dolphin": {
+      "name": "Sopwith Dolphin",
+      "faction": "entente",
+      "era": "1918"
+    },
+    "sopwith_strutter": {
+      "name": "Sopwith 1½ Strutter",
+      "faction": "entente",
+      "era": "1916"
+    },
+    "dh4": {
+      "name": "Airco DH.4",
+      "faction": "entente",
+      "era": "1917"
+    },
+    "re8": {
+      "name": "RE.8",
+      "faction": "entente",
+      "era": "1917"
+    },
+    "pfalz_d12": {
+      "name": "Pfalz D.XII",
+      "faction": "central",
+      "era": "1918"
+    },
+    "junkers_d1": {
+      "name": "Junkers D.I",
+      "faction": "central",
+      "era": "1918"
+    },
+    "ssw_d4": {
+      "name": "Siemens-Schuckert D.IV",
+      "faction": "central",
+      "era": "1918"
+    },
+    "hp_o400": {
+      "name": "Handley Page O/400",
+      "faction": "entente",
+      "era": "1918",
+      "role": "heavy-bomber"
+    },
+    "caudron_r11": {
+      "name": "Caudron R.11",
+      "faction": "entente",
+      "era": "1918",
+      "role": "escort-gunship"
+    },
+    "staaken_r6": {
+      "name": "Zeppelin-Staaken R.VI",
+      "faction": "central",
+      "era": "1917",
+      "role": "giant-bomber"
+    },
+    "sopwith_triplane": {
+      "name": "Sopwith Triplane",
+      "faction": "entente",
+      "era": "1917"
+    },
+    "fokker_ev": {
+      "name": "Fokker E.V/D.VIII",
+      "faction": "central",
+      "era": "1918"
+    },
+    "albatros_d3": {
+      "name": "Albatros D.III",
+      "faction": "central",
+      "era": "1917"
+    },
+    "phoenix_d1": {
+      "name": "Phönix D.I",
+      "faction": "central",
+      "era": "1917"
+    },
+    "hannover_cl3": {
+      "name": "Hannover CL.III",
+      "faction": "central",
+      "era": "1918"
+    },
+    "ilya_muromets": {
+      "name": "Sikorsky Ilya Muromets",
+      "faction": "entente",
+      "era": "1914",
+      "role": "giant-bomber"
+    },
+    "caproni_ca3": {
+      "name": "Caproni Ca.3",
+      "faction": "entente",
+      "era": "1917",
+      "role": "heavy-bomber"
+    },
+    "vickers_fb5": {
+      "name": "Vickers F.B.5 Gunbus",
+      "faction": "entente",
+      "era": "1915"
+    },
+    "dh9": {
+      "name": "Airco DH.9",
+      "faction": "entente",
+      "era": "1917",
+      "role": "day-bomber"
+    },
+    "rumpler_taube": {
+      "name": "Rumpler Taube",
+      "faction": "central",
+      "era": "1914"
+    },
+    "avro_504": {
+      "name": "Avro 504",
+      "faction": "entente",
+      "era": "1913"
+    },
+    "salmson_2a2": {
+      "name": "Salmson 2A2",
+      "faction": "entente",
+      "era": "1917",
+      "role": "recon"
+    },
+    "armstrong_fk8": {
+      "name": "Armstrong Whitworth F.K.8",
+      "faction": "entente",
+      "era": "1916",
+      "role": "recon"
+    },
+    "savoia_pomilio": {
+      "name": "Savoia-Pomilio SP.4",
+      "faction": "entente",
+      "era": "1917",
+      "role": "recon"
+    }
   },
   "vehicles": {
-    "railway_gun": { "name": "28cm K5 Railway Gun", "faction": "central", "role": "boss" },
-    "river_monitor": { "name": "River Monitor Gunboat", "role": "boss", "tags": ["naval", "turret"] },
-    "armored_train": { "name": "Armored Train (loco + gun car)", "role": "boss", "tags": ["rail"] }
+    "railway_gun": {
+      "name": "28cm K5 Railway Gun",
+      "faction": "central",
+      "role": "boss"
+    },
+    "river_monitor": {
+      "name": "River Monitor Gunboat",
+      "role": "boss",
+      "tags": [
+        "naval",
+        "turret"
+      ]
+    },
+    "armored_train": {
+      "name": "Armored Train (loco + gun car)",
+      "role": "boss",
+      "tags": [
+        "rail"
+      ]
+    },
+    "whippet": {
+      "name": "Medium Mark A Whippet",
+      "faction": "entente",
+      "role": "tank"
+    },
+    "renault_ft": {
+      "name": "Renault FT",
+      "faction": "entente",
+      "role": "tank"
+    },
+    "schneider_ca1": {
+      "name": "Schneider CA1",
+      "faction": "entente",
+      "role": "tank"
+    },
+    "uboat": {
+      "name": "U-Boat (surfaced)",
+      "faction": "central",
+      "role": "naval"
+    },
+    "destroyer": {
+      "name": "Destroyer",
+      "role": "naval"
+    },
+    "mas_boat": {
+      "name": "MAS Torpedo Boat",
+      "faction": "entente",
+      "role": "naval"
+    }
   },
   "terrain": {
-    "gallipoli_coast": { "name": "Gallipoli Coast", "tags": ["beach", "hills", "trenches"] },
-    "passchendaele_mud": { "name": "Passchendaele Mud", "tags": ["craters", "flooded", "trenches"] },
-    "argonne_forest": { "name": "Meuse-Argonne Forest", "tags": ["forest", "autumn", "trenches", "stream"] },
-    "alpine_snow": { "name": "Alpine Peaks", "tags": ["snow", "rock", "trenches"] }
+    "gallipoli_coast": {
+      "name": "Gallipoli Coast",
+      "tags": [
+        "beach",
+        "hills",
+        "trenches"
+      ]
+    },
+    "passchendaele_mud": {
+      "name": "Passchendaele Mud",
+      "tags": [
+        "craters",
+        "flooded",
+        "trenches"
+      ]
+    },
+    "argonne_forest": {
+      "name": "Meuse-Argonne Forest",
+      "tags": [
+        "forest",
+        "autumn",
+        "trenches",
+        "stream"
+      ]
+    },
+    "alpine_snow": {
+      "name": "Alpine Peaks",
+      "tags": [
+        "snow",
+        "rock",
+        "trenches"
+      ]
+    },
+    "piave_lagoon": {
+      "name": "Piave River / Venetian Lagoon",
+      "tags": [
+        "river",
+        "lagoon",
+        "trenches"
+      ]
+    },
+    "zeebrugge_coast": {
+      "name": "Zeebrugge Coast / Mole",
+      "tags": [
+        "coast",
+        "harbor",
+        "trenches"
+      ]
+    },
+    "isonzo_karst": {
+      "name": "Isonzo Karst",
+      "tags": [
+        "rock",
+        "trenches",
+        "plateau"
+      ]
+    },
+    "winter_front": {
+      "name": "Eastern Front Winter",
+      "tags": [
+        "snow",
+        "frozen",
+        "trenches"
+      ]
+    },
+    "sinai_dunes": {
+      "name": "Sinai Dunes",
+      "tags": [
+        "desert",
+        "railway",
+        "oasis"
+      ]
+    },
+    "mesopotamia_river": {
+      "name": "Tigris / Mesopotamia",
+      "tags": [
+        "river",
+        "palms",
+        "villages"
+      ]
+    }
   },
   "notes": [
     "Planes/vehicles: transparent PNG-alpha, nose-up, top-down painterly style matching plane-bank.",
     "Terrain: square painterly tiles intended for the seamlessGround world-locked tiling (8% bleed bake) — see verdun-ground.js / maan-view.js.",
     "Terrain sea/ridge features sit near edges; bake pass feathers seams."
-  ]
+  ],
+  "seaplanes": {
+    "friedrichshafen_ff33": {
+      "name": "Friedrichshafen FF.33",
+      "faction": "central",
+      "era": "1915"
+    },
+    "short_184": {
+      "name": "Short 184",
+      "faction": "entente",
+      "era": "1915"
+    },
+    "sopwith_baby": {
+      "name": "Sopwith Baby",
+      "faction": "entente",
+      "era": "1915"
+    },
+    "fba_h": {
+      "name": "FBA Type H",
+      "faction": "entente",
+      "era": "1915"
+    },
+    "hansa_w12": {
+      "name": "Hansa-Brandenburg W.12",
+      "faction": "central",
+      "era": "1917"
+    },
+    "gotha_wd14": {
+      "name": "Gotha WD.14",
+      "faction": "central",
+      "era": "1916",
+      "role": "torpedo"
+    }
+  },
+  "airships": {
+    "zeppelin_l30": {
+      "name": "Zeppelin L.30",
+      "faction": "central",
+      "role": "rigid"
+    },
+    "ss_blimp": {
+      "name": "SS Type Blimp",
+      "faction": "entente",
+      "role": "patrol"
+    },
+    "parseval_pl25": {
+      "name": "Parseval PL.25",
+      "faction": "central",
+      "role": "non-rigid"
+    }
+  }
 }
