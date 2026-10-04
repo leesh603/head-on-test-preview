@@ -1,12 +1,12 @@
 import {tickRegionalConditions} from './region-doctrine1.js?v=perf538';
 
-import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=perf538';
+import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gallipoli540';
 import {handleMaanCue} from './maan-view.js?v=perf538';
 import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=perf538';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=perf538';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=perf538';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=perf538';
-import {bossSoundFor} from './boss-feedback.js?v=perf538';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=gallipoli540';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=gallipoli540';
+import {bossSoundFor} from './boss-feedback.js?v=gallipoli540';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=perf538';
 import {advanceCambraiBug} from './cambrai-bug-flight.js?v=perf538';
 import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=perf538';
@@ -81,7 +81,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     ,'fort-douaumont':{geometryScale:1,mobileBoss:false,motionMultiplier:0}
     ,'fort-souville':{geometryScale:1,mobileBoss:false,motionMultiplier:0}
     ,'wustenpanzer':{geometryScale:1,mobileBoss:false,coreRadius:108}
-    ,'gallipoli-fortress':{geometryScale:1,mobileBoss:false,motionMultiplier:0,coreRadius:76}
+    ,'gallipoli-fortress':{geometryScale:1,mobileBoss:false,motionMultiplier:0,coreRadius:115}
     ,'sinai-landship':{geometryScale:1,mobileBoss:false,coreRadius:120}
    }[bossId]||{};
    return {regionalViewWidth:g.viewWidth||960,regionalViewHeight:g.viewHeight||700,regionalPlayerY:g.y,loopIndex:loop,projectileDensity:density,maxHp,partHp:maxHp*.12,damage:Math.round(18*(1+g.t/240)*(1+Math.min(.5,loop*.12))),bulletSpeed:270,coreRadius:150,

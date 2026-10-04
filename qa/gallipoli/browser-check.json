@@ -1,19 +1,19 @@
 {
-  "baselineMain": "9739b3eaa706484853b32e4058f25333f579f4db",
-  "previewCommit": "064f90145f27fcdaa9cfc0888d99221d2211e9bf",
-  "previewUrl": "https://raw.githack.com/leesh603/head-on-test-preview/064f90145f27fcdaa9cfc0888d99221d2211e9bf/index.html?headonTest=1&region=14&pilot=fonck&boss=1&v=gallipoli20261004",
-  "previewStatus": "blockedCanvasSecurityError",
-  "errors": [
-    "aircraft.js:38 getImageData SecurityError",
-    "battlefield-art.js:3 getImageData SecurityError",
-    "equipment.js:15 getImageData SecurityError",
-    "portraits.js:10 getImageData SecurityError",
-    "gallipoli-view.js bake getImageData SecurityError; own loader subsequently uses anonymous CORS"
+  "implementationCommit": "affa062bcaaad0024917e58b2d7788a5034f3c70",
+  "url": "https://raw.githack.com/leesh603/head-on-test-preview/affa062bcaaad0024917e58b2d7788a5034f3c70/index.html?headonTest=1&region=14&pilot=fonck&boss=1&v=gallipoli540",
+  "observed": {
+    "newFortressRendered": true,
+    "sectorHud": "방어구역 0/3 점령",
+    "partCount": "13/13",
+    "hp": "2100/2100",
+    "clockProgress": "00:00 → 00:02 → 00:04",
+    "pauseDialogOpened": true,
+    "continueDialogDismissed": true
+  },
+  "limitations": [
+    "SecurityError: getImageData canvas tainted by cross-origin data in aircraft.js, portraits.js, battlefield-art.js",
+    "window.__HEADON_TEST__ remained undefined at inspection",
+    "PC/mobile prolonged input gameplay and device FPS unverified"
   ],
-  "pcBrowserGameplayVerified": false,
-  "mobileBrowserGameplayVerified": false,
-  "testLabStatusUnavailable": true,
-  "securityProtectionsChanged": false,
-  "mainChangedByThisWork": false,
-  "productionDeployed": false
+  "status": "partial-browser-verification; automated engine/render verification passed"
 }

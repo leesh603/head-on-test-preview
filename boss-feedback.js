@@ -6,8 +6,13 @@ PHASES['flak-disabled']=['대공포탑 파괴 · 주포 사격 중단','Turret d
 PHASES['hull-exposed']=['장갑 해제 · 차체 노출','Armour disabled · hull exposed'];
 PHASES['harbor-launch-disabled']=['수상기 시설 파괴 · 출격 중단','Seaplane dock destroyed · launches stopped'];
 PHASES['rig-exposed']=['중앙 계류장치 노출','Central rig exposed'];
+PHASES['sector-west-captured']=['서부 해안포 진지 점령 · 서부 포격 중단','West battery secured · western guns silenced'];
+PHASES['sector-east-captured']=['동부 해안포 진지 점령 · 동부 포격 중단','East battery secured · eastern guns silenced'];
+PHASES['sector-citadel-captured']=['후방 중포 성채 점령 · 방어선 제압','Rear citadel secured · defenses silenced'];
+PHASES['defense-collapse']=['양익 방어선 점령 · 후방 성채 공략','Both wings secured · assault the rear citadel'];
+PHASES['central-fortress']=['3구역 점령 완료 · 중앙 지휘포대 노출','All sectors secured · command battery exposed'];
 export function bossPhaseLabel(phase,locale='ko'){const words=PHASES[phase];return words?words[locale==='en'?1:0]:pair('보스 전술 변화','Boss tactics changed',locale)}
-export const BOSS_NAMES_EN=Object.freeze({'gallipoli-fortress':'Gallipoli Cliff Fortress','wustenpanzer':'Wüstenpanzer · Desert cruiser','sinai-landship':'Sinai Landship','fort-douaumont':'Fort Douaumont','fort-souville':'Fort de Souville',
+export const BOSS_NAMES_EN=Object.freeze({'gallipoli-fortress':'Gallipoli Grand Fortress · Siege','wustenpanzer':'Wüstenpanzer · Desert cruiser','sinai-landship':'Sinai Landship','fort-douaumont':'Fort Douaumont','fort-souville':'Fort de Souville',
  'paris-gun':'Bruno railway gun',lincomparable:"520mm L’Incomparable",'sms-stuttgart':'SMS Stuttgart','hms-zubian':'HMS Zubian',
  'a7v-flak':'A7V Flakpanzer','mark-v-cruiser':'Mark V land cruiser','livens-flame-projector':'Livens flame projector','minenwerfer-battery':'Minenwerfer crossfire battery',
  'drachen-net':'Drachen mine network','london-apron':'London balloon apron','zeppelin-l70':'Zeppelin L 70',hma23:'HMA 23 carrier',gik:'Hansa-Brandenburg G.IK',ca4:'Caproni Ca.4','armored-harbor-fortress':'Armored harbor fortress',
@@ -23,7 +28,7 @@ export function bossTactic(encounter,locale='ko'){
  const bodies=[...encounter?.bodies.values()||[]].filter(b=>!b.dead),b=bodies[0];if(!b)return '';
  const text=(ko,en)=>pair(ko,en,locale),gone=id=>b.parts.get(id)?.destroyed;
  switch(encounter.bossId){
-  case 'gallipoli-fortress':return b.phase==='central-fortress'?text('중앙 주포 노출 · 낙탄 경고 바깥으로 이탈','Central gun exposed · clear the marked impact'):text('좌우 포대 사이로 회피 · 관측소와 탄약고부터 파괴','Use the coastal salvo gap · destroy observation and ammunition');
+  case 'gallipoli-fortress':return b.coreVulnerable?text('3구역 점령 완료 · 중앙 지휘포대 격파','All sectors secured · destroy the command battery'):text('방어구역 '+(b.captured?.size||0)+'/3 점령 · 중포·대공포 격파 / 탄약고 폭파로 약화','Sectors '+(b.captured?.size||0)+'/3 · silence guns and AA / detonate supplies');
   case 'wustenpanzer':return b.sandBlind?text('모래바람 엄폐 · 마지막 포착 지점 포격 주의','Sand cover breaks tracking · watch the last observed target'):gone('radiator')?text('냉각 파괴 · 증기 분출 틈 공략, 엔진으로 폭주 봉쇄','Cooling lost · attack between vents; break engine to stop runaway'):text('중포 충격파는 고리만 위험 · 모래바람으로 조준 끊기','Heavy shells spread a sand shock ring · use sand cover to break aim');
   case 'sinai-landship':return gone('command')?text('지휘부 파괴 · 고정 구역 포격, 모래 통로로 회피','Command down · fixed sector salvos; use the clear corridor'):gone('support')?text('호위 증원 중단 · 남은 장갑차와 측면포 공략','Reinforcements stopped · destroy escorts and flank guns'):text('측면 포격 사이 빈 통로 · 모래바람 엄폐, 지원구획으로 호위 차단','Use the broadside gap and sand cover · support bay stops escorts');
   case 'paris-gun':return b.phase==='runaway'?text('폭주 경로 이탈 → 탈선 후 기관차 공격','Clear the runaway track → strike after derailment'):b.coreVulnerable?text('기관차 노출 · 5발 순서를 읽고 빈 통로로 회피','Locomotive exposed · read the five-shot order and use its gaps'):gone('car-middle')?text('관측차 파괴 · 고정 포격, 탄약차 파괴로 재장전 지연','Observer down · blind barrage; ammo loss slows reload'):gone('car-rear')?text('후미 화망 중단 · 관측차를 파괴해 조준을 끊기','Rear gun silenced · break the observer to interrupt targeting'):text('대공 방어차 → 관측차 → 탄약차 · 레일 파괴로 이동 봉쇄','Defense → observer → ammunition · break the rail to halt movement');

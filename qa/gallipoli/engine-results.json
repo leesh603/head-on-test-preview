@@ -10,7 +10,9 @@
     "maxSand": 0,
     "dropped": 0,
     "hostDamage": 20,
-    "pauseFrozen": true
+    "pauseFrozen": true,
+    "allSectorsCaptured": true,
+    "nativeCoreDefeated": true
   },
   {
     "mode": "solo",
@@ -23,7 +25,9 @@
     "maxSand": 0,
     "dropped": 0,
     "hostDamage": 20,
-    "pauseFrozen": true
+    "pauseFrozen": true,
+    "allSectorsCaptured": true,
+    "nativeCoreDefeated": true
   },
   {
     "mode": "solo",
@@ -36,7 +40,9 @@
     "maxSand": 0,
     "dropped": 0,
     "hostDamage": 20,
-    "pauseFrozen": true
+    "pauseFrozen": true,
+    "allSectorsCaptured": true,
+    "nativeCoreDefeated": true
   },
   {
     "mode": "solo",
@@ -49,7 +55,9 @@
     "maxSand": 0,
     "dropped": 0,
     "hostDamage": 20,
-    "pauseFrozen": true
+    "pauseFrozen": true,
+    "allSectorsCaptured": true,
+    "nativeCoreDefeated": true
   },
   {
     "mode": "coop",
@@ -62,7 +70,9 @@
     "maxSand": 0,
     "dropped": 0,
     "hostDamage": 20,
-    "pauseFrozen": true
+    "pauseFrozen": true,
+    "allSectorsCaptured": true,
+    "nativeCoreDefeated": true
   },
   {
     "mode": "coop",
@@ -75,7 +85,9 @@
     "maxSand": 0,
     "dropped": 0,
     "hostDamage": 20,
-    "pauseFrozen": true
+    "pauseFrozen": true,
+    "allSectorsCaptured": true,
+    "nativeCoreDefeated": true
   },
   {
     "mode": "coop",
@@ -88,7 +100,9 @@
     "maxSand": 0,
     "dropped": 0,
     "hostDamage": 20,
-    "pauseFrozen": true
+    "pauseFrozen": true,
+    "allSectorsCaptured": true,
+    "nativeCoreDefeated": true
   },
   {
     "mode": "coop",
@@ -101,6 +115,8 @@
     "maxSand": 0,
     "dropped": 0,
     "hostDamage": 20,
-    "pauseFrozen": true
+    "pauseFrozen": true,
+    "allSectorsCaptured": true,
+    "nativeCoreDefeated": true
   }
 ]

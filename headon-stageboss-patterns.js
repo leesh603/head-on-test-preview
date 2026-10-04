@@ -1,4 +1,4 @@
-import {GallipoliFortress} from './gallipoli-boss.js?v=perf538';
+import {GallipoliFortress} from './gallipoli-boss.js?v=gallipoli540';
 import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=perf538';
 import {RuralRailBoss} from './rural-rail-combat.js?v=perf538';
 import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=perf538';
@@ -47,7 +47,7 @@ export const BOSS_CATALOG = Object.freeze({
   ,'fort-douaumont': {name:'두오몽 요새 · Fort Douaumont', faction:'central', stage:12}
   ,'fort-souville': {name:'수빌 요새 · Fort de Souville', faction:'entente', stage:12}
   ,'wustenpanzer': {name:'사막 육상순양함 · Wüstenpanzer', faction:'central', stage:13}
-  ,'gallipoli-fortress': {name:'갈리폴리 절벽 요새 · 다르다넬스 포대', faction:'neutral', stage:14}
+  ,'gallipoli-fortress': {name:'갈리폴리 대요새 · 다르다넬스 점령전', faction:'neutral', stage:14}
   ,'sinai-landship': {name:'시나이 육상함 · Sinai Landship', faction:'entente', stage:13}
   
 });
