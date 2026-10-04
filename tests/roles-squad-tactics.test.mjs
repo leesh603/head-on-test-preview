@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PLANES,PILOTS,BATTLE_DIRECTOR_PATTERNS as P,angleDiff} from '../engine.js?v=532';
-import {CoopGame} from '../coop-engine.js?v=532';
+import {Game,PLANES,PILOTS,BATTLE_DIRECTOR_PATTERNS as P,angleDiff} from '../engine.js?v=styles537';
+import {CoopGame} from '../coop-engine.js?v=styles537';
 import {AIRCRAFT_MASTER} from '../aircraft-master.js';
-import {DIRECTOR_LIVERIES} from '../battle-director169.js?v=532';
+import {DIRECTOR_LIVERIES} from '../battle-director169.js?v=styles537';
 
 const quiet=g=>{for(const key of ['spawn','eventTimer','nextBossAt','nextHeavyAt','_zeppelinSchedule','flakTimer','regionThreat','fieldUnitTimer','gasTimer','gustTimer','patrolTimer','supplyTimer','allyTimer'])g[key]=Infinity;g.invuln=Infinity;return g};
 function scene(pattern,coop=false){
@@ -16,18 +16,18 @@ function scene(pattern,coop=false){
 test('roles are independent of performance tier and preserve pilot records',()=>{
  const cases={eindecker:'GROWTH',airco_dh2:'GROWTH',fokker:'TURN',camel:'TURN',se5a:'INTERCEPTOR',spad:'INTERCEPTOR',albatros:'HEAVY',spad12:'HEAVY',bristol_duo:'FORMATION',fokkerd7:'FORMATION'};
  for(const [plane,role]of Object.entries(cases))assert.equal(new Game(plane,'fonck',()=>.2).aircraftCombatRole().id,role);
- assert.equal(new Game('loewenhardt_fokkerd7','loewenhardt',()=>.2).aircraftCombatRole(),null);
+ assert.equal(new Game('loewenhardt_fokkerd7','loewenhardt',()=>.2).aircraftCombatRole().mode,'late');
  assert.equal(PLANES.eindecker.speed,118);assert.equal(PLANES.eindecker.hp,85);assert.equal(PILOTS.loewenhardt.cooldown,17);
 });
 test('early aircraft retain growth cost after the app imports campaign aircraft',async()=>{
- await import('../campaign.js?v=532');
+ await import('../campaign.js?v=styles537');
  const g=new Game('eindecker','immelmann',()=>.2),late=new Game('fokkerd7','fonck',()=>.2);
  assert.equal(g.xpCostMultiplier,.72);assert.equal(g.need,4);assert(g.levelRequirement(40)<late.levelRequirement(40));
  assert.equal(new Game('airco_dh2','hawker',()=>.2).xpCostMultiplier,.8);
  g.xp=4;g.checkLevel();assert.equal(g.level,2);assert.equal(g.state,'upgrade');
 });
 test('interceptor straight exit restores energy without raising cruise or turn',()=>{
- const g=new Game('se5a','mannock',()=>.2),control=new Game('se5a','mannock',()=>.2);control.aircraftCombatRole=()=>null;
+ const g=new Game('udet_fokkerdv','udet',()=>.2),control=new Game('udet_fokkerdv','udet',()=>.2);control.aircraftCombatRole=()=>null;
  g.airframeSpeed=control.airframeSpeed=.6;const speed=g.speed,turn=g.turn;
  for(let i=0;i<40;i++){g.flyAirframe(.02,{});control.flyAirframe(.02,{})}
  assert(g.airframeSpeed>control.airframeSpeed);assert(g.airframeSpeed<=1);assert.equal(g.speed,speed);assert.equal(g.turn,turn);

@@ -4,8 +4,8 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 
-const {Game}=await import('../engine.js?v=532');
-const {BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES}=await import('../battlefield-events170.js?v=532');
+const {Game}=await import('../engine.js?v=styles537');
+const {BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES}=await import('../battlefield-events170.js?v=styles537');
 
 const make=()=>{
  const g=new Game('fokker','baron',()=>.5);
