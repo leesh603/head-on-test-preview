@@ -27,7 +27,7 @@ export function installPilotSignatures(Game){
  proto.hit=function(damage){
   if(this.pilot==='nungesser'&&this.state==='playing'&&this.hp>0&&this.skillTime>0&&this.invuln>0&&damage>0&&signatureInterval(this,'deflect',.12)){
    const source=this.damageSource,dx=source?source.x-this.x:Math.cos(this.a)*22,dy=source?source.y-this.y:Math.sin(this.a)*22,d=Math.hypot(dx,dy)||1;
-   signatureCue(this,'phoenixDeflect',{x:this.x+dx/d*24,y:this.y+dy/d*24,life:.3});
+   signatureCue(this,'smokeTear',{x:this.x+dx/d*24,y:this.y+dy/d*24,a:Math.atan2(dy,dx),life:.38,active:true});
   }
   const before=this.barkerStackTime,accepted=this.pilot==='barker'&&damage>0&&this.invuln<=0&&this.hp>0&&this.state==='playing';const result=hit.call(this,damage);if(accepted&&this.barkerStackTime>=before)signatureCue(this,'battleDamage',{life:.85,count:this.barkerStacks||1});return result;
  };

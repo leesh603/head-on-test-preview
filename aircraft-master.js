@@ -14,7 +14,7 @@ const ownerLabels = {
   "wolff": ["볼프", "Kurt Wolff"],
   "loewenhardt": ["뢰벤하르트", "Erich Löwenhardt"],
   "mccudden": ["맥커든", "James McCudden"],
-  "nungesser": ["너겐서", "Charles Nungesser"],
+  "nungesser": ["눙게서", "Charles Nungesser"],
   "jacobs": ["요제프 야콥스", "Josef Jacobs"],
   "rickenbacker": ["리켄배커", "Eddie Rickenbacker"],
   "ball": ["앨버트 볼", "Albert Ball"],

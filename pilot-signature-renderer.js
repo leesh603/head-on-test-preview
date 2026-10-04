@@ -1,5 +1,5 @@
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
-import {PILOT_SIGNATURES} from './pilot-signature-state.js';
+import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
 import {signatureWingPositions} from './pilot-signature-geometry.js';
 import {drawCavalryGuard,drawCavalryLance,drawRickenbackerHalfRing} from './pilot-directed-fx.js';
 const TAU=Math.PI*2;
@@ -89,14 +89,21 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
   switch(e.kind){
    case 'cavalryCharge':if(p.chargeTime>0)texture(c,'vaporTrail',-52,0,92,20,Math.PI,.2*(1-q));break;
    case 'cavalryGuard':drawCavalryGuard(c,fade);texture(c,'smokeDark',42,0,29,41,Math.PI,.12*fade);break;
-   case 'blackHeart':if(time<.35)texture(c,'smokeDark',-34,0,55+q*25,38,Math.PI,.18);break;
+   case 'deathKnight':
+    for(const side of [-1,1])texture(c,'smokeDark',-8,side*(27*(1-q)),74-q*12,38+q*16,Math.PI+side*q*.4,.58*(1-q));
+    if(time<.16)for(const side of [-1,1])texture(c,'fireSmall',-15,side*23,5,9,0,.5*(1-time/.16));break;
+   case 'deathKnightEnd':
+    for(const side of [-1,1])texture(c,'smokeDark',-8-q*18,side*(12+q*39),60+q*20,32,Math.PI+side*q*.5,.48*(1-q));break;
+   case 'smokeTear':{
+    const heading=e.a-p.a;
+    for(const side of [-1,1]){const spread=5+q*22;texture(c,'smokeDark',Math.cos(heading)*q*22-Math.sin(heading)*side*spread,Math.sin(heading)*q*22+Math.cos(heading)*side*spread,36+q*20,13+q*6,heading,.5*(1-q));}break;
+   }
    case 'ringPass':{
     // The visible ring is emitted by actual piercing volleys, not by pressing the skill alone.
     if(!foreground&&p.muzzleFlash>0)texture(c,'gunSmoke',32,0,24,17,0,.25);
     break;
    }
    case 'ringVolley':volleyRing(c,p,e,foreground);break;
-   case 'phoenixDeflect':metal(c,time,3,.75);texture(c,'smokeDark',0,0,34+time*25,26,Math.PI,.3);break;
    case 'climbingAttack':for(const side of [-1,1]){c.save();c.translate(-28,side*22);c.scale(1,side);smokeArc(c,48,Math.PI*.68,Math.PI*(.68+.64*q),time,.22,.65,8);c.restore()}if(q>.3&&q<.8)flash(c,false,1.2);break;
    case 'counterRoll':{
     if(foreground){
@@ -196,15 +203,13 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
    }
   }
   if(p.pilot==='nungesser'){
-   const low=p.maxHp>0?clamp((1-p.hp/p.maxHp)/.8):0;
-   // Low-health aggression is fog around the airframe; the coffin belongs only to the active.
-   if(low>0){
-    for(let i=0;i<5;i++){
-     const a=i*TAU/5+t*.24,drift=Math.sin(t*2+i)*3;
-     texture(c,'smokeDark',Math.cos(a)*19-7,Math.sin(a)*21+drift,48+low*16,34+low*12,a,.06*low+.18*low*(.6+.4*Math.sin(t*1.4+i)**2));
-    }
+   const stage=nungesserSmokeStage(p),strength=active?1:stage/3;
+   // Painted oil smoke hugs the fuselage, separating into uneven moving folds.
+   if(strength>0)for(const side of [-1,1])for(let i=0;i<3;i++){
+    const phase=(t*.9+i/3)%1,tear=s.effects.some(e=>e.kind==='smokeTear')?.65:1;
+    texture(c,'smokeDark',12-phase*47,side*(10+phase*11)+Math.sin(t*3+i)*3,32+phase*24,17+strength*14,Math.PI+side*.25,(.10+strength*.30)*(1-phase*.5)*tear);
    }
-   if(active)crest(c,'blackHeart',t,.30,102);
+   if(stage===3&&!active)for(const side of [-1,1])texture(c,'fireSmall',-13,side*22,5,9+Math.sin(t*11+side)*2,-p.a-Math.PI/2,.62);
    return;
   }
   if(p.pilot==='barker'){
@@ -231,7 +236,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
   if(!active)return;
   switch(profile.sustain){
    case 'charge':if(p.chargeTime>0&&!globalThis.__hoLance?.has(p))cavalrySlipstream(c,t,Math.min(1,p.chargeTime/.12));break;
-   case 'defyDeath':if(p.hitFlash>0)texture(c,'armorSpark',18,0,52,42,p.a,.65);break;
+   case 'defyDeath':break;
    case 'precision':if(shot)muzzleAt(c,30,0,0,'muzzleHeavy',1.05);break;
    case 'cannon':if(p.cannonRecoil129>0)flash(c,false,1.8,true);break;
    case 'gunPlatform':if(shot){flash(c,false,1.5);texture(c,'smokePuff',41,0,38,24,0,.25)}break;
@@ -259,12 +264,13 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
   c.save();try{
    c.translate(x,y);if(layer!=='front')worldEffects(c,p);c.rotate(p.a);if(layer!=='front')continuous(c,p,profile,s);
    if(layer==='front'){
+    if(p.pilot==='nungesser'&&p.skillTime>0){const cover=Math.min(1,p.skillTime/.15);for(const side of [-1,1])texture(c,'smokeDark',-3,side*9,64,31,Math.PI+side*.2,.40*cover);}
     if(p.pilot==='rickenbacker'&&p.skillTime>0&&!globalThis.__hoHoop?.has(p))drawRickenbackerHalfRing(c,s.clock,Math.min(1,p.skillTime/.15),true);
     if(p.pilot==='baracca'&&(p.chargeTime>0||p.prancingHorseFlash160>0||s.effects.some(e=>e.kind==='cavalryGuard'))){
      c.save();c.rotate(Math.PI/2);c.globalAlpha*=.82;insignia(c,'baraccaHorse',0,5,16,s.clock);c.restore();
     }
    }
-   for(const e of s.effects){if(layer==='front'&&e.kind!=='ringPass'&&e.kind!=='ringVolley'&&e.kind!=='counterRoll')continue;const dx=e.x-p.x,dy=e.y-p.y;c.save();try{if((!e.signatureStart||e.kind==='whiteCommand')&&e.kind!=='shotAccent')c.translate(dx*Math.cos(p.a)+dy*Math.sin(p.a),-dx*Math.sin(p.a)+dy*Math.cos(p.a));start(c,p,e,layer==='front')}finally{c.restore()}}
+   for(const e of s.effects){if(layer==='front'&&!(p.pilot==='nungesser'&&['deathKnight','deathKnightEnd','smokeTear'].includes(e.kind))&&e.kind!=='ringPass'&&e.kind!=='ringVolley'&&e.kind!=='counterRoll')continue;const dx=e.x-p.x,dy=e.y-p.y;c.save();try{if((!e.signatureStart||e.kind==='whiteCommand')&&e.kind!=='shotAccent')c.translate(dx*Math.cos(p.a)+dy*Math.sin(p.a),-dx*Math.sin(p.a)+dy*Math.cos(p.a));start(c,p,e,layer==='front')}finally{c.restore()}}
   }finally{c.restore()}
   return true;
  };

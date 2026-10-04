@@ -1,6 +1,6 @@
 import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js';
 import {installPilotFeedback} from './pilot-feedback.js';
-import {headOnTarget} from './engagement-feedback.js?v=533';
+import {headOnTarget} from './engagement-feedback.js?v=534';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
@@ -16,7 +16,7 @@ export const pilotOwner=own;
 export const pilotHeadOn=(p,e)=>headOnTarget({...p,hp:1},[e])===e;
 export function installPilotIdentities(Game,PILOTS){
  for(const [id,copy]of Object.entries(PILOT_IDENTITY_COPY)){const p=PILOTS[id];if(!p)continue;const c=copy.ko;Object.assign(p,{passive:c.passive,skill:c.skill,passiveDesc:c.passiveDetail,desc:c.activeDetail});}
- PILOTS.berthold.name='루돌프 베르톨트';PILOTS.nungesser.name='샤를 넝제세르';PILOTS.guynemer.name='조르주 기네메르';
+ PILOTS.berthold.name='루돌프 베르톨트';PILOTS.nungesser.name='샤를 눙게서';PILOTS.guynemer.name='조르주 기네메르';
  const oldEnsure=Game.prototype.ensureRevisionPilot;
  Game.prototype.ensureRevisionPilot=function(){oldEnsure.call(this);if(this.pilotIdentityReady)return;this.pilotIdentityReady=true;this.pilotIdentity={fx:[],burns:new Map(),debts:[],clock:0,grazeSeen:new WeakSet(),grazePasses:new Map(),bombs:[],switchSeen:new Map()};if(['boelcke','brumowski'].includes(this.pilot))this.permanentWingman=(this.permanentWingman||0)+2;};
  Game.prototype.identityState=function(){this.ensureRevisionPilot();return this.pilotIdentity};
@@ -27,7 +27,7 @@ export function installPilotIdentities(Game,PILOTS){
  const oldWingPlane=Game.prototype.permanentWingPlane;
  Game.prototype.permanentWingPlane=function(){if(!this.upgrades?.fighterSupply&&['boelcke','brumowski'].includes(this.pilot))return this.pilot==='boelcke'?'albatros_d2':'brumowski_albatros';return oldWingPlane.call(this)};
  const oldDuration=Game.prototype.skillDuration;
- Game.prototype.skillDuration=function(){if(this.pilot==='baron')return 4*(this.skillEnhanced?1.35:1);return durations[this.pilot]===undefined?oldDuration.call(this):durations[this.pilot]*(this.skillEnhanced?1.25:1)};
+ Game.prototype.skillDuration=function(){if(this.pilot==='baron')return 4*(this.skillEnhanced?1.35:1);return durations[this.pilot]===undefined?oldDuration.call(this):durations[this.pilot]*(this.pilot==='nungesser'?1:this.skillEnhanced?1.25:1)};
  const oldSkill=Game.prototype.skill;
  Game.prototype.skill=function(){
   if(!Object.hasOwn(durations,this.pilot))return oldSkill.call(this);
@@ -84,7 +84,7 @@ export function installPilotIdentities(Game,PILOTS){
   return n;
  };
  const oldIncoming=Game.prototype.incomingDamageMultiplier;
- Game.prototype.incomingDamageMultiplier=function(source){if(this.payingPilotDebt)return 1;let m=oldIncoming.call(this,source);if(this.pilot==='brumowski'&&this.skillTime>0){const n=this.combatWorld().allies.filter(a=>a.ownerId===own(this)&&a.life>0&&distance(a,this)<180).length;m*=1-Math.min(2,n)*.1}if(this.pilot==='nungesser'&&this.skillTime>0)m*=.75;return m};
+ Game.prototype.incomingDamageMultiplier=function(source){if(this.payingPilotDebt)return 1;let m=oldIncoming.call(this,source);if(this.pilot==='brumowski'&&this.skillTime>0){const n=this.combatWorld().allies.filter(a=>a.ownerId===own(this)&&a.life>0&&distance(a,this)<180).length;m*=1-Math.min(2,n)*.1}return m};
  const oldDirection=Game.prototype.gunDirection;
  Game.prototype.gunDirection=function(gun=0){const base=oldDirection.call(this,gun);if(gun!==1||!['mckeever','huffzky'].includes(this.pilot))return base;const s=this.identityState(),range=this.pilot==='mckeever'?650:420;let e=this.pilot==='mckeever'&&s.handoffTime>0?s.handoff:this.identityTarget(1.2,range,this,this.a+Math.PI);if(!alive(e)||distance(this,e)>range)return base;const aim=Math.atan2(e.y-this.y,e.x-this.x);return Math.abs(delta(aim,this.a+Math.PI))<1.2?aim:base};
  const oldBegin=Game.prototype.beginRevisionFrame;
