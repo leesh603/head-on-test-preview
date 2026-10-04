@@ -8,7 +8,7 @@ const require=createRequire(import.meta.url),root=resolve(dirname(fileURLToPath(
 const {createCanvas,Image}=require(process.env.HEADON_QA_CANVAS||'@napi-rs/canvas');
 globalThis.document={createElement:()=>createCanvas(1,1)};
 globalThis.Image=class extends Image{get naturalWidth(){return this.width}get naturalHeight(){return this.height}addEventListener(type,fn){this['on'+type]=fn}set src(value){if(value)super.src=readFileSync(resolve(root,String(value).replace(/^file:\/\//,'').split('?')[0]));}get src(){return super.src}};
-const art=await import('../somme-boss-render.js?v=531'),{createBossEncounter}=await import('../headon-stageboss-patterns.js?v=531'),{renderStageBossLayer}=await import('../headon-stageboss-render.js?v=531');
+const art=await import('../somme-boss-render.js?v=532'),{createBossEncounter}=await import('../headon-stageboss-patterns.js?v=532'),{renderStageBossLayer}=await import('../headon-stageboss-render.js?v=532');
 await art.prepareSommeAssets();
 const ground=new Image();await new Promise((resolve,reject)=>{ground.onload=resolve;ground.onerror=reject;ground.src=readFileSync(root+'/terrain-somme359r2.webp')});
 const out=root+'/qa/somme-r2';mkdirSync(out,{recursive:true});const metrics={};
