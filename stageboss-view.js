@@ -1,30 +1,31 @@
-import {verdunFortExtents} from './verdun-fortresses.js?v=519';
-import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=519';
-import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=519';
-import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=519';
-import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=519';
-import {sommeExtents} from './somme-boss-layout.js?v=519';
-import {drawZubianShip} from './adriatic-boss-render.js?v=519';
-import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=519';
-import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=519';
-import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=519';
-import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=519';
-import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=519';
-import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=519';
-import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=519';
-import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=519';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=519';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=519';
-import {bossHudModel} from './headon-stageboss-hud.js?v=519';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=519';
-import {planeSprite} from './aircraft.js?v=519';
-import {getLocale} from './i18n.js?v=519';
-import {londonStatus} from './london-battle.js?v=519';
-import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=519';
-import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=519';
-import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=519';
-import {drawAlpsBomber,drawAlpsPart,drawAlpsWarnings,drawAlpsHazard} from './alps-bomber-render.js?v=519';
-import {drawHarborFortress} from './harbor-crane-render.js?v=519';
+import {drawMaanBoss,prepareMaanAssets} from './maan-view.js?v=520';
+import {verdunFortExtents} from './verdun-fortresses.js?v=520';
+import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=520';
+import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=520';
+import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=520';
+import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=520';
+import {sommeExtents} from './somme-boss-layout.js?v=520';
+import {drawZubianShip} from './adriatic-boss-render.js?v=520';
+import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=520';
+import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=520';
+import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=520';
+import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=520';
+import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=520';
+import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=520';
+import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=520';
+import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=520';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=520';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=520';
+import {bossHudModel} from './headon-stageboss-hud.js?v=520';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=520';
+import {planeSprite} from './aircraft.js?v=520';
+import {getLocale} from './i18n.js?v=520';
+import {londonStatus} from './london-battle.js?v=520';
+import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=520';
+import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=520';
+import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=520';
+import {drawAlpsBomber,drawAlpsPart,drawAlpsWarnings,drawAlpsHazard} from './alps-bomber-render.js?v=520';
+import {drawHarborFortress} from './harbor-crane-render.js?v=520';
 
 function createLazyImageGroup(sources){
  const cache={},pending={};
@@ -74,7 +75,7 @@ const BOSS_KEYS_BY_REGION=Object.freeze({
   0:['parisGun','lincomparable'],1:['stuttgart','zubian'],2:['a7v','markv'],3:[],4:['drachenLeft','drachenCenter','drachenRight'],5:['l70','hma23'],6:['gik','ca4'],7:[],8:[],10:[],11:[]
 });
 export function prepareStageBossAssets(region){
- const jobs=[prepareRegionalBossArt(region)];releaseSommeAssets();if(region===10)jobs.push(prepareSommeAssets());releaseLondonArt();if(region===11)jobs.push(prepareLondonArt());releaseVerdunAssets();if(region===12)jobs.push(prepareVerdunAssets());
+ const jobs=[prepareRegionalBossArt(region)];releaseSommeAssets();if(region===10)jobs.push(prepareSommeAssets());releaseLondonArt();if(region===11)jobs.push(prepareLondonArt());releaseVerdunAssets();if(region===12)jobs.push(prepareVerdunAssets());jobs.push(prepareMaanAssets(region));
  bossGroup.release();alpsGroup.release();supportGroup.release();rebuildGroup.release();armorDamageGroup.release();harborGroup.release();trenchGroup.release();zubianGroup.release();cityGroup.release();buildingGroup.release();flakTowerGroup.release();
  for(const group of [...Object.values(railGroups),...Object.values(railWreckGroups)])group.release();
  const bossKeys=BOSS_KEYS_BY_REGION[region]||[];if(bossKeys.length)jobs.push(bossGroup.preload(bossKeys));
@@ -369,6 +370,7 @@ function drawCityFlak(c,b){
 }
 
 function drawBossPart(c,p,ring,t=0){
+ if(['wustenpanzer','sinai-landship','maan-rolls-royce'].includes(p.bodyKey))return;
  if(p.bodyKey==='armored-harbor-fortress')return;
  if(p.bodyKey==='gotha-raider'||p.bodyKey==='london-apron-raid'){const r=p.radius;if(!p.destroyed&&(p.hp<p.maxHp||p.partId==='bomb-bay'&&p.phase==='bombing-run')){ring(p.x,p.y,r,'#efc98aaa');c.fillStyle='#1b242a';c.fillRect(p.x-r,p.y+r+4,r*2,3);c.fillStyle='#edb875';c.fillRect(p.x-r,p.y+r+4,r*2*p.hp/p.maxHp,3);}return;}
  if(drawRegionalBossPart(c,p))return;
@@ -509,6 +511,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    if(b.assetKey.startsWith('hms-zubian')){drawZubianShip(c,b,zubianArt);if(b.destroying)drawSinkingWater(c,b,Math.min(1,b.destructionAge/Math.max(.1,b.destructionDuration)));return;}
    if(b.assetKey==='gik'||b.assetKey==='ca4'){drawAlpsBomber(c,b,bossArt[b.assetKey],alpsArt[b.assetKey]);return;}
    if(b.assetKey==='fort-douaumont'||b.assetKey==='fort-souville'){const body=[...addon.stages.encounter.bodies.values()].find(v=>v.kind===b.assetKey);if(body)drawVerdunFort(c,body,b);return;}
+   if(['wustenpanzer','sinai-landship','maan-rolls-royce'].includes(b.assetKey)){const live=addon.stages.encounter?.bodies.values();for(const body of live||[])if(body.kind===b.assetKey&&body.x===b.x&&body.y===b.y){drawMaanBoss(c,body);break;}return;}
    if(b.assetKey==='gotha-raider'){drawGotha(c,b);return;}
    if(b.assetKey==='london-apron-raid'){drawLondonRaidApron(c,b);return;}
    if(b.assetKey==='london-apron'){drawAttachedApron(c,b,bossArt.londonApron,bossArt.londonApronDamage1);return;}

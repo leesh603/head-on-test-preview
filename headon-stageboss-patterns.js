@@ -1,23 +1,24 @@
-import {RuralRailBoss} from './rural-rail-combat.js?v=519';
-import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=519';
-import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=519';
-import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=519';
+import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=520';
+import {RuralRailBoss} from './rural-rail-combat.js?v=520';
+import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=520';
+import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=520';
+import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=520';
 export {Mark1Landship as Mark4Wedge,SchwabenFortress as MorserBattery};
-import {sommeScale} from './somme-boss-layout.js?v=519';
-import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose} from './adriatic-boss-layout.js?v=519';
-import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=519';
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=519';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=519';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=519';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=519';
-import {GIK,Ca4} from './alps-bomber-combat.js?v=519';
-import {FlakTowerNet} from './city-flak-combat.js?v=519';
+import {sommeScale} from './somme-boss-layout.js?v=520';
+import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose} from './adriatic-boss-layout.js?v=520';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=520';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=520';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=520';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=520';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=520';
+import {GIK,Ca4} from './alps-bomber-combat.js?v=520';
+import {FlakTowerNet} from './city-flak-combat.js?v=520';
 export {GIK,Ca4};
-import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=519';
+import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=520';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
-export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai', 'arras', 'somme', 'london', 'verdun']);
+export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai', 'arras', 'somme', 'london', 'verdun', 'maan']);
 export const BOSS_CATALOG = Object.freeze({
   'paris-gun': {name:'브루노 열차포', faction:'central', stage:0},
   lincomparable: {name:'520mm 열차포 · 랑콩파라블', faction:'entente', stage:0},
@@ -44,6 +45,8 @@ export const BOSS_CATALOG = Object.freeze({
   ,'gotha-squadron': {name:'고타 야간 폭격전대', faction:'central', stage:11}
   ,'fort-douaumont': {name:'두오몽 요새 · Fort Douaumont', faction:'central', stage:12}
   ,'fort-souville': {name:'수빌 요새 · Fort de Souville', faction:'entente', stage:12}
+  ,'wustenpanzer': {name:'사막 육상순양함 · Wüstenpanzer', faction:'central', stage:13}
+  ,'sinai-landship': {name:'시나이 육상함 · Sinai Landship', faction:'entente', stage:13}
   
 });
 const living = players => players.filter(p => p.alive);
@@ -1265,11 +1268,13 @@ const constructors={'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttg
   'livens-flame-projector':LivensFlameProjector,'minenwerfer-battery':MinenwerferBattery,
   'london-apron':LondonApron,'drachen-net':DrachenMineNet,gik:GIK,ca4:Ca4,'armored-harbor-fortress':ArmoredHarborFortress,'flak-tower':FlakTowerNet,
   fliegerzug:Fliegerzug,'treffas-wagen':TreffasWagen,'jasta11-circus':JastaCircus,'naval10-black-flight':Naval10BlackFlight,
-  'mark4-wedge':Mark1Landship,'morser-battery':SchwabenFortress,'staaken-rvi':StaakenRVI,'london-searchlight':LondonSearchlight,'london-apron-raid':LondonRaidApron,'gotha-squadron':GothaRaider,'fort-douaumont':FortDouaumont,'fort-souville':FortSouville};
+  'mark4-wedge':Mark1Landship,'morser-battery':SchwabenFortress,'staaken-rvi':StaakenRVI,'london-searchlight':LondonSearchlight,'london-apron-raid':LondonRaidApron,'gotha-squadron':GothaRaider,'fort-douaumont':FortDouaumont,'fort-souville':FortSouville,'wustenpanzer':Wustenpanzer,'sinai-landship':SinaiLandship};
 export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   if(bossId==='mark4-wedge'){const scale=sommeScale(tuning,true),t={...tuning,maxHp:tuning.maxHp/3,sommeScale:scale};return new BossEncounter({id,bossId,bodies:[0,1,2].map(slot=>new Mark1Landship({id:id+':mark1:'+slot,slot,tuning:t,x:x+(slot===1?-155:slot===2?155:0)*scale,y:y+(slot===0?-100:65)*scale,emit,rng,faction:faction||'entente'}))});}
   if(bossId==='gotha-squadron'){const flightTuning={...tuning,maxHp:tuning.maxHp/3,partHp:tuning.partHp/3,geometryScale:1};return new BossEncounter({id,bossId,bodies:[0,1,2].map(slot=>new GothaRaider({id:id+':gotha:'+slot,slot,tuning:flightTuning,x:x+(slot-1)*215,y:y+(slot===1?0:-90),emit,rng,faction:faction||'central'}))});}
   const entry=BOSS_CATALOG[bossId]||{faction:bossId==='staaken-rvi'?'central':'entente'},Ctor=constructors[bossId];if(!Ctor)throw new Error('Unknown boss: '+bossId);
   const body=new Ctor({id:id+':body',tuning,x,y,emit,rng,faction:faction||entry.faction,coreRadius:tuning.coreRadius||100});
-  return new BossEncounter({id,bossId,bodies:[body]});
+  const bodies=[body];
+  if(bossId==='sinai-landship')for(const side of [-1,1])bodies.push(new RollsRoyceEscort({id:id+':escort:'+side,leader:body,side,tuning,emit,faction:body.faction,x:x+side*145,y:y+170}));
+  return new BossEncounter({id,bossId,bodies});
 }
