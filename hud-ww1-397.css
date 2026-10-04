@@ -1260,3 +1260,35 @@ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud.reload
  body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud.reloading::after{animation:none}
  body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud.astra-reloaded:not(.reloading)::after{animation:none;opacity:0}
 }
+
+/* ---- Reload as belt feeding (replaces the plain brass fill) ----
+   A dedicated <i.ho-belt> sits under the reload label: an empty canvas belt across the pill, and
+   loaded 7.92 mm rounds (tools/fx-sample/belt.py) filling it up to the reload progress. The loaded
+   run steps forward one round at a time like the belt being pulled through the feed, with a warm
+   feed edge at the progress front. The ::after keeps only the label, rim and completion flash. */
+body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud .ho-belt{
+ --belt-h:calc(var(--ho-pill-h) - 10px);--belt-pitch:calc(var(--belt-h) * 18 / 104);
+ position:absolute;z-index:2;top:50%;left:4px;right:0;height:var(--belt-h);transform:translateY(-50%);
+ display:block;border-radius:999px;overflow:hidden;pointer-events:none;opacity:0;visibility:hidden;
+ background:linear-gradient(#14131170,#14131170),url("./hud-belt-empty.png?v=522") 0 0/auto 100% repeat-x,#141311;
+ box-shadow:inset 0 1px 0 #ffffff12,inset 0 -2px 4px #000a;
+}
+body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud .ho-belt::before{
+ content:"";position:absolute;inset:0 auto 0 0;width:var(--astra-reload-p,0%);
+ background:url("./hud-belt-round.png?v=522") 0 0/auto 100% repeat-x;
+ box-shadow:1px 0 0 #ffe7a6,3px 0 7px #ffc95e66;
+}
+body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud .ho-belt::after{
+ content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+ background:linear-gradient(180deg,#ffffff1c 0,#ffffff00 32%,#00000000 66%,#00000038 100%);
+}
+body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud.reloading .ho-belt{opacity:1;visibility:visible;animation:ho-reload-in .14s ease-out both}
+body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud.reloading .ho-belt::before{animation:ho-belt-feed .16s cubic-bezier(.2,.7,.3,1) infinite}
+@keyframes ho-belt-feed{0%{background-position-x:calc(var(--belt-pitch) * -1)}70%,100%{background-position-x:0}}
+body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud.reloading::after{
+ background:none;border-color:#c9a24a73;animation:ho-reload-in .14s ease-out both;
+ text-shadow:0 0 3px #000,0 0 6px #000,0 1px 1px #000;
+}
+@media(prefers-reduced-motion:reduce){
+ body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud.reloading .ho-belt::before{animation:none}
+}
