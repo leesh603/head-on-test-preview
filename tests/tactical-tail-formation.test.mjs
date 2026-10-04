@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,TAILING_BALANCE,BATTLE_DIRECTOR_PATTERNS as P} from '../engine.js?v=532';
+import {Game,TAILING_BALANCE,BATTLE_DIRECTOR_PATTERNS as P} from '../engine.js?v=styles537';
 
 const quiet=g=>{for(const key of ['spawn','eventTimer','nextBossAt','nextHeavyAt','_zeppelinSchedule','flakTimer','regionThreat','fieldUnitTimer','gasTimer','gustTimer','patrolTimer'])g[key]=Infinity;return g};
 const setup=(plane='spad')=>{const g=quiet(new Game(plane,'fonck',()=>.5));Object.assign(g,{x:0,y:0,a:0});return g};
@@ -38,13 +38,13 @@ const target=(extra={})=>({x:200,y:0,a:0,type:'hunter',hp:100,maxHp:100,speed:80
  test('a consumed commander outcome breaks the next directed group at entry only',()=>{
  const g=setup();g.viewWidth=600;g.t=400;g.battlefieldEvents={pending:{formation:{value:true,expiresAt:418,region:g.worldRegion()}}};g.beginBattleDirectorPattern(P.CROSS_ATTACK);
  for(let i=0;i<3;i++){g.t+=.5;g.tickBattleDirector(.04)}
- const group=g.enemies.filter(e=>e.directorSceneId===1);assert.equal(group.length,3);assert(group.every(e=>e.formationCollapseUntil>g.t));
+ const group=g.enemies.filter(e=>e.directorSceneId===1);assert.equal(group.length,4);assert(group.every(e=>e.formationCollapseUntil>g.t));
  g.battlefieldEvents.engagement.endsAt=0;g.beginBattleDirectorPattern(P.CROSS_ATTACK);for(let i=0;i<3;i++){g.t+=.5;g.tickBattleDirector(.04)}
  assert(g.enemies.filter(e=>e.directorSceneId===2).every(e=>!e.formationCollapseUntil));
  });
 
  test('elite command loss creates a 2.6s real break and only later formations can regroup',async()=>{
- const {EliteEnemySystem}=await import('../elite-patch/module/elite-core.js?v=532');
+ const {EliteEnemySystem}=await import('../elite-patch/module/elite-core.js?v=styles537');
  for(const stage of [4,7]){
   let time=400;const host={random:()=>.5,getTime:()=>time,getPlayer:()=>({x:0,y:0}),getPlayerFaction:()=> 'central',getNormalStats:()=>({hp:30,damage:10,speed:100}),getAceStats:()=>({hp:700,damage:40}),getProgressStage:()=>stage,damagePlayer:()=>{}};
   const system=new EliteEnemySystem(host),squadron=system.spawnEncounter(),leader=squadron.leader;
@@ -64,7 +64,7 @@ const target=(extra={})=>({x:200,y:0,a:0,type:'hunter',hp:100,maxHp:100,speed:80
  });
 
 const coopFormation=async()=>{
- const {CoopGame}=await import('../coop-engine.js?v=532');
+ const {CoopGame}=await import('../coop-engine.js?v=styles537');
  const world=quiet(new CoopGame([{plane:'camel',pilot:'fonck'},{plane:'camel',pilot:'bishop'}],{rng:()=>.5}));
  world.t=400;world.beginBattleDirectorPattern(P.PINCER);for(let i=0;i<3;i++){world.t+=.5;world.tickBattleDirector(.04)}
  const leader=world.enemies.find(e=>e.formationCommand),wing=world.enemies.find(e=>e.formationLeader===leader);assert(leader&&wing);
@@ -91,7 +91,7 @@ const coopFormation=async()=>{
  });
 
  test('elite short disruption delegates from Game and restores command; death during it upgrades the full break',async()=>{
- const {EliteEnemySystem}=await import('../elite-patch/module/elite-core.js?v=532');
+ const {EliteEnemySystem}=await import('../elite-patch/module/elite-core.js?v=styles537');
  const g=setup();g.t=400;
  const host={random:()=>.5,getTime:()=>g.t,getPlayer:()=>g,getPlayerFaction:()=> 'central',getNormalStats:()=>({hp:30,damage:10,speed:100}),getAceStats:()=>({hp:700,damage:40}),getProgressStage:()=>7,damagePlayer:()=>{}};
  const system=g.eliteEnemies=new EliteEnemySystem(host),squadron=system.spawnEncounter(),leader=squadron.leader,wing=squadron.members.find(m=>m!==leader);

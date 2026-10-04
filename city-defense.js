@@ -32,7 +32,9 @@ export function tickCityDefense(g,dt){
  if(!units.length){g._cityRespawn=Math.max(0,(g._cityRespawn||0)-step);if(g._cityRespawn<=0){spawnCityDefense(g);g._cityRespawn=9;}units=g.enemies.filter(e=>e.cityUnit&&e.hp>0&&!e.expired);}
  let lit=false;
  for(const e of units.filter(e=>e.cityUnit==='light')){
-  e.scanA=e.scanBase+Math.sin((g.t||0)*.22+e.scanPhase)*.95;e.lockT=0;
+  const tracked=ps.find(p=>(e.locks.get(p.id||'p1')||0)>.15&&(p.cloudConceal||0)<.9&&Math.hypot(p.x-e.x,p.y-e.y)<B.beamRange);
+  const aim=tracked?Math.atan2(tracked.y-e.y,tracked.x-e.x):e.scanBase+Math.sin((g.t||0)*.22+e.scanPhase)*.95;
+  e.scanA+=Math.max(-step*.65,Math.min(step*.65,delta(aim,e.scanA)));e.lockT=0;
   for(const p of ps){
    const id=p.id||'p1',d=Math.hypot(p.x-e.x,p.y-e.y),inBeam=(p.cloudConceal||0)<.9&&d<B.beamRange&&Math.abs(delta(Math.atan2(p.y-e.y,p.x-e.x),e.scanA))<B.beamHalf;
    const lock=Math.max(0,Math.min(B.lockTime,(e.locks.get(id)||0)+(inBeam?step:-step*1.6)));
