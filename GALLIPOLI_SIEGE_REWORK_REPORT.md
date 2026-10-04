@@ -36,7 +36,7 @@ Built-in imagegen으로 6개 신규 WebP 제작, 품질 95. 원본 알파 보존
 - `tools/qa-gallipoli-engine.mjs`: 1인/협동 × 양 진영 × 390/1440 총 8개, 각 60초. 실제 Game/CoopGame 및 host collision/damage 경로 사용. 일시정지 정지, 최대 hazard 5, pool dropped 0, 세 구역 점령/중앙 격파 성공. 자동 엔진 검증이며 실제 입력 플레이/브라우저 FPS와 구분.
 - `tools/qa-gallipoli-render.mjs`: 실제 맵/보스/낙탄 렌더러 Skia PC/mobile 및 전체 전경 확인. 자산 누락 없음. CPU 렌더+readback 측정은 `qa/gallipoli/render-metrics.json`, 실제 기기 FPS 아님.
 - `qa/gallipoli/alpha-check.json`: 투명 에셋 알파/모서리 확인, 밝은 불투명 붉은 잔여 픽셀 0. 지면은 완전 불투명.
-- 브라우저 확인: 브랜치 업로드 후 별도 기록. 자동 렌더 결과를 브라우저 실플레이 통과로 표기하지 않음.
+- 브라우저: 구현 커밋 `affa062bcaaad0024917e58b2d7788a5034f3c70` raw.githack 프리뷰에서 새 요새/점령 HUD, 00:00→00:04 진행, 일시정지와 복귀 UI 확인. 공통 aircraft.js/portraits.js/battlefield-art.js의 getImageData CORS SecurityError 및 TestLab 미설치 관찰. 장시간 PC/mobile 입력 실플레이·실기기 FPS **미검증**. 상세 `qa/gallipoli/browser-check.json`. 자동 엔진/렌더 결과를 브라우저 완전 통과로 표기하지 않음.
 
 ## 수정 범위
 게임 동작: gallipoli-boss.js / gallipoli-route.js / gallipoli-view.js / stageboss-host.js / stageboss-view.js / boss-feedback.js / headon-stageboss-patterns.js / app.js.
@@ -45,3 +45,47 @@ Built-in imagegen으로 6개 신규 WebP 제작, 품질 95. 원본 알파 보존
 검증: tests/gallipoli-stage.test.mjs / tools/qa-gallipoli-{engine,render}.mjs / qa/gallipoli.
 
 공통 비행·조종·파일럿·증강·랭킹·저장 동작의 로직 변경 없음. source 리포의 뒤처진 브랜치는 사용하지 않음.
+
+## 전체 수정 파일 (41개)
+
+- `GALLIPOLI_SIEGE_REWORK_REPORT.md`
+- `app.js`
+- `boss-feedback.js`
+- `coop-engine.js`
+- `coop-view.js`
+- `engine.js`
+- `gallipoli-boss.js`
+- `gallipoli-fortress-cut-in.webp`
+- `gallipoli-route.js`
+- `gallipoli-siege-bases.webp`
+- `gallipoli-siege-facilities.webp`
+- `gallipoli-siege-ground.webp`
+- `gallipoli-siege-guns.webp`
+- `gallipoli-siege-star.webp`
+- `gallipoli-siege-wing.webp`
+- `gallipoli-view.js`
+- `headon-stageboss-hud.js`
+- `headon-stageboss-patterns.js`
+- `headon-stageboss-runtime.js`
+- `index.html`
+- `qa/gallipoli/alpha-check.json`
+- `qa/gallipoli/browser-check.json`
+- `qa/gallipoli/engine-results.json`
+- `qa/gallipoli/mobile-central-damaged.webp`
+- `qa/gallipoli/mobile-central.webp`
+- `qa/gallipoli/mobile-entente-damaged.webp`
+- `qa/gallipoli/mobile-entente.webp`
+- `qa/gallipoli/pc-central-damaged.webp`
+- `qa/gallipoli/pc-central.webp`
+- `qa/gallipoli/pc-entente-damaged.webp`
+- `qa/gallipoli/pc-entente.webp`
+- `qa/gallipoli/render-metrics.json`
+- `qa/gallipoli/route-12400.webp`
+- `qa/gallipoli/route-7200.webp`
+- `qa/gallipoli/route-8500.webp`
+- `qa/gallipoli/siege-overview.webp`
+- `stageboss-host.js`
+- `stageboss-view.js`
+- `tests/gallipoli-stage.test.mjs`
+- `tools/qa-gallipoli-engine.mjs`
+- `tools/qa-gallipoli-render.mjs`
