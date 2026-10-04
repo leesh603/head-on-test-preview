@@ -1,24 +1,24 @@
-import {getLocale} from './i18n.js?v=530';
-import {unitNameEN} from './event-text-en.js?v=530';
-import {drawRegionalBug} from './regional-boss-view352.js?v=530';
-import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=530';
-import {drawGasCloud196} from './gas-cloud196.js?v=530';
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=530';
-import {fxsBoomTail} from './fx-sample-preview.js?v=530';
-import {fx,fxReady,fxTint} from './fx-art.js?v=530';
-import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=530';
+import {getLocale} from './i18n.js?v=531';
+import {unitNameEN} from './event-text-en.js?v=531';
+import {drawRegionalBug} from './regional-boss-view352.js?v=531';
+import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=531';
+import {drawGasCloud196} from './gas-cloud196.js?v=531';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=531';
+import {fxsBoomTail} from './fx-sample-preview.js?v=531';
+import {fx,fxReady,fxTint} from './fx-art.js?v=531';
+import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=531';
 import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js';
-import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=530';
-import {drawAircraftCrash} from './aircraft-crash.js?v=530';
-import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=530';
-import {drawStageBoss} from './stageboss-view.js?v=530';
-import {planeSprite,aircraftKey} from './aircraft.js?v=530';
-import {drawEquipment} from './equipment.js?v=530';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=530';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=530';
-import {drawSpecialAmmoIcon} from './icons.js?v=530';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=530';
-import {drawCombatFeedback,combatCameraOffset,combatVisualPose} from './combat-feedback.js?v=530';
+import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=531';
+import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=531';
+import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=531';
+import {drawStageBoss} from './stageboss-view.js?v=531';
+import {planeSprite,aircraftKey} from './aircraft.js?v=531';
+import {drawEquipment} from './equipment.js?v=531';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=531';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=531';
+import {drawSpecialAmmoIcon} from './icons.js?v=531';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=531';
+import {drawCombatFeedback,combatCameraOffset,combatVisualPose} from './combat-feedback.js?v=531';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
 const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=426&b=326';
@@ -44,7 +44,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  for(const f of g.flakBursts)if(!cl(f.x,f.y,90))drawBattlefieldSprite(c,'aa',f.x,f.y,66);
  for(const e of g.enemies){
   if(e.stageBossBody||e.cityUnit||cl(e.x,e.y,300))continue;
-  if(e.crashing){const key=e.formationLivery||e.escortPlane||e.bossPlane||(e.faction==='entente'?(e.type==='hunter'?'nieuport':'camel'):(e.type==='hunter'?'fokker_standard':'albatros'));drawAircraftCrash(c,e,e.x,e.y,t,fx);sprite(e,key,enemyAircraftScale(e),true);continue}
+  if(e.crashing){const key=e.formationLivery||e.escortPlane||e.bossPlane||(e.faction==='entente'?(e.type==='hunter'?'nieuport':'camel'):(e.type==='hunter'?'fokker_standard':'albatros'));drawAircraftCrash(c,e,e.x,e.y,t,fx);sprite(e,key,enemyAircraftScale(e)*enemyCrashScale(e),true);continue}
   if(e.hp<=0)continue;
   if(e.groundEscort||e.fieldUnit||e.navalVessel)continue;
   if(e.bugDrone){drawRegionalBug(c,e);}
