@@ -32,7 +32,7 @@ button:hover{border-color:#cbb27a}
 .mk canvas{width:80%;height:80%}
 #wrap{flex:1;position:relative;background:
 repeating-conic-gradient(#1c1a16 0 25%,#211e19 0 50%) 0 0/28px 28px;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:24px}
-#cv{background:transparent;cursor:crosshair;image-rendering:auto;touch-action:none;max-width:100%;height:auto}
+#cv{background:transparent;cursor:crosshair;image-rendering:auto;touch-action:none;height:auto}
 .hint{font-size:11px;color:#7a7160;margin-top:4px}
 #log{font-size:12px;color:#8fbf7f;margin-top:10px;min-height:18px}
 label.ck{display:flex;align-items:center;gap:7px;font-size:12.5px;cursor:pointer}
@@ -40,11 +40,11 @@ label.ck input{width:auto}
 a.dl{display:block;text-align:center;background:#3d5a34;color:#d7e8c9;text-decoration:none;border-radius:6px;padding:9px;margin-top:8px;font-weight:700}
 </style></head><body>
 <aside>
-<div id="toolbar"><h1>도색 스튜디오 <span style="font-size:11px;color:#7a7160">v2·모바일</span></h1><span id="twist" style="font-size:12px;color:#9a8f78">▼ 접기/펼치기</span></div>
+<div id="toolbar"><h1>도색 스튜디오 <span style="font-size:11px;color:#7a7160">v3</span></h1><span id="twist" style="font-size:12px;color:#9a8f78">▼ 접기/펼치기</span></div>
 <div class="panel-body">
 <h2>베이스</h2>
 <select id="base"></select>
-<div class="hint">또는 이미지를 캔버스에 드래그앤드롭</div>
+<div class="hint">또는 이미지를 캔버스에 드래그앤드롭. 모바일: 확대(＋)해서 정확히 찍고, ✋이동으로 화면 옮기기</div>
 <h2>도구</h2>
 <div class="row">
 <button id="t-fill" class="on">채우기 (선 안)</button>
@@ -55,6 +55,13 @@ a.dl{display:block;text-align:center;background:#3d5a34;color:#d7e8c9;text-decor
 <button id="t-erase">지우개(원본 복구)</button>
 <button id="t-undo">되돌리기</button>
 </div>
+<div class="row">
+<button id="t-pan">✋ 이동</button>
+<button id="z-out">−</button>
+<button id="z-fit" style="flex:1.4">화면맞춤</button>
+<button id="z-in">＋</button>
+<button id="t-reset" style="background:#5a3428;border-color:#7a4a3a">초기화</button>
+</div>
 <h2>색상</h2>
 <div class="swatches" id="swatches"></div>
 <div class="row"><input type="color" id="pick" value="#7a6f52" style="width:60px;height:32px;padding:2px">
@@ -62,7 +69,7 @@ a.dl{display:block;text-align:center;background:#3d5a34;color:#d7e8c9;text-decor
 <div class="row"><span style="font-size:11px;flex:none">브러시</span><input type="range" id="bsize" min="6" max="120" value="40"></div>
 <h2>국적 마킹</h2>
 <div class="marks" id="marks"></div>
-<div class="row"><span style="font-size:11px;flex:none">크기</span><input type="range" id="msize" min="20" max="300" value="90"></div>
+<div class="row"><span style="font-size:11px;flex:none">크기</span><input type="range" id="msize" min="20" max="400" value="140"></div>
 <label class="ck"><input type="checkbox" id="mirror" checked> 좌우 미러로 같이 찍기</label>
 <h2>저장</h2>
 <div class="row"><input type="text" id="fname" placeholder="파일명 (예: my_albatros_red)"><button id="save" style="flex:0 0 80px">webp 저장</button></div>
@@ -143,12 +150,20 @@ $('toolbar').onclick=()=>{aside.classList.toggle('collapsed')};
 const twisty=()=>{twist.textContent=aside.classList.contains('collapsed')?'▼ 펼치기':'▲ 접기'};twisty();
 new MutationObserver(twisty).observe(aside,{attributes:true,attributeFilter:['class']});
 const cv=$('cv'),cx=cv.getContext('2d',{willReadFrequently:true});
-let orig=null,undoStack=[],mode='fill',markType='roundel_entente',paint='#7a6f52',strength=.8,bsize=40,msize=90,mirror=true;
+let orig=null,undoStack=[],mode='fill',markType='roundel_entente',paint='#7a6f52',strength=.8,bsize=40,msize=140,mirror=true,zoom=0;
 const sel=$('base');
 for(const [n,p] of BASES){const o=document.createElement('option');o.textContent=n;o.value=p;o.disabled=!p;sel.add(o)}
 sel.onchange=()=>loadBase(sel.value);
 function loadBase(p){if(!p)return;const img=new Image();img.onload=()=>{orig=img;reset();log('로드됨: '+p)};img.onerror=()=>log('로드 실패: '+p);img.src=p}
-function reset(){if(!orig)return;cv.width=orig.naturalWidth;cv.height=orig.naturalHeight;cx.clearRect(0,0,cv.width,cv.height);cx.drawImage(orig,0,0);undoStack=[]}
+function reset(){if(!orig)return;cv.width=orig.naturalWidth;cv.height=orig.naturalHeight;cx.clearRect(0,0,cv.width,cv.height);cx.drawImage(orig,0,0);undoStack=[];origCv=null;zoomFit()}
+function zoomFit(){zoom=Math.min(1,(document.getElementById('wrap').clientWidth-40)/orig.naturalWidth);applyZoom()}
+function applyZoom(){cv.style.width=(orig.naturalWidth*zoom)+'px';cv.style.height='auto'}
+function setZoom(z){zoom=Math.max(.05,Math.min(4,z));applyZoom()}
+$('z-in').onclick=()=>{const r=cv.getBoundingClientRect(),w=document.getElementById('wrap');const cxr=(w.scrollLeft+w.clientWidth/2)/r.width*orig.naturalWidth;setZoom(zoom*1.4);w.scrollLeft=cxr/orig.naturalWidth*cv.getBoundingClientRect().width-w.clientWidth/2};
+$('z-out').onclick=()=>setZoom(zoom/1.4);
+$('z-fit').onclick=()=>zoomFit();
+$('t-reset').onclick=()=>{if(orig){reset();log('초기화됨')}};
+$('t-pan').onclick=()=>{mode=mode==='pan'?'fill':'pan';cv.style.touchAction=mode==='pan'?'auto':'none';setTools()};
 // swatches
 const sw=$('swatches');
 for(const [n,c] of Object.entries(PALETTE)){const d=document.createElement('div');d.className='sw';d.style.background=c;d.title=n;d.dataset.c=c;
@@ -163,7 +178,7 @@ $('mirror').onchange=e=>mirror=e.target.checked;
 const mk=$('marks');
 for(const k of Object.keys(MARKS)){const d=document.createElement('div');d.className='mk';d.dataset.k=k;const c2=document.createElement('canvas');c2.width=c2.height=64;MARKS[k](c2.getContext('2d'),64);d.append(c2);d.title=k;d.onclick=()=>{mode='mark';markType=k;setTools();[...mk.children].forEach(x=>x.classList.toggle('on',x===d))};mk.append(d)}
 mk.children[0].classList.add('on');
-function setTools(){for(const t of ['fill','brush','mark','erase']) $('t-'+t).classList.toggle('on',mode===t)}
+function setTools(){for(const t of ['fill','brush','mark','erase','pan']) $('t-'+t).classList.toggle('on',mode===t)}
 $('t-fill').onclick=()=>{mode='fill';setTools()};
 $('t-brush').onclick=()=>{mode='brush';setTools()};
 $('t-mark').onclick=()=>{mode='mark';setTools()};
@@ -256,7 +271,7 @@ function stamp(x,y){
  MARKS[markType](off.getContext('2d'),s);
  cx.save();cx.imageSmoothingEnabled=true;
  cx.drawImage(off,x-s/2,y-s/2,s,s);
- if(mirror)cx.drawImage(off,cv.width-x-s/2,y-s/2,s,s);
+ if(mirror&&Math.abs(2*x-cv.width)>s)cx.drawImage(off,cv.width-x-s/2,y-s/2,s,s);
  cx.restore();
  log('마킹 배치');
 }
@@ -269,9 +284,9 @@ cv.onmousemove=e=>{if(!painting)return;const [x,y]=pos(e);
  last=[x,y]};
 cv.onmouseup=()=>painting=false;cv.onmouseleave=()=>painting=false;
 // touch
-cv.ontouchstart=e=>{e.preventDefault();const t=e.touches[0];cv.onmousedown({clientX:t.clientX,clientY:t.clientY})};
-cv.ontouchmove=e=>{e.preventDefault();const t=e.touches[0];cv.onmousemove({clientX:t.clientX,clientY:t.clientY})};
-cv.ontouchend=e=>{e.preventDefault();painting=false};
+cv.ontouchstart=e=>{if(mode==='pan')return;e.preventDefault();const t=e.touches[0];cv.onmousedown({clientX:t.clientX,clientY:t.clientY})};
+cv.ontouchmove=e=>{if(mode==='pan')return;e.preventDefault();const t=e.touches[0];cv.onmousemove({clientX:t.clientX,clientY:t.clientY})};
+cv.ontouchend=e=>{if(mode==='pan')return;e.preventDefault();painting=false};
 // drag-drop image
 const wrap=$('wrap');
 wrap.ondragover=e=>e.preventDefault();
