@@ -1,0 +1,19 @@
+{
+  "baselineMain": "9739b3eaa706484853b32e4058f25333f579f4db",
+  "previewCommit": "064f90145f27fcdaa9cfc0888d99221d2211e9bf",
+  "previewUrl": "https://raw.githack.com/leesh603/head-on-test-preview/064f90145f27fcdaa9cfc0888d99221d2211e9bf/index.html?headonTest=1&region=14&pilot=fonck&boss=1&v=gallipoli20261004",
+  "previewStatus": "blockedCanvasSecurityError",
+  "errors": [
+    "aircraft.js:38 getImageData SecurityError",
+    "battlefield-art.js:3 getImageData SecurityError",
+    "equipment.js:15 getImageData SecurityError",
+    "portraits.js:10 getImageData SecurityError",
+    "gallipoli-view.js bake getImageData SecurityError; own loader subsequently uses anonymous CORS"
+  ],
+  "pcBrowserGameplayVerified": false,
+  "mobileBrowserGameplayVerified": false,
+  "testLabStatusUnavailable": true,
+  "securityProtectionsChanged": false,
+  "mainChangedByThisWork": false,
+  "productionDeployed": false
+}
