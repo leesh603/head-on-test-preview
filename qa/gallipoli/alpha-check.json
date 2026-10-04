@@ -1,0 +1,74 @@
+{
+  "gallipoli-fortress-atlas.webp": {
+    "size": [
+      1536,
+      1024
+    ],
+    "bytes": 616532,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "cornerAlpha": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "opaquePixels": 742472
+  },
+  "gallipoli-overlay-central.webp": {
+    "size": [
+      887,
+      887
+    ],
+    "bytes": 196226,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "cornerAlpha": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "opaquePixels": 326611
+  },
+  "gallipoli-overlay-entente.webp": {
+    "size": [
+      887,
+      887
+    ],
+    "bytes": 191498,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "cornerAlpha": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "opaquePixels": 326165
+  },
+  "gallipoli-fortress-cut-in.webp": {
+    "size": [
+      760,
+      520
+    ],
+    "bytes": 125712,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "cornerAlpha": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "opaquePixels": 185056
+  }
+}

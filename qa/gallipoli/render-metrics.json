@@ -1,0 +1,25 @@
+{
+  "missing": [],
+  "metrics": {
+    "pc-central": {
+      "meanMs": 10.281419909999922,
+      "hazards": 0,
+      "dropped": 0
+    },
+    "mobile-central": {
+      "meanMs": 5.042523980000042,
+      "hazards": 0,
+      "dropped": 0
+    },
+    "pc-entente": {
+      "meanMs": 8.932212190000064,
+      "hazards": 0,
+      "dropped": 0
+    },
+    "mobile-entente": {
+      "meanMs": 3.126451100000013,
+      "hazards": 0,
+      "dropped": 0
+    }
+  }
+}
