@@ -1,4 +1,4 @@
-import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from './aircraft-crash.js?v=532';
+import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from './aircraft-crash.js?v=533';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.
 const worlds=new WeakMap(),poses=new WeakMap();
@@ -52,7 +52,7 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
    this.combatFX=(this.combatFX||[]).filter(f=>oldFx.has(f)||!f.killExplosion);this.particles?.splice(particleStart);
    const wreck={x:e.x,y:e.y,a:e.a,speed:e.speed||100,type:e.type,key:key(e),scale:scale(e)};
    beginAircraftCrash(wreck,visualRandom);
-   const damage=state.damage.get(e);wreck.style=damage?.structure>=3?'spin':damage?.engine>=2?(sequence%2?'smoke':'fire'):COMBAT_CRASH_PROFILES[sequence%COMBAT_CRASH_PROFILES.length];wreck.side=damage?.side||Math.sign(wreck.crashSpin);wreck.age=0;
+   const damage=state.damage.get(e);wreck.style=damage?.structure>=3?'spin':damage?.engine>=2?(sequence%2?'smoke':'fire'):COMBAT_CRASH_PROFILES[sequence%COMBAT_CRASH_PROFILES.length];wreck.crashStyle=wreck.style==='spin'?'spin':'glide';wreck.side=damage?.side||Math.sign(wreck.crashSpin);wreck.age=0;
    // Keep the proven ace trajectory as the default; vary only dead visual copies.
    if(wreck.style==='smoke'){wreck.crashT=1.65;wreck.crashSpin*=.12}
    if(wreck.style==='fire'){wreck.crashT=1.45;wreck.crashSpin*=.3}
