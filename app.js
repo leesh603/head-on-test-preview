@@ -1165,9 +1165,9 @@ function installHeadOnTestLab(){
   plane=pilotPlane(pilot);roster();start();
   if(!game)return null;
   if(options.plane&&PLANES[options.plane]?.faction===faction){game.stageBoss?.dispose();plane=options.plane;game=new Game(plane,pilot);game.viewWidth=W;game.viewHeight=H;attachCombatFeedback(game,{play:sfx,pulse:kind=>gamepadInput.pulse(kind),key:e=>e.escortPlane||e.bossPlane||liveryVariant(e,faction==='central'?(e.type==='hunter'?'nieuport':e.type==='boss'?'spad':'camel'):(e.type==='hunter'||e.type==='boss'?'fokker':'albatros')),scale:enemyAircraftScale});roster()}
-  game.testMode=true;game.maanOrbit=options.orbit!==false;game.nextBossAt=Number.POSITIVE_INFINITY;game.viewWidth=W;game.viewHeight=H;
+  game.testMode=true;game.maanOrbit=options.orbit===true;game.nextBossAt=Number.POSITIVE_INFINITY;game.viewWidth=W;game.viewHeight=H;
   const requestedRegion=Number.parseInt(options.region,10),region=Number.isInteger(requestedRegion)?Math.max(0,Math.min(HEADON_TEST_REGION_NAMES.length-1,requestedRegion)):0;
-  const addon=configureRegion(game,region);if(region===13&&options.fire!==true)game.fire=Number.POSITIVE_INFINITY;
+  const addon=configureRegion(game,region);if(region===13&&options.fire===false)game.fire=Number.POSITIVE_INFINITY;
   transitionAssetPrep(region);
   if(options.invincible!==false)game.invuln=Number.POSITIVE_INFINITY;
   const ace=String(options.ace||'');
