@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {installBuildCombatIdentity,buildIdentityStrength,BUILD_COMBAT_BALANCE} from '../build-combat-identity.js?v=521';
-import {buildIdentityFor} from '../augmentation-overhaul150.js?v=521';
+import {installBuildCombatIdentity,buildIdentityStrength,BUILD_COMBAT_BALANCE} from '../build-combat-identity.js?v=522';
+import {buildIdentityFor} from '../augmentation-overhaul150.js?v=522';
 class Fixture{
  constructor(){Object.assign(this,{t:0,x:0,y:0,a:0,hp:100,maxHp:100,invuln:0,upgrades:{},enemies:[],airframeSpeed:.9})}
  upgrade(id){this.upgrades[id]=(this.upgrades[id]||0)+1;return true}
@@ -69,8 +69,8 @@ test('small damage does not start repair and further damage cancels pending resc
 });
 
 // Exercise the real projectile/hit, airframe and co-op inheritance paths.
-import {Game} from '../engine.js?v=521';
-import {CoopGame,PlayerState} from '../coop-engine.js?v=521';
+import {Game} from '../engine.js?v=522';
+import {CoopGame,PlayerState} from '../coop-engine.js?v=522';
 installBuildCombatIdentity(Game,{identityFor:buildIdentityFor});
 installBuildCombatIdentity(Object.getPrototypeOf(PlayerState.prototype).constructor,{identityFor:buildIdentityFor});
 const quiet=g=>{for(const key of ['spawn','eventTimer','nextBossAt','nextHeavyAt','_zeppelinSchedule','flakTimer','regionThreat','fieldUnitTimer','gasTimer','gustTimer','patrolTimer','supplyTimer'])g[key]=Infinity;g.battleDirectorEnabled=false;return g};
@@ -111,7 +111,7 @@ test('elite formation members participate in blast disruption and block escape r
  g.hit(40);g.t=1.5;g.x=150;member.x=180;g.flyAirframe(.04);assert.equal(g.hp,60);member.x=600;g.flyAirframe(.04);assert(g.hp>60);
 });
 
-import {attachEliteSystem,routeFriendlyProjectileHits} from '../elite-patch/module/headon-bridge.js?v=521';
+import {attachEliteSystem,routeFriendlyProjectileHits} from '../elite-patch/module/headon-bridge.js?v=522';
 test('actual elite system accepts short live-commander disruption and preserves full death break',()=>{
  const g=quiet(new Game('eindecker','voss',()=>.5));g.upgrades={rockets:5};const system=attachEliteSystem(g,{getPlayerFaction:()=> 'central'}),squad=system.spawnEncounter(),leader=squad.leader;
  const member=squad.members.find(m=>m!==leader);g.specialRoundImpact({...round(),actualExplosion:true},leader);assert.equal(squad.breakUntil-g.t,.9);assert(squad.members.every(m=>m.formationCollapseUntil===squad.breakUntil));
