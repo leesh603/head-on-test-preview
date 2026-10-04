@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PLANES,PILOTS,BATTLE_DIRECTOR_PATTERNS as P,angleDiff} from '../engine.js?v=526';
-import {CoopGame} from '../coop-engine.js?v=526';
+import {Game,PLANES,PILOTS,BATTLE_DIRECTOR_PATTERNS as P,angleDiff} from '../engine.js?v=527';
+import {CoopGame} from '../coop-engine.js?v=527';
 import {AIRCRAFT_MASTER} from '../aircraft-master.js';
-import {DIRECTOR_LIVERIES} from '../battle-director169.js?v=526';
+import {DIRECTOR_LIVERIES} from '../battle-director169.js?v=527';
 
 const quiet=g=>{for(const key of ['spawn','eventTimer','nextBossAt','nextHeavyAt','_zeppelinSchedule','flakTimer','regionThreat','fieldUnitTimer','gasTimer','gustTimer','patrolTimer','supplyTimer','allyTimer'])g[key]=Infinity;g.invuln=Infinity;return g};
 function scene(pattern,coop=false){
@@ -17,10 +17,10 @@ test('roles are independent of performance tier and preserve pilot records',()=>
  const cases={eindecker:'GROWTH',airco_dh2:'GROWTH',fokker:'TURN',camel:'TURN',se5a:'INTERCEPTOR',spad:'INTERCEPTOR',albatros:'HEAVY',spad12:'HEAVY',bristol_duo:'FORMATION',fokkerd7:'FORMATION'};
  for(const [plane,role]of Object.entries(cases))assert.equal(new Game(plane,'fonck',()=>.2).aircraftCombatRole().id,role);
  assert.equal(new Game('loewenhardt_fokkerd7','loewenhardt',()=>.2).aircraftCombatRole(),null);
- assert.equal(PLANES.eindecker.speed,108);assert.equal(PLANES.eindecker.hp,85);assert.equal(PILOTS.loewenhardt.cooldown,17);
+ assert.equal(PLANES.eindecker.speed,118);assert.equal(PLANES.eindecker.hp,85);assert.equal(PILOTS.loewenhardt.cooldown,17);
 });
 test('early aircraft retain growth cost after the app imports campaign aircraft',async()=>{
- await import('../campaign.js?v=526');
+ await import('../campaign.js?v=527');
  const g=new Game('eindecker','immelmann',()=>.2),late=new Game('fokkerd7','fonck',()=>.2);
  assert.equal(g.xpCostMultiplier,.72);assert.equal(g.need,4);assert(g.levelRequirement(40)<late.levelRequirement(40));
  assert.equal(new Game('airco_dh2','hawker',()=>.2).xpCostMultiplier,.8);

@@ -1,6 +1,6 @@
 import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js';
 import {installPilotFeedback} from './pilot-feedback.js';
-import {headOnTarget} from './engagement-feedback.js?v=526';
+import {headOnTarget} from './engagement-feedback.js?v=527';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
@@ -42,6 +42,7 @@ export function installPilotIdentities(Game,PILOTS){
   if(this.pilot==='berthold')s.debts=s.debts.map(d=>({...d,remaining:Math.max(d.remaining,6)}));
   if(this.pilot==='barker'){s.barkerReady=true;s.escape=null}
   if(this.pilot==='ball'){this.ballCloak=this.skillTime;this.ballGhost={x:this.x,y:this.y,a:this.a,speed:this.speed,hp:1};this.ballAmbush=0;this.invuln=Math.max(this.invuln,.25)}
+  if(this.pilot==='nungesser')this.invuln=Math.max(this.invuln,this.skillTime);
   this.event('skill',PILOTS[this.pilot].skill);return true;
  };
  const oldGun=Game.prototype.normalGunMultiplier;
@@ -64,6 +65,7 @@ export function installPilotIdentities(Game,PILOTS){
   if(this.pilot==='ball'&&this.ballAmbush>0&&s.alone&&Math.abs(delta(Math.atan2(origin.y-e.y,origin.x-e.x),e.a||0))>Math.PI*.72)m*=2.2;
   if(this.pilot==='luke'&&[...s.burns.values()].some(burn=>burn.enemy===e&&burn.time>0))m*=this.skillTime>0?1.55:1.2;
   if(this.pilot==='gontermann'&&b.identityPrepared&&e===b.identityTarget)m*=this.skillTime>0?1.6:1.2;
+  if(this.pilot==='boelcke'&&Math.abs(delta(Math.atan2(this.y-e.y,this.x-e.x),e.a||0))>Math.PI/2)m*=1.25;
   if(this.pilot==='udet')m*=this.skillTime>0?1.2+(s.udetActiveBonus||0):1+(s.grazes||0)*.1;
   return m;
  };
