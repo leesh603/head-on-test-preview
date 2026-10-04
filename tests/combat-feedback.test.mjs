@@ -4,10 +4,10 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 
-const {Game}=await import('../engine.js?v=529');
-const {CoopGame}=await import('../coop-engine.js?v=529');
-const {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash}=await import('../aircraft-crash.js?v=529');
-const {attachCombatFeedback,combatVisualPose,impactMaterial,drawCombatFeedback,COMBAT_CRASH_PROFILES,combatFlightSound}=await import('../combat-feedback.js?v=529');
+const {Game}=await import('../engine.js?v=530');
+const {CoopGame}=await import('../coop-engine.js?v=530');
+const {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash}=await import('../aircraft-crash.js?v=530');
+const {attachCombatFeedback,combatVisualPose,impactMaterial,drawCombatFeedback,COMBAT_CRASH_PROFILES,combatFlightSound}=await import('../combat-feedback.js?v=530');
 const rng=()=>{let n=17;return()=>((n=(n*1664525+1013904223)>>>0)/4294967296)};
 const quiet=g=>{for(const k of ['spawn','nextBossAt','nextHeavyAt','eventTimer','flakTimer','patrolTimer','gasTimer','regionThreat','fieldUnitTimer'])g[k]=Infinity;return g};
 const snapshot=g=>({x:g.x,y:g.y,a:g.a,hp:g.hp,kills:g.kills,ammo:g.ammo,bullets:g.bullets.map(b=>[b.x,b.y,b.damage,b.life]),enemies:g.enemies.map(e=>[e.x,e.y,e.a,e.hp,e.fire]),drops:g.drops.map(d=>[d.x,d.y,d.value,d.heal])});

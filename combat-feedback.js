@@ -1,4 +1,4 @@
-import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash} from './aircraft-crash.js?v=529';
+import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash} from './aircraft-crash.js?v=530';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.
 const worlds=new WeakMap(),poses=new WeakMap();
