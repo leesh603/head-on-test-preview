@@ -18,7 +18,7 @@ test('presentation preserves simulation, RNG, input response and rewards',()=>{
 });
 test('regular deaths reuse ace crashes, stay visual-only and reserve rare large explosions',()=>{
  const g=quiet(new Game('fokker','baron',rng())),s=attachCombatFeedback(g,{key:()=> 'camel'});
- for(let i=0;i<17;i++){const e={x:i*12,y:0,a:0,hp:0,type:'scout',speed:100};g.enemies=[e];g.burst(e.x,0,'#f2aa52',30);g.event('kill','');if(i<5){assert.equal(s.wrecks.at(-1).style,COMBAT_CRASH_PROFILES[i]);assert.equal(s.wrecks.at(-1).scale,1);assert(s.wrecks.at(-1).crashT>=1.15);}if(i===16)assert.equal(g.events.at(-1).combatSound,'kill')}
+ for(let i=0;i<17;i++){const e={x:i*12,y:0,a:0,hp:0,type:'scout',speed:100};g.enemies=[e];g.burst(e.x,0,'#f2aa52',30);g.event('kill','');if(i<COMBAT_CRASH_PROFILES.length){assert.equal(s.wrecks.at(-1).style,COMBAT_CRASH_PROFILES[i]);assert.equal(s.wrecks.at(-1).scale,1);assert(s.wrecks.at(-1).crashT>=1.15);}if(i===16)assert.equal(g.events.at(-1).combatSound,'kill')}
  assert(s.wrecks.length<=10);assert.equal(g.kills,0);assert.equal(g.drops.length,0);assert(g.combatFX.some(f=>f.killExplosion));
 });
 test('boss deaths retain their existing explosion and crash lifecycle',()=>{
@@ -106,13 +106,6 @@ test('sustained hits follow the struck airframe and emit bounded damage trails w
  for(let i=0;i<150;i++)g.update(.02);assert(s.plumes.length<=32);assert.equal(s.impacts.length,0);
 });
 
-test('wing breakup draws clipped pieces of the original painted sprite at unchanged scale',()=>{
- const g=quiet(new Game()),s=attachCombatFeedback(g,{key:()=> 'camel'});
- for(let i=0;i<4;i++){g.enemies=[{x:0,y:0,a:0,hp:0,type:'scout',speed:100}];g.burst(0,0,'#f2aa52',30)}
- s.wrecks=s.wrecks.filter(w=>w.style==='breakup');g.enemies=[];const clips=[],sprites=[],c={save(){},restore(){},translate(){},rotate(){},beginPath(){},rect(){},clip(rule){clips.push(rule)}};
- drawCombatFeedback(c,g,(x,y)=>[x,y],{fx(){},planeSprite:(...args)=>sprites.push(args)});
- assert.deepEqual(clips,['evenodd',undefined]);assert.equal(sprites.length,3);assert(sprites.every(a=>a[4]==='camel'&&a[5]===1));
-});
 
 test('heavy approach is a single cue and close-pass wind/engine duck expire',()=>{
  const e={x:1100,y:60,a:Math.PI,hp:50,maxHp:50,type:'bomber'},cues=[];

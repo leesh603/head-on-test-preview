@@ -6,7 +6,7 @@ const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const angle=n=>Math.atan2(Math.sin(n),Math.cos(n));
 const ordinary=e=>e&&!e.bossPilot&&!e.ace&&!e.rivalAce&&!e.eliteKind&&!e.formationLeader&&!e.missionTarget&&!e.stageBossBody&&!e.bossMinion&&!e.heavyBomber&&!e.surface&&!e.stationary&&!e.fieldUnit&&!e.navalVessel&&!e.bugDrone&&['scout','hunter','bomber'].includes(e.type);
 export const COMBAT_FEEDBACK_LIMITS=Object.freeze({impacts:40,compactImpacts:20,wrecks:10,compactWrecks:5,trail:48,compactTrail:24,plumes:64,compactPlumes:32});
-export const COMBAT_CRASH_PROFILES=Object.freeze(['spin','smoke','fire','breakup','runaway']);
+export const COMBAT_CRASH_PROFILES=Object.freeze(['spin','smoke','fire','runaway']);
 function localPoint(e,forward,side){const q=combatVisualPose(e),a=e.a+q.roll;return[e.x+q.x+Math.cos(a)*forward-Math.sin(a)*side*q.bank,e.y+q.y+Math.sin(a)*forward+Math.cos(a)*side*q.bank]}
 export function impactMaterial(e,b){
  if(e.surface||e.fieldUnit||e.navalVessel||e.stageBossBody)return 'metal';
@@ -52,11 +52,10 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
    this.combatFX=(this.combatFX||[]).filter(f=>oldFx.has(f)||!f.killExplosion);this.particles?.splice(particleStart);
    const wreck={x:e.x,y:e.y,a:e.a,speed:e.speed||100,type:e.type,key:key(e),scale:scale(e)};
    beginAircraftCrash(wreck,visualRandom);
-   const damage=state.damage.get(e);wreck.style=damage?.structure>=3?'breakup':damage?.engine>=2?(sequence%2?'smoke':'fire'):COMBAT_CRASH_PROFILES[sequence%5];wreck.side=damage?.side||Math.sign(wreck.crashSpin);wreck.age=0;
+   const damage=state.damage.get(e);wreck.style=damage?.structure>=3?'spin':damage?.engine>=2?(sequence%2?'smoke':'fire'):COMBAT_CRASH_PROFILES[sequence%COMBAT_CRASH_PROFILES.length];wreck.side=damage?.side||Math.sign(wreck.crashSpin);wreck.age=0;
    // Keep the proven ace trajectory as the default; vary only dead visual copies.
    if(wreck.style==='smoke'){wreck.crashT=1.65;wreck.crashSpin*=.12}
    if(wreck.style==='fire'){wreck.crashT=1.45;wreck.crashSpin*=.3}
-   if(wreck.style==='breakup'){wreck.crashT=1.3;wreck.crashSpin*=1.2}
    if(wreck.style==='runaway'){wreck.crashT=1.9;wreck.crashDir=e.a;wreck.crashSpeed=Math.max(160,e.speed||100);wreck.crashSpin*=.055}
    state.wrecks.push(wreck);
    cap(state.wrecks,COMBAT_FEEDBACK_LIMITS.compactWrecks,COMBAT_FEEDBACK_LIMITS.wrecks);
@@ -131,14 +130,10 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
 export function combatCameraOffset(world){const s=worlds.get(world);return s?{x:Math.sin(s.time*83)*s.camera,y:Math.cos(s.time*71)*s.camera}:{x:0,y:0}}
 export function combatFlightSound(world){const p=(world.players||[world]).find(p=>p.hp>0)||world,s=worlds.get(world);return{reload:p.reloadTime>0,speed:p.airframeSpeed??1,turn:Math.abs(poses.get(p)?.turn||0),damage:clamp(1-p.hp/p.maxHp),duck:(s?.duckUntil||0)>(world.t||0)}}
 function drawWreck(c,w,x,y,time,fx,planeSprite){
- if(w.style==='spin'||w.style==='breakup')drawAircraftCrash(c,w,x,y,time,fx);
+ if(w.style==='spin')drawAircraftCrash(c,w,x,y,time,fx);
  else fx(c,'smokeTrail',x-Math.cos(w.a)*56,y-Math.sin(w.a)*56,160,58,w.a,.8);
  if(w.type!=='bomber')planeSprite(c,x+14,y+22,w.a,w.key,w.scale,true,true);
- if(w.style!=='breakup'){planeSprite(c,x,y,w.a,w.key,w.scale,true,false,0,true);if(w.style==='fire')fx(c,'fireEngine',x+Math.cos(w.a)*12,y+Math.sin(w.a)*12,58,66,w.a+Math.PI/2,.9);return}
- // Clip the existing painted wing from the same sprite; never invent debris art.
- const s=w.scale,side=w.side,cutY=side>0?13*s:-60*s;
- c.save();c.translate(x,y);c.rotate(w.a);c.beginPath();c.rect(-70*s,-70*s,140*s,140*s);c.rect(-7*s,cutY,39*s,47*s);c.clip('evenodd');planeSprite(c,0,0,0,w.key,s,true,false,0,true);c.restore();
- c.save();c.translate(x-Math.sin(w.a)*side*w.age*42,y+Math.cos(w.a)*side*w.age*42);c.rotate(w.a+side*w.age*2);c.beginPath();c.rect(-7*s,cutY,39*s,47*s);c.clip();planeSprite(c,0,0,0,w.key,s,true,false,0,true);c.restore();
+ planeSprite(c,x,y,w.a,w.key,w.scale,true,false,0,true);if(w.style==='fire')fx(c,'fireEngine',x+Math.cos(w.a)*12,y+Math.sin(w.a)*12,58,66,w.a+Math.PI/2,.9);
 }
 export function drawCombatFeedback(c,world,point,{fx,planeSprite}){
  const s=worlds.get(world);if(!s)return;
