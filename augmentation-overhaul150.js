@@ -2,7 +2,7 @@
 // legacy ids stay stable so existing runs and local saves remain compatible.
 export const AUGMENTATION_OVERHAUL_BALANCE=Object.freeze({
  rarity:Object.freeze({normal:.60,magic:.28,rare:.09,unique:.03}),
- mercedesBaseSpeed:1.08,mercedesMaxSpeed:1.30,mercedesRamp:1.8,mercedesDecay:.72,redScarfSpeed:1.45,redScarfRange:1.25,redScarfLockTime:.65,
+ mercedesBaseSpeed:1.15,mercedesMaxSpeed:1.45,mercedesRamp:1.5,mercedesDecay:.55,redScarfSpeed:1.45,redScarfRange:1.25,redScarfLockTime:.65,
  repairInterval:10,repairFraction:.20,frontDamageReduction:.75,jCapsuleBullet:.70,jCapsuleHandling:.90,
  cowlingRange:260,cowlingDamage:1.25,cowlingMinReceived:.80,
  scarffInterval:.72,scarffDamage:8,scarffRange:560,scarffTurnRate:66*Math.PI/180,
@@ -46,7 +46,7 @@ const SPECIAL=[
  ['goeringBaton','전투비행대 총동원령','상시 윙맨 +3, 윙맨 피해 +25%.'],
  ['immelmannManual','임멜만의 기동전술 교본','선회기동 재사용 대기시간 −50%, 기동 무적 1.05초.'],
  ['motorCannon','기네메르의 37mm 모퇴르 카농','3초마다 전방으로 거대한 37mm 관통탄을 발사합니다. 고품질 화약 개량이 적용됩니다.'],
- ['loEmblem','LO! 페인팅 엠블럼','최대 내구도 −50%, 기관총·폭발물·편대 피해 +30%, 편대 연사 +30%, 이동 속도·선회력 +20%.'],
+ ['loEmblem','LO! 페인팅 엠블럼','최대 내구도 −50%, 기관총·폭발물·편대 피해 +50%, 편대 연사 +30%, 이동 속도·선회력 +25%.'],
  ['sacredCowling','황제의 얼굴 카울링','근거리 적에게 주는 피해 +25%. 적이 가까울수록 받는 탄환 피해가 최대 20% 감소합니다.'],
  ['steelPlate','J형 장갑 캡슐','기관총·소구경 탄환 피해 −30%, 이동 속도·선회력 −10%.'],
  ['mauserAceKiller',"마우저 C96 ‘에이스 킬러’",'0.65초마다 320 범위 내 에이스→정예→일반 우선 조준. 피해 18/54/160. 기관총·폭발물 강화 효과를 각각 75%씩 합산 적용받습니다.'],
@@ -60,7 +60,8 @@ const SPECIAL=[
  ['fogCompass','C-O 5/17 에어로 컴퍼스','경험치와 수리 아이템의 획득 반경이 크게 증가합니다.'],
  ['maximBelt','프리도 연속 급탄 링크','기관총 탄띠 용량이 증가하고 재장전 시간이 감소합니다.'],
  ['urLeica','Ur-Leica 소형 카메라','전과를 사진으로 기록합니다. 게임 종료 시 최종 격추 기록 +10% (소수점 버림). 한 출격 1회.'],
- ['badinGauge','바댕 속도계','기체 고유 기본속도 대비 지속적인 이동속도 강화분의 150%만큼 기관총·폭발물 피해 증가 (상한 +60%). 회피·대시·액티브 순간 가속은 제외됩니다.']
+ ['badinGauge','바댕 속도계','기체 고유 기본속도 대비 지속적인 이동속도 강화분의 150%만큼 기관총·폭발물 피해 증가 (상한 +60%). 회피·대시·액티브 순간 가속은 제외됩니다.'],
+ ['heineckeRettungsfallschirm','하이네케 구명낙하산 / Heinecke Rettungsfallschirm','치명 피해 시 자동 탈출. 3초 후 후방에서 예비기로 재출격하며 최대 내구도 40%와 2초 무적을 얻습니다. 재사용 180초, 출격당 최대 2회. 쿨다운 감소 효과는 적용되지 않습니다.']
 ];
 
 const tierIndex=rarity=>rarity==='rare'?2:rarity==='magic'?1:0;
@@ -93,7 +94,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    regen:`초당 최대 내구도 회복 +${DURABILITY_BALANCE.regenPerSecond[t]*100}% (누적 상한 4%).`,
    cooldown:`액티브 재사용 대기시간 −${[8,12,16][t]}% (기본의 50%까지).`,
    bomber:`${Math.max(10,18-(g?.bomberLevel||0)*2)}초마다 폭격기 1대가 폭탄 5발을 투하합니다. 중복 시 주기 2초 감소 (최소 10초).`,
-   wingman:'상시 편대기 +1. 한 출격 최대 2회 (전체 최대 7대).',fighterSupply:'현재와 이후 합류하는 상시 편대기를 상위 기종으로 변경. 편대 피해 +20%, 발사 간격 −10%. 기체 수는 유지됩니다.',mercedesEngine:'기본 이동 속도 +8%. 직선 비행을 유지하면 최대 +30%까지 상승하며, 급선회 시 출력이 감소합니다.',
+   wingman:'상시 편대기 +1. 한 출격 최대 2회 (전체 최대 7대).',fighterSupply:'현재와 이후 합류하는 상시 편대기를 상위 기종으로 변경. 편대 피해 +20%, 발사 간격 −10%. 기체 수는 유지됩니다.',mercedesEngine:'기본 이동 속도 +15%. 직선 비행을 유지하면 최대 +45%까지 상승하며, 급선회 시 출력이 감소합니다.',
    spread:'기관총 발사체 +1 (최대 5발). 추가 발사체는 탄약을 더 소모하지 않습니다.',
    combinedProjectiles:'로켓과 수류탄의 동시 발사체 +1 (각 최대 5발).'
   })[id]||'';
@@ -176,7 +177,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    case 'goeringBaton':this.permanentWingman=Math.min(7,(this.permanentWingman||0)+3);this.wingmanDamageMult=LEGENDARY_BALANCE.wingmanDamageMultiplier;break;
    case 'immelmannManual':this.evadeCooldownMult=.5;this.evadeInvulnerability=1.05;this.evadeCooldown=Math.min(this.evadeCooldown,4);break;
    case 'motorCannon':this.motorCannon=true;this.motorCannonTimer=0;break;
-   case 'loEmblem':this.maxHp*=.5;this.hp=this.maxHp*ratio;this.addGunBonus(.30);this.explosiveBonus=(this.explosiveBonus||0)+.30;this.commandBonus=(this.commandBonus||0)+.30;this.commandRateBonus=(this.commandRateBonus||0)+.30;this.turn*=1.2;this.speed*=1.2;if(this.baseSpeed)this.baseSpeed*=1.2;break;
+   case 'loEmblem':this.maxHp*=.5;this.hp=this.maxHp*ratio;this.addGunBonus(.50);this.explosiveBonus=(this.explosiveBonus||0)+.50;this.commandBonus=(this.commandBonus||0)+.50;this.commandRateBonus=(this.commandRateBonus||0)+.30;this.turn*=1.25;this.speed*=1.25;if(this.baseSpeed)this.baseSpeed*=1.25;break;
    case 'sacredCowling':this.sacredCowling=true;break;
    case 'steelPlate':this.jArmorCapsule=true;this.speed*=.9;this.turn*=.9;if(this.baseSpeed)this.baseSpeed*=.9;break;
    case 'mauserAceKiller':this.mauserAceKiller=true;this.mauserTimer=.1;break;
