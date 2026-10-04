@@ -32,10 +32,12 @@ test('Production Ma’an paths exist and independent layouts retain opposite sil
  const lab=readFileSync(new URL('../test-lab.html',import.meta.url),'utf8');assert.ok(lab.includes('value="13"'));
 });
 
-test('Ma’an boss ground follows vertical camera motion and rebases for each encounter',async()=>{
+test('Ma’an boss ground stays world-locked and covers the viewport',async()=>{
  const previous=globalThis.Image;globalThis.Image=class{constructor(){this.naturalWidth=724;this.naturalHeight=2172;this.complete=true;}};
- try{const {paintMaan}=await import('../maan-view.js?v=maan20261003r6');const c={fillRect(){},save(){},restore(){},drawImage(...a){this.y=a[2];}},g={stageBoss:{stages:{phase:'boss',bossId:'wustenpanzer',encounter:{id:'first'}}},distance:12000,stageStartDistance:0};
- paintMaan(c,g,0,0,600,500);const start=c.y;paintMaan(c,g,0,-120,600,500);assert.equal(c.y-start,36);
- g.stageBoss.stages.encounter.id='second';paintMaan(c,g,0,-120,600,500);assert.equal(c.y,start);
+ try{const {paintMaan}=await import('../maan-view.js?v=maan20261003r6');const g={stageBoss:{stages:{phase:'boss',bossId:'wustenpanzer',encounter:{id:'first'}}},distance:12000,stageStartDistance:0};
+ const ys=[];const c={fillRect(){},save(){},restore(){},drawImage(...a){ys.push(a[2]);}};
+ paintMaan(c,g,0,0,600,500);const start=Math.min(...ys);
+ ys.length=0;paintMaan(c,g,0,-120,600,500);assert.equal(Math.min(...ys)-start,120);
+ ys.length=0;paintMaan(c,g,0,0,600,500);assert.ok(ys.length>0&&Math.min(...ys)<=0&&Math.max(...ys)+2172>=500);
  }finally{if(previous)globalThis.Image=previous;else delete globalThis.Image;}
 });

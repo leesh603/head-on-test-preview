@@ -1,4 +1,4 @@
-import {TREFFAS_ART} from './cambrai-layout.js?v=520';
+import {TREFFAS_ART} from './cambrai-layout.js?v=521';
 const cache=new WeakMap();
 function layers(image){
  if(cache.has(image))return cache.get(image);

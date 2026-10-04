@@ -1,21 +1,38 @@
-import {MAAN_LAYOUT,rotateMaan} from './maan-layout.js?v=520';
-import {fx} from './fx-art.js?v=520';
+import {MAAN_LAYOUT,rotateMaan} from './maan-layout.js?v=521';
+import {fx} from './fx-art.js?v=521';
 const urls={terrain:'terrain-maan.webp',workshop:'maan-workshop.webp',wusten:'boss-maan-wusten.webp',wustenWreck:'boss-maan-wusten-wreck.webp',sinai:'boss-maan-sinai.webp',sinaiWreck:'boss-maan-sinai-wreck.webp',car:'boss-maan-rolls-royce.webp'};
 const images=new Map();
 const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+urls[key]+'?v=520';images.set(key,im);return im;};
 export function prepareMaanAssets(region){if(region!==13){images.clear();return Promise.resolve();}return Promise.all(Object.keys(urls).map(key=>{const im=load(key);return im.complete?Promise.resolve():new Promise((resolve,reject)=>{im.onload=resolve;im.onerror=()=>reject(new Error('Ma’an asset: '+urls[key]));});}));}
+// Authored panorama baked once into a periodic ground tile, drawn on the
+// shared 1:1 world transform like the Verdun ground so the desert never
+// floats or exposes unpainted bands while the camera moves.
+let ground=null,groundSrc=null;
+function seamlessGround(im){
+ if(groundSrc===im&&ground)return ground;
+ if(typeof document==='undefined')return null;
+ const w=im.naturalWidth,h=im.naturalHeight,bx=Math.round(w*.08),by=Math.round(h*.08),pw=w-2*bx,ph=h-2*by;
+ const feather=document.createElement('canvas');feather.width=w;feather.height=h;
+ const f=feather.getContext('2d',{willReadFrequently:true});f.drawImage(im,0,0);
+ const pixels=f.getImageData(0,0,w,h),data=pixels.data,ex=2*bx,ey=2*by;
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+  const wx=Math.min(1,x/ex,(w-x)/ex),wy=Math.min(1,y/ey,(h-y)/ey);
+  data[(y*w+x)*4+3]=Math.round(255*wx*wy);
+ }
+ f.putImageData(pixels,0,0);
+ const tile=document.createElement('canvas');tile.width=pw;tile.height=ph;const t=tile.getContext('2d');t.globalCompositeOperation='lighter';
+ for(let y=-ph;y<=ph;y+=ph)for(let x=-pw;x<=pw;x+=pw)t.drawImage(feather,x,y);
+ groundSrc=im;ground={tile,pw,ph};return ground;
+}
 export function paintMaan(c,g,cx,cy,width,height){
  c.fillStyle='#b69363';c.fillRect(0,0,width,height);
  const im=load('terrain');if(!im.naturalWidth)return;
- const tile=768,scale=tile/im.naturalWidth,fullH=im.naturalHeight*scale;
- const progress=Math.max(0,Math.min(1,((g?.distance||0)-(g?.stageStartDistance||0))/12000));
- const boss=g?.stageBoss?.stages.phase==='boss',pan=(boss?(g?.stageBoss?.stages.bossId==='sinai-landship'?.52:1):progress)*Math.max(0,fullH-height);
- const encounter=boss?g.stageBoss.stages.encounter?.id:null;
- if(boss&&g._maanGround?.encounter!==encounter)g._maanGround={encounter,y:cy};
- const cameraPan=boss?-(cy-g._maanGround.y)*.3:0;
- const ox=((-(cx-(g?.maanStartX??cx))*.3-width/2)%tile+tile)%tile-tile;
+ const baked=seamlessGround(im),tile=baked?.tile||im,pw=baked?.pw||im.naturalWidth,ph=baked?.ph||im.naturalHeight;
+ const left=cx-width/2,top=cy-height/2;
  c.save();c.imageSmoothingEnabled=true;
- for(let x=ox;x<width;x+=tile)c.drawImage(im,x,-fullH+height+pan+cameraPan,tile,fullH);
+ for(let iy=Math.floor(top/ph);iy<Math.ceil((top+height)/ph);iy++)
+  for(let ix=Math.floor(left/pw);ix<Math.ceil((left+width)/pw);ix++)
+   c.drawImage(tile,ix*pw-left,iy*ph-top,pw,ph);
  c.restore();
 }
 function drawHullImage(c,im,layout){if(im.naturalWidth)c.drawImage(im,-layout.width/2,-layout.height/2,layout.width,layout.height);}
