@@ -9,7 +9,7 @@ export function installTrenchWar(Game,TAILING_BALANCE){
  const P=Game.prototype,B=TRENCH_BALANCE;
  P.spawnBarrage=function(){
   const dir=this.a,side=(this.rng()>.5?1:-1);
-  this.barrage={dir,side,x:this.x-Math.cos(dir)*420,y:this.y-Math.sin(dir)*420,warn:B.barrageWarn,pos:0,travel:B.barrageTravel,expired:false};
+  this.barrage={dir,side,x:this.x+Math.cos(dir)*190,y:this.y+Math.sin(dir)*190,warn:B.barrageWarn,pos:0,travel:B.barrageTravel,expired:false};
   this.event('flak','포격 예고 — 이동 포격선 접근');
  };
  P._barrageHit=function(x,y){
@@ -24,7 +24,7 @@ export function installTrenchWar(Game,TAILING_BALANCE){
   const nx=-Math.sin(b.dir),ny=Math.cos(b.dir);
   const lateral=nx*(x-b.x)+ny*(y-b.y);
   const along=Math.cos(b.dir)*(x-b.x)+Math.sin(b.dir)*(y-b.y);
-  return along>=b.pos-10&&along<=b.pos+10&&Math.abs(lateral)<B.barrageHalfWidth;
+  return along>=b.pos-32&&along<=b.pos+32&&Math.abs(lateral)<B.barrageHalfWidth;
  };
  P.inSmoke=function(x,y){
   if(!this.smokeZones)return false;
@@ -54,6 +54,7 @@ export function installTrenchWar(Game,TAILING_BALANCE){
   _twUpdate.call(this,dt,input);
   if(this.state!=='playing')return;
   const step=Math.min(.04,Math.max(0,dt)),region=this.worldRegion();
+  if(region!==2)this.barrage=null;
   if(region===2){
    if(!this.barrage){this._barrageT=(this._barrageT||30)-step;if(this._barrageT<=0)this.spawnBarrage()}
    const b=this.barrage;

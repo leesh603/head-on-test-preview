@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {GamepadInput,HAPTIC_PATTERNS} from '../gamepad-input.js?v=532';
+import {GamepadInput,HAPTIC_PATTERNS} from '../gamepad-input.js?v=styles537';
 test('gamepad effects distinguish events without delaying input or replacing damage with gun chatter',()=>{
  const calls=[],pad={connected:true,mapping:'standard',index:0,axes:[1,0],buttons:Array(10).fill({pressed:false,value:0}),vibrationActuator:{playEffect:(...args)=>{calls.push(args);return Promise.resolve()},reset:()=>{calls.push(['reset'])}}};
  const input=new GamepadInput({getGamepads:()=>[pad]});assert.equal(input.poll().moveX,1);

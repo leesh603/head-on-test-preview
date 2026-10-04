@@ -1,6 +1,6 @@
 // Regional enemy doctrine weights + regional battlefield events.
 // Wraps spawnComposition (keeps time-scaling) and offerBattlefieldEvent (keeps canOffer guards).
-import {BATTLEFIELD_EVENT_BALANCE} from './battlefield-events170.js?v=536';
+import {BATTLEFIELD_EVENT_BALANCE} from './battlefield-events170.js?v=styles537';
 const AIR_TYPES=['scout','hunter','bomber','heavyBomber'];
 // weight = [scout,hunter,bomber,heavy,zeppelinShare]
 const DOCTRINE={
@@ -15,6 +15,69 @@ const DOCTRINE={
 };
 const REGION_EVENTS={0:'FORWARD_OBSERVER',1:'FLEET_CROSSING',2:'ARTILLERY_SPOTTER',3:'GAS_ATTACK',4:'BLACKOUT',5:'BOMBER_STREAM',6:'MOUNTAIN_PURSUIT',7:'AMMO_DEPOT'};
 const EVENT_LABEL={FORWARD_OBSERVER:'전진 관측소',FLEET_CROSSING:'함대 교차 해역',ARTILLERY_SPOTTER:'포병 관측기',GAS_ATTACK:'가스 공습',BLACKOUT:'야간 정전',BOMBER_STREAM:'폭격기 대형',MOUNTAIN_PURSUIT:'산악 추격전',AMMO_DEPOT:'탄약고 타격'};
+// Existing scenery/hazard owners stay authoritative. These are regional rules,
+// not optional mission offers, so they never suspend the Battle Director.
+export const REGION_COMBAT_EVENTS=Object.freeze({
+ 0:'기뢰지대·관측기구',1:'아군·적 함대 교차 화망',2:'이동 집중포격',3:'가스·연막 전선',
+ 4:'탐조등 추적·연동 사격',5:'순풍·역풍 기류',6:'상승기류·난기류',7:'함포 동시 일제사격',
+ 8:'진행 방향 횡단 포격',9:'고공 돌풍·비행단',10:'관측기구 격추로 포격 약화',
+ 11:'진영별 런던 공격·방어',12:'요새 접근로 포격',13:'먼지바람 엄폐'
+});
+export function tickRegionalConditions(g,dt){
+ if(g.state!=='playing'||dt<=0)return;
+ const region=g.worldRegion(),now=g.t||0,step=Math.min(.04,dt);
+ if(g.regionalCondition?.region!==region)g.regionalCondition={region,next:now+5,serial:0,spotter:null,weakenedUntil:0};
+ const r=g.regionalCondition;
+ if(g.stageBoss?.stages.phase!=='explore')return;
+ const ps=(g.players||[g]).filter(p=>p.hp>0&&(!p.status||p.status==='alive'));
+ if(region===6){
+  for(const p of ps)for(const gust of g.gusts||[])if(gust.thermal&&gust.life>0&&Math.hypot(p.x-gust.x,p.y-gust.y)<gust.radius){
+   const energy=p.airframeSpeed??1;p.airframeSpeed=energy+(1-energy)*(1-Math.exp(-3*step));
+  }
+ }
+ if(region===10&&r.spotter?.hp<=0&&!r.spotterDefeated){
+  r.spotterDefeated=true;r.weakenedUntil=now+24;
+  g.event('wave','관측기구 격추 · 24초간 포격 밀도 감소');
+ }
+ if(now<r.next)return;
+ r.serial++;
+ const p=ps[r.serial%Math.max(1,ps.length)]||g,a=p.a||0;
+ const shells=(count,spacing,delay=1.8)=>{
+  if((g.bombZones||[]).length>12)return;
+  for(let i=0;i<count;i++){
+   const side=(i-(count-1)/2)*spacing;
+   (g.bombZones??=[]).push({x:p.x+Math.cos(a)*120-Math.sin(a)*side,y:p.y+Math.sin(a)*120+Math.cos(a)*side,sx:p.x-Math.sin(a)*420,sy:p.y+Math.cos(a)*420,delay:delay+i*.15,maxDelay:delay+i*.15,radius:38,damage:12,artyFire:true,hazardRegion:region});
+  }
+ };
+ if(region===2){
+  // Keep the authored moving barrage; put its first warning ahead of the pilot.
+  if(g.mode==='coop2'){
+   r.barrageOrigin??={x:p.x+Math.cos(a)*180,y:p.y+Math.sin(a)*180,a};
+   const o=r.barrageOrigin,progress=(r.serial%5)*55;
+   for(let i=-1;i<=1;i++)(g.bombZones??=[]).push({x:o.x+Math.cos(o.a)*progress-Math.sin(o.a)*i*55,y:o.y+Math.sin(o.a)*progress+Math.cos(o.a)*i*55,sx:o.x-350,sy:o.y-200,delay:1.8,maxDelay:1.8,radius:32,damage:12,artyFire:true,hazardRegion:2});
+   if(r.serial%5===0){r.barrageOrigin=null;r.next=now+14;}else r.next=now+2.2;
+  }else{if(!g.barrage)g.spawnBarrage?.();r.next=now+32;}
+ }else if(region===6){
+  if((g.gusts||[]).length<4){
+   const thermal=r.serial%2===1;
+   (g.gusts??=[]).push({x:p.x+Math.cos(a)*170,y:p.y+Math.sin(a)*170,vx:Math.cos(a)*28,vy:Math.sin(a)*28,a,life:9,maxLife:9,radius:thermal?100:65,thermal,hit:false,hitPlayers:new Set()});
+   g.event('flak',thermal?'상승기류 · 기류 안에서 에너지 회복':'산악 난기류 · 옆으로 벗어나세요');
+  }r.next=now+12;
+ }else if(region===7){
+  const ships=(g.enemies||[]).filter(e=>e.movingShip&&e.hp>0&&e.faction!==(g.teamFaction||g.faction||p.faction)&&!e.expired);
+  if(!ships.length)g.spawnMovingFleet?.();
+  else{for(const e of ships)e.fire=1.2;g.event('flak','군항 함포 · 일제사격 준비');}
+  r.next=now+14;
+ }else if(region===8){shells(4,85);g.event('flak','캉브레 · 횡단 포격선');r.next=now+12;}
+ else if(region===10){
+  if(!r.spotter||r.spotter.expired||r.spotterDefeated&&now>=r.weakenedUntil){
+   r.spotter=(g.enemies||[]).find(e=>e.hp>0&&e.fieldUnit==='balloon'&&!e.expired)||g.spawnFieldUnit?.('balloon');
+   if(r.spotter){r.spotterDefeated=false;g.event('flak','솜 관측기구 · 격추하면 적 포격이 약해집니다');}
+  }
+  shells(now<r.weakenedUntil?1:3,110);r.next=now+(now<r.weakenedUntil?9:5);
+ }else r.next=now+20;
+}
+
 export function installRegionDoctrine(Game){
  const P=Game.prototype;
  const _comp=Game.prototype.spawnComposition;
