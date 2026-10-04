@@ -26,8 +26,9 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <div class="controls">
 <label>맵<select id="region">
 <option value="0">전원 지대</option><option value="1">아드리아해</option><option value="2">참호 전선</option>
-<option value="3">포화의 참호전선</option><option value="4">도심</option><option value="5">고공 전역</option><option value="6">알프스 산맥</option><option value="7">제브뤼헤 군항</option><option value="8">캉브레 들판</option><option value="9">아라스 상공</option><option value="10">솜 강전선</option><option value="11">런던 대공습</option><option value="12">베르됭</option>
+<option value="3">포화의 참호전선</option><option value="4">도심</option><option value="5">고공 전역</option><option value="6">알프스 산맥</option><option value="7">제브뤼헤 군항</option><option value="8">캉브레 들판</option><option value="9">아라스 상공</option><option value="10">솜 강전선</option><option value="11">런던 대공습</option><option value="12">베르됭</option><option value="13">마안 전투</option>
 </select></label>
+<div id="maanQa" hidden><label class="check"><input id="maanOrbit" type="checkbox" checked>보스 주변 순회</label><label class="check"><input id="maanFire" type="checkbox">자동 사격</label><select id="maanPart" aria-label="마안 검사 부위"></select><button id="maanHalf" type="button">손상탄</button><button id="maanBreak" type="button">파괴탄</button><button id="maanFinal" type="button">후반 페이즈</button><span id="maanState"></span></div>
 <label>파일럿<select id="pilot"><option>게임 로딩 중…</option></select></label>
 <label>에이스<select id="ace"><option value="">등장 안 함</option></select></label>
 <label class="check"><input id="boss" type="checkbox">보스 즉시</label>
@@ -87,7 +88,7 @@ async function connect(){
 frame.addEventListener('load',connect);
 $('start').onclick=()=>{
  if(!api)return;$('status').textContent='시작 중…';
- const result=api.start({region:Number($('region').value),pilot:$('pilot').value,ace:$('ace').value,boss:$('boss').checked,invincible:$('invincible').checked});
+ const result=api.start({region:Number($('region').value),pilot:$('pilot').value,ace:$('ace').value,boss:$('boss').checked,invincible:$('invincible').checked,orbit:$('maanOrbit').checked,fire:$('maanFire').checked});
  $('patternStep').disabled=!result;$('status').textContent=result?'실행 · '+result.plane+' · map '+result.region:'시작 실패';refreshOpen();
  if(result&&$('freeze').checked)api.debug().state='paused';
  if(result&&$('noFire').checked)api.debug().fire=Infinity;
@@ -145,6 +146,12 @@ $('fortShot').onclick=()=>{
 };
 $('fortStep').onclick=event=>api?.advanceVerdun?.(event.shiftKey?.1:1);
 setInterval(refreshFort,200);
+$('maanFire').onchange=()=>api?.maanFire?.($('maanFire').checked);
+$('maanOrbit').onchange=()=>api?.maanOrbit?.($('maanOrbit').checked);
+$('maanHalf').onclick=()=>api?.maanProbe?.($('maanPart').value,'half');
+$('maanBreak').onclick=()=>api?.maanProbe?.($('maanPart').value);
+$('maanFinal').onclick=()=>api?.maanProbe?.('hull');
+setInterval(()=>{const q=api?.maanInspect?.();$('maanQa').hidden=!q;if(!q)return;const old=$('maanPart').value;$('maanPart').replaceChildren(...q.parts.map(p=>new Option(p.id+(p.destroyed?' · 파괴됨':' · '+Math.round(p.hp/p.maxHp*100)+'%'),p.id)));if(q.parts.some(p=>p.id===old))$('maanPart').value=old;$('maanState').textContent=q.phase+' · 진입 '+q.entry.toFixed(1)+'s · 파괴 '+q.parts.filter(p=>p.destroyed).length+'/'+q.parts.length+' · 호위 '+q.cars;},400);
 $('reload').onclick=()=>{api=null;$('status').textContent='새로고침 중…';frame.src='./index.html?headonTest=1&autostart=0&t='+Date.now()};
 $('pilot').onchange=refreshAce;$('region').onchange=refreshOpen;$('ace').onchange=refreshOpen;$('boss').onchange=refreshOpen;$('invincible').onchange=refreshOpen;$('viewport').onchange=applyViewport;
 $('fxs').onchange=()=>{refreshOpen();api=null;$('status').textContent='FX 시안 적용 중…';frame.src='./index.html?'+query().toString()+'&autostart=0&t='+Date.now()};
