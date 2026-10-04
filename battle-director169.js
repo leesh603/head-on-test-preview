@@ -1,12 +1,12 @@
 export const BATTLE_DIRECTOR_PATTERNS=Object.freeze({
- HEAD_ON_PASS:'HEAD_ON_PASS',CROSS_ATTACK:'CROSS_ATTACK',PINCER:'PINCER',CHASE:'CHASE',ESCORT:'ESCORT',
+ HEAD_ON_PASS:'HEAD_ON_PASS',CROSS_ATTACK:'CROSS_ATTACK',PINCER:'PINCER',CHASE:'CHASE',ESCORT:'ESCORT',DECOY:'DECOY',
  BOMBER_RUN:'BOMBER_RUN',BAIT:'BAIT',VETERAN_FORMATION:'VETERAN_FORMATION',ELITE_FORMATION:'ELITE_FORMATION',ACE_PRESSURE:'ACE_PRESSURE',RECOVERY:'RECOVERY'
 });
 
 export const BATTLE_DIRECTOR_BALANCE=Object.freeze({
- firstSceneAt:18,sceneMin:22,sceneMax:28,recoveryDuration:7,recentWindow:3,
+ firstSceneAt:6,sceneMin:18,sceneMax:23,recoveryDuration:4.5,recentWindow:3,
  compactWidth:720,compactSoloCap:8,compactCoopCap:10,soloCap:11,coopCap:14,actionInterval:.48,
- formationBreakDuration:2.6,headOnIntent:6,crossIntent:6.5,pincerIntent:4.5,chaseIntent:5,escortIntent:7,bomberIntent:8
+ formationBreakDuration:2.6,headOnIntent:7,crossIntent:7,pincerIntent:7,chaseIntent:7,escortIntent:8,bomberIntent:8,decoyIntent:7,decoyWingIntent:7
 });
 
 const P=BATTLE_DIRECTOR_PATTERNS;
@@ -34,22 +34,23 @@ function weightedChoice(game,state,candidates){
 
 function choosePattern(game,state){
  if(activeAce(game)&&state.history.at(-1)!==P.ACE_PRESSURE)return P.ACE_PRESSURE;
- if(state.combatSinceRecovery>=2)return P.RECOVERY;
- const time=game.t||0,candidates=time<120?[P.HEAD_ON_PASS,P.CROSS_ATTACK,P.CHASE]:time<360?[P.HEAD_ON_PASS,P.CROSS_ATTACK,P.PINCER,P.CHASE,P.BAIT,P.ESCORT,P.BOMBER_RUN]:[P.HEAD_ON_PASS,P.CROSS_ATTACK,P.PINCER,P.CHASE,P.BAIT,P.ESCORT,P.BOMBER_RUN,P.VETERAN_FORMATION,P.ELITE_FORMATION];
+ if(state.combatSinceRecovery>=1)return P.RECOVERY;
+ const time=game.t||0,candidates=time<120?[P.HEAD_ON_PASS,P.CROSS_ATTACK,P.CHASE,P.DECOY]:time<360?[P.HEAD_ON_PASS,P.CROSS_ATTACK,P.PINCER,P.CHASE,P.BAIT,P.ESCORT,P.DECOY,P.BOMBER_RUN]:[P.HEAD_ON_PASS,P.CROSS_ATTACK,P.PINCER,P.CHASE,P.BAIT,P.ESCORT,P.DECOY,P.BOMBER_RUN,P.VETERAN_FORMATION,P.ELITE_FORMATION];
  return weightedChoice(game,state,candidates);
 }
 
 function action(type,layout,count=1){return Array.from({length:count},(_,index)=>({type,layout,index,count}))}
 function planFor(pattern,time,compact){
- const pressure=time<120?3:time<360?4:compact?2:5;
+ const pressure=time<120?(compact?3:4):time<360?(compact?4:5):compact?4:6;
  if(pattern===P.HEAD_ON_PASS)return action('hunter','headOn',Math.max(2,pressure));
  if(pattern===P.CROSS_ATTACK)return action('hunter','cross',Math.max(2,pressure));
  if(pattern===P.PINCER)return action('hunter','pincer',2);
  if(pattern===P.CHASE)return action(time<180?'scout':'hunter','chase',Math.max(2,pressure));
+ if(pattern===P.DECOY)return[...action('scout','decoy',1),...action('hunter','decoyWing',Math.max(2,pressure-1))];
  if(pattern===P.BAIT)return action('hunter','bait',3);
  if(pattern===P.VETERAN_FORMATION)return action('hunter','veteran',3);
- if(pattern===P.ESCORT)return[...action('bomber','bomber',1),...action('hunter','escort',Math.min(2,pressure))];
- if(pattern===P.BOMBER_RUN)return action('bomber','bomber',time<420?1:2);
+ if(pattern===P.ESCORT)return[...action('bomber','bomber',1),...action('hunter','escort',Math.max(1,pressure-1))];
+ if(pattern===P.BOMBER_RUN)return[...action('bomber','bomber',Math.min(2,Math.max(1,pressure-2))),...action('hunter','escort',pressure-Math.min(2,Math.max(1,pressure-2)))];
  return[];
 }
 
@@ -61,7 +62,7 @@ function beginPattern(game,state,pattern=choosePattern(game,state)){
  state.endsAt=now+(pattern===P.RECOVERY?BATTLE_DIRECTOR_BALANCE.recoveryDuration:pattern===P.ACE_PRESSURE?20:BATTLE_DIRECTOR_BALANCE.sceneMin+(game.rng?.()??Math.random())*(BATTLE_DIRECTOR_BALANCE.sceneMax-BATTLE_DIRECTOR_BALANCE.sceneMin));
  state.nextActionAt=now+.35;state.queue=planFor(pattern,now,compact);state.history.push(pattern);state.history=state.history.slice(-6);
  if(pattern===P.RECOVERY)state.combatSinceRecovery=0;else if(pattern!==P.ACE_PRESSURE)state.combatSinceRecovery++;
- game.battleDirectorPattern=pattern;game.spawn=Math.max(game.spawn||0,pattern===P.RECOVERY?BATTLE_DIRECTOR_BALANCE.recoveryDuration:1.2);
+ game.battleDirectorPattern=pattern;game.spawn=pattern===P.RECOVERY?Math.min(game.spawn||0,1.1):Math.max(game.spawn||0,1.2);
  if(pattern!==P.ACE_PRESSURE){
   const p=playerFor(game),duration=Math.max(1,state.endsAt-now);
   for(const e of game.enemies||[])if(directorAircraftEligible(game,e)){
@@ -76,12 +77,14 @@ function beginPattern(game,state,pattern=choosePattern(game,state)){
 
 function place(game,e,layout,index,count){
  const p=game.battleDirector?.anchor||playerFor(game),a=Number.isFinite(p.a)?p.a:-Math.PI/2,side=index-(count-1)/2;
- let forward=500,lateral=side*115;
- if(layout==='cross'){forward=80;lateral=(index%2?1:-1)*500+side*55}
- else if(layout==='pincer'){forward=320;lateral=(index%2?1:-1)*360}
- else if(layout==='chase'){forward=-360;lateral=side*100}
+ let forward=layout==='headOn'?720:500,lateral=side*115;
+ if(layout==='cross'){forward=80;lateral=(index%2?1:-1)*500+Math.floor(index/2)*28}
+ else if(layout==='pincer'){forward=320;lateral=(index%2?1:-1)*360+Math.floor(index/2)*26}
+ else if(layout==='chase'){forward=-220;lateral=side*100}
  else if(layout==='escort'){forward=440;lateral=side*95}
  else if(layout==='bomber'){forward=610;lateral=side*180}
+ else if(layout==='decoy'){forward=490;lateral=0}
+ else if(layout==='decoyWing'){forward=-190;lateral=(index%2?1:-1)*(170+index*22)}
  e.x=p.x+Math.cos(a)*forward-Math.sin(a)*lateral;e.y=p.y+Math.sin(a)*forward+Math.cos(a)*lateral;
  e.a=layout==='chase'?a:Math.atan2(p.y-e.y,p.x-e.x);e.directorPattern=game.battleDirectorPattern;e.directorSceneId=game.battleDirector.sceneId;
  if(!directorAircraftEligible(game,e))return;
@@ -90,6 +93,10 @@ function place(game,e,layout,index,count){
  // Seed the existing pass states once. Waypoints are reused by the pass layer.
  const duration=BATTLE_DIRECTOR_BALANCE[`${layout}Intent`]||7;
  e.directorLayout=layout;e.directorAnchorHeading=a;e.directorIntentStartedAt=game.t||0;e.directorIntentUntil=(game.t||0)+duration;
+ if(layout==='chase'||layout==='decoyWing'){
+  e.directorCruise={speed:e.speed,dogfight:e.dogfightCruise,personality:e.personalityCruise,cap:e.cruiseSpeedCap};
+  e.speed=Math.min(265,Math.max(e.speed,(p.speed||170)*1.3));e.dogfightCruise=e.speed;e.personalityCruise=e.speed;e.cruiseSpeedCap=Math.max(e.cruiseSpeedCap||0,e.speed);
+ }
  if(layout==='headOn'||layout==='cross'){
   e.directorRallyUntil=game.battleDirector.startedAt+2.2;
   e.directorRallyHeading=layout==='headOn'?a+Math.PI:a+(index%2?-1:1)*Math.PI/2;
@@ -99,7 +106,7 @@ function place(game,e,layout,index,count){
  if(layout==='cross'||layout==='bomber'){
   e.a=layout==='cross'?a+(index%2?-1:1)*Math.PI/2:a+Math.PI;
   e.combatPassState=S.COMMIT;e.combatPassHeading=e.a;e.combatPassTimer=duration;
- }else if(layout==='pincer'||layout==='chase'||layout==='escort'){
+ }else if(layout==='pincer'||layout==='chase'||layout==='escort'||layout==='decoyWing'){
   e.combatPassState=S.REPOSITION;e.combatPassTimer=duration;
   const offset=layout==='pincer'?(index%2?1:-1)*110:side*95,front=layout==='pincer'?140:-120;
   e.combatPassWaypoint={x:p.x+Math.cos(a)*front-Math.sin(a)*offset,y:p.y+Math.sin(a)*front+Math.cos(a)*offset};
@@ -114,7 +121,7 @@ function place(game,e,layout,index,count){
 
 function joinSquadron(game,e,layout,index){
  const tactic=layout==='pincer'?'cross':layout==='bomber'&&(game.battleDirectorPattern===P.ESCORT||game.battleDirectorPattern===P.BOMBER_RUN)?'escort':layout;
- if(!['headOn','cross','chase','bait','escort','veteran'].includes(tactic))return;
+ if(!['headOn','cross','chase','bait','escort','veteran','decoyWing'].includes(tactic))return;
  const previous=game.enemies.find(w=>w!==e&&w.directorSceneId===e.directorSceneId&&w.directorSquad?.tactic===tactic);
  const squad=previous?.directorSquad||{tactic,leader:e,members:[],target:playerFor(game),until:game.battleDirector.endsAt,startedAt:game.t||0};
  squad.members.push(e);e.directorSquad=squad;e.directorSlot=squad.members.length-1;e.directorTarget=squad.target;
@@ -303,7 +310,7 @@ function tickDirector(game,dt){
  const live=(game.enemies||[]).filter(regular).length;if(live>=directorCap(game)){state.nextActionAt=now+.7;return}
  const next=state.queue.shift();let e;
  game.directorSpawning=true;try{e=game.spawnEnemy?.(next.type)}finally{game.directorSpawning=false}
- if(e){place(game,e,next.layout,next.index,next.count);linkFormation(game,e);state.spawned++}
+ if(e){place(game,e,next.layout,next.index,next.count);linkFormation(game,e);state.spawned++}else state.queue.unshift(next);
  state.nextActionAt=now+BATTLE_DIRECTOR_BALANCE.actionInterval;
 }
 
@@ -333,7 +340,7 @@ export function installBattleDirector(Game,deps={}){
  const regularLimit=Game.prototype.regularEnemyLimit;
  Game.prototype.regularEnemyLimit=function(){const base=regularLimit.call(this);if((this.viewWidth||960)>BATTLE_DIRECTOR_BALANCE.compactWidth)return base;return Math.min(base,this.mode==='coop2'?BATTLE_DIRECTOR_BALANCE.compactCoopCap:BATTLE_DIRECTOR_BALANCE.compactSoloCap)};
  const interval=Game.prototype.regularSpawnInterval;
- Game.prototype.regularSpawnInterval=function(){const base=interval.call(this),pattern=this.battleDirectorPattern;if(pattern===P.RECOVERY)return base*3.2;if(pattern===P.ACE_PRESSURE||pattern===P.ELITE_FORMATION||pattern===P.BOMBER_RUN)return base*1.7;return pattern?base*1.25:base};
+ Game.prototype.regularSpawnInterval=function(){const base=interval.call(this),pattern=this.battleDirectorPattern;if(pattern===P.RECOVERY)return base*1.65;if(pattern===P.ACE_PRESSURE||pattern===P.ELITE_FORMATION)return base*1.7;return pattern?base*2.2:this.mode!=='campaign'&&this.t<120?base*.82:base};
  const update=Game.prototype.update;
  Game.prototype.update=function(dt,input={}){if(this.state==='playing')maintainFormations(this);const result=update.call(this,dt,input);if(this.state==='playing')maintainFormations(this);this.tickBattleDirector(Math.min(.04,Math.max(0,dt||0)));return result};
 }
