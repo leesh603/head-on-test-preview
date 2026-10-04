@@ -1,0 +1,264 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HEAD-ON 도색 스튜디오</title><style>
+*{box-sizing:border-box;margin:0}
+body{background:#14120f;color:#e8ddc9;font:14px/1.5 "Segoe UI",sans-serif;display:flex;height:100vh;overflow:hidden}
+aside{width:300px;min-width:300px;background:#1c1a16;border-right:1px solid #4a4234;padding:14px;overflow-y:auto}
+h1{font-size:17px;color:#cbb27a;margin-bottom:10px;letter-spacing:.5px}
+h2{font-size:12px;color:#9a8f78;margin:16px 0 7px;text-transform:uppercase;letter-spacing:1px}
+select,input[type=text],input[type=range]{width:100%;background:#26221c;color:#e8ddc9;border:1px solid #4a4234;border-radius:6px;padding:6px 8px;font-size:13px}
+.row{display:flex;gap:8px;align-items:center;margin:6px 0}
+.row>*{flex:1}
+button{background:#2a2620;color:#cfc4ae;border:1px solid #4a4234;border-radius:6px;padding:7px 10px;font-size:13px;cursor:pointer;width:100%}
+button.on{background:#cbb27a;color:#1c1a16;border-color:#cbb27a;font-weight:700}
+button:hover{border-color:#cbb27a}
+.swatches{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin:6px 0}
+.sw{width:100%;aspect-ratio:1;border-radius:5px;border:2px solid #00000060;cursor:pointer}
+.sw.on{outline:2px solid #cbb27a}
+.marks{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.mk{aspect-ratio:1;border-radius:6px;border:2px solid #4a4234;cursor:pointer;display:flex;align-items:center;justify-content:center;background:#26221c}
+.mk.on{border-color:#cbb27a;background:#37312a}
+.mk canvas{width:80%;height:80%}
+#wrap{flex:1;position:relative;background:
+repeating-conic-gradient(#1c1a16 0 25%,#211e19 0 50%) 0 0/28px 28px;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:24px}
+#cv{background:transparent;cursor:crosshair;image-rendering:auto}
+.hint{font-size:11px;color:#7a7160;margin-top:4px}
+#log{font-size:12px;color:#8fbf7f;margin-top:10px;min-height:18px}
+label.ck{display:flex;align-items:center;gap:7px;font-size:12.5px;cursor:pointer}
+label.ck input{width:auto}
+a.dl{display:block;text-align:center;background:#3d5a34;color:#d7e8c9;text-decoration:none;border-radius:6px;padding:9px;margin-top:8px;font-weight:700}
+</style></head><body>
+<aside>
+<h1>도색 스튜디오</h1>
+<h2>베이스</h2>
+<select id="base"></select>
+<div class="hint">또는 이미지를 캔버스에 드래그앤드롭</div>
+<h2>도구</h2>
+<div class="row">
+<button id="t-fill" class="on">채우기 (선 안)</button>
+<button id="t-brush">브러시</button>
+<button id="t-mark">마킹</button>
+</div>
+<div class="row">
+<button id="t-erase">지우개(원본 복구)</button>
+<button id="t-undo">되돌리기</button>
+</div>
+<h2>색상</h2>
+<div class="swatches" id="swatches"></div>
+<div class="row"><input type="color" id="pick" value="#7a6f52" style="width:60px;height:32px;padding:2px">
+<div style="flex:2"><div class="row" style="margin:0"><span style="font-size:11px;flex:none">강도</span><input type="range" id="strength" min="20" max="100" value="80"></div></div></div>
+<div class="row"><span style="font-size:11px;flex:none">브러시</span><input type="range" id="bsize" min="6" max="120" value="40"></div>
+<h2>국적 마킹</h2>
+<div class="marks" id="marks"></div>
+<div class="row"><span style="font-size:11px;flex:none">크기</span><input type="range" id="msize" min="20" max="300" value="90"></div>
+<label class="ck"><input type="checkbox" id="mirror" checked> 좌우 미러로 같이 찍기</label>
+<h2>저장</h2>
+<div class="row"><input type="text" id="fname" placeholder="파일명 (예: my_albatros_red)"><button id="save" style="flex:0 0 80px">webp 저장</button></div>
+<div class="row"><input type="text" id="base_name" placeholder="베이스 이름 (갤러리용)" style="display:none"></div>
+<div id="log"></div>
+</aside>
+<div id="wrap"><canvas id="cv"></canvas></div>
+<script>
+const BASES=[
+ ['— 밑바탕 (무늬 없음) —',''],
+ ['primer_biplane','asset-bank/templates/primer_biplane.webp'],
+ ['primer_sesquiplane','asset-bank/templates/primer_sesquiplane.webp'],
+ ['primer_triplane','asset-bank/templates/primer_triplane.webp'],
+ ['primer_monoplane','asset-bank/templates/primer_monoplane.webp'],
+ ['primer_pusher','asset-bank/templates/primer_pusher.webp'],
+ ['primer_giant (4발)','asset-bank/templates/primer_giant.webp'],
+ ['primer_twoseat','asset-bank/templates/primer_twoseat.webp'],
+ ['primer_float','asset-bank/templates/primer_float.webp'],
+ ['— 뱅크 기체 —',''],
+ ['nieuport_11','asset-bank/planes/nieuport_11_bebe.webp'],['nieuport_24','asset-bank/planes/nieuport_24.webp'],
+ ['sopwith_pup','asset-bank/planes/sopwith_pup.webp'],['sopwith_dolphin','asset-bank/planes/sopwith_dolphin.webp'],
+ ['sopwith_triplane','asset-bank/planes/sopwith_triplane.webp'],['sopwith_strutter','asset-bank/planes/sopwith_strutter.webp'],
+ ['dh4','asset-bank/planes/dh4.webp'],['dh9','asset-bank/planes/dh9.webp'],['re8','asset-bank/planes/re8.webp'],
+ ['pfalz_d12','asset-bank/planes/pfalz_d12.webp'],['junkers_d1','asset-bank/planes/junkers_d1.webp'],
+ ['ssw_d4','asset-bank/planes/ssw_d4.webp'],['fokker_ev','asset-bank/planes/fokker_ev.webp'],
+ ['albatros_d3','asset-bank/planes/albatros_d3.webp'],['phoenix_d1','asset-bank/planes/phoenix_d1.webp'],
+ ['hannover_cl3','asset-bank/planes/hannover_cl3.webp'],['ilya_muromets','asset-bank/planes/ilya_muromets.webp'],
+ ['caproni_ca3','asset-bank/planes/caproni_ca3.webp'],['vickers_fb5','asset-bank/planes/vickers_fb5.webp'],
+ ['rumpler_taube','asset-bank/planes/rumpler_taube.webp'],['avro_504','asset-bank/planes/avro_504.webp'],
+ ['salmson_2a2','asset-bank/planes/salmson_2a2.webp'],['armstrong_fk8','asset-bank/planes/armstrong_fk8.webp'],
+ ['savoia_pomilio','asset-bank/planes/savoia_pomilio.webp'],['hp_o400','asset-bank/planes/hp_o400.webp'],
+ ['caudron_r11','asset-bank/planes/caudron_r11.webp'],['staaken_r6','asset-bank/planes/staaken_r6.webp'],
+ ['— 수상기 —',''],
+ ['ff33','asset-bank/seaplanes/friedrichshafen_ff33.webp'],['short_184','asset-bank/seaplanes/short_184.webp'],
+ ['sopwith_baby','asset-bank/seaplanes/sopwith_baby.webp'],['fba_h','asset-bank/seaplanes/fba_h.webp'],
+ ['hansa_w12','asset-bank/seaplanes/hansa_w12.webp'],['gotha_wd14','asset-bank/seaplanes/gotha_wd14.webp'],
+ ['— 인게임 —',''],
+ ['baron_albatros','baron_albatros.webp'],['camel','camel.webp'],['spad','spad.webp'],
+ ['fokkerd7','fokkerd7.webp'],['albatros_d5a','albatros_d5a.webp'],['eindecker','eindecker.webp'],
+ ['se5a','se5a.webp'],['snipe','snipe.webp'],['fe2b','fe2b.webp']
+];
+const PALETTE={
+ '리넨(원색)':'#d8cdb0','올리브 PC10':'#6b6239','올리브 PC12':'#5a5433','카키 브라운':'#7a6f52','다크 그린':'#3f4a35',
+ '독일 녹회':'#6e7a6f','독일 청록':'#4a5d66','독일 연보라':'#7a7086','독일 적갈':'#6e4638','광택 빨강':'#9c2b21',
+ '로엔그린 모틀':'#8a9a7a','벌집 검정':'#2b2b2b','프로이센 청':'#4a5a80','아시모프 회색':'#8d9299',
+ '영국 카키':'#9a8f6a','프랑스 호라이즌':'#a3b5bd','이탈리아 녹갈':'#7a7a56','러시아 청녹':'#5f7263',
+ '흰색':'#e8e4d8','노랑':'#c9a84c','오렌지':'#c07a3a','하늘':'#7d96a8','목재':'#8a6a4a','금속 철':'#6a6f75'
+};
+const MARKS={
+ roundel_entente:(c,s)=>{c.beginPath();c.arc(s/2,s/2,s*.46,0,7);c.fillStyle='#2a4a8c';c.fill();
+   c.beginPath();c.arc(s/2,s/2,s*.32,0,7);c.fillStyle='#e8e4d8';c.fill();
+   c.beginPath();c.arc(s/2,s/2,s*.17,0,7);c.fillStyle='#a12a24';c.fill()},
+ cockade_france:(c,s)=>{c.beginPath();c.arc(s/2,s/2,s*.46,0,7);c.fillStyle='#2a4a8c';c.fill();
+   c.beginPath();c.arc(s/2,s/2,s*.32,0,7);c.fillStyle='#e8e4d8';c.fill();
+   c.beginPath();c.arc(s/2,s/2,s*.17,0,7);c.fillStyle='#c33';c.fill()},
+ roundel_italy:(c,s)=>{c.beginPath();c.arc(s/2,s/2,s*.46,0,7);c.fillStyle='#c33';c.fill();
+   c.beginPath();c.arc(s/2,s/2,s*.32,0,7);c.fillStyle='#e8e4d8';c.fill();
+   c.beginPath();c.arc(s/2,s/2,s*.17,0,7);c.fillStyle='#2f7a3f';c.fill()},
+ iron_cross:(c,s)=>{const a=s*.46,cw=s*.16;c.fillStyle='#1c1c1c';
+   c.fillRect(s/2-cw,s/2-a,cw*2,a*2);c.fillRect(s/2-a,s/2-cw,a*2,cw*2);
+   c.strokeStyle='#e8e4d8';c.lineWidth=s*.03;c.strokeRect(s/2-cw,s/2-a,cw*2,a*2);c.strokeRect(s/2-a,s/2-cw,a*2,cw*2)},
+ balkenkreuz:(c,s)=>{const a=s*.46,cw=s*.18;
+   c.fillStyle='#e8e4d8';c.fillRect(s/2-cw-4,s/2-a-4,cw*2+8,a*2+8);c.fillRect(s/2-a-4,s/2-cw-4,a*2+8,cw*2+8);
+   c.fillStyle='#1c1c1c';c.fillRect(s/2-cw,s/2-a,cw*2,a*2);c.fillRect(s/2-a,s/2-cw,a*2,cw*2)},
+ austro_hung:(c,s)=>{const a=s*.4,cw=s*.13;c.fillStyle='#1c1c1c';
+   c.fillRect(s/2-cw,s/2-a,cw*2,a*2);c.fillRect(s/2-a,s/2-cw,a*2,cw*2);
+   c.fillStyle='#e8e4d8';c.fillRect(s/2-cw*.4,s/2-a,cw*.8,a*2);c.fillRect(s/2-a,s/2-cw*.4,a*2,cw*.8)},
+ rudder_stripe:(c,s)=>{const w=s*.8,h=s*.5;c.fillStyle='#111';c.fillRect(s*.1,s*.25,w,h/3);
+   c.fillStyle='#a12a24';c.fillRect(s*.1,s*.25+h/3,w,h/3);c.fillStyle='#e8e4d8';c.fillRect(s*.1,s*.25+2*h/3,w,h/3)},
+ stripes_3:(c,s)=>{const w=s*.8,h=s*.5;c.fillStyle='#c33';c.fillRect(s*.1,s*.25,w,h/3);
+   c.fillStyle='#e8e4d8';c.fillRect(s*.1,s*.25+h/3,w,h/3);c.fillStyle='#2a4a8c';c.fillRect(s*.1,s*.25+2*h/3,w,h/3)}
+};
+const $=id=>document.getElementById(id);
+const cv=$('cv'),cx=cv.getContext('2d',{willReadFrequently:true});
+let orig=null,undoStack=[],mode='fill',markType='roundel_entente',paint='#7a6f52',strength=.8,bsize=40,msize=90,mirror=true;
+const sel=$('base');
+for(const [n,p] of BASES){const o=document.createElement('option');o.textContent=n;o.value=p;o.disabled=!p;sel.add(o)}
+sel.onchange=()=>loadBase(sel.value);
+function loadBase(p){if(!p)return;const img=new Image();img.onload=()=>{orig=img;reset();log('로드됨: '+p)};img.onerror=()=>log('로드 실패: '+p);img.src=p}
+function reset(){if(!orig)return;cv.width=orig.naturalWidth;cv.height=orig.naturalHeight;cx.clearRect(0,0,cv.width,cv.height);cx.drawImage(orig,0,0);undoStack=[]}
+// swatches
+const sw=$('swatches');
+for(const [n,c] of Object.entries(PALETTE)){const d=document.createElement('div');d.className='sw';d.style.background=c;d.title=n;d.dataset.c=c;
+ d.onclick=()=>{paint=c;[...sw.children].forEach(x=>x.classList.toggle('on',x===d));};sw.append(d)}
+sw.children[1].classList.add('on');
+$('pick').oninput=e=>paint=e.target.value;
+$('strength').oninput=e=>strength=e.target.value/100;
+$('bsize').oninput=e=>bsize=+e.target.value;
+$('msize').oninput=e=>msize=+e.target.value;
+$('mirror').onchange=e=>mirror=e.target.checked;
+// marks
+const mk=$('marks');
+for(const k of Object.keys(MARKS)){const d=document.createElement('div');d.className='mk';d.dataset.k=k;const c2=document.createElement('canvas');c2.width=c2.height=64;MARKS[k](c2.getContext('2d'),64);d.append(c2);d.title=k;d.onclick=()=>{mode='mark';markType=k;setTools();[...mk.children].forEach(x=>x.classList.toggle('on',x===d))};mk.append(d)}
+mk.children[0].classList.add('on');
+function setTools(){for(const t of ['fill','brush','mark','erase']) $('t-'+t).classList.toggle('on',mode===t)}
+$('t-fill').onclick=()=>{mode='fill';setTools()};
+$('t-brush').onclick=()=>{mode='brush';setTools()};
+$('t-mark').onclick=()=>{mode='mark';setTools()};
+$('t-erase').onclick=()=>{mode='erase';setTools()};
+$('t-undo').onclick=()=>{const s=undoStack.pop();if(s){cx.putImageData(s,0,0);log('되돌림')}};
+function snap(){undoStack.push(cx.getImageData(0,0,cv.width,cv.height));if(undoStack.length>30)undoStack.shift()}
+function log(m){$('log').textContent=m}
+function pos(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height]}
+function hexRGB(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]}
+// flood fill bounded by dark ink outlines; multiply-tint result
+function fill(x,y){
+ const w=cv.width,h=cv.height,img=cx.getImageData(0,0,w,h),d=img.data;
+ const i0=((y|0)*w+(x|0))*4;if(d[i0+3]<40)return log('빈 공간 — 기체 위를 클릭');
+ const sr=d[i0],sg=d[i0+1],sb=d[i0+2];
+ const TOL=58,seen=new Uint8Array(w*h),st=[(y|0)*w+(x|0)],out=[];
+ const [pr,pg,pb]=hexRGB(paint);
+ const dark=v=>v<55; // outline guard
+ while(st.length){
+  const i=st.pop();if(seen[i])continue;seen[i]=1;
+  const px=i%w,py=(i/w)|0,o=i*4;
+  const dr=d[o]-sr,dg=d[o+1]-sg,db=d[o+2]-sb;
+  if(dr*dr+dg*dg+db*db>TOL*TOL*3)continue;
+  if(dark(d[o])&&dark(d[o+1])&&dark(d[o+2]))continue; // 잉크선
+  if(d[o+3]<40)continue;
+  out.push(o);
+  if(px>0)st.push(i-1);if(px<w-1)st.push(i+1);if(py>0)st.push(i-w);if(py<h-1)st.push(i+w);
+ }
+ if(!out.length)return log('채울 영역 없음');
+ if(out.length>w*h*.7)return log('영역이 너무 큼 — 선이 뚫린 곳일 수 있음. 더 안쪽 클릭');
+ for(const o of out){
+  // multiply tint: keep luminance/texture
+  d[o]=d[o]*mix(1,pr/255,strength)|0;
+  d[o+1]=d[o+1]*mix(1,pg/255,strength)|0;
+  d[o+2]=d[o+2]*mix(1,pb/255,strength)|0;
+ }
+ cx.putImageData(img,0,0);log('영역 '+out.length+'px 도색');
+}
+const mix=(a,b,t)=>a+(b-a)*t;
+// brush: soft multiply dab
+function dab(x,y,erase){
+ const r=bsize/2,w=cv.width,h=cv.height;
+ const x0=Math.max(0,x-r|0),x1=Math.min(w,x+r|0),y0=Math.max(0,y-r|0),y1=Math.min(h,y+r|0);
+ const img=cx.getImageData(0,0,w,h),d=img.data,od=erase?null:null;
+ const [pr,pg,pb]=erase?[0,0,0]:hexRGB(paint);
+ for(let yy=y0;yy<y1;yy++)for(let xx=x0;xx<x1;xx++){
+  const dx=xx-x,dy=yy-y,dd=Math.sqrt(dx*dx+dy*dy)/r;if(dd>1)continue;
+  const o=(yy*w+xx)*4;if(d[o+3]<40)continue;
+  const a=(1-dd)*(1-dd)*strength;
+  if(erase){
+   const sx=xx|0,sy=yy|0,so=(sy*w+sx)*4;
+   const src=cx.createImageData?0:0;
+   d[o]=mix(d[o],origPix.data? origPix.data[o]:d[o],a);
+  }else{
+   d[o]=mix(d[o],d[o]*pr/255,a)|0;
+   d[o+1]=mix(d[o+1],d[o+1]*pg/255,a)|0;
+   d[o+2]=mix(d[o+2],d[o+2]*pb/255,a)|0;
+  }
+ }
+ cx.putImageData(img,0,0);
+}
+// erase restores original pixels
+let origPix=null;
+function dabErase(x,y){
+ if(!origPix)origPix=cx.createImageData(cv.width,cv.height);
+ const r=bsize/2,w=cv.width,h=cv.height;
+ const x0=Math.max(0,x-r|0),x1=Math.min(w,x+r|0),y0=Math.max(0,y-r|0),y1=Math.min(h,y+r|0);
+ const img=cx.getImageData(0,0,w,h),d=img.data;
+ for(let yy=y0;yy<y1;yy++)for(let xx=x0;xx<x1;xx++){
+  const dx=xx-x,dy=yy-y,dd=Math.sqrt(dx*dx+dy*dy)/r;if(dd>1)continue;
+  const o=(yy*w+xx)*4;if(d[o+3]<40)continue;
+  const a=(1-dd)*(1-dd)*.85;
+  // read original
+  const oc=document.createElement('canvas');
+ }
+ cx.putImageData(img,0,0);
+}
+// simpler erase via second canvas copy
+let origCv=null;
+function eraseAt(x,y){
+ if(!origCv){origCv=document.createElement('canvas');origCv.width=cv.width;origCv.height=cv.height;origCv.getContext('2d').drawImage(orig,0,0)}
+ const r=bsize/2;
+ cx.save();
+ cx.beginPath();cx.arc(x,y,r,0,7);cx.clip();
+ cx.globalAlpha=.9;
+ cx.drawImage(origCv,x-r,y-r,r*2,r*2,x-r,y-r,r*2,r*2);
+ cx.restore();
+}
+function stamp(x,y){
+ const s=msize,off=document.createElement('canvas');off.width=off.height=s;
+ MARKS[markType](off.getContext('2d'),s);
+ cx.save();cx.imageSmoothingEnabled=true;
+ cx.drawImage(off,x-s/2,y-s/2,s,s);
+ if(mirror)cx.drawImage(off,cv.width-x-s/2,y-s/2,s,s);
+ cx.restore();
+ log('마킹 배치');
+}
+let painting=false,last=null;
+cv.onmousedown=e=>{const [x,y]=pos(e);if(mode==='mark'){snap();stamp(x,y);return}
+ snap();painting=true;last=[x,y];
+ if(mode==='fill'){fill(x,y);painting=false}else if(mode==='erase')eraseAt(x,y);else dab(x,y,false)};
+cv.onmousemove=e=>{if(!painting)return;const [x,y]=pos(e);
+ if(mode==='erase')eraseAt(x,y);else if(mode==='brush'){dab(x,y,false)}
+ last=[x,y]};
+cv.onmouseup=()=>painting=false;cv.onmouseleave=()=>painting=false;
+// touch
+cv.ontouchstart=e=>{e.preventDefault();const t=e.touches[0];cv.onmousedown(t)};
+cv.ontouchmove=e=>{e.preventDefault();const t=e.touches[0];cv.onmousemove(t)};
+cv.ontouchend=()=>painting=false;
+// drag-drop image
+const wrap=$('wrap');
+wrap.ondragover=e=>e.preventDefault();
+wrap.ondrop=e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(!f)return;
+ const img=new Image();img.onload=()=>{orig=img;reset();log('드롭됨: '+f.name)};img.src=URL.createObjectURL(f)};
+// save
+$('save').onclick=()=>{const n=($('fname').value||'livery').replace(/[^a-z0-9_-]/gi,'_');
+ cv.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n+'.webp';a.click();log('저장: '+n+'.webp — asset-bank/liveries/에 넣으면 됨')},'image/webp',.92)};
+loadBase('asset-bank/templates/primer_biplane.webp');
+</script></body></html>

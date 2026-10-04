@@ -280,11 +280,7 @@
       ]
     }
   },
-  "notes": [
-    "Planes/vehicles: transparent PNG-alpha, nose-up, top-down painterly style matching plane-bank.",
-    "Terrain: square painterly tiles intended for the seamlessGround world-locked tiling (8% bleed bake) — see verdun-ground.js / maan-view.js.",
-    "Terrain sea/ridge features sit near edges; bake pass feathers seams."
-  ],
+  "notes": "Planes/vehicles: transparent PNG-alpha, nose-up, top-down painterly style matching plane-bank.,Terrain: square painterly tiles intended for the seamlessGround world-locked tiling (8% bleed bake) — see verdun-ground.js / maan-view.js.,Terrain sea/ridge features sit near edges; bake pass feathers seams.\n\ntemplates/: 무채색 리넨 밑바탕 — livery-studio.html에서 도색해 변형 제작. liveries/: 도색 스튜디오 산출물 보관용.",
   "seaplanes": {
     "friedrichshafen_ff33": {
       "name": "Friedrichshafen FF.33",
@@ -333,6 +329,40 @@
       "name": "Parseval PL.25",
       "faction": "central",
       "role": "non-rigid"
+    }
+  },
+  "templates": {
+    "primer_biplane": {
+      "name": "도색용 밑바탕 · biplane",
+      "role": "paint-template"
+    },
+    "primer_sesquiplane": {
+      "name": "도색용 밑바탕 · sesquiplane",
+      "role": "paint-template"
+    },
+    "primer_triplane": {
+      "name": "도색용 밑바탕 · triplane",
+      "role": "paint-template"
+    },
+    "primer_monoplane": {
+      "name": "도색용 밑바탕 · monoplane",
+      "role": "paint-template"
+    },
+    "primer_pusher": {
+      "name": "도색용 밑바탕 · pusher",
+      "role": "paint-template"
+    },
+    "primer_giant": {
+      "name": "도색용 밑바탕 · giant",
+      "role": "paint-template"
+    },
+    "primer_twoseat": {
+      "name": "도색용 밑바탕 · twoseat",
+      "role": "paint-template"
+    },
+    "primer_float": {
+      "name": "도색용 밑바탕 · float",
+      "role": "paint-template"
     }
   }
 }
