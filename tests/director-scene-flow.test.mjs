@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game} from '../engine.js?v=523';
-import {BATTLE_DIRECTOR_PATTERNS as P} from '../battle-director169.js?v=523';
+import {Game} from '../engine.js?v=524';
+import {BATTLE_DIRECTOR_PATTERNS as P} from '../battle-director169.js?v=524';
 
 const setup=()=>{const g=new Game('fokker','baron',()=>.2);g.state='playing';g.viewWidth=1200;g.t=10;g.players=[];return g};
 const tick=(g,n=1,dt=.5)=>{for(let i=0;i<n;i++){g.t+=dt;g.tickBattleDirector(.04)}};
@@ -40,4 +40,22 @@ test('recovery scenes keep suppression and are followed by a combat scene',()=>{
  const combat=g.battleDirector.history.filter(p=>p!==P.RECOVERY&&p!==P.ACE_PRESSURE);
  assert(combat.length>=1);
  for(let i=1;i<combat.length;i++)assert.notEqual(combat[i],combat[i-1]);
+});
+
+test('scene cleanup pauses ordinary replacement pressure and disperses its own formation',()=>{
+ const g=setup();g.t=300;g.beginBattleDirectorPattern(P.CROSS_ATTACK);
+ for(let i=0;i<3;i++){g.t+=.5;g.tickBattleDirector(.04)}
+ assert.equal(g.battleDirector.phase,'approach');assert(g.battleDirector.spawned>=2);
+ g.t=g.battleDirector.startedAt+4;g.tickBattleDirector(.04);assert.equal(g.battleDirector.phase,'formation');
+ g.t=g.battleDirector.startedAt+9;g.tickBattleDirector(.04);assert.equal(g.battleDirector.phase,'melee');
+ for(const e of g.enemies.slice(0,-1))e.hp=0;g.tickBattleDirector(.04);assert.equal(g.battleDirector.phase,'collapse');
+ g.spawn=0;g.t=g.battleDirector.endsAt-4;g.tickBattleDirector(.04);assert.equal(g.battleDirector.phase,'cleanup');assert(g.spawn>=4);assert.equal(g.enemies.at(-1).directorLayout,'recovery');
+ g.t=g.battleDirector.endsAt-2;g.tickBattleDirector(.04);assert.equal(g.battleDirector.phase,'quiet');
+});
+
+test('escort spawns visibly behind its bomber with the same heading',()=>{
+ const g=setup();g.t=300;g.beginBattleDirectorPattern(P.ESCORT);
+ for(let i=0;i<5;i++){g.t+=.5;g.tickBattleDirector(.04)}
+ const bomber=g.enemies.find(e=>e.type==='bomber'),escorts=g.enemies.filter(e=>e.directorLayout==='escort');assert(bomber);assert.equal(escorts.length,2);
+ for(const e of escorts){assert.equal(e.a,bomber.a);assert.equal(e.directorEscort,bomber);const forward=(e.x-bomber.x)*Math.cos(bomber.a)+(e.y-bomber.y)*Math.sin(bomber.a);assert(Math.abs(forward+90)<.001)}
 });

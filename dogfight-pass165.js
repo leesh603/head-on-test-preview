@@ -56,6 +56,12 @@ export function installDogfightPass(Game,angleDiff){
    return{...result,turn:result.turn*clamp(.9+(p.pursuitControl-1)*.25,.82,1.08)};
   }
 
+  // Once a directed nose-to-nose pass has crossed, enter the existing Break
+  // sequence immediately instead of spending the remaining intent flying away.
+  if(directed&&e.directorLayout==='headOn'&&e.combatPassState===DOGFIGHT_PASS_STATES.COMMIT&&distance<160&&Math.cos(delta)<-.15){
+   e.combatPassHeading=e.a;setState(e,DOGFIGHT_PASS_STATES.DISENGAGE,DOGFIGHT_PASS_BALANCE.disengageDuration);
+  }
+
   if(e.combatPassTimer===0){
    if(e.combatPassState===DOGFIGHT_PASS_STATES.ATTACK_PASS){
     const commit=clamp(DOGFIGHT_PASS_BALANCE.commitDuration+(p.headOnBias-1)*.2,.78,1.28);
@@ -93,7 +99,11 @@ export function installDogfightPass(Game,angleDiff){
     else if(Math.hypot(contact.x-bomber.x,contact.y-bomber.y)<260){waypoint.x=contact.x;waypoint.y=contact.y}
     else{const offset=e.directorEscortOffset||0;waypoint.x=bomber.x+Math.cos(bomber.a)*120-Math.sin(bomber.a)*offset;waypoint.y=bomber.y+Math.sin(bomber.a)*120+Math.cos(bomber.a)*offset}
    }
-   return{delta:angleDiff(Math.atan2(waypoint.y-e.y,waypoint.x-e.x),e.a),turn:baseTurn*clamp(.82+(p.highSpeedHandling-1)*.2,.68,1.05)};
+   // Briefly hold the outside flank before converging on the original fixed
+   // waypoint. Player movement must not turn a pincer into homing pursuit.
+   const spread=directed&&e.directorLayout==='pincer'&&(this.t||0)-(e.directorIntentStartedAt||0)<1.2?130*(e.combatPassSide||1):0,heading=e.directorAnchorHeading||0;
+   const targetX=waypoint.x-Math.sin(heading)*spread,targetY=waypoint.y+Math.cos(heading)*spread;
+   return{delta:angleDiff(Math.atan2(targetY-e.y,targetX-e.x),e.a),turn:baseTurn*clamp(.82+(p.highSpeedHandling-1)*.2,.68,1.05)};
   }
   if(e.combatPassState===DOGFIGHT_PASS_STATES.REENGAGE){const result=base();return{...result,turn:result.turn*clamp(p.reattackBias,.82,1.38)}}
   return base();

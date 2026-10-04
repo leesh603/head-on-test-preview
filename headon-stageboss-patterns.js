@@ -1,20 +1,20 @@
-import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=523';
-import {RuralRailBoss} from './rural-rail-combat.js?v=523';
-import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=523';
-import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=523';
-import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=523';
+import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=524';
+import {RuralRailBoss} from './rural-rail-combat.js?v=524';
+import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=524';
+import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=524';
+import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=524';
 export {Mark1Landship as Mark4Wedge,SchwabenFortress as MorserBattery};
-import {sommeScale} from './somme-boss-layout.js?v=523';
-import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose} from './adriatic-boss-layout.js?v=523';
-import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=523';
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=523';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=523';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=523';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=523';
-import {GIK,Ca4} from './alps-bomber-combat.js?v=523';
-import {FlakTowerNet} from './city-flak-combat.js?v=523';
+import {sommeScale} from './somme-boss-layout.js?v=524';
+import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose} from './adriatic-boss-layout.js?v=524';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=524';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=524';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=524';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=524';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=524';
+import {GIK,Ca4} from './alps-bomber-combat.js?v=524';
+import {FlakTowerNet} from './city-flak-combat.js?v=524';
 export {GIK,Ca4};
-import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=523';
+import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=524';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.

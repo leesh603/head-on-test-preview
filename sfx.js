@@ -3,8 +3,8 @@
 // assets, no external requests.
 let ctx=null,bus=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const sources=new Map(),lastVoices=new Map();
-const PRIORITY={engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0};
-const INTERVAL={engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
+const PRIORITY={flightEngine:0,enemyEngine:0,heavyApproach:1,materialImpact:1,whizz:1,closePass:2,airframeBreak:1,engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0};
+const INTERVAL={flightEngine:.12,enemyEngine:.3,heavyApproach:.65,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
 let inputMedia=null;
 const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
 export function stopSfx(){for(const [source,entry]of sources){try{source.stop()}catch{}entry.release()}lastVoices.clear()}
@@ -54,6 +54,24 @@ function hiss(f0,f1,d,v,type='bandpass',Q=.8,when=0,att=.003){
   track(n,f,g);
 }
 const VOICES={
+  // Overlapping low-level propeller beds follow real flight load, not reload state.
+  flightEngine({speed=1,turn=0,damage=0}={}){const load=Math.max(.65,Math.min(1.2,speed)),f=48+load*23;
+    tone(f*(.995+Math.random()*.01),f*.98,.24,.027,'sawtooth',290+load*160,0,.065);
+    hiss(390+load*600+turn*55,320+load*500,.25,.01+load*.008+Math.min(4,turn)*.002,'bandpass',.4,0,.08);
+    if(damage>.45)tone(jit(83),37,.06,.012*damage,'triangle',460);
+  },
+  enemyEngine({distance=1000,heavy=false,firing=false}={}){const near=Math.max(0,1-distance/(heavy?1000:620));if(!near)return;
+    tone(jit(heavy?51:102),heavy?45:87,.4,(heavy?.032:.019)*near,'sawtooth',heavy?250:620,0,.1);
+    hiss(heavy?480:840,300,.38,.013*near,'bandpass',.55,0,.1);
+    if(firing)hiss(jit(1600),680,.055,.014*near,'bandpass',1);
+  },
+  heavyApproach(distance=1200){const near=Math.max(0,1-distance/1400);tone(42,39,.8,.025*near,'sawtooth',210,0,.2);hiss(250,180,.75,.015*near,'lowpass',.5,0,.2)},
+  materialImpact(material){if(material==='metal'){tone(jit(720),240,.065,.042,'triangle',2400);hiss(jit(3600),1500,.045,.034,'bandpass',2)}
+    else if(material==='fabric'){hiss(jit(1300),450,.075,.047,'bandpass',.5);tone(jit(150),70,.045,.026,'triangle',600)}
+    else{tone(jit(260),85,.055,.05,'triangle',1300);hiss(jit(2300),650,.075,.039,'bandpass',1.2)}},
+  whizz(){hiss(jit(3300),720,.14,.037,'bandpass',3,0,.018);tone(jit(850),310,.08,.007,'sine',1400)},
+  closePass(){tone(jit(155),47,.38,.068,'sawtooth',680,0,.045);hiss(1600,250,.34,.074,'bandpass',.65,0,.035)},
+  airframeBreak(){tone(jit(180),53,.18,.062,'triangle',700);hiss(jit(1800),420,.26,.057,'bandpass',.65);hiss(3200,1200,.05,.026,'highpass',.7,.035)},
   // Mechanical/material cues follow actual boss actions, not a generic beep.
   mortarLaunch(){tone(135,46,.22,.075,'sine',440);hiss(680,180,.16,.065,'bandpass',.7);hiss(1250,500,.44,.018,'bandpass',3,.14)},
   earthImpact(){tone(78,28,.34,.09,'sine',250);hiss(1100,170,.48,.075,'lowpass',.6);hiss(2700,850,.09,.035,'bandpass',1.2)},
