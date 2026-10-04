@@ -1,4 +1,4 @@
-import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash} from './aircraft-crash.js?v=530';
+import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from './aircraft-crash.js?v=531';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.
 const worlds=new WeakMap(),poses=new WeakMap();
@@ -40,7 +40,7 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
   event(){play(this.wreck?.style==='fire'?'impact':'airframeBreak')}
  };
  world.burst=function(x,y,color,n,...args){
-  const e=color==='#f2aa52'&&n>=26?(this.enemies||[]).find(e=>ordinary(e)&&e.hp<=0&&Math.hypot(e.x-x,e.y-y)<2):null;
+  const e=color==='#f2aa52'&&n>=26?(this.enemies||[]).find(e=>ordinary(e)&&e.hp<=0&&!e.crashing&&!e.crashed&&!enemyCanCrash(e)&&Math.hypot(e.x-x,e.y-y)<2):null;
   const particleStart=this.particles?.length||0,oldFx=e?new Set(this.combatFX||[]):null;
   const result=burst.call(this,x,y,color,n,...args);
   if(!e)return result;
@@ -132,8 +132,8 @@ export function combatFlightSound(world){const p=(world.players||[world]).find(p
 function drawWreck(c,w,x,y,time,fx,planeSprite){
  if(w.style==='spin')drawAircraftCrash(c,w,x,y,time,fx);
  else fx(c,'smokeTrail',x-Math.cos(w.a)*56,y-Math.sin(w.a)*56,160,58,w.a,.8);
- if(w.type!=='bomber')planeSprite(c,x+14,y+22,w.a,w.key,w.scale,true,true);
- planeSprite(c,x,y,w.a,w.key,w.scale,true,false,0,true);if(w.style==='fire')fx(c,'fireEngine',x+Math.cos(w.a)*12,y+Math.sin(w.a)*12,58,66,w.a+Math.PI/2,.9);
+ const ws=w.scale*enemyCrashScale(w);if(w.type!=='bomber')planeSprite(c,x+14,y+22,w.a,w.key,ws,true,true);
+ planeSprite(c,x,y,w.a,w.key,ws,true,false,0,true);if(w.style==='fire')fx(c,'fireEngine',x+Math.cos(w.a)*12,y+Math.sin(w.a)*12,58,66,w.a+Math.PI/2,.9);
 }
 export function drawCombatFeedback(c,world,point,{fx,planeSprite}){
  const s=worlds.get(world);if(!s)return;

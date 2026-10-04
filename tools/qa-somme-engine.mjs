@@ -2,7 +2,7 @@ import {writeFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 globalThis.Image=class{set src(v){queueMicrotask(()=>this.onload?.())}};
 globalThis.document={createElement:()=>({getContext:()=>null})};
-const {Game}=await import('../engine.js?v=530'),{CoopGame}=await import('../coop-engine.js?v=530'),{enableStageBoss,endStageBossFrame,stageBossCollision,damageStageBoss}=await import('../stageboss-host.js?v=530'),{sommePoint,landshipClearance}=await import('../somme-boss-layout.js?v=530');
+const {Game}=await import('../engine.js?v=531'),{CoopGame}=await import('../coop-engine.js?v=531'),{enableStageBoss,endStageBossFrame,stageBossCollision,damageStageBoss}=await import('../stageboss-host.js?v=531'),{sommePoint,landshipClearance}=await import('../somme-boss-layout.js?v=531');
 const results=[];
 for(const mode of ['solo','coop'])for(const faction of ['central','entente'])for(const width of [390,1440]){
  const pilot=faction==='central'?'baron':'fonck';
