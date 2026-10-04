@@ -1,12 +1,12 @@
 // Excel revision 103. Unspecified numbers are explicit first-playtest tuning.
-import {WING_PLANES} from './engine.js?v=526';
+import {WING_PLANES} from './engine.js?v=527';
 export const REVISION_BALANCE=Object.freeze({soloCap:12,coopCap:18,soloRegular:10,coopRegular:11,interval:1.6,coopInterval:1.65,countrysideInterval:1,countrysideCoopInterval:1.15,frontReduction:.25,rearBonus:.3,compassXp:1.3});
 const pilotMachineGunRound=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.actualExplosion&&!b.blast&&!b.mauserRound;
  export function installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDARIES,UPGRADES){
  const newPlanes={
   nieuport24:{name:'뉴포르 24',faction:'entente',speed:154,turn:4.1,hp:90,drag:.21,recovery:1.3,guns:1,role:'경량 후방 추격',tip:'빠르게 돌아 후방 사격선을 유지하세요.'},
   pfalz_d3a:{name:'팔츠 D.IIIA · 푸른 날개',faction:'central',speed:151,turn:3.15,hp:130,drag:.14,recovery:1.2,guns:2,role:'튼튼한 강습 전투기',tip:'튼튼한 동체로 버티며 재공격하세요.'},
-  airco_dh2:{name:'에어코 DH.2',faction:'entente',speed:125,turn:4.2,hp:90,drag:.24,recovery:1.1,guns:1,role:'추진식 근접 선회',tip:'후방 프로펠러와 넓은 전방 시야를 가진 근접 선회기입니다.'}
+  airco_dh2:{name:'에어코 DH.2',faction:'entente',speed:125,turn:4.2,hp:90,drag:.21,recovery:1.1,guns:1,role:'추진식 근접 선회',tip:'후방 프로펠러와 넓은 전방 시야를 가진 근접 선회기입니다.'}
  };
  for(const [id,s]of Object.entries(newPlanes)){
   PLANES[id]={...s,wings:2,color:s.faction==='central'?'#6688a4':'#9b9e77',xpCostMultiplier:id==='airco_dh2'?.90:1,handling:{speed:s.speed,turn:s.turn,drag:s.drag,recovery:s.recovery,tip:s.tip,history:'신규 출격 기체 · 능력치는 게임용 초기 튜닝값입니다.'}};

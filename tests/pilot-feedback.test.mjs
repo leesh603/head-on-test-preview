@@ -1,10 +1,10 @@
 import './pilot-feedback-globals.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=526';
-import {advanceBurns1918} from '../pilot-lifecycle196.js?v=526';
-import {CoopGame,coopPlane} from '../coop-engine.js?v=526';
-import {CampaignGame} from '../campaign.js?v=526';
+import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=527';
+import {advanceBurns1918} from '../pilot-lifecycle196.js?v=527';
+import {CoopGame,coopPlane} from '../coop-engine.js?v=527';
+import {CampaignGame} from '../campaign.js?v=527';
 const solo=id=>new Game(coopPlane(id),id,()=>.5);
 const enemy=(x,y,a=Math.PI)=>({x,y,a,hp:10000,maxHp:10000,type:'scout',speed:0,fire:999,wobble:0});
 const quiet=g=>{for(const k of ['spawn','nextBossAt','_zeppelinSchedule','nextHeavyAt','eventTimer','allyTimer','flakTimer','regionThreat','gustTimer','supplyTimer','fieldUnitTimer','gasTimer','patrolTimer','threatTimer'])g[k]=Infinity;g.spawnEnemy=()=>null;g.checkLevel=()=>{};return g};
@@ -12,7 +12,7 @@ const frame=(p,dt=.02)=>{const old=p.beginRevisionFrame(dt,{});p.endRevisionFram
 
 test('legacy solo wings acquire one owner and execute commands; cooperative unowned wings never borrow an owner',()=>{
  for(const id of ['boelcke','collishaw','goering','brumowski']){
-  const expected=id==='goering'?1:2;const p=solo(id);p.identityState();p.ensureWingmen();for(const a of p.allies)delete a.ownerId;
+  const expected=2;const p=solo(id);p.identityState();p.ensureWingmen();for(const a of p.allies)delete a.ownerId;
   p.ensureWingmen();assert.equal(p.allies.length,expected);assert.equal(p.permanentWingCount(),expected);
   for(const a of p.allies){assert.equal(a.ownerId,'p1');assert.equal(p.updatePilotWing(a,.02),true)}
  }

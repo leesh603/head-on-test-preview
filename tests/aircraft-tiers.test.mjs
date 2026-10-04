@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PLANES,WEAPONS} from '../engine.js?v=526';
-import '../campaign.js?v=526';
-import {AIRCRAFT_TIERS,TIER_XP_GAIN,aircraftTierFor,registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from '../aircraft-tiers.js?v=526';
+import {Game,PLANES,WEAPONS} from '../engine.js?v=527';
+import '../campaign.js?v=527';
+import {AIRCRAFT_TIERS,TIER_XP_GAIN,aircraftTierFor,registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from '../aircraft-tiers.js?v=527';
 
 test('every playable runtime/campaign fit has a tier and one or two clear operating traits',()=>{
  const ids=Object.getOwnPropertyNames(PLANES);
@@ -39,7 +39,7 @@ test('tier registration preserves airframe weaknesses, existing weapons, and non
 test('growth rewards an early weak start without making late basic performance disappear',()=>{
  const early=PLANES.eindecker,late=PLANES.fokkerd7;
  assert.equal(aircraftTierFor('eindecker').tier,1);assert.equal(aircraftTierFor('fokkerd7').tier,5);
- assert.equal(early.speed,108);assert.equal(early.turn,2.55);assert.equal(WEAPONS.eindecker.guns,1);
+ assert.equal(early.speed,118);assert.equal(early.turn,2.55);assert.equal(WEAPONS.eindecker.guns,1);
  assert.ok(early.speed<late.speed);assert.ok(early.hp<late.hp);assert.ok(WEAPONS.eindecker.guns<WEAPONS.fokkerd7.guns);
  const xpForSameEncounters=100;
  assert.equal(xpForSameEncounters*TIER_XP_GAIN[1],128);

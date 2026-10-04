@@ -1,5 +1,5 @@
-import {MAAN_LAYOUT,rotateMaan} from './maan-layout.js?v=526';
-import {fx} from './fx-art.js?v=526';
+import {MAAN_LAYOUT,rotateMaan} from './maan-layout.js?v=527';
+import {fx} from './fx-art.js?v=527';
 const urls={terrain:'terrain-maan.webp',workshop:'maan-workshop.webp',wusten:'boss-maan-wusten.webp',wustenWreck:'boss-maan-wusten-wreck.webp',sinai:'boss-maan-sinai.webp',sinaiWreck:'boss-maan-sinai-wreck.webp',car:'boss-maan-rolls-royce.webp'};
 const images=new Map();
 const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+urls[key]+'?v=520';images.set(key,im);return im;};
