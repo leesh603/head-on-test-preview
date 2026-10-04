@@ -1,0 +1,90 @@
+[
+  {
+    "mode": "solo",
+    "faction": "central",
+    "width": 390,
+    "simulatedSeconds": 60,
+    "state": "playing",
+    "maxHazards": 9,
+    "dropped": 0,
+    "minClearance": 9.424648730354349,
+    "hostDamage": 16
+  },
+  {
+    "mode": "solo",
+    "faction": "central",
+    "width": 1440,
+    "simulatedSeconds": 60,
+    "state": "playing",
+    "maxHazards": 9,
+    "dropped": 0,
+    "minClearance": 14.1087555843623,
+    "hostDamage": 16
+  },
+  {
+    "mode": "solo",
+    "faction": "entente",
+    "width": 390,
+    "simulatedSeconds": 60,
+    "state": "playing",
+    "maxHazards": 14,
+    "dropped": 0,
+    "minClearance": null,
+    "hostDamage": 16
+  },
+  {
+    "mode": "solo",
+    "faction": "entente",
+    "width": 1440,
+    "simulatedSeconds": 60,
+    "state": "playing",
+    "maxHazards": 16,
+    "dropped": 0,
+    "minClearance": null,
+    "hostDamage": 16
+  },
+  {
+    "mode": "coop",
+    "faction": "central",
+    "width": 390,
+    "simulatedSeconds": 60,
+    "state": "playing",
+    "maxHazards": 6,
+    "dropped": 0,
+    "minClearance": 9.424648730354349,
+    "hostDamage": 16
+  },
+  {
+    "mode": "coop",
+    "faction": "central",
+    "width": 1440,
+    "simulatedSeconds": 60,
+    "state": "playing",
+    "maxHazards": 6,
+    "dropped": 0,
+    "minClearance": 21.605611941872695,
+    "hostDamage": 16
+  },
+  {
+    "mode": "coop",
+    "faction": "entente",
+    "width": 390,
+    "simulatedSeconds": 60,
+    "state": "playing",
+    "maxHazards": 14,
+    "dropped": 0,
+    "minClearance": null,
+    "hostDamage": 16
+  },
+  {
+    "mode": "coop",
+    "faction": "entente",
+    "width": 1440,
+    "simulatedSeconds": 60,
+    "state": "playing",
+    "maxHazards": 16,
+    "dropped": 0,
+    "minClearance": null,
+    "hostDamage": 16
+  }
+]

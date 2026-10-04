@@ -35,7 +35,7 @@ test('one track slows independent movement; two tracks stop position and heading
  hurt.b.hit({partId:'track-right',damage:99999});const pose=[hurt.b.x,hurt.b.y,hurt.b.hullYaw];tick(hurt.e,5);assert.deepEqual([hurt.b.x,hurt.b.y,hurt.b.hullYaw],pose);assert.equal(hurt.b.phase,'tracks-disabled');assert(hurt.e.bodies.get('somme:mark1:1').driveMoving);
 });
 test('destroying a sponson cancels its windup and no dead mount fires',()=>{
- const {e,b,events}=encounter('mark4-wedge');b.timers.set('sponson-left',0);tick(e,.1);assert.equal(b.salvo.partId,'sponson-left');b.hit({partId:'sponson-left',damage:99999});assert.equal(b.salvo,null);events.length=0;tick(e,15);assert(!events.some(e=>e.type==='hazard'&&e.tag===b.tag('sponson-left')));
+ const {e,b,events}=encounter('mark4-wedge');b.timers.set('sponson-left',0);tick(e,.1,{...context,players:[{id:'side',alive:true,x:650,y:390}]});assert.equal(b.salvo.partId,'sponson-left');b.hit({partId:'sponson-left',damage:99999});assert.equal(b.salvo,null);events.length=0;tick(e,15);assert(!events.some(e=>e.type==='hazard'&&e.tag===b.tag('sponson-left')));
  for(const other of e.bodies.values())for(const id of ['sponson-left','sponson-right'])other.hit({partId:id,damage:99999});events.length=0;tick(e,12);assert.equal(events.filter(e=>e.type==='hazard').length,0);
 });
 test('rotated swept hitboxes, live mount coordinates and muzzle renderer data agree',()=>{
