@@ -1,5 +1,5 @@
-import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=533';
-import {fx} from './fx-art.js?v=533';
+import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=534';
+import {fx} from './fx-art.js?v=534';
 
 function atlasFrame(c,im,frame,w,h){if(!im?.naturalWidth)return false;const sw=im.naturalWidth/3,sh=im.naturalHeight/2;c.drawImage(im,(frame%3)*sw,Math.floor(frame/3)*sh,sw,sh,-w/2,-h/2,w,h);return true;}
 function rectWarning(c,lane,alpha){c.globalAlpha=alpha;c.fillStyle=lane.safe?'#82cfc812':'#d69c5120';c.strokeStyle=lane.safe?'#a1d8cc':'#f2bc72';c.lineWidth=1.5;c.setLineDash(lane.safe?[10,10]:[7,5]);c.fillRect(lane.x-lane.width/2,lane.y-lane.height/2,lane.width,lane.height);c.strokeRect(lane.x-lane.width/2,lane.y-lane.height/2,lane.width,lane.height);c.setLineDash([]);}
