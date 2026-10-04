@@ -56,7 +56,7 @@ test('scene cleanup pauses ordinary replacement pressure and disperses its own f
 test('escort spawns visibly behind its bomber with the same heading',()=>{
  const g=setup();g.t=300;g.beginBattleDirectorPattern(P.ESCORT);
  for(let i=0;i<5;i++){g.t+=.5;g.tickBattleDirector(.04)}
- const bomber=g.enemies.find(e=>e.type==='bomber'),escorts=g.enemies.filter(e=>e.directorLayout==='escort');assert(bomber);assert.equal(escorts.length,2);
+ const bomber=g.enemies.find(e=>e.type==='bomber'),escorts=g.enemies.filter(e=>e.directorLayout==='escort');assert(bomber);assert.equal(escorts.length,4);
  for(const e of escorts){assert.equal(e.a,bomber.a);assert.equal(e.directorEscort,bomber);const forward=(e.x-bomber.x)*Math.cos(bomber.a)+(e.y-bomber.y)*Math.sin(bomber.a);assert(Math.abs(forward+90)<.001)}
 });
 
@@ -64,7 +64,7 @@ test('clearing the directed group produces a real quiet gap instead of replaceme
  const g=setup();g.t=300;g.beginBattleDirectorPattern(P.CROSS_ATTACK);
  for(let i=0;i<12&&g.battleDirector.queue.length;i++){g.t+=.5;g.tickBattleDirector(.04)}
  const originalEnd=g.battleDirector.endsAt;for(const e of g.enemies)e.hp=0;g.spawn=0;g.tickBattleDirector(.04);
- assert.equal(g.battleDirector.phase,'quiet');assert(g.battleDirector.endsAt<originalEnd);assert(g.battleDirector.endsAt>g.t+2.5);assert(g.spawn>=3.2);
+ assert.equal(g.battleDirector.phase,'quiet');assert(g.battleDirector.endsAt<originalEnd);assert(g.battleDirector.endsAt>g.t+2.5);assert(g.mobSpawnsSuppressed());
  g.t+=2;g.tickBattleDirector(.04);assert.equal(g.battleDirector.phase,'quiet');assert.equal(g.battleDirector.queue.length,0);
 });
 

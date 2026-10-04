@@ -45,7 +45,7 @@ test('observer success cancels a complete field salvo, never modifies HP or shel
 test('bomber interception forces or suppresses one combat run without repeated bias',()=>{
  const failure=ready(),event=failure.offerBattlefieldEvent(E.BOMBER_INTERCEPT);assert.equal(event.type,E.BOMBER_INTERCEPT);
  event.targets[0].x+=event.targets[0].eventExitDistance+1;failure.tickBattlefieldEvents();assert.equal(failure.battlefieldEvents.result.outcome,'failed');
- assert.equal(begin(failure,'RECOVERY'),'RECOVERY');assert.equal(begin(failure),'BOMBER_RUN');assert(failure.battleDirector.queue.every(action=>action.type==='bomber'));assert.equal(begin(failure),'CHASE');
+ assert.equal(begin(failure,'RECOVERY'),'RECOVERY');assert.equal(begin(failure),'BOMBER_RUN');assert(failure.battleDirector.queue.filter(action=>action.layout!=='escort').every(action=>action.type==='bomber'));assert(failure.battleDirector.queue.some(action=>action.type==='bomber'));assert.equal(begin(failure),'CHASE');
  const success=ready(),intercept=success.offerBattlefieldEvent(E.BOMBER_INTERCEPT);complete(success,intercept);assert.equal(begin(success,'BOMBER_RUN'),'HEAD_ON_PASS');assert(success.battleDirector.queue.every(action=>action.type==='hunter'));assert.equal(begin(success,'BOMBER_RUN'),'BOMBER_RUN');
 });
 
