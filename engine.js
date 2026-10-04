@@ -173,6 +173,7 @@ Game.prototype._spnPressure=function(type){
   else if(!this.directorSpawning&&type==='hunter'&&this.t>72&&this.rng()<.16)type='bomber';
   this._spnBase(type);
   const e=this.enemies.at(-1);if(!e)return;
+  if(!e.bossPilot&&!e.escortPlane&&['scout','hunter'].includes(e.type)&&SEAPLANE_REGIONS.includes(this.worldRegion?.()??-1)&&this.rng()<.55){const pool=SEAPLANE_POOLS[e.faction]||[];e.escortPlane=pool[Math.floor(this.rng()*pool.length)]||undefined;}
   const ramp=Math.max(0,Math.min(1,(this.t-25)/120));
   const hpBoost=e.type==='boss'?1+ramp*.24:e.type==='zeppelin'?1+ramp*.2:e.type==='bomber'?1+ramp*.18:e.type==='hunter'?1+ramp*.15:1+ramp*.12;
   const speedBoost=e.type==='boss'?1+ramp*.08:e.type==='zeppelin'?1+ramp*.1:e.type==='bomber'?1+ramp*.08:1+ramp*.1;
@@ -243,6 +244,8 @@ Game.prototype._updNewAce=function(dt,input={}){
 const HEAVY_BOMBERS={central:[['staaken','체펠린 슈타켄 R.VI'],['gotha','고타 G.V 중폭격기'],['aeg_g4','AEG G.IV 중폭격기'],['friedrichshafen_g3','프리드리히스하펜 G.III']],
  entente:[['handley-page','핸들리 페이지 O/400'],['voisin8','부아생 VIII 야간폭격기'],['caudron_g4','코드롱 G.4 폭격기'],['fe2b','F.E.2b 푸셔 폭격기'],['breguet14','브레게 14 주간폭격기']]};
 const HEAVY_BOMBERS_SEA={central:[],entente:[['felixstowe_f2','펠릭스토우 F.2 비행정']]};
+const SEAPLANE_REGIONS=[1,7];
+const SEAPLANE_POOLS={central:['hansa_brandenburg_cc','hb_w29','ff33','lohner_l'],entente:['macchi_m5','macchi_m3']};
 Game.prototype._pickHeavy=function(){
  const sea=[1,7].includes(this.worldRegion?.()??-1),enemyFaction=PLANES[this.plane]?.faction==='central'?'entente':'central';
  const pool=[...(HEAVY_BOMBERS[enemyFaction]||[]),...(sea?(HEAVY_BOMBERS_SEA[enemyFaction]||[]):[])];
