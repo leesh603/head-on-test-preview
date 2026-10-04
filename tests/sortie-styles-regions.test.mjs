@@ -73,3 +73,8 @@ test('harbor coordinates live ship fire; coop trench uses visible existing shell
  const g=region(7);g.enemies=[{hp:10,movingShip:true,faction:'central',fire:0},{hp:10,movingShip:true,faction:'central',fire:5}];g.teamFaction='entente';g.t=20;tickRegionalConditions(g,.02);assert(g.enemies.every(e=>e.fire===1.2));
  const c=new CoopGame([{pilot:'fonck',plane:'camel'},{pilot:'mannock',plane:'se5a'}]);c.lockedRegion=2;c.stageBoss={stages:{phase:'explore',stageIndex:2}};c.t=0;tickRegionalConditions(c,.02);c.t=6;tickRegionalConditions(c,.02);assert.equal(c.bombZones.length,3);assert(c.bombZones.every(z=>z.delay>1));
 });
+
+test('HEAD-ON gives the existing Break phase priority over entry guidance',()=>{
+ const g=scene('HEAD_ON_PASS'),e=g.enemies[0];g.t=e.directorReadyAt+.1;e.directorSquad.leader.combatPassState='DISENGAGE';e.combatPassHeading=e.a+1;
+ const steering=g.dogfightSteering(e,g,.02,1.7);assert(Math.abs(steering.delta-1)<1e-8);assert(steering.turn<1.7);
+});

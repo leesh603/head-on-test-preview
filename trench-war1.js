@@ -54,6 +54,7 @@ export function installTrenchWar(Game,TAILING_BALANCE){
   _twUpdate.call(this,dt,input);
   if(this.state!=='playing')return;
   const step=Math.min(.04,Math.max(0,dt)),region=this.worldRegion();
+  if(region!==2)this.barrage=null;
   if(region===2){
    if(!this.barrage){this._barrageT=(this._barrageT||30)-step;if(this._barrageT<=0)this.spawnBarrage()}
    const b=this.barrage;

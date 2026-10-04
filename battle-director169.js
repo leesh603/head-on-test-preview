@@ -192,6 +192,7 @@ function intentSteering(game,e,contact,dt,baseTurn){
  if(!e.directorReadyAt||!squad||squad.broken||!contact||baseTurn<=0||e.directorBreakUntil>now||!(e.directorIntentUntil>now)||e.directorLayout==='recovery')return null;
  const anchor=e.directorEntryAnchor,a=anchor.a,side=e.directorEntrySide,layout=e.directorLayout;
  const prep=now<e.directorReadyAt;
+ if(!prep&&squad.leader.combatPassState===S.DISENGAGE)return null;
  let heading,x,y;
  const point=(p,f,l)=>{x=p.x+Math.cos(a)*f-Math.sin(a)*l;y=p.y+Math.sin(a)*f+Math.cos(a)*l;};
  if(prep){
