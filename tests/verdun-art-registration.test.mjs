@@ -28,21 +28,21 @@ function matches(call,frame){return call.args.slice(0,4).every((x,i)=>x===frame.
 test('foundation centers stay fixed while illustrated gun tips match native muzzle positions',async()=>{
  const {drawVerdunFort,releaseVerdunAssets}=await import('../verdun-art.js?v=518');
  try{
-  for(const [Ctor,key,id,kind]of [[FortDouaumont,'douaumont','heavy-left','heavy'],[FortSouville,'souville','bunker-left','bunker']]){
+  for(const [Ctor,key,id,kind]of [[FortDouaumont,'douaumont','heavy-left','heavy'],[FortSouville,'souville','pit-left','pit']]){
    const b=new Ctor({id:'visual',x:513,y:-217,tuning:{maxHp:4000,damage:20,bulletSpeed:260,verdunScale:.8},emit(){}}),p=b.parts.get(id);
    for(const state of ['normal','damaged','destroyed']){
-    p.angle=.73;
+    p.angle=.73;p.active=true;p.hittable=true;p.revealed=true;
     if(state==='damaged')p.hp=p.maxHp*.4;
     if(state==='destroyed')b.hit({partId:id,damage:1e9});
     const c=context();drawVerdunFort(c,b);
-    const groundState=state==='destroyed'?(key==='souville'?3:2):state==='damaged'?(key==='souville'?2:1):0;
+    const groundState=state==='destroyed'?(key==='souville'?3:2):state==='damaged'?(key==='souville'?2:1):(key==='souville'?1:0);
     const ground=VERDUN_PART_FRAMES[key].mounts[kind].frames[groundState];
-    const groundCall=c.calls.find(q=>q.url.includes('-parts.webp')&&matches(q,ground));assert(groundCall);
+    const groundCall=c.calls.find(q=>q.url.includes('-parts-r8.webp')&&matches(q,ground));assert(groundCall);
     near(groundCall.matrix[1],0);near(groundCall.matrix[2],0);
     const center=world(groundCall,ground.pivot);near(center.x,b.x+p.x);near(center.y,b.y+p.y);
     const gunState=key==='souville'?(state==='destroyed'?1:0):(state==='destroyed'?2:state==='damaged'?1:0);
     const gun=VERDUN_PART_FRAMES[key].guns[kind][gunState];
-    const gunCall=c.calls.find(q=>q.url.includes('-parts.webp')&&matches(q,gun));assert(gunCall);
+    const gunCall=c.calls.find(q=>q.url.includes('-parts-r8.webp')&&matches(q,gun));assert(gunCall);
     const pivot=world(gunCall,gun.pivot);near(pivot.x,b.x+p.x);near(pivot.y,b.y+p.y);
     near(Math.atan2(gunCall.matrix[1],gunCall.matrix[0]),p.angle+Math.PI/2);
     if(state!=='destroyed'){

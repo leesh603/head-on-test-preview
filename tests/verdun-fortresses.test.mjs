@@ -21,7 +21,7 @@ function activeHazards(f,tag){const a=[];f.hazards.pool.visit(h=>{if(!tag||h.tag
 test('fortresses retain one native body and distinct, measured silhouettes',()=>{
  const d=fixture(FortDouaumont),s=fixture(FortSouville);
  assert.equal(d.encounter.bodies.size,1);assert.equal(s.encounter.bodies.size,1);assert(d.b.ownsMotion129&&s.b.ownsMotion129);
- assert.equal(d.b.parts.size,9);assert.equal(s.b.parts.size,10);assert(VERDUN_FORT_LAYOUT['fort-souville'].width>VERDUN_FORT_LAYOUT['fort-douaumont'].width);
+ assert.equal(d.b.parts.size,9);assert.equal(s.b.parts.size,12);assert(VERDUN_FORT_LAYOUT['fort-souville'].width>VERDUN_FORT_LAYOUT['fort-douaumont'].width);
  assert(VERDUN_FORT_LAYOUT['fort-souville'].height<VERDUN_FORT_LAYOUT['fort-douaumont'].height);
  const pose=[d.b.x,d.b.y,s.b.x,s.b.y];tick(d,12);tick(s,12);assert.deepEqual([d.b.x,d.b.y,s.b.x,s.b.y],pose);
 });
@@ -137,7 +137,7 @@ test('direct Verdun entry loads terrain and both fortress atlas layers without a
   const {paintVerdun,drawVerdunFort,releaseVerdunAssets}=await import('../verdun-art.js?v=518');
   const draws=[],c=new Proxy({globalAlpha:1,drawImage(...a){draws.push(a)}},{get:(o,k)=>k in o?o[k]:()=>{},set:(o,k,v)=>(o[k]=v,true)});
   paintVerdun(c,{},0,0,960,700);drawVerdunFort(c,fixture(FortDouaumont).b);drawVerdunFort(c,fixture(FortSouville).b);
-  for(const name of ['terrain-verdun.webp','boss-douaumont-atlas.webp','boss-douaumont-parts.webp','boss-souville-atlas.webp','boss-souville-parts.webp']){
+  for(const name of ['terrain-verdun-r8.webp','boss-douaumont-atlas-r8.webp','boss-douaumont-parts-r8.webp','boss-souville-atlas-r8.webp','boss-souville-parts-r8.webp']){
    assert(requests.some(url=>url.includes(name)),name+' must load on direct entry');assert(existsSync(new URL('../'+name,import.meta.url)));
   }
   assert(draws.length>20,'the terrain, body and individual parts must all render');releaseVerdunAssets();

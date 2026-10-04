@@ -41,6 +41,8 @@ export function handleVerdunCue(g,event){
  if(event.type==='muzzle'){
   g.verdunBattle?.muzzles.push({x:event.x,y:event.y,a:body.parts.get(event.partId)?.angle||0,age:0});g.event('heavyShot','');return true;
  }
+ if(event.type==='fort-aa-repairing'){g.event('wave','외곽 대공포 정비 · 곧 재가동');return true;}
+ if(event.type==='fort-aa-restored'){dust(g,event.x,event.y,28);g.event('wave','외곽 대공포 수리 완료');return true;}
  if(event.type==='ammo-cookoff'){
   dust(g,event.x,event.y,100);g.burst?.(event.x,event.y,'#e9b66c',30,'structure');g.smoke?.(event.x-18,event.y,true);g.smoke?.(event.x+20,event.y,true);g.shake=Math.max(g.shake||0,9);g.event('wave','요새 탄약고 유폭 · 주변 포대 화력 약화');return true;
  }

@@ -1,0 +1,58 @@
+[
+  {
+    "pilot": "fonck",
+    "width": 390,
+    "boss": "fort-douaumont",
+    "simulatedSeconds": 59.9999999999989,
+    "bodyDamage": 126,
+    "aaRestored": true,
+    "position": [
+      6.784758939824e-13,
+      -11080.35221999978
+    ],
+    "hazards": 17,
+    "state": "playing"
+  },
+  {
+    "pilot": "fonck",
+    "width": 1440,
+    "boss": "fort-douaumont",
+    "simulatedSeconds": 59.9999999999989,
+    "bodyDamage": 126,
+    "aaRestored": true,
+    "position": [
+      6.784758939824e-13,
+      -11080.35221999978
+    ],
+    "hazards": 17,
+    "state": "playing"
+  },
+  {
+    "pilot": "baron",
+    "width": 390,
+    "boss": "fort-souville",
+    "simulatedSeconds": 59.9999999999989,
+    "bodyDamage": 84,
+    "aaRestored": true,
+    "position": [
+      6.101729516352099e-13,
+      -9964.880520000366
+    ],
+    "hazards": 11,
+    "state": "playing"
+  },
+  {
+    "pilot": "baron",
+    "width": 1440,
+    "boss": "fort-souville",
+    "simulatedSeconds": 59.9999999999989,
+    "bodyDamage": 84,
+    "aaRestored": true,
+    "position": [
+      6.101729516352099e-13,
+      -9964.880520000366
+    ],
+    "hazards": 11,
+    "state": "playing"
+  }
+]
