@@ -111,7 +111,7 @@ test('native runtime pauses fortress attacks and runs the full ordered 4.8 secon
  }
 });
 function hostGame(){
- const log={smoke:[],blasts:[]},g={state:'playing',mode:'survival',runId:'verdun-host',t:0,x:0,y:0,a:-Math.PI/2,hp:120,maxHp:120,id:'p1',kills:0,priorityKills:0,distance:0,region:12,viewWidth:390,viewHeight:844,events:[],enemies:[],bullets:[],drops:[],pendingLevelUps:[],rng:()=>.5,
+ const log={smoke:[],blasts:[]},g={state:'playing',mode:'survival',runId:'verdun-host',t:0,x:0,y:0,a:-Math.PI/2,hp:120,maxHp:120,id:'p1',kills:0,priorityKills:0,distance:0,region:12,worldRegion(){return this.region},viewWidth:390,viewHeight:844,events:[],enemies:[],bullets:[],drops:[],pendingLevelUps:[],rng:()=>.5,
   reserveEnemySlots(){},clearRegionalHazards(){},hit(){},event(type,text){this.events.push({type,text});},burst(){},smoke(x,y,dark){log.smoke.push({x,y,dark});},combatBlast(x,y,radius){log.blasts.push({x,y,radius});},spawnEnemy(){const e={hp:100,maxHp:100,speed:160};this.enemies.push(e);return e;}};
  return{g,log};
 }

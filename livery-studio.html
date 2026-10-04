@@ -188,23 +188,27 @@ function snap(){undoStack.push(cx.getImageData(0,0,cv.width,cv.height));if(undoS
 function log(m){$('log').textContent=m}
 function pos(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height]}
 function hexRGB(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]}
-// flood fill bounded by dark ink outlines; multiply-tint result
+// flood fill: region-growing — follows gradual shading to the outline edge,
+// stops at dark ink lines and transparent background. multiply-tint result.
 function fill(x,y){
  const w=cv.width,h=cv.height,img=cx.getImageData(0,0,w,h),d=img.data;
- const i0=((y|0)*w+(x|0))*4;if(d[i0+3]<40)return log('빈 공간 — 기체 위를 클릭');
+ const i0=((y|0)*w+(x|0))*4;if(d[i0+3]<30)return log('빈 공간 — 기체 위를 클릭');
  const sr=d[i0],sg=d[i0+1],sb=d[i0+2];
- const TOL=58,seen=new Uint8Array(w*h),st=[(y|0)*w+(x|0)],out=[];
+ const TOL=180,STEP=165; // manhattan: dist to seed / dist to predecessor
+ const seen=new Uint8Array(w*h),st=[[(y|0)*w+(x|0),i0]],out=[];
  const [pr,pg,pb]=hexRGB(paint);
- const dark=v=>v<55; // outline guard
  while(st.length){
-  const i=st.pop();if(seen[i])continue;seen[i]=1;
-  const px=i%w,py=(i/w)|0,o=i*4;
-  const dr=d[o]-sr,dg=d[o+1]-sg,db=d[o+2]-sb;
-  if(dr*dr+dg*dg+db*db>TOL*TOL*3)continue;
-  if(dark(d[o])&&dark(d[o+1])&&dark(d[o+2]))continue; // 잉크선
-  if(d[o+3]<40)continue;
+  const [i,po]=st.pop();if(seen[i])continue;seen[i]=1;
+  const o=i*4;
+  if(d[o+3]<30)continue;
+  if(d[o]<75&&d[o+1]<75&&d[o+2]<75)continue; // 잉크선
+  const ds=Math.abs(d[o]-sr)+Math.abs(d[o+1]-sg)+Math.abs(d[o+2]-sb);
+  const dp=Math.abs(d[o]-d[po])+Math.abs(d[o+1]-d[po+1])+Math.abs(d[o+2]-d[po+2]);
+  if(ds>TOL&&dp>STEP)continue;
   out.push(o);
-  if(px>0)st.push(i-1);if(px<w-1)st.push(i+1);if(py>0)st.push(i-w);if(py<h-1)st.push(i+w);
+  const px=i%w,py=(i/w)|0;
+  if(px>0)st.push([i-1,o]);if(px<w-1)st.push([i+1,o]);
+  if(py>0)st.push([i-w,o]);if(py<h-1)st.push([i+w,o]);
  }
  if(!out.length)return log('채울 영역 없음');
  if(out.length>w*h*.7)return log('영역이 너무 큼 — 선이 뚫린 곳일 수 있음. 더 안쪽 클릭');
