@@ -8,22 +8,6 @@ export function musicModeForGame(game){
   if(game.enemies.some(e=>e.hp>0&&e.type==='boss'))return 'boss';
   return MAP_KEYS[game.worldRegion()]||'rural';
 }
-// 0..1 danger level for the map-score tension layer. Boss tracks carry their
-// own intensity ramp, so threat stays 0 while a boss track owns the mix.
-export function musicThreatForGame(game){
-  if(!game||game.state!=='playing')return 0;
-  if(game.stageBoss?.stages?.phase==='boss')return 0;
-  if(game.enemies.some(e=>e.hp>0&&e.type==='boss'))return 0;
-  const x=game.x||0,y=game.y||0;let th=0,near=0,fire=0;
-  for(const e of game.enemies||[])if(e.hp>0&&!e.stationary&&!e.surface&&Math.hypot(e.x-x,e.y-y)<640)near++;
-  th+=Math.min(.3,near*.09);
-  for(const b of game.bullets||[])if(b.enemy&&Math.hypot(b.x-x,b.y-y)<300)fire++;
-  th+=Math.min(.22,fire*.05);
-  const hpFrac=game.players?.length?Math.min(1,...game.players.filter(p=>p.hp>0).map(p=>p.hp/(p.maxHp||1)),1):game.hp/(game.maxHp||game.hp||1);
-  th+=(1-Math.max(0,Math.min(1,hpFrac)))*.34;
-  if(game.battlefieldEvents?.current)th+=.14;
-  return Math.min(1,th);
-}
 const MAP_KEYS=['rural','sea','trench','trench','city','sky','alps','zeebrugge','zeebrugge','sky'];
 // Stage-boss id -> score family. Related boss pairs share a family.
 const BOSS_TRACKS={
@@ -33,7 +17,7 @@ const BOSS_TRACKS={
  'drachen-net':'net','london-apron':'net',
  'zeppelin-l70':'airship',hma23:'airship',
  gik:'bomber',ca4:'bomber',
- 'armored-harbor-fortress':'fortress','flak-tower':'fortress',
+ 'armored-harbor-fortress':'fortress',
  'fliegerzug':'railgun','treffas-wagen':'landship',
  'jasta11-circus':'duel','naval10-black-flight':'duel'
 };
@@ -59,8 +43,7 @@ const THEMES={
   zeebrugge:{bpm:70,steps:12,roots:[31,31,28,31,29,31,28,26],melody:[[55,58,57,55,52,50],[53,55,52,50,48,46],[55,60,58,55,52,50],[52,55,52,50,48,46]]}
 };
 export class BattleMusic {
-  constructor(){this.mode='idle';this.muted=false;this.step=0;this.next=0;this.timer=null;this.track=null;this.positions={};this.threatTarget=0;this.threat=0}
-  setThreat(v){this.threatTarget=Math.max(0,Math.min(1,v||0))}
+  constructor(){this.mode='idle';this.muted=false;this.step=0;this.next=0;this.timer=null;this.track=null;this.positions={}}
   unlock(){try{if(!this.ctx){
     this.ctx=new (window.AudioContext||window.webkitAudioContext)();
     this.bus=this.ctx.createGain();this.bus.gain.value=0;
@@ -114,7 +97,7 @@ export class BattleMusic {
   // Each entry: [bandpass center Hz, Q, peak gain, optional second layer freq].
   amb(mode,t,dur){
     if(!this.noise)return;
-    const A={rural:[170,1.1,.02],sea:[230,.6,.055],trench:[150,.9,.04],city:[340,1.6,.016],sky:[1150,.75,.024],alps:[1250,.4,.05],zeebrugge:[270,.6,.05]}[mode]||[300,1,.02];
+    const A={rural:[170,1.1,.02],sea:[230,.6,.055],trench:[150,.9,.04],city:[340,1.6,.016],sky:[950,.35,.06],alps:[1250,.4,.05],zeebrugge:[270,.6,.05]}[mode]||[300,1,.02];
     const c=this.ctx,n=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
     n.buffer=this.noise;n.loop=true;n.playbackRate.value=.9+Math.random()*.2;
     f.type='bandpass';f.frequency.setValueAtTime(A[0],t);f.frequency.linearRampToValueAtTime(A[0]*(0.85+Math.random()*.3),t+dur);f.Q.value=A[1];
@@ -257,27 +240,16 @@ export class BattleMusic {
       if(bar%4===3&&p===12)for(const off of [18,25,30])this.tone(root+off,t,b*3.8,.047,'sawtooth',1500,.12);
     }
   }
-  // Danger-driven overlay for map themes: a staccato low ostinato, back-beat
-  // fills and a high shimmer, all volume-scaled by the smoothed threat level.
-  tensionStep(mode,i,t,b){
-    const th=this.threat;if(th<.22||!THEMES[mode])return;
-    const s=THEMES[mode],p=i%s.steps,root=s.roots[Math.floor(i/s.steps)%8];
-    if(p%2===0)this.tone(root-12,t,b*.5,.02+.08*th,'sawtooth',280+240*th,.006);
-    if(th>.5&&p%4===2)this.drum(t,false,.5*th);
-    if(th>.6&&p%4===3)this.drum(t+b*.5,true,.32*th);
-    if(th>.78&&p%2===1)this.tone(root+24+[0,3][p%4>>1],t,b*.42,.02*th,'triangle',2300,.005);
-  }
   schedule(){
     if(!this.ctx||this.ctx.state!=='running')return;
     const now=this.ctx.currentTime;if(this.mode==='idle'||this.muted){this.next=now;return}
-    this.threat+=(this.threatTarget-this.threat)*(this.threatTarget>this.threat?.4:.06);
     if(this.next<now)this.next=now+.015;
     while(this.next<now+.15){
       const elapsed=Math.max(0,now-(this.bossSince||0));
       const bossT=this.bossTrack(),T=bossT?BOSS_SCORES[bossT]||BOSS_SCORES.duel:null;
       const b=T?60/(T.bpm+Math.min(T.ramp,elapsed*3))/2:60/THEMES[this.mode].bpm/2;
       const i=this.step++,t=this.next;
-      if(T)this.bossStep(i,t,b,elapsed);else{this.mapStep(this.mode,i,t,b);this.tensionStep(this.mode,i,t,b)}
+      if(T)this.bossStep(i,t,b,elapsed);else this.mapStep(this.mode,i,t,b);
       this.next+=b;
     }
   }

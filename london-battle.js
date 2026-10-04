@@ -5,8 +5,8 @@ export function ensureLondonBattle(g){if(!inLondon(g)){if(g.londonBattle){g.enem
  if(g.londonBattle)return g.londonBattle;return g.londonBattle={role:(g.teamFaction||g.stageBoss?.stages.teamFaction)==='central'?'attack':'defend',elapsed:0,waveClock:4,waves:0,suppressed:0,intercepted:0,tracked:[],districts:[],warnings:[],bombs:[],supportClock:5,cleared:false};}
 export function handleLondonCue(g,e){const b=ensureLondonBattle(g);if(!b)return;
  if(e.type==='boss-enter'){
-  if(b.role==='defend'&&!b.districts.length){const bs=[...g.stageBoss.stages.encounter.bodies.values()],x=bs.reduce((n,q)=>n+q.anchorX,0)/bs.length,y=bs.reduce((n,q)=>n+q.anchorY,0)/bs.length+210,s=Math.min(230,(g.viewWidth||800)*.5);
-   b.districts=[['west','서부 구역','West district',x-s,y],['docks','강변 보급지','River depot',x,y+125],['east','동부 구역','East district',x+s,y]].map(([id,name,en,x,y])=>({id,name,en,x,y,hp:120,maxHp:120}));
+  if(b.role==='defend'&&!b.districts.length){const bs=[...g.stageBoss.stages.encounter.bodies.values()],x=bs.reduce((n,q)=>n+q.anchorX,0)/bs.length,y=bs.reduce((n,q)=>n+q.anchorY,0)/bs.length+210,s=Math.min(140,(g.viewWidth||800)*.27);
+   b.districts=[['west','서부 구역','West district',x-s,y],['docks','강변 보급지','River depot',x,y+95],['east','동부 구역','East district',x+s,y]].map(([id,name,en,x,y])=>({id,name,en,x,y,hp:120,maxHp:120}));
    g.event('wave','런던 방어 · 폭격 예고 중 폭탄창이나 엔진을 파괴하세요');}
   else if(b.suppressed){const boss=[...g.stageBoss.stages.encounter.bodies.values()][0];for(const id of ['light','gun']){const p=boss.parts.get(id);if(p)p.hp*=Math.max(.55,1-b.suppressed*.12);}}}
  if(e.type==='city-bomb-warning')b.warnings.push({...e,bodyId:e.bossId});

@@ -123,9 +123,7 @@ export class EliteEnemySystem {
       gunAim: entryAngle,
       scale: kind === ELITE_KINDS.SCHLACHTSTAFFEL ? 1.12 : .92
     }));
-    const leader=members.reduce((best,m)=>Math.abs(m.slot)<Math.abs(best.slot)?m:best,members[0]);
-    leader.formationCommand=true;for(const m of members)if(m!==leader)m.formationLeader=leader;
-    const squadron = {id, kind, members, leader, age: 0, phase: 'approach', stats, centerX, centerY};
+    const squadron = {id, kind, members, age: 0, phase: 'approach', stats, centerX, centerY};
     this.squadrons.push(squadron);
     this.pendingEncounter = null;
     this.host.emitEvent?.('eliteSpawn', {kind, enemyType: ELITE_ENEMY_TYPE, count});
@@ -157,7 +155,6 @@ export class EliteEnemySystem {
 
     for (const squadron of this.squadrons) {
       squadron.age += step;
-      if (this.updateFormationBreak(squadron,step,now))continue;
       if (squadron.kind === ELITE_KINDS.LE_PRIEUR) this.updateLePrieur(squadron, step);
       else this.updateSchlachtstaffel(squadron, step);
       this.separateMembers(squadron);
@@ -165,57 +162,6 @@ export class EliteEnemySystem {
     this.updateProjectiles(step);
     const p = this.host.getPlayer();
     this.squadrons = this.squadrons.filter(s => s.members.some(m => m.alive) && s.members.some(m => Math.hypot(m.x - p.x, m.y - p.y) < this.config.despawnRadius));
-  }
-
-  disruptFormation(member,duration=2.6) {
-    const squadron=this.squadrons.find(s=>s.id===member?.squadronId);
-    if(!squadron||(!member.alive&&member!==squadron.leader&&member!==squadron.formationResumeLeader))return false;
-    return this.breakFormation(squadron,duration);
-  }
-
-  breakFormation(squadron,duration=2.6,leaderLost=false) {
-    if(!squadron)return false;
-    const now=this.host.getTime(),commander=squadron.leader||squadron.formationResumeLeader;
-    leaderLost=leaderLost||!!(commander&&!commander.alive);
-    if(squadron.breakUntil>now&&(!leaderLost||squadron.formationDeathBreak))return false;
-    if(leaderLost)duration=2.6;
-    squadron.formationResumeLeader=!leaderLost&&commander?.alive?commander:null;
-    squadron.formationDeathBreak=leaderLost;squadron.breakUntil=now+duration;
-    if(leaderLost)squadron.regroupAt=(this.host.getProgressStage?.()??1)>=7?now+9:Infinity;
-    squadron.leader=null;
-    for(const m of squadron.members)if(m.alive){
-      m.formationResumeLeader=m!==squadron.formationResumeLeader?squadron.formationResumeLeader:null;m.formationResumeCommand=m===squadron.formationResumeLeader;
-      m.formationLeader=null;m.formationCommand=false;m.formationStrength=0;m.formationCollapseUntil=now+duration;
-      m.breakHeading=m.a+(Math.sign(m.slot)||1)*1.05;
-      m.fireTimer=Math.max(m.fireTimer,duration+.2);m.rearTimer=Math.max(m.rearTimer,duration+.2);m.rocketTimer=Math.max(m.rocketTimer,duration+.2);m.telegraph=0;
-    }
-    return true;
-  }
-
-  updateFormationBreak(squadron,dt,now) {
-    const commander=squadron.leader||squadron.formationResumeLeader;
-    if(commander&&!commander.alive)this.breakFormation(squadron,2.6,true);
-    if(squadron.breakUntil>now){
-      for(const m of squadron.members)if(m.alive){
-        m.hitFlash=Math.max(0,m.hitFlash-dt);m.fireTimer=Math.max(0,m.fireTimer-dt);m.rearTimer=Math.max(0,m.rearTimer-dt);m.rocketTimer=Math.max(0,m.rocketTimer-dt);m.a+=clamp(angleDiff(m.breakHeading,m.a),-1.4*dt,1.4*dt);
-        m.x+=Math.cos(m.a)*m.speed*dt;m.y+=Math.sin(m.a)*m.speed*dt;
-      }
-      this.separateMembers(squadron);return true;
-    }
-    if(squadron.breakUntil){
-      const leader=squadron.formationResumeLeader?.alive?squadron.formationResumeLeader:null;
-      squadron.leader=leader;squadron.breakUntil=0;squadron.formationResumeLeader=null;squadron.formationDeathBreak=false;
-      const living=squadron.members.filter(m=>m.alive);
-      for(const m of living){m.formationLeader=leader&&m!==leader?leader:null;m.formationCommand=m===leader;m.formationStrength=leader?living.length/squadron.members.length:0;m.formationCollapseUntil=0;m.formationResumeLeader=null;m.formationResumeCommand=false;m.breakHeading=null}
-    }
-    if(squadron.regroupAt<=now){
-      const living=squadron.members.filter(m=>m.alive);squadron.regroupAt=Infinity;
-      if(living.length>=2){
-        squadron.leader=living[0];squadron.leader.formationCommand=true;
-        for(const m of living){m.formationLeader=m===squadron.leader?null:squadron.leader;m.formationStrength=living.length/squadron.members.length}
-      }
-    }
-    return false;
   }
 
   updateLePrieur(squadron, dt) {
@@ -230,8 +176,8 @@ export class EliteEnemySystem {
       const formationSide = m.a + Math.PI / 2;
       const targetX = player.x - Math.cos(m.a) * 250 + Math.cos(formationSide) * m.slot * 66;
       const targetY = player.y - Math.sin(m.a) * 250 + Math.sin(formationSide) * m.slot * 66;
-      m.x += Math.cos(m.a) * m.speed * dt + (targetX - m.x) * dt * .34 * (squadron.leader?.alive?1:0);
-      m.y += Math.sin(m.a) * m.speed * dt + (targetY - m.y) * dt * .34 * (squadron.leader?.alive?1:0);
+      m.x += Math.cos(m.a) * m.speed * dt + (targetX - m.x) * dt * .34;
+      m.y += Math.sin(m.a) * m.speed * dt + (targetY - m.y) * dt * .34;
       m.rocketTimer -= dt;
       if (m.rocketTimer <= cfg.warningTime && m.rocketTimer > 0) {
         m.telegraph = 1 - m.rocketTimer / cfg.warningTime;
@@ -264,8 +210,8 @@ export class EliteEnemySystem {
       const forwardOffset = m.slot === 0 ? 0 : -34;
       const targetX = player.x - Math.cos(m.a) * (285 - forwardOffset) + Math.cos(sideA) * m.slot * 76;
       const targetY = player.y - Math.sin(m.a) * (285 - forwardOffset) + Math.sin(sideA) * m.slot * 76;
-      m.x += Math.cos(m.a) * m.speed * dt + (targetX - m.x) * dt * .26 * (squadron.leader?.alive?1:0);
-      m.y += Math.sin(m.a) * m.speed * dt + (targetY - m.y) * dt * .26 * (squadron.leader?.alive?1:0);
+      m.x += Math.cos(m.a) * m.speed * dt + (targetX - m.x) * dt * .26;
+      m.y += Math.sin(m.a) * m.speed * dt + (targetY - m.y) * dt * .26;
       m.fireTimer -= dt;
       if (m.fireTimer <= 0) {
         m.fireTimer = cfg.frontCooldown / squadron.stats.patternScale + this.random() * .3;
@@ -348,8 +294,7 @@ export class EliteEnemySystem {
     const squadron = this.squadrons.find(s => s.id === member.squadronId);
     if (squadron) {
       const living = squadron.members.filter(m => m.alive);
-      for (const m of living) m.formationStrength = squadron.leader?.alive?living.length / squadron.members.length:0;
-      if(member===squadron.leader||member===squadron.formationResumeLeader)this.breakFormation(squadron,2.6,true);
+      for (const m of living) m.formationStrength = living.length / squadron.members.length;
     }
     this.host.onEliteKilled?.({
       enemyType: ELITE_ENEMY_TYPE,

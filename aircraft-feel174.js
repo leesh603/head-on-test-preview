@@ -20,6 +20,6 @@ export function aircraftFeelRatings(plane){
   turn:stepped(plane.turn,[2.2,2.7,3.3,3.9]),
   retention:stepped(1-handling.drag,[.76,.79,.85,.895]),
   acceleration:stepped(handling.recovery*personality.acceleration,[.6,.95,1.25,1.8]),
-  growth:growthRating((plane.xpCostMultiplier??1)/(plane.xpGainMultiplier??1))
+  growth:growthRating(plane.xpCostMultiplier)
  });
 }

@@ -165,7 +165,6 @@ const identityRows = [
   ["checker_se5a","S.E.5a · 제60대대","entente",null,"se5a","checker_se5a",["campaign","livery"]],
   ["ruffo_sva5","SVA.5 · 루포","entente",null,"ansaldo_sva5","ruffo_sva5",["campaign","livery"]],
   ["pierozzi_macchi","Macchi M.5 · 피에로치","entente",null,"albatros","pierozzi_macchi",["campaign","livery"]],
-  ["schleich_albatros","Albatros D.Va · 슐라이히","central",null,"albatros","schleich_albatros",["campaign","livery"]],
 ];
 
 export const AIRCRAFT_MASTER = Object.freeze(Object.fromEntries(identityRows.map(

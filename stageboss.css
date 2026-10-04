@@ -5,3 +5,5 @@
 #coopXpHud{position:absolute;bottom:28px;left:20px;right:20px;display:grid;grid-template-columns:1fr 1fr;gap:24px;z-index:10;pointer-events:none;font-size:12px;color:#deecd9}#coopXpHud>div{background:#172723dd;padding:4px 8px}#coopXpHud .bar{height:5px;margin:3px 0}#p1XpBar{background:#74d9fb}#p2XpBar{background:#ffcd78}#coopXpHud.hidden,#stageBossHud.hidden{display:none}
 @media(max-width:720px){#stageBossHud{top:84px;font-size:12px;padding:5px 8px}.stageboss-playing:not(.coop-playing) #xpHud{bottom:136px;left:12px;right:12px}.stageboss-playing #xpHud>span{padding:2px 4px}}
 @media(max-height:540px){#stageBossHud{top:68px;left:50%;width:46%;font-size:12px}.coop-playing #stageBossHud{top:150px}.stageboss-playing:not(.coop-playing) #xpHud{bottom:4px;left:140px;right:180px}.stageboss-playing #xpHud .quiet{display:none}}
+
+#stageBossTactic{white-space:pre-line}

@@ -2,20 +2,16 @@
 // Game text (name, alias, skill, passive, descriptions) is pulled from the live
 // engine — PILOTS/pilotLoadout are the single source so record entries can
 // never drift from what the game actually shows.
-import{Game,PILOTS,PILOT_PLANES,pilotLoadout}from'./engine.js?v=530';
-import {pilotIdentityCopy} from './pilot-identity-copy.js';
-import {getLocale,pilotName} from './i18n.js?v=530';
+import{PILOTS,PILOT_PLANES,pilotLoadout}from'./engine.js?v=351';
 for(const p of DATA.pilots){
- const loadout=PILOTS[p.key]?pilotLoadout(p.key,PILOT_PLANES[p.key]||'fokker'):null;
- if(!loadout)continue;const locale=getLocale(),copy=pilotIdentityCopy(p.key,locale);
- p.name=pilotName(p.key,loadout.name);p.alias=loadout.alias;
- p.skill=copy?.skill||loadout.skill;p.passive=copy?.passive||loadout.passive;
- const runtime=Object.assign(Object.create(Game.prototype),{pilot:p.key,plane:PILOT_PLANES[p.key],cooldownMult:1});
- const duration=runtime.skillDuration(),cooldown=runtime.skillCooldown(),recovery=runtime.skillRecovery();runtime.skillEnhanced=true;
- const number=n=>Number(n.toFixed(3));
- const timing=locale==='en'?` Active window ${number(duration)}s → enhanced ${number(runtime.skillDuration())}s. Base cooldown ${loadout.cooldown}s; effective cooldown ${number(cooldown)}s → enhanced ${number(runtime.skillCooldown())}s. Recovery floor ${recovery}s after the active window; cooldown scaling cannot fall below 50% of base.`:` 활동시간 ${number(duration)}초 → 강화 ${number(runtime.skillDuration())}초. 기본 쿨다운 ${loadout.cooldown}초; 실제 ${number(cooldown)}초 → 강화 ${number(runtime.skillCooldown())}초. 효과 종료 후 최소 회복 간격 ${recovery}초, 쿨다운 보정은 기본의 50%까지.`;
- p.desc=(copy?.activeDetail||loadout.desc)+timing;
- p.passiveDesc=copy?.passiveDetail||loadout.passiveDesc;
+  const loadout=PILOTS[p.key]?pilotLoadout(p.key,PILOT_PLANES[p.key]||'fokker'):null;
+  if(!loadout)continue;
+  if(loadout.name)p.name=loadout.name;
+  if(loadout.alias)p.alias=loadout.alias;
+  if(loadout.skill)p.skill=loadout.skill;
+  if(loadout.desc)p.desc=loadout.desc;
+  if(loadout.passive)p.passive=loadout.passive;
+  if(loadout.passiveDesc)p.passiveDesc=loadout.passiveDesc;
 }
 
 const CURRENT_SPECIAL_DESCRIPTIONS={
@@ -45,5 +41,4 @@ document.addEventListener('error',event=>{
   image.src=PORTRAIT_FALLBACKS[pilot.key];
 },true);
 
-if(['augments','pilots'].includes(state.page))render();
-
+if(state.page==='augments')render();

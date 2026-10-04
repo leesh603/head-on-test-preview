@@ -1,7 +1,6 @@
-import {registerAircraftTiers} from './aircraft-tiers.js?v=530';
-import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=530';
-import {CAMPAIGN_DATA} from './campaign-data.js?v=530';
-import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=530';
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=351';
+import {CAMPAIGN_DATA} from './campaign-data.js?v=338&b=326';
+import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=338';
 export const STAGES=[...CAMPAIGN_DATA.stages].sort((a,b)=>a.faction.localeCompare(b.faction)||a.historicalAnchorDate.localeCompare(b.historicalAnchorDate)||a.id.localeCompare(b.id));
 export const stageFaction=s=>s.faction==='allies'?'entente':'central';
 // Variant values are arcade fits derived from the existing family, not restored historical statistics.
@@ -49,7 +48,7 @@ const fits=[
  ['Nieuport 28 · 제27대대','eagle_nieuport28','nieuport28','entente'],['Hanriot HD.1 · 코펜스','coppens_hanriot','hanriot','entente'],
  ['SPAD XIII · 마동','madon_spad','spad','entente'],['SPAD · 타라콘','tarascon_spad','spad','entente'],['SPAD XIII · 보요','boyau_spad','spad','entente'],['SPAD XIII · 제94대대','hatring_spad','spad','entente'],
  ['S.E.5a · 스프링스','springs_se5a','se5a','entente'],['S.E.5a · 프록터','proctor_se5a','se5a','entente'],['S.E.5a · 제60대대','checker_se5a','se5a','entente'],
- ['SVA.5 · 루포','ruffo_sva5','ansaldo_sva5','entente'],['Macchi M.5 · 피에로치','pierozzi_macchi','albatros','entente'],['Albatros D.Va · 슐라이히','schleich_albatros','albatros','central']
+ ['SVA.5 · 루포','ruffo_sva5','ansaldo_sva5','entente'],['Macchi M.5 · 피에로치','pierozzi_macchi','albatros','entente']
 ];
 // Campaign-specific flight fits: game estimates, not historical test measurements.
 const campaignFlight={
@@ -111,12 +110,12 @@ for(const [name,id,base,faction,guns] of fits){
  }
  if(campaignFlight[id]&&id!=='albatros_d2'){const [family,speed,turn,drag,recovery,role]=campaignFlight[id];const original=AIRFRAME_PROFILES[family];const handling=Object.freeze({...original,speed,turn,drag,recovery,role,left:1,history:id==='bristol'?original.history:name+'의 임무와 기체 계열을 반영한 캠페인용 비행 설정입니다. 세부 수치는 게임용 추정치입니다.',tip:id==='bristol'?original.tip:(turn>=3.3?'민첩한 방향 전환을 활용하세요. 급선회 후 직진하면 속도가 회복됩니다.':speed>=160?'속도를 살려 통과 사격하고 넓게 돌아오세요.':'미리 진로를 정해 부드럽게 도세요. 급선회 후에는 속도 회복에 여유를 주세요.')});Object.assign(PLANES[id],{speed,turn,role,handling,personality:personalityFor(family)||PLANES[family]?.personality||PLANES[id].personality})}
  configureAirframeBalance(PLANES[id],({be2c:100,dh2:85,aviatik:110,strutter:110,nieuport11:80,nieuport28:95,fokker_e1:80,albatros_d2:110,albatros_d5:115,oeffag:120,pup:90,dh5:95,bristol:130,halberstadt:120,albatros_d5a:120,spad7:115,hanriot:95,re8:120,dh4:125,siemens_d4:110,roland_d6:105,hannover_cl3:120,dfw_cv:115,junkers_j1:170,gotha:220,bristol_m1:85,dolphin:105,snipe:115,fe2b:115,gunbus:100,morane_ai:85,aeg_g4:200,friedrichshafen_g3:190,breguet14:130,voisin8:160,caudron_g4:150,ssw_d3:100,pfalz_d12:115,phonix_d1:110,aviatik_d1:105,junkers_d1:125,ansaldo_sva5:95,hb_w29:90,ff33:110,felixstowe_f2:230,shuttelanz_sl11:280,parseval:220,caquot_balloon:90})[id]??PLANES[id].hp);
- const OWN_ART=['be2c','aviatik','strutter','nieuport11','nieuport28','hanriot','pup','dh5','re8','dh4','albatros_d2','albatros_d5a','siemens_d4','roland_d6','hannover_cl3','dfw_cv','junkers_j1','gotha','bristol_m1','dolphin','snipe','fe2b','gunbus','morane_ai','aeg_g4','friedrichshafen_g3','breguet14','voisin8','caudron_g4','ssw_d3','pfalz_d12','phonix_d1','aviatik_d1','junkers_d1','ansaldo_sva5','hb_w29','ff33','felixstowe_f2','shuttelanz_sl11','parseval','caquot_balloon','jasta4_albatros','jasta5_albatros','jasta78b_albatros','kissenberth_albatros','allmenroder_albatros','lothar_dr1','beaulieu_dr1','mai_dr1','hantelmann_dr1','jasta11_fokkerd7','jasta18_fokkerd7','jasta43_fokkerd7','gabriel_fokkerd7','jasta27_fokkerd7','baeumer_pfalz','degelow_pfalz','linke_crawford_phonix','kiss_phonix','arigi_aviatik','gotha_night','staaken_dark','brown_camel','mcelroy_camel','dazzle_camel','lufbery_nieuport17','dorme_nieuport','meulemeester_nieuport','eagle_nieuport28','coppens_hanriot','madon_spad','tarascon_spad','boyau_spad','hatring_spad','springs_se5a','proctor_se5a','checker_se5a','ruffo_sva5','pierozzi_macchi','schleich_albatros'];
+ const OWN_ART=['be2c','aviatik','strutter','nieuport11','nieuport28','hanriot','pup','dh5','re8','dh4','albatros_d2','albatros_d5a','siemens_d4','roland_d6','hannover_cl3','dfw_cv','junkers_j1','gotha','bristol_m1','dolphin','snipe','fe2b','gunbus','morane_ai','aeg_g4','friedrichshafen_g3','breguet14','voisin8','caudron_g4','ssw_d3','pfalz_d12','phonix_d1','aviatik_d1','junkers_d1','ansaldo_sva5','hb_w29','ff33','felixstowe_f2','shuttelanz_sl11','parseval','caquot_balloon','jasta4_albatros','jasta5_albatros','jasta78b_albatros','kissenberth_albatros','allmenroder_albatros','lothar_dr1','beaulieu_dr1','mai_dr1','hantelmann_dr1','jasta11_fokkerd7','jasta18_fokkerd7','jasta43_fokkerd7','gabriel_fokkerd7','jasta27_fokkerd7','baeumer_pfalz','degelow_pfalz','linke_crawford_phonix','kiss_phonix','arigi_aviatik','gotha_night','staaken_dark','brown_camel','mcelroy_camel','dazzle_camel','lufbery_nieuport17','dorme_nieuport','meulemeester_nieuport','eagle_nieuport28','coppens_hanriot','madon_spad','tarascon_spad','boyau_spad','hatring_spad','springs_se5a','proctor_se5a','checker_se5a','ruffo_sva5','pierozzi_macchi'];
  const REMAP={halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',dh2:'airco_dh2',albatros_d5:'albatros_d5a'};
  if(id!==base&&!OWN_ART.includes(id))SPRITE_ALIASES[id]=REMAP[id]??base;
 }
 // Livery variants for the flying-circus look: base sprite key -> alternate painted liveries.
-export const LIVERY_POOL={fokker:['lothar_dr1','beaulieu_dr1','mai_dr1','hantelmann_dr1','jasta11_fokkerd7','jasta18_fokkerd7','jasta27_fokkerd7','jasta43_fokkerd7','gabriel_fokkerd7','kissenberth_albatros','allmenroder_albatros','jasta4_albatros','jasta5_albatros','jasta78b_albatros','baeumer_pfalz','degelow_pfalz','linke_crawford_phonix','kiss_phonix','arigi_aviatik'],albatros:['jasta4_albatros','jasta5_albatros','jasta78b_albatros','kissenberth_albatros','allmenroder_albatros','degelow_pfalz','baeumer_pfalz','udet_albatros','loerzer_albatros','frommherz_albatros','kirschstein_albatros','boelcke_albatros','berthold_albatros','mueller_albatros','schoder_albatros','buttner_albatros','wolff2_albatros','schleich_albatros'],nieuport:['dorme_nieuport','meulemeester_nieuport','lufbery_nieuport17','eagle_nieuport28','stork_nieuport','bishop_nieuport','navarre_nieuport','camo_nieuport','guynemer_nieuport','heurteaux_nieuport','carli_nieuport'],camel:['dazzle_camel','mcelroy_camel','brown_camel','coppens_hanriot','woollett_camel','collett_camel','naval10_camel','belgian_camel','nonal_camel','maclaren_camel','barker_camel'],spad:['hatring_spad','madon_spad','tarascon_spad','boyau_spad','fonck_spad','thieffry_spad','italian_spad','deullin_spad','germain_spad','audemars_spad','carli_spad','belgium_spad'],se5a:['springs_se5a','proctor_se5a','checker_se5a','mannock_se5a','sqn85_se5a','collishaw_se5a','zebra_se5a','bishop_se5a','dallas_se5a','beauchamp_se5a']};
+export const LIVERY_POOL={fokker:['lothar_dr1','beaulieu_dr1','mai_dr1','hantelmann_dr1','jasta11_fokkerd7','jasta18_fokkerd7','jasta27_fokkerd7','jasta43_fokkerd7','gabriel_fokkerd7','kissenberth_albatros','allmenroder_albatros','jasta4_albatros','jasta5_albatros','jasta78b_albatros','baeumer_pfalz','degelow_pfalz','linke_crawford_phonix','kiss_phonix','arigi_aviatik'],albatros:['jasta4_albatros','jasta5_albatros','jasta78b_albatros','kissenberth_albatros','allmenroder_albatros','degelow_pfalz','baeumer_pfalz'],nieuport:['dorme_nieuport','meulemeester_nieuport','lufbery_nieuport17','eagle_nieuport28'],camel:['dazzle_camel','mcelroy_camel','brown_camel','coppens_hanriot'],spad:['hatring_spad','madon_spad','tarascon_spad','boyau_spad'],se5a:['springs_se5a','proctor_se5a','checker_se5a']};
 // Deterministic per-enemy pick: wobble is a stable per-unit rng value (0..6).
 export function liveryVariant(e,base){const pool=LIVERY_POOL[base];if(!pool||e.wobble==null||e.wobble%1<.62)return base;return pool[Math.floor(e.wobble/6*pool.length)%pool.length]}
 export function historicalAircraft(stage){const id=AIRCRAFT_IDS[stage.defaultAircraft.split(' / ')[0]];if(!id)throw Error('Unknown historical aircraft: '+stage.defaultAircraft);return id}
@@ -228,7 +227,7 @@ export class CampaignGame extends Game{
   if(protect.length&&this.rng()<.55){const target=protect[Math.floor(this.rng()*protect.length)],a=Math.atan2(target.y-e.y,target.x-e.x);this.bullets.push({x:e.x,y:e.y,vx:Math.cos(a)*165,vy:Math.sin(a)*165,enemy:true,visualType:e.bossPilot?'boss':e.type,life:5,damage:11,convoyThreat:true});e.fire=2.2;return}
   super.fireEnemy(e);
  }
- awardXp(fraction){const remaining=this.objectiveXpBudget-this.objectiveXp,amount=Math.min(remaining,this.objectiveXpBudget*fraction);this.xp+=amount*(PLANES[this.plane].xpGainMultiplier??1);this.objectiveXp+=amount;this.checkLevel()}
+ awardXp(fraction){const remaining=this.objectiveXpBudget-this.objectiveXp,amount=Math.min(remaining,this.objectiveXpBudget*fraction);this.xp+=amount;this.objectiveXp+=amount;this.checkLevel()}
  countObjective(e){
   if(e.counted)return;e.counted=true;this.rallyPoint={x:e.x,y:e.y};this.completed++;this.campaignScore+=e.missionGround?100:e.type==='boss'?350:150;
   if(e.altitude!==undefined)this.altitudeClears[e.altitude]++;
@@ -253,7 +252,7 @@ export class CampaignGame extends Game{
  updateEnvironment(dt){
   this.hazardTimer-=dt;this.cloudTimer-=dt;
   const clouded=['A-01','A-06'].includes(this.stage.id)||this.stage.id==='A-10'&&this.phaseIndex<1;
-  if(clouded&&this.cloudTimer<=0){this.cloudTimer=12;this.clouds.push({...this.ahead(170,320),r:125,life:24})}
+  if(clouded&&this.cloudTimer<=0){this.cloudTimer=12;this.clouds.push({...this.ahead(170,320),r:125,life:24,type:'cumulus'})}
   for(const c of this.clouds)c.life-=dt;this.clouds=this.clouds.filter(c=>c.life>0);
   if(this.hazardTimer<=0){this.hazardTimer=16-this.stage.difficulty;
    if(this.mission.barrage)this.hazards.push({x:this.x+(this.rng()-.5)*250,y:this.y-80,angle:this.rng()*Math.PI,warning:2.2,life:6,width:40});
@@ -304,4 +303,3 @@ export class CampaignGame extends Game{
 const ACES1918_LIVERY={rickenbacker_spad:'spad',ball_se5a:'se5a',barker_snipe:'snipe',luke_nieuport28:'nieuport28',brumowski_albatros:'albatros',gontermann_fokker:'fokker'};
 const ACES1918_LIVERY_NAMES={rickenbacker_spad:'SPAD XIII · 리켄바커',ball_se5a:'S.E.5a · 앨버트 볼',barker_snipe:'숍위드 스나이프 · 바커',luke_nieuport28:'니외포르 28 · 프랭크 루크',brumowski_albatros:'알바트로스 D.III · 브루모프스키',gontermann_fokker:'포커 Dr.I · 곤터만'};
 for(const[key,base]of Object.entries(ACES1918_LIVERY)){PLANES[key]={...PLANES[base],name:ACES1918_LIVERY_NAMES[key],handling:PLANES[base].handling,campaignOnly:false};WEAPONS[key]={...WEAPONS[base]};PILOT_PLANES[key.split('_')[0]]=key}
-registerAircraftTiers(PLANES);

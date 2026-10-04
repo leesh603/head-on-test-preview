@@ -47,4 +47,3 @@ export function drawAADefense(c,key,x,y,w,h,angle=0,alpha=1){
   c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha*=alpha;c.imageSmoothingEnabled=true;
   c.drawImage(im,sx,sy,sw,sh,-w/2,-h/2,w,h);c.restore();return true;
 }
-export function drawDrachenMine(c,x,y,w,h){const im=imageFor('drachen');if(!im.naturalWidth)return;const[,sx,sy,sw,sh]=CELLS.drachenMine;c.save();c.translate(x,y);c.imageSmoothingEnabled=true;c.drawImage(im,sx,sy,sw,sh,-w/2,-h/2,w,h);c.restore()}

@@ -10,9 +10,7 @@ export class StuttgartSupport {
   Object.assign(this,{id,tuning:{...tuning},x,y,width,height,angle,onDamage,spawnSeaplane,countSeaplanes,clearOwned,onCleared,onCue});
   this.maxHp=tuning.maxHp;this.hp=this.maxHp;this.phase=1;this.time=0;this.phaseAge=0;this.dead=false;this.cleaned=false;this.notified=false;
   this.fireClock=1.8;this.spawnClock=tuning.spawnInterval;this.linkedLaunchClock=0;this.volley=0;this.fireSide=0;this.fxSerial=0;this.cover=null;this.sortieLaunched=false;
-  this.anchorX=x;this.anchorY=y;this.initialAngle=angle;this.navigationAge=0;this.driveVelocity=0;
   this.parts=new Map([['cover',0,.213,.125,.157,.18],['fuel',.084,.24,.032,.105,.10],['gun0',-.12,-.324,.048,.033,.06],['gun1',.12,-.324,.048,.033,.06],['gun2',-.165,-.045,.048,.033,.06],['gun3',.165,-.045,.048,.033,.06]].map(([id,nx,ny,rx,ry,hp])=>[id,{id,nx,ny,rx,ry,hp:hp*this.maxHp,maxHp:hp*this.maxHp}]));
-  if(tuning.navigation)this.parts.set('boiler',{id:'boiler',nx:0,ny:-.13,rx:.075,ry:.085,hp:this.maxHp*.12,maxHp:this.maxHp*.12});
   this.projectiles=new FixedPool(256,()=>({hits:new Set()}));this.effects=new FixedPool(160);this.damageSerial=0;
  }
  world(nx,ny,angle=this.angle){const x=nx*this.width,y=ny*this.height,c=Math.cos(angle),s=Math.sin(angle);return{x:this.x+x*c-y*s,y:this.y+x*s+y*c};}
@@ -45,17 +43,11 @@ export class StuttgartSupport {
  }
  fx(kind,x,y,radius,life,extra={}){const f=this.effects.acquire();if(f)Object.assign(f,{kind,x,y,radius,life,age:0,vx:0,vy:0,angle:0,...extra});return f;}
  shoot(x,y,angle){const p=this.projectiles.acquire();if(!p)return;p.hits.clear();Object.assign(p,{id:this.id+':shot:'+(++this.damageSerial),kind:'shell',x,y,vx:Math.cos(angle)*this.tuning.bulletSpeed,vy:Math.sin(angle)*this.tuning.bulletSpeed,age:0,warning:0,life:4,radius:4,damage:this.tuning.damage*.34,applied:false});}
- flak(x,y,{delay=0,radius=30}={}){const p=this.projectiles.acquire();if(!p)return;p.hits.clear();Object.assign(p,{id:this.id+':flak:'+(++this.damageSerial),kind:'flak',x,y,vx:0,vy:0,age:-delay,warning:1.05,life:1.35,radius,damage:this.tuning.damage*.72,applied:false});}
+ flak(x,y){const p=this.projectiles.acquire();if(!p)return;p.hits.clear();Object.assign(p,{id:this.id+':flak:'+(++this.damageSerial),kind:'flak',x,y,vx:0,vy:0,age:0,warning:1.05,life:1.35,radius:30,damage:this.tuning.damage*.72,applied:false});}
  fire(players){const side=this.fireSide++%2,indices=side?[1,3]:[0,2];for(const i of indices){const p=this.parts.get('gun'+i);if(p.hp<=0)continue;const q=this.world(p.nx,p.ny),a=this.angle+(side?0:Math.PI)+Math.sin(this.volley*.4)*.3;
    const n=Math.max(1,Math.ceil(5*(this.tuning.projectileDensity??1)));for(let j=0;j<n;j++)this.shoot(q.x,q.y,a+(n===1?0:j/(n-1)-.5)*.6);this.fx('muzzle',q.x,q.y,15,.20,{angle:a});
   }
-  if(this.volley++%2===1){const alive=players.filter(p=>p.alive);if(alive.length){const p=alive[(this.volley>>1)%alive.length],guns=[...this.parts.values()].filter(p=>p.id.startsWith('gun')&&p.hp>0);
-    if(guns.length&&(this.phase===1||this.countSeaplanes(this.id)===0)){
-      const velocity=Math.hypot(p.vx||0,p.vy||0),nx=velocity>8?-(p.vy||0)/velocity:1,ny=velocity>8?(p.vx||0)/velocity:0;
-      const offsets=this.phase===3&&guns.length>=2?[-80,0,80]:guns.length===1?[0]:[-64,64];
-      offsets.forEach((d,i)=>this.flak(p.x+(p.vx||0)*.55+nx*d,p.y+(p.vy||0)*.55+ny*d,{delay:this.tuning.navigation?i*.22:0,radius:this.phase===3?38:30}));
-    }
-  }}
+  if(this.volley++%2===1){const alive=players.filter(p=>p.alive);if(alive.length){const p=alive[(this.volley>>1)%alive.length];if(this.phase===1||this.countSeaplanes(this.id)===0)for(const d of [-64,64])this.flak(p.x+d,p.y);}}
   this.onCue({type:'aa-volley',encounterId:this.id,x:this.x,y:this.y});
  }
  launch(players=[]){if(this.phase<2||this.parts.get('fuel').hp<=0)return;
@@ -69,12 +61,7 @@ export class StuttgartSupport {
  enterFullSortie(){if(this.phase!==2)return;this.phase=3;this.phaseAge=0;this.spawnClock=Math.min(this.spawnClock,.25);this.onCue({type:'phase-change',encounterId:this.id,phase:'full-sortie'});}
  tick(dt,{players,paused=false,transitionBlocked=false}){
   if(paused)return;if(!Number.isFinite(dt)||dt<0)throw new Error('Invalid dt');if(this.dead){this.clean();if(!transitionBlocked&&!this.notified){this.notified=true;this.onCleared(this.snapshot());}return;}
-  this.time+=dt;this.phaseAge+=dt;
-  if(this.tuning.navigation){
-    const mobility=this.parts.get('boiler').hp<=0?.35:1,oldX=this.x,oldY=this.y;
-    this.navigationAge+=this.tuning.rotationSpeed*mobility*dt;const a=this.navigationAge,r=this.tuning.turnRadius||180,dx=r*(Math.cos(a)-1),dy=-r*Math.sin(a),c=Math.cos(this.initialAngle),s=Math.sin(this.initialAngle);
-    this.x=this.anchorX+dx*c-dy*s;this.y=this.anchorY+dx*s+dy*c;this.angle=this.initialAngle-a;this.driveVelocity=Math.hypot(this.x-oldX,this.y-oldY)/Math.max(.001,dt);
-  }else this.angle=(this.angle+this.tuning.rotationSpeed*dt)%(Math.PI*2);
+  this.time+=dt;this.phaseAge+=dt;this.angle=(this.angle+this.tuning.rotationSpeed*dt)%(Math.PI*2); // fixed center
   if(this.cover){this.cover.age+=dt;this.cover.x+=this.cover.vx*dt;this.cover.y+=this.cover.vy*dt;this.cover.angle+=dt*1.2;if(this.cover.age>=1.8)this.cover=null;}
   this.fireClock-=dt;if(this.fireClock<=0){const base=this.phase===1?1.35:this.phase===2?1.2:1.05;this.fireClock=(this.fireSide%2?base:base+0.55)/(this.tuning.projectileDensity??1);this.fire(players);}
   this.spawnClock-=dt;if(this.spawnClock<=0){this.spawnClock=this.tuning.spawnInterval*(this.phase===3 ? .72 : 1);this.launch(players);}

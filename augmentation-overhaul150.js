@@ -2,7 +2,7 @@
 // legacy ids stay stable so existing runs and local saves remain compatible.
 export const AUGMENTATION_OVERHAUL_BALANCE=Object.freeze({
  rarity:Object.freeze({normal:.60,magic:.28,rare:.09,unique:.03}),
- mercedesBaseSpeed:1.15,mercedesMaxSpeed:1.45,mercedesRamp:1.5,mercedesDecay:.55,redScarfSpeed:1.45,redScarfRange:1.25,redScarfLockTime:.65,
+ mercedesBaseSpeed:1.08,mercedesMaxSpeed:1.30,mercedesRamp:1.8,mercedesDecay:.72,redScarfSpeed:1.45,redScarfRange:1.25,redScarfLockTime:.65,
  repairInterval:10,repairFraction:.20,frontDamageReduction:.75,jCapsuleBullet:.70,jCapsuleHandling:.90,
  cowlingRange:260,cowlingDamage:1.25,cowlingMinReceived:.80,
  scarffInterval:.72,scarffDamage:8,scarffRange:560,scarffTurnRate:66*Math.PI/180,
@@ -37,7 +37,7 @@ const UNIQUE=[
 const SPECIAL=[
  ['amatolCharge','아마톨 고폭 장약','폭발 피해·실제 피해 반경 +40%. 폭발 격추 시 원 폭발 피해의 30%로 2차 파편폭발 발생. 2차 폭발은 연쇄하지 않습니다.'],
  ['lufberyCircle','루프베리 서클','상시 편대기 1/2/3/4대 이상일 때 받는 피해 −20/25/30/35%. 상호 엄호 대형으로 전환합니다.'],
- ['redScarf','붉은남작의 머플러','이동 속도 +45%, 적 후방 추적 판정 거리 +25% · 고정 시간 −35%.'],
+ ['redScarf','붉은남작의 머플러','이동 속도가 증가하고 적 후방 추적 판정 거리와 고정 시간이 개선됩니다.'],
  ['prancingHorse','바라카의 검은 말 문장','이동 속도 +20%, 전방에서 받는 피해 −25%. 문장은 방어 발동 순간에만 나타납니다.'],
  ['ironCross','푸르 르 메리트','파일럿 액티브가 강화되고 재사용 대기시간이 20% 감소합니다.'],
  ['telescope','르네 퐁크의 망원경','전방 약 21° 안의 적을 초점 포착하여 초기 0.8초 동안 최대 17° 조준 보정. 보정 궤적과 표적 표시가 나타납니다.'],
@@ -45,23 +45,22 @@ const SPECIAL=[
  ['sparkPlug','맥커든의 비상수선키트','10초마다 최대 내구도의 20%를 회복합니다.'],
  ['goeringBaton','전투비행대 총동원령','상시 윙맨 +3, 윙맨 피해 +25%.'],
  ['immelmannManual','임멜만의 기동전술 교본','선회기동 재사용 대기시간 −50%, 기동 무적 1.05초.'],
- ['motorCannon','기네메르의 37mm 모퇴르 카농','3초마다 전방으로 피해 180의 37mm 관통탄을 발사합니다. 고품질 화약 개량이 적용됩니다.'],
- ['loEmblem','LO! 페인팅 엠블럼','최대 내구도 −50%, 기관총·폭발물·편대 피해 +50%, 편대 연사 +30%, 이동 속도·선회력 +25%.'],
- ['sacredCowling','황제의 얼굴 카울링','260px 내 적에게 주는 피해 +25%. 적이 가까울수록 받는 탄환 피해가 최대 20% 감소합니다.'],
+ ['motorCannon','기네메르의 37mm 모퇴르 카농','3초마다 전방으로 거대한 37mm 관통탄을 발사합니다. 고품질 화약 개량이 적용됩니다.'],
+ ['loEmblem','LO! 페인팅 엠블럼','최대 내구도 −50%, 기관총·폭발물·편대 피해 +30%, 편대 연사 +30%, 이동 속도·선회력 +20%.'],
+ ['sacredCowling','황제의 얼굴 카울링','근거리 적에게 주는 피해 +25%. 적이 가까울수록 받는 탄환 피해가 최대 20% 감소합니다.'],
  ['steelPlate','J형 장갑 캡슐','기관총·소구경 탄환 피해 −30%, 이동 속도·선회력 −10%.'],
  ['mauserAceKiller',"마우저 C96 ‘에이스 킬러’",'0.65초마다 320 범위 내 에이스→정예→일반 우선 조준. 피해 18/54/160. 기관총·폭발물 강화 효과를 각각 75%씩 합산 적용받습니다.'],
  ['boelckeDicta','뵐케의 금언집','경험치 획득량 +30%. 협동에서는 보유자에게만 적용됩니다.'],
  ['rearGunner','스카프링 총좌','기본 기관총 사격 방향이 초당 약 66°로 회전합니다. 완전 후방 조준 약 2.7초. 총기 수·탄약 소모는 유지됩니다.'],
  ['quadLewis','쿼드 루이스 기관총','일반 발사체 상한을 넘어 총구별 기관총 탄환 +4.'],
  ['cow37','COW 37MM 기관포','기존 기관총을 교체합니다. 발사 간격 1초, 기본 피해 280, 탄창 24발, 재장전 4.6초.'],
- ['rankinShell','랭킨 대공 파편탄','3.2초마다 후방 220°·500 범위의 적 탄환을 제거하고 파편 피해 32를 줍니다.'],
- ['grunkreuz','녹십자 (Grünkreuz)','독가스 면역. 4.5초간 후방으로 0.35초마다 독가스 분출 (반경 160px, 지속 3초). 가스 속 적은 0.6초마다 내 최대 내구도의 9% 피해. 충전 7초. 분출·충전 모두 액티브 재사용 감소 적용 (최대 −50%).'],
+ ['rankinShell','랭킨 대공 파편탄','3.2초마다 후방 220°·500 범위의 적 탄환을 제거하고 파편 피해를 줍니다.'],
+ ['grunkreuz','녹십자 (Grünkreuz)','독가스 면역. 8초마다 주변 150px에 최대 내구도의 4% 피해 독가스 분출. 분출 간격은 액티브 재사용 감소 적용(최대 50%).'],
  ['kaiserFog','브록식 연막장치','12초마다 3초간 연막에 숨어 적 추적에서 제외되고 어그로가 초기화됩니다.'],
- ['fogCompass','C-O 5/17 에어로 컴퍼스','경험치·수리 아이템 획득 반경 480px로 증가.'],
- ['maximBelt','프리도 연속 급탄 링크','기관총 탄띠 용량 +75%, 재장전 시간 −35%.'],
+ ['fogCompass','C-O 5/17 에어로 컴퍼스','경험치와 수리 아이템의 획득 반경이 크게 증가합니다.'],
+ ['maximBelt','프리도 연속 급탄 링크','기관총 탄띠 용량이 증가하고 재장전 시간이 감소합니다.'],
  ['urLeica','Ur-Leica 소형 카메라','전과를 사진으로 기록합니다. 게임 종료 시 최종 격추 기록 +10% (소수점 버림). 한 출격 1회.'],
- ['badinGauge','바댕 속도계','기체 고유 기본속도 대비 지속적인 이동속도 강화분의 150%만큼 기관총·폭발물 피해 증가 (상한 +60%). 회피·대시·액티브 순간 가속은 제외됩니다.'],
- ['heineckeRettungsfallschirm','하이네케 구명낙하산 / Heinecke Rettungsfallschirm','치명 피해 시 자동 탈출. 3초 후 후방에서 예비기로 재출격하며 최대 내구도 40%와 2초 무적을 얻습니다. 재사용 180초, 출격당 최대 2회. 쿨다운 감소 효과는 적용되지 않습니다.']
+ ['badinGauge','바댕 속도계','기체 고유 기본속도 대비 지속적인 이동속도 강화분의 150%만큼 기관총·폭발물 피해 증가 (상한 +60%). 회피·대시·액티브 순간 가속은 제외됩니다.']
 ];
 
 const tierIndex=rarity=>rarity==='rare'?2:rarity==='magic'?1:0;
@@ -94,7 +93,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    regen:`초당 최대 내구도 회복 +${DURABILITY_BALANCE.regenPerSecond[t]*100}% (누적 상한 4%).`,
    cooldown:`액티브 재사용 대기시간 −${[8,12,16][t]}% (기본의 50%까지).`,
    bomber:`${Math.max(10,18-(g?.bomberLevel||0)*2)}초마다 폭격기 1대가 폭탄 5발을 투하합니다. 중복 시 주기 2초 감소 (최소 10초).`,
-   wingman:'상시 편대기 +1. 한 출격 최대 2회 (전체 최대 7대).',fighterSupply:'현재와 이후 합류하는 상시 편대기를 상위 기종으로 변경. 편대 피해 +20%, 발사 간격 −10%. 기체 수는 유지됩니다.',mercedesEngine:'기본 이동 속도 +15%. 직선 비행을 유지하면 최대 +45%까지 상승하며, 급선회 시 출력이 감소합니다.',
+   wingman:'상시 편대기 +1. 한 출격 최대 2회 (전체 최대 7대).',fighterSupply:'현재와 이후 합류하는 상시 편대기를 상위 기종으로 변경. 편대 피해 +20%, 발사 간격 −10%. 기체 수는 유지됩니다.',mercedesEngine:'기본 이동 속도 +8%. 직선 비행을 유지하면 최대 +30%까지 상승하며, 급선회 시 출력이 감소합니다.',
    spread:'기관총 발사체 +1 (최대 5발). 추가 발사체는 탄약을 더 소모하지 않습니다.',
    combinedProjectiles:'로켓과 수류탄의 동시 발사체 +1 (각 최대 5발).'
   })[id]||'';
@@ -119,14 +118,14 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  };
  const shuffledPick=(g,pool)=>pool.length?pool[Math.floor(g.rng()*pool.length)]:null;
  const normalPick=function(g,rarity,picks,previous=[]){const used=new Set(picks.map(u=>u.id)),eligible=UPGRADES.filter(u=>!used.has(u.id)&&normalAllowed(g,u,rarity)),fresh=eligible.filter(u=>!previous.includes(u.id));return shuffledPick(g,fresh.length?fresh:eligible)};
- Game.prototype.rollChoices=function(forceRarity=null){
+ Game.prototype.rollChoices=function(){
   const choiceCount=this.pilot==='mccudden'?4:3;
   const picks=[];for(let slot=0;slot<choiceCount;slot++){
-   const r=this.rng();let rarity=forceRarity||(r<AUGMENTATION_OVERHAUL_BALANCE.rarity.normal?'normal':r<AUGMENTATION_OVERHAUL_BALANCE.rarity.normal+AUGMENTATION_OVERHAUL_BALANCE.rarity.magic?'magic':r<1-AUGMENTATION_OVERHAUL_BALANCE.rarity.unique?'rare':'unique');
+   const r=this.rng();let rarity=r<AUGMENTATION_OVERHAUL_BALANCE.rarity.normal?'normal':r<AUGMENTATION_OVERHAUL_BALANCE.rarity.normal+AUGMENTATION_OVERHAUL_BALANCE.rarity.magic?'magic':r<1-AUGMENTATION_OVERHAUL_BALANCE.rarity.unique?'rare':'unique';
    let u=normalPick(this,rarity,picks,this.lastChoices||[]);if(!u)for(const fallback of ['normal','magic','rare','unique']){if(fallback===rarity)continue;u=normalPick(this,fallback,picks,this.lastChoices||[]);if(u){rarity=fallback;break}}if(u)picks.push({...u,rarity});
   }
   const offers=this.legendaryOffers??(this.legendaryOffered?1:0),limit=this.level>=20?4:this.level>=10?2:1,pool=LEGENDARIES.filter(u=>specialAllowed(this,u)&&!(this.seenLegendaries||[]).includes(u.id));
-  if(!forceRarity&&!this.mission?.unarmed&&offers<limit&&this.legendaryCount()<4&&pool.length>=3&&(this.rng()<this.legendaryChance()||this.level>=(offers===0?5:offers===1?12:22))){
+  if(!this.mission?.unarmed&&offers<limit&&this.legendaryCount()<4&&pool.length>=3&&(this.rng()<this.legendaryChance()||this.level>=(offers===0?5:offers===1?12:22))){
    picks.length=0;for(let i=pool.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}picks.push(...pool.slice(0,3).map(u=>namedSpecial(this,u)));this.legendaryOffered=true;this.legendaryOffers=offers+1;this.seenLegendaries??=[];this.seenLegendaries.push(...picks.map(u=>u.id));
   }
   this.lastChoices=picks.map(u=>u.id);this.choiceDraftSerial=(this.choiceDraftSerial||0)+1;this.choiceRerollUsed=false;this.choiceDraftKind=picks.every(u=>u.rarity==='legendary')?'special':'normal';return picks;
@@ -177,7 +176,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    case 'goeringBaton':this.permanentWingman=Math.min(7,(this.permanentWingman||0)+3);this.wingmanDamageMult=LEGENDARY_BALANCE.wingmanDamageMultiplier;break;
    case 'immelmannManual':this.evadeCooldownMult=.5;this.evadeInvulnerability=1.05;this.evadeCooldown=Math.min(this.evadeCooldown,4);break;
    case 'motorCannon':this.motorCannon=true;this.motorCannonTimer=0;break;
-   case 'loEmblem':this.maxHp*=.5;this.hp=this.maxHp*ratio;this.addGunBonus(.50);this.explosiveBonus=(this.explosiveBonus||0)+.50;this.commandBonus=(this.commandBonus||0)+.50;this.commandRateBonus=(this.commandRateBonus||0)+.30;this.turn*=1.25;this.speed*=1.25;if(this.baseSpeed)this.baseSpeed*=1.25;break;
+   case 'loEmblem':this.maxHp*=.5;this.hp=this.maxHp*ratio;this.addGunBonus(.30);this.explosiveBonus=(this.explosiveBonus||0)+.30;this.commandBonus=(this.commandBonus||0)+.30;this.commandRateBonus=(this.commandRateBonus||0)+.30;this.turn*=1.2;this.speed*=1.2;if(this.baseSpeed)this.baseSpeed*=1.2;break;
    case 'sacredCowling':this.sacredCowling=true;break;
    case 'steelPlate':this.jArmorCapsule=true;this.speed*=.9;this.turn*=.9;if(this.baseSpeed)this.baseSpeed*=.9;break;
    case 'mauserAceKiller':this.mauserAceKiller=true;this.mauserTimer=.1;break;
@@ -220,17 +219,17 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  Game.prototype.updateTailLock=function(dt){
   const clear=()=>{this.tailTargetId=null;this.tailLocked=false;this.tailProgress=0;this.tailGraceRemaining=0};
   if(this.hp<=0||this.status&&this.status!=='alive'){clear();return}
-  const eligible=e=>this.tailEligible(e),range=this.redScarf?AUGMENTATION_OVERHAUL_BALANCE.redScarfRange:1,lockTime=TAILING_BALANCE.lockTime*(this.redScarf?AUGMENTATION_OVERHAUL_BALANCE.redScarfLockTime:1),within=(e,min,max,rearCone,aimCone)=>{const dx=e.x-this.x,dy=e.y-this.y,d=Math.hypot(dx,dy);if(d<min||d>max)return false;const behind=Math.abs(angleDiff(Math.atan2(this.y-e.y,this.x-e.x),e.a+Math.PI)),aim=Math.abs(angleDiff(Math.atan2(dy,dx),this.a));return behind<=rearCone&&aim<=aimCone};
+  const eligible=e=>this.tailEligible(e)&&!e.missionTarget,range=this.redScarf?AUGMENTATION_OVERHAUL_BALANCE.redScarfRange:1,lockTime=TAILING_BALANCE.lockTime*(this.redScarf?AUGMENTATION_OVERHAUL_BALANCE.redScarfLockTime:1),within=(e,min,max,rearCone,aimCone)=>{const dx=e.x-this.x,dy=e.y-this.y,d=Math.hypot(dx,dy);if(d<min||d>max)return false;const behind=Math.abs(angleDiff(Math.atan2(this.y-e.y,this.x-e.x),e.a+Math.PI)),aim=Math.abs(angleDiff(Math.atan2(dy,dx),this.a));return behind<=rearCone&&aim<=aimCone};
   let current=this.tailTargetId?this.enemies.find(e=>e.tailId===this.tailTargetId):null;
   if(this.tailTargetId&&!eligible(current)){clear();current=null}
   if(this.tailLocked&&current){
-   if(within(current,TAILING_BALANCE.maintainMinDistance,TAILING_BALANCE.maintainMaxDistance*range,TAILING_BALANCE.maintainRearCone,TAILING_BALANCE.maintainAimCone)){this.tailProgress=lockTime;this.tailGraceRemaining=TAILING_BALANCE.graceTime+(this.aircraftTailPursuit?.().tailGraceBonus||0);return}
+   if(within(current,TAILING_BALANCE.maintainMinDistance,TAILING_BALANCE.maintainMaxDistance*range,TAILING_BALANCE.maintainRearCone,TAILING_BALANCE.maintainAimCone)){this.tailProgress=lockTime;this.tailGraceRemaining=TAILING_BALANCE.graceTime;return}
    this.tailGraceRemaining=Math.max(0,(this.tailGraceRemaining??TAILING_BALANCE.graceTime)-dt);if(this.tailGraceRemaining>0)return;this.tailLocked=false;
   }
   let target=current&&within(current,TAILING_BALANCE.minDistance,TAILING_BALANCE.maxDistance*range,TAILING_BALANCE.rearCone,TAILING_BALANCE.aimCone)?current:null,best=target?0:Infinity;
   if(!target)for(const e of this.enemies){if(!eligible(e))continue;const dx=e.x-this.x,dy=e.y-this.y,d=Math.hypot(dx,dy);if(!within(e,TAILING_BALANCE.minDistance,TAILING_BALANCE.maxDistance*range,TAILING_BALANCE.rearCone,TAILING_BALANCE.aimCone))continue;const behind=Math.abs(angleDiff(Math.atan2(this.y-e.y,this.x-e.x),e.a+Math.PI)),aim=Math.abs(angleDiff(Math.atan2(dy,dx),this.a)),score=d+behind*90+aim*120;if(score<best){best=score;target=e}}
   if(!target){this.tailLocked=false;this.tailProgress=Math.max(0,(this.tailProgress||0)-dt*TAILING_BALANCE.decay);this.tailGraceRemaining=0;if(this.tailProgress<=0)this.tailTargetId=null;return}
-  const id=this.tailIdFor(target);if(this.tailTargetId!==id){this.tailProgress=0;this.tailGraceRemaining=0}this.tailTargetId=id;this.tailProgress=Math.min(lockTime,(this.tailProgress||0)+dt);this.tailLocked=this.tailProgress>=lockTime-1e-9;if(this.tailLocked)this.tailGraceRemaining=TAILING_BALANCE.graceTime+(this.aircraftTailPursuit?.().tailGraceBonus||0);
+  const id=this.tailIdFor(target);if(this.tailTargetId!==id){this.tailProgress=0;this.tailGraceRemaining=0}this.tailTargetId=id;this.tailProgress=Math.min(lockTime,(this.tailProgress||0)+dt);this.tailLocked=this.tailProgress>=lockTime-1e-9;if(this.tailLocked)this.tailGraceRemaining=TAILING_BALANCE.graceTime;
  };
  Game.prototype.tailLockFraction=function(){const lock=TAILING_BALANCE.lockTime*(this.redScarf?AUGMENTATION_OVERHAUL_BALANCE.redScarfLockTime:1);return Math.max(0,Math.min(1,(this.tailProgress||0)/lock))};
  const oldApply=Game.prototype.applySpecialRound;

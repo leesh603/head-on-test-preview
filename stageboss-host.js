@@ -1,15 +1,11 @@
 
-import {handleMaanCue} from './maan-view.js?v=530';
-import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=530';
-import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=530';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=530';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=530';
-import {bossSoundFor} from './boss-feedback.js?v=530';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=530';
-import {advanceCambraiBug} from './cambrai-bug-flight.js?v=530';
-import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=530';
+import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=london20260930';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=351';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=351';
+import {bossSoundFor} from './boss-feedback.js?v=351';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=351';
 
-export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭','마안 전투'];
+export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const players=g=>g.players||[g];
@@ -46,7 +42,7 @@ const alive=p=>p.hp>0&&(!p.status||p.status==='alive');
 const blocked=g=>g.state!=='playing'||!!g.pendingLevelUps?.length;
 export function stageBossBounds(g){const z=g.camera?.zoom||1,w=(g.viewWidth||960)/z,h=(g.viewHeight||700)/z;return {left:g.x-w/2,right:g.x+w/2,top:g.y-h/2,bottom:g.y+h/2};}
 export function stageBossSpeed(p){let factor=1;for(const s of p.bossStatuses?.values()||[])factor=Math.min(factor,s.speedFactor??1);return factor;}
-export function stageSpawnInterval(g,interval){return normalSpawnInterval(interval,{bossPresent:g.stageBoss?.stages.phase==='boss',factor:g.stageBoss?.stages.stageIndex===12?.22:STAGE_BOSS_BALANCE.spawnFactor});}
+export function stageSpawnInterval(g,interval){return normalSpawnInterval(interval,{bossPresent:g.stageBoss?.stages.phase==='boss',factor:STAGE_BOSS_BALANCE.spawnFactor});}
 
 export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
  if(g.mode==='campaign'||g.stageBoss)return g.stageBoss;
@@ -75,13 +71,8 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     ,'gotha-squadron':{geometryScale:1,mobileBoss:false,motionMultiplier:1,coreRadius:34}
     ,'staaken-rvi':{geometryScale:1,mobileBoss:false,coreRadius:62}
     ,'london-searchlight':{geometryScale:1,mobileBoss:false,motionMultiplier:0,coreRadius:70}
-    ,'flak-tower':{geometryScale:1,mobileBoss:false,motionMultiplier:0,coreRadius:150}
-    ,'fort-douaumont':{geometryScale:1,mobileBoss:false,motionMultiplier:0}
-    ,'fort-souville':{geometryScale:1,mobileBoss:false,motionMultiplier:0}
-    ,'wustenpanzer':{geometryScale:1,mobileBoss:false,coreRadius:108}
-    ,'sinai-landship':{geometryScale:1,mobileBoss:false,coreRadius:120}
    }[bossId]||{};
-   return {regionalViewWidth:g.viewWidth||960,regionalViewHeight:g.viewHeight||700,regionalPlayerY:g.y,loopIndex:loop,projectileDensity:density,maxHp,partHp:maxHp*.12,damage:Math.round(18*(1+g.t/240)*(1+Math.min(.5,loop*.12))),bulletSpeed:270,coreRadius:150,
+   return {loopIndex:loop,projectileDensity:density,maxHp,partHp:maxHp*.12,damage:Math.round(18*(1+g.t/240)*(1+Math.min(.5,loop*.12))),bulletSpeed:270,coreRadius:150,
     mobileBoss:true,motionMultiplier:Math.min(2.5,1+loop*.25),patternMultiplier:Math.min(3,1+loop*.35),geometryScale:2.025,splitProtection:5,fireInterval:6,waterInterval:3.8,launchInterval:3,enrageInterval:1.1,broadsideInterval:1.8/density,mortarInterval:1.8,chargeInterval:2.7,suppressiveInterval:3.1/density,suppressiveCount:7,
     parts:{truss:{x:24,y:-80},muzzle:{x:0,y:-92},hangar:{x:0,y:38},crane:{x:42,y:-25},
      front:{x:0,y:-86},rear:{x:0,y:91},left:{x:-57,y:0},right:{x:57,y:0}},...bossTuning};
@@ -96,43 +87,31 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     surface:spec.minion==='autocannon',stationary:spec.minion==='autocannon',groundEscort:spec.minion==='autocannon',a:spec.minion==='autocannon'?(spec.vx<0?Math.PI:0):(spec.a??e.a),vx:spec.vx||0,life:spec.life??(spec.behavior==='attack-pass'?6.2:spec.minion==='airship'?90:18),fire:spec.fire??1.2,
     passTargetX:spec.passTargetX,passTargetY:spec.passTargetY,formationIndex:spec.formationIndex,formationCount:spec.formationCount,supportInvulnUntil:g.t+(spec.invulnerableSeconds||0),
     escortLeaderId:spec.leaderId,rearGunner:!!spec.rearGunner,maxSpeed:spec.maxSpeed,formationRole:spec.formationRole,formationSide:spec.formationSide,formationRank:spec.formationRank,
-    pairId:spec.pairId,callSign:spec.callSign,callSignKo:spec.callSignKo,name:spec.name||spec.callSign||e.name,visualScale:spec.visualScale,missionTarget:!!spec.persistent});
+    pairId:spec.pairId,callSign:spec.callSign,name:spec.name||spec.callSign||e.name,visualScale:spec.visualScale,missionTarget:!!spec.persistent});
    if(spec.hp){e.hp=e.maxHp=Math.round(spec.hp*heavyHp);e.coopHpApplied=heavyHp;}
-   if(spec.minion==='bug'){
-    Object.assign(e,{bugDrone:true,hp:Math.max(12,Math.round(e.maxHp*.4)),maxHp:Math.max(12,Math.round(e.maxHp*.4)),speed:spec.speed||178,fire:Infinity,launchAge:0,launchSeconds:spec.launchSeconds||.6,launchHeading:spec.launchHeading??spec.a??-Math.PI/2,launchPortId:spec.launchPortId,contactDamage:spec.contactDamage??18,bugTargetX:spec.passTargetX,bugTargetY:spec.passTargetY,bugAge:0});
-    if(Number.isFinite(e.bugTargetX)&&Number.isFinite(e.bugTargetY))g.bossCues.push({type:'bug-flight-target',minionId:e.id,x:e.bugTargetX,y:e.bugTargetY,life:Math.hypot(e.bugTargetX-e.x,e.bugTargetY-e.y)/e.speed+.2});
-   }
-   if(spec.minion==='airship')Object.assign(e,{summonDone:true,bossAirship:true,hp:Math.round(e.maxHp*.5),maxHp:Math.round(e.maxHp*.5),fire:2.6,speed:Math.max(e.speed||0,95)});
+   if(spec.minion==='bug')Object.assign(e,{bugDrone:true,hp:Math.max(12,Math.round(e.maxHp*.4)),maxHp:Math.max(12,Math.round(e.maxHp*.4)),speed:178,fire:Infinity});
+   if(spec.minion==='airship')Object.assign(e,{summonDone:true,hp:Math.round(e.maxHp*.5),maxHp:Math.round(e.maxHp*.5),fire:2.6,speed:Math.max(e.speed||0,95)});
   },
-  countMinions(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&!e.bossAirship&&e.hp>0).length;},
+  countMinions(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&e.hp>0).length;},
   formationStatus(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&e.hp>0).map(e=>({id:e.id,role:e.formationRole,pairId:e.pairId,x:e.x,y:e.y}));},
   onBuildingImpact(event){const b=g.bossBuildings.find(b=>!b.destroyed&&Math.abs(event.x-b.x)<=b.w/2+8&&Math.abs(event.y-b.y)<=b.h/2);if(!b)return false;b.destroyed=true;g.combatBlast(b.x,b.y,55,'enemy','structure');return true;},
   onCue(event){
-   const body=g.stageBoss?.stages.encounter?.bodies.get(event.bossId);
-   if(handleVerdunCue(g,event))return;
-   if(handleMaanCue(g,event,body))return;
    handleLondonCue(g,event);
-   const x=event.x??body?.x??g.x,y=event.y??body?.y??g.y;
+   const body=g.stageBoss?.stages.encounter?.bodies.get(event.bossId),x=event.x??body?.x??g.x,y=event.y??body?.y??g.y;
    const sound=bossSoundFor(event,body?.kind||event.bossId);if(sound)g.event('bossSound',sound);
-   if(event.type==='city-mine-lane'&&body?.kind==='drachen-net')for(const f of g.hostileMinefields||[])if(f.encounterId===event.encounterId)for(const m of f.mines)if(Math.abs((m.targetX??m.x)-event.x)<event.width/2){m.dead=true;m.chainHandled=true;}
    if(event.type==='spawn-minefield'){
     g.hostileMinefields??=[];
     const owned=g.hostileMinefields.filter(f=>f.encounterId===g.stageBoss?.stages.encounter?.id);
     let existing=owned.reduce((n,f)=>n+f.mines.filter(m=>!m.dead).length,0);
      for(const f of owned)for(const m of f.mines){if(existing+event.points.length<=event.maxMines)break;if(!m.dead){m.dead=true;m.chainHandled=true;existing--;}}
-    const deploying=Number.isFinite(event.sourceX)&&Number.isFinite(event.sourceY);
-    const mines=event.points.map(p=>({x:deploying?event.sourceX:p.x,y:deploying?event.sourceY:p.y,targetX:p.x,targetY:p.y,hp:18,dead:false,bossMine:true,deploying,chainHandled:false}));
+    const mines=event.points.map(p=>({x:p.x,y:p.y,hp:18,dead:false,bossMine:true,chainHandled:false}));
     if(mines.length){const mx=mines.reduce((n,m)=>n+m.x,0)/mines.length,my=mines.reduce((n,m)=>n+m.y,0)/mines.length;
       g.hostileMinefields.push({x:mx,y:my,radius:Math.max(60,...mines.map(m=>Math.hypot(m.x-mx,m.y-my)+20)),
-        warning:event.warning,life:event.life,region:g.worldRegion(),mines,deploySeconds:deploying?event.warning:0,sourceX:event.sourceX,sourceY:event.sourceY,encounterId:g.stageBoss.stages.encounter.id});}
+        warning:event.warning,life:event.life,region:g.worldRegion(),mines,encounterId:g.stageBoss.stages.encounter.id});}
    }
     if(event.type==='boss-enter'){g.event('wave','지역 보스 출현! · '+BOSS_CATALOG[event.bossId].name);g.event('heavyShot','');}
     else if(event.type==='aa-effect'){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:event.life||.5,size:event.size||115,kind:event.kind});}
-    else if(event.type==='hazard-activated'&&event.kind==='circle'&&(['morser-shell','mark4-shell','treffas-shell'].includes(event.visual)||event.visual==='carpet-bomb'&&['staaken-rvi','gik','ca4'].includes(body?.kind))){g.shake=Math.max(g.shake,3);}
-    else if(event.type==='hazard-activated'&&event.visual==='harbor-swing'){
-      // The attached payload remains intact throughout the physical sweep.
-    }
-    else if(event.type==='hazard-activated'&&event.kind==='circle'&&(event.visual?.startsWith('aa-')||event.visual==='city-flak-shell'||event.visual?.startsWith('somme-')||event.visual?.startsWith('rural-rail-')||event.visual==='black-flak'&&['fliegerzug','treffas-wagen'].includes(body?.kind))){
+    else if(event.type==='hazard-activated'&&event.kind==='circle'&&event.visual?.startsWith('aa-')){
       // Authored AA atlas draws these effects; do not stack a generic blast.
     }
     else if(event.type==='hazard-activated'&&event.kind==='circle'){
@@ -142,11 +121,10 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     // The shared hazard renderer already animates this ground impact. Avoid a
     // second aerial fireball on top, while preserving all original events.
     if(['minenwerfer-heavy','minenwerfer-shell'].includes(event.visual)){const effect=g.combatFX?.at(-1);if(effect)effect.mortarOverlay=true}}
-   else if(event.type==='internal-explosion'&&['morser-battery','london-searchlight','flak-tower-cell','ca4'].includes(body?.kind)){g.combatBlast(x,y,80,'enemy','structure');g.shake=Math.max(g.shake,8);}
-   else if(event.type==='part-destroyed'){const part=body?.parts.get(event.partId),minen=body?.kind==='minenwerfer-battery',apron=body?.kind==='london-apron';g.combatBlast(x+(part?.x||0),y+(part?.y||0),apron?22*body.apronScale:minen?34:46,'enemy','structure');g.shake=Math.max(g.shake,apron?3:minen?5:7);
-     if(['a7v-flak','mark-v-cruiser','drachen-net'].includes(body?.kind))(g.aaEffects??=[]).push({x:x+(part?.x||0),y:y+(part?.y||0),age:0,life:.9,size:90,kind:'aaWreckSmoke'});}
+   else if(event.type==='part-destroyed'){const part=body?.parts.get(event.partId),minen=body?.kind==='minenwerfer-battery';g.combatBlast(x+(part?.x||0),y+(part?.y||0),minen?34:46,'enemy','structure');g.shake=Math.max(g.shake,minen?5:7);
+     if(['a7v-flak','mark-v-cruiser','drachen-net','london-apron'].includes(body?.kind))(g.aaEffects??=[]).push({x:x+(part?.x||0),y:y+(part?.y||0),age:0,life:.9,size:90,kind:'aaWreckSmoke'});}
    else if(event.type==='ammo-cookoff'){g.combatBlast(event.x,event.y,82,'enemy','structure');if(g.burst)g.burst(event.x,event.y,'#ffbb62',10);if(g.smoke){g.smoke(event.x-18,event.y+8,true);g.smoke(event.x+22,event.y-5,true)}g.shake=Math.max(g.shake,9);}
-   else if(event.type==='ammo-detonation'){g.combatBlast(event.x,event.y,105,'enemy','structure');g.shake=Math.max(g.shake,12);g.event('wave','항구요새 탄약고 유폭 · 기뢰 보급 중단·포격 약화');}
+   else if(event.type==='ammo-detonation'){g.combatBlast(event.x,event.y,105,'enemy','structure');g.shake=Math.max(g.shake,12);g.event('wave','항구요새 탄약고 유폭 · 중앙 회전축 방호 약화');}
    else if(event.type==='rail-car-detached'){g.combatBlast(event.x,event.y,58,'enemy','structure');g.shake=Math.max(g.shake,8);
     for(let i=0;i<4;i++){const ox=(g.rng?g.rng()-.5:Math.random()-.5)*120,oy=(i-1.5)*55+(g.rng?g.rng()-.5:Math.random()-.5)*30,r=24+((i*37)%3)*14;g.combatBlast(event.x+ox,event.y+oy,r,'enemy','structure');if(g.burst)g.burst(event.x+ox,event.y+oy,'#ffd06a',6);if(g.smoke)g.smoke(event.x+ox,event.y+oy,true)}
     g.event('wave','열차 객차 파괴 · 기관차 방호 약화');}
@@ -160,12 +138,9 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    else if(event.type==='boss-destruction-start'){g.event('wave',BOSS_CATALOG[event.bossId].name+' 붕괴 중!');g.shake=Math.max(g.shake,8);if(['zeppelin-l70','hma23'].includes(event.bossId))for(const b of event.bodies||[])g.wreckGust(b);}
    else if(event.type==='boss-destruction-pulse'){g.combatBlast(event.x,event.y,event.radius,'enemy',event.final?'bossFinal':'structure');g.shake=Math.max(g.shake,event.final?13:8);}
    else if(event.type==='heavy-gun-fired'){g.shake=Math.max(g.shake,7);}
-    else if(event.type==='muzzle'&&['london-apron','drachen-net'].includes(body?.kind)){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:.12,size:23*body.cityArtScale,kind:'aaMuzzle'});}
-    else if(event.type==='muzzle'&&body?.sommeBoss){g.shake=Math.max(g.shake,2);}
-    else if(event.type==='muzzle'){if(['a7v-flak','mark-v-cruiser','fliegerzug','treffas-wagen','mark4-wedge','morser-battery','staaken-rvi','london-searchlight'].includes(body?.kind))(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:.23,size:44,kind:'aaMuzzle'});
+    else if(event.type==='muzzle'){if(['a7v-flak','mark-v-cruiser'].includes(body?.kind))(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:.23,size:44,kind:'aaMuzzle'});
      else g.burst(event.x,event.y,'#ffe0a2',12);g.shake=Math.max(g.shake,3);}
    else if(event.type==='camera-shake')g.shake=Math.max(g.shake,event.strength||5);
-   else if(['safe-corridor','bug-launch-warning','bug-launch','searchlight-lock'].includes(event.type))g.bossCues.push({...event,life:event.seconds});
    else if(event.type==='charge-warning'||event.type==='reentry-warning')g.bossCues.push({...event,life:event.seconds});
    else if(event.type==='rail-aim')g.bossCues.push({...event,targetX:event.target.x,targetY:event.target.y,life:event.seconds});
    else if(event.type==='cannon-aim')g.bossCues.push({...event,targetX:event.x+Math.cos(event.angle)*event.length,targetY:event.y+Math.sin(event.angle)*event.length,life:1.7});
@@ -173,14 +148,12 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    else if(event.type==='phase-change')g.event('bossPhase',event.phase);
   },
   onEncounterCleared({id,bossId}){
-   const fortresses=[...g.stageBoss?.stages.encounter?.bodies.values()||[]].filter(b=>b.fortressBoss);
-   if(fortresses.length)g.verdunWrecks=[...(g.verdunWrecks||[]),...fortresses];
    if(g.londonBattle){g.londonBattle.cleared=true;if(g.londonBattle.role==='defend')for(const d of g.londonBattle.districts.filter(d=>d.hp>0))(g.drops||=[]).push({x:d.x,y:d.y,value:24,bossReward:true});}
    g.kills++;g.priorityKills=(g.priorityKills||0)+1;const owner=players(g).find(p=>(p.id||'p1')===g.stageBossLastOwner);if(g.players&&owner)owner.kills++;
    g.event('kill','');g.event('wave',BOSS_CATALOG[bossId].name+' 격파 · 다음 지역 진입');
    const hero=players(g)[0]||g;for(let i=0;i<9;i++){const a=i*.7;(g.drops||=[]).push({x:hero.x+Math.cos(a)*70,y:hero.y+Math.sin(a)*70,value:16,heal:i===0,bossReward:true})}
   },
-  onStageChange({stageIndex,loopIndex}){g.maanStartX=g.x;g.verdunWrecks=[];g.verdunBattle=null;g.londonBattle=null;g.enemies=g.enemies.filter(e=>!e.londonOwned);const previousRegion=g.region;g.region=stageIndex;g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.clearRegionalHazards();g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=stageIndex===7?createHarborRoute(g):null;
+  onStageChange({stageIndex,loopIndex}){g.londonBattle=null;g.enemies=g.enemies.filter(e=>!e.londonOwned);const previousRegion=g.region;g.region=stageIndex;g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.clearRegionalHazards();g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=stageIndex===7?createHarborRoute(g):null;
    // A fresh map starts clean: leftover stragglers must not be sitting on top
    // of the player at the transition moment.
    g.enemies=g.enemies.filter(e=>e.missionTarget||e.stageBossBody||e.navalVessel||e.heavyBomber);
@@ -201,23 +174,16 @@ export function syncStageBossTargets(g){
  if(incoming.length)g.reserveEnemySlots(incoming.length);
  for(const body of bodies?.values()||[]){if(body.dead||g.enemies.some(e=>e.stageBossBody===body))continue;
   const e={stageBossBody:body,encounterId:encounter.id,id:body.id,type:'stageBoss',faction:body.faction,stationary:true,surface:true,missionTarget:true,a:-Math.PI/2,speed:0,fire:Infinity};
-  const synced=['x','y','hp','maxHp'];if(Number.isFinite(body.a))synced.push('a');
-  for(const key of synced)Object.defineProperty(e,key,{enumerable:true,get:()=>body[key]});g.enemies.push(e);
+  for(const key of ['x','y','hp','maxHp'])Object.defineProperty(e,key,{enumerable:true,get:()=>body[key]});g.enemies.push(e);
  }
 }
 export function stageBossCollision(g,e,x,y,b){const body=e.stageBossBody;if(!body)return null;if(blocked(g)||body.dead||g.stageBoss?.stages.encounter?.bodies.get(body.id)!==body)return false;return !!body.locateHit({x,y,previousX:b?.previousX??x,previousY:b?.previousY??y,radius:b?.collisionRadius||0});}
 export function damageStageBoss(g,e,b,damage){
- const notify=(target,pos)=>{for(const p of g.players||[g])p.identityImpact?.(b,e,target,pos)};
- if(b.identityDotTarget&&b.identityDotTarget!==e&&!e.stageBossBody)return;
- if(!e.stageBossBody){if(e.bossPilot==='berthold'){if(e.hp<=e.maxHp*.5)damage*=.75;if(e.ironWillUntil>g.t)damage*=.35;}e.hp-=damage;notify(e,e);return;}
+ if(!e.stageBossBody){if(e.bossPilot==='berthold'){if(e.hp<=e.maxHp*.5)damage*=.75;if(e.ironWillUntil>g.t)damage*=.35;}e.hp-=damage;return;}
  if(blocked(g)||b.patrol)return;const body=e.stageBossBody;
  const hit=body.locateHit({x:b.x,y:b.y,previousX:b.previousX,previousY:b.previousY,radius:b.collisionRadius||0});if(!hit)return;
- const part=hit.partId?body.parts.get(hit.partId):null,target=part||body;if(b.identityDotTarget&&b.identityDotTarget!==target)return;
  const result=g.stageBoss.hit({bodyId:body.id,...hit,damage,faction:g.teamFaction});
- if(result.damage>0){const raw=part&&body.support129?.parts.get(part.id),pos=raw?body.support129.world(raw.nx,raw.ny):{x:body.x+(part?.x||0),y:body.y+(part?.y||0)};notify(target,pos);}
- if(result.damage>0){g.stageBossLastOwner=b.ownerId||'p1';
-  if(body.fortressBoss){if(g.t>=(body.impactSmokeAt??-Infinity)){body.impactSmokeAt=g.t+.12;g.smoke?.(b.x,b.y,false);}g.event('impact','');}
- }
+ if(result.damage>0)g.stageBossLastOwner=b.ownerId||'p1';
 }
 function steerFormationMinion(e,tx,ty,dt,turnRate,speed){
  const a=Math.atan2(ty-e.y,tx-e.x),delta=Math.atan2(Math.sin(a-e.a),Math.cos(a-e.a));e.a+=clamp(delta,-turnRate*dt,turnRate*dt);
@@ -245,14 +211,6 @@ function updateFormationMinion(g,e,p,leader,dt){
 function updateMinions(g,dt){
  for(const e of g.enemies){if(!e.bossMinion||e.hp<=0)continue;e.hitFlash=Math.max(0,(e.hitFlash||0)-dt);const formation=e.behavior==='jasta-formation'||e.behavior==='black-flight-formation',p=formationDefenderTarget(g,e)||g.enemyCombatTarget(e);if(!p||p.hp<=0)continue;
   e.life=(e.life??18)-dt;if(e.life<=0){e.hp=0;continue}
-   if(e.behavior==='bug-strike'){
-    if(advanceCambraiBug(e,dt)){
-      for(const target of players(g))if(alive(target)&&Math.hypot(e.x-target.x,e.y-target.y)<39){
-        if(g.players)g.hitPlayer(target,e.contactDamage);else g.hit(e.contactDamage);}
-      e.hp=0;g.combatBlast(e.x,e.y,42,'enemy','mineBlast');
-    }
-    continue;
-   }
   if(e.surface){e.x+=e.vx*dt;e.a=e.vx<0?Math.PI:0;const viewH=g.viewHeight||640,floorY=g.y+viewH*.34;e.y=Math.max(e.y,floorY);}else if(e.behavior==='attack-pass'){
    e.passAge=(e.passAge||0)+dt;if(!e.passLocked){const a=Math.atan2((e.passTargetY??p.y)-e.y,(e.passTargetX??p.x)-e.x);e.a=a;e.passLocked=true;e.speed=Math.max(205,e.speed||0);}
    const lane=((e.formationIndex||0)-((e.formationCount||1)-1)/2)*9;e.x+=Math.cos(e.a)*e.speed*dt-Math.sin(e.a)*Math.sin(e.passAge*2.2)*lane*dt;e.y+=Math.sin(e.a)*e.speed*dt+Math.cos(e.a)*Math.sin(e.passAge*2.2)*lane*dt;
@@ -273,6 +231,7 @@ function updateMinions(g,dt){
     e.x+=Math.cos(e.a)*spd*dt;e.y+=Math.sin(e.a)*spd*dt;
    }else{e.behavior='chase'}
   }else{const a=Math.atan2(p.y-e.y,p.x-e.x),delta=Math.atan2(Math.sin(a-e.a),Math.cos(a-e.a));e.a+=clamp(delta,-2*dt,2*dt);e.x+=Math.cos(e.a)*e.speed*dt;e.y+=Math.sin(e.a)*e.speed*dt;}
+  if(e.behavior==='suicide-dive'&&Math.hypot(e.x-p.x,e.y-p.y)<25){if(g.players)g.hitPlayer(p,18);else g.hit(18);e.hp=0;g.combatBlast(e.x,e.y,35,'enemy');continue;}
   const aim=Math.atan2(p.y-e.y,p.x-e.x),rel=Math.atan2(Math.sin(aim-(e.a||0)),Math.cos(aim-(e.a||0))),pd=Math.hypot(p.x-e.x,p.y-e.y);
   const leader=g.stageBoss?.stages.encounter?.bodies.get(e.escortLeaderId),order=leader?.formationOrder;
   const paired=e.behavior!=='black-flight-formation'||e.pairComplete,phaseReady=order?.phase!=='cross-attack'||order.age>(e.pairId==='b'?1.05:0);
@@ -284,11 +243,8 @@ export function beginStageBossFrame(g,dt){
  const addon=g.stageBoss;if(!addon||blocked(g)||dt<=0)return;
  addon.reconcile({blocked:false});
  for(const p of players(g))for(const [id,s]of p.bossStatuses||[]){s.remaining-=dt;if(s.remaining<=0||!alive(p))p.bossStatuses.delete(id);}
- g.bossCues=g.bossCues.filter(c=>(c.life-=dt)>0&&(c.type!=='bug-flight-target'||g.enemies.some(e=>e.id===c.minionId&&e.hp>0)));
- tickLondonBattle(g,dt);tickVerdunBattle(g,dt);tickMaanWeather(g,dt);if(blocked(g))return;
- // Warning-phase mines physically travel from the winch to their final slots;
- // collision stays disabled until they settle, and pause freezes both clocks.
- for(const field of g.hostileMinefields||[])if(field.encounterId&&field.deploySeconds>0){const q=clamp(1-field.warning/field.deploySeconds,0,1),ease=q*q*(3-2*q);for(const m of field.mines)if(!m.dead){m.x=field.sourceX+(m.targetX-field.sourceX)*ease;m.y=field.sourceY+(m.targetY-field.sourceY)*ease-Math.sin(q*Math.PI)*32;m.deploying=q<1;}if(q>=1)field.deploySeconds=0;}
+ g.bossCues=g.bossCues.filter(c=>(c.life-=dt)>0);
+ tickLondonBattle(g,dt);if(blocked(g))return;
  const stage=addon.stages.stageIndex,naval=stage===1||stage===7;
  let route=stage===7?g.navalRoute:null;
  if(stage===7&&!route)route=g.navalRoute=createHarborRoute(g);
@@ -309,13 +265,12 @@ export function beginStageBossFrame(g,dt){
     // point. Anchor the fortress on its concrete pier, clear of open water.
     const hx=Math.cos(route.a),hy=Math.sin(route.a),nx=-hy,ny=hx,along=ZEEBRUGGE_ROUTE.fortS;
     x=route.x+hx*along+nx*ZEEBRUGGE_ROUTE.fortN;y=route.y+hy*along+ny*ZEEBRUGGE_ROUTE.fortN;
-   }else if(stage===13){x=g.x;y=g.y-Math.min(340,(bounds.bottom-bounds.top)*.42);
    }else{
-    const structure=stage===3||stage===12;
+    const structure=stage===3;
     const forward=naval?Math.max(520,Math.min(760,(bounds.bottom-bounds.top)*1.05)):structure?Math.max(520,Math.min(700,(bounds.bottom-bounds.top)*.95)):rail?Math.max(460,Math.min(650,(bounds.bottom-bounds.top)*.82)):0;
     const heading=Number.isFinite(g.a)?g.a:-Math.PI/2;
     x=g.x+(alpine?105:(naval||rail||structure)?Math.cos(heading)*forward:0);
-    y=g.y+(alpine?-Math.max(165,Math.min(180,(bounds.bottom-bounds.top)*.24)):(naval||rail||structure)?Math.sin(heading)*forward:stage===4?0:stage===10?-Math.min(90,(bounds.bottom-bounds.top)*.12):-Math.min(180,(bounds.bottom-bounds.top)*.22));
+    y=g.y+(alpine?-Math.max(165,Math.min(180,(bounds.bottom-bounds.top)*.24)):(naval||rail||structure)?Math.sin(heading)*forward:-Math.min(180,(bounds.bottom-bounds.top)*.22));
    }
    addon.startBoss({x,y});g.navalApproachAt=null;
   }
@@ -328,6 +283,13 @@ export function beginStageBossFrame(g,dt){
  }
  syncStageBossTargets(g);separateLargeBossBodies(g);updateMinions(g,dt);
 }
+const LARGE_AIRCRAFT_HULLS=Object.freeze({
+ // The artwork is much larger than the weak-point circles.  These ellipses
+ // cover the visible fuselage and wings so a player can never remain hidden
+ // inside the bomber while its movement path crosses them.
+ gik:{halfWidth:128,halfHeight:150},
+ ca4:{halfWidth:128,halfHeight:150}
+});
 export function separateLargeBossBodies(g){
  // Every aircraft is passable in HEAD-ON — players always fly through boss bodies.
 }
@@ -348,13 +310,12 @@ export function endStageBossFrame(g,dt){
   const queue=mines.filter(m=>m.dead&&!m.chainHandled);
   for(let i=0;i<queue.length&&i<32;i++){
    const mine=queue[i];if(mine.chainHandled)continue;mine.chainHandled=true;
-   for(const next of mines)if(!next.dead&&!next.deploying&&Math.hypot(next.x-mine.x,next.y-mine.y)<=86){next.dead=true;queue.push(next);}
+   for(const next of mines)if(!next.dead&&Math.hypot(next.x-mine.x,next.y-mine.y)<=86){next.dead=true;queue.push(next);}
    addon.hooks.onCue({type:'mine-chain',chainIndex:i,bossId:activeEncounter.bodies.values().next().value?.id,x:mine.x,y:mine.y,radius:72});
   }
  // The host has already resolved its entire upgrade queue/loss state this frame.
  const bounds=stageBossBounds(g),playerFrames=players(g).map(p=>({id:p.id||'p1',alive:alive(p),x:p.x,y:p.y,vx:Number.isFinite(p.previousX)?(p.x-p.previousX)/Math.max(dt,1/120):0,vy:Number.isFinite(p.previousY)?(p.y-p.previousY)/Math.max(dt,1/120):0,radius:12,londonRiver:addon.stages.stageIndex===11&&londonRiverCover(p.x,p.y)}));
  const defenderFrames=addon.stages.stageIndex===9?formationDefenders(g).map(a=>formationDefenderFrame(g,a)):[];
- if(addon.stages.stageIndex===13)for(const p of playerFrames)p.sandCover=maanSandCover(g.maanWeather,p.x,p.y);
  const frame={paused:blocked(g),players:defenderFrames.length?defenderFrames:playerFrames,bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings,londonTargets:g.londonBattle?.districts||[]};
  addon.tick(dt,frame);addon.reconcile({blocked:blocked(g)});separateLargeBossBodies(g);syncStageBossTargets(g);
   // No invisible composite-sized apron collision. Wire hazards and mines are

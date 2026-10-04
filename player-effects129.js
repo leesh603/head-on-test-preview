@@ -1,25 +1,36 @@
 import {createSignatureView} from './pilot-signature-view.js';
-import {fx,fxTint} from './fx-art.js?v=530';
-import {planeSprite,aircraftKey} from './aircraft.js?v=530';
-import {drawGameIcon} from './icons.js?v=530';
+import {drawGameIcon} from './icons.js?v=338';
 import {drawCavalryGuard} from './pilot-directed-fx.js';
-const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
 export function playerPose(p,x,y){
  const t=Math.max(0,Math.min(1,(p.cannonRecoil129||0)/.24));
  const kick=(p.cannonKick129||0)*Math.sin(t*Math.PI/2);
  const altitude=p.pilot==='immelmann'?(p.immelmannAltitude||0):0;
- return {x:x-Math.cos(p.a)*kick,y:y-Math.sin(p.a)*kick,scale:(p.aceScale129||1)*(1-altitude*.28),height:0,shadowX:18+altitude*28,shadowY:28+altitude*36,shadowScale:1-altitude*.48,shadowAlpha:1-altitude*.55};
+ const height=p.pilot==='bishop'?(p.bishopFlightHeight?.()||0):0,bishopAltitude=height/((p.viewHeight||900)*.9);
+ return {x:x-Math.cos(p.a)*kick,y:y-Math.sin(p.a)*kick-height,scale:(p.aceScale129||1)*(1-altitude*.28)*(1-bishopAltitude*.25),height,shadowX:18+altitude*28,shadowY:28+altitude*36,shadowScale:1-altitude*.48,shadowAlpha:1-altitude*.55};
 }
-export function drawPlayerAura(c,p,x,y){
+function drawLegacyPlayerAura(c,p,x,y){
+ drawPassiveGauge(c,p,x,y);
  drawEquipmentEffects151(c,p,x,y);
  drawPrecisionEquipment156(c,p,x,y);
- if(p.ballCloak>0)fx(c,'mist',x,y,72,38,p.a,Math.min(.35,p.ballCloak*.3));
- for(const gh of p.immelmannGhosts||[])fx(c,'windStreak',x+gh.x-p.x,y+gh.y-p.y,48,17,gh.a,.26*gh.life/gh.maxLife);
- if(p.fxOverheat>0&&p.pilot!=='udet')fx(c,'muzzle',x+Math.cos(p.a)*24,y+Math.sin(p.a)*24,28,20,p.a,Math.min(.7,p.fxOverheat));
- for(const g of p.pilotIdentity?.feedback?.ghosts||[]){c.save();c.globalAlpha*=.3*Math.pow(Math.max(0,g.life/g.maxLife),.8);planeSprite(c,x+g.x-p.x,y+g.y-p.y,g.a,aircraftKey(g.plane,false,g.pilot),g.scale,false,false);c.restore()}
- for(const f of p.pilotIdentity?.fx||[]){const q=Math.min(1,f.life/.12),alpha=q*(f.alpha??.72),height=f.height??(f.key==='windStreak'?f.size*.35:f.size);if(f.color)fxTint(c,f.key,f.color,x+f.x-p.x,y+f.y-p.y,f.size,height,f.a,alpha);else fx(c,f.key,x+f.x-p.x,y+f.y-p.y,f.size,height,f.a,alpha)}
- if(p.pilotSignatureState)drawPilotSignatureLayer(c,p,x,y);
+ if(!(p.skillTime>0))return;
+ c.save();c.translate(x,y);
+ if(p.pilot==='nungesser'){
+  // The heart tip is local +Y: rotate it onto the aircraft's forward vector.
+  c.rotate(p.a-Math.PI/2);c.scale(.66,.66);
+  const pulse=.5+.5*Math.sin(p.skillTime*7),fade=Math.min(1,p.skillTime/.2);
+  c.beginPath();c.moveTo(0,53);
+  c.bezierCurveTo(-100,-7,-52,-73,0,-34);c.bezierCurveTo(52,-73,100,-7,0,53);c.closePath();
+  c.fillStyle='#100e19';c.globalAlpha=.34*fade;c.fill();
+  c.strokeStyle='#a697c7';c.lineJoin='round';c.globalAlpha=(.1+pulse*.04)*fade;c.lineWidth=7;c.stroke();
+  c.strokeStyle='#c1b2df';c.globalAlpha=(.48+pulse*.12)*fade;c.lineWidth=1.8;c.stroke();
+  // A restrained highlight at the forward tip makes rotation easy to read.
+  c.strokeStyle='#eee6ff';c.globalAlpha=.65*fade;c.lineWidth=1.6;c.beginPath();c.moveTo(-9,43);c.lineTo(0,53);c.lineTo(9,43);c.stroke();
+ }else if(p.pilot==='berthold'){
+  const g=c.createRadialGradient(0,0,26,0,0,46);g.addColorStop(0,'#439bff00');g.addColorStop(.8,'#439bff22');g.addColorStop(1,'#95dcff88');
+  c.fillStyle=g;c.beginPath();c.arc(0,0,46,0,Math.PI*2);c.fill();c.strokeStyle='#8fd3ff';c.lineWidth=2;c.stroke();
+ }
+ c.restore();
 }
 
 // Same visual language as tail lock; derived from the real passive state.
@@ -131,5 +142,16 @@ export function drawRedGhosts162(c,p,x,y,sprite,key){
   ink.globalCompositeOperation='source-in';ink.fillStyle='#b51f32';ink.fillRect(0,0,180,180);ink.restore();
   c.globalAlpha=.38*Math.pow(Math.max(0,g.life/.32),1.25);c.drawImage(redGhostCanvas162,x+g.x-p.x-90,y+g.y-p.y-90);
  }c.restore();
+}
+
+const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
+export function drawPlayerAura(c,p,x,y){
+ if(!p.pilotSignatureState){
+  if(p.pilot==='nungesser'){drawEquipmentEffects151(c,p,x,y);drawPrecisionEquipment156(c,p,x,y);return}
+  return drawLegacyPlayerAura(c,p,x,y);
+ }
+ if(p.pilot==='berthold')drawLegacyPlayerAura(c,p,x,y);
+ else{drawEquipmentEffects151(c,p,x,y);drawPrecisionEquipment156(c,p,x,y);}
+ drawPilotSignatureLayer(c,p,x,y);
 }
 

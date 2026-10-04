@@ -1,6 +1,6 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=530';
-import {RailBossController} from './rail-boss129.js?v=530';
-import {StuttgartSupport} from './stuttgart129.js?v=530';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=338&b=326';
+import {RailBossController} from './rail-boss129.js?v=338';
+import {StuttgartSupport} from './stuttgart129.js?v=338&b=326';
 
 export class RailAdapter extends BaseBoss {
  constructor(o,kind){
@@ -79,7 +79,7 @@ export class RailAdapter extends BaseBoss {
 }
 export class StuttgartAdapter extends BaseBoss {
  constructor(o){super({...o,maxHp:o.tuning.maxHp});this.t=o.tuning;this.kind='sms-stuttgart';this.faction=o.faction;this.ownsMotion129=true;
-  this.support129=new StuttgartSupport({id:this.id,tuning:{maxHp:this.maxHp,damage:this.t.damage,bulletSpeed:this.t.bulletSpeed,projectileDensity:this.t.projectileDensity??1,spawnInterval:this.t.launchInterval||4,minionCap:6,rotationSpeed:.08*(this.t.motionMultiplier||1),navigation:true},x:this.x,y:this.y,width:500,height:750,
+  this.support129=new StuttgartSupport({id:this.id,tuning:{maxHp:this.maxHp,damage:this.t.damage,bulletSpeed:this.t.bulletSpeed,projectileDensity:this.t.projectileDensity??1,spawnInterval:this.t.launchInterval||4,minionCap:6,rotationSpeed:.08*(this.t.motionMultiplier||1)},x:this.x,y:this.y,width:500,height:750,
    onDamage:(playerId,damage,source)=>this.emit({type:'support-damage',bossId:this.id,playerId,damage,source}),
    spawnSeaplane:s=>{this.emit({type:'spawn-minion',bossId:this.id,faction:this.faction,minion:'seaplane',...s,a:s.angle-Math.PI/2});return true;},
    countSeaplanes:()=>this.countMinions129?.()||0,
@@ -87,7 +87,7 @@ export class StuttgartAdapter extends BaseBoss {
   for(const p of this.support129.parts.values()){const support=this.support129;this.parts.set(p.id,{id:p.id,maxHp:p.maxHp,get hp(){return p.hp},get destroyed(){return p.hp<=0},get hittable(){return support.hittable(p)},x:p.nx*support.width,y:p.ny*support.height,radius:p.rx*support.width});}
  }
  update(dt,ctx){this.support129.tick(dt,ctx);this.sync129();}
- sync129(){const s=this.support129;this.hp=s.hp;this.x=s.x;this.y=s.y;this.hullYaw=s.angle;this.driveVelocity=s.driveVelocity;this.phase=s.phase===1?'carrier':s.phase===2?'sortie':'full-sortie';this.dead=s.dead;for(const p of s.parts.values()){const q=s.world(p.nx,p.ny),part=this.parts.get(p.id);part.x=q.x-s.x;part.y=q.y-s.y;}}
+ sync129(){this.hp=this.support129.hp;this.phase=this.support129.phase===1?'carrier':this.support129.phase===2?'sortie':'full-sortie';this.dead=this.support129.dead;}
  locateHit(s){const id=this.support129.locateHit(s);return id?{partId:id}:null;}
  hit(s){const was=this.dead,result=this.support129.hit({...s,partId:s.partId||'hull'});this.sync129();if(this.dead&&!was)this.emit({type:'body-defeated',bossId:this.id});return result;}
  hitAt(s){const hit=this.locateHit(s);return hit?this.hit({...hit,damage:s.damage}):{damage:0};}
