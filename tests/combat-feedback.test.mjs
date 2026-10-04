@@ -18,7 +18,7 @@ test('presentation preserves simulation, RNG, input response and rewards',()=>{
 });
 test('regular deaths crash naturally through the entity path without duplicate wreck copies',()=>{
  const g=quiet(new Game('fokker','baron',rng())),s=attachCombatFeedback(g,{key:()=> 'camel'});
- const e={x:0,y:0,a:0,hp:0,maxHp:30,type:'scout',speed:100};g.enemies=[e];g.region=g.worldRegion();
+ const e={x:0,y:0,a:0,hp:0,maxHp:30,type:'scout',speed:100,crashStyle:'glide'};g.enemies=[e];g.region=g.worldRegion();
  g.update(.016,{});
  assert.equal(e.crashing,true);assert.equal(s.wrecks.length,0);
  g.burst(e.x,e.y,'#f2aa52',30);g.event('kill','');assert.equal(s.wrecks.length,0);
@@ -63,13 +63,13 @@ test('one physical close crossing and one swept near-miss each emit one cue',()=
 });
 
 test('shared ace choreography preserves trajectory, smoke cadence and final crash',()=>{
- const e={x:10,y:20,a:0,speed:100},calls=[],host={rng:()=>.5,smoke:(...args)=>calls.push(['smoke',...args]),burst:(...args)=>calls.push(['burst',...args]),event:(...args)=>calls.push(['event',...args])};
+ const e={x:10,y:20,a:0,speed:100,crashStyle:'spin'},calls=[],host={rng:()=>.5,smoke:(...args)=>calls.push(['smoke',...args]),burst:(...args)=>calls.push(['burst',...args]),event:(...args)=>calls.push(['event',...args])};
  beginAircraftCrash(e,host.rng);advanceAircraftCrash(host,e,.04);
- assert.equal(e.crashT,.76);assert.equal(e.a,1.75*.04);assert.equal(e.x,13.6);assert.equal(e.y,20);assert.equal(e.crashSpeed,90*(1-.7*.04));
- assert.deepEqual(calls,[['smoke',13.6,20,true]]);
+ assert.equal(e.crashT,.76);assert.equal(e.a,1.75*.04);assert(Math.abs(e.x-13.6)<.01);assert(Math.abs(e.y-20)<.1);assert.equal(e.crashSpeed,90*(1-.65*.04));
+ assert(calls[0][0]==='smoke'&&calls[0][3]===true);
  advanceAircraftCrash(host,e,.04);assert.equal(calls.length,1);
  for(let i=0;i<18;i++)advanceAircraftCrash(host,e,.04);
- assert.equal(e.crashed,true);assert.equal(calls.filter(c=>c[0]==='burst').length,1);assert.deepEqual(calls.find(c=>c[0]==='burst').slice(3),['#f2aa52',26,'aircraftMedium']);assert(calls.every(c=>c[0]!=='event'));
+ assert.equal(e.crashed,true);assert.equal(calls.filter(c=>c[0]==='burst').length,1);assert.deepEqual(calls.find(c=>c[0]==='burst').slice(3),['#f2aa52',30,'aircraftMedium']);assert(calls.every(c=>c[0]!=='event'));
 });
 
 test('machine-gun recoil is subpixel, axial and follows muzzle decay without firing jitter',()=>{

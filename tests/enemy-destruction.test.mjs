@@ -16,9 +16,10 @@ test('airborne wrecks shrink while ground and heavy targets retain their death p
  const wreck={crashDuration:.8,crashT:.8};
  assert.equal(enemyCrashScale(wreck),1);
  wreck.crashT=.4;
- assert(enemyCrashScale(wreck)<1&&enemyCrashScale(wreck)>.58);
+ assert(enemyCrashScale(wreck)<1&&enemyCrashScale(wreck)>.5);
  wreck.crashT=0;
- assert(Math.abs(enemyCrashScale(wreck)-.58)<1e-9);
+ assert(Math.abs(enemyCrashScale(wreck)-.72)<1e-9);
+ assert(Math.abs(enemyCrashScale({crashDuration:1,crashT:0,crashStyle:'spin'})-.5)<1e-9);
 });
 
 test('solo and co-op keep a destroyed fighter until the crash finishes',()=>{
