@@ -37,6 +37,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <label class="check"><input id="fxs" type="checkbox">FX 시안</label>
 <label>화면<select id="viewport"><option value="auto">자동</option><option value="390x844">모바일 390×844</option><option value="1280x800">PC 1280×800</option></select></label>
 <button id="start" class="primary" type="button">선택 조건으로 시작</button>
+<button id="crashCompare" type="button">추락 비교</button>
 
 <label class="check"><input id="freeze" type="checkbox">관찰 일시정지</label>
 <label class="check"><input id="noFire" type="checkbox">자동사격 중지</label>
@@ -96,6 +97,7 @@ $('start').onclick=()=>{
  if(result&&$('noFire').checked)api.debug().fire=Infinity;
  applyHud();
 };
+$('crashCompare').onclick=()=>{const game=api?.debug?.();if(!game)return;game.paused=false;game.t??=0;const spawn=(type,a,dist)=>{game.spawnEnemy(type);const e=game.enemies.at(-1);e.x=game.x+Math.cos(a)*dist;e.y=game.y+Math.sin(a)*dist;e.a=a+Math.PI;e.hit?.(0)};spawn('scout',-.35,180);spawn('boss',.15,260);for(const e of game.enemies.slice(-2)){e.crashing=false;e.crashed=false;e.hp=0;const b={x:e.x,y:e.y,vx:0,vy:0,life:0,enemy:false,damage:0,hit:new Set([e])};game.bullets.push(b)}for(let i=0;i<30;i++)game.update(.02);game.paused=true;$('status').textContent='추락 연출 비교 — 재생 버튼으로 재개'};
 function applyHud(){const el=frame.contentDocument?.getElementById('flightTop151');if(el)el.style.visibility=$('hideHud').checked?'hidden':'';}
 $('hideHud').onchange=applyHud;
 $('noFire').onchange=()=>{const g=api?.debug?.();if(g)g.fire=$('noFire').checked?Infinity:0;};

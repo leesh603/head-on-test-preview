@@ -114,7 +114,7 @@ export class BattleMusic {
   // Each entry: [bandpass center Hz, Q, peak gain, optional second layer freq].
   amb(mode,t,dur){
     if(!this.noise)return;
-    const A={rural:[170,1.1,.02],sea:[230,.6,.055],trench:[150,.9,.04],city:[340,1.6,.016],sky:[950,.35,.06],alps:[1250,.4,.05],zeebrugge:[270,.6,.05]}[mode]||[300,1,.02];
+    const A={rural:[170,1.1,.02],sea:[230,.6,.055],trench:[150,.9,.04],city:[340,1.6,.016],sky:[1150,.75,.024],alps:[1250,.4,.05],zeebrugge:[270,.6,.05]}[mode]||[300,1,.02];
     const c=this.ctx,n=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
     n.buffer=this.noise;n.loop=true;n.playbackRate.value=.9+Math.random()*.2;
     f.type='bandpass';f.frequency.setValueAtTime(A[0],t);f.frequency.linearRampToValueAtTime(A[0]*(0.85+Math.random()*.3),t+dur);f.Q.value=A[1];
