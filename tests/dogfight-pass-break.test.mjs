@@ -4,8 +4,8 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 
-const {Game}=await import('../engine.js?v=styles537');
-const {DOGFIGHT_PASS_STATES}=await import('../dogfight-pass165.js?v=styles537');
+const {Game}=await import('../engine.js?v=perf538');
+const {DOGFIGHT_PASS_STATES}=await import('../dogfight-pass165.js?v=perf538');
 
 const quiet=g=>{for(const key of ['spawn','eventTimer','nextBossAt','nextHeavyAt','_zeppelinSchedule','flakTimer','regionThreat','fieldUnitTimer','gasTimer','gustTimer','patrolTimer'])g[key]=Infinity;return g};
 

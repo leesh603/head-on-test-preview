@@ -1,14 +1,14 @@
-import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=styles537';
-import {nungesserAimOffset,nungesserRoundReaction} from './pilot-signature-state.js?v=styles537';
-import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=styles537';
-import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=styles537';
-import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=styles537';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=styles537';
-import {registerAircraftTiers} from './aircraft-tiers.js?v=styles537';
-import {attachAircraftPersonality} from './aircraft-personality164.js?v=styles537';
-import {wingmanEngagementStep,wingmanAttackTarget} from './engagement-flow174.js?v=styles537';
-import {installCloudCover} from './cloud-cover1.js?v=styles537';
-import {tickCityDefense} from './city-defense.js?v=styles537';
+import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=perf538';
+import {nungesserAimOffset,nungesserRoundReaction} from './pilot-signature-state.js?v=perf538';
+import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=perf538';
+import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=perf538';
+import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=perf538';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=perf538';
+import {registerAircraftTiers} from './aircraft-tiers.js?v=perf538';
+import {attachAircraftPersonality} from './aircraft-personality164.js?v=perf538';
+import {wingmanEngagementStep,wingmanAttackTarget} from './engagement-flow174.js?v=perf538';
+import {installCloudCover} from './cloud-cover1.js?v=perf538';
+import {tickCityDefense} from './city-defense.js?v=perf538';
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.
 export const COOP_BALANCE=Object.freeze({spawn:1,ordinaryHp:1.15,heavyHp:1.65,enemyCap:28,xp:.6,revive:15,reviveHp:1,reviveAmmo:.5,reviveInvuln:2,minZoom:.75});

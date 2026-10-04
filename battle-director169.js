@@ -214,7 +214,7 @@ function intentSteering(game,e,contact,dt,baseTurn){
   point(contact,-160,(e.directorSlot-(squad.members.length-1)/2)*45);
  }else if(layout==='bomber')heading=e.combatPassHeading??a+Math.PI;
  else return null;
- if(heading===undefined){e.combatPassWaypoint={x,y};heading=Math.atan2(y-e.y,x-e.x);}
+ if(heading===undefined){const wp=e.combatPassWaypoint||(e.combatPassWaypoint={x:0,y:0});wp.x=x;wp.y=y;heading=Math.atan2(y-e.y,x-e.x);}
  return{delta:angleDiff(heading,e.a),turn:baseTurn*(prep?1.15:1)};
 }
 
@@ -244,7 +244,7 @@ function squadSteering(game,e,contact,dt,baseTurn){
   else if(squad.tactic==='headOn')offset(180,slot===0?0:side*55);
   else if(e!==squad.leader){const leader=squad.leader;x=leader.x-Math.cos(leader.a)*(70+slot*15)-Math.sin(leader.a)*side*75;y=leader.y-Math.sin(leader.a)*(70+slot*15)+Math.cos(leader.a)*side*75;turn=baseTurn*.9}
  }
- e.combatPassWaypoint={x,y};
+ const wp=e.combatPassWaypoint||(e.combatPassWaypoint={x:0,y:0});wp.x=x;wp.y=y;
  return{delta:angleDiff(Math.atan2(y-e.y,x-e.x),e.a),turn};
 }
 
@@ -352,15 +352,16 @@ function tickDirector(game,dt){
  }
  if(state.phase==='quiet'||state.phase==='cleanup'||now<state.nextActionAt||!state.queue.length)return;
  const live=(game.enemies||[]).filter(regular).length;if(live>=directorCap(game)){state.nextActionAt=now+.7;return}
- // Arrive as one squad. A cap-limited late arrival receives its own full cue.
- const slots=Math.min(state.queue.length,Math.max(0,directorCap(game)-live));
+ // Arrive as one squad, but spread the spawn cost over a few frames:
+ // at most two new aircraft per tick, the rest join on following ticks.
+ const slots=Math.min(state.queue.length,Math.max(0,directorCap(game)-live),2);
  for(let i=0;i<slots;i++){
   const next=state.queue.shift();let e;
   game.directorSpawning=true;try{e=game.spawnEnemy?.(next.type)}finally{game.directorSpawning=false}
   if(e){place(game,e,next.layout,next.index,next.count);linkFormation(game,e);state.spawned++}
   else{state.queue.unshift(next);break;}
  }
- state.nextActionAt=now+BATTLE_DIRECTOR_BALANCE.actionInterval;
+ state.nextActionAt=state.queue.length?now+.05:now+BATTLE_DIRECTOR_BALANCE.actionInterval;
 }
 
 export function installBattleDirector(Game,deps={}){

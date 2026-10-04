@@ -61,7 +61,7 @@ const SPECIAL=[
  ['maximBelt','프리도 연속 급탄 링크','기관총 탄띠 용량 +75%, 재장전 시간 −35%.'],
  ['urLeica','Ur-Leica 소형 카메라','전과를 사진으로 기록합니다. 게임 종료 시 최종 격추 기록 +10% (소수점 버림). 한 출격 1회.'],
  ['badinGauge','바댕 속도계','기체 고유 기본속도 대비 지속적인 이동속도 강화분의 150%만큼 기관총·폭발물 피해 증가 (상한 +60%). 회피·대시·액티브 순간 가속은 제외됩니다.'],
- ['heineckeRettungsfallschirm','하이네케 구명낙하산 / Heinecke Rettungsfallschirm','치명 피해 시 자동 탈출. 3초 후 후방에서 예비기로 재출격하며 최대 내구도 40%와 2초 무적을 얻습니다. 재사용 180초, 출격당 최대 2회. 쿨다운 감소 효과는 적용되지 않습니다.']
+ ['heineckeRettungsfallschirm','하이네케 구명낙하산','치명 피해 시 탈출해 예비기로 재출격. 출격당 2회, 재사용 180초.']
 ];
 
 const tierIndex=rarity=>rarity==='rare'?2:rarity==='magic'?1:0;
