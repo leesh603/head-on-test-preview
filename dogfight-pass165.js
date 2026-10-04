@@ -21,6 +21,10 @@ function setState(e,state,duration=0){e.combatPassState=state;e.combatPassTimer=
 function clearState(e){
  for(const key of ['combatPassState','combatPassTimer','combatPassHeading','combatPassWaypoint','combatPassSide','combatPassCooldown'])delete e[key];
 }
+function releaseDirectorCruise(e){
+ if(!e.directorCruise)return;
+ const prior=e.directorCruise;e.speed=prior.speed;e.dogfightCruise=prior.dogfight;e.personalityCruise=prior.personality;e.cruiseSpeedCap=prior.cap;delete e.directorCruise;
+}
 
 export function installDogfightPass(Game,angleDiff){
  const spawn=Game.prototype.spawnEnemy;
@@ -30,6 +34,23 @@ export function installDogfightPass(Game,angleDiff){
 
  const steer=Game.prototype.dogfightSteering;
  Game.prototype.dogfightSteering=function(e,contact,dt,baseTurn){
+  if(e?.directorCruise&&this.t>=e.directorIntentUntil)releaseDirectorCruise(e);
+  if(e?.directorFormation){
+   const leader=e.formationLeader,now=this.t||0;
+   if(e.directorIntentUntil&&now>=e.directorIntentUntil){e.directorIntentUntil=0;e.directorEscort=null}
+   if(!leader||leader.hp<=0||!this.enemies.includes(leader)){
+    e.directorFormation=false;e.formationLeader=null;e.directorFireHoldUntil=now+2.4;
+    e.directorIntentUntil=0;e.directorEscort=null;
+    setState(e,DOGFIGHT_PASS_STATES.DISENGAGE,2.4);
+    e.combatPassHeading=e.a+(e.combatPassSide||1)*.7;
+   }else if(this.battleDirector?.sceneId===e.directorSceneId&&['approach','formation','melee'].includes(this.battleDirector.phase)){
+    const x=leader.x-Math.cos(leader.a)*e.formationBack-Math.sin(leader.a)*e.formationOffset;
+    const y=leader.y-Math.sin(leader.a)*e.formationBack+Math.cos(leader.a)*e.formationOffset;
+    const gap=Math.hypot(x-e.x,y-e.y),heading=gap>65?Math.atan2(y-e.y,x-e.x):leader.a;
+    return{delta:angleDiff(heading,e.a),turn:baseTurn*(gap>120?1:.72)};
+   }
+  }
+  if(e?.directorFireHoldUntil>this.t)return{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*.5};
   const directed=e?.directorIntentUntil>(this.t||0)&&!e.defensivePressure&&directorAircraftEligible(this,e);
   if(e?.directorIntentUntil&&!directed){e.directorIntentUntil=0;e.directorEscort=null;e.combatPassTimer=0}
   if(directed&&contact&&baseTurn>0&&(e.type==='bomber'||e.directorLayout==='recovery'))
@@ -70,7 +91,7 @@ export function installDogfightPass(Game,angleDiff){
   if(e.combatPassTimer===0){
    if(e.combatPassState===DOGFIGHT_PASS_STATES.ATTACK_PASS){
     const commit=clamp(DOGFIGHT_PASS_BALANCE.commitDuration+(p.headOnBias-1)*.2,.78,1.28);
-    setState(e,DOGFIGHT_PASS_STATES.COMMIT,directed&&e.directorLayout==='headOn'?Math.max(commit,e.directorIntentUntil-(this.t||0)-DOGFIGHT_PASS_BALANCE.disengageDuration):commit);
+    setState(e,DOGFIGHT_PASS_STATES.COMMIT,directed&&e.directorLayout==='headOn'?Math.min(1.45,Math.max(commit,e.directorIntentUntil-(this.t||0)-DOGFIGHT_PASS_BALANCE.disengageDuration)):commit);
    }
    else if(e.combatPassState===DOGFIGHT_PASS_STATES.COMMIT){
     e.combatPassHeading=e.a;

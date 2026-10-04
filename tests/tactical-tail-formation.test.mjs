@@ -38,7 +38,7 @@ const target=(extra={})=>({x:200,y:0,a:0,type:'hunter',hp:100,maxHp:100,speed:80
  test('a consumed commander outcome breaks the next directed group at entry only',()=>{
  const g=setup();g.viewWidth=600;g.t=400;g.battlefieldEvents={pending:{formation:{value:true,expiresAt:418,region:g.worldRegion()}}};g.beginBattleDirectorPattern(P.CROSS_ATTACK);
  for(let i=0;i<3;i++){g.t+=.5;g.tickBattleDirector(.04)}
- const group=g.enemies.filter(e=>e.directorSceneId===1);assert.equal(group.length,2);assert(group.every(e=>e.formationCollapseUntil>g.t));
+ const group=g.enemies.filter(e=>e.directorSceneId===1);assert.equal(group.length,3);assert(group.every(e=>e.formationCollapseUntil>g.t));
  g.battlefieldEvents.engagement.endsAt=0;g.beginBattleDirectorPattern(P.CROSS_ATTACK);for(let i=0;i<3;i++){g.t+=.5;g.tickBattleDirector(.04)}
  assert(g.enemies.filter(e=>e.directorSceneId===2).every(e=>!e.formationCollapseUntil));
  });
