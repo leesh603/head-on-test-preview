@@ -14,7 +14,7 @@ const snapshot=g=>({x:g.x,y:g.y,a:g.a,hp:g.hp,kills:g.kills,ammo:g.ammo,bullets:
 test('presentation preserves simulation, RNG, input response and rewards',()=>{
  const a=quiet(new Game('fokker','baron',rng())),b=quiet(new Game('fokker','baron',rng()));attachCombatFeedback(b);
  for(let i=0;i<150;i++){const input={angle:i<70?0:Math.PI/2};a.update(.016,input);b.update(.016,input);assert.deepEqual(snapshot(b),snapshot(a))}
- assert.equal(a.rng(),b.rng());assert.notEqual(a.a,-Math.PI/2);assert(combatVisualPose(b).bank<1);
+ assert.equal(a.rng(),b.rng());assert.notEqual(a.a,-Math.PI/2);assert.equal(combatVisualPose(b).bank,1);
 });
 test('regular deaths reuse ace crashes, stay visual-only and reserve rare large explosions',()=>{
  const g=quiet(new Game('fokker','baron',rng())),s=attachCombatFeedback(g,{key:()=> 'camel'});
