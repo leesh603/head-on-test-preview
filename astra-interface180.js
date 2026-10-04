@@ -25,13 +25,13 @@ export function interfaceIcon(name,cls='astra-icon'){
 }
 // Reuse the production matte algorithm at native resolution. This cleans only
 // the hangar illustration; the 144px gameplay sprite and its collision stay intact.
-const rawHangarArt={fokker:'./fokker.webp?v=426&b=340',baron_albatros:'./baron_albatros.webp?v=426&b=340',albatros_d2:'./albatros_d2.webp?v=426&b=340',nieuport_italian:'./nieuport.webp?v=426&b=340'};
+const rawHangarArt={fokker:'./fokker.webp?v=426&b=345',baron_albatros:'./baron_albatros.webp?v=426&b=345',albatros_d2:'./albatros_d2.webp?v=426&b=345',nieuport_italian:'./nieuport.webp?v=426&b=345'};
 const hangarKeyFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',fokker:'fokker_standard'};
 const artCache=new Map();
 function hangarArt(key){
  if(artCache.has(key))return artCache.get(key);
- const src=rawHangarArt[key]||`./${hangarKeyFile[key]||key}.webp?v=426&b=340`;
- const mechSrc='./mech/'+(hangarKeyFile[key]||key)+'.webp?v=426&b=340';
+ const src=rawHangarArt[key]||`./${hangarKeyFile[key]||key}.webp?v=426&b=345`;
+ const mechSrc='./mech/'+(hangarKeyFile[key]||key)+'.webp?v=426&b=345';
  const pending=new Promise(resolve=>{const image=new Image();let fellBack=false;image.onerror=()=>{if(!fellBack&&src!==mechSrc){fellBack=true;image.src=mechSrc;return}resolve(aircraftArt[key]||'')};image.onload=()=>{
   try{
    const scan=document.createElement('canvas');scan.width=image.naturalWidth;scan.height=image.naturalHeight;
