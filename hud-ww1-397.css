@@ -1260,3 +1260,25 @@ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud.reload
  body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud.reloading::after{animation:none}
  body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud.astra-reloaded:not(.reloading)::after{animation:none;opacity:0}
 }
+
+/* ---- Reload as belt feeding (replaces the plain brass fill) ----
+   While reloading, cartridges on a canvas belt appear in the pill up to the reload progress, and the
+   belt steps one round at a time like it is being pulled through the feed. A bright feed edge marks
+   the progress front; the unloaded part stays dark. Same element, same progress var, same timing. */
+body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud::after{
+ --belt:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='20' viewBox='0 0 8 20'%3E%3Cdefs%3E%3ClinearGradient id='c' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%237d5f26'/%3E%3Cstop offset='.35' stop-color='%23f0d27e'/%3E%3Cstop offset='.6' stop-color='%23c9a24a'/%3E%3Cstop offset='1' stop-color='%236e5220'/%3E%3C/linearGradient%3E%3ClinearGradient id='b' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%236b3a1e'/%3E%3Cstop offset='.4' stop-color='%23e09a62'/%3E%3Cstop offset='1' stop-color='%237a4422'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='10.5' width='8' height='5.5' fill='%234b4a30'/%3E%3Crect x='0' y='10.5' width='8' height='1' fill='%236d6b47'/%3E%3Cpath d='M2.1 7.4V4.9Q4 .9 5.9 4.9V7.4Z' fill='url%28%23b%29'/%3E%3Crect x='1.9' y='7' width='4.2' height='11' rx='.5' fill='url%28%23c%29'/%3E%3Crect x='1.7' y='17.2' width='4.6' height='1.1' rx='.4' fill='%238a6a2c'/%3E%3C/svg%3E");
+ background:
+  linear-gradient(90deg,transparent 0 calc(var(--astra-reload-p,0%) - 1px),#ffe9a8 calc(var(--astra-reload-p,0%) - 1px) var(--astra-reload-p,0%),#141311e6 var(--astra-reload-p,0%) 100%),
+  var(--belt),
+  linear-gradient(180deg,#1d1b16,#141311);
+ background-size:100% 100%,8px 100%,100% 100%;
+ background-repeat:no-repeat,repeat-x,no-repeat;
+ text-shadow:0 0 3px #000,0 1px 2px #000;
+}
+body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud.reloading::after{
+ animation:ho-reload-in .14s ease-out both,ho-belt-feed .9s steps(6) infinite;
+}
+@keyframes ho-belt-feed{from{background-position:0 0,0 0,0 0}to{background-position:0 0,48px 0,0 0}}
+@media(prefers-reduced-motion:reduce){
+ body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud.reloading::after{animation:none}
+}
