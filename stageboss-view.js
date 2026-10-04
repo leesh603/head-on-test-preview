@@ -1,5 +1,5 @@
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=perf538';
-import {drawGallipoliBoss,prepareGallipoliAssets} from './gallipoli-view.js?v=perf538';
+import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide} from './gallipoli-view.js?v=gallipoli540';
 import {verdunFortExtents} from './verdun-fortresses.js?v=perf538';
 import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=perf538';
 import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=perf538';
@@ -18,7 +18,7 @@ import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fi
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=perf538';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=perf538';
 import {bossHudModel} from './headon-stageboss-hud.js?v=perf538';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=perf538';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=gallipoli540';
 import {planeSprite} from './aircraft.js?v=perf538';
 import {getLocale} from './i18n.js?v=perf538';
 import {londonStatus} from './london-battle.js?v=perf538';
@@ -777,7 +777,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
   if(layer!=='bodies')for(const b of addon.stages.encounter?.bodies.values()||[]){if(!b.dead&&b.ruralRailBoss)drawRuralRailWarnings(c,b);if(!b.dead&&['gik','ca4'].includes(b.kind))drawAlpsWarnings(c,b);if(!b.dead&&b.kind==='treffas-wagen')drawCambraiFlakWarning(c,b);}
   if(layer!=='bodies')for(const cue of g.bossCues){if(drawRegionalCue(c,cue))continue;c.strokeStyle='#ffce80';c.setLineDash([8,6]);c.beginPath();c.moveTo(cue.x,cue.y);c.lineTo(cue.targetX,cue.targetY);c.stroke();c.setLineDash([]);}
  c.restore();
- if(layer==='bodies')return;for(const b of addon.stages.encounter?.bodies.values()||[]){if(b.dead||b.hidden||(b.layout&&b.entryAge<7))continue;const hull=b.gallipoliBoss?{halfWidth:355,halfHeight:235}:b.layout?{halfWidth:b.layout.width/2,halfHeight:b.layout.height/2}:b.kind==='maan-rolls-royce'?{halfWidth:20,halfHeight:35}:b.fortressBoss?verdunFortExtents(b):b.sommeBoss?sommeExtents(b):b.kind==='drachen-net'?{halfWidth:400*b.cityArtScale,halfHeight:360*b.cityArtScale}:b.kind==='flak-tower-cell'?{halfWidth:190*b.regionalScale,halfHeight:190*b.regionalScale}:ALPS_BOMBER_LAYOUT[b.kind]?alpsHullExtents(b):LARGE_HULLS[b.kind]||{halfWidth:0,halfHeight:0},sx=(b.x-g.x)*z+W/2,sy=(b.y-g.y)*z+H/2,hx=hull.halfWidth*z,hy=hull.halfHeight*z;const visW=Math.min(sx+hx,W-30)-Math.max(sx-hx,30),visH=Math.min(sy+hy,H-100)-Math.max(sy-hy,190),frac=(Math.max(0,visW)*Math.max(0,visH))/(Math.max(1,4*hx*hy)||1),formation=FORMATION_BOSS_KEYS.has(b.kind);if(frac>.45||(b.gallipoliBoss&&sx>30&&sx<W-30&&sy>190&&sy<H-100)){if(formation)drawFormationNameplate(c,sx,sy-54*z,(getLocale()==='en'?(b.callSign||b.callSignKo):(b.callSignKo||b.callSign)),W);continue;}const x=clamp(sx,26,W-26),y=clamp(sy,190,H-100),a=Math.atan2(b.y-g.y,b.x-g.x);if(formation){drawFormationEdgeBadge(c,x,y,a);continue;}c.save();c.translate(x,y);c.rotate(a);c.fillStyle='#ffcd7c';c.beginPath();c.moveTo(12,0);c.lineTo(-7,-7);c.lineTo(-7,7);c.fill();c.restore();}
+ if(layer==='bodies')return;for(const b of addon.stages.encounter?.bodies.values()||[]){if(b.dead||b.hidden||(b.layout&&b.entryAge<7))continue;if(b.gallipoliBoss){drawGallipoliGuide(c,b,g,W,H,z);continue;}const hull=b.gallipoliBoss?{halfWidth:1640,halfHeight:1080}:b.layout?{halfWidth:b.layout.width/2,halfHeight:b.layout.height/2}:b.kind==='maan-rolls-royce'?{halfWidth:20,halfHeight:35}:b.fortressBoss?verdunFortExtents(b):b.sommeBoss?sommeExtents(b):b.kind==='drachen-net'?{halfWidth:400*b.cityArtScale,halfHeight:360*b.cityArtScale}:b.kind==='flak-tower-cell'?{halfWidth:190*b.regionalScale,halfHeight:190*b.regionalScale}:ALPS_BOMBER_LAYOUT[b.kind]?alpsHullExtents(b):LARGE_HULLS[b.kind]||{halfWidth:0,halfHeight:0},sx=(b.x-g.x)*z+W/2,sy=(b.y-g.y)*z+H/2,hx=hull.halfWidth*z,hy=hull.halfHeight*z;const visW=Math.min(sx+hx,W-30)-Math.max(sx-hx,30),visH=Math.min(sy+hy,H-100)-Math.max(sy-hy,190),frac=(Math.max(0,visW)*Math.max(0,visH))/(Math.max(1,4*hx*hy)||1),formation=FORMATION_BOSS_KEYS.has(b.kind);if(frac>.45||(b.gallipoliBoss&&sx>30&&sx<W-30&&sy>190&&sy<H-100)){if(formation)drawFormationNameplate(c,sx,sy-54*z,(getLocale()==='en'?(b.callSign||b.callSignKo):(b.callSignKo||b.callSign)),W);continue;}const x=clamp(sx,26,W-26),y=clamp(sy,190,H-100),a=Math.atan2(b.y-g.y,b.x-g.x);if(formation){drawFormationEdgeBadge(c,x,y,a);continue;}c.save();c.translate(x,y);c.rotate(a);c.fillStyle='#ffcd7c';c.beginPath();c.moveTo(12,0);c.lineTo(-7,-7);c.lineTo(-7,7);c.fill();c.restore();}
 }
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
