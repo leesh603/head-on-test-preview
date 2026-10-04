@@ -1,0 +1,34 @@
+{
+  "purpose": "Stock asset bank for HEAD-ON — pre-generated painterly sprites and terrain tiles, not yet registered in-game. Use candidates for new aces/bosses/stages.",
+  "planes": {
+    "nieuport_11_bebe": { "name": "Nieuport 11 Bébé", "faction": "entente", "era": "1916" },
+    "nieuport_24": { "name": "Nieuport 24", "faction": "entente", "era": "1917" },
+    "sopwith_pup": { "name": "Sopwith Pup", "faction": "entente", "era": "1917" },
+    "sopwith_dolphin": { "name": "Sopwith Dolphin", "faction": "entente", "era": "1918" },
+    "sopwith_strutter": { "name": "Sopwith 1½ Strutter", "faction": "entente", "era": "1916" },
+    "dh4": { "name": "Airco DH.4", "faction": "entente", "era": "1917" },
+    "re8": { "name": "RE.8", "faction": "entente", "era": "1917" },
+    "pfalz_d12": { "name": "Pfalz D.XII", "faction": "central", "era": "1918" },
+    "junkers_d1": { "name": "Junkers D.I", "faction": "central", "era": "1918" },
+    "ssw_d4": { "name": "Siemens-Schuckert D.IV", "faction": "central", "era": "1918" },
+    "hp_o400": { "name": "Handley Page O/400", "faction": "entente", "era": "1918", "role": "heavy-bomber" },
+    "caudron_r11": { "name": "Caudron R.11", "faction": "entente", "era": "1918", "role": "escort-gunship" },
+    "staaken_r6": { "name": "Zeppelin-Staaken R.VI", "faction": "central", "era": "1917", "role": "giant-bomber" }
+  },
+  "vehicles": {
+    "railway_gun": { "name": "28cm K5 Railway Gun", "faction": "central", "role": "boss" },
+    "river_monitor": { "name": "River Monitor Gunboat", "role": "boss", "tags": ["naval", "turret"] },
+    "armored_train": { "name": "Armored Train (loco + gun car)", "role": "boss", "tags": ["rail"] }
+  },
+  "terrain": {
+    "gallipoli_coast": { "name": "Gallipoli Coast", "tags": ["beach", "hills", "trenches"] },
+    "passchendaele_mud": { "name": "Passchendaele Mud", "tags": ["craters", "flooded", "trenches"] },
+    "argonne_forest": { "name": "Meuse-Argonne Forest", "tags": ["forest", "autumn", "trenches", "stream"] },
+    "alpine_snow": { "name": "Alpine Peaks", "tags": ["snow", "rock", "trenches"] }
+  },
+  "notes": [
+    "Planes/vehicles: transparent PNG-alpha, nose-up, top-down painterly style matching plane-bank.",
+    "Terrain: square painterly tiles intended for the seamlessGround world-locked tiling (8% bleed bake) — see verdun-ground.js / maan-view.js.",
+    "Terrain sea/ridge features sit near edges; bake pass feathers seams."
+  ]
+}

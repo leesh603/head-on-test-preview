@@ -3,8 +3,8 @@
 // assets, no external requests.
 let ctx=null,bus=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const sources=new Map(),lastVoices=new Map();
-const PRIORITY={engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0};
-const INTERVAL={engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
+const PRIORITY={materialImpact:1,whizz:1,closePass:2,airframeBreak:1,engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0};
+const INTERVAL={materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
 let inputMedia=null;
 const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
 export function stopSfx(){for(const [source,entry]of sources){try{source.stop()}catch{}entry.release()}lastVoices.clear()}
@@ -54,6 +54,15 @@ function hiss(f0,f1,d,v,type='bandpass',Q=.8,when=0,att=.003){
   track(n,f,g);
 }
 const VOICES={
+  materialImpact(hit){const material=typeof hit==='string'?hit:hit?.material,streak=Math.min(6,hit?.streak||1);
+    // A tighter body on repeated hits, not a critical-hit bell or volume ramp.
+    if(streak>=3)tone(jit(150+streak*9),65,.055,.024,'triangle',650);
+    if(material==='metal'){tone(jit(720),240,.065,.042,'triangle',2400);hiss(jit(3600),1500,.045,.034,'bandpass',2)}
+    else if(material==='fabric'){hiss(jit(1300),450,.075,.047,'bandpass',.5);tone(jit(150),70,.045,.026,'triangle',600)}
+    else{tone(jit(260),85,.055,.05,'triangle',1300);hiss(jit(2300),650,.075,.039,'bandpass',1.2)}},
+  whizz(){hiss(jit(3300),720,.14,.037,'bandpass',3,0,.018);tone(jit(850),310,.08,.007,'sine',1400)},
+  closePass(){tone(jit(155),47,.38,.068,'sawtooth',680,0,.045);hiss(1600,250,.34,.074,'bandpass',.65,0,.035)},
+  airframeBreak(){tone(jit(180),53,.18,.062,'triangle',700);hiss(jit(1800),420,.26,.057,'bandpass',.65);hiss(3200,1200,.05,.026,'highpass',.7,.035)},
   // Mechanical/material cues follow actual boss actions, not a generic beep.
   mortarLaunch(){tone(135,46,.22,.075,'sine',440);hiss(680,180,.16,.065,'bandpass',.7);hiss(1250,500,.44,.018,'bandpass',3,.14)},
   earthImpact(){tone(78,28,.34,.09,'sine',250);hiss(1100,170,.48,.075,'lowpass',.6);hiss(2700,850,.09,.035,'bandpass',1.2)},
@@ -123,7 +132,13 @@ const VOICES={
   // Repair pickup: soft double chime.
   heal(){tone(720,720,.06,.05,'sine',2200);tone(960,960,.09,.05,'sine',2600,.07)},
   // Engine idle: one propeller/exhaust beat per call (the host fires it on an interval).
-  engineTick(reload){const f=(reload?.72:1)*jit(1);tone(58*f,42*f,.11,.085,'sawtooth',300);hiss(700,180,.08,.05,'lowpass',.5);tone(117*f,90*f,.07,.028,'triangle',500)},
+  engineTick(flight){const p=typeof flight==='object'?flight:{reload:flight},speed=Math.max(.7,Math.min(1.2,p.speed??1)),turn=Math.min(4,p.turn||0),damage=Math.max(0,Math.min(1,p.damage||0));
+    const f=(p.reload?.72:1)*(.96+speed*.04)*jit(1),level=p.duck?.35:.68;
+    // Reuse one original engine voice. No overlapping enemy/propeller drones.
+    tone(58*f,42*f,.11,.085*level,'sawtooth',300-damage*40);
+    hiss(540+speed*160+turn*70,180,.08,.05*level*(1+turn*.035),'lowpass',.5);
+    tone(117*f,90*f,.07,.028*level*(1-damage*.25),'triangle',500);
+  },
   // Run results.
   victory(){for(let i=0;i<5;i++)tone([57,60,64,67,72][i],[57,60,64,67,72][i],.5-i*.05,.06,'triangle',2400,i*.11)},
   defeat(){for(let i=0;i<4;i++)tone([64,60,57,50][i],[64,60,57,50][i],.55,.06,'sawtooth',1200,i*.16)}

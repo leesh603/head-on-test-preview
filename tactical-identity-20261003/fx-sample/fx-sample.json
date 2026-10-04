@@ -1,0 +1,688 @@
+{
+ "version": 10,
+ "image": "fx-sample-atlas.webp",
+ "size": [
+  2048,
+  2048
+ ],
+ "families": {
+  "A": [
+   "muzzle",
+   "muzzleTwin",
+   "muzzleHeavy",
+   "muzzleRear",
+   "tracerCore",
+   "tracerGlow",
+   "spark",
+   "hitPuff"
+  ],
+  "B": [
+   "rocketFlame",
+   "rocketTrail",
+   "lePrieurImpact0",
+   "lePrieurImpact1",
+   "lePrieurImpact2",
+   "lePrieurImpact3"
+  ],
+  "C": [
+   "bombShadow",
+   "mortarImpact0",
+   "mortarImpact1",
+   "mortarImpact2",
+   "mortarImpact3",
+   "debrisShard",
+   "smokeHeavy"
+  ],
+  "D": [
+   "pop0",
+   "pop1",
+   "pop2",
+   "pop3",
+   "airblast0",
+   "airblast1",
+   "airblast2",
+   "airblast3",
+   "fireEngine",
+   "fireFlash",
+   "fireGround",
+   "flameJet",
+   "smokeTrail",
+   "smokePuff",
+   "smokeGray",
+   "smokeDark"
+  ],
+  "E": [
+   "cowImpact0",
+   "cowImpact1",
+   "cowImpact2",
+   "cowImpact3",
+   "moteurImpact0",
+   "moteurImpact1",
+   "moteurImpact2",
+   "moteurImpact3"
+  ],
+  "F": [
+   "bossBlast0",
+   "bossBlast1",
+   "bossBlast2",
+   "bossBlast3",
+   "structure0",
+   "structure1",
+   "structure2",
+   "structure3"
+  ],
+  "G": [
+   "flak",
+   "shockRing",
+   "navalSplash3",
+   "navalFoam3",
+   "dustPuff",
+   "dirtBurst",
+   "fireWing"
+  ],
+  "J": [
+   "tracerEnemy",
+   "gasCloud0",
+   "gasCloud1",
+   "gasCloud2",
+   "gasCloud3",
+   "mistPuff",
+   "shipWake3",
+   "shipBow3"
+  ],
+  "K": [
+   "rocket",
+   "rocketHeavy",
+   "bombBody",
+   "shellHeavy",
+   "shellAuto",
+   "mortarShell",
+   "incendiary",
+   "grenadeBody",
+   "mineBody",
+   "torpedo",
+   "searchlight",
+   "fx-city-searchlight",
+   "searchlightLamp",
+   "sunshaft",
+   "windStreak"
+  ],
+  "L": [
+   "fx-cloud-cumulus-0",
+   "fx-cloud-cumulus-1",
+   "fx-cloud-cumulus-2",
+   "fx-cloud-bank-0",
+   "fx-cloud-bank-1",
+   "fx-cloud-dark-0",
+   "fx-cloud-dark-1",
+   "fx-cloud-wispy-0",
+   "fx-cloud-wispy-1"
+  ]
+ },
+ "contain": [
+  "rocket",
+  "rocketHeavy",
+  "bombBody",
+  "shellHeavy",
+  "shellAuto",
+  "mortarShell",
+  "incendiary",
+  "grenadeBody",
+  "mineBody",
+  "torpedo"
+ ],
+ "rects": {
+  "fx-cloud-dark-0": [
+   0,
+   0,
+   512,
+   292
+  ],
+  "fx-cloud-dark-1": [
+   514,
+   0,
+   512,
+   292
+  ],
+  "fx-cloud-cumulus-0": [
+   1028,
+   0,
+   448,
+   260
+  ],
+  "fx-cloud-cumulus-1": [
+   1478,
+   0,
+   448,
+   260
+  ],
+  "fx-cloud-cumulus-2": [
+   0,
+   294,
+   448,
+   260
+  ],
+  "mortarImpact0": [
+   450,
+   294,
+   256,
+   256
+  ],
+  "mortarImpact1": [
+   708,
+   294,
+   256,
+   256
+  ],
+  "mortarImpact2": [
+   966,
+   294,
+   256,
+   256
+  ],
+  "mortarImpact3": [
+   1224,
+   294,
+   256,
+   256
+  ],
+  "bossBlast0": [
+   1482,
+   294,
+   256,
+   256
+  ],
+  "bossBlast1": [
+   1740,
+   294,
+   256,
+   256
+  ],
+  "bossBlast2": [
+   0,
+   556,
+   256,
+   256
+  ],
+  "bossBlast3": [
+   258,
+   556,
+   256,
+   256
+  ],
+  "structure0": [
+   516,
+   556,
+   256,
+   256
+  ],
+  "structure1": [
+   774,
+   556,
+   256,
+   256
+  ],
+  "structure2": [
+   1032,
+   556,
+   256,
+   256
+  ],
+  "structure3": [
+   1290,
+   556,
+   256,
+   256
+  ],
+  "shipWake3": [
+   1548,
+   556,
+   128,
+   256
+  ],
+  "gasCloud2": [
+   1678,
+   556,
+   224,
+   224
+  ],
+  "gasCloud3": [
+   0,
+   814,
+   224,
+   224
+  ],
+  "lePrieurImpact0": [
+   226,
+   814,
+   192,
+   192
+  ],
+  "lePrieurImpact1": [
+   420,
+   814,
+   192,
+   192
+  ],
+  "lePrieurImpact2": [
+   614,
+   814,
+   192,
+   192
+  ],
+  "lePrieurImpact3": [
+   808,
+   814,
+   192,
+   192
+  ],
+  "smokeHeavy": [
+   1002,
+   814,
+   192,
+   192
+  ],
+  "airblast0": [
+   1196,
+   814,
+   192,
+   192
+  ],
+  "airblast1": [
+   1390,
+   814,
+   192,
+   192
+  ],
+  "airblast2": [
+   1584,
+   814,
+   192,
+   192
+  ],
+  "airblast3": [
+   1778,
+   814,
+   192,
+   192
+  ],
+  "fireFlash": [
+   0,
+   1040,
+   192,
+   192
+  ],
+  "fireGround": [
+   194,
+   1040,
+   192,
+   192
+  ],
+  "cowImpact0": [
+   388,
+   1040,
+   192,
+   192
+  ],
+  "cowImpact1": [
+   582,
+   1040,
+   192,
+   192
+  ],
+  "cowImpact2": [
+   776,
+   1040,
+   192,
+   192
+  ],
+  "cowImpact3": [
+   970,
+   1040,
+   192,
+   192
+  ],
+  "shockRing": [
+   1164,
+   1040,
+   192,
+   192
+  ],
+  "navalFoam3": [
+   1358,
+   1040,
+   192,
+   192
+  ],
+  "fx-cloud-wispy-0": [
+   0,
+   1234,
+   512,
+   192
+  ],
+  "fx-cloud-wispy-1": [
+   514,
+   1234,
+   512,
+   192
+  ],
+  "fx-cloud-bank-0": [
+   1028,
+   1234,
+   640,
+   168
+  ],
+  "fx-cloud-bank-1": [
+   0,
+   1428,
+   640,
+   168
+  ],
+  "moteurImpact0": [
+   642,
+   1428,
+   160,
+   160
+  ],
+  "moteurImpact1": [
+   804,
+   1428,
+   160,
+   160
+  ],
+  "moteurImpact2": [
+   966,
+   1428,
+   160,
+   160
+  ],
+  "moteurImpact3": [
+   1128,
+   1428,
+   160,
+   160
+  ],
+  "navalSplash3": [
+   1290,
+   1428,
+   160,
+   160
+  ],
+  "dirtBurst": [
+   1452,
+   1428,
+   160,
+   160
+  ],
+  "gasCloud1": [
+   1614,
+   1428,
+   160,
+   160
+  ],
+  "sunshaft": [
+   0,
+   1598,
+   512,
+   150
+  ],
+  "pop0": [
+   514,
+   1598,
+   128,
+   128
+  ],
+  "pop1": [
+   644,
+   1598,
+   128,
+   128
+  ],
+  "pop2": [
+   774,
+   1598,
+   128,
+   128
+  ],
+  "pop3": [
+   904,
+   1598,
+   128,
+   128
+  ],
+  "fireEngine": [
+   1034,
+   1598,
+   128,
+   128
+  ],
+  "smokeGray": [
+   1164,
+   1598,
+   128,
+   128
+  ],
+  "smokeDark": [
+   1294,
+   1598,
+   128,
+   128
+  ],
+  "flak": [
+   1424,
+   1598,
+   128,
+   128
+  ],
+  "fireWing": [
+   1554,
+   1598,
+   128,
+   128
+  ],
+  "gasCloud0": [
+   1684,
+   1598,
+   128,
+   128
+  ],
+  "mistPuff": [
+   1814,
+   1598,
+   128,
+   128
+  ],
+  "mineBody": [
+   0,
+   1750,
+   128,
+   128
+  ],
+  "fx-city-searchlight": [
+   130,
+   1750,
+   128,
+   128
+  ],
+  "searchlight": [
+   260,
+   1750,
+   256,
+   108
+  ],
+  "flameJet": [
+   518,
+   1750,
+   256,
+   96
+  ],
+  "smokePuff": [
+   776,
+   1750,
+   96,
+   96
+  ],
+  "dustPuff": [
+   874,
+   1750,
+   96,
+   96
+  ],
+  "shipBow3": [
+   972,
+   1750,
+   160,
+   96
+  ],
+  "windStreak": [
+   1134,
+   1750,
+   256,
+   96
+  ],
+  "smokeTrail": [
+   1392,
+   1750,
+   256,
+   88
+  ],
+  "muzzle": [
+   1650,
+   1750,
+   64,
+   64
+  ],
+  "muzzleTwin": [
+   1716,
+   1750,
+   64,
+   64
+  ],
+  "muzzleHeavy": [
+   1782,
+   1750,
+   64,
+   64
+  ],
+  "muzzleRear": [
+   1848,
+   1750,
+   64,
+   64
+  ],
+  "hitPuff": [
+   1914,
+   1750,
+   64,
+   64
+  ],
+  "debrisShard": [
+   1980,
+   1750,
+   64,
+   64
+  ],
+  "shellHeavy": [
+   0,
+   1880,
+   256,
+   64
+  ],
+  "grenadeBody": [
+   258,
+   1880,
+   64,
+   64
+  ],
+  "searchlightLamp": [
+   324,
+   1880,
+   64,
+   64
+  ],
+  "mortarShell": [
+   390,
+   1880,
+   128,
+   60
+  ],
+  "rocketHeavy": [
+   520,
+   1880,
+   164,
+   56
+  ],
+  "bombBody": [
+   686,
+   1880,
+   128,
+   56
+  ],
+  "spark": [
+   816,
+   1880,
+   48,
+   48
+  ],
+  "rocketTrail": [
+   866,
+   1880,
+   256,
+   48
+  ],
+  "torpedo": [
+   1124,
+   1880,
+   256,
+   48
+  ],
+  "incendiary": [
+   1382,
+   1880,
+   128,
+   44
+  ],
+  "rocket": [
+   1512,
+   1880,
+   160,
+   40
+  ],
+  "shellAuto": [
+   1674,
+   1880,
+   96,
+   36
+  ],
+  "rocketFlame": [
+   1772,
+   1880,
+   96,
+   32
+  ],
+  "bombShadow": [
+   1870,
+   1880,
+   64,
+   32
+  ],
+  "tracerCore": [
+   1936,
+   1880,
+   96,
+   24
+  ],
+  "tracerGlow": [
+   0,
+   1946,
+   96,
+   24
+  ],
+  "tracerEnemy": [
+   98,
+   1946,
+   96,
+   24
+  ]
+ }
+}

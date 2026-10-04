@@ -26,30 +26,52 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <div class="controls">
 <label>맵<select id="region">
 <option value="0">전원 지대</option><option value="1">아드리아해</option><option value="2">참호 전선</option>
-<option value="3">포화의 참호전선</option><option value="4">도심</option><option value="5">고공 전역</option><option value="6">알프스 산맥</option><option value="7">제브뤼헤 군항</option><option value="8">캉브레 들판</option><option value="9">아라스 상공</option><option value="10">솜 강전선</option><option value="11">런던 대공습</option>
+<option value="3">포화의 참호전선</option><option value="4">도심</option><option value="5">고공 전역</option><option value="6">알프스 산맥</option><option value="7">제브뤼헤 군항</option><option value="8">캉브레 들판</option><option value="9">아라스 상공</option><option value="10">솜 강전선</option><option value="11">런던 대공습</option><option value="12">베르됭</option><option value="13">마안 전투</option>
 </select></label>
+<div id="maanQa" hidden><label class="check"><input id="maanOrbit" type="checkbox" checked>보스 주변 순회</label><label class="check"><input id="maanFire" type="checkbox" checked>자동 사격</label><select id="maanPart" aria-label="마안 검사 부위"></select><button id="maanHalf" type="button">손상탄</button><button id="maanBreak" type="button">파괴탄</button><button id="maanFinal" type="button">후반 페이즈</button><span id="maanState"></span></div>
 <label>파일럿<select id="pilot"><option>게임 로딩 중…</option></select></label>
 <label>에이스<select id="ace"><option value="">등장 안 함</option></select></label>
 <label class="check"><input id="boss" type="checkbox">보스 즉시</label>
 <label class="check"><input id="invincible" type="checkbox" checked>무적</label>
+<label>전투 장면<select id="combatScene"><option value="">일반 전투</option><option value="HEAD_ON_PASS">HEAD-ON</option><option value="CROSS_ATTACK">CROSS ATTACK</option><option value="PINCER">협공</option><option value="CHASE">CHASE</option><option value="ESCORT">폭격기 호위</option><option value="BOMBER_RUN">BOMBER RUN</option></select></label>
+<label class="check"><input id="fxs" type="checkbox">FX 시안</label>
 <label>화면<select id="viewport"><option value="auto">자동</option><option value="390x844">모바일 390×844</option><option value="1280x800">PC 1280×800</option></select></label>
-<label>Director 장면<select id="pattern"><option value="HEAD_ON_PASS">HEAD-ON</option><option value="CROSS_ATTACK">CROSS ATTACK</option><option value="PINCER">PINCER</option><option value="CHASE">CHASE</option><option value="ESCORT">ESCORT</option><option value="DECOY">DECOY</option><option value="BOMBER_RUN">BOMBER RUN</option></select></label>
 <button id="start" class="primary" type="button">선택 조건으로 시작</button>
-<button id="scene" type="button">장면 호출</button>
+<button id="crashCompare" type="button">추락 비교</button>
+<button id="wreckSet" type="button">격추 5종 확인</button>
+<button id="damageSet" type="button">명중·손상 확인</button>
+<button id="stepScene" type="button">0.1초 진행</button>
+
+<label class="check"><input id="freeze" type="checkbox">관찰 일시정지</label>
+<label class="check"><input id="noFire" type="checkbox">자동사격 중지</label>
+<label class="check"><input id="hideHud" type="checkbox">관찰 HUD 숨김</label>
+<label>패턴 진행 조종<select id="stepControl"><option value="observe">관찰 · 위치 유지</option><option value="up">전진 ↑</option><option value="left">좌선회 ←</option><option value="right">우선회 →</option><option value="down">후진입 ↓</option></select></label>
+<label>진행 시간<select id="stepDuration"><option value="2">2초</option><option value="0.5">0.5초</option></select></label>
+<label>보스 부위 조준<select id="airshipAim"><option value="">수동 조종</option><option value="0">왼쪽 비행선</option><option value="1">중앙 비행선</option><option value="2">오른쪽 비행선</option><option value="livens:tank-l1">리벤스 · 좌상 탱크</option><option value="livens:tank-l2">리벤스 · 좌하 탱크</option><option value="livens:tank-r1">리벤스 · 우상 탱크</option><option value="livens:tank-r2">리벤스 · 우하 탱크</option><option value="livens:pressure">리벤스 · 압력장치</option><option value="livens:core">리벤스 · 코어</option></select></label>
+<button id="patternStep" type="button" disabled>보스 패턴 진행</button>
 <button id="reload" type="button">현재 브랜치 새로고침</button>
 <a id="open" class="action" target="_blank" rel="noopener">게임만 열기 ↗</a>
+<button id="fortStep" type="button" style="display:none" title="Shift 클릭: 전투 0.1초 진행">전투 1초 진행</button>
 <span id="status">게임 로딩 중…</span>
+<output id="bossState" style="font-size:11px;max-width:700px"></output>
+<div id="fortControls" hidden style="width:100%;display:none;gap:8px;align-items:center;flex-wrap:wrap">
+<label>요새 검증 부위<select id="fortPart"></select></label>
+<button id="fortView" type="button">요새 근처로 이동</button>
+<button id="fortPause" type="button">관찰 일시정지</button>
+<button id="fortShot" type="button">선택 부위 탄착 검사</button>
+<span id="fortStatus" style="font:11px ui-monospace,monospace"></span>
+</div>
 </div>
 </header>
-<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0"></iframe></main>
+<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=394"></iframe></main>
 </div>
 <script>
 const $=id=>document.getElementById(id),frame=$('game');let api=null;
 function query(){
  const p=new URLSearchParams({headonTest:'1',region:$('region').value,pilot:$('pilot').value,invincible:$('invincible').checked?'1':'0'});
- if($('boss').checked)p.set('boss','1');if($('ace').value)p.set('ace',$('ace').value);return p;
+ if($('boss').checked)p.set('boss','1');if($('ace').value)p.set('ace',$('ace').value);if($('fxs').checked)p.set('fxs','1');return p;
 }
-function refreshOpen(){ $('open').href='./index.html?'+query().toString(); }
+function refreshOpen(){ $('open').href='./index.html?'+query().toString();$('fortStep').style.display=$('region').value==='12'?'':'none'; }
 function refreshAce(){
  const selected=api?.catalog?.pilots?.find(p=>p.id===$('pilot').value),old=$('ace').value;
  $('ace').replaceChildren(new Option('등장 안 함',''),new Option('랜덤 적 에이스','random'));
@@ -71,14 +93,101 @@ async function connect(){
 frame.addEventListener('load',connect);
 $('start').onclick=()=>{
  if(!api)return;$('status').textContent='시작 중…';
- const result=api.start({region:Number($('region').value),pilot:$('pilot').value,ace:$('ace').value,boss:$('boss').checked,invincible:$('invincible').checked});
- $('status').textContent=result?'실행 · '+result.plane+' · map '+result.region:'시작 실패';refreshOpen();
+ const result=api.start({region:Number($('region').value),pilot:$('pilot').value,ace:$('ace').value,boss:$('boss').checked,invincible:$('invincible').checked,orbit:$('maanOrbit').checked,fire:$('maanFire').checked});
+ if(result&&$('combatScene').value)api.debug()?.beginBattleDirectorPattern($('combatScene').value);
+ $('patternStep').disabled=!result;$('status').textContent=result?'실행 · '+result.plane+' · map '+result.region:'시작 실패';refreshOpen();
+ if(result&&$('freeze').checked)api.debug().state='paused';
+ if(result&&$('noFire').checked)api.debug().fire=Infinity;
+ applyHud();
 };
-$('scene').onclick=()=>{const game=api?.debug?.();if(game?.testMode&&game.beginBattleDirectorPattern){game.beginBattleDirectorPattern($('pattern').value);$('status').textContent='Director · '+$('pattern').selectedOptions[0].textContent}};
+$('crashCompare').onclick=()=>{const game=api?.debug?.();if(!game)return;game.paused=false;game.t??=0;const spawn=(type,a,dist)=>{game.spawnEnemy(type);const e=game.enemies.at(-1);e.x=game.x+Math.cos(a)*dist;e.y=game.y+Math.sin(a)*dist;e.a=a+Math.PI;e.hit?.(0)};spawn('scout',-.35,180);spawn('boss',.15,260);for(const e of game.enemies.slice(-2)){e.crashing=false;e.crashed=false;e.hp=0;const b={x:e.x,y:e.y,vx:0,vy:0,life:0,enemy:false,damage:0,hit:new Set([e])};game.bullets.push(b)}for(let i=0;i<30;i++)game.update(.02);game.paused=true;$('status').textContent='추락 연출 비교 — 재생 버튼으로 재개'};
+window.addEventListener('error',e=>{$('status').textContent='검증 오류: '+e.message});
+function feedbackFixture(){
+ if(!api)return null;api.start({region:0,pilot:$('pilot').value,invincible:true});const g=api.debug();
+ g.enemies=[];g.bullets=[];g.need=Infinity;g.spawn=Infinity;g.fire=Infinity;return g;
+}
+$('wreckSet').onclick=()=>{
+ const g=feedbackFixture();if(!g)return;
+ for(let i=0;i<5;i++){
+  const e=g.spawnEnemy('scout');Object.assign(e,{x:g.x+(i===4?0:i%2?80:-80),y:g.y-160+Math.floor(i/2)*120,a:0,fire:Infinity});
+  e.hp=0;g.burst(e.x,e.y,'#f2aa52',30);g.event('kill','');
+ }
+ for(let i=0;i<28;i++)g.update(.02);g.state='paused';
+ $('status').textContent='위부터 스핀 / 검은 연기 / 화재 / 날개 분리 / 조종불능 이탈';
+};
+$('damageSet').onclick=()=>{
+ const g=feedbackFixture();if(!g)return;
+ const targets=[4,7].map((shots,i)=>{const e=g.spawnEnemy('bomber');if(!e)throw new Error('폭격기 테스트 생성 제한');Object.assign(e,{x:g.x+(i?70:-70),y:g.y-95,a:0,fire:Infinity,speed:0});return{e,shots}});
+ for(let round=0;round<7;round++){
+  for(const {e,shots} of targets)if(round<shots)g.bullets.push({x:e.x+(shots===4?20:0),y:e.y+(shots===4?0:20),vx:0,vy:0,life:1,damage:5,enemy:false,hit:new Set()});
+  for(let i=0;i<4;i++)g.update(.02);
+ }
+ g.state='paused';$('status').textContent='좌: 엔진 손상 / 우: 구조 손상 · HP '+targets.map(({e})=>Math.round(e.hp)+'/'+e.maxHp).join(' · ');
+};
+$('stepScene').onclick=()=>{const g=api?.debug?.();if(!g)return;g.state='playing';for(let i=0;i<5;i++)g.update(.02);g.state='paused';frame.contentDocument.getElementById('modal')?.classList.add('hidden');$('status').textContent=g.t.toFixed(1)+'초 · '+(g.battleDirector?.phase||'전투')+' · 적 '+g.enemies.filter(e=>e.hp>0).length};
+function applyHud(){const el=frame.contentDocument?.getElementById('flightTop151');if(el)el.style.visibility=$('hideHud').checked?'hidden':'';}
+$('hideHud').onchange=applyHud;
+$('noFire').onchange=()=>{const g=api?.debug?.();if(g)g.fire=$('noFire').checked?Infinity:0;};
+$('freeze').onchange=()=>{const g=api?.debug?.();if(g)g.state=$('freeze').checked?'paused':'playing';};
+setInterval(()=>{
+ const g=api?.debug?.(),b=g?.stageBoss?.stages?.encounter?.bodies;const boss=b&&[...b.values()].find(b=>!b.dead);
+ $('bossState').textContent=boss?boss.kind+' · '+boss.phase+' · t '+(boss.motionTime||0).toFixed(1)+' · '+[...boss.parts.values()].map(p=>p.id+': '+Math.ceil(p.hp)+'/'+Math.ceil(p.maxHp)+(p.destroyed?' 파괴':'')).join(' | ')+' · 좌표 '+Math.round(boss.x)+','+Math.round(boss.y)+' · 기체 '+Math.round(g.x)+','+Math.round(g.y)+' · 차륜 '+(boss.wheelRoll||0).toFixed(2)+' · 무인폭탄기 '+(g.enemies?.filter(e=>e.behavior==='bug-strike'&&e.hp>0).length||0)+' · 장벽 '+(g.stageBoss?.hazards?.pool?.count||0):'';
+},250);
+$('patternStep').onclick=()=>{
+ const game=api?.debug?.();if(game?.state==='paused'){game.state='playing';frame.contentDocument?.getElementById('modal')?.classList.add('hidden')}
+ if(!game||game.state!=='playing'){$('status').textContent='진행 가능한 전투 없음';return}
+ const px=game.x,py=game.y,pa=game.a;
+ const control=$('stepControl').value,angle={up:-Math.PI/2,left:Math.PI,right:0,down:Math.PI/2}[control];
+ const frames=Math.round(Number($('stepDuration').value)/.02);
+ // Normal flight input and the player's normal gun only: no injected bullets,
+ // damage calls or modified boss HP in the airship check.
+ for(let i=0;i<frames&&game.state==='playing';i++){
+  let steering=angle;
+  if($('airshipAim').value!==''){
+   const selected=$('airshipAim').value,livens=selected.startsWith('livens:');
+   const body=[...game.stageBoss?.stages?.encounter?.bodies?.values()||[]].find(b=>livens?b.kind==='livens-flame-projector':['london-apron','drachen-net'].includes(b.kind));
+   const part=body?.parts.get(livens?selected.slice(7):'airship-'+selected);
+   if(livens&&selected==='livens:core'&&body)steering=Math.atan2(body.y-game.y,body.x-game.x);
+   else if(part&&!part.destroyed)steering=Math.atan2(body.y+part.y-game.y,body.x+part.x-game.x);
+  }
+  game.update(.02,{angle:steering});
+ }
+ if(control==='observe'){game.x=px;game.y=py;game.a=pa;}
+ if($('freeze').checked)game.state='paused';
+ $('status').textContent='패턴 진행 · 기뢰 '+(game.hostileMinefields?.flatMap(f=>f.mines).length||0)+' · 장벽 '+(game.stageBoss?.hazards?.pool?.count||0);
+};
+function fortress(){return [...(api?.debug()?.stageBoss?.stages.encounter?.bodies?.values()||[])].find(b=>b.fortressBoss)}
+let fortId=null;
+function refreshFort(){
+ const b=fortress(),panel=$('fortControls');panel.style.display=b?'flex':'none';if(!b)return;
+ if(fortId!==b.id){fortId=b.id;$('fortPart').replaceChildren(...[...b.parts.values()].map(p=>new Option(p.id,p.id)),new Option('중앙 핵심부','core'));}
+ const p=b.parts.get($('fortPart').value),g=api.debug();
+ $('fortPause').textContent=g.state==='paused'?'관찰 재개':'관찰 일시정지';
+ $('fortStatus').textContent=b.kind+' · phase '+b.phase+' · HP '+Math.ceil(b.hp)+'/'+b.maxHp+' · '+(p?p.id+': '+Math.ceil(p.hp)+'/'+Math.ceil(p.maxHp)+' · '+(p.destroyed?'파괴':p.hittable?'노출':'장갑/은폐'):'core: '+(b.coreVulnerable?'노출':'봉쇄'))+' · 활성 부위 '+[...b.parts.values()].filter(p=>!p.destroyed&&p.active).length;
+}
+$('fortView').onclick=()=>{const b=fortress(),g=api.debug();if(!b||!g)return;g.x=b.x;g.y=b.y+110;g.a=-Math.PI/2;};
+$('fortPause').onclick=()=>{const g=api.debug();if(!fortress()||!g)return;g.state=g.state==='paused'?'playing':'paused';$('fortPause').textContent=g.state==='paused'?'관찰 재개':'관찰 일시정지';};
+$('fortShot').onclick=()=>{
+ const b=fortress(),g=api.debug();if(!b||!g||g.state!=='playing')return;
+ const p=b.parts.get($('fortPart').value),k=p||b.regionalCore,x=b.x+k.x,y=b.y+k.y;
+ // Test stimuli travel through the real friendly projectile/swept collision
+ // route. No direct boss HP, phase or part-state mutation is used here.
+ const count=Math.min(64,Math.max(1,Math.ceil((p?.hp||b.hp)/g.damage)));
+ for(let i=0;i<count;i++)g.bullets.push({x:x-14-i*.1,y,vx:520,vy:0,life:.3,enemy:false,ownerId:g.id,damage:g.damage,hit:new Set()});
+};
+$('fortStep').onclick=event=>api?.advanceVerdun?.(event.shiftKey?.1:1);
+setInterval(refreshFort,200);
+$('maanFire').onchange=()=>api?.maanFire?.($('maanFire').checked);
+$('maanOrbit').onchange=()=>api?.maanOrbit?.($('maanOrbit').checked);
+$('maanHalf').onclick=()=>api?.maanProbe?.($('maanPart').value,'half');
+$('maanBreak').onclick=()=>api?.maanProbe?.($('maanPart').value);
+$('maanFinal').onclick=()=>api?.maanProbe?.('hull');
+setInterval(()=>{const q=api?.maanInspect?.();$('maanQa').hidden=!q;if(!q)return;const old=$('maanPart').value;$('maanPart').replaceChildren(...q.parts.map(p=>new Option(p.id+(p.destroyed?' · 파괴됨':' · '+Math.round(p.hp/p.maxHp*100)+'%'),p.id)));if(q.parts.some(p=>p.id===old))$('maanPart').value=old;$('maanState').textContent=q.phase+' · 진입 '+q.entry.toFixed(1)+'s · 파괴 '+q.parts.filter(p=>p.destroyed).length+'/'+q.parts.length+' · 호위 '+q.cars;},400);
 $('reload').onclick=()=>{api=null;$('status').textContent='새로고침 중…';frame.src='./index.html?headonTest=1&autostart=0&t='+Date.now()};
 $('pilot').onchange=refreshAce;$('region').onchange=refreshOpen;$('ace').onchange=refreshOpen;$('boss').onchange=refreshOpen;$('invincible').onchange=refreshOpen;$('viewport').onchange=applyViewport;
-applyViewport();refreshOpen();
-fetch('./test-build.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(v=>{if(v)$('build').textContent=(v.ref||'preview')+' · '+String(v.sha||'').slice(0,12)}).catch(()=>{});
+$('fxs').onchange=()=>{refreshOpen();api=null;$('status').textContent='FX 시안 적용 중…';frame.src='./index.html?'+query().toString()+'&autostart=0&t='+Date.now()};
+applyViewport();if(new URLSearchParams(location.search).get('fxs')==='1'){$('fxs').checked=true;$('fxs').onchange()}refreshOpen();
+$('build').textContent='live-v'+(new URL(frame.src,location.href).searchParams.get('v')||'?');
 </script>
 </body>
 </html>

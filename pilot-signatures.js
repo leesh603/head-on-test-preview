@@ -48,3 +48,4 @@ export function installPilotSignatures(Game){
   return result;
  };
 }
+

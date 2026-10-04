@@ -1,3 +1,4 @@
+import {separateZubianHalves} from './adriatic-boss-layout.js?v=530';
 export class BossPart {
   constructor({id,maxHp,x=0,y=0,radius=24,hittable=true,kind='weakpoint',angle=0}) {
     if(!id||!Number.isFinite(maxHp)||maxHp<=0)throw new Error('Invalid part');
@@ -74,7 +75,7 @@ export class BossEncounter {
     }
     b.update(dt,ctx);
     if(typeof b.suppressive==='function')b.suppressive(dt,ctx.players);
-  }}
+  }if(this.bossId==='hms-zubian')separateZubianHalves(this);}
   snapshot() {
     let hp=0,aliveParts=0,totalParts=0,shielded=false,formationAlive=0,formationTotal=0;const phases=[];
     for(const b of this.bodies.values()){

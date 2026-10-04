@@ -1,0 +1,94 @@
+/* Keep portrait and caption in separate rows with soft portrait edges. */
+.skill-cutin{display:grid;grid-template-rows:minmax(0,1fr) auto;width:300px;height:330px;max-width:calc(100% - 24px);overflow:visible}
+.skill-cutin.hidden{display:none}
+.cutin-portrait{position:relative;inset:auto;width:100%;height:100%;background-size:contain!important;background-position:center bottom!important;mask-image:linear-gradient(to bottom,#000 88%,transparent)}
+.cutin-caption{position:relative;inset:auto;min-height:0;padding:8px 10px;display:grid;gap:5px;background:linear-gradient(90deg,#13232ed9,transparent)}
+.cutin-caption small,.cutin-caption strong{position:static;display:block;margin:0;letter-spacing:0;line-height:1.35;white-space:nowrap;font-size:13px}
+.cutin-caption strong{font-size:19px}
+.boss-arrival{width:370px;max-width:calc(100% - 24px);height:150px;overflow:visible;gap:10px}
+.boss-arrival img{flex:0 0 110px;width:110px;height:150px;object-fit:contain;object-position:center bottom;mask-image:linear-gradient(to bottom,#000 90%,transparent)}
+.boss-arrival>div:not(.boss-portrait-window){flex:1;min-width:0;display:grid;gap:5px}
+.boss-arrival strong,.boss-arrival span,.boss-arrival small{margin:0;position:static;line-height:1.4;letter-spacing:0}
+.boss-arrival strong{font-size:17px;white-space:nowrap}
+.boss-arrival span{font-size:12px;word-break:keep-all;overflow-wrap:anywhere}
+#hangarPortrait,#coopPortrait2{object-fit:contain;object-position:center bottom;max-width:100%}
+.coop-preview{overflow:hidden}.coop-preview #coopPortrait2{transform:scale(var(--pilot-choice-scale,1));transform-origin:center bottom}
+.pilot-tabs button,#pilotTabs button{white-space:nowrap}
+#pilotName,#skillName,#hangarName,#hangarSkill{line-height:1.45;word-break:keep-all;overflow:visible}
+@media(max-width:720px),(pointer:coarse){
+ .skill-cutin{width:250px;height:260px;max-height:48dvh;left:10px;bottom:155px}
+ .cutin-caption strong{font-size:16px}.cutin-caption small{font-size:12px}
+ .boss-arrival{left:10px;width:calc(100% - 20px);max-width:370px;height:122px;bottom:180px}
+ .boss-arrival img{width:82px;flex-basis:82px;height:122px}
+ .boss-arrival strong{font-size:15px}
+}
+@media(max-height:500px){.skill-cutin{height:190px;bottom:85px}.boss-arrival{bottom:100px;height:100px}.boss-arrival img{height:100px}}
+
+/* Desktop already shows the selected pilot in the hangar. Keep the roster compact. */
+@media(min-width:721px) and (pointer:fine){
+ body:not(.playing) .viewport{height:clamp(650px,78dvh,790px)}
+ body:not(.playing) #hangarPortrait{right:0;bottom:0;top:auto;width:58%;height:68%;max-width:58%;object-fit:contain;object-position:right bottom}
+ body:not(.playing).duo-selected #hangarPortrait{width:60%;max-width:60%;height:62%;right:0;bottom:0;top:auto}
+ body:not(.playing) .hangar-plane{right:34%;top:29%;width:20%}
+ body:not(.playing) .hangar-stamp{right:16px;bottom:12px}
+ body:not(.playing) .pilot-frame{height:auto;min-height:0;padding:10px 0 12px;border:0;background:none;overflow:visible}
+ body:not(.playing) .pilot-frame:after,body:not(.playing) .pilot-frame .portrait,body:not(.playing) .portrait-label{display:none}
+ body:not(.playing) .portrait-caption{position:static}
+ body:not(.playing) .portrait-caption h2{font-size:21px;margin:4px 0 0}
+ body:not(.playing) .portrait-caption span{letter-spacing:.6px}
+ body:not(.playing) .pilot-tabs{margin-top:0;gap:5px}
+ body:not(.playing) .pilot-tabs button{min-height:38px;padding:7px 5px}
+ body:not(.playing) .skill-info{padding:14px 0 12px}
+ body:not(.playing) .skill-info p{margin:8px 0;line-height:1.6}
+ body:not(.playing) .selected-aircraft{margin-top:12px}
+ body:not(.playing) .weapon-spec{margin-top:8px;padding-top:10px}
+ .coop-preview #coopPortrait2{transform:none;object-position:right bottom}
+}
+.pilot-frame .portrait{background-size:contain!important;background-position:right bottom!important}
+
+/* Enemy ace entrance: large face and shoulders, with the name beside the crop. */
+.boss-arrival{width:440px;height:190px;gap:16px;max-width:calc(100% - 24px);overflow:hidden;align-items:center;background:linear-gradient(90deg,#14232de8,#14232dbb 75%,#14232d00);border-left:3px solid #d29f61;padding:0 14px 0 0}
+.boss-arrival img{width:176px;flex:0 0 176px;height:190px;object-fit:cover;object-position:center 12%;mask-image:linear-gradient(to bottom,#000 84%,transparent)}
+.boss-arrival strong{font-size:22px;white-space:normal;word-break:keep-all;line-height:1.25}
+.boss-arrival span{font-size:13px;line-height:1.5}.boss-arrival small{font-size:12px;letter-spacing:1px}
+@media(max-width:720px),(pointer:coarse){
+ .boss-arrival{left:10px;width:calc(100% - 20px);max-width:410px;height:164px;bottom:180px;gap:12px;padding-right:10px}
+ .boss-arrival img{width:144px;flex-basis:144px;height:164px;object-position:center 10%}
+ .boss-arrival strong{font-size:19px}.boss-arrival span{font-size:12px}
+}
+@media(max-height:500px){
+ .boss-arrival{height:132px;width:380px;bottom:95px}
+ .boss-arrival img{height:132px;width:136px;flex-basis:136px}
+ .boss-arrival strong{font-size:18px}
+}
+
+.boss-arrival .boss-portrait-window{flex:0 0 176px;width:176px;height:190px;overflow:hidden;display:block;mask-image:linear-gradient(to bottom,#000 86%,transparent)}
+.boss-arrival .boss-portrait-window img{width:100%;height:100%;max-width:none;object-fit:cover;object-position:center 12%;transform:scale(1.45);transform-origin:center 20%;mask-image:none}
+@media(max-width:720px),(pointer:coarse){.boss-arrival .boss-portrait-window{flex-basis:144px;width:144px;height:164px}}
+@media(max-height:500px){.boss-arrival .boss-portrait-window{flex-basis:136px;width:136px;height:132px}}
+
+/* Fade the artwork itself into its surface, preserving crisp labels and controls. */
+#hangarPortrait,.pilot-frame .portrait,.cutin-portrait,#coopPortrait2,.coop-cutin img,.boss-arrival .boss-portrait-window{
+ -webkit-mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.06) 10%,rgba(0,0,0,.24) 26%,rgba(0,0,0,.58) 46%,rgba(0,0,0,.88) 63%,#000 76%,#000 100%);
+ mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.06) 10%,rgba(0,0,0,.24) 26%,rgba(0,0,0,.58) 46%,rgba(0,0,0,.88) 63%,#000 76%,#000 100%);
+ -webkit-mask-size:100% 100%;mask-size:100% 100%;
+ -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+}
+.boss-arrival .boss-portrait-window{padding:0}
+.factions button{display:flex;align-items:center;justify-content:center;gap:8px}
+.faction-emblem{display:block;width:22px;height:22px;flex:0 0 22px;object-fit:contain}
+@media(min-width:721px) and (pointer:fine){
+ body:not(.playing){--hangar-panel-height:clamp(480px,calc(100dvh - 220px),900px)}
+ body:not(.playing) main{padding-top:16px;padding-bottom:12px;align-items:start}
+ body:not(.playing) .viewport{height:var(--hangar-panel-height);min-height:0;box-sizing:border-box}
+ body:not(.playing) #flightRoster{height:var(--hangar-panel-height);min-height:0;max-height:var(--hangar-panel-height);box-sizing:border-box;margin-top:44px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#655b4d transparent;padding:16px 18px}
+ body:not(.playing) .hangar{min-height:0}
+ body:not(.playing) .hangar-copy{padding-top:24px;padding-bottom:24px}
+ body:not(.playing) .hangar h1{font-size:clamp(64px,13cqw,140px)}
+ body:not(.playing) .hangar .subhead{margin:10px 0 18px}
+ body:not(.playing) .hangar .mode-tabs{margin-bottom:16px}
+ body:not(.playing) .hangar .sortie-dossier{margin-top:12px}
+ body:not(.playing).campaign-selected .hangar h1,body:not(.playing).coop-selected .hangar h1{font-size:48px}
+ body:not(.playing) footer{padding-top:6px;padding-bottom:6px;line-height:18px;font-size:11px}
+ body:not(.playing) .field-bottom{min-height:36px}
+}

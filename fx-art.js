@@ -1,12 +1,16 @@
 // Union pack: Pro's 196 combat atlas takes precedence for the keys it covers
 // (explosion0-3, fire, smoke*, spark, armorSpark, gas, gasThin); every other key
 // stays on the approved v189 set below. ?fx=0 keeps the procedural rollback.
-import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,fx as fx196Draw,fxTintedCanvas as fx196TintedCanvas,fxTint as fx196Tint} from './combat-fx196.js?v=338';
+import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,fx as fx196Draw,fxTintedCanvas as fx196TintedCanvas,fxTint as fx196Tint} from './combat-fx196.js?v=530';
 // Combat FX pack v189 — approved sprite set lives in fx-pack-v189/ and maps onto
 // the keys already called by the renderers. Unmapped keys stay procedural.
 // Rollback: append ?fx=0 to the URL — FX_FILES empties and every call site
 // falls back to procedural drawing exactly as before.
-import {FX3,roleArtReady,roleReady,roleDraw,roleImage} from './fx-role3.js?v=338';
+import {FX3,roleArtReady,roleReady,roleDraw,roleImage} from './fx-role3.js?v=530';
+// FX sample preview (?fxs=1 only).
+import {FXS,fxsReady,fxsHas,fxsDraw,fxsImage,fxsTintedCanvas,fxsTint,fxsRocketTrail} from './fx-sample-preview.js?v=530';
+export {FXS};
+
 export {FX3};
 const FX_OFF=typeof location!=='undefined'&&new URLSearchParams(location.search).get('fx')==='0';
 const FX56_OFF=typeof location!=='undefined'&&new URLSearchParams(location.search).get('fx56')==='0';
@@ -34,7 +38,7 @@ const FX_FILES=FX_OFF?{}:Object.assign({
  shell:'fx-shell-heavy.webp',
  shellAuto:'fx-pack-v189/projectiles/shell-autocannon.webp',
  bulletBrass:'fx-pack-v189/projectiles/bullet-brass.webp',
- grenade:'fx-grenade-body.webp',
+ grenade:'fx-grenade-ww1.webp?v=483',
  tracerAmber:'fx-pack-v189/projectiles/tracer-amber.webp',
  tracerCream:'fx-pack-v189/projectiles/tracer-cream.webp',
  tracerOrange:'fx-pack-v189/projectiles/tracer-orange.webp',
@@ -74,7 +78,7 @@ const FX_FILES=FX_OFF?{}:Object.assign({
  dustPuff:'fx-dust-puff.webp',dirtBurst:'fx-dirt-burst.webp',debrisShard:'fx-debris-shard.webp',dirtMix:'fx-dirt-mix.webp',
  sunshaft:'fx-sunshaft.webp',windStreak:'fx-wind-streak.webp',mist:'fx-mist.webp',
  torpedo:'fx-torpedo.webp',shockRing:'fx-shock-ring.webp',searchlight:'fx-city-searchlight.webp',
- mortarShell:'fx-mortar-shell.webp',lePrieur:'fx-combat-le-prieur.webp',bombBody:'fx-bomb-body.webp',grenadeBody:'fx-grenade-body.webp',
+ mortarShell:'fx-mortar-shell.webp',lePrieur:'fx-combat-le-prieur.webp',bombBody:'fx-bomb-body.webp',grenadeBody:'fx-grenade-ww1.webp?v=483',
 mineBody:'fx-mine-body.webp',shellHeavy:'fx-shell-heavy.webp',incendiary:'fx-incendiary.webp',
 // Boss-pair debris set — Treffas-Wagen crush debris + rail-carrier wreck shards
 rockChunk0:'fx-rock-chunk-0.webp',rockChunk1:'fx-rock-chunk-1.webp',rockChunk2:'fx-rock-chunk-2.webp',rockChunk3:'fx-rock-chunk-3.webp',rockChunk4:'fx-rock-chunk-4.webp',rockChunk5:'fx-rock-chunk-5.webp',
@@ -83,19 +87,21 @@ metalShard0:'fx-metal-shard-0.webp',metalShard1:'fx-metal-shard-1.webp',metalSha
 const fxImgs={};
 // Aliases share one decoded image; atlas-covered keys need no second bitmap.
 const imageLoads=new Map();
-const fx189Ready=typeof Image==='undefined'?Promise.resolve():fx196ArtReady.then(()=>Promise.all(Object.entries(FX_FILES).map(async([key,file])=>{
- if(fx196Ready(key))return;
+const fx189Ready=typeof Image==='undefined'?Promise.resolve():Promise.all([fx196ArtReady,fxsReady]).then(()=>Promise.all(Object.entries(FX_FILES).map(async([key,file])=>{
+ if(fx196Ready(key)||fxsHas(key))return;
  if(!imageLoads.has(file))imageLoads.set(file,new Promise(res=>{
-  const im=new Image();im.onload=()=>{im.onload=im.onerror=null;res(im)};im.onerror=()=>{im.onload=im.onerror=null;res(null)};im.src='./'+file+'?v=fx5';
+  const im=new Image();im.onload=()=>{im.onload=im.onerror=null;res(im)};im.onerror=()=>{im.onload=im.onerror=null;res(null)};im.src='./'+file+'?v=fx6';im.decode?.().catch(()=>{});
  }));
  const im=await imageLoads.get(file);if(im)fxImgs[key]=im;
 })));
-export const fxArtReady=Promise.all([fx189Ready,fx196ArtReady,roleArtReady]);
-export function fxReady(key){return !FX_OFF&&(roleReady(key)||fx196Ready(key)||!!fxImgs[key])}
-export function fxImage(key){return FX_OFF?null:roleImage(key)||fx196Image(key)||fxImgs[key]||null}
+export const fxArtReady=Promise.all([fx189Ready,fx196ArtReady,roleArtReady,fxsReady]);
+export function fxReady(key){return !FX_OFF&&(fxsHas(key)||roleReady(key)||fx196Ready(key)||!!fxImgs[key])}
+export function fxImage(key){return FX_OFF?null:(fxsHas(key)&&fxsImage(key))||roleImage(key)||fx196Image(key)||fxImgs[key]||null}
 // Draw sprite centered at x,y, rotated to angle (0 = sprite's natural right/up orientation), fit inside w×h.
 export function fx(c,key,x,y,w,h=w,angle=0,alpha=1){
  if(FX_OFF)return false;
+ if(FXS&&key==='rocket')fxsRocketTrail(c,x,y,angle,w);
+ if(fxsHas(key))return fxsDraw(c,key,x,y,w,h,angle,alpha);
  if(roleReady(key))return roleDraw(c,key,x,y,w,h,angle,alpha);
  if(fx196Ready(key))return fx196Draw(c,key,x,y,w,h,angle,alpha);
  const im=fxImgs[key];if(!im)return false;
@@ -112,6 +118,7 @@ export function clearFxTintCache(){for(const cv of tintCache.values())if(cv)cv.w
 // Lazily bake a color-multiplied copy so painted shading survives tinting.
 export function fxTintedCanvas(key,color){
  if(FX_OFF)return null;
+ if(fxsHas(key))return fxsTintedCanvas(key,color);
  if(!roleReady(key)&&fx196Ready(key))return fx196TintedCanvas(key,color);
  const im=roleImage(key)||fxImgs[key];if(!im)return null;
  const ck=key+color;let c=tintCache.get(ck);
@@ -132,6 +139,7 @@ export function fxTintedCanvas(key,color){
 }
 export function fxTint(c,key,color,x,y,w,h=w,angle=0,alpha=1){
  if(FX_OFF)return false;
+ if(fxsHas(key))return fxsTint(c,key,color,x,y,w,h,angle,alpha);
  if(!roleReady(key)&&fx196Ready(key))return fx196Tint(c,key,color,x,y,w,h,angle,alpha);
  const cv=fxTintedCanvas(key,color);if(!cv)return fx(c,key,x,y,w,h,angle,alpha);
  c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha*=alpha;

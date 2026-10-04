@@ -1,4 +1,5 @@
-import {roleReady,roleImage} from './fx-role3.js?v=338';
+import {roleReady,roleImage,roleArtReady} from './fx-role3.js?v=530';
+import {fxsHas,fxsImage} from './fx-sample-preview.js?v=530';
 // Cloud concealment — shared tactical system across all regions (전장 개성화 패치).
 // Dense clouds break enemy tracking; wispy clouds only soften accuracy.
 export const CLOUD_TYPES=Object.freeze({
@@ -22,12 +23,15 @@ export const CLOUD_CONCEAL=Object.freeze({partial:.7,normal:1.2,elite:1.6,ace:2,
 const MAX_CLOUDS=9;
 const CLOUD_IMGS={cumulus:['fx-cloud-cumulus-0','fx-cloud-cumulus-1','fx-cloud-cumulus-2'],bank:['fx-cloud-bank-0','fx-cloud-bank-1'],dark:['fx-cloud-dark-0','fx-cloud-dark-1'],wispy:['fx-cloud-wispy-0','fx-cloud-wispy-1']};
 const _imgCache={};
+let _roleSettled=false;roleArtReady.finally(()=>_roleSettled=true);
 function cloudImg(type,seed){
  const list=CLOUD_IMGS[type]||CLOUD_IMGS.cumulus;
  const key=list[Math.floor(((seed||0)/6.283)*list.length)%list.length];
+ if(fxsHas(key))return fxsImage(key);
  if(roleReady(key))return roleImage(key,true);
+ if(!_roleSettled)return null;
  let im=_imgCache[key];
- if(im===undefined){im=new Image();im.src=`./${key}.webp?v=338&b=326`;im.onload=()=>{_imgCache[key]=im};_imgCache[key]=im}
+ if(im===undefined){im=new Image();im.src=`./${key}.webp?v=426&b=345`;im.onload=()=>{_imgCache[key]=im};_imgCache[key]=im}
  return im;
 }
 

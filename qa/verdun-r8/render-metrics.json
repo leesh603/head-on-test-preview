@@ -1,0 +1,26 @@
+{
+  "douaumont-pc-firstMs": 18.71948299999997,
+  "douaumont-pc": {
+    "meanMs": 11.515661158333334,
+    "p95Ms": 16.55752199999995,
+    "maxMs": 29.244947000000025
+  },
+  "douaumont-mobile-firstMs": 0.2084669999999278,
+  "douaumont-mobile": {
+    "meanMs": 2.3635712833333438,
+    "p95Ms": 4.093025000000125,
+    "maxMs": 7.9182160000000295
+  },
+  "souville-pc-firstMs": 14.23456299999998,
+  "souville-pc": {
+    "meanMs": 10.355573308333305,
+    "p95Ms": 14.706759000000147,
+    "maxMs": 26.601276999999754
+  },
+  "souville-mobile-firstMs": 0.2750949999999648,
+  "souville-mobile": {
+    "meanMs": 2.2464067999999315,
+    "p95Ms": 3.6617599999999584,
+    "maxMs": 6.88641699999971
+  }
+}

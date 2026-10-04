@@ -21,10 +21,6 @@ function setState(e,state,duration=0){e.combatPassState=state;e.combatPassTimer=
 function clearState(e){
  for(const key of ['combatPassState','combatPassTimer','combatPassHeading','combatPassWaypoint','combatPassSide','combatPassCooldown'])delete e[key];
 }
-function releaseDirectorCruise(e){
- if(!e.directorCruise)return;
- const prior=e.directorCruise;e.speed=prior.speed;e.dogfightCruise=prior.dogfight;e.personalityCruise=prior.personality;e.cruiseSpeedCap=prior.cap;delete e.directorCruise;
-}
 
 export function installDogfightPass(Game,angleDiff){
  const spawn=Game.prototype.spawnEnemy;
@@ -34,23 +30,6 @@ export function installDogfightPass(Game,angleDiff){
 
  const steer=Game.prototype.dogfightSteering;
  Game.prototype.dogfightSteering=function(e,contact,dt,baseTurn){
-  if(e?.directorCruise&&this.t>=e.directorIntentUntil)releaseDirectorCruise(e);
-  if(e?.directorFormation){
-   const leader=e.formationLeader,now=this.t||0;
-   if(e.directorIntentUntil&&now>=e.directorIntentUntil){e.directorIntentUntil=0;e.directorEscort=null}
-   if(!leader||leader.hp<=0||!this.enemies.includes(leader)){
-    e.directorFormation=false;e.formationLeader=null;e.directorFireHoldUntil=now+2.4;
-    e.directorIntentUntil=0;e.directorEscort=null;
-    setState(e,DOGFIGHT_PASS_STATES.DISENGAGE,2.4);
-    e.combatPassHeading=e.a+(e.combatPassSide||1)*.7;
-   }else if(this.battleDirector?.sceneId===e.directorSceneId&&['ENTRY','APPROACH','TACTIC','REGROUP'].includes(this.battleDirector.phase)){
-    const x=leader.x-Math.cos(leader.a)*e.formationBack-Math.sin(leader.a)*e.formationOffset;
-    const y=leader.y-Math.sin(leader.a)*e.formationBack+Math.cos(leader.a)*e.formationOffset;
-    const gap=Math.hypot(x-e.x,y-e.y),heading=gap>65?Math.atan2(y-e.y,x-e.x):leader.a;
-    return{delta:angleDiff(heading,e.a),turn:baseTurn*(gap>120?1:.72)};
-   }
-  }
-  if(e?.directorFireHoldUntil>this.t)return{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*.5};
   const directed=e?.directorIntentUntil>(this.t||0)&&!e.defensivePressure&&directorAircraftEligible(this,e);
   if(e?.directorIntentUntil&&!directed){e.directorIntentUntil=0;e.directorEscort=null;e.combatPassTimer=0}
   if(directed&&contact&&baseTurn>0&&(e.type==='bomber'||e.directorLayout==='recovery'))
@@ -68,6 +47,11 @@ export function installDogfightPass(Game,angleDiff){
    return steer.call(this,e,contact,dt,baseTurn);
   };
 
+  // A brief shared entry heading makes the formation readable before individual
+  // pursuit begins. Defensive reactions always retain their existing priority.
+  if(directed&&e.directorRallyUntil>(this.t||0)&&distance>clamp(p.preferredRange*1.15,180,360))
+   return{delta:angleDiff(e.directorRallyHeading,e.a),turn:baseTurn*.55};
+
   if(e.combatPassState===DOGFIGHT_PASS_STATES.APPROACH){
    const result=base(),entryRange=clamp(p.preferredRange*1.15,180,360),entryCone=clamp(.78+(p.headOnBias-1)*.18,.62,.95);
    if(e.combatPassCooldown===0&&distance<=entryRange&&Math.abs(delta)<=entryCone){
@@ -77,10 +61,16 @@ export function installDogfightPass(Game,angleDiff){
    return{...result,turn:result.turn*clamp(.9+(p.pursuitControl-1)*.25,.82,1.08)};
   }
 
+  // Once a directed nose-to-nose pass has crossed, enter the existing Break
+  // sequence immediately instead of spending the remaining intent flying away.
+  if(directed&&e.directorLayout==='headOn'&&e.combatPassState===DOGFIGHT_PASS_STATES.COMMIT&&distance<160&&Math.cos(delta)<-.15){
+   e.combatPassHeading=e.a;setState(e,DOGFIGHT_PASS_STATES.DISENGAGE,DOGFIGHT_PASS_BALANCE.disengageDuration);
+  }
+
   if(e.combatPassTimer===0){
    if(e.combatPassState===DOGFIGHT_PASS_STATES.ATTACK_PASS){
     const commit=clamp(DOGFIGHT_PASS_BALANCE.commitDuration+(p.headOnBias-1)*.2,.78,1.28);
-    setState(e,DOGFIGHT_PASS_STATES.COMMIT,directed&&e.directorLayout==='headOn'?Math.min(1.45,Math.max(commit,e.directorIntentUntil-(this.t||0)-DOGFIGHT_PASS_BALANCE.disengageDuration)):commit);
+    setState(e,DOGFIGHT_PASS_STATES.COMMIT,directed&&e.directorLayout==='headOn'?Math.max(commit,e.directorIntentUntil-(this.t||0)-DOGFIGHT_PASS_BALANCE.disengageDuration):commit);
    }
    else if(e.combatPassState===DOGFIGHT_PASS_STATES.COMMIT){
     e.combatPassHeading=e.a;
@@ -102,7 +92,7 @@ export function installDogfightPass(Game,angleDiff){
   if(e.combatPassState===DOGFIGHT_PASS_STATES.COMMIT)
    return{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*.16};
   if(e.combatPassState===DOGFIGHT_PASS_STATES.DISENGAGE)
-   return{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*.14};
+   return{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*(e.directorBreakUntil>(this.t||0)?.55:.14)};
   if(e.combatPassState===DOGFIGHT_PASS_STATES.REPOSITION){
    const waypoint=e.combatPassWaypoint||contact;
    if(directed&&e.directorLayout==='chase'){
@@ -114,7 +104,11 @@ export function installDogfightPass(Game,angleDiff){
     else if(Math.hypot(contact.x-bomber.x,contact.y-bomber.y)<260){waypoint.x=contact.x;waypoint.y=contact.y}
     else{const offset=e.directorEscortOffset||0;waypoint.x=bomber.x+Math.cos(bomber.a)*120-Math.sin(bomber.a)*offset;waypoint.y=bomber.y+Math.sin(bomber.a)*120+Math.cos(bomber.a)*offset}
    }
-   return{delta:angleDiff(Math.atan2(waypoint.y-e.y,waypoint.x-e.x),e.a),turn:baseTurn*clamp(.82+(p.highSpeedHandling-1)*.2,.68,1.05)};
+   // Briefly hold the outside flank before converging on the original fixed
+   // waypoint. Player movement must not turn a pincer into homing pursuit.
+   const spread=directed&&e.directorLayout==='pincer'&&(this.t||0)-(e.directorIntentStartedAt||0)<1.2?130*(e.combatPassSide||1):0,heading=e.directorAnchorHeading||0;
+   const targetX=waypoint.x-Math.sin(heading)*spread,targetY=waypoint.y+Math.cos(heading)*spread;
+   return{delta:angleDiff(Math.atan2(targetY-e.y,targetX-e.x),e.a),turn:baseTurn*clamp(.82+(p.highSpeedHandling-1)*.2,.68,1.05)};
   }
   if(e.combatPassState===DOGFIGHT_PASS_STATES.REENGAGE){const result=base();return{...result,turn:result.turn*clamp(p.reattackBias,.82,1.38)}}
   return base();

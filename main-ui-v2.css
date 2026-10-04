@@ -96,7 +96,7 @@ body.astra-ui .factions button.active{color:#e1d7bb;border-bottom-color:#b69d69;
 body.astra-ui:not(.playing) #pilotTabs{position:relative;inset:auto;display:flex;flex-wrap:nowrap;grid-column:auto;gap:18px;width:100%;height:auto;min-height:0;padding:4px 3px 8px;margin:0;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none}
 #pilotTabs::-webkit-scrollbar{display:none}
 body.astra-ui:not(.playing) #pilotTabs button{position:relative;flex:0 0 calc((100% - 72px)/5);min-width:0;height:188px;min-height:188px;padding:0 0 38px;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;border:0;border-radius:0;background:none;box-shadow:none;color:#eeecdf;overflow:visible;scroll-snap-align:center;transition:transform .16s ease}
-body.astra-ui:not(.playing) #pilotTabs .pilot-tab-portrait{position:relative;inset:auto;display:block;width:100%;height:150px;min-height:150px;object-fit:cover;object-position:50% 8%;border:1px solid #b9b5a156;border-radius:3px;background:radial-gradient(ellipse at 50% 25%,#494b4055,#151b1699);filter:saturate(.6) brightness(.85);opacity:1;pointer-events:none;box-shadow:inset 0 1px #eeeecc22}
+body.astra-ui:not(.playing) #pilotTabs .pilot-tab-portrait{position:relative;inset:auto;display:block;width:100%;height:150px;min-height:150px;object-fit:cover;object-position:50% 8%;border:1px solid #b9b5a156;border-radius:3px;background:radial-gradient(ellipse at 50% 25%,#494b4055,#151b1699);filter:saturate(.6) brightness(.85);opacity:1;pointer-events:auto;cursor:zoom-in;box-shadow:inset 0 1px #eeeecc22}
 body.astra-ui:not(.playing) #pilotTabs button.active{border:0;background:none;box-shadow:none}
 body.astra-ui:not(.playing) #pilotTabs button.active .pilot-tab-portrait{border-color:#e6cb8c;box-shadow:0 0 0 1px #e0ba75,0 0 12px #d5a94d38;filter:none;background:radial-gradient(ellipse at 45% 40%,#65655466,#1d211699)}
 body.astra-ui #pilotTabs button:hover .pilot-tab-portrait{filter:none;border-color:#d5cba5}
@@ -114,11 +114,11 @@ body.astra-ui #start strong{font:900 clamp(34px,4.2vw,70px)/1.1 var(--astra-type
 body.astra-ui #start .astra-sortie-english{font:400 clamp(12px,1.5vw,24px)/1 var(--astra-numeric);letter-spacing:.13em}
 body.astra-ui #start .astra-sortie-arrow{display:block;width:34px;height:34px;margin:0;color:#edddbf;font-size:0}
 .astra-sortie-arrow svg{width:100%;height:100%}
+.astra-launch-hint{text-align:center;margin:15px 0 0;font-size:9px;letter-spacing:.15em;color:#91a091}
 .astra-random-sortie{display:block;width:100%;min-height:42px;margin:9px 0 0;padding:9px 12px;border:1px solid #a79b7559;border-radius:3px;background:#132019cc;color:#ddd6bc;font:700 12px/1.2 var(--astra-type);letter-spacing:.06em;cursor:pointer;box-shadow:inset 0 1px #efe1b118}
 .astra-random-sortie:hover{background:#1a2a21;color:#f0e6c7;border-color:#b8a67488}
 .astra-random-sortie:active{transform:translateY(1px)}
 .astra-random-sortie[hidden]{display:none!important}
-.astra-launch-hint{text-align:center;margin:10px 0 0;font-size:9px;letter-spacing:.15em;color:#91a091}
 /* Navigation remains connected to the actual ranking, coop, records and settings. */
 .main-operations{position:static;inset:auto;width:auto;display:flex;align-items:center;justify-content:flex-end;gap:0;margin:0;padding:0;border:0;background:none;pointer-events:auto}
 .main-operations [data-action]{display:flex;gap:15px;align-items:center;justify-content:center;min-height:46px;padding:0 24px;border:0;border-right:1px solid #d2c29933;border-radius:0;background:none;color:#eeeadc;text-decoration:none;font:500 16px/1.4 var(--astra-type);cursor:pointer;box-shadow:none}
@@ -289,11 +289,11 @@ body.astra-ui.playing #touch #touchSkill:after,body.astra-ui.playing #touch #tou
  .astra-pilot-caption{display:none}
  .astra-launch{padding:4px 4px 0;align-self:stretch}
  body.astra-ui:not(.playing) #start{min-height:70px;padding:14px 16px;gap:15px;border-radius:3px}
- .astra-random-sortie{min-height:40px;margin-top:7px;padding:8px 10px;font-size:11px}
  body.astra-ui #start strong{font-size:38px;line-height:1.1;letter-spacing:.03em}
  .astra-sortie-plane{display:none}
  body.astra-ui #start .astra-sortie-english{font-size:15px;letter-spacing:.13em}
  body.astra-ui #start .astra-sortie-arrow{width:28px;height:28px}
+ .astra-random-sortie{min-height:40px;margin-top:7px;padding:8px 10px;font-size:11px}
  .astra-launch-hint{display:none}
  .main-operations{position:fixed;left:16px;right:16px;bottom:0;z-index:25;justify-content:space-around;gap:0;min-height:58px;padding:8px 0 calc(8px + env(safe-area-inset-bottom));border-top:1px solid #c3bca15c;background:#0b1411f5;backdrop-filter:blur(12px)}
  .main-operations [data-action]{flex:1;min-width:0;min-height:32px;font-size:12px;gap:9px;padding:0 12px;border-right:1px solid #ada68b6b}
@@ -1081,3 +1081,4 @@ body.astra-ui #skillCutin .cutin-caption strong{font-size:20px;font-weight:800;c
  body.astra-ui #skillCutin .cutin-caption small{font-size:11px}
  body.astra-ui #skillCutin .cutin-caption strong{font-size:16px}
 }
+@media(max-width:720px),(pointer:coarse){body.astra-ui.playing.gamepad-active #touch{display:none!important}}

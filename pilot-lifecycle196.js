@@ -21,11 +21,12 @@ export function preparePersonalRound1918(p, b) {
 }
 
 export function barkerDamage1918(p, damage) {
-  if (p.pilot !== 'barker' || !(damage > 0)) return damage;
+  if (p.pilot !== 'barker' || !(damage > 0)) return p.pilotDamageTaken ? p.pilotDamageTaken(damage) : damage;
   p.barkerStacks = Math.min(p.skillTime > 0 ? 5 : 3, (p.barkerStacks || 0) + 1);
   p.barkerStackTime = 3;
   signatureCue(p,'battleDamage',{life:.85,count:p.barkerStacks});
-  return p.skillTime > 0 ? Math.min(damage, Math.max(0, p.hp - 1)) : damage;
+  const taken = p.pilotDamageTaken ? p.pilotDamageTaken(damage) : damage;
+  return p.skillTime > 0 ? Math.min(taken, Math.max(0, p.hp - 1)) : taken;
 }
 
 export function advancePersonal1918(p, dt, previousRounds = p.roundsFired) {
@@ -43,17 +44,20 @@ export function advancePersonal1918(p, dt, previousRounds = p.roundsFired) {
         ghost.x += Math.cos(ghost.a) * ghost.speed * step;
         ghost.y += Math.sin(ghost.a) * ghost.speed * step;
       }
+
       p.invuln = Math.max(p.invuln, step + .02);
       if (!p.ballCloak) {
         p.ballAmbush = 2;
       }
     } else if (p.ballAmbush > 0) p.ballAmbush = Math.max(0, p.ballAmbush - step);
   }
-  if (p.pilot === 'rickenbacker' && p.skillTime > 0 && p.roundsFired > previousRounds) {
+  if (p.pilot === 'rickenbacker' && p.skillTime <= 0) p.rickRingDone = false;
+  if (p.pilot === 'rickenbacker' && p.skillTime > 0 && !p.rickRingDone) {
+    p.rickRingDone = true;
     let count = 0;
     for (const e of p.enemies) {
       if (count >= 7) break;
-      if (e.hp <= 0 || e.surface || Math.hypot(e.x - p.x, e.y - p.y) > 780) continue;
+      if (e.hp <= 0 || (e.surface && !e.stageBossBody) || Math.hypot(e.x - p.x, e.y - p.y) > 780) continue;
       const a = Math.atan2(e.y - p.y, e.x - p.x);
       p.bullets.push({x:p.x + Math.cos(a)*24, y:p.y + Math.sin(a)*24,
         vx:Math.cos(a)*580, vy:Math.sin(a)*580, life:1.5, enemy:false, ownerId:p.id,
@@ -95,7 +99,6 @@ export function pilotSupportPose(p,wing,dt,attack=false){
   const delta=Math.atan2(Math.sin(aim-wing.a),Math.cos(aim-wing.a));wing.a+=Math.max(-dt*4,Math.min(dt*4,delta));
   wing.muzzleFlash=Math.max(0,(wing.muzzleFlash||0)-dt);return true;
 }
-
 // Return newly killed targets so each mode can use its existing one-time death/XP pipeline.
 export function advanceBurns1918(world, dt) {
   const step = stepTime(dt), killed = [];
@@ -105,7 +108,9 @@ export function advanceBurns1918(world, dt) {
     const active = Math.min(step, e.burnTime);
     e.burnTime = Math.max(0, e.burnTime - step);
     if(e.gontermannBurn)e.gontermannBurn.age+=active;
-    e.hp -= Math.max(0, e.burnDps || 0)*active;
+    const burnDamage = Math.max(0, e.burnDps || 0)*active;
+    if (e.stageBossBody) e.stageBossBody.hit({damage: burnDamage});
+    else e.hp -= burnDamage;
     e.burnFxTime = (e.burnFxTime || 0) - step;
     if (e.burnFxTime <= 0 && !e.gontermannBurn) {
       e.burnFxTime = .13;
@@ -113,10 +118,11 @@ export function advanceBurns1918(world, dt) {
       world.burst(e.x, e.y, '#ff9a3c', 3);
     }
     if (!e.burnTime) {e.burnDps = 0;delete e.gontermannBurn;}
-    if (e.hp <= 0 && !e.burnCounted && !e.deathHandled) {
+    if (e.hp <= 0 && !e.burnCounted && !e.deathHandled && !e.stageBossBody) {
       e.burnCounted = true;
       killed.push(e);
     }
   }
   return killed;
 }
+

@@ -1,10 +1,11 @@
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=351';
-import {BossHazards} from './headon-stageboss-hazards.js?v=351';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=530';
+import {verdunFortCollapseSites} from './verdun-fortresses.js?v=530';
+import {BossHazards} from './headon-stageboss-hazards.js?v=530';
 
 export class BossStages {
   constructor({teamFaction,stageIndex=0,loopIndex=0,rng=Math.random}) {
     if(!['central','entente'].includes(teamFaction)||!Number.isInteger(stageIndex)||stageIndex<0||stageIndex>=STAGES.length||!Number.isInteger(loopIndex)||loopIndex<0)throw new Error('Invalid current stage/faction');
-    Object.assign(this,{teamFaction,stageIndex,loopIndex,rng});this.order=[0,1,7,2,3,5,6,4,11,9];this.orderPosition=this.order.indexOf(stageIndex);this.phase='explore';this.encounter=null;
+    Object.assign(this,{teamFaction,stageIndex,loopIndex,rng});this.order=[0,2,1,5,3,7,9,4,8,10,11,6,12,13];this.orderPosition=this.order.indexOf(stageIndex);this.phase='explore';this.encounter=null;
   }
   get stage(){return STAGES[this.stageIndex];}
   get bossId(){return Object.keys(BOSS_CATALOG).find(id=>BOSS_CATALOG[id].stage===this.stageIndex&&(BOSS_CATALOG[id].faction==='neutral'||BOSS_CATALOG[id].faction!==this.teamFaction));}
@@ -17,7 +18,7 @@ export class BossStages {
   advance(blocked=false) {
     if(blocked||this.phase!=='clear-pending'||!this.encounter.completed)return null;
     const id=this.encounter.id;const pos=this.order.indexOf(this.stageIndex);this.orderPosition=pos<0?this.order.length:pos+1;
-    if(this.orderPosition>=this.order.length){this.loopIndex++;this.orderPosition=0;const previous=this.stageIndex;this.order=STAGES.map((_,i)=>i).filter(i=>i!==8);for(let i=this.order.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[this.order[i],this.order[j]]=[this.order[j],this.order[i]]}if(this.order[0]===previous)[this.order[0],this.order[1]]=[this.order[1],this.order[0]];}
+    if(this.orderPosition>=this.order.length){this.loopIndex++;this.orderPosition=0;const previous=this.stageIndex;this.order=STAGES.map((_,i)=>i);for(let i=this.order.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[this.order[i],this.order[j]]=[this.order[j],this.order[i]]}if(this.order[0]===previous)[this.order[0],this.order[1]]=[this.order[1],this.order[0]];}
     this.stageIndex=this.order[this.orderPosition];
     this.phase='explore';this.encounter=null;
     return{completedId:id,stage:this.stage,stageIndex:this.stageIndex,loopIndex:this.loopIndex};
@@ -49,17 +50,26 @@ export class StageBossAddon {
     let tuning=this.hooks.getTuning({bossId,stageIndex:this.stages.stageIndex,loopIndex:this.stages.loopIndex});
     if(bossId==='ca4'||bossId==='gik')tuning={...tuning,geometryScale:1.45,motionMultiplier:0,mobileBoss:false};
     if(bossId==='livens-flame-projector'||bossId==='minenwerfer-battery')tuning={...tuning,geometryScale:1,motionMultiplier:0,mobileBoss:false};
-    if(bossId==='treffas-wagen')tuning={...tuning,geometryScale:1.15,mobileBoss:false};
+    if(bossId==='treffas-wagen')tuning={...tuning,geometryScale:1,mobileBoss:false};
     if(bossId==='fliegerzug')tuning={...tuning,railCycle:11,warningSeconds:1.7};
+    if(bossId==='fort-douaumont'||bossId==='fort-souville')tuning={...tuning,geometryScale:1,motionMultiplier:0,mobileBoss:false};
     const entry=BOSS_CATALOG[bossId],faction=entry.faction==='neutral'?(this.stages.teamFaction==='central'?'entente':'central'):entry.faction;
     const encounter=createBossEncounter({id,bossId,tuning,x,y,rng:this.rng,faction,emit:event=>this.accept(event,id,tuning)});
-    for(const b of encounter.bodies.values())if(b.support129||b.formationBoss129){b.countMinions129=()=>this.hooks.countMinions(id);b.formationStatus129=()=>this.hooks.formationStatus?.(id)||[];}this.defeatSequence=null;this.bodyDefeats=[];this.stages.attach(encounter);this.hooks.onCue({type:'boss-enter',encounterId:id,bossId});return encounter;
+    for(const b of encounter.bodies.values())if(b.support129||b.formationBoss129||b.kind==='fliegerzug'){b.countMinions129=()=>this.hooks.countMinions(id);b.formationStatus129=()=>this.hooks.formationStatus?.(id)||[];}this.defeatSequence=null;this.bodyDefeats=[];this.stages.attach(encounter);this.hooks.onCue({type:'boss-enter',encounterId:id,bossId});return encounter;
   }
   accept(event,encounterId,tuning) {
     if(this.ended)return;
     if(event.type==='support-damage'){this.hooks.onDamage(event.playerId,event.damage,event.source);return;}if(event.type==='support-cleanup'){this.hooks.clearEncounterOwned(encounterId);return;}
     if(event.type==='hazard')this.hazards.spawn({...event,encounterId});
     else if(event.type==='cancel-hazards')this.hazards.clearTagged(encounterId,event.tag);
+    else if(event.type==='harbor-load-pose'){
+      if([event.x,event.y,event.radius,event.damage].every(Number.isFinite)&&event.radius>0&&event.damage>=0)this.hazards.pool.visit(h=>{if(h.encounterId===encounterId&&h.bossId===event.bossId&&h.tag==='harbor-crane'){h.x=event.x;h.y=event.y;h.radius=event.radius;h.damage=event.damage;}});
+    }
+    else if(event.type==='apron-pose')this.hazards.pool.visit(h=>{if(h.encounterId===encounterId&&h.tag===event.tag){h.vertices=event.vertices;h.x=event.x;h.y=event.y;}});
+    else if(event.type==='regional-beam-pose'){
+      const body=this.stages.encounter?.bodies.get(event.bossId);
+      if(body?.kind==='london-searchlight'&&[event.x,event.y,event.angle].every(Number.isFinite))this.hazards.pool.visit(h=>{if(h.encounterId===encounterId&&h.bossId===event.bossId&&h.tag==='london-beam'&&h.kind==='searchlight'){h.x=event.x;h.y=event.y;h.angle=event.angle;}});
+    }
     else if(event.type==='status')this.hooks.onStatus(event.playerId,{...event.status,encounterId,sourceId:encounterId+':'+event.status.type});
     else if(event.type==='spawn-minion') {
       if(this.hooks.countMinions(encounterId)>=this.minionCap){this.metrics.minionsDenied++;return;}
@@ -104,12 +114,19 @@ export class StageBossAddon {
   beginDefeat(encounter) {
     const bodies=[...encounter.bodies.values()].filter(b=>b.kind!=='gotha-raider'||this.bodyDefeats.some(d=>d.id===b.id)).map(b=>({id:b.id,kind:b.kind,x:b.x,y:b.y}));
     const sinking=/^(sms-stuttgart|hms-zubian|armored-harbor-fortress)$/.test(encounter.bossId);
-    this.defeatSequence={encounterId:encounter.id,bossId:encounter.bossId,age:0,duration:sinking?4.4:2.65,pulse:0,bodies};
+    const fortress=[...encounter.bodies.values()].find(b=>b.fortressBoss),collapseSites=fortress?verdunFortCollapseSites(fortress):null;
+    this.defeatSequence={encounterId:encounter.id,bossId:encounter.bossId,age:0,duration:collapseSites?4.8:sinking?4.4:2.65,pulse:0,bodies,...(collapseSites?{collapseSites}:null)};
     this.hazards.clear(encounter.id);this.hooks.clearEncounterOwned(encounter.id);
     this.hooks.onCue({type:'boss-destruction-start',encounterId:encounter.id,bossId:encounter.bossId,bodies});
   }
   updateDefeat(dt) {
     const d=this.defeatSequence;if(!d)return;d.age=Math.min(d.duration,d.age+dt);
+    if(d.collapseSites){
+      while(d.pulse<d.collapseSites.length&&d.age>=d.collapseSites[d.pulse].at){
+        const q=d.collapseSites[d.pulse++];this.hooks.onCue({type:'boss-destruction-pulse',encounterId:d.encounterId,bossId:d.bossId,partId:q.partId,x:q.x,y:q.y,radius:q.radius,final:!!q.final});
+      }
+      return;
+    }
     const schedule=[0,.22,.48,.78,1.12,1.5,1.9,2.28,2.58];
     while(d.pulse<schedule.length&&d.age>=schedule[d.pulse]){
       const i=d.pulse++,body=d.bodies[i%d.bodies.length],airship=/zeppelin|hma23/.test(body.kind);
@@ -141,4 +158,3 @@ export class StageBossAddon {
     this.defeatSequence=null;this.bodyDefeats=[];
   }
 }
-

@@ -1,11 +1,15 @@
+import {FXS,fxsFireZone} from './fx-sample-preview.js?v=530';
 // Muted tracer families: no black borders, outlined gems, or neon rings.
+// (FX layer exception: hostile bolts get a crimson body + white-hot tip for dodge readability.)
 // Rendering never changes projectile movement, damage or collision.
-import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=351';
+import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=530';
 export function projectileStyle(b){return b.hostileRocket?'rocket':b.flak?'flak':b.visualType||(b.naval?'naval':b.fieldShell?'balloon':b.heavy?'heavyBomber':'scout')}
 const TRACERS={scout:['#e7a06b',10,2],hunter:['#efb77f',14,2],bomber:['#dfbc7b',11,3],heavyBomber:['#e4ae72',15,3],boss:['#e58f7c',16,3],zeppelin:['#d8bb8b',12,3],railgun:['#efaa89',23,3],naval:['#dfaa82',16,3],balloon:['#dbbf8b',8,3],flak:['#dfac80',6,3],rocket:['#edac77',15,3]};
 // gunUpgradeBonus is the cumulative machine-gun attack bonus, not temporary
 // skill damage. Interpolation avoids sudden color jumps at upgrade thresholds.
-const GUN_COLORS=[[0,[248,223,135]],[.3,[245,204,145]],[.6,[238,177,132]],[1,[222,147,119]],[1.6,[199,117,123]],[2.5,[173,111,131]]];
+// FX layer: rounds heat up with the gun upgrades — dull orange → amber → yellow → pale → white-hot.
+const GUN_COLORS=FXS?[[0,[226,120,50]],[.3,[236,146,58]],[.6,[244,176,76]],[1,[248,206,116]],[1.6,[250,230,178]],[2.5,[255,249,236]]]
+ :[[0,[248,223,135]],[.3,[245,204,145]],[.6,[238,177,132]],[1,[222,147,119]],[1.6,[199,117,123]],[2.5,[173,111,131]]];
 export function friendlyTracerColor(b,gunUpgradeBonus=0){
  if(b.mauserRound)return '#a98cff';
  if(b.specialColor)return b.specialColor;
@@ -17,10 +21,31 @@ export function friendlyTracerColor(b,gunUpgradeBonus=0){
  return '#'+a.map((v,j)=>Math.round(v+(z[j]-v)*t).toString(16).padStart(2,'0')).join('');
 }
 const cannonAtlas=typeof Image==='undefined'?null:new Image();
-if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.webp?v=338';
+if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.webp?v=426';
+const ENEMY_BOLTS={scout:[17,4],hunter:[19,4],bomber:[16,4.5],heavyBomber:[21,5.5],boss:[20,4.5],zeppelin:[17,4.5],naval:[21,5],balloon:[12,5],flak:[11,5]};
+const boltCache=new Map();
+function enemyBolt(len,wid){
+ const key=len+'x'+wid;if(boltCache.has(key))return boltCache.get(key);
+ if(typeof document==='undefined')return null;
+ const pad=5,S=2,cv=document.createElement('canvas');cv.width=(len+pad*2)*S;cv.height=(wid+pad*2)*S;cv.pad=pad;const g=cv.getContext('2d');g.scale(S,S);
+ const cy=pad+wid/2,cap=(x0,x1,h,fill)=>{g.beginPath();g.moveTo(x0+h/2,cy-h/2);g.lineTo(x1-h/2,cy-h/2);g.arc(x1-h/2,cy,h/2,-Math.PI/2,Math.PI/2);g.lineTo(x0+h/2,cy+h/2);g.arc(x0+h/2,cy,h/2,Math.PI/2,Math.PI*1.5);g.closePath();g.fillStyle=fill;g.fill()};
+ // faint warm bed (no hard outline) so the bolt still lifts off bright fields, sea and cloud
+ g.filter='blur(2.2px)';cap(pad,pad+len+1.5,wid+2.5,'rgba(120,20,14,.26)');g.filter='none';
+ const body=g.createLinearGradient(pad,0,pad+len,0);body.addColorStop(0,'rgba(222,48,46,0)');body.addColorStop(.35,'rgba(236,58,50,.8)');body.addColorStop(1,'#ff5a44');
+ cap(pad,pad+len,wid,body);
+ const core=g.createLinearGradient(pad+len*.35,0,pad+len,0);core.addColorStop(0,'rgba(255,214,190,0)');core.addColorStop(.6,'rgba(255,236,220,.9)');core.addColorStop(1,'#ffffff');
+ cap(pad+len*.35,pad+len-.4,Math.max(1.5,wid*.5),core);
+ boltCache.set(key,cv);return cv;
+}
 export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
  if(!b.enemy||b.life<=0)return;const kind=projectileStyle(b),[color,length,width]=TRACERS[kind]||TRACERS.scout;
  c.save();c.translate(Math.round(x),Math.round(y));c.rotate(Math.atan2(b.vy,b.vx));
+ // FX layer: hostile fire must read instantly on every terrain and never be confused
+ // with the player's orange→white rounds — crimson bolt, warm-white core, soft dark bed.
+ if(FXS&&kind!=='railgun'&&kind!=='rocket'){
+  const [len,wid]=ENEMY_BOLTS[kind]||ENEMY_BOLTS.scout,k=kind==='boss'?Math.max(1,1/Math.max(.35,screenScale)):1,spr=enemyBolt(len,wid);
+  if(spr){c.scale(k,k);c.drawImage(spr,2-len-spr.pad,-spr.height/4,spr.width/2,spr.height/2);c.restore();return}
+ }
  if(kind==='boss'){
   const k=Math.max(1,1/Math.max(.35,screenScale));
   if(fxReady('tracerOrange')){c.scale(k,k);fx(c,'tracerOrange',-6,0,30,9,0,1);c.restore();return}
@@ -78,9 +103,11 @@ export function drawBattlefieldFire(c,g,point=(x,y)=>[x,y]){
   if(FX3&&fxReady('fireGround')){
    const d=f.radius*2,seed=f.seed||0,phase=(g.t||0)*6.5+seed*.17,pulse=.94+Math.sin(phase)*.06;
    const angle=f.angle||0,ca=Math.cos(angle),sa=Math.sin(angle),lowDetail=(c.canvas?.width||999)<900;
+   const shards=()=>{if(f.wreck&&!lowDetail)for(let i=0;i<2;i++){const side=i?1:-1,along=(i?-.14:.08)*f.radius,across=side*(.18+(seed%5)*.015)*f.radius;
+    fx(c,'metalShard'+((seed+i)%6),x+ca*along-sa*across,y+sa*along+ca*across,42+i*7,30+i*5,angle+side*(.35+i*.42),fade*.72);}};
+   if(FXS&&fxsFireZone(c,f,x,y,g.t||0,fade,shards))continue;
+   shards();
    fx(c,'fireGround',x,y,d,d,((seed%17)-8)*.08,fade*.9*pulse);
-   if(f.wreck&&!lowDetail)for(let i=0;i<2;i++){const side=i?1:-1,along=(i?-.14:.08)*f.radius,across=side*(.18+(seed%5)*.015)*f.radius;
-    fx(c,'metalShard'+((seed+i)%6),x+ca*along-sa*across,y+sa*along+ca*across,42+i*7,30+i*5,angle+side*(.35+i*.42),fade*.72);}
    const flames=lowDetail?1:2;
    for(let i=0;i<flames;i++){const side=i?1:-1,along=(i?-.23:.28)*f.radius,across=side*.2*f.radius,s=d*(i?.48:.56)*pulse;
     fx(c,'fireEngine',x+ca*along-sa*across,y+sa*along+ca*across,s,s,angle+side*.45,fade*(i?.58:.72));}

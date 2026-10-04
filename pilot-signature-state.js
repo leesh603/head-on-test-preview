@@ -21,7 +21,7 @@ export const PILOT_SIGNATURES=Object.freeze({
  mannock:{start:'coverOrder',sustain:'cover',symbol:null,reaction:'rescueShot'},
  mckeever:{start:'gunnerHandoff',sustain:'twoSeater',symbol:null,reaction:'handoff'},
  hawker:{start:'steadySight',sustain:'gunPlatform',symbol:null,reaction:'aimedShot'},
- nungesser:{start:'blackHeart',sustain:'defyDeath',symbol:'blackHeart',reaction:'defiantHit'},
+ nungesser:{start:'blackHeart',sustain:'defyDeath',symbol:'blackHeart',reaction:null},
  rickenbacker:{start:'ringPass',sustain:'ringFlight',symbol:'ring94',reaction:'targetSwitch'},
  ball:{start:'cloudAmbush',sustain:'concealment',symbol:null,reaction:'ambushShot'},
  barker:{start:'lastStand',sustain:'survival',symbol:null,reaction:'escape'},
@@ -75,7 +75,7 @@ export function advancePilotSignature(p,dt){
 }
 export function pilotSignatureReaction(p,event,{target,position,gun=0,damage=0}={}){
  if(!alive(p))return null;const profile=PILOT_SIGNATURES[p.pilot];if(!profile)return null;
- if(event==='damage'&&['nungesser','berthold'].includes(p.pilot)&&damage>0&&signatureInterval(p,'damage',.14))return signatureCue(p,profile.reaction,{life:.65,damage,symbol:profile.symbol});
+ if(event==='damage'&&p.pilot==='berthold'&&damage>0&&signatureInterval(p,'damage',.14))return signatureCue(p,profile.reaction,{life:.65,damage,symbol:profile.symbol});
  if(event==='shot'&&signatureInterval(p,gun===1?'rearShot':'shot',.12))return signatureCue(p,'shotAccent',{life:.18,gun,style:profile.sustain,active:p.skillTime>0});
  if(event==='hit'&&profile.reaction&&target&&signatureInterval(p,'hit',.15)){const pos=position||target;return signatureCue(p,profile.reaction,{x:pos.x,y:pos.y,life:.45,active:p.skillTime>0})}
  return null;

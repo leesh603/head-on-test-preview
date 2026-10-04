@@ -1,0 +1,4 @@
+.result-nicknames { display:grid; gap:12px; width:100%; grid-column:1/-1; }
+.result-nicknames label { display:grid; gap:6px; text-align:left; color:#dfd6b8; font-size:14px; }
+.result-nicknames input { box-sizing:border-box; width:100%; min-height:44px; padding:10px 12px; border:1px solid #a79c74; border-radius:6px; color:#fff0cb; background:#172b33; font:16px sans-serif; }
+.result-nicknames input:focus { outline:2px solid #ebc375; outline-offset:2px; }

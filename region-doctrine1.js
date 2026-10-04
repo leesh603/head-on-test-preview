@@ -1,6 +1,6 @@
 // Regional enemy doctrine weights + regional battlefield events.
 // Wraps spawnComposition (keeps time-scaling) and offerBattlefieldEvent (keeps canOffer guards).
-import {BATTLEFIELD_EVENT_BALANCE} from './battlefield-events170.js?v=338';
+import {BATTLEFIELD_EVENT_BALANCE} from './battlefield-events170.js?v=530';
 const AIR_TYPES=['scout','hunter','bomber','heavyBomber'];
 // weight = [scout,hunter,bomber,heavy,zeppelinShare]
 const DOCTRINE={
@@ -25,12 +25,14 @@ export function installRegionDoctrine(Game){
   for(const t of AIR_TYPES){acc+=w[t==='heavyBomber'?'heavy':t]||0;if(r<acc)return t==='heavyBomber'?(this.rng()<.25?'zeppelin':'heavyBomber'):t}
   return 'hunter';
  };
+ const installEvents=()=>{
+ if(P.__regionalBattlefieldEvents1)return;P.__regionalBattlefieldEvents1=true;
  const _offer=Game.prototype.offerBattlefieldEvent;
  Game.prototype.offerBattlefieldEvent=function(preferred){
   const rt=REGION_EVENTS[this.worldRegion()];
   const state=this.battlefieldEvents;
-  if(rt&&this.canOfferBattlefieldEvent?.()&&this.rng()<.6&&state&&state.lastType!==rt){
-   const event={id:++state.serial,type:rt,status:'active',offeredAt:this.t||0,startedAt:this.t||0,targets:[],deadline:(this.t||0)+70};
+  if(!preferred&&rt&&this.canOfferBattlefieldEvent?.()&&this.rng()<.6&&state&&state.lastType!==rt){
+   const event={id:++state.serial,type:rt,label:EVENT_LABEL[rt],status:'active',offeredAt:this.t||0,startedAt:this.t||0,region:this.worldRegion(),targets:[],deadline:(this.t||0)+70};
    if(this._spawnRegionalTargets(event)){
     state.current=event;
     state.nextOfferAt=(this.t||0)+BATTLEFIELD_EVENT_BALANCE.cooldownMin+this.rng()*(BATTLEFIELD_EVENT_BALANCE.cooldownMax-BATTLEFIELD_EVENT_BALANCE.cooldownMin);
@@ -99,7 +101,10 @@ export function installRegionDoctrine(Game){
   const state=this.battlefieldEvents,event=state?.current,now=this.t||0;
   if(!event||!Object.values(REGION_EVENTS).includes(event.type))return _tick.call(this);
   {
+   this.tickBattlefieldConsequences?.();
    const done=outcome=>{
+    for(const target of event.targets||[]){target.missionTarget=false;target.eventExit=false;delete target.eventExitOrigin}
+    this.recordBattlefieldOutcome?.(event,outcome);
     state.result={id:event.id,type:event.type,outcome};state.history.push({type:event.type,outcome,time:now});state.history=state.history.slice(-8);state.lastType=event.type;state.current=null;
     if(outcome==='completed'){
      const p=this;
@@ -107,17 +112,18 @@ export function installRegionDoctrine(Game){
      (this.drops||=[]).push({x:p.x-60,y:p.y,value:0,heal:true,supply:true,life:16,vx:0,vy:0,battlefieldEvent:true});
     }
     if(outcome==='completed'&&event.winBoost==='blackout'){this.illuminatedUntil=0;this.blackoutUntil=now+15}
-    if(outcome==='failed'&&event.failBoost==='observation')this.observationBoostUntil=now+25;
-    if(outcome==='failed'&&event.failBoost==='barrage')this.barrageBoost=true;
    };
    if(event.ambient){if(now>=event.deadline)done('completed');return}
-   if(event.targets?.length&&event.targets.every(t=>t.hp<=0||t.expired||t.rivalEscaped))return done('completed');
-   if(event.targets?.some(t=>t.rivalEscaped))return done('failed');
+   if(event.targets?.some(t=>t.hp>0&&(t.rivalEscaped||t.expired)))return done('failed');
+   if(event.type==='BOMBER_STREAM')for(const target of event.targets||[])if(target.hp>0&&target.eventExitOrigin&&Math.hypot(target.x-target.eventExitOrigin.x,target.y-target.eventExitOrigin.y)>=(target.eventExitDistance||BATTLEFIELD_EVENT_BALANCE.bomberExitDistance))return done('failed');
+   if(event.targets?.length&&event.targets.every(t=>t.hp<=0||t.deathHandled))return done('completed');
    if(now>=event.deadline)return done('failed');
    return;
   }
   return _tick.call(this);
  };
+ };
+ if(P.__battlefieldEvents170)installEvents();else P.installRegionalBattlefieldEvents=installEvents;
  // Blackout: suppress city fire net while active.
  const _caSup=Game.prototype.update;
  Game.prototype.update=function(dt,input={}){
