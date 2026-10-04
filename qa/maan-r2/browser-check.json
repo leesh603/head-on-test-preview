@@ -1,0 +1,11 @@
+{
+  "baselineMain": "d5d1d0e209203e758fa470aa44340a4bbb6b7bfc",
+  "liveMainUrl": "https://leesh603.github.io/head-on-test-preview/?v=526&headonTest=1&region=13&pilot=fonck&boss=1&orbit=0",
+  "observedLiveError": "SyntaxError: Illegal continue statement: no surrounding iteration statement at app.js?v=526",
+  "baselineLivePlaying": false,
+  "branchBrowserGameplayVerified": false,
+  "mobileDeviceVerified": false,
+  "previewStatus": "not deployed; public commit preview pending",
+  "productionDeployed": false,
+  "mainChangedByThisWork": false
+}

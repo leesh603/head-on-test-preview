@@ -1,4 +1,4 @@
-import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=526';
+import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=maan20261004r2';
 import {RuralRailBoss} from './rural-rail-combat.js?v=526';
 import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=526';
 import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=526';
