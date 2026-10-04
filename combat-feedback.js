@@ -1,4 +1,4 @@
-import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash} from './aircraft-crash.js?v=528';
+import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash} from './aircraft-crash.js?v=529';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.
 const worlds=new WeakMap(),poses=new WeakMap();
@@ -23,7 +23,7 @@ function pose(e,time,dt,damageState){
  q.x=-Math.cos(e.a)*shot-Math.sin(e.a)*side;q.y=-Math.sin(e.a)*shot+Math.cos(e.a)*side;
  const hit=damageState?clamp(1-(time-damageState.lastHit)/.18):0;
  q.roll=Math.sin(time*61)*q.kick*.018+Math.sin(time*9)*damage*.012+(damageState?.side||1)*Math.sin(hit*Math.PI)*.045;
- q.active=true;q.bank=1-Math.min(.18,Math.abs(q.turn)*.05);q.lastA=e.a;q.lastHp=e.hp;poses.set(e,q);
+ q.active=true;q.bank=1;q.lastA=e.a;q.lastHp=e.hp;poses.set(e,q);
 }
 export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.escortPlane||e.bossPlane||e.plane,scale=()=>1}={}){
  if(worlds.has(world))return worlds.get(world);
