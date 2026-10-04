@@ -28,20 +28,7 @@ export function passiveGaugeProgress(p){
  if(p.pilot==='nungesser')return Math.min(1,Math.max(0,(1-p.hp/p.maxHp)/.8));
  return 0;
 }
-export function drawPassiveGauge(c,p,x,y){
- if(p.pilot!=='nungesser'||p.hp<=0||p.status&&p.status!=='alive')return;
- const progress=passiveGaugeProgress(p),r=48,color=p.pilot==='wolff'?'#dce8b9':'#baa8d4';
- c.save();c.translate(x,y);c.fillStyle=color;c.globalAlpha=.045;
- c.beginPath();c.arc(0,0,r,0,Math.PI*2);c.fill();
- c.strokeStyle=color;c.lineWidth=1;c.globalAlpha=.2;c.stroke();
- c.lineWidth=2.5;c.globalAlpha=.65;c.beginPath();c.arc(0,0,r,-Math.PI/2,-Math.PI/2+Math.PI*2*progress);c.stroke();
- c.lineWidth=1;c.globalAlpha=.35;
- for(let i=0;i<(p.pilot==='wolff'?6:4);i++){
-  const a=-Math.PI/2+i*Math.PI*2/(p.pilot==='wolff'?6:4);
-  c.beginPath();c.moveTo(Math.cos(a)*(r+3),Math.sin(a)*(r+3));c.lineTo(Math.cos(a)*(r+7),Math.sin(a)*(r+7));c.stroke();
- }
- c.restore();
-}
+export function drawPassiveGauge(c,p,x,y){/* Nungesser uses airframe smoke rather than an instrument ring. */}
 
 export function drawPetalParticle(c,p,x,y){
  if(p.life<=0)return;

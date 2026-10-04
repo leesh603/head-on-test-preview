@@ -285,9 +285,9 @@ Game.prototype.enemyVolley=function(e,followup=false){
  const contact=this.enemyCombatTarget(e);
  const aim=e.type==='zeppelin'?Math.atan2(contact.y-e.y,contact.x-e.x):bomber?Math.atan2(contact.y+Math.sin(contact.a)*22-e.y,contact.x+Math.cos(contact.a)*22-e.x):e.a;
  const speed=heavy?235:bomber?210:185,power=1+this.t/240;
- const offsets=e.type==='zeppelin'?[-95,0,95]:heavy?[-42,42]:[0];e.muzzleFlash=.14;e.gunAim=aim;
+ const offsets=e.type==='zeppelin'?[-95,0,95]:heavy?[-42,42]:[0],smokeAim=nungesserAimOffset(contact,e,this.rng);e.muzzleFlash=.14;e.gunAim=aim;
  for(let j=0;j<n;j++){
-  const offset=offsets[j%offsets.length],a=aim+(e.type==='boss'?(j/(n-1)-.5)*.9:(j-(n-1)/2)*(e.type==='zeppelin'?.07:heavy?.13:.15))+(followup?.035:0);
+  const offset=offsets[j%offsets.length],a=aim+smokeAim+(e.type==='boss'?(j/(n-1)-.5)*.9:(j-(n-1)/2)*(e.type==='zeppelin'?.07:heavy?.13:.15))+(followup?.035:0);
   this.bullets.push({x:e.x+(e.type==='zeppelin'?Math.cos(e.a)*offset:Math.cos(e.a)*22-Math.sin(e.a)*offset),y:e.y+(e.type==='zeppelin'?Math.sin(e.a)*offset:Math.sin(e.a)*22+Math.cos(e.a)*offset),vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:4,enemy:true,heavy,visualType:e.type==='boss'||e.bossPilot?'boss':heavy?'heavyBomber':e.type,damage:Math.round((heavy?14:9)*power*(e.aceDamageMultiplier||1)*(e.vossSurge?1.3:1))});
  }
  this.event(heavy?'heavyShot':'enemyShot','');
@@ -967,6 +967,7 @@ Game.prototype.resolveHostileRound=function(b,x0,y0){
  let first=Infinity,hit=null;
  const formationAllies=b.formationBoss129?(this.allies||[]):[];
  for(const target of [this,...(this.patrols||[]),...formationAllies]){
+  if(target===this&&nungesserRoundReaction(this,b,x0,y0))continue;
   if(target!==this&&(target.hp<=0||target.life<=0))continue;
   const radius=(target===this?10:16)+(b.flak?6:0),ox=x0-target.x,oy=y0-target.y,c=ox*ox+oy*oy-radius*radius;
   let t=0;if(c>0){if(length===0)continue;const dot=ox*dx+oy*dy,disc=dot*dot-length*c;if(disc<0)continue;t=(-dot-Math.sqrt(disc))/length;if(t<0||t>1)continue}
@@ -1314,14 +1315,14 @@ Game.prototype._aatAce113=function(e){
 export const NEW_ACE_BALANCE124=Object.freeze({
  wolffStackSeconds:3,wolffMaxStacks:6,wolffDamagePerStack:.05,wolffSpeedPerStack:.03,wolffClimbSeconds:.75,wolffDiveSpeed:2.05,wolffDiveDamage:1.55,wolffDiveFireRate:1.8,
  loewenhardtFrontalDamage:1.35,loewenhardtDiveSeconds:.55,loewenhardtSkillDamage:1.45,loewenhardtSkillSpeed:1.72,loewenhardtSkillFireRate:3,
- mccuddenRepairFraction:.35,nungesserInvulnerability:3,nungesserMaxSpeedBonus:.35,nungesserMaxFireRateBonus:.60,
+ mccuddenRepairFraction:.35,nungesserInvulnerability:3,
  fonckBarrageDuration:3.8,fonckBarrageInterval:.22,fonckAbilityMin:5.8,fonckAbilityVariance:1.4,fonckBossHpMultiplier:1.15
 });
 const newAceAirframes={
  wolff_albatros:{name:'알바트로스 D.III · 여린꽃',faction:'central',speed:149,turn:3.35,hp:110,drag:.14,recovery:1.35,role:'무피격 축적 · 급강하 기습',history:'쿠르트 볼프의 알바트로스 D.III를 바탕으로 목재 동체·Jasta 11 적색 띠·초록 꼬리와 작은 흰 꽃 표식을 조합한 전용 도장입니다.',tip:'피격을 피할수록 강해집니다. 중첩을 모은 뒤 붐 앤 줌으로 직선 기습하세요.'},
  loewenhardt_fokkerd7:{name:'포커 D.VII · 노랑포커',faction:'central',speed:162,turn:3.6,hp:122,drag:.09,recovery:1.6,role:'정면 화력 · 수직 상승 사격',history:'카나리아색 상부 날개와 동체, 로젠지 하부 날개, 흰 꼬리와 대형 검은 십자를 사용한 에리히 뢰벤하르트 전용 D.VII입니다.',tip:'정면 교전 피해가 높습니다. 수직 상승 사격은 방향 전환보다 진입선 선정이 중요합니다.'},
  mccudden_se5a:{name:'S.E.5a · 맥커든 개조형',faction:'entente',speed:184,turn:2.95,hp:128,drag:.10,recovery:1.65,role:'고속 개조 · 선택지 확장',history:'제임스 맥커든이 고고도 성능을 위해 손본 S.E.5a에서 착안했습니다. PC10 도장, 흰 G 표식, 붉은 스피너와 4엽 프로펠러를 반영했습니다.',tip:'최고속도가 높고 매 레벨 선택지가 4개입니다. 넓게 이탈하며 필요한 개조를 빠르게 완성하세요.'},
- nungesser_nieuport24:{name:'뉴포르 24bis · 죽음의 기사',faction:'entente',speed:158,turn:4.3,hp:88,drag:.19,recovery:1.4,role:'빈사 가속 · 불사 돌파',history:'샤를 너겐서의 은색 뉴포르와 검은 심장·해골·관 상징을 게임용으로 정리한 전용 24bis입니다.',tip:'내구도가 낮을수록 빨라집니다. 불사조의 집념으로 위험 구간을 넘기되 종료 직후 이탈하세요.'}
+ nungesser_nieuport24:{name:'뉴포르 24bis · 죽음의 기사',faction:'entente',speed:158,turn:4.3,hp:88,drag:.19,recovery:1.4,role:'검은 연무 · 무적 돌파',history:'샤를 눙게서의 은색 뉴포르와 검은 심장·해골 상징을 게임용으로 정리한 전용 24bis입니다.',tip:'저체력에서 검은 연무가 적의 조준을 약하게 흔듭니다. 죽음의 기사로 3초간 공격하며 돌파하세요.'}
 };
 for(const [id,s]of Object.entries(newAceAirframes)){
  const handling=Object.freeze({speed:s.speed,turn:s.turn,drag:s.drag,recovery:s.recovery,role:s.role,history:s.history,tip:s.tip});
@@ -1336,7 +1337,7 @@ Object.assign(PILOTS,{
  wolff:{name:'쿠르트 볼프',alias:'ZARTE BLÜMLEIN',faction:'central',portrait:16,cooldown:PILOT_BALANCE.cooldowns.wolff},
  loewenhardt:{name:'에리히 뢰벤하르트',alias:'YELLOW PERIL',faction:'central',portrait:17,cooldown:PILOT_BALANCE.cooldowns.loewenhardt},
  mccudden:{name:'제임스 맥커든',alias:'THE ENGINEERING ACE',faction:'entente',portrait:18,cooldown:PILOT_BALANCE.cooldowns.mccudden},
- nungesser:{name:'샤를 너겐서',alias:'THE KNIGHT OF DEATH',faction:'entente',portrait:19,cooldown:PILOT_BALANCE.cooldowns.nungesser}
+ nungesser:{name:'샤를 눙게서',alias:'THE KNIGHT OF DEATH',faction:'entente',portrait:19,cooldown:PILOT_BALANCE.cooldowns.nungesser}
 });
 Object.assign(PILOT_PLANES,{wolff:'wolff_albatros',loewenhardt:'loewenhardt_fokkerd7',mccudden:'mccudden_se5a',nungesser:'nungesser_nieuport24'});
 // Jacobs flies his famous black Dr.I; same airframe family, dedicated livery sprite.
@@ -1401,8 +1402,7 @@ Game.prototype.beginRevisionFrame=function(dt,input={}){
   if(pl.ballCloak>0){pl._ballCloud=(pl._ballCloud||0)-dt;if(pl._ballCloud<=0){pl._ballCloud=.16;const j=this.rng()*Math.PI*2,rr=4+this.rng()*24;world.particles.push({x:pl.x+Math.cos(j)*rr,y:pl.y+Math.sin(j)*rr,vx:(this.rng()-.5)*16,vy:(this.rng()-.5)*16,life:.5+this.rng()*.2,maxLife:.7,smoke:true,muzzleSmoke:true,size:8+this.rng()*6,color:'#eceee0'})}}
  }
  if(this.pilot==='nungesser'){
-  const low=Math.min(1,Math.max(0,(1-this.hp/this.maxHp)/.8));const speed=1+low*NEW_ACE_BALANCE124.nungesserMaxSpeedBonus,fire=1+low*NEW_ACE_BALANCE124.nungesserMaxFireRateBonus;this.baseSpeed*=speed;this.speed*=speed;this.rate/=fire;this.passiveStrength=low;
-  // Passive strength is shown by the shared lock-style gauge, without particle clutter.
+  this.passiveStrength=nungesserSmokeStage(this)/3;
  }
  this.passiveStrength=this.pilot==='wolff'?this.wolffStacks/NEW_ACE_BALANCE124.wolffMaxStacks:this.passiveStrength;
  this.mccuddenRepairFlash=Math.max(0,(this.mccuddenRepairFlash||0)-dt);
@@ -1601,6 +1601,7 @@ Game.prototype.skillDuration=Game.prototype._durAces1918;
 installPilotIdentities(Game,PILOTS);
 // Signature presentation is installed after the final legacy pilot overrides.
 import {installPilotSignatures} from './pilot-signatures.js';
+import {nungesserSmokeStage,nungesserAimOffset,nungesserRoundReaction} from './pilot-signature-state.js';
 installPilotSignatures(Game);
 registerAircraftTiers(PLANES);
 Game.prototype.aircraftTailPursuit=function(){return aircraftTailPursuit(this)};

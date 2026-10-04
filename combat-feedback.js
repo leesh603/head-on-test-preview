@@ -17,12 +17,12 @@ export function combatVisualPose(e){return poses.get(e)||{x:0,y:0,roll:0,bank:1,
 function pose(e,time,dt,damageState){
  const q=poses.get(e)||{x:0,y:0,roll:0,bank:1,lastA:e.a,lastHp:e.hp,kick:0,turn:0};
  const rate=dt>0?clamp(angle(e.a-q.lastA)/dt,-4,4):0;
- q.turn+=(rate-q.turn)*(1-Math.exp(-dt*12));q.kick=Math.max(e.hp<q.lastHp?1:0,q.kick-dt*6);
- const shot=!(e.reloadTime>0)&&!(e.cannonRecoil129>0)?clamp((e.muzzleFlash||0)/.04)*.18:0,damage=clamp(1-e.hp/e.maxHp)*.3;
+ q.turn+=(rate-q.turn)*(1-Math.exp(-dt*12));q.kick=Math.max(e.hp<q.lastHp-.4?1:0,q.kick-dt*6);
+ const shot=!(e.reloadTime>0)&&!(e.cannonRecoil129>0)?clamp((e.muzzleFlash||0)/.04)*.18:0;
  const side=Math.sin(time*67)*q.kick*1.6;
  q.x=-Math.cos(e.a)*shot-Math.sin(e.a)*side;q.y=-Math.sin(e.a)*shot+Math.cos(e.a)*side;
  const hit=damageState?clamp(1-(time-damageState.lastHit)/.18):0;
- q.roll=Math.sin(time*61)*q.kick*.018+Math.sin(time*9)*damage*.012+(damageState?.side||1)*Math.sin(hit*Math.PI)*.045;
+ q.roll=Math.sin(time*61)*q.kick*.018+(damageState?.side||1)*Math.sin(hit*Math.PI)*.045;
  q.active=true;q.bank=1;q.lastA=e.a;q.lastHp=e.hp;poses.set(e,q);
 }
 export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.escortPlane||e.bossPlane||e.plane,scale=()=>1}={}){

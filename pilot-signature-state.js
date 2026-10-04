@@ -21,7 +21,7 @@ export const PILOT_SIGNATURES=Object.freeze({
  mannock:{start:'coverOrder',sustain:'cover',symbol:null,reaction:'rescueShot'},
  mckeever:{start:'gunnerHandoff',sustain:'twoSeater',symbol:null,reaction:'handoff'},
  hawker:{start:'steadySight',sustain:'gunPlatform',symbol:null,reaction:'aimedShot'},
- nungesser:{start:'blackHeart',sustain:'defyDeath',symbol:'blackHeart',reaction:null},
+ nungesser:{start:'deathKnight',sustain:'defyDeath',symbol:null,reaction:'smokeTear'},
  rickenbacker:{start:'ringPass',sustain:'ringFlight',symbol:'ring94',reaction:'targetSwitch'},
  ball:{start:'cloudAmbush',sustain:'concealment',symbol:null,reaction:'ambushShot'},
  barker:{start:'lastStand',sustain:'survival',symbol:null,reaction:'escape'},
@@ -64,6 +64,7 @@ export function advancePilotSignature(p,dt){
  const step=Math.min(SIGNATURE_LIMITS.maxDt,dt),before=s.previous;s.clock+=step;
  s.effects=s.effects.filter(e=>{e.age+=step;e.life=Math.max(0,e.life-step);if(e.kind==='incendiaryImpact'&&e.target){e.x=e.target.x;e.y=e.target.y;if(e.target.hp<=0){e.kind='burnKill';e.age=0;e.life=e.maxLife=.6;delete e.target}}return e.life>0});
  const profile=PILOT_SIGNATURES[p.pilot];if(!profile)return s;
+ if(p.pilot==='nungesser'&&before.skillTime>0&&!(p.skillTime>0))signatureCue(p,'deathKnightEnd',{life:.55,signatureStart:true});
  if(p.skillTime>0&&(!(before.skillTime>0)||p.skillTime>before.skillTime+.1))activatePilotSignature(p);
  const turn=wrap((p.a||0)-(before.a??p.a??0))/step,identity=p.pilotIdentity||{};
  if(p.pilot==='wolff'&&(p.wolffStacks||0)>(before.petals||0))signatureCue(p,'petalScatter',{life:1.2,count:Math.min(7,3+(p.wolffStacks||0))});
@@ -75,9 +76,34 @@ export function advancePilotSignature(p,dt){
 }
 export function pilotSignatureReaction(p,event,{target,position,gun=0,damage=0}={}){
  if(!alive(p))return null;const profile=PILOT_SIGNATURES[p.pilot];if(!profile)return null;
- if(event==='damage'&&p.pilot==='berthold'&&damage>0&&signatureInterval(p,'damage',.14))return signatureCue(p,profile.reaction,{life:.65,damage,symbol:profile.symbol});
+ if(event==='damage'&&['nungesser','berthold'].includes(p.pilot)&&damage>0&&signatureInterval(p,'damage',.14))return signatureCue(p,profile.reaction,{life:.65,damage,symbol:profile.symbol});
  if(event==='shot'&&signatureInterval(p,gun===1?'rearShot':'shot',.12))return signatureCue(p,'shotAccent',{life:.18,gun,style:profile.sustain,active:p.skillTime>0});
+ if(event==='hit'&&p.pilot==='nungesser')return null;
  if(event==='hit'&&profile.reaction&&target&&signatureInterval(p,'hit',.15)){const pos=position||target;return signatureCue(p,profile.reaction,{x:pos.x,y:pos.y,life:.45,active:p.skillTime>0})}
  return null;
+}
+
+// Nungesser only: authored smoke reacts to the swept path, never a dodge roll.
+export function nungesserSmokeStage(p){
+ if(p?.pilot!=='nungesser'||!(p.hp>0)||!(p.maxHp>0))return 0;
+ const health=p.hp/p.maxHp;return health<=.2?3:health<=.4?2:health<=.6?1:0;
+}
+export function nungesserAimOffset(p,e,rng){
+ const stage=nungesserSmokeStage(p);if(!stage||e.surface||e.fieldUnit||e.navalVessel)return 0;
+ const bearing=Math.atan2(p.y-e.y,p.x-e.x),delta=wrap(bearing-(e.a||0));
+ if(Math.abs(delta)>.35&&e.type!=='bomber'&&e.type!=='zeppelin')return 0;
+ return (rng()*2-1)*stage*.015;
+}
+export function nungesserRoundReaction(p,b,x0,y0){
+ if(p?.pilot!=='nungesser'||!(p.hp>0)||p.status==='downed')return false;
+ const active=p.skillTime>0&&p.invuln>0,stage=nungesserSmokeStage(p);
+ if(!active&&!stage)return false;
+ const dx=b.x-x0,dy=b.y-y0,q=Math.max(0,Math.min(1,((p.x-x0)*dx+(p.y-y0)*dy)/(dx*dx+dy*dy||1)));
+ const x=x0+dx*q,y=y0+dy*q,owner=p.id??'p1';
+ if(Math.hypot(x-p.x,y-p.y)<=36&&!(b.nungesserSmokeOwners?.has(owner))){
+  (b.nungesserSmokeOwners??=new Set()).add(owner);
+  if(signatureInterval(p,'smokeTear',.06))signatureCue(p,'smokeTear',{x,y,a:Math.atan2(b.vy,b.vx),life:.38,active});
+ }
+ return active;
 }
 
