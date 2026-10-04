@@ -1,7 +1,7 @@
-import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=535';
-import {fx} from './fx-art.js?v=535';
-import {drawAADefense} from './aa-defense-art.js?v=535';
-import {clamp,sommeMuzzle} from './somme-boss-layout.js?v=535';
+import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=536';
+import {fx} from './fx-art.js?v=536';
+import {drawAADefense} from './aa-defense-art.js?v=536';
+import {clamp,sommeMuzzle} from './somme-boss-layout.js?v=536';
 const images={},pending={};
 function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';images[key]=im;pending[key]=new Promise((resolve,reject)=>{im.addEventListener('load',()=>resolve(im),{once:true});im.addEventListener('error',()=>reject(new Error('Missing Somme atlas: '+SOMME_SHEETS[key])),{once:true});});im.src='./'+SOMME_SHEETS[key]+'?v=somme20261004r2';return im;}
 export function prepareSommeAssets(){for(const key of Object.keys(SOMME_SHEETS))load(key);return Promise.all(Object.values(pending));}
