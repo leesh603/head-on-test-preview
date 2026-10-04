@@ -4,10 +4,10 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 
-const {Game}=await import('../engine.js?v=527');
-const {CoopGame}=await import('../coop-engine.js?v=527');
-const {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash}=await import('../aircraft-crash.js?v=527');
-const {attachCombatFeedback,combatVisualPose,impactMaterial,drawCombatFeedback}=await import('../combat-feedback.js?v=527');
+const {Game}=await import('../engine.js?v=528');
+const {CoopGame}=await import('../coop-engine.js?v=528');
+const {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash}=await import('../aircraft-crash.js?v=528');
+const {attachCombatFeedback,combatVisualPose,impactMaterial,drawCombatFeedback,COMBAT_CRASH_PROFILES,combatFlightSound}=await import('../combat-feedback.js?v=528');
 const rng=()=>{let n=17;return()=>((n=(n*1664525+1013904223)>>>0)/4294967296)};
 const quiet=g=>{for(const k of ['spawn','nextBossAt','nextHeavyAt','eventTimer','flakTimer','patrolTimer','gasTimer','regionThreat','fieldUnitTimer'])g[k]=Infinity;return g};
 const snapshot=g=>({x:g.x,y:g.y,a:g.a,hp:g.hp,kills:g.kills,ammo:g.ammo,bullets:g.bullets.map(b=>[b.x,b.y,b.damage,b.life]),enemies:g.enemies.map(e=>[e.x,e.y,e.a,e.hp,e.fire]),drops:g.drops.map(d=>[d.x,d.y,d.value,d.heal])});
@@ -18,7 +18,7 @@ test('presentation preserves simulation, RNG, input response and rewards',()=>{
 });
 test('regular deaths reuse ace crashes, stay visual-only and reserve rare large explosions',()=>{
  const g=quiet(new Game('fokker','baron',rng())),s=attachCombatFeedback(g,{key:()=> 'camel'});
- for(let i=0;i<17;i++){const e={x:i*12,y:0,a:0,hp:0,type:'scout',speed:100};g.enemies=[e];g.burst(e.x,0,'#f2aa52',30);g.event('kill','');if(i<5){assert.equal(s.wrecks.at(-1).crashT,1.15);assert.equal(s.wrecks.at(-1).scale,1);assert(Math.abs(s.wrecks.at(-1).crashSpin)>=2.4);}if(i===16)assert.equal(g.events.at(-1).combatSound,'kill')}
+ for(let i=0;i<17;i++){const e={x:i*12,y:0,a:0,hp:0,type:'scout',speed:100};g.enemies=[e];g.burst(e.x,0,'#f2aa52',30);g.event('kill','');if(i<5){assert.equal(s.wrecks.at(-1).style,COMBAT_CRASH_PROFILES[i]);assert.equal(s.wrecks.at(-1).scale,1);assert(s.wrecks.at(-1).crashT>=1.15);}if(i===16)assert.equal(g.events.at(-1).combatSound,'kill')}
  assert(s.wrecks.length<=10);assert.equal(g.kills,0);assert.equal(g.drops.length,0);assert(g.combatFX.some(f=>f.killExplosion));
 });
 test('boss deaths retain their existing explosion and crash lifecycle',()=>{
@@ -92,4 +92,40 @@ test('single and co-op crash completion never changes rewards, target lists or s
   for(let i=0;i<90;i++){a.update(.02,{});b.update(.02,{});assert.deepEqual(snapshot(b),snapshot(a))}
   assert.equal(a.rng(),b.rng());assert.equal(state.wrecks.length,0);assert.equal(b.events.filter(e=>e.type==='kill').length,a.events.filter(e=>e.type==='kill').length);
  }
+});
+
+test('sustained hits follow the struck airframe and emit bounded damage trails without changing its flight',()=>{
+ const e={x:100,y:0,a:0,hp:60,maxHp:100,type:'hunter',speed:100},sounds=[];
+ const g={t:0,state:'playing',x:0,y:0,a:0,hp:100,maxHp:100,viewWidth:390,enemies:[e],bullets:[],burst(){},event(){},specialRoundImpact(){},update(dt){this.t+=dt;e.x+=100*dt}};
+ const s=attachCombatFeedback(g,{play:(name,arg)=>sounds.push([name,arg])});
+ for(let i=0;i<4;i++){g.specialRoundImpact({x:e.x+20,y:e.y,vx:300,vy:0},e);g.update(.02)}
+ assert.equal(e.hp,60);assert.equal(e.x,108);assert.equal(s.damage.get(e).engine,4);assert.equal(s.damage.get(e).streak,4);assert(s.plumes.length>0);
+ const fx=[];drawCombatFeedback({},g,(x,y)=>[x,y],{fx:(...args)=>fx.push(args),planeSprite(){}});
+ const lastSpark=fx.filter(f=>f[1]==='armorSpark').at(-1);assert(lastSpark[2]>125,'impact follows moving nose instead of lingering behind');
+ assert.equal(sounds.filter(([k])=>k==='materialImpact').at(-1)[1].streak,4);
+ for(let i=0;i<150;i++)g.update(.02);assert(s.plumes.length<=32);assert.equal(s.impacts.length,0);
+});
+
+test('wing breakup draws clipped pieces of the original painted sprite at unchanged scale',()=>{
+ const g=quiet(new Game()),s=attachCombatFeedback(g,{key:()=> 'camel'});
+ for(let i=0;i<4;i++){g.enemies=[{x:0,y:0,a:0,hp:0,type:'scout',speed:100}];g.burst(0,0,'#f2aa52',30)}
+ s.wrecks=s.wrecks.filter(w=>w.style==='breakup');g.enemies=[];const clips=[],sprites=[],c={save(){},restore(){},translate(){},rotate(){},beginPath(){},rect(){},clip(rule){clips.push(rule)}};
+ drawCombatFeedback(c,g,(x,y)=>[x,y],{fx(){},planeSprite:(...args)=>sprites.push(args)});
+ assert.deepEqual(clips,['evenodd',undefined]);assert.equal(sprites.length,3);assert(sprites.every(a=>a[4]==='camel'&&a[5]===1));
+});
+
+test('heavy approach is a single cue and close-pass wind/engine duck expire',()=>{
+ const e={x:1100,y:60,a:Math.PI,hp:50,maxHp:50,type:'bomber'},cues=[];
+ const g={t:0,state:'playing',x:0,y:0,a:0,hp:100,maxHp:100,enemies:[e],bullets:[],burst(){},event(){},update(dt){this.t+=dt;e.x-=400*dt}};
+ const s=attachCombatFeedback(g,{play:n=>cues.push(n)});let duck=false;
+ for(let i=0;i<190;i++){g.update(.02);duck ||= combatFlightSound(g).duck}
+ assert.equal(cues.filter(n=>n==='formationPass').length,1);assert.equal(cues.filter(n=>n==='closePass').length,1);assert(duck);assert.equal(combatFlightSound(g).duck,false);assert.equal(s.passes.length,0);
+});
+
+test('HEAD-ON highlights real crossing rounds only and caps compact tracer draws',()=>{
+ const e={x:300,y:0,a:Math.PI,hp:50,maxHp:50,type:'hunter'},bullets=Array.from({length:30},(_,i)=>({x:100+i,y:0,vx:i%2?400:-400,vy:0,life:1,enemy:!!(i%2)}));
+ const g={t:0,state:'playing',x:0,y:0,a:0,hp:100,maxHp:100,viewWidth:390,enemies:[e],bullets,burst(){},event(){},update(dt){this.t+=dt;e.x-=200*dt}};
+ attachCombatFeedback(g);g.update(.02);g.update(.02);const before=structuredClone(bullets),draws=[];
+ drawCombatFeedback({},g,(x,y)=>[x,y],{fx:(...args)=>draws.push(args),planeSprite(){}});
+ assert.equal(draws.length,12);assert(draws.some(d=>d[1]==='tracerCream'));assert(draws.some(d=>d[1]==='tracerOrange'));assert.deepEqual(g.bullets,before);
 });

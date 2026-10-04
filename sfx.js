@@ -54,7 +54,10 @@ function hiss(f0,f1,d,v,type='bandpass',Q=.8,when=0,att=.003){
   track(n,f,g);
 }
 const VOICES={
-  materialImpact(material){if(material==='metal'){tone(jit(720),240,.065,.042,'triangle',2400);hiss(jit(3600),1500,.045,.034,'bandpass',2)}
+  materialImpact(hit){const material=typeof hit==='string'?hit:hit?.material,streak=Math.min(6,hit?.streak||1);
+    // A tighter body on repeated hits, not a critical-hit bell or volume ramp.
+    if(streak>=3)tone(jit(150+streak*9),65,.055,.024,'triangle',650);
+    if(material==='metal'){tone(jit(720),240,.065,.042,'triangle',2400);hiss(jit(3600),1500,.045,.034,'bandpass',2)}
     else if(material==='fabric'){hiss(jit(1300),450,.075,.047,'bandpass',.5);tone(jit(150),70,.045,.026,'triangle',600)}
     else{tone(jit(260),85,.055,.05,'triangle',1300);hiss(jit(2300),650,.075,.039,'bandpass',1.2)}},
   whizz(){hiss(jit(3300),720,.14,.037,'bandpass',3,0,.018);tone(jit(850),310,.08,.007,'sine',1400)},
@@ -129,7 +132,13 @@ const VOICES={
   // Repair pickup: soft double chime.
   heal(){tone(720,720,.06,.05,'sine',2200);tone(960,960,.09,.05,'sine',2600,.07)},
   // Engine idle: one propeller/exhaust beat per call (the host fires it on an interval).
-  engineTick(reload){const f=(reload?.72:1)*jit(1);tone(58*f,42*f,.11,.085,'sawtooth',300);hiss(700,180,.08,.05,'lowpass',.5);tone(117*f,90*f,.07,.028,'triangle',500)},
+  engineTick(flight){const p=typeof flight==='object'?flight:{reload:flight},speed=Math.max(.7,Math.min(1.2,p.speed??1)),turn=Math.min(4,p.turn||0),damage=Math.max(0,Math.min(1,p.damage||0));
+    const f=(p.reload?.72:1)*(.96+speed*.04)*jit(1),level=p.duck?.35:.68;
+    // Reuse one original engine voice. No overlapping enemy/propeller drones.
+    tone(58*f,42*f,.11,.085*level,'sawtooth',300-damage*40);
+    hiss(540+speed*160+turn*70,180,.08,.05*level*(1+turn*.035),'lowpass',.5);
+    tone(117*f,90*f,.07,.028*level*(1-damage*.25),'triangle',500);
+  },
   // Run results.
   victory(){for(let i=0;i<5;i++)tone([57,60,64,67,72][i],[57,60,64,67,72][i],.5-i*.05,.06,'triangle',2400,i*.11)},
   defeat(){for(let i=0;i<4;i++)tone([64,60,57,50][i],[64,60,57,50][i],.55,.06,'sawtooth',1200,i*.16)}

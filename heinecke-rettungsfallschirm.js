@@ -40,7 +40,7 @@ let parachuteImage;
 export function drawHeineckeParachute(c,p,x,y,size=55){
  if(!(p.heineckeEscape>0)||typeof Image==='undefined')return;
  parachuteImage??=new Image();
- if(!parachuteImage.src)parachuteImage.src='./augmentation-icons/heinecke_rettungsfallschirm.webp?v=527';
+ if(!parachuteImage.src)parachuteImage.src='./augmentation-icons/heinecke_rettungsfallschirm.webp?v=528';
  if(!parachuteImage.complete||!parachuteImage.naturalWidth)return;
  const elapsed=HEINECKE.escape-p.heineckeEscape;
  c.save();

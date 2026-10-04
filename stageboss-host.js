@@ -1,12 +1,13 @@
 
-import {handleMaanCue} from './maan-view.js?v=527';
-import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=527';
-import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=527';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=527';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=527';
-import {bossSoundFor} from './boss-feedback.js?v=527';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=527';
-import {advanceCambraiBug} from './cambrai-bug-flight.js?v=527';
+import {handleMaanCue} from './maan-view.js?v=528';
+import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=528';
+import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=528';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=528';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=528';
+import {bossSoundFor} from './boss-feedback.js?v=528';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=528';
+import {advanceCambraiBug} from './cambrai-bug-flight.js?v=528';
+import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=528';
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭','마안 전투'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
@@ -284,7 +285,7 @@ export function beginStageBossFrame(g,dt){
  addon.reconcile({blocked:false});
  for(const p of players(g))for(const [id,s]of p.bossStatuses||[]){s.remaining-=dt;if(s.remaining<=0||!alive(p))p.bossStatuses.delete(id);}
  g.bossCues=g.bossCues.filter(c=>(c.life-=dt)>0&&(c.type!=='bug-flight-target'||g.enemies.some(e=>e.id===c.minionId&&e.hp>0)));
- tickLondonBattle(g,dt);tickVerdunBattle(g,dt);if(blocked(g))return;
+ tickLondonBattle(g,dt);tickVerdunBattle(g,dt);tickMaanWeather(g,dt);if(blocked(g))return;
  // Warning-phase mines physically travel from the winch to their final slots;
  // collision stays disabled until they settle, and pause freezes both clocks.
  for(const field of g.hostileMinefields||[])if(field.encounterId&&field.deploySeconds>0){const q=clamp(1-field.warning/field.deploySeconds,0,1),ease=q*q*(3-2*q);for(const m of field.mines)if(!m.dead){m.x=field.sourceX+(m.targetX-field.sourceX)*ease;m.y=field.sourceY+(m.targetY-field.sourceY)*ease-Math.sin(q*Math.PI)*32;m.deploying=q<1;}if(q>=1)field.deploySeconds=0;}
@@ -353,6 +354,7 @@ export function endStageBossFrame(g,dt){
  // The host has already resolved its entire upgrade queue/loss state this frame.
  const bounds=stageBossBounds(g),playerFrames=players(g).map(p=>({id:p.id||'p1',alive:alive(p),x:p.x,y:p.y,vx:Number.isFinite(p.previousX)?(p.x-p.previousX)/Math.max(dt,1/120):0,vy:Number.isFinite(p.previousY)?(p.y-p.previousY)/Math.max(dt,1/120):0,radius:12,londonRiver:addon.stages.stageIndex===11&&londonRiverCover(p.x,p.y)}));
  const defenderFrames=addon.stages.stageIndex===9?formationDefenders(g).map(a=>formationDefenderFrame(g,a)):[];
+ if(addon.stages.stageIndex===13)for(const p of playerFrames)p.sandCover=maanSandCover(g.maanWeather,p.x,p.y);
  const frame={paused:blocked(g),players:defenderFrames.length?defenderFrames:playerFrames,bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings,londonTargets:g.londonBattle?.districts||[]};
  addon.tick(dt,frame);addon.reconcile({blocked:blocked(g)});separateLargeBossBodies(g);syncStageBossTargets(g);
   // No invisible composite-sized apron collision. Wire hazards and mines are

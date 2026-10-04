@@ -38,6 +38,9 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <label>화면<select id="viewport"><option value="auto">자동</option><option value="390x844">모바일 390×844</option><option value="1280x800">PC 1280×800</option></select></label>
 <button id="start" class="primary" type="button">선택 조건으로 시작</button>
 <button id="crashCompare" type="button">추락 비교</button>
+<button id="wreckSet" type="button">격추 5종 확인</button>
+<button id="damageSet" type="button">명중·손상 확인</button>
+<button id="stepScene" type="button">0.1초 진행</button>
 
 <label class="check"><input id="freeze" type="checkbox">관찰 일시정지</label>
 <label class="check"><input id="noFire" type="checkbox">자동사격 중지</label>
@@ -98,6 +101,30 @@ $('start').onclick=()=>{
  applyHud();
 };
 $('crashCompare').onclick=()=>{const game=api?.debug?.();if(!game)return;game.paused=false;game.t??=0;const spawn=(type,a,dist)=>{game.spawnEnemy(type);const e=game.enemies.at(-1);e.x=game.x+Math.cos(a)*dist;e.y=game.y+Math.sin(a)*dist;e.a=a+Math.PI;e.hit?.(0)};spawn('scout',-.35,180);spawn('boss',.15,260);for(const e of game.enemies.slice(-2)){e.crashing=false;e.crashed=false;e.hp=0;const b={x:e.x,y:e.y,vx:0,vy:0,life:0,enemy:false,damage:0,hit:new Set([e])};game.bullets.push(b)}for(let i=0;i<30;i++)game.update(.02);game.paused=true;$('status').textContent='추락 연출 비교 — 재생 버튼으로 재개'};
+window.addEventListener('error',e=>{$('status').textContent='검증 오류: '+e.message});
+function feedbackFixture(){
+ if(!api)return null;api.start({region:0,pilot:$('pilot').value,invincible:true});const g=api.debug();
+ g.enemies=[];g.bullets=[];g.need=Infinity;g.spawn=Infinity;g.fire=Infinity;return g;
+}
+$('wreckSet').onclick=()=>{
+ const g=feedbackFixture();if(!g)return;
+ for(let i=0;i<5;i++){
+  const e=g.spawnEnemy('scout');Object.assign(e,{x:g.x+(i===4?0:i%2?80:-80),y:g.y-160+Math.floor(i/2)*120,a:0,fire:Infinity});
+  e.hp=0;g.burst(e.x,e.y,'#f2aa52',30);g.event('kill','');
+ }
+ for(let i=0;i<28;i++)g.update(.02);g.state='paused';
+ $('status').textContent='위부터 스핀 / 검은 연기 / 화재 / 날개 분리 / 조종불능 이탈';
+};
+$('damageSet').onclick=()=>{
+ const g=feedbackFixture();if(!g)return;
+ const targets=[4,7].map((shots,i)=>{const e=g.spawnEnemy('bomber');if(!e)throw new Error('폭격기 테스트 생성 제한');Object.assign(e,{x:g.x+(i?70:-70),y:g.y-95,a:0,fire:Infinity,speed:0});return{e,shots}});
+ for(let round=0;round<7;round++){
+  for(const {e,shots} of targets)if(round<shots)g.bullets.push({x:e.x+(shots===4?20:0),y:e.y+(shots===4?0:20),vx:0,vy:0,life:1,damage:5,enemy:false,hit:new Set()});
+  for(let i=0;i<4;i++)g.update(.02);
+ }
+ g.state='paused';$('status').textContent='좌: 엔진 손상 / 우: 구조 손상 · HP '+targets.map(({e})=>Math.round(e.hp)+'/'+e.maxHp).join(' · ');
+};
+$('stepScene').onclick=()=>{const g=api?.debug?.();if(!g)return;g.state='playing';for(let i=0;i<5;i++)g.update(.02);g.state='paused';frame.contentDocument.getElementById('modal')?.classList.add('hidden');$('status').textContent=g.t.toFixed(1)+'초 · '+(g.battleDirector?.phase||'전투')+' · 적 '+g.enemies.filter(e=>e.hp>0).length};
 function applyHud(){const el=frame.contentDocument?.getElementById('flightTop151');if(el)el.style.visibility=$('hideHud').checked?'hidden':'';}
 $('hideHud').onchange=applyHud;
 $('noFire').onchange=()=>{const g=api?.debug?.();if(g)g.fire=$('noFire').checked?Infinity:0;};

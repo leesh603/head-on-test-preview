@@ -56,7 +56,7 @@ function planFor(pattern,time,compact){
 function beginPattern(game,state,pattern=choosePattern(game,state)){
  const now=game.t||0,compact=(game.viewWidth||960)<=BATTLE_DIRECTOR_BALANCE.compactWidth;
  pattern=game.beginBattlefieldEngagement?.(pattern,state.sceneId+1,now+18)||pattern;
- const player=playerFor(game);state.anchor={x:player.x,y:player.y,a:player.a};state.phase=pattern===P.RECOVERY?'quiet':'approach';state.spawned=0;state.dispersed=false;
+ const player=playerFor(game);state.anchor={x:player.x,y:player.y,a:player.a};state.phase=pattern===P.RECOVERY?'quiet':'approach';state.spawned=0;state.dispersed=false;state.clearSince=null;state.formationBroken=false;
  state.pattern=pattern;state.startedAt=now;state.sceneId++;state.eliteRequested=false;
  state.endsAt=now+(pattern===P.RECOVERY?BATTLE_DIRECTOR_BALANCE.recoveryDuration:pattern===P.ACE_PRESSURE?20:BATTLE_DIRECTOR_BALANCE.sceneMin+(game.rng?.()??Math.random())*(BATTLE_DIRECTOR_BALANCE.sceneMax-BATTLE_DIRECTOR_BALANCE.sceneMin));
  state.nextActionAt=now+.35;state.queue=planFor(pattern,now,compact);state.history.push(pattern);state.history=state.history.slice(-6);
@@ -90,6 +90,11 @@ function place(game,e,layout,index,count){
  // Seed the existing pass states once. Waypoints are reused by the pass layer.
  const duration=BATTLE_DIRECTOR_BALANCE[`${layout}Intent`]||7;
  e.directorLayout=layout;e.directorAnchorHeading=a;e.directorIntentStartedAt=game.t||0;e.directorIntentUntil=(game.t||0)+duration;
+ if(layout==='headOn'||layout==='cross'){
+  e.directorRallyUntil=game.battleDirector.startedAt+2.2;
+  e.directorRallyHeading=layout==='headOn'?a+Math.PI:a+(index%2?-1:1)*Math.PI/2;
+  e.a=e.directorRallyHeading;
+ }
  e.combatPassState=S.APPROACH;e.combatPassTimer=0;e.combatPassCooldown=0;e.combatPassSide=index%2?1:-1;
  if(layout==='cross'||layout==='bomber'){
   e.a=layout==='cross'?a+(index%2?-1:1)*Math.PI/2:a+Math.PI;
@@ -249,7 +254,22 @@ function sceneRhythm(game,state,now){
  if(state.pattern===P.ACE_PRESSURE||state.pattern===P.ELITE_FORMATION)return;
  const age=now-state.startedAt,remaining=state.endsAt-now;
  const group=(game.enemies||[]).filter(e=>e.hp>0&&e.directorSceneId===state.sceneId),live=group.length;
+ if(!state.queue.length&&state.spawned>0&&live===0){
+  state.clearSince??=now;state.endsAt=Math.min(state.endsAt,state.clearSince+3.2);
+  state.phase='quiet';game.spawn=Math.max(game.spawn||0,state.endsAt-now+.4);return;
+ }
+ // Losing half a formation has a visible consequence: survivors break apart
+ // once, then resume the existing pass/reattack state machine.
+ if(!state.formationBroken&&state.spawned>=2&&!state.queue.length&&live<=state.spawned/2){
+  state.formationBroken=true;
+  for(const e of group)if(directorAircraftEligible(game,e)){
+   e.directorRallyUntil=0;e.directorIntentUntil=0;e.directorEscort=null;
+   e.combatPassState=S.DISENGAGE;e.combatPassTimer=.85;e.directorBreakUntil=now+.85;
+   e.combatPassHeading=e.a+(e.combatPassSide||1)*.65;
+  }
+ }
  state.phase=remaining<=2.5?'quiet':remaining<=5?'cleanup':state.spawned>1&&live<=1&&!state.queue.length?'collapse':age<3?'approach':age<7?'formation':'melee';
+ if(age<3)game.spawn=Math.max(game.spawn||0,3-age);
  if(state.phase==='cleanup'||state.phase==='quiet'){
   // Pause only ordinary replacement spawns, leaving bosses, objectives and live
   // bullets authoritative. The next scene still starts on the existing cadence.
