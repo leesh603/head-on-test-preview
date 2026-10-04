@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {CoopGame}=await import('../coop-engine.js?v=522');
-const {enableStageBoss,beginStageBossFrame,endStageBossFrame}=await import('../stageboss-host.js?v=522');
-const {spawnCityDefense,tickCityDefense}=await import('../city-defense.js?v=522');
+const {CoopGame}=await import('../coop-engine.js?v=523');
+const {enableStageBoss,beginStageBossFrame,endStageBossFrame}=await import('../stageboss-host.js?v=523');
+const {spawnCityDefense,tickCityDefense}=await import('../city-defense.js?v=523');
 const {fixture,step}=await import('./stageboss-fixture94.mjs');
 function game(){const g=new CoopGame([{pilot:'baron'},{pilot:'voss'}],{rng:()=>.5});enableStageBoss(g,{teamFaction:g.teamFaction,heavyHp:1.65});g.stageBoss.stages.stageIndex=4;g.region=4;for(const p of g.players)p.invuln=9999;return g;}
 test('co-op own update runs city defense once and never draws ordinary fire from installations',()=>{const g=game();g.update(.02,{});assert.equal(g.enemies.filter(e=>e.cityUnit).length,4);assert.equal(g._citySerial,1);const units=g.enemies.filter(e=>e.cityUnit),before=g.bullets.length;for(const e of units)g.fireEnemy(e);assert.equal(g.bullets.length,before);const t=g.t;g.pause();g.update(.04,{});assert.equal(g.t,t);});
