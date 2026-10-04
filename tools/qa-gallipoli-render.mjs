@@ -21,7 +21,7 @@ globalThis.Image=class extends Image{
   super.src=readFileSync(path);
  }get src(){return super.src}
 };
-const view=await import('../gallipoli-view.js?v=gallipoli540'),{drawStageBoss}=await import('../stageboss-view.js'),{fxArtReady}=await import('../fx-art.js?v=perf538'),{fixture,step}=await import('../tests/stageboss-fixture94.mjs'),{createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE}=await import('../gallipoli-route.js');
+const view=await import('../gallipoli-view.js?v=gallipoli541'),{drawStageBoss}=await import('../stageboss-view.js'),{fxArtReady}=await import('../fx-art.js?v=perf538'),{fixture,step}=await import('../tests/stageboss-fixture94.mjs'),{createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE}=await import('../gallipoli-route.js');
 await view.prepareGallipoliAssets(14);await fxArtReady;
 const out=root+'/qa/gallipoli';mkdirSync(out,{recursive:true});const metrics={};
 for(const [team,name]of [['entente','central'],['central','entente']])for(const [w,h,size]of [[1440,1000,'pc'],[390,844,'mobile']]){

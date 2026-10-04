@@ -11,13 +11,13 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=perf538';
 import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=perf538';
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=perf538';
-import {drawStageBoss} from './stageboss-view.js?v=gallipoli540';
+import {drawStageBoss} from './stageboss-view.js?v=gallipoli541';
 import {planeSprite,aircraftKey} from './aircraft.js?v=perf538';
 import {drawEquipment} from './equipment.js?v=perf538';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=perf538';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=perf538';
 import {drawSpecialAmmoIcon} from './icons.js?v=perf538';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=perf538';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=gallipoli541';
 import {drawCombatFeedback,combatCameraOffset,combatVisualPose} from './combat-feedback.js?v=perf538';
 
 // Every combat layer uses the same world transform; rendering never edits the session.

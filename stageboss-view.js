@@ -1,5 +1,5 @@
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=perf538';
-import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide} from './gallipoli-view.js?v=gallipoli540';
+import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide} from './gallipoli-view.js?v=gallipoli541';
 import {verdunFortExtents} from './verdun-fortresses.js?v=perf538';
 import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=perf538';
 import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=perf538';
@@ -17,8 +17,8 @@ import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=perf53
 import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=perf538';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=perf538';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=perf538';
-import {bossHudModel} from './headon-stageboss-hud.js?v=perf538';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=gallipoli540';
+import {bossHudModel} from './headon-stageboss-hud.js?v=gallipoli541';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=gallipoli541';
 import {planeSprite} from './aircraft.js?v=perf538';
 import {getLocale} from './i18n.js?v=perf538';
 import {londonStatus} from './london-battle.js?v=perf538';
