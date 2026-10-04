@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {Game,PLANES,PILOTS,angleDiff} from '../engine.js?v=perf538';
-import {coopPlane,CoopGame} from '../coop-engine.js?v=perf538';
-import '../campaign.js?v=perf538';
+import {Game,PLANES,PILOTS,angleDiff} from '../engine.js?v=gallipoli541';
+import {coopPlane,CoopGame} from '../coop-engine.js?v=gallipoli541';
+import '../campaign.js?v=gallipoli541';
 import {SORTIE_COMBAT_STYLES as styles} from '../aircraft-combat-roles.js?v=perf538';
 import {tickRegionalConditions,REGION_COMBAT_EVENTS} from '../region-doctrine1.js?v=perf538';
 const app=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8');

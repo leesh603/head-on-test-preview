@@ -1,4 +1,4 @@
-import {GallipoliFortress} from './gallipoli-boss.js?v=gallipoli540';
+import {GallipoliFortress} from './gallipoli-boss.js?v=gallipoli541';
 import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=perf538';
 import {RuralRailBoss} from './rural-rail-combat.js?v=perf538';
 import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=perf538';

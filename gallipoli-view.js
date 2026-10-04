@@ -1,6 +1,6 @@
 import {fx} from './fx-art.js?v=perf538';
-import {GALLIPOLI_PARTS,GALLIPOLI_SECTORS,gallipoliObjective} from './gallipoli-boss.js?v=gallipoli540';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gallipoli540';
+import {GALLIPOLI_PARTS,GALLIPOLI_SECTORS,gallipoliObjective} from './gallipoli-boss.js?v=gallipoli541';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gallipoli541';
 import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=perf538';
 export const GALLIPOLI_ASSETS=Object.freeze({guns:'gallipoli-siege-guns.webp',facilities:'gallipoli-siege-facilities.webp',base:'gallipoli-siege-bases.webp',star:'gallipoli-siege-star.webp',wing:'gallipoli-siege-wing.webp',ground:'gallipoli-siege-ground.webp',coast:'asset-bank/terrain/gallipoli_coast.webp',sea:'terrain-sea359r2.webp',central:'gallipoli-overlay-central.webp',entente:'gallipoli-overlay-entente.webp'});
 const images=new Map(),tiles=new Map(),pending=new Map();

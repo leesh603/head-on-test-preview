@@ -1,12 +1,12 @@
 import {tickRegionalConditions} from './region-doctrine1.js?v=perf538';
 
-import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gallipoli540';
+import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gallipoli541';
 import {handleMaanCue} from './maan-view.js?v=perf538';
 import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=perf538';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=perf538';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=gallipoli540';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=gallipoli540';
-import {bossSoundFor} from './boss-feedback.js?v=gallipoli540';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=gallipoli541';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=gallipoli541';
+import {bossSoundFor} from './boss-feedback.js?v=gallipoli541';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=perf538';
 import {advanceCambraiBug} from './cambrai-bug-flight.js?v=perf538';
 import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=perf538';

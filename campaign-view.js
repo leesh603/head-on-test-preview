@@ -1,5 +1,5 @@
 import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=perf538';
-import {SPRITE_ALIASES} from './campaign.js?v=perf538';
+import {SPRITE_ALIASES} from './campaign.js?v=gallipoli541';
 import {drawEquipment} from './equipment.js?v=perf538';
 registerCampaignSpriteAliases(SPRITE_ALIASES);
 import {drawBattlefieldSprite} from './battlefield-art.js?v=perf538';

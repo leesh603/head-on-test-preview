@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createBossEncounter} from '../headon-stageboss-patterns.js?v=perf538';
+import {createBossEncounter} from '../headon-stageboss-patterns.js?v=gallipoli541';
 import {sommePoint,sommeMuzzle,landshipClearance} from '../somme-boss-layout.js?v=perf538';
 import {renderStageBossLayer} from '../headon-stageboss-render.js?v=perf538';
 import {fixture,step} from './stageboss-fixture94.mjs';
