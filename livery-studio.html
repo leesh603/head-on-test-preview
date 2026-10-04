@@ -1,7 +1,20 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HEAD-ON 도색 스튜디오</title><style>
 *{box-sizing:border-box;margin:0}
-body{background:#14120f;color:#e8ddc9;font:14px/1.5 "Segoe UI",sans-serif;display:flex;height:100vh;overflow:hidden}
-aside{width:300px;min-width:300px;background:#1c1a16;border-right:1px solid #4a4234;padding:14px;overflow-y:auto}
+body{background:#14120f;color:#e8ddc9;font:14px/1.5 "Segoe UI",sans-serif;display:flex;height:100vh;overflow:hidden;overscroll-behavior:none}
+aside{width:300px;min-width:300px;background:#1c1a16;border-right:1px solid #4a4234;padding:14px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#toolbar{display:none}
+@media (max-width:860px){
+ body{flex-direction:column;height:auto;overflow:auto}
+ aside{width:100%;min-width:0;border-right:0;border-bottom:1px solid #4a4234;max-height:none}
+ aside.collapsed .panel-body{display:none}
+ #toolbar{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:2px 0}
+ #wrap{min-height:55vh;padding:10px}
+ #cv{max-width:calc(100vw - 20px);height:auto}
+ .swatches{grid-template-columns:repeat(12,1fr)}
+ .marks{grid-template-columns:repeat(8,1fr)}
+ button{padding:10px 8px}
+ h2{margin-top:12px}
+}
 h1{font-size:17px;color:#cbb27a;margin-bottom:10px;letter-spacing:.5px}
 h2{font-size:12px;color:#9a8f78;margin:16px 0 7px;text-transform:uppercase;letter-spacing:1px}
 select,input[type=text],input[type=range]{width:100%;background:#26221c;color:#e8ddc9;border:1px solid #4a4234;border-radius:6px;padding:6px 8px;font-size:13px}
@@ -19,7 +32,7 @@ button:hover{border-color:#cbb27a}
 .mk canvas{width:80%;height:80%}
 #wrap{flex:1;position:relative;background:
 repeating-conic-gradient(#1c1a16 0 25%,#211e19 0 50%) 0 0/28px 28px;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:24px}
-#cv{background:transparent;cursor:crosshair;image-rendering:auto}
+#cv{background:transparent;cursor:crosshair;image-rendering:auto;touch-action:none;max-width:100%;height:auto}
 .hint{font-size:11px;color:#7a7160;margin-top:4px}
 #log{font-size:12px;color:#8fbf7f;margin-top:10px;min-height:18px}
 label.ck{display:flex;align-items:center;gap:7px;font-size:12.5px;cursor:pointer}
@@ -27,7 +40,8 @@ label.ck input{width:auto}
 a.dl{display:block;text-align:center;background:#3d5a34;color:#d7e8c9;text-decoration:none;border-radius:6px;padding:9px;margin-top:8px;font-weight:700}
 </style></head><body>
 <aside>
-<h1>도색 스튜디오</h1>
+<div id="toolbar"><h1>도색 스튜디오</h1><span id="twist" style="font-size:12px;color:#9a8f78">▼ 접기/펼치기</span></div>
+<div class="panel-body">
 <h2>베이스</h2>
 <select id="base"></select>
 <div class="hint">또는 이미지를 캔버스에 드래그앤드롭</div>
@@ -54,6 +68,7 @@ a.dl{display:block;text-align:center;background:#3d5a34;color:#d7e8c9;text-decor
 <div class="row"><input type="text" id="fname" placeholder="파일명 (예: my_albatros_red)"><button id="save" style="flex:0 0 80px">webp 저장</button></div>
 <div class="row"><input type="text" id="base_name" placeholder="베이스 이름 (갤러리용)" style="display:none"></div>
 <div id="log"></div>
+</div>
 </aside>
 <div id="wrap"><canvas id="cv"></canvas></div>
 <script>
@@ -122,6 +137,11 @@ const MARKS={
    c.fillStyle='#e8e4d8';c.fillRect(s*.1,s*.25+h/3,w,h/3);c.fillStyle='#2a4a8c';c.fillRect(s*.1,s*.25+2*h/3,w,h/3)}
 };
 const $=id=>document.getElementById(id);
+const aside=document.querySelector('aside'),twist=$('twist');
+if(matchMedia('(max-width:860px)').matches){aside.classList.add('collapsed')}
+$('toolbar').onclick=()=>{aside.classList.toggle('collapsed')};
+const twisty=()=>{twist.textContent=aside.classList.contains('collapsed')?'▼ 펼치기':'▲ 접기'};twisty();
+new MutationObserver(twisty).observe(aside,{attributes:true,attributeFilter:['class']});
 const cv=$('cv'),cx=cv.getContext('2d',{willReadFrequently:true});
 let orig=null,undoStack=[],mode='fill',markType='roundel_entente',paint='#7a6f52',strength=.8,bsize=40,msize=90,mirror=true;
 const sel=$('base');
@@ -249,9 +269,9 @@ cv.onmousemove=e=>{if(!painting)return;const [x,y]=pos(e);
  last=[x,y]};
 cv.onmouseup=()=>painting=false;cv.onmouseleave=()=>painting=false;
 // touch
-cv.ontouchstart=e=>{e.preventDefault();const t=e.touches[0];cv.onmousedown(t)};
-cv.ontouchmove=e=>{e.preventDefault();const t=e.touches[0];cv.onmousemove(t)};
-cv.ontouchend=()=>painting=false;
+cv.ontouchstart=e=>{e.preventDefault();const t=e.touches[0];cv.onmousedown({clientX:t.clientX,clientY:t.clientY})};
+cv.ontouchmove=e=>{e.preventDefault();const t=e.touches[0];cv.onmousemove({clientX:t.clientX,clientY:t.clientY})};
+cv.ontouchend=e=>{e.preventDefault();painting=false};
 // drag-drop image
 const wrap=$('wrap');
 wrap.ondragover=e=>e.preventDefault();
