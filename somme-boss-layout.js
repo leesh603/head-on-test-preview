@@ -17,6 +17,11 @@ export const MARK1_PARTS=Object.freeze([
 export const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 export const angleDelta=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
 export const turn=(a,b,step)=>a+clamp(angleDelta(b,a),-step,step);
+// Mark I side sponsons have a traverse stop; the armored housing never turns.
+export function sponsonAim(b,p,x,y){
+ const aim=Math.atan2(y-b.y-p.y,x-b.x-p.x),center=b.hullYaw+(p.id==='sponson-left'?Math.PI:0),arc=1.45;
+ return {angle:center+clamp(angleDelta(aim,center),-arc,arc),reachable:Math.abs(angleDelta(aim,center))<=arc};
+}
 export function sommeScale(t,tank=false){return Math.min(1,Math.max(.3,((t.regionalViewWidth||960)-56)/(tank?500:680)),Math.max(.3,((t.regionalViewHeight||700)-170)/(tank?450:340)));}
 export function sommePoint(b,x,y){const s=b.sommeScale||b.regionalScale||1,a=b.hullYaw||0;return{x:b.x+(x*Math.cos(a)-y*Math.sin(a))*s,y:b.y+(x*Math.sin(a)+y*Math.cos(a))*s};}
 export function syncSommeParts(b){for(const p of b.parts.values()){const q=sommePoint(b,p.localX,p.localY);p.x=q.x-b.x;p.y=q.y-b.y;p.hitAngle=b.hullYaw||0;}}
