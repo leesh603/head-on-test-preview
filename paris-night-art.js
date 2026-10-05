@@ -1,27 +1,29 @@
 import {fx} from './fx-art.js?v=485';
 import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=485';
 import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=485';
-let images={},mapLayer=null;
-export function releaseParisArt(){images={};mapLayer=null;}
+let images={};
+export function releaseParisArt(){images={};}
 export function prepareParisArt(){
  return Promise.all([['map','terrain-paris-night1918.webp'],['fortress','paris-fortress-parts1918.webp'],['fortressWreck','paris-fortress-wreck1918.webp'],['staaken','paris-staaken-parts1918.webp'],['staakenWreck','paris-staaken-wreck1918.webp']].map(([key,path])=>new Promise(resolve=>{
-  const im=new Image();im.decoding='async';images[key]=im;im.onload=()=>{if(key==='map')mapLayer=null;(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(true))};im.onerror=()=>resolve(false);im.src='./'+path+'?v=485';
+  const im=new Image();im.decoding='async';images[key]=im;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(true))};im.onerror=()=>resolve(false);im.src='./'+path+'?v=485&b=city3';
  })));
 }
-function featherMap(im){
- const layer=document.createElement('canvas');layer.width=im.naturalWidth;layer.height=im.naturalHeight;
- const c=layer.getContext('2d');c.drawImage(im,0,0);c.globalCompositeOperation='destination-in';
- for(const axis of ['x','y']){const size=axis==='x'?layer.width:layer.height,gradient=c.createLinearGradient(0,0,axis==='x'?size:0,axis==='y'?size:0);
-  gradient.addColorStop(0,'#0000');gradient.addColorStop(.055,'#000');gradient.addColorStop(.945,'#000');gradient.addColorStop(1,'#0000');c.fillStyle=gradient;c.fillRect(0,0,layer.width,layer.height);}
- return layer;
-}
-export function paintParis(c,g,cx,cy,w,h,terrain){
+export function paintParis(c,g,cx,cy,w,h){
  const b=ensureParisBattle(g),im=images.map;
- if(terrain){terrain.draw(c,{key:'rural',camera:{x:cx-w/2,y:cy-h/2},width:w,height:h});c.save();c.fillStyle='#15202a65';c.fillRect(0,0,w,h);c.restore();}
+ c.save();c.fillStyle='#272d31';c.fillRect(0,0,w,h);c.restore();
  if(!b||!im?.complete||!im.naturalWidth)return;
- mapLayer??=featherMap(im);
- const x=b.origin.x-PARIS_SIZE/2-(cx-w/2),y=b.origin.y-PARIS_SIZE/2-(cy-h/2);
- c.save();c.imageSmoothingEnabled=true;c.drawImage(mapLayer,x,y,PARIS_SIZE,PARIS_SIZE);c.restore();
+ // Align the authored plaza center (628,397 in the 1254px master) with
+ // the fortress at (origin.x, origin.y-460), preserving combat coordinates.
+ const s=PARIS_SIZE,left=cx-w/2-b.origin.x+s*601/1200,top=cy-h/2-b.origin.y+460+s*372/1204;
+ // The outer boulevards share their boundary pixels, as on existing terrain.
+ // The rail yard ends inside the authored district and cannot fold at a join.
+ c.save();c.beginPath();c.rect(0,0,w,h);c.clip();c.imageSmoothingEnabled=false;
+ for(let row=Math.floor(top/s);row<=Math.floor((top+h)/s);row++)for(let col=Math.floor(left/s);col<=Math.floor((left+w)/s);col++){
+  const mx=Math.abs(col%2),my=Math.abs(row%2),x=col*s-left,y=row*s-top;
+  c.save();c.translate(x+(mx?s:0),y+(my?s:0));c.scale(mx?-1:1,my?-1:1);
+  c.drawImage(im,im.naturalWidth*27/1254,im.naturalHeight*25/1254,im.naturalWidth*1200/1254,im.naturalHeight*1204/1254,0,0,s,s);c.restore();
+ }
+ c.restore();
 }
 export function drawParisBoss(c,b,addon){
  const fortress=b.assetKey==='paris-searchlight-fortress',set=fortress?'fortress':'staaken',a=fortress?0:(b.a||0)+Math.PI/2;
