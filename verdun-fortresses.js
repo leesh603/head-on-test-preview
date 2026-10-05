@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=483&b=326';
-import {segmentDistance} from './alps-geometry117.js?v=483&b=326';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=484&b=326';
+import {segmentDistance} from './alps-geometry117.js?v=484&b=326';
 
 // Shared measured geometry for the authored fortress layers, hits and muzzles.
 // A fortress is one existing boss body; its core is the body's final hit route.
@@ -132,6 +132,12 @@ class VerdunFortress extends BaseBoss{
   const target=this.target(players);if(!target)return;const radius=clamp(40*this.fortScale,25,40),q=this.landing(target,bounds,.25,radius),k=this.regionalCore;
   for(let i=-1;i<=1;i++)this.hazard('circle',{x:clamp(q.x+i*85*this.fortScale,bounds.left+radius,bounds.right-radius),y:q.y,sourceX:this.x+k.x,sourceY:this.y+k.y,radius,warning:1.8,delay:(i+1)*.16,damage:this.t.damage,once:true,visual:'verdun-core-shell',tag:this.tag('final-barrage')});
  }
+ ringBarrage(dt){
+  if(!this.due('ring-barrage',dt,8.5))return;
+  const k=this.regionalCore,n=Math.max(4,Math.ceil(10*(this.t.projectileDensity||1))),off=this.rng()*Math.PI*2;
+  this.command('muzzle',{x:this.x+k.x,y:this.y+k.y});
+  for(let i=0;i<n;i++){const a=off+i*Math.PI*2/n;this.hazard('projectile',{x:this.x+k.x,y:this.y+k.y,vx:Math.cos(a)*this.t.bulletSpeed*.6,vy:Math.sin(a)*this.t.bulletSpeed*.6,radius:4,damage:this.t.damage*.45,visual:'verdun-mg',tag:this.tag('ring-barrage')});}
+ }
 }
 
 export class FortDouaumont extends VerdunFortress{
@@ -188,6 +194,7 @@ export class FortDouaumont extends VerdunFortress{
    this.heavyGun(this.parts.get('heavy-'+side),side,dt,players,bounds);
   }
   this.coreBarrage(dt,players,bounds);
+  this.ringBarrage(dt);
  }
 }
 
@@ -257,6 +264,7 @@ export class FortSouville extends VerdunFortress{
   }
   if(!this.parts.get('observer').destroyed&&this.due('observer',dt,this.parts.get('ammo').destroyed?9.8:6.4))this.observerBarrage(players,bounds);
   this.coreBarrage(dt,players,bounds);
+  this.ringBarrage(dt);
  }
 }
 

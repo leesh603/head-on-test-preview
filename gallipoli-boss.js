@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=483';
-import {segmentDistance} from './alps-geometry117.js?v=483';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=484';
+import {segmentDistance} from './alps-geometry117.js?v=484';
 export const GALLIPOLI_EXTENTS=Object.freeze({halfWidth:1640,halfHeight:1300});
 export const GALLIPOLI_SECTORS=Object.freeze([
  {id:'west',name:'서부 해안포 진지',x:-940,y:160,guards:['left','west-howitzer','aa-west']},
@@ -32,6 +32,12 @@ export class GallipoliFortress extends BaseBoss{
  for(const d of GALLIPOLI_PARTS)Object.assign(this.parts.get(d.id),d,{angle:Math.PI/2,recoil:0,repairRemaining:0,repairWarned:false,repairGrace:0});}
  command(type,spec={}){this.emit({...spec,type,bossId:this.id,faction:this.faction});}
  hazard(spec){this.command('hazard',{kind:'circle',damage:this.t.damage,warning:1.8,duration:.45,once:true,visual:'gallipoli-shell',...spec});}
+ shot(x,y,angle,count=5,spread=.5,speed=this.t.bulletSpeed*.88,visual='gallipoli-aa'){
+  const n=Math.max(1,Math.ceil(count*(this.t.projectileDensity??1)));
+  for(let i=0;i<n;i++){const a=angle+(n===1?0:(i/(n-1)-.5)*spread);
+   this.hazard({kind:'projectile',x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,radius:5,warning:0,duration:7,once:false,visual,damage:this.t.damage*.55});}}
+ ring(count=12,speed=this.t.bulletSpeed*.7){const n=Math.max(1,Math.ceil(count*(this.t.projectileDensity??1)));
+  for(let i=0;i<n;i++)this.shot(this.x,this.y,i*Math.PI*2/n,1,0,speed,'gallipoli-ring');}
  locateHit(s){if(this.entryAge<5||this.dead)return null;for(const p of this.parts.values())if(!p.destroyed&&segmentDistance(0,0,(s.previousX??s.x)-this.x-p.x,(s.previousY??s.y)-this.y-p.y,s.x-this.x-p.x,s.y-this.y-p.y)<=p.radius+(s.radius||0))return{partId:p.id};return !this.commandDestroyed&&segmentDistance(0,0,(s.previousX??s.x)-this.x,(s.previousY??s.y)-this.y,s.x-this.x,s.y-this.y)<=this.coreRadius+(s.radius||0)?{partId:null}:null;}
  syncHp(){this.hp=Math.max(0,this.commandHp)+[...this.parts.values()].reduce((n,p)=>n+Math.max(0,p.hp),0);}
  hit(a){if(!Number.isFinite(a.damage)||a.damage<0)throw new Error('Invalid damage');if(this.entryAge<5||this.dead)return{damage:0,blocked:true};let result;
@@ -65,6 +71,11 @@ export class GallipoliFortress extends BaseBoss{
  if(a.kind==='coastal')this.lane=a.lane;else this.centralRemaining=3;this.pendingAttack=null;}
  update(dt,{players}){if(this.dead)return;this.clock+=dt;this.entryAge=Math.min(5,this.entryAge+dt);if(this.entryAge<5)return;this.updateRepairs(dt);this.turnTurrets(dt,players);this.tickSorties(dt);this.launchFlash=Math.max(0,(this.launchFlash||0)-dt);
  if(this.lane)this.lane.remaining=Math.max(0,this.lane.remaining-dt);this.centralRemaining=Math.max(0,this.centralRemaining-dt);const mult=Math.min(3,this.t.patternMultiplier||1);this.coastalClock+=dt*mult;this.centralClock+=dt*mult;
+ this.aaClock=(this.aaClock??0)+dt*mult;
+ if(this.aaClock>=2.4){this.aaClock=0;const mounts=[...this.parts.values()].filter(p=>p.kind==='aa'&&!p.destroyed&&p.repairGrace<=0);
+  if(mounts.length){const m=mounts[(this.aaCursor=(this.aaCursor||0)+1)%mounts.length],q=gallipoliMuzzle(this,m);m.recoil=.18;this.command('muzzle',{...q,partId:m.id});this.shot(q.x,q.y,m.angle,5,.5);}}
+ this.ringClock=(this.ringClock??0)+dt*mult;
+ if(!this.commandDestroyed&&this.ringClock>=7.5){this.ringClock=0;this.command('muzzle',{x:this.x+Math.cos(this.coreAngle)*325,y:this.y+Math.sin(this.coreAngle)*325});this.ring(12);}
  if(this.pendingAttack){this.fireIfAligned();return;}if(this.lane?.remaining||this.centralRemaining)return;const target=this.target(players);if(!target)return;
  if(!this.commandDestroyed&&this.centralClock>=8)this.planCentral(target);else if(this.coastalClock>=4.4)this.planCoastal(target);this.fireIfAligned();}
 }

@@ -1,4 +1,4 @@
-import {roleReady,roleDraw} from './fx-role3.js?v=483';
+import {roleReady,roleDraw} from './fx-role3.js?v=484';
 const clamp=n=>Math.max(0,Math.min(1,n));
 // Rendering only: weather movement, exposure and collision remain in the engine.
 export function drawGust3(c,g,x,y,time=0){

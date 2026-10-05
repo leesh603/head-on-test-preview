@@ -1,29 +1,29 @@
-import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=483';
-import {wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=483';
-import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=483';
-import {installPilotIdentities} from './pilot-identities.js?v=483';
-import {EnemyCollisionGrid} from './collision-grid.js?v=483';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=483';
-import {installRevision} from './rebalance103.js?v=483';
-import {installCloudCover} from './cloud-cover1.js?v=483';
-import {installFleet} from './fleet-naval1.js?v=483';
-import {installTrenchWar} from './trench-war1.js?v=483';
-import {installCityAir} from './city-air1.js?v=483';
-import {installRegionDoctrine} from './region-doctrine1.js?v=483';
-import {installLondonBattle} from './london-battle.js?v=483';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=483';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=483';
-import {installBuildCombatIdentity} from './build-combat-identity.js?v=483';
-import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=483';
-import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=483';
-import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=483';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=483';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=483';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=483';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=483';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=483';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=483';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=483';
+import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=484';
+import {wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=484';
+import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=484';
+import {installPilotIdentities} from './pilot-identities.js?v=484';
+import {EnemyCollisionGrid} from './collision-grid.js?v=484';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=484';
+import {installRevision} from './rebalance103.js?v=484';
+import {installCloudCover} from './cloud-cover1.js?v=484';
+import {installFleet} from './fleet-naval1.js?v=484';
+import {installTrenchWar} from './trench-war1.js?v=484';
+import {installCityAir} from './city-air1.js?v=484';
+import {installRegionDoctrine} from './region-doctrine1.js?v=484';
+import {installLondonBattle} from './london-battle.js?v=484';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=484';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=484';
+import {installBuildCombatIdentity} from './build-combat-identity.js?v=484';
+import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=484';
+import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=484';
+import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=484';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=484';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=484';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=484';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=484';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=484';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=484';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=484';
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
 export {ENERGY_COMBAT_BALANCE};
@@ -699,7 +699,7 @@ Game.prototype._updEncounter=function(dt,input={}){
 Game.prototype.spawnFieldUnit=function(kind){
  if([1,7].includes(this.worldRegion())||this.enemies.length>=65)return null;
  const rail=kind==='railgun';if(this.enemies.filter(e=>e.hp>0&&e.fieldUnit===(rail?'railgun':'balloon')).length>=(rail?1:1))return null;
- if(rail&&[5,6].includes(this.worldRegion()))return null;
+ if(rail&&[4,5,6].includes(this.worldRegion()))return null;
  const e=this.spawnEnemy('scout');if(!e)return null;const a=this.a+(this.rng()-.5)*1.5,d=330+this.rng()*100;
  const faction=PLANES[this.plane].faction==='central'?'entente':'central',sprite=rail?'railgun':faction==='central'?'drachen':'caquot';
  Object.assign(e,{type:rail?'railgun':'balloon',fieldUnit:rail?'railgun':'balloon',fieldSprite:sprite,faction,name:rail?'중열차포':sprite==='drachen'?'드라헨 관측기구':'캉코 관측기구',x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,a:-Math.PI/2,speed:0,stationary:true,surface:rail,ace:false,escortPlane:undefined,hp:rail?600:780,maxHp:rail?600:780,hitRadius:rail?74:114,hullLength:rail?92:170,hullWidth:rail?52:72,fire:2.5,fieldRegion:this.worldRegion()});
@@ -725,7 +725,7 @@ Game.prototype._updField=function(dt,input={}){
  this._updEncounter(step,input);if(this.state!=='playing')return;
  for(const e of this.enemies){if(!e.fieldUnit||e.hp<=0||!e.fieldSalvoLeft||this.sunStrikeContains(e))continue;e.fieldSalvoDelay-=step;if(e.fieldSalvoDelay<=0){e.fieldSalvoLeft--;e.fieldSalvoDelay=e.fieldUnit==='railgun'?.26:.38;this.fieldVolley(e)}}
  this.fieldUnitTimer=(this.fieldUnitTimer??34)-step;
- if(this.fieldUnitTimer<=0){this.fieldUnitTimer=this.mode==='campaign'?65:55;if(![1,7].includes(this.worldRegion())){this.fieldUnitWave=(this.fieldUnitWave||0)+1;this.spawnFieldUnit(this.fieldUnitWave%2===0?'railgun':'balloon')}}
+ if(this.fieldUnitTimer<=0){this.fieldUnitTimer=this.mode==='campaign'?65:55;if(![1,7].includes(this.worldRegion())&&!this.mobSpawnsSuppressed?.()){this.fieldUnitWave=(this.fieldUnitWave||0)+1;this.spawnFieldUnit(this.fieldUnitWave%2===0?'railgun':'balloon')}}
 };
 // 전원 지대 signature — artillery observation network. Balloons build SPOTTED on an
 // exposed player (cloud cover breaks observation); a dedicated observed battery
@@ -1737,6 +1737,6 @@ Game.prototype.update=function(dt,input={}){
  for(const p of this.particles){p.x+=p.vx*step;p.y+=p.vy*step;p.life-=step}
  this.particles=this.particles.filter(p=>p.life>0);
 };
-import {installNinePilots} from './pilot-nine-combat.js?v=483';
+import {installNinePilots} from './pilot-nine-combat.js?v=484';
 const _preNineHit=Game.prototype.hit;Game.prototype.hit=function(n){if(this.pilot==='barker'&&this.invuln<=0&&n>0){this.barkerStacks=Math.min(this.skillTime>0?5:3,(this.barkerStacks||0)+1);this.barkerStackTime=3;if(this.skillTime>0)n=Math.min(n,Math.max(0,this.hp-1))}_preNineHit.call(this,n)};
 installNinePilots(Game,PILOTS);

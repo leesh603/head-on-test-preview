@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=483&b=326';
-import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan,segmentBox,maanLocal,maanWorld,maanClearance,maanGroundBlocked,resolveMaanGround,MAAN_ESCORT_RADIUS} from './maan-layout.js?v=483';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=484&b=326';
+import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan,segmentBox,maanLocal,maanWorld,maanClearance,maanGroundBlocked,resolveMaanGround,MAAN_ESCORT_RADIUS} from './maan-layout.js?v=484';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 class DesertHull extends BaseBoss {
  constructor(o,kind){
@@ -11,6 +11,8 @@ class DesertHull extends BaseBoss {
  command(type,spec={}){this.emit({...spec,type,bossId:this.id,faction:this.faction});}
  hazard(kind,spec){this.command('hazard',{kind,damage:this.t.damage,warning:kind==='projectile'?0:1.15,duration:kind==='projectile'?5:.4,...spec});}
  fan(x,y,a,count,spread,speed=this.t.bulletSpeed,visual='wusten-shell'){for(let i=0;i<count;i++){const angle=a+(count===1?0:i/(count-1)-.5)*spread;this.hazard('projectile',{x,y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,radius:5,visual});}}
+ ring(count=10,speed=this.t.bulletSpeed*.6,visual='wusten-mg'){const n=Math.max(4,Math.ceil(count*(this.t.projectileDensity||1))),off=this.rng()*Math.PI*2;
+  for(let i=0;i<n;i++){const a=off+i*Math.PI*2/n;this.hazard('projectile',{x:this.x,y:this.y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,radius:4,visual,damage:this.t.damage*.5});}}
  target(players){return players.find(p=>p.alive);}
  gone(id){return this.parts.get(id)?.destroyed;}
  live(type){return [...this.parts.values()].filter(p=>!p.destroyed&&p.kind===type);}
@@ -130,6 +132,7 @@ export class Wustenpanzer extends DesertHull {
    this.heat=runaway?1:.4;
    this.serviceWindow=2.6;this.drivePause=2.6;this.tactic('pressure-release');
   }
+  if(this.due('ring',dt,runaway?5.5:8.5))this.ring(10,this.t.bulletSpeed*.6,'wusten-mg');
  }
 }
 export class SinaiLandship extends DesertHull {
@@ -166,6 +169,7 @@ export class SinaiLandship extends DesertHull {
   }
   if(this.duneLane)this.duneLane.remaining=Math.max(0,this.duneLane.remaining-dt);
   const mg=this.parts.get('lewis');if(!mg.destroyed&&!p.sandCover&&!disrupted&&this.due('lewis',dt,2.6))this.aimed(mg,aim,{count:3,spread:.22,visual:'sinai-mg'});
+  if(this.due('ring',dt,disrupted?6:9))this.ring(10,this.t.bulletSpeed*.58,'sinai-mg');
   if(burning&&this.due('fuel-leak',dt,4.2)){const tank=this.parts.get('tank');this.hazard('circle',{x:this.x+tank.x,y:this.y+tank.y+75,radius:58,warning:.9,duration:2.2,tickInterval:.65,damage:this.t.damage*.5,visual:'sinai-fire'});this.command('maan-vent',{x:this.x+tank.x,y:this.y+tank.y,black:true});}
   // Existing encounter bodies provide cap, targeting, hit routing and cleanup.
   this.escortAge+=dt;

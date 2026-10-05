@@ -1081,4 +1081,4 @@ body.astra-ui #skillCutin .cutin-caption strong{font-size:20px;font-weight:800;c
  body.astra-ui #skillCutin .cutin-caption small{font-size:11px}
  body.astra-ui #skillCutin .cutin-caption strong{font-size:16px}
 }
-@media(max-width:720px),(pointer:coarse){body.astra-ui.playing.gamepad-active #touch{display:none!important}}
+@media(max-width:720px),(pointer:coarse){body.astra-ui.playing.gamepad-active #touch #stick{display:none!important}}

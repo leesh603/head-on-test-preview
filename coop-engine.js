@@ -1,14 +1,14 @@
-import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=483';
-import {nungesserAimOffset,nungesserRoundReaction} from './pilot-signature-state.js?v=483';
-import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=483';
-import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=483';
-import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=483';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=483';
-import {registerAircraftTiers} from './aircraft-tiers.js?v=483';
-import {attachAircraftPersonality} from './aircraft-personality164.js?v=483';
-import {wingmanEngagementStep,wingmanAttackTarget} from './engagement-flow174.js?v=483';
-import {installCloudCover} from './cloud-cover1.js?v=483';
-import {tickCityDefense} from './city-defense.js?v=483';
+import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=484';
+import {nungesserAimOffset,nungesserRoundReaction} from './pilot-signature-state.js?v=484';
+import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=484';
+import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=484';
+import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=484';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=484';
+import {registerAircraftTiers} from './aircraft-tiers.js?v=484';
+import {attachAircraftPersonality} from './aircraft-personality164.js?v=484';
+import {wingmanEngagementStep,wingmanAttackTarget} from './engagement-flow174.js?v=484';
+import {installCloudCover} from './cloud-cover1.js?v=484';
+import {tickCityDefense} from './city-defense.js?v=484';
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.
 export const COOP_BALANCE=Object.freeze({spawn:1,ordinaryHp:1.15,heavyHp:1.65,enemyCap:28,xp:.6,revive:15,reviveHp:1,reviveAmmo:.5,reviveInvuln:2,minZoom:.75});
@@ -125,7 +125,7 @@ export class CoopGame {
   if(this.t>=this._zeppelinSchedule){this.spawnEnemy('zeppelin');this._zeppelinSchedule=this.t+135+this.rng()*35;this.event('wave','적 비행선 강습')}
   if(this.t>=this.nextHeavyAt&&this.enemies.length<COOP_BALANCE.enemyCap-1&&!this.enemies.some(e=>e.heavyBomber)){const e=this.spawnEnemy('heavyBomber');if(e){this.nextHeavyAt=this.t+100+this.rng()*25;this.event('wave',e.name+' 출현 · 중기관총 탄막 주의')}}
   this.regionThreat-=dt;if(this.regionThreat<=0){this.regionThreat=24;if(this.region===1&&this.enemies.length<COOP_BALANCE.enemyCap-5)this.spawnRegular(this.rng()<.12?'zeppelin':'bomber');this.spawnFlak()}
-  this.fieldUnitTimer-=dt;if(this.fieldUnitTimer<=0){this.fieldUnitTimer=55;if(this.region!==1){this.fieldUnitWave=(this.fieldUnitWave||0)+1;this.spawnFieldUnit(this.fieldUnitWave%2===0?'railgun':'balloon')}}
+  this.fieldUnitTimer-=dt;if(this.fieldUnitTimer<=0){this.fieldUnitTimer=55;if(this.region!==1&&!this.mobSpawnsSuppressed()){this.fieldUnitWave=(this.fieldUnitWave||0)+1;this.spawnFieldUnit(this.fieldUnitWave%2===0?'railgun':'balloon')}}
   this.gasTimer-=dt;if(this.gasTimer<=0){this.gasTimer=28;if(this.region===2)this.spawnGas()}
   this.gustTimer-=dt;if(this.gustTimer<=0){this.gustTimer=42+this.rng()*30;const a=this.rng()*Math.PI*2,d=430+this.rng()*150;this.gusts.push({x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,vx:-Math.cos(a)*150,vy:-Math.sin(a)*150,a:a+Math.PI/2,life:6,maxLife:6,radius:55+this.rng()*18,hitPlayers:new Set()});this.event('flak','돌풍 발생! 풍압을 피하세요')}
   for(const boss of [...this.enemies].filter(e=>e.encounterPending&&e.hp>0)){
@@ -246,5 +246,5 @@ Object.setPrototypeOf(CoopGame.prototype,Game.prototype);
 // Cloud concealment: per-player conceal timers + enemy lock-breaking, same rules as solo.
 installCloudCover(CoopGame);
 
-import {installNineCoop} from './pilot-nine-combat.js?v=483';
+import {installNineCoop} from './pilot-nine-combat.js?v=484';
 installNineCoop(CoopGame);
