@@ -1,0 +1,139 @@
+import {copyFile,mkdir,readdir,readFile,rm,stat,writeFile} from 'node:fs/promises';
+import {dirname,extname,join,normalize,relative,resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
+
+const mobile=dirname(fileURLToPath(import.meta.url));
+const root=join(mobile,'..');
+const target=join(mobile,'www');
+
+const excludedTopDirs=new Set([
+  '.git','.github','mobile',
+  'src-png',
+  'maan-20261003',
+  'tactical-identity-20261003',
+  'verdun-review',
+  'asset-bank',
+  'qa',
+  'mapgen',
+  'art-candidates',
+  'tests',
+  'tools',
+  'source-art',
+  'docs',
+  '.agents'
+]);
+
+await rm(target,{recursive:true,force:true});
+await mkdir(target,{recursive:true});
+
+let files=0;
+let bytes=0;
+let skippedBytes=0;
+
+async function treeSize(path){
+  let total=0;
+  for(const entry of await readdir(path,{withFileTypes:true})){
+    const child=join(path,entry.name);
+    if(entry.isDirectory())total+=await treeSize(child);
+    else if(entry.isFile())total+=(await stat(child)).size;
+  }
+  return total;
+}
+
+async function copyTree(from,to,isRoot=false){
+  for(const entry of await readdir(from,{withFileTypes:true})){
+    const src=join(from,entry.name);
+    const dst=join(to,entry.name);
+    if(entry.isDirectory()){
+      if(isRoot&&excludedTopDirs.has(entry.name)){
+        if(entry.name!=='.git')skippedBytes+=await treeSize(src);
+        continue;
+      }
+      await mkdir(dst,{recursive:true});
+      await copyTree(src,dst,false);
+      continue;
+    }
+    if(!entry.isFile())continue;
+    if(isRoot&&entry.name==='.gitignore')continue;
+    await copyFile(src,dst);
+    const size=(await stat(src)).size;
+    files++;
+    bytes+=size;
+  }
+}
+
+await copyTree(root,target,true);
+
+const bridge=`(() => {
+  const capacitor=globalThis.Capacitor;
+  if(!capacitor?.isNativePlatform?.())return;
+  const apiOrigin='https://head-on-aces.justzeon.chatgpt.site';
+  const originalFetch=globalThis.fetch.bind(globalThis);
+  const mapApi=value=>{
+    const url=new URL(value,location.href);
+    if(url.origin!==location.origin||!url.pathname.startsWith('/api/'))return null;
+    return apiOrigin+url.pathname+url.search+url.hash;
+  };
+  globalThis.fetch=(input,init)=>{
+    if(typeof input==='string'||input instanceof URL){
+      const mapped=mapApi(String(input));
+      if(mapped)return originalFetch(mapped,init);
+    }else if(input instanceof Request){
+      const mapped=mapApi(input.url);
+      if(mapped)return originalFetch(new Request(mapped,input),init);
+    }
+    return originalFetch(input,init);
+  };
+  document.documentElement.classList.add('native-app');
+})();`;
+
+await writeFile(join(target,'native-bridge.js'),bridge);
+files++;
+bytes+=Buffer.byteLength(bridge);
+
+const indexPath=join(target,'index.html');
+let index=await readFile(indexPath,'utf8');
+const appTag=index.match(/<script\s+type="module"\s+src="app\.js[^"]*"\s*><\/script>/)?.[0];
+if(!appTag)throw new Error('app.js module tag not found in test-main index.html');
+index=index.replace(appTag,'<script src="./native-bridge.js?v=android-test-main"></script>'+appTag);
+await writeFile(indexPath,index);
+
+if(!index.includes('?v=477'))throw new Error('Expected latest test-main pin ?v=477 not found');
+if(!index.includes('native-bridge.js'))throw new Error('Native bridge injection failed');
+
+const textExt=new Set(['.html','.js','.css']);
+const assetExt='(?:js|css|html|webp|png|svg|json|mp3|ogg|wav)';
+const literalRef=new RegExp("(?:['\\\"(])((?:\\./)?[A-Za-z0-9_@./-]+\\."+assetExt+")(?:\\?[^'\\\")\\s]*)?",'g');
+const cssRef=/url\((?:['"])?([^'")?#]+)(?:\?[^'")]*)?(?:['"])?\)/g;
+const missing=[];
+
+async function validateText(dir){
+  for(const entry of await readdir(dir,{withFileTypes:true})){
+    const path=join(dir,entry.name);
+    if(entry.isDirectory()){await validateText(path);continue}
+    if(!entry.isFile()||!textExt.has(extname(entry.name).toLowerCase()))continue;
+    const text=await readFile(path,'utf8');
+    const refs=[];
+    for(const match of text.matchAll(literalRef))refs.push(match[1]);
+    for(const match of text.matchAll(cssRef))refs.push(match[1]);
+    for(const raw of refs){
+      if(!raw||raw.startsWith('http:')||raw.startsWith('https:')||raw.startsWith('data:')||raw.startsWith('/')||raw.startsWith('../'))continue;
+      if(raw.includes('${'))continue;
+      const clean=raw.replace(/^\.\//,'');
+      const resolved=resolve(dirname(path),clean);
+      if(!resolved.startsWith(resolve(target)))continue;
+      try{await stat(resolved)}catch{missing.push(relative(target,resolved)+' <- '+relative(target,path))}
+    }
+  }
+}
+
+await validateText(target);
+const uniqueMissing=[...new Set(missing)].filter(x=>!x.startsWith('favicon.ico'));
+if(uniqueMissing.length)throw new Error('Missing packaged runtime references:\n'+uniqueMissing.slice(0,40).join('\n'));
+
+await writeFile(join(target,'android-source.txt'),'head-on-test-preview main 0902c2141ebcbd5438f04871151a741468707133\n');
+
+const finalBytes=await treeSize(target);
+console.log('Source: head-on-test-preview main 0902c2141ebcbd5438f04871151a741468707133');
+console.log('Android web package: '+files+' files, '+(finalBytes/1048576).toFixed(1)+' MiB');
+console.log('Excluded dev/backup payload: '+(skippedBytes/1048576).toFixed(1)+' MiB');
