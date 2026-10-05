@@ -1,3 +1,4 @@
+import {NAVAL_BOSS_STATIONS} from './naval-faction-atlas.js?v=485';
 import {separateBossFleet} from './naval-spacing.js?v=485';
 import {recordShipWake} from './naval-water.js?v=485';
 import {BaseBoss,BossPart,BossEncounter} from './headon-stageboss-core.js?v=485';
@@ -14,7 +15,7 @@ export const JUTLAND_PARTS=Object.freeze({
 });
 export function jutlandMuzzle(b,p){return{x:b.x+p.x+Math.cos(p.angle)*(p.kind==='torpedo'?50:p.row===1?85:128),y:b.y+p.y+Math.sin(p.angle)*(p.kind==='torpedo'?50:p.row===1?85:128)};}
 export class JutlandVessel extends BaseBoss{
- constructor(o){o={...o,faction:o.faction||'central'};const specs=JUTLAND_PARTS[o.role];super({...o,maxHp:o.tuning.maxHp,coreRadius:o.role==='observer'?40:65,parts:specs.map(p=>new BossPart({id:p.id,maxHp:o.tuning.maxHp*p.fraction,radius:p.radius,kind:p.kind}))});
+ constructor(o){o={...o,faction:o.faction||'central'};const mounts=NAVAL_BOSS_STATIONS[o.faction]?.[o.role]||{},width=o.role==='battleship'?254:137,height=o.role==='battleship'?940:610;const specs=JUTLAND_PARTS[o.role].map(p=>mounts[p.id]?{...p,localX:mounts[p.id][0]*width,localY:(mounts[p.id][1]-.5)*height}:p);super({...o,maxHp:o.tuning.maxHp,coreRadius:o.role==='observer'?40:65,parts:specs.map(p=>new BossPart({id:p.id,maxHp:o.tuning.maxHp*p.fraction,radius:p.radius,kind:p.kind}))});
  Object.assign(this,{t:o.tuning,faction:o.faction,role:o.role,slot:o.slot||0,fleet:o.fleet,jutlandBoss:true,jutlandAirship:o.role==='observer',kind:'jutland-'+o.role,ownsMotion129:true,hullYaw:0,entryAge:0,shotClock:0,launchClock:0,driveVelocity:0,anchorX:o.x,anchorY:o.y,width:o.role==='battleship'?254:o.role==='cruiser'?137:143,height:o.role==='battleship'?940:o.role==='cruiser'?610:430});
  for(const spec of specs)Object.assign(this.parts.get(spec.id),spec,{angle:-Math.PI/2,recoil:0});this.updateParts();}
  command(type,spec={}){this.emit({...spec,type,bossId:this.id,faction:this.faction});}
