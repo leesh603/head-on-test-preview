@@ -1,7 +1,7 @@
 import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js';
 export const TERRAIN_PROFILES=Object.freeze({
  rural:{name:'전원 지대',src:'./terrain-rural359.webp?v=485&b=326',base:'#424b3b',strength:1.25},
- sea:{name:'아드리아해',src:'./terrain-sea359r2.webp?v=485&b=326',base:'#254555',strength:1.11,tileSize:1254},
+ sea:{name:'아드리아해',src:'./terrain-sea359r2.webp?v=485&b=326',base:'#245d62',strength:1.11,tileSize:1254},
  trenches:{name:'참호 전선',src:'./terrain-trenches359r2.webp?v=485&b=326',base:'#4c443b',strength:1.22,tileSize:1254},
  sky:{name:'창공',cell:3,base:'#3d5367',strength:1.25},
  city:{name:'도심 지대',src:'./terrain-city359.webp?v=485&b=326',base:'#454746',strength:1.22},
