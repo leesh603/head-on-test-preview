@@ -308,12 +308,12 @@ export function beginStageBossFrame(g,dt){
  let route=stage===7?g.navalRoute:null;
  if(stage===7&&!route)route=g.navalRoute=createHarborRoute(g);
  if(route){const hx=Math.cos(route.a),hy=Math.sin(route.a),forward=(g.x-route.x)*hx+(g.y-route.y)*hy;route.maxForward=Math.max(route.maxForward||0,forward);}
- const travel=stage===16?g.jutlandRoute.maxForward:stage===14?g.gallipoliRoute.maxForward:stage===7?Math.max(0,route.maxForward||0):(g.distance||0)-g.stageStartDistance,progress=Math.max(0,Math.min(1,travel/STAGE_BOSS_BALANCE.distance));
+ const travel=stage===16?g.jutlandRoute.maxForward:stage===14?g.gallipoliRoute.maxForward:stage===7?Math.max(0,route.maxForward||0):(g.distance||0)-g.stageStartDistance,stageDistance=stage===14?GALLIPOLI_ROUTE.fort:STAGE_BOSS_BALANCE.distance,progress=Math.max(0,Math.min(1,travel/stageDistance));
  if(naval&&stage!==16&&addon.stages.phase==='explore'){
   const messages=stage===7?[[.35,'군항 외곽 진입 · 방파제 수로를 따라 전진'],[.72,'내항 접근 · 우현 부두를 따라 전진'],[.91,'항만 중심부 진입 · 우현 요새 포대 확인']]:[[.12,'연안 이탈 · 함대 수색 개시'],[.46,'외해 진입 · 적 수상기 활동 포착'],[.76,'수평선에 적 군함 실루엣 확인']];
   g.navalRouteCues??=new Set();for(const [mark,message]of messages)if(progress>=mark&&!g.navalRouteCues.has(mark)){g.navalRouteCues.add(mark);g.event('wave',message);}
  }
- const ready=travel>=STAGE_BOSS_BALANCE.distance||(stage!==7&&stage!==14&&stage!==16&&g.t-g.stageStartTime>=STAGE_BOSS_BALANCE.deadline);
+ const ready=travel>=stageDistance||(stage!==7&&stage!==14&&stage!==16&&g.t-g.stageStartTime>=STAGE_BOSS_BALANCE.deadline);
  if(addon.stages.phase==='explore'&&ready){
   if(naval&&!g.navalApproachAt){g.navalApproachAt=g.t;g.event('wave',stage===16?'경고 · 북해 전투전대 접근 / 함대 선회에 주의':stage===7?'경고 · 장갑 항구요새 전면 도달':'경고 · 적 주력함이 전방에서 접근 중');g.event('heavyShot','');}
   if(!naval||g.t-g.navalApproachAt>=5.2){
