@@ -49,6 +49,15 @@ export function musicContextForGame(game){
  const active=pattern&&(game.t||0)<director.endsAt;
  const near=enemies.filter(e=>!e.surface&&!e.stationary&&Math.hypot((e.x||0)-(game.x||0),(e.y||0)-(game.y||0))<700).length;
  if(active&&pattern==='RECOVERY')return {...base,pattern,intensity:.12};
- const intensity=active?pressure[pattern]||.5:Math.min(.65,.2+near*.06);
+ // Even one close opponent should open the combat groove; do not require a
+ // crowd before the music acknowledges a dogfight. Bullet density, low health
+ // and live battlefield events add to the pressure the same way.
+ const x=game.x||0,y=game.y||0;let threat=0,fire=0;
+ for(const b of game.bullets||[])if(b.enemy&&Math.hypot(b.x-x,b.y-y)<300)fire++;
+ threat+=Math.min(.22,fire*.05);
+ const hpFrac=game.players?.length?Math.min(1,...game.players.filter(p=>p.hp>0).map(p=>p.hp/(p.maxHp||1)),1):game.hp/(game.maxHp||game.hp||1);
+ threat+=(1-Math.max(0,Math.min(1,hpFrac)))*.34;
+ if(game.battlefieldEvents?.current)threat+=.14;
+ const intensity=active?pressure[pattern]||.5:Math.min(.95,(near?Math.min(.78,.38+near*.065):.2)+threat);
  return {...base,state:active||near>0?'COMBAT':'CALM',pattern:active?pattern:null,intensity};
 }

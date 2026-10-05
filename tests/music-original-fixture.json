@@ -1,0 +1,13 @@
+{
+  "source": "2076b366d1ea866886b092b2bf37864db80db699:dist/music.js",
+  "seconds": 80,
+  "hashes": {
+    "rural": "ab00ab7dbd631bcd57b1f1fcbaecfafab8e4c7fdcc2bb4f5b2d28276c3df0568",
+    "sea": "68a6c7507f2e6f0b2082e705931a45f1575bd838b1af5faa5cfde6e37e7701c3",
+    "trench": "36dc59154c63f6c399282a986fb6a33c744cdcf5bc6d74a7613a5c72428d6671",
+    "city": "ab431176bec4e813265478a405026e727da866fe901d8cc42157d91eeed3f857",
+    "sky": "14f18e4445046fbac53444f29dc36b66d2e7b0b15260369ce03fae52956a8c12",
+    "alps": "01ffbfe2fb90e34d994beee42b0368a3caa93ac3de640e73a2a1f6cf891ad074",
+    "zeebrugge": "c76e2c54578437ead5e4c83ad0ce98a91eb4f3bf7b8a06cb8c807ce07efab4f3"
+  }
+}
