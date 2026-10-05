@@ -21,7 +21,7 @@ globalThis.Image=class extends Image{
   super.src=readFileSync(path);
  }get src(){return super.src}
 };
-const view=await import('../maan-view.js?v=477'),{drawStageBoss}=await import('../stageboss-view.js?v=477-qa'),{fxArtReady,fxReady}=await import('../fx-art.js?v=477'),{fixture,step}=await import('../tests/stageboss-fixture94.mjs');
+const view=await import('../maan-view.js?v=478'),{drawStageBoss}=await import('../stageboss-view.js?v=478-qa'),{fxArtReady,fxReady}=await import('../fx-art.js?v=478'),{fixture,step}=await import('../tests/stageboss-fixture94.mjs');
 await view.prepareMaanAssets(13);await fxArtReady;
 for(const key of ['smokeDust','dustPuff','dirtBurst','bombfx0','shellHeavy'])assert(fxReady(key),key+' must use native FX');
 const out=root+'/qa/maan-r2';mkdirSync(out,{recursive:true});const metrics={};

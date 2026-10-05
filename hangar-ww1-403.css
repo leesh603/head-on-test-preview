@@ -457,8 +457,8 @@ body.astra-ui:not(.playing){
            right panel = aircraft + stats, roster, sortie.
    ========================================================================== */
 body.astra-ui:not(.playing){
- --ho-keyart:url('hangar-keyart-mobile.webp?v=477');
- --ho-keyart-pc:url('hangar-keyart-pc.webp?v=477');
+ --ho-keyart:url('hangar-keyart-mobile.webp?v=478');
+ --ho-keyart-pc:url('hangar-keyart-pc.webp?v=478');
  --ho-keyart-focus:50% 28%;
  --ho-keyart-focus-pc:65% 30%;
 }
@@ -904,7 +904,6 @@ body.astra-ui .main-settings select{
  box-shadow:inset 0 0 0 1px #ffffff26;color:#efebe2!important;font:700 13px/1 var(--astra-type);letter-spacing:.08em;
 }
 body.astra-ui .main-settings label>span{display:none!important}
-=======
 /* Pilot portrait lightbox — click the hangar portrait or dossier circle for the full illustration. */
 .portrait-lightbox{position:fixed;inset:0;z-index:960;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 42%,#1a1410ee 0%,#0b0907f4 72%);opacity:0;pointer-events:none;transition:opacity .22s ease}
 .portrait-lightbox:not(.hidden){opacity:1;pointer-events:auto}
