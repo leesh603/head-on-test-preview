@@ -1,0 +1,34 @@
+{
+  "renderer": "Skia native, not browser performance",
+  "missing": [],
+  "results": [
+    {
+      "name": "pc",
+      "team": "entente",
+      "meanMs": 11.797045016666894,
+      "hazards": 3,
+      "dropped": 0
+    },
+    {
+      "name": "pc",
+      "team": "central",
+      "meanMs": 11.46128313333326,
+      "hazards": 3,
+      "dropped": 0
+    },
+    {
+      "name": "mobile",
+      "team": "entente",
+      "meanMs": 3.9897472666665936,
+      "hazards": 3,
+      "dropped": 0
+    },
+    {
+      "name": "mobile",
+      "team": "central",
+      "meanMs": 4.094559066666504,
+      "hazards": 3,
+      "dropped": 0
+    }
+  ]
+}

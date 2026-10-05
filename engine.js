@@ -109,7 +109,7 @@ export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this
   if(this.t-(this.lastRegionalHazard??-Infinity)<8)return;
   this.lastRegionalHazard=this.t;
   if(region===0){this.spawnMinefield();return}
-  if(region===1||region===7){this.spawnFleet();return}
+  if(region===1||region===7||region===16){this.spawnFleet();return}
   const start=this.bullets.length;
   this.flakBursts??=[];
   let edge=this.rng()*4,x,y;if(edge<1){x=this.x-360+this.rng()*720;y=this.y-300}else if(edge<2){x=this.x+360;y=this.y-300+this.rng()*600}else if(edge<3){x=this.x-360+this.rng()*720;y=this.y+300}else{x=this.x-360;y=this.y-300+this.rng()*600}if(this.sunStrikeContains({x,y,hp:1}))return;let aim=Math.atan2(this.y-y,this.x-x);this.event('flak','대공포 발사! 탄막을 피하세요');for(let i=-3;i<=3;i++){let a=aim+i*.12;this.bullets.push({x,y,vx:Math.cos(a)*190,vy:Math.sin(a)*190,life:4.2,enemy:true,flak:true,damage:Math.round(13*(1+this.t/260))})}this.burst(x,y,'#efb35d',12);
@@ -142,7 +142,7 @@ export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this
  let wave=this.t<60?1:this.t<120?2:3;if(wave!==this.wave){this.wave=wave;this.event('wave',wave===1?(this.doctrine+' · '+(DOCTRINE_BALANCE[this.doctrine]?.label||'')):wave===2?'제2파 · 추격기 접근':'제3파 · 전선 돌파')}
  this.eventTimer-=dt;if(this.eventTimer<=0){this.eventTimer=22+this.rng()*20;let roll=this.rng(),quiet=this.mobSpawnsSuppressed();if(roll<.35&&!quiet){for(let i=0;i<3;i++)this.spawnEnemy('hunter');this.event('wave','기습! 고속 추격 편대')}else if(roll<.6&&!quiet){this.spawnEnemy('bomber');this.spawnEnemy('bomber');this.event('wave','폭격 편대 통과')}else if(roll<.8||quiet){this.drops.push({x:this.x+Math.cos(this.a)*180,y:this.y+Math.sin(this.a)*180,value:0,heal:true,supply:true,vx:0,vy:0,life:14});this.event('wave','전방 수리 보급품!')}}
  // Independent patrols replace timed follower arrivals.
- this.flakTimer-=dt;if(this.t>28&&this.flakTimer<=0){this.flakTimer=(Math.max(10,27-this.t*.028)+this.rng()*6)*(this.region===2?.6:[1,7].includes(this.region)?1.4:1);this.spawnFlak()}
+ this.flakTimer-=dt;if(this.t>28&&this.flakTimer<=0){this.flakTimer=(Math.max(10,27-this.t*.028)+this.rng()*6)*(this.region===2?.6:[1,7,16].includes(this.region)?1.4:1);this.spawnFlak()}
  this.spawn-=dt;if(this.spawn<=0&&this.enemies.length<65&&!this.mobSpawnsSuppressed()){this.spawn=this.regularSpawnInterval?.()??2.8;this.spawnEnemy(this.spawnComposition())}else if(this.mobSpawnsSuppressed())this.spawn=Math.max(this.spawn,.5);
  this.supplyTimer-=dt;if(this.supplyTimer<=0){this.supplyTimer=30+this.rng()*24;let a=this.rng()*Math.PI*2,d=520;this.drops.push({x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,value:0,heal:true,supply:true,vx:-Math.cos(a)*78,vy:-Math.sin(a)*78,life:18})}
  this.runScheduledAces();
@@ -247,10 +247,10 @@ Game.prototype._updNewAce=function(dt,input={}){
 const HEAVY_BOMBERS={central:[['staaken','체펠린 슈타켄 R.VI'],['gotha','고타 G.V 중폭격기'],['aeg_g4','AEG G.IV 중폭격기'],['friedrichshafen_g3','프리드리히스하펜 G.III']],
  entente:[['handley-page','핸들리 페이지 O/400'],['voisin8','부아생 VIII 야간폭격기'],['caudron_g4','코드롱 G.4 폭격기'],['fe2b','F.E.2b 푸셔 폭격기'],['breguet14','브레게 14 주간폭격기']]};
 const HEAVY_BOMBERS_SEA={central:[],entente:[['felixstowe_f2','펠릭스토우 F.2 비행정']]};
-const SEAPLANE_REGIONS=[1,7];
+const SEAPLANE_REGIONS=[1,7,16];
 const SEAPLANE_POOLS={central:['hansa_brandenburg_cc','hb_w29','ff33','lohner_l'],entente:['macchi_m5','macchi_m3']};
 Game.prototype._pickHeavy=function(){
- const sea=[1,7].includes(this.worldRegion?.()??-1),enemyFaction=PLANES[this.plane]?.faction==='central'?'entente':'central';
+ const sea=[1,7,16].includes(this.worldRegion?.()??-1),enemyFaction=PLANES[this.plane]?.faction==='central'?'entente':'central';
  const pool=[...(HEAVY_BOMBERS[enemyFaction]||[]),...(sea?(HEAVY_BOMBERS_SEA[enemyFaction]||[]):[])];
  return pool[Math.floor(this.rng()*pool.length)]||HEAVY_BOMBERS.entente[0];
 };
@@ -390,7 +390,7 @@ Game.prototype._updWorld=function(dt,input={}){
  const region=this.worldRegion();
  if(this.region!==region)this.enterRegion(region)
  if(this.state!=='playing')return;
- this.regionThreat=(this.regionThreat??20)-step;if(this.regionThreat<=0){this.regionThreat=24;if([1,7].includes(region)&&this.enemies.length<60&&!this.directorMobSpawnsSuppressed?.())this.spawnEnemy(this.rng()<.12?'zeppelin':'bomber');this.spawnFlak()}
+ this.regionThreat=(this.regionThreat??20)-step;if(this.regionThreat<=0){this.regionThreat=24;if([1,7,16].includes(region)&&this.enemies.length<60&&!this.directorMobSpawnsSuppressed?.())this.spawnEnemy(this.rng()<.12?'zeppelin':'bomber');this.spawnFlak()}
  for(const e of this.enemies){if(!e.bossPilot)continue;e.bossDash=Math.max(0,(e.bossDash||0)-step);if(e.aceRetreat){e.a=Math.atan2(e.y-this.y,e.x-this.x);e.x+=Math.cos(e.a)*e.speed*1.15*step;e.y+=Math.sin(e.a)*e.speed*1.15*step;e.fire=9;if(Math.hypot(e.x-this.x,e.y-this.y)>1500){e.expired=true;if(!e.crashing&&!e.crashed)e.hp=-1}continue}if(this.sunStrikeContains(e))continue;if((e.aceSpawnT??this.t)&&this.t-e.aceSpawnT>75){e.aceRetreat=true;this.event('wave',e.name+' · 이탈 — 교전 한계 초과');continue}e.abilityTimer-=step;if(e.abilityTimer<=0){e.abilityTimer=e.bossPilot==='bishop'?ENEMY_BOSS_BALANCE.bishopAbilityMin+this.rng()*ENEMY_BOSS_BALANCE.bishopAbilityVariance:7+this.rng()*3;this.aceAttack(e)}}
 };
 // Separate weapon families: gun upgrades never silently multiply every payload.
@@ -555,7 +555,7 @@ Game.prototype._updFriendlyBomber=function(dt,input={}){
  this.friendlyBombers??=[];this.friendlyBombs??=[];
  if(this.bomberLevel){this.bomberTimer=(this.bomberTimer??2)-step;if(this.bomberTimer<=0){
   this.bomberTimer=Math.max(10,18-(this.bomberLevel-1)*2);const a=this.a;
-  this.friendlyBombers.push({ox:this.x,oy:this.y,x:this.x-Math.cos(a)*650,y:this.y-Math.sin(a)*650,a,age:0,drop:.8,left:5,airframe:[...(HEAVY_BOMBERS[PLANES[this.plane].faction]||[]),...([1,7].includes(this.worldRegion?.()??-1)?(HEAVY_BOMBERS_SEA[PLANES[this.plane].faction]||[]):[])][Math.floor(this.rng()*([...(HEAVY_BOMBERS[PLANES[this.plane].faction]||[]),...([1,7].includes(this.worldRegion?.()??-1)?(HEAVY_BOMBERS_SEA[PLANES[this.plane].faction]||[]):[])].length))][0]});
+  this.friendlyBombers.push({ox:this.x,oy:this.y,x:this.x-Math.cos(a)*650,y:this.y-Math.sin(a)*650,a,age:0,drop:.8,left:5,airframe:[...(HEAVY_BOMBERS[PLANES[this.plane].faction]||[]),...([1,7,16].includes(this.worldRegion?.()??-1)?(HEAVY_BOMBERS_SEA[PLANES[this.plane].faction]||[]):[])][Math.floor(this.rng()*([...(HEAVY_BOMBERS[PLANES[this.plane].faction]||[]),...([1,7,16].includes(this.worldRegion?.()??-1)?(HEAVY_BOMBERS_SEA[PLANES[this.plane].faction]||[]):[])].length))][0]});
   this.event('ally','아군 폭격대 진입 · 폭탄 5발 투하');
  }}
  for(const b of this.friendlyBombers){b.age+=step;const d=-650+b.age*480;b.x=b.ox+Math.cos(b.a)*d;b.y=b.oy+Math.sin(b.a)*d;b.drop-=step;
@@ -601,7 +601,7 @@ Game.prototype.clearRegionalHazards=function(){
  // persistent allies/enemies and reward drops; discard transient battlefield work.
  for(const key of ['particles','flakBursts','gusts','bombZones','gasZones','fireZones','cannonImpacts','combatFX','enemyAirshipPasses','hostileMinefields','mines','grenades','friendlyBombs'])if(Array.isArray(this[key]))this[key]=[];
  this.bullets=[];
- this.enemies=this.enemies.filter(e=>!e.navalVessel||[1,7].includes(this.region));
+ this.enemies=this.enemies.filter(e=>!e.navalVessel||[1,7,16].includes(this.region));
  if([5,9].includes(this.region))this.enemies=this.enemies.filter(e=>!e.fieldUnit&&!e.surface);
  if(this.region===6)this.enemies=this.enemies.filter(e=>e.fieldUnit!=='railgun'&&!e.surface);
  this.lastRegionalHazard=-Infinity;
@@ -697,7 +697,7 @@ Game.prototype._updEncounter=function(dt,input={}){
 };
 // Tethered observation balloons and a rail-bound field cannon (arcade roles).
 Game.prototype.spawnFieldUnit=function(kind){
- if([1,7].includes(this.worldRegion())||this.enemies.length>=65)return null;
+ if([1,7,16].includes(this.worldRegion())||this.enemies.length>=65)return null;
  const rail=kind==='railgun';if(this.enemies.filter(e=>e.hp>0&&e.fieldUnit===(rail?'railgun':'balloon')).length>=(rail?1:1))return null;
  if(rail&&[4,5,6].includes(this.worldRegion()))return null;
  const e=this.spawnEnemy('scout');if(!e)return null;const a=this.a+(this.rng()-.5)*1.5,d=330+this.rng()*100;
@@ -725,7 +725,7 @@ Game.prototype._updField=function(dt,input={}){
  this._updEncounter(step,input);if(this.state!=='playing')return;
  for(const e of this.enemies){if(!e.fieldUnit||e.hp<=0||!e.fieldSalvoLeft||this.sunStrikeContains(e))continue;e.fieldSalvoDelay-=step;if(e.fieldSalvoDelay<=0){e.fieldSalvoLeft--;e.fieldSalvoDelay=e.fieldUnit==='railgun'?.26:.38;this.fieldVolley(e)}}
  this.fieldUnitTimer=(this.fieldUnitTimer??34)-step;
- if(this.fieldUnitTimer<=0){this.fieldUnitTimer=this.mode==='campaign'?65:55;if(![1,7].includes(this.worldRegion())&&!this.mobSpawnsSuppressed?.()){this.fieldUnitWave=(this.fieldUnitWave||0)+1;this.spawnFieldUnit(this.fieldUnitWave%2===0?'railgun':'balloon')}}
+ if(this.fieldUnitTimer<=0){this.fieldUnitTimer=this.mode==='campaign'?65:55;if(![1,7,16].includes(this.worldRegion())&&!this.mobSpawnsSuppressed?.()){this.fieldUnitWave=(this.fieldUnitWave||0)+1;this.spawnFieldUnit(this.fieldUnitWave%2===0?'railgun':'balloon')}}
 };
 // 전원 지대 signature — artillery observation network. Balloons build SPOTTED on an
 // exposed player (cloud cover breaks observation); a dedicated observed battery
