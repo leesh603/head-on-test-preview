@@ -515,6 +515,8 @@ function paintZeebrugge(cx,cy,W,H){
   ctx.restore();
  }
  else terrainAlpsRenderer.draw(ctx,{key:'sea',camera,width:W,height:H});
+ // A cool harbor wash belongs to the water layer, before landmarks and ships.
+ ctx.save();ctx.globalAlpha*=.22;ctx.fillStyle='#587084';ctx.fillRect(0,0,W,H);ctx.restore();
  if(!route){applyTerrainAtmosphere(ctx,'zeebrugge',W,H);return;}
  const a=Number.isFinite(route.a)?route.a:-Math.PI/2,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
  const centerS=(cx-route.x)*hx+(cy-route.y)*hy,diag=Math.hypot(W,H),span=diag*1.15;
