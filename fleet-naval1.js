@@ -1,5 +1,5 @@
 import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=485';
-import {vacantShipPose,steerShipClear,resolveSurfaceSpacing} from './naval-spacing.js?v=485';
+import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles} from './naval-spacing.js?v=485';
 import {drawShipWater,recordShipWake} from './naval-water.js?v=485';
 // Moving fleet system — Adriatic (region 1) and Zeebrugge harbor (region 7).
 // Ships sail real headings, fire from actual gun positions on the hull, and are
@@ -104,7 +104,9 @@ export function drawFleetLayer(c,game,{point}){
 const playerFaction=g=>g.teamFaction??PLANES[g.plane]?.faction??'entente';
 export function updateNavalFleet(g,dt){if(g.state!=='playing')return;
   const step=Math.min(.04,Math.max(0,dt)),region=g.worldRegion();if(g.navalRegion!==undefined&&g.navalRegion!==region){g.friendlyShips=[];g.navalExchanges=[];}g.navalRegion=region;if(![1,7,16].includes(region)){g.friendlyShips=[];g.navalExchanges=[];}
-  for(const e of [...g.enemies,...(g.friendlyShips||[])]){
+  const _fleetShipIter=[];for(const e of g.enemies)_fleetShipIter.push(e);for(const e of g.friendlyShips||[])_fleetShipIter.push(e);
+  const _obstacles=shipObstacles(g);
+  for(const e of _fleetShipIter){
    // Recon seaplanes shadow the player and spot for fleet support; cloud cover breaks it.
    if(e.recon&&e.hp>0){
     const d=Math.hypot(e.x-g.x,e.y-g.y);
@@ -114,7 +116,7 @@ export function updateNavalFleet(g,dt){if(g.state!=='playing')return;
    }
    if(!e.movingShip||e.hp<=0||e.expired)continue;
    if(!e.moored){
-    e.weave+=step*.22;const desired=steerShipClear(g,e,step);const turn=Math.atan2(Math.sin(desired-e.a),Math.cos(desired-e.a));e.a+=Math.max(-.08*step,Math.min(.08*step,turn));e.driveVelocity=Math.min(e.sailingSpeed,e.driveVelocity+6*step);e.x+=Math.cos(e.a)*e.driveVelocity*step;e.y+=Math.sin(e.a)*e.driveVelocity*step;if(region===7&&g.navalRoute){const r=g.navalRoute,hx=Math.cos(r.a),hy=Math.sin(r.a),nx=-hy,ny=hx,along=(e.x-r.x)*hx+(e.y-r.y)*hy,lat=(e.x-r.x)*nx+(e.y-r.y)*ny,bank=Math.max(80,(r.bankAt?.(along,Math.sign(lat)||1)??430)-90);if(Math.abs(lat)>bank){e.x-=nx*(lat-Math.sign(lat)*bank)*Math.min(1,step*2);e.y-=ny*(lat-Math.sign(lat)*bank)*Math.min(1,step*2);}if(along>=10400)e.expired=true;}
+    e.weave+=step*.22;const desired=steerShipClear(g,e,step,_obstacles);const turn=Math.atan2(Math.sin(desired-e.a),Math.cos(desired-e.a));e.a+=Math.max(-.08*step,Math.min(.08*step,turn));e.driveVelocity=Math.min(e.sailingSpeed,e.driveVelocity+6*step);e.x+=Math.cos(e.a)*e.driveVelocity*step;e.y+=Math.sin(e.a)*e.driveVelocity*step;if(region===7&&g.navalRoute){const r=g.navalRoute,hx=Math.cos(r.a),hy=Math.sin(r.a),nx=-hy,ny=hx,along=(e.x-r.x)*hx+(e.y-r.y)*hy,lat=(e.x-r.x)*nx+(e.y-r.y)*ny,bank=Math.max(80,(r.bankAt?.(along,Math.sign(lat)||1)??430)-90);if(Math.abs(lat)>bank){e.x-=nx*(lat-Math.sign(lat)*bank)*Math.min(1,step*2);e.y-=ny*(lat-Math.sign(lat)*bank)*Math.min(1,step*2);}if(along>=10400)e.expired=true;}
    }
    if(Math.hypot(e.x-g.x,e.y-g.y)>2600)e.expired=true;
   }
@@ -139,10 +141,10 @@ export function updateNavalFleet(g,dt){if(g.state!=='playing')return;
     }
    }
   }else{g.reconTimer=18}
-  resolveSurfaceSpacing(g);for(const e of [...g.enemies,...(g.friendlyShips||[])])if(e.movingShip&&e.hp>0&&!e.expired)recordShipWake(e,step,SHIP_TYPES[e.shipClass].drawnH*.9);
+  resolveSurfaceSpacing(g);_fleetShipIter.length=0;for(const e of g.enemies)_fleetShipIter.push(e);for(const e of g.friendlyShips||[])_fleetShipIter.push(e);for(const e of _fleetShipIter)if(e.movingShip&&e.hp>0&&!e.expired)recordShipWake(e,step,SHIP_TYPES[e.shipClass].drawnH*.9);
   for(const e of g.friendlyShips||[]){e.life-=step;e.fire-=step;if(e.fire<=0){e.fire=SHIP_TYPES[e.shipClass].interval;if(!fireSurfaceExchange(g,e,SHIP_TYPES[e.shipClass]))g._friendlyShipFire(e,SHIP_TYPES[e.shipClass]);}}
-  g.friendlyShips=(g.friendlyShips||[]).filter(e=>e.hp>0&&!e.expired&&e.life>0&&e.hazardRegion===region);
-  g.navalExchanges=(g.navalExchanges||[]).filter(q=>{q.age+=step;if(q.age<q.duration)return true;const target=q.target;if(target.hp>0&&Math.hypot(target.x-q.x,target.y-q.y)<70){target.hp=Math.max(0,target.hp-q.damage);target.hitFlash=.24;g.combatBlast?.(q.x,q.y,40,'enemy','naval');if(target.hp<=0)target.expired=true;}return false;});
+  {const fs=g.friendlyShips||[];let w=0;for(let i=0;i<fs.length;i++){const e=fs[i];if(e.hp>0&&!e.expired&&e.life>0&&e.hazardRegion===region)fs[w++]=e}fs.length=w;g.friendlyShips=fs;}
+  {const ex=g.navalExchanges||[];let w=0;for(let i=0;i<ex.length;i++){const q=ex[i];q.age+=step;if(q.age<q.duration){ex[w++]=q;continue}const target=q.target;if(target.hp>0&&Math.hypot(target.x-q.x,target.y-q.y)<70){target.hp=Math.max(0,target.hp-q.damage);target.hitFlash=.24;g.combatBlast?.(q.x,q.y,40,'enemy','naval');if(target.hp<=0)target.expired=true;}}ex.length=w;g.navalExchanges=ex;}
 }
 
 export function fireSurfaceExchange(g,e,t){
