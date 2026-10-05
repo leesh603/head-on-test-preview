@@ -1,0 +1,11 @@
+{
+  "renderer": "native Skia; browser/device play unverified",
+  "terrain": [
+    "rural",
+    "sea"
+  ],
+  "types": 5,
+  "angles": 4,
+  "gameplayStateUnchanged": true,
+  "newMissingAssets": []
+}

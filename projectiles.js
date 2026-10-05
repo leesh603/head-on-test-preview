@@ -54,7 +54,7 @@ export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
   c.globalAlpha=1;c.fillStyle='#ff947d';c.fillRect(-14,-2,16,4);
   c.fillStyle='#fff4d2';c.fillRect(-3,-1,5,2);c.restore();return;
  }
- if(kind==='railgun'&&fxReady('shell')){FX56?fx(c,'shell',-8,0,9,27,Math.PI/2):fx(c,'shell',-8,0,30,9);c.restore();return}
+ if(kind==='railgun'&&fxReady('shell')){fx(c,'shell',-8,0,30,9);c.restore();return}
  if(kind==='rocket'&&fxReady('rocket')){fx(c,'rocket',-4,0,34,10);c.restore();return}
  if(FX3&&fxReady('tracerOrange')){fx(c,'tracerOrange',-length*.35,0,length+10,Math.max(4,width*1.8),0,.92);c.restore();return}
  const head=kind==='rocket'?-15:2;
@@ -70,10 +70,10 @@ export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
 export function drawCannonProjectile(c,b,x,y){
  if(b.life<=0)return;const cow=!!b.cow37;
  c.save();c.translate(Math.round(x),Math.round(y));c.rotate(Math.atan2(b.vy,b.vx));
- // Reuse the existing high-resolution horizontal metal shells, without rocket flame.
- if(FX3&&fxReady(cow?'shellHeavy':'shellAuto')){
-  if(!cow)fx(c,'gunSmoke',-17,0,19,8,0,.28);
-  fx(c,cow?'shellHeavy':'shellAuto',0,0,cow?24:31,cow?8:7);
+ // Approved flight sprites retain a body-centered anchor; no rocket flame.
+ const flightKey=cow?'cannonCow':'cannonMotor',oldKey=cow?'shellHeavy':'shellAuto';
+ if(FX3&&(fxReady(flightKey)||fxReady(oldKey))){
+  fx(c,fxReady(flightKey)?flightKey:oldKey,0,0,cow?24:31,cow?8:7);
   c.restore();return;
  }
  // Original cannon atlas remains the rollback and loading fallback.

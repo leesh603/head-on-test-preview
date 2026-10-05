@@ -1,3 +1,4 @@
+import {ordnanceArtReady,ordnanceReady,drawOrdnance} from './ordnance-art.js?v=ord1';
 // Union pack: Pro's 196 combat atlas takes precedence for the keys it covers
 // (explosion0-3, fire, smoke*, spark, armorSpark, gas, gasThin); every other key
 // stays on the approved v189 set below. ?fx=0 keeps the procedural rollback.
@@ -94,12 +95,13 @@ const fx189Ready=typeof Image==='undefined'?Promise.resolve():Promise.all([fx196
  }));
  const im=await imageLoads.get(file);if(im)fxImgs[key]=im;
 })));
-export const fxArtReady=Promise.all([fx189Ready,fx196ArtReady,roleArtReady,fxsReady]);
-export function fxReady(key){return !FX_OFF&&(fxsHas(key)||roleReady(key)||fx196Ready(key)||!!fxImgs[key])}
+export const fxArtReady=Promise.all([fx189Ready,fx196ArtReady,roleArtReady,fxsReady,ordnanceArtReady]);
+export function fxReady(key){return !FX_OFF&&(ordnanceReady(key)||fxsHas(key)||roleReady(key)||fx196Ready(key)||!!fxImgs[key])}
 export function fxImage(key){return FX_OFF?null:(fxsHas(key)&&fxsImage(key))||roleImage(key)||fx196Image(key)||fxImgs[key]||null}
 // Draw sprite centered at x,y, rotated to angle (0 = sprite's natural right/up orientation), fit inside w×h.
 export function fx(c,key,x,y,w,h=w,angle=0,alpha=1){
  if(FX_OFF)return false;
+ if(drawOrdnance(c,key,x,y,w,h,angle,alpha))return true;
  if(FXS&&key==='rocket')fxsRocketTrail(c,x,y,angle,w);
  if(fxsHas(key))return fxsDraw(c,key,x,y,w,h,angle,alpha);
  if(roleReady(key))return roleDraw(c,key,x,y,w,h,angle,alpha);
