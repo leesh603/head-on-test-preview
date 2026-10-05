@@ -433,6 +433,39 @@ draw=t=>{
  ctx.restore();
 };
 
+// Same guide on the Gallipoli approach: forward chevrons along the strait
+// course plus an off-screen edge arrow toward the cliff fortress.
+{
+const _drawGallipoliGuide=draw;
+draw=t=>{
+ _drawGallipoliGuide(t);
+ const r=game?.gallipoliRoute;
+ if(!r||game.worldRegion?.()!==14||game.stageBoss?.stages.phase==='boss')return;
+ const hx=Math.cos(r.a),hy=Math.sin(r.a);
+ const point=(x,y)=>[x-game.x+W/2,y-game.y+H/2];
+ ctx.save();
+ ctx.strokeStyle='#8fd0d1';ctx.lineWidth=2.5;ctx.lineCap='round';
+ const forward=(game.x-r.x)*hx+(game.y-r.y)*hy;
+ for(let i=1;i<=4;i++){
+  const[cx,cy]=point(r.x+hx*(forward+i*130),r.y+hy*(forward+i*130));
+  ctx.save();ctx.translate(cx,cy);ctx.rotate(r.a);ctx.globalAlpha=.6-.11*i;
+  ctx.beginPath();ctx.moveTo(10,0);ctx.lineTo(-5,-9);ctx.moveTo(10,0);ctx.lineTo(-5,9);ctx.stroke();ctx.restore();
+ }
+ const fort=gallipoliPoint(r,GALLIPOLI_ROUTE.fort-900,0);
+ const[sx,sy]=point(fort.x,fort.y),dx=sx-W/2,dy=sy-H/2,edge=34;
+ ctx.globalAlpha=.85;ctx.strokeStyle='#ff855a';ctx.fillStyle='#ff855a';
+ if(sx>edge&&sx<W-edge&&sy>edge&&sy<H-edge){
+  ctx.lineWidth=2;ctx.beginPath();ctx.arc(sx,sy,26,0,Math.PI*2);ctx.stroke();
+ }else{
+  const angle=Math.atan2(dy,dx),sc=Math.min((W/2-edge)/Math.max(.001,Math.abs(Math.cos(angle))),(H/2-edge)/Math.max(.001,Math.abs(Math.sin(angle))));
+  ctx.save();ctx.translate(W/2+Math.cos(angle)*sc,H/2+Math.sin(angle)*sc);ctx.rotate(angle);
+  ctx.beginPath();ctx.moveTo(11,0);ctx.lineTo(-7,-6);ctx.lineTo(-4,0);ctx.lineTo(-7,6);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.restore();
+ }
+ ctx.restore();
+};
+}
+
 const regionTextures={};for(const name of ['sea','trenches']){const im=new Image();im.src='./terrain-'+name+'.webp?v=485';regionTextures[name]=im}
 const terrainAlpsAtlas=new Image();terrainAlpsAtlas.src='./terrain-alps-atlas.webp?v=485';
 // The no-op constructors only keep the import-stripped offline smoke harness
