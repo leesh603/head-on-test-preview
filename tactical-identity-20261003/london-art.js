@@ -1,6 +1,6 @@
-import {fx} from './fx-art.js?v=480';
-import {drawAADefense} from './aa-defense-art.js?v=480';
-const paths={gotha:'./gotha-night-atlas20260930.webp?v=480',light:'./fx-city-searchlight.webp?v=480',gun:'./fx-city-aagun.webp?v=480'};
+import {fx} from './fx-art.js?v=482';
+import {drawAADefense} from './aa-defense-art.js?v=482';
+const paths={gotha:'./gotha-night-atlas20260930.webp?v=482',light:'./fx-city-searchlight.webp?v=482',gun:'./fx-city-aagun.webp?v=482'};
 let art={};
 export function releaseLondonArt(){art={};}
 export function prepareLondonArt(){return Promise.all(Object.entries(paths).map(([key,path])=>new Promise(resolve=>{const im=new Image();art[key]=im;im.decoding='async';im.onload=im.onerror=resolve;im.src=path;})));}

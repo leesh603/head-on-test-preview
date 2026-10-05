@@ -1,4 +1,4 @@
-import {FixedPool} from './support-pool129.js?v=480';
+import {FixedPool} from './support-pool129.js?v=482';
 export const HANGAR=Object.freeze({x:0,y:.213,w:.25,h:.314}); // normalized to full base image
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function segmentDistance(x,y,a,b){const dx=b.x-a.x,dy=b.y-a.y,l=dx*dx+dy*dy,t=l?clamp(((x-a.x)*dx+(y-a.y)*dy)/l,0,1):0;return Math.hypot(x-a.x-t*dx,y-a.y-t*dy);}
