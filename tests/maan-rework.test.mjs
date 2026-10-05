@@ -64,7 +64,7 @@ test('Periodic ground has exact opposite edges, preserves constant brightness an
 });
 test('Rupture cue is consumed once and blasts the workshop anchor for either faction',async()=>{
  const old=globalThis.Image;globalThis.Image=class{};
- try{const {handleMaanCue}=await import('../maan-view.js?v=478');for(const team of ['entente','central']){
+ try{const {handleMaanCue}=await import('../maan-view.js?v=479');for(const team of ['entente','central']){
   const f=battle(team),blasts=[],g={x:9999,y:9999,event(){},combatBlast:(...a)=>blasts.push(a),shake:0};assert.equal(handleMaanCue(g,{type:'maan-entry',stage:'doors'},f.body),true);assert.equal(blasts.length,2);assert(blasts.every(b=>b[1]===f.body.entryAnchor.y&&Math.abs(b[0]-f.body.entryAnchor.x)<200));
   assert.equal(handleMaanCue(g,{type:'unrelated'},f.body),false);
  }}finally{globalThis.Image=old;}

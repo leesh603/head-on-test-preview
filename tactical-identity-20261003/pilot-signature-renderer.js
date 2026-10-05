@@ -1,7 +1,7 @@
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
-import {PILOT_SIGNATURES} from './pilot-signature-state.js?v=478';
-import {signatureWingPositions} from './pilot-signature-geometry.js?v=478';
-import {drawCavalryGuard,drawCavalryLance,drawRickenbackerHalfRing} from './pilot-directed-fx.js?v=478';
+import {PILOT_SIGNATURES} from './pilot-signature-state.js?v=479';
+import {signatureWingPositions} from './pilot-signature-geometry.js?v=479';
+import {drawCavalryGuard,drawCavalryLance,drawRickenbackerHalfRing} from './pilot-directed-fx.js?v=479';
 const TAU=Math.PI*2;
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const SYMBOL_ICONS=Object.freeze({lo:'loEmblem',vossCowling:'sacredCowling'});

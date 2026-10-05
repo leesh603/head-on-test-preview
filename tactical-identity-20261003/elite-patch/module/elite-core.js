@@ -4,7 +4,7 @@ import {
   ELITE_KINDS,
   eliteScale,
   squadSize
-} from './elite-config.js?v=478';
+} from './elite-config.js?v=479';
 
 const TAU = Math.PI * 2;
 const angleDiff = (a, b) => Math.atan2(Math.sin(a - b), Math.cos(a - b));
