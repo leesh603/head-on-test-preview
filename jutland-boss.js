@@ -1,3 +1,4 @@
+import {recordShipWake} from './naval-water.js?v=485';
 import {BaseBoss,BossPart,BossEncounter} from './headon-stageboss-core.js?v=485';
 import {segmentDistance} from './alps-geometry117.js?v=485';
 export const JUTLAND_CYCLE=48;
@@ -29,9 +30,9 @@ export class JutlandVessel extends BaseBoss{
  observed(){const b=this.fleet.bodies.find(b=>b.jutlandAirship);return b&&!b.dead&&!b.parts.get('gondola').destroyed;}
  coordinated(){const b=this.fleet.bodies.find(b=>b.role==='battleship');return b&&!b.dead&&!b.parts.get('director').destroyed;}
  updateFleet(dt){if(this.fleet.bodies.find(b=>!b.dead)!==this)return;const f=this.fleet;f.clock+=dt;const age=Math.max(0,f.clock-5)%JUTLAND_CYCLE,phase=age<10?'ranging':age<18?'crossing-turn':age<25?'crossing-fire':age<34?'turn-away':'reform';if(phase!==f.phase){f.phase=phase;this.command('phase-change',{phase:'jutland-'+phase});}this.checkObserverRetreat();}
- move(dt){const phase=this.fleet.phase,turn=phase==='crossing-turn'||phase==='crossing-fire'?Math.PI/2:phase==='turn-away'?Math.PI:0,edge=Math.abs(this.x-this.anchorX)>680||Math.abs(this.y-this.anchorY)>540;
- const target=edge?Math.atan2(this.anchorY-this.y,this.anchorX-this.x)+Math.PI/2:turn;this.hullYaw=turnToward(this.hullYaw,target,this.jutlandAirship?.32:.27,dt);const speed=this.jutlandAirship?19:this.parts.get('boilers')?.destroyed?11:phase==='crossing-turn'||phase==='turn-away'?38:24;
- this.driveVelocity=this.entryAge<5?0:speed;this.x+=Math.sin(this.hullYaw)*this.driveVelocity*dt;this.y-=Math.cos(this.hullYaw)*this.driveVelocity*dt;this.updateParts();}
+ move(dt){const phase=this.fleet.phase,turn=phase==='crossing-turn'||phase==='crossing-fire'?Math.PI/2:phase==='turn-away'?Math.PI:0,edge=Math.abs(this.x-this.anchorX)>1050||Math.abs(this.y-this.anchorY)>900;
+ const target=edge?Math.atan2(this.anchorY-this.y,this.anchorX-this.x)+Math.PI/2:turn;this.hullYaw=turnToward(this.hullYaw,target,this.jutlandAirship?.32:this.role==='battleship'?.12:.16,dt);const speed=this.jutlandAirship?19:this.parts.get('boilers')?.destroyed?11:this.role==='battleship'?52:64;
+ const desired=this.entryAge<5?0:speed;this.driveVelocity+=Math.max(-10*dt,Math.min(8*dt,desired-this.driveVelocity));this.x+=Math.sin(this.hullYaw)*this.driveVelocity*dt;this.y-=Math.cos(this.hullYaw)*this.driveVelocity*dt;this.updateParts();if(!this.jutlandAirship)recordShipWake(this,dt,this.height);}
  plan(target,kind){const weapons=[...this.parts.values()].filter(p=>!p.destroyed&&p.kind===(kind==='torpedo'?'torpedo':'gun'));if(!weapons.length)return;const p=weapons[this.fleet.cursor++%weapons.length],point={x:target.x,y:target.y},side=this.slot%2?-1:1;p.aimTarget=point;this.pending={partId:p.id,target:point,kind};
  if(kind==='shell'){const count=this.fleet.phase==='crossing-fire'&&this.coordinated()?2:1;this.pending.shots=Array.from({length:count},(_,i)=>({x:point.x+(i?side*220:side*170),y:point.y+(i?140:0),radius:this.role==='battleship'?64:45,warning:this.observed()?2:2.7,delay:i*.35,damage:this.t.damage,tag:this.id+':'+p.id}));}}
  fire(dt){const a=this.pending;if(!a)return;const p=this.parts.get(a.partId);if(!p||p.destroyed){this.pending=null;return;}const aim=Math.atan2(a.target.y-this.y-p.y,a.target.x-this.x-p.x);p.angle=turnToward(p.angle,aim,p.kind==='torpedo'?1:.85,dt);if(Math.abs(angleDelta(p.angle,aim))>.065)return;const m=jutlandMuzzle(this,p);p.recoil=.22;p.aimTarget=null;this.command('muzzle',{...m});
