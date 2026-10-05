@@ -1,0 +1,38 @@
+[
+  {
+    "id": "proctor",
+    "name": "Andrew Beauchamp-Proctor",
+    "prompt": "Use case: style-transfer. Asset type: HEAD-ON WW1 ace portrait, transparent game UI cutout. COMPLETELY REDRAW Andrew Beauchamp-Proctor, a single waist-up portrait, in the SAME illustrated painting style and quality as reference image 1 (existing HEAD-ON ace). Image 1 is the style reference only. Image 2 identifies the new pilot's appearance and uniform only; completely discard image 2's photorealism, pale stripe background and bad matte. Subject: small youthful narrow oval face, slightly prominent ears, reserved confident expression, British RFC khaki peaked cap with RFC badge, khaki officer tunic and brown Sam Browne leather strap, subdued service ribbons. Match image 1's visible painterly brushwork, hand painted textured cloth and leather, stylized realistic face planes, subdued ochre skin, earthy desaturated uniform palette, dramatic soft warm light, shadow depth and crisp illustrated contours. Same head-to-torso scale, three quarter pose looking slightly to the right, shoulders fully visible, head within upper margin, chest ends near bottom. Portrait must look drawn by exactly the artist who painted image 1, not a colorized historical photo, not photorealistic studio headshot, not 3D, not smooth AI airbrush. True transparent empty background everywhere outside the person, including gaps. Clean alpha silhouette with no checkerboard, white matte, stripes, scenery, aircraft, border, text, duplicate people or floating debris. Square 1024x1024 image, one figure.",
+    "styleReference": "portrait-fonck.webp",
+    "identityReference": "portrait-proctor-field.webp",
+    "method": "built-in image_gen",
+    "finalFile": "portrait-proctor-field.webp"
+  },
+  {
+    "id": "lufbery",
+    "name": "Raoul Lufbery",
+    "prompt": "Use case: style-transfer. Asset type: HEAD-ON WW1 ace portrait, transparent game UI cutout. COMPLETELY REDRAW Raoul Lufbery, a single waist-up portrait, in the SAME illustrated painting style and quality as reference image 1 (existing HEAD-ON ace). Image 1 is the style reference only. Image 2 identifies the new pilot's appearance and uniform only; completely discard image 2's photorealism, pale stripe background and bad matte. Subject: adult French-American aviator, receding dark hair, strong eyebrows and broad forehead, clean shaven, serious thoughtful gaze, muted French horizon blue side cap and stand collar tunic with small aviator wings. Match image 1's visible painterly brushwork, hand painted textured cloth and leather, stylized realistic face planes, subdued ochre skin, earthy desaturated uniform palette, dramatic soft warm light, shadow depth and crisp illustrated contours. Same head-to-torso scale, three quarter pose looking slightly to the right, shoulders fully visible, head within upper margin, chest ends near bottom. Portrait must look drawn by exactly the artist who painted image 1, not a colorized historical photo, not photorealistic studio headshot, not 3D, not smooth AI airbrush. True transparent empty background everywhere outside the person, including gaps. Clean alpha silhouette with no checkerboard, white matte, stripes, scenery, aircraft, border, text, duplicate people or floating debris. Square 1024x1024 image, one figure.",
+    "styleReference": "portrait-fonck.webp",
+    "identityReference": "portrait-lufbery-field.webp",
+    "method": "built-in image_gen",
+    "finalFile": "portrait-lufbery-field.webp"
+  },
+  {
+    "id": "sachsenberg",
+    "name": "Gotthard Sachsenberg",
+    "prompt": "Use case: style-transfer. Asset type: HEAD-ON WW1 ace portrait, transparent game UI cutout. COMPLETELY REDRAW Gotthard Sachsenberg, a single waist-up portrait, in the SAME illustrated painting style and quality as reference image 1 (existing HEAD-ON ace). Image 1 is the style reference only. Image 2 identifies the new pilot's appearance and uniform only; completely discard image 2's photorealism, pale stripe background and bad matte. Subject: young German naval aviator, angular clean shaven face, dark hair under naval peaked cap, dark navy double breasted officer coat, discreet anchor collar insignia and blue Pour le Merite cross. Match image 1's visible painterly brushwork, hand painted textured cloth and leather, stylized realistic face planes, subdued ochre skin, earthy desaturated uniform palette, dramatic soft warm light, shadow depth and crisp illustrated contours. Same head-to-torso scale, three quarter pose looking slightly to the right, shoulders fully visible, head within upper margin, chest ends near bottom. Portrait must look drawn by exactly the artist who painted image 1, not a colorized historical photo, not photorealistic studio headshot, not 3D, not smooth AI airbrush. True transparent empty background everywhere outside the person, including gaps. Clean alpha silhouette with no checkerboard, white matte, stripes, scenery, aircraft, border, text, duplicate people or floating debris. Square 1024x1024 image, one figure.",
+    "styleReference": "portrait-baron.webp",
+    "identityReference": "portrait-sachsenberg-field.webp",
+    "method": "built-in image_gen",
+    "finalFile": "portrait-sachsenberg-field.webp"
+  },
+  {
+    "id": "schleich",
+    "name": "Eduard von Schleich",
+    "prompt": "Create one hand-painted historical aviator portrait for HEAD-ON. Reference image 1 is the game's existing illustration STYLE: match its earthy muted colors, painterly realistic face planes, textured brushwork, detailed worn leather, soft warm lighting and dramatic shadows. Reference image 2 identifies the subject and outfit ONLY: redraw this exact person's face and dark leather flying coat with high collar and peaked field cap as an illustration, not a photograph. Keep his lean angular face and serious expression, three-quarter chest-up framing, same head scale as image 1, shoulders visible. Discard reference 2's striped pale background entirely. Clean true transparent background outside the single person, no matte, stripes, floating debris, typography, borders or scenery. Square game portrait. Same artist as reference 1.",
+    "styleReference": "portrait-baron.webp",
+    "identityReference": "portrait-schleich-field.webp",
+    "method": "built-in image_gen",
+    "finalFile": "portrait-schleich-field.webp"
+  }
+]

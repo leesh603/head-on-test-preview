@@ -167,10 +167,10 @@ function install(){
    button.title=alias?((label?.textContent||'')+' · '+alias):(label?.textContent||'');
    let caption=button.querySelector('.astra-pilot-caption');if(!caption){caption=el('small','astra-pilot-caption');button.append(caption)}put(caption,alias);
   }
-  if(lastPilot!==pilot){lastPilot=pilot;const tabs=$('pilotTabs');const l=selectedButton.offsetLeft-tabs.offsetLeft;if(l<tabs.scrollLeft||l+selectedButton.offsetWidth>tabs.scrollLeft+tabs.clientWidth)tabs.scrollLeft=Math.max(0,l-tabs.clientWidth/2+selectedButton.offsetWidth/2)}
+  if(lastPilot!==pilot){lastPilot=pilot;const tabs=$('pilotTabs');const l=selectedButton.getBoundingClientRect().left-tabs.getBoundingClientRect().left+tabs.scrollLeft;if(l<tabs.scrollLeft||l+selectedButton.offsetWidth>tabs.scrollLeft+tabs.clientWidth)tabs.scrollLeft=Math.max(0,l-tabs.clientWidth/2+selectedButton.offsetWidth/2)}
   document.body.classList.add('boot-ready');
  }
- new MutationObserver(schedule).observe($('pilotTabs'),{childList:true});
+ new MutationObserver(schedule).observe($('pilotTabs'),{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
  new MutationObserver(schedule).observe($('aircraftSelect103'),{childList:true});
  subscribe(schedule);schedule();
  installHud();
