@@ -95,12 +95,11 @@ const _sinkArt={};const sinkImg=k=>{let im=_sinkArt[k];if(!im){im=new Image();im
 const _sinkPaint=(c,im,x,y,w,alpha,rot=0)=>{c.save();c.imageSmoothingEnabled=true;c.translate(x,y);c.rotate(rot);c.globalAlpha=alpha;c.drawImage(im,-w/2,-w*im.naturalHeight/im.naturalWidth/2,w,w*im.naturalHeight/im.naturalWidth);c.restore();};
 function drawSinkingShip(c,e,t,x,y,w,h,point){
  const st=Math.min(1,e.sinkAge/4.6),yaw=e.a+Math.PI/2,tA=e.sinkAge||0;
- const water='#1f4c5c';
  drawShipWater(c,e,w,h,point);
  c.save();c.translate(x,y);
  // Hull heels over and slips under a waterline that creeps along the ship axis.
- // The afloat part renders normally; the submerged part stays faintly visible
- // through a water-colored veil instead of disappearing or fading out.
+ // Only the part still above water is drawn at full opacity - the sea occludes
+ // the rest, so the ship visibly sinks instead of fading out.
  const heel=e.sinkHeel*st*1.25+e.sinkPitch*st*.3;
  c.rotate(yaw+heel);
  const top=-h*.75,bot=h*.75,waterY=top+(bot-top)*st*1.02;
@@ -110,23 +109,10 @@ function drawSinkingShip(c,e,t,x,y,w,h,point){
  c.rotate(-yaw);
  drawFleetShip(c,e,h,t.guns);
  c.restore();
- c.save();
- c.beginPath();c.rect(-w*1.8,waterY,w*3.6,Math.max(0,bot-waterY));c.clip();
- c.translate(0,e.sinkPitch*st*h*.13);
- c.rotate(-yaw);
- c.globalAlpha*=.34;
- drawFleetShip(c,e,h,t.guns);
  c.restore();
- // Water closes over the submerged end.
- c.globalAlpha=.5*Math.min(1,st*1.15);
- c.fillStyle=water;
- c.fillRect(-w*1.8,Math.max(top,waterY),w*3.6,Math.max(0,bot-Math.max(top,waterY)));
- c.restore();
- // Modest foam ring at the waterline + a short breach plume early on.
+ // Foam ring sits on the water surface where the hull broke through.
  const foam=sinkImg('foam');
- if(foam){const fx=x+Math.cos(yaw)*e.sinkPitch*st*h*.13+Math.sin(tA*.7)*3,fy=y+Math.sin(yaw)*e.sinkPitch*st*h*.13+Math.cos(tA*.6)*3;_sinkPaint(c,foam,fx,fy,w*(1.05+st*.85),Math.min(1,st*1.5)*.5,-e.sinkHeel*st*.4)}
- if(st>.08&&st<.75){const splash=sinkImg('splash'),q=(st-.08)/.67;
-  if(splash)_sinkPaint(c,splash,x,y,w*(.9+q*.9),Math.min(1,q*4)*(1-q)*.6);}
+ if(foam&&st<.92){const fx=x+Math.cos(yaw)*e.sinkPitch*st*h*.13+Math.sin(tA*.7)*3,fy=y+Math.sin(yaw)*e.sinkPitch*st*h*.13+Math.cos(tA*.6)*3;_sinkPaint(c,foam,fx,fy,w*(.6+st*.55),.65,-e.sinkHeel*st*.4)}
 }
 export function drawFleetLayer(c,game,{point}){
  const cw=c.canvas.width,ch=c.canvas.height;
