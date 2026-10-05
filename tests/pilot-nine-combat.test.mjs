@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PILOT_PLANES,angleDiff} from '../engine.js?v=483';
-import {CoopGame} from '../coop-engine.js?v=483';
+import {Game,PILOT_PLANES,angleDiff} from '../engine.js?v=485';
+import {CoopGame} from '../coop-engine.js?v=485';
 import {signatureState,advancePilotSignature} from '../pilot-signature-state.js?v=483';
 import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js?v=483';
 const ids=['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker'];

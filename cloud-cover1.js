@@ -1,5 +1,5 @@
 import {roleReady,roleImage,roleArtReady} from './fx-role3.js?v=484';
-import {fxsHas,fxsImage} from './fx-sample-preview.js?v=484';
+import {fxsHas,fxsImage} from './fx-sample-preview.js?v=485';
 // Cloud concealment — shared tactical system across all regions (전장 개성화 패치).
 // Dense clouds break enemy tracking; wispy clouds only soften accuracy.
 export const CLOUD_TYPES=Object.freeze({
@@ -8,7 +8,7 @@ export const CLOUD_TYPES=Object.freeze({
  dark:{rx:190,ry:108,dense:1.3,drift:6,alpha:.95,dark:true},
  wispy:{rx:170,ry:64,dense:.35,drift:14,alpha:.5}
 });
-export const CLOUD_DENSITY=Object.freeze({0:.75,1:.3,2:.55,3:.85,4:.35,5:.95,6:.55,7:.45});
+export const CLOUD_DENSITY=Object.freeze({0:.75,1:.3,2:.55,3:.85,4:.35,5:.95,6:.55,7:.45,15:.25});
 const CLOUD_PICK=Object.freeze({
  0:['cumulus','cumulus','cumulus','bank','wispy','cumulus'],
  1:['cumulus','wispy','wispy','cumulus'],
@@ -17,7 +17,8 @@ const CLOUD_PICK=Object.freeze({
  4:['dark','cumulus','wispy','cumulus'],
  5:['cumulus','cumulus','dark','wispy','bank','cumulus','wispy'],
  6:['cumulus','cumulus','bank','wispy','cumulus'],
- 7:['bank','cumulus','wispy','bank']
+ 7:['bank','cumulus','wispy','bank'],
+ 15:['dark','wispy','dark','wispy']
 });
 export const CLOUD_CONCEAL=Object.freeze({partial:.7,normal:1.2,elite:1.6,ace:2,boss:1.8,reacquire:1,reacquireAce:.6,reacquireBoss:.45,aimWobble:55,enemyHide:.4,darkRange:250});
 const MAX_CLOUDS=9;

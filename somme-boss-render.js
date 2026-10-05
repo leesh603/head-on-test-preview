@@ -1,5 +1,5 @@
 import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=484';
-import {fx} from './fx-art.js?v=484';
+import {fx} from './fx-art.js?v=485';
 import {drawAADefense} from './aa-defense-art.js?v=484';
 import {clamp,sommeMuzzle} from './somme-boss-layout.js?v=484';
 const images={},pending={};

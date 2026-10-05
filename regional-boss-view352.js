@@ -1,6 +1,6 @@
 import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=484';
 import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=484';
-import {fx} from './fx-art.js?v=484';
+import {fx} from './fx-art.js?v=485';
 import {drawAADefense} from './aa-defense-art.js?v=484';
 
 // These are authored/derived RGBA sprites, not canvas-painted replacement art.

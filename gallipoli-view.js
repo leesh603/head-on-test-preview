@@ -1,4 +1,4 @@
-import {fx} from './fx-art.js?v=484';
+import {fx} from './fx-art.js?v=485';
 import {GALLIPOLI_PARTS,GALLIPOLI_SECTORS,gallipoliObjective,GALLIPOLI_HANGAR} from './gallipoli-boss.js?v=484';
 import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=484';
 import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=484';

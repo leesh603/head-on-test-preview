@@ -11,7 +11,8 @@ export const REGION_TRANSITION_LABELS=Object.freeze({
  9:Object.freeze({ko:'아라스 상공 · 적 비행단',en:'Arras Sky · Enemy Flying Circus'}),
  10:Object.freeze({ko:'솜 강전선 · 전차 돌파전',en:'Somme Front · Tank Breakthrough'}),
  11:Object.freeze({ko:'런던 대공습 · 야간 폭격',en:'London Raid · Night Bombing'}),
- 12:Object.freeze({ko:'베르됭 전투 · 초대형 요새',en:'Verdun · Giant Fortress'})
+ 12:Object.freeze({ko:'베르됭 전투 · 초대형 요새',en:'Verdun · Giant Fortress'}),
+ 15:Object.freeze({ko:'1918 파리 야간공습 · 탐조등 방공',en:'Paris Night Raid · Searchlight Defense'})
 });
 
 export const COMMON_TRANSITION_TIPS=Object.freeze([
