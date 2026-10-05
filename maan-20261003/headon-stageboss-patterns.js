@@ -1,7 +1,7 @@
-import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=477';
+import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=478';
 import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=477&b=326';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=477&b=326';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=478&b=326';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=478&b=326';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
