@@ -1,8 +1,8 @@
-import {MAAN_LAYOUT,rotateMaan} from './maan-layout.js?v=484';
-import {fx} from './fx-art.js?v=484';
+import {MAAN_LAYOUT,rotateMaan} from './maan-layout.js?v=485';
+import {fx} from './fx-art.js?v=485';
 const urls={terrain:'terrain-maan.webp',workshop:'maan-workshop.webp',wusten:'boss-maan-wusten.webp',wustenWreck:'boss-maan-wusten-wreck.webp',sinai:'boss-maan-sinai.webp',sinaiWreck:'boss-maan-sinai-wreck.webp',car:'boss-maan-rolls-royce.webp'};
 const images=new Map();
-const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+urls[key]+'?v=484';images.set(key,im);return im;};
+const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+urls[key]+'?v=485';images.set(key,im);return im;};
 export function prepareMaanAssets(region){if(region!==12){images.clear();return Promise.resolve();}return Promise.all(Object.keys(urls).map(key=>{const im=load(key);return im.complete?Promise.resolve():new Promise((resolve,reject)=>{im.onload=resolve;im.onerror=()=>reject(new Error('Ma’an asset: '+urls[key]));});}));}
 export function paintMaan(c,g,cx,cy,width,height){
  c.fillStyle='#b69363';c.fillRect(0,0,width,height);

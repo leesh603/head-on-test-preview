@@ -1,4 +1,4 @@
-import {roleReady,roleImage,roleArtReady} from './fx-role3.js?v=484';
+import {roleReady,roleImage,roleArtReady} from './fx-role3.js?v=485';
 import {fxsHas,fxsImage} from './fx-sample-preview.js?v=485';
 // Cloud concealment — shared tactical system across all regions (전장 개성화 패치).
 // Dense clouds break enemy tracking; wispy clouds only soften accuracy.
@@ -32,7 +32,7 @@ function cloudImg(type,seed){
  if(roleReady(key))return roleImage(key,true);
  if(!_roleSettled)return null;
  let im=_imgCache[key];
- if(im===undefined){im=new Image();im.src=`./${key}.webp?v=484&b=345`;im.onload=()=>{_imgCache[key]=im};_imgCache[key]=im}
+ if(im===undefined){im=new Image();im.src=`./${key}.webp?v=485&b=345`;im.onload=()=>{_imgCache[key]=im};_imgCache[key]=im}
  return im;
 }
 

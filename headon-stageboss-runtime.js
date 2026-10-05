@@ -1,5 +1,5 @@
 import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=485';
-import {verdunFortCollapseSites} from './verdun-fortresses.js?v=484';
+import {verdunFortCollapseSites} from './verdun-fortresses.js?v=485';
 import {BossHazards} from './headon-stageboss-hazards.js?v=485';
 
 export class BossStages {

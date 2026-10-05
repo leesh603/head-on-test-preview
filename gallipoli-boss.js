@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=484';
-import {segmentDistance} from './alps-geometry117.js?v=484';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=485';
+import {segmentDistance} from './alps-geometry117.js?v=485';
 export const GALLIPOLI_EXTENTS=Object.freeze({halfWidth:1640,halfHeight:1300});
 export const GALLIPOLI_SECTORS=Object.freeze([
  {id:'west',name:'서부 해안포 진지',x:-940,y:160,guards:['left','west-howitzer','aa-west']},

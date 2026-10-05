@@ -1,5 +1,5 @@
 import {createSignatureView} from './pilot-signature-view.js';
-import {drawGameIcon} from './icons.js?v=484';
+import {drawGameIcon} from './icons.js?v=485';
 import {drawCavalryGuard} from './pilot-directed-fx.js';
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
 export function playerPose(p,x,y){

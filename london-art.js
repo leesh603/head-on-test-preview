@@ -1,9 +1,9 @@
 import {fx} from './fx-art.js?v=485';
-import {drawAttachedApron} from './london-apron369.js?v=484';
-const paths={gotha:'./gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=484',apronDamage:'./boss-london-apron-registered-damage369.png?v=484'};
+import {drawAttachedApron} from './london-apron369.js?v=485';
+const paths={gotha:'./gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=485',apronDamage:'./boss-london-apron-registered-damage369.png?v=485'};
 let art={},artLoadP=null;
 export function releaseLondonArt(){art={};artLoadP=null;}
-export function prepareLondonArt(){return Promise.all(Object.entries(paths).map(([key,path])=>new Promise(resolve=>{const im=new Image();art[key]=im;im.decoding='async';im.onload=im.onerror=resolve;im.src=path;})));}
+export function prepareLondonArt(){return Promise.all(Object.entries(paths).map(([key,path])=>new Promise(resolve=>{const im=new Image();art[key]=im;im.decoding='async';im.onerror=resolve;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.src=path;})));}
 const londonImage=key=>{const im=art[key];if(im?.naturalWidth)return im;if(!artLoadP)artLoadP=prepareLondonArt();return null;};
 function installation(c,key,x,y,size,ruined=false){const im=londonImage(key);if(!im)return;c.save();c.imageSmoothingEnabled=true;c.globalAlpha*=ruined?.32:1;c.drawImage(im,x-size/2,y-size/2,size,size);c.restore();if(ruined)fx(c,'smokeDark',x,y-18,50,50,0,.6);}
 export function drawGotha(c,b){const im=londonImage('gotha');if(!im)return;const f=b.destroying?Math.min(1,b.destructionAge/b.destructionDuration):0,a=(b.a||0)+Math.PI/2,cw=im.naturalWidth/2,ch=im.naturalHeight;
