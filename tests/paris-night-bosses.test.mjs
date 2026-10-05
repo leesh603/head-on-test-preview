@@ -18,6 +18,7 @@ function fixture(Ctor){
 function step(f,seconds,ctx=f.frame){for(let i=0;i<Math.ceil(seconds/.02);i++){f.encounter.update(.02,ctx);f.hazards.update(.02,ctx);}}
 const destroy=(f,id)=>f.body.hit({partId:id,damage:1000});
 const shots=f=>f.events.filter(e=>e.type==='hazard'&&e.kind==='projectile');
+const destroyLights=f=>{for(const p of f.body.parts.values())if(p.kind==='searchlight')destroy(f,p.id);};
 
 test('Paris mounts are independent, scaled, and isolated from legacy boss classes',()=>{
   for(const [Ctor,parts] of [[ParisSearchlightFortress,PARIS_FORTRESS_PARTS],[ParisStaakenRVI,PARIS_STAAKEN_PARTS]]){
@@ -141,7 +142,83 @@ test('Every fortress mount changes the encounter and remains as a destroyed part
   const after=f.events.length;step(f,f.body.scanSeconds()+.04);assert.ok(!f.events.slice(after).some(e=>e.type==='hazard'&&e.tag===f.body.id+':light-main'));
   step(f,5);destroy(f,'command');assert.equal(f.body.coreVulnerable,false);assert.equal(f.body.hit({damage:100}).blocked,true);
   for(const id of ['light-ne','light-sw','light-se','light-main'])destroy(f,id);
-  step(f,10);assert.equal(f.body.phase,'cooldown');assert.equal(f.body.parts.size,12);assert.ok(f.body.parts.get('generator-left').destroyed);assert.ok(f.body.parts.get('generator-right').destroyed);
+  step(f,10);assert.equal(f.body.phase,'last-stand');assert.equal(f.body.parts.size,12);assert.ok(f.body.parts.get('generator-left').destroyed);assert.ok(f.body.parts.get('generator-right').destroyed);
+});
+
+test('All lights destroyed immediately opens a persistent last stand, including during normal blackout',()=>{
+ for(const inOpening of [false,true]){
+  const f=fixture(ParisSearchlightFortress);if(inOpening)step(f,f.body.scanSeconds()+.02);
+  destroyLights(f);assert.equal(f.body.phase,'last-stand');assert.ok(f.body.coreVulnerable);
+  assert.ok(f.events.some(e=>e.type==='phase-change'&&e.phase==='last-stand'));
+  assert.equal(f.hazards.pool.count,0);assert.equal(f.body.hit({damage:100}).damage,170);
+  const after=f.events.length;step(f,10);const attacks=f.events.slice(after).filter(e=>e.type==='hazard');
+  assert.ok(attacks.some(e=>e.visual==='aa-flak'&&e.warning===.8));assert.ok(attacks.some(e=>e.kind==='projectile'&&e.warning===.65));
+  assert.ok(attacks.every(e=>e.partId&&e.tag===f.body.id+':'+e.partId&&e.sourceX!=null&&e.sourceY!=null&&e.damage<tuning.damage));
+  assert.ok(!attacks.some(e=>e.kind==='searchlight'));assert.equal(f.body.phase,'last-stand');
+  const count=attacks.length;step(f,5);assert.ok(f.events.slice(after).filter(e=>e.type==='hazard').length>count);
+  destroy(f,'generator-left');destroy(f,'generator-right');assert.equal(f.body.phase,'last-stand');
+ }
+});
+
+test('Last-stand gun destruction cancels warned shells and suppresses only that source',()=>{
+ const f=fixture(ParisSearchlightFortress);destroyLights(f);step(f,.4);
+ const tag=f.body.id+':aa-left';let pending=0;f.hazards.pool.visit(h=>{if(h.tag===tag&&h.phase==='warning')pending++;});assert.equal(pending,1);
+ destroy(f,'aa-left');destroy(f,'mg-right');f.hazards.pool.visit(h=>assert.notEqual(h.tag,tag));
+ assert.ok(f.events.some(e=>e.type==='cancel-hazards'&&e.tag===tag));const after=f.events.length;step(f,10);
+ const attacks=f.events.slice(after).filter(e=>e.type==='hazard');
+ assert.ok(attacks.some(e=>e.partId==='aa-right'));assert.ok(attacks.some(e=>e.partId==='mg-left'));
+ assert.ok(!f.events.slice(after).some(e=>['aa-left','mg-right'].includes(e.partId)&&['hazard','muzzle'].includes(e.type)));
+});
+
+test('Outer lights and both generators disabled enter last stand in either order with main lamp intact',()=>{
+ const outer=['light-nw','light-ne','light-sw','light-se'],power=['generator-left','generator-right'];
+ for(const order of [[...outer,...power],[...power,...outer]]){
+  const f=fixture(ParisSearchlightFortress);assert.equal(f.body.functioningLights(),5);
+  for(const id of order.slice(0,-1))destroy(f,id);
+  assert.ok(f.body.functioningLights()>0);assert.notEqual(f.body.phase,'last-stand');
+  const before=f.events.length;destroy(f,order.at(-1));
+  assert.equal(f.body.functioningLights(),0);assert.equal(f.body.phase,'last-stand');assert.ok(f.body.coreVulnerable);
+  assert.equal(f.body.parts.get('light-main').destroyed,false);assert.equal(f.body.parts.get('light-main').hp,tuning.partHp);
+  assert.ok(f.events.slice(before).some(e=>e.type==='cancel-hazards'&&e.tag===f.body.id+':light-main'));
+  assert.deepEqual(f.events.slice(before).filter(e=>e.type==='phase-change').map(e=>e.phase),['last-stand']);
+  step(f,8);assert.ok(f.events.slice(before).some(e=>e.type==='hazard'&&e.partId==='aa-left'));
+  assert.ok(!f.events.slice(before).some(e=>e.kind==='searchlight'));assert.equal(f.body.phase,'last-stand');
+ }
+});
+
+test('Destroying all remaining guns is a real disarm reward with no hidden attacks',()=>{
+ const f=fixture(ParisSearchlightFortress);destroyLights(f);step(f,4);
+ assert.ok(f.hazards.pool.count>0);for(const id of ['aa-left','aa-right','mg-left','mg-right'])destroy(f,id);
+ assert.equal(f.hazards.pool.count,0);const after=f.events.length;step(f,30);
+ assert.ok(!f.events.slice(after).some(e=>e.type==='hazard'||e.type==='muzzle'));
+ assert.equal(f.body.phase,'last-stand');assert.ok(f.body.coreVulnerable);assert.equal(f.body.hit({damage:100}).damage,170);
+});
+
+test('Last stand pauses without advancing weapons and waits for a living target',()=>{
+ const f=fixture(ParisSearchlightFortress);destroyLights(f);f.frame.players[0].alive=false;
+ const after=f.events.length,left=f.body.lastStandIn;step(f,10);assert.equal(f.body.lastStandIn,left);assert.equal(f.events.length,after);
+ f.frame.players[0].alive=true;step(f,.4);const timer=f.body.lastStandIn,events=f.events.length,ages=[];f.hazards.pool.visit(h=>ages.push(h.age));
+ step(f,5,{...f.frame,paused:true});assert.equal(f.body.lastStandIn,timer);assert.equal(f.events.length,events);
+ const pausedAges=[];f.hazards.pool.visit(h=>pausedAges.push(h.age));assert.deepEqual(pausedAges,ages);
+ step(f,2);assert.ok(f.events.length>events);assert.equal(f.body.phase,'last-stand');
+});
+
+test('Last stand rotates cooperative targets without increasing weapon density',()=>{
+ const f=fixture(ParisSearchlightFortress);f.body.t={...f.body.t,projectileDensity:20};
+ f.frame.players=[{id:'p1',x:300,y:600,alive:true,radius:12},{id:'p2',x:500,y:600,alive:true,radius:12},{id:'dead',x:400,y:600,alive:false}];
+ destroyLights(f);let peak=0;for(let i=0;i<6000;i++){f.encounter.update(.02,f.frame);f.hazards.update(.02,f.frame);peak=Math.max(peak,f.hazards.pool.count);}
+ const attacks=f.events.filter(e=>e.type==='hazard');assert.ok(peak<=12);assert.ok(attacks.length<300);
+ for(const id of ['aa-left','aa-right','mg-left','mg-right'])for(const targetId of ['p1','p2'])assert.ok(attacks.some(e=>e.partId===id&&e.targetId===targetId));
+ assert.ok(attacks.every(e=>e.targetId!=='dead'));assert.equal(f.body.phase,'last-stand');
+});
+
+test('Warned last-stand AA punishes standing still while normal forward flight clears the impacts',()=>{
+ const still=fixture(ParisSearchlightFortress),moving=fixture(ParisSearchlightFortress);destroyLights(still);destroyLights(moving);
+ step(still,1.45);for(let i=0;i<73;i++){
+  moving.frame.players[0].x+=120*.02;moving.frame.players[0].vx=120;moving.encounter.update(.02,moving.frame);moving.hazards.update(.02,moving.frame);
+ }
+ assert.ok(still.hits.some(([,damage,h])=>h.visual==='aa-flak'&&damage>0));assert.equal(moving.hits.length,0);
+ assert.ok(still.events.filter(e=>e.type==='hazard'&&e.partId==='aa-left').every(e=>e.radius===32&&e.warning===.8&&e.damage===tuning.damage*.65));
 });
 
 test('Staaken schedules real district bombs, flies toward them, and leaves city damage to the host',()=>{

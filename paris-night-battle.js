@@ -38,6 +38,10 @@ export function parisStatus(g,locale='ko'){
  const b=g.parisBattle;if(!b)return '';const en=locale==='en';
  const q=g.stageBoss?.stages.encounter?.bodies.values().next().value;
  if(b.role==='attack'){
+  if(q?.phase==='last-stand'){
+   const armed=[...q.parts.values()].some(p=>p.kind==='gun'&&!p.destroyed);
+   return en?(armed?'LIGHTS DOWN · evade batteries and attack command':'BATTERIES DOWN · attack command'):(armed?'탐조등 제압 · 잔여 포대 회피 · 지휘부 공격':'포대 제압 · 지휘부 공격');
+  }
   const angle=b.safeRoutes?.[0]?.angle,arrows=['→','↘','↓','↙','←','↖','↑','↗'];
   const arrow=Number.isFinite(angle)?' '+arrows[(Math.round(angle/(Math.PI/4))%8+8)%8]:'';
   return q?.coreVulnerable?(en?'BLACKOUT · attack command':'소등 · 지휘부 공격'):(en?'LIGHT BEAT ':'탐조 ')+Math.min(4,q?.rhythmBeat||0)+' / 4'+arrow+(q?.locks?.size?(en?' · TRACKED!':' · 발각!'):'');
