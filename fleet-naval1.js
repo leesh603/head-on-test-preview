@@ -97,8 +97,8 @@ export function drawFleetLayer(c,game,{point}){
  const cw=c.canvas.width,ch=c.canvas.height;
  for(const q of game.navalExchanges||[]){const t=q.age/q.duration,[x,y]=point(q.sx+(q.x-q.sx)*t,q.sy+(q.y-q.sy)*t),a=Math.atan2(q.y-q.sy,q.x-q.sx);fx(c,'shell',x,y-Math.sin(t*Math.PI)*24,23,9,a,.95);if(t<.15)fx(c,'muzzleHeavy',...point(q.sx,q.sy),42,25,a,.65);}
  const foamIm=sinkFoamIm();
- // Sinking ships keep drawing at full opacity while foam churns up around and
- // over the hull; once the foam closes over them they are gone - no fades.
+ // Sinking ships keep drawing at full opacity while foam crowds over the hull
+ // until it swallows them - no fades, no hull motion.
  for(const e of [...(game.enemies||[]),...(game.friendlyShips||[])]){
   if(!e.movingShip||e.expired)continue;
   const sinking=e.hp<=0&&e.sinkAge!==undefined;
@@ -106,16 +106,14 @@ export function drawFleetLayer(c,game,{point}){
   const t=SHIP_TYPES[e.shipClass],[x,y]=point(e.x,e.y),h=t.drawnH*.9,w=h*.21;
   if(x<-h||x>cw+h||y<-h||y>ch+h)continue;
   if(sinking){
-   const st=Math.min(1,e.sinkAge/1.5);
-   c.save();c.translate(x,y);c.rotate(e.sinkHeel*st);c.scale(1,1-st*.22);c.translate(-x,-y);
-   drawShipWater(c,e,w,h,point);c.save();c.translate(x,y);drawFleetShip(c,e,h,t.guns);c.restore();c.restore();
+   drawShipWater(c,e,w,h,point);c.save();c.translate(x,y);drawFleetShip(c,e,h,t.guns);c.restore();
   }else{
    drawShipWater(c,e,w,h,point);c.save();c.translate(x,y);drawFleetShip(c,e,h,t.guns);c.restore();
    if(e.faction===playerFaction(game)){c.save();c.fillStyle='#b9d5c6';c.font='bold 11px sans-serif';c.textAlign='center';c.fillText('아군 '+t.name,x,y+h*.53);c.restore();}
   }
  }
  // Foam crowds over the sinking hull, then lingers a moment at the spot.
- for(const p of game.shipSinkPuffs||[]){const im=foamIm;if(!im)continue;const q=Math.min(1,p.age/.9),w=p.h*.3*q;for(const off of p.blobs){const[x,y]=point(p.x+off[0]*p.h*.32,p.y+off[1]*p.h*.32);c.save();c.globalAlpha=.6;c.translate(x,y);c.rotate(off[2]);c.drawImage(im,-w*off[3]/2,-w*off[3]*im.naturalHeight/im.naturalWidth/2,w*off[3],w*off[3]*im.naturalHeight/im.naturalWidth);c.restore();}}
+ for(const p of game.shipSinkPuffs||[]){const im=foamIm;if(!im)continue;const q=Math.min(1,p.age/.55),w=p.h*.38*q;for(const off of p.blobs){const[x,y]=point(p.x+off[0]*p.h*.34,p.y+off[1]*p.h*.34);c.save();c.globalAlpha=.68;c.translate(x,y);c.rotate(off[2]);c.drawImage(im,-w*off[3]/2,-w*off[3]*im.naturalHeight/im.naturalWidth/2,w*off[3],w*off[3]*im.naturalHeight/im.naturalWidth);c.restore();}}
 }
 
 const playerFaction=g=>g.teamFaction??PLANES[g.plane]?.faction??'entente';
@@ -125,12 +123,12 @@ export function updateNavalFleet(g,dt){if(g.state!=='playing')return;
   const _obstacles=shipObstacles(g);
   for(const e of _fleetShipIter){
    if(e.movingShip&&e.hp<=0){
-    if(e.sinkAge===undefined){e.sinkAge=0;e.sinkHeel=(g.rng()<.5?-1:1)*(.18+g.rng()*.14);
+    if(e.sinkAge===undefined){e.sinkAge=0;
      const h=(SHIP_TYPES[e.shipClass]?.drawnH||320)*.9,blobs=[];
-     for(let k=0;k<6;k++)blobs.push([-.9+k*.36+(g.rng()-.5)*.2,(g.rng()-.5)*.5,g.rng()*6.28,1.05+g.rng()*.6]);
+     for(let k=0;k<14;k++)blobs.push([-1+k*.155+(g.rng()-.5)*.16,(g.rng()-.5)*.7,g.rng()*6.28,.75+g.rng()*.55]);
      (g.shipSinkPuffs??=[]).push({x:e.x,y:e.y,h,age:0,blobs});}
     e.sinkAge+=step;
-    if(e.sinkAge>1.4)e.expired=true;
+    if(e.sinkAge>.85)e.expired=true;
     continue}
    // Recon seaplanes shadow the player and spot for fleet support; cloud cover breaks it.
    if(e.recon&&e.hp>0){
