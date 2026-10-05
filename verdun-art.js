@@ -1,10 +1,10 @@
-import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun-ground.js?v=478';
-import {fx} from './fx-art.js?v=478';
-import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID} from './verdun-art-layout.js?v=478';
-import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=478';
+import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun-ground.js?v=479';
+import {fx} from './fx-art.js?v=479';
+import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID} from './verdun-art-layout.js?v=479';
+import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=479';
 
 // Authored PNG/WebP atlas frames; no generated geometry or per-frame raster copy.
-const sources={map:'./terrain-verdun-r8.webp?v=478',douaumont:'./boss-douaumont-atlas-r8.webp?v=478',souville:'./boss-souville-atlas-r8.webp?v=478',douaumontParts:'./boss-douaumont-parts-r8.webp?v=478',souvilleParts:'./boss-souville-parts-r8.webp?v=478'};
+const sources={map:'./terrain-verdun-r8.webp?v=479',douaumont:'./boss-douaumont-atlas-r8.webp?v=479',souville:'./boss-souville-atlas-r8.webp?v=479',douaumontParts:'./boss-douaumont-parts-r8.webp?v=479',souvilleParts:'./boss-souville-parts-r8.webp?v=479'};
 const images={},pending={};
 function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';pending[key]=new Promise((resolve,reject)=>{im.onload=()=>resolve(im);im.onerror=()=>reject(new Error('Missing Verdun asset: '+sources[key]));});im.src=sources[key];images[key]=im;return im;}
 export function prepareVerdunAssets(){for(const key of Object.keys(sources))load(key);return Promise.all(Object.values(pending)).then(result=>{prepareVerdunGround(images.map);return result;});}
