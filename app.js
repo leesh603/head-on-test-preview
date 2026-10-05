@@ -48,7 +48,7 @@ import {attachCombatFeedback,combatVisualPose,drawCombatFeedback,combatCameraOff
 import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=485';
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=485';
 import {drawTailEngagement} from './engagement-hud410.js?v=485';
-import {portraitSources,portraitsReady} from './portraits.js?v=485';
+import {portraitSources,portraitsReady} from './portraits.js?v=485&b=bust1';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=485';
 import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=485';
 import {drawEquipment} from './equipment.js?v=485';
@@ -128,9 +128,9 @@ function applyAudioPrefs(){setSfxMuted(muted||sfxOff);setBgmMode(musicModeForGam
 muted=false;setSfxMuted(muted||sfxOff);$('sound').textContent=t('menu.soundOn');$('sound').setAttribute('aria-label',t('menu.soundMute'));
 function show(id,on=true){$(id).classList.toggle('hidden',!on)}let baronAircraft='fokker';const aircraftOverrides={},coopAircraftOverrides={};let coopBaronAircraft='fokker';const coopSelectedPlane=id=>id==='baron'?coopBaronAircraft:coopPlane(id);const pilotPlane=id=>(selectedMode==="coop2"?(id==='baron'?baronAircraft:coopPlane(id)):({baron:baronAircraft,voss:'fokker',boelcke:'albatros_d2',immelmann:'eindecker',fonck:'camel',collishaw:'collishaw_sopwith',baracca:'baracca_nieuport',udet:'udet_fokkerdv',guynemer:'guynemer_spad',bishop:'re7',goering:'goering_fokkerd7',mannock:'se5a',mckeever:'bristol_duo',huffzky:'halberstadt_duo',hawker:'airco_dh2',berthold:'berthold_pfalz',wolff:'wolff_albatros',loewenhardt:'loewenhardt_fokkerd7',mccudden:'mccudden_se5a',nungesser:'nungesser_nieuport24',jacobs:'fokker',rickenbacker:'rickenbacker_spad',ball:'ball_se5a',barker:'barker_snipe',luke:'luke_nieuport28',brumowski:'brumowski_albatros',gontermann:'gontermann_fokker',lothar:'lothar_dr1',sachsenberg:'junkers_d1',proctor:'proctor_se5a',schleich:'schleich_albatros',lufbery:'lufbery_nieuport17'}[id]||'camel'));
 
-const CHOICE_PORTRAIT_SCALE={huffzky:.82};
+const CHOICE_PORTRAIT_SCALE={};
 function choicePortraitScale(id){return CHOICE_PORTRAIT_SCALE[id]||1}
-function applyPilotPortrait(target){if(!PILOTS[pilot]||!portraitSources[pilot])return;const el=$(target),choice=target==='portrait';el.style.backgroundImage=`url('${portraitSources[pilot]}')`;el.style.setProperty('--pilot-portrait-size','contain');el.style.backgroundSize=choice?'contain':'auto 100%';el.style.backgroundPosition=choice?'right bottom':'center bottom';el.style.backgroundRepeat='no-repeat';el.style.filter='drop-shadow(0 5px 8px #0008)'}
+function applyPilotPortrait(target){if(!PILOTS[pilot]||!portraitSources[pilot])return;const el=$(target),choice=target==='portrait';el.style.backgroundImage=`url('${portraitSources[pilot]}')`;el.style.setProperty('--pilot-portrait-size','contain');el.style.backgroundSize='contain';el.style.backgroundPosition=choice?'right bottom':'center bottom';el.style.backgroundRepeat='no-repeat';el.style.filter='drop-shadow(0 5px 8px #0008)'}
 function openPortraitLightbox(id){if(typeof id!=='string'||!id)id=pilot;if(!PILOTS[id])return;const src=portraitSources[id]||'portrait-'+id+'.webp?v=485&b=345';const img=$('plbImg');img.src=src;const p=pilotLoadout(id,id===pilot?plane:pilotPlane(id));$('plbName').textContent=p.name||PILOTS[id].name;$('plbAlias').textContent=p.alias||'';img.alt=(p.name||'')+' 파일럿 일러스트';show('portraitLightbox')}
 $('plbClose').onclick=()=>show('portraitLightbox',false);$('portraitLightbox').onclick=e=>{if(e.target.id==='portraitLightbox')show('portraitLightbox',false)};window.addEventListener('keydown',e=>{if(e.code==='Escape'&&!$('portraitLightbox').classList.contains('hidden')){show('portraitLightbox',false);e.stopPropagation()}},true);$('portrait').onclick=openPortraitLightbox;$('hangarPortrait').onclick=openPortraitLightbox;
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('.legendary-badge'))for(const b of document.querySelectorAll('.legendary-badge.tip156'))b.classList.remove('tip156')});
