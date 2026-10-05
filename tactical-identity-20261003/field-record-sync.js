@@ -2,7 +2,7 @@
 // Game text (name, alias, skill, passive, descriptions) is pulled from the live
 // engine — PILOTS/pilotLoadout are the single source so record entries can
 // never drift from what the game actually shows.
-import{PILOTS,PILOT_PLANES,pilotLoadout}from'./engine.js?v=tactical20261003b';
+import{PILOTS,PILOT_PLANES,pilotLoadout}from'./engine.js?v=477';
 for(const p of DATA.pilots){
   const loadout=PILOTS[p.key]?pilotLoadout(p.key,PILOT_PLANES[p.key]||'fokker'):null;
   if(!loadout)continue;
@@ -26,7 +26,7 @@ for(const item of DATA.legendary){
 }
 
 // Replace the retired zero-byte preview and provide stable fallbacks for every ace.
-DATA.images.p_nungesser='./portrait-nungesser-field.webp?v=tactical20261003b';
+DATA.images.p_nungesser='./portrait-nungesser-field.webp?v=477';
 const PORTRAIT_FALLBACKS=Object.fromEntries(DATA.pilots.map(p=>[p.key,p.portrait]));
 document.addEventListener('error',event=>{
   const image=event.target;

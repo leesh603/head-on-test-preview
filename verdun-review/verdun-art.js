@@ -1,9 +1,9 @@
-import {fx} from './fx-art.js?v=351';
-import {VERDUN_PART_FRAMES} from './verdun-art-layout.js?v=verdun20261003r7';
-import {VERDUN_FORT_LAYOUT,verdunFortCollapseSites} from './verdun-fortresses.js?v=verdun20261003r7';
+import {fx} from './fx-art.js?v=477';
+import {VERDUN_PART_FRAMES} from './verdun-art-layout.js?v=477';
+import {VERDUN_FORT_LAYOUT,verdunFortCollapseSites} from './verdun-fortresses.js?v=477';
 
 // Authored PNG/WebP atlas frames; no generated geometry or per-frame raster copy.
-const sources={map:'./terrain-verdun.webp?v=verdun20261003r7',douaumont:'./boss-douaumont-atlas.webp?v=verdun20261003r7',souville:'./boss-souville-atlas.webp?v=verdun20261003r7',douaumontParts:'./boss-douaumont-parts.webp?v=verdun20261003r7',souvilleParts:'./boss-souville-parts.webp?v=verdun20261003r7'};
+const sources={map:'./terrain-verdun.webp?v=477',douaumont:'./boss-douaumont-atlas.webp?v=477',souville:'./boss-souville-atlas.webp?v=477',douaumontParts:'./boss-douaumont-parts.webp?v=477',souvilleParts:'./boss-souville-parts.webp?v=477'};
 const images={},pending={};
 function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';pending[key]=new Promise((resolve,reject)=>{im.onload=()=>resolve(im);im.onerror=()=>reject(new Error('Missing Verdun asset: '+sources[key]));});im.src=sources[key];images[key]=im;return im;}
 export function prepareVerdunAssets(){for(const key of Object.keys(sources))load(key);return Promise.all(Object.values(pending));}
