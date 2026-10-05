@@ -14,7 +14,7 @@ export const fxArtReady = !atlas ? Promise.resolve(false) : new Promise(resolve=
   atlas.decoding='async';
   atlas.onload=()=>{loaded=atlas.naturalWidth===512&&atlas.naturalHeight===512;resolve(loaded)};
   atlas.onerror=()=>resolve(false);
-  atlas.src=new URL('./combat-fx196.webp?v=480',import.meta.url).href;
+  atlas.src=new URL('./combat-fx196.webp?v=482',import.meta.url).href;
 });
 export function fxReady(key){return loaded&&index.has(key)}
 const clampAlpha = value => Math.max(0,Math.min(1,Number.isFinite(value)?value:1));

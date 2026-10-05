@@ -1,10 +1,10 @@
-import {fx} from './fx-art.js?v=480';
+import {fx} from './fx-art.js?v=482';
 import {GALLIPOLI_PARTS,GALLIPOLI_SECTORS,gallipoliObjective,GALLIPOLI_HANGAR} from './gallipoli-boss.js?v=gallipoli-r3';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=480';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=480';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=482';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=482';
 export const GALLIPOLI_ASSETS=Object.freeze({guns:'gallipoli-siege-guns.webp',facilities:'gallipoli-siege-facilities.webp',base:'gallipoli-siege-bases.webp',star:'gallipoli-siege-star.webp',wing:'gallipoli-siege-wing.webp',hangar:'maan-workshop-r2.webp',ground:'gallipoli-siege-ground.webp',coast:'asset-bank/terrain/gallipoli_coast.webp',sea:'terrain-sea359r2.webp',central:'gallipoli-overlay-central.webp',entente:'gallipoli-overlay-entente.webp'});
 const images=new Map(),tiles=new Map(),pending=new Map();
-function load(k){if(!GALLIPOLI_ASSETS[k])return null;if(images.has(k))return images.get(k);const im=new Image();images.set(k,im);im.decoding='async';im.crossOrigin='anonymous';pending.set(k,new Promise((resolve,reject)=>{im.onload=()=>im.naturalWidth?resolve(im):reject(new Error('Gallipoli empty asset '+k));im.onerror=()=>reject(new Error('Gallipoli asset '+k));}));im.src='./'+GALLIPOLI_ASSETS[k]+'?v=480';return im;}
+function load(k){if(!GALLIPOLI_ASSETS[k])return null;if(images.has(k))return images.get(k);const im=new Image();images.set(k,im);im.decoding='async';im.crossOrigin='anonymous';pending.set(k,new Promise((resolve,reject)=>{im.onload=()=>im.naturalWidth?resolve(im):reject(new Error('Gallipoli empty asset '+k));im.onerror=()=>reject(new Error('Gallipoli asset '+k));}));im.src='./'+GALLIPOLI_ASSETS[k]+'?v=482';return im;}
 function canvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c;}
 function bake(im,key,sy=0,sh=im.naturalHeight){if(tiles.has(key))return tiles.get(key);const c=canvas(im.naturalWidth,sh),ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(im,0,sy,im.naturalWidth,sh,0,0,c.width,sh);const p=periodicSandPixels(ctx.getImageData(0,0,c.width,sh).data,c.width,sh),t=canvas(p.width,p.height),tc=t.getContext('2d'),data=tc.createImageData(p.width,p.height);data.data.set(p.data);tc.putImageData(data,0,0);tiles.set(key,t);return t;}
 export function prepareGallipoliAssets(region){if(region!==14){images.clear();pending.clear();tiles.clear();return Promise.resolve();}const sea=load('sea'),coast=load('coast');for(const k of Object.keys(GALLIPOLI_ASSETS))load(k);return Promise.all([...pending.values()]).then(()=>{if(images.get('coast')!==coast)return;bake(sea,'sea');bake(images.get('ground'),'land');bakeCoast(coast);});}
