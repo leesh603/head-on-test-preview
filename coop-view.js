@@ -1,3 +1,4 @@
+import {drawGroundEnemy} from './ground-enemy-art.js?v=485';
 import {getLocale} from './i18n.js?v=485';
 import {unitNameEN} from './event-text-en.js?v=485';
 import {drawRegionalBug} from './regional-boss-view352.js?v=485';
@@ -38,10 +39,10 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  for(const d of g.drops){if(d.dead||cl(d.x,d.y,70))continue;if(d.specialAmmo){ring(d.x,d.y,24+Math.sin(t*6)*3,SPECIAL_AMMO[d.specialAmmo]?.color||'#ffd36f',2);drawSpecialAmmoIcon(c,d.specialAmmo,d.x,d.y+Math.sin(t*4)*2,42)}else if(d.mccuddenSupply){drawMccuddenSupply(c,d,d.x,d.y)}else if(d.heal||d.supply){const pulse=22+Math.sin(t*5)*4;c.save();c.globalAlpha=.4;ring(d.x,d.y,pulse,'#5fff9e',7);c.globalAlpha=1;ring(d.x,d.y,pulse,'#9cffb4');c.fillStyle='rgba(210,255,224,.9)';for(let i=0;i<4;i++){const sa=t*2.6+i*Math.PI/2;c.beginPath();c.arc(d.x+Math.cos(sa)*(pulse+6),d.y+Math.sin(sa)*(pulse+6),1.7,0,Math.PI*2);c.fill()}c.restore();drawEquipment(c,'repair',d.x,d.y+Math.sin(t*3)*2,0,46)}else{if(xpGem?.naturalWidth)c.drawImage(xpGem,d.x-9,d.y-9,18,18);else{c.fillStyle='#63d5ec';c.fillRect(d.x-3,d.y-3,6,6)}}}
  for(const grenade of g.grenades||[])if(!cl(grenade.x,grenade.y,80))drawGrenade(c,grenade,grenade.x,grenade.y);for(const m of g.mines){if(cl(m.x,m.y,80))continue;drawDrachenMine(c,m.x,m.y,62,62);if(m.legendary||m.arm===0)ring(m.x,m.y,22+Math.sin(t*5)*3,m.legendary?'#ffd56f99':'#ffcc6677')}
  for(const e of g.enemies){if(cl(e.x,e.y,360)||e.hp<=0)continue;
-  if(e.groundEscort)drawBattlefieldSprite(c,'aa',e.x,e.y,96,e.a+Math.PI/2);
-  else if(e.fieldUnit){if(e.rail){const r=e.rail;c.save();c.translate(r.x,r.y);c.rotate(r.angle);c.strokeStyle='#bec1ab';c.lineWidth=3;for(const off of [-8,8]){c.beginPath();c.moveTo(-r.half-25,off);c.lineTo(r.half+25,off);c.stroke()}c.restore()}drawBattlefieldSprite(c,e.fieldSprite,e.x,e.y,e.rail?210:354,e.rail?e.rail.angle+Math.PI/2:0);const offset=e.rail?125:190;c.fillStyle='#172b23';c.fillRect(e.x-42,e.y-offset,84,5);c.fillStyle='#ed9d66';c.fillRect(e.x-42,e.y-offset,84*Math.max(0,e.hp/e.maxHp),5);c.font='14px sans-serif';c.textAlign='center';c.fillStyle='#ffe3aa';c.fillText(unitNameEN(e.name||'비행선'),e.x,e.y-offset-8)}
+  if(e.groundEscort)drawGroundEnemy(c,e,e.x,e.y,96);
+  else if(e.fieldUnit){if(e.rail){const r=e.rail;c.save();c.translate(r.x,r.y);c.rotate(r.angle);c.strokeStyle='#bec1ab';c.lineWidth=3;for(const off of [-8,8]){c.beginPath();c.moveTo(-r.half-25,off);c.lineTo(r.half+25,off);c.stroke()}c.restore()}e.rail?drawGroundEnemy(c,e,e.x,e.y,210):drawBattlefieldSprite(c,e.fieldSprite,e.x,e.y,354,0);const offset=e.rail?125:190;c.fillStyle='#172b23';c.fillRect(e.x-42,e.y-offset,84,5);c.fillStyle='#ed9d66';c.fillRect(e.x-42,e.y-offset,84*Math.max(0,e.hp/e.maxHp),5);c.font='14px sans-serif';c.textAlign='center';c.fillStyle='#ffe3aa';c.fillText(unitNameEN(e.name||'비행선'),e.x,e.y-offset-8)}
   else if(e.navalVessel)drawBattlefieldSprite(c,'ship',e.x,e.y,320,e.a+Math.PI/2)}
- for(const f of g.flakBursts)if(!cl(f.x,f.y,90))drawBattlefieldSprite(c,'aa',f.x,f.y,66);
+ for(const f of g.flakBursts)if(!cl(f.x,f.y,90))drawGroundEnemy(c,f,f.x,f.y,66,'mg',g.teamFaction==='central'?'entente':'central');
  for(const e of g.enemies){
   if(e.stageBossBody||e.cityUnit||cl(e.x,e.y,300))continue;
   if(e.crashing){const key=e.formationLivery||e.escortPlane||e.bossPlane||(e.faction==='entente'?(e.type==='hunter'?'nieuport':'camel'):(e.type==='hunter'?'fokker_standard':'albatros'));drawAircraftCrash(c,e,e.x,e.y,t,fx);sprite(e,key,enemyAircraftScale(e)*enemyCrashScale(e),true);continue}

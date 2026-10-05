@@ -13,7 +13,7 @@ export function paintGallipoli(c,g,cx,cy,w,h){const r=g?.gallipoliRoute;if(!r)re
  // A continuous horizontal strip with normalized edge samples and soft end masks.
  const coast=tiles.get('coast');if(coast){const pw=coast.width,ph=coast.height,shoreY=-GALLIPOLI_ROUTE.shore;for(let ix=Math.floor(left/pw);ix<Math.ceil((left+width)/pw);ix++)c.drawImage(coast,ix*pw,shoreY-1000,pw,ph);}
  // Sparse authored trench/camp rows, varied by fixed world position rather than scrolling randomness.
- for(const forward of [7900,9300,10600])for(let lateral=-3000;lateral<=3000;lateral+=750){const yy=-forward,variant=(Math.abs(lateral/750)+forward/100)%3;if(lateral+430<left||lateral-430>left+width||yy+360<top||yy-360>top+height)continue;sprite(c,'base',2,0,lateral,yy,530,variant===0?.15:-.12);if(variant!==0)sprite(c,'facilities',variant===1?1:2,0,lateral+180,yy-120,150);}
+ for(const forward of [4000,5200,6400])for(let lateral=-3000;lateral<=3000;lateral+=750){const yy=-forward,variant=(Math.abs(lateral/750)+forward/100)%3;if(lateral+430<left||lateral-430>left+width||yy+360<top||yy-360>top+height)continue;sprite(c,'base',2,0,lateral,yy,530,variant===0?.15:-.12);if(variant!==0)sprite(c,'facilities',variant===1?1:2,0,lateral+180,yy-120,150);}
  c.restore();
  if(!g.stageBoss?.stages.encounter&&s>GALLIPOLI_ROUTE.fort-span-300){const body={x:r.x+Math.cos(r.a)*GALLIPOLI_ROUTE.fort,y:r.y+Math.sin(r.a)*GALLIPOLI_ROUTE.fort,captured:new Set(),commandMaxHp:1,commandHp:1,commandDestroyed:false,phase:'active-defense',coreAngle:Math.PI/2,hp:1,maxHp:1,faction:g.stageBoss?.stages.teamFaction==='central'?'entente':'central',parts:new Map(GALLIPOLI_PARTS.map(p=>[p.id,{...p,hp:1,maxHp:1,angle:Math.PI/2}]))};c.save();c.translate(w/2-cx,h/2-cy);drawGallipoliBoss(c,body);c.restore();}
 }
