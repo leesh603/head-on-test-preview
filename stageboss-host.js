@@ -86,8 +86,8 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     ,'wustenpanzer':{geometryScale:1,mobileBoss:false,coreRadius:108}
     ,'jutland-grand-fleet':{geometryScale:1,mobileBoss:false,motionMultiplier:1}
     ,'gallipoli-fortress':{geometryScale:1,mobileBoss:false,motionMultiplier:0,coreRadius:115}
-    ,'paris-staaken-rvi':{geometryScale:Math.min(1,(g.viewWidth||960)/620),mobileBoss:false,motionMultiplier:1,coreRadius:45,partHp:maxHp*.065}
-    ,'paris-searchlight-fortress':{geometryScale:Math.min(1,(g.viewWidth||960)/620),mobileBoss:false,motionMultiplier:1,coreRadius:53,partHp:maxHp*.055}
+    ,'paris-staaken-rvi':{geometryScale:1,mobileBoss:false,motionMultiplier:1,coreRadius:45,partHp:maxHp*.065}
+    ,'paris-searchlight-fortress':{geometryScale:1,mobileBoss:false,motionMultiplier:1,coreRadius:55,partHp:maxHp*.055}
     ,'sinai-landship':{geometryScale:1,mobileBoss:false,coreRadius:120}
    }[bossId]||{};
    return {regionalViewWidth:g.viewWidth||960,regionalViewHeight:g.viewHeight||700,regionalPlayerY:g.y,loopIndex:loop,projectileDensity:density,maxHp,partHp:maxHp*.12,damage:Math.round(18*(1+g.t/240)*(1+Math.min(.5,loop*.12))),bulletSpeed:270,coreRadius:150,
@@ -368,7 +368,7 @@ export function endStageBossFrame(g,dt){
    addon.hooks.onCue({type:'mine-chain',chainIndex:i,bossId:activeEncounter.bodies.values().next().value?.id,x:mine.x,y:mine.y,radius:72});
   }
  // The host has already resolved its entire upgrade queue/loss state this frame.
- const bounds=stageBossBounds(g),playerFrames=players(g).map(p=>({id:p.id||'p1',alive:alive(p),x:p.x,y:p.y,vx:Number.isFinite(p.previousX)?(p.x-p.previousX)/Math.max(dt,1/120):0,vy:Number.isFinite(p.previousY)?(p.y-p.previousY)/Math.max(dt,1/120):0,radius:12,londonRiver:addon.stages.stageIndex===11&&londonRiverCover(p.x,p.y)}));
+ const bounds=stageBossBounds(g),playerFrames=players(g).map(p=>({id:p.id||'p1',alive:alive(p),x:p.x,y:p.y,a:p.a,vx:Number.isFinite(p.previousX)?(p.x-p.previousX)/Math.max(dt,1/120):0,vy:Number.isFinite(p.previousY)?(p.y-p.previousY)/Math.max(dt,1/120):0,radius:12,londonRiver:addon.stages.stageIndex===11&&londonRiverCover(p.x,p.y)}));
  const defenderFrames=addon.stages.stageIndex===9?formationDefenders(g).map(a=>formationDefenderFrame(g,a)):[];
  if(addon.stages.stageIndex===13)for(const p of playerFrames)p.sandCover=maanSandCover(g.maanWeather,p.x,p.y);
  const frame={paused:blocked(g),players:defenderFrames.length?defenderFrames:playerFrames,bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings,londonTargets:g.londonBattle?.districts||[],parisTargets:g.parisBattle?.districts||[]};

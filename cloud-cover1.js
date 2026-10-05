@@ -8,7 +8,7 @@ export const CLOUD_TYPES=Object.freeze({
  dark:{rx:190,ry:108,dense:1.3,drift:6,alpha:.95,dark:true},
  wispy:{rx:170,ry:64,dense:.35,drift:14,alpha:.5}
 });
-export const CLOUD_DENSITY=Object.freeze({0:.75,1:.3,2:.55,3:.85,4:.35,5:.95,6:.55,7:.45,15:.25});
+export const CLOUD_DENSITY=Object.freeze({0:.75,1:.3,2:.55,3:.85,4:.35,5:.95,6:.55,7:.45,15:.12});
 const CLOUD_PICK=Object.freeze({
  0:['cumulus','cumulus','cumulus','bank','wispy','cumulus'],
  1:['cumulus','wispy','wispy','cumulus'],
@@ -118,13 +118,13 @@ export function drawCloudCover(c,game,{point,scale=1,region}){
   const [sx,sy]=point(cl.x,cl.y);
   const w=t.rx*2*scale,h=t.ry*2*scale;
   if(sx<-w||sx>cw+w||sy<-h||sy>ch+h)continue;
-  const img=cloudImg(cl.type,cl.seed);
+  const img=cloudImg(region===15&&cl.type!=='wispy'?'dark':cl.type,cl.seed);
   if(!img||!img.naturalWidth)continue;
   c.save();
   c.translate(sx,sy);
   if(cl.mirror)c.scale(-1,1);
   c.rotate(Math.sin(cl.seed)*.14);
-  c.globalAlpha=t.alpha*(region===6?.62:1);
+  c.globalAlpha=t.alpha*(region===15?.4:region===6?.62:1);
   c.drawImage(img,-w/2,-h/2,w,h);
   c.restore();
  }
