@@ -32,6 +32,8 @@ export function separateZubianHalves(encounter){
 export function bossHullRect(b){
  const kind=b.assetKey||b.kind||'',s=b.t?.geometryScale||b.geometryScale||1;
  if(kind.startsWith('hms-zubian')){const z=zubianSize(b);return{x:b.x,y:b.y,w:z.width,h:z.height,yaw:b.hullYaw||0}}
+ if(b.jutlandBoss&&!b.jutlandAirship)return{x:b.x,y:b.y,w:b.width,h:b.height,yaw:b.hullYaw||0};
+ if(kind==='sms-stuttgart'&&b.support129)return{x:b.support129.x,y:b.support129.y,w:b.support129.width*.5,h:b.support129.height,yaw:b.support129.angle||0};
  if(kind==='sms-stuttgart')return{x:b.x,y:b.y,w:500*s,h:750*s,yaw:b.hullYaw||0}
  if(kind==='armored-harbor-fortress')return{x:b.x,y:b.y,w:280*s,h:250*s,yaw:b.hullYaw||0}
  return null;
