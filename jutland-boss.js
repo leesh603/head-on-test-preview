@@ -1,4 +1,4 @@
-import {recordShipWake} from './naval-water.js?v=naval-r2';
+import {recordShipWake} from './naval-water.js?v=485';
 import {BaseBoss,BossPart,BossEncounter} from './headon-stageboss-core.js?v=485';
 import {segmentDistance} from './alps-geometry117.js?v=485';
 export const JUTLAND_CYCLE=48;

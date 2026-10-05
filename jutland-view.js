@@ -1,4 +1,4 @@
-import {drawShipWater,drawTorpedo,drawFactionMark} from './naval-water.js?v=naval-r2';
+import {drawShipWater,drawTorpedo,drawFactionMark} from './naval-water.js?v=485';
 import {fx} from './fx-art.js?v=485';
 import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=485';
 import {jutlandRotate} from './jutland-boss.js?v=485';

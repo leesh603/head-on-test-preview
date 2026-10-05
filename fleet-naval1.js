@@ -1,4 +1,4 @@
-import {drawShipWater,recordShipWake} from './naval-water.js?v=naval-r2';
+import {drawShipWater,recordShipWake} from './naval-water.js?v=485';
 // Moving fleet system — Adriatic (region 1) and Zeebrugge harbor (region 7).
 // Ships sail real headings, fire from actual gun positions on the hull, and are
 // faction-owned: hostile ships hunt the player, friendly ships engage aircraft.
