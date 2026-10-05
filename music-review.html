@@ -1,0 +1,33 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>HEAD-ON Music Review — local only</title>
+<style>body{margin:0;background:#171b20;color:#eee;font:14px system-ui}header{padding:10px}button,select{margin:4px;padding:7px}pre{white-space:pre-wrap;font:12px monospace}iframe{display:block;border:0;margin:auto;background:#000}</style>
+<header><b>HEAD-ON 음악 검증 · 로컬 전용</b>
+<label>전장<select id="region"></select></label><label>파일럿<select id="pilot"></select></label><label>에이스<select id="ace"></select></label>
+<label>화면<select id="size"><option value="1280x800">PC 1280×800</option><option value="390x844">모바일 390×844</option></select></label>
+<button id="start">새 출격</button><button id="director">Director CROSS ATTACK</button><button id="recovery">Director RECOVERY</button>
+<button id="aceStart">에이스 등장</button><button id="boss">지역 보스 등장</button><button id="final">보스 HP 20%</button><button id="part">부위 파괴</button><button id="clear">보스 격파</button>
+<button id="pause">일시정지</button><button id="resume">재개</button><button id="lost">게임오버 상태</button><button id="won">결과 상태</button><button id="mute">음소거 전환</button>
+<pre id="status">연결 중</pre></header><iframe id="game" title="실제 HEAD-ON 게임" src="./index.html?headonTest=1&autostart=0"></iframe>
+<script>
+if(!['127.0.0.1','localhost','terminal.local'].includes(location.hostname))throw new Error('Local review only');
+const $=id=>document.getElementById(id),frame=$('game');let api=null;
+function size(){const [w,h]=$('size').value.split('x');frame.width=w;frame.height=h;}
+size();$('size').onchange=size;
+frame.onload=()=>{const timer=setInterval(()=>{api=frame.contentWindow.__HEADON_TEST__;if(!api)return;clearInterval(timer);
+ for(const r of api.catalog.regions)$('region').add(new Option(r.name,r.id));
+ for(const p of api.catalog.pilots){$('pilot').add(new Option(p.name,p.id));$('ace').add(new Option(p.name,p.id));}
+ $('pilot').value='fonck';$('ace').value='baron';},100);};
+$('start').onclick=()=>{api?.start({region:+$('region').value,pilot:$('pilot').value,invincible:true});const g=api?.debug();if(g)g.need=Infinity;};
+const run=()=>api?.debug();
+$('director').onclick=()=>run()?.beginBattleDirectorPattern('CROSS_ATTACK');
+$('recovery').onclick=()=>run()?.beginBattleDirectorPattern('RECOVERY');
+$('aceStart').onclick=()=>{const g=run();if(g){g.bossDeck=[$('ace').value];g.spawnEnemy('boss');}};
+$('boss').onclick=()=>{const g=run();if(g)g.stageBoss?.startBoss({x:g.x,y:g.y-300});};
+$('final').onclick=()=>{for(const b of run()?.stageBoss?.stages.encounter?.bodies.values()||[])if(!b.dead)b.hp=b.maxHp*.2;};
+$('part').onclick=()=>{for(const b of run()?.stageBoss?.stages.encounter?.bodies.values()||[]){const p=[...b.parts.values()].find(p=>!p.destroyed&&p.hittable);if(p)b.hit({partId:p.id,damage:p.hp});}};
+$('clear').onclick=()=>{for(const b of run()?.stageBoss?.stages.encounter?.bodies.values()||[]){b.coreVulnerable=true;b.hit({damage:b.hp});}};
+$('pause').onclick=()=>{if(run()?.state==='playing')frame.contentDocument.getElementById('pause').click();};
+$('resume').onclick=()=>{if(run()?.state==='paused')frame.contentDocument.getElementById('pause').click();};
+$('lost').onclick=()=>{const g=run();if(g)g.state='lost';};$('won').onclick=()=>{const g=run();if(g)g.state='won';};
+$('mute').onclick=()=>frame.contentDocument.getElementById('sound').click();
+setInterval(()=>{if(api)$('status').textContent=JSON.stringify({game:api.status(),music:api.music(),director:run()?.battleDirector?.pattern},null,1);},300);
+</script></html>

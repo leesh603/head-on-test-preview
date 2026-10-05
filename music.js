@@ -1,3 +1,6 @@
+import {AcousticBank} from './music-bank-player.js?v=485';
+import {MUSIC_THEMES,orchestralStep,signatureNotes,scorePitch} from './music-score.js?v=485';
+export {musicContextForGame} from './music-context.js?v=485';
 // Original adaptive score. Map themes share no borrowed soundtrack melodies.
 // Modes: 'idle' | map regions (rural/sea/trench/city/sky/alps/zeebrugge) |
 // 'boss' (enemy ace duel) | 'boss:<family>' for stage bosses.
@@ -59,21 +62,54 @@ const THEMES={
   zeebrugge:{bpm:70,steps:12,roots:[31,31,28,31,29,31,28,26],melody:[[55,58,57,55,52,50],[53,55,52,50,48,46],[55,60,58,55,52,50],[52,55,52,50,48,46]]}
 };
 export class BattleMusic {
-  constructor(){this.mode='idle';this.muted=false;this.step=0;this.next=0;this.timer=null;this.track=null;this.positions={};this.threatTarget=0;this.threat=0}
-  setThreat(v){this.threatTarget=Math.max(0,Math.min(1,v||0))}
+  constructor(){this.mode='idle';this.muted=false;this.step=0;this.next=0;this.timer=null;this.track=null;this.positions={};this.scene=null;this.seenAces=new WeakSet();this.intensity=.2;this.signatureCount=0;this.pulseCount=0;this.volume=1;this.threatTarget=0;this.threat=0;}
   unlock(){try{if(!this.ctx){
     this.ctx=new (window.AudioContext||window.webkitAudioContext)();
     this.bus=this.ctx.createGain();this.bus.gain.value=0;
     const comp=this.ctx.createDynamicsCompressor();this.bus.connect(comp);comp.connect(this.ctx.destination);
+    this.meter=this.ctx.createAnalyser();this.meter.fftSize=256;comp.connect(this.meter);this.meterData=new Float32Array(256);
+    this.bank=new AcousticBank(this.ctx);
     this.noise=this.ctx.createBuffer(1,this.ctx.sampleRate,this.ctx.sampleRate);
     const d=this.noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
     this.timer=setInterval(()=>this.schedule(),50);
-  }this.ctx.resume().catch(()=>{})}catch{}}
+  }this.ctx.resume().catch(()=>{});if(!this.bank.ready)this.bank.load().then(ready=>{if(ready&&!this.orchestra){this.orchestra=true;this.step=0;this.next=this.ctx.currentTime+.03;this.changeLayer(this.ctx.currentTime,1.2);}})}catch{}}
+  changeLayer(now,fade=.8){
+    if(!this.ctx?.createGain)return;
+    if(this.retiring){this.bank?.stop(v=>v.layer===this.retiring,.02);this.retiring.disconnect();}
+    const old=this.layer;
+    if(old){old.gain.cancelScheduledValues(now);old.gain.setTargetAtTime(0,now,fade/4);this.bank?.stop(v=>v.layer===old,fade);this.retiring=old;
+      setTimeout(()=>{old.disconnect();if(this.retiring===old)this.retiring=null;},(fade+.15)*1000);}
+    this.layer=this.ctx.createGain();this.layer.gain.setValueAtTime(0,now);this.layer.gain.linearRampToValueAtTime(1,now+fade);this.layer.connect(this.bus);
+  }
+  reset(){
+    this.bank?.stop();this.setState('idle',this.muted);this.layer?.disconnect();this.layer=null;
+    this.scene=null;this.run=null;this.positions={};this.track=null;this.step=0;this.intensity=.2;
+    this.seenAces=new WeakSet();this.signatureUntil=0;this.signatureCount=0;this.pulseCount=0;this.lastPulse=null;this.pendingPulse=false;
+  }
+  setScene(scene,muted=false){
+    if(scene?.run&&this.run&&scene.run!==this.run)this.reset();
+    if(scene?.run)this.run=scene.run;
+    const previous=this.scene;
+    if(previous?.state==='BOSS_FINAL'&&scene?.encounterId&&scene.encounterId===previous.encounterId)scene={...scene,state:'BOSS_FINAL'};
+    if(previous?.ace!==scene?.ace||scene?.state!=='ACE'){this.bank?.stop(v=>v.tag==='signature',.15);this.signatureUntil=0;}
+    this.scene=scene;
+    if(scene?.pulse&&scene.pulse!==this.lastPulse){this.pendingPulse=true;this.lastPulse=scene.pulse;}
+    if(!scene?.pulse)this.pendingPulse=false;
+    const inactive=!scene||scene.state==='IDLE';
+    if(inactive||muted)this.bank?.stop();
+    this.setState(inactive?'idle':scene.theme,muted);
+  }
+  setVolume(value){this.volume=Math.max(0,Math.min(1,Number.isFinite(value)?value:1));this.setState(this.mode,this.muted);}
+  setThreat(v){this.threatTarget=Math.max(0,Math.min(1,v||0))}
+  status(){let rms=0,peak=0;if(this.meter){this.meter.getFloatTimeDomainData(this.meterData);for(const v of this.meterData){rms+=v*v;peak=Math.max(peak,Math.abs(v));}rms=Math.sqrt(rms/this.meterData.length);}
+    return {theme:this.scene?.theme,state:this.mode==='idle'?'IDLE':this.scene?.state,mode:this.mode,muted:this.muted,volume:this.volume,rms,peak,
+    ready:!!this.bank?.ready,context:this.ctx?.state||'locked',loaded:this.bank?.buffers.size||0,errors:this.bank?.errors||[],decodedBytes:this.bank?.decodedBytes||0,
+    voices:this.bank?.voices.size||0,step:this.step,intensity:this.intensity,signatureCount:this.signatureCount,pulseCount:this.pulseCount,bossId:this.scene?.bossId,aceId:this.scene?.aceId};}
   bossTrack(){return this.mode==='boss'?'duel':this.mode.startsWith('boss:')?this.mode.slice(5):null}
   setState(mode,muted){
     if(mode==='flight'||mode==='ace')mode='rural';
     const isBoss=mode==='boss'||mode.startsWith('boss:');
-    if(mode!=='idle'&&!isBoss&&!THEMES[mode])mode='rural';
+    if(mode!=='idle'&&!isBoss&&!THEMES[mode]&&!(this.scene&&MUSIC_THEMES[mode]))mode='rural';
     const now=this.ctx?.currentTime||0;
     if(mode!==this.mode){
       if(this.mode!=='idle')this.positions[this.mode]=this.step;
@@ -82,17 +118,12 @@ export class BattleMusic {
         this.step=resume?this.positions[mode]||0:isBoss?0:this.positions[mode]||0;
         if(isBoss){if(!resume)this.bossSince=now;else if(this.pausedAt!=null)this.bossSince+=now-this.pausedAt;}
         // A fresh gain bus fades the previous arrangement without a hard cut.
-        if(this.ctx?.createGain){
-          const old=this.layer;
-          if(old){old.gain.setTargetAtTime(0,now,.10);setTimeout(()=>old.disconnect(),1600)}
-          this.layer=this.ctx.createGain();this.layer.gain.setValueAtTime(0,now);
-          this.layer.gain.linearRampToValueAtTime(1,now+.35);this.layer.connect(this.bus);
-        }
+        this.changeLayer(now);
         this.track=mode;this.next=now+.02;
       }else this.pausedAt=now;
     }
     this.mode=mode;this.muted=muted;
-    if(this.ctx)this.bus.gain.setTargetAtTime(mode==='idle'||muted?0:.88,now,.08);
+    if(this.ctx)this.bus.gain.setTargetAtTime(mode==='idle'||muted?0:.88*this.volume,now,.08);
   }
   tone(midi,time,duration,volume,type='sawtooth',cutoff=1500,attack=.025){
     const c=this.ctx,o=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();
@@ -121,6 +152,16 @@ export class BattleMusic {
     g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(A[2],t+Math.min(dur*.35,2.5));g.gain.linearRampToValueAtTime(.0001,t+dur);
     n.connect(f);f.connect(g);g.connect(this.layer||this.bus);n.start(t);n.stop(t+dur+.05);
     n.onended=()=>{n.disconnect();f.disconnect();g.disconnect()};
+  }
+  // Danger-driven overlay for map themes: a staccato low ostinato, back-beat
+  // fills and a high shimmer, all volume-scaled by the smoothed threat level.
+  tensionStep(mode,i,t,b){
+    const th=this.threat;if(th<.22||!THEMES[mode])return;
+    const s=THEMES[mode],p=i%s.steps,root=s.roots[Math.floor(i/s.steps)%8];
+    if(p%2===0)this.tone(root-12,t,b*.5,.02+.08*th,'sawtooth',280+240*th,.006);
+    if(th>.5&&p%4===2)this.drum(t,false,.5*th);
+    if(th>.6&&p%4===3)this.drum(t+b*.5,true,.32*th);
+    if(th>.78&&p%2===1)this.tone(root+24+[0,3][p%4>>1],t,b*.42,.02*th,'triangle',2300,.005);
   }
   mapStep(mode,i,t,b){
     const s=THEMES[mode],bar=Math.floor(i/s.steps),p=i%s.steps,section=Math.floor(bar/8)%4;
@@ -257,27 +298,37 @@ export class BattleMusic {
       if(bar%4===3&&p===12)for(const off of [18,25,30])this.tone(root+off,t,b*3.8,.047,'sawtooth',1500,.12);
     }
   }
-  // Danger-driven overlay for map themes: a staccato low ostinato, back-beat
-  // fills and a high shimmer, all volume-scaled by the smoothed threat level.
-  tensionStep(mode,i,t,b){
-    const th=this.threat;if(th<.22||!THEMES[mode])return;
-    const s=THEMES[mode],p=i%s.steps,root=s.roots[Math.floor(i/s.steps)%8];
-    if(p%2===0)this.tone(root-12,t,b*.5,.02+.08*th,'sawtooth',280+240*th,.006);
-    if(th>.5&&p%4===2)this.drum(t,false,.5*th);
-    if(th>.6&&p%4===3)this.drum(t+b*.5,true,.32*th);
-    if(th>.78&&p%2===1)this.tone(root+24+[0,3][p%4>>1],t,b*.42,.02*th,'triangle',2300,.005);
-  }
   schedule(){
     if(!this.ctx||this.ctx.state!=='running')return;
     const now=this.ctx.currentTime;if(this.mode==='idle'||this.muted){this.next=now;return}
-    this.threat+=(this.threatTarget-this.threat)*(this.threatTarget>this.threat?.4:.06);
+    if(this.scene&&this.bank?.ready){this.scheduleOrchestra(now);return;}
     if(this.next<now)this.next=now+.015;
     while(this.next<now+.15){
       const elapsed=Math.max(0,now-(this.bossSince||0));
       const bossT=this.bossTrack(),T=bossT?BOSS_SCORES[bossT]||BOSS_SCORES.duel:null;
-      const b=T?60/(T.bpm+Math.min(T.ramp,elapsed*3))/2:60/THEMES[this.mode].bpm/2;
+      const legacy=THEMES[this.mode]?this.mode:this.mode==='trenches'||this.mode==='trenches-hell'?'trench':'rural';
+      const b=T?60/(T.bpm+Math.min(T.ramp,elapsed*3))/2:60/THEMES[legacy].bpm/2;
       const i=this.step++,t=this.next;
-      if(T)this.bossStep(i,t,b,elapsed);else{this.mapStep(this.mode,i,t,b);this.tensionStep(this.mode,i,t,b)}
+      this.threat+=(this.threatTarget-this.threat)*(this.threatTarget>this.threat?.4:.06);
+      if(T)this.bossStep(i,t,b,elapsed);else{this.mapStep(legacy,i,t,b);this.tensionStep(legacy,i,t,b)}
+      this.next+=b;
+    }
+  }
+  scheduleOrchestra(now){
+    const scene=this.scene,s=MUSIC_THEMES[scene.theme];if(!s)return;
+    if(this.next<now)this.next=now+.015;
+    const b=60/s.bpm/2;
+    const emit=(...notes)=>this.bank.note(...notes,this.layer);
+    if(scene.state==='ACE'&&scene.ace&&scene.aceId&&!this.seenAces.has(scene.ace)){
+      this.signatureUntil=now+signatureNotes(scene.aceId,scene.theme,now+.04,(...notes)=>this.bank.note(...notes,this.layer,'signature'));
+      this.seenAces.add(scene.ace);this.signatureCount++;
+    }
+    if(this.pendingPulse){this.pendingPulse=false;this.pulseCount++;emit('clarinet',scorePitch(s,7),now+.01,.35,.2,0);}
+    while(this.next<now+.15){
+      // Asymmetric easing avoids sudden level/density jumps at 240ms polling.
+      const target=scene.phase==='cooldown'?scene.intensity*.55:scene.intensity;
+      this.intensity+=(target-this.intensity)*(1-Math.exp(-b/(target>this.intensity?1.6:2.6)));
+      orchestralStep({...scene,signatureActive:now<this.signatureUntil},this.step++,this.next,b,this.intensity,emit);
       this.next+=b;
     }
   }
