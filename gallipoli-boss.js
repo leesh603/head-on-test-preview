@@ -1,19 +1,21 @@
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=485';
 import {segmentDistance} from './alps-geometry117.js?v=485';
-export const GALLIPOLI_EXTENTS=Object.freeze({halfWidth:1640,halfHeight:1300});
+export const GALLIPOLI_SCALE=.78;
+const gs=v=>Math.round(v*GALLIPOLI_SCALE);
+export const GALLIPOLI_EXTENTS=Object.freeze({halfWidth:gs(1640),halfHeight:gs(1300)});
 export const GALLIPOLI_SECTORS=Object.freeze([
  {id:'west',name:'서부 해안포 진지',x:-940,y:160,guards:['left','west-howitzer','aa-west']},
  {id:'east',name:'동부 해안포 진지',x:940,y:160,guards:['right','east-howitzer','aa-east']},
  {id:'citadel',name:'후방 중포 성채',x:0,y:-620,guards:['rear-left','rear-right','aa-citadel']}
-].map(s=>Object.freeze({...s,guards:Object.freeze(s.guards)})));
-const gun=(id,sector,x,y,art)=>({id,sector,x,y,art,r:92,fraction:.085,size:310,muzzle:208,kind:'gun'});
+].map(s=>Object.freeze({...s,x:gs(s.x),y:gs(s.y),guards:Object.freeze(s.guards)})));
+const gun=(id,sector,x,y,art)=>({id,sector,x:gs(x),y:gs(y),art,r:gs(92),fraction:.085,size:gs(310),muzzle:gs(208),kind:'gun'});
 export const GALLIPOLI_PARTS=Object.freeze([
  gun('left','west',-1290,160,'twin'),gun('west-howitzer','west',-640,160,'howitzer'),
  gun('right','east',600,160,'twin'),gun('east-howitzer','east',1240,160,'howitzer'),
  gun('rear-left','citadel',-300,-710,'twin'),gun('rear-right','citadel',300,-710,'howitzer'),
- ...GALLIPOLI_SECTORS.map(s=>({id:'aa-'+s.id,sector:s.id,x:s.x-30,y:s.id==='citadel'?s.y+220:s.y,art:'aa',r:58,fraction:.04,size:200,muzzle:115,kind:'aa'})),
- ...GALLIPOLI_SECTORS.map(s=>({id:'ammo-'+s.id,sector:s.id,x:s.x,y:s.y-205,art:'ammo',r:68,fraction:.03,size:230,muzzle:0,kind:'supply'})),
- {id:'observer',sector:null,x:0,y:660,art:'signal',r:70,fraction:.03,size:230,muzzle:0,kind:'observer'}
+ ...GALLIPOLI_SECTORS.map(s=>({id:'aa-'+s.id,sector:s.id,x:gs(s.x-30),y:gs(s.id==='citadel'?s.y+220:s.y),art:'aa',r:gs(58),fraction:.04,size:gs(200),muzzle:Math.max(115,gs(115)),kind:'aa'})),
+ ...GALLIPOLI_SECTORS.map(s=>({id:'ammo-'+s.id,sector:s.id,x:gs(s.x),y:gs(s.y-205),art:'ammo',r:gs(68),fraction:.03,size:gs(230),muzzle:0,kind:'supply'})),
+ {id:'observer',sector:null,x:0,y:gs(660),art:'signal',r:gs(70),fraction:.03,size:gs(230),muzzle:0,kind:'observer'}
 ].map(p=>Object.freeze(p)));
 export const gallipoliMuzzle=(b,p)=>({x:b.x+p.x+Math.cos(p.angle)*(p.muzzle||0),y:b.y+p.y+Math.sin(p.angle)*(p.muzzle||0)});
 export function gallipoliObjective(b,x,y){
@@ -22,12 +24,12 @@ export function gallipoliObjective(b,x,y){
  return available.sort((a,c)=>Math.hypot(b.x+a.x-x,b.y+a.y-y)-Math.hypot(b.x+c.x-x,b.y+c.y-y))[0]||{x:0,y:0,kind:'command'};
 }
 export const GALLIPOLI_REPAIR_SECONDS=18;
-export const GALLIPOLI_HANGAR=Object.freeze({x:-460,y:-380,width:220,height:300,exitX:-460,exitY:-215,heading:Math.PI/2});
+export const GALLIPOLI_HANGAR=Object.freeze({x:gs(-460),y:gs(-380),width:gs(220),height:gs(300),exitX:gs(-460),exitY:gs(-215),heading:Math.PI/2});
 export const GALLIPOLI_INTERCEPTORS=Object.freeze({central:'eindecker',entente:'nieuport11'});
 export const gallipoliAngleDelta=(a,b)=>Math.atan2(Math.sin(b-a),Math.cos(b-a));
 export function turnGallipoliTurret(angle,target,rate,dt){const d=gallipoliAngleDelta(angle,target);return angle+Math.max(-rate*dt,Math.min(rate*dt,d));}
 export class GallipoliFortress extends BaseBoss{
- constructor(o){const t=o.tuning;super({...o,maxHp:t.maxHp,coreRadius:115,parts:GALLIPOLI_PARTS.map(p=>new BossPart({id:p.id,x:p.x,y:p.y,radius:p.r,maxHp:t.maxHp*p.fraction,angle:Math.PI/2}))});
+ constructor(o){const t=o.tuning;super({...o,maxHp:t.maxHp,coreRadius:gs(115),parts:GALLIPOLI_PARTS.map(p=>new BossPart({id:p.id,x:p.x,y:p.y,radius:p.r,maxHp:t.maxHp*p.fraction,angle:Math.PI/2}))});
  Object.assign(this,{t,kind:'gallipoli-fortress',faction:o.faction,gallipoliBoss:true,ownsMotion129:true,clock:0,entryAge:0,coreVulnerable:true,phase:'active-defense',cursor:0,batteryCursor:0,captured:new Set(),coreAngle:Math.PI/2,commandMaxHp:t.maxHp*.25,commandHp:t.maxHp*.25,commandDestroyed:false,coastalClock:0,centralClock:0,sortieRemaining:6,centralRemaining:0,launchWarning:false});
  for(const d of GALLIPOLI_PARTS)Object.assign(this.parts.get(d.id),d,{angle:Math.PI/2,recoil:0,repairRemaining:0,repairWarned:false,repairGrace:0});}
  command(type,spec={}){this.emit({...spec,type,bossId:this.id,faction:this.faction});}
