@@ -6,6 +6,8 @@ const mobile=dirname(fileURLToPath(import.meta.url));
 const root=join(mobile,'..');
 const target=join(mobile,'www');
 
+const excludedTopFiles=new Set(['asset-gallery.html','fx-compare.html','keyfill-tmp.html','keywhite-tmp.html','livery-studio.html','mapaudit.html','mapsian.html','preview-cowling.html','seampage.html','test-lab.html']);
+
 const excludedTopDirs=new Set([
   '.git','.github','mobile',
   'src-png',
@@ -54,7 +56,7 @@ async function copyTree(from,to,isRoot=false){
       continue;
     }
     if(!entry.isFile())continue;
-    if(isRoot&&entry.name==='.gitignore')continue;
+    if(isRoot&&(entry.name==='.gitignore'||excludedTopFiles.has(entry.name))){skippedBytes+=(await stat(src)).size;continue;}
     await copyFile(src,dst);
     const size=(await stat(src)).size;
     files++;
@@ -107,12 +109,15 @@ const literalRef=new RegExp("(?:['\\\"(])((?:\\./)?[A-Za-z0-9_@./-]+\\."+assetEx
 const cssRef=/url\((?:['"])?([^'")?#]+)(?:\?[^'")]*)?(?:['"])?\)/g;
 const missing=[];
 
-async function validateText(dir){
-  for(const entry of await readdir(dir,{withFileTypes:true})){
-    const path=join(dir,entry.name);
-    if(entry.isDirectory()){await validateText(path);continue}
-    if(!entry.isFile()||!textExt.has(extname(entry.name).toLowerCase()))continue;
-    const text=await readFile(path,'utf8');
+async function validateReachable(){
+  const queue=[join(target,'index.html'),join(target,'field-record.html')];
+  const seen=new Set();
+  while(queue.length){
+    const path=queue.shift();
+    if(seen.has(path))continue;
+    seen.add(path);
+    let text;
+    try{text=await readFile(path,'utf8')}catch{missing.push(relative(target,path)+' <- entry');continue}
     const refs=[];
     for(const match of text.matchAll(literalRef))refs.push(match[1]);
     for(const match of text.matchAll(cssRef))refs.push(match[1]);
@@ -122,14 +127,21 @@ async function validateText(dir){
       const clean=raw.replace(/^\.\//,'');
       const resolved=resolve(dirname(path),clean);
       if(!resolved.startsWith(resolve(target)))continue;
-      try{await stat(resolved)}catch{missing.push(relative(target,resolved)+' <- '+relative(target,path))}
+      try{
+        const info=await stat(resolved);
+        if(info.isFile()&&textExt.has(extname(resolved).toLowerCase()))queue.push(resolved);
+      }catch{
+        missing.push(relative(target,resolved)+' <- '+relative(target,path));
+      }
     }
   }
+  return seen;
 }
 
-await validateText(target);
+const reachable=await validateReachable();
 const uniqueMissing=[...new Set(missing)].filter(x=>!x.startsWith('favicon.ico'));
 if(uniqueMissing.length)throw new Error('Missing packaged runtime references:\n'+uniqueMissing.slice(0,40).join('\n'));
+console.log('Validated reachable runtime text files: '+reachable.size);
 
 await writeFile(join(target,'android-source.txt'),'head-on-test-preview main 0902c2141ebcbd5438f04871151a741468707133\n');
 
