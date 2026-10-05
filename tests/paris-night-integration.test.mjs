@@ -72,19 +72,38 @@ test('Destroying one rack cancels only its own pending city bombs',()=>{
  handleParisCue(g,{type:'city-bomb-rack-abort',sourceBossId:'b',rackId:'bomb-bay-left'});assert.equal(b.bombs.length,2);tickParisBattle(g,2);assert.equal(b.cityDamage,32);
 });
 
-test('Paris never caches an undecoded map and rebuilds it after image reload',async()=>{
+test('Paris waits for decoded city art and uses fresh pixels after image reload',async()=>{
  const {prepareParisArt,releaseParisArt,paintParis}=await import('../paris-night-art.js');
- const oldImage=globalThis.Image,oldDocument=globalThis.document,images=[],layers=[],draws=[];
- globalThis.Image=class{constructor(){this.complete=false;this.naturalWidth=1254;this.naturalHeight=1254;images.push(this);}};
- globalThis.document={createElement(){const layer={getContext:()=>({drawImage(im){layer.source=im;},createLinearGradient:()=>({addColorStop(){}}),fillRect(){}})};layers.push(layer);return layer;}};
- const c={save(){},restore(){},drawImage(layer){draws.push(layer);}};
+ const oldImage=globalThis.Image,images=[],draws=[];
+ globalThis.Image=class{constructor(){this.complete=false;this.naturalWidth=2048;this.naturalHeight=2048;images.push(this);}};
+ const c={save(){},restore(){},fillRect(){},beginPath(){},rect(){},clip(){},translate(){},scale(){},drawImage(im){draws.push(im);}};
  try{
   releaseParisArt();const first=prepareParisArt();paintParis(c,game(),0,0,960,700);
-  assert.equal(layers.length,0);assert.equal(draws.length,0);
+  assert.equal(draws.length,0);
   for(const im of images){im.complete=true;im.onload();}await first;
-  paintParis(c,game(),0,0,960,700);assert.equal(layers.length,1);assert.equal(layers[0].source,images[0]);
+  paintParis(c,game(),0,0,960,700);assert.equal(draws.length,1);assert.equal(draws[0],images[0]);
   const second=prepareParisArt();paintParis(c,game(),0,0,960,700);assert.equal(draws.length,1);
   for(const im of images.slice(5)){im.complete=true;im.onload();}await second;
-  paintParis(c,game(),0,0,960,700);assert.equal(layers.length,2);assert.equal(layers[1].source,images[5]);
- }finally{releaseParisArt();if(oldImage===undefined)delete globalThis.Image;else globalThis.Image=oldImage;if(oldDocument===undefined)delete globalThis.document;else globalThis.document=oldDocument;}
+  paintParis(c,game(),0,0,960,700);assert.equal(draws.length,2);assert.equal(draws[1],images[5]);
+ }finally{releaseParisArt();if(oldImage===undefined)delete globalThis.Image;else globalThis.Image=oldImage;}
+});
+test('Paris remains urban across the old boundary and distant positive/negative city edges',async()=>{
+ const {prepareParisArt,releaseParisArt,paintParis}=await import('../paris-night-art.js');
+ const {PARIS_SIZE}=await import('../paris-night-battle.js');
+ const oldImage=globalThis.Image,images=[];
+ globalThis.Image=class{constructor(){this.complete=true;this.naturalWidth=1254;this.naturalHeight=1254;images.push(this);}};
+ const pending=prepareParisArt();for(const im of images)im.onload();await pending;
+ const g=game(),b=ensureParisBattle(g),original=structuredClone(b.districts);
+ try{
+  for(const [w,h] of [[1280,900],[390,844]])for(const [cx,cy] of [[0,-460],[-1200,0],[1800,300],[-2051,0],[2045,2339],[0,-1757],[0,2339],[7200,-4800],[-24576,24576]]){
+   const rectangles=[],stack=[];let t={x:0,y:0,sx:1,sy:1};
+   const c={save(){stack.push({...t});},restore(){t=stack.pop();},fillRect(){},beginPath(){},rect(){},clip(){},
+    translate(x,y){t.x+=x*t.sx;t.y+=y*t.sy;},scale(x,y){t.sx*=x;t.sy*=y;},
+    drawImage(im,sx,sy,sw,sh,x,y,width,height){assert.equal(im,images[0]);assert.equal(sx,27);assert.equal(sy,25);assert.equal(sw,1200);assert.equal(sh,1204);const x1=t.x+x*t.sx,y1=t.y+y*t.sy,x2=x1+width*t.sx,y2=y1+height*t.sy;rectangles.push([Math.min(x1,x2),Math.min(y1,y2),Math.max(x1,x2),Math.max(y1,y2)]);}};
+   paintParis(c,g,cx,cy,w,h,{draw(){assert.fail('Paris must never expose rural terrain');}});
+   for(let x=0;x<=w;x+=w/8)for(let y=0;y<=h;y+=h/8)assert(rectangles.some(r=>x>=r[0]&&x<=r[2]&&y>=r[1]&&y<=r[3]),'Unpainted city pixel at '+[cx,cy,x,y]);
+   assert(rectangles.length<=4,'Only visible city sections are drawn');
+  }
+  assert.equal(PARIS_SIZE,4096);assert.deepEqual(b.districts,original,'Bombing objectives keep their existing world positions');
+ }finally{releaseParisArt();if(oldImage===undefined)delete globalThis.Image;else globalThis.Image=oldImage;}
 });

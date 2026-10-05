@@ -1,5 +1,5 @@
 // Paris has one authored city, shared by terrain, objectives and boss placement.
-export const PARIS_SIZE=2048;
+export const PARIS_SIZE=4096;
 const inParis=g=>g.stageBoss?.stages.stageIndex===15;
 export function ensureParisBattle(g){
  if(!inParis(g)){g.parisBattle=null;return null;}
@@ -24,7 +24,7 @@ export function handleParisCue(g,e){
 }
 export function tickParisBattle(g,dt){
  const b=ensureParisBattle(g);if(!b||g.state!=='playing'||g.pendingLevelUps?.length)return;
- // Flight remains unrestricted; authored outskirts blend into the countryside.
+ // Flight remains unrestricted over the continuously urban terrain.
  for(const bomb of b.bombs){
   bomb.left-=dt;if(bomb.left>0||bomb.resolved)continue;bomb.resolved=true;
   const d=b.districts.find(d=>d.id===bomb.targetId);if(!d||b.cleared)continue;
