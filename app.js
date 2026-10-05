@@ -545,7 +545,7 @@ function paintRegion(region,cx,cy,width=W,height=H){
  if(region===12){paintVerdun(ctx,game,cx,cy,W,H);return;}
  if(region===16){paintJutland(ctx,game,cx,cy,W,H);return;}
  if(region===14){paintGallipoli(ctx,game,cx,cy,W,H);return;}
- if(region===15){paintParis(ctx,game,cx,cy,W,H);return;}
+ if(region===15){paintParis(ctx,game,cx,cy,W,H,terrainAlpsRenderer);return;}
  if(region===13){paintMaan(ctx,game,cx,cy,W,H);return;}
  if(region===7){paintZeebrugge(cx,cy,W,H);return;}
  if(region>=0&&region<terrainKeys.length){
