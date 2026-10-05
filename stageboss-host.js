@@ -1,15 +1,15 @@
-import {tickRegionalConditions} from './region-doctrine1.js?v=479';
+import {tickRegionalConditions} from './region-doctrine1.js?v=480';
 
-import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=479';
-import {handleMaanCue} from './maan-view.js?v=479';
-import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=479';
-import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=479';
+import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=480';
+import {handleMaanCue} from './maan-view.js?v=480';
+import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=480';
+import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=480';
 import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=gallipoli-r3';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=gallipoli-r3';
 import {bossSoundFor} from './boss-feedback.js?v=gallipoli-r3';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=479';
-import {advanceCambraiBug} from './cambrai-bug-flight.js?v=479';
-import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=479';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=480';
+import {advanceCambraiBug} from './cambrai-bug-flight.js?v=480';
+import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=480';
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭','마안 전투','갈리폴리 전선'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});

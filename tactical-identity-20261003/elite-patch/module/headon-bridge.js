@@ -1,4 +1,4 @@
-import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js?v=479';
+import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js?v=480';
 
 const INSTALL_KEY = Symbol.for('headon.eliteEnemyPatch.v1');
 

@@ -1,4 +1,4 @@
-import {signatureCue} from './pilot-signature-state.js?v=479';
+import {signatureCue} from './pilot-signature-state.js?v=480';
 // Personal pilot state is advanced per living pilot; persistent damage is advanced once per world.
 const stepTime = dt => Number.isFinite(dt) ? Math.max(0, Math.min(.04, dt)) : 0;
 const playing = p => p.state === 'playing' && p.hp > 0 && p.status !== 'downed';

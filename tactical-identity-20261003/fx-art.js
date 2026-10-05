@@ -1,12 +1,12 @@
 // Union pack: Pro's 196 combat atlas takes precedence for the keys it covers
 // (explosion0-3, fire, smoke*, spark, armorSpark, gas, gasThin); every other key
 // stays on the approved v189 set below. ?fx=0 keeps the procedural rollback.
-import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,fx as fx196Draw,fxTintedCanvas as fx196TintedCanvas,fxTint as fx196Tint} from './combat-fx196.js?v=479';
+import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,fx as fx196Draw,fxTintedCanvas as fx196TintedCanvas,fxTint as fx196Tint} from './combat-fx196.js?v=480';
 // Combat FX pack v189 — approved sprite set lives in fx-pack-v189/ and maps onto
 // the keys already called by the renderers. Unmapped keys stay procedural.
 // Rollback: append ?fx=0 to the URL — FX_FILES empties and every call site
 // falls back to procedural drawing exactly as before.
-import {FX3,roleArtReady,roleReady,roleDraw,roleImage} from './fx-role3.js?v=479';
+import {FX3,roleArtReady,roleReady,roleDraw,roleImage} from './fx-role3.js?v=480';
 export {FX3};
 const FX_OFF=typeof location!=='undefined'&&new URLSearchParams(location.search).get('fx')==='0';
 const FX56_OFF=typeof location!=='undefined'&&new URLSearchParams(location.search).get('fx56')==='0';
@@ -86,7 +86,7 @@ const imageLoads=new Map();
 const fx189Ready=typeof Image==='undefined'?Promise.resolve():fx196ArtReady.then(()=>Promise.all(Object.entries(FX_FILES).map(async([key,file])=>{
  if(fx196Ready(key))return;
  if(!imageLoads.has(file))imageLoads.set(file,new Promise(res=>{
-  const im=new Image();im.onload=()=>{im.onload=im.onerror=null;res(im)};im.onerror=()=>{im.onload=im.onerror=null;res(null)};im.src='./'+file+'?v=479';
+  const im=new Image();im.onload=()=>{im.onload=im.onerror=null;res(im)};im.onerror=()=>{im.onload=im.onerror=null;res(null)};im.src='./'+file+'?v=480';
  }));
  const im=await imageLoads.get(file);if(im)fxImgs[key]=im;
 })));

@@ -1,6 +1,6 @@
 import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=gallipoli-r3';
-import {verdunFortCollapseSites} from './verdun-fortresses.js?v=479';
-import {BossHazards} from './headon-stageboss-hazards.js?v=479';
+import {verdunFortCollapseSites} from './verdun-fortresses.js?v=480';
+import {BossHazards} from './headon-stageboss-hazards.js?v=480';
 
 export class BossStages {
   constructor({teamFaction,stageIndex=0,loopIndex=0,rng=Math.random}) {

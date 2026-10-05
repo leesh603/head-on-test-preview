@@ -1,6 +1,6 @@
 // Coordinates are shared by sprite composition, swept hits and gun muzzles.
 export const MAAN_REGION=13;
-export const MAAN_ENTRY=Object.freeze({duration:7,ignition:2,breakAt:4,launchAt:4.15,travel:.4});
+export const MAAN_ENTRY=Object.freeze({duration:9,ignition:1.6,breakAt:2.8,reveal:4.8});
 export const MAAN_LAYOUT=Object.freeze({
  'wustenpanzer':{width:248,height:520,parts:[
   ['track-left',-99,0,25,242,'track'],['track-right',99,0,25,242,'track'],
@@ -17,6 +17,33 @@ export const MAAN_LAYOUT=Object.freeze({
  ]}
 });
 export const rotateMaan=(x,y,a)=>({x:x*Math.cos(a)-y*Math.sin(a),y:x*Math.sin(a)+y*Math.cos(a)});
+export const MAAN_ESCORT_RADIUS=Math.hypot(20,35);
+export function maanLocal(body,x,y){return rotateMaan(x-body.x,y-body.y,-(body.hullYaw||0));}
+export function maanWorld(body,x,y){const p=rotateMaan(x,y,body.hullYaw||0);return{x:body.x+p.x,y:body.y+p.y};}
+// Include the gun barrels and a car's full rotating silhouette, not its bullet
+// hit radius. Destroying tracks does not remove the physical ground footprint.
+export function maanClearance(body,radius=MAAN_ESCORT_RADIUS){return{x:body.layout.width/2+radius+12,y:body.layout.height/2+radius+12};}
+export function maanGroundBlocked(body,x0,y0,x1=x0,y1=y0){
+ const a=maanLocal(body,x0,y0),b=maanLocal(body,x1,y1),r=maanClearance(body);
+ return segmentBox(a.x,a.y,b.x,b.y,0,0,r.x,r.y);
+}
+// Resolve the complete convoy together: moving/turning the hull can push one
+// escort into another, even when each car's own path is clear.
+export function resolveMaanGround(encounter){
+ const bodies=[...encounter?.bodies.values()||[]],hulls=bodies.filter(b=>b.layout&&!b.dead),cars=bodies.filter(b=>b.leader&&!b.dead&&!b.hidden),gap=MAAN_ESCORT_RADIUS*2+16;
+ const free=(car,x,y)=>hulls.every(b=>!maanGroundBlocked(b,x,y))&&cars.every(c=>c===car||Math.hypot(c.x-x,c.y-y)>=gap);
+ for(const car of cars){
+  if(free(car,car.x,car.y))continue;
+  const b=car.leader,p=maanLocal(b,car.x,car.y),r=maanClearance(b),candidates=[];
+  for(let rank=0;rank<cars.length+3;rank++)for(const side of [-1,1]){
+   candidates.push(maanWorld(b,side*(r.x+2+rank*gap),p.y));
+   candidates.push(maanWorld(b,p.x,side*(r.y+2+rank*gap)));
+   for(const edge of [-1,1])candidates.push(maanWorld(b,side*(r.x+2),edge*(r.y+2+rank*gap)));
+  }
+  candidates.sort((a,z)=>Math.hypot(a.x-car.x,a.y-car.y)-Math.hypot(z.x-car.x,z.y-car.y));
+  const position=candidates.find(q=>free(car,q.x,q.y));if(position)Object.assign(car,position);
+ }
+}
 export function segmentBox(x0,y0,x1,y1,cx,cy,rx,ry,r=0){
  let lo=0,hi=1;
  for(const [start,end,center,half] of [[x0,x1,cx,rx+r],[y0,y1,cy,ry+r]]){

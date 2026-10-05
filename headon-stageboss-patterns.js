@@ -1,21 +1,21 @@
 import {GallipoliFortress} from './gallipoli-boss.js?v=gallipoli-r3';
-import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=479';
-import {RuralRailBoss} from './rural-rail-combat.js?v=479';
-import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=479';
-import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=479';
-import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=479';
+import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=480';
+import {RuralRailBoss} from './rural-rail-combat.js?v=480';
+import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=480';
+import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=480';
+import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=480';
 export {Mark1Landship as Mark4Wedge,SchwabenFortress as MorserBattery};
-import {sommeScale} from './somme-boss-layout.js?v=479';
-import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose} from './adriatic-boss-layout.js?v=479';
-import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=479';
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=479';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=479';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=479';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=479';
-import {GIK,Ca4} from './alps-bomber-combat.js?v=479';
-import {FlakTowerNet} from './city-flak-combat.js?v=479';
+import {sommeScale} from './somme-boss-layout.js?v=480';
+import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose} from './adriatic-boss-layout.js?v=480';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=480';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=480';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=480';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=480';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=480';
+import {GIK,Ca4} from './alps-bomber-combat.js?v=480';
+import {FlakTowerNet} from './city-flak-combat.js?v=480';
 export {GIK,Ca4};
-import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=479';
+import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=480';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -1277,6 +1277,6 @@ export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   const entry=BOSS_CATALOG[bossId]||{faction:bossId==='staaken-rvi'?'central':'entente'},Ctor=constructors[bossId];if(!Ctor)throw new Error('Unknown boss: '+bossId);
   const body=new Ctor({id:id+':body',tuning,x,y,emit,rng,faction:faction||entry.faction,coreRadius:tuning.coreRadius||100});
   const bodies=[body];
-  if(bossId==='sinai-landship')for(const side of [-1,1])bodies.push(new RollsRoyceEscort({id:id+':escort:'+side,leader:body,side,tuning,emit,faction:body.faction,x:x+side*145,y:y+170}));
+  if(bossId==='sinai-landship')for(const side of [-1,1])bodies.push(new RollsRoyceEscort({id:id+':escort:'+side,leader:body,side,tuning,emit,faction:body.faction,x,y}));
   return new BossEncounter({id,bossId,bodies});
 }
