@@ -17,6 +17,7 @@ import {installBuildCombatIdentity} from './build-combat-identity.js?v=485';
 import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=485';
 import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=485';
 import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=485';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=485';
 import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=485';
 import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=485';
 import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=485';
@@ -109,7 +110,7 @@ export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this
   if(this.t-(this.lastRegionalHazard??-Infinity)<8)return;
   this.lastRegionalHazard=this.t;
   if(region===0){this.spawnMinefield();return}
-  if(region===1||region===7||region===16){this.spawnFleet();return}
+  if(region===1||region===7||region===16||(region===14&&(this.gallipoliRoute?.maxForward??0)<GALLIPOLI_ROUTE.shore)){this.spawnFleet();return}
   const start=this.bullets.length;
   this.flakBursts??=[];
   let edge=this.rng()*4,x,y;if(edge<1){x=this.x-360+this.rng()*720;y=this.y-300}else if(edge<2){x=this.x+360;y=this.y-300+this.rng()*600}else if(edge<3){x=this.x-360+this.rng()*720;y=this.y+300}else{x=this.x-360;y=this.y-300+this.rng()*600}if(this.sunStrikeContains({x,y,hp:1}))return;let aim=Math.atan2(this.y-y,this.x-x);this.event('flak','대공포 발사! 탄막을 피하세요');for(let i=-3;i<=3;i++){let a=aim+i*.12;this.bullets.push({x,y,vx:Math.cos(a)*190,vy:Math.sin(a)*190,life:4.2,enemy:true,flak:true,damage:Math.round(13*(1+this.t/260))})}this.burst(x,y,'#efb35d',12);
@@ -697,7 +698,7 @@ Game.prototype._updEncounter=function(dt,input={}){
 };
 // Tethered observation balloons and a rail-bound field cannon (arcade roles).
 Game.prototype.spawnFieldUnit=function(kind){
- if([1,7,16].includes(this.worldRegion())||this.enemies.length>=65)return null;
+ if([1,7,14,16].includes(this.worldRegion())||this.enemies.length>=65)return null;
  const rail=kind==='railgun';if(this.enemies.filter(e=>e.hp>0&&e.fieldUnit===(rail?'railgun':'balloon')).length>=(rail?1:1))return null;
  if(rail&&[4,5,6].includes(this.worldRegion()))return null;
  const e=this.spawnEnemy('scout');if(!e)return null;const a=this.a+(this.rng()-.5)*1.5,d=330+this.rng()*100;
