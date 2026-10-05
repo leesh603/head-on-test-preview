@@ -20,7 +20,7 @@
 - Skia 실제 렌더: 유틀란트 390×844/1440×900 양 진영; 함선 교전과 어뢰 근접, 비행선 추락/퇴각 0/1.3/2.8초 프레임. 함대 QA 스크린샷 수면은 공통 유틀란트 수면을 사용한 렌더 확인이며 각 지역 맵 전체 실플레이 캡처가 아니다.
 - 신규/해상 에셋 로딩 누락 0. main에는 `mech/` 에셋 경로 및 `goering_fokkerd7.webp`, `loewenhardt_fokkerd7.webp`, `mccudden_se5a.webp` 누락이 있어 Skia에서는 공식 `?mech=0` 경로를 사용하고 기존 누락은 결과 JSON에 기록했다. 해당 기존 기체 로더는 변경하지 않았다.
 - `git diff --check`: 통과.
-- 실제 브라우저 및 실물 모바일: 업로드 후 브라우저 스모크 결과를 별도 기재한다. 자동 테스트/Skia를 실플레이 완료로 간주하지 않는다.
+- 원격 구현 커밋 `b9f5993`의 Chrome에서 유틀란트 보스 시작·중립 선체·동맹국 표식·한국어 HUD와 타이머/탄약 갱신을 확인했다. `qa/naval-polish/browser-r2.jpg` 캡처 포함. 기존 aircraft.js / portraits.js / battlefield-art.js에서 cross-origin getImageData SecurityError가 계속 발생했다. 따라서 오류 없는 전체 PC/모바일 실플레이 및 전 패턴/함대 교전 브라우저 검증은 **미검증**. 보안 우회 및 무관한 로더 수정 없음. 자동 테스트/Skia를 실플레이 완료로 간주하지 않는다.
 
 ## 수정 파일
 
