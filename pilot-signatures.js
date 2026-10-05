@@ -34,7 +34,7 @@ export function installPilotSignatures(Game){
  const round=proto.applySpecialRound;
  proto.applySpecialRound=function(b,type){
   const result=round.call(this,b,type);
-  if(this.pilot==='jacobs'&&this.skillTime>0&&Math.abs(signatureState(this).turnRate||0)>.35&&!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.actualExplosion&&!b.rocket&&!b.motorCannon&&!b.cow37&&b.gun!==undefined){const heading=Math.atan2(b.vy,b.vx),speed=Math.hypot(b.vx,b.vy);for(const side of [-1,1]){const a=heading+side*.24;this.bullets.push({...b,ownerId:this.id,enemy:false,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:Math.min(b.life,.55),damage:b.damage*.2,hit:new Set(),jacobsSuppress:true})}b.damage*=.6;}
+  // Jacobs' real fan/convergence is emitted once by the nine-pilot combat hook.
   if(!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.actualExplosion&&(b.ownerId===undefined||b.ownerId===own(this)))pilotSignatureReaction(this,'shot',{gun:b.gun||0});
   return result;
  };

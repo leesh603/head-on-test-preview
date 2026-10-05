@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {Game,PLANES,PILOTS,angleDiff} from '../engine.js?v=479';
-import {coopPlane,CoopGame} from '../coop-engine.js?v=479';
-import '../campaign.js?v=479';
-import {SORTIE_COMBAT_STYLES as styles} from '../aircraft-combat-roles.js?v=479';
-import {tickRegionalConditions,REGION_COMBAT_EVENTS} from '../region-doctrine1.js?v=479';
+import {Game,PLANES,PILOTS,angleDiff} from '../engine.js?v=483';
+import {coopPlane,CoopGame} from '../coop-engine.js?v=483';
+import '../campaign.js?v=483';
+import {SORTIE_COMBAT_STYLES as styles} from '../aircraft-combat-roles.js?v=483';
+import {tickRegionalConditions,REGION_COMBAT_EVENTS} from '../region-doctrine1.js?v=483';
 const app=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8');
 const solo=[...app.match(/\(\{baron:baronAircraft,(.*?)\}\[id\]/s)[1].matchAll(/\w+:'([^']+)'/g)].map(m=>m[1]);
 const roster=[...new Set([...solo,'fokker','baron_albatros',...Object.keys(PILOTS).map(coopPlane)])];

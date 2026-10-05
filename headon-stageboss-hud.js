@@ -1,4 +1,4 @@
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=gallipoli-r3';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=483';
 export function bossHudModel(encounter) {
   if(!encounter||encounter.completed)return null;
   const state=encounter.snapshot();

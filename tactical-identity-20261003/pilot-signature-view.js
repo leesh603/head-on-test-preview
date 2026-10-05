@@ -1,6 +1,6 @@
-import {fx} from './fx-art.js?v=482';
-import {drawGameIcon} from './icons.js?v=482';
-import {createPilotSignatureRenderer} from './pilot-signature-renderer.js?v=482';
+import {fx} from './fx-art.js?v=483';
+import {drawGameIcon} from './icons.js?v=483';
+import {createPilotSignatureRenderer} from './pilot-signature-renderer.js?v=483';
 // Ferrari's original prancing-horse vector is used only as a small Baracca marking.
 // Source: simple-icons/simple-icons, icons/ferrari.svg (the horse only, without a shield or text).
 const files={blackHeart:'pilot-mark-nungesser.webp',repairSupply:'repair-pickup.webp',baraccaHorse:'pilot-mark-baracca-ferrari.svg',skull:'pilot-mark-brumowski-skull.webp'};

@@ -104,6 +104,6 @@ export function nungesserRoundReaction(p,b,x0,y0){
   (b.nungesserSmokeOwners??=new Set()).add(owner);
   if(signatureInterval(p,'smokeTear',.06))signatureCue(p,'smokeTear',{x,y,a:Math.atan2(b.vy,b.vx),life:.38,active});
  }
- return active;
+ return false;
 }
 

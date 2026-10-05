@@ -85,8 +85,17 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
   }
  }
  function start(c,p,e,foreground=false){
-  const q=clamp(e.age/e.maxLife),fade=Math.min(1,e.age/.09)*Math.min(1,e.life/.28),time=e.age;c.globalAlpha*=fade;
-  switch(e.kind){
+  const q=clamp(e.age/e.maxLife),fade=Math.min(1,e.age/.09)*Math.min(1,e.life/.28),time=e.age;c.globalAlpha*=fade;if(['huffzky','mckeever','jacobs','hawker','berthold','goering','nungesser','barker'].includes(p.pilot)&&e.kind==='shotAccent')return;
+  switch(e.kind){   case 'rearBurst':{const a=e.a-p.a;muzzleAt(c,0,0,a,'muzzleRear',e.strong?1.2:.85);for(let i=0;i<3;i++)texture(c,'metalShard'+i,time*(18+i*9),10+time*(25+i*10),6,3,time*9+i,.7);break;}
+   case 'rearAcquire':{c.rotate(e.a-p.a);for(const side of [-1,1])texture(c,'tracerCream',-8,side*(1-q)*12,13,3,side*.25,.42*(1-q));break;}
+   case 'hawkerLink':texture(c,'armorSpark',0,0,24,14,e.a-p.a,.5*(1-q));texture(c,'gunSmoke',-8,0,23,13,0,.16);break;
+   case 'suppressed':texture(c,'gunSmoke',0,0,24+time*22,15,time,.3);texture(c,'ricochet',4,0,28,13,.4,.5);break;
+   case 'ironImpact':metal(c,time,4,.8);texture(c,'debris',-9,12,21,15,time*3,.8);texture(c,'armorSpark',0,0,30,20,0,.8);break;
+   case 'ironSalvo':flash(c,false,2,true);for(const side of [-1,1])texture(c,'gunSmoke',37,side*9,57,25,side*.12,.35);break;
+   case 'deathDeflect':{c.rotate(e.a-p.a);for(const side of [-1,1])texture(c,'smokeDark',-9+time*18,side*(9+time*31),30+time*25,17,side*.4,.38*(1-q));texture(c,'fireSmall',time*11,0,12*(1-q)+5,14,0,.8*(1-q));texture(c,'spark',time*18,5-time*14,14,8,time,.75*(1-q));break;}
+   case 'fogTear':{c.rotate(e.a-p.a);for(const side of [-1,1])texture(c,'smokeDark',0,side*(6+Math.sin(q*Math.PI)*17),31,14,side*.25,.24*(1-q));break;}
+   case 'deathRelease':for(let i=0;i<7;i++){const a=i*TAU/7,r=18+q*70;texture(c,'smokeDark',Math.cos(a)*r,Math.sin(a)*r,49+q*18,31+q*15,a,.32*(1-q));texture(c,'fireSmall',Math.cos(a)*r*.65,Math.sin(a)*r*.65,7,9,a,.5*(1-q));}break;
+   
    case 'cavalryCharge':if(p.chargeTime>0)texture(c,'vaporTrail',-52,0,92,20,Math.PI,.2*(1-q));break;
    case 'cavalryGuard':drawCavalryGuard(c,fade);texture(c,'smokeDark',42,0,29,41,Math.PI,.12*fade);break;
    case 'deathKnight':
@@ -111,7 +120,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
      const text='Du doch nicht!!';c.translate(-14,36);c.font='italic 600 11px Georgia,"Times New Roman",serif';c.textAlign='center';c.textBaseline='alphabetic';
      const widths=[...text].map(ch=>c.measureText(ch).width);let x=-widths.reduce((sum,w)=>sum+w,0)/2;
      [...text].forEach((ch,i)=>{const w=widths[i],phase=time*5.1+i*.83+2.3;c.save();c.translate(x+w/2,Math.sin(phase)*1.9+Math.sin(phase*1.73+1.2)*.9);c.rotate(Math.sin(phase*.9+i)*.14);c.globalAlpha*=alpha*(.7+.3*Math.sin(phase*.6+i*1.9));c.strokeStyle='#2c241c';c.lineWidth=2.2;c.strokeText(ch,0,0);c.fillStyle='#e8d7b4';c.fillText(ch,0,0);c.restore();x+=w});
-    }else{c.save();c.rotate((e.direction||p.evadeDirection||1)*q*Math.PI);smokeArc(c,38,-1.2,1.2,time,.26,.7,7);c.restore()}
+    }else{texture(c,'spark',19,0,24,13,0,.65);texture(c,'fireSmall',-24,4,17,10,Math.PI,.5)}
     break;
    }
    case 'halfLoop':for(const side of [-1,1])texture(c,'vaporTrail',-34,side*14,58,12,Math.PI,.2*(p.immelmannAltitude||0));break;
@@ -134,7 +143,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
    case 'incendiaryRun':texture(c,'gunSmoke',31,0,42,23,0,.3);break;
    case 'gunnerHandoff':flash(c,false,.7);flash(c,true,1.1);break;
    case 'rocketSalvo':for(const side of [-1,1])texture(c,'gunSmoke',12,side*23,32,15,0,.18);break;
-   case 'attackRun':break;
+   case 'attackRun':texture(c,'engineSmoke',-24,0,28,13,Math.PI,.2*(1-q));break;
    case 'closeAttack':break;
    case 'cloudAmbush':texture(c,'mist',-8,-20,110,28,0,.22);texture(c,'vaporTrail',-28,20,85,16,Math.PI,.18);break;
    case 'lastStand':texture(c,'smokeDark',-30-q*45,0,65+q*38,39,Math.PI,.35);break;
@@ -178,6 +187,45 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
  const safeTurn=p=>p.pilotSignatureState?.turnRate||0;
  function continuous(c,p,profile,s){
   const t=s.clock,age=s.activeAge,shot=p.muzzleFlash>0,active=p.skillTime>0;
+  if(p.pilot==='huffzky'||p.pilot==='mckeever'){
+   if(p.nineRearFlash>0){const a=(p.nineRearAim??p.a+Math.PI)-p.a;muzzleAt(c,-23,0,a,'muzzleRear',p.pilot==='huffzky'&&active?1.3:.85);}
+   if(p.nineRearTarget&&p.rearAcquire<.24){const a=Math.atan2(p.nineRearTarget.y-p.y,p.nineRearTarget.x-p.x)-p.a;texture(c,'gunSmoke',-23,0,17,9,a,.12);}
+   if(shot){const a=(p.gunDirection?.(0)??p.a)-p.a;muzzleAt(c,23,0,a,'muzzleTwin',.8);}
+   return;
+  }
+  if(p.pilot==='jacobs'){
+   if(shot&&(active||p.jacobsPressure>.25)){const near=p.jacobsPressureTarget&&Math.hypot(p.jacobsPressureTarget.x-p.x,p.jacobsPressureTarget.y-p.y)<100;
+    for(const side of [-1,1])muzzleAt(c,23,side*4,active&&!near?side*.14:0,'muzzleTwin',active?1.05:.75);
+    texture(c,'smokeDark',39,0,48,23,0,.28);texture(c,'gunSmoke',51,0,36,18,0,.32);
+   }return;
+  }
+  if(p.pilot==='hawker'){
+   if(shot){const a=(p.gunDirection?.(0)??p.a)-p.a;muzzleAt(c,25,0,a,'muzzle',p.hawkerLinkTime>0?1.1:.65);texture(c,'gunSmoke',35,0,30,13,a,.2);}return;
+  }
+  if(p.pilot==='berthold'){
+   if(active&&shot)muzzleAt(c,25,0,0,'muzzleTwin',1.2);
+   if((p.heldDamage||0)>p.maxHp*.1){texture(c,'debris',-12,15,13,9,.3,.5);texture(c,'metalShard2',-7,-12,9,5,.4,.55);}
+   return;
+  }
+  if(p.pilot==='udet'){
+   const heat=clamp(p.fxOverheat||0);if(heat>0){texture(c,'spark',24,-4,16+heat*14,9+heat*6,0,heat*(.6+.3*Math.sin(t*29)**2));texture(c,'spark',24,4,15+heat*12,10,0,heat*.6);}
+   if(active){texture(c,'fireSmall',-25,3,15,9,Math.PI,.6);texture(c,'engineSmoke',-27,0,26,12,Math.PI,.2);if(shot)muzzleAt(c,25,0,(p.gunDirection?.(0)??p.a)-p.a,'muzzleTwin',.9);}return;
+  }
+  if(p.pilot==='nungesser'){
+   const low=p.maxHp>0?clamp((1-p.hp/p.maxHp)/.8):0,strength=active?1:low;
+   if(strength>0){const tear=p.deathFogTear>0?p.deathFogTear/.32:0;
+    for(let i=0;i<5;i++){const a=i*TAU/5+t*.2,r=18+tear*14;texture(c,'smokeDark',Math.cos(a)*r-5,Math.sin(a)*r,43+strength*20,29+strength*12,a,(.02*strength+.28*strength*strength)*(1-tear*.35));}
+    if(p.hp/p.maxHp<.22||active){for(const side of [-1,1]){texture(c,'fireSmall',-8,side*15,6,11+Math.sin(t*17+side)*2,-Math.PI/2,.7);texture(c,'spark',-10,side*17,7,6,t,.35);}}
+   }return;
+  }
+  if(p.pilot==='barker'){
+   const stage=Math.max(p.barkerDamageStage||0,p.barkerScarStage||0),peak=active&&p.hp<=3&&p.skillTime<2?1:0;
+   if(stage){const n=Math.min(5,stage);for(let i=0;i<(n>=3?4:2);i++){const q=(t*(.8+n*.13)+i*.31)%1;texture(c,n>=3?'engineSmoke':'smokeDark',-25-q*(36+n*8),Math.sin(t*3+i)*(3+n),23+q*(25+n*4),15+q*15,Math.PI,(.18+n*.035)*(1-q));}
+    if(n>=2)texture(c,'debris',-14,18,16,11,.3,.65);
+    if(n>=3){texture(c,'fireEngine',-6,0,12+n*2+peak*10,10+n,0,.52+peak*.25);texture(c,'fireWing',-11,17,10+n,9,0,.3);}
+   }
+   if(shot)muzzleAt(c,25,0,(p.gunDirection?.(0)??p.a)-p.a,'muzzleTwin',.7+Math.min(5,p.barkerStacks||0)*.13+peak*.4);return;
+  }
   if(p.pilot==='udet'&&p.fxOverheat>0){
    const heat=clamp(p.fxOverheat),pulse=.7+.3*Math.sin(t*26)**2;
    texture(c,'spark',16,0,15+heat*6,10+heat*4,0,heat*.6*pulse);
