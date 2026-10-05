@@ -45,6 +45,9 @@ const THEMES={
   zeebrugge:{bpm:70,steps:12,roots:[31,31,28,31,29,31,28,26],melody:[[55,58,57,55,52,50],[53,55,52,50,48,46],[55,60,58,55,52,50],[52,55,52,50,48,46]]}
 };
 const originalKey=id=>id==='trenches'?'trench':id;
+const ruralSiege=id=>id==='paris-gun'||id==='lincomparable';
+const BOSS_TEMPO={railgun:114,naval:104,landship:112,net:118,airship:100,bomber:116,fortress:100,duel:124};
+const audibleRoot=root=>root+12*Math.ceil((45-root)/12);
 const familyFor=id=>BOSS_TRACKS[id]||({rail:'railgun',naval:'naval',split:'naval',armor:'landship',siege:'fortress',net:'net',airship:'airship',bomber:'bomber',formation:'duel',searchlight:'net'}[BOSS_ARRANGEMENTS[id]?.mechanic])||id;
 export const MUSIC_THEME_IDS=Object.freeze([...Object.keys(THEMES).filter(k=>k!=='trench'),'trenches',...Object.keys(REGIONAL_VARIATIONS)]);
 export class BattleMusic {
@@ -220,74 +223,85 @@ export class BattleMusic {
     const name=this.bossTrack(),p=i%16,bar=Math.floor(i/16),root=this.scene?this.mapRoot(this.scene.theme,bar)-5:T.roots[bar%8];
     this.scoreRoot=root;
     const final=this.scene?.state==='BOSS_FINAL';
+    const stage=this.scene?.state==='BOSS'||final,low=audibleRoot(root),lead=low+12;
     const intensity=this.scene?Math.max(.35,this.intensity):Math.min(1,elapsed/24),breath=bar%8===6;
     // The familiar boss arrangement remains the main score. Destruction strips
     // its upper voice rather than adding a second, unrelated composition.
-    if(final&&p%4===3){this.bossVariation(i,t,b,root);return;}
-    if(name==='railgun'){
-      // Siege gun: long gaps, one colossal muzzle blast, echoing breech clangs.
-      if(p===0){this.drum(t,false,1.35);this.tone(root-12,t,b*15,.22,'sine',130,.5)}
-      if(p%8===4)this.tone(root-19,t,b*2.5,.05,'sine',170,.35); // distant ember pulse
-      if(p===8&&bar%2===1)this.tone(root+7,t,b*5,.06,'square',420,.3);
-      if(p===6||p===14)this.drum(t,true,.5);
-      if(intensity>.25&&(p===2||p===10))this.tone(root+19,t,b*.9,.04,'sawtooth',1400,.01);
-      if(intensity>.6&&p===12)for(const off of [12,18])this.tone(root+off,t,b*6,.03,'sawtooth',700,.2);
+    if(final&&ruralSiege(this.scene?.bossId)&&p%4===3){this.bossVariation(i,t,b,root);return;}
+    if(name==='railgun'&&ruralSiege(this.scene?.bossId)){
+      // Rural siege: audible marching ostinato, not a nearly subsonic drone.
+      // Keep the map harmony and each gun's own brass motif on this clock.
+      const heavy=this.scene.bossId==='lincomparable';
+      if(p%2===0){
+        const off=(heavy?[0,0,1,0,7,0,1,0]:[0,0,7,0,0,3,7,1])[p/2];
+        this.tone(root+12+off,t,b*1.45,.2,'sawtooth',1100,.018);
+        if(p%4===0)this.tone(root+off,t,b*1.6,.1,'triangle',450,.012);
+      }
+      if(p%4===0)this.drum(t,false,1.15);
+      if(p===4||p===12){this.drum(t,true,.95);if(final)this.drum(t+b*.5,true,.5);}
+      const phrase=heavy?[0,1,7,6]:[0,7,3,2];
+      if(p%4===0)this.tone(root+24+phrase[(p/4+bar)%4],t,b*(final?2.1:3.3),.15,heavy?'square':'sawtooth',1600,.065);
+      if(p===6||p===14)this.tone(root+19,t,b*1.4,.09,'sawtooth',1200,.025);
+      if(final&&p===14)this.drum(t+b*.5,true,.65);
+    }else if(name==='railgun'){
+      // Carrier train: paired wheel strokes, distinct from the rural gun march.
+      if([0,2,3,4,6,8,10,11,12,14].includes(p))this.tone(low+[0,7,0,3][p%4],t,b*.95,.2,'sawtooth',1200,.012);
+      if(p===0||p===8)this.drum(t,false,1.2);
+      if(p===2||p===6||p===10||p===14)this.drum(t,true,.75);
+      if(p===0||p===6||p===12)this.tone(lead+[0,7,3][p/6],t,b*2.4,.14,'sawtooth',1500,.04);
+      if(final&&p===14)this.tone(lead+1,t,b*1.7,.12,'square',1300,.025);
     }else if(name==='naval'){
-      // Warships: rolling swell bass, foghorn fifth calls, gunfire snare rolls.
-      if(p===0||p===8){this.drum(t,false,1.1);this.tone(root,t,b*8,.17,'sawtooth',300,.35);this.tone(root-5,t,b*8,.06,'triangle',200,.4)}
-      if(p===4)this.tone(root+7,t,b*6,.08,'sawtooth',420,.4);
-      if(p===12)this.drum(t,true,.55);
-      if(intensity>.3&&p%4===2)this.tone(root+12,t,b*.8,.05,'triangle',900,.15);
-      if(intensity>.7&&p===15){this.drum(t,true,.4);this.drum(t+b*.5,true,.55)}
+      // Rolling 3+3+2 swell and answering horn calls over broadside drums.
+      if([0,3,6,8,11,14].includes(p))this.tone(low+(p%8===6?7:0),t,b*2.2,.18,'sawtooth',1000,.035);
+      if(p===0||p===6||p===8||p===14)this.drum(t,false,1.1);
+      if(p===4||p===12)this.drum(t,true,.9);
+      if(p===0||p===8)this.tone(lead+(p===8?7:0),t,b*5.6,.16,'sawtooth',1500,.1);
+      if(p===6||p===14)this.tone(lead+(final?1:3),t,b*1.7,.12,'square',1200,.04);
     }else if(name==='landship'){
       // Land armour: four-on-the-floor tread stomp, grinding bass, hull clanks.
       if(p%4===0)this.drum(t,false,1.2);
-      if(p%2===0)this.tone(root-12,t,b*.9,.15,'square',260,.01);
-      if(p===4||p===12)this.drum(t,true,.7);
-      if(p===6||p===14)this.tone(root+7,t,b*.7,.09,'sawtooth',520,.01);
-      if(intensity>.3&&p%4===2)this.tone(root+24,t,b*.5,.05,'sawtooth',1500,.008);
+      if(p%2===0)this.tone(low+(p===6||p===14?1:0),t,b*1.1,.19,'square',1050,.01);
+      if(p===4||p===12)this.drum(t,true,.95);
+      if(p===0||p===6||p===10||p===14)this.tone(lead+(p===6?7:0),t,b*1.6,.14,'sawtooth',1500,.035);
       if(intensity>.65&&p===15)this.drum(t+b*.5,true,.5);
     }else if(name==='net'){
       // Mine net / balloon apron: hypnotic pulsing grid, radar ping each bar.
-      if(p%2===0)this.tone(root-12,t,b*.42,.1,'sawtooth',380,.008);
+      if(p%2===0)this.tone(low+(p%8===6?1:0),t,b*.95,.18,'sawtooth',1100,.008);
       if(p===0||p===8)this.drum(t,false,1);
-      if(p===15)this.tone(root+36,t,b*2,.05,'sine',2400,.005);
-      if(p===6||p===14)this.drum(t,true,.5);
-      if(intensity>.35&&(p===4||p===12))this.tone(root+7,t,b*1.2,.06,'square',700,.02);
-      if(intensity>.7&&p===11)this.tone(root+24,t,b*1.5,.04,'sawtooth',1800,.008);
+      if(p===14)this.tone(lead+12,t,b*1.6,.065,'sine',2400,.005);
+      if(p===6||p===14)this.drum(t,true,.9);
+      if(p===0||p===4||p===10||p===12)this.tone(lead+(p===10?1:7),t,b*1.6,.13,'square',1400,.02);
     }else if(name==='airship'){
-      // Zeppelin / sky carrier: massive drone, slowly rising dread line.
-      if(p===0){this.tone(root-12,t,b*15,.2,'sawtooth',220,.6);this.tone(root-5,t,b*15,.07,'sine',140,.6)}
-      if(p===0||p===10)this.drum(t,false,1.15);
-      if(p===8&&bar%2===0)this.tone(root+13,t,b*7,.05,'sawtooth',600,.5);
-      if(p===14)this.drum(t,true,.5);
-      if(intensity>.3&&p===6)this.tone(root+24,t,b*3,.045,'triangle',1300,.2);
-      if(intensity>.65&&bar%4===3&&p===11)for(const off of [18,25])this.tone(root+off,t,b*4,.05,'sawtooth',1100,.2);
+      // Airship: climbing dread ostinato under a broad, heavy upper voice.
+      if([0,2,6,8,10,14].includes(p))this.tone(low+[0,1,3,7][Math.floor(p/4)],t,b*1.8,.18,'sawtooth',1000,.07);
+      if(p===0)this.tone(low-12,t,b*12,.11,'triangle',450,.2);
+      if(p===0||p===6||p===10)this.drum(t,false,1.2);
+      if(p===4||p===14)this.drum(t,true,.85);
+      if(p===0||p===8)this.tone(lead+(p===8?1:0),t,b*5.8,.16,'sawtooth',1300,.14);
+      if(p===4||p===12)this.tone(lead+7,t,b*2.4,.12,'sawtooth',1600,.1);
     }else if(name==='bomber'){
       // Heavy bombers: relentless engine chug, propeller ticks, bombs-away stabs.
-      if(p%2===0)this.tone(root-12,t,b*.55,.12,'sawtooth',330,.008);
+      if(p%2===0)this.tone(low+(p%4===2?7:0),t,b*.95,.2,'sawtooth',1150,.008);
       if(p===0||p===8)this.drum(t,false,1.15);
-      if(p===4||p===12){this.drum(t,true,.6);this.tone(root+7,t,b*.8,.08,'sawtooth',480,.01)}
-      if(p%4===2)this.tone(root,t,b*.4,.06,'square',500,.008);
-      if(intensity>.3&&p===6)this.tone(root+24,t,b*.9,.05,'sawtooth',1600,.008);
+      if(p===4||p===12){this.drum(t,true,.9);this.tone(lead+7,t,b*1.2,.12,'sawtooth',1500,.01)}
+      if(p===0||p===6||p===10||p===14)this.tone(lead+(p===10?1:0),t,b*1.7,.14,'sawtooth',1600,.025);
       if(intensity>.65&&p===15){this.drum(t,true,.4);this.drum(t+b*.5,true,.5)}
     }else if(name==='fortress'){
-      // Harbour fortress: the heaviest track — tom wall, anvil hits, doom pads.
-      if(p===0||p===5||p===10){this.drum(t,false,1.4);this.tone(root-12,t,b*4,.24,'triangle',170,.02)}
-      if(p===5||p===13)this.drum(t,true,.8);
-      if(p===15&&bar%2===1)this.tone(root+6,t,b*3,.07,'sawtooth',520,.15);
-      if(intensity>.25&&p===8)this.tone(root+24,t,b*1.4,.05,'sawtooth',1400,.01);
-      if(intensity>.6&&p===3)for(const off of [12,18,24])this.tone(root+off,t,b*5,.035,'sawtooth',800,.15);
+      // Siege batteries: displaced cannon accents and a grinding 3+3+2 tread.
+      if([0,3,6,8,11,14].includes(p))this.tone(low+(p%8===6?1:0),t,b*1.8,.2,'square',1050,.03);
+      if(p===0||p===5||p===10){this.drum(t,false,1.35);this.tone(lead+(p===5?6:0),t,b*2.8,.15,'sawtooth',1400,.06)}
+      if(p===5||p===13)this.drum(t,true,.95);
+      if(p===14)this.tone(lead+(final?1:7),t,b*1.8,.12,'sawtooth',1500,.035);
     }else{
       // Enemy ace duel: the fast breakaway dogfight track.
       if([0,2,3,6,8,10,11,14].includes(p)){
         const off=({3:7,6:1,11:6,14:12})[p]||0;
-        this.tone(root+off,t,b*.78,.24+intensity*.07,'sawtooth',430+intensity*330,.008);
+        this.tone((stage?low:root)+off,t,b*.78,.24+intensity*.07,'sawtooth',stage?1150:430+intensity*330,.008);
         this.tone(root+off-12,t,b*.9,.16,'triangle',220,.008);
       }
       if(p===0||p===8){this.drum(t,false,1.15);for(const off of [12,13,19])this.tone(root+off,t,b*7,.025+intensity*.014,'sawtooth',900,.18)}
       if(intensity>.2&&!breath){
-        this.tone(root+24+[0,1,7,6][i%4],t,b*.46,.035+intensity*.025,'sawtooth',1900,.007);
+        this.tone((stage?lead:root+24)+[0,1,7,6][i%4],t,b*(stage?1.1:.46),stage?.12:.035+intensity*.025,'sawtooth',1900,.007);
         if(intensity>.65)this.tone(root+36+[7,6,1,0][i%4],t+b*.5,b*.4,.025,'triangle',2300,.006);
       }
       if(p===6||p===14)this.drum(t,true,.65+intensity*.4);
@@ -337,8 +351,9 @@ export class BattleMusic {
   bossVariation(i,t,b,root){
     const scene=this.scene,B=BOSS_ARRANGEMENTS[scene?.bossId];if(!B)return;
     const p=i%16,bar=Math.floor(i/16),final=scene.state==='BOSS_FINAL',parts=scene.parts??1;
-    const q=d=>root+12+[0,2,3,5,7,8,10][((d%7)+7)%7]+12*Math.floor(d/7);
-    if(B.steps.includes(p)&&(!final||p%2===0))this.voice(final?B.finalVoice:B.voice,q(B.notes[(bar+p)%B.notes.length]),t,b*(final?1.1:1.8),.04+.02*parts);
+    const stronger=!ruralSiege(scene.bossId),base=stronger?audibleRoot(root)+12:root+12;
+    const q=d=>base+[0,2,3,5,7,8,10][((d%7)+7)%7]+12*Math.floor(d/7);
+    if(B.steps.includes(p)&&(!final||p%2===0))this.voice(final?B.finalVoice:B.voice,q(B.notes[(bar+p)%B.notes.length]),t,b*(stronger?(final?1.5:2.5):(final?1.1:1.8)),stronger?.1+.025*parts:.04+.02*parts);
     if(B.mechanic==='rail'){
       for(const [car,step,offset] of [['car-rear',1,12],['car-middle',5,7],['car-front',9,0]])
         if(scene.cars?.[car]&&p===step)this.tone(root+offset,t,b*.45,.055,'square',450,.015);
@@ -373,7 +388,9 @@ export class BattleMusic {
       const elapsed=Math.max(0,now-(this.bossSince||0));
       const bossT=this.bossTrack(),T=bossT?BOSS_SCORES[bossT]||BOSS_SCORES.duel:null;
       const map=THEMES[originalKey(this.mode)]||REGIONAL_VARIATIONS[this.mode]||THEMES.rural;
-      const targetTempo=T?T.bpm+Math.min(T.ramp,elapsed*3):map.bpm;
+      const siege=T&&ruralSiege(this.scene?.bossId);
+      const stage=T&&(this.scene?.state==='BOSS'||this.scene?.state==='BOSS_FINAL');
+      const targetTempo=siege?100+Math.min(20,elapsed)+(this.scene.state==='BOSS_FINAL'?6:0):stage?BOSS_TEMPO[bossT]+Math.min(14,elapsed*.6)+(this.scene.urgency||0)*8+(this.scene.state==='BOSS_FINAL'?6:0):T?T.bpm+Math.min(T.ramp,elapsed*3):map.bpm;
       // Legacy setState callers retain their original accelerating boss score.
       this.tempo=this.scene?(this.tempo??targetTempo)+(targetTempo-(this.tempo??targetTempo))*.12:targetTempo;
       const b=60/this.tempo/2;
