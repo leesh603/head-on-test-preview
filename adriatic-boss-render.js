@@ -1,3 +1,4 @@
+import {drawShipWater} from './naval-water.js?v=naval-r2';
 import {ZUBIAN_LAYOUT,zubianSize} from './adriatic-boss-layout.js?v=485';
 import {fx,fxReady} from './fx-art.js?v=485';
 
@@ -8,12 +9,7 @@ export const ZUBIAN_DAMAGE_FRAMES=Object.freeze({
  rear:[641,312,286,446],rearWreck:[646,1073,288,443]
 });
 function atlasSprite(c,image,frame,x,y,width,height){if(!image?.naturalWidth)return false;c.drawImage(image,...frame,x-width/2,y-height/2,width,height);return true;}
-export function drawNavalWake(c,b,width,height){
- if(!fxReady('foamRing')||b.destroying||!(b.driveVelocity>1))return;
- const age=b.motionTime||b.time||0;c.save();c.globalAlpha*=Math.min(.6,b.driveVelocity/42);
- for(let i=0;i<6;i++){const t=(age*.4+i*.16)%1;fx(c,'foamRing',0,height*.36+t*height*.46,width*(.38+t*1.05),width*(.11+t*.26),0,(1-t)*.52);}
- c.restore();
-}
+export function drawNavalWake(c,b,width,height){const a=b.hullYaw??b.angle??0,ca=Math.cos(a),sa=Math.sin(a);drawShipWater(c,{...b,x:0,y:0,hullYaw:0,wakeTrail:(b.wakeTrail||[]).map(p=>({...p,x:(p.x-b.x)*ca+(p.y-b.y)*sa,y:-(p.x-b.x)*sa+(p.y-b.y)*ca}))},width,height);}
 export function drawZubianShip(c,b,images){
  const role=b.assetKey.endsWith('front')?'front':b.assetKey.endsWith('rear')?'rear':null;
  const size=zubianSize({...b,role,t:{geometryScale:b.geometryScale}}),s=b.geometryScale||1;

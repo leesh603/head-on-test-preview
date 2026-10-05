@@ -1,0 +1,126 @@
+{
+  "renderer": "native Skia; not browser/device verification",
+  "metrics": [
+    {
+      "mode": "solo",
+      "faction": "central",
+      "region": 1,
+      "seconds": 60,
+      "maxRounds": 12,
+      "hpLost": 598,
+      "allyHullIsolation": true,
+      "wakeCap": 24
+    },
+    {
+      "mode": "solo",
+      "faction": "central",
+      "region": 7,
+      "seconds": 60,
+      "maxRounds": 14,
+      "hpLost": 598,
+      "allyHullIsolation": true,
+      "wakeCap": 24
+    },
+    {
+      "mode": "solo",
+      "faction": "central",
+      "region": 16,
+      "seconds": 60,
+      "maxRounds": 12,
+      "hpLost": 598,
+      "allyHullIsolation": true,
+      "wakeCap": 24
+    },
+    {
+      "mode": "solo",
+      "faction": "entente",
+      "region": 1,
+      "seconds": 60,
+      "maxRounds": 12,
+      "hpLost": 598,
+      "allyHullIsolation": true,
+      "wakeCap": 24
+    },
+    {
+      "mode": "solo",
+      "faction": "entente",
+      "region": 7,
+      "seconds": 60,
+      "maxRounds": 14,
+      "hpLost": 598,
+      "allyHullIsolation": true,
+      "wakeCap": 24
+    },
+    {
+      "mode": "solo",
+      "faction": "entente",
+      "region": 16,
+      "seconds": 60,
+      "maxRounds": 12,
+      "hpLost": 598,
+      "allyHullIsolation": true,
+      "wakeCap": 24
+    },
+    {
+      "mode": "coop",
+      "faction": "central",
+      "region": 1,
+      "seconds": 60,
+      "maxRounds": 12,
+      "hpLost": 598,
+      "allyHullIsolation": true,
+      "wakeCap": 24
+    },
+    {
+      "mode": "coop",
+      "faction": "central",
+      "region": 7,
+      "seconds": 60,
+      "maxRounds": 14,
+      "hpLost": 598,
+      "allyHullIsolation": true,
+      "wakeCap": 24
+    },
+    {
+      "mode": "coop",
+      "faction": "central",
+      "region": 16,
+      "seconds": 60,
+      "maxRounds": 12,
+      "hpLost": 598,
+      "allyHullIsolation": true,
+      "wakeCap": 24
+    },
+    {
+      "mode": "coop",
+      "faction": "entente",
+      "region": 1,
+      "seconds": 60,
+      "maxRounds": 12,
+      "hpLost": 598,
+      "allyHullIsolation": true,
+      "wakeCap": 24
+    },
+    {
+      "mode": "coop",
+      "faction": "entente",
+      "region": 7,
+      "seconds": 60,
+      "maxRounds": 14,
+      "hpLost": 598,
+      "allyHullIsolation": true,
+      "wakeCap": 24
+    },
+    {
+      "mode": "coop",
+      "faction": "entente",
+      "region": 16,
+      "seconds": 60,
+      "maxRounds": 12,
+      "hpLost": 598,
+      "allyHullIsolation": true,
+      "wakeCap": 24
+    }
+  ],
+  "existingMissingAssets": []
+}

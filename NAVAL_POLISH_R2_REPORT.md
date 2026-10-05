@@ -1,0 +1,32 @@
+# HEAD-ON 해상 전투 품질 보완 R2
+
+- 기준 main: `d5103008c0901397409be2ca887515ffaa29021a` (v485). 이 main은 기존 유틀란트 작업을 포함하며 유틀란트 지역 번호는 16이다.
+- 브랜치: `feat/naval-combat-polish`. main 변경/병합/본섭 배포 없음.
+
+## 요청 6개 반영
+
+1. 유틀란트 어뢰의 타원 몸체와 선 항적을 제거했다. 실제 1916년식 금속 어뢰/추진 거품/함수파 3프레임 `naval-water-atlas.webp`를 생성했다. 기존 승인 `ship-wake.webp`를 함께 사용한다. 공격 경고선/원은 회피 안내 UI로 유지한다.
+2. 일반 함선은 기본 엔진과 함대 업데이트가 각각 이동시키던 중복을 제거했다. 기본 이동 속도는 0, 해상 시뮬레이션 한 곳에서 가속/최대 선회율/항해를 처리한다. 선미 월드 좌표 이력(최대 24개, 14초)에 거품이 남고 함수파가 선수에서 갈라진다. 유틀란트 전함/순양함은 더 큰 선회 반경과 가속을 적용했다. 아드리아해의 슈투트가르트/쥬비안 및 제브뤼헤 일반 함선도 공통 함수파·항적 렌더를 사용한다. 제브뤼헤는 내항 10400 이후 새 함선을 만들지 않고 외항 수로 한계를 유지한다.
+3. 유틀란트 관측 비행선 격파 시 화재·연기·회전·축소 후 2.65초 내 소멸한다. 함선 3척 격파 후 살아남은 관측선은 앞으로 비행하며 페이드 퇴각한다. 공중 비행선에 침몰 수면 FX를 그리지 않는다. 전함 잔해도 기울며 가라앉고 사라진다. 소멸 시간은 시뮬레이션에서만 증가하고 pause 중 멈춘다.
+4. 공유 전함의 주기 수상기 날개에 박힌 철십자를 imagegen으로 제거한 중립 선체를 추가했다. 기존 공식 roundel/cross SVG를 선체/날개 위에 진영별로 합성한다. 원본 선체와 부위 아틀라스는 보존한다. 선체 렌더 실루엣 마스크로 외곽 매트가 바다에 섞이지 않게 한다.
+5. 세 바다맵에 아군 구축함/대공순양함 2척을 정기 배치한다. 적 함선과 반대 측면/침로로 진입하고 양측은 실제 함포 위치에서 포격·리드 조준·HP 피해를 주고받는다. 아군은 적 엔티티 목록 밖에 있어 플레이어 공격 대상이 아니다. 함대 교전 포탄은 별도 24발 상한 풀로 처리하며 플레이어 HP/격추 수를 건드리지 않는다. 수상 목표가 없으면 기존 대공 지원을 사용한다. 솔로/협동 모두 연결, 전장 전환 정리.
+6. 마지막 적 생성 단계에서 바다 일반 scout/hunter/bomber의 수상기 선택 비중을 82%로 올렸다. 기존 일반 기체 선택이 덮어쓰던 문제를 방지한다. 진영별 CC/W.29/FF.33/로너 L 또는 마키 M.5/M.3, 폭격 수상기 FF.33/로너 L/마키 M.3. 정예/에이스/대형 폭격기/전용 편대는 기존 설정 유지.
+
+## 검증
+
+- `node --test tests/*.test.mjs`: **450/450 통과**, 기존 443개 + 신규 7개. 선회 이동 검증의 최대 이동 속도만 새 함선 항해 속도에 맞춰 갱신했다.
+- `node tools/qa-jutland-engine.mjs`: 솔로/협동 × 양 진영 × 두 폭, 8개 각각 60초 통과. 실제 호스트 충돌/독립 격파/퇴각/보상/정리/pause, 공격 풀 드롭 0.
+- `tools/qa-naval-polish.mjs`: 솔로/협동 × 양 진영 × 세 바다 지역, 12개 각각 60초. 양측 실제 HP 감소, 아군 충돌 목록 분리, 항적 24개 이내, 교전 포탄 최대 14/상한24.
+- Skia 실제 렌더: 유틀란트 390×844/1440×900 양 진영; 함선 교전과 어뢰 근접, 비행선 추락/퇴각 0/1.3/2.8초 프레임. 함대 QA 스크린샷 수면은 공통 유틀란트 수면을 사용한 렌더 확인이며 각 지역 맵 전체 실플레이 캡처가 아니다.
+- 신규/해상 에셋 로딩 누락 0. main에는 `mech/` 에셋 경로 및 `goering_fokkerd7.webp`, `loewenhardt_fokkerd7.webp`, `mccudden_se5a.webp` 누락이 있어 Skia에서는 공식 `?mech=0` 경로를 사용하고 기존 누락은 결과 JSON에 기록했다. 해당 기존 기체 로더는 변경하지 않았다.
+- `git diff --check`: 통과.
+- 원격 구현 커밋 `b9f5993`의 Chrome에서 유틀란트 보스 시작·중립 선체·동맹국 표식·한국어 HUD와 타이머/탄약 갱신을 확인했다. `qa/naval-polish/browser-r2.jpg` 캡처 포함. 기존 aircraft.js / portraits.js / battlefield-art.js에서 cross-origin getImageData SecurityError가 계속 발생했다. 따라서 오류 없는 전체 PC/모바일 실플레이 및 전 패턴/함대 교전 브라우저 검증은 **미검증**. 보안 우회 및 무관한 로더 수정 없음. 자동 테스트/Skia를 실플레이 완료로 간주하지 않는다.
+
+## 수정 파일
+
+`naval-water.js`, `naval-water-atlas.webp`, `jutland-battleship-neutral.webp`, `fleet-naval1.js`, `engine.js`, `coop-engine.js`, `adriatic-boss-render.js`, `jutland-boss.js`, `jutland-view.js`, `jutland-atlas.js`, `stageboss-view.js`, `headon-stageboss-render.js`, `headon-stageboss-runtime.js`, `jutland-fleet-cut-in.webp`, `tests/naval-polish.test.mjs`, `tests/jutland-stage.test.mjs`, `tools/qa-naval-polish.mjs`, 기존 유틀란트 QA 도구 및 `qa/naval-polish/`, `qa/jutland/render-metrics.json`.
+
+## 에셋 제작 기록
+
+Built-in imagegen 사용. 첫 프롬프트: 투명 탑뷰 WW1 해상 효과 아틀라스, 3개 거품 함수파/상향 Whitehead 어뢰/2개 추진 항적, 상세하고 채도 낮은 HEAD-ON 결, 도형·화염·UI·배경 없음. 생성 파일은 1536×1024이고 실제 위치를 측정한 소스 rect로 소비한다.
+중립 선체 프롬프트: 원본 3상태 전함의 좌표·팔레트·세부 구조 유지, 수상기 날개 철십자만 제거하고 낡은 천으로 복원, 투명도 유지. 추가 배경 추출 시도는 색감이 달라 사용하지 않고 첫 중립 편집본에 렌더 실루엣 마스크를 적용했다.
