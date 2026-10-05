@@ -1,3 +1,4 @@
+import {applySeaColor} from './sea-colors.js?v=1';
 import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js';
 export const TERRAIN_PROFILES=Object.freeze({
  rural:{name:'전원 지대',src:'./terrain-rural359.webp?v=485&b=326',base:'#424b3b',strength:1.25},
@@ -82,7 +83,7 @@ export class TerrainRenderer {
  setAtlas(atlas){this.atlas=atlas;this.tiles.clear();}
  setDetail(detail){this.detail=clamp(detail,.25,1);this.tiles.clear();}
  sizeFor(key){return TERRAIN_PROFILES[key]?.tileSize??this.tileSize;}
- _rememberTile(key,c){applyTerrainAtmosphere(c.getContext('2d'),key,c.width,c.height);this.tiles.set(key,c);let pixels=0;for(const t of this.tiles.values())pixels+=t.width*t.height;while(this.tiles.size>1&&(this.tiles.size>4||pixels>4*768*768)){const oldest=this.tiles.keys().next().value,t=this.tiles.get(oldest);pixels-=t.width*t.height;this.tiles.delete(oldest);}return c;}
+ _rememberTile(key,c){if(key==='sea')applySeaColor(c.getContext('2d'),'adriatic',c.width,c.height);applyTerrainAtmosphere(c.getContext('2d'),key,c.width,c.height);this.tiles.set(key,c);let pixels=0;for(const t of this.tiles.values())pixels+=t.width*t.height;while(this.tiles.size>1&&(this.tiles.size>4||pixels>4*768*768)){const oldest=this.tiles.keys().next().value,t=this.tiles.get(oldest);pixels-=t.width*t.height;this.tiles.delete(oldest);}return c;}
  tile(key){const p=TERRAIN_PROFILES[key];if(!p)throw new Error('Unknown terrain '+key);
   // Per-profile tile art (cambrai) renders straight from its own texture; cache
   // the composite only once the image is actually decoded so the first frames
