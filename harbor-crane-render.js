@@ -1,4 +1,4 @@
-import {HARBOR_BOOM,harborScale,harborCranePose} from './harbor-crane-layout.js?v=484';
+import {HARBOR_BOOM,harborScale,harborCranePose} from './harbor-crane-layout.js?v=485';
 import {fx} from './fx-art.js?v=485';
 
 export const HARBOR_FRAMES=Object.freeze({arm:[0,0,627,390],armBroken:[627,0,627,390],ammo:[0,390,627,458],ammoBroken:[627,390,627,458],facility:[0,848,627,406],facilityBroken:[627,848,627,406]});

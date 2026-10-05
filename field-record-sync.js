@@ -4,7 +4,7 @@
 // never drift from what the game actually shows.
 import{Game,PILOTS,PILOT_PLANES,pilotLoadout}from'./engine.js?v=485';
 import {pilotIdentityCopy} from './pilot-identity-copy.js';
-import {getLocale,pilotName} from './i18n.js?v=484';
+import {getLocale,pilotName} from './i18n.js?v=485';
 for(const p of DATA.pilots){
  const loadout=PILOTS[p.key]?pilotLoadout(p.key,PILOT_PLANES[p.key]||'fokker'):null;
  if(!loadout)continue;const locale=getLocale(),copy=pilotIdentityCopy(p.key,locale);
