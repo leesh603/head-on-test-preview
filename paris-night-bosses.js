@@ -83,26 +83,38 @@ export class ParisSearchlightFortress extends ParisBoss {
   }
   livePart(id){return !this.parts.get(id).destroyed;}
   generators(){return ['generator-left','generator-right'].filter(id=>this.livePart(id)).length;}
+  functioningLights(){return [...this.parts.values()].filter(p=>p.kind==='searchlight'&&!p.destroyed&&(p.id!=='light-main'||this.generators()>0)).length;}
   openingSeconds(){return [4.8,3.8,2.8][this.generators()];}
   warningSeconds(){return 1.15;}
   beatSeconds(){return this.warningSeconds()+this.activeSeconds()+.15;}
   activeSeconds(){return this.generators()===2?1.6:1.4;}
   scanSeconds(){return this.beatSeconds()*3+this.warningSeconds()+this.activeSeconds()+2;}
   startOpening(){
+    if(this.phase==='last-stand')return;
     this.phase='cooldown';this.rhythmTime=0;this.coreVulnerable=true;this.locks.clear();this.routeBearings.clear();
     for(const p of this.parts.values())if(p.kind==='searchlight')this.command('cancel-hazards',{tag:this.id+':'+p.id});
     this.command('cancel-hazards',{tag:this.id+':focus'});
     this.command('phase-change',{phase:'cooldown',seconds:this.openingSeconds()});
   }
+  startLastStand(){
+    this.phase='last-stand';this.coreVulnerable=true;this.rhythmTime=0;this.locks.clear();this.routeBearings.clear();
+    this.lastStandSlot=0;this.lastStandIn=.35;
+    for(const p of this.parts.values())if(p.kind==='searchlight')this.command('cancel-hazards',{tag:this.id+':'+p.id});
+    this.command('cancel-hazards',{tag:this.id+':focus'});
+    this.command('phase-change',{phase:'last-stand'});
+  }
   onPartDestroyed(p){
     this.command('cancel-hazards',{tag:this.id+':'+p.id});
-    if(p.id.startsWith('generator-')&&!this.generators()){
+    if(!this.functioningLights()){
+      if(this.phase!=='last-stand')this.startLastStand();
+      return;
+    }
+    if(p.id.startsWith('generator-')&&!this.generators()&&this.phase!=='last-stand'){
       this.command('cancel-hazards',{tag:this.id+':light-main'});this.startOpening();
     }
-    if(![...this.parts.values()].some(p=>p.kind==='searchlight'&&!p.destroyed)&&this.phase!=='cooldown')this.startOpening();
   }
   hit(attack){
-    const multiplier=!attack.partId&&this.phase==='cooldown'?1.7:1;
+    const multiplier=!attack.partId&&['cooldown','last-stand'].includes(this.phase)?1.7:1;
     return super.hit({...attack,damage:attack.damage*multiplier});
   }
   corridorOffset(target,mount,escape,direction,halfAngle){
@@ -166,11 +178,37 @@ export class ParisSearchlightFortress extends ParisBoss {
     for(const id of ['mg-left','mg-right'])this.fan(this.parts.get(id),target,this.livePart('command')?6:3,.33,this.id+':focus',this.t.damage*.8,1.25);
     this.command('paris-light-lock',{targetId:record.id,seconds:record.remaining,x:target.x,y:target.y});
   }
-  update(dt,{players=[],bounds,isIlluminated}){
-    if(this.dead)return;
+  lastStand(dt,players){
+    const targets=live(players);if(!targets.length)return;
+    this.lastStandIn-=dt;if(this.lastStandIn>0)return;
+    // Keep destroyed mounts' empty slots: each removed weapon opens a real
+    // gap in the four-step battery, rather than accelerating survivors.
+    const slot=this.lastStandSlot++,id=['aa-left','mg-left','aa-right','mg-right'][slot%4];
+    this.lastStandIn=1.1;if(!this.livePart(id))return;
+    const gun=this.parts.get(id),target=targets[(slot+Math.floor(slot/4))%targets.length];
+    const x=this.x+gun.x,y=this.y+gun.y,tag=this.id+':'+id;
+    this.command('muzzle',{x,y,partId:id});
+    if(id.startsWith('aa-')){
+      // Two locked, sequential impacts can be escaped at normal flight
+      // speed. No light exposure prediction or continued player tracking.
+      for(let i=0;i<2;i++)this.hazard('circle',{x:target.x+(i?42:0),y:target.y,delay:i*.3,radius:32,warning:.8,duration:.25,
+        once:true,damage:this.t.damage*.65,visual:'aa-flak',sourceX:x,sourceY:y,partId:id,targetId:target.id,tag});
+    }else{
+      const aim=Math.atan2(target.y-y,target.x-x),count=clamp(Math.ceil(3*(this.t.projectileDensity??1)),1,3),speed=this.t.bulletSpeed*.85;
+      for(let i=0;i<count;i++){
+        const angle=aim+(count===1?0:(i/(count-1)-.5)*.38);
+        this.hazard('projectile',{x,y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,radius:4,warning:.65,duration:3.2,
+          damage:this.t.damage*.45,visual:'staaken-mg',sourceX:x,sourceY:y,partId:id,targetId:target.id,tag});
+      }
+    }
+  }
+  update(dt,{players=[],bounds,isIlluminated,paused=false}){
+    if(this.dead||paused||dt<=0)return;
+    if(!this.functioningLights()&&this.phase!=='last-stand')this.startLastStand();
+    if(this.phase==='last-stand'){this.lastStand(dt,players);return;}
     this.rhythmTime+=dt;
     if(this.phase==='cooldown'){
-      if(this.rhythmTime>=this.openingSeconds()&&[...this.parts.values()].some(p=>p.kind==='searchlight'&&!p.destroyed)){
+      if(this.rhythmTime>=this.openingSeconds()&&this.functioningLights()){
         this.phase='scan';this.rhythmTime=0;this.rhythmBeat=0;this.rhythmCycle++;this.coreVulnerable=false;
       }
       return;

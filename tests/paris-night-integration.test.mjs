@@ -2,10 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {Game} from '../engine.js';
-import {ensureParisBattle,handleParisCue,tickParisBattle} from '../paris-night-battle.js';
+import {ensureParisBattle,handleParisCue,tickParisBattle,parisStatus} from '../paris-night-battle.js';
 import {BossStages} from '../headon-stageboss-runtime.js';
 import {createBossEncounter} from '../headon-stageboss-patterns.js';
 import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from '../paris-night-atlas.js';
+import {bossTactic} from '../boss-feedback.js';
 const game=()=>({x:0,y:0,t:0,state:'playing',kills:0,viewWidth:960,viewHeight:700,events:[],combatBlast(){},event(type,text){this.events.push({type,text})},stageBoss:{stages:{stageIndex:15,teamFaction:'entente',encounter:{completed:false,bodies:new Map()}}}});
 test('Paris keeps faction-specific independent boss IDs and appended route',()=>{
  for(const [team,id] of [['central','paris-searchlight-fortress'],['entente','paris-staaken-rvi']]){
@@ -42,10 +43,29 @@ test('Paris mobile sizing keeps the airframe, mounts and core collision at one s
   const g=new Game(pilot==='baron'?'fokker':'camel',pilot,()=>.5);g.viewWidth=width;g.update(.001);
   const a=g.stageBoss;a.stages.stageIndex=15;g.region=15;
   a.startBoss({x:0,y:0});const b=a.stages.encounter.bodies.values().next().value;
-  assert.equal(b.t.geometryScale,1);assert.equal(b.coreRadius,pilot==='baron'?55:45);
-  assert.equal(b.parts.get(pilot==='baron'?'light-nw':'engine-0').radius,pilot==='baron'?51:35);
-  assert.equal(b.layout.width,pilot==='baron'?1180:1120);
+  const scale=pilot==='baron'?1:.56;
+  assert.equal(b.t.geometryScale,scale);assert.equal(b.coreRadius,(pilot==='baron'?55:45)*scale);
+  const target=b.parts.get(pilot==='baron'?'light-nw':'engine-0');
+  assert.equal(target.radius,(pilot==='baron'?51:35)*scale);
+  assert.equal(b.layout.width*scale,pilot==='baron'?1180:627.2);
+  if(pilot==='fonck'){
+   b.a=-Math.PI/2;b.rotateMounts();
+   assert.equal(b.locateHit({x:b.x+target.x,y:b.y+target.y,radius:4}).partId,'engine-0');
+   assert.equal(b.locateHit({x:b.x-279,y:b.y-142,radius:4}),null,'Old oversized engine position is no longer hittable');
+  }
  }
+});
+
+test('Fortress HUD separates its final battery defense from a quiet blackout',()=>{
+ const g=game(),b=ensureParisBattle(g);b.role='attack';
+ g.stageBoss.stages.encounter.bossId='paris-searchlight-fortress';
+ const gun={kind:'gun',destroyed:false},body={kind:'paris-searchlight-fortress',phase:'last-stand',coreVulnerable:true,parts:new Map([['aa-left',gun]])};
+ g.stageBoss.stages.encounter.bodies.set('b',body);
+ assert.equal(parisStatus(g),'탐조등 제압 · 잔여 포대 회피 · 지휘부 공격');
+ assert.equal(bossTactic(g.stageBoss.stages.encounter),'포격 예고와 기관총 사격 회피 · 남은 포대부터 제압');
+ gun.destroyed=true;assert.equal(parisStatus(g),'포대 제압 · 지휘부 공격');
+ assert.equal(bossTactic(g.stageBoss.stages.encounter),'방공 무장 제압 · 노출된 지휘부를 공격하세요');
+ body.phase='cooldown';assert.equal(parisStatus(g),'소등 · 지휘부 공격');
 });
 test('Destroying one rack cancels only its own pending city bombs',()=>{
  const g=game(),b=ensureParisBattle(g);for(const [bossId,rackId] of [['b','bomb-bay-left'],['b','bomb-bay-right'],['other','bomb-bay-left']])handleParisCue(g,{type:'city-bomb',bossId,rackId,targetId:'rail',seconds:1,damage:16});

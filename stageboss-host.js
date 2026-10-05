@@ -86,7 +86,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     ,'wustenpanzer':{geometryScale:1,mobileBoss:false,coreRadius:108}
     ,'jutland-grand-fleet':{geometryScale:1,mobileBoss:false,motionMultiplier:1}
     ,'gallipoli-fortress':{geometryScale:1,mobileBoss:false,motionMultiplier:0,coreRadius:115}
-    ,'paris-staaken-rvi':{geometryScale:1,mobileBoss:false,motionMultiplier:1,coreRadius:45,partHp:maxHp*.065}
+    ,'paris-staaken-rvi':{geometryScale:.56,mobileBoss:false,motionMultiplier:1,coreRadius:45,partHp:maxHp*.065}
     ,'paris-searchlight-fortress':{geometryScale:1,mobileBoss:false,motionMultiplier:1,coreRadius:55,partHp:maxHp*.055}
     ,'sinai-landship':{geometryScale:1,mobileBoss:false,coreRadius:120}
    }[bossId]||{};
