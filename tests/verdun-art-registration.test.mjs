@@ -26,7 +26,7 @@ const near=(a,b)=>assert(Math.abs(a-b)<1e-7,`${a} != ${b}`);
 function matches(call,frame){return call.args.slice(0,4).every((x,i)=>x===frame.rect[i])}
 
 test('foundation centers stay fixed while illustrated gun tips match native muzzle positions',async()=>{
- const {drawVerdunFort,releaseVerdunAssets}=await import('../verdun-art.js?v=483');
+ const {drawVerdunFort,releaseVerdunAssets}=await import('../verdun-art.js?v=485');
  try{
   for(const [Ctor,key,id,kind]of [[FortDouaumont,'douaumont','heavy-left','heavy'],[FortSouville,'souville','pit-left','pit']]){
    const b=new Ctor({id:'visual',x:513,y:-217,tuning:{maxHp:4000,damage:20,bulletSpeed:260,verdunScale:.8},emit(){}}),p=b.parts.get(id);

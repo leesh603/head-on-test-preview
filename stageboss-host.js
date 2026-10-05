@@ -1,17 +1,18 @@
 import {tickRegionalConditions} from './region-doctrine1.js?v=484';
 
 import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=484';
-import {handleMaanCue} from './maan-view.js?v=484';
+import {handleMaanCue} from './maan-view.js?v=485';
 import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=484';
+import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=485';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=484';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=484';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=484';
-import {bossSoundFor} from './boss-feedback.js?v=484';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=484';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=485';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=485';
+import {bossSoundFor} from './boss-feedback.js?v=485';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=485';
 import {advanceCambraiBug} from './cambrai-bug-flight.js?v=484';
 import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=484';
 
-export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭','마안 전투','갈리폴리 전선'];
+export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭','마안 전투','갈리폴리 전선','1918 파리 야간공습'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const players=g=>g.players||[g];
@@ -82,6 +83,8 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     ,'fort-souville':{geometryScale:1,mobileBoss:false,motionMultiplier:0}
     ,'wustenpanzer':{geometryScale:1,mobileBoss:false,coreRadius:108}
     ,'gallipoli-fortress':{geometryScale:1,mobileBoss:false,motionMultiplier:0,coreRadius:115}
+    ,'paris-staaken-rvi':{geometryScale:Math.min(1,(g.viewWidth||960)/620),mobileBoss:false,motionMultiplier:1,coreRadius:45,partHp:maxHp*.065}
+    ,'paris-searchlight-fortress':{geometryScale:Math.min(1,(g.viewWidth||960)/620),mobileBoss:false,motionMultiplier:1,coreRadius:53,partHp:maxHp*.055}
     ,'sinai-landship':{geometryScale:1,mobileBoss:false,coreRadius:120}
    }[bossId]||{};
    return {regionalViewWidth:g.viewWidth||960,regionalViewHeight:g.viewHeight||700,regionalPlayerY:g.y,loopIndex:loop,projectileDensity:density,maxHp,partHp:maxHp*.12,damage:Math.round(18*(1+g.t/240)*(1+Math.min(.5,loop*.12))),bulletSpeed:270,coreRadius:150,
@@ -116,6 +119,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    if(handleVerdunCue(g,event))return;
    if(handleMaanCue(g,event,body))return;
    handleLondonCue(g,event);
+   handleParisCue(g,event);
    const x=event.x??body?.x??g.x,y=event.y??body?.y??g.y;
    const sound=bossSoundFor(event,body?.kind||event.bossId);if(sound)g.event('bossSound',sound);
    if(event.type==='city-mine-lane'&&body?.kind==='drachen-net')for(const f of g.hostileMinefields||[])if(f.encounterId===event.encounterId)for(const m of f.mines)if(Math.abs((m.targetX??m.x)-event.x)<event.width/2){m.dead=true;m.chainHandled=true;}
@@ -180,6 +184,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    const fortresses=[...g.stageBoss?.stages.encounter?.bodies.values()||[]].filter(b=>b.fortressBoss);
    if(fortresses.length)g.verdunWrecks=[...(g.verdunWrecks||[]),...fortresses];
    if(g.londonBattle){g.londonBattle.cleared=true;if(g.londonBattle.role==='defend')for(const d of g.londonBattle.districts.filter(d=>d.hp>0))(g.drops||=[]).push({x:d.x,y:d.y,value:24,bossReward:true});}
+   if(g.parisBattle)g.parisBattle.cleared=true;
    g.kills++;g.priorityKills=(g.priorityKills||0)+1;const owner=players(g).find(p=>(p.id||'p1')===g.stageBossLastOwner);if(g.players&&owner)owner.kills++;
    g.event('kill','');g.event('wave',BOSS_CATALOG[bossId].name+' 격파 · 다음 지역 진입');
    const hero=players(g)[0]||g;for(let i=0;i<9;i++){const a=i*.7;(g.drops||=[]).push({x:hero.x+Math.cos(a)*70,y:hero.y+Math.sin(a)*70,value:16,heal:i===0,bossReward:true})}
@@ -290,7 +295,7 @@ export function beginStageBossFrame(g,dt){
  addon.reconcile({blocked:false});
  for(const p of players(g))for(const [id,s]of p.bossStatuses||[]){s.remaining-=dt;if(s.remaining<=0||!alive(p))p.bossStatuses.delete(id);}
  g.bossCues=g.bossCues.filter(c=>(c.life-=dt)>0&&(c.type!=='bug-flight-target'||g.enemies.some(e=>e.id===c.minionId&&e.hp>0)));
- tickLondonBattle(g,dt);tickVerdunBattle(g,dt);tickMaanWeather(g,dt);tickRegionalConditions(g,dt);if(blocked(g))return;
+ tickLondonBattle(g,dt);tickParisBattle(g,dt);tickVerdunBattle(g,dt);tickMaanWeather(g,dt);tickRegionalConditions(g,dt);if(blocked(g))return;
  // Warning-phase mines physically travel from the winch to their final slots;
  // collision stays disabled until they settle, and pause freezes both clocks.
  for(const field of g.hostileMinefields||[])if(field.encounterId&&field.deploySeconds>0){const q=clamp(1-field.warning/field.deploySeconds,0,1),ease=q*q*(3-2*q);for(const m of field.mines)if(!m.dead){m.x=field.sourceX+(m.targetX-field.sourceX)*ease;m.y=field.sourceY+(m.targetY-field.sourceY)*ease-Math.sin(q*Math.PI)*32;m.deploying=q<1;}if(q>=1)field.deploySeconds=0;}
@@ -362,7 +367,7 @@ export function endStageBossFrame(g,dt){
  const bounds=stageBossBounds(g),playerFrames=players(g).map(p=>({id:p.id||'p1',alive:alive(p),x:p.x,y:p.y,vx:Number.isFinite(p.previousX)?(p.x-p.previousX)/Math.max(dt,1/120):0,vy:Number.isFinite(p.previousY)?(p.y-p.previousY)/Math.max(dt,1/120):0,radius:12,londonRiver:addon.stages.stageIndex===11&&londonRiverCover(p.x,p.y)}));
  const defenderFrames=addon.stages.stageIndex===9?formationDefenders(g).map(a=>formationDefenderFrame(g,a)):[];
  if(addon.stages.stageIndex===13)for(const p of playerFrames)p.sandCover=maanSandCover(g.maanWeather,p.x,p.y);
- const frame={paused:blocked(g),players:defenderFrames.length?defenderFrames:playerFrames,bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings,londonTargets:g.londonBattle?.districts||[]};
+ const frame={paused:blocked(g),players:defenderFrames.length?defenderFrames:playerFrames,bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings,londonTargets:g.londonBattle?.districts||[],parisTargets:g.parisBattle?.districts||[]};
  addon.tick(dt,frame);addon.reconcile({blocked:blocked(g)});separateLargeBossBodies(g);syncStageBossTargets(g);
   // No invisible composite-sized apron collision. Wire hazards and mines are
   // the actual dangerous geometry, and destroyed sections leave open air.

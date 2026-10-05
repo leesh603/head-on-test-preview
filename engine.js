@@ -2,17 +2,17 @@ import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst
 import {wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=484';
 import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=484';
 import {installPilotIdentities} from './pilot-identities.js?v=484';
-import {EnemyCollisionGrid} from './collision-grid.js?v=484';
+import {EnemyCollisionGrid} from './collision-grid.js?v=485';
 import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=484';
-import {installRevision} from './rebalance103.js?v=484';
-import {installCloudCover} from './cloud-cover1.js?v=484';
-import {installFleet} from './fleet-naval1.js?v=484';
+import {installRevision} from './rebalance103.js?v=485';
+import {installCloudCover} from './cloud-cover1.js?v=485';
+import {installFleet} from './fleet-naval1.js?v=485';
 import {installTrenchWar} from './trench-war1.js?v=484';
-import {installCityAir} from './city-air1.js?v=484';
+import {installCityAir} from './city-air1.js?v=485';
 import {installRegionDoctrine} from './region-doctrine1.js?v=484';
 import {installLondonBattle} from './london-battle.js?v=484';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=484';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=484';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=485';
 import {installBuildCombatIdentity} from './build-combat-identity.js?v=484';
 import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=484';
 import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=484';
@@ -594,7 +594,7 @@ Game.prototype.canHitTarget=function(e){return !(e?.vossInvuln>0)&&!(e?.aceInvul
 Game.prototype.healthSpeedFactor=function(){return 1};
 // Region identity is shared by simulation, drawing and hazards. Campaigns lock it.
 Game.prototype.worldRegion=function(){return this.lockedRegion??this.stageBoss?.stages.stageIndex??Math.floor((this.distance||0)/12000)%3};
-const REGION_LABELS53=Object.freeze(['전원 지대 · 기뢰지대','아드리아해 · 적 함대','참호 전선 · 대공포','포화의 참호전선','도심 전역','고공 전역','알프스 산맥','제브뤼헤 군항 · 해안포대','캉브레 들판 · 무인기 모함','아라스 상공 · 적 비행단','솜 강전선 · 전차 돌파전','런던 대공습 · 야간 폭격','베르됭 전투 · 요새 포격전']);
+const REGION_LABELS53=Object.freeze(['전원 지대 · 기뢰지대','아드리아해 · 적 함대','참호 전선 · 대공포','포화의 참호전선','도심 전역','고공 전역','알프스 산맥','제브뤼헤 군항 · 해안포대','캉브레 들판 · 무인기 모함','아라스 상공 · 적 비행단','솜 강전선 · 전차 돌파전','런던 대공습 · 야간 폭격','베르됭 전투 · 요새 포격전','마안 전투','갈리폴리 전선','1918 파리 야간공습 · 탐조등 방공']);
 Game.prototype.clearRegionalHazards=function(){
  this._projectileGrid?.clear();
  // Region transitions are explicit memory cleanup points. Preserve progression,

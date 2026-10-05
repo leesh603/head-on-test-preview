@@ -1,5 +1,5 @@
 import {createSignatureView} from './pilot-signature-view.js';
-import {fx,fxTint} from './fx-art.js?v=484';
+import {fx,fxTint} from './fx-art.js?v=485';
 import {planeSprite,aircraftKey} from './aircraft.js?v=484';
 import {drawGameIcon} from './icons.js?v=484';
 import {drawCavalryGuard} from './pilot-directed-fx.js';

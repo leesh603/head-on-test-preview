@@ -1,5 +1,5 @@
 import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun-ground.js?v=484';
-import {fx} from './fx-art.js?v=484';
+import {fx} from './fx-art.js?v=485';
 import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID} from './verdun-art-layout.js?v=484';
 import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=484';
 
