@@ -1,3 +1,4 @@
+import {fleetGunStations} from './naval-faction-atlas.js?v=485';
 import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=485';
 import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles} from './naval-spacing.js?v=485';
 import {drawShipWater,recordShipWake} from './naval-water.js?v=485';
@@ -60,7 +61,7 @@ export function installFleet(Game){
   const aim=Math.atan2(this.y-e.y,this.x-e.x),lead=d/t.shellSpeed;
   const tx=this.x+Math.cos(this.a||0)*(this.speed||0)*lead,ty=this.y+Math.sin(this.a||0)*(this.speed||0)*lead;
   const aimLead=Math.atan2(ty-e.y,tx-e.x);
-  for(const along of t.guns){
+  for(const along of fleetGunStations(e.faction,e.shipClass,t.drawnH*.9)){
    const gx=e.x+Math.cos(e.a)*along,gy=e.y+Math.sin(e.a)*along;
    for(let i=0;i<t.salvo;i++){const h=aimLead+(i-(t.salvo-1)/2)*t.spread;this.bullets.push({x:gx,y:gy,vx:Math.cos(h)*t.shellSpeed,vy:Math.sin(h)*t.shellSpeed,life:4.4,enemy:true,heavy:true,naval:true,hazardRegion:e.hazardRegion??this.worldRegion(),damage:Math.round(13*(1+this.t/260))})}
    this.burst(gx,gy,'#ffd9a0',5);
@@ -74,7 +75,7 @@ export function installFleet(Game){
   for(const foe of this.enemies){if(foe.hp<=0||foe===e||foe.navalVessel||foe.fieldUnit||foe.surface)continue;const d=(foe.x-e.x)**2+(foe.y-e.y)**2;if(d<bd){bd=d;best=foe}}
   if(!best)return;
   const aim=Math.atan2(best.y-e.y,best.x-e.x);
-  for(const along of t.guns){
+  for(const along of fleetGunStations(e.faction,e.shipClass,t.drawnH*.9)){
    const gx=e.x+Math.cos(e.a)*along,gy=e.y+Math.sin(e.a)*along;
    for(let i=0;i<2;i++){const h=aim+(i-.5)*.1;this.bullets.push({x:gx,y:gy,vx:Math.cos(h)*240,vy:Math.sin(h)*240,life:3.6,patrol:true,fireZone:true,ally:true,damage:11,hit:new Set()})}
    this.burst(gx,gy,'#b9f2de',4);
@@ -152,6 +153,6 @@ export function fireSurfaceExchange(g,e,t){
  for(const foe of targets){if(!foe.movingShip||foe.hp<=0||foe.faction===e.faction)continue;const d=Math.hypot(foe.x-e.x,foe.y-e.y);if(d<distance){distance=d;target=foe;}}
  if(!target)return false;g.navalExchanges??=[];if(g.navalExchanges.length>=24)return true;
  const duration=Math.max(.9,distance/330),x=target.x+Math.cos(target.a)*(target.driveVelocity||0)*duration,y=target.y+Math.sin(target.a)*(target.driveVelocity||0)*duration;
- for(const along of t.guns.slice(0,2)){if(g.navalExchanges.length>=24)break;const sx=e.x+Math.cos(e.a)*along,sy=e.y+Math.sin(e.a)*along;g.navalExchanges.push({sx,sy,x,y,age:0,duration,target,damage:18,faction:e.faction});}e.gunAim=Math.atan2(y-e.y,x-e.x);e.muzzleFlash=.16;g.event('enemyShot','');return true;
+ for(const along of fleetGunStations(e.faction,e.shipClass,t.drawnH*.9).slice(0,2)){if(g.navalExchanges.length>=24)break;const sx=e.x+Math.cos(e.a)*along,sy=e.y+Math.sin(e.a)*along;g.navalExchanges.push({sx,sy,x,y,age:0,duration,target,damage:18,faction:e.faction});}e.gunAim=Math.atan2(y-e.y,x-e.x);e.muzzleFlash=.16;g.event('enemyShot','');return true;
 }
 export function installCoopFleet(Coop,Game){const p=Coop.prototype;for(const key of ['spawnMovingFleet','spawnFleet','_friendlyShipFire','fleetCrossing'])p[key]=Game.prototype[key];const fire=p.fireEnemy;p.fireEnemy=function(e){return e.movingShip?Game.prototype.fireEnemy.call(this,e):fire.call(this,e)};const update=p.update;p.update=function(dt,input){update.call(this,dt,input);updateNavalFleet(this,dt)};}
