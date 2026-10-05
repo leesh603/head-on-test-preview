@@ -978,3 +978,5 @@ body.astra-ui:not(.playing) #hangar .factions #entente.active:after{background:l
 .portrait-lightbox .plb-frame{overflow:hidden;border-radius:6px}
 .portrait-lightbox img{cursor:zoom-in;transition:transform .24s ease;transform-origin:50% 50%}
 .portrait-lightbox img.plb-zoomed{cursor:zoom-out;transform:scale(2.1)}
+.portrait-lightbox .plb-select{margin-top:12px;padding:9px 26px;border-radius:4px;border:1px solid #8a7a5c;background:#3a2c20;color:#e8d9bd;font-family:inherit;font-size:13px;letter-spacing:.12em;cursor:pointer}
+.portrait-lightbox .plb-select:hover{background:#57402c;border-color:#caa56b}
