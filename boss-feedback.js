@@ -14,8 +14,20 @@ PHASES['central-fortress']=['3구역 점령 완료 · 중앙 지휘포대 노출
 PHASES['gallipoli-repair-warning']=['파괴 포대 수리 중 · 3초 뒤 재가동','Defense repairs · reactivation in 3 seconds'];
 PHASES['gallipoli-repaired']=['포대 수리 완료 · 재가동 준비','Defense restored · preparing to fire'];
 PHASES['gallipoli-command-destroyed']=['중앙 지휘포대 파괴 · 수리·요격기 증원 중단','Command destroyed · repairs and sorties stopped'];
+
+PHASES['jutland-ranging']=["거리 측정 사격 · 착탄 표식 이탈", "Ranging fire · leave impact markers"];
+PHASES['jutland-crossing-turn']=["함대 선회 · T자 횡단 사격 준비", "Fleet turn · preparing crossing fire"];
+PHASES['jutland-crossing-fire']=["T자 횡단 사격 · 함포와 사격지휘소 공략", "Crossing fire · attack turrets and director"];
+PHASES['jutland-turn-away']=["전투 반전 · 순양함 어뢰 엄호", "Battle turn-away · cruiser torpedo screen"];
+PHASES['jutland-reform']=["전열 재정비 · 개별 함선 공략", "Reforming · attack individual vessels"];
+PHASES['jutland-director-lost']=["사격지휘소 파괴 · 횡단 집중 사격 약화", "Director destroyed · coordinated fire reduced"];
+PHASES['jutland-observer-lost']=["관측 장비 파괴 · 함포 조준 지연", "Observer disabled · slower gunnery targeting"];
+PHASES['jutland-recon-disabled']=["발진 설비 파괴 · 수상기 정찰 중단", "Launch deck destroyed · reconnaissance stopped"];
+PHASES['jutland-tubes-lost']=["어뢰 발사관 파괴 · 해당 사선 해제", "Torpedo tubes destroyed · lane cleared"];
+PHASES['jutland-boilers-lost']=["보일러 파괴 · 함선 속도 저하", "Boilers destroyed · vessel slowed"];
+PHASES['jutland-recon-pass']=["수상기 관측 비행 · 격추하면 보정 사격 차단", "Seaplane reconnaissance · shoot down to stop corrected fire"];
 export function bossPhaseLabel(phase,locale='ko'){const words=PHASES[phase];return words?words[locale==='en'?1:0]:pair('보스 전술 변화','Boss tactics changed',locale)}
-export const BOSS_NAMES_EN=Object.freeze({'gallipoli-fortress':'Gallipoli Grand Fortress · Siege','wustenpanzer':'Wüstenpanzer · Desert cruiser','sinai-landship':'Sinai Landship','fort-douaumont':'Fort Douaumont','fort-souville':'Fort de Souville',
+export const BOSS_NAMES_EN=Object.freeze({'jutland-grand-fleet':'Jutland Battle Squadron','gallipoli-fortress':'Gallipoli Grand Fortress · Siege','wustenpanzer':'Wüstenpanzer · Desert cruiser','sinai-landship':'Sinai Landship','fort-douaumont':'Fort Douaumont','fort-souville':'Fort de Souville',
  'paris-gun':'Bruno railway gun',lincomparable:"520mm L’Incomparable",'sms-stuttgart':'SMS Stuttgart','hms-zubian':'HMS Zubian',
  'a7v-flak':'A7V Flakpanzer','mark-v-cruiser':'Mark V land cruiser','livens-flame-projector':'Livens flame projector','minenwerfer-battery':'Minenwerfer crossfire battery',
  'drachen-net':'Drachen mine network','london-apron':'London balloon apron','zeppelin-l70':'Zeppelin L 70',hma23:'HMA 23 carrier',gik:'Hansa-Brandenburg G.IK',ca4:'Caproni Ca.4','armored-harbor-fortress':'Armored harbor fortress',
@@ -27,10 +39,11 @@ export const BOSS_NAMES_EN=Object.freeze({'gallipoli-fortress':'Gallipoli Grand 
 const TACTIC_RAIL_ONLY=new Set(['paris-gun','lincomparable','a7v-flak','mark-v-cruiser','flak-tower','fliegerzug','treffas-wagen']);
 export function bossTactic(encounter,locale='ko'){
  // Keep existing hint visibility; Somme's new component choices need cues.
- if(!TACTIC_RAIL_ONLY.has(encounter?.bossId)&&!['mark4-wedge','morser-battery','wustenpanzer','sinai-landship','gallipoli-fortress'].includes(encounter?.bossId))return '';
+ if(!TACTIC_RAIL_ONLY.has(encounter?.bossId)&&!['mark4-wedge','morser-battery','wustenpanzer','sinai-landship','gallipoli-fortress','jutland-grand-fleet'].includes(encounter?.bossId))return '';
  const bodies=[...encounter?.bodies.values()||[]].filter(b=>!b.dead),b=bodies[0];if(!b)return '';
  const text=(ko,en)=>pair(ko,en,locale),gone=id=>b.parts.get(id)?.destroyed;
  switch(encounter.bossId){
+  case 'jutland-grand-fleet':return text('함선 3척 격파 · 사격지휘소·발사관·관측 장비로 공격 차단','Destroy three ships · disable director, tubes and observers to interrupt attacks');
   case 'gallipoli-fortress':return b.commandDestroyed?text('지휘포대 파괴 · 수리·증원 중단 / 남은 포대 격파','Command destroyed · no repairs or sorties / clear remaining guns'):text('중앙 지휘포대로 수리·요격기 증원 차단 · 각 포대 개별 공략','Destroy command to stop repairs and sorties · attack any battery');
   case 'wustenpanzer':return b.serviceWindow>0?text('증기 원 회피 · 장갑이 열린 본체 집중 공격','Avoid steam circles · strike the open hull'):b.sandBlind?text('모래바람 엄폐 · 마지막 포착 지점 포격 주의','Sand cover breaks tracking · watch the last observed target'):gone('radiator')?text('냉각 파괴 · 증기 사이로 공격 · 엔진으로 폭주 억제','Cooling destroyed · attack between vents · break engine'):text('순차 포격을 옆으로 회피 · 증기 배출 때 본체 공략','Dodge walking artillery sideways · strike during pressure release');
   case 'sinai-landship':return gone('command')?text('협동 포격 중단 · 남은 측면포와 장갑차 공략','Coordinated barrage stopped · silence guns and escorts'):gone('support')?text('호위 증원 중단 · 남은 장갑차와 측면포 공략','Reinforcements stopped · destroy escorts and flank guns'):text('양측 포격의 중앙 틈 활용 · 지휘부로 협공 차단','Use the central barrage gap · break command to stop coordination');

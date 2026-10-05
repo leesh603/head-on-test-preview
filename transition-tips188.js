@@ -11,6 +11,7 @@ export const REGION_TRANSITION_LABELS=Object.freeze({
  9:Object.freeze({ko:'아라스 상공 · 적 비행단',en:'Arras Sky · Enemy Flying Circus'}),
  10:Object.freeze({ko:'솜 강전선 · 전차 돌파전',en:'Somme Front · Tank Breakthrough'}),
  11:Object.freeze({ko:'런던 대공습 · 야간 폭격',en:'London Raid · Night Bombing'}),
+ 15:Object.freeze({ko:'유틀란트 해전 · 북해 함대전',en:'Jutland · North Sea fleet battle'}),
  12:Object.freeze({ko:'베르됭 전투 · 초대형 요새',en:'Verdun · Giant Fortress'})
 });
 
