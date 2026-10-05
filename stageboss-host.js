@@ -1,3 +1,4 @@
+import {resolveSurfaceSpacing} from './naval-spacing.js?v=485';
 
 import {tickRegionalConditions} from './region-doctrine1.js?v=485';
 
@@ -345,7 +346,8 @@ export function beginStageBossFrame(g,dt){
  syncStageBossTargets(g);separateLargeBossBodies(g);updateMinions(g,dt);
 }
 export function separateLargeBossBodies(g){
- // Every aircraft is passable in HEAD-ON — players always fly through boss bodies.
+ // Aircraft remain passable. Only surface traffic yields to ship hulls.
+ if(!blocked(g))resolveSurfaceSpacing(g);
 }
 export function endStageBossFrame(g,dt){
  separateAces(g,dt);
