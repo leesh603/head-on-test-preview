@@ -1,0 +1,7 @@
+{
+  "renderer": "native Skia, not browser or device verification",
+  "bodyFrames": 36,
+  "gunFrames": 6,
+  "independentRotations": 12,
+  "missingAssets": []
+}

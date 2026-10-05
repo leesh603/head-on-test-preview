@@ -1,3 +1,5 @@
+import {PLANES} from './engine.js?v=485';
+import {drawGroundEnemy} from './ground-enemy-art.js?v=485';
 import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=485';
 import {SPRITE_ALIASES} from './campaign.js?v=485';
 import {drawEquipment} from './equipment.js?v=485';
@@ -16,9 +18,9 @@ export function drawCampaign(c,g,W,H){
  for(const z of g.zones){if(z.done)continue;const[x,y]=point(z),color=z.kind==='extract'?'#a2f8be':'#8fe5f4';c.strokeStyle=color;c.setLineDash([9,6]);c.beginPath();c.arc(x,y,z.r,0,Math.PI*2);c.stroke();c.setLineDash([]);c.lineWidth=5;c.beginPath();c.arc(x,y,z.r,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(1,z.progress/(z.required||1)));c.stroke();c.lineWidth=2;marker(z,z.kind==='extract'?'이탈':z.kind==='checkpoint'?'통과 지점':`${z.kind==='photo'?'사진정찰':'관측 유지'} ${z.progress.toFixed(1)}/${z.required}초`,color)}
  if(g.supplyZone&&!g.supplyZone.used){const z=g.supplyZone,[x,y]=point(z);c.strokeStyle='#bff2b3';c.beginPath();c.arc(x,y,z.r,0,6.283);c.stroke();marker(z,'탄띠 보급','#bff2b3')}
  const nearestConvoy=g.convoy.filter(o=>o.hp>0&&!o.escaped).sort((a,b)=>Math.hypot(a.x-g.x,a.y-g.y)-Math.hypot(b.x-g.x,b.y-g.y))[0];
- for(const unit of g.convoy){if(unit.hp<=0||unit.escaped)continue;const[x,y]=point(unit);planeSprite(c,x,y,unit.a,unit.plane,unit.plane==='markiv'?.85:1);c.fillStyle='#253329';c.fillRect(x-24,y+35,48,5);c.fillStyle='#9fdfbd';c.fillRect(x-24,y+35,48*unit.hp/unit.maxHp,5);if(unit===nearestConvoy)marker(unit,'호위 편대 '+g.convoy.filter(c=>c.hp>0).length+'/'+g.convoy.length,'#a3efd3')}
+ for(const unit of g.convoy){if(unit.hp<=0||unit.escaped)continue;const[x,y]=point(unit);unit.plane==='markiv'?drawGroundEnemy(c,{...unit,faction:unit.faction||g.teamFaction||PLANES[g.plane]?.faction||'entente'},x,y,78,'tank'):planeSprite(c,x,y,unit.a,unit.plane,1);c.fillStyle='#253329';c.fillRect(x-24,y+35,48,5);c.fillStyle='#9fdfbd';c.fillRect(x-24,y+35,48*unit.hp/unit.maxHp,5);if(unit===nearestConvoy)marker(unit,'호위 편대 '+g.convoy.filter(c=>c.hp>0).length+'/'+g.convoy.length,'#a3efd3')}
  const nearestTarget=g.enemies.filter(e=>e.missionTarget&&e.hp>0).sort((a,b)=>Math.hypot(a.x-g.x,a.y-g.y)-Math.hypot(b.x-g.x,b.y-g.y))[0];
- for(const e of g.enemies){const[x,y]=point(e);if(e.missionGround){if(e.missionTank)planeSprite(c,x,y,e.a,'markiv',1);else drawBattlefieldSprite(c,'aa',x,y,60);c.fillStyle='#253329';c.fillRect(x-20,y+32,40,4);c.fillStyle='#f3b675';c.fillRect(x-20,y+32,40*e.hp/e.maxHp,4)}
+ for(const e of g.enemies){const[x,y]=point(e);if(e.missionGround){drawGroundEnemy(c,e,x,y,e.missionTank?90:60);c.fillStyle='#253329';c.fillRect(x-20,y+32,40,4);c.fillStyle='#f3b675';c.fillRect(x-20,y+32,40*e.hp/e.maxHp,4)}
   if(e.missionTarget&&e.hp>0&&(e===nearestTarget||x>50&&x<W-50&&y>200&&y<H-140))marker(e,e.altitude===undefined?'임무 표적':['저고도 표적','중고도 표적','고고도 표적'][e.altitude],e.altitude!==undefined&&e.altitude!==g.altitude?'#c7c8ce':'#ffcc87');
   if(e.precisionWarning){const p=point(e.precisionWarning);c.strokeStyle='#ffb382';c.setLineDash([6,5]);c.beginPath();c.moveTo(x,y);c.lineTo(p[0],p[1]);c.stroke();c.setLineDash([])}
  }
