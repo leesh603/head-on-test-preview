@@ -615,9 +615,9 @@ body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window img{
  display:block;
  width:100%;
  height:100%;
- object-fit:cover;
- object-position:center 10%;
- transform:scale(1.06);
+ object-fit:contain;
+ object-position:center bottom;
+ transform:none;
  transform-origin:center 18%;
  filter:saturate(.82) contrast(1.02) brightness(.94);
 }
