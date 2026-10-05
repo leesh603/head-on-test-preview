@@ -5,6 +5,7 @@ import {RuralRailBoss} from './rural-rail-combat.js?v=485';
 import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=485';
 import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=485';
 import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=485';
+import {createJutlandEncounter} from './jutland-boss.js?v=485';
 export {Mark1Landship as Mark4Wedge,SchwabenFortress as MorserBattery};
 import {sommeScale} from './somme-boss-layout.js?v=485';
 import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose} from './adriatic-boss-layout.js?v=485';
@@ -20,7 +21,7 @@ import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harbor
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
-export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai', 'arras', 'somme', 'london', 'verdun', 'maan', 'gallipoli', 'paris-night']);
+export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai', 'arras', 'somme', 'london', 'verdun', 'maan', 'gallipoli', 'paris-night', 'jutland']);
 export const BOSS_CATALOG = Object.freeze({
   'paris-gun': {name:'브루노 열차포', faction:'central', stage:0},
   lincomparable: {name:'520mm 열차포 · 랑콩파라블', faction:'entente', stage:0},
@@ -48,6 +49,7 @@ export const BOSS_CATALOG = Object.freeze({
   ,'fort-douaumont': {name:'두오몽 요새 · Fort Douaumont', faction:'central', stage:12}
   ,'fort-souville': {name:'수빌 요새 · Fort de Souville', faction:'entente', stage:12}
   ,'wustenpanzer': {name:'사막 육상순양함 · Wüstenpanzer', faction:'central', stage:13}
+  ,'jutland-grand-fleet': {name:'유틀란트 전투전대 · 북해 함대전', faction:'neutral', stage:16}
   ,'gallipoli-fortress': {name:'갈리폴리 대요새 · 다르다넬스 점령전', faction:'neutral', stage:14}
   ,'paris-staaken-rvi': {name:'Zeppelin-Staaken R.VI · 파리 폭격', faction:'central', stage:15}
   ,'paris-searchlight-fortress': {name:'파리 탐조등 방공요새', faction:'entente', stage:15}
@@ -1275,6 +1277,7 @@ const constructors={'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttg
   fliegerzug:Fliegerzug,'treffas-wagen':TreffasWagen,'jasta11-circus':JastaCircus,'naval10-black-flight':Naval10BlackFlight,
   'mark4-wedge':Mark1Landship,'morser-battery':SchwabenFortress,'staaken-rvi':StaakenRVI,'london-searchlight':LondonSearchlight,'london-apron-raid':LondonRaidApron,'gotha-squadron':GothaRaider,'fort-douaumont':FortDouaumont,'fort-souville':FortSouville,'wustenpanzer':Wustenpanzer,'sinai-landship':SinaiLandship,'gallipoli-fortress':GallipoliFortress,'paris-staaken-rvi':ParisStaakenRVI,'paris-searchlight-fortress':ParisSearchlightFortress};
 export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
+  if(bossId==='jutland-grand-fleet')return createJutlandEncounter({id,bossId,tuning,x,y,emit,rng,faction});
   if(bossId==='mark4-wedge'){const scale=sommeScale(tuning,true),t={...tuning,maxHp:tuning.maxHp/3,sommeScale:scale};return new BossEncounter({id,bossId,bodies:[0,1,2].map(slot=>new Mark1Landship({id:id+':mark1:'+slot,slot,tuning:t,x:x+(slot===1?-155:slot===2?155:0)*scale,y:y+(slot===0?-100:65)*scale,emit,rng,faction:faction||'entente'}))});}
   if(bossId==='gotha-squadron'){const flightTuning={...tuning,maxHp:tuning.maxHp/3,partHp:tuning.partHp/3,geometryScale:1};return new BossEncounter({id,bossId,bodies:[0,1,2].map(slot=>new GothaRaider({id:id+':gotha:'+slot,slot,tuning:flightTuning,x:x+(slot-1)*215,y:y+(slot===1?0:-90),emit,rng,faction:faction||'central'}))});}
   const entry=BOSS_CATALOG[bossId]||{faction:bossId==='staaken-rvi'?'central':'entente'},Ctor=constructors[bossId];if(!Ctor)throw new Error('Unknown boss: '+bossId);
