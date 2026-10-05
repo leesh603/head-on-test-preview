@@ -493,7 +493,7 @@ body.astra-ui:not(.playing){
  body.astra-ui:not(.playing) #hangar .astra-hero:after{display:none!important}
  body.astra-ui:not(.playing) #hangar .astra-hero #hangarPortrait{
   position:relative!important;inset:auto!important;grid-column:1!important;grid-row:1!important;width:58px!important;height:58px!important;min-width:0!important;min-height:0!important;max-height:none!important;
-  border-radius:50%!important;object-fit:cover!important;object-position:56% 10%!important;scale:none!important;translate:none!important;rotate:none!important;transform:none!important;
+  border-radius:12px!important;object-fit:contain!important;object-position:center bottom!important;scale:none!important;translate:none!important;rotate:none!important;transform:none!important;
   background:#262522;box-shadow:0 0 0 2px #151514,0 0 0 3.5px var(--fac,var(--hm-red))!important;
   pointer-events:auto!important;cursor:zoom-in!important;
  }
@@ -621,7 +621,7 @@ body.astra-ui:not(.playing){
  body.astra-ui:not(.playing) #hangar .astra-hero #hangarPortrait{
   position:relative!important;inset:auto!important;left:auto!important;bottom:auto!important;grid-column:1!important;grid-row:1!important;align-self:start;
   width:100%!important;height:auto!important;aspect-ratio:4/5;min-height:0!important;min-width:0!important;max-height:none!important;max-width:none!important;
-  object-fit:cover!important;object-position:58% 12%!important;border-radius:16px;transform:none!important;scale:none!important;translate:none!important;rotate:none!important;
+  object-fit:contain!important;object-position:center bottom!important;border-radius:16px;transform:none!important;scale:none!important;translate:none!important;rotate:none!important;
   -webkit-mask-image:none!important;mask-image:none!important;filter:none!important;opacity:1!important;z-index:auto!important;background:#232320;box-shadow:0 0 0 1px #ffffff26,inset 0 -3px 0 var(--fac,var(--hm-red));
  }
  body.astra-ui:not(.playing) #hangar .astra-hero .astra-dossier{
@@ -719,7 +719,7 @@ body.astra-ui:not(.playing){
  body.astra-ui:not(.playing) #hangar #pilotTabs button{flex:0 0 64px!important;width:64px!important;min-width:0!important;height:auto!important;min-height:0!important;padding:0 0 20px!important;margin:0!important;border:0!important;background:none!important;box-shadow:none!important;opacity:.6;overflow:visible;transition:opacity .15s}
  body.astra-ui:not(.playing) #hangar #pilotTabs button:hover{opacity:.85}
  body.astra-ui:not(.playing) #hangar #pilotTabs button.active{opacity:1}
- body.astra-ui:not(.playing) #hangar #pilotTabs .pilot-tab-portrait{width:100%!important;height:auto!important;aspect-ratio:1;min-height:0!important;border-radius:14px!important;border:0!important;box-shadow:inset 0 0 0 1px var(--hm-line)!important;object-fit:cover;object-position:center 16%!important;background:#1d1d1b!important;filter:saturate(.7)}
+ body.astra-ui:not(.playing) #hangar #pilotTabs .pilot-tab-portrait{width:100%!important;height:auto!important;aspect-ratio:1;min-height:0!important;border-radius:14px!important;border:0!important;box-shadow:inset 0 0 0 1px var(--hm-line)!important;object-fit:contain!important;object-position:center bottom!important;background:#1d1d1b!important;filter:saturate(.7)}
  body.astra-ui:not(.playing) #hangar #pilotTabs button.active .pilot-tab-portrait{filter:none;box-shadow:0 0 0 2px #121211,0 0 0 4px var(--hm-text)!important}
  body.astra-ui:not(.playing) #hangar #pilotTabs .pilot-tab-label{display:block!important;position:absolute;inset:auto 0 0!important;font:600 11px/1.3 var(--astra-type)!important;color:var(--hm-sub)!important;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
  body.astra-ui:not(.playing) #hangar #pilotTabs button.active .pilot-tab-label{color:var(--hm-text)!important}

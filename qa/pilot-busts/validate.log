@@ -1,0 +1,3 @@
+  syntax: 160 modules checked
+  imports: 1538 resolved, 8 skipped (dynamic/dev), 0 missing
+validate: all checks passed
