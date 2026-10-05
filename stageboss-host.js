@@ -31,11 +31,11 @@ function formationDefenderTarget(g,e){
  if(!target){target=live.reduce((best,a)=>!best||Math.hypot(a.x-e.x,a.y-e.y)<Math.hypot(best.x-e.x,best.y-e.y)?a:best,null);e.formationTargetId=formationDefenderId(g,target);}
  return target;
 }
-export const ZEEBRUGGE_ROUTE=Object.freeze({outerHarbor:4200,innerHarbor:10000,fortS:12580,fortN:110,seaHalfWidth:1000,halfWidth:800,backLimit:-420,approachLimit:12270,bossLimit:13600});
+export const ZEEBRUGGE_ROUTE=Object.freeze({outerHarbor:4200,innerHarbor:10000,fortS:12580,fortN:110,seaHalfWidth:1150,halfWidth:920,backLimit:-420,approachLimit:12270,bossLimit:13600});
 const smooth=(a,b,s)=>{const t=clamp((s-a)/(b-a),0,1);return t*t*(3-2*t)};
 export const harborRouteHalfWidth=s=>ZEEBRUGGE_ROUTE.seaHalfWidth-(ZEEBRUGGE_ROUTE.seaHalfWidth-ZEEBRUGGE_ROUTE.halfWidth)*smooth(ZEEBRUGGE_ROUTE.outerHarbor,ZEEBRUGGE_ROUTE.innerHarbor,s);
 export function harborBankOffset(s,side){
- const base=side>0?1150-500*smooth(ZEEBRUGGE_ROUTE.outerHarbor,ZEEBRUGGE_ROUTE.innerHarbor,s)-38*smooth(10000,12200,s):1250-380*smooth(7200,11200,s);
+ const base=side>0?1350-500*smooth(ZEEBRUGGE_ROUTE.outerHarbor,ZEEBRUGGE_ROUTE.innerHarbor,s)-38*smooth(10000,12200,s):1450-380*smooth(7200,11200,s);
  return base+Math.sin(s*.00074+side*1.9)*13+Math.sin(s*.00183-side*.8)*5;
 }
 function createHarborRoute(g){return{x:g.x,y:g.y,a:Number.isFinite(g.a)?g.a:-Math.PI/2,maxForward:0,bankAt:harborBankOffset}}
