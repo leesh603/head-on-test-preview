@@ -512,7 +512,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
  const ring=(x,y,r,color)=>{c.strokeStyle=color;c.lineWidth=2;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.stroke();};
  renderStageBossLayer(addon,{
   drawBody(b){if(layer==='hazards')return;
-   if(b.assetKey.startsWith('jutland-')){const body=addon.stages.encounter.bodies.get(b.id);if(body)drawJutlandBody(c,body);return;}
+   if(b.assetKey.startsWith('jutland-')){const body=addon.stages.encounter.bodies.get(b.id);if(body)drawJutlandBody(c,body,body.deathAge||0);return;}
    if(b.assetKey==='gallipoli-fortress'){const body=[...addon.stages.encounter.bodies.values()].find(v=>v.kind===b.assetKey);if(body)drawGallipoliBoss(c,body);return;}
    if(b.sommeBoss){drawSommeBoss(c,b);return;}
    if(b.assetKey==='armored-harbor-fortress'){const parts=harborArt.parts;drawHarborFortress(c,b,{base:harborArt.base,pivot:harborArt.cranePivot,ammo:parts.naturalWidth?null:harborArt.ammo,facility:parts.naturalWidth?null:harborArt.facility,guns:harborArt.guns,parts});return;}

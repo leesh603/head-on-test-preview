@@ -1,3 +1,4 @@
+import {recordShipWake} from './naval-water.js?v=naval-r2';
 import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=485';
 import {verdunFortCollapseSites} from './verdun-fortresses.js?v=485';
 import {BossHazards} from './headon-stageboss-hazards.js?v=485';
@@ -102,12 +103,13 @@ export class StageBossAddon {
     if(this.ended||frame.paused)return false;
     if(!Number.isFinite(dt)||dt<0)throw new Error('Invalid boss step');
     dt=Math.min(.05,dt);if(!dt)return false;
-    this.time+=dt;this.frameContext=frame;for(const d of this.bodyDefeats)d.age+=dt;this.bodyDefeats=this.bodyDefeats.filter(d=>d.age<d.duration);
+    this.time+=dt;this.frameContext=frame;for(const b of this.stages.encounter?.bodies.values()||[])if(b.jutlandBoss&&b.dead)b.deathAge=(b.deathAge||0)+dt;for(const d of this.bodyDefeats)d.age+=dt;this.bodyDefeats=this.bodyDefeats.filter(d=>d.age<d.duration);
     const encounter=this.stages.encounter;
     // Resolve destruction before any lingering delayed attack can fire.
     this.reconcile({blocked:true});
     if(this.defeatSequence)this.updateDefeat(dt);
     else if(encounter&&!encounter.completed)encounter.update(dt,{...frame,isIlluminated:p=>this.hazards.isIlluminated(p)});
+    for(const b of encounter?.bodies.values()||[]){const ship=b.support129||(b.kind.startsWith('hms-zubian')?b:null);if(ship&&!b.dead){if(b.support129)ship.hullYaw=ship.angle||0;recordShipWake(ship,dt,ship.height||950);}}
     this.hazards.update(dt,frame);
     return true;
   }

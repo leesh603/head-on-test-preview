@@ -1740,3 +1740,7 @@ Game.prototype.update=function(dt,input={}){
 import {installNinePilots} from './pilot-nine-combat.js?v=485';
 const _preNineHit=Game.prototype.hit;Game.prototype.hit=function(n){if(this.pilot==='barker'&&this.invuln<=0&&n>0){this.barkerStacks=Math.min(this.skillTime>0?5:3,(this.barkerStacks||0)+1);this.barkerStackTime=3;if(this.skillTime>0)n=Math.min(n,Math.max(0,this.hp-1))}_preNineHit.call(this,n)};
 installNinePilots(Game,PILOTS);
+
+// Apply the sea roster after generic fighter identity assignment, so it survives.
+const _spawnSeaRoster=Game.prototype.spawnEnemy;
+Game.prototype.spawnEnemy=function(type,...args){const e=_spawnSeaRoster.call(this,type,...args);if(e&&!e.bossPilot&&!e.heavyBomber&&!e.bossMinion&&!e.formationLeader&&['scout','hunter','bomber'].includes(type)&&SEAPLANE_REGIONS.includes(this.worldRegion())&&this.rng()<.82){const pool=type==='bomber'?(e.faction==='central'?['ff33','lohner_l']:['macchi_m3']):SEAPLANE_POOLS[e.faction];e.escortPlane=pool[Math.floor(this.rng()*pool.length)];attachAircraftPersonality(PLANES,e,e.escortPlane);}return e;};

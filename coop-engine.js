@@ -248,3 +248,6 @@ installCloudCover(CoopGame);
 
 import {installNineCoop} from './pilot-nine-combat.js?v=485';
 installNineCoop(CoopGame);
+
+import {installCoopFleet} from './fleet-naval1.js?v=485';
+installCoopFleet(CoopGame,Game);
