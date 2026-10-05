@@ -8,7 +8,7 @@ Repos (same files, different layout):
 - **source** `head-on-aces-source`: same files under `dist/`. Port UI changes to both.
 
 ## Cache-tag rule (critical)
-Every `<script>`, `<link>`, image URL carries `?v=NNN`. ANY content change requires bumping
+Every `<script>`, `<link>`, image URL carries `?v=477`. ANY content change requires bumping
 `?v=` to the same new number across ~47 files (html/js/css), or modules go stale.
 One-line node replace on `?v=\d+` — do NOT bump only the file you edited.
 

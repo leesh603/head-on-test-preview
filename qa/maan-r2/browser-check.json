@@ -1,7 +1,7 @@
 {
   "baselineMain": "d5d1d0e209203e758fa470aa44340a4bbb6b7bfc",
-  "liveMainUrl": "https://leesh603.github.io/head-on-test-preview/?v=526&headonTest=1&region=13&pilot=fonck&boss=1&orbit=0",
-  "observedLiveError": "SyntaxError: Illegal continue statement: no surrounding iteration statement at app.js?v=526",
+  "liveMainUrl": "https://leesh603.github.io/head-on-test-preview/?v=477&headonTest=1&region=13&pilot=fonck&boss=1&orbit=0",
+  "observedLiveError": "SyntaxError: Illegal continue statement: no surrounding iteration statement at app.js?v=477",
   "baselineLivePlaying": false,
   "branchBrowserGameplayVerified": false,
   "mobileDeviceVerified": false,
@@ -9,11 +9,11 @@
   "productionDeployed": false,
   "mainChangedByThisWork": false,
   "implementationCommit": "1484ae91e4b967c372737e2a51080259c2b67016",
-  "previewUrl": "https://rawcdn.githack.com/leesh603/head-on-test-preview/1484ae91e4b967c372737e2a51080259c2b67016/index.html?v=maan20261004r2&headonTest=1&region=13&pilot=fonck&boss=1",
+  "previewUrl": "https://rawcdn.githack.com/leesh603/head-on-test-preview/1484ae91e4b967c372737e2a51080259c2b67016/index.html?v=477&headonTest=1&region=13&pilot=fonck&boss=1",
   "previewErrors": [
-    "SecurityError: Failed to execute getImageData: canvas has been tainted by cross-origin data (aircraft.js?v=526:38:249)",
-    "SecurityError: Failed to execute getImageData: canvas has been tainted by cross-origin data (battlefield-art.js?v=526:3:194)",
-    "SecurityError: Failed to execute getImageData: canvas has been tainted by cross-origin data (portraits.js?v=526:10:206)"
+    "SecurityError: Failed to execute getImageData: canvas has been tainted by cross-origin data (aircraft.js?v=477:38:249)",
+    "SecurityError: Failed to execute getImageData: canvas has been tainted by cross-origin data (battlefield-art.js?v=477:3:194)",
+    "SecurityError: Failed to execute getImageData: canvas has been tainted by cross-origin data (portraits.js?v=477:10:206)"
   ],
   "previewPlaying": false,
   "previewTestLabInstalled": false,

@@ -26,20 +26,20 @@ const DIRECT_ICONS=Object.freeze({
  urLeica:'ur_leica_camera.webp',badinGauge:'badin_gauge.webp'
 });
 const atlasReady=Promise.all([
- loadIconAtlas('./icons51.webp?v=tactical20261003b',5,4,keys,true),
- loadIconAtlas('./controls53.webp?v=tactical20261003b',2,2,['control','turn','command','cooldown']),
- loadIconAtlas('./special-ammo-icons92.webp?v=tactical20261003b',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
- loadIconAtlas('./legendary-icons103.webp?v=tactical20261003b',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
- loadIconAtlas('./gun-atlas114.webp?v=tactical20261003b',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
- loadIconAtlas('./legendary-icons109.webp?v=tactical20261003b',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
- loadIconAtlas('./relic-maxim-belt128.webp?v=tactical20261003b',1,1,['maximBelt'],true),
- loadIconAtlas('./relic-steel-plate128.webp?v=tactical20261003b',1,1,['steelPlate'],true),
- loadIconAtlas('./relic-immelmann-manual128.webp?v=tactical20261003b',1,1,['immelmannManual'],true),
- loadIconAtlas('./relic-lo-emblem128.webp?v=tactical20261003b',1,1,['loEmblem'],true),
- loadIconAtlas('./relic-sacred-cowling128.webp?v=tactical20261003b',1,1,['sacredCowling'],true)
+ loadIconAtlas('./icons51.webp?v=477',5,4,keys,true),
+ loadIconAtlas('./controls53.webp?v=477',2,2,['control','turn','command','cooldown']),
+ loadIconAtlas('./special-ammo-icons92.webp?v=477',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
+ loadIconAtlas('./legendary-icons103.webp?v=477',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
+ loadIconAtlas('./gun-atlas114.webp?v=477',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
+ loadIconAtlas('./legendary-icons109.webp?v=477',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
+ loadIconAtlas('./relic-maxim-belt128.webp?v=477',1,1,['maximBelt'],true),
+ loadIconAtlas('./relic-steel-plate128.webp?v=477',1,1,['steelPlate'],true),
+ loadIconAtlas('./relic-immelmann-manual128.webp?v=477',1,1,['immelmannManual'],true),
+ loadIconAtlas('./relic-lo-emblem128.webp?v=477',1,1,['loEmblem'],true),
+ loadIconAtlas('./relic-sacred-cowling128.webp?v=477',1,1,['sacredCowling'],true)
 ]);
 export const iconsReady=atlasReady.then(async results=>{
- const direct=await Promise.all(Object.entries(DIRECT_ICONS).map(([key,file])=>loadDirectIcon('./augmentation-icons/'+file+'?v=tactical20261003b',key)));
+ const direct=await Promise.all(Object.entries(DIRECT_ICONS).map(([key,file])=>loadDirectIcon('./augmentation-icons/'+file+'?v=477',key)));
  return results.every(Boolean)&&direct.every(Boolean);
 });
 export function drawGameIcon(c,key,x,y,size){const f=frames.get(key);if(!f)return;const k=size/Math.max(f.w,f.h);c.save();c.imageSmoothingEnabled=f.smooth;c.drawImage(f.atlas,f.x,f.y,f.w,f.h,x-f.w*k/2,y-f.h*k/2,f.w*k,f.h*k);c.restore()}
