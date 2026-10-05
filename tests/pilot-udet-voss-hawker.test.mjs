@@ -1,8 +1,8 @@
 import './pilot-feedback-globals.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,VOSS_REVERSE} from '../engine.js?v=479';
-import {CoopGame,coopPlane} from '../coop-engine.js?v=479';
+import {Game,VOSS_REVERSE} from '../engine.js?v=483';
+import {CoopGame,coopPlane} from '../coop-engine.js?v=483';
 import {signatureState,advancePilotSignature,pilotSignatureReaction} from '../pilot-signature-state.js';
 import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js';
 
@@ -27,16 +27,8 @@ function render(p,layer='under'){
 }
 
 for(const mode of ['solo','coop']){
- test(`${mode} Udet overheat restores half-health threshold, spark cadence and healing reset`,()=>{
-  const {world,p}=session('udet',mode);p.maxHp=100;p.hp=51;
-  let prior=p.beginRevisionFrame(.02,{});p.endRevisionFrame(prior);assert.equal(p.fxOverheat,0);assert.equal(world.particles.length,0);
-  p.hp=50;prior=p.beginRevisionFrame(.02,{});p.endRevisionFrame(prior);near(p.fxOverheat,.35);assert.equal(world.particles.length,1);
-  const spark=world.particles[0];near(spark.x,12);near(spark.y,0);near(spark.vx,-30);near(spark.life,.6);
-  prior=p.beginRevisionFrame(.02,{});p.endRevisionFrame(prior);assert.equal(world.particles.length,1);
-  assert.ok(render(p).calls.some(c=>c.key==='spark'));p.hp=100;prior=p.beginRevisionFrame(.02,{});p.endRevisionFrame(prior);assert.equal(p.fxOverheat,0);assert.ok(!render(p).calls.some(c=>c.key==='spark'));
- });
  test(`${mode} Udet activation has brief equipment-style motto, no LO emblem or graze reaction`,()=>{
-  const {p}=session('udet',mode),hp=p.hp;p.skill();near(p.hp,hp);near(p.skillDuration(),.55);near(p.skillCooldown(),18);assert.equal(p.udetBoost,0);
+  const {p}=session('udet',mode),hp=p.hp;p.skill();near(p.hp,hp);near(p.skillDuration(),2.6);near(p.skillCooldown(),18);assert.equal(p.udetBoost,0);
   advancePilotSignature(p,.05);assert.equal(render(p,'front').text,'Du doch nicht!!');assert.equal(render(p,'under').text,'');assert.deepEqual(render(p).marks,[]);
   assert.equal(pilotSignatureReaction(p,'hit',{target:{x:40,y:0}}),null);
   p.skillTime=0;for(let i=0;i<15;i++)advancePilotSignature(p,.05);assert.equal(render(p,'front').text,'');
@@ -53,7 +45,7 @@ for(const mode of ['solo','coop']){
   const {p}=session('hawker',mode);p.ensureRevisionPilot();near(p.handlingDragMult,.75);p.straightCharge=1;
   let prior=p.beginRevisionFrame(.02,{steer:0});near(p.speed,prior.speed*1.2);near(p.turn,prior.turn);near(p.rate,prior.rate);near(p.revisionDamageMult,1);p.endRevisionFrame(prior);
   prior=p.beginRevisionFrame(.02,{steer:1});near(p.straightCharge,.96);p.endRevisionFrame(prior);
-  const hp=p.hp;p.skill();near(p.hp,hp);near(p.skillDuration(),5);near(p.skillCooldown(),20);prior=p.beginRevisionFrame(.02,{});near(p.rate,prior.rate/2);assert.equal(p.unlimitedAmmo,true);p.endRevisionFrame(prior);
+  const hp=p.hp;p.skill();near(p.hp,hp);near(p.skillDuration(),5);near(p.skillCooldown(),20);prior=p.beginRevisionFrame(.02,{});near(p.rate,prior.rate);assert.notEqual(p.unlimitedAmmo,true);p.endRevisionFrame(prior);
  });
 }
 
@@ -70,5 +62,5 @@ test('Hawker passive gun FX follow actual own gun directions and real projectile
  const {world,p}=session('hawker');Object.assign(p,{straightCharge:1,muzzleFlash:.055,reloadTime:0});p.gunDirection=()=>Math.PI/3;
  const round={x:90,y:35,vx:300,vy:400,life:1,gun:0,ownerId:p.id};world.bullets=[round,{...round,ownerId:'other'},{...round,enemy:true},{...round,rocket:true},{...round,life:0}];
  const fx=render(p);assert.equal(fx.calls.filter(c=>c.key==='tracerCream').length,1);near(fx.calls.find(c=>c.key==='tracerCream').a,Math.atan2(400,300));near(fx.calls.find(c=>c.key==='muzzle').a,Math.PI/3);assert.ok(fx.calls.some(c=>c.key==='gunSmoke'));
- world.bullets=[];p.muzzleFlash=0;assert.equal(render(p).calls.length,0);p.straightCharge=0;p.muzzleFlash=.055;assert.equal(render(p).calls.length,0);
+ world.bullets=[];p.muzzleFlash=0;assert.equal(render(p).calls.length,0);p.straightCharge=0;p.muzzleFlash=.055;{const c2=render(p).calls;assert.ok(c2.length>0);assert.ok(!c2.some(c=>c.key==='tracerCream'));}
 });

@@ -1,5 +1,5 @@
 // Excel revision 103. Unspecified numbers are explicit first-playtest tuning.
-import {WING_PLANES} from './engine.js?v=482';
+import {WING_PLANES} from './engine.js?v=483';
 export const REVISION_BALANCE=Object.freeze({soloCap:12,coopCap:18,soloRegular:10,coopRegular:11,interval:1.6,coopInterval:1.65,countrysideInterval:1,countrysideCoopInterval:1.15,frontReduction:.25,rearBonus:.3,compassXp:1.3});
 const pilotMachineGunRound=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.actualExplosion&&!b.blast&&!b.mauserRound;
  export function installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDARIES,UPGRADES){
@@ -117,7 +117,7 @@ const pilotMachineGunRound=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.roc
   this.ensureRevisionPilot();const world=this.combatWorld();
   if(this.pilot==='immelmann'){const yaw2=Math.abs(Math.atan2(Math.sin(this.a-(this.immelmannPreviousHeading??this.a)),Math.cos(this.a-(this.immelmannPreviousHeading??this.a))));this.immelmannPreviousHeading=this.a;if(!this.immelmannTurn){this.immelmannTurnAmount=(this.immelmannTurnAmount||0)*Math.exp(-dt*.8)+yaw2;if(this.immelmannTurnAmount>=Math.PI/2){this.eagleTime=1.5;this.immelmannTurnAmount=0}}}
   const nearby=this.enemies.filter(e=>e.hp>0&&Math.hypot(e.x-this.x,e.y-this.y)<400).length;
-  const wolf=this.pilot==='voss'?Math.min(6,nearby)*.04:0,udet=this.pilot==='udet'?Math.max(0,100-this.hp)/100:0,eagle=this.eagleTime>0?.2:0;
+  const wolf=this.pilot==='voss'?Math.min(6,nearby)*.04:0,udet=0,eagle=this.eagleTime>0?.2:0;
   this.revisionDamageMult=1+wolf+udet*.5;
   const yaw=Number.isFinite(input.angle)?Math.abs(Math.atan2(Math.sin(input.angle-this.a),Math.cos(input.angle-this.a))):Math.abs(input.steer||0);
   if(this.pilot==='hawker')this.straightCharge=Math.max(0,Math.min(1,(this.straightCharge||0)+(yaw<.12?dt/3:-dt*2)));
@@ -126,9 +126,8 @@ const pilotMachineGunRound=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.roc
   const mobility=1+wolf+udet*.3+(this.pilot==='hawker'?(this.straightCharge||0)*.2:0);
   this.baseSpeed=(this.baseSpeed||this.speed)*mobility;this.speed*=mobility;this.turn*=1+wolf+udet*.3;
   this.mannockCoverEngaged=this.pilot==='mannock'&&this.enemies.some(e=>this.mannockCoverTarget(e)&&Math.hypot(e.x-this.x,e.y-this.y)<700&&Math.abs(Math.atan2(Math.sin(Math.atan2(e.y-this.y,e.x-this.x)-this.a),Math.cos(Math.atan2(e.y-this.y,e.x-this.x)-this.a)))<Math.PI/3);
-  this.rate/=(1+eagle)*(this.pilot==='hawker'&&this.skillTime>0?2:1)*(this.mannockCoverEngaged?1.15:1);
-  if(this.pilot==='hawker'&&this.skillTime>0)this.unlimitedAmmo=true;
-  this.eagleTime=Math.max(0,(this.eagleTime||0)-dt);
+  this.rate/=(1+eagle)*(this.mannockCoverEngaged?1.15:1);
+    this.eagleTime=Math.max(0,(this.eagleTime||0)-dt);
   if(this.pilot==='immelmann'&&this.immelmannTurn){const m=this.immelmannTurn;m.elapsed+=dt;const q=Math.min(1,m.elapsed/.9),climb=q<.5;this.a=m.heading+(climb?0:Math.PI);this.turn=0;this.baseSpeed*=climb?.55:.85;this.speed*=climb?.55:.85;this.fire=Math.max(this.fire,dt+.03);this.immelmannAltitude=Math.sin(q*Math.PI);if(!m.fired&&q>=.72){m.fired=true;for(let i=-m.spread;i<=m.spread;i++){const aa=this.a+i*.07;this.bullets.push({x:this.x+Math.cos(aa)*24,y:this.y+Math.sin(aa)*24,vx:Math.cos(aa)*620,vy:Math.sin(aa)*620,life:1.5,enemy:false,ownerId:this.id,damage:this.damage*3.5,pierce:true,hit:new Set(),formation:true})}this.muzzleFlash=.12}if(q>=1){this.immelmannTurn=null;this.immelmannAltitude=0;this.eagleTime=1.5;this.immelmannPreviousHeading=this.a}}else if(this.pilot==='immelmann')this.immelmannAltitude=0;
   if(this.pilot==='guynemer'){this.passiveCannonTimer=(this.passiveCannonTimer??0)-dt;if(this.passiveCannonTimer<=0){this.passiveCannonTimer=4;this.cannonRecoil129=.24;this.cannonKick129=9;this.identityFx?.('muzzleHeavy',this.x+Math.cos(this.a)*26,this.y+Math.sin(this.a)*26,this.a,58,.15);this.bullets.push({x:this.x,y:this.y,vx:Math.cos(this.a)*460,vy:Math.sin(this.a)*460,life:2.8,ownerId:this.id,enemy:false,motorCannon:true,pierce:true,collisionRadius:18,damage:this.payloadPower(90),hit:new Set()});}}
   return prior;

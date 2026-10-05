@@ -39,7 +39,7 @@ const moduleURL = name => performance.getEntriesByType('resource').map(e => e.na
   .find(n => new RegExp('/' + name.replace('.', '\\.') + '(\\?|$)').test(n));
 let modsPromise;
 const mods = () => modsPromise ||= (async () => {
-  const eu = moduleURL('engine.js?v=482'), iu = moduleURL('i18n.js');
+  const eu = moduleURL('engine.js?v=483'), iu = moduleURL('i18n.js');
   if (!eu || !iu) return null;
   try { const [engine, i18n] = await Promise.all([import(eu), import(iu)]); return { engine, i18n }; } catch { return null; }
 })();

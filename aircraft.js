@@ -1,4 +1,4 @@
-import {clearCrewMatte} from './matte70.js?v=482';
+import {clearCrewMatte} from './matte70.js?v=483';
 // Hand-authored game-native pixel sprites. All detail is rasterized once on an
 // integer grid; Canvas scaling keeps the same pixels in flight and the roster.
 const AIRFRAMES={
@@ -38,7 +38,7 @@ const loadPainted=key=>new Promise(resolve=>{
   const scan=document.createElement('canvas');scan.width=Math.ceil(img.naturalWidth/2);scan.height=Math.ceil(img.naturalHeight/2);const sc=scan.getContext('2d',{willReadFrequently:true});sc.drawImage(img,0,0,scan.width,scan.height);const pixels=sc.getImageData(0,0,scan.width,scan.height),rgba=pixels.data;if(key==='nieuport_italian')for(let i=0;i<rgba.length;i+=4){const r=rgba[i],g=rgba[i+1],b=rgba[i+2];if(rgba[i+3]>0&&b>70&&b>r*1.18&&b>g*1.05){rgba[i]=55;rgba[i+1]=132;rgba[i+2]=78}}clearAircraftMatte(key,rgba,scan.width,scan.height);clearCrewMatte(key,rgba,scan.width,scan.height);sc.putImageData(pixels,0,0);let minX=scan.width,minY=scan.height,maxX=-1,maxY=-1;
   for(let y=0;y<scan.height;y++)for(let x=0;x<scan.width;x++)if(rgba[(y*scan.width+x)*4+3]>128){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}
   if(maxX>=minX&&maxY>=minY){const out=document.createElement('canvas');out.width=288;out.height=320;const oc=out.getContext('2d');oc.imageSmoothingEnabled=true;oc.imageSmoothingQuality='high';const w=maxX-minX+1,h=maxY-minY+1,k=Math.min(228/w,264/h)*spriteScale(key),dw=Math.round(w*k),dh=Math.round(h*k);oc.drawImage(scan,minX,minY,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);const sil=document.createElement('canvas');sil.width=288;sil.height=320;const sx=sil.getContext('2d');sx.drawImage(out,0,0);sx.globalCompositeOperation='source-in';sx.fillStyle='#140f08';sx.fillRect(0,0,288,320);const rim=document.createElement('canvas');rim.width=288;rim.height=320;const rc=rim.getContext('2d');for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)if(dx*dx+dy*dy<=5)rc.drawImage(sil,dx,dy);rc.drawImage(out,0,0);painted.set(key,rim);cache.clear();shadows.clear();flashes.clear()}resolve(true);
- };let tries=0;const sourceKey=key==='nieuport_italian'?'nieuport':key;const mechDir=new URLSearchParams(location.search).get('mech')==='0'?'':'mech/';const base=new URL(`./${mechDir}${sourceKey}.webp?v=482&b=345`,import.meta.url).href;
+ };let tries=0;const sourceKey=key==='nieuport_italian'?'nieuport':key;const mechDir=new URLSearchParams(location.search).get('mech')==='0'?'':'mech/';const base=new URL(`./${mechDir}${sourceKey}.webp?v=483&b=345`,import.meta.url).href;
  // A failed fetch must never cache the plane as permanently invisible: retry with
  // a cache-busting tag so stale error responses and flaky mobile radio recover.
  img.onerror=()=>{if(++tries<8){img.src=base+'&r='+tries;return}resolve(false)};img.src=base;
@@ -71,7 +71,7 @@ const newAceAircraftReady=!NEW_ACE_AIRCRAFT.length?Promise.resolve(true):new Pro
    if(maxX<minX||maxY<minY)return;const out=document.createElement('canvas');out.width=288;out.height=320;const oc=out.getContext('2d');oc.imageSmoothingEnabled=true;oc.imageSmoothingQuality='high';
    const w=maxX-minX+1,h=maxY-minY+1,k=Math.min(236/w,272/h)*spriteScale(key),dw=Math.round(w*k),dh=Math.round(h*k);oc.drawImage(scan,minX,minY,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);painted.set(key,out);
   });cache.clear();shadows.clear();flashes.clear();resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./new-aces-aircraft124.webp?v=482&b=345',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./new-aces-aircraft124.webp?v=483&b=345',import.meta.url).href;
 });
 // Painted battle-damage marks (bullet holes, torn canvas, scorch) applied over the
 // authored sprites once a hull drops below half durability.
@@ -87,12 +87,12 @@ const damageDecalReady=new Promise(resolve=>{
    if(!any){damageDecals.push(null);continue}
    const cell=document.createElement('canvas');cell.width=r-l+1;cell.height=b-t+1;cell.getContext('2d').drawImage(sc,l,t,r-l+1,b-t+1,0,0,r-l+1,b-t+1);damageDecals.push(cell);
   }damageCache.clear();resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./damage-decals.webp?v=482&b=345',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./damage-decals.webp?v=483&b=345',import.meta.url).href;
 });
 // Deterministic per-airframe mark layout so a plane's scars stay put between frames.
 function damageSeed(key){let h=2166136261;for(const ch of key){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
 function damageRand(a){return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=(t+Math.imul(t^t>>>7,61|t))^t;return((t^t>>>14)>>>0)/4294967296}}
-function damagedSprite(base,key){
+function damagedSprite(base,key,stage=0){
  if(damageCache.has(key))return damageCache.get(key);
  const out=document.createElement('canvas');out.width=base.width;out.height=base.height;const c=out.getContext('2d',{willReadFrequently:true});
  c.drawImage(base,0,0);
@@ -101,7 +101,7 @@ function damagedSprite(base,key){
  // Marks paint on a separate layer first so they can be clipped to the
  // airframe silhouette — a scar must never float on open sky.
  const layer=document.createElement('canvas');layer.width=out.width;layer.height=out.height;const lc=layer.getContext('2d');
- const rnd=damageRand(damageSeed(key)),spots=3+Math.floor(rnd()*2);
+ const rnd=damageRand(damageSeed(key)),spots=(stage?2+stage*2:3)+Math.floor(rnd()*2);
  for(let s=0;s<spots&&opaque.length;s++){
   const d=damageDecals[Math.floor(rnd()*damageDecals.length)];if(!d)continue;
   const at=opaque[Math.floor(rnd()*opaque.length)],tx=at%out.width,ty=Math.floor(at/out.width);
@@ -170,11 +170,11 @@ export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0
  // Never fall back to the retired procedural planes while the authored art is
  // loading (or if an asset fails). A blank frame is preferable to a visual swap.
  if(!painted.has(sourceKey)){ensurePainted(sourceKey);return}
- if(!cache.has(cacheKey)){const source=cache.get(cacheKey)||build(redAce?'fokker':variant?'fokker_f1':standard?'fokker_standard':key);cache.set(cacheKey,source)}const sprite=damaged&&damageDecals.length?damagedSprite(cache.get(cacheKey),cacheKey):cache.get(cacheKey);
+ if(!cache.has(cacheKey)){const source=cache.get(cacheKey)||build(redAce?'fokker':variant?'fokker_f1':standard?'fokker_standard':key);cache.set(cacheKey,source)}const damageStage=typeof damaged==='number'?Math.min(5,damaged):0;const sprite=damaged&&damageDecals.length?damagedSprite(cache.get(cacheKey),damageStage?cacheKey+'#stage'+damageStage:cacheKey,damageStage):cache.get(cacheKey);
  c.save();c.imageSmoothingEnabled=false;c.translate(Math.round(x),Math.round(y));c.rotate(a+Math.PI/2);
  const s=scale*.54;c.scale(s,s);
  if(shadow){if(!shadows.has(cacheKey)){const sh=document.createElement('canvas');sh.width=144;sh.height=160;const sc=sh.getContext('2d');sc.imageSmoothingEnabled=true;sc.imageSmoothingQuality='high';sc.drawImage(sprite,0,0,144,160);sc.globalCompositeOperation='source-in';sc.fillStyle='#18271f';sc.fillRect(0,0,144,160);shadows.set(cacheKey,sh)}c.globalAlpha*=.26;c.drawImage(shadows.get(cacheKey),-72,-76)}
- else {c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(sprite,-72,-76,144,160);if(flash>0){const fk=damaged?cacheKey+'#d':cacheKey;if(!flashes.has(fk)){const f=document.createElement('canvas');f.width=144;f.height=160;const fc=f.getContext('2d');fc.imageSmoothingEnabled=true;fc.imageSmoothingQuality='high';fc.drawImage(sprite,0,0,144,160);fc.globalCompositeOperation='source-in';fc.fillStyle='#fff1c9';fc.fillRect(0,0,144,160);flashes.set(fk,f)}c.globalAlpha*=Math.min(.9,flash/.16);c.drawImage(flashes.get(fk),-72,-76)}}
+ else {c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(sprite,-72,-76,144,160);if(flash>0){const fk=damaged?cacheKey+'#d'+damageStage:cacheKey;if(!flashes.has(fk)){const f=document.createElement('canvas');f.width=144;f.height=160;const fc=f.getContext('2d');fc.imageSmoothingEnabled=true;fc.imageSmoothingQuality='high';fc.drawImage(sprite,0,0,144,160);fc.globalCompositeOperation='source-in';fc.fillStyle='#fff1c9';fc.fillRect(0,0,144,160);flashes.set(fk,f)}c.globalAlpha*=Math.min(.9,flash/.16);c.drawImage(flashes.get(fk),-72,-76)}}
  c.restore();
 }
 
@@ -192,5 +192,5 @@ export const campaignArtReady=new Promise(resolve=>{
    const [x,y,w,h]=boxes[i],k=Math.min(228/w,264/h),dw=Math.round(w*k),dh=Math.round(h*k);
    c.drawImage(img,cell%3*512+x,Math.floor(cell/3)*512+y,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);painted.set(key,out);
   }cache.clear();shadows.clear();flashes.clear();resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./campaign-units.webp?v=482&b=345',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./campaign-units.webp?v=483&b=345',import.meta.url).href;
 });

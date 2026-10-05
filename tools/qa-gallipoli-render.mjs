@@ -21,7 +21,7 @@ globalThis.Image=class extends Image{
   super.src=readFileSync(path);
  }get src(){return super.src}
 };
-const view=await import('../gallipoli-view.js?v=gallipoli-r3'),{drawStageBoss}=await import('../stageboss-view.js'),{fxArtReady}=await import('../fx-art.js?v=479'),{fixture,step}=await import('../tests/stageboss-fixture94.mjs'),{createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE}=await import('../gallipoli-route.js');
+const view=await import('../gallipoli-view.js?v=483'),{drawStageBoss}=await import('../stageboss-view.js'),{fxArtReady}=await import('../fx-art.js?v=479'),{fixture,step}=await import('../tests/stageboss-fixture94.mjs'),{createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE}=await import('../gallipoli-route.js');
 const {planeSprite,aircraftReady}=await import('../aircraft.js?v=479');
 await view.prepareGallipoliAssets(14);await fxArtReady;await aircraftReady;
 const out=root+'/qa/gallipoli';mkdirSync(out,{recursive:true});const metrics={};

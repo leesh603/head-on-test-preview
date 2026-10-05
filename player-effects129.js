@@ -1,7 +1,7 @@
 import {createSignatureView} from './pilot-signature-view.js';
-import {fx,fxTint} from './fx-art.js?v=482';
-import {planeSprite,aircraftKey} from './aircraft.js?v=482';
-import {drawGameIcon} from './icons.js?v=482';
+import {fx,fxTint} from './fx-art.js?v=483';
+import {planeSprite,aircraftKey} from './aircraft.js?v=483';
+import {drawGameIcon} from './icons.js?v=483';
 import {drawCavalryGuard} from './pilot-directed-fx.js';
 const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
@@ -9,7 +9,8 @@ export function playerPose(p,x,y){
  const t=Math.max(0,Math.min(1,(p.cannonRecoil129||0)/.24));
  const kick=(p.cannonKick129||0)*Math.sin(t*Math.PI/2);
  const altitude=p.pilot==='immelmann'?(p.immelmannAltitude||0):0;
- return {x:x-Math.cos(p.a)*kick,y:y-Math.sin(p.a)*kick,scale:(p.aceScale129||1)*(1-altitude*.28),height:0,shadowX:18+altitude*28,shadowY:28+altitude*36,shadowScale:1-altitude*.48,shadowAlpha:1-altitude*.55};
+ const roll=p.pilot==='huffzky'&&p.skillTime>0?Math.sin(p.nineRoll||0)*4:p.pilot==='udet'&&p.skillTime>0?Math.sin((p.t||0)*45)*.8:0;
+ return {x:x-Math.cos(p.a)*kick-Math.sin(p.a)*roll,y:y-Math.sin(p.a)*kick+Math.cos(p.a)*roll,scale:(p.aceScale129||1)*(1-altitude*.28),height:0,shadowX:18+altitude*28,shadowY:28+altitude*36,shadowScale:1-altitude*.48,shadowAlpha:1-altitude*.55};
 }
 export function drawPlayerAura(c,p,x,y){
  drawEquipmentEffects151(c,p,x,y);
