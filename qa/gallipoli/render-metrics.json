@@ -2,23 +2,23 @@
   "missing": [],
   "metrics": {
     "pc-central": {
-      "meanMs": 14.854458960000056,
-      "hazards": 5,
+      "meanMs": 16.819801090000002,
+      "hazards": 1,
       "dropped": 0
     },
     "mobile-central": {
-      "meanMs": 4.294604639999961,
-      "hazards": 5,
+      "meanMs": 4.585230090000023,
+      "hazards": 1,
       "dropped": 0
     },
     "pc-entente": {
-      "meanMs": 15.432900330000047,
-      "hazards": 5,
+      "meanMs": 16.41374802000004,
+      "hazards": 1,
       "dropped": 0
     },
     "mobile-entente": {
-      "meanMs": 3.9026737799999864,
-      "hazards": 5,
+      "meanMs": 4.243990919999869,
+      "hazards": 1,
       "dropped": 0
     }
   }
