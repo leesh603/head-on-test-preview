@@ -1,15 +1,15 @@
-import {tickRegionalConditions} from './region-doctrine1.js?v=479';
+import {tickRegionalConditions} from './region-doctrine1.js?v=480';
 
-import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=479';
-import {handleMaanCue} from './maan-view.js?v=479';
-import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=479';
-import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=479';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=479';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=479';
-import {bossSoundFor} from './boss-feedback.js?v=479';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=479';
-import {advanceCambraiBug} from './cambrai-bug-flight.js?v=479';
-import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=479';
+import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=480';
+import {handleMaanCue} from './maan-view.js?v=480';
+import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=480';
+import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=480';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=gallipoli-r3';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=gallipoli-r3';
+import {bossSoundFor} from './boss-feedback.js?v=gallipoli-r3';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=480';
+import {advanceCambraiBug} from './cambrai-bug-flight.js?v=480';
+import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=480';
 
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭','마안 전투','갈리폴리 전선'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
@@ -105,6 +105,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     Object.assign(e,{bugDrone:true,hp:Math.max(12,Math.round(e.maxHp*.4)),maxHp:Math.max(12,Math.round(e.maxHp*.4)),speed:spec.speed||178,fire:Infinity,launchAge:0,launchSeconds:spec.launchSeconds||.6,launchHeading:spec.launchHeading??spec.a??-Math.PI/2,launchPortId:spec.launchPortId,contactDamage:spec.contactDamage??18,bugTargetX:spec.passTargetX,bugTargetY:spec.passTargetY,bugAge:0});
     if(Number.isFinite(e.bugTargetX)&&Number.isFinite(e.bugTargetY))g.bossCues.push({type:'bug-flight-target',minionId:e.id,x:e.bugTargetX,y:e.bugTargetY,life:Math.hypot(e.bugTargetX-e.x,e.bugTargetY-e.y)/e.speed+.2});
    }
+   if(spec.minion==='gallipoli-interceptor')Object.assign(e,{gallipoliInterceptor:true,launchAge:0,launchSeconds:1.2,launchHeading:spec.a,speed:190});
    if(spec.minion==='airship')Object.assign(e,{summonDone:true,bossAirship:true,hp:Math.round(e.maxHp*.5),maxHp:Math.round(e.maxHp*.5),fire:2.6,speed:Math.max(e.speed||0,95)});
   },
   countMinions(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&!e.bossAirship&&e.hp>0).length;},
@@ -256,6 +257,7 @@ function updateMinions(g,dt){
     }
     continue;
    }
+  if(e.gallipoliInterceptor&&e.launchAge<e.launchSeconds){e.launchAge=Math.min(e.launchSeconds,e.launchAge+dt);e.a=e.launchHeading;e.x+=Math.cos(e.a)*120*dt;e.y+=Math.sin(e.a)*120*dt;continue;}
   if(e.surface){e.x+=e.vx*dt;e.a=e.vx<0?Math.PI:0;const viewH=g.viewHeight||640,floorY=g.y+viewH*.34;e.y=Math.max(e.y,floorY);}else if(e.behavior==='attack-pass'){
    e.passAge=(e.passAge||0)+dt;if(!e.passLocked){const a=Math.atan2((e.passTargetY??p.y)-e.y,(e.passTargetX??p.x)-e.x);e.a=a;e.passLocked=true;e.speed=Math.max(205,e.speed||0);}
    const lane=((e.formationIndex||0)-((e.formationCount||1)-1)/2)*9;e.x+=Math.cos(e.a)*e.speed*dt-Math.sin(e.a)*Math.sin(e.passAge*2.2)*lane*dt;e.y+=Math.sin(e.a)*e.speed*dt+Math.cos(e.a)*Math.sin(e.passAge*2.2)*lane*dt;

@@ -1,19 +1,16 @@
 {
-  "implementationCommit": "affa062bcaaad0024917e58b2d7788a5034f3c70",
-  "url": "https://raw.githack.com/leesh603/head-on-test-preview/affa062bcaaad0024917e58b2d7788a5034f3c70/index.html?headonTest=1&region=14&pilot=fonck&boss=1&v=gallipoli540",
-  "observed": {
-    "newFortressRendered": true,
-    "sectorHud": "방어구역 0/3 점령",
-    "partCount": "13/13",
-    "hp": "2100/2100",
-    "clockProgress": "00:00 → 00:02 → 00:04",
-    "pauseDialogOpened": true,
-    "continueDialogDismissed": true
-  },
-  "limitations": [
-    "SecurityError: getImageData canvas tainted by cross-origin data in aircraft.js, portraits.js, battlefield-art.js",
-    "window.__HEADON_TEST__ remained undefined at inspection",
-    "PC/mobile prolonged input gameplay and device FPS unverified"
+  "implementationCommit": "20edb31296dc02aa2fd51f0c6e4be4cc7d744990",
+  "host": "raw.githack.com",
+  "observed": [
+    "fortress and hangar rendered",
+    "Korean command tactic rendered",
+    "entry warning completed",
+    "HUD time advanced 00:00 to 00:02",
+    "pause and continue worked"
   ],
-  "status": "partial-browser-verification; automated engine/render verification passed"
+  "errors": "Common image loaders: cross-origin canvas getImageData SecurityError",
+  "testLab": "undefined",
+  "longPlay": "unverified",
+  "mobileBrowser": "unverified",
+  "deviceFPS": "unverified"
 }

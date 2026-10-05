@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=479&b=326';
-import {MAAN_LAYOUT,rotateMaan,segmentBox} from './maan-layout.js?v=479';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=480&b=326';
+import {MAAN_LAYOUT,rotateMaan,segmentBox} from './maan-layout.js?v=480';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 class DesertHull extends BaseBoss {
  constructor(o,kind){

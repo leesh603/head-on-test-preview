@@ -1,5 +1,5 @@
 // Install after the engine's final pilot layer. Existing working attacks stay intact.
-import {PILOT_SIGNATURES,signatureState,advancePilotSignature,activatePilotSignature,signatureCue,pilotSignatureReaction,signatureInterval} from './pilot-signature-state.js?v=479';
+import {PILOT_SIGNATURES,signatureState,advancePilotSignature,activatePilotSignature,signatureCue,pilotSignatureReaction,signatureInterval} from './pilot-signature-state.js?v=480';
 const WRAPPED=Symbol.for('headon.pilot-signatures.v1');
 const own=p=>p.id??'p1';
 const angle=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));

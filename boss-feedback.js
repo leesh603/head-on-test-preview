@@ -6,11 +6,14 @@ PHASES['flak-disabled']=['대공포탑 파괴 · 주포 사격 중단','Turret d
 PHASES['hull-exposed']=['장갑 해제 · 차체 노출','Armour disabled · hull exposed'];
 PHASES['harbor-launch-disabled']=['수상기 시설 파괴 · 출격 중단','Seaplane dock destroyed · launches stopped'];
 PHASES['rig-exposed']=['중앙 계류장치 노출','Central rig exposed'];
-PHASES['sector-west-captured']=['서부 해안포 진지 점령 · 서부 포격 중단','West battery secured · western guns silenced'];
-PHASES['sector-east-captured']=['동부 해안포 진지 점령 · 동부 포격 중단','East battery secured · eastern guns silenced'];
-PHASES['sector-citadel-captured']=['후방 중포 성채 점령 · 방어선 제압','Rear citadel secured · defenses silenced'];
+PHASES['sector-west-captured']=['서부 진지 무력화 · 지휘포대 생존 시 수리','West battery disabled · command keeps repairs active'];
+PHASES['sector-east-captured']=['동부 진지 무력화 · 지휘포대 생존 시 수리','East battery disabled · command keeps repairs active'];
+PHASES['sector-citadel-captured']=['후방 성채 무력화 · 지휘포대 생존 시 수리','Rear citadel disabled · command keeps repairs active'];
 PHASES['defense-collapse']=['양익 방어선 점령 · 후방 성채 공략','Both wings secured · assault the rear citadel'];
 PHASES['central-fortress']=['3구역 점령 완료 · 중앙 지휘포대 노출','All sectors secured · command battery exposed'];
+PHASES['gallipoli-repair-warning']=['파괴 포대 수리 중 · 3초 뒤 재가동','Defense repairs · reactivation in 3 seconds'];
+PHASES['gallipoli-repaired']=['포대 수리 완료 · 재가동 준비','Defense restored · preparing to fire'];
+PHASES['gallipoli-command-destroyed']=['중앙 지휘포대 파괴 · 수리·요격기 증원 중단','Command destroyed · repairs and sorties stopped'];
 export function bossPhaseLabel(phase,locale='ko'){const words=PHASES[phase];return words?words[locale==='en'?1:0]:pair('보스 전술 변화','Boss tactics changed',locale)}
 export const BOSS_NAMES_EN=Object.freeze({'gallipoli-fortress':'Gallipoli Grand Fortress · Siege','wustenpanzer':'Wüstenpanzer · Desert cruiser','sinai-landship':'Sinai Landship','fort-douaumont':'Fort Douaumont','fort-souville':'Fort de Souville',
  'paris-gun':'Bruno railway gun',lincomparable:"520mm L’Incomparable",'sms-stuttgart':'SMS Stuttgart','hms-zubian':'HMS Zubian',
@@ -28,9 +31,9 @@ export function bossTactic(encounter,locale='ko'){
  const bodies=[...encounter?.bodies.values()||[]].filter(b=>!b.dead),b=bodies[0];if(!b)return '';
  const text=(ko,en)=>pair(ko,en,locale),gone=id=>b.parts.get(id)?.destroyed;
  switch(encounter.bossId){
-  case 'gallipoli-fortress':return b.coreVulnerable?text('3구역 점령 완료 · 중앙 지휘포대 격파','All sectors secured · destroy the command battery'):text('방어구역 '+(b.captured?.size||0)+'/3 점령 · 중포·대공포 격파 / 탄약고 폭파로 약화','Sectors '+(b.captured?.size||0)+'/3 · silence guns and AA / detonate supplies');
-  case 'wustenpanzer':return b.sandBlind?text('모래바람 엄폐 · 마지막 포착 지점 포격 주의','Sand cover breaks tracking · watch the last observed target'):gone('radiator')?text('냉각 파괴 · 증기 분출 틈 공략, 엔진으로 폭주 봉쇄','Cooling lost · attack between vents; break engine to stop runaway'):text('중포 충격파는 고리만 위험 · 모래바람으로 조준 끊기','Heavy shells spread a sand shock ring · use sand cover to break aim');
-  case 'sinai-landship':return gone('command')?text('지휘부 파괴 · 고정 구역 포격, 모래 통로로 회피','Command down · fixed sector salvos; use the clear corridor'):gone('support')?text('호위 증원 중단 · 남은 장갑차와 측면포 공략','Reinforcements stopped · destroy escorts and flank guns'):text('측면 포격 사이 빈 통로 · 모래바람 엄폐, 지원구획으로 호위 차단','Use the broadside gap and sand cover · support bay stops escorts');
+  case 'gallipoli-fortress':return b.commandDestroyed?text('지휘포대 파괴 · 수리·증원 중단 / 남은 포대 격파','Command destroyed · no repairs or sorties / clear remaining guns'):text('중앙 지휘포대로 수리·요격기 증원 차단 · 각 포대 개별 공략','Destroy command to stop repairs and sorties · attack any battery');
+  case 'wustenpanzer':return b.serviceWindow>0?text('증기 원 회피 · 장갑이 열린 본체 집중 공격','Avoid steam circles · strike the open hull'):b.sandBlind?text('모래바람 엄폐 · 마지막 포착 지점 포격 주의','Sand cover breaks tracking · watch the last observed target'):gone('radiator')?text('냉각 파괴 · 증기 사이로 공격 · 엔진으로 폭주 억제','Cooling destroyed · attack between vents · break engine'):text('순차 포격을 옆으로 회피 · 증기 배출 때 본체 공략','Dodge walking artillery sideways · strike during pressure release');
+  case 'sinai-landship':return gone('command')?text('협동 포격 중단 · 남은 측면포와 장갑차 공략','Coordinated barrage stopped · silence guns and escorts'):gone('support')?text('호위 증원 중단 · 남은 장갑차와 측면포 공략','Reinforcements stopped · destroy escorts and flank guns'):text('양측 포격의 중앙 틈 활용 · 지휘부로 협공 차단','Use the central barrage gap · break command to stop coordination');
   case 'paris-gun':return b.phase==='runaway'?text('폭주 경로 이탈 → 탈선 후 기관차 공격','Clear the runaway track → strike after derailment'):b.coreVulnerable?text('기관차 노출 · 5발 순서를 읽고 빈 통로로 회피','Locomotive exposed · read the five-shot order and use its gaps'):gone('car-middle')?text('관측차 파괴 · 고정 포격, 탄약차 파괴로 재장전 지연','Observer down · blind barrage; ammo loss slows reload'):gone('car-rear')?text('후미 화망 중단 · 관측차를 파괴해 조준을 끊기','Rear gun silenced · break the observer to interrupt targeting'):text('대공 방어차 → 관측차 → 탄약차 · 레일 파괴로 이동 봉쇄','Defense → observer → ammunition · break the rail to halt movement');
   case 'lincomparable':return b.phase==='runaway'?text('폭주 경로 이탈 → 탈선 후 기관차 공격','Clear the runaway track → strike after derailment'):b.phase==='derailed'?text('탈선한 기관차 집중 사격','Focus fire on the derailed locomotive'):b.coreVulnerable&&b.recovery>0?text('재장전 중 장갑 약화 · 기관차 집중 사격','Reload opens the armor · strike the locomotive'):b.coreVulnerable?text('충격파 안쪽으로 파고들거나 바깥으로 이탈 · 재장전 틈 공략','Dive inside the shock ring or escape outside · punish reload'):text('후미부터 파괴 · 충격파는 안쪽도 안전, 중심 연막 주의','Break the tail first · shock ring has a safe interior; avoid center smoke');
   case 'sms-stuttgart':return b.support129?.phase===1?text('보일러 파괴로 감속 · 덮개를 열어 연료 공략','Break boilers to slow the carrier · open the hangar'):text('연료로 출격 차단 · 함포 파괴로 포격 감소','Destroy fuel to stop sorties · silence each turret');

@@ -11,8 +11,12 @@
     "dropped": 0,
     "hostDamage": 20,
     "pauseFrozen": true,
-    "allSectorsCaptured": true,
-    "nativeCoreDefeated": true
+    "maxInterceptors": 1,
+    "totalSorties": 7,
+    "repairedLeft": true,
+    "commandFirst": true,
+    "repairAndSortiesStopped": true,
+    "nativeFortressDefeated": true
   },
   {
     "mode": "solo",
@@ -26,8 +30,12 @@
     "dropped": 0,
     "hostDamage": 20,
     "pauseFrozen": true,
-    "allSectorsCaptured": true,
-    "nativeCoreDefeated": true
+    "maxInterceptors": 1,
+    "totalSorties": 7,
+    "repairedLeft": true,
+    "commandFirst": true,
+    "repairAndSortiesStopped": true,
+    "nativeFortressDefeated": true
   },
   {
     "mode": "solo",
@@ -41,8 +49,12 @@
     "dropped": 0,
     "hostDamage": 20,
     "pauseFrozen": true,
-    "allSectorsCaptured": true,
-    "nativeCoreDefeated": true
+    "maxInterceptors": 1,
+    "totalSorties": 7,
+    "repairedLeft": true,
+    "commandFirst": true,
+    "repairAndSortiesStopped": true,
+    "nativeFortressDefeated": true
   },
   {
     "mode": "solo",
@@ -56,8 +68,12 @@
     "dropped": 0,
     "hostDamage": 20,
     "pauseFrozen": true,
-    "allSectorsCaptured": true,
-    "nativeCoreDefeated": true
+    "maxInterceptors": 1,
+    "totalSorties": 7,
+    "repairedLeft": true,
+    "commandFirst": true,
+    "repairAndSortiesStopped": true,
+    "nativeFortressDefeated": true
   },
   {
     "mode": "coop",
@@ -71,8 +87,12 @@
     "dropped": 0,
     "hostDamage": 20,
     "pauseFrozen": true,
-    "allSectorsCaptured": true,
-    "nativeCoreDefeated": true
+    "maxInterceptors": 1,
+    "totalSorties": 7,
+    "repairedLeft": true,
+    "commandFirst": true,
+    "repairAndSortiesStopped": true,
+    "nativeFortressDefeated": true
   },
   {
     "mode": "coop",
@@ -86,8 +106,12 @@
     "dropped": 0,
     "hostDamage": 20,
     "pauseFrozen": true,
-    "allSectorsCaptured": true,
-    "nativeCoreDefeated": true
+    "maxInterceptors": 1,
+    "totalSorties": 7,
+    "repairedLeft": true,
+    "commandFirst": true,
+    "repairAndSortiesStopped": true,
+    "nativeFortressDefeated": true
   },
   {
     "mode": "coop",
@@ -101,8 +125,12 @@
     "dropped": 0,
     "hostDamage": 20,
     "pauseFrozen": true,
-    "allSectorsCaptured": true,
-    "nativeCoreDefeated": true
+    "maxInterceptors": 1,
+    "totalSorties": 7,
+    "repairedLeft": true,
+    "commandFirst": true,
+    "repairAndSortiesStopped": true,
+    "nativeFortressDefeated": true
   },
   {
     "mode": "coop",
@@ -116,7 +144,11 @@
     "dropped": 0,
     "hostDamage": 20,
     "pauseFrozen": true,
-    "allSectorsCaptured": true,
-    "nativeCoreDefeated": true
+    "maxInterceptors": 1,
+    "totalSorties": 7,
+    "repairedLeft": true,
+    "commandFirst": true,
+    "repairAndSortiesStopped": true,
+    "nativeFortressDefeated": true
   }
 ]
