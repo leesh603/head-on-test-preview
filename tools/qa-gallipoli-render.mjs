@@ -21,8 +21,8 @@ globalThis.Image=class extends Image{
   super.src=readFileSync(path);
  }get src(){return super.src}
 };
-const view=await import('../gallipoli-view.js?v=483'),{drawStageBoss}=await import('../stageboss-view.js'),{fxArtReady}=await import('../fx-art.js?v=479'),{fixture,step}=await import('../tests/stageboss-fixture94.mjs'),{createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE}=await import('../gallipoli-route.js');
-const {planeSprite,aircraftReady}=await import('../aircraft.js?v=479');
+const view=await import('../gallipoli-view.js?v=483'),{drawStageBoss}=await import('../stageboss-view.js'),{fxArtReady}=await import('../fx-art.js?v=483'),{fixture,step}=await import('../tests/stageboss-fixture94.mjs'),{createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE}=await import('../gallipoli-route.js');
+const {planeSprite,aircraftReady}=await import('../aircraft.js?v=483');
 await view.prepareGallipoliAssets(14);await fxArtReady;await aircraftReady;
 const out=root+'/qa/gallipoli';mkdirSync(out,{recursive:true});const metrics={};
 for(const [team,name]of [['entente','central'],['central','entente']])for(const [w,h,size]of [[1440,1000,'pc'],[390,844,'mobile']]){
