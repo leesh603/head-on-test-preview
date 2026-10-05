@@ -3,10 +3,22 @@ import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patter
 import {verdunFortCollapseSites} from './verdun-fortresses.js?v=485';
 import {BossHazards} from './headon-stageboss-hazards.js?v=485';
 
+// First playthrough runs the authored narrative order; later loops shuffle the
+// early and late battlefields within their halves so the big set pieces stay
+// spread out and the previous finale never repeats immediately.
+const FIRST_ORDER=[0,2,1,9,4,5,8,7,3,10,6,12,11,14,13,16,15];
+const LATE_ORDER_START=9;
+function shuffledOrder(rng,previous){
+  const early=FIRST_ORDER.slice(0,LATE_ORDER_START),late=FIRST_ORDER.slice(LATE_ORDER_START);
+  const mix=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+  const order=[...mix(early),...mix(late)];
+  if(order[0]===previous)[order[0],order[1]]=[order[1],order[0]];
+  return order;
+}
 export class BossStages {
   constructor({teamFaction,stageIndex=0,loopIndex=0,rng=Math.random}) {
     if(!['central','entente'].includes(teamFaction)||!Number.isInteger(stageIndex)||stageIndex<0||stageIndex>=STAGES.length||!Number.isInteger(loopIndex)||loopIndex<0)throw new Error('Invalid current stage/faction');
-    Object.assign(this,{teamFaction,stageIndex,loopIndex,rng});this.order=[0,2,1,5,3,7,9,4,8,10,11,6,12,13,14,15,16];this.orderPosition=this.order.indexOf(stageIndex);this.phase='explore';this.encounter=null;
+    Object.assign(this,{teamFaction,stageIndex,loopIndex,rng});this.order=loopIndex===0?[...FIRST_ORDER]:shuffledOrder(rng,stageIndex);this.orderPosition=this.order.indexOf(stageIndex);this.phase='explore';this.encounter=null;
   }
   get stage(){return STAGES[this.stageIndex];}
   get bossId(){return Object.keys(BOSS_CATALOG).find(id=>BOSS_CATALOG[id].stage===this.stageIndex&&(BOSS_CATALOG[id].faction==='neutral'||BOSS_CATALOG[id].faction!==this.teamFaction));}
@@ -19,7 +31,7 @@ export class BossStages {
   advance(blocked=false) {
     if(blocked||this.phase!=='clear-pending'||!this.encounter.completed)return null;
     const id=this.encounter.id;const pos=this.order.indexOf(this.stageIndex);this.orderPosition=pos<0?this.order.length:pos+1;
-    if(this.orderPosition>=this.order.length){this.loopIndex++;this.orderPosition=0;const previous=this.stageIndex;this.order=STAGES.map((_,i)=>i);for(let i=this.order.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[this.order[i],this.order[j]]=[this.order[j],this.order[i]]}if(this.order[0]===previous)[this.order[0],this.order[1]]=[this.order[1],this.order[0]];}
+    if(this.orderPosition>=this.order.length){this.loopIndex++;this.orderPosition=0;this.order=shuffledOrder(this.rng,this.stageIndex);}
     this.stageIndex=this.order[this.orderPosition];
     this.phase='explore';this.encounter=null;
     return{completedId:id,stage:this.stage,stageIndex:this.stageIndex,loopIndex:this.loopIndex};

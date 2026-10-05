@@ -7,17 +7,41 @@ import {PILOTS} from '../engine.js';
 import {BOSS_CATALOG,STAGES,createBossEncounter} from '../headon-stageboss-patterns.js';
 import {CAMPAIGN_DATA} from '../campaign-data.js';
 import {MUSIC_REGIONS,CAMPAIGN_MUSIC,musicContextForGame} from '../music-context.js';
-import {MUSIC_THEMES,ACE_MOTIFS,BOSS_ARRANGEMENTS,orchestralStep,signatureNotes} from '../music-score.js';
-import {MUSIC_SAMPLES} from '../music-samples.js';
-import {BattleMusic} from '../music.js';
+import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS} from '../music-score.js';
+import {BattleMusic,MUSIC_THEME_IDS} from '../music.js';
 
 const game=()=>({state:'playing',t:20,x:0,y:0,enemies:[],worldRegion:()=>0});
+function capture(){
+ const m=new BattleMusic(),notes=[];
+ m.ctx={state:'running',currentTime:0};m.bus={gain:{setTargetAtTime(){}}};
+ m.tone=(...n)=>notes.push(['tone',...n]);m.drum=(...n)=>notes.push(['drum',...n]);
+ const advance=(seconds)=>{const end=m.ctx.currentTime+seconds;for(;m.ctx.currentTime<end;m.ctx.currentTime+=.05)m.schedule();};
+ return {m,notes,advance};
+}
+test('all seven original calm scores, especially rural, retain exact 80-second note/drum sequences',()=>{
+ const fixture=JSON.parse(readFileSync(new URL('./music-original-fixture.json',import.meta.url)));
+ for(const [mode,hash] of Object.entries(fixture.hashes)){
+  const {m,notes}=capture();m.setScene({theme:mode==='trench'?'trenches':mode,state:'CALM',intensity:.2},false);
+  for(let tick=0;tick<1600;tick++){m.ctx.currentTime=tick*.05;m.schedule();}
+  assert.equal(createHash('sha256').update(JSON.stringify(notes)).digest('hex'),hash,mode);
+ }
+});
+test('Director combat adds a beat-locked groove then releases without changing the rural song',()=>{
+ const {m,notes,advance}=capture();m.setScene({theme:'rural',state:'CALM',intensity:.2},false);advance(3);
+ const oldStep=m.step;m.setScene({theme:'rural',state:'COMBAT',intensity:.8,pattern:'CROSS_ATTACK'},false);
+ assert.equal(m.step,oldStep);advance(5);assert(m.intensity>.75);
+ const combat=notes.slice();assert(combat.some(n=>n[0]==='tone'&&n[6]===680),'driving bass groove');
+ assert(combat.some(n=>n[0]==='drum'&&n[2]===true&&n[3]>.55),'audible snare backbeat');
+ m.setScene({theme:'rural',state:'CALM',intensity:.12,pattern:'RECOVERY'},false);advance(10);
+ assert(m.intensity<.2);notes.length=0;advance(3);assert(!notes.some(n=>n[0]==='tone'&&n[6]===680));
+ assert.equal(m.tempo,88);
+});
 test('every actual region, campaign, ace and catalog boss has a score',()=>{
  assert.deepEqual(MUSIC_REGIONS,STAGES);
- for(const id of STAGES)assert(MUSIC_THEMES[id],id);
- for(const stage of CAMPAIGN_DATA.stages)assert(MUSIC_THEMES[CAMPAIGN_MUSIC[stage.id]],stage.id);
+ for(const id of STAGES)assert(MUSIC_THEME_IDS.includes(id),id);
+ for(const stage of CAMPAIGN_DATA.stages)assert(MUSIC_THEME_IDS.includes(CAMPAIGN_MUSIC[stage.id]),stage.id);
  assert.deepEqual(Object.keys(ACE_MOTIFS).sort(),Object.keys(PILOTS).sort());
- for(const id of Object.keys(BOSS_CATALOG))assert(BOSS_ARRANGEMENTS[id],id);
+ assert.deepEqual(Object.keys(BOSS_ARRANGEMENTS).sort(),Object.keys(BOSS_CATALOG).sort());
  assert.notEqual(CAMPAIGN_MUSIC['A-03'],CAMPAIGN_MUSIC['A-04']);
  assert.notEqual(MUSIC_REGIONS[8],MUSIC_REGIONS[7]);
 });
@@ -53,60 +77,57 @@ test('Paris mechanics expose lock, beat, engine relief, approach and last stand'
  const a=musicContextForGame(g2);b2.parts.get('engine-0').hp=0;b2.parts.get('engine-1').hp=0;
  const c=musicContextForGame(g2);assert(c.engines<a.engines);assert(c.urgency<a.urgency,'slower approach relaxes urgency');
 });
-test('each destroyed Fliegerzug car removes its own orchestral voice',()=>{
- const bossId='fliegerzug',encounter=createBossEncounter({id:bossId,bossId,x:0,y:0,emit(){},tuning:{maxHp:1000,partHp:100,damage:10,bulletSpeed:100}});
- const g=game();g.worldRegion=()=>8;g.stageBoss={stages:{phase:'boss',bossId,encounter}};
- const b=[...encounter.bodies.values()][0];
- const render=()=>{const notes=[],scene=musicContextForGame(g);for(let i=0;i<4;i++)orchestralStep(scene,i,i*.3,.3,.8,(...n)=>notes.push(n));return notes;};
- let before=render();
- const carIds=[...b.parts.values()].filter(p=>p.kind==='rail-car').map(p=>p.id).slice(0,3);
- for(const id of carIds){
-  b.parts.get(id).hp=0;
-  const after=render();assert.equal(musicContextForGame(g).cars[id],false);
-  assert(before.length-after.length>=1,id);
-  before=after;
+test('actual scene routing plays the boss score immediately; final stays on its transport and defeat returns',()=>{
+ for(const bossId of Object.keys(BOSS_CATALOG)){
+  const {m,notes,advance}=capture();m.setScene({theme:'rural',state:'CALM',intensity:.2},false);advance(2);
+  m.setScene({theme:'rural',state:'BOSS',bossId,encounterId:'one',intensity:.6},false);
+  assert.equal(m.mode,'boss:'+bossId);assert(m.bossTrack());notes.length=0;advance(2);
+  assert(notes.some(n=>n[0]==='tone'&&n[3]>.1),bossId);assert(notes.every(n=>n.slice(1).filter(v=>typeof v==='number').every(Number.isFinite)));
+  const step=m.step;m.setScene({theme:'rural',state:'BOSS_FINAL',bossId,encounterId:'one',intensity:.9,parts:.2},false);
+  assert.equal(m.step,step);advance(1);assert.equal(m.scene.state,'BOSS_FINAL');
+  m.setScene({theme:'rural',state:'COMBAT',intensity:.6},false);assert.equal(m.mode,'rural');assert.equal(m.bossTrack(),null);
  }
 });
-test('recordings have pinned provenance, valid PCM and matching hashes',()=>{
- const sources=JSON.parse(readFileSync(new URL('../music-bank/SOURCES.json',import.meta.url)));
- assert.equal(sources.license,'CC0-1.0');let bytes=0;
- for(const [instrument,samples] of Object.entries(MUSIC_SAMPLES))for(const s of samples){
-  const raw=readFileSync(new URL('../music-bank/'+s.file,import.meta.url));bytes+=raw.length;
-  assert.equal(raw.toString('ascii',0,4),'RIFF');assert.equal(raw.toString('ascii',8,12),'WAVE');
-  assert.equal(raw.readUInt32LE(24),32000);assert.equal(raw.readUInt16LE(34),16);
-  const record=sources.samples[instrument].find(r=>r.file===s.file);
-  assert.equal(createHash('sha256').update(raw).digest('hex'),record.sha256);assert.equal(record.sourceSha256.length,64);
-  assert(Math.abs((raw.length-44)/64000-s.duration)<.001);
+test('all new regional motifs and all boss final arrangements remain distinct and finite',()=>{
+ const maps=new Set();
+ for(const theme of Object.keys(REGIONAL_VARIATIONS)){
+  const {m,notes,advance}=capture();m.setScene({theme,state:'COMBAT',intensity:.7},false);advance(30);
+  assert(notes.length>40);assert(notes.every(n=>n.slice(1).filter(v=>typeof v==='number').every(Number.isFinite)),theme);maps.add(JSON.stringify(notes));
  }
- assert(bytes<15*1024*1024,'bounded mobile download');
+ assert.equal(maps.size,Object.keys(REGIONAL_VARIATIONS).length);
+ const bosses=new Set();
+ for(const bossId of Object.keys(BOSS_CATALOG)){
+  const render=state=>{const {m,notes,advance}=capture();m.setScene({theme:'rural',state,bossId,intensity:.8,parts:state==='BOSS'?1:.2},false);advance(16);return notes;};
+  const normal=render('BOSS');assert.notDeepEqual(normal,render('BOSS_FINAL'),bossId);bosses.add(JSON.stringify(normal));
+ }
+ assert.equal(bosses.size,Object.keys(BOSS_CATALOG).length);
 });
-test('authored maps and boss variations differ; every emitted note has a real instrument',()=>{
- const hashes=new Set();
- for(const theme of Object.keys(MUSIC_THEMES)){
-  const s=MUSIC_THEMES[theme],notes=[];
-  const emit=(...n)=>{assert(MUSIC_SAMPLES[n[0]],n[0]);assert(n.slice(1).every(Number.isFinite));assert(n[3]>0);notes.push(n);};
-  for(let i=0;i<s.beats*2*96;i++)orchestralStep({theme,state:'COMBAT'},i,i*.3,60/s.bpm/2,.7,emit);
-  hashes.add(JSON.stringify(notes));assert(notes.length>100);
- }
- assert.equal(hashes.size,Object.keys(MUSIC_THEMES).length);
- for(const [bossId,entry] of Object.entries(BOSS_CATALOG)){
-  const normal=[],final=[],scene={theme:STAGES[entry.stage],bossId,parts:1,engines:1,formation:1};
-  for(let i=0;i<48;i++){orchestralStep({...scene,state:'BOSS'},i,i*.3,.3,.8,(...n)=>normal.push(n));orchestralStep({...scene,state:'BOSS_FINAL',parts:.2,engines:.2},i,i*.3,.3,.8,(...n)=>final.push(n));}
-  assert.notDeepEqual(normal,final,bossId);
- }
- const motifs=new Set();for(const id of Object.keys(PILOTS)){const notes=[],seconds=signatureNotes(id,'rural',0,(...n)=>notes.push(n));assert(seconds>=3&&seconds<=6);motifs.add(JSON.stringify(notes));}
- assert.equal(motifs.size,Object.keys(PILOTS).length);
+test('rail cars lose separate voices and bomber engine loss reduces its pulse',()=>{
+ const {m,notes}=capture();const base={theme:'cambrai',state:'BOSS',bossId:'fliegerzug',intensity:.7,cars:{'car-rear':true,'car-middle':true,'car-front':true}};
+ m.setScene(base,false);
+ const render=()=>{notes.length=0;for(let i=0;i<16;i++)m.bossVariation(i,i*.3,.3,33);return notes.length;};
+ let count=render();for(const id of Object.keys(base.cars)){base.cars[id]=false;const after=render();assert.equal(count-after,1,id);count=after;}
+ m.setScene({...base,bossId:'paris-staaken-rvi',engines:1},false);notes.length=0;m.bossVariation(2,0,.3,33);const full=notes.at(-1)[4];
+ m.scene.engines=.25;notes.length=0;m.bossVariation(2,0,.3,33);assert(notes.at(-1)[4]<full);
 });
-test('one signature per ace; pause, mute, boss priority and restart cancel scheduled cues',()=>{
- const m=new BattleMusic(),notes=[],stops=[];
- m.ctx={state:'running',currentTime:0};m.bus={gain:{setTargetAtTime(){}}};m.layer={disconnect(){}};
- m.bank={ready:true,note(...n){notes.push(n);},stop(predicate){stops.push(predicate);}};
- const g=game(),ace={hp:10,bossPilot:'baron'};g.enemies=[ace];
- m.setScene(musicContextForGame(g),false);m.schedule();assert.equal(m.signatureCount,1);
- for(let i=0;i<8;i++)m.setScene(musicContextForGame(g),false);
- m.schedule();assert.equal(m.signatureCount,1);
- m.setScene(null,true);const count=notes.length;m.schedule();assert.equal(notes.length,count);
- m.setScene(musicContextForGame(g),false);m.schedule();assert.equal(m.signatureCount,1);
- const step=m.step;m.setScene({...musicContextForGame(g),state:'BOSS',bossId:'paris-gun',ace:undefined},false);assert.equal(m.step,step,'same map transport survives ace to boss');
- assert(stops.length>0);m.reset();m.setScene(musicContextForGame(g),false);m.schedule();assert.equal(m.signatureCount,1,'restart permits a fresh intro');
+test('32 beat-locked ace signatures play once, survive mute/pause, and stop before bosses',()=>{
+ const motifs=new Set();
+ for(const id of Object.keys(ACE_MOTIFS)){
+  const {m,notes,advance}=capture(),ace={hp:10},scene={theme:'rural',state:'ACE',ace,aceId:id,intensity:.7};
+  m.setScene(scene,false);advance(7);assert.equal(m.signatureCount,1,id);motifs.add(JSON.stringify(notes));
+  m.setScene(null,true);const count=notes.length;advance(2);assert.equal(notes.length,count);
+  m.setScene(scene,false);advance(2);assert.equal(m.signatureCount,1);
+  m.setScene({...scene,state:'BOSS',bossId:'paris-gun',ace:undefined},false);assert.equal(m.intro,null);assert.equal(m.mode,'boss:paris-gun');
+  m.reset();m.setScene(scene,false);advance(1);assert.equal(m.signatureCount,1);
+ }
+ assert.equal(motifs.size,Object.keys(ACE_MOTIFS).length);
+});
+test('synth sources including ambience and delayed notes are stopped on pause/mute/restart',()=>{
+ const param=()=>({value:1,setValueAtTime(){},linearRampToValueAtTime(){},exponentialRampToValueAtTime(){},setTargetAtTime(){},cancelAndHoldAtTime(){},cancelScheduledValues(){}});
+ const sources=[],node=()=>({connect(){},disconnect(){}}),source=()=>{const n={...node(),frequency:param(),playbackRate:param(),start(t){this.started=t;},stop(t){this.stopped=t;}};sources.push(n);return n;};
+ const m=new BattleMusic();m.ctx={currentTime:5,createOscillator:source,createBufferSource:source,createGain:()=>({...node(),gain:param()}),createBiquadFilter:()=>({...node(),frequency:param(),Q:{value:0}})};
+ m.bus={...node(),gain:param()};m.noise={};m.tone(50,5,2,.1);m.drum(6,true,.5);m.amb('rural',5,3);assert.equal(m.voices.size,3);
+ m.setState('idle',false);assert(sources.every(s=>s.stopped<=5.09));for(const s of sources)s.onended();assert.equal(m.voices.size,0);
+ m.tone(50,8,2,.1);m.setState('rural',true);assert.equal(sources.at(-1).stopped,5);sources.at(-1).onended();
+ m.tone(50,9,2,.1);m.reset();assert.equal(sources.at(-1).stopped,5);sources.at(-1).onended();assert.equal(m.voices.size,0);
 });

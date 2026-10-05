@@ -1,5 +1,4 @@
-import {AcousticBank} from './music-bank-player.js?v=485';
-import {MUSIC_THEMES,orchestralStep,signatureNotes,scorePitch} from './music-score.js?v=485';
+import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=485';
 export {musicContextForGame} from './music-context.js?v=485';
 // Original adaptive score. Map themes share no borrowed soundtrack melodies.
 // Modes: 'idle' | map regions (rural/sea/trench/city/sky/alps/zeebrugge) |
@@ -11,23 +10,7 @@ export function musicModeForGame(game){
   if(game.enemies.some(e=>e.hp>0&&e.type==='boss'))return 'boss';
   return MAP_KEYS[game.worldRegion()]||'rural';
 }
-// 0..1 danger level for the map-score tension layer. Boss tracks carry their
-// own intensity ramp, so threat stays 0 while a boss track owns the mix.
-export function musicThreatForGame(game){
-  if(!game||game.state!=='playing')return 0;
-  if(game.stageBoss?.stages?.phase==='boss')return 0;
-  if(game.enemies.some(e=>e.hp>0&&e.type==='boss'))return 0;
-  const x=game.x||0,y=game.y||0;let th=0,near=0,fire=0;
-  for(const e of game.enemies||[])if(e.hp>0&&!e.stationary&&!e.surface&&Math.hypot(e.x-x,e.y-y)<640)near++;
-  th+=Math.min(.3,near*.09);
-  for(const b of game.bullets||[])if(b.enemy&&Math.hypot(b.x-x,b.y-y)<300)fire++;
-  th+=Math.min(.22,fire*.05);
-  const hpFrac=game.players?.length?Math.min(1,...game.players.filter(p=>p.hp>0).map(p=>p.hp/(p.maxHp||1)),1):game.hp/(game.maxHp||game.hp||1);
-  th+=(1-Math.max(0,Math.min(1,hpFrac)))*.34;
-  if(game.battlefieldEvents?.current)th+=.14;
-  return Math.min(1,th);
-}
-const MAP_KEYS=['rural','sea','trench','trench','city','sky','alps','zeebrugge','zeebrugge','sky'];
+const MAP_KEYS=['rural','sea','trench','trench','city','sky','alps','zeebrugge','cambrai','arras','somme','london','verdun','maan','gallipoli','paris-night','jutland'];
 // Stage-boss id -> score family. Related boss pairs share a family.
 const BOSS_TRACKS={
  'paris-gun':'railgun',lincomparable:'railgun',
@@ -36,7 +19,7 @@ const BOSS_TRACKS={
  'drachen-net':'net','london-apron':'net',
  'zeppelin-l70':'airship',hma23:'airship',
  gik:'bomber',ca4:'bomber',
- 'armored-harbor-fortress':'fortress','flak-tower':'fortress',
+ 'armored-harbor-fortress':'fortress',
  'fliegerzug':'railgun','treffas-wagen':'landship',
  'jasta11-circus':'duel','naval10-black-flight':'duel'
 };
@@ -61,55 +44,70 @@ const THEMES={
   alps:{bpm:78,steps:8,roots:[40,40,36,38,40,43,36,33],melody:[[64,67,64,62,59,60,59,57],[64,62,60,59,57,60,62,64],[67,64,62,60,59,57,55,57],[64,62,60,59,57,55,57,59]]},
   zeebrugge:{bpm:70,steps:12,roots:[31,31,28,31,29,31,28,26],melody:[[55,58,57,55,52,50],[53,55,52,50,48,46],[55,60,58,55,52,50],[52,55,52,50,48,46]]}
 };
+const originalKey=id=>id==='trenches'?'trench':id;
+const familyFor=id=>BOSS_TRACKS[id]||({rail:'railgun',naval:'naval',split:'naval',armor:'landship',siege:'fortress',net:'net',airship:'airship',bomber:'bomber',formation:'duel',searchlight:'net'}[BOSS_ARRANGEMENTS[id]?.mechanic])||id;
+export const MUSIC_THEME_IDS=Object.freeze([...Object.keys(THEMES).filter(k=>k!=='trench'),'trenches',...Object.keys(REGIONAL_VARIATIONS)]);
 export class BattleMusic {
-  constructor(){this.mode='idle';this.muted=false;this.step=0;this.next=0;this.timer=null;this.track=null;this.positions={};this.scene=null;this.seenAces=new WeakSet();this.intensity=.2;this.signatureCount=0;this.pulseCount=0;this.volume=1;this.threatTarget=0;this.threat=0;}
+  constructor(){this.mode='idle';this.muted=false;this.step=0;this.next=0;this.timer=null;this.track=null;this.positions={};this.scene=null;this.seenAces=new WeakSet();this.intensity=.2;this.signatureCount=0;this.pulseCount=0;this.volume=1;this.voices=new Set();this.noteGain=1;this.errors=[];}
   unlock(){try{if(!this.ctx){
     this.ctx=new (window.AudioContext||window.webkitAudioContext)();
     this.bus=this.ctx.createGain();this.bus.gain.value=0;
     const comp=this.ctx.createDynamicsCompressor();this.bus.connect(comp);comp.connect(this.ctx.destination);
     this.meter=this.ctx.createAnalyser();this.meter.fftSize=256;comp.connect(this.meter);this.meterData=new Float32Array(256);
-    this.bank=new AcousticBank(this.ctx);
     this.noise=this.ctx.createBuffer(1,this.ctx.sampleRate,this.ctx.sampleRate);
     const d=this.noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
     this.timer=setInterval(()=>this.schedule(),50);
-  }this.ctx.resume().catch(()=>{});if(!this.bank.ready)this.bank.load().then(ready=>{if(ready&&!this.orchestra){this.orchestra=true;this.step=0;this.next=this.ctx.currentTime+.03;this.changeLayer(this.ctx.currentTime,1.2);}})}catch{}}
+  }this.ctx.resume().catch(error=>{this.errors=[error.message];});}catch(error){this.errors=[error.message];}}
+  trackVoice(source,gain,filter,start,layer){
+    const voice={source,gain,filter,start,layer};this.voices.add(voice);
+    source.onended=()=>{source.disconnect();gain.disconnect();filter.disconnect();this.voices.delete(voice);};
+  }
+  stopVoices(predicate=()=>true,fade=.08){
+    const now=this.ctx?.currentTime||0;
+    for(const voice of this.voices)if(predicate(voice)){
+      const g=voice.gain.gain;
+      if(g.cancelAndHoldAtTime)g.cancelAndHoldAtTime(now);else{g.cancelScheduledValues(now);g.setValueAtTime(g.value,now);}
+      g.linearRampToValueAtTime(0,now+fade);
+      try{voice.source.stop(voice.start>now?now:now+fade+.01);}catch{}
+    }
+  }
   changeLayer(now,fade=.8){
     if(!this.ctx?.createGain)return;
-    if(this.retiring){this.bank?.stop(v=>v.layer===this.retiring,.02);this.retiring.disconnect();}
+    if(this.retiring){this.stopVoices(v=>v.layer===this.retiring,.02);this.retiring.disconnect();}
     const old=this.layer;
-    if(old){old.gain.cancelScheduledValues(now);old.gain.setTargetAtTime(0,now,fade/4);this.bank?.stop(v=>v.layer===old,fade);this.retiring=old;
+    if(old){old.gain.cancelScheduledValues(now);old.gain.setTargetAtTime(0,now,fade/4);this.stopVoices(v=>v.layer===old,fade);this.retiring=old;
       setTimeout(()=>{old.disconnect();if(this.retiring===old)this.retiring=null;},(fade+.15)*1000);}
     this.layer=this.ctx.createGain();this.layer.gain.setValueAtTime(0,now);this.layer.gain.linearRampToValueAtTime(1,now+fade);this.layer.connect(this.bus);
   }
   reset(){
-    this.bank?.stop();this.setState('idle',this.muted);this.layer?.disconnect();this.layer=null;
+    this.stopVoices();this.setState('idle',this.muted);this.layer?.disconnect();this.layer=null;
     this.scene=null;this.run=null;this.positions={};this.track=null;this.step=0;this.intensity=.2;
-    this.seenAces=new WeakSet();this.signatureUntil=0;this.signatureCount=0;this.pulseCount=0;this.lastPulse=null;this.pendingPulse=false;
+    this.seenAces=new WeakSet();this.intro=null;this.signatureCount=0;this.pulseCount=0;this.lastPulse=null;this.pendingPulse=false;this.tempo=null;this.noteGain=1;
   }
   setScene(scene,muted=false){
     if(scene?.run&&this.run&&scene.run!==this.run)this.reset();
     if(scene?.run)this.run=scene.run;
     const previous=this.scene;
     if(previous?.state==='BOSS_FINAL'&&scene?.encounterId&&scene.encounterId===previous.encounterId)scene={...scene,state:'BOSS_FINAL'};
-    if(previous?.ace!==scene?.ace||scene?.state!=='ACE'){this.bank?.stop(v=>v.tag==='signature',.15);this.signatureUntil=0;}
+    if(previous?.ace!==scene?.ace||scene?.state!=='ACE')this.intro=null;
     this.scene=scene;
     if(scene?.pulse&&scene.pulse!==this.lastPulse){this.pendingPulse=true;this.lastPulse=scene.pulse;}
     if(!scene?.pulse)this.pendingPulse=false;
     const inactive=!scene||scene.state==='IDLE';
-    if(inactive||muted)this.bank?.stop();
-    this.setState(inactive?'idle':scene.theme,muted);
+    if(inactive||muted)this.intro=null;
+    const mode=inactive?'idle':scene.state==='ACE'?'boss':scene.state==='BOSS'||scene.state==='BOSS_FINAL'?'boss:'+scene.bossId:scene.theme;
+    this.setState(mode,muted);
   }
   setVolume(value){this.volume=Math.max(0,Math.min(1,Number.isFinite(value)?value:1));this.setState(this.mode,this.muted);}
-  setThreat(v){this.threatTarget=Math.max(0,Math.min(1,v||0))}
   status(){let rms=0,peak=0;if(this.meter){this.meter.getFloatTimeDomainData(this.meterData);for(const v of this.meterData){rms+=v*v;peak=Math.max(peak,Math.abs(v));}rms=Math.sqrt(rms/this.meterData.length);}
     return {theme:this.scene?.theme,state:this.mode==='idle'?'IDLE':this.scene?.state,mode:this.mode,muted:this.muted,volume:this.volume,rms,peak,
-    ready:!!this.bank?.ready,context:this.ctx?.state||'locked',loaded:this.bank?.buffers.size||0,errors:this.bank?.errors||[],decodedBytes:this.bank?.decodedBytes||0,
-    voices:this.bank?.voices.size||0,step:this.step,intensity:this.intensity,signatureCount:this.signatureCount,pulseCount:this.pulseCount,bossId:this.scene?.bossId,aceId:this.scene?.aceId};}
-  bossTrack(){return this.mode==='boss'?'duel':this.mode.startsWith('boss:')?this.mode.slice(5):null}
+    ready:!!this.ctx,engine:'original-synth',context:this.ctx?.state||'locked',errors:this.errors,
+    voices:this.voices.size,step:this.step,bpm:this.tempo,intensity:this.intensity,signatureCount:this.signatureCount,pulseCount:this.pulseCount,bossId:this.scene?.bossId,aceId:this.scene?.aceId};}
+  bossTrack(){return this.mode==='boss'?'duel':this.mode.startsWith('boss:')?familyFor(this.mode.slice(5)):null}
   setState(mode,muted){
     if(mode==='flight'||mode==='ace')mode='rural';
     const isBoss=mode==='boss'||mode.startsWith('boss:');
-    if(mode!=='idle'&&!isBoss&&!THEMES[mode]&&!(this.scene&&MUSIC_THEMES[mode]))mode='rural';
+    if(mode!=='idle'&&!isBoss&&!THEMES[originalKey(mode)]&&!REGIONAL_VARIATIONS[mode])mode='rural';
     const now=this.ctx?.currentTime||0;
     if(mode!==this.mode){
       if(this.mode!=='idle')this.positions[this.mode]=this.step;
@@ -118,50 +116,44 @@ export class BattleMusic {
         this.step=resume?this.positions[mode]||0:isBoss?0:this.positions[mode]||0;
         if(isBoss){if(!resume)this.bossSince=now;else if(this.pausedAt!=null)this.bossSince+=now-this.pausedAt;}
         // A fresh gain bus fades the previous arrangement without a hard cut.
-        this.changeLayer(now);
+        this.changeLayer(now,1.1);
         this.track=mode;this.next=now+.02;
+        if(!isBoss)this.tempo=(THEMES[originalKey(mode)]||REGIONAL_VARIATIONS[mode]).bpm;
       }else this.pausedAt=now;
     }
     this.mode=mode;this.muted=muted;
+    if(mode==='idle'||muted)this.stopVoices();
     if(this.ctx)this.bus.gain.setTargetAtTime(mode==='idle'||muted?0:.88*this.volume,now,.08);
   }
   tone(midi,time,duration,volume,type='sawtooth',cutoff=1500,attack=.025){
+    if(this.voices.size>=96)return;
+    volume*=this.noteGain;
     const c=this.ctx,o=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();
     o.type=type;o.frequency.value=440*2**((midi-69)/12);f.type='lowpass';f.frequency.value=cutoff;
     g.gain.setValueAtTime(.0001,time);g.gain.linearRampToValueAtTime(volume,time+Math.min(attack,duration*.35));
     g.gain.exponentialRampToValueAtTime(.0001,time+duration);
     o.connect(f);f.connect(g);g.connect(this.layer||this.bus);o.start(time);o.stop(time+duration+.03);
-    o.onended=()=>{o.disconnect();f.disconnect();g.disconnect()};
+    this.trackVoice(o,g,f,time,this.layer);
   }
   drum(time,snare=false,volume=1){
     if(!snare){this.tone(35,time,.26,.32*volume,'sine',190,.006);return}
     const c=this.ctx,n=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
     n.buffer=this.noise;f.type='bandpass';f.frequency.value=1900;f.Q.value=.6;
-    g.gain.setValueAtTime(.13*volume,time);g.gain.exponentialRampToValueAtTime(.0001,time+.16);
+    g.gain.setValueAtTime(.13*volume*this.noteGain,time);g.gain.exponentialRampToValueAtTime(.0001,time+.16);
     n.connect(f);f.connect(g);g.connect(this.layer||this.bus);n.start(time);n.stop(time+.17);
-    n.onended=()=>{n.disconnect();f.disconnect();g.disconnect()};
+    this.trackVoice(n,g,f,time,this.layer);
   }
   // Continuous regional ambience: a filtered-noise bed under each map's score.
   // Each entry: [bandpass center Hz, Q, peak gain, optional second layer freq].
   amb(mode,t,dur){
     if(!this.noise)return;
-    const A={rural:[170,1.1,.02],sea:[230,.6,.055],trench:[150,.9,.04],city:[340,1.6,.016],sky:[1150,.75,.024],alps:[1250,.4,.05],zeebrugge:[270,.6,.05]}[mode]||[300,1,.02];
+    const A={rural:[170,1.1,.02],sea:[230,.6,.055],trench:[150,.9,.04],city:[340,1.6,.016],sky:[950,.35,.06],alps:[1250,.4,.05],zeebrugge:[270,.6,.05]}[mode]||[300,1,.02];
     const c=this.ctx,n=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
     n.buffer=this.noise;n.loop=true;n.playbackRate.value=.9+Math.random()*.2;
     f.type='bandpass';f.frequency.setValueAtTime(A[0],t);f.frequency.linearRampToValueAtTime(A[0]*(0.85+Math.random()*.3),t+dur);f.Q.value=A[1];
     g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(A[2],t+Math.min(dur*.35,2.5));g.gain.linearRampToValueAtTime(.0001,t+dur);
     n.connect(f);f.connect(g);g.connect(this.layer||this.bus);n.start(t);n.stop(t+dur+.05);
-    n.onended=()=>{n.disconnect();f.disconnect();g.disconnect()};
-  }
-  // Danger-driven overlay for map themes: a staccato low ostinato, back-beat
-  // fills and a high shimmer, all volume-scaled by the smoothed threat level.
-  tensionStep(mode,i,t,b){
-    const th=this.threat;if(th<.22||!THEMES[mode])return;
-    const s=THEMES[mode],p=i%s.steps,root=s.roots[Math.floor(i/s.steps)%8];
-    if(p%2===0)this.tone(root-12,t,b*.5,.02+.08*th,'sawtooth',280+240*th,.006);
-    if(th>.5&&p%4===2)this.drum(t,false,.5*th);
-    if(th>.6&&p%4===3)this.drum(t+b*.5,true,.32*th);
-    if(th>.78&&p%2===1)this.tone(root+24+[0,3][p%4>>1],t,b*.42,.02*th,'triangle',2300,.005);
+    this.trackVoice(n,g,f,t,this.layer);
   }
   mapStep(mode,i,t,b){
     const s=THEMES[mode],bar=Math.floor(i/s.steps),p=i%s.steps,section=Math.floor(bar/8)%4;
@@ -225,8 +217,13 @@ export class BattleMusic {
   }
   bossStep(i,t,b,elapsed){
     const T=BOSS_SCORES[this.bossTrack()]||BOSS_SCORES.duel;
-    const name=this.bossTrack(),p=i%16,bar=Math.floor(i/16),root=T.roots[bar%8];
-    const intensity=Math.min(1,elapsed/24),breath=bar%8===6;
+    const name=this.bossTrack(),p=i%16,bar=Math.floor(i/16),root=this.scene?this.mapRoot(this.scene.theme,bar)-5:T.roots[bar%8];
+    this.scoreRoot=root;
+    const final=this.scene?.state==='BOSS_FINAL';
+    const intensity=this.scene?Math.max(.35,this.intensity):Math.min(1,elapsed/24),breath=bar%8===6;
+    // The familiar boss arrangement remains the main score. Destruction strips
+    // its upper voice rather than adding a second, unrelated composition.
+    if(final&&p%4===3){this.bossVariation(i,t,b,root);return;}
     if(name==='railgun'){
       // Siege gun: long gaps, one colossal muzzle blast, echoing breech clangs.
       if(p===0){this.drum(t,false,1.35);this.tone(root-12,t,b*15,.22,'sine',130,.5)}
@@ -297,38 +294,106 @@ export class BattleMusic {
       if(p===15&&intensity>.35){this.drum(t,true,.45);this.drum(t+b*.5,true,.65)}
       if(bar%4===3&&p===12)for(const off of [18,25,30])this.tone(root+off,t,b*3.8,.047,'sawtooth',1500,.12);
     }
+    if(this.scene){this.bossVariation(i,t,b,root);this.aceSignature(i,t,b,root);}
+  }
+  mapRoot(id,bar){
+    const old=THEMES[originalKey(id)];if(old)return old.roots[bar%old.roots.length];
+    const s=REGIONAL_VARIATIONS[id];return s?scorePitch(s,s.harmony[Math.floor(bar/2)%s.harmony.length])-12:38;
+  }
+  voice(name,midi,t,duration,volume){
+    const shape={horn:['sawtooth',850,.18],trumpet:['sawtooth',1200,.06],trombone:['square',520,.08],strings:['sawtooth',950,.2],spiccato:['sawtooth',650,.012],cello:['triangle',440,.18],bassoon:['triangle',500,.09],oboe:['square',850,.14],clarinet:['triangle',850,.1],harp:['triangle',1200,.02],bell:['sine',700,.012],metal:['square',650,.01]}[name]||['triangle',650,.1];
+    this.tone(midi,t,duration,volume,...shape);
+  }
+  regionalStep(mode,i,t,b){
+    const s=REGIONAL_VARIATIONS[mode],n=s.beats*2,p=i%n,bar=Math.floor(i/n),section=Math.floor(bar/8)%4;
+    const chord=s.harmony[Math.floor(bar/2)%s.harmony.length],root=scorePitch(s,chord)-12;
+    if(p===0){
+      this.tone(root-12,t,b*n*.8,.19,'triangle',450);
+      for(const off of [0,3,7])this.tone(root+off,t,b*n*.95,.028,'sawtooth',550,.24);
+    }
+    const slot=s.rhythm.indexOf(p);
+    if(slot>=0){
+      const degree=s.motif[(bar*s.rhythm.length+slot+Math.floor(bar/32)*3)%s.motif.length];
+      if(section!==2||slot%2===0)this.voice(s.lead,scorePitch(s,degree+chord),t,b*1.8,.075);
+      this.voice(s.pulse,root+(slot%2?7:0),t,b*.8,.08);
+    }
+    if(s.drums.includes(p))this.drum(t,false,.85);
+    if(section!==2&&p===n-2)this.drum(t,true,.4);
+  }
+  combatStep(mode,i,t,b){
+    // Add an audible, regular groove on the same clock as the original song.
+    // Rural CALM never calls this, preserving its original notes and mix.
+    if(this.intensity<.3)return;
+    const s=THEMES[originalKey(mode)],extra=REGIONAL_VARIATIONS[mode],n=s?.steps||extra?.beats*2||8;
+    const p=i%n,root=this.mapRoot(mode,Math.floor(i/n)),drive=Math.min(1,(this.intensity-.25)/.5);
+    const pattern=this.scene?.pattern,heavy=pattern==='BOMBER_RUN'||pattern==='HEAD_ON_PASS';
+    const chase=pattern==='CHASE',escort=pattern==='ESCORT';
+    const beats=extra?.rhythm||({rural:[1,3,5,7],sea:[0,3,6,9],trench:[1,3,5,7],city:[0,2,5,7],sky:[0,3,6],alps:[0,4,6],zeebrugge:[0,2,6,8,10]}[originalKey(mode)]||[0,2,4,6]);
+    if(beats.includes(p)||(chase&&p%2===1))this.tone(root+(p%4===3?7:0),t,b*.65,.095*drive*(escort?.65:1),'sawtooth',680,.018);
+    if(p===2||p===n-2)this.drum(t,true,.65*drive);
+    if(heavy&&p%4===0)this.drum(t,false,.45*drive);
+    if((pattern==='CROSS_ATTACK'||pattern==='PINCER')&&p===Math.floor(n/2))this.tone(root+19,t,b*1.4,.045*drive,'sawtooth',950,.06);
+  }
+  bossVariation(i,t,b,root){
+    const scene=this.scene,B=BOSS_ARRANGEMENTS[scene?.bossId];if(!B)return;
+    const p=i%16,bar=Math.floor(i/16),final=scene.state==='BOSS_FINAL',parts=scene.parts??1;
+    const q=d=>root+12+[0,2,3,5,7,8,10][((d%7)+7)%7]+12*Math.floor(d/7);
+    if(B.steps.includes(p)&&(!final||p%2===0))this.voice(final?B.finalVoice:B.voice,q(B.notes[(bar+p)%B.notes.length]),t,b*(final?1.1:1.8),.04+.02*parts);
+    if(B.mechanic==='rail'){
+      for(const [car,step,offset] of [['car-rear',1,12],['car-middle',5,7],['car-front',9,0]])
+        if(scene.cars?.[car]&&p===step)this.tone(root+offset,t,b*.45,.055,'square',450,.015);
+      if(final&&p%4===0)this.tone(root-12,t,b*.55,.1,'triangle',280,.03);
+    }
+    if(B.mechanic==='bomber'&&p%2===0)this.tone(root,t,b*.35,.07*(scene.engines??1),'sawtooth',400,.018);
+    if(B.mechanic==='formation'&&p===8&&(scene.formation??1)>.3)this.voice('horn',root+19,t,b*2,.04*(scene.formation??1));
+    if(scene.locked&&p%4===2){this.drum(t,true,.6);this.voice('trumpet',root+19,t,b,.045);}
+    if(final&&p===14)this.voice(B.finalVoice,q(B.notes[bar%B.notes.length]),t,b*1.4,.065);
+  }
+  aceSignature(i,t,b,root){
+    const scene=this.scene,a=ACE_MOTIFS[scene?.aceId];if(scene?.state!=='ACE'||!a||!scene.ace)return;
+    if(!this.seenAces.has(scene.ace)&&i%8===0){
+      this.seenAces.add(scene.ace);this.signatureCount++;
+      this.intro={start:i,ticks:Math.max(a.notes.length,Math.round(a.seconds/b)),delay:scene.aceId==='ball'?2:0};
+    }
+    const intro=this.intro;
+    if(intro){
+      const elapsed=i-intro.start-intro.delay;
+      for(let k=0;k<a.notes.length;k++)if(elapsed===Math.floor(k*(intro.ticks-intro.delay)/a.notes.length)){
+        const d=a.notes[k],pitch=root+12+[0,2,3,5,7,8,10][d%7]+12*Math.floor(d/7);
+        this.voice(a.instrument,pitch,t,Math.min(b*2,1.2),.09*a.accents[k]);
+      }
+      if(i-intro.start>=intro.ticks)this.intro=null;
+    }else if(i%16===8){const d=a.notes[Math.floor(i/16)%a.notes.length];this.voice(a.instrument,root+12+[0,2,3,5,7,8,10][d%7]+12*Math.floor(d/7),t,b*1.6,.045);}
   }
   schedule(){
     if(!this.ctx||this.ctx.state!=='running')return;
     const now=this.ctx.currentTime;if(this.mode==='idle'||this.muted){this.next=now;return}
-    if(this.scene&&this.bank?.ready){this.scheduleOrchestra(now);return;}
     if(this.next<now)this.next=now+.015;
     while(this.next<now+.15){
       const elapsed=Math.max(0,now-(this.bossSince||0));
       const bossT=this.bossTrack(),T=bossT?BOSS_SCORES[bossT]||BOSS_SCORES.duel:null;
-      const legacy=THEMES[this.mode]?this.mode:this.mode==='trenches'||this.mode==='trenches-hell'?'trench':'rural';
-      const b=T?60/(T.bpm+Math.min(T.ramp,elapsed*3))/2:60/THEMES[legacy].bpm/2;
+      const map=THEMES[originalKey(this.mode)]||REGIONAL_VARIATIONS[this.mode]||THEMES.rural;
+      const targetTempo=T?T.bpm+Math.min(T.ramp,elapsed*3):map.bpm;
+      // Legacy setState callers retain their original accelerating boss score.
+      this.tempo=this.scene?(this.tempo??targetTempo)+(targetTempo-(this.tempo??targetTempo))*.12:targetTempo;
+      const b=60/this.tempo/2;
       const i=this.step++,t=this.next;
-      this.threat+=(this.threatTarget-this.threat)*(this.threatTarget>this.threat?.4:.06);
-      if(T)this.bossStep(i,t,b,elapsed);else{this.mapStep(legacy,i,t,b);this.tensionStep(legacy,i,t,b)}
-      this.next+=b;
-    }
-  }
-  scheduleOrchestra(now){
-    const scene=this.scene,s=MUSIC_THEMES[scene.theme];if(!s)return;
-    if(this.next<now)this.next=now+.015;
-    const b=60/s.bpm/2;
-    const emit=(...notes)=>this.bank.note(...notes,this.layer);
-    if(scene.state==='ACE'&&scene.ace&&scene.aceId&&!this.seenAces.has(scene.ace)){
-      this.signatureUntil=now+signatureNotes(scene.aceId,scene.theme,now+.04,(...notes)=>this.bank.note(...notes,this.layer,'signature'));
-      this.seenAces.add(scene.ace);this.signatureCount++;
-    }
-    if(this.pendingPulse){this.pendingPulse=false;this.pulseCount++;emit('clarinet',scorePitch(s,7),now+.01,.35,.2,0);}
-    while(this.next<now+.15){
-      // Asymmetric easing avoids sudden level/density jumps at 240ms polling.
-      const target=scene.phase==='cooldown'?scene.intensity*.55:scene.intensity;
-      this.intensity+=(target-this.intensity)*(1-Math.exp(-b/(target>this.intensity?1.6:2.6)));
-      orchestralStep({...scene,signatureActive:now<this.signatureUntil},this.step++,this.next,b,this.intensity,emit);
+      const target=this.scene?.phase==='cooldown'?this.scene.intensity*.55:this.scene?.intensity??.2;
+      this.intensity+=(target-this.intensity)*(1-Math.exp(-b/(target>this.intensity?.65:1.8)));
+      // The score and every combat accent share this clock and current root.
+      const loss=this.scene?.parts??1,engines=this.scene?.engines??1;
+      this.noteGain=T&&this.scene?.state!=='ACE'?.72+.28*loss:1;
+      if(T&&this.bossTrack()==='bomber')this.noteGain*=.7+.3*engines;
+      if(this.scene?.aceId==='ball'&&this.intro)this.noteGain*=.6;
+      if(T)this.bossStep(i,t,b,elapsed);
+      else if(REGIONAL_VARIATIONS[this.mode])this.regionalStep(this.mode,i,t,b);
+      else this.mapStep(originalKey(this.mode),i,t,b);
+      this.noteGain=1;
+      if(!T&&this.scene)this.combatStep(this.mode,i,t,b);
+      if(this.pendingPulse&&i%2===0){
+        this.pendingPulse=false;this.pulseCount++;
+        this.tone((this.scoreRoot||this.mapRoot(this.scene?.theme,Math.floor(i/8)))+19,t,b*.7,.045,'triangle',900,.04);
+      }
       this.next+=b;
     }
   }
