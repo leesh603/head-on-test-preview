@@ -18,7 +18,7 @@
 - `tools/qa-gallipoli-engine.mjs`: 솔로/협동 × 양 진영 × 390/1440 폭, **8/8 통과**. 각 60초 시뮬레이션에서 7회 출격과 수리 확인. 중앙 먼저 파괴한 뒤 추가 20초에 수리·출격 중단 확인, 잔여 포대 파괴 후 네이티브 보스 종료 확인. 최대 동시 포격 hazard 5, 누락 0.
 - `tools/qa-gallipoli-render.mjs`: 실제 게임 렌더러로 PC/모바일 양 진영, 파괴·수리 예고·수리 완료·중앙 파괴·격납고 출격·전체 요새 화면 생성. 에셋 누락 0, hazard 누락 0. CPU 캔버스 측정은 브라우저 FPS와 다르다.
 - 루트 JavaScript 구문 검사 및 `git diff --check` 통과.
-- 브라우저 확인: 브랜치 업로드 후 별도 기록 예정. 네이티브 시뮬레이션과 정적 렌더는 실기기 플레이/FPS 검증을 대신하지 않는다.
+- 브라우저 확인: 구현 커밋 `20edb31296dc02aa2fd51f0c6e4be4cc7d744990`의 raw.githack 미리보기에서 요새·격납고·한국어 안내 표시, 등장 경고 종료, HUD 시간 00:00→00:02 진행, 일시정지·계속하기 동작을 확인했다. 공통 aircraft/portraits/equipment/battlefield-art 이미지 로더에서 cross-origin canvas `getImageData` SecurityError가 발생했고 Test Lab 전역도 설치되지 않아 장시간 전투·모바일 브라우저·실기기 FPS는 **미검증**이다. 공통 로더나 브라우저 보안은 변경하지 않았다. 네이티브 시뮬레이션과 정적 렌더는 실기기 플레이/FPS 검증을 대신하지 않는다.
 
 ## 수정 파일
 
