@@ -1,0 +1,10 @@
+{
+  "appId": "site.chatgpt.justzeon.headon",
+  "appName": "HEAD-ON",
+  "webDir": "www",
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}
