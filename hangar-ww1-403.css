@@ -1057,13 +1057,13 @@ body.astra-ui:not(.playing) #hangar .astra-aircraft-heading h2 .ho-air-owner{
 @media(max-width:720px){
  /* EN names ran out of room ("Fokker F.I (Werner…"): no clamp, the row grows instead. */
  html body.astra-ui:not(.playing) #hangar .astra-aircraft .astra-aircraft-heading h2,html body.astra-ui:not(.playing) #hangar .astra-aircraft:not(.ho-open) .astra-aircraft-heading h2{-webkit-line-clamp:unset!important;display:block!important;overflow:visible!important;text-overflow:clip!important;max-height:none!important}
- /* Two chips share one row when they fit; a long pair wraps the passive chip onto its own row. */
- html body.astra-ui:not(.playing) #hangar .astra-hero .skill-info{flex-wrap:wrap!important;row-gap:6px!important}
- html body.astra-ui:not(.playing) #hangar .astra-hero .skill-info>.astra-ability{max-width:100%;min-width:0}
- /* Active / passive chips: long EN skill names wrap to two lines instead of "Seven Again…". */
+ /* Active and passive always share one row, one line each, so the pilot card keeps the same height
+    for every pilot; a long name ends in an ellipsis (the full text is in the tap popup). */
+ html body.astra-ui:not(.playing) #hangar .astra-hero .skill-info{flex-wrap:nowrap!important;row-gap:0!important}
+ html body.astra-ui:not(.playing) #hangar .astra-hero .skill-info>.astra-ability{flex:0 1 auto!important;max-width:100%;min-width:0}
+ body.astra-ui:not(.playing) #hangar .astra-hero .astra-ability-copy{min-width:0;overflow:hidden}
  body.astra-ui:not(.playing) #hangar .astra-hero .astra-ability-copy b{
-  white-space:normal!important;text-overflow:clip!important;display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
-  line-height:1.15!important;word-break:keep-all;overflow-wrap:anywhere;
+  display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;-webkit-line-clamp:unset!important;line-height:1.2!important;
  }
 }
 
