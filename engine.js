@@ -883,7 +883,7 @@ PLANES.albatros_d2={...PLANES.albatros,name:'알바트로스 D.II',speed:140,tur
 WEAPONS.albatros_d2={...WEAPONS.albatros};
 configureAirframeBalance(PLANES.albatros_d2,110);configureAirframeBalance(PLANES.baron_albatros,115);
 PILOT_PLANES.boelcke='albatros_d2';
-export function pilotLoadout(pilot,plane){const p=PILOTS[pilot];return pilot==='baron'&&plane==='baron_albatros'?{...p,skill:'태양을 등진 사냥꾼',passive:'붉은 전투기 조종사',passiveDesc:'이동속도·선회력 +12%.',desc:'4초간 전방 범위의 적을 제압하고 후방타격 보너스를 적용합니다. 실제 후방에서 공격하면 추가 피해 +20%.',cooldown:PILOT_BALANCE.cooldowns.baron_albatros}:p}
+export function pilotLoadout(pilot,plane){const p=PILOTS[pilot];return pilot==='baron'&&plane==='baron_albatros'?{...p,skill:'태양을 등진 사냥꾼',passive:'붉은 전투기 조종사',passiveDesc:'이동속도와 선회력이 증가합니다.',desc:'4초간 전방 적을 제압합니다. 적의 바로 뒤에서 공격하면 추가 피해를 줍니다.',cooldown:PILOT_BALANCE.cooldowns.baron_albatros}:p}
 Game.prototype.isRedHunter=function(){return this.pilot==='baron'&&this.plane==='baron_albatros'};
 Game.prototype._sklAirframe=function(){if(!this.isRedHunter())return this._sklDuo();if(this.state!=='playing'||this.cooldown>0)return false;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.event('skill','태양을 등진 사냥꾼');return true};
 // Schlasta 15 counterpart: reuse the tested two-seat gun and crossfire paths.
