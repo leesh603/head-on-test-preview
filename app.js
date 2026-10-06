@@ -36,7 +36,7 @@ import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTra
 import {installFlightViewport} from './flight-viewport.js?v=485';
 import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174.js?v=485';
 import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?v=485';
-import {drawEnemyDanger} from './enemy-danger-view.js?v=485';
+import {drawEnemyDanger} from './enemy-danger-view.js?v=486';
 import {drawGas} from './gas-view.js?v=485';
 import {drawWarAmbience} from './war-ambience.js?v=485';
 import {missionNavigation,drawMissionRadar} from './navigation.js?v=485';

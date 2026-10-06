@@ -15,7 +15,7 @@ import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=485';
 import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=485';
 import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=485';
 import {GIK,Ca4} from './alps-bomber-combat.js?v=485';
-import {FlakTowerNet} from './city-flak-combat.js?v=485';
+import {FlakTowerNet} from './city-flak-combat.js?v=486';
 export {GIK,Ca4};
 import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=485';
 
