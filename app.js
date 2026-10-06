@@ -52,7 +52,7 @@ import {attachCombatFeedback,combatVisualPose,drawCombatFeedback,combatCameraOff
 import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=sink4';
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=sink4';
 import {drawTailEngagement} from './engagement-hud410.js?v=sink4';
-import {portraitSources,portraitsReady} from './portraits.js?v=sink4';
+import {portraitSources,portraitsReady} from './portraits.js?v=sortie2';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=sink4';
 import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=sink4';
 import {drawEquipment} from './equipment.js?v=sink4';
@@ -1004,11 +1004,13 @@ const shownPortraitReady=new Promise(r=>{const i=new Image();i.onload=i.onerror=
 // The hangar opens only once every pilot card is decoded — all aircraft and all
 // portraits — so a longer splash beats a half-empty roster. Every source promise
 // resolves on error too, so a missing file can never hold the gate forever.
-const hangarReady=Promise.all([portraitsReady,hangarCardsReady,hangarArt(shownKey),hangarIconsReady]);
+// aircraftReady joins the gate because the hangar canvases draw the painted sprites —
+// without it the cards are decoded but the planes on them still fill in after entry.
+const hangarReady=Promise.all([portraitsReady,hangarCardsReady,hangarArt(shownKey),hangarIconsReady,aircraftReady]);
 const battleReady=Promise.all([fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady,aircraftReady]);
 hangarReady.then(()=>{
  const reveal=()=>{document.body.classList.add('assets-ready');roster();applyPilotPortrait('cutinPortrait')};
- const left=1000-(performance.now()-bootAt);left>0?setTimeout(reveal,left):reveal();
+ const left=2000-(performance.now()-bootAt);left>0?setTimeout(reveal,left):reveal();
 }).catch(()=>{document.body.classList.add('assets-ready');roster();});
 // The boot gate holds most battle art behind the hangar art, so a fast sortie can face the
 // full download only after the click. Wait for it briefly, then launch anyway — every sprite
