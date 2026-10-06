@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PLANES,PILOTS,BATTLE_DIRECTOR_PATTERNS as P,angleDiff} from '../engine.js?v=sink2';
-import {CoopGame} from '../coop-engine.js?v=sink2';
+import {Game,PLANES,PILOTS,BATTLE_DIRECTOR_PATTERNS as P,angleDiff} from '../engine.js?v=lufbery1';
+import {CoopGame} from '../coop-engine.js?v=lufbery1';
 
 import {AIRCRAFT_MASTER} from '../aircraft-master.js';
 import {DIRECTOR_LIVERIES} from '../battle-director169.js?v=sink2';
@@ -21,7 +21,7 @@ test('roles are independent of performance tier and preserve pilot records',()=>
  assert.equal(PLANES.eindecker.speed,118);assert.equal(PLANES.eindecker.hp,85);assert.equal(PILOTS.loewenhardt.cooldown,17);
 });
 test('early aircraft retain growth cost after the app imports campaign aircraft',async()=>{
- await import('../campaign.js?v=sink2');
+ await import('../campaign.js?v=lufbery1');
 
  const g=new Game('eindecker','immelmann',()=>.2),late=new Game('fokkerd7','fonck',()=>.2);
  assert.equal(g.xpCostMultiplier,.72);assert.equal(g.need,4);assert(g.levelRequirement(40)<late.levelRequirement(40));

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PILOT_PLANES,angleDiff} from '../engine.js?v=sink2';
-import {CoopGame} from '../coop-engine.js?v=sink2';
+import {Game,PILOT_PLANES,angleDiff} from '../engine.js?v=lufbery1';
+import {CoopGame} from '../coop-engine.js?v=lufbery1';
 import {signatureState,advancePilotSignature} from '../pilot-signature-state.js?v=sink2';
 import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js?v=sink2';
 

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {CoopGame}=await import('../coop-engine.js?v=sink2');
+const {CoopGame}=await import('../coop-engine.js?v=lufbery1');
 const {enableStageBoss,beginStageBossFrame,endStageBossFrame}=await import('../stageboss-host.js?v=sink2');
 const {spawnCityDefense,tickCityDefense}=await import('../city-defense.js?v=sink2');
 

@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {ParisGun,LIncomparable,Fliegerzug} from '../headon-stageboss-patterns.js?v=sink2';
 import {BossHazards,contains} from '../headon-stageboss-hazards.js';
-import {Game} from '../engine.js?v=sink2';import {CoopGame} from '../coop-engine.js?v=sink2';
+import {Game} from '../engine.js?v=lufbery1';import {CoopGame} from '../coop-engine.js?v=lufbery1';
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame} from '../stageboss-host.js?v=sink2';
 
 import {fixture,step} from './stageboss-fixture94.mjs';

@@ -2,7 +2,7 @@ import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=s
 import {nungesserAimOffset,nungesserRoundReaction} from './pilot-signature-state.js?v=sink2';
 import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=sink2';
 import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=sink2';
-import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=sink2';
+import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=lufbery1';
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=sink2';
 import {registerAircraftTiers} from './aircraft-tiers.js?v=sink2';
 import {attachAircraftPersonality} from './aircraft-personality164.js?v=sink2';
@@ -250,6 +250,6 @@ installCloudCover(CoopGame);
 import {installNineCoop} from './pilot-nine-combat.js?v=sink2';
 installNineCoop(CoopGame);
 
-import {installCoopFleet} from './fleet-naval1.js?v=sink2';
+import {installCoopFleet} from './fleet-naval1.js?v=lufbery1';
 
 installCoopFleet(CoopGame,Game);

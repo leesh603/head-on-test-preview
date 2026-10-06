@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PLANES,WEAPONS} from '../engine.js?v=sink2';
-import '../campaign.js?v=sink2';
+import {Game,PLANES,WEAPONS} from '../engine.js?v=lufbery1';
+import '../campaign.js?v=lufbery1';
 import {AIRCRAFT_TIERS,TIER_XP_GAIN,aircraftTierFor,registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from '../aircraft-tiers.js?v=sink2';
 
 

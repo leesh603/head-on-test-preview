@@ -2,11 +2,11 @@ import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst
 import {wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=sink2';
 import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=sink2';
 import {installPilotIdentities} from './pilot-identities.js?v=sink2';
-import {EnemyCollisionGrid} from './collision-grid.js?v=sink2';
+import {EnemyCollisionGrid} from './collision-grid.js?v=lufbery1';
 import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=sink2';
-import {installRevision} from './rebalance103.js?v=sink2';
+import {installRevision} from './rebalance103.js?v=lufbery1';
 import {installCloudCover} from './cloud-cover1.js?v=sink2';
-import {installFleet} from './fleet-naval1.js?v=sink2';
+import {installFleet} from './fleet-naval1.js?v=lufbery1';
 import {installTrenchWar} from './trench-war1.js?v=sink2';
 import {installCityAir} from './city-air1.js?v=sink2';
 import {installRegionDoctrine} from './region-doctrine1.js?v=sink2';
@@ -1676,9 +1676,9 @@ Game.prototype._aatBase=function(e){
 // Aces round 3 (2026-10-03): Beauchamp-Proctor (84 Sqn's top scorer),
 // Eduard von Schleich "the Black Knight", and Lafayette's Raoul Lufbery.
 Object.assign(PILOTS,{
- proctor:{name:'앤드류 뷰챔프-프록터',alias:'THE BALLOON BUSTER',faction:'entente',portrait:29,cooldown:16},
- schleich:{name:'에두아르트 폰 슐라이히',alias:'THE BLACK KNIGHT',faction:'central',portrait:30,cooldown:18},
- lufbery:{name:'라울 러프베리',alias:"LAFAYETTE'S WALL",faction:'entente',portrait:31,cooldown:17}
+ proctor:{name:'앤드류 뷰챔프-프록터',alias:'THE BALLOON BUSTER',faction:'entente',portrait:29,skill:'버스터 살보',cooldown:16},
+ schleich:{name:'에두아르트 폰 슐라이히',alias:'THE BLACK KNIGHT',faction:'central',portrait:30,skill:'흑기사의 진격',cooldown:18},
+ lufbery:{name:'라울 러프베리',alias:"LAFAYETTE'S WALL",faction:'entente',portrait:31,skill:'라파예트의 사격술',cooldown:17}
 });
 PILOT_PLANES.proctor='proctor_se5a';PILOT_PLANES.schleich='schleich_albatros';PILOT_PLANES.lufbery='lufbery_nieuport17';
 const _skill3=Game.prototype.skill;
