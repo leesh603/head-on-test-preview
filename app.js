@@ -1001,7 +1001,10 @@ const raisePilot=()=>setTimeout(()=>{if(!game&&bootGate&&!bootGate.open){rankHan
 for(const id of ['pilotTabs','central','entente','baronAircraftChoice','aircraftSelect103'])$(id)?.addEventListener('click',raisePilot,true);
 $('aircraftSelect103')?.addEventListener('change',raisePilot);
 const shownPortraitReady=new Promise(r=>{const i=new Image();i.onload=i.onerror=()=>r();i.src=portraitSources[pilot]||''});
-const hangarReady=Promise.all([shownPortraitReady,hangarArt(shownKey),hangarIconsReady]);
+// The hangar opens only once every pilot card is decoded — all aircraft and all
+// portraits — so a longer splash beats a half-empty roster. Every source promise
+// resolves on error too, so a missing file can never hold the gate forever.
+const hangarReady=Promise.all([portraitsReady,hangarCardsReady,hangarArt(shownKey),hangarIconsReady]);
 const battleReady=Promise.all([fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady,aircraftReady]);
 hangarReady.then(()=>{
  const reveal=()=>{document.body.classList.add('assets-ready');roster();applyPilotPortrait('cutinPortrait')};
