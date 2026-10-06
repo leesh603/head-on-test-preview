@@ -556,6 +556,8 @@ body.astra-ui.playing #flightNotices151 #toast{
  background:var(--ho-glass-strong)!important;box-shadow:var(--ho-lift)!important;color:var(--ho-parchment)!important;
 }
 body.astra-ui.playing #flightNotices151 #toast:before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--ho-ready)}
+body.astra-ui.playing #flightNotices151 #toast.warn{border-color:#d35f45!important;color:#ffd9c9!important}
+body.astra-ui.playing #flightNotices151 #toast.warn:before{background:#e05336;box-shadow:0 0 7px #e05336}
 body.astra-ui.playing #flightNotices151 #toast.hidden{display:none}
 body.astra-ui.playing #flightNotices151 #eventMissionHud,
 body.astra-ui.playing #flightNotices151 #campaignHud{

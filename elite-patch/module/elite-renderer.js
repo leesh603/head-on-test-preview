@@ -14,6 +14,8 @@ export function createEliteAssets(options = {}) {
   return {
     lePrieur: loadImage(options.lePrieur || './assets/le-prieur-squadron.webp'),
     schlachtstaffel: loadImage(options.schlachtstaffel || './assets/halberstadt-cliv-squadron.webp'),
+    junkers: loadImage(options.junkers || './assets/junkers-j1-squadron.webp'),
+    salamander: loadImage(options.salamander || './assets/salamander-squadron.webp'),
     rocket: loadImage(options.rocket),
     crop: {...defaultCrop, ...(options.crop || {})},
     drawPlayerRocket: options.drawPlayerRocket || null
@@ -40,7 +42,7 @@ function drawFallbackSilhouette(ctx, member, x, y) {
   // Emergency-only diagnostic mark. Production integration should fail the
   // asset preflight before gameplay instead of displaying this branch.
   ctx.save(); ctx.translate(x, y); ctx.rotate(member.a + Math.PI / 2);
-  ctx.fillStyle = member.eliteKind === ELITE_KINDS.SCHLACHTSTAFFEL ? '#7d765f' : '#9cae83';
+  ctx.fillStyle = member.eliteKind === ELITE_KINDS.SCHLACHTSTAFFEL ? '#7d765f' : member.eliteKind === ELITE_KINDS.JUNKERS ? '#6d6a55' : member.eliteKind === ELITE_KINDS.SALAMANDER ? '#7d8a5c' : '#9cae83';
   ctx.fillRect(-4, -20, 8, 40); ctx.fillRect(-22, -4, 44, 8); ctx.restore();
 }
 
@@ -65,10 +67,12 @@ export function renderEliteLayer(ctx, system, camera, assets, time = 0) {
   const point = camera?.point || ((x, y) => [x - (camera?.x || 0), y - (camera?.y || 0)]);
   for (const member of system.members) {
     const [x, y] = point(member.x, member.y);
-    const isHeavy = member.eliteKind === ELITE_KINDS.SCHLACHTSTAFFEL;
-    const image = isHeavy ? assets.schlachtstaffel : assets.lePrieur;
-    const crop = assets.crop?.[member.eliteKind];
-    const drawn = drawAircraft(ctx, image, crop, x, y, member.a, isHeavy ? 86 : 66, member.hitFlash > 0);
+    const kind = member.eliteKind;
+    const isHeavy = kind === ELITE_KINDS.SCHLACHTSTAFFEL;
+    const image = kind === ELITE_KINDS.JUNKERS ? assets.junkers : kind === ELITE_KINDS.SALAMANDER ? assets.salamander : isHeavy ? assets.schlachtstaffel : assets.lePrieur;
+    const size = kind === ELITE_KINDS.JUNKERS ? 98 : kind === ELITE_KINDS.SALAMANDER ? 80 : isHeavy ? 86 : 66;
+    const crop = assets.crop?.[kind];
+    const drawn = drawAircraft(ctx, image, crop, x, y, member.a, size, member.hitFlash > 0);
     if (!drawn) drawFallbackSilhouette(ctx, member, x, y);
     if (member.telegraph > 0) {
       const pulse = .55 + Math.sin(time * 18) * .2;
@@ -78,7 +82,7 @@ export function renderEliteLayer(ctx, system, camera, assets, time = 0) {
     }
     const hp = Math.max(0, member.hp / member.maxHp);
     ctx.fillStyle = '#20241e'; ctx.fillRect(x - 22, y - 34, 44, 3);
-    ctx.fillStyle = isHeavy ? '#d8b26c' : '#df8c67'; ctx.fillRect(x - 22, y - 34, 44 * hp, 3);
+    ctx.fillStyle = kind === ELITE_KINDS.JUNKERS ? '#c9d4dc' : isHeavy || kind === ELITE_KINDS.SALAMANDER ? '#d8b26c' : '#df8c67'; ctx.fillRect(x - 22, y - 34, 44 * hp, 3);
   }
   for (const projectile of system.projectiles) {
     const [x, y] = point(projectile.x, projectile.y);
@@ -95,6 +99,8 @@ export function assertEliteAssetsReady(assets) {
   const missing = [];
   if (!assets?.lePrieur?.naturalWidth && !assets?.lePrieur?.width) missing.push('le-prieur-squadron.webp');
   if (!assets?.schlachtstaffel?.naturalWidth && !assets?.schlachtstaffel?.width) missing.push('halberstadt-cliv-squadron.webp');
+  if (!assets?.junkers?.naturalWidth && !assets?.junkers?.width) missing.push('junkers-j1-squadron.webp');
+  if (!assets?.salamander?.naturalWidth && !assets?.salamander?.width) missing.push('salamander-squadron.webp');
   if (missing.length) throw new Error(`Elite patch assets unavailable: ${missing.join(', ')}`);
   return true;
 }
