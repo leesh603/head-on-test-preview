@@ -1,13 +1,13 @@
-import {applySeaColor} from './sea-colors.js?v=sink2';
-import {fleetGunStations} from './naval-faction-atlas.js?v=sink2';
-import {drawFactionHull,prepareFactionHulls} from './naval-faction-art.js?v=sink2';
-import {drawShipWater,drawTorpedo,drawFactionMark} from './naval-water.js?v=sink2';
-import {drawSinkingShip} from './ship-sinking.js?v=sink2';
-import {fx} from './fx-art.js?v=sink2';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=sink2';
-import {jutlandRotate} from './jutland-boss.js?v=sink2';
-import {jutlandPoint} from './jutland-route.js?v=sink2';
-import {JUTLAND_RECTS,JUTLAND_HULL_MASKS} from './jutland-atlas.js?v=sink2';
+import {applySeaColor} from './sea-colors.js?v=sink3';
+import {fleetGunStations} from './naval-faction-atlas.js?v=sink3';
+import {drawFactionHull,prepareFactionHulls} from './naval-faction-art.js?v=sink3';
+import {drawShipWater,drawTorpedo,drawFactionMark} from './naval-water.js?v=sink3';
+import {drawSinkingShip} from './ship-sinking.js?v=sink3';
+import {fx} from './fx-art.js?v=sink3';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=sink3';
+import {jutlandRotate} from './jutland-boss.js?v=sink3';
+import {jutlandPoint} from './jutland-route.js?v=sink3';
+import {JUTLAND_RECTS,JUTLAND_HULL_MASKS} from './jutland-atlas.js?v=sink3';
 export const JUTLAND_ASSETS=Object.freeze({sea:'jutland-sea.webp',battleship:'jutland-battleship-neutral.webp',cruiser:'jutland-cruiser.webp',parts:'jutland-parts.webp',central:'boss-zeppelin-l7094.webp',entente:'boss-hma2394.webp'});
 const images=new Map(),pending=new Map();let water=null;
 function load(key){if(images.has(key))return images.get(key);const im=new Image();images.set(key,im);im.crossOrigin='anonymous';im.decoding='async';pending.set(key,new Promise((resolve,reject)=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))};im.onerror=()=>reject(new Error('Jutland asset '+key));}));im.src='./'+JUTLAND_ASSETS[key]+'?v=485';return im;}
@@ -18,7 +18,7 @@ export function paintJutland(c,g,cx,cy,w,h){c.fillStyle='#263e4b';c.fillRect(0,0
  // camera-dependent random scenery and per-frame image-data work.
  for(const [i,s,n]of [[0,4500,-1100],[1,7500,1450],[2,10300,-1700]]){const p=jutlandPoint(r,s,n);if(Math.abs(p.x-cx)>w/2+400||Math.abs(p.y-cy)>h/2+600)continue;sprite(c,'cruiser',i%2?1:2,p.x,p.y,420,r.a+Math.PI/2+.15);for(let j=0;j<3;j++)fx(c,'smokeDark',p.x+55+j*80+Math.sin((g.t||0)*.012)*90,p.y-j*45,170+j*60,130+j*55,.2,.14);}c.restore();}
 export function drawJutlandBody(c,b,deathAge=0){
- if(b.dead&&!b.jutlandAirship&&!b.sinkRendered)return drawSinkingShip(c,{x:b.x,y:b.y,yaw:b.hullYaw||0,width:b.width,height:b.height,age:deathAge,duration:4.4},k=>drawJutlandBody(k,{...b,sinkRendered:true},deathAge));
+ if(b.dead&&!b.jutlandAirship&&!b.sinkRendered)return drawSinkingShip(c,{key:b,x:b.x,y:b.y,yaw:b.hullYaw||0,width:b.width,height:b.height,age:deathAge,duration:4.4},k=>drawJutlandBody(k,{...b,sinkRendered:true},deathAge));
  const state=b.dead?2:b.hp<b.maxHp*.55?1:0;c.save();if(!b.jutlandAirship)drawShipWater(c,b,b.width,b.height);
  if(b.dead&&b.jutlandAirship){const t=Math.min(1,deathAge/2.65);if(t>=1){c.restore();return;}c.translate(0,t*100);c.globalAlpha*=1-t;if(b.retreating){c.translate(Math.sin(b.hullYaw)*t*650,-Math.cos(b.hullYaw)*t*650);}else{c.translate(b.x,b.y);c.rotate(t*.3);c.scale(1-t*.45,1-t*.45);c.translate(-b.x,-b.y);fx(c,'fireEngine',b.x,b.y,100,200,0,.85);fx(c,'smokeDark',b.x+35,b.y-70,160,260,0,.7);}}
  if(b.jutlandAirship){c.save();c.globalAlpha=.23;sprite(c,b.faction,0,b.x+28,b.y+42,b.height*213/640,b.hullYaw+Math.PI/2);c.restore();sprite(c,b.faction,0,b.x,b.y,b.height*213/640,b.hullYaw+Math.PI/2);if(b.dead&&!b.retreating){fx(c,'fire',b.x,b.y+40,110,180,0,.95);fx(c,'smokeDark',b.x+30,b.y-20,150,240,0,.8);}const p=b.parts.get('gondola');if(!b.dead){c.strokeStyle=p.destroyed?'#64747a':'#e9c183';c.lineWidth=2;c.beginPath();c.arc(b.x+p.x,b.y+p.y,p.radius,0,Math.PI*2);c.stroke();c.fillStyle='#d8c59e';c.font='bold 12px sans-serif';c.textAlign='center';c.fillText(p.destroyed?'관측 중단':'관측 장비',b.x+p.x,b.y+p.y+50);}}

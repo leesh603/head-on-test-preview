@@ -31,13 +31,29 @@ function cell(c,key,x,y,w,h,alpha,angle=0){
 }
 // Planform of a hull: full beam amidships, tapering to the bow and stern.
 const beamAt=(u)=>Math.pow(Math.max(0,1-u*u),.42);
-let layer=null;
-function hullLayer(px){
+// The sinking hull is painted once into a layer in the ship's own frame (bow up, unrotated), so the
+// layer is just the hull's footprint, and reused every frame; the flooding tint is redone only when
+// the waterline has visibly moved. Resolution is capped: the hull is darkening, foreshortened and
+// fading, and phones were filling 2k canvases several times a frame.
+const MAX_LAYER=1024;
+function canvas2d(w,h=w){
  if(typeof document==='undefined')return null;
- if(!layer){layer=document.createElement('canvas');if(!layer?.getContext?.('2d'))return layer=null;}
- const size=Math.min(2048,Math.max(64,Math.ceil(px)));
- if(layer.width<size||layer.height<size){layer.width=layer.height=Math.max(size,layer.width);}
- return layer;
+ const cv=document.createElement('canvas');if(!cv?.getContext?.('2d'))return null;cv.width=w;cv.height=h;return cv;
+}
+const hullCache=new Map();
+function cachedHull(key,{x,y,yaw,bx,by,q},drawHull,now){
+ let e=hullCache.get(key);
+ const lw=Math.max(8,Math.ceil(2*bx*q)),lh=Math.max(8,Math.ceil(2*by*q));
+ if(!e||e.lh<lh*.7){
+  const cv=canvas2d(lw,lh),tint=canvas2d(lw,lh);if(!cv||!tint)return null;
+  const g=cv.getContext('2d');g.imageSmoothingEnabled=true;
+  g.setTransform(q,0,0,q,lw/2,lh/2);g.rotate(-yaw);g.translate(-x,-y);
+  drawHull(g);g.setTransform(1,0,0,1,0,0);
+  e={cv,tint,lw,lh,q,tinted:null};hullCache.set(key,e);
+ }
+ e.used=now;
+ if(hullCache.size>6)for(const [k,v] of hullCache)if(now-v.used>1000)hullCache.delete(k);
+ return e;
 }
 function drawSurface(c,{x,y,yaw,w,h,age,phase,life}){
  const {progress,deep,list}=phase,fadeOut=1-clamp((age-life*.8)/(life*.2));
@@ -58,7 +74,7 @@ function drawSurface(c,{x,y,yaw,w,h,age,phase,life}){
   const r=deep,rr=w*(1.4+3.2*r)+h*.25*r;
   cell(c,'ripple',0,h*.05,rr*1.25,rr,(1-r)*.85,age*.08);
   cell(c,'boil',0,h*.05,w*(1.6+1.4*r),w*(1.7+1.4*r),(1-r)*.75,age*.3);
-  for(let i=0;i<5;i++){const t=(age*1.3+i*.37)%1,s=w*(.25+.35*t);cell(c,'boil',(hash(i,3)-.5)*w*1.2,(hash(i,5)-.5)*h*.3,s,s,(1-t)*.6*(1-r),i);}
+  for(let i=0;i<3;i++){const t=(age*1.3+i*.37)%1,s=w*(.25+.35*t);cell(c,'boil',(hash(i,3)-.5)*w*1.2,(hash(i,5)-.5)*h*.3,s,s,(1-t)*.6*(1-r),i);}
  }
  c.restore();
 }
@@ -83,29 +99,35 @@ export function drawSinkingShip(c,pose,drawHull){
  drawSurface(c,{x,y,yaw,w,h,age,phase,life});
  if(deep>=1||!drawHull)return;
  const m=typeof c.getTransform==='function'?c.getTransform():null,k=m?Math.max(.25,Math.hypot(m.a,m.b)):1;
- const S=Math.hypot(w,h)*1.25+w,L=hullLayer(S*k);
+ // Layer box around the hull, generous for boss art wider than the given beam.
+ const bx=w*1.15,by=h*.8,q=Math.min(k,MAX_LAYER/(2*by)),now=typeof performance!=='undefined'?performance.now():Date.now();
+ // Callers pass the sinking ship object as key; otherwise the ship is identified by where it went down.
+ const key=pose.key||`${Math.round(x/8)}|${Math.round(y/8)}|${Math.round(w)}|${Math.round(h)}|${yaw.toFixed(2)}`;
+ const hull=cachedHull(key,{x,y,yaw,bx,by,q},drawHull,now);
  c.save();c.globalAlpha=1;c.globalCompositeOperation='source-over';
- if(L){
-  const g=L.getContext('2d'),px=Math.ceil(S*k);
-  g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.clearRect(0,0,px,px);
-  g.setTransform(k,0,0,k,0,0);g.translate(S/2-x,S/2-y);g.imageSmoothingEnabled=true;
-  drawHull(g);
-  // Sea colour over the flooded part, following the hull's own pixels (source-atop).
-  g.setTransform(k,0,0,k,0,0);g.translate(S/2,S/2);g.rotate(yaw);g.globalCompositeOperation='source-atop';
-  g.fillStyle=`rgba(24,16,10,${(.22*list).toFixed(3)})`;g.fillRect(-S,-S,2*S,2*S);
-  const f=h/2+h*.04-progress*h*1.1,grad=g.createLinearGradient(0,f-h*.015,0,f+h*.55);
-  grad.addColorStop(0,'rgba(22,84,94,0)');grad.addColorStop(.05,'rgba(22,84,94,.5)');grad.addColorStop(.32,'rgba(16,68,78,.84)');grad.addColorStop(1,'rgba(10,50,60,.96)');
-  g.fillStyle=grad;g.fillRect(-S,-S,2*S,2*S);
-  if(deep>0){g.fillStyle=`rgba(10,50,60,${(.96*deep).toFixed(3)})`;g.fillRect(-S,-S,2*S,2*S);}
-  // Under the surface the hull reads as a shadow: let the sea's own texture show over it, more with depth.
-  const thin=g.createLinearGradient(0,f,0,f+h*.6);thin.addColorStop(0,'rgba(0,0,0,0)');thin.addColorStop(.25,'rgba(0,0,0,.32)');thin.addColorStop(1,'rgba(0,0,0,.5)');
-  g.globalCompositeOperation='destination-out';g.fillStyle=thin;g.fillRect(-S,-S,2*S,2*S);
-  g.globalCompositeOperation='source-over';g.setTransform(1,0,0,1,0,0);
+ if(hull){
+  const {lw,lh,q:hq,tint:L}=hull,last=hull.tinted;
+  if(!last||Math.abs(last.progress-progress)>.012||Math.abs(last.deep-deep)>.02||Math.abs(last.list-list)>.04){
+   hull.tinted={progress,deep,list};
+   const g=L.getContext('2d');
+   g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='copy';g.drawImage(hull.cv,0,0);
+   // Sea colour over the flooded part, following the hull's own pixels (source-atop).
+   g.setTransform(hq,0,0,hq,lw/2,lh/2);g.globalCompositeOperation='source-atop';
+   g.fillStyle=`rgba(24,16,10,${(.22*list).toFixed(3)})`;g.fillRect(-bx,-by,2*bx,2*by);
+   const f=h/2+h*.04-progress*h*1.1,grad=g.createLinearGradient(0,f-h*.015,0,f+h*.55);
+   grad.addColorStop(0,'rgba(22,84,94,0)');grad.addColorStop(.05,'rgba(22,84,94,.5)');grad.addColorStop(.32,'rgba(16,68,78,.84)');grad.addColorStop(1,'rgba(10,50,60,.96)');
+   g.fillStyle=grad;g.fillRect(-bx,-by,2*bx,2*by);
+   if(deep>0){g.fillStyle=`rgba(10,50,60,${(.96*deep).toFixed(3)})`;g.fillRect(-bx,-by,2*bx,2*by);}
+   // Under the surface the hull reads as a shadow: let the sea's own texture show over it, more with depth.
+   const thin=g.createLinearGradient(0,f,0,f+h*.6);thin.addColorStop(0,'rgba(0,0,0,0)');thin.addColorStop(.25,'rgba(0,0,0,.32)');thin.addColorStop(1,'rgba(0,0,0,.5)');
+   g.globalCompositeOperation='destination-out';g.fillStyle=thin;g.fillRect(-bx,-by,2*bx,2*by);
+   g.globalCompositeOperation='source-over';g.setTransform(1,0,0,1,0,0);
+  }
   // Settle and list, pitch stern-down (foreshortened), then slide away into the deep.
   c.translate(x,y);c.rotate(yaw);c.translate(w*.06*list,h*.03*progress);
-  c.scale(1-.05*list-.08*deep,1-.07*progress-.12*deep);c.rotate(-yaw);
-  c.globalAlpha=Math.pow(1-deep,1.4);
-  c.drawImage(L,0,0,px,px,-S/2,-S/2,S,S);
+  c.scale(1-.05*list-.08*deep,1-.07*progress-.12*deep);
+  c.globalAlpha=Math.pow(1-deep,1.4);c.imageSmoothingEnabled=true;
+  c.drawImage(L,0,0,lw,lh,-bx,-by,2*bx,2*by);
  }else{
   drawHull(c);
  }

@@ -1,7 +1,7 @@
-import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=sink2';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=sink2';
-import {sandOpacity} from './maan-weather.js?v=sink2';
-import {fx} from './fx-art.js?v=sink2';
+import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=sink3';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=sink3';
+import {sandOpacity} from './maan-weather.js?v=sink3';
+import {fx} from './fx-art.js?v=sink3';
 export const MAAN_ASSETS=Object.freeze({terrain:'terrain-maan-r2.webp',workshop:'maan-workshop-r2.webp',wusten:'boss-maan-wusten-r2.webp',sinai:'boss-maan-sinai-r2.webp',car:'boss-maan-rolls-royce.webp'});
 const images=new Map();let ground=null;
 const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=485';images.set(key,im);return im;};

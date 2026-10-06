@@ -1,4 +1,4 @@
-import {clamp,landshipClearance,syncSommeParts,turn} from './somme-boss-layout.js?v=sink2';
+import {clamp,landshipClearance,syncSommeParts,turn} from './somme-boss-layout.js?v=sink3';
 
 // World-space tracked drive: translation follows the hull, never the camera
 // bounds or a steering target. Partners yield before collision, without pushes.

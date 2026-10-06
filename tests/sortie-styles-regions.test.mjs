@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {Game,PLANES,PILOTS,angleDiff} from '../engine.js?v=sink2';
-import {coopPlane,CoopGame} from '../coop-engine.js?v=sink2';
-import '../campaign.js?v=sink2';
-import {SORTIE_COMBAT_STYLES as styles} from '../aircraft-combat-roles.js?v=sink2';
-import {tickRegionalConditions,REGION_COMBAT_EVENTS} from '../region-doctrine1.js?v=sink2';
-const app=fs.readFileSync(new URL('../app.js?v=gate1',import.meta.url),'utf8');
+import {Game,PLANES,PILOTS,angleDiff} from '../engine.js?v=sink3';
+import {coopPlane,CoopGame} from '../coop-engine.js?v=sink3';
+import '../campaign.js?v=sink3';
+import {SORTIE_COMBAT_STYLES as styles} from '../aircraft-combat-roles.js?v=sink3';
+import {tickRegionalConditions,REGION_COMBAT_EVENTS} from '../region-doctrine1.js?v=sink3';
+const app=fs.readFileSync(new URL('../app.js?v=sink3',import.meta.url),'utf8');
 
 const solo=[...app.match(/\(\{baron:baronAircraft,(.*?)\}\[id\]/s)[1].matchAll(/\w+:'([^']+)'/g)].map(m=>m[1]);
 const roster=[...new Set([...solo,'fokker','baron_albatros',...Object.keys(PILOTS).map(coopPlane)])];
