@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {Game,PLANES,PILOTS,angleDiff} from '../engine.js?v=dread-opaque-2';
-import {coopPlane,CoopGame} from '../coop-engine.js?v=dread-opaque-2';
-import '../campaign.js?v=dread-opaque-2';
+import {Game,PLANES,PILOTS,angleDiff} from '../engine.js?v=493';
+import {coopPlane,CoopGame} from '../coop-engine.js?v=493';
+import '../campaign.js?v=493';
 import {SORTIE_COMBAT_STYLES as styles} from '../aircraft-combat-roles.js?v=483';
 import {tickRegionalConditions,REGION_COMBAT_EVENTS} from '../region-doctrine1.js?v=483';
 const app=fs.readFileSync(new URL('../app.js?v=dread-opaque-2',import.meta.url),'utf8');

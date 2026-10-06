@@ -7,8 +7,8 @@ import {handleMaanCue} from './maan-view.js?v=485';
 import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=485';
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=485';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=485';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=485';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=485';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=493';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=493';
 import {bossSoundFor} from './boss-feedback.js?v=485';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=485';
 import {advanceCambraiBug} from './cambrai-bug-flight.js?v=485';
@@ -315,6 +315,13 @@ export function beginStageBossFrame(g,dt){
  }
  const ready=travel>=stageDistance||(stage!==7&&stage!==14&&stage!==16&&g.t-g.stageStartTime>=STAGE_BOSS_BALANCE.deadline);
  if(addon.stages.phase==='explore'&&ready){
+  // Aces fight before the regional boss: pull the scheduled ace wave forward
+  // the moment the boss gate opens, then hold the boss entry until the ace's
+  // arrival cut-in has played out so the two cut-ins never collide.
+  const liveAce=(g.enemies||[]).find(e=>e.hp>0&&e.bossPilot&&!e.expired);
+  if(!liveAce&&Number.isFinite(g.nextBossAt)&&g.nextBossAt>g.t){g.nextBossAt=g.t;g._aceGateAt=g.t;}
+  const aceAt=liveAce?(liveAce.aceSpawnT??g.t):g._aceGateAt;
+  if(aceAt==null||g.t-aceAt>=6.5){
   if(naval&&!g.navalApproachAt){g.navalApproachAt=g.t;g.event('wave',stage===16?'경고 · 북해 전투전대 접근 / 함대 선회에 주의':stage===7?'경고 · 장갑 항구요새 전면 도달':'경고 · 적 주력함이 전방에서 접근 중');g.event('heavyShot','');}
   if(!naval||g.t-g.navalApproachAt>=5.2){
    const bounds=stageBossBounds(g),alpine=stage===6,rail=['paris-gun','lincomparable','fliegerzug'].includes(addon.stages.bossId);
@@ -334,7 +341,8 @@ export function beginStageBossFrame(g,dt){
     x=g.x+(alpine?105:(naval||rail||structure)?Math.cos(heading)*forward:0);
     y=g.y+(alpine?-Math.max(165,Math.min(180,(bounds.bottom-bounds.top)*.24)):(naval||rail||structure)?Math.sin(heading)*forward:stage===4?0:stage===10?-Math.min(90,(bounds.bottom-bounds.top)*.12):-Math.min(180,(bounds.bottom-bounds.top)*.22));
    }
-   addon.startBoss({x,y});g.navalApproachAt=null;
+   addon.startBoss({x,y});g.navalApproachAt=null;g._aceGateAt=null;
+  }
   }
  }
  // Heavy ambient hazards pause in the introductory boss encounter; aircraft and

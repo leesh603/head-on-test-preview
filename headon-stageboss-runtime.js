@@ -1,5 +1,5 @@
 import {recordShipWake} from './naval-water.js?v=485';
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=485';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=493';
 import {verdunFortCollapseSites} from './verdun-fortresses.js?v=485';
 import {BossHazards} from './headon-stageboss-hazards.js?v=485';
 

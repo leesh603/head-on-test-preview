@@ -1,6 +1,6 @@
 import {drawGroundEnemy} from './ground-enemy-art.js?v=485';
-import {getLocale} from './i18n.js?v=485';
-import {unitNameEN} from './event-text-en.js?v=485';
+import {getLocale} from './i18n.js?v=493';
+import {unitNameEN} from './event-text-en.js?v=493';
 import {drawRegionalBug} from './regional-boss-view352.js?v=485';
 import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=485';
 import {drawGasCloud196} from './gas-cloud196.js?v=485';
@@ -12,13 +12,13 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=485';
 import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=485';
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=dread-opaque-2';
-import {drawStageBoss} from './stageboss-view.js?v=dread-opaque-2';
+import {drawStageBoss} from './stageboss-view.js?v=493';
 import {planeSprite,aircraftKey} from './aircraft.js?v=488';
 import {drawEquipment} from './equipment.js?v=485';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=485';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=485';
 import {drawSpecialAmmoIcon} from './icons.js?v=485';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=dread-opaque-2';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=493';
 import {drawCombatFeedback,combatCameraOffset,combatVisualPose} from './combat-feedback.js?v=485';
 
 // Every combat layer uses the same world transform; rendering never edits the session.

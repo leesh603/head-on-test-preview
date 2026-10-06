@@ -1,5 +1,5 @@
 // Area-of-effect geometry: smoke stays translucent so bullets and targets remain readable.
-import {getLocale} from './i18n.js?v=485';
+import {getLocale} from './i18n.js?v=493';
 import {drawGasVeil3} from './atmosphere-role3.js?v=485';
 import {drawGasCloud196} from './gas-cloud196.js?v=485';
 import {fx,fxReady,fxTint,FX56} from './fx-art.js?v=485';

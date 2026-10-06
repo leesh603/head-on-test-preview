@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game} from '../engine.js?v=dread-opaque-2';
+import {Game} from '../engine.js?v=493';
 import {FORMATION_MANUAL_BALANCE} from '../augmentation-overhaul150.js?v=485';
 
 const expected=[

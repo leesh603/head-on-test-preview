@@ -4,15 +4,15 @@ import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=4
 import {installPilotIdentities} from './pilot-identities.js?v=485';
 import {EnemyCollisionGrid} from './collision-grid.js?v=485';
 import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=485';
-import {installRevision} from './rebalance103.js?v=dread-opaque-2';
+import {installRevision} from './rebalance103.js?v=493';
 import {installCloudCover} from './cloud-cover1.js?v=485';
-import {installFleet} from './fleet-naval1.js?v=dread-opaque-2';
+import {installFleet} from './fleet-naval1.js?v=493';
 import {installTrenchWar} from './trench-war1.js?v=485';
 import {installCityAir} from './city-air1.js?v=485';
 import {installRegionDoctrine} from './region-doctrine1.js?v=485';
 import {installLondonBattle} from './london-battle.js?v=485';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=485';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=485';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=493';
 import {installBuildCombatIdentity} from './build-combat-identity.js?v=485';
 import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=485';
 import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=485';
@@ -883,7 +883,7 @@ PLANES.albatros_d2={...PLANES.albatros,name:'알바트로스 D.II',speed:140,tur
 WEAPONS.albatros_d2={...WEAPONS.albatros};
 configureAirframeBalance(PLANES.albatros_d2,110);configureAirframeBalance(PLANES.baron_albatros,115);
 PILOT_PLANES.boelcke='albatros_d2';
-export function pilotLoadout(pilot,plane){const p=PILOTS[pilot];return pilot==='baron'&&plane==='baron_albatros'?{...p,skill:'태양을 등진 사냥꾼',passive:'붉은 전투기 조종사',passiveDesc:'이동속도·선회력 +12%.',desc:'4초간 전방 범위의 적을 제압하고 후방타격 보너스를 적용합니다. 실제 후방에서 공격하면 추가 피해 +20%.',cooldown:PILOT_BALANCE.cooldowns.baron_albatros}:p}
+export function pilotLoadout(pilot,plane){const p=PILOTS[pilot];return pilot==='baron'&&plane==='baron_albatros'?{...p,skill:'태양을 등진 사냥꾼',passive:'붉은 전투기 조종사',passiveDesc:'이동속도와 선회력이 증가합니다.',desc:'4초간 전방 적을 제압합니다. 적의 바로 뒤에서 공격하면 추가 피해를 줍니다.',cooldown:PILOT_BALANCE.cooldowns.baron_albatros}:p}
 Game.prototype.isRedHunter=function(){return this.pilot==='baron'&&this.plane==='baron_albatros'};
 Game.prototype._sklAirframe=function(){if(!this.isRedHunter())return this._sklDuo();if(this.state!=='playing'||this.cooldown>0)return false;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.event('skill','태양을 등진 사냥꾼');return true};
 // Schlasta 15 counterpart: reuse the tested two-seat gun and crossfire paths.
