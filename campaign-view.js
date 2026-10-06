@@ -1,6 +1,6 @@
 import {PLANES} from './engine.js?v=dread-opaque-2';
 import {drawGroundEnemy} from './ground-enemy-art.js?v=485';
-import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=485';
+import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=487';
 import {SPRITE_ALIASES} from './campaign.js?v=dread-opaque-2';
 import {drawEquipment} from './equipment.js?v=485';
 registerCampaignSpriteAliases(SPRITE_ALIASES);
