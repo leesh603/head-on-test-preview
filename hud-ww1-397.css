@@ -1411,3 +1411,8 @@ body.astra-ui.playing #modal #build151 .build-pop-stats151 dd{margin:0;font:700 
 body.astra-ui.playing #modal #build151 .build-pop151 p{display:block!important;margin:0!important;font:400 12.5px/1.55 var(--astra-type)!important;color:#d6d2c7!important;white-space:normal!important;word-break:keep-all;text-align:left!important}
 @keyframes build-pop151{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 body.astra-ui.playing #modal #build151 .build-icons151 .empty151{align-self:center}
+/* Pause build: active/passive detail opens below the chip (above it was cut off by the card top). */
+body.astra-ui.playing #modal.build-modal151 .astra-ability.ho-tip .ho-skill-pop{top:calc(100% + 8px)!important;bottom:auto!important;z-index:30!important;background:linear-gradient(180deg,#22221f,#171716)!important}
+body.astra-ui.playing #modal.build-modal151 #build151 .build-abilities151 .astra-ability.ho-tip{position:relative;z-index:30}
+body.astra-ui.playing #modal.build-modal151 #build151 .build-abilities151 .astra-active.ho-tip .ho-skill-pop{left:0!important;right:auto!important;width:calc(200% + 8px)!important}
+body.astra-ui.playing #modal.build-modal151 #build151 .build-abilities151 .astra-passive.ho-tip .ho-skill-pop{right:0!important;left:auto!important;width:calc(200% + 8px)!important}
