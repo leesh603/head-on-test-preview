@@ -69,8 +69,8 @@ test('small damage does not start repair and further damage cancels pending resc
 });
 
 // Exercise the real projectile/hit, airframe and co-op inheritance paths.
-import {Game} from '../engine.js?v=485';
-import {CoopGame,PlayerState} from '../coop-engine.js?v=485';
+import {Game} from '../engine.js?v=sink-waterline-1';
+import {CoopGame,PlayerState} from '../coop-engine.js?v=sink-waterline-1';
 installBuildCombatIdentity(Game,{identityFor:buildIdentityFor});
 installBuildCombatIdentity(Object.getPrototypeOf(PlayerState.prototype).constructor,{identityFor:buildIdentityFor});
 const quiet=g=>{for(const key of ['spawn','eventTimer','nextBossAt','nextHeavyAt','_zeppelinSchedule','flakTimer','regionThreat','fieldUnitTimer','gasTimer','gustTimer','patrolTimer','supplyTimer'])g[key]=Infinity;g.battleDirectorEnabled=false;return g};

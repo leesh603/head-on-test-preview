@@ -1,18 +1,19 @@
 import {fleetGunStations} from './naval-faction-atlas.js?v=485';
-import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=485';
+import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=sink-waterline-1';
 import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles} from './naval-spacing.js?v=485';
 import {drawShipWater,recordShipWake} from './naval-water.js?v=485';
+import {drawSinkingShip,prepareSinkingWater,FLEET_SINK_DURATION} from './ship-sinking.js?v=sink-waterline-1';
 // Moving fleet system — Adriatic (region 1) and Zeebrugge harbor (region 7).
 // Ships sail real headings, fire from actual gun positions on the hull, and are
 // faction-owned: hostile ships hunt the player, friendly ships engage aircraft.
-import {PLANES} from './engine.js?v=485';
+import {PLANES} from './engine.js?v=sink-waterline-1';
 import {fx} from './fx-art.js?v=485';
 export const SHIP_TYPES=Object.freeze({
  dd:{name:'구축함',hp:150,drawnH:300,speed:26,guns:[96,-99],salvo:5,spread:.15,shellSpeed:215,interval:3.2,width:88},
  aa:{name:'대공순양함',hp:340,drawnH:380,speed:17,guns:[79,5,-39,-98],salvo:3,spread:.09,shellSpeed:205,interval:4.6,width:205}
 });
 export function installFleet(Game){
- if(typeof Image!=='undefined')prepareFleetShipArt();
+ if(typeof Image!=='undefined'){prepareFleetShipArt();prepareSinkingWater();}
  const P=Game.prototype;
  P.spawnMovingFleet=function(faction){
   const region=this.worldRegion();
@@ -91,29 +92,21 @@ export function installFleet(Game){
  };
 }
 
-const _foam={im:null};
-const sinkFoamIm=()=>{_foam.im??=Object.assign(new Image(),{src:'./ship-sinkfoam.webp?v=485'});return _foam.im.naturalWidth?_foam.im:null};
 export function drawFleetLayer(c,game,{point}){
  const cw=c.canvas.width,ch=c.canvas.height;
  for(const q of game.navalExchanges||[]){const t=q.age/q.duration,[x,y]=point(q.sx+(q.x-q.sx)*t,q.sy+(q.y-q.sy)*t),a=Math.atan2(q.y-q.sy,q.x-q.sx);fx(c,'shell',x,y-Math.sin(t*Math.PI)*24,23,9,a,.95);if(t<.15)fx(c,'muzzleHeavy',...point(q.sx,q.sy),42,25,a,.65);}
- const foamIm=sinkFoamIm();
- // Sinking ships keep drawing at full opacity while foam crowds over the hull
- // until it swallows them - no fades, no hull motion.
+ // Combat corpses are detached from the visual wreck as soon as they die.
  for(const e of [...(game.enemies||[]),...(game.friendlyShips||[])]){
   if(!e.movingShip||e.expired)continue;
-  const sinking=e.hp<=0&&e.sinkAge!==undefined;
-  if(!sinking&&e.hp<=0)continue;
+  if(e.hp<=0)continue;
   const t=SHIP_TYPES[e.shipClass],[x,y]=point(e.x,e.y),h=t.drawnH*.9,w=h*.21;
   if(x<-h||x>cw+h||y<-h||y>ch+h)continue;
-  if(sinking){
-   drawShipWater(c,e,w,h,point);c.save();c.translate(x,y);drawFleetShip(c,e,h,t.guns);c.restore();
-  }else{
    drawShipWater(c,e,w,h,point);c.save();c.translate(x,y);drawFleetShip(c,e,h,t.guns);c.restore();
    if(e.faction===playerFaction(game)){c.save();c.fillStyle='#b9d5c6';c.font='bold 11px sans-serif';c.textAlign='center';c.fillText('아군 '+t.name,x,y+h*.53);c.restore();}
-  }
  }
- // Foam crowds over the sinking hull, then lingers a moment at the spot.
- for(const p of game.shipSinkPuffs||[]){const im=foamIm;if(!im)continue;const q=Math.min(1,p.age/.55),w=p.h*.38*q;for(const off of p.blobs){const[x,y]=point(p.x+off[0]*p.h*.34,p.y+off[1]*p.h*.34);c.save();c.globalAlpha=.68;c.translate(x,y);c.rotate(off[2]);c.drawImage(im,-w*off[3]/2,-w*off[3]*im.naturalHeight/im.naturalWidth/2,w*off[3],w*off[3]*im.naturalHeight/im.naturalWidth);c.restore();}}
+ for(const p of game.shipSinkPuffs||[]){const [x,y]=point(p.x,p.y);if(x<-p.h||x>cw+p.h||y<-p.h||y>ch+p.h)continue;
+  drawSinkingShip(c,{x,y,yaw:p.ship.a+Math.PI/2,width:p.h*(p.ship.shipClass==='aa'?.24:.20),height:p.h,age:p.age,duration:FLEET_SINK_DURATION},()=>{
+   c.save();c.translate(x,y);drawFleetShip(c,p.ship,p.h,SHIP_TYPES[p.ship.shipClass].guns);c.restore();});}
 }
 
 const playerFaction=g=>g.teamFaction??PLANES[g.plane]?.faction??'entente';
@@ -123,12 +116,11 @@ export function updateNavalFleet(g,dt){if(g.state!=='playing')return;
   const _obstacles=shipObstacles(g);
   for(const e of _fleetShipIter){
    if(e.movingShip&&e.hp<=0){
-    if(e.sinkAge===undefined){e.sinkAge=0;
-     const h=(SHIP_TYPES[e.shipClass]?.drawnH||320)*.9,blobs=[];
-     for(let k=0;k<14;k++)blobs.push([-1+k*.155+(g.rng()-.5)*.16,(g.rng()-.5)*.7,g.rng()*6.28,.75+g.rng()*.55]);
-     (g.shipSinkPuffs??=[]).push({x:e.x,y:e.y,h,age:0,blobs});}
-    e.sinkAge+=step;
-    if(e.sinkAge>.85)e.expired=true;
+    if(!e.sinkTracked){e.sinkTracked=true;
+     const h=(SHIP_TYPES[e.shipClass]?.drawnH||320)*.9;
+     const ship={a:e.a,shipClass:e.shipClass,faction:e.faction,hp:0,maxHp:e.maxHp,gunAim:e.gunAim};
+     const wrecks=g.shipSinkPuffs??=[];wrecks.push({x:e.x,y:e.y,h,age:0,ship});if(wrecks.length>16)wrecks.shift();}
+    e.driveVelocity=0;e.expired=true;
     continue}
    // Recon seaplanes shadow the player and spot for fleet support; cloud cover breaks it.
    if(e.recon&&e.hp>0){
@@ -169,7 +161,7 @@ export function updateNavalFleet(g,dt){if(g.state!=='playing')return;
   for(const e of g.friendlyShips||[]){e.life-=step;if(e.hp>0){e.fire-=step;if(e.fire<=0){e.fire=SHIP_TYPES[e.shipClass].interval;if(!fireSurfaceExchange(g,e,SHIP_TYPES[e.shipClass]))g._friendlyShipFire(e,SHIP_TYPES[e.shipClass]);}}}
   {const fs=g.friendlyShips||[];let w=0;for(let i=0;i<fs.length;i++){const e=fs[i];if(e.hp>0&&!e.expired&&e.life>0&&e.hazardRegion===region)fs[w++]=e}fs.length=w;g.friendlyShips=fs;}
   {const ex=g.navalExchanges||[];let w=0;for(let i=0;i<ex.length;i++){const q=ex[i];q.age+=step;if(q.age<q.duration){ex[w++]=q;continue}const target=q.target;if(target.hp>0&&Math.hypot(target.x-q.x,target.y-q.y)<70){target.hp=Math.max(0,target.hp-q.damage);target.hitFlash=.24;g.combatBlast?.(q.x,q.y,40,'enemy','naval');if(target.hp<=0&&!target.movingShip)target.expired=true;}}ex.length=w;g.navalExchanges=ex;}
-  {const ps=g.shipSinkPuffs||[];let w=0;for(let i=0;i<ps.length;i++){const p=ps[i];p.age+=step;if(p.age<2.6)ps[w++]=p}ps.length=w;g.shipSinkPuffs=ps;}
+  {const ps=g.shipSinkPuffs||[];let w=0;for(let i=0;i<ps.length;i++){const p=ps[i];p.age+=step;if(p.age<FLEET_SINK_DURATION)ps[w++]=p}ps.length=w;g.shipSinkPuffs=ps;}
 }
 
 export function fireSurfaceExchange(g,e,t){

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PILOTS,PILOT_PLANES} from '../engine.js';
-import {CoopGame} from '../coop-engine.js';
+import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=sink-waterline-1';
+import {CoopGame} from '../coop-engine.js?v=sink-waterline-1';
 import {nungesserSmokeStage,nungesserAimOffset,signatureState} from '../pilot-signature-state.js';
 import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js';
 const solo=()=>new Game(PILOT_PLANES.nungesser,'nungesser',()=>.5);

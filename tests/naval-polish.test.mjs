@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 globalThis.Image=class {set src(v){queueMicrotask(()=>this.onload?.());}};globalThis.document={createElement:()=>({getContext:()=>null})};
-const {Game}=await import('../engine.js?v=485'),{CoopGame}=await import('../coop-engine.js?v=485');
-const {updateNavalFleet,fireSurfaceExchange,SHIP_TYPES}=await import('../fleet-naval1.js?v=485');
+const {Game}=await import('../engine.js?v=sink-waterline-1'),{CoopGame}=await import('../coop-engine.js?v=sink-waterline-1');
+const {updateNavalFleet,fireSurfaceExchange,SHIP_TYPES}=await import('../fleet-naval1.js?v=sink-waterline-1');
 const {fixture,step}=await import('./stageboss-fixture94.mjs');
 const {recordShipWake}=await import('../naval-water.js?v=naval-r2');
 function game(mode,region,faction='entente'){const pilot=faction==='central'?'baron':'fonck',g=mode==='solo'?new Game(faction==='central'?'fokker':'spad',pilot,()=>.5):new CoopGame([{pilot},{pilot}],{rng:()=>.5});g.region=region;g.worldRegion=()=>g.region;g.invuln=Infinity;for(const p of g.players||[])p.invuln=Infinity;return g;}

@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {CoopGame}=await import('../coop-engine.js?v=485');
-const {Game}=await import('../engine.js?v=485');
+const {CoopGame}=await import('../coop-engine.js?v=sink-waterline-1');
+const {Game}=await import('../engine.js?v=sink-waterline-1');
 const {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossCollision,damageStageBoss}=await import('../stageboss-host.js?v=485');
 const {sommePoint}=await import('../somme-boss-layout.js?v=483');
 for(const mode of ['solo','coop'])for(const faction of ['central','entente'])test(`Somme ${mode}/${faction} uses real host collision, one HP budget and bounded hazards`,()=>{

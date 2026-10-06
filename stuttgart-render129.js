@@ -1,6 +1,6 @@
 import {drawEnemyProjectile} from './projectiles.js?v=485';
 import {HANGAR} from './stuttgart129.js?v=485';
-import {drawNavalWake} from './adriatic-boss-render.js?v=485';
+import {drawNavalWake} from './adriatic-boss-render.js?v=sink-waterline-1';
 import {fx} from './fx-art.js?v=485';
 // Geometry masks remove the source canvas outside the drawn silhouette at render time.
 // Never color-key gray pixels: doing so also erases metal highlights inside the ship.
@@ -21,7 +21,7 @@ export function drawSupportShip(g,b,images,{camera={x:0,y:0},debug=false}={}){
  }
  if(debug&&b.hittable(p)){g.strokeStyle='#efd4a2';g.lineWidth=1.5;g.beginPath();g.ellipse(p.nx*b.width,p.ny*b.height,p.rx*b.width,p.ry*b.height,0,0,Math.PI*2);g.stroke();}}
  g.restore();
- if(b.cover){const c=b.cover,scale=1+Math.sin(Math.min(1,c.age/1.8)*Math.PI)*.20;g.save();g.translate(c.x-camera.x,c.y-camera.y-c.age*55);g.rotate(c.angle);g.globalAlpha=Math.max(0,1-c.age/1.8);g.scale(scale,scale);g.drawImage(images.cover,-HANGAR.w*b.width/2,-HANGAR.h*b.height/2,HANGAR.w*b.width,HANGAR.h*b.height);g.restore();}
+ if(b.cover&&!b.wreck){const c=b.cover,scale=1+Math.sin(Math.min(1,c.age/1.8)*Math.PI)*.20;g.save();g.translate(c.x-camera.x,c.y-camera.y-c.age*55);g.rotate(c.angle);g.globalAlpha=Math.max(0,1-c.age/1.8);g.scale(scale,scale);g.drawImage(images.cover,-HANGAR.w*b.width/2,-HANGAR.h*b.height/2,HANGAR.w*b.width,HANGAR.h*b.height);g.restore();}
 }
 export function drawSupportEffects(g,b,{camera={x:0,y:0},screenScale=1}={}){if(!b)return;g.save();g.translate(-camera.x,-camera.y);
  b.projectiles.visit(p=>{if(p.kind==='flak'){if(p.age<0)return;if(p.age<p.warning){g.strokeStyle='#eab277';g.lineWidth=2;g.beginPath();g.arc(p.x,p.y,p.radius,-Math.PI/2,-Math.PI/2+Math.PI*2*p.age/p.warning);g.stroke();g.fillStyle='#bd7f3b22';g.beginPath();g.arc(p.x,p.y,p.radius,0,Math.PI*2);g.fill();}return;}
