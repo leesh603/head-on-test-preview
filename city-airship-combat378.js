@@ -95,7 +95,7 @@ export class LondonApron extends CityAirships{
 
 export class DrachenMineNet extends CityAirships{
  constructor(o){super(o,'drachen-net');this.mineQueue=[];this.mineSerial=0;this.driftTime=0;this.cityRigOffsets=[[0,0],[0,0],[0,0]];
-  this.cityArtScale=Math.max(.27,Math.min(1.35,((this.t.regionalViewWidth||960)-60)/790,((this.t.regionalViewHeight||700)-150)/720));
+  this.cityArtScale=Math.max(.32,Math.min(1.62,((this.t.regionalViewWidth||960)-60)/790*1.2,((this.t.regionalViewHeight||700)-150)/720*1.2));
   this.regionalScale=this.apronScale=this.cityArtScale;this.syncRigs();this.timers.set('mine-lay',1.0);}
  point(x,y,index=1){const o=this.cityRigOffsets?.[index]||[0,0];return{x:this.x+(x-384+o[0])*this.cityArtScale,y:this.y+(y-288+o[1])*this.cityArtScale};}
  syncRigs(){for(const [i,p] of [...this.parts.values()].entries()){if(p.destroyed)continue;const [x,y,rx,ry]=CITY_HULLS['drachen-net'][i],q=this.point(x,y,i),s=this.cityArtScale;Object.assign(p,{x:q.x-this.x,y:q.y-this.y,radius:Math.max(rx,ry)*s,hitRadiusX:rx*s,hitRadiusY:ry*s});}}
