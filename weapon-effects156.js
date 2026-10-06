@@ -1,4 +1,4 @@
-import {drawGameIcon} from './icons.js?v=485';
+import {drawGameIcon} from './icons.js?v=gate1';
 import {fx,fxReady,FX56,FX3} from './fx-art.js?v=485';
 import {fxsBoom} from './fx-sample-preview.js?v=485';
 export function drawGrenade(c,g,x,y){
