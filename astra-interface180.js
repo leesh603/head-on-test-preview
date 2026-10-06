@@ -153,7 +153,8 @@ function install(){
   }
   const ws=$('weaponSpec').textContent,wd=$('weaponDetail').textContent,parts=ws.split(' · ');
   put(weaponName,parts.shift()||ws);put(weaponMeta,parts.join(' · '));
-  put(weaponRate,wd.replace(/게임 연사 기준: (?:총합 )?분당 /,'분당 ').replace(/ · 공중 /,' · ').replace(/Game firing rate: /,''));
+  // Card shows the plain numbers; the long "game fire rate … (adapted)" note reads like a dev memo.
+  put(weaponRate,wd.replace(/게임 연사 기준: (?:총합 |총당 )?분당 /,'총당 분당 ').replace(/ · 공중 /,' · ').replace(/\s*\(각색\)\s*$/,'').replace(/Game fir(?:e|ing) rate: /,'').replace(/ · Air reload /,' · Reload ').replace(/\s*\(adapted\)\s*$/,''));
   weapon.title=ws+' / '+wd;put(weapon.querySelector('.equipment-label'),en?'ARMAMENT':'무장');
   const baseHp=growth.textContent.match(/(\d+(?:\.\d+)?)\s*HP/);put(hpValue,baseHp?.[1]||'—');put(hpLabel,en?'Durability':'내구도');
   put(railLabel,en?'PILOT ROSTER':'파일럿 선택');put(railCounter,String($('pilotTabs').children.length).padStart(2,'0')+(en?' ACES':' ACES'));
@@ -195,6 +196,8 @@ function installHud(){
   put(seconds,remaining?remaining[1]+(en?'s':'초'):'');
   const progress=$('ammoProgress').style.width;fill.style.width=reloading?progress:'0%';
   // Reload plays as an overlay inside the ammo pill (no floating readout that collides with toasts).
+  // The touch reload key lives outside #ammoHud on phones; give it the same progress for its ring.
+  reload.style.setProperty('--astra-reload-p',reloading?(progress||'0%'):'0%');reload.classList.toggle('ho-reloading',reloading);
   if(ammo){ammo.style.setProperty('--astra-reload-p',reloading?(progress||'0%'):'0%');ammo.dataset.reloadText=reloading?(en?'RELOADING':'재장전'):'';ammo.dataset.reloadShort=reloading?(en?'RELOAD':'재장전'):'';
    if(wasReloading&&!reloading){ammo.classList.remove('astra-reloaded');void ammo.offsetWidth;ammo.classList.add('astra-reloaded');clearTimeout(reloadedTimer);reloadedTimer=setTimeout(()=>ammo.classList.remove('astra-reloaded'),520)}}
   wasReloading=reloading;

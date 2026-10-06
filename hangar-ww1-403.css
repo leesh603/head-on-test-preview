@@ -993,3 +993,50 @@ body.astra-ui:not(.playing) #hangar .factions #entente.active:after{background:l
 .portrait-lightbox img.plb-zoomed{cursor:zoom-out;transform:scale(2.1)}
 .portrait-lightbox .plb-select{margin-top:12px;padding:9px 26px;border-radius:4px;border:1px solid #8a7a5c;background:#3a2c20;color:#e8d9bd;font-family:inherit;font-size:13px;letter-spacing:.12em;cursor:pointer}
 .portrait-lightbox .plb-select:hover{background:#57402c;border-color:#caa56b}
+
+/* ---- PC hangar, short viewports: the aircraft data card ran under the faction tabs ----
+   The taller faction tabs (44px) and the random-sortie line grew the bottom tray, so at <=820px tall
+   the stats card overflowed its grid row and painted over the faction picker. Tighten the tray on
+   short screens, and as a safety net let the card shrink and scroll inside its own row instead of
+   ever overlapping the tray. */
+@media(min-width:721px){
+ body.astra-ui:not(.playing) #hangar .astra-aircraft{overflow:hidden}
+ body.astra-ui:not(.playing) #hangar .astra-aircraft .selected-aircraft{flex:1 1 0!important;min-height:0!important;grid-template-rows:auto minmax(48px,1fr) minmax(0,auto)!important;padding-bottom:10px!important}
+ body.astra-ui:not(.playing) #hangar .astra-aircraft .astra-aircraft-data{min-height:0!important;max-height:100%!important;align-self:stretch!important;overflow-y:auto!important;scrollbar-width:thin;scrollbar-color:#e8e2d434 transparent}
+}
+@media(min-width:721px) and (min-height:821px) and (max-height:960px){
+ body.astra-ui:not(.playing) #hangar .astra-aircraft-data{padding:13px 16px!important}
+ body.astra-ui:not(.playing) #hangar #airframeStats{gap:6px 12px!important}
+ body.astra-ui:not(.playing) #hangar :is(.astra-base-hp,.weapon-spec){margin-top:10px!important;padding-top:10px!important}
+}
+@media(min-width:721px) and (max-height:820px){
+ body.astra-ui:not(.playing) #hangar .factions button{height:36px!important;font-size:14px!important}
+ body.astra-ui:not(.playing) #hangar .factions .faction-emblem{width:20px!important;height:20px!important}
+ body.astra-ui:not(.playing) #hangar .astra-launch{gap:2px!important}
+ body.astra-ui:not(.playing) #hangar #randomStart.astra-random-sortie{min-height:28px;padding:4px 10px!important;margin-top:0!important;font-size:13px!important}
+ body.astra-ui:not(.playing) #hangar .astra-aircraft-figure{min-height:48px!important}
+ body.astra-ui:not(.playing) #hangar .astra-aircraft{padding-top:64px!important}
+ body.astra-ui:not(.playing) #hangar .astra-aircraft-heading>div:before{display:none!important}
+}
+
+/* ==== Hangar cleanup (ui-mobile1) ==== */
+@media(min-width:721px){
+ /* H1: pilot names under the portraits were cut to "만프레드 …" — let them wrap to two short lines,
+    and fade the rail ends so the half-visible card reads as "more this way" rather than clipped. */
+ body.astra-ui:not(.playing) #hangar #pilotTabs button{padding-bottom:30px!important}
+ body.astra-ui:not(.playing) #hangar #pilotTabs .pilot-tab-label{
+  white-space:normal!important;text-overflow:clip!important;display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  line-height:1.2!important;word-break:keep-all;overflow-wrap:anywhere;font-size:10.5px!important;
+  top:calc(100% - 27px)!important;bottom:auto!important;
+ }
+ body.astra-ui:not(.playing) #hangar #pilotTabs{
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 22px),transparent);
+ }
+ /* H3: the active blurb was clamped mid-sentence ("후방을…"); the card has room to grow upward. */
+ body.astra-ui:not(.playing) #hangar .astra-ability-copy p{-webkit-line-clamp:6!important}
+}
+/* H2: archetype appeared twice ("TIER IV · 저속 선회 · 시저스 교전" under the name and "저속 선회형" in the
+   stats card). Keep the card label only where the heading line is hidden (short PC screens). */
+@media(min-width:721px) and (min-height:821px){
+ body.astra-ui:not(.playing) #hangar #airframeStats .airframe-archetype{display:none!important}
+}
