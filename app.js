@@ -57,6 +57,7 @@ import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=485'
 import {drawEquipment} from './equipment.js?v=485';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=485';
 import{planeSprite,aircraftReady,aircraftKey,hangarArtReady}from './aircraft.js?v=488';
+import{hangarArt}from './astra-interface180.js?v=489';
 import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=dread-opaque-2';
 import {AUGMENTATION_OVERHAUL_BALANCE}from'./augmentation-overhaul150.js?v=485';
 import {drawCloudCover}from'./cloud-cover1.js?v=485';
@@ -963,7 +964,8 @@ const warmStageAssetsReady=Promise.all([prepareStageBossAssets(0),prepareAADefen
 // Split gate: the hangar only needs portraits/planes/icons, so reveal as soon
 // as those land. Battle assets (FX sprites, terrain, boss atlas) stream in the
 // background and are re-checked when the sortie button fires.
-const hangarReady=Promise.all([portraitsReady,aircraftReady,campaignArtReady,iconsReady]);
+const hangarCardsReady=Promise.all([...new Set(Object.keys(PILOTS).map(id=>aircraftKey(pilotPlane(id),false,id)).concat(['baron_albatros']))].map(k=>hangarArt(k).then(()=>{})));
+const hangarReady=Promise.all([portraitsReady,aircraftReady,hangarCardsReady,campaignArtReady,iconsReady]);
 const battleReady=Promise.all([fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady,aircraftReady]);
 hangarReady.then(()=>{
  const reveal=()=>{document.body.classList.add('assets-ready');roster();applyPilotPortrait('cutinPortrait')};
