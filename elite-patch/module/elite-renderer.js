@@ -28,7 +28,7 @@ function drawAircraft(ctx, image, crop, x, y, angle, size, flash = false) {
   const h = size, w = h * iw / ih;
   ctx.save();
   ctx.translate(x, y); ctx.rotate(angle + Math.PI / 2);
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
   if (flash) ctx.filter = 'brightness(1.85) sepia(.25)';
   if (crop) ctx.drawImage(image, crop.sx, crop.sy, crop.sw, crop.sh, -w / 2, -h / 2, w, h);
   else ctx.drawImage(image, -w / 2, -h / 2, w, h);

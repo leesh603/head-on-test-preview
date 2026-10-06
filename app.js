@@ -71,8 +71,8 @@ const zeppelinSprite=new Image();zeppelinSprite.src='./zeppelin.webp?v=485&b=326
 const globalZeppelinSprite=zeppelinSprite;
 const TRANSPARENT_PORTRAIT='data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 const eliteAssets=createEliteAssets({
- lePrieur:'./elite-patch/assets/le-prieur-squadron.webp?v=485&b=345',
- schlachtstaffel:'./elite-patch/assets/halberstadt-cliv-squadron.webp?v=485&b=345',
+ lePrieur:'./elite-patch/assets/le-prieur-squadron.webp?v=485&b=eliterim1',
+ schlachtstaffel:'./elite-patch/assets/halberstadt-cliv-squadron.webp?v=485&b=eliterim1',
  drawPlayerRocket:(c,x,y,angle,size)=>{if(!fx(c,'rocket',x,y,size,size*.3,angle-Math.PI/2))drawEquipment(c,'rocket',x,y,angle,size)}
 });
 installHeadOnElitePatch(Game,{
