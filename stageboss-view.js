@@ -1,4 +1,4 @@
-import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=485';
+import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=sink-waterline-1';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=485';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide} from './gallipoli-view.js?v=485';
 import {verdunFortExtents} from './verdun-fortresses.js?v=485';
@@ -7,7 +7,8 @@ import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,
 import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=485';
 import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=485';
 import {sommeExtents} from './somme-boss-layout.js?v=485';
-import {drawZubianShip} from './adriatic-boss-render.js?v=485';
+import {drawZubianShip} from './adriatic-boss-render.js?v=sink-waterline-1';
+import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=sink-waterline-1';
 import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=485';
 import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=485';
 import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=485';
@@ -16,7 +17,7 @@ import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=485';
 import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=485';
 import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=485';
 import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=485';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=485';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=sink-waterline-1';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=485';
 import {bossHudModel} from './headon-stageboss-hud.js?v=485';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=485';
@@ -79,6 +80,7 @@ const BOSS_KEYS_BY_REGION=Object.freeze({
   0:['parisGun','lincomparable'],1:['stuttgart','zubian'],2:['a7v','markv'],3:[],4:['drachenLeft','drachenCenter','drachenRight'],5:['l70','hma23'],6:['gik','ca4'],7:[],8:[],10:[],11:[]
 });
 export function prepareStageBossAssets(region){
+ if([1,7,16].includes(region))prepareSinkingWater();
  const jobs=[prepareRegionalBossArt(region)];releaseSommeAssets();if(region===10)jobs.push(prepareSommeAssets());releaseLondonArt();if(region===11)jobs.push(prepareLondonArt());releaseVerdunAssets();if(region===12)jobs.push(prepareVerdunAssets());releaseParisArt();if(region===15)jobs.push(prepareParisArt());jobs.push(prepareMaanAssets(region),prepareGallipoliAssets(region),prepareJutlandAssets(region));
  bossGroup.release();alpsGroup.release();supportGroup.release();rebuildGroup.release();armorDamageGroup.release();harborGroup.release();trenchGroup.release();zubianGroup.release();cityGroup.release();buildingGroup.release();flakTowerGroup.release();
  for(const group of [...Object.values(railGroups),...Object.values(railWreckGroups)])group.release();
@@ -241,30 +243,6 @@ const zubianGroup=createLazyImageGroup({atlas:'./zubian-atlas-tone.webp?v=485',d
 const sinkFoamGroup=createLazyImageGroup({foam:'./ship-sinkfoam.webp?v=485',splash:'./ship-sinksplash.webp?v=485',churn:'./ship-sinkchurn.webp?v=485',wake:'./ship-wake.webp?v=485'}),sinkFoamArt=sinkFoamGroup.images;
 const zubianFrames={intact:[180,8,370,1000],front:[634,24,370,648],rear:[1020,416,368,592]};
 function drawZubianFrame(c,key,x,y,w,h){const zubianAtlas=zubianArt.atlas;if(!zubianAtlas.naturalWidth)return;const f=zubianFrames[key];c.save();c.imageSmoothingEnabled=true;c.drawImage(zubianAtlas,f[0],f[1],f[2],f[3],x-w/2,y-h/2,w,h);c.restore();}
-// Water FX for sinking vessels, drawn in world space so the foam stays on the
-// surface while the hull slides beneath it.
-function drawSinkingWater(c,b,wreck){
- const t=b.destructionAge||0,{splash,foam,churn}=sinkFoamArt,paint=(im,x,y,w,alpha,rot=0)=>{
-  if(!im?.naturalWidth||alpha<=0)return;
-  const h=w*im.naturalHeight/im.naturalWidth;
-  c.save();c.imageSmoothingEnabled=true;c.translate(x,y);c.rotate(rot);c.globalAlpha=alpha;c.drawImage(im,-w/2,-h/2,w,h);c.restore();};
- // Roiling water band sits at the waterline, below the still-visible deck —
- // grows in later so the hull silhouette stays readable while it drops.
- if(churn?.naturalWidth){
-  const f=clamp(wreck*1.05,0,1),w=(260+f*300)*(b.assetKey==='armored-harbor-fortress'?1.5:1);
-  paint(churn,b.x,b.y+72+Math.sin(t*.8)*5,w,f*.78,Math.sin(t*.45)*.04);
-  paint(churn,b.x+Math.sin(t*.6)*9,b.y+112+Math.cos(t*.7)*6,w*.6,clamp(wreck*1.2-.15,0,1)*.5,-Math.sin(t*.5)*.06);}
- // Breach burst: one plume punches up as the deck disappears.
- if(splash?.naturalWidth){
-  const q=clamp(wreck*1.5,0,1),w=190+q*240;
-  paint(splash,b.x,b.y+40,w,Math.min(1,wreck*2.6)*(1-q*.85)*.9);
-  const q2=clamp(wreck*1.5-.35,0,1);paint(splash,b.x+54,b.y+92,w*.55,Math.min(1,wreck*2.2)*(1-q2)*.45,.4);}
- // Persistent foam collar stays at the waterline while the hull slides beneath.
- if(foam?.naturalWidth)for(let i=0;i<3;i++){
-  const f=clamp(wreck*1.3-i*.22,0,1);if(f<=0)continue;
-  const fw=(175+f*230)*(i===1?.74:1);
-  paint(foam,b.x+Math.sin(i*2.1)*16,b.y+44+i*30+Math.sin(t*.9+i*2.4)*6,fw,Math.min(1,wreck*2)*Math.max(0,1-wreck*.65)*(.82-i*.2),Math.sin(t*.7+i*1.9)*.1);}
-}
 const drawBossArt=(c,key,w,h)=>{const image=bossArt[key];if(image?.naturalWidth)c.drawImage(image,-w/2,-h/2,w,h)};
 const cityGroup=createLazyImageGroup({london:'./terrain-city-london96.webp?v=485&b=345',berlin:'./terrain-city-berlin96.webp?v=485&b=345'}),cityArt=cityGroup.images;
 // Dedicated aircraft-style sprite atlas; collider sizes remain authoritative.
@@ -516,7 +494,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    if(b.assetKey==='gallipoli-fortress'){const body=[...addon.stages.encounter.bodies.values()].find(v=>v.kind===b.assetKey);if(body)drawGallipoliBoss(c,body);return;}
    if(b.sommeBoss){drawSommeBoss(c,b);return;}
    if(b.assetKey==='armored-harbor-fortress'){const parts=harborArt.parts;drawHarborFortress(c,b,{base:harborArt.base,pivot:harborArt.cranePivot,ammo:parts.naturalWidth?null:harborArt.ammo,facility:parts.naturalWidth?null:harborArt.facility,guns:harborArt.guns,parts});return;}
-   if(b.assetKey.startsWith('hms-zubian')){drawZubianShip(c,b,zubianArt);if(b.destroying)drawSinkingWater(c,b,Math.min(1,b.destructionAge/Math.max(.1,b.destructionDuration)));return;}
+   if(b.assetKey.startsWith('hms-zubian')){drawZubianShip(c,b,zubianArt);return;}
    if(b.assetKey==='gik'||b.assetKey==='ca4'){drawAlpsBomber(c,b,bossArt[b.assetKey],alpsArt[b.assetKey]);return;}
    if(b.assetKey==='fort-douaumont'||b.assetKey==='fort-souville'){const body=[...addon.stages.encounter.bodies.values()].find(v=>v.kind===b.assetKey);if(body)drawVerdunFort(c,body,b);return;}
    if(['wustenpanzer','sinai-landship','maan-rolls-royce'].includes(b.assetKey)){const live=addon.stages.encounter?.bodies.values();for(const body of live||[])if(body.kind===b.assetKey&&body.x===b.x&&body.y===b.y){drawMaanBoss(c,body);break;}return;}
@@ -528,21 +506,14 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    if(b.assetKey==='drachen-net'){const lane=b.cityMineLane;if(lane?.remaining>0){c.save();c.strokeStyle='#a4c8be99';c.lineWidth=1.5;c.setLineDash([9,8]);for(const side of [-1,1]){c.beginPath();c.moveTo(lane.x+side*lane.width/2,lane.top);c.lineTo(lane.x+side*lane.width/2,lane.bottom);c.stroke();}c.restore();}drawDrachenRig(c,b,[bossArt.drachenLeft,bossArt.drachenCenter,bossArt.drachenRight]);return;}
    if(drawRegionalBossBody(c,b))return;
    if(b.assetKey==='sms-stuttgart'){const body=[...addon.stages.encounter.bodies.values()].find(v=>v.support129?.projectiles);if(body&&supportImages129.ship.naturalWidth&&supportImages129.cover.naturalWidth){
-    const w0=b.destroying?Math.min(1,b.destructionAge/Math.max(.1,b.destructionDuration)):0;
     c.save();c.imageSmoothingEnabled=true;
-    if(w0>0){c.translate(body.support129.x,body.support129.y+w0*260);c.rotate(w0*.3);c.translate(-body.support129.x,-body.support129.y);c.globalAlpha*=Math.max(0,1-w0*.9);}
-    drawSupportShip(c,b.destroying?{...body.support129,dead:false,wreck:true}:body.support129,supportImages129);
+    const ship=body.support129;
+    if(b.destroying)drawSinkingShip(c,{x:ship.x,y:ship.y,yaw:ship.angle||0,width:ship.width*.46,height:ship.height,age:b.destructionAge,duration:b.destructionDuration},()=>drawSupportShip(c,{...ship,dead:false,wreck:true,destroying:true},supportImages129));
+    else drawSupportShip(c,ship,supportImages129);
     c.restore();
-    if(w0>0)drawSinkingWater(c,b,w0);
    }return;}
    c.save();const wreck=b.destroying?Math.min(1,b.destructionAge/Math.max(.1,b.destructionDuration)):0;
-   const sinking=wreck>0&&(['sms-stuttgart','armored-harbor-fortress'].includes(b.assetKey)||b.assetKey.startsWith('hms-zubian'));
-   c.translate(b.x+(wreck&&!sinking?Math.sin(b.destructionAge*43)*4:0),b.y+(wreck&&!sinking?Math.cos(b.destructionAge*37)*4:0));
-   if(sinking){ // vessels list and submerge beneath the surface
-    c.translate(0,wreck*260);
-    c.rotate((b.assetKey==='armored-harbor-fortress'?-1:1)*wreck*.3);
-    c.globalAlpha*=Math.max(0,1-wreck*.9);
-   }
+   c.translate(b.x+(wreck?Math.sin(b.destructionAge*43)*4:0),b.y+(wreck?Math.cos(b.destructionAge*37)*4:0));
    const ship=b.assetKey.startsWith('hms-zubian')||b.assetKey==='sms-stuttgart',rail=['paris-gun','lincomparable','fliegerzug'].includes(b.assetKey),structure=['livens-flame-projector','minenwerfer-battery','treffas-wagen','morser-battery','staaken-rvi','london-searchlight','flak-tower-cell'].includes(b.assetKey),plane=['jasta11-circus','naval10-black-flight'].includes(b.assetKey);
    if(ship){const wa=sinkFoamArt.wake;if(wa?.naturalWidth){c.save();
     const stern=b.assetKey==='sms-stuttgart'?249:b.assetKey.endsWith('front')?273:b.assetKey.endsWith('rear')?251:421;
@@ -655,7 +626,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    else drawBossArt(c,'markv',172,258);
    if(b.destroying&&!rail&&!structure&&!trenchArmor){c.globalAlpha=.2+.3*(1-wreck);c.fillStyle='#171c19';for(let i=0;i<18;i++)c.fillRect(-70+(i*29)%140,-105+(i*47)%210,18+(i%3)*6,14+(i%2)*8);}
    if(!b.coreVulnerable&&!b.destroying&&!structure&&!b.assetKey.startsWith('hms-zubian')&&!['london-apron','drachen-net'].includes(b.assetKey))ring(0,0,76,'#bdd8df66');c.restore();
-   if(sinking)drawSinkingWater(c,b,wreck);
+
   },
   drawPart(p){if(p.bodyKey.startsWith('jutland-'))return;if(p.bodyKey==='gallipoli-fortress')return;if(layer==='hazards'||p.sommeBoss||p.bodyKey==='fort-douaumont'||p.bodyKey==='fort-souville')return;
    if(p.kind==='engine'&&!p.hittable&&!p.destroyed)return;

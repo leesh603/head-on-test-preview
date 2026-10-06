@@ -1,6 +1,7 @@
 import {drawShipWater} from './naval-water.js?v=485';
 import {ZUBIAN_LAYOUT,zubianSize} from './adriatic-boss-layout.js?v=485';
 import {fx,fxReady} from './fx-art.js?v=485';
+import {drawSinkingShip} from './ship-sinking.js?v=sink-waterline-1';
 
 // Source rectangles in the authored damage sheet; destinations are world units.
 export const ZUBIAN_DAMAGE_FRAMES=Object.freeze({
@@ -13,10 +14,10 @@ export function drawNavalWake(c,b,width,height){const a=b.hullYaw??b.angle??0,ca
 export function drawZubianShip(c,b,images){
  const role=b.assetKey.endsWith('front')?'front':b.assetKey.endsWith('rear')?'rear':null;
  const size=zubianSize({...b,role,t:{geometryScale:b.geometryScale}}),s=b.geometryScale||1;
+ if(b.destroying)return drawSinkingShip(c,{x:b.x,y:b.y,yaw:b.hullYaw||0,width:size.width,height:size.height,age:b.destructionAge,duration:b.destructionDuration},()=>drawZubianShip(c,{...b,destroying:false,sunkWreck:true},images));
  c.save();c.translate(b.x,b.y);c.rotate(b.hullYaw||0);c.imageSmoothingEnabled=true;
- const wreck=b.destroying?Math.min(1,b.destructionAge/Math.max(.1,b.destructionDuration)):0;
- if(wreck){c.translate(0,wreck*size.height*.25);c.rotate((role==='rear'?-1:1)*wreck*.2);c.globalAlpha*=Math.max(0,1-wreck*.95);}
- drawNavalWake(c,b,size.width,size.height);
+ const wreck=b.sunkWreck?1:0;
+ if(!wreck)drawNavalWake(c,b,size.width,size.height);
  const damage=images.damage,frame=key=>ZUBIAN_DAMAGE_FRAMES[key];
  if(role)atlasSprite(c,damage,frame(role+(wreck?'Wreck':'')),0,0,size.width,size.height);
  else if(b.phase==='splitting'){
@@ -35,7 +36,7 @@ export function drawZubianShip(c,b,images){
      const u=(x+size.width/2)/size.width,v=(y+size.height/2)/size.height;
      if(damage?.naturalWidth)c.drawImage(damage,source[0]+(u-rx/size.width)*source[2],source[1]+(v-ry/size.height)*source[3],rx*2/size.width*source[2],ry*2/size.height*source[3],x-rx,y-ry,rx*2,ry*2);
      if(/Engine/.test(p.id)){fx(c,'fireEngine',x,y,rx*2,rx*2,0,.55*(1-wreck));fx(c,'smokeDark',x,y-rx,rx*3,rx*3,0,.35*(1-wreck));}
-   }else if(p.hp<p.maxHp){c.fillStyle='#192824';c.fillRect(x-18,y+24,36,3);c.fillStyle='#dab981';c.fillRect(x-18,y+24,36*p.hp/p.maxHp,3);}
+   }else if(!wreck&&p.hp<p.maxHp){c.fillStyle='#192824';c.fillRect(x-18,y+24,36,3);c.fillStyle='#dab981';c.fillRect(x-18,y+24,36*p.hp/p.maxHp,3);}
  }
  c.restore();
 }

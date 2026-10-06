@@ -4,9 +4,9 @@ import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=4
 import {installPilotIdentities} from './pilot-identities.js?v=485';
 import {EnemyCollisionGrid} from './collision-grid.js?v=485';
 import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=485';
-import {installRevision} from './rebalance103.js?v=485';
+import {installRevision} from './rebalance103.js?v=sink-waterline-1';
 import {installCloudCover} from './cloud-cover1.js?v=485';
-import {installFleet} from './fleet-naval1.js?v=485';
+import {installFleet} from './fleet-naval1.js?v=sink-waterline-1';
 import {installTrenchWar} from './trench-war1.js?v=485';
 import {installCityAir} from './city-air1.js?v=485';
 import {installRegionDoctrine} from './region-doctrine1.js?v=485';
@@ -1549,6 +1549,7 @@ export const RICHTHOFEN_DRI_BALANCE=Object.freeze({
  stackInterval:.8,resetAfter:2.2,tierDamage:[1,1.15,1.3,1.45],
  killBoostTime:4,killBoostSpeed:1.2,chaseTime:1.2,chaseSpeed:1.3,
  dreideckerSpeed:.75,dreideckerTurn:1.6,dreideckerDrag:.3,
+ turnDamageStart:.5,turnDamageFull:3,turnDamageMax:.6,
  ghostInterval:.15,ghostLife:.3,ghostMax:3,designateTime:.35,
 });
 Game.prototype.isDreideckerPilot=function(){return this.pilot==='baron'&&!this.isRedHunter()};
@@ -1558,6 +1559,12 @@ Game.prototype.huntTargetAlive=function(t){
  return !!(t.hp>0&&!t.crashed&&!t.rivalEscaped&&(this.enemies||[]).includes(t));
 };
 Game.prototype.huntTier=function(){return this.huntEngaged?Math.min(3,1+Math.floor((this.huntEngage||0)/RICHTHOFEN_DRI_BALANCE.stackInterval)):0};
+Game.prototype.dreideckerTurnDamageMultiplier=function(){
+ if(!this.dreideckerActive)return 1;
+ const start=RICHTHOFEN_DRI_BALANCE.turnDamageStart,full=RICHTHOFEN_DRI_BALANCE.turnDamageFull,rate=Math.max(0,this._driTurnRate||0);
+ const turn=Math.max(0,Math.min(1,(rate-start)/(full-start)));
+ return 1+turn*RICHTHOFEN_DRI_BALANCE.turnDamageMax;
+};
 Game.prototype.pickHuntTarget=function(){
  const inert=e=>e.stageBossBody||e.bossMinion||e.surface||e.fieldUnit||e.navalVessel||e.missionGround||e.groundEscort||e.stationary||e.rivalEscaped;
  const valid=e=>e&&e.hp>0&&!e.crashed&&!inert(e);
@@ -1572,10 +1579,10 @@ Game.prototype.pickHuntTarget=function(){
 Game.prototype.patchEliteHuntDamage=function(){
  const es=this.eliteEnemies;if(!es||es._driPatched)return;es._driPatched=true;
  const damage=es.damageMember.bind(es),g=this;
- es.damageMember=(m,d,s={})=>{if(g.huntTarget===m&&g.huntTargetElite){g.huntEngaged=true;g.huntLastHit=g.t;d*=RICHTHOFEN_DRI_BALANCE.tierDamage[g.huntTier()]}const was=m.alive;const r=damage(m,d,s);if(was&&!m.alive)m._huntCredit=true;return r};
+ es.damageMember=(m,d,s={})=>{if(g.huntTarget===m&&g.huntTargetElite){g.huntEngaged=true;g.huntLastHit=g.t;d*=RICHTHOFEN_DRI_BALANCE.tierDamage[g.huntTier()]*g.dreideckerTurnDamageMultiplier()}const was=m.alive;const r=damage(m,d,s);if(was&&!m.alive)m._huntCredit=true;return r};
 };
 Game.prototype._rdmDri=function(b,e){let mult=this._rdmAces1918(b,e);
- if(e&&e===this.huntTarget&&!this.huntTargetElite){this.huntEngaged=true;this.huntLastHit=this.t;const tier=this.huntTier();mult*=RICHTHOFEN_DRI_BALANCE.tierDamage[tier];
+ if(e&&e===this.huntTarget&&!this.huntTargetElite){this.huntEngaged=true;this.huntLastHit=this.t;const tier=this.huntTier();mult*=RICHTHOFEN_DRI_BALANCE.tierDamage[tier]*this.dreideckerTurnDamageMultiplier();
   if(tier>=2)this.burst(b.x??e.x,b.y??e.y,tier>=3?'#7d1a1a':'#4d1010',tier>=3?7:4);
  }return mult};
 // 포화의 참호전선 (region 3) — 지속 격제 사격: 맵 전역에 주기적으로 포탄이 떨어지며

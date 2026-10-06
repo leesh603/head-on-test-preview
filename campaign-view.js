@@ -1,7 +1,7 @@
-import {PLANES} from './engine.js?v=485';
+import {PLANES} from './engine.js?v=sink-waterline-1';
 import {drawGroundEnemy} from './ground-enemy-art.js?v=485';
 import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=485';
-import {SPRITE_ALIASES} from './campaign.js?v=485';
+import {SPRITE_ALIASES} from './campaign.js?v=sink-waterline-1';
 import {drawEquipment} from './equipment.js?v=485';
 registerCampaignSpriteAliases(SPRITE_ALIASES);
 import {drawBattlefieldSprite} from './battlefield-art.js?v=485';

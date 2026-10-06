@@ -18,19 +18,19 @@ import {GamepadInput} from './gamepad-input.js?v=485';
 installEventTextEN(Game,CoopGame,CampaignGame);registerEventPilots(PILOTS);
 const fieldRecordLink=document.createElement('a');fieldRecordLink.href='./field-record.html';fieldRecordLink.target='_blank';fieldRecordLink.rel='noopener';fieldRecordLink.textContent=getLocale()==='en'?'Official Battle Record':'공식 전장 기록';fieldRecordLink.className='field-record-link';fieldRecordLink.style.cssText='display:block;margin:10px auto 0;text-align:center;color:#d7b26d;font-weight:800;text-decoration:none';document.getElementById('start')?.after(fieldRecordLink);
 import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js';
-import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=485';
+import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=sink-waterline-1';
 import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=485';
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=485';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=485';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=sink-waterline-1';
 import {paintParis} from './paris-night-art.js?v=485';
 import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=485';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=485';
 import './hud-layout94.js?v=485';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=485';
-import {CoopGame,coopPlane} from './coop-engine.js?v=485';
+import {CoopGame,coopPlane} from './coop-engine.js?v=sink-waterline-1';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=485';
-import {drawCoop} from './coop-view.js?v=485';
-import {drawSunStrike} from './sun-strike71.js?v=485';
+import {drawCoop} from './coop-view.js?v=sink-waterline-1';
+import {drawSunStrike} from './sun-strike71.js?v=sink-waterline-1';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=485';
 import {installFlightViewport} from './flight-viewport.js?v=485';
 import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174.js?v=485';
@@ -40,8 +40,8 @@ import {drawGas} from './gas-view.js?v=485';
 import {drawWarAmbience} from './war-ambience.js?v=485';
 import {missionNavigation,drawMissionRadar} from './navigation.js?v=485';
 import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=485';
-import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=485';
-import {drawCampaign} from './campaign-view.js?v=485';
+import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=sink-waterline-1';
+import {drawCampaign} from './campaign-view.js?v=sink-waterline-1';
 import {campaignArtReady} from './aircraft.js?v=485';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady} from './icons.js?v=485';
 import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?v=485';
@@ -56,15 +56,15 @@ import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=485'
 import {drawEquipment} from './equipment.js?v=485';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=485';
 import{planeSprite,aircraftReady,aircraftKey,hangarArtReady}from './aircraft.js?v=485';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=485';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=sink-waterline-1';
 import {AUGMENTATION_OVERHAUL_BALANCE}from'./augmentation-overhaul150.js?v=485';
 import {drawCloudCover}from'./cloud-cover1.js?v=485';
-import {drawFleetLayer}from'./fleet-naval1.js?v=485';
+import {drawFleetLayer}from'./fleet-naval1.js?v=sink-waterline-1';
 import {drawTrenchLayer}from'./trench-war1.js?v=485';
 import {drawCityAirLayer}from'./city-air1.js?v=485';
 import {TerrainRenderer,MountainField,applyTerrainAtmosphere,preloadTerrainProfile,terrainProfilesReady} from './alps-terrain117.js?v=485';
 import {FXS,fxsTracer,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=485';
-import {drawPassiveFx,drawPassiveFxFront} from './passive-fx.js?v=485';
+import {drawPassiveFx,drawPassiveFxFront} from './passive-fx.js?v=sink-waterline-1';
 const flightViewport=installFlightViewport(document,window);
 const ententeAirshipSprite=new Image();ententeAirshipSprite.src='./zeppelin-entente.webp?v=485&b=326';
 const zeppelinSprite=new Image();zeppelinSprite.src='./zeppelin.webp?v=485&b=326';const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=485&b=326';
@@ -186,7 +186,7 @@ function draw(t){let cx=game?game.x:Math.sin(t*.03)*45,cy=game?game.y:-t*12;ctx.
  // Voss reverse-turn afterimages: player and ace boss use the same pale ghost trail.
  for(const ghost of game.vossAfterimages||[]){const [gx,gy]=point(ghost.x,ghost.y);if(gx<-110||gx>W+110||gy<-110||gy>H+110)continue;ctx.save();ctx.globalAlpha=.34*(ghost.life/ghost.maxLife);planeSprite(ctx,gx,gy,ghost.a,aircraftKey(plane,false,'voss'),1,false,false);ctx.restore()}
  for(const e of game.enemies||[])for(const ghost of e.vossTrails||[]){const [gx,gy]=point(ghost.x,ghost.y);if(gx<-110||gx>W+110||gy<-110||gy>H+110)continue;ctx.save();ctx.globalAlpha=.42*(ghost.life/ghost.maxLife);planeSprite(ctx,gx,gy,ghost.a,e.bossPlane||'fokker_voss',enemyAircraftScale(e),true,false);ctx.restore()}
- for(let d of game.drops){let[x,y]=point(d.x,d.y);if(x<-70||x>W+70||y<-70||y>H+70)continue;if(d.mccuddenSupply){drawMccuddenSupply(ctx,d,x,y)}else if(d.heal||d.supply){const pulse=22+Math.sin(t*5)*4;ctx.save();ctx.globalAlpha=.4;ctx.strokeStyle='#5fff9e';ctx.lineWidth=7;ctx.beginPath();ctx.arc(x,y,pulse,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;ctx.strokeStyle='#9cffb4';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,pulse,0,Math.PI*2);ctx.stroke();ctx.fillStyle='rgba(210,255,224,.9)';for(let i=0;i<4;i++){const sa=t*2.6+i*Math.PI/2;ctx.beginPath();ctx.arc(x+Math.cos(sa)*(pulse+6),y+Math.sin(sa)*(pulse+6),1.7,0,Math.PI*2);ctx.fill()}ctx.restore();drawEquipment(ctx,'repair',x,y+Math.sin(t*3)*2,0,46)}else{if(xpGem?.naturalWidth)ctx.drawImage(xpGem,x-9,y-9,18,18);else{ctx.fillStyle='#63d5ec';ctx.fillRect(x-3,y-3,6,6)}}}for(const grenade of game.grenades||[]){const[gx,gy]=point(grenade.x,grenade.y);if(gx<-80||gx>W+80||gy<-80||gy>H+80)continue;drawGrenade(ctx,grenade,gx,gy)}for(let m of game.mines){let[x,y]=point(m.x,m.y);if(x<-80||x>W+80||y<-80||y>H+80)continue;drawDrachenMine(ctx,x,y,62,62);if(m.arm===0){ctx.strokeStyle='#ffcc6677';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,20+Math.sin(t*5)*2,0,Math.PI*2);ctx.stroke()}}for(let b of game.bullets){if(b.flak||b.enemy||b.motorCannon||b.cow37)continue;let[x,y]=point(b.x,b.y);if(x<-90||x>W+90||y<-90||y>H+90)continue;if(b.rocket){if(!fx(ctx,'rocket',x,y,52,16,Math.atan2(b.vy,b.vx)))drawEquipment(ctx,'rocket',x,y,Math.atan2(b.vy,b.vx)+Math.PI/2,48);}else if(b.mannockPass){fx(ctx,b.mannockPass==='vertical'?'tracerCream':'tracerAmber',x,y,48,8,Math.atan2(b.vy,b.vx));}else if(b.fonckVolley){fx(ctx,'tracerCream',x,y,46,10,Math.atan2(b.vy,b.vx));}else if(b.fonckSeeker){ctx.save();ctx.translate(x,y);ctx.rotate(Math.atan2(b.vy,b.vx));if(!fx(ctx,'tracerCream',-6,0,46,10)){ctx.fillStyle='#fff5bd';ctx.fillRect(-18,-3,30,6);ctx.fillStyle='#f3a94f';ctx.fillRect(-25,-1,12,2)}ctx.restore();}else{const bc=b.mauserRound?'#a98cff':b.eagle?'#9fdcff':b.enemy?'#ffb096':(b.formation||b.ally)?'#b9f2de':b.pierce?'#f8f5cd':friendlyTracerColor(b,game.gunUpgradeBonus),bw=b.enemy?3:(b.formation||b.ally)?4:b.pierce?3:2;if(!(FXS&&fxsTracer(ctx,x,y,b.vx,b.vy,bc,bw))){ctx.strokeStyle=bc;ctx.lineWidth=bw;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-b.vx*.018,y-b.vy*.018);ctx.stroke()}}}for(const e of game.enemies){if(e.groundEscort){const[x,y]=point(e.x,e.y);if(x<-260||x>W+260||y<-260||y>H+260)continue;drawGroundEnemy(ctx,e,x,y,96)}}
+ for(let d of game.drops){let[x,y]=point(d.x,d.y);if(x<-70||x>W+70||y<-70||y>H+70)continue;if(d.mccuddenSupply){drawMccuddenSupply(ctx,d,x,y)}else if(d.heal||d.supply){const pulse=22+Math.sin(t*5)*4;ctx.save();ctx.globalAlpha=.4;ctx.strokeStyle='#5fff9e';ctx.lineWidth=7;ctx.beginPath();ctx.arc(x,y,pulse,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;ctx.strokeStyle='#9cffb4';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,pulse,0,Math.PI*2);ctx.stroke();ctx.fillStyle='rgba(210,255,224,.9)';for(let i=0;i<4;i++){const sa=t*2.6+i*Math.PI/2;ctx.beginPath();ctx.arc(x+Math.cos(sa)*(pulse+6),y+Math.sin(sa)*(pulse+6),1.7,0,Math.PI*2);ctx.fill()}ctx.restore();drawEquipment(ctx,'repair',x,y+Math.sin(t*3)*2,0,46)}else{if(xpGem?.naturalWidth)ctx.drawImage(xpGem,x-9,y-9,18,18);else{ctx.fillStyle='#63d5ec';ctx.fillRect(x-3,y-3,6,6)}}}for(const grenade of game.grenades||[]){const[gx,gy]=point(grenade.x,grenade.y);if(gx<-80||gx>W+80||gy<-80||gy>H+80)continue;drawGrenade(ctx,grenade,gx,gy)}for(let m of game.mines){let[x,y]=point(m.x,m.y);if(x<-80||x>W+80||y<-80||y>H+80)continue;drawDrachenMine(ctx,x,y,62,62);if(m.arm===0){ctx.strokeStyle='#ffcc6677';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,20+Math.sin(t*5)*2,0,Math.PI*2);ctx.stroke()}}for(let b of game.bullets){if(b.flak||b.enemy||b.motorCannon||b.cow37)continue;let[x,y]=point(b.x,b.y);if(x<-90||x>W+90||y<-90||y>H+90)continue;if(b.rocket){if(!fx(ctx,'rocket',x,y,52,16,Math.atan2(b.vy,b.vx)))drawEquipment(ctx,'rocket',x,y,Math.atan2(b.vy,b.vx)+Math.PI/2,48);}else if(b.mannockPass){fx(ctx,b.mannockPass==='vertical'?'tracerCream':'tracerAmber',x,y,48,8,Math.atan2(b.vy,b.vx));}else if(b.fonckVolley){fx(ctx,'tracerCream',x,y,46,10,Math.atan2(b.vy,b.vx));}else if(b.fonckSeeker){ctx.save();ctx.translate(x,y);ctx.rotate(Math.atan2(b.vy,b.vx));if(!fx(ctx,'tracerCream',-6,0,46,10)){ctx.fillStyle='#fff5bd';ctx.fillRect(-18,-3,30,6);ctx.fillStyle='#f3a94f';ctx.fillRect(-25,-1,12,2)}ctx.restore();}else{const driMult=game.pilot==='baron'&&game.dreideckerActive&&typeof game.dreideckerTurnDamageMultiplier==='function'?game.dreideckerTurnDamageMultiplier():1;if(driMult>1.02&&!b.enemy&&!b.formation&&!b.ally){const power=Math.min(1,(driMult-1)/.6);ctx.save();ctx.globalAlpha=.58+.32*power;ctx.strokeStyle=power>.7?'#7d1010':'#551010';ctx.lineWidth=4+power*2;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-b.vx*.021,y-b.vy*.021);ctx.stroke();ctx.globalAlpha=.9;ctx.strokeStyle=power>.7?'#ffe0a8':'#ff9b67';ctx.lineWidth=1.4+power*1.2;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-b.vx*.016,y-b.vy*.016);ctx.stroke();ctx.restore();continue}const bc=b.mauserRound?'#a98cff':b.eagle?'#9fdcff':b.enemy?'#ffb096':(b.formation||b.ally)?'#b9f2de':b.pierce?'#f8f5cd':friendlyTracerColor(b,game.gunUpgradeBonus),bw=b.enemy?3:(b.formation||b.ally)?4:b.pierce?3:2;if(!(FXS&&fxsTracer(ctx,x,y,b.vx,b.vy,bc,bw))){ctx.strokeStyle=bc;ctx.lineWidth=bw;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-b.vx*.018,y-b.vy*.018);ctx.stroke()}}}for(const e of game.enemies){if(e.groundEscort){const[x,y]=point(e.x,e.y);if(x<-260||x>W+260||y<-260||y>H+260)continue;drawGroundEnemy(ctx,e,x,y,96)}}
 for(const e of game.enemies){if(!e.fieldUnit||e.hp<=0)continue;const[x,y]=point(e.x,e.y);if(x<-360||x>W+360||y<-360||y>H+360)continue;ctx.save();
  if(e.rail){const r=e.rail,[rx,ry]=point(r.x,r.y);ctx.save();ctx.translate(rx,ry);ctx.rotate(r.angle);ctx.strokeStyle='#322c25';ctx.lineWidth=4;for(let pos=-r.half-20;pos<=r.half+20;pos+=18){ctx.beginPath();ctx.moveTo(pos,-13);ctx.lineTo(pos,13);ctx.stroke()}ctx.strokeStyle='#bec1ab';ctx.lineWidth=2;for(const off of [-8,8]){ctx.beginPath();ctx.moveTo(-r.half-25,off);ctx.lineTo(r.half+25,off);ctx.stroke()}ctx.restore();
   if(e.fire<.7){ctx.strokeStyle='#ffac7877';ctx.setLineDash([5,8]);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(W/2,H/2);ctx.stroke();ctx.setLineDash([])}

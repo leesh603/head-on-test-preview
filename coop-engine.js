@@ -2,7 +2,7 @@ import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=4
 import {nungesserAimOffset,nungesserRoundReaction} from './pilot-signature-state.js?v=485';
 import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=485';
 import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=485';
-import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=485';
+import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=sink-waterline-1';
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=485';
 import {registerAircraftTiers} from './aircraft-tiers.js?v=485';
 import {attachAircraftPersonality} from './aircraft-personality164.js?v=485';
@@ -211,7 +211,7 @@ export class CoopGame {
    const x=b.x,y=b.y;b.previousX=x;b.previousY=y;b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life<=0)continue;if(b.enemy){this.resolveHostileRound(b,x,y);continue}
    b.hit??=new Set();for(const e of this.projectileCandidates(b)){if(e.hp<=0||e.deathHandled||b.hit.has(e)||b.patrol&&!b.fireZone&&!this.patrolCanEngage(e,b))continue;if(this.targetCollision(e,b.x,b.y,b)){damageStageBoss(this,e,b,b.damage*(b.patrol?1:(owner?.globalDamageMult||1)*(owner?.legendaryDamageMultiplier()||1)*(owner?.roundDamageMultiplier(b,e)||1)));if(!b.patrol)e.playerHit=true;e.hitFlash=.24;b.hit.add(e);owner?.specialRoundImpact(b,e);this.event('impact','');this.burst(b.x,b.y,b.specialColor||'#fff0bb',3);if(!b.pierce)b.life=0;this.handleDeath(e,b);if(!b.pierce||b.life<=0)break}}if(b.actualExplosion)b.life=0
   }
-  this.bullets=this.bullets.filter(b=>b.life>0);this.enemies=this.enemies.filter(e=>{if(e.crashed)return false;if(e.crashing)return Math.hypot(e.x-this.x,e.y-this.y)<1300;if(e.hp<=0&&Math.hypot(e.x-this.x,e.y-this.y)<1300&&startEnemyCrash(e,()=>this.rng()))return true;return e.hp>0&&!e.expired&&(e.stageBossBody||e.type==='boss'||(e.bossMinion&&Math.hypot(e.x-this.x,e.y-this.y)<1600)||Math.hypot(e.x-this.x,e.y-this.y)<Math.max(1100,Math.hypot(this.viewWidth,this.viewHeight)/this.camera.zoom))});
+  this.bullets=this.bullets.filter(b=>b.life>0);this.enemies=this.enemies.filter(e=>{if(e.crashed)return false;if(e.crashing)return Math.hypot(e.x-this.x,e.y-this.y)<1300;if(e.movingShip&&e.hp<=0)return !e.expired;if(e.hp<=0&&Math.hypot(e.x-this.x,e.y-this.y)<1300&&startEnemyCrash(e,()=>this.rng()))return true;return e.hp>0&&!e.expired&&(e.stageBossBody||e.type==='boss'||(e.bossMinion&&Math.hypot(e.x-this.x,e.y-this.y)<1600)||Math.hypot(e.x-this.x,e.y-this.y)<Math.max(1100,Math.hypot(this.viewWidth,this.viewHeight)/this.camera.zoom))});
  }
  updateDrops(dt){let xp=0;for(const d of this.drops){if(d.dead)continue;if(d.supply){d.x+=(d.vx||0)*dt;d.y+=(d.vy||0)*dt;d.life-=dt;if(d.mccuddenSupply&&d.fallTime>0){d.fallTime=Math.max(0,d.fallTime-dt);if(!d.fallTime){d.x=d.landX;d.y=d.landY;d.vx=d.vy=0}}}const p=this.living().reduce((best,p)=>!best||squared(p,d)<squared(best,d)?p:best,null);if(!p)continue;const dist=Math.hypot(d.x-p.x,d.y-p.y);if(!d.supply&&dist<p.magnet){const a=Math.atan2(p.y-d.y,p.x-d.x),travel=Math.min(dist,330*(1+Math.max(0,Math.min(360,p.magnet-120))/360)*dt);d.x+=Math.cos(a)*travel;d.y+=Math.sin(a)*travel}if(dist<20&&!(d.fallTime>0)){if(d.mccuddenSupply)p.mccuddenRepairFlash=.4;d.dead=true;xp+=d.value||0;if(d.heal)p.hp=Math.min(p.maxHp,p.hp+p.maxHp*(d.healFraction??DURABILITY_BALANCE.repairPickupFraction));if(d.specialAmmo)p.giveSpecialAmmo(d.specialAmmo,d.rounds)}}this.drops=this.drops.filter(d=>!d.dead&&(d.life===undefined||d.life>0)&&Math.hypot(d.x-this.x,d.y-this.y)<1800).slice(-250);if(xp)for(const p of this.players)p.xp+=xp*COOP_BALANCE.xp*(p.xpGainMult||1)*(PLANES[p.plane].xpGainMultiplier??1);}
  update(dt,inputs={}){
@@ -249,5 +249,5 @@ installCloudCover(CoopGame);
 import {installNineCoop} from './pilot-nine-combat.js?v=485';
 installNineCoop(CoopGame);
 
-import {installCoopFleet} from './fleet-naval1.js?v=485';
+import {installCoopFleet} from './fleet-naval1.js?v=sink-waterline-1';
 installCoopFleet(CoopGame,Game);
