@@ -252,10 +252,15 @@ document.addEventListener('click',event=>{if(!document.hidden&&event.target.clos
 // Aircraft are rendered at their actual combat positions, including commanded wings.
 const _drawFormationBase=draw;
 draw=function(t){
-  const hiddenZeppelins=game?.enemies?.filter(e=>e.type==='zeppelin')||[];
-  if(hiddenZeppelins.length)game.enemies=game.enemies.filter(e=>e.type!=='zeppelin');
+  const enemies=game?.enemies;
+  let hiddenZeppelins=null;
+  if(enemies)for(const e of enemies)if(e.type==='zeppelin'){
+    hiddenZeppelins=enemies.filter(x=>x.type==='zeppelin');
+    game.enemies=enemies.filter(x=>x.type!=='zeppelin');
+    break;
+  }
   _drawFormationBase(t);
-  if(hiddenZeppelins.length&&game){
+  if(hiddenZeppelins&&game){
     const cx=game.x,cy=game.y,point=(x,y)=>[x-cx+W/2,y-cy+H/2];
     for(const e of hiddenZeppelins){const [x,y]=point(e.x,e.y);if(x<-320||x>W+320||y<-320||y>H+320)continue;drawZeppelin(ctx,x,y,e.a,.92,e.hitFlash>0);ctx.fillStyle='#242c25';ctx.fillRect(x-55,y-65,110,4);ctx.fillStyle='#e7835c';ctx.fillRect(x-55,y-65,110*e.hp/e.maxHp,4)}
     game.enemies.push(...hiddenZeppelins);
@@ -375,9 +380,11 @@ const _eventsCombat=events;
 let lastEnemyAudio=0;
 events=()=>{
  for(const e of game.events){
-  if(e.type==='bombWarning'){$('toast').textContent=e.text;show('toast');toastUntil=performance.now()+1800}
-  if(['heavyShot','enemyShot','explosion','rocketSalvo','mineSalvo'].includes(e.type)&&performance.now()-lastEnemyAudio>110){
-   lastEnemyAudio=performance.now();sfx(e.type==='explosion'?'explosion':e.type==='rocketSalvo'?'rocket':e.type==='mineSalvo'?'flak':e.type==='heavyShot'?'heavyShot':'enemyShot');
+  const eventNow=performance.now();
+  if(e.type==='bombWarning'){$('toast').textContent=e.text;show('toast');toastUntil=eventNow+1800}
+  const enemyAudio=e.type==='heavyShot'||e.type==='enemyShot'||e.type==='explosion'||e.type==='rocketSalvo'||e.type==='mineSalvo';
+  if(enemyAudio&&eventNow-lastEnemyAudio>110){
+   lastEnemyAudio=eventNow;sfx(e.type==='explosion'?'explosion':e.type==='rocketSalvo'?'rocket':e.type==='mineSalvo'?'flak':e.type==='heavyShot'?'heavyShot':'enemyShot');
   }
  }
  _eventsCombat();
@@ -720,7 +727,7 @@ drawSupport=()=>{_airshipSupport66();if(!game)return;for(const ship of game.airs
 const _legendaryHud81=hud;
 hud=()=>{_legendaryHud81();if(!game?.unlimitedAmmo)return;$('ammoCount').textContent=t('hud.ammo')+' ∞';$('ammoProgress').style.width='100%';$('reload').disabled=true;$('reload').textContent=t('hud.unlimited')};
 const _bossEvents81=events;
-events=()=>{const arrivals=game?.events.filter(e=>e.type==='bossArrival')||[];_bossEvents81();if(!arrivals.length)return;const last=arrivals.at(-1),detailKey=`warning.aceDetail.${last.pilot}`,detail=t(detailKey);if(arrivals.length>1){$('bossName').textContent=t('warning.aceGroup');$('bossArrivalDetail').textContent=t('warning.aceApproach',{count:arrivals.length})}else $('bossArrivalDetail').textContent=detail===detailKey?t('warning.airspace'):detail};
+events=()=>{let arrivalCount=0,last=null;const queued=game?.events;if(queued)for(const e of queued)if(e.type==='bossArrival'){arrivalCount++;last=e}_bossEvents81();if(!arrivalCount)return;const detailKey=`warning.aceDetail.${last.pilot}`,detail=t(detailKey);if(arrivalCount>1){$('bossName').textContent=t('warning.aceGroup');$('bossArrivalDetail').textContent=t('warning.aceApproach',{count:arrivalCount})}else $('bossArrivalDetail').textContent=detail===detailKey?t('warning.airspace'):detail};
 const _legendaryDraw81=draw;
 draw=t=>{
  _legendaryDraw81(t);if(!game)return;
@@ -821,9 +828,9 @@ draw=t=>{_tacticalDraw91(t);if(!game||game.mode==='coop2')return;const point=(x,
 const _tacticalHud91=hud;
 hud=()=>{_tacticalHud91();if(!game||game.mode==='coop2')return;const ammo=game.specialAmmoStatus?.();if(ammo){$('ammoLabel').textContent+=' · '+ammo.name;$('ammoCount').textContent+=' · '+t('hud.specialAmmo',{count:ammo.count})}};
 const _tacticalEvents91=events;
-events=()=>{const ammo=(game?.events||[]).filter(e=>e.type==='ammo');_tacticalEvents91();if(ammo.length){$('toast').textContent=ammo.at(-1).text+' · '+t('hud.defaultAmmoFirst');show('toast');toastUntil=performance.now()+2600;sfx('pickup')}};
+events=()=>{let lastAmmo=null;const queued=game?.events;if(queued)for(const e of queued)if(e.type==='ammo')lastAmmo=e;_tacticalEvents91();if(lastAmmo){$('toast').textContent=lastAmmo.text+' · '+t('hud.defaultAmmoFirst');show('toast');toastUntil=performance.now()+2600;sfx('pickup')}};
 const _tacticalCoopEvents91=coopEvents;
-coopEvents=()=>{const ammo=(game?.events||[]).filter(e=>e.type==='ammo');_tacticalCoopEvents91();if(ammo.length){const lastAmmo=ammo.at(-1);$('toast').textContent=(lastAmmo.ownerId?.toUpperCase()||t('ranking.team'))+' · '+lastAmmo.text;show('toast');coopToastUntil=game.t+2.6;sfx('pickup')}};
+coopEvents=()=>{let lastAmmo=null;const queued=game?.events;if(queued)for(const e of queued)if(e.type==='ammo')lastAmmo=e;_tacticalCoopEvents91();if(lastAmmo){$('toast').textContent=(lastAmmo.ownerId?.toUpperCase()||t('ranking.team'))+' · '+lastAmmo.text;show('toast');coopToastUntil=game.t+2.6;sfx('pickup')}};
 
 // Development-only fixture controls are never loaded by the unbundled hosted app.
 if(import.meta.env?.DEV&&new URLSearchParams(location.search).has('bossqa'))import('../tests/stageboss-browser94.js').then(({installBossQA})=>installBossQA({getGame:()=>game,reset:(team,mode)=>{if(game)returnHangar();faction=team;pilot=team==='central'?'baron':'fonck';coopPilot2=pilot;selectedMode=mode;plane=pilotPlane(pilot);start();},draw:()=>{if(game.mode==='coop2'){coopEvents();coopHud();}else{events();hud();}if(game.mode==='coop2')drawCoop(ctx,game,W,H,{terrain:(x,y,w,h)=>paintRegion(game.worldRegion(),x,y,w,h),drawZeppelin,drawFieldArt,fieldArt,fieldArtImg});else draw(ambient);drawStageBoss(ctx,game,W,H,{drawZeppelin,drawFieldArt,layer:'hazards'});updateStageBossHud(game);}}));
