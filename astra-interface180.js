@@ -1,8 +1,8 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
 import {getLocale,subscribe} from './i18n.js?v=sink2';
 import {aircraftKey} from './aircraft.js?v=sink2';
-import {hangarArt,hangarKeyFile} from './hangar-art.js?v=sink2';
-export {hangarArt} from './hangar-art.js?v=sink2';
+import {hangarArt,hangarArtNow,hangarKeyFile} from './hangar-art.js?v=gate1';
+export {hangarArt} from './hangar-art.js?v=gate1';
 
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
@@ -119,6 +119,11 @@ function install(){
   put(airRole,[$('pilotAircraft').textContent.split(' · ').slice(1).join(' · '),$('airframeTip').textContent].filter(Boolean).join(' · ').split(' · ').map(seg=>en?seg:seg.replace(/ /g,'\u00a0')).join(' · '));
   const hasChoice=!$('baronAircraftChoice').classList.contains('hidden')&&!$('baronTriplane').disabled;previous.hidden=next.hidden=!hasChoice;
   previous.setAttribute('aria-label',en?'Switch aircraft':'이전 기체');next.setAttribute('aria-label',en?'Switch aircraft':'다음 기체');
+  if(aircraftId!==lastArt&&hangarArtNow(aircraftId)){lastArt=aircraftId;art.onload=art.onerror=null;
+   // Already decoded: swap straight to the illustration, never through the pixel fallback.
+   const artFile=hangarKeyFile[aircraftId]||aircraftId;figure.classList.toggle('art-floor',artFile==='bristol_duo'||artFile==='halberstadt_duo');
+   art.src=hangarArtNow(aircraftId);art.hidden=false;figure.classList.add('has-art');figure.classList.remove('use-canvas');
+  }
   if(aircraftId!==lastArt){lastArt=aircraftId;art.hidden=true;figure.classList.remove('has-art');figure.classList.add('use-canvas');
    const artFile=hangarKeyFile[aircraftId]||aircraftId;
    figure.classList.toggle('art-floor',artFile==='bristol_duo'||artFile==='halberstadt_duo');

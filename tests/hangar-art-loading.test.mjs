@@ -50,7 +50,9 @@ test('hangar waits for prepared display art while sortie retains its aircraft ga
  const app=await readFile(new URL('app.js',root),'utf8');
  assert.match(app,/hangarCardsReady=.*\.map\(hangarArt\)/);
  const hangar=app.match(/const hangarReady=([^;]+);/)[1];
- assert.ok(hangar.includes('hangarCardsReady'));assert.ok(!hangar.includes('aircraftReady'));
+ // The pilot on screen gates the reveal; every other hangar card keeps loading right behind it.
+ assert.ok(hangar.includes('hangarArt(shownKey)'));assert.ok(!hangar.includes('aircraftReady'));
+ assert.match(app,/bootGate\?\.setRank\?\.\(u=>shownUrls\.has\(u\)\|\|HANGAR_UI\.test\(u\)\?0:near\.has\(u\)\?1/);assert.match(app,/function sortie\(\)\{window\.HEADON_GATE\?\.releaseAll\(\)/);
  assert.match(app,/const battleReady=.*aircraftReady/);
  assert.match(app,/function sortie\(\).*battleReady\.then\(go,go\)/);
 });

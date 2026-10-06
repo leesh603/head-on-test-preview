@@ -11,6 +11,8 @@ const legacyPortraits=['baron','voss','boelcke','immelmann','udet','fonck','coll
 
 const NEW_ACE_PORTRAITS=['wolff','loewenhardt','mccudden','nungesser','lothar','sachsenberg','proctor','schleich','lufbery'];
 for(const id of NEW_ACE_PORTRAITS)portraitSources[id]=`./portrait-${id}-field.webp?v=485&b=bust1`;
+// Warm the field portraits too, so an enemy-ace cut-in never waits on a first download.
+const fieldPortraitWarm=typeof Image==='undefined'?[]:NEW_ACE_PORTRAITS.map(id=>{const img=new Image();img.decoding='async';img.src=portraitSources[id];return img});
 function clearNavyMatte(data,w,h){
  const seen=new Uint8Array(w*h),queue=new Int32Array(w*h);let head=0,tail=0;
  const matte=i=>{const r=data[i],g=data[i+1],b=data[i+2];return b<82&&g<66&&r<50&&b>=g*.92&&g>=r*.92};

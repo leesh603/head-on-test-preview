@@ -38,9 +38,14 @@ const atlasReady=Promise.all([
  loadIconAtlas('./relic-lo-emblem128.webp',1,1,['loEmblem'],true),
  loadIconAtlas('./relic-sacred-cowling128.webp',1,1,['sacredCowling'],true)
 ]);
+// The hangar only needs the atlases and the faction emblems/medals; the upgrade illustrations
+// (several MB) load behind them and are only drawn in battle.
+const HANGAR_ICONS=new Set(['cooldown-central','cooldown-entente','emblemCentral','emblemEntente']);
+const directLoads=Object.entries(DIRECT_ICONS).map(([key,file])=>loadDirectIcon('./augmentation-icons/'+file+'?v=485',key).then(ok=>[key,ok]));
+export const hangarIconsReady=Promise.all([atlasReady,...directLoads.filter((_,i)=>HANGAR_ICONS.has(Object.keys(DIRECT_ICONS)[i]))]).then(([results,...direct])=>results.every(Boolean)&&direct.every(([,ok])=>ok));
 export const iconsReady=atlasReady.then(async results=>{
- const direct=await Promise.all(Object.entries(DIRECT_ICONS).map(([key,file])=>loadDirectIcon('./augmentation-icons/'+file+'?v=485',key)));
- return results.every(Boolean)&&direct.every(Boolean);
+ const direct=await Promise.all(directLoads);
+ return results.every(Boolean)&&direct.every(([,ok])=>ok);
 });
 export function drawGameIcon(c,key,x,y,size){const f=frames.get(key);if(!f)return;const k=size/Math.max(f.w,f.h);c.save();c.imageSmoothingEnabled=f.smooth;c.drawImage(f.atlas,f.x,f.y,f.w,f.h,x-f.w*k/2,y-f.h*k/2,f.w*k,f.h*k);c.restore()}
 
