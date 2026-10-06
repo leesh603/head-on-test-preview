@@ -5,6 +5,24 @@
 const portrait186=document.getElementById("hangarPortrait");
 const tabs186=document.getElementById("pilotTabs");
 
+// Measured opaque bottoms in the unchanged 1254px crew busts. Offset only the
+// image content, keeping the card frame and both faces at their existing size.
+const CREW_BOTTOM186={huffzky:1116/1254,mckeever:1141/1254};
+const crewObserved186=new WeakSet();
+function anchorCrew186(image,id){
+  const bottom=CREW_BOTTOM186[id];
+  if(!bottom){delete image.dataset.crewFloor;image.style.removeProperty('--crew-floor-offset');return}
+  image.dataset.crewFloor=id;
+  const ratio=image.naturalWidth&&image.naturalHeight?image.naturalWidth/image.naturalHeight:1;
+  const height=Math.min(image.clientHeight,image.clientWidth/ratio);
+  image.style.setProperty('--crew-floor-offset',(height*(1-bottom)).toFixed(3)+'px');
+  if(!crewObserved186.has(image)){
+    crewObserved186.add(image);crewResize186.observe(image);
+    image.addEventListener('load',()=>anchorCrew186(image,image===portrait186?activePilot186():image.closest('[data-pilot-id]')?.dataset.pilotId));
+  }
+}
+const crewResize186=new ResizeObserver(entries=>{for(const {target}of entries)anchorCrew186(target,target===portrait186?activePilot186():target.closest('[data-pilot-id]')?.dataset.pilotId)});
+
 const PORTRAIT_TUNE186=Object.freeze({
   mckeever:{desktop:.82,mobile:.62,liftD:-6,liftM:-8},
   huffzky:{desktop:.85,mobile:.66,liftD:-4,liftM:-6},
@@ -37,6 +55,10 @@ function autoScale186(){
 function syncPortrait186(){
   if(!portrait186)return;
   const id=activePilot186();
+  anchorCrew186(portrait186,id);
+  for(const button of tabs186?.querySelectorAll('[data-pilot-id]')||[]){
+    if(CREW_BOTTOM186[button.dataset.pilotId]){const image=button.querySelector('.pilot-tab-portrait');if(image)anchorCrew186(image,button.dataset.pilotId)}
+  }
   const base=autoScale186();
   const tune=PORTRAIT_TUNE186[id]||base;
   portrait186.classList.add("hangar-portrait186");

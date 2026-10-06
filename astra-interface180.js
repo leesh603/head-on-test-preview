@@ -1,8 +1,8 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
 import {getLocale,subscribe} from './i18n.js?v=485';
-import {clearAircraftMatte,aircraftKey} from './aircraft.js?v=488';
-import {clearCrewMatte} from './matte70.js?v=485';
-import {aircraftArt} from './main-ui-art180.js?v=485';
+import {aircraftKey} from './aircraft.js?v=488';
+import {hangarArt,hangarKeyFile} from './hangar-art.js?v=hangar20261006';
+export {hangarArt} from './hangar-art.js?v=hangar20261006';
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
 const put=(node,text)=>{if(node&&node.textContent!==text)node.textContent=text};
@@ -22,29 +22,6 @@ export function interfaceIcon(name,cls='astra-icon'){
  const holder=el('span',cls);holder.setAttribute('aria-hidden','true');
  holder.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round">${paths[name]||paths.sortie}</svg>`;
  return holder;
-}
-// Reuse the production matte algorithm at native resolution. This cleans only
-// the hangar illustration; the 144px gameplay sprite and its collision stay intact.
-const rawHangarArt={fokker:'./fokker.webp?v=489&b=349',baron_albatros:'./baron_albatros.webp?v=487&b=345',albatros_d2:'./albatros_d2.webp?v=487&b=345',nieuport_italian:'./nieuport.webp?v=487&b=345'};
-const hangarKeyFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',fokker:'fokker_standard'};
-const artCache=new Map();
-export function hangarArt(key){
- if(artCache.has(key))return artCache.get(key);
- const src=rawHangarArt[key]||`./${hangarKeyFile[key]||key}.webp?v=489&b=349`;
- const mechSrc='./mech/'+(hangarKeyFile[key]||key)+'.webp?v=489&b=349';
- const pending=new Promise(resolve=>{const image=new Image();let fellBack=false;image.onerror=()=>{if(!fellBack&&src!==mechSrc){fellBack=true;image.src=mechSrc;return}resolve(aircraftArt[key]||'')};image.onload=()=>{
-  try{
-   const scan=document.createElement('canvas');scan.width=image.naturalWidth;scan.height=image.naturalHeight;
-   const c=scan.getContext('2d',{willReadFrequently:true});c.drawImage(image,0,0);
-   const pixels=c.getImageData(0,0,scan.width,scan.height),rgba=pixels.data;
-   if(key==='nieuport_italian')for(let i=0;i<rgba.length;i+=4){const r=rgba[i],g=rgba[i+1],b=rgba[i+2];if(rgba[i+3]>0&&b>70&&b>r*1.18&&b>g*1.05){rgba[i]=55;rgba[i+1]=132;rgba[i+2]=78}}
-   clearAircraftMatte(key,rgba,scan.width,scan.height);clearCrewMatte(key,rgba,scan.width,scan.height);c.putImageData(pixels,0,0);
-   let l=scan.width,t=scan.height,r=-1,b=-1;
-   for(let y=0;y<scan.height;y++)for(let x=0;x<scan.width;x++)if(rgba[(y*scan.width+x)*4+3]>128){l=Math.min(l,x);r=Math.max(r,x);t=Math.min(t,y);b=Math.max(b,y)}
-   if(r<l||b<t){resolve('');return}
-   const out=document.createElement('canvas');out.width=r-l+1;out.height=b-t+1;out.getContext('2d').drawImage(scan,l,t,out.width,out.height,0,0,out.width,out.height);resolve(out.toDataURL('image/png'));
-  }catch{resolve('')}
- };image.src=src});artCache.set(key,pending);return pending;
 }
 function ring(){
  const r=el('span','astra-dial');r.setAttribute('aria-hidden','true');
@@ -137,12 +114,12 @@ function install(){
   put(airRole,[$('pilotAircraft').textContent.split(' · ').slice(1).join(' · '),$('airframeTip').textContent].filter(Boolean).join(' · '));
   const hasChoice=!$('baronAircraftChoice').classList.contains('hidden')&&!$('baronTriplane').disabled;previous.hidden=next.hidden=!hasChoice;
   previous.setAttribute('aria-label',en?'Switch aircraft':'이전 기체');next.setAttribute('aria-label',en?'Switch aircraft':'다음 기체');
-  if(aircraftId!==lastArt){lastArt=aircraftId;
+  if(aircraftId!==lastArt){lastArt=aircraftId;art.hidden=true;figure.classList.remove('has-art');figure.classList.add('use-canvas');
    const artFile=hangarKeyFile[aircraftId]||aircraftId;
    figure.classList.toggle('art-floor',artFile==='bristol_duo'||artFile==='halberstadt_duo');
    hangarArt(aircraftId).then(url=>{if(lastArt!==aircraftId)return;if(!url){art.hidden=true;art.removeAttribute('src');figure.classList.remove('has-art');figure.classList.add('use-canvas');return}
     art.onload=()=>{if(lastArt!==aircraftId)return;art.hidden=false;figure.classList.add('has-art');figure.classList.remove('use-canvas')};
-    art.onerror=()=>{art.hidden=true;figure.classList.remove('has-art');figure.classList.add('use-canvas')};art.src=url;
+    art.onerror=()=>{art.hidden=true;figure.classList.remove('has-art');figure.classList.add('use-canvas')};art.src=url;if(art.complete&&art.naturalWidth)art.onload();
    });
   }
   art.alt=airName.textContent;

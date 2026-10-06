@@ -994,6 +994,14 @@ body.astra-ui:not(.playing) #hangar .factions #entente.active:after{background:l
 .portrait-lightbox .plb-select{margin-top:12px;padding:9px 26px;border-radius:4px;border:1px solid #8a7a5c;background:#3a2c20;color:#e8d9bd;font-family:inherit;font-size:13px;letter-spacing:.12em;cursor:pointer}
 .portrait-lightbox .plb-select:hover{background:#57402c;border-color:#caa56b}
 
+/* Crew busts include more transparent padding below their shoulders. Move the
+   painted bottom to the card floor without scaling/cropping either face. */
+body.astra-ui:not(.playing) #hangar .astra-hero #hangarPortrait[data-crew-floor],
+body.astra-ui:not(.playing) #pilotTabs .pilot-tab-portrait[data-crew-floor]{
+ object-position:center calc(100% + var(--crew-floor-offset,0px))!important;
+ padding:0!important;
+}
+
 /* ---- PC hangar, short viewports: the aircraft data card ran under the faction tabs ----
    The taller faction tabs (44px) and the random-sortie line grew the bottom tray, so at <=820px tall
    the stats card overflowed its grid row and painted over the faction picker. Tighten the tray on
