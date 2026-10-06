@@ -57,7 +57,6 @@ import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=485'
 import {drawEquipment} from './equipment.js?v=485';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=485';
 import{planeSprite,aircraftReady,aircraftKey,hangarArtReady}from './aircraft.js?v=488';
-import{hangarArt}from './astra-interface180.js?v=489';
 import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=dread-opaque-2';
 import {AUGMENTATION_OVERHAUL_BALANCE}from'./augmentation-overhaul150.js?v=485';
 import {drawCloudCover}from'./cloud-cover1.js?v=485';
@@ -971,7 +970,9 @@ const warmStageAssetsReady=Promise.all([prepareStageBossAssets(0),prepareAADefen
 // Split gate: the hangar only needs portraits/planes/icons, so reveal as soon
 // as those land. Battle assets (FX sprites, terrain, boss atlas) stream in the
 // background and are re-checked when the sortie button fires.
-const hangarCardsReady=Promise.all([...new Set(Object.keys(PILOTS).map(id=>aircraftKey(pilotPlane(id),false,id)).concat(['baron_albatros']))].map(k=>hangarArt(k).then(()=>{})));
+const hangarCardFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',fokker:'fokker_standard'};
+const hangarCardSrc={fokker:'./fokker.webp?v=489&b=349',baron_albatros:'./baron_albatros.webp?v=487&b=345',albatros_d2:'./albatros_d2.webp?v=487&b=345',nieuport_italian:'./nieuport.webp?v=487&b=345'};
+const hangarCardsReady=Promise.all([...new Set(Object.keys(PILOTS).map(id=>aircraftKey(pilotPlane(id),false,id)).concat(['baron_albatros']))].map(k=>new Promise(done=>{const img=new Image();let fb=false;img.onerror=()=>{if(fb)return done();fb=true;img.src='./mech/'+(hangarCardFile[k]||k)+'.webp?v=489&b=349'};img.onload=()=>done();img.src=hangarCardSrc[k]||'./'+(hangarCardFile[k]||k)+'.webp?v=489&b=349'})));
 const hangarReady=Promise.all([portraitsReady,aircraftReady,hangarCardsReady,campaignArtReady,iconsReady]);
 const battleReady=Promise.all([fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady,aircraftReady]);
 hangarReady.then(()=>{
