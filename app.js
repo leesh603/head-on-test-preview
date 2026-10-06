@@ -1010,7 +1010,10 @@ hangarReady.then(()=>{
  const reveal=()=>{document.body.classList.add('assets-ready');roster();applyPilotPortrait('cutinPortrait')};
  const left=1000-(performance.now()-bootAt);left>0?setTimeout(reveal,left):reveal();
 }).catch(()=>{document.body.classList.add('assets-ready');roster();});
-function sortie(){window.HEADON_GATE?.releaseAll();document.body.classList.remove('assets-ready');const go=()=>{document.body.classList.add('assets-ready');start()};battleReady.then(go,go)}
+// The boot gate holds most battle art behind the hangar art, so a fast sortie can face the
+// full download only after the click. Wait for it briefly, then launch anyway — every sprite
+// has a procedural fallback and the painted files keep streaming in behind the game.
+function sortie(){window.HEADON_GATE?.releaseAll();document.body.classList.remove('assets-ready');let began=false;const go=()=>{if(began)return;began=true;document.body.classList.add('assets-ready');start()};battleReady.then(go,go);setTimeout(go,2600)}
 
 // Shared reinforcement presentation for solo, co-op, and special rerolls.
 const modalBefore151=modal;
