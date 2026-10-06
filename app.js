@@ -1117,7 +1117,7 @@ roster=()=>{
  return result;
 };
 const hudWithDynamicLocale=hud;
-hud=()=>{hudWithDynamicLocale();if(!game)return;const label=localizedEquippedWeapon(game.plane||plane,game.weapon);__attr($('ammoGunIcon'),'aria-label',label);__txt($('ammoLabel'),label+' × '+game.weapon.guns)};
+hud=()=>{if(!game||performance.now()-hudAt<90)return;hudWithDynamicLocale();const label=localizedEquippedWeapon(game.plane||plane,game.weapon);__attr($('ammoGunIcon'),'aria-label',label);__txt($('ammoLabel'),label+' × '+game.weapon.guns)};
 const coopHudWithDynamicLocale=coopHud;
 coopHud=()=>{coopHudWithDynamicLocale();if(!game?.players)return;for(const p of game.players){const weapon=localizedEquippedWeapon(p.plane,p.weapon);$(p.id+'Gun113').title=weapon;$(p.id+'HudName').textContent=p.id.toUpperCase()+' · '+p.nickname+' / '+localizedPilot(p.pilot,PILOTS[p.pilot].name)}};
 const eventsWithDynamicLocale=events;

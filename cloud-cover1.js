@@ -93,7 +93,12 @@ export function installCloudCover(Game){
   e._cloudGhost=null;e._cloudReacq=0;
   if(conceal>=CLOUD_CONCEAL.partial){
    const j=(e._jit??=((this.rng?.()??Math.random())*6.283));
-   return{...c,x:c.x+Math.cos(j+(this.t||0)*.9)*CLOUD_CONCEAL.aimWobble,y:c.y+Math.sin(j+(this.t||0)*.9)*CLOUD_CONCEAL.aimWobble};
+   // A contact only overrides aim coordinates. Copying the entire Game here
+   // cloned hundreds of unrelated fields for every enemy, every frame.
+   const contact=Object.create(c);
+   contact.x=c.x+Math.cos(j+(this.t||0)*.9)*CLOUD_CONCEAL.aimWobble;
+   contact.y=c.y+Math.sin(j+(this.t||0)*.9)*CLOUD_CONCEAL.aimWobble;
+   return contact;
   }
   return c;
  };

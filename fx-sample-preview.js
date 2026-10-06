@@ -67,12 +67,13 @@ export function fxsImage(key) {
 const tintCache = new Map();
 export function fxsTintedCanvas(key, color) {
   const src = fxsImage(key); if (!src) return null;
-  const ck = resolve(key) + color; if (tintCache.has(ck)) return tintCache.get(ck);
+  const ck = resolve(key) + color; if (tintCache.has(ck)) { const cached=tintCache.get(ck); tintCache.delete(ck); tintCache.set(ck,cached); return cached; }
   const cv = document.createElement('canvas'); cv.width = src.width; cv.height = src.height;
   const g = cv.getContext('2d'); g.drawImage(src, 0, 0);
   g.globalCompositeOperation = 'multiply'; g.fillStyle = color; g.fillRect(0, 0, cv.width, cv.height);
   g.globalCompositeOperation = 'destination-in'; g.drawImage(src, 0, 0);
-  if (tintCache.size > 48) tintCache.clear();
+  // Evict one cold tint instead of discarding all hot canvases at once.
+  if (tintCache.size >= 48) tintCache.delete(tintCache.keys().next().value);
   tintCache.set(ck, cv); return cv;
 }
 export function fxsTint(c, key, color, x, y, w, h = w, angle = 0, alpha = 1) {
@@ -188,8 +189,12 @@ function drawBoom(c, r, x, y, age) {
     c.globalAlpha = (1 - q) * .42; c.strokeStyle = r.fam === 'ground' ? '#e2d4b4' : '#fff2da'; c.lineWidth = Math.max(1.5, d0 * .03 * (1 - q));
     c.beginPath(); c.ellipse(0, 0, R, R * .96, 0, 0, Math.PI * 2); c.stroke(); }
   // dirt clods (ground) / flaming wreckage (air, heavy): arcing, trailing smoke
-  const frag = (k, flame) => { const a = hash(r.wx + k * 3.1, r.wy - k * 1.7) * Math.PI * 2, v = d0 * (flame ? 1.25 : 1.0) * (.6 + hash(k, r.wx) * .7), life = flame ? .8 : .7;
-    if (age > life) return; const P = (t) => { const e = 1 - Math.exp(-3.2 * t); return [Math.cos(a) * v * e / 3.2 * 2.2, Math.sin(a) * v * e / 3.2 * 2.2 - (flame ? 0 : d0 * .5 * t * (1 - t / life) * 1.6)]; };
+  const frag = (k, flame) => { const life = flame ? .8 : .7;
+    if (age > life) return;
+    // Fragment seeds/directions are fixed for this explosion, not this frame.
+    const fragments=r.fragments||(r.fragments=[]),id=k*2+(flame?1:0);
+    let f=fragments[id];if(!f){const a=hash(r.wx+k*3.1,r.wy-k*1.7)*Math.PI*2,v=d0*(flame?1.25:1.0)*(.6+hash(k,r.wx)*.7);f=fragments[id]=[Math.cos(a)*v,Math.sin(a)*v];}
+ const P = (t) => { const e = 1 - Math.exp(-3.2 * t); return [f[0] * e / 3.2 * 2.2, f[1] * e / 3.2 * 2.2 - (flame ? 0 : d0 * .5 * t * (1 - t / life) * 1.6)]; };
     for (let j = 7; j >= 1; j--) { const ts = age - j * .045; if (ts < 0) continue; const [px, py] = P(ts), sz = d0 * (flame ? .08 : .07) * (1 + (age - ts) * 3.5); if (flame && px * px + py * py < d0 * d0 * .12) continue;
       c.globalAlpha = (1 - j / 8) * (1 - age / life) * (flame ? .95 : .55); c.drawImage(PUFF, px - sz, py - sz - (age - ts) * d0 * .05, sz * 2, sz * 2); }
     const [px, py] = P(age), f1 = 1 - age / life;
