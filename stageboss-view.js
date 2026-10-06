@@ -1,4 +1,4 @@
-import {prepareBossCutins} from './boss-cutin-art.js?v=cut2';
+import {prepareBossCutins} from './boss-cutin-art.js?v=493';
 import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=dread-opaque-2';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=485';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide} from './gallipoli-view.js?v=485';
@@ -20,7 +20,7 @@ import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=485';
 import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=485';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=dread-opaque-2';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=485';
-import {bossHudModel} from './headon-stageboss-hud.js?v=485';
+import {bossHudModel} from './headon-stageboss-hud.js?v=493';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=485';
 import {planeSprite} from './aircraft.js?v=488';
 import {getLocale} from './i18n.js?v=485';
@@ -509,6 +509,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    if(b.assetKey==='gotha-raider'){drawGotha(c,b);return;}
    if(b.assetKey==='london-apron-raid'){drawLondonRaidApron(c,b);return;}
    if(b.assetKey==='london-apron'){drawAttachedApron(c,b,bossArt.londonApron,bossArt.londonApronDamage1);return;}
+   if(b.assetKey==='flak-tower')return;// The deploy parent only spawns the four tower cells; nothing drawn before they exist.
    if(b.assetKey==='flak-tower-cell'){drawCityFlak(c,b);return;}
    if(b.assetKey==='drachen-net'){const lane=b.cityMineLane;if(lane?.remaining>0){c.save();c.strokeStyle='#a4c8be99';c.lineWidth=1.5;c.setLineDash([9,8]);for(const side of [-1,1]){c.beginPath();c.moveTo(lane.x+side*lane.width/2,lane.top);c.lineTo(lane.x+side*lane.width/2,lane.bottom);c.stroke();}c.restore();}drawDrachenRig(c,b,[bossArt.drachenLeft,bossArt.drachenCenter,bossArt.drachenRight]);return;}
    if(drawRegionalBossBody(c,b))return;
