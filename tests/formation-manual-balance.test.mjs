@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game} from '../engine.js?v=493';
-import {FORMATION_MANUAL_BALANCE} from '../augmentation-overhaul150.js?v=485';
+import {Game} from '../engine.js?v=sink2';
+import {FORMATION_MANUAL_BALANCE} from '../augmentation-overhaul150.js?v=sink2';
+
 
 const expected=[
  ['normal',.20,.10,'피해 +20%, 공격 속도 +10%'],
