@@ -14,7 +14,7 @@ import {drawGust3} from './atmosphere-role3.js?v=485';
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=485';
 import {fx,fxReady,fxTint,FX56,clearFxTintCache,fxArtReady} from './fx-art.js?v=485';
 import {drawAADefense,drawDrachenMine,prepareAADefenseAssets} from './aa-defense-art.js?v=485';
-import {CATEGORIES,categoryName,reinforcementName,buildStats,cumulativeText,cleanDescription} from './reinforcement-ui151.js?v=491';
+import {CATEGORIES,categoryName,reinforcementName,buildStats,heldStats,cumulativeText,cleanDescription} from './reinforcement-ui151.js?v=bld1';
 import {t,getLocale,setLocale,subscribe,initLocale,applyTranslations,rarityName,upgradeDescription as translatedUpgradeDescription,pilotName,aircraftName,weaponName,activeName,passiveName,pilotDescription,passiveDescription,aircraftRole,airframeHistory,airframeTip} from './i18n.js?v=485';
 import {GamepadInput} from './gamepad-input.js?v=485';
 installEventTextEN(Game,CoopGame,CampaignGame);registerEventPilots(PILOTS);
@@ -1001,6 +1001,22 @@ modal=(tag,title,text,buttons)=>{
  $('modal').classList.toggle('special-draft156',buttons.some(b=>b.rarity==='legendary'));
  if(buttons.some(b=>b.rarity==='legendary'))$('modalText').textContent=t('special.prompt');
 };
+function closeBuildPop151(){document.querySelector('#build151 .build-pop151')?.remove();for(const t of document.querySelectorAll('#build151 .build-tile151[aria-expanded="true"]'))t.setAttribute('aria-expanded','false')}
+function openBuildPop151(tile,{name,rarity,count,category,stats,desc,en}){
+ const area=document.getElementById('build151');if(!area)return;const el=(tag,text,cls)=>{const e=document.createElement(tag);e.textContent=text;if(cls)e.className=cls;return e};
+ const pop=el('div','','build-pop151 rarity-'+rarity);pop.setAttribute('role','dialog');pop.setAttribute('aria-label',name);pop.onclick=e=>e.stopPropagation();
+ const head=el('div','','build-pop-head151');head.append(el('small',category+' · '+rarityName(rarity),'build-pop-kind151'));if(count>1)head.append(el('small',(en?'Stacks ×':'중첩 ×')+count,'build-pop-count151'));
+ pop.append(head,el('strong',name));
+ if(stats.length){const list=el('dl','','build-pop-stats151');list.append(el('dt',en?'Build total':'누적 효과','build-pop-cap151'));for(const s of stats){const row=el('div','');row.append(el('dt',s.name),el('dd',s.value));list.append(row)}pop.append(list)}
+ if(desc)pop.append(el('p',desc));
+ area.append(pop);tile.setAttribute('aria-expanded','true');
+ // Anchor under the tile (above it when the tile sits low in view), clamped to the build column.
+ const a=area.getBoundingClientRect(),r=tile.getBoundingClientRect(),w=pop.offsetWidth,h=pop.offsetHeight,card=area.closest('.modal-card')?.getBoundingClientRect(),acts=document.getElementById('modalActions')?.getBoundingClientRect();
+ const floor=Math.min(window.innerHeight,card?.bottom??Infinity,acts&&acts.top>r.bottom?acts.top:Infinity)-8,ceil=Math.max(0,card?.top??0)+8;
+ const left=Math.max(0,Math.min(a.width-w,r.left-a.left+r.width/2-w/2)),below=r.bottom+8+h<=floor||r.top-8-h<ceil&&floor-r.bottom>=r.top-ceil;
+ pop.style.left=left+'px';pop.style.top=(below?r.bottom-a.top+8:r.top-a.top-8-h)+'px';pop.style.setProperty('--tip',(r.left-a.left+r.width/2-left)+'px');pop.classList.toggle('above151',!below);
+}
+document.addEventListener('click',e=>{if(!e.target.closest?.('.build-pop151,.build-tile151'))closeBuildPop151()},true);
 function showBuildPause151(){
  modal('PAUSED','현재 빌드','ESC · 계속하기',[{label:'계속하기',run:resume},{label:'설정',run:showSettings151},{label:'전투 종료',run:returnHangar}]);$('modal').classList.remove('settings-modal151','manual-modal151');$('modal').classList.add('build-modal151');
  document.getElementById('build151')?.remove();
@@ -1015,8 +1031,17 @@ function showBuildPause151(){
   const toggle=e=>{e.stopPropagation();const open=!item.classList.contains('ho-tip');for(const i of abs.querySelectorAll('.astra-ability')){i.classList.remove('ho-tip');i.setAttribute('aria-expanded','false')}item.classList.toggle('ho-tip',open);item.setAttribute('aria-expanded',String(open));if(open)fill()};
   item.onclick=toggle;item.onkeydown=e=>{if(e.code==='Enter'||e.code==='Space'){e.preventDefault();toggle(e)}};abs.append(item)}
  section.append(abs);
- const grid=el('div','','build-stats151'),groups=new Map();for(const [key,[category,label,value]] of Object.entries(buildStats(p))){if(value==='+0%'||value==='+0 HP'||value==='미장착'||value==='0발')continue;let group=groups.get(category);if(!group){group=el('div','');group.append(el('b',category));groups.set(category,group);grid.append(group)}group.append(el('span',label+' '+value))}if(!grid.children.length)grid.append(el('span','기본 기체 능력치 적용 중'));section.append(grid);
- for(const [heading,test]of [['획득 강화',u=>!u.legendary&&!u.uniqueOnly],['고유 강화',u=>u.uniqueOnly],['SPECIAL EQUIPMENT',u=>u.legendary]]){const held=UPGRADES.filter(u=>p.upgrades[u.id]&&test(u));section.append(el('h4',heading));const chips=el('div','','build-chips151');if(!held.length)chips.append(el('span','없음','empty151'));for(const u of held)chips.append(el('span',reinforcementName(u,p,PLANES),'build-chip151 rarity-'+(u.legendary?'legendary':u.uniqueOnly?'unique':p.upgradeRarities?.[u.id]||'normal')));section.append(chips)}area.append(section);
+ // Upgrades and special equipment as an even icon grid; a tap opens what each one adds up to so far.
+ const en=getLocale()==='en';
+ for(const [heading,test]of [['획득 강화',u=>!u.legendary&&!u.uniqueOnly],['고유 강화',u=>u.uniqueOnly],['SPECIAL EQUIPMENT',u=>u.legendary]]){const held=UPGRADES.filter(u=>p.upgrades[u.id]&&test(u));section.append(el('h4',heading));const tiles=el('div','','build-icons151');if(!held.length)tiles.append(el('span','없음','empty151'));
+  for(const u of held){const rarity=u.legendary?'legendary':u.uniqueOnly?'unique':p.upgradeRarities?.[u.id]||'normal',count=p.upgrades[u.id]||1,name=reinforcementName(u,p,PLANES);
+   const tile=el('button','','build-tile151 rarity-'+rarity);tile.type='button';tile.dataset.upgradeId=u.id;tile.setAttribute('aria-label',name+(count>1?' ×'+count:''));tile.setAttribute('aria-expanded','false');
+   const icon=document.createElement('canvas');icon.width=112;icon.height=88;icon.setAttribute('aria-hidden','true');choiceIconRefs.push({canvas:icon,id:u.id,owner:p});drawUpgradeIcon(icon,u.id,p);tile.append(icon);
+   if(count>1)tile.append(el('b','×'+count,'build-count151'));
+   tile.onclick=e=>{e.stopPropagation();const open=tile.getAttribute('aria-expanded')!=='true';closeBuildPop151();if(open)openBuildPop151(tile,{name,rarity,count,category:categoryName(u.id),stats:heldStats(p,u.id),desc:translatedUpgradeDescription(u.id,cleanDescription(u.desc)),en})};
+   tiles.append(tile)}
+  section.append(tiles)}
+ area.append(section);
  }$('modalText').after(area);
 }
 function syncStartHint(){const k=document.querySelectorAll('.start-hint kbd');if(k[1])k[1].textContent=keyLabel(KEYBINDS.evade);if(k[2])k[2].textContent=keyLabel(KEYBINDS.skill)}

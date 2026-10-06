@@ -1367,3 +1367,47 @@ body.astra-ui .boss-cutin.skill-side .boss-cutin-caption span{text-shadow:0 1px 
   background-size:240px 100%,100% 100%!important;
  }
 }
+
+/* Pause build: upgrades and special equipment as an even icon grid; a tap shows the build totals. */
+body.astra-ui.playing #modal #build151{position:relative}
+body.astra-ui.playing #modal #build151 .build-icons151{display:flex!important;flex-wrap:wrap;justify-content:center;gap:8px;width:100%}
+body.astra-ui.playing #modal #build151 .build-tile151{
+ --r:#a4a7a8;position:relative;display:grid;place-items:center;width:52px;height:52px;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:12px!important;
+ background:radial-gradient(circle at 50% 38%,#ffffff12,#ffffff05 70%)!important;box-shadow:inset 0 0 0 1px var(--ho-hair),inset 0 -2px 0 color-mix(in srgb,var(--r) 70%,transparent)!important;cursor:pointer;
+ transition:transform .12s ease,box-shadow .12s ease;-webkit-tap-highlight-color:transparent;
+}
+body.astra-ui.playing #modal #build151 .build-tile151 canvas{display:block;width:46px;height:36px;pointer-events:none}
+body.astra-ui.playing #modal #build151 .build-tile151.rarity-magic{--r:#5f9be0}
+body.astra-ui.playing #modal #build151 .build-tile151.rarity-rare{--r:#e6bf3e}
+body.astra-ui.playing #modal #build151 .build-tile151.rarity-unique{--r:#e07ab5}
+body.astra-ui.playing #modal #build151 .build-tile151.rarity-legendary{--r:#f0c860;background:radial-gradient(circle at 50% 38%,#f0c86022,#f0c86008 72%)!important;box-shadow:inset 0 0 0 1px #f0c86066,inset 0 -2px 0 #f0c860b0!important}
+body.astra-ui.playing #modal #build151 .build-tile151:hover{transform:translateY(-1px)}
+body.astra-ui.playing #modal #build151 .build-tile151[aria-expanded="true"]{box-shadow:inset 0 0 0 1.5px var(--r),0 0 0 3px color-mix(in srgb,var(--r) 22%,transparent)!important}
+body.astra-ui.playing #modal #build151 .build-tile151:focus-visible{outline:2px solid var(--ho-ready);outline-offset:2px}
+body.astra-ui.playing #modal #build151 .build-count151{
+ position:absolute;right:-4px;top:-5px;min-width:18px;padding:3px 5px;box-sizing:border-box;border-radius:999px;background:#151513;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--r) 75%,transparent);
+ font:700 10px/1 var(--astra-numeric,var(--astra-type));color:var(--ho-numeral);font-variant-numeric:tabular-nums;letter-spacing:0;
+}
+body.astra-ui.playing #modal #build151 .build-pop151{
+ --r:#a4a7a8;--tip:50%;position:absolute;z-index:40;width:min(272px,100%);box-sizing:border-box;display:flex;flex-direction:column;gap:6px;
+ padding:12px 14px 13px;border-radius:14px;background:linear-gradient(180deg,#22221f,#171716);text-align:left;isolation:isolate;
+ box-shadow:inset 0 2px 0 var(--r),inset 0 0 0 1px #ffffff26,0 16px 36px #000d;animation:build-pop151 .16s ease-out;
+}
+body.astra-ui.playing #modal #build151 .build-pop151:before{content:"";position:absolute;left:calc(var(--tip) - 6px);top:-6px;width:12px;height:12px;background:#22221f;transform:rotate(45deg);box-shadow:-1px -1px 0 #ffffff26}
+body.astra-ui.playing #modal #build151 .build-pop151.above151:before{top:auto;bottom:-6px;background:#171716;box-shadow:1px 1px 0 #ffffff26}
+body.astra-ui.playing #modal #build151 .build-pop151.rarity-magic{--r:#5f9be0}
+body.astra-ui.playing #modal #build151 .build-pop151.rarity-rare{--r:#e6bf3e}
+body.astra-ui.playing #modal #build151 .build-pop151.rarity-unique{--r:#e07ab5}
+body.astra-ui.playing #modal #build151 .build-pop151.rarity-legendary{--r:#f0c860}
+body.astra-ui.playing #modal #build151 .build-pop-head151{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+body.astra-ui.playing #modal #build151 .build-pop-kind151{font:700 10px/1.2 var(--astra-type);letter-spacing:.08em;color:color-mix(in srgb,var(--r) 80%,#fff)}
+body.astra-ui.playing #modal #build151 .build-pop-count151{flex:none;font:700 10.5px/1 var(--astra-numeric,var(--astra-type));color:var(--ho-muted);font-variant-numeric:tabular-nums}
+body.astra-ui.playing #modal #build151 .build-pop151 strong{font:800 15px/1.3 var(--astra-type);color:var(--ho-parchment);word-break:keep-all;text-wrap:balance}
+body.astra-ui.playing #modal #build151 .build-pop-stats151{display:flex;flex-direction:column;gap:3px;margin:2px 0 0;padding:8px 10px;border-radius:10px;background:#ffffff08;box-shadow:inset 0 0 0 1px var(--ho-hair)}
+body.astra-ui.playing #modal #build151 .build-pop-cap151{font:600 10px/1.2 var(--astra-type);letter-spacing:.1em;color:var(--ho-muted);margin:0 0 2px}
+body.astra-ui.playing #modal #build151 .build-pop-stats151>div{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+body.astra-ui.playing #modal #build151 .build-pop-stats151 div dt{margin:0;font:500 12.5px/1.4 var(--astra-type);color:#cfcabe;word-break:keep-all}
+body.astra-ui.playing #modal #build151 .build-pop-stats151 dd{margin:0;font:700 13px/1.4 var(--astra-numeric,var(--astra-type));color:var(--ho-numeral);font-variant-numeric:tabular-nums;white-space:nowrap}
+body.astra-ui.playing #modal #build151 .build-pop151 p{display:block!important;margin:0!important;font:400 12.5px/1.55 var(--astra-type)!important;color:#d6d2c7!important;white-space:normal!important;word-break:keep-all;text-align:left!important}
+@keyframes build-pop151{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+body.astra-ui.playing #modal #build151 .build-icons151 .empty151{align-self:center}
