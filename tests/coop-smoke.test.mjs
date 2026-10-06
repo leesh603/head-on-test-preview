@@ -5,8 +5,8 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 
-const {CoopGame}=await import('../coop-engine.js?v=lufbery1');
-const {Game}=await import('../engine.js?v=lufbery1');
+const {CoopGame}=await import('../coop-engine.js?v=sink4');
+const {Game}=await import('../engine.js?v=sink4');
 
 
 const make=()=>new CoopGame([{pilot:'baron'},{pilot:'voss'}],{rng:()=>.5});

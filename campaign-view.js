@@ -1,12 +1,12 @@
-import {PLANES} from './engine.js?v=lufbery1';
-import {drawGroundEnemy} from './ground-enemy-art.js?v=sink2';
-import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=sink2';
-import {SPRITE_ALIASES} from './campaign.js?v=lufbery1';
-import {drawEquipment} from './equipment.js?v=sink2';
+import {PLANES} from './engine.js?v=sink4';
+import {drawGroundEnemy} from './ground-enemy-art.js?v=sink4';
+import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=sink4';
+import {SPRITE_ALIASES} from './campaign.js?v=sink4';
+import {drawEquipment} from './equipment.js?v=sink4';
 
 registerCampaignSpriteAliases(SPRITE_ALIASES);
-import {drawBattlefieldSprite} from './battlefield-art.js?v=sink2';
-import {missionNavigation,navigationScreenPoint} from './navigation.js?v=sink2';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=sink4';
+import {missionNavigation,navigationScreenPoint} from './navigation.js?v=sink4';
 export function drawCampaign(c,g,W,H){
  if(g?.mode!=='campaign')return;const point=o=>[o.x-g.x+W/2,o.y-g.y+H/2];
  c.save();c.font='bold 12px sans-serif';c.textAlign='center';c.lineWidth=2;
