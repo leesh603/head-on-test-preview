@@ -1,7 +1,9 @@
 import {
   DEFAULT_ELITE_CONFIG,
+  ELITE_CFG_KEY,
   ELITE_ENEMY_TYPE,
   ELITE_KINDS,
+  ELITE_WARNINGS,
   eliteScale,
   squadSize
 } from './elite-config.js';
@@ -13,8 +15,11 @@ const mergeConfig = user => ({
   ...DEFAULT_ELITE_CONFIG,
   ...user,
   lePrieur: {...DEFAULT_ELITE_CONFIG.lePrieur, ...(user?.lePrieur || {})},
-  schlachtstaffel: {...DEFAULT_ELITE_CONFIG.schlachtstaffel, ...(user?.schlachtstaffel || {})}
+  schlachtstaffel: {...DEFAULT_ELITE_CONFIG.schlachtstaffel, ...(user?.schlachtstaffel || {})},
+  junkers: {...DEFAULT_ELITE_CONFIG.junkers, ...(user?.junkers || {})},
+  salamander: {...DEFAULT_ELITE_CONFIG.salamander, ...(user?.salamander || {})}
 });
+const cfgFor = (config, kind) => config[ELITE_CFG_KEY[kind] || 'lePrieur'];
 
 function requireHost(host) {
   for (const name of ['getTime', 'getPlayer', 'getPlayerFaction', 'getNormalStats', 'getAceStats', 'damagePlayer']) {
@@ -41,9 +46,11 @@ export class EliteEnemySystem {
   get active() { return this.squadrons.length > 0 || this.pendingEncounter !== null; }
 
   chooseKind() {
-    return this.host.getPlayerFaction() === 'central'
-      ? ELITE_KINDS.LE_PRIEUR
-      : ELITE_KINDS.SCHLACHTSTAFFEL;
+    const central = this.host.getPlayerFaction() === 'central';
+    const tier2 = (this.host.getProgressStage?.() ?? 1) >= this.config.tier2Stage
+      && this.random() < this.config.tier2Chance;
+    if (central) return tier2 ? ELITE_KINDS.SALAMANDER : ELITE_KINDS.LE_PRIEUR;
+    return tier2 ? ELITE_KINDS.JUNKERS : ELITE_KINDS.SCHLACHTSTAFFEL;
   }
 
   canSchedule(now) {
@@ -59,7 +66,7 @@ export class EliteEnemySystem {
   scheduleEncounter(now) {
     const kind = this.chooseKind();
     this.pendingEncounter = {kind, spawnAt: now + this.config.warningLead};
-    const warning=kind===ELITE_KINDS.LE_PRIEUR?'르 프리외르 로켓 장착 정예편대 접근':'장갑판 보강 슐라흐트슈타펠 접근';
+    const warning=ELITE_WARNINGS[kind]||'정예 편대 접근';
     this.host.emitWarning?.(warning, {kind, enemyType: ELITE_ENEMY_TYPE});
   }
 
@@ -67,7 +74,7 @@ export class EliteEnemySystem {
     const normal = this.host.getNormalStats(seconds, kind) || {};
     const ace = this.host.getAceStats(seconds) || {};
     const scale = eliteScale(seconds);
-    const cfg = kind === ELITE_KINDS.LE_PRIEUR ? this.config.lePrieur : this.config.schlachtstaffel;
+    const cfg = cfgFor(this.config, kind);
     const normalHp = Math.max(1, normal.hp || 22);
     const aceHp = Math.max(normalHp * 4, ace.hp || normalHp * 12);
     const normalDamage = Math.max(1, normal.damage || 9);
@@ -121,7 +128,7 @@ export class EliteEnemySystem {
       hitFlash: 0,
       formationStrength: 1,
       gunAim: entryAngle,
-      scale: kind === ELITE_KINDS.SCHLACHTSTAFFEL ? 1.12 : .92
+      scale: cfgFor(this.config, kind).memberScale ?? (kind === ELITE_KINDS.SCHLACHTSTAFFEL ? 1.12 : .92)
     }));
     const leader=members.reduce((best,m)=>Math.abs(m.slot)<Math.abs(best.slot)?m:best,members[0]);
     leader.formationCommand=true;for(const m of members)if(m!==leader)m.formationLeader=leader;
@@ -159,7 +166,7 @@ export class EliteEnemySystem {
       squadron.age += step;
       if (this.updateFormationBreak(squadron,step,now))continue;
       if (squadron.kind === ELITE_KINDS.LE_PRIEUR) this.updateLePrieur(squadron, step);
-      else this.updateSchlachtstaffel(squadron, step);
+      else this.updateArmored(squadron, step);
       this.separateMembers(squadron);
     }
     this.updateProjectiles(step);
@@ -252,14 +259,15 @@ export class EliteEnemySystem {
     }
   }
 
-  updateSchlachtstaffel(squadron, dt) {
+  updateArmored(squadron, dt) {
     const player = this.host.getPlayer();
-    const cfg = this.config.schlachtstaffel;
+    const cfg = cfgFor(this.config, squadron.kind);
+    const turn = cfg.turnRate ?? 0.72;
     const living = squadron.members.filter(m => m.alive);
     for (const m of living) {
       m.hitFlash = Math.max(0, m.hitFlash - dt);
       const aim = Math.atan2(player.y - m.y, player.x - m.x);
-      m.a += clamp(angleDiff(aim, m.a), -0.72 * dt, 0.72 * dt);
+      m.a += clamp(angleDiff(aim, m.a), -turn * dt, turn * dt);
       const sideA = m.a + Math.PI / 2;
       const forwardOffset = m.slot === 0 ? 0 : -34;
       const targetX = player.x - Math.cos(m.a) * (285 - forwardOffset) + Math.cos(sideA) * m.slot * 76;
@@ -269,8 +277,12 @@ export class EliteEnemySystem {
       m.fireTimer -= dt;
       if (m.fireTimer <= 0) {
         m.fireTimer = cfg.frontCooldown / squadron.stats.patternScale + this.random() * .3;
-        this.fireTracer(m, m.a + m.slot * .055, 218, m.damage, 'eliteFrontTracer');
+        if (cfg.twinFront) {
+          this.fireTracer(m, m.a + m.slot * .055 - .038, 218, Math.max(1, Math.round(m.damage * .62)), 'eliteFrontTracer');
+          this.fireTracer(m, m.a + m.slot * .055 + .038, 218, Math.max(1, Math.round(m.damage * .62)), 'eliteFrontTracer');
+        } else this.fireTracer(m, m.a + m.slot * .055, 218, m.damage, 'eliteFrontTracer');
       }
+      if (cfg.noRearGun) continue;
       m.rearTimer -= dt;
       const range = Math.hypot(player.x - m.x, player.y - m.y);
       const rearA = m.a + Math.PI;
@@ -340,6 +352,8 @@ export class EliteEnemySystem {
   damageMember(memberOrId, damage, source = {}) {
     const member = typeof memberOrId === 'string' ? this.members.find(m => m.id === memberOrId) : memberOrId;
     if (!member?.alive || !(damage > 0)) return false;
+    const armor = cfgFor(this.config, member.eliteKind).armorFactor;
+    if (armor && armor < 1) damage = Math.max(1, Math.round(damage * armor));
     member.hp -= damage;
     member.hitFlash = .16;
     if (member.hp > 0) return true;
@@ -370,7 +384,7 @@ export class EliteEnemySystem {
     const living = squadron.members.filter(m => m.alive);
     for (let i = 0; i < living.length; i++) for (let j = i + 1; j < living.length; j++) {
       const a = living[i], b = living[j], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
-      const min = squadron.kind === ELITE_KINDS.SCHLACHTSTAFFEL ? 58 : 48;
+      const min = squadron.kind === ELITE_KINDS.JUNKERS ? 64 : squadron.kind === ELITE_KINDS.SALAMANDER ? 54 : squadron.kind === ELITE_KINDS.SCHLACHTSTAFFEL ? 58 : 48;
       if (d < min) {
         const nx = d > 0 ? dx / d : 1, ny = d > 0 ? dy / d : 0, push = (min - d) * .5;
         a.x -= nx * push; a.y -= ny * push; b.x += nx * push; b.y += ny * push;

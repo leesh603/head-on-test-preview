@@ -3,8 +3,8 @@
 // assets, no external requests.
 let ctx=null,bus=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const sources=new Map(),lastVoices=new Map();
-const PRIORITY={materialImpact:1,whizz:1,closePass:2,airframeBreak:1,engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0};
-const INTERVAL={materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
+const PRIORITY={materialImpact:1,armorClink:2,whizz:1,closePass:2,airframeBreak:1,engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0};
+const INTERVAL={materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
 let inputMedia=null;
 const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
 export function stopSfx(){for(const [source,entry]of sources){try{source.stop()}catch{}entry.release()}lastVoices.clear()}
@@ -69,6 +69,7 @@ const VOICES={
   waterImpact(){hiss(1900,430,.62,.065,'bandpass',.45);tone(68,35,.3,.045,'sine',240);hiss(3600,1700,.2,.022,'highpass',.5,.14)},
   navalGun(){tone(104,31,.32,.1,'sine',300);hiss(2100,230,.26,.085,'lowpass',.5);tone(58,30,.38,.032,'sine',180,.15)},
   armorOpen(){hiss(1800,480,.24,.045,'bandpass',2);tone(142,84,.2,.035,'triangle',650);hiss(2600,1600,.045,.05,'highpass',.8,.23)},
+  armorClink(){tone(jit(1420),560,.13,.052,'triangle',3400);hiss(jit(5200),2400,.055,.045,'bandpass',4);tone(jit(470),290,.08,.028,'square',2400,.02);tone(jit(2350),1400,.05,.02,'triangle',4200,.06)},
   metalBreak(){hiss(3200,700,.3,.065,'bandpass',2);tone(237,107,.24,.05,'triangle',1600);tone(419,171,.17,.025,'square',2100,.07)},
   winchRelease(){for(let i=0;i<3;i++)hiss(2100,1200,.035,.035,'bandpass',2,i*.055);tone(176,88,.3,.028,'sawtooth',600,.1)},
   railClatter(){for(let i=0;i<4;i++){tone(93,45,.06,.034,'triangle',350,i*.12);hiss(1100,450,.04,.024,'bandpass',.8,i*.12)}},
