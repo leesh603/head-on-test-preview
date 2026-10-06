@@ -20,7 +20,7 @@ function paint(c,im,x,y,w,h,alpha,angle=0){
 }
 export function drawSinkingWater(c,{x,y,yaw=0,width,height,age=0,duration=4.4}){
  prepareSinkingWater();const phase=sinkingPhase(age,duration);if(phase.done)return;
- const {progress:p,water,tail}=phase,w=width,h=height,edge=-h/2+h*p;
+ const {water,tail}=phase,w=width,h=height,p=clamp(age/.9),edge=-h/2+h*p;
  c.save();c.translate(x,y);c.rotate(yaw);
  // Surface texture never washes over the exposed, opaque deck.
  c.save();c.beginPath();c.rect(-w*1.6,-h/2-w*1.5,w*3.2,h*p+w*1.5);c.clip();
@@ -48,16 +48,8 @@ export function drawSinkingWater(c,{x,y,yaw=0,width,height,age=0,duration=4.4}){
  c.restore();
 }
 export function drawSinkingShip(c,pose,drawHull){
- const {progress,done}=sinkingPhase(pose.age,pose.duration);if(done)return;
- if(progress<1){
-  const {x,y,yaw=0,width:w,height:h}=pose,edge=-h/2+progress*h,pad=w*1.25;
-  c.save();c.globalAlpha=1;c.globalCompositeOperation='source-over';c.translate(x,y);c.rotate(yaw);
-  c.beginPath();c.moveTo(-pad,h/2+pad);c.lineTo(-pad,edge);
-  for(let i=0;i<=12;i++){const xx=-pad+2*pad*i/12;
-   c.lineTo(xx,edge+Math.sin(i*1.73+pose.age*4)*w*.025);}
-  c.lineTo(pad,h/2+pad);c.closePath();c.clip();
-  // Restore the caller's coordinates while retaining the world-space mask.
-  c.rotate(-yaw);c.translate(-x,-y);drawHull();c.restore();
- }
+ const {done}=sinkingPhase(pose.age,pose.duration);if(done)return;
+ // The hull never fades or sinks piecewise — it vanishes at once and the
+ // water burst covers the footprint.
  drawSinkingWater(c,pose);
 }
