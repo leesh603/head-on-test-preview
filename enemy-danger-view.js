@@ -4,16 +4,13 @@ export function drawEnemyDanger(ctx,e,x,y,time,fx,now){
  const commander=e.isFormationCommander&&e.directorSquad&&!e.directorSquad.broken;
  ctx.save();ctx.translate(x,y);
  if(commander){
-  // Floating command chevrons above the aircraft mark the squad leader.
-  ctx.strokeStyle='#e7d6a9';ctx.lineWidth=2;ctx.lineCap='round';
-  for(const dy of [-34,-27]){ctx.beginPath();ctx.moveTo(-6,dy-5);ctx.lineTo(0,dy);ctx.lineTo(6,dy-5);ctx.stroke()}
+  // A small gold star floats above the squad leader.
+  ctx.fillStyle='#f0c56b';ctx.strokeStyle='#6b4f18';ctx.lineWidth=1.4;ctx.lineJoin='round';
+  ctx.beginPath();
+  for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=i%2?3.2:7.5;const px=Math.cos(a)*r,py=-31+Math.sin(a)*r;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}
+  ctx.closePath();ctx.fill();ctx.stroke();
  }
  ctx.rotate(e.a);
- if(commander){
-  // Small linen command chevrons sit on the tail, like painted airframe marks.
-  ctx.strokeStyle='#e7d6a9';ctx.lineWidth=1.6;ctx.lineCap='round';
-  for(const back of [18,24]){ctx.beginPath();ctx.moveTo(-back-4,-4);ctx.lineTo(-back,0);ctx.lineTo(-back-4,4);ctx.stroke()}
- }
  if(e.dangerMarksman&&e.dangerAimUntil>now){
   const progress=1-(e.dangerAimUntil-now)/.38;
   ctx.globalAlpha=.35+Math.max(0,progress)*.4;ctx.strokeStyle='#dfb17f';ctx.lineWidth=1.3;
