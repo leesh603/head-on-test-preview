@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,TAILING_BALANCE,BATTLE_DIRECTOR_PATTERNS as P} from '../engine.js?v=lufbery1';
+import {Game,TAILING_BALANCE,BATTLE_DIRECTOR_PATTERNS as P} from '../engine.js?v=sink4';
 
 
 const quiet=g=>{for(const key of ['spawn','eventTimer','nextBossAt','nextHeavyAt','_zeppelinSchedule','flakTimer','regionThreat','fieldUnitTimer','gasTimer','gustTimer','patrolTimer'])g[key]=Infinity;return g};
@@ -45,7 +45,7 @@ const target=(extra={})=>({x:200,y:0,a:0,type:'hunter',hp:100,maxHp:100,speed:80
  });
 
  test('elite command loss creates a 2.6s real break and only later formations can regroup',async()=>{
- const {EliteEnemySystem}=await import('../elite-patch/module/elite-core.js?v=sink2');
+ const {EliteEnemySystem}=await import('../elite-patch/module/elite-core.js?v=sink4');
  for(const stage of [4,7]){
   let time=400;const host={random:()=>.5,getTime:()=>time,getPlayer:()=>({x:0,y:0}),getPlayerFaction:()=> 'central',getNormalStats:()=>({hp:30,damage:10,speed:100}),getAceStats:()=>({hp:700,damage:40}),getProgressStage:()=>stage,damagePlayer:()=>{}};
   const system=new EliteEnemySystem(host),squadron=system.spawnEncounter(),leader=squadron.leader;
@@ -65,7 +65,7 @@ const target=(extra={})=>({x:200,y:0,a:0,type:'hunter',hp:100,maxHp:100,speed:80
  });
 
 const coopFormation=async()=>{
- const {CoopGame}=await import('../coop-engine.js?v=lufbery1');
+ const {CoopGame}=await import('../coop-engine.js?v=sink4');
 
  const world=quiet(new CoopGame([{plane:'camel',pilot:'fonck'},{plane:'camel',pilot:'bishop'}],{rng:()=>.5}));
  world.t=400;world.beginBattleDirectorPattern(P.PINCER);for(let i=0;i<3;i++){world.t+=.5;world.tickBattleDirector(.04)}
@@ -93,7 +93,7 @@ const coopFormation=async()=>{
  });
 
  test('elite short disruption delegates from Game and restores command; death during it upgrades the full break',async()=>{
- const {EliteEnemySystem}=await import('../elite-patch/module/elite-core.js?v=sink2');
+ const {EliteEnemySystem}=await import('../elite-patch/module/elite-core.js?v=sink4');
  const g=setup();g.t=400;
  const host={random:()=>.5,getTime:()=>g.t,getPlayer:()=>g,getPlayerFaction:()=> 'central',getNormalStats:()=>({hp:30,damage:10,speed:100}),getAceStats:()=>({hp:700,damage:40}),getProgressStage:()=>7,damagePlayer:()=>{}};
  const system=g.eliteEnemies=new EliteEnemySystem(host),squadron=system.spawnEncounter(),leader=squadron.leader,wing=squadron.members.find(m=>m!==leader);

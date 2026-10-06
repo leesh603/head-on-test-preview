@@ -1,6 +1,6 @@
-import {drawGameIcon} from './icons.js?v=gate1';
-import {fx,fxReady,FX56,FX3} from './fx-art.js?v=sink2';
-import {fxsBoom} from './fx-sample-preview.js?v=sink2';
+import {drawGameIcon} from './icons.js?v=sink4';
+import {fx,fxReady,FX56,FX3} from './fx-art.js?v=sink4';
+import {fxsBoom} from './fx-sample-preview.js?v=sink4';
 
 export function drawGrenade(c,g,x,y){
  c.save();c.translate(x,y-g.height);c.rotate(g.phase==='flight'?g.age*7:0);
