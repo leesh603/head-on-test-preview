@@ -433,12 +433,18 @@ function drawBossPart(c,p,ring,t=0){
  }else bossSprite(c,index,p.x,p.y,r*2.1,r*2.1,angle);
  if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd57988');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}
 }
-let sbHudAt=0;
+let sbHudAt=0,sbHudEncounter=null,sbHudModel=null;
 export function updateStageBossHud(g){
- const active=!!g?.stageBoss&&g.state!=='lost'&&g.stageBoss.stages.phase!=='clear-pending',model=active?bossHudModel(g.stageBoss.stages.encounter):null;
+ const active=!!g?.stageBoss&&g.state!=='lost'&&g.stageBoss.stages.phase!=='clear-pending';
+ const encounter=active?g.stageBoss.stages.encounter:null,_n=performance.now();
+ // Aggregate parts only when the existing HUD refresh is due. Lifecycle
+ // changes still show/hide immediately, including completed encounters.
+ const visible=!!encounter&&!encounter.completed;
+ const tick=encounter!==sbHudEncounter||visible!==!!sbHudModel||_n-sbHudAt>=90;
+ if(tick){sbHudAt=_n;sbHudEncounter=encounter;sbHudModel=visible?bossHudModel(encounter):null}
+ const model=sbHudModel;
  document.body.classList.toggle('stageboss-playing',active);
  const slot=document.getElementById('stageBossHud');slot.classList.toggle('hidden',!model);
- const _n=performance.now(),tick=!model||_n-sbHudAt>=90;if(tick)sbHudAt=_n;
  if(model&&tick){const en=getLocale()==='en';document.getElementById('stageBossTitle').textContent=(en?(BOSS_NAMES_EN[model.bossId]||model.name):model.name)+(g.stageBoss.defeatSequence?(en?' · BREAKING UP':' · 붕괴 중'):model.shielded?(en?' · ARMORED':' · 본체 보호'):'');document.getElementById('stageBossParts').textContent=(model.formationTotal?(en?'Formation ':'편대 생존 ')+model.formationAlive+'/'+model.formationTotal:(en?'Parts ':'부위 ')+model.aliveParts+'/'+model.totalParts)+' · '+Math.ceil(model.hp)+' / '+Math.round(model.maxHp);let hint=document.getElementById('stageBossTactic');if(!hint){hint=document.createElement('small');hint.id='stageBossTactic';slot.append(hint)}const tactic=bossTactic(g.stageBoss.stages.encounter,getLocale())+(g.londonBattle?'\n'+londonStatus(g,getLocale()):'')+(g.parisBattle?'\n'+parisStatus(g,getLocale()):'');if(hint.textContent!==tactic)hint.textContent=tactic;const bar=document.getElementById('stageBossHp');bar.style.width=model.fraction*100+'%';slot.setAttribute('aria-valuenow',String(Math.ceil(model.hp)));slot.setAttribute('aria-valuemax',String(Math.round(model.maxHp)));}
  const coop=active&&g.mode==='coop2';document.getElementById('coopXpHud').classList.toggle('hidden',!coop);
  if(coop&&tick)for(const p of g.players){document.getElementById(p.id+'XpLabel').textContent=p.id.toUpperCase()+' · LV. '+p.level;document.getElementById(p.id+'XpBar').style.width=Math.min(100,p.xp/p.need*100)+'%';}
