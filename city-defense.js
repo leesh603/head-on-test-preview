@@ -6,7 +6,7 @@ export function spawnCityDefense(g){
  if(g.worldRegion()!==4||g.enemies.some(e=>e.cityUnit&&!e.expired&&e.hp>0))return;
  const a=g.a||0,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
  const bx=g.x+hx*420,by=g.y+hy*420,serial=(g._citySerial||0)+1;g._citySerial=serial;
- for(const [i,lat] of [-140,140].entries()){
+ for(const [i,lat] of [-210,210].entries()){
   let light;
   for(const kind of ['light','pit']){
    const e=g.spawnEnemy('bomber');if(!e)continue;
