@@ -70,7 +70,7 @@ export function renderEliteLayer(ctx, system, camera, assets, time = 0) {
     const kind = member.eliteKind;
     const isHeavy = kind === ELITE_KINDS.SCHLACHTSTAFFEL;
     const image = kind === ELITE_KINDS.JUNKERS ? assets.junkers : kind === ELITE_KINDS.SALAMANDER ? assets.salamander : isHeavy ? assets.schlachtstaffel : assets.lePrieur;
-    const size = kind === ELITE_KINDS.JUNKERS ? 98 : kind === ELITE_KINDS.SALAMANDER ? 80 : isHeavy ? 86 : 66;
+    const size = kind === ELITE_KINDS.JUNKERS ? 86 : kind === ELITE_KINDS.SALAMANDER ? 74 : isHeavy ? 86 : 66;
     const crop = assets.crop?.[kind];
     const drawn = drawAircraft(ctx, image, crop, x, y, member.a, size, member.hitFlash > 0);
     if (!drawn) drawFallbackSilhouette(ctx, member, x, y);
@@ -80,9 +80,18 @@ export function renderEliteLayer(ctx, system, camera, assets, time = 0) {
       ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(member.gunAim) * 150, y + Math.sin(member.gunAim) * 150); ctx.stroke();
       ctx.beginPath(); ctx.arc(x, y, 27 + member.telegraph * 8, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
     }
+    const barY = y - size / 2 - 9;
     const hp = Math.max(0, member.hp / member.maxHp);
-    ctx.fillStyle = '#20241e'; ctx.fillRect(x - 22, y - 34, 44, 3);
-    ctx.fillStyle = kind === ELITE_KINDS.JUNKERS ? '#c9d4dc' : isHeavy || kind === ELITE_KINDS.SALAMANDER ? '#d8b26c' : '#df8c67'; ctx.fillRect(x - 22, y - 34, 44 * hp, 3);
+    ctx.fillStyle = '#20241e'; ctx.fillRect(x - 22, barY, 44, 3);
+    ctx.fillStyle = kind === ELITE_KINDS.JUNKERS ? '#c9d4dc' : isHeavy || kind === ELITE_KINDS.SALAMANDER ? '#d8b26c' : '#df8c67'; ctx.fillRect(x - 22, barY, 44 * hp, 3);
+    if (member.formationCommand) {
+      const cy = barY - 7;
+      ctx.fillStyle = '#e8c26a';
+      ctx.beginPath();
+      ctx.moveTo(x - 7, cy - 3); ctx.lineTo(x - 1, cy + 1); ctx.lineTo(x - 7, cy + 5); ctx.lineTo(x - 4, cy + 1); ctx.closePath();
+      ctx.moveTo(x - 1, cy - 3); ctx.lineTo(x + 5, cy + 1); ctx.lineTo(x - 1, cy + 5); ctx.lineTo(x + 2, cy + 1); ctx.closePath();
+      ctx.fill();
+    }
   }
   for (const projectile of system.projectiles) {
     const [x, y] = point(projectile.x, projectile.y);
