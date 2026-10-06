@@ -48,8 +48,15 @@ export function drawSinkingWater(c,{x,y,yaw=0,width,height,age=0,duration=4.4}){
  c.restore();
 }
 export function drawSinkingShip(c,pose,drawHull){
- const {done}=sinkingPhase(pose.age,pose.duration);if(done)return;
- // The hull never fades or sinks piecewise — it vanishes at once and the
- // water burst covers the footprint.
+ const {progress,done}=sinkingPhase(pose.age,pose.duration);if(done)return;
+ // The hull stays fully opaque under a fixed full-footprint clip — it never
+ // fades or sinks piecewise — and vanishes at once once the water covers it.
+ if(progress<1&&drawHull){
+  const {x,y,yaw=0,width:w,height:h}=pose;
+  c.save();c.globalAlpha=1;c.globalCompositeOperation='source-over';c.translate(x,y);c.rotate(yaw);
+  c.beginPath();c.rect(-w*1.6,-h/2-w*1.5,w*3.2,h+w*3);c.clip();
+  // Restore the caller's coordinates while retaining the ship-space mask.
+  c.rotate(-yaw);c.translate(-x,-y);drawHull();c.restore();
+ }
  drawSinkingWater(c,pose);
 }
