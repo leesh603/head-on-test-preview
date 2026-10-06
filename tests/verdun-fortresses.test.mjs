@@ -88,10 +88,14 @@ test('Verdun is stage 12 with the opposite faction fortress and one native encou
   const direct=createBossEncounter({id:'direct',bossId,tuning:b.t,x:0,y:-560,emit(){},rng:()=>.5});assert.equal(direct.bodies.values().next().value.kind,bossId);
  }
 });
-test('Verdun appends to the existing introductory stage order and remains in subsequent loops',()=>{
- const s=new BossStages({teamFaction:'entente',rng:()=>.5});assert.deepEqual(s.order,[0,2,1,9,4,5,8,7,3,10,6,12,11,14,13,16,15]);
+test('Every sortie starts rural, then shuffles early, mid and late pools without duplicates',()=>{
+ const s=new BossStages({teamFaction:'entente',rng:()=>0});
+ assert.equal(s.stageIndex,0);assert.equal(s.order[0],0);assert.equal(s.order.length,17);assert.equal(new Set(s.order).size,17);
+ assert.deepEqual(new Set(s.order.slice(1,4)),new Set([2,1,4]));
+ assert.deepEqual(new Set(s.order.slice(4,11)),new Set([9,8,3,10,7,5,6]));
+ assert.deepEqual(new Set(s.order.slice(11)),new Set([11,12,13,14,16,15]));
  for(let i=0;i<17;i++){const e=createBossEncounter({id:'rotation-'+i,bossId:s.bossId,tuning:{maxHp:100,partHp:10,damage:5,bulletSpeed:160},x:0,y:0,emit(){},rng:()=>.5});for(const b of e.bodies.values()){b.dead=true;b.hp=0;}s.attach(e);s.poll();s.advance(false);}
- assert.equal(s.loopIndex,1);assert.equal(new Set(s.order).size,17);assert(s.order.includes(12));assert(s.order.includes(8));
+ assert.equal(s.loopIndex,1);assert.equal(new Set(s.order).size,17);assert(s.order.includes(12));assert(s.order.includes(8));assert.equal(s.order[0],0);
 });
 function clearNativeFortress(f){
  const b=f.addon.stages.encounter.bodies.values().next().value;
