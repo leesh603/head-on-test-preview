@@ -5,23 +5,28 @@
 const portrait186=document.getElementById("hangarPortrait");
 const tabs186=document.getElementById("pilotTabs");
 
-// Measured opaque bottoms in the unchanged 1254px crew busts. Offset only the
-// image content, keeping the card frame and both faces at their existing size.
-const CREW_BOTTOM186={huffzky:1116/1254,mckeever:1141/1254};
-const crewObserved186=new WeakSet();
-function anchorCrew186(image,id){
-  const bottom=CREW_BOTTOM186[id];
-  if(!bottom){delete image.dataset.crewFloor;image.style.removeProperty('--crew-floor-offset');return}
-  image.dataset.crewFloor=id;
-  const ratio=image.naturalWidth&&image.naturalHeight?image.naturalWidth/image.naturalHeight:1;
-  const height=Math.min(image.clientHeight,image.clientWidth/ratio);
-  image.style.setProperty('--crew-floor-offset',(height*(1-bottom)).toFixed(3)+'px');
-  if(!crewObserved186.has(image)){
-    crewObserved186.add(image);crewResize186.observe(image);
-    image.addEventListener('load',()=>anchorCrew186(image,image===portrait186?activePilot186():image.closest('[data-pilot-id]')?.dataset.pilotId));
-  }
+// Fit the painted bust, rather than its transparent square, to the card height.
+const CREW_BOUNDS186={huffzky:{top:228/1254,bottom:1116/1254},mckeever:{top:88/1254,bottom:1141/1254}};
+function crewFit186(height,id,ratio=1){
+  const {top,bottom}=CREW_BOUNDS186[id];
+  const rendered=height*.9/(bottom-top);
+  return {height:rendered,width:rendered*ratio,offset:rendered*(1-bottom)};
 }
-const crewResize186=new ResizeObserver(entries=>{for(const {target}of entries)anchorCrew186(target,target===portrait186?activePilot186():target.closest('[data-pilot-id]')?.dataset.pilotId)});
+function crewPilot186(image){return image===portrait186?activePilot186():image.closest('[data-pilot-id]')?.dataset.pilotId}
+const crewResize186=new ResizeObserver(entries=>{for(const {target}of entries){const image=target.querySelector('img');if(image)anchorCrew186(image,crewPilot186(image))}});
+function anchorCrew186(image,id){
+  let frame=image.parentElement;
+  if(!CREW_BOUNDS186[id]){if(frame.classList.contains('crew-portrait-frame'))delete frame.dataset.crewFloor;delete image.dataset.crewFloor;return}
+  if(!frame.classList.contains('crew-portrait-frame')){
+    frame=document.createElement('span');frame.className='crew-portrait-frame';
+    image.replaceWith(frame);frame.append(image);crewResize186.observe(frame);
+    image.addEventListener('load',()=>anchorCrew186(image,crewPilot186(image)));
+  }
+  frame.dataset.crewFloor=id;image.dataset.crewFloor=id;
+  const ratio=image.naturalWidth&&image.naturalHeight?image.naturalWidth/image.naturalHeight:1;
+  const fit=crewFit186(frame.clientHeight,id,ratio);
+  for(const [key,value]of Object.entries(fit))frame.style.setProperty('--crew-'+key,value.toFixed(3)+'px');
+}
 
 const PORTRAIT_TUNE186=Object.freeze({
   mckeever:{desktop:.82,mobile:.62,liftD:-6,liftM:-8},
@@ -57,7 +62,7 @@ function syncPortrait186(){
   const id=activePilot186();
   anchorCrew186(portrait186,id);
   for(const button of tabs186?.querySelectorAll('[data-pilot-id]')||[]){
-    if(CREW_BOTTOM186[button.dataset.pilotId]){const image=button.querySelector('.pilot-tab-portrait');if(image)anchorCrew186(image,button.dataset.pilotId)}
+    if(CREW_BOUNDS186[button.dataset.pilotId]){const image=button.querySelector('.pilot-tab-portrait');if(image)anchorCrew186(image,button.dataset.pilotId)}
   }
   const base=autoScale186();
   const tune=PORTRAIT_TUNE186[id]||base;

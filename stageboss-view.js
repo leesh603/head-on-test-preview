@@ -1,4 +1,4 @@
-import {prepareBossCutins} from './boss-cutin-art.js?v=cut2';
+import {prepareBossCutins} from './boss-cutin-art.js?v=hangarfast20261006';
 import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=dread-opaque-2';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=485';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide} from './gallipoli-view.js?v=485';
@@ -22,7 +22,7 @@ import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=dre
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=485';
 import {bossHudModel} from './headon-stageboss-hud.js?v=485';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=485';
-import {planeSprite} from './aircraft.js?v=488';
+import {planeSprite} from './aircraft.js?v=hangarfast20261006';
 import {getLocale} from './i18n.js?v=485';
 import {londonStatus} from './london-battle.js?v=485';
 import {parisStatus} from './paris-night-battle.js?v=485';

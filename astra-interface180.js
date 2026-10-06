@@ -1,8 +1,7 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
 import {getLocale,subscribe} from './i18n.js?v=485';
-import {aircraftKey} from './aircraft.js?v=488';
-import {hangarArt,hangarKeyFile} from './hangar-art.js?v=hangar20261006';
-export {hangarArt} from './hangar-art.js?v=hangar20261006';
+import {hangarArt,hangarKeyFile,hangarArtKey} from './hangar-art.js?v=hangarfast20261006';
+export {hangarArt} from './hangar-art.js?v=hangarfast20261006';
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
 const put=(node,text)=>{if(node&&node.textContent!==text)node.textContent=text};
@@ -98,11 +97,17 @@ function install(){
  }
  previous.addEventListener('click',()=>changeAircraft(-1));next.addEventListener('click',()=>changeAircraft(1));
  let queued=false,lastArt='',lastPilot='';
+ // Paint the real default aircraft while the game module graph is still loading.
+ if(!$('pilotTabs').querySelector('[data-pilot-id].active')){
+  start.disabled=true;put(title,$('hangarName').textContent);put(english,$('pilotAlias').textContent);put(airName,$('hangarAircraftName').textContent);
+  hangarArt('fokker_red').then(url=>{if(lastArt||!url)return;art.src=url;art.hidden=false;figure.classList.add('has-art');document.body.classList.add('boot-ready')});
+ }
  const schedule=()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;sync()})};
  function sync(){
   const en=getLocale()==='en',selectedButton=$('pilotTabs').querySelector('[data-pilot-id].active');
   if(!selectedButton)return;
-  const pilot=selectedButton.dataset.pilotId,aircraftId=aircraftKey($('aircraftSelect103').value,false,pilot);
+  start.disabled=false;
+  const pilot=selectedButton.dataset.pilotId,aircraftId=hangarArtKey($('aircraftSelect103').value,pilot);
   put(title,$('hangarName').textContent);
   put(english,$('pilotAlias').textContent);
   put(kicker,en?'PILOT / SELECTED ACE':'파일럿 / 출격 대기');
@@ -193,4 +198,4 @@ function installHud(){
  new MutationObserver(schedule).observe($('ammoCount'),{childList:true,characterData:true,subtree:true});
  subscribe(schedule);syncReadout();
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+if($('hangar')&&$('flightRoster'))install();else document.addEventListener('DOMContentLoaded',install,{once:true});

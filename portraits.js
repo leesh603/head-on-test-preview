@@ -2,11 +2,10 @@
 export const portraitSources={};
 const legacyPortraits=['baron','voss','boelcke','immelmann','udet','fonck','collishaw','baracca','guynemer','bishop','goering','mannock','mckeever','huffzky','hawker','berthold','jacobs','rickenbacker','ball','barker','luke','brumowski','gontermann'].map(id=>new Promise(resolve=>{
  const img=new Image(),key=id==='mckeever'?'mckeever-powell129':id,url=`./portrait-${key}.webp?v=485&b=bust1`;
+ img.decoding='async';img.fetchPriority=id==='baron'?'high':'low';
  // Keep the authored transparent margin while the portrait loads.
  portraitSources[id]=url;
- img.onload=()=>{
-  resolve(true);
- };img.onerror=()=>resolve(false);img.src=url;
+ img.onload=async()=>{try{if(img.decode)await img.decode();resolve(true)}catch{resolve(false)}};img.onerror=()=>resolve(false);img.src=url;
 }));
 
 const NEW_ACE_PORTRAITS=['wolff','loewenhardt','mccudden','nungesser','lothar','sachsenberg','proctor','schleich','lufbery'];
@@ -21,5 +20,9 @@ function clearNavyMatte(data,w,h){
 // The four aces once cut from new-aces-portraits124.webp now ship as cleaned
 // portrait-*-field.webp files (assigned above); the navy-matte atlas pass is
 // retired so it can no longer overwrite them with half-cleared cells.
-const newAcePortraitsReady=Promise.resolve(true);
+const newAcePortraitsReady=Promise.all(NEW_ACE_PORTRAITS.map(id=>new Promise(resolve=>{
+ const image=new Image();image.decoding='async';image.fetchPriority='low';
+ image.onload=async()=>{try{if(image.decode)await image.decode();resolve(true)}catch{resolve(false)}};
+ image.onerror=()=>resolve(false);image.src=portraitSources[id];
+})));
 export const portraitsReady=Promise.all([...legacyPortraits,newAcePortraitsReady]);

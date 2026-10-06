@@ -1367,3 +1367,11 @@ body.astra-ui .boss-cutin.skill-side .boss-cutin-caption span{text-shadow:0 1px 
   background-size:240px 100%,100% 100%!important;
  }
 }
+
+/* Keep active explanations below their button and inside the scrolling build card. */
+body.astra-ui.playing #modal #build151 .build-abilities151{align-items:start}
+body.astra-ui.playing #modal #build151 .astra-active.ho-tip{flex-wrap:wrap}
+body.astra-ui.playing #modal #build151 .astra-active.ho-tip .ho-skill-pop{
+ position:static;flex:0 0 100%;width:100%;min-width:0;max-height:min(300px,45dvh);overflow-y:auto;overscroll-behavior:contain;
+ margin-top:4px;animation:none;
+}

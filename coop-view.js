@@ -9,16 +9,16 @@ import {fxsBoomTail} from './fx-sample-preview.js?v=485';
 import {fx,fxReady,fxTint} from './fx-art.js?v=485';
 import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=485';
 import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=dread-opaque-2';
-import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=485';
+import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=hangarfast20261006';
 import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=485';
-import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=dread-opaque-2';
-import {drawStageBoss} from './stageboss-view.js?v=dread-opaque-2';
-import {planeSprite,aircraftKey} from './aircraft.js?v=488';
+import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=hangarfast20261006';
+import {drawStageBoss} from './stageboss-view.js?v=hangarfast20261006';
+import {planeSprite,aircraftKey} from './aircraft.js?v=hangarfast20261006';
 import {drawEquipment} from './equipment.js?v=485';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=485';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=485';
 import {drawSpecialAmmoIcon} from './icons.js?v=485';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=dread-opaque-2';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=hangarfast20261006';
 import {drawCombatFeedback,combatCameraOffset,combatVisualPose} from './combat-feedback.js?v=485';
 
 // Every combat layer uses the same world transform; rendering never edits the session.

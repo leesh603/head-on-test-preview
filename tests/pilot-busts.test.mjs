@@ -4,8 +4,8 @@ import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 
 test('all pilot surfaces retain the authored transparent bust, including both crews',async()=>{
- const previous=globalThis.Image;
- globalThis.Image=class{set src(value){this.url=value;queueMicrotask(()=>this.onload?.());}};
+ const previous=globalThis.Image,decoded=[];
+ globalThis.Image=class{set src(value){this.url=value;queueMicrotask(()=>this.onload?.());}async decode(){decoded.push(this.url)}};
  let portraits;
  try{
   const source=await readFile(new URL('../portraits.js',import.meta.url),'utf8');
@@ -15,6 +15,7 @@ test('all pilot surfaces retain the authored transparent bust, including both cr
  const audit=JSON.parse(await readFile(new URL('../qa/pilot-busts/asset-audit.json',import.meta.url),'utf8'));
  assert.deepEqual(Object.keys(portraits.portraitSources).sort(),audit.map(p=>p.id).sort());
  assert.equal(audit.length,32);
+ assert.equal(new Set(decoded).size,32,'all pilots, including the nine field portraits, decode before combat');
  for(const entry of audit){
   const url=portraits.portraitSources[entry.id];
   assert.equal(url.split('?')[0],'./'+entry.asset,entry.id+' keeps its authored frame');

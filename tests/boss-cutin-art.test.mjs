@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {existsSync,readFileSync} from 'node:fs';
 import {BOSS_CATALOG} from '../headon-stageboss-patterns.js?v=485';
-import {BOSS_CUTIN_ART,BOSS_CUTIN_FALLBACKS,REDRAWN_BOSS_CUTINS,prepareBossCutins,bossCutinSource} from '../boss-cutin-art.js?v=cut2';
+import {BOSS_CUTIN_ART,BOSS_CUTIN_FALLBACKS,REDRAWN_BOSS_CUTINS,prepareBossCutins,bossCutinSource} from '../boss-cutin-art.js?v=hangarfast20261006';
 test('Every playable area boss has a registered existing cut-in',()=>{
  assert.deepEqual(Object.keys(BOSS_CUTIN_ART).sort(),Object.keys(BOSS_CATALOG).sort());
  for(const file of Object.values(BOSS_CUTIN_ART)){
@@ -21,12 +21,12 @@ test('Cut-in preload is region scoped, cached and falls back after an image deco
  try{
   await prepareBossCutins(11);
   const count=Object.values(BOSS_CATALOG).filter(b=>b.stage===11).length;
-  assert.equal(urls.length,count);
-  await prepareBossCutins(11);assert.equal(urls.length,count);
+  assert.equal(urls.length,count+1);
+  await prepareBossCutins(11);assert.equal(urls.length,count+1);
   assert.equal(bossCutinSource('gotha-squadron'),BOSS_CUTIN_FALLBACKS['gotha-squadron']);
   await prepareBossCutins(12);
-  assert.equal(urls.length-count,2);
-  assert(urls.slice(count).every(url=>url.includes('douaumont')||url.includes('souville')));
+  assert.equal(urls.length-count-1,2);
+  assert(urls.slice(count+1).every(url=>url.includes('douaumont')||url.includes('souville')));
   assert.equal(bossCutinSource('missing'),'');
  }finally{if(original===undefined)delete globalThis.Image;else globalThis.Image=original;}
 });
