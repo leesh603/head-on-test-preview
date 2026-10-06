@@ -138,6 +138,8 @@ function install(){
   const hasChoice=!$('baronAircraftChoice').classList.contains('hidden')&&!$('baronTriplane').disabled;previous.hidden=next.hidden=!hasChoice;
   previous.setAttribute('aria-label',en?'Switch aircraft':'이전 기체');next.setAttribute('aria-label',en?'Switch aircraft':'다음 기체');
   if(aircraftId!==lastArt){lastArt=aircraftId;
+   const artFile=hangarKeyFile[aircraftId]||aircraftId;
+   figure.classList.toggle('art-floor',artFile==='bristol_duo'||artFile==='halberstadt_duo');
    hangarArt(aircraftId).then(url=>{if(lastArt!==aircraftId)return;if(!url){art.hidden=true;art.removeAttribute('src');figure.classList.remove('has-art');figure.classList.add('use-canvas');return}
     art.onload=()=>{if(lastArt!==aircraftId)return;art.hidden=false;figure.classList.add('has-art');figure.classList.remove('use-canvas')};
     art.onerror=()=>{art.hidden=true;figure.classList.remove('has-art');figure.classList.add('use-canvas')};art.src=url;
