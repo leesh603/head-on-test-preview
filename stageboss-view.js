@@ -1,4 +1,4 @@
-import {prepareBossCutins} from './boss-cutin-art.js?v=cut1';
+import {prepareBossCutins} from './boss-cutin-art.js?v=cut2';
 import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=dread-opaque-2';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=485';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide} from './gallipoli-view.js?v=485';

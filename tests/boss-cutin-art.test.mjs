@@ -1,13 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {existsSync} from 'node:fs';
+import {existsSync,readFileSync} from 'node:fs';
 import {BOSS_CATALOG} from '../headon-stageboss-patterns.js?v=485';
-import {BOSS_CUTIN_ART,BOSS_CUTIN_FALLBACKS,REDRAWN_BOSS_CUTINS,prepareBossCutins,bossCutinSource} from '../boss-cutin-art.js?v=cut1';
+import {BOSS_CUTIN_ART,BOSS_CUTIN_FALLBACKS,REDRAWN_BOSS_CUTINS,prepareBossCutins,bossCutinSource} from '../boss-cutin-art.js?v=cut2';
 test('Every playable area boss has a registered existing cut-in',()=>{
  assert.deepEqual(Object.keys(BOSS_CUTIN_ART).sort(),Object.keys(BOSS_CATALOG).sort());
- for(const file of Object.values(BOSS_CUTIN_ART))
-  assert(existsSync(new URL('../'+file.split('?')[0],import.meta.url)),file);
- assert.equal(Object.keys(REDRAWN_BOSS_CUTINS).length,11);
+ for(const file of Object.values(BOSS_CUTIN_ART)){
+  const path=new URL('../'+file.split('?')[0],import.meta.url);
+  assert(existsSync(path),file);
+  const bytes=readFileSync(path);
+  assert(bytes.length>12,file+' is empty');
+  assert.equal(bytes.toString('ascii',0,4),'RIFF',file);
+  assert.equal(bytes.toString('ascii',8,12),'WEBP',file);
+ }
+ assert.equal(Object.keys(REDRAWN_BOSS_CUTINS).length,31);
 });
 test('Cut-in preload is region scoped, cached and falls back after an image decode error',async()=>{
  const original=globalThis.Image,urls=[];
