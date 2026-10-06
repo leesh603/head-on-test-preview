@@ -1340,3 +1340,30 @@ body.astra-ui.playing #modal #build151 .build-abilities151 .astra-active .astra-
 body.astra-ui.playing #modal #build151 .build-abilities151 .astra-ability-copy b{display:block;max-width:100%;margin:0!important;font:800 14px/1.25 var(--astra-type)!important;color:var(--ho-parchment)!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.astra-ui.playing #modal #build151 .build-stats151>div:only-child{grid-column:1/-1;flex-direction:row!important;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:4px 10px!important;min-height:0}
 body.astra-ui.playing #modal #build151 .build-stats151>div:only-child>span+span:before{content:"·";margin-right:10px;color:var(--ho-muted)}
+
+/* ==== Round 2 (ui-round2) ==== */
+/* Modal body text is built with "\n" separators (result: pilot / record / prompt); show them as line breaks
+   instead of running the sentences together ("…survived 200s Enter a nickname…"). */
+body.astra-ui #modal #modalText{white-space:pre-line}
+
+/* Active cut-in legibility: the band faded to clear from 55% across, so the tail of long skill names
+   ("황새 편대 · 로켓 폭우", "Prancing Horse Breakthrough") sat on bright sky/cloud. Keep the band dark
+   under the whole title and give the lettering a tight dark outline. */
+body.astra-ui .boss-cutin.skill-side::before{
+ background:
+  repeating-linear-gradient(100deg,transparent 0 38px,#f4efe414 38px 40px,transparent 40px 90px),
+  linear-gradient(90deg,#141413f7 0%,#141413f0 72%,#141413b8 86%,#14141300 100%)!important;
+ background-size:240px 100%,100% 100%!important;
+}
+body.astra-ui .boss-cutin.skill-side .boss-cutin-caption strong{
+ text-shadow:0 0 1px #000,0 0 3px #000c,0 2px 0 #3a2a10,0 4px 12px #000!important;
+}
+body.astra-ui .boss-cutin.skill-side .boss-cutin-caption span{text-shadow:0 1px 2px #000,0 0 4px #000a}
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui .boss-cutin.skill-side::before{
+  background:
+   repeating-linear-gradient(100deg,transparent 0 38px,#f4efe414 38px 40px,transparent 40px 90px),
+   linear-gradient(90deg,#141413f7 0%,#141413f2 88%,#141413cc 100%)!important;
+  background-size:240px 100%,100% 100%!important;
+ }
+}

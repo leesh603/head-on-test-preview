@@ -110,8 +110,12 @@ function install(){
   const raw=$('passive103').textContent,index=raw.indexOf(' · ');
   put(passiveName,index>=0?raw.slice(0,index):'');put(passiveDesc,index>=0?raw.slice(index+3):raw);
   const option=$('aircraftSelect103').selectedOptions?.[0],airLabel=(option?.textContent||$('pilotAircraft').textContent).split(' · ')[0],airParen=airLabel.indexOf(' (');
- airName.innerHTML=airParen<0?airLabel:airLabel.slice(0,airParen)+'<br>'+airLabel.slice(airParen+1);
-  put(airRole,[$('pilotAircraft').textContent.split(' · ').slice(1).join(' · '),$('airframeTip').textContent].filter(Boolean).join(' · '));
+ // Model on the first line, the ace's "personal aircraft" note as a smaller second line. The EN label has no
+ // space before "(" (word-joiner instead), so split on the parenthesis itself, not on " (".
+ const airSplit=airLabel.match(/^(.*?)\s*\(\u2060?\s*(.*?)\)\s*$/),esc=v=>v.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);
+ airName.innerHTML=airSplit?esc(airSplit[1])+'<small class="ho-air-owner">'+esc(airSplit[2])+'</small>':esc(airLabel);
+  // Korean role phrases keep their words together so the line breaks only between " · " parts (no lone "교전").
+  put(airRole,[$('pilotAircraft').textContent.split(' · ').slice(1).join(' · '),$('airframeTip').textContent].filter(Boolean).join(' · ').split(' · ').map(seg=>en?seg:seg.replace(/ /g,'\u00a0')).join(' · '));
   const hasChoice=!$('baronAircraftChoice').classList.contains('hidden')&&!$('baronTriplane').disabled;previous.hidden=next.hidden=!hasChoice;
   previous.setAttribute('aria-label',en?'Switch aircraft':'이전 기체');next.setAttribute('aria-label',en?'Switch aircraft':'다음 기체');
   if(aircraftId!==lastArt){lastArt=aircraftId;art.hidden=true;figure.classList.remove('has-art');figure.classList.add('use-canvas');
