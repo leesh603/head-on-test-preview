@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game} from '../engine.js?v=493';
-import {BATTLE_DIRECTOR_PATTERNS as P} from '../battle-director169.js?v=483';
+import {Game} from '../engine.js?v=sink2';
+import {BATTLE_DIRECTOR_PATTERNS as P} from '../battle-director169.js?v=sink2';
+
 
 const setup=()=>{const g=new Game('fokker','baron',()=>.2);g.state='playing';g.viewWidth=1200;g.t=10;g.players=[];return g};
 const tick=(g,n=1,dt=.5)=>{for(let i=0;i<n;i++){g.t+=dt;g.tickBattleDirector(.04)}};

@@ -1,72 +1,74 @@
-import {hangarArt} from './hangar-art.js?v=hangar20261006';
-import {bossCutinSource} from './boss-cutin-art.js?v=493';
-import {applySeaColor} from './sea-colors.js?v=1';
-import {drawGroundEnemy} from './ground-enemy-art.js?v=488';
+import {hangarArt} from './hangar-art.js?v=sink2';
+import {bossCutinSource} from './boss-cutin-art.js?v=sink2';
+import {applySeaColor} from './sea-colors.js?v=sink2';
+import {drawGroundEnemy} from './ground-enemy-art.js?v=sink2';
 import {pilotIdentityCopy} from './pilot-identity-copy.js';
-import {drawHeineckeParachute,heineckeRemaining,HEINECKE} from './heinecke-rettungsfallschirm.js?v=485';
-import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=485';
-import {paintVerdun} from './verdun-art.js?v=485';
-import {paintGallipoli,prepareGallipoliAssets} from './gallipoli-view.js?v=485';
-import {createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=485';
-import {paintMaan,prepareMaanAssets} from './maan-view.js?v=485';
-import {drawRegionalBug} from './regional-boss-view352.js?v=485';
-import {drawGust3} from './atmosphere-role3.js?v=485';
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=485';
-import {fx,fxReady,fxTint,FX56,clearFxTintCache,fxArtReady} from './fx-art.js?v=485';
-import {drawAADefense,drawDrachenMine,prepareAADefenseAssets} from './aa-defense-art.js?v=485';
-import {CATEGORIES,categoryName,reinforcementName,buildStats,cumulativeText,cleanDescription} from './reinforcement-ui151.js?v=493';
-import {t,getLocale,setLocale,subscribe,initLocale,applyTranslations,rarityName,upgradeDescription as translatedUpgradeDescription,pilotName,aircraftName,weaponName,activeName,passiveName,pilotDescription,passiveDescription,aircraftRole,airframeHistory,airframeTip} from './i18n.js?v=493';
-import {GamepadInput} from './gamepad-input.js?v=485';
+import {drawHeineckeParachute,heineckeRemaining,HEINECKE} from './heinecke-rettungsfallschirm.js?v=sink2';
+import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=sink2';
+import {paintVerdun} from './verdun-art.js?v=sink2';
+import {paintGallipoli,prepareGallipoliAssets} from './gallipoli-view.js?v=sink2';
+import {createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=sink2';
+import {paintMaan,prepareMaanAssets} from './maan-view.js?v=sink2';
+import {drawRegionalBug} from './regional-boss-view352.js?v=sink2';
+import {drawGust3} from './atmosphere-role3.js?v=sink2';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=sink2';
+import {fx,fxReady,fxTint,FX56,clearFxTintCache,fxArtReady} from './fx-art.js?v=sink2';
+import {drawAADefense,drawDrachenMine,prepareAADefenseAssets} from './aa-defense-art.js?v=sink2';
+import {CATEGORIES,categoryName,reinforcementName,buildStats,heldStats,cumulativeText,cleanDescription} from './reinforcement-ui151.js?v=sink2';
+import {t,getLocale,setLocale,subscribe,initLocale,applyTranslations,rarityName,upgradeDescription as translatedUpgradeDescription,pilotName,aircraftName,weaponName,activeName,passiveName,pilotDescription,passiveDescription,aircraftRole,airframeHistory,airframeTip} from './i18n.js?v=sink2';
+import {GamepadInput} from './gamepad-input.js?v=sink2';
+
 installEventTextEN(Game,CoopGame,CampaignGame);registerEventPilots(PILOTS);
 const fieldRecordLink=document.createElement('a');fieldRecordLink.href='./field-record.html';fieldRecordLink.target='_blank';fieldRecordLink.rel='noopener';fieldRecordLink.textContent=getLocale()==='en'?'Official Battle Record':'공식 전장 기록';fieldRecordLink.className='field-record-link';fieldRecordLink.style.cssText='display:block;margin:10px auto 0;text-align:center;color:#d7b26d;font-weight:800;text-decoration:none';document.getElementById('start')?.after(fieldRecordLink);
-import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=dread-opaque-2';
-import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=dread-opaque-2';
-import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=485';
-import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=dread-opaque-2';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=493';
-import {paintParis} from './paris-night-art.js?v=485';
-import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=493';
-import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=485';
-import './hud-layout94.js?v=485';
-import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=485';
-import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=493';
-import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=485';
-import {drawCoop} from './coop-view.js?v=493';
-import {drawSunStrike} from './sun-strike71.js?v=493';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=485';
-import {installFlightViewport} from './flight-viewport.js?v=485';
-import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174.js?v=485';
-import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?v=485';
-import {drawEnemyDanger} from './enemy-danger-view.js?v=486';
-import {drawGas} from './gas-view.js?v=493';
-import {drawWarAmbience} from './war-ambience.js?v=485';
-import {missionNavigation,drawMissionRadar} from './navigation.js?v=485';
-import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=485';
-import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=493';
-import {drawCampaign} from './campaign-view.js?v=493';
-import {campaignArtReady} from './aircraft.js?v=488';
-import {drawGameIcon,drawSpecialAmmoIcon,iconsReady} from './icons.js?v=485';
-import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?v=dread-opaque-2';
-import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=485';
-import {attachCombatFeedback,combatVisualPose,drawCombatFeedback,combatCameraOffset,combatFlightSound} from './combat-feedback.js?v=485';
-import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=493';
-import {drawHeadOnFeedback} from './engagement-feedback.js?v=485';
-import {drawTailEngagement} from './engagement-hud410.js?v=485';
-import {portraitSources,portraitsReady} from './portraits.js?v=485&b=bust1';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=493';
-import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=485';
-import {drawEquipment} from './equipment.js?v=485';
-import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=485';
-import{planeSprite,aircraftReady,aircraftKey,hangarArtReady}from './aircraft.js?v=488';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=493';
-import {AUGMENTATION_OVERHAUL_BALANCE}from'./augmentation-overhaul150.js?v=485';
-import {drawCloudCover}from'./cloud-cover1.js?v=485';
-import {drawFleetLayer}from'./fleet-naval1.js?v=493';
-import {drawTrenchLayer}from'./trench-war1.js?v=485';
-import {drawCityAirLayer}from'./city-air1.js?v=485';
-import {TerrainRenderer,MountainField,applyTerrainAtmosphere,preloadTerrainProfile,terrainProfilesReady} from './alps-terrain117.js?v=485';
-import {FXS,fxsTracer,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=485';
-import {drawPassiveFx,drawPassiveFxFront} from './passive-fx.js?v=493';
+import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=sink2';
+import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=sink2';
+import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=sink2';
+import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=sink2';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=sink2';
+import {paintParis} from './paris-night-art.js?v=sink2';
+import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=sink2';
+import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=sink2';
+import './hud-layout94.js?v=sink2';
+import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=sink2';
+import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=sink2';
+import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=sink2';
+import {drawCoop} from './coop-view.js?v=sink2';
+import {drawSunStrike} from './sun-strike71.js?v=sink2';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=sink2';
+import {installFlightViewport} from './flight-viewport.js?v=sink2';
+import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174.js?v=sink2';
+import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?v=sink2';
+import {drawEnemyDanger} from './enemy-danger-view.js?v=sink2';
+import {drawGas} from './gas-view.js?v=sink2';
+import {drawWarAmbience} from './war-ambience.js?v=sink2';
+import {missionNavigation,drawMissionRadar} from './navigation.js?v=sink2';
+import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=sink2';
+import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=sink2';
+import {drawCampaign} from './campaign-view.js?v=sink2';
+import {campaignArtReady} from './aircraft.js?v=sink2';
+import {drawGameIcon,drawSpecialAmmoIcon,iconsReady} from './icons.js?v=sink2';
+import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?v=sink2';
+import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=sink2';
+import {attachCombatFeedback,combatVisualPose,drawCombatFeedback,combatCameraOffset,combatFlightSound} from './combat-feedback.js?v=sink2';
+import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=sink2';
+import {drawHeadOnFeedback} from './engagement-feedback.js?v=sink2';
+import {drawTailEngagement} from './engagement-hud410.js?v=sink2';
+import {portraitSources,portraitsReady} from './portraits.js?v=sink2&b=bust1';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=sink2';
+import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=sink2';
+import {drawEquipment} from './equipment.js?v=sink2';
+import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=sink2';
+import{planeSprite,aircraftReady,aircraftKey,hangarArtReady}from './aircraft.js?v=sink2';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=sink2';
+import {AUGMENTATION_OVERHAUL_BALANCE}from'./augmentation-overhaul150.js?v=sink2';
+import {drawCloudCover}from'./cloud-cover1.js?v=sink2';
+import {drawFleetLayer}from'./fleet-naval1.js?v=sink2';
+import {drawTrenchLayer}from'./trench-war1.js?v=sink2';
+import {drawCityAirLayer}from'./city-air1.js?v=sink2';
+import {TerrainRenderer,MountainField,applyTerrainAtmosphere,preloadTerrainProfile,terrainProfilesReady} from './alps-terrain117.js?v=sink2';
+import {FXS,fxsTracer,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=sink2';
+import {drawPassiveFx,drawPassiveFxFront} from './passive-fx.js?v=sink2';
+
 const flightViewport=installFlightViewport(document,window);
 const ententeAirshipSprite=new Image();ententeAirshipSprite.src='./zeppelin-entente.webp?v=485&b=326';
 const zeppelinSprite=new Image();zeppelinSprite.src='./zeppelin.webp?v=485&b=326';const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=485&b=326';
@@ -1001,6 +1003,22 @@ modal=(tag,title,text,buttons)=>{
  $('modal').classList.toggle('special-draft156',buttons.some(b=>b.rarity==='legendary'));
  if(buttons.some(b=>b.rarity==='legendary'))$('modalText').textContent=t('special.prompt');
 };
+function closeBuildPop151(){document.querySelector('#build151 .build-pop151')?.remove();for(const t of document.querySelectorAll('#build151 .build-tile151[aria-expanded="true"]'))t.setAttribute('aria-expanded','false')}
+function openBuildPop151(tile,{name,rarity,count,category,stats,desc,en}){
+ const area=document.getElementById('build151');if(!area)return;const el=(tag,text,cls)=>{const e=document.createElement(tag);e.textContent=text;if(cls)e.className=cls;return e};
+ const pop=el('div','','build-pop151 rarity-'+rarity);pop.setAttribute('role','dialog');pop.setAttribute('aria-label',name);pop.onclick=e=>e.stopPropagation();
+ const head=el('div','','build-pop-head151');head.append(el('small',category+' · '+rarityName(rarity),'build-pop-kind151'));if(count>1)head.append(el('small',(en?'Stacks ×':'중첩 ×')+count,'build-pop-count151'));
+ pop.append(head,el('strong',name));
+ if(stats.length){const list=el('dl','','build-pop-stats151');list.append(el('dt',en?'Build total':'누적 효과','build-pop-cap151'));for(const s of stats){const row=el('div','');row.append(el('dt',s.name),el('dd',s.value));list.append(row)}pop.append(list)}
+ if(desc)pop.append(el('p',desc));
+ area.append(pop);tile.setAttribute('aria-expanded','true');
+ // Anchor under the tile (above it when the tile sits low in view), clamped to the build column.
+ const a=area.getBoundingClientRect(),r=tile.getBoundingClientRect(),w=pop.offsetWidth,h=pop.offsetHeight,card=area.closest('.modal-card')?.getBoundingClientRect(),acts=document.getElementById('modalActions')?.getBoundingClientRect();
+ const floor=Math.min(window.innerHeight,card?.bottom??Infinity,acts&&acts.top>r.bottom?acts.top:Infinity)-8,ceil=Math.max(0,card?.top??0)+8;
+ const left=Math.max(0,Math.min(a.width-w,r.left-a.left+r.width/2-w/2)),below=r.bottom+8+h<=floor||r.top-8-h<ceil&&floor-r.bottom>=r.top-ceil;
+ pop.style.left=left+'px';pop.style.top=(below?r.bottom-a.top+8:r.top-a.top-8-h)+'px';pop.style.setProperty('--tip',(r.left-a.left+r.width/2-left)+'px');pop.classList.toggle('above151',!below);
+}
+document.addEventListener('click',e=>{if(!e.target.closest?.('.build-pop151,.build-tile151'))closeBuildPop151()},true);
 function showBuildPause151(){
  modal('PAUSED','현재 빌드','ESC · 계속하기',[{label:'계속하기',run:resume},{label:'설정',run:showSettings151},{label:'전투 종료',run:returnHangar}]);$('modal').classList.remove('settings-modal151','manual-modal151');$('modal').classList.add('build-modal151');
  document.getElementById('build151')?.remove();
@@ -1015,8 +1033,17 @@ function showBuildPause151(){
   const toggle=e=>{e.stopPropagation();const open=!item.classList.contains('ho-tip');for(const i of abs.querySelectorAll('.astra-ability')){i.classList.remove('ho-tip');i.setAttribute('aria-expanded','false')}item.classList.toggle('ho-tip',open);item.setAttribute('aria-expanded',String(open));if(open)fill()};
   item.onclick=toggle;item.onkeydown=e=>{if(e.code==='Enter'||e.code==='Space'){e.preventDefault();toggle(e)}};abs.append(item)}
  section.append(abs);
- const grid=el('div','','build-stats151'),groups=new Map();for(const [key,[category,label,value]] of Object.entries(buildStats(p))){if(value==='+0%'||value==='+0 HP'||value==='미장착'||value==='0발')continue;let group=groups.get(category);if(!group){group=el('div','');group.append(el('b',category));groups.set(category,group);grid.append(group)}group.append(el('span',label+' '+value))}if(!grid.children.length)grid.append(el('span','기본 기체 능력치 적용 중'));section.append(grid);
- for(const [heading,test]of [['획득 강화',u=>!u.legendary&&!u.uniqueOnly],['고유 강화',u=>u.uniqueOnly],['SPECIAL EQUIPMENT',u=>u.legendary]]){const held=UPGRADES.filter(u=>p.upgrades[u.id]&&test(u));section.append(el('h4',heading));const chips=el('div','','build-chips151');if(!held.length)chips.append(el('span','없음','empty151'));for(const u of held)chips.append(el('span',reinforcementName(u,p,PLANES),'build-chip151 rarity-'+(u.legendary?'legendary':u.uniqueOnly?'unique':p.upgradeRarities?.[u.id]||'normal')));section.append(chips)}area.append(section);
+ // Upgrades and special equipment as an even icon grid; a tap opens what each one adds up to so far.
+ const en=getLocale()==='en';
+ for(const [heading,test]of [['획득 강화',u=>!u.legendary&&!u.uniqueOnly],['고유 강화',u=>u.uniqueOnly],['SPECIAL EQUIPMENT',u=>u.legendary]]){const held=UPGRADES.filter(u=>p.upgrades[u.id]&&test(u));section.append(el('h4',heading));const tiles=el('div','','build-icons151');if(!held.length)tiles.append(el('span','없음','empty151'));
+  for(const u of held){const rarity=u.legendary?'legendary':u.uniqueOnly?'unique':p.upgradeRarities?.[u.id]||'normal',count=p.upgrades[u.id]||1,name=reinforcementName(u,p,PLANES);
+   const tile=el('button','','build-tile151 rarity-'+rarity);tile.type='button';tile.dataset.upgradeId=u.id;tile.setAttribute('aria-label',name+(count>1?' ×'+count:''));tile.setAttribute('aria-expanded','false');
+   const icon=document.createElement('canvas');icon.width=112;icon.height=88;icon.setAttribute('aria-hidden','true');choiceIconRefs.push({canvas:icon,id:u.id,owner:p});drawUpgradeIcon(icon,u.id,p);tile.append(icon);
+   if(count>1)tile.append(el('b','×'+count,'build-count151'));
+   tile.onclick=e=>{e.stopPropagation();const open=tile.getAttribute('aria-expanded')!=='true';closeBuildPop151();if(open)openBuildPop151(tile,{name,rarity,count,category:categoryName(u.id),stats:heldStats(p,u.id),desc:translatedUpgradeDescription(u.id,cleanDescription(u.desc)),en})};
+   tiles.append(tile)}
+  section.append(tiles)}
+ area.append(section);
  }$('modalText').after(area);
 }
 function syncStartHint(){const k=document.querySelectorAll('.start-hint kbd');if(k[1])k[1].textContent=keyLabel(KEYBINDS.evade);if(k[2])k[2].textContent=keyLabel(KEYBINDS.skill)}
@@ -1026,7 +1053,7 @@ function showSettings151(){modal('SETTINGS',t('settings.title'),t('settings.paus
 function showSettingsSound151(){modal('SETTINGS',t('settings.sound'),t('settings.paused'),[{label:muted?t('settings.allOff'):t('settings.allOn'),run:()=>{$('sound').click();showSettingsSound151()}},{label:(muted||sfxOff)?t('settings.sfxOff'):t('settings.sfxOn'),run:()=>{sfxOff=!sfxOff;applyAudioPrefs();showSettingsSound151()}},{label:(muted||bgmOff)?t('settings.bgmOff'):t('settings.bgmOn'),run:()=>{bgmOff=!bgmOff;applyAudioPrefs();showSettingsSound151()}},{label:t('settings.backSettings'),run:showSettings151}]);$('modal').classList.remove('build-modal151');$('modal').classList.add('settings-modal151')}
 function showSettingsDisplay151(){modal('SETTINGS',t('settings.display'),t('settings.paused'),[{label:hiFpsMode?t('settings.hiFpsOn'):t('settings.hiFpsOff'),run:()=>{hiFpsMode=!hiFpsMode;try{localStorage.setItem('headon.hiFps',hiFpsMode?'1':'0')}catch(_){}showSettingsDisplay151()}},{label:batterySaver?t('settings.saverOn'):t('settings.saverOff'),run:()=>{batterySaver=!batterySaver;try{localStorage.setItem('headon.saver',batterySaver?'1':'0')}catch(_){}showSettingsDisplay151()}},{label:t('settings.fullscreen'),run:()=>{flightViewport.fullscreen();showSettingsDisplay151()}},{label:t('settings.scale')+Math.round(userZoom*100)+'%',run:()=>{cycleZoom();showSettingsDisplay151()}},{label:t('settings.backSettings'),run:showSettings151}]);$('modal').classList.remove('build-modal151');$('modal').classList.add('settings-modal151')}
 
-if(import.meta.env?.DEV&&new URLSearchParams(location.search).has('reinforcementqa'))import('../tests/reinforcement-browser151.js?v=485').then(({installReinforcementQA})=>installReinforcementQA({getGame:()=>game,reset:(team,mode)=>{if(game)returnHangar();faction=team;pilot=team==='central'?'baron':'fonck';coopPilot2=pilot;selectedMode=mode;plane=pilotPlane(pilot);start()},pause:showBuildPause151,refresh:()=>{if(game.mode==='coop2'){coopEvents();coopHud()}else{events();hud()}updateStageBossHud(game)},pick:(items)=>{game.state='upgrade';choices=items;modal('QA · LIVE CHOICES','강화 선택','',items.map(pick=>{const u=UPGRADES.find(u=>u.id===pick.id);return{upgradeId:u.id,rarity:pick.rarity,label:u.name,desc:upgradeDescription(u.id,pick.rarity,game),run:()=>choose(u.id,pick.rarity)}}))}}));
+if(import.meta.env?.DEV&&new URLSearchParams(location.search).has('reinforcementqa'))import('../tests/reinforcement-browser151.js?v=sink2').then(({installReinforcementQA})=>installReinforcementQA({getGame:()=>game,reset:(team,mode)=>{if(game)returnHangar();faction=team;pilot=team==='central'?'baron':'fonck';coopPilot2=pilot;selectedMode=mode;plane=pilotPlane(pilot);start()},pause:showBuildPause151,refresh:()=>{if(game.mode==='coop2'){coopEvents();coopHud()}else{events();hud()}updateStageBossHud(game)},pick:(items)=>{game.state='upgrade';choices=items;modal('QA · LIVE CHOICES','강화 선택','',items.map(pick=>{const u=UPGRADES.find(u=>u.id===pick.id);return{upgradeId:u.id,rarity:pick.rarity,label:u.name,desc:upgradeDescription(u.id,pick.rarity,game),run:()=>choose(u.id,pick.rarity)}}))}}));
 
 // Revision 160 — portable elite-enemy module, rendered as a distinct combat layer.
 const drawBeforeElite160=draw;

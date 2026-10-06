@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {Game} from '../engine.js?v=493';
+import {Game} from '../engine.js?v=sink2';
+
 import {ensureParisBattle,handleParisCue,tickParisBattle,parisStatus} from '../paris-night-battle.js';
 import {BossStages} from '../headon-stageboss-runtime.js';
 import {createBossEncounter} from '../headon-stageboss-patterns.js';
