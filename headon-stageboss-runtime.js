@@ -3,22 +3,24 @@ import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patter
 import {verdunFortCollapseSites} from './verdun-fortresses.js?v=485';
 import {BossHazards} from './headon-stageboss-hazards.js?v=485';
 
-// First playthrough runs the authored narrative order; later loops shuffle the
-// early and late battlefields within their halves so the big set pieces stay
-// spread out and the previous finale never repeats immediately.
-const FIRST_ORDER=[0,2,1,9,4,5,8,7,3,10,6,12,11,14,13,16,15];
-const LATE_ORDER_START=9;
-function shuffledOrder(rng,previous){
-  const early=FIRST_ORDER.slice(0,LATE_ORDER_START),late=FIRST_ORDER.slice(LATE_ORDER_START);
-  const mix=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-  const order=[...mix(early),...mix(late)];
-  if(order[0]===previous)[order[0],order[1]]=[order[1],order[0]];
-  return order;
+// Every sortie starts in the rural battlefield, then keeps difficulty
+// progression while shuffling maps inside early/mid/late bands.
+export const STAGE_ROUTE_POOLS=Object.freeze({
+  opening:0,
+  early:Object.freeze([2,1,4]),
+  mid:Object.freeze([9,8,3,10,7,5,6]),
+  late:Object.freeze([11,12,13,14,16,15])
+});
+const mix=(values,rng)=>{const a=[...values];for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+export function buildStageRoute(rng=Math.random){
+  return [STAGE_ROUTE_POOLS.opening,...mix(STAGE_ROUTE_POOLS.early,rng),...mix(STAGE_ROUTE_POOLS.mid,rng),...mix(STAGE_ROUTE_POOLS.late,rng)];
 }
 export class BossStages {
-  constructor({teamFaction,stageIndex=0,loopIndex=0,rng=Math.random}) {
-    if(!['central','entente'].includes(teamFaction)||!Number.isInteger(stageIndex)||stageIndex<0||stageIndex>=STAGES.length||!Number.isInteger(loopIndex)||loopIndex<0)throw new Error('Invalid current stage/faction');
-    Object.assign(this,{teamFaction,stageIndex,loopIndex,rng});this.order=loopIndex===0?[...FIRST_ORDER]:shuffledOrder(rng,stageIndex);this.orderPosition=this.order.indexOf(stageIndex);this.phase='explore';this.encounter=null;
+  constructor({teamFaction,stageIndex=null,loopIndex=0,rng=Math.random}) {
+    const explicitStage=stageIndex!==null&&stageIndex!==undefined;
+    if(!['central','entente'].includes(teamFaction)||(explicitStage&&(!Number.isInteger(stageIndex)||stageIndex<0||stageIndex>=STAGES.length))||!Number.isInteger(loopIndex)||loopIndex<0)throw new Error('Invalid current stage/faction');
+    const order=buildStageRoute(rng);const initialStage=explicitStage?stageIndex:order[0];
+    Object.assign(this,{teamFaction,stageIndex:initialStage,loopIndex,rng,order});this.orderPosition=this.order.indexOf(this.stageIndex);this.phase='explore';this.encounter=null;
   }
   get stage(){return STAGES[this.stageIndex];}
   get bossId(){return Object.keys(BOSS_CATALOG).find(id=>BOSS_CATALOG[id].stage===this.stageIndex&&(BOSS_CATALOG[id].faction==='neutral'||BOSS_CATALOG[id].faction!==this.teamFaction));}
@@ -31,7 +33,7 @@ export class BossStages {
   advance(blocked=false) {
     if(blocked||this.phase!=='clear-pending'||!this.encounter.completed)return null;
     const id=this.encounter.id;const pos=this.order.indexOf(this.stageIndex);this.orderPosition=pos<0?this.order.length:pos+1;
-    if(this.orderPosition>=this.order.length){this.loopIndex++;this.orderPosition=0;this.order=shuffledOrder(this.rng,this.stageIndex);}
+    if(this.orderPosition>=this.order.length){this.loopIndex++;this.orderPosition=0;this.order=buildStageRoute(this.rng);}
     this.stageIndex=this.order[this.orderPosition];
     this.phase='explore';this.encounter=null;
     return{completedId:id,stage:this.stage,stageIndex:this.stageIndex,loopIndex:this.loopIndex};
@@ -44,7 +46,7 @@ export function normalSpawnInterval(currentInterval,{bossPresent,factor=.55,alre
 }
 
 export class StageBossAddon {
-  constructor({runId,teamFaction,stageIndex=0,loopIndex=0,hooks,rng=Math.random,capacity=512,minionCap=12}) {
+  constructor({runId,teamFaction,stageIndex=null,loopIndex=0,hooks,rng=Math.random,capacity=512,minionCap=12}) {
     for(const key of ['getTuning','onDamage','onStatus','onBarrierContact','spawnMinion','countMinions','onBuildingImpact','onCue','onEncounterCleared','onStageChange','clearEncounterOwned']) {
       if(typeof hooks?.[key]!=='function')throw new Error('Required host adapter: '+key);
     }

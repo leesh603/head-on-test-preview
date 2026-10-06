@@ -10,7 +10,7 @@ import {bossTactic} from '../boss-feedback.js';
 const game=()=>({x:0,y:0,t:0,state:'playing',kills:0,viewWidth:960,viewHeight:700,events:[],combatBlast(){},event(type,text){this.events.push({type,text})},stageBoss:{stages:{stageIndex:15,teamFaction:'entente',encounter:{completed:false,bodies:new Map()}}}});
 test('Paris keeps faction-specific independent boss IDs and appended route',()=>{
  for(const [team,id] of [['central','paris-searchlight-fortress'],['entente','paris-staaken-rvi']]){
-  const stages=new BossStages({teamFaction:team,stageIndex:15});assert.equal(stages.bossId,id);assert.equal(stages.stage,'paris-night');assert.equal(stages.order.at(-1),15);
+  const stages=new BossStages({teamFaction:team,stageIndex:15});assert.equal(stages.bossId,id);assert.equal(stages.stage,'paris-night');assert(stages.order.includes(15));
  }
 });
 test('City warning abort cancels only the unlaunched run, never already dropped bombs',()=>{
