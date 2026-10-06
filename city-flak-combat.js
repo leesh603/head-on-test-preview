@@ -77,7 +77,7 @@ export class FlakTowerNet extends BaseBoss{
   this.stateAge+=dt;if(this.stateAge<.6)return;
   if(!this.encounter)throw new Error('City tower network needs an encounter');
   const w=this.t.regionalViewWidth||960,h=this.t.regionalViewHeight||700,s=Math.max(.32,Math.min(1,(w-48)/840,(h-100)/820));
-  const mx=Math.max(40,w/2-190*s-30),my=Math.max(40,h/2-190*s-30);
+  const mx=Math.max(w*.40,w/2-190*s-30),my=Math.max(h*.32,h/2-190*s-30);
   const children=[[-mx,-my],[mx,-my],[-mx,my],[mx,my]].map(([x,y],index)=>new CityFlakCell({id:this.id+'-t'+index,index,x:this.x+x,y:this.y+y,faction:this.faction,emit:this.emit,tuning:{...this.t,maxHp:this.hp/4,cityScale:s}}));
   this.encounter.replaceBody(this.id,children);this.emit({type:'phase-change',bossId:this.id,phase:'city-network-deployed',faction:this.faction});
  }
