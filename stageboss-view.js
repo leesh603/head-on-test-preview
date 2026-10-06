@@ -3,7 +3,7 @@ import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide}
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=485';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide} from './gallipoli-view.js?v=485';
 import {verdunFortExtents} from './verdun-fortresses.js?v=485';
-import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=485';
+import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=493';
 import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=485';
 import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=485';
 import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=485';
@@ -23,7 +23,7 @@ import {renderStageBossLayer} from './headon-stageboss-render.js?v=485';
 import {bossHudModel} from './headon-stageboss-hud.js?v=493';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=485';
 import {planeSprite} from './aircraft.js?v=488';
-import {getLocale} from './i18n.js?v=485';
+import {getLocale} from './i18n.js?v=493';
 import {londonStatus} from './london-battle.js?v=485';
 import {parisStatus} from './paris-night-battle.js?v=485';
 import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=485';
