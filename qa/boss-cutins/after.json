@@ -1,0 +1,535 @@
+{
+  "areaBossCount": 31,
+  "redrawnCount": 11,
+  "acePortraitCount": 32,
+  "images": [
+    {
+      "id": "paris-gun",
+      "name": "브루노 열차포",
+      "stage": 0,
+      "file": "boss-art-paris-gun.webp",
+      "redrawn": false,
+      "size": [
+        499,
+        768
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 100750
+    },
+    {
+      "id": "lincomparable",
+      "name": "520mm 열차포 · 랑콩파라블",
+      "stage": 0,
+      "file": "boss-art-lincomparable.webp",
+      "redrawn": false,
+      "size": [
+        505,
+        768
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 109336
+    },
+    {
+      "id": "sms-stuttgart",
+      "name": "수상기 모함 · SMS 슈투트가르트",
+      "stage": 1,
+      "file": "boss-art-sms-stuttgart.webp",
+      "redrawn": false,
+      "size": [
+        768,
+        517
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 118024
+    },
+    {
+      "id": "hms-zubian",
+      "name": "분열 구축함 · HMS 쥬비안",
+      "stage": 1,
+      "file": "boss-art-hms-zubian.webp",
+      "redrawn": false,
+      "size": [
+        502,
+        768
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 104796
+    },
+    {
+      "id": "a7v-flak",
+      "name": "A7V 플라크판처",
+      "stage": 2,
+      "file": "boss-art-a7v-flak.webp",
+      "redrawn": false,
+      "size": [
+        513,
+        768
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 116250
+    },
+    {
+      "id": "mark-v-cruiser",
+      "name": "대공 육상 전함 · 마크 V 크루이저",
+      "stage": 2,
+      "file": "boss-art-mark-v-cruiser.webp",
+      "redrawn": false,
+      "size": [
+        768,
+        512
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 116042
+    },
+    {
+      "id": "livens-flame-projector",
+      "name": "리벤스 대형 화염방사기",
+      "stage": 3,
+      "file": "boss-art-livens-flame-projector.webp",
+      "redrawn": false,
+      "size": [
+        768,
+        596
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 114582
+    },
+    {
+      "id": "minenwerfer-battery",
+      "name": "미넨베르퍼 교차 포격 진지",
+      "stage": 3,
+      "file": "boss-art-minenwerfer-battery.webp",
+      "redrawn": false,
+      "size": [
+        768,
+        577
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 142112
+    },
+    {
+      "id": "drachen-net",
+      "name": "드라헨 공중 기뢰 방어망",
+      "stage": 4,
+      "file": "boss-art-drachen-net.webp",
+      "redrawn": false,
+      "size": [
+        768,
+        597
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 182904
+    },
+    {
+      "id": "london-apron-raid",
+      "name": "런던 에이프런 방공망",
+      "stage": 11,
+      "file": "boss-art-london-apron.webp",
+      "redrawn": false,
+      "size": [
+        768,
+        516
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 154348
+    },
+    {
+      "id": "flak-tower",
+      "name": "QF 13파운드 방공탑",
+      "stage": 4,
+      "file": "boss-art-flak-tower.webp",
+      "redrawn": false,
+      "size": [
+        640,
+        665
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 92420
+    },
+    {
+      "id": "zeppelin-l70",
+      "name": "슈퍼 체펠린 L 70",
+      "stage": 5,
+      "file": "boss-art-zeppelin-l70.webp",
+      "redrawn": false,
+      "size": [
+        768,
+        515
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 86256
+    },
+    {
+      "id": "hma23",
+      "name": "공중 항모 · HMA 23급",
+      "stage": 5,
+      "file": "boss-art-hma23.webp",
+      "redrawn": false,
+      "size": [
+        768,
+        254
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 3,
+      "bytes": 58950
+    },
+    {
+      "id": "gik",
+      "name": "한자-브란덴부르크 G.IK",
+      "stage": 6,
+      "file": "boss-art-gik.webp",
+      "redrawn": false,
+      "size": [
+        768,
+        512
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 123554
+    },
+    {
+      "id": "ca4",
+      "name": "카프로니 Ca.4",
+      "stage": 6,
+      "file": "boss-art-ca4.webp",
+      "redrawn": false,
+      "size": [
+        768,
+        512
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 146574
+    },
+    {
+      "id": "armored-harbor-fortress",
+      "name": "장갑 크레인 항구요새",
+      "stage": 7,
+      "file": "boss-art-armored-harbor-fortress.webp",
+      "redrawn": false,
+      "size": [
+        768,
+        756
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 216964
+    },
+    {
+      "id": "fliegerzug",
+      "name": "무인폭탄기 모함열차 · 플리거주크",
+      "stage": 8,
+      "file": "boss-art-fliegerzug.webp",
+      "redrawn": false,
+      "size": [
+        1024,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 6,
+      "bytes": 138178
+    },
+    {
+      "id": "treffas-wagen",
+      "name": "대공개조형 트레파스바겐 · 거륜 육상전함",
+      "stage": 8,
+      "file": "boss-art-treffas.webp",
+      "redrawn": false,
+      "size": [
+        1024,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 275340
+    },
+    {
+      "id": "jasta11-circus",
+      "name": "야스타 11 플라잉 서커스",
+      "stage": 9,
+      "file": "portrait-baron.webp",
+      "redrawn": false,
+      "size": [
+        1254,
+        1254
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 443340
+    },
+    {
+      "id": "naval10-black-flight",
+      "name": "네이벌 10 — 블랙 플라이트",
+      "stage": 9,
+      "file": "portrait-collishaw.webp",
+      "redrawn": false,
+      "size": [
+        1254,
+        1254
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 454678
+    },
+    {
+      "id": "mark4-wedge",
+      "name": "마크 I 최초 랜드십 돌파대",
+      "stage": 10,
+      "file": "./cutin-mark1-landships.webp",
+      "redrawn": true,
+      "size": [
+        1529,
+        787
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 1248342
+    },
+    {
+      "id": "morser-battery",
+      "name": "슈바벤 보루 · 지하 방어요새",
+      "stage": 10,
+      "file": "./cutin-schwaben-fortress.webp",
+      "redrawn": true,
+      "size": [
+        1536,
+        850
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 1540954
+    },
+    {
+      "id": "gotha-squadron",
+      "name": "고타 야간 폭격전대",
+      "stage": 11,
+      "file": "./cutin-gotha-squadron.webp",
+      "redrawn": true,
+      "size": [
+        1536,
+        952
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 1327652
+    },
+    {
+      "id": "fort-douaumont",
+      "name": "두오몽 요새 · Fort Douaumont",
+      "stage": 12,
+      "file": "./cutin-douaumont.webp",
+      "redrawn": true,
+      "size": [
+        1536,
+        977
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 2006180
+    },
+    {
+      "id": "fort-souville",
+      "name": "수빌 요새 · Fort de Souville",
+      "stage": 12,
+      "file": "./cutin-souville.webp",
+      "redrawn": true,
+      "size": [
+        1536,
+        989
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 2066070
+    },
+    {
+      "id": "wustenpanzer",
+      "name": "사막 육상순양함 · Wüstenpanzer",
+      "stage": 13,
+      "file": "./cutin-wustenpanzer.webp",
+      "redrawn": true,
+      "size": [
+        1536,
+        1023
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 1731836
+    },
+    {
+      "id": "jutland-grand-fleet",
+      "name": "유틀란트 전투전대 · 북해 함대전",
+      "stage": 16,
+      "file": "./cutin-jutland-fleet.webp",
+      "redrawn": true,
+      "size": [
+        1537,
+        1056
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 1399718
+    },
+    {
+      "id": "gallipoli-fortress",
+      "name": "갈리폴리 대요새 · 다르다넬스 점령전",
+      "stage": 14,
+      "file": "./cutin-gallipoli.webp",
+      "redrawn": true,
+      "size": [
+        1529,
+        1003
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 1449480
+    },
+    {
+      "id": "paris-staaken-rvi",
+      "name": "Zeppelin-Staaken R.VI · 파리 폭격",
+      "stage": 15,
+      "file": "./cutin-paris-staaken.webp",
+      "redrawn": true,
+      "size": [
+        1536,
+        1019
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 1356132
+    },
+    {
+      "id": "paris-searchlight-fortress",
+      "name": "파리 탐조등 방공요새",
+      "stage": 15,
+      "file": "./cutin-paris-fortress.webp",
+      "redrawn": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 1905480
+    },
+    {
+      "id": "sinai-landship",
+      "name": "시나이 육상함 · Sinai Landship",
+      "stage": 13,
+      "file": "./cutin-sinai-landship.webp",
+      "redrawn": true,
+      "size": [
+        1485,
+        973
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "opaqueEdgePixels": 0,
+      "bytes": 1559672
+    }
+  ],
+  "verification": "Local file/alpha audit and CSS-sized composition; not browser/device gameplay"
+}
