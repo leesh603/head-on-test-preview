@@ -23,6 +23,11 @@ export function buildStats(p){
  };
 }
 const fields={damage:['damage'],rate:['rate'],rockets:['rockets','explosives'],mines:['mines','explosives'],explosives:['explosives'],command:['command','commandRate'],turn:['speed','turn'],armor:['armor'],regen:['regen'],cooldown:['cooldown']};
+// Pause-screen popup: which totals of the current build each held upgrade feeds into.
+const HELD={...fields,fighterSupply:['command','commandRate'],goeringBaton:['command'],mercedesEngine:['speed'],combinedProjectiles:['rockets','mines'],amatolCharge:['explosives'],redScarf:['speed'],prancingHorse:['speed'],ironCross:['cooldown'],flightGloves:['rate','reload'],loEmblem:['damage','armor','speed','turn'],steelPlate:['speed','turn'],maximBelt:['belt','reload'],cow37:['belt','reload']};
+const idle=new Set(['+0%','+0 HP','미장착','Not equipped','0발','0 rounds']);
+const HELD_LABEL={damage:['기관총 피해','MG Damage'],rate:['기관총 연사','MG Fire Rate'],belt:['탄띠','Belt'],reload:['재장전','Reload'],explosives:['폭발물 피해','Explosive Damage'],command:['편대 피해','Formation Damage'],commandRate:['편대 연사','Formation Fire Rate'],speed:['이동 속도','Speed'],turn:['선회력','Turn'],armor:['최대 내구도','Max Durability'],regen:['초당 회복','Repair / sec'],cooldown:['액티브 재사용 대기','Active Cooldown'],rockets:['로켓 동시 발사','Rocket Salvo'],mines:['수류탄 투척 주기','Grenade Cycle']};
+export function heldStats(p,id){const s=buildStats(p),en=getLocale()==='en';return (HELD[id]||[]).filter(k=>s[k]&&!idle.has(s[k][2])).map(k=>({key:k,name:HELD_LABEL[k]?.[en?1:0]||s[k][1],value:s[k][2]}))}
 export function cumulativeText(p,id,rarity){
  if(!fields[id])return '';
  const copy=Object.assign(Object.create(Object.getPrototypeOf(p)),p,{state:'upgrade',upgrades:{...p.upgrades},upgradeRarities:{...p.upgradeRarities},weapon:{...p.weapon},ammo:[...p.ammo],events:[],checkLevel(){}});
