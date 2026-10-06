@@ -1001,7 +1001,7 @@ body.astra-ui:not(.playing) #hangar .factions #entente.active:after{background:l
    ever overlapping the tray. */
 @media(min-width:721px){
  body.astra-ui:not(.playing) #hangar .astra-aircraft{overflow:hidden}
- body.astra-ui:not(.playing) #hangar .astra-aircraft .selected-aircraft{flex:1 1 0!important;min-height:0!important;grid-template-rows:auto minmax(48px,1fr) minmax(0,auto)!important;padding-bottom:10px!important}
+ body.astra-ui:not(.playing) #hangar .astra-aircraft .selected-aircraft{flex:1 1 0!important;min-height:0!important;padding-bottom:10px!important}
  body.astra-ui:not(.playing) #hangar .astra-aircraft .astra-aircraft-data{min-height:0!important;max-height:100%!important;align-self:stretch!important;overflow-y:auto!important;scrollbar-width:thin;scrollbar-color:#e8e2d434 transparent}
 }
 @media(min-width:721px) and (min-height:821px) and (max-height:960px){
