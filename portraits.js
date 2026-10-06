@@ -23,5 +23,10 @@ function clearNavyMatte(data,w,h){
 // The four aces once cut from new-aces-portraits124.webp now ship as cleaned
 // portrait-*-field.webp files (assigned above); the navy-matte atlas pass is
 // retired so it can no longer overwrite them with half-cleared cells.
-const newAcePortraitsReady=Promise.resolve(true);
+// The gate waits on them too — a warm that never resolves leaves those aces
+// popping in after the hangar opens.
+const newAcePortraitsReady=Promise.all(fieldPortraitWarm.map(img=>new Promise(resolve=>{
+ if(img.complete&&img.naturalWidth)return resolve(true);
+ img.onload=()=>resolve(true);img.onerror=()=>resolve(false);
+})));
 export const portraitsReady=Promise.all([...legacyPortraits,newAcePortraitsReady]);

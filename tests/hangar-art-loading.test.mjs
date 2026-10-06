@@ -46,12 +46,13 @@ test('missing root art falls back once, and missing clean art settles without a 
  assert.equal(requests.length,2);assert.ok(requests[1].startsWith('./mech/'));
  assert.equal(await api.hangarArt('fokker_jacobs'),'');assert.equal(requests.length,3);
 });
-test('hangar waits for prepared display art while sortie retains its aircraft gate',async()=>{
+test('hangar waits for every plane and portrait while sortie retains its aircraft gate',async()=>{
  const app=await readFile(new URL('app.js',root),'utf8');
  assert.match(app,/hangarCardsReady=.*\.map\(hangarArt\)/);
  const hangar=app.match(/const hangarReady=([^;]+);/)[1];
- // The pilot on screen gates the reveal; every other hangar card keeps loading right behind it.
- assert.ok(hangar.includes('hangarArt(shownKey)'));assert.ok(!hangar.includes('aircraftReady'));
+ // The hangar stays hidden until every plane is present: painted sprites on the canvases
+ // (aircraftReady) plus the decoded display cards, not just the pilot on screen.
+ assert.ok(hangar.includes('hangarArt(shownKey)'));assert.ok(hangar.includes('aircraftReady'));
  assert.match(app,/bootGate\?\.setRank\?\.\(u=>shownUrls\.has\(u\)\|\|HANGAR_UI\.test\(u\)\?0:near\.has\(u\)\?1/);assert.match(app,/function sortie\(\)\{window\.HEADON_GATE\?\.releaseAll\(\)/);
  assert.match(app,/const battleReady=.*aircraftReady/);
  assert.match(app,/function sortie\(\).*battleReady\.then\(go,go\)/);
