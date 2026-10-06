@@ -123,7 +123,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
     }else{texture(c,'spark',19,0,24,13,0,.65);texture(c,'fireSmall',-24,4,17,10,Math.PI,.5)}
     break;
    }
-   case 'halfLoop':for(const side of [-1,1])texture(c,'vaporTrail',-34,side*14,58,12,Math.PI,.2*(p.immelmannAltitude||0));break;
+   case 'halfLoop':texture(c,'vaporTrail',-28,0,40,7,Math.PI,.1*(p.immelmannAltitude||0));break;
    case 'sixDirections':crest(c,'vossCowling',q,.32,92);for(let i=0;i<6;i++){c.save();c.rotate(i*TAU/6);texture(c,'engineSmoke',35+q*85,0,31,18,0,.24);c.restore()}break;
    case 'redHunt':case 'huntConfirmation':texture(c,'sunshaft',-85,0,210,85,Math.PI,.15);break;
    case 'sightConverge':if(time<.13)muzzleAt(c,30,0,0,'muzzleHeavy',1.15);break;
@@ -270,7 +270,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
    for(let i=0;i<n;i++){const q=(t*(active?1.6:.9)+i/n)%1,a=q*TAU*1.25-t*2;texture(c,'smokeDark',-25-q*79,Math.sin(a)*(5+q*15)+turn*q*22,22+q*30,16+q*18,Math.PI+a*.12,(active?.28:.12)*(1-q))}
    if(active&&shot)flash(c,false,1.6);return;
   }
-  if(p.pilot==='immelmann'&&p.eagleTime>0&&shot&&!p.immelmannTurn){texture(c,'muzzleTwin',31,0,32,19,0,.82);texture(c,'gunSmoke',35,0,28,16,0,.18)}
+  if(p.pilot==='immelmann'&&p.eagleTime>0&&shot&&!p.immelmannTurn)texture(c,'muzzleTwin',30,0,18,10,0,.45);
   if(p.pilot==='mccudden'&&p.mccuddenRepairFlash>0){const fade=clamp(p.mccuddenRepairFlash/.4);texture(c,'armorSpark',-14,0,28,18,0,.7*fade);for(let i=0;i<3;i++)texture(c,'metalShard'+i,-18-(1-fade)*12,i*6-6,7,5,t+i,.55*fade)}
   if(p.pilot==='huffzky'){
    if(p.crossfireFlash>0){for(let i=0;i<4;i++){const rear=i>=2;muzzleAt(c,rear?-25:25,0,i*Math.PI/2,rear?'muzzleRear':'muzzleTwin',1.1);}}
@@ -290,7 +290,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
    case 'gunPlatform':if(shot){flash(c,false,1.5);texture(c,'smokePuff',41,0,38,24,0,.25)}break;
    case 'climb':if(age>.4&&age<2.5){texture(c,'vaporTrail',-48,0,95,28,Math.PI,.18);if(shot)flash(c,false,1.25)}break;
    case 'roll':if(p.evadeTime>0){c.save();c.rotate((p.evadeDirection||1)*age*4);texture(c,'vaporTrail',-37,18,70,16,Math.PI,.24);c.restore()}break;
-   case 'reversal':if(p.immelmannTurn)for(const side of [-1,1])texture(c,'vaporTrail',-39,side*12,67,12,Math.PI,.22*(p.immelmannAltitude||0));break;
+   case 'reversal':if(p.immelmannTurn)texture(c,'vaporTrail',-29,0,44,7,Math.PI,.1*(p.immelmannAltitude||0));break;
    case 'tightTurn':if(Math.abs(s.turnRate)>.35)smokeArc(c,35,1.5,4.8,t,.20,.75,9);break;
    case 'defiance':if(p.hitFlash>0)metal(c,0,5,.7);break;
    case 'bombRun':if(shot)flash(c,true,1.25);break;

@@ -8,17 +8,17 @@ import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './we
 import {fxsBoomTail} from './fx-sample-preview.js?v=485';
 import {fx,fxReady,fxTint} from './fx-art.js?v=485';
 import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=485';
-import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js';
+import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=dread-opaque-2';
 import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=485';
 import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=485';
-import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=485';
-import {drawStageBoss} from './stageboss-view.js?v=sink-waterline-1';
+import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=dread-opaque-2';
+import {drawStageBoss} from './stageboss-view.js?v=dread-opaque-2';
 import {planeSprite,aircraftKey} from './aircraft.js?v=485';
 import {drawEquipment} from './equipment.js?v=485';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=485';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=485';
 import {drawSpecialAmmoIcon} from './icons.js?v=485';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=sink-waterline-1';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=dread-opaque-2';
 import {drawCombatFeedback,combatCameraOffset,combatVisualPose} from './combat-feedback.js?v=485';
 
 // Every combat layer uses the same world transform; rendering never edits the session.
@@ -81,7 +81,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
   c.fillRect(particle.x-size/2,particle.y-size/2,size,size)}c.globalAlpha=1;
  for(const p of g.players){if(p.heineckeEscape>0){drawHeineckeParachute(c,p,p.heineckeAnchor.x,p.heineckeAnchor.y);continue}if(p.status!=='alive')continue;
   if(p.isRedHunter()&&p.skillTime>0){c.save();c.translate(p.x,p.y);c.rotate(p.a);if(fxReady('sunshaft')){for(let i=0;i<3;i++){const a=(i-1)*SUN_STRIKE.halfAngle*.72,L=SUN_STRIKE.range*.72;fxTint(c,'sunshaft','#f7e3b6',Math.cos(a)*L*.5-30,Math.sin(a)*L*.5,L,110+(i%2)*40,a,.18);}}else{c.fillStyle='#ffe8b330';c.beginPath();c.moveTo(0,0);c.arc(0,0,SUN_STRIKE.range,-SUN_STRIKE.halfAngle,SUN_STRIKE.halfAngle);c.closePath();c.fill();}c.restore()}
-  if(p.skillTime>0&&!['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker','wolff'].includes(p.pilot))ring(p.x,p.y,35+Math.sin(t*10)*4,'#ffe2a4',1);
+  if(p.skillTime>0&&!['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker','wolff','immelmann'].includes(p.pilot))ring(p.x,p.y,35+Math.sin(t*10)*4,'#ffe2a4',1);
   if(p.pilot==='berthold'&&(p.hp<=p.maxHp*.5||p.skillTime>0)){const act=p.skillTime>0,n=act?4:3,R=act?46:40,rot=t*(act?1.6:.9);c.lineCap='butt';for(let i=0;i<n;i++){const a0=rot+i*Math.PI*2/n,a1=a0+Math.PI*.38;c.globalAlpha=act?.85:.6;c.lineWidth=act?7:5;c.strokeStyle='#8fa8bd';c.beginPath();c.arc(p.x,p.y,R,a0,a1);c.stroke();c.lineWidth=act?3:2.2;c.strokeStyle='#dfeaf4';c.beginPath();c.arc(p.x,p.y,R,a0+.03,a1-.03);c.stroke()}c.globalAlpha=1}
   if(p.chargeTime>0||p.upgrades.redScarf){c.strokeStyle=p.chargeTime>0?'#ffe3a680':'#d6f6efa8';c.lineWidth=2;for(const off of [-24,24]){const x=p.x-Math.sin(p.a)*off,y=p.y+Math.cos(p.a)*off,len=p.chargeTime>0?150:70;c.beginPath();c.moveTo(x,y);c.lineTo(x-Math.cos(p.a)*len,y-Math.sin(p.a)*len);c.stroke()}
    if(p.chargeTime>0){const ox=Math.cos(p.a),oy=Math.sin(p.a),nx=-oy,ny=ox,fade=Math.min(1,p.chargeTime*4);c.lineCap='round';

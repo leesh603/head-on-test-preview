@@ -1,6 +1,6 @@
 import {drawEnemyProjectile} from './projectiles.js?v=485';
 import {HANGAR} from './stuttgart129.js?v=485';
-import {drawNavalWake} from './adriatic-boss-render.js?v=sink-waterline-1';
+import {drawNavalWake} from './adriatic-boss-render.js?v=dread-opaque-2';
 import {fx} from './fx-art.js?v=485';
 // Geometry masks remove the source canvas outside the drawn silhouette at render time.
 // Never color-key gray pixels: doing so also erases metal highlights inside the ship.

@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import './_globals-stub.mjs';
-import {PILOTS} from '../engine.js?v=sink-waterline-1';
+import {PILOTS} from '../engine.js?v=dread-opaque-2';
 import {BOSS_CATALOG,STAGES,createBossEncounter} from '../headon-stageboss-patterns.js';
 import {CAMPAIGN_DATA} from '../campaign-data.js';
 import {MUSIC_REGIONS,CAMPAIGN_MUSIC,musicContextForGame} from '../music-context.js';
 import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS} from '../music-score.js';
-import {BattleMusic,MUSIC_THEME_IDS} from '../music.js';
+import {BattleMusic,MUSIC_THEME_IDS} from '../music.js?v=dread-opaque-2';
 
 const game=()=>({state:'playing',t:20,x:0,y:0,enemies:[],worldRegion:()=>0});
 function capture(){
@@ -130,4 +130,24 @@ test('synth sources including ambience and delayed notes are stopped on pause/mu
  m.setState('idle',false);assert(sources.every(s=>s.stopped<=5.09));for(const s of sources)s.onended();assert.equal(m.voices.size,0);
  m.tone(50,8,2,.1);m.setState('rural',true);assert.equal(sources.at(-1).stopped,5);sources.at(-1).onended();
  m.tone(50,9,2,.1);m.reset();assert.equal(sources.at(-1).stopped,5);sources.at(-1).onended();assert.equal(m.voices.size,0);
+});
+
+test('stage bosses use low-register threat harmony independent of pastoral map melodies',()=>{
+ for(const bossId of Object.keys(BOSS_CATALOG)){
+  const render=theme=>{const {m,notes,advance}=capture();m.setScene({theme,state:'BOSS',bossId,intensity:.8,parts:1},false);advance(12);return notes;};
+  const notes=render('rural');assert.deepEqual(notes,render('sea'),bossId+' threat harmony follows the boss');
+  const tones=notes.filter(n=>n[0]==='tone');assert(tones.length>20,bossId);
+  assert(tones.every(n=>n[1]<=56),bossId+' no bright upper melody');
+  assert(tones.some(n=>n[1]>=34&&n[1]<=44&&n[4]>=.19),bossId+' audible low string pulse');
+ }
+});
+
+test('every ace introduction stays in the dark register and final boss tempo adds pressure',()=>{
+ for(const aceId of Object.keys(ACE_MOTIFS)){
+  const {m,notes,advance}=capture();m.setScene({theme:'sky',state:'ACE',aceId,ace:{hp:100},intensity:.8},false);advance(8);
+  assert(notes.filter(n=>n[0]==='tone').every(n=>n[1]<=56),aceId+' low introduction');
+ }
+ const normal=capture(),final=capture();
+ for(const [c,state] of [[normal,'BOSS'],[final,'BOSS_FINAL']]){c.m.setScene({theme:'rural',state,bossId:'sms-stuttgart',intensity:.8},false);c.advance(15);}
+ assert(final.m.tempo>normal.m.tempo+7);assert(final.notes.length>normal.notes.length);
 });

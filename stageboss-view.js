@@ -1,4 +1,4 @@
-import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=sink-waterline-1';
+import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=dread-opaque-2';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=485';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide} from './gallipoli-view.js?v=485';
 import {verdunFortExtents} from './verdun-fortresses.js?v=485';
@@ -7,8 +7,8 @@ import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,
 import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=485';
 import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=485';
 import {sommeExtents} from './somme-boss-layout.js?v=485';
-import {drawZubianShip} from './adriatic-boss-render.js?v=sink-waterline-1';
-import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=sink-waterline-1';
+import {drawZubianShip} from './adriatic-boss-render.js?v=dread-opaque-2';
+import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=dread-opaque-2';
 import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=485';
 import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=485';
 import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=485';
@@ -17,7 +17,7 @@ import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=485';
 import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=485';
 import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=485';
 import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=485';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=sink-waterline-1';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=dread-opaque-2';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=485';
 import {bossHudModel} from './headon-stageboss-hud.js?v=485';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=485';
