@@ -18,7 +18,7 @@ import {drawEquipment} from './equipment.js?v=sink2';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=sink2';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=sink2';
 import {drawSpecialAmmoIcon} from './icons.js?v=gate1';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=sink2';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=lufbery1';
 import {drawCombatFeedback,combatCameraOffset,combatVisualPose} from './combat-feedback.js?v=sink2';
 
 
