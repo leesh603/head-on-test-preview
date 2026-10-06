@@ -2,7 +2,7 @@ import {fleetGunStations} from './naval-faction-atlas.js?v=485';
 import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=dread-opaque-2';
 import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles} from './naval-spacing.js?v=485';
 import {drawShipWater,recordShipWake} from './naval-water.js?v=485';
-import {drawSinkingShip,prepareSinkingWater,FLEET_SINK_DURATION} from './ship-sinking.js?v=dread-opaque-3';
+import {drawSinkingShip,prepareSinkingWater,FLEET_SINK_DURATION} from './ship-sinking.js?v=dread-opaque-4';
 // Moving fleet system — Adriatic (region 1) and Zeebrugge harbor (region 7).
 // Ships sail real headings, fire from actual gun positions on the hull, and are
 // faction-owned: hostile ships hunt the player, friendly ships engage aircraft.
