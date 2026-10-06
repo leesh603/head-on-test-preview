@@ -85,11 +85,15 @@ export function renderEliteLayer(ctx, system, camera, assets, time = 0) {
     ctx.fillStyle = '#20241e'; ctx.fillRect(x - 22, barY, 44, 3);
     ctx.fillStyle = kind === ELITE_KINDS.JUNKERS ? '#c9d4dc' : isHeavy || kind === ELITE_KINDS.SALAMANDER ? '#d8b26c' : '#df8c67'; ctx.fillRect(x - 22, barY, 44 * hp, 3);
     if (member.formationCommand) {
-      const cy = barY - 7;
+      const cy = barY - 8, r = 4.6;
       ctx.fillStyle = '#e8c26a';
       ctx.beginPath();
-      ctx.moveTo(x - 7, cy - 3); ctx.lineTo(x - 1, cy + 1); ctx.lineTo(x - 7, cy + 5); ctx.lineTo(x - 4, cy + 1); ctx.closePath();
-      ctx.moveTo(x - 1, cy - 3); ctx.lineTo(x + 5, cy + 1); ctx.lineTo(x - 1, cy + 5); ctx.lineTo(x + 2, cy + 1); ctx.closePath();
+      for (let i = 0; i < 10; i++) {
+        const rad = i % 2 ? r * .45 : r, ang = -Math.PI / 2 + i * Math.PI / 5;
+        ctx[i ? 'lineTo' : 'moveTo'](x + Math.cos(ang) * rad, cy + Math.sin(ang) * rad);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = 'rgba(20,14,6,.75)'; ctx.lineWidth = 1; ctx.stroke();
       ctx.fill();
     }
   }
