@@ -952,7 +952,7 @@ const warmStageAssetsReady=Promise.all([prepareStageBossAssets(0),prepareAADefen
 // as those land. Battle assets (FX sprites, terrain, boss atlas) stream in the
 // background and are re-checked when the sortie button fires.
 const hangarReady=Promise.all([portraitsReady,aircraftReady,campaignArtReady,iconsReady]);
-const battleReady=Promise.all([fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady]);
+const battleReady=Promise.all([fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady,aircraftReady]);
 hangarReady.then(()=>{
  const reveal=()=>{document.body.classList.add('assets-ready');roster();applyPilotPortrait('cutinPortrait')};
  const left=1000-(performance.now()-bootAt);left>0?setTimeout(reveal,left):reveal();
@@ -983,6 +983,10 @@ function showBuildPause151(){
  const area=document.createElement('div');area.id='build151';
  const el=(tag,text,cls)=>{const e=document.createElement(tag);e.textContent=text;if(cls)e.className=cls;return e};
  for(const p of game.players||[game]){const section=el('section','');const rankedKills=game.mode==='coop2'?(game.priorityKills||0):(p===game?(game.priorityKills||0):(p.priorityKills??game.priorityKills??0));section.append(el('h3',(p.id?p.id.toUpperCase()+' · ':'')+PILOTS[p.pilot].name),el('p',displayAircraftName(p.pilot,p.plane)+' · '+String(Math.floor(game.t/60)).padStart(2,'0')+':'+String(Math.floor(game.t%60)).padStart(2,'0')+' · 랭킹 격추 '+rankedKills+'기 · LV. '+p.level,'build-meta151'));
+ const lid=p.pilot==='baron'&&p.plane==='baron_albatros'?'baron:baron_albatros':p.pilot,ld=pilotLoadout(p.pilot,p.plane),idCopy=pilotIdentityCopy(lid,getLocale()),abs=el('div','','build-abilities151');
+ for(const [label,name,short,detail]of [['액티브',localizedActive(lid,ld.skill),hangarPilotDescription(lid,ld.desc),idCopy?.activeDetail||ld.desc],['패시브',localizedPassive(lid,ld.passive),hangarPassiveDescription(lid,ld.passiveDesc),idCopy?.passiveDetail||ld.passiveDesc]]){
+  const row=el('div','','build-ability151'),chip=el('span',name+' — '+short);chip.className='ability-chip151';chip.tabIndex=0;const tip=el('small',detail||short);row.append(el('b',label),chip,tip);abs.append(row)}
+ section.append(abs);
  const grid=el('div','','build-stats151'),groups=new Map();for(const [key,[category,label,value]] of Object.entries(buildStats(p))){if(value==='+0%'||value==='+0 HP'||value==='미장착'||value==='0발')continue;let group=groups.get(category);if(!group){group=el('div','');group.append(el('b',category));groups.set(category,group);grid.append(group)}group.append(el('span',label+' '+value))}if(!grid.children.length)grid.append(el('span','기본 기체 능력치 적용 중'));section.append(grid);
  for(const [heading,test]of [['획득 강화',u=>!u.legendary&&!u.uniqueOnly],['고유 강화',u=>u.uniqueOnly],['SPECIAL EQUIPMENT',u=>u.legendary]]){const held=UPGRADES.filter(u=>p.upgrades[u.id]&&test(u));section.append(el('h4',heading));const chips=el('div','','build-chips151');if(!held.length)chips.append(el('span','없음','empty151'));for(const u of held)chips.append(el('span',reinforcementName(u,p,PLANES),'build-chip151 rarity-'+(u.legendary?'legendary':u.uniqueOnly?'unique':p.upgradeRarities?.[u.id]||'normal')));section.append(chips)}area.append(section);
  }$('modalText').after(area);
