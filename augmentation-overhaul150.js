@@ -13,6 +13,11 @@ export const AUGMENTATION_OVERHAUL_BALANCE=Object.freeze({
  amatolRadiusMultiplier:1.4,amatolDamageMultiplier:1.4
 });
 
+export const FORMATION_MANUAL_BALANCE=Object.freeze({
+ damage:Object.freeze([.20,.30,.45]),
+ rate:Object.freeze([.10,.15,.20])
+});
+
 export const BUILD_IDENTITIES=Object.freeze({GUN:'GUN',SPEED:'SPEED',EXPLOSIVE:'EXPLOSIVE',FORMATION:'FORMATION',SURVIVAL:'SURVIVAL'});
 export const BUILD_IDENTITY_LIMIT=3;
 const BUILD_IDENTITY_BY_ID=Object.freeze({
@@ -88,7 +93,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    rockets:`르 프리외르 로켓 발사대 +1단계 (최대 5).${extra?` 폭발물 피해 +${extra}%p.`:''}`,
    mines:`후방 수류탄 투척 장비 +1단계 (최대 5).${extra?` 폭발물 피해 +${extra}%p.`:''}`,
    explosives:`로켓·수류탄·폭탄·37mm 포탄 등 모든 폭발물 피해 +${[30,50,75][t]}%p.`,
-   command:`윙맨과 편대 액티브의 피해·공격 속도 +${[30,50,75][t]}%p.`,
+   command:`윙맨과 편대 액티브 피해 +${Math.round(FORMATION_MANUAL_BALANCE.damage[t]*100)}%, 공격 속도 +${Math.round(FORMATION_MANUAL_BALANCE.rate[t]*100)}%.`,
    turn:`선회력 +${[20,32,45][t]}%, 이동 속도 +${[5,8,12][t]}%, 직선 비행 회복 +${[8,12,18][t]}% (누적 상한: 선회 +150%, 이속 +40%, 회복 +60%).`,
    armor:`최대 내구도 +${DURABILITY_BALANCE.armorBonus[t]}. 증가량만큼 즉시 회복.`,
    regen:`초당 최대 내구도 회복 +${DURABILITY_BALANCE.regenPerSecond[t]*100}% (누적 상한 4%).`,
@@ -156,7 +161,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    case 'rockets':this.rockets=Math.min(5,(this.rockets||0)+1);this.rocketFire=0;this.explosiveBonus=(this.explosiveBonus||0)+[0,.08,.16][t];break;
    case 'mines':this.mineCount=Math.min(5,(this.mineCount||0)+1);this.mineTimer=0;this.explosiveBonus=(this.explosiveBonus||0)+[0,.08,.16][t];break;
    case 'explosives':this.explosiveBonus=(this.explosiveBonus||0)+AUGMENT_BALANCE.support[t];break;
-   case 'command':this.commandBonus=(this.commandBonus||0)+AUGMENT_BALANCE.support[t];this.commandRateBonus=(this.commandRateBonus||0)+AUGMENT_BALANCE.support[t];break;
+   case 'command':this.commandBonus=(this.commandBonus||0)+FORMATION_MANUAL_BALANCE.damage[t];this.commandRateBonus=(this.commandRateBonus||0)+FORMATION_MANUAL_BALANCE.rate[t];break;
    case 'turn':this.addMobility(t);break;
    case 'armor':this.maxHp+=DURABILITY_BALANCE.armorBonus[t];if(this.hp>0)this.hp=Math.min(this.maxHp,this.hp+DURABILITY_BALANCE.armorBonus[t]);break;
    case 'regen':this.regen=Math.min(DURABILITY_BALANCE.regenCap,(this.regen||0)+DURABILITY_BALANCE.regenPerSecond[t]);break;
