@@ -1068,6 +1068,7 @@ Game.prototype._updLegendary=function(dt,input={}){
 };
 // Keep every briefing/cut-in in sync with the actual final skill implementation.
 for(const [id,pilot] of Object.entries(PILOTS))pilot.cooldown=PILOT_BALANCE.cooldowns[id];
+PILOTS.baron.skill='드라이데커';PILOTS.baron.passive='사냥 본능';PILOTS.baron.passiveDesc='강한 적을 오래 추적할수록 해당 대상에게 주는 피해가 증가합니다. 사냥감 격추 시 잠시 빨라집니다.';PILOTS.baron.desc='발동 시 1초간 무적. 속도를 낮춰 극단적으로 선회하며, 적의 후방을 잡으면 즉시 추격 가속합니다.';
 // Revision 91: sustained rear-quarter aim rewards dogfighting, while tethered
 // observation balloons release short, historically themed special-ammo belts.
 Game.prototype.combatWorld=function(){return this.world||this};
