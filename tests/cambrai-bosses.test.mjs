@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {Fliegerzug,TreffasWagen} from '../headon-stageboss-patterns.js?v=485';
 import {treffasPoint,treffasGunMuzzle} from '../cambrai-layout.js?v=483';
 import {advanceCambraiBug} from '../cambrai-bug-flight.js?v=483';
-import {Game} from '../engine.js?v=sink-waterline-1';import {CoopGame} from '../coop-engine.js?v=sink-waterline-1';
+import {Game} from '../engine.js?v=dread-opaque-2';import {CoopGame} from '../coop-engine.js?v=dread-opaque-2';
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame} from '../stageboss-host.js?v=485';
 import {fixture,step} from './stageboss-fixture94.mjs';
 const tuning={maxHp:2400,partHp:288,damage:18,bulletSpeed:270,geometryScale:2.025};

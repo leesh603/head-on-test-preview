@@ -6,7 +6,7 @@
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=sink-waterline-1';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=dread-opaque-2';
 
 const memo = new WeakMap();
 const st = g => { let s = memo.get(g); if (!s) memo.set(g, s = { tier: 0, burst: -9, burstAt: null, prey: null, trail: [], wing: [] }); return s; };
@@ -379,32 +379,21 @@ export function drawRickenbackerRing(c, g, point, t, px, py, layer = 'back') {
   return true;
 }
 
-// ---- Immelmann "독일의 독수리" / Eagle: right after a big turn, 1.5 s of tighter spread and +20% fire rate.
-//   the turn he just made is drawn behind him as a pale-gold feathered swoosh that fades with the buff
-export function drawImmelmannEagle(c, g, point, t, px, py) {
-  if (g.pilot !== 'immelmann') return false;
-  sprites(); if (!EMBER) return false;
-  const m = pst(g, () => ({ trail: [], last: 0 }));
-  push(m.trail, { x: g.x, y: g.y, a: g.a || 0 }, t, .55);
-  const e = g.eagleTime || 0; if (e <= 0) return true;
-  const k = clamp(e / .4) * clamp((1.5 - e) / .08 + .3), n = m.trail.length;
-  c.save(); c.lineCap = 'round'; c.lineJoin = 'round';
-  for (let i = 1; i < n; i++) {                                     // tapered gold swoosh (older = thinner)
-    const p0 = m.trail[i - 1], p1 = m.trail[i], u = i / n, [x0, y0] = point(p0.x, p0.y), [x1, y1] = point(p1.x, p1.y);
-    c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1);
-    c.globalAlpha = k * u * .35; c.strokeStyle = '#f5d27a'; c.lineWidth = 2 + 9 * u; c.stroke();
-    c.globalAlpha = k * u * .8; c.strokeStyle = '#fff6da'; c.lineWidth = .8 + 1.6 * u; c.stroke();
-  }
-  c.globalCompositeOperation = 'lighter';                           // a few feathers peeling off the swoosh
-  for (let i = 0; i < n; i += 4) {
-    const p = m.trail[i]; if (hash(p.t * 11, 3) > .35) continue;
-    const age = (t - p.t) / .55, [x, y] = point(p.x, p.y), side = hash(p.t, 8) > .5 ? 1 : -1, d = 6 + 14 * age;
-    const fx = x - Math.sin(p.a) * d * side, fy = y + Math.cos(p.a) * d * side;
-    c.save(); c.translate(fx, fy); c.rotate(p.a + side * (.6 + age)); c.globalAlpha = k * (1 - age) * .9;
-    c.fillStyle = '#ffe9b0'; c.beginPath(); c.ellipse(0, 0, 5, 1.6, 0, 0, Math.PI * 2); c.fill(); c.restore();
-  }
-  c.restore();
-  return true;
+// ---- Immelmann: one short, neutral slipstream follows the real attack window.
+export function drawImmelmannEagle(c,g,point,t,px,py){
+ if(g.pilot!=='immelmann')return false;
+ const m=pst(g,()=>({trail:[]})),e=g.eagleTime||0;
+ if(e<=0||g.immelmannTurn){m.trail.length=0;return true;}
+ push(m.trail,{x:g.x,y:g.y,a:g.a||0},t,.22);
+ const n=m.trail.length;if(n<2)return true;
+ c.save();c.lineCap='round';c.lineJoin='round';c.strokeStyle='#bdcbc8';c.lineWidth=1.1;
+ for(let i=1;i<n;i++){
+  const p0=m.trail[i-1],p1=m.trail[i],u=i/n;
+  const [x0,y0]=point(p0.x-Math.cos(p0.a)*20,p0.y-Math.sin(p0.a)*20);
+  const [x1,y1]=point(p1.x-Math.cos(p1.a)*20,p1.y-Math.sin(p1.a)*20);
+  c.globalAlpha=.22*u*clamp(e/.3);c.beginPath();c.moveTo(x0,y0);c.lineTo(x1,y1);c.stroke();
+ }
+ c.restore();return true;
 }
 
 // ---- Jacobs "선회전의 베테랑" / Black Falcon: stacks of extra fire rate (max 3).

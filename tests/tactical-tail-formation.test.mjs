@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,TAILING_BALANCE,BATTLE_DIRECTOR_PATTERNS as P} from '../engine.js?v=sink-waterline-1';
+import {Game,TAILING_BALANCE,BATTLE_DIRECTOR_PATTERNS as P} from '../engine.js?v=dread-opaque-2';
 
 const quiet=g=>{for(const key of ['spawn','eventTimer','nextBossAt','nextHeavyAt','_zeppelinSchedule','flakTimer','regionThreat','fieldUnitTimer','gasTimer','gustTimer','patrolTimer'])g[key]=Infinity;return g};
 const setup=(plane='spad')=>{const g=quiet(new Game(plane,'fonck',()=>.5));Object.assign(g,{x:0,y:0,a:0});return g};
@@ -64,7 +64,7 @@ const target=(extra={})=>({x:200,y:0,a:0,type:'hunter',hp:100,maxHp:100,speed:80
  });
 
 const coopFormation=async()=>{
- const {CoopGame}=await import('../coop-engine.js?v=sink-waterline-1');
+ const {CoopGame}=await import('../coop-engine.js?v=dread-opaque-2');
  const world=quiet(new CoopGame([{plane:'camel',pilot:'fonck'},{plane:'camel',pilot:'bishop'}],{rng:()=>.5}));
  world.t=400;world.beginBattleDirectorPattern(P.PINCER);for(let i=0;i<3;i++){world.t+=.5;world.tickBattleDirector(.04)}
  const leader=world.enemies.find(e=>e.formationCommand),wing=world.enemies.find(e=>e.formationLeader===leader);assert(leader&&wing);
