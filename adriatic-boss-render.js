@@ -1,7 +1,7 @@
-import {drawShipWater} from './naval-water.js?v=485';
-import {ZUBIAN_LAYOUT,zubianSize} from './adriatic-boss-layout.js?v=485';
-import {fx,fxReady} from './fx-art.js?v=485';
-import {drawSinkingShip} from './ship-sinking.js?v=dread-opaque-4';
+import {drawShipWater} from './naval-water.js?v=sink2';
+import {ZUBIAN_LAYOUT,zubianSize} from './adriatic-boss-layout.js?v=sink2';
+import {fx,fxReady} from './fx-art.js?v=sink2';
+import {drawSinkingShip} from './ship-sinking.js?v=sink2';
 
 // Source rectangles in the authored damage sheet; destinations are world units.
 export const ZUBIAN_DAMAGE_FRAMES=Object.freeze({
@@ -14,7 +14,7 @@ export function drawNavalWake(c,b,width,height){const a=b.hullYaw??b.angle??0,ca
 export function drawZubianShip(c,b,images){
  const role=b.assetKey.endsWith('front')?'front':b.assetKey.endsWith('rear')?'rear':null;
  const size=zubianSize({...b,role,t:{geometryScale:b.geometryScale}}),s=b.geometryScale||1;
- if(b.destroying)return drawSinkingShip(c,{x:b.x,y:b.y,yaw:b.hullYaw||0,width:size.width,height:size.height,age:b.destructionAge,duration:b.destructionDuration},()=>drawZubianShip(c,{...b,destroying:false,sunkWreck:true},images));
+ if(b.destroying)return drawSinkingShip(c,{x:b.x,y:b.y,yaw:b.hullYaw||0,width:size.width,height:size.height,age:b.destructionAge,duration:b.destructionDuration},k=>drawZubianShip(k,{...b,destroying:false,sunkWreck:true},images));
  c.save();c.translate(b.x,b.y);c.rotate(b.hullYaw||0);c.imageSmoothingEnabled=true;
  const wreck=b.sunkWreck?1:0;
  if(!wreck)drawNavalWake(c,b,size.width,size.height);

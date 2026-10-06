@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {BossStages,STAGE_ROUTE_POOLS,buildStageRoute} from '../headon-stageboss-runtime.js?v=485';
+import {BossStages,STAGE_ROUTE_POOLS,buildStageRoute} from '../headon-stageboss-runtime.js?v=sink2';
 
 test('route always opens rural and moves Arras into the randomized mid pool',()=>{
  const low=buildStageRoute(()=>0),high=buildStageRoute(()=>.999999);

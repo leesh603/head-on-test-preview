@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PILOT_PLANES,angleDiff} from '../engine.js?v=dread-opaque-2';
-import {CoopGame} from '../coop-engine.js?v=dread-opaque-2';
-import {signatureState,advancePilotSignature} from '../pilot-signature-state.js?v=483';
-import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js?v=dread-opaque-2';
+import {Game,PILOT_PLANES,angleDiff} from '../engine.js?v=sink2';
+import {CoopGame} from '../coop-engine.js?v=sink2';
+import {signatureState,advancePilotSignature} from '../pilot-signature-state.js?v=sink2';
+import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js?v=sink2';
 const ids=['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker'];
 function session(id,coop=false){const g=coop?new CoopGame([{pilot:id},{pilot:id}],{rng:()=>.5}):new Game(PILOT_PLANES[id],id,()=>.5),p=g.players?.[0]||g;
  for(const k of ['spawn','nextBossAt','_zeppelinSchedule','nextHeavyAt','eventTimer','allyTimer','flakTimer','regionThreat','gustTimer','supplyTimer','fieldUnitTimer','gasTimer','patrolTimer'])g[k]=Infinity;

@@ -1,13 +1,13 @@
-import {fleetGunStations} from './naval-faction-atlas.js?v=485';
-import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=dread-opaque-2';
-import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles} from './naval-spacing.js?v=485';
-import {drawShipWater,recordShipWake} from './naval-water.js?v=485';
-import {drawSinkingShip,prepareSinkingWater,FLEET_SINK_DURATION} from './ship-sinking.js?v=dread-opaque-4';
+import {fleetGunStations} from './naval-faction-atlas.js?v=sink2';
+import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=sink2';
+import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles} from './naval-spacing.js?v=sink2';
+import {drawShipWater,recordShipWake} from './naval-water.js?v=sink2';
+import {drawSinkingShip,prepareSinkingWater,FLEET_SINK_DURATION} from './ship-sinking.js?v=sink2';
 // Moving fleet system — Adriatic (region 1) and Zeebrugge harbor (region 7).
 // Ships sail real headings, fire from actual gun positions on the hull, and are
 // faction-owned: hostile ships hunt the player, friendly ships engage aircraft.
-import {PLANES} from './engine.js?v=dread-opaque-2';
-import {fx} from './fx-art.js?v=485';
+import {PLANES} from './engine.js?v=sink2';
+import {fx} from './fx-art.js?v=sink2';
 export const SHIP_TYPES=Object.freeze({
  dd:{name:'구축함',hp:150,drawnH:300,speed:26,guns:[96,-99],salvo:5,spread:.15,shellSpeed:215,interval:3.2,width:88},
  aa:{name:'대공순양함',hp:340,drawnH:380,speed:17,guns:[79,5,-39,-98],salvo:3,spread:.09,shellSpeed:205,interval:4.6,width:205}
@@ -105,8 +105,8 @@ export function drawFleetLayer(c,game,{point}){
    if(e.faction===playerFaction(game)){c.save();c.fillStyle='#b9d5c6';c.font='bold 11px sans-serif';c.textAlign='center';c.fillText('아군 '+t.name,x,y+h*.53);c.restore();}
  }
  for(const p of game.shipSinkPuffs||[]){const [x,y]=point(p.x,p.y);if(x<-p.h||x>cw+p.h||y<-p.h||y>ch+p.h)continue;
-  drawSinkingShip(c,{x,y,yaw:p.ship.a+Math.PI/2,width:p.h*(p.ship.shipClass==='aa'?.24:.20),height:p.h,age:p.age,duration:FLEET_SINK_DURATION},()=>{
-   c.save();c.translate(x,y);drawFleetShip(c,p.ship,p.h,SHIP_TYPES[p.ship.shipClass].guns);c.restore();});}
+  drawSinkingShip(c,{x,y,yaw:p.ship.a+Math.PI/2,width:p.h*(p.ship.shipClass==='aa'?.24:.20),height:p.h,age:p.age,duration:FLEET_SINK_DURATION},k=>{
+   k.save();k.translate(x,y);drawFleetShip(k,p.ship,p.h,SHIP_TYPES[p.ship.shipClass].guns);k.restore();});}
 }
 
 const playerFaction=g=>g.teamFaction??PLANES[g.plane]?.faction??'entente';

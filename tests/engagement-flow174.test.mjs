@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,BATTLE_DIRECTOR_PATTERNS as P} from '../engine.js?v=dread-opaque-2';
-import {wingmanEngagementStep,patrolEngagementStep} from '../engagement-flow174.js?v=483';
+import {Game,BATTLE_DIRECTOR_PATTERNS as P} from '../engine.js?v=sink2';
+import {wingmanEngagementStep,patrolEngagementStep} from '../engagement-flow174.js?v=sink2';
 
 test('ordinary wingmen split nearby targets, fly their own passes and return within the leash',()=>{
  const enemies=[{x:210,y:-60,hp:100},{x:230,y:70,hp:100}],owner={x:0,y:0,a:0,speed:170,upgrades:{},pilot:'baron'};
