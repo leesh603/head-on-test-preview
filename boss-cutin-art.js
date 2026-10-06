@@ -11,11 +11,31 @@ export const REDRAWN_BOSS_CUTINS=Object.freeze({
   "gallipoli-fortress": "cutin-gallipoli.webp",
   "paris-staaken-rvi": "cutin-paris-staaken.webp",
   "paris-searchlight-fortress": "cutin-paris-fortress.webp",
-  "jutland-grand-fleet": "cutin-jutland-fleet.webp"
+  "jutland-grand-fleet": "cutin-jutland-fleet.webp",
+  "paris-gun": "cutin-paris-gun.webp",
+  "lincomparable": "cutin-lincomparable.webp",
+  "sms-stuttgart": "cutin-sms-stuttgart.webp",
+  "hms-zubian": "cutin-hms-zubian.webp",
+  "a7v-flak": "cutin-a7v-flak.webp",
+  "mark-v-cruiser": "cutin-mark-v-cruiser.webp",
+  "livens-flame-projector": "cutin-livens-flame-projector.webp",
+  "minenwerfer-battery": "cutin-minenwerfer-battery.webp",
+  "drachen-net": "cutin-drachen-net.webp",
+  "london-apron-raid": "cutin-london-apron-raid.webp",
+  "flak-tower": "cutin-flak-tower.webp",
+  "zeppelin-l70": "cutin-zeppelin-l70.webp",
+  "hma23": "cutin-hma23.webp",
+  "gik": "cutin-gik.webp",
+  "ca4": "cutin-ca4.webp",
+  "armored-harbor-fortress": "cutin-armored-harbor-fortress.webp",
+  "fliegerzug": "cutin-fliegerzug.webp",
+  "treffas-wagen": "cutin-treffas-wagen.webp",
+  "jasta11-circus": "cutin-jasta11-circus.webp",
+  "naval10-black-flight": "cutin-naval10-black-flight.webp"
 });
 export const BOSS_CUTIN_ART=Object.freeze(Object.fromEntries(
  Object.keys(BOSS_CATALOG).map(id=>[id,REDRAWN_BOSS_CUTINS[id]?
- './'+REDRAWN_BOSS_CUTINS[id]+'?v=cut1':BOSS_CUTIN_FALLBACKS[id]])));
+ './'+REDRAWN_BOSS_CUTINS[id]+'?v=cut2':BOSS_CUTIN_FALLBACKS[id]])));
 const pending=new Map(),failed=new Set();let currentRegion=null;
 // Preload only the current region's cut-ins, without retaining decoded artwork.
 export function prepareBossCutins(region){

@@ -1,4 +1,4 @@
-import {bossCutinSource} from './boss-cutin-art.js?v=cut1';
+import {bossCutinSource} from './boss-cutin-art.js?v=cut2';
 import {applySeaColor} from './sea-colors.js?v=1';
 import {drawGroundEnemy} from './ground-enemy-art.js?v=485';
 import {pilotIdentityCopy} from './pilot-identity-copy.js';
@@ -22,7 +22,7 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=dread-opaque-2';
 import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=485';
 import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=dread-opaque-2';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=dread-opaque-2';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=boss-cutin-2';
 import {paintParis} from './paris-night-art.js?v=485';
 import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=485';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=485';

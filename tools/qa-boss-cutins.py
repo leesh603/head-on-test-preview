@@ -14,9 +14,11 @@ cards=Image.new('RGB',(810,sum(r['redrawn'] for r in rows)*360),'#343b34');cd=Im
 j=0
 for i,r in enumerate(rows):
     im=Image.open(root/r['file']).convert('RGBA');a=im.getchannel('A')
-    edge=list(a.crop((0,0,im.width,1)).getdata())+list(a.crop((0,im.height-1,im.width,im.height)).getdata())+list(a.crop((0,0,1,im.height)).getdata())+list(a.crop((im.width-1,0,im.width,im.height)).getdata())
+    edge=a.crop((0,0,im.width,1)).tobytes()+a.crop((0,im.height-1,im.width,im.height)).tobytes()+a.crop((0,0,1,im.height)).tobytes()+a.crop((im.width-1,0,im.width,im.height)).tobytes()
     r.update(size=list(im.size),alphaRange=list(a.getextrema()),opaqueEdgePixels=sum(v>32 for v in edge),bytes=(root/r['file']).stat().st_size)
-    if r['redrawn']:assert a.getextrema()[0]==0,r['id']
+    if r['redrawn']:
+        assert a.getextrema()[0]==0,r['id']
+        assert r['opaqueEdgePixels']==0,r['id']
     art=im.copy();art.thumbnail((220,158),Image.Resampling.LANCZOS)
     x=(i%6)*233;y=(i//6)*200
     sheet.paste(art,(x+(230-art.width)//2,y+160-art.height),art)
@@ -29,6 +31,8 @@ for i,r in enumerate(rows):
         j+=1
 sheet.save(out/'all-area-bosses.webp',quality=95)
 cards.save(out/'desktop-mobile.webp',quality=95)
+for page,y in enumerate(range(0,cards.height,1440)):
+    cards.crop((0,y,810,min(cards.height,y+1440))).save(out/f'cards-{page}.webp',quality=95)
 # The ace arrival path uses this portrait registry; do not replace its coherent style.
 portraits=json.loads(subprocess.check_output(['node','--input-type=module','-e',"globalThis.Image=class {set src(v){queueMicrotask(()=>this.onload?.())}};const {portraitSources}=await import('./portraits.js');console.log(JSON.stringify(portraitSources))"],cwd=root))
 aces=[{'id':id,'file':file.split('?')[0],'exists':(root/file.split('?')[0]).is_file()} for id,file in portraits.items()]

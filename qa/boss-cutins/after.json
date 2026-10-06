@@ -1,347 +1,347 @@
 {
   "areaBossCount": 31,
-  "redrawnCount": 11,
+  "redrawnCount": 31,
   "acePortraitCount": 32,
   "images": [
     {
       "id": "paris-gun",
       "name": "브루노 열차포",
       "stage": 0,
-      "file": "boss-art-paris-gun.webp",
-      "redrawn": false,
+      "file": "./cutin-paris-gun.webp",
+      "redrawn": true,
       "size": [
-        499,
-        768
+        1041,
+        1553
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 100750
+      "bytes": 1200728
     },
     {
       "id": "lincomparable",
       "name": "520mm 열차포 · 랑콩파라블",
       "stage": 0,
-      "file": "boss-art-lincomparable.webp",
-      "redrawn": false,
+      "file": "./cutin-lincomparable.webp",
+      "redrawn": true,
       "size": [
-        505,
-        768
+        1003,
+        1556
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 109336
+      "bytes": 1529188
     },
     {
       "id": "sms-stuttgart",
       "name": "수상기 모함 · SMS 슈투트가르트",
       "stage": 1,
-      "file": "boss-art-sms-stuttgart.webp",
-      "redrawn": false,
+      "file": "./cutin-sms-stuttgart.webp",
+      "redrawn": true,
       "size": [
-        768,
-        517
+        1526,
+        1047
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 118024
+      "bytes": 1362218
     },
     {
       "id": "hms-zubian",
       "name": "분열 구축함 · HMS 쥬비안",
       "stage": 1,
-      "file": "boss-art-hms-zubian.webp",
-      "redrawn": false,
+      "file": "./cutin-hms-zubian.webp",
+      "redrawn": true,
       "size": [
-        502,
-        768
+        1374,
+        1047
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 104796
+      "bytes": 1074210
     },
     {
       "id": "a7v-flak",
       "name": "A7V 플라크판처",
       "stage": 2,
-      "file": "boss-art-a7v-flak.webp",
-      "redrawn": false,
+      "file": "./cutin-a7v-flak.webp",
+      "redrawn": true,
       "size": [
-        513,
-        768
+        1055,
+        1533
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 116250
+      "bytes": 1561380
     },
     {
       "id": "mark-v-cruiser",
       "name": "대공 육상 전함 · 마크 V 크루이저",
       "stage": 2,
-      "file": "boss-art-mark-v-cruiser.webp",
-      "redrawn": false,
+      "file": "./cutin-mark-v-cruiser.webp",
+      "redrawn": true,
       "size": [
-        768,
-        512
+        1521,
+        854
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 116042
+      "bytes": 1491658
     },
     {
       "id": "livens-flame-projector",
       "name": "리벤스 대형 화염방사기",
       "stage": 3,
-      "file": "boss-art-livens-flame-projector.webp",
-      "redrawn": false,
+      "file": "./cutin-livens-flame-projector.webp",
+      "redrawn": true,
       "size": [
-        768,
-        596
+        1436,
+        1002
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 114582
+      "bytes": 1369058
     },
     {
       "id": "minenwerfer-battery",
       "name": "미넨베르퍼 교차 포격 진지",
       "stage": 3,
-      "file": "boss-art-minenwerfer-battery.webp",
-      "redrawn": false,
+      "file": "./cutin-minenwerfer-battery.webp",
+      "redrawn": true,
       "size": [
-        768,
-        577
+        1556,
+        972
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 142112
+      "bytes": 1785188
     },
     {
       "id": "drachen-net",
       "name": "드라헨 공중 기뢰 방어망",
       "stage": 4,
-      "file": "boss-art-drachen-net.webp",
-      "redrawn": false,
+      "file": "./cutin-drachen-net.webp",
+      "redrawn": true,
       "size": [
-        768,
-        597
+        1494,
+        1058
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 182904
+      "bytes": 1561650
     },
     {
       "id": "london-apron-raid",
       "name": "런던 에이프런 방공망",
       "stage": 11,
-      "file": "boss-art-london-apron.webp",
-      "redrawn": false,
+      "file": "./cutin-london-apron-raid.webp",
+      "redrawn": true,
       "size": [
-        768,
-        516
+        1552,
+        869
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 154348
+      "bytes": 1602068
     },
     {
       "id": "flak-tower",
       "name": "QF 13파운드 방공탑",
       "stage": 4,
-      "file": "boss-art-flak-tower.webp",
-      "redrawn": false,
+      "file": "./cutin-flak-tower.webp",
+      "redrawn": true,
       "size": [
-        640,
-        665
+        1228,
+        1052
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 92420
+      "bytes": 1758514
     },
     {
       "id": "zeppelin-l70",
       "name": "슈퍼 체펠린 L 70",
       "stage": 5,
-      "file": "boss-art-zeppelin-l70.webp",
-      "redrawn": false,
+      "file": "./cutin-zeppelin-l70.webp",
+      "redrawn": true,
       "size": [
-        768,
-        515
+        1555,
+        935
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 86256
+      "bytes": 1224920
     },
     {
       "id": "hma23",
       "name": "공중 항모 · HMA 23급",
       "stage": 5,
-      "file": "boss-art-hma23.webp",
-      "redrawn": false,
+      "file": "./cutin-hma23.webp",
+      "redrawn": true,
       "size": [
-        768,
-        254
+        1564,
+        578
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
-      "opaqueEdgePixels": 3,
-      "bytes": 58950
+      "opaqueEdgePixels": 0,
+      "bytes": 893812
     },
     {
       "id": "gik",
       "name": "한자-브란덴부르크 G.IK",
       "stage": 6,
-      "file": "boss-art-gik.webp",
-      "redrawn": false,
+      "file": "./cutin-gik.webp",
+      "redrawn": true,
       "size": [
-        768,
-        512
+        1554,
+        940
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 123554
+      "bytes": 1264800
     },
     {
       "id": "ca4",
       "name": "카프로니 Ca.4",
       "stage": 6,
-      "file": "boss-art-ca4.webp",
-      "redrawn": false,
+      "file": "./cutin-ca4.webp",
+      "redrawn": true,
       "size": [
-        768,
-        512
+        1548,
+        993
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 146574
+      "bytes": 1477966
     },
     {
       "id": "armored-harbor-fortress",
       "name": "장갑 크레인 항구요새",
       "stage": 7,
-      "file": "boss-art-armored-harbor-fortress.webp",
-      "redrawn": false,
+      "file": "./cutin-armored-harbor-fortress.webp",
+      "redrawn": true,
       "size": [
-        768,
-        756
+        1437,
+        1048
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 216964
+      "bytes": 1625780
     },
     {
       "id": "fliegerzug",
       "name": "무인폭탄기 모함열차 · 플리거주크",
       "stage": 8,
-      "file": "boss-art-fliegerzug.webp",
-      "redrawn": false,
+      "file": "./cutin-fliegerzug.webp",
+      "redrawn": true,
       "size": [
-        1024,
+        1526,
         1024
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
-      "opaqueEdgePixels": 6,
-      "bytes": 138178
+      "opaqueEdgePixels": 0,
+      "bytes": 1138404
     },
     {
       "id": "treffas-wagen",
       "name": "대공개조형 트레파스바겐 · 거륜 육상전함",
       "stage": 8,
-      "file": "boss-art-treffas.webp",
-      "redrawn": false,
+      "file": "./cutin-treffas-wagen.webp",
+      "redrawn": true,
       "size": [
-        1024,
-        1024
+        1298,
+        1042
       ],
       "alphaRange": [
         0,
-        255
+        254
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 275340
+      "bytes": 1467312
     },
     {
       "id": "jasta11-circus",
       "name": "야스타 11 플라잉 서커스",
       "stage": 9,
-      "file": "portrait-baron.webp",
-      "redrawn": false,
+      "file": "./cutin-jasta11-circus.webp",
+      "redrawn": true,
       "size": [
-        1254,
-        1254
+        1260,
+        1247
       ],
       "alphaRange": [
         0,
         255
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 443340
+      "bytes": 1498544
     },
     {
       "id": "naval10-black-flight",
       "name": "네이벌 10 — 블랙 플라이트",
       "stage": 9,
-      "file": "portrait-collishaw.webp",
-      "redrawn": false,
+      "file": "./cutin-naval10-black-flight.webp",
+      "redrawn": true,
       "size": [
-        1254,
-        1254
+        1256,
+        1259
       ],
       "alphaRange": [
         0,
         255
       ],
       "opaqueEdgePixels": 0,
-      "bytes": 454678
+      "bytes": 1534508
     },
     {
       "id": "mark4-wedge",
