@@ -1,10 +1,10 @@
-import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=perf2';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=perf2';
-import {sandOpacity} from './maan-weather.js?v=perf2';
-import {fx} from './fx-art.js?v=perf2';
+import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=perf3';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=perf3';
+import {sandOpacity} from './maan-weather.js?v=perf3';
+import {fx} from './fx-art.js?v=perf3';
 export const MAAN_ASSETS=Object.freeze({terrain:'terrain-maan-r2.webp',workshop:'maan-workshop-r2.webp',wusten:'boss-maan-wusten-r2.webp',sinai:'boss-maan-sinai-r2.webp',car:'boss-maan-rolls-royce.webp'});
 const images=new Map();let ground=null;
-const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=perf2';images.set(key,im);return im;};
+const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=perf3';images.set(key,im);return im;};
 export function prepareMaanAssets(region){
  if(region!==13){images.clear();ground=null;return Promise.resolve();}
  return Promise.all(Object.keys(MAAN_ASSETS).map(key=>{const im=load(key);if(im.complete&&im.naturalWidth)return Promise.resolve();return new Promise((resolve,reject)=>{im.onload=()=>{if(!im.naturalWidth){reject(new Error('Ma’an empty asset: '+MAAN_ASSETS[key]));return}(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.onerror=()=>reject(new Error('Ma’an asset: '+MAAN_ASSETS[key]));});})).then(()=>{seamlessGround(load('terrain'));});
