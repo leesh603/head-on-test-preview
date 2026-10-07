@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 globalThis.Image=class{naturalWidth=1536;set src(v){queueMicrotask(()=>this.onload?.());}};
-const {drawOrdnance,ordnanceReady,ordnanceArtReady}=await import('../ordnance-art.js?v=ui3');
+const {drawOrdnance,ordnanceReady,ordnanceArtReady}=await import('../ordnance-art.js?v=ui4');
 await ordnanceArtReady;
 test('Ordnance art recognizes body and flight keys but never replaces impacts or smoke',()=>{for(const key of ['cannonMotor','cannonCow','shell','shellHeavy','bomb','grenade','grenadeFlight'])assert(ordnanceReady(key));for(const key of ['cowImpact0','moteurImpact0','shellBurst0','bombfx0','pop0','smokeGray'])assert(!ordnanceReady(key));});
 test('Flight is anchored to the body and restores the caller transform',()=>{let depth=0;const calls=[],c={globalAlpha:.5,save(){depth++},restore(){depth--},translate(...v){calls.push(['translate',...v])},rotate(...v){calls.push(['rotate',...v])},drawImage(...v){calls.push(['draw',...v.slice(1)])}};assert(drawOrdnance(c,'cannonMotor',25,40,31,7,.7,.8));assert.equal(depth,0);assert.deepEqual(calls[0],['translate',25,40]);assert.deepEqual(calls[1],['rotate',.7]);const d=calls[2];assert(-d[5]>d[7]/2,'tail extends left while anchor stays on the metal body');assert(!drawOrdnance(c,'shell',0,0,0,7));});

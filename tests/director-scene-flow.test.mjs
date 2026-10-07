@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game} from '../engine.js?v=ui3';
-import {BATTLE_DIRECTOR_PATTERNS as P} from '../battle-director169.js?v=ui3';
+import {Game} from '../engine.js?v=ui4';
+import {BATTLE_DIRECTOR_PATTERNS as P} from '../battle-director169.js?v=ui4';
 
 
 const setup=()=>{const g=new Game('fokker','baron',()=>.2);g.state='playing';g.viewWidth=1200;g.t=10;g.players=[];return g};
