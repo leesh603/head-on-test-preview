@@ -1,4 +1,4 @@
-import {clearCrewMatte} from './matte70.js?v=sink4';
+import {clearCrewMatte} from './matte70.js?v=hangar2';
 // Hand-authored game-native pixel sprites. All detail is rasterized once on an
 // integer grid; Canvas scaling keeps the same pixels in flight and the roster.
 const AIRFRAMES={
@@ -58,7 +58,9 @@ const loadPainted=key=>new Promise(resolve=>{
 // Sprites that failed or arrived late get re-requested on demand instead of the
 // plane staying invisible for the rest of the session.
 const paintedPending=new Set();
-function ensurePainted(key){if(!key||painted.has(key)||paintedPending.has(key))return;paintedPending.add(key);loadPainted(key).finally(()=>paintedPending.delete(key))}
+// A failing key waits a few seconds before the next draw retries it — otherwise an
+// unreachable file spawns a new request on every frame the plane is on screen.
+function ensurePainted(key){if(!key||painted.has(key)||paintedPending.has(key))return;paintedPending.add(key);loadPainted(key).finally(()=>setTimeout(()=>paintedPending.delete(key),4000))}
 export const hangarArtReady=Promise.all(HANGAR_KEYS.map(loadPainted));
 const individualAircraftReady=[hangarArtReady,hangarArtReady.then(()=>Promise.all(PAINTED_KEYS.filter(k=>!HANGAR_KEYS.includes(k)).map(loadPainted)))];
 // The four aces once cut from this 2x2 atlas now ship as individual PNGs and are

@@ -1,5 +1,5 @@
-import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=sink4';
-export {musicContextForGame} from './music-context.js?v=sink4';
+import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=hangar2';
+export {musicContextForGame} from './music-context.js?v=hangar2';
 // Original adaptive score. Map themes share no borrowed soundtrack melodies.
 // Modes: 'idle' | map regions (rural/sea/trench/city/sky/alps/zeebrugge) |
 // 'boss' (enemy ace duel) | 'boss:<family>' for stage bosses.

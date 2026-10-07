@@ -1,7 +1,7 @@
-import {registerAircraftTiers} from './aircraft-tiers.js?v=sink4';
-import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=sink4';
-import {CAMPAIGN_DATA} from './campaign-data.js?v=sink4';
-import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=sink4';
+import {registerAircraftTiers} from './aircraft-tiers.js?v=hangar2';
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=hangar2';
+import {CAMPAIGN_DATA} from './campaign-data.js?v=hangar2';
+import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=hangar2';
 
 export const STAGES=[...CAMPAIGN_DATA.stages].sort((a,b)=>a.faction.localeCompare(b.faction)||a.historicalAnchorDate.localeCompare(b.historicalAnchorDate)||a.id.localeCompare(b.id));
 export const stageFaction=s=>s.faction==='allies'?'entente':'central';
@@ -300,7 +300,7 @@ export class CampaignGame extends Game{
  objectiveText(){const m=this.mission;if(this.result)return this.result.reason;if(this.zones.some(z=>z.kind==='extract'))return '이탈 구역으로 복귀 · 원 안에서 1.2초';if(this.convoy.length)return `호위 ${this.convoy.filter(c=>c.hp>0).length}/${this.convoy.length} · 최소 ${m.min} 생존 · 구간 ${Math.min(3,this.segments+1)}/3`;if(m.kind==='duel')return '붉은 남작 격추 또는 제한시간 생존';if(m.kind==='combined')return `합산 작전 점수 ${this.campaignScore}/${m.goal}`;if(m.kind==='chain')return `연쇄 ${this.chain}/15 · 끊김 ${this.chainBreaks}/3 · ${Math.ceil(this.chainClock)}초`;if(m.kind==='altitude')return `고도별 격추 ${this.altitudeClears.join(' / ')} · 현재 ${['저','중','고'][this.altitude]}고도`;return `${this.stage.sourceMission} · ${this.completed}/${m.goal}`}
 }
 
-// Dedicated liveries for the six aces added in engine.js?v=sink4 pass 2026.
+// Dedicated liveries for the six aces added in engine.js?v=hangar2 pass 2026.
 // Cloning lives here because 'snipe' and 'nieuport28' are created above.
 const ACES1918_LIVERY={rickenbacker_spad:'spad',ball_se5a:'se5a',barker_snipe:'snipe',luke_nieuport28:'nieuport28',brumowski_albatros:'albatros',gontermann_fokker:'fokker'};
 const ACES1918_LIVERY_NAMES={rickenbacker_spad:'SPAD XIII · 리켄바커',ball_se5a:'S.E.5a · 앨버트 볼',barker_snipe:'숍위드 스나이프 · 바커',luke_nieuport28:'니외포르 28 · 프랭크 루크',brumowski_albatros:'알바트로스 D.III · 브루모프스키',gontermann_fokker:'포커 Dr.I · 곤터만'};

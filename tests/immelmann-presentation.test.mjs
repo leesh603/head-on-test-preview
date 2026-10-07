@@ -1,11 +1,11 @@
 import './pilot-feedback-globals.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game} from '../engine.js?v=sink4';
-import {CoopGame} from '../coop-engine.js?v=sink4';
+import {Game} from '../engine.js?v=hangar2';
+import {CoopGame} from '../coop-engine.js?v=hangar2';
 import {signatureState,advancePilotSignature} from '../pilot-signature-state.js';
-import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js?v=sink4';
-import {drawImmelmannEagle} from '../passive-fx.js?v=sink4';
+import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js?v=hangar2';
+import {drawImmelmannEagle} from '../passive-fx.js?v=hangar2';
 
 test('solo and cooperative Immelmann keep the reversal and piercing volley with compact visual cues',()=>{
  for(const coop of [false,true]){

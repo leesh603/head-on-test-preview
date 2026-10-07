@@ -1,4 +1,4 @@
-import {drawHeadOnEngagement} from './engagement-hud410.js?v=sink4';
+import {drawHeadOnEngagement} from './engagement-hud410.js?v=hangar2';
 // Presentation only: no damage, steering, or target-lock changes.
 export function headOnTarget(player,enemies){
  if(!player||player.hp<=0||player.status&&player.status!=='alive')return null;

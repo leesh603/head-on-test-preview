@@ -1,10 +1,10 @@
 import './pilot-feedback-globals.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=sink4';
-import {advanceBurns1918} from '../pilot-lifecycle196.js?v=sink4';
-import {CoopGame,coopPlane} from '../coop-engine.js?v=sink4';
-import {CampaignGame} from '../campaign.js?v=sink4';
+import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=hangar2';
+import {advanceBurns1918} from '../pilot-lifecycle196.js?v=hangar2';
+import {CoopGame,coopPlane} from '../coop-engine.js?v=hangar2';
+import {CampaignGame} from '../campaign.js?v=hangar2';
 
 const solo=id=>new Game(coopPlane(id),id,()=>.5);
 const enemy=(x,y,a=Math.PI)=>({x,y,a,hp:10000,maxHp:10000,type:'scout',speed:0,fire:999,wobble:0});

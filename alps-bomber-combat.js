@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=sink4';
-import {ALPS_BOMBER_LAYOUT,alpsAngleDelta,alpsPoint,alpsMuzzle,locateAlpsHit} from './alps-bomber-layout.js?v=sink4';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=hangar2';
+import {ALPS_BOMBER_LAYOUT,alpsAngleDelta,alpsPoint,alpsMuzzle,locateAlpsHit} from './alps-bomber-layout.js?v=hangar2';
 
 class AlpsBomber extends BaseBoss {
  constructor({tuning,rng=Math.random,faction,kind,...base}){

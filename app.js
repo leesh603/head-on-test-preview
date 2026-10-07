@@ -1,72 +1,72 @@
-import {hangarArt,hangarArtSource,hangarKeyFile} from './hangar-art.js?v=sink4';
-import {bossCutinSource} from './boss-cutin-art.js?v=sink4';
-import {applySeaColor} from './sea-colors.js?v=sink4';
-import {drawGroundEnemy} from './ground-enemy-art.js?v=sink4';
+import {hangarArt,hangarArtSource,hangarKeyFile} from './hangar-art.js?v=hangar2';
+import {bossCutinSource} from './boss-cutin-art.js?v=hangar2';
+import {applySeaColor} from './sea-colors.js?v=hangar2';
+import {drawGroundEnemy} from './ground-enemy-art.js?v=hangar2';
 import {pilotIdentityCopy} from './pilot-identity-copy.js';
-import {drawHeineckeParachute,heineckeRemaining,HEINECKE} from './heinecke-rettungsfallschirm.js?v=sink4';
-import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=sink4';
-import {paintVerdun} from './verdun-art.js?v=sink4';
-import {paintGallipoli,prepareGallipoliAssets} from './gallipoli-view.js?v=sink4';
-import {createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=sink4';
-import {paintMaan,prepareMaanAssets} from './maan-view.js?v=sink4';
-import {drawRegionalBug} from './regional-boss-view352.js?v=sink4';
-import {drawGust3} from './atmosphere-role3.js?v=sink4';
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=sink4';
-import {fx,fxReady,fxTint,FX56,clearFxTintCache,fxArtReady} from './fx-art.js?v=sink4';
-import {drawAADefense,drawDrachenMine,prepareAADefenseAssets} from './aa-defense-art.js?v=sink4';
-import {CATEGORIES,categoryName,reinforcementName,buildStats,heldStats,cumulativeText,cleanDescription} from './reinforcement-ui151.js?v=sink4';
-import {t,getLocale,setLocale,subscribe,initLocale,applyTranslations,rarityName,upgradeDescription as translatedUpgradeDescription,pilotName,aircraftName,weaponName,activeName,passiveName,pilotDescription,passiveDescription,aircraftRole,airframeHistory,airframeTip} from './i18n.js?v=sink4';
-import {GamepadInput} from './gamepad-input.js?v=sink4';
+import {drawHeineckeParachute,heineckeRemaining,HEINECKE} from './heinecke-rettungsfallschirm.js?v=hangar2';
+import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=hangar2';
+import {paintVerdun} from './verdun-art.js?v=hangar2';
+import {paintGallipoli,prepareGallipoliAssets} from './gallipoli-view.js?v=hangar2';
+import {createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=hangar2';
+import {paintMaan,prepareMaanAssets} from './maan-view.js?v=hangar2';
+import {drawRegionalBug} from './regional-boss-view352.js?v=hangar2';
+import {drawGust3} from './atmosphere-role3.js?v=hangar2';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=hangar2';
+import {fx,fxReady,fxTint,FX56,clearFxTintCache,fxArtReady} from './fx-art.js?v=hangar2';
+import {drawAADefense,drawDrachenMine,prepareAADefenseAssets} from './aa-defense-art.js?v=hangar2';
+import {CATEGORIES,categoryName,reinforcementName,buildStats,heldStats,cumulativeText,cleanDescription} from './reinforcement-ui151.js?v=hangar2';
+import {t,getLocale,setLocale,subscribe,initLocale,applyTranslations,rarityName,upgradeDescription as translatedUpgradeDescription,pilotName,aircraftName,weaponName,activeName,passiveName,pilotDescription,passiveDescription,aircraftRole,airframeHistory,airframeTip} from './i18n.js?v=hangar2';
+import {GamepadInput} from './gamepad-input.js?v=hangar2';
 installEventTextEN(Game,CoopGame,CampaignGame);registerEventPilots(PILOTS);
 const fieldRecordLink=document.createElement('a');fieldRecordLink.href='./field-record.html';fieldRecordLink.target='_blank';fieldRecordLink.rel='noopener';fieldRecordLink.textContent=getLocale()==='en'?'Official Battle Record':'공식 전장 기록';fieldRecordLink.className='field-record-link';fieldRecordLink.style.cssText='display:block;margin:10px auto 0;text-align:center;color:#d7b26d;font-weight:800;text-decoration:none';document.getElementById('start')?.after(fieldRecordLink);
-import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=sink4';
-import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=sink4';
-import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=sink4';
-import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=sink4';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=sink4';
-import {paintParis} from './paris-night-art.js?v=sink4';
-import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=sink4';
-import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=sink4';
-import './hud-layout94.js?v=sink4';
-import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=sink4';
-import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=sink4';
-import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=sink4';
-import {drawCoop} from './coop-view.js?v=sink4';
-import {drawSunStrike} from './sun-strike71.js?v=sink4';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=sink4';
-import {installFlightViewport} from './flight-viewport.js?v=sink4';
-import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174.js?v=sink4';
-import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?v=sink4';
-import {drawEnemyDanger} from './enemy-danger-view.js?v=sink4';
-import {drawGas} from './gas-view.js?v=sink4';
-import {drawWarAmbience} from './war-ambience.js?v=sink4';
-import {missionNavigation,drawMissionRadar} from './navigation.js?v=sink4';
-import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=sink4';
-import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=sink4';
-import {drawCampaign} from './campaign-view.js?v=sink4';
-import {campaignArtReady} from './aircraft.js?v=sink4';
-import {drawGameIcon,drawSpecialAmmoIcon,iconsReady,hangarIconsReady} from './icons.js?v=sink4';
-import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?v=sink4';
-import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=sink4';
-import {attachCombatFeedback,combatVisualPose,drawCombatFeedback,combatCameraOffset,combatFlightSound} from './combat-feedback.js?v=sink4';
-import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=sink4';
-import {drawHeadOnFeedback} from './engagement-feedback.js?v=sink4';
-import {drawTailEngagement} from './engagement-hud410.js?v=sink4';
-import {portraitSources,portraitsReady} from './portraits.js?v=sortie2';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=sink4';
-import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=sink4';
-import {drawEquipment} from './equipment.js?v=sink4';
-import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=sink4';
-import{planeSprite,aircraftReady,aircraftKey,hangarArtReady}from './aircraft.js?v=sink4';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=sink4';
-import {AUGMENTATION_OVERHAUL_BALANCE}from'./augmentation-overhaul150.js?v=sink4';
-import {drawCloudCover}from'./cloud-cover1.js?v=sink4';
-import {drawFleetLayer}from'./fleet-naval1.js?v=sink4';
-import {drawTrenchLayer}from'./trench-war1.js?v=sink4';
-import {drawCityAirLayer}from'./city-air1.js?v=sink4';
-import {TerrainRenderer,MountainField,applyTerrainAtmosphere,preloadTerrainProfile,terrainProfilesReady} from './alps-terrain117.js?v=sink4';
-import {FXS,fxsTracer,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=sink4';
-import {drawPassiveFx,drawPassiveFxFront} from './passive-fx.js?v=sink4';
+import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=hangar2';
+import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=hangar2';
+import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=hangar2';
+import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=hangar2';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=hangar2';
+import {paintParis} from './paris-night-art.js?v=hangar2';
+import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=hangar2';
+import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=hangar2';
+import './hud-layout94.js?v=hangar2';
+import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=hangar2';
+import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=hangar2';
+import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=hangar2';
+import {drawCoop} from './coop-view.js?v=hangar2';
+import {drawSunStrike} from './sun-strike71.js?v=hangar2';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=hangar2';
+import {installFlightViewport} from './flight-viewport.js?v=hangar2';
+import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174.js?v=hangar2';
+import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?v=hangar2';
+import {drawEnemyDanger} from './enemy-danger-view.js?v=hangar2';
+import {drawGas} from './gas-view.js?v=hangar2';
+import {drawWarAmbience} from './war-ambience.js?v=hangar2';
+import {missionNavigation,drawMissionRadar} from './navigation.js?v=hangar2';
+import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=hangar2';
+import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=hangar2';
+import {drawCampaign} from './campaign-view.js?v=hangar2';
+import {campaignArtReady} from './aircraft.js?v=hangar2';
+import {drawGameIcon,drawSpecialAmmoIcon,iconsReady,hangarIconsReady} from './icons.js?v=hangar2';
+import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?v=hangar2';
+import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=hangar2';
+import {attachCombatFeedback,combatVisualPose,drawCombatFeedback,combatCameraOffset,combatFlightSound} from './combat-feedback.js?v=hangar2';
+import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=hangar2';
+import {drawHeadOnFeedback} from './engagement-feedback.js?v=hangar2';
+import {drawTailEngagement} from './engagement-hud410.js?v=hangar2';
+import {portraitSources,portraitsReady} from './portraits.js?v=hangar2';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=hangar2';
+import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=hangar2';
+import {drawEquipment} from './equipment.js?v=hangar2';
+import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=hangar2';
+import{planeSprite,aircraftReady,aircraftKey,hangarArtReady}from './aircraft.js?v=hangar2';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=hangar2';
+import {AUGMENTATION_OVERHAUL_BALANCE}from'./augmentation-overhaul150.js?v=hangar2';
+import {drawCloudCover}from'./cloud-cover1.js?v=hangar2';
+import {drawFleetLayer}from'./fleet-naval1.js?v=hangar2';
+import {drawTrenchLayer}from'./trench-war1.js?v=hangar2';
+import {drawCityAirLayer}from'./city-air1.js?v=hangar2';
+import {TerrainRenderer,MountainField,applyTerrainAtmosphere,preloadTerrainProfile,terrainProfilesReady} from './alps-terrain117.js?v=hangar2';
+import {FXS,fxsTracer,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=hangar2';
+import {drawPassiveFx,drawPassiveFxFront} from './passive-fx.js?v=hangar2';
 
 const flightViewport=installFlightViewport(document,window);
 const ententeAirshipSprite=new Image();ententeAirshipSprite.src='./zeppelin-entente.webp?v=485&b=326';
@@ -991,7 +991,7 @@ const hangarCardsReady=Promise.all(hangarCardKeys.map(hangarArt));
 // as the pilot on screen is ready, and whichever pilot the player picks jumps the queue.
 const HANGAR_UI=/icons\d*\.webp|controls\d+|gun-atlas|relic-|medal\d*\.webp|hangar-keyart|emblem_bare_|medal_general_|ranking-|equipment-atlas/;
 const bootGate=window.HEADON_GATE,absUrl=u=>new URL(u,document.baseURI).href;
-const artUrls=key=>{const file=hangarKeyFile[key]||key;return [absUrl(hangarArtSource(key)),absUrl(`./mech/${file}.webp?v=hangar20261006`)]};
+const artUrls=key=>{const file=hangarKeyFile[key]||key;return [absUrl(hangarArtSource(key)),absUrl(`./mech/${file}.webp?v=hangar20261006`),absUrl(`./mech/${{fokker_red:'fokker',fokker_voss:'fokker_f1',nieuport_italian:'nieuport'}[key]||key}.webp?v=488&b=347`)]};
 const pilotUrls=(id,airframe=pilotPlane(id))=>[absUrl(portraitSources[id]||`./portrait-${id}.webp`),...artUrls(aircraftKey(airframe,false,id))];
 const shownKey=aircraftKey(plane,false,pilot),shownUrls=new Set(pilotUrls(pilot,plane));
 const rankHangar=()=>{const near=new Set(),far=new Set();for(const id of Object.keys(PILOTS))for(const u of pilotUrls(id))(PILOTS[id].faction===faction?near:far).add(u);for(const u of artUrls('baron_albatros'))near.add(u);
@@ -1004,9 +1004,11 @@ const shownPortraitReady=new Promise(r=>{const i=new Image();i.onload=i.onerror=
 // The hangar opens only once every pilot card is decoded — all aircraft and all
 // portraits — so a longer splash beats a half-empty roster. Every source promise
 // resolves on error too, so a missing file can never hold the gate forever.
-// aircraftReady joins the gate because the hangar canvases draw the painted sprites —
+// hangarArtReady joins the gate because the hangar canvases draw the painted sprites —
 // without it the cards are decoded but the planes on them still fill in after entry.
-const hangarReady=Promise.all([portraitsReady,hangarCardsReady,hangarArt(shownKey),hangarIconsReady,aircraftReady]);
+// Only the hangar airframes gate the reveal; the rest of the painted set streams
+// behind the splash so the wait stays short on slow connections.
+const hangarReady=Promise.all([portraitsReady,hangarCardsReady,hangarArt(shownKey),hangarIconsReady,hangarArtReady]);
 const battleReady=Promise.all([fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady,aircraftReady]);
 hangarReady.then(()=>{
  const reveal=()=>{document.body.classList.add('assets-ready');roster();applyPilotPortrait('cutinPortrait')};
@@ -1086,7 +1088,7 @@ function showSettings151(){modal('SETTINGS',t('settings.title'),t('settings.paus
 function showSettingsSound151(){modal('SETTINGS',t('settings.sound'),t('settings.paused'),[{label:muted?t('settings.allOff'):t('settings.allOn'),run:()=>{$('sound').click();showSettingsSound151()}},{label:(muted||sfxOff)?t('settings.sfxOff'):t('settings.sfxOn'),run:()=>{sfxOff=!sfxOff;applyAudioPrefs();showSettingsSound151()}},{label:(muted||bgmOff)?t('settings.bgmOff'):t('settings.bgmOn'),run:()=>{bgmOff=!bgmOff;applyAudioPrefs();showSettingsSound151()}},{label:t('settings.backSettings'),run:showSettings151}]);$('modal').classList.remove('build-modal151');$('modal').classList.add('settings-modal151')}
 function showSettingsDisplay151(){modal('SETTINGS',t('settings.display'),t('settings.paused'),[{label:hiFpsMode?t('settings.hiFpsOn'):t('settings.hiFpsOff'),run:()=>{hiFpsMode=!hiFpsMode;try{localStorage.setItem('headon.hiFps',hiFpsMode?'1':'0')}catch(_){}showSettingsDisplay151()}},{label:batterySaver?t('settings.saverOn'):t('settings.saverOff'),run:()=>{batterySaver=!batterySaver;try{localStorage.setItem('headon.saver',batterySaver?'1':'0')}catch(_){}showSettingsDisplay151()}},{label:t('settings.fullscreen'),run:()=>{flightViewport.fullscreen();showSettingsDisplay151()}},{label:t('settings.scale')+Math.round(userZoom*100)+'%',run:()=>{cycleZoom();showSettingsDisplay151()}},{label:t('settings.backSettings'),run:showSettings151}]);$('modal').classList.remove('build-modal151');$('modal').classList.add('settings-modal151')}
 
-if(import.meta.env?.DEV&&new URLSearchParams(location.search).has('reinforcementqa'))import('../tests/reinforcement-browser151.js?v=sink4').then(({installReinforcementQA})=>installReinforcementQA({getGame:()=>game,reset:(team,mode)=>{if(game)returnHangar();faction=team;pilot=team==='central'?'baron':'fonck';coopPilot2=pilot;selectedMode=mode;plane=pilotPlane(pilot);start()},pause:showBuildPause151,refresh:()=>{if(game.mode==='coop2'){coopEvents();coopHud()}else{events();hud()}updateStageBossHud(game)},pick:(items)=>{game.state='upgrade';choices=items;modal('QA · LIVE CHOICES','강화 선택','',items.map(pick=>{const u=UPGRADES.find(u=>u.id===pick.id);return{upgradeId:u.id,rarity:pick.rarity,label:u.name,desc:upgradeDescription(u.id,pick.rarity,game),run:()=>choose(u.id,pick.rarity)}}))}}));
+if(import.meta.env?.DEV&&new URLSearchParams(location.search).has('reinforcementqa'))import('../tests/reinforcement-browser151.js?v=hangar2').then(({installReinforcementQA})=>installReinforcementQA({getGame:()=>game,reset:(team,mode)=>{if(game)returnHangar();faction=team;pilot=team==='central'?'baron':'fonck';coopPilot2=pilot;selectedMode=mode;plane=pilotPlane(pilot);start()},pause:showBuildPause151,refresh:()=>{if(game.mode==='coop2'){coopEvents();coopHud()}else{events();hud()}updateStageBossHud(game)},pick:(items)=>{game.state='upgrade';choices=items;modal('QA · LIVE CHOICES','강화 선택','',items.map(pick=>{const u=UPGRADES.find(u=>u.id===pick.id);return{upgradeId:u.id,rarity:pick.rarity,label:u.name,desc:upgradeDescription(u.id,pick.rarity,game),run:()=>choose(u.id,pick.rarity)}}))}}));
 
 // Revision 160 — portable elite-enemy module, rendered as a distinct combat layer.
 const drawBeforeElite160=draw;
