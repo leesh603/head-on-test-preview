@@ -1,4 +1,4 @@
-import {StageBossAddon} from '../headon-stageboss-runtime.js?v=perf3';
+import {StageBossAddon} from '../headon-stageboss-runtime.js?v=perf4';
 
 // Test numbers only. Production MUST supply current already-scaled boss stats.
 export function fixture(options={}) {

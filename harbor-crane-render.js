@@ -1,8 +1,10 @@
-import {HARBOR_BOOM,harborScale,harborCranePose} from './harbor-crane-layout.js?v=perf3';
-import {fx} from './fx-art.js?v=perf3';
+import {HARBOR_BOOM,harborScale,harborCranePose} from './harbor-crane-layout.js?v=perf4';
+import {fx} from './fx-art.js?v=perf4';
 
 export const HARBOR_FRAMES=Object.freeze({arm:[0,0,627,390],armBroken:[627,0,627,390],ammo:[0,390,627,458],ammoBroken:[627,390,627,458],facility:[0,848,627,406],facilityBroken:[627,848,627,406]});
 const gunCache=new WeakMap(),gunCenters=[[188,152],[196,152],[190,161],[194,161]],gunAngles=[-2.6,-.54,2.52,.57];
+const _filterBakes=new WeakMap();
+function bakedFiltered(img,filter){if(!img?.naturalWidth)return img;let m=_filterBakes.get(img);if(!m){m=new Map();_filterBakes.set(img,m)}let cv=m.get(filter);if(cv===undefined){cv=document.createElement('canvas');cv.width=img.naturalWidth;cv.height=img.naturalHeight;const cc=cv.getContext('2d');cc.filter=filter;cc.drawImage(img,0,0);m.set(filter,cv)}return cv}
 function buildGuns(image){
  if(!image?.naturalWidth)return null;if(gunCache.has(image))return gunCache.get(image);
  const cells=[];for(let i=0;i<4;i++){
@@ -30,15 +32,15 @@ export function drawHarborFortress(c,b,art){
  const guns=buildGuns(art.guns);for(const p of parts.filter(p=>p.kind==='harbor-gun')){
   const index=p.cell??parts.filter(q=>q.kind==='harbor-gun').indexOf(p),g=guns?.[index];if(!g)continue;const w=p.drawWidth,h=p.drawHeight,k=w/384;
   c.save();c.translate(p.localX,p.localY);c.drawImage(g.base,-g.x*k,-g.y*k,w,h);c.rotate(p.angle+(dead(p.id)?.22:0));
-  if(dead(p.id)){c.filter='grayscale(.85) brightness(.48)';c.globalAlpha*=.75;}else c.translate(-(p.recoil||0)*2,0);
-  c.rotate(-gunAngles[index]);c.drawImage(g.weapon,-g.x*k,-g.y*k,w,h);c.restore();if(!dead(p.id))damageBar(c,p,p.localX,p.localY);
+  if(dead(p.id))c.globalAlpha*=.75;else c.translate(-(p.recoil||0)*2,0);
+  c.rotate(-gunAngles[index]);c.drawImage(dead(p.id)?bakedFiltered(g.weapon,'grayscale(.85) brightness(.48)'):g.weapon,-g.x*k,-g.y*k,w,h);c.restore();if(!dead(p.id))damageBar(c,p,p.localX,p.localY);
  }
  const pose=harborCranePose(b),pivot={x:(pose.pivot.x-b.x)/s,y:(pose.pivot.y-b.y)/s},tip={x:(pose.tip.x-b.x)/s,y:(pose.tip.y-b.y)/s},load={x:(pose.load.x-b.x)/s,y:(pose.load.y-b.y)/s};
  const broken=dead('crane-arm')||dead('crane-pivot'),f=broken?HARBOR_FRAMES.armBroken:HARBOR_FRAMES.arm;
  if(art.parts?.naturalWidth){const dx=HARBOR_BOOM.tip[0]-HARBOR_BOOM.root[0],dy=HARBOR_BOOM.tip[1]-HARBOR_BOOM.root[1],unit=HARBOR_BOOM.reach/Math.hypot(dx,dy);
   c.save();c.translate(pivot.x,pivot.y);c.rotate((b.craneAngle||0)-Math.atan2(dy,dx)+(wreck*.1));c.drawImage(art.parts,...f,-HARBOR_BOOM.root[0]*unit,-HARBOR_BOOM.root[1]*unit,f[2]*unit,f[3]*unit);c.restore();
  }
- const pivotPart=part('crane-pivot');if(art.pivot?.naturalWidth){c.save();if(dead('crane-pivot'))c.filter='grayscale(.6) brightness(.6)';c.drawImage(art.pivot,pivot.x-41,pivot.y-41,82,82);c.restore();}
+ const pivotPart=part('crane-pivot');if(art.pivot?.naturalWidth){c.save();c.drawImage(dead('crane-pivot')?bakedFiltered(art.pivot,'grayscale(.6) brightness(.6)'):art.pivot,pivot.x-41,pivot.y-41,82,82);c.restore();}
  if(pivotPart?.hittable&&!pivotPart.destroyed){c.strokeStyle='#d6b27d95';c.lineWidth=1;c.beginPath();c.arc(pivot.x,pivot.y,21,0,Math.PI*2);c.stroke();damageBar(c,pivotPart,pivot.x,pivot.y);}
  if(!broken&&(b.craneState==='windup'||b.craneState==='sweep')){
   if(b.craneState==='windup'){c.save();c.setLineDash([5,6]);c.strokeStyle='#dfbd8273';c.lineWidth=1.2;c.beginPath();c.arc(pivot.x,pivot.y+38,HARBOR_BOOM.reach,Math.min(b.craneStart,b.craneEnd),Math.max(b.craneStart,b.craneEnd));c.stroke();c.restore();}

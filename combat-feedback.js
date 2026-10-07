@@ -1,4 +1,4 @@
-import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from './aircraft-crash.js?v=perf3';
+import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from './aircraft-crash.js?v=perf4';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.
 const worlds=new WeakMap(),poses=new WeakMap();
@@ -14,7 +14,8 @@ export function impactMaterial(e,b){
  const dx=b.x-e.x,dy=b.y-e.y,forward=dx*Math.cos(e.a)+dy*Math.sin(e.a),side=-dx*Math.sin(e.a)+dy*Math.cos(e.a);
  return forward>9&&Math.abs(side)<12?'metal':Math.abs(side)>15?'fabric':'wood';
 }
-export function combatVisualPose(e){return poses.get(e)||{x:0,y:0,roll:0,bank:1,active:false}}
+const NO_POSE={x:0,y:0,roll:0,bank:1,active:false};
+export function combatVisualPose(e){return poses.get(e)||NO_POSE}
 function pose(e,time,dt,damageState){
  const q=poses.get(e)||{x:0,y:0,roll:0,bank:1,lastA:e.a,lastHp:e.hp,kick:0,turn:0};
  const rate=dt>0?clamp(angle(e.a-q.lastA)/dt,-4,4):0;

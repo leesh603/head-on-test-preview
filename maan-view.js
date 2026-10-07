@@ -1,10 +1,12 @@
-import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=perf3';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=perf3';
-import {sandOpacity} from './maan-weather.js?v=perf3';
-import {fx} from './fx-art.js?v=perf3';
+import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=perf4';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=perf4';
+import {sandOpacity} from './maan-weather.js?v=perf4';
+import {fx} from './fx-art.js?v=perf4';
 export const MAAN_ASSETS=Object.freeze({terrain:'terrain-maan-r2.webp',workshop:'maan-workshop-r2.webp',wusten:'boss-maan-wusten-r2.webp',sinai:'boss-maan-sinai-r2.webp',car:'boss-maan-rolls-royce.webp'});
 const images=new Map();let ground=null;
-const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=perf3';images.set(key,im);return im;};
+const _filterBakes=new WeakMap();
+function bakedFiltered(img,filter){if(!img?.naturalWidth)return img;let m=_filterBakes.get(img);if(!m){m=new Map();_filterBakes.set(img,m)}let cv=m.get(filter);if(cv===undefined){cv=document.createElement('canvas');cv.width=img.naturalWidth;cv.height=img.naturalHeight;const cc=cv.getContext('2d');cc.filter=filter;cc.drawImage(img,0,0);m.set(filter,cv)}return cv}
+const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=perf4';images.set(key,im);return im;};
 export function prepareMaanAssets(region){
  if(region!==13){images.clear();ground=null;return Promise.resolve();}
  return Promise.all(Object.keys(MAAN_ASSETS).map(key=>{const im=load(key);if(im.complete&&im.naturalWidth)return Promise.resolve();return new Promise((resolve,reject)=>{im.onload=()=>{if(!im.naturalWidth){reject(new Error('Ma’an empty asset: '+MAAN_ASSETS[key]));return}(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.onerror=()=>reject(new Error('Ma’an asset: '+MAAN_ASSETS[key]));});})).then(()=>{seamlessGround(load('terrain'));});
@@ -48,14 +50,14 @@ export function drawMaanWorkshop(c,b){
   // Break up the authored roof itself. Every fragment keeps the original art
   // and alpha, then lands outside the tank's exit corridor as scorched rubble.
   const columns=8,rows=10,flight=Math.min(age,2.8),settled=age>=2.8;
+  const rim=settled?bakedFiltered(im,'brightness(.5) saturate(.55)'):im;
   for(let row=0;row<rows;row++)for(let col=0;col<columns;col++){
    const i=row*columns+col,side=col<columns/2?-1:1,w=f.width/columns,h=f.height/rows;
    const dx=(col+.5)*w-f.width/2,dy=(row+.5)*h-f.height/2,pace=.75+(Math.sin(i*13.7)+1)*.25;
    const px=f.x+dx+side*(80+Math.abs(dx)*.18)*flight*pace,py=f.y+dy+(row-3.5)*15*flight+25*flight*flight;
    c.save();c.translate(px,py);c.rotate(side*flight*(.25+(i%5)*.12));c.globalAlpha=settled?.55:1;
-   if(settled)c.filter='brightness(.5) saturate(.55)';
    c.beginPath();c.moveTo(-w*.5,-h*(.2+(i%3)*.1));c.lineTo(-w*.2,-h*.5);c.lineTo(w*.5,-h*.32);c.lineTo(w*(.2+(i%4)*.07),h*.5);c.lineTo(-w*.5,h*.24);c.closePath();c.clip();
-   c.drawImage(im,col*cw/columns,row*ch/rows,cw/columns,ch/rows,-w/2,-h/2,w,h);c.restore();
+   c.drawImage(rim,col*cw/columns,row*ch/rows,cw/columns,ch/rows,-w/2,-h/2,w,h);c.restore();
   }
   if(age<3.2)for(let i=0;i<7;i++){const q=(age*.65+i/7)%1;fx(c,'smokeDust',f.x+(i-3)*66,f.openingY-110-q*160,150+q*140,140+q*130,0,(1-q)*Math.max(0,1-age/3.2)*.65);}
  }
