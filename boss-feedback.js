@@ -97,7 +97,7 @@ export function bossSoundFor(event,kind=''){
  if(type==='aa-volley')return 'navalGun';
  if(type==='flak-burst')return 'flak';
  if(type==='muzzle')return ['gik','ca4'].includes(kind)?'enemyShot':/stuttgart|zubian|harbor/.test(kind)?'navalGun':kind==='minenwerfer-battery'?null:'heavyShot';
- if(type==='heavy-gun-fired')return 'heavyShot';
+ if(type==='heavy-gun-fired')return event.railArtillery?'railGunFire':'heavyShot';
  if(type==='boss-destruction-start')return /stuttgart|zubian/.test(kind)?'shipBreak':'metalBreak';
  if(type==='hazard-activated'){
   if(visual==='livens-flame')return 'flameBurn';

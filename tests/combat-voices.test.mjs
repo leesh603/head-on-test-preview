@@ -2,13 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
+import {railAudioSamples} from '../rail-audio.js?v=rail1';
 
 function audioHarness(mobile=false){
  const created=[];const param=()=>({value:0,setValueAtTime(){},linearRampToValueAtTime(){},exponentialRampToValueAtTime(){}});
  const node=()=>{const n={frequency:param(),gain:param(),Q:{},connect(){},disconnect(){this.disconnected=true},start(){},stop(){this.stopped=true}};created.push(n);return n};
- const clock={currentTime:0,state:'running',sampleRate:100,destination:{},resume:()=>Promise.resolve(),createGain:node,createDynamicsCompressor:node,createOscillator:node,createBiquadFilter:node,createBufferSource:node,createBuffer:()=>({getChannelData:()=>new Float32Array(100)})};
- const sandbox={window:{AudioContext:class{constructor(){return clock}},matchMedia:()=>({matches:mobile})},Math,Map,Promise};
- vm.createContext(sandbox);vm.runInContext(readFileSync(new URL('../sfx.js?v=ui5',import.meta.url),'utf8').replaceAll('export ','')+'\nthis.api={sfx,setSfxMuted,setSfxPaused,stopSfx,sfxStats};',sandbox);
+ const clock={currentTime:0,state:'running',sampleRate:48000,destination:{},resume:()=>Promise.resolve(),createGain:node,createDynamicsCompressor:node,createOscillator:node,createBiquadFilter:node,createBufferSource:node,createBuffer:(channels,length)=>{const data=new Float32Array(length);return{getChannelData:()=>data}}};
+ const sandbox={window:{AudioContext:class{constructor(){return clock}},matchMedia:()=>({matches:mobile})},Math,Map,Promise,railAudioSamples};
+ vm.createContext(sandbox);vm.runInContext(readFileSync(new URL('../sfx.js?v=ui5&rail=1',import.meta.url),'utf8').replace(/^import .*$/gm,'').replaceAll('export ','')+'\nthis.api={sfx,setSfxMuted,setSfxPaused,stopSfx,sfxStats};',sandbox);
  return{api:sandbox.api,clock,created};
 }
 

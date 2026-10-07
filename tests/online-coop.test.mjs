@@ -5,7 +5,7 @@ import {FieldDelta,pack,unpack,seededRandom,NET_HZ,MAX_TETHER} from '../online-c
 globalThis.Image??=class{set src(value){this._src=value;queueMicrotask(()=>this.onload?.());}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 const {OnlineCoopGame}=await import('../online-coop-game.js');
-const {enableStageBoss}=await import('../stageboss-host.js?v=ui5');
+const {enableStageBoss}=await import('../stageboss-host.js?v=ui5&rail=1');
 const {BATTLE_DIRECTOR_PATTERNS:P}=await import('../battle-director169.js?v=ui5');
 const start={seed:12345,runId:'online-test',players:[{pilot:'baron',plane:'fokker',faction:'central'},{pilot:'voss',plane:'fokker',faction:'central'}]};
 function pair(){

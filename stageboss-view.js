@@ -3,7 +3,7 @@ import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide}
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=ui5';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide} from './gallipoli-view.js?v=ui5';
 import {verdunFortExtents} from './verdun-fortresses.js?v=ui5';
-import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=ui5';
+import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=ui5&rail=1';
 import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=ui5';
 import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=ui5';
 import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=ui5';
@@ -19,9 +19,9 @@ import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=ui5';
 import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=ui5';
 import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=ui5';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=ui5';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=ui5';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=ui5&rail=1';
 import {bossHudModel} from './headon-stageboss-hud.js?v=ui5';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=ui5';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=ui5&rail=1';
 import {planeSprite} from './aircraft.js?v=ui5';
 import {getLocale} from './i18n.js?v=ui5';
 import {londonStatus} from './london-battle.js?v=ui5';
@@ -146,8 +146,8 @@ function drawMinenwerfer(c,b){
  c.restore();
 }
 const railConsistSources={
- parisGun:{engine:'./rail-boss-bruno-engine181.webp',front:'./rail-boss-bruno-front181.webp',middle:'./rail-boss-bruno-middle181.webp',rear:'./rail-boss-bruno-rear181.webp'},
- lincomparable:{engine:'./rail-boss-lincomparable-engine181.webp',front:'./rail-boss-lincomparable-front181.webp',middle:'./rail-boss-lincomparable-middle181.webp',rear:'./rail-boss-lincomparable-rear181.webp'},
+ parisGun:{chassis:'./rail-bruno-chassis-r1.webp?v=rail1',gun:'./rail-bruno-gun-r1.webp?v=rail1',engine:'./rail-boss-bruno-engine181.webp',front:'./rail-boss-bruno-front181.webp',middle:'./rail-boss-bruno-middle181.webp',rear:'./rail-boss-bruno-rear181.webp'},
+ lincomparable:{chassis:'./rail-lincomparable-chassis-r1.webp?v=rail1',gun:'./rail-lincomparable-gun-r1.webp?v=rail1',engine:'./rail-boss-lincomparable-engine181.webp',front:'./rail-boss-lincomparable-front181.webp',middle:'./rail-boss-lincomparable-middle181.webp',rear:'./rail-boss-lincomparable-rear181.webp'},
  railCarrier:{engine:'./boss-rail-carrier-loco.webp?v=ui5',front:'./boss-rail-carrier-flak.webp?v=ui5',middle:'./boss-rail-carrier-launch.webp?v=ui5',rear:'./boss-rail-carrier-hangar.webp?v=ui5'}
 };
 const railWreckSources={
