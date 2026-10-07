@@ -70,12 +70,12 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     lincomparable:{warningSeconds:1.4,railCycle:5.8,railMoveSeconds:3.6,hpScale:.72},
     'sms-stuttgart':{launchInterval:1.8,fireScale:.62,suppressiveInterval:1.9},
     'hms-zubian':{broadsideInterval:.75/density,mortarInterval:1.3,chargeInterval:1.85,suppressiveInterval:1.8/density},
-    'zeppelin-l70':{engineInterval:2.6,engineShotCount:3,suppressiveInterval:3.75,suppressiveCount:5,gasInterval:7.5},
-    hma23:{launchInterval:2.8,panicInterval:2.55},
-    gik:{suppressiveInterval:3.4,suppressiveCount:5,rearFinalInterval:.65},
-    'livens-flame-projector':{flameInterval:6.2},
-    'minenwerfer-battery':{mortarInterval:2.7}
-    ,'armored-harbor-fortress':{coastalInterval:2.5,craneInterval:4.8,harborLaunchInterval:5.6}
+    'zeppelin-l70':{engineInterval:1.9,engineShotCount:3,suppressiveInterval:2.6,suppressiveCount:6,gasInterval:5.4},
+    hma23:{launchInterval:2,panicInterval:1.8},
+    gik:{suppressiveInterval:2.4,suppressiveCount:6,rearFinalInterval:.48},
+    'livens-flame-projector':{flameInterval:4.4},
+    'minenwerfer-battery':{mortarInterval:1.9}
+    ,'armored-harbor-fortress':{coastalInterval:1.8,craneInterval:3.4,harborLaunchInterval:4}
     ,'mark4-wedge':{geometryScale:1,mobileBoss:false,coreRadius:70}
     ,'morser-battery':{geometryScale:1.1,mobileBoss:false,motionMultiplier:0,coreRadius:84}
     ,'london-apron-raid':{geometryScale:1,mobileBoss:false,motionMultiplier:0,coreRadius:64}
@@ -94,7 +94,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    }[bossId]||{};
    const effHp=Math.round(maxHp*(bossTuning.hpScale||1));
    return {regionalViewWidth:g.viewWidth||960,regionalViewHeight:g.viewHeight||700,regionalPlayerY:g.y,loopIndex:loop,projectileDensity:density,maxHp:effHp,partHp:effHp*.12,damage:Math.round(18*(1+g.t/240)*(1+Math.min(.5,loop*.12))),bulletSpeed:270,coreRadius:150,
-    mobileBoss:true,motionMultiplier:Math.min(2.5,1+loop*.25),patternMultiplier:Math.min(3,1+loop*.35),geometryScale:2.025,splitProtection:5,fireInterval:6,waterInterval:3.8,launchInterval:3,enrageInterval:1.1,broadsideInterval:1.8/density,mortarInterval:1.8,chargeInterval:2.7,suppressiveInterval:3.1/density,suppressiveCount:7,
+    mobileBoss:true,motionMultiplier:Math.min(2.5,1+loop*.25),patternMultiplier:Math.min(3,1.4+loop*.35),geometryScale:2.025,splitProtection:5,fireInterval:4,waterInterval:2.8,launchInterval:2.2,enrageInterval:.85,broadsideInterval:1.4/density,mortarInterval:1.35,chargeInterval:2,suppressiveInterval:2.3/density,suppressiveCount:8,
     parts:{truss:{x:24,y:-80},muzzle:{x:0,y:-92},hangar:{x:0,y:38},crane:{x:42,y:-25},
      front:{x:0,y:-86},rear:{x:0,y:91},left:{x:-57,y:0},right:{x:57,y:0}},...bossTuning};
   },
