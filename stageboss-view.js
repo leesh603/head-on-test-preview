@@ -21,7 +21,7 @@ import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fi
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=ui5';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=ui5&rail=1';
 import {bossHudModel} from './headon-stageboss-hud.js?v=ui5';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=ui5&rail=1';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=ui5&rail=1&hints=1';
 import {planeSprite} from './aircraft.js?v=ui5';
 import {getLocale} from './i18n.js?v=ui5';
 import {londonStatus} from './london-battle.js?v=ui5';
