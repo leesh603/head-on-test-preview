@@ -1,4 +1,4 @@
-import {RailAdapter} from './boss-adapters129.js?v=hangar2';
+import {RailAdapter} from './boss-adapters129.js?v=boss1';
 import {BaseBoss} from './headon-stageboss-core.js?v=hangar2';
 import {RURAL_RAIL,RURAL_CARS,ruralBarrage} from './rural-rail-layout.js?v=hangar2';
 

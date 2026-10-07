@@ -1,5 +1,5 @@
 import {drawEnemyProjectile} from './projectiles.js?v=hangar2';
-import {HANGAR} from './stuttgart129.js?v=hangar2';
+import {HANGAR} from './stuttgart129.js?v=boss1';
 import {drawNavalWake} from './adriatic-boss-render.js?v=hangar2';
 import {fx} from './fx-art.js?v=hangar2';
 // Geometry masks remove the source canvas outside the drawn silhouette at render time.

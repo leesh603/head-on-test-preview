@@ -68,8 +68,8 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    const bossTuning={
     'paris-gun':{warningSeconds:1.55,railCycle:7.45,shellCount:5},
     lincomparable:{warningSeconds:1.85,railCycle:8.05},
-    'sms-stuttgart':{launchInterval:2.9},
-    'hms-zubian':{broadsideInterval:1.2/density,mortarInterval:2.05,chargeInterval:3.05},
+    'sms-stuttgart':{launchInterval:1.9,fireScale:.68,hpScale:.72},
+    'hms-zubian':{broadsideInterval:.8/density,mortarInterval:1.35,chargeInterval:1.95,suppressiveInterval:2/density,hpScale:.72},
     'zeppelin-l70':{engineInterval:2.6,engineShotCount:3,suppressiveInterval:3.75,suppressiveCount:5,gasInterval:7.5},
     hma23:{launchInterval:2.8,panicInterval:2.55},
     gik:{suppressiveInterval:3.4,suppressiveCount:5,rearFinalInterval:.65},
@@ -92,7 +92,8 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     ,'paris-searchlight-fortress':{geometryScale:1,mobileBoss:false,motionMultiplier:1,coreRadius:55,partHp:maxHp*.055}
     ,'sinai-landship':{geometryScale:1,mobileBoss:false,coreRadius:120}
    }[bossId]||{};
-   return {regionalViewWidth:g.viewWidth||960,regionalViewHeight:g.viewHeight||700,regionalPlayerY:g.y,loopIndex:loop,projectileDensity:density,maxHp,partHp:maxHp*.12,damage:Math.round(18*(1+g.t/240)*(1+Math.min(.5,loop*.12))),bulletSpeed:270,coreRadius:150,
+   const effHp=Math.round(maxHp*(bossTuning.hpScale||1));
+   return {regionalViewWidth:g.viewWidth||960,regionalViewHeight:g.viewHeight||700,regionalPlayerY:g.y,loopIndex:loop,projectileDensity:density,maxHp:effHp,partHp:effHp*.12,damage:Math.round(18*(1+g.t/240)*(1+Math.min(.5,loop*.12))),bulletSpeed:270,coreRadius:150,
     mobileBoss:true,motionMultiplier:Math.min(2.5,1+loop*.25),patternMultiplier:Math.min(3,1+loop*.35),geometryScale:2.025,splitProtection:5,fireInterval:6,waterInterval:3.8,launchInterval:3,enrageInterval:1.1,broadsideInterval:1.8/density,mortarInterval:1.8,chargeInterval:2.7,suppressiveInterval:3.1/density,suppressiveCount:7,
     parts:{truss:{x:24,y:-80},muzzle:{x:0,y:-92},hangar:{x:0,y:38},crane:{x:42,y:-25},
      front:{x:0,y:-86},rear:{x:0,y:91},left:{x:-57,y:0},right:{x:57,y:0}},...bossTuning};
