@@ -4,7 +4,7 @@ globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 const {CoopGame}=await import('../coop-engine.js?v=hangar2');
 const {Game}=await import('../engine.js?v=hangar2');
-const {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossCollision,damageStageBoss}=await import('../stageboss-host.js?v=boss1');
+const {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossCollision,damageStageBoss}=await import('../stageboss-host.js?v=boss2');
 const {sommePoint}=await import('../somme-boss-layout.js?v=hangar2');
 
 for(const mode of ['solo','coop'])for(const faction of ['central','entente'])test(`Somme ${mode}/${faction} uses real host collision, one HP budget and bounded hazards`,()=>{

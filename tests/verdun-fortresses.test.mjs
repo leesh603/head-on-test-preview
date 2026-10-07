@@ -121,7 +121,7 @@ function hostGame(){
  return{g,log};
 }
 test('host Verdun tuning, forward spawn and local bullet impact preserve native ownership and other spawn rates',async()=>{
- const {enableStageBoss,beginStageBossFrame,damageStageBoss,stageSpawnInterval,STAGE_NAMES}=await import('../stageboss-host.js?v=boss1');
+ const {enableStageBoss,beginStageBossFrame,damageStageBoss,stageSpawnInterval,STAGE_NAMES}=await import('../stageboss-host.js?v=boss2');
 
  const {g,log}=hostGame(),a=enableStageBoss(g,{teamFaction:'entente'});a.stages.stageIndex=12;g.t=91;beginStageBossFrame(g,.01);
  const b=a.stages.encounter.bodies.values().next().value,e=g.enemies.find(e=>e.stageBossBody===b);assert.equal(STAGE_NAMES[12],'베르됭');assert(b.y<=g.y-500);assert(Math.abs(b.x-g.x)<1e-9);assert.equal(b.fortScale,.8);assert.equal(b.t.geometryScale,1);
@@ -129,7 +129,7 @@ test('host Verdun tuning, forward spawn and local bullet impact preserve native 
  const p=b.parts.get('mg-left'),shot={x:b.x+p.x,y:b.y+p.y,ownerId:'p1'},hp=b.hp;damageStageBoss(g,e,shot,35);assert.equal(b.hp,hp-35);assert.equal(g.stageBossLastOwner,'p1');assert.deepEqual(log.smoke.at(-1),{x:shot.x,y:shot.y,dark:false});assert(g.events.some(e=>e.type==='impact'));
 });
 test('host stores fortress wreck pose after completed collapse and clears it at the next stage',async()=>{
- const {enableStageBoss}=await import('../stageboss-host.js?v=boss1');const {g}=hostGame(),a=enableStageBoss(g,{teamFaction:'central'});a.stages.stageIndex=12;
+ const {enableStageBoss}=await import('../stageboss-host.js?v=boss2');const {g}=hostGame(),a=enableStageBoss(g,{teamFaction:'central'});a.stages.stageIndex=12;
 
  const e=a.startBoss({x:70,y:-580}),b=clearNativeFortress({addon:a});a.reconcile({blocked:true});
  const frame={players:[{id:'p1',alive:true,x:0,y:0,radius:10}],bounds:{left:-195,right:195,top:-422,bottom:422}};
