@@ -1,21 +1,21 @@
-import {resolveSurfaceSpacing} from './naval-spacing.js?v=ui5';
+import {resolveSurfaceSpacing} from './naval-spacing.js?v=adr1';
 
-import {tickRegionalConditions} from './region-doctrine1.js?v=ui5';
+import {tickRegionalConditions} from './region-doctrine1.js?v=adr1';
 
-import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=ui5';
-import {handleMaanCue} from './maan-view.js?v=ui5';
-import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=ui5';
-import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=ui5';
-import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=ui5';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=ui5';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=ui5';
-import {bossSoundFor} from './boss-feedback.js?v=ui5&rail=1&hints=1';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=ui5&rail=1';
-import {advanceCambraiBug} from './cambrai-bug-flight.js?v=ui5';
-import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=ui5';
+import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=adr1';
+import {handleMaanCue} from './maan-view.js?v=adr1';
+import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=adr1';
+import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=adr1';
+import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=adr1';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=adr1';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=adr1';
+import {bossSoundFor} from './boss-feedback.js?v=adr1&rail=1&hints=1';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=adr1&rail=1';
+import {advanceCambraiBug} from './cambrai-bug-flight.js?v=adr1';
+import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=adr1';
 
 
-import {createJutlandRoute,tickJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=ui5';
+import {createJutlandRoute,tickJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=adr1';
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭','마안 전투','갈리폴리 전선','1918 파리 야간공습','유틀란트 해전'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -121,6 +121,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
   formationStatus(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&e.hp>0).map(e=>({id:e.id,role:e.formationRole,pairId:e.pairId,x:e.x,y:e.y}));},
   onBuildingImpact(event){const b=g.bossBuildings.find(b=>!b.destroyed&&Math.abs(event.x-b.x)<=b.w/2+8&&Math.abs(event.y-b.y)<=b.h/2);if(!b)return false;b.destroyed=true;g.combatBlast(b.x,b.y,55,'enemy','structure');return true;},
   onCue(event){
+   if(event.type==='carrier-sortie-orders')redirectStuttgartSortie(g.enemies,event);
    const body=g.stageBoss?.stages.encounter?.bodies.get(event.bossId);
    if(handleVerdunCue(g,event))return;
    if(handleMaanCue(g,event,body))return;
@@ -257,6 +258,13 @@ function updateFormationMinion(g,e,p,leader,dt){
  }
  steerFormationMinion(e,tx,ty,dt,turn,speed);return true;
 }
+// Reuse the existing attack-pass aircraft instead of exceeding the six-plane cap.
+export function redirectStuttgartSortie(enemies,event){
+ const flight=enemies.filter(e=>e.bossMinion&&e.encounterId===event.encounterId&&e.hp>0&&e.behavior==='attack-pass'&&e.escortPlane==='hansa_brandenburg_cc');
+ const start=(event.wave*2)%Math.max(1,flight.length);
+ for(let i=0;i<Math.min(2,flight.length);i++){const e=flight[(start+i)%flight.length];Object.assign(e,{passLocked:false,passAge:0,passTargetX:event.targetX,passTargetY:event.targetY,fire:.9+i*.18,life:Math.max(e.life||0,3.5)});}
+ return Math.min(2,flight.length);
+}
 function updateMinions(g,dt){
  for(const e of g.enemies){if(!e.bossMinion||e.hp<=0)continue;e.hitFlash=Math.max(0,(e.hitFlash||0)-dt);const formation=e.behavior==='jasta-formation'||e.behavior==='black-flight-formation',p=formationDefenderTarget(g,e)||g.enemyCombatTarget(e);if(!p||p.hp<=0)continue;
   e.life=(e.life??18)-dt;if(e.life<=0){e.hp=0;continue}
@@ -333,6 +341,7 @@ export function beginStageBossFrame(g,dt){
     // point. Anchor the fortress on its concrete pier, clear of open water.
     const hx=Math.cos(route.a),hy=Math.sin(route.a),nx=-hy,ny=hx,along=ZEEBRUGGE_ROUTE.fortS;
     x=route.x+hx*along+nx*ZEEBRUGGE_ROUTE.fortN;y=route.y+hy*along+ny*ZEEBRUGGE_ROUTE.fortN;
+   }else if(stage===1){const heading=Number.isFinite(g.a)?g.a:-Math.PI/2,forward=Math.min(200,(bounds.bottom-bounds.top)*.26);x=g.x+Math.cos(heading)*forward;y=g.y+Math.sin(heading)*forward;
    }else if(stage===16){const p=jutlandPoint(g.jutlandRoute,JUTLAND_ROUTE.fleet);x=p.x;y=p.y;
    }else if(stage===14){const p=gallipoliPoint(g.gallipoliRoute,GALLIPOLI_ROUTE.fort);x=p.x;y=p.y;
    }else if(stage===13){x=g.x;y=g.y-Math.min(340,(bounds.bottom-bounds.top)*.42);

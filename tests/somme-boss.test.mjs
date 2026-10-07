@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createBossEncounter} from '../headon-stageboss-patterns.js?v=ui5';
-import {sommePoint,sommeMuzzle,landshipClearance} from '../somme-boss-layout.js?v=ui5';
-import {renderStageBossLayer} from '../headon-stageboss-render.js?v=ui5&rail=1';
+import {createBossEncounter} from '../headon-stageboss-patterns.js?v=adr1';
+import {sommePoint,sommeMuzzle,landshipClearance} from '../somme-boss-layout.js?v=adr1';
+import {renderStageBossLayer} from '../headon-stageboss-render.js?v=adr1&rail=1';
 
 import {fixture,step} from './stageboss-fixture94.mjs';
 const tuning={maxHp:3000,partHp:360,damage:20,bulletSpeed:240,regionalViewWidth:800,regionalViewHeight:600,patternMultiplier:1};
