@@ -1,6 +1,6 @@
-import {drawGameIcon} from './icons.js?v=perf5';
-import {fx,fxReady,FX56,FX3} from './fx-art.js?v=perf5';
-import {fxsBoom} from './fx-sample-preview.js?v=perf5';
+import {drawGameIcon} from './icons.js?v=sortie1';
+import {fx,fxReady,FX56,FX3} from './fx-art.js?v=sortie1';
+import {fxsBoom} from './fx-sample-preview.js?v=sortie1';
 
 export function drawGrenade(c,g,x,y){
  c.save();c.translate(x,y-g.height);c.rotate(g.phase==='flight'?g.age*7:0);
@@ -107,7 +107,7 @@ function drawRoleExplosion(c,f,x,y,radius,q,frame){
 // Approved four-stage Amatol artwork. Ordinary grenade and mine effects keep
 // their existing renderer; this layer is used only by Amatol-tagged blasts.
 const amatolEffect=typeof Image==='undefined'?null:new Image();
-if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=perf5';
+if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=sortie1';
 const AMATOL_FRAMES=[[19,319,306,315],[321,261,427,427],[744,227,475,503],[1209,245,463,489]];
 export function drawAmatolBlast(c,f,x,y){
  if(FX3&&fxReady('bossBlast0')){const q=Math.max(0,Math.min(.999,1-f.life/f.maxLife)),d=Math.min(f.secondaryExplosion?120:260,f.radius*2.15)*(.82+q*.18);

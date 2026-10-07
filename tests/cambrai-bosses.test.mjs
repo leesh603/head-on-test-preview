@@ -1,9 +1,9 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {Fliegerzug,TreffasWagen} from '../headon-stageboss-patterns.js?v=perf5';
-import {treffasPoint,treffasGunMuzzle} from '../cambrai-layout.js?v=perf5';
-import {advanceCambraiBug} from '../cambrai-bug-flight.js?v=perf5';
-import {Game} from '../engine.js?v=perf5';import {CoopGame} from '../coop-engine.js?v=perf5';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame} from '../stageboss-host.js?v=perf5';
+import {Fliegerzug,TreffasWagen} from '../headon-stageboss-patterns.js?v=sortie1';
+import {treffasPoint,treffasGunMuzzle} from '../cambrai-layout.js?v=sortie1';
+import {advanceCambraiBug} from '../cambrai-bug-flight.js?v=sortie1';
+import {Game} from '../engine.js?v=sortie1';import {CoopGame} from '../coop-engine.js?v=sortie1';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame} from '../stageboss-host.js?v=sortie1';
 
 import {fixture,step} from './stageboss-fixture94.mjs';
 const tuning={maxHp:2400,partHp:288,damage:18,bulletSpeed:270,geometryScale:2.025};
