@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {existsSync,readFileSync} from 'node:fs';
-import {BOSS_CATALOG} from '../headon-stageboss-patterns.js?v=ui1';
-import {BOSS_CUTIN_ART,BOSS_CUTIN_FALLBACKS,REDRAWN_BOSS_CUTINS,prepareBossCutins,bossCutinSource} from '../boss-cutin-art.js?v=ui1';
+import {BOSS_CATALOG} from '../headon-stageboss-patterns.js?v=ui2';
+import {BOSS_CUTIN_ART,BOSS_CUTIN_FALLBACKS,REDRAWN_BOSS_CUTINS,prepareBossCutins,bossCutinSource} from '../boss-cutin-art.js?v=ui2';
 
 test('Every playable area boss has a registered existing cut-in',()=>{
  assert.deepEqual(Object.keys(BOSS_CUTIN_ART).sort(),Object.keys(BOSS_CATALOG).sort());

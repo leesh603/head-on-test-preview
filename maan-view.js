@@ -1,12 +1,12 @@
-import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=ui1';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=ui1';
-import {sandOpacity} from './maan-weather.js?v=ui1';
-import {fx} from './fx-art.js?v=ui1';
+import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=ui2';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=ui2';
+import {sandOpacity} from './maan-weather.js?v=ui2';
+import {fx} from './fx-art.js?v=ui2';
 export const MAAN_ASSETS=Object.freeze({terrain:'terrain-maan-r2.webp',workshop:'maan-workshop-r2.webp',wusten:'boss-maan-wusten-r2.webp',sinai:'boss-maan-sinai-r2.webp',car:'boss-maan-rolls-royce.webp'});
 const images=new Map();let ground=null;
 const _filterBakes=new WeakMap();
 function bakedFiltered(img,filter){if(!img?.naturalWidth)return img;let m=_filterBakes.get(img);if(!m){m=new Map();_filterBakes.set(img,m)}let cv=m.get(filter);if(cv===undefined){cv=document.createElement('canvas');cv.width=img.naturalWidth;cv.height=img.naturalHeight;const cc=cv.getContext('2d');cc.filter=filter;cc.drawImage(img,0,0);m.set(filter,cv)}return cv}
-const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=ui1';images.set(key,im);return im;};
+const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=ui2';images.set(key,im);return im;};
 export function prepareMaanAssets(region){
  if(region!==13){images.clear();ground=null;return Promise.resolve();}
  return Promise.all(Object.keys(MAAN_ASSETS).map(key=>{const im=load(key);if(im.complete&&im.naturalWidth)return Promise.resolve();return new Promise((resolve,reject)=>{im.onload=()=>{if(!im.naturalWidth){reject(new Error('Ma’an empty asset: '+MAAN_ASSETS[key]));return}(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.onerror=()=>reject(new Error('Ma’an asset: '+MAAN_ASSETS[key]));});})).then(()=>{seamlessGround(load('terrain'));});

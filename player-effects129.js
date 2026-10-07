@@ -1,7 +1,7 @@
-import {createSignatureView} from './pilot-signature-view.js?v=ui1';
-import {fx,fxTint} from './fx-art.js?v=ui1';
-import {planeSprite,aircraftKey} from './aircraft.js?v=ui1';
-import {drawGameIcon} from './icons.js?v=ui1';
+import {createSignatureView} from './pilot-signature-view.js?v=ui2';
+import {fx,fxTint} from './fx-art.js?v=ui2';
+import {planeSprite,aircraftKey} from './aircraft.js?v=ui2';
+import {drawGameIcon} from './icons.js?v=ui2';
 
 import {drawCavalryGuard} from './pilot-directed-fx.js';
 const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);

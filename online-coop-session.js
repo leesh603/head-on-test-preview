@@ -42,13 +42,14 @@ export function installOnlineLobby({getLoadout,getGame,onStart,onEnd}){
  const mode=document.createElement('button');mode.id='onlineCoopMode';mode.type='button';mode.hidden=true;mode.textContent='온라인 Co-op';mode.setAttribute('aria-pressed','false');document.getElementById('hangar').append(mode);
  const panel=document.createElement('section');panel.id='onlineCoopPanel';panel.className='coop-panel hidden';panel.setAttribute('aria-label','온라인 2인 협동');
  panel.innerHTML='<p>선택한 파일럿으로 출격합니다. 친구와 같은 진영을 선택하세요.</p><div class="online-room-actions"><button type="button" id="onlineCreate">방 만들기</button><label for="onlineCode">Room Code<input id="onlineCode" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="6자리 코드"></label><button type="button" id="onlineJoin">참가</button></div><p id="onlineRoomCode"></p><p id="onlinePlayers"></p><p id="onlineStatus" role="status" aria-live="polite">방을 만들거나 친구의 코드를 입력하세요.</p><button type="button" id="onlineReady" hidden>준비</button> <button type="button" id="onlineLeave">닫기</button>';
- const anchor=document.getElementById('coopPanel');if(anchor)anchor.after(panel);else document.querySelector('.hangar-copy')?.append(panel);
+ const seat=()=>{const anchor=document.getElementById('coopPanel');if(anchor&&panel.parentElement!==anchor.parentElement)anchor.after(panel);};
+ seat();
  const status=document.createElement('span');status.id='onlineConnection';status.hidden=true;status.setAttribute('role','status');document.getElementById('viewport').append(status);
  let session=null,ready=false;
  const $=id=>document.getElementById(id);
  const message=text=>{$('onlineStatus').textContent=text;status.textContent=text;};
  const close=()=>{session?.leave();session=null;ready=false;panel.classList.add('hidden');mode.setAttribute('aria-pressed','false');$('onlineReady').hidden=true;};
- mode.onclick=()=>{if(getGame())return;panel.classList.toggle('hidden');mode.setAttribute('aria-pressed',String(!panel.classList.contains('hidden')));};
+ mode.onclick=()=>{if(getGame())return;seat();panel.classList.toggle('hidden');mode.setAttribute('aria-pressed',String(!panel.classList.contains('hidden')));};
  const open=type=>{
   if(getGame())return;session?.leave();ready=false;
   let url;try{url=relayUrl();}catch(e){message(e.message);return;}
