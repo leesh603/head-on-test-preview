@@ -51,13 +51,18 @@ export function drawRuralRail(c,b,images,wrecks){
 export function drawRuralRailWarnings(c,b){
  if(!b.ruralRailBoss||b.dead)return;
  c.save();c.lineWidth=1.5;
- if(b.rail129.phase==='aim'&&b.aimPlan){const plan=b.aimPlan,heavy=b.kind==='lincomparable';
+ const pending=b.aimPlan||(b.kind==='paris-gun'?b.barrage:null);
+ if(pending){const plan=pending,heavy=b.kind==='lincomparable';
   c.strokeStyle=plan.blind?'#b7c1a899':'#f0c589bb';c.setLineDash([7,7]);
   for(const [i,p]of plan.points.entries()){
-   circle(c,p.x,p.y,heavy?92:88);c.stroke();
+   if(i<(plan.index||0))continue;
+   circle(c,p.x,p.y,heavy?92:plan.radius||88);c.stroke();
    if(!heavy){c.setLineDash([]);c.fillStyle='#f0cf91';c.font='bold 14px sans-serif';c.textAlign='center';c.fillText(String(i+1),p.x,p.y+5);c.setLineDash([7,7]);}
   }
   if(heavy){circle(c,plan.target.x,plan.target.y,245);c.stroke();}
+ }
+ if(b.kind==='paris-gun'&&b.railGun.brakeAge<.65){const q=b.railGun.brakeAge/.65;
+  for(const side of [-1,1])fx(c,'gunSmoke',b.x+side*(60+q*40),b.y+105,60+q*65,70+q*75,0,(1-q)*.32);
  }
  if(b.aaPlan){const rear=b.parts.get('car-rear'),x=b.x,y=b.y+rear.y-145,a=b.aaPlan.angle;
   c.setLineDash([5,7]);c.strokeStyle='#e9c38b99';for(const da of [-.14,0,.14]){c.beginPath();c.moveTo(x,y);c.lineTo(x+Math.cos(a+da)*230,y+Math.sin(a+da)*230);c.stroke();}

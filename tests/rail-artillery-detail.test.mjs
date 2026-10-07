@@ -28,12 +28,12 @@ for(const Type of [ParisGun,LIncomparable]){
  });
 }
 test('snapshot carries gun rig through the real renderer and ammo loss changes the loading animation',()=>{
- const {b,events}=make(ParisGun);for(const id of b.railCarOrder)b.hit({partId:id,damage:9999});aim(b);run(b,3.2);
+ const {b,events}=make(ParisGun);for(const id of b.railCarOrder)b.hit({partId:id,damage:9999});aim(b);run(b,3.35);
  assert(b.railGun.manual);assert.equal(b.rail129.c.reloadSeconds,b.baseReload*1.6);assert(b.railGun.load>0&&b.railGun.load<1);
  const models=[];renderStageBossLayer({stages:{encounter:{bodies:new Map([[b.id,b]])}},hazards:{pool:{visit(){}}}},{drawBody:x=>models.push(x),drawPart(){},drawHazard(){}});
  assert.equal(models[0].railGun,b.railGun);assert.equal(models[0].railCars.filter(p=>p.destroyed).length,3);assert.equal(events.filter(e=>e.type==='rural-rail-load').length,1);
 });
 test('movement audio is rate-limited and no action sound continues after disposal',()=>{
- const {b,events}=make(ParisGun);run(b,5);const rolls=events.filter(e=>e.type==='rural-rail-roll');assert(rolls.length>3&&rolls.length<12);assert.equal(events.filter(e=>e.type==='rural-rail-brake').length,0);
+ const {b,events}=make(ParisGun);run(b,5);const rolls=events.filter(e=>e.type==='rural-rail-roll');assert(rolls.length>3&&rolls.length<12);assert(events.some(e=>e.type==='rural-rail-brake'));assert.equal(b.entry,null);
  run(b,1);assert(events.some(e=>e.type==='rural-rail-brake'));b.dead=true;b.dispose();const n=events.length;b.update(20,frame);assert.equal(events.length,n);
 });
