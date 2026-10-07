@@ -1068,7 +1068,9 @@ const shownPortraitReady=new Promise(r=>{const i=new Image();i.onload=i.onerror=
 // Every other pilot's art and portrait keeps warming at rank 1 so a faction switch
 // still lands quickly — but it can no longer hold the splash hostage.
 const visiblePortraitReady=Promise.all(Object.keys(PILOTS).filter(id=>PILOTS[id].faction===faction).map(id=>portraitLoaded.get(id)||Promise.resolve(true)));
-const hangarReady=Promise.all([visiblePortraitReady,hangarArt(shownKey),hangarIconsReady,paintedReady(shownKey)]);
+const gateDeps={portraits:visiblePortraitReady,figure:hangarArt(shownKey),icons:hangarIconsReady,sprite:paintedReady(shownKey)};
+const hangarReady=Promise.all(Object.values(gateDeps));
+for(const n of Object.keys(gateDeps))gateDeps[n].then(()=>{(window.__gateMarks=window.__gateMarks||{})[n]=Math.round(performance.now()/100)/10},()=>{(window.__gateMarks=window.__gateMarks||{})[n]='err'});
 const battleReady=Promise.all([fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady,aircraftReady]);
 hangarReady.then(()=>{
  // Reveal relaxes the strict-priority hold instead of flooding the connection: the
