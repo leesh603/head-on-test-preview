@@ -1,0 +1,18 @@
+{
+  "liveMain": "https://leesh603.github.io/head-on-test-preview/test-lab.html",
+  "livePcBossObserved": "lincomparable, 1280x800, Korean HUD and aim phase",
+  "branchCommit": "ecea93b2f217f6657f5088f43d3721e6937ec622",
+  "branchPreview": "https://raw.githack.com/leesh603/head-on-test-preview/ecea93b2f217f6657f5088f43d3721e6937ec622/test-lab.html",
+  "branchMobileAttempt": [
+    390,
+    844
+  ],
+  "actualBranchGameplay": "unverified",
+  "errors": [
+    "SecurityError getImageData: icons.js",
+    "SecurityError getImageData: equipment.js",
+    "SecurityError getImageData: aircraft.js",
+    "SecurityError getImageData: battlefield-art.js"
+  ],
+  "securityOrCommonLoaderModified": false
+}

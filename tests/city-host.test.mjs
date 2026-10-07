@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 const {CoopGame}=await import('../coop-engine.js?v=ui5');
-const {enableStageBoss,beginStageBossFrame,endStageBossFrame}=await import('../stageboss-host.js?v=ui5');
+const {enableStageBoss,beginStageBossFrame,endStageBossFrame}=await import('../stageboss-host.js?v=ui5&rail=1');
 const {spawnCityDefense,tickCityDefense}=await import('../city-defense.js?v=ui5');
 
 const {fixture,step}=await import('./stageboss-fixture94.mjs');

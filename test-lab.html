@@ -30,6 +30,8 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 </select></label>
 <div id="maanQa" hidden><label class="check"><input id="maanOrbit" type="checkbox">보스 주변 순회</label><label class="check"><input id="maanFire" type="checkbox" checked>자동 사격</label><select id="maanPart" aria-label="마안 검사 부위"></select><button id="maanHalf" type="button">손상탄</button><button id="maanBreak" type="button">파괴탄</button><button id="maanFinal" type="button">후반 페이즈</button><span id="maanState"></span></div>
 <label>파일럿<select id="pilot"><option>게임 로딩 중…</option></select></label>
+<label class="check"><input id="coop" type="checkbox">2인 협동</label>
+<label>P2 파일럿<select id="pilot2"><option>게임 로딩 중…</option></select></label>
 <label>에이스<select id="ace"><option value="">등장 안 함</option></select></label>
 <label class="check"><input id="boss" type="checkbox">보스 즉시</label>
 <label class="check"><input id="invincible" type="checkbox" checked>무적</label>
@@ -70,14 +72,17 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 const $=id=>document.getElementById(id),frame=$('game');let api=null;
 function query(){
  const p=new URLSearchParams({headonTest:'1',region:$('region').value,pilot:$('pilot').value,invincible:$('invincible').checked?'1':'0'});
- if($('boss').checked)p.set('boss','1');if($('ace').value)p.set('ace',$('ace').value);if($('fxs').checked)p.set('fxs','1');return p;
+ if($('boss').checked)p.set('boss','1');if($('ace').value)p.set('ace',$('ace').value);if($('fxs').checked)p.set('fxs','1');if($('coop').checked)p.set('coop',$('pilot2').value);return p;
 }
 function refreshOpen(){ $('open').href='./index.html?'+query().toString();$('fortStep').style.display=$('region').value==='12'?'':'none'; }
 function refreshAce(){
- const selected=api?.catalog?.pilots?.find(p=>p.id===$('pilot').value),old=$('ace').value;
+ const selected=api?.catalog?.pilots?.find(p=>p.id===$('pilot').value),old=$('ace').value,oldP2=$('pilot2').value;
  $('ace').replaceChildren(new Option('등장 안 함',''),new Option('랜덤 적 에이스','random'));
- for(const p of api?.catalog?.pilots||[])if(!selected||p.faction!==selected.faction)$('ace').append(new Option(p.name,p.id));
- if([...$('ace').options].some(o=>o.value===old))$('ace').value=old;refreshOpen();
+ $('pilot2').replaceChildren();
+ for(const p of api?.catalog?.pilots||[]){if(!selected||p.faction!==selected.faction)$('ace').append(new Option(p.name,p.id));if(selected&&p.faction===selected.faction)$('pilot2').append(new Option(p.name,p.id))}
+ if([...$('ace').options].some(o=>o.value===old))$('ace').value=old;
+ if([...$('pilot2').options].some(o=>o.value===oldP2))$('pilot2').value=oldP2;else $('pilot2').value=$('pilot2').options[0]?.value||'';
+ $('pilot2').disabled=!$('coop').checked;refreshOpen();
 }
 function applyViewport(){
  const value=$('viewport').value;
@@ -94,7 +99,7 @@ async function connect(){
 frame.addEventListener('load',connect);
 $('start').onclick=()=>{
  if(!api)return;$('status').textContent='시작 중…';
- const result=api.start({region:Number($('region').value),pilot:$('pilot').value,ace:$('ace').value,boss:$('boss').checked,invincible:$('invincible').checked,orbit:$('maanOrbit').checked,fire:$('maanFire').checked});
+ const result=api.start({region:Number($('region').value),pilot:$('pilot').value,ace:$('ace').value,boss:$('boss').checked,invincible:$('invincible').checked,orbit:$('maanOrbit').checked,fire:$('maanFire').checked,coop:$('coop').checked?$('pilot2').value:''});
  if(result&&$('combatScene').value)api.debug()?.beginBattleDirectorPattern($('combatScene').value);
  $('patternStep').disabled=!result;$('status').textContent=result?'실행 · '+result.plane+' · map '+result.region:'시작 실패';refreshOpen();
  if(result&&$('freeze').checked)api.debug().state='paused';
@@ -185,7 +190,7 @@ $('maanBreak').onclick=()=>api?.maanProbe?.($('maanPart').value);
 $('maanFinal').onclick=()=>api?.maanProbe?.('hull');
 setInterval(()=>{const q=api?.maanInspect?.();$('maanQa').hidden=!q||!$('qaTools').checked;if(!q)return;const old=$('maanPart').value;$('maanPart').replaceChildren(...q.parts.map(p=>new Option(p.id+(p.destroyed?' · 파괴됨':' · '+Math.round(p.hp/p.maxHp*100)+'%'),p.id)));if(q.parts.some(p=>p.id===old))$('maanPart').value=old;$('maanState').textContent=q.phase+' · 진입 '+q.entry.toFixed(1)+'s · 파괴 '+q.parts.filter(p=>p.destroyed).length+'/'+q.parts.length+' · 호위 '+q.cars;},400);
 $('reload').onclick=()=>{api=null;$('status').textContent='새로고침 중…';frame.src='./index.html?headonTest=1&autostart=0&t='+Date.now()};
-$('pilot').onchange=refreshAce;$('region').onchange=refreshOpen;$('ace').onchange=refreshOpen;$('boss').onchange=refreshOpen;$('invincible').onchange=refreshOpen;$('viewport').onchange=applyViewport;
+$('pilot').onchange=refreshAce;$('region').onchange=refreshOpen;$('ace').onchange=refreshOpen;$('boss').onchange=refreshOpen;$('invincible').onchange=refreshOpen;$('viewport').onchange=applyViewport;$('coop').onchange=()=>{$('pilot2').disabled=!$('coop').checked;refreshOpen()};$('pilot2').onchange=refreshOpen;
 $('fxs').onchange=()=>{refreshOpen();api=null;$('status').textContent='FX 시안 적용 중…';frame.src='./index.html?'+query().toString()+'&autostart=0&t='+Date.now()};
 applyViewport();if(new URLSearchParams(location.search).get('fxs')==='1'){$('fxs').checked=true;$('fxs').onchange()}refreshOpen();
 $('build').textContent='live-v'+(new URL(frame.src,location.href).searchParams.get('v')||'?');

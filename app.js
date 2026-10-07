@@ -23,9 +23,9 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=ui5';
 import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=ui5';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=ui5';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=ui5';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=ui5&rail=1';
 import {paintParis} from './paris-night-art.js?v=ui5';
-import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=ui5';
+import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=ui5&rail=1';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=ui5';
 import './hud-layout94.js?v=ui5';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=ui5';
@@ -48,14 +48,14 @@ import {drawCampaign} from './campaign-view.js?v=ui5';
 import {campaignArtReady} from './aircraft.js?v=ui5';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady,hangarIconsReady} from './icons.js?v=ui5';
 import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?v=ui5';
-import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=ui5';
+import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=ui5&rail=1';
 import {attachCombatFeedback,combatVisualPose,drawCombatFeedback,combatCameraOffset,combatFlightSound} from './combat-feedback.js?v=ui5';
 import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=ui5';
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=ui5';
 import {drawTailEngagement} from './engagement-hud410.js?v=ui5';
 import {portraitSources,portraitsReady,portraitLoaded} from './portraits.js?v=ui5';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=ui5';
-import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=ui5';
+import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=ui5&rail=1';
 import {drawEquipment} from './equipment.js?v=ui5';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=ui5';
 import{planeSprite,aircraftReady,aircraftKey,hangarArtReady,paintedReady}from './aircraft.js?v=ui5';
@@ -734,7 +734,7 @@ function swapArt(el,url){const artSwapToken=swapArt.tokens||(swapArt.tokens=new 
  return token.done=(el.decode?el.decode():Promise.resolve()).catch(()=>{}).then(()=>{if(artSwapToken.get(el)===token)el.style.visibility=''})}
 function bossCutinHeld(){return bossCutinArtWait&&performance.now()<bossCutinArtWait}
 function setBossCutin(imgSrc,name,kicker,detail,side='boss'){$('bossCutin').classList.toggle('skill-side',side==='skill');{const wait=performance.now()+600;bossCutinArtWait=wait;swapArt($('bossCutinImg'),imgSrc).then(()=>{if(bossCutinArtWait===wait)bossCutinArtWait=0})}$('bossCutinImg').alt=name;$('bossCutinKicker').textContent=kicker;$('bossCutinName').textContent=name;$('bossCutinDetail').textContent=detail||''}
-function stageBossCutinCheck(){const sb=game?.stageBoss?.stages;if(sb&&sb.phase==='boss'&&sb.bossId&&sb.bossId!==lastStageBossId){lastStageBossId=sb.bossId;const nm=(getLocale()==='en'?BOSS_NAMES_EN[sb.bossId]:BOSS_CATALOG[sb.bossId]?.name)||sb.bossId;setBossCutin(bossCutinSource(sb.bossId),nm,getLocale()==='en'?'AREA BOSS':'지역 보스',bossTactic(sb.encounter,getLocale()));$('bossWarnSub').textContent=nm+' · AREA BOSS INBOUND';show('bossWarning');{const warningRun=game,warningBoss=sb.encounter;setTimeout(()=>{if(game===warningRun&&game?.stageBoss?.stages.encounter===warningBoss)show('bossWarning',false)},1600)}bossCardFrom=performance.now()+1400;bossCutinUntil=bossCardFrom+2600;sfx('bossSting');{const run=game,encounter=sb.encounter;const later=(name,delay)=>setTimeout(()=>{if(game===run&&run.stageBoss?.stages.encounter===encounter&&run.state==='playing'&&!regionTransitionUntil&&!document.hidden)sfx(name)},delay);later('bossSting',620);if(['paris-gun','lincomparable','fliegerzug'].includes(sb.bossId))later('trainWhistle',380);if([1,16].includes(BOSS_CATALOG[sb.bossId]?.stage))later('shipHorn',420)}}}
+function stageBossCutinCheck(){const sb=game?.stageBoss?.stages;if(sb&&sb.phase==='boss'&&sb.bossId&&sb.bossId!==lastStageBossId){lastStageBossId=sb.bossId;const nm=(getLocale()==='en'?BOSS_NAMES_EN[sb.bossId]:BOSS_CATALOG[sb.bossId]?.name)||sb.bossId;setBossCutin(bossCutinSource(sb.bossId),nm,getLocale()==='en'?'AREA BOSS':'지역 보스',bossTactic(sb.encounter,getLocale()));$('bossWarnSub').textContent=nm+' · AREA BOSS INBOUND';show('bossWarning');{const warningRun=game,warningBoss=sb.encounter;setTimeout(()=>{if(game===warningRun&&game?.stageBoss?.stages.encounter===warningBoss)show('bossWarning',false)},1600)}bossCardFrom=performance.now()+1400;bossCutinUntil=bossCardFrom+2600;sfx('bossSting');{const run=game,encounter=sb.encounter;const later=(name,delay)=>setTimeout(()=>{if(game===run&&run.stageBoss?.stages.encounter===encounter&&run.state==='playing'&&!regionTransitionUntil&&!document.hidden)sfx(name)},delay);later('bossSting',620);if(['paris-gun','lincomparable'].includes(sb.bossId))later('trainApproach',380);else if(sb.bossId==='fliegerzug')later('trainWhistle',380);if([1,16].includes(BOSS_CATALOG[sb.bossId]?.stage))later('shipHorn',420)}}}
 function paintRelicBadge(rb){const c=rb.ctx,spec=RELIC_COOLDOWNS[rb.id],owner=rb.owner();let prog=1;if(spec&&owner){const iv=spec.iv(owner)||1;prog=Math.max(0,Math.min(1,1-Math.max(0,spec.rem(owner))/iv))}c.clearRect(0,0,48,48);if(prog>=1){drawGameIcon(c,rb.key,24,24,42);return}c.globalAlpha=.32;drawGameIcon(c,rb.key,24,24,42);c.globalAlpha=1;c.save();c.beginPath();c.moveTo(24,24);c.arc(24,24,26,-Math.PI/2,-Math.PI/2+prog*Math.PI*2);c.closePath();c.clip();drawGameIcon(c,rb.key,24,24,42);c.restore();if(prog>0&&prog<1){c.save();c.strokeStyle='#ffe9a8';c.lineWidth=2;c.beginPath();c.arc(24,24,21,-Math.PI/2,-Math.PI/2+prog*Math.PI*2);c.stroke();c.restore()}}
 function relicCooldownTick(){for(const rb of soloRelicRefs)if(RELIC_COOLDOWNS[rb.id])paintRelicBadge(rb);for(const arr of Object.values(coopRelicRefs))for(const rb of arr)if(RELIC_COOLDOWNS[rb.id])paintRelicBadge(rb)}
 hud=()=>{_hud51();relicCooldownTick();const held=UPGRADES.filter(u=>u.legendary&&game.upgrades[u.id]);const signature=held.map(u=>u.id).join(',');if(signature!==legendarySignature){legendarySignature=signature;$('legendaryInventory').replaceChildren();soloRelicRefs.length=0;for(const u of held){const item=document.createElement('button');item.type='button';item.className='legendary-badge';item.setAttribute('aria-label',reinforcementName(u,game,PLANES)+' · '+cleanDescription(u.desc));const tip=document.createElement('span');tip.className='legendary-tip156';tip.textContent=reinforcementName(u,game,PLANES)+' · '+cleanDescription(u.desc);const c=document.createElement('canvas');c.width=48;c.height=48;const key=u.id==='ironCross'?'ironCross-'+(PLANES[game.plane]?.faction==='entente'?'entente':'central'):u.id;soloRelicRefs.push({id:u.id,key,ctx:c.getContext('2d'),owner:()=>game});paintRelicBadge(soloRelicRefs[soloRelicRefs.length-1]);item.append(c,tip);item.onclick=e=>{e.preventDefault();item.classList.toggle('tip156')};item.onblur=()=>item.classList.remove('tip156');$('legendaryInventory').append(item)}}};
@@ -1408,7 +1408,7 @@ const HEADON_TEST_ALLOWED_HOSTS=new Set(['localhost','127.0.0.1','terminal.local
 function installHeadOnTestLab(){
  const testHost=globalThis.location?.hostname||'';if(!HEADON_TEST_ALLOWED_HOSTS.has(testHost))return;
  const configureRegion=(run,region)=>{
-  const addon=enableStageBoss(run,{teamFaction:PLANES[run.plane].faction});if(!addon)return null;
+  const addon=enableStageBoss(run,{teamFaction:run.mode==='coop2'?run.teamFaction:PLANES[run.plane].faction,heavyHp:run.mode==='coop2'?COOP_BALANCE.heavyHp:1});if(!addon)return null;
   addon.stages.stageIndex=region;addon.stages.orderPosition=addon.stages.order.indexOf(region);addon.stages.phase='explore';addon.stages.encounter=null;
   run.jutlandRoute=region===16?createJutlandRoute(run):null;prepareJutlandAssets(region);run.gallipoliRoute=region===14?createGallipoliRoute(run):null;prepareGallipoliAssets(region);run.region=region;run.maanStartX=run.x;prepareMaanAssets(region);run.stageStartDistance=run.distance||0;run.stageStartTime=run.t;run.clearRegionalHazards();
   run.bossBuildings=[];run.bossCues=[];run.navalRouteCues=new Set();run.navalApproachAt=null;run.parisBattle=null;
@@ -1417,9 +1417,11 @@ function installHeadOnTestLab(){
  };
  const startTest=(options={})=>{
   if(game)returnHangar();
-  selectedMode='endless';
   const requestedPilot=String(options.pilot||pilot);
+  const requestedCoop=String(options.coop||'');
+  selectedMode=requestedCoop&&coopAvailable&&PILOTS[requestedCoop]?'coop2':'endless';
   if(PILOTS[requestedPilot]){pilot=requestedPilot;faction=PILOTS[pilot].faction}
+  if(selectedMode==='coop2'){coopPilot2=PILOTS[requestedCoop]?.faction===faction?requestedCoop:pilot}
   if(pilot==='baron'&&options.baronAircraft==='baron_albatros')baronAircraft='baron_albatros';
   else if(pilot==='baron'&&options.baronAircraft==='fokker')baronAircraft='fokker';
   plane=pilotPlane(pilot);roster();start();
@@ -1437,11 +1439,11 @@ function installHeadOnTestLab(){
   }
   if(options.boss&&addon){
    // Immediate test bosses must enter the viewport without a long steering run.
-   if(region===16){Object.assign(game,jutlandPoint(game.jutlandRoute,JUTLAND_ROUTE.fleet-900));}
-   if(region===14){Object.assign(game,gallipoliPoint(game.gallipoliRoute,GALLIPOLI_ROUTE.fort-900));}
+   if(region===16){const pos=jutlandPoint(game.jutlandRoute,JUTLAND_ROUTE.fleet-900);if(game.mode==='coop2'){game.camera.x=pos.x;game.camera.y=pos.y}else Object.assign(game,pos);}
+   if(region===14){const pos=gallipoliPoint(game.gallipoliRoute,GALLIPOLI_ROUTE.fort-900);if(game.mode==='coop2'){game.camera.x=pos.x;game.camera.y=pos.y}else Object.assign(game,pos);}
    const distance=region===14?340:region===13?280:region===6?620:region===4?180:region===10?90:360,angle=Number.isFinite(game.a)?game.a:-Math.PI/2;
    const encounter=addon.startBoss({x:game.x+Math.cos(angle)*distance,y:game.y+Math.sin(angle)*distance});
-   if(region===15){const body=encounter?.bodies.values().next().value;if(body?.kind==='paris-searchlight-fortress'){game.x=body.x;game.y=body.y+280;}}
+   if(region===15){const body=encounter?.bodies.values().next().value;if(body?.kind==='paris-searchlight-fortress'){if(game.mode==='coop2'){game.camera.x=body.x;game.camera.y=body.y+280}else{game.x=body.x;game.y=body.y+280;}}}
   }
   const directorPattern=options.pattern||options.tactic;
   if(directorPattern&&!options.boss&&!ace){
@@ -1477,7 +1479,7 @@ function installHeadOnTestLab(){
  const params=new URLSearchParams(location.search);
  if(params.get('headonTest')==='1'&&params.get('autostart')!=='0')queueMicrotask(()=>startTest({
   region:params.get('region'),pilot:params.get('pilot'),ace:params.get('ace'),boss:params.get('boss')==='1',
-  invincible:params.get('invincible')!=='0',baronAircraft:params.get('baronAircraft')
+  invincible:params.get('invincible')!=='0',baronAircraft:params.get('baronAircraft'),coop:params.get('coop')
  }));
 }
 setInterval(()=>{if(game?.state==='playing'&&!muted&&!document.hidden&&!regionTransitionUntil)sfx('engineTick',combatFlightSound(game))},170);

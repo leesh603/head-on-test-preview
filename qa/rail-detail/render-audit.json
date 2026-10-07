@@ -1,0 +1,20 @@
+{
+  "missing": [],
+  "renderKind": "actual renderer + Skia, not browser",
+  "shots": {
+    "bruno": {
+      "count": 5,
+      "soundCues": 5,
+      "loading": 0.738095238095238
+    },
+    "lincomparable": {
+      "count": 1,
+      "soundCues": 1,
+      "loading": 0.738095238095238
+    }
+  },
+  "viewports": [
+    1440,
+    390
+  ]
+}

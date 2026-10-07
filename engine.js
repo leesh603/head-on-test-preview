@@ -12,7 +12,7 @@ import {installCityAir} from './city-air1.js?v=ui5';
 import {installRegionDoctrine} from './region-doctrine1.js?v=ui5';
 import {installLondonBattle} from './london-battle.js?v=ui5';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=ui5';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=ui5';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=ui5&rail=1';
 import {installBuildCombatIdentity} from './build-combat-identity.js?v=ui5';
 import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=ui5';
 import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=ui5';
