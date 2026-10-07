@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=perf1';
-import {segmentDistance} from './alps-geometry117.js?v=perf1';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=perf2';
+import {segmentDistance} from './alps-geometry117.js?v=perf2';
 
 // Shared measured geometry for the authored fortress layers, hits and muzzles.
 // A fortress is one existing boss body; its core is the body's final hit route.
