@@ -23,15 +23,15 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=imm3';
 import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=imm3';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=imm3';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=imm3';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=imm3&rail=1';
 import {paintParis} from './paris-night-art.js?v=imm3';
-import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=imm3';
+import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=imm3&rail=1';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=imm3';
 import './hud-layout94.js?v=imm3';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=imm3';
-import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=imm3';
+import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=imm3&rail=1';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=imm3';
-import {drawCoop} from './coop-view.js?v=imm3';
+import {drawCoop} from './coop-view.js?v=imm3&rail=1';
 import {drawSunStrike} from './sun-strike71.js?v=imm3';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=imm3';
 import {installFlightViewport} from './flight-viewport.js?v=imm3';
@@ -47,14 +47,14 @@ import {drawCampaign} from './campaign-view.js?v=imm3';
 import {campaignArtReady} from './aircraft.js?v=imm3';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady,hangarIconsReady} from './icons.js?v=imm3';
 import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?v=imm3';
-import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=imm3';
+import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=imm3&rail=1';
 import {attachCombatFeedback,combatVisualPose,drawCombatFeedback,combatCameraOffset,combatFlightSound} from './combat-feedback.js?v=imm3';
 import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=imm3';
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=imm3';
 import {drawTailEngagement} from './engagement-hud410.js?v=imm3';
 import {portraitSources,portraitsReady,portraitLoaded} from './portraits.js?v=imm3';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=imm3';
-import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=imm3';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=imm3&rail=1';
+import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=imm3&rail=1';
 import {drawEquipment} from './equipment.js?v=imm3';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=imm3';
 import{planeSprite,aircraftReady,aircraftKey,hangarArtReady,paintedReady}from './aircraft.js?v=imm3';
@@ -733,7 +733,7 @@ function swapArt(el,url){const artSwapToken=swapArt.tokens||(swapArt.tokens=new 
  return token.done=(el.decode?el.decode():Promise.resolve()).catch(()=>{}).then(()=>{if(artSwapToken.get(el)===token)el.style.visibility=''})}
 function bossCutinHeld(){return bossCutinArtWait&&performance.now()<bossCutinArtWait}
 function setBossCutin(imgSrc,name,kicker,detail,side='boss'){$('bossCutin').classList.toggle('skill-side',side==='skill');{const wait=performance.now()+600;bossCutinArtWait=wait;swapArt($('bossCutinImg'),imgSrc).then(()=>{if(bossCutinArtWait===wait)bossCutinArtWait=0})}$('bossCutinImg').alt=name;$('bossCutinKicker').textContent=kicker;$('bossCutinName').textContent=name;$('bossCutinDetail').textContent=detail||''}
-function stageBossCutinCheck(){const sb=game?.stageBoss?.stages;if(sb&&sb.phase==='boss'&&sb.bossId&&sb.bossId!==lastStageBossId){lastStageBossId=sb.bossId;const nm=(getLocale()==='en'?BOSS_NAMES_EN[sb.bossId]:BOSS_CATALOG[sb.bossId]?.name)||sb.bossId;setBossCutin(bossCutinSource(sb.bossId),nm,getLocale()==='en'?'AREA BOSS':'지역 보스',bossTactic(sb.encounter,getLocale()));$('bossWarnSub').textContent=nm+' · AREA BOSS INBOUND';show('bossWarning');{const warningRun=game,warningBoss=sb.encounter;setTimeout(()=>{if(game===warningRun&&game?.stageBoss?.stages.encounter===warningBoss)show('bossWarning',false)},1600)}bossCardFrom=performance.now()+1400;bossCutinUntil=bossCardFrom+2600;sfx('bossSting');{const run=game,encounter=sb.encounter;const later=(name,delay)=>setTimeout(()=>{if(game===run&&run.stageBoss?.stages.encounter===encounter&&run.state==='playing'&&!regionTransitionUntil&&!document.hidden)sfx(name)},delay);later('bossSting',620);if(['paris-gun','lincomparable','fliegerzug'].includes(sb.bossId))later('trainWhistle',380);if([1,16].includes(BOSS_CATALOG[sb.bossId]?.stage))later('shipHorn',420)}}}
+function stageBossCutinCheck(){const sb=game?.stageBoss?.stages;if(sb&&sb.phase==='boss'&&sb.bossId&&sb.bossId!==lastStageBossId){lastStageBossId=sb.bossId;const nm=(getLocale()==='en'?BOSS_NAMES_EN[sb.bossId]:BOSS_CATALOG[sb.bossId]?.name)||sb.bossId;setBossCutin(bossCutinSource(sb.bossId),nm,getLocale()==='en'?'AREA BOSS':'지역 보스',bossTactic(sb.encounter,getLocale()));$('bossWarnSub').textContent=nm+' · AREA BOSS INBOUND';show('bossWarning');{const warningRun=game,warningBoss=sb.encounter;setTimeout(()=>{if(game===warningRun&&game?.stageBoss?.stages.encounter===warningBoss)show('bossWarning',false)},1600)}bossCardFrom=performance.now()+1400;bossCutinUntil=bossCardFrom+2600;sfx('bossSting');{const run=game,encounter=sb.encounter;const later=(name,delay)=>setTimeout(()=>{if(game===run&&run.stageBoss?.stages.encounter===encounter&&run.state==='playing'&&!regionTransitionUntil&&!document.hidden)sfx(name)},delay);later('bossSting',620);if(['paris-gun','lincomparable'].includes(sb.bossId))later('trainApproach',380);else if(sb.bossId==='fliegerzug')later('trainWhistle',380);if([1,16].includes(BOSS_CATALOG[sb.bossId]?.stage))later('shipHorn',420)}}}
 function paintRelicBadge(rb){const c=rb.ctx,spec=RELIC_COOLDOWNS[rb.id],owner=rb.owner();let prog=1;if(spec&&owner){const iv=spec.iv(owner)||1;prog=Math.max(0,Math.min(1,1-Math.max(0,spec.rem(owner))/iv))}c.clearRect(0,0,48,48);if(prog>=1){drawGameIcon(c,rb.key,24,24,42);return}c.globalAlpha=.32;drawGameIcon(c,rb.key,24,24,42);c.globalAlpha=1;c.save();c.beginPath();c.moveTo(24,24);c.arc(24,24,26,-Math.PI/2,-Math.PI/2+prog*Math.PI*2);c.closePath();c.clip();drawGameIcon(c,rb.key,24,24,42);c.restore();if(prog>0&&prog<1){c.save();c.strokeStyle='#ffe9a8';c.lineWidth=2;c.beginPath();c.arc(24,24,21,-Math.PI/2,-Math.PI/2+prog*Math.PI*2);c.stroke();c.restore()}}
 function relicCooldownTick(){for(const rb of soloRelicRefs)if(RELIC_COOLDOWNS[rb.id])paintRelicBadge(rb);for(const arr of Object.values(coopRelicRefs))for(const rb of arr)if(RELIC_COOLDOWNS[rb.id])paintRelicBadge(rb)}
 hud=()=>{_hud51();relicCooldownTick();const held=UPGRADES.filter(u=>u.legendary&&game.upgrades[u.id]);const signature=held.map(u=>u.id).join(',');if(signature!==legendarySignature){legendarySignature=signature;$('legendaryInventory').replaceChildren();soloRelicRefs.length=0;for(const u of held){const item=document.createElement('button');item.type='button';item.className='legendary-badge';item.setAttribute('aria-label',reinforcementName(u,game,PLANES)+' · '+cleanDescription(u.desc));const tip=document.createElement('span');tip.className='legendary-tip156';tip.textContent=reinforcementName(u,game,PLANES)+' · '+cleanDescription(u.desc);const c=document.createElement('canvas');c.width=48;c.height=48;const key=u.id==='ironCross'?'ironCross-'+(PLANES[game.plane]?.faction==='entente'?'entente':'central'):u.id;soloRelicRefs.push({id:u.id,key,ctx:c.getContext('2d'),owner:()=>game});paintRelicBadge(soloRelicRefs[soloRelicRefs.length-1]);item.append(c,tip);item.onclick=e=>{e.preventDefault();item.classList.toggle('tip156')};item.onblur=()=>item.classList.remove('tip156');$('legendaryInventory').append(item)}}};

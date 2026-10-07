@@ -1,6 +1,7 @@
 import {fx} from './fx-art.js?v=imm3';
 import {getLocale} from './i18n.js?v=imm3';
 import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=imm3';
+import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=rail1';
 
 const circle=(c,x,y,r)=>{c.beginPath();c.arc(x,y,r,0,Math.PI*2);};
 // Called with the body's translation already applied. Original RGBA car art.
@@ -8,7 +9,7 @@ export function drawRuralRail(c,b,images,wrecks){
  c.save();c.imageSmoothingEnabled=true;
  const cars=new Map((b.railCars||[]).map(p=>[p.id,p]));
  for(const spec of RURAL_CARS){const p=cars.get(spec.id);if(!p)continue;const dead=p.destroyed||b.destroying,im=dead?wrecks[spec.art]:images[spec.art];
-  c.save();c.translate(p.x,p.y);c.rotate(p.angle||0);
+  c.save();c.translate(p.x,p.y+(dead?0:railSuspension(b,spec.y/RURAL_RAIL.pitch)));c.rotate(p.angle||0);
   if(im?.naturalWidth)c.drawImage(im,-130,-195,260,390);
   if(dead){const age=p.detachedPose?.age??Math.max(0,(b.motionTime||0)-(p.destroyedAt||0));
    if(age<7){fx(c,'smokeDark',-12,-38-age*8,90,125,0,Math.max(.08,.42-age*.05));fx(c,'fireGround',10,32,35,48,0,Math.max(0,.7-age*.1));}
@@ -22,8 +23,26 @@ export function drawRuralRail(c,b,images,wrecks){
   c.restore();
  }
  c.save();if(b.phase==='derailed'){c.translate(20,6);c.rotate(.12);}
- const engine=b.destroying?wrecks.engine:images.engine;if(engine?.naturalWidth)c.drawImage(engine,-130,-195,260,390);
- if(b.gunFlash>0)fx(c,'muzzle',0,RURAL_RAIL.muzzleY,75,100,-Math.PI/2,Math.min(1,b.gunFlash/.12));
+ c.translate(0,b.destroying?0:railSuspension(b));
+ const engine=b.destroying?wrecks.engine:images.engine,rig=RAIL_GUN_RIGS[b.assetKey];
+ const layered=!b.destroying&&images.chassis?.naturalWidth&&images.gun?.naturalWidth&&rig;
+ if(layered){
+  const chassis=images.chassis,w=390*chassis.naturalWidth/chassis.naturalHeight;
+  c.drawImage(chassis,-w/2,-195,w,390);
+  const g=b.railGun||{},load=g.load||0,open=load>0?Math.sin(load*Math.PI):0;
+  // The round slides only along the authored loading tray. Ammo starvation delays it.
+  const start=g.manual?.62:.2,q=Math.max(0,Math.min(1,(load-start)/(.92-start)));
+  if(load>start&&load<.92)fx(c,'shell',22*(1-q),rig.pivotY+62-48*q,13,34,0,.9);
+  c.save();c.translate(0,rig.pivotY);c.rotate(g.angle||0);
+  c.drawImage(images.gun,-rig.gunWidth/2,-rig.gunHeight*rig.anchor+railRecoil(b)+open*3,rig.gunWidth,rig.gunHeight);
+  c.restore();
+ }else if(engine?.naturalWidth)c.drawImage(engine,-130,-195,260,390);
+ if(!b.destroying&&b.railGun){
+  const p=railGunMuzzle(b),x=p.x-b.x,y=p.y-b.y-railSuspension(b),age=b.railGun.shotAge,heavy=b.assetKey==='lincomparable',a=(b.railGun.angle||0)-Math.PI/2;
+  if(b.gunFlash>0)fx(c,'muzzleHeavy',x,y,heavy?94:67,heavy?120:84,a,Math.min(1,b.gunFlash/.1));
+  if(age<.75){const q=age/.75;fx(c,'gunSmoke',x-12,y-22-q*42,58+q*52,65+q*80,a,(1-q)*.36);}
+  if(age<.45){const q=age/.45;for(const side of [-1,1])fx(c,'dustPuff',side*60,100,48+q*42,28+q*24,0,(1-q)*.25);}
+ }
  if(b.assetKey==='lincomparable'&&b.coreVulnerable&&b.recovery>0&&!b.destroying){
   c.strokeStyle='#bce5c9';c.lineWidth=2;for(const x of [-62,62]){c.beginPath();c.moveTo(x,-6);c.lineTo(x,65);c.lineTo(x-Math.sign(x)*14,65);c.stroke();}
   c.fillStyle='#bce5c9';c.font='bold 12px sans-serif';c.textAlign='center';c.fillText(getLocale()==='en'?'RELOAD':'재장전',0,92);

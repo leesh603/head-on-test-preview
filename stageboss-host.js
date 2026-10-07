@@ -7,10 +7,10 @@ import {handleMaanCue} from './maan-view.js?v=imm3';
 import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=imm3';
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=imm3';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=imm3';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=imm3';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=imm3';
-import {bossSoundFor} from './boss-feedback.js?v=imm3';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=imm3';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=imm3&rail=1';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=imm3&rail=1';
+import {bossSoundFor} from './boss-feedback.js?v=imm3&rail=1';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=imm3&rail=1';
 import {advanceCambraiBug} from './cambrai-bug-flight.js?v=imm3';
 import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=imm3';
 

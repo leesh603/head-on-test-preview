@@ -1,6 +1,7 @@
 import {RailAdapter} from './boss-adapters129.js?v=imm3';
 import {BaseBoss} from './headon-stageboss-core.js?v=imm3';
 import {RURAL_RAIL,RURAL_CARS,ruralBarrage} from './rural-rail-layout.js?v=imm3';
+import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=rail1';
 
 // Rural-only mechanics. The Cambrai carrier keeps its separate controller.
 export class RuralRailBoss extends RailAdapter {
@@ -9,6 +10,7 @@ export class RuralRailBoss extends RailAdapter {
   super({...o,y:(o.y||0)-(RURAL_RAIL.tailY-465)},kind);
   this.ruralRailBoss=true;this.baseReload=this.rail129.c.reloadSeconds;
   this.aimPlan=null;this.barrage=null;this.gunFlash=0;this.recovery=0;this.aaClock=1.6;this.aaPlan=null;
+  this.railGun=createRailArtillery();
   this.blindOrigin={x:this.x,y:this.y+RURAL_RAIL.tailY};this.frameBounds=null;this.ruralClock=0;
   for(const spec of RURAL_CARS){const p=this.parts.get(spec.id);Object.assign(p,{x:0,y:spec.y,hp:this.maxHp*spec.share,maxHp:this.maxHp*spec.share,hitRadiusY:188,role:spec.role});}
   // A visible fixed track section behind the tail remains independently hittable.
@@ -21,20 +23,21 @@ export class RuralRailBoss extends RailAdapter {
    const blind=this.parts.get('car-middle').destroyed,target=blind?{...this.blindOrigin,vx:0,vy:0}:{...e.target};
    this.rail129.target={...target};
    this.aimPlan={target,blind,mode:this.rail129.shot%2?'cross':'march',points:this.kind==='paris-gun'?ruralBarrage(target,this.rail129.shot,blind?null:this.frameBounds):[{x:target.x,y:target.y}]};
+   aimRailArtillery(this,target);
    this.emit({...e,type:'rural-aim',target,bossId:this.id});return;
   }
   if(e.type==='fire'){
    const plan=this.aimPlan||{target:e.target,points:[e.target]};this.blindOrigin={...plan.target};this.aimPlan=null;
-   this.gunFlash=.22;this.refreshReload();
+   this.refreshReload();
    if(this.kind==='lincomparable'){
     const target={x:plan.target.x,y:plan.target.y};
     this.emit({type:'hazard',bossId:this.id,kind:'circle',...target,warning:.02,delay:0,duration:.65,once:true,radius:92,damage:this.t.damage*.74,visual:'rail-shell'});
     // The wave has an actual safe interior; a swept annulus hits each pilot once.
     this.emit({type:'hazard',bossId:this.id,kind:'circle',...target,warning:.55,delay:.28,duration:.4,once:true,radius:245,radiusStart:92,radiusLimit:245,ringWidth:42,ringSpeed:382.5,damage:this.t.damage*.62,visual:'rural-rail-shock'});
     this.emit({type:'hazard',bossId:this.id,kind:'circle',...target,warning:.04,delay:.5,duration:1.8,once:false,tickInterval:.7,radius:132,damage:this.t.damage*.22,visual:'rural-rail-smoke'});
-    this.recoilKick129=55;this.recovery=this.rail129.c.recoilSeconds+this.rail129.c.reloadSeconds;
+    fireRailArtillery(this);this.recovery=this.rail129.c.recoilSeconds+this.rail129.c.reloadSeconds;
    }else this.barrage={points:plan.points.map(p=>({...p})),index:0,clock:0};
-   this.emit({type:'heavy-gun-fired',bossId:this.id,x:this.x,y:this.y+RURAL_RAIL.muzzleY});return;
+   return;
   }
   if(e.type==='rail-break')this.refreshReload();
   if(e.type==='runaway-start'){
@@ -66,7 +69,7 @@ export class RuralRailBoss extends RailAdapter {
   this.gunFlash=Math.max(0,this.gunFlash-dt);this.refreshReload();
   const rail=this.rail129,oldS=rail.s,oldPose={x:this.x,y:this.y};
   if(this.pullAway&&rail.phase==='move'){rail.direction=-1;this.pullAway=false;}
-  if(this.recoilKick129>0&&rail.phase==='recoil'&&!rail.broken){const kick=Math.min(this.recoilKick129,dt*180);rail.s=Math.max(0,rail.s-rail.direction*kick);this.recoilKick129-=kick;}
+  this.railGun.shotAge+=dt;
   rail.update(dt,ctx);Object.assign(this,rail.pose);
   for(const spec of RURAL_CARS){const p=this.parts.get(spec.id),q=p.detachedPose;if(!q)continue;
    q.age+=dt;q.x+=q.vx*dt;q.y+=q.vy*dt;q.angle=Math.min(.12,q.angle+dt*.14);const drag=Math.exp(-dt*4);q.vx*=drag;q.vy*=drag;
@@ -81,7 +84,8 @@ export class RuralRailBoss extends RailAdapter {
   this.syncRailPart();
   // Armor is open throughout the real recoil/reload state, including slow reload.
   this.recovery=this.kind==='lincomparable'&&['recoil','reload'].includes(rail.phase)?Math.max(.01,(rail.phase==='recoil'?rail.c.recoilSeconds-rail.time+rail.c.reloadSeconds:rail.c.reloadSeconds-rail.time)):0;
-  if(this.barrage){const q=this.barrage;q.clock-=dt;while(q.index<q.points.length&&q.clock<=0){const p=q.points[q.index++];this.emit({type:'hazard',bossId:this.id,kind:'circle',...p,warning:.85,delay:0,duration:.35,once:true,radius:88,damage:this.t.damage,visual:'rail-shell'});q.clock+=this.t.barrageInterval||.32;}if(q.index===q.points.length)this.barrage=null;}
+  if(this.barrage){const q=this.barrage;q.clock-=dt;while(q.index<q.points.length&&q.clock<=0){const p=q.points[q.index++];fireRailArtillery(this);this.emit({type:'hazard',bossId:this.id,kind:'circle',...p,warning:.85,delay:0,duration:.35,once:true,radius:88,damage:this.t.damage,visual:'rail-shell'});q.clock+=this.t.barrageInterval||.32;}if(q.index===q.points.length)this.barrage=null;}
+  updateRailArtillery(this,dt);
   this.updateDefense(dt,ctx.players||[]);
   if(!this.runawayTriggered129)this.phase=this.coreVulnerable?'locomotive':rail.phase;
  }

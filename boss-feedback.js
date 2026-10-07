@@ -85,19 +85,23 @@ export function bossTactic(encounter,locale='ko'){
 }
 export function bossSoundFor(event,kind=''){
  const type=event.type,visual=event.visual||'';
+ if(type==='rural-rail-roll')return 'trainRoll';
+ if(type==='rural-rail-brake')return 'trainBrake';
+ if(type==='rural-rail-load')return 'railBreech';
  if(type==='phase-change'||type==='hangar-cover-ejected')return 'armorOpen';
  if(type==='part-destroyed'||type==='ammo-cookoff'||type==='rail-car-detached'||type==='rail-break')return 'metalBreak';
  if(type==='flame-warning')return 'flameValve';
  if(type==='mortar-launch')return 'mortarLaunch';
  if(type==='crane-drop'||type==='spawn-minefield')return 'winchRelease';
- if(type==='rail-aim'||type==='rural-aim'||type==='rail-runaway')return 'railClatter';
+ if(type==='rural-aim')return null;
+ if(type==='rail-aim'||type==='rail-runaway')return 'railClatter';
  if(type==='seaplane-launch')return 'formationPass';
  if(type==='minion-launched')return 'formationPass';
  if(type==='charge-warning'||type==='reentry-warning')return 'approachWarning';
  if(type==='aa-volley')return 'navalGun';
  if(type==='flak-burst')return 'flak';
  if(type==='muzzle')return ['gik','ca4'].includes(kind)?'enemyShot':/stuttgart|zubian|harbor/.test(kind)?'navalGun':kind==='minenwerfer-battery'?null:'heavyShot';
- if(type==='heavy-gun-fired')return 'heavyShot';
+ if(type==='heavy-gun-fired')return event.railArtillery?'railGunFire':'heavyShot';
  if(type==='boss-destruction-start')return /stuttgart|zubian/.test(kind)?'shipBreak':'metalBreak';
  if(type==='hazard-activated'){
   if(visual==='livens-flame')return 'flameBurn';
