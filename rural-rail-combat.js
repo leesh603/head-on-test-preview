@@ -1,6 +1,6 @@
-import {RailAdapter} from './boss-adapters129.js?v=ui5';
-import {BaseBoss} from './headon-stageboss-core.js?v=ui5';
-import {RURAL_RAIL,RURAL_CARS,ruralBarrage} from './rural-rail-layout.js?v=ui5';
+import {RailAdapter} from './boss-adapters129.js?v=adr1';
+import {BaseBoss} from './headon-stageboss-core.js?v=adr1';
+import {RURAL_RAIL,RURAL_CARS,ruralBarrage} from './rural-rail-layout.js?v=adr1';
 import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=rail1';
 
 // Rural-only mechanics. The Cambrai carrier keeps its separate controller.
