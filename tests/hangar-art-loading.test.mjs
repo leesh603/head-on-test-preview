@@ -50,9 +50,10 @@ test('hangar waits for every plane and portrait while sortie retains its aircraf
  const app=await readFile(new URL('app.js',root),'utf8');
  assert.match(app,/hangarCardsReady=.*\.map\(hangarArt\)/);
  const hangar=app.match(/const hangarReady=([^;]+);/)[1];
- // The hangar stays hidden until every plane is present: painted sprites on the canvases
- // (aircraftReady) plus the decoded display cards, not just the pilot on screen.
- assert.ok(hangar.includes('hangarArt(shownKey)'));assert.ok(hangar.includes('aircraftReady'));
+ // The hangar stays hidden until every plane is present: the hangar-painted sprites on
+ // the canvases (hangarArtReady — the full 170-file aircraftReady belongs to the battle
+ // gate so the splash doesn't wait on the whole set) plus the decoded display cards.
+ assert.ok(hangar.includes('hangarArt(shownKey)'));assert.ok(hangar.includes('hangarArtReady'));assert.ok(!hangar.includes('aircraftReady'));
  assert.match(app,/bootGate\?\.setRank\?\.\(u=>shownUrls\.has\(u\)\|\|HANGAR_UI\.test\(u\)\?0:near\.has\(u\)\?1/);assert.match(app,/function sortie\(\)\{window\.HEADON_GATE\?\.releaseAll\(\)/);
  assert.match(app,/const battleReady=.*aircraftReady/);
  assert.match(app,/function sortie\(\).*battleReady\.then\(go,go\)/);
