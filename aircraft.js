@@ -62,6 +62,9 @@ const paintedPending=new Set();
 // unreachable file spawns a new request on every frame the plane is on screen.
 function ensurePainted(key){if(!key||painted.has(key)||paintedPending.has(key))return;paintedPending.add(key);loadPainted(key).finally(()=>setTimeout(()=>paintedPending.delete(key),4000))}
 export const hangarArtReady=Promise.all(HANGAR_KEYS.map(loadPainted));
+// Gates a single painted sprite — the hangar waits on just the shown airframe
+// instead of the whole painted set.
+export const paintedReady=key=>painted.has(key)?Promise.resolve(true):loadPainted(key);
 const individualAircraftReady=[hangarArtReady,hangarArtReady.then(()=>Promise.all(PAINTED_KEYS.filter(k=>!HANGAR_KEYS.includes(k)).map(loadPainted)))];
 // The four aces once cut from this 2x2 atlas now ship as individual PNGs and are
 // loaded through individualAircraftReady; keeping the list empty skips the atlas
