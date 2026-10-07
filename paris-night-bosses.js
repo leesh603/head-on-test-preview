@@ -1,4 +1,4 @@
-import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=ui2';
+import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=ui3';
 
 // These mounts are also the sprite atlas contract: source art faces north.
 export const PARIS_FORTRESS_PARTS = Object.freeze([

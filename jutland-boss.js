@@ -1,8 +1,8 @@
-import {NAVAL_BOSS_STATIONS} from './naval-faction-atlas.js?v=ui2';
-import {separateBossFleet} from './naval-spacing.js?v=ui2';
-import {recordShipWake} from './naval-water.js?v=ui2';
-import {BaseBoss,BossPart,BossEncounter} from './headon-stageboss-core.js?v=ui2';
-import {segmentDistance} from './alps-geometry117.js?v=ui2';
+import {NAVAL_BOSS_STATIONS} from './naval-faction-atlas.js?v=ui3';
+import {separateBossFleet} from './naval-spacing.js?v=ui3';
+import {recordShipWake} from './naval-water.js?v=ui3';
+import {BaseBoss,BossPart,BossEncounter} from './headon-stageboss-core.js?v=ui3';
+import {segmentDistance} from './alps-geometry117.js?v=ui3';
 export const JUTLAND_CYCLE=48;
 export const angleDelta=(a,b)=>Math.atan2(Math.sin(b-a),Math.cos(b-a));
 export const turnToward=(a,b,rate,dt)=>a+Math.max(-rate*dt,Math.min(rate*dt,angleDelta(a,b)));

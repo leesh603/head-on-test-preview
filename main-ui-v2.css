@@ -127,10 +127,10 @@ body.astra-ui #start .astra-sortie-arrow{display:block;width:34px;height:34px;ma
 .main-operations [data-action]:hover,.main-operations [data-action="coop"].active{color:#f0d196;background:#d7cbad09}
 .operation-label-short{display:none}
 .astra-mobile-settings{display:none}
-.main-settings{position:fixed;inset:78px 26px auto auto;z-index:100;width:350px;padding:16px;border:1px solid #a99d7a66;border-radius:9px;background:linear-gradient(145deg,#202c25fa,#0c1512fd);color:#ece6d5;box-shadow:0 24px 80px #000c,inset 0 1px #fff1;pointer-events:auto;backdrop-filter:blur(14px)}
-.main-settings-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:2px 3px 13px;margin-bottom:3px;border-bottom:1px solid #b9ad8a33}
-.main-settings-head strong{font:700 18px/1.2 var(--astra-type);letter-spacing:-.02em}
-.main-settings-head small{font:600 8px/1.2 var(--astra-numeric);letter-spacing:.12em;color:#a99f85;text-align:right}
+.main-settings{position:fixed;inset:78px 26px auto auto;z-index:100;width:350px;padding:16px;border:1px solid var(--ho-hair-strong,#e8e2d440);border-radius:18px;background:linear-gradient(180deg,#242422f7,#131312fa);color:#ece6d5;box-shadow:0 24px 70px #000c;pointer-events:auto;backdrop-filter:blur(14px)}
+.main-settings-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 3px 13px;margin-bottom:3px;border-bottom:1px solid var(--ho-hair,#e8e2d425)}
+.main-settings-head strong{font:700 18px/1.2 var(--astra-type);letter-spacing:-.02em;color:var(--ho-parchment,#efebe2)}
+.main-settings-head small{display:inline-block;padding:3px 10px;border-radius:999px;background:#e8e2d415;font:600 8px/1.2 var(--astra-numeric);letter-spacing:.12em;color:var(--ho-ready,#e9e3d5);text-align:right}
 .main-settings .setting-row{box-sizing:border-box;display:grid;width:100%;grid-template-columns:42px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:62px;margin:0;padding:9px 7px;border:0;border-bottom:1px solid #c2bca022;border-radius:0;background:transparent;color:#e7e2cf;text-align:left;cursor:pointer}
 .main-settings button.setting-row:hover{background:#d7cbad0b;color:#fff3d5}
 .main-settings .setting-row:last-child{border-bottom:0}
@@ -145,8 +145,8 @@ body.astra-ui #start .astra-sortie-arrow{display:block;width:34px;height:34px;ma
 .main-settings .setting-language select{width:auto;min-width:72px;min-height:30px;padding:0 25px 0 10px;border:1px solid #a99e7c48;border-radius:14px;background:#101b16;color:#eee7d4;font:700 10px var(--astra-numeric)}
 .main-settings .setting-language>span.sr-only{display:none}
 @media(max-width:720px){
- .main-settings{inset:auto 10px calc(69px + env(safe-area-inset-bottom)) 10px;width:auto;max-height:min(70dvh,480px);overflow:auto;padding:13px 14px 10px;border-radius:12px;background:linear-gradient(155deg,#202c25fe,#0a1210fe);box-shadow:0 -18px 55px #000d,inset 0 1px #fff1}
- .main-settings-head{position:sticky;top:-13px;z-index:1;margin:0 -2px 3px;padding:13px 5px 12px;background:#17221df5}
+ .main-settings{inset:auto 10px calc(69px + env(safe-area-inset-bottom)) 10px;width:auto;max-height:min(70dvh,480px);overflow:auto;padding:13px 14px 10px;border-radius:18px;background:linear-gradient(180deg,#242422fe,#131312fe);box-shadow:0 -18px 55px #000d}
+ .main-settings-head{position:sticky;top:-13px;z-index:1;margin:0 -2px 3px;padding:13px 5px 12px;background:#1d1d1bf5}
  .main-settings .setting-row{min-height:59px;padding:8px 4px;grid-template-columns:40px minmax(0,1fr) auto}
  .main-settings .setting-icon{width:36px;height:36px}
  .main-settings .setting-copy b{font-size:13px}
