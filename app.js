@@ -1011,9 +1011,12 @@ const shownPortraitReady=new Promise(r=>{const i=new Image();i.onload=i.onerror=
 const hangarReady=Promise.all([portraitsReady,hangarCardsReady,hangarArt(shownKey),hangarIconsReady,hangarArtReady]);
 const battleReady=Promise.all([fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady,aircraftReady]);
 hangarReady.then(()=>{
- const reveal=()=>{document.body.classList.add('assets-ready');roster();applyPilotPortrait('cutinPortrait')};
+ // Open the boot queue with the hangar: every gated asset is decoded already, and the
+ // remaining battle art downloads faster in parallel than it ever could queued behind
+ // rank 2 — without this the roster's own <img> thumbs still serialise four at a time.
+ const reveal=()=>{bootGate?.releaseAll();document.body.classList.add('assets-ready');roster();applyPilotPortrait('cutinPortrait')};
  const left=2000-(performance.now()-bootAt);left>0?setTimeout(reveal,left):reveal();
-}).catch(()=>{document.body.classList.add('assets-ready');roster();});
+}).catch(()=>{bootGate?.releaseAll();document.body.classList.add('assets-ready');roster();});
 // The boot gate holds most battle art behind the hangar art, so a fast sortie can face the
 // full download only after the click. Wait for it briefly, then launch anyway — every sprite
 // has a procedural fallback and the painted files keep streaming in behind the game.
@@ -1059,7 +1062,13 @@ function showBuildPause151(){
  document.getElementById('build151')?.remove();
  const area=document.createElement('div');area.id='build151';
  const el=(tag,text,cls)=>{const e=document.createElement(tag);e.textContent=text;if(cls)e.className=cls;return e};
- for(const p of game.players||[game]){const section=el('section','');const rankedKills=game.mode==='coop2'?(game.priorityKills||0):(p===game?(game.priorityKills||0):(p.priorityKills??game.priorityKills??0));section.append(el('h3',(p.id?p.id.toUpperCase()+' · ':'')+PILOTS[p.pilot].name),el('p',displayAircraftName(p.pilot,p.plane)+' · '+String(Math.floor(game.t/60)).padStart(2,'0')+':'+String(Math.floor(game.t%60)).padStart(2,'0')+' · 랭킹 격추 '+rankedKills+'기 · LV. '+p.level,'build-meta151'));
+ for(const p of game.players||[game]){const section=el('section','');const rankedKills=game.mode==='coop2'?(game.priorityKills||0):(p===game?(game.priorityKills||0):(p.priorityKills??game.priorityKills??0));
+  // The pilot's round hangar portrait sits left of the centred name, like the
+  // ability medallions below it.
+  const head=el('div','','build-head151'),bust=el('span','','build-portrait151');bust.setAttribute('aria-hidden','true');
+  if(portraitSources[p.pilot]){bust.style.backgroundImage=`url('${portraitSources[p.pilot]}'),radial-gradient(circle at 50% 38%,#3a3426,#14110c 78%)`;bust.style.backgroundSize='auto 108%,cover';bust.style.backgroundPosition='center 12%,center'}
+  head.append(bust,el('h3',(p.id?p.id.toUpperCase()+' · ':'')+PILOTS[p.pilot].name));
+  section.append(head,el('p',displayAircraftName(p.pilot,p.plane)+' · '+String(Math.floor(game.t/60)).padStart(2,'0')+':'+String(Math.floor(game.t%60)).padStart(2,'0')+' · 랭킹 격추 '+rankedKills+'기 · LV. '+p.level,'build-meta151'));
  const lid=p.pilot==='baron'&&p.plane==='baron_albatros'?'baron:baron_albatros':p.pilot,ld=pilotLoadout(p.pilot,p.plane),idCopy=pilotIdentityCopy(lid,getLocale()),abs=el('div','','build-abilities151');
  for(const [kind,label,name,short,detail]of [['active','액티브',localizedActive(lid,ld.skill),hangarPilotDescription(lid,ld.desc),idCopy?.activeDetail||ld.desc],['passive','패시브',localizedPassive(lid,ld.passive),hangarPassiveDescription(lid,ld.passiveDesc),idCopy?.passiveDetail||ld.passiveDesc]]){
   const item=el('div','','astra-ability astra-'+kind);item.tabIndex=0;item.setAttribute('role','button');item.setAttribute('aria-expanded','false');
