@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import './_globals-stub.mjs';
-import {PILOTS} from '../engine.js?v=imm3';
+import {PILOTS} from '../engine.js?v=coop1';
 
 import {BOSS_CATALOG,STAGES,createBossEncounter} from '../headon-stageboss-patterns.js';
 import {CAMPAIGN_DATA} from '../campaign-data.js';
 import {MUSIC_REGIONS,CAMPAIGN_MUSIC,musicContextForGame} from '../music-context.js';
 import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS} from '../music-score.js';
-import {BattleMusic,MUSIC_THEME_IDS} from '../music.js?v=imm3';
+import {BattleMusic,MUSIC_THEME_IDS} from '../music.js?v=coop1';
 
 const game=()=>({state:'playing',t:20,x:0,y:0,enemies:[],worldRegion:()=>0});
 function capture(){

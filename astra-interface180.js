@@ -1,8 +1,8 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
-import {getLocale,subscribe} from './i18n.js?v=imm3';
-import {aircraftKey} from './aircraft.js?v=imm3';
-import {hangarArt,hangarArtNow,hangarKeyFile} from './hangar-art.js?v=imm3';
-export {hangarArt} from './hangar-art.js?v=imm3';
+import {getLocale,subscribe} from './i18n.js?v=coop1';
+import {aircraftKey} from './aircraft.js?v=coop1';
+import {hangarArt,hangarArtNow,hangarKeyFile} from './hangar-art.js?v=coop1';
+export {hangarArt} from './hangar-art.js?v=coop1';
 
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
@@ -171,7 +171,7 @@ function installHud(){
   const button=$(id);
   if(name==='active'){const f=$('central')?.classList.contains('active')?'central':'entente';
    const img=el('img','astra-control-icon astra-skill-emblem');img.alt='';img.decoding='async';
-   img.src=`./augmentation-icons/emblem_bare_${f}.webp?v=imm3`;button.prepend(img,ring());}
+   img.src=`./augmentation-icons/emblem_bare_${f}.webp?v=coop1`;button.prepend(img,ring());}
   else button.prepend(interfaceIcon(name,'astra-control-icon'),ring());
  }
  const readout=el('div','astra-reload-readout'),caption=el('span'),seconds=el('b'),track=el('span','astra-reload-track'),fill=el('i');track.append(fill);readout.append(caption,seconds,track);survival.append(readout);

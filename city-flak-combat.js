@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=imm3';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=imm3';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=coop1';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=coop1';
 export const CITY_FLAK_PARTS=Object.freeze([
  {id:'siege',x:-74,y:-101,radius:34,fraction:.16},
  {id:'ears',x:77,y:-96,radius:32,fraction:.10},
