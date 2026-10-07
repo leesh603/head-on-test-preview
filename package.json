@@ -1,0 +1,12 @@
+{
+  "name": "head-on-test-preview",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tools/test-all.mjs",
+    "build": "node tools/validate.mjs",
+    "dev:coop": "node server/coop-relay.mjs",
+    "test:coop": "node --test tests/online-coop.test.mjs tests/coop-relay.test.mjs"
+  },
+  "dependencies": { "ws": "8.18.3" }
+}

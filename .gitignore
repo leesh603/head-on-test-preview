@@ -1,1 +1,5 @@
 qa-trench.html
+node_modules/
+*-tests.log
+reports/online-coop/
+build.log
