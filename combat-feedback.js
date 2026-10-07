@@ -1,4 +1,4 @@
-import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from './aircraft-crash.js?v=perf2';
+import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from './aircraft-crash.js?v=perf3';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.
 const worlds=new WeakMap(),poses=new WeakMap();
@@ -7,7 +7,8 @@ const angle=n=>Math.atan2(Math.sin(n),Math.cos(n));
 const ordinary=e=>e&&!e.bossPilot&&!e.ace&&!e.rivalAce&&!e.eliteKind&&!e.formationLeader&&!e.missionTarget&&!e.stageBossBody&&!e.bossMinion&&!e.heavyBomber&&!e.surface&&!e.stationary&&!e.fieldUnit&&!e.navalVessel&&!e.bugDrone&&['scout','hunter','bomber'].includes(e.type);
 export const COMBAT_FEEDBACK_LIMITS=Object.freeze({impacts:40,compactImpacts:20,wrecks:10,compactWrecks:5,trail:48,compactTrail:24,plumes:64,compactPlumes:32});
 export const COMBAT_CRASH_PROFILES=Object.freeze(['spin','smoke','fire','runaway']);
-function localPoint(e,forward,side){const q=combatVisualPose(e),a=e.a+q.roll;return[e.x+q.x+Math.cos(a)*forward-Math.sin(a)*side*q.bank,e.y+q.y+Math.sin(a)*forward+Math.cos(a)*side*q.bank]}
+const _lpShare=[0,0];
+function localPoint(e,forward,side){const q=combatVisualPose(e),a=e.a+q.roll;_lpShare[0]=e.x+q.x+Math.cos(a)*forward-Math.sin(a)*side*q.bank;_lpShare[1]=e.y+q.y+Math.sin(a)*forward+Math.cos(a)*side*q.bank;return _lpShare}
 export function impactMaterial(e,b){
  if(e.surface||e.fieldUnit||e.navalVessel||e.stageBossBody)return 'metal';
  const dx=b.x-e.x,dy=b.y-e.y,forward=dx*Math.cos(e.a)+dy*Math.sin(e.a),side=-dx*Math.sin(e.a)+dy*Math.cos(e.a);

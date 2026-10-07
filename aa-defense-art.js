@@ -1,9 +1,9 @@
 // Authored transparent sprite sheets. Rects are measured from the source
 // images, so parts remain independent as health and hazards change.
 const SOURCES={
-  drachen:'./boss-drachen-parts-v2.webp?v=perf2',
-  london:'./boss-london-apron-parts-v2.webp?v=perf2',
-  fx:'./fx-aa-defense-atlas.webp?v=perf2'
+  drachen:'./boss-drachen-parts-v2.webp?v=perf3',
+  london:'./boss-london-apron-parts-v2.webp?v=perf3',
+  fx:'./fx-aa-defense-atlas.webp?v=perf3'
 };
 const CELLS={
   drachenBalloon:['drachen',20,0,880,500],
