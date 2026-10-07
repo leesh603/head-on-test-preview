@@ -50,7 +50,7 @@ export class RailAdapter extends BaseBoss {
    const lead=i===0?0:i===1?.55:i===4?.3:.4,side=i===2?78:i===3?-78:0;
    const bounds=ctx.bounds,margin=85,x=sample.x+vx*lead+sideX*side,y=sample.y+vy*lead+sideY*side;
    this.emit({type:'hazard',bossId:this.id,kind:'circle',x:bounds?Math.max(bounds.left+margin,Math.min(bounds.right-margin,x)):x,y:bounds?Math.max(bounds.top+margin,Math.min(bounds.bottom-margin,y)):y,warning:.85,delay:0,duration:.35,once:true,radius:88,damage:this.t.damage,visual:'rail-shell'});
-   barrage.clock+=.32;
+   barrage.clock+=this.t.barrageInterval||.32;
   }if(barrage.index>=barrage.count)this.walkingBarrage129=null;}
   if(!this.runawayTriggered129)this.phase=this.coreVulnerable?'locomotive':rail.phase;}
  locateHit(s){
