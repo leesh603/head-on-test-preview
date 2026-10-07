@@ -6,7 +6,7 @@ import {coopPlane,CoopGame} from '../coop-engine.js?v=hangar2';
 import '../campaign.js?v=hangar2';
 import {SORTIE_COMBAT_STYLES as styles} from '../aircraft-combat-roles.js?v=hangar2';
 import {tickRegionalConditions,REGION_COMBAT_EVENTS} from '../region-doctrine1.js?v=hangar2';
-const app=fs.readFileSync(new URL('../app.js?v=r3',import.meta.url),'utf8');
+const app=fs.readFileSync(new URL('../app.js?v=r4',import.meta.url),'utf8');
 
 const solo=[...app.match(/\(\{baron:baronAircraft,(.*?)\}\[id\]/s)[1].matchAll(/\w+:'([^']+)'/g)].map(m=>m[1]);
 const roster=[...new Set([...solo,'fokker','baron_albatros',...Object.keys(PILOTS).map(coopPlane)])];

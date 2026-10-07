@@ -78,7 +78,7 @@ if(hangar){
   setRow(soundButton,en?'Sound':'소리',en?'Master game audio':'전체 게임 사운드',soundOn?'ON':'OFF',soundOn);
   let hiFps=false;try{hiFps=localStorage.getItem('headon.hiFps')==='1'}catch(_){}
   setRow(hiFpsButton,en?'Frame rate':'프레임',en?(hiFps?'Use the display\'s highest refresh rate':'Standard mobile frame rate'):(hiFps?'기기 최대 주사율 사용':'모바일 표준 프레임'),hiFps?(en?'HIGH REFRESH':'고주사율'):'60 FPS',hiFps);
-  setRow(helpButton,en?'Controls':'조작법',en?'Steering and combat controls':'조종 · 전투 버튼 안내','›',false);
+  setRow(helpButton,en?'Controls':'조작법',en?'Steering and combat controls':'조종 · 전투 버튼 안내',en?'VIEW':'보기',false);
   if(lang){lang.querySelector('.setting-copy b').textContent=en?'Language':'언어';lang.querySelector('.setting-copy small').textContent=en?'Interface language':'인터페이스 언어';}
  };
  const sync=()=>{

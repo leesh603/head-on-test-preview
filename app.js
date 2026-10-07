@@ -1071,12 +1071,12 @@ const visiblePortraitReady=Promise.all(Object.keys(PILOTS).filter(id=>PILOTS[id]
 const hangarReady=Promise.all([visiblePortraitReady,hangarArt(shownKey),hangarIconsReady,paintedReady(shownKey)]);
 const battleReady=Promise.all([fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady,aircraftReady]);
 hangarReady.then(()=>{
- // Open the boot queue with the hangar: every gated asset is decoded already, and the
- // remaining battle art downloads faster in parallel than it ever could queued behind
- // rank 2 — without this the roster's own <img> thumbs still serialise four at a time.
- const reveal=()=>{bootGate?.releaseAll();document.body.classList.add('assets-ready');roster();applyPilotPortrait('cutinPortrait')};
+ // Reveal relaxes the strict-priority hold instead of flooding the connection: the
+ // remaining warms keep arriving in rank order so nothing visible queues behind
+ // battle art. Sortie still calls releaseAll — a battle needs everything at once.
+const reveal=()=>{bootGate?.relax?.();document.body.classList.add('assets-ready');roster();applyPilotPortrait('cutinPortrait')};
  const left=2000-(performance.now()-bootAt);left>0?setTimeout(reveal,left):reveal();
-}).catch(()=>{bootGate?.releaseAll();document.body.classList.add('assets-ready');roster();});
+}).catch(()=>{bootGate?.relax?.();document.body.classList.add('assets-ready');roster();});
 // The boot gate holds most battle art behind the hangar art, so a fast sortie can face the
 // full download only after the click. Wait for it briefly, then launch anyway — every sprite
 // has a procedural fallback and the painted files keep streaming in behind the game.
