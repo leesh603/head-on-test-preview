@@ -1408,7 +1408,7 @@ const HEADON_TEST_ALLOWED_HOSTS=new Set(['localhost','127.0.0.1','terminal.local
 function installHeadOnTestLab(){
  const testHost=globalThis.location?.hostname||'';if(!HEADON_TEST_ALLOWED_HOSTS.has(testHost))return;
  const configureRegion=(run,region)=>{
-  const addon=enableStageBoss(run,{teamFaction:PLANES[run.plane].faction});if(!addon)return null;
+  const addon=enableStageBoss(run,{teamFaction:run.mode==='coop2'?run.teamFaction:PLANES[run.plane].faction,heavyHp:run.mode==='coop2'?COOP_BALANCE.heavyHp:1});if(!addon)return null;
   addon.stages.stageIndex=region;addon.stages.orderPosition=addon.stages.order.indexOf(region);addon.stages.phase='explore';addon.stages.encounter=null;
   run.jutlandRoute=region===16?createJutlandRoute(run):null;prepareJutlandAssets(region);run.gallipoliRoute=region===14?createGallipoliRoute(run):null;prepareGallipoliAssets(region);run.region=region;run.maanStartX=run.x;prepareMaanAssets(region);run.stageStartDistance=run.distance||0;run.stageStartTime=run.t;run.clearRegionalHazards();
   run.bossBuildings=[];run.bossCues=[];run.navalRouteCues=new Set();run.navalApproachAt=null;run.parisBattle=null;
@@ -1417,9 +1417,11 @@ function installHeadOnTestLab(){
  };
  const startTest=(options={})=>{
   if(game)returnHangar();
-  selectedMode='endless';
   const requestedPilot=String(options.pilot||pilot);
+  const requestedCoop=String(options.coop||'');
+  selectedMode=requestedCoop&&coopAvailable&&PILOTS[requestedCoop]?'coop2':'endless';
   if(PILOTS[requestedPilot]){pilot=requestedPilot;faction=PILOTS[pilot].faction}
+  if(selectedMode==='coop2'){coopPilot2=PILOTS[requestedCoop]?.faction===faction?requestedCoop:pilot}
   if(pilot==='baron'&&options.baronAircraft==='baron_albatros')baronAircraft='baron_albatros';
   else if(pilot==='baron'&&options.baronAircraft==='fokker')baronAircraft='fokker';
   plane=pilotPlane(pilot);roster();start();
@@ -1437,11 +1439,11 @@ function installHeadOnTestLab(){
   }
   if(options.boss&&addon){
    // Immediate test bosses must enter the viewport without a long steering run.
-   if(region===16){Object.assign(game,jutlandPoint(game.jutlandRoute,JUTLAND_ROUTE.fleet-900));}
-   if(region===14){Object.assign(game,gallipoliPoint(game.gallipoliRoute,GALLIPOLI_ROUTE.fort-900));}
+   if(region===16){const pos=jutlandPoint(game.jutlandRoute,JUTLAND_ROUTE.fleet-900);if(game.mode==='coop2'){game.camera.x=pos.x;game.camera.y=pos.y}else Object.assign(game,pos);}
+   if(region===14){const pos=gallipoliPoint(game.gallipoliRoute,GALLIPOLI_ROUTE.fort-900);if(game.mode==='coop2'){game.camera.x=pos.x;game.camera.y=pos.y}else Object.assign(game,pos);}
    const distance=region===14?340:region===13?280:region===6?620:region===4?180:region===10?90:360,angle=Number.isFinite(game.a)?game.a:-Math.PI/2;
    const encounter=addon.startBoss({x:game.x+Math.cos(angle)*distance,y:game.y+Math.sin(angle)*distance});
-   if(region===15){const body=encounter?.bodies.values().next().value;if(body?.kind==='paris-searchlight-fortress'){game.x=body.x;game.y=body.y+280;}}
+   if(region===15){const body=encounter?.bodies.values().next().value;if(body?.kind==='paris-searchlight-fortress'){if(game.mode==='coop2'){game.camera.x=body.x;game.camera.y=body.y+280}else{game.x=body.x;game.y=body.y+280;}}}
   }
   const directorPattern=options.pattern||options.tactic;
   if(directorPattern&&!options.boss&&!ace){
@@ -1477,7 +1479,7 @@ function installHeadOnTestLab(){
  const params=new URLSearchParams(location.search);
  if(params.get('headonTest')==='1'&&params.get('autostart')!=='0')queueMicrotask(()=>startTest({
   region:params.get('region'),pilot:params.get('pilot'),ace:params.get('ace'),boss:params.get('boss')==='1',
-  invincible:params.get('invincible')!=='0',baronAircraft:params.get('baronAircraft')
+  invincible:params.get('invincible')!=='0',baronAircraft:params.get('baronAircraft'),coop:params.get('coop')
  }));
 }
 setInterval(()=>{if(game?.state==='playing'&&!muted&&!document.hidden&&!regionTransitionUntil)sfx('engineTick',combatFlightSound(game))},170);
