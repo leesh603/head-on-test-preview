@@ -43,7 +43,7 @@ for(const [Type,key]of [[ParisGun,'bruno'],[LIncomparable,'lincomparable']]){
   const shot=draw(250,500,false,0);sc.drawImage(shot,i*250,0);sc.fillStyle='#f7e9cd';sc.font='15px sans-serif';sc.fillText(age+'s',i*250+14,25);
  }writeFileSync(out+'/'+key+'-recoil.webp',await strip.encode('webp',94));
  b.railGun.shotAge=10;b.gunFlash=0;
- for(let t=0;t<3.2;t+=1/60)b.update(1/60,frame);
+ for(let t=0;t<2.95;t+=1/60)b.update(1/60,frame);
  summary.shots[key]={count:b.railGun.shotCount,soundCues:events.filter(e=>e.type==='heavy-gun-fired').length,loading:b.railGun.load};
  writeFileSync(out+'/'+key+'-reload.webp',await draw(390,844).encode('webp',94));
  const frames=process.env.HEADON_QA_FRAMES;if(frames){const dest=frames+'/'+key;mkdirSync(dest,{recursive:true});b.barrage=null;b.rail129.target=null;b.rail129.enter('aim');b.update(.02,frame);for(let i=0;i<150;i++){b.update(1/30,frame);writeFileSync(dest+'/'+String(i).padStart(4,'0')+'.png',await draw(390,844).encode('png'));}}
