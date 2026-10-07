@@ -1,13 +1,13 @@
-import {fleetGunStations} from './naval-faction-atlas.js?v=ui2';
-import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=ui2';
-import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles} from './naval-spacing.js?v=ui2';
-import {drawShipWater,recordShipWake} from './naval-water.js?v=ui2';
-import {drawSinkingShip,prepareSinkingWater,FLEET_SINK_DURATION} from './ship-sinking.js?v=ui2';
+import {fleetGunStations} from './naval-faction-atlas.js?v=ui3';
+import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=ui3';
+import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles} from './naval-spacing.js?v=ui3';
+import {drawShipWater,recordShipWake} from './naval-water.js?v=ui3';
+import {drawSinkingShip,prepareSinkingWater,FLEET_SINK_DURATION} from './ship-sinking.js?v=ui3';
 // Moving fleet system — Adriatic (region 1) and Zeebrugge harbor (region 7).
 // Ships sail real headings, fire from actual gun positions on the hull, and are
 // faction-owned: hostile ships hunt the player, friendly ships engage aircraft.
-import {PLANES} from './engine.js?v=ui2';
-import {fx} from './fx-art.js?v=ui2';
+import {PLANES} from './engine.js?v=ui3';
+import {fx} from './fx-art.js?v=ui3';
 
 export const SHIP_TYPES=Object.freeze({
  dd:{name:'구축함',hp:150,drawnH:300,speed:26,guns:[96,-99],salvo:5,spread:.15,shellSpeed:215,interval:3.2,width:88},
