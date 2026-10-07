@@ -37,7 +37,7 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
  let visualSeed=0x41ce;const visualRandom=()=>((visualSeed=(Math.imul(visualSeed,1664525)+1013904223)>>>0)/4294967296);
  const burst=world.burst,smoke=world.smoke;
  const crashEffects={rng:visualRandom,
-  smoke(x,y,heavy){state.trail=state.trail.filter(p=>p.life>0);if(state.trail.length>=(compact()?COMBAT_FEEDBACK_LIMITS.compactTrail:COMBAT_FEEDBACK_LIMITS.trail))return;smoke.call({rng:visualRandom,particles:world.particles},x,y,heavy);state.trail.push(world.particles.at(-1))},
+  smoke(x,y,heavy){let w=0;for(const p of state.trail)if(p.life>0)state.trail[w++]=p;state.trail.length=w;if(state.trail.length>=(compact()?COMBAT_FEEDBACK_LIMITS.compactTrail:COMBAT_FEEDBACK_LIMITS.trail))return;smoke.call({rng:visualRandom,particles:world.particles},x,y,heavy);state.trail.push(world.particles.at(-1))},
   burst(x,y,color){world.combatFX??=[];const fire=this.wreck?.style==='fire';burst.call({rng:visualRandom,particles:world.particles,combatFX:world.combatFX},x,y,fire?color:'#ab9471',fire?30:12,'aircraftMedium')},
   event(){play(this.wreck?.style==='fire'?'impact':'airframeBreak')}
  };
@@ -87,7 +87,8 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
  world.update=function(dt,...args){
   const before=this.t||0,result=update.call(this,dt,...args),step=Math.min(.04,Math.max(0,(this.t||0)-before));
   if(!step)return result;
-  const players=(this.players||[this]).filter(p=>p.hp>0&&(!p.status||p.status==='alive'));
+  const players=state.players??=[];players.length=0;
+  if(this.players){for(const p of this.players)if(p.hp>0&&(!p.status||p.status==='alive'))players.push(p)}else if(this.hp>0&&(!this.status||this.status==='alive'))players.push(this);
   state.time=this.t;state.camera=Math.max(0,state.camera-step*9);
   for(const p of players)pose(p,this.t,step);
   for(const e of this.enemies||[])if(ordinary(e)&&e.hp>0){
@@ -97,11 +98,12 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
     state.plumes.push({x,y,a:e.a,age:0,life:.85,heavy:e.hp/e.maxHp<.35,engine});
    }
   }
-  for(const f of state.impacts){f.age+=step;if(f.target.hp>0&&f.age<.12)[f.x,f.y]=localPoint(f.target,f.forward,f.side)}state.impacts=state.impacts.filter(f=>f.age<f.life);
-  for(const f of state.plumes)f.age+=step;state.plumes=state.plumes.filter(f=>f.age<f.life);cap(state.plumes,COMBAT_FEEDBACK_LIMITS.compactPlumes,COMBAT_FEEDBACK_LIMITS.plumes);
-  for(const f of state.passes)f.life-=step;state.passes=state.passes.filter(f=>f.life>0);
+  {let w=0;for(const f of state.impacts){f.age+=step;if(f.target.hp>0&&f.age<.12)[f.x,f.y]=localPoint(f.target,f.forward,f.side);if(f.age<f.life)state.impacts[w++]=f}state.impacts.length=w}
+  {let w=0;for(const f of state.plumes){f.age+=step;if(f.age<f.life)state.plumes[w++]=f}state.plumes.length=w}cap(state.plumes,COMBAT_FEEDBACK_LIMITS.compactPlumes,COMBAT_FEEDBACK_LIMITS.plumes);
+  {let w=0;for(const f of state.passes){f.life-=step;if(f.life>0)state.passes[w++]=f}state.passes.length=w}
   for(const w of state.wrecks){w.age+=step;crashEffects.wreck=w;advanceAircraftCrash(crashEffects,w,step)}
-  state.wrecks=state.wrecks.filter(w=>!w.crashed);state.trail=state.trail.filter(p=>p.life>0);
+  {let kept=0;for(const w of state.wrecks)if(!w.crashed)state.wrecks[kept++]=w;state.wrecks.length=kept}
+  {let kept=0;for(const p of state.trail)if(p.life>0)state.trail[kept++]=p;state.trail.length=kept}
   if(this.state==='playing'&&players.length){
    for(const e of this.enemies||[]){
     if(e.hp<=0||e.surface||e.stationary||e.fieldUnit)continue;
