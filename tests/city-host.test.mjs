@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {CoopGame}=await import('../coop-engine.js?v=perf5');
-const {enableStageBoss,beginStageBossFrame,endStageBossFrame}=await import('../stageboss-host.js?v=perf5');
-const {spawnCityDefense,tickCityDefense}=await import('../city-defense.js?v=perf5');
+const {CoopGame}=await import('../coop-engine.js?v=sortie1');
+const {enableStageBoss,beginStageBossFrame,endStageBossFrame}=await import('../stageboss-host.js?v=sortie1');
+const {spawnCityDefense,tickCityDefense}=await import('../city-defense.js?v=sortie1');
 
 const {fixture,step}=await import('./stageboss-fixture94.mjs');
 function game(){const g=new CoopGame([{pilot:'baron'},{pilot:'voss'}],{rng:()=>.5});enableStageBoss(g,{teamFaction:g.teamFaction,heavyHp:1.65});g.stageBoss.stages.stageIndex=4;g.region=4;for(const p of g.players)p.invuln=9999;return g;}

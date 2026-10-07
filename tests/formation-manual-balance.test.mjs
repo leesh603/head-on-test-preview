@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game} from '../engine.js?v=perf5';
-import {FORMATION_MANUAL_BALANCE} from '../augmentation-overhaul150.js?v=perf5';
+import {Game} from '../engine.js?v=sortie1';
+import {FORMATION_MANUAL_BALANCE} from '../augmentation-overhaul150.js?v=sortie1';
 
 
 const expected=[

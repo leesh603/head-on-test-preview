@@ -1,4 +1,4 @@
-import {separateZubianHalves} from './adriatic-boss-layout.js?v=perf5';
+import {separateZubianHalves} from './adriatic-boss-layout.js?v=sortie1';
 export class BossPart {
   constructor({id,maxHp,x=0,y=0,radius=24,hittable=true,kind='weakpoint',angle=0}) {
     if(!id||!Number.isFinite(maxHp)||maxHp<=0)throw new Error('Invalid part');
