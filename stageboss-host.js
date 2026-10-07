@@ -68,8 +68,8 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    const bossTuning={
     'paris-gun':{warningSeconds:1.15,railCycle:5.4,railMoveSeconds:3.6,shellCount:6,barrageInterval:.26,hpScale:.72},
     lincomparable:{warningSeconds:1.4,railCycle:5.8,railMoveSeconds:3.6,hpScale:.72},
-    'sms-stuttgart':{launchInterval:2.9},
-    'hms-zubian':{broadsideInterval:1.2/density,mortarInterval:2.05,chargeInterval:3.05},
+    'sms-stuttgart':{launchInterval:1.8,fireScale:.62,suppressiveInterval:1.9},
+    'hms-zubian':{broadsideInterval:.75/density,mortarInterval:1.3,chargeInterval:1.85,suppressiveInterval:1.8/density},
     'zeppelin-l70':{engineInterval:2.6,engineShotCount:3,suppressiveInterval:3.75,suppressiveCount:5,gasInterval:7.5},
     hma23:{launchInterval:2.8,panicInterval:2.55},
     gik:{suppressiveInterval:3.4,suppressiveCount:5,rearFinalInterval:.65},

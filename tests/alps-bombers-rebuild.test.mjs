@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {GIK,Ca4} from '../alps-bomber-combat.js?v=hangar2';
 import {ALPS_BOMBER_LAYOUT,alpsPoint,alpsMuzzle,alpsHullExtents} from '../alps-bomber-layout.js?v=hangar2';
 import {StageBossAddon} from '../headon-stageboss-runtime.js?v=hangar2';
-import {enableStageBoss,stageBossCollision,damageStageBoss} from '../stageboss-host.js?v=boss1';
+import {enableStageBoss,stageBossCollision,damageStageBoss} from '../stageboss-host.js?v=boss2';
 import {renderStageBossLayer} from '../headon-stageboss-render.js?v=hangar2';
 
 
