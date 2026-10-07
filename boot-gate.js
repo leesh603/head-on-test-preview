@@ -19,7 +19,7 @@
  const go=img=>{const h=held.get(img);held.delete(img);active.set(img,h.rank);
   const end=()=>{img.removeEventListener('load',end);img.removeEventListener('error',end);done(img)};
   img.addEventListener('load',end);img.addEventListener('error',end);src.set.call(img,h.url);
-  const w=waiting.get(img);if(w){waiting.delete(img);w()}};
+  const w=waiting.get(img);if(w){waiting.delete(img);for(const f of w)f()}};
  function pump(){
   // Strict priority: nothing less urgent starts while something more urgent is still loading.
   while(held.size&&(open||active.size<LIMIT)){
@@ -35,7 +35,8 @@
   held.set(this,{url,n:serial++,rank:rank(url)});queueMicrotask(pump);
  }});
  Object.defineProperty(P,'complete',{configurable:true,enumerable:complete.enumerable,get(){return held.has(this)?false:complete.get.call(this)}});
- if(decode)P.decode=function(){if(!held.has(this))return decode.call(this);return new Promise(r=>waiting.set(this,r)).then(()=>decode.call(this))};
+ // Every decode() caller waits (several modules may decode the same held image).
+ if(decode)P.decode=function(){if(!held.has(this))return decode.call(this);return new Promise(r=>{const w=waiting.get(this)||[];w.push(r);waiting.set(this,w)}).then(()=>decode.call(this))};
  window.HEADON_GATE={
   get open(){return open},
   // rank(url) → 0 now, 1 soon, 2 later. Re-ranks everything still waiting.

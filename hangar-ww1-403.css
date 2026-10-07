@@ -458,8 +458,8 @@ body.astra-ui:not(.playing){
            right panel = aircraft + stats, roster, sortie.
    ========================================================================== */
 body.astra-ui:not(.playing){
- --ho-keyart:url('hangar-keyart-mobile.webp?v=imm2');
- --ho-keyart-pc:url('hangar-keyart-pc.webp?v=imm2');
+ --ho-keyart:url('hangar-keyart-mobile.webp?v=imm3');
+ --ho-keyart-pc:url('hangar-keyart-pc.webp?v=imm3');
  --ho-keyart-focus:50% 28%;
  --ho-keyart-focus-pc:65% 30%;
 }
@@ -1060,7 +1060,9 @@ body.astra-ui:not(.playing) #hangar .astra-aircraft-heading h2 .ho-air-owner{
  /* Active and passive always share one row, one line each, so the pilot card keeps the same height
     for every pilot; a long name ends in an ellipsis (the full text is in the tap popup). */
  html body.astra-ui:not(.playing) #hangar .astra-hero .skill-info{flex-wrap:nowrap!important;row-gap:0!important}
- html body.astra-ui:not(.playing) #hangar .astra-hero .skill-info>.astra-ability{flex:0 1 auto!important;max-width:100%;min-width:0}
+ /* Equal halves: the title column is a size container (skill-names.css scales the text with cqi),
+    so it has no intrinsic width of its own — content-sized chips collapsed to the bare icon. */
+ html body.astra-ui:not(.playing) #hangar .astra-hero .skill-info>.astra-ability{flex:1 1 0!important;max-width:none;min-width:0;grid-template-columns:22px minmax(0,1fr)!important}
  body.astra-ui:not(.playing) #hangar .astra-hero .astra-ability-copy{min-width:0;overflow:hidden}
  body.astra-ui:not(.playing) #hangar .astra-hero .astra-ability-copy b{
   display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;-webkit-line-clamp:unset!important;line-height:1.2!important;
