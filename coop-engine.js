@@ -1,14 +1,14 @@
-import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=imm1';
-import {nungesserAimOffset,nungesserRoundReaction} from './pilot-signature-state.js?v=imm1';
-import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=imm1';
-import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=imm1';
-import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=imm1';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=imm1';
-import {registerAircraftTiers} from './aircraft-tiers.js?v=imm1';
-import {attachAircraftPersonality} from './aircraft-personality164.js?v=imm1';
-import {wingmanEngagementStep,wingmanAttackTarget} from './engagement-flow174.js?v=imm1';
-import {installCloudCover} from './cloud-cover1.js?v=imm1';
-import {tickCityDefense} from './city-defense.js?v=imm1';
+import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=imm2';
+import {nungesserAimOffset,nungesserRoundReaction} from './pilot-signature-state.js?v=imm2';
+import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=imm2';
+import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=imm2';
+import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=imm2';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=imm2';
+import {registerAircraftTiers} from './aircraft-tiers.js?v=imm2';
+import {attachAircraftPersonality} from './aircraft-personality164.js?v=imm2';
+import {wingmanEngagementStep,wingmanAttackTarget} from './engagement-flow174.js?v=imm2';
+import {installCloudCover} from './cloud-cover1.js?v=imm2';
+import {tickCityDefense} from './city-defense.js?v=imm2';
 
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.
@@ -264,9 +264,9 @@ Object.setPrototypeOf(CoopGame.prototype,Game.prototype);
 // Cloud concealment: per-player conceal timers + enemy lock-breaking, same rules as solo.
 installCloudCover(CoopGame);
 
-import {installNineCoop} from './pilot-nine-combat.js?v=imm1';
+import {installNineCoop} from './pilot-nine-combat.js?v=imm2';
 installNineCoop(CoopGame);
 
-import {installCoopFleet} from './fleet-naval1.js?v=imm1';
+import {installCoopFleet} from './fleet-naval1.js?v=imm2';
 
 installCoopFleet(CoopGame,Game);
