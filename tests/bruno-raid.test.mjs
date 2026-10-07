@@ -19,6 +19,10 @@ for(const [w,h] of [[1280,800],[487.5,1055],[390,844]])for(const coop of [false,
 test('entry also stays visible while the real camera follows a forward-flying player',()=>{
  const {b}=make();let visible=0;for(let t=0;t<3.8;t+=.02){const y=-180*t,ctx={players:[{...frame.players[0],y}],bounds:{left:-240,right:240,top:y-527,bottom:y+527}};b.update(.02,ctx);if(t>1.4){assert(b.y>=ctx.bounds.top&&b.y<=ctx.bounds.bottom);visible++;}}assert(visible>100);assert.equal(b.entry,null);
 });
+test('an early rail break interrupts the entry without reflecting the train to a different position',()=>{
+ const {b}=make();let y=0;for(let t=0;t<3;t+=.02){y=-180*t;b.update(.02,{players:[{...frame.players[0],y}],bounds:{left:-240,right:240,top:y-527,bottom:y+527}});}
+ const before=b.y,track={...b.rail129.railTarget};b.hit({partId:'rail',damage:1e6});b.update(.02,{...frame,players:[{...frame.players[0],y}]});assert.equal(b.entry,null);assert(Math.abs(b.y-before)<20);assert.deepEqual(b.rail129.railTarget,track);assert.deepEqual(b.rail129.pose,{x:b.x,y:b.y});
+});
 test('partial rear damage enters Phase II while its gun is still intact, with delayed AA after the salvo',()=>{
  const {b,events}=make(),rear=b.parts.get('car-rear');b.hit({partId:rear.id,damage:rear.maxHp*.5});const ctx={...frame,players:[{...frame.players[0],x:200,y:b.y+rear.y}]};aim(b,ctx);assert.equal(b.raidPhase,2);assert.equal(rear.destroyed,false);assert.equal(b.aimPlan.mode,'tracking');run(b,3,ctx);assert(events.some(e=>e.visual==='rail-shell'));assert(b.aaClock>0&&b.aaClock<=.3);run(b,.12,ctx);assert(b.aaPlan);run(b,.48,ctx);assert(events.some(e=>e.visual==='rail-mg'));run(b,10,ctx);assert.equal(events.filter(e=>e.phase==='bruno-tracking').length,1);
 });
@@ -33,6 +37,7 @@ for(const broken of [false,true])test(`existing 28% runaway triggers iron rain e
 test('breaking the rail during iron rain cancels its committed hazards and pending shots',()=>{
  const {b,events}=make();aim(b);expose(b);b.hit({damage:1e6});run(b,.35);const fired=events.filter(e=>e.type==='hazard'&&e.tag==='bruno:iron-rain').length;b.hit({partId:'rail',damage:1e6});assert.equal(b.barrage,null);assert(events.some(e=>e.type==='cancel-hazards'&&e.tag==='bruno:iron-rain'));run(b,.7);assert.equal(b.phase,'derailed');assert.equal(events.filter(e=>e.type==='hazard'&&e.tag==='bruno:iron-rain').length,fired);
 });
+test('iron rain first impact covers the current pilot even at a viewport edge',()=>{const p={x:185,y:485,vx:180,vy:0},plan=brunoSalvo(p,2,0,{left:-195,right:195,top:-500,bottom:500},{final:true,starved:true});assert.deepEqual(plan.points[0],{x:p.x,y:p.y});});
 for(const width of [390,487.5,960])for(const mode of ['ranging','tracking','cross','iron-rain'])test(`telegraphed ${mode} has a damage-free flight route on ${width}px playfield`,()=>{
  const phase=mode==='ranging'?1:2,shot=mode==='cross'?1:0,bounds={left:-width/2,right:width/2,top:-500,bottom:500};
  const plan=brunoSalvo({x:0,y:0,vx:0,vy:-180},phase,shot,bounds,{final:mode==='iron-rain',starved:true});

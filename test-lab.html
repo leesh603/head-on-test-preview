@@ -197,7 +197,7 @@ function brunoProbe(half){
  g.state='playing';g.update(.02,{inputMode:'gamepad',fireHeld:false});g.state='paused';$('freeze').checked=true;
 }
 $('brunoHalf').onclick=()=>brunoProbe(true);$('brunoBreak').onclick=()=>brunoProbe(false);
-$('brunoEvade').onclick=()=>{const g=api?.debug();if(bruno())(g.players?.[0]||g).evade();};
+$('brunoEvade').onclick=()=>{const g=api?.debug();if(!bruno())return;const state=g.state;g.state='playing';(g.players?.[0]||g).evade();g.state=state;};
 setInterval(()=>{const b=bruno(),panel=$('brunoQa');panel.hidden=!b||!$('qaTools').checked;if(!b)return;const g=api.debug();$('brunoState').textContent='페이즈 '+(b.raidPhase||1)+' · '+b.phase+' / '+b.rail129.phase+' · HP '+Math.ceil(b.hp)+'/'+b.maxHp+' · 무적 '+(Number.isFinite((g.players?.[0]||g).invuln)?'꺼짐':'켜짐')+' · 선수 HP '+(g.players||[g]).map(p=>Math.ceil(p.hp)).join('/')+' · 포격 '+(b.aimPlan?.mode||b.barrage?.mode||'대기')+' · 선회 '+((g.players?.[0]||g).evadeTime||0).toFixed(2);},200);
 $('maanFire').onchange=()=>api?.maanFire?.($('maanFire').checked);
 $('maanOrbit').onchange=()=>api?.maanOrbit?.($('maanOrbit').checked);

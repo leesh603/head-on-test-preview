@@ -45,7 +45,10 @@ export class RuralRailBoss extends RailAdapter {
     this.emit({type:'hazard',bossId:this.id,kind:'circle',...target,warning:.55,delay:.28,duration:.4,once:true,radius:245,radiusStart:92,radiusLimit:245,ringWidth:42,ringSpeed:382.5,damage:this.t.damage*.62,visual:'rural-rail-shock'});
     this.emit({type:'hazard',bossId:this.id,kind:'circle',...target,warning:.04,delay:.5,duration:1.8,once:false,tickInterval:.7,radius:132,damage:this.t.damage*.22,visual:'rural-rail-smoke'});
     fireRailArtillery(this);this.recovery=this.rail129.c.recoilSeconds+this.rail129.c.reloadSeconds;
-   }else this.barrage={...plan,points:plan.points.map(p=>({...p})),index:0,clock:0};
+   }else{
+    this.barrage={...plan,points:plan.points.map(p=>({...p})),index:0,clock:0};
+    if(this.raidPhase===2&&!this.parts.get('car-rear').destroyed){this.aaPlan=null;this.aaClock=(plan.points.length-1)*plan.interval+.3;}
+   }
    return;
   }
   if(e.type==='rail-break'){
@@ -126,7 +129,10 @@ export class RuralRailBoss extends RailAdapter {
   const e=this.entry,r=this.rail129;if(!e)return false;
   // Explicit Test Lab phase staging and an early rail hit still use the real
   // controller. Never relocate a track or an already detached carriage.
-  if(r.phase!=='move'||r.broken||this.railCarOrder.some(id=>this.parts.get(id).destroyed)){this.entry=null;return false;}
+  if(r.phase!=='move'||r.broken||this.railCarOrder.some(id=>this.parts.get(id).destroyed)){
+   if(e.initialized){r.from.y=this.y-r.length/2;r.to.y=this.y+r.length/2;r.s=r.length/2;}
+   this.entry=null;return false;
+  }
   const bounds=ctx.bounds,p=this.lastRaidPlayers?.[0];if(!bounds||!p){this.entry=null;return false;}
   if(!e.initialized){
    const width=bounds.right-bounds.left,offset=Math.min(190,width*.28),side=p.x>(bounds.left+bounds.right)/2?-1:1;
