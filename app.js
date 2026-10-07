@@ -153,10 +153,65 @@ $('central').onclick=()=>{faction='central';pilot='baron';plane='fokker';roster(
 let worldScale=1;function resize(){let r=canvas.getBoundingClientRect();const pixelScale=(mobileDisplay?.8:1)*userZoom;const nextW=Math.max(240,Math.round(r.width*renderScale)),nextH=Math.max(240,Math.round(r.height*renderScale));W=Math.max(240,Math.round(r.width/pixelScale));H=Math.max(240,Math.round(r.height/pixelScale));worldScale=nextW/W;if(canvas.width!==nextW)canvas.width=nextW;if(canvas.height!==nextH)canvas.height=nextH;ctx.setTransform(worldScale,0,0,worldScale,0,0);ctx.imageSmoothingEnabled=false;ctx.imageSmoothingQuality='high'}new ResizeObserver(resize).observe($('viewport'));
 function saveRanking(score){let rows=[];try{rows=JSON.parse(localStorage.getItem('headon-ranking')||'[]')}catch{}rows.push({name:nickname||t('pilot.anonymous'),score,time:Math.floor(game.t),pilot});rows.sort((a,b)=>b.score-a.score);rows=rows.slice(0,10);try{localStorage.setItem('headon-ranking',JSON.stringify(rows))}catch{}return rows}function rankingText(rows){return rows.map((r,i)=>`${['🥇','🥈','🥉'][i]||String(i+1)+'.'} ${r.name} — ${t('ranking.points',{score:Number(r.score).toLocaleString()})}`).join('\n')}async function syncServerRanking(score){const run=game;try{const res=await fetch('/api/rankings',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nickname,score,pilot})});if(!res.ok)return;const rows=await res.json();if(game!==run)return;const text=$('modalText').textContent;const mark=t('result.local');if(text.includes(mark))$('modalText').textContent=text.replace(new RegExp(mark+'[\\s\\S]*'),`${t('ranking.serverPriority')}\n${rankingText(rows)}`)}catch{}}function start(){window.HEADON_GATE?.releaseAll();resetRegionTransition();game?.stageBoss?.dispose();if(selectedMode==='coop2'&&!coopAvailable)return;coopInput.reset();coopCutinEnds.p1=coopCutinEnds.p2=0;show('bossArrival',false);bossArrivalUntil=0;show('bossWarning',false);show('bossCutin',false);bossCardFrom=0;bossCutinUntil=0;lastStageBossId='';if(selectedMode!=='campaign')nickname=selectedMode==='coop2'?'P1':t('pilot.anonymous');show('skillCutin',false);cutinUntil=0;if(selectedMode==='campaign'){const stage=activeCampaignStage();game=new CampaignGame(stage.id,pilot,{free:freeSortie,cleared:hasCampaignClear(stage.id),baronAircraft});plane=game.plane}else if(selectedMode==='coop2'){plane=pilot==='baron'?(baronAircraft==='baron_albatros'?'baron_albatros':'fokker'):pilotPlane(pilot);const coopP2Plane=coopPilot2==='baron'?(coopBaronAircraft==='baron_albatros'?'baron_albatros':'fokker'):coopSelectedPlane(coopPilot2);game=new CoopGame([{nickname:nickname||'P1',pilot,plane},{nickname:'P2',pilot:coopPilot2,plane:coopP2Plane}])}else{plane=pilotPlane(pilot);game=new Game(plane,pilot)}attachCombatFeedback(game,{play:sfx,pulse:kind=>gamepadInput.pulse(kind),key:e=>e.escortPlane||e.bossPlane||liveryVariant(e,faction==='central'?(e.type==='hunter'?'nieuport':e.type==='boss'?'spad':'camel'):(e.type==='hunter'||e.type==='boss'?'fokker':'albatros')),scale:enemyAircraftScale});if(selectedMode!=='campaign'&&!game.stageBoss){enableStageBoss(game,{teamFaction:selectedMode==='coop2'?game.teamFaction:PLANES[game.plane].faction,heavyHp:selectedMode==='coop2'?COOP_BALANCE.heavyHp:1})}const startRegion=game.worldRegion?.()??-1;if(startRegion>=0)beginRegionTransition(game.mode==='campaign'?game.stage.title:null,startRegion);else transitionAssetPrep(startRegion);game.viewWidth=W;game.viewHeight=H;keys={};joy=null;show('hangar',false);show('modal',false);show('hud');show('xpHud');show('ammoHud');show('touch');show('loadout');document.body.classList.add('playing');document.body.classList.toggle('coop-playing',game.mode==='coop2');show('coopHud',game.mode==='coop2');show('coopCutins',game.mode==='coop2');document.documentElement.classList.add('flight-fullscreen');flightViewport.lock();document.querySelector('.field-bottom').style.display='none';document.querySelector('footer').style.display='none';document.querySelector('.field-top').style.display='none';$('missionLabel').textContent=game.mode==='campaign'?game.stage.title:t('status.inProgress');document.querySelector('.time small').textContent=game.mode==='campaign'?'Campaign':t('mode.endless');show('campaignHud',game.mode==='campaign');show('missionMap',game.mode==='campaign');document.body.classList.toggle('campaign-playing',game.mode==='campaign');roster();resize();$('start').blur();sfx('launch')}
 function returnHangar(){resetRegionTransition();transitionAssetPrep(-1).catch(()=>{});game?.stageBoss?.dispose();updateStageBossHud(null);coopInput.reset();document.body.classList.remove('coop-playing','coop-p2-choice');show('coopHud',false);show('coopCutins',false);show('bossArrival',false);bossArrivalUntil=0;show('bossWarning',false);show('bossCutin',false);bossCardFrom=0;bossCutinUntil=0;lastStageBossId='';show('skillCutin',false);cutinUntil=0;game=null;show('campaignHud',false);show('missionMap',false);document.body.classList.remove('campaign-playing');plane=pilotPlane(pilot);keys={};joy=null;show('modal',false);show('hangar');show('hud',false);show('xpHud',false);show('ammoHud',false);show('touch',false);show('loadout',false);show('toast',false);document.body.classList.remove('playing');document.documentElement.classList.remove('flight-fullscreen');flightViewport.unlock();document.querySelector('.field-bottom').style.display='';document.querySelector('footer').style.display='';document.querySelector('.field-top').style.display='';$('missionLabel').textContent='출격 대기';$('skillBar').style.width='100%';$('skillStatus').textContent='액티브 준비 완료';roster();resize();$('start').focus({preventScroll:true})}
-function modal(tag,title,text,buttons){$('modal').classList.remove('settings-modal151');clearChoiceIconRefs();lastFocus=document.activeElement;document.querySelector?.('#rankingPanel')?.remove?.();$('modalTag').textContent=tag;$('modalTitle').textContent=title;$('modalText').textContent=text;$('modalActions').replaceChildren();for(let b of buttons){let el=document.createElement('button');el.className=b.desc?'choice rarity-'+(b.rarity||'normal'):'primary';if(b.desc){let strong=document.createElement('b'),span=document.createElement('span');strong.textContent=b.label;span.textContent=b.desc;const icon=document.createElement('canvas');icon.width=112;icon.height=88;icon.className='choice-icon';choiceIconRefs.push({canvas:icon,id:b.upgradeId,owner:b.owner});if(icon.dataset)icon.dataset.upgradeId=b.upgradeId;icon.setAttribute('aria-hidden','true');drawUpgradeIcon(icon,b.upgradeId,b.owner);el.append(icon,strong,span)}else el.textContent=b.label;el.onclick=b.run;$('modalActions').append(el)}show('modal');$('modalActions').querySelector('button')?.focus({preventScroll:true})}
+function modal(tag,title,text,buttons){$('modal').classList.remove('settings-modal151','control-help151');clearChoiceIconRefs();lastFocus=document.activeElement;document.querySelector?.('#rankingPanel')?.remove?.();$('modalTag').textContent=tag;$('modalTitle').textContent=title;$('modalText').textContent=text;$('modalActions').replaceChildren();for(let b of buttons){let el=document.createElement('button');el.className=b.desc?'choice rarity-'+(b.rarity||'normal'):'primary';if(b.desc){let strong=document.createElement('b'),span=document.createElement('span');strong.textContent=b.label;span.textContent=b.desc;const icon=document.createElement('canvas');icon.width=112;icon.height=88;icon.className='choice-icon';choiceIconRefs.push({canvas:icon,id:b.upgradeId,owner:b.owner});if(icon.dataset)icon.dataset.upgradeId=b.upgradeId;icon.setAttribute('aria-hidden','true');drawUpgradeIcon(icon,b.upgradeId,b.owner);el.append(icon,strong,span)}else el.textContent=b.label;el.onclick=b.run;$('modalActions').append(el)}show('modal');$('modalActions').querySelector('button')?.focus({preventScroll:true})}
 function resume(){music.unlock();if(game?.mode==='coop2'){if(game.resume()){coopInput.clear();last=performance.now();show('modal',false)}return}if(game?.state==='paused'){game.state='playing';show('modal',false);lastFocus?.focus({preventScroll:true})}}
 function pause(){if(game?.mode==='coop2'){pauseCoop();return}if(game?.state==='playing'){game.state='paused';keys={};joy=null;showBuildPause151()}else resume()}
-function help(){if(game?.mode==="coop2"){if(game.state==="playing")pauseCoop();return}if(game?.state==='upgrade'||game?.state==='lost'||game?.state==='won')return;let wasPlaying=game?.state==='playing';if(wasPlaying){game.state='paused';keys={};joy=null}modal('FLIGHT MANUAL',t('help.title'),t('help.text'),[{label:t('common.ok'),run:()=>{show('modal',false);if(wasPlaying)game.state='playing';else if(game?.state==='paused')pause();lastFocus?.focus({preventScroll:true})}}]);$('modal').classList.remove('build-modal151','settings-modal151');$('modal').classList.add('manual-modal151')}
+function helpControlSection151(title,rows){
+ const section=document.createElement('section');section.className='help-control-section151';
+ const heading=document.createElement('h3');heading.textContent=title;section.append(heading);
+ for(const [keysText,labelText] of rows){const row=document.createElement('div');row.className='help-control-row151';const key=document.createElement('kbd');key.textContent=keysText;const label=document.createElement('span');label.textContent=labelText;row.append(key,label);section.append(row)}
+ return section
+}
+function help(){
+ if(game?.mode==="coop2"){if(game.state==="playing")pauseCoop();return}
+ if(game?.state==='upgrade'||game?.state==='lost'||game?.state==='won')return;
+ let wasPlaying=game?.state==='playing';if(wasPlaying){game.state='paused';keys={};joy=null}
+ const en=getLocale()==='en',touchFirst=matchMedia('(pointer:coarse)').matches;
+ modal('FLIGHT MANUAL',en?'Controls':'조작법',en?'Controls are grouped by device.':'기기별 조작만 빠르게 확인할 수 있습니다.',[{label:t('common.ok'),run:()=>{show('modal',false);if(wasPlaying)game.state='playing';else if(game?.state==='paused')pause();lastFocus?.focus({preventScroll:true})}}]);
+ $('modal').classList.remove('manual-modal151','build-modal151','settings-modal151');$('modal').classList.add('control-help151');
+ const pc=helpControlSection151(en?'PC · KEYBOARD':'PC · 키보드',[
+  ['WASD / ↑↓←→',en?'Steer':'조종'],
+  [keyLabel(KEYBINDS.evade),en?'Maneuver · 8s cooldown':'선회기동 · 쿨다운 8초'],
+  [keyLabel(KEYBINDS.skill),en?'Pilot Active':'파일럿 액티브'],
+  [keyLabel(KEYBINDS.reload),en?'Reload':'재장전'],
+  ['P / ESC',en?'Pause':'일시정지']
+ ]);
+ const mobile=helpControlSection151(en?'MOBILE · TOUCH':'모바일 · 터치',[
+  [en?'LEFT STICK':'왼쪽 스틱',en?'Steer':'조종'],
+  [en?'DOUBLE TAP':'더블탭',en?'Maneuver from the stick':'스틱에서 선회기동'],
+  [en?'MANEUVER':'선회기동',en?'Maneuver button':'선회기동 버튼'],
+  [en?'ACTIVE':'액티브',en?'Pilot Active button':'파일럿 액티브 버튼'],
+  [en?'RELOAD':'재장전',en?'Reload button':'재장전 버튼']
+ ]);
+ const pad=helpControlSection151(en?'GAMEPAD':'게임패드',[
+  [en?'LEFT STICK':'왼쪽 스틱',en?'Steer':'조종'],
+  ['A',en?'Fire while held':'누르는 동안 사격'],
+  ['Y',en?'Maneuver':'선회기동'],
+  ['X',en?'Pilot Active':'파일럿 액티브'],
+  ['B',en?'Reload':'재장전'],
+  [en?'MENU':'메뉴',en?'Pause':'일시정지']
+ ]);
+ const grid=document.createElement('div');grid.className='help-control-grid151';
+ if(touchFirst)grid.append(mobile,pc,pad);else grid.append(pc,mobile,pad);
+ const basics=document.createElement('section');basics.className='help-basics151';
+ const basicsTitle=document.createElement('h3');basicsTitle.textContent=en?'COMBAT BASICS':'전투 기본';
+ const basicsList=document.createElement('ul');
+ const basicsText=en?[
+  'The aircraft keeps moving forward.',
+  'Keyboard and touch fire forward automatically. Gamepad fires while A is held.',
+  'An empty belt reloads automatically; manual reload is also available.',
+  'Cyan pickups give XP. Cross supplies restore durability.'
+ ]:[
+  '기체는 계속 전진합니다.',
+  '키보드·터치는 전방 자동사격, 게임패드는 A를 누르는 동안 사격합니다.',
+  '탄약이 떨어지면 자동 재장전되며, 직접 재장전도 가능합니다.',
+  '청록색 경험치는 레벨업, 십자 보급품은 내구도를 회복합니다.'
+ ];
+ for(const text of basicsText){const li=document.createElement('li');li.textContent=text;basicsList.append(li)}
+ basics.append(basicsTitle,basicsList);
+ const panel=document.createElement('div');panel.className='help-panel151';panel.append(grid,basics);
+ $('modalText').after(panel)
+}
 function randomSortie(){
  if(game||selectedMode!=='endless')return;
  const pool=Object.keys(PILOTS);if(!pool.length)return;
@@ -995,7 +1050,7 @@ const artUrls=key=>{const file=hangarKeyFile[key]||key;return [absUrl(hangarArtS
 const pilotUrls=(id,airframe=pilotPlane(id))=>[absUrl(portraitSources[id]||`./portrait-${id}.webp`),...artUrls(aircraftKey(airframe,false,id))];
 const shownKey=aircraftKey(plane,false,pilot),shownUrls=new Set(pilotUrls(pilot,plane));
 const rankHangar=()=>{const near=new Set(),far=new Set();for(const id of Object.keys(PILOTS))for(const u of pilotUrls(id))(PILOTS[id].faction===faction?near:far).add(u);for(const u of artUrls('baron_albatros'))near.add(u);
- bootGate?.setRank?.(u=>shownUrls.has(u)||HANGAR_UI.test(u)?0:near.has(u)?1:far.has(u)||/\/portrait-/.test(u)?1.5:/augmentation-icons\//.test(u)?1.8:2)};
+ bootGate?.setRank?.(u=>shownUrls.has(u)||HANGAR_UI.test(u)||/\/portrait-/.test(u)?0:near.has(u)||far.has(u)?1:/augmentation-icons\//.test(u)?1.8:2)};
 rankHangar();
 const raisePilot=()=>setTimeout(()=>{if(!game&&bootGate&&!bootGate.open){rankHangar();bootGate.raise(pilotUrls(pilot,plane))}},0);
 for(const id of ['pilotTabs','central','entente','baronAircraftChoice','aircraftSelect103'])$(id)?.addEventListener('click',raisePilot,true);

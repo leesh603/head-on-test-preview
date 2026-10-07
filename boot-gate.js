@@ -10,7 +10,7 @@
  const P=typeof HTMLImageElement!=='undefined'&&HTMLImageElement.prototype;
  const src=P&&Object.getOwnPropertyDescriptor(P,'src'),complete=P&&Object.getOwnPropertyDescriptor(P,'complete');
  if(!src?.set||!complete?.get){window.HEADON_GATE={raise(){},releaseAll(){},open:true};return}
- const decode=P.decode,held=new Map(),waiting=new WeakMap(),LIMIT=4;let open=false,serial=0;const active=new Map();
+ const decode=P.decode,held=new Map(),waiting=new WeakMap(),LIMIT=6;let open=false,serial=0;const active=new Map();
  // Inline and vector art never waits.
  const pass=/^(data:|blob:)|\.svg(\?|$)|favicon/;
  const abs=u=>{try{return new URL(u,document.baseURI).href}catch{return String(u)}};

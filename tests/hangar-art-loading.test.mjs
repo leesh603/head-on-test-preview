@@ -54,7 +54,7 @@ test('hangar waits for every plane and portrait while sortie retains its aircraf
  // the canvases (hangarArtReady — the full 170-file aircraftReady belongs to the battle
  // gate so the splash doesn't wait on the whole set) plus the decoded display cards.
  assert.ok(hangar.includes('hangarArt(shownKey)'));assert.ok(hangar.includes('hangarArtReady'));assert.ok(!hangar.includes('aircraftReady'));
- assert.match(app,/bootGate\?\.setRank\?\.\(u=>shownUrls\.has\(u\)\|\|HANGAR_UI\.test\(u\)\?0:near\.has\(u\)\?1/);assert.match(app,/function sortie\(\)\{window\.HEADON_GATE\?\.releaseAll\(\)/);
+ assert.ok(app.includes('HANGAR_UI.test(u)||/\\/portrait-/.test(u)?0:'),'portraits rank with the visible hangar art');assert.ok(app.includes('near.has(u)||far.has(u)?1:'),'every pilot art file outranks battle art');assert.match(app,/function sortie\(\)\{window\.HEADON_GATE\?\.releaseAll\(\)/);
  assert.match(app,/const battleReady=.*aircraftReady/);
  assert.match(app,/function sortie\(\).*battleReady\.then\(go,go\)/);
 });
