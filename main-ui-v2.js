@@ -14,6 +14,7 @@ if(hangar){
   ['sortie','status.waiting'],
   ['ranking','ranking.title'],
   ['coop','mode.coop'],
+  ['online',null],
   ['records',null],
   ['settings','settings.title']
  ];
@@ -22,6 +23,7 @@ if(hangar){
   if(control.tagName==='BUTTON')control.type='button';
   if(action==='records'){control.href='./field-record.html';control.target='_blank';control.rel='noopener'}
   control.dataset.action=action;
+  if(action==='online')control.id='onlineCoopEntry';
   const full=document.createElement('span');full.className='operation-label-full';
   const short=document.createElement('span');short.className='operation-label-short';
   control.append(full,short);nav.append(control);
@@ -63,8 +65,8 @@ if(hangar){
 
  const labels=()=>{
   const en=getLocale()==='en';
-  const short={sortie:en?'Sortie':'출격',ranking:en?'Ranking':'랭킹',coop:en?'Co-op':'협동',records:en?'Records':'기록',settings:t('settings.title')};
-  const full={sortie:t('status.waiting'),ranking:t('ranking.title'),coop:t('mode.coop'),records:en?'Official Battle Record':'공식 전장 기록',settings:t('settings.title')};
+  const short={sortie:en?'Sortie':'출격',ranking:en?'Ranking':'랭킹',coop:en?'Co-op':'협동',online:en?'Online':'온라인',records:en?'Records':'기록',settings:t('settings.title')};
+  const full={sortie:t('status.waiting'),ranking:t('ranking.title'),coop:t('mode.coop'),online:en?'Online Co-op':'온라인 Co-op',records:en?'Official Battle Record':'공식 전장 기록',settings:t('settings.title')};
   nav.querySelectorAll('[data-action]').forEach(control=>{
    const action=control.dataset.action;
    control.querySelector('.operation-label-full').textContent=full[action];
@@ -96,6 +98,7 @@ if(hangar){
   if(action==='sortie')$('start')?.click();
   if(action==='ranking'){$('endlessMode')?.click();$('soloRanking')?.click()}
   if(action==='coop'){if(document.body.classList.contains('coop-selected'))$('endlessMode')?.click();else{$('coopMode')?.click();$('coopPanel')?.scrollIntoView?.({block:'nearest'})}}
+  if(action==='online'){$('onlineCoopMode')?.click();$('onlineCoopPanel')?.scrollIntoView?.({block:'nearest'})}
   if(action==='settings')settings.hidden=!settings.hidden;
   sync();
  });
