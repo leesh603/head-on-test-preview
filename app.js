@@ -48,7 +48,7 @@ import {drawCampaign} from './campaign-view.js?v=ui5';
 import {campaignArtReady} from './aircraft.js?v=ui5';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady,hangarIconsReady} from './icons.js?v=ui5';
 import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?v=ui5';
-import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=ui5&rail=1';
+import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=ui5&rail=2';
 import {attachCombatFeedback,combatVisualPose,drawCombatFeedback,combatCameraOffset,combatFlightSound} from './combat-feedback.js?v=ui5';
 import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=ui5';
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=ui5';
