@@ -57,3 +57,16 @@ export function separateShipFromBosses(game,e){
   for(const key of ['course','a']){const d=Math.atan2(Math.sin(away-e[key]),Math.cos(away-e[key]));e[key]+=Math.max(-.06,Math.min(.06,d));}
  }
 }
+
+// Steering changes the live hull transform; bounds constrain the destination,
+// rather than teleporting a ship as the camera follows a moving aircraft.
+export function steerNaval(body,dt,targetX,targetY,{speed,turn,mobility=1,bounds}={}){
+ if(bounds){const mx=Math.min(70,(bounds.right-bounds.left)*.15),my=Math.min(90,(bounds.bottom-bounds.top)*.15);targetX=Math.max(bounds.left+mx,Math.min(bounds.right-mx,targetX));targetY=Math.max(bounds.top+my,Math.min(bounds.bottom-my,targetY));}
+ const dx=targetX-body.x,dy=targetY-body.y;if(Math.hypot(dx,dy)<12)return;
+ const heading=Math.atan2(dy,dx)+Math.PI/2,delta=Math.atan2(Math.sin(heading-body.hullYaw),Math.cos(heading-body.hullYaw));
+ body.hullYaw+=Math.max(-turn*mobility*dt,Math.min(turn*mobility*dt,delta));
+ const nx=body.x+Math.sin(body.hullYaw)*speed*mobility*dt,ny=body.y-Math.cos(body.hullYaw)*speed*mobility*dt;
+ // Brake while turning at the view edge. Never snap the painted hull back in.
+ if(bounds&&((nx<bounds.left&&nx<body.x)||(nx>bounds.right&&nx>body.x)||(ny<bounds.top&&ny<body.y)||(ny>bounds.bottom&&ny>body.y)))return;
+ body.x=nx;body.y=ny;
+}

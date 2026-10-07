@@ -24,6 +24,7 @@ export function drawZubianShip(c,b,images){
    const gap=b.splitGap||0;
    atlasSprite(c,damage,frame('front'),0,(ZUBIAN_LAYOUT.frontY-gap/2)*s,size.width,ZUBIAN_LAYOUT.frontHeight*s);
    atlasSprite(c,damage,frame('rear'),0,(ZUBIAN_LAYOUT.rearY+gap/2)*s,size.width,ZUBIAN_LAYOUT.rearHeight*s);
+   const alpha=Math.sin(Math.min(1,b.stateAge/1.2)*Math.PI);for(const y of [-1,1])fx(c,'waterColumn',y*size.width*.22,20*s,size.width*.65,size.width*.95,0,alpha*.65);fx(c,'splashShell',0,20*s,size.width*1.25,size.width*.65,0,alpha*.7);
  }else{
    const damaged=b.hp<b.maxHp*.75||b.parts?.some(p=>p.destroyed);
    if(wreck||damaged)atlasSprite(c,damage,frame(wreck?'intactWreck':'intact'),0,0,size.width,size.height);

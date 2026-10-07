@@ -8,7 +8,7 @@ import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=ui5';
 import {createJutlandEncounter} from './jutland-boss.js?v=ui5';
 export {Mark1Landship as Mark4Wedge,SchwabenFortress as MorserBattery};
 import {sommeScale} from './somme-boss-layout.js?v=ui5';
-import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose} from './adriatic-boss-layout.js?v=ui5';
+import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose,steerNaval} from './adriatic-boss-layout.js?v=ui5';
 import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=ui5';
 import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=ui5';
 import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=ui5';
@@ -107,12 +107,24 @@ class NavalPatternBoss extends PatternBoss {
   gun(){return this.parts.get(this.role==='rear'?'rearGun':'frontGun');}
   engine(){return this.parts.get(this.role==='rear'?'rearEngine':'frontEngine');}
   gunPoint(){const p=this.gun();return p?navalPoint(this,p.localX,p.localY):{x:this.x,y:this.y};}
-  suppressive(dt,players){
-    if(this.phase==='seam-warning'||this.phase==='splitting'||this.phase==='windup'||this.gun()?.destroyed)return;
-    if(!this.due('suppressive',dt,this.t.suppressiveInterval||3.1))return;
-    const p=this.target(players),q=this.gunPoint();if(!p)return;
-    this.command('muzzle',{...q,partId:this.gun()?.id});this.fan(q.x,q.y,Math.atan2(p.y-q.y,p.x-q.x),this.role?3:this.t.suppressiveCount||7,.56,this.t.bulletSpeed*.88,'zubian-shell');
+  // These ships telegraph their own turret volleys; generic suppressive fire
+  // would fill the deliberately open escape lanes during a charge warning.
+  suppressive(){}
+  warningVolley(players,side=1){
+    const p=this.target(players),gun=this.gun();if(!p||gun?.destroyed)return;
+    const q=this.gunPoint(),angle=Math.atan2(p.y-q.y,p.x-q.x);
+    this.gunVolley={left:.85,angle,partId:gun.id};
+    this.command('charge-warning',{...q,targetX:q.x+Math.cos(angle)*460,targetY:q.y+Math.sin(angle)*460,seconds:.85});
   }
+  tickVolley(dt){const v=this.gunVolley;if(!v)return;v.left-=dt;if(v.left>0)return;this.gunVolley=null;if(this.parts.get(v.partId)?.destroyed)return;const q=this.gunPoint();this.command('muzzle',{...q,partId:v.partId});this.fan(q.x,q.y,v.angle,3,.56,this.t.bulletSpeed*.88,'zubian-shell');}
+  mortar(players,{count=3,tag='zubian-mortar',crossAngle=null}={}){
+    if(this.gun()?.destroyed)return;const p=this.target(players);if(!p)return;const velocity=Math.hypot(p.vx||0,p.vy||0),a=crossAngle??(velocity>8?Math.atan2(p.vy,p.vx):this.hullYaw-Math.PI/2),nx=-Math.sin(a),ny=Math.cos(a),tx=p.x+(p.vx||0)*.7,ty=p.y+(p.vy||0)*.7;
+    this.command('mortar-launch',{...this.gunPoint()});
+    // The barrage occupies ONE side of the locked route. The opposite side
+    // stays open for both pilots, rather than boxing in a moving target.
+    for(let i=0;i<count;i++){const along=(i-(count-1)/2)*90,x=tx+Math.cos(a)*along+nx*115,y=ty+Math.sin(a)*along+ny*115;this.hazard('circle',{x,y,radius:40,delay:i*.2,warning:1.15,once:true,visual:'zubian-mortar',tag});}
+  }
+
 }
 class ZubianHalf extends NavalPatternBoss {
   hit(attack){if(this.protection>0)return{damage:0,blocked:true};return super.hit(attack);}
@@ -120,62 +132,65 @@ class ZubianHalf extends NavalPatternBoss {
     const positions=role==='front'?[['frontGun',0,-44,19],['frontEngine',0,56,22]]:[['rearGun',0,34,19],['rearEngine',0,-40,22]];
     super({...options,parts:positions.map(([id,x,y,radius])=>({id,x,y,radius,maxHp:inheritedParts?.get(id)?.maxHp||options.tuning.partHp})),kind:'hms-zubian-'+role});
     this.role=role;this.hullYaw=hullYaw;this.splitYaw=hullYaw;for(const p of this.parts.values()){const inherited=inheritedParts?.get(p.id);if(inherited)p.hp=inherited.hp;}
-    this.phase=role==='front'?'front-hunt':'rear-mortar';this.chargeTime=0;this.mortarPattern=0;this.splitAge=0;this.splitX=this.x;this.splitY=this.y;this.syncParts();
+    this.phase=role==='front'?'front-hunt':'rear-mortar';this.chargeTime=0;this.mortarPattern=0;this.splitAge=0;this.splitX=this.x;this.splitY=this.y;this.lastStand=false;this.finalClock=5.5;this.evasionSide=role==='front'?1:-1;this.syncParts();
   }
   update(dt,{players,bounds}) {
     this.splitAge+=dt;
     this.protection=Math.max(0,(this.protection||0)-dt);
     this.coreVulnerable=this.protection<=0;
     const partner=[...this.encounter?.bodies.values()||[]].find(b=>b!==this&&b.kind?.startsWith('hms-zubian-'));
-    if(partner?.dead&&!this.soloEnraged){this.soloEnraged=true;this.command('phase-change',{phase:this.role+'-last-stand'});}
+    if(partner?.dead&&!this.soloEnraged){this.soloEnraged=true;this.finalClock=Math.min(this.finalClock,.4);this.command('phase-change',{phase:this.role+'-last-stand'});}
+    if(!this.lastStand&&this.hp<=this.maxHp*.5){this.lastStand=true;this.finalClock=Math.min(this.finalClock,.4);this.command('phase-change',{phase:partner&&!partner.dead?'zubian-pincer':this.role+'-last-stand'});}
     const oldX=this.x,oldY=this.y;
-    this.updateNaval(dt,players,bounds);
+    this.tickVolley(dt);this.updateNaval(dt,players,bounds);
     this.driveVelocity=Math.hypot(this.x-oldX,this.y-oldY)/Math.max(.001,dt);this.syncParts();
   }
   updateNaval(dt,players,bounds){
     const mobility=this.engine()?.destroyed?.28:1;
     if(this.role==='rear') {
-      if(this.t.mobileBoss){this.x+=Math.cos(this.splitAge*.18)*10*mobility*dt;this.y+=Math.sin(this.splitAge*.18)*5*mobility*dt;this.hullYaw=this.splitYaw+Math.sin(this.splitAge*.18)*.18;}
-      if(!this.gun()?.destroyed&&this.due('mortar',dt,(this.t.mortarInterval||2.4)*(this.soloEnraged?.7:1))) {
-        this.command('muzzle',{...this.gunPoint(),partId:'rearGun'});
-        const p=this.target(players);if(p){const lead=.7,tx=p.x+(p.vx||0)*lead,ty=p.y+(p.vy||0)*lead;
-         if(this.mortarPattern++%2===0)for(let i=-1;i<=1;i++)this.hazard('circle',{x:tx+i*78,y:ty,radius:58,delay:.18+Math.abs(i)*.12,warning:1.05,once:true,visual:'zubian-mortar'});
-         else for(let i=0;i<5;i++)this.hazard('circle',{x:tx+(p.vx||0)*i*.16,y:ty+(p.vy||0)*i*.16,radius:52,delay:.12+i*.2,warning:1.05,once:true,visual:'zubian-mortar'});}
-      }
-      if(this.soloEnraged&&!this.gun()?.destroyed&&this.due('rear-pass',dt,2.5)){const p=this.target(players),q=this.gunPoint();if(p)this.fan(q.x,q.y,Math.atan2(p.y-q.y,p.x-q.x),3,.28,this.t.bulletSpeed*.9,'zubian-shell');}return;
+      const p=players.find(p=>p.alive),cx=bounds?(bounds.left+bounds.right)/2:this.splitX,cy=bounds?(bounds.top+bounds.bottom)/2:this.splitY;
+      if(this.t.mobileBoss){const age=this.splitAge,retreat=this.soloEnraged||this.lastStand;steerNaval(this,dt,cx+Math.sin(age*(retreat?.8:.3))*140,cy-(p&&p.y<cy?-1:1)*120,{bounds,speed:retreat?38:22,turn:retreat?.75:.4,mobility});}
+      if(!this.gun()?.destroyed&&this.due('mortar',dt,this.t.mortarInterval||2.4)&&!(this.soloEnraged||this.lastStand&&this.finalClock<1.5))this.mortar(players);
+      if((this.soloEnraged||this.lastStand)&&(this.finalClock-=dt)<=0){this.finalClock=6.5;this.command('phase-change',{phase:this.soloEnraged?'zubian-stern-barrage':'zubian-pincer'});this.mortar(players,{count:this.engine()?.destroyed?2:3,tag:'zubian-final-mortar',crossAngle:(p?Math.atan2(p.vy||0,p.vx||0):this.hullYaw)+Math.PI/2});this.timers.set('mortar',3.8);}
+      return;
     }
+    if(this.phase==='evasive-turn'){const p=players.find(p=>p.alive);if(p)steerNaval(this,dt,p.x+Math.cos(this.hullYaw)*170,p.y+Math.sin(this.hullYaw)*170,{bounds,speed:42,turn:1.05,mobility});this.finalTurn-=dt;if(this.finalTurn<=0)this.phase='stalking';return;}
     if(this.phase==='charging') {
-      this.x+=this.vx*mobility*dt;this.y+=this.vy*mobility*dt;
-      this.chargeTime-=dt;this.chargeGun=(this.chargeGun||0)-dt;if(this.chargeGun<=0&&!this.gun()?.destroyed){this.chargeGun=.35;const p=this.target(players),q=this.gunPoint();if(p){this.command('muzzle',{...q,partId:'frontGun'});this.fan(q.x,q.y,Math.atan2(p.y-q.y,p.x-q.x),1,0,this.t.bulletSpeed*.9,'zubian-shell');}}
+      const nx=this.x+this.vx*mobility*dt,ny=this.y+this.vy*mobility*dt;
+      if(!bounds||(nx>=bounds.left&&nx<=bounds.right&&ny>=bounds.top&&ny<=bounds.bottom)){this.x=nx;this.y=ny;}else this.chargeTime=0;
+      this.chargeTime-=dt;
       if(this.chargeTime<=0)this.phase='stalking';return;
     }
     if(this.phase==='windup') {
       const delta=Math.atan2(Math.sin(this.chargeAngle+Math.PI/2-this.hullYaw),Math.cos(this.chargeAngle+Math.PI/2-this.hullYaw));this.hullYaw+=Math.max(-dt*.7,Math.min(dt*.7,delta));
       this.chargeTime-=dt;if(this.chargeTime<=0) {
         this.phase='charging';this.chargeTime=1.1;this.chargeGun=0;
-        const q=this.chargeOrigin;this.hazard('projectile',{...q,vx:Math.cos(this.chargeAngle)*this.t.bulletSpeed*1.25,vy:Math.sin(this.chargeAngle)*this.t.bulletSpeed*1.25,radius:24,duration:2.4,piercing:true,visual:'torpedo-charge'});
+        const q=this.chargeOrigin;if(!this.gun()?.destroyed)this.hazard('projectile',{...q,vx:Math.cos(this.chargeAngle)*this.t.bulletSpeed*(this.engine()?.destroyed?.75:1.25),vy:Math.sin(this.chargeAngle)*this.t.bulletSpeed*(this.engine()?.destroyed?.75:1.25),radius:this.engine()?.destroyed?18:24,duration:2.4,piercing:true,visual:'torpedo-charge'});
       }return;
     }
-    const stalk=this.target(players);if(stalk&&this.t.mobileBoss){const heading=Math.atan2(stalk.y-this.y,stalk.x-this.x)+Math.PI/2,delta=Math.atan2(Math.sin(heading-this.hullYaw),Math.cos(heading-this.hullYaw));this.hullYaw+=Math.max(-dt*.18,Math.min(dt*.18,delta));this.x+=Math.sin(this.hullYaw)*dt*26*mobility;this.y-=Math.cos(this.hullYaw)*dt*26*mobility;}
-    if(this.due('charge',dt,(this.t.chargeInterval||3.5)*(this.soloEnraged?.8:1))) {
+    const stalk=this.target(players);if(stalk&&this.t.mobileBoss){const retreat=this.lastStand||this.soloEnraged,offset=retreat?Math.sin(this.splitAge*1.1)*180:90*this.evasionSide;steerNaval(this,dt,stalk.x+offset,stalk.y-140,{bounds,speed:retreat?42:26,turn:retreat?.72:.32,mobility});}
+    if(this.due('bow-gun',dt,3.5)&&!this.gun()?.destroyed)this.warningVolley(players);
+    const releasedFinal=!!this.pendingFinal;this.pendingFinal=false;const final=releasedFinal||(this.soloEnraged||this.lastStand)&&(this.finalClock-=dt)<=0;
+    if(final&&this.soloEnraged&&!releasedFinal&&!this.engine()?.destroyed){this.finalClock=6.5;this.pendingFinal=true;this.finalTurn=.9;this.phase='evasive-turn';this.command('phase-change',{phase:'zubian-bow-rush'});return;}
+    if(final){this.finalClock=6.5;this.command('phase-change',{phase:this.soloEnraged?'zubian-bow-rush':'zubian-pincer'});this.timers.set('charge',0);}
+    if(this.due('charge',dt,(this.t.chargeInterval||3.5)+(this.engine()?.destroyed?1.5:0))) {
       const p=stalk||this.target(players);if(!p)return;const aim=Math.atan2(p.y-this.y,p.x-this.x),heading=this.hullYaw-Math.PI/2,delta=Math.atan2(Math.sin(aim-heading),Math.cos(aim-heading)),a=heading+Math.max(-.55,Math.min(.55,delta));
-      this.chargeAngle=a;this.vx=Math.cos(a)*78;this.vy=Math.sin(a)*78;
+      this.chargeAngle=a;this.vx=Math.cos(a)*(final?86:78);this.vy=Math.sin(a)*(final?86:78);
       this.phase='windup';this.chargeTime=1.1;
       this.chargeOrigin=navalPoint({...this,hullYaw:a+Math.PI/2},0,-zubianSize(this).height*.42);
       this.command('charge-warning',{...this.chargeOrigin,targetX:this.chargeOrigin.x+Math.cos(a)*810,targetY:this.chargeOrigin.y+Math.sin(a)*810,seconds:1.1});
       const rear=[...this.encounter?.bodies.values()||[]].find(b=>b.role==='rear'&&!b.dead);rear?.supportCharge?.(p,a);
     }
   }
-  supportCharge(p,chargeAngle){if(this.role!=='rear'||this.gun()?.destroyed)return;const side=Math.sin(chargeAngle)>=0?1:-1,forwardX=Math.cos(chargeAngle),forwardY=Math.sin(chargeAngle),acrossX=-forwardY*side,acrossY=forwardX*side;
-    const x=p.x+(p.vx||0)*.8+acrossX*135,y=p.y+(p.vy||0)*.8+acrossY*135;
-    for(let i=0;i<3;i++)this.hazard('circle',{x:x+forwardX*(i-1)*58,y:y+forwardY*(i-1)*58,radius:42,delay:.35+i*.16,warning:1.05,once:true,visual:'zubian-mortar',tag:'zubian-crossfire'});}
+  supportCharge(p,chargeAngle){if(this.role!=='rear'||this.gun()?.destroyed)return;this.mortar([p],{crossAngle:chargeAngle,tag:'zubian-crossfire'});}
+
 }
 export class Zubian extends NavalPatternBoss {
   constructor(options) {super({...options,parts:[
     {id:'frontEngine',x:0,y:-38,radius:22},{id:'rearEngine',x:0,y:74,radius:22},
     {id:'frontGun',x:0,y:-138,radius:19},{id:'rearGun',x:0,y:148,radius:19},{id:'seam',x:0,y:20,radius:24,kind:'seam'}
-  ],kind:'hms-zubian'});this.phase='intact';this.stateAge=0;this.splitGap=0;this.broadsideSide=-1;this.anchorX=this.x;this.anchorY=this.y;}
-  beginSplit(){if(this.phase!=='intact')return;this.phase='seam-warning';this.stateAge=0;this.coreVulnerable=false;this.command('seam-warning',{x:this.x,y:this.y,seconds:1.5});}
+  ],kind:'hms-zubian'});this.phase='intact';this.stateAge=0;this.splitGap=0;this.broadsideSide=-1;this.anchorX=this.x;this.anchorY=this.y;this.entryDone=false;this.broadsidePrep=null;}
+  beginSplit(){if(this.phase!=='intact')return;this.phase='seam-warning';this.stateAge=0;this.coreVulnerable=false;this.broadsidePrep=null;this.command('seam-warning',{x:this.x,y:this.y,seconds:1.5});}
   hit(attack) {
     if(!Number.isFinite(attack.damage)||attack.damage<0)throw new Error('Invalid damage');
     if(this.dead||this.phase!=='intact')return{damage:0,blocked:true};
@@ -183,11 +198,15 @@ export class Zubian extends NavalPatternBoss {
     const threshold=this.maxHp*.5,allowed=Math.max(0,this.hp-threshold),result=super.hit({...attack,damage:Math.min(attack.damage,allowed)});
     if(this.hp<=threshold)this.beginSplit();return{...result,split:this.phase!=='intact'};
   }
-  update(dt,{players}) {
+  update(dt,{players,bounds}) {
     this.stateAge+=dt;
     if(this.phase==='intact'){
-      if(this.t.mobileBoss){const age=this.motionTime||this.stateAge,oldX=this.x,oldY=this.y,pace=this.parts.get('frontEngine').destroyed&&this.parts.get('rearEngine').destroyed?.35:1;this.x+=Math.cos(age*.12)*14*pace*dt;this.y-=Math.sin(age*.12)*8*pace*dt;this.hullYaw=Math.sin(age*.12)*.22;this.driveVelocity=Math.hypot(this.x-oldX,this.y-oldY)/Math.max(.001,dt);this.syncParts();}
-      if(this.due('broadside',dt,this.t.broadsideInterval||2.8)){const side=this.broadsideSide*=-1,gun=this.parts.get(side===1?'frontGun':'rearGun');if(!gun.destroyed){const q=navalPoint(this,side*65*(this.t.geometryScale||1),gun.localY);this.command('muzzle',{...q,side,partId:gun.id});this.fan(q.x,q.y,(side===1?0:Math.PI)+this.hullYaw,7,1.15,this.t.bulletSpeed*.78,'zubian-shell');}}
+      if(!this.entryDone){this.entryDone=true;this.command('phase-change',{phase:'zubian-approach'});const gun=['frontGun','rearGun'].map(id=>this.parts.get(id)).find(p=>!p.destroyed);if(gun){const q=navalPoint(this,gun.localX,gun.localY);this.command('muzzle',{...q,partId:gun.id});for(const p of players)if(p.alive)this.hazard('circle',{x:p.x+70,y:p.y-35,radius:38,warning:1.25,delay:.45,once:true,visual:'zubian-mortar',tag:'zubian-entry'});}}
+      if(this.t.mobileBoss){const oldX=this.x,oldY=this.y,lost=Number(this.parts.get('frontEngine').destroyed)+Number(this.parts.get('rearEngine').destroyed),mobility=lost===2?.28:lost===1?.65:1,age=this.stateAge,cx=bounds?(bounds.left+bounds.right)/2:this.anchorX,cy=bounds?(bounds.top+bounds.bottom)/2:this.anchorY;
+       steerNaval(this,dt,cx+Math.sin(age*.5)*150,cy+Math.cos(age*.35)*110,{bounds,speed:34,turn:.6,mobility});this.driveVelocity=Math.hypot(this.x-oldX,this.y-oldY)/Math.max(.001,dt);this.syncParts();}
+      if(this.broadsidePrep){const v=this.broadsidePrep;v.left-=dt;if(v.left<=0){this.broadsidePrep=null;const gun=this.parts.get(v.partId);if(!gun.destroyed){const q=navalPoint(this,0,gun.localY);this.command('muzzle',{...q,partId:gun.id});this.fan(q.x,q.y,v.angle,7,1.15,this.t.bulletSpeed*.78,'zubian-shell');}}}
+      if(!this.broadsidePrep&&this.stateAge>1.5&&this.due('broadside',dt,(this.t.broadsideInterval||2.8)+.9)){const side=this.broadsideSide*=-1,gun=this.parts.get(side===1?'frontGun':'rearGun');if(!gun.destroyed){const q=navalPoint(this,0,gun.localY),angle=(side===1?0:Math.PI)+this.hullYaw;this.broadsidePrep={left:.9,partId:gun.id,angle};this.command('charge-warning',{...q,targetX:q.x+Math.cos(angle)*460,targetY:q.y+Math.sin(angle)*460,seconds:.9});}}
+
       return;
     }
     if(this.phase==='seam-warning'){if(this.stateAge>=1.5){this.phase='splitting';this.stateAge=0;this.command('split-start',{x:this.x,y:this.y});}return;}
