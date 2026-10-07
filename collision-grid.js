@@ -1,4 +1,4 @@
-// Broad phase only. Exact hit tests, enemy order, damage and RNG remain in engine.js?v=hangar2
+// Broad phase only. Exact hit tests, enemy order, damage and RNG remain in engine.js?v=perf1
 // Buckets contain original indices; complex stage bosses always use the exact path.
 // Integer keys avoid allocating "x,y" strings in the projectile hot path.
 // The numeric domain is injective and fits 30 bits. Distant cells retain the
