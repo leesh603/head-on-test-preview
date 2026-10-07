@@ -4,10 +4,10 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 
-const {Game}=await import('../engine.js?v=ui4');
-const {CoopGame}=await import('../coop-engine.js?v=ui4');
-const {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCrashScale}=await import('../aircraft-crash.js?v=ui4');
-const {attachCombatFeedback,combatVisualPose,impactMaterial,drawCombatFeedback,COMBAT_CRASH_PROFILES,combatFlightSound}=await import('../combat-feedback.js?v=ui4');
+const {Game}=await import('../engine.js?v=ui5');
+const {CoopGame}=await import('../coop-engine.js?v=ui5');
+const {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCrashScale}=await import('../aircraft-crash.js?v=ui5');
+const {attachCombatFeedback,combatVisualPose,impactMaterial,drawCombatFeedback,COMBAT_CRASH_PROFILES,combatFlightSound}=await import('../combat-feedback.js?v=ui5');
 
 const rng=()=>{let n=17;return()=>((n=(n*1664525+1013904223)>>>0)/4294967296)};
 const quiet=g=>{for(const k of ['spawn','nextBossAt','nextHeavyAt','eventTimer','flakTimer','patrolTimer','gasTimer','regionThreat','fieldUnitTimer'])g[k]=Infinity;return g};

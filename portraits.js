@@ -4,7 +4,7 @@ export const portraitSources={};
 export const portraitLoaded=new Map();
 const legacyPortraits=['baron','voss','boelcke','immelmann','udet','fonck','collishaw','baracca','guynemer','bishop','goering','mannock','mckeever','huffzky','hawker','berthold','jacobs','rickenbacker','ball','barker','luke','brumowski','gontermann'].map(id=>{
  const promise=new Promise(resolve=>{
-  const img=new Image(),key=id==='mckeever'?'mckeever-powell129':id,url=`./portrait-${key}.webp?v=ui4&b=bust1`;
+  const img=new Image(),key=id==='mckeever'?'mckeever-powell129':id,url=`./portrait-${key}.webp?v=ui5&b=bust1`;
   // Keep the authored transparent margin while the portrait loads.
   portraitSources[id]=url;
   img.onload=()=>{
@@ -15,7 +15,7 @@ const legacyPortraits=['baron','voss','boelcke','immelmann','udet','fonck','coll
 });
 
 const NEW_ACE_PORTRAITS=['wolff','loewenhardt','mccudden','nungesser','lothar','sachsenberg','proctor','schleich','lufbery'];
-for(const id of NEW_ACE_PORTRAITS)portraitSources[id]=`./portrait-${id}-field.webp?v=ui4&b=bust1`;
+for(const id of NEW_ACE_PORTRAITS)portraitSources[id]=`./portrait-${id}-field.webp?v=ui5&b=bust1`;
 // Warm the field portraits too, so an enemy-ace cut-in never waits on a first download.
 const fieldPortraitWarm=typeof Image==='undefined'?[]:NEW_ACE_PORTRAITS.map(id=>{const img=new Image();img.decoding='async';img.src=portraitSources[id];
  const promise=new Promise(resolve=>{if(img.complete&&img.naturalWidth)return resolve(true);img.onload=()=>resolve(true);img.onerror=()=>resolve(false)});portraitLoaded.set(id,promise);return img});
