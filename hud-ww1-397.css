@@ -698,6 +698,10 @@ body.astra-ui.playing #modal:not(.choice-modal151) .modal-card{
 }
 body.astra-ui.playing #modal:not(.choice-modal151) #modalTag{display:inline-block!important;padding:3px 10px;border-radius:999px;background:#e8e2d415;color:var(--ho-ready)!important}
 body.astra-ui.playing #modal #build151 h4{color:var(--ho-ready);letter-spacing:.1em}
+/* Pause build header: the pilot's round hangar portrait left of the name. */
+body.astra-ui.playing #modal #build151 .build-head151{display:flex;align-items:center;justify-content:center;gap:11px;min-width:0}
+body.astra-ui.playing #modal #build151 .build-head151 h3{margin:0}
+body.astra-ui.playing #modal #build151 .build-portrait151{width:54px;height:54px;flex:none;border-radius:50%;border:1px solid var(--ho-hair-strong);background-repeat:no-repeat;box-shadow:0 4px 14px #0009,inset 0 0 0 1px #0006}
 body.astra-ui.playing #modal .build-stats151>div{border:1px solid var(--ho-hair)!important;border-left:1px solid var(--ho-hair)!important;border-radius:10px;background:#0f0f0ec0!important;color:var(--ho-muted)}
 body.astra-ui.playing #modal .build-stats151 b{color:var(--ho-parchment)}
 body.astra-ui.playing #modal .build-chip151{border-radius:999px!important;padding:4px 11px!important;border-color:var(--ho-hair)!important}
