@@ -802,13 +802,13 @@ Game.prototype.targetCollision=function(e,x,y,b){if(e.supportInvulnUntil>this.t)
 Game.prototype.spawnGas=function(){if(![2,3].includes(this.worldRegion())||(this.gasZones||[]).length>=2)return;const a=this.a+(this.rng()-.5)*.7,d=230+this.rng()*60;this.gasZones??=[];this.gasZones.push({x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,r:185,warning:2.5,life:16.5});this.event('flak','독가스 살포 예고 · 노란 경계 밖으로 이동하세요')};
 Game.prototype._updGas=function(dt,input={}){
  if(this.state!=='playing')return;const step=Math.min(.04,Math.max(0,dt));
- if(![2,3].includes(this.worldRegion())){this.gasZones=[];this.inGas=false;this.gasExposure=0}
+ if(![2,3].includes(this.worldRegion())){if(this.gasZones?.length)this.gasZones.length=0;this.inGas=false;this.gasExposure=0}
  const inside=()=>[2,3].includes(this.worldRegion())&&(this.gasZones||[]).some(z=>z.warning<=0&&z.life>0&&Math.hypot(this.x-z.x,this.y-z.y)<z.r);
  const turn=this.turn;let control=input;
  if(inside()){this.turn*=.55;control={...input};const drift=Math.sin(this.t*2.4)*.22;if(Number.isFinite(control.angle))control.angle+=drift;else control.steer=(control.steer||0)+drift;}
  try{this._updRidge(step,control)}finally{this.turn=turn}
  if(this.state!=='playing')return;
- for(const z of this.gasZones||[]){z.warning-=step;z.life-=step}this.gasZones=(this.gasZones||[]).filter(z=>z.life>0);this.inGas=inside();
+ {const _gz=this.gasZones||[];let _w=0;for(const z of _gz){z.warning-=step;z.life-=step;if(z.life>0)_gz[_w++]=z}_gz.length=_w;this.gasZones=_gz}this.inGas=inside();
  if(this.inGas&&!this.grunkreuz){this.gasExposure=(this.gasExposure||0)+step;if(this.gasExposure>=1){this.gasExposure-=1;if(this.invuln<=0){const prior=this.invuln;this.hit(6);this.invuln=prior;}}}else this.gasExposure=0;
  if(this.state!=='playing')return;
  this.gasTimer=(this.gasTimer??12)-step;if(this.gasTimer<=0){this.gasTimer=28;if(this.worldRegion()===2)this.spawnGas()}

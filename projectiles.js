@@ -90,7 +90,8 @@ export function drawCannonProjectile(c,b,x,y){
  c.restore();
 }
 // Deterministic, bounded pixel embers; no per-frame sprite allocation or gradients.
-export function drawBattlefieldFire(c,g,point=(x,y)=>[x,y]){
+const _ptShare=[0,0];
+export function drawBattlefieldFire(c,g,point=(x,y)=>{_ptShare[0]=x;_ptShare[1]=y;return _ptShare}){
  if(FX3&&fxReady('fireWing'))for(const e of g.enemies||[]){
   if(!(e.hp>0&&e.hp<e.maxHp*.35)||e.surface||e.fieldUnit||e.stageBossBody||e.crashing)continue;
   const a=e.a||0,[x,y]=point(e.x-Math.sin(a)*15,e.y+Math.cos(a)*15);
