@@ -1,6 +1,6 @@
 import {PLANES} from './engine.js?v=hangar2';
 import {drawGroundEnemy} from './ground-enemy-art.js?v=hangar2';
-import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=hangar2';
+import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=r3';
 import {SPRITE_ALIASES} from './campaign.js?v=hangar2';
 import {drawEquipment} from './equipment.js?v=hangar2';
 

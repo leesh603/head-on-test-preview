@@ -46,15 +46,17 @@ test('missing root art falls back once, and missing clean art settles without a 
  assert.equal(requests.length,2);assert.ok(requests[1].startsWith('./mech/'));
  assert.equal(await api.hangarArt('fokker_jacobs'),'');assert.equal(requests.length,3);
 });
-test('hangar waits for every plane and portrait while sortie retains its aircraft gate',async()=>{
+test('hangar waits for every visible portrait and plane while sortie retains its aircraft gate',async()=>{
  const app=await readFile(new URL('app.js',root),'utf8');
  assert.match(app,/hangarCardsReady=.*\.map\(hangarArt\)/);
  const hangar=app.match(/const hangarReady=([^;]+);/)[1];
- // The hangar stays hidden until every plane is present: the hangar-painted sprites on
- // the canvases (hangarArtReady — the full 170-file aircraftReady belongs to the battle
- // gate so the splash doesn't wait on the whole set) plus the decoded display cards.
- assert.ok(hangar.includes('hangarArt(shownKey)'));assert.ok(hangar.includes('hangarArtReady'));assert.ok(!hangar.includes('aircraftReady'));
- assert.ok(app.includes('HANGAR_UI.test(u)||/\\/portrait-/.test(u)?0:'),'portraits rank with the visible hangar art');assert.ok(app.includes('near.has(u)||far.has(u)?1:'),'every pilot art file outranks battle art');assert.match(app,/function sortie\(\)\{window\.HEADON_GATE\?\.releaseAll\(\)/);
+ // The hangar stays hidden until everything the first screen paints is decoded: the
+ // shown faction's tab portraits, the selected aircraft's figure art + painted sprite,
+ // and the icons. The far faction and the painted set keep warming at rank 1/2 instead
+ // of stalling the splash.
+ assert.ok(hangar.includes('visiblePortraitReady'));assert.ok(hangar.includes('hangarArt(shownKey)'));assert.ok(hangar.includes('hangarIconsReady'));assert.ok(hangar.includes('paintedReady(shownKey)'));assert.ok(!hangar.includes('aircraftReady'));assert.ok(!hangar.includes('hangarArtReady'));
+ assert.match(app,/visiblePortraitReady=.*PILOTS\[id\]\.faction===faction.*portraitLoaded\.get/);
+ assert.ok(app.includes('HANGAR_UI.test(u)||faces.has(u)?0:'),'shown-faction portraits rank with the visible hangar art');assert.ok(app.includes('near.has(u)||far.has(u)?1:'),'every pilot art file outranks battle art');assert.match(app,/function sortie\(\)\{window\.HEADON_GATE\?\.releaseAll\(\)/);
  assert.match(app,/const battleReady=.*aircraftReady/);
  assert.match(app,/function sortie\(\).*battleReady\.then\(go,go\)/);
 });

@@ -1,6 +1,6 @@
 import {createSignatureView} from './pilot-signature-view.js?v=hangar2';
 import {fx,fxTint} from './fx-art.js?v=hangar2';
-import {planeSprite,aircraftKey} from './aircraft.js?v=hangar2';
+import {planeSprite,aircraftKey} from './aircraft.js?v=r3';
 import {drawGameIcon} from './icons.js?v=hangar2';
 
 import {drawCavalryGuard} from './pilot-directed-fx.js';

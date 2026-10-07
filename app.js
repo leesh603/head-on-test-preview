@@ -44,7 +44,7 @@ import {missionNavigation,drawMissionRadar} from './navigation.js?v=hangar2';
 import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=hangar2';
 import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=hangar2';
 import {drawCampaign} from './campaign-view.js?v=hangar2';
-import {campaignArtReady} from './aircraft.js?v=hangar2';
+import {campaignArtReady} from './aircraft.js?v=r3';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady,hangarIconsReady} from './icons.js?v=hangar2';
 import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?v=hangar2';
 import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=hangar2';
@@ -52,12 +52,12 @@ import {attachCombatFeedback,combatVisualPose,drawCombatFeedback,combatCameraOff
 import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=hangar2';
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=hangar2';
 import {drawTailEngagement} from './engagement-hud410.js?v=hangar2';
-import {portraitSources,portraitsReady} from './portraits.js?v=hangar2';
+import {portraitSources,portraitsReady,portraitLoaded} from './portraits.js?v=r3';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=hangar2';
 import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=hangar2';
 import {drawEquipment} from './equipment.js?v=hangar2';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=hangar2';
-import{planeSprite,aircraftReady,aircraftKey,hangarArtReady}from './aircraft.js?v=hangar2';
+import{planeSprite,aircraftReady,aircraftKey,hangarArtReady,paintedReady}from './aircraft.js?v=r3';
 import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=hangar2';
 import {AUGMENTATION_OVERHAUL_BALANCE}from'./augmentation-overhaul150.js?v=hangar2';
 import {drawCloudCover}from'./cloud-cover1.js?v=hangar2';
@@ -1049,8 +1049,8 @@ const bootGate=window.HEADON_GATE,absUrl=u=>new URL(u,document.baseURI).href;
 const artUrls=key=>{const file=hangarKeyFile[key]||key;return [absUrl(hangarArtSource(key)),absUrl(`./mech/${file}.webp?v=hangar20261006`),absUrl(`./mech/${{fokker_red:'fokker',fokker_voss:'fokker_f1',nieuport_italian:'nieuport'}[key]||key}.webp?v=488&b=347`)]};
 const pilotUrls=(id,airframe=pilotPlane(id))=>[absUrl(portraitSources[id]||`./portrait-${id}.webp`),...artUrls(aircraftKey(airframe,false,id))];
 const shownKey=aircraftKey(plane,false,pilot),shownUrls=new Set(pilotUrls(pilot,plane));
-const rankHangar=()=>{const near=new Set(),far=new Set();for(const id of Object.keys(PILOTS))for(const u of pilotUrls(id))(PILOTS[id].faction===faction?near:far).add(u);for(const u of artUrls('baron_albatros'))near.add(u);
- bootGate?.setRank?.(u=>shownUrls.has(u)||HANGAR_UI.test(u)||/\/portrait-/.test(u)?0:near.has(u)||far.has(u)?1:/augmentation-icons\//.test(u)?1.8:2)};
+const rankHangar=()=>{const near=new Set(),far=new Set(),faces=new Set();for(const id of Object.keys(PILOTS)){const urls=pilotUrls(id);if(PILOTS[id].faction===faction){faces.add(urls[0]);for(const u of urls)near.add(u)}else for(const u of urls)far.add(u)}for(const u of artUrls('baron_albatros'))near.add(u);
+ bootGate?.setRank?.(u=>shownUrls.has(u)||HANGAR_UI.test(u)||faces.has(u)?0:near.has(u)||far.has(u)?1:/augmentation-icons\//.test(u)?1.8:2)};
 rankHangar();
 const raisePilot=()=>setTimeout(()=>{if(!game&&bootGate&&!bootGate.open){rankHangar();bootGate.raise(pilotUrls(pilot,plane))}},0);
 for(const id of ['pilotTabs','central','entente','baronAircraftChoice','aircraftSelect103'])$(id)?.addEventListener('click',raisePilot,true);
@@ -1063,7 +1063,12 @@ const shownPortraitReady=new Promise(r=>{const i=new Image();i.onload=i.onerror=
 // without it the cards are decoded but the planes on them still fill in after entry.
 // Only the hangar airframes gate the reveal; the rest of the painted set streams
 // behind the splash so the wait stays short on slow connections.
-const hangarReady=Promise.all([portraitsReady,hangarCardsReady,hangarArt(shownKey),hangarIconsReady,hangarArtReady]);
+// The reveal waits only for what the first screen paints: the shown faction's tab
+// portraits, the selected aircraft's figure art and painted sprite, and the icons.
+// Every other pilot's art and portrait keeps warming at rank 1 so a faction switch
+// still lands quickly — but it can no longer hold the splash hostage.
+const visiblePortraitReady=Promise.all(Object.keys(PILOTS).filter(id=>PILOTS[id].faction===faction).map(id=>portraitLoaded.get(id)||Promise.resolve(true)));
+const hangarReady=Promise.all([visiblePortraitReady,hangarArt(shownKey),hangarIconsReady,paintedReady(shownKey)]);
 const battleReady=Promise.all([fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady,aircraftReady]);
 hangarReady.then(()=>{
  // Open the boot queue with the hangar: every gated asset is decoded already, and the
