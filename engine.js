@@ -101,7 +101,7 @@ export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this
  permanentWingCount(){let count=0;const allies=this.combatWorld?.()?.allies||this.allies||[];for(const a of allies)if(a.permanent&&a.life>0&&(a.ownerId===(this.id||'p1')))count++;return count}
  lufberyDamageMultiplier(){if(!this.upgrades?.lufberyCircle)return 1;const wings=this.permanentWingCount();return 1-(wings>=4?.35:wings===3?.30:wings===2?.25:wings===1?.20:0)}
  wingFormationOffset(slot,count){if(count<=1)return {forward:-70,side:0};if(count===2)return {forward:-60,side:slot?-70:70};if(count===3)return slot===2?{forward:-125,side:0}:{forward:-55,side:slot?-65:65};const row=Math.floor(slot/2),side=slot%2?-1:1;return {forward:-58-row*48,side:side*(72+row*38)}}
- goeringFocusTarget(){if(this.pilot!=='goering')return null;return this.enemies.filter(e=>e.hp>0&&Math.hypot(e.x-this.x,e.y-this.y)<700&&Math.abs(angleDiff(Math.atan2(e.y-this.y,e.x-this.x),this.a))<Math.PI/3).sort((a,b)=>Math.hypot(a.x-this.x,a.y-this.y)-Math.hypot(b.x-this.x,b.y-this.y))[0]}
+ goeringFocusTarget(){if(this.pilot!=='goering')return null;let target,best=700;for(const e of this.enemies){if(!(e.hp>0))continue;const d=Math.hypot(e.x-this.x,e.y-this.y);if(d<best&&Math.abs(angleDiff(Math.atan2(e.y-this.y,e.x-this.x),this.a))<Math.PI/3){best=d;target=e}}return target}
  wingFormationTarget(wing,count=this.permanentWingCount()){if(this.pilot==='goering'&&this.wingBoost>0&&this.wingBoost<this.skillDuration()-.22){const focus=this.goeringFocusTarget(),slot=wing.slot??0,side=(slot%2?-1:1)*(18+Math.floor(slot/2)*16),forward=focus?Math.max(35,Math.min(190,Math.hypot(focus.x-this.x,focus.y-this.y)-150)):90,heading=focus?Math.atan2(focus.y-this.y,focus.x-this.x):this.a;return{x:this.x+Math.cos(heading)*forward-Math.sin(heading)*side,y:this.y+Math.sin(heading)*forward+Math.cos(heading)*side}}if(this.upgrades?.lufberyCircle&&count>0){const radius=Math.max(88,76/(2*Math.sin(Math.PI/Math.max(2,count)))),angle=(this.t||0)*.58+(wing.slot??0)*Math.PI*2/count;return{x:this.x+Math.cos(angle)*radius,y:this.y+Math.sin(angle)*radius}}const offset=this.wingFormationOffset(wing.slot??0,count);return {x:this.x+Math.cos(this.a)*offset.forward-Math.sin(this.a)*offset.side,y:this.y+Math.sin(this.a)*offset.forward+Math.cos(this.a)*offset.side}}
  applyFighterSupplyToWings(){if(!this.upgrades.fighterSupply)return;const pool=(WING_PLANES[PLANES[this.plane].faction]||[]).filter(id=>id!==this.plane&&PLANES[id]),allies=this.combatWorld?.()?.allies||this.allies||[];for(const a of allies)if(a.permanent&&(a.ownerId===(this.id||'p1'))){const plane=pool.length?pool[Math.floor(this.rng()*pool.length)]:a.plane;a.plane=plane;attachAircraftPersonality(PLANES,a,plane)}}
  ensureWingmen(){let active=this.permanentWingCount();while(active<(this.permanentWingman||0)){const slot=active++,target=this.wingFormationTarget({slot},this.permanentWingman);this.allies.push({ownerId:this.id||'p1',slot,x:target.x,y:target.y,a:this.a,life:1e9,fire:.18,plane:this.permanentWingPlane(),permanent:true})}}
@@ -967,8 +967,10 @@ Game.prototype.hitFormationAlly=function(a,damage){
 Game.prototype.resolveHostileRound=function(b,x0,y0){
  const dx=b.x-x0,dy=b.y-y0,length=dx*dx+dy*dy;
  let first=Infinity,hit=null;
- const formationAllies=b.formationBoss129?(this.allies||[]):[];
- for(const target of [this,...(this.patrols||[]),...formationAllies]){
+ const patrols=this.patrols,allies=b.formationBoss129?this.allies:null,patrolCount=patrols?.length||0,total=1+patrolCount+(allies?.length||0);
+ // Keep player -> patrol -> formation order, including equal-time impacts.
+ for(let i=0;i<total;i++){
+  const target=i===0?this:i<=patrolCount?patrols[i-1]:allies[i-1-patrolCount];
   if(target===this&&nungesserRoundReaction(this,b,x0,y0))continue;
   if(target!==this&&(target.hp<=0||target.life<=0))continue;
   const radius=(target===this?10:16)+(b.flak?6:0),ox=x0-target.x,oy=y0-target.y,c=ox*ox+oy*oy-radius*radius;
@@ -979,7 +981,7 @@ Game.prototype.resolveHostileRound=function(b,x0,y0){
 };
 Game.prototype.updatePatrols=function(dt){
  this.patrols??=[];
- this.patrols=this.patrols.filter(p=>p.hp>0&&p.life>0&&Math.hypot(p.x-this.x,p.y-this.y)<1700);
+ {let w=0;for(const p of this.patrols)if(p.hp>0&&p.life>0&&Math.hypot(p.x-this.x,p.y-this.y)<1700)this.patrols[w++]=p;this.patrols.length=w}
  this.patrolTimer=(this.patrolTimer??PATROL_BALANCE.initialDelay)-dt;
  if(this.patrolTimer<=0){this.spawnPatrol();this.patrolTimer=PATROL_BALANCE.reinforceEvery}
  for(const p of this.patrols){
@@ -987,7 +989,8 @@ Game.prototype.updatePatrols=function(dt){
   if(p.think<=0||!p.target||!this.patrolCanEngage(p.target,p)||!this.enemies.includes(p.target)){
    const pursuit=Math.max(.75,Math.min(1.25,p.personality?.pursuitControl??1));p.think=.75;p.target=null;let best=750*pursuit;
    for(const e of this.enemies)if(this.patrolCanEngage(e,p)){
-    const distance=Math.hypot(e.x-p.x,e.y-p.y),assigned=this.patrols.filter(a=>a!==p&&a.target===e).length,score=distance+assigned*200;
+    let assigned=0;for(const a of this.patrols)if(a!==p&&a.target===e)assigned++;
+    const distance=Math.hypot(e.x-p.x,e.y-p.y),score=distance+assigned*200;
     if(distance<700*pursuit&&score<best){best=score;p.target=e}
    }
   }
@@ -1567,14 +1570,19 @@ Game.prototype.dreideckerTurnDamageMultiplier=function(){
  return 1+turn*RICHTHOFEN_DRI_BALANCE.turnDamageMax;
 };
 Game.prototype.pickHuntTarget=function(){
- const inert=e=>e.stageBossBody||e.bossMinion||e.surface||e.fieldUnit||e.navalVessel||e.missionGround||e.groundEscort||e.stationary||e.rivalEscaped;
- const valid=e=>e&&e.hp>0&&!e.crashed&&!inert(e);
- const es=(this.enemies||[]).filter(valid);
- const dist=(a,b)=>Math.hypot(a.x-this.x,a.y-this.y)-Math.hypot(b.x-this.x,b.y-this.y);
- const ace=es.filter(e=>e.bossPilot).sort(dist)[0];if(ace)return{target:ace,elite:false};
- const elite=(this.eliteEnemies?.members||[]).filter(m=>m.alive).sort(dist)[0];if(elite)return{target:elite,elite:true};
- const heavy=es.filter(e=>e.heavyBomber).sort(dist)[0];if(heavy)return{target:heavy,elite:false};
- const bomber=es.filter(e=>e.type==='bomber').sort(dist)[0];if(bomber)return{target:bomber,elite:false};
+ let target,priority=4,best=Infinity;
+ if(this.enemies)for(const e of this.enemies){
+  if(!e||!(e.hp>0)||e.crashed||e.stageBossBody||e.bossMinion||e.surface||e.fieldUnit||e.navalVessel||e.missionGround||e.groundEscort||e.stationary||e.rivalEscaped)continue;
+  const rank=e.bossPilot?0:e.heavyBomber?2:e.type==='bomber'?3:4;
+  if(rank===4||rank>priority)continue;
+  const d=Math.hypot(e.x-this.x,e.y-this.y);
+  if(rank<priority||d<best){target=e;priority=rank;best=d}
+ }
+ if(priority===0)return{target,elite:false};
+ let elite,eliteDist=Infinity;const members=this.eliteEnemies?.members;
+ if(members)for(const m of members)if(m.alive){const d=Math.hypot(m.x-this.x,m.y-this.y);if(d<eliteDist){elite=m;eliteDist=d}}
+ if(elite)return{target:elite,elite:true};
+ if(target)return{target,elite:false};
  return null;
 };
 Game.prototype.patchEliteHuntDamage=function(){

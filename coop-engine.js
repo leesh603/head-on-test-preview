@@ -112,9 +112,25 @@ export class CoopGame {
   this.flakBursts.push({x:origin.x,y:origin.y,a:aim,life:7,maxLife:7});this.burst(origin.x,origin.y,'#efb35d',12);this.event('flak','대공포 발사! 탄막을 피하세요');
  }
  reserveEnemySlots(){/* Do not delete existing enemies. */}
- enemyCombatTarget(e){const decoy=this.revisionDecoyTarget(e);if(decoy)return decoy;const patrol=e.patrolTarget;if(patrol?.hp>0&&patrol.life>0&&this.patrols.includes(patrol)&&this.patrolCanEngage(e,patrol))return patrol;const alive=this.living().filter(p=>(p.kaiserFogTime||0)<=0),current=this.player(e.targetPlayerId);let closest=alive.reduce((best,p)=>!best||squared(p,e)<squared(best,e)?p:best,null);if(current&&live(current)&&(current.kaiserFogTime||0)<=0&&closest&&squared(current,e)<squared(closest,e)*1.6)closest=current;e.targetPlayerId=closest?.id;return (closest?.pilot==='ball'&&closest.ballCloak>0&&closest.ballGhost?closest.ballGhost:closest)||{x:e.x+Math.cos(e.a)*420,y:e.y+Math.sin(e.a)*420,a:e.a,fogHidden:true}}
+ enemyCombatTarget(e){const decoy=this.revisionDecoyTarget(e);if(decoy)return decoy;const patrol=e.patrolTarget;if(patrol?.hp>0&&patrol.life>0&&this.patrols.includes(patrol)&&this.patrolCanEngage(e,patrol))return patrol;const current=this.player(e.targetPlayerId);let closest=null;for(const p of this.players)if(live(p)&&(p.kaiserFogTime||0)<=0&&(!closest||squared(p,e)<squared(closest,e)))closest=p;if(current&&live(current)&&(current.kaiserFogTime||0)<=0&&closest&&squared(current,e)<squared(closest,e)*1.6)closest=current;e.targetPlayerId=closest?.id;return (closest?.pilot==='ball'&&closest.ballCloak>0&&closest.ballGhost?closest.ballGhost:closest)||{x:e.x+Math.cos(e.a)*420,y:e.y+Math.sin(e.a)*420,a:e.a,fogHidden:true}}
  sunStrikeContains(e){return this.players.some(p=>live(p)&&p.sunStrikeContains(e))}
- resolveHostileRound(b,x0,y0){const dx=b.x-x0,dy=b.y-y0,length=dx*dx+dy*dy,players=this.living(),patrols=this.patrols.filter(p=>p.hp>0&&p.life>0),formationAllies=b.formationBoss129?this.allies.filter(a=>a.life>0):[];let first=Infinity,hit=null;for(const target of [...players,...patrols,...formationAllies]){if(players.includes(target)&&nungesserRoundReaction(target,b,x0,y0))continue;const radius=(players.includes(target)?10:16)+(b.flak?6:0),ox=x0-target.x,oy=y0-target.y,c=ox*ox+oy*oy-radius*radius;let t=0;if(c>0){if(!length)continue;const dot=ox*dx+oy*dy,disc=dot*dot-length*c;if(disc<0)continue;t=(-dot-Math.sqrt(disc))/length;if(t<0||t>1)continue}if(t<first){first=t;hit=target}}if(hit){if(players.includes(hit)){hit.damageSource={x:x0,y:y0,bullet:b,impactX:x0+(b.x-x0)*first,impactY:y0+(b.y-y0)*first};this.hitPlayer(hit,highRiskDamage(b.damage,hit.maxHp,b));hit.damageSource=null;}else if(patrols.includes(hit))this.hitPatrol(hit,b.damage);else this.hitFormationAlly(hit,b.damage);b.life=0}}
+ resolveHostileRound(b,x0,y0){
+  const dx=b.x-x0,dy=b.y-y0,length=dx*dx+dy*dy;
+  let first=Infinity,hit=null,hitKind=-1;
+  // Scan the original groups in order without constructing per-round snapshots.
+  for(let kind=0;kind<3;kind++){
+   if(kind===2&&!b.formationBoss129)continue;
+   const targets=kind===0?this.players:kind===1?this.patrols:this.allies;
+   for(const target of targets){
+    if(kind===0?!live(target):kind===1?!(target.hp>0&&target.life>0):!(target.life>0))continue;
+    if(kind===0&&nungesserRoundReaction(target,b,x0,y0))continue;
+    const radius=(kind===0?10:16)+(b.flak?6:0),ox=x0-target.x,oy=y0-target.y,c=ox*ox+oy*oy-radius*radius;
+    let t=0;if(c>0){if(!length)continue;const dot=ox*dx+oy*dy,disc=dot*dot-length*c;if(disc<0)continue;t=(-dot-Math.sqrt(disc))/length;if(t<0||t>1)continue}
+    if(t<first){first=t;hit=target;hitKind=kind}
+   }
+  }
+  if(hit){if(hitKind===0){hit.damageSource={x:x0,y:y0,bullet:b,impactX:x0+dx*first,impactY:y0+dy*first};this.hitPlayer(hit,highRiskDamage(b.damage,hit.maxHp,b));hit.damageSource=null;}else if(hitKind===1)this.hitPatrol(hit,b.damage);else this.hitFormationAlly(hit,b.damage);b.life=0}
+ }
  handleDeath(e,b){if(e.stageBossBody||e.deathHandled||e.hp>0)return;e.deathHandled=true;const credited=!b.patrol||e.playerHit,owner=this.player(b.ownerId);owner?.spawnAmatolSecondary(e,b);if(credited){this.kills++;if(owner)owner.kills++;if(!e.surface&&!e.fieldUnit&&(e.bossPilot||['boss','zeppelin','bomber'].includes(e.type)))this.priorityKills++}else this.patrolKills=(this.patrolKills||0)+1;if(e.type==='zeppelin')this.wreckGust(e);{const style=chooseEnemyDeathStyle(e,()=>this.rng()),burst=enemyDeathBurst(e,style);this.burst(e.x,e.y,'#f2aa52',burst.count,burst.kind)};this.smoke(e.x,e.y,true);this.event('kill','');if(e.type==='boss'){this.bossKilled=true;if(owner&&live(owner))owner.hp=Math.min(owner.maxHp,owner.hp+owner.maxHp*DURABILITY_BALANCE.repairPickupFraction)}if(credited){const big=e.bossPilot||e.type==='boss';if(big)for(let gi=0;gi<5;gi++)this.drops.push({id:this.nextEntityId++,x:e.x+Math.cos(gi*1.26)*44,y:e.y+Math.sin(gi*1.26)*44,value:14,heal:false});this.drops.push({id:this.nextEntityId++,x:e.x,y:e.y,value:big?30:e.heavyBomber?16:e.type==='bomber'?3:(e.xpValue||1),heal:big||this.rng()<.03});Game.prototype.dropObservationRepair.call(this,e)}}
  updateSchedules(dt){
   const wave=this.t<60?1:this.t<120?2:3;if(wave!==this.wave){this.wave=wave;this.event('wave',wave===1?'2인 협동 · 서로의 꼬리를 지켜주세요':wave===2?'제2파 · 추격기 접근':'제3파 · 전선 돌파')}

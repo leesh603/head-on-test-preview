@@ -11,7 +11,7 @@ export function wingmanEngagementStep(world,owner,wing,home,dt){
  if((wing.engagementState==='HOME'||!wing.engagementState||wing.engagementState==='RETURN'&&distance(wing,home)<110)&&!wing.engagementTarget){
   let best=650,chosen=null;
   for(const enemy of world.enemies||[]){if(enemy.hp<=0||enemy.crashing||enemy.surface||enemy.stationary||distance(enemy,owner)>520)continue;
-   const assigned=(world.allies||[]).filter(other=>other!==wing&&other.engagementTarget===enemy).length;
+   let assigned=0;if(world.allies)for(const other of world.allies)if(other!==wing&&other.engagementTarget===enemy)assigned++;
    const score=distance(enemy,wing)+assigned*230;
    if(score<best){best=score;chosen=enemy}
   }
