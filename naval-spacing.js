@@ -1,4 +1,4 @@
-import {hullOverlap,bossHullRect} from './adriatic-boss-layout.js?v=imm2';
+import {hullOverlap,bossHullRect} from './adriatic-boss-layout.js?v=imm3';
 export function fleetHull(e){return{x:e.x,y:e.y,w:(e.hullWidth||40)*2,h:(e.hullLength||150)*2,yaw:(e.a||0)+Math.PI/2};}
 export function surfaceTraffic(g){return [...(g.enemies||[]),...(g.friendlyShips||[])].filter(e=>e.movingShip&&e.hp>0&&!e.expired);}
 export function surfaceBosses(g){return [...(g.stageBoss?.stages?.encounter?.bodies.values()||[])].filter(b=>!b.dead).map(bossHullRect).filter(Boolean);}

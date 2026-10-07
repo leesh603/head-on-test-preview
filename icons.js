@@ -26,12 +26,12 @@ const DIRECT_ICONS=Object.freeze({
  urLeica:'ur_leica_camera.webp',badinGauge:'badin_gauge.webp',heineckeRettungsfallschirm:'heinecke_rettungsfallschirm.webp'
 });
 const atlasReady=Promise.all([
- loadIconAtlas('./icons51.webp?v=imm2',5,4,keys,true),
- loadIconAtlas('./controls53.webp?v=imm2',2,2,['control','turn','command','cooldown']),
- loadIconAtlas('./special-ammo-icons92.webp?v=imm2',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
- loadIconAtlas('./legendary-icons103.webp?v=imm2',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
- loadIconAtlas('./gun-atlas114.webp?v=imm2',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
- loadIconAtlas('./legendary-icons109.webp?v=imm2',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
+ loadIconAtlas('./icons51.webp?v=imm3',5,4,keys,true),
+ loadIconAtlas('./controls53.webp?v=imm3',2,2,['control','turn','command','cooldown']),
+ loadIconAtlas('./special-ammo-icons92.webp?v=imm3',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
+ loadIconAtlas('./legendary-icons103.webp?v=imm3',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
+ loadIconAtlas('./gun-atlas114.webp?v=imm3',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
+ loadIconAtlas('./legendary-icons109.webp?v=imm3',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
  loadIconAtlas('./relic-maxim-belt128.webp',1,1,['maximBelt'],true),
  loadIconAtlas('./relic-steel-plate128.webp',1,1,['steelPlate'],true),
  loadIconAtlas('./relic-immelmann-manual128.webp',1,1,['immelmannManual'],true),
@@ -41,7 +41,7 @@ const atlasReady=Promise.all([
 // The hangar only needs the atlases and the faction emblems/medals; the upgrade illustrations
 // (several MB) load behind them and are only drawn in battle.
 const HANGAR_ICONS=new Set(['cooldown-central','cooldown-entente','emblemCentral','emblemEntente']);
-const directLoads=Object.entries(DIRECT_ICONS).map(([key,file])=>loadDirectIcon('./augmentation-icons/'+file+'?v=imm2',key).then(ok=>[key,ok]));
+const directLoads=Object.entries(DIRECT_ICONS).map(([key,file])=>loadDirectIcon('./augmentation-icons/'+file+'?v=imm3',key).then(ok=>[key,ok]));
 export const hangarIconsReady=Promise.all([atlasReady,...directLoads.filter((_,i)=>HANGAR_ICONS.has(Object.keys(DIRECT_ICONS)[i]))]).then(([results,...direct])=>results.every(Boolean)&&direct.every(([,ok])=>ok));
 export const iconsReady=atlasReady.then(async results=>{
  const direct=await Promise.all(directLoads);

@@ -4,9 +4,9 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 
-const {Game}=await import('../engine.js?v=imm2');
-const {enemyCanCrash,enemyCrashScale}=await import('../aircraft-crash.js?v=imm2');
-const {CoopGame}=await import('../coop-engine.js?v=imm2');
+const {Game}=await import('../engine.js?v=imm3');
+const {enemyCanCrash,enemyCrashScale}=await import('../aircraft-crash.js?v=imm3');
+const {CoopGame}=await import('../coop-engine.js?v=imm3');
 
 
 test('airborne wrecks shrink while ground and heavy targets retain their death path',()=>{
