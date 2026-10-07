@@ -29,3 +29,23 @@ test('Eagle passive draws only a thin neutral trail and clears outside its real 
  const n=strokes.length;p.eagleTime=0;drawImmelmannEagle(c,p,(x,y)=>[x,y],1,0,0);assert.equal(strokes.length,n);
  p.eagleTime=1;p.immelmannTurn={};drawImmelmannEagle(c,p,(x,y)=>[x,y],1.1,0,0);assert.equal(strokes.length,n);
 });
+
+test('solo and cooperative Immelmann slow through the apex and finish the roll before firing',()=>{
+ for(const coop of [false,true]){
+  const world=coop?new CoopGame([{pilot:'immelmann'},{pilot:'baron'}],{rng:()=>.5}):new Game('eindecker','immelmann',()=>.5),p=world.players?.[0]||world;
+  const heading=p.a,baseSpeed=p.baseSpeed,speed=p.speed;p.skill();
+  const samples=[];
+  for(let i=0;i<=100;i++){
+   const q=i/100;p.immelmannTurn.elapsed=q*.9;
+   const prior=p.beginRevisionFrame(0,{}),m=p.immelmannTurn;
+   samples.push(Math.cos(p.a-heading)*p.speed/speed);
+   if(Math.abs(q-.28)<1e-8)assert(p.speed/speed<1e-12,'Ground speed vanishes at vertical pitch');
+   if(m?.fired){assert.equal(m.pitch,Math.PI);assert.equal(m.roll,Math.PI);assert(Math.abs(p.immelmannAltitude)<1e-12,'Volley leaves a level aircraft');}
+   p.endRevisionFrame(prior);assert.equal(p.baseSpeed,baseSpeed);assert.equal(p.speed,speed);
+  }
+  for(let i=1;i<samples.length;i++)assert(Math.abs(samples[i]-samples[i-1])<.09,'Ground velocity is continuous at reversal');
+  assert.equal(p.immelmannTurn,null);assert.equal(p.immelmannAltitude,0);
+  const volley=world.bullets.filter(b=>b.pierce&&b.formation);
+  assert.equal(volley.length,5);assert(volley.every(b=>Math.cos(Math.atan2(b.vy,b.vx)-heading)<-.98));
+ }
+});

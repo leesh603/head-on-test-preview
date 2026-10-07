@@ -3,6 +3,7 @@ import {WING_PLANES} from './engine.js?v=sortie1';
 
 export const REVISION_BALANCE=Object.freeze({soloCap:12,coopCap:18,soloRegular:10,coopRegular:11,interval:1.6,coopInterval:1.65,countrysideInterval:1,countrysideCoopInterval:1.15,frontReduction:.25,rearBonus:.3,compassXp:1.3});
 const pilotMachineGunRound=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.actualExplosion&&!b.blast&&!b.mauserRound;
+const maneuverEase=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
  export function installRevision(Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,LEGENDARIES,UPGRADES){
  const newPlanes={
   nieuport24:{name:'뉴포르 24',faction:'entente',speed:154,turn:4.1,hp:90,drag:.21,recovery:1.3,guns:1,role:'경량 후방 추격',tip:'빠르게 돌아 후방 사격선을 유지하세요.'},
@@ -129,7 +130,19 @@ const pilotMachineGunRound=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.roc
   this.mannockCoverEngaged=this.pilot==='mannock'&&this.enemies.some(e=>this.mannockCoverTarget(e)&&Math.hypot(e.x-this.x,e.y-this.y)<700&&Math.abs(Math.atan2(Math.sin(Math.atan2(e.y-this.y,e.x-this.x)-this.a),Math.cos(Math.atan2(e.y-this.y,e.x-this.x)-this.a)))<Math.PI/3);
   this.rate/=(1+eagle)*(this.mannockCoverEngaged?1.15:1);
     this.eagleTime=Math.max(0,(this.eagleTime||0)-dt);
-  if(this.pilot==='immelmann'&&this.immelmannTurn){const m=this.immelmannTurn;m.elapsed+=dt;const q=Math.min(1,m.elapsed/.9),climb=q<.5;this.a=m.heading+(climb?0:Math.PI);this.turn=0;this.baseSpeed*=climb?.55:.85;this.speed*=climb?.55:.85;this.fire=Math.max(this.fire,dt+.03);this.immelmannAltitude=Math.sin(q*Math.PI);if(!m.fired&&q>=.72){m.fired=true;for(let i=-m.spread;i<=m.spread;i++){const aa=this.a+i*.07;this.bullets.push({x:this.x+Math.cos(aa)*24,y:this.y+Math.sin(aa)*24,vx:Math.cos(aa)*620,vy:Math.sin(aa)*620,life:1.5,enemy:false,ownerId:this.id,damage:this.damage*3.5,pierce:true,hit:new Set(),formation:true})}this.muzzleFlash=.12}if(q>=1){this.immelmannTurn=null;this.immelmannAltitude=0;this.eagleTime=1.5;this.immelmannPreviousHeading=this.a}}else if(this.pilot==='immelmann')this.immelmannAltitude=0;
+  if(this.pilot==='immelmann'&&this.immelmannTurn){
+   const m=this.immelmannTurn;m.elapsed+=dt;const q=Math.min(1,m.elapsed/.9);
+   // A half loop followed by a half roll, level before the existing volley.
+   m.pitch=Math.PI*maneuverEase(q/.56);m.roll=Math.PI*maneuverEase((q-.44)/.28);
+   const forward=Math.cos(m.pitch),groundSpeed=Math.abs(forward);
+   this.a=m.heading+(forward<0?Math.PI:0);this.turn=0;
+   // Project flight speed onto the ground: no velocity snap at the loop apex.
+   this.baseSpeed*=groundSpeed;this.speed*=groundSpeed;
+   this.fire=Math.max(this.fire,dt+.03);
+   this.immelmannAltitude=Math.sin(Math.PI*maneuverEase(q/.72));
+   if(!m.fired&&q>=.72){m.fired=true;for(let i=-m.spread;i<=m.spread;i++){const aa=this.a+i*.07;this.bullets.push({x:this.x+Math.cos(aa)*24,y:this.y+Math.sin(aa)*24,vx:Math.cos(aa)*620,vy:Math.sin(aa)*620,life:1.5,enemy:false,ownerId:this.id,damage:this.damage*3.5,pierce:true,hit:new Set(),formation:true})}this.muzzleFlash=.12}
+   if(q>=1){this.immelmannTurn=null;this.immelmannAltitude=0;this.eagleTime=1.5;this.immelmannPreviousHeading=this.a}
+  }else if(this.pilot==='immelmann')this.immelmannAltitude=0;
   if(this.pilot==='guynemer'){this.passiveCannonTimer=(this.passiveCannonTimer??0)-dt;if(this.passiveCannonTimer<=0){this.passiveCannonTimer=4;this.cannonRecoil129=.24;this.cannonKick129=9;this.identityFx?.('muzzleHeavy',this.x+Math.cos(this.a)*26,this.y+Math.sin(this.a)*26,this.a,58,.15);this.bullets.push({x:this.x,y:this.y,vx:Math.cos(this.a)*460,vy:Math.sin(this.a)*460,life:2.8,ownerId:this.id,enemy:false,motorCannon:true,pierce:true,collisionRadius:18,damage:this.payloadPower(90),hit:new Set()});}}
   return prior;
  };
