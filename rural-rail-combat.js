@@ -81,7 +81,7 @@ export class RuralRailBoss extends RailAdapter {
   this.syncRailPart();
   // Armor is open throughout the real recoil/reload state, including slow reload.
   this.recovery=this.kind==='lincomparable'&&['recoil','reload'].includes(rail.phase)?Math.max(.01,(rail.phase==='recoil'?rail.c.recoilSeconds-rail.time+rail.c.reloadSeconds:rail.c.reloadSeconds-rail.time)):0;
-  if(this.barrage){const q=this.barrage;q.clock-=dt;while(q.index<q.points.length&&q.clock<=0){const p=q.points[q.index++];this.emit({type:'hazard',bossId:this.id,kind:'circle',...p,warning:.85,delay:0,duration:.35,once:true,radius:88,damage:this.t.damage,visual:'rail-shell'});q.clock+=.32;}if(q.index===q.points.length)this.barrage=null;}
+  if(this.barrage){const q=this.barrage;q.clock-=dt;while(q.index<q.points.length&&q.clock<=0){const p=q.points[q.index++];this.emit({type:'hazard',bossId:this.id,kind:'circle',...p,warning:.85,delay:0,duration:.35,once:true,radius:88,damage:this.t.damage,visual:'rail-shell'});q.clock+=this.t.barrageInterval||.32;}if(q.index===q.points.length)this.barrage=null;}
   this.updateDefense(dt,ctx.players||[]);
   if(!this.runawayTriggered129)this.phase=this.coreVulnerable?'locomotive':rail.phase;
  }
@@ -91,7 +91,7 @@ export class RuralRailBoss extends RailAdapter {
    const a=this.aaPlan.angle,x=this.x,y=this.y+rear.y-145,speed=(this.t.bulletSpeed||260)*.85;
    rear.gunFlash=.14;rear.shotAngle=a;
    for(const da of [-.14,0,.14])this.emit({type:'hazard',bossId:this.id,kind:'projectile',x,y,vx:Math.cos(a+da)*speed,vy:Math.sin(a+da)*speed,radius:5,warning:0,delay:0,duration:3.2,damage:this.t.damage*.32,visual:'rail-mg'});
-   this.aaPlan=null;this.aaClock=2.8;
+   this.aaPlan=null;this.aaClock=2.8/(this.t.patternMultiplier||1);
   }return;}
   this.aaClock-=dt;if(this.aaClock>0)return;
   const p=players.filter(p=>p.alive!==false).sort((a,b)=>Math.hypot(a.x-this.x,a.y-this.y-rear.y)-Math.hypot(b.x-this.x,b.y-this.y-rear.y))[0];

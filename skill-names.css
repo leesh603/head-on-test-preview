@@ -1,21 +1,27 @@
-/* Skill titles only. Descriptions keep their existing wrapping and layout. */
+/* Skill titles only. Keep approved names intact; descriptions retain their layout. */
 body.astra-ui :is(#skillName,#cutinSkill,#p1CutinSkill,#p2CutinSkill),
 body.astra-ui .astra-ability-copy>b,
 body.astra-ui .ho-skill-pop>strong{
  white-space:nowrap!important;word-break:keep-all!important;overflow-wrap:normal!important;
- text-overflow:clip!important;-webkit-line-clamp:unset!important;
+ text-overflow:clip!important;-webkit-line-clamp:unset!important;min-width:0;
 }
 body.astra-ui:not(.playing) #hangar .astra-ability-copy>b{
  white-space:nowrap!important;overflow:visible!important;letter-spacing:0!important;
 }
 body.astra-ui #skillCutin #cutinSkill{font-size:clamp(16px,4vw,28px)!important}
 body.astra-ui #coopCutins :is(#p1CutinSkill,#p2CutinSkill){font-size:clamp(12px,2.4vw,18px)!important}
-@media(max-width:380px){
- body.astra-ui:not(.playing) #hangar .astra-ability-copy>b{font-size:clamp(12px,4vw,14px)!important}
-}
 @media(max-width:720px){
- html[lang="en"] body.astra-ui:not(.playing) #hangar .astra-ability-copy>b{font-size:clamp(11px,3.2vw,14px)!important}
+ body.astra-ui:not(.playing) #hangar .astra-ability-copy{container-type:inline-size}
+ body.astra-ui:not(.playing) #hangar .astra-ability-copy>b{font-size:clamp(11px,10cqi,15px)!important}
+ html[lang="en"] body.astra-ui:not(.playing) #hangar .astra-ability-copy>b{font-size:clamp(11px,8.6cqi,14px)!important}
 }
 @media(max-width:340px){
+ /* Recover title space on narrow phones without moving the aircraft card. */
+ body.astra-ui:not(.playing) #hangar .skill-info>.astra-ability{grid-template-columns:28px minmax(0,1fr)!important;gap:6px!important}
+ body.astra-ui:not(.playing) #hangar .astra-ability-icon{width:28px!important;height:28px!important}
+ body.astra-ui:not(.playing) #hangar .astra-ability-copy>b{gap:3px!important}
+ body.astra-ui:not(.playing) #hangar .astra-ability-copy>b:after{width:12px!important;height:12px!important}
+ body.astra-ui:not(.playing) #hangar .astra-ability-icon:after{inset:7px!important}
  html[lang="en"] body.astra-ui:not(.playing) #hangar .astra-ability-copy>b{gap:1px!important}
+ html[lang="en"] body.astra-ui:not(.playing) #hangar .astra-ability-copy>b:after{width:10px!important;height:10px!important}
 }
