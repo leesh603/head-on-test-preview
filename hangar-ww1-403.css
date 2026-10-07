@@ -458,8 +458,8 @@ body.astra-ui:not(.playing){
            right panel = aircraft + stats, roster, sortie.
    ========================================================================== */
 body.astra-ui:not(.playing){
- --ho-keyart:url('hangar-keyart-mobile.webp?v=ui4');
- --ho-keyart-pc:url('hangar-keyart-pc.webp?v=ui4');
+ --ho-keyart:url('hangar-keyart-mobile.webp?v=ui5');
+ --ho-keyart-pc:url('hangar-keyart-pc.webp?v=ui5');
  --ho-keyart-focus:50% 28%;
  --ho-keyart-focus-pc:65% 30%;
 }
@@ -479,7 +479,7 @@ body.astra-ui:not(.playing){
  body.astra-ui:not(.playing)>header .edition:before,body.astra-ui:not(.playing)>header .edition:after{content:"";width:22px;height:1px;background:#ffffff59}
 
  /* stage: art behind, rows stacked at the bottom */
- body.astra-ui:not(.playing) #hangar .astra-stage{display:flex!important;flex-direction:column;justify-content:flex-end;gap:8px;padding:0 12px 12px!important;isolation:auto!important}
+ body.astra-ui:not(.playing) #hangar .astra-stage{display:flex!important;flex-direction:column;justify-content:flex-end;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 52px) 12px 12px!important;isolation:auto!important}
  body.astra-ui:not(.playing) #hangar .astra-stage:before{
   content:"";position:absolute;left:0;right:0;top:0;height:var(--ho-art-h,50dvh);z-index:0;pointer-events:none;
   background:linear-gradient(180deg,#0b0b0a00 52%,#0b0b0acc 82%,#0b0b0a),var(--ho-keyart) var(--ho-keyart-focus)/cover no-repeat,#0b0b0a;

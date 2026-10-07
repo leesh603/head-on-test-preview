@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,step} from './stageboss-fixture94.mjs';
-import {TRENCH_ARMOR_LAYOUT,armorAngleDelta,armorGunMuzzle,armorGunRecoil} from '../trench-armor-layout.js?v=ui4';
-import {drawTrenchArmorGun} from '../trench-armor-gun-render.js?v=ui4';
+import {TRENCH_ARMOR_LAYOUT,armorAngleDelta,armorGunMuzzle,armorGunRecoil} from '../trench-armor-layout.js?v=ui5';
+import {drawTrenchArmorGun} from '../trench-armor-gun-render.js?v=ui5';
 
 for(const kind of ['a7v-flak','mark-v-cruiser']){
  const setup=()=>{const f=fixture({stageIndex:2,teamFaction:kind==='a7v-flak'?'entente':'central'});f.e=f.addon.startBoss({x:400,y:180});f.b=[...f.e.bodies.values()][0];return f};
