@@ -1,21 +1,21 @@
-import {resolveSurfaceSpacing} from './naval-spacing.js?v=perf4';
+import {resolveSurfaceSpacing} from './naval-spacing.js?v=perf5';
 
-import {tickRegionalConditions} from './region-doctrine1.js?v=perf4';
+import {tickRegionalConditions} from './region-doctrine1.js?v=perf5';
 
-import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=perf4';
-import {handleMaanCue} from './maan-view.js?v=perf4';
-import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=perf4';
-import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=perf4';
-import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=perf4';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=perf4';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=perf4';
-import {bossSoundFor} from './boss-feedback.js?v=perf4';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=perf4';
-import {advanceCambraiBug} from './cambrai-bug-flight.js?v=perf4';
-import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=perf4';
+import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=perf5';
+import {handleMaanCue} from './maan-view.js?v=perf5';
+import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=perf5';
+import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=perf5';
+import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=perf5';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=perf5';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=perf5';
+import {bossSoundFor} from './boss-feedback.js?v=perf5';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=perf5';
+import {advanceCambraiBug} from './cambrai-bug-flight.js?v=perf5';
+import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=perf5';
 
 
-import {createJutlandRoute,tickJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=perf4';
+import {createJutlandRoute,tickJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=perf5';
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭','마안 전투','갈리폴리 전선','1918 파리 야간공습','유틀란트 해전'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
