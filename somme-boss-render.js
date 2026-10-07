@@ -1,9 +1,9 @@
-import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=sortie1';
-import {fx} from './fx-art.js?v=sortie1';
-import {drawAADefense} from './aa-defense-art.js?v=sortie1';
-import {clamp,sommeMuzzle} from './somme-boss-layout.js?v=sortie1';
+import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=imm1';
+import {fx} from './fx-art.js?v=imm1';
+import {drawAADefense} from './aa-defense-art.js?v=imm1';
+import {clamp,sommeMuzzle} from './somme-boss-layout.js?v=imm1';
 const images={},pending={};
-function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';images[key]=im;pending[key]=new Promise((resolve,reject)=>{im.addEventListener('load',()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))},{once:true});im.addEventListener('error',()=>reject(new Error('Missing Somme atlas: '+SOMME_SHEETS[key])),{once:true});});im.src='./'+SOMME_SHEETS[key]+'?v=sortie1';return im;}
+function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';images[key]=im;pending[key]=new Promise((resolve,reject)=>{im.addEventListener('load',()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))},{once:true});im.addEventListener('error',()=>reject(new Error('Missing Somme atlas: '+SOMME_SHEETS[key])),{once:true});});im.src='./'+SOMME_SHEETS[key]+'?v=imm1';return im;}
 export function prepareSommeAssets(){for(const key of Object.keys(SOMME_SHEETS))load(key);return Promise.all(Object.values(pending));}
 export function releaseSommeAssets(){for(const key of Object.keys(images)){delete images[key];delete pending[key];}}
 // Pivot is measured on the normal sprite's visible silhouette. Damage-state
