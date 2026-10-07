@@ -51,7 +51,8 @@ export class OnlineCoopGame extends CoopGame {
  chooseUpgrade(itemId,id){
   if(this.activeUpgrade?.playerId!==this.localPlayerId)return false;
   if(this.host)return super.chooseUpgrade(itemId,id);
-  this.session.send({type:'choose',itemId,id});return false;
+  if(this.state!=='upgrade'||this.activeUpgrade.id!==itemId||!this.activeUpgrade.choices.some(c=>c.id===id))return false;
+  return this.session.send({type:'choose',itemId,id});
  }
  captureEvents(events){if(this.host)for(const e of events)if(NOTICE.has(e.type))this._netEvents.push(pack(e));}
  idOf(entity){let id=this._netIds.get(entity);if(!id){id='n'+(++this._netSerial);this._netIds.set(entity,id);}return id;}
