@@ -80,9 +80,10 @@ const eliteAssets=createEliteAssets({
  salamander:'./elite-patch/assets/salamander-squadron.webp?v=perf2',
  drawPlayerRocket:(c,x,y,angle,size)=>{if(!fx(c,'rocket',x,y,size,size*.3,angle-Math.PI/2))drawEquipment(c,'rocket',x,y,angle,size)}
 });
+const DIR_PLAY_PATTERNS=new Set(['RECOVERY','ELITE_FORMATION']);
 installHeadOnElitePatch(Game,{
  planes:PLANES,
- isPlaying:g=>g.state==='playing'&&!g.mode&&(!g.directorMobSpawnsSuppressed?.()||['RECOVERY','ELITE_FORMATION'].includes(g.battleDirectorPattern)||g.eliteEnemies?.active),
+ isPlaying:g=>g.state==='playing'&&!g.mode&&(!g.directorMobSpawnsSuppressed?.()||DIR_PLAY_PATTERNS.has(g.battleDirectorPattern)||g.eliteEnemies?.active),
  getPlayer:g=>g,
  getPlayerFaction:g=>PLANES[g.plane]?.faction,
  getEnemies:g=>g.enemies,
@@ -244,9 +245,10 @@ const fxSpark=(cx,cy,r,col,al,rot=0)=>{ctx.strokeStyle=col;ctx.lineWidth=Math.ma
 function drawPilotPassives(g,x,y,t,pt){drawPilotSignatureFront(ctx,g,x,y);if(FXS&&pt)drawPassiveFxFront(ctx,g,pt,t,x,y)}
 const ghostPlaneCache=new Map();
 const textWidthCache=new Map();
+const _ptShare=[0,0];
 const measureCached=(c,txt)=>{const k=c.font+'\u0000'+txt;let w=textWidthCache.get(k);if(w===undefined){w=c.measureText(txt).width;textWidthCache.set(k,w)}return w};
 function ghostPlane(c,x,y,a,key,filter){const ck=key+'|'+filter;if(!ghostPlaneCache.has(ck)){const cv=document.createElement('canvas');cv.width=144;cv.height=160;const cc=cv.getContext('2d');cc.filter=filter;planeSprite(cc,72,76,-Math.PI/2,key,1,false,false);ghostPlaneCache.set(ck,cv)}const cv=ghostPlaneCache.get(ck);if(!cv.width)return;c.save();c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.translate(Math.round(x),Math.round(y));c.rotate(a+Math.PI/2);c.drawImage(cv,-72,-76);c.restore()}
-function draw(t){let cx=game?game.x:Math.sin(t*.03)*45,cy=game?game.y:-t*12;ctx.save();if(game){const kick=combatCameraOffset(game),shake=Math.min(3,game.shake||0);ctx.translate(Math.sin((game.t||0)*89)*shake*.35+kick.x,Math.cos((game.t||0)*73)*shake*.3+kick.y);}terrain(cx,cy);drawStageBoss(ctx,game,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});if(game){ctx.strokeStyle='#ecf6de35';ctx.lineWidth=1;for(let i=0;i<16;i++){let px=(i*137.3+t*73)%W,py=(i*97.7+t*170)%H;ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px-Math.cos(game.a)*22,py-Math.sin(game.a)*22);ctx.stroke()}}const point=(x,y)=>[x-cx+W/2,y-cy+H/2];if(game){drawFleetLayer(ctx,game,{point});drawTrenchLayer(ctx,game,{point});drawCityAirLayer(ctx,game,{point})}if(game){
+function draw(t){let cx=game?game.x:Math.sin(t*.03)*45,cy=game?game.y:-t*12;ctx.save();if(game){const kick=combatCameraOffset(game),shake=Math.min(3,game.shake||0);ctx.translate(Math.sin((game.t||0)*89)*shake*.35+kick.x,Math.cos((game.t||0)*73)*shake*.3+kick.y);}terrain(cx,cy);drawStageBoss(ctx,game,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});if(game){ctx.strokeStyle='#ecf6de35';ctx.lineWidth=1;for(let i=0;i<16;i++){let px=(i*137.3+t*73)%W,py=(i*97.7+t*170)%H;ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px-Math.cos(game.a)*22,py-Math.sin(game.a)*22);ctx.stroke()}}const point=(x,y)=>{_ptShare[0]=x-cx+W/2;_ptShare[1]=y-cy+H/2;return _ptShare};if(game){drawFleetLayer(ctx,game,{point});drawTrenchLayer(ctx,game,{point});drawCityAirLayer(ctx,game,{point})}if(game){
  // Voss reverse-turn afterimages: player and ace boss use the same pale ghost trail.
  for(const ghost of game.vossAfterimages||[]){const [gx,gy]=point(ghost.x,ghost.y);if(gx<-110||gx>W+110||gy<-110||gy>H+110)continue;ctx.save();ctx.globalAlpha=.34*(ghost.life/ghost.maxLife);planeSprite(ctx,gx,gy,ghost.a,aircraftKey(plane,false,'voss'),1,false,false);ctx.restore()}
  for(const e of game.enemies||[])for(const ghost of e.vossTrails||[]){const [gx,gy]=point(ghost.x,ghost.y);if(gx<-110||gx>W+110||gy<-110||gy>H+110)continue;ctx.save();ctx.globalAlpha=.42*(ghost.life/ghost.maxLife);planeSprite(ctx,gx,gy,ghost.a,e.bossPlane||'fokker_voss',enemyAircraftScale(e),true,false);ctx.restore()}
@@ -296,7 +298,7 @@ function frameInner(now){try{let dt=Math.min(.12,(now-last)/1000||.016);last=now
  frameInner(now);__perfFrame(performance.now()-__s)
 }roster();syncStartHint();resize();requestAnimationFrame(frame);
 
-function drawSupport(){if(!game)return;let cx=game.x,cy=game.y;const point=(x,y)=>[x-cx+W/2,y-cy+H/2];for(let a of (game.allies||[])){if(!a.plane||!PLANES[a.plane])continue;let[x,y]=point(a.x,a.y),allyKey=game.pilot==='goering'?'goering_fokkerd7':a.plane==='fokker'?'fokker_standard':a.plane;ctx.globalAlpha=.95;planeSprite(ctx,x+12,y+20,a.a,allyKey,.78,false,true);planeSprite(ctx,x,y,a.a,allyKey,.78,false,false,a.hitFlash||0,a.hp!=null&&a.hp<=a.maxHp*.5);ctx.globalAlpha=1}}hangarArtReady.then(()=>roster());aircraftReady.then(()=>roster());
+function drawSupport(){if(!game)return;let cx=game.x,cy=game.y;const point=(x,y)=>{_ptShare[0]=x-cx+W/2;_ptShare[1]=y-cy+H/2;return _ptShare};for(let a of (game.allies||[])){if(!a.plane||!PLANES[a.plane])continue;let[x,y]=point(a.x,a.y),allyKey=game.pilot==='goering'?'goering_fokkerd7':a.plane==='fokker'?'fokker_standard':a.plane;ctx.globalAlpha=.95;planeSprite(ctx,x+12,y+20,a.a,allyKey,.78,false,true);planeSprite(ctx,x,y,a.a,allyKey,.78,false,false,a.hitFlash||0,a.hp!=null&&a.hp<=a.maxHp*.5);ctx.globalAlpha=1}}hangarArtReady.then(()=>roster());aircraftReady.then(()=>roster());
 
 portraitsReady.then(()=>{roster();applyPilotPortrait('cutinPortrait')});
 
@@ -319,7 +321,7 @@ draw=function(t){
   }
   _drawFormationBase(t);
   if(hiddenZeppelins&&game){
-    const cx=game.x,cy=game.y,point=(x,y)=>[x-cx+W/2,y-cy+H/2];
+    const cx=game.x,cy=game.y,point=(x,y)=>{_ptShare[0]=x-cx+W/2;_ptShare[1]=y-cy+H/2;return _ptShare};
     for(const e of hiddenZeppelins){const [x,y]=point(e.x,e.y);if(x<-320||x>W+320||y<-320||y>H+320)continue;drawZeppelin(ctx,x,y,e.a,.92,e.hitFlash>0);ctx.fillStyle='#242c25';ctx.fillRect(x-55,y-65,110,4);ctx.fillStyle='#e7835c';ctx.fillRect(x-55,y-65,110*e.hp/e.maxHp,4)}
     game.enemies.push(...hiddenZeppelins);
   }
@@ -369,7 +371,7 @@ function drawFieldArt(key,x,y,w,h,a=0,alpha=1,flip=false){const im=fieldArtImg(k
 const _fieldSupport=drawSupport;
 drawSupport=()=>{
  _fieldSupport();if(!game)return;
- const point=(x,y)=>[x-game.x+W/2,y-game.y+H/2];
+ const point=(x,y)=>{_ptShare[0]=x-game.x+W/2;_ptShare[1]=y-game.y+H/2;return _ptShare};
  for(const f of game.hostileMinefields||[]){const[x,y]=point(f.x,f.y);ctx.save();if(!f.encounterId){ctx.strokeStyle=f.warning>0?'#ffe0a199':'#e58b6c88';ctx.lineWidth=2;ctx.setLineDash([6,9]);ctx.beginPath();ctx.arc(x,y,f.radius,0,6.283);ctx.stroke();ctx.setLineDash([]);ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffd2a9';ctx.fillText(f.warning>0?(getLocale()==='en'?'Mine active '+f.warning.toFixed(1)+'s':'기뢰 활성화 '+f.warning.toFixed(1)+'초'):(getLocale()==='en'?'Minefield':'기뢰지대'),x,y-f.radius-9)}for(const m of f.mines){if(m.dead)continue;const[mx,my]=point(m.x,m.y);if(mx<-80||mx>W+80||my<-80||my>H+80)continue;drawDrachenMine(ctx,mx,my,64,64);ctx.strokeStyle=f.warning>0?'#ffe0a188':'#ff876e';ctx.beginPath();ctx.arc(mx,my,18,0,6.283);ctx.stroke()}ctx.restore()}
  for(const b of game.bullets){if(!b.flak)continue;const [x,y]=point(b.x,b.y);if(x<-80||x>W+80||y<-80||y>H+80)continue;drawFieldArt('flak',x,y,42,42,ambient*.2,.9);drawEnemyProjectile(ctx,b,x,y,ambient)}
  for(const g of game.gusts||[]){const [x,y]=point(g.x,g.y);if(x<-180||x>W+180||y<-180||y>H+180)continue;if(drawGust3(ctx,g,x,y,ambient))continue;const opacity=Math.min(.85,g.life,6-g.life);drawFieldArt('gust',x,y,g.radius*2.6,g.radius*2.6,g.a+ambient*.15,opacity);if(fxReady('windStreak'))for(let i=0;i<3;i++){const wa=(g.a||0)+i*1.1+ambient*.4;fx(ctx,'windStreak',x+Math.cos(wa)*g.radius*.32,y+Math.sin(wa)*g.radius*.32,g.radius*1.7,g.radius*.5,wa,opacity*.55)}}
@@ -400,7 +402,7 @@ draw=t=>{
 const _drawCombatFX=draw;
 draw=t=>{
  _drawCombatFX(t);if(!game)return;
- const point=(x,y)=>[x-game.x+W/2,y-game.y+H/2];
+ const point=(x,y)=>{_ptShare[0]=x-game.x+W/2;_ptShare[1]=y-game.y+H/2;return _ptShare};
  ctx.save();
  for(const b of game.bullets){
   const [x,y]=point(b.x,b.y);
@@ -494,7 +496,7 @@ draw=t=>{
  const r=game?.navalRoute;
  if(!r||game.worldRegion?.()!==7||game.stageBoss?.stages.phase==='boss')return;
  const hx=Math.cos(r.a),hy=Math.sin(r.a),nx=-hy,ny=hx;
- const point=(x,y)=>[x-game.x+W/2,y-game.y+H/2];
+ const point=(x,y)=>{_ptShare[0]=x-game.x+W/2;_ptShare[1]=y-game.y+H/2;return _ptShare};
  ctx.save();
  ctx.strokeStyle='#8fd0d1';ctx.lineWidth=2.5;ctx.lineCap='round';
  const forward=(game.x-r.x)*hx+(game.y-r.y)*hy;
@@ -529,7 +531,7 @@ draw=t=>{
  const r=game?.gallipoliRoute;
  if(!r||game.worldRegion?.()!==14||game.stageBoss?.stages.phase==='boss')return;
  const hx=Math.cos(r.a),hy=Math.sin(r.a);
- const point=(x,y)=>[x-game.x+W/2,y-game.y+H/2];
+ const point=(x,y)=>{_ptShare[0]=x-game.x+W/2;_ptShare[1]=y-game.y+H/2;return _ptShare};
  ctx.save();
  ctx.strokeStyle='#8fd0d1';ctx.lineWidth=2.5;ctx.lineCap='round';
  const forward=(game.x-r.x)*hx+(game.y-r.y)*hy;
@@ -801,7 +803,7 @@ events=()=>{let arrivalCount=0,last=null;const queued=game?.events;if(queued)for
 const _legendaryDraw81=draw;
 draw=t=>{
  _legendaryDraw81(t);if(!game)return;
- const point=(x,y)=>[x-game.x+W/2,y-game.y+H/2];ctx.save();
+ const point=(x,y)=>{_ptShare[0]=x-game.x+W/2;_ptShare[1]=y-game.y+H/2;return _ptShare};ctx.save();
  for(const m of game.mines)if(m.legendary){const [x,y]=point(m.x,m.y);if(x<-80||x>W+80||y<-80||y>H+80)continue;ctx.strokeStyle='#ffd56f99';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,25+Math.sin(t*6)*3,0,Math.PI*2);ctx.stroke()}
  for(const b of game.bullets)if(b.motorCannon||b.cow37){const [x,y]=point(b.x,b.y);if(x<-90||x>W+90||y<-90||y>H+90)continue;drawCannonProjectile(ctx,b,x,y)}
  drawBattlefieldFire(ctx,game,point);
@@ -894,7 +896,7 @@ function drawTailMarker(c,target,player,point,color='#ffd36f'){
  if(!target||!player)return;const [x,y]=point(target.x,target.y),progress=player.tailLockFraction?.()||0,locked=!!player.tailLocked;drawTailEngagement(c,x,y,progress,locked,locked?t('hud.tailAdvantage',{multiplier:TAILING_BALANCE.damageMultiplier.toFixed(2)}):t('hud.rearAim',{percent:Math.round(progress*100)}));
 }
 const _tacticalDraw91=draw;
-draw=t=>{_tacticalDraw91(t);if(!game||game.mode==='coop2')return;const point=(x,y)=>[x-game.x+W/2,y-game.y+H/2];ctx.save();for(const d of game.drops||[])if(!d.dead&&d.specialAmmo){const [x,y]=point(d.x,d.y),spec=SPECIAL_AMMO[d.specialAmmo];ctx.strokeStyle=(spec?.color||'#ffd36f')+'bb';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,24+Math.sin(t*6)*3,0,Math.PI*2);ctx.stroke();drawSpecialAmmoIcon(ctx,d.specialAmmo,x,y+Math.sin(t*4)*2,42)}for(const b of game.bullets||[])if(b.life>0&&b.specialAmmo){const [x,y]=point(b.x,b.y);ctx.strokeStyle=b.specialColor;ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-b.vx*(b.specialAmmo==='tracer'?.032:.02),y-b.vy*(b.specialAmmo==='tracer'?.032:.02));ctx.stroke()}const target=game.enemies?.find(e=>e.tailId===game.tailTargetId&&e.hp>0);drawTailMarker(ctx,target,game,point);ctx.restore()};
+draw=t=>{_tacticalDraw91(t);if(!game||game.mode==='coop2')return;const point=(x,y)=>{_ptShare[0]=x-game.x+W/2;_ptShare[1]=y-game.y+H/2;return _ptShare};ctx.save();for(const d of game.drops||[])if(!d.dead&&d.specialAmmo){const [x,y]=point(d.x,d.y),spec=SPECIAL_AMMO[d.specialAmmo];ctx.strokeStyle=(spec?.color||'#ffd36f')+'bb';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,24+Math.sin(t*6)*3,0,Math.PI*2);ctx.stroke();drawSpecialAmmoIcon(ctx,d.specialAmmo,x,y+Math.sin(t*4)*2,42)}for(const b of game.bullets||[])if(b.life>0&&b.specialAmmo){const [x,y]=point(b.x,b.y);ctx.strokeStyle=b.specialColor;ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-b.vx*(b.specialAmmo==='tracer'?.032:.02),y-b.vy*(b.specialAmmo==='tracer'?.032:.02));ctx.stroke()}const target=game.enemies?.find(e=>e.tailId===game.tailTargetId&&e.hp>0);drawTailMarker(ctx,target,game,point);ctx.restore()};
 const _tacticalHud91=hud;
 hud=()=>{_tacticalHud91();if(!game||game.mode==='coop2')return;const ammo=game.specialAmmoStatus?.();if(ammo){$('ammoLabel').textContent+=' · '+ammo.name;$('ammoCount').textContent+=' · '+t('hud.specialAmmo',{count:ammo.count})}};
 const _tacticalEvents91=events;

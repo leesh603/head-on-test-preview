@@ -34,6 +34,7 @@ export {BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES};
 export {RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES};
 export {BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor};
 const BLOODY_APRIL_BOSS_PILOTS=new Set(['baron','collishaw']);
+const DUO_GUN_PILOTS=new Set(['huffzky','mckeever']);
 const stageAceEligible=(game,id)=>game.worldRegion?.()!==9||!BLOODY_APRIL_BOSS_PILOTS.has(id);
 // Pilot balance pass 89: role-aware cooldowns; shared by solo, campaign and co-op.
 export const PILOT_BALANCE=Object.freeze({
@@ -126,16 +127,16 @@ export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this
  const wasReloading=this.reloadTime>0;
  if(wasReloading){this.reloadTime=Math.max(0,this.reloadTime-dt);this.fire=0;if(this.reloadTime===0){this.ammo.fill(this.weapon.belt);this.event('loaded','재장전 완료')}}
  else if(!this.cow37&&(input.inputMode!=='gamepad'||input.fireHeld)){this.fire-=dt;let volleys=0;while(this.fire<=0&&this.reloadTime===0&&volleys++<8){
-  if((this.ammo.every(n=>n===0)||(['huffzky','mckeever'].includes(this.pilot)&&this.ammo[0]<=0&&!this.nineRearTarget))){this.reload();break}
+  if((this.ammo.every(n=>n===0)||(DUO_GUN_PILOTS.has(this.pilot)&&this.ammo[0]<=0&&!this.nineRearTarget))){this.reload();break}
   this.fire+=Math.max(.02,this.rate/(this.pilot==='jacobs'?1+(this.jacobsStacks||0)*.1:1));const skillDamage=this.normalGunMultiplier()/Math.sqrt(this.shots);
-  for(let gun=0;gun<this.weapon.guns;gun++){if(['huffzky','mckeever'].includes(this.pilot)&&gun===1)continue;
+  for(let gun=0;gun<this.weapon.guns;gun++){if(DUO_GUN_PILOTS.has(this.pilot)&&gun===1)continue;
    const rounds=Math.min(this.shots,this.ammo[gun]),offset=this.weapon.bidirectional?0:(gun-(this.weapon.guns-1)/2)*8,gunAngle=this.gunDirection(gun);
    for(let i=0;i<rounds;i++){const fan=this.buildGunFan(this.pilot==='fonck'?.025:this.pilot==='immelmann'&&this.eagleTime>0?.04:.11),a=gunAngle+(i-(rounds-1)/2)*fan,tailTargetId=this.tailLocked?this.tailTargetId:null;
     const round={x:this.x+Math.cos(gunAngle)*23-Math.sin(gunAngle)*offset,y:this.y+Math.sin(gunAngle)*23+Math.cos(gunAngle)*offset,vx:Math.cos(a)*520,vy:Math.sin(a)*520,life:this.longRange?this.shotLifetime(520):this.pilot==='bishop'?.6:1.35,enemy:false,ownerId:this.id,gun,damage:this.damage*skillDamage,pierce:false,hit:new Set(),tailBonus:!!tailTargetId,tailTargetId,eagle:this.eagleTime>0||undefined};
     this.bullets.push(this.applySpecialRound(round,null));
    }if(!this.unlimitedAmmo)this.ammo[gun]-=rounds?Math.max(1,rounds-(this.freeVolleyShots||0)):0;this.roundsFired+=rounds;
   }this.muzzleFlash=.055;this.event('shot','');
-  if((this.ammo.every(n=>n===0)||(['huffzky','mckeever'].includes(this.pilot)&&this.ammo[0]<=0&&!this.nineRearTarget)))this.reload();
+  if((this.ammo.every(n=>n===0)||(DUO_GUN_PILOTS.has(this.pilot)&&this.ammo[0]<=0&&!this.nineRearTarget)))this.reload();
  }}
  if(this.rockets>0){this.rocketFire-=dt;if(this.rocketFire<=0)this.launchUpgradeRocket()}if(this.mineCount>0){this.mineTimer-=dt;if(this.mineTimer<=0){this.mineTimer=this.ordnanceInterval(3.6/(1+this.mineCount*.3));this.throwGrenades()}}this.tickGrenades(dt);for(let m of this.mines){if(m.grenade){m.x+=(m.vx||0)*dt;m.y+=(m.vy||0)*dt;m.vx*=.985;m.vy*=.985}m.life-=dt;m.arm=Math.max(0,m.arm-dt);if(m.life>0&&m.arm===0&&this.enemies.some(e=>e.hp>0&&Math.hypot(e.x-m.x,e.y-m.y)<(m.special?62:88))){
  const radius=m.special?112:132;

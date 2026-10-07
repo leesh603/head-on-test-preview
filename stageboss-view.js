@@ -234,6 +234,9 @@ function drawFormationBossRim(c,t=0){
  c.globalAlpha=.94;c.fillStyle='#240b0d';c.fillRect(-20,41,40,14);c.strokeStyle='#9e332d';c.lineWidth=1;c.strokeRect(-20,41,40,14);c.fillStyle='#f0d7a4';c.font='700 9px "Arial Narrow",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('BOSS',0,48);c.restore();
 }
 const _npWCache=new Map();
+const MAAN_KEYS=new Set(['wustenpanzer','sinai-landship','maan-rolls-royce']);
+const RAIL_BODY_KEYS=new Set(['paris-gun','lincomparable','sms-stuttgart','fliegerzug']);
+const ALPS_BOMBER_KEYS=new Set(['gik','ca4']);
 function drawFormationNameplate(c,x,y,name,viewWidth){
  if(!name)return;c.save();c.font='600 11px "Arial Narrow",sans-serif';c.textAlign='center';c.textBaseline='middle';const _k=c.font+'\u0000'+name;let _w=_npWCache.get(_k);if(_w===undefined){_w=c.measureText(name).width;_npWCache.set(_k,_w)}const w=Math.ceil(_w)+16;
  if(viewWidth)x=clamp(x,w/2+4,viewWidth-w/2-4);
@@ -355,13 +358,13 @@ function drawCityFlak(c,b){
 }
 
 function drawBossPart(c,p,ring,t=0){
- if(['wustenpanzer','sinai-landship','maan-rolls-royce'].includes(p.bodyKey))return;
+ if(MAAN_KEYS.has(p.bodyKey))return;
  if(p.bodyKey==='paris-searchlight-fortress'||p.bodyKey==='paris-staaken-rvi'){const r=p.radius;if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,p.partId==='bomb-bay'?'#f6bf78bb':'#c5e0cf88');if(p.hp<p.maxHp){c.fillStyle='#19242c';c.fillRect(p.x-r,p.y+r+4,r*2,3);c.fillStyle='#e8bc7b';c.fillRect(p.x-r,p.y+r+4,r*2*p.hp/p.maxHp,3);}}return;}
  if(p.bodyKey==='armored-harbor-fortress')return;
  if(p.bodyKey==='gotha-raider'||p.bodyKey==='london-apron-raid'){const r=p.radius;if(!p.destroyed&&(p.hp<p.maxHp||p.partId==='bomb-bay'&&p.phase==='bombing-run')){ring(p.x,p.y,r,'#efc98aaa');c.fillStyle='#1b242a';c.fillRect(p.x-r,p.y+r+4,r*2,3);c.fillStyle='#edb875';c.fillRect(p.x-r,p.y+r+4,r*2*p.hp/p.maxHp,3);}return;}
  if(drawRegionalBossPart(c,p))return;
  const r=p.radius;
- if(['paris-gun','lincomparable','sms-stuttgart','fliegerzug'].includes(p.bodyKey)||p.bodyKey.startsWith('hms-zubian')){
+ if(RAIL_BODY_KEYS.has(p.bodyKey)||p.bodyKey.startsWith('hms-zubian')){
   return;
  }
  if(p.bodyKey==='treffas-wagen'){
@@ -414,7 +417,7 @@ function drawBossPart(c,p,ring,t=0){
   if(p.destroyed){partWreck(c,p,r,t);return;}
   if(p.hittable){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
  }
- if(['gik','ca4'].includes(p.bodyKey)){drawAlpsPart(c,p,ring);return;}
+ if(ALPS_BOMBER_KEYS.has(p.bodyKey)){drawAlpsPart(c,p,ring);return;}
  if(['zeppelin-l70','hma23'].includes(p.bodyKey)){
   const carrier=p.bodyKey==='hma23',partSprite=carrier?6:4;
   // L70 keeps underslung engine pods; HMA uses the authored launch-port cradle
@@ -507,7 +510,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    if(b.assetKey.startsWith('hms-zubian')){drawZubianShip(c,b,zubianArt);return;}
    if(b.assetKey==='gik'||b.assetKey==='ca4'){drawAlpsBomber(c,b,bossArt[b.assetKey],alpsArt[b.assetKey]);return;}
    if(b.assetKey==='fort-douaumont'||b.assetKey==='fort-souville'){const body=bodyOf(v=>v.kind===b.assetKey);if(body)drawVerdunFort(c,body,b);return;}
-   if(['wustenpanzer','sinai-landship','maan-rolls-royce'].includes(b.assetKey)){const live=addon.stages.encounter?.bodies.values();for(const body of live||[])if(body.kind===b.assetKey&&body.x===b.x&&body.y===b.y){drawMaanBoss(c,body);break;}return;}
+   if(MAAN_KEYS.has(b.assetKey)){const live=addon.stages.encounter?.bodies.values();for(const body of live||[])if(body.kind===b.assetKey&&body.x===b.x&&body.y===b.y){drawMaanBoss(c,body);break;}return;}
    if(b.assetKey==='paris-searchlight-fortress'||b.assetKey==='paris-staaken-rvi'){drawParisBoss(c,b,addon);return;}
    if(b.assetKey==='gotha-raider'){drawGotha(c,b);return;}
    if(b.assetKey==='london-apron-raid'){drawLondonRaidApron(c,b);return;}
