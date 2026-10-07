@@ -14,6 +14,9 @@ function family() {
   return fontFamily;
 }
 
+const _wCache = new Map();
+const _w = (c, t) => { const k = c.font + '\u0000' + t; let w = _wCache.get(k); if (w === undefined) { w = c.measureText(t).width; _wCache.set(k, w); } return w; };
+
 export const ENGAGEMENT_TONES = Object.freeze({
   bone: { line: '#e9e3d5', text: '#f5f2ea', fill: 'rgba(20,20,18,.82)', edge: 'rgba(232,226,212,.28)' },
   locked: { line: '#e0583f', text: '#fff1e8', fill: 'rgba(92,28,20,.9)', edge: 'rgba(255,170,150,.45)' },
@@ -53,7 +56,7 @@ export function drawPill(c, x, y, text, tone, { icon = null, progress = null, al
   c.globalAlpha *= alpha;
   c.font = `700 11.5px ${family()}`;
   c.textBaseline = 'middle';
-  const tw = c.measureText(text).width;
+  const tw = _w(c, text);
   const iconW = icon ? 24 : 0;
   const h = 22, padX = 10, w = Math.ceil(tw + padX * 2 + iconW);
   const left = Math.round(x - w / 2), top = Math.round(y - h / 2);

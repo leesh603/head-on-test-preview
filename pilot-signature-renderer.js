@@ -3,6 +3,7 @@ import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
 import {signatureWingPositions} from './pilot-signature-geometry.js';
 import {drawCavalryGuard,drawCavalryLance,drawRickenbackerHalfRing} from './pilot-directed-fx.js';
 const TAU=Math.PI*2;
+const _wCache=new Map();
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const SYMBOL_ICONS=Object.freeze({lo:'loEmblem',vossCowling:'sacredCowling'});
 export const UNRESOLVED_SIGNATURE_ART=Object.freeze(['wingedSword','blackDevil','cigogne']);
@@ -118,7 +119,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
     if(foreground){
      const alpha=clamp((.72-time)/.18);if(!alpha)break;
      const text='Du doch nicht!!';c.translate(-14,36);c.font='italic 600 11px Georgia,"Times New Roman",serif';c.textAlign='center';c.textBaseline='alphabetic';
-     const widths=[...text].map(ch=>c.measureText(ch).width);let x=-widths.reduce((sum,w)=>sum+w,0)/2;
+     const _k=c.font+'\u0000'+text;let widths=_wCache.get(_k);if(!widths){widths=[...text].map(ch=>c.measureText(ch).width);_wCache.set(_k,widths)}let x=-widths.reduce((sum,w)=>sum+w,0)/2;
      [...text].forEach((ch,i)=>{const w=widths[i],phase=time*5.1+i*.83+2.3;c.save();c.translate(x+w/2,Math.sin(phase)*1.9+Math.sin(phase*1.73+1.2)*.9);c.rotate(Math.sin(phase*.9+i)*.14);c.globalAlpha*=alpha*(.7+.3*Math.sin(phase*.6+i*1.9));c.strokeStyle='#2c241c';c.lineWidth=2.2;c.strokeText(ch,0,0);c.fillStyle='#e8d7b4';c.fillText(ch,0,0);c.restore();x+=w});
     }else{texture(c,'spark',19,0,24,13,0,.65);texture(c,'fireSmall',-24,4,17,10,Math.PI,.5)}
     break;
