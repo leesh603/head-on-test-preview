@@ -10,8 +10,27 @@ export function playerPose(p,x,y){
  const t=Math.max(0,Math.min(1,(p.cannonRecoil129||0)/.24));
  const kick=(p.cannonKick129||0)*Math.sin(t*Math.PI/2);
  const altitude=p.pilot==='immelmann'?(p.immelmannAltitude||0):0;
+ const height=altitude*52;
  const roll=p.pilot==='huffzky'&&p.skillTime>0?Math.sin(p.nineRoll||0)*4:p.pilot==='udet'&&p.skillTime>0?Math.sin((p.t||0)*45)*.8:0;
- return {x:x-Math.cos(p.a)*kick-Math.sin(p.a)*roll,y:y-Math.sin(p.a)*kick+Math.cos(p.a)*roll,scale:(p.aceScale129||1)*(1-altitude*.28),height:0,shadowX:18+altitude*28,shadowY:28+altitude*36,shadowScale:1-altitude*.48,shadowAlpha:1-altitude*.55};
+ return {x:x-Math.cos(p.a)*kick-Math.sin(p.a)*roll,y:y-Math.sin(p.a)*kick+Math.cos(p.a)*roll-height,scale:(p.aceScale129||1)*(1+altitude*.1),height,shadowX:18+altitude*10,shadowY:28+altitude*12,shadowScale:1-altitude*.3,shadowAlpha:1-altitude*.35};
+}
+// Project the existing aircraft art through pitch and roll instead of swapping
+// its heading at the apex. Vertical projection keeps the rising fuselage visible.
+export function applyPlayerAttitude(c,p,pose={},shadow=false){
+ const m=p.pilot==='immelmann'&&p.immelmannTurn;
+ if(!m){c.rotate(p.a+(shadow?0:pose.roll||0));if(!shadow)c.scale(1,pose.bank??1);return}
+ const h=m.heading,theta=m.pitch||0,phi=m.roll||0;
+ const ch=Math.cos(h),sh=Math.sin(h),ct=Math.cos(theta),st=Math.sin(theta),cr=Math.cos(phi),sr=Math.sin(phi),depth=shadow?.12:.42;
+ let a=ch*ct,b=sh*ct-depth*st,d=ch*cr-sh*st*sr-depth*ct*sr,w=-sh*cr-ch*st*sr;
+ // Flat artwork has no fuselage thickness. Keep a narrow edge-on profile so
+ // Canvas never drops the entire aircraft at a singular pitch/roll angle.
+ const det=a*d-b*w,thickness=shadow?.025:.06;
+ if(Math.abs(det)<thickness){
+  const correction=(det<0?-thickness:thickness)-det,forward=a*a+b*b,wing=w*w+d*d;
+  if(wing>forward){a+=correction*d/wing;b-=correction*w/wing}
+  else{w-=correction*b/forward;d+=correction*a/forward}
+ }
+ c.transform(a,b,w,d,0,0);
 }
 export function drawPlayerAura(c,p,x,y){
  drawEquipmentEffects151(c,p,x,y);
