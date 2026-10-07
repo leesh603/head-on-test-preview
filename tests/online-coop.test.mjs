@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {runInNewContext} from 'node:vm';
 import {FieldDelta,pack,unpack,seededRandom,NET_HZ,MAX_TETHER} from '../online-coop-protocol.js';
 globalThis.Image??=class{set src(value){this._src=value;queueMicrotask(()=>this.onload?.());}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
@@ -84,4 +85,33 @@ test('own camera is independent and tether never clamps players to a screen',()=
 test('online end bypasses every local and server ranking write',()=>{
  const app=readFileSync(new URL('../app.js',import.meta.url),'utf8');const result=app.slice(app.indexOf('function showCoopResult'),app.indexOf('function saveCoopResult'));assert(result.includes('if(run.online)'));assert(!result.slice(result.indexOf('if(run.online)'),result.indexOf('return showEndNickname')).includes('saveCoopLocal'));
  assert.match(app,/async function syncCoopRanking\(run,record\)\{if\(run.online\)return;/);
+});
+test('guest choice validates the active item and reports transport backpressure',()=>{
+ const {host,guest,sync}=pair();host.awardXp(12);const first=host.activeUpgrade;host.chooseUpgrade(first.id,first.choices[0].id);sync();const item=guest.activeUpgrade;
+ assert.equal(guest.chooseUpgrade(item.id+1,item.choices[0].id),false);assert.equal(guest.chooseUpgrade(item.id,'missing-upgrade'),false);
+ guest.session.send=()=>false;assert.equal(guest.chooseUpgrade(item.id,item.choices[0].id),false);assert.equal(host.state,'upgrade');
+});
+test('queued levels reconcile every choice and final playing state on both seats',()=>{
+ const {host,guest,sync}=pair();host.awardXp(100);sync();let choices=0;
+ while(host.activeUpgrade){const item=host.activeUpgrade,owner=item.playerId==='p1'?host:guest;assert(owner.chooseUpgrade(item.id,item.choices[0].id));sync();assert.equal(guest.activeUpgrade?.id,host.activeUpgrade?.id);assert.equal(guest.state,host.state);choices++;assert(choices<40);}
+ assert(choices>2);assert.equal(host.state,'playing');assert.equal(guest.state,'playing');assert.equal(host.pendingLevelUps.length,0);assert.equal(guest.pendingLevelUps.length,0);
+});
+
+function upgradeModalHarness(game){
+ const classList=()=>{const values=new Set();return{add:(...xs)=>xs.forEach(x=>values.add(x)),remove:(...xs)=>xs.forEach(x=>values.delete(x)),contains:x=>values.has(x)}};
+ const el={dataset:{},classList:classList()},body={classList:classList()};el.classList.add('hidden');
+ const source=readFileSync(new URL('../app.js',import.meta.url),'utf8'),a=source.indexOf('function syncOnlineUpgradeModal()'),b=source.indexOf('function chooseCoop(',a);
+ let renders=0,pauses=0;const sync=runInNewContext(source.slice(a,b)+';syncOnlineUpgradeModal',{game,$:()=>el,document:{body},show:(_id,on)=>on?el.classList.remove('hidden'):el.classList.add('hidden'),showCoopUpgrade:item=>{renders++;el.dataset.onlineUpgrade=String(item.id);el.classList.remove('hidden')},showCoopPause:()=>{pauses++;el.classList.remove('hidden')}});
+ return{el,sync,get renders(){return renders},get pauses(){return pauses}};
+}
+test('actual modal reconciliation closes host and guest wait windows after the last remote choice',()=>{
+ const {host,guest,sync}=pair(),hostUi=upgradeModalHarness(host),guestUi=upgradeModalHarness(guest);host.awardXp(12);sync();hostUi.sync();guestUi.sync();
+ assert(!hostUi.el.classList.contains('hidden'));const first=host.activeUpgrade;host.chooseUpgrade(first.id,first.choices[0].id);sync();hostUi.sync();guestUi.sync();
+ const item=guest.activeUpgrade;assert.equal(item.playerId,'p2');guest.chooseUpgrade(item.id,item.choices[0].id);sync();hostUi.sync();guestUi.sync();
+ assert.equal(host.state,'playing');assert(hostUi.el.classList.contains('hidden'));assert(guestUi.el.classList.contains('hidden'));assert.equal(hostUi.el.dataset.onlineUpgrade,undefined);assert.equal(guestUi.el.dataset.onlineUpgrade,undefined);
+});
+test('actual modal reconciliation keeps manual pause and does not rebuild the same choice every frame',()=>{
+ const {host,guest,sync}=pair(),ui=upgradeModalHarness(host);host.awardXp(12);host.pause();sync();ui.sync();for(let i=0;i<10;i++)ui.sync();assert.equal(ui.renders,1);
+ let item=host.activeUpgrade;host.chooseUpgrade(item.id,item.choices[0].id);sync();ui.sync();item=guest.activeUpgrade;guest.chooseUpgrade(item.id,item.choices[0].id);sync();ui.sync();
+ assert.equal(host.state,'paused');assert.equal(ui.pauses,1);assert(!ui.el.classList.contains('hidden'));assert.equal(ui.el.dataset.onlineUpgrade,undefined);
 });
