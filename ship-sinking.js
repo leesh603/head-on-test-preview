@@ -14,8 +14,8 @@ const art={im:null,rects:null,loading:false};
 export function prepareSinkingWater(){
  if(art.loading||typeof Image==='undefined'||typeof fetch!=='function')return;
  art.loading=true;
- fetch(new URL('./ship-sinkwater.json?v=coop1',import.meta.url)).then(r=>r.json()).then(m=>{
-  const im=new Image();im.decoding='async';im.onload=()=>{art.im=im;art.rects=m.rects;};im.src=new URL('./ship-sinkwater.webp?v=coop1',import.meta.url).href;
+ fetch(new URL('./ship-sinkwater.json?v=ui1',import.meta.url)).then(r=>r.json()).then(m=>{
+  const im=new Image();im.decoding='async';im.onload=()=>{art.im=im;art.rects=m.rects;};im.src=new URL('./ship-sinkwater.webp?v=ui1',import.meta.url).href;
  }).catch(()=>{art.loading=false;});
 }
 // settle → flood (stern first) → under → deep. progress is the flooded share of the hull (0..1).
