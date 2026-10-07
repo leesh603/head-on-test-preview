@@ -1,30 +1,30 @@
-import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=perf3';
-import {wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=perf3';
-import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=perf3';
-import {installPilotIdentities} from './pilot-identities.js?v=perf3';
-import {EnemyCollisionGrid} from './collision-grid.js?v=perf3';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=perf3';
-import {installRevision} from './rebalance103.js?v=perf3';
-import {installCloudCover} from './cloud-cover1.js?v=perf3';
-import {installFleet} from './fleet-naval1.js?v=perf3';
-import {installTrenchWar} from './trench-war1.js?v=perf3';
-import {installCityAir} from './city-air1.js?v=perf3';
-import {installRegionDoctrine} from './region-doctrine1.js?v=perf3';
-import {installLondonBattle} from './london-battle.js?v=perf3';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=perf3';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=perf3';
-import {installBuildCombatIdentity} from './build-combat-identity.js?v=perf3';
-import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=perf3';
-import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=perf3';
-import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=perf3';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=perf3';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=perf3';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=perf3';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=perf3';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=perf3';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=perf3';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=perf3';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=perf3';
+import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=perf4';
+import {wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=perf4';
+import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=perf4';
+import {installPilotIdentities} from './pilot-identities.js?v=perf4';
+import {EnemyCollisionGrid} from './collision-grid.js?v=perf4';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=perf4';
+import {installRevision} from './rebalance103.js?v=perf4';
+import {installCloudCover} from './cloud-cover1.js?v=perf4';
+import {installFleet} from './fleet-naval1.js?v=perf4';
+import {installTrenchWar} from './trench-war1.js?v=perf4';
+import {installCityAir} from './city-air1.js?v=perf4';
+import {installRegionDoctrine} from './region-doctrine1.js?v=perf4';
+import {installLondonBattle} from './london-battle.js?v=perf4';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=perf4';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=perf4';
+import {installBuildCombatIdentity} from './build-combat-identity.js?v=perf4';
+import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=perf4';
+import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=perf4';
+import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=perf4';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=perf4';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=perf4';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=perf4';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=perf4';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=perf4';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=perf4';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=perf4';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=perf4';
 
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
@@ -1747,7 +1747,7 @@ Game.prototype.update=function(dt,input={}){
  for(const p of this.particles){p.x+=p.vx*step;p.y+=p.vy*step;p.life-=step}
  {const _ph=this.particles;let _w=0;for(let _i=0;_i<_ph.length;_i++)if(_ph[_i].life>0)_ph[_w++]=_ph[_i];_ph.length=_w}
 };
-import {installNinePilots} from './pilot-nine-combat.js?v=perf3';
+import {installNinePilots} from './pilot-nine-combat.js?v=perf4';
 const _preNineHit=Game.prototype.hit;Game.prototype.hit=function(n){if(this.pilot==='barker'&&this.invuln<=0&&n>0){this.barkerStacks=Math.min(this.skillTime>0?5:3,(this.barkerStacks||0)+1);this.barkerStackTime=3;if(this.skillTime>0)n=Math.min(n,Math.max(0,this.hp-1))}_preNineHit.call(this,n)};
 installNinePilots(Game,PILOTS);
 
