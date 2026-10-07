@@ -1,5 +1,5 @@
 // Presentation-only artwork, prepared once and shared by boot and pilot changes.
-import {clearAircraftMatte} from './aircraft.js?v=r3';
+import {clearAircraftMatte} from './aircraft.js?v=r7';
 import {aircraftArt} from './main-ui-art180.js?v=hangar2';
 
 export const hangarKeyFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',fokker:'fokker_standard'};
