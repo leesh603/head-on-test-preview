@@ -6,7 +6,7 @@
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=hangar2';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=perf1';
 
 
 const memo = new WeakMap();
@@ -359,7 +359,7 @@ export function drawRickenbackerRing(c, g, point, t, px, py, layer = 'back') {
       if (n) R.pulse = t;
     }
     R.rounds = g.roundsFired || 0;
-    R.stamps = R.stamps.filter(s => t - s.t0 < .45 && s.e.hp > 0);
+    {const _st=R.stamps;let _w=0;for(let _i=0;_i<_st.length;_i++){const s=_st[_i];if(t-s.t0<.45&&s.e.hp>0)_st[_w++]=s}_st.length=_w}
   }
   if (R.k <= .01 && !R.stamps.length) return true;
   c.save();
@@ -645,7 +645,7 @@ export function drawBaraccaLance(c, g, point, t, px, py, layer = 'back') {
       if (best && bd < 160) m.bursts.push({ x: best.x, y: best.y, a: g.a || 0, t0: t });
     }
     m.hits = charging ? hits : 0;
-    m.bursts = m.bursts.filter(b => t - b.t0 < .5);
+    {const _bu=m.bursts;let _w=0;for(let _i=0;_i<_bu.length;_i++){const b=_bu[_i];if(t-b.t0<.5)_bu[_w++]=b}_bu.length=_w}
     if (m.px !== undefined && t > m.pt) { const dx = g.x - m.px, dy = g.y - m.py; if (Math.hypot(dx, dy) > 2) m.mv = { dx, dy }; }
     m.px = g.x; m.py = g.y; m.pt = t;
     push(m.wake, { x: g.x, y: g.y, a: g.a || 0 }, t, .35);

@@ -1,11 +1,11 @@
-import {livensFlameSpan,livensFlameHalfWidth} from './livens-fire195.js?v=hangar2';
+import {livensFlameSpan,livensFlameHalfWidth} from './livens-fire195.js?v=perf1';
 
 // A whole pressure-fed flame field, never a chain of stretched plume sprites.
 // 18 prewarmed RGBA frames = 2.25 MiB. One image draw per beam on both devices.
 export const LIVENS_FIRE_BUDGET=Object.freeze({width:256,height:128,frames:18,bytes:256*128*18*4,draws:1,period:.6});
 const {width:W,height:H,frames:COUNT}=LIVENS_FIRE_BUDGET;
 const clamp=v=>Math.max(0,Math.min(1,v));
-import {FXS,fxsFlameDressing} from './fx-sample-preview.js?v=hangar2';
+import {FXS,fxsFlameDressing} from './fx-sample-preview.js?v=perf1';
 // Painted FX palette (fx layer on): same ramp as the atlas fire, cream top instead of white.
 const stops=FXS?[[74,28,16],[156,50,24],[220,94,36],[244,154,62],[248,184,98],[255,217,152],[255,226,170]]:[[82,27,12],[167,47,10],[233,85,7],[255,141,12],[255,203,53],[255,243,161],[255,253,222]];
 const noise=new Float32Array(64*64);

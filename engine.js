@@ -1,30 +1,30 @@
-import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=hangar2';
-import {wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=hangar2';
-import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=hangar2';
-import {installPilotIdentities} from './pilot-identities.js?v=hangar2';
-import {EnemyCollisionGrid} from './collision-grid.js?v=hangar2';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=hangar2';
-import {installRevision} from './rebalance103.js?v=hangar2';
-import {installCloudCover} from './cloud-cover1.js?v=hangar2';
-import {installFleet} from './fleet-naval1.js?v=hangar2';
-import {installTrenchWar} from './trench-war1.js?v=hangar2';
-import {installCityAir} from './city-air1.js?v=hangar2';
-import {installRegionDoctrine} from './region-doctrine1.js?v=hangar2';
-import {installLondonBattle} from './london-battle.js?v=hangar2';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=hangar2';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=boss2';
-import {installBuildCombatIdentity} from './build-combat-identity.js?v=hangar2';
-import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=hangar2';
-import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=hangar2';
-import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=hangar2';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=hangar2';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=hangar2';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=hangar2';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=hangar2';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=hangar2';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=hangar2';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=hangar2';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=hangar2';
+import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=perf1';
+import {wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=perf1';
+import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=perf1';
+import {installPilotIdentities} from './pilot-identities.js?v=perf1';
+import {EnemyCollisionGrid} from './collision-grid.js?v=perf1';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=perf1';
+import {installRevision} from './rebalance103.js?v=perf1';
+import {installCloudCover} from './cloud-cover1.js?v=perf1';
+import {installFleet} from './fleet-naval1.js?v=perf1';
+import {installTrenchWar} from './trench-war1.js?v=perf1';
+import {installCityAir} from './city-air1.js?v=perf1';
+import {installRegionDoctrine} from './region-doctrine1.js?v=perf1';
+import {installLondonBattle} from './london-battle.js?v=perf1';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=perf1';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=perf1';
+import {installBuildCombatIdentity} from './build-combat-identity.js?v=perf1';
+import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=perf1';
+import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=perf1';
+import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=perf1';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=perf1';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=perf1';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=perf1';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=perf1';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=perf1';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=perf1';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=perf1';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=perf1';
 
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
@@ -140,7 +140,7 @@ export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this
  if(this.rockets>0){this.rocketFire-=dt;if(this.rocketFire<=0)this.launchUpgradeRocket()}if(this.mineCount>0){this.mineTimer-=dt;if(this.mineTimer<=0){this.mineTimer=this.ordnanceInterval(3.6/(1+this.mineCount*.3));this.throwGrenades()}}this.tickGrenades(dt);for(let m of this.mines){if(m.grenade){m.x+=(m.vx||0)*dt;m.y+=(m.vy||0)*dt;m.vx*=.985;m.vy*=.985}m.life-=dt;m.arm=Math.max(0,m.arm-dt);if(m.life>0&&m.arm===0&&this.enemies.some(e=>e.hp>0&&Math.hypot(e.x-m.x,e.y-m.y)<(m.special?62:88))){
  const radius=m.special?112:132;
  this.queueExplosionDamage(m.x,m.y,radius,m.damage,{fxSource:'mineAir'});m.life=0;
- }}this.mines=this.mines.filter(m=>m.life>0);
+ }}{const _mn=this.mines;let _w=0;for(let _i=0;_i<_mn.length;_i++)if(_mn[_i].life>0)_mn[_w++]=_mn[_i];_mn.length=_w}
  let wave=this.t<60?1:this.t<120?2:3;if(wave!==this.wave){this.wave=wave;this.event('wave',wave===1?(this.doctrine+' · '+(DOCTRINE_BALANCE[this.doctrine]?.label||'')):wave===2?'제2파 · 추격기 접근':'제3파 · 전선 돌파')}
  this.eventTimer-=dt;if(this.eventTimer<=0){this.eventTimer=22+this.rng()*20;let roll=this.rng(),quiet=this.mobSpawnsSuppressed();if(roll<.35&&!quiet){for(let i=0;i<3;i++)this.spawnEnemy('hunter');this.event('wave','기습! 고속 추격 편대')}else if(roll<.6&&!quiet){this.spawnEnemy('bomber');this.spawnEnemy('bomber');this.event('wave','폭격 편대 통과')}else if(roll<.8||quiet){this.drops.push({x:this.x+Math.cos(this.a)*180,y:this.y+Math.sin(this.a)*180,value:0,heal:true,supply:true,vx:0,vy:0,life:14});this.event('wave','전방 수리 보급품!')}}
  // Independent patrols replace timed follower arrivals.
@@ -187,16 +187,14 @@ Game.prototype._spnPressure=function(type){
 };
 Game.prototype._updFormation=function(dt,input={}){
   if(!this._supplyTuned){this.supplyTimer=62;this._supplyTuned=true}
-  const dropStart=this.drops.length;
-  const oldBullets=new Set(this.bullets);
   this._updBalance(dt,input);
   if(!this._zeppelinSchedule)this._zeppelinSchedule=65;
   if(this.state==='playing'&&this.t>=this._zeppelinSchedule&&!this.directorMobSpawnsSuppressed?.()){this.spawnEnemy('zeppelin');this._zeppelinSchedule=this.t+135+this.rng()*35;this.event('wave',(PLANES[this.plane].faction==='central'?'협상국 비행선':'제플린')+' 강습 · 대공 탄막을 돌파하라')}
   const pressure=Math.max(0,Math.min(1,(this.t-30)/120));
-  for(const bullet of this.bullets)if(bullet.enemy&&!oldBullets.has(bullet)){bullet.damage=Math.round(bullet.damage*(1+pressure*.16));bullet.vx*=1+pressure*.05;bullet.vy*=1+pressure*.05}
-  const fresh=this.drops.slice(dropStart);
-  for(const d of fresh)if(d.heal&&!d.supply&&this.rng()>.3)d.heal=false;
-  if(fresh.some(d=>d.supply))this.supplyTimer=Math.max(this.supplyTimer,68+this.rng()*42);
+  for(const bullet of this.bullets)if(bullet.enemy&&!bullet._pst){bullet._pst=true;bullet.damage=Math.round(bullet.damage*(1+pressure*.16));bullet.vx*=1+pressure*.05;bullet.vy*=1+pressure*.05}
+  let anyFreshSupply=false;
+  for(const d of this.drops)if(!d._nf){d._nf=true;if(d.heal&&!d.supply&&this.rng()>.3)d.heal=false;if(d.supply)anyFreshSupply=true}
+  if(anyFreshSupply)this.supplyTimer=Math.max(this.supplyTimer,68+this.rng()*42);
 };
 // Baracca's emblem becomes a real diagonal attack run: the black horse crosses
 // the field while a short burst of piercing rounds follows its charge.
@@ -230,7 +228,7 @@ Game.prototype._updEnvironment=function(dt,input={}){
       this.burst(g.x,g.y,'#d7f4e7',18);this.event('flak','돌풍에 휘말렸다! 조준이 흔들린다');
     }
   }
-  this.gusts=this.gusts.filter(g=>g.life>0);
+  {const _gs=this.gusts;let _w=0;for(let _i=0;_i<_gs.length;_i++)if(_gs[_i].life>0)_gs[_w++]=_gs[_i];_gs.length=_w}
 };
 Game.prototype._sklNewAce=function(){
   if(!['guynemer','baracca'].includes(this.pilot))return this._sklFormation();
@@ -345,7 +343,7 @@ Game.prototype._updCombat=function(dt,input={}){
  for(const z of this.bombZones){z.delay-=step;if(z.delay<=0){this.combatBlast(z.x,z.y,z.radius,'enemy','bomb');
   if(z.artyFire)for(const e of this.enemies){if(e.hp<=0||e.stageBossBody||e.bossMinion)continue;if(Math.hypot(e.x-z.x,e.y-z.y)<z.radius+12){e.hp-=Math.round(z.damage*1.9);e.hitFlash=.22;if(e.hp<=0&&!e.deathCounted){e.deathCounted=true;this.kills++;if(e.bossPilot||e.type==='boss'||e.type==='zeppelin'||e.type==='bomber')this.priorityKills=(this.priorityKills||0)+1;if(e.type==='zeppelin')this.wreckGust(e);this.event('kill','')}}}
   if(Math.hypot(this.x-z.x,this.y-z.y)<z.radius)this.hit(highRiskDamage(z.damage,this.maxHp,z))}}
- this.bombZones=this.bombZones.filter(z=>z.delay>0);
+ {const _bz=this.bombZones;let _w=0;for(let _i=0;_i<_bz.length;_i++)if(_bz[_i].delay>0)_bz[_w++]=_bz[_i];_bz.length=_w}
 };
 Game.prototype._updSpacing=function(dt,input={}){
  this._updCombat(dt,input);if(this.state!=='playing')return;
@@ -566,9 +564,9 @@ Game.prototype._updFriendlyBomber=function(dt,input={}){
    this.friendlyBombs.push({sx:b.x,sy:b.y,x:target?.x??b.x+Math.cos(b.a)*120,y:target?.y??b.y+Math.sin(b.a)*120,life:.55,maxLife:.55,damage:this.payloadPower(80),radius:100});
   }
  }
- this.friendlyBombers=this.friendlyBombers.filter(b=>b.age<3.6);
+ {const _fb=this.friendlyBombers;let _w=0;for(let _i=0;_i<_fb.length;_i++)if(_fb[_i].age<3.6)_fb[_w++]=_fb[_i];_fb.length=_w}
  for(const b of this.friendlyBombs){b.life-=step;if(b.life<=0)this.queueExplosionDamage(b.x,b.y,b.radius,b.damage,{fxSource:'bomb'})}
- this.friendlyBombs=this.friendlyBombs.filter(b=>b.life>0);
+ {const _fo=this.friendlyBombs;let _w=0;for(let _i=0;_i<_fo.length;_i++)if(_fo[_i].life>0)_fo[_w++]=_fo[_i];_fo.length=_w}
 };
 // Revision 51: bounded skill recovery, distinct airframes and the 74 Squadron.
 PLANES.eindecker={name:'포커 E.III 아인데커',role:'단엽 반전기동형',faction:'central',speed:140,turn:3.1,hp:95,rate:.2,color:'#c6b68b',wings:1};
@@ -1746,9 +1744,9 @@ Game.prototype.update=function(dt,input={}){
  this.evadeCooldown=Math.max(0,this.evadeCooldown-step);
  tickHeinecke(this,step);
  for(const p of this.particles){p.x+=p.vx*step;p.y+=p.vy*step;p.life-=step}
- this.particles=this.particles.filter(p=>p.life>0);
+ {const _ph=this.particles;let _w=0;for(let _i=0;_i<_ph.length;_i++)if(_ph[_i].life>0)_ph[_w++]=_ph[_i];_ph.length=_w}
 };
-import {installNinePilots} from './pilot-nine-combat.js?v=hangar2';
+import {installNinePilots} from './pilot-nine-combat.js?v=perf1';
 const _preNineHit=Game.prototype.hit;Game.prototype.hit=function(n){if(this.pilot==='barker'&&this.invuln<=0&&n>0){this.barkerStacks=Math.min(this.skillTime>0?5:3,(this.barkerStacks||0)+1);this.barkerStackTime=3;if(this.skillTime>0)n=Math.min(n,Math.max(0,this.hp-1))}_preNineHit.call(this,n)};
 installNinePilots(Game,PILOTS);
 
