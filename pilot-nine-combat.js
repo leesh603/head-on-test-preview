@@ -1,5 +1,5 @@
 // Nine pilot mechanics, installed on the existing firing/frame/impact hooks.
-import {signatureCue,activatePilotSignature} from './pilot-signature-state.js?v=coop1';
+import {signatureCue,activatePilotSignature} from './pilot-signature-state.js?v=ui1';
 export const NINE_PILOTS=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker']);
 const durations={huffzky:3,mckeever:5,jacobs:4,hawker:5,berthold:5,udet:2.6,goering:5,nungesser:3,barker:6};
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
