@@ -1,6 +1,6 @@
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=hangar2';
 import {RailBossController} from './rail-boss129.js?v=hangar2';
-import {StuttgartSupport} from './stuttgart129.js?v=hangar2';
+import {StuttgartSupport} from './stuttgart129.js?v=boss1';
 
 export class RailAdapter extends BaseBoss {
  constructor(o,kind){
@@ -79,7 +79,7 @@ export class RailAdapter extends BaseBoss {
 }
 export class StuttgartAdapter extends BaseBoss {
  constructor(o){super({...o,maxHp:o.tuning.maxHp});this.t=o.tuning;this.kind='sms-stuttgart';this.faction=o.faction;this.ownsMotion129=true;
-  this.support129=new StuttgartSupport({id:this.id,tuning:{maxHp:this.maxHp,damage:this.t.damage,bulletSpeed:this.t.bulletSpeed,projectileDensity:this.t.projectileDensity??1,spawnInterval:this.t.launchInterval||4,minionCap:6,rotationSpeed:.08*(this.t.motionMultiplier||1),navigation:true},x:this.x,y:this.y,width:500,height:750,
+  this.support129=new StuttgartSupport({id:this.id,tuning:{maxHp:this.maxHp,damage:this.t.damage,bulletSpeed:this.t.bulletSpeed,projectileDensity:this.t.projectileDensity??1,spawnInterval:this.t.launchInterval||4,fireScale:this.t.fireScale||1,minionCap:6,rotationSpeed:.08*(this.t.motionMultiplier||1),navigation:true},x:this.x,y:this.y,width:500,height:750,
    onDamage:(playerId,damage,source)=>this.emit({type:'support-damage',bossId:this.id,playerId,damage,source}),
    spawnSeaplane:s=>{this.emit({type:'spawn-minion',bossId:this.id,faction:this.faction,minion:'seaplane',...s,a:s.angle-Math.PI/2});return true;},
    countSeaplanes:()=>this.countMinions129?.()||0,

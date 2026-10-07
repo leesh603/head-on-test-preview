@@ -76,7 +76,7 @@ export class StuttgartSupport {
     this.x=this.anchorX+dx*c-dy*s;this.y=this.anchorY+dx*s+dy*c;this.angle=this.initialAngle-a;this.driveVelocity=Math.hypot(this.x-oldX,this.y-oldY)/Math.max(.001,dt);
   }else this.angle=(this.angle+this.tuning.rotationSpeed*dt)%(Math.PI*2);
   if(this.cover){this.cover.age+=dt;this.cover.x+=this.cover.vx*dt;this.cover.y+=this.cover.vy*dt;this.cover.angle+=dt*1.2;if(this.cover.age>=1.8)this.cover=null;}
-  this.fireClock-=dt;if(this.fireClock<=0){const base=this.phase===1?1.35:this.phase===2?1.2:1.05;this.fireClock=(this.fireSide%2?base:base+0.55)/(this.tuning.projectileDensity??1);this.fire(players);}
+  this.fireClock-=dt;if(this.fireClock<=0){const base=this.phase===1?1.35:this.phase===2?1.2:1.05;this.fireClock=(this.fireSide%2?base:base+0.55)*(this.tuning.fireScale||1)/(this.tuning.projectileDensity??1);this.fire(players);}
   this.spawnClock-=dt;if(this.spawnClock<=0){this.spawnClock=this.tuning.spawnInterval*(this.phase===3 ? .72 : 1);this.launch(players);}
   if(this.linkedLaunchClock>0&&(this.linkedLaunchClock-=dt)<=0)this.launch(players);
   this.projectiles.visit(p=>{const ax=p.x,ay=p.y;p.age+=dt;if(p.age<p.warning)return;p.x+=p.vx*dt;p.y+=p.vy*dt;
