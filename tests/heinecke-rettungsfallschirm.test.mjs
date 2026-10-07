@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {HEINECKE,heineckeRemaining,triggerHeinecke,tickHeinecke} from '../heinecke-rettungsfallschirm.js?v=ui3';
+import {HEINECKE,heineckeRemaining,triggerHeinecke,tickHeinecke} from '../heinecke-rettungsfallschirm.js?v=ui4';
 
 const player=()=>({t:0,x:120,y:90,a:0,hp:100,maxHp:100,invuln:0,upgrades:{heineckeRettungsfallschirm:1},events:[],event(type,text){this.events.push({type,text})},burst(){},smoke(){}});
 test('fatal hit escapes, returns behind with 40% HP and two seconds of protection',()=>{

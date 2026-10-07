@@ -2,10 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {CoopGame}=await import('../coop-engine.js?v=ui3');
-const {Game}=await import('../engine.js?v=ui3');
-const {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossCollision,damageStageBoss}=await import('../stageboss-host.js?v=ui3');
-const {sommePoint}=await import('../somme-boss-layout.js?v=ui3');
+const {CoopGame}=await import('../coop-engine.js?v=ui4');
+const {Game}=await import('../engine.js?v=ui4');
+const {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossCollision,damageStageBoss}=await import('../stageboss-host.js?v=ui4');
+const {sommePoint}=await import('../somme-boss-layout.js?v=ui4');
 
 for(const mode of ['solo','coop'])for(const faction of ['central','entente'])test(`Somme ${mode}/${faction} uses real host collision, one HP budget and bounded hazards`,()=>{
  const pilot=faction==='central'?'baron':'fonck',g=mode==='solo'?new Game(faction==='central'?'fokker':'spad',pilot,()=>.5):new CoopGame([{pilot},{pilot}],{rng:()=>.5});

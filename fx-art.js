@@ -1,15 +1,15 @@
-import {ordnanceArtReady,ordnanceReady,drawOrdnance} from './ordnance-art.js?v=ui3';
+import {ordnanceArtReady,ordnanceReady,drawOrdnance} from './ordnance-art.js?v=ui4';
 // Union pack: Pro's 196 combat atlas takes precedence for the keys it covers
 // (explosion0-3, fire, smoke*, spark, armorSpark, gas, gasThin); every other key
 // stays on the approved v189 set below. ?fx=0 keeps the procedural rollback.
-import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,fx as fx196Draw,fxTintedCanvas as fx196TintedCanvas,fxTint as fx196Tint} from './combat-fx196.js?v=ui3';
+import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,fx as fx196Draw,fxTintedCanvas as fx196TintedCanvas,fxTint as fx196Tint} from './combat-fx196.js?v=ui4';
 // Combat FX pack v189 — approved sprite set lives in fx-pack-v189/ and maps onto
 // the keys already called by the renderers. Unmapped keys stay procedural.
 // Rollback: append ?fx=0 to the URL — FX_FILES empties and every call site
 // falls back to procedural drawing exactly as before.
-import {FX3,roleArtReady,roleReady,roleDraw,roleImage} from './fx-role3.js?v=ui3';
+import {FX3,roleArtReady,roleReady,roleDraw,roleImage} from './fx-role3.js?v=ui4';
 // FX sample preview (?fxs=1 only).
-import {FXS,fxsReady,fxsHas,fxsDraw,fxsImage,fxsTintedCanvas,fxsTint,fxsRocketTrail} from './fx-sample-preview.js?v=ui3';
+import {FXS,fxsReady,fxsHas,fxsDraw,fxsImage,fxsTintedCanvas,fxsTint,fxsRocketTrail} from './fx-sample-preview.js?v=ui4';
 export {FXS};
 
 export {FX3};
@@ -39,7 +39,7 @@ const FX_FILES=FX_OFF?{}:Object.assign({
  shell:'fx-shell-heavy.webp',
  shellAuto:'fx-pack-v189/projectiles/shell-autocannon.webp',
  bulletBrass:'fx-pack-v189/projectiles/bullet-brass.webp',
- grenade:'fx-grenade-ww1.webp?v=ui3',
+ grenade:'fx-grenade-ww1.webp?v=ui4',
  tracerAmber:'fx-pack-v189/projectiles/tracer-amber.webp',
  tracerCream:'fx-pack-v189/projectiles/tracer-cream.webp',
  tracerOrange:'fx-pack-v189/projectiles/tracer-orange.webp',
@@ -79,7 +79,7 @@ const FX_FILES=FX_OFF?{}:Object.assign({
  dustPuff:'fx-dust-puff.webp',dirtBurst:'fx-dirt-burst.webp',debrisShard:'fx-debris-shard.webp',dirtMix:'fx-dirt-mix.webp',
  sunshaft:'fx-sunshaft.webp',windStreak:'fx-wind-streak.webp',mist:'fx-mist.webp',
  torpedo:'fx-torpedo.webp',shockRing:'fx-shock-ring.webp',searchlight:'fx-city-searchlight.webp',
- mortarShell:'fx-mortar-shell.webp',lePrieur:'fx-combat-le-prieur.webp',bombBody:'fx-bomb-body.webp',grenadeBody:'fx-grenade-ww1.webp?v=ui3',
+ mortarShell:'fx-mortar-shell.webp',lePrieur:'fx-combat-le-prieur.webp',bombBody:'fx-bomb-body.webp',grenadeBody:'fx-grenade-ww1.webp?v=ui4',
 mineBody:'fx-mine-body.webp',shellHeavy:'fx-shell-heavy.webp',incendiary:'fx-incendiary.webp',
 // Boss-pair debris set — Treffas-Wagen crush debris + rail-carrier wreck shards
 rockChunk0:'fx-rock-chunk-0.webp',rockChunk1:'fx-rock-chunk-1.webp',rockChunk2:'fx-rock-chunk-2.webp',rockChunk3:'fx-rock-chunk-3.webp',rockChunk4:'fx-rock-chunk-4.webp',rockChunk5:'fx-rock-chunk-5.webp',
@@ -91,7 +91,7 @@ const imageLoads=new Map();
 const fx189Ready=typeof Image==='undefined'?Promise.resolve():Promise.all([fx196ArtReady,fxsReady]).then(()=>Promise.all(Object.entries(FX_FILES).map(async([key,file])=>{
  if(fx196Ready(key)||fxsHas(key))return;
  if(!imageLoads.has(file))imageLoads.set(file,new Promise(res=>{
-  const im=new Image();im.onload=()=>{im.onload=im.onerror=null;res(im)};im.onerror=()=>{im.onload=im.onerror=null;res(null)};im.src='./'+file+'?v=ui3';im.decode?.().catch(()=>{});
+  const im=new Image();im.onload=()=>{im.onload=im.onerror=null;res(im)};im.onerror=()=>{im.onload=im.onerror=null;res(null)};im.src='./'+file+'?v=ui4';im.decode?.().catch(()=>{});
  }));
  const im=await imageLoads.get(file);if(im)fxImgs[key]=im;
 })));

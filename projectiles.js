@@ -1,8 +1,8 @@
-import {FXS,fxsFireZone} from './fx-sample-preview.js?v=ui3';
+import {FXS,fxsFireZone} from './fx-sample-preview.js?v=ui4';
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // (FX layer exception: hostile bolts get a crimson body + white-hot tip for dodge readability.)
 // Rendering never changes projectile movement, damage or collision.
-import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=ui3';
+import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=ui4';
 export function projectileStyle(b){return b.hostileRocket?'rocket':b.flak?'flak':b.visualType||(b.naval?'naval':b.fieldShell?'balloon':b.heavy?'heavyBomber':'scout')}
 const TRACERS={scout:['#e7a06b',10,2],hunter:['#efb77f',14,2],bomber:['#dfbc7b',11,3],heavyBomber:['#e4ae72',15,3],boss:['#e58f7c',16,3],zeppelin:['#d8bb8b',12,3],railgun:['#efaa89',23,3],naval:['#dfaa82',16,3],balloon:['#dbbf8b',8,3],flak:['#dfac80',6,3],rocket:['#edac77',15,3]};
 // gunUpgradeBonus is the cumulative machine-gun attack bonus, not temporary
@@ -21,7 +21,7 @@ export function friendlyTracerColor(b,gunUpgradeBonus=0){
  return '#'+a.map((v,j)=>Math.round(v+(z[j]-v)*t).toString(16).padStart(2,'0')).join('');
 }
 const cannonAtlas=typeof Image==='undefined'?null:new Image();
-if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.webp?v=ui3';
+if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.webp?v=ui4';
 const ENEMY_BOLTS={scout:[17,4],hunter:[19,4],bomber:[16,4.5],heavyBomber:[21,5.5],boss:[20,4.5],zeppelin:[17,4.5],naval:[21,5],balloon:[12,5],flak:[11,5]};
 const boltCache=new Map();
 function enemyBolt(len,wid){
