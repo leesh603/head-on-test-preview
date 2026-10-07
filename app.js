@@ -1,72 +1,72 @@
-import {hangarArt,hangarArtSource,hangarKeyFile} from './hangar-art.js?v=perf5';
-import {bossCutinSource} from './boss-cutin-art.js?v=perf5';
-import {applySeaColor} from './sea-colors.js?v=perf5';
-import {drawGroundEnemy} from './ground-enemy-art.js?v=perf5';
+import {hangarArt,hangarArtSource,hangarKeyFile} from './hangar-art.js?v=splash1';
+import {bossCutinSource} from './boss-cutin-art.js?v=splash1';
+import {applySeaColor} from './sea-colors.js?v=splash1';
+import {drawGroundEnemy} from './ground-enemy-art.js?v=splash1';
 import {pilotIdentityCopy} from './pilot-identity-copy.js';
-import {drawHeineckeParachute,heineckeRemaining,HEINECKE} from './heinecke-rettungsfallschirm.js?v=perf5';
-import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=perf5';
-import {paintVerdun} from './verdun-art.js?v=perf5';
-import {paintGallipoli,prepareGallipoliAssets} from './gallipoli-view.js?v=perf5';
-import {createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=perf5';
-import {paintMaan,prepareMaanAssets} from './maan-view.js?v=perf5';
-import {drawRegionalBug} from './regional-boss-view352.js?v=perf5';
-import {drawGust3} from './atmosphere-role3.js?v=perf5';
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=perf5';
-import {fx,fxReady,fxTint,FX56,clearFxTintCache,fxArtReady} from './fx-art.js?v=perf5';
-import {drawAADefense,drawDrachenMine,prepareAADefenseAssets} from './aa-defense-art.js?v=perf5';
-import {CATEGORIES,categoryName,reinforcementName,buildStats,heldStats,cumulativeText,cleanDescription} from './reinforcement-ui151.js?v=perf5';
-import {t,getLocale,setLocale,subscribe,initLocale,applyTranslations,rarityName,upgradeDescription as translatedUpgradeDescription,pilotName,aircraftName,weaponName,activeName,passiveName,pilotDescription,passiveDescription,aircraftRole,airframeHistory,airframeTip} from './i18n.js?v=perf5';
-import {GamepadInput} from './gamepad-input.js?v=perf5';
+import {drawHeineckeParachute,heineckeRemaining,HEINECKE} from './heinecke-rettungsfallschirm.js?v=splash1';
+import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=splash1';
+import {paintVerdun} from './verdun-art.js?v=splash1';
+import {paintGallipoli,prepareGallipoliAssets} from './gallipoli-view.js?v=splash1';
+import {createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=splash1';
+import {paintMaan,prepareMaanAssets} from './maan-view.js?v=splash1';
+import {drawRegionalBug} from './regional-boss-view352.js?v=splash1';
+import {drawGust3} from './atmosphere-role3.js?v=splash1';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=splash1';
+import {fx,fxReady,fxTint,FX56,clearFxTintCache,fxArtReady} from './fx-art.js?v=splash1';
+import {drawAADefense,drawDrachenMine,prepareAADefenseAssets} from './aa-defense-art.js?v=splash1';
+import {CATEGORIES,categoryName,reinforcementName,buildStats,heldStats,cumulativeText,cleanDescription} from './reinforcement-ui151.js?v=splash1';
+import {t,getLocale,setLocale,subscribe,initLocale,applyTranslations,rarityName,upgradeDescription as translatedUpgradeDescription,pilotName,aircraftName,weaponName,activeName,passiveName,pilotDescription,passiveDescription,aircraftRole,airframeHistory,airframeTip} from './i18n.js?v=splash1';
+import {GamepadInput} from './gamepad-input.js?v=splash1';
 installEventTextEN(Game,CoopGame,CampaignGame);registerEventPilots(PILOTS);
 const fieldRecordLink=document.createElement('a');fieldRecordLink.href='./field-record.html';fieldRecordLink.target='_blank';fieldRecordLink.rel='noopener';fieldRecordLink.textContent=getLocale()==='en'?'Official Battle Record':'공식 전장 기록';fieldRecordLink.className='field-record-link';fieldRecordLink.style.cssText='display:block;margin:10px auto 0;text-align:center;color:#d7b26d;font-weight:800;text-decoration:none';document.getElementById('start')?.after(fieldRecordLink);
-import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=perf5';
-import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=perf5';
-import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=perf5';
-import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=perf5';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=perf5';
-import {paintParis} from './paris-night-art.js?v=perf5';
-import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=perf5';
-import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=perf5';
-import './hud-layout94.js?v=perf5';
-import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=perf5';
-import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=perf5';
-import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=perf5';
-import {drawCoop} from './coop-view.js?v=perf5';
-import {drawSunStrike} from './sun-strike71.js?v=perf5';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=perf5';
-import {installFlightViewport} from './flight-viewport.js?v=perf5';
-import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174.js?v=perf5';
-import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?v=perf5';
-import {drawEnemyDanger} from './enemy-danger-view.js?v=perf5';
-import {drawGas} from './gas-view.js?v=perf5';
-import {drawWarAmbience} from './war-ambience.js?v=perf5';
-import {missionNavigation,drawMissionRadar} from './navigation.js?v=perf5';
-import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=perf5';
-import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=perf5';
-import {drawCampaign} from './campaign-view.js?v=perf5';
-import {campaignArtReady} from './aircraft.js?v=perf5';
-import {drawGameIcon,drawSpecialAmmoIcon,iconsReady,hangarIconsReady} from './icons.js?v=perf5';
-import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?v=perf5';
-import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=perf5';
-import {attachCombatFeedback,combatVisualPose,drawCombatFeedback,combatCameraOffset,combatFlightSound} from './combat-feedback.js?v=perf5';
-import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=perf5';
-import {drawHeadOnFeedback} from './engagement-feedback.js?v=perf5';
-import {drawTailEngagement} from './engagement-hud410.js?v=perf5';
-import {portraitSources,portraitsReady,portraitLoaded} from './portraits.js?v=perf5';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=perf5';
-import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=perf5';
-import {drawEquipment} from './equipment.js?v=perf5';
-import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=perf5';
-import{planeSprite,aircraftReady,aircraftKey,hangarArtReady,paintedReady}from './aircraft.js?v=perf5';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=perf5';
-import {AUGMENTATION_OVERHAUL_BALANCE}from'./augmentation-overhaul150.js?v=perf5';
-import {drawCloudCover}from'./cloud-cover1.js?v=perf5';
-import {drawFleetLayer}from'./fleet-naval1.js?v=perf5';
-import {drawTrenchLayer}from'./trench-war1.js?v=perf5';
-import {drawCityAirLayer}from'./city-air1.js?v=perf5';
-import {TerrainRenderer,MountainField,applyTerrainAtmosphere,preloadTerrainProfile,terrainProfilesReady} from './alps-terrain117.js?v=perf5';
-import {FXS,fxsTracer,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=perf5';
-import {drawPassiveFx,drawPassiveFxFront} from './passive-fx.js?v=perf5';
+import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=splash1';
+import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=splash1';
+import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=splash1';
+import {playerPose,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=splash1';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=splash1';
+import {paintParis} from './paris-night-art.js?v=splash1';
+import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=splash1';
+import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=splash1';
+import './hud-layout94.js?v=splash1';
+import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=splash1';
+import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=splash1';
+import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=splash1';
+import {drawCoop} from './coop-view.js?v=splash1';
+import {drawSunStrike} from './sun-strike71.js?v=splash1';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=splash1';
+import {installFlightViewport} from './flight-viewport.js?v=splash1';
+import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174.js?v=splash1';
+import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?v=splash1';
+import {drawEnemyDanger} from './enemy-danger-view.js?v=splash1';
+import {drawGas} from './gas-view.js?v=splash1';
+import {drawWarAmbience} from './war-ambience.js?v=splash1';
+import {missionNavigation,drawMissionRadar} from './navigation.js?v=splash1';
+import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=splash1';
+import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=splash1';
+import {drawCampaign} from './campaign-view.js?v=splash1';
+import {campaignArtReady} from './aircraft.js?v=splash1';
+import {drawGameIcon,drawSpecialAmmoIcon,iconsReady,hangarIconsReady} from './icons.js?v=splash1';
+import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?v=splash1';
+import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=splash1';
+import {attachCombatFeedback,combatVisualPose,drawCombatFeedback,combatCameraOffset,combatFlightSound} from './combat-feedback.js?v=splash1';
+import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=splash1';
+import {drawHeadOnFeedback} from './engagement-feedback.js?v=splash1';
+import {drawTailEngagement} from './engagement-hud410.js?v=splash1';
+import {portraitSources,portraitsReady,portraitLoaded} from './portraits.js?v=splash1';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=splash1';
+import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN} from './boss-feedback.js?v=splash1';
+import {drawEquipment} from './equipment.js?v=splash1';
+import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=splash1';
+import{planeSprite,aircraftReady,aircraftKey,hangarArtReady,paintedReady}from './aircraft.js?v=splash1';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=splash1';
+import {AUGMENTATION_OVERHAUL_BALANCE}from'./augmentation-overhaul150.js?v=splash1';
+import {drawCloudCover}from'./cloud-cover1.js?v=splash1';
+import {drawFleetLayer}from'./fleet-naval1.js?v=splash1';
+import {drawTrenchLayer}from'./trench-war1.js?v=splash1';
+import {drawCityAirLayer}from'./city-air1.js?v=splash1';
+import {TerrainRenderer,MountainField,applyTerrainAtmosphere,preloadTerrainProfile,terrainProfilesReady} from './alps-terrain117.js?v=splash1';
+import {FXS,fxsTracer,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=splash1';
+import {drawPassiveFx,drawPassiveFxFront} from './passive-fx.js?v=splash1';
 
 const flightViewport=installFlightViewport(document,window);
 const ententeAirshipSprite=new Image();ententeAirshipSprite.src='./zeppelin-entente.webp?v=perf5&b=326';
@@ -1076,13 +1076,32 @@ const gateDeps={portraits:visiblePortraitReady,figure:hangarArt(shownKey),icons:
 const hangarReady=Promise.all(Object.values(gateDeps));
 for(const n of Object.keys(gateDeps))gateDeps[n].then(()=>{(window.__gateMarks=window.__gateMarks||{})[n]=Math.round(performance.now()/100)/10},()=>{(window.__gateMarks=window.__gateMarks||{})[n]='err'});
 const battleReady=Promise.all([fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady,aircraftReady]);
+// The splash stays up until everything the first hangar screen shows can paint at once:
+// every visible <img> and CSS background decoded, measured on the laid-out
+// hangar itself (so nothing added later by other modules is missed). 30 s caps a dead network.
+const urlsOfBackground=v=>[...String(v).matchAll(/url\(["']?([^"')]+)["']?\)/g)].map(m=>m[1]).filter(u=>!u.startsWith('data:'));
+async function hangarPaintable(){
+ const visible=el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden';
+ const imgs=[...document.querySelectorAll('img')].filter(i=>i.getAttribute('src')&&visible(i));
+ const bgs=new Set();for(const el of document.querySelectorAll('#hangar *,#flightRoster *,body>header *,.astra-stage *,.astra-lower *')){const bg=getComputedStyle(el).backgroundImage;if(bg&&bg!=='none'&&visible(el))for(const u of urlsOfBackground(bg))bgs.add(absUrl(u))}
+ const extra=[...bgs].map(u=>{const i=new Image();i.decoding='async';i.src=u;return i});
+ bootGate?.raise?.([...imgs.map(i=>i.src),...bgs]);
+ const marks=(window.__gateMarks=window.__gateMarks||{}),pending=marks.pending=new Set(),note=(n,p)=>{pending.add(n);return Promise.resolve(p).catch(()=>{}).then(()=>{pending.delete(n);marks.last=n;marks.lastAt=Math.round(performance.now()/100)/10})};
+ // (document.fonts.ready is not awaited: no web fonts here, and it resolves only after the page's
+ // load event — i.e. after every queued battle image.)
+ await Promise.all([...imgs.map(i=>note(i.src.split('/').pop(),i.decode?.())),...extra.map(i=>note(i.src.split('/').pop(),i.decode?.()))]);
+ // Anything swapped in while we waited (a roster pass, a late module) gets one more round.
+ if([...document.querySelectorAll("img")].some(i=>i.getAttribute("src")&&visible(i)&&!i.complete))await new Promise(r=>setTimeout(r,120)).then(hangarPaintable);
+}
+const capWait=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(r,ms))]);
+const reveal=()=>{roster();applyPilotPortrait('cutinPortrait');
+ capWait(hangarPaintable(),30000).then(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))).then(()=>{document.body.classList.add('assets-ready','hangar-shown');bootGate?.relax?.();(window.__gateMarks=window.__gateMarks||{}).shown=Math.round(performance.now()/100)/10})};
 hangarReady.then(()=>{
- // Reveal relaxes the strict-priority hold instead of flooding the connection: the
- // remaining warms keep arriving in rank order so nothing visible queues behind
- // battle art. Sortie still calls releaseAll — a battle needs everything at once.
-const reveal=()=>{bootGate?.relax?.();document.body.classList.add('assets-ready');roster();applyPilotPortrait('cutinPortrait')};
+ // The strict-priority hold stays until the splash lifts (so battle art cannot crowd out the
+ // last hangar images), then relaxes: the rest keeps arriving in rank order. Sortie still calls
+ // releaseAll — a battle needs everything at once.
  const left=2000-(performance.now()-bootAt);left>0?setTimeout(reveal,left):reveal();
-}).catch(()=>{bootGate?.relax?.();document.body.classList.add('assets-ready');roster();});
+}).catch(reveal);
 // The boot gate holds most battle art behind the hangar art, so a fast sortie can face the
 // full download only after the click. Wait for it briefly, then launch anyway — every sprite
 // has a procedural fallback and the painted files keep streaming in behind the game.
@@ -1181,7 +1200,7 @@ function showSettings151(){modal('SETTINGS',t('settings.title'),t('settings.paus
 function showSettingsSound151(){modal('SETTINGS',t('settings.sound'),t('settings.paused'),[{label:muted?t('settings.allOff'):t('settings.allOn'),run:()=>{$('sound').click();showSettingsSound151()}},{label:(muted||sfxOff)?t('settings.sfxOff'):t('settings.sfxOn'),run:()=>{sfxOff=!sfxOff;applyAudioPrefs();showSettingsSound151()}},{label:(muted||bgmOff)?t('settings.bgmOff'):t('settings.bgmOn'),run:()=>{bgmOff=!bgmOff;applyAudioPrefs();showSettingsSound151()}},{label:t('settings.backSettings'),run:showSettings151}]);$('modal').classList.remove('build-modal151');$('modal').classList.add('settings-modal151');applySettingsRows151(['sound','sfx','music','back'])}
 function showSettingsDisplay151(){modal('SETTINGS',t('settings.display'),t('settings.paused'),[{label:hiFpsMode?t('settings.hiFpsOn'):t('settings.hiFpsOff'),run:()=>{hiFpsMode=!hiFpsMode;try{localStorage.setItem('headon.hiFps',hiFpsMode?'1':'0')}catch(_){}showSettingsDisplay151()}},{label:batterySaver?t('settings.saverOn'):t('settings.saverOff'),run:()=>{batterySaver=!batterySaver;try{localStorage.setItem('headon.saver',batterySaver?'1':'0')}catch(_){}showSettingsDisplay151()}},{label:t('settings.fullscreen'),run:()=>{flightViewport.fullscreen();showSettingsDisplay151()}},{label:t('settings.scale')+Math.round(userZoom*100)+'%',run:()=>{cycleZoom();showSettingsDisplay151()}},{label:t('settings.backSettings'),run:showSettings151}]);$('modal').classList.remove('build-modal151');$('modal').classList.add('settings-modal151');applySettingsRows151(['fps','battery','fullscreen','zoom','back'])}
 
-if(import.meta.env?.DEV&&new URLSearchParams(location.search).has('reinforcementqa'))import('../tests/reinforcement-browser151.js?v=perf5').then(({installReinforcementQA})=>installReinforcementQA({getGame:()=>game,reset:(team,mode)=>{if(game)returnHangar();faction=team;pilot=team==='central'?'baron':'fonck';coopPilot2=pilot;selectedMode=mode;plane=pilotPlane(pilot);start()},pause:showBuildPause151,refresh:()=>{if(game.mode==='coop2'){coopEvents();coopHud()}else{events();hud()}updateStageBossHud(game)},pick:(items)=>{game.state='upgrade';choices=items;modal('QA · LIVE CHOICES','강화 선택','',items.map(pick=>{const u=UPGRADES.find(u=>u.id===pick.id);return{upgradeId:u.id,rarity:pick.rarity,label:u.name,desc:upgradeDescription(u.id,pick.rarity,game),run:()=>choose(u.id,pick.rarity)}}))}}));
+if(import.meta.env?.DEV&&new URLSearchParams(location.search).has('reinforcementqa'))import('../tests/reinforcement-browser151.js?v=splash1').then(({installReinforcementQA})=>installReinforcementQA({getGame:()=>game,reset:(team,mode)=>{if(game)returnHangar();faction=team;pilot=team==='central'?'baron':'fonck';coopPilot2=pilot;selectedMode=mode;plane=pilotPlane(pilot);start()},pause:showBuildPause151,refresh:()=>{if(game.mode==='coop2'){coopEvents();coopHud()}else{events();hud()}updateStageBossHud(game)},pick:(items)=>{game.state='upgrade';choices=items;modal('QA · LIVE CHOICES','강화 선택','',items.map(pick=>{const u=UPGRADES.find(u=>u.id===pick.id);return{upgradeId:u.id,rarity:pick.rarity,label:u.name,desc:upgradeDescription(u.id,pick.rarity,game),run:()=>choose(u.id,pick.rarity)}}))}}));
 
 // Revision 160 — portable elite-enemy module, rendered as a distinct combat layer.
 const drawBeforeElite160=draw;

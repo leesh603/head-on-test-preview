@@ -1,4 +1,4 @@
-import {clearCrewMatte} from './matte70.js?v=perf5';
+import {clearCrewMatte} from './matte70.js?v=splash1';
 // Hand-authored game-native pixel sprites. All detail is rasterized once on an
 // integer grid; Canvas scaling keeps the same pixels in flight and the roster.
 const AIRFRAMES={
@@ -67,7 +67,11 @@ function ensurePainted(key){if(!key||painted.has(key)||paintedPending.has(key))r
 export const hangarArtReady=Promise.all(HANGAR_KEYS.map(loadPainted));
 // Gates a single painted sprite — the hangar waits on just the shown airframe
 // instead of the whole painted set.
-export const paintedReady=key=>painted.has(key)?Promise.resolve(true):loadPainted(key);
+// The hangar passes aircraftKey() ids (fokker_red, fokker_voss…); resolve them to the painted file the
+// sprite actually draws, as planeSprite does. Asking for 'fokker_red' fetched a file that does not exist
+// and held the hangar splash through eight failed retries.
+const paintedSource=key=>campaignSpriteAliases[key]||(key==='fokker_red'?'fokker':key==='fokker_voss'?'fokker_f1':key==='fokker'?'fokker_standard':key);
+export const paintedReady=key=>{const source=paintedSource(key);return painted.has(source)?Promise.resolve(true):loadPainted(source)};
 const individualAircraftReady=[hangarArtReady,hangarArtReady.then(()=>Promise.all(PAINTED_KEYS.filter(k=>!HANGAR_KEYS.includes(k)).map(loadPainted)))];
 // The four aces once cut from this 2x2 atlas now ship as individual PNGs and are
 // loaded through individualAircraftReady; keeping the list empty skips the atlas

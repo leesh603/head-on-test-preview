@@ -1,8 +1,8 @@
-import {applySeaColor} from './sea-colors.js?v=perf5';
-import {fx} from './fx-art.js?v=perf5';
-import {GALLIPOLI_PARTS,GALLIPOLI_SECTORS,gallipoliObjective,GALLIPOLI_HANGAR} from './gallipoli-boss.js?v=perf5';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=perf5';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=perf5';
+import {applySeaColor} from './sea-colors.js?v=splash1';
+import {fx} from './fx-art.js?v=splash1';
+import {GALLIPOLI_PARTS,GALLIPOLI_SECTORS,gallipoliObjective,GALLIPOLI_HANGAR} from './gallipoli-boss.js?v=splash1';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=splash1';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=splash1';
 export const GALLIPOLI_ASSETS=Object.freeze({guns:'gallipoli-siege-guns.webp',facilities:'gallipoli-siege-facilities.webp',base:'gallipoli-siege-bases.webp',star:'gallipoli-siege-star.webp',wing:'gallipoli-siege-wing.webp',hangar:'maan-workshop-r2.webp',ground:'gallipoli-siege-ground.webp',coast:'asset-bank/terrain/gallipoli_coast.webp',sea:'terrain-sea359r2.webp',central:'gallipoli-overlay-central.webp',entente:'gallipoli-overlay-entente.webp'});
 const images=new Map(),tiles=new Map(),pending=new Map();
 function load(k){if(!GALLIPOLI_ASSETS[k])return null;if(images.has(k))return images.get(k);const im=new Image();images.set(k,im);im.decoding='async';im.crossOrigin='anonymous';pending.set(k,new Promise((resolve,reject)=>{im.onload=()=>{if(!im.naturalWidth){reject(new Error('Gallipoli empty asset '+k));return}(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))};im.onerror=()=>reject(new Error('Gallipoli asset '+k));}));im.src='./'+GALLIPOLI_ASSETS[k]+'?v=perf5';return im;}
