@@ -123,7 +123,7 @@ function drawLivens(c,b){
    drawLivensPart(c,0,destroyed?2:state(p),side*155,y,156);
   }
  }
- const broken=b.parts?.filter?b.parts.filter(p=>p.destroyed).length:[...b.parts?.values?.()||[]].filter(p=>p.destroyed).length;
+ let broken=0;for(const _p of (b.parts?.values?b.parts.values():(b.parts||[])))if(_p.destroyed)broken++;
  drawLivensPart(c,2,destroyed||b.coreVulnerable?2:broken>=2?1:0,0,-8,166);
  if(b.coreVulnerable&&!destroyed){const core=trenchBossArt.livensCoreExposed;if(core.naturalWidth)c.drawImage(core,34,27,37,40,-25,-42,50,54);}
  drawLivensPart(c,1,destroyed?2:state(part('pressure')),0,72,124);
@@ -134,7 +134,7 @@ function drawLivens(c,b){
  c.restore();
 }
 function drawMinenwerfer(c,b){
- const parts=b.parts?.filter?b.parts:[...b.parts?.values?.()||[]];
+ const parts=b.parts?.values?b.parts.values():(b.parts||[]);
  c.save();c.imageSmoothingEnabled=true;
  for(const p of parts){
   const x=p.x,y=p.y,dead=b.destroying||p.destroyed,damaged=!dead&&p.hp<=p.maxHp*.5;
@@ -496,15 +496,16 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
  if(layer!=='bodies')drawMaanWeather(c,g);
  for(const body of addon.stages.encounter?.bodies.values()||[]){if(body.rail129&&layer!=='hazards'){const r=body.rail129;c.save();drawRailTrack(c,r,bossArt.parisGun);drawRailDamage(c,r,bossArt.parisGun);if(r.phase==='aim'&&r.target&&body.kind!=='fliegerzug'&&!body.ruralRailBoss){const radius=body.kind==='lincomparable'?165:108;c.strokeStyle='#e6bb80';c.lineWidth=2;c.setLineDash([8,7]);c.beginPath();c.arc(r.target.x,r.target.y,radius,0,Math.PI*2);c.stroke();c.setLineDash([]);const a=Math.atan2(body.y-r.target.y,body.x-r.target.x);c.beginPath();c.moveTo(r.target.x+Math.cos(a)*radius,r.target.y+Math.sin(a)*radius);c.lineTo(r.target.x+Math.cos(a)*(radius+58),r.target.y+Math.sin(a)*(radius+58));c.stroke();}c.restore();}if(body.support129?.projectiles&&layer!=='bodies')drawSupportEffects(c,body.support129,{screenScale:z});}
  const ring=(x,y,r,color)=>{c.strokeStyle=color;c.lineWidth=2;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.stroke();};
+ const bodyOf=match=>{for(const _v of addon.stages.encounter?.bodies?.values?.()||[])if(match(_v))return _v;return null};
  renderStageBossLayer(addon,{
   drawBody(b){if(layer==='hazards')return;
    if(b.assetKey.startsWith('jutland-')){const body=addon.stages.encounter.bodies.get(b.id);if(body)drawJutlandBody(c,body,body.deathAge||0);return;}
-   if(b.assetKey==='gallipoli-fortress'){const body=[...addon.stages.encounter.bodies.values()].find(v=>v.kind===b.assetKey);if(body)drawGallipoliBoss(c,body);return;}
+   if(b.assetKey==='gallipoli-fortress'){const body=bodyOf(v=>v.kind===b.assetKey);if(body)drawGallipoliBoss(c,body);return;}
    if(b.sommeBoss){drawSommeBoss(c,b);return;}
    if(b.assetKey==='armored-harbor-fortress'){const parts=harborArt.parts;drawHarborFortress(c,b,{base:harborArt.base,pivot:harborArt.cranePivot,ammo:parts.naturalWidth?null:harborArt.ammo,facility:parts.naturalWidth?null:harborArt.facility,guns:harborArt.guns,parts});return;}
    if(b.assetKey.startsWith('hms-zubian')){drawZubianShip(c,b,zubianArt);return;}
    if(b.assetKey==='gik'||b.assetKey==='ca4'){drawAlpsBomber(c,b,bossArt[b.assetKey],alpsArt[b.assetKey]);return;}
-   if(b.assetKey==='fort-douaumont'||b.assetKey==='fort-souville'){const body=[...addon.stages.encounter.bodies.values()].find(v=>v.kind===b.assetKey);if(body)drawVerdunFort(c,body,b);return;}
+   if(b.assetKey==='fort-douaumont'||b.assetKey==='fort-souville'){const body=bodyOf(v=>v.kind===b.assetKey);if(body)drawVerdunFort(c,body,b);return;}
    if(['wustenpanzer','sinai-landship','maan-rolls-royce'].includes(b.assetKey)){const live=addon.stages.encounter?.bodies.values();for(const body of live||[])if(body.kind===b.assetKey&&body.x===b.x&&body.y===b.y){drawMaanBoss(c,body);break;}return;}
    if(b.assetKey==='paris-searchlight-fortress'||b.assetKey==='paris-staaken-rvi'){drawParisBoss(c,b,addon);return;}
    if(b.assetKey==='gotha-raider'){drawGotha(c,b);return;}
@@ -514,7 +515,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    if(b.assetKey==='flak-tower-cell'){drawCityFlak(c,b);return;}
    if(b.assetKey==='drachen-net'){const lane=b.cityMineLane;if(lane?.remaining>0){c.save();c.strokeStyle='#a4c8be99';c.lineWidth=1.5;c.setLineDash([9,8]);for(const side of [-1,1]){c.beginPath();c.moveTo(lane.x+side*lane.width/2,lane.top);c.lineTo(lane.x+side*lane.width/2,lane.bottom);c.stroke();}c.restore();}drawDrachenRig(c,b,[bossArt.drachenLeft,bossArt.drachenCenter,bossArt.drachenRight]);return;}
    if(drawRegionalBossBody(c,b))return;
-   if(b.assetKey==='sms-stuttgart'){const body=[...addon.stages.encounter.bodies.values()].find(v=>v.support129?.projectiles);if(body&&supportImages129.ship.naturalWidth&&supportImages129.cover.naturalWidth){
+   if(b.assetKey==='sms-stuttgart'){const body=bodyOf(v=>v.support129?.projectiles);if(body&&supportImages129.ship.naturalWidth&&supportImages129.cover.naturalWidth){
     c.save();c.imageSmoothingEnabled=true;
     const ship=body.support129;
     if(b.destroying)drawSinkingShip(c,{key:b,x:ship.x,y:ship.y,yaw:ship.angle||0,width:ship.width*.46,height:ship.height,age:b.destructionAge,duration:b.destructionDuration},k=>drawSupportShip(k,{...ship,dead:false,wreck:true,destroying:true},supportImages129));
@@ -639,7 +640,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
   },
   drawPart(p){if(p.bodyKey.startsWith('jutland-'))return;if(p.bodyKey==='gallipoli-fortress')return;if(layer==='hazards'||p.sommeBoss||p.bodyKey==='fort-douaumont'||p.bodyKey==='fort-souville')return;
    if(p.kind==='engine'&&!p.hittable&&!p.destroyed)return;
-   if(p.partId==='capsule'){c.strokeStyle='#a0aa9e';c.beginPath();const body=[...addon.stages.encounter.bodies.values()][0];c.moveTo(body.x,body.y+30);c.lineTo(p.x,p.y);c.stroke();}
+   if(p.partId==='capsule'){c.strokeStyle='#a0aa9e';c.beginPath();const body=bodyOf(()=>true);c.moveTo(body.x,body.y+30);c.lineTo(p.x,p.y);c.stroke();}
    drawBossPart(c,p,ring,g?.t||0);
   },
    drawHazard(h){if(layer==='bodies')return;
