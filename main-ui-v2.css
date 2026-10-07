@@ -127,11 +127,31 @@ body.astra-ui #start .astra-sortie-arrow{display:block;width:34px;height:34px;ma
 .main-operations [data-action]:hover,.main-operations [data-action="coop"].active{color:#f0d196;background:#d7cbad09}
 .operation-label-short{display:none}
 .astra-mobile-settings{display:none}
-.main-settings{position:fixed;inset:78px 26px auto auto;z-index:100;width:270px;padding:22px;border:1px solid #a1977955;border-radius:4px;background:linear-gradient(125deg,#253029,#101916);color:#e9e4d4;box-shadow:0 15px 70px #000b;pointer-events:auto}
-.main-settings strong{display:block;margin-bottom:12px;font-size:17px}
-.main-settings button{display:block;width:100%;margin:8px 0;min-height:44px;border:1px solid #c2bca03b;background:#0d14117a;color:#e7e2cf;text-align:left;padding:10px}
-.main-settings label{display:block;margin-top:16px}
-.main-settings select{width:100%;min-height:40px;background:#16221a;color:#ddd6c0}
+.main-settings{position:fixed;inset:78px 26px auto auto;z-index:100;width:350px;padding:16px;border:1px solid #a99d7a66;border-radius:9px;background:linear-gradient(145deg,#202c25fa,#0c1512fd);color:#ece6d5;box-shadow:0 24px 80px #000c,inset 0 1px #fff1;pointer-events:auto;backdrop-filter:blur(14px)}
+.main-settings-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:2px 3px 13px;margin-bottom:3px;border-bottom:1px solid #b9ad8a33}
+.main-settings-head strong{font:700 18px/1.2 var(--astra-type);letter-spacing:-.02em}
+.main-settings-head small{font:600 8px/1.2 var(--astra-numeric);letter-spacing:.12em;color:#a99f85;text-align:right}
+.main-settings .setting-row{box-sizing:border-box;display:grid;width:100%;grid-template-columns:42px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:62px;margin:0;padding:9px 7px;border:0;border-bottom:1px solid #c2bca022;border-radius:0;background:transparent;color:#e7e2cf;text-align:left;cursor:pointer}
+.main-settings button.setting-row:hover{background:#d7cbad0b;color:#fff3d5}
+.main-settings .setting-row:last-child{border-bottom:0}
+.main-settings .setting-icon{display:grid;place-items:center;width:38px;height:38px;border:1px solid #b9ac8552;border-radius:5px;background:#0b1210a6;color:#d9bd80;box-shadow:inset 0 1px #fff1}
+.main-settings .setting-icon svg{display:block;width:22px;height:22px}
+.main-settings .setting-copy{display:block;min-width:0}
+.main-settings .setting-copy b{display:block;margin:0 0 3px;font:650 13px/1.25 var(--astra-type);color:#f2ecdc}
+.main-settings .setting-copy small{display:block;font:400 10px/1.25 var(--astra-type);color:#9fa79b;white-space:normal}
+.main-settings .setting-value{display:inline-flex;align-items:center;justify-content:center;min-width:50px;min-height:28px;padding:0 9px;border:1px solid #a99e7c48;border-radius:14px;background:#080e0c9e;color:#b7b7aa;font:700 10px/1 var(--astra-numeric);letter-spacing:.05em;white-space:nowrap}
+.main-settings .setting-row.is-on .setting-value{border-color:#8fa68b73;background:#31463780;color:#d9ebd1}
+.main-settings label.setting-row{margin:0}
+.main-settings .setting-language select{width:auto;min-width:72px;min-height:30px;padding:0 25px 0 10px;border:1px solid #a99e7c48;border-radius:14px;background:#101b16;color:#eee7d4;font:700 10px var(--astra-numeric)}
+.main-settings .setting-language>span.sr-only{display:none}
+@media(max-width:720px){
+ .main-settings{inset:auto 10px calc(69px + env(safe-area-inset-bottom)) 10px;width:auto;max-height:min(70dvh,480px);overflow:auto;padding:13px 14px 10px;border-radius:12px;background:linear-gradient(155deg,#202c25fe,#0a1210fe);box-shadow:0 -18px 55px #000d,inset 0 1px #fff1}
+ .main-settings-head{position:sticky;top:-13px;z-index:1;margin:0 -2px 3px;padding:13px 5px 12px;background:#17221df5}
+ .main-settings .setting-row{min-height:59px;padding:8px 4px;grid-template-columns:40px minmax(0,1fr) auto}
+ .main-settings .setting-icon{width:36px;height:36px}
+ .main-settings .setting-copy b{font-size:13px}
+ .main-settings .setting-copy small{font-size:9px}
+}
 body.astra-ui:not(.playing) #coopPanel:not(.hidden){grid-column:1/-1;grid-row:2;position:relative;inset:auto;width:calc(100% - 64px);max-width:none;margin:12px 32px;z-index:2;background:#14221bf5;border:1px solid #8b906866;padding:20px;color:#e1dbc9}
 body.astra-ui.coop-selected .astra-lower{grid-row:3}
 /* Active combat: inset seams and legible live instruments. */
@@ -1082,3 +1102,14 @@ body.astra-ui #skillCutin .cutin-caption strong{font-size:20px;font-weight:800;c
  body.astra-ui #skillCutin .cutin-caption strong{font-size:16px}
 }
 @media(max-width:720px),(pointer:coarse){body.astra-ui.playing.gamepad-active #touch #stick{display:none!important}}
+
+/* Settings dialog: same row language as the mobile hangar settings. */
+body.astra-ui #modal.settings-modal151 .modal-card{width:min(520px,100%);padding:20px}
+body.astra-ui #modal.settings-modal151 #modalText{margin:4px 0 12px}
+body.astra-ui #modal.settings-modal151 #modalActions{display:grid;gap:0;border-top:1px solid #b9ad8a2f}
+body.astra-ui #modal.settings-modal151 #modalActions button.settings-row151{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:center;gap:12px;width:100%;min-height:58px;margin:0;padding:8px 5px;border:0;border-bottom:1px solid #b9ad8a25;border-radius:0;background:transparent;color:#eee8d7;text-align:left}
+body.astra-ui #modal.settings-modal151 #modalActions button.settings-row151:hover{background:#d7cbad0b}
+.settings-row151 .setting-icon151{display:grid;place-items:center;width:36px;height:36px;border:1px solid #b9ac8552;border-radius:5px;background:#0b1210a6;color:#d9bd80}
+.settings-row151 .setting-icon151 svg{width:21px;height:21px}
+.settings-row151 .setting-label151{display:block;font:650 13px/1.25 var(--astra-type)}
+@media(max-width:720px){body.astra-ui #modal.settings-modal151 .modal-card{padding:17px 16px}body.astra-ui #modal.settings-modal151 #modalActions button.settings-row151{min-height:56px}}

@@ -30,11 +30,35 @@ if(hangar){
  const settings=document.createElement('section');
  settings.id='mainSettings';settings.className='main-settings';settings.hidden=true;
  settings.setAttribute('aria-label','Settings');
- const settingsTitle=document.createElement('strong');
- const soundButton=document.createElement('button');soundButton.type='button';soundButton.dataset.setting='sound';
- const hiFpsButton=document.createElement('button');hiFpsButton.type='button';hiFpsButton.dataset.setting='hifps';
- const helpButton=document.createElement('button');helpButton.type='button';helpButton.dataset.setting='help';
- settings.append(settingsTitle,soundButton,hiFpsButton,helpButton);
+ const settingSvg=path=>{const icon=document.createElement('span');icon.className='setting-icon';icon.setAttribute('aria-hidden','true');icon.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;return icon};
+ const settingPaths={
+  sound:'<path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M16 9a4 4 0 0 1 0 6m2.5-9a8 8 0 0 1 0 12"/>',
+  hifps:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 13 4-4"/><path d="M7 17h10"/>',
+  help:'<circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.5 2.5 0 1 1 3.3 2.4c-.8.3-1.1.8-1.1 1.6v.3M12 17h.01"/>',
+  language:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.2 2.4 3.3 5.4 3.3 9S14.2 18.6 12 21c-2.2-2.4-3.3-5.4-3.3-9S9.8 5.4 12 3Z"/>'
+ };
+ const makeSetting=(action,path)=>{
+  const button=document.createElement('button');button.type='button';button.dataset.setting=action;button.className='setting-row';
+  const copy=document.createElement('span');copy.className='setting-copy';
+  const name=document.createElement('b'),desc=document.createElement('small');copy.append(name,desc);
+  const value=document.createElement('span');value.className='setting-value';
+  button.append(settingSvg(path),copy,value);return button;
+ };
+ const settingsHead=document.createElement('div');settingsHead.className='main-settings-head';
+ const settingsTitle=document.createElement('strong'),settingsSubtitle=document.createElement('small');settingsHead.append(settingsTitle,settingsSubtitle);
+ const soundButton=makeSetting('sound',settingPaths.sound);
+ const hiFpsButton=makeSetting('hifps',settingPaths.hifps);
+ const helpButton=makeSetting('help',settingPaths.help);
+ const lang=$('localeSelect')?.closest('label');
+ if(lang){
+  lang.classList.add('setting-row','setting-language');
+  const copy=document.createElement('span');copy.className='setting-copy';
+  const name=document.createElement('b'),desc=document.createElement('small');copy.append(name,desc);
+  lang.prepend(settingSvg(settingPaths.language),copy);
+ }
+ settings.append(settingsHead,soundButton,hiFpsButton);
+ if(lang)settings.append(lang);
+ settings.append(helpButton);
  hangar.append(nav,settings);
 
  const labels=()=>{
@@ -48,9 +72,14 @@ if(hangar){
   });
   nav.setAttribute('aria-label',en?'Main operations':'주요 메뉴');
   settings.setAttribute('aria-label',t('settings.title'));settingsTitle.textContent=t('settings.title');
-  soundButton.textContent=$('sound')?.textContent||t('menu.soundOff');helpButton.textContent=t('menu.help');
+  settingsSubtitle.textContent=en?'AUDIO · DISPLAY · CONTROL':'오디오 · 화면 · 조작';
+  const setRow=(button,name,desc,value,on)=>{button.querySelector('.setting-copy b').textContent=name;button.querySelector('.setting-copy small').textContent=desc;button.querySelector('.setting-value').textContent=value;button.classList.toggle('is-on',!!on);};
+  const soundText=$('sound')?.textContent||t('menu.soundOff'),soundOn=!/OFF/i.test(soundText);
+  setRow(soundButton,en?'Sound':'소리',en?'Master game audio':'전체 게임 사운드',soundOn?'ON':'OFF',soundOn);
   let hiFps=false;try{hiFps=localStorage.getItem('headon.hiFps')==='1'}catch(_){}
-  hiFpsButton.textContent=hiFps?t('settings.hiFpsOn'):t('settings.hiFpsOff');
+  setRow(hiFpsButton,en?'Frame rate':'프레임',en?'Rendering refresh rate':'화면 갱신 속도',hiFps?'60 FPS':'30 FPS',hiFps);
+  setRow(helpButton,en?'Controls':'조작법',en?'Steering and combat controls':'조종 · 전투 버튼 안내','›',false);
+  if(lang){lang.querySelector('.setting-copy b').textContent=en?'Language':'언어';lang.querySelector('.setting-copy small').textContent=en?'Interface language':'인터페이스 언어';}
  };
  const sync=()=>{
   labels();
