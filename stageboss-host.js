@@ -9,7 +9,7 @@ import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=ui5';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=ui5';
 import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=ui5';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=ui5';
-import {bossSoundFor} from './boss-feedback.js?v=ui5&rail=1';
+import {bossSoundFor} from './boss-feedback.js?v=ui5&rail=1&hints=1';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=ui5&rail=1';
 import {advanceCambraiBug} from './cambrai-bug-flight.js?v=ui5';
 import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=ui5';
