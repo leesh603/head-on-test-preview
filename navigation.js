@@ -1,7 +1,8 @@
 // Mission coordinates remain in world space; the camera never changes the target.
+const _ptShare=[0,0];
 export function missionNavigation(g){
  if(g?.mode!=='campaign')return null;
- const distance=o=>Math.hypot(o.x-g.x,o.y-g.y),nearest=list=>[...list].sort((a,b)=>distance(a)-distance(b))[0];
+ const distance=o=>Math.hypot(o.x-g.x,o.y-g.y),nearest=list=>{let best=null,bd=Infinity;for(const o of list){const d=distance(o);if(d<bd){bd=d;best=o}}return best};
  const zones=g.zones.filter(z=>!z.done),escort=g.convoy.filter(c=>c.hp>0&&!c.escaped),targets=g.enemies.filter(e=>e.missionTarget&&e.hp>0);
  let o=zones.find(z=>z.kind==='extract')||nearest(zones),kind=o?.kind,label,instruction;
  if(o){label={photo:'사진정찰 구역',hold:'관측 유지 구역',checkpoint:'통과 지점',extract:'안전 이탈 구역'}[kind];instruction=kind==='checkpoint'?'원을 통과하세요':`원 안에서 ${Math.max(0,(o.required||0)-o.progress).toFixed(1)}초 유지`;}
@@ -22,7 +23,7 @@ export function drawMissionRadar(c,g,size=224){
  c.clearRect(0,0,size,size);c.save();c.fillStyle='#13251fea';c.fillRect(0,0,size,size);c.strokeStyle='#ced5b62b';c.lineWidth=1;
  for(const k of [.5,1]){c.beginPath();c.arc(mid,mid,r*k,0,Math.PI*2);c.stroke()}
  c.beginPath();c.moveTo(mid,16);c.lineTo(mid,size-16);c.moveTo(16,mid);c.lineTo(size-16,mid);c.stroke();
- const point=o=>{let dx=(o.x-g.x)/range*r,dy=(o.y-g.y)/range*r,k=Math.min(1,r/(Math.hypot(dx,dy)||1));return [mid+dx*k,mid+dy*k]};
+ const point=o=>{let dx=(o.x-g.x)/range*r,dy=(o.y-g.y)/range*r,k=Math.min(1,r/(Math.hypot(dx,dy)||1));_ptShare[0]=mid+dx*k;_ptShare[1]=mid+dy*k;return _ptShare};
  const dot=(o,color,n=3)=>{const[x,y]=point(o);c.fillStyle=color;c.fillRect(x-n,y-n,n*2,n*2)};
  for(const e of g.enemies)if(e.hp>0&&Math.hypot(e.x-g.x,e.y-g.y)<range)dot(e,e.missionTarget?'#ffd17f':'#df806c');
  for(const f of g.hostileMinefields||[]){const[x,y]=point(f);c.strokeStyle='#df806c';c.beginPath();c.arc(x,y,Math.max(4,f.radius/range*r),0,6.283);c.stroke()}

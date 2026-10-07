@@ -7,10 +7,12 @@ import {drawEquipment} from './equipment.js?v=perf4';
 registerCampaignSpriteAliases(SPRITE_ALIASES);
 import {drawBattlefieldSprite} from './battlefield-art.js?v=perf4';
 import {missionNavigation,navigationScreenPoint} from './navigation.js?v=perf4';
+const _ptShare=[0,0],_twCache=new Map();
+const _tw=(c,txt)=>{const k=c.font+'\u0000'+txt;let w=_twCache.get(k);if(w===undefined){w=c.measureText(txt).width;_twCache.set(k,w)}return w};
 export function drawCampaign(c,g,W,H){
- if(g?.mode!=='campaign')return;const point=o=>[o.x-g.x+W/2,o.y-g.y+H/2];
+ if(g?.mode!=='campaign')return;const point=o=>{_ptShare[0]=o.x-g.x+W/2;_ptShare[1]=o.y-g.y+H/2;return _ptShare};
  c.save();c.font='bold 12px sans-serif';c.textAlign='center';c.lineWidth=2;
- const label=(x,y,text,color='#ffe0a1')=>{const width=c.measureText(text).width;c.fillStyle='#15221ee8';c.fillRect(x-width/2-6,y-12,width+12,18);c.fillStyle=color;c.fillText(text,x,y)};
+ const label=(x,y,text,color='#ffe0a1')=>{const width=_tw(c,text);c.fillStyle='#15221ee8';c.fillRect(x-width/2-6,y-12,width+12,18);c.fillStyle=color;c.fillText(text,x,y)};
  const marker=(o,text,color)=>{const[x,y]=point(o);if(x>35&&x<W-35&&y>208&&y<H-170)label(x,y-24,text,color)};
  for(const cloud of g.clouds){const[x,y]=point(cloud);c.globalAlpha=.2;c.fillStyle='#e9ece5';c.beginPath();c.arc(x,y,cloud.r,0,Math.PI*2);c.fill();c.globalAlpha=1;if(Math.hypot(cloud.x-g.x,cloud.y-g.y)<cloud.r)label(W/2,H/2+65,'구름 은폐 · 적 조준 약화','#d8e8f0')}
  for(const h of g.hazards){const[x,y]=point(h);c.save();c.translate(x,y);c.rotate(h.angle);c.fillStyle=h.warning>0?'#f6c76044':'#ed603966';c.fillRect(-h.width,-H,h.width*2,H*2);c.setLineDash([8,7]);c.strokeStyle='#ffd482';c.strokeRect(-h.width,-H,h.width*2,H*2);c.restore();if(h.warning>0)label(x,y,'탄막 예고 '+h.warning.toFixed(1)+'초')}
