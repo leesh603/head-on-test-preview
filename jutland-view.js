@@ -1,16 +1,16 @@
-import {applySeaColor} from './sea-colors.js?v=ui1';
-import {fleetGunStations} from './naval-faction-atlas.js?v=ui1';
-import {drawFactionHull,prepareFactionHulls} from './naval-faction-art.js?v=ui1';
-import {drawShipWater,drawTorpedo,drawFactionMark} from './naval-water.js?v=ui1';
-import {drawSinkingShip} from './ship-sinking.js?v=ui1';
-import {fx} from './fx-art.js?v=ui1';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=ui1';
-import {jutlandRotate} from './jutland-boss.js?v=ui1';
-import {jutlandPoint} from './jutland-route.js?v=ui1';
-import {JUTLAND_RECTS,JUTLAND_HULL_MASKS} from './jutland-atlas.js?v=ui1';
+import {applySeaColor} from './sea-colors.js?v=ui2';
+import {fleetGunStations} from './naval-faction-atlas.js?v=ui2';
+import {drawFactionHull,prepareFactionHulls} from './naval-faction-art.js?v=ui2';
+import {drawShipWater,drawTorpedo,drawFactionMark} from './naval-water.js?v=ui2';
+import {drawSinkingShip} from './ship-sinking.js?v=ui2';
+import {fx} from './fx-art.js?v=ui2';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=ui2';
+import {jutlandRotate} from './jutland-boss.js?v=ui2';
+import {jutlandPoint} from './jutland-route.js?v=ui2';
+import {JUTLAND_RECTS,JUTLAND_HULL_MASKS} from './jutland-atlas.js?v=ui2';
 export const JUTLAND_ASSETS=Object.freeze({sea:'jutland-sea.webp',battleship:'jutland-battleship-neutral.webp',cruiser:'jutland-cruiser.webp',parts:'jutland-parts.webp',central:'boss-zeppelin-l7094.webp',entente:'boss-hma2394.webp'});
 const images=new Map(),pending=new Map();let water=null;
-function load(key){if(images.has(key))return images.get(key);const im=new Image();images.set(key,im);im.crossOrigin='anonymous';im.decoding='async';pending.set(key,new Promise((resolve,reject)=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))};im.onerror=()=>reject(new Error('Jutland asset '+key));}));im.src='./'+JUTLAND_ASSETS[key]+'?v=ui1';return im;}
+function load(key){if(images.has(key))return images.get(key);const im=new Image();images.set(key,im);im.crossOrigin='anonymous';im.decoding='async';pending.set(key,new Promise((resolve,reject)=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))};im.onerror=()=>reject(new Error('Jutland asset '+key));}));im.src='./'+JUTLAND_ASSETS[key]+'?v=ui2';return im;}
 export function prepareJutlandAssets(region){if(region!==16){images.clear();pending.clear();water=null;return Promise.resolve();}for(const key of Object.keys(JUTLAND_ASSETS))load(key);return Promise.all([...pending.values(),prepareFactionHulls()]).then(()=>{if(!images.has('sea'))return;const im=images.get('sea'),cv=document.createElement('canvas');cv.width=im.naturalWidth;cv.height=im.naturalHeight;const c=cv.getContext('2d',{willReadFrequently:true});c.drawImage(im,0,0);const p=periodicSandPixels(c.getImageData(0,0,cv.width,cv.height).data,cv.width,cv.height);water=document.createElement('canvas');water.width=p.width+2;water.height=p.height+2;const tc=water.getContext('2d'),data=tc.createImageData(p.width,p.height);data.data.set(p.data);tc.putImageData(data,1,1);applySeaColor(tc,'jutland',water.width,water.height);tc.drawImage(water,p.width,1,1,p.height,0,1,1,p.height);tc.drawImage(water,1,1,1,p.height,p.width+1,1,1,p.height);tc.drawImage(water,0,p.height,p.width+2,1,0,0,p.width+2,1);tc.drawImage(water,0,1,p.width+2,1,0,p.height+1,p.width+2,1);});}
 function sprite(c,key,state,x,y,height,angle=0,row=0,pivot=.5){const im=load(key);if(!im.naturalWidth)return;const rect=JUTLAND_RECTS[key]?.[key==='parts'?row*3+state:state]||[0,0,im.naturalWidth,im.naturalHeight],width=height*rect[2]/rect[3];c.save();c.translate(x,y);c.rotate(angle);if(key==='battleship'){const mask=JUTLAND_HULL_MASKS[state];c.beginPath();mask.forEach(([u,v],i)=>i?c.lineTo(u*width,v*height):c.moveTo(u*width,v*height));c.closePath();c.clip();}c.drawImage(im,...rect,-width/2,-height*pivot,width,height);c.restore();}
 export function paintJutland(c,g,cx,cy,w,h){c.fillStyle='#263e4b';c.fillRect(0,0,w,h);if(water)for(const q of maanGroundTiles(cx,cy,w,h,water.width-2,water.height-2))c.drawImage(water,q.x-1,q.y-1,water.width,water.height);const r=g.jutlandRoute;if(!r)return;c.save();c.translate(w/2-cx,h/2-cy);

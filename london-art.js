@@ -1,7 +1,7 @@
-import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=ui1';
-import {fx} from './fx-art.js?v=ui1';
-import {drawAttachedApron} from './london-apron369.js?v=ui1';
-const paths={gotha:'./gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=ui1',apronDamage:'./boss-london-apron-registered-damage369.png?v=ui1'};
+import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=ui2';
+import {fx} from './fx-art.js?v=ui2';
+import {drawAttachedApron} from './london-apron369.js?v=ui2';
+const paths={gotha:'./gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=ui2',apronDamage:'./boss-london-apron-registered-damage369.png?v=ui2'};
 let art={},artLoadP=null;
 export function releaseLondonArt(){art={};artLoadP=null;}
 export function prepareLondonArt(){return Promise.all([prepareGroundEnemyArt(),...Object.entries(paths).map(([key,path])=>new Promise(resolve=>{const im=new Image();art[key]=im;im.decoding='async';im.onerror=resolve;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.src=path;}))]);}
