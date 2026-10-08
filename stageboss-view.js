@@ -148,10 +148,11 @@ function drawMinenwerfer(c,b){
  // Each gun position renders its own complete emplacement image — three full
  // installations spaced apart, not slices of one shared mural.
  const scale=b.trenchScale||1,im=trenchBossArt.minenComposite;
- const xs=[...parts].map(p=>p.x).sort((a,z)=>a-z);let spacing=186;for(let i=1;i<xs.length;i++)spacing=Math.min(spacing,xs[i]-xs[i-1]);
- const dw=Math.max(180,Math.min(330,spacing*1.18))*scale;
- const drawInstallation=(image,p)=>{if(!(image?.naturalWidth||image?.width))return;const dh=dw*(image.height||image.naturalHeight||1)/(image.width||image.naturalWidth||500);
-  c.drawImage(image,p.x-dw/2,p.y-dh/2,dw,dh);};
+ // Each emplacement paints at the full authored size; parts sit far enough
+ // apart that the three installations stay visually separate.
+ const dw=500*scale,dh=375*scale;
+ const silhouette=[[8,92],[168,71],[168,40],[325,40],[325,72],[490,92],[490,260],[326,260],[326,308],[318,324],[180,324],[174,274],[8,274]];
+ const drawInstallation=(image,p)=>{if(!(image?.naturalWidth||image?.width))return;c.save();c.beginPath();for(let i=0;i<silhouette.length;i++){const [sx,sy]=silhouette[i],px=p.x+(sx-250)*1.2*scale,py=p.y+(sy-187.5)*1.2*scale;i?c.lineTo(px,py):c.moveTo(px,py);}c.closePath();c.clip();c.drawImage(image,p.x-dw/2,p.y-dh/2,dw,dh);c.restore();};
  for(const p of parts){
   const x=p.x,y=p.y,dead=b.destroying||p.destroyed,damaged=!dead&&p.hp<=p.maxHp*.5;
   const state=dead?'grayscale(.72) brightness(.55)':damaged?'saturate(.72) brightness(.82)':null;

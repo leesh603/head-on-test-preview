@@ -821,7 +821,7 @@ export class MinenwerferBattery extends PatternBoss {
   constructor(options){
     const originalHp=options.tuning.maxHp,gunHp=originalHp*.4,tuning={...options.tuning,maxHp:gunHp*3};
     super({...options,tuning,coreRadius:64,kind:'minenwerfer-battery',parts:[
-      {id:'gun-left',x:-186,y:16,radius:75,maxHp:gunHp},{id:'main-gun',x:0,y:12,radius:94,maxHp:gunHp},{id:'gun-right',x:180,y:16,radius:75,maxHp:gunHp}
+      {id:'gun-left',x:-560,y:16,radius:75,maxHp:gunHp},{id:'main-gun',x:0,y:12,radius:94,maxHp:gunHp},{id:'gun-right',x:560,y:16,radius:75,maxHp:gunHp}
     ]});
     this.phase='cross-barrage';this.coreVulnerable=true;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
     this.shotSerial=0;this.baseVolleyCount=0;this.specialWave=0;this.specialClock=4.2;this._gasTier=3;
@@ -914,7 +914,7 @@ export class MinenwerferBattery extends PatternBoss {
   }
   update(dt,{players=[],bounds,paused=false}){
     if(this.dead||paused)return;dt=Math.min(dt,.25);this.x=this.anchorX;this.y=this.anchorY;
-    if(!this.trenchScale&&bounds){this.trenchScale=Math.min(1,(bounds.right-bounds.left)*.86/600);for(const p of this.parts.values()){p.x*=this.trenchScale;p.y*=this.trenchScale;p.radius*=this.trenchScale;p.mortarMouth.x*=this.trenchScale;p.mortarMouth.y*=this.trenchScale;}}
+    if(!this.trenchScale&&bounds){this.trenchScale=Math.min(1,((bounds.right-bounds.left)/2-75)/560);for(const p of this.parts.values()){p.x*=this.trenchScale;p.y*=this.trenchScale;p.radius*=this.trenchScale;p.mortarMouth.x*=this.trenchScale;p.mortarMouth.y*=this.trenchScale;}}
     const guns=this.liveGuns();if(!guns.length)return;this.discoveryClock=Math.max(0,this.discoveryClock-dt);
     for(const gun of this.parts.values()){gun.mortarFlash=Math.max(0,gun.mortarFlash-dt);gun.mortarSmoke=Math.max(0,gun.mortarSmoke-dt);}
     // Every pit already exists at its authored world pose. Visibility reveals
