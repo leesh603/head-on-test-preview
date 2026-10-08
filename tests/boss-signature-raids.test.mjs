@@ -36,7 +36,7 @@ const {Game}=await import('../engine.js?v=tame3&rail=18');
 const {enableStageBoss,endStageBossFrame}=await import('../stageboss-host.js?v=tame3&rail=18');
 function strikeTrial(rollAt){
  const g=new Game('spad','fonck',()=>.5);g.viewWidth=390;g.viewHeight=844;g.invuln=0;enableStageBoss(g,{teamFaction:'entente'});g.stageBoss.stages.stageIndex=4;
- const e=g.stageBoss.startBoss({x:0,y:-100}),b=e.bodies.values().next().value;b.update=()=>{};
+ const e=g.stageBoss.startBoss({x:0,y:-100}),b=e.bodies.values().next().value;b.update=()=>{};b.basicClock=Infinity;
  impactPulse(b,{x:g.x,y:g.y,radius:90,warning:1.25,visual:'city-flak-shell',tag:'evade-trial'});
  const initial=g.hp;let rolled=false;
  // Hold position deliberately to isolate the real Game.evade immunity from
@@ -52,7 +52,7 @@ test('actual host heavy impact punishes ignoring the tell, precise evade negates
 test('heavy mine chain uses real shootable mines; early destruction prevents its finishing impact',()=>{
  for(const shoot of [false,true]){
   const g=new Game('spad','fonck',()=>.5);g.invuln=0;enableStageBoss(g,{teamFaction:'entente'});g.stageBoss.stages.stageIndex=4;
-  const b=g.stageBoss.startBoss({x:0,y:-100}).bodies.values().next().value;b.update=()=>{};
+  const b=g.stageBoss.startBoss({x:0,y:-100}).bodies.values().next().value;b.update=()=>{};b.basicClock=Infinity;
   b.command('spawn-minefield',{points:[{x:g.x,y:g.y}],sourceX:-80,sourceY:-100,warning:1,life:8,fuse:3.2,blastRadius:105,blastHeavy:true,maxMines:26});
   const initial=g.hp;for(let t=0;t<3.6;t+=.02){if(shoot&&t>2.4)g.hostileMinefields[0].mines[0].dead=true;endStageBossFrame(g,.02);}
   if(shoot)assert.equal(g.hp,initial);else assert(initial-g.hp>=g.maxHp*.72);g.stageBoss.dispose();

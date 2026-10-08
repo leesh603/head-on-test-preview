@@ -58,7 +58,7 @@ test('ammo destruction detonates once, removes mine replenishment and reduces a 
  tick(weak,weak.body.craneWarn+3);assert.equal(weak.events.some(e=>e.type==='spawn-minefield'),false);
 });
 test('guns traverse smoothly, each round leaves its actual barrel, and a destroyed gun cancels queued rounds',()=>{
- const f=fixture(),b=f.body;b.elapsed=3;b.craneClock=99;b.timers.set('harbor-guns',0);const shots=[],emit=b.emit;b.emit=e=>{if(e.type==='hazard'&&e.visual==='harbor-shell'){const gun=b.parts.get(e.tag.slice(7));shots.push({...e,actual:harborMuzzle(b,gun)});}emit(e);};
+ const f=fixture(),b=f.body;b.elapsed=3;b.craneClock=99;b.timers.set('harbor-guns',0);const shots=[],emit=b.emit;b.emit=e=>{if(e.type==='hazard'&&e.visual==='harbor-shell'&&!e.tag.endsWith(':basic-fire')){const gun=b.parts.get(e.tag.slice(7));shots.push({...e,actual:harborMuzzle(b,gun)});}emit(e);};
  for(let i=0;i<100;i++){const angles=b.liveGuns().map(p=>p.angle);f.addon.tick(.02,f.frame);b.liveGuns().forEach((p,j)=>assert.ok(Math.abs(p.angle-angles[j])<=.72*.02+1e-8));}
  assert(shots.length>0);const count=shots.length;b.gunBursts=[];b.queueGun(b.parts.get('gun-left'));tick(f,.02);assert.equal(shots.length,count);const cue=f.events.findLast(e=>e.type==='charge-warning');assert.equal(cue.seconds,1.1);destroy(f,'gun-left');tick(f,.7);assert.equal(shots.length,count);for(const shot of shots)assert.ok(Math.hypot(shot.x-shot.actual.x,shot.y-shot.actual.y)<1e-8);
 });
@@ -100,7 +100,7 @@ test('installed fortress waits for the approach, then distant harmless splashes 
  f.frame.players[0].y=700;tick(f,2.5);assert.equal(impacts.length,2);assert(impacts.every(e=>e.damage===0));assert.equal(f.events.some(e=>e.visual==='harbor-shell'),false);assert.deepEqual([b.x,b.y],[100,20]);
 });
 test('blockade lays mines before staggered locked gun warnings, then leaves a counterattack window',()=>{
- const f=fixture(),b=f.body;destroy(f,'gun-left');b.t.patternMultiplier=2;b.elapsed=3;b.startCrane(f.frame.players,f.frame.bounds);const timeline=[],emit=b.emit;b.emit=e=>{if(['spawn-minefield','charge-warning'].includes(e.type)||e.visual==='harbor-shell')timeline.push({...e,at:b.elapsed});emit(e);};
+ const f=fixture(),b=f.body;destroy(f,'gun-left');b.t.patternMultiplier=2;b.elapsed=3;b.startCrane(f.frame.players,f.frame.bounds);const timeline=[],emit=b.emit;b.emit=e=>{if(!e.basicFire&&!e.tag?.endsWith(':basic-fire')&&(['spawn-minefield','charge-warning'].includes(e.type)||e.visual==='harbor-shell'))timeline.push({...e,at:b.elapsed});emit(e);};
  tick(f,b.craneWarn+2.9);const mines=timeline.filter(e=>e.type==='spawn-minefield');assert.equal(mines.length,3);assert(mines[1].at-mines[0].at>.65);assert(mines[2].at-mines[1].at>.65);
  const recoveryStart=b.elapsed;tick(f,4.5);const warnings=timeline.filter(e=>e.type==='charge-warning');assert.equal(warnings.length,3);
  for(let i=0;i<warnings.length;i++){const w=warnings[i],rounds=timeline.filter(e=>e.tag==='harbor-'+w.partId);assert.equal(rounds.length,21);assert(w.at>mines.at(-1).at);assert(rounds[0].at-w.at>=1.09);if(i)assert(w.at-warnings[i-1].at>=.639999);for(const r of rounds){const a=Math.atan2(w.targetY-w.y,w.targetX-w.x);assert(Math.abs(Math.atan2(Math.sin(Math.atan2(r.vy,r.vx)-a),Math.cos(Math.atan2(r.vy,r.vx)-a)))<=.52);}}

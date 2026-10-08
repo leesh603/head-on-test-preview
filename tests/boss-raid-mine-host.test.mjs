@@ -10,7 +10,7 @@ function setup(){
  enableStageBoss(g,{teamFaction:'entente'});g.stageBoss.stages.stageIndex=4;g.region=4;
  const e=g.stageBoss.startBoss({x:0,y:-100}),b=e.bodies.values().next().value;
  // Isolate one real mine from native replenishment, not its host damage path.
- b.update=()=>{};
+ b.update=()=>{};b.basicClock=Infinity;
  b.command('spawn-minefield',{points:[{x:g.x,y:g.y}],sourceX:g.x-80,sourceY:g.y-100,warning:1,life:12,maxMines:26,fuse:3.2});
  return g;
 }
