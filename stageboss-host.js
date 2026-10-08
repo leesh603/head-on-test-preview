@@ -128,6 +128,9 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    handleLondonCue(g,event);
    handleParisCue(g,event);
    const x=event.x??body?.x??g.x,y=event.y??body?.y??g.y;
+   if(event.type==='livens-pressure-rise'){g.shake=Math.max(g.shake,2);g.event('wave','지면 진동 · 매설 노즐의 압력 상승');}
+   if(event.type==='livens-soil-burst'){g.shake=Math.max(g.shake,3);}
+   if(event.type==='trench-discovered'){g.event('wave','지역 보스 발견 · '+BOSS_CATALOG[body?.kind]?.name);}
    const sound=bossSoundFor(event,body?.kind||event.bossId);if(sound)g.event('bossSound',sound);
    if(event.type==='city-mine-lane'&&body?.kind==='drachen-net')for(const f of g.hostileMinefields||[])if(f.encounterId===event.encounterId)for(const m of f.mines)if(Math.abs((m.targetX??m.x)-event.x)<event.width/2){m.dead=true;m.chainHandled=true;}
    if(event.type==='spawn-minefield'){

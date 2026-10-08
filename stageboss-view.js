@@ -127,9 +127,13 @@ function drawLivens(c,b){
  drawLivensPart(c,2,destroyed||b.coreVulnerable?2:broken>=2?1:0,0,-8,166);
  if(b.coreVulnerable&&!destroyed){const core=trenchBossArt.livensCoreExposed;if(core.naturalWidth)c.drawImage(core,34,27,37,40,-25,-42,50,54);}
  drawLivensPart(c,1,destroyed?2:state(part('pressure')),0,72,124);
+ if(b.nozzleRevealed!==false){
  drawTrenchImage(c,trenchBossArt.livensMount,0,-93,116,74);
  const angle=(Number.isFinite(b.nozzleAngle)?b.nozzleAngle:-Math.PI/2)-Math.PI;
  drawTrenchImage(c,trenchBossArt.livensNozzle,0,-98,240,240,angle);
+ }
+ const entry=b.trenchEntry;if(entry?.state==='pressure')fx(c,'dustPuff',0,-98,110,65,0,.22+.08*Math.sin(entry.age*24));
+ if(entry?.revealAge<.7&&b.nozzleRevealed){const q=entry.revealAge/.7;for(let i=0;i<5;i++){const a=i*Math.PI*2/5;fx(c,'debrisShard',Math.cos(a)*(28+q*65),-98+Math.sin(a)*(18+q*44),25,18,a,(1-q)*.75);}fx(c,'dustPuff',0,-98,120+q*90,85+q*45,0,(1-q)*.55);}
  if(destroyed)drawBattlefieldFire(c,{t:b.destructionAge,fireZones:[{x:0,y:0,radius:120,life:Math.max(0,b.destructionDuration-b.destructionAge)}]});
  c.restore();
 }
@@ -696,11 +700,10 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      // Beam pivots at the turret mount; the continuous flame runs from the muzzle.
      const muzzle=h.muzzleLength||85,range=h.length-muzzle;
      if(warning){c.translate(h.x,h.y);c.rotate(h.angle);c.lineCap='round';
-      const half=h.telegraphHalf||Math.atan((h.thickness*2.6)/range);
-      c.fillStyle='#d2aa5a12';c.beginPath();c.moveTo(muzzle,0);c.arc(muzzle,0,range,-half,half);c.closePath();c.fill();
-      c.strokeStyle='#e6bc77';c.lineWidth=1.5;c.setLineDash([7,6]);c.beginPath();c.moveTo(muzzle,0);c.arc(muzzle,0,range,-half,half);c.closePath();c.stroke();c.setLineDash([]);
-      const prog=clamp((h.age-h.delay)/h.warning,0,1);
-      c.strokeStyle='#f2d69b';c.beginPath();c.moveTo(muzzle,0);c.arc(muzzle,0,range*prog,-half,half);c.closePath();c.stroke();}
+      const half=Math.atan((h.thickness*2.6)/range),span=(h.angularSpeed||0)*h.duration,lo=Math.min(0,span)-half,hi=Math.max(0,span)+half;
+      const sector=r=>{c.beginPath();c.arc(0,0,r,lo,hi);c.arc(0,0,muzzle,hi,lo,true);c.closePath();};
+      c.fillStyle='#d2aa5a12';sector(h.length);c.fill();c.strokeStyle='#e6bc77';c.lineWidth=1.5;c.setLineDash([7,6]);sector(h.length);c.stroke();c.setLineDash([]);
+      const prog=clamp((h.age-h.delay)/h.warning,0,1);c.strokeStyle='#f2d69b';sector(muzzle+range*prog);c.stroke();}
      else{const mx=h.x+Math.cos(h.angle)*muzzle,my=h.y+Math.sin(h.angle)*muzzle;
       drawLivensFlame(c,{...h,x:mx,y:my,length:Math.max(1,range)},{mobile:W<=560});}
     }else{c.lineCap='round';c.lineWidth=h.thickness;c.strokeStyle=warning?'#ffb45f44':'#ff6a2dcc';c.beginPath();c.moveTo(h.x,h.y);c.lineTo(x2,y2);c.stroke();c.lineWidth=Math.max(4,h.thickness*.34);c.strokeStyle=warning?'#ffe0a866':'#fff0a8';c.stroke();}}

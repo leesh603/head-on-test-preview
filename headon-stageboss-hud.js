@@ -2,6 +2,7 @@ import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=adr1';
 
 export function bossHudModel(encounter) {
   if(!encounter||encounter.completed)return null;
+  if(encounter.bossId==='livens-flame-projector'&&![...encounter.bodies.values()].some(b=>b.discovered))return null;
   const state=encounter.snapshot();
   return {...state,name:BOSS_CATALOG[encounter.bossId]?.name||encounter.bossId,fraction:Math.max(0,Math.min(1,state.hp/state.maxHp))};
 }

@@ -57,6 +57,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <button id="fortStep" type="button" style="display:none" title="Shift 클릭: 전투 0.1초 진행">전투 1초 진행</button>
 <span id="status">게임 로딩 중…</span>
 <output id="bossState" style="font-size:11px;max-width:700px"></output>
+<div id="trenchControls" hidden style="width:100%;gap:8px;align-items:center;flex-wrap:wrap"><label>참호 보스 검사 부위<select id="trenchPart"></select></label><button id="trenchHalf" type="button">선택 부위 손상탄</button><button id="trenchBreak" type="button">선택 부위 파괴탄</button><button id="trench70" type="button">HP 70% 진입탄</button><button id="trench35" type="button">HP 35% 진입탄</button><button id="trenchFinal" type="button">발악기 진입탄</button><span id="trenchState"></span></div>
 <div id="fortControls" hidden style="width:100%;display:none;gap:8px;align-items:center;flex-wrap:wrap">
 <label>요새 검증 부위<select id="fortPart"></select></label>
 <button id="fortView" type="button">요새 근처로 이동</button>
@@ -156,12 +157,34 @@ $('patternStep').onclick=()=>{
    if(livens&&selected==='livens:core'&&body)steering=Math.atan2(body.y-game.y,body.x-game.x);
    else if(part&&!part.destroyed)steering=Math.atan2(body.y+part.y-game.y,body.x+part.x-game.x);
   }
-  game.update(.02,{angle:steering});
+  pumpTrenchProbe();game.update(.02,{angle:steering});
  }
  if(control==='observe'){game.x=px;game.y=py;game.a=pa;}
  if($('freeze').checked)game.state='paused';
  $('status').textContent='패턴 진행 · 기뢰 '+(game.hostileMinefields?.flatMap(f=>f.mines).length||0)+' · 장벽 '+(game.stageBoss?.hazards?.pool?.count||0);
 };
+// Trench QA stimuli use the game's friendly projectile collision. These
+// controls never assign boss HP, phases, facility pose or player position.
+function trenchBoss(){return [...(api?.debug()?.stageBoss?.stages.encounter?.bodies?.values()||[])].find(b=>!b.dead&&['livens-flame-projector','minenwerfer-battery'].includes(b.kind))}
+let trenchId=null,trenchGoal=null;
+function trenchShot(b,part,damage){
+ const g=api.debug(),x=b.x+(part?.x||0),y=b.y+(part?.y||0);
+ g.bullets.push({x:x-4,y,vx:520,vy:0,life:.15,enemy:false,ownerId:g.id,damage,hit:new Set()});
+}
+function trenchProbe(fraction){const b=trenchBoss();if(!b)return;const p=b.parts.get($('trenchPart').value);if(!p||p.destroyed)return;trenchShot(b,p,p.hp-p.maxHp*fraction);$('trenchState').textContent='실제 아군 탄착 대기';}
+$('trenchHalf').onclick=()=>trenchProbe(.45);$('trenchBreak').onclick=()=>trenchProbe(0);
+for(const [id,ratio]of [['trench70',.69],['trench35',.34],['trenchFinal',.20]])$(id).onclick=()=>{const b=trenchBoss();if(b)trenchGoal={id:b.id,hp:b.maxHp*ratio};};
+function pumpTrenchProbe(){
+ const b=trenchBoss();if(!b||!trenchGoal||trenchGoal.id!==b.id)return;
+ if(b.hp<=trenchGoal.hp){trenchGoal=null;return;}
+ if(b.kind==='livens-flame-projector'){if(b.coreVulnerable)trenchShot(b,null,b.hp-trenchGoal.hp);}
+ else {const p=b.liveGuns()[0];if(p)trenchShot(b,p,Math.min(p.hp,b.hp-trenchGoal.hp));}
+}
+setInterval(()=>{
+ const b=trenchBoss(),panel=$('trenchControls');panel.hidden=!b||!$('qaTools').checked;panel.style.display=panel.hidden?'none':'flex';if(panel.hidden)return;
+ if(trenchId!==b.id){trenchId=b.id;trenchGoal=null;$('trenchPart').replaceChildren(...[...b.parts.values()].map(p=>new Option(p.id,p.id)));}
+ $('trenchState').textContent=b.phase+' · HP '+Math.ceil(b.hp)+'/'+Math.ceil(b.maxHp)+' · 발견 '+!!b.discovered+' · 반격 '+(b.recovery||0).toFixed(1)+'s'+(trenchGoal?' · 탄착 목표 '+Math.ceil(trenchGoal.hp):'');
+},200);
 function fortress(){return [...(api?.debug()?.stageBoss?.stages.encounter?.bodies?.values()||[])].find(b=>b.fortressBoss)}
 let fortId=null;
 function refreshFort(){

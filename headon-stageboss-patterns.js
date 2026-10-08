@@ -603,6 +603,7 @@ export class LivensFlameProjector extends PatternBoss {
     this.phase='sealed';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
     // The armored nozzle is a permanent mount, not a destructible weakpoint.
     this.nozzleMount={x:0,y:-98,length:85};this.nozzleAngle=-Math.PI/2;this.lockedFlameAngle=null;
+    this.discovered=false;this.nozzleRevealed=false;this.trenchEntry={state:'buried',age:0,revealAge:0};this.raidPhase=1;this.recovery=0;this.flameQueue=[];this.flameGap=0;this.stormTriggered=false;
     this.flameCount=0;this.flameMode='track';this.flameAngSpeed=0;this.flameWarn=0;this.flameAge=0;this.spinRate=1.55;this._gasTier=3;
   }
   locateHit({x,y,radius=0}){
@@ -623,6 +624,7 @@ export class LivensFlameProjector extends PatternBoss {
   suppressive(){/* Livens attacks through its persistent flamethrower and fuel leaks. */}
   onPartDestroyed(p){
     if(p.id.startsWith('tank-'))this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:54,warning:.65,duration:2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak',tag:'livens-leak'});
+    if(p.id==='pressure'){this.command('cancel-hazards',{tag:'livens-flame'});this.lockedFlameAngle=null;this.flameGap=.6;this.recovery=1.8;}
     if(p.id==='pressure')this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:68,warning:.8,duration:.4,once:true,damage:this.t.damage*.75,visual:'livens-pressure'});
     // The core opens once the fuel/pressure system is wrecked; the nozzle
     // mount keeps fighting until the boss itself is destroyed.
@@ -630,48 +632,63 @@ export class LivensFlameProjector extends PatternBoss {
       this.phase='core-exposed';this.coreVulnerable=true;this.command('phase-change',{phase:'exposed'});
     }
   }
-  update(dt,{players}){
-    if(this.dead)return;
-    this.x=this.anchorX;this.y=this.anchorY;
+  beginFlame(mode,target){
+    const weak=this.parts.get('pressure').destroyed,dir=this.flameCount%2?-1:1;
+    let warn=weak?1.4:1.15,dur=weak?1.2:1.8,speed=0,span=0,range=weak?390:560;
+    const desired=target?Math.atan2(target.y-this.y-this.nozzleMount.y,target.x-this.x):this.nozzleAngle;
+    if(mode==='sweep'){dur=weak?1.5:2.2;span=dir*1.65;speed=span/dur;}
+    if(mode==='pulse'){dur=weak?.65:.95;warn=1.25;}
+    if(mode==='rotate'){dur=weak?1.1:1.7;speed=dir*.95;span=speed*dur;}
+    if(mode==='storm-spin'){dur=weak?1.55:2.4;warn=1.5;speed=1.05;span=speed*dur;range=weak?390:600;}
+    if(mode==='storm-return'){dur=weak?1.15:1.8;warn=1.05;speed=-1.05;span=speed*dur;range=weak?390:600;}
+    if(mode==='storm-sweep'){dur=weak?1.55:2.4;warn=1.2;span=1.6;speed=span/dur;range=weak?390:600;}
+    // Stop tracking before the visible warning. One mount and one pooled beam
+    // share this clock; gaps between bursts contain no flame collision.
+    const angle=desired-span/2,n=this.nozzleMount;
+    this.flameMode=mode;this.flameAngSpeed=speed;this.flameWarn=warn;this.flameDuration=dur;this.flameAge=this.frameDt||0;this.flameCount++;
+    this.lockedFlameAngle=angle;this.nozzleAngle=angle;this.flameLockTime=warn+dur-this.flameAge;this.recovery=0;
+    this.hazard('beam',{x:this.x+n.x,y:this.y+n.y,angle,angularSpeed:speed,telegraphHalf:Math.abs(span)/2,
+      length:range+n.length,thickness:weak?38:54,muzzleLength:n.length,warning:warn,duration:dur,tickInterval:.22,
+      damage:this.t.damage*(weak?.65:1),visual:'livens-flame',tag:'livens-flame'});
+    this.command('flame-warning',{x:this.x+n.x,y:this.y+n.y,angle,seconds:warn});
+  }
+  update(dt,{players=[],bounds,paused=false}){
+    if(this.dead||paused)return;dt=Math.min(dt,.25);this.frameDt=dt;this.x=this.anchorX;this.y=this.anchorY;
+    const live=players.filter(p=>p.alive&&Number.isFinite(p.x)&&Number.isFinite(p.y)),target=live[this.flameCount%live.length];
+    const n=this.nozzleMount,e=this.trenchEntry;
+    if(e.state!=='active'){
+      const nx=this.x+n.x,ny=this.y+n.y,visible=(!bounds||(nx>=bounds.left+35&&nx<=bounds.right-35&&ny>=bounds.top+35&&ny<=bounds.bottom-35));
+      if(!target||!visible||Math.hypot(target.x-nx,target.y-ny)>620)return;
+      if(e.state==='buried'){e.state='pressure';e.age=0;this.command('livens-pressure-rise',{x:nx,y:ny});}
+      e.age+=dt;
+      if(e.state==='pressure'&&e.age>=.9){e.state='revealed';e.revealAge=0;this.nozzleRevealed=true;this.discovered=true;this.command('livens-soil-burst',{x:nx,y:ny});this.command('trench-discovered');}
+      if(e.state==='revealed'){e.revealAge+=dt;if(e.revealAge>=.55){e.state='active';this.nozzleAngle=Math.atan2(target.y-ny,target.x-nx);this.beginFlame('track',target);}}
+      this.phase='buried-pressure';this.coreVulnerable=this.allDestroyed(['tank-l1','tank-l2','tank-r1','tank-r2','pressure']);return;
+    }
+    e.revealAge+=dt;
+    const next=this.hp<=this.maxHp*.35?3:this.hp<=this.maxHp*.7?2:1;
+    if(next!==this.raidPhase){this.raidPhase=next;this.command('phase-change',{phase:next===2?'livens-sweep':'livens-unstable'});}
     if(this._gasTier>0&&this.hp<=this.maxHp*this._gasTier*.25){this._gasTier--;
-      for(let i=0;i<3;i++){const a=this.rng()*6.28,d=300+this.rng()*150;this.command('gas-zone',{x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,radius:120+this.rng()*40,life:8});}
-      this.command('phase-change',{phase:'gas-vent'});}
-    const nozzle=this.nozzleMount,target=this.target(players);
-    const finalPhase=this.hp<=this.maxHp*.22;
-    // One clock drives mount pose and the pooled hazard, including partial
-    // frames across warning/end boundaries. Runtime advances hazards after us.
-    if(this.lockedFlameAngle==null&&finalPhase)this.nozzleAngle+=this.spinRate*dt;
-    else if(this.lockedFlameAngle==null&&target){
-      const desired=Math.atan2(target.y-(this.y+nozzle.y),target.x-(this.x+nozzle.x));
-      this.nozzleAngle=turnToward(this.nozzleAngle,desired,.92*dt);
-    }
-    const flameDue=this.due('main-flame',dt,this.t.flameInterval||5.8);
-    if(flameDue&&this.lockedFlameAngle!=null)this.timers.set('main-flame',0);
-    if(flameDue&&this.lockedFlameAngle==null){
-      const pressure=this.parts.get('pressure'),weakened=pressure.destroyed;
-      const warn=weakened?1.4:1.15;
-      let mode='track',angSpeed=0,dur=weakened?1.2:1.8,telegraphHalf=0,startAngle=this.nozzleAngle;
-      if(finalPhase){mode='spin';dur=4.4;angSpeed=this.spinRate;startAngle=this.nozzleAngle;telegraphHalf=Math.PI;}
-      else if(this.flameCount%3===2){mode='sweep';dur=weakened?1.5:2.2;const span=.9,dir=this.flameCount%2?-1:1;angSpeed=dir*span/dur;startAngle=this.nozzleAngle-Math.sign(angSpeed)*span/2;telegraphHalf=span/2;}
-      this.flameMode=mode;this.flameAngSpeed=angSpeed;this.flameWarn=warn;this.flameDuration=dur;this.flameAge=0;this.flameCount++;
-      this.lockedFlameAngle=startAngle;
-      // Beam pivots at the turret mount so sweep/spin origins track the nozzle;
-      // the flame itself is drawn from the muzzle in the view.
-      const muzzleX=this.x+nozzle.x,muzzleY=this.y+nozzle.y;
-      this.hazard('beam',{x:muzzleX,y:muzzleY,angle:startAngle,angularSpeed:angSpeed,telegraphHalf,length:(weakened?390:560)+nozzle.length,thickness:weakened?38:54,
-        muzzleLength:nozzle.length,warning:warn,duration:dur,tickInterval:.22,damage:this.t.damage*(weakened?.65:1),visual:'livens-flame',tag:'livens-flame'});
-      this.command('flame-warning',{x:muzzleX,y:muzzleY,angle:startAngle,seconds:warn});
-      this.flameLockTime=warn+dur;
-    }
+      for(let i=0;i<3;i++){const a=this.rng()*6.28,d=300+this.rng()*150;this.command('gas-zone',{x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,radius:120+this.rng()*40,life:8});}}
+    const flameDue=this.due('main-flame',dt,this.t.flameInterval||5.8);if(flameDue&&(this.lockedFlameAngle!=null||this.recovery>0))this.timers.set('main-flame',0);
+    this.recovery=Math.max(0,this.recovery-dt);this.flameGap=Math.max(0,this.flameGap-dt);
     if(this.lockedFlameAngle!=null){
-      this.flameAge+=dt;
-      const burnAge=Math.min(this.flameDuration,Math.max(0,this.flameAge-this.flameWarn));
-      this.nozzleAngle=this.lockedFlameAngle+this.flameAngSpeed*burnAge;
-      this.flameLockTime=Math.max(0,this.flameWarn+this.flameDuration-this.flameAge);
-      if(!this.flameLockTime){this.lockedFlameAngle=null;this.flameMode='track';}
+      this.flameAge+=dt;const burnAge=Math.min(this.flameDuration,Math.max(0,this.flameAge-this.flameWarn));
+      this.nozzleAngle=this.lockedFlameAngle+this.flameAngSpeed*burnAge;this.flameLockTime=Math.max(0,this.flameWarn+this.flameDuration-this.flameAge);
+      if(!this.flameLockTime){this.lockedFlameAngle=null;this.flameGap=this.flameQueue.length?.65:0;this.recovery=this.flameQueue.length?0:this.stormActive?3:2;
+        if(this.stormActive&&!this.flameQueue.length){this.stormActive=false;this.command('phase-change',{phase:'livens-depressurized'});}}
+    }else if(!this.flameGap&&!this.recovery){
+      if(this.hp<=this.maxHp*.22&&!this.stormTriggered){this.stormTriggered=true;this.stormActive=true;this.flameQueue=['storm-spin','storm-return','storm-sweep'];this.command('livens-firestorm',{x:this.x,y:this.y});}
+      if(this.flameQueue.length)this.beginFlame(this.flameQueue.shift(),target);
+      else if(flameDue){
+        if(this.raidPhase===3){this.flameQueue=['rotate'];this.beginFlame('pulse',target);}
+        else this.beginFlame(this.raidPhase===2?'sweep':'track',target);
+      }else if(target)this.nozzleAngle=turnToward(this.nozzleAngle,Math.atan2(target.y-this.y-n.y,target.x-this.x),.92*dt);
     }
-    const broken=['tank-l1','tank-l2','tank-r1','tank-r2'].filter(id=>this.parts.get(id).destroyed);
-    if(broken.length&&this.due('leak-fire',dt,Math.max(2.2,5-broken.length*.55))){const id=broken[Math.floor(this.rng()*broken.length)],p=this.parts.get(id);this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:54,warning:.8,duration:2.2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak'});}
+    this.coreVulnerable=this.recovery>0||this.allDestroyed(['tank-l1','tank-l2','tank-r1','tank-r2','pressure']);
+    this.phase=this.stormActive?'livens-firestorm':this.recovery>0?'livens-recovery':this.raidPhase===3?'livens-unstable':this.raidPhase===2?'livens-sweep':'livens-track';
+    const leaking=[...this.parts.values()].filter(p=>p.id.startsWith('tank-')&&(p.destroyed||this.raidPhase>=2&&p.hp<=p.maxHp*.5));
+    if(leaking.length&&this.due('leak-fire',dt,Math.max(2.2,5-leaking.length*.55))){const p=leaking[Math.floor(this.rng()*leaking.length)];this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:p.destroyed?54:40,warning:.8,duration:2.2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak',tag:'livens-leak'});}
   }
 }
 export class MinenwerferBattery extends PatternBoss {
