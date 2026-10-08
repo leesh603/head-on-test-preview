@@ -1202,7 +1202,17 @@ function showBuildPause151(){
    tiles.append(tile)}
   section.append(tiles)}
  area.append(section);
- }$('modalText').after(area);
+ }const panels=[...area.children];
+ if(panels.length>1){
+  const own=game.online?Math.max(0,(game.players||[]).findIndex(p=>p.id===game.localPlayerId)):0;
+  let cur=0;
+  const nav=el('div','','build-nav151'),prev=el('button','◀','build-nav-btn'),next=el('button','▶','build-nav-btn');
+  prev.type=next.type='button';prev.setAttribute('aria-label','이전 파일럿');next.setAttribute('aria-label','다음 파일럿');
+  const showPanel=i=>{cur=(i+panels.length)%panels.length;panels.forEach((s,j)=>s.classList.toggle('build-active',j===cur))};
+  prev.onclick=()=>showPanel(cur-1);next.onclick=()=>showPanel(cur+1);
+  nav.append(prev,next);area.prepend(nav);showPanel(own);
+ }else panels[0]?.classList.add('build-active');
+ $('modalText').after(area);
 }
 function syncStartHint(){const k=document.querySelectorAll('.start-hint kbd');if(k[1])k[1].textContent=keyLabel(KEYBINDS.evade);if(k[2])k[2].textContent=keyLabel(KEYBINDS.skill)}
 function cycleZoom(){const steps=[.8,.9,1,1.1,1.25,1.4];const i=steps.findIndex(s=>Math.abs(s-userZoom)<.005);userZoom=steps[(i<0?2:i+1)%steps.length];try{localStorage.setItem('headon.zoom',String(userZoom))}catch(_){}resize()}
