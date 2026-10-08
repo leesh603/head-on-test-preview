@@ -25,6 +25,13 @@ PHASES['sector-east-captured']=['동부 진지 무력화 · 지휘포대 생존 
 PHASES['sector-citadel-captured']=['후방 성채 무력화 · 지휘포대 생존 시 수리','Rear citadel disabled · command keeps repairs active'];
 PHASES['defense-collapse']=['양익 방어선 점령 · 후방 성채 공략','Both wings secured · assault the rear citadel'];
 PHASES['central-fortress']=['3구역 점령 완료 · 중앙 지휘포대 노출','All sectors secured · command battery exposed'];
+Object.assign(PHASES,{
+ 'gallipoli-coastal-line':['1페이즈 · 서부·동부 교차 포격','Phase 1 · west/east coastal crossfire'],
+ 'gallipoli-citadel-defense':['2페이즈 · 후방 성채 집중방어','Phase 2 · rear citadel defense'],
+ 'gallipoli-last-defense':['3페이즈 · 생존 포대의 최후 방어','Phase 3 · surviving batteries resist'],
+ 'gallipoli-final-barrage':['다르다넬스 최후 포화 · 생존 포대 시간차 사격','Last barrage · staggered surviving batteries'],
+ 'gallipoli-recovery':['최후 포화 종료 · 포대 재장전 중 반격','Barrage ended · reload counterattack window']
+});
 PHASES['gallipoli-repair-warning']=['파괴 포대 수리 중 · 3초 뒤 재가동','Defense repairs · reactivation in 3 seconds'];
 PHASES['gallipoli-repaired']=['포대 수리 완료 · 재가동 준비','Defense restored · preparing to fire'];
 PHASES['gallipoli-command-destroyed']=['중앙 지휘포대 파괴 · 수리·요격기 증원 중단','Command destroyed · repairs and sorties stopped'];
@@ -74,7 +81,7 @@ export function bossTactic(encounter,locale='ko'){
  const text=(ko,en)=>pair(ko,en,locale),gone=id=>b.parts.get(id)?.destroyed;
  switch(encounter.bossId){
   case 'jutland-grand-fleet':return text('함포와 사격지휘소를 부숴 공격을 줄이고, 함선 3척을 격파하세요.','Destroy three ships · disable director, tubes and observers to interrupt attacks');
-  case 'gallipoli-fortress':return b.commandDestroyed?text('수리와 증원이 멈췄습니다. 남은 포대를 파괴하세요.','Command destroyed · no repairs or sorties / clear remaining guns'):text('지휘포대를 부수면 수리와 요격기 증원이 멈춥니다.','Destroy command to stop repairs and sorties · attack any battery');
+  case 'gallipoli-fortress':if(b.pendingAttack?.kind==='final'||b.barrageRemaining>0)return text('표시된 통로로 회피 · 생존 포대를 파괴하면 해당 포격 중단','Follow the corridor · destroy guns to cancel their fire');if(b.recoveryRemaining>0)return text('포대 재장전 · 지금 반격하세요.','Guns reloading · counterattack now');return b.commandDestroyed?text('수리와 증원이 멈췄습니다. 남은 포대를 파괴하세요.','Command destroyed · no repairs or sorties / clear remaining guns'):text('지휘포대를 부수면 수리와 요격기 증원이 멈춥니다.','Destroy command to stop repairs and sorties · attack any battery');
   case 'wustenpanzer':return b.serviceWindow>0?text('과열 정지 · 무장이 멈췄습니다. 노출된 본체에 반격하세요.','Overheat stop · weapons silent · strike the open hull'):b.pressureCycle?text('양옆 증기를 피하고, 순차 포격이 끝나면 반격하세요.','Avoid side vents · evade the salvo · counterattack after it'):b.sandBlind?text('모래바람 속에 숨고, 마지막으로 포착된 위치에서 벗어나세요.','Sand cover breaks tracking · watch the last observed target'):gone('radiator')?text('증기 사이로 공격하고, 엔진을 부숴 폭주를 억제하세요.','Cooling destroyed · attack between vents · break engine'):text('포격을 옆으로 피하고, 냉각장치를 부숴 과열 정지를 유도하세요.','Dodge walking artillery sideways · break cooling to force a stop');
   case 'sinai-landship':return b.serviceWindow>0?text('호위대 후퇴 · 측면포 장전 중 본체에 반격하세요.','Escorts withdrawing · counterattack during reload'):b.encirclement?text('장갑차 협공 뒤 측면포가 발사합니다. 표시된 통로를 이용하세요.','Escort flanks, then broadside · use the marked escape lane'):gone('command')?text('협공이 멈췄습니다. 남은 측면포와 장갑차를 파괴하세요.','Coordinated barrage stopped · silence guns and escorts'):gone('support')?text('증원이 멈췄습니다. 남은 장갑차와 측면포를 파괴하세요.','Reinforcements stopped · destroy escorts and flank guns'):text('접근한 측면의 포가 먼저 발사합니다. 지휘부를 부숴 협공을 끊으세요.','Guns on your approach side fire first · break command to stop coordination');
   case 'paris-searchlight-fortress':
