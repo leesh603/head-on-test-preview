@@ -3,7 +3,7 @@
 // import would crash the module-less test environment.
 let aircraftModule;
 const aircraftSprites=()=>{
- aircraftModule??=import('./aircraft.js?v=r5').then(m=>aircraftModule=m);
+ aircraftModule??=import('./aircraft.js?v=train1').then(m=>aircraftModule=m);
  return aircraftModule?.then?null:aircraftModule;
 };
 export const HEINECKE=Object.freeze({escape:3,returnHp:.4,invulnerability:2,cooldown:180,maxUses:2,reentryDistance:270});

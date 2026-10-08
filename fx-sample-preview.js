@@ -2,7 +2,7 @@
 // back to the previous FX (?fx=0 still disables all sprite FX). Swaps the listed FX keys for the sample atlas in
 // fx-sample/, adds tracer / rocket-trail / bomb-fall drawing hooks, and
 // otherwise leaves every renderer untouched. Remove this file and the few
-// `FXS` lines in fx-art.js / app.js?v=r5 to drop the preview.
+// `FXS` lines in fx-art.js / app.js?v=train1 to drop the preview.
 const params = typeof location === 'undefined' ? null : new URLSearchParams(location.search);
 export const FXS = params?.get('fxs') !== '0' && params?.get('fx') !== '0';
 

@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {LIncomparable,ParisGun} from '../headon-stageboss-patterns.js?v=r5';
+import {LIncomparable,ParisGun} from '../headon-stageboss-patterns.js?v=train1';
 import {BossHazards} from '../headon-stageboss-hazards.js';
-import {railGunMuzzle} from '../rural-rail-artillery.js?v=r5';
-import {lincomparableRound} from '../lincomparable-raid.js?v=1';
-import {bossSoundFor} from '../boss-feedback.js?v=r5&rail=1';
+import {railGunMuzzle} from '../rural-rail-artillery.js?v=train1';
+import {lincomparableRound} from '../lincomparable-raid.js?v=train1';
+import {bossSoundFor} from '../boss-feedback.js?v=train1&rail=1';
 const tuning={maxHp:2400,partHp:288,damage:18,bulletSpeed:270,warningSeconds:1.4,railCycle:5.8,railMoveSeconds:3.6};
 const frame={players:[{id:'p1',alive:true,x:0,y:0,vx:0,vy:-180,radius:12}],bounds:{left:-195,right:195,top:-422,bottom:422}};
 function make(){const events=[],b=new LIncomparable({id:'heavy',x:0,y:-460,tuning,emit:e=>events.push(e)});return{b,events};}
@@ -71,4 +71,6 @@ for(const phase of [1,2,3])for(const width of [390,487.5,1280])for(const dt of [
  }assert.deepEqual(hits,[]);assert.equal(h.pool.count,0);
 });
 test('train gun identity does not add a final shot or extended reload to Bruno',()=>{const b=new ParisGun({id:'b',x:0,y:0,tuning});assert.equal(b.finalAim,undefined);assert.equal(b.reloadStress,undefined);assert.equal(b.baseReload,.8);assert.equal(b.rail129.c.brakeSeconds,.65);});
-test('both entries and final cues reuse the actual existing steam approach sound',()=>{for(const type of ['bruno-rail-discovered','bruno-iron-rain','lincomparable-rail-discovered','lincomparable-last-520'])assert.equal(bossSoundFor({type}),'trainApproach');});
+// The locomotive call (chuffs, rail joints, whistle) plays once when the area boss arrives (app.js cut-in);
+// discovery stays silent so it does not replay, and each final cue answers with the steam whistle.
+test('rail entries stay quiet after the arrival call and final cues blow the steam whistle',()=>{for(const type of ['bruno-rail-discovered','lincomparable-rail-discovered'])assert.equal(bossSoundFor({type}),null);for(const type of ['bruno-iron-rain','lincomparable-last-520'])assert.equal(bossSoundFor({type}),'trainWhistle');});

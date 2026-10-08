@@ -1,12 +1,13 @@
 // Layered procedural SFX — every combat feedback voice is synthesized from
 // oscillators plus filtered noise, matching the music.js approach. No audio
 // assets, no external requests.
-import {railAudioSamples} from './rail-audio.js?v=rail8';
+import {railAudioSamples} from './rail-audio.js?v=train1';
+const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproach
 let ctx=null,bus=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();
 const sources=new Map(),lastVoices=new Map();
 const PRIORITY={trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1,armorClink:2,whizz:1,closePass:2,airframeBreak:1,engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0};
-const INTERVAL={armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
+const INTERVAL={trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
 let inputMedia=null;
 const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
 export function stopSfx(){for(const [source,entry]of sources){try{source.stop()}catch{}entry.release()}lastVoices.clear()}
@@ -136,9 +137,8 @@ const VOICES={
   aceSting(){tone(330,392,.16,.08,'sawtooth',2400);tone(415,494,.16,.07,'sawtooth',2400,.1);tone(220,180,.3,.09,'sawtooth',1400,.02);hiss(jit(2400),900,.35,.05,'bandpass',1.2,.04);tone(110,55,.4,.07,'sine',500,.28)},
   // Sortie launch: engine spool-up.
   launch(){tone(55,110,.5,.1,'sawtooth',600);hiss(200,900,.5,.04,'bandpass',.8)},
-  // Rail-boss arrival: deep locomotive horn — a low two-chime blast with a
-  // breathy steam attack, short fade, then a quieter answer from further off.
-  trainWhistle(){for(const [f,v]of [[233,.34],[294,.28],[175,.2]]){tone(f*1.06,f,1.9,v,'sawtooth',520,.0,.1);tone(f*1.067,f*1.007,1.9,v*.6,'sawtooth',520,0,.1)}hiss(900,300,.55,.11,'lowpass',.5);hiss(2600,900,.45,.06,'bandpass',.6,.06);tone(92,68,1.7,.14,'sine',220,.02);for(const [f,v]of [[233,.16],[294,.13]])tone(f*1.05,f,.7,v,'sawtooth',520,2.25,.07)},
+  // Rail-boss arrival: the three-chime steam whistle from rail-audio.js (뿌우우우 — 뿌우).
+  trainWhistle(){railSample('trainWhistle',.6)},
   // Ship-boss arrival: a long foghorn blast — two stacked detuned notes that
   // swell, hold, then decay, with a second fainter call answering from afar.
   shipHorn(){for(const [f,v]of [[87,.5],[131,.42],[65,.3]]){tone(f*1.02,f,2.8,v,'sawtooth',430,0,.35);tone(f*1.018,f*1.006,2.8,v*.6,'sawtooth',430,0,.35)}
@@ -168,6 +168,8 @@ export function sfx(name,arg){
   if(ctx.state!=='running'&&!resuming){try{resuming=Promise.resolve(ctx.resume()).catch(()=>{}).finally(()=>{resuming=null})}catch{}}
   const now=ctx.currentTime;
   if(now-(lastVoices.get(name)??-Infinity)<(INTERVAL[name]||0))return;
+  // The arrival call already carries its own chuff rhythm; rolling beats wait until it ends.
+  if(name==='trainRoll'&&now-(lastVoices.get('trainApproach')??-Infinity)<RAIL_APPROACH_SECONDS-.3)return;
   lastVoices.set(name,now);priority=PRIORITY[name]??2;
   try{VOICES[name](arg)}catch{}finally{priority=0}
 }

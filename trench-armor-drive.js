@@ -1,4 +1,4 @@
-import {armorRotate} from './trench-armor-layout.js?v=r5';
+import {armorRotate} from './trench-armor-layout.js?v=train1';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const approach=(v,w,step)=>v+clamp(w-v,-step,step);
 export function initArmorDrive(b){

@@ -1,12 +1,12 @@
-import {PLANES} from './engine.js?v=r5';
-import {drawGroundEnemy} from './ground-enemy-art.js?v=r5';
-import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=r5';
-import {SPRITE_ALIASES} from './campaign.js?v=r5';
-import {drawEquipment} from './equipment.js?v=r5';
+import {PLANES} from './engine.js?v=train1';
+import {drawGroundEnemy} from './ground-enemy-art.js?v=train1';
+import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=train1';
+import {SPRITE_ALIASES} from './campaign.js?v=train1';
+import {drawEquipment} from './equipment.js?v=train1';
 
 registerCampaignSpriteAliases(SPRITE_ALIASES);
-import {drawBattlefieldSprite} from './battlefield-art.js?v=r5';
-import {missionNavigation,navigationScreenPoint} from './navigation.js?v=r5';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=train1';
+import {missionNavigation,navigationScreenPoint} from './navigation.js?v=train1';
 const _ptShare=[0,0],_twCache=new Map();
 const _tw=(c,txt)=>{const k=c.font+'\u0000'+txt;let w=_twCache.get(k);if(w===undefined){w=c.measureText(txt).width;_twCache.set(k,w)}return w};
 export function drawCampaign(c,g,W,H){

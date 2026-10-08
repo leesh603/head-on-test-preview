@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {LondonApron,DrachenMineNet} from '../headon-stageboss-patterns.js?v=r5';
+import {LondonApron,DrachenMineNet} from '../headon-stageboss-patterns.js?v=train1';
 
 import {apronPose,apronPoint,apronPanelHull,netContact,drawAttachedApron} from '../london-apron369.js';
 const tuning={maxHp:1000,partHp:100,damage:10,bulletSpeed:100,geometryScale:2.025};

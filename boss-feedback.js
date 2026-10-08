@@ -118,7 +118,8 @@ export function bossSoundFor(event,kind=''){
  if(type==='rural-rail-roll')return 'trainRoll';
  if(type==='rural-rail-brake')return 'trainBrake';
  if(type==='rural-rail-load')return 'railBreech';
- if(['bruno-rail-discovered','bruno-iron-rain','lincomparable-last-520','lincomparable-rail-discovered'].includes(type))return 'trainApproach';
+ // The arrival itself already ran the full locomotive call (app.js); a big salvo gets the whistle.
+ if(['bruno-iron-rain','lincomparable-last-520'].includes(type))return 'trainWhistle';
  if(type==='rail-aim'||type==='rural-aim'||type==='rail-runaway')return 'railClatter';
  if(type==='seaplane-launch')return 'formationPass';
  if(type==='minion-launched')return 'formationPass';

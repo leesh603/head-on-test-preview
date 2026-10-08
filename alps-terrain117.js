@@ -1,4 +1,4 @@
-import {applySeaColor} from './sea-colors.js?v=r5';
+import {applySeaColor} from './sea-colors.js?v=train1';
 import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js';
 export const TERRAIN_PROFILES=Object.freeze({
  rural:{name:'전원 지대',src:'./terrain-rural359.webp?v=r5&b=326',base:'#424b3b',strength:1.25},

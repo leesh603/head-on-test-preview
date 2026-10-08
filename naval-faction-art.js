@@ -1,4 +1,4 @@
-import {NAVAL_FACTION_ATLASES,NAVAL_FACTION_FRAMES} from './naval-faction-atlas.js?v=r5';
+import {NAVAL_FACTION_ATLASES,NAVAL_FACTION_FRAMES} from './naval-faction-atlas.js?v=train1';
 const images=new Map(),pending=new Map();
 export function factionHullFrame(faction,kind,state=0){return NAVAL_FACTION_FRAMES[faction==='entente'?'entente':'central']?.[kind]?.[Math.max(0,Math.min(2,state))];}
 function load(key){if(images.has(key))return images.get(key);const im=new Image();im.crossOrigin='anonymous';im.decoding='async';images.set(key,im);pending.set(key,new Promise((resolve,reject)=>{im.onload=()=>resolve(im);im.onerror=()=>reject(new Error('Naval hull asset '+key));}));im.src='./'+NAVAL_FACTION_ATLASES[key]+'?v=r5';return im;}
