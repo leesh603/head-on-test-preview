@@ -124,7 +124,8 @@ class NavalPatternBoss extends PatternBoss {
     this.command('mortar-launch',{...this.gunPoint()});
     // The barrage occupies ONE side of the locked route. The opposite side
     // stays open for both pilots, rather than boxing in a moving target.
-    for(let i=0;i<count;i++){const along=(i-(count-1)/2)*90,x=tx+Math.cos(a)*along+nx*115,y=ty+Math.sin(a)*along+ny*115;this.hazard('circle',{x,y,radius:40,delay:i*.2,warning:1.15,once:true,visual:'zubian-mortar',tag});}
+    // Every marker lands up front; impacts still walk the firing beat.
+    for(let i=0;i<count;i++){const along=(i-(count-1)/2)*90,x=tx+Math.cos(a)*along+nx*115,y=ty+Math.sin(a)*along+ny*115;this.hazard('circle',{x,y,radius:40,delay:0,warning:1.15+i*.2,once:true,visual:'zubian-mortar',tag});}
   }
 
 }

@@ -1,4 +1,4 @@
-import {prepareBossCutins} from './boss-cutin-art.js?v=tame3&rail=13';
+import {prepareBossCutins} from './boss-cutin-art.js?v=tame3&rail=13rail=14';
 import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=tame3';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=tame3';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=tame3&rail=12';
@@ -22,7 +22,7 @@ import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=tame3'
 import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=tame3';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=tame3';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=tame3&rail=1';
-import {bossHudModel} from './headon-stageboss-hud.js?v=tame3&rail=13';
+import {bossHudModel} from './headon-stageboss-hud.js?v=tame3&rail=13rail=14';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=tame3&hints=1&rail=12';
 import {planeSprite} from './aircraft.js?v=tame3';
 import {getLocale} from './i18n.js?v=tame3';
