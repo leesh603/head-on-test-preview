@@ -61,11 +61,18 @@ export class RailAdapter extends BaseBoss {
   }
   const ellipseHit=(cx,cy,rx,ry)=>{const x=s.previousX??s.x,y=s.previousY??s.y,dx=s.x-x,dy=s.y-y,nx=x-cx,ny=y-cy,ax=dx/rx,ay=dy/ry,bx=nx/rx,by=ny/ry,l=ax*ax+ay*ay,t=l?Math.max(0,Math.min(1,-(bx*ax+by*ay)/l)):0,qx=bx+ax*t,qy=by+ay*t,shot=(s.radius||0)/Math.min(rx,ry);return qx*qx+qy*qy<=(1+shot)*(1+shot);};
   for(const id of this.railCarOrder){const p=this.parts.get(id);if(!p||p.destroyed)continue;if(ellipseHit(this.x+p.x,this.y+p.y,p.radius,p.hitRadiusY||p.radius))return p.hittable?{partId:id}:{partId:'absorb'};}
-  return this.coreVulnerable&&ellipseHit(this.x,this.y,68,188)?{partId:null}:null;
+  return ellipseHit(this.x,this.y,68,188)?{partId:null}:null;
  }
  hit(s){
   if(s.partId==='rail')return{damage:this.rail129.hitRail(s.damage),partId:'rail'};
   if(s.partId){const r=super.hit(s);return r;}
+  // Hull can be whittled before the cars break — the armored train just
+  // shrugs most of it off until the locomotive is actually exposed.
+  if(!this.coreVulnerable&&!this.runawayTriggered129){
+   const dealt=Math.min(this.hp,s.damage*.22);this.hp-=dealt;
+   if(this.hp<=0){this.hp=0;this.dead=true;this.phase='defeated';this.emit({type:'body-defeated',bossId:this.id});}
+   return{damage:dealt,bodyDefeated:this.dead};
+  }
   if(!this.coreVulnerable)return{damage:0,blocked:true};
   if(!this.runawayTriggered129){
    const threshold=this.maxHp*.28,damage=Math.min(s.damage,Math.max(0,this.hp-threshold)),r=super.hit({...s,damage});

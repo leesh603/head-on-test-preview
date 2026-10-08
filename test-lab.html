@@ -97,8 +97,8 @@ function applyViewport(){
  const [w,h]=value.split('x');frame.style.width=w+'px';frame.style.height=h+'px';
 }
 async function connect(){
- for(let i=0;i<100;i++){api=frame.contentWindow?.__HEADON_TEST__;if(api)break;await new Promise(r=>setTimeout(r,50))}
- if(!api){$('status').textContent='Test bridge 연결 실패';return}
+ for(let i=0;i<900;i++){api=frame.contentWindow?.__HEADON_TEST__;if(api)break;if(i%40===20)$('status').textContent='게임 로딩 중…';await new Promise(r=>setTimeout(r,50))}
+ if(!api){$('status').textContent='Test bridge 연결 실패 — 게임 로드 타임아웃';return}
  const old=$('pilot').value;$('pilot').replaceChildren();
  for(const p of api.catalog.pilots)$('pilot').append(new Option(p.name+' · '+(p.faction==='central'?'동맹국':'협상국'),p.id));
  $('pilot').value=[...$('pilot').options].some(o=>o.value===old)?old:'baron';refreshAce();$('status').textContent='준비 완료';

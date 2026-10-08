@@ -49,7 +49,7 @@ export class RuralRailBoss extends RailAdapter {
     this.fire520(plan);this.recovery=this.rail129.c.recoilSeconds+this.rail129.c.reloadSeconds;
    }else{
     this.fireBarrage(plan);
-    if(this.raidPhase===2&&!this.parts.get('car-rear').destroyed){this.aaPlan=null;this.aaClock=(plan.points.length-1)*plan.interval+.3;}
+    if(this.raidPhase===2&&this.railCarOrder.some(id=>!this.parts.get(id).destroyed)){this.aaPlan=null;this.aaClock=(plan.points.length-1)*plan.interval+.3;}
    }
    return;
   }
@@ -179,7 +179,7 @@ export class RuralRailBoss extends RailAdapter {
   if(this.barrage){const q=this.barrage,interval=q.interval||this.t.barrageInterval||.32;q.clock+=dt;
    // Muzzle flash keeps the firing beat; the markers themselves were pre-placed.
    while(q.index<q.points.length&&q.clock>=q.index*interval){q.index++;fireRailArtillery(this);}
-   if(q.clock>=q.total){this.barrage=null;if(this.kind==='paris-gun'&&this.raidPhase===2&&!q.final&&!this.parts.get('car-rear').destroyed)this.aaClock=.3;}}
+   if(q.clock>=q.total){this.barrage=null;if(this.kind==='paris-gun'&&this.raidPhase===2&&!q.final&&this.railCarOrder.some(id=>!this.parts.get(id).destroyed))this.aaClock=.3;}}
   updateRailArtillery(this,dt);
   if(this.finalAim){
    const q=this.finalAim;q.remaining-=dt;
@@ -250,17 +250,22 @@ export class RuralRailBoss extends RailAdapter {
   return true;
  }
  updateDefense(dt,players){
-  const rear=this.parts.get('car-rear');rear.gunFlash=Math.max(0,(rear.gunFlash||0)-dt);if(rear.destroyed||this.runawayTriggered129)return;
+  const cars=this.railCarOrder.map(id=>this.parts.get(id)).filter(p=>p&&!p.destroyed);
+  for(const id of this.railCarOrder){const p=this.parts.get(id);if(p)p.gunFlash=Math.max(0,(p.gunFlash||0)-dt);}
+  if(!cars.length||this.runawayTriggered129)return;
   if(this.aaPlan){this.aaPlan.remaining-=dt;if(this.aaPlan.remaining<=0){
-   const a=this.aaPlan.angle,x=this.x,y=this.y+rear.y-145,speed=(this.t.bulletSpeed||260)*.85;
-   rear.gunFlash=.14;rear.shotAngle=a;
+   const car=this.aaPlan.car;
+   if(car.destroyed){this.aaPlan=null;this.aaClock=.6;return;}
+   const a=this.aaPlan.angle,x=this.x,y=this.y+car.y-145,speed=(this.t.bulletSpeed||260)*.85;
+   car.gunFlash=.14;car.shotAngle=a;
    for(const da of [-.14,0,.14])this.emit({type:'hazard',bossId:this.id,kind:'projectile',x,y,vx:Math.cos(a+da)*speed,vy:Math.sin(a+da)*speed,radius:5,warning:0,delay:0,duration:3.2,damage:this.t.damage*.32,visual:'rail-mg'});
-   this.aaPlan=null;this.aaClock=2.8/(this.t.patternMultiplier||1);
+   this.aaPlan=null;this.aaClock=2.8/(this.t.patternMultiplier||1)/cars.length;
   }return;}
   this.aaClock-=dt;if(this.aaClock>0)return;
-  const p=players.filter(p=>p.alive!==false).sort((a,b)=>Math.hypot(a.x-this.x,a.y-this.y-rear.y)-Math.hypot(b.x-this.x,b.y-this.y-rear.y))[0];
-  if(!p||Math.hypot(p.x-this.x,p.y-this.y-rear.y)>850)return;
-  this.aaPlan={angle:Math.atan2(p.y-(this.y+rear.y-145),p.x-this.x),remaining:.45};
+  const car=cars[(this._defenseTurn=(this._defenseTurn||0)+1)%cars.length];
+  const p=players.filter(p=>p.alive!==false).sort((a,b)=>Math.hypot(a.x-this.x,a.y-this.y-car.y)-Math.hypot(b.x-this.x,b.y-this.y-car.y))[0];
+  if(!p||Math.hypot(p.x-this.x,p.y-this.y-car.y)>850)return;
+  this.aaPlan={angle:Math.atan2(p.y-(this.y+car.y-145),p.x-this.x),remaining:.45,car};
  }
  hit(s){
   if(!Number.isFinite(s.damage)||s.damage<0)throw new Error('Invalid damage');
