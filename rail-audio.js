@@ -14,12 +14,18 @@ export function railAudioSamples(name,sampleRate=48000){
   steam+=(body-steam)*(1-Math.exp(-tau*650/sampleRate));
   let v=0;
   if(name==='trainApproach'||name==='trainRoll'){
-   const arrival=name==='trainApproach',speed=arrival?3.2+q*1.5:4.6;
-   phase+=speed/sampleRate;const wheel=(phase%1),beat=Math.exp(-wheel*65)+.65*Math.exp(-Math.abs(wheel-.11)*85);
-   const distance=arrival?.22+.78*Math.sin(Math.min(1,q*1.3)*Math.PI/2):.5;
-   v=(low*.28+beat*(body*.38+Math.sin(tau*79*t)*.16))*distance;
-   // Exhaust chuffs have pressure noise rather than a melodic low-frequency oscillator.
-   v+=(body-steam)*.24*Math.pow(Math.max(0,Math.sin(tau*phase*2)),4)*distance;
+   const arrival=name==='trainApproach',speed=arrival?4.4-2.1*Math.min(1,q*1.15):4.6;
+   phase+=speed/sampleRate;const rev=phase%1;
+   // 칙칙폭폭: four exhaust chuffs per wheel rev, alternating strong/weak
+   // cylinders. Each puff is a gated noise burst over a low thump — the chuff
+   // rhythm carries the arrival, continuous rumble stays under it.
+   const cyl=Math.floor(rev*4),pos=rev*4-cyl,strong=cyl%2===0;
+   const puff=Math.exp(-pos*(strong?15:17))*(strong?1:.66);
+   const distance=arrival?.2+.8*Math.sin(Math.min(1,q*1.25)*Math.PI/2):.5;
+   const thump=Math.sin(tau*72*t)*.5+Math.sin(tau*144*t)*.2;
+   v=(low*.16+((body-steam)*1.05+thump*.8+body*.18)*puff)*distance;
+   // Rod clank sits between the chuffs.
+   v+=body*.11*Math.exp(-Math.abs(pos-.55)*30)*distance;
    if(arrival){
     // Steam whistle: single long blast. Dominant root + octave, valve-open pitch
     // droop, breath hiss and slow pressure wobble keep it steamy, not organ-like.
