@@ -113,7 +113,10 @@ export class StageBossAddon {
     if(this.ended)return{damage:0,blocked:true};
     const body=this.stages.encounter?.bodies.get(bodyId);
     if(!body||(faction&&faction===body.faction))return{damage:0,blocked:true};
-    return body.hit({partId,damage});
+    // Announced counter windows (reloads, regroups) multiply pilot damage only;
+    // internal explosions and scripted damage call body.hit directly.
+    const counter=typeof body.counterWindow==='function'?body.counterWindow():1;
+    return body.hit({partId,damage:damage*(Number.isFinite(counter)&&counter>0?counter:1)});
   }
   hitAt({x,y,radius=0,damage,faction}) {
     for(const body of this.stages.encounter?.bodies.values()||[]) {

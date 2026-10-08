@@ -116,10 +116,15 @@ class NavalPatternBoss extends PatternBoss {
   suppressive(){}
   warningVolley(players,side=1){
     const p=this.target(players),gun=this.gun();if(!p||gun?.destroyed)return;
+    // Skip the warning while the previous volley still owns this gun.
+    if((this.breakOrders?.get('zubian-'+gun.id)||0)>(this.combatTime??this.motionTime??0)+.85)return;
     const q=this.gunPoint(),angle=Math.atan2(p.y-q.y,p.x-q.x);
     this.gunVolley={left:.85,angle,partId:gun.id};
+    this.command('charge-warning',{...q,partId:gun.id,targetX:q.x+Math.cos(angle)*560,targetY:q.y+Math.sin(angle)*560,seconds:.85});
   }
-  tickVolley(dt){const v=this.gunVolley;if(!v)return;v.left-=dt;if(v.left>0)return;this.gunVolley=null;if(this.parts.get(v.partId)?.destroyed)return;const q=this.gunPoint();this.command('muzzle',{...q,partId:v.partId});broadsideBreak(this,{source:q,partId:v.partId,angle:v.angle,speed:330,visual:'zubian-shell',tag:'zubian-'+v.partId,beats:this.role==='rear'?2:3,beat:.48,warning:.15,cue:false});}
+  tickVolley(dt){const v=this.gunVolley;if(!v)return;v.left-=dt;if(v.left>0)return;this.gunVolley=null;if(this.parts.get(v.partId)?.destroyed)return;const q=this.gunPoint();
+    // Only a volley that actually leaves the barrel flashes the muzzle.
+    if(broadsideBreak(this,{source:q,partId:v.partId,angle:v.angle,speed:330,visual:'zubian-shell',tag:'zubian-'+v.partId,beats:this.role==='rear'?2:3,beat:.48,warning:.15,cue:false}))this.command('muzzle',{...q,partId:v.partId});}
   mortar(players,{count=3,tag='zubian-mortar',crossAngle=null}={}){
     if(this.gun()?.destroyed)return;const p=this.target(players);if(!p)return;const velocity=Math.hypot(p.vx||0,p.vy||0),a=crossAngle??(velocity>8?Math.atan2(p.vy,p.vx):this.hullYaw-Math.PI/2),nx=-Math.sin(a),ny=Math.cos(a),tx=p.x+(p.vx||0)*.7,ty=p.y+(p.vy||0)*.7;
     this.command('mortar-launch',{...this.gunPoint()});
@@ -136,7 +141,7 @@ class ZubianHalf extends NavalPatternBoss {
     const positions=role==='front'?[['frontGun',0,-44,19],['frontEngine',0,56,22]]:[['rearGun',0,34,19],['rearEngine',0,-40,22]];
     super({...options,parts:positions.map(([id,x,y,radius])=>({id,x,y,radius,maxHp:inheritedParts?.get(id)?.maxHp||options.tuning.partHp})),kind:'hms-zubian-'+role});
     this.role=role;this.hullYaw=hullYaw;this.splitYaw=hullYaw;for(const p of this.parts.values()){const inherited=inheritedParts?.get(p.id);if(inherited)p.hp=inherited.hp;}
-    this.phase=role==='front'?'front-hunt':'rear-mortar';this.chargeTime=0;this.mortarPattern=0;this.splitAge=0;this.splitX=this.x;this.splitY=this.y;this.lastStand=false;this.finalClock=5.5;this.evasionSide=role==='front'?1:-1;this.syncParts();
+    this.phase=role==='front'?'front-hunt':'rear-mortar';this.chargeTime=0;this.mortarPattern=0;this.mortarRound=0;this.splitAge=0;this.splitX=this.x;this.splitY=this.y;this.lastStand=false;this.finalClock=5.5;this.evasionSide=role==='front'?1:-1;this.syncParts();
   }
   update(dt,{players,bounds}) {
     this.splitAge+=dt;
@@ -154,12 +159,18 @@ class ZubianHalf extends NavalPatternBoss {
     if(this.role==='rear') {
       const p=players.find(p=>p.alive),cx=bounds?(bounds.left+bounds.right)/2:this.splitX,cy=bounds?(bounds.top+bounds.bottom)/2:this.splitY;
       if(this.t.mobileBoss){const age=this.splitAge,retreat=this.soloEnraged||this.lastStand;steerNaval(this,dt,cx+Math.sin(age*(retreat?.8:.3))*140,cy-(p&&p.y<cy?-1:1)*120,{bounds,speed:retreat?38:22,turn:retreat?.75:.4,mobility});}
-      if(!this.gun()?.destroyed&&this.due('mortar',dt,this.t.mortarInterval||2.4)&&!(this.soloEnraged||this.lastStand&&this.finalClock<1.5))this.mortar(players);
+      if(!this.gun()?.destroyed&&this.due('mortar',dt,this.t.mortarInterval||2.4)&&!(this.soloEnraged||this.lastStand&&this.finalClock<1.5)){this.mortar(players);
+        // Three ranging barrages, then the stern crew reloads for a clear beat.
+        if(++this.mortarRound%3===0)this.timers.set('mortar',2.6);}
       if((this.soloEnraged||this.lastStand)&&(this.finalClock-=dt)<=0){this.finalClock=6.5;this.command('phase-change',{phase:this.soloEnraged?'zubian-stern-barrage':'zubian-pincer'});this.mortar(players,{count:this.engine()?.destroyed?2:3,tag:'zubian-final-mortar',crossAngle:(p?Math.atan2(p.vy||0,p.vx||0):this.hullYaw)+Math.PI/2});this.timers.set('mortar',3.8);}
       return;
     }
     if(this.phase==='evasive-turn'){const p=players.find(p=>p.alive);if(p)steerNaval(this,dt,p.x+Math.cos(this.hullYaw)*170,p.y+Math.sin(this.hullYaw)*170,{bounds,speed:42,turn:1.05,mobility});this.finalTurn-=dt;if(this.finalTurn<=0)this.phase='stalking';return;}
     if(this.phase==='charging') {
+      // The bow itself is the weapon: a short-lived contact hazard rides the
+      // stem every 0.1 s (no drawn marker; the hull is the visual).
+      if((this.ramClock=(this.ramClock||0)-dt)<=0){this.ramClock=.1;const size=zubianSize(this),bow=navalPoint(this,0,-size.height*.3);
+        this.emit({type:'hazard',bossId:this.id,faction:this.faction,kind:'circle',x:bow.x,y:bow.y,radius:size.width*.42,warning:0,delay:0,duration:.12,once:true,damage:this.t.damage*1.4,visual:'hull-ram',tag:this.id+':ram'});}
       const nx=this.x+this.vx*mobility*dt,ny=this.y+this.vy*mobility*dt;
       if(!bounds||(nx>=bounds.left&&nx<=bounds.right&&ny>=bounds.top&&ny<=bounds.bottom)){this.x=nx;this.y=ny;}else this.chargeTime=0;
       this.chargeTime-=dt;
@@ -257,9 +268,16 @@ export class ZeppelinL70 extends PatternBoss {
       if(this.due('broadside',dt,this.t.engineInterval||2.6)){
         const side=this.broadside++%2,live=engines.filter(p=>(+p.id.slice(7)%2)===side);
         const p=this.target(players);
-        if(p)for(const engine of live){const x=this.x+engine.x,y=this.y+engine.y;
-          this.command('muzzle',{x,y,partId:engine.id});broadsideBreak(this,{source:{x,y},partId:engine.id,target:p,visual:'l70-broadside',tag:'l70-'+engine.id,beats:2,beat:.55,warning:1.1,spread:1.4,speed:300});}
+        // Engines on the active side fire in a ripple along the hull, 0.5 s
+        // apart, instead of stacking every heavy row on the same beat.
+        if(p)live.forEach((engine,i)=>{(this.broadsideQueue??=[]).push({id:engine.id,at:(this.combatTime||0)+i*.5,target:{x:p.x,y:p.y,vx:p.vx||0,vy:p.vy||0}});});
       }
+      for(const q of this.broadsideQueue||[])if(q.at<=(this.combatTime||0)){q.done=true;const engine=this.parts.get(q.id);if(engine.destroyed)continue;const x=this.x+engine.x,y=this.y+engine.y;
+        if(broadsideBreak(this,{source:{x,y},partId:engine.id,target:q.target,visual:'l70-broadside',tag:'l70-'+engine.id,beats:2,beat:.55,warning:1.1,spread:1.4,speed:300}))this.command('muzzle',{x,y,partId:engine.id});}
+      this.broadsideQueue=(this.broadsideQueue||[]).filter(q=>!q.done);
+      // Last raid: below 20% the bomb bays open over the pilot on a fixed beat.
+      if(this.hp<=this.maxHp*.2){if(!this.lastRaid){this.lastRaid=true;this.timers.set('last-raid',.6);this.command('phase-change',{phase:'l70-last-raid'});}
+        if(this.due('last-raid',dt,5.2)){const target=this.target(players);if(target)shellMarch(this,{source:{x:this.x,y:this.y},target,rows:4,radius:56,step:84,beat:.42,warning:1.25,visual:'carpet-bomb',tag:'l70-last-raid'});}}
       // Escort airships arrive as the hull bleeds, not all at once on reveal.
       if(this._summonTiers.length&&this.hp<=this.maxHp*this._summonTiers[0]){this._summonTiers.shift();const ox=[-170,170,0][this._summonCount%3];this.command('spawn-minion',{minion:'airship',faction:this.faction,x:this.x+ox,y:this.y-140-(this._summonCount%2)*40});this._summonCount++;}
       if(this.due('bombline',dt,(this.t.gasInterval||6)*(this.lastStand ? .72 : 1))){
@@ -281,15 +299,14 @@ export class HMA23 extends PatternBoss {
     this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
   }
   onPartDestroyed() {if(this.allDestroyed([...this.parts.keys()])){this.phase='exposed';this.coreVulnerable=true;this.reserveReady=true;this.command('phase-change',{phase:this.phase});}}
-  carrierFan(players) {
+  carrierFan(players,tag='hma-flak') {
     const p=this.target(players);if(!p)return;
     const side=this.flakSide*=-1,x=this.x+side*112,y=this.y+48;
     const count=Math.max(3,Math.ceil(5*(this.t.projectileDensity??1))),a=Math.atan2(p.y-y,p.x-x);
     // The carrier is a sustained area-denial boss.  Its individual flak
     // rounds stay survivable even after long-run scaling instead of becoming
     // 40–50 damage one-shots.
-    this.command('muzzle',{x,y,side});
-    broadsideBreak(this,{source:{x,y},angle:a,visual:'carrier-flak',tag:'hma-flak',spread:2.1,beats:3,beat:.55,warning:1.15,speed:320});
+    if(broadsideBreak(this,{source:{x,y},angle:a,visual:'carrier-flak',tag,spread:2.1,beats:3,beat:.55,warning:1.15,speed:320}))this.command('muzzle',{x,y,side});
   }
   suppressive(){/* carrier fire is handled by the capped carrierFan pattern */}
   update(dt,{players,bounds}) {
@@ -311,9 +328,14 @@ export class HMA23 extends PatternBoss {
             passTargetX:(target?.x??this.x)+(target?.vx||0)*.55+(i-(count-1)/2)*48,passTargetY:(target?.y??this.y+300)+(i-(count-1)/2)*32});}
         if(ports.length)this.launchSide=(this.launchSide+count)%ports.length;
       }
-    } else if(this.due('panic',dt,this.t.panicInterval||2.7)) {
+      // The carrier's own gallery guns cover the launch, on a slower beat.
+      if(this.due('launch-cover',dt,6.4))this.carrierFan(players);
+    } else if(this.due('panic',dt,(this.t.panicInterval||2.7)*(this.hp<=this.maxHp*.35?.75:1))) {
       this.carrierFan(players);
+      // Late: the opposite gallery answers 0.7 s later from the other side.
+      if(this.hp<=this.maxHp*.35)this.twinFanAt=(this.combatTime||0)+.7;
     }
+    if(this.twinFanAt&&(this.combatTime||0)>=this.twinFanAt){this.twinFanAt=0;this.carrierFan(players,'hma-flak-twin');}
   }
 }
 
@@ -363,6 +385,10 @@ class TrenchArmor extends PatternBoss {
     // Fire ONE real casemate at a time. The missing mount leaves a full gap.
     if((r.clock-=dt)>0)return;r.clock=.44;const id=this.gunIds[(r.index++%this.gunIds.length+this.gunIds.length)%this.gunIds.length],gun=this.parts.get(id);
     if(!gun.destroyed)this.fireGun(gun,{count:this.kind==='a7v-flak'?9:11,spread:this.kind==='a7v-flak'?1.35:1.55});
+    // Hunting net: the opposite casemate fires on the same beat, so the A7V
+    // turns a rotating cross; each arm is thinner and the missing gun's arm
+    // stays open.
+    if(r.final&&this.kind==='a7v-flak'){const twin=this.parts.get(this.gunIds[(this.gunIds.indexOf(id)+2)%this.gunIds.length]);if(twin&&!twin.destroyed)this.fireGun(twin,{count:6,spread:1.1});}
   }
   aim(dt,players){
     const p=players.find(p=>p.alive);if(!p)return;
@@ -394,7 +420,9 @@ class TrenchArmor extends PatternBoss {
   }
   hitAt(attack){const at=this.locateHit(attack);return at?this.hit({...attack,...at}):{damage:0,miss:true};}
   hit(attack){
-    const armor=this.liveGuns().length?(this.kind==='a7v-flak'?.5:.6):1;
+    // Recovery after a turret cycle is the counterattack window: the crew is
+    // reloading and the hull takes full damage even with guns still alive.
+    const armor=this.liveGuns().length&&this.rotation?.stage!=='recover'?(this.kind==='a7v-flak'?.5:.6):1;
     if(!attack.partId){const floor=this.combatPhase===1?this.maxHp*.7:this.combatPhase===2?this.maxHp*.35:this.finalAge<1.15?this.maxHp*.08:0;attack={...attack,damage:Math.min(attack.damage*armor,Math.max(0,this.hp-floor))};}
     const result=super.hit(attack);if(!this.dead)this.updatePhase();return result;
   }
@@ -521,6 +549,10 @@ export class MarkVCruiser extends TrenchArmor {
     if((r.clock-=dt)>0)return;r.clock=1.05;
     const gun=this.parts.get(this.gunIds[r.index++%2]);if(!gun.destroyed)this.scheduleGun(gun,{wait:.72,spread:1.15,count:9});
   }
+  // While the landship runs at the pilot its nose is a weapon: a short contact
+  // hazard rides the bow every 0.1 s (no marker; the hull is the visual).
+  ram(dt){if((this.ramClock=(this.ramClock||0)-dt)>0)return;this.ramClock=.1;const s=this.t.geometryScale||1,x=this.x+Math.sin(this.hullYaw)*80*s,y=this.y-Math.cos(this.hullYaw)*80*s;
+    this.emit({type:'hazard',bossId:this.id,faction:this.faction,kind:'circle',x,y,radius:58*s,warning:0,delay:0,duration:.12,once:true,damage:this.t.damage*1.4,visual:'hull-ram',tag:this.id+':ram'});}
   breakthrough(players,bounds){
     // A final short, warned burst from the surviving actual gun arcs. No wall
     // across both pilots, and a destroyed sponson leaves its whole flank open.
@@ -546,7 +578,7 @@ export class MarkVCruiser extends TrenchArmor {
         this.tacticalState='runaway-warning';this.drive(dt,0,0,bounds,true);this.aim(dt,players);
         if(r.age>=1.1){r.stage='charge';r.age=0;for(const gun of this.liveGuns())this.warnGun(gun,.75);}
       }else if(r.stage==='charge'){
-        this.tacticalState='runaway-advance';this.drive(dt,58,this.steering(players,bounds)*.55,bounds);this.aim(dt,players);this.runningBroadside(dt,r);
+        this.tacticalState='runaway-advance';this.drive(dt,58,this.steering(players,bounds)*.55,bounds);this.aim(dt,players);this.runningBroadside(dt,r);this.ram(dt);
         if(r.age>=2.4){r.stage='brake';r.age=0;this.pendingVolley=null;this.command('armor-brake',{});}
       }else if(r.stage==='brake'){
         this.tacticalState='braking';this.drive(dt,0,0,bounds,true);this.aim(dt,players);
@@ -555,7 +587,7 @@ export class MarkVCruiser extends TrenchArmor {
         this.tacticalState='steel-waltz';this.drive(dt,0,r.sign*.64,bounds);this.aim(dt,players);if(r.age>=1)this.rotatingFire(dt,r);
         if(r.age>=3.8){r.stage=r.final?'breakthrough':'recover';r.age=0;this.breakthrough(players,bounds);if(!r.final)this.command('phase-change',{phase:'markv-recovery'});}
       }else if(r.stage==='breakthrough'){
-        this.tacticalState='final-breakthrough';this.drive(dt,42,0,bounds);this.aim(dt,players);
+        this.tacticalState='final-breakthrough';this.drive(dt,42,0,bounds);this.aim(dt,players);this.ram(dt);
         if(r.age>=1.15){r.stage='recover';r.age=0;this.command('armor-brake',{});this.command('phase-change',{phase:'markv-recovery'});}
       }else{
         this.tacticalState='recovery';this.drive(dt,0,0,bounds,true);this.aim(dt,players);
@@ -639,7 +671,7 @@ export class ArmoredHarborFortress extends PatternBoss {
   }
   queueGun(gun,delay=0){
     if(gun.destroyed||this.gunBursts.some(b=>b.partId===gun.id))return;
-    this.gunBursts.push({partId:gun.id,left:this.parts.get('ammo-storage').destroyed?1:3,clock:delay,warned:false});
+    this.gunBursts.push({partId:gun.id,left:this.parts.get('ammo-storage').destroyed?1:this.phase==='final-core'?4:3,clock:delay,warned:false});
   }
   coastalSalvo(){
     const guns=this.liveGuns();for(let i=0;i<guns.length;i++)this.queueGun(guns[i],.35+i*.65);
@@ -665,6 +697,9 @@ export class ArmoredHarborFortress extends PatternBoss {
     const supplied=!this.parts.get('ammo-storage').destroyed;
     const linked=this.phase!=='coastal-battery'&&this.craneState!=='collapsed'&&supplied;
     if(!linked&&guns.length&&this.due('harbor-guns',dt,(this.t.coastalInterval||2.5)*(supplied?1:1.6)))this.queueGun(guns[this.gunSide++%guns.length]);
+    // Last stand: with the core open every surviving gun joins a staggered
+    // salvo on a fixed 7 s beat, the gap between salvos is the opening.
+    if(this.phase==='final-core'&&guns.length&&this.due('harbor-last-stand',dt,7)){this.coastalSalvo();this.command('phase-change',{phase:'harbor-last-stand'});}
     for(const burst of this.gunBursts){const gun=this.parts.get(burst.partId);if(gun.destroyed){burst.left=0;continue;}burst.clock-=dt;
       if(burst.left>0&&burst.clock<=0){const q=harborMuzzle(this,gun),a=gun.angle;
         if(!burst.warned){burst.warned=true;burst.clock=1.1;this.command('charge-warning',{...q,targetX:q.x+Math.cos(a)*600,targetY:q.y+Math.sin(a)*600,seconds:1.1,partId:gun.id,harborGun:true});continue;}gun.recoil=1;this.command('muzzle',{...q,partId:gun.id});for(let j=-3;j<=3;j++){const shot=a+j*.13+(burst.left-2)*.12;this.hazard('projectile',{...q,vx:Math.cos(shot)*this.t.bulletSpeed*.82,vy:Math.sin(shot)*this.t.bulletSpeed*.82,radius:burst.left===1?8:5,duration:2.6,raidHeavy:burst.left===1,damage:this.t.damage*(burst.left===1?2.4:.8),visual:'harbor-shell',tag:'harbor-'+gun.id});}burst.left--;burst.clock+=.42;}}
@@ -835,6 +870,8 @@ export class MinenwerferBattery extends PatternBoss {
     return null;
   }
   hitAt({x,y,radius=0,damage}){const target=this.locateHit({x,y,radius});return target?this.hit({...target,damage}):{damage:0,miss:true};}
+  // Reload after a special order: crews are exposed in the open pits.
+  counterWindow(){return this.recovery>0?1.4:1;}
   hit(attack){
     if(!attack.partId||!this.parts.has(attack.partId))return{damage:0,blocked:true};
     const result=super.hit(attack);this.hp=this.liveGuns().reduce((n,p)=>n+p.hp,0);
@@ -929,7 +966,7 @@ export class MinenwerferBattery extends PatternBoss {
     this.finalGrace=Math.max(0,this.finalGrace-dt);this.recovery=Math.max(0,this.recovery-dt);
     if(this.mortarPlan){const plan=this.mortarPlan;plan.age+=dt;
       for(const shot of plan.shots)if(!shot.fired&&plan.age>=shot.at){shot.fired=true;const gun=this.parts.get(shot.partId);if(!gun.destroyed){if(shot.retarget){const target=this.target(players);if(target){if(bounds){const tx=(bounds.right-bounds.left)/2-34,ty=(bounds.bottom-bounds.top)/2-34;shot.warning=Math.max(.9,Math.min(1.35,tx/Math.max(1,Math.abs(target.vx||0)),ty/Math.max(1,Math.abs(target.vy||0))));}const aim=this.aimPoint(gun,target,this.shotSerial++,bounds,shot.warning,34);shot.x=aim.x;shot.y=aim.y;}}if(shot.retarget)this.shell(gun,shot.x,shot.y,{warning:Math.max(1.1,shot.warning),raidHeavy:true});else this.blast(gun);}}
-      if(plan.age>=plan.end||!plan.shots.length){this.mortarPlan=null;this.recovery=plan.final?3:1.6;this.specialClock=4.2;this.cycleClock=.3;}
+      if(plan.age>=plan.end||!plan.shots.length){this.mortarPlan=null;this.recovery=plan.final?3:1.6;this.specialClock=4.2;this.cycleClock=.3;this.command('phase-change',{phase:'minenwerfer-reload'});}
     }else if(!this.recovery){
       if(this.discovered&&!this.finalGrace&&!this.finalCounts.has(guns.length)&&(this.hp<=this.maxHp*.25||guns.length===1)){this.finalOrder(players,bounds,guns);}
       else {this.cycleClock-=dt;this.specialClock-=dt;
@@ -1110,7 +1147,9 @@ export class Fliegerzug extends RailAdapter {
     if(!rear.destroyed&&!this.raidRecovery&&this.due('rear-mg',dt,2.7)){
       const p=this.selectTarget(players),{x,y}=this.carPoint(rear,0,-33);
       if(p){const a=Math.atan2(p.y-y,p.x-x);this.emit({type:'muzzle',bossId:this.id,x,y,partId:rear.id});
-        for(const offset of [-.16,0,.16])this.emit({type:'hazard',bossId:this.id,kind:'projectile',x,y,
+        // A short warned burst like every other gun on the train.
+        this.emit({type:'charge-warning',bossId:this.id,x,y,partId:rear.id,targetX:x+Math.cos(a)*420,targetY:y+Math.sin(a)*420,seconds:.45});
+        for(const offset of [-.16,0,.16])this.emit({type:'hazard',bossId:this.id,kind:'projectile',x,y,delay:.45,
           vx:Math.cos(a+offset)*this.t.bulletSpeed*.83,vy:Math.sin(a+offset)*this.t.bulletSpeed*.83,
           radius:5,duration:4,damage:this.t.damage*.52,visual:'rail-mg'});}
     }
@@ -1202,6 +1241,9 @@ export class TreffasWagen extends PatternBoss {
     const charge=this.finalDrive;if(charge)charge.age+=dt;
     if(charge&&charge.age>=11.8){this.finalDrive=null;this.recovery=3.2;this.flakLock=null;this.command('phase-change',{phase:'treffas-recovery'});}
     const age=charge?.age||0,windup=!!charge&&age<1.6,charging=!!charge&&age>=1.6&&age<5.8,braking=!!charge&&age>=5.8&&age<7.6;
+    // The breakthrough is a real ram: the wagon's front rides a contact hazard.
+    if(charging&&(this.ramClock=(this.ramClock||0)-dt)<=0){this.ramClock=.1;const sc=this.t.geometryScale||1,fx=this.x+Math.sin(charge.angle)*96*sc,fy=this.y-Math.cos(charge.angle)*96*sc;
+      this.emit({type:'hazard',bossId:this.id,faction:this.faction,kind:'circle',x:fx,y:fy,radius:70*sc,warning:0,delay:0,duration:.12,once:true,damage:this.t.damage*1.4,visual:'hull-ram',tag:this.id+':ram'});}
     if(wheels){
       const speed=wheels===2?(charging?60:44):23,upper=this.startY-(charge?280:65),lower=this.startY+140;
       if(charging)this.driveDirection=-1;
@@ -1239,7 +1281,9 @@ export class TreffasWagen extends PatternBoss {
     if(!braking&&!this.recovery)this.updateFlak(dt,players);
     if(!windup&&!braking&&!this.recovery&&this.due('treffas-mg',dt,this.parts.get('turret').destroyed?2.2:3.0)){
       const p=this.target(players),side=this.cursor%2?-1:1,m=treffasPoint(this,side*64,-24);
-      if(p){this.command('muzzle',{...m,partId:'hull-mg'});this.fan(m.x,m.y,Math.atan2(p.y-m.y,p.x-m.x),2,.18,this.t.bulletSpeed*.8,'treffas-mg');}
+      if(p){const a=Math.atan2(p.y-m.y,p.x-m.x),speed=this.t.bulletSpeed*.8;this.command('muzzle',{...m,partId:'hull-mg'});
+        this.command('charge-warning',{...m,partId:'hull-mg',targetX:m.x+Math.cos(a)*420,targetY:m.y+Math.sin(a)*420,seconds:.45});
+        for(const d of [-.09,.09])this.hazard('projectile',{x:m.x,y:m.y,vx:Math.cos(a+d)*speed,vy:Math.sin(a+d)*speed,radius:5,delay:.45,visual:'treffas-mg'});}
     }
     this.phase=!wheels?'emplacement':this.recovery?'treffas-recovery':charge?(windup?'treffas-windup':charging?'treffas-breakthrough':braking?'treffas-braking':'treffas-final-volley'):this.combatPhase>=2?'treffas-turning-fire':'advance';
   }
@@ -1332,6 +1376,9 @@ class FormationAceBoss extends PatternBoss {
     if(age>=duration){this.finalAge=undefined;this.finalLock=null;this.finalHeading=null;this.recoverLeft=2.4;this.setFormationPhase('formation-recovery',p,0,2.4);}
     return true;
   }
+  // Regrouping after an assault is the formation's counter window: the
+  // leader flies level and takes 1.5x damage until the next order.
+  counterWindow(){return this.phase==='formation-recovery'?1.5:1;}
   setFormationPhase(phase,p,age,duration){
     const velocity=Math.hypot(p.vx||0,p.vy||0),heading=velocity>18?Math.atan2(p.vy,p.vx):(Number.isFinite(p.a)?p.a:-Math.PI/2);
     if(this.phase!==phase){this.phase=phase;this.command('phase-change',{phase});
@@ -1603,7 +1650,8 @@ export class GothaRaider extends PatternBoss {
       this.command('city-bomb',{runId:this.runId,targetId:t.id,x:t.x,y:t.y,sourceX,sourceY,seconds:1.3,damage:18});
       this.hazard('circle',{x:t.x,y:t.y,radius:54,warning:1.3,duration:.35,once:true,damage:this.t.damage,visual:'carpet-bomb',airborneBomb:true,sourceX,sourceY,tag:this.id+'-payload'});
       for(const side of [-1,1])this.hazard('circle',{x:t.x+side*78,y:t.y-72,delay:side<0?.42:.84,radius:48,warning:1.3,duration:.3,once:true,visual:'carpet-bomb',airborneBomb:true,sourceX,sourceY,tag:this.id+'-payload'});
-      const pilot=players.find(p=>p.alive);if(pilot)shellMarch(this,{source:{x:sourceX,y:sourceY},partId:'bomb-bay',target:pilot,rows:2,radius:55,step:78,visual:'carpet-bomb',tag:this.id+'-payload'});
+      // The final run empties the bays: a longer march walks after the pilot.
+      const pilot=players.find(p=>p.alive);if(pilot)shellMarch(this,{source:{x:sourceX,y:sourceY},partId:'bomb-bay',target:pilot,rows:this.finalRun?4:2,radius:55,step:78,beat:this.finalRun?.4:.48,visual:'carpet-bomb',tag:this.id+'-payload'});
       this.runTarget=null;this.phase='egress';this.raidWait=11.5+(engines===1?4:0);this.egressY=t.y+200;this.bayWarned=false;
      }else if(sourceY>t.y+70){this.onBombLine=false;this.bayOpen=0;this.bayWarned=false;}
     }

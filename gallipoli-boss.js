@@ -45,6 +45,8 @@ export class GallipoliFortress extends BaseBoss{
   const q=gallipoliCommandMuzzle(this);for(let i=0;i<n;i++)this.shot(q.x,q.y,i*Math.PI*2/n,1,0,speed,'gallipoli-ring');}
  locateHit(s){if(this.entryAge<5||this.dead)return null;for(const p of this.parts.values())if(!p.destroyed&&segmentDistance(0,0,(s.previousX??s.x)-this.x-p.x,(s.previousY??s.y)-this.y-p.y,s.x-this.x-p.x,s.y-this.y-p.y)<=p.radius+(s.radius||0))return{partId:p.id};return !this.commandDestroyed&&segmentDistance(0,0,(s.previousX??s.x)-this.x,(s.previousY??s.y)-this.y,s.x-this.x,s.y-this.y)<=this.coreRadius+(s.radius||0)?{partId:null}:null;}
  syncHp(){this.hp=Math.max(0,this.commandHp)+[...this.parts.values()].reduce((n,p)=>n+Math.max(0,p.hp),0);}
+ // Gun crews reloading after a barrage: the announced opening deals 1.5x.
+ counterWindow(){return this.recoveryRemaining>0?1.5:1;}
  hit(a){if(!Number.isFinite(a.damage)||a.damage<0)throw new Error('Invalid damage');if(this.entryAge<5||this.dead)return{damage:0,blocked:true};let result;
  if(a.partId){result=super.hit(a);}
  else{if(this.commandDestroyed)return{damage:0,blocked:true};const damage=Math.min(a.damage,this.commandHp);this.commandHp-=damage;result={damage,commandDestroyed:this.commandHp<=0};

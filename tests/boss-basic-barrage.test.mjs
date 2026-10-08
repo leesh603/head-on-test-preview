@@ -46,3 +46,23 @@ test('ordinary volley hits a stationary pilot but a finite-speed lateral dodge c
  for(let t=0;t<2.6;t+=.01){if(move&&t>.15)p.x+=140*.01;f.addon.tick(.01,f.frame);}return f.log.damage.length;};
  assert(trial(false)>0);assert.equal(trial(true),0);
 });
+// Every authored phrase, in every health tier, must leave real exits for a
+// pilot who reacts after the warning line appears (moving at cruise speed).
+test('authored ordinary phrases escalate by health tier and always leave escape headings',()=>{
+ const dirs=[[0,0],...Array.from({length:8},(_,i)=>[Math.cos(i*Math.PI/4),Math.sin(i*Math.PI/4)])];
+ for(const id of Object.keys(BOSS_CATALOG)){
+  const counts=[];
+  for(const [tier,ratio] of [[0,1],[1,.5],[2,.2]])for(let k=0;k<3;k++){
+   const shots=[];const e=createBossEncounter({id:'e',bossId:id,tuning:{...tuning,regionalViewWidth:390},x:0,y:-140,rng:()=>.5,emit:h=>{if(h.type==='hazard'&&h.tag?.endsWith(':basic-fire'))shots.push(h);}});
+   const bodies=[...e.bodies.values()];for(const b of bodies)b.hp=b.maxHp*ratio;const b=bodies.find(b=>BASIC_BARRAGES[b.kind]);if(!b)continue;
+   b.entryAge=99;b.basicCursor=k;b.basicTier=tier;
+   const P={id:'p',alive:true,x:-120,y:160,vx:150,vy:0,radius:12};
+   try{for(let t=0;t<30&&!shots.length;t+=.02){b.basicClock=0;e.update(.02,{players:[P],bounds:{left:-195,right:195,top:-422,bottom:422}});}}catch{continue}
+   if(!shots.length)continue;counts.push(shots.length);
+   const safe=dirs.filter(([dx,dy])=>{let hit=false;for(let t=0;t<4&&!hit;t+=.01){const s=Math.max(0,t-.15),moving=dx||dy;
+    const px=P.x+150*Math.min(t,.15)+(moving?dx:1)*150*s,py=P.y+(moving?dy:0)*150*s;
+    for(const h of shots){const at=t-(h.delay||0);if(at<0||at>h.duration)continue;if(Math.hypot(h.x+h.vx*at-px,h.y+h.vy*at-py)<16){hit=true;break;}}}return !hit;}).length;
+   assert(safe>=4,`${id} tier ${tier} phrase ${k}: only ${safe} escape headings`);
+  }
+ }
+});

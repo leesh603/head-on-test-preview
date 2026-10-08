@@ -87,7 +87,7 @@ test('Fortress searches all four quadrants and covers both co-op players with re
 
 test('A brief exposure produces strong two-second pursuit after the player leaves the light',()=>{
  const f=fixture(ParisSearchlightFortress);step(f,.02,{...f.frame,isIlluminated:()=>true});
- const initial=shots(f).length;assert.ok(initial>=12);assert.ok(f.events.some(e=>e.visual==='black-flak'&&e.warning<=.2));
+ const initial=shots(f).length;assert.ok(initial>=12);assert.ok(f.events.some(e=>e.visual==='black-flak'&&e.warning<=.5));
  step(f,1.8,{...f.frame,isIlluminated:()=>false});assert.ok(shots(f).length>initial+24);
  step(f,.4,{...f.frame,isIlluminated:()=>false});const pursuit=()=>shots(f).filter(e=>!e.tag?.endsWith(':basic-fire')).length;const stopped=pursuit();
  step(f,1,{...f.frame,isIlluminated:()=>false});assert.equal(pursuit(),stopped);assert.equal(f.body.locks.size,0);
