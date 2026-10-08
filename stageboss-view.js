@@ -150,7 +150,7 @@ function drawMinenwerfer(c,b){
  const scale=b.trenchScale||1,im=trenchBossArt.minenComposite;
  // Each emplacement paints at the full authored size; parts sit far enough
  // apart that the three installations stay visually separate.
- const dw=500*scale,dh=375*scale;
+ const dw=600*scale,dh=450*scale;
  const silhouette=[[8,92],[168,71],[168,40],[325,40],[325,72],[490,92],[490,260],[326,260],[326,308],[318,324],[180,324],[174,274],[8,274]];
  const drawInstallation=(image,p)=>{if(!(image?.naturalWidth||image?.width))return;c.save();c.beginPath();for(let i=0;i<silhouette.length;i++){const [sx,sy]=silhouette[i],px=p.x+(sx-250)*1.2*scale,py=p.y+(sy-187.5)*1.2*scale;i?c.lineTo(px,py):c.moveTo(px,py);}c.closePath();c.clip();c.drawImage(image,p.x-dw/2,p.y-dh/2,dw,dh);c.restore();};
  for(const p of parts){
