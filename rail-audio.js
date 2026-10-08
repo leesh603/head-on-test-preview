@@ -23,9 +23,11 @@ export function railAudioSamples(name,sampleRate=48000){
    const puff=Math.exp(-pos*(strong?15:17))*(strong?1:.66);
    const distance=arrival?.2+.8*Math.sin(Math.min(1,q*1.25)*Math.PI/2):.5;
    const thump=Math.sin(tau*72*t)*.5+Math.sin(tau*144*t)*.2;
-   v=(low*.16+((body-steam)*1.05+thump*.8+body*.18)*puff)*distance;
+   // Chuffs are low thump + a short metallic knock; the broadband hiss that
+   // read as wind noise stays out of the mix.
+   v=(low*.1+(thump*.9+body*.14+(body-steam)*.22)*puff)*distance;
    // Rod clank sits between the chuffs.
-   v+=body*.11*Math.exp(-Math.abs(pos-.55)*30)*distance;
+   v+=body*.08*Math.exp(-Math.abs(pos-.55)*30)*distance;
    if(arrival){
     // Steam whistle: single long blast. Dominant root + octave, valve-open pitch
     // droop, breath hiss and slow pressure wobble keep it steamy, not organ-like.
