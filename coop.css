@@ -22,3 +22,8 @@ body.local-coop #bossArrival{bottom:65px}
 body:not(.local-coop):not(.online-playing) #allyRing{display:none}
 body.local-coop #coopP2{display:none!important}
 body.online-playing #flightTop151 #coopHud{display:none!important}
+
+/* Pause build panel: show own pilot first, arrow-key between seats */
+#build151>section{display:none}#build151>section.build-active{display:block}
+#build151 .build-nav151{display:flex;justify-content:center;gap:18px;margin:2px 0 6px}
+#build151 .build-nav-btn{min-width:44px;min-height:36px;font-size:16px;border:1px solid var(--ho-hair-strong,#e8e2d440);background:#151512;color:#efebe2;border-radius:8px}
