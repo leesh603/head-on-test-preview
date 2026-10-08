@@ -1,13 +1,13 @@
 // Layered procedural SFX — every combat feedback voice is synthesized from
 // oscillators plus filtered noise, matching the music.js approach. No audio
 // assets, no external requests.
-import {railAudioSamples} from './rail-audio.js?v=rail9';
+import {railAudioSamples} from './rail-audio.js?v=gun1';
 const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproach
 let ctx=null,bus=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();
 const sources=new Map(),lastVoices=new Map();
-const PRIORITY={trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1,armorClink:2,whizz:1,closePass:2,airframeBreak:1,engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0};
-const INTERVAL={trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
+const PRIORITY={railGunFire520:2,railShellIncoming:1,railShellIncoming520:1,railShellImpact:1,railShellImpact520:2,trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1,armorClink:2,whizz:1,closePass:2,airframeBreak:1,engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0};
+const INTERVAL={railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
 let inputMedia=null;
 const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
 export function stopSfx(){for(const [source,entry]of sources){try{source.stop()}catch{}entry.release()}lastVoices.clear()}
@@ -36,6 +36,7 @@ function ac(){
     noise=ctx.createBuffer(1,ctx.sampleRate,ctx.sampleRate);
     const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
   }catch{}
+  loadFileCues();
   return ctx?.state;
 }
 function tone(f0,f1,d,v,type='square',cut=1600,when=0,att=.004){
@@ -63,12 +64,30 @@ function railSample(name,level){
  const n=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();n.buffer=buffer;f.type='lowpass';f.frequency.value=7200;g.gain.value=level*master;
  n.connect(f);f.connect(g);g.connect(bus);track(n,f,g);n.start();
 }
+// Recorded-style rail-gun cues (tools/fx-sample/railgun-audio.py → rail-*.mp3), decoded once.
+const FILE_CUES=['rail-fire-520','rail-fire-bruno','rail-incoming-520','rail-incoming-bruno','rail-impact-520','rail-impact-bruno'];
+const fileBuffers=new Map();let filesRequested=false;
+function loadFileCues(){
+ if(filesRequested||!ctx||typeof fetch!=='function')return;filesRequested=true;
+ for(const name of FILE_CUES)fetch(`./${name}.mp3?v=gun1`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,buf)).catch(()=>{});
+}
+function fileSample(name,level,fallback){
+ const buffer=fileBuffers.get(name);if(!buffer){loadFileCues();fallback?.();return}
+ if(!reserve())return;
+ const n=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();n.buffer=buffer;f.type='lowpass';f.frequency.value=16000;g.gain.value=level*master;
+ n.connect(f);f.connect(g);g.connect(bus);track(n,f,g);n.start();
+}
 const VOICES={
   trainApproach(){railSample('trainApproach',.68)},
   trainRoll(){railSample('trainRoll',.28)},
   trainBrake(){railSample('trainBrake',.34)},
   railBreech(){railSample('railBreech',.38)},
-  railGunFire(){railSample('railGunFire',.63)},
+  railGunFire(){fileSample('rail-fire-bruno',.8,()=>railSample('railGunFire',.63))},
+  railGunFire520(){fileSample('rail-fire-520',.9,()=>railSample('railGunFire',.63))},
+  railShellIncoming(){fileSample('rail-incoming-bruno',.38)},
+  railShellIncoming520(){fileSample('rail-incoming-520',.42)},
+  railShellImpact(){fileSample('rail-impact-bruno',.7,()=>VOICES.earthImpact())},
+  railShellImpact520(){fileSample('rail-impact-520',.8,()=>VOICES.earthImpact())},
   materialImpact(hit){const material=typeof hit==='string'?hit:hit?.material,streak=Math.min(6,hit?.streak||1);
     // A tighter body on repeated hits, not a critical-hit bell or volume ramp.
     if(streak>=3)tone(jit(150+streak*9),65,.055,.024,'triangle',650);
