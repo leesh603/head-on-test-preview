@@ -1,3 +1,4 @@
+import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=tame3';
 import {recordShipWake} from './naval-water.js?v=tame3';
 import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=tame3&rail=21';
 import {verdunFortCollapseSites} from './verdun-fortresses.js?v=tame3&rail=18';
@@ -55,7 +56,8 @@ export class StageBossAddon {
     Object.assign(this,{runId,hooks,rng,minionCap});this.serial=0;this.time=0;this.frameContext=null;this.defeatSequence=null;this.bodyDefeats=[];
     this.stages=new BossStages({teamFaction,stageIndex,loopIndex,rng});
     this.hazards=new BossHazards({capacity,onDamage:hooks.onDamage,onStatus:hooks.onStatus,onBarrierContact:hooks.onBarrierContact,
-      onActivate:h=>hooks.onCue({type:'hazard-activated',encounterId:h.encounterId,bossId:h.bossId,kind:h.kind,visual:h.visual,x:h.x,y:h.y,radius:h.radius,raidHeavy:h.raidHeavy,sourcePartId:h.sourcePartId})});
+      onActivate:h=>{if(h.basicMuzzle){const body=this.stages.encounter?.bodies.get(h.bossId),part=body?.parts.get(h.sourcePartId);if(part)part.recoil=Math.max(part.recoil||0,.18);hooks.onCue({type:'muzzle',encounterId:h.encounterId,bossId:h.bossId,partId:h.sourcePartId,x:h.x,y:h.y});}hooks.onCue({type:'hazard-activated',encounterId:h.encounterId,bossId:h.bossId,kind:h.kind,visual:h.visual,x:h.x,y:h.y,radius:h.radius,raidHeavy:h.raidHeavy,sourcePartId:h.sourcePartId});}});
+    this.canBasicFire=()=>this.hazards.pool.count<42;
     this.metrics={minionsDenied:0};this.ended=false;
   }
   startBoss({x,y}) {
@@ -127,13 +129,20 @@ export class StageBossAddon {
     // Resolve destruction before any lingering delayed attack can fire.
     this.reconcile({blocked:true});
     if(this.defeatSequence)this.updateDefeat(dt);
-    else if(encounter&&!encounter.completed)encounter.update(dt,{...frame,isIlluminated:p=>this.hazards.isIlluminated(p)});
+    else if(encounter&&!encounter.completed)encounter.update(dt,{...frame,canBasicFire:this.canBasicFire,isIlluminated:p=>this.hazards.isIlluminated(p)});
     for(const b of encounter?.bodies.values()||[]){const ship=b.support129||(b.kind.startsWith('hms-zubian')?b:null);if(ship&&!b.dead){if(b.support129)ship.hullYaw=ship.angle||0;recordShipWake(ship,dt,ship.height||950);}}
     // Queued rounds leave the actual surviving mount, even while the hull
     // moves during the warning. Once fired, their trajectory stays committed.
     this.hazards.pool.visit(h=>{
-      if(h.activated||!h.sourcePartId)return;
-      const body=encounter?.bodies.get(h.bossId),part=body?.parts.get(h.sourcePartId);
+      if(h.activated)return;
+      const body=encounter?.bodies.get(h.bossId);
+      if(body&&h.kind==='projectile'&&h.tag===body.id+':basic-fire'){
+        const part=h.sourcePartId&&body.parts.get(h.sourcePartId);
+        if(body.dead||h.sourcePartId&&(!part||part.destroyed)){this.hazards.pool.release(h.index,h.generation);return;}
+        const m=basicBarrageMuzzle(body,h);if(m){h.x=m.x;h.y=m.y;}return;
+      }
+      if(!h.sourcePartId)return;
+      const part=body?.parts.get(h.sourcePartId);
       if(!body||body.dead||!part||part.destroyed){this.hazards.pool.release(h.index,h.generation);return;}
       if(h.kind==='projectile'){h.x=body.x+part.x+h.sourceOffsetX;h.y=body.y+part.y+h.sourceOffsetY;}
     });

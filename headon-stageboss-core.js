@@ -1,3 +1,4 @@
+import {updateBasicBarrage} from './boss-basic-barrage.js?v=tame3';
 import {separateZubianHalves} from './adriatic-boss-layout.js?v=tame3';
 export class BossPart {
   constructor({id,maxHp,x=0,y=0,radius=24,hittable=true,kind='weakpoint',angle=0}) {
@@ -10,7 +11,12 @@ export class BossPart {
 export class BaseBoss {
   constructor({id,maxHp,x=0,y=0,coreRadius=80,parts=[],emit=()=>{}}) {
     if(!id||!Number.isFinite(maxHp)||maxHp<=0)throw new Error('Invalid boss');
-    Object.assign(this,{id,maxHp,hp:maxHp,x,y,coreRadius,emit});this.timers=new Map();
+    Object.assign(this,{id,maxHp,hp:maxHp,x,y,coreRadius});this.timers=new Map();
+    this.emit=event=>{
+      if(event.type==='hazard'&&event.raidHeavy){this.basicHoldUntil=Math.max(this.basicHoldUntil||0,(this.combatTime||0)+(event.delay||0)+(event.warning||0)+(event.duration||0)+.4);emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':basic-fire'});}
+      if(event.type==='body-defeated'||event.type==='part-destroyed'){emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':basic-fire'});this.basicClock=Math.max(this.basicClock||0,.65);}
+      emit(event);
+    };
     if(new Set(parts.map(p=>p.id)).size!==parts.length)throw new Error('Duplicate part ID');
     this.parts=new Map(parts.map(p=>[p.id,p instanceof BossPart?p:new BossPart(p)]));
     this.phase='active';this.coreVulnerable=true;this.dead=false;
@@ -75,7 +81,7 @@ export class BossEncounter {
         b.y=b.anchorY+Math.sin(b.motionTime*pace)*(armor?65:fixed?0:rail?95:ship?55:30);}
     }
     b.update(dt,ctx);
-    if(typeof b.suppressive==='function')b.suppressive(dt,ctx.players);
+    if(!updateBasicBarrage(b,dt,ctx)&&typeof b.suppressive==='function')b.suppressive(dt,ctx.players);
   }if(this.bossId==='hms-zubian')separateZubianHalves(this);}
   snapshot() {
     let hp=0,aliveParts=0,totalParts=0,shielded=false,formationAlive=0,formationTotal=0;const phases=[];
