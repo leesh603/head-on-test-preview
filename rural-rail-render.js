@@ -1,6 +1,6 @@
-import {fx} from './fx-art.js?v=ui5';
-import {getLocale} from './i18n.js?v=ui5';
-import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=ui5';
+import {fx} from './fx-art.js?v=adr1';
+import {getLocale} from './i18n.js?v=adr1';
+import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=adr1';
 import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=rail1';
 const circle=(c,x,y,r)=>{c.beginPath();c.arc(x,y,r,0,Math.PI*2);};
 // Called with the body's translation already applied. Original RGBA car art.
@@ -51,19 +51,31 @@ export function drawRuralRail(c,b,images,wrecks){
 export function drawRuralRailWarnings(c,b){
  if(!b.ruralRailBoss||b.dead)return;
  c.save();c.lineWidth=1.5;
- const pending=b.aimPlan||(b.kind==='paris-gun'?b.barrage:null);
+ const pending=b.finalAim||b.aimPlan||(b.kind==='paris-gun'?b.barrage:null);
  if(pending){const plan=pending,heavy=b.kind==='lincomparable';
   c.strokeStyle=plan.blind?'#b7c1a899':'#f0c589bb';c.setLineDash([7,7]);
   for(const [i,p]of plan.points.entries()){
    if(i<(plan.index||0))continue;
-   circle(c,p.x,p.y,heavy?92:plan.radius||88);c.stroke();
+   circle(c,p.x,p.y,plan.radius||88);c.stroke();
    if(!heavy){c.setLineDash([]);c.fillStyle='#f0cf91';c.font='bold 14px sans-serif';c.textAlign='center';c.fillText(String(i+1),p.x,p.y+5);c.setLineDash([7,7]);}
   }
-  if(heavy){circle(c,plan.target.x,plan.target.y,245);c.stroke();}
+  if(heavy){
+   const p=plan.target;circle(c,p.x,p.y,plan.wave);c.stroke();c.setLineDash([]);
+   c.fillStyle='#f0cf91';c.font='bold 13px sans-serif';c.textAlign='center';
+   c.fillText(getLocale()==='en'?'1 IMPACT → 2 WAVE':'1 착탄 → 2 충격파',p.x,p.y-plan.radius-10);
+   if(plan.final)c.fillText(getLocale()==='en'?(plan.locked?'AIM LOCKED':'AIM DRIFT'):(plan.locked?'조준 고정 · 급선회':'조준 이동 · 고정 후 이탈'),p.x,p.y+plan.radius+20);
+   if(plan.smoke&&plan.mode!=='heavy-shell'){
+    const smoke=plan.smoke;c.strokeStyle='#c6a680bb';c.setLineDash([5,6]);circle(c,smoke.x,smoke.y,smoke.radius);c.stroke();
+    c.fillText(getLocale()==='en'?'3 RESIDUE':'3 잔류 위험',smoke.x,smoke.y+5);
+    const dx=smoke.x-p.x,dy=smoke.y-p.y,len=Math.hypot(dx,dy)||1,d=plan.start-65;
+    c.setLineDash([]);c.strokeStyle='#bce5c9';circle(c,p.x-dx/len*d,p.y-dy/len*d,16);c.stroke();
+   }
+  }
  }
  if(b.kind==='paris-gun'&&b.railGun.brakeAge<.65){const q=b.railGun.brakeAge/.65;
   for(const side of [-1,1])fx(c,'gunSmoke',b.x+side*(60+q*40),b.y+105,60+q*65,70+q*75,0,(1-q)*.32);
  }
+ if(b.kind==='lincomparable'&&b.railGun.brakeAge<1.2){const q=b.railGun.brakeAge/1.2;for(const side of [-1,1])fx(c,'gunSmoke',b.x+side*(60+q*40),b.y+105,70+q*70,80+q*90,0,(1-q)*.34);}
  if(b.aaPlan){const rear=b.parts.get('car-rear'),x=b.x,y=b.y+rear.y-145,a=b.aaPlan.angle;
   c.setLineDash([5,7]);c.strokeStyle='#e9c38b99';for(const da of [-.14,0,.14]){c.beginPath();c.moveTo(x,y);c.lineTo(x+Math.cos(a+da)*230,y+Math.sin(a+da)*230);c.stroke();}
  }
@@ -80,7 +92,7 @@ export function drawRuralRailHazard(c,h){
   }
  }else{
   c.strokeStyle=warning?'#b6b69ba8':'#c0b29866';c.lineWidth=1.5;c.setLineDash(warning?[5,7]:[]);circle(c,h.x,h.y,h.radius);c.stroke();
-  if(!warning){fx(c,'smokeDark',h.x,h.y,240,240,0,.38);fx(c,'smokeGray',h.x-24,h.y-18,180,180,0,.32);}
+  if(!warning){const size=h.radius*2;fx(c,'smokeDark',h.x,h.y,size,size,0,.38);fx(c,'smokeGray',h.x-h.radius*.18,h.y-h.radius*.14,size*.75,size*.75,0,.32);}
  }
  c.restore();return true;
 }

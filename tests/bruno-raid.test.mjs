@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {ParisGun,LIncomparable} from '../headon-stageboss-patterns.js?v=ui5';
+import {ParisGun,LIncomparable} from '../headon-stageboss-patterns.js?v=adr1';
 import {brunoSalvo} from '../bruno-raid.js?v=1';
 import {BossHazards} from '../headon-stageboss-hazards.js';
 const tuning={maxHp:2400,partHp:288,damage:18,bulletSpeed:270,warningSeconds:1.15,railCycle:5.4,barrageInterval:.26};
@@ -49,4 +49,4 @@ for(const width of [390,487.5,960])for(const mode of ['ranging','tracking','cros
   for(let t=0;t<4;t+=.02){const x=direction*Math.min(width/2-20,t*180),p={id:'p',alive:true,x,y:0,radius:12};h.update(.02,{players:[p]});}best=Math.min(best,hits.length);assert.equal(h.pool.count,0);
  }assert.equal(best,0);
 });
-test('Bruno presentation does not leak entry or raid state into the 520mm gun',()=>{const {b}=make(LIncomparable);assert.equal(b.entry,undefined);assert.equal(b.raidPhase,undefined);aim(b);run(b,2);assert.equal(b.railGun.shotCount,1);assert.equal(b.rail129.c.aimSeconds,1.15);});
+test('the two train guns retain distinct entry timing and salvo identities',()=>{const {b}=make(LIncomparable);assert(b.entry);assert.equal(b.raidPhase,1);aim(b);assert.equal(b.aimPlan.mode,'heavy-shell');run(b,2);assert.equal(b.railGun.shotCount,1);assert.equal(b.rail129.c.aimSeconds,1.8);assert.equal(b.barrage,null);});

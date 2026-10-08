@@ -1,8 +1,9 @@
-import {RailAdapter} from './boss-adapters129.js?v=ui5';
-import {BaseBoss} from './headon-stageboss-core.js?v=ui5';
-import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=ui5';
+import {RailAdapter} from './boss-adapters129.js?v=adr1';
+import {BaseBoss} from './headon-stageboss-core.js?v=adr1';
+import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=adr1';
 import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=rail1';
 import {brunoSalvo} from './bruno-raid.js?v=1';
+import {lincomparableRound} from './lincomparable-raid.js?v=1';
 
 // Rural-only mechanics. The Cambrai carrier keeps its separate controller.
 export class RuralRailBoss extends RailAdapter {
@@ -13,6 +14,11 @@ export class RuralRailBoss extends RailAdapter {
   this.aimPlan=null;this.barrage=null;this.gunFlash=0;this.recovery=0;this.aaClock=1.6;this.aaPlan=null;
   this.railGun=createRailArtillery();
   if(kind==='paris-gun'){this.raidPhase=1;this.entry={age:0,initialized:false};this.observerMotion={vx:0,vy:-1};}
+  if(kind==='lincomparable'){
+   this.raidPhase=1;this.entry={age:0,initialized:false};this.reloadStress=0;this.finalAim=null;this.observerMotion={vx:0,vy:0};
+   this.baseReload=Math.max(3.2,this.baseReload);this.rail129.c.reloadSeconds=this.baseReload;
+   this.rail129.c.brakeSeconds=1.2;this.rail129.c.aimSeconds=Math.max(1.8,this.rail129.c.aimSeconds);
+  }
   this.blindOrigin={x:this.x,y:this.y+RURAL_RAIL.tailY};this.frameBounds=null;this.ruralClock=0;
   for(const spec of RURAL_CARS){const p=this.parts.get(spec.id);Object.assign(p,{x:0,y:spec.y,hp:this.maxHp*spec.share,maxHp:this.maxHp*spec.share,hitRadiusY:188,role:spec.role});}
   // A visible fixed track section behind the tail remains independently hittable.
@@ -32,6 +38,7 @@ export class RuralRailBoss extends RailAdapter {
     this.aimPlan=brunoSalvo(target,this.raidPhase,this.rail129.shot,blind?null:this.frameBounds,{blind});
     this.rail129.target={...target};
    }
+   if(this.kind==='lincomparable')this.aimPlan=lincomparableRound(target,this.raidPhase,this,{blind});
    aimRailArtillery(this,target);
    this.emit({...e,type:'rural-aim',target,bossId:this.id});return;
   }
@@ -39,12 +46,7 @@ export class RuralRailBoss extends RailAdapter {
    const plan=this.aimPlan||{target:e.target,points:[e.target]};this.blindOrigin={...plan.target};this.aimPlan=null;
    this.refreshReload();
    if(this.kind==='lincomparable'){
-    const target={x:plan.target.x,y:plan.target.y};
-    this.emit({type:'hazard',bossId:this.id,kind:'circle',...target,warning:.02,delay:0,duration:.65,once:true,radius:92,damage:this.t.damage*.74,visual:'rail-shell'});
-    // The wave has an actual safe interior; a swept annulus hits each pilot once.
-    this.emit({type:'hazard',bossId:this.id,kind:'circle',...target,warning:.55,delay:.28,duration:.4,once:true,radius:245,radiusStart:92,radiusLimit:245,ringWidth:42,ringSpeed:382.5,damage:this.t.damage*.62,visual:'rural-rail-shock'});
-    this.emit({type:'hazard',bossId:this.id,kind:'circle',...target,warning:.04,delay:.5,duration:1.8,once:false,tickInterval:.7,radius:132,damage:this.t.damage*.22,visual:'rural-rail-smoke'});
-    fireRailArtillery(this);this.recovery=this.rail129.c.recoilSeconds+this.rail129.c.reloadSeconds;
+    this.fire520(plan);this.recovery=this.rail129.c.recoilSeconds+this.rail129.c.reloadSeconds;
    }else{
     this.barrage={...plan,points:plan.points.map(p=>({...p})),index:0,clock:0};
     if(this.raidPhase===2&&!this.parts.get('car-rear').destroyed){this.aaPlan=null;this.aaClock=(plan.points.length-1)*plan.interval+.3;}
@@ -55,6 +57,9 @@ export class RuralRailBoss extends RailAdapter {
    this.refreshReload();
    if(this.kind==='paris-gun'&&this.runawayTriggered129){
     this.barrage=null;this.emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':iron-rain'});
+   }
+   if(this.kind==='lincomparable'&&this.finalAim){
+    const q=this.finalAim;Object.assign(q,lincomparableRound(q.target,2,this,{blind:q.blind,final:true,stress:this.reloadStress,broken:true}));
    }
   }
   if(e.type==='runaway-start'){
@@ -69,12 +74,32 @@ export class RuralRailBoss extends RailAdapter {
     this.barrage={...plan,index:0,clock:0};this.raidPhase=3;
     this.emit({type:'bruno-iron-rain',bossId:this.id,...this.rail129.pose});
    }
+   if(this.kind==='lincomparable'){
+    this.emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':520-round'});
+    const p=this.lastRaidPlayers?.[rail.shot%this.lastRaidPlayers.length]||this.blindOrigin;
+    const blind=this.parts.get('car-middle').destroyed;
+    const motion=blind?this.observerMotion:p;
+    // Preview a drifting aim for 1.4s, then lock for another full 1.4s.
+    // The destroyed observer uses stale motion, never a new homing sample.
+    this.finalAim={...lincomparableRound(p,2,this,{blind,final:true,stress:this.reloadStress,broken:rail.broken}),remaining:2.8,
+     originTarget:{x:p.x,y:p.y},forecast:{x:p.x+(motion.vx||0)*2.8,y:p.y+(motion.vy||0)*2.8}};
+    this.raidPhase=3;aimRailArtillery(this,this.finalAim.target);
+    this.emit({type:'lincomparable-last-520',bossId:this.id,...rail.pose});
+   }
   }
   super.railEvent(e);
  }
+ fire520(plan){
+  const target={x:plan.target.x,y:plan.target.y},tag=this.id+(plan.final?':last-520':':520-round');
+  const emit=spec=>this.emit({type:'hazard',bossId:this.id,kind:'circle',tag,...spec});
+  emit({...target,warning:.02,delay:0,duration:plan.centerDuration,once:true,radius:plan.radius,damage:this.t.damage*(plan.final?1.1:.74),visual:'rail-shell'});
+  emit({...target,warning:plan.waveWarning,delay:plan.waveDelay,duration:plan.waveDuration,once:true,radius:plan.wave,radiusStart:plan.start,radiusLimit:plan.wave,ringWidth:42,ringSpeed:(plan.wave-plan.start)/plan.waveDuration,damage:this.t.damage*(plan.final?.8:.62),visual:'rural-rail-shock'});
+  emit({...plan.smoke,warning:plan.smokeWarning,delay:plan.smokeDelay,duration:plan.smokeDuration,once:false,tickInterval:.7,damage:this.t.damage*.22,visual:'rural-rail-smoke'});
+  fireRailArtillery(this);
+ }
  onPartDestroyed(p){
   if(p.kind!=='rail-car')return;
-  const detachSpeed=this.kind==='paris-gun'?Math.min(this.rail129.velocity,this.rail129.c.speed):this.rail129.velocity;
+  const detachSpeed=Math.min(this.rail129.velocity,this.rail129.c.speed);
   p.detachedPose={x:this.x+p.x,y:this.y+p.y,vx:10,vy:detachSpeed*this.rail129.direction*.45,angle:0,age:0};
   this.pullAway=true;
   if(p.id==='car-rear')this.aaPlan=null;
@@ -92,6 +117,8 @@ export class RuralRailBoss extends RailAdapter {
  }
  update(dt,ctx){
   if(this.dead||ctx.paused)return;dt=Math.min(dt,.25);this.ruralClock+=dt;this.frameBounds=ctx.bounds;
+  this.lastRaidPlayers=(ctx.players||[]).filter(p=>p.alive!==false&&Number.isFinite(p.x)&&Number.isFinite(p.y));
+  if(this.kind==='lincomparable'&&!this.parts.get('car-middle').destroyed&&this.lastRaidPlayers.length){const p=this.lastRaidPlayers[this.rail129.shot%this.lastRaidPlayers.length];this.observerMotion={vx:p.vx||0,vy:p.vy||0};}
   if(this.kind==='paris-gun'){
    this.lastRaidPlayers=(ctx.players||[]).filter(p=>p.alive!==false&&Number.isFinite(p.x)&&Number.isFinite(p.y));
    if(!this.parts.get('car-middle').destroyed&&this.lastRaidPlayers.length){const p=this.lastRaidPlayers[this.rail129.shot%this.lastRaidPlayers.length];this.observerMotion={vx:p.vx||0,vy:p.vy||0};}
@@ -99,6 +126,13 @@ export class RuralRailBoss extends RailAdapter {
    const rear=this.parts.get('car-rear');
    if(this.raidPhase===1&&(this.hp<=this.maxHp*.92||rear.hp<=rear.maxHp*.5)){
     this.raidPhase=2;this.emit({type:'phase-change',bossId:this.id,phase:'bruno-tracking'});
+   }
+  }
+  if(this.kind==='lincomparable'){
+   if(this.update520Entry(dt,ctx))return;
+   const rear=this.parts.get('car-rear');
+   if(this.raidPhase===1&&(this.hp<=this.maxHp*.84||rear.destroyed)){
+    this.raidPhase=2;this.emit({type:'phase-change',bossId:this.id,phase:'lincomparable-shock-link'});
    }
   }
   this.gunFlash=Math.max(0,this.gunFlash-dt);this.refreshReload();
@@ -122,8 +156,40 @@ export class RuralRailBoss extends RailAdapter {
   if(this.barrage){const q=this.barrage;q.clock-=dt;while(q.index<q.points.length&&q.clock<=0){const p=q.points[q.index++];fireRailArtillery(this);this.emit({type:'hazard',bossId:this.id,kind:'circle',...p,warning:q.warning??.85,delay:0,duration:q.duration??.35,once:true,radius:q.radius??88,damage:this.t.damage,visual:'rail-shell',tag:q.final?this.id+':iron-rain':this.kind==='paris-gun'?this.id+':bruno-salvo':null});q.clock+=q.interval||this.t.barrageInterval||.32;}
    if(q.index===q.points.length){this.barrage=null;if(this.kind==='paris-gun'&&this.raidPhase===2&&!q.final&&!this.parts.get('car-rear').destroyed)this.aaClock=.3;}}
   updateRailArtillery(this,dt);
+  if(this.finalAim){
+   const q=this.finalAim;q.remaining-=dt;
+   if(!q.locked){
+    const f=Math.min(1,(2.8-q.remaining)/1.4),target={x:q.originTarget.x+(q.forecast.x-q.originTarget.x)*f,y:q.originTarget.y+(q.forecast.y-q.originTarget.y)*f};
+    Object.assign(q,lincomparableRound(target,2,this,{blind:q.blind,final:true,stress:this.reloadStress,broken:rail.broken}));aimRailArtillery(this,q.target);
+    if(q.remaining<=1.4){q.locked=true;this.emit({type:'phase-change',bossId:this.id,phase:'lincomparable-locked'});}
+   }
+   if(this.finalAim.remaining<=0){const plan=this.finalAim;this.finalAim=null;this.fire520(plan);this.finalCounter=true;this.emit({type:'phase-change',bossId:this.id,phase:'lincomparable-counter'});}
+  }
   this.updateDefense(dt,ctx.players||[]);
   if(!this.runawayTriggered129)this.phase=this.coreVulnerable?'locomotive':rail.phase;
+ }
+ update520Entry(dt,ctx){
+  const e=this.entry,r=this.rail129;if(!e)return false;
+  if(r.phase!=='move'||r.broken||this.railCarOrder.some(id=>this.parts.get(id).destroyed)){
+   if(e.initialized){r.from.y=this.y-r.length/2;r.to.y=this.y+r.length/2;r.s=r.length/2;}
+   this.entry=null;return false;
+  }
+  const bounds=ctx.bounds,p=this.lastRaidPlayers[0];if(!bounds||!p){this.entry=null;return false;}
+  if(!e.initialized){
+   const width=bounds.right-bounds.left,side=p.x>(bounds.left+bounds.right)/2?-1:1;
+   this.x=Math.max(bounds.left+110,Math.min(bounds.right-110,p.x+side*Math.min(170,width*.26)));
+   e.startY=bounds.bottom+200;this.y=e.startY;e.initialized=true;
+   r.from={x:this.x,y:this.y-r.length/2};r.to={x:this.x,y:this.y+r.length/2};r.s=r.length/2;
+   r.railTarget={x:this.x,y:Math.max(bounds.top+90,Math.min(bounds.bottom-90,p.y+190)),radius:34};this.syncRailPart();
+   this.emit({type:'lincomparable-rail-discovered',bossId:this.id,x:this.x,y:r.railTarget.y});
+  }
+  e.age+=dt;const oldY=this.y;
+  if(e.age<=.8){r.velocity=0;this.phase='arrival';return true;}
+  const q=Math.min(1,(e.age-.8)/4.8),stop=Math.max(bounds.top+160,Math.min(bounds.bottom-160,p.y-190));
+  this.y=e.startY+(stop-e.startY)*(q*(2-q));r.s=this.y-r.from.y;r.velocity=Math.abs(this.y-oldY)/dt;r.direction=-1;
+  this.railGun.shotAge+=dt;updateRailArtillery(this,dt);this.syncRailPart();this.phase='arrival';
+  if(q===1){this.entry=null;r.from.y=this.y-r.length/2;r.to.y=this.y+r.length/2;r.s=r.length/2;r.velocity=0;r.target=null;r.enter('brake');r.brakeStart=0;this.railGun.brakeAge=0;this.emit({type:'rural-rail-brake',bossId:this.id});this.emit({type:'phase-change',bossId:this.id,phase:'lincomparable-heavy-shell'});}
+  return true;
  }
  updateBrunoEntry(dt,ctx){
   const e=this.entry,r=this.rail129;if(!e)return false;
@@ -179,8 +245,11 @@ export class RuralRailBoss extends RailAdapter {
    const result=BaseBoss.prototype.hit.call(this,s);this.hp=Math.max(Math.min(this.hp,this.maxHp*.4),this.hp-result.damage);return result;
   }
   const damage=!s.partId&&this.kind==='lincomparable'&&!this.derailed129?s.damage*(this.recovery>0?1.35:.35):s.damage;
+  if(!s.partId&&this.kind==='lincomparable'&&this.coreVulnerable&&!this.runawayTriggered129&&this.recovery>0){
+   this.reloadStress=Math.min(1,this.reloadStress+Math.min(damage,Math.max(0,this.hp-this.maxHp*.28))/(this.maxHp*.12));
+  }
   return super.hit({...s,damage});
  }
  locateHit(s){return this.dead?null:super.locateHit(s);}
- dispose(){this.entry=null;this.aimPlan=null;this.aaPlan=null;this.barrage=null;super.dispose();}
+ dispose(){this.entry=null;this.finalAim=null;this.aimPlan=null;this.aaPlan=null;this.barrage=null;super.dispose();}
 }
