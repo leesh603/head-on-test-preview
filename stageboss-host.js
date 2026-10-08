@@ -1,21 +1,21 @@
-import {resolveSurfaceSpacing} from './naval-spacing.js?v=adr1';
+import {resolveSurfaceSpacing} from './naval-spacing.js?v=raid1';
 
-import {tickRegionalConditions} from './region-doctrine1.js?v=adr1';
+import {tickRegionalConditions} from './region-doctrine1.js?v=raid1';
 
-import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=adr1';
-import {handleMaanCue} from './maan-view.js?v=adr1';
-import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=adr1';
-import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=adr1';
-import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=adr1';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=adr1';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=adr1';
-import {bossSoundFor} from './boss-feedback.js?v=adr1&rail=1&hints=1';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=adr1&rail=1';
-import {advanceCambraiBug} from './cambrai-bug-flight.js?v=adr1';
-import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=adr1';
+import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=raid1';
+import {handleMaanCue} from './maan-view.js?v=raid1';
+import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=raid1';
+import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=raid1';
+import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=raid1';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=raid1';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=raid1';
+import {bossSoundFor} from './boss-feedback.js?v=raid1&rail=1&hints=1';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=raid1&rail=1';
+import {advanceCambraiBug} from './cambrai-bug-flight.js?v=raid1';
+import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=raid1';
 
 
-import {createJutlandRoute,tickJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=adr1';
+import {createJutlandRoute,tickJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=raid1';
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭','마안 전투','갈리폴리 전선','1918 파리 야간공습','유틀란트 해전'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -130,6 +130,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    const x=event.x??body?.x??g.x,y=event.y??body?.y??g.y;
    if(event.type==='livens-pressure-rise'){g.shake=Math.max(g.shake,2);g.event('wave','지면 진동 · 매설 노즐의 압력 상승');}
    if(event.type==='livens-soil-burst'){g.shake=Math.max(g.shake,3);}
+   if(event.type==='minenwerfer-final-order'){g.event('wave','최후의 포격 명령 · 번호 순서대로 착탄');g.shake=Math.max(g.shake,2);}
    if(event.type==='trench-discovered'){g.event('wave','지역 보스 발견 · '+BOSS_CATALOG[body?.kind]?.name);}
    const sound=bossSoundFor(event,body?.kind||event.bossId);if(sound)g.event('bossSound',sound);
    if(event.type==='city-mine-lane'&&body?.kind==='drachen-net')for(const f of g.hostileMinefields||[])if(f.encounterId===event.encounterId)for(const m of f.mines)if(Math.abs((m.targetX??m.x)-event.x)<event.width/2){m.dead=true;m.chainHandled=true;}
@@ -169,6 +170,9 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     for(let i=0;i<4;i++){const ox=(g.rng?g.rng()-.5:Math.random()-.5)*120,oy=(i-1.5)*55+(g.rng?g.rng()-.5:Math.random()-.5)*30,r=24+((i*37)%3)*14;g.combatBlast(event.x+ox,event.y+oy,r,'enemy','structure');if(g.burst)g.burst(event.x+ox,event.y+oy,'#ffd06a',6);if(g.smoke)g.smoke(event.x+ox,event.y+oy,true)}
     g.event('wave','열차 객차 파괴 · 기관차 방호 약화');}
    else if(event.type==='rail-runaway'){g.event('wave','기관차 폭주! · 선로에서 이탈하기 전에 추격하세요');g.shake=Math.max(g.shake,6);}
+   else if(event.type==='bruno-iron-rain'){g.event('wave','철의 폭우 · 착탄 순서를 벗어나 급선회!');g.shake=Math.max(g.shake,6);}
+   else if(event.type==='heavy-gun-fired'&&event.railArtillery&&body?.kind==='lincomparable'){g.event('bossSound','heavyShot');g.shake=Math.max(g.shake,5);}
+   else if(event.type==='lincomparable-last-520'){g.event('wave','520mm 최후 포격 · 중심 이탈 후 충격파 안쪽으로!');g.shake=Math.max(g.shake,6);}
    else if(event.type==='rail-derail'){g.combatBlast(x,y,96,'enemy','structure');g.shake=Math.max(g.shake,12);g.event('wave','기관차 탈선 · 최종 코어 노출');}
    else if(event.type==='body-defeated'&&event.kind?.startsWith('hms-zubian-')){g.combatBlast(x,y,82,'enemy','bossFinal');g.shake=Math.max(g.shake,10);}
     else if(event.type==='mine-chain'){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:.52,kind:event.chainIndex?'aaChainBurst':'aaMineBurst'});
@@ -350,7 +354,8 @@ export function beginStageBossFrame(g,dt){
    }else if(stage===13){x=g.x;y=g.y-Math.min(340,(bounds.bottom-bounds.top)*.42);
    }else{
     const structure=stage===3||stage===12;
-    const forward=naval?Math.max(520,Math.min(760,(bounds.bottom-bounds.top)*1.05)):structure?Math.max(520,Math.min(700,(bounds.bottom-bounds.top)*.95)):rail?Math.max(460,Math.min(650,(bounds.bottom-bounds.top)*.82)):0;
+    const distantMortar=stage===3&&addon.stages.bossId==='minenwerfer-battery';
+    const forward=distantMortar?Math.max(680,(bounds.bottom-bounds.top)*.95+180):naval?Math.max(520,Math.min(760,(bounds.bottom-bounds.top)*1.05)):structure?Math.max(520,Math.min(700,(bounds.bottom-bounds.top)*.95)):rail?Math.max(460,Math.min(650,(bounds.bottom-bounds.top)*.82)):0;
     const heading=Number.isFinite(g.a)?g.a:-Math.PI/2;
     x=g.x+(alpine?105:(naval||rail||structure)?Math.cos(heading)*forward:0);
     y=g.y+(alpine?-Math.max(165,Math.min(180,(bounds.bottom-bounds.top)*.24)):(naval||rail||structure)?Math.sin(heading)*forward:stage===4?0:stage===10?-Math.min(90,(bounds.bottom-bounds.top)*.12):-Math.min(180,(bounds.bottom-bounds.top)*.22));
