@@ -758,6 +758,16 @@ export class LivensFlameProjector extends PatternBoss {
       length:range+n.length,thickness:weak?38:54,muzzleLength:n.length,warning:warn,duration:dur,tickInterval:.22,
       damage:this.t.damage*(weak?.65:1),visual:'livens-flame',tag:'livens-flame'});
     this.command('flame-warning',{x:this.x+n.x,y:this.y+n.y,angle,seconds:warn});
+    // Fire-shell bomblets ride the sweep: every marker lands ahead of the beam
+    // on its own beat, turning the sweep's arc into a readable domino wave.
+    if(mode==='sweep'||mode==='storm-sweep'){
+      const nshots=5,beat=weak?.42:.55;
+      for(let i=0;i<nshots;i++){
+        const a=angle+span*(i+.5)/nshots,d=n.length+range*(.34+.11*i);
+        this.hazard('circle',{x:this.x+n.x+Math.cos(a)*d,y:this.y+n.y+Math.sin(a)*d,radius:52,warning:warn+(weak?.5:.75)+i*beat,delay:0,duration:.5,once:true,
+          damage:this.t.damage*(weak?.5:.6),visual:'livens-leak',tag:'livens-fire-shell'});
+      }
+    }
   }
   update(dt,{players=[],bounds,paused=false}){
     if(this.dead||paused)return;dt=Math.min(dt,.25);this.frameDt=dt;this.x=this.anchorX;this.y=this.anchorY;
@@ -839,10 +849,14 @@ export class MinenwerferBattery extends PatternBoss {
     if(bounds){x=Math.max(bounds.left+margin,Math.min(bounds.right-margin,x));y=Math.max(bounds.top+margin,Math.min(bounds.bottom-margin,y));}
     return{x,y,dx,dy};
   }
-  shell(gun,x,y,{warning=1.2,heavy=gun.id==='main-gun',damage=.78}={}){
+  shell(gun,x,y,{warning=1.2,heavy=gun.id==='main-gun',damage=.78,fx=true}={}){
     if(gun.destroyed||this.dead)return;const source=this.muzzle(gun);
     this.hazard('circle',{x,y,sourceX:source.x,sourceY:source.y,radius:heavy?58:48,warning,duration:.62,once:true,
       damage:this.t.damage*damage,visual:heavy?'minenwerfer-heavy':'minenwerfer-shell',tag:'minenwerfer-'+gun.id});
+    if(fx)this.blast(gun);
+  }
+  blast(gun){
+    if(gun.destroyed||this.dead)return;const source=this.muzzle(gun);
     gun.mortarFlash=.22;gun.mortarSmoke=1.5;
     this.command('mortar-launch',{...source,partId:gun.id});this.command('muzzle',{...source,partId:gun.id});
   }
@@ -854,6 +868,10 @@ export class MinenwerferBattery extends PatternBoss {
     if(!points.length)return;
     if(bounds)for(const p of points){const margin=p.partId==='main-gun'?72:62;p.x=Math.max(bounds.left+margin,Math.min(bounds.right-margin,p.x));p.y=Math.max(bounds.top+margin,Math.min(bounds.bottom-margin,p.y));}
     this.mortarPlan={name,age:0,final,shots:points.map((p,i)=>({...p,order:i+1,fired:false,radius:p.partId==='main-gun'?58:48,warning:p.warning||1.25})),end:Math.max(...points.map(p=>p.at+(p.warning||1.25)+.62))};
+    // The whole salvo's landing markers go down at once so the volley reads as a
+    // wave: impacts still arrive on each gun's firing beat (shot.at + warning).
+    for(const shot of this.mortarPlan.shots){const gun=this.parts.get(shot.partId);
+      if(gun&&!gun.destroyed&&!shot.retarget)this.shell(gun,shot.x,shot.y,{warning:shot.at+shot.warning,heavy:shot.partId==='main-gun',fx:false});}
     this.command(final?'minenwerfer-final-order':'phase-change',{phase:final?'minenwerfer-final-order':name,count:this.liveGuns().length});
   }
   cooperative(players,bounds,guns){
@@ -902,7 +920,7 @@ export class MinenwerferBattery extends PatternBoss {
       for(let i=0;i<3;i++){const a=this.rng()*6.28,d=280+this.rng()*140;this.command('gas-zone',{x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,radius:120+this.rng()*40,life:8});}}
     this.finalGrace=Math.max(0,this.finalGrace-dt);this.recovery=Math.max(0,this.recovery-dt);
     if(this.mortarPlan){const plan=this.mortarPlan;plan.age+=dt;
-      for(const shot of plan.shots)if(!shot.fired&&plan.age>=shot.at){shot.fired=true;const gun=this.parts.get(shot.partId);if(!gun.destroyed){if(shot.retarget){const target=this.target(players);if(target){if(bounds){const tx=(bounds.right-bounds.left)/2-34,ty=(bounds.bottom-bounds.top)/2-34;shot.warning=Math.max(.9,Math.min(1.35,tx/Math.max(1,Math.abs(target.vx||0)),ty/Math.max(1,Math.abs(target.vy||0))));}const aim=this.aimPoint(gun,target,this.shotSerial++,bounds,shot.warning,34);shot.x=aim.x;shot.y=aim.y;}}this.shell(gun,shot.x,shot.y,{warning:shot.warning});}}
+      for(const shot of plan.shots)if(!shot.fired&&plan.age>=shot.at){shot.fired=true;const gun=this.parts.get(shot.partId);if(!gun.destroyed){if(shot.retarget){const target=this.target(players);if(target){if(bounds){const tx=(bounds.right-bounds.left)/2-34,ty=(bounds.bottom-bounds.top)/2-34;shot.warning=Math.max(.9,Math.min(1.35,tx/Math.max(1,Math.abs(target.vx||0)),ty/Math.max(1,Math.abs(target.vy||0))));}const aim=this.aimPoint(gun,target,this.shotSerial++,bounds,shot.warning,34);shot.x=aim.x;shot.y=aim.y;}}if(shot.retarget)this.shell(gun,shot.x,shot.y,{warning:shot.warning});else this.blast(gun);}}
       if(plan.age>=plan.end||!plan.shots.length){this.mortarPlan=null;this.recovery=plan.final?3:1.6;this.specialClock=4.2;this.cycleClock=.3;}
     }else if(!this.recovery){
       if(this.discovered&&!this.finalGrace&&!this.finalCounts.has(guns.length)&&(this.hp<=this.maxHp*.25||guns.length===1)){this.finalOrder(players,bounds,guns);}
