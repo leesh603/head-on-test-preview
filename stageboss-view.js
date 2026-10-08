@@ -7,9 +7,9 @@ import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './m
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=tame3&rail=18';
 import {verdunFortExtents} from './verdun-fortresses.js?v=tame3&rail=18';
 import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=tame3&rail=1';
-import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=tame3&rail=33';
+import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=tame3&rail=34';
 import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=tame3';
-import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=tame3&rail=33';
+import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=tame3&rail=34';
 import {sommeExtents} from './somme-boss-layout.js?v=tame3';
 import {drawZubianShip} from './adriatic-boss-render.js?v=tame3';
 import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=tame3';
