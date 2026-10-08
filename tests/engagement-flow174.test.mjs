@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,BATTLE_DIRECTOR_PATTERNS as P} from '../engine.js?v=lc1';
-import {wingmanEngagementStep,patrolEngagementStep} from '../engagement-flow174.js?v=lc1';
+import {Game,BATTLE_DIRECTOR_PATTERNS as P} from '../engine.js?v=lc2';
+import {wingmanEngagementStep,patrolEngagementStep} from '../engagement-flow174.js?v=lc2';
 
 
 test('ordinary wingmen split nearby targets, fly their own passes and return within the leash',()=>{

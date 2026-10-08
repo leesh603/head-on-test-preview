@@ -62,7 +62,7 @@ function railSample(name,level){
  n.connect(f);f.connect(g);g.connect(bus);track(n,f,g);n.start();
 }
 const VOICES={
-  trainApproach(){railSample('trainApproach',.58)},
+  trainApproach(){railSample('trainApproach',.68)},
   trainRoll(){railSample('trainRoll',.28)},
   trainBrake(){railSample('trainBrake',.34)},
   railBreech(){railSample('railBreech',.38)},

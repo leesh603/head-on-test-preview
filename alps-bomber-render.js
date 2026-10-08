@@ -1,10 +1,10 @@
-import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=lc1';
-import {fx} from './fx-art.js?v=lc1';
+import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=lc2';
+import {fx} from './fx-art.js?v=lc2';
 
 function atlasFrame(c,im,frame,w,h){if(!im?.naturalWidth)return false;const sw=im.naturalWidth/3,sh=im.naturalHeight/2;c.drawImage(im,(frame%3)*sw,Math.floor(frame/3)*sh,sw,sh,-w/2,-h/2,w,h);return true;}
 function rectWarning(c,lane,alpha){c.globalAlpha=alpha;c.fillStyle=lane.safe?'#82cfc812':'#d69c5120';c.strokeStyle=lane.safe?'#a1d8cc':'#f2bc72';c.lineWidth=1.5;c.setLineDash(lane.safe?[10,10]:[7,5]);c.fillRect(lane.x-lane.width/2,lane.y-lane.height/2,lane.width,lane.height);c.strokeRect(lane.x-lane.width/2,lane.y-lane.height/2,lane.width,lane.height);c.setLineDash([]);}
 export function drawAlpsWarnings(c,body){
- if(body.cannonLock){const q=alpsMuzzle(body,'cannon',body.cannonLock.angle),a=body.cannonLock.angle,f=Math.min(1,body.cannonRemaining/1.25);c.save();c.strokeStyle='#ffd18dd0';c.lineWidth=2;c.setLineDash([9,7]);c.beginPath();c.moveTo(q.x,q.y);c.lineTo(q.x+Math.cos(a)*900,q.y+Math.sin(a)*900);c.stroke();c.setLineDash([]);c.strokeStyle='#fff0b6';c.beginPath();c.arc(q.x,q.y,13+f*12,0,Math.PI*2);c.stroke();c.restore();}
+ if(body.cannonLock){const q=alpsMuzzle(body,'cannon',body.cannonLock.angle),a=body.cannonLock.angle,f=Math.min(1,body.cannonRemaining/(body.cannonLock.seconds||1.25));c.save();c.strokeStyle='#171c20';c.lineWidth=6;c.beginPath();c.moveTo(q.x,q.y);c.lineTo(q.x+Math.cos(a)*900,q.y+Math.sin(a)*900);c.stroke();c.strokeStyle='#ffe5ae';c.lineWidth=2;c.setLineDash([9,7]);c.beginPath();c.moveTo(q.x,q.y);c.lineTo(q.x+Math.cos(a)*900,q.y+Math.sin(a)*900);c.stroke();c.setLineDash([]);c.strokeStyle='#fff0b6';c.beginPath();c.arc(q.x,q.y,13+f*12,0,Math.PI*2);c.stroke();if(body.ironCage){c.font='bold 13px monospace';c.fillStyle='#fff0b6';c.fillText((body.ironCage.index+1)+' / '+body.ironCage.shots,q.x+16,q.y-16);}c.restore();}
  if(body.bombRunRemaining>0){c.save();for(const l of body.laneWarnings||[])rectWarning(c,l,.8);c.restore();}
 }
 export function drawAlpsBomber(c,b,original,atlas){
@@ -17,6 +17,8 @@ export function drawAlpsBomber(c,b,original,atlas){
    const frame=p.destroyed?(p.kind==='engine'?1:p.kind==='payload'?3:2):0,r=p.radius;
    c.save();c.beginPath();c.rect(p.localX-r*1.6,p.localY-r*2.1,r*3.2,r*4.2);c.clip();atlasFrame(c,atlas,frame,w,h);c.restore();
   }
+  const cannon=parts.find(p=>p.id==='cannon');
+  if(cannon&&!cannon.destroyed&&cannon.recoil>0&&original?.naturalWidth){c.save();c.beginPath();c.rect(cannon.localX-13*s,cannon.localY-22*s,26*s,44*s);c.clip();c.drawImage(original,-w/2,-h/2+cannon.recoil/.22*7*s,w,h);c.restore();}
   const bay=parts.find(p=>p.id==='bombBay');if(bay?.hittable&&!bay.destroyed){c.fillStyle='#1d2019';c.fillRect(bay.localX-9*s,bay.localY-13*s,18*s,26*s);c.strokeStyle='#bd9556';c.lineWidth=2*s;c.strokeRect(bay.localX-10*s,bay.localY-14*s,20*s,28*s);for(let i=0;i<3;i++)fx(c,'bomb',bay.localX+(i-1)*5*s,bay.localY,15*s,5*s,Math.PI/2,.8);}
   // Moving smoke stays attached to the failed nacelle; healthy engines get
   // short propeller glints, rather than a second decorative weapon sprite.

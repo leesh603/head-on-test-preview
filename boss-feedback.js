@@ -44,6 +44,7 @@ PHASES['minenwerfer-final-order']=['최후의 포격 명령','Final bombardment 
 PHASES['livens-sweep']=['연료 누출 · 좌우 화염 쓸기','Fuel leaks · alternating flame sweep'];
 PHASES['livens-unstable']=['압력 불안정 · 단속 분사와 회전','Unstable pressure · pulses and rotation'];
 PHASES['livens-depressurized']=['압력 저하 · 본체 반격 기회','Depressurized · strike the core'];
+Object.assign(PHASES,{'alps-phase-2':['사선 확보 · 측면 기동','Flank to acquire the firing lane'],'alps-phase-3':['엔진 불균형 · 연계 공격','Asymmetric engines · linked attacks'],'gik-iron-cage':['알프스의 철창 · 예고선 옆으로 급선회','Alpine iron cage · turn off the locked lines'],'gik-recovery':['기관포 냉각 · 반격 기회','Cannon cooling · counterattack'],'gik-strafe-run':['후방 추격 견제 · 연속 폭탄','Rear pursuit defense · stick bombs']});
 export function bossPhaseLabel(phase,locale='ko'){const words=PHASES[phase];return words?words[locale==='en'?1:0]:pair('보스 전술 변화','Boss tactics changed',locale)}
 export const BOSS_NAMES_EN=Object.freeze({'jutland-grand-fleet':'Jutland Battle Squadron','paris-staaken-rvi':'Zeppelin-Staaken R.VI · Paris raid','paris-searchlight-fortress':'Paris searchlight fortress','gallipoli-fortress':'Gallipoli Grand Fortress · Siege','wustenpanzer':'Wüstenpanzer · Desert cruiser','sinai-landship':'Sinai Landship','fort-douaumont':'Fort Douaumont','fort-souville':'Fort de Souville',
  'paris-gun':'Bruno railway gun',lincomparable:"520mm L’Incomparable",'sms-stuttgart':'SMS Stuttgart','hms-zubian':'HMS Zubian',
@@ -54,7 +55,7 @@ export const BOSS_NAMES_EN=Object.freeze({'jutland-grand-fleet':'Jutland Battle 
  'mark4-wedge':'Mark I landship breakthrough','morser-battery':'Schwaben underground fortress',
  'gotha-squadron':'Gotha night bomber squadron','london-apron-raid':'London balloon apron raid','staaken-rvi':'Staaken R.VI giant bomber','london-searchlight':'London searchlight battery','flak-tower':'QF 13-pounder flak towers'
 });
-const TACTIC_RAIL_ONLY=new Set(['paris-gun','lincomparable','a7v-flak','mark-v-cruiser','flak-tower','fliegerzug','treffas-wagen']);
+const TACTIC_RAIL_ONLY=new Set(['paris-gun','lincomparable','a7v-flak','mark-v-cruiser','flak-tower','fliegerzug','treffas-wagen','gik','ca4']);
 export function bossTactic(encounter,locale='ko'){
  // Keep existing hint visibility; Somme's new component choices need cues.
  if(!TACTIC_RAIL_ONLY.has(encounter?.bossId)&&!['mark4-wedge','morser-battery','wustenpanzer','sinai-landship','gallipoli-fortress','paris-staaken-rvi','paris-searchlight-fortress','jutland-grand-fleet'].includes(encounter?.bossId))return '';
@@ -102,6 +103,9 @@ export function bossTactic(encounter,locale='ko'){
 }
 export function bossSoundFor(event,kind=''){
  const type=event.type,visual=event.visual||'';
+ if(type==='alps-approach')return 'formationPass';
+ if(type==='alps-cannon-lock'||type==='alps-final-warning')return 'approachWarning';
+ if(type==='alps-discovered')return 'formationPass';
  if(type==='armor-drive')return 'armorDrive';
  if(type==='armor-entry')return 'armorEntry';
  if(type==='armor-brake')return 'armorBrake';

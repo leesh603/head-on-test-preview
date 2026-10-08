@@ -21,14 +21,17 @@ export function railAudioSamples(name,sampleRate=48000){
    // Exhaust chuffs have pressure noise rather than a melodic low-frequency oscillator.
    v+=(body-steam)*.24*Math.pow(Math.max(0,Math.sin(tau*phase*2)),4)*distance;
    if(arrival){
-    // Steam whistle: one long blast, a 3-chime chord with beating, breath noise on top.
-    const wt=t-.22,env=wt>0&&wt<3.05?Math.min(1,wt/.11)*Math.min(1,(3.05-wt)/.42):0;
-    const drift=1-.012*q+.0045*Math.sin(tau*5.4*t)+.0012*low;
-    const chord=Math.sin(tau*233*t*drift)+.9*Math.sin(tau*294*t*(drift+.0015)+.3)+.74*Math.sin(tau*370*t*(drift-.001)+.7)+.38*Math.sin(tau*466*t*drift+1.1);
-    const breath=(body-steam)*.5;
-    v+=env*(chord*.31+breath*.22);
-    // Reedy shimmer so the horn reads as steam, not a synth pad.
-    v+=env*Math.sin(tau*(932*t-40*t*t))*.05*Math.sin(Math.PI*Math.min(1,wt/.5));
+    // Steam whistle: single long blast. Dominant root + octave, valve-open pitch
+    // droop, breath hiss and slow pressure wobble keep it steamy, not organ-like.
+    const wt=t-.22,env=wt>0&&wt<3.1?Math.min(1,wt/.07)*Math.min(1,(3.1-wt)/.5):0;
+    const droop=1+.028*Math.exp(-wt*7)-.014*q,steamWob=1+.006*Math.sin(tau*7.3*t)+.003*Math.sin(tau*11.1*t+1.2);
+    const drift=droop*steamWob;
+    const chord=Math.sin(tau*196*t*drift)+.62*Math.sin(tau*392*t*(drift+.0012)+.4)+.5*Math.sin(tau*294*t*(drift-.0009)+.9)+.22*Math.sin(tau*247*t*(drift+.0018)+1.6)+.14*Math.sin(tau*588*t*drift+2.2);
+    const breath=(body-steam)*.75+low*.15;
+    v+=env*(chord*.42+breath*.3);
+    // Edge transient when the valve slams open + faint reed shimmer.
+    v+=Math.exp(-Math.max(0,wt)*38)*(body-steam)*.5;
+    v+=env*Math.sin(tau*(784*t-60*t*t))*.04*Math.sin(Math.PI*Math.min(1,wt/.4));
    }
   }else if(name==='trainBrake'){
    v=(body-steam)*.45*(1-q)+Math.sin(tau*(1120*t-180*t*t))*.095*Math.sin(Math.PI*q)+low*.16*(1-q);
