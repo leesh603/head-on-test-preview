@@ -127,21 +127,16 @@ export function bossSoundFor(event,kind=''){
  if(type==='rural-rail-roll')return 'trainRoll';
  if(type==='rural-rail-brake')return 'trainBrake';
  if(type==='rural-rail-load')return 'railBreech';
-<<<<<<< HEAD
+ if(['bruno-rail-discovered','lincomparable-rail-discovered','flieger-discovered'].includes(type))return 'trainApproach';
  // The arrival itself already ran the full locomotive call (app.js); a big salvo gets the whistle.
  if(['bruno-iron-rain','lincomparable-last-520'].includes(type))return 'trainWhistle';
  // The train guns' shells land as they fire, so the falling whistle runs over the aiming telegraph.
  if(type==='rural-aim')return kind==='lincomparable'?'railShellIncoming520':'railShellIncoming';
  if(type==='rail-aim'||type==='rail-runaway')return 'railClatter';
-=======
- if(['bruno-rail-discovered','bruno-iron-rain','lincomparable-last-520','lincomparable-rail-discovered'].includes(type))return 'trainApproach';
- if(type==='rail-aim'||type==='rural-aim'||type==='rail-runaway')return 'railClatter';
+ if(type==='flieger-roll')return 'trainRoll';
  if(type==='treffas-breakthrough')return 'armorEntry';
  if(type==='flieger-final-raid'||type==='flieger-launch-ready')return 'approachWarning';
  if(type==='bug-launch'&&kind==='fliegerzug')return 'formationPass';
- if(type==='flieger-discovered')return 'trainApproach';
- if(type==='flieger-roll')return 'trainRoll';
->>>>>>> origin/feat/cambrai-raid-refinement
  if(type==='seaplane-launch')return 'formationPass';
  if(type==='minion-launched')return 'formationPass';
  if(type==='charge-warning'||type==='reentry-warning')return 'approachWarning';
