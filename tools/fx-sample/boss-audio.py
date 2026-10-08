@@ -176,9 +176,15 @@ def ace_snarl():
         if k+L<len(t):mgb[k:k+L]+=bp(rng.standard_normal(L),900,6000)*np.exp(-tt/.005)
     return reverb(eng*.8+stab+mgb*.5+drum(t,.7,1.0,90),1.2,.25)
 
+
+# Tamed bugle (2026-10-08 feedback): the three calls only, no snare roll or drum, short room.
+def ace_bugle_t():
+    d=1.3;t=T(d)
+    x=trumpet(392,.0,.1,t,.8)+trumpet(392,.15,.1,t,.8)+trumpet(523.3,.3,.42,t,.9)
+    return reverb(lp(x,3200),.6,.12)
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..'))
 os.makedirs(os.path.join(ROOT,'sfx'),exist_ok=True)
-bank={'boss-siren':boss_siren(),'boss-drums':boss_drums(),'boss-klaxon':boss_klaxon(),'ship-horn':ship_horn(),'airship':airship(),'armour':armour(),'ace-bugle':ace_bugle()}
+bank={'boss-siren':boss_siren(),'boss-drums':boss_drums(),'boss-klaxon':boss_klaxon(),'ship-horn':ship_horn(),'airship':airship(),'armour':armour(),'ace-bugle':ace_bugle_t()}
 tmp=tempfile.mkdtemp()
 for name,x in bank.items():
     wav=os.path.join(tmp,name+'.wav');save(wav,x)

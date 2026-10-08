@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {Game}=await import('../engine.js?v=sfx2');
-const {CoopGame}=await import('../coop-engine.js?v=sfx2');
-const {enableStageBoss,beginStageBossFrame,endStageBossFrame}=await import('../stageboss-host.js?v=sfx2&rail=1');
+const {Game}=await import('../engine.js?v=tame1');
+const {CoopGame}=await import('../coop-engine.js?v=tame1');
+const {enableStageBoss,beginStageBossFrame,endStageBossFrame}=await import('../stageboss-host.js?v=tame1&rail=1');
 function game(faction,coop,w=390,h=844){const pilot=faction==='central'?'baron':'fonck',g=coop?new CoopGame([{pilot},{pilot}],{rng:()=>.5}):new Game(faction==='central'?'fokker':'spad',pilot,()=>.5);g.viewWidth=w;g.viewHeight=h;g.region=3;g.spawn=Infinity;g.nextBossAt=Infinity;g.need=Infinity;for(const p of g.players||[g]){p.fire=Infinity;p.invuln=Infinity;}enableStageBoss(g,{teamFaction:faction,heavyHp:coop?1.65:1});g.stageBoss.stages.stageIndex=3;return g;}
 function advance(g,n){for(let i=0;i<n;i++)g.update(.02,{});}
 function shot(g,b,p,damage){const x=b.x+(p?.x||0),y=b.y+(p?.y||0);g.bullets.push({x:x-4,y,vx:520,vy:0,life:.15,enemy:false,ownerId:'p1',damage,hit:new Set()});}

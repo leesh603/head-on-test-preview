@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_TYPES as E} from '../battlefield-events170.js?v=sfx2';
-import {installRegionDoctrine} from '../region-doctrine1.js?v=sfx2';
-import {installBattleDirector} from '../battle-director169.js?v=sfx2';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_TYPES as E} from '../battlefield-events170.js?v=tame1';
+import {installRegionDoctrine} from '../region-doctrine1.js?v=tame1';
+import {installBattleDirector} from '../battle-director169.js?v=tame1';
 
 function ready(region=0){
  class Game{
@@ -74,7 +74,7 @@ test('depot disruption reaches only harbor fortress coastal reload, restores aft
 });
 
 test('real solo and co-op consume regional artillery and bomber results through the Director',async()=>{
- const {Game}=await import('../engine.js?v=sfx2');const {CoopGame}=await import('../coop-engine.js?v=sfx2');
+ const {Game}=await import('../engine.js?v=tame1');const {CoopGame}=await import('../coop-engine.js?v=tame1');
 
  for(const game of [new Game('fokker','baron',()=>.1),new CoopGame([{plane:'fokker',pilot:'baron'},{plane:'fokker',pilot:'voss'}],{rng:()=>.1})]){
   game.lockedRegion=2;game.t=200;game.battleDirectorPattern='RECOVERY';game.enemies=[];game.canOfferBattlefieldEvent();
@@ -84,6 +84,6 @@ test('real solo and co-op consume regional artillery and bomber results through 
 });
 
 test('real commander aftermath briefly breaks next scene aircraft, then expires',async()=>{
- const {Game}=await import('../engine.js?v=sfx2');const game=new Game('fokker','baron',()=>.25);game.t=200;game.enemies=[];game.recordBattlefieldOutcome({id:901,type:E.HIGH_VALUE_TARGET},'completed');begin(game,'CROSS_ATTACK');game.t+=.4;game.tickBattleDirector(.04);const fighter=game.enemies.find(e=>e.directorSceneId===game.battleDirector.sceneId);assert(fighter);assert(fighter.formationCollapseUntil>game.t);assert(fighter.fire>=2);game.t=fighter.formationCollapseUntil+.01;assert.equal(fighter.hp,fighter.maxHp);assert(fighter.formationCollapseUntil<game.t);
+ const {Game}=await import('../engine.js?v=tame1');const game=new Game('fokker','baron',()=>.25);game.t=200;game.enemies=[];game.recordBattlefieldOutcome({id:901,type:E.HIGH_VALUE_TARGET},'completed');begin(game,'CROSS_ATTACK');game.t+=.4;game.tickBattleDirector(.04);const fighter=game.enemies.find(e=>e.directorSceneId===game.battleDirector.sceneId);assert(fighter);assert(fighter.formationCollapseUntil>game.t);assert(fighter.fire>=2);game.t=fighter.formationCollapseUntil+.01;assert.equal(fighter.hp,fighter.maxHp);assert(fighter.formationCollapseUntil<game.t);
 
 });

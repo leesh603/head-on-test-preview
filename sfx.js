@@ -1,13 +1,13 @@
 // Layered procedural SFX — every combat feedback voice is synthesized from
 // oscillators plus filtered noise, matching the music.js approach. No audio
 // assets, no external requests.
-import {railAudioSamples} from './rail-audio.js?v=sfx2';
+import {railAudioSamples} from './rail-audio.js?v=tame1';
 const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproach
 let ctx=null,bus=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();
 const sources=new Map(),lastVoices=new Map();
 const PRIORITY={bossSiren:3,bossKlaxon:3,airshipArrival:3,railGunFire520:2,railShellIncoming:1,railShellIncoming520:1,railShellImpact:1,railShellImpact520:2,trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1,armorClink:2,whizz:1,closePass:2,airframeBreak:1,engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0};
-const INTERVAL={upgradeChosen:.3,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
+const INTERVAL={upgradeChosen:.3,pickup:.09,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
 let inputMedia=null;
 const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
 export function stopSfx(){if(engine){try{engine.src.stop()}catch{}engine=null}for(const [source,entry]of sources){try{source.stop()}catch{}entry.release()}lastVoices.clear()}
@@ -78,7 +78,7 @@ function trimLead(buf){
 function loadFileCues(){
  if(filesRequested||!ctx||typeof fetch!=='function')return;filesRequested=true;
  for(const name of FILE_CUES)fetch(`./${name}.mp3?v=gun1`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,buf)).catch(()=>{});
- for(const name of BANK_FILES)fetch(`./${name}.mp3?v=sfx2`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,trimLead(buf))).catch(()=>{});
+ for(const name of BANK_FILES)fetch(`./${name}.mp3?v=tame1`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,trimLead(buf))).catch(()=>{});
 }
 const bankTurn=new Map();
 // Engine: one looping sample per airframe type, its rate following speed and turn. engineTick keeps
@@ -191,8 +191,8 @@ const VOICES={
   flakSynth(){tone(jit(300),90,.14,.08,'sawtooth',900);hiss(jit(3200),900,.16,.07,'bandpass',.9);tone(95,45,.14,.08,'sine',350);tone(180,60,.22,.045,'sine',280,.14)},
   // Skill trigger: three rising brass hits with a shimmer on top.
   // Upgrade card picked: the order-sheet stamp.
-  upgradeChosen(){bankSample('ui-upgrade',.36,()=>VOICES.uiSelect())},
-  skill(){bankSample('ui-skill',.36,()=>VOICES.skillSynth())},
+  upgradeChosen(){bankSample('ui-upgrade',.18,()=>VOICES.uiSelect())},
+  skill(){bankSample('ui-skill',.2,()=>VOICES.skillSynth())},
   skillSynth(){tone(392,392,.09,.06,'sawtooth',2200);tone(523,523,.1,.06,'sawtooth',2400,.07);tone(659,659,.14,.06,'sawtooth',2600,.14);hiss(2400,4800,.22,.03,'highpass',1)},
   // Belt reload: two bolt clicks. Loaded: confident clack + confirm.
   reload(){bankSample('ui-reload',.3,()=>VOICES.reloadSynth())},
@@ -206,7 +206,7 @@ const VOICES={
   wave(){tone(660,660,.07,.04,'triangle',1800);tone(880,880,.09,.04,'triangle',2000,.08)},
   ally(){tone(523,523,.08,.05,'triangle',2000);tone(659,659,.1,.05,'triangle',2200,.09)},
   // Supply pickup / ammo restock: bright chime.
-  pickup(){bankSample('ui-pickup',.26,()=>VOICES.pickupSynth())},
+  pickup(){bankSample('ui-pickup',.1,()=>VOICES.pickupSynth())},
   pickupSynth(){tone(880,1320,.09,.05,'triangle',2600);tone(1320,1760,.07,.035,'sine',3200,.05)},
   // Boss arrival: low brass hit over a timpani swell.
   bossSiren(){bankSample('boss-siren',.42,()=>VOICES.bossStingSynth())},
@@ -215,7 +215,7 @@ const VOICES={
   bossSting(){bankSample('boss-drums',.5,()=>VOICES.bossStingSynth())},
   bossStingSynth(){tone(49,49,.9,.16,'sawtooth',500);tone(55,55,.9,.13,'sawtooth',400);tone(98,98,.7,.08,'sawtooth',800,.25)},
   // Enemy ace arrival: sharp bandit snarl — rising twin brass over an engine whine.
-  aceSting(){bankSample('ace-bugle',.45,()=>VOICES.aceStingSynth())},
+  aceSting(){bankSample('ace-bugle',.24,()=>VOICES.aceStingSynth())},
   aceStingSynth(){tone(330,392,.16,.08,'sawtooth',2400);tone(415,494,.16,.07,'sawtooth',2400,.1);tone(220,180,.3,.09,'sawtooth',1400,.02);hiss(jit(2400),900,.35,.05,'bandpass',1.2,.04);tone(110,55,.4,.07,'sine',500,.28)},
   // Sortie launch: engine spool-up.
   launch(){tone(55,110,.5,.1,'sawtooth',600);hiss(200,900,.5,.04,'bandpass',.8)},

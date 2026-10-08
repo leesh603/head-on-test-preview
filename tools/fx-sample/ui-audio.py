@@ -114,9 +114,21 @@ def loaded():
     d=.4;t=T(d)
     return click(t,0,900,4500,1.1,.004)+thunk(t,0,170,.9)+click(t,.07,2500,8000,.8,.0015)+thunk(t,.07,320,.3)
 
+
+# Tamed (2026-10-08 feedback "too much"): short, dry, no fanfare tails.
+def skill_t():
+    d=.7;t=T(d)
+    return trumpet(392,.0,.16,t,.8)+trumpet(587.3,.0,.16,t,.45)+drum(t,0,.6,100)
+def choose_t():
+    d=.3;t=T(d)
+    return click(t,0,600,4000,1.0,.01)+thunk(t,0,120,1.0)
+def pickup_t():
+    d=.3;t=T(d)
+    # no chime: a soft brass-tag tick (it plays on every kill's experience pickup)
+    return click(t,0,1200,3500,.5,.002)+thunk(t,0,330,.35)
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..'))
 os.makedirs(os.path.join(ROOT,'sfx'),exist_ok=True)
-bank={'ui-skill':skill(),'ui-levelup':levelup(),'ui-upgrade':choose(),'ui-pickup':pickup(),'ui-repair':heal(),'ui-reload':reload(),'ui-loaded':loaded()}
+bank={'ui-skill':skill_t(),'ui-levelup':levelup(),'ui-upgrade':choose_t(),'ui-pickup':pickup_t(),'ui-repair':heal(),'ui-reload':reload(),'ui-loaded':loaded()}
 tmp=tempfile.mkdtemp()
 for name,x in bank.items():
     wav=os.path.join(tmp,name+'.wav');save(wav,lp(x,4500))
