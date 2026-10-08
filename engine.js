@@ -969,7 +969,7 @@ Game.prototype.hitFormationAlly=function(a,damage){
 Game.prototype.resolveHostileRound=function(b,x0,y0){
  const dx=b.x-x0,dy=b.y-y0,length=dx*dx+dy*dy;
  let first=Infinity,hit=null;
- const patrols=this.patrols,allies=null,patrolCount=patrols?.length||0,total=1+patrolCount+(allies?.length||0);
+ const patrols=this.patrols,allies=b.formationBoss129&&this.stageBoss?.stages.stageIndex!==9?this.allies:null,patrolCount=patrols?.length||0,total=1+patrolCount+(allies?.length||0);
  // Keep player -> patrol -> formation order, including equal-time impacts.
  for(let i=0;i<total;i++){
   const target=i===0?this:i<=patrolCount?patrols[i-1]:allies[i-1-patrolCount];
@@ -998,7 +998,7 @@ Game.prototype.updatePatrols=function(dt){
    }
   }
   let target=p.target;
-  const arras=[...this.stageBoss?.stages.encounter?.bodies.values()||[]].find(b=>b.formationBoss129&&!b.entryComplete);
+  const arras=this.stageBoss?.stages.stageIndex===9&&[...this.stageBoss.stages.encounter?.bodies.values()||[]].find(b=>b.formationBoss129&&!b.entryComplete);
   if(arras){const z=this.camera?.zoom||1,w=(this.viewWidth||960)/z,h=(this.viewHeight||700)/z;
     if(Math.abs(p.x-this.x)>w*.28||p.y-this.y>h*.08||p.y-this.y<-h*.28){
       target=null;p.waypoint={x:this.x+Math.cos(this.a)*110,y:this.y+Math.sin(this.a)*110};p.speed=Math.max(210,Math.min(260,(this.speed||185)+55));

@@ -57,6 +57,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <button id="fortStep" type="button" style="display:none" title="Shift 클릭: 전투 0.1초 진행">전투 1초 진행</button>
 <span id="status">게임 로딩 중…</span>
 <output id="bossState" style="font-size:11px;max-width:700px"></output>
+<div id="arrasControls" hidden style="width:100%;gap:8px;align-items:center;flex-wrap:wrap"><label>아라스 검사 기체<select id="arrasAircraft"></select></label><button id="arrasBreak" type="button">선택 기체 격추탄</button><button id="arrasFinal" type="button">발악기 진입탄</button><label>전술 검사<select id="arrasTactic"><option value="0">포위 / 공격조 분산</option><option value="1">제형 / 미끼·사냥꾼</option><option value="2">집중 돌입 / 교차공격</option><option value="3">추격 / 정면 돌입</option></select></label><button id="arrasPhase" type="button">선택 전술 검사</button><output id="arrasState"></output></div>
 <div id="trenchControls" hidden style="width:100%;gap:8px;align-items:center;flex-wrap:wrap"><label>참호 보스 검사 부위<select id="trenchPart"></select></label><button id="trenchHalf" type="button">선택 부위 손상탄</button><button id="trenchBreak" type="button">선택 부위 파괴탄</button><button id="trench70" type="button">HP 70% 진입탄</button><button id="trench35" type="button">HP 35% 진입탄</button><button id="trenchFinal" type="button">발악기 진입탄</button><span id="trenchState"></span></div>
 <div id="ruralQa" hidden style="width:100%">
 <label>열차포 검사 부위<select id="ruralPart"><option value="car-rear">후방 방어차</option><option value="car-middle">관측차</option><option value="car-front">탄약차</option><option value="rail">철로</option><option value="core">기관차</option></select></label>
@@ -188,6 +189,18 @@ setInterval(()=>{
  const b=trenchBoss(),panel=$('trenchControls');panel.hidden=!b||!$('qaTools').checked;panel.style.display=panel.hidden?'none':'flex';if(panel.hidden)return;
  if(trenchId!==b.id){trenchId=b.id;trenchGoal=null;$('trenchPart').replaceChildren(...[...b.parts.values()].map(p=>new Option(p.id,p.id)));}
  $('trenchState').textContent=b.phase+' · HP '+Math.ceil(b.hp)+'/'+Math.ceil(b.maxHp)+' · 발견 '+!!b.discovered+(b.mortarPlan?' · '+b.mortarPlan.name+' '+b.mortarPlan.age.toFixed(1)+'s':'')+' · 반격 '+(b.recovery||0).toFixed(1)+'s'+(trenchGoal?' · 탄착 목표 '+Math.ceil(trenchGoal.hp):'');
+},200);
+// Arras QA stimuli use the existing projectile collision route. No replacement NPCs or boss clones.
+let arrasId=null;
+function arrasBoss(){return [...(api?.debug()?.stageBoss?.stages.encounter?.bodies.values()||[])].find(b=>b.formationBoss129&&!b.dead);}
+function arrasShot(target,damage){const g=api?.debug();if(!g||!target||damage<=0)return;g.bullets.push({x:target.x-8,y:target.y,vx:520,vy:0,life:.2,enemy:false,ownerId:g.id||'p1',damage,hit:new Set()});}
+$('arrasBreak').onclick=()=>{const b=arrasBoss(),g=api.debug();if(!b)return;const target=$('arrasAircraft').value==='leader'?b:g.enemies.find(e=>e.id===$('arrasAircraft').value&&e.hp>0);if(target)arrasShot(target,target.hp);};
+$('arrasFinal').onclick=()=>{const b=arrasBoss();if(b&&b.entryComplete)arrasShot(b,Math.max(0,b.hp-b.maxHp*.30));};
+$('arrasPhase').onclick=()=>{const b=arrasBoss();if(!b?.entryComplete||b.finalAge!==undefined)return;const index=Number($('arrasTactic').value);b.recoverLeft=0;b.aceCycle=(b.kind==='jasta11-circus'?[0,6,12.5,19]:[0,6,13,20])[index];};
+setInterval(()=>{const b=arrasBoss(),panel=$('arrasControls');panel.hidden=!b||!$('qaTools').checked;panel.style.display=panel.hidden?'none':'flex';if(panel.hidden)return;
+ const g=api.debug(),wings=g.enemies.filter(e=>e.bossMinion&&e.escortLeaderId===b.id&&e.hp>0),signature=b.id+':'+wings.map(e=>e.id).join(',');
+ if(arrasId!==signature){arrasId=signature;$('arrasAircraft').replaceChildren(new Option(b.callSignKo||b.callSign,'leader'),...wings.map(e=>new Option(e.callSign,e.id)));}
+ $('arrasState').textContent=b.phase+' · 등장 '+b.entryAge.toFixed(1)+'s · 격추 '+(b.entryDeaths?.size||0)+'/'+(b.entryRoster?.length||0)+' · 생존 '+(1+wings.length)+'/5 · HP '+Math.ceil(b.hp)+' · 발악기 '+(b.finalAge??0).toFixed(1)+'s';
 },200);
 function fortress(){return [...(api?.debug()?.stageBoss?.stages.encounter?.bodies?.values()||[])].find(b=>b.fortressBoss)}
 let fortId=null;

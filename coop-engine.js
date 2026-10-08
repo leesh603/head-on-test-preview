@@ -119,7 +119,7 @@ export class CoopGame {
   let first=Infinity,hit=null,hitKind=-1;
   // Scan the original groups in order without constructing per-round snapshots.
   for(let kind=0;kind<3;kind++){
-   if(kind===2)continue; // Augmentation wingmen are never Arras entrance victims.
+   if(kind===2&&(!b.formationBoss129||this.stageBoss?.stages.stageIndex===9))continue; // Arras never targets augmentation wingmen.
    const targets=kind===0?this.players:kind===1?this.patrols:this.allies;
    for(const target of targets){
     if(kind===0?!live(target):kind===1?!(target.hp>0&&target.life>0):!(target.life>0))continue;
