@@ -27,6 +27,7 @@ function formationDefenderFrame(g,a){
  return{id:formationDefenderId(g,a),alive:a.life>0&&a.hp>0,x:a.x,y:a.y,a:a.a,vx:Math.cos(a.a)*(a.speed||185),vy:Math.sin(a.a)*(a.speed||185),radius:16,formationDefender:true};
 }
 function formationDefenderTarget(g,e){
+ if(!['jasta-formation','black-flight-formation'].includes(e.behavior)){const live=[...(g.patrols||[]),...(g.allies||[])].filter(a=>a&&a.life>0&&(a.hp===undefined||a.hp>0));let p=live.find(a=>formationDefenderId(g,a)===e.formationTargetId);if(!p)p=live.reduce((best,a)=>!best||Math.hypot(a.x-e.x,a.y-e.y)<Math.hypot(best.x-e.x,best.y-e.y)?a:best,null);e.formationTargetId=p?formationDefenderId(g,p):null;return p;}
  const leader=g.stageBoss?.stages.encounter?.bodies.get(e.escortLeaderId);if(leader?.entryComplete){e.formationTargetId=null;return null;}
  const bounds=stageBossBounds(g),live=formationDefenders(g).filter(a=>a.x>bounds.left+36&&a.x<bounds.right-36&&a.y>bounds.top+100&&a.y<bounds.bottom-60&&(!leader?.entryRoster||leader.entryRoster.includes(formationDefenderId(g,a))));const candidates=leader?.kind==='naval10-black-flight'?live.filter(a=>formationDefenderId(g,a)!==leader.formationOrder?.finisherId):live;
  if(!candidates.length){e.formationTargetId=null;return null;}
@@ -265,11 +266,11 @@ function updateFormationMinion(g,e,p,leader,dt){
  if(order.phase==='formation-recovery'){steerFormationMinion(e,leader.x-Math.cos(leader.a)*(100+e.formationIndex*35)-Math.sin(leader.a)*(e.formationSide||1)*85,leader.y-Math.sin(leader.a)*(100+e.formationIndex*35)+Math.cos(leader.a)*(e.formationSide||1)*85,dt,1.6,160);e.raidFire=false;return true;}
  if(order.finalRoles){
   const pairLive=e.behavior!=='black-flight-formation'||(leader.formationStatus129?.()||[]).filter(w=>w.pairId===e.pairId).length===2;
-  const index=pairLive?order.finalRoles.indexOf(e.formationRole):-1,start=4.5+index*1.5,age=order.age;
+  const index=pairLive?order.finalRoles.indexOf(e.formationRole):-1,start=4.5+index*1.8,age=order.age;
   e.raidFire=false;
-  if(index<0||age<start||age>start+1.4){const bounds=stageBossBounds(g),span=Math.min(150,(bounds.right-bounds.left)*.28),side=e.formationSide||1;steerFormationMinion(e,p.x+nxOr(order)*side*span+Math.cos(order.playerHeading)*(130+e.formationRank*60),p.y+nyOr(order)*side*span+Math.sin(order.playerHeading)*(130+e.formationRank*60),dt,2.8,230);return true;}
-  if(!e.raidLock){e.raidLock={x:p.x+(Math.cos(p.a)*(p.speed||0))*.35,y:p.y+(Math.sin(p.a)*(p.speed||0))*.35};g.bossCues.push({type:'reentry-warning',x:e.x,y:e.y,targetX:e.raidLock.x,targetY:e.raidLock.y,life:.8,seconds:.8,formationAim:true,minionId:e.id});}
-  if(age<start+.8)steerFormationMinion(e,e.raidLock.x,e.raidLock.y,dt,2.4,150);
+  if(index<0||age<start||age>start+1.8){const bounds=stageBossBounds(g),span=Math.min(150,(bounds.right-bounds.left)*.28),side=e.formationSide||1;steerFormationMinion(e,p.x+nxOr(order)*side*span+Math.cos(order.playerHeading)*(130+e.formationRank*60),p.y+nyOr(order)*side*span+Math.sin(order.playerHeading)*(130+e.formationRank*60),dt,2.8,230);return true;}
+  if(!e.raidLock){e.raidLock={x:p.x+(Math.cos(p.a)*(p.speed||0))*1.55,y:p.y+(Math.sin(p.a)*(p.speed||0))*1.55};g.bossCues.push({type:'reentry-warning',x:e.x,y:e.y,targetX:e.raidLock.x,targetY:e.raidLock.y,life:1.2,seconds:1.2,formationAim:true,minionId:e.id});}
+  if(age<start+1.2)steerFormationMinion(e,e.raidLock.x,e.raidLock.y,dt,3,150);
   else{e.raidHeading??=e.a;e.a=e.raidHeading;e.x+=Math.cos(e.a)*235*dt;e.y+=Math.sin(e.a)*235*dt;e.raidFire=true;}
   return true;
  }const h=order.playerHeading??p.a??-Math.PI/2,hx=Math.cos(h),hy=Math.sin(h),nx=-hy,ny=hx,side=e.formationSide||1,rank=e.formationRank||0;
@@ -335,9 +336,10 @@ function updateMinions(g,dt){
   const paired=e.behavior!=='black-flight-formation'||e.pairComplete;
   const hunter=e.formationRole?.endsWith('hunter'),phaseReady=order?.phase==='cross-attack'?order.age>(e.pairId==='b'?3:0)&&order.age<(e.pairId==='b'?6:2.5):order?.phase==='bait-hunter'?(hunter?order.age>2.6&&order.age<4.6:order.age>1.1&&order.age<2.3):true;
   if(formation&&e.behavior==='black-flight-formation'&&paired&&phaseReady&&order?.phase==='bait-hunter'&&hunter&&e.hunterWarnCycle!==Math.round((leader.aceCycle-order.age)*10)){e.hunterWarnCycle=Math.round((leader.aceCycle-order.age)*10);g.bossCues.push({type:'reentry-warning',x:e.x,y:e.y,targetX:p.x,targetY:p.y,life:.8,seconds:.8});e.fire=Math.max(e.fire,.8);}
+  if(formation)e.muzzleFlash=Math.max(0,(e.muzzleFlash||0)-dt);
   const arrival=formation&&order?.phase==='formation-arrival',finale=formation&&!!order?.finalRoles;
   const gated=e.behavior==='attack-pass'?e.passAge>.65&&e.passAge<3.4:e.behavior==='circus-escort'?Math.abs(rel)<.62&&pd<580:e.behavior==='pusher-escort'?pd<600:formation?(arrival?!e.arrivalHold&&order.age>1.15&&Math.abs(rel)<.22&&pd<470:finale?e.raidFire:order?.phase!=='formation-recovery'&&!e.regrouping&&paired&&phaseReady&&Math.abs(rel)<.2&&pd<620):true;
-  e.fire-=dt;if(e.fire<=0&&gated){e.fire=arrival?.18:finale?.3:e.surface ? 1.5 : e.type==='zeppelin' ? 3.4 : e.behavior==='attack-pass' ? .48 : e.behavior==='jasta-formation' ? (order?.phase==='echelon-assault'?.78:.98) : e.behavior==='black-flight-formation' ? (order?.phase==='cross-attack'?.76:1.02) : e.behavior==='circus-escort' ? 1.05 : e.behavior==='pusher-escort' ? 1.45 : 2.5;const a=formation||e.behavior==='attack-pass'?e.a:aim;const zep=e.type==='zeppelin',rear=e.rearGunner&&Math.abs(rel)>1.9;const shots=zep?3:rear?2:1;for(let j=0;j<shots;j++){const aa=a+(formation?0:(j-1)*(zep?.14:.08)),mx=e.x+(formation?Math.cos(e.a)*28:0)+(zep?Math.cos(e.a)*(j-1)*60:rear?-Math.cos(e.a)*24:0),my=e.y+(formation?Math.sin(e.a)*28:0)+(zep?Math.sin(e.a)*(j-1)*60:rear?-Math.sin(e.a)*24:0);g.bullets.push({x:mx,y:my,vx:Math.cos(aa)*(formation?430:zep?185:210),vy:Math.sin(aa)*(formation?430:zep?185:210),life:zep?5:4,enemy:true,visualType:zep?'zeppelin':e.surface?'flak':'fighter',damage:Math.round((zep?14:9)*(1+g.t/240)),encounterId:e.encounterId,formationBoss129:formation||undefined,sourceMinionId:formation?e.id:undefined});}}
+  e.fire-=dt;if(e.fire<=0&&gated){if(formation)e.muzzleFlash=.08;e.fire=arrival?.18:finale?.3:e.surface ? 1.5 : e.type==='zeppelin' ? 3.4 : e.behavior==='attack-pass' ? .48 : e.behavior==='jasta-formation' ? (order?.phase==='echelon-assault'?.78:.98) : e.behavior==='black-flight-formation' ? (order?.phase==='cross-attack'?.76:1.02) : e.behavior==='circus-escort' ? 1.05 : e.behavior==='pusher-escort' ? 1.45 : 2.5;const a=formation||e.behavior==='attack-pass'?e.a:aim;const zep=e.type==='zeppelin',rear=e.rearGunner&&Math.abs(rel)>1.9;const shots=zep?3:rear?2:1;for(let j=0;j<shots;j++){const aa=a+(formation?0:(j-1)*(zep?.14:.08)),mx=e.x+(formation?Math.cos(e.a)*28:0)+(zep?Math.cos(e.a)*(j-1)*60:rear?-Math.cos(e.a)*24:0),my=e.y+(formation?Math.sin(e.a)*28:0)+(zep?Math.sin(e.a)*(j-1)*60:rear?-Math.sin(e.a)*24:0);g.bullets.push({x:mx,y:my,vx:Math.cos(aa)*(formation?430:zep?185:210),vy:Math.sin(aa)*(formation?430:zep?185:210),life:zep?5:4,enemy:true,visualType:zep?'zeppelin':e.surface?'flak':'fighter',damage:Math.round((zep?14:9)*(1+g.t/240)),encounterId:e.encounterId,formationBoss129:formation||undefined,sourceMinionId:formation?e.id:undefined});}}
  }
 }
 export function beginStageBossFrame(g,dt){
@@ -406,7 +408,7 @@ export function beginStageBossFrame(g,dt){
   for(const key of ['fieldUnitTimer','regionThreat','flakTimer'])if(g[key]!==Infinity)g[key]=Math.max(g[key]||0,dt+.1)+dt;
   for(const key of ['nextHeavyAt','_zeppelinSchedule'])if(g[key]!==Infinity)g[key]=Math.max(g[key]||0,g.t+dt+.1)+dt;
  }
- if(addon.stages.stageIndex===9&&addon.stages.phase==='boss'){const b=[...addon.stages.encounter.bodies.values()][0];if(!b.entryComplete&&!b.entryRoster&&!formationDefenders(g).length&&!b.patrolRequested){b.patrolRequested=true;g.spawnPatrol();}}
+ if(addon.stages.stageIndex===9&&addon.stages.phase==='boss'){const b=[...addon.stages.encounter.bodies.values()][0];if(!b.entryComplete&&!b.entryRoster&&formationDefenders(g).length<2&&!b.patrolRequested){b.patrolRequested=true;g.spawnPatrol();}}
  syncStageBossTargets(g);separateLargeBossBodies(g);updateMinions(g,dt);
  const arrival=[...addon.stages.encounter?.bodies.values()||[]].find(b=>b.formationBoss129&&!b.entryComplete);if(arrival?.entryRoster)g.patrolTimer=Math.max(g.patrolTimer||0,dt+.1)+dt;
 }
@@ -435,7 +437,7 @@ export function endStageBossFrame(g,dt){
    addon.hooks.onCue({type:'mine-chain',chainIndex:i,bossId:activeEncounter.bodies.values().next().value?.id,x:mine.x,y:mine.y,radius:72});
   }
  // The host has already resolved its entire upgrade queue/loss state this frame.
- const bounds=stageBossBounds(g),playerFrames=players(g).map(p=>({id:p.id||'p1',alive:alive(p),x:p.x,y:p.y,a:p.a,vx:Number.isFinite(p.previousX)?(p.x-p.previousX)/Math.max(dt,1/120):0,vy:Number.isFinite(p.previousY)?(p.y-p.previousY)/Math.max(dt,1/120):0,radius:12,londonRiver:addon.stages.stageIndex===11&&londonRiverCover(p.x,p.y)}));
+ const bounds=stageBossBounds(g),playerFrames=players(g).map(p=>({id:p.id||'p1',alive:alive(p),x:p.x,y:p.y,a:p.a,vx:Number.isFinite(p.previousX)?(p.x-p.previousX)/Math.max(dt,1/120):addon.stages.stageIndex===9?Math.cos(p.a)*(p.speed||0)*(p.airframeSpeed??1):0,vy:Number.isFinite(p.previousY)?(p.y-p.previousY)/Math.max(dt,1/120):addon.stages.stageIndex===9?Math.sin(p.a)*(p.speed||0)*(p.airframeSpeed??1):0,radius:12,londonRiver:addon.stages.stageIndex===11&&londonRiverCover(p.x,p.y)}));
  const defenderFrames=addon.stages.stageIndex===9?(g.patrols||[]).map(a=>formationDefenderFrame(g,a)):[];
  if(addon.stages.stageIndex===13)for(const p of playerFrames)p.sandCover=maanSandCover(g.maanWeather,p.x,p.y);
  const frame={paused:blocked(g),players:playerFrames,defenders:defenderFrames,defenderLosses:g.patrolLosses||0,bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings,londonTargets:g.londonBattle?.districts||[],parisTargets:g.parisBattle?.districts||[]};

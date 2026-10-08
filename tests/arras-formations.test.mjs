@@ -31,7 +31,7 @@ for(const spec of [{width:960,height:700},{width:390,height:844},{width:1280,hei
 }
 test('Jasta preserves player control, permanent and temporary augmentation wingmen',()=>{
  const f=sortie({width:390,height:844});f.g.permanentWingman=2;f.g.ensureWingmen();f.g.spawnAlly();const allies=[...f.g.allies];
- const before=f.g.x;advance(f,1,{turn:1});assert.notEqual(f.g.x,before);
+ const before=f.g.a;advance(f,1,{steer:1});assert.notEqual(f.g.a,before,'turn input remains active during entrance');
  for(const ally of allies){const b={x:ally.x+40,y:ally.y,vx:300,vy:0,life:1,damage:1000,formationBoss129:true};f.g.resolveHostileRound(b,ally.x-40,ally.y);assert.ok(ally.life>0);assert.notEqual(ally.hp,0);}
 });
 test('Jasta tactics differ; final uses survivor roles once and supplies a recovery',()=>{
@@ -73,7 +73,27 @@ test('Final attack schedules preserve a warning, an open escape, and leader-only
   for(const e of f.g.enemies)if(e.bossMinion)e.hp=0;advance(f,.05);f.b.hit({damage:f.b.maxHp*.7});advance(f,.1);
   assert.equal(f.b.finalRoles.length,0);assert.ok(f.b.finalAge>0);
   f.g.invuln=0;const before=f.g.hp;let warning=false;
-  for(let i=0;i<450;i++){advance(f,.02,{turn:1});warning||=f.g.bossCues.some(c=>c.type==='reentry-warning');}
+  for(let i=0;i<450;i++){advance(f,.02,{steer:1});warning||=f.g.bossCues.some(c=>c.type==='reentry-warning');}
   assert.ok(warning);assert.equal(f.g.hp,before);assert.equal(f.b.finalAge,undefined);assert.ok(f.b.finalUsed);
  }
+});
+
+test('Full surviving finales fire from real noses one wing at a time; a turn route avoids all hits',()=>{
+ for(const faction of ['entente','central']){
+  const f=sortie({width:390,height:844,faction});f.b.entryComplete=true;advance(f,.02);f.b.hit({damage:f.b.maxHp*.7});f.g.invuln=0;
+  const impacts=[];const hit=f.g.hit;f.g.hit=function(d){if(this.invuln<=0)impacts.push(d);return hit.call(this,d);};
+  const fired=new Set(),warned=new Set();
+  for(let i=0;i<750;i++){
+   advance(f,.02,{steer:1});
+   const active=f.g.enemies.filter(e=>e.bossMinion&&e.hp>0&&e.raidFire);assert.ok(active.length<=1,'staggered passes leave a route open');
+   for(const cue of f.g.bossCues)if(cue.formationAim)warned.add(cue.minionId||cue.bossId);
+   for(const round of f.g.bullets)if(round.formationBoss129){fired.add(round.sourceMinionId||round.sourceBossId);assert.ok(Number.isFinite(round.vx)&&Number.isFinite(round.vy));}
+  }
+  assert.equal(warned.size,5);assert.equal(fired.size,5);assert.equal(impacts.length,0,'unprotected actual-player turn route avoids final projectiles');
+ }
+});
+test('Insufficient NPCs request the original patrol system and cannot finish by disappearance',()=>{
+ const f=sortie({faction:'central',width:390,height:844});f.g.patrols=[];let requested=0;const spawn=f.g.spawnPatrol;f.g.spawnPatrol=function(){requested++;return spawn.call(this);};
+ advance(f,.2);assert.equal(requested,1);assert.equal(f.g.patrols.length,2);
+ f.b.entryRoster=['missing-npc'];f.b.rosterCollectUntil=0;advance(f,1.5);assert.equal(f.b.entryComplete,false,'no fake loss or forced deletion finishes the scene');
 });

@@ -1180,7 +1180,7 @@ export class TreffasWagen extends PatternBoss {
 class FormationAceBoss extends PatternBoss {
   constructor({wingmen,...options}) {
     super({...options,parts:[]});
-    this.coreRadius=30;this.ownsMotion129=true;this.a=-Math.PI/2;this.formationBoss129=true;
+    this.coreRadius=30;this.ownsMotion129=true;this.a=Math.PI/2;this.formationBoss129=true;
     this.phase='formation-arrival';this.entryComplete=false;this.entryAge=0;this.entryRoster=null;this.entryClearAge=0;this.finalUsed=false;this.wingmen=wingmen;this.formationTotal=wingmen.length+1;this.wingLaunched=false;
   }
   suppressive(){} // Formation fire comes only from the actual forward guns.
@@ -1202,7 +1202,7 @@ class FormationAceBoss extends PatternBoss {
       const wing=this.wingmen[i],x=bounds.left+42+(span-84)*(i+.5)/this.wingmen.length,y=this.kind==='naval10-black-flight'?bounds.top+130+(wing.rank?Math.min(250,(bounds.bottom-bounds.top)*.34):0):bounds.top+110+(i%2)*70;
       this.command('spawn-minion',{minion:'formation-fighter',faction:this.faction,plane:wing.plane,behavior:wing.behavior,leaderId:this.id,
         formationIndex:i,formationCount:this.wingmen.length,formationRole:wing.role,formationSide:wing.side,formationRank:wing.rank,
-        pairId:wing.pairId,callSign:wing.callSign,name:wing.callSign,x,y,a:Math.PI/2,life:1e9,fire:.45+i*.11,
+        pairId:wing.pairId,callSign:wing.callSign,callSignKo:wing.nameKo,name:wing.callSign,x,y,a:this.kind==='naval10-black-flight'?(wing.side<0?0:Math.PI):Math.PI/2,life:1e9,fire:.45+i*.11,
         maxSpeed:wing.maxSpeed,hp,visualScale:1,persistent:true});
     }
   }
@@ -1246,17 +1246,17 @@ class FormationAceBoss extends PatternBoss {
       this.command('formation-final-order',{name:this.kind==='jasta11-circus'?'붉은 서커스 총공세':'검은 십자포위'});
     }
     if(this.finalAge===undefined)return false;
-    this.finalAge+=dt;const age=this.finalAge,duration=4.5+this.finalRoles.length*1.5+2.2;
+    this.finalAge+=dt;const age=this.finalAge,duration=4.5+this.finalRoles.length*1.8+2.5;
     this.setFormationPhase(this.kind==='jasta11-circus'?'red-total-assault':'black-cross-encirclement',p,age,duration);
     this.formationOrder.finalRoles=this.finalRoles;
-    const start=4.5+this.finalRoles.length*1.5;
+    const start=4.5+this.finalRoles.length*1.8;
     if(age<start){this.steer(dt,p.x+Math.cos(this.formationOrder.playerHeading)*Math.min(220,(bounds.bottom-bounds.top)*.24),p.y+Math.sin(this.formationOrder.playerHeading)*Math.min(220,(bounds.bottom-bounds.top)*.24),2.8);this.move(dt,245,bounds);}
     else{
-      if(!this.finalLock){this.finalLock={x:p.x+(p.vx||0)*.45,y:p.y+(p.vy||0)*.45};this.command('reentry-warning',{x:this.x,y:this.y,targetX:this.finalLock.x,targetY:this.finalLock.y,seconds:1,formationAim:true});}
-      if(age<start+1){this.steer(dt,this.finalLock.x,this.finalLock.y,2.2);this.move(dt,125,bounds);}
+      if(!this.finalLock){this.finalLock={x:p.x+(p.vx||0)*1.6,y:p.y+(p.vy||0)*1.6};this.command('reentry-warning',{x:this.x,y:this.y,targetX:this.finalLock.x,targetY:this.finalLock.y,seconds:1.25,formationAim:true});}
+      if(age<start+1.25){this.steer(dt,this.finalLock.x,this.finalLock.y,3.2);this.move(dt,125,bounds);}
       else{
         this.finalHeading??=this.a;this.a=this.finalHeading;this.move(dt,275,bounds);
-        if(age<start+1.65&&this.due('final-gun',dt,.24))this.forwardShot();
+        if(age<start+1.95&&this.due('final-gun',dt,.24))this.forwardShot();
       }
     }
     if(age>=duration){this.finalAge=undefined;this.finalLock=null;this.finalHeading=null;this.recoverLeft=2.4;this.setFormationPhase('formation-recovery',p,0,2.4);}
