@@ -189,38 +189,21 @@ export function drawPassiveFx(c, g, point, t, px, py) {
   return false;
 }
 
-// ---- Mannock "동료의 수호자" / Guardian of Comrades: enemies lining up on an ally take +30% MG damage.
-//   threat      -> a short amber aim-glint off the enemy's nose toward the ally it is lining up
-//   marked foe  -> a slow ring of amber sparks orbits that enemy (it is the one to shoot)
-//   ally        -> a soft pale-gold guard glow while it is being covered
-const AMB = 'rgba(255,186,90,';
-export function drawMannockCover(c, g, point, t) {
-  if (g.pilot !== 'mannock' || typeof g.mannockCoverTarget !== 'function') return false;
-  sprites(); if (!EMBER) return false;
-  c.save(); c.lineCap = 'round';
-  let shown = 0;
-  for (const e of g.enemies || []) {
-    if (shown >= 4 || !(e.hp > 0)) continue;
-    const ally = g.mannockCoverTarget(e); if (!ally) continue;
-    if (Math.hypot(e.x - g.x, e.y - g.y) > 1100) continue;
-    shown++;
-    const [ex, ey] = point(e.x, e.y), [ax, ay] = point(ally.x, ally.y), d = Math.hypot(ax - ex, ay - ey) || 1, ux = (ax - ex) / d, uy = (ay - ey) / d;
-    // short aim glint off the enemy's nose toward the ally it is lining up (no screen-long lines)
-    { const L = Math.min(90, d * .45), gr = c.createLinearGradient(ex + ux * 22, ey + uy * 22, ex + ux * (22 + L), ey + uy * (22 + L));
-      gr.addColorStop(0, AMB + '.9)'); gr.addColorStop(1, AMB + '0)');
-      c.beginPath(); c.moveTo(ex + ux * 22, ey + uy * 22); c.lineTo(ex + ux * (22 + L), ey + uy * (22 + L));
-      c.globalAlpha = .9; c.strokeStyle = gr; c.lineWidth = 2.4; c.stroke(); }
-    // ally guard glow
-    c.globalCompositeOperation = 'lighter'; const gr = 30 + 3 * Math.sin(t * 4);
-    c.globalAlpha = .6; c.drawImage(EMBER, ax - gr, ay - gr, gr * 2, gr * 2);
-    // orbiting amber sparks on the marked enemy
-    const R = 30;
-    for (let i = 0; i < 6; i++) { const a = t * 2.2 + i * Math.PI / 3, s = 3.6 + 1.2 * Math.sin(t * 6 + i);
-      c.globalAlpha = .85; c.drawImage(EMBER, ex + Math.cos(a) * R - s, ey + Math.sin(a) * R - s, s * 2, s * 2); }
-    c.globalCompositeOperation = 'source-over';
+// Mannock's 74 Squadron command: small amber flashes mark the faster wingman fire.
+export function drawMannockCover(c,g,point,t){
+ if(g.pilot!=='mannock')return false;
+ sprites();if(!EMBER)return false;
+ let shown=0;c.save();c.globalCompositeOperation='lighter';
+ for(const wing of g.allies||[]){
+  if(wing.life<=0||shown>=8)continue;
+  const [x,y]=point(wing.x,wing.y),a=wing.a||0,flash=wing.muzzleFlash>0,s=flash?11:5;
+  if(flash||Math.sin(t*5+shown*1.9)>.45){
+   c.globalAlpha=flash?.87:.22;
+   c.drawImage(EMBER,x+Math.cos(a)*24-s/2,y+Math.sin(a)*24-s/2,s,s);
   }
-  c.restore();
-  return shown > 0;
+  shown++;
+ }
+ c.restore();return shown>0;
 }
 
 // shared: a tiny per-game memo
