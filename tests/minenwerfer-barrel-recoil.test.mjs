@@ -17,14 +17,14 @@ test('barrel recoil kicks smoothly and returns to exactly the same resting pose'
 });
 test('fixed emplacement and the two idle barrel sprites have identical draw calls throughout a shot',()=>{
  const p={x:17,y:-25,hp:400,maxHp:400,mortarRecoils:[0,0,0]},idle=draw(p);
- assert.equal(idle.length,7);assert.equal(idle[0][0],images.base);
+ assert.equal(idle.length,10);assert.equal(idle[0][0],images.base);
  for(let tube=0;tube<3;tube++)for(const age of [.01,.055,.1,.2,.3,.36]){
   p.mortarRecoils=[0,0,0];p.mortarRecoils[tube]=MINEN_ART.recoilDuration-age;const active=draw(p);
   assert.deepEqual(active[0],idle[0]);
-  for(let i=0;i<3;i++)if(i!==tube)assert.deepEqual(active[i+1],idle[i+1]);
-  for(let i=4;i<7;i++)assert.deepEqual(active[i],idle[i]);
-  const moving=active[tube+1];assert.equal(moving[0],images.barrels);assert.equal(moving[5],idle[tube+1][5]);
-  assert(Math.abs(moving[6]-idle[tube+1][6]-minenRecoilOffset(p,tube))<1e-10);
+  for(let i=0;i<3;i++)if(i!==tube)assert.deepEqual(active[i*2+1],idle[i*2+1]);
+  for(const i of [2,4,6,7,8,9])assert.deepEqual(active[i],idle[i]);
+  const moving=active[tube*2+1];assert.equal(moving[0],images.barrels);assert.equal(moving[5],idle[tube*2+1][5]);
+  assert(Math.abs(moving[6]-idle[tube*2+1][6]-minenRecoilOffset(p,tube))<1e-10);
   assert(Math.abs(minenMuzzleLocal(p,tube).y-MINEN_TUBES[tube].muzzleY-minenRecoilOffset(p,tube))<1e-10);
  }
 });

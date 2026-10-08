@@ -32,7 +32,7 @@ for(const tube of [0,1,2]){
  const x=p.x+[-175,0,175][tube],y=p.y+[-5,-49,-5][tube];let changed=0;
  for(let py=0;py<490;py++)for(let px=0;px<650;px++){
   const i=(py*650+px)*4;if(idle[i]!==fired[i]||idle[i+1]!==fired[i+1]||idle[i+2]!==fired[i+2]||idle[i+3]!==fired[i+3]){
-   if(px<x-56||px>x+56||py<y-56||py>y+74)throw new Error('Stationary pixels moved outside tube '+tube);
+   if(px<x-56||px>x+56||py<y-56||py>=p.y+(tube===1?31:20))throw new Error('Stationary pixels moved outside tube '+tube);
    changed++;
   }
  }
