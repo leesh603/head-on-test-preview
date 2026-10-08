@@ -92,7 +92,7 @@ export function bossTactic(encounter,locale='ko'){
   case 'fort-douaumont':return b.coreVulnerable?text('마지막 집중 포격을 피해 노출된 중앙부를 공격하세요.','Core exposed · dodge the final barrage'):b.phase==='verdun-ammo'?text('노출된 좌우 탄약고를 부수면 해당 구역의 포격이 약해집니다.','Destroy exposed flank ammunition → weaken that sector'):text('외곽 포대부터 중포까지 부수세요. 관제부를 파괴하면 포격이 약해집니다.','Outer mounts → heavy turrets · control loss weakens salvos');
   case 'fort-souville':return b.coreVulnerable?text('남은 포대를 피하며 노출된 지하 핵심부를 공격하세요.','Underground core exposed · silence remaining pits'):b.phase==='verdun-ruin-breach'?text('노출된 지하 탄약고를 부숴 내부 진지를 연쇄 폭발시키세요.','Underground ammunition exposed → interior chain blast'):text('관측소를 부수면 포격이, 지휘소를 부수면 증원이 멈춥니다.','Hit open pits · observer=artillery / command=reserves');
   case 'gotha-squadron':return text('후방 사격을 피하며 폭탄창을 부수세요. 엔진을 파괴하면 투하가 늦어집니다.','Break bomb bays to protect the city · engines delay drops · beware rear guns');
-  case 'london-apron-raid':return b.coreVulnerable?text('방벽이 해체됐습니다. 중앙 윈치를 공격하세요.','Barrier dismantled · attack the central winch'):text('탐조등과 포대를 제압하고, 기구 3개를 부숴 윈치를 노출시키세요.','Silence lamp and flak · break 3 balloons to expose the winch');
+  case 'london-apron-raid':return text('비행선을 격추해 그물에 통로를 여세요. 탐조등과 포대를 부수면 공격이 줄어듭니다.','Down airships to open the net · destroy the searchlight and flak gun to ease the breakthrough');
   case 'london-apron':return text('그물을 공격해도 비행선이 피해를 받습니다. 격추하면 통로가 열립니다.','Net damage transfers to its airship · down it to open a lane and silence its gun');
   case 'zeppelin-l70':return b.phase==='cloud'?text('구름 아래 관측 곤돌라를 부숴 본체를 드러내세요.','Destroy the gondola beneath the cloud to reveal the bombing fortress'):b.lastStand?text('화염 통로를 피하고, 엔진을 부숴 측면포와 기동을 약화시키세요.','Hydrogen fire corridor · break engines to reduce guns and drift'):text('엔진을 부수면 측면포, 기동, 본체 방어가 약해집니다.','Destroy engines to reduce broadsides, drift and hull protection');
   case 'hma23':return b.coreVulnerable?text('마지막 편대가 출격합니다. 측면 대공포를 피해 본체를 공격하세요.','Final sortie · evade alternating deck flak and strike the carrier'):text('좌우 공격을 피하며 발진구 4개를 부숴 장갑을 해제하세요.','Read each port’s attack lane · destroy all four to expose the hull');
@@ -113,6 +113,9 @@ export function bossTactic(encounter,locale='ko'){
 }
 export function bossSoundFor(event,kind=''){
  const type=event.type,visual=event.visual||'';
+ if(type==='gotha-approach')return 'formationPass';
+ if(type==='gotha-bay-open')return 'armorOpen';
+ if(type==='gotha-final-bombing'||type==='apron-final-blockade')return 'approachWarning';
  if(type==='armor-drive')return 'armorDrive';
  if(type==='armor-entry')return 'armorEntry';
  if(type==='armor-brake')return 'armorBrake';

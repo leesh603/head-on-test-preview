@@ -1,4 +1,4 @@
-import {getLocale,subscribe,t} from './i18n.js?v=sfx1';
+import {getLocale,subscribe,t} from './i18n.js?v=sfx2';
 
 
 const $=id=>document.getElementById(id);
@@ -118,5 +118,5 @@ if(hangar){
 }
 
 // Direct Astra implementation: all live controls and data bindings are preserved.
-import("./astra-interface180.js?v=sfx1");
+import("./astra-interface180.js?v=sfx2");
 

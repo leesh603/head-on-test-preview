@@ -69,7 +69,7 @@ test('Periodic ground has exact opposite edges, preserves constant brightness an
 });
 test('Workshop collapse cue blasts the doorway once and entry cues map to Korean text',async()=>{
  const old=globalThis.Image;globalThis.Image=class{};
- try{const {handleMaanCue}=await import('../maan-view.js?v=sfx1');for(const team of ['entente','central']){
+ try{const {handleMaanCue}=await import('../maan-view.js?v=sfx2');for(const team of ['entente','central']){
   const f=battle(team);step(f,3);const waves=[],blasts=[],g={x:9999,y:9999,event:(n,v)=>{if(n==='wave')waves.push(v)},combatBlast:(...a)=>blasts.push(a),shake:0,smoke(){}};
   assert.equal(handleMaanCue(g,{type:'maan-workshop-collapse',x:f.body.workshop.x,y:f.body.workshop.openingY},f.body),true);
   assert.equal(blasts.length,1);assert.equal(blasts[0][1],f.body.workshop.openingY);

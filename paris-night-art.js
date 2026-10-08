@@ -1,6 +1,6 @@
-import {fx} from './fx-art.js?v=sfx1';
-import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=sfx1';
-import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=sfx1';
+import {fx} from './fx-art.js?v=sfx2';
+import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=sfx2';
+import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=sfx2';
 let images={};
 export function releaseParisArt(){images={};}
 export function prepareParisArt(){

@@ -1,4 +1,4 @@
-import {clearCrewMatte} from './matte70.js?v=sfx1';
+import {clearCrewMatte} from './matte70.js?v=sfx2';
 // Hand-authored game-native pixel sprites. All detail is rasterized once on an
 // integer grid; Canvas scaling keeps the same pixels in flight and the roster.
 const AIRFRAMES={
