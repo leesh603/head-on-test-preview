@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {LIncomparable,ParisGun} from '../headon-stageboss-patterns.js?v=tame3&rail=14';
+import {LIncomparable,ParisGun} from '../headon-stageboss-patterns.js?v=tame3&rail=15';
 import {BossHazards} from '../headon-stageboss-hazards.js';
 import {railGunMuzzle} from '../rural-rail-artillery.js?v=tame3';
 import {lincomparableRound} from '../lincomparable-raid.js?v=tame3';

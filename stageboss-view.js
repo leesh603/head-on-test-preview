@@ -1,4 +1,4 @@
-import {prepareBossCutins} from './boss-cutin-art.js?v=tame3&rail=14';
+import {prepareBossCutins} from './boss-cutin-art.js?v=tame3&rail=15';
 import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=tame3';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=tame3';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=tame3&rail=12';
@@ -6,7 +6,7 @@ import {verdunFortExtents} from './verdun-fortresses.js?v=tame3';
 import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=tame3&rail=1';
 import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=tame3';
 import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=tame3';
-import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=tame3';
+import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=tame3&rail=15';
 import {sommeExtents} from './somme-boss-layout.js?v=tame3';
 import {drawZubianShip} from './adriatic-boss-render.js?v=tame3';
 import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=tame3';
@@ -22,7 +22,7 @@ import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=tame3'
 import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=tame3';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=tame3';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=tame3&rail=1';
-import {bossHudModel} from './headon-stageboss-hud.js?v=tame3&rail=14';
+import {bossHudModel} from './headon-stageboss-hud.js?v=tame3&rail=15';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=tame3&hints=1&rail=12';
 import {planeSprite} from './aircraft.js?v=tame3';
 import {getLocale} from './i18n.js?v=tame3';
@@ -768,6 +768,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     else if(h.visual==='treffas-debris'){const idx=[...(h.id||'x')].reduce((n,ch)=>n+ch.charCodeAt(0),0)%6;if(!fx(c,'rockChunk'+idx,h.x,h.y,h.radius*2.6,h.radius*2.6,Math.atan2(h.vy,h.vx),.95))drawEnemyProjectile(c,{enemy:true,life:1,visualType:'boss',vx:h.vx,vy:h.vy},h.x,h.y,0,z);}
      else if(h.visual==='city-mg')drawEnemyProjectile(c,{enemy:true,life:1,visualType:'fighter',vx:h.vx,vy:h.vy},h.x,h.y,0,z);
      else if(h.visual==='aa-shell')fx(c,'shellHeavy',h.x,h.y,24,8,Math.atan2(h.vy,h.vx),.95);
+     else if(h.visual==='zubian-shell'){const a=Math.atan2(h.vy,h.vx);fx(c,'shellHeavy',h.x,h.y,34,11,a,.98);fx(c,'wakeFast',h.x-Math.cos(a)*14,h.y-Math.sin(a)*14,42,10,a,.32);}
      else drawEnemyProjectile(c,{enemy:true,life:1,visualType:'boss',vx:h.vx,vy:h.vy},h.x,h.y,0,z);
    }
    else{if(!warning&&(h.visual==='livens-leak'||h.visual==='livens-pressure')){

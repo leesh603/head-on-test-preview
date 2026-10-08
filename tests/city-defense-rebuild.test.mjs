@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {CITY_DEFENSE,spawnCityDefense,tickCityDefense} from '../city-defense.js?v=tame3';
-import {DrachenMineNet,LondonApron,createBossEncounter} from '../headon-stageboss-patterns.js?v=tame3&rail=14';
+import {DrachenMineNet,LondonApron,createBossEncounter} from '../headon-stageboss-patterns.js?v=tame3&rail=15';
 import {CityFlakCell} from '../city-flak-combat.js?v=tame3';
 import {DRACHEN_MINES,CITY_GUNS} from '../city-airship-combat378.js?v=tame3';
 
