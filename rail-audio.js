@@ -1,5 +1,6 @@
 // Offline-style PCM synthesis, cached by sfx.js: one voice, no per-frame audio graph.
-// Steam pressure, resonant whistle pipes and paired wheel joints replace organ-like saw notes.
+// Steam locomotive arrival: percussive exhaust puffs (chug-chuff) over a long
+// low horn blast. Puffs are shaped noise bursts — percussive, not a wind bed.
 export const RAIL_AUDIO_SECONDS=Object.freeze({trainApproach:3.4,trainRoll:.48,trainBrake:.85,railBreech:.42,railGunFire:1.05});
 export function railAudioSamples(name,sampleRate=48000){
  if(!RAIL_AUDIO_SECONDS[name]||!Number.isFinite(sampleRate)||sampleRate<8000)throw new Error('Invalid rail audio');
@@ -14,35 +15,33 @@ export function railAudioSamples(name,sampleRate=48000){
   steam+=(body-steam)*(1-Math.exp(-tau*650/sampleRate));
   let v=0;
   if(name==='trainApproach'||name==='trainRoll'){
-   const arrival=name==='trainApproach',speed=arrival?4.4-2.1*Math.min(1,q*1.15):4.6;
-   phase+=speed/sampleRate;const rev=phase%1;
-   // 칙칙폭폭: four exhaust chuffs per wheel rev, alternating strong/weak
-   // cylinders. Each puff is a gated noise burst over a low thump — the chuff
-   // rhythm carries the arrival, continuous rumble stays under it.
+   const arrival=name==='trainApproach',revs=arrival?2.7-1.2*Math.min(1,q*1.2):2.5;
+   phase+=revs/sampleRate;const rev=phase%1;
+   // 칙칙폭폭: four exhaust puffs per rev — percussive low thump + bright tick,
+   // almost no noise so nothing reads as wind on small speakers.
    const cyl=Math.floor(rev*4),pos=rev*4-cyl,strong=cyl%2===0;
-   const puff=Math.exp(-pos*(strong?15:17))*(strong?1:.66);
-   const distance=arrival?.2+.8*Math.sin(Math.min(1,q*1.25)*Math.PI/2):.5;
-   const thump=Math.sin(tau*72*t)*.5+Math.sin(tau*144*t)*.2;
-   // Chuffs are pure low thumps — no noise layer anywhere in this cue.
-   v=(low*.05+thump*.95*puff)*distance;
-   // Rod clank sits between the chuffs: a gated mid knock, not a noise burst.
-   v+=Math.sin(tau*310*t+Math.sin(tau*53*t)*2)*.07*Math.exp(-Math.abs(pos-.55)*30)*distance;
+   const puff=Math.exp(-pos*(strong?11:14))*(strong?1:.58);
+   const boom=Math.sin(tau*82*t)*.8+Math.sin(tau*164*t)*.3+Math.sin(tau*246*t)*.12;
+   const tick=Math.sin(tau*520*t)*.1;
+   const distance=arrival?.22+.78*Math.sin(Math.min(1,q*1.25)*Math.PI/2):.5;
+   v=((tick+boom*1.05)*puff)*distance;
+   // rod knock between puffs
+   v+=Math.sin(tau*295*t+Math.sin(tau*51*t)*2)*.05*Math.exp(-Math.abs(pos-.6)*28)*distance;
    if(arrival){
-    // Steam whistle: single long blast, pure tuned pipes only.
-    const wt=t-.22,env=wt>0&&wt<3.1?Math.min(1,wt/.07)*Math.min(1,(3.1-wt)/.5):0;
-    const droop=1+.028*Math.exp(-wt*7)-.014*q,steamWob=1+.006*Math.sin(tau*7.3*t)+.003*Math.sin(tau*11.1*t+1.2);
-    const drift=droop*steamWob;
-    const chord=Math.sin(tau*196*t*drift)+.62*Math.sin(tau*392*t*(drift+.0012)+.4)+.5*Math.sin(tau*294*t*(drift-.0009)+.9)+.22*Math.sin(tau*247*t*(drift+.0018)+1.6)+.14*Math.sin(tau*588*t*drift+2.2);
-    v+=env*chord*.5;
-    v+=env*Math.sin(tau*(784*t-60*t*t))*.04*Math.sin(Math.PI*Math.min(1,wt/.4));
+    // 뿌우우우우: long steam-whistle blast voiced for small speakers — mid root
+    // with a wide octave/fifth stack and a breath of steam on the attack.
+    const wt=t-.32,env=wt>0&&wt<2.9?Math.min(1,wt/.09)*Math.min(1,(2.9-wt)/.65):0;
+    const drift=1+.024*Math.exp(-wt*6)+.0045*Math.sin(tau*5.4*t);
+    const horn=Math.sin(tau*330*t*drift)+.55*Math.sin(tau*660*t*(drift+.001))+.4*Math.sin(tau*494*t*(drift-.0008)+.6)+.22*Math.sin(tau*988*t*drift+1.1)+.12*Math.sin(tau*220*t*drift+2);
+    v+=env*horn*.7;
    }
   }else if(name==='trainBrake'){
-   v=Math.sin(tau*(1120*t-180*t*t))*.16*Math.sin(Math.PI*q)+low*.12*(1-q);
+   v=Math.sin(tau*(1120*t-180*t*t))*.16*Math.sin(Math.PI*q);
   }else if(name==='railBreech'){
    const strike=Math.exp(-t*45)+.6*Math.exp(-Math.max(0,t-.16)*60)*(t>.16?1:0);
-   v=strike*(body*.32+Math.sin(tau*390*t)*.16)+low*.2*Math.sin(Math.PI*q);
+   v=strike*(Math.sin(tau*390*t)*.16+Math.sin(tau*195*t)*.1);
   }else{
-   v=low*.65*Math.exp(-t*5)+body*.5*Math.exp(-t*15)+Math.sin(tau*(68*t-13*t*t))*.3*Math.exp(-t*7)+(body-steam)*.17*Math.exp(-t*3);
+   v=Math.sin(tau*(68*t-13*t*t))*.5*Math.exp(-t*7)+Math.sin(tau*340*t)*.2*Math.exp(-t*15)+Math.sin(tau*136*t)*.3*Math.exp(-t*5);
   }
   const edge=Math.min(1,t/.006,(RAIL_AUDIO_SECONDS[name]-t)/.04);
   data[i]=Math.tanh(v*1.3)*Math.max(0,edge);

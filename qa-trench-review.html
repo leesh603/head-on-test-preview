@@ -1,0 +1,16 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>HEAD-ON trench branch review</title>
+<p>Loading the branch review…</p>
+<script type="module">
+// QA entry point only. Production index.html and image loaders are unchanged.
+// Public branch CDNs redirect images across origins; request anonymous CORS
+// explicitly so the existing canvas atlas/terrain pixel reads remain permitted.
+const game=new URLSearchParams(location.search).get('mode')==='game';
+let html=await (await fetch(game?'./index.html':'./test-lab.html')).text();
+if(game){
+ const boot=`<script>(()=>{const NativeImage=window.Image;window.Image=class extends NativeImage{constructor(...args){super(...args);this.crossOrigin='anonymous';}};const create=document.createElement.bind(document);document.createElement=(name,...args)=>{const element=create(name,...args);if(String(name).toLowerCase()==='img')element.crossOrigin='anonymous';return element;};})();<\/script>`;
+ html=html.replace('<head>','<head>'+boot).replace(/<img\s/gi,'<img crossorigin="anonymous" ');
+}else html=html.replaceAll('./index.html?','./qa-trench-review.html?mode=game&');
+document.open();document.write(html);document.close();
+</script>

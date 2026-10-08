@@ -700,7 +700,7 @@ export class LivensFlameProjector extends PatternBoss {
     this.phase='sealed';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
     // The armored nozzle is a permanent mount, not a destructible weakpoint.
     this.nozzleMount={x:0,y:-98,length:85};this.nozzleAngle=-Math.PI/2;this.lockedFlameAngle=null;
-    this.discovered=false;this.nozzleRevealed=false;this.trenchEntry={state:'buried',age:0,revealAge:0};this.raidPhase=1;this.recovery=0;this.flameQueue=[];this.flameGap=0;this.stormTriggered=false;
+    this.discovered=false;this.nozzleRevealed=false;this.trenchEntry={state:'buried',age:0,revealAge:0};this.entryMotion=new Map();this.raidPhase=1;this.recovery=0;this.flameQueue=[];this.flameGap=0;this.stormTriggered=false;
     this.flameCount=0;this.flameMode='track';this.flameAngSpeed=0;this.flameWarn=0;this.flameAge=0;this.spinRate=1.55;this._gasTier=3;
   }
   locateHit({x,y,radius=0}){
@@ -719,7 +719,7 @@ export class LivensFlameProjector extends PatternBoss {
     return target?this.hit({...target,damage}):{damage:0,miss:true};
   }
   hit(attack){const result=super.hit(attack);if(this.dead)this.dispose();return result;}
-  dispose(){this.flameQueue.length=0;this.lockedFlameAngle=null;this.stormActive=false;this.recovery=0;}
+  dispose(){this.flameQueue.length=0;this.entryMotion.clear();this.lockedFlameAngle=null;this.stormActive=false;this.recovery=0;}
   suppressive(){/* Livens attacks through its persistent flamethrower and fuel leaks. */}
   onPartDestroyed(p){
     if(p.id.startsWith('tank-'))this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:54,warning:.65,duration:2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak',tag:'livens-leak'});
@@ -734,7 +734,13 @@ export class LivensFlameProjector extends PatternBoss {
   beginFlame(mode,target){
     const weak=this.parts.get('pressure').destroyed,dir=this.flameCount%2?-1:1;
     let warn=weak?1.4:1.15,dur=weak?1.2:1.8,speed=0,span=0,range=weak?390:560;
-    const desired=target?Math.atan2(target.y-this.y-this.nozzleMount.y,target.x-this.x):this.nozzleAngle;
+    // The first lock must meet an approaching plane after the warning, rather
+    // than fire behind a plane that has already flown past the fixed nozzle.
+    // Sample only this encounter's entry: hosts may supply zero vx/vy while moving.
+    const motion=mode==='entry'&&target?this.entryMotion.get(target.id):null;
+    const lead=mode==='entry'?1.4:0;
+    const tx=target?target.x+(target.vx||motion?.vx||0)*lead:0,ty=target?target.y+(target.vy||motion?.vy||0)*lead:0;
+    const desired=target?Math.atan2(ty-this.y-this.nozzleMount.y,tx-this.x):this.nozzleAngle;
     if(mode==='entry'){dur=.65;warn=1.15;}
     if(mode==='sweep'){dur=weak?1.5:2.2;span=dir*1.65;speed=span/dur;}
     if(mode==='pulse'){dur=weak?.65:.95;warn=1.25;}
@@ -757,6 +763,7 @@ export class LivensFlameProjector extends PatternBoss {
     if(!this.trenchScale&&bounds){this.trenchScale=Math.min(1,(bounds.right-bounds.left)*.86/520);for(const p of this.parts.values()){p.x*=this.trenchScale;p.y*=this.trenchScale;p.radius*=this.trenchScale;}this.coreRadius*=this.trenchScale;this.nozzleMount.y*=this.trenchScale;this.nozzleMount.length*=this.trenchScale;}
     const live=players.filter(p=>p.alive&&Number.isFinite(p.x)&&Number.isFinite(p.y)),target=live[this.flameCount%live.length];
     const n=this.nozzleMount,e=this.trenchEntry;
+    if(e.state!=='active'){const sample=new Map();for(const p of live){const prev=this.entryMotion.get(p.id);sample.set(p.id,{x:p.x,y:p.y,vx:prev&&dt>0?(p.x-prev.x)/dt:0,vy:prev&&dt>0?(p.y-prev.y)/dt:0});}this.entryMotion=sample;}
     if(e.state!=='active'){
       const nx=this.x+n.x,ny=this.y+n.y,visible=(!bounds||(nx>=bounds.left+35&&nx<=bounds.right-35&&ny>=bounds.top+35&&ny<=bounds.bottom-35));
       if(!target||!visible||Math.hypot(target.x-nx,target.y-ny)>620)return;
