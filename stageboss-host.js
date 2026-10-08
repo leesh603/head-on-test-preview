@@ -8,7 +8,7 @@ import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=tame3';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=tame3';
 import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=tame3&rail=18';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=tame3&rail=30';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=tame3&rail=31';
 import {bossSoundFor} from './boss-feedback.js?v=tame3&hints=1&rail=18';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=tame3&rail=1';
 import {advanceCambraiBug} from './cambrai-bug-flight.js?v=tame3';
