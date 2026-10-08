@@ -239,6 +239,22 @@ export class ZeppelinL70 extends PatternBoss {
     return super.hit(attack);
   }
   onPartDestroyed(p) {if(p.id==='capsule'&&this.phase==='cloud'){this.phase='reveal';this.phaseTime=this.t.revealSeconds||1;this.command('phase-change',{phase:this.phase});}}
+  bombingRun(p,bounds,{warning=1.2,damage=this.t.damage}={}) {
+    const vx=p.vx||0,vy=p.vy||0,heading=Math.hypot(vx,vy)>1?Math.atan2(vy,vx):(p.a??-Math.PI/2);
+    const nx=-Math.sin(heading),ny=Math.cos(heading),side=this.gasSide*=-1;
+    const width=bounds?bounds.right-bounds.left:960,height=bounds?bounds.bottom-bounds.top:700;
+    const across=Math.min(width/Math.max(.001,Math.abs(nx)),height/Math.max(.001,Math.abs(ny)));
+    const step=Math.min(78,across*.18),radius=Math.min(48,step*.52),gap=side>0?1:3;
+    // Lock all landing sites now. Each beat meets continued flight at impact,
+    // rather than exploding behind an automatically moving aircraft. The
+    // omitted off-centre slot alternates sides and remains a visible exit.
+    for(let beat=0;beat<5;beat++){
+      const slot=side>0?beat:4-beat;if(slot===gap)continue;
+      const delay=beat*.16,lead=warning+delay,off=(slot-2)*step;
+      this.hazard('circle',{x:p.x+vx*lead+nx*off,y:p.y+vy*lead+ny*off,
+        radius,delay,warning,once:true,damage,visual:'carpet-bomb'});
+    }
+  }
   update(dt,{players,bounds}) {
     const engines=this.liveEngines(),mt=this.motionTime||0,span=this.phase==='cloud'?150:72+engines.length*11;
     // A cloud fortress makes long lateral bombing runs. Engine losses visibly
@@ -249,7 +265,7 @@ export class ZeppelinL70 extends PatternBoss {
       const live=living(players),p=live[this.cursor%Math.max(1,live.length)],c=this.parts.get('capsule');
       if(p){const wx=Math.cos(mt*.9)*48,wy=Math.sin(mt*.66)*34;c.x+=((p.x-this.x+wx)-c.x)*Math.min(1,dt*.9);c.y+=((p.y-this.y+wy)-c.y)*Math.min(1,dt*.9);const dx=c.x,dy=c.y-150,d=Math.hypot(dx,dy),leash=168;if(d>leash){c.x=dx/d*leash;c.y=150+dy/d*leash;}}
       if(this.due('carpet',dt,this.t.bombInterval||4)) {
-        const target=this.target(players);if(target)for(let i=0;i<5;i++)this.hazard('circle',{x:target.x+(i-2)*55+randBetween(this.rng,-30,30),y:target.y+randBetween(this.rng,-26,26),delay:this.rng()*.5,radius:45+randBetween(this.rng,-8,10),warning:1.2,once:true,visual:'carpet-bomb'});
+        const target=this.target(players);if(target)this.bombingRun(target,bounds);
       }
     } else if(this.phase==='reveal') {
       this.phaseTime-=dt;if(this.phaseTime<=0){this.phase='exposed';this.coreVulnerable=true;for(const p of this.parts.values())if(p.kind==='engine')p.hittable=true;this.command('phase-change',{phase:this.phase});}
@@ -264,10 +280,7 @@ export class ZeppelinL70 extends PatternBoss {
       if(this._summonTiers.length&&this.hp<=this.maxHp*this._summonTiers[0]){this._summonTiers.shift();const ox=[-170,170,0][this._summonCount%3];this.command('spawn-minion',{minion:'airship',faction:this.faction,x:this.x+ox,y:this.y-140-(this._summonCount%2)*40});this._summonCount++;}
       if(this.due('bombline',dt,(this.t.gasInterval||6)*(this.lastStand ? .72 : 1))){
         const p=this.target(players);
-        if(p){const horizontal=(this.gasSide*=-1)>0,n=5,tx=p.x+(p.vx||0)*.4,ty=p.y+(p.vy||0)*.4;
-          for(let i=0;i<n;i++){const off=(i-2)*78;
-            this.hazard('circle',{x:Math.max(bounds.left+40,Math.min(bounds.right-40,tx+(horizontal?off:0))),y:Math.max(bounds.top+40,Math.min(bounds.bottom-40,ty+(horizontal?0:off))),radius:48,delay:i*.16,warning:1.15,once:true,damage:this.t.damage*.7,visual:'carpet-bomb'});}
-        }
+        if(p)this.bombingRun(p,bounds,{warning:1.15,damage:this.t.damage*.7});
       }
     }
   }
@@ -359,14 +372,23 @@ class TrenchArmor extends PatternBoss {
     this.command('armor-brake',{});this.command('phase-change',{phase:this.kind==='a7v-flak'?(final?'a7v-hunting-net':'a7v-steel-turret'):(final?'markv-runaway':'markv-steel-waltz')});
   }
   rotatingFire(dt,r){
-    // Fire ONE real casemate at a time. The missing mount leaves a full gap.
-    if((r.clock-=dt)>0)return;r.clock=.44;const id=this.gunIds[(r.index++%this.gunIds.length+this.gunIds.length)%this.gunIds.length],gun=this.parts.get(id);
-    if(!gun.destroyed)this.fireGun(gun,{count:this.kind==='a7v-flak'?3:4,spread:this.kind==='a7v-flak'?.32:.4});
+    // Three beats from opposing real mounts, then a travel/recovery gap.
+    // A7V alternates fore/aft and side pairs; Mark V keeps its two sponsons.
+    // Destroyed mounts leave their sector open, never replaced by hull bullets.
+    if((r.clock-=dt)>0)return;
+    const beat=r.index++;r.clock=beat%3===2?.78:.22;
+    for(let i=0;i<this.gunIds.length;i++){
+      if(this.kind==='a7v-flak'&&i%2!==Math.floor(beat/3)%2)continue;
+      const gun=this.parts.get(this.gunIds[i]);
+      if(!gun.destroyed)this.fireGun(gun,{count:this.kind==='a7v-flak'?3:4,spread:this.kind==='a7v-flak'?.32:.4});
+    }
   }
   aim(dt,players){
     const p=players.find(p=>p.alive);if(!p)return;
     for(const gun of this.liveGuns()){
-      const desired=Math.atan2(p.y-this.y-gun.y,p.x-this.x-gun.x)-this.hullYaw;
+      // During a warned rotation, barrels settle toward their authored mount
+      // axes instead of counter-aiming at the pilot and cancelling the sweep.
+      const desired=this.rotation?.stage==='spin'?gun.baseAngle:Math.atan2(p.y-this.y-gun.y,p.x-this.x-gun.x)-this.hullYaw;
       const arc=this.layout.gunArc;
       const a=gun.baseAngle+Math.max(-arc,Math.min(arc,armorAngleDelta(desired,gun.baseAngle)));
       const step=this.layout.gunTurnSpeed*dt;

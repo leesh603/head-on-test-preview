@@ -347,6 +347,9 @@ function updateMinions(g,dt){
 export function beginStageBossFrame(g,dt){
  const addon=g.stageBoss;if(!addon||blocked(g)||dt<=0)return;
  addon.reconcile({blocked:false});
+ // Sample before native solo/co-op movement; previousX/Y were only set on
+ // bullets, so all non-Arras bosses otherwise received zero player velocity.
+ for(const p of players(g)){p.previousX=alive(p)?p.x:null;p.previousY=alive(p)?p.y:null;}
  for(const p of players(g))for(const [id,s]of p.bossStatuses||[]){s.remaining-=dt;if(s.remaining<=0||!alive(p))p.bossStatuses.delete(id);}
  g.bossCues=g.bossCues.filter(c=>(c.life-=dt)>0&&(c.type!=='bug-flight-target'||g.enemies.some(e=>e.id===c.minionId&&e.hp>0)));
  tickLondonBattle(g,dt);tickParisBattle(g,dt);tickVerdunBattle(g,dt);tickMaanWeather(g,dt);tickRegionalConditions(g,dt);if(blocked(g))return;
@@ -445,7 +448,7 @@ export function endStageBossFrame(g,dt){
    addon.hooks.onCue({type:'mine-chain',chainIndex:i,bossId:activeEncounter.bodies.values().next().value?.id,x:mine.x,y:mine.y,radius:72});
   }
  // The host has already resolved its entire upgrade queue/loss state this frame.
- const bounds=stageBossBounds(g),playerFrames=players(g).map(p=>({id:p.id||'p1',alive:alive(p),x:p.x,y:p.y,a:p.a,vx:Number.isFinite(p.previousX)?(p.x-p.previousX)/Math.max(dt,1/120):addon.stages.stageIndex===9?Math.cos(p.a)*(p.speed||0)*(p.airframeSpeed??1):0,vy:Number.isFinite(p.previousY)?(p.y-p.previousY)/Math.max(dt,1/120):addon.stages.stageIndex===9?Math.sin(p.a)*(p.speed||0)*(p.airframeSpeed??1):0,radius:12,londonRiver:addon.stages.stageIndex===11&&londonRiverCover(p.x,p.y)}));
+ const bounds=stageBossBounds(g),playerFrames=players(g).map(p=>({id:p.id||'p1',alive:alive(p),x:p.x,y:p.y,a:p.a,vx:Number.isFinite(p.previousX)?(p.x-p.previousX)/Math.max(dt,1e-6):addon.stages.stageIndex===9?Math.cos(p.a)*(p.speed||0)*(p.airframeSpeed??1):0,vy:Number.isFinite(p.previousY)?(p.y-p.previousY)/Math.max(dt,1e-6):addon.stages.stageIndex===9?Math.sin(p.a)*(p.speed||0)*(p.airframeSpeed??1):0,radius:12,londonRiver:addon.stages.stageIndex===11&&londonRiverCover(p.x,p.y)}));
  const defenderFrames=addon.stages.stageIndex===9?(g.patrols||[]).map(a=>formationDefenderFrame(g,a)):[];
  if(addon.stages.stageIndex===13)for(const p of playerFrames)p.sandCover=maanSandCover(g.maanWeather,p.x,p.y);
  const frame={paused:blocked(g),players:playerFrames,defenders:defenderFrames,defenderLosses:g.patrolLosses||0,bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings,londonTargets:g.londonBattle?.districts||[],parisTargets:g.parisBattle?.districts||[]};
