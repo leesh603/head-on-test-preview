@@ -1,7 +1,7 @@
-import {fx} from './fx-art.js?v=lc4';
-import {getLocale} from './i18n.js?v=lc4';
-import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=lc4';
-import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=lc4';
+import {fx} from './fx-art.js?v=r5';
+import {getLocale} from './i18n.js?v=r5';
+import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=r5';
+import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=r5';
 const circle=(c,x,y,r)=>{c.beginPath();c.arc(x,y,r,0,Math.PI*2);};
 // Called with the body's translation already applied. Original RGBA car art.
 export function drawRuralRail(c,b,images,wrecks){

@@ -1,4 +1,4 @@
-import {steerNaval} from './adriatic-boss-layout.js?v=lc4';
+import {steerNaval} from './adriatic-boss-layout.js?v=r5';
 import {FixedPool} from './support-pool129.js';
 export const HANGAR=Object.freeze({x:0,y:.213,w:.25,h:.314}); // normalized to full base image
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));

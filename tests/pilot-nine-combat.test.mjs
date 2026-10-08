@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PILOT_PLANES,angleDiff} from '../engine.js?v=lc4';
-import {CoopGame} from '../coop-engine.js?v=lc4';
-import {signatureState,advancePilotSignature} from '../pilot-signature-state.js?v=lc4';
-import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js?v=lc4';
+import {Game,PILOT_PLANES,angleDiff} from '../engine.js?v=r5';
+import {CoopGame} from '../coop-engine.js?v=r5';
+import {signatureState,advancePilotSignature} from '../pilot-signature-state.js?v=r5';
+import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js?v=r5';
 
 const ids=['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker'];
 function session(id,coop=false){const g=coop?new CoopGame([{pilot:id},{pilot:id}],{rng:()=>.5}):new Game(PILOT_PLANES[id],id,()=>.5),p=g.players?.[0]||g;
