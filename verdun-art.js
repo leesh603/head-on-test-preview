@@ -111,7 +111,7 @@ export function drawVerdunFort(c,b,destruction={}){
 }
 export function drawVerdunHazard(c,h){
  if(!h.visual?.startsWith('verdun-'))return false;
- if(h.kind==='projectile'){fx(c,'tracerOrange',h.x,h.y,28,5,Math.atan2(h.vy,h.vx),.92);return true;}
+ if(h.kind==='projectile')return false;
  if(h.kind!=='circle')return false;
  c.save();const warning=h.phase==='warning',q=Math.max(0,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)));
  if(warning){

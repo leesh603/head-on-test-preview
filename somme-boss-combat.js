@@ -63,7 +63,7 @@ class SommeBoss extends BaseBoss{
 
 // Stable encounter ID is retained for saves/test lab; the boss is now Schwaben.
 export class SchwabenFortress extends SommeBoss{
- constructor(o){super(o,SCHWABEN_PARTS,'morser-battery');this.coreVulnerable=false;this.phase='observation';this.lockProgress=0;this.wave=0;this.timers.set('barrage',3.8);this.timers.set('twin-aa',2.6);this.timers.set('mg-left',2.1);this.timers.set('mg-right',3.4);}
+ constructor(o){super({...o,tuning:{...o.tuning,sommeScale:sommeScale(o.tuning,false)*2}},SCHWABEN_PARTS,'morser-battery');this.coreVulnerable=false;this.phase='observation';this.lockProgress=0;this.wave=0;this.timers.set('barrage',3.8);this.timers.set('twin-aa',2.6);this.timers.set('mg-left',2.1);this.timers.set('mg-right',3.4);}
  liveHeavy(){return ['gun-left','gun-right','twin-aa'].filter(id=>!this.parts.get(id).destroyed);}
  reloadInterval(){return(this.parts.get('ammo').destroyed?10.8:6.7);}
  onPartDestroyed(p){

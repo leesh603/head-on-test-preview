@@ -56,7 +56,7 @@ export function drawSommeBoss(c,b){
 }
 export function drawSommeHazard(c,h){
  if(!h.visual?.startsWith('somme-'))return false;
- if(h.kind==='projectile'){fx(c,'tracerAmber',h.x,h.y,18,4,Math.atan2(h.vy,h.vx),.9);c.save();c.fillStyle='#edce93';c.beginPath();c.arc(h.x,h.y,2,0,Math.PI*2);c.fill();c.restore();return true;}
+ if(h.kind==='projectile')return false;
  c.save();const warning=h.phase==='warning',q=clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1);
  if(warning){warningRing(c,h.x,h.y,h.radius,q);if(h.sourceX!=null){const x=h.sourceX+(h.x-h.sourceX)*q,y=h.sourceY+(h.y-h.sourceY)*q-Math.sin(q*Math.PI)*62;fx(c,'shellHeavy',x,y,20,7,Math.atan2(h.y-h.sourceY,h.x-h.sourceX),.9);}}
  else{const age=Math.max(0,h.age-h.delay-h.warning),frame=age<h.duration*.28?'aaFlakHot':age<h.duration*.62?'aaFlakDark':'aaFlakSmoke';if(!drawAADefense(c,frame,h.x,h.y,h.radius*2.35,h.radius*2.35))fx(c,'flak',h.x,h.y,h.radius*2.35,h.radius*2.35,0,clamp(1-age/h.duration,0,1));}
