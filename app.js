@@ -1480,9 +1480,8 @@ function installHeadOnTestLab(){
    if(region===14){const pos=gallipoliPoint(game.gallipoliRoute,GALLIPOLI_ROUTE.fort-900);if(game.mode==='coop2'){game.camera.x=pos.x;game.camera.y=pos.y}else Object.assign(game,pos);}
    const distance=region===14?340:region===13?280:region===6?620:region===4?180:region===10?90:360,angle=Number.isFinite(game.a)?game.a:-Math.PI/2;
    const encounter=addon.startBoss({x:game.x+Math.cos(angle)*distance,y:game.y+Math.sin(angle)*distance});
-   // Test-lab bosses melt before their phases show — divide incoming damage so
-   // a pattern review survives the fight. &bosshp=N overrides the default 4x.
-   const bossHpMul=Math.max(1,Number(options.bosshp)||4);
+   // &bosshp=N divides incoming boss damage in test-lab fights; default is normal HP.
+   const bossHpMul=Math.max(1,Number(options.bosshp)||1);
    if(bossHpMul!==1)for(const key of ['hit','hitAt']){
     const orig=addon[key]?.bind(addon);
     if(orig&&!addon['_testDmg'+key]){addon[key]=a=>orig({...a,damage:typeof a?.damage==='number'?a.damage/bossHpMul:a?.damage});addon['_testDmg'+key]=true;}
