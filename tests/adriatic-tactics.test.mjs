@@ -30,8 +30,8 @@ test('Zubian paired, bow-only and stern-only last stands use distinct attacks an
  for(const mode of ['paired','front','rear']){const f=setup('hms-zubian'),halves=split(f),bow=halves.find(b=>b.role==='front'),stern=halves.find(b=>b.role==='rear');
   if(mode==='paired')for(const b of halves)b.hit({damage:b.hp*.55});else halves.find(b=>b.role!==mode).hit({damage:99999});
   f.events.length=0;run(f,15);const phases=f.events.filter(e=>e.type==='phase-change').map(e=>e.phase);
-  if(mode==='paired'){assert(phases.includes('zubian-pincer'));assert(f.events.some(e=>e.tag==='zubian-crossfire'));assert(f.events.some(e=>e.visual==='torpedo-charge'));}
-  if(mode==='front'){assert(bow.soloEnraged);assert(phases.includes('zubian-bow-rush'));assert(f.events.some(e=>e.visual==='torpedo-charge'));assert(!f.events.some(e=>e.visual==='zubian-mortar'));}
+  if(mode==='paired'){assert(phases.includes('zubian-pincer'));assert(f.events.some(e=>e.tag==='zubian-crossfire'));assert(!f.events.some(e=>e.visual==='torpedo-charge'));}
+  if(mode==='front'){assert(bow.soloEnraged);assert(phases.includes('zubian-bow-rush'));assert(!f.events.some(e=>e.visual==='zubian-mortar'));}
   if(mode==='rear'){assert(stern.soloEnraged);assert(phases.includes('zubian-stern-barrage'));assert(f.events.some(e=>e.tag==='zubian-final-mortar'));assert(!f.events.some(e=>e.visual==='torpedo-charge'));}
   for(const b of halves)if(!b.dead)b.hit({damage:99999});assert(f.enc.completed);
  }

@@ -169,7 +169,6 @@ class ZubianHalf extends NavalPatternBoss {
       const delta=Math.atan2(Math.sin(this.chargeAngle+Math.PI/2-this.hullYaw),Math.cos(this.chargeAngle+Math.PI/2-this.hullYaw));this.hullYaw+=Math.max(-dt*.7,Math.min(dt*.7,delta));
       this.chargeTime-=dt;if(this.chargeTime<=0) {
         this.phase='charging';this.chargeTime=1.1;this.chargeGun=0;
-        const q=this.chargeOrigin;if(!this.gun()?.destroyed)this.hazard('projectile',{...q,vx:Math.cos(this.chargeAngle)*this.t.bulletSpeed*(this.engine()?.destroyed?.75:1.25),vy:Math.sin(this.chargeAngle)*this.t.bulletSpeed*(this.engine()?.destroyed?.75:1.25),radius:this.engine()?.destroyed?18:24,duration:2.4,piercing:true,visual:'torpedo-charge'});
       }return;
     }
     const stalk=this.target(players);if(stalk&&this.t.mobileBoss){const retreat=this.lastStand||this.soloEnraged,offset=retreat?Math.sin(this.splitAge*1.1)*180:90*this.evasionSide;steerNaval(this,dt,stalk.x+offset,stalk.y-140,{bounds,speed:retreat?42:26,turn:retreat?.72:.32,mobility});}
@@ -182,7 +181,6 @@ class ZubianHalf extends NavalPatternBoss {
       this.chargeAngle=a;this.vx=Math.cos(a)*(final?86:78);this.vy=Math.sin(a)*(final?86:78);
       this.phase='windup';this.chargeTime=1.1;
       this.chargeOrigin=navalPoint({...this,hullYaw:a+Math.PI/2},0,-zubianSize(this).height*.42);
-      this.command('charge-warning',{...this.chargeOrigin,targetX:this.chargeOrigin.x+Math.cos(a)*810,targetY:this.chargeOrigin.y+Math.sin(a)*810,seconds:1.1});
       const rear=[...this.encounter?.bodies.values()||[]].find(b=>b.role==='rear'&&!b.dead);rear?.supportCharge?.(p,a);
     }
   }
