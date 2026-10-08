@@ -37,7 +37,7 @@ export function railAudioSamples(name,sampleRate=48000){
     v+=env*Math.sin(tau*(784*t-60*t*t))*.04*Math.sin(Math.PI*Math.min(1,wt/.4));
    }
   }else if(name==='trainBrake'){
-   v=(body-steam)*.2*(1-q)+Math.sin(tau*(1120*t-180*t*t))*.16*Math.sin(Math.PI*q)+low*.1*(1-q);
+   v=Math.sin(tau*(1120*t-180*t*t))*.16*Math.sin(Math.PI*q)+low*.12*(1-q);
   }else if(name==='railBreech'){
    const strike=Math.exp(-t*45)+.6*Math.exp(-Math.max(0,t-.16)*60)*(t>.16?1:0);
    v=strike*(body*.32+Math.sin(tau*390*t)*.16)+low*.2*Math.sin(Math.PI*q);
