@@ -774,7 +774,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     else if(h.visual==='treffas-debris'){const idx=[...(h.id||'x')].reduce((n,ch)=>n+ch.charCodeAt(0),0)%6;if(!fx(c,'rockChunk'+idx,h.x,h.y,h.radius*2.6,h.radius*2.6,Math.atan2(h.vy,h.vx),.95))drawEnemyProjectile(c,{enemy:true,life:1,visualType:'boss',vx:h.vx,vy:h.vy},h.x,h.y,0,z);}
      else if(h.visual==='city-mg')drawEnemyProjectile(c,{enemy:true,life:1,visualType:'fighter',vx:h.vx,vy:h.vy},h.x,h.y,0,z);
      else if(h.visual==='aa-shell')fx(c,'shellHeavy',h.x,h.y,24,8,Math.atan2(h.vy,h.vx),.95);
-     else if(h.visual==='zubian-shell'){const a=Math.atan2(h.vy,h.vx);fx(c,'shellHeavy',h.x,h.y,34,11,a,.98);fx(c,'wakeFast',h.x-Math.cos(a)*14,h.y-Math.sin(a)*14,42,10,a,.32);}
+     else if(h.visual==='zubian-shell'){const a=Math.atan2(h.vy,h.vx);c.save();c.translate(h.x,h.y);c.rotate(a);fx(c,'wakeFast',-16,0,42,10,0,.32);c.globalAlpha=.6;c.strokeStyle='#f0c98e';c.lineCap='round';c.lineWidth=2;c.beginPath();c.moveTo(-26,0);c.lineTo(-8,0);c.stroke();c.globalAlpha=1;c.fillStyle='#3d4a44';c.beginPath();c.moveTo(17,0);c.quadraticCurveTo(9,-6.5,-8,-5.5);c.lineTo(-14,-4);c.lineTo(-14,4);c.lineTo(-8,5.5);c.quadraticCurveTo(9,6.5,17,0);c.fill();c.fillStyle='#c9a15e';c.fillRect(-14,-4,3.5,8);c.strokeStyle='#dfe7d8';c.lineWidth=1;c.beginPath();c.moveTo(14,-2);c.quadraticCurveTo(4,-5.5,-9,-4.5);c.stroke();c.restore();}
      else drawEnemyProjectile(c,{enemy:true,life:1,visualType:'boss',vx:h.vx,vy:h.vy},h.x,h.y,0,z);
    }
    else{if(!warning&&(h.visual==='livens-leak'||h.visual==='livens-pressure')){
