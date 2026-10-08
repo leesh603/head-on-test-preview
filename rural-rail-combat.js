@@ -94,7 +94,7 @@ export class RuralRailBoss extends RailAdapter {
  fireBarrage(plan){
   const interval=plan.interval||this.t.barrageInterval||.32;
   fireRailArtillery(this);
-  plan.points.forEach((p,i)=>this.emit({type:'hazard',bossId:this.id,kind:'circle',...p,warning:(plan.warning??.85)+i*interval,delay:0,duration:plan.duration??.35,once:true,radius:plan.radius??88,damage:this.t.damage,visual:'rail-shell',tag:plan.final?this.id+':iron-rain':this.kind==='paris-gun'?this.id+':bruno-salvo':null}));
+  plan.points.forEach((p,i)=>this.emit({type:'hazard',bossId:this.id,kind:'circle',...p,warning:(plan.warning??.85)+i*interval,delay:0,duration:plan.duration??.35,once:true,radius:plan.radius??88,damage:this.t.damage*(i===plan.points.length-1?2.4:1),raidHeavy:i===plan.points.length-1,visual:'rail-shell',tag:plan.final?this.id+':iron-rain':this.kind==='paris-gun'?this.id+':bruno-salvo':null}));
   // The volley ends when the gun's last shot leaves the barrel; the trailing
   // markers still count down on their own.
   this.barrage={...plan,index:1,clock:0,total:(plan.points.length-1)*interval+.02};
@@ -102,8 +102,8 @@ export class RuralRailBoss extends RailAdapter {
  fire520(plan){
   const target={x:plan.target.x,y:plan.target.y},tag=this.id+(plan.final?':last-520':':520-round');
   const emit=spec=>this.emit({type:'hazard',bossId:this.id,kind:'circle',tag,...spec});
-  emit({...target,warning:.02,delay:0,duration:plan.centerDuration,once:true,radius:plan.radius,damage:this.t.damage*(plan.final?1.1:.74),visual:'rail-shell'});
-  emit({...target,warning:plan.waveWarning,delay:plan.waveDelay,duration:plan.waveDuration,once:true,radius:plan.wave,radiusStart:plan.start,radiusLimit:plan.wave,ringWidth:42,ringSpeed:(plan.wave-plan.start)/plan.waveDuration,damage:this.t.damage*(plan.final?.8:.62),visual:'rural-rail-shock'});
+  emit({...target,warning:.02,delay:0,duration:plan.centerDuration,once:true,radius:plan.radius,damage:this.t.damage*2.4,raidHeavy:true,visual:'rail-shell'});
+  emit({...target,warning:plan.waveWarning,delay:plan.waveDelay,duration:plan.waveDuration,once:true,radius:plan.wave,radiusStart:plan.start,radiusLimit:plan.wave,ringWidth:42,ringSpeed:(plan.wave-plan.start)/plan.waveDuration,damage:this.t.damage*1.6,raidHeavy:true,visual:'rural-rail-shock'});
   emit({...plan.smoke,warning:plan.smokeWarning,delay:plan.smokeDelay,duration:plan.smokeDuration,once:false,tickInterval:.7,damage:this.t.damage*.22,visual:'rural-rail-smoke'});
   if(plan.final||this.raidPhase>=2)for(let i=0;i<16;i++){if(i%8===2||i%8===3)continue;const a=(i%8)/8*Math.PI*2+.39+(i>=8?.18:0),speed=155;
    emit({...target,kind:'projectile',tag:tag+'-shrapnel',vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,radius:6,warning:plan.waveDelay+(i>=8?.48:0),delay:0,duration:2.4,damage:this.t.damage*.3,visual:'rail-shrapnel'});}

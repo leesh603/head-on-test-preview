@@ -61,7 +61,7 @@ export function stageSpawnInterval(g,interval){return normalSpawnInterval(interv
 export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
  if(g.mode==='campaign'||g.stageBoss)return g.stageBoss;
  g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=null;
- const hitPlayer=(id,damage,source)=>{if(blocked(g))return;const defender=formationDefenders(g).find(a=>formationDefenderId(g,a)===id);if(defender){if((g.patrols||[]).includes(defender))g.hitPatrol(defender,damage);else g.hitFormationAlly?.(defender,damage);return;}const p=players(g).find(p=>(p.id||'p1')===id);if(!p||!alive(p))return;const percent=({'rail-shell':.06,'rail-shell-outer':.045,'alps-cannon':.05,'torpedo-charge':.05,'zubian-mortar':.04,'carpet-bomb':.04,'observer-shell':.04,'black-flak':.03})[source?.visual]||0,finalDamage=damage+p.maxHp*percent;if(g.players)g.hitPlayer(p,finalDamage);else g.hit(finalDamage);if(source?.visual==='torpedo-charge'){g.combatBlast(p.x,p.y,54,'enemy','mineBlast');g.shake=Math.max(g.shake,10);}else if(source?.visual==='zubian-shell')g.combatBlast(p.x,p.y,24,'enemy','pop');};
+ const hitPlayer=(id,damage,source)=>{if(blocked(g))return;const defender=formationDefenders(g).find(a=>formationDefenderId(g,a)===id);if(defender){if((g.patrols||[]).includes(defender))g.hitPatrol(defender,damage);else g.hitFormationAlly?.(defender,damage);return;}const p=players(g).find(p=>(p.id||'p1')===id);if(!p||!alive(p))return;const percent=({'rail-shell':.06,'rail-shell-outer':.045,'alps-cannon':.05,'torpedo-charge':.05,'zubian-mortar':.04,'carpet-bomb':.04,'observer-shell':.04,'black-flak':.03})[source?.visual]||0,finalDamage=source?.raidHeavy?Math.max(damage,p.maxHp*.72):damage+p.maxHp*percent;if(g.players)g.hitPlayer(p,finalDamage);else g.hit(finalDamage);if(source?.visual==='torpedo-charge'){g.combatBlast(p.x,p.y,54,'enemy','mineBlast');g.shake=Math.max(g.shake,10);}else if(source?.visual==='zubian-shell')g.combatBlast(p.x,p.y,24,'enemy','pop');};
  const hooks={
   getTuning({bossId}){
    // Reuse the current ace HP/time growth and current heavy coop multiplier once.
@@ -124,11 +124,12 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
   formationStatus(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&e.hp>0).map(e=>({id:e.id,role:e.formationRole,pairId:e.pairId,x:e.x,y:e.y}));},
   onBuildingImpact(event){const b=g.bossBuildings.find(b=>!b.destroyed&&Math.abs(event.x-b.x)<=b.w/2+8&&Math.abs(event.y-b.y)<=b.h/2);if(!b)return false;b.destroyed=true;g.combatBlast(b.x,b.y,55,'enemy','structure');return true;},
   onCue(event){
-   if(event.type==='formation-shot'){g.bullets.push({x:event.x,y:event.y,vx:Math.cos(event.angle)*event.speed,vy:Math.sin(event.angle)*event.speed,life:2,enemy:true,visualType:'boss',damage:event.damage,encounterId:event.encounterId,formationBoss129:true,sourceBossId:event.bossId});g.event('enemyShot','');return;}
+   if(event.type==='formation-shot'){g.bullets.push({x:event.x,y:event.y,vx:Math.cos(event.angle)*event.speed,vy:Math.sin(event.angle)*event.speed,life:2,enemy:true,visualType:'boss',damage:Math.max(event.damage,event.raidHeavy?(g.maxHp||100)*.72:0),encounterId:event.encounterId,formationBoss129:true,sourceBossId:event.bossId});g.event('enemyShot','');return;}
    if(event.type==='formation-engaged')g.event('wave','아군 편대 격추 · 정예 편대와 교전');
    if(event.type==='formation-final-order')g.event('wave',event.name+' · 예고선 밖으로 선회!');
    if(event.type==='carrier-sortie-orders')redirectStuttgartSortie(g.enemies,event);
    const body=g.stageBoss?.stages.encounter?.bodies.get(event.bossId);
+   if(event.type==='hazard-activated'&&event.raidHeavy){g.shake=Math.max(g.shake,event.kind==='projectile'?3:8);if(g.t-(g.raidHeavySoundAt??-10)>.16){g.event('heavyShot','');g.raidHeavySoundAt=g.t;}const mount=body?.parts.get(event.sourcePartId);if(mount)mount.recoil=Math.max(mount.recoil||0,.3);}
    if(handleVerdunCue(g,event))return;
    if(handleMaanCue(g,event,body))return;
    handleLondonCue(g,event);
@@ -151,7 +152,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     const mines=event.points.map(p=>({x:deploying?event.sourceX:p.x,y:deploying?event.sourceY:p.y,targetX:p.x,targetY:p.y,hp:18,dead:false,bossMine:true,deploying,chainHandled:false,...(event.dropMode==='harbor-vertical'?{triggerRadius:36}:null)}));
     if(mines.length){const mx=mines.reduce((n,m)=>n+m.x,0)/mines.length,my=mines.reduce((n,m)=>n+m.y,0)/mines.length;
       g.hostileMinefields.push({x:mx,y:my,radius:Math.max(60,...mines.map(m=>Math.hypot(m.x-mx,m.y-my)+20)),
-        warning:event.warning,life:event.life,region:g.worldRegion(),mines,fuse:event.fuse??null,fuseAge:0,fuseTag:null,deploySeconds:deploying?(event.deploySeconds||event.warning):0,deployAge:0,dropMode:event.dropMode,sourcePartId:event.sourcePartId,sourceBossId:event.bossId,sourceX:event.sourceX,sourceY:event.sourceY,encounterId:g.stageBoss.stages.encounter.id});}
+        warning:event.warning,life:event.life,region:g.worldRegion(),mines,fuse:event.fuse??null,blastRadius:event.blastRadius||58,blastHeavy:!!event.blastHeavy,fuseAge:0,fuseTag:null,deploySeconds:deploying?(event.deploySeconds||event.warning):0,deployAge:0,dropMode:event.dropMode,sourcePartId:event.sourcePartId,sourceBossId:event.bossId,sourceX:event.sourceX,sourceY:event.sourceY,encounterId:g.stageBoss.stages.encounter.id});}
    }
     if(event.type==='boss-enter'){g.event('wave','지역 보스 출현! · '+BOSS_CATALOG[event.bossId].name);g.event('heavyShot','');}
     else if(event.type==='aa-effect'){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:event.life||.5,size:event.size||115,kind:event.kind});}
@@ -443,7 +444,7 @@ export function endStageBossFrame(g,dt){
    field.fuseAge+=dt;
    if(!field.fuseTag&&field.fuseAge>=field.fuse-.95){
     const mine=field.mines.find(m=>!m.dead);if(mine){field.fuseTag=activeEncounter.id+':fuse:'+addon.hazards.serial;
-     addon.hazards.spawn({kind:'circle',encounterId:activeEncounter.id,bossId:field.sourceBossId,x:mine.targetX??mine.x,y:mine.targetY??mine.y,radius:58,warning:.95,duration:.25,once:true,damage:24,visual:'drachen-fuse',tag:field.fuseTag});}
+     addon.hazards.spawn({kind:'circle',encounterId:activeEncounter.id,bossId:field.sourceBossId,x:mine.targetX??mine.x,y:mine.targetY??mine.y,radius:field.blastRadius||58,warning:.95,duration:.23,once:true,damage:24,raidHeavy:field.blastHeavy,visual:'drachen-fuse',tag:field.fuseTag});}
    }
    if(field.fuseTag&&field.mines.every(m=>m.dead)&&!field.fuseDetonated)addon.hazards.clearTagged(activeEncounter.id,field.fuseTag);
    if(field.fuseAge>=field.fuse){field.fuseDetonated=true;for(const mine of field.mines)if(!mine.dead){mine.dead=true;mine.chainHandled=false;}}

@@ -681,6 +681,11 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    drawBossPart(c,p,ring,g?.t||0);
   },
    drawHazard(h){if(layer==='bodies')return;
+    if(h.raidHeavy){c.save();
+     if(h.phase==='warning'&&h.kind==='circle'){const t=Math.max(0,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning))),r=h.radius;c.strokeStyle='#ff775be0';c.lineWidth=2.5;c.setLineDash([9,5]);c.beginPath();c.arc(h.x,h.y,r+6,0,Math.PI*2);c.stroke();c.setLineDash([]);c.strokeStyle='#ffe3acd9';c.lineWidth=3;c.beginPath();c.arc(h.x,h.y,r+13,-Math.PI/2,-Math.PI/2+Math.PI*2*t);c.stroke();}
+     else if(h.phase==='active'&&h.kind==='projectile'){const speed=Math.hypot(h.vx,h.vy)||1;c.globalCompositeOperation='lighter';c.strokeStyle='#ffd89aaa';c.lineWidth=5;c.beginPath();c.moveTo(h.x-h.vx/speed*27,h.y-h.vy/speed*27);c.lineTo(h.x,h.y);c.stroke();}
+     c.restore();}
+
     if(drawGallipoliHazard(c,h)||drawJutlandHazard(c,h)||drawVerdunHazard(c,h)||drawMaanHazard(c,h))return;
     const warning=h.phase==='warning';c.save();
     if(drawRuralRailHazard(c,h)){c.restore();return;}

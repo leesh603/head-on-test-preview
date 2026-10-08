@@ -48,10 +48,10 @@ export class StuttgartSupport {
   this.onCue({type:'hangar-cover-ejected',encounterId:this.id,...q});
  }
  fx(kind,x,y,radius,life,extra={}){const f=this.effects.acquire();if(f)Object.assign(f,{kind,x,y,radius,life,age:0,vx:0,vy:0,angle:0,...extra});return f;}
- shoot(x,y,angle,delay=0){const p=this.projectiles.acquire();if(!p)return;p.hits.clear();Object.assign(p,{id:this.id+':shot:'+(++this.damageSerial),kind:'shell',x,y,vx:Math.cos(angle)*this.tuning.bulletSpeed,vy:Math.sin(angle)*this.tuning.bulletSpeed,age:-delay,warning:0,life:4,radius:4,damage:this.tuning.damage*.34,applied:false});}
- flak(x,y,{delay=0,radius=30}={}){const p=this.projectiles.acquire();if(!p)return;p.hits.clear();Object.assign(p,{id:this.id+':flak:'+(++this.damageSerial),kind:'flak',x,y,vx:0,vy:0,age:-delay,warning:1.05,life:1.35,radius,damage:this.tuning.damage*.72,applied:false});}
+ shoot(x,y,angle,delay=0,heavy=false){const p=this.projectiles.acquire();if(!p)return;p.hits.clear();Object.assign(p,{id:this.id+':shot:'+(++this.damageSerial),kind:'shell',x,y,vx:Math.cos(angle)*this.tuning.bulletSpeed,vy:Math.sin(angle)*this.tuning.bulletSpeed,age:-delay,warning:0,life:3.1,radius:heavy?8:4,raidHeavy:heavy,damage:this.tuning.damage*(heavy?2.4:.65),applied:false});}
+ flak(x,y,{delay=0,radius=30}={}){const p=this.projectiles.acquire();if(!p)return;p.hits.clear();Object.assign(p,{id:this.id+':flak:'+(++this.damageSerial),kind:'flak',raidHeavy:false,x,y,vx:0,vy:0,age:-delay,warning:1.05,life:1.35,radius,damage:this.tuning.damage*.72,applied:false});}
  fire(players,lockedAngle=this.angle){const target=players.find(p=>p.alive);const side=this.fireSide++%2,indices=side?[1,3]:[0,2];for(const i of indices){const p=this.parts.get('gun'+i);if(p.hp<=0)continue;const q=this.world(p.nx,p.ny),a=target?Math.atan2(target.y-q.y,target.x-q.x):lockedAngle+(side?0:Math.PI);
-   const n=11;for(let row=0;row<3;row++)for(let j=0;j<n;j++){const gap=(side?6:2)+(side?-row:row);if(j>=gap&&j<gap+2)continue;this.shoot(q.x,q.y,a+(j/(n-1)-.5)*1.65,row*.4);}this.fx('muzzle',q.x,q.y,15,.20,{angle:a});
+   const n=11;for(let row=0;row<3;row++)for(let j=0;j<n;j++){const gap=(side?6:2)+(side?-row:row);if(row<2&&j>=gap&&j<gap+2)continue;this.shoot(q.x,q.y,a+(j/(n-1)-.5)*1.65,row*.48,row===2);}this.fx('muzzle',q.x,q.y,15,.20,{angle:a});
   }
   if(this.volley++%2===1){const alive=players.filter(p=>p.alive);if(alive.length){const p=alive[(this.volley>>1)%alive.length],guns=[...this.parts.values()].filter(p=>p.id.startsWith('gun')&&p.hp>0);
     if(guns.length&&this.time>=1.8){
@@ -102,7 +102,7 @@ export class StuttgartSupport {
    for(const target of players){if(!p.active||!target.alive||p.hits.has(target.id))continue;
     const old={x:target.teleported?target.x:target.previousX??target.x,y:target.teleported?target.y:target.previousY??target.y};
     const hit=p.kind==='shell'?segmentDistance(0,0,{x:ax-old.x,y:ay-old.y},{x:p.x-target.x,y:p.y-target.y})<=p.radius+(target.radius??0):Math.hypot(p.x-target.x,p.y-target.y)<=p.radius+(target.radius??0);
-    if(hit){p.hits.add(target.id);this.onDamage(target.id,p.damage,{kind:p.kind,sourceId:p.id,ownerId:this.id});if(p.kind==='shell'){this.fx('burst',p.x,p.y,16,.35);this.projectiles.release(p.index,p.generation);break;}}
+    if(hit){p.hits.add(target.id);this.onDamage(target.id,p.damage,{kind:p.kind,raidHeavy:p.raidHeavy,sourceId:p.id,ownerId:this.id});if(p.kind==='shell'){this.fx('burst',p.x,p.y,16,.35);this.projectiles.release(p.index,p.generation);break;}}
    }if(p.active&&p.age>=p.life)this.projectiles.release(p.index,p.generation);
   });
   this.effects.visit(f=>{f.age+=dt;f.x+=f.vx*dt;f.y+=f.vy*dt;if(f.age>=f.life)this.effects.release(f.index,f.generation);});

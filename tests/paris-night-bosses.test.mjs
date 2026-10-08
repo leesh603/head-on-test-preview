@@ -100,9 +100,9 @@ test('Actual searchlight geometry marks a player and provokes fire through the h
   assert.ok(f.statuses.some(([,status])=>status.type==='searchlight'));assert.ok(f.events.some(e=>e.type==='paris-light-lock'));
 });
 
-test('DrI normal speed and turn rate can follow the warned corridor through the full first phrase without damage',()=>{
+test('destroying the final AA batteries lets DrI follow the complete light corridor without spending a roll',()=>{
  for(const adapter of ['velocity','heading-only']){
- const f=fixture(ParisSearchlightFortress),p=f.frame.players[0];
+ const f=fixture(ParisSearchlightFortress),p=f.frame.players[0];destroy(f,'aa-left');destroy(f,'aa-right');
  Object.assign(f.body,{x:800,y:700});Object.assign(p,{x:800,y:980,vx:0,vy:-120});
  f.frame.bounds={left:0,right:2000,top:0,bottom:2000};
  let heading=-Math.PI/2,want=Math.PI,lastBeat=-1,maxTurn=0,maxSpeed=0,maxRange=0;

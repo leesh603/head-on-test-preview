@@ -57,7 +57,7 @@ test('final locked forecast punishes straight flight but a finite-speed turn esc
    if(b.finalAim?.locked){if(!lockedTarget)lockedTarget={...b.finalAim.target};else assert.deepEqual(b.finalAim.target,lockedTarget);}
    while(index<events.length){const e=events[index++];if(e.type==='hazard'&&e.tag==='heavy:last-520')h.spawn({...e,encounterId:'qa'});}h.update(.02,{players:[p]});
   }return hits;
- };assert(fly(false).some(h=>h.damage===tuning.damage*1.1));assert.deepEqual(fly(true),[]);
+ };assert(fly(false).some(h=>h.damage===tuning.damage*2.4));assert.deepEqual(fly(true),[]);
 });
 // Exercise emitted hazards and the real swept annulus with finite-speed flight,
 // no invulnerability. Return inside after the short center blast in phase II.
