@@ -50,3 +50,15 @@ for(const coop of [false,true])for(const [w,h]of [[390,844],[1280,800]])test(`na
  }
  assert.ok(b.hp<=initial-63);assert.equal(b.hp,[...b.parts.values()].reduce((sum,p)=>sum+p.hp,0));assert.equal(b.parts.size,3);g.stageBoss.dispose();
 });
+for(const coop of [false,true])test(`native ${coop?'coop':'solo'} mortar launch holds camera and every emplacement fixed`,()=>{
+ const g=coop?new CoopGame([{pilot:'fonck'},{pilot:'fonck'}],{rng:()=>.5}):new Game('spad','fonck',()=>.5);
+ enableStageBoss(g,{teamFaction:'entente'});g.stageBoss.stages.stageIndex=3;
+ const enc=g.stageBoss.startBoss({x:0,y:-120}),b=[...enc.bodies.values()][0];
+ const pose=()=>[b.x,b.y,...[...b.parts.values()].flatMap(p=>[p.x,p.y])],before=pose();
+ for(const p of b.parts.values())for(let tube=0;tube<3;tube++){
+  g.shake=0;b.blast(p,tube);assert.equal(g.shake,0,'muzzle must not shake camera');assert.deepEqual(pose(),before);
+ }
+ // Launch suppression must not erase an already active impact shake.
+ g.shake=6;b.blast(b.parts.get('main-gun'),1);assert.equal(g.shake,6);
+ g.stageBoss.dispose();
+});
