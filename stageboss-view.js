@@ -130,9 +130,13 @@ function drawLivens(c,b){
  drawLivensPart(c,2,destroyed||b.coreVulnerable?2:broken>=2?1:0,0,-8,166);
  if(b.coreVulnerable&&!destroyed){const core=trenchBossArt.livensCoreExposed;if(core.naturalWidth)c.drawImage(core,34,27,37,40,-25,-42,50,54);}
  drawLivensPart(c,1,destroyed?2:state(part('pressure')),0,72,124);
+ if(b.nozzleRevealed!==false){
  drawTrenchImage(c,trenchBossArt.livensMount,0,-93,116,74);
  const angle=(Number.isFinite(b.nozzleAngle)?b.nozzleAngle:-Math.PI/2)-Math.PI;
  drawTrenchImage(c,trenchBossArt.livensNozzle,0,-98,240,240,angle);
+ }
+ const entry=b.trenchEntry;if(entry?.state==='pressure')fx(c,'dustPuff',0,-98,110,65,0,.22+.08*Math.sin(entry.age*24));
+ if(entry?.revealAge<.7&&b.nozzleRevealed){const q=entry.revealAge/.7;for(let i=0;i<5;i++){const a=i*Math.PI*2/5;fx(c,'debrisShard',Math.cos(a)*(28+q*65),-98+Math.sin(a)*(18+q*44),25,18,a,(1-q)*.75);}fx(c,'dustPuff',0,-98,120+q*90,85+q*45,0,(1-q)*.55);}
  if(destroyed)drawBattlefieldFire(c,{t:b.destructionAge,fireZones:[{x:0,y:0,radius:120,life:Math.max(0,b.destructionDuration-b.destructionAge)}]});
  c.restore();
 }
@@ -142,12 +146,27 @@ function drawMinenwerfer(c,b){
  for(const p of parts){
   const x=p.x,y=p.y,dead=b.destroying||p.destroyed,damaged=!dead&&p.hp<=p.maxHp*.5;
   const composite=dead?bakedImage(trenchBossArt.minenComposite,'grayscale(.72) brightness(.55)'):damaged?bakedImage(trenchBossArt.minenComposite,'saturate(.72) brightness(.82)'):trenchBossArt.minenComposite;
-  drawTrenchImage(c,composite||trenchBossArt.minenComposite,x,y,250,188);
+  // Reuse the three authored pits in the atlas once each, rather than painting
+  // a complete three-gun installation at every independently hittable mount.
+  const crop=p.id==='main-gun'?[173,30,151,300,210,300]:p.id==='gun-left'?[8,80,165,210,210,267]:[328,80,165,210,210,267];
+  if(composite?.naturalWidth||composite?.width){c.save();c.globalAlpha=p.discovered||dead?1:.7;c.drawImage(composite,crop[0],crop[1],crop[2],crop[3],x-crop[4]/2,y-crop[5]/2,crop[4],crop[5]);c.restore();}
+  const mouth=p.mortarMouth||(p.id==='main-gun'?{x:2,y:-69}:p.id==='gun-left'?{x:7,y:-33}:{x:-12,y:-33});
+  if(!dead&&p.mortarFlash>0)fx(c,'fireFlash',x+mouth.x,y+mouth.y,55,55,0,p.mortarFlash/.22);
+  if(!dead&&p.mortarSmoke>0)fx(c,'smokeHeavy',x+mouth.x,y+mouth.y-18,64,48,0,Math.min(.35,p.mortarSmoke*.3));
   if(damaged){fx(c,'smokeTrail',x+8,y-58,62,34,-Math.PI/2,.2);fx(c,'fireEngine',x-12,y-18,28,28,0,.42);}
   if(dead){fx(c,'fireGround',x-12,y+4,42,42,0,.58);fx(c,'smokeHeavy',x+10,y-34,64,64,0,.24);for(let i=0;i<2;i++)fx(c,'debrisShard',x+(i?31:-27),y+28-i*13,24,18,(i?1:-1)*.7,.65);}
  }
+ const plan=b.mortarPlan;
+ if(plan)for(const shot of plan.shots){
+  if(plan.age>shot.at+shot.warning+.62||shot.retarget&&!shot.fired)continue;const x=shot.x-b.x,y=shot.y-b.y;
+  if(!shot.fired){c.strokeStyle=plan.final?'#ffbe78':'#ffe19b';c.lineWidth=2;c.setLineDash([7,5]);c.beginPath();c.arc(x,y,shot.radius,0,Math.PI*2);c.stroke();c.setLineDash([]);}
+  c.fillStyle='#1c1719dd';c.beginPath();c.arc(x,y,12,0,Math.PI*2);c.fill();c.fillStyle='#ffe0a2';c.font='bold 13px system-ui';c.textAlign='center';c.fillText(String(shot.order),x,y+5);
+ }
+ const guide=b.mortarGuide;
+ if(guide&&guide.known<3){const x=guide.x-b.x,y=guide.y-b.y;c.save();c.translate(x,y);c.rotate(guide.angle);c.strokeStyle='#e6c988';c.lineWidth=2;c.beginPath();c.moveTo(-9,-8);c.lineTo(9,0);c.lineTo(-9,8);c.stroke();c.restore();c.fillStyle='#ead3a3';c.font='12px system-ui';c.textAlign='center';c.fillText(getLocale()==='en'?'Mortar smoke · '+guide.known+'/3':'포연 방향 · '+guide.known+'/3',x,y+23);}
  c.restore();
 }
+
 const railConsistSources={
  parisGun:{chassis:'./rail-bruno-chassis-r1.webp?v=rail1',gun:'./rail-bruno-gun-r1.webp?v=rail1',engine:'./rail-boss-bruno-engine181.webp',front:'./rail-boss-bruno-front181.webp',middle:'./rail-boss-bruno-middle181.webp',rear:'./rail-boss-bruno-rear181.webp'},
  lincomparable:{chassis:'./rail-lincomparable-chassis-r1.webp?v=rail1',gun:'./rail-lincomparable-gun-r1.webp?v=rail1',engine:'./rail-boss-lincomparable-engine181.webp',front:'./rail-boss-lincomparable-front181.webp',middle:'./rail-boss-lincomparable-middle181.webp',rear:'./rail-boss-lincomparable-rear181.webp'},
@@ -383,6 +402,7 @@ function drawBossPart(c,p,ring,t=0){
   if(p.hittable&&!p.destroyed&&p.hp<p.maxHp){c.fillStyle='#202e28';c.fillRect(p.x-r*.65,p.y+r+3,r*1.3,3);c.fillStyle='#efb96f';c.fillRect(p.x-r*.65,p.y+r+3,r*1.3*p.hp/p.maxHp,3);}return;
  }
  if(p.bodyKey==='minenwerfer-battery'){
+  if(p.discovered===false)return;
   // The body pass paints each authored emplacement and its wreck state. This
   // pass only communicates targetability and remaining local durability.
   if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
@@ -567,7 +587,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      if(!drawTrenchImage(c,livensSrc||trenchBossArt.livensComposite,0,0,520,390)){c.fillStyle='#383b30';c.fillRect(-250,-185,500,370);}}
    }
    else if(b.assetKey==='minenwerfer-battery'){
-    drawMinenwerfer(c,b);
+    drawMinenwerfer(c,{...(bodyOf(v=>v.id===b.id)||b),destroying:b.destroying});
    }
    else if(b.assetKey==='a7v-flak')drawTrenchArmor(c,b);
    else if(b.assetKey==='mark-v-cruiser')drawTrenchArmor(c,b);
@@ -697,11 +717,10 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      // Beam pivots at the turret mount; the continuous flame runs from the muzzle.
      const muzzle=h.muzzleLength||85,range=h.length-muzzle;
      if(warning){c.translate(h.x,h.y);c.rotate(h.angle);c.lineCap='round';
-      const half=h.telegraphHalf||Math.atan((h.thickness*2.6)/range);
-      c.fillStyle='#d2aa5a12';c.beginPath();c.moveTo(muzzle,0);c.arc(muzzle,0,range,-half,half);c.closePath();c.fill();
-      c.strokeStyle='#e6bc77';c.lineWidth=1.5;c.setLineDash([7,6]);c.beginPath();c.moveTo(muzzle,0);c.arc(muzzle,0,range,-half,half);c.closePath();c.stroke();c.setLineDash([]);
-      const prog=clamp((h.age-h.delay)/h.warning,0,1);
-      c.strokeStyle='#f2d69b';c.beginPath();c.moveTo(muzzle,0);c.arc(muzzle,0,range*prog,-half,half);c.closePath();c.stroke();}
+      const half=Math.atan((h.thickness*2.6)/range),span=(h.angularSpeed||0)*h.duration,lo=Math.min(0,span)-half,hi=Math.max(0,span)+half;
+      const sector=r=>{c.beginPath();c.arc(0,0,r,lo,hi);c.arc(0,0,muzzle,hi,lo,true);c.closePath();};
+      c.fillStyle='#d2aa5a12';sector(h.length);c.fill();c.strokeStyle='#e6bc77';c.lineWidth=1.5;c.setLineDash([7,6]);sector(h.length);c.stroke();c.setLineDash([]);
+      const prog=clamp((h.age-h.delay)/h.warning,0,1);c.strokeStyle='#f2d69b';sector(muzzle+range*prog);c.stroke();}
      else{const mx=h.x+Math.cos(h.angle)*muzzle,my=h.y+Math.sin(h.angle)*muzzle;
       drawLivensFlame(c,{...h,x:mx,y:my,length:Math.max(1,range)},{mobile:W<=560});}
     }else{c.lineCap='round';c.lineWidth=h.thickness;c.strokeStyle=warning?'#ffb45f44':'#ff6a2dcc';c.beginPath();c.moveTo(h.x,h.y);c.lineTo(x2,y2);c.stroke();c.lineWidth=Math.max(4,h.thickness*.34);c.strokeStyle=warning?'#ffe0a866':'#fff0a8';c.stroke();}}

@@ -667,6 +667,7 @@ export class LivensFlameProjector extends PatternBoss {
     this.phase='sealed';this.coreVulnerable=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
     // The armored nozzle is a permanent mount, not a destructible weakpoint.
     this.nozzleMount={x:0,y:-98,length:85};this.nozzleAngle=-Math.PI/2;this.lockedFlameAngle=null;
+    this.discovered=false;this.nozzleRevealed=false;this.trenchEntry={state:'buried',age:0,revealAge:0};this.raidPhase=1;this.recovery=0;this.flameQueue=[];this.flameGap=0;this.stormTriggered=false;
     this.flameCount=0;this.flameMode='track';this.flameAngSpeed=0;this.flameWarn=0;this.flameAge=0;this.spinRate=1.55;this._gasTier=3;
   }
   locateHit({x,y,radius=0}){
@@ -684,9 +685,12 @@ export class LivensFlameProjector extends PatternBoss {
     const target=this.locateHit({x,y,radius});
     return target?this.hit({...target,damage}):{damage:0,miss:true};
   }
+  hit(attack){const result=super.hit(attack);if(this.dead)this.dispose();return result;}
+  dispose(){this.flameQueue.length=0;this.lockedFlameAngle=null;this.stormActive=false;this.recovery=0;}
   suppressive(){/* Livens attacks through its persistent flamethrower and fuel leaks. */}
   onPartDestroyed(p){
     if(p.id.startsWith('tank-'))this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:54,warning:.65,duration:2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak',tag:'livens-leak'});
+    if(p.id==='pressure'){this.command('cancel-hazards',{tag:'livens-flame'});this.lockedFlameAngle=null;this.flameGap=.6;this.recovery=1.8;}
     if(p.id==='pressure')this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:68,warning:.8,duration:.4,once:true,damage:this.t.damage*.75,visual:'livens-pressure'});
     // The core opens once the fuel/pressure system is wrecked; the nozzle
     // mount keeps fighting until the boss itself is destroyed.
@@ -694,48 +698,63 @@ export class LivensFlameProjector extends PatternBoss {
       this.phase='core-exposed';this.coreVulnerable=true;this.command('phase-change',{phase:'exposed'});
     }
   }
-  update(dt,{players}){
-    if(this.dead)return;
-    this.x=this.anchorX;this.y=this.anchorY;
+  beginFlame(mode,target){
+    const weak=this.parts.get('pressure').destroyed,dir=this.flameCount%2?-1:1;
+    let warn=weak?1.4:1.15,dur=weak?1.2:1.8,speed=0,span=0,range=weak?390:560;
+    const desired=target?Math.atan2(target.y-this.y-this.nozzleMount.y,target.x-this.x):this.nozzleAngle;
+    if(mode==='sweep'){dur=weak?1.5:2.2;span=dir*1.65;speed=span/dur;}
+    if(mode==='pulse'){dur=weak?.65:.95;warn=1.25;}
+    if(mode==='rotate'){dur=weak?1.1:1.7;speed=dir*.95;span=speed*dur;}
+    if(mode==='storm-spin'){dur=weak?1.55:2.4;warn=1.5;speed=1.05;span=speed*dur;range=weak?390:600;}
+    if(mode==='storm-return'){dur=weak?1.15:1.8;warn=1.05;speed=-1.05;span=speed*dur;range=weak?390:600;}
+    if(mode==='storm-sweep'){dur=weak?1.55:2.4;warn=1.2;span=1.6;speed=span/dur;range=weak?390:600;}
+    // Stop tracking before the visible warning. One mount and one pooled beam
+    // share this clock; gaps between bursts contain no flame collision.
+    const angle=desired-span/2,n=this.nozzleMount;
+    this.flameMode=mode;this.flameAngSpeed=speed;this.flameWarn=warn;this.flameDuration=dur;this.flameAge=this.frameDt||0;this.flameCount++;
+    this.lockedFlameAngle=angle;this.nozzleAngle=angle;this.flameLockTime=warn+dur-this.flameAge;this.recovery=0;
+    this.hazard('beam',{x:this.x+n.x,y:this.y+n.y,angle,angularSpeed:speed,telegraphHalf:Math.abs(span)/2,
+      length:range+n.length,thickness:weak?38:54,muzzleLength:n.length,warning:warn,duration:dur,tickInterval:.22,
+      damage:this.t.damage*(weak?.65:1),visual:'livens-flame',tag:'livens-flame'});
+    this.command('flame-warning',{x:this.x+n.x,y:this.y+n.y,angle,seconds:warn});
+  }
+  update(dt,{players=[],bounds,paused=false}){
+    if(this.dead||paused)return;dt=Math.min(dt,.25);this.frameDt=dt;this.x=this.anchorX;this.y=this.anchorY;
+    const live=players.filter(p=>p.alive&&Number.isFinite(p.x)&&Number.isFinite(p.y)),target=live[this.flameCount%live.length];
+    const n=this.nozzleMount,e=this.trenchEntry;
+    if(e.state!=='active'){
+      const nx=this.x+n.x,ny=this.y+n.y,visible=(!bounds||(nx>=bounds.left+35&&nx<=bounds.right-35&&ny>=bounds.top+35&&ny<=bounds.bottom-35));
+      if(!target||!visible||Math.hypot(target.x-nx,target.y-ny)>620)return;
+      if(e.state==='buried'){e.state='pressure';e.age=0;this.command('livens-pressure-rise',{x:nx,y:ny});}
+      e.age+=dt;
+      if(e.state==='pressure'&&e.age>=.9){e.state='revealed';e.revealAge=0;this.nozzleRevealed=true;this.discovered=true;this.command('livens-soil-burst',{x:nx,y:ny});this.command('trench-discovered');}
+      if(e.state==='revealed'){e.revealAge+=dt;if(e.revealAge>=.55){e.state='active';this.nozzleAngle=Math.atan2(target.y-ny,target.x-nx);this.beginFlame('track',target);}}
+      this.phase='buried-pressure';this.coreVulnerable=this.allDestroyed(['tank-l1','tank-l2','tank-r1','tank-r2','pressure']);return;
+    }
+    e.revealAge+=dt;
+    const next=this.hp<=this.maxHp*.35?3:this.hp<=this.maxHp*.7?2:1;
+    if(next!==this.raidPhase){this.raidPhase=next;this.command('phase-change',{phase:next===2?'livens-sweep':'livens-unstable'});}
     if(this._gasTier>0&&this.hp<=this.maxHp*this._gasTier*.25){this._gasTier--;
-      for(let i=0;i<3;i++){const a=this.rng()*6.28,d=300+this.rng()*150;this.command('gas-zone',{x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,radius:120+this.rng()*40,life:8});}
-      this.command('phase-change',{phase:'gas-vent'});}
-    const nozzle=this.nozzleMount,target=this.target(players);
-    const finalPhase=this.hp<=this.maxHp*.22;
-    // One clock drives mount pose and the pooled hazard, including partial
-    // frames across warning/end boundaries. Runtime advances hazards after us.
-    if(this.lockedFlameAngle==null&&finalPhase)this.nozzleAngle+=this.spinRate*dt;
-    else if(this.lockedFlameAngle==null&&target){
-      const desired=Math.atan2(target.y-(this.y+nozzle.y),target.x-(this.x+nozzle.x));
-      this.nozzleAngle=turnToward(this.nozzleAngle,desired,.92*dt);
-    }
-    const flameDue=this.due('main-flame',dt,this.t.flameInterval||5.8);
-    if(flameDue&&this.lockedFlameAngle!=null)this.timers.set('main-flame',0);
-    if(flameDue&&this.lockedFlameAngle==null){
-      const pressure=this.parts.get('pressure'),weakened=pressure.destroyed;
-      const warn=weakened?1.4:1.15;
-      let mode='track',angSpeed=0,dur=weakened?1.2:1.8,telegraphHalf=0,startAngle=this.nozzleAngle;
-      if(finalPhase){mode='spin';dur=4.4;angSpeed=this.spinRate;startAngle=this.nozzleAngle;telegraphHalf=Math.PI;}
-      else if(this.flameCount%3===2){mode='sweep';dur=weakened?1.5:2.2;const span=.9,dir=this.flameCount%2?-1:1;angSpeed=dir*span/dur;startAngle=this.nozzleAngle-Math.sign(angSpeed)*span/2;telegraphHalf=span/2;}
-      this.flameMode=mode;this.flameAngSpeed=angSpeed;this.flameWarn=warn;this.flameDuration=dur;this.flameAge=0;this.flameCount++;
-      this.lockedFlameAngle=startAngle;
-      // Beam pivots at the turret mount so sweep/spin origins track the nozzle;
-      // the flame itself is drawn from the muzzle in the view.
-      const muzzleX=this.x+nozzle.x,muzzleY=this.y+nozzle.y;
-      this.hazard('beam',{x:muzzleX,y:muzzleY,angle:startAngle,angularSpeed:angSpeed,telegraphHalf,length:(weakened?390:560)+nozzle.length,thickness:weakened?38:54,
-        muzzleLength:nozzle.length,warning:warn,duration:dur,tickInterval:.22,damage:this.t.damage*(weakened?.65:1),visual:'livens-flame',tag:'livens-flame'});
-      this.command('flame-warning',{x:muzzleX,y:muzzleY,angle:startAngle,seconds:warn});
-      this.flameLockTime=warn+dur;
-    }
+      for(let i=0;i<3;i++){const a=this.rng()*6.28,d=300+this.rng()*150;this.command('gas-zone',{x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,radius:120+this.rng()*40,life:8});}}
+    const flameDue=this.due('main-flame',dt,this.t.flameInterval||5.8);if(flameDue&&(this.lockedFlameAngle!=null||this.recovery>0))this.timers.set('main-flame',0);
+    this.recovery=Math.max(0,this.recovery-dt);this.flameGap=Math.max(0,this.flameGap-dt);
     if(this.lockedFlameAngle!=null){
-      this.flameAge+=dt;
-      const burnAge=Math.min(this.flameDuration,Math.max(0,this.flameAge-this.flameWarn));
-      this.nozzleAngle=this.lockedFlameAngle+this.flameAngSpeed*burnAge;
-      this.flameLockTime=Math.max(0,this.flameWarn+this.flameDuration-this.flameAge);
-      if(!this.flameLockTime){this.lockedFlameAngle=null;this.flameMode='track';}
+      this.flameAge+=dt;const burnAge=Math.min(this.flameDuration,Math.max(0,this.flameAge-this.flameWarn));
+      this.nozzleAngle=this.lockedFlameAngle+this.flameAngSpeed*burnAge;this.flameLockTime=Math.max(0,this.flameWarn+this.flameDuration-this.flameAge);
+      if(!this.flameLockTime){this.lockedFlameAngle=null;this.flameGap=this.flameQueue.length?.65:0;this.recovery=this.flameQueue.length?0:this.stormActive?3:2;
+        if(this.stormActive&&!this.flameQueue.length){this.stormActive=false;this.command('phase-change',{phase:'livens-depressurized'});}}
+    }else if(!this.flameGap&&!this.recovery){
+      if(this.hp<=this.maxHp*.22&&!this.stormTriggered){this.stormTriggered=true;this.stormActive=true;this.flameQueue=['storm-spin','storm-return','storm-sweep'];this.command('livens-firestorm',{x:this.x,y:this.y});}
+      if(this.flameQueue.length)this.beginFlame(this.flameQueue.shift(),target);
+      else if(flameDue){
+        if(this.raidPhase===3){this.flameQueue=['rotate'];this.beginFlame('pulse',target);}
+        else this.beginFlame(this.raidPhase===2?'sweep':'track',target);
+      }else if(target)this.nozzleAngle=turnToward(this.nozzleAngle,Math.atan2(target.y-this.y-n.y,target.x-this.x),.92*dt);
     }
-    const broken=['tank-l1','tank-l2','tank-r1','tank-r2'].filter(id=>this.parts.get(id).destroyed);
-    if(broken.length&&this.due('leak-fire',dt,Math.max(2.2,5-broken.length*.55))){const id=broken[Math.floor(this.rng()*broken.length)],p=this.parts.get(id);this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:54,warning:.8,duration:2.2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak'});}
+    this.coreVulnerable=this.recovery>0||this.allDestroyed(['tank-l1','tank-l2','tank-r1','tank-r2','pressure']);
+    this.phase=this.stormActive?'livens-firestorm':this.recovery>0?'livens-recovery':this.raidPhase===3?'livens-unstable':this.raidPhase===2?'livens-sweep':'livens-track';
+    const leaking=[...this.parts.values()].filter(p=>p.id.startsWith('tank-')&&(p.destroyed||this.raidPhase>=2&&p.hp<=p.maxHp*.5));
+    if(leaking.length&&this.due('leak-fire',dt,Math.max(2.2,5-leaking.length*.55))){const p=leaking[Math.floor(this.rng()*leaking.length)];this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:p.destroyed?54:40,warning:.8,duration:2.2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak',tag:'livens-leak'});}
   }
 }
 export class MinenwerferBattery extends PatternBoss {
@@ -745,8 +764,9 @@ export class MinenwerferBattery extends PatternBoss {
       {id:'gun-left',x:-540,y:-40,radius:105,maxHp:gunHp},{id:'main-gun',x:-15,y:-190,radius:110,maxHp:gunHp},{id:'gun-right',x:525,y:80,radius:105,maxHp:gunHp}
     ]});
     this.phase='cross-barrage';this.coreVulnerable=true;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
-    this.shotSerial=0;this.baseVolleyCount=0;this.specialWave=0;this.specialClock=8.4;this._gasTier=3;
-    for(const [i,id] of ['gun-left','main-gun','gun-right'].entries())this.timers.set('emplacement-'+id,.16+i*.9);
+    this.shotSerial=0;this.baseVolleyCount=0;this.specialWave=0;this.specialClock=4.2;this._gasTier=3;
+    this.discovered=false;this.discoveryClock=0;this.raidPhase=1;this.cycleClock=.3;this.recovery=0;this.finalGrace=2.8;this.finalCounts=new Set();this.mortarPlan=null;
+    for(const gun of this.parts.values()){gun.discovered=false;gun.mortarMouth=gun.id==='main-gun'?{x:2,y:-69}:gun.id==='gun-left'?{x:7,y:-33}:{x:-12,y:-33};gun.mortarFlash=0;gun.mortarSmoke=0;}
   }
   suppressive(){/* The three emplacements own every Minenwerfer attack. */}
   liveGuns(){return [...this.parts.values()].filter(p=>!p.destroyed);}
@@ -764,65 +784,95 @@ export class MinenwerferBattery extends PatternBoss {
   onPartDestroyed(p){
     this.command('cancel-hazards',{tag:'minenwerfer-'+p.id});
     this.command('ammo-cookoff',{x:this.x+p.x,y:this.y+p.y,partId:p.id});
-    const alive=this.liveGuns().length;
-    if(alive===2){this.phase='weakened';this.specialClock=Math.max(this.specialClock,10.5);this.command('phase-change',{phase:'weakened'});}
-    else if(alive===1){this.phase='final-assault';this.specialClock=7.5;this.command('phase-change',{phase:'final-assault'});}
+    if(this.mortarPlan)this.mortarPlan.shots=this.mortarPlan.shots.filter(s=>s.partId!==p.id);
+    const alive=this.liveGuns().length;this.finalGrace=2.8;this.cycleClock=1.4;if(!alive)this.dispose();
+    if(alive){this.phase=alive===1?'final-assault':'weakened';this.command('phase-change',{phase:this.phase});}
   }
-  aimPoint(gun,target,serial,bounds){
+  muzzle(gun){return{x:this.x+gun.x+gun.mortarMouth.x,y:this.y+gun.y+gun.mortarMouth.y};}
+  aimPoint(gun,target,serial,bounds,lead=null,margin=70){
     const vx=target.vx||0,vy=target.vy||0,speed=Math.hypot(vx,vy),dx=speed>12?vx/speed:0,dy=speed>12?vy/speed:-1;
-    let x=target.x,y=target.y;
-    if(gun.id==='main-gun'){x+=vx*.78;y+=vy*.78;}
-    else if(gun.id==='gun-right'){
-      const side=serial%2?1:-1;x+=vx*.38-dy*side*96;y+=vy*.38+dx*side*96;
-    }else{x+=vx*.12;y+=vy*.12;}
-    x+=(this.rng()-.5)*14;y+=(this.rng()-.5)*14;
-    if(bounds){x=Math.max(bounds.left+34,Math.min(bounds.right-34,x));y=Math.max(bounds.top+34,Math.min(bounds.bottom-34,y));}
+    const seconds=lead??(this.raidPhase===1?.12:gun.id==='main-gun'?.78:gun.id==='gun-right'?.38:.22);
+    let x=target.x+vx*seconds+(this.rng()-.5)*14,y=target.y+vy*seconds+(this.rng()-.5)*14;
+    if(bounds){x=Math.max(bounds.left+margin,Math.min(bounds.right-margin,x));y=Math.max(bounds.top+margin,Math.min(bounds.bottom-margin,y));}
     return{x,y,dx,dy};
   }
-  shell(gun,x,y,{delay=0,warning=1.02,heavy=false,damage=.78}={}){
-    this.hazard('circle',{x,y,sourceX:this.x+gun.x,sourceY:this.y+gun.y,radius:heavy?58:48,delay,warning,duration:.62,once:true,
+  shell(gun,x,y,{warning=1.2,heavy=gun.id==='main-gun',damage=.78}={}){
+    if(gun.destroyed||this.dead)return;const source=this.muzzle(gun);
+    this.hazard('circle',{x,y,sourceX:source.x,sourceY:source.y,radius:heavy?58:48,warning,duration:.62,once:true,
       damage:this.t.damage*damage,visual:heavy?'minenwerfer-heavy':'minenwerfer-shell',tag:'minenwerfer-'+gun.id});
+    gun.mortarFlash=.22;gun.mortarSmoke=1.5;
+    this.command('mortar-launch',{...source,partId:gun.id});this.command('muzzle',{...source,partId:gun.id});
   }
-  launch(gun,players,bounds,triple=false){
+  launch(gun,players,bounds){
     const target=this.target(players);if(!gun||gun.destroyed||!target)return;
-    const aim=this.aimPoint(gun,target,this.shotSerial++,bounds),count=triple?3:1;
-    for(let i=0;i<count;i++){const along=triple?(i-1)*58:0;this.shell(gun,aim.x+aim.dx*along,aim.y+aim.dy*along,{delay:i*.32,heavy:gun.id==='main-gun',damage:gun.id==='main-gun'?.9:.76});}
-    this.command('mortar-launch',{x:this.x+gun.x,y:this.y+gun.y,partId:gun.id});
-    this.command('muzzle',{x:this.x+gun.x,y:this.y+gun.y,partId:gun.id});
+    const aim=this.aimPoint(gun,target,this.shotSerial++,bounds);this.shell(gun,aim.x,aim.y,{warning:this.discovered?1.2:1.4});
+  }
+  plan(name,points,{final=false,bounds}={}){
+    if(!points.length)return;
+    if(bounds)for(const p of points){const margin=p.partId==='main-gun'?72:62;p.x=Math.max(bounds.left+margin,Math.min(bounds.right-margin,p.x));p.y=Math.max(bounds.top+margin,Math.min(bounds.bottom-margin,p.y));}
+    this.mortarPlan={name,age:0,final,shots:points.map((p,i)=>({...p,order:i+1,fired:false,radius:p.partId==='main-gun'?58:48,warning:p.warning||1.25})),end:Math.max(...points.map(p=>p.at+(p.warning||1.25)+.62))};
+    this.command(final?'minenwerfer-final-order':'phase-change',{phase:final?'minenwerfer-final-order':name,count:this.liveGuns().length});
   }
   cooperative(players,bounds,guns){
-    const target=this.target(players);if(!target||guns.length!==3)return;
-    const speed=Math.hypot(target.vx||0,target.vy||0),heading=speed>12?Math.atan2(target.vy,target.vx):-Math.PI/2;
-    const gap=Math.round(((heading+Math.PI)/(Math.PI*2))*6)%6;
-    let shot=0;
-    for(let slot=0;slot<6;slot++)if(slot!==gap){const gun=guns[shot%guns.length],a=slot*Math.PI/3,r=112;
-      let x=target.x+Math.cos(a)*r,y=target.y+Math.sin(a)*r;if(bounds){x=Math.max(bounds.left+34,Math.min(bounds.right-34,x));y=Math.max(bounds.top+34,Math.min(bounds.bottom-34,y));}
-      this.shell(gun,x,y,{delay:shot*.1,warning:1.08,heavy:gun.id==='main-gun',damage:.7});shot++;}
-    for(const gun of guns)this.command('mortar-launch',{x:this.x+gun.x,y:this.y+gun.y,partId:gun.id});
+    const target=this.target(players),sides=guns.filter(p=>p.id!=='main-gun');if(!target||sides.length!==2)return;
+    const aim=this.aimPoint(sides[0],target,this.shotSerial++,bounds,0),heading=Math.atan2(aim.dy,aim.dx),points=[];
+    // Two adjacent omitted slots open a wide corridor in the flight direction.
+    // Omit off-screen centers instead of squeezing a ring against a screen edge.
+    for(let slot=1;slot<=4;slot++){const a=heading+slot*Math.PI/3,x=target.x+Math.cos(a)*140,y=target.y+Math.sin(a)*140;
+      if(bounds&&(x<bounds.left+60||x>bounds.right-60||y<bounds.top+60||y>bounds.bottom-60))continue;
+      points.push({partId:sides[(slot-1)%2].id,x,y,at:.35+points.length*.4});}
+    this.plan('minenwerfer-encirclement',points,{bounds});
   }
   focused(players,bounds,guns){
-    const target=this.target(players);if(!target)return;const count=guns.length===3?8:6;
-    for(let i=0;i<count;i++){const gun=guns[i%guns.length],aim=this.aimPoint(gun,target,this.shotSerial++,bounds),walk=(i-(count-1)/2)*24;
-      this.shell(gun,aim.x+aim.dx*walk,aim.y+aim.dy*walk,{delay:i*(2.35/(count-1)),warning:.72,heavy:gun.id==='main-gun',damage:.68});}
-    for(const gun of guns)this.command('mortar-launch',{x:this.x+gun.x,y:this.y+gun.y,partId:gun.id});
+    const target=this.target(players);if(!target)return;const points=[],count=guns.length===1?3:4;
+    for(let i=0;i<count;i++){const gun=guns[i%guns.length],lead=guns.length===1?[.2,.85,.38][i]:[.25,.7,.35,.85][i],aim=this.aimPoint(gun,target,this.shotSerial++,bounds,lead);
+      // A committed prediction is a landing point, never a homing warning.
+      points.push({partId:gun.id,x:aim.x-aim.dy*(i%2?72:-72),y:aim.y+aim.dx*(i%2?72:-72),at:.3+i*.5});}
+    this.plan(guns.length===1?'minenwerfer-last-prediction':'minenwerfer-focused',points,{bounds});
   }
-  update(dt,{players,bounds}){
-    if(this.dead)return;
-    this.x=this.anchorX;this.y=this.anchorY;
+  cross(players,bounds,guns){
+    const target=this.target(players);if(!target)return;const points=[];
+    for(let i=0;i<4;i++){const gun=guns[i%guns.length],aim=this.aimPoint(gun,target,this.shotSerial++,bounds,.55),along=(i-1.5)*65,side=i%2?82:-82;
+      points.push({partId:gun.id,x:aim.x+aim.dx*along-aim.dy*side,y:aim.y+aim.dy*along+aim.dx*side,at:.35+i*.45});}
+    this.plan('minenwerfer-crossing',points,{bounds});
+  }
+  finalOrder(players,bounds,guns){
+    const target=this.target(players);if(!target)return;
+    const count=guns.length===3?6:guns.length===2?5:4,points=[];
+    for(let i=0;i<count;i++){const gun=guns[i%guns.length],aim=this.aimPoint(gun,target,this.shotSerial++,bounds,i===count-1?1.05:.18+i*.16),side=i===count-1?0:i%2?82:-82;
+      points.push({partId:gun.id,x:aim.x-aim.dy*side,y:aim.y+aim.dx*side,at:.65+i*.55,warning:1.35,retarget:i===count-1});}
+    this.finalCounts.add(guns.length);this.plan('minenwerfer-final-order',points,{final:true,bounds});
+  }
+  update(dt,{players=[],bounds,paused=false}){
+    if(this.dead||paused)return;dt=Math.min(dt,.25);this.x=this.anchorX;this.y=this.anchorY;
+    const guns=this.liveGuns();if(!guns.length)return;this.discoveryClock=Math.max(0,this.discoveryClock-dt);
+    for(const gun of this.parts.values()){gun.mortarFlash=Math.max(0,gun.mortarFlash-dt);gun.mortarSmoke=Math.max(0,gun.mortarSmoke-dt);}
+    // Every pit already exists at its authored world pose. Visibility reveals
+    // its identity, not its position or an animation that raises the facility.
+    if(!this.discoveryClock){const visible=guns.find(p=>!p.discovered&&(!bounds||(this.x+p.x>=bounds.left+55&&this.x+p.x<=bounds.right-55&&this.y+p.y>=bounds.top+55&&this.y+p.y<=bounds.bottom-55))&&players.some(v=>v.alive&&Math.hypot(v.x-this.x-p.x,v.y-this.y-p.y)<600));
+      if(visible){visible.discovered=true;this.discoveryClock=.45;this.command('minenwerfer-emplacement-found',{partId:visible.id,x:this.x+visible.x,y:this.y+visible.y});if(!this.discovered){this.discovered=true;this.command('trench-discovered');}}}
+    const pilot=players.find(p=>p.alive);if(pilot&&bounds){const unseen=guns.filter(p=>!p.discovered),dest=(unseen.length?unseen:guns).reduce((a,p)=>Math.hypot(pilot.x-this.x-p.x,pilot.y-this.y-p.y)<Math.hypot(pilot.x-this.x-a.x,pilot.y-this.y-a.y)?p:a),m=this.muzzle(dest);
+      this.mortarGuide={x:Math.max(bounds.left+34,Math.min(bounds.right-34,m.x)),y:Math.max(bounds.top+90,Math.min(bounds.bottom-45,m.y)),angle:Math.atan2(m.y-pilot.y,m.x-pilot.x),known:[...this.parts.values()].filter(p=>p.discovered).length};}
+    const next=this.hp<=this.maxHp*.7?2:1;if(next!==this.raidPhase){this.raidPhase=next;this.command('phase-change',{phase:'minenwerfer-prediction'});}
     if(this._gasTier>0&&this.hp<=this.maxHp*this._gasTier*.25){this._gasTier--;
-      for(let i=0;i<3;i++){const a=this.rng()*6.28,d=280+this.rng()*140;this.command('gas-zone',{x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,radius:120+this.rng()*40,life:8});}
-      this.command('phase-change',{phase:'gas-spray'});}
-    const guns=this.liveGuns(),alive=guns.length,interval=alive===3?(this.t.mortarInterval||2.7):alive===2?2.4:2;
-    for(const gun of guns)if(this.due('emplacement-'+gun.id,dt,interval)){
-      const cadence=alive===1?4:7,triple=(++this.baseVolleyCount)%cadence===0;this.launch(gun,players,bounds,triple);
+      for(let i=0;i<3;i++){const a=this.rng()*6.28,d=280+this.rng()*140;this.command('gas-zone',{x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,radius:120+this.rng()*40,life:8});}}
+    this.finalGrace=Math.max(0,this.finalGrace-dt);this.recovery=Math.max(0,this.recovery-dt);
+    if(this.mortarPlan){const plan=this.mortarPlan;plan.age+=dt;
+      for(const shot of plan.shots)if(!shot.fired&&plan.age>=shot.at){shot.fired=true;const gun=this.parts.get(shot.partId);if(!gun.destroyed){if(shot.retarget){const target=this.target(players);if(target){if(bounds){const tx=(bounds.right-bounds.left)/2-34,ty=(bounds.bottom-bounds.top)/2-34;shot.warning=Math.max(.9,Math.min(1.35,tx/Math.max(1,Math.abs(target.vx||0)),ty/Math.max(1,Math.abs(target.vy||0))));}const aim=this.aimPoint(gun,target,this.shotSerial++,bounds,shot.warning,34);shot.x=aim.x;shot.y=aim.y;}}this.shell(gun,shot.x,shot.y,{warning:shot.warning});}}
+      if(plan.age>=plan.end||!plan.shots.length){this.mortarPlan=null;this.recovery=plan.final?3:1.6;this.specialClock=4.2;this.cycleClock=.3;}
+    }else if(!this.recovery){
+      if(this.discovered&&!this.finalGrace&&!this.finalCounts.has(guns.length)&&(this.hp<=this.maxHp*.25||guns.length===1)){this.finalOrder(players,bounds,guns);}
+      else {this.cycleClock-=dt;this.specialClock-=dt;
+        if(this.discovered&&(this.raidPhase===2||guns.length<3)&&this.specialClock<=0){
+          if(guns.length<3)this.focused(players,bounds,guns);
+          else if(this.specialWave++%2)this.cross(players,bounds,guns);else this.cooperative(players,bounds,guns);
+          this.specialClock=4.2;
+        }else if(this.cycleClock<=0){this.launch(guns[this.baseVolleyCount++%guns.length],players,bounds);this.cycleClock=guns.length===1?.78:Math.max(.9,(this.t.mortarInterval||2.7)/2);}
+      }
     }
-    this.specialClock-=dt*(this.t.patternMultiplier||1);
-    if(this.specialClock<=0){
-      if(alive===3){this.specialWave++%2?this.focused(players,bounds,guns):this.cooperative(players,bounds,guns);this.specialClock=9.6;}
-      else if(alive===2){this.focused(players,bounds,guns);this.specialClock=11.4;}
-      else this.specialClock=7.5;
-    }
+    this.phase=!this.discovered?'minenwerfer-approach':this.mortarPlan?.final?'minenwerfer-final-order':this.recovery?'minenwerfer-reload':guns.length===1?'final-assault':guns.length===2?'weakened':this.raidPhase===2?(this.mortarPlan?.name||'minenwerfer-prediction'):'minenwerfer-sequence';
   }
+  dispose(){this.mortarPlan=null;this.mortarGuide=null;}
 }
 
 export {LondonApron,DrachenMineNet};
