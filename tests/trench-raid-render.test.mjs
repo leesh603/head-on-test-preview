@@ -16,7 +16,7 @@ for(const teamFaction of ['central','entente'])test(`${teamFaction} trench produ
  assert.doesNotThrow(draw);step(f,2);assert.doesNotThrow(draw);
  if(teamFaction==='central'){for(let i=0;i<100&&!b.coreVulnerable;i++)step(f,.05);b.hit({damage:780});step(f,4);}else b.finalOrder(f.frame.players,f.frame.bounds,b.liveGuns());
  step(f,.8);calls.length=0;assert.doesNotThrow(draw);assert(calls.some(c=>c[0]==='drawImage'));
- if(teamFaction==='entente'){const pits=calls.filter(c=>c[0]==='drawImage'&&c[1]?.src?.includes('boss-minenwerfer-composite188')&&c.length===6);assert.equal(pits.length,1);assert(calls.some(c=>c[0]==='fillText'&&c[1]==='1'));}
+ if(teamFaction==='entente'){const pits=calls.filter(c=>c[0]==='drawImage'&&c[1]?.src?.includes('boss-minenwerfer-composite188')&&c.length===6);assert.equal(pits.length,3);assert(calls.some(c=>c[0]==='fillText'&&c[1]==='1'));}
  const part=[...b.parts.values()][0];b.hit({partId:part.id,damage:part.hp});assert.doesNotThrow(draw);
  for(const p of b.parts.values())b.hit({partId:p.id,damage:p.hp});if(teamFaction==='central')b.hit({damage:b.hp});step(f,.1);assert.doesNotThrow(draw);f.addon.dispose();
 });
