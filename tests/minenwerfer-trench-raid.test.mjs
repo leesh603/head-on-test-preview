@@ -15,8 +15,10 @@ for(const [w,h]of [[390,844],[487.5,1055],[1280,800]])for(const coop of [false,t
  for(const p of b.parts.values()){const camera={players:[{...pilot,x:p.x,y:p.y+120}],bounds:{left:p.x-w/2,right:p.x+w/2,top:p.y-h/2,bottom:p.y+h/2}};run(b,.7,camera);assert(p.discovered);}
  assert.equal(events.filter(e=>e.type==='trench-discovered').length,1);assert.equal(events.filter(e=>e.type==='minenwerfer-emplacement-found').length,3);
 });
-test('three guns reveal sequentially even when all are visible; no position/HP budget changes',()=>{
- const {b,events}=make();run(b,.02);assert.equal([...b.parts.values()].filter(p=>p.discovered).length,1);run(b,.3);assert.equal([...b.parts.values()].filter(p=>p.discovered).length,1);run(b,1);assert.equal([...b.parts.values()].filter(p=>p.discovered).length,3);assert.equal(b.maxHp,1200);assert.equal(b.hp,1200);assert.deepEqual(events.filter(e=>e.type==='mortar-launch').slice(0,2).map(e=>e.partId),['gun-left','main-gun']);
+test('spaced guns reveal one at a time as the pilot approaches each emplacement; no position/HP budget changes',()=>{
+ const {b,events}=make();run(b,.02);assert.equal([...b.parts.values()].filter(p=>p.discovered).length,1);run(b,.3);assert.equal([...b.parts.values()].filter(p=>p.discovered).length,1);
+ run(b,1,{players:[{...pilot,x:-560}],bounds:frame.bounds});assert.equal([...b.parts.values()].filter(p=>p.discovered).length,2);
+ run(b,1,{players:[{...pilot,x:560}],bounds:frame.bounds});assert.equal([...b.parts.values()].filter(p=>p.discovered).length,3);assert.equal(b.maxHp,1200);assert.equal(b.hp,1200);assert.deepEqual(events.filter(e=>e.type==='mortar-launch').slice(0,2).map(e=>e.partId),['gun-left','main-gun']);
 });
 test('all mortar shells, flashes and sounds originate at each surviving physical tube mouth',()=>{
  const {b,events}=make();run(b,7);const launches=events.filter(e=>e.type==='mortar-launch'),shells=events.filter(e=>e.type==='hazard');assert(launches.some(e=>e.partId==='gun-right'));
