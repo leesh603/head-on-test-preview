@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {FortDouaumont,FortSouville,verdunFortMuzzle} from '../verdun-fortresses.js?v=raid2';
+import {FortDouaumont,FortSouville,verdunFortMuzzle} from '../verdun-fortresses.js?v=raid3';
 const frame={players:[{id:'p1',alive:true,x:0,y:400,vx:0,vy:0},{id:'p2',alive:true,x:60,y:430,vx:0,vy:0}],bounds:{left:-195,right:195,top:-422,bottom:422}};
 function fixture(Ctor){const events=[],b=new Ctor({id:'fort',x:0,y:-200,tuning:{maxHp:4000,damage:20,bulletSpeed:260,verdunScale:.8},emit:e=>events.push({...e,at:b.clock})});return{b,events};}
 function tick(b,seconds){for(let t=0;t<seconds-1e-9;t+=.02)b.update(.02,frame);}

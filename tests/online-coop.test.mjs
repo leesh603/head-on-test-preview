@@ -6,8 +6,8 @@ import {FieldDelta,pack,unpack,seededRandom,NET_HZ,MAX_TETHER} from '../online-c
 globalThis.Image??=class{set src(value){this._src=value;queueMicrotask(()=>this.onload?.());}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 const {OnlineCoopGame}=await import('../online-coop-game.js');
-const {enableStageBoss}=await import('../stageboss-host.js?v=raid2&rail=18');
-const {BATTLE_DIRECTOR_PATTERNS:P}=await import('../battle-director169.js?v=raid2');
+const {enableStageBoss}=await import('../stageboss-host.js?v=raid3&rail=18');
+const {BATTLE_DIRECTOR_PATTERNS:P}=await import('../battle-director169.js?v=raid3');
 const start={seed:12345,runId:'online-test',players:[{pilot:'baron',plane:'fokker',faction:'central'},{pilot:'voss',plane:'fokker',faction:'central'}]};
 function pair(){
  const messages=[],hostSession={role:'host',send:m=>{messages.push(structuredClone(m));guest.receive(JSON.parse(JSON.stringify(m)));return true;}},guestSession={role:'guest',send:m=>{host.receive(m);return true;}};

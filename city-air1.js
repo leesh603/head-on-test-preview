@@ -1,6 +1,7 @@
-import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=raid2';
-import {spawnCityDefense,tickCityDefense} from './city-defense.js?v=raid2';
-import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=raid2&rail=11';
+import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=raid3';
+import {impactMark,aimLine} from './tactical-marks.js?v=raid3';
+import {spawnCityDefense,tickCityDefense} from './city-defense.js?v=raid3';
+import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=raid3&rail=11';
 // Region 4 searchlight network + ground fire net; region 5 wind streams.
 // Buildings stay scenery: no collision structures. Guns fire only while player is ILLUMINATED.
 export const CITY_BALANCE=Object.freeze({
@@ -88,7 +89,7 @@ export function drawCityAirLayer(c,game,{point}){
    c.arc(0,0,B.beamRange,-B.beamHalf,B.beamHalf);c.closePath();c.fill();}
    c.restore();
   }
-  if(e.cityShot){const [tx,ty]=point(e.cityShot.x,e.cityShot.y);c.save();c.strokeStyle='#eeb575';c.lineWidth=2;c.setLineDash([7,6]);c.beginPath();c.moveTo(x,y);c.lineTo(tx,ty);c.stroke();c.setLineDash([]);c.beginPath();c.arc(tx,ty,24,0,Math.PI*2);c.stroke();c.restore();}
+  if(e.cityShot){const [tx,ty]=point(e.cityShot.x,e.cityShot.y);aimLine(c,x,y,tx,ty,{chevron:false});impactMark(c,tx,ty,24,.6);}
   drawGroundEnemy(c,e,x,y,s);
   c.fillStyle='#24332b';c.fillRect(x-16,y+s*.5,32,3);c.fillStyle='#de9b73';c.fillRect(x-16,y+s*.5,32*e.hp/e.maxHp,3);
  }

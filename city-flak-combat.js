@@ -1,7 +1,7 @@
-import {shellMarch} from './boss-raid-strikes.js?v=raid2&rail=19';
+import {shellMarch} from './boss-raid-strikes.js?v=raid3&rail=19';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=raid2';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=raid2';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=raid3';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=raid3';
 export const CITY_FLAK_PARTS=Object.freeze([
  {id:'siege',x:-74,y:-101,radius:34,fraction:.16},
  {id:'ears',x:77,y:-96,radius:32,fraction:.10},

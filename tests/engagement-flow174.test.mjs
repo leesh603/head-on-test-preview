@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,BATTLE_DIRECTOR_PATTERNS as P} from '../engine.js?v=raid2&rail=18';
-import {wingmanEngagementStep,patrolEngagementStep} from '../engagement-flow174.js?v=raid2';
+import {Game,BATTLE_DIRECTOR_PATTERNS as P} from '../engine.js?v=raid3&rail=18';
+import {wingmanEngagementStep,patrolEngagementStep} from '../engagement-flow174.js?v=raid3';
 
 
 test('ordinary wingmen split nearby targets, fly their own passes and return within the leash',()=>{

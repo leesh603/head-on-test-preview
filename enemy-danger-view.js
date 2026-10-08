@@ -1,3 +1,4 @@
+import {aimLine} from './tactical-marks.js?v=raid3';
 // Threat cues are tied to an actual attack or formation role, using authored FX.
 export function drawEnemyDanger(ctx,e,x,y,time,fx,now){
  if(e.hp<=0||e.bossPilot||e.type==='boss'||e.surface||e.stationary)return;
@@ -13,8 +14,7 @@ export function drawEnemyDanger(ctx,e,x,y,time,fx,now){
  ctx.rotate(e.a);
  if(e.dangerMarksman&&e.dangerAimUntil>now){
   const progress=1-(e.dangerAimUntil-now)/.38;
-  ctx.globalAlpha=.35+Math.max(0,progress)*.4;ctx.strokeStyle='#dfb17f';ctx.lineWidth=1.3;
-  ctx.setLineDash([9,7]);ctx.beginPath();ctx.moveTo(28,0);ctx.lineTo(205,0);ctx.stroke();ctx.setLineDash([]);
+  aimLine(ctx,28,0,205,0,{p:Math.max(0,progress),alpha:.5+Math.max(0,progress)*.4,dash:[9,7]});
  }
  if(e.dangerPursuit&&e.pursuitEngaged){
   const pulse=.18+Math.sin(time*13)*.04;

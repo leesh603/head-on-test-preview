@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,UPGRADES} from '../engine.js?v=raid2&rail=18';
+import {Game,UPGRADES} from '../engine.js?v=raid3&rail=18';
 
 
 test('random sortie bonus drafts exactly three normal non-legendary upgrades',()=>{

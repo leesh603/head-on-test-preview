@@ -1,7 +1,8 @@
-import {fx} from './fx-art.js?v=raid2';
-import {getLocale} from './i18n.js?v=raid2';
-import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=raid2';
-import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=raid2';
+import {fx} from './fx-art.js?v=raid3';
+import {getLocale} from './i18n.js?v=raid3';
+import {impactMark,bandMark,partMark,aimLine,MARK} from './tactical-marks.js?v=raid3';
+import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=raid3';
+import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=raid3';
 const circle=(c,x,y,r)=>{c.beginPath();c.arc(x,y,r,0,Math.PI*2);};
 // Called with the body's translation already applied. Original RGBA car art.
 export function drawRuralRail(c,b,images,wrecks){
@@ -53,22 +54,23 @@ export function drawRuralRailWarnings(c,b){
  c.save();c.lineWidth=1.5;
  const pending=b.finalAim||b.aimPlan||(b.kind==='paris-gun'?b.barrage:null);
  if(pending){const plan=pending,heavy=b.kind==='lincomparable';
-  c.strokeStyle=plan.blind?'#b7c1a899':'#f0c589bb';c.setLineDash([7,7]);
+  const r=b.rail129,aimP=r?.phase==='aim'?Math.min(1,r.time/Math.max(.01,r.c.aimSeconds)):1,tone=plan.blind?'blind':'warn';
+  const label=(text,x,y)=>{c.font='bold 14px sans-serif';c.textAlign='center';c.lineWidth=3;c.strokeStyle=MARK.ink;c.strokeText(text,x,y);c.fillStyle='#f3dca6';c.fillText(text,x,y);};
   for(const [i,p]of plan.points.entries()){
    if(i<(plan.index||0))continue;
-   circle(c,p.x,p.y,plan.radius||88);c.stroke();
-   if(!heavy){c.setLineDash([]);c.fillStyle='#f0cf91';c.font='bold 14px sans-serif';c.textAlign='center';c.fillText(String(i+1),p.x,p.y+5);c.setLineDash([7,7]);}
+   impactMark(c,p.x,p.y,plan.radius||88,aimP*.6,{tone,heavy:heavy||i===plan.points.length-1,cross:heavy});
+   if(!heavy)label(String(i+1),p.x,p.y+5);
   }
   if(heavy){
-   const p=plan.target;circle(c,p.x,p.y,plan.wave);c.stroke();c.setLineDash([]);
+   const p=plan.target;bandMark(c,p.x,p.y,plan.start||plan.radius,plan.wave,aimP*.6,{tone});
    c.fillStyle='#f0cf91';c.font='bold 13px sans-serif';c.textAlign='center';
    c.fillText(getLocale()==='en'?'1 IMPACT → 2 WAVE':'1 착탄 → 2 충격파',p.x,p.y-plan.radius-10);
    if(plan.final)c.fillText(getLocale()==='en'?(plan.locked?'AIM LOCKED':'AIM DRIFT'):(plan.locked?'조준 고정 · 급선회':'조준 이동 · 고정 후 이탈'),p.x,p.y+plan.radius+20);
    if(plan.smoke&&plan.mode!=='heavy-shell'){
-    const smoke=plan.smoke;c.strokeStyle='#c6a680bb';c.setLineDash([5,6]);circle(c,smoke.x,smoke.y,smoke.radius);c.stroke();
-    c.fillText(getLocale()==='en'?'3 RESIDUE':'3 잔류 위험',smoke.x,smoke.y+5);
+    const smoke=plan.smoke;impactMark(c,smoke.x,smoke.y,smoke.radius,0,{tone:'blind',cross:false});
+    label(getLocale()==='en'?'3 RESIDUE':'3 잔류 위험',smoke.x,smoke.y+5);
     const dx=smoke.x-p.x,dy=smoke.y-p.y,len=Math.hypot(dx,dy)||1,d=plan.start-65;
-    c.setLineDash([]);c.strokeStyle='#bce5c9';circle(c,p.x-dx/len*d,p.y-dy/len*d,16);c.stroke();
+    partMark(c,p.x-dx/len*d,p.y-dy/len*d,14,14,{color:MARK.safe});
    }
   }
  }
@@ -77,7 +79,7 @@ export function drawRuralRailWarnings(c,b){
  }
  if(b.kind==='lincomparable'&&b.railGun.brakeAge<1.2){const q=b.railGun.brakeAge/1.2;for(const side of [-1,1])fx(c,'gunSmoke',b.x+side*(60+q*40),b.y+105,70+q*70,80+q*90,0,(1-q)*.34);}
  if(b.aaPlan){const rear=b.parts.get('car-rear'),x=b.x,y=b.y+rear.y-145,a=b.aaPlan.angle;
-  c.setLineDash([5,7]);c.strokeStyle='#e9c38b99';for(const da of [-.14,0,.14]){c.beginPath();c.moveTo(x,y);c.lineTo(x+Math.cos(a+da)*230,y+Math.sin(a+da)*230);c.stroke();}
+  for(const da of [-.14,0,.14])aimLine(c,x,y,x+Math.cos(a+da)*230,y+Math.sin(a+da)*230,{alpha:.85,p:1-b.aaPlan.remaining/.45});
  }
  c.restore();
 }
@@ -85,13 +87,13 @@ export function drawRuralRailHazard(c,h){
  if(!['rural-rail-shock','rural-rail-smoke'].includes(h.visual))return false;
  c.save();const warning=h.phase==='warning';
  if(h.visual==='rural-rail-shock'){
-  c.strokeStyle=warning?'#f1c78fa8':'#f5dba6';c.lineWidth=warning?1.5:2.5;c.setLineDash(warning?[7,8]:[]);
-  if(warning){circle(c,h.x,h.y,h.radiusLimit);c.stroke();circle(c,h.x,h.y,h.radiusStart);c.stroke();}
+  c.strokeStyle='#f5dba6';c.lineWidth=2.5;c.setLineDash([]);
+  if(warning)bandMark(c,h.x,h.y,h.radiusStart,h.radiusLimit,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)),{heavy:h.raidHeavy});
   else{const radius=h.radius,inner=h.innerRadius;c.fillStyle='#efd0a633';c.beginPath();c.arc(h.x,h.y,radius,0,Math.PI*2);c.arc(h.x,h.y,inner,0,Math.PI*2,true);c.fill();circle(c,h.x,h.y,radius);c.stroke();circle(c,h.x,h.y,inner);c.stroke();
    for(let i=0;i<12;i++){const a=i*Math.PI/6;fx(c,'smokeGray',h.x+Math.cos(a)*(inner+21),h.y+Math.sin(a)*(inner+21),48,48,a,.2);}
   }
  }else{
-  c.strokeStyle=warning?'#b6b69ba8':'#c0b29866';c.lineWidth=1.5;c.setLineDash(warning?[5,7]:[]);circle(c,h.x,h.y,h.radius);c.stroke();
+  impactMark(c,h.x,h.y,h.radius,warning?Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)):1,{tone:'blind',cross:false,alpha:warning?1:.45,fill:warning});
   if(!warning){const size=h.radius*2;fx(c,'smokeDark',h.x,h.y,size,size,0,.38);fx(c,'smokeGray',h.x-h.radius*.18,h.y-h.radius*.14,size*.75,size*.75,0,.32);}
  }
  c.restore();return true;
