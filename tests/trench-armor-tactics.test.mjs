@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {createBossEncounter} from '../headon-stageboss-patterns.js?v=lc2';
-import {armorRotate,armorGunMuzzle,armorAngleDelta,TRENCH_ARMOR_LAYOUT} from '../trench-armor-layout.js?v=lc2';
-import {treadFrame,drawArmorTreads} from '../trench-armor-render.js?v=lc2';
+import {createBossEncounter} from '../headon-stageboss-patterns.js?v=lc3';
+import {armorRotate,armorGunMuzzle,armorAngleDelta,TRENCH_ARMOR_LAYOUT} from '../trench-armor-layout.js?v=lc3';
+import {treadFrame,drawArmorTreads} from '../trench-armor-render.js?v=lc3';
 import {fixture,step} from './stageboss-fixture94.mjs';
 const tuning={maxHp:2400,partHp:280,damage:18,bulletSpeed:270,geometryScale:2.025,projectileDensity:.85,patternMultiplier:1};
 const frame={players:[{id:'p1',alive:true,x:100,y:180,vx:40,vy:0,radius:12},{id:'p2',alive:true,x:280,y:220,vx:0,vy:-20,radius:12}],bounds:{left:5,right:395,top:-422,bottom:422}};
