@@ -1,7 +1,7 @@
-import {driveLandship} from './somme-landship-drive.js?v=lc1';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=lc1';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=lc1';
-import {SCHWABEN_PARTS,MARK1_PARTS,sommeScale,sommePoint,syncSommeParts,sommeMuzzle,sponsonAim,clamp,turn,angleDelta} from './somme-boss-layout.js?v=lc1';
+import {driveLandship} from './somme-landship-drive.js?v=lc2';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=lc2';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=lc2';
+import {SCHWABEN_PARTS,MARK1_PARTS,sommeScale,sommePoint,syncSommeParts,sommeMuzzle,sponsonAim,clamp,turn,angleDelta} from './somme-boss-layout.js?v=lc2';
 
 class SommeBoss extends BaseBoss{
  constructor(o,layout,kind,tank=false){
