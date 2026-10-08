@@ -491,6 +491,12 @@ export function drawBossBuildings(c,g){
 }
 function cityHazard(c,h,ring){
  const warning=h.phase==='warning',age=Math.max(0,h.age-h.delay-h.warning);
+ if(h.visual==='drachen-fuse'){
+  // The real mine's chain burst supplies the explosion sprite. This is only
+  // its shrinking fuse warning, never a replacement mine or second blast.
+  if(warning){ring(h.x,h.y,h.radius,'#e6bc77');ring(h.x,h.y,h.radius*(1-clamp((h.age-h.delay)/h.warning,0,1)),'#f2d69b');}
+  return true;
+ }
  if(h.visual==='pompom-stream'){
   if(warning){c.fillStyle='#f1bc6814';c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);c.strokeStyle='#dcb776aa';c.lineWidth=1.5;c.setLineDash([10,7]);for(const side of [-1,1]){c.beginPath();c.moveTo(h.x-h.width/2,h.y+side*h.height/2);c.lineTo(h.x+h.width/2,h.y+side*h.height/2);c.stroke()}}
   else{const direction=Math.cos(h.angle)>=0?1:-1;const count=Math.min(36,Math.ceil(h.width/22));c.setLineDash([]);for(let i=0;i<count;i++){const d=(i*27+age*760)%Math.max(1,h.width),x=h.x+direction*(d-h.width/2),y=h.y+Math.sin(i*4.7)*h.height*.3;c.strokeStyle=i%3?'#dfab65cc':'#fff0bd';c.lineWidth=i%3?2:3;c.beginPath();c.moveTo(x,y);c.lineTo(x-direction*Math.min(17,d),y);c.stroke()}pixelBlast(c,h.x-direction*h.width/2,h.y,17,age);}

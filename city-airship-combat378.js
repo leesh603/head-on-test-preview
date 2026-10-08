@@ -55,12 +55,13 @@ class CityAirships extends BaseBoss{
  }
  guns(dt,players){
   const target=players.find(p=>p.alive);if(!target)return;
-  const live=this.live(),interval=live.length===1?2.6:3.6;
+  const live=this.live(),interval=live.length===1?5:6.5;
   for(const p of live){const index=Number(p.id.at(-1));if(this.due('gun-'+index,dt,interval)){
    const from=this.point(...CITY_GUNS[this.cityArtKind][index],index);
    const list=players.filter(p=>p.alive),aimTarget=this.cityArtKind==='drachen-net'?list[(this.gunCursor||0)%list.length]:target;this.gunCursor=(this.gunCursor||0)+1;
    const a=Math.atan2(aimTarget.y+(aimTarget.vy||0)*.18-from.y,aimTarget.x+(aimTarget.vx||0)*.18-from.x);
-   for(let j=0;j<5;j++)this.gunQueue.push({index,delay:.25+j*.115,angle:a+(j-2)*.055});
+   this.command('charge-warning',{...from,targetX:from.x+Math.cos(a)*480,targetY:from.y+Math.sin(a)*480,seconds:.8});
+   for(let row=0;row<3;row++)for(let j=0;j<7;j++){if(j===2+row)continue;this.gunQueue.push({index,delay:.8+row*.42,angle:a+(j-3)*.18});}
   }}
   for(const q of this.gunQueue)q.delay-=dt;
   for(const q of this.gunQueue.filter(q=>q.delay<=0)){
@@ -113,11 +114,11 @@ export class DrachenMineNet extends CityAirships{
    this.command('city-mine-lane',{x:gate,width:gap});
    const cx=clamp(target.x+(target.vx||0)*.4,bounds.left+75,bounds.right-75),cy=clamp(target.y+(target.vy||0)*.4,bounds.top+90,bounds.bottom-90);
    for(let i=0;i<count;i++){
-    const a=this.rng()*Math.PI*2,d=85+this.rng()*150;let x,y;
+    const a=i/count*Math.PI*2+mode*.35,d=125+(i%2)*35;let x,y;
     if(mode===0){x=cx+Math.cos(a)*d;y=cy+Math.sin(a)*d*.8;}
-    else if(mode===1){const gate=(this.netWave%3)*.25+.25,u=(i+.5)/count;if(Math.abs(u-gate)<.11)continue;x=bounds.left+35+u*(w-70);y=cy-90+(i%2)*65+(this.rng()-.5)*25;}
+    else if(mode===1){const gate=(this.netWave%3)*.25+.25,u=(i+.5)/count;if(Math.abs(u-gate)<.11)continue;x=bounds.left+35+u*(w-70);y=cy-90+(i%2)*65+0;}
     else if(mode===2){const angle=i/count*Math.PI*2+.3;x=cx+Math.cos(angle)*145;y=cy+Math.sin(angle)*105;}
-    else{x=bounds.left+45+(i%5)*(w-90)/4;y=cy+(i<5?-100:105)+(this.rng()-.5)*45;}
+    else{x=bounds.left+45+(i%5)*(w-90)/4;y=cy+(i<5?-100:105)+0;}
     x=clamp(x,bounds.left+24,bounds.right-24);y=clamp(y,bounds.top+40,bounds.bottom-35);
     if(Math.hypot(x-target.x,y-target.y)<65||Math.abs(x-gate)<gap/2)continue;
     const index=Number(live[i%live.length].id.at(-1));
@@ -128,7 +129,7 @@ export class DrachenMineNet extends CityAirships{
   for(const q of this.mineQueue.filter(q=>q.delay<=0)){
    if(this.parts.get('airship-'+q.index).destroyed)continue;
    const mounts=DRACHEN_MINES[q.index],from=this.point(...mounts[q.slot%mounts.length],q.index);
-   this.command('spawn-minefield',{points:[{x:q.x,y:q.y}],sourceX:from.x,sourceY:from.y,warning:q.warning,life:12,maxMines:26,rigIndex:q.index});
+   this.command('spawn-minefield',{points:[{x:q.x,y:q.y}],sourceX:from.x,sourceY:from.y,warning:q.warning,life:12,maxMines:26,rigIndex:q.index,fuse:3.2+(q.slot%3)*.42});
    this.command('aa-effect',{...from,kind:'aaWinchSpark',size:30*this.cityArtScale,life:.22});
   }
   this.mineQueue=this.mineQueue.filter(q=>q.delay>0);

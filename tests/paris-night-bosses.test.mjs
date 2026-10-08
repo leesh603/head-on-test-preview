@@ -262,7 +262,7 @@ test('Staaken racks weaken and cancel their own payload; both destroyed stop the
 
 test('Destroying all gun arcs creates a bullet-free approach; rotated mounts stay on the hull',()=>{
   const f=fixture(ParisStaakenRVI);f.body.a=-Math.PI/2;f.body.rotateMounts();
-  f.frame.players[0].x=f.body.x;f.frame.players[0].y=f.body.y-400;f.body.gunfire(2,f.frame.players);
+  f.frame.players[0].x=f.body.x;f.frame.players[0].y=f.body.y-400;f.body.gunfire(5,f.frame.players);
   assert.ok(shots(f).length>0);for(const p of [...f.body.parts.values()])if(p.kind==='gun')destroy(f,p.id);
   const count=shots(f).length;step(f,12);assert.equal(shots(f).length,count);
   const p=f.body.parts.get('engine-0');assert.ok(Math.abs(Math.hypot(p.x,p.y)-Math.hypot(p.localX,p.localY))<1e-8);

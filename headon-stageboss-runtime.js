@@ -129,6 +129,14 @@ export class StageBossAddon {
     if(this.defeatSequence)this.updateDefeat(dt);
     else if(encounter&&!encounter.completed)encounter.update(dt,{...frame,isIlluminated:p=>this.hazards.isIlluminated(p)});
     for(const b of encounter?.bodies.values()||[]){const ship=b.support129||(b.kind.startsWith('hms-zubian')?b:null);if(ship&&!b.dead){if(b.support129)ship.hullYaw=ship.angle||0;recordShipWake(ship,dt,ship.height||950);}}
+    // Queued rounds leave the actual surviving mount, even while the hull
+    // moves during the warning. Once fired, their trajectory stays committed.
+    this.hazards.pool.visit(h=>{
+      if(h.activated||!h.sourcePartId)return;
+      const body=encounter?.bodies.get(h.bossId),part=body?.parts.get(h.sourcePartId);
+      if(!body||body.dead||!part||part.destroyed){this.hazards.pool.release(h.index,h.generation);return;}
+      h.x=body.x+part.x+h.sourceOffsetX;h.y=body.y+part.y+h.sourceOffsetY;
+    });
     this.hazards.update(dt,frame);
     return true;
   }

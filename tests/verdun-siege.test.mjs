@@ -5,9 +5,9 @@ const frame={players:[{id:'p1',alive:true,x:0,y:400,vx:0,vy:0},{id:'p2',alive:tr
 function fixture(Ctor){const events=[],b=new Ctor({id:'fort',x:0,y:-200,tuning:{maxHp:4000,damage:20,bulletSpeed:260,verdunScale:.8},emit:e=>events.push({...e,at:b.clock})});return{b,events};}
 function tick(b,seconds){for(let t=0;t<seconds-1e-9;t+=.02)b.update(.02,frame);}
 const destroy=(b,id)=>b.hit({partId:id,damage:1e9});
-test('Douaumont final shells use living heavy muzzles, alternate flanks and leave the phone centre open',()=>{
+test('Douaumont final shells use living heavy muzzles, alternate flanks and close on the captured phone position',()=>{
  const {b,events}=fixture(FortDouaumont);b.hp=b.maxHp*.44;tick(b,9.1);assert(b.lastStand);tick(b,14);
- const end=events.find(e=>e.phase==='verdun-recovery').at,shots=events.filter(e=>e.visual==='verdun-heavy-shell'&&e.at<end);assert(shots.length>=2);assert(shots.every(e=>Math.abs(e.x)>e.radius+35));
+ const end=events.find(e=>e.phase==='verdun-recovery').at,shots=events.filter(e=>e.visual==='verdun-heavy-shell'&&e.at<end);assert(shots.length>=2);assert(shots.some(e=>Math.abs(e.x)<e.radius+12));assert(shots.every(e=>e.warning>=1.8));
  assert(shots.some(e=>e.x<0)&&shots.some(e=>e.x>0));assert.equal(events.filter(e=>e.phase==='douaumont-last-barrage').length,1);
  for(const e of shots){const p=b.parts.get(e.tag.split(':').at(-1));assert(p&&!p.destroyed);assert(Math.hypot(e.sourceX-b.x-p.x,e.sourceY-b.y-p.y)>p.muzzleLength-10);}
 });

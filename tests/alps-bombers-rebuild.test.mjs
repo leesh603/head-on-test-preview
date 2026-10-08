@@ -44,7 +44,7 @@ test('GIK does not fire its nose cannon backwards, and rear gun has its own sect
 test('Ca4 keeps an entire warned lane clear, locks strike coordinates and rotates the gap',()=>{
  const {b,events}=make(Ca4),lanes=[];
  for(let run=0;run<3;run++){b.startBombRun(frame.bounds);lanes.push(b.bombLane);const safe=b.laneWarnings.find(l=>l.safe),rect={left:safe.x-safe.width/2,right:safe.x+safe.width/2};
-  const start=events.length;step(b,1.26,{...frame,bounds:{left:800,right:1600,top:700,bottom:1400}});const bombs=events.slice(start).filter(e=>e.visual==='carpet-bomb');assert.equal(bombs.length,8);for(const h of bombs){assert.ok(h.x+h.radius<rect.left||h.x-h.radius>rect.right);assert.ok(h.x>=frame.bounds.left&&h.x<=frame.bounds.right);assert.equal(h.airborneBomb,true);assert.ok(Number.isFinite(h.sourceX));}b.bombRunRemaining=0;
+  const start=events.length;step(b,1.26,{...frame,bounds:{left:800,right:1600,top:700,bottom:1400}});const bombs=events.slice(start).filter(e=>e.visual==='carpet-bomb');assert.equal(bombs.length,12);for(const h of bombs){assert.ok(h.x+h.radius<rect.left||h.x-h.radius>rect.right);assert.ok(h.x>=frame.bounds.left&&h.x<=frame.bounds.right);assert.equal(h.airborneBomb,true);assert.ok(Number.isFinite(h.sourceX));}b.bombRunRemaining=0;
  }
  assert.deepEqual(lanes,[0,1,2]);
 });

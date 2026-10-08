@@ -73,8 +73,8 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     lincomparable:{warningSeconds:1.4,railCycle:5.8,railMoveSeconds:3.6,hpScale:.72},
     'sms-stuttgart':{launchInterval:1.8,fireScale:.62,suppressiveInterval:1.9},
     'hms-zubian':{broadsideInterval:.75/density,mortarInterval:1.3,chargeInterval:1.85,suppressiveInterval:1.8/density},
-    'zeppelin-l70':{engineInterval:1.9,engineShotCount:3,suppressiveInterval:2.6,suppressiveCount:6,gasInterval:5.4},
-    hma23:{launchInterval:2,panicInterval:1.8},
+    'zeppelin-l70':{engineInterval:5.6,engineShotCount:3,suppressiveInterval:2.6,suppressiveCount:6,gasInterval:5.4},
+    hma23:{launchInterval:4.8,panicInterval:5.8},
     gik:{suppressiveInterval:2.4,suppressiveCount:6,rearFinalInterval:.48},
     'livens-flame-projector':{flameInterval:4.4},
     'minenwerfer-battery':{mortarInterval:1.9}
@@ -151,7 +151,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     const mines=event.points.map(p=>({x:deploying?event.sourceX:p.x,y:deploying?event.sourceY:p.y,targetX:p.x,targetY:p.y,hp:18,dead:false,bossMine:true,deploying,chainHandled:false,...(event.dropMode==='harbor-vertical'?{triggerRadius:36}:null)}));
     if(mines.length){const mx=mines.reduce((n,m)=>n+m.x,0)/mines.length,my=mines.reduce((n,m)=>n+m.y,0)/mines.length;
       g.hostileMinefields.push({x:mx,y:my,radius:Math.max(60,...mines.map(m=>Math.hypot(m.x-mx,m.y-my)+20)),
-        warning:event.warning,life:event.life,region:g.worldRegion(),mines,deploySeconds:deploying?(event.deploySeconds||event.warning):0,deployAge:0,dropMode:event.dropMode,sourcePartId:event.sourcePartId,sourceBossId:event.bossId,sourceX:event.sourceX,sourceY:event.sourceY,encounterId:g.stageBoss.stages.encounter.id});}
+        warning:event.warning,life:event.life,region:g.worldRegion(),mines,fuse:event.fuse??null,fuseAge:0,fuseTag:null,deploySeconds:deploying?(event.deploySeconds||event.warning):0,deployAge:0,dropMode:event.dropMode,sourcePartId:event.sourcePartId,sourceBossId:event.bossId,sourceX:event.sourceX,sourceY:event.sourceY,encounterId:g.stageBoss.stages.encounter.id});}
    }
     if(event.type==='boss-enter'){g.event('wave','지역 보스 출현! · '+BOSS_CATALOG[event.bossId].name);g.event('heavyShot','');}
     else if(event.type==='aa-effect'){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:event.life||.5,size:event.size||115,kind:event.kind});}
@@ -159,7 +159,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     else if(event.type==='hazard-activated'&&event.visual==='harbor-swing'){
       // The attached payload remains intact throughout the physical sweep.
     }
-    else if(event.type==='hazard-activated'&&event.kind==='circle'&&(event.visual?.startsWith('aa-')||event.visual==='city-flak-shell'||event.visual?.startsWith('somme-')||event.visual?.startsWith('rural-rail-')||event.visual==='black-flak'&&['fliegerzug','treffas-wagen'].includes(body?.kind))){
+    else if(event.type==='hazard-activated'&&event.kind==='circle'&&(event.visual?.startsWith('aa-')||event.visual==='city-flak-shell'||event.visual==='drachen-fuse'||event.visual?.startsWith('somme-')||event.visual?.startsWith('rural-rail-')||event.visual==='black-flak'&&['fliegerzug','treffas-wagen'].includes(body?.kind))){
       // Authored AA atlas draws these effects; do not stack a generic blast.
     }
     else if(event.type==='hazard-activated'&&event.visual==='gallipoli-shell'){g.shake=Math.max(g.shake,3);}
@@ -439,6 +439,15 @@ export function endStageBossFrame(g,dt){
   for(const effect of g.aaEffects||[])effect.age+=dt;
   g.aaEffects=(g.aaEffects||[]).filter(e=>e.age<e.life);
   const owned=activeEncounter?(g.hostileMinefields||[]).filter(f=>f.encounterId===activeEncounter.id):[];
+  for(const field of owned)if(field.fuse!=null&&!blocked(g)){
+   field.fuseAge+=dt;
+   if(!field.fuseTag&&field.fuseAge>=field.fuse-.95){
+    const mine=field.mines.find(m=>!m.dead);if(mine){field.fuseTag=activeEncounter.id+':fuse:'+addon.hazards.serial;
+     addon.hazards.spawn({kind:'circle',encounterId:activeEncounter.id,bossId:field.sourceBossId,x:mine.targetX??mine.x,y:mine.targetY??mine.y,radius:58,warning:.95,duration:.25,once:true,damage:24,visual:'drachen-fuse',tag:field.fuseTag});}
+   }
+   if(field.fuseTag&&field.mines.every(m=>m.dead)&&!field.fuseDetonated)addon.hazards.clearTagged(activeEncounter.id,field.fuseTag);
+   if(field.fuseAge>=field.fuse){field.fuseDetonated=true;for(const mine of field.mines)if(!mine.dead){mine.dead=true;mine.chainHandled=false;}}
+  }
   const mines=owned.flatMap(f=>f.mines);
   const queue=mines.filter(m=>m.dead&&!m.chainHandled);
   for(let i=0;i<queue.length&&i<32;i++){

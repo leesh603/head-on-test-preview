@@ -1,3 +1,4 @@
+import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3';
 import {ALPS_BOMBER_LAYOUT,alpsAngleDelta,alpsPoint,alpsMuzzle,locateAlpsHit} from './alps-bomber-layout.js?v=tame3';
 
@@ -41,10 +42,10 @@ class AlpsBomber extends BaseBoss {
   return result;
  }
  mountFire(id,players,dt,interval,rear=false){
-  const gun=this.part(id);if(!gun||gun.destroyed||!this.due(id+'-fire',dt,interval))return;
+  const gun=this.part(id);if(!gun||gun.destroyed||!this.due(id+'-fire',dt,Math.max(4.6,interval)))return;
   const forward=this.hullYaw+(rear?Math.PI/2:-Math.PI/2),q=alpsMuzzle(this,id),target=this.target(players,p=>Math.abs(alpsAngleDelta(Math.atan2(p.y-q.y,p.x-q.x),forward))<1.15&&Math.hypot(p.x-q.x,p.y-q.y)<720);
   if(!target)return;const angle=Math.atan2(target.y-q.y,target.x-q.x),count=Math.min(7,Math.max(1,Math.ceil((this.phase===3?3:2)*(this.t.projectileDensity??1))));gun.recoil=.12;this.command('muzzle',{...q,partId:id});
-  for(let i=0;i<count;i++){const a=angle+(i-(count-1)/2)*.12;this.hazard('projectile',{...q,vx:Math.cos(a)*this.t.bulletSpeed*.8,vy:Math.sin(a)*this.t.bulletSpeed*.8,radius:4,damage:this.t.damage*.55,visual:'alps-mg',tag:this.id+':'+id});}
+  fireFanSalvo(this,{...q,angle,speed:this.t.bulletSpeed*.8,damage:this.t.damage*.55,visual:'alps-mg',tag:this.id+':'+id,sourcePartId:id,count:11,spread:1.4,beats:2,beat:.42,warning:.75,gapIndex:rear?2:7,step:rear?1:-1});
  }
  stickBombs(bounds,{count=5,radius=36,warning=1.25,damage=.8}={}){
   const s=this.t.geometryScale||1,source=alpsPoint(this,0,25*s),a=this.hullYaw-Math.PI/2,dx=Math.cos(a),dy=Math.sin(a);
@@ -80,7 +81,7 @@ export class Ca4 extends AlpsBomber {
   if(this.part('bombBay').destroyed||this.bombRunRemaining>0)return;
   this.bombLane=(this.bombLane+1)%3;const width=bounds.right-bounds.left,height=bounds.bottom-bounds.top;
   // Bounds are captured once: a moving camera never relocates a warned strike.
-  const gap=width/3,margin=Math.max(32,gap*.15),radius=Math.min(44,Math.max(16,(gap-2*margin)*.22));
+  const gap=width/3,margin=Math.max(32,gap*.15),radius=Math.max(24,gap*.46);
   this.runBounds={...bounds};this.runRadius=radius;this.laneWarnings=[];
   for(let i=0;i<3;i++)this.laneWarnings.push({x:bounds.left+gap*(i+.5),y:bounds.top+height*.55,width:gap-2*margin,height:height*.55,safe:i===this.bombLane});
   this.bombRunRemaining=1.25;this.runSerial++;this.bayExpose=3.3;this.part('bombBay').hittable=true;this.command('phase-change',{phase:'bomb-bay-exposed'});
@@ -88,7 +89,7 @@ export class Ca4 extends AlpsBomber {
  releaseBombRun(){
   if(this.part('bombBay').destroyed)return;
   const b=this.runBounds,source=alpsPoint(this,0,this.part('bombBay').localY),height=b.bottom-b.top;
-  for(const lane of this.laneWarnings.filter(l=>!l.safe))for(let row=0;row<4;row++)this.hazard('circle',{x:lane.x,y:b.top+height*(.32+row*.135),radius:this.runRadius,delay:row*.18,warning:1.1,duration:.3,once:true,damage:this.t.damage*.85,visual:'carpet-bomb',airborneBomb:true,sourceX:source.x,sourceY:source.y,tag:this.id+':payload'});
+  for(const lane of this.laneWarnings.filter(l=>!l.safe))for(let row=0;row<6;row++)this.hazard('circle',{x:lane.x,y:b.top+height*(.24+row*.10),radius:this.runRadius,delay:0,warning:1.1+row*.38,duration:.3,once:true,damage:this.t.damage*.85,visual:'carpet-bomb',airborneBomb:true,sourceX:source.x,sourceY:source.y,tag:this.id+':payload'});
   this.command('bomb-release',{...source});
  }
  onPartDestroyed(p){super.onPartDestroyed(p);if(p.id==='bombBay'&&!this.bayRuptured){this.bayRuptured=true;this.bombRunRemaining=0;this.laneWarnings=[];this.bayExpose=0;this.command('cancel-hazards',{tag:this.id+':payload'});

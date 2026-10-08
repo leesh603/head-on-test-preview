@@ -48,15 +48,15 @@ export class StuttgartSupport {
   this.onCue({type:'hangar-cover-ejected',encounterId:this.id,...q});
  }
  fx(kind,x,y,radius,life,extra={}){const f=this.effects.acquire();if(f)Object.assign(f,{kind,x,y,radius,life,age:0,vx:0,vy:0,angle:0,...extra});return f;}
- shoot(x,y,angle){const p=this.projectiles.acquire();if(!p)return;p.hits.clear();Object.assign(p,{id:this.id+':shot:'+(++this.damageSerial),kind:'shell',x,y,vx:Math.cos(angle)*this.tuning.bulletSpeed,vy:Math.sin(angle)*this.tuning.bulletSpeed,age:0,warning:0,life:4,radius:4,damage:this.tuning.damage*.34,applied:false});}
+ shoot(x,y,angle,delay=0){const p=this.projectiles.acquire();if(!p)return;p.hits.clear();Object.assign(p,{id:this.id+':shot:'+(++this.damageSerial),kind:'shell',x,y,vx:Math.cos(angle)*this.tuning.bulletSpeed,vy:Math.sin(angle)*this.tuning.bulletSpeed,age:-delay,warning:0,life:4,radius:4,damage:this.tuning.damage*.34,applied:false});}
  flak(x,y,{delay=0,radius=30}={}){const p=this.projectiles.acquire();if(!p)return;p.hits.clear();Object.assign(p,{id:this.id+':flak:'+(++this.damageSerial),kind:'flak',x,y,vx:0,vy:0,age:-delay,warning:1.05,life:1.35,radius,damage:this.tuning.damage*.72,applied:false});}
- fire(players,lockedAngle=this.angle){const side=this.fireSide++%2,indices=side?[1,3]:[0,2];for(const i of indices){const p=this.parts.get('gun'+i);if(p.hp<=0)continue;const q=this.world(p.nx,p.ny),a=lockedAngle+(side?0:Math.PI)+Math.sin(this.volley*.4)*.3;
-   const n=Math.max(1,Math.ceil(5*(this.tuning.projectileDensity??1)));for(let j=0;j<n;j++)this.shoot(q.x,q.y,a+(n===1?0:j/(n-1)-.5)*.6);this.fx('muzzle',q.x,q.y,15,.20,{angle:a});
+ fire(players,lockedAngle=this.angle){const target=players.find(p=>p.alive);const side=this.fireSide++%2,indices=side?[1,3]:[0,2];for(const i of indices){const p=this.parts.get('gun'+i);if(p.hp<=0)continue;const q=this.world(p.nx,p.ny),a=target?Math.atan2(target.y-q.y,target.x-q.x):lockedAngle+(side?0:Math.PI);
+   const n=11;for(let row=0;row<3;row++)for(let j=0;j<n;j++){const gap=(side?6:2)+(side?-row:row);if(j>=gap&&j<gap+2)continue;this.shoot(q.x,q.y,a+(j/(n-1)-.5)*1.65,row*.4);}this.fx('muzzle',q.x,q.y,15,.20,{angle:a});
   }
   if(this.volley++%2===1){const alive=players.filter(p=>p.alive);if(alive.length){const p=alive[(this.volley>>1)%alive.length],guns=[...this.parts.values()].filter(p=>p.id.startsWith('gun')&&p.hp>0);
     if(guns.length&&this.time>=1.8){
       const velocity=Math.hypot(p.vx||0,p.vy||0),nx=velocity>8?-(p.vy||0)/velocity:1,ny=velocity>8?(p.vx||0)/velocity:0;
-      const offsets=guns.length===1?[0]:[-88,88];
+      const offsets=guns.length===1?[0]:[-58,0,58];
       offsets.forEach((d,i)=>this.flak(p.x+(p.vx||0)*.55+nx*d,p.y+(p.vy||0)*.55+ny*d,{delay:this.tuning.navigation?i*.22:0,radius:30}));
     }
   }}
@@ -83,7 +83,7 @@ export class StuttgartSupport {
  prepareFire(players){
   const p=players.find(p=>p.alive);if(!p)return;
   this.fireWarning={left:.75,targets:players.map(p=>({...p})),angle:this.angle};
-  for(const i of (this.fireSide%2?[1,3]:[0,2])){const gun=this.parts.get('gun'+i);if(gun.hp<=0)continue;const q=this.world(gun.nx,gun.ny),a=this.angle+(this.fireSide%2?0:Math.PI)+Math.sin(this.volley*.4)*.3;this.onCue({type:'charge-warning',encounterId:this.id,...q,targetX:q.x+Math.cos(a)*420,targetY:q.y+Math.sin(a)*420,seconds:.75});}
+  for(const i of (this.fireSide%2?[1,3]:[0,2])){const gun=this.parts.get('gun'+i);if(gun.hp<=0)continue;const q=this.world(gun.nx,gun.ny),a=Math.atan2(p.y-q.y,p.x-q.x);this.onCue({type:'charge-warning',encounterId:this.id,...q,targetX:q.x+Math.cos(a)*420,targetY:q.y+Math.sin(a)*420,seconds:.75});}
  }
  tick(dt,{players,bounds,paused=false,transitionBlocked=false}){
   if(paused)return;if(!Number.isFinite(dt)||dt<0)throw new Error('Invalid dt');if(this.dead){this.clean();if(!transitionBlocked&&!this.notified){this.notified=true;this.onCleared(this.snapshot());}return;}
@@ -94,7 +94,7 @@ export class StuttgartSupport {
   if(this.finalSortie&&(this.finalClock-=dt)<=0){this.launch(players,{final:true});this.finalWave++;this.finalClock=.6;if(this.finalWave>=3)this.finalSortie=false;this.fireClock=Math.min(this.fireClock,.1);}
   if(this.cover){this.cover.age+=dt;this.cover.x+=this.cover.vx*dt;this.cover.y+=this.cover.vy*dt;this.cover.angle+=dt*1.2;if(this.cover.age>=1.8)this.cover=null;}
   if(this.fireWarning){this.fireWarning.left-=dt;if(this.fireWarning.left<=0){const warning=this.fireWarning;this.fireWarning=null;this.fire(warning.targets,warning.angle);}}
-  this.fireClock-=dt;if(this.time>=1.8&&this.fireClock<=0&&!this.fireWarning){const base=this.phase===1?1.35:1.2;this.fireClock=(base+.75)*(this.tuning.fireScale||1)/(this.tuning.projectileDensity??1);this.prepareFire(players);}
+  this.fireClock-=dt;if(this.time>=1.8&&this.fireClock<=0&&!this.fireWarning){const base=this.phase===1?5.5:4.8;this.fireClock=(base+.75)*(this.tuning.fireScale||1)/(this.tuning.projectileDensity??1);this.prepareFire(players);}
   this.spawnClock-=dt;if(this.spawnClock<=0){this.spawnClock=this.tuning.spawnInterval; if(this.phase<4)this.launch(players);}
   if(this.linkedLaunchClock>0&&(this.linkedLaunchClock-=dt)<=0)this.launch(players);
   this.projectiles.visit(p=>{const ax=p.x,ay=p.y;p.age+=dt;if(p.age<p.warning)return;p.x+=p.vx*dt;p.y+=p.vy*dt;

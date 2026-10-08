@@ -1,3 +1,4 @@
+import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3';
 import {intersectsEllipse} from './regional-boss-layout352.js?v=tame3';
 export const CITY_FLAK_PARTS=Object.freeze([
@@ -29,6 +30,7 @@ export class CityFlakCell extends BaseBoss{
   return r;
  }
  onPartDestroyed(p){
+  this.command('cancel-hazards',{tag:this.id+'-'+p.id});
   if(p.id==='siege'||p.id==='ears'){this.shellLock=null;this.lockProgress=0;this.command('cancel-hazards',{tag:this.id+'-shell'});}
   const lost=[...this.parts.values()].filter(p=>p.destroyed).length;
   if(lost>=2){this.coreVulnerable=true;this.phase='exposed';}
@@ -66,7 +68,7 @@ export class CityFlakCell extends BaseBoss{
   }
   for(const id of ['gun-bl','gun-br']){
    const p=this.parts.get(id);if(p.destroyed)continue;p.targetCursor??=this.index+(id==='gun-br'?1:0);const gunTarget=list[p.targetCursor%list.length],aim=Math.atan2(gunTarget.y-this.y-p.y,gunTarget.x-this.x-p.x);p.angle=turn(p.angle,aim,1.45*dt);
-   if(this.due(id,dt,(id==='gun-bl'?3.4:4.3)/enrage)&&Math.abs(delta(aim,p.angle))<.35){const from=this.muzzle(p),count=Math.max(3,Math.min(9,Math.ceil(6*(this.t.projectileDensity||1))));for(let i=0;i<count;i++){const a=p.angle+(i-(count-1)/2)*.13;this.hazard('projectile',{...from,vx:Math.cos(a)*this.t.bulletSpeed*.88,vy:Math.sin(a)*this.t.bulletSpeed*.88,radius:4,damage:this.t.damage*.55,duration:3.0,visual:'city-mg',tag:this.id+'-'+id});}this.command('muzzle',{...from,partId:id});p.targetCursor++;}
+   if(this.due(id,dt,(id==='gun-bl'?4.2:5.3)/enrage)&&Math.abs(delta(aim,p.angle))<.35){const from=this.muzzle(p);fireFanSalvo(this,{...from,angle:p.angle,speed:this.t.bulletSpeed*.78,damage:this.t.damage*.55,visual:'city-mg',tag:this.id+'-'+id,sourcePartId:id,count:11,spread:1.65,beats:2,beat:.48,warning:.85,gapIndex:id==='gun-bl'?2:7,step:id==='gun-bl'?1:-1});this.command('muzzle',{...from,partId:id});p.targetCursor++;}
   }
  }
 }

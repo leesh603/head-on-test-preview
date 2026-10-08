@@ -1,3 +1,4 @@
+import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=tame3';
 
 // These mounts are also the sprite atlas contract: source art faces north.
@@ -184,7 +185,7 @@ export class ParisSearchlightFortress extends ParisBoss {
     // Keep destroyed mounts' empty slots: each removed weapon opens a real
     // gap in the four-step battery, rather than accelerating survivors.
     const slot=this.lastStandSlot++,id=['aa-left','mg-left','aa-right','mg-right'][slot%4];
-    this.lastStandIn=1.1;if(!this.livePart(id))return;
+    this.lastStandIn=slot%4===3?3.4:.8;if(!this.livePart(id))return;
     const gun=this.parts.get(id),target=targets[(slot+Math.floor(slot/4))%targets.length];
     const x=this.x+gun.x,y=this.y+gun.y,tag=this.id+':'+id;
     this.command('muzzle',{x,y,partId:id});
@@ -288,9 +289,9 @@ export class ParisStaakenRVI extends ParisBoss {
   gunfire(dt,players){
     const arcs={'gun-front':[0,.66,750],'gun-top':[0,1.72,510],'gun-rear':[Math.PI,.8,660],'gun-left':[-Math.PI/2,.7,620],'gun-right':[Math.PI/2,.7,620]};
     for(const [id,[axis,width,range]] of Object.entries(arcs)){
-      const gun=this.parts.get(id);if(gun.destroyed||!this.due(id,dt,1.8))continue;
+      const gun=this.parts.get(id);if(gun.destroyed||!this.due(id,dt,this.phase==='regroup'?5.8:4.6))continue;
       const p=live(players).find(p=>Math.hypot(p.x-this.x,p.y-this.y)<range&&Math.abs(wrap(Math.atan2(p.y-this.y,p.x-this.x)-this.a-axis))<width);
-      if(p)this.fan(gun,p,3,.18,this.id+':'+id,this.t.damage*.55);
+      if(p){const x=this.x+gun.x,y=this.y+gun.y;fireFanSalvo(this,{x,y,angle:Math.atan2(p.y-y,p.x-x),speed:this.t.bulletSpeed*.85,damage:this.t.damage*.55,visual:'staaken-mg',tag:this.id+':'+id,sourcePartId:id,count:11,spread:1.45,beats:2,beat:.4,warning:.75,gapIndex:id==='gun-left'?2:7,step:0});}
     }
   }
   update(dt,{players=[],bounds,parisTargets=[]}){

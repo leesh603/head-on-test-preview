@@ -33,14 +33,14 @@ export const gallipoliAngleDelta=(a,b)=>Math.atan2(Math.sin(b-a),Math.cos(b-a));
 export function turnGallipoliTurret(angle,target,rate,dt){const d=gallipoliAngleDelta(angle,target);return angle+Math.max(-rate*dt,Math.min(rate*dt,d));}
 export class GallipoliFortress extends BaseBoss{
  constructor(o){const t=o.tuning;super({...o,maxHp:t.maxHp,coreRadius:gs(115),parts:GALLIPOLI_PARTS.map(p=>new BossPart({id:p.id,x:p.x,y:p.y,radius:p.r,maxHp:t.maxHp*p.fraction,angle:Math.PI/2}))});
- Object.assign(this,{t,kind:'gallipoli-fortress',faction:o.faction,gallipoliBoss:true,ownsMotion129:true,clock:0,entryAge:0,coreVulnerable:true,phase:'gallipoli-coastal-line',cursor:0,batteryCursor:0,captured:new Set(),coreAngle:Math.PI/2,commandMaxHp:t.maxHp*.25,commandHp:t.maxHp*.25,commandDestroyed:false,coastalClock:0,centralClock:0,sortieRemaining:6,centralRemaining:0,launchWarning:false,defensePhase:1,finalClock:0,barrageRemaining:0,recoveryRemaining:0,coreRecoil:0});
+ Object.assign(this,{t,kind:'gallipoli-fortress',faction:o.faction,gallipoliBoss:true,ownsMotion129:true,clock:0,entryAge:0,coreVulnerable:true,phase:'gallipoli-coastal-line',cursor:0,batteryCursor:0,captured:new Set(),coreAngle:Math.PI/2,commandMaxHp:t.maxHp*.25,commandHp:t.maxHp*.25,commandDestroyed:false,coastalClock:0,coastalRemaining:0,centralClock:0,sortieRemaining:6,centralRemaining:0,launchWarning:false,defensePhase:1,finalClock:0,barrageRemaining:0,recoveryRemaining:0,coreRecoil:0});
  for(const d of GALLIPOLI_PARTS)Object.assign(this.parts.get(d.id),d,{angle:Math.PI/2,recoil:0,repairRemaining:0,repairWarned:false,repairGrace:0});}
  command(type,spec={}){this.emit({...spec,type,bossId:this.id,faction:this.faction});}
  hazard(spec){this.command('hazard',{kind:'circle',damage:this.t.damage,warning:1.8,duration:.45,once:true,visual:'gallipoli-shell',...spec});}
- shot(x,y,angle,count=5,spread=.5,speed=this.t.bulletSpeed*.88,visual='gallipoli-aa'){
+ shot(x,y,angle,count=5,spread=.5,speed=this.t.bulletSpeed*.88,visual='gallipoli-aa',duration=7){
   const n=Math.max(1,Math.ceil(count*(this.t.projectileDensity??1)));
   for(let i=0;i<n;i++){const a=angle+(n===1?0:(i/(n-1)-.5)*spread);
-   this.hazard({kind:'projectile',x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,radius:5,warning:0,duration:7,once:false,visual,damage:this.t.damage*.55,tag:this.id+':'+(visual==='gallipoli-ring'?'central':this.aaSourceId)});}}
+   this.hazard({kind:'projectile',x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,radius:5,warning:0,duration,once:false,visual,damage:this.t.damage*.55,tag:this.id+':'+(visual==='gallipoli-ring'?'central':this.aaSourceId)});}}
  ring(count=12,speed=this.t.bulletSpeed*.7){const n=Math.max(1,Math.ceil(count*(this.t.projectileDensity??1)));
   const q=gallipoliCommandMuzzle(this);for(let i=0;i<n;i++)this.shot(q.x,q.y,i*Math.PI*2/n,1,0,speed,'gallipoli-ring');}
  locateHit(s){if(this.entryAge<5||this.dead)return null;for(const p of this.parts.values())if(!p.destroyed&&segmentDistance(0,0,(s.previousX??s.x)-this.x-p.x,(s.previousY??s.y)-this.y-p.y,s.x-this.x-p.x,s.y-this.y-p.y)<=p.radius+(s.radius||0))return{partId:p.id};return !this.commandDestroyed&&segmentDistance(0,0,(s.previousX??s.x)-this.x,(s.previousY??s.y)-this.y,s.x-this.x,s.y-this.y)<=this.coreRadius+(s.radius||0)?{partId:null}:null;}
@@ -80,11 +80,11 @@ export class GallipoliFortress extends BaseBoss{
   for(const p of guns.filter(p=>p.sector==='citadel'))if(selected.length<2&&!selected.includes(p))selected.push(p);
   const sources=[],observed=!this.parts.get('observer').destroyed;
   for(const [i,p]of selected.entries()){
-   const point={x:target.x+(i===0?-170:170),y:target.y+40},ammoGone=this.parts.get('ammo-'+p.sector).destroyed,shots=[];
+   const point={x:target.x+(i===0?-65:65),y:target.y+(target.vy||0)*.35},ammoGone=this.parts.get('ammo-'+p.sector).destroyed,shots=[];
    p.aimTarget=point;for(let j=0;j<(ammoGone?1:2);j++)shots.push({x:point.x,y:point.y+j*130,radius:p.art==='twin'?60:52,delay:i*.35+j*(p.art==='twin'?.24:.85),barrel:j?1:-1,warning:observed?1.8:2.3,tag:this.id+':'+p.id});sources.push({id:p.id,target:point,shots});
   }this.batteryCursor++;
-  const aa=[...this.parts.values()].find(p=>p.kind==='aa'&&!p.destroyed&&p.repairGrace<=0);if(aa){const point={x:target.x+270,y:target.y-170};aa.aimTarget=point;sources.push({id:aa.id,target:point,shots:[{...point,radius:34,warning:2,delay:.2,damage:this.t.damage*.55,tag:this.id+':'+aa.id}]});}
-  if(sources.length)this.pendingAttack={kind:'coastal',sources,lane:{x:target.x,y:target.y,width:160,remaining:3.7}};this.coastalClock=0;
+  const aa=[...this.parts.values()].find(p=>p.kind==='aa'&&!p.destroyed&&p.repairGrace<=0);if(aa){const point={x:target.x+(target.vx||0)*.75,y:target.y+(target.vy||0)*.75};aa.aimTarget=point;sources.push({id:aa.id,target:point,shots:[{...point,radius:34,warning:2,delay:.2,damage:this.t.damage*.55,tag:this.id+':'+aa.id}]});}
+  if(sources.length)this.pendingAttack={kind:'coastal',sources,lane:null};this.coastalClock=0;
  }
  planFinal(target){
   const sources=[],observed=!this.parts.get('observer').destroyed;
@@ -92,15 +92,15 @@ export class GallipoliFortress extends BaseBoss{
   for(const [i,sector]of GALLIPOLI_SECTORS.entries()){
    const guns=[...this.parts.values()].filter(p=>p.sector===sector.id&&!p.destroyed&&p.repairGrace<=0&&(p.kind==='gun'||p.kind==='aa'));
    const p=guns[this.batteryCursor%Math.max(1,guns.length)];if(!p)continue;
-   const point={x:target.x+(i===1?190:-190),y:target.y+(i===2?260:40)},shots=[],ammoGone=this.parts.get('ammo-'+sector.id).destroyed;
+   const point={x:target.x+(i===1?90:i===0?-90:0),y:target.y+(i===2?100:0)},shots=[],ammoGone=this.parts.get('ammo-'+sector.id).destroyed;
    for(let j=0;j<(p.art==='twin'&&!ammoGone?2:1);j++)shots.push({...point,y:point.y+j*130,radius:p.kind==='aa'?34:60,delay:1+i*1.15+j*.24,barrel:j?1:-1,warning:observed?2:2.5,tag:this.id+':'+p.id});
    p.aimTarget=point;sources.push({id:p.id,target:point,shots});
   }
-  if(!this.commandDestroyed){const point={x:target.x+210,y:target.y+300};this.coreAimTarget=point;sources.push({id:null,target:point,shots:[{...point,radius:100,delay:4.5,warning:2.4,tag:this.id+':central'}]});}
+  if(!this.commandDestroyed){const point={x:target.x+(target.vx||0)*.65,y:target.y+(target.vy||0)*.65};this.coreAimTarget=point;sources.push({id:null,target:point,shots:[{...point,radius:100,delay:4.5,warning:2.4,tag:this.id+':central'}]});}
   if(!sources.length)return;
-  // Old AA/ring fire must not invalidate the advertised artillery corridor.
+  // End old AA/ring fire before the sector-by-sector artillery order.
   for(const p of this.parts.values())this.command('cancel-hazards',{tag:this.id+':'+p.id});this.command('cancel-hazards',{tag:this.id+':central'});
-  this.pendingAttack={kind:'final',sources,lane:{x:target.x,y:target.y,width:160,remaining:1}};this.finalClock=0;this.batteryCursor++;this.phase='gallipoli-final-barrage';this.command('phase-change',{phase:this.phase});
+  this.pendingAttack={kind:'final',sources,lane:null};this.finalClock=0;this.batteryCursor++;this.phase='gallipoli-final-barrage';this.command('phase-change',{phase:this.phase});
  }
  fireIfAligned(dt=0){
   const a=this.pendingAttack;if(!a)return;a.sources=a.sources.filter(s=>s.id?!this.parts.get(s.id).destroyed:!this.commandDestroyed);
@@ -110,12 +110,12 @@ export class GallipoliFortress extends BaseBoss{
   for(const s of a.sources){const index=s.next||0,shot=s.shots[index];if(!shot||a.age<(shot.delay||0)||!aligned(s,shot))continue;
    let q;if(s.id){const p=this.parts.get(s.id);p.recoil=.28;q=gallipoliMuzzle(this,p,shot.barrel||0);Object.assign(p,{gunFlash:.16,flashX:q.x,flashY:q.y});}else{this.coreRecoil=.28;q=gallipoliCommandMuzzle(this,shot.barrel??-1);this.coreFlash=.16;this.coreFlashX=q.x;this.coreFlashY=q.y;}
    this.command('muzzle',{...q,partId:s.id});this.hazard({...shot,delay:0,sourceX:q.x,sourceY:q.y});
-   if(s.id){const _p=this.parts.get(s.id);if(Number.isFinite(_p.angle)){this.aaSourceId=s.id;this.shot(q.x,q.y,_p.angle,4,.85,this.t.bulletSpeed*.7,'gallipoli-aa');}}
+   if(s.id){const _p=this.parts.get(s.id);if(Number.isFinite(_p.angle)){this.aaSourceId=s.id;this.shot(q.x,q.y,_p.angle,4,.85,this.t.bulletSpeed*.7,'gallipoli-aa',shot.warning+.3);}}
    a.endsAt=Math.max(a.endsAt,this.clock+shot.warning+.45);if(a.lane)this.lane.remaining=Math.max(this.lane.remaining,shot.warning+.45);
    s.next=index+1;const next=s.shots[s.next];s.target=next||shot;if(s.id)this.parts.get(s.id).aimTarget=next||null;else this.coreAimTarget=next||null;
   }
   if(a.sources.every(s=>(s.next||0)>=s.shots.length)){
-   if(a.kind==='final')this.barrageRemaining=Math.max(.01,a.endsAt-this.clock);else if(a.kind==='central')this.centralRemaining=Math.max(0,a.endsAt-this.clock);
+   if(a.kind==='final')this.barrageRemaining=Math.max(.01,a.endsAt-this.clock);else if(a.kind==='central')this.centralRemaining=Math.max(0,a.endsAt-this.clock);else this.coastalRemaining=Math.max(.01,a.endsAt-this.clock);
    this.pendingAttack=null;
   }
  }
@@ -125,6 +125,7 @@ export class GallipoliFortress extends BaseBoss{
   this.updateRepairs(dt);this.updateDefensePhase();this.turnTurrets(dt,players);this.tickSorties(dt);this.launchFlash=Math.max(0,(this.launchFlash||0)-dt);
   if(this.lane)this.lane.remaining=Math.max(0,this.lane.remaining-dt);this.centralRemaining=Math.max(0,this.centralRemaining-dt);
   if(this.barrageRemaining>0){this.barrageRemaining=Math.max(0,this.barrageRemaining-dt);if(!this.barrageRemaining){this.recoveryRemaining=2.4;this.phase='gallipoli-recovery';this.command('phase-change',{phase:this.phase});}return;}
+  if(this.coastalRemaining>0){this.coastalRemaining=Math.max(0,this.coastalRemaining-dt);if(!this.coastalRemaining){this.recoveryRemaining=1.4;this.phase='gallipoli-recovery';}return;}
   if(this.recoveryRemaining>0){this.recoveryRemaining=Math.max(0,this.recoveryRemaining-dt);if(!this.recoveryRemaining)this.phase=['','gallipoli-coastal-line','gallipoli-citadel-defense','gallipoli-last-defense'][this.defensePhase];return;}
   const mult=Math.min(3,this.t.patternMultiplier||1);this.coastalClock+=dt*mult;this.centralClock+=dt*mult;this.finalClock+=dt;
   if(this.pendingAttack?.kind==='final'){this.fireIfAligned(dt);return;}

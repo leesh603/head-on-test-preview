@@ -1,3 +1,4 @@
+import {fireFanSalvo,barrageStrip} from './boss-salvo-geometry.js';
 import {driveLandship} from './somme-landship-drive.js?v=tame3';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3';
 import {intersectsEllipse} from './regional-boss-layout352.js?v=tame3';
@@ -54,7 +55,7 @@ class SommeBoss extends BaseBoss{
   if(!traverse.reachable)return;
   p.angle=traverse.angle;
   const speed=this.t.bulletSpeed*speedMul;
-  for(let i=0;i<count;i++){const a=traverse.angle+(i-(count-1)/2)*(count>1?spread/(count-1):0)+Math.sin(this.clock*3.3+i*1.7)*.02;this.hazard('projectile',{x:m.x,y:m.y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,radius:4.2,damage:this.t.damage*.55,visual:'aa-shell',tag:this.tag(p.id+':volley')});}
+  fireFanSalvo(this,{...m,angle:traverse.angle,speed,damage:this.t.damage*.55,visual:'aa-shell',tag:this.tag(p.id+':volley'),sourcePartId:p.id,count:9,spread:1.45,beats:2,beat:.45,warning:.85,gapIndex:p.id.includes('left')?2:8,step:p.id.includes('left')?1:-1});
   p.recoil=.26;this.command('muzzle',{...m,partId:p.id});
  }
 }
@@ -90,7 +91,13 @@ export class SchwabenFortress extends SommeBoss{
   const points=[];for(let x=bounds.left+r+12;x<=bounds.right-r-12;x+=r*2+22)if(Math.abs(x-q.gate)>=gap/2+r)points.push({x,y:q.y});
   // Narrow viewports still get one shell on each reachable side of the gate.
   if(!points.length)for(const side of [-1,1]){const x=q.gate+side*(gap/2+r+8);if(x-r>=bounds.left&&x+r<=bounds.right)points.push({x,y:q.y});}
-  for(const [i,point]of points.slice(0,starved?2:5).entries()){const id=q.guns[i%q.guns.length],p=this.parts.get(id);if(p.destroyed)continue;const impact={...point,y:clamp(point.y+(q.pattern==='creeping'?i*34*this.sommeScale:0),bounds.top+r,bounds.bottom-r)};p.angle=Math.atan2(impact.y-this.y-p.y,impact.x-this.x-p.x);const m=sommeMuzzle(this,p);this.hazard('circle',{...impact,sourceX:m.x,sourceY:m.y,radius:r,warning:(q.mode==='blind'?2.05:1.65)+i*(q.pattern==='creeping'?.32:.16),delay:0,once:true,damage:this.t.damage*1.35,visual:'somme-heavy-shell',tag:this.tag('barrage')});p.recoil=.28;this.command('muzzle',{...m,partId:id});}
+  for(let row=0;row<(starved?1:3);row++){
+   const rowY=clamp(q.y+(row-1)*68,bounds.top+r,bounds.bottom-r);
+   const id=q.guns[row%q.guns.length],p=this.parts.get(id);if(p.destroyed)continue;
+   const m=sommeMuzzle(this,p);
+   for(const shot of barrageStrip({bounds,y:rowY,gate:q.gate,gap,radius:r,warning:(q.mode==='blind'?2.05:1.65)+row*.48,beat:0,damage:this.t.damage*1.35,visual:'somme-heavy-shell',tag:this.tag('barrage'),sourceX:m.x,sourceY:m.y}))this.hazard(shot.kind,shot);
+   p.recoil=.28;this.command('muzzle',{...m,partId:id});
+  }
   this.salvo={mode:q.mode,pattern:q.pattern,gate:q.gate,width:gap,y:q.y,remaining:3.2};this.lane.remaining=4.1;this.lock=null;this.lockProgress=0;
  }
  update(dt,{players,bounds}){
@@ -115,7 +122,7 @@ export class Mark1Landship extends SommeBoss{
   if(this.dead)return;this.tickParts(dt);this.move(dt,bounds);
   for(const m of this.trackMarks)m.age+=dt;this.trackMarks=this.trackMarks.filter(m=>m.age<6);
   if(this.salvo&&!sponsonAim(this,this.parts.get(this.salvo.partId),this.salvo.x,this.salvo.y).reachable)this.salvo=null;
-  if(this.salvo){this.salvo.remaining-=dt;const p=this.parts.get(this.salvo.partId);p.angle=turn(p.angle,this.salvo.angle,.9*dt);if(this.salvo.remaining<=0&&sponsonAim(this,p,this.salvo.x,this.salvo.y).reachable&&this.driveVelocity<.5&&Math.abs(angleDelta(this.salvo.angle,p.angle))<.12){if(!p.destroyed){const m=sommeMuzzle(this,p),q=this.salvo,r=clamp(37*this.sommeScale,24,37);for(let i=-1;i<=1;i++)this.hazard('circle',{x:clamp(q.x+i*83*this.sommeScale,bounds.left+r,bounds.right-r),y:q.y,sourceX:m.x,sourceY:m.y,radius:r,warning:1.45+(i+1)*.12,delay:0,once:true,damage:this.t.damage*1.15,visual:'somme-landship-shell',tag:this.tag(p.id)});p.recoil=.24;this.command('muzzle',{...m,partId:p.id});const live=players.filter(x=>x.alive),tgt=live[this.cursor%live.length];if(tgt)this.aimedVolley(p,tgt,6,.95,.8);}this.salvo=null;}}
+  if(this.salvo){this.salvo.remaining-=dt;const p=this.parts.get(this.salvo.partId);p.angle=turn(p.angle,this.salvo.angle,.9*dt);if(this.salvo.remaining<=0&&sponsonAim(this,p,this.salvo.x,this.salvo.y).reachable&&this.driveVelocity<.5&&Math.abs(angleDelta(this.salvo.angle,p.angle))<.12){if(!p.destroyed){const m=sommeMuzzle(this,p),q=this.salvo,r=clamp(37*this.sommeScale,24,37);for(let i=-1;i<=1;i++)this.hazard('circle',{x:clamp(q.x+i*66*this.sommeScale,bounds.left+r,bounds.right-r),y:q.y,sourceX:m.x,sourceY:m.y,radius:r,warning:1.2+(i+1)*.42,delay:0,once:true,damage:this.t.damage*1.15,visual:'somme-landship-shell',tag:this.tag(p.id)});p.recoil=.24;this.command('muzzle',{...m,partId:p.id});const live=players.filter(x=>x.alive),tgt=live[this.cursor%live.length];if(tgt)this.aimedVolley(p,tgt,6,.95,.8);}this.salvo=null;}}
   for(const id of ['sponson-left','sponson-right']){const p=this.parts.get(id);if(p.destroyed)continue;
    if(this.tankRole==='female'){this.fireMG(p,dt,players,[...this.encounter?.bodies.values()||[]].some(q=>q.tankRole==='male'&&!q.dead&&q.salvo)?2.5:3.6+this.slot*.3);continue;}
    if(!this.salvo&&this.due(id,dt,6.4)){const target=players.find(q=>q.alive&&sponsonAim(this,p,q.x,q.y).reachable);if(target){const r=clamp(37*this.sommeScale,24,37),x=clamp(target.x+(target.vx||0)*.3,bounds.left+r,bounds.right-r),y=clamp(target.y+(target.vy||0)*.3,bounds.top+r,bounds.bottom-r);const aim=sponsonAim(this,p,x,y);if(aim.reachable)this.salvo={partId:id,x,y,remaining:1.05,angle:aim.angle};}}
