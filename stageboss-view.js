@@ -1,4 +1,4 @@
-import {MINEN_TUBES} from './minenwerfer-art-layout.js';
+import {MINEN_TUBES,minenMuzzleLocal} from './minenwerfer-art-layout.js';
 import {drawMinenInstallation} from './minenwerfer-art-render.js';
 import {impactMark,bandMark,partMark,shieldMark,aimLine,laneEdge,stripMark,sectorMark,lockMark,MARK} from './tactical-marks.js?v=tame3';
 import {prepareBossCutins} from './boss-cutin-art.js?v=tame3&rail=18';
@@ -7,9 +7,9 @@ import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './m
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=tame3&rail=18';
 import {verdunFortExtents} from './verdun-fortresses.js?v=tame3&rail=18';
 import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=tame3&rail=1';
-import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=tame3&rail=33';
+import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=tame3&rail=34';
 import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=tame3';
-import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=tame3&rail=33';
+import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=tame3&rail=34';
 import {sommeExtents} from './somme-boss-layout.js?v=tame3';
 import {drawZubianShip} from './adriatic-boss-render.js?v=tame3';
 import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=tame3';
@@ -81,7 +81,7 @@ const trenchGroup=createLazyImageGroup({
  livensMount:'./boss_livens_nozzle_mount187.webp',livensNozzle:'./livens-nozzle-20261008.webp',livensTurret:'./boss-livens-turret2x.webp',
  livensCoreClosed:'./boss_livens_core_closed187.webp',livensCoreExposed:'./boss_livens_core_exposed187.webp',livensCoreDestroyed:'./boss_livens_core_destroyed187.webp',
  livensPipeL:'./boss_livens_pipe_l_normal194.png',livensPipeR:'./boss_livens_pipe_r_normal194.png',livensPipeLBroken:'./boss_livens_pipe_l_broken194.png',livensPipeRBroken:'./boss_livens_pipe_r_broken194.png',
- minenRecoil:'./boss-minenwerfer-recoil-20261008.webp',minenDamage:'./boss-minenwerfer-damage-20261008.webp',
+ minenBase:'./boss-minenwerfer-base-20261009.webp',minenBarrels:'./boss-minenwerfer-barrels-20261009.webp',minenDamage:'./boss-minenwerfer-damage-20261008.webp',
  livensComposite:'./boss-livens-composite317.webp',livensPivot:'./boss-livens-pivot317.webp',livensPivotDamaged:'./boss-livens-pivot-damaged317.webp',livensPivotDestroyed:'./boss-livens-pivot-destroyed317.webp'
 }),trenchBossArt=trenchGroup.images;
 // Four authored RGBA frames, graded/packed offline; no runtime filter or canvas copy.
@@ -153,8 +153,8 @@ function drawMinenwerfer(c,b){
  const scale=b.trenchScale||1;
  for(const p of parts){
   const x=p.x,y=p.y,dead=b.destroying||p.destroyed,damaged=!dead&&p.hp<=p.maxHp*.5;
-  drawMinenInstallation(c,p,{recoil:trenchBossArt.minenRecoil,damage:trenchBossArt.minenDamage},{scale,destroying:b.destroying});
-  const mouth=p.mortarMouth||{x:0,y:-86};
+  drawMinenInstallation(c,p,{base:trenchBossArt.minenBase,barrels:trenchBossArt.minenBarrels,damage:trenchBossArt.minenDamage},{scale,destroying:b.destroying});
+  const mouth=minenMuzzleLocal(p);
   if(!dead&&p.mortarFlash>0)fx(c,'fireFlash',x+mouth.x,y+mouth.y,55,55,0,p.mortarFlash/.22);
   if(!dead&&p.mortarSmoke>0)fx(c,'smokeHeavy',x+mouth.x,y+mouth.y-18,64,48,0,Math.min(.35,p.mortarSmoke*.3));
   if(damaged){fx(c,'smokeTrail',x+8,y-58,62,34,-Math.PI/2,.2);fx(c,'fireEngine',x-12,y-18,28,28,0,.42);}
