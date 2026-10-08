@@ -34,6 +34,8 @@ test('foundation centers stay fixed while illustrated gun tips match native muzz
     p.angle=.73;p.active=true;p.hittable=true;p.revealed=true;
     if(state==='damaged')p.hp=p.maxHp*.4;
     if(state==='destroyed')b.hit({partId:id,damage:1e9});
+    // Registration checks settled frames; transition timing is covered separately.
+    p.openAmount=1;p.damageBlend=1;
     const c=context();drawVerdunFort(c,b);
     const groundState=state==='destroyed'?(key==='souville'?3:2):state==='damaged'?(key==='souville'?2:1):(key==='souville'?1:0);
     const ground=VERDUN_PART_FRAMES[key].mounts[kind].frames[groundState];
