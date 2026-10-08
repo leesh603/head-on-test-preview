@@ -127,7 +127,7 @@ export function bossSoundFor(event,kind=''){
  if(type==='rural-rail-roll')return 'trainRoll';
  if(type==='rural-rail-brake')return 'trainBrake';
  if(type==='rural-rail-load')return 'railBreech';
- if(['bruno-rail-discovered','lincomparable-rail-discovered','flieger-discovered'].includes(type))return 'trainApproach';
+ if(type==='flieger-discovered')return 'trainApproach';
  // The arrival itself already ran the full locomotive call (app.js); a big salvo gets the whistle.
  if(['bruno-iron-rain','lincomparable-last-520'].includes(type))return 'trainWhistle';
  // The train guns' shells land as they fire, so the falling whistle runs over the aiming telegraph.
