@@ -8,3 +8,18 @@ body.local-coop .overlay .modal-card h2{font-size:25px}
 body.local-coop #toast{top:auto;bottom:28px}
 body.local-coop #bossArrival{bottom:65px}
 #coopP2{position:absolute;top:9px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:5px;padding:3px 7px;background:#202723cc;border-radius:4px;font-size:10px;color:#eef1d8;pointer-events:none;z-index:10;white-space:nowrap}body.local-coop #coopP2{display:flex}#coopP2 small{color:#ffcd78;font-size:9px}#coopP2 .bar{width:34px;height:3px;background:#0007;border-radius:2px;overflow:hidden}#coopP2 .bar i{display:block;height:100%;background:#9fd17e;transform-origin:left center}
+/* Teammate HP ring (ally-ring.js): between the HP/ammo and time/kills modules, same dark pill
+   material as the HUD. It replaces the old P2 badge and the online partner panel. */
+#allyRing{position:fixed;z-index:30;width:26px;height:26px;display:grid;place-items:center;pointer-events:none;border-radius:50%;background:#151513e6;box-shadow:0 0 0 1px #ffffff1f,0 4px 12px #0007}
+#allyRing[hidden]{display:none}
+#allyRing svg{position:absolute;inset:0}
+#allyRing .ally-ring-track{fill:none;stroke:#ffffff1c;stroke-width:3}
+#allyRing .ally-ring-arc{fill:none;stroke:#9fd17e;stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .25s ease,stroke .25s}
+#allyRing[data-state="mid"] .ally-ring-arc{stroke:#e6bf3e}
+#allyRing[data-state="low"] .ally-ring-arc{stroke:#e0603f}
+#allyRing b{position:relative;font:800 10px/1 var(--astra-numeric,system-ui,sans-serif);color:#efebe2;letter-spacing:0}
+#allyRing[data-state="down"] b{color:#e0603f;animation:allyDown 1s steps(2) infinite}
+@keyframes allyDown{50%{opacity:.25}}
+body:not(.local-coop):not(.online-playing) #allyRing{display:none}
+body.local-coop #coopP2{display:none!important}
+body.online-playing #flightTop151 #coopHud{display:none!important}
