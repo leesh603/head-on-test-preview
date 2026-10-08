@@ -1,4 +1,4 @@
-import {getAircraftDisplayName} from './aircraft-master.js?v=lc2';
+import {getAircraftDisplayName} from './aircraft-master.js?v=lc3';
 import {pilotIdentityCopy} from './pilot-identity-copy.js';
 
 const STORAGE_KEY='headon-locale';
