@@ -191,7 +191,7 @@ const VOICES={
   flakSynth(){tone(jit(300),90,.14,.08,'sawtooth',900);hiss(jit(3200),900,.16,.07,'bandpass',.9);tone(95,45,.14,.08,'sine',350);tone(180,60,.22,.045,'sine',280,.14)},
   // Skill trigger: three rising brass hits with a shimmer on top.
   // Upgrade card picked: the order-sheet stamp.
-  upgradeChosen(){bankSample('ui-upgrade',.18,()=>VOICES.uiSelect())},
+  upgradeChosen(){VOICES.uiSelect()},
   skill(){bankSample('ui-skill',.2,()=>VOICES.skillSynth())},
   skillSynth(){tone(392,392,.09,.06,'sawtooth',2200);tone(523,523,.1,.06,'sawtooth',2400,.07);tone(659,659,.14,.06,'sawtooth',2600,.14);hiss(2400,4800,.22,.03,'highpass',1)},
   // Belt reload: two bolt clicks. Loaded: confident clack + confirm.
@@ -200,7 +200,7 @@ const VOICES={
   loaded(){bankSample('ui-loaded',.34,()=>VOICES.loadedSynth())},
   loadedSynth(){tone(340,340,.05,.05,'square',1400);tone(560,560,.08,.05,'square',1800,.05)},
   // Field upgrade: bright four-note arp.
-  levelup(){bankSample('ui-levelup',.32,()=>VOICES.levelupSynth())},
+  levelup(){VOICES.levelupSynth()},
   levelupSynth(){for(let i=0;i<4;i++)tone([523,659,784,1046][i],[523,659,784,1046][i],.12,.05,'triangle',2600,i*.07)},
   // Wave / signal toast stingers.
   wave(){tone(660,660,.07,.04,'triangle',1800);tone(880,880,.09,.04,'triangle',2000,.08)},
