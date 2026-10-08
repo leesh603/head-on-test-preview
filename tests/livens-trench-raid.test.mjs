@@ -21,7 +21,7 @@ test('normal counter window allows 70% and 35% phases with live fuel tanks and n
 });
 test('track locks before discharge; phase II sweeps and phase III pulses then rotates',()=>{
  const {b,events}=make();run(b,1.6);const angle=b.lockedFlameAngle;run(b,1,{...frame,players:[{...frame.players[0],x:800,y:800}]});assert.equal(b.lockedFlameAngle,angle);
- counter(b);b.hit({damage:300});run(b,8);assert(events.some(e=>e.visual==='livens-flame'&&e.angularSpeed!==0));counter(b);b.hit({damage:350});const count=events.filter(e=>e.visual==='livens-flame').length;run(b,11);const next=events.filter(e=>e.visual==='livens-flame').slice(count);assert(next.some(e=>e.duration===.95));assert(next.some(e=>Math.abs(e.angularSpeed)===.95));
+ counter(b);b.hit({damage:300});run(b,8);assert(events.some(e=>e.visual==='livens-flame'&&e.angularSpeed!==0));counter(b);b.hit({damage:350});const count=events.filter(e=>e.visual==='livens-flame').length;run(b,11);const next=events.filter(e=>e.visual==='livens-flame').slice(count);assert(next.some(e=>e.duration===.46&&e.raidHeavy));assert(next.some(e=>Math.abs(e.angularSpeed)===.95));
 });
 test('damaged and destroyed tanks keep warned leak locations tied to their authored parts',()=>{
  const {b,events}=make();counter(b);b.hit({damage:300});b.hit({partId:'tank-l1',damage:60});run(b,6);const p=b.parts.get('tank-l1');assert(events.some(e=>e.visual==='livens-leak'&&e.radius===40&&e.x===b.x+p.x&&e.y===b.y+p.y));b.hit({partId:p.id,damage:1000});assert(events.some(e=>e.visual==='livens-leak'&&e.radius===54&&e.warning===.65));

@@ -1,3 +1,4 @@
+import {broadsideBreak} from './boss-raid-strikes.js';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=tame3';
 
@@ -164,6 +165,7 @@ export class ParisSearchlightFortress extends ParisBoss {
       const escape=routes.find(r=>r.targetId===target?.id)||{x:0,y:reverse};
       this.beam(ids[i],target,escape,bounds);
     }
+    if(beat===3)for(const id of ['aa-left','aa-right']){const gun=this.parts.get(id),target=targets[this.targetCursor%Math.max(1,targets.length)];if(!gun.destroyed&&target)broadsideBreak(this,{source:{x:this.x+gun.x,y:this.y+gun.y},partId:id,target,visual:'staaken-mg',tag:this.id+':focus',warning:1.2,beats:2,beat:.6,spread:1.5,speed:340});}
     this.targetCursor++;
     this.command('paris-light-beat',{beat,cycle:this.rhythmCycle,seconds:this.beatSeconds(),orbitDirection:reverse,safeRoutes:routes.map(({targetId,angle})=>({targetId,angle}))});
   }
@@ -291,7 +293,7 @@ export class ParisStaakenRVI extends ParisBoss {
     for(const [id,[axis,width,range]] of Object.entries(arcs)){
       const gun=this.parts.get(id);if(gun.destroyed||!this.due(id,dt,this.phase==='regroup'?5.8:4.6))continue;
       const p=live(players).find(p=>Math.hypot(p.x-this.x,p.y-this.y)<range&&Math.abs(wrap(Math.atan2(p.y-this.y,p.x-this.x)-this.a-axis))<width);
-      if(p){const x=this.x+gun.x,y=this.y+gun.y;fireFanSalvo(this,{x,y,angle:Math.atan2(p.y-y,p.x-x),speed:this.t.bulletSpeed*.85,damage:this.t.damage*.55,visual:'staaken-mg',tag:this.id+':'+id,sourcePartId:id,count:11,spread:1.45,beats:2,beat:.4,warning:.75,gapIndex:id==='gun-left'?2:7,step:0});}
+      if(p){const x=this.x+gun.x,y=this.y+gun.y;broadsideBreak(this,{source:{x,y},partId:id,target:p,visual:'staaken-mg',tag:this.id+':'+id,spread:1.45,beats:3,beat:.5,warning:1.1,speed:330});}
     }
   }
   update(dt,{players=[],bounds,parisTargets=[]}){

@@ -1,3 +1,4 @@
+import {impactPulse} from './boss-raid-strikes.js';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3';
 import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan,segmentBox,maanLocal,maanWorld,maanClearance,maanGroundBlocked,resolveMaanGround,MAAN_ESCORT_RADIUS} from './maan-layout.js?v=tame3';
@@ -107,14 +108,14 @@ export class Wustenpanzer extends DesertHull {
  onPartDestroyed(p){super.onPartDestroyed(p);if(p.id==='radiator')this.heat=Math.max(this.heat,.6);if(p.id==='heavy-gun'){this.heavyPlan=null;p.recoil=0;this.syncParts();}}
  heavyShot(target,walking=false){
   const gun=this.parts.get('heavy-gun');if(gun.destroyed)return;
-  gun.recoil=4;this.syncParts();this.aimed(gun,target,{warning:1.7,visual:'wusten-impact'});
+  gun.recoil=4;this.syncParts();if(!walking)this.aimed(gun,target,{warning:1.7,visual:'wusten-impact'});
   gun.gunFlash=.18;gun.reloadVisual=.8;
-  if(!walking){const m=this.muzzle(gun);this.hazard('circle',{x:target.x+(target.vx||0)*.45,y:target.y+(target.vy||0)*.45,radius:38,radiusStart:38,radiusLimit:140,ringSpeed:95,ringWidth:22,innerRadius:16,warning:1.8,duration:1.08,damage:this.t.damage*.6,sourceX:m.x,sourceY:m.y,visual:'maan-sand-ring'});}
+  if(walking){const m=this.muzzle(gun);impactPulse(this,{x:target.x,y:target.y,radius:86,warning:1.7,source:m,partId:gun.id,visual:'wusten-impact',tag:this.id+':heavy-gun'});}if(!walking){const m=this.muzzle(gun);this.hazard('circle',{x:target.x+(target.vx||0)*.45,y:target.y+(target.vy||0)*.45,radius:38,radiusStart:38,radiusLimit:140,ringSpeed:95,ringWidth:22,innerRadius:16,warning:1.8,duration:1.08,damage:this.t.damage*.6,sourceX:m.x,sourceY:m.y,visual:'maan-sand-ring'});}
   this.artilleryClearAt=this.motionTime+2.9;this.heat=clamp(this.heat+.2,0,1);this.command('heavy-gun-fired');
  }
  startPressure(runaway,aim){
-  this.heavyPlan=null;this.pressureCycle={age:0,runaway,index:0,target:{...aim},stage:'vent'};
-  this.drivePause=runaway?6.5:2.8;this.tactic(runaway?'desert-runaway':'pressure-release');
+  this.heavyPlan=null;this.pressureCycle={age:0,runaway:true,index:0,target:{...aim},stage:'vent'};
+  this.drivePause=6.5;this.tactic(runaway?'desert-runaway':'pressure-release');
   const r=this.parts.get('radiator'),m={x:this.x+r.x,y:this.y+r.y};
   // The longitudinal lane between the two warned vents stays open.
   for(const side of [-1,1]){const v=rotateMaan(side*95,0,this.hullYaw);this.hazard('circle',{x:m.x+v.x,y:m.y+v.y,radius:58,warning:1.15,duration:1.6,tickInterval:.5,damage:this.t.damage*.5,visual:'wusten-steam'});}
@@ -149,7 +150,7 @@ export class Wustenpanzer extends DesertHull {
   if(this.serviceWindow>0)return;
   if(this.pressureCycle){this.pressure(dt,p);return;}
   // Finish an already fired shell before opening the counterattack window.
-  if(!this.heavyPlan&&this.motionTime>=(this.artilleryClearAt||0)&&((!cooling&&this.heat>=.82)||(runaway&&!this.runawayStarted)||(cooling&&this.due('pressure-cycle',dt,18)))){
+  if(!this.heavyPlan&&this.motionTime>=(this.artilleryClearAt||0)&&((!cooling&&this.heat>=.82)||(runaway&&!this.runawayStarted)||(cooling&&this.due('pressure-cycle',dt,12)))){
    this.runawayStarted ||= runaway;this.startPressure(runaway,aim);return;
   }
   const gun=this.parts.get('heavy-gun');
@@ -197,6 +198,7 @@ export class SinaiLandship extends DesertHull {
     this.aimed(gun,{x,y:s.lane.y+(s.index%2?-.5:.5)*130},{side,warning:1.7,visual:'sinai-impact',tag:s.disrupted?'sinai-final':'sinai-command'});
    }
   }
+  if(!s.disrupted&&!s.finishFired&&s.age>=4.25){s.finishFired=true;if(this.duneLane)this.duneLane.remaining=0;const order=s.guns.find(q=>!this.parts.get(q.id).destroyed);if(order){const gun=this.parts.get(order.id);impactPulse(this,{x:s.lane.x,y:s.lane.y,radius:100,warning:1.35,source:this.muzzle(gun,order.side),partId:gun.id,visual:'sinai-impact',tag:'sinai-command'});}}
   if(s.age>=6.3){this.encirclement=null;this.duneLane=null;this.escortOrder='withdraw';this.serviceWindow=2.8;this.drivePause=2.8;this.finalCooldown=10;this.tactic('convoy-reload');}
  }
  update(dt,ctx){

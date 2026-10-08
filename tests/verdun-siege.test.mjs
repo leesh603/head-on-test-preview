@@ -27,9 +27,9 @@ test('part art eases through damage, opening and repair while ammunition immedia
 test('paused fortress updates freeze attacks, rebuilds, transitions and final orders',()=>{
  const {b}=fixture(FortDouaumont);destroy(b,'aa-left');b.hp=b.maxHp*.44;tick(b,9.1);const before=JSON.stringify([b.clock,b.lastStand,b.recovery,[...b.parts.values()]]);b.update(10,{...frame,paused:true});assert.equal(JSON.stringify([b.clock,b.lastStand,b.recovery,[...b.parts.values()]]),before);
 });
-test('Souville final pits keep a phone escape corridor and destroyed pits never take a turn',()=>{
+test('Souville ambush pits bracket the pilot with a warned heavy finish and dead pits never fire',()=>{
  const {b,events}=fixture(FortSouville);b.hp=b.maxHp*.38;b.parts.get('pit-left').hittable=true;destroy(b,'pit-left');tick(b,20);
- const end=events.find(e=>e.phase==='verdun-recovery').at,shots=events.filter(e=>e.type==='hazard'&&e.at<end&&e.kind!=='projectile');assert(shots.length>0);assert(shots.every(e=>e.tag!==b.tag('pit-left')));assert(shots.every(e=>Math.abs(e.x)>e.radius+35));assert.equal(events.filter(e=>e.phase==='souville-last-resistance').length,1);
+ const end=events.find(e=>e.phase==='verdun-recovery').at,shots=events.filter(e=>e.type==='hazard'&&e.at<end&&e.kind!=='projectile');assert(shots.length>0);assert(shots.every(e=>e.tag!==b.tag('pit-left')));assert(shots.some(e=>e.raidHeavy));assert(shots.every(e=>e.warning>=1.5));assert(shots.filter(e=>e.raidHeavy).every(e=>e.duration<.3));assert.equal(events.filter(e=>e.phase==='souville-last-resistance').length,1);
 });
 test('Souville observation and command loss weaken final resistance without reactivating reserves',()=>{
  const healthy=fixture(FortSouville),weak=fixture(FortSouville);for(const f of [healthy,weak]){f.b.hp=f.b.maxHp*.38;f.b.parts.get('reserve-left').active=true;}

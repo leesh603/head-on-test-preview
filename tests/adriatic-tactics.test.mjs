@@ -74,9 +74,9 @@ test('Stuttgart effects and actual ship render from the serialized co-op guest p
  const f=setup('sms-stuttgart');run(f,3);const guest=unpack(pack(f.b.support129));assert.equal(typeof guest.projectiles.visit,'undefined');const c=new Proxy({globalAlpha:1},{get:(o,k)=>k in o?o[k]:(()=>{})});
  assert.doesNotThrow(()=>drawSupportEffects(c,guest));assert.doesNotThrow(()=>drawSupportShip(c,guest,{ship:{},cover:{}}));
 });
-for(const count of [1,2])test(`${count}-pilot mobile Zubian gives each predicted bombardment an open escape side`,()=>{
+for(const count of [1,2])test(`${count}-pilot mobile Zubian brackets a locked route then closes it with a separately warned finishing shell`,()=>{
  const f=setup('hms-zubian'),mobile={players:frame.players.slice(0,count),bounds:{left:5,right:395,top:-422,bottom:422}};
  f.b.hit({damage:99999});for(let i=0;i<140;i++)f.enc.update(.02,mobile);const stern=[...f.enc.bodies.values()].find(b=>b.role==='rear');f.events.length=0;
- stern.mortar(mobile.players,{crossAngle:0});const h=f.events.filter(e=>e.tag==='zubian-mortar');assert.equal(h.length,3);assert(h.every(e=>e.warning>=1.1));assert(h.every(e=>e.y>mobile.players[0].y+70),'opposite side of the locked route stays clear');
+ stern.mortar(mobile.players,{crossAngle:0});const h=f.events.filter(e=>e.tag==='zubian-mortar');assert.equal(h.length,3);assert(h.every(e=>e.warning>=1.1));assert(h.slice(0,-1).every(e=>e.y>mobile.players[0].y+60));assert(h.at(-1).raidHeavy);assert(h.at(-1).warning>=h[0].warning+.9);assert.equal(h.at(-1).duration,.23);
  for(let i=0;i<6000;i++)f.enc.update(.02,mobile);for(const b of f.enc.bodies.values()){assert(Number.isFinite(b.x)&&Number.isFinite(b.y));assert(b.x>=mobile.bounds.left-160&&b.x<=mobile.bounds.right+160,'painted half stays within sight while hull clearance yields');}
 });

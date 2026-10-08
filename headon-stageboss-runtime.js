@@ -55,7 +55,7 @@ export class StageBossAddon {
     Object.assign(this,{runId,hooks,rng,minionCap});this.serial=0;this.time=0;this.frameContext=null;this.defeatSequence=null;this.bodyDefeats=[];
     this.stages=new BossStages({teamFaction,stageIndex,loopIndex,rng});
     this.hazards=new BossHazards({capacity,onDamage:hooks.onDamage,onStatus:hooks.onStatus,onBarrierContact:hooks.onBarrierContact,
-      onActivate:h=>hooks.onCue({type:'hazard-activated',encounterId:h.encounterId,bossId:h.bossId,kind:h.kind,visual:h.visual,x:h.x,y:h.y,radius:h.radius})});
+      onActivate:h=>hooks.onCue({type:'hazard-activated',encounterId:h.encounterId,bossId:h.bossId,kind:h.kind,visual:h.visual,x:h.x,y:h.y,radius:h.radius,raidHeavy:h.raidHeavy,sourcePartId:h.sourcePartId})});
     this.metrics={minionsDenied:0};this.ended=false;
   }
   startBoss({x,y}) {
@@ -135,7 +135,7 @@ export class StageBossAddon {
       if(h.activated||!h.sourcePartId)return;
       const body=encounter?.bodies.get(h.bossId),part=body?.parts.get(h.sourcePartId);
       if(!body||body.dead||!part||part.destroyed){this.hazards.pool.release(h.index,h.generation);return;}
-      h.x=body.x+part.x+h.sourceOffsetX;h.y=body.y+part.y+h.sourceOffsetY;
+      if(h.kind==='projectile'){h.x=body.x+part.x+h.sourceOffsetX;h.y=body.y+part.y+h.sourceOffsetY;}
     });
     this.hazards.update(dt,frame);
     return true;
