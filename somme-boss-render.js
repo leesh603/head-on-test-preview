@@ -1,4 +1,4 @@
-import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=tame3';
+import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=mark1r3';
 import {fx} from './fx-art.js?v=tame3';
 import {drawAADefense} from './aa-defense-art.js?v=tame3';
 import {clamp,sommeMuzzle} from './somme-boss-layout.js?v=tame3';
@@ -36,7 +36,9 @@ export function drawSommeBoss(c,b){
   c.restore();
   for(const p of parts.filter(p=>p.id.startsWith('sponson-'))){
    sprite(c,b.tankRole+'-sponson',state(p,dead),p.x,p.y,p.drawWidth,p.drawHeight,b.hullYaw);
-   if(!p.destroyed&&!dead)weapon(c,b.tankRole==='male'?'gun-heavy':'gun-mg',state(p,dead),p);
+   // A broken barrel stays attached to its fixed socket as painted wreck art.
+   weapon(c,b.tankRole==='male'?'mark1-gun-heavy':'mark1-gun-mg',state(p,dead),p);
+   if(p.destroyed&&!dead)fx(c,'smokeDark',p.x,p.y-14*s,26*s,36*s,0,.22);
   }
   if(b.driveMoving&&!dead)for(const side of [-1,1]){const a=b.hullYaw||0,x=b.x+Math.cos(a)*side*48*s-Math.sin(a)*92*s,y=b.y+Math.sin(a)*side*48*s+Math.cos(a)*92*s;fx(c,'smokeDust',x-b.x,y-b.y,24*s,32*s,a,.12);}
   if(b.salvo&&!dead){const q=b.salvo,prog=clamp(1-q.remaining/(q.warning||1.05),0,1);c.strokeStyle='#d8b57b66';c.lineWidth=1;c.setLineDash([6,7]);c.beginPath();const p=parts.find(p=>p.id===q.partId);if(p){const m=sommeMuzzle(b,p);c.moveTo(m.x-b.x,m.y-b.y);c.lineTo(q.x-b.x,q.y-b.y);c.stroke();}c.setLineDash([]);warningRing(c,q.x-b.x,q.y-b.y,clamp(37*s,24,37),prog);}
