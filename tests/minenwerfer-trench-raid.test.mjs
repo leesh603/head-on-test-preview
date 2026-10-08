@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {MinenwerferBattery} from '../headon-stageboss-patterns.js?v=gun1';
-import {BossHazards,contains} from '../headon-stageboss-hazards.js?v=gun1';
-import {bossHudModel} from '../headon-stageboss-hud.js?v=gun1';
+import {MinenwerferBattery} from '../headon-stageboss-patterns.js?v=sfx2';
+import {BossHazards,contains} from '../headon-stageboss-hazards.js?v=sfx2';
+import {bossHudModel} from '../headon-stageboss-hud.js?v=sfx2';
 import {fixture,step} from './stageboss-fixture94.mjs';
 const tuning={maxHp:1000,partHp:100,damage:12,bulletSpeed:160,mortarInterval:1.9};
 const pilot={id:'p1',alive:true,x:0,y:150,vx:0,vy:-180,radius:12};

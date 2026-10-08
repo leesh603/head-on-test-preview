@@ -1,5 +1,5 @@
-import {fx} from './fx-art.js?v=r5';
-import {TREFFAS_ART} from './cambrai-layout.js?v=gun1';
+import {fx} from './fx-art.js?v=sfx2';
+import {TREFFAS_ART} from './cambrai-layout.js?v=sfx2';
 const cache=new WeakMap();
 function layers(image){
  if(cache.has(image))return cache.get(image);
