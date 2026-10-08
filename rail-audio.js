@@ -1,5 +1,6 @@
 // Offline-style PCM synthesis, cached by sfx.js: one voice, no per-frame audio graph.
-// Steam pressure, resonant whistle pipes and paired wheel joints replace organ-like saw notes.
+// Steam locomotive arrival: percussive exhaust puffs (chug-chuff) over a long
+// low horn blast. Puffs are shaped noise bursts — percussive, not a wind bed.
 export const RAIL_AUDIO_SECONDS=Object.freeze({trainApproach:3.4,trainRoll:.48,trainBrake:.85,railBreech:.42,railGunFire:1.05});
 export function railAudioSamples(name,sampleRate=48000){
  if(!RAIL_AUDIO_SECONDS[name]||!Number.isFinite(sampleRate)||sampleRate<8000)throw new Error('Invalid rail audio');
@@ -14,27 +15,25 @@ export function railAudioSamples(name,sampleRate=48000){
   steam+=(body-steam)*(1-Math.exp(-tau*650/sampleRate));
   let v=0;
   if(name==='trainApproach'||name==='trainRoll'){
-   const arrival=name==='trainApproach',speed=arrival?4.4-2.1*Math.min(1,q*1.15):4.6;
-   phase+=speed/sampleRate;const rev=phase%1;
-   // 칙칙폭폭: four exhaust chuffs per wheel rev, alternating strong/weak
-   // cylinders. Each puff is a gated noise burst over a low thump — the chuff
-   // rhythm carries the arrival, continuous rumble stays under it.
+   const arrival=name==='trainApproach',revs=arrival?2.7-1.2*Math.min(1,q*1.2):2.5;
+   phase+=revs/sampleRate;const rev=phase%1;
+   // 칙칙폭폭: four exhaust puffs per rev — sharp band-noise burst + low thump.
+   // Noise lives only inside the puff envelope so it reads as "ch", not wind.
    const cyl=Math.floor(rev*4),pos=rev*4-cyl,strong=cyl%2===0;
-   const puff=Math.exp(-pos*(strong?15:17))*(strong?1:.66);
-   const distance=arrival?.2+.8*Math.sin(Math.min(1,q*1.25)*Math.PI/2):.5;
-   const thump=Math.sin(tau*72*t)*.5+Math.sin(tau*144*t)*.2;
-   // Chuffs are pure low thumps — no noise layer anywhere in this cue.
-   v=(low*.05+thump*.95*puff)*distance;
-   // Rod clank sits between the chuffs: a gated mid knock, not a noise burst.
-   v+=Math.sin(tau*310*t+Math.sin(tau*53*t)*2)*.07*Math.exp(-Math.abs(pos-.55)*30)*distance;
+   const puff=Math.exp(-pos*(strong?10:13))*(strong?1:.6);
+   const chug=(body-steam)*1.35+body*.55;
+   const boom=Math.sin(tau*66*t)*.6+Math.sin(tau*132*t)*.24;
+   const distance=arrival?.22+.78*Math.sin(Math.min(1,q*1.25)*Math.PI/2):.5;
+   v=(low*.05+(chug*.45+boom*.72)*puff)*distance;
+   // rod knock between puffs
+   v+=Math.sin(tau*295*t+Math.sin(tau*51*t)*2)*.05*Math.exp(-Math.abs(pos-.6)*28)*distance;
    if(arrival){
-    // Steam whistle: single long blast, pure tuned pipes only.
-    const wt=t-.22,env=wt>0&&wt<3.1?Math.min(1,wt/.07)*Math.min(1,(3.1-wt)/.5):0;
-    const droop=1+.028*Math.exp(-wt*7)-.014*q,steamWob=1+.006*Math.sin(tau*7.3*t)+.003*Math.sin(tau*11.1*t+1.2);
-    const drift=droop*steamWob;
-    const chord=Math.sin(tau*196*t*drift)+.62*Math.sin(tau*392*t*(drift+.0012)+.4)+.5*Math.sin(tau*294*t*(drift-.0009)+.9)+.22*Math.sin(tau*247*t*(drift+.0018)+1.6)+.14*Math.sin(tau*588*t*drift+2.2);
-    v+=env*chord*.5;
-    v+=env*Math.sin(tau*(784*t-60*t*t))*.04*Math.sin(Math.PI*Math.min(1,wt/.4));
+    // 뿌우우우우: long low steam-whistle blast — deep dominant root with its
+    // octave/fifth stack, a breath of steam, valve-open droop, long decay.
+    const wt=t-.32,env=wt>0&&wt<2.9?Math.min(1,wt/.09)*Math.min(1,(2.9-wt)/.65):0;
+    const drift=1+.024*Math.exp(-wt*6)+.0045*Math.sin(tau*5.4*t);
+    const horn=Math.sin(tau*220*t*drift)+.52*Math.sin(tau*440*t*(drift+.001))+.35*Math.sin(tau*330*t*(drift-.0008)+.6)+.16*Math.sin(tau*660*t*drift+1.1);
+    v+=env*(horn*.62+(body-steam)*.13);
    }
   }else if(name==='trainBrake'){
    v=Math.sin(tau*(1120*t-180*t*t))*.16*Math.sin(Math.PI*q)+low*.12*(1-q);
