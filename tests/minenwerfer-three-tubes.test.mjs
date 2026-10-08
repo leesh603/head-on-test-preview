@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {MINEN_TUBES,MINEN_ART,minenRecoilFrame} from '../minenwerfer-art-layout.js';
+import {MINEN_TUBES,MINEN_ART,minenRecoilOffset} from '../minenwerfer-art-layout.js';
 import {MinenwerferBattery} from '../headon-stageboss-patterns.js';
 const make=()=>new MinenwerferBattery({id:'minen',x:310,y:-700,tuning:{maxHp:1000,partHp:100,damage:12,bulletSpeed:160,mortarInterval:1.9},rng:()=>.5});
 test('three complete installations retain their HP budget and each accepts hits at all three mortar mounts',()=>{
@@ -21,14 +21,14 @@ test('fast rounds sweep every physical tube; timber paths and empty space do not
  }
  const p=b.parts.get('main-gun');assert.equal(b.locateHit({x:b.x+p.x+100,y:b.y+p.y+170}),null);
 });
-test('actual mortar shots alternate tubes and select matching authored recoil frames, then recover; pause freezes recoil',()=>{
+test('actual mortar shots alternate tubes and recoil only the firing tube smoothly, then recover; pause freezes recoil',()=>{
  const b=make(),events=[];b.emit=e=>events.push(e);const p=b.parts.get('main-gun');
  for(let i=0;i<3;i++){
-  b.shell(p,0,0);assert.equal(p.mortarTube,i);assert.equal(minenRecoilFrame(p),i+1);
+  b.shell(p,0,0);assert.equal(p.mortarTube,i);assert.equal(p.mortarRecoils[i],MINEN_ART.recoilDuration);assert.equal(minenRecoilOffset(p,i),0);
   const launch=events.findLast(e=>e.type==='mortar-launch'),shot=events.findLast(e=>e.type==='hazard');
   assert.deepEqual([launch.x,launch.y],[shot.sourceX,shot.sourceY]);assert.equal(shot.sourceTube,i);
   b.update(.1,{paused:true});assert.equal(p.mortarRecoil,MINEN_ART.recoilDuration);
-  b.recovery=10;b.update(.2,{});b.update(.2,{});assert.equal(minenRecoilFrame(p),0);
+  b.recovery=10;b.update(.2,{});b.update(.2,{});assert.equal(minenRecoilOffset(p,i),0);
  }
 });
 globalThis.Image??=class{set src(v){queueMicrotask(()=>this.onload?.())}};

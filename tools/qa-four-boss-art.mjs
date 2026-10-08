@@ -31,7 +31,8 @@ for(const [region,faction,name]of [[3,'entente','minenwerfer'],[3,'central','liv
   const cv=createCanvas(1000,800),c=cv.getContext('2d');bg(c,1000,800,region===1);
   let cameraX=0,cameraY=0;if(name==='minenwerfer'){
    const p=b.parts.get('main-gun');cameraX=p.x;cameraY=p.y;
-   p.mortarRecoil=state.includes('recoil')?.2:0;p.mortarTube=['left-recoil','center-recoil','right-recoil'].indexOf(state);
+   p.mortarRecoil=state.includes('recoil')?.2:0;p.mortarTube=state.includes('recoil')?['left-recoil','center-recoil','right-recoil'].indexOf(state):1;
+   p.mortarRecoils=[0,0,0];p.mortarRecoils[p.mortarTube]=p.mortarRecoil;p.destroyed=state==='wreck';
    p.hp=state==='wreck'?0:state==='damaged'?p.maxHp*.4:p.maxHp;
   }
   if(state==='splitting'){b.phase='splitting';b.splitGap=50;b.stateAge=.5;}
