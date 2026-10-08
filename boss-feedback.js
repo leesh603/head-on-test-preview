@@ -6,6 +6,15 @@ Object.assign(PHASES,{'markv-entry':['참호 돌파 · 육상전함 진입','Tre
 PHASES['emplacement']=['차륜 모두 파괴 · 고정 포대 전환','Both wheels down · fixed emplacement'];
 PHASES['flak-disabled']=['대공포탑 파괴 · 주포 사격 중단','Turret destroyed · main gun silenced'];
 PHASES['hull-exposed']=['장갑 해제 · 차체 노출','Armour disabled · hull exposed'];
+Object.assign(PHASES,{
+ 'flieger-crossing-sorties':['2페이즈 · 시간차 교차 출격','Phase 2 · staggered crossing sorties'],
+ 'flieger-last-resistance':['3페이즈 · 손상 객차의 최후 저항','Phase 3 · surviving wagons resist'],
+ 'flieger-recovery':['공습 종료 · 재장전 중 반격 기회','Raid ended · reload counterattack window'],
+ 'treffas-turning-fire':['2페이즈 · 거륜 선회포격','Phase 2 · heavy turning fire'],
+ 'treffas-last-defense':['3페이즈 · 남은 바퀴와 무장의 최후 방어','Phase 3 · surviving mobility and guns'],
+ 'treffas-fixed-resistance':['거륜 돌파 중단 · 고정 포격 저항','Breakthrough disabled · fixed resistance'],
+ 'treffas-recovery':['급제동 · 재장전 중 반격 기회','Hard brake · reload counterattack window']
+});
 PHASES['harbor-blockade']=['항만 봉쇄 · 기뢰 뒤 순차 포격','Harbor blockade · mines then staggered guns'];
 PHASES['harbor-last-blockade']=['최후 봉쇄 포화 · 남은 포대에 주의','Last blockade · surviving batteries'];
 PHASES['harbor-launch-disabled']=['수상기 시설 파괴 · 출격 중단','Seaplane dock destroyed · launches stopped'];
@@ -90,8 +99,8 @@ export function bossTactic(encounter,locale='ko'){
   case 'gik':return b.cannonLock?text('예고선 옆으로 피하세요. 포구를 부수면 중포 발사를 막을 수 있습니다.','Cannon locked · sidestep the line or destroy the muzzle'):gone('cannon')?text('중포가 멈췄습니다. 후방 사격과 연속 폭탄을 피하세요.','Cannon disabled · watch the rear gun and stick bombs'):text('전후방 사격을 피하세요. 엔진을 부수면 기동과 방어가 약해집니다.','Front cannon, rear gun · engines reduce speed and hull armor');
   case 'ca4':return gone('bombBay')?text('폭격이 멈췄습니다. 남은 사수와 동체를 공격하세요.','Payload ruptured · bombing stopped; attack surviving guns and hull'):b.parts.get('bombBay')?.hittable?text('열린 폭탄창에 사격을 집중하면 폭격을 막고 내부 폭발을 일으킵니다.','Bomb bay open · hit the center hatch to cancel bombing and trigger cook-off'):text('빈 폭격로로 피하세요. 엔진을 부수면 폭격 간격이 길어집니다.','Use the open lane · engine losses delay bombing runs');
   case 'armored-harbor-fortress':if(b.craneState==='recover'&&!b.coreVulnerable)return text('포격 예고선을 피하고, 사격이 끝나면 시설을 공격하세요.','Evade marked gun lines · counterattack after the salvo');if(b.craneState==='sweep')return text('와이어 끝을 따라 기뢰가 떨어집니다 · 기뢰 사이로 이동하세요.','Mines follow the cable · move through the gaps');return b.coreVulnerable?text('중앙 지휘시설을 공격하며 남은 포대를 주의하세요.','Command core exposed · watch surviving guns'):b.parts.get('crane-pivot')?.hittable?text('노출된 크레인 회전축을 부수면 중앙부가 열립니다.','Crane pivot exposed · destroy it to open the core'):text('크레인 팔이나 외곽 부위 3개를 부수고, 회전축을 공격하세요.','Break the boom or 3 outer parts → pivot · ammo loss stops replenishment');
-   case 'fliegerzug':return b.phase==='runaway'?text('폭주하는 열차를 피하고, 탈선한 뒤 기관차를 공격하세요.','Clear the runaway track → strike after derailment'):b.phase==='derailed'?text('탈선했습니다. 노출된 기관차에 사격을 집중하세요.','Derailed · strike the locomotive'):b.coreVulnerable?text('기관차가 노출됐습니다. 남은 화차의 무장을 파괴하세요.','Locomotive exposed · disable remaining wagons'):gone('car-launch-a')&&gone('car-launch-b')?text('발진이 멈췄습니다. 대공포차와 후미 무장을 파괴하세요.','Both launch cars down · disable flak and rear gun'):gone('car-launch-a')||gone('car-launch-b')?text('발진차 하나가 남았습니다. 파괴해 무인폭탄기 출격을 막으세요.','One launch car down · stop the remaining unmanned bombers'):text('발진차를 부숴 출격을, 대공포차를 부숴 포격을 끊으세요.','Choose which launch, flak or supply car to disable');
-   case 'treffas-wagen':return gone('turret')?text('주포가 멈췄습니다. 차체 기관총을 피하세요.','Turret down · main gun silenced; hull guns remain'):b.phase==='emplacement'?text('이동이 멈췄습니다. 번갈아 쏘는 포격을 피하세요.','Fixed emplacement · bracket and aimed line alternate'):b.coreVulnerable?text('노출된 차체를 공격하세요. 포탑과 바퀴도 파괴할 수 있습니다.','Hull exposed · turret and wheels remain targets'):gone('wheel-left')||gone('wheel-right')?text('바퀴 하나가 남았습니다. 나머지도 부숴 이동을 막으세요.','One wheel down · mobility reduced'):text('바퀴를 부수면 이동이 멈추고, 포탑을 부수면 주포가 멈춥니다.','Destroy wheels or turret to change its attacks');
+   case 'fliegerzug':return b.finalRaid?text('최후의 공습 · 발진 예고선 사이로 피하거나 발진차를 파괴하세요.','Final sortie · slip between committed routes or destroy launch cars'):b.raidRecovery>0?text('재장전 중 · 발진차나 노출된 기관차에 반격하세요.','Reloading · counterattack the launch cars or exposed locomotive'):b.phase==='runaway'?text('폭주하는 열차를 피하고, 탈선한 뒤 기관차를 공격하세요.','Clear the runaway track → strike after derailment'):b.phase==='derailed'?text('탈선했습니다. 노출된 기관차에 사격을 집중하세요.','Derailed · strike the locomotive'):b.coreVulnerable?text('기관차가 노출됐습니다. 남은 화차의 무장을 파괴하세요.','Locomotive exposed · disable remaining wagons'):gone('car-launch-a')&&gone('car-launch-b')?text('발진이 멈췄습니다. 대공포차와 후미 무장을 파괴하세요.','Both launch cars down · disable flak and rear gun'):gone('car-launch-a')||gone('car-launch-b')?text('발진차 하나가 남았습니다. 파괴해 무인폭탄기 출격을 막으세요.','One launch car down · stop the remaining unmanned bombers'):b.combatPhase===2?text('교차 출격 · 시간차 돌입 경로를 읽고 발진차를 파괴하세요.','Crossing sorties · read staggered routes and disable launch cars'):text('발진차를 부숴 출격을, 대공포차를 부숴 포격을 끊으세요.','Choose which launch, flak or supply car to disable');
+   case 'treffas-wagen':return b.recovery>0?text('급제동 후 재장전 · 노출된 차체에 반격하세요.','Braked and reloading · counterattack the exposed hull'):b.finalDrive?text('거륜 돌파 · 진격 방향의 측면으로 피하세요.','Wheel breakthrough · evade to the flank of its committed course'):gone('turret')?text('주포가 멈췄습니다. 차체 기관총을 피하세요.','Turret down · main gun silenced; hull guns remain'):b.phase==='emplacement'?text('이동이 멈췄습니다. 번갈아 쏘는 포격을 피하세요.','Fixed emplacement · bracket and aimed line alternate'):b.coreVulnerable?text('노출된 차체를 공격하세요. 포탑과 바퀴도 파괴할 수 있습니다.','Hull exposed · turret and wheels remain targets'):gone('wheel-left')||gone('wheel-right')?text('바퀴 하나가 남았습니다. 나머지도 부숴 이동을 막으세요.','One wheel down · mobility reduced'):b.combatPhase===2?text('거륜 선회포격 · 차체의 선회와 주포 예고를 함께 읽으세요.','Turning fire · read the heavy turn and each committed gun target'):text('바퀴를 부수면 이동이 멈추고, 포탑을 부수면 주포가 멈춥니다.','Destroy wheels or turret to change its attacks');
   case 'jasta11-circus':return text('좌우 편대기를 격추해 포위를 푸세요. 리히트호펜도 바로 공격할 수 있습니다.','Break the wing attack lanes to weaken the trap · Richthofen is always vulnerable');
   case 'naval10-black-flight':return text('두 기 중 하나를 격추하면 해당 조의 협공이 끊깁니다.','Split each bait-hunter pair · losing either aircraft breaks that pair attack');
   case 'mark4-wedge':return b.tacticalState==='halt-fire'?text('엄호 사격을 피해 멈춰 선 전차의 측면을 공격하세요.','Male halts to fire · avoid female covering guns and flank'):text('궤도를 부숴 이동을 막고, 측면 무장을 파괴해 장갑을 여세요.','Advance and reverse regroup · break tracks to stop, sponsons to expose armor');
@@ -118,11 +127,16 @@ export function bossSoundFor(event,kind=''){
  if(type==='rural-rail-roll')return 'trainRoll';
  if(type==='rural-rail-brake')return 'trainBrake';
  if(type==='rural-rail-load')return 'railBreech';
+ if(type==='flieger-discovered')return 'trainApproach';
  // The arrival itself already ran the full locomotive call (app.js); a big salvo gets the whistle.
  if(['bruno-iron-rain','lincomparable-last-520'].includes(type))return 'trainWhistle';
  // The train guns' shells land as they fire, so the falling whistle runs over the aiming telegraph.
  if(type==='rural-aim')return kind==='lincomparable'?'railShellIncoming520':'railShellIncoming';
  if(type==='rail-aim'||type==='rail-runaway')return 'railClatter';
+ if(type==='flieger-roll')return 'trainRoll';
+ if(type==='treffas-breakthrough')return 'armorEntry';
+ if(type==='flieger-final-raid'||type==='flieger-launch-ready')return 'approachWarning';
+ if(type==='bug-launch'&&kind==='fliegerzug')return 'formationPass';
  if(type==='seaplane-launch')return 'formationPass';
  if(type==='minion-launched')return 'formationPass';
  if(type==='charge-warning'||type==='reentry-warning')return 'approachWarning';

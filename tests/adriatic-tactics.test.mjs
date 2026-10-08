@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createBossEncounter} from '../headon-stageboss-patterns.js?v=ui1';
+import {createBossEncounter} from '../headon-stageboss-patterns.js?v=sfx1';
 const tuning={maxHp:2400,partHp:280,damage:18,bulletSpeed:270,geometryScale:2.025,mobileBoss:true,motionMultiplier:1,splitProtection:0,broadsideInterval:1.8,mortarInterval:2.05,chargeInterval:3.05,suppressiveInterval:3.1};
 const frame={players:[{id:'p1',alive:true,x:100,y:200,vx:30,vy:0,radius:12},{id:'p2',alive:true,x:300,y:250,vx:0,vy:-20,radius:12}],bounds:{left:-200,right:600,top:-450,bottom:450}};
 function setup(id){const events=[],enc=createBossEncounter({id:'tactics-'+id,bossId:id,tuning:{...tuning},x:200,y:-100,rng:()=>.5,emit:e=>events.push(e)});return{enc,b:[...enc.bodies.values()][0],events};}
@@ -43,12 +43,12 @@ test('Zubian engine loss slows both hulls and gun loss cancels warned weapons in
  halves.forEach(b=>b.hit({partId:b.gun().id,damage:99999}));f.events.length=0;run(f,20);assert(!f.events.some(e=>e.visual==='zubian-shell'||e.visual==='zubian-mortar'||e.visual==='torpedo-charge'));
 });
 
-import {Game} from '../engine.js?v=ui1';
-import {CoopGame} from '../coop-engine.js?v=ui1';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,redirectStuttgartSortie} from '../stageboss-host.js?v=ui1&rail=1&hints=1';
+import {Game} from '../engine.js?v=sfx1';
+import {CoopGame} from '../coop-engine.js?v=sfx1';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,redirectStuttgartSortie} from '../stageboss-host.js?v=sfx1&rail=1&hints=1';
 import {fixture,step} from './stageboss-fixture94.mjs';
 import {pack,unpack} from '../online-coop-protocol.js';
-import {drawSupportEffects,drawSupportShip} from '../stuttgart-render129.js?v=ui1';
+import {drawSupportEffects,drawSupportShip} from '../stuttgart-render129.js?v=sfx1';
 function host(coop){const g=coop?new CoopGame([{pilot:'fonck'},{pilot:'guynemer'}],{rng:()=>.5}):new Game('spad','fonck',()=>.5);g.viewWidth=390;g.viewHeight=844;g.region=1;enableStageBoss(g,{teamFaction:'entente',heavyHp:coop?1.65:1});g.stageBoss.stages.stageIndex=1;for(const p of g.players||[g]){p.x=0;p.y=0;p.invuln=9999;}return g;}
 function tickHost(g,seconds){for(let i=0;i<Math.ceil(seconds/.02);i++){g.t+=.02;beginStageBossFrame(g,.02);endStageBossFrame(g,.02);}}
 for(const coop of [false,true])test(`real ${coop?'co-op':'solo'} Stuttgart host keeps final sortie active at the six-aircraft cap`,()=>{

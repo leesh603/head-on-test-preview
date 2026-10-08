@@ -1,7 +1,7 @@
 // Layered procedural SFX — every combat feedback voice is synthesized from
 // oscillators plus filtered noise, matching the music.js approach. No audio
 // assets, no external requests.
-import {railAudioSamples} from './rail-audio.js?v=ui1';
+import {railAudioSamples} from './rail-audio.js?v=sfx1';
 const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproach
 let ctx=null,bus=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();
@@ -78,7 +78,7 @@ function trimLead(buf){
 function loadFileCues(){
  if(filesRequested||!ctx||typeof fetch!=='function')return;filesRequested=true;
  for(const name of FILE_CUES)fetch(`./${name}.mp3?v=gun1`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,buf)).catch(()=>{});
- for(const name of BANK_FILES)fetch(`./${name}.mp3?v=ui1`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,trimLead(buf))).catch(()=>{});
+ for(const name of BANK_FILES)fetch(`./${name}.mp3?v=sfx1`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,trimLead(buf))).catch(()=>{});
 }
 const bankTurn=new Map();
 // Engine: one looping sample per airframe type, its rate following speed and turn. engineTick keeps
