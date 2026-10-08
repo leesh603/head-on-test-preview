@@ -26,7 +26,7 @@ import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=tame3';
 import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=tame3&hints=1&treads=2&rail=19';
 import {paintParis} from './paris-night-art.js?v=tame3';
-import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=tame3&hints=1&rail=18';
+import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=tame3&hints=1&rail=19';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=tame3';
 import './hud-layout94.js?v=tame3';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=tame3';

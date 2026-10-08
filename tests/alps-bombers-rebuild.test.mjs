@@ -56,7 +56,7 @@ test('Ca4 opens the bay for a run and cancels all warned payloads on rupture',()
  const hp=b.hp;b.hit({partId:'bombBay',damage:9999});assert.equal(b.bayRuptured,true);assert.ok(hp-b.hp>=b.maxHp*.16);let payloads=0;a.hazards.pool.visit(h=>{if(h.tag===b.id+':payload')payloads++;});assert.equal(payloads,0);for(let i=0;i<1200;i++)a.tick(.02,frame);assert.equal(b.bombRunRemaining,0);assert.ok(cues.some(e=>e.type==='internal-explosion'));
 });
 test('Ca4 bay closes after a timed window and remains exposed in the final phase',()=>{
- const {b}=make(Ca4);assert.equal(b.part('bombBay').hittable,false);assert.equal(b.hit({partId:'bombBay',damage:999}).damage,0);b.startBombRun(frame.bounds);step(b,3.4);assert.equal(b.part('bombBay').hittable,false);b.hp=b.maxHp*.3;step(b,.02);assert.equal(b.part('bombBay').hittable,true);
+ const {b}=make(Ca4);assert.equal(b.part('bombBay').hittable,false);assert.equal(b.hit({partId:'bombBay',damage:999}).damage,0);b.startBombRun(frame.bounds);step(b,3.4);assert.equal(b.part('bombBay').hittable,false);b.hp=b.maxHp*.3;step(b,7);assert.equal(b.part('bombBay').hittable,true);
 });
 test('destruction clears owned hazards; paused frames freeze warnings and route',()=>{
  for(const Boss of [GIK,Ca4]){const {a,b}=addon(Boss);if(Boss===GIK)b.timers.set('alps-cannon',0);else b.startBombRun(frame.bounds);a.tick(.02,frame);const pos=[b.x,b.y,b.cannonRemaining,b.bombRunRemaining];a.tick(.05,{...frame,paused:true});assert.deepEqual([b.x,b.y,b.cannonRemaining,b.bombRunRemaining],pos);b.hit({damage:99999});a.reconcile({blocked:true});assert.ok(a.defeatSequence);assert.equal(a.hazards.pool.count,0);}
@@ -68,7 +68,7 @@ test('actual host collision and damage route uses the rotated mount once',()=>{
 test('actual host produces one cannon sound at launch and one payload rupture blast',()=>{
  const events=[],blasts=[],g={state:'playing',t:0,distance:0,x:0,y:0,hp:100,maxHp:100,teamFaction:'central',enemies:[],bullets:[],events:[],pendingLevelUps:[],worldRegion:()=>6,event:(...v)=>events.push(v),combatBlast:(...v)=>blasts.push(v),burst(){},smoke(){},shake:0};
  const a=enableStageBoss(g,{teamFaction:'central'});a.stages.stageIndex=6;const b=[...a.startBoss({x:0,y:0}).bodies.values()][0];b.startBombRun(frame.bounds);b.hit({partId:'bombBay',damage:9999});assert.equal(blasts.filter(v=>v[2]===80).length,1);assert.equal(blasts.length,2);
- a.hooks.onCue({type:'hazard-activated',kind:'circle',visual:'carpet-bomb',bossId:b.id,x:0,y:0,radius:40});assert.equal(blasts.length,2,'authored impact must not get another generic blast');
+ a.hooks.onCue({type:'hazard-activated',kind:'circle',visual:'carpet-bomb',bossId:b.id,x:0,y:0,radius:40});assert.equal(blasts.length,3,'authored impact now produces its own bomb blast');
  const q={...g,teamFaction:'entente',enemies:[],bullets:[],stageBoss:null};const c=enableStageBoss(q,{teamFaction:'entente'});c.stages.stageIndex=6;const d=[...c.startBoss({x:0,y:0}).bodies.values()][0];events.length=0;d.timers.set('alps-cannon',0);for(let i=0;i<64;i++)c.tick(.02,frame);assert.equal(events.filter(v=>v[0]==='bossSound'&&v[1]==='heavyShot').length,1);
 });
 test('renderer model carries bomber local mounts, current yaw and damage feedback',()=>{

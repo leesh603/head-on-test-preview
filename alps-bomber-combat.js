@@ -76,7 +76,7 @@ export class GIK extends AlpsBomber {
 }
 
 export class Ca4 extends AlpsBomber {
- constructor(o){super({...o,kind:'ca4'});this.bayExpose=0;this.bayRuptured=false;this.bombLane=-1;this.bombRunRemaining=0;this.runSerial=0;this.laneWarnings=[];}
+ constructor(o){super({...o,kind:'ca4'});this.bayExpose=0;this.bayRuptured=false;this.bombLane=-1;this.bombRunRemaining=0;this.runSerial=0;this.laneWarnings=[];this.egress=null;this.egressLift=0;this.egressDone=false;}
  startBombRun(bounds){
   if(this.part('bombBay').destroyed||this.bombRunRemaining>0)return;
   this.bombLane=(this.bombLane+1)%3;const width=bounds.right-bounds.left,height=bounds.bottom-bounds.top;
@@ -97,6 +97,13 @@ export class Ca4 extends AlpsBomber {
   }}
  update(dt,{players,bounds}){
   this.cruise(dt);this.updatePhase();const bay=this.part('bombBay');
+  if(this.egress){
+   if(this.egress.phase==='away'){this.egressLift=Math.min(950,this.egressLift+dt*430);if(this.egressLift>=950){this.egress.phase='hold';this.egress.left=1.5;}}
+   else if(this.egress.phase==='hold'){this.egress.left-=dt;if(this.egress.left<=0)this.egress.phase='return';}
+   else{this.egressLift=Math.max(0,this.egressLift-dt*540);if(this.egressLift<=0){this.egress=null;if(!bay.destroyed)this.startBombRun(bounds);}}
+   this.y-=this.egressLift;this.syncParts();return;
+  }
+  if(!bay.destroyed&&!this.egressDone&&this.hp<=this.maxHp*.45){this.egressDone=true;this.egress={phase:'away'};this.egressLift=0;this.bombRunRemaining=0;this.laneWarnings=[];this.bayExpose=0;this.command('cancel-hazards',{tag:this.id+':payload'});this.command('phase-change',{phase:'ca4-egress'});return;}
   if(this.bayExpose>0)this.bayExpose=Math.max(0,this.bayExpose-dt);
   if(this.bombRunRemaining>0){this.bombRunRemaining=Math.max(0,this.bombRunRemaining-dt);if(!this.bombRunRemaining)this.releaseBombRun();}
   else if(!bay.destroyed&&this.due('ca4-bombs',dt,(this.t.bombInterval||(this.phase===3?4.6:6.3))*(1+this.engineLoss()*.18)))this.startBombRun(bounds);

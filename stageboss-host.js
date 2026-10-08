@@ -155,7 +155,8 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    }
     if(event.type==='boss-enter'){g.event('wave','지역 보스 출현! · '+BOSS_CATALOG[event.bossId].name);g.event('heavyShot','');}
     else if(event.type==='aa-effect'){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:event.life||.5,size:event.size||115,kind:event.kind});}
-    else if(event.type==='hazard-activated'&&event.kind==='circle'&&(['morser-shell','mark4-shell','treffas-shell'].includes(event.visual)||event.visual==='carpet-bomb'&&['staaken-rvi','gik','ca4'].includes(body?.kind))){g.shake=Math.max(g.shake,3);}
+    else if(event.type==='hazard-activated'&&event.kind==='circle'&&['morser-shell','mark4-shell','treffas-shell'].includes(event.visual)){g.shake=Math.max(g.shake,3);}
+    else if(event.type==='hazard-activated'&&event.kind==='circle'&&event.visual==='carpet-bomb'&&['staaken-rvi','gik','ca4'].includes(body?.kind)){g.combatBlast(event.x,event.y,event.radius,'enemy','bomb');g.shake=Math.max(g.shake,3);}
     else if(event.type==='hazard-activated'&&event.visual==='harbor-swing'){
       // The attached payload remains intact throughout the physical sweep.
     }
