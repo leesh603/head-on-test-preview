@@ -708,7 +708,7 @@ export class LivensFlameProjector extends PatternBoss {
       const dx=x-this.x-p.x,dy=y-this.y-p.y;
       // The horizontal fuel vessels use their visible atlas footprint.
       const inside=p.id.startsWith('tank-')
-        ?(dx/(74+radius))**2+(dy/(45+radius))**2<=1
+        ?(dx/(74*(this.trenchScale||1)+radius))**2+(dy/(45*(this.trenchScale||1)+radius))**2<=1
         :Math.hypot(dx,dy)<=p.radius+radius;
       if(inside)return{partId:p.id};
     }
@@ -723,7 +723,7 @@ export class LivensFlameProjector extends PatternBoss {
   suppressive(){/* Livens attacks through its persistent flamethrower and fuel leaks. */}
   onPartDestroyed(p){
     if(p.id.startsWith('tank-'))this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:54,warning:.65,duration:2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak',tag:'livens-leak'});
-    if(p.id==='pressure'){this.command('cancel-hazards',{tag:'livens-flame'});this.lockedFlameAngle=null;this.flameGap=.6;this.recovery=1.8;}
+    if(p.id==='pressure'){if(this.flameMode==='entry'&&this.trenchEntry.state==='active')this.trenchEntry.firstDone=true;this.command('cancel-hazards',{tag:'livens-flame'});this.lockedFlameAngle=null;this.flameGap=.6;this.recovery=1.8;}
     if(p.id==='pressure')this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:68,warning:.8,duration:.4,once:true,damage:this.t.damage*.75,visual:'livens-pressure'});
     // The core opens once the fuel/pressure system is wrecked; the nozzle
     // mount keeps fighting until the boss itself is destroyed.
@@ -735,6 +735,7 @@ export class LivensFlameProjector extends PatternBoss {
     const weak=this.parts.get('pressure').destroyed,dir=this.flameCount%2?-1:1;
     let warn=weak?1.4:1.15,dur=weak?1.2:1.8,speed=0,span=0,range=weak?390:560;
     const desired=target?Math.atan2(target.y-this.y-this.nozzleMount.y,target.x-this.x):this.nozzleAngle;
+    if(mode==='entry'){dur=.65;warn=1.15;}
     if(mode==='sweep'){dur=weak?1.5:2.2;span=dir*1.65;speed=span/dur;}
     if(mode==='pulse'){dur=weak?.65:.95;warn=1.25;}
     if(mode==='rotate'){dur=weak?1.1:1.7;speed=dir*.95;span=speed*dur;}
@@ -753,6 +754,7 @@ export class LivensFlameProjector extends PatternBoss {
   }
   update(dt,{players=[],bounds,paused=false}){
     if(this.dead||paused)return;dt=Math.min(dt,.25);this.frameDt=dt;this.x=this.anchorX;this.y=this.anchorY;
+    if(!this.trenchScale&&bounds){this.trenchScale=Math.min(1,(bounds.right-bounds.left)*.86/520);for(const p of this.parts.values()){p.x*=this.trenchScale;p.y*=this.trenchScale;p.radius*=this.trenchScale;}this.coreRadius*=this.trenchScale;this.nozzleMount.y*=this.trenchScale;this.nozzleMount.length*=this.trenchScale;}
     const live=players.filter(p=>p.alive&&Number.isFinite(p.x)&&Number.isFinite(p.y)),target=live[this.flameCount%live.length];
     const n=this.nozzleMount,e=this.trenchEntry;
     if(e.state!=='active'){
@@ -761,7 +763,7 @@ export class LivensFlameProjector extends PatternBoss {
       if(e.state==='buried'){e.state='pressure';e.age=0;this.command('livens-pressure-rise',{x:nx,y:ny});}
       e.age+=dt;
       if(e.state==='pressure'&&e.age>=.9){e.state='revealed';e.revealAge=0;this.nozzleRevealed=true;this.discovered=true;this.command('livens-soil-burst',{x:nx,y:ny});this.command('trench-discovered');}
-      if(e.state==='revealed'){e.revealAge+=dt;if(e.revealAge>=.55){e.state='active';this.nozzleAngle=Math.atan2(target.y-ny,target.x-nx);this.beginFlame('track',target);}}
+      if(e.state==='revealed'){e.revealAge+=dt;if(e.revealAge>=.55){e.state='active';this.nozzleAngle=Math.atan2(target.y-ny,target.x-nx);this.beginFlame('entry',target);}}
       this.phase='buried-pressure';this.coreVulnerable=this.allDestroyed(['tank-l1','tank-l2','tank-r1','tank-r2','pressure']);return;
     }
     e.revealAge+=dt;
@@ -774,7 +776,7 @@ export class LivensFlameProjector extends PatternBoss {
     if(this.lockedFlameAngle!=null){
       this.flameAge+=dt;const burnAge=Math.min(this.flameDuration,Math.max(0,this.flameAge-this.flameWarn));
       this.nozzleAngle=this.lockedFlameAngle+this.flameAngSpeed*burnAge;this.flameLockTime=Math.max(0,this.flameWarn+this.flameDuration-this.flameAge);
-      if(!this.flameLockTime){this.lockedFlameAngle=null;this.flameGap=this.flameQueue.length?.65:0;this.recovery=this.flameQueue.length?0:this.stormActive?3:2;
+      if(!this.flameLockTime){if(this.flameMode==='entry')this.trenchEntry.firstDone=true;this.lockedFlameAngle=null;this.flameGap=this.flameQueue.length?.65:0;this.recovery=this.flameQueue.length?0:this.stormActive?3:2;
         if(this.stormActive&&!this.flameQueue.length){this.stormActive=false;this.command('phase-change',{phase:'livens-depressurized'});}}
     }else if(!this.flameGap&&!this.recovery){
       if(this.hp<=this.maxHp*.22&&!this.stormTriggered){this.stormTriggered=true;this.stormActive=true;this.flameQueue=['storm-spin','storm-return','storm-sweep'];this.command('livens-firestorm',{x:this.x,y:this.y});}
@@ -794,12 +796,12 @@ export class MinenwerferBattery extends PatternBoss {
   constructor(options){
     const originalHp=options.tuning.maxHp,gunHp=originalHp*.4,tuning={...options.tuning,maxHp:gunHp*3};
     super({...options,tuning,coreRadius:64,kind:'minenwerfer-battery',parts:[
-      {id:'gun-left',x:-540,y:-40,radius:105,maxHp:gunHp},{id:'main-gun',x:-15,y:-190,radius:110,maxHp:gunHp},{id:'gun-right',x:525,y:80,radius:105,maxHp:gunHp}
+      {id:'gun-left',x:-186,y:16,radius:75,maxHp:gunHp},{id:'main-gun',x:0,y:12,radius:94,maxHp:gunHp},{id:'gun-right',x:180,y:16,radius:75,maxHp:gunHp}
     ]});
     this.phase='cross-barrage';this.coreVulnerable=true;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
     this.shotSerial=0;this.baseVolleyCount=0;this.specialWave=0;this.specialClock=4.2;this._gasTier=3;
     this.discovered=false;this.discoveryClock=0;this.raidPhase=1;this.cycleClock=.3;this.recovery=0;this.finalGrace=2.8;this.finalCounts=new Set();this.mortarPlan=null;
-    for(const gun of this.parts.values()){gun.discovered=false;gun.mortarMouth=gun.id==='main-gun'?{x:2,y:-69}:gun.id==='gun-left'?{x:7,y:-33}:{x:-12,y:-33};gun.mortarFlash=0;gun.mortarSmoke=0;}
+    for(const gun of this.parts.values()){gun.discovered=false;gun.mortarMouth=gun.id==='main-gun'?{x:0,y:-112}:gun.id==='gun-left'?{x:0,y:-32}:{x:0,y:-50};gun.mortarFlash=0;gun.mortarSmoke=0;}
   }
   suppressive(){/* The three emplacements own every Minenwerfer attack. */}
   liveGuns(){return [...this.parts.values()].filter(p=>!p.destroyed);}
@@ -878,6 +880,7 @@ export class MinenwerferBattery extends PatternBoss {
   }
   update(dt,{players=[],bounds,paused=false}){
     if(this.dead||paused)return;dt=Math.min(dt,.25);this.x=this.anchorX;this.y=this.anchorY;
+    if(!this.trenchScale&&bounds){this.trenchScale=Math.min(1,(bounds.right-bounds.left)*.86/600);for(const p of this.parts.values()){p.x*=this.trenchScale;p.y*=this.trenchScale;p.radius*=this.trenchScale;p.mortarMouth.x*=this.trenchScale;p.mortarMouth.y*=this.trenchScale;}}
     const guns=this.liveGuns();if(!guns.length)return;this.discoveryClock=Math.max(0,this.discoveryClock-dt);
     for(const gun of this.parts.values()){gun.mortarFlash=Math.max(0,gun.mortarFlash-dt);gun.mortarSmoke=Math.max(0,gun.mortarSmoke-dt);}
     // Every pit already exists at its authored world pose. Visibility reveals
