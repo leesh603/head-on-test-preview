@@ -87,8 +87,8 @@ export const PILOT_IDENTITY_COPY={
  ['연속 추적','어택 에브리싱','격추 후 다음 가까운 적을 표시합니다.','5초간 적을 격추하면 총구가 다음 가까운 적을 잠시 따라갑니다.','격추 후 다음 가까운 적을 표시합니다.','5초간 적을 격추하면 총구가 다음 가까운 적을 잠시 따라갑니다.'],
  ['Relentless Hunt','Attack Everything','After a kill, highlights the next nearby enemy.','For 5 seconds, each kill briefly guides your guns toward the next nearby enemy.','After a kill, highlights the next nearby enemy.','For 5 seconds, each kill briefly guides your guns toward the next nearby enemy.']),
  mccudden:entry(
- ['플라잉 메카닉','야전 정비','레벨업 선택지가 4개로 늘고, 무료로 한 번 다시 뽑을 수 있습니다.','주변에 수리 보급품 3개를 투하합니다.','레벨업 선택지가 4개로 늘고, 무료로 한 번 다시 뽑을 수 있습니다.','주변에 수리 보급품 3개를 투하합니다. 협동 아군도 회수할 수 있습니다.'],
- ['Flying Mechanic','Field Repair','Gain four choices at each level and one free reroll.','Drop three repair supplies nearby.','Gain four choices at each level and one free reroll.','Drop three repair supplies nearby. Co-op allies can collect them too.']),
+ ['플라잉 메카닉','야전 정비','레벨업 선택지가 4개로 늘어납니다.','주변에 수리 보급품 3개를 투하합니다.','레벨업 선택지가 4개로 늘어납니다.','주변에 수리 보급품 3개를 투하합니다. 협동 아군도 회수할 수 있습니다.'],
+ ['Flying Mechanic','Field Repair','Gain four choices at each level.','Drop three repair supplies nearby.','Gain four choices at each level.','Drop three repair supplies nearby. Co-op allies can collect them too.']),
  nungesser:entry(
  ['검은 심장','죽음의 기사','체력이 낮아지면 검은 연무가 짙어지고, 스치는 탄환에 연무가 찢어집니다.','3초간 무적이 되어 적 탄환을 검은 연무 속에서 소멸시킵니다.','체력이 낮아지면 검은 연무가 짙어지고, 스치는 탄환에 연무가 찢어집니다.','3초간 무적이 되어 적 탄환을 검은 연무 속에서 소멸시킵니다.'],
  ['Black Heart','Knight of Death','Black fog thickens at low health and tears as bullets pass close by.','Become invulnerable for 3 seconds, extinguishing enemy rounds in black fog.','Black fog thickens at low health and tears as bullets pass close by.','Become invulnerable for 3 seconds, extinguishing enemy rounds in black fog.']),

@@ -139,7 +139,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  Game.prototype.rerollLegendaryChoices=function(current=[]){
   return this.rerollChoices(current);
  };
- Game.prototype.canRerollChoices=function(current=[]){const state=this.state??this.combatWorld?.()?.state,special=current.length===3&&current.every(u=>(u.rarity||'legendary')==='legendary'),count=this.pilot==='mccudden'&&!special?4:3;return state==='upgrade'&&!this.choiceRerollUsed&&current.length===count&&new Set(current.map(u=>u.id)).size===count&&(this.pilot==='mccudden'||special)};
+ Game.prototype.canRerollChoices=function(current=[]){const state=this.state??this.combatWorld?.()?.state,special=current.length===3&&current.every(u=>(u.rarity||'legendary')==='legendary');return state==='upgrade'&&!this.choiceRerollUsed&&special&&new Set(current.map(u=>u.id)).size===3};
  Game.prototype.rerollChoices=function(current=[]){
   if(!this.canRerollChoices(current))return null;const special=current.every(u=>(u.rarity||'legendary')==='legendary'),previous=current.map(u=>u.id),picks=[];
   if(special){const eligible=LEGENDARIES.filter(u=>specialAllowed(this,u)),fresh=eligible.filter(u=>!previous.includes(u.id)),source=[...(fresh.length>=3?fresh:eligible)];for(let i=source.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[source[i],source[j]]=[source[j],source[i]]}picks.push(...source.slice(0,3).map(u=>namedSpecial(this,u)))}
