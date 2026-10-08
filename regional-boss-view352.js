@@ -193,7 +193,7 @@ export function drawRegionalHazard(c,h,bossKind){
 }
 export function drawRegionalCue(c,cue){
  if(cue.type==='bug-flight-target'){
-  c.save();c.strokeStyle='#ecc88fa8';c.lineWidth=1.5;c.setLineDash([5,7]);c.beginPath();c.arc(cue.x,cue.y,39,0,Math.PI*2);c.stroke();c.setLineDash([]);c.beginPath();c.moveTo(cue.x-7,cue.y);c.lineTo(cue.x+7,cue.y);c.moveTo(cue.x,cue.y-7);c.lineTo(cue.x,cue.y+7);c.stroke();c.restore();return true;
+  c.save();if(Number.isFinite(cue.sourceX)&&Number.isFinite(cue.sourceY)){c.strokeStyle='#ecc88f55';c.lineWidth=1;c.setLineDash([5,9]);c.beginPath();c.moveTo(cue.sourceX,cue.sourceY);c.lineTo(cue.x,cue.y);c.stroke();c.setLineDash([]);}c.strokeStyle='#ecc88fa8';c.lineWidth=1.5;c.setLineDash([5,7]);c.beginPath();c.arc(cue.x,cue.y,39,0,Math.PI*2);c.stroke();c.setLineDash([]);c.beginPath();c.moveTo(cue.x-7,cue.y);c.lineTo(cue.x+7,cue.y);c.moveTo(cue.x,cue.y-7);c.lineTo(cue.x,cue.y+7);c.stroke();c.restore();return true;
  }
  if(cue.type==='safe-corridor'){
   c.save();c.globalAlpha=.45*clamp(cue.life/.4);c.strokeStyle='#d6d4ab';c.lineWidth=2;
