@@ -1,0 +1,104 @@
+[
+  {
+    "width": 390,
+    "height": 844,
+    "entry": {
+      "age": 1.4000000000000008,
+      "started": true,
+      "done": true
+    },
+    "final": {
+      "age": 14.01999999999979,
+      "done": true
+    },
+    "frames": [
+      "approach",
+      "advance",
+      "final-drive",
+      "cannon-lock",
+      "staggered-mg",
+      "counter",
+      "part-damage",
+      "wreck"
+    ],
+    "hulls": [
+      {
+        "role": "male",
+        "hp": 210,
+        "dead": false,
+        "x": 6.252479663632648e-15,
+        "y": -415.504629031112,
+        "tracks": 2
+      },
+      {
+        "role": "female",
+        "hp": 42,
+        "dead": false,
+        "x": -99.05488986056422,
+        "y": -544.3990328080669,
+        "tracks": 1
+      },
+      {
+        "role": "female",
+        "hp": 0,
+        "dead": true,
+        "x": 98.15598996032925,
+        "y": -547.8670266283025,
+        "tracks": 0
+      }
+    ],
+    "hazards": 0,
+    "dropped": 0
+  },
+  {
+    "width": 1280,
+    "height": 800,
+    "entry": {
+      "age": 1.4000000000000008,
+      "started": true,
+      "done": true
+    },
+    "final": {
+      "age": 14.01999999999979,
+      "done": true
+    },
+    "frames": [
+      "approach",
+      "advance",
+      "final-drive",
+      "cannon-lock",
+      "staggered-mg",
+      "counter",
+      "part-damage",
+      "wreck"
+    ],
+    "hulls": [
+      {
+        "role": "male",
+        "hp": 210,
+        "dead": false,
+        "x": 9.356838760722945e-15,
+        "y": -363.59561330469376,
+        "tracks": 2
+      },
+      {
+        "role": "female",
+        "hp": 42,
+        "dead": false,
+        "x": -147.98965373784534,
+        "y": -556.8575694672328,
+        "tracks": 1
+      },
+      {
+        "role": "female",
+        "hp": 0,
+        "dead": true,
+        "x": 146.7408070878709,
+        "y": -561.7025877427776,
+        "tracks": 0
+      }
+    ],
+    "hazards": 0,
+    "dropped": 0
+  }
+]

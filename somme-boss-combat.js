@@ -40,13 +40,13 @@ class SommeBoss extends BaseBoss{
  }
  hullArmor(){return 1;}
  onDeath(){for(const p of this.parts.values()){this.cancel(p.id);p.hp=0;}this.cancel('barrage');this.salvo=null;this.lock=null;}
- fireMG(p,dt,players,interval,visual='somme-mg'){
+ fireMG(p,dt,players,interval,visual='somme-mg',fireReady=true){
   if(p.destroyed)return;p.targetCursor??=this.cursor;const live=players.filter(q=>q.alive),target=live[p.targetCursor%live.length];if(!target)return;
   const aim=Math.atan2(target.y-this.y-p.y,target.x-this.x-p.x);const traverse=this.kind==='mark4-wedge'?sponsonAim(this,p,target.x,target.y):{angle:aim,reachable:true};p.angle=turn(p.angle,traverse.angle,1.6*dt);if(!traverse.reachable)return;
-  if(!this.due(p.id,dt,interval)||Math.abs(angleDelta(aim,p.angle))>.25)return;
+  if(!fireReady||!this.due(p.id,dt,interval)||Math.abs(angleDelta(aim,p.angle))>.25)return;
   const m=sommeMuzzle(this,p),count=Math.min(9,Math.max(4,Math.ceil(6*(this.t.projectileDensity||1))));
-  for(let i=0;i<count;i++){const a=p.angle+(i-(count-1)/2)*.095+Math.sin(this.clock*2.1+i)*.03;this.hazard('projectile',{...m,vx:Math.cos(a)*this.t.bulletSpeed*.9,vy:Math.sin(a)*this.t.bulletSpeed*.9,radius:3.5,damage:this.t.damage*.5,visual,tag:this.tag(p.id)});}
-  p.recoil=.18;this.command('muzzle',{...m,partId:p.id});p.targetCursor++;
+  for(let i=0;i<count;i++){const a=p.angle+(i-(count-1)/2)*.095+Math.sin(this.clock*2.1+i)*.03;this.hazard('projectile',{...m,vx:Math.cos(a)*this.t.bulletSpeed*.9,vy:Math.sin(a)*this.t.bulletSpeed*.9,radius:3.5,duration:this.lastStandActive?1.2:4,damage:this.t.damage*.5,visual,tag:this.tag(p.id)});}
+  p.recoil=.18;this.command('muzzle',{...m,partId:p.id,weapon:'mg'});p.targetCursor++;
  }
  // Aimed turret volley: the barrel tracks a predicted intercept, then throws a
  // real bullet-hell fan the player must fly around, not a fixed ground marker.
@@ -115,19 +115,50 @@ export class SchwabenFortress extends SommeBoss{
 }
 
 export class Mark1Landship extends SommeBoss{
- constructor(o){super(o,MARK1_PARTS,'mark4-wedge',true);this.slot=o.slot||0;this.tankRole=this.slot===0?'male':'female';this.coreVulnerable=true;this.phase='advance';this.hullYaw=Math.PI;this.anchorX=this.x;this.anchorY=this.y;this.clock=this.slot*.8;this.trackMarks=[];this.markWait=0;this.salvo=null;this.timers.set('sponson-left',3.2+this.slot*.8);this.timers.set('sponson-right',4.7+this.slot*.8);syncSommeParts(this);for(const p of this.parts.values())p.angle=this.hullYaw+(p.id==='sponson-left'?Math.PI:0);}
+ constructor(o){super(o,MARK1_PARTS,'mark4-wedge',true);this.slot=o.slot||0;this.tankRole=this.slot===0?'male':'female';this.coreVulnerable=true;this.phase='advance';this.hullYaw=Math.PI;this.anchorX=this.x;this.anchorY=this.y;this.clock=this.slot*.8;this.trackMarks=[];this.markWait=0;this.salvo=null;this.discovered=!this.t.sommeApproach;this.timers.set('sponson-left',3.2+this.slot*.8);this.timers.set('sponson-right',4.7+this.slot*.8);syncSommeParts(this);for(const p of this.parts.values())p.angle=this.hullYaw+(p.id==='sponson-left'?Math.PI:0);}
+ tactics(dt,bounds){
+  const e=this.encounter,all=e?[...e.bodies.values()]:[this],live=all.filter(b=>!b.dead),leader=live[0],visible=b=>b.x>bounds.left+55*b.sommeScale&&b.x<bounds.right-55*b.sommeScale&&b.y>bounds.top+125&&b.y<bounds.bottom-100;
+  if(e&&leader===this){
+   e.markClock=(e.markClock||0)+dt;
+   if(this.t.sommeApproach){
+    e.markEntry??={age:0,started:false,done:false};const q=e.markEntry;
+    if(!q.started){q.started=true;this.command('armor-entry');}
+    // Only visible motion advances the entrance. Never finish behind the camera.
+    if(!q.done&&visible(this)){q.age+=dt;if(q.age>=1.4){q.done=true;for(const b of live)b.discovered=true;this.command('somme-discovered');}}
+   }
+   const ready=!e.markEntry||e.markEntry.done,hp=live.reduce((n,b)=>n+b.hp,0);
+   if(ready&&!e.markFinal&&hp/e.maxHpBudget<=.35){e.markFinal={age:0,done:false};for(const b of live)b.salvo=null;this.command('armor-entry');this.command('phase-change',{phase:'mark1-last-push'});}
+   if(e.markFinal&&!e.markFinal.done){e.markFinal.age+=dt;if(e.markFinal.age>=14){e.markFinal.done=true;}}
+  }
+  const age=e?.markClock??this.clock,final=e?.markFinal,q=final&&!final.done?final:null,entry=this.t.sommeApproach&&!e?.markEntry?.done;
+  const damaged=live.length<all.length,flank=age%18>=8||damaged;
+  this.lastStandActive=!!q;this.recovering=!!q&&q.age>=10.8;
+  const side=this.slot===1?-1:this.slot===2?1:0;
+  const fan=entry?.22:q?.age<2.4?0:q?.age<5.6?.18:flank?.28:.09;
+  this.driveOrder={heading:Math.PI-side*fan,speed:this.tankRole==='male'?17:flank?13+this.slot:16,halt:this.recovering||!!q&&(q.age<2.4||q.age>=5.6)};
+  this.phase=entry?'mark1-approach':q?(this.recovering?'mark1-counter':q.age<2.4?'mark1-regroup':'mark1-last-push'):this.tracks()===0?'tracks-disabled':this.tracks()===1?'track-disabled':damaged?'mark1-broken-formation':flank?'mark1-flank':'advance';
+  if(!entry&&!q&&!damaged&&!flank)this.driveOrder=null;
+  if(this.driveMoving&&this.due('engine-cue',dt,.75))this.command('armor-drive');
+  return {entry,final:q,live};
+ }
  tracks(){return ['track-left','track-right'].filter(id=>!this.parts.get(id).destroyed).length;}
  hullArmor(){return ['sponson-left','sponson-right'].every(id=>this.parts.get(id).destroyed)?1:.45;}
  onPartDestroyed(p){this.cancel(p.id);if(this.salvo?.partId===p.id)this.salvo=null;if(this.tracks()===0){this.driveVelocity=0;this.driveMoving=false;}this.phase=this.tracks()===0?'tracks-disabled':this.tracks()===1?'track-disabled':this.hullArmor()===1?'exposed':'weapon-disabled';this.command('phase-change',{phase:this.phase});}
  move(dt,bounds){driveLandship(this,dt);}
  update(dt,{players,bounds}){
-  if(this.dead)return;this.tickParts(dt);this.move(dt,bounds);
+  if(this.dead)return;this.tickParts(dt);const tactic=this.tactics(dt,bounds);this.move(dt,bounds);
   for(const m of this.trackMarks)m.age+=dt;this.trackMarks=this.trackMarks.filter(m=>m.age<6);
+  if(tactic.entry||this.recovering)return;
   if(this.salvo&&!sponsonAim(this,this.parts.get(this.salvo.partId),this.salvo.x,this.salvo.y).reachable)this.salvo=null;
   if(this.salvo){this.salvo.remaining-=dt;const p=this.parts.get(this.salvo.partId);p.angle=turn(p.angle,this.salvo.angle,.9*dt);if(this.salvo.remaining<=0&&sponsonAim(this,p,this.salvo.x,this.salvo.y).reachable&&this.driveVelocity<.5&&Math.abs(angleDelta(this.salvo.angle,p.angle))<.12){if(!p.destroyed){const m=sommeMuzzle(this,p),q=this.salvo,r=clamp(37*this.sommeScale,24,37);for(let i=-1;i<=1;i++)this.hazard('circle',{x:clamp(q.x+i*66*this.sommeScale,bounds.left+r,bounds.right-r),y:q.y,sourceX:m.x,sourceY:m.y,radius:r,warning:1.2+(i+1)*.42,delay:0,once:true,damage:this.t.damage*1.15,visual:'somme-landship-shell',tag:this.tag(p.id)});p.recoil=.24;this.command('muzzle',{...m,partId:p.id});const live=players.filter(x=>x.alive),tgt=live[this.cursor%live.length];if(tgt)this.aimedVolley(p,tgt,6,.95,.8);}this.salvo=null;}}
   for(const id of ['sponson-left','sponson-right']){const p=this.parts.get(id);if(p.destroyed)continue;
-   if(this.tankRole==='female'){this.fireMG(p,dt,players,[...this.encounter?.bodies.values()||[]].some(q=>q.tankRole==='male'&&!q.dead&&q.salvo)?2.5:3.6+this.slot*.3);continue;}
-   if(!this.salvo&&this.due(id,dt,6.4)){const target=players.find(q=>q.alive&&sponsonAim(this,p,q.x,q.y).reachable);if(target){const r=clamp(37*this.sommeScale,24,37),x=clamp(target.x+(target.vx||0)*.3,bounds.left+r,bounds.right-r),y=clamp(target.y+(target.vy||0)*.3,bounds.top+r,bounds.bottom-r);const aim=sponsonAim(this,p,x,y);if(aim.reachable)this.salvo={partId:id,x,y,remaining:1.05,angle:aim.angle};}}
+   if(this.tankRole==='female'){
+    if(tactic.final){const rank=tactic.live.filter(b=>b.tankRole==='female').indexOf(this),start=7.4+rank*1.4;if(tactic.final.age<start||tactic.final.age>=start+.65){this.fireMG(p,dt,players,1.4,'somme-mg',false);continue;}if(!this.finalMGStarted){this.finalMGStarted=true;for(const key of ['sponson-left','sponson-right'])this.timers.set(key,0);}this.fireMG(p,dt,players,1.4);}
+    else this.fireMG(p,dt,players,tactic.live.some(q=>q.tankRole==='male'&&q.salvo)?2.5:3.6+this.slot*.3);
+    continue;
+   }
+   if(tactic.final&&(tactic.final.age<5.6||this.finalCannonPlanned))continue;
+   if(!this.salvo&&(tactic.final||this.due(id,dt,6.4))){const target=players.find(q=>q.alive&&sponsonAim(this,p,q.x,q.y).reachable);if(target){const r=clamp(37*this.sommeScale,24,37),x=clamp(target.x+(target.vx||0)*.3,bounds.left+r,bounds.right-r),y=clamp(target.y+(target.vy||0)*.3,bounds.top+r,bounds.bottom-r);const aim=sponsonAim(this,p,x,y);if(aim.reachable){this.salvo={partId:id,x,y,remaining:tactic.final?1.6:1.05,warning:tactic.final?1.6:1.05,angle:aim.angle};if(tactic.final)this.finalCannonPlanned=true;this.command('armor-brake');}}}
   }
  }
 }

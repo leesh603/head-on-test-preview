@@ -57,6 +57,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <button id="fortStep" type="button" style="display:none" title="Shift 클릭: 전투 0.1초 진행">전투 1초 진행</button>
 <span id="status">게임 로딩 중…</span>
 <output id="bossState" style="font-size:11px;max-width:700px"></output>
+<div id="sommeQa" hidden style="width:100%;gap:8px;align-items:center;flex-wrap:wrap"><label>솜 검사 전차<select id="sommeBody"></select></label><label>검사 부위<select id="sommePart"></select></label><button id="sommeHalf" type="button">솜 부위 손상탄</button><button id="sommeBreak" type="button">솜 부위 파괴탄</button><button id="sommeFinal" type="button">최후 돌파 진입탄</button><button id="sommeKill" type="button">선택 전차 격파탄</button><output id="sommeState"></output></div>
 <div id="arrasControls" hidden style="width:100%;gap:8px;align-items:center;flex-wrap:wrap"><label>아라스 검사 기체<select id="arrasAircraft"></select></label><button id="arrasBreak" type="button">선택 기체 격추탄</button><button id="arrasFinal" type="button">발악기 진입탄</button><label>전술 검사<select id="arrasTactic"><option value="0">포위 / 공격조 분산</option><option value="1">제형 / 미끼·사냥꾼</option><option value="2">집중 돌입 / 교차공격</option><option value="3">추격 / 정면 돌입</option></select></label><button id="arrasPhase" type="button">선택 전술 검사</button><output id="arrasState"></output></div>
 <div id="trenchControls" hidden style="width:100%;gap:8px;align-items:center;flex-wrap:wrap"><label>참호 보스 검사 부위<select id="trenchPart"></select></label><button id="trenchHalf" type="button">선택 부위 손상탄</button><button id="trenchBreak" type="button">선택 부위 파괴탄</button><button id="trench70" type="button">HP 70% 진입탄</button><button id="trench35" type="button">HP 35% 진입탄</button><button id="trenchFinal" type="button">발악기 진입탄</button><span id="trenchState"></span></div>
 <div id="ruralQa" hidden style="width:100%">
@@ -171,6 +172,24 @@ $('patternStep').onclick=()=>{
 // Trench QA stimuli use the game's friendly projectile collision. These
 // controls never assign boss HP, phases, facility pose or player position.
 function trenchBoss(){return [...(api?.debug()?.stageBoss?.stages.encounter?.bodies?.values()||[])].find(b=>!b.dead&&['livens-flame-projector','minenwerfer-battery'].includes(b.kind))}
+function sommeBodies(){return [...api?.debug()?.stageBoss?.stages.encounter?.bodies.values()||[]].filter(b=>b.kind==='mark4-wedge')}
+function sommeShot(b,part,damage){
+ if(!b||b.dead||part?.destroyed)return;
+ const g=api.debug();let x=b.x+(part?.x||0),y=b.y+(part?.y??-15*b.sommeScale*Math.cos(b.hullYaw)),vx=200,vy=0;
+ if(part?.id.startsWith('sponson-')){const side=Math.sign(part.localX),dx=Math.cos(b.hullYaw)*side,dy=Math.sin(b.hullYaw)*side;x+=dx*(13*b.sommeScale+3);y+=dy*(13*b.sommeScale+3);vx=-dx*200;vy=-dy*200;}
+ // Stimulus enters the existing friendly swept projectile collision. No HP,
+ // movement, destruction or boss phase is assigned by these controls.
+ g.bullets.push({x,y,previousX:x,previousY:y,vx,vy,life:.15,enemy:false,ownerId:'p1',damage:damage*4,hit:new Set()});
+}
+for(const [id,fraction]of [['sommeHalf',.45],['sommeBreak',0]])$(id).onclick=()=>{const b=sommeBodies().find(b=>b.id===$('sommeBody').value),p=b?.parts.get($('sommePart').value);if(p)sommeShot(b,p,Math.max(0,p.hp-p.maxHp*fraction));};
+$('sommeFinal').onclick=()=>{for(const b of sommeBodies())sommeShot(b,null,Math.max(0,b.hp-b.maxHp*.3)/b.hullArmor());};
+$('sommeKill').onclick=()=>{const b=sommeBodies().find(b=>b.id===$('sommeBody').value);if(b)sommeShot(b,null,b.hp/b.hullArmor());};
+setInterval(()=>{
+ const bs=sommeBodies(),panel=$('sommeQa');panel.hidden=!bs.length||!$('qaTools').checked;panel.style.display=panel.hidden?'none':'flex';if(panel.hidden)return;
+ const current=$('sommeBody').value;$('sommeBody').replaceChildren(...bs.map(b=>new Option((b.tankRole||b.kind)+(b.dead?' · 격파됨':''),b.id)));if(bs.some(b=>b.id===current))$('sommeBody').value=current;
+ const b=bs.find(b=>b.id===$('sommeBody').value),part=$('sommePart').value;$('sommePart').replaceChildren(...[...b.parts.values()].map(p=>new Option(p.id+(p.destroyed?' · 파괴됨':''),p.id)));if(b.parts.has(part))$('sommePart').value=part;
+ $('sommeState').textContent=bs.map(b=>(b.tankRole||b.kind)+' '+b.phase+' HP '+Math.ceil(b.hp)+'/'+b.maxHp+' · '+b.tacticalState).join(' / ');
+},250);
 let trenchId=null,trenchGoal=null;
 function trenchShot(b,part,damage){
  const g=api.debug(),x=b.x+(part?.x||0),y=b.y+(part?.y||0);

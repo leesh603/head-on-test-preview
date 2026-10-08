@@ -39,7 +39,7 @@ export function drawSommeBoss(c,b){
    if(!p.destroyed&&!dead)weapon(c,b.tankRole==='male'?'gun-heavy':'gun-mg',state(p,dead),p);
   }
   if(b.driveMoving&&!dead)for(const side of [-1,1]){const a=b.hullYaw||0,x=b.x+Math.cos(a)*side*48*s-Math.sin(a)*92*s,y=b.y+Math.sin(a)*side*48*s+Math.cos(a)*92*s;fx(c,'smokeDust',x-b.x,y-b.y,24*s,32*s,a,.12);}
-  if(b.salvo&&!dead){const q=b.salvo,prog=clamp(1-q.remaining/1.05,0,1);c.strokeStyle='#d8b57b66';c.lineWidth=1;c.setLineDash([6,7]);c.beginPath();const p=parts.find(p=>p.id===q.partId);if(p){const m=sommeMuzzle(b,p);c.moveTo(m.x-b.x,m.y-b.y);c.lineTo(q.x-b.x,q.y-b.y);c.stroke();}c.setLineDash([]);warningRing(c,q.x-b.x,q.y-b.y,28*s,prog);}
+  if(b.salvo&&!dead){const q=b.salvo,prog=clamp(1-q.remaining/(q.warning||1.05),0,1);c.strokeStyle='#d8b57b66';c.lineWidth=1;c.setLineDash([6,7]);c.beginPath();const p=parts.find(p=>p.id===q.partId);if(p){const m=sommeMuzzle(b,p);c.moveTo(m.x-b.x,m.y-b.y);c.lineTo(q.x-b.x,q.y-b.y);c.stroke();}c.setLineDash([]);warningRing(c,q.x-b.x,q.y-b.y,clamp(37*s,24,37),prog);}
  }else{
   sprite(c,'body',dead?'wreck':b.coreVulnerable?'breached':b.hp<b.maxHp*.72?'damaged':'normal',0,0,680*s,340*s);
   // Architecture is world aligned. Draw all support structures before any
