@@ -3,6 +3,7 @@ import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=r5';
 export function bossHudModel(encounter) {
   if(!encounter||encounter.completed)return null;
   if(['livens-flame-projector','minenwerfer-battery'].includes(encounter.bossId)&&![...encounter.bodies.values()].some(b=>b.discovered))return null;
+  if([...encounter.bodies.values()].some(b=>b.formationBoss129&&!b.entryComplete))return null;
   const state=encounter.snapshot();
   return {...state,name:BOSS_CATALOG[encounter.bossId]?.name||encounter.bossId,fraction:Math.max(0,Math.min(1,state.hp/state.maxHp))};
 }

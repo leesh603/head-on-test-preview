@@ -119,7 +119,7 @@ export class CoopGame {
   let first=Infinity,hit=null,hitKind=-1;
   // Scan the original groups in order without constructing per-round snapshots.
   for(let kind=0;kind<3;kind++){
-   if(kind===2&&!b.formationBoss129)continue;
+   if(kind===2)continue; // Augmentation wingmen are never Arras entrance victims.
    const targets=kind===0?this.players:kind===1?this.patrols:this.allies;
    for(const target of targets){
     if(kind===0?!live(target):kind===1?!(target.hp>0&&target.life>0):!(target.life>0))continue;
@@ -129,7 +129,7 @@ export class CoopGame {
     if(t<first){first=t;hit=target;hitKind=kind}
    }
   }
-  if(hit){if(hitKind===0){hit.damageSource={x:x0,y:y0,bullet:b,impactX:x0+dx*first,impactY:y0+dy*first};this.hitPlayer(hit,highRiskDamage(b.damage,hit.maxHp,b));hit.damageSource=null;}else if(hitKind===1)this.hitPatrol(hit,b.damage);else this.hitFormationAlly(hit,b.damage);b.life=0}
+  if(hit){if(hitKind===0){hit.damageSource={x:x0,y:y0,bullet:b,impactX:x0+dx*first,impactY:y0+dy*first};this.hitPlayer(hit,highRiskDamage(b.damage,hit.maxHp,b));hit.damageSource=null;}else if(hitKind===1)this.hitPatrol(hit,b.damage,b);else this.hitFormationAlly(hit,b.damage);b.life=0}
  }
  handleDeath(e,b){if(e.stageBossBody||e.deathHandled||e.hp>0)return;e.deathHandled=true;const credited=!b.patrol||e.playerHit,owner=this.player(b.ownerId);owner?.spawnAmatolSecondary(e,b);if(credited){this.kills++;if(owner)owner.kills++;if(!e.surface&&!e.fieldUnit&&(e.bossPilot||['boss','zeppelin','bomber'].includes(e.type)))this.priorityKills++}else this.patrolKills=(this.patrolKills||0)+1;if(e.type==='zeppelin')this.wreckGust(e);{const style=chooseEnemyDeathStyle(e,()=>this.rng()),burst=enemyDeathBurst(e,style);this.burst(e.x,e.y,'#f2aa52',burst.count,burst.kind)};this.smoke(e.x,e.y,true);this.event('kill','');if(e.type==='boss'){this.bossKilled=true;if(owner&&live(owner))owner.hp=Math.min(owner.maxHp,owner.hp+owner.maxHp*DURABILITY_BALANCE.repairPickupFraction)}if(credited){const big=e.bossPilot||e.type==='boss';if(big)for(let gi=0;gi<5;gi++)this.drops.push({id:this.nextEntityId++,x:e.x+Math.cos(gi*1.26)*44,y:e.y+Math.sin(gi*1.26)*44,value:14,heal:false});this.drops.push({id:this.nextEntityId++,x:e.x,y:e.y,value:big?30:e.heavyBomber?16:e.type==='bomber'?3:(e.xpValue||1),heal:big||this.rng()<.03});Game.prototype.dropObservationRepair.call(this,e)}}
  updateSchedules(dt){

@@ -64,7 +64,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  }
  drawCombatFeedback(c,g,(x,y)=>[x,y],{fx,planeSprite});
  for(const a of g.allies){const owner=g.player(a.ownerId);sprite(a,owner?.pilot==='goering'?'goering_fokkerd7':a.plane,.78);if(owner?.wingBoost>0&&owner.pilot!=='goering')ring(a.x,a.y,28,'#f5e7ad',2)}
- for(const patrol of g.patrols){if(patrol.hp<=0)continue;sprite(patrol,patrol.plane,.9);c.fillStyle='#83dce9';c.fillRect(patrol.x-16,patrol.y+34,32*patrol.hp/patrol.maxHp,3)}
+ for(const patrol of g.patrols){if(patrol.crashing){drawAircraftCrash(c,patrol,patrol.x,patrol.y,t,fx);sprite(patrol,patrol.plane,.9*enemyCrashScale(patrol));continue;}if(patrol.hp<=0)continue;sprite(patrol,patrol.plane,.9);c.fillStyle='#83dce9';c.fillRect(patrol.x-16,patrol.y+34,32*patrol.hp/patrol.maxHp,3)}
  for(const p of g.players){for(const wing of p.formationWings||[]){c.globalAlpha=wing.alpha||0;sprite(wing,'collishaw_sopwith');c.globalAlpha=1}for(const wing of p.divingSquadron||[])sprite(wing,'se5a');
    if(p.pilot==='rickenbacker'&&(p.rickActive||p.skillTime)>0){const ph=t*3.1,ea=.32;c.save();c.globalAlpha=.8;c.strokeStyle='rgba(255,226,140,.85)';c.lineWidth=2;c.beginPath();c.ellipse(p.x,p.y,58,30,ea,0,Math.PI*2);c.stroke();c.globalAlpha=.22;c.lineWidth=1;c.beginPath();c.ellipse(p.x,p.y,58,30,ea,0,Math.PI*2);c.stroke();c.restore()}
    if(p.fxOverheat>0&&p.pilot!=='udet'){c.save();c.globalAlpha=.55*p.fxOverheat;const nx=p.x+Math.cos(p.a)*14,ny=p.y+Math.sin(p.a)*14;c.fillStyle='#ff8a3c';c.beginPath();c.arc(nx,ny,7+Math.sin(t*30)*2.4,0,Math.PI*2);c.fill();c.fillStyle='#ffd27a';c.beginPath();c.arc(nx,ny,3.4,0,Math.PI*2);c.fill();c.restore()}
