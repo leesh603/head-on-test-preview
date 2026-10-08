@@ -20,7 +20,7 @@ import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=tame3';
 import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=tame3';
 import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=tame3';
 import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=tame3';
-import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=tame3';
+import {fx,fxReady,fxImage,fxTint,FX3} from './fx-art.js?v=tame3';
 import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=tame3';
 import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=tame3';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=tame3';
@@ -786,6 +786,16 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
       fx(c,'mist',h.x,h.y-h.radius*.2,h.radius*2.1,h.radius*1.5,drift*.15,fade*.22);
      }
      impactMark(c,h.x,h.y,h.radius,1,{tone:'blind',alpha:.55*fade,cross:false,fill:false});
+    }else if(!warning&&h.visual==='livens-gas'){
+     const q=clamp((h.age-h.delay-h.warning)/Math.max(.01,h.duration),0,1),fade=1-q,rr=h.radius,drift=h.age*.22;
+     if(FX3){
+      // Gray toxic burst from a ruptured fuel drum — gas fields tinted gray.
+      fxTint(c,'gas','#8f948e',h.x,h.y,rr*2.5,rr*2.2,drift,.9*fade);
+      fxTint(c,'gas','#a9ada6',h.x+Math.cos(drift*2.3)*rr*.3,h.y+Math.sin(drift*2.3)*rr*.26,rr*1.5,rr*1.3,-drift*1.4,.8*fade);
+      fxTint(c,'gasSmall','#bfc3bb',h.x+Math.cos(-drift*3+2.1)*rr*.55,h.y+Math.sin(-drift*3+2.1)*rr*.48,rr*1.1,rr*.95,drift*2.2,.75*fade);
+      fxTint(c,'gasSmall','#9aa09a',h.x+Math.cos(drift*2.6+4.2)*rr*.62,h.y+Math.sin(drift*2.6+4.2)*rr*.54,rr*.9,rr*.8,-drift*2.6,.7*fade);
+     }
+     impactMark(c,h.x,h.y,rr,1,{tone:'blind',alpha:.8*fade,cross:false,fill:false});
     }else if(warning){impactMark(c,h.x,h.y,h.radius,clamp((h.age-h.delay)/h.warning,0,1),{heavy:h.raidHeavy||h.visual==='rail-shell'||h.visual==='observer-shell'});}
     // Short impacts get the host's explosion sprite; only lingering zones keep a marker.
     else if(h.duration>.6&&h.visual!=='zubian-mortar')impactMark(c,h.x,h.y,h.radius,1,{alpha:.5,cross:false});

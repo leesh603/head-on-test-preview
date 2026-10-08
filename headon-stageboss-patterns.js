@@ -766,7 +766,8 @@ export class LivensFlameProjector extends PatternBoss {
   dispose(){this.flameQueue.length=0;this.entryMotion.clear();this.lockedFlameAngle=null;this.stormActive=false;this.recovery=0;}
   suppressive(){/* Livens attacks through its persistent flamethrower and fuel leaks. */}
   onPartDestroyed(p){
-    if(p.id.startsWith('tank-'))this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:54,warning:.65,duration:2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak',tag:'livens-leak'});
+    if(p.id.startsWith('tank-')){this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:54,warning:.65,duration:2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak',tag:'livens-leak'});
+     this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:145,warning:1.1,duration:6.5,tickInterval:.55,damage:this.t.damage*.4,visual:'livens-gas',tag:'livens-gas'});}
     if(p.id==='pressure'){if(this.flameMode==='entry'&&this.trenchEntry.state==='active')this.trenchEntry.firstDone=true;this.command('cancel-hazards',{tag:'livens-flame'});this.lockedFlameAngle=null;this.flameGap=.6;this.recovery=1.8;}
     if(p.id==='pressure')this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:68,warning:.8,duration:.4,once:true,damage:this.t.damage*.75,visual:'livens-pressure'});
     // The core opens once the fuel/pressure system is wrecked; the nozzle
