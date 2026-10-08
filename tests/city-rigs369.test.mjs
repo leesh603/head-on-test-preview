@@ -56,8 +56,8 @@ test('Drachen survivors regenerate staggered mines from their own visible mounts
  const events=[],b=new DrachenMineNet({id:'b',x:0,y:0,tuning,rng:()=>.37,emit:e=>events.push(e)}),ctx={players:[{id:'p',x:0,y:210,alive:true}],bounds:{left:-640,right:640,top:-400,bottom:400}};
  b.hit({partId:'airship-0',damage:1000});b.hit({partId:'airship-1',damage:1000});
  for(let i=0;i<600;i++)b.update(.05,ctx);
- const mines=events.filter(e=>e.type==='spawn-minefield');assert.ok(mines.length>35);assert.ok(b.netWave>=8);
+ const mines=events.filter(e=>e.type==='spawn-minefield');assert.ok(mines.length>=12);assert.ok(b.netWave>=3&&b.netWave<=4);
  assert.ok(mines.every(e=>e.points.length===1&&e.maxMines===26&&e.sourceX>0));
- assert.ok(mines.some(e=>e.warning===2.1));
+ assert.ok(mines.some(e=>e.blastHeavy&&e.fuse===4.1));assert.ok(mines.every(e=>e.warning>=1.25));
  b.hit({partId:'airship-2',damage:1000});events.length=0;for(let i=0;i<100;i++)b.update(.05,ctx);assert.equal(events.length,0);
 });

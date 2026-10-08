@@ -47,7 +47,7 @@ export class BossHazards {
       x:spec.x,y:spec.y,vx:spec.vx||0,vy:spec.vy||0,radius:spec.radius||6,width:spec.width||1,height:spec.height||1,
       angle:spec.angle||0,angularSpeed:spec.angularSpeed||0,halfAngle:spec.halfAngle||.15,length:spec.length||1,thickness:spec.thickness||1,
       endX:spec.endX??null,endY:spec.endY??null,endVx:spec.endVx||0,
-      damage:spec.damage,age:0,delay:spec.delay||0,warning:spec.warning||0,duration:spec.duration,
+      raidHeavy:!!spec.raidHeavy,damage:spec.damage,age:0,delay:spec.delay||0,warning:spec.warning||0,duration:spec.duration,
       tickInterval:spec.tickInterval||.5,nextTick:0,phase:'waiting',once:!!spec.once,applied:false,activated:false,
       targetId:spec.targetId,lockAtWarning:!!spec.lockAtWarning,locked:false,offsetX:spec.offsetX||0,offsetY:spec.offsetY||0,telegraphHalf:spec.telegraphHalf||0,
       muzzleLength:spec.muzzleLength||0,

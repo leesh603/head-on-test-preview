@@ -1,3 +1,4 @@
+import {shellMarch} from './boss-raid-strikes.js';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3';
 import {intersectsEllipse} from './regional-boss-layout352.js?v=tame3';
@@ -59,7 +60,7 @@ export class CityFlakCell extends BaseBoss{
   this.network(dt,bounds);
   if(!siege.destroyed){
    if(this.shellLock){const q=this.shellLock;const aim=Math.atan2(q.y-this.y-siege.y,q.x-this.x-siege.x);siege.angle=turn(siege.angle,aim,.85*dt);q.remaining-=dt;q.age+=dt;
-    if(q.remaining<=0&&Math.abs(delta(aim,siege.angle))<.08){const from=this.muzzle(siege);this.hazard('circle',{x:q.x,y:q.y,...{sourceX:from.x,sourceY:from.y},radius:Math.max(32,58*s),warning:1.35,duration:.48,once:true,damage:this.t.damage*1.35,visual:'city-flak-shell',tag:this.id+'-shell'});this.command('muzzle',{...from,partId:'siege'});this.shellLock=null;this.cursor++;this.timers.set('siege',5.6/enrage);}
+    if(q.remaining<=0&&Math.abs(delta(aim,siege.angle))<.08){const from=this.muzzle(siege);this.hazard('circle',{x:q.x,y:q.y,...{sourceX:from.x,sourceY:from.y},radius:Math.max(32,58*s),warning:1.35,duration:.48,once:true,damage:this.t.damage*1.35,visual:'city-flak-shell',tag:this.id+'-shell'});if(q.mode==='tracked')shellMarch(this,{source:from,partId:'siege',target:{x:q.x,y:q.y,vx:target.vx||0,vy:target.vy||0},rows:2,step:90,radius:Math.max(38,58*s),warning:1.83,beat:.48,visual:'city-flak-shell',tag:this.id+'-shell'});this.command('muzzle',{...from,partId:'siege'});this.shellLock=null;this.cursor++;this.timers.set('siege',5.6/enrage);}
     else if(q.age>5.5)this.shellLock=null;
    }else if(this.due('siege',dt,5.6/enrage)){
     if(!ears.destroyed&&this.lockProgress>=1.4)this.planShell(clamp(target.x+(target.vx||0)*.45,bounds.left+35,bounds.right-35),clamp(target.y+(target.vy||0)*.45,bounds.top+35,bounds.bottom-35));

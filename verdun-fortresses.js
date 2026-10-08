@@ -1,3 +1,4 @@
+import {impactPulse} from './boss-raid-strikes.js';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3';
 import {segmentDistance} from './alps-geometry117.js?v=tame3';
@@ -184,8 +185,8 @@ export class FortDouaumont extends VerdunFortress{
   this.refreshArmor();
  }
  finalHeavy(dt,players,bounds){
-  if(!this.lastStandDone&&this.heavyActive&&(this.hp<=this.maxHp*.45||['ammo-left','ammo-right'].some(id=>this.parts.get(id).revealed))){
-   this.lastStandDone=true;this.lastStand={age:0,index:0};
+  this.raidClock=(this.raidClock||0)+(!this.lastStand&&this.recovery<=0?dt:0);if(!this.lastStand&&this.heavyActive&&this.recovery<=0&&((!this.lastStandDone&&(this.hp<=this.maxHp*.45||['ammo-left','ammo-right'].some(id=>this.parts.get(id).revealed)))||this.raidClock>=16)){
+   this.lastStandDone=true;this.raidClock=0;this.lastStand={age:0,index:0};
    for(const p of this.parts.values()){p.salvo=null;this.cancel(p.id);}
    this.command('phase-change',{phase:'douaumont-last-barrage'});
   }
@@ -214,7 +215,7 @@ export class FortDouaumont extends VerdunFortress{
    if(q.remaining<=0&&Math.abs(delta(p.angle,q.angle))<.16){
     const n=q.final?1:control&&!this.flankStarved(side)?2:1,radius=q.radius||clamp(48*this.fortScale,28,48);
     for(let i=0;i<n;i++)this.shell(p,{x:clamp(q.x+(i-(n-1)/2)*75*this.fortScale,bounds.left+radius,bounds.right-radius),y:q.y},{radius,warning:q.final?1.8:control?1.65:2.05,delay:i*.22,damage:1.35});
-    this.burst(p,target,3,.22);
+    if(q.final)impactPulse(this,{x:q.x,y:q.y,radius:Math.max(80,radius*1.65),warning:2.5,source:this.muzzle(p),partId:p.id,visual:'verdun-heavy-shell',tag:this.tag(p.id)});else this.burst(p,target,3,.22);
     p.salvo=null;p.targetCursor=(p.targetCursor||0)+1;this.command('heavy-gun-fired',{partId:p.id});
    }
   }else{
@@ -269,8 +270,8 @@ export class FortSouville extends VerdunFortress{
   this.command('fort-pit-open',{partId:p.id,x:this.x+p.x,y:this.y+p.y,seconds:p.openRemaining});
  }
  finalPits(dt,players,bounds){
-  if(!this.lastStandDone&&(this.parts.get('ammo').revealed||this.hp<=this.maxHp*.4)){
-   this.lastStandDone=true;this.lastStand={age:0,index:0};
+  this.raidClock=(this.raidClock||0)+(!this.lastStand&&this.recovery<=0?dt:0);if(!this.lastStand&&this.recovery<=0&&((!this.lastStandDone&&(this.parts.get('ammo').revealed||this.hp<=this.maxHp*.4))||this.raidClock>=16)){
+   this.lastStandDone=true;this.raidClock=0;this.lastStand={age:0,index:0};
    for(const p of this.parts.values()){this.cancel(p.id);p.salvo=null;}
    this.cancel('observer');this.command('phase-change',{phase:'souville-last-resistance'});
   }
@@ -281,7 +282,7 @@ export class FortSouville extends VerdunFortress{
   if(run.index<count&&run.age>=1.1+run.index*interval){
    const i=run.index++,p=pits[i%pits.length],target=this.target(players);
    if(target){const r=Math.min(39*this.fortScale,(bounds.right-bounds.left)*.1),q=this.landing(target,bounds,observed?.45:0,r);
-    q.x=bounds.left+(bounds.right-bounds.left)*(i%2?.78:.22);this.openPit(p,players,bounds,q);p.openRemaining=4.5;}
+    q.x=clamp(q.x+(i%2?1:-1)*62,bounds.left+r,bounds.right-r);this.openPit(p,players,bounds,q);p.openRemaining=4.5;}
   }
   if(run.index>=count&&!pits.some(p=>p.salvo)&&run.age>=1.1+count*interval+2.1){
    this.lastStand=null;this.recovery=3.2;this.command('phase-change',{phase:'verdun-recovery'});
@@ -312,7 +313,7 @@ export class FortSouville extends VerdunFortress{
    if(p.kind!=='pit'||p.destroyed||!p.active)continue;
    if(p.openRemaining>0){p.openRemaining=Math.max(0,p.openRemaining-dt);
     if(p.salvo){const q=p.salvo;p.angle=turn(p.angle,q.angle,1.3*dt);q.remaining-=dt;
-     if(q.remaining<=0&&Math.abs(delta(p.angle,q.angle))<.2){this.shell(p,q,{radius:clamp(39*this.fortScale,25,39),warning:1.55,damage:1.1,visual:this.coreVulnerable?'verdun-core-shell':'verdun-ambush-shell'});this.burst(p,this.target(players),3,.2);p.salvo=null;}}
+     if(q.remaining<=0&&Math.abs(delta(p.angle,q.angle))<.2){this.shell(p,q,{radius:clamp(39*this.fortScale,25,39),warning:1.55,damage:1.1,visual:this.coreVulnerable?'verdun-core-shell':'verdun-ambush-shell'});if(this.lastStand&&this.lastStand.index>0)impactPulse(this,{x:q.x,y:q.y,radius:75,warning:2.25,source:this.muzzle(p),partId:p.id,visual:'verdun-ambush-shell',tag:this.tag(p.id)});else this.burst(p,this.target(players),3,.2);p.salvo=null;}}
     if(p.openRemaining<=0){p.revealed=false;p.hittable=false;p.salvo=null;}
    }
   }

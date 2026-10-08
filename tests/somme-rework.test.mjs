@@ -57,7 +57,7 @@ test('creeping barrage changes impact rows while preserving its committed clear 
  const events=[],b=new SchwabenFortress({id:'fort',x:0,y:0,tuning:{...tuning,regionalViewWidth:1440},emit:e=>events.push(e)});
  const wide={left:-720,right:720,top:-500,bottom:500},players=[{id:'p',alive:true,x:0,y:200}];
  b.wave=1;b.planBarrage(players,wide);const captured={...b.lock};b.launchBarrage();
- const shots=events.filter(e=>e.visual==='somme-heavy-shell');assert(shots.length>=2);assert(new Set(shots.map(s=>s.y)).size>1);
+ const shots=events.filter(e=>e.visual==='somme-heavy-shell'&&!e.raidHeavy);assert(shots.length>=2);assert(new Set(shots.map(s=>s.y)).size>1);
  for(const shot of shots){assert(Math.abs(shot.x-captured.gate)-shot.radius>=b.lane.width/2);assert(shot.warning>=1.65);assert(shot.delay<=1.28);}
  b.timers.set('twin-aa',0);b.update(.01,{players,bounds:wide});
  for(const shot of events.filter(e=>e.visual==='somme-aa-shell'))assert(Math.abs(shot.x-b.lane.x)-shot.radius>=b.lane.width/2);

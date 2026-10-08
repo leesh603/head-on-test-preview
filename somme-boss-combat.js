@@ -1,3 +1,4 @@
+import {broadsideBreak,impactPulse} from './boss-raid-strikes.js';
 import {fireFanSalvo,barrageStrip} from './boss-salvo-geometry.js';
 import {driveLandship} from './somme-landship-drive.js?v=tame3';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3';
@@ -55,7 +56,7 @@ class SommeBoss extends BaseBoss{
   if(!traverse.reachable)return;
   p.angle=traverse.angle;
   const speed=this.t.bulletSpeed*speedMul;
-  fireFanSalvo(this,{...m,angle:traverse.angle,speed,damage:this.t.damage*.55,visual:'aa-shell',tag:this.tag(p.id+':volley'),sourcePartId:p.id,count:9,spread:1.45,beats:2,beat:.45,warning:.85,gapIndex:p.id.includes('left')?2:8,step:p.id.includes('left')?1:-1});
+  broadsideBreak(this,{source:m,partId:p.id,angle:traverse.angle,speed:320,visual:'aa-shell',tag:this.tag(p.id+':volley'),spread:1.45,beats:3,beat:.45,warning:1.05});
   p.recoil=.26;this.command('muzzle',{...m,partId:p.id});
  }
 }
@@ -98,7 +99,8 @@ export class SchwabenFortress extends SommeBoss{
    for(const shot of barrageStrip({bounds,y:rowY,gate:q.gate,gap,radius:r,warning:(q.mode==='blind'?2.05:1.65)+row*.48,beat:0,damage:this.t.damage*1.35,visual:'somme-heavy-shell',tag:this.tag('barrage'),sourceX:m.x,sourceY:m.y}))this.hazard(shot.kind,shot);
    p.recoil=.28;this.command('muzzle',{...m,partId:id});
   }
-  this.salvo={mode:q.mode,pattern:q.pattern,gate:q.gate,width:gap,y:q.y,remaining:3.2};this.lane.remaining=4.1;this.lock=null;this.lockProgress=0;
+  if(!starved){const gun=this.parts.get(q.guns.at(-1));if(!gun.destroyed)impactPulse(this,{x:q.gate,y:q.y,radius:Math.max(70,gap*.7),warning:3.4,source:sommeMuzzle(this,gun),partId:gun.id,visual:'somme-heavy-shell',tag:this.tag('barrage')});}
+  this.salvo={mode:q.mode,pattern:q.pattern,gate:q.gate,width:gap,y:q.y,remaining:6.3};this.lane.remaining=2.9;this.lock=null;this.lockProgress=0;
  }
  update(dt,{players,bounds}){
   if(this.dead)return;this.tickParts(dt);if(this.lane)this.lane.remaining=Math.max(0,this.lane.remaining-dt);if(this.salvo&&(this.salvo.remaining-=dt)<=0)this.salvo=null;

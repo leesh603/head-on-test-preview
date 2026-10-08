@@ -96,7 +96,7 @@ export class GallipoliFortress extends BaseBoss{
    for(let j=0;j<(p.art==='twin'&&!ammoGone?2:1);j++)shots.push({...point,y:point.y+j*130,radius:p.kind==='aa'?34:60,delay:1+i*1.15+j*.24,barrel:j?1:-1,warning:observed?2:2.5,tag:this.id+':'+p.id});
    p.aimTarget=point;sources.push({id:p.id,target:point,shots});
   }
-  if(!this.commandDestroyed){const point={x:target.x+(target.vx||0)*.65,y:target.y+(target.vy||0)*.65};this.coreAimTarget=point;sources.push({id:null,target:point,shots:[{...point,radius:100,delay:4.5,warning:2.4,tag:this.id+':central'}]});}
+  if(!this.commandDestroyed){const point={x:target.x+(target.vx||0)*.65,y:target.y+(target.vy||0)*.65};this.coreAimTarget=point;sources.push({id:null,target:point,shots:[{...point,radius:145,delay:4.5,warning:2.4,raidHeavy:true,duration:.22,tag:this.id+':central'}]});}
   if(!sources.length)return;
   // End old AA/ring fire before the sector-by-sector artillery order.
   for(const p of this.parts.values())this.command('cancel-hazards',{tag:this.id+':'+p.id});this.command('cancel-hazards',{tag:this.id+':central'});
@@ -129,7 +129,7 @@ export class GallipoliFortress extends BaseBoss{
   if(this.recoveryRemaining>0){this.recoveryRemaining=Math.max(0,this.recoveryRemaining-dt);if(!this.recoveryRemaining)this.phase=['','gallipoli-coastal-line','gallipoli-citadel-defense','gallipoli-last-defense'][this.defensePhase];return;}
   const mult=Math.min(3,this.t.patternMultiplier||1);this.coastalClock+=dt*mult;this.centralClock+=dt*mult;this.finalClock+=dt;
   if(this.pendingAttack?.kind==='final'){this.fireIfAligned(dt);return;}
-  if(!this.pendingAttack&&!this.lane?.remaining&&!this.centralRemaining&&this.defensePhase===3&&this.finalClock>=18){const target=this.target(players);if(target){this.planFinal(target);this.fireIfAligned(dt);return;}}
+  if(!this.pendingAttack&&!this.lane?.remaining&&!this.centralRemaining&&this.finalClock>=(this.defensePhase===3?18:24)){const target=this.target(players);if(target){this.planFinal(target);this.fireIfAligned(dt);return;}}
   this.aaClock=(this.aaClock??0)+dt*mult;
   if(this.aaClock>=1.5&&!this.recoveryRemaining){this.aaClock=0;const mounts=[...this.parts.values()].filter(p=>p.kind==='aa'&&!p.destroyed&&p.repairGrace<=0);
    if(mounts.length){const m=mounts[(this.aaCursor=(this.aaCursor||0)+1)%mounts.length];m.recoil=.18;const q=gallipoliMuzzle(this,m);Object.assign(m,{gunFlash:.12,flashX:q.x,flashY:q.y});this.aaSourceId=m.id;this.command('muzzle',{...q,partId:m.id});this.shot(q.x,q.y,m.angle,7,.95);}}
