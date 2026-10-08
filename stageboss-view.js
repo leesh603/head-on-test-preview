@@ -1,14 +1,15 @@
 import {MINEN_TUBES} from './minenwerfer-art-layout.js';
 import {drawMinenInstallation} from './minenwerfer-art-render.js';
+import {impactMark,bandMark,partMark,shieldMark,aimLine,laneEdge,stripMark,sectorMark,lockMark,MARK} from './tactical-marks.js?v=tame3';
 import {prepareBossCutins} from './boss-cutin-art.js?v=tame3&rail=18';
 import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=tame3';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=tame3';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=tame3&rail=18';
 import {verdunFortExtents} from './verdun-fortresses.js?v=tame3&rail=18';
 import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=tame3&rail=1';
-import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=tame3&rail=31';
+import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=tame3&rail=32';
 import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=tame3';
-import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=tame3&rail=31';
+import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=tame3&rail=32';
 import {sommeExtents} from './somme-boss-layout.js?v=tame3';
 import {drawZubianShip} from './adriatic-boss-render.js?v=tame3';
 import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=tame3';
@@ -38,6 +39,7 @@ import {drawAlpsBomber,drawAlpsPart,drawAlpsWarnings,drawAlpsHazard} from './alp
 import {drawHarborFortress} from './harbor-crane-render.js?v=tame3';
 
 
+
 function createLazyImageGroup(sources){
  const cache={},pending={};
  const load=key=>{
@@ -56,23 +58,23 @@ function createLazyImageGroup(sources){
 const supportGroup=createLazyImageGroup({ship:'./stuttgart-art-20261008.webp',shipMat:'./stuttgart-art-20261008.webp',cover:'./stuttgart-art-20261008.webp',damage:'./stuttgart-wreck-20261008.webp'}),supportImages129=supportGroup.images;
 
 const bossSources={
- parisGun:'./boss-bruno-train115.webp',lincomparable:'./boss-lincomparable94.webp?v=r5&b=345',stuttgart:'./boss-sms-stuttgart94.webp',zubian:'./boss-hms-zubian94.webp',
- l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=r5&b=345',ca4:'./boss-ca4.webp?v=r5&b=345',
- londonApron:'./boss-london-apron115.webp?v=r5',londonApronDamage1:'./boss-london-apron-registered-damage369.png?v=r5',drachenNet:'./boss-drachen-net115.webp?v=r5',drachenLeft:'./boss-drachen-left380.webp?v=r5',drachenCenter:'./boss-drachen-center380.webp?v=r5',drachenRight:'./boss-drachen-right380.webp?v=r5',
- railCarrier:'./boss-art-rail-carrier.webp?v=r5',treffasWagen:'./boss-art-treffas-wagen.webp?v=r5',
- mark4:'./boss-mark4.webp?v=r5',mark4Wreck:'./boss-mark4-wreck.webp?v=r5',morser:'./boss-morser.webp?v=r5',morserWreck:'./boss-morser-wreck.webp?v=r5',
- staaken:'./staaken_dark.webp?v=r5',staakenWreck:'./boss-staaken-wreck.webp?v=r5',searchlight:'./boss-searchlight.webp?v=r5',searchlightWreck:'./boss-searchlight-wreck.webp?v=r5'
+ parisGun:'./boss-bruno-train115.webp',lincomparable:'./boss-lincomparable94.webp?v=tame3&b=345',stuttgart:'./boss-sms-stuttgart94.webp',zubian:'./boss-hms-zubian94.webp',
+ l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=tame3&b=345',ca4:'./boss-ca4.webp?v=tame3&b=345',
+ londonApron:'./boss-london-apron115.webp?v=tame3',londonApronDamage1:'./boss-london-apron-registered-damage369.png?v=tame3',drachenNet:'./boss-drachen-net115.webp?v=tame3',drachenLeft:'./boss-drachen-left380.webp?v=tame3',drachenCenter:'./boss-drachen-center380.webp?v=tame3',drachenRight:'./boss-drachen-right380.webp?v=tame3',
+ railCarrier:'./boss-art-rail-carrier.webp?v=tame3',treffasWagen:'./boss-art-treffas-wagen.webp?v=tame3',
+ mark4:'./boss-mark4.webp?v=tame3',mark4Wreck:'./boss-mark4-wreck.webp?v=tame3',morser:'./boss-morser.webp?v=tame3',morserWreck:'./boss-morser-wreck.webp?v=tame3',
+ staaken:'./staaken_dark.webp?v=tame3',staakenWreck:'./boss-staaken-wreck.webp?v=tame3',searchlight:'./boss-searchlight.webp?v=tame3',searchlightWreck:'./boss-searchlight-wreck.webp?v=tame3'
 };
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
-const alpsGroup=createLazyImageGroup({gik:'./alps-gik-damage-20261001.webp?v=r5',ca4:'./alps-ca4-damage-20261001.webp?v=r5'}),alpsArt=alpsGroup.images;
+const alpsGroup=createLazyImageGroup({gik:'./alps-gik-damage-20261001.webp?v=tame3',ca4:'./alps-ca4-damage-20261001.webp?v=tame3'}),alpsArt=alpsGroup.images;
 const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.webp',a7vTurret:'./boss-a7v-turret-rebuild.webp',markvHull:'./boss-mark-v-hull-rebuild.webp',markvSponson:'./boss-mark-v-sponson-rebuild.webp'}),rebuildArt=rebuildGroup.images;
 const armorMotionGroup=createLazyImageGroup({wire:'./boss-trench-wire-20261008.webp',crossing:'./boss-trench-crossing-20261008.webp',lamp:'./boss-searchlight.webp',lampWreck:'./boss-searchlight-wreck.webp'}),armorMotionArt=armorMotionGroup.images;
 const armorDamageGroup=createLazyImageGroup({a7vLeft:'./boss-a7v-track-left-20260930.webp',a7vRight:'./boss-a7v-track-right-20260930.webp',a7vBreached:'./boss-a7v-breached-20260930.webp',a7vWreck:'./boss-a7v-wreck-20260930.webp',a7vGunWreck:'./boss-a7v-gun-wreck-20260930.webp',markLeft:'./boss-mark-v-track-left-20260930.webp',markRight:'./boss-mark-v-track-right-20260930.webp',markBreached:'./boss-mark-v-breached-20260930.webp',markWreck:'./boss-mark-v-wreck-20260930.webp',markGunWreck:'./boss-mark-v-gun-wreck-20260930.webp'}),armorDamage=armorDamageGroup.images;
-const flakTowerGroup=createLazyImageGroup({hull:'./boss-flak-tower-hull.webp?v=r5',siege:'./boss-flak-tower-siege.webp?v=r5',ears:'./boss-flak-tower-ears.webp?v=r5',gun:'./boss-flak-tower-platform.webp?v=r5',damage:'./city-flak-damage-20261001.webp?v=r5'}),flakArt=flakTowerGroup.images;
+const flakTowerGroup=createLazyImageGroup({hull:'./boss-flak-tower-hull.webp?v=tame3',siege:'./boss-flak-tower-siege.webp?v=tame3',ears:'./boss-flak-tower-ears.webp?v=tame3',gun:'./boss-flak-tower-platform.webp?v=tame3',damage:'./city-flak-damage-20261001.webp?v=tame3'}),flakArt=flakTowerGroup.images;
 // Part sprites hold their ring disc off-center inside the frame; anchoring
 // shifts by these measured disc-center fractions so the disc lands on the part.
 const FLAK_PART_ART={siege:{im:'siege',dcx:.499,dcy:.489,forward:Math.PI/2},ears:{im:'ears',dcx:.401,dcy:.660,forward:Math.PI/4},'gun-bl':{im:'gun',dcx:.497,dcy:.482,forward:Math.PI/2},'gun-br':{im:'gun',dcx:.497,dcy:.482,forward:Math.PI/2}};
-const harborGroup=createLazyImageGroup({base:'./boss-armored-harbor-main-base.webp',craneArm:'./boss-armored-harbor-crane-arm.webp',cranePivot:'./boss-armored-harbor-crane-pivot.webp',ammo:'./boss-armored-harbor-ammo-storage.webp',guns:'./boss-armored-harbor-gun-emplacements.webp',facility:'./boss-armored-harbor-seaplane-facility.webp',parts:'./harbor-parts-20261001.webp?v=r5'}),harborArt=harborGroup.images;
+const harborGroup=createLazyImageGroup({base:'./boss-armored-harbor-main-base.webp',craneArm:'./boss-armored-harbor-crane-arm.webp',cranePivot:'./boss-armored-harbor-crane-pivot.webp',ammo:'./boss-armored-harbor-ammo-storage.webp',guns:'./boss-armored-harbor-gun-emplacements.webp',facility:'./boss-armored-harbor-seaplane-facility.webp',parts:'./harbor-parts-20261001.webp?v=tame3'}),harborArt=harborGroup.images;
 const trenchGroup=createLazyImageGroup({
  soilBurst:'./fx-dirt-burst.webp',soilDust:'./fx-dust-puff.webp',
  livensParts:'./livens-parts-20261008.webp',livensBase:'./boss_livens_base187.webp',
@@ -161,7 +163,7 @@ function drawMinenwerfer(c,b){
  const plan=b.mortarPlan;
  if(plan)for(const shot of plan.shots){
   if(plan.age>shot.at+shot.warning+.62||shot.retarget&&!shot.fired)continue;const x=shot.x-b.x,y=shot.y-b.y;
-  if(!shot.fired){c.strokeStyle=plan.final?'#ffbe78':'#ffe19b';c.lineWidth=2;c.setLineDash([7,5]);c.beginPath();c.arc(x,y,shot.radius,0,Math.PI*2);c.stroke();c.setLineDash([]);}
+  if(!shot.fired)impactMark(c,x,y,shot.radius,Math.min(1,plan.age/Math.max(.01,shot.at+shot.warning)),{heavy:!!(plan.final&&shot.retarget)});
   c.fillStyle='#1c1719dd';c.beginPath();c.arc(x,y,12,0,Math.PI*2);c.fill();c.fillStyle='#ffe0a2';c.font='bold 13px system-ui';c.textAlign='center';c.fillText(String(shot.order),x,y+5);
  }
  const guide=b.mortarGuide;
@@ -172,19 +174,19 @@ function drawMinenwerfer(c,b){
 const railConsistSources={
  parisGun:{chassis:'./rail-bruno-chassis-r1.webp?v=rail1',gun:'./rail-bruno-gun-r1.webp?v=rail1',engine:'./rail-boss-bruno-engine181.webp',front:'./rail-boss-bruno-front181.webp',middle:'./rail-boss-bruno-middle181.webp',rear:'./rail-boss-bruno-rear181.webp'},
  lincomparable:{chassis:'./rail-lincomparable-chassis-r1.webp?v=rail1',gun:'./rail-lincomparable-gun-r1.webp?v=rail1',engine:'./rail-boss-lincomparable-engine181.webp',front:'./rail-boss-lincomparable-front181.webp',middle:'./rail-boss-lincomparable-middle181.webp',rear:'./rail-boss-lincomparable-rear181.webp'},
- railCarrier:{engine:'./boss-rail-carrier-loco.webp?v=r5',front:'./boss-rail-carrier-flak.webp?v=r5',middle:'./boss-rail-carrier-launch.webp?v=r5',rear:'./boss-rail-carrier-hangar.webp?v=r5'}
+ railCarrier:{engine:'./boss-rail-carrier-loco.webp?v=tame3',front:'./boss-rail-carrier-flak.webp?v=tame3',middle:'./boss-rail-carrier-launch.webp?v=tame3',rear:'./boss-rail-carrier-hangar.webp?v=tame3'}
 };
 const railWreckSources={
- parisGun:{engine:'./rail-boss-bruno-engine-wreck192.webp?v=r5&b=345',front:'./rail-boss-bruno-front-wreck192.webp?v=r5&b=345',middle:'./rail-boss-bruno-middle-wreck192.webp?v=r5&b=345',rear:'./rail-boss-bruno-rear-wreck192.webp?v=r5&b=345'},
- lincomparable:{engine:'./rail-boss-lincomparable-engine-wreck192.webp?v=r5&b=345',front:'./rail-boss-lincomparable-front-wreck192.webp?v=r5&b=345',middle:'./rail-boss-lincomparable-middle-wreck192.webp?v=r5&b=345',rear:'./rail-boss-lincomparable-rear-wreck192.webp?v=r5&b=345'},
- railCarrier:{engine:'./boss-rail-carrier-loco-wreck.webp?v=r5',front:'./boss-rail-carrier-flak-wreck.webp?v=r5',middle:'./boss-rail-carrier-launch-wreck.webp?v=r5',rear:'./boss-rail-carrier-hangar-wreck.webp?v=r5'}
+ parisGun:{engine:'./rail-boss-bruno-engine-wreck192.webp?v=tame3&b=345',front:'./rail-boss-bruno-front-wreck192.webp?v=tame3&b=345',middle:'./rail-boss-bruno-middle-wreck192.webp?v=tame3&b=345',rear:'./rail-boss-bruno-rear-wreck192.webp?v=tame3&b=345'},
+ lincomparable:{engine:'./rail-boss-lincomparable-engine-wreck192.webp?v=tame3&b=345',front:'./rail-boss-lincomparable-front-wreck192.webp?v=tame3&b=345',middle:'./rail-boss-lincomparable-middle-wreck192.webp?v=tame3&b=345',rear:'./rail-boss-lincomparable-rear-wreck192.webp?v=tame3&b=345'},
+ railCarrier:{engine:'./boss-rail-carrier-loco-wreck.webp?v=tame3',front:'./boss-rail-carrier-flak-wreck.webp?v=tame3',middle:'./boss-rail-carrier-launch-wreck.webp?v=tame3',rear:'./boss-rail-carrier-hangar-wreck.webp?v=tame3'}
 };
 // Fliegerzug munition + Treffas-Wagen separable parts (destroyed parts get a burn filter).
-const bugGroup=createLazyImageGroup({folded:'./boss-cambrai-bug.webp?v=r5',flight:'./boss-cambrai-bug.webp?v=r5'}),bugArt=bugGroup.images;
-const cambraiGroup=createLazyImageGroup({atlas:'./boss-cambrai-train-atlas.webp?v=r5',wreck:'./boss-cambrai-train-wreck-atlas.webp?v=r5'}),cambraiArt=cambraiGroup.images;
-const treffasGroup=createLazyImageGroup({body:'./boss-cambrai-treffas-connected.webp?v=r5',wreck:'./boss-cambrai-treffas-connected-wreck.webp?v=r5'}),treffasArt=treffasGroup.images;
+const bugGroup=createLazyImageGroup({folded:'./boss-cambrai-bug.webp?v=tame3',flight:'./boss-cambrai-bug.webp?v=tame3'}),bugArt=bugGroup.images;
+const cambraiGroup=createLazyImageGroup({atlas:'./boss-cambrai-train-atlas.webp?v=tame3',wreck:'./boss-cambrai-train-wreck-atlas.webp?v=tame3'}),cambraiArt=cambraiGroup.images;
+const treffasGroup=createLazyImageGroup({body:'./boss-cambrai-treffas-connected.webp?v=tame3',wreck:'./boss-cambrai-treffas-connected-wreck.webp?v=tame3'}),treffasArt=treffasGroup.images;
 // Wreck sprites drawn over destroyed boss parts (wheels, turrets, gun pits...).
-const partWreckGroup=createLazyImageGroup({wheel:'./boss-part-wreck-wheel.webp?v=r5',turret:'./boss-part-wreck-turret.webp?v=r5',tail:'./boss-part-wreck-tail.webp?v=r5',light:'./boss-part-wreck-light.webp?v=r5',gun:'./boss-part-wreck-gun.webp?v=r5',pit:'./boss-part-wreck-pit.webp?v=r5'}),partWreckArt=partWreckGroup.images;
+const partWreckGroup=createLazyImageGroup({wheel:'./boss-part-wreck-wheel.webp?v=tame3',turret:'./boss-part-wreck-turret.webp?v=tame3',tail:'./boss-part-wreck-tail.webp?v=tame3',light:'./boss-part-wreck-light.webp?v=tame3',gun:'./boss-part-wreck-gun.webp?v=tame3',pit:'./boss-part-wreck-pit.webp?v=tame3'}),partWreckArt=partWreckGroup.images;
 const railGroups={},railConsistArt={},railWreckGroups={},railWreckArt={};
 for(const [set,sources] of Object.entries(railConsistSources)){const group=createLazyImageGroup(sources);railGroups[set]=group;railConsistArt[set]=group.images;const wreckGroup=createLazyImageGroup(railWreckSources[set]);railWreckGroups[set]=wreckGroup;railWreckArt[set]=wreckGroup.images;}
 function drawRailConsist181(c,b){
@@ -217,7 +219,7 @@ function drawRailConsist181(c,b){
     c.restore();
    }
    for(const p of cars.values())if(p.launchWarmup>0&&p.launchTarget&&!p.destroyed){
-    const t=p.launchTarget;c.save();c.strokeStyle='#e9c48c8a';c.lineWidth=1.4;c.setLineDash([5,8]);c.beginPath();c.moveTo(p.x,p.y);c.lineTo(t.x-b.x,t.y-b.y);c.stroke();c.beginPath();c.arc(t.x-b.x,t.y-b.y,39,0,Math.PI*2);c.stroke();c.restore();
+    const t=p.launchTarget;aimLine(c,p.x,p.y,t.x-b.x,t.y-b.y,{alpha:.75,chevron:false,dash:[5,8]});impactMark(c,t.x-b.x,t.y-b.y,39,1-Math.max(0,p.launchWarmup)/1.15);
    }
    c.save();if(b.phase==='derailed'){c.translate(18,6);c.rotate(.12);}
    drawCar(b.destroying&&wreck?.naturalWidth?wreck:atlas,0,0);c.restore();
@@ -270,11 +272,11 @@ function drawFormationEdgeBadge(c,x,y,a){
  c.save();c.translate(x,y);c.fillStyle='rgba(28,10,12,.94)';c.strokeStyle='#c85b48';c.lineWidth=2.5;c.beginPath();c.arc(0,0,18,0,Math.PI*2);c.fill();c.stroke();c.fillStyle='#f0d7a4';c.font='700 8px "Arial Narrow",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('BOSS',0,0);c.rotate(a);c.fillStyle='#c85b48';c.beginPath();c.moveTo(24,0);c.lineTo(17,-5);c.lineTo(17,5);c.closePath();c.fill();c.restore();
 }
 const zubianGroup=createLazyImageGroup({atlas:'./zubian-art-20261008.webp',damage:'./zubian-wreck-20261008.webp'}),zubianArt=zubianGroup.images;
-const sinkFoamGroup=createLazyImageGroup({foam:'./ship-sinkfoam.webp?v=r5',splash:'./ship-sinksplash.webp?v=r5',churn:'./ship-sinkchurn.webp?v=r5',wake:'./ship-wake.webp?v=r5'}),sinkFoamArt=sinkFoamGroup.images;
+const sinkFoamGroup=createLazyImageGroup({foam:'./ship-sinkfoam.webp?v=tame3',splash:'./ship-sinksplash.webp?v=tame3',churn:'./ship-sinkchurn.webp?v=tame3',wake:'./ship-wake.webp?v=tame3'}),sinkFoamArt=sinkFoamGroup.images;
 const zubianFrames={intact:[180,8,370,1000],front:[634,24,370,648],rear:[1020,390,390,618]};
 function drawZubianFrame(c,key,x,y,w,h){const zubianAtlas=zubianArt.atlas;if(!zubianAtlas.naturalWidth)return;const f=zubianFrames[key];c.save();c.imageSmoothingEnabled=true;c.drawImage(zubianAtlas,f[0],f[1],f[2],f[3],x-w/2,y-h/2,w,h);c.restore();}
 const drawBossArt=(c,key,w,h)=>{const image=bossArt[key];if(image?.naturalWidth)c.drawImage(image,-w/2,-h/2,w,h)};
-const cityGroup=createLazyImageGroup({london:'./terrain-city-london96.webp?v=r5&b=345',berlin:'./terrain-city-berlin96.webp?v=r5&b=345'}),cityArt=cityGroup.images;
+const cityGroup=createLazyImageGroup({london:'./terrain-city-london96.webp?v=tame3&b=345',berlin:'./terrain-city-berlin96.webp?v=tame3&b=345'}),cityArt=cityGroup.images;
 // Dedicated aircraft-style sprite atlas; collider sizes remain authoritative.
 const partGroup=createLazyImageGroup({atlas:'./boss-parts100.webp'}),partArt=partGroup.images;
 function bossSprite(c,index,x,y,w,h,angle=0,alpha=1){
@@ -373,17 +375,17 @@ function drawCityFlak(c,b){
   if(dead){fx(c,'smokeHeavy',p.x,p.y-22*scale,46*scale,56*scale,0,.28);}
   else if(p.hp<p.maxHp){c.fillStyle='#202e28';c.fillRect(p.x-p.radius,p.y+p.radius+4,p.radius*2,3);c.fillStyle='#efb96f';c.fillRect(p.x-p.radius,p.y+p.radius+4,p.radius*2*p.hp/p.maxHp,3);}
  }
- if(b.coreVulnerable&&!b.destroying){c.strokeStyle='#e6c78b';c.lineWidth=1.5;c.beginPath();c.arc(0,0,44*scale,0,Math.PI*2);c.stroke();}
- if(b.lockProgress>0&&!b.destroying){const p=b.parts.find(p=>p.id==='ears');if(p&&!p.destroyed){c.strokeStyle='#e1ba79';c.lineWidth=2;c.beginPath();c.arc(p.x,p.y,p.radius+6,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(1,b.lockProgress/1.4));c.stroke();}}
- if(b.shellLock&&!b.destroying){const q=b.shellLock,p=b.parts.find(p=>p.id==='siege');c.strokeStyle='#dfad7caa';c.setLineDash([6,6]);c.lineWidth=1.5;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(q.x-b.x,q.y-b.y);c.stroke();c.setLineDash([]);c.beginPath();c.arc(q.x-b.x,q.y-b.y,Math.max(32,58*scale),0,Math.PI*2);c.stroke();}
+ if(b.coreVulnerable&&!b.destroying)partMark(c,0,0,44*scale);
+ if(b.lockProgress>0&&!b.destroying){const p=b.parts.find(p=>p.id==='ears');if(p&&!p.destroyed)lockMark(c,p.x,p.y,p.radius+6,Math.min(1,b.lockProgress/1.4));}
+ if(b.shellLock&&!b.destroying){const q=b.shellLock,p=b.parts.find(p=>p.id==='siege');aimLine(c,p.x,p.y,q.x-b.x,q.y-b.y,{alpha:.8,chevron:false,dash:[6,6]});impactMark(c,q.x-b.x,q.y-b.y,Math.max(32,58*scale),Math.min(1,q.age/Math.max(.01,q.age+q.remaining)));}
  c.restore();
 }
 
 function drawBossPart(c,p,ring,t=0){
  if(MAAN_KEYS.has(p.bodyKey))return;
- if(p.bodyKey==='paris-searchlight-fortress'||p.bodyKey==='paris-staaken-rvi'){const r=p.radius;if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,p.partId==='bomb-bay'?'#f6bf78bb':'#c5e0cf88');if(p.hp<p.maxHp){c.fillStyle='#19242c';c.fillRect(p.x-r,p.y+r+4,r*2,3);c.fillStyle='#e8bc7b';c.fillRect(p.x-r,p.y+r+4,r*2*p.hp/p.maxHp,3);}}return;}
+ if(p.bodyKey==='paris-searchlight-fortress'||p.bodyKey==='paris-staaken-rvi'){const r=p.radius;if(p.hittable&&!p.destroyed)partMark(c,p.x,p.y,r,r,{color:p.partId==='bomb-bay'?'#f2c27c':'#cfe2d4',hp:p.hp<p.maxHp?p.hp/p.maxHp:null});return;}
  if(p.bodyKey==='armored-harbor-fortress')return;
- if(p.bodyKey==='gotha-raider'||p.bodyKey==='london-apron-raid'){const r=p.radius;if(!p.destroyed&&(p.hp<p.maxHp||p.partId==='bomb-bay'&&p.phase==='bombing-run')){ring(p.x,p.y,r,'#efc98aaa');c.fillStyle='#1b242a';c.fillRect(p.x-r,p.y+r+4,r*2,3);c.fillStyle='#edb875';c.fillRect(p.x-r,p.y+r+4,r*2*p.hp/p.maxHp,3);}return;}
+ if(p.bodyKey==='gotha-raider'||p.bodyKey==='london-apron-raid'){const r=p.radius;if(!p.destroyed&&(p.hp<p.maxHp||p.partId==='bomb-bay'&&p.phase==='bombing-run'))partMark(c,p.x,p.y,r,r,{hp:p.hp/p.maxHp});return;}
  if(drawRegionalBossPart(c,p))return;
  const r=p.radius;
  if(RAIL_BODY_KEYS.has(p.bodyKey)||p.bodyKey.startsWith('hms-zubian')){
@@ -407,23 +409,24 @@ function drawBossPart(c,p,ring,t=0){
   if(p.discovered===false)return;
   // The body pass paints each authored emplacement and its wreck state. This
   // pass only communicates targetability and remaining local durability.
-  if(p.hittable&&!p.destroyed){for(const t of MINEN_TUBES){c.strokeStyle='#ffd57988';c.lineWidth=1.4;c.beginPath();c.ellipse(p.x+t.x,p.y+t.y,t.rx,t.ry,0,0,Math.PI*2);c.stroke();}c.fillStyle='#202e28';c.fillRect(p.x-75,p.y+132,150,4);c.fillStyle='#efb96f';c.fillRect(p.x-75,p.y+132,150*p.hp/p.maxHp,4);}return;
+  if(p.hittable&&!p.destroyed){partMark(c,p.x,p.y,r,r,{hp:p.hp/p.maxHp});}return;
+
  }
  if(p.bodyKey==='morser-battery'){
   // Composite art already shows every pit; parts only carry ring + hp bar.
   if(p.destroyed)return;
-  if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
+  if(p.hittable&&!p.destroyed){partMark(c,p.x,p.y,r,r,{hp:p.hp/p.maxHp});}return;
  }
  if(p.bodyKey==='mark4-wedge'){
   // Tanks are painted by the body composite; destroyed hulls keep the wreck
   // art instead of a generic scorch patch.
   if(p.destroyed)return;
-  if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r*.7,p.y+r*.62,r*1.4,4);c.fillStyle='#efb96f';c.fillRect(p.x-r*.7,p.y+r*.62,r*1.4*p.hp/p.maxHp,4);}return;
+  if(p.hittable&&!p.destroyed){partMark(c,p.x,p.y,r,r,{hp:p.hp/p.maxHp});}return;
  }
  if(p.bodyKey==='staaken-rvi'||p.bodyKey==='london-searchlight'){
   // Composite bodies paint the hardware; parts stay interaction markers only.
   if(p.destroyed)return;
-  if(p.hittable){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
+  if(p.hittable){partMark(c,p.x,p.y,r,r,{hp:p.hp/p.maxHp});}return;
  }
  if(p.bodyKey==='a7v-flak'||p.bodyKey==='mark-v-cruiser'){
   // All hardware is assembled in the body pass. Part pass only shows damage.
@@ -435,10 +438,10 @@ function drawBossPart(c,p,ring,t=0){
    const bakedCrane=bakedImage(harborArt.cranePivot,'grayscale(.55) brightness(.7) sepia(.25)');
    c.save();c.imageSmoothingEnabled=true;
    c.drawImage(bakedCrane||harborArt.cranePivot,bodyX-size/2,bodyY-size/2,size,size);c.restore();
-   ring(p.x,p.y,r*1.35,'#ffb55fcc');ring(p.x,p.y,r*.72,'#fff0b0bb');return;
+   partMark(c,p.x,p.y,r*1.2,r*1.2,{color:MARK.heavy});return;
   }
   if(p.destroyed){partWreck(c,p,r,t);return;}
-  if(p.hittable){ring(p.x,p.y,r,'#ffd57999');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
+  if(p.hittable){partMark(c,p.x,p.y,r,r,{hp:p.hp/p.maxHp});}return;
  }
  if(ALPS_BOMBER_KEYS.has(p.bodyKey)){drawAlpsPart(c,p,ring);return;}
  if(['zeppelin-l70','hma23'].includes(p.bodyKey)){
@@ -450,7 +453,7 @@ function drawBossPart(c,p,ring,t=0){
   else bossSprite(c,partSprite,p.x,p.y,r*2.1,r*1.5,Math.PI/2,.95);
   if(carrier&&!p.destroyed){const side=Number(p.partId.slice(5))<2?-1:1;c.strokeStyle='#d5c28a99';c.lineWidth=2;c.beginPath();c.moveTo(p.x-side*r*.2,p.y+r*.2);c.lineTo(p.x+side*r*1.15,p.y+r*.8);c.stroke();c.strokeStyle='#4e685f';c.lineWidth=1;c.beginPath();c.moveTo(p.x-side*r*.1,p.y-r*.05);c.lineTo(p.x+side*r,p.y+r*.55);c.stroke();}
   if(!carrier&&p.destroyed){const burn=p.destroyedAt!=null?Math.max(0,1-((p.motionTime??t)-p.destroyedAt)/6):0;if(burn>0)fx(c,'fireEngine',p.x,p.y-r*.15,r*1.25*Math.max(.4,burn),r*1.25*Math.max(.4,burn),0,.72*burn);if(Math.floor(t*3+p.x*.1)%2===0)fx(c,'smokeDark',p.x,p.y-r*.85,r*2.2,r*2.2,0,.32);}
-  if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd579aa');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}return;
+  if(p.hittable&&!p.destroyed){partMark(c,p.x,p.y,r,r,{hp:p.hp/p.maxHp});}return;
  }
  const index=p.partId==='truss'?0:p.partId==='muzzle'?1:p.partId==='hangar'?2:p.partId==='crane'?3:p.partId==='capsule'?4:p.kind==='engine'?5:p.partId.startsWith('port-')?6:p.bodyKey==='a7v-flak'?7:8;
  const angle=p.bodyKey==='a7v-flak'?({front:0,right:Math.PI/2,rear:Math.PI,left:-Math.PI/2}[p.partId]||0):p.partId==='sponson-right'?Math.PI:0;
@@ -459,7 +462,7 @@ function drawBossPart(c,p,ring,t=0){
   bossSpriteFiltered(c,index,'grayscale(1) brightness(.35)',p.x,p.y,r*2.1,r*2.1,angle);
   bossSprite(c,9,p.x,p.y,r*1.65,r*1.65,angle,.92);
  }else bossSprite(c,index,p.x,p.y,r*2.1,r*2.1,angle);
- if(p.hittable&&!p.destroyed){ring(p.x,p.y,r,'#ffd57988');c.fillStyle='#202e28';c.fillRect(p.x-r,p.y+r+5,r*2,4);c.fillStyle='#efb96f';c.fillRect(p.x-r,p.y+r+5,r*2*p.hp/p.maxHp,4);}
+ if(p.hittable&&!p.destroyed){partMark(c,p.x,p.y,r,r,{hp:p.hp/p.maxHp});}
 }
 let sbHudAt=0,sbHudEncounter=null,sbHudModel=null;
 export function updateStageBossHud(g){
@@ -490,16 +493,16 @@ function cityHazard(c,h,ring){
  if(h.visual==='drachen-fuse'){
   // The real mine's chain burst supplies the explosion sprite. This is only
   // its shrinking fuse warning, never a replacement mine or second blast.
-  if(warning){ring(h.x,h.y,h.radius,'#e6bc77');ring(h.x,h.y,h.radius*(1-clamp((h.age-h.delay)/h.warning,0,1)),'#f2d69b');}
+  if(warning)impactMark(c,h.x,h.y,h.radius,clamp((h.age-h.delay)/h.warning,0,1),{heavy:h.raidHeavy});
   return true;
  }
  if(h.visual==='pompom-stream'){
-  if(warning){c.fillStyle='#f1bc6814';c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);c.strokeStyle='#dcb776aa';c.lineWidth=1.5;c.setLineDash([10,7]);for(const side of [-1,1]){c.beginPath();c.moveTo(h.x-h.width/2,h.y+side*h.height/2);c.lineTo(h.x+h.width/2,h.y+side*h.height/2);c.stroke()}}
+  if(warning)stripMark(c,h.x,h.y,h.width,h.height,clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1));
   else{const direction=Math.cos(h.angle)>=0?1:-1;const count=Math.min(36,Math.ceil(h.width/22));c.setLineDash([]);for(let i=0;i<count;i++){const d=(i*27+age*760)%Math.max(1,h.width),x=h.x+direction*(d-h.width/2),y=h.y+Math.sin(i*4.7)*h.height*.3;c.strokeStyle=i%3?'#dfab65cc':'#fff0bd';c.lineWidth=i%3?2:3;c.beginPath();c.moveTo(x,y);c.lineTo(x-direction*Math.min(17,d),y);c.stroke()}pixelBlast(c,h.x-direction*h.width/2,h.y,17,age);}
   return true;
  }
  if(h.visual==='black-flak'){
-  if(warning){c.fillStyle='#d2aa5a10';c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.fill();c.strokeStyle='#e6bc77';c.lineWidth=1.5;c.setLineDash([6,5]);c.stroke();c.setLineDash([]);ring(h.x,h.y,h.radius*(1-clamp((h.age-h.delay)/h.warning,0,1)),'#f2d69b');}
+  if(warning)impactMark(c,h.x,h.y,h.radius,clamp((h.age-h.delay)/h.warning,0,1),{heavy:h.raidHeavy});
   else{const fade=Math.min(1,(h.duration-age)*2);c.setLineDash([]);for(let i=0;i<5;i++){const a=i*2.4,dist=h.radius*(.12+age*.13),x=h.x+Math.cos(a)*dist,y=h.y+Math.sin(a)*dist;bossSpriteFiltered(c,11,'brightness(.45)',x,y,h.radius*(.7+age*.35),h.radius*(.7+age*.35),a,fade*.8)}if(age<.3)pixelBlast(c,h.x,h.y,h.radius*(.65+age),age);}
   return true;
  }
@@ -527,7 +530,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
  c.save();c.translate(W/2,H/2);c.scale(z,z);c.translate(-g.x,-g.y);c.imageSmoothingEnabled=false;
  if(layer!=='hazards'){drawBossBuildings(c,g);drawLondonWorld(c,g,getLocale());drawParisWorld(c,g,getLocale());}
  if(layer!=='bodies')drawMaanWeather(c,g);
- for(const body of addon.stages.encounter?.bodies.values()||[]){if(body.rail129&&layer!=='hazards'){const r=body.rail129;c.save();drawRailTrack(c,r,bossArt.parisGun);drawRailDamage(c,r,bossArt.parisGun);if(r.phase==='aim'&&r.target&&body.kind!=='fliegerzug'&&!body.ruralRailBoss){const radius=body.kind==='lincomparable'?165:108;c.strokeStyle='#e6bb80';c.lineWidth=2;c.setLineDash([8,7]);c.beginPath();c.arc(r.target.x,r.target.y,radius,0,Math.PI*2);c.stroke();c.setLineDash([]);const a=Math.atan2(body.y-r.target.y,body.x-r.target.x);c.beginPath();c.moveTo(r.target.x+Math.cos(a)*radius,r.target.y+Math.sin(a)*radius);c.lineTo(r.target.x+Math.cos(a)*(radius+58),r.target.y+Math.sin(a)*(radius+58));c.stroke();}c.restore();}if(body.support129?.projectiles&&layer!=='bodies')drawSupportEffects(c,body.support129,{screenScale:z});}
+ for(const body of addon.stages.encounter?.bodies.values()||[]){if(body.rail129&&layer!=='hazards'){const r=body.rail129;c.save();drawRailTrack(c,r,bossArt.parisGun);drawRailDamage(c,r,bossArt.parisGun);if(r.phase==='aim'&&r.target&&body.kind!=='fliegerzug'&&!body.ruralRailBoss){const radius=body.kind==='lincomparable'?165:108;impactMark(c,r.target.x,r.target.y,radius,Math.min(1,r.time/Math.max(.01,r.c.aimSeconds)),{heavy:true});}c.restore();}if(body.support129?.projectiles&&layer!=='bodies')drawSupportEffects(c,body.support129,{screenScale:z});}
  const ring=(x,y,r,color)=>{c.strokeStyle=color;c.lineWidth=2;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.stroke();};
  const bodyOf=match=>{for(const _v of addon.stages.encounter?.bodies?.values?.()||[])if(match(_v))return _v;return null};
  renderStageBossLayer(addon,{
@@ -546,7 +549,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    if(b.assetKey==='london-apron'){drawAttachedApron(c,b,bossArt.londonApron,bossArt.londonApronDamage1);return;}
    if(b.assetKey==='flak-tower')return;// The deploy parent only spawns the four tower cells; nothing drawn before they exist.
    if(b.assetKey==='flak-tower-cell'){drawCityFlak(c,b);return;}
-   if(b.assetKey==='drachen-net'){const lane=b.cityMineLane;if(lane?.remaining>0){c.save();c.strokeStyle='#a4c8be99';c.lineWidth=1.5;c.setLineDash([9,8]);for(const side of [-1,1]){c.beginPath();c.moveTo(lane.x+side*lane.width/2,lane.top);c.lineTo(lane.x+side*lane.width/2,lane.bottom);c.stroke();}c.restore();}drawDrachenRig(c,b,[bossArt.drachenLeft,bossArt.drachenCenter,bossArt.drachenRight]);return;}
+   if(b.assetKey==='drachen-net'){const lane=b.cityMineLane;if(lane?.remaining>0)for(const side of [-1,1])laneEdge(c,lane.x+side*lane.width/2,lane.top,lane.x+side*lane.width/2,lane.bottom);drawDrachenRig(c,b,[bossArt.drachenLeft,bossArt.drachenCenter,bossArt.drachenRight]);return;}
    if(drawRegionalBossBody(c,b))return;
    if(b.assetKey==='sms-stuttgart'){const body=bodyOf(v=>v.support129?.projectiles);if(body&&supportImages129.ship.naturalWidth&&supportImages129.cover.naturalWidth){
     c.save();c.imageSmoothingEnabled=true;
@@ -668,7 +671,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    }
    else drawBossArt(c,'markv',172,258);
    if(b.destroying&&!rail&&!structure&&!trenchArmor){c.globalAlpha=.2+.3*(1-wreck);c.fillStyle='#171c19';for(let i=0;i<18;i++)c.fillRect(-70+(i*29)%140,-105+(i*47)%210,18+(i%3)*6,14+(i%2)*8);}
-   if(!b.coreVulnerable&&!b.destroying&&!structure&&!b.assetKey.startsWith('hms-zubian')&&!['london-apron','drachen-net'].includes(b.assetKey))ring(0,0,76,'#bdd8df66');c.restore();
+   if(!b.coreVulnerable&&!b.destroying&&!structure&&!b.assetKey.startsWith('hms-zubian')&&!['london-apron','drachen-net'].includes(b.assetKey))shieldMark(c,0,0,76);c.restore();
 
   },
   drawPart(p){if(p.bodyKey.startsWith('jutland-'))return;if(p.bodyKey==='gallipoli-fortress')return;if(layer==='hazards'||p.sommeBoss||p.bodyKey==='fort-douaumont'||p.bodyKey==='fort-souville')return;
@@ -678,8 +681,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
   },
    drawHazard(h){if(layer==='bodies')return;
     if(h.raidHeavy){c.save();
-     if(h.phase==='warning'&&h.kind==='circle'){const t=Math.max(0,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning))),r=h.radius;c.strokeStyle='#ff775be0';c.lineWidth=2.5;c.setLineDash([9,5]);c.beginPath();c.arc(h.x,h.y,r+6,0,Math.PI*2);c.stroke();c.setLineDash([]);c.strokeStyle='#ffe3acd9';c.lineWidth=3;c.beginPath();c.arc(h.x,h.y,r+13,-Math.PI/2,-Math.PI/2+Math.PI*2*t);c.stroke();}
-     else if(h.phase==='active'&&h.kind==='projectile'){const speed=Math.hypot(h.vx,h.vy)||1;c.globalCompositeOperation='lighter';c.strokeStyle='#ffd89aaa';c.lineWidth=5;c.beginPath();c.moveTo(h.x-h.vx/speed*27,h.y-h.vy/speed*27);c.lineTo(h.x,h.y);c.stroke();}
+     if(h.phase==='active'&&h.kind==='projectile'){const speed=Math.hypot(h.vx,h.vy)||1;c.globalCompositeOperation='lighter';c.strokeStyle='#ffd89aaa';c.lineWidth=5;c.beginPath();c.moveTo(h.x-h.vx/speed*27,h.y-h.vy/speed*27);c.lineTo(h.x,h.y);c.stroke();}
      c.restore();}
 
     if(drawGallipoliHazard(c,h)||drawJutlandHazard(c,h)||drawVerdunHazard(c,h)||drawMaanHazard(c,h))return;
@@ -687,7 +689,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     if(drawRuralRailHazard(c,h)){c.restore();return;}
     if(drawSommeHazard(c,h)){c.restore();return;}
     if(drawAlpsHazard(c,h,ring)){c.restore();return;}
-   if(h.visual==='harbor-swing'){c.setLineDash(warning?[5,5]:[]);c.strokeStyle=warning?'#dfbd82b3':'#cfad6b55';c.lineWidth=1.5;c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.stroke();c.restore();return;}
+   if(h.visual==='harbor-swing'){impactMark(c,h.x,h.y,h.radius,warning?clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1):1,{alpha:warning?1:.55,cross:false});c.restore();return;}
     if(drawRegionalHazard(c,h,addon.stages.encounter?.bodies.get(h.bossId)?.kind)){c.restore();return;}
     if(h.visual==='aa-flak'){
      const q=clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1);
@@ -695,14 +697,14 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
        if(q<.24)drawAADefense(c,'aaMuzzle',h.sourceX,h.sourceY,34,34,0,1-q);
        const sx=h.sourceX+(h.x-h.sourceX)*q,sy=h.sourceY+(h.y-h.sourceY)*q;
        fx(c,'shellHeavy',sx,sy-32*Math.sin(q*Math.PI),23,9,Math.atan2(h.y-h.sourceY,h.x-h.sourceX),.95);}
-       c.strokeStyle='#bba97999';c.lineWidth=1.5;c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.stroke();}
+       impactMark(c,h.x,h.y,h.radius,q,{heavy:h.raidHeavy});}
      else{const age=h.age-h.delay-h.warning,frame=age<h.duration*.28?'aaFlakHot':age<h.duration*.65?'aaFlakDark':'aaFlakSmoke';
        drawAADefense(c,frame,h.x,h.y,h.radius*2.35,h.radius*2.35);}
      c.restore();return;
     }
    if(h.visual==='city-flak-shell'||h.visual==='minenwerfer-heavy'||h.visual==='minenwerfer-shell'){
     const progress=clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1);
-    if(warning&&h.sourceX!=null){const x=h.sourceX+(h.x-h.sourceX)*progress,y=h.sourceY+(h.y-h.sourceY)*progress-Math.sin(progress*Math.PI)*80;fx(c,'shellHeavy',x,y,26,8,Math.atan2(h.y-h.sourceY,h.x-h.sourceX),.95)}
+    if(warning){impactMark(c,h.x,h.y,h.radius,progress,{heavy:h.raidHeavy});if(h.sourceX!=null){const x=h.sourceX+(h.x-h.sourceX)*progress,y=h.sourceY+(h.y-h.sourceY)*progress-Math.sin(progress*Math.PI)*80;fx(c,'shellHeavy',x,y,26,8,Math.atan2(h.y-h.sourceY,h.x-h.sourceX),.95)}c.restore();return;}
     if(!warning&&FX3){const age=Math.max(0,h.age-h.delay-h.warning),q=clamp(age/Math.max(.01,h.duration),0,.999),frame=Math.min(3,Math.floor(q*4)),size=Math.min(240,h.radius*2.5);if(fx(c,'mortarImpact'+frame,h.x,h.y,size,size,0,Math.min(1,(1-q)*3))){if(fxReady('fireFlash')){if(q<.3)fx(c,'fireFlash',h.x,h.y,size*.6,size*.6,0,(1-q/.3)*.75);else if(q<.72)fx(c,'fireGround',h.x,h.y,size*.52,size*.52,0,(1-(q-.3)/.42)*.45);}c.restore();return}}
     if(!warning){const img=impactArt.atlas;if(img.naturalWidth){const age=h.age-h.delay-h.warning,index=Math.min(3,Math.floor(age/.16)),cw=img.naturalWidth/2,ch=img.naturalHeight/2,size=h.radius*2.5;c.imageSmoothingEnabled=true;c.globalAlpha*=Math.min(1,Math.max(0,(h.duration-age)/.18));c.drawImage(img,(index%2)*cw,Math.floor(index/2)*ch,cw,ch,h.x-size/2,h.y-size/2,size,size);c.restore();return}}
    }
@@ -714,7 +716,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
       c.translate(h.x,h.y);c.rotate(h.angle);c.lineCap='round';c.setLineDash([]);
       if(h.sourceX!=null){const sx=h.sourceX-h.x,sy=h.sourceY-h.y;
        c.strokeStyle='#625c4fa6';c.lineWidth=1.6;c.beginPath();c.moveTo(sx,sy);c.lineTo(h.length*.5,0);c.stroke();}
-     if(warning){c.strokeStyle='#e8c47f66';c.lineWidth=1.5;c.setLineDash([7,9]);c.beginPath();c.moveTo(0,0);c.lineTo(h.length,0);c.stroke();c.setLineDash([]);}
+     if(warning)aimLine(c,0,0,h.length,0,{p:clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1),alpha:.8,chevron:false,dash:[7,9]});
      else{
       // Heavy steel wire apron: dark twisted strands with sharp barbs.
       const sag=9,seg=Math.max(8,Math.round(h.length/40));
@@ -732,25 +734,23 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      if(warning){c.translate(h.x,h.y);c.rotate(h.angle);c.lineCap='round';
       const half=Math.atan((h.thickness*2.6)/range),span=(h.angularSpeed||0)*h.duration,lo=Math.min(0,span)-half,hi=Math.max(0,span)+half;
       const sector=r=>{c.beginPath();c.arc(0,0,r,lo,hi);c.arc(0,0,muzzle,hi,lo,true);c.closePath();};
-      c.fillStyle='#d2aa5a12';sector(h.length);c.fill();c.strokeStyle='#e6bc77';c.lineWidth=1.5;c.setLineDash([7,6]);sector(h.length);c.stroke();c.setLineDash([]);
-      const prog=clamp((h.age-h.delay)/h.warning,0,1);c.strokeStyle='#f2d69b';sector(muzzle+range*prog);c.stroke();}
+      const prog=clamp((h.age-h.delay)/h.warning,0,1);
+      c.fillStyle=`rgba(22,12,6,${.06+.14*prog})`;sector(h.length);c.fill();
+      c.lineCap='round';c.setLineDash([8,7]);c.strokeStyle=MARK.ink;c.lineWidth=3.7;sector(h.length);c.stroke();c.strokeStyle=MARK.warn;c.lineWidth=1.5;sector(h.length);c.stroke();c.setLineDash([]);
+      c.strokeStyle=MARK.ink;c.lineWidth=4.4;c.beginPath();c.arc(0,0,muzzle+range*prog,lo,hi);c.stroke();c.strokeStyle=MARK.warn;c.lineWidth=2.2;c.stroke();}
      else{const mx=h.x+Math.cos(h.angle)*muzzle,my=h.y+Math.sin(h.angle)*muzzle;
       drawLivensFlame(c,{...h,x:mx,y:my,length:Math.max(1,range)},{mobile:W<=560});}
-    }else{c.lineCap='round';c.lineWidth=h.thickness;c.strokeStyle=warning?'#ffb45f44':'#ff6a2dcc';c.beginPath();c.moveTo(h.x,h.y);c.lineTo(x2,y2);c.stroke();c.lineWidth=Math.max(4,h.thickness*.34);c.strokeStyle=warning?'#ffe0a866':'#fff0a8';c.stroke();}}
-   else if(h.kind==='searchlight'){const paris=/:light-(nw|ne|sw|se|main)$/.test(h.tag||'');if(paris&&warning){const end=h.angle+(h.angularSpeed||0)*h.duration;c.fillStyle='#e9b87618';c.strokeStyle='#eac586aa';c.lineWidth=1.5;c.setLineDash([10,8]);c.beginPath();c.moveTo(h.x,h.y);c.arc(h.x,h.y,h.radius,Math.min(h.angle,end)-h.halfAngle,Math.max(h.angle,end)+h.halfAngle);c.closePath();c.fill();c.stroke();c.setLineDash([]);}if(fxReady('searchlight')&&!warning)fx(c,'searchlight',h.x+Math.cos(h.angle)*h.radius*.55,h.y+Math.sin(h.angle)*h.radius*.55,h.radius*1.3,h.radius*h.halfAngle*1.5,h.angle,.8);const glow=c.createRadialGradient(h.x,h.y,0,h.x,h.y,h.radius);glow.addColorStop(0,warning?(paris?'#f8d18d55':'#f8e5a526'):'#fff1bc4d');glow.addColorStop(.65,warning?(paris?'#ead18f24':'#ead18f0d'):'#f3dfa621');glow.addColorStop(1,'#f3dfa600');c.fillStyle=glow;c.beginPath();c.moveTo(h.x,h.y);c.arc(h.x,h.y,h.radius,h.angle-h.halfAngle,h.angle+h.halfAngle);c.closePath();c.fill();if(warning){c.strokeStyle=paris?'#efcc8abb':'#d9c89755';c.lineWidth=paris?2:1;c.setLineDash(paris?[9,7]:[]);c.stroke();c.setLineDash([]);}}
+    }else if(warning){const a=h.angle,nx=-Math.sin(a)*h.thickness/2,ny=Math.cos(a)*h.thickness/2;c.fillStyle=`rgba(22,12,6,${.08+.14*clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1)})`;c.beginPath();c.moveTo(h.x+nx,h.y+ny);c.lineTo(x2+nx,y2+ny);c.lineTo(x2-nx,y2-ny);c.lineTo(h.x-nx,h.y-ny);c.closePath();c.fill();for(const k of [-1,1])laneEdge(c,h.x+nx*k,h.y+ny*k,x2+nx*k,y2+ny*k,{safe:false});}
+    else{c.lineCap='round';c.lineWidth=h.thickness;c.strokeStyle='#ff6a2dcc';c.beginPath();c.moveTo(h.x,h.y);c.lineTo(x2,y2);c.stroke();c.lineWidth=Math.max(4,h.thickness*.34);c.strokeStyle='#fff0a8';c.stroke();}}
+   else if(h.kind==='searchlight'){const paris=/:light-(nw|ne|sw|se|main)$/.test(h.tag||'');if(paris&&warning){const end=h.angle+(h.angularSpeed||0)*h.duration;sectorMark(c,h.x,h.y,h.radius,Math.min(h.angle,end)-h.halfAngle,Math.max(h.angle,end)+h.halfAngle,clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1));}if(fxReady('searchlight')&&!warning)fx(c,'searchlight',h.x+Math.cos(h.angle)*h.radius*.55,h.y+Math.sin(h.angle)*h.radius*.55,h.radius*1.3,h.radius*h.halfAngle*1.5,h.angle,.8);const glow=c.createRadialGradient(h.x,h.y,0,h.x,h.y,h.radius);glow.addColorStop(0,warning?(paris?'#f8d18d55':'#f8e5a526'):'#fff1bc4d');glow.addColorStop(.65,warning?(paris?'#ead18f24':'#ead18f0d'):'#f3dfa621');glow.addColorStop(1,'#f3dfa600');c.fillStyle=glow;c.beginPath();c.moveTo(h.x,h.y);c.arc(h.x,h.y,h.radius,h.angle-h.halfAngle,h.angle+h.halfAngle);c.closePath();c.fill();if(warning&&!paris){c.strokeStyle='#d9c89755';c.lineWidth=1;c.stroke();}}
    else if(h.kind==='rect'){
-    if(h.visual==='water-column'){if(warning){c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);c.strokeRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);}else if(FX3&&fxReady('navalSplash3')){const q=clamp((h.age-h.delay-h.warning)/Math.max(.01,h.duration),0,1),d=Math.max(h.width,h.height)*1.25;fx(c,'navalSplash3',h.x,h.y,d,d,0,(1-q)*.8);fx(c,'navalFoam3',h.x,h.y,d*(.7+q*.65),d*(.7+q*.65),0,(1-q)*.55)}else if(!fx(c,'waterColumn',h.x,h.y,h.width*2.4,h.height*1.5,0,.95))drawWaterColumn(c,h);}
+    if(h.visual==='water-column'){if(warning){stripMark(c,h.x,h.y,h.width,h.height,clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1));}else if(FX3&&fxReady('navalSplash3')){const q=clamp((h.age-h.delay-h.warning)/Math.max(.01,h.duration),0,1),d=Math.max(h.width,h.height)*1.25;fx(c,'navalSplash3',h.x,h.y,d,d,0,(1-q)*.8);fx(c,'navalFoam3',h.x,h.y,d*(.7+q*.65),d*(.7+q*.65),0,(1-q)*.55)}else if(!fx(c,'waterColumn',h.x,h.y,h.width*2.4,h.height*1.5,0,.95))drawWaterColumn(c,h);}
     else if(h.visual==='apron-net'||h.visual==='drachen-mine-net'){
-     c.fillStyle=warning?'#e5c2761a':'#5d514544';c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);c.strokeStyle=warning?'#f2cf7c':'#b2aa91';c.lineWidth=warning?2:3;c.strokeRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);
+     if(warning)stripMark(c,h.x,h.y,h.width,h.height,clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1));
+     else{c.fillStyle='#5d514544';c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);c.strokeStyle='#b2aa91';c.lineWidth=3;c.strokeRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);}
      if(!warning){const step=h.visual==='apron-net'?28:52;c.lineWidth=1;c.strokeStyle='#b8b5a488';for(let x=h.x-h.width/2+step;x<h.x+h.width/2;x+=step){c.beginPath();c.moveTo(x,h.y-h.height/2);c.lineTo(x,h.y+h.height/2);c.stroke()}for(let y=h.y-h.height/2+step;y<h.y+h.height/2;y+=step){c.beginPath();c.moveTo(h.x-h.width/2,y);c.lineTo(h.x+h.width/2,y);c.stroke()}if(h.visual==='drachen-mine-net')for(let i=-3;i<=3;i++){const x=h.x+i*52,y=h.y+(Math.abs(i)%2?32:-24);drawDrachenMine(c,x,y,48,48);}}
     }else if(h.visual==='gas-fire'){
-     if(warning){// Hatched danger strip, not a plain box — same telegraph language as bomb zones.
-      c.fillStyle='#d2aa5a14';c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);
-      c.strokeStyle='#e6bc77';c.lineWidth=1.5;c.setLineDash([7,6]);c.strokeRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);c.setLineDash([]);
-      c.strokeStyle='#e6bc7788';c.lineWidth=1;c.beginPath();
-      for(let x=h.x-h.width/2;x<h.x+h.width/2;x+=18){c.moveTo(x,h.y-h.height/2);c.lineTo(x+9,h.y+h.height/2)}c.stroke();
-      const prog=clamp((h.age-h.delay)/h.warning,0,1);
-      c.strokeStyle='#f2d69b';c.lineWidth=2.5;c.strokeRect(h.x-h.width/2,h.y-h.height/2,h.width*prog,h.height);}
+     if(warning)stripMark(c,h.x,h.y,h.width,h.height,clamp((h.age-h.delay)/h.warning,0,1));
      else{const img=fxImage('flameJet'),vertical=h.height>h.width,w=vertical?h.height:h.width,height=vertical?h.width:h.height,lowDetail=(c.canvas?.width||999)<900;
       c.save();c.translate(h.x,h.y);if(vertical)c.rotate(Math.PI/2);
       c.fillStyle='#ef604f18';c.fillRect(-w/2,-height/2,w,height);
@@ -765,7 +765,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
       else{const n=Math.min(lowDetail?12:20,Math.ceil(w/44));for(let i=0;i<n;i++){const x=-w/2+(i+.5)*w/n,wob=Math.sin(i*2.7+h.age*3)*5;
        if(!fx(c,'fire',x,8+wob*.4,54,height*.95,0,.92))bossSprite(c,12,x,0,36,height,0,.85);
        fx(c,'smokeDark',x,-height*.42+wob*.3,64,height*.9,0,.5);}}c.restore();}
-    }else{c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);c.strokeRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);if(!warning){
+    }else{if(warning)stripMark(c,h.x,h.y,h.width,h.height,clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1));else{c.fillRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);c.strokeRect(h.x-h.width/2,h.y-h.height/2,h.width,h.height);}if(!warning){
      const n=Math.min(24,Math.ceil(h.width/38));for(let i=0;i<n;i++){const x=h.x-h.width/2+(i+.5)*h.width/n;bossSprite(c,15,x,h.y,36,Math.max(28,h.height*1.25),Math.PI/2,.85);}
     }}
    }
@@ -785,11 +785,14 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
        fx(c,'smokeOil',h.x+wob*(1-s),h.y-s*h.radius*1.6,h.radius*(.8+s),h.radius*(.8+s),i*.7,fade*(.3+.2*s));}
       fx(c,'mist',h.x,h.y-h.radius*.2,h.radius*2.1,h.radius*1.5,drift*.15,fade*.22);
      }
-     c.strokeStyle='rgba(190,196,180,'+(0.5*fade).toFixed(3)+')';c.lineWidth=2;c.setLineDash([7,7]);c.beginPath();c.arc(h.x,h.y,h.radius*(.85+q*.15),0,Math.PI*2);c.stroke();c.setLineDash([]);
-    }else{c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.fill();c.stroke();}if(warning){const progress=clamp((h.age-h.delay)/h.warning,0,1);c.setLineDash([]);ring(h.x,h.y,h.radius*(1-progress),'#ffe6a5');c.beginPath();c.moveTo(h.x-8,h.y);c.lineTo(h.x+8,h.y);c.moveTo(h.x,h.y-8);c.lineTo(h.x,h.y+8);c.stroke();
-     if(h.visual==='rail-shell'||h.visual==='observer-shell'){c.lineWidth=4;for(const q of [.62,.82,1])ring(h.x,h.y,h.radius*q,q===1?'#ff765e':'#ffd18499');c.fillStyle='#fff0bd';c.font='bold 13px monospace';c.textAlign='center';c.fillText(h.visual==='observer-shell'?'관측 포격':'열차포 낙탄',h.x,h.y-h.radius-12);}
+     impactMark(c,h.x,h.y,h.radius,1,{tone:'blind',alpha:.55*fade,cross:false,fill:false});
+    }else if(warning){impactMark(c,h.x,h.y,h.radius,clamp((h.age-h.delay)/h.warning,0,1),{heavy:h.raidHeavy||h.visual==='rail-shell'||h.visual==='observer-shell'});}
+    // Short impacts get the host's explosion sprite; only lingering zones keep a marker.
+    else if(h.duration>.6&&h.visual!=='zubian-mortar')impactMark(c,h.x,h.y,h.radius,1,{alpha:.5,cross:false});
+    if(warning){const progress=clamp((h.age-h.delay)/h.warning,0,1);
+     if(h.visual==='rail-shell'||h.visual==='observer-shell'){c.fillStyle='#fff0bd';c.strokeStyle=MARK.ink;c.lineWidth=3;c.font='bold 13px monospace';c.textAlign='center';const label=getLocale()==='en'?(h.visual==='observer-shell'?'OBSERVED FIRE':'RAIL SHELL'):(h.visual==='observer-shell'?'관측 포격':'열차포 낙탄');c.strokeText(label,h.x,h.y-h.radius*1.28-10);c.fillText(label,h.x,h.y-h.radius*1.28-10);}
      if(h.visual==='carpet-bomb'){const bs=h.airborneBomb?28+progress*12:26+progress*46,bx=h.airborneBomb?h.sourceX+(h.x-h.sourceX)*progress:h.x,by=h.airborneBomb?h.sourceY+(h.y-h.sourceY)*progress-Math.sin(progress*Math.PI)*24:h.y-h.radius*.85*(1-progress)-24;c.globalAlpha=.9;fx(c,'bomb',h.airborneBomb&&h.bossId?.includes(':gotha:')?bx:h.x,h.airborneBomb&&h.bossId?.includes(':gotha:')?by:h.y-h.radius*.85*(1-progress)-24,bs,bs*.55,Math.PI/2);c.globalAlpha=1;}}
-    else if(h.visual==='zubian-mortar'){for(const q of [.45,.72,1])ring(h.x,h.y,h.radius*q,q===1?'#e9c083':'#8bd0d199');pixelBlast(c,h.x,h.y,h.radius*.65,h.age,true);}
+    else if(h.visual==='zubian-mortar')pixelBlast(c,h.x,h.y,h.radius*.65,h.age,true);
    }
    c.restore();
   }
@@ -798,7 +801,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
   if(layer!=='bodies')for(const effect of g.aaEffects||[])
     drawAADefense(c,effect.kind,effect.x,effect.y,effect.size||115,effect.size||115,0,Math.max(0,1-effect.age/effect.life));
   if(layer!=='bodies')for(const b of addon.stages.encounter?.bodies.values()||[]){if(!b.dead&&b.ruralRailBoss)drawRuralRailWarnings(c,b);if(!b.dead&&['gik','ca4'].includes(b.kind))drawAlpsWarnings(c,b);if(!b.dead&&b.kind==='treffas-wagen')drawCambraiFlakWarning(c,b);}
-  if(layer!=='bodies')for(const cue of g.bossCues){if(drawRegionalCue(c,cue))continue;let line=cue;const owner=addon.stages.encounter?.bodies.get(cue.bossId);if(cue.formationAim){const aircraft=cue.minionId?g.enemies.find(e=>e.id===cue.minionId&&e.hp>0):owner;if(!aircraft||aircraft.dead)continue;line={x:aircraft.x+Math.cos(aircraft.a)*30,y:aircraft.y+Math.sin(aircraft.a)*30,targetX:aircraft.x+Math.cos(aircraft.a)*530,targetY:aircraft.y+Math.sin(aircraft.a)*530};}if(cue.harborGun&&(!owner||owner.dead||owner.parts.get(cue.partId)?.destroyed))continue;if(cue.partId&&['a7v-flak','mark-v-cruiser'].includes(owner?.kind)){const gun=owner.parts.get(cue.partId);if(gun?.destroyed)continue;const q=armorGunMuzzle(owner.kind,gun,owner.hullYaw,owner.t?.geometryScale||1);line={x:owner.x+q.x,y:owner.y+q.y,targetX:owner.x+q.x+Math.cos(q.angle)*420,targetY:owner.y+q.y+Math.sin(q.angle)*420};}if(cue.hullMountY&&['a7v-flak','mark-v-cruiser'].includes(owner?.kind)){const m=armorRotate(0,cue.hullMountY*(owner.t?.geometryScale||1),owner.hullYaw),facing=owner.hullYaw+(cue.hullMountY>0?Math.PI/2:-Math.PI/2),angle=facing+Math.max(-.3,Math.min(.3,armorAngleDelta(cue.lockedAngle,facing)));line={x:owner.x+m.x,y:owner.y+m.y,targetX:owner.x+m.x+Math.cos(angle)*420,targetY:owner.y+m.y+Math.sin(angle)*420};}c.strokeStyle='#ffce80';c.setLineDash([8,6]);c.beginPath();c.moveTo(line.x,line.y);c.lineTo(line.targetX,line.targetY);c.stroke();c.setLineDash([]);}
+  if(layer!=='bodies')for(const cue of g.bossCues){if(drawRegionalCue(c,cue))continue;let line=cue;const owner=addon.stages.encounter?.bodies.get(cue.bossId);if(cue.formationAim){const aircraft=cue.minionId?g.enemies.find(e=>e.id===cue.minionId&&e.hp>0):owner;if(!aircraft||aircraft.dead)continue;line={x:aircraft.x+Math.cos(aircraft.a)*30,y:aircraft.y+Math.sin(aircraft.a)*30,targetX:aircraft.x+Math.cos(aircraft.a)*530,targetY:aircraft.y+Math.sin(aircraft.a)*530};}if(cue.harborGun&&(!owner||owner.dead||owner.parts.get(cue.partId)?.destroyed))continue;if(cue.partId&&['a7v-flak','mark-v-cruiser'].includes(owner?.kind)){const gun=owner.parts.get(cue.partId);if(gun?.destroyed)continue;const q=armorGunMuzzle(owner.kind,gun,owner.hullYaw,owner.t?.geometryScale||1);line={x:owner.x+q.x,y:owner.y+q.y,targetX:owner.x+q.x+Math.cos(q.angle)*420,targetY:owner.y+q.y+Math.sin(q.angle)*420};}if(cue.hullMountY&&['a7v-flak','mark-v-cruiser'].includes(owner?.kind)){const m=armorRotate(0,cue.hullMountY*(owner.t?.geometryScale||1),owner.hullYaw),facing=owner.hullYaw+(cue.hullMountY>0?Math.PI/2:-Math.PI/2),angle=facing+Math.max(-.3,Math.min(.3,armorAngleDelta(cue.lockedAngle,facing)));line={x:owner.x+m.x,y:owner.y+m.y,targetX:owner.x+m.x+Math.cos(angle)*420,targetY:owner.y+m.y+Math.sin(angle)*420};}aimLine(c,line.x,line.y,line.targetX,line.targetY,{p:cue.seconds?1-cue.life/cue.seconds:null,heavy:!!cue.formationAim});}
  c.restore();
  if(layer==='bodies')return;for(const b of addon.stages.encounter?.bodies.values()||[]){if(b.dead||b.hidden||(b.layout&&b.entryAge<7))continue;if(b.jutlandBoss){drawJutlandGuide(c,b,g,W,H,z);continue;}if(b.gallipoliBoss){drawGallipoliGuide(c,b,g,W,H,z);continue;}const hull=b.gallipoliBoss?{halfWidth:1640,halfHeight:1080}:b.layout?{halfWidth:b.layout.width/2,halfHeight:b.layout.height/2}:b.kind==='maan-rolls-royce'?{halfWidth:20,halfHeight:35}:b.fortressBoss?verdunFortExtents(b):b.sommeBoss?sommeExtents(b):b.kind==='drachen-net'?{halfWidth:400*b.cityArtScale,halfHeight:360*b.cityArtScale}:b.kind==='flak-tower-cell'?{halfWidth:190*b.regionalScale,halfHeight:190*b.regionalScale}:ALPS_BOMBER_LAYOUT[b.kind]?alpsHullExtents(b):LARGE_HULLS[b.kind]||{halfWidth:0,halfHeight:0},sx=(b.x-g.x)*z+W/2,sy=(b.y-g.y)*z+H/2,hx=hull.halfWidth*z,hy=hull.halfHeight*z;const visW=Math.min(sx+hx,W-30)-Math.max(sx-hx,30),visH=Math.min(sy+hy,H-100)-Math.max(sy-hy,190),frac=(Math.max(0,visW)*Math.max(0,visH))/(Math.max(1,4*hx*hy)||1),formation=FORMATION_BOSS_KEYS.has(b.kind);if(frac>.45||(b.gallipoliBoss&&sx>30&&sx<W-30&&sy>190&&sy<H-100)){if(formation)drawFormationNameplate(c,sx,sy-54*z,(getLocale()==='en'?(b.callSign||b.callSignKo):(b.callSignKo||b.callSign)),W);continue;}const x=clamp(sx,26,W-26),y=clamp(sy,190,H-100),a=Math.atan2(b.y-g.y,b.x-g.x);if(formation){drawFormationEdgeBadge(c,x,y,a);continue;}c.save();c.translate(x,y);c.rotate(a);c.fillStyle='#ffcd7c';c.beginPath();c.moveTo(12,0);c.lineTo(-7,-7);c.lineTo(-7,7);c.fill();c.restore();}
 }

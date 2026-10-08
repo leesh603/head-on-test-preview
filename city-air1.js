@@ -1,6 +1,8 @@
+import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
 import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=tame3';
 import {spawnCityDefense,tickCityDefense} from './city-defense.js?v=tame3';
 import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=tame3&rail=11';
+
 // Region 4 searchlight network + ground fire net; region 5 wind streams.
 // Buildings stay scenery: no collision structures. Guns fire only while player is ILLUMINATED.
 export const CITY_BALANCE=Object.freeze({
@@ -88,12 +90,12 @@ export function drawCityAirLayer(c,game,{point}){
    c.arc(0,0,B.beamRange,-B.beamHalf,B.beamHalf);c.closePath();c.fill();}
    c.restore();
   }
-  if(e.cityShot){const [tx,ty]=point(e.cityShot.x,e.cityShot.y);c.save();c.strokeStyle='#eeb575';c.lineWidth=2;c.setLineDash([7,6]);c.beginPath();c.moveTo(x,y);c.lineTo(tx,ty);c.stroke();c.setLineDash([]);c.beginPath();c.arc(tx,ty,24,0,Math.PI*2);c.stroke();c.restore();}
+  if(e.cityShot){const [tx,ty]=point(e.cityShot.x,e.cityShot.y);aimLine(c,x,y,tx,ty,{chevron:false});impactMark(c,tx,ty,24,.6);}
   drawGroundEnemy(c,e,x,y,s);
   c.fillStyle='#24332b';c.fillRect(x-16,y+s*.5,32,3);c.fillStyle='#de9b73';c.fillRect(x-16,y+s*.5,32*e.hp/e.maxHp,3);
  }
 };
 const _cityImgs={};
-function cityImg(k){let i=_cityImgs[k];if(!i){i=new Image();i.decoding='async';i.src=`./${k}.webp?v=r5&b=345`;_cityImgs[k]=i}return i}
+function cityImg(k){let i=_cityImgs[k];if(!i){i=new Image();i.decoding='async';i.src=`./${k}.webp?v=tame3&b=345`;_cityImgs[k]=i}return i}
 
 export function prepareCityAirAssets(){return Promise.all([prepareGroundEnemyArt(),Promise.all(['fx-city-searchlight-pit2','fx-city-aagun'].map(k=>new Promise(resolve=>{const im=cityImg(k);if(im.complete){resolve();return}im.addEventListener('load',()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())},{once:true});im.addEventListener('error',resolve,{once:true})}))) ]);}

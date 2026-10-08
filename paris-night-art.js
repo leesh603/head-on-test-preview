@@ -1,11 +1,13 @@
+import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=tame3';
 import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=tame3';
+
 let images={};
 export function releaseParisArt(){images={};}
 export function prepareParisArt(){
  return Promise.all([['map','terrain-paris-night1918.webp'],['fortress','paris-fortress-parts1918.webp'],['fortressWreck','paris-fortress-wreck1918.webp'],['staaken','paris-staaken-parts1918.webp'],['staakenWreck','paris-staaken-wreck1918.webp']].map(([key,path])=>new Promise(resolve=>{
-  const im=new Image();im.decoding='async';images[key]=im;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(true))};im.onerror=()=>resolve(false);im.src='./'+path+'?v=r5&b=city4';
+  const im=new Image();im.decoding='async';images[key]=im;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(true))};im.onerror=()=>resolve(false);im.src='./'+path+'?v=tame3&b=city4';
  })));
 }
 export function paintParis(c,g,cx,cy,w,h){
@@ -53,6 +55,6 @@ export function drawParisWorld(c,g,locale='ko'){
  for(const d of b.districts){c.strokeStyle=d.hp>0?'#b7dad590':'#d8876590';c.setLineDash([6,8]);c.beginPath();c.arc(d.x,d.y,62,0,Math.PI*2);c.stroke();c.setLineDash([]);c.fillStyle='#f0e4c7';c.fillText(en?d.en:d.name,d.x,d.y+79);
   if(d.hp<d.maxHp){fx(c,'fire',d.x,d.y,43,48,0,.6);fx(c,'smokeDark',d.x,d.y-38,67,72,0,.5);}}
  const q=g.stageBoss?.stages.encounter?.bodies.values().next().value;
- if(q?.runTarget){const d=q.runTarget;c.strokeStyle='#f5c178b0';c.setLineDash([8,9]);c.beginPath();c.moveTo(q.x,q.y);c.lineTo(d.x,d.y);c.stroke();c.setLineDash([]);c.beginPath();c.arc(d.x,d.y,78,0,Math.PI*2);c.stroke();c.fillStyle='#ffd69b';c.fillText((en?'DROP ':'투하 ')+(q.runRemaining/q.speedRatio()).toFixed(1)+'s',d.x,d.y-88);}
+ if(q?.runTarget){const d=q.runTarget;aimLine(c,q.x,q.y,d.x,d.y,{alpha:.7,chevron:false,dash:[8,9]});impactMark(c,d.x,d.y,78,1-Math.min(1,Math.max(0,q.runRemaining/q.speedRatio())/8));c.fillStyle='#ffd69b';c.fillText((en?'DROP ':'투하 ')+(q.runRemaining/q.speedRatio()).toFixed(1)+'s',d.x,d.y-88);}
  c.restore();
 }

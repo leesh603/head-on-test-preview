@@ -1,16 +1,18 @@
+import {impactMark,partMark,aimLine,laneEdge,MARK} from './tactical-marks.js?v=tame3';
 import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=tame3';
 import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 import {drawAADefense} from './aa-defense-art.js?v=tame3';
+
 
 // These are authored/derived RGBA sprites, not canvas-painted replacement art.
 // Only the current battlefield's small atlas set remains resident.
 const SOURCES=Object.freeze({
  train:'./boss-fliegerzug-parts352.webp',treffas:'./boss-treffas-parts352.webp',support:'./boss-regional-support352.webp',
  staaken:'./boss-staaken-body352.webp',staakenEngines:'./boss-staaken-engines352.webp',staakenWreck:'./boss-staaken-wreck352.webp',
- tank:'./boss-mark4.webp?v=r5',tankWreck:'./boss-mark4-wreck.webp?v=r5',
- morser:'./boss-morser.webp?v=r5',morserWreck:'./boss-morser-wreck.webp?v=r5',
- bugFolded:'./boss-cambrai-bug.webp?v=r5',bugFlight:'./boss-cambrai-bug.webp?v=r5',impact:'./fx-mortar-impact340.webp'
+ tank:'./boss-mark4.webp?v=tame3',tankWreck:'./boss-mark4-wreck.webp?v=tame3',
+ morser:'./boss-morser.webp?v=tame3',morserWreck:'./boss-morser-wreck.webp?v=tame3',
+ bugFolded:'./boss-cambrai-bug.webp?v=tame3',bugFlight:'./boss-cambrai-bug.webp?v=tame3',impact:'./fx-mortar-impact340.webp'
 });
 const SHEETS={train:'boss-fliegerzug-parts352',treffas:'boss-treffas-parts352',support:'boss-regional-support352',staakenEngines:'boss-staaken-engines352'};
 const REGION_KEYS={4:['support'],8:['support','bugFlight','impact'],10:[],11:['support','staaken','staakenEngines','staakenWreck','impact']};
@@ -50,11 +52,7 @@ function smoke(c,p,t,width,dead){
  const burn=dead&&p.destroyedAt!=null?clamp(1-(t-p.destroyedAt)/6,0,1):0;
  if(burn>0)fx(c,'fireEngine',p.x,p.y+width*.1,width*.22*Math.max(.4,burn),width*.22*Math.max(.4,burn),0,.5*burn);
 }
-function brackets(c,x,y,rx,ry,alpha=.75){
- c.save();c.globalAlpha*=alpha;c.strokeStyle='#d7bc82';c.lineWidth=1.5;const n=Math.min(9,rx*.3);
- for(const sx of [-1,1])for(const sy of [-1,1]){c.beginPath();c.moveTo(x+sx*(rx-n),y+sy*ry);c.lineTo(x+sx*rx,y+sy*ry);c.lineTo(x+sx*rx,y+sy*(ry-n));c.stroke();}
- c.restore();
-}
+function brackets(c,x,y,rx,ry,alpha=.75){partMark(c,x,y,rx,ry,{alpha:Math.min(1,alpha*1.25)});}
 function drawCore(c,b,{closed='core-closed',w,h}={}){
  const k=b.regionalCore;if(!k)return;const scale=b.regionalScale||1;
  w??=Math.max(k.rx,k.ry)*2.35;h??=w;
@@ -180,8 +178,7 @@ export function drawRegionalHazard(c,h,bossKind){
  if(!artillery||h.kind!=='circle')return false;
  const warning=h.phase==='warning',q=clamp((h.age-h.delay)/Math.max(.01,h.warning));c.save();
  if(warning){
-  c.strokeStyle='#d5b781b8';c.lineWidth=1.5;c.setLineDash([6,6]);c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.stroke();c.setLineDash([]);
-  c.strokeStyle='#eed29bb8';c.lineWidth=2;c.beginPath();c.arc(h.x,h.y,h.radius,-Math.PI/2,-Math.PI/2+q*Math.PI*2);c.stroke();
+  impactMark(c,h.x,h.y,h.radius,q,{heavy:h.raidHeavy});
   if(h.sourceX!=null&&q>0){const x=h.sourceX+(h.x-h.sourceX)*q,y=h.sourceY+(h.y-h.sourceY)*q-Math.sin(q*Math.PI)*74,angle=Math.atan2(h.y-h.sourceY,h.x-h.sourceX);
     fx(c,'shellHeavy',x,y,h.visual==='carpet-bomb'?25:27,9,angle,.96);}
  }else{
@@ -193,15 +190,13 @@ export function drawRegionalHazard(c,h,bossKind){
 }
 export function drawRegionalCue(c,cue){
  if(cue.type==='bug-flight-target'){
-  c.save();if(Number.isFinite(cue.sourceX)&&Number.isFinite(cue.sourceY)){c.strokeStyle='#ecc88f55';c.lineWidth=1;c.setLineDash([5,9]);c.beginPath();c.moveTo(cue.sourceX,cue.sourceY);c.lineTo(cue.x,cue.y);c.stroke();c.setLineDash([]);}c.strokeStyle='#ecc88fa8';c.lineWidth=1.5;c.setLineDash([5,7]);c.beginPath();c.arc(cue.x,cue.y,39,0,Math.PI*2);c.stroke();c.setLineDash([]);c.beginPath();c.moveTo(cue.x-7,cue.y);c.lineTo(cue.x+7,cue.y);c.moveTo(cue.x,cue.y-7);c.lineTo(cue.x,cue.y+7);c.stroke();c.restore();return true;
+  if(Number.isFinite(cue.sourceX)&&Number.isFinite(cue.sourceY))aimLine(c,cue.sourceX,cue.sourceY,cue.x,cue.y,{alpha:.45,chevron:false,dash:[5,9]});impactMark(c,cue.x,cue.y,39,.85,{heavy:true});return true;
  }
  if(cue.type==='safe-corridor'){
-  c.save();c.globalAlpha=.45*clamp(cue.life/.4);c.strokeStyle='#d6d4ab';c.lineWidth=2;
-  for(const side of [-1,1]){const x=cue.x+side*cue.width/2;c.beginPath();c.moveTo(x-side*12,cue.y-15);c.lineTo(x,cue.y-15);c.lineTo(x,cue.y+15);c.lineTo(x-side*12,cue.y+15);c.stroke();}c.restore();return true;
+  for(const side of [-1,1]){const x=cue.x+side*cue.width/2;laneEdge(c,x,cue.y-30,x,cue.y+30,{alpha:.75*clamp(cue.life/.4)});}return true;
  }
  if(cue.type==='bug-launch-warning'){
-  c.save();c.translate(cue.x,cue.y);c.rotate(cue.angle+Math.PI/2);c.strokeStyle='#d7c291b3';c.lineWidth=1.3;c.setLineDash([5,6]);
-  for(const side of [-1,1]){c.beginPath();c.moveTo(side*23,15);c.lineTo(side*23,-92);c.stroke();}c.restore();return true;
+  c.save();c.translate(cue.x,cue.y);c.rotate(cue.angle+Math.PI/2);for(const side of [-1,1])laneEdge(c,side*23,15,side*23,-92,{safe:false});c.restore();return true;
  }
  if(cue.type==='bug-launch'){
   fx(c,'smokeTrail',cue.x-Math.cos(cue.angle)*15,cue.y-Math.sin(cue.angle)*15,45,18,cue.angle,.34*clamp(cue.life/.6));return true;

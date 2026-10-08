@@ -1,5 +1,7 @@
+import {impactMark} from './tactical-marks.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 import {TREFFAS_ART} from './cambrai-layout.js?v=tame3';
+
 const cache=new WeakMap();
 function layers(image){
  if(cache.has(image))return cache.get(image);
@@ -37,7 +39,5 @@ export function drawCambraiTreffas(c,b,intact,wreck){
 }
 export function drawCambraiFlakWarning(c,b){
  const lock=b.flakLock;if(!lock)return;
- c.save();c.strokeStyle=lock.aligned?'#ffd39bb3':'#e0c39670';c.lineWidth=1.4;c.setLineDash([5,8]);
- for(const p of lock.points.slice(lock.index||0)){c.beginPath();c.arc(p.x,p.y,lock.mode==='bracket'?34:32,0,Math.PI*2);c.stroke();}
- c.setLineDash([]);c.restore();
+ for(const p of lock.points.slice(lock.index||0))impactMark(c,p.x,p.y,lock.mode==='bracket'?34:32,lock.aligned?.5:.1,{alpha:lock.aligned?1:.6});
 }
