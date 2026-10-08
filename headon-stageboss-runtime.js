@@ -1,7 +1,7 @@
-import {recordShipWake} from './naval-water.js?v=gun1';
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=gun1';
-import {verdunFortCollapseSites} from './verdun-fortresses.js?v=gun1';
-import {BossHazards} from './headon-stageboss-hazards.js?v=gun1';
+import {recordShipWake} from './naval-water.js?v=bs1';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=bs1';
+import {verdunFortCollapseSites} from './verdun-fortresses.js?v=bs1';
+import {BossHazards} from './headon-stageboss-hazards.js?v=bs1';
 
 
 // Every sortie starts in the rural battlefield, then keeps difficulty

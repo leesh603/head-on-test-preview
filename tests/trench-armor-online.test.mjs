@@ -2,8 +2,8 @@ import test from 'node:test';import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.());}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 const {OnlineCoopGame}=await import('../online-coop-game.js');
-const {enableStageBoss}=await import('../stageboss-host.js?v=gun1&rail=1');
-const {renderStageBossLayer}=await import('../headon-stageboss-render.js?v=gun1');
+const {enableStageBoss}=await import('../stageboss-host.js?v=bs1&rail=1');
+const {renderStageBossLayer}=await import('../headon-stageboss-render.js?v=bs1');
 for(const [kind,faction,pilots]of [['a7v-flak','entente',['fonck','guynemer']],['mark-v-cruiser','central',['baron','voss']]])test(kind+': real host/guest protocol retains counter-driven belts, rotating guns, marks and part destruction',()=>{
  const start={seed:135,runId:'trench-online-'+kind,players:pilots.map(pilot=>({pilot,plane:pilot==='fonck'?'camel':pilot==='guynemer'?'guynemer_spad':'fokker',faction}))};
  let host,guest;const hostSession={role:'host',send:m=>{guest.receive(JSON.parse(JSON.stringify(m)));return true;}},guestSession={role:'guest',send:m=>{host.receive(m);return true;}};

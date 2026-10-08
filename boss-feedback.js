@@ -154,3 +154,30 @@ export function bossEncounterCutinReady(encounter){
  if(encounter.bossId==='minenwerfer-battery')return bodies.some(b=>b.discovered&&[...b.parts.values()].every(p=>p.discovered||p.destroyed));
  return true;
 }
+
+// Area-boss arrival: a call that suits what arrives (sfx names, with delays in ms).
+const ARRIVAL_FAMILY={
+ naval:['sms-stuttgart','hms-zubian','jutland-grand-fleet'],
+ airship:['zeppelin-l70','hma23'],
+ bomber:['gotha-squadron','paris-staaken-rvi','gik','ca4'],
+ net:['drachen-net','flak-tower','london-apron-raid','paris-searchlight-fortress'],
+ armour:['a7v-flak','mark-v-cruiser','treffas-wagen','mark4-wedge','wustenpanzer','sinai-landship'],
+ squadron:['jasta11-circus','naval10-black-flight'],
+ rail:['paris-gun','lincomparable'],
+ railCarrier:['fliegerzug']
+};
+const ARRIVAL_CUES={
+ naval:[['bossSting',0],['shipHorn',420]],
+ airship:[['bossSiren',0],['airshipArrival',350]],
+ bomber:[['bossSiren',0]],
+ net:[['bossKlaxon',0]],
+ armour:[['bossKlaxon',0],['armorEntry',500]],
+ squadron:[['aceSting',0]],
+ rail:[['trainApproach',0]],
+ railCarrier:[['bossSting',0],['trainWhistle',380]],
+ fortress:[['bossSting',0]]
+};
+export function bossArrivalCues(bossId){
+ const family=Object.keys(ARRIVAL_FAMILY).find(k=>ARRIVAL_FAMILY[k].includes(bossId))||'fortress';
+ return ARRIVAL_CUES[family];
+}
