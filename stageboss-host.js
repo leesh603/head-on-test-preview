@@ -128,6 +128,10 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    handleLondonCue(g,event);
    handleParisCue(g,event);
    const x=event.x??body?.x??g.x,y=event.y??body?.y??g.y;
+   if(event.type==='livens-pressure-rise'){g.shake=Math.max(g.shake,2);g.event('wave','지면 진동 · 매설 노즐의 압력 상승');}
+   if(event.type==='livens-soil-burst'){g.shake=Math.max(g.shake,3);}
+   if(event.type==='minenwerfer-final-order'){g.event('wave','최후의 포격 명령 · 번호 순서대로 착탄');g.shake=Math.max(g.shake,2);}
+   if(event.type==='trench-discovered'){g.event('wave','지역 보스 발견 · '+BOSS_CATALOG[body?.kind]?.name);}
    const sound=bossSoundFor(event,body?.kind||event.bossId);if(sound)g.event('bossSound',sound);
    if(event.type==='city-mine-lane'&&body?.kind==='drachen-net')for(const f of g.hostileMinefields||[])if(f.encounterId===event.encounterId)for(const m of f.mines)if(Math.abs((m.targetX??m.x)-event.x)<event.width/2){m.dead=true;m.chainHandled=true;}
    if(event.type==='spawn-minefield'){
@@ -350,7 +354,8 @@ export function beginStageBossFrame(g,dt){
    }else if(stage===13){x=g.x;y=g.y-Math.min(340,(bounds.bottom-bounds.top)*.42);
    }else{
     const structure=stage===3||stage===12;
-    const forward=naval?Math.max(520,Math.min(760,(bounds.bottom-bounds.top)*1.05)):structure?Math.max(520,Math.min(700,(bounds.bottom-bounds.top)*.95)):rail?Math.max(460,Math.min(650,(bounds.bottom-bounds.top)*.82)):0;
+    const distantMortar=stage===3&&addon.stages.bossId==='minenwerfer-battery';
+    const forward=distantMortar?Math.max(680,(bounds.bottom-bounds.top)*.95+180):naval?Math.max(520,Math.min(760,(bounds.bottom-bounds.top)*1.05)):structure?Math.max(520,Math.min(700,(bounds.bottom-bounds.top)*.95)):rail?Math.max(460,Math.min(650,(bounds.bottom-bounds.top)*.82)):0;
     const heading=Number.isFinite(g.a)?g.a:-Math.PI/2;
     x=g.x+(alpine?105:(naval||rail||structure)?Math.cos(heading)*forward:0);
     y=g.y+(alpine?-Math.max(165,Math.min(180,(bounds.bottom-bounds.top)*.24)):(naval||rail||structure)?Math.sin(heading)*forward:stage===4?0:stage===10?-Math.min(90,(bounds.bottom-bounds.top)*.12):-Math.min(180,(bounds.bottom-bounds.top)*.22));

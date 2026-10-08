@@ -35,6 +35,15 @@ PHASES['jutland-tubes-lost']=["어뢰 발사관 파괴 · 해당 사선 해제",
 PHASES['jutland-boilers-lost']=["보일러 파괴 · 함선 속도 저하", "Boilers destroyed · vessel slowed"];
 PHASES['jutland-recon-pass']=["수상기 관측 비행 · 격추하면 보정 사격 차단", "Seaplane reconnaissance · shoot down to stop corrected fire"];
 PHASES['last-stand']=['잔여 포대 최후 방어','Remaining batteries make their final defense'];
+PHASES['minenwerfer-prediction']=['이동 예측 · 교차 포격','Prediction · crossing impacts'];
+PHASES['minenwerfer-encirclement']=['원형 포위 · 진행 방향의 빈틈','Encirclement · open flight corridor'];
+PHASES['minenwerfer-crossing']=['시간차 교차 착탄','Staggered crossing impacts'];
+PHASES['minenwerfer-focused']=['잔존 포대 · 집중 방어','Surviving guns · focused defense'];
+PHASES['minenwerfer-last-prediction']=['최후의 포대 · 불규칙 예측','Last gun · irregular prediction'];
+PHASES['minenwerfer-final-order']=['최후의 포격 명령','Final bombardment order'];
+PHASES['livens-sweep']=['연료 누출 · 좌우 화염 쓸기','Fuel leaks · alternating flame sweep'];
+PHASES['livens-unstable']=['압력 불안정 · 단속 분사와 회전','Unstable pressure · pulses and rotation'];
+PHASES['livens-depressurized']=['압력 저하 · 본체 반격 기회','Depressurized · strike the core'];
 export function bossPhaseLabel(phase,locale='ko'){const words=PHASES[phase];return words?words[locale==='en'?1:0]:pair('보스 전술 변화','Boss tactics changed',locale)}
 export const BOSS_NAMES_EN=Object.freeze({'jutland-grand-fleet':'Jutland Battle Squadron','paris-staaken-rvi':'Zeppelin-Staaken R.VI · Paris raid','paris-searchlight-fortress':'Paris searchlight fortress','gallipoli-fortress':'Gallipoli Grand Fortress · Siege','wustenpanzer':'Wüstenpanzer · Desert cruiser','sinai-landship':'Sinai Landship','fort-douaumont':'Fort Douaumont','fort-souville':'Fort de Souville',
  'paris-gun':'Bruno railway gun',lincomparable:"520mm L’Incomparable",'sms-stuttgart':'SMS Stuttgart','hms-zubian':'HMS Zubian',
@@ -66,8 +75,8 @@ export function bossTactic(encounter,locale='ko'){
   case 'hms-zubian':return bodies.length>1?text('앞쪽 선체의 돌진을 피하고, 뒤쪽 함포를 부숴 교차 포격을 끊으세요.','Evade the bow attack · break the stern gun to stop crossfire'):text('접합부를 공격하세요. 분리된 뒤에도 함포와 기관의 손상은 유지됩니다.','Gun and engine damage persists after the split · attack the seam');
   case 'a7v-flak':return b.tacticalState==='recovery'?text('포격이 끝났습니다. 멈춘 차체와 노출된 기관부를 공격하세요.','Barrage ended · strike the stopped hull and exposed engine'):b.rotation?text('회전하는 포문 사이로 피하세요. 궤도·탐조등 파괴로 사냥망을 약화시키세요.','Read rotating ports · tracks and searchlight weaken the hunting net'):b.phase==='exposed'?text('차체 기관총을 피해 노출된 본체를 공격하세요.','Dodge the hull gun · strike the exposed chassis'):b.coreVulnerable?text('장갑이 열렸습니다. 남은 포탑이나 본체를 공격하세요.','Armor breached · silence guns or attack the hull'):text('탐조등과 교차 포격을 피하고, 궤도를 부숴 이동을 막으세요.','Evade spotlights and crossfire · break tracks to halt movement');
   case 'mark-v-cruiser':return b.tacticalState==='recovery'?text('폭주가 끝났습니다. 멈춘 전차의 남은 측면포와 기관부를 공격하세요.','Runaway ended · attack surviving sponsons and the engine'):b.rotation?text('돌파 경로를 비우고, 파괴된 측면포 방향으로 피하세요. 회전 뒤 반격하세요.','Clear the advance · broken sponson is the safe flank · punish recovery'):b.phase==='final-assault'?text('기관총을 피하며 궤도를 부수고, 본체를 공격하세요.','Evade the hull gun · break tracks and finish the chassis'):b.coreVulnerable?text('장갑이 열렸습니다. 남은 측면포와 기관총을 주의하세요.','Armor breached · watch the remaining sponson and hull gun'):text('측면포를 부수면 장갑이 열리고, 궤도를 부수면 전진이 멈춥니다.','Break a sponson to breach armor · tracks stop the advance');
-  case 'livens-flame-projector':return b.coreVulnerable?text('회전 화염의 뒤를 따라가며 노출된 본체를 공격하세요.','Core exposed · attack behind the rotating flame'):text('압력장치를 부숴 화염을 약화시키고, 연료통 4개를 파괴하세요.','Break pressure to weaken flame · destroy four tanks');
-  case 'minenwerfer-battery':{const live=[...b.parts.values()].filter(p=>!p.destroyed).length;return live===1?text('진지 하나가 남았습니다. 빠른 포격과 3연사를 피해 공격하세요.','Last emplacement · evade rapid fire and triple salvos'):live===2?text('진지 두 곳이 남았습니다. 교차 포격 사이로 피하세요.','Firepower reduced · split the two remaining firing lanes'):text('왼쪽은 추적, 중앙은 예측, 오른쪽은 퇴로를 막습니다. 빈틈으로 피하세요.','Left tracks · center leads · right blocks — find the encirclement gap');}
+  case 'livens-flame-projector':return !b.discovered?text('진동하는 매설 노즐을 찾아 접근하세요.','Approach the buried nozzle beneath the tremors'):b.stormActive?text('화염폭풍 · 회전 뒤 0.65초 틈, 압력장치를 부숴 분사를 끊으세요.','Firestorm · 0.65s gaps; break pressure to interrupt the jet'):b.recovery>0?text('압력이 낮아졌습니다. 노출된 본체에 반격하세요.','Pressure down · counterattack the exposed core'):b.raidPhase>=2?text('표시된 회전 방향과 누출 원을 피하고, 압력장치를 공략하세요.','Read sweep direction and leak circles · attack pressure'):text('조준이 고정되면 화염 옆으로 선회하고, 분사 후 본체를 공격하세요.','Turn beside the locked flame · strike core after discharge');
+  case 'minenwerfer-battery':{const live=[...b.parts.values()].filter(p=>!p.destroyed).length;return !b.discovered?text('착탄을 피해 포연 방향으로 접근해 진지를 찾으세요.','Evade impacts and follow the mortar smoke'):b.mortarPlan?.final?text('번호 순서로 착탄합니다. 진행 방향을 바꾸고 마지막 예측탄을 피하세요.','Impacts follow numbers · change direction before the final prediction'):b.recovery?text('포격망 종료 · 장전 중인 포대를 제압하세요.','Barrage complete · counterattack the reloading guns'):live===1?text('최후의 한 문 · 순차 포격 뒤 불규칙 예측을 피하세요.','Last gun · evade rapid sequence and irregular predictions'):text('좌우 포대 파괴로 포위를 해제하고, 중앙을 부숴 중박격포를 제거하세요.','Break either side to open encirclement · destroy center to remove heavy shells');}
   case 'drachen-net':return text('비행선 3기를 모두 격추하세요. 남은 비행선은 계속 기뢰를 뿌립니다.','Down all three airships · survivors keep firing and laying mines');
   case 'fort-douaumont':return b.coreVulnerable?text('마지막 집중 포격을 피해 노출된 중앙부를 공격하세요.','Core exposed · dodge the final barrage'):b.phase==='verdun-ammo'?text('노출된 좌우 탄약고를 부수면 해당 구역의 포격이 약해집니다.','Destroy exposed flank ammunition → weaken that sector'):text('외곽 포대부터 중포까지 부수세요. 관제부를 파괴하면 포격이 약해집니다.','Outer mounts → heavy turrets · control loss weakens salvos');
   case 'fort-souville':return b.coreVulnerable?text('남은 포대를 피하며 노출된 지하 핵심부를 공격하세요.','Underground core exposed · silence remaining pits'):b.phase==='verdun-ruin-breach'?text('노출된 지하 탄약고를 부숴 내부 진지를 연쇄 폭발시키세요.','Underground ammunition exposed → interior chain blast'):text('관측소를 부수면 포격이, 지휘소를 부수면 증원이 멈춥니다.','Hit open pits · observer=artillery / command=reserves');
@@ -100,7 +109,8 @@ export function bossSoundFor(event,kind=''){
  if(type==='split-start'||type==='split')return 'shipBreak';
  if(type==='seam-warning')return 'approachWarning';
  if(type==='part-destroyed'||type==='ammo-cookoff'||type==='rail-car-detached'||type==='rail-break')return 'metalBreak';
- if(type==='flame-warning')return 'flameValve';
+ if(type==='flame-warning'||type==='livens-pressure-rise'||type==='livens-firestorm')return 'flameValve';
+ if(type==='minenwerfer-final-order')return 'approachWarning';
  if(type==='mortar-launch')return 'mortarLaunch';
  if(type==='crane-drop'||type==='spawn-minefield')return 'winchRelease';
  if(type==='rural-rail-roll')return 'trainRoll';
