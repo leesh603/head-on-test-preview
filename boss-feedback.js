@@ -120,20 +120,25 @@ export function bossSoundFor(event,kind=''){
  if(type==='rural-rail-load')return 'railBreech';
  // The arrival itself already ran the full locomotive call (app.js); a big salvo gets the whistle.
  if(['bruno-iron-rain','lincomparable-last-520'].includes(type))return 'trainWhistle';
- if(type==='rail-aim'||type==='rural-aim'||type==='rail-runaway')return 'railClatter';
+ // The train guns' shells land as they fire, so the falling whistle runs over the aiming telegraph.
+ if(type==='rural-aim')return kind==='lincomparable'?'railShellIncoming520':'railShellIncoming';
+ if(type==='rail-aim'||type==='rail-runaway')return 'railClatter';
  if(type==='seaplane-launch')return 'formationPass';
  if(type==='minion-launched')return 'formationPass';
  if(type==='charge-warning'||type==='reentry-warning')return 'approachWarning';
  if(type==='aa-volley')return 'navalGun';
  if(type==='flak-burst')return 'flak';
  if(type==='muzzle')return ['gik','ca4'].includes(kind)?'enemyShot':/stuttgart|zubian|harbor/.test(kind)?'navalGun':kind==='minenwerfer-battery'?null:'heavyShot';
- if(type==='heavy-gun-fired')return event.railArtillery?'railGunFire':'heavyShot';
+ if(type==='heavy-gun-fired')return event.railArtillery?(event.heavy||kind==='lincomparable'?'railGunFire520':'railGunFire'):'heavyShot';
+ // Rail shells: a falling whistle while the marker shows, then the train-gun impact.
+ if(type==='hazard'&&event.kind==='circle'&&event.visual==='rail-shell'&&(event.warning??0)>=.4)return kind==='lincomparable'?'railShellIncoming520':'railShellIncoming';
  if(type==='boss-destruction-start')return /stuttgart|zubian/.test(kind)?'shipBreak':'metalBreak';
  if(type==='hazard-activated'){
   if(visual==='livens-flame')return 'flameBurn';
   if(event.kind==='projectile')return ['alps-cannon','alps-mg'].includes(visual)?null:'enemyShot';
   if(event.kind!=='circle')return null;
-  if(/minenwerfer|rail-shell|observer-shell/.test(visual))return 'earthImpact';
+  if(visual==='rail-shell')return kind==='lincomparable'?'railShellImpact520':'railShellImpact';
+  if(/minenwerfer|observer-shell/.test(visual))return 'earthImpact';
   if(/zubian|naval|harbor/.test(visual))return 'waterImpact';
   if(/flak/.test(visual))return 'flak';
   if(visual==='carpet-bomb')return 'earthImpact';

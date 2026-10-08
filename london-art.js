@@ -1,6 +1,6 @@
-import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=r5';
-import {fx} from './fx-art.js?v=r5';
-import {drawAttachedApron} from './london-apron369.js?v=r5';
+import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=gun1';
+import {fx} from './fx-art.js?v=gun1';
+import {drawAttachedApron} from './london-apron369.js?v=gun1';
 const paths={gotha:'./gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=r5',apronDamage:'./boss-london-apron-registered-damage369.png?v=r5'};
 let art={},artLoadP=null;
 export function releaseLondonArt(){art={};artLoadP=null;}

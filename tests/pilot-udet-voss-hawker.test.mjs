@@ -1,11 +1,11 @@
 import './pilot-feedback-globals.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,VOSS_REVERSE} from '../engine.js?v=r5';
-import {CoopGame,coopPlane} from '../coop-engine.js?v=r5';
+import {Game,VOSS_REVERSE} from '../engine.js?v=gun1';
+import {CoopGame,coopPlane} from '../coop-engine.js?v=gun1';
 
 import {signatureState,advancePilotSignature,pilotSignatureReaction} from '../pilot-signature-state.js';
-import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js?v=r5';
+import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js?v=gun1';
 
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
 function session(id,mode='solo'){

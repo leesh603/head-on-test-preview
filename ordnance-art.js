@@ -1,5 +1,5 @@
 // Approved body/flight artwork only. Collision and impact FX stay in their existing systems.
-import {ORDNANCE_FRAMES} from './ordnance-atlas.js?v=r5';
+import {ORDNANCE_FRAMES} from './ordnance-atlas.js?v=gun1';
 const kinds={moteurBody:'moteur',cowBody:'cow',shellBody:'shell',cannonMotor:'moteur',cannonCow:'cow',shellAuto:'moteur',shell:'shell',shellHeavy:'shell',mortarShell:'shell',bomb:'bomb',bombBody:'bomb',grenade:'grenade',grenadeBody:'grenade',grenadeFlight:'grenade'};
 const image=typeof Image==='undefined'?null:new Image();let ready=false;
 export const ordnanceArtReady=new Promise(resolve=>{if(!image){resolve(false);return;}image.decoding='async';image.onload=()=>{ready=true;resolve(true)};image.onerror=()=>resolve(false);image.src=new URL('./fx-ordnance-body-flight.webp?v=r5',import.meta.url).href;});

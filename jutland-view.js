@@ -1,13 +1,13 @@
-import {applySeaColor} from './sea-colors.js?v=r5';
-import {fleetGunStations} from './naval-faction-atlas.js?v=r5';
-import {drawFactionHull,prepareFactionHulls} from './naval-faction-art.js?v=r5';
-import {drawShipWater,drawTorpedo,drawFactionMark} from './naval-water.js?v=r5';
-import {drawSinkingShip} from './ship-sinking.js?v=r5';
-import {fx} from './fx-art.js?v=r5';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=r5';
-import {jutlandRotate} from './jutland-boss.js?v=r5';
-import {jutlandPoint} from './jutland-route.js?v=r5';
-import {JUTLAND_RECTS,JUTLAND_HULL_MASKS} from './jutland-atlas.js?v=r5';
+import {applySeaColor} from './sea-colors.js?v=gun1';
+import {fleetGunStations} from './naval-faction-atlas.js?v=gun1';
+import {drawFactionHull,prepareFactionHulls} from './naval-faction-art.js?v=gun1';
+import {drawShipWater,drawTorpedo,drawFactionMark} from './naval-water.js?v=gun1';
+import {drawSinkingShip} from './ship-sinking.js?v=gun1';
+import {fx} from './fx-art.js?v=gun1';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=gun1';
+import {jutlandRotate} from './jutland-boss.js?v=gun1';
+import {jutlandPoint} from './jutland-route.js?v=gun1';
+import {JUTLAND_RECTS,JUTLAND_HULL_MASKS} from './jutland-atlas.js?v=gun1';
 export const JUTLAND_ASSETS=Object.freeze({sea:'jutland-sea.webp',battleship:'jutland-battleship-neutral.webp',cruiser:'jutland-cruiser.webp',parts:'jutland-parts.webp',central:'boss-zeppelin-l7094.webp',entente:'boss-hma2394.webp'});
 const images=new Map(),pending=new Map();let water=null;
 function load(key){if(images.has(key))return images.get(key);const im=new Image();images.set(key,im);im.crossOrigin='anonymous';im.decoding='async';pending.set(key,new Promise((resolve,reject)=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))};im.onerror=()=>reject(new Error('Jutland asset '+key));}));im.src='./'+JUTLAND_ASSETS[key]+'?v=r5';return im;}
