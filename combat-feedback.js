@@ -132,7 +132,7 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
  return state;
 }
 export function combatCameraOffset(world){const s=worlds.get(world);return s?{x:Math.sin(s.time*83)*s.camera,y:Math.cos(s.time*71)*s.camera}:{x:0,y:0}}
-export function combatFlightSound(world){const p=(world.players||[world]).find(p=>p.hp>0)||world,s=worlds.get(world);return{reload:p.reloadTime>0,speed:p.airframeSpeed??1,turn:Math.abs(poses.get(p)?.turn||0),damage:clamp(1-p.hp/p.maxHp),duck:(s?.duckUntil||0)>(world.t||0)}}
+export function combatFlightSound(world){const p=(world.players||[world]).find(p=>p.hp>0)||world,s=worlds.get(world);return{plane:p.plane,reload:p.reloadTime>0,speed:p.airframeSpeed??1,turn:Math.abs(poses.get(p)?.turn||0),damage:clamp(1-p.hp/p.maxHp),duck:(s?.duckUntil||0)>(world.t||0)}}
 function drawWreck(c,w,x,y,time,fx,planeSprite){
  if(w.style==='spin')drawAircraftCrash(c,w,x,y,time,fx);
  else fx(c,'smokeTrail',x-Math.cos(w.a)*56,y-Math.sin(w.a)*56,160,58,w.a,.8);

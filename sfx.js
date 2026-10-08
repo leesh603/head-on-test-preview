@@ -10,7 +10,7 @@ const PRIORITY={bossSiren:3,bossKlaxon:3,airshipArrival:3,railGunFire520:2,railS
 const INTERVAL={upgradeChosen:.3,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
 let inputMedia=null;
 const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
-export function stopSfx(){for(const [source,entry]of sources){try{source.stop()}catch{}entry.release()}lastVoices.clear()}
+export function stopSfx(){if(engine){try{engine.src.stop()}catch{}engine=null}for(const [source,entry]of sources){try{source.stop()}catch{}entry.release()}lastVoices.clear()}
 export function setSfxPaused(v){if(paused===!!v)return;paused=!!v;if(paused)stopSfx()}
 export function sfxStats(){return{active:sources.size,limit:sourceLimit(),muted,paused}}
 function reserve(){
@@ -67,7 +67,7 @@ function railSample(name,level){
 // Recorded-style rail-gun cues (tools/fx-sample/railgun-audio.py → rail-*.mp3), decoded once.
 const FILE_CUES=['rail-fire-520','rail-fire-bruno','rail-incoming-520','rail-incoming-bruno','rail-impact-520','rail-impact-bruno'];
 // Sample bank (tools/fx-sample/combat-audio.py, boss-audio.py → sfx/*.mp3): variants per cue, picked in turn.
-const BANK={mg:3,enemy:3,hit:4,hitmetal:2,damage:0,kill:0,flak:3,'boss-siren':0,'boss-drums':0,'boss-klaxon':0,'ship-horn':0,airship:0,armour:0,'ace-bugle':0,'ui-skill':0,'ui-levelup':0,'ui-upgrade':0,'ui-pickup':0,'ui-repair':0,'ui-reload':0,'ui-loaded':0};
+const BANK={mg:3,enemy:3,hit:4,hitmetal:2,damage:0,kill:0,flak:3,'boss-siren':0,'boss-drums':0,'boss-klaxon':0,'ship-horn':0,airship:0,armour:0,'ace-bugle':0,'ui-skill':0,'ui-levelup':0,'ui-upgrade':0,'ui-pickup':0,'ui-repair':0,'ui-reload':0,'ui-loaded':0,'engine-rotary':0,'engine-inline':0,'amb-front':0,'amb-sea':0};
 const BANK_FILES=Object.entries(BANK).flatMap(([k,n])=>n?Array.from({length:n},(_,i)=>`sfx/${k}-${i}`):[`sfx/${k}`]);
 const fileBuffers=new Map();let filesRequested=false;
 // mp3 decoders prepend encoder padding; cut leading silence so rapid fire stays tight on the trigger.
@@ -81,6 +81,30 @@ function loadFileCues(){
  for(const name of BANK_FILES)fetch(`./${name}.mp3?v=ui1`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,trimLead(buf))).catch(()=>{});
 }
 const bankTurn=new Map();
+// Engine: one looping sample per airframe type, its rate following speed and turn. engineTick keeps
+// it alive; if the ticks stop (menu, pause, death) it fades out on its own.
+const ROTARY=/^(fokker(_red|_voss|_f1|_jacobs|_standard)?|fokker|camel|pup|strutter|snipe|sopwith.*|.*nieuport.*|eindecker|fokker_e1|airco_dh2|dh2|hanriot|siemens_d4|morane.*|bristol_m1|.*camel|.*dr1|.*_sopwith|.*_snipe)$/;
+let engine=null;
+function engineLoop(p){
+ const kind=ROTARY.test(p.plane||'')?'engine-rotary':'engine-inline',buffer=fileBuffers.get('sfx/'+kind);
+ if(!buffer){loadFileCues();return false}
+ const now=ctx.currentTime,speed=Math.max(.7,Math.min(1.25,p.speed??1)),turn=Math.min(4,p.turn||0),damage=Math.max(0,Math.min(1,p.damage||0));
+ if(!engine||engine.kind!==kind){
+  if(engine)try{engine.gain.gain.setTargetAtTime(0,now,.08);engine.src.stop(now+.4)}catch{}
+  const src=ctx.createBufferSource(),gain=ctx.createGain(),f=ctx.createBiquadFilter();
+  if(buffer.loopEndAt==null){const d=buffer.getChannelData(0);let e=d.length-1;while(e>0&&Math.abs(d[e])<.01)e--;buffer.loopEndAt=(e+1)/buffer.sampleRate}
+  src.buffer=buffer;src.loop=true;src.loopStart=0;src.loopEnd=buffer.loopEndAt;f.type='lowpass';f.frequency.value=2400;gain.gain.value=0;
+  src.connect(f);f.connect(gain);gain.connect(bus);src.start();
+  engine={kind,src,gain,f};src.onended=()=>{try{src.disconnect();f.disconnect();gain.disconnect()}catch{}if(engine?.src===src)engine=null};
+ }
+ const level=(p.duck?.32:.6)*(p.reload?.85:1)*master*.42;
+ engine.src.playbackRate.setTargetAtTime((.9+.28*(speed-.7)/.55)*(1+turn*.012)*(1-damage*.05),now,.15);
+ engine.f.frequency.setTargetAtTime(2400-damage*900,now,.2);
+ engine.gain.gain.setTargetAtTime(level,now,.12);
+ clearTimeout(engine.idle);const e=engine;e.idle=setTimeout(()=>{try{e.gain.gain.setTargetAtTime(0,ctx.currentTime,.1);e.src.stop(ctx.currentTime+.5)}catch{}},450);
+ return true;
+}
+
 function bankSample(key,level,fallback,rate=1){
  const n=BANK[key],i=n?(bankTurn.get(key)||0)%n:0;if(n)bankTurn.set(key,i+1);
  const name=n?`sfx/${key}-${i}`:`sfx/${key}`,buffer=fileBuffers.get(name);
@@ -135,7 +159,8 @@ const VOICES={
   approachWarning(){tone(172,228,.24,.045,'sawtooth',650);hiss(820,360,.35,.03,'bandpass',1)},
   shipBreak(){tone(93,27,.75,.07,'sawtooth',250);hiss(2300,260,.55,.055,'bandpass',.6);hiss(900,350,.75,.03,'lowpass',.4,.25)},
   uiSelect(){hiss(2100,900,.025,.023,'bandpass',1.5);tone(180,100,.025,.018,'triangle',700)},
-  environment(region){if(region===1||region===7)hiss(520,280,1.3,.009,'bandpass',.35);else if(region===5){hiss(2600,1900,1.5,.005,'highpass',.3);tone(210,195,1,.003,'triangle',60)}else if(region===6)hiss(1500,850,1.4,.008,'bandpass',.4);else{tone(46,25,.6,.014,'sine',130);hiss(280,100,.8,.01,'lowpass',.4)}},
+  environment(region){const name=region===1||region===7||region===16||region===14?'amb-sea':region===5||region===6?null:'amb-front';if(name)bankSample(name,.32)},
+  environmentSynth(region){if(region===1||region===7)hiss(520,280,1.3,.009,'bandpass',.35);else if(region===5){hiss(2600,1900,1.5,.005,'highpass',.3);tone(210,195,1,.003,'triangle',60)}else if(region===6)hiss(1500,850,1.4,.008,'bandpass',.4);else{tone(46,25,.6,.014,'sine',130);hiss(280,100,.8,.01,'lowpass',.4)}},
   // Brief propeller rush and mechanical rattle, below weapon volume.
   headOn(){hiss(320,950,.16,.045,'bandpass',.6);tone(92,140,.14,.035,'sawtooth',450);hiss(1400,420,.09,.022,'bandpass',1,.08)},
   // Player machine guns: a bright crack over a short mechanical body.
@@ -208,7 +233,8 @@ const VOICES={
   heal(){bankSample('ui-repair',.3,()=>VOICES.healSynth())},
   healSynth(){tone(720,720,.06,.05,'sine',2200);tone(960,960,.09,.05,'sine',2600,.07)},
   // Engine idle: one propeller/exhaust beat per call (the host fires it on an interval).
-  engineTick(flight){const p=typeof flight==='object'?flight:{reload:flight},speed=Math.max(.7,Math.min(1.2,p.speed??1)),turn=Math.min(4,p.turn||0),damage=Math.max(0,Math.min(1,p.damage||0));
+  engineTick(flight){const p=typeof flight==='object'?flight:{reload:flight};if(!engineLoop(p))VOICES.engineTickSynth(flight)},
+  engineTickSynth(flight){const p=typeof flight==='object'?flight:{reload:flight},speed=Math.max(.7,Math.min(1.2,p.speed??1)),turn=Math.min(4,p.turn||0),damage=Math.max(0,Math.min(1,p.damage||0));
     const f=(p.reload?.72:1)*(.96+speed*.04)*jit(1),level=p.duck?.35:.68;
     // Reuse one original engine voice. No overlapping enemy/propeller drones.
     tone(58*f,42*f,.11,.085*level,'sawtooth',300-damage*40);
