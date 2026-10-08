@@ -1,7 +1,7 @@
-import {impactPulse} from './boss-raid-strikes.js?v=raid1&rail=19';
+import {impactPulse} from './boss-raid-strikes.js?v=raid2&rail=19';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=raid1';
-import {ALPS_BOMBER_LAYOUT,alpsAngleDelta,alpsPoint,alpsMuzzle,locateAlpsHit} from './alps-bomber-layout.js?v=raid1';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=raid2';
+import {ALPS_BOMBER_LAYOUT,alpsAngleDelta,alpsPoint,alpsMuzzle,locateAlpsHit} from './alps-bomber-layout.js?v=raid2';
 
 class AlpsBomber extends BaseBoss {
  constructor({tuning,rng=Math.random,faction,kind,...base}){
@@ -61,7 +61,8 @@ export class GIK extends AlpsBomber {
  cannon(dt,players){
   const gun=this.part('cannon');this.cannonFlash=Math.max(0,this.cannonFlash-dt);if(gun.destroyed)return;
   if(this.cannonLock){this.cannonRemaining=Math.max(0,this.cannonRemaining-dt);if(this.cannonRemaining>0)return;
-   const angle=this.cannonLock.angle,q=alpsMuzzle(this,'cannon',angle);for(let i=0;i<3;i++)this.hazard('projectile',{...q,sourcePartId:'cannon',sourceOffsetX:q.x-this.x-gun.x,sourceOffsetY:q.y-this.y-gun.y,vx:Math.cos(angle)*400,vy:Math.sin(angle)*400,radius:i===2?18:9,delay:i*.48,damage:this.t.damage*(i===2?2.4:1.2),raidHeavy:i===2,visual:'alps-cannon',duration:2.6,tag:this.id+':cannon'});this.timers.set('alps-cannon',6.5);
+   // Final phase: a fourth round walks the same line; reload shortens by phase.
+   const angle=this.cannonLock.angle,q=alpsMuzzle(this,'cannon',angle),rounds=this.phase===3?4:3;for(let i=0;i<rounds;i++)this.hazard('projectile',{...q,sourcePartId:'cannon',sourceOffsetX:q.x-this.x-gun.x,sourceOffsetY:q.y-this.y-gun.y,vx:Math.cos(angle)*400,vy:Math.sin(angle)*400,radius:i===rounds-1?18:9,delay:i*.48,damage:this.t.damage*(i===rounds-1?2.4:1.2),raidHeavy:i===rounds-1,visual:'alps-cannon',duration:2.6,tag:this.id+':cannon'});this.timers.set('alps-cannon',this.phase===3?4.2:this.phase===2?5.4:6.5);
    this.cannonShotAngle=angle;this.command('heavy-gun-fired',{...q,partId:'cannon'});gun.recoil=.22;this.cannonFlash=.16;this.cannonLock=null;return;
   }
   if(!this.due('alps-cannon',dt,this.t.cannonInterval||(this.phase===1?3.5:2.7)))return;
@@ -98,8 +99,10 @@ export class Ca4 extends AlpsBomber {
    const rear=id==='rearGun',forward=this.hullYaw+(rear?Math.PI/2:-Math.PI/2),q=alpsPoint(this,gun.localX,gun.localY);
    const target=players.find(p=>p.alive&&Math.abs(alpsAngleDelta(Math.atan2(p.y-q.y,p.x-q.x),forward))<1.15&&Math.hypot(p.x-q.x,p.y-q.y)<720);if(!target)continue;
    const base=Math.atan2(target.y-q.y,target.x-q.x);
+   // The ring is warned from the gun like every other burst.
+   this.command('charge-warning',{...q,partId:id,targetX:q.x+Math.cos(base)*420,targetY:q.y+Math.sin(base)*420,seconds:.6});
    for(let i=0;i<7;i++){const a=base+(i-3)*.55;
-    this.hazard('projectile',{...q,sourcePartId:id,sourceOffsetX:q.x-this.x-gun.x,sourceOffsetY:q.y-this.y-gun.y,vx:Math.cos(a)*240,vy:Math.sin(a)*240,radius:4,delay:.35,warning:0,duration:2.2,damage:this.t.damage*.55,visual:'alps-mg',tag:this.id+':'+id});}
+    this.hazard('projectile',{...q,sourcePartId:id,sourceOffsetX:q.x-this.x-gun.x,sourceOffsetY:q.y-this.y-gun.y,vx:Math.cos(a)*240,vy:Math.sin(a)*240,radius:4,delay:.6,warning:0,duration:2.2,damage:this.t.damage*.55,visual:'alps-mg',tag:this.id+':'+id});}
    this.command('muzzle',{...q,partId:id});
   }
  }

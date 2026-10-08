@@ -1,8 +1,8 @@
-import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=raid1';
-import {recordShipWake} from './naval-water.js?v=raid1';
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=raid1&rail=27';
-import {verdunFortCollapseSites} from './verdun-fortresses.js?v=raid1&rail=18';
-import {BossHazards} from './headon-stageboss-hazards.js?v=raid1';
+import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=raid2';
+import {recordShipWake} from './naval-water.js?v=raid2';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=raid2&rail=27';
+import {verdunFortCollapseSites} from './verdun-fortresses.js?v=raid2&rail=18';
+import {BossHazards} from './headon-stageboss-hazards.js?v=raid2';
 
 
 // Every sortie starts in the rural battlefield, then keeps difficulty
@@ -113,7 +113,10 @@ export class StageBossAddon {
     if(this.ended)return{damage:0,blocked:true};
     const body=this.stages.encounter?.bodies.get(bodyId);
     if(!body||(faction&&faction===body.faction))return{damage:0,blocked:true};
-    return body.hit({partId,damage});
+    // Announced counter windows (reloads, regroups) multiply pilot damage only;
+    // internal explosions and scripted damage call body.hit directly.
+    const counter=typeof body.counterWindow==='function'?body.counterWindow():1;
+    return body.hit({partId,damage:damage*(Number.isFinite(counter)&&counter>0?counter:1)});
   }
   hitAt({x,y,radius=0,damage,faction}) {
     for(const body of this.stages.encounter?.bodies.values()||[]) {

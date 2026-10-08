@@ -1,6 +1,6 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=raid1';
-import {RailBossController} from './rail-boss129.js?v=raid1';
-import {StuttgartSupport} from './stuttgart129.js?v=raid1';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=raid2';
+import {RailBossController} from './rail-boss129.js?v=raid2';
+import {StuttgartSupport} from './stuttgart129.js?v=raid2';
 
 export class RailAdapter extends BaseBoss {
  constructor(o,kind){
@@ -78,6 +78,8 @@ export class RailAdapter extends BaseBoss {
  dispose(){this.rail129.destroy();}
 }
 export class StuttgartAdapter extends BaseBoss {
+ // Deck crews rearming between final sorties: hull and parts take 1.5x.
+ counterWindow(){return this.support129?.rearming?1.5:1;}
  constructor(o){super({...o,maxHp:o.tuning.maxHp});this.t=o.tuning;this.kind='sms-stuttgart';this.faction=o.faction;this.ownsMotion129=true;
   this.support129=new StuttgartSupport({id:this.id,tuning:{maxHp:this.maxHp,damage:this.t.damage,bulletSpeed:this.t.bulletSpeed,projectileDensity:this.t.projectileDensity??1,spawnInterval:this.t.launchInterval||4,fireScale:this.t.fireScale||1,minionCap:6,rotationSpeed:.08*(this.t.motionMultiplier||1),navigation:true,motionMultiplier:this.t.motionMultiplier||1},x:this.x,y:this.y,width:500,height:750,
    onDamage:(playerId,damage,source)=>this.emit({type:'support-damage',bossId:this.id,playerId,damage,source}),

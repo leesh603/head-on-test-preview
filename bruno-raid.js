@@ -1,9 +1,9 @@
 // Bruno only. These are committed world-space shots, never tracking hazards.
 const clamp=(v,a,b)=>a>b?(a+b)/2:Math.max(a,Math.min(b,v));
-export function brunoSalvo(target,phase,shot,bounds,{blind=false,final=false,broken=false,starved=false}={}){
+export function brunoSalvo(target,phase,shot,bounds,{blind=false,final=false,broken=false,starved=false,extra=0}={}){
  const speed=Math.hypot(target.vx||0,target.vy||0),ax=speed>10?(target.vx||0)/speed:0,ay=speed>10?(target.vy||0)/speed:-1;
  const radius=final?96:88,warning=final?(broken?.5:1.05):.9;
- const count=final?(broken?2:starved?6:8):5,interval=final?(broken?.16:starved?.3:.22):phase===1?.32:.42;
+ const count=final?(broken?2:starved?6:8):5+Math.max(0,Math.min(2,extra|0)),interval=final?(broken?.16:starved?.3:.22):(phase===1?.32:.42)*5/count;
  const mode=final?'iron-rain':phase===1?'ranging':shot%2?'cross':'tracking';
  const points=[];
  // Keep an escape lane beside the salvo; reflect the march at a screen edge

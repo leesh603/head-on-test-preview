@@ -1,8 +1,8 @@
-import {armorGunMuzzle,armorAngleDelta} from './trench-armor-layout.js?v=raid1';
-import {alpsMuzzle} from './alps-bomber-layout.js?v=raid1';
-import {harborMuzzle} from './harbor-crane-layout.js?v=raid1';
-import {sommeMuzzle,sponsonAim} from './somme-boss-layout.js?v=raid1';
-import {treffasPoint} from './cambrai-layout.js?v=raid1';
+import {armorGunMuzzle,armorAngleDelta} from './trench-armor-layout.js?v=raid2';
+import {alpsMuzzle} from './alps-bomber-layout.js?v=raid2';
+import {harborMuzzle} from './harbor-crane-layout.js?v=raid2';
+import {sommeMuzzle,sponsonAim} from './somme-boss-layout.js?v=raid2';
+import {treffasPoint} from './cambrai-layout.js?v=raid2';
 
 // Ordinary fire is separate from the raid controller. Only authored weapons
 // fire; destroying one removes its lane. No new HP or difficulty multipliers.

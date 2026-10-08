@@ -1,9 +1,9 @@
-import {broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=raid1&rail=19';
+import {broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=raid2&rail=19';
 import {fireFanSalvo,barrageStrip} from './boss-salvo-geometry.js';
-import {driveLandship} from './somme-landship-drive.js?v=raid1';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=raid1';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=raid1';
-import {SCHWABEN_PARTS,MARK1_PARTS,sommeScale,sommePoint,syncSommeParts,sommeMuzzle,sponsonAim,clamp,turn,angleDelta} from './somme-boss-layout.js?v=raid1';
+import {driveLandship} from './somme-landship-drive.js?v=raid2';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=raid2';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=raid2';
+import {SCHWABEN_PARTS,MARK1_PARTS,sommeScale,sommePoint,syncSommeParts,sommeMuzzle,sponsonAim,clamp,turn,angleDelta} from './somme-boss-layout.js?v=raid2';
 
 class SommeBoss extends BaseBoss{
  constructor(o,layout,kind,tank=false){
@@ -65,7 +65,8 @@ class SommeBoss extends BaseBoss{
 export class SchwabenFortress extends SommeBoss{
  constructor(o){super(o,SCHWABEN_PARTS,'morser-battery');this.coreVulnerable=false;this.phase='observation';this.lockProgress=0;this.wave=0;this.timers.set('barrage',3.8);this.timers.set('twin-aa',2.6);this.timers.set('mg-left',2.1);this.timers.set('mg-right',3.4);}
  liveHeavy(){return ['gun-left','gun-right','twin-aa'].filter(id=>!this.parts.get(id).destroyed);}
- reloadInterval(){return(this.parts.get('ammo').destroyed?10.8:6.7);}
+ // Below 35% the fortress empties its magazines: shorter reloads between curtains.
+ reloadInterval(){return this.parts.get('ammo').destroyed?10.8:this.hp<=this.maxHp*.35?4.8:6.7;}
  onPartDestroyed(p){
   this.cancel(p.id);
   if(p.id==='gun-left'||p.id==='gun-right'){this.cancel('barrage');this.salvo=null;if(this.lock){this.lock.guns=this.lock.guns.filter(id=>id!==p.id);if(!this.lock.guns.length)this.lock=null;}}
@@ -103,7 +104,8 @@ export class SchwabenFortress extends SommeBoss{
   this.salvo={mode:q.mode,pattern:q.pattern,gate:q.gate,width:gap,y:q.y,remaining:6.3};this.lane.remaining=2.9;this.lock=null;this.lockProgress=0;
  }
  update(dt,{players,bounds}){
-  if(this.dead)return;this.tickParts(dt);if(this.lane)this.lane.remaining=Math.max(0,this.lane.remaining-dt);if(this.salvo&&(this.salvo.remaining-=dt)<=0)this.salvo=null;
+  if(this.dead)return;if(!this.lastBarrage&&this.hp<=this.maxHp*.35&&!this.parts.get('ammo').destroyed){this.lastBarrage=true;this.command('phase-change',{phase:'schwaben-last-barrage'});}
+  this.tickParts(dt);if(this.lane)this.lane.remaining=Math.max(0,this.lane.remaining-dt);if(this.salvo&&(this.salvo.remaining-=dt)<=0)this.salvo=null;
   if(this.lock){this.lock.remaining-=dt;this.lockProgress=clamp(1-this.lock.remaining/1.15,0,1);if(this.lock.remaining<=0)this.launchBarrage();}
   else if(!this.salvo&&this.due('barrage',dt,this.reloadInterval()))this.planBarrage(players,bounds);
   const aa=this.parts.get('twin-aa');if(!aa.destroyed){const live=players.filter(p=>p.alive),p=live[this.cursor%live.length];if(p){const aim=Math.atan2(p.y-this.y-aa.y,p.x-this.x-aa.x);aa.angle=turn(aa.angle,aim,.75*dt);

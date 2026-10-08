@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {LIncomparable,ParisGun} from '../headon-stageboss-patterns.js?v=raid1&rail=18';
+import {LIncomparable,ParisGun} from '../headon-stageboss-patterns.js?v=raid2&rail=18';
 import {BossHazards} from '../headon-stageboss-hazards.js';
-import {railGunMuzzle} from '../rural-rail-artillery.js?v=raid1';
-import {lincomparableRound} from '../lincomparable-raid.js?v=raid1';
-import {bossSoundFor} from '../boss-feedback.js?v=raid1&rail=18';
+import {railGunMuzzle} from '../rural-rail-artillery.js?v=raid2';
+import {lincomparableRound} from '../lincomparable-raid.js?v=raid2';
+import {bossSoundFor} from '../boss-feedback.js?v=raid2&rail=18';
 const tuning={maxHp:2400,partHp:288,damage:18,bulletSpeed:270,warningSeconds:1.4,railCycle:5.8,railMoveSeconds:3.6};
 const frame={players:[{id:'p1',alive:true,x:0,y:0,vx:0,vy:-180,radius:12}],bounds:{left:-195,right:195,top:-422,bottom:422}};
 function make(){const events=[],b=new LIncomparable({id:'heavy',x:0,y:-460,tuning,emit:e=>events.push(e)});return{b,events};}

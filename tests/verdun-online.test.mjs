@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){queueMicrotask(()=>this.onload?.())}};globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {OnlineCoopGame}=await import('../online-coop-game.js');const {enableStageBoss}=await import('../stageboss-host.js?v=raid1&rail=18');
+const {OnlineCoopGame}=await import('../online-coop-game.js');const {enableStageBoss}=await import('../stageboss-host.js?v=raid2&rail=18');
 for(const faction of ['central','entente'])test(`Verdun ${faction} host/guest retain real fortress orders, hatch/recoil, repairs and destruction`,()=>{
  const pilots=faction==='central'?['baron','voss']:['fonck','guynemer'],start={seed:135,runId:'verdun-online',players:pilots.map(pilot=>({pilot,plane:faction==='central'?'fokker':'spad',faction}))};let host,guest;
  const hs={role:'host',send:m=>{guest.receive(JSON.parse(JSON.stringify(m)));return true}},gs={role:'guest',send:m=>{host.receive(m);return true}};
