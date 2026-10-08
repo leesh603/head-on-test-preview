@@ -1,7 +1,7 @@
 // Layered procedural SFX — every combat feedback voice is synthesized from
 // oscillators plus filtered noise, matching the music.js approach. No audio
 // assets, no external requests.
-import {railAudioSamples} from './rail-audio.js?v=tame2';
+import {railAudioSamples} from './rail-audio.js?v=tame3';
 const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproach
 let ctx=null,bus=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();
@@ -78,7 +78,7 @@ function trimLead(buf){
 function loadFileCues(){
  if(filesRequested||!ctx||typeof fetch!=='function')return;filesRequested=true;
  for(const name of FILE_CUES)fetch(`./${name}.mp3?v=gun1`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,buf)).catch(()=>{});
- for(const name of BANK_FILES)fetch(`./${name}.mp3?v=tame2`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,trimLead(buf))).catch(()=>{});
+ for(const name of BANK_FILES)fetch(`./${name}.mp3?v=tame3`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,trimLead(buf))).catch(()=>{});
 }
 const bankTurn=new Map();
 // Engine: one looping sample per airframe type, its rate following speed and turn. engineTick keeps
@@ -215,7 +215,7 @@ const VOICES={
   bossSting(){bankSample('boss-drums',.5,()=>VOICES.bossStingSynth())},
   bossStingSynth(){tone(49,49,.9,.16,'sawtooth',500);tone(55,55,.9,.13,'sawtooth',400);tone(98,98,.7,.08,'sawtooth',800,.25)},
   // Enemy ace arrival: sharp bandit snarl — rising twin brass over an engine whine.
-  aceSting(){bankSample('ace-bugle',.24,()=>VOICES.aceStingSynth())},
+  aceSting(){bankSample('ace-bugle',.32,()=>VOICES.aceStingSynth())},
   aceStingSynth(){tone(330,392,.16,.08,'sawtooth',2400);tone(415,494,.16,.07,'sawtooth',2400,.1);tone(220,180,.3,.09,'sawtooth',1400,.02);hiss(jit(2400),900,.35,.05,'bandpass',1.2,.04);tone(110,55,.4,.07,'sine',500,.28)},
   // Sortie launch: engine spool-up.
   launch(){tone(55,110,.5,.1,'sawtooth',600);hiss(200,900,.5,.04,'bandpass',.8)},
