@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {FortDouaumont,FortSouville,VERDUN_FORT_LAYOUT,verdunFortExtents} from '../verdun-fortresses.js?v=tame3&rail=37';
+import {FortDouaumont,FortSouville,VERDUN_FORT_LAYOUT,verdunFortExtents} from '../verdun-fortresses.js?v=tame3&rail=38';
 import {verdunGroundTiles} from '../verdun-ground.js?v=tame3';
 
 const frame={players:[{id:'p1',alive:true,x:0,y:400,radius:10}],bounds:{left:-480,right:480,top:-350,bottom:650}};

@@ -1,4 +1,4 @@
-import {broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=tame3&rail=37';
+import {broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=tame3&rail=38';
 import {fireFanSalvo,barrageStrip} from './boss-salvo-geometry.js';
 import {driveLandship} from './somme-landship-drive.js?v=tame3';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3';

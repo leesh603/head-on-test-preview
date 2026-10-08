@@ -9,7 +9,7 @@ import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,
 // falls back to procedural drawing exactly as before.
 import {FX3,roleArtReady,roleReady,roleDraw,roleImage} from './fx-role3.js?v=tame3';
 // FX sample preview (?fxs=1 only).
-import {FXS,fxsReady,fxsHas,fxsDraw,fxsImage,fxsTintedCanvas,fxsTint,fxsRocketTrail} from './fx-sample-preview.js?v=tame3&rail=37';
+import {FXS,fxsReady,fxsHas,fxsDraw,fxsImage,fxsTintedCanvas,fxsTint,fxsRocketTrail} from './fx-sample-preview.js?v=tame3&rail=38';
 export {FXS};
 
 export {FX3};
@@ -40,10 +40,6 @@ const FX_FILES=FX_OFF?{}:Object.assign({
  shellAuto:'fx-pack-v189/projectiles/shell-autocannon.webp',
  bulletBrass:'fx-pack-v189/projectiles/bullet-brass.webp',
  grenade:'fx-grenade-ww1.webp?v=r5',
- tracerAmber:'fx-pack-v189/projectiles/tracer-amber.webp',
- tracerCream:'fx-pack-v189/projectiles/tracer-cream.webp',
- tracerOrange:'fx-pack-v189/projectiles/tracer-orange.webp',
- tracerViolet:'fx-pack-v189/projectiles/tracer-violet.webp',
  spark:'fx-pack-v189/explosions/impact-spark.webp',
  ricochet:'fx-pack-v189/explosions/impact-ricochet.webp',
  debris:'fx-pack-v189/explosions/impact-aircraft-debris.webp',

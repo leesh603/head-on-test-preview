@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){queueMicrotask(()=>this.onload?.());}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {Game}=await import('../engine.js?v=tame3&rail=37');
-const {enableStageBoss,endStageBossFrame}=await import('../stageboss-host.js?v=tame3&rail=37');
+const {Game}=await import('../engine.js?v=tame3&rail=38');
+const {enableStageBoss,endStageBossFrame}=await import('../stageboss-host.js?v=tame3&rail=38');
 
 function setup(){
  const g=new Game('spad','fonck',()=>.5);g.viewWidth=390;g.viewHeight=844;g.state='playing';g.invuln=0;

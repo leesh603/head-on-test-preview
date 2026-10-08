@@ -1,6 +1,6 @@
-import {CoopGame} from './coop-engine.js?v=tame3&rail=37';
+import {CoopGame} from './coop-engine.js?v=tame3&rail=38';
 import {BossEncounter} from './headon-stageboss-core.js?v=tame3';
-import {stageBossSpeed} from './stageboss-host.js?v=tame3&hints=1&rail=37';
+import {stageBossSpeed} from './stageboss-host.js?v=tame3&hints=1&rail=38';
 import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFields,pose,mixAngle} from './online-coop-protocol.js';
 
 const LANES=['enemies','drops','allies','patrols','mines','friendlyBombers','friendlyBombs','bombZones','flakBursts','hostileMinefields','gasZones','gusts','grenades','smokeZones','combatFX','revisionDecoys','enemyAirshipPasses'];

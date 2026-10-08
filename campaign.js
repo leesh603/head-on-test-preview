@@ -1,5 +1,5 @@
 import {registerAircraftTiers} from './aircraft-tiers.js?v=tame3';
-import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=tame3&rail=37';
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=tame3&rail=38';
 import {CAMPAIGN_DATA} from './campaign-data.js?v=tame3';
 import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=tame3';
 
