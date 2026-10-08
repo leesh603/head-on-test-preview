@@ -1,4 +1,4 @@
-import {prepareBossCutins} from './boss-cutin-art.js?v=tame3&rail=13rail=14';
+import {prepareBossCutins} from './boss-cutin-art.js?v=tame3&rail=14';
 import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=tame3';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=tame3';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=tame3&rail=12';
@@ -22,7 +22,7 @@ import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=tame3'
 import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=tame3';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=tame3';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=tame3&rail=1';
-import {bossHudModel} from './headon-stageboss-hud.js?v=tame3&rail=13rail=14';
+import {bossHudModel} from './headon-stageboss-hud.js?v=tame3&rail=14';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=tame3&hints=1&rail=12';
 import {planeSprite} from './aircraft.js?v=tame3';
 import {getLocale} from './i18n.js?v=tame3';
@@ -145,15 +145,17 @@ function drawLivens(c,b){
 function drawMinenwerfer(c,b){
  const parts=b.parts?.values?b.parts.values():(b.parts||[]);
  c.save();c.imageSmoothingEnabled=true;
- // Each gun sits in its own complete connected installation — three full murals.
- const scale=b.trenchScale||1,im=trenchBossArt.minenComposite,w=600*scale,h=450*scale;
- // Exclude the source's stray outer matte/blue pixels, preserving the connected trench outline.
- const silhouette=[[8,92],[168,71],[168,40],[325,40],[325,72],[490,92],[490,260],[326,260],[326,308],[318,324],[180,324],[174,274],[8,274]];
- const drawInstallation=(image,x,y)=>{if(!(image?.naturalWidth||image?.width))return;c.save();c.beginPath();for(let i=0;i<silhouette.length;i++){const [sx,sy]=silhouette[i],px=x+(sx-250)*1.2*scale,py=y+(sy-187.5)*1.2*scale;i?c.lineTo(px,py):c.moveTo(px,py);}c.closePath();c.clip();c.drawImage(image,x-w/2,y-h/2,w,h);c.restore();};
+ // Each gun renders only its own slice of the connected-installation composite —
+ // three emplacements spaced apart, never the whole mural stacked three times.
+ const scale=b.trenchScale||1,im=trenchBossArt.minenComposite;
+ // Source slices inside the composite (left wing / center pit / right wing).
+ const slices={'gun-left':[6,60,160,264],'main-gun':[166,36,168,288],'gun-right':[334,60,160,264]};
+ const drawInstallation=(image,p)=>{if(!(image?.naturalWidth||image?.width))return;const slice=slices[p.id]||slices['main-gun'];const [sx,sy,sw,sh]=slice;const dw=sw*1.2*scale,dh=sh*1.2*scale;
+  c.save();c.beginPath();c.rect(p.x-dw/2,p.y-dh/2,dw,dh);c.clip();c.drawImage(image,sx,sy,sw,sh,p.x-dw/2,p.y-dh/2,dw,dh);c.restore();};
  for(const p of parts){
   const x=p.x,y=p.y,dead=b.destroying||p.destroyed,damaged=!dead&&p.hp<=p.maxHp*.5;
   const state=dead?'grayscale(.72) brightness(.55)':damaged?'saturate(.72) brightness(.82)':null;
-  drawInstallation(state?bakedImage(im,state):im,x,y);
+  drawInstallation(state?bakedImage(im,state):im,p);
   const mouth=p.mortarMouth||(p.id==='main-gun'?{x:0,y:-112}:{x:0,y:-32});
   if(!dead&&p.mortarFlash>0)fx(c,'fireFlash',x+mouth.x,y+mouth.y,55,55,0,p.mortarFlash/.22);
   if(!dead&&p.mortarSmoke>0)fx(c,'smokeHeavy',x+mouth.x,y+mouth.y-18,64,48,0,Math.min(.35,p.mortarSmoke*.3));

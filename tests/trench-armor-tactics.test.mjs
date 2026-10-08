@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {createBossEncounter} from '../headon-stageboss-patterns.js?v=tame3&rail=13rail=14';
+import {createBossEncounter} from '../headon-stageboss-patterns.js?v=tame3&rail=14';
 import {armorRotate,armorGunMuzzle,armorAngleDelta,TRENCH_ARMOR_LAYOUT} from '../trench-armor-layout.js?v=tame3';
 import {treadFrame,drawArmorTreads,prepareArmorTreads,TREAD_PROFILES,TREAD_FRAMES} from '../trench-armor-render.js?v=tame3';
 import {fixture,step} from './stageboss-fixture94.mjs';
