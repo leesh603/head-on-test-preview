@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,step} from './stageboss-fixture94.mjs';
-import {bossEncounterCutinReady} from '../boss-feedback.js?v=gun1';
-import {renderStageBossLayer} from '../headon-stageboss-render.js?v=gun1';
+import {bossEncounterCutinReady} from '../boss-feedback.js?v=cb1';
+import {renderStageBossLayer} from '../headon-stageboss-render.js?v=cb1';
 for(const width of [390,1280])test(`Minenwerfer ${width}: connected mounts retain independent hits, muzzle and discovery`,()=>{
  const f=fixture({teamFaction:'entente',stageIndex:3}),e=f.addon.startBoss({x:0,y:0}),b=[...e.bodies.values()][0];f.frame.bounds={left:-width/2,right:width/2,top:-400,bottom:400};f.frame.players=[{id:'p1',alive:true,x:0,y:150,radius:12}];step(f,.05);assert.equal(bossEncounterCutinReady(e),false);step(f,1.1);assert.equal(bossEncounterCutinReady(e),true);
  const guns=[...b.parts.values()];assert.ok(Math.max(...guns.map(p=>p.x))-Math.min(...guns.map(p=>p.x))<=366);assert.ok(guns.every(p=>Math.abs(p.y)<20));assert.equal(b.locateHit({x:b.x+guns[0].x,y:b.y+guns[0].y}).partId,guns[0].id);b.hit({partId:'gun-left',damage:9999});assert.ok(!b.parts.get('main-gun').destroyed&&!b.parts.get('gun-right').destroyed);
@@ -12,8 +12,8 @@ test('Livens cut-in waits for actual soil reveal, warning, active first flame an
 test('destroying pressure during entry safely interrupts the jet without losing the cut-in',()=>{const f=fixture({teamFaction:'central',stageIndex:3}),e=f.addon.startBoss({x:400,y:180}),b=[...e.bodies.values()][0];step(f,1.6);assert.equal(b.flameMode,'entry');b.hit({partId:'pressure',damage:9999});assert.equal(b.lockedFlameAngle,null);assert.ok(bossEncounterCutinReady(e));assert.ok(f.log.cues.some(c=>c.type==='part-destroyed'));f.addon.dispose();});
 test('other boss cut-ins retain their existing immediate eligibility',()=>{const f=fixture({stageIndex:6}),e=f.addon.startBoss({x:0,y:0});assert.equal(bossEncounterCutinReady(e),true);f.addon.dispose();});
 globalThis.Image??=class{set src(v){queueMicrotask(()=>this.onload?.())}};globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {Game}=await import('../engine.js?v=gun1'),{CoopGame}=await import('../coop-engine.js?v=gun1');
-const {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossBounds}=await import('../stageboss-host.js?v=gun1&rail=1');
+const {Game}=await import('../engine.js?v=cb1'),{CoopGame}=await import('../coop-engine.js?v=cb1');
+const {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossBounds}=await import('../stageboss-host.js?v=cb1&rail=1');
 for(const coop of [false,true])for(const [w,h]of [[390,844],[1280,800]])test(`Livens natural ${coop?'CoopGame':'Game'} ${w}: first jet finishes on screen and facility stays fixed`,()=>{
  const g=coop?new CoopGame([{pilot:'baron'},{pilot:'baron'}],{rng:()=>.5}):new Game('fokker','baron',()=>.5);g.viewWidth=w;g.viewHeight=h;g.region=3;g.spawn=Infinity;g.nextBossAt=Infinity;g.need=Infinity;for(const p of g.players||[g]){p.fire=Infinity;p.invuln=Infinity;p.need=Infinity;}enableStageBoss(g,{teamFaction:'central'});g.stageBoss.stages.stageIndex=3;g.t=100;beginStageBossFrame(g,.02);endStageBossFrame(g,.02);const b=[...g.stageBoss.stages.encounter.bodies.values()][0],anchor=[b.x,b.y];let revealed=false,first=false;
  for(let i=0;i<900&&!first;i++){g.update(.02,{});assert.deepEqual([b.x,b.y],anchor);if(b.nozzleRevealed&&!b.trenchEntry.firstDone){revealed=true;assert.equal(bossEncounterCutinReady(g.stageBoss.stages.encounter),false);}if(b.trenchEntry.firstDone){first=true;const v=stageBossBounds(g),y=b.y+b.nozzleMount.y;assert.ok(y>=v.top&&y<=v.bottom,'real nozzle still visible after first jet');}}
