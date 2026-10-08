@@ -2,14 +2,14 @@ import {resolveSurfaceSpacing} from './naval-spacing.js?v=tame3';
 
 import {tickRegionalConditions} from './region-doctrine1.js?v=tame3';
 
-import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=tame3&rail=12';
+import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=tame3&rail=17';
 import {handleMaanCue} from './maan-view.js?v=tame3';
 import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=tame3';
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=tame3';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=tame3';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=tame3&rail=16';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=tame3&rail=16';
-import {bossSoundFor} from './boss-feedback.js?v=tame3&hints=1&rail=12';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=tame3&rail=17';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=tame3&rail=17';
+import {bossSoundFor} from './boss-feedback.js?v=tame3&hints=1&rail=17';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=tame3&rail=1';
 import {advanceCambraiBug} from './cambrai-bug-flight.js?v=tame3';
 import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=tame3';
