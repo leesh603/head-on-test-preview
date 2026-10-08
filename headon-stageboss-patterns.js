@@ -575,7 +575,7 @@ export class ArmoredHarborFortress extends PatternBoss {
     const parts=HARBOR_PARTS.map(p=>({...p,maxHp:options.tuning.maxHp*(p.kind==='crane-arm'?.13:p.kind==='crane-pivot'?.10:p.kind==='harbor-gun'?.08:.12)}));
     super({...options,kind:'armored-harbor-fortress',parts});
     this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;this.phase='coastal-battery';this.coreVulnerable=false;
-    this.craneAngle=-.55;this.craneState='idle';this.craneClock=1.8;this.craneSerial=0;this.gunSide=0;this.elapsed=0;this.gunBursts=[];this.launchRun=null;
+    this.craneAngle=-.55;this.craneState='idle';this.craneClock=1.8;this.craneSerial=0;this.gunSide=0;this.elapsed=0;this.gunBursts=[];this.launchRun=null;this.craneDrops=0;this.craneReleaseClock=0;this.approachShots=0;this.approachActive=false;
     for(const spec of HARBOR_PARTS){const p=this.parts.get(spec.id);Object.assign(p,{localX:spec.x,localY:spec.y,drawWidth:spec.width,drawHeight:spec.height,cell:spec.cell,artAngle:spec.artAngle,launchWarmup:0,recoil:0});if(p.kind==='harbor-gun')p.angle=spec.artAngle;}
     this.externalParts=['crane-arm','ammo-storage','gun-left','gun-right','gun-front-left','gun-front-right','seaplane-facility'];this.syncCrane();
   }
@@ -595,7 +595,7 @@ export class ArmoredHarborFortress extends PatternBoss {
     if(p.kind==='harbor-gun'){this.gunBursts=this.gunBursts.filter(b=>b.partId!==p.id);this.command('cancel-hazards',{tag:'harbor-'+p.id});}
     if(p.id==='ammo-storage'&&!this.ammoDetonated){this.ammoDetonated=true;this.hp=Math.max(1,this.hp-this.maxHp*.15);this.command('ammo-detonation',{x:this.x+p.x,y:this.y+p.y});}
     if(p.id==='seaplane-facility'){this.launchRun=null;p.launchWarmup=0;this.command('phase-change',{phase:'harbor-launch-disabled'});}
-    if(p.id==='crane-arm'||p.id==='crane-pivot'){this.craneState='collapsed';this.command('cancel-hazards',{tag:'harbor-crane'});}
+    if(p.id==='crane-arm'||p.id==='crane-pivot'){this.craneState='collapsed';this.craneDrops=3;this.craneReleaseClock=0;this.command('cancel-hazards',{tag:'harbor-crane'});this.command('harbor-crane-disabled');}
     const lost=this.externalParts.filter(id=>this.parts.get(id).destroyed).length;
     if(lost>=1&&this.phase==='coastal-battery'){this.phase='seaplane-support';this.command('phase-change',{phase:this.phase});}
     if((this.parts.get('crane-arm').destroyed||lost>=3)&&!this.parts.get('crane-pivot').destroyed){this.parts.get('crane-pivot').hittable=true;if(this.phase!=='breached'){this.phase='breached';this.command('phase-change',{phase:this.phase});}}
@@ -604,52 +604,85 @@ export class ArmoredHarborFortress extends PatternBoss {
       this.phase='final-core';this.coreVulnerable=true;this.hp=Math.min(this.hp,this.maxHp*.42);this.command('phase-change',{phase:this.phase});
     }
   }
-  startCrane(players){
-    const target=this.target(players);if(!target)return;const pivot=this.pose().pivot,heading=Math.atan2(target.y-pivot.y,target.x-pivot.x),side=this.craneSerial++%2?1:-1;
-    this.craneStart=this.craneAngle+angleDelta(heading-side*.6,this.craneAngle);this.craneEnd=this.craneStart+side*1.2;
+  startCrane(players,bounds){
+    if(this.parts.get('crane-arm').destroyed||this.parts.get('crane-pivot').destroyed)return;
+    const target=this.target(players);if(!target)return;const pivot=this.pose().pivot,side=this.craneSerial++%2?1:-1,s=harborScale(this);
+    let heading=Math.atan2(target.y-pivot.y,target.x-pivot.x),span=1.2;
+    if(bounds){
+      span=Math.min(span,Math.max(.35,(bounds.right-bounds.left-88)/(180*s)*.75));
+      // Choose a visible arc, never clamp a released mine away from its cable.
+      const fits=angle=>{const x=pivot.x+Math.cos(angle)*180*s,y=pivot.y+Math.sin(angle)*180*s+56*s;
+        return x>bounds.left+44&&x<bounds.right-44&&y>bounds.top+44&&y<bounds.bottom-44;};
+      let best=heading,bestCount=-1;
+      for(let i=0;i<=26;i++)for(const dir of i?[-1,1]:[0]){const h=heading+i*.12*dir,count=[-.386,0,.386].reduce((n,k)=>n+Number(fits(h+k*span)),0);if(count>bestCount){best=h;bestCount=count;}if(count===3)break;}
+      heading=best;
+    }
+    this.craneDrops=0;this.craneStart=this.craneAngle+angleDelta(heading-side*span/2,this.craneAngle);this.craneEnd=this.craneStart+side*span;
     this.craneWarn=Math.max(1.15,Math.abs(this.craneStart-this.craneAngle)/.55+.04);this.craneClock=this.craneWarn;this.craneState='windup';
     this.craneTarget={x:target.x+(target.vx||0)*.6,y:target.y+(target.vy||0)*.6};
     const supplied=!this.parts.get('ammo-storage').destroyed;
     this.hazard('circle',{...this.pose().load,radius:(supplied?18:9)*harborScale(this),warning:this.craneWarn,duration:2.8,tickInterval:.5,damage:this.t.damage*(supplied?.72:.5),visual:'harbor-swing',tag:'harbor-crane'});
   }
   dropMines(bounds){
-    if(this.parts.get('ammo-storage').destroyed||!bounds)return;const source=this.pose().load,target=this.craneTarget,points=[];
-    for(const offset of [-110,0,110]){const p={x:Math.max(bounds.left+44,Math.min(bounds.right-44,target.x+offset)),y:Math.max(bounds.top+44,Math.min(bounds.bottom-44,target.y-110))};if(!points.some(q=>Math.hypot(p.x-q.x,p.y-q.y)<50))points.push(p);}
-    this.command('spawn-minefield',{points,sourceX:source.x,sourceY:source.y,warning:1.2,life:8.5,maxMines:9});
-    this.command('crane-drop',{...source});
+    if(this.parts.get('ammo-storage').destroyed||this.craneState==='collapsed'||!bounds)return false;
+    const source=this.pose().load,s=harborScale(this),point={x:source.x,y:source.y+18*s};
+    if(point.x<bounds.left+44||point.x>bounds.right-44||point.y<bounds.top+44||point.y>bounds.bottom-44)return false;
+    this.command('spawn-minefield',{points:[point],sourceX:source.x,sourceY:source.y,warning:1.2,deploySeconds:.55,dropMode:'harbor-vertical',sourcePartId:'crane-arm',life:8.5,maxMines:9});
+    this.craneReleaseClock=.4;this.command('crane-drop',{...source});return true;
+  }
+  queueGun(gun,delay=0){
+    if(gun.destroyed||this.gunBursts.some(b=>b.partId===gun.id))return;
+    this.gunBursts.push({partId:gun.id,left:this.parts.get('ammo-storage').destroyed?1:3,clock:delay,warned:false});
+  }
+  coastalSalvo(){
+    const guns=this.liveGuns();for(let i=0;i<guns.length;i++)this.queueGun(guns[i],.35+i*.65);
+    if(guns.length)this.command('phase-change',{phase:this.phase==='breached'?'harbor-last-blockade':'harbor-blockade'});
+    return .35+Math.max(0,guns.length-1)*.65+1.1+.48+1.6;
   }
   updateCrane(dt,players,bounds){
-    if(this.craneState==='collapsed')return;this.craneClock-=dt*((this.craneState==='idle'||this.craneState==='recover')?(this.t.patternMultiplier||1):1);
-    if(this.craneState==='idle'){if(this.craneClock<=0)this.startCrane(players);}
+    this.craneReleaseClock=Math.max(0,this.craneReleaseClock-dt);if(this.craneState==='collapsed')return;this.craneClock-=dt*((this.craneState==='idle'||this.craneState==='recover'&&this.phase==='coastal-battery')?(this.t.patternMultiplier||1):1);
+    if(this.craneState==='idle'){if(this.craneClock<=0)this.startCrane(players,bounds);}
     else if(this.craneState==='windup'){
       this.craneAngle=turnToward(this.craneAngle,this.craneStart,.55*dt);
       if(this.craneClock<=0){this.craneState='sweep';this.craneClock=2.8;this.craneAngle=this.craneStart;}
     }else if(this.craneState==='sweep'){
       const t=Math.min(1,Math.max(0,1-this.craneClock/2.8));this.craneAngle=this.craneStart+(this.craneEnd-this.craneStart)*(.5-.5*Math.cos(t*Math.PI));
-      if(this.craneClock<=0){this.dropMines(bounds);this.craneState='recover';this.craneClock=this.parts.get('ammo-storage').destroyed?4.1:2.8;this.command('cancel-hazards',{tag:'harbor-crane'});}
+      if(this.craneDrops<3&&t>=[.22,.5,.78][this.craneDrops]){this.dropMines(bounds);this.craneDrops++;}
+      if(this.craneClock<=0){this.craneState='recover';this.craneClock=this.phase==='coastal-battery'?2.8:this.coastalSalvo();this.command('cancel-hazards',{tag:'harbor-crane'});}
     }else if(this.craneState==='recover'&&this.craneClock<=0){this.craneState='idle';this.craneClock=.1;}
     const supplied=!this.parts.get('ammo-storage').destroyed;
-    this.syncCrane();this.command('harbor-load-pose',{...this.pose().load,radius:(supplied?18:9)*harborScale(this),damage:this.t.damage*(supplied?.72:.5),tag:'harbor-crane'});
+    this.syncCrane();this.command('harbor-load-pose',{...this.pose().load,radius:(supplied?18:9)*harborScale(this),damage:this.craneReleaseClock>0?0:this.t.damage*(supplied?.72:.5),tag:'harbor-crane'});
   }
   updateGuns(dt,players){
-    const guns=this.liveGuns(),target=players.find(p=>p.alive);for(const gun of guns){gun.recoil=Math.max(0,gun.recoil-dt*3);if(target&&!this.gunBursts.some(b=>b.partId===gun.id))gun.angle=turnToward(gun.angle,Math.atan2(target.y-this.y-gun.y,target.x-this.x-gun.x),.72*dt);}
+    const guns=this.liveGuns(),target=players.find(p=>p.alive);for(const gun of guns){gun.recoil=Math.max(0,gun.recoil-dt*3);if(target&&!this.gunBursts.some(b=>b.partId===gun.id&&b.warned))gun.angle=turnToward(gun.angle,Math.atan2(target.y-this.y-gun.y,target.x-this.x-gun.x),.72*dt);}
     const supplied=!this.parts.get('ammo-storage').destroyed;
-    if(guns.length&&this.due('harbor-guns',dt,(this.t.coastalInterval||2.5)*(supplied?1:1.6))){const gun=guns[this.gunSide++%guns.length];this.gunBursts.push({partId:gun.id,left:supplied?3:1,clock:0});}
+    const linked=this.phase!=='coastal-battery'&&this.craneState!=='collapsed'&&supplied;
+    if(!linked&&guns.length&&this.due('harbor-guns',dt,(this.t.coastalInterval||2.5)*(supplied?1:1.6)))this.queueGun(guns[this.gunSide++%guns.length]);
     for(const burst of this.gunBursts){const gun=this.parts.get(burst.partId);if(gun.destroyed){burst.left=0;continue;}burst.clock-=dt;
-      if(burst.left>0&&burst.clock<=0){const q=harborMuzzle(this,gun),a=gun.angle;gun.recoil=1;this.command('muzzle',{...q,partId:gun.id});this.hazard('projectile',{...q,vx:Math.cos(a)*this.t.bulletSpeed*.82,vy:Math.sin(a)*this.t.bulletSpeed*.82,radius:6,damage:this.t.damage*.8,visual:'harbor-shell',tag:'harbor-'+gun.id});burst.left--;burst.clock+=.24;}}
+      if(burst.left>0&&burst.clock<=0){const q=harborMuzzle(this,gun),a=gun.angle;
+        if(!burst.warned){burst.warned=true;burst.clock=1.1;this.command('charge-warning',{...q,targetX:q.x+Math.cos(a)*600,targetY:q.y+Math.sin(a)*600,seconds:1.1,partId:gun.id,harborGun:true});continue;}gun.recoil=1;this.command('muzzle',{...q,partId:gun.id});this.hazard('projectile',{...q,vx:Math.cos(a)*this.t.bulletSpeed*.82,vy:Math.sin(a)*this.t.bulletSpeed*.82,radius:6,damage:this.t.damage*.8,visual:'harbor-shell',tag:'harbor-'+gun.id});burst.left--;burst.clock+=.24;}}
     this.gunBursts=this.gunBursts.filter(b=>b.left>0);
   }
   prepareSortie(players){const p=this.target(players);if(!p)return;this.launchRun={clock:1.05,index:0,target:{x:p.x+(p.vx||0)*.7,y:p.y+(p.vy||0)*.7}};this.parts.get('seaplane-facility').launchWarmup=1.05;}
   updateSortie(dt,players){
     const p=this.parts.get('seaplane-facility');if(p.destroyed)return;
-    if(!this.launchRun&&this.phase!=='coastal-battery'&&this.due('harbor-seaplanes',dt,this.t.harborLaunchInterval||5.6))this.prepareSortie(players);
-    const run=this.launchRun;if(!run)return;run.clock-=dt;p.launchWarmup=Math.max(0,run.clock);
+    if(!this.launchRun&&this.phase!=='coastal-battery'&&(this.craneState==='recover'||this.craneState==='collapsed')&&(this.countMinions129?.()||0)<2&&this.due('harbor-seaplanes',dt,this.t.harborLaunchInterval||5.6))this.prepareSortie(players);
+    const run=this.launchRun;if(!run)return;if((this.countMinions129?.()||0)>=2){this.launchRun=null;p.launchWarmup=0;return;}run.clock-=dt;p.launchWarmup=Math.max(0,run.clock);
     if(run.clock<=1e-8){const q=harborLaunchPoint(this),i=run.index++;this.command('spawn-minion',{...q,minion:this.faction==='central'?'seaplane-central':'seaplane-entente',a:Math.PI/2,behavior:'attack-pass',formationIndex:i,formationCount:2,passTargetX:run.target.x+(i?90:-90),passTargetY:run.target.y,invulnerableSeconds:.4});run.clock=.24;if(run.index>=2){this.launchRun=null;p.launchWarmup=0;}}
   }
   update(dt,{players,bounds}){
-    this.x=this.anchorX;this.y=this.anchorY;this.elapsed+=dt;
+    this.x=this.anchorX;this.y=this.anchorY;
+    if(!this.approachActive){if(!players.some(p=>p.alive&&Math.hypot(p.x-this.x,p.y-this.y)<=850))return;this.approachActive=true;}
+    this.elapsed+=dt;
+    // Fixed shore installation is already visible while the approach unfolds.
+    // Distant impacts establish the battery before live rounds and mine drops.
+    if(this.approachShots<2&&this.elapsed>=.4+this.approachShots*1.1){
+      const gun=this.parts.get(this.approachShots++?'gun-front-right':'gun-front-left'),target=players.find(p=>p.alive);
+      if(!gun.destroyed&&target&&bounds){const q=harborMuzzle(this,gun),side=this.approachShots===1?-1:1;
+        this.command('muzzle',{...q,partId:gun.id});this.hazard('circle',{x:Math.max(bounds.left+60,Math.min(bounds.right-60,target.x+side*100)),y:target.y-105,radius:34,damage:0,warning:.85,duration:.3,once:true,visual:'coastal-shell',tag:'harbor-approach'});}
+    }
     if(this.phase==='coastal-battery'&&this.elapsed>=8){this.phase='seaplane-support';this.command('phase-change',{phase:this.phase});}
-    this.updateCrane(dt,players,bounds);this.updateGuns(dt,players);this.updateSortie(dt,players);
+    this.updateCrane(dt,players,bounds);if(this.elapsed>=2.6)this.updateGuns(dt,players);this.updateSortie(dt,players);
   }
 }
 

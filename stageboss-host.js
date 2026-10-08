@@ -140,10 +140,10 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     let existing=owned.reduce((n,f)=>n+f.mines.filter(m=>!m.dead).length,0);
      for(const f of owned)for(const m of f.mines){if(existing+event.points.length<=event.maxMines)break;if(!m.dead){m.dead=true;m.chainHandled=true;existing--;}}
     const deploying=Number.isFinite(event.sourceX)&&Number.isFinite(event.sourceY);
-    const mines=event.points.map(p=>({x:deploying?event.sourceX:p.x,y:deploying?event.sourceY:p.y,targetX:p.x,targetY:p.y,hp:18,dead:false,bossMine:true,deploying,chainHandled:false}));
+    const mines=event.points.map(p=>({x:deploying?event.sourceX:p.x,y:deploying?event.sourceY:p.y,targetX:p.x,targetY:p.y,hp:18,dead:false,bossMine:true,deploying,chainHandled:false,...(event.dropMode==='harbor-vertical'?{triggerRadius:36}:null)}));
     if(mines.length){const mx=mines.reduce((n,m)=>n+m.x,0)/mines.length,my=mines.reduce((n,m)=>n+m.y,0)/mines.length;
       g.hostileMinefields.push({x:mx,y:my,radius:Math.max(60,...mines.map(m=>Math.hypot(m.x-mx,m.y-my)+20)),
-        warning:event.warning,life:event.life,region:g.worldRegion(),mines,deploySeconds:deploying?event.warning:0,sourceX:event.sourceX,sourceY:event.sourceY,encounterId:g.stageBoss.stages.encounter.id});}
+        warning:event.warning,life:event.life,region:g.worldRegion(),mines,deploySeconds:deploying?(event.deploySeconds||event.warning):0,deployAge:0,dropMode:event.dropMode,sourcePartId:event.sourcePartId,sourceBossId:event.bossId,sourceX:event.sourceX,sourceY:event.sourceY,encounterId:g.stageBoss.stages.encounter.id});}
    }
     if(event.type==='boss-enter'){g.event('wave','지역 보스 출현! · '+BOSS_CATALOG[event.bossId].name);g.event('heavyShot','');}
     else if(event.type==='aa-effect'){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:event.life||.5,size:event.size||115,kind:event.kind});}
@@ -165,6 +165,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    else if(event.type==='part-destroyed'){const part=body?.parts.get(event.partId),minen=body?.kind==='minenwerfer-battery',apron=body?.kind==='london-apron';g.combatBlast(x+(part?.x||0),y+(part?.y||0),apron?22*body.apronScale:minen?34:46,'enemy','structure');g.shake=Math.max(g.shake,apron?3:minen?5:7);
      if(['a7v-flak','mark-v-cruiser','drachen-net'].includes(body?.kind))(g.aaEffects??=[]).push({x:x+(part?.x||0),y:y+(part?.y||0),age:0,life:.9,size:90,kind:'aaWreckSmoke'});}
    else if(event.type==='ammo-cookoff'){g.combatBlast(event.x,event.y,82,'enemy','structure');if(g.burst)g.burst(event.x,event.y,'#ffbb62',10);if(g.smoke){g.smoke(event.x-18,event.y+8,true);g.smoke(event.x+22,event.y-5,true)}g.shake=Math.max(g.shake,9);}
+   else if(event.type==='harbor-crane-disabled'){for(const f of g.hostileMinefields||[])if(f.sourceBossId===event.bossId&&f.sourcePartId==='crane-arm')for(const m of f.mines)if(m.deploying){m.dead=true;m.chainHandled=true;}}
    else if(event.type==='ammo-detonation'){g.combatBlast(event.x,event.y,105,'enemy','structure');g.shake=Math.max(g.shake,12);g.event('wave','항구요새 탄약고 유폭 · 기뢰 보급 중단·포격 약화');}
    else if(event.type==='rail-car-detached'){g.combatBlast(event.x,event.y,58,'enemy','structure');g.shake=Math.max(g.shake,8);
     for(let i=0;i<4;i++){const ox=(g.rng?g.rng()-.5:Math.random()-.5)*120,oy=(i-1.5)*55+(g.rng?g.rng()-.5:Math.random()-.5)*30,r=24+((i*37)%3)*14;g.combatBlast(event.x+ox,event.y+oy,r,'enemy','structure');if(g.burst)g.burst(event.x+ox,event.y+oy,'#ffd06a',6);if(g.smoke)g.smoke(event.x+ox,event.y+oy,true)}
@@ -319,18 +320,23 @@ export function beginStageBossFrame(g,dt){
  tickLondonBattle(g,dt);tickParisBattle(g,dt);tickVerdunBattle(g,dt);tickMaanWeather(g,dt);tickRegionalConditions(g,dt);if(blocked(g))return;
  // Warning-phase mines physically travel from the winch to their final slots;
  // collision stays disabled until they settle, and pause freezes both clocks.
- for(const field of g.hostileMinefields||[])if(field.encounterId&&field.deploySeconds>0){const q=clamp(1-field.warning/field.deploySeconds,0,1),ease=q*q*(3-2*q);for(const m of field.mines)if(!m.dead){m.x=field.sourceX+(m.targetX-field.sourceX)*ease;m.y=field.sourceY+(m.targetY-field.sourceY)*ease-Math.sin(q*Math.PI)*32;m.deploying=q<1;}if(q>=1)field.deploySeconds=0;}
+ for(const field of g.hostileMinefields||[])if(field.encounterId&&field.deploySeconds>0){
+  const vertical=field.dropMode==='harbor-vertical';if(vertical)field.deployAge=(field.deployAge||0)+dt;
+  const q=clamp(vertical?field.deployAge/field.deploySeconds:1-field.warning/field.deploySeconds,0,1),ease=vertical?q*q:q*q*(3-2*q);
+  for(const m of field.mines)if(!m.dead){m.x=field.sourceX+(m.targetX-field.sourceX)*ease;m.y=field.sourceY+(m.targetY-field.sourceY)*ease-(vertical?0:Math.sin(q*Math.PI)*32);m.deploying=q<1;}
+  if(q>=1)field.deploySeconds=0;
+ }
  tickGallipoliRoute(g);tickJutlandRoute(g);
  const stage=addon.stages.stageIndex,naval=stage===1||stage===7||stage===16;
  let route=stage===7?g.navalRoute:null;
  if(stage===7&&!route)route=g.navalRoute=createHarborRoute(g);
  if(route){const hx=Math.cos(route.a),hy=Math.sin(route.a),forward=(g.x-route.x)*hx+(g.y-route.y)*hy;route.maxForward=Math.max(route.maxForward||0,forward);}
  const travel=stage===16?g.jutlandRoute.maxForward:stage===14?g.gallipoliRoute.maxForward:stage===7?Math.max(0,route.maxForward||0):(g.distance||0)-g.stageStartDistance,stageDistance=stage===14?GALLIPOLI_ROUTE.fort:STAGE_BOSS_BALANCE.distance,progress=Math.max(0,Math.min(1,travel/stageDistance));
- if(naval&&stage!==16&&addon.stages.phase==='explore'){
+ if(naval&&stage!==16&&(addon.stages.phase==='explore'||stage===7&&addon.stages.phase==='boss')){
   const messages=stage===7?[[.35,'군항 외곽 진입 · 방파제 수로를 따라 전진'],[.72,'내항 접근 · 우현 부두를 따라 전진'],[.91,'항만 중심부 진입 · 우현 요새 포대 확인']]:[[.12,'연안 이탈 · 함대 수색 개시'],[.46,'외해 진입 · 적 수상기 활동 포착'],[.76,'수평선에 적 군함 실루엣 확인']];
   g.navalRouteCues??=new Set();for(const [mark,message]of messages)if(progress>=mark&&!g.navalRouteCues.has(mark)){g.navalRouteCues.add(mark);g.event('wave',message);}
  }
- const ready=travel>=stageDistance||(stage!==7&&stage!==14&&stage!==16&&g.t-g.stageStartTime>=STAGE_BOSS_BALANCE.deadline);
+ const ready=travel>=stageDistance*(stage===7?.78:1)||(stage!==7&&stage!==14&&stage!==16&&g.t-g.stageStartTime>=STAGE_BOSS_BALANCE.deadline);
  if(addon.stages.phase==='explore'&&ready){
   // Aces fight before the regional boss: pull the scheduled ace wave forward
   // the moment the boss gate opens, then hold the boss entry until the ace's
@@ -340,7 +346,9 @@ export function beginStageBossFrame(g,dt){
   const aceAt=liveAce?(liveAce.aceSpawnT??g.t):g._aceGateAt;
   if(aceAt==null||g.t-aceAt>=6.5){
   if(naval&&!g.navalApproachAt){g.navalApproachAt=g.t;g.event('wave',stage===16?'경고 · 북해 전투전대 접근 / 함대 선회에 주의':stage===7?'경고 · 장갑 항구요새 전면 도달':'경고 · 적 주력함이 전방에서 접근 중');g.event('heavyShot','');}
-  if(!naval||g.t-g.navalApproachAt>=5.2){
+  // Harbor is an installed structure: reveal it along the existing approach,
+  // at the same authored quay coordinates, instead of materializing after it.
+  if(stage===7||!naval||g.t-g.navalApproachAt>=5.2){
    const bounds=stageBossBounds(g),alpine=stage===6,rail=['paris-gun','lincomparable','fliegerzug'].includes(addon.stages.bossId);
    let x,y;
    if(stage===7&&route){
