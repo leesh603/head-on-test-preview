@@ -23,26 +23,21 @@ export function railAudioSamples(name,sampleRate=48000){
    const puff=Math.exp(-pos*(strong?15:17))*(strong?1:.66);
    const distance=arrival?.2+.8*Math.sin(Math.min(1,q*1.25)*Math.PI/2):.5;
    const thump=Math.sin(tau*72*t)*.5+Math.sin(tau*144*t)*.2;
-   // Chuffs are low thump + a short metallic knock; the broadband hiss that
-   // read as wind noise stays out of the mix.
-   v=(low*.1+(thump*.9+body*.14+(body-steam)*.22)*puff)*distance;
-   // Rod clank sits between the chuffs.
-   v+=body*.08*Math.exp(-Math.abs(pos-.55)*30)*distance;
+   // Chuffs are pure low thumps — no noise layer anywhere in this cue.
+   v=(low*.05+thump*.95*puff)*distance;
+   // Rod clank sits between the chuffs: a gated mid knock, not a noise burst.
+   v+=Math.sin(tau*310*t+Math.sin(tau*53*t)*2)*.07*Math.exp(-Math.abs(pos-.55)*30)*distance;
    if(arrival){
-    // Steam whistle: single long blast. Dominant root + octave, valve-open pitch
-    // droop, breath hiss and slow pressure wobble keep it steamy, not organ-like.
+    // Steam whistle: single long blast, pure tuned pipes only.
     const wt=t-.22,env=wt>0&&wt<3.1?Math.min(1,wt/.07)*Math.min(1,(3.1-wt)/.5):0;
     const droop=1+.028*Math.exp(-wt*7)-.014*q,steamWob=1+.006*Math.sin(tau*7.3*t)+.003*Math.sin(tau*11.1*t+1.2);
     const drift=droop*steamWob;
     const chord=Math.sin(tau*196*t*drift)+.62*Math.sin(tau*392*t*(drift+.0012)+.4)+.5*Math.sin(tau*294*t*(drift-.0009)+.9)+.22*Math.sin(tau*247*t*(drift+.0018)+1.6)+.14*Math.sin(tau*588*t*drift+2.2);
-    const breath=(body-steam)*.75+low*.15;
-    v+=env*(chord*.42+breath*.3);
-    // Edge transient when the valve slams open + faint reed shimmer.
-    v+=Math.exp(-Math.max(0,wt)*38)*(body-steam)*.5;
+    v+=env*chord*.5;
     v+=env*Math.sin(tau*(784*t-60*t*t))*.04*Math.sin(Math.PI*Math.min(1,wt/.4));
    }
   }else if(name==='trainBrake'){
-   v=(body-steam)*.45*(1-q)+Math.sin(tau*(1120*t-180*t*t))*.095*Math.sin(Math.PI*q)+low*.16*(1-q);
+   v=(body-steam)*.2*(1-q)+Math.sin(tau*(1120*t-180*t*t))*.16*Math.sin(Math.PI*q)+low*.1*(1-q);
   }else if(name==='railBreech'){
    const strike=Math.exp(-t*45)+.6*Math.exp(-Math.max(0,t-.16)*60)*(t>.16?1:0);
    v=strike*(body*.32+Math.sin(tau*390*t)*.16)+low*.2*Math.sin(Math.PI*q);
