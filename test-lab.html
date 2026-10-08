@@ -57,6 +57,10 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <button id="fortStep" type="button" style="display:none" title="Shift 클릭: 전투 0.1초 진행">전투 1초 진행</button>
 <span id="status">게임 로딩 중…</span>
 <output id="bossState" style="font-size:11px;max-width:700px"></output>
+<div id="ruralQa" hidden style="width:100%">
+<label>열차포 검사 부위<select id="ruralPart"><option value="car-rear">후방 방어차</option><option value="car-middle">관측차</option><option value="car-front">탄약차</option><option value="rail">철로</option><option value="core">기관차</option></select></label>
+<button id="ruralHalf" type="button">열차포 손상탄</button><button id="ruralBreak" type="button">열차포 파괴탄</button><button id="ruralEvade" type="button">열차포 선회기동</button><output id="ruralState"></output>
+</div>
 <div id="fortControls" hidden style="width:100%;display:none;gap:8px;align-items:center;flex-wrap:wrap">
 <label>요새 검증 부위<select id="fortPart"></select></label>
 <button id="fortView" type="button">요새 근처로 이동</button>
@@ -183,6 +187,18 @@ $('fortShot').onclick=()=>{
 };
 $('fortStep').onclick=event=>api?.advanceVerdun?.(event.shiftKey?.1:1);
 setInterval(refreshFort,200);
+function ruralTrain(){return [...(api?.debug()?.stageBoss?.stages.encounter?.bodies.values()||[])].find(b=>['paris-gun','lincomparable'].includes(b.kind)&&!b.dead);}
+function ruralProbe(half){
+ const b=ruralTrain(),g=api?.debug();if(!b||!g||b.entry)return;
+ const part=b.parts.get($('ruralPart').value),x=part?b.x+part.x:b.x,y=part?b.y+part.y:b.y;
+ // QA stimuli use the normal collision and damage route, including armor,
+ // sequential carriage gates, HP reserve and the original runaway trigger.
+ g.bullets.push({x,y,vx:0,vy:0,life:.1,enemy:false,ownerId:g.players?.[0]?.id||g.id,damage:(part?.maxHp||b.maxHp)*(half?.5:2),hit:new Set()});
+ g.state='playing';g.update(.02,{inputMode:'gamepad',fireHeld:false});g.state='paused';$('freeze').checked=true;
+}
+$('ruralHalf').onclick=()=>ruralProbe(true);$('ruralBreak').onclick=()=>ruralProbe(false);
+$('ruralEvade').onclick=()=>{const g=api?.debug();if(!ruralTrain())return;const state=g.state;g.state='playing';(g.players?.[0]||g).evade();g.state=state;};
+setInterval(()=>{const b=ruralTrain(),panel=$('ruralQa');panel.hidden=!b||!$('qaTools').checked;if(!b)return;const g=api.debug();$('ruralState').textContent='페이즈 '+(b.raidPhase||1)+' · '+b.phase+' / '+b.rail129.phase+' · HP '+Math.ceil(b.hp)+'/'+b.maxHp+' · 무적 '+(Number.isFinite((g.players?.[0]||g).invuln)?'꺼짐':'켜짐')+' · 선수 HP '+(g.players||[g]).map(p=>Math.ceil(p.hp)).join('/')+' · 포격 '+(b.finalAim?.mode||b.aimPlan?.mode||b.barrage?.mode||'대기')+' · 약점 손상 '+Math.round((b.reloadStress||0)*100)+'% · 선회 '+((g.players?.[0]||g).evadeTime||0).toFixed(2);},200);
 $('maanFire').onchange=()=>api?.maanFire?.($('maanFire').checked);
 $('maanOrbit').onchange=()=>api?.maanOrbit?.($('maanOrbit').checked);
 $('maanHalf').onclick=()=>api?.maanProbe?.($('maanPart').value,'half');
