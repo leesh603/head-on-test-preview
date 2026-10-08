@@ -1,7 +1,7 @@
 import {prepareBossCutins} from './boss-cutin-art.js?v=tame3';
 import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=tame3';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=tame3';
-import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide} from './gallipoli-view.js?v=tame3';
+import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=tame3';
 import {verdunFortExtents} from './verdun-fortresses.js?v=tame3';
 import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=tame3&rail=1';
 import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=tame3';
@@ -673,7 +673,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    drawBossPart(c,p,ring,g?.t||0);
   },
    drawHazard(h){if(layer==='bodies')return;
-    if(drawJutlandHazard(c,h)||drawVerdunHazard(c,h)||drawMaanHazard(c,h))return;
+    if(drawGallipoliHazard(c,h)||drawJutlandHazard(c,h)||drawVerdunHazard(c,h)||drawMaanHazard(c,h))return;
     const warning=h.phase==='warning';c.save();
     if(drawRuralRailHazard(c,h)){c.restore();return;}
     if(drawSommeHazard(c,h)){c.restore();return;}
