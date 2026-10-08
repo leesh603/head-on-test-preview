@@ -10,7 +10,7 @@ import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} fro
 import {sommeExtents} from './somme-boss-layout.js?v=lc4';
 import {drawZubianShip} from './adriatic-boss-render.js?v=lc4';
 import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=lc4';
-import {drawArmorGround,drawArmorTreads,drawArmorDamageFX} from './trench-armor-render.js?v=lc4';
+import {prepareArmorTreads,drawArmorGround,drawArmorTreads,drawArmorDamageFX} from './trench-armor-render.js?v=lc4&treads=2';
 import {armorGunMuzzle} from './trench-armor-layout.js?v=lc4';
 import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta} from './trench-armor-layout.js?v=lc4';
 import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=lc4';
@@ -64,7 +64,7 @@ const bossSources={
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
 const alpsGroup=createLazyImageGroup({gik:'./alps-gik-damage-20261001.webp?v=lc4',ca4:'./alps-ca4-damage-20261001.webp?v=lc4'}),alpsArt=alpsGroup.images;
 const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.webp',a7vTurret:'./boss-a7v-turret-rebuild.webp',markvHull:'./boss-mark-v-hull-rebuild.webp',markvSponson:'./boss-mark-v-sponson-rebuild.webp'}),rebuildArt=rebuildGroup.images;
-const armorMotionGroup=createLazyImageGroup({treads:'./boss-trench-treads-20261008.webp',wire:'./boss-trench-wire-20261008.webp',crossing:'./boss-trench-crossing-20261008.webp',lamp:'./boss-searchlight.webp',lampWreck:'./boss-searchlight-wreck.webp'}),armorMotionArt=armorMotionGroup.images;
+const armorMotionGroup=createLazyImageGroup({wire:'./boss-trench-wire-20261008.webp',crossing:'./boss-trench-crossing-20261008.webp',lamp:'./boss-searchlight.webp',lampWreck:'./boss-searchlight-wreck.webp'}),armorMotionArt=armorMotionGroup.images;
 const armorDamageGroup=createLazyImageGroup({a7vLeft:'./boss-a7v-track-left-20260930.webp',a7vRight:'./boss-a7v-track-right-20260930.webp',a7vBreached:'./boss-a7v-breached-20260930.webp',a7vWreck:'./boss-a7v-wreck-20260930.webp',a7vGunWreck:'./boss-a7v-gun-wreck-20260930.webp',markLeft:'./boss-mark-v-track-left-20260930.webp',markRight:'./boss-mark-v-track-right-20260930.webp',markBreached:'./boss-mark-v-breached-20260930.webp',markWreck:'./boss-mark-v-wreck-20260930.webp',markGunWreck:'./boss-mark-v-gun-wreck-20260930.webp'}),armorDamage=armorDamageGroup.images;
 const flakTowerGroup=createLazyImageGroup({hull:'./boss-flak-tower-hull.webp?v=lc4',siege:'./boss-flak-tower-siege.webp?v=lc4',ears:'./boss-flak-tower-ears.webp?v=lc4',gun:'./boss-flak-tower-platform.webp?v=lc4',damage:'./city-flak-damage-20261001.webp?v=lc4'}),flakArt=flakTowerGroup.images;
 // Part sprites hold their ring disc off-center inside the frame; anchoring
@@ -92,7 +92,7 @@ export function prepareStageBossAssets(region){
  const bossKeys=BOSS_KEYS_BY_REGION[region]||[];if(bossKeys.length)jobs.push(bossGroup.preload(bossKeys));
  if(region===0)for(const key of ['parisGun','lincomparable'])jobs.push(railGroups[key].preload(),railWreckGroups[key].preload());
  if(region===1){jobs.push(supportGroup.preload());jobs.push(zubianGroup.preload());jobs.push(sinkFoamGroup.preload())}
-  if(region===2){jobs.push(rebuildGroup.preload());jobs.push(armorDamageGroup.preload());jobs.push(armorMotionGroup.preload())}
+  if(region===2){jobs.push(rebuildGroup.preload().then(()=>{prepareArmorTreads(rebuildArt.a7vHull,'a7v-flak');prepareArmorTreads(rebuildArt.markvHull,'mark-v-cruiser')}));jobs.push(armorDamageGroup.preload());jobs.push(armorMotionGroup.preload())}
   if([2,4,8,10,11].includes(region))jobs.push(prepareAADefenseAssets(region===11?['fx','drachen','london']:region===4?['fx','drachen']:['fx']));
   else releaseAADefenseAssets();
  if(region===3){prepareLivensFlame();jobs.push(trenchGroup.preload());jobs.push(impactGroup.preload())}else{impactGroup.release();releaseLivensFlame();}
@@ -330,7 +330,7 @@ function drawTrenchArmor(c,b){
  c.save();c.rotate(b.hullYaw||0);c.imageSmoothingEnabled=true;
  if(image?.naturalWidth)c.drawImage(image,-128,-128,256,256);
  else{const intact=mark?rebuildArt.markvHull:rebuildArt.a7vHull;if(intact.naturalWidth)c.drawImage(intact,-128,-128,256,256);}
- drawArmorTreads(c,b,armorMotionArt.treads);drawArmorDamageFX(c,b);
+ drawArmorTreads(c,b,mark?rebuildArt.markvHull:rebuildArt.a7vHull);drawArmorDamageFX(c,b);
  if(!b.destroying&&!(left&&right)&&(b.coreVulnerable||part('engine-deck')?.destroyed)){
   // The authored ruptured engine panel is the same registered hull patch.
   const breached=armorDamage[prefix+'Breached'];if(breached.naturalWidth){c.save();c.beginPath();c.rect(-31,-61,62,99);c.clip();c.drawImage(breached,-128,-128,256,256);c.restore();}
