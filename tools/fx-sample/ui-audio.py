@@ -126,9 +126,19 @@ def pickup_t():
     d=.3;t=T(d)
     # no chime: a soft brass-tag tick (it plays on every kill's experience pickup)
     return click(t,0,1200,3500,.5,.002)+thunk(t,0,330,.35)
+
+# Chosen 2026-10-08: active = engine surge (A), upgrade pick = card flick (A).
+def _env(t,a,h,r): return np.minimum(1,t/a)*np.where(t<h,1,np.maximum(0,1-(t-h)/r))
+def skill_surge():
+    d=.7;t=T(d);f=70+45*np.minimum(1,t/.35);ph=2*np.pi*np.cumsum(f)/SR
+    x=(np.sin(ph)+.5*np.sin(2*ph)+.25*np.sin(3*ph))*_env(t,.05,.3,.35)
+    x+=lp(N(d),500)*_env(t,.08,.25,.3)*.5
+    return lp(x,1500)
+def choose_flick():
+    d=.18;t=T(d);return bp(N(d),900,3000)*np.exp(-t/.02)*.7+bp(N(d),500,1500)*np.exp(-np.maximum(t-.05,0)/.015)*(t>.05)*.4
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..'))
 os.makedirs(os.path.join(ROOT,'sfx'),exist_ok=True)
-bank={'ui-skill':skill_t(),'ui-levelup':levelup(),'ui-upgrade':choose_t(),'ui-pickup':pickup_t(),'ui-repair':heal(),'ui-reload':reload(),'ui-loaded':loaded()}
+bank={'ui-skill':skill_surge(),'ui-levelup':levelup(),'ui-upgrade':choose_flick(),'ui-pickup':pickup_t(),'ui-repair':heal(),'ui-reload':reload(),'ui-loaded':loaded()}
 tmp=tempfile.mkdtemp()
 for name,x in bank.items():
     wav=os.path.join(tmp,name+'.wav');save(wav,lp(x,4500))

@@ -1,7 +1,7 @@
-import {drawShipWater} from './naval-water.js?v=tame1';
-import {ZUBIAN_LAYOUT,zubianSize} from './adriatic-boss-layout.js?v=tame1';
-import {fx,fxReady} from './fx-art.js?v=tame1';
-import {drawSinkingShip} from './ship-sinking.js?v=tame1';
+import {drawShipWater} from './naval-water.js?v=tame2';
+import {ZUBIAN_LAYOUT,zubianSize} from './adriatic-boss-layout.js?v=tame2';
+import {fx,fxReady} from './fx-art.js?v=tame2';
+import {drawSinkingShip} from './ship-sinking.js?v=tame2';
 
 // Source rectangles in the authored damage sheet; destinations are world units.
 export const ZUBIAN_DAMAGE_FRAMES=Object.freeze({

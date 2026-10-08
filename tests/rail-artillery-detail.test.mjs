@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {ParisGun,LIncomparable} from '../headon-stageboss-patterns.js?v=tame1';
-import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from '../rural-rail-artillery.js?v=tame1';
-import {renderStageBossLayer} from '../headon-stageboss-render.js?v=tame1&rail=1';
-import {bossSoundFor} from '../boss-feedback.js?v=tame1&rail=1';
+import {ParisGun,LIncomparable} from '../headon-stageboss-patterns.js?v=tame2';
+import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from '../rural-rail-artillery.js?v=tame2';
+import {renderStageBossLayer} from '../headon-stageboss-render.js?v=tame2&rail=1';
+import {bossSoundFor} from '../boss-feedback.js?v=tame2&rail=1';
 const frame={players:[{id:'p',alive:true,x:300,y:300}],bounds:{left:-480,right:480,top:-400,bottom:600}};
 const make=Type=>{const events=[];const b=new Type({id:'b',x:0,y:-400,faction:Type===ParisGun?'central':'entente',tuning:{maxHp:2400,partHp:250,damage:20,bulletSpeed:270,warningSeconds:1.55,railCycle:7.5},emit:e=>events.push(e)});return{b,events};};
 function aim(b){b.rail129.velocity=0;b.rail129.enter('aim');b.rail129.target=null;b.update(.02,frame);}

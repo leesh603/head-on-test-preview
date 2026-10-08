@@ -1,6 +1,6 @@
 // Presentation-only artwork, prepared once and shared by boot and pilot changes.
-import {clearAircraftMatte} from './aircraft.js?v=tame1';
-import {aircraftArt} from './main-ui-art180.js?v=tame1';
+import {clearAircraftMatte} from './aircraft.js?v=tame2';
+import {aircraftArt} from './main-ui-art180.js?v=tame2';
 
 export const hangarKeyFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',fokker:'fokker_standard'};
 const cleanMech=new Set(['halberstadt_duo','fokker_jacobs','gontermann_fokker','nungesser_nieuport24','rickenbacker_spad','luke_nieuport28']);
