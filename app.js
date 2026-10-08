@@ -55,7 +55,7 @@ import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=tame3';
 import {drawTailEngagement} from './engagement-hud410.js?v=tame3';
 import {portraitSources,portraitsReady,portraitLoaded} from './portraits.js?v=tame3';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=tame3&rail=19';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=tame3&rail=20';
 import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN,bossArrivalCues} from './boss-feedback.js?v=tame3&hints=1&rail=18';
 import {drawEquipment} from './equipment.js?v=tame3';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=tame3';

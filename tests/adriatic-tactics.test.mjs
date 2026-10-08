@@ -24,7 +24,7 @@ test('Stuttgart hangar/fuel destruction stops the final flight while guns and en
 
 function split(f,bySeam=false){f.b.hit(bySeam?{partId:'seam',damage:99999}:{damage:99999});run(f,2.72);return [...f.enc.bodies.values()];}
 test('Zubian ranges each co-op player, warns alternating broadsides, and splits by either hull HP or seam damage',()=>{
- for(const bySeam of [false,true]){const f=setup('hms-zubian');run(f,.1);assert.equal(f.events.filter(e=>e.tag==='zubian-entry').length,2);f.events.length=0;run(f,5);assert(f.events.some(e=>e.type==='charge-warning'));assert(f.events.some(e=>e.visual==='zubian-shell'));const halves=split(f,bySeam);assert.equal(halves.length,2);assert(f.events.some(e=>e.type==='split-start'));assert(f.events.some(e=>e.type==='split'));assert.equal(halves.reduce((n,b)=>n+b.hp,0),bySeam?2400:1200);}
+ for(const bySeam of [false,true]){const f=setup('hms-zubian');run(f,.1);assert.equal(f.events.filter(e=>e.tag==='zubian-entry').length,2);f.events.length=0;run(f,5);assert(f.events.some(e=>e.type==='muzzle'));assert(f.events.some(e=>e.visual==='zubian-shell'));const halves=split(f,bySeam);assert.equal(halves.length,2);assert(f.events.some(e=>e.type==='split-start'));assert(f.events.some(e=>e.type==='split'));assert.equal(halves.reduce((n,b)=>n+b.hp,0),bySeam?2400:1200);}
 });
 test('Zubian paired, bow-only and stern-only last stands use distinct attacks and remain defeatable',()=>{
  for(const mode of ['paired','front','rear']){const f=setup('hms-zubian'),halves=split(f),bow=halves.find(b=>b.role==='front'),stern=halves.find(b=>b.role==='rear');
