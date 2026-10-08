@@ -1,4 +1,4 @@
-import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=mark1r3';
+import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 import {drawAADefense} from './aa-defense-art.js?v=tame3';
 import {clamp,sommeMuzzle} from './somme-boss-layout.js?v=tame3';
