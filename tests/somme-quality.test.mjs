@@ -53,3 +53,21 @@ test('QA sponson attack reaches the exposed outer mount before the overlapping t
   assert.equal(hit.partId,id);assert.equal(b.parts.get('track-left').hp,b.parts.get('track-left').maxHp);assert.equal(b.parts.get('track-right').hp,b.parts.get('track-right').maxHp);
  }
 });
+
+test('Mark I shots at a visible sponson center damage that mount instead of its underlying track',()=>{
+ for(const width of [390,1280])for(const yaw of [Math.PI,.8])for(const id of ['sponson-left','sponson-right']){
+  const {bs}=make({regionalViewWidth:width}),b=bs[0];b.hullYaw=yaw;syncSommeParts(b);
+  const p=b.parts.get(id),q=sommePoint(b,p.localX,p.localY),hit=b.hitAt({...q,radius:0,damage:20});
+  assert.equal(hit.partId,id);assert.equal(p.hp,p.maxHp-20);
+  for(const track of ['track-left','track-right'])assert.equal(b.parts.get(track).hp,b.parts.get(track).maxHp);
+ }
+});
+
+test('destroying a Mark I mount or hull cancels its queued volley as well as its normal shots',()=>{
+ const {bs,events}=make(),b=bs[0],p=b.parts.get('sponson-left');
+ b.aimedVolley(p,{alive:true,x:680,y:b.y},6,.95);
+ assert(events.some(q=>q.type==='hazard'&&q.tag===b.tag(p.id+':volley')));
+ b.hit({partId:p.id,damage:99999});assert(events.some(q=>q.type==='cancel-hazards'&&q.tag===b.tag(p.id+':volley')));
+ events.length=0;b.hit({damage:99999});
+ assert(events.some(q=>q.type==='cancel-hazards'&&q.tag===b.tag('sponson-right:volley')));
+});
