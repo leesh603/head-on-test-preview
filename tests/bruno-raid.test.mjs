@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {ParisGun,LIncomparable} from '../headon-stageboss-patterns.js?v=lc4';
+import {ParisGun,LIncomparable} from '../headon-stageboss-patterns.js?v=r5';
 import {brunoSalvo} from '../bruno-raid.js?v=1';
 import {BossHazards} from '../headon-stageboss-hazards.js';
 const tuning={maxHp:2400,partHp:288,damage:18,bulletSpeed:270,warningSeconds:1.15,railCycle:5.4,barrageInterval:.26};

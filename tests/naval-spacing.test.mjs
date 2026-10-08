@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {hullOverlap,bossHullRect} from '../adriatic-boss-layout.js?v=lc4';
-import {fleetHull,surfaceTraffic,resolveSurfaceSpacing,vacantShipPose} from '../naval-spacing.js?v=lc4';
+import {hullOverlap,bossHullRect} from '../adriatic-boss-layout.js?v=r5';
+import {fleetHull,surfaceTraffic,resolveSurfaceSpacing,vacantShipPose} from '../naval-spacing.js?v=r5';
 import {fixture,step} from './stageboss-fixture94.mjs';
 const ship=(x=0,y=0,a=0)=>({x,y,a,course:a,hp:100,movingShip:true,hullWidth:40,hullLength:150,driveVelocity:20});
 function clear(g){const s=surfaceTraffic(g);for(let i=0;i<s.length;i++)for(let j=i+1;j<s.length;j++)assert.equal(hullOverlap(fleetHull(s[i]),fleetHull(s[j]),1),null);for(const e of s)for(const b of g.stageBoss?.stages?.encounter?.bodies.values()||[])if(bossHullRect(b))assert.equal(hullOverlap(fleetHull(e),bossHullRect(b),1),null);}
