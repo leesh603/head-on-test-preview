@@ -1,13 +1,13 @@
 // Layered procedural SFX — every combat feedback voice is synthesized from
 // oscillators plus filtered noise, matching the music.js approach. No audio
 // assets, no external requests.
-import {railAudioSamples} from './rail-audio.js?v=bs1';
+import {railAudioSamples} from './rail-audio.js?v=ui1';
 const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproach
 let ctx=null,bus=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();
 const sources=new Map(),lastVoices=new Map();
 const PRIORITY={bossSiren:3,bossKlaxon:3,airshipArrival:3,railGunFire520:2,railShellIncoming:1,railShellIncoming520:1,railShellImpact:1,railShellImpact520:2,trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1,armorClink:2,whizz:1,closePass:2,airframeBreak:1,engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0};
-const INTERVAL={bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
+const INTERVAL={upgradeChosen:.3,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
 let inputMedia=null;
 const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
 export function stopSfx(){for(const [source,entry]of sources){try{source.stop()}catch{}entry.release()}lastVoices.clear()}
@@ -67,7 +67,7 @@ function railSample(name,level){
 // Recorded-style rail-gun cues (tools/fx-sample/railgun-audio.py → rail-*.mp3), decoded once.
 const FILE_CUES=['rail-fire-520','rail-fire-bruno','rail-incoming-520','rail-incoming-bruno','rail-impact-520','rail-impact-bruno'];
 // Sample bank (tools/fx-sample/combat-audio.py, boss-audio.py → sfx/*.mp3): variants per cue, picked in turn.
-const BANK={mg:3,enemy:3,hit:4,hitmetal:2,damage:0,kill:0,flak:3,'boss-siren':0,'boss-drums':0,'boss-klaxon':0,'ship-horn':0,airship:0,armour:0,'ace-bugle':0};
+const BANK={mg:3,enemy:3,hit:4,hitmetal:2,damage:0,kill:0,flak:3,'boss-siren':0,'boss-drums':0,'boss-klaxon':0,'ship-horn':0,airship:0,armour:0,'ace-bugle':0,'ui-skill':0,'ui-levelup':0,'ui-upgrade':0,'ui-pickup':0,'ui-repair':0,'ui-reload':0,'ui-loaded':0};
 const BANK_FILES=Object.entries(BANK).flatMap(([k,n])=>n?Array.from({length:n},(_,i)=>`sfx/${k}-${i}`):[`sfx/${k}`]);
 const fileBuffers=new Map();let filesRequested=false;
 // mp3 decoders prepend encoder padding; cut leading silence so rapid fire stays tight on the trigger.
@@ -78,7 +78,7 @@ function trimLead(buf){
 function loadFileCues(){
  if(filesRequested||!ctx||typeof fetch!=='function')return;filesRequested=true;
  for(const name of FILE_CUES)fetch(`./${name}.mp3?v=gun1`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,buf)).catch(()=>{});
- for(const name of BANK_FILES)fetch(`./${name}.mp3?v=bs1`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,trimLead(buf))).catch(()=>{});
+ for(const name of BANK_FILES)fetch(`./${name}.mp3?v=ui1`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,trimLead(buf))).catch(()=>{});
 }
 const bankTurn=new Map();
 function bankSample(key,level,fallback,rate=1){
@@ -165,17 +165,24 @@ const VOICES={
   flak(){bankSample('flak',.26,()=>VOICES.flakSynth(),jit(1))},
   flakSynth(){tone(jit(300),90,.14,.08,'sawtooth',900);hiss(jit(3200),900,.16,.07,'bandpass',.9);tone(95,45,.14,.08,'sine',350);tone(180,60,.22,.045,'sine',280,.14)},
   // Skill trigger: three rising brass hits with a shimmer on top.
-  skill(){tone(392,392,.09,.06,'sawtooth',2200);tone(523,523,.1,.06,'sawtooth',2400,.07);tone(659,659,.14,.06,'sawtooth',2600,.14);hiss(2400,4800,.22,.03,'highpass',1)},
+  // Upgrade card picked: the order-sheet stamp.
+  upgradeChosen(){bankSample('ui-upgrade',.36,()=>VOICES.uiSelect())},
+  skill(){bankSample('ui-skill',.36,()=>VOICES.skillSynth())},
+  skillSynth(){tone(392,392,.09,.06,'sawtooth',2200);tone(523,523,.1,.06,'sawtooth',2400,.07);tone(659,659,.14,.06,'sawtooth',2600,.14);hiss(2400,4800,.22,.03,'highpass',1)},
   // Belt reload: two bolt clicks. Loaded: confident clack + confirm.
-  reload(){tone(520,340,.04,.05,'square',1600);tone(300,220,.05,.06,'square',1200,.06)},
-  loaded(){tone(340,340,.05,.05,'square',1400);tone(560,560,.08,.05,'square',1800,.05)},
+  reload(){bankSample('ui-reload',.3,()=>VOICES.reloadSynth())},
+  reloadSynth(){tone(520,340,.04,.05,'square',1600);tone(300,220,.05,.06,'square',1200,.06)},
+  loaded(){bankSample('ui-loaded',.34,()=>VOICES.loadedSynth())},
+  loadedSynth(){tone(340,340,.05,.05,'square',1400);tone(560,560,.08,.05,'square',1800,.05)},
   // Field upgrade: bright four-note arp.
-  levelup(){for(let i=0;i<4;i++)tone([523,659,784,1046][i],[523,659,784,1046][i],.12,.05,'triangle',2600,i*.07)},
+  levelup(){bankSample('ui-levelup',.32,()=>VOICES.levelupSynth())},
+  levelupSynth(){for(let i=0;i<4;i++)tone([523,659,784,1046][i],[523,659,784,1046][i],.12,.05,'triangle',2600,i*.07)},
   // Wave / signal toast stingers.
   wave(){tone(660,660,.07,.04,'triangle',1800);tone(880,880,.09,.04,'triangle',2000,.08)},
   ally(){tone(523,523,.08,.05,'triangle',2000);tone(659,659,.1,.05,'triangle',2200,.09)},
   // Supply pickup / ammo restock: bright chime.
-  pickup(){tone(880,1320,.09,.05,'triangle',2600);tone(1320,1760,.07,.035,'sine',3200,.05)},
+  pickup(){bankSample('ui-pickup',.26,()=>VOICES.pickupSynth())},
+  pickupSynth(){tone(880,1320,.09,.05,'triangle',2600);tone(1320,1760,.07,.035,'sine',3200,.05)},
   // Boss arrival: low brass hit over a timpani swell.
   bossSiren(){bankSample('boss-siren',.42,()=>VOICES.bossStingSynth())},
   bossKlaxon(){bankSample('boss-klaxon',.42,()=>VOICES.bossStingSynth())},
@@ -198,7 +205,8 @@ const VOICES={
   // Balloon burst: taut fabric pop plus pressure release.
   balloon(){tone(500,60,.22,.14,'sine',800);hiss(4000,300,.2,.12,'bandpass',.6);tone(1300,400,.06,.04,'square',3000);tone(70,30,.3,.12,'sine',260,.03)},
   // Repair pickup: soft double chime.
-  heal(){tone(720,720,.06,.05,'sine',2200);tone(960,960,.09,.05,'sine',2600,.07)},
+  heal(){bankSample('ui-repair',.3,()=>VOICES.healSynth())},
+  healSynth(){tone(720,720,.06,.05,'sine',2200);tone(960,960,.09,.05,'sine',2600,.07)},
   // Engine idle: one propeller/exhaust beat per call (the host fires it on an interval).
   engineTick(flight){const p=typeof flight==='object'?flight:{reload:flight},speed=Math.max(.7,Math.min(1.2,p.speed??1)),turn=Math.min(4,p.turn||0),damage=Math.max(0,Math.min(1,p.damage||0));
     const f=(p.reload?.72:1)*(.96+speed*.04)*jit(1),level=p.duck?.35:.68;
@@ -212,7 +220,7 @@ const VOICES={
   defeat(){for(let i=0;i<4;i++)tone([64,60,57,50][i],[64,60,57,50][i],.55,.06,'sawtooth',1200,i*.16)}
 };
 export function sfx(name,arg){
-  if(muted||(paused&&name!=='uiSelect')||!VOICES[name])return;
+  if(muted||(paused&&name!=='uiSelect'&&name!=='upgradeChosen')||!VOICES[name])return;
   if(!ctx&&ac()===undefined)return;
   if(!ctx)return;
   if(ctx.state==='closed')return;

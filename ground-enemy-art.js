@@ -1,4 +1,4 @@
-import {GROUND_SHEETS,GROUND_FRAMES} from './ground-enemy-atlas.js?v=bs1';
+import {GROUND_SHEETS,GROUND_FRAMES} from './ground-enemy-atlas.js?v=ui1';
 const images=new Map(),pending=new Map();
 function load(key){if(images.has(key))return images.get(key);const im=new Image();im.crossOrigin='anonymous';im.decoding='async';images.set(key,im);pending.set(key,new Promise((resolve,reject)=>{im.onload=()=>resolve(im);im.onerror=()=>reject(new Error('Ground enemy art '+key));}));im.src='./'+GROUND_SHEETS[key]+'?v=r5';return im;}
 export function prepareGroundEnemyArt(){for(const key of Object.keys(GROUND_SHEETS))load(key);return Promise.all([...pending.values()]);}

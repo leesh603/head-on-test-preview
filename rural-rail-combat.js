@@ -1,9 +1,9 @@
-import {RailAdapter} from './boss-adapters129.js?v=bs1';
-import {BaseBoss} from './headon-stageboss-core.js?v=bs1';
-import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=bs1';
-import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=bs1';
-import {brunoSalvo} from './bruno-raid.js?v=bs1';
-import {lincomparableRound} from './lincomparable-raid.js?v=bs1';
+import {RailAdapter} from './boss-adapters129.js?v=ui1';
+import {BaseBoss} from './headon-stageboss-core.js?v=ui1';
+import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=ui1';
+import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=ui1';
+import {brunoSalvo} from './bruno-raid.js?v=ui1';
+import {lincomparableRound} from './lincomparable-raid.js?v=ui1';
 
 // Rural-only mechanics. The Cambrai carrier keeps its separate controller.
 export class RuralRailBoss extends RailAdapter {
