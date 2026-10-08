@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){queueMicrotask(()=>this.onload?.());}};globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {OnlineCoopGame}=await import('../online-coop-game.js');const {enableStageBoss}=await import('../stageboss-host.js?v=tame3&rail=37');const {renderStageBossLayer}=await import('../headon-stageboss-render.js?v=tame3');
+const {OnlineCoopGame}=await import('../online-coop-game.js');const {enableStageBoss}=await import('../stageboss-host.js?v=tame3&rail=38');const {renderStageBossLayer}=await import('../headon-stageboss-render.js?v=tame3');
 const near=(a,b)=>assert.ok(Math.abs(a-b)<.002,`${a} != ${b}`);
 for(const faction of ['central','entente'])test(`Cambrai ${faction} host/guest retain launch origins, heavy wheel motion, pending attacks and damage`,()=>{
  const pilots=faction==='central'?['baron','voss']:['fonck','guynemer'],start={seed:135,runId:'cambrai-online',players:pilots.map(pilot=>({pilot,plane:faction==='central'?'fokker':'spad',faction}))};let host,guest;

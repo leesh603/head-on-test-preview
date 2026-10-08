@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 globalThis.Image=class {set src(v){queueMicrotask(()=>this.onload?.());}};
 globalThis.document={createElement:()=>({getContext:()=>null})};
-const {Game}=await import('../engine.js?v=tame3&rail=37');
-const {CoopGame}=await import('../coop-engine.js?v=tame3&rail=37');
-const {updateNavalFleet}=await import('../fleet-naval1.js?v=tame3&rail=37');
+const {Game}=await import('../engine.js?v=tame3&rail=38');
+const {CoopGame}=await import('../coop-engine.js?v=tame3&rail=38');
+const {updateNavalFleet}=await import('../fleet-naval1.js?v=tame3&rail=38');
 const {sinkingPhase,drawSinkingShip,FLEET_SINK_DURATION}=await import('../ship-sinking.js?v=tame3');
 
 function game(coop=false){const g=coop?new CoopGame([{pilot:'fonck'},{pilot:'guynemer'}],{rng:()=>.5}):new Game('spad','fonck',()=>.5);g.region=1;g.worldRegion=()=>g.region;g.invuln=Infinity;g.nextHeavyAt=Infinity;g.nextBossAt=Infinity;return g;}

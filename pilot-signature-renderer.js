@@ -1,15 +1,17 @@
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
 import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
 import {signatureWingPositions} from './pilot-signature-geometry.js';
+import {drawTracerBolt} from './projectiles.js?v=tame3&rail=38';
 import {drawCavalryGuard,drawCavalryLance,drawRickenbackerHalfRing} from './pilot-directed-fx.js';
 const TAU=Math.PI*2;
 const _wCache=new Map();
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const SYMBOL_ICONS=Object.freeze({lo:'loEmblem',vossCowling:'sacredCowling'});
 export const UNRESOLVED_SIGNATURE_ART=Object.freeze(['wingedSword','blackDevil','cigogne']);
-export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>false}){
+export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>false,bolt=drawTracerBolt}){
  if(typeof fx!=='function'||typeof icon!=='function')throw new TypeError('Authored FX and icon renderers are required');
  const texture=(c,key,x,y,w,h=w,a=0,opacity=1)=>fx(c,key,x,y,w,h,a,clamp(opacity));
+ const tracer=(c,x,y,w,h,a,opacity)=>bolt(c,x,y,a,'#f2d9a0',w,h,clamp(opacity));
  function smokeArc(c,r,from,to,time,opacity=.3,flatten=1,count=12){
   for(let i=0;i<count;i++){const q=i/(count-1),a=from+(to-from)*q;texture(c,'gunSmoke',Math.cos(a)*r,Math.sin(a)*r*flatten,18+q*13,12+q*9,a+time*.15,opacity*(.35+.65*q))}
  }
@@ -54,7 +56,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
   if(p.pilot==='hawker'&&!(p.skillTime>0)&&p.straightCharge>0)for(const b of world.bullets||[]){
    if(b.life<=0||b.enemy||b.ally||b.patrol||b.formation||b.rocket||b.motorCannon||b.cow37||b.mauserRound||b.blast||b.actualExplosion||b.gun===undefined||(b.ownerId!==undefined&&b.ownerId!==owner)||Math.hypot(b.x-p.x,b.y-p.y)>700)continue;
    const a=Math.atan2(b.vy,b.vx),strength=clamp(p.straightCharge);
-   texture(c,'tracerCream',b.x-p.x-Math.cos(a)*10,b.y-p.y-Math.sin(a)*10,27+strength*13,3,a,.24+strength*.22);
+   tracer(c,b.x-p.x-Math.cos(a)*10,b.y-p.y-Math.sin(a)*10,27+strength*13,4,a,.24+strength*.22);
   }
   if(p.pilot==='guynemer')for(const b of world.bullets||[]){
    if(!b.rocket||b.enemy||b.life<=0||(b.ownerId!==undefined&&b.ownerId!==owner)||Math.hypot(b.x-p.x,b.y-p.y)>900)continue;
@@ -88,7 +90,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
  function start(c,p,e,foreground=false){
   const q=clamp(e.age/e.maxLife),fade=Math.min(1,e.age/.09)*Math.min(1,e.life/.28),time=e.age;c.globalAlpha*=fade;if(['huffzky','mckeever','jacobs','hawker','berthold','goering','nungesser','barker'].includes(p.pilot)&&e.kind==='shotAccent')return;
   switch(e.kind){   case 'rearBurst':{const a=e.a-p.a;muzzleAt(c,0,0,a,'muzzleRear',e.strong?1.2:.85);for(let i=0;i<3;i++)texture(c,'metalShard'+i,time*(18+i*9),10+time*(25+i*10),6,3,time*9+i,.7);break;}
-   case 'rearAcquire':{c.rotate(e.a-p.a);for(const side of [-1,1])texture(c,'tracerCream',-8,side*(1-q)*12,13,3,side*.25,.42*(1-q));break;}
+   case 'rearAcquire':{c.rotate(e.a-p.a);for(const side of [-1,1])tracer(c,-8,side*(1-q)*12,14,4,side*.25,.42*(1-q));break;}
    case 'hawkerLink':texture(c,'armorSpark',0,0,24,14,e.a-p.a,.5*(1-q));texture(c,'gunSmoke',-8,0,23,13,0,.16);break;
    case 'suppressed':texture(c,'gunSmoke',0,0,24+time*22,15,time,.3);texture(c,'ricochet',4,0,28,13,.4,.5);break;
    case 'ironImpact':metal(c,time,4,.8);texture(c,'debris',-9,12,21,15,time*3,.8);texture(c,'armorSpark',0,0,30,20,0,.8);break;
@@ -128,8 +130,8 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
    case 'sixDirections':crest(c,'vossCowling',q,.32,92);for(let i=0;i<6;i++){c.save();c.rotate(i*TAU/6);texture(c,'engineSmoke',35+q*85,0,31,18,0,.24);c.restore()}break;
    case 'redHunt':case 'huntConfirmation':texture(c,'sunshaft',-85,0,210,85,Math.PI,.15);break;
    case 'sightConverge':if(time<.13)muzzleAt(c,30,0,0,'muzzleHeavy',1.15);break;
-   case 'steadySight':for(const side of [-1,1])texture(c,'tracerCream',52+q*58,side*(1-q)*26,55,5,0,.45);break;
-   case 'whiteCommand':{c.rotate(e.a-p.a);const d=24+time*180;if(time<.38){texture(c,'tracerCream',-12,-d,22,7,-Math.PI/2,.95);texture(c,'armorSpark',-12,-d,26,18,0,.9);texture(c,'gunSmoke',-12,-d+19,25+time*30,14,-Math.PI/2,.35*(1-q))}break;}
+   case 'steadySight':for(const side of [-1,1])tracer(c,52+q*58,side*(1-q)*26,58,6,0,.45);break;
+   case 'whiteCommand':{c.rotate(e.a-p.a);const d=24+time*180;if(time<.38){tracer(c,-12,-d,24,8,-Math.PI/2,.95);texture(c,'armorSpark',-12,-d,26,18,0,.9);texture(c,'gunSmoke',-12,-d+19,25+time*30,14,-Math.PI/2,.35*(1-q))}break;}
    case 'coverOrder':break;
    case 'pincerOrder':case 'blackFlight':case 'skullGuard':{
     if(e.kind==='skullGuard')crest(c,'skull',q,.3,90);
@@ -172,8 +174,8 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
    case 'climbSalvo':if(p.aceSkillPhase==='vertical-fire'||!p.aceSkillPhase){flash(c,false,1.6);texture(c,'gunSmoke',-38,0,74,31,Math.PI,.22)}break;
    case 'reverseShot':flash(c,false,1.1);smokeArc(c,36,1.6,3.9,time,.24,.65,7);break;
    case 'rearShot':if(p.pilot==='huffzky')break;
-   case 'handoff':flash(c,true,1.3);texture(c,'tracerCream',-58,0,40,5,Math.PI,.55);break;
-   case 'aimedShot':texture(c,'tracerCream',36,0,70,4,0,.7);texture(c,'armorSpark',0,0,22,15,0,.65);break;
+   case 'handoff':flash(c,true,1.3);tracer(c,-58,0,42,6,Math.PI,.55);break;
+   case 'aimedShot':tracer(c,36,0,74,5,0,.7);texture(c,'armorSpark',0,0,22,15,0,.65);break;
    case 'headOn':texture(c,'armorSpark',0,0,30,20,0,.6);texture(c,'metalShard1',-10,12,7,5,.4,.6);break;
    case 'hunt':texture(c,'ricochet',0,0,45,24,0,.65);break;
    case 'turnShot':texture(c,'gunSmoke',-15,0,45,24,.8,.3);texture(c,'spark',0,0,30,22,0,.65);break;

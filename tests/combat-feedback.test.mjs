@@ -4,8 +4,8 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 
-const {Game}=await import('../engine.js?v=tame3&rail=37');
-const {CoopGame}=await import('../coop-engine.js?v=tame3&rail=37');
+const {Game}=await import('../engine.js?v=tame3&rail=38');
+const {CoopGame}=await import('../coop-engine.js?v=tame3&rail=38');
 const {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCrashScale}=await import('../aircraft-crash.js?v=tame3');
 const {attachCombatFeedback,combatVisualPose,impactMaterial,drawCombatFeedback,COMBAT_CRASH_PROFILES,combatFlightSound}=await import('../combat-feedback.js?v=tame3');
 
@@ -125,6 +125,6 @@ test('HEAD-ON highlights real crossing rounds only and caps compact tracer draws
  const e={x:300,y:0,a:Math.PI,hp:50,maxHp:50,type:'hunter'},bullets=Array.from({length:30},(_,i)=>({x:100+i,y:0,vx:i%2?400:-400,vy:0,life:1,enemy:!!(i%2)}));
  const g={t:0,state:'playing',x:0,y:0,a:0,hp:100,maxHp:100,viewWidth:390,enemies:[e],bullets,burst(){},event(){},update(dt){this.t+=dt;e.x-=200*dt}};
  attachCombatFeedback(g);g.update(.02);g.update(.02);const before=structuredClone(bullets),draws=[];
- drawCombatFeedback({},g,(x,y)=>[x,y],{fx:(...args)=>draws.push(args),planeSprite(){}});
- assert.equal(draws.length,12);assert(draws.some(d=>d[1]==='tracerCream'));assert(draws.some(d=>d[1]==='tracerOrange'));assert.deepEqual(g.bullets,before);
+ drawCombatFeedback({},g,(x,y)=>[x,y],{fx:(...args)=>draws.push(['fx',...args]),planeSprite(){},bolt:(...args)=>draws.push(args)});
+ assert.equal(draws.length,12);assert(draws.some(d=>d[4]==='#f2d9a0'));assert(draws.some(d=>d[4]==='#f0965a'));assert.deepEqual(g.bullets,before);
 });

@@ -1,4 +1,5 @@
 import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from './aircraft-crash.js?v=tame3';
+import {drawTracerBolt} from './projectiles.js?v=tame3&rail=38';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.
 const worlds=new WeakMap(),poses=new WeakMap();
@@ -139,7 +140,7 @@ function drawWreck(c,w,x,y,time,fx,planeSprite){
  const ws=w.scale*enemyCrashScale(w);if(w.type!=='bomber')planeSprite(c,x+14,y+22,w.a,w.key,ws,true,true);
  planeSprite(c,x,y,w.a,w.key,ws,true,false,0,true);if(w.style==='fire')fx(c,'fireEngine',x+Math.cos(w.a)*12,y+Math.sin(w.a)*12,58,66,w.a+Math.PI/2,.9);
 }
-export function drawCombatFeedback(c,world,point,{fx,planeSprite}){
+export function drawCombatFeedback(c,world,point,{fx,planeSprite,bolt=drawTracerBolt}){
  const s=worlds.get(world);if(!s)return;
  const visible=(x,y)=>Math.abs(x-world.x)<(world.viewWidth||960)+160&&Math.abs(y-world.y)<(world.viewHeight||700)+160;
  for(const f of s.plumes){if(!visible(f.x,f.y))continue;const [x,y]=point(f.x,f.y),k=f.age/f.life,size=16+k*(f.heavy?38:24);fx(c,f.heavy?'smokeDark':'engineSmoke',x,y,size,size,f.a,(1-k)*(f.heavy?.55:.35))}
@@ -151,7 +152,7 @@ export function drawCombatFeedback(c,world,point,{fx,planeSprite}){
  for(const f of s.passes)for(const side of [-1,1]){const [x,y]=point(...localPoint(f.player,-15,side*56));fx(c,'windStreak',x,y,135,22,f.player.a,f.life/.3*.5)}
  if(s.headOnUntil>s.time){let count=0;const players=world.players||[world];for(const b of world.bullets||[]){
   if(b.life<=0||b.flak||b.rocket||b.cow37||b.motorCannon||!players.some(p=>p.hp>0&&Math.hypot(b.x-p.x,b.y-p.y)<330))continue;
-  const [x,y]=point(b.x,b.y),a=Math.atan2(b.vy,b.vx);fx(c,b.enemy?'tracerOrange':'tracerCream',x,y,clamp(Math.hypot(b.vx,b.vy)*.035,18,42),5,a,.8);
+  const [x,y]=point(b.x,b.y),a=Math.atan2(b.vy,b.vx);bolt(c,x,y,a,b.enemy?'#f0965a':'#f2d9a0',clamp(Math.hypot(b.vx,b.vy)*.035,18,42),6,.85);
   if(++count>=(world.viewWidth<=720?12:20))break;
  }}
  for(const w of s.wrecks){if(!visible(w.x,w.y))continue;const [x,y]=point(w.x,w.y);drawWreck(c,w,x,y,s.time,fx,planeSprite)}

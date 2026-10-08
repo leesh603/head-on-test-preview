@@ -1,5 +1,6 @@
 import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
+import {drawTracerBolt} from './projectiles.js?v=tame3&rail=38';
 import {impactMark,partMark,aimLine,stripMark} from './tactical-marks.js?v=tame3';
 
 function atlasFrame(c,im,frame,w,h){if(!im?.naturalWidth)return false;const sw=im.naturalWidth/3,sh=im.naturalHeight/2;c.drawImage(im,(frame%3)*sw,Math.floor(frame/3)*sh,sw,sh,-w/2,-h/2,w,h);return true;}
@@ -41,7 +42,7 @@ export function drawAlpsHazard(c,h,ring){
  const warning=h.phase==='warning',progress=Math.max(0,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)));
  if(h.kind==='projectile'){
   if(warning)return true;
-  const a=Math.atan2(h.vy,h.vx),big=h.visual==='alps-cannon';c.save();c.translate(h.x,h.y);c.rotate(a);c.strokeStyle=big?'#e9b472b0':'#f6d19fa0';c.lineWidth=big?3:1.5;c.beginPath();c.moveTo(big?-34:-14,0);c.lineTo(-4,0);c.stroke();fx(c,big?'shellHeavy':'tracerCream',0,0,big?30:17,big?10:4,0,1);c.restore();return true;
+  const a=Math.atan2(h.vy,h.vx),big=h.visual==='alps-cannon';c.save();c.translate(h.x,h.y);c.rotate(a);c.strokeStyle=big?'#e9b472b0':'#f6d19fa0';c.lineWidth=big?3:1.5;c.beginPath();c.moveTo(big?-34:-14,0);c.lineTo(-4,0);c.stroke();if(big)fx(c,'shellHeavy',0,0,30,10,0,1);else drawTracerBolt(c,0,0,0,'#f2cf9e',18,5,1);c.restore();return true;
  }
  if(warning){impactMark(c,h.x,h.y,h.radius,progress,{heavy:h.raidHeavy});
   const bx=h.sourceX+(h.x-h.sourceX)*progress,by=h.sourceY+(h.y-h.sourceY)*progress-Math.sin(progress*Math.PI)*30;fx(c,'bomb',bx,by,26+progress*8,11+progress*3,Math.atan2(h.y-h.sourceY,h.x-h.sourceX),.95);

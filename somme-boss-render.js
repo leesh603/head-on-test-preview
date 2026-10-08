@@ -1,5 +1,6 @@
 import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
+import {drawTracerBolt} from './projectiles.js?v=tame3&rail=38';
 import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=tame3';
 import {drawShellFlight} from './boss-rounds.js?v=tame3';
 import {drawAADefense} from './aa-defense-art.js?v=tame3';
@@ -58,7 +59,7 @@ export function drawSommeBoss(c,b){
 }
 export function drawSommeHazard(c,h){
  if(!h.visual?.startsWith('somme-'))return false;
- if(h.kind==='projectile'){fx(c,'tracerAmber',h.x,h.y,18,4,Math.atan2(h.vy,h.vx),.9);c.save();c.fillStyle='#edce93';c.beginPath();c.arc(h.x,h.y,2,0,Math.PI*2);c.fill();c.restore();return true;}
+ if(h.kind==='projectile'){drawTracerBolt(c,h.x,h.y,Math.atan2(h.vy,h.vx),'#f0a85e',22,5,.95);c.save();c.fillStyle='#ffe9c4';c.beginPath();c.arc(h.x,h.y,2,0,Math.PI*2);c.fill();c.restore();return true;}
  c.save();const warning=h.phase==='warning',q=clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1);
  if(warning){warningRing(c,h.x,h.y,h.radius,q,h.raidHeavy);drawShellFlight(c,h,q,{arc:62,size:.85});}
  else{const age=Math.max(0,h.age-h.delay-h.warning),frame=age<h.duration*.28?'aaFlakHot':age<h.duration*.62?'aaFlakDark':'aaFlakSmoke';if(!drawAADefense(c,frame,h.x,h.y,h.radius*2.35,h.radius*2.35))fx(c,'flak',h.x,h.y,h.radius*2.35,h.radius*2.35,0,clamp(1-age/h.duration,0,1));}

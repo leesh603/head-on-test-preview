@@ -1,4 +1,4 @@
-import {FXS,fxsFireZone} from './fx-sample-preview.js?v=tame3&rail=37';
+import {FXS,fxsFireZone} from './fx-sample-preview.js?v=tame3&rail=38';
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // (FX layer exception: hostile bolts get a crimson body + white-hot tip for dodge readability.)
 // Rendering never changes projectile movement, damage or collision.
@@ -24,6 +24,26 @@ const cannonAtlas=typeof Image==='undefined'?null:new Image();
 if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.webp?v=r5';
 const ENEMY_BOLTS={scout:[17,4],hunter:[19,4],bomber:[16,4.5],heavyBomber:[21,5.5],boss:[20,4.5],zeppelin:[17,4.5],naval:[21,5],balloon:[12,5],flak:[11,5]};
 const boltCache=new Map();
+const tracerCache=new Map();
+// Code-drawn tracer round used wherever a projectile needs a tail: tinted glow
+// bed, colour-fading body, white-hot head. Cached per colour/size.
+export function tracerBolt(color,len=20,wid=5){
+ const key=color+'/'+len+'x'+wid;if(tracerCache.has(key))return tracerCache.get(key);
+ if(typeof document==='undefined')return null;
+ const pad=4,S=2,cv=document.createElement('canvas');cv.width=(len+pad*2)*S;cv.height=(wid+pad*2)*S;cv.pad=pad;const g=cv.getContext('2d');g.scale(S,S);
+ const cy=pad+wid/2,cap=(x0,x1,h,fill)=>{g.beginPath();g.moveTo(x0+h/2,cy-h/2);g.lineTo(x1-h/2,cy-h/2);g.arc(x1-h/2,cy,h/2,-Math.PI/2,Math.PI/2);g.lineTo(x0+h/2,cy+h/2);g.arc(x0+h/2,cy,h/2,Math.PI/2,Math.PI*1.5);g.closePath();g.fillStyle=fill;g.fill()};
+ const n=parseInt(color.slice(1,7),16)||0,r=n>>16&255,gc=n>>8&255,b=n&255,rgba=a=>`rgba(${r},${gc},${b},${a})`;
+ g.filter='blur(1.8px)';cap(pad,pad+len+1,wid+2,rgba(.26));g.filter='none';
+ const body=g.createLinearGradient(pad,0,pad+len,0);body.addColorStop(0,rgba(0));body.addColorStop(.4,rgba(.8));body.addColorStop(1,rgba(1));cap(pad,pad+len,wid,body);
+ const core=g.createLinearGradient(pad+len*.35,0,pad+len,0);core.addColorStop(0,'rgba(255,246,224,0)');core.addColorStop(.65,'rgba(255,246,224,.85)');core.addColorStop(1,'#ffffff');cap(pad+len*.35,pad+len-.4,Math.max(1.4,wid*.45),core);
+ tracerCache.set(key,cv);return cv;
+}
+export function drawTracerBolt(c,x,y,angle,color,len=20,wid=5,alpha=1){
+ const spr=tracerBolt(color,len,wid);c.save();c.translate(x,y);c.rotate(angle);
+ if(spr){c.globalAlpha=alpha;c.drawImage(spr,2-len-spr.pad,-spr.height/4,spr.width/2,spr.height/2);}
+ else{c.globalAlpha=.5*alpha;c.strokeStyle=color;c.lineWidth=Math.max(1.4,wid*.4);c.beginPath();c.moveTo(-len,0);c.lineTo(0,0);c.stroke();c.globalAlpha=alpha;c.strokeStyle='#fff6e0';c.lineWidth=Math.max(1,wid*.22);c.beginPath();c.moveTo(-len*.35,0);c.lineTo(0,0);c.stroke();}
+ c.restore();
+}
 function enemyBolt(len,wid){
  const key=len+'x'+wid;if(boltCache.has(key))return boltCache.get(key);
  if(typeof document==='undefined')return null;
@@ -48,7 +68,6 @@ export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
  }
  if(kind==='boss'){
   const k=Math.max(1,1/Math.max(.35,screenScale));
-  if(fxReady('tracerOrange')){c.scale(k,k);fx(c,'tracerOrange',-6,0,30,9,0,1);c.restore();return}
   c.scale(k,k);
   c.globalAlpha=.35;c.fillStyle='#ff947d';c.fillRect(-22,-2,8,4);
   c.globalAlpha=1;c.fillStyle='#ff947d';c.fillRect(-14,-2,16,4);
@@ -56,7 +75,7 @@ export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
  }
  if(kind==='railgun'&&fxReady('shell')){fx(c,'shell',-8,0,30,9);c.restore();return}
  if(kind==='rocket'&&fxReady('rocket')){fx(c,'rocket',-4,0,34,10);c.restore();return}
- if(FX3&&fxReady('tracerOrange')){fx(c,'tracerOrange',-length*.35,0,length+10,Math.max(4,width*1.8),0,.92);c.restore();return}
+
  const head=kind==='rocket'?-15:2;
  // Two short, fading rectangular tail segments echo the aircraft pixel grid.
  c.globalAlpha=.2;c.fillStyle=color;c.fillRect(head-length-7,-width/2,7,width);

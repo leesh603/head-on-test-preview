@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PILOT_PLANES,angleDiff} from '../engine.js?v=tame3&rail=37';
-import {CoopGame} from '../coop-engine.js?v=tame3&rail=37';
+import {Game,PILOT_PLANES,angleDiff} from '../engine.js?v=tame3&rail=38';
+import {CoopGame} from '../coop-engine.js?v=tame3&rail=38';
 import {signatureState,advancePilotSignature} from '../pilot-signature-state.js?v=tame3';
 import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js?v=tame3';
 
@@ -32,4 +32,4 @@ for(const coop of [false,true]){
 }
 test('coop duo revival resets gun axes and permits no forward rear burst',()=>{const {g,p,tick,enemy}=session('mckeever',true);p.nineRearAim=0;p.nineFrontAim=Math.PI;g.downPlayer(p);g.revive(p);assert.equal(p.nineRearAim,p.a+Math.PI);assert.equal(p.nineFrontAim,p.a);p.x=p.y=0;p.a=0;p.speed=p.baseSpeed=0;enemy(-200,0);tick(30);assert.ok(g.bullets.some(b=>b.pilotRear));assert.ok(g.bullets.filter(b=>b.pilotRear).every(b=>b.vx<0));});
 function context(){const c={globalAlpha:1,save(){},restore(){},translate(){},rotate(){},scale(){},measureText(){return{width:6}},strokeText(){},fillText(){}};return c;}
-test('nine-pilot FX use authored textures, bounded cues, no coffin or common trails',()=>{for(const id of ids){const {p}=session(id);p.skill();Object.assign(p,{hp:10,muzzleFlash:.05,nineRearFlash:.1,nineRearAim:Math.PI,fxOverheat:1,barkerDamageStage:5,barkerStacks:5});const s=signatureState(p);advancePilotSignature(p,.04);const keys=[],marks=[];const draw=createPilotSignatureRenderer({fx(c,key,...args){keys.push(key);assert.ok(args.every(Number.isFinite));return true},icon(){},insignia(c,key){marks.push(key);return true}});draw(context(),p,0,0);draw(context(),p,0,0,'front');assert.ok(s.effects.length<=32,id);assert.ok(!keys.some(k=>['windStreak','vaporTrail'].includes(k)),id);if(id==='nungesser')assert.ok(!marks.includes('blackHeart'));}});
+test('nine-pilot FX use authored textures, bounded cues, no coffin or common trails',()=>{for(const id of ids){const {p}=session(id);p.skill();Object.assign(p,{hp:10,muzzleFlash:.05,nineRearFlash:.1,nineRearAim:Math.PI,fxOverheat:1,barkerDamageStage:5,barkerStacks:5});const s=signatureState(p);advancePilotSignature(p,.04);const keys=[],marks=[];const draw=createPilotSignatureRenderer({fx(c,key,...args){keys.push(key);assert.ok(args.every(Number.isFinite));return true},icon(){},insignia(c,key){marks.push(key);return true},bolt(){}});draw(context(),p,0,0);draw(context(),p,0,0,'front');assert.ok(s.effects.length<=32,id);assert.ok(!keys.some(k=>['windStreak','vaporTrail'].includes(k)),id);if(id==='nungesser')assert.ok(!marks.includes('blackHeart'));}});

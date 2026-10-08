@@ -1,8 +1,8 @@
 import './pilot-feedback-globals.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,VOSS_REVERSE} from '../engine.js?v=tame3&rail=37';
-import {CoopGame,coopPlane} from '../coop-engine.js?v=tame3&rail=37';
+import {Game,VOSS_REVERSE} from '../engine.js?v=tame3&rail=38';
+import {CoopGame,coopPlane} from '../coop-engine.js?v=tame3&rail=38';
 
 import {signatureState,advancePilotSignature,pilotSignatureReaction} from '../pilot-signature-state.js';
 import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js?v=tame3';
@@ -19,7 +19,7 @@ function canvas(){
  return {globalAlpha:1,text,depth:0,save(){stack.push(this.globalAlpha);this.depth++},restore(){this.globalAlpha=stack.pop();this.depth--},translate(){},rotate(){},scale(){},measureText(){return {width:6}},strokeText(){},fillText(ch){text.push(ch)}};
 }
 function render(p,layer='under'){
- const calls=[],marks=[],c=canvas(),draw=createPilotSignatureRenderer({fx:(_c,key,x,y,w,h,a,opacity)=>{calls.push({key,x,y,w,h,a,opacity});return true},icon:(_c,key)=>marks.push(key),insignia:(_c,key)=>{marks.push(key);return true}});
+ const calls=[],marks=[],c=canvas(),draw=createPilotSignatureRenderer({fx:(_c,key,x,y,w,h,a,opacity)=>{calls.push({key,x,y,w,h,a,opacity});return true},icon:(_c,key)=>marks.push(key),insignia:(_c,key)=>{marks.push(key);return true},bolt:(_c,x,y,a,color,w,h,opacity)=>{calls.push({key:'tracerBolt',x,y,w,h,a,opacity,color})}});
  const state=signatureState(p),before=JSON.stringify({x:p.x,y:p.y,a:p.a,hp:p.hp,damage:p.damage,speed:p.speed,turn:p.turn,rate:p.rate,skillTime:p.skillTime,effects:state.effects});
  draw(c,p,0,0,layer);
  assert.equal(JSON.stringify({x:p.x,y:p.y,a:p.a,hp:p.hp,damage:p.damage,speed:p.speed,turn:p.turn,rate:p.rate,skillTime:p.skillTime,effects:state.effects}),before);
@@ -62,6 +62,6 @@ test('Voss passive FX require living enemies inside 400 and use wing wake, not c
 test('Hawker passive gun FX follow actual own gun directions and real projectile trajectories',()=>{
  const {world,p}=session('hawker');Object.assign(p,{straightCharge:1,muzzleFlash:.055,reloadTime:0});p.gunDirection=()=>Math.PI/3;
  const round={x:90,y:35,vx:300,vy:400,life:1,gun:0,ownerId:p.id};world.bullets=[round,{...round,ownerId:'other'},{...round,enemy:true},{...round,rocket:true},{...round,life:0}];
- const fx=render(p);assert.equal(fx.calls.filter(c=>c.key==='tracerCream').length,1);near(fx.calls.find(c=>c.key==='tracerCream').a,Math.atan2(400,300));near(fx.calls.find(c=>c.key==='muzzle').a,Math.PI/3);assert.ok(fx.calls.some(c=>c.key==='gunSmoke'));
- world.bullets=[];p.muzzleFlash=0;assert.equal(render(p).calls.length,0);p.straightCharge=0;p.muzzleFlash=.055;{const c2=render(p).calls;assert.ok(c2.length>0);assert.ok(!c2.some(c=>c.key==='tracerCream'));}
+ const fx=render(p);assert.equal(fx.calls.filter(c=>c.key==='tracerBolt').length,1);near(fx.calls.find(c=>c.key==='tracerBolt').a,Math.atan2(400,300));near(fx.calls.find(c=>c.key==='muzzle').a,Math.PI/3);assert.ok(fx.calls.some(c=>c.key==='gunSmoke'));
+ world.bullets=[];p.muzzleFlash=0;assert.equal(render(p).calls.length,0);p.straightCharge=0;p.muzzleFlash=.055;{const c2=render(p).calls;assert.ok(c2.length>0);assert.ok(!c2.some(c=>c.key==='tracerBolt'));}
 });
