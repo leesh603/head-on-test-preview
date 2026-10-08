@@ -72,6 +72,7 @@ const flakTowerGroup=createLazyImageGroup({hull:'./boss-flak-tower-hull.webp?v=r
 const FLAK_PART_ART={siege:{im:'siege',dcx:.499,dcy:.489,forward:Math.PI/2},ears:{im:'ears',dcx:.401,dcy:.660,forward:Math.PI/4},'gun-bl':{im:'gun',dcx:.497,dcy:.482,forward:Math.PI/2},'gun-br':{im:'gun',dcx:.497,dcy:.482,forward:Math.PI/2}};
 const harborGroup=createLazyImageGroup({base:'./boss-armored-harbor-main-base.webp',craneArm:'./boss-armored-harbor-crane-arm.webp',cranePivot:'./boss-armored-harbor-crane-pivot.webp',ammo:'./boss-armored-harbor-ammo-storage.webp',guns:'./boss-armored-harbor-gun-emplacements.webp',facility:'./boss-armored-harbor-seaplane-facility.webp',parts:'./harbor-parts-20261001.webp?v=r5'}),harborArt=harborGroup.images;
 const trenchGroup=createLazyImageGroup({
+ soilBurst:'./fx-dirt-burst.webp',soilDust:'./fx-dust-puff.webp',
  livensParts:'./boss_livens_parts195.webp',livensBase:'./boss_livens_base187.webp',
  livensMount:'./boss_livens_nozzle_mount187.webp',livensNozzle:'./boss_livens_nozzle_normal_pivot187.webp',livensTurret:'./boss-livens-turret2x.webp',
  livensCoreClosed:'./boss_livens_core_closed187.webp',livensCoreExposed:'./boss_livens_core_exposed187.webp',livensCoreDestroyed:'./boss_livens_core_destroyed187.webp',
@@ -115,7 +116,7 @@ const drawLivensPart=(c,row,state,x,y,width)=>{
 function drawLivens(c,b){
  const part=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id),state=p=>p?.destroyed?2:p&&p.hp<=p.maxHp*.5?1:0;
  const destroyed=b.destroying;
- c.save();c.imageSmoothingEnabled=true;
+ c.save();c.scale(b.trenchScale||1,b.trenchScale||1);c.imageSmoothingEnabled=true;
  drawTrenchImage(c,trenchBossArt.livensBase,0,0,520,287);
  for(const side of [-1,1]){
   const upper=part(side<0?'tank-l1':'tank-r1'),lower=part(side<0?'tank-l2':'tank-r2');
@@ -135,22 +136,25 @@ function drawLivens(c,b){
  const angle=(Number.isFinite(b.nozzleAngle)?b.nozzleAngle:-Math.PI/2)-Math.PI;
  drawTrenchImage(c,trenchBossArt.livensNozzle,0,-98,240,240,angle);
  }
- const entry=b.trenchEntry;if(entry?.state==='pressure')fx(c,'dustPuff',0,-98,110,65,0,.22+.08*Math.sin(entry.age*24));
- if(entry?.revealAge<.7&&b.nozzleRevealed){const q=entry.revealAge/.7;for(let i=0;i<5;i++){const a=i*Math.PI*2/5;fx(c,'debrisShard',Math.cos(a)*(28+q*65),-98+Math.sin(a)*(18+q*44),25,18,a,(1-q)*.75);}fx(c,'dustPuff',0,-98,120+q*90,85+q*45,0,(1-q)*.55);}
+ const entry=b.trenchEntry;if(entry&&!b.nozzleRevealed)drawTrenchImage(c,trenchBossArt.soilDust,0,-98,125,76,0,.4);
+ if(entry?.state==='pressure')drawTrenchImage(c,trenchBossArt.soilDust,0,-98,110,65,0,.22+.08*Math.sin(entry.age*24));
+ if(entry?.revealAge<.7&&b.nozzleRevealed){const q=entry.revealAge/.7;for(let i=0;i<5;i++){const a=i*Math.PI*2/5;fx(c,'debrisShard',Math.cos(a)*(28+q*65),-98+Math.sin(a)*(18+q*44),25,18,a,(1-q)*.75);}drawTrenchImage(c,trenchBossArt.soilBurst,0,-98,220+q*70,160+q*45,0,(1-q)*.9);drawTrenchImage(c,trenchBossArt.soilDust,0,-98,160+q*90,110+q*45,0,(1-q)*.65);}
  if(destroyed)drawBattlefieldFire(c,{t:b.destructionAge,fireZones:[{x:0,y:0,radius:120,life:Math.max(0,b.destructionDuration-b.destructionAge)}]});
  c.restore();
 }
 function drawMinenwerfer(c,b){
  const parts=b.parts?.values?b.parts.values():(b.parts||[]);
  c.save();c.imageSmoothingEnabled=true;
+ // Draw the authored connected installation once; independent hitboxes stay on its three guns.
+ const scale=b.trenchScale||1,im=trenchBossArt.minenComposite,w=600*scale,h=450*scale;
+ // Exclude the source's stray outer matte/blue pixels, preserving the connected trench outline.
+ const silhouette=[[8,92],[168,71],[168,40],[325,40],[325,72],[490,92],[490,260],[326,260],[326,308],[318,324],[180,324],[174,274],[8,274]];
+ const drawInstallation=image=>{if(!(image?.naturalWidth||image?.width))return;c.save();c.beginPath();for(let i=0;i<silhouette.length;i++){const [x,y]=silhouette[i],px=(x-250)*1.2*scale,py=(y-187.5)*1.2*scale;i?c.lineTo(px,py):c.moveTo(px,py);}c.closePath();c.clip();c.drawImage(image,-w/2,-h/2,w,h);c.restore();};
+ drawInstallation(b.destroying?bakedImage(im,'grayscale(.72) brightness(.55)'):im);
  for(const p of parts){
   const x=p.x,y=p.y,dead=b.destroying||p.destroyed,damaged=!dead&&p.hp<=p.maxHp*.5;
-  const composite=dead?bakedImage(trenchBossArt.minenComposite,'grayscale(.72) brightness(.55)'):damaged?bakedImage(trenchBossArt.minenComposite,'saturate(.72) brightness(.82)'):trenchBossArt.minenComposite;
-  // Reuse the three authored pits in the atlas once each, rather than painting
-  // a complete three-gun installation at every independently hittable mount.
-  const crop=p.id==='main-gun'?[173,30,151,300,210,300]:p.id==='gun-left'?[8,80,165,210,210,267]:[328,80,165,210,210,267];
-  if(composite?.naturalWidth||composite?.width){c.save();c.globalAlpha=p.discovered||dead?1:.7;c.drawImage(composite,crop[0],crop[1],crop[2],crop[3],x-crop[4]/2,y-crop[5]/2,crop[4],crop[5]);c.restore();}
-  const mouth=p.mortarMouth||(p.id==='main-gun'?{x:2,y:-69}:p.id==='gun-left'?{x:7,y:-33}:{x:-12,y:-33});
+  if((dead||damaged)&&!b.destroying){c.save();c.beginPath();c.arc(x,y,p.radius*1.12,0,Math.PI*2);c.clip();drawInstallation(bakedImage(im,dead?'grayscale(.72) brightness(.55)':'saturate(.72) brightness(.82)'));c.restore();}
+  const mouth=p.mortarMouth||(p.id==='main-gun'?{x:0,y:-112}:{x:0,y:-32});
   if(!dead&&p.mortarFlash>0)fx(c,'fireFlash',x+mouth.x,y+mouth.y,55,55,0,p.mortarFlash/.22);
   if(!dead&&p.mortarSmoke>0)fx(c,'smokeHeavy',x+mouth.x,y+mouth.y-18,64,48,0,Math.min(.35,p.mortarSmoke*.3));
   if(damaged){fx(c,'smokeTrail',x+8,y-58,62,34,-Math.PI/2,.2);fx(c,'fireEngine',x-12,y-18,28,28,0,.42);}
