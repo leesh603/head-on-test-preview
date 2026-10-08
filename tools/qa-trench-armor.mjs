@@ -15,7 +15,7 @@ try{for(const kind of kinds)for(const mobile of process.env.QA_VIEW==='mobile'?[
  const browser=await launch();const context=await browser.newContext({viewport:mobile?{width:390,height:844}:{width:1280,height:900},isMobile:mobile,hasTouch:mobile,deviceScaleFactor:1});const page=await context.newPage(),label=kind+(mobile?'-mobile-coop':'-desktop-solo');
  page.on('pageerror',e=>errors.push({label,error:e.message,stack:e.stack}));page.on('console',m=>{if(m.type()==='error'&&m.text().includes('[headon]'))errors.push({label,error:m.text()});});
  const pilot=kind==='a7v-flak'?'fonck':'baron',coop=kind==='a7v-flak'?'guynemer':'voss';
- await page.goto((process.env.QA_URL||'http://127.0.0.1:8787/')+'?headonTest=1&autostart=0');await page.waitForFunction(()=>!!window.__HEADON_TEST__,null,{timeout:90000});await page.evaluate(async()=>{await(await import('./icons.js?v=raid1')).iconsReady;});
+ await page.goto((process.env.QA_URL||'http://127.0.0.1:8787/')+'?headonTest=1&autostart=0');await page.waitForFunction(()=>!!window.__HEADON_TEST__,null,{timeout:90000});await page.evaluate(async()=>{await(await import('./icons.js?v=lc1')).iconsReady;});
  await page.evaluate(({pilot,coop,mobile})=>__HEADON_TEST__.start({region:2,pilot,coop:mobile?coop:undefined,boss:true,freeze:true,invincible:true}),{pilot,coop,mobile});await page.waitForTimeout(1500);
  const original=await snapshot(page);assert.equal(original.kind,kind);await advance(page,.7);await focus(page);await page.screenshot({path:root+'/'+label+'-entry.png'});
  await advance(page,7);await focus(page);const phase1=await snapshot(page);assert(phase1.marks>0);assert(phase1.left.roll||phase1.right.roll);
