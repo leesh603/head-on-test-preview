@@ -145,15 +145,15 @@ function drawLivens(c,b){
 function drawMinenwerfer(c,b){
  const parts=b.parts?.values?b.parts.values():(b.parts||[]);
  c.save();c.imageSmoothingEnabled=true;
- // Draw the authored connected installation once; independent hitboxes stay on its three guns.
+ // Each gun sits in its own complete connected installation — three full murals.
  const scale=b.trenchScale||1,im=trenchBossArt.minenComposite,w=600*scale,h=450*scale;
  // Exclude the source's stray outer matte/blue pixels, preserving the connected trench outline.
  const silhouette=[[8,92],[168,71],[168,40],[325,40],[325,72],[490,92],[490,260],[326,260],[326,308],[318,324],[180,324],[174,274],[8,274]];
- const drawInstallation=image=>{if(!(image?.naturalWidth||image?.width))return;c.save();c.beginPath();for(let i=0;i<silhouette.length;i++){const [x,y]=silhouette[i],px=(x-250)*1.2*scale,py=(y-187.5)*1.2*scale;i?c.lineTo(px,py):c.moveTo(px,py);}c.closePath();c.clip();c.drawImage(image,-w/2,-h/2,w,h);c.restore();};
- drawInstallation(b.destroying?bakedImage(im,'grayscale(.72) brightness(.55)'):im);
+ const drawInstallation=(image,x,y)=>{if(!(image?.naturalWidth||image?.width))return;c.save();c.beginPath();for(let i=0;i<silhouette.length;i++){const [sx,sy]=silhouette[i],px=x+(sx-250)*1.2*scale,py=y+(sy-187.5)*1.2*scale;i?c.lineTo(px,py):c.moveTo(px,py);}c.closePath();c.clip();c.drawImage(image,x-w/2,y-h/2,w,h);c.restore();};
  for(const p of parts){
   const x=p.x,y=p.y,dead=b.destroying||p.destroyed,damaged=!dead&&p.hp<=p.maxHp*.5;
-  if((dead||damaged)&&!b.destroying){c.save();c.beginPath();c.arc(x,y,p.radius*1.12,0,Math.PI*2);c.clip();drawInstallation(bakedImage(im,dead?'grayscale(.72) brightness(.55)':'saturate(.72) brightness(.82)'));c.restore();}
+  const state=dead?'grayscale(.72) brightness(.55)':damaged?'saturate(.72) brightness(.82)':null;
+  drawInstallation(state?bakedImage(im,state):im,x,y);
   const mouth=p.mortarMouth||(p.id==='main-gun'?{x:0,y:-112}:{x:0,y:-32});
   if(!dead&&p.mortarFlash>0)fx(c,'fireFlash',x+mouth.x,y+mouth.y,55,55,0,p.mortarFlash/.22);
   if(!dead&&p.mortarSmoke>0)fx(c,'smokeHeavy',x+mouth.x,y+mouth.y-18,64,48,0,Math.min(.35,p.mortarSmoke*.3));
