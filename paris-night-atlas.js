@@ -1,4 +1,4 @@
-import {PARIS_FORTRESS_LAYOUT,PARIS_STAAKEN_LAYOUT} from './paris-night-bosses.js?v=adr1';
+import {PARIS_FORTRESS_LAYOUT,PARIS_STAAKEN_LAYOUT} from './paris-night-bosses.js?v=raid1';
 // Clip coordinates share the combat mounts' world space. Original artwork
 // is assembled without individually shrinking or redesigning its machinery.
 export const PARIS_ART_LAYOUTS={fortress:PARIS_FORTRESS_LAYOUT,staaken:PARIS_STAAKEN_LAYOUT};

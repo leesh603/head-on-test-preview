@@ -14,6 +14,12 @@ PHASES['central-fortress']=['3구역 점령 완료 · 중앙 지휘포대 노출
 PHASES['gallipoli-repair-warning']=['파괴 포대 수리 중 · 3초 뒤 재가동','Defense repairs · reactivation in 3 seconds'];
 PHASES['gallipoli-repaired']=['포대 수리 완료 · 재가동 준비','Defense restored · preparing to fire'];
 PHASES['gallipoli-command-destroyed']=['중앙 지휘포대 파괴 · 수리·요격기 증원 중단','Command destroyed · repairs and sorties stopped'];
+PHASES['bruno-ranging']=['이동 포격 · 착탄 순서 확인','Mobile ranging · read the impact order'];
+PHASES['bruno-tracking']=['추적·교차 포격 · 방향을 바꿔 이탈','Tracking and crossfire · turn out of the salvo'];
+PHASES['lincomparable-heavy-shell']=['초중량 포격 · 착탄 후 충격파','Heavy shell · impact then shockwave'];
+PHASES['lincomparable-shock-link']=['충격파 연계 · 착탄 후 안쪽 틈으로','Shock link · return inside after impact'];
+PHASES['lincomparable-counter']=['최후 포격 발사 · 기관차 반격 기회','Final round fired · strike locomotive'];
+PHASES['lincomparable-locked']=['최후 포격 조준 고정 · 급선회','Final aim locked · turn out now'];
 
 PHASES['jutland-ranging']=["거리 측정 사격 · 착탄 표식 이탈", "Ranging fire · leave impact markers"];
 PHASES['jutland-crossing-turn']=["함대 선회 · T자 횡단 사격 준비", "Fleet turn · preparing crossing fire"];
@@ -52,8 +58,8 @@ export function bossTactic(encounter,locale='ko'){
    if(b.phase==='last-stand')return [...b.parts.values()].some(p=>p.kind==='gun'&&!p.destroyed)?text('포격과 기관총을 피해 남은 포대를 파괴하세요.','Dodge warned flak and MG fire · silence remaining batteries'):text('방공 무장이 멈췄습니다. 노출된 지휘부를 공격하세요.','Air defenses silenced · strike the exposed command');
    return b.coreVulnerable?text('불이 꺼지면 지휘부를 공격하세요. 발전기를 부수면 틈이 길어집니다.','BLACKOUT · strike command! Generator destruction extends the opening'):text('빛을 피해 탐조등과 발전기를 부수세요. 발각되면 집중 포격을 받습니다.','Read the light rhythm · illumination draws heavy fire · break lamps and generator');
   case 'paris-staaken-rvi':return text('엔진을 부숴 감속시키고, 폭탄창을 파괴해 도시 폭격을 막으세요.','Engines → slow/yaw · guns → approach lanes · bomb bay → stop city bombing');
-  case 'paris-gun':return b.phase==='runaway'?text('폭주하는 열차를 피하고, 탈선한 뒤 기관차를 공격하세요.','Clear the runaway track → strike after derailment'):b.coreVulnerable?text('기관차를 공격하되, 5연속 포격 사이로 피하세요.','Locomotive exposed · read the five-shot order and use its gaps'):gone('car-middle')?text('관측차가 파괴됐습니다. 탄약차를 부수면 재장전이 느려집니다.','Observer down · blind barrage; ammo loss slows reload'):gone('car-rear')?text('후미 포격이 멈췄습니다. 관측차를 부숴 조준을 끊으세요.','Rear gun silenced · break the observer to interrupt targeting'):text('대공 방어차부터 부수세요. 레일을 파괴하면 이동이 멈춥니다.','Defense → observer → ammunition · break the rail to halt movement');
-  case 'lincomparable':return b.phase==='runaway'?text('폭주하는 열차를 피하고, 탈선한 뒤 기관차를 공격하세요.','Clear the runaway track → strike after derailment'):b.phase==='derailed'?text('탈선한 기관차에 사격을 집중하세요.','Focus fire on the derailed locomotive'):b.coreVulnerable&&b.recovery>0?text('재장전 중에는 장갑이 약해집니다. 기관차를 공격하세요.','Reload opens the armor · strike the locomotive'):b.coreVulnerable?text('충격파의 안팎으로 피하고, 재장전할 때 공격하세요.','Dive inside the shock ring or escape outside · punish reload'):text('후미부터 부수세요. 충격파 안쪽은 안전하지만 중심 연막은 피하세요.','Break the tail first · shock ring has a safe interior; avoid center smoke');
+  case 'paris-gun':return b.phase==='arrival'?text('철로 위 열차 접근 · 정차 후 첫 포격','Train approaching on the rail · first shot after braking'):b.phase==='runaway'?text('철의 폭우 · 번호 순서에서 급선회해 이탈, 철로 파괴로 중단','Iron rain · turn out of the numbered march; break the rail to interrupt'):b.phase==='derailed'?text('탈선 · 포격 종료, 기관차에 집중 사격','Derailed · barrage ended; strike the locomotive'):b.coreVulnerable?text('기관차 공략 · HP 28%에서 폭주, 미리 철로를 파괴하세요.','Attack locomotive · runaway at 28% HP; break the rail first'):gone('car-middle')?text('관측차 파괴 · 이전 구역으로 포격, 탄약차를 부숴 장전을 늦추세요.','Observer down · old sector shelled; break ammunition to slow reload'):b.raidPhase===2?text('추적·교차 포격 · 번호 순서를 벗어나 관측차를 공략하세요.','Tracking and crossfire · turn out of the numbered order; attack observer'):text('이동 포격 · 착탄 표식 이탈, 후방 방어차부터 공략하세요.','Mobile ranging · leave impact markers; attack the rear defense car');
+  case 'lincomparable':return b.phase==='arrival'?text('육중한 열차 접근 · 긴 제동 후 첫 발','Heavy train approaching · first shot after long braking'):b.finalAim?text('520mm 최후 포격 · 중심 이탈 후 충격파 안쪽으로, 잔류 원 주의','Final 520mm · clear center, return inside wave; avoid residue'):b.phase==='derailed'?text('탈선 · 기관차에 집중 사격, 남은 충격파·잔류 원 주의','Derailed · strike locomotive; watch remaining wave and residue'):b.coreVulnerable&&b.recovery>0?text('재장전 중 기관차를 공격하면 최후 포격 범위가 줄어듭니다.','Strike the reloading locomotive to shrink the final blast'):b.raidPhase===2?text('착탄 후 충격파 안쪽으로 복귀 · 잔류 원 반대쪽이 안전','After impact return inside wave · use the side opposite residue'):text('중심 폭발과 원형 충격파를 피하고, 후방 방어차부터 공략하세요.','Evade center and expanding wave · break rear defense first');
   case 'sms-stuttgart':return b.support129?.phase===1?text('덮개를 부숴 연료를 공격하세요. 보일러를 부수면 느려집니다.','Break boilers to slow the carrier · open the hangar'):text('격납시설·연료를 부수면 출격이 멈춥니다. 대공포 파괴로 퇴로를 여세요.','Destroy hangar or fuel to stop sorties · silence AA guns for escape lanes');
   case 'hms-zubian':return bodies.length>1?text('앞쪽 선체의 돌진을 피하고, 뒤쪽 함포를 부숴 교차 포격을 끊으세요.','Evade the bow attack · break the stern gun to stop crossfire'):text('접합부를 공격하세요. 분리된 뒤에도 함포와 기관의 손상은 유지됩니다.','Gun and engine damage persists after the split · attack the seam');
   case 'a7v-flak':return b.phase==='exposed'?text('차체 기관총을 피해 노출된 본체를 공격하세요.','Dodge the hull gun · strike the exposed chassis'):b.coreVulnerable?text('장갑이 열렸습니다. 남은 포탑이나 본체를 공격하세요.','Armor breached · silence guns or attack the hull'):text('탐조등과 교차 포격을 피하고, 궤도를 부숴 이동을 막으세요.','Evade spotlights and crossfire · break tracks to halt movement');
@@ -95,6 +101,7 @@ export function bossSoundFor(event,kind=''){
  if(type==='rural-rail-roll')return 'trainRoll';
  if(type==='rural-rail-brake')return 'trainBrake';
  if(type==='rural-rail-load')return 'railBreech';
+ if(['bruno-rail-discovered','bruno-iron-rain','lincomparable-last-520','lincomparable-rail-discovered'].includes(type))return 'trainApproach';
  if(type==='rail-aim'||type==='rural-aim'||type==='rail-runaway')return 'railClatter';
  if(type==='seaplane-launch')return 'formationPass';
  if(type==='minion-launched')return 'formationPass';

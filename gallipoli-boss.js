@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=adr1';
-import {segmentDistance} from './alps-geometry117.js?v=adr1';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=raid1';
+import {segmentDistance} from './alps-geometry117.js?v=raid1';
 export const GALLIPOLI_SCALE=.78;
 const gs=v=>Math.round(v*GALLIPOLI_SCALE);
 export const GALLIPOLI_EXTENTS=Object.freeze({halfWidth:gs(1640),halfHeight:gs(1300)});

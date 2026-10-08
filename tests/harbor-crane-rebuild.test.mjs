@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createBossEncounter} from '../headon-stageboss-patterns.js?v=adr1';
-import {StageBossAddon} from '../headon-stageboss-runtime.js?v=adr1';
-import {enableStageBoss} from '../stageboss-host.js?v=adr1&rail=1';
-import {harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from '../harbor-crane-layout.js?v=adr1';
+import {createBossEncounter} from '../headon-stageboss-patterns.js?v=raid1';
+import {StageBossAddon} from '../headon-stageboss-runtime.js?v=raid1';
+import {enableStageBoss} from '../stageboss-host.js?v=raid1&rail=1';
+import {harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from '../harbor-crane-layout.js?v=raid1';
 
 const tuning={maxHp:2400,partHp:288,damage:18,bulletSpeed:270,geometryScale:2.025,mobileBoss:true,motionMultiplier:1,patternMultiplier:1,projectileDensity:1,coastalInterval:2.5,harborLaunchInterval:5.6};
 const frame=()=>({players:[{id:'p1',alive:true,x:40,y:360,vx:12,vy:-8,radius:12}],bounds:{left:-900,top:-700,right:900,bottom:900}});

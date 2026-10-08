@@ -35,7 +35,7 @@ export function fireRailArtillery(b){
 export function updateRailArtillery(b,dt){
  const g=b.railGun,r=b.rail129;
  g.brakeAge+=dt;
- const target=b.runawayTriggered129?0:g.targetAngle,step=dt*.22;
+ const target=b.runawayTriggered129&&!b.finalAim?0:g.targetAngle,step=dt*(b.kind==='lincomparable'?.1:.22);
  g.angle+=clamp(target-g.angle,-step,step);
  if(r.phase==='brake'&&g.phase!=='brake'){g.brakeAge=0;b.emit({type:'rural-rail-brake',bossId:b.id});}
  const loading=r.phase==='reload'&&!b.barrage;
