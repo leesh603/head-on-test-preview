@@ -1,7 +1,7 @@
 // Layered procedural SFX — every combat feedback voice is synthesized from
 // oscillators plus filtered noise, matching the music.js approach. No audio
 // assets, no external requests.
-import {railAudioSamples} from './rail-audio.js?v=rail6';
+import {railAudioSamples} from './rail-audio.js?v=rail7';
 let ctx=null,bus=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();
 const sources=new Map(),lastVoices=new Map();

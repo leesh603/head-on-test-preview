@@ -17,23 +17,23 @@ export function railAudioSamples(name,sampleRate=48000){
   if(name==='trainApproach'||name==='trainRoll'){
    const arrival=name==='trainApproach',revs=arrival?2.7-1.2*Math.min(1,q*1.2):2.5;
    phase+=revs/sampleRate;const rev=phase%1;
-   // 칙칙폭폭: four exhaust puffs per rev — sharp band-noise burst + low thump.
-   // Noise lives only inside the puff envelope so it reads as "ch", not wind.
+   // 칙칙폭폭: four exhaust puffs per rev — percussive low thump + bright tick,
+   // almost no noise so nothing reads as wind on small speakers.
    const cyl=Math.floor(rev*4),pos=rev*4-cyl,strong=cyl%2===0;
-   const puff=Math.exp(-pos*(strong?10:13))*(strong?1:.6);
-   const chug=(body-steam)*1.35+body*.55;
-   const boom=Math.sin(tau*66*t)*.6+Math.sin(tau*132*t)*.24;
+   const puff=Math.exp(-pos*(strong?11:14))*(strong?1:.58);
+   const boom=Math.sin(tau*82*t)*.8+Math.sin(tau*164*t)*.3+Math.sin(tau*246*t)*.12;
+   const tick=(body-steam)*.35;
    const distance=arrival?.22+.78*Math.sin(Math.min(1,q*1.25)*Math.PI/2):.5;
-   v=(low*.05+(chug*.45+boom*.72)*puff)*distance;
+   v=(low*.04+(tick+boom*1.05)*puff)*distance;
    // rod knock between puffs
    v+=Math.sin(tau*295*t+Math.sin(tau*51*t)*2)*.05*Math.exp(-Math.abs(pos-.6)*28)*distance;
    if(arrival){
-    // 뿌우우우우: long low steam-whistle blast — deep dominant root with its
-    // octave/fifth stack, a breath of steam, valve-open droop, long decay.
+    // 뿌우우우우: long steam-whistle blast voiced for small speakers — mid root
+    // with a wide octave/fifth stack and a breath of steam on the attack.
     const wt=t-.32,env=wt>0&&wt<2.9?Math.min(1,wt/.09)*Math.min(1,(2.9-wt)/.65):0;
     const drift=1+.024*Math.exp(-wt*6)+.0045*Math.sin(tau*5.4*t);
-    const horn=Math.sin(tau*220*t*drift)+.52*Math.sin(tau*440*t*(drift+.001))+.35*Math.sin(tau*330*t*(drift-.0008)+.6)+.16*Math.sin(tau*660*t*drift+1.1);
-    v+=env*(horn*.62+(body-steam)*.13);
+    const horn=Math.sin(tau*330*t*drift)+.55*Math.sin(tau*660*t*(drift+.001))+.4*Math.sin(tau*494*t*(drift-.0008)+.6)+.22*Math.sin(tau*988*t*drift+1.1)+.12*Math.sin(tau*220*t*drift+2);
+    v+=env*(horn*.7+(body-steam)*.1);
    }
   }else if(name==='trainBrake'){
    v=Math.sin(tau*(1120*t-180*t*t))*.16*Math.sin(Math.PI*q)+low*.12*(1-q);
