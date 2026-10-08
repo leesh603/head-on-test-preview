@@ -76,7 +76,7 @@ const trenchGroup=createLazyImageGroup({
  livensMount:'./boss_livens_nozzle_mount187.webp',livensNozzle:'./boss_livens_nozzle_normal_pivot187.webp',livensTurret:'./boss-livens-turret2x.webp',
  livensCoreClosed:'./boss_livens_core_closed187.webp',livensCoreExposed:'./boss_livens_core_exposed187.webp',livensCoreDestroyed:'./boss_livens_core_destroyed187.webp',
  livensPipeL:'./boss_livens_pipe_l_normal194.png',livensPipeR:'./boss_livens_pipe_r_normal194.png',livensPipeLBroken:'./boss_livens_pipe_l_broken194.png',livensPipeRBroken:'./boss_livens_pipe_r_broken194.png',
- minenBase:'./boss_minenwerfer_base187.webp',minenMain:'./boss_minenwerfer_main_normal187.webp',minenMainDamaged:'./boss_minenwerfer_main_damaged187.webp',minenMainDestroyed:'./boss_minenwerfer_main_destroyed187.webp',minenSide:'./boss_minenwerfer_side_normal187.webp',
+ minenComposite:'./boss-minenwerfer-composite188.webp',
  livensComposite:'./boss-livens-composite317.webp',livensPivot:'./boss-livens-pivot317.webp',livensPivotDamaged:'./boss-livens-pivot-damaged317.webp',livensPivotDestroyed:'./boss-livens-pivot-destroyed317.webp'
 }),trenchBossArt=trenchGroup.images;
 // Four authored RGBA frames, graded/packed offline; no runtime filter or canvas copy.
@@ -145,14 +145,12 @@ function drawMinenwerfer(c,b){
  c.save();c.imageSmoothingEnabled=true;
  for(const p of parts){
   const x=p.x,y=p.y,dead=b.destroying||p.destroyed,damaged=!dead&&p.hp<=p.maxHp*.5;
-  const main=p.id==='main-gun',alpha=p.discovered||dead?1:.7;
-  // Each emplacement is the same authored pit + mortar sprite, drawn per gun.
-  drawTrenchImage(c,trenchBossArt.minenBase,x,y+14,232,166,0,alpha);
-  let im=main?(dead?trenchBossArt.minenMainDestroyed:damaged?trenchBossArt.minenMainDamaged:trenchBossArt.minenMain)
-   :(dead||damaged?bakedImage(trenchBossArt.minenSide,dead?'grayscale(.72) brightness(.55)':'saturate(.72) brightness(.82)'):trenchBossArt.minenSide);
-  if(im?.naturalWidth||im?.width){const w=main?152:144,h=w*im.naturalHeight/im.naturalWidth;
-   c.save();c.globalAlpha=alpha;c.imageSmoothingEnabled=true;c.drawImage(im,x-w/2,y-8-h/2,w,h);c.restore();}
-  const mouth=p.mortarMouth||(main?{x:0,y:-68}:{x:0,y:-56});
+  const composite=dead?bakedImage(trenchBossArt.minenComposite,'grayscale(.72) brightness(.55)'):damaged?bakedImage(trenchBossArt.minenComposite,'saturate(.72) brightness(.82)'):trenchBossArt.minenComposite;
+  // Reuse the three authored pits in the atlas once each, rather than painting
+  // a complete three-gun installation at every independently hittable mount.
+  const crop=p.id==='main-gun'?[173,30,151,300,210,300]:p.id==='gun-left'?[8,80,165,210,210,267]:[328,80,165,210,210,267];
+  if(composite?.naturalWidth||composite?.width){c.save();c.globalAlpha=p.discovered||dead?1:.7;c.drawImage(composite,crop[0],crop[1],crop[2],crop[3],x-crop[4]/2,y-crop[5]/2,crop[4],crop[5]);c.restore();}
+  const mouth=p.mortarMouth||(p.id==='main-gun'?{x:2,y:-69}:p.id==='gun-left'?{x:7,y:-33}:{x:-12,y:-33});
   if(!dead&&p.mortarFlash>0)fx(c,'fireFlash',x+mouth.x,y+mouth.y,55,55,0,p.mortarFlash/.22);
   if(!dead&&p.mortarSmoke>0)fx(c,'smokeHeavy',x+mouth.x,y+mouth.y-18,64,48,0,Math.min(.35,p.mortarSmoke*.3));
   if(damaged){fx(c,'smokeTrail',x+8,y-58,62,34,-Math.PI/2,.2);fx(c,'fireEngine',x-12,y-18,28,28,0,.42);}

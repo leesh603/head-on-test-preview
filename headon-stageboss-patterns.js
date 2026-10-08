@@ -766,7 +766,7 @@ export class MinenwerferBattery extends PatternBoss {
     this.phase='cross-barrage';this.coreVulnerable=true;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
     this.shotSerial=0;this.baseVolleyCount=0;this.specialWave=0;this.specialClock=4.2;this._gasTier=3;
     this.discovered=false;this.discoveryClock=0;this.raidPhase=1;this.cycleClock=.3;this.recovery=0;this.finalGrace=2.8;this.finalCounts=new Set();this.mortarPlan=null;
-    for(const gun of this.parts.values()){gun.discovered=false;gun.mortarMouth=gun.id==='main-gun'?{x:0,y:-68}:{x:0,y:-56};gun.mortarFlash=0;gun.mortarSmoke=0;}
+    for(const gun of this.parts.values()){gun.discovered=false;gun.mortarMouth=gun.id==='main-gun'?{x:2,y:-69}:gun.id==='gun-left'?{x:7,y:-33}:{x:-12,y:-33};gun.mortarFlash=0;gun.mortarSmoke=0;}
   }
   suppressive(){/* The three emplacements own every Minenwerfer attack. */}
   liveGuns(){return [...this.parts.values()].filter(p=>!p.destroyed);}
