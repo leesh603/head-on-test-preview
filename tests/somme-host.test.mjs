@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {CoopGame}=await import('../coop-engine.js?v=tame3&rail=15');
-const {Game}=await import('../engine.js?v=tame3&rail=15');
-const {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossCollision,damageStageBoss}=await import('../stageboss-host.js?v=tame3&rail=15');
+const {CoopGame}=await import('../coop-engine.js?v=tame3&rail=16');
+const {Game}=await import('../engine.js?v=tame3&rail=16');
+const {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossCollision,damageStageBoss}=await import('../stageboss-host.js?v=tame3&rail=16');
 const {sommePoint}=await import('../somme-boss-layout.js?v=tame3');
 
 for(const mode of ['solo','coop'])for(const faction of ['central','entente'])test(`Somme ${mode}/${faction} uses real host collision, one HP budget and bounded hazards`,()=>{
