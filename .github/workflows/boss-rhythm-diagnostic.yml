@@ -1,0 +1,23 @@
+name: boss-rhythm-diagnostic
+on:
+  push:
+    branches: [fix/boss-pattern-rhythm-20261008]
+    paths: [.github/workflows/boss-rhythm-diagnostic.yml]
+permissions:
+  contents: read
+jobs:
+  source-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Collect exact branch source for focused boss tests
+        run: |
+          mkdir -p /tmp/boss-diagnostic
+          git archive HEAD -- '*.js' '*.mjs' '*.json' '*.html' '*.css' tests tools > /tmp/boss-diagnostic/source.tar
+          git rev-parse HEAD > /tmp/boss-diagnostic/commit.txt
+          git ls-tree -r HEAD > /tmp/boss-diagnostic/tree.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: boss-diagnostic-source
+          path: /tmp/boss-diagnostic/
+          retention-days: 1
