@@ -66,8 +66,6 @@ export class RailAdapter extends BaseBoss {
  hit(s){
   if(s.partId==='rail')return{damage:this.rail129.hitRail(s.damage),partId:'rail'};
   if(s.partId){const r=super.hit(s);return r;}
-  // Hull can be whittled before the cars break — the armored train just
-  // shrugs most of it off until the locomotive is actually exposed.
   if(!this.coreVulnerable&&!this.runawayTriggered129){
    const dealt=Math.min(this.hp,s.damage*.22);this.hp-=dealt;
    if(this.hp<=0){this.hp=0;this.dead=true;this.phase='defeated';this.emit({type:'body-defeated',bossId:this.id});}

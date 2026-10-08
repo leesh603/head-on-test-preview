@@ -2,15 +2,15 @@ import {resolveSurfaceSpacing} from './naval-spacing.js?v=tame3';
 
 import {tickRegionalConditions} from './region-doctrine1.js?v=tame3';
 
-import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=tame3&rail=18';
+import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=tame3&rail=37';
 import {handleMaanCue} from './maan-view.js?v=tame3';
 import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=tame3';
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=tame3';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=tame3';
 import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=tame3&rail=37';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=tame3&rail=37';
-import {bossSoundFor} from './boss-feedback.js?v=tame3&hints=1&rail=18';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=tame3&rail=1';
+import {bossSoundFor} from './boss-feedback.js?v=tame3&hints=1&rail=37';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=tame3&rail=37';
 import {advanceCambraiBug} from './cambrai-bug-flight.js?v=tame3';
 import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=tame3';
 
@@ -194,6 +194,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    else if(event.type==='boss-destruction-start'){g.event('wave',BOSS_CATALOG[event.bossId].name+' 붕괴 중!');g.shake=Math.max(g.shake,8);if(['zeppelin-l70','hma23'].includes(event.bossId))for(const b of event.bodies||[])g.wreckGust(b);}
    else if(event.type==='boss-destruction-pulse'){g.combatBlast(event.x,event.y,event.radius,'enemy',event.final?'bossFinal':'structure');g.shake=Math.max(g.shake,event.final?13:8);}
    else if(event.type==='heavy-gun-fired'){g.shake=Math.max(g.shake,event.railArtillery?(event.heavy?6:2.8):7);}
+    else if(event.type==='muzzle'&&body?.kind==='minenwerfer-battery'){/* Local barrel flash is drawn by drawMinenwerfer; firing never shakes the ground/camera. */}
     else if(event.type==='muzzle'&&['london-apron','drachen-net'].includes(body?.kind)){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:.12,size:23*body.cityArtScale,kind:'aaMuzzle'});}
     else if(event.type==='muzzle'&&(body?.gallipoliBoss||event.bossId==='gallipoli-approach')){g.shake=Math.max(g.shake,event.partId?.startsWith('aa-')?1:3);}
     else if(event.type==='muzzle'&&body?.sommeBoss){g.shake=Math.max(g.shake,2);}

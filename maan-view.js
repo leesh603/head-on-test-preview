@@ -1,14 +1,14 @@
-import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=tame3';
 import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=tame3';
 import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
 import {sandOpacity} from './maan-weather.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
-
+import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=tame3';
+import {drawShellFlight} from './boss-rounds.js?v=tame3';
 export const MAAN_ASSETS=Object.freeze({terrain:'terrain-maan-r2.webp',workshop:'maan-workshop-r2.webp',wusten:'boss-maan-wusten-r2.webp',sinai:'boss-maan-sinai-r2.webp',car:'boss-maan-rolls-royce.webp'});
 const images=new Map();let ground=null;
 const _filterBakes=new WeakMap();
 function bakedFiltered(img,filter){if(!img?.naturalWidth)return img;let m=_filterBakes.get(img);if(!m){m=new Map();_filterBakes.set(img,m)}let cv=m.get(filter);if(cv===undefined){cv=document.createElement('canvas');cv.width=img.naturalWidth;cv.height=img.naturalHeight;const cc=cv.getContext('2d');cc.filter=filter;cc.drawImage(img,0,0);m.set(filter,cv)}return cv}
-const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=tame3';images.set(key,im);return im;};
+const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=r5';images.set(key,im);return im;};
 export function prepareMaanAssets(region){
  if(region!==13){images.clear();ground=null;return Promise.resolve();}
  return Promise.all(Object.keys(MAAN_ASSETS).map(key=>{const im=load(key);if(im.complete&&im.naturalWidth)return Promise.resolve();return new Promise((resolve,reject)=>{im.onload=()=>{if(!im.naturalWidth){reject(new Error('Ma’an empty asset: '+MAAN_ASSETS[key]));return}(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.onerror=()=>reject(new Error('Ma’an asset: '+MAAN_ASSETS[key]));});})).then(()=>{seamlessGround(load('terrain'));});
@@ -165,8 +165,7 @@ export function drawMaanHazard(c,h){
  c.save();const warning=h.phase==='warning';
  if(h.kind==='projectile'){fx(c,h.visual.endsWith('mg')?'tracerAmber':'shellHeavy',h.x,h.y,h.visual.endsWith('mg')?12:20,5,Math.atan2(h.vy,h.vx),.95);}
  else if(warning){impactMark(c,h.x,h.y,h.radius,Math.max(0,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning))),{heavy:h.raidHeavy,tone:h.visual==='wusten-steam'?'blind':'warn'});
-  if(h.visual.endsWith('impact')&&h.sourceX!=null){const q=Math.max(0,Math.min(1,(h.age-h.delay)/h.warning)),dx=h.x-h.sourceX,dy=h.y-h.sourceY;
-   fx(c,'shellHeavy',h.sourceX+dx*q,h.sourceY+dy*q-Math.sin(q*Math.PI)*35,22,7,Math.atan2(dy,dx),.95);}
+  if(h.visual.endsWith('impact'))drawShellFlight(c,h,Math.max(0,Math.min(1,(h.age-h.delay)/h.warning)));
  }
  else{const age=Math.max(0,h.age-h.delay-h.warning),q=Math.min(.999,age/h.duration);
   if(h.visual==='wusten-steam')fx(c,'smokeGray',h.x,h.y,h.radius*2,h.radius*2,0,.55*(1-q));

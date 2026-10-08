@@ -17,7 +17,13 @@ export function drawMinenInstallation(c,part,images,{scale=1,destroying=false}={
   const cell=(barrels.naturalWidth||barrels.width)/3,sh=barrels.naturalHeight||barrels.height;
   for(let tube=0;tube<MINEN_TUBES.length;tube++){
    const t=MINEN_TUBES[tube],y=t.barrelY+minenRecoilOffset(part,tube);
-   c.drawImage(barrels,tube*cell,0,cell,sh,(t.x-55)*scale,(y-55)*scale,110*scale,110*scale);
+   // Hold the atlas collar at its authored rest pose. Only the tube above
+   // it can travel, sliding behind this fixed receiver (as on the rail gun).
+   const collar=tube===1?31:20,top=t.barrelY-55;
+   c.save();c.beginPath();c.rect((t.x-55)*scale,(top-1)*scale,110*scale,(collar-top+1)*scale);c.clip();
+   c.drawImage(barrels,tube*cell,0,cell,sh,(t.x-55)*scale,(y-55)*scale,110*scale,110*scale);c.restore();
+   const sy=(collar-top)/110*sh;
+   c.drawImage(barrels,tube*cell,sy,cell,sh-sy,(t.x-55)*scale,collar*scale,110*scale,(110-collar+top)*scale);
   }
   // The fixed receiver lips sit IN FRONT of the lower tube. Recoil slides the
   // barrel into the socket instead of dragging its base over the carriage.

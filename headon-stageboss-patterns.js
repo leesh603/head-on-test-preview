@@ -1,11 +1,11 @@
 import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js';
-import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=tame3&rail=19';
+import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=tame3&rail=37';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {ParisSearchlightFortress,ParisStaakenRVI} from './paris-night-bosses.js?v=tame3';
-import {GallipoliFortress} from './gallipoli-boss.js?v=tame3&rail=18';
+import {GallipoliFortress} from './gallipoli-boss.js?v=tame3&rail=37';
 import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=tame3';
-import {RuralRailBoss} from './rural-rail-combat.js?v=tame3&rail=18';
-import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=tame3&rail=18';
+import {RuralRailBoss} from './rural-rail-combat.js?v=tame3&rail=37';
+import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=tame3&rail=37';
 import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=tame3';
 import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=tame3&rail=37';
 import {createJutlandEncounter} from './jutland-boss.js?v=tame3';
@@ -19,12 +19,11 @@ import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=tame3';
 import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=tame3';
 import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=tame3';
 import {apronPose} from './london-apron369.js?v=tame3';
-import {GIK,Ca4} from './alps-bomber-combat.js?v=tame3&rail=20';
-import {FlakTowerNet} from './city-flak-combat.js?v=tame3&rail=18';
+import {GIK,Ca4} from './alps-bomber-combat.js?v=tame3&rail=37';
+import {FlakTowerNet} from './city-flak-combat.js?v=tame3&rail=37';
 
 export {GIK,Ca4};
 import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=tame3';
-
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -924,6 +923,10 @@ export class MinenwerferBattery extends PatternBoss {
     // wave: impacts still arrive on each gun's firing beat (shot.at + warning).
     for(const shot of this.mortarPlan.shots){const gun=this.parts.get(shot.partId);
       if(gun&&!gun.destroyed&&!shot.retarget)this.shell(gun,shot.x,shot.y,{warning:shot.at+shot.warning,heavy:shot.partId==='main-gun',raidHeavy:!!shot.heavy||final&&shot.order===points.length,fx:false,tube:shot.tube});}
+    // The whole salvo's landing markers go down at once so the volley reads as a
+    // wave: impacts still arrive on each gun's firing beat (shot.at + warning).
+    for(const shot of this.mortarPlan.shots){const gun=this.parts.get(shot.partId);
+      if(gun&&!gun.destroyed&&!shot.retarget)this.shell(gun,shot.x,shot.y,{warning:shot.at+shot.warning,heavy:shot.partId==='main-gun',raidHeavy:!!shot.heavy||final&&shot.order===points.length,fx:false});}
     this.command(final?'minenwerfer-final-order':'phase-change',{phase:final?'minenwerfer-final-order':name,count:this.liveGuns().length});
   }
   cooperative(players,bounds,guns){

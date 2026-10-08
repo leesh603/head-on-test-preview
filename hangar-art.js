@@ -4,13 +4,13 @@ import {aircraftArt} from './main-ui-art180.js?v=tame3';
 
 export const hangarKeyFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',fokker:'fokker_standard'};
 const cleanMech=new Set(['halberstadt_duo','fokker_jacobs','gontermann_fokker','nungesser_nieuport24','rickenbacker_spad','luke_nieuport28']);
-const rawArt={fokker:'./fokker.webp?v=tame3&b=349',baron_albatros:'./baron_albatros.webp?v=tame3&b=345',albatros_d2:'./albatros_d2.webp?v=tame3&b=345',nieuport_italian:'./nieuport.webp?v=tame3&b=345'};
+const rawArt={fokker:'./fokker.webp?v=r5&b=349',baron_albatros:'./baron_albatros.webp?v=r5&b=345',albatros_d2:'./albatros_d2.webp?v=r5&b=345',nieuport_italian:'./nieuport.webp?v=r5&b=345'};
 const artCache=new Map(),artReady=new Map();
 // The decoded display images stay referenced, so switching back to a pilot paints at once.
 export function hangarArtNow(key){return artReady.get(key)?.url||''}
 export function hangarArtSource(key){
  const file=hangarKeyFile[key]||key;
- return cleanMech.has(file)?`./mech/${file}.webp?v=tame3`:rawArt[key]||`./${file}.webp?v=tame3&b=349`;
+ return cleanMech.has(file)?`./mech/${file}.webp?v=r5`:rawArt[key]||`./${file}.webp?v=r5&b=349`;
 }
 function prepareArt(image,key){
  // Existing alpha-clean WebPs can be displayed directly, without a PNG encode
@@ -29,7 +29,7 @@ function prepareArt(image,key){
 }
 export function hangarArt(key){
  if(artCache.has(key))return artCache.get(key);
- const src=hangarArtSource(key),mechSrc=`./mech/${hangarKeyFile[key]||key}.webp?v=tame3`;
+ const src=hangarArtSource(key),mechSrc=`./mech/${hangarKeyFile[key]||key}.webp?v=r5`;
  const pending=new Promise(resolve=>{
   const image=new Image();image.decoding='async';let fellBack=false;
   image.onerror=()=>{if(!fellBack&&src!==mechSrc){fellBack=true;image.src=mechSrc;return}resolve(aircraftArt[key]||'')};

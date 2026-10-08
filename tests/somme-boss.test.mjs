@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createBossEncounter} from '../headon-stageboss-patterns.js?v=tame3&rail=18';
+import {createBossEncounter} from '../headon-stageboss-patterns.js?v=tame3&rail=37';
 import {sommePoint,sommeMuzzle,landshipClearance} from '../somme-boss-layout.js?v=tame3';
-import {renderStageBossLayer} from '../headon-stageboss-render.js?v=tame3&rail=1';
+import {renderStageBossLayer} from '../headon-stageboss-render.js?v=tame3&rail=37';
 
 import {fixture,step} from './stageboss-fixture94.mjs';
 const tuning={maxHp:3000,partHp:360,damage:20,bulletSpeed:240,regionalViewWidth:800,regionalViewHeight:600,patternMultiplier:1};
@@ -40,7 +40,7 @@ test('destroying a sponson cancels its windup and no dead mount fires',()=>{
  for(const other of e.bodies.values())for(const id of ['sponson-left','sponson-right'])other.hit({partId:id,damage:99999});events.length=0;tick(e,12);assert.equal(events.filter(e=>e.type==='hazard').length,0);
 });
 test('rotated swept hitboxes, live mount coordinates and muzzle renderer data agree',()=>{
- const {b}=encounter('mark4-wedge');const p=b.parts.get('track-left'),q=sommePoint(b,p.hitLocalX,p.localY+55);assert.equal(b.locateHit({x:q.x,y:q.y,radius:0}).partId,p.id);assert.equal(b.locateHit({previousX:q.x-90,previousY:q.y,x:q.x+90,y:q.y,radius:1}).partId,p.id);
+ const {b}=encounter('mark4-wedge');const p=b.parts.get('track-left'),q=sommePoint(b,p.hitLocalX,p.localY);assert.equal(b.locateHit({x:q.x,y:q.y,radius:0}).partId,p.id);assert.equal(b.locateHit({previousX:q.x-90,previousY:q.y,x:q.x+90,y:q.y,radius:1}).partId,p.id);
  const gun=b.parts.get('sponson-left'),m=sommeMuzzle(b,gun);assert.equal(m.x,b.x+gun.x+Math.cos(gun.angle)*gun.muzzleLength);assert.equal(m.y,b.y+gun.y+Math.sin(gun.angle)*gun.muzzleLength);
 });
 test('pause freezes Somme windup/motion; complete encounter clears its owned hazards',()=>{

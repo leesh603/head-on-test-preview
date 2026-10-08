@@ -1,4 +1,4 @@
-import {broadsideBreak,shellMarch} from './boss-raid-strikes.js?v=tame3&rail=19';
+import {broadsideBreak,shellMarch} from './boss-raid-strikes.js?v=tame3&rail=37';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=tame3';
 
