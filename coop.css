@@ -14,11 +14,10 @@ body.local-coop #bossArrival{bottom:65px}
 #allyRing[hidden]{display:none}
 #allyRing svg{position:absolute;inset:0}
 #allyRing .ally-ring-track{fill:none;stroke:#ffffff1c;stroke-width:3}
-#allyRing .ally-ring-arc{fill:none;stroke:#9fd17e;stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .25s ease,stroke .25s}
-#allyRing[data-state="mid"] .ally-ring-arc{stroke:#e6bf3e}
-#allyRing[data-state="low"] .ally-ring-arc{stroke:#e0603f}
+/* Same red as the HP module's heart; the ring empties as the teammate loses HP. */
+#allyRing .ally-ring-arc{fill:none;stroke:#e0503a;stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .25s ease}
 #allyRing b{position:relative;font:800 10px/1 var(--astra-numeric,system-ui,sans-serif);color:#efebe2;letter-spacing:0}
-#allyRing[data-state="down"] b{color:#e0603f;animation:allyDown 1s steps(2) infinite}
+#allyRing[data-state="down"] b{color:#e0503a;animation:allyDown 1s steps(2) infinite}
 @keyframes allyDown{50%{opacity:.25}}
 body:not(.local-coop):not(.online-playing) #allyRing{display:none}
 body.local-coop #coopP2{display:none!important}
