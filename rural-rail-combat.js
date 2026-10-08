@@ -2,7 +2,7 @@ import {RailAdapter} from './boss-adapters129.js?v=tame3';
 import {BaseBoss} from './headon-stageboss-core.js?v=tame3';
 import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=tame3';
 import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=tame3';
-import {brunoSalvo} from './bruno-raid.js?v=tame3&rail=12';
+import {brunoSalvo,brunoRhythmSalvo,brunoFragments} from './bruno-raid.js?v=tame3&rail=12';
 import {lincomparableRound} from './lincomparable-raid.js?v=tame3';
 
 // Rural-only mechanics. The Cambrai carrier keeps its separate controller.
@@ -13,7 +13,7 @@ export class RuralRailBoss extends RailAdapter {
   this.ruralRailBoss=true;this.baseReload=this.rail129.c.reloadSeconds;
   this.aimPlan=null;this.barrage=null;this.gunFlash=0;this.recovery=0;this.aaClock=1.6;this.aaPlan=null;
   this.railGun=createRailArtillery();
-  if(kind==='paris-gun'){this.raidPhase=1;this.entry={age:0,initialized:false};this.observerMotion={vx:0,vy:-1};}
+  if(kind==='paris-gun'){this.raidPhase=1;this.entry={age:0,initialized:false};this.observerMotion={vx:0,vy:-1};this.rail129.c.aimSeconds=1.6;this.brunoBeat=0;this.brunoAttackUntil=0;}
   if(kind==='lincomparable'){
    this.raidPhase=1;this.entry={age:0,initialized:false};this.reloadStress=0;this.finalAim=null;this.observerMotion={vx:0,vy:0};
    this.baseReload=Math.max(3.2,this.baseReload);this.rail129.c.reloadSeconds=this.baseReload;
@@ -32,11 +32,12 @@ export class RuralRailBoss extends RailAdapter {
    this.rail129.target={...target};
    this.aimPlan={target,blind,mode:this.rail129.shot%2?'cross':'march',points:[{x:target.x,y:target.y}]};
    if(this.kind==='paris-gun'){
-    // Phase I ranges at the sampled position; Phase II leads movement only
-    // while the observer survives. Destroyed observers keep their old sector.
-    if(!blind){const lead=this.raidPhase===1?-.65:.35;target.x+=(target.vx||0)*lead;target.y+=(target.vy||0)*lead;}
-    this.aimPlan=brunoSalvo(target,this.raidPhase,this.rail129.shot,blind?null:this.frameBounds,{blind});
-    this.rail129.target={...target};
+    // Undo the controller's .65s sample; the plan predicts each impact itself.
+    if(!blind){target.x-=(target.vx||0)*.65;target.y-=(target.vy||0)*.65;}
+    this.aimPlan=brunoRhythmSalvo(target,this.raidPhase,this.rail129.shot,blind?null:this.frameBounds,{blind});
+    this.rail129.target={...target};this.brunoBeat=1;
+    const rear=this.parts.get('car-rear'),x=this.x,y=this.y+rear.y-145;
+    this.aaPlan=rear.destroyed?null:{angle:Math.atan2(target.y-y,target.x-x),remaining:0};
    }
    if(this.kind==='lincomparable')this.aimPlan=lincomparableRound(target,this.raidPhase,this,{blind});
    aimRailArtillery(this,target);
@@ -49,7 +50,6 @@ export class RuralRailBoss extends RailAdapter {
     this.fire520(plan);this.recovery=this.rail129.c.recoilSeconds+this.rail129.c.reloadSeconds;
    }else{
     this.fireBarrage(plan);
-    if(this.raidPhase===2&&!this.parts.get('car-rear').destroyed){this.aaPlan=null;this.aaClock=(plan.points.length-1)*plan.interval+.3;}
    }
    return;
   }
@@ -67,6 +67,7 @@ export class RuralRailBoss extends RailAdapter {
    const rail=this.rail129;rail.from.y-=1600;rail.length+=1600;rail.s+=1600;rail.direction=-1;
    this.aimPlan=null;this.aaPlan=null;this.barrage=null;
    if(this.kind==='paris-gun'){
+    this.brunoBeat=0;this.brunoAttackUntil=0;
     this.emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':bruno-salvo'});
     const p=this.lastRaidPlayers?.[rail.shot%this.lastRaidPlayers.length]||this.blindOrigin;
     const blind=this.parts.get('car-middle').destroyed,motion=blind?this.observerMotion:p;
@@ -92,6 +93,18 @@ export class RuralRailBoss extends RailAdapter {
  // The whole wave is laid out at once so the march reads as a domino: every
  // marker shows immediately and the shells land on the gun's firing beat.
  fireBarrage(plan){
+  if(plan.rhythm){
+   this.barrage={...plan,index:0,clock:0,startedAt:this.ruralClock,firedRows:0};
+   this.brunoBeat=3;if(this.aaPlan)this.aaPlan.remaining=0;
+   this.brunoAttackUntil=this.ruralClock+plan.end+.05;
+   this.baseReload=Math.max(this.baseReload,plan.end+.05+3.2-this.rail129.c.recoilSeconds);this.refreshReload();
+   for(const p of plan.points){
+    this.emit({type:'hazard',bossId:this.id,kind:'circle',x:p.x,y:p.y,warning:plan.warning+p.at,delay:0,
+     duration:plan.duration,once:true,radius:p.radius,damage:this.t.damage,visual:'rail-shell',tag:this.id+':bruno-salvo'});
+    if(p.heavy)for(const fragment of brunoFragments(plan,p))this.emit({type:'hazard',bossId:this.id,...fragment,delay:plan.warning+p.at,damage:this.t.damage*.32,tag:this.id+':bruno-salvo'});
+   }
+   this.emit({type:'rail-aim',bossId:this.id,beat:3});return;
+  }
   const interval=plan.interval||this.t.barrageInterval||.32;
   fireRailArtillery(this);
   plan.points.forEach((p,i)=>this.emit({type:'hazard',bossId:this.id,kind:'circle',...p,warning:(plan.warning??.85)+i*interval,delay:0,duration:plan.duration??.35,once:true,radius:plan.radius??88,damage:this.t.damage,visual:'rail-shell',tag:plan.final?this.id+':iron-rain':this.kind==='paris-gun'?this.id+':bruno-salvo':null}));
@@ -164,8 +177,9 @@ export class RuralRailBoss extends RailAdapter {
   }
   this.syncRailPart();
   // Armor is open throughout the real recoil/reload state, including slow reload.
-  this.recovery=this.kind==='lincomparable'&&['recoil','reload'].includes(rail.phase)?Math.max(.01,(rail.phase==='recoil'?rail.c.recoilSeconds-rail.time+rail.c.reloadSeconds:rail.c.reloadSeconds-rail.time)):0;
-  if(this.barrage){const q=this.barrage,interval=q.interval||this.t.barrageInterval||.32;q.clock+=dt;
+  this.recovery=(this.kind==='lincomparable'||(this.kind==='paris-gun'&&this.brunoAttackUntil>0&&this.ruralClock>=this.brunoAttackUntil))&&['recoil','reload'].includes(rail.phase)?Math.max(.01,(rail.phase==='recoil'?rail.c.recoilSeconds-rail.time+rail.c.reloadSeconds:rail.c.reloadSeconds-rail.time)):0;
+  if(this.kind==='paris-gun')this.updateBrunoRhythm();
+  if(this.barrage&&!this.barrage.rhythm){const q=this.barrage,interval=q.interval||this.t.barrageInterval||.32;q.clock+=dt;
    // Muzzle flash keeps the firing beat; the markers themselves were pre-placed.
    while(q.index<q.points.length&&q.clock>=q.index*interval){q.index++;fireRailArtillery(this);}
    if(q.clock>=q.total){this.barrage=null;if(this.kind==='paris-gun'&&this.raidPhase===2&&!q.final&&!this.parts.get('car-rear').destroyed)this.aaClock=.3;}}
@@ -181,6 +195,20 @@ export class RuralRailBoss extends RailAdapter {
   }
   this.updateDefense(dt,ctx.players||[]);
   if(!this.runawayTriggered129)this.phase=this.coreVulnerable?'locomotive':rail.phase;
+ }
+ updateBrunoRhythm(){
+  const plan=this.aimPlan,rail=this.rail129;
+  if(plan?.rhythm&&rail.phase==='aim'&&!plan.secondCue&&rail.time>=plan.beat){
+   plan.secondCue=true;this.brunoBeat=2;this.emit({type:'rail-aim',bossId:this.id,beat:2});
+  }
+  const q=this.barrage;if(!q?.rhythm)return;
+  const elapsed=this.ruralClock-q.startedAt;
+  if(elapsed>=q.beat)this.brunoBeat=4;
+  while(q.index<q.points.length&&q.points[q.index].at<=elapsed+1e-9){
+   const p=q.points[q.index++];
+   if(!(q.firedRows&(1<<p.row))){q.firedRows|=1<<p.row;fireRailArtillery(this);}
+  }
+  if(q.index===q.points.length&&this.ruralClock>=this.brunoAttackUntil)this.barrage=null;
  }
  update520Entry(dt,ctx){
   const e=this.entry,r=this.rail129;if(!e)return false;
@@ -240,12 +268,15 @@ export class RuralRailBoss extends RailAdapter {
  }
  updateDefense(dt,players){
   const rear=this.parts.get('car-rear');rear.gunFlash=Math.max(0,(rear.gunFlash||0)-dt);if(rear.destroyed||this.runawayTriggered129)return;
+  if(this.kind==='paris-gun'&&this.brunoBeat!==3)return;
   if(this.aaPlan){this.aaPlan.remaining-=dt;if(this.aaPlan.remaining<=0){
    const a=this.aaPlan.angle,x=this.x,y=this.y+rear.y-145,speed=(this.t.bulletSpeed||260)*.85;
    rear.gunFlash=.14;rear.shotAngle=a;
-   for(const da of [-.14,0,.14])this.emit({type:'hazard',bossId:this.id,kind:'projectile',x,y,vx:Math.cos(a+da)*speed,vy:Math.sin(a+da)*speed,radius:5,warning:0,delay:0,duration:3.2,damage:this.t.damage*.32,visual:'rail-mg'});
+   for(const da of [-.14,0,.14])this.emit({type:'hazard',bossId:this.id,kind:'projectile',x,y,vx:Math.cos(a+da)*speed,vy:Math.sin(a+da)*speed,radius:5,warning:0,delay:0,duration:3.2,damage:this.t.damage*.32,visual:'rail-mg',tag:this.kind==='paris-gun'?this.id+':bruno-salvo':null});
    this.aaPlan=null;this.aaClock=2.8/(this.t.patternMultiplier||1);
   }return;}
+  // Bruno's rear gun fires on beat three only; no hidden shots during recovery.
+  if(this.kind==='paris-gun')return;
   this.aaClock-=dt;if(this.aaClock>0)return;
   const p=players.filter(p=>p.alive!==false).sort((a,b)=>Math.hypot(a.x-this.x,a.y-this.y-rear.y)-Math.hypot(b.x-this.x,b.y-this.y-rear.y))[0];
   if(!p||Math.hypot(p.x-this.x,p.y-this.y-rear.y)>850)return;
@@ -265,5 +296,5 @@ export class RuralRailBoss extends RailAdapter {
   return super.hit({...s,damage});
  }
  locateHit(s){return this.dead?null:super.locateHit(s);}
- dispose(){this.entry=null;this.finalAim=null;this.aimPlan=null;this.aaPlan=null;this.barrage=null;super.dispose();}
+ dispose(){this.brunoBeat=0;this.brunoAttackUntil=0;this.entry=null;this.finalAim=null;this.aimPlan=null;this.aaPlan=null;this.barrage=null;super.dispose();}
 }

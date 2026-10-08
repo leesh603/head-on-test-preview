@@ -9,9 +9,9 @@ const make=Type=>{const events=[];const b=new Type({id:'b',x:0,y:-400,faction:Ty
 function aim(b){b.rail129.velocity=0;b.rail129.enter('aim');b.rail129.target=null;b.update(.02,frame);}
 function run(b,time,dt=.02){for(let t=0;t<time-1e-8;t+=dt)b.update(Math.min(dt,time-t),frame);}
 for(const Type of [ParisGun,LIncomparable]){
- test(`${Type.name} actual shells each drive a separate recoil and muzzle sound`,()=>{
-  const {b,events}=make(Type);aim(b);run(b,3);const shells=events.filter(e=>e.visual==='rail-shell'),fired=events.filter(e=>e.type==='heavy-gun-fired');
-  assert.equal(fired.length,Type===ParisGun?5:1);assert.equal(fired.length,shells.length);assert.equal(b.railGun.shotCount,fired.length);
+ test(`${Type.name} each firing row drives one recoil and muzzle sound`,()=>{
+  const {b,events}=make(Type);aim(b);const count=b.aimPlan.points.length;run(b,4.5);const shells=events.filter(e=>e.visual==='rail-shell'),fired=events.filter(e=>e.type==='heavy-gun-fired');
+  assert.equal(fired.length,Type===ParisGun?4:1);assert.equal(shells.length,count);assert.equal(b.railGun.shotCount,fired.length);
   assert(fired.every(e=>e.railArtillery&&bossSoundFor(e,b.kind)===(Type===ParisGun?'railGunFire':'railGunFire520')));
  });
  test(`${Type.name} recoil returns to zero, traverses within its mount and respects pause`,()=>{
@@ -28,7 +28,7 @@ for(const Type of [ParisGun,LIncomparable]){
  });
 }
 test('snapshot carries gun rig through the real renderer and ammo loss changes the loading animation',()=>{
- const {b,events}=make(ParisGun);for(const id of b.railCarOrder)b.hit({partId:id,damage:9999});aim(b);run(b,3.35);
+ const {b,events}=make(ParisGun);for(const id of b.railCarOrder)b.hit({partId:id,damage:9999});aim(b);run(b,6);
  assert(b.railGun.manual);assert.equal(b.rail129.c.reloadSeconds,b.baseReload*1.6);assert(b.railGun.load>0&&b.railGun.load<1);
  const models=[];renderStageBossLayer({stages:{encounter:{bodies:new Map([[b.id,b]])}},hazards:{pool:{visit(){}}}},{drawBody:x=>models.push(x),drawPart(){},drawHazard(){}});
  assert.equal(models[0].railGun,b.railGun);assert.equal(models[0].railCars.filter(p=>p.destroyed).length,3);assert.equal(events.filter(e=>e.type==='rural-rail-load').length,1);

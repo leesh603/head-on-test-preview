@@ -42,9 +42,9 @@ export function drawRuralRail(c,b,images,wrecks){
   if(age<.75){const q=age/.75;fx(c,'gunSmoke',x-12,y-22-q*42,58+q*52,65+q*80,a,(1-q)*.36);}
   if(age<.45){const q=age/.45;for(const side of [-1,1])fx(c,'dustPuff',side*60,100,48+q*42,28+q*24,0,(1-q)*.25);}
  }
- if(b.assetKey==='lincomparable'&&b.coreVulnerable&&b.recovery>0&&!b.destroying){
+ if(((b.assetKey==='lincomparable'&&b.coreVulnerable)||b.assetKey==='paris-gun')&&b.recovery>0&&!b.destroying){
   c.strokeStyle='#bce5c9';c.lineWidth=2;for(const x of [-62,62]){c.beginPath();c.moveTo(x,-6);c.lineTo(x,65);c.lineTo(x-Math.sign(x)*14,65);c.stroke();}
-  c.fillStyle='#bce5c9';c.font='bold 12px sans-serif';c.textAlign='center';c.fillText(getLocale()==='en'?'RELOAD':'재장전',0,92);
+  c.fillStyle='#bce5c9';c.font='bold 12px sans-serif';c.textAlign='center';c.fillText(getLocale()==='en'?(b.assetKey==='paris-gun'?'RELOAD · ATTACK':'RELOAD'):(b.assetKey==='paris-gun'?'재장전 · 반격':'재장전'),0,92);
  }
  c.restore();c.restore();
 }
@@ -55,9 +55,19 @@ export function drawRuralRailWarnings(c,b){
  if(pending){const plan=pending,heavy=b.kind==='lincomparable';
   c.strokeStyle=plan.blind?'#b7c1a899':'#f0c589bb';c.setLineDash([7,7]);
   for(const [i,p]of plan.points.entries()){
-   if(i<(plan.index||0))continue;
-   circle(c,p.x,p.y,plan.radius||88);c.stroke();
-   if(!heavy){c.setLineDash([]);c.fillStyle='#f0cf91';c.font='bold 14px sans-serif';c.textAlign='center';c.fillText(String(i+1),p.x,p.y+5);c.setLineDash([7,7]);}
+   if(i<(plan.index||0)||(plan.rhythm&&plan.startedAt!==undefined))continue;
+   circle(c,p.x,p.y,p.radius||plan.radius||88);c.stroke();
+   if(!heavy&&(!plan.rhythm||i===0||p.row!==plan.points[i-1].row)){c.setLineDash([]);c.fillStyle='#f0cf91';c.font='bold 14px sans-serif';c.textAlign='center';c.fillText(String(plan.rhythm?p.row+1:i+1),p.x,p.y+5);c.setLineDash([7,7]);}
+  }
+  if(plan.rhythm){
+   c.setLineDash([]);c.fillStyle='#f0cf91';c.font='bold 13px sans-serif';c.textAlign='center';
+   const beat=b.brunoBeat||1,en=getLocale()==='en';
+   c.fillText(en?(['','1 · PREPARE','2 · LOCK','3 · VOLLEY','4 · BARRAGE'][beat]):(['','1 · 준비','2 · 조준','3 · 탄막','4 · 연속 포격'][beat]),b.x,b.y+218);
+   // Mark the real open columns, not a decorative lane over damaging shells.
+   for(const gap of plan.gaps){
+    if(plan.startedAt!==undefined&&b.ruralClock-plan.startedAt>gap.at+plan.duration)continue;
+    c.fillStyle='#c7d7b4';c.fillText(en?'GAP':'통로',gap.x,gap.y+4);
+   }
   }
   if(heavy){
    const p=plan.target;circle(c,p.x,p.y,plan.wave);c.stroke();c.setLineDash([]);
