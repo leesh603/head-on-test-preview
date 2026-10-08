@@ -17,7 +17,7 @@ import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=tame3';
 import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=tame3';
 import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=tame3';
 import {apronPose} from './london-apron369.js?v=tame3';
-import {GIK,Ca4} from './alps-bomber-combat.js?v=tame3';
+import {GIK,Ca4} from './alps-bomber-combat.js?v=tame3&rail=19';
 import {FlakTowerNet} from './city-flak-combat.js?v=tame3&rail=18';
 
 export {GIK,Ca4};
