@@ -1,0 +1,4209 @@
+{
+  "startMain": "516961db708aa81d04fd804c69cee7c800d352dd",
+  "baseMain": "5b2154584fc3634832d3aa7a3fea2b80636865fa",
+  "branch": "feat/cambrai-raid-refinement",
+  "assetsChanged": 0,
+  "publicMainModified": false,
+  "baselineComparisonMain": "7e25e3d",
+  "baseline": {
+    "baseline": true,
+    "results": [
+      {
+        "label": "fliegerzug-pc-solo",
+        "phase1": {
+          "t": 6.01999999999996,
+          "state": "paused",
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 138.06737652078937,
+          "hp": 2100,
+          "phase": "aim",
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "offset": 1.7763568394002505e-14
+            }
+          ],
+          "hazards": 7,
+          "cleared": false
+        },
+        "phase2": {
+          "t": 11.019999999999854,
+          "state": "paused",
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 138.06737652078937,
+          "hp": 1386,
+          "phase": "reload",
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "offset": 1.0658141036401503e-14
+            }
+          ],
+          "hazards": 6,
+          "cleared": false
+        },
+        "final": {
+          "t": 13.419999999999803,
+          "state": "paused",
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 187.7445529913757,
+          "hp": 798,
+          "phase": "move",
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [
+            {
+              "x": 25.330107291645422,
+              "y": 962.1105067783114,
+              "port": "car-launch-b",
+              "targetX": 100.00000000000003,
+              "targetY": 639.4141285207903
+            }
+          ],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "offset": 1.0658141036401503e-14
+            },
+            {
+              "at": 13.159999999999808,
+              "port": "car-launch-b",
+              "dead": false,
+              "offset": 4.263256414560601e-14
+            }
+          ],
+          "hazards": 5,
+          "cleared": false
+        },
+        "afterRaid": {
+          "t": 25.81999999999954,
+          "state": "paused",
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": -267.58712951236066,
+          "hp": 798,
+          "phase": "move",
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [
+            {
+              "x": 44.90981127449961,
+              "y": 487.5853350780391,
+              "port": "car-launch-b",
+              "targetX": 100.00000000000003,
+              "targetY": 265.21199895822565
+            }
+          ],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "offset": 1.0658141036401503e-14
+            },
+            {
+              "at": 13.159999999999808,
+              "port": "car-launch-b",
+              "dead": false,
+              "offset": 4.263256414560601e-14
+            },
+            {
+              "at": 16.159999999999744,
+              "port": "car-launch-a",
+              "dead": false,
+              "offset": 1.4210854715202004e-14
+            },
+            {
+              "at": 19.15999999999968,
+              "port": "car-launch-b",
+              "dead": false,
+              "offset": 2.1316282072803006e-14
+            },
+            {
+              "at": 21.359999999999634,
+              "port": "car-launch-a",
+              "dead": false,
+              "offset": 3.552713678800501e-15
+            },
+            {
+              "at": 25.159999999999553,
+              "port": "car-launch-b",
+              "dead": false,
+              "offset": 4.973799150320701e-14
+            }
+          ],
+          "hazards": 6,
+          "cleared": false
+        },
+        "pacing": {
+          "frames": 180,
+          "median": 16.69999999999709,
+          "p95": 16.70000000001164
+        },
+        "clear": true,
+        "restart": true,
+        "input": true
+      },
+      {
+        "label": "treffas-pc-solo",
+        "phase1": {
+          "t": 6.01999999999996,
+          "state": "paused",
+          "kind": "treffas-wagen",
+          "x": 2.2043642384652358e-14,
+          "y": -243.97213305263136,
+          "hp": 2100,
+          "phase": "advance",
+          "core": false,
+          "wheels": 2,
+          "heading": 0,
+          "velocity": -34.23999999999998,
+          "lock": {
+            "x": 100.00000000000003,
+            "y": -536.8828210526322,
+            "angle": -1.0959728984353465,
+            "points": [
+              {
+                "x": 9.283907002518163,
+                "y": -583.5153255025566
+              },
+              {
+                "x": 100.00000000000003,
+                "y": -536.8828210526322
+              },
+              {
+                "x": 190.7160929974819,
+                "y": -490.25031660270776
+              }
+            ],
+            "mode": "line",
+            "remaining": 0.0999999999999995,
+            "aligned": true
+          },
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -112,
+              "y": -8
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 112,
+              "y": -8
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": 0,
+              "y": -96
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": 0,
+              "y": 124
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 8,
+          "cleared": false
+        },
+        "phase2": {
+          "t": 11.019999999999854,
+          "state": "paused",
+          "kind": "treffas-wagen",
+          "x": 2.2043642384652358e-14,
+          "y": -422.34173305263084,
+          "hp": 1386,
+          "phase": "advance",
+          "core": false,
+          "wheels": 2,
+          "heading": 0,
+          "velocity": -0.48,
+          "lock": {
+            "x": 100.00000000000003,
+            "y": -733.5788210526298,
+            "angle": -1.096236618993834,
+            "points": [
+              {
+                "x": 9.271612207129081,
+                "y": -780.1874001825113
+              },
+              {
+                "x": 100.00000000000003,
+                "y": -733.5788210526298
+              },
+              {
+                "x": 190.728387792871,
+                "y": -686.9702419227483
+              }
+            ],
+            "mode": "line",
+            "remaining": 0.6599999999999998,
+            "aligned": true
+          },
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -112,
+              "y": -8
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 112,
+              "y": -8
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": 0,
+              "y": -96
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": 0,
+              "y": 124
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 5,
+          "cleared": false
+        },
+        "final": {
+          "t": 13.419999999999803,
+          "state": "paused",
+          "kind": "treffas-wagen",
+          "x": 2.2043642384652358e-14,
+          "y": -351.62813305263103,
+          "hp": 798,
+          "phase": "advance",
+          "core": false,
+          "wheels": 2,
+          "heading": 0,
+          "velocity": 44,
+          "lock": null,
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -112,
+              "y": -8
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 112,
+              "y": -8
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": 0,
+              "y": -96
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": 0,
+              "y": 124
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 7,
+          "cleared": false
+        },
+        "afterRaid": {
+          "t": 25.81999999999954,
+          "state": "paused",
+          "kind": "treffas-wagen",
+          "x": 2.2043642384652358e-14,
+          "y": -355.14813305263124,
+          "hp": 798,
+          "phase": "advance",
+          "core": false,
+          "wheels": 2,
+          "heading": 0,
+          "velocity": 44,
+          "lock": null,
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -112,
+              "y": -8
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 112,
+              "y": -8
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": 0,
+              "y": -96
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": 0,
+              "y": 124
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 12,
+          "cleared": false
+        },
+        "pacing": {
+          "frames": 180,
+          "median": 16.69999999999709,
+          "p95": 16.799999999995634
+        },
+        "clear": true,
+        "restart": true,
+        "input": true
+      }
+    ],
+    "errors": [],
+    "resources": [
+      {
+        "label": "fliegerzug-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/api/campaign"
+      },
+      {
+        "label": "fliegerzug-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/goering_fokkerd7.webp?v=lc4&b=349"
+      },
+      {
+        "label": "fliegerzug-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/loewenhardt_fokkerd7.webp?v=lc4&b=349"
+      },
+      {
+        "label": "fliegerzug-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/mccudden_se5a.webp?v=lc4&b=349"
+      },
+      {
+        "label": "treffas-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/api/campaign"
+      },
+      {
+        "label": "treffas-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/goering_fokkerd7.webp?v=lc4&b=349"
+      },
+      {
+        "label": "treffas-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/loewenhardt_fokkerd7.webp?v=lc4&b=349"
+      },
+      {
+        "label": "treffas-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/mccudden_se5a.webp?v=lc4&b=349"
+      }
+    ],
+    "limitations": [
+      "Test Lab stages native gameplay, not an unassisted full clear.",
+      "Mobile touch emulation, not a physical device.",
+      "Modified branch is local; public main was inspected separately.",
+      "Sound event routing checked; no audible listening verification."
+    ]
+  },
+  "release": {
+    "baseline": false,
+    "results": [
+      {
+        "label": "fliegerzug-pc-solo",
+        "phase1": {
+          "t": 6.01999999999996,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 138.06737652078937,
+          "hp": 2100,
+          "phase": "aim",
+          "combatPhase": 1,
+          "finalRaid": false,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            }
+          ],
+          "hazards": 7,
+          "cleared": false
+        },
+        "phase2": {
+          "t": 11.019999999999854,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 138.06737652078937,
+          "hp": 1386,
+          "phase": "reload",
+          "combatPhase": 2,
+          "finalRaid": false,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            }
+          ],
+          "hazards": 6,
+          "cleared": false
+        },
+        "final": {
+          "t": 13.419999999999803,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 191.21116542671916,
+          "hp": 798,
+          "phase": "move",
+          "combatPhase": 3,
+          "finalRaid": true,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            }
+          ],
+          "hazards": 5,
+          "cleared": false
+        },
+        "afterRaid": {
+          "t": 20.419999999999654,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": -249.28232730001173,
+          "hp": 798,
+          "phase": "recoil",
+          "combatPhase": 3,
+          "finalRaid": false,
+          "recovery": 2.5599999999999996,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [
+            {
+              "x": 73.1570852947366,
+              "y": 487.93304148729703,
+              "port": "car-launch-b",
+              "targetX": 176.00000000000003,
+              "targetY": 252.0644246999873
+            }
+          ],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            },
+            {
+              "at": 13.479999999999801,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 2.7977620220553945e-14
+            },
+            {
+              "at": 15.579999999999757,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 17.679999999999712,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.4210854715202004e-14
+            },
+            {
+              "at": 19.779999999999667,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 2.1316282072803006e-14
+            }
+          ],
+          "hazards": 6,
+          "cleared": false
+        },
+        "pacing": {
+          "frames": 178,
+          "median": 16.69999999999709,
+          "p95": 16.799999999995634
+        },
+        "clear": true,
+        "nextRegion": 6,
+        "restart": true,
+        "input": true
+      },
+      {
+        "label": "fliegerzug-pc-coop",
+        "phase1": {
+          "t": 6.01999999999996,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 138.06737652078937,
+          "hp": 3465,
+          "phase": "aim",
+          "combatPhase": 1,
+          "finalRaid": false,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            }
+          ],
+          "hazards": 6,
+          "cleared": false
+        },
+        "phase2": {
+          "t": 11.019999999999854,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 138.06737652078937,
+          "hp": 2286.9,
+          "phase": "reload",
+          "combatPhase": 2,
+          "finalRaid": false,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            }
+          ],
+          "hazards": 6,
+          "cleared": false
+        },
+        "final": {
+          "t": 13.419999999999803,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 191.21116542671916,
+          "hp": 1316.7,
+          "phase": "move",
+          "combatPhase": 3,
+          "finalRaid": true,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            }
+          ],
+          "hazards": 5,
+          "cleared": false
+        },
+        "afterRaid": {
+          "t": 20.419999999999654,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": -249.28232730001173,
+          "hp": 1316.7,
+          "phase": "recoil",
+          "combatPhase": 3,
+          "finalRaid": false,
+          "recovery": 2.5599999999999996,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [
+            {
+              "x": 87.9020374708638,
+              "y": 495.1658947326574,
+              "port": "car-launch-b",
+              "targetX": 221.00000000000003,
+              "targetY": 252.06442470171638
+            }
+          ],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            },
+            {
+              "at": 13.479999999999801,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 2.353672812205332e-14
+            },
+            {
+              "at": 15.579999999999757,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            },
+            {
+              "at": 17.679999999999712,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.4210854715202004e-14
+            },
+            {
+              "at": 19.779999999999667,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 3.552713678800501e-14
+            }
+          ],
+          "hazards": 6,
+          "cleared": false
+        },
+        "pacing": {
+          "frames": 180,
+          "median": 16.700000000000728,
+          "p95": 16.799999999999272
+        },
+        "clear": true,
+        "nextRegion": 11,
+        "restart": true,
+        "input": true
+      },
+      {
+        "label": "fliegerzug-mobile-solo",
+        "phase1": {
+          "t": 6.01999999999996,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 138.06737652078937,
+          "hp": 2100,
+          "phase": "aim",
+          "combatPhase": 1,
+          "finalRaid": false,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            }
+          ],
+          "hazards": 6,
+          "cleared": false
+        },
+        "phase2": {
+          "t": 11.019999999999854,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 138.06737652078937,
+          "hp": 1386,
+          "phase": "reload",
+          "combatPhase": 2,
+          "finalRaid": false,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            }
+          ],
+          "hazards": 6,
+          "cleared": false
+        },
+        "final": {
+          "t": 13.419999999999803,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 191.21116542671916,
+          "hp": 798,
+          "phase": "move",
+          "combatPhase": 3,
+          "finalRaid": true,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            }
+          ],
+          "hazards": 5,
+          "cleared": false
+        },
+        "afterRaid": {
+          "t": 20.419999999999654,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": -249.28232730001173,
+          "hp": 798,
+          "phase": "recoil",
+          "combatPhase": 3,
+          "finalRaid": false,
+          "recovery": 2.5599999999999996,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [
+            {
+              "x": 46.490345316553515,
+              "y": 478.68013602387146,
+              "port": "car-launch-b",
+              "targetX": 106.00000000000003,
+              "targetY": 252.0644246999873
+            }
+          ],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            },
+            {
+              "at": 13.479999999999801,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 2.9753977059954195e-14
+            },
+            {
+              "at": 15.579999999999757,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 17.679999999999712,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.4210854715202004e-14
+            },
+            {
+              "at": 19.779999999999667,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            }
+          ],
+          "hazards": 6,
+          "cleared": false
+        },
+        "pacing": {
+          "frames": 179,
+          "median": 16.69999999999709,
+          "p95": 16.700000000000728
+        },
+        "clear": true,
+        "nextRegion": 6,
+        "restart": true,
+        "input": true
+      },
+      {
+        "label": "fliegerzug-mobile-coop",
+        "phase1": {
+          "t": 6.01999999999996,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 138.06737652078937,
+          "hp": 3465,
+          "phase": "aim",
+          "combatPhase": 1,
+          "finalRaid": false,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            }
+          ],
+          "hazards": 6,
+          "cleared": false
+        },
+        "phase2": {
+          "t": 11.019999999999854,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 138.06737652078937,
+          "hp": 2286.9,
+          "phase": "reload",
+          "combatPhase": 2,
+          "finalRaid": false,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 3.552713678800501e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            }
+          ],
+          "hazards": 6,
+          "cleared": false
+        },
+        "final": {
+          "t": 13.419999999999803,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 191.21116542671916,
+          "hp": 1316.7,
+          "phase": "move",
+          "combatPhase": 3,
+          "finalRaid": true,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 3.552713678800501e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            }
+          ],
+          "hazards": 5,
+          "cleared": false
+        },
+        "afterRaid": {
+          "t": 20.419999999999654,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": -249.28232730001173,
+          "hp": 1316.7,
+          "phase": "recoil",
+          "combatPhase": 3,
+          "finalRaid": false,
+          "recovery": 2.5599999999999996,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [
+            {
+              "x": 52.55791663924616,
+              "y": 480.3856818981326,
+              "port": "car-launch-b",
+              "targetX": 121.00000000000003,
+              "targetY": 252.06447935436987
+            }
+          ],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 3.552713678800501e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            },
+            {
+              "at": 13.479999999999801,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 2.2648549702353193e-14
+            },
+            {
+              "at": 15.579999999999757,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.263256414560601e-14
+            },
+            {
+              "at": 17.679999999999712,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.4210854715202004e-14
+            },
+            {
+              "at": 19.779999999999667,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            }
+          ],
+          "hazards": 6,
+          "cleared": false
+        },
+        "pacing": {
+          "frames": 180,
+          "median": 16.69999999999709,
+          "p95": 16.700000000004366
+        },
+        "clear": true,
+        "nextRegion": 11,
+        "restart": true,
+        "input": true
+      },
+      {
+        "label": "treffas-pc-solo",
+        "phase1": {
+          "t": 6.01999999999996,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "treffas-wagen",
+          "x": 2.2043642384652358e-14,
+          "y": -341.91775380197066,
+          "hp": 2100,
+          "phase": "advance",
+          "combatPhase": 1,
+          "recovery": 0,
+          "core": false,
+          "wheels": 2,
+          "heading": 0,
+          "velocity": 44,
+          "finalDrive": null,
+          "lock": null,
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -112,
+              "y": -8
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 112,
+              "y": -8
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": 0,
+              "y": -96
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": 0,
+              "y": 124
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 8,
+          "cleared": false
+        },
+        "phase2": {
+          "t": 11.019999999999854,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "treffas-wagen",
+          "x": -15.098889844232822,
+          "y": -247.43449430703294,
+          "hp": 1386,
+          "phase": "treffas-turning-fire",
+          "combatPhase": 2,
+          "recovery": 0,
+          "core": false,
+          "wheels": 2,
+          "heading": -0.14296590128485698,
+          "velocity": -37.03999999999999,
+          "finalDrive": null,
+          "lock": {
+            "x": 86.61981144316958,
+            "y": -543.7036891447557,
+            "angle": -1.0633659991320115,
+            "points": [
+              {
+                "x": -2.527788754924771,
+                "y": -593.2688521014204
+              },
+              {
+                "x": 86.61981144316958,
+                "y": -543.7036891447557
+              },
+              {
+                "x": 175.76741164126395,
+                "y": -494.13852618809096
+              }
+            ],
+            "mode": "line",
+            "index": 0,
+            "remaining": 0.7799999999999999,
+            "aligned": true
+          },
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -111.99718532819944,
+              "y": 8.039308338467379
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 109.71751525645584,
+              "y": -23.87607266594273
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": -13.67802043046147,
+              "y": -95.02058596485227
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": 17.66744305601273,
+              "y": 122.73492353793418
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 8,
+          "cleared": false
+        },
+        "final": {
+          "t": 13.419999999999803,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "treffas-wagen",
+          "x": -17.200383377440048,
+          "y": -281.105991425158,
+          "hp": 798,
+          "phase": "treffas-breakthrough",
+          "combatPhase": 3,
+          "recovery": 0,
+          "core": false,
+          "wheels": 2,
+          "heading": 0.017011241572285923,
+          "velocity": -22.959999999999994,
+          "finalDrive": {
+            "age": 2.4000000000000017,
+            "angle": 0.30703409871514303,
+            "lastVolley": false
+          },
+          "lock": null,
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -111.84771161075965,
+              "y": -9.904009664592763
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 112.1198783487651,
+              "y": -6.0936753325161135
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": 1.6330004280328527,
+              "y": -95.98610998265349
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": -2.1092922195424357,
+              "y": 123.98205872759405
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 6,
+          "cleared": false
+        },
+        "afterRaid": {
+          "t": 20.419999999999654,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "treffas-wagen",
+          "x": 52.03675538442404,
+          "y": -513.0753190031577,
+          "hp": 798,
+          "phase": "treffas-final-volley",
+          "combatPhase": 3,
+          "recovery": 0,
+          "core": false,
+          "wheels": 2,
+          "heading": 0.519651241572286,
+          "velocity": 0,
+          "finalDrive": {
+            "age": 9.399999999999888,
+            "angle": 0.30703409871514303,
+            "lastVolley": true
+          },
+          "lock": {
+            "x": 151.26229803883595,
+            "y": -823.9756963754703,
+            "angle": -1.3779281337226332,
+            "points": [
+              {
+                "x": 51.15352972873346,
+                "y": -843.5265149627883
+              },
+              {
+                "x": 151.26229803883595,
+                "y": -823.9756963754703
+              },
+              {
+                "x": 251.37106634893843,
+                "y": -804.4248777881523
+              }
+            ],
+            "mode": "line",
+            "index": 2,
+            "remaining": 0.26,
+            "aligned": false
+          },
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -93.2425312325858,
+              "y": -62.56061356269015
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 101.18777040664752,
+              "y": 48.67273487417356
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": 47.6714350443702,
+              "y": -83.32727213110002
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": -61.57560359897816,
+              "y": 107.63105983600417
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 7,
+          "cleared": false
+        },
+        "pacing": {
+          "frames": 69,
+          "median": 16.69999999999709,
+          "p95": 150
+        },
+        "clear": true,
+        "nextRegion": 6,
+        "restart": true,
+        "input": true
+      },
+      {
+        "label": "treffas-pc-coop",
+        "phase1": {
+          "t": 6.01999999999996,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "treffas-wagen",
+          "x": 2.2043642384652358e-14,
+          "y": -341.91775380197066,
+          "hp": 3465,
+          "phase": "advance",
+          "combatPhase": 1,
+          "recovery": 0,
+          "core": false,
+          "wheels": 2,
+          "heading": 0,
+          "velocity": 44,
+          "finalDrive": null,
+          "lock": null,
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -112,
+              "y": -8
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 112,
+              "y": -8
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": 0,
+              "y": -96
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": 0,
+              "y": 124
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 7,
+          "cleared": false
+        },
+        "phase2": {
+          "t": 11.019999999999854,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "treffas-wagen",
+          "x": -15.098889844232822,
+          "y": -247.43449430703294,
+          "hp": 2286.9,
+          "phase": "treffas-turning-fire",
+          "combatPhase": 2,
+          "recovery": 0,
+          "core": false,
+          "wheels": 2,
+          "heading": -0.14296590128485698,
+          "velocity": -37.03999999999999,
+          "finalDrive": null,
+          "lock": {
+            "x": 131.44448997780682,
+            "y": -561.123395689408,
+            "angle": -0.935831274216872,
+            "points": [
+              {
+                "x": 49.32506252512006,
+                "y": -621.6246323283636
+              },
+              {
+                "x": 131.44448997780682,
+                "y": -561.123395689408
+              },
+              {
+                "x": 213.56391743049358,
+                "y": -500.6221590504523
+              }
+            ],
+            "mode": "line",
+            "index": 0,
+            "remaining": 0.7399999999999999,
+            "aligned": true
+          },
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -111.99718532819944,
+              "y": 8.039308338467379
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 109.71751525645584,
+              "y": -23.87607266594273
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": -13.67802043046147,
+              "y": -95.02058596485227
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": 17.66744305601273,
+              "y": 122.73492353793418
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 7,
+          "cleared": false
+        },
+        "final": {
+          "t": 13.419999999999803,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "treffas-wagen",
+          "x": -17.200383377440048,
+          "y": -281.105991425158,
+          "hp": 1316.7,
+          "phase": "treffas-breakthrough",
+          "combatPhase": 3,
+          "recovery": 0,
+          "core": false,
+          "wheels": 2,
+          "heading": 0.017011241572285923,
+          "velocity": -22.959999999999994,
+          "finalDrive": {
+            "age": 2.4000000000000017,
+            "angle": 0.30703409871514303,
+            "lastVolley": false
+          },
+          "lock": null,
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -111.84771161075965,
+              "y": -9.904009664592763
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 112.1198783487651,
+              "y": -6.0936753325161135
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": 1.6330004280328527,
+              "y": -95.98610998265349
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": -2.1092922195424357,
+              "y": 123.98205872759405
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 6,
+          "cleared": false
+        },
+        "afterRaid": {
+          "t": 20.419999999999654,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "treffas-wagen",
+          "x": 52.03675538442404,
+          "y": -513.0753190031577,
+          "hp": 1316.7,
+          "phase": "treffas-final-volley",
+          "combatPhase": 3,
+          "recovery": 0,
+          "core": false,
+          "wheels": 2,
+          "heading": 0.519651241572286,
+          "velocity": 0,
+          "finalDrive": {
+            "age": 9.399999999999888,
+            "angle": 0.30703409871514303,
+            "lastVolley": true
+          },
+          "lock": {
+            "x": 151.26229803883595,
+            "y": -823.9756963754703,
+            "angle": -1.3779281337226332,
+            "points": [
+              {
+                "x": 51.15352972873346,
+                "y": -843.5265149627883
+              },
+              {
+                "x": 151.26229803883595,
+                "y": -823.9756963754703
+              },
+              {
+                "x": 251.37106634893843,
+                "y": -804.4248777881523
+              }
+            ],
+            "mode": "line",
+            "index": 2,
+            "remaining": 0.26,
+            "aligned": false
+          },
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -93.2425312325858,
+              "y": -62.56061356269015
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 101.18777040664752,
+              "y": 48.67273487417356
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": 47.6714350443702,
+              "y": -83.32727213110002
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": -61.57560359897816,
+              "y": 107.63105983600417
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 7,
+          "cleared": false
+        },
+        "pacing": {
+          "frames": 180,
+          "median": 16.69999999999709,
+          "p95": 16.700000000004366
+        },
+        "clear": true,
+        "nextRegion": 11,
+        "restart": true,
+        "input": true
+      },
+      {
+        "label": "treffas-mobile-solo",
+        "phase1": {
+          "t": 6.01999999999996,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "treffas-wagen",
+          "x": 2.2043642384652358e-14,
+          "y": -341.91775380197066,
+          "hp": 2100,
+          "phase": "advance",
+          "combatPhase": 1,
+          "recovery": 0,
+          "core": false,
+          "wheels": 2,
+          "heading": 0,
+          "velocity": 44,
+          "finalDrive": null,
+          "lock": null,
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -112,
+              "y": -8
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 112,
+              "y": -8
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": 0,
+              "y": -96
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": 0,
+              "y": 124
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 8,
+          "cleared": false
+        },
+        "phase2": {
+          "t": 11.019999999999854,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "treffas-wagen",
+          "x": -15.098889844232822,
+          "y": -247.43449430703294,
+          "hp": 1386,
+          "phase": "treffas-turning-fire",
+          "combatPhase": 2,
+          "recovery": 0,
+          "core": false,
+          "wheels": 2,
+          "heading": -0.14296590128485698,
+          "velocity": -37.03999999999999,
+          "finalDrive": null,
+          "lock": {
+            "x": 15.64001993268378,
+            "y": -554.1141846063564,
+            "angle": -1.3475952876555868,
+            "points": [
+              {
+                "x": -83.82975675780665,
+                "y": -576.6921279392635
+              },
+              {
+                "x": 15.64001993268378,
+                "y": -554.1141846063564
+              },
+              {
+                "x": 115.10979662317422,
+                "y": -531.5362412734493
+              }
+            ],
+            "mode": "line",
+            "index": 0,
+            "remaining": 0.9,
+            "aligned": false
+          },
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -111.99718532819944,
+              "y": 8.039308338467379
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 109.71751525645584,
+              "y": -23.87607266594273
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": -13.67802043046147,
+              "y": -95.02058596485227
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": 17.66744305601273,
+              "y": 122.73492353793418
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 8,
+          "cleared": false
+        },
+        "final": {
+          "t": 13.419999999999803,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "treffas-wagen",
+          "x": -17.200383377440048,
+          "y": -281.105991425158,
+          "hp": 798,
+          "phase": "treffas-breakthrough",
+          "combatPhase": 3,
+          "recovery": 0,
+          "core": false,
+          "wheels": 2,
+          "heading": 0.017011241572285923,
+          "velocity": -22.959999999999994,
+          "finalDrive": {
+            "age": 2.4000000000000017,
+            "angle": 0.14605575914459962,
+            "lastVolley": false
+          },
+          "lock": {
+            "x": 14.901110155767178,
+            "y": -559.6779823070336,
+            "angle": -1.3364994140488364,
+            "points": [
+              {
+                "x": -84.31202645220915,
+                "y": -583.3582171962197
+              },
+              {
+                "x": 14.901110155767178,
+                "y": -559.6779823070336
+              },
+              {
+                "x": 114.11424676374352,
+                "y": -535.9977474178476
+              }
+            ],
+            "mode": "line",
+            "index": 2,
+            "remaining": 0.22000000000000003,
+            "aligned": true
+          },
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -111.84771161075965,
+              "y": -9.904009664592763
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 112.1198783487651,
+              "y": -6.0936753325161135
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": 1.6330004280328527,
+              "y": -95.98610998265349
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": -2.1092922195424357,
+              "y": 123.98205872759405
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 6,
+          "cleared": false
+        },
+        "afterRaid": {
+          "t": 20.419999999999654,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "treffas-wagen",
+          "x": 23.22031772028891,
+          "y": -520.7281270576196,
+          "hp": 798,
+          "phase": "treffas-final-volley",
+          "combatPhase": 3,
+          "recovery": 0,
+          "core": false,
+          "wheels": 2,
+          "heading": 0.3586729020017426,
+          "velocity": 0,
+          "finalDrive": {
+            "age": 9.399999999999888,
+            "angle": 0.14605575914459962,
+            "lastVolley": true
+          },
+          "lock": {
+            "x": 52.67115248594156,
+            "y": -831.5217364821084,
+            "angle": -1.6290792023404066,
+            "points": [
+              {
+                "x": -49.155654976096955,
+                "y": -825.5802482772109
+              },
+              {
+                "x": 52.67115248594156,
+                "y": -831.5217364821084
+              },
+              {
+                "x": 154.49795994798006,
+                "y": -837.4632246870059
+              }
+            ],
+            "mode": "line",
+            "index": 2,
+            "remaining": 0.26,
+            "aligned": false
+          },
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -102.0644570313793,
+              "y": -46.80648043689814
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 107.68096737742187,
+              "y": 31.824664407698037
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": 33.699062076255515,
+              "y": -89.89089617520051
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": -43.527955181830045,
+              "y": 116.10907422630066
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 6,
+          "cleared": false
+        },
+        "pacing": {
+          "frames": 179,
+          "median": 16.69999999999709,
+          "p95": 16.799999999999272
+        },
+        "clear": true,
+        "nextRegion": 6,
+        "restart": true,
+        "input": true
+      },
+      {
+        "label": "treffas-mobile-coop",
+        "phase1": {
+          "t": 6.01999999999996,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "treffas-wagen",
+          "x": 2.2043642384652358e-14,
+          "y": -341.91775380197066,
+          "hp": 3465,
+          "phase": "advance",
+          "combatPhase": 1,
+          "recovery": 0,
+          "core": false,
+          "wheels": 2,
+          "heading": 0,
+          "velocity": 44,
+          "finalDrive": null,
+          "lock": null,
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -112,
+              "y": -8
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 112,
+              "y": -8
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": 0,
+              "y": -96
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": 0,
+              "y": 124
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 8,
+          "cleared": false
+        },
+        "phase2": {
+          "t": 11.019999999999854,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "treffas-wagen",
+          "x": -15.098889844232822,
+          "y": -247.43449430703294,
+          "hp": 2286.9,
+          "phase": "treffas-turning-fire",
+          "combatPhase": 2,
+          "recovery": 0,
+          "core": false,
+          "wheels": 2,
+          "heading": -0.14296590128485698,
+          "velocity": -37.03999999999999,
+          "finalDrive": null,
+          "lock": {
+            "x": 30.92585659729218,
+            "y": -566.6589892202868,
+            "angle": -1.3021111068737308,
+            "points": [
+              {
+                "x": -67.41446055904335,
+                "y": -593.7363233134234
+              },
+              {
+                "x": 30.92585659729218,
+                "y": -566.6589892202868
+              },
+              {
+                "x": 129.2661737536277,
+                "y": -539.5816551271502
+              }
+            ],
+            "mode": "line",
+            "index": 0,
+            "remaining": 0.9,
+            "aligned": false
+          },
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -111.99718532819944,
+              "y": 8.039308338467379
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 109.71751525645584,
+              "y": -23.87607266594273
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": -13.67802043046147,
+              "y": -95.02058596485227
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": 17.66744305601273,
+              "y": 122.73492353793418
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 8,
+          "cleared": false
+        },
+        "final": {
+          "t": 13.419999999999803,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "treffas-wagen",
+          "x": -17.200383377440048,
+          "y": -281.105991425158,
+          "hp": 1316.7,
+          "phase": "treffas-breakthrough",
+          "combatPhase": 3,
+          "recovery": 0,
+          "core": false,
+          "wheels": 2,
+          "heading": 0.017011241572285923,
+          "velocity": -22.959999999999994,
+          "finalDrive": {
+            "age": 2.4000000000000017,
+            "angle": 0.14605575914459962,
+            "lastVolley": false
+          },
+          "lock": {
+            "x": 14.901110155767178,
+            "y": -559.6779823070336,
+            "angle": -1.3364994140488364,
+            "points": [
+              {
+                "x": -84.31202645220915,
+                "y": -583.3582171962197
+              },
+              {
+                "x": 14.901110155767178,
+                "y": -559.6779823070336
+              },
+              {
+                "x": 114.11424676374352,
+                "y": -535.9977474178476
+              }
+            ],
+            "mode": "line",
+            "index": 2,
+            "remaining": 0.14000000000000007,
+            "aligned": true
+          },
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -111.84771161075965,
+              "y": -9.904009664592763
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 112.1198783487651,
+              "y": -6.0936753325161135
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": 1.6330004280328527,
+              "y": -95.98610998265349
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": -2.1092922195424357,
+              "y": 123.98205872759405
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 6,
+          "cleared": false
+        },
+        "afterRaid": {
+          "t": 20.419999999999654,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "treffas-wagen",
+          "x": 23.22031772028891,
+          "y": -520.7281270576196,
+          "hp": 1316.7,
+          "phase": "treffas-final-volley",
+          "combatPhase": 3,
+          "recovery": 0,
+          "core": false,
+          "wheels": 2,
+          "heading": 0.3586729020017426,
+          "velocity": 0,
+          "finalDrive": {
+            "age": 9.399999999999888,
+            "angle": 0.14605575914459962,
+            "lastVolley": true
+          },
+          "lock": {
+            "x": 52.67115248594156,
+            "y": -831.5217364821084,
+            "angle": -1.6290792023404066,
+            "points": [
+              {
+                "x": -49.155654976096955,
+                "y": -825.5802482772109
+              },
+              {
+                "x": 52.67115248594156,
+                "y": -831.5217364821084
+              },
+              {
+                "x": 154.49795994798006,
+                "y": -837.4632246870059
+              }
+            ],
+            "mode": "line",
+            "index": 2,
+            "remaining": 0.26,
+            "aligned": false
+          },
+          "parts": [
+            {
+              "id": "wheel-left",
+              "dead": false,
+              "x": -102.0644570313793,
+              "y": -46.80648043689814
+            },
+            {
+              "id": "wheel-right",
+              "dead": false,
+              "x": 107.68096737742187,
+              "y": 31.824664407698037
+            },
+            {
+              "id": "turret",
+              "dead": false,
+              "x": 33.699062076255515,
+              "y": -89.89089617520051
+            },
+            {
+              "id": "rudder",
+              "dead": false,
+              "x": -43.527955181830045,
+              "y": 116.10907422630066
+            }
+          ],
+          "bugs": [],
+          "trace": [],
+          "hazards": 6,
+          "cleared": false
+        },
+        "pacing": {
+          "frames": 174,
+          "median": 16.700000000000728,
+          "p95": 16.799999999999272
+        },
+        "clear": true,
+        "nextRegion": 11,
+        "restart": true,
+        "input": true
+      }
+    ],
+    "errors": [],
+    "resources": [
+      {
+        "label": "fliegerzug-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/api/campaign"
+      },
+      {
+        "label": "fliegerzug-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/goering_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "fliegerzug-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/loewenhardt_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "fliegerzug-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/mccudden_se5a.webp?v=r5&b=349"
+      },
+      {
+        "label": "fliegerzug-pc-coop",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/api/campaign"
+      },
+      {
+        "label": "fliegerzug-pc-coop",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/goering_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "fliegerzug-pc-coop",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/loewenhardt_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "fliegerzug-pc-coop",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/mccudden_se5a.webp?v=r5&b=349"
+      },
+      {
+        "label": "fliegerzug-mobile-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/api/campaign"
+      },
+      {
+        "label": "fliegerzug-mobile-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/goering_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "fliegerzug-mobile-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/loewenhardt_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "fliegerzug-mobile-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/mccudden_se5a.webp?v=r5&b=349"
+      },
+      {
+        "label": "fliegerzug-mobile-coop",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/api/campaign"
+      },
+      {
+        "label": "fliegerzug-mobile-coop",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/goering_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "fliegerzug-mobile-coop",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/loewenhardt_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "fliegerzug-mobile-coop",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/mccudden_se5a.webp?v=r5&b=349"
+      },
+      {
+        "label": "treffas-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/api/campaign"
+      },
+      {
+        "label": "treffas-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/goering_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "treffas-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/loewenhardt_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "treffas-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/mccudden_se5a.webp?v=r5&b=349"
+      },
+      {
+        "label": "treffas-pc-coop",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/api/campaign"
+      },
+      {
+        "label": "treffas-pc-coop",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/goering_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "treffas-pc-coop",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/loewenhardt_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "treffas-pc-coop",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/mccudden_se5a.webp?v=r5&b=349"
+      },
+      {
+        "label": "treffas-mobile-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/api/campaign"
+      },
+      {
+        "label": "treffas-mobile-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/goering_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "treffas-mobile-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/loewenhardt_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "treffas-mobile-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/mccudden_se5a.webp?v=r5&b=349"
+      },
+      {
+        "label": "treffas-mobile-coop",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/api/campaign"
+      },
+      {
+        "label": "treffas-mobile-coop",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/goering_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "treffas-mobile-coop",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/loewenhardt_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "treffas-mobile-coop",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/mccudden_se5a.webp?v=r5&b=349"
+      }
+    ],
+    "limitations": [
+      "Test Lab stages native gameplay, not an unassisted full clear.",
+      "Mobile touch emulation, not a physical device.",
+      "Modified branch is local; public main was inspected separately.",
+      "Sound event routing checked; no audible listening verification."
+    ]
+  },
+  "finalTrainWarningCheck": {
+    "baseline": false,
+    "results": [
+      {
+        "label": "fliegerzug-pc-solo",
+        "phase1": {
+          "t": 6.01999999999996,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 138.06737652078937,
+          "hp": 2100,
+          "phase": "aim",
+          "combatPhase": 1,
+          "finalRaid": false,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            }
+          ],
+          "hazards": 7,
+          "cleared": false
+        },
+        "phase2": {
+          "t": 11.019999999999854,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 138.06737652078937,
+          "hp": 1386,
+          "phase": "reload",
+          "combatPhase": 2,
+          "finalRaid": false,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            }
+          ],
+          "hazards": 6,
+          "cleared": false
+        },
+        "final": {
+          "t": 13.419999999999803,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 191.21116542671916,
+          "hp": 798,
+          "phase": "move",
+          "combatPhase": 3,
+          "finalRaid": true,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            }
+          ],
+          "hazards": 5,
+          "cleared": false
+        },
+        "afterRaid": {
+          "t": 25.81999999999954,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": -282.3113844728018,
+          "hp": 798,
+          "phase": "move",
+          "combatPhase": 3,
+          "finalRaid": false,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [
+            {
+              "x": 11.746978725404201,
+              "y": 458.1465845043084,
+              "port": "car-launch-b",
+              "targetX": 24.00000000000003,
+              "targetY": 252.0644246999873
+            }
+          ],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            },
+            {
+              "at": 13.479999999999801,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 2.7977620220553945e-14
+            },
+            {
+              "at": 15.579999999999757,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 17.679999999999712,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.4210854715202004e-14
+            },
+            {
+              "at": 19.779999999999667,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 2.1316282072803006e-14
+            },
+            {
+              "at": 25.099999999999554,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 3.552713678800501e-14
+            }
+          ],
+          "hazards": 4,
+          "cleared": false
+        },
+        "pacing": {
+          "frames": 104,
+          "median": 16.69999999999709,
+          "p95": 133.3000000000029
+        },
+        "clear": true,
+        "nextRegion": 6,
+        "restart": true,
+        "input": true
+      }
+    ],
+    "errors": [],
+    "resources": [
+      {
+        "label": "fliegerzug-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/api/campaign"
+      },
+      {
+        "label": "fliegerzug-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/goering_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "fliegerzug-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/loewenhardt_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "fliegerzug-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/mccudden_se5a.webp?v=r5&b=349"
+      }
+    ],
+    "limitations": [
+      "Test Lab stages native gameplay, not an unassisted full clear.",
+      "Mobile touch emulation, not a physical device.",
+      "Modified branch is local; public main was inspected separately.",
+      "Sound event routing checked; no audible listening verification."
+    ]
+  },
+  "nativeKeyboardEvasion": {
+    "results": [
+      {
+        "pilot": "baron",
+        "key": "KeyD",
+        "before": {
+          "hp": 100,
+          "x": 100.00000000000003,
+          "y": 260,
+          "a": -1.5707963267948966
+        },
+        "after": {
+          "hp": 100,
+          "x": 633.992390690807,
+          "y": 215.99085342088736,
+          "a": 0,
+          "invuln": 0,
+          "t": 3.6964999999999955,
+          "attacks": [
+            {
+              "at": 1.1633000000000016,
+              "type": "bug",
+              "x": 35.000000000000014,
+              "y": 205.45106482587755
+            }
+          ]
+        },
+        "pass": true
+      },
+      {
+        "pilot": "baron",
+        "key": "KeyA",
+        "before": {
+          "hp": 115,
+          "x": 100.00000000000003,
+          "y": 260,
+          "a": -1.5707963267948966
+        },
+        "after": {
+          "hp": 115,
+          "x": -457.6588231603094,
+          "y": 215.77747256918107,
+          "a": -3.1415926535897936,
+          "invuln": 0,
+          "t": 3.8498999999999977,
+          "attacks": [
+            {
+              "at": 1.1500000000000006,
+              "type": "bug",
+              "x": 35.00000000000002,
+              "y": 204.68716310211195
+            }
+          ]
+        },
+        "pass": true
+      },
+      {
+        "pilot": "fonck",
+        "key": "KeyD",
+        "before": {
+          "hp": 90,
+          "x": 100.00000000000003,
+          "y": -560,
+          "a": -1.5707963267948966
+        },
+        "after": {
+          "hp": 90,
+          "x": 792.6098438566507,
+          "y": -615.712877581551,
+          "a": 0,
+          "invuln": 0,
+          "t": 3.8298999999999936,
+          "attacks": [
+            {
+              "at": 1.0467000000000013,
+              "type": "black-flak",
+              "x": 35.01943284370374,
+              "y": -638.6226805193392
+            },
+            {
+              "at": 1.9966999999999988,
+              "type": "black-flak",
+              "x": 100.00000000000003,
+              "y": -560
+            },
+            {
+              "at": 2.7465999999999964,
+              "type": "black-flak",
+              "x": 164.98056715629633,
+              "y": -481.3773194806609
+            }
+          ]
+        },
+        "pass": true
+      },
+      {
+        "pilot": "fonck",
+        "key": "KeyA",
+        "before": {
+          "hp": 90,
+          "x": 100.00000000000003,
+          "y": -560,
+          "a": -1.5707963267948966
+        },
+        "after": {
+          "hp": 90,
+          "x": -583.3163947166569,
+          "y": -628.2284271465791,
+          "a": -3.141592653589794,
+          "invuln": 0,
+          "t": 3.849899999999996,
+          "attacks": [
+            {
+              "at": 1.0334000000000003,
+              "type": "black-flak",
+              "x": 35.01943284370374,
+              "y": -638.6226805193392
+            },
+            {
+              "at": 1.9834000000000014,
+              "type": "black-flak",
+              "x": 100.00000000000003,
+              "y": -560
+            },
+            {
+              "at": 2.716699999999999,
+              "type": "black-flak",
+              "x": 164.98056715629633,
+              "y": -481.3773194806609
+            }
+          ]
+        },
+        "pass": true
+      }
+    ],
+    "errors": [],
+    "limitation": "Isolated committed attacks, controlled Test Lab start; normal native keyboard flight with invulnerability off. Not a natural full encounter clear."
+  },
+  "pairedPcPerformance": {
+    "viewport": "1100x850",
+    "warmupSeconds": 2,
+    "sampleSeconds": 10,
+    "results": [
+      {
+        "name": "main",
+        "frames": 597,
+        "median": 16.69999999999891,
+        "p95": 16.799999999999272,
+        "p99": 16.80000000000109
+      },
+      {
+        "name": "branch",
+        "frames": 600,
+        "median": 16.69999999999891,
+        "p95": 16.799999999999272,
+        "p99": 16.80000000000109
+      }
+    ]
+  },
+  "finalTreffasMobileSoak": {
+    "results": [
+      {
+        "kind": "treffas-wagen",
+        "t": 59.62770000000115,
+        "frames": 3523,
+        "median": 16.69999999999709,
+        "p95": 16.799999999995634,
+        "maxBugs": 0,
+        "maxHazards": 11,
+        "left": -2.0517049571050765,
+        "right": 0.8351049016464852,
+        "x": 45.49038779562184,
+        "y": -388.1037039465845
+      }
+    ],
+    "errors": [],
+    "p2Keyboard": {
+      "before": -1.5707963267948966,
+      "after": -0.4341223028895921,
+      "pass": true
+    }
+  },
+  "trainMobileSoak": {
+    "frames": 3565,
+    "medianMs": 16.7,
+    "p95Ms": 16.8,
+    "maxBugs": 2,
+    "maxHazards": 10,
+    "durationSeconds": 60,
+    "errors": []
+  },
+  "automated": {
+    "buildModules": 179,
+    "resolvedImports": 1588,
+    "missingImports": 0,
+    "relatedPassed": 84,
+    "cambraiPassed": 28,
+    "fullTests": 742,
+    "fullPassed": 738,
+    "fullExistingFailures": 4
+  },
+  "limitations": [
+    "Native Test Lab staging, not an unassisted full encounter clear.",
+    "Mobile touch emulation, not a physical device.",
+    "Isolated attacks for invulnerability-off evasion trials.",
+    "No audible listening check.",
+    "Modified branch is local; no deployment.",
+    "Short restart/transition RAF samples varied under concurrent browser/test load; compare the separate paired warmed in-combat measurement."
+  ],
+  "finalLaunchTipCheck": {
+    "baseline": false,
+    "results": [
+      {
+        "label": "fliegerzug-pc-solo",
+        "phase1": {
+          "t": 6.01999999999996,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 138.06737652078937,
+          "hp": 2100,
+          "phase": "aim",
+          "combatPhase": 1,
+          "finalRaid": false,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            }
+          ],
+          "hazards": 7,
+          "cleared": false
+        },
+        "phase2": {
+          "t": 11.019999999999854,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 138.06737652078937,
+          "hp": 1386,
+          "phase": "reload",
+          "combatPhase": 2,
+          "finalRaid": false,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            }
+          ],
+          "hazards": 6,
+          "cleared": false
+        },
+        "final": {
+          "t": 13.419999999999803,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": 191.21116542671916,
+          "hp": 798,
+          "phase": "move",
+          "combatPhase": 3,
+          "finalRaid": true,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            }
+          ],
+          "hazards": 5,
+          "cleared": false
+        },
+        "afterRaid": {
+          "t": 20.419999999999654,
+          "state": "paused",
+          "stageIndex": 8,
+          "kind": "fliegerzug",
+          "x": 2.2043642384652358e-14,
+          "y": -249.28232730001173,
+          "hp": 798,
+          "phase": "recoil",
+          "combatPhase": 3,
+          "finalRaid": false,
+          "recovery": 2.5599999999999996,
+          "core": false,
+          "parts": [
+            {
+              "id": "rail",
+              "dead": false,
+              "x": 0,
+              "y": 410
+            },
+            {
+              "id": "car-flak",
+              "dead": false,
+              "x": 0,
+              "y": 226
+            },
+            {
+              "id": "car-launch-a",
+              "dead": false,
+              "x": 0,
+              "y": 452
+            },
+            {
+              "id": "car-supply",
+              "dead": false,
+              "x": 0,
+              "y": 679
+            },
+            {
+              "id": "car-launch-b",
+              "dead": false,
+              "x": 0,
+              "y": 905
+            },
+            {
+              "id": "car-rear",
+              "dead": false,
+              "x": 0,
+              "y": 1131
+            }
+          ],
+          "bugs": [
+            {
+              "x": 73.1570852947366,
+              "y": 487.93304148729703,
+              "port": "car-launch-b",
+              "targetX": 176.00000000000003,
+              "targetY": 252.0644246999873
+            }
+          ],
+          "trace": [
+            {
+              "at": 4.159999999999999,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.7763568394002505e-14
+            },
+            {
+              "at": 7.159999999999935,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 8.739999999999903,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 7.105427357601002e-15
+            },
+            {
+              "at": 13.479999999999801,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 2.7977620220553945e-14
+            },
+            {
+              "at": 15.579999999999757,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 4.973799150320701e-14
+            },
+            {
+              "at": 17.679999999999712,
+              "port": "car-launch-a",
+              "dead": false,
+              "visible": true,
+              "offset": 1.4210854715202004e-14
+            },
+            {
+              "at": 19.779999999999667,
+              "port": "car-launch-b",
+              "dead": false,
+              "visible": true,
+              "offset": 2.1316282072803006e-14
+            }
+          ],
+          "hazards": 6,
+          "cleared": false
+        },
+        "pacing": {
+          "frames": 178,
+          "median": 16.700000000000728,
+          "p95": 16.799999999999272
+        },
+        "clear": true,
+        "nextRegion": 6,
+        "restart": true,
+        "input": true
+      }
+    ],
+    "errors": [],
+    "resources": [
+      {
+        "label": "fliegerzug-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/api/campaign"
+      },
+      {
+        "label": "fliegerzug-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/goering_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "fliegerzug-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/loewenhardt_fokkerd7.webp?v=r5&b=349"
+      },
+      {
+        "label": "fliegerzug-pc-solo",
+        "status": 404,
+        "url": "http://127.0.0.1:8787/mccudden_se5a.webp?v=r5&b=349"
+      }
+    ],
+    "limitations": [
+      "Test Lab stages native gameplay, not an unassisted full clear.",
+      "Mobile touch emulation, not a physical device.",
+      "Modified branch is local; public main was inspected separately.",
+      "Sound event routing checked; no audible listening verification."
+    ]
+  }
+}
