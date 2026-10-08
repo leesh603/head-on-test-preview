@@ -56,7 +56,7 @@ function hiss(f0,f1,d,v,type='bandpass',Q=.8,when=0,att=.003){
   track(n,f,g);
 }
 function railSample(name,level){
- if(name==='trainApproach')return;// arrival cue disabled
+ if(name)return;// train sfx disabled
 
  if(!reserve())return;
  let buffer=railBuffers.get(name);if(!buffer){const data=railAudioSamples(name,ctx.sampleRate);buffer=ctx.createBuffer(1,data.length,ctx.sampleRate);buffer.getChannelData(0).set(data);railBuffers.set(name,buffer);}
@@ -90,7 +90,7 @@ const VOICES={
   armorClink(){tone(jit(1420),560,.13,.052,'triangle',3400);hiss(jit(5200),2400,.055,.045,'bandpass',4);tone(jit(470),290,.08,.028,'square',2400,.02);tone(jit(2350),1400,.05,.02,'triangle',4200,.06)},
   metalBreak(){hiss(3200,700,.3,.065,'bandpass',2);tone(237,107,.24,.05,'triangle',1600);tone(419,171,.17,.025,'square',2100,.07)},
   winchRelease(){for(let i=0;i<3;i++)hiss(2100,1200,.035,.035,'bandpass',2,i*.055);tone(176,88,.3,.028,'sawtooth',600,.1)},
-  railClatter(){for(let i=0;i<4;i++){tone(93,45,.06,.034,'triangle',350,i*.12);hiss(1100,450,.04,.024,'bandpass',.8,i*.12)}},
+  railClatter(){for(let i=0;i<4;i++)tone(93,45,.06,.034,'triangle',350,i*.12)},
   flameValve(){hiss(1600,420,.5,.055,'bandpass',1.2);tone(122,75,.12,.035,'triangle',550)},
   flameBurn(){hiss(480,180,.85,.065,'lowpass',.5);hiss(1300,680,.55,.032,'bandpass',.4)},
   formationPass(){tone(82,120,.65,.045,'sawtooth',360);tone(89,126,.7,.025,'sawtooth',400);hiss(540,260,.8,.025,'lowpass',.5)},
