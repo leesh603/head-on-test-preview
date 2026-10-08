@@ -69,7 +69,7 @@ test('observer loss makes heavy and AA impact coordinates independent of pilot p
 });
 
 test('atlas references exist and all cell rectangles remain within authored images',()=>{
- const sizes={'schwaben-body':[1774,887],'schwaben-guns':[1254,1254],'schwaben-support':[1536,1024],'mark1-hulls':[1536,1024],'mark1-hardware':[1448,1086]};
+ const sizes={'schwaben-body':[1774,887],'schwaben-guns':[1254,1254],'schwaben-support':[1536,1024],'mark1-hulls':[1536,1024],'mark1-hardware':[1448,1086],'mark1-guns':[1448,1086]};
  for(const filename of Object.values(SOMME_SHEETS))assert(existsSync(new URL('../'+filename,import.meta.url)));
  for(const f of Object.values(SOMME_FRAMES)){const [w,h]=sizes[f.sheet],[x,y,rw,rh]=f.rect;assert(x>=0&&y>=0&&x+rw<=w&&y+rh<=h);}
 });
