@@ -56,6 +56,8 @@ function hiss(f0,f1,d,v,type='bandpass',Q=.8,when=0,att=.003){
   track(n,f,g);
 }
 function railSample(name,level){
+ if(name)return;// train sfx disabled
+
  if(!reserve())return;
  let buffer=railBuffers.get(name);if(!buffer){const data=railAudioSamples(name,ctx.sampleRate);buffer=ctx.createBuffer(1,data.length,ctx.sampleRate);buffer.getChannelData(0).set(data);railBuffers.set(name,buffer);}
  const n=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();n.buffer=buffer;f.type='lowpass';f.frequency.value=7200;g.gain.value=level*master;
