@@ -2,7 +2,8 @@ import {writeFileSync,mkdirSync} from 'node:fs';
 import assert from 'node:assert/strict';
 globalThis.Image=class{set src(v){queueMicrotask(()=>this.onload?.())}};
 globalThis.document={createElement:()=>({getContext:()=>null})};
-const {Game}=await import('../engine.js?v=483'),{CoopGame}=await import('../coop-engine.js?v=483'),{enableStageBoss,endStageBossFrame,stageBossCollision,damageStageBoss}=await import('../stageboss-host.js?v=483');
+const {Game}=await import('../engine.js?v=tame3'),{CoopGame}=await import('../coop-engine.js?v=tame3'),{enableStageBoss,endStageBossFrame,stageBossCollision,damageStageBoss}=await import('../stageboss-host.js?v=tame3');
+const {GALLIPOLI_HANGAR}=await import('../gallipoli-boss.js?v=tame3');
 const results=[];
 for(const mode of ['solo','coop'])for(const faction of ['central','entente'])for(const width of [390,1440]){
  const pilot=faction==='central'?'baron':'fonck';
@@ -16,7 +17,7 @@ for(const mode of ['solo','coop'])for(const faction of ['central','entente'])for
  for(let i=0;i<1500;i++){
   if(mode==='solo')g.update(.04,{inputMode:'gamepad',fireHeld:false,angle:-Math.PI/2+Math.sin(i*.01)*.25});else g.update(.04,{});
   assert.equal(g.state,'playing');assert(Number.isFinite(b.x)&&Number.isFinite(b.y));
-  const fighters=g.enemies.filter(e=>e.gallipoliInterceptor&&e.hp>0);maxInterceptors=Math.max(maxInterceptors,fighters.length);assert(fighters.length<=4);for(const e of fighters){interceptorIds.add(e.id);assert.equal(e.escortPlane,b.faction==='central'?'eindecker':'nieuport11');if(e.launchAge<1.2){assert(Math.abs(e.a-Math.PI/2)<1e-8);assert(Math.abs(e.x-(b.x-460))<1e-8);assert(e.y>=b.y-215);assert(e.fire>1.6);}}
+  const fighters=g.enemies.filter(e=>e.gallipoliInterceptor&&e.hp>0);maxInterceptors=Math.max(maxInterceptors,fighters.length);assert(fighters.length<=4);for(const e of fighters){interceptorIds.add(e.id);assert.equal(e.escortPlane,b.faction==='central'?'eindecker':'nieuport11');if(e.launchAge<1.2){assert(Math.abs(e.a-Math.PI/2)<1e-8);assert(Math.abs(e.x-(b.x+GALLIPOLI_HANGAR.exitX))<1e-8);assert(e.y>=b.y+GALLIPOLI_HANGAR.exitY);assert(e.fire>1.6);}}
   if(i>700&&b.parts.get('left').hp===b.parts.get('left').maxHp)repairedLeft=true;
   maxHazards=Math.max(maxHazards,g.stageBoss.hazards.pool.count);maxSand=Math.max(maxSand,g.maanWeather?.cells.length||0);
   if(i===185){
@@ -37,4 +38,4 @@ for(const mode of ['solo','coop'])for(const faction of ['central','entente'])for
  assert(b.dead);assert.equal(b.hp,0);
  results.push({mode,faction,width,simulatedSeconds:60,state:'playing',boss:b.kind,maxHazards,maxSand,dropped:g.stageBoss.hazards.pool.dropped,hostDamage,pauseFrozen:true,maxInterceptors,totalSorties:interceptorIds.size,repairedLeft,commandFirst:true,repairAndSortiesStopped:true,nativeFortressDefeated:true});
 }
-mkdirSync(new URL('../qa/gallipoli/',import.meta.url),{recursive:true});writeFileSync(new URL('../qa/gallipoli/engine-results.json',import.meta.url),JSON.stringify(results,null,2));console.log(JSON.stringify(results));
+const out=process.env.HEADON_QA_OUT||'/tmp/headon-gallipoli-engine';mkdirSync(out,{recursive:true});writeFileSync(out+'/engine-results.json',JSON.stringify(results,null,2));console.log(JSON.stringify(results));

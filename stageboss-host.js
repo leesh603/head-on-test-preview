@@ -2,14 +2,14 @@ import {resolveSurfaceSpacing} from './naval-spacing.js?v=tame3';
 
 import {tickRegionalConditions} from './region-doctrine1.js?v=tame3';
 
-import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=tame3';
+import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=tame3&rail=12';
 import {handleMaanCue} from './maan-view.js?v=tame3';
 import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=tame3';
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=tame3';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=tame3';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=tame3&rail=11';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=tame3&rail=11';
-import {bossSoundFor} from './boss-feedback.js?v=tame3&hints=1&rail=11';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=tame3&rail=12';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=tame3&rail=12';
+import {bossSoundFor} from './boss-feedback.js?v=tame3&hints=1&rail=12';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=tame3&rail=1';
 import {advanceCambraiBug} from './cambrai-bug-flight.js?v=tame3';
 import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=tame3';
@@ -162,6 +162,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     else if(event.type==='hazard-activated'&&event.kind==='circle'&&(event.visual?.startsWith('aa-')||event.visual==='city-flak-shell'||event.visual?.startsWith('somme-')||event.visual?.startsWith('rural-rail-')||event.visual==='black-flak'&&['fliegerzug','treffas-wagen'].includes(body?.kind))){
       // Authored AA atlas draws these effects; do not stack a generic blast.
     }
+    else if(event.type==='hazard-activated'&&event.visual==='gallipoli-shell'){g.shake=Math.max(g.shake,3);}
     else if(event.type==='hazard-activated'&&event.kind==='circle'){
     const SHELL_VISUALS=new Set(['rail-shell','rail-shell-outer','observer-shell','zubian-mortar','naval-gun','alps-cannon','black-flak','zubian-shell','coastal-shell','building-debris']),sea=[1,7].includes(g.worldRegion?.()??-1);
     g.combatBlast(event.x,event.y,event.radius,'enemy',event.visual==='carpet-bomb'?'bomb':event.visual==='torpedo-charge'?'mineBlast':SHELL_VISUALS.has(event.visual)?(sea?'mineBlast':'shell'):'blast');
@@ -192,6 +193,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    else if(event.type==='boss-destruction-pulse'){g.combatBlast(event.x,event.y,event.radius,'enemy',event.final?'bossFinal':'structure');g.shake=Math.max(g.shake,event.final?13:8);}
    else if(event.type==='heavy-gun-fired'){g.shake=Math.max(g.shake,event.railArtillery?(event.heavy?6:2.8):7);}
     else if(event.type==='muzzle'&&['london-apron','drachen-net'].includes(body?.kind)){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:.12,size:23*body.cityArtScale,kind:'aaMuzzle'});}
+    else if(event.type==='muzzle'&&(body?.gallipoliBoss||event.bossId==='gallipoli-approach')){g.shake=Math.max(g.shake,event.partId?.startsWith('aa-')?1:3);}
     else if(event.type==='muzzle'&&body?.sommeBoss){g.shake=Math.max(g.shake,2);}
     else if(event.type==='muzzle'){if(['a7v-flak','mark-v-cruiser','fliegerzug','treffas-wagen','mark4-wedge','morser-battery','staaken-rvi','london-searchlight'].includes(body?.kind))(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:.23,size:44,kind:'aaMuzzle'});
      else g.burst(event.x,event.y,'#ffe0a2',12);g.shake=Math.max(g.shake,3);}
@@ -212,7 +214,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    g.event('kill','');g.event('wave',BOSS_CATALOG[bossId].name+' 격파 · 다음 지역 진입');
    const hero=players(g)[0]||g;for(let i=0;i<9;i++){const a=i*.7;(g.drops||=[]).push({x:hero.x+Math.cos(a)*70,y:hero.y+Math.sin(a)*70,value:16,heal:i===0,bossReward:true})}
   },
-  onStageChange({stageIndex,loopIndex}){g.maanStartX=g.x;g.jutlandRoute=stageIndex===16?createJutlandRoute(g):null;g.gallipoliRoute=stageIndex===14?createGallipoliRoute(g):null;g.verdunWrecks=[];g.verdunBattle=null;g.londonBattle=null;g.enemies=g.enemies.filter(e=>!e.londonOwned);const previousRegion=g.region;g.region=stageIndex;g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.clearRegionalHazards();g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=stageIndex===7?createHarborRoute(g):null;
+  onStageChange({stageIndex,loopIndex}){if(g.gallipoliRoute)g.stageBoss.hazards.clear(g.gallipoliRoute.encounterId);g.maanStartX=g.x;g.jutlandRoute=stageIndex===16?createJutlandRoute(g):null;g.gallipoliRoute=stageIndex===14?createGallipoliRoute(g):null;g.verdunWrecks=[];g.verdunBattle=null;g.londonBattle=null;g.enemies=g.enemies.filter(e=>!e.londonOwned);const previousRegion=g.region;g.region=stageIndex;g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.clearRegionalHazards();g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=stageIndex===7?createHarborRoute(g):null;
    // A fresh map starts clean: leftover stragglers must not be sitting on top
    // of the player at the transition moment.
    g.enemies=g.enemies.filter(e=>e.missionTarget||e.stageBossBody||e.navalVessel||e.heavyBomber);
@@ -358,7 +360,7 @@ export function beginStageBossFrame(g,dt){
   for(const m of field.mines)if(!m.dead){m.x=field.sourceX+(m.targetX-field.sourceX)*ease;m.y=field.sourceY+(m.targetY-field.sourceY)*ease-(vertical?0:Math.sin(q*Math.PI)*32);m.deploying=q<1;}
   if(q>=1)field.deploySeconds=0;
  }
- tickGallipoliRoute(g);tickJutlandRoute(g);
+ tickGallipoliRoute(g,dt);tickJutlandRoute(g);
  const stage=addon.stages.stageIndex,naval=stage===1||stage===7||stage===16;
  let route=stage===7?g.navalRoute:null;
  if(stage===7&&!route)route=g.navalRoute=createHarborRoute(g);
@@ -406,7 +408,7 @@ export function beginStageBossFrame(g,dt){
     x=g.x+(alpine?105:(naval||rail||structure)?Math.cos(heading)*forward:0);
     y=g.y+(alpine?-Math.max(165,Math.min(180,(bounds.bottom-bounds.top)*.24)):(naval||rail||structure)?Math.sin(heading)*forward:stage===4?0:stage===10?-Math.min(90,(bounds.bottom-bounds.top)*.12):-Math.min(180,(bounds.bottom-bounds.top)*.22));
    }
-   addon.startBoss({x,y});g.navalApproachAt=null;g._aceGateAt=null;
+   const entered=addon.startBoss({x,y});if(stage===14&&g.gallipoliRoute.preview){const b=[...entered.bodies.values()][0];for(const p of b.parts.values())p.angle=g.gallipoliRoute.preview.parts.get(p.id).angle;addon.hazards.clear(g.gallipoliRoute.encounterId);}g.navalApproachAt=null;g._aceGateAt=null;
   }
   }
  }
