@@ -352,7 +352,8 @@ class TrenchArmor extends PatternBoss {
   fireGun(gun,{spread=.3,count=3,heavy=false}={}){
     if(gun.destroyed)return;const m=this.muzzle(gun),arc=this.layout.gunArc;
     count=Math.max(1,Math.ceil(count*(this.t.projectileDensity??1)));
-    for(let i=0;i<count;i++){const local=gun.aimAngle+(count===1?0:i/(count-1)-.5)*spread,angle=this.hullYaw+gun.baseAngle+Math.max(-arc,Math.min(arc,armorAngleDelta(local,gun.baseAngle)));
+    const width=Math.min(spread,arc*2),center=Math.max(-arc+width/2,Math.min(arc-width/2,armorAngleDelta(gun.aimAngle,gun.baseAngle)));
+    for(let i=0;i<count;i++){const angle=this.hullYaw+gun.baseAngle+center+(count===1?0:i/(count-1)-.5)*width;
       this.hazard('projectile',{...m,vx:Math.cos(angle)*this.t.bulletSpeed*.82,vy:Math.sin(angle)*this.t.bulletSpeed*.82,radius:heavy?7:5,duration:heavy?1.6:3,raidHeavy:heavy,damage:this.t.damage*(heavy?2.4:.7),visual:'aa-shell',tag:this.gunTag(gun)});
     }
   }
@@ -501,16 +502,16 @@ export class A7VFlak extends TrenchArmor {
 
 export class MarkVCruiser extends TrenchArmor {
   constructor(options){super(options,'mark-v-cruiser');this.phase='barrage';this.sponsonSide=0;this.routeAge=0;this.entryDuration=2.4;this.timers.set('sponson-cycle',.5);this.timers.set('armor-pattern',6.6);}
+  broadsideGun(players){
+    const target=players.find(p=>p.alive),guns=this.liveGuns();if(!target||!guns.length)return null;
+    const bearing=Math.atan2(target.y-this.y,target.x-this.x);
+    return guns.reduce((best,g)=>Math.abs(armorAngleDelta(bearing,this.hullYaw+g.baseAngle))<Math.abs(armorAngleDelta(bearing,this.hullYaw+best.baseAngle))?g:best);
+  }
   steering(players,bounds){
-    const target=players.find(p=>p.alive);let desired=Math.PI;
-    if(target){const bearing=Math.atan2(target.y-this.y,target.x-this.x),gun=this.liveGuns()[0];
-      // Keep the surviving sponson toward the target: the ruined side faces away.
-      desired=this.combatPhase===3&&this.liveGuns().length===1?bearing-gun.baseAngle:bearing+Math.PI/2;
-    }
-    if(bounds){const margin=Math.min(100,(bounds.right-bounds.left)*.22),cy=(bounds.top+bounds.bottom)/2;
-      if(this.x<bounds.left+margin||this.x>bounds.right-margin||this.y<bounds.top+90||this.y>bounds.bottom-90)desired=Math.atan2(cy-this.y,(bounds.left+bounds.right)/2-this.x)+Math.PI/2;
-    }
-    return Math.max(-.32,Math.min(.32,armorAngleDelta(desired,this.hullYaw)));
+    const target=players.find(p=>p.alive),gun=this.broadsideGun(players);if(!target||!gun)return 0;
+    // Aim the actual surviving broadside, not the unarmed nose, at the pilot.
+    const bearing=Math.atan2(target.y+(target.vy||0)*.6-this.y,target.x+(target.vx||0)*.6-this.x);
+    return Math.max(-.6,Math.min(.6,armorAngleDelta(bearing-gun.baseAngle,this.hullYaw)));
   }
   startWaltz(final){
     this.startRotation(final);const r=this.rotation;r.stage=final?'windup':'arc';r.clock=.4;
@@ -553,7 +554,7 @@ export class MarkVCruiser extends TrenchArmor {
         this.tacticalState='braking';this.drive(dt,0,0,bounds,true);this.aim(dt,players);
         if(r.age>=.85){r.stage='spin';r.age=0;r.clock=.35;for(const gun of this.liveGuns())this.warnGun(gun,1);}
       }else if(r.stage==='spin'){
-        this.tacticalState='steel-waltz';this.drive(dt,0,r.sign*.5,bounds);this.aim(dt,players);if(r.age>=1)this.rotatingFire(dt,r);
+        this.tacticalState='steel-waltz';this.drive(dt,0,r.sign*.64,bounds);this.aim(dt,players);if(r.age>=1)this.rotatingFire(dt,r);
         if(r.age>=3.8){r.stage=r.final?'breakthrough':'recover';r.age=0;this.breakthrough(players,bounds);if(!r.final)this.command('phase-change',{phase:'markv-recovery'});}
       }else if(r.stage==='breakthrough'){
         this.tacticalState='final-breakthrough';this.drive(dt,42,0,bounds);this.aim(dt,players);
@@ -566,9 +567,12 @@ export class MarkVCruiser extends TrenchArmor {
     }
     this.routeAge+=dt;const reverse=this.routeAge%11>9.5;
     this.tacticalState=reverse?'reverse-regroup':this.combatPhase===3?'protect-sponson':'forward-pressure';
-    this.drive(dt,reverse?-22:this.combatPhase===3?32:26,this.combatPhase>=2?this.steering(players,bounds):0,bounds);this.aim(dt,players);this.tickGun(dt);
+    const turn=this.steering(players,bounds);
+    // Counter-drive into firing position before advancing; boundary braking must
+    // never freeze the broadside facing away from the target.
+    this.drive(dt,Math.abs(turn)>.25?0:reverse?-22:this.combatPhase===3?32:26,turn,bounds);this.aim(dt,players);this.tickGun(dt);
     if(this.due('armor-pattern',dt,this.combatPhase===3?6:this.combatPhase===2?8:11.2)){this.startWaltz(this.combatPhase===3);return;}
-    if(!this.pendingVolley&&this.due('sponson-cycle',dt,1.6)){const gun=this.parts.get(this.gunIds[this.sponsonSide++%2]);this.scheduleGun(gun,{wait:.9,spread:1.45,count:11});}
+    if(!this.pendingVolley&&this.due('sponson-cycle',dt,1.6)){const gun=this.broadsideGun(players);this.scheduleGun(gun,{wait:.9,spread:1.1,count:9});}
     this.hullGun(dt,players,3.6);this.engineVent(dt);
   }
 }
