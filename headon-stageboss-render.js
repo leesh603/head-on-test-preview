@@ -21,7 +21,7 @@ export function renderStageBossLayer(addon,{drawBody,drawPart,drawHazard}) {
     for(const part of b.parts.values())drawPart({sommeBoss:!!b.sommeBoss,bodyKey:b.kind,phase:b.phase,partId:part.id,kind:part.kind,x:b.x+part.x,y:b.y+part.y,
       hp:part.hp,maxHp:part.maxHp,destroyed:part.destroyed,discovered:part.discovered,hittable:part.hittable,radius:part.radius,hitRadiusX:part.hitRadiusX,hitRadiusY:part.hitRadiusY,angle:part.angle||0,recoil:part.recoil||0,hitFlash:part.hitFlash||0,destroyedAt:part.destroyedAt,motionTime:b.motionTime||0});
   }
-  addon.hazards.pool.visit(h=>{if(h.phase!=='waiting')drawHazard(h);});
+  addon.hazards.pool.visit(h=>{if(h.phase!=='waiting'&&h.visual!=='hull-ram')drawHazard(h);});
 }
 // Optional solid-water correction for a host collision resolver. Returns a
 // displacement; this module never takes over player movement or input.

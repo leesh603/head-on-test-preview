@@ -114,6 +114,8 @@ class VerdunFortress extends BaseBoss{
   return this.coreVulnerable&&intersectsEllipse(s,this.x+k.x,this.y+k.y,k.rx,k.ry)?{partId:null}:null;
  }
  hitAt(s){const route=this.locateHit(s);return route?this.hit({...route,damage:s.damage}):{damage:0,miss:true};}
+ // The announced reload after a last barrage is a real opening: 1.5x damage.
+ counterWindow(){return this.recovery>0?1.5:1;}
  hit(a){
   const result=super.hit(a);
   if(result.damage&&a.partId){

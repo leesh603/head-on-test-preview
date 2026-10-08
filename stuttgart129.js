@@ -51,9 +51,11 @@ export class StuttgartSupport {
  shoot(x,y,angle,delay=0,heavy=false){const p=this.projectiles.acquire();if(!p)return;p.hits.clear();Object.assign(p,{id:this.id+':shot:'+(++this.damageSerial),kind:'shell',x,y,vx:Math.cos(angle)*this.tuning.bulletSpeed,vy:Math.sin(angle)*this.tuning.bulletSpeed,age:-delay,warning:0,life:3.1,radius:heavy?8:4,raidHeavy:heavy,damage:this.tuning.damage*(heavy?2.4:.65),applied:false});}
  flak(x,y,{delay=0,radius=30}={}){const p=this.projectiles.acquire();if(!p)return;p.hits.clear();Object.assign(p,{id:this.id+':flak:'+(++this.damageSerial),kind:'flak',raidHeavy:false,x,y,vx:0,vy:0,age:-delay,warning:1.05,life:1.35,radius,damage:this.tuning.damage*.72,applied:false});}
  fire(players,lockedAngle=this.angle){const target=players.find(p=>p.alive);const side=this.fireSide++%2,indices=side?[1,3]:[0,2];for(const i of indices){const p=this.parts.get('gun'+i);if(p.hp<=0)continue;const q=this.world(p.nx,p.ny),a=target?Math.atan2(target.y-q.y,target.x-q.x):lockedAngle+(side?0:Math.PI);
-   const n=11;for(let row=0;row<3;row++)for(let j=0;j<n;j++){const gap=(side?6:2)+(side?-row:row);if(row<2&&j>=gap&&j<gap+2)continue;this.shoot(q.x,q.y,a+(j/(n-1)-.5)*1.65,row*.48,row===2);}this.fx('muzzle',q.x,q.y,15,.20,{angle:a});
+   // The final sortie adds a fourth walking row before the solid heavy one.
+   const n=11,rows=this.phase===4?4:3;for(let row=0;row<rows;row++)for(let j=0;j<n;j++){const gap=(side?6:2)+(side?-row:row);if(row<rows-1&&j>=gap&&j<gap+2)continue;this.shoot(q.x,q.y,a+(j/(n-1)-.5)*1.65,row*.48,row===rows-1);}this.fx('muzzle',q.x,q.y,15,.20,{angle:a});
   }
-  if(this.volley++%2===1){const alive=players.filter(p=>p.alive);if(alive.length){const p=alive[(this.volley>>1)%alive.length],guns=[...this.parts.values()].filter(p=>p.id.startsWith('gun')&&p.hp>0);
+  // From the evasive phase every broadside is followed by flak on the escape side.
+  const every=this.phase>=3?1:2;if(this.volley++%every===every-1){const alive=players.filter(p=>p.alive);if(alive.length){const p=alive[(this.volley>>1)%alive.length],guns=[...this.parts.values()].filter(p=>p.id.startsWith('gun')&&p.hp>0);
     if(guns.length&&this.time>=1.8){
       const velocity=Math.hypot(p.vx||0,p.vy||0),nx=velocity>8?-(p.vy||0)/velocity:1,ny=velocity>8?(p.vx||0)/velocity:0;
       const offsets=guns.length===1?[0]:[-58,0,58];
@@ -91,10 +93,14 @@ export class StuttgartSupport {
   if(!this.introLaunched){this.introLaunched=true;this.launch(players,{intro:true});this.onCue({type:'phase-change',encounterId:this.id,phase:'carrier-approach'});}
   if(this.tuning.navigation)this.navigate(dt,bounds);else this.angle=(this.angle+this.tuning.rotationSpeed*dt)%(Math.PI*2);
   if((this.time<4||this.phase===4)&&(this.smokeClock-=dt)<=0){this.smokeClock=.25;const q=this.world(0,-.12);this.fx('smoke',q.x,q.y,70,1.9,{vx:15,vy:25});}
-  if(this.finalSortie&&(this.finalClock-=dt)<=0){this.launch(players,{final:true});this.finalWave++;this.finalClock=.6;if(this.finalWave>=3)this.finalSortie=false;this.fireClock=Math.min(this.fireClock,.1);}
+  if(this.finalSortie&&(this.finalClock-=dt)<=0){this.launch(players,{final:true});this.finalWave++;this.finalClock=.6;if(this.finalWave>=3){this.finalSortie=false;this.rearmClock=7.5;this.sortieRepeat=true;}if(!this.sortieRepeat)this.fireClock=Math.min(this.fireClock,.1);}
+  // After each final sortie the deck crews rearm: guns fall silent for 3.4 s
+  // and the exposed hull takes 1.5x damage, then the next sortie launches.
+  if(this.rearmClock>0&&(this.rearmClock-=dt)<=3.4&&!this.rearming&&this.rearmClock>0){this.rearming=true;this.fireWarning=null;this.onCue({type:'phase-change',encounterId:this.id,phase:'carrier-rearm'});}
+  if(this.rearming){this.fireClock=Math.max(this.fireClock,.6);if(this.rearmClock<=0){this.rearming=false;this.finalSortie=true;this.finalClock=1.35;this.finalWave=0;this.onCue({type:'phase-change',encounterId:this.id,phase:'carrier-final-sortie'});this.onCue({type:'charge-warning',encounterId:this.id,x:this.x,y:this.y,targetX:this.x,targetY:this.y+420,seconds:1.35});}}
   if(this.cover){this.cover.age+=dt;this.cover.x+=this.cover.vx*dt;this.cover.y+=this.cover.vy*dt;this.cover.angle+=dt*1.2;if(this.cover.age>=1.8)this.cover=null;}
   if(this.fireWarning){this.fireWarning.left-=dt;if(this.fireWarning.left<=0){const warning=this.fireWarning;this.fireWarning=null;this.fire(warning.targets,warning.angle);}}
-  this.fireClock-=dt;if(this.time>=1.8&&this.fireClock<=0&&!this.fireWarning){const base=this.phase===1?5.5:4.8;this.fireClock=(base+.75)*(this.tuning.fireScale||1)/(this.tuning.projectileDensity??1);this.prepareFire(players);}
+  this.fireClock-=dt;if(this.time>=1.8&&this.fireClock<=0&&!this.fireWarning){const base=this.phase===1?5.5:this.phase===2?4.8:this.phase===3?3.9:4.4;this.fireClock=(base+.75)*(this.tuning.fireScale||1)/(this.tuning.projectileDensity??1);this.prepareFire(players);}
   this.spawnClock-=dt;if(this.spawnClock<=0){this.spawnClock=this.tuning.spawnInterval; if(this.phase<4)this.launch(players);}
   if(this.linkedLaunchClock>0&&(this.linkedLaunchClock-=dt)<=0)this.launch(players);
   this.projectiles.visit(p=>{const ax=p.x,ay=p.y;p.age+=dt;if(p.age<p.warning)return;p.x+=p.vx*dt;p.y+=p.vy*dt;

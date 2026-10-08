@@ -55,7 +55,7 @@ class CityAirships extends BaseBoss{
  }
  guns(dt,players){
   const target=players.find(p=>p.alive);if(!target)return;
-  const live=this.live(),interval=live.length===1?5:6.5;
+  const live=this.live(),interval=this.cityArtKind==='drachen-net'?[3.8,5.2,6.5][live.length-1]:live.length===1?5:6.5;
   for(const p of live){const index=Number(p.id.at(-1));if(this.due('gun-'+index,dt,interval)){
    const from=this.point(...CITY_GUNS[this.cityArtKind][index],index);
    const list=players.filter(p=>p.alive),aimTarget=this.cityArtKind==='drachen-net'?list[(this.gunCursor||0)%list.length]:target;this.gunCursor=(this.gunCursor||0)+1;
@@ -106,9 +106,10 @@ export class DrachenMineNet extends CityAirships{
  onPartDestroyed(p){super.onPartDestroyed(p);this.mineQueue=this.mineQueue.filter(q=>q.index!==Number(p.id.at(-1)));}
  update(dt,{players,bounds}){
   if(this.dead)return;if(this.cityMineLane)this.cityMineLane.remaining=Math.max(0,this.cityMineLane.remaining-dt);this.drift(dt);this.guns(dt,players);const list=players.filter(p=>p.alive),target=list[this.netWave%Math.max(1,list.length)],live=this.live();
-  const mineReady=this.due('mine-lay',dt,live.length===1?7.8:8.8);
+  // Fewer airships work harder: the surviving winches lay the full net faster.
+  const mineReady=this.due('mine-lay',dt,[6.6,7.6,8.8][live.length-1]||8.8);
   if(target&&this.driftTime>=(this.minePhraseUntil||0)&&mineReady){
-   this.minePhraseUntil=this.driftTime+7.4;const mode=this.netWave++%4,count=live.length===1?7:10,w=bounds.right-bounds.left;
+   this.minePhraseUntil=this.driftTime+[6.2,7,7.4][live.length-1];const mode=this.netWave++%4,count=10,w=bounds.right-bounds.left;
    const gate=bounds.left+w*[.28,.5,.72][this.netWave%3],gap=Math.min(150,w*.36);
    this.cityMineLane={x:gate,width:gap,top:bounds.top,bottom:bounds.bottom,remaining:3};
    this.mineQueue=this.mineQueue.filter(q=>Math.abs(q.x-gate)>=gap/2);

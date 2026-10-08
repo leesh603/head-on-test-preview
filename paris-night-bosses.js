@@ -1,4 +1,4 @@
-import {broadsideBreak} from './boss-raid-strikes.js?v=tame3&rail=19';
+import {broadsideBreak,shellMarch} from './boss-raid-strikes.js?v=tame3&rail=19';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=tame3';
 
@@ -176,7 +176,7 @@ export class ParisSearchlightFortress extends ParisBoss {
       const gun=this.parts.get(id),count=this.livePart('command')?3:2;
       this.command('muzzle',{x:this.x+gun.x,y:this.y+gun.y,partId:id});
       for(let i=0;i<count;i++)this.hazard('circle',{x:target.x+(i-(count-1)/2)*34,y:target.y+(i%2)*25,delay:i*.07,radius:38,
-        warning:this.livePart('command')?.2:.38,duration:.3,once:true,damage:this.t.damage*1.4,visual:'black-flak',sourceX:this.x+gun.x,sourceY:this.y+gun.y,tag:this.id+':focus'});
+        warning:this.livePart('command')?.5:.65,duration:.3,once:true,damage:this.t.damage*1.4,visual:'black-flak',sourceX:this.x+gun.x,sourceY:this.y+gun.y,tag:this.id+':focus'});
     }
     for(const id of ['mg-left','mg-right'])this.fan(this.parts.get(id),target,this.livePart('command')?6:3,.33,this.id+':focus',this.t.damage*.8,1.25);
     this.command('paris-light-lock',{targetId:record.id,seconds:record.remaining,x:target.x,y:target.y});
@@ -324,6 +324,10 @@ export class ParisStaakenRVI extends ParisBoss {
                 warning:1.3,duration:.35,once:true,damage:this.t.damage*strength,visual:'carpet-bomb',airborneBomb:true,sourceX,sourceY,tag:this.id+':'+bay.id});
             }
             this.runTarget=null;this.runRemaining=0;this.phase='regroup';this.raidWait=5+(4-engines)*1.5;
+            // Below 40% the crew dumps the remaining racks on the pilot as it
+            // turns away: a warned march from the bays behind the bomber.
+            const pilot=live(players)[0];if(pilot&&this.hp<=this.maxHp*.4){const bay=this.bays().find(b=>!b.destroyed);if(bay){if(!this.lastRaid){this.lastRaid=true;this.command('phase-change',{phase:'staaken-last-raid'});}
+              shellMarch(this,{source:{x:this.x+bay.x,y:this.y+bay.y},partId:bay.id,target:pilot,rows:3,radius:48,step:82,beat:.45,warning:1.3,visual:'carpet-bomb',tag:this.id+':last-raid'});}}
           }
         }
       }else{

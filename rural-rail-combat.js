@@ -35,7 +35,7 @@ export class RuralRailBoss extends RailAdapter {
     // Phase I ranges at the sampled position; Phase II leads movement only
     // while the observer survives. Destroyed observers keep their old sector.
     if(!blind){const lead=this.raidPhase===1?-.65:.35;target.x+=(target.vx||0)*lead;target.y+=(target.vy||0)*lead;}
-    this.aimPlan=brunoSalvo(target,this.raidPhase,this.rail129.shot,blind?null:this.frameBounds,{blind});
+    this.aimPlan=brunoSalvo(target,this.raidPhase,this.rail129.shot,blind?null:this.frameBounds,{blind,extra:this.brunoBarrage?2:this.hp<=this.maxHp*.62?1:0});
     this.rail129.target={...target};
    }
    if(this.kind==='lincomparable')this.aimPlan=lincomparableRound(target,this.raidPhase,this,{blind});
@@ -139,12 +139,23 @@ export class RuralRailBoss extends RailAdapter {
    if(this.raidPhase===1&&(this.hp<=this.maxHp*.92||rear.hp<=rear.maxHp*.5)){
     this.raidPhase=2;this.emit({type:'phase-change',bossId:this.id,phase:'bruno-tracking'});
    }
+   // Late fight: the crew stops repositioning as long between salvos and the
+   // march grows to seven shells (count rises at 62% too).
+   if(this.raidPhase===2&&!this.brunoBarrage&&this.hp<=this.maxHp*.5){
+    this.brunoBarrage=true;this.rail129.c.moveSeconds=2.3;this.emit({type:'phase-change',bossId:this.id,phase:'bruno-barrage'});
+   }
   }
   if(this.kind==='lincomparable'){
    if(this.update520Entry(dt,ctx))return;
    const rear=this.parts.get('car-rear');
    if(this.raidPhase===1&&(this.hp<=this.maxHp*.84||rear.destroyed)){
     this.raidPhase=2;this.emit({type:'phase-change',bossId:this.id,phase:'lincomparable-shock-link'});
+   }
+   // Below 55% the crew rams the next round home faster: the reload counter
+   // window shrinks and the 520 comes round more often.
+   if(this.raidPhase===2&&!this.hastyReload&&this.hp<=this.maxHp*.55){
+    this.hastyReload=true;this.baseReload=Math.max(2.5,this.baseReload*.78);this.refreshReload();
+    this.emit({type:'phase-change',bossId:this.id,phase:'lincomparable-hasty-reload'});
    }
   }
   this.gunFlash=Math.max(0,this.gunFlash-dt);this.refreshReload();
