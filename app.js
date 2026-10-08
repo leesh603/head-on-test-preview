@@ -31,9 +31,9 @@ import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js
 import './hud-layout94.js?v=gun1';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=gun1';
 import {installOnlineLobby} from './online-coop-session.js?v=gun1&coopfix=1';
-import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=gun1';
+import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=c2';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=gun1';
-import {drawCoop} from './coop-view.js?v=gun1';
+import {drawCoop} from './coop-view.js?v=c2';
 import {drawSunStrike} from './sun-strike71.js?v=gun1';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor} from './projectiles.js?v=gun1';
 import {installFlightViewport} from './flight-viewport.js?v=gun1';
@@ -873,7 +873,7 @@ function coopEvents(){
   if(e.type==='regionTransition'){beginRegionTransition(e.text,e.region);continue}
   if(e.type==='upgrade'){showCoopUpgrade(e.item);sfx('levelup');continue}
   if(e.type==='end'){sfx(g.state==='won'||g.result?.won?'victory':'defeat');showCoopResult(g);continue}
-  if(e.type==='skill'&&e.ownerId){const p=g.player(e.ownerId),id=p.id;coopCutinEnds[id]=g.t+2.1;$(id+'CutinPortrait').src=portraitSources[p.pilot]||'portrait-'+p.pilot+'.webp?v=r5&b=326';$(id+'CutinPortrait').alt=PILOTS[p.pilot].name;$(id+'CutinName').textContent=id.toUpperCase()+' · '+p.nickname;$(id+'CutinSkill').textContent=pilotLoadout(p.pilot,p.plane).skill;sfx('skill')}
+  if(e.type==='skill'&&e.ownerId){const p=g.player(e.ownerId),id=p.id;coopCutinEnds[id]=g.t+2.1;$(id+'CutinPortrait').style.backgroundImage=`url('${portraitSources[p.pilot]||('portrait-'+p.pilot+'.webp?v=r5&b=326')}'),radial-gradient(circle at 50% 38%,#3a3426,#14110c 78%)`;$(id+'CutinPortrait').style.backgroundSize='auto 108%,cover';$(id+'CutinPortrait').style.backgroundPosition='center 12%,center';$(id+'CutinName').textContent=id.toUpperCase()+' · '+p.nickname;$(id+'CutinSkill').textContent=pilotLoadout(p.pilot,p.plane).skill;sfx('skill')}
   if(e.type==='bossArrival'){bossArrivalUntil=g.t+4.5;{const _ef=e.pilot&&PILOTS[e.pilot]&&PILOTS[e.pilot].faction,fc=_ef==='entente'?'#7c9bb8':_ef==='central'?'#7d8f83':null,fcs=_ef==='entente'?'#a7c2da':_ef==='central'?'#9db3a5':null;document.querySelectorAll('#bossArrival,#bossWarning,.boss-cutin').forEach(el=>{el.style.setProperty('--enemy-fac',fc||'');el.style.setProperty('--enemy-fac-soft',fcs||'');el.style.setProperty('--enemy-fac-strong',fcs||'')})}bossCardFrom=performance.now();$('bossName').textContent=arrivalCount>1?t('warning.aceGroup'):e.name;swapArt($('bossPortrait'),portraitSources[e.pilot]||'portrait-'+e.pilot+'.webp?v=r5&b=326');$('bossArrivalDetail').textContent=arrivalCount>1?t('warning.aceApproach',{count:arrivalCount}):t('coop.aceCoop');bossCutinUntil=bossCardFrom+2600;setBossCutin($('bossPortrait').src,$('bossName').textContent,'ENEMY ACE · 적 에이스',$('bossArrivalDetail').textContent);setBgmMode('boss')}
   if(e.type==='heinecke'||e.type==='heineckeReturn'){$('toast').textContent=e.ownerId?.toUpperCase()+' · '+runtimeEventText(e.text);show('toast');coopToastUntil=g.t+1.8;sfx(e.type==='heinecke'?'hit':'ally')}
   if(['wave','downed','revived','flak','bombWarning'].includes(e.type)){$('toast').textContent=runtimeEventText(e.text);show('toast');coopToastUntil=g.t+2.2}
