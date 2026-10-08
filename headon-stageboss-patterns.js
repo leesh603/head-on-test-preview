@@ -18,7 +18,7 @@ import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=tame3';
 import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=tame3';
 import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=tame3';
 import {apronPose} from './london-apron369.js?v=tame3';
-import {GIK,Ca4} from './alps-bomber-combat.js?v=tame3&rail=19';
+import {GIK,Ca4} from './alps-bomber-combat.js?v=tame3&rail=20';
 import {FlakTowerNet} from './city-flak-combat.js?v=tame3&rail=18';
 
 export {GIK,Ca4};
@@ -118,7 +118,6 @@ class NavalPatternBoss extends PatternBoss {
     const p=this.target(players),gun=this.gun();if(!p||gun?.destroyed)return;
     const q=this.gunPoint(),angle=Math.atan2(p.y-q.y,p.x-q.x);
     this.gunVolley={left:.85,angle,partId:gun.id};
-    this.command('charge-warning',{...q,targetX:q.x+Math.cos(angle)*460,targetY:q.y+Math.sin(angle)*460,seconds:.85});
   }
   tickVolley(dt){const v=this.gunVolley;if(!v)return;v.left-=dt;if(v.left>0)return;this.gunVolley=null;if(this.parts.get(v.partId)?.destroyed)return;const q=this.gunPoint();this.command('muzzle',{...q,partId:v.partId});broadsideBreak(this,{source:q,partId:v.partId,angle:v.angle,speed:330,visual:'zubian-shell',tag:'zubian-'+v.partId,beats:this.role==='rear'?2:3,beat:.48,warning:.15,cue:false});}
   mortar(players,{count=3,tag='zubian-mortar',crossAngle=null}={}){
@@ -210,7 +209,7 @@ export class Zubian extends NavalPatternBoss {
       if(this.t.mobileBoss){const oldX=this.x,oldY=this.y,lost=Number(this.parts.get('frontEngine').destroyed)+Number(this.parts.get('rearEngine').destroyed),mobility=lost===2?.28:lost===1?.65:1,age=this.stateAge,cx=bounds?(bounds.left+bounds.right)/2:this.anchorX,cy=bounds?(bounds.top+bounds.bottom)/2:this.anchorY;
        steerNaval(this,dt,cx+Math.sin(age*.5)*150,cy+Math.cos(age*.35)*110,{bounds,speed:34,turn:.6,mobility});this.driveVelocity=Math.hypot(this.x-oldX,this.y-oldY)/Math.max(.001,dt);this.syncParts();}
       if(this.broadsidePrep){const v=this.broadsidePrep;v.left-=dt;if(v.left<=0){this.broadsidePrep=null;const gun=this.parts.get(v.partId);if(!gun.destroyed){const q=navalPoint(this,0,gun.localY);this.command('muzzle',{...q,partId:gun.id});this.fan(q.x,q.y,v.angle,7,1.15,this.t.bulletSpeed*.78,'zubian-shell');}}}
-      if(!this.broadsidePrep&&this.stateAge>1.5&&this.due('broadside',dt,(this.t.broadsideInterval||2.8)+.9)){const side=this.broadsideSide*=-1,gun=this.parts.get(side===1?'frontGun':'rearGun');if(!gun.destroyed){const q=navalPoint(this,0,gun.localY),angle=(side===1?0:Math.PI)+this.hullYaw;this.broadsidePrep={left:.9,partId:gun.id,angle};this.command('charge-warning',{...q,targetX:q.x+Math.cos(angle)*460,targetY:q.y+Math.sin(angle)*460,seconds:.9});}}
+      if(!this.broadsidePrep&&this.stateAge>1.5&&this.due('broadside',dt,(this.t.broadsideInterval||2.8)+.9)){const side=this.broadsideSide*=-1,gun=this.parts.get(side===1?'frontGun':'rearGun');if(!gun.destroyed){const q=navalPoint(this,0,gun.localY),angle=(side===1?0:Math.PI)+this.hullYaw;this.broadsidePrep={left:.9,partId:gun.id,angle};}}
 
       return;
     }
