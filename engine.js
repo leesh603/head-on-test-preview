@@ -1,30 +1,30 @@
-import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=gun1';
-import {wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=gun1';
-import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=gun1';
-import {installPilotIdentities} from './pilot-identities.js?v=gun1';
-import {EnemyCollisionGrid} from './collision-grid.js?v=gun1';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=gun1';
-import {installRevision} from './rebalance103.js?v=gun1';
-import {installCloudCover} from './cloud-cover1.js?v=gun1';
-import {installFleet} from './fleet-naval1.js?v=gun1';
-import {installTrenchWar} from './trench-war1.js?v=gun1';
-import {installCityAir} from './city-air1.js?v=gun1';
-import {installRegionDoctrine} from './region-doctrine1.js?v=gun1';
-import {installLondonBattle} from './london-battle.js?v=gun1';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=gun1';
+import {beginAircraftCrash,advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=r5';
+import {wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=r5';
+import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=r5';
+import {installPilotIdentities} from './pilot-identities.js?v=r5';
+import {EnemyCollisionGrid} from './collision-grid.js?v=r5';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=r5';
+import {installRevision} from './rebalance103.js?v=r5';
+import {installCloudCover} from './cloud-cover1.js?v=r5';
+import {installFleet} from './fleet-naval1.js?v=r5';
+import {installTrenchWar} from './trench-war1.js?v=r5';
+import {installCityAir} from './city-air1.js?v=r5';
+import {installRegionDoctrine} from './region-doctrine1.js?v=r5';
+import {installLondonBattle} from './london-battle.js?v=r5';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=r5';
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=gun1&rail=1&hints=1';
-import {installBuildCombatIdentity} from './build-combat-identity.js?v=gun1';
-import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=gun1';
-import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=gun1';
-import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=gun1';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gun1';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=gun1';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=gun1';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=gun1';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=gun1';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=gun1';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=gun1';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=gun1';
+import {installBuildCombatIdentity} from './build-combat-identity.js?v=r5';
+import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=r5';
+import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=r5';
+import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=r5';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=r5';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=r5';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=r5';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=r5';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=r5';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=r5';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=r5';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=r5';
 
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
@@ -952,11 +952,13 @@ Game.prototype.spawnPatrol=function(){
   this.patrols.push({slot:i,x:x-Math.sin(a)*off,y:y+Math.cos(a)*off,a,plane,hp:PATROL_BALANCE.hp,maxHp:PATROL_BALANCE.hp,life:PATROL_BALANCE.life,speed:185,fire:.2+i*.15,invuln:.6,hitFlash:0,altitude:this.altitude,target:null,think:0,pass:0,waypoint:{x:this.x-Math.cos(angle)*240,y:this.y-Math.sin(angle)*240}});
  }
 };
-Game.prototype.hitPatrol=function(p,damage){
+Game.prototype.hitPatrol=function(p,damage,round){
  if(p.hp<=0||p.invuln>0)return;
+ if(round?.formationBoss129)p.lastFormationAttacker=round.sourceBossId||round.sourceMinionId;
  p.hp=Math.max(0,p.hp-damage);p.invuln=.22;p.hitFlash=.15;
  this.burst(p.x,p.y,p.hp>0?'#f3ddaa':'#d49c65',p.hp>0?4:16);
- if(p.hp<=0){p.life=0;this.patrolLosses=(this.patrolLosses||0)+1;this.smoke(p.x,p.y,true)}
+ if(p.hp<=0){p.life=0;this.patrolLosses=(this.patrolLosses||0)+1;this.smoke(p.x,p.y,true);
+  if(this.stageBoss?.stages.stageIndex===9&&this.stageBoss.stages.phase==='boss'){beginAircraftCrash(p,()=>this.rng());p.crashStyle='spin';}}
 };
 Game.prototype.hitFormationAlly=function(a,damage){
  if(a.life<=0||a.invuln>0)return;a.maxHp??=72;a.hp??=a.maxHp;
@@ -967,7 +969,7 @@ Game.prototype.hitFormationAlly=function(a,damage){
 Game.prototype.resolveHostileRound=function(b,x0,y0){
  const dx=b.x-x0,dy=b.y-y0,length=dx*dx+dy*dy;
  let first=Infinity,hit=null;
- const patrols=this.patrols,allies=b.formationBoss129?this.allies:null,patrolCount=patrols?.length||0,total=1+patrolCount+(allies?.length||0);
+ const patrols=this.patrols,allies=b.formationBoss129&&this.stageBoss?.stages.stageIndex!==9?this.allies:null,patrolCount=patrols?.length||0,total=1+patrolCount+(allies?.length||0);
  // Keep player -> patrol -> formation order, including equal-time impacts.
  for(let i=0;i<total;i++){
   const target=i===0?this:i<=patrolCount?patrols[i-1]:allies[i-1-patrolCount];
@@ -977,14 +979,15 @@ Game.prototype.resolveHostileRound=function(b,x0,y0){
   let t=0;if(c>0){if(length===0)continue;const dot=ox*dx+oy*dy,disc=dot*dot-length*c;if(disc<0)continue;t=(-dot-Math.sqrt(disc))/length;if(t<0||t>1)continue}
   if(t<first){first=t;hit=target}
  }
- if(hit){if(hit===this){this.damageSource={x:x0,y:y0,bullet:b,impactX:x0+(b.x-x0)*first,impactY:y0+(b.y-y0)*first};this.hit(highRiskDamage(b.damage,this.maxHp,b));this.damageSource=null;}else if((this.patrols||[]).includes(hit))this.hitPatrol(hit,b.damage);else this.hitFormationAlly(hit,b.damage);b.life=0}
+ if(hit){if(hit===this){this.damageSource={x:x0,y:y0,bullet:b,impactX:x0+(b.x-x0)*first,impactY:y0+(b.y-y0)*first};this.hit(highRiskDamage(b.damage,this.maxHp,b));this.damageSource=null;}else if((this.patrols||[]).includes(hit))this.hitPatrol(hit,b.damage,b);else this.hitFormationAlly(hit,b.damage);b.life=0}
 };
 Game.prototype.updatePatrols=function(dt){
  this.patrols??=[];
- {let w=0;for(const p of this.patrols)if(p.hp>0&&p.life>0&&Math.hypot(p.x-this.x,p.y-this.y)<1700)this.patrols[w++]=p;this.patrols.length=w}
+ {let w=0;for(const p of this.patrols)if((p.crashing&&!p.crashed)||(p.hp>0&&p.life>0&&Math.hypot(p.x-this.x,p.y-this.y)<1700))this.patrols[w++]=p;this.patrols.length=w}
  this.patrolTimer=(this.patrolTimer??PATROL_BALANCE.initialDelay)-dt;
  if(this.patrolTimer<=0){this.spawnPatrol();this.patrolTimer=PATROL_BALANCE.reinforceEvery}
  for(const p of this.patrols){
+  if(p.crashing){advanceAircraftCrash(this,p,dt);continue;}
   p.life-=dt;p.invuln=Math.max(0,p.invuln-dt);p.hitFlash=Math.max(0,p.hitFlash-dt);p.fire=Math.max(0,p.fire-dt);p.think-=dt;p.pass=Math.max(0,p.pass-dt);
   if(p.think<=0||!p.target||!this.patrolCanEngage(p.target,p)||!this.enemies.includes(p.target)){
    const pursuit=Math.max(.75,Math.min(1.25,p.personality?.pursuitControl??1));p.think=.75;p.target=null;let best=750*pursuit;
@@ -994,7 +997,13 @@ Game.prototype.updatePatrols=function(dt){
     if(distance<700*pursuit&&score<best){best=score;p.target=e}
    }
   }
-  const target=p.target;
+  let target=p.target;
+  const arras=this.stageBoss?.stages.stageIndex===9&&[...this.stageBoss.stages.encounter?.bodies.values()||[]].find(b=>b.formationBoss129&&!b.entryComplete);
+  if(arras){const z=this.camera?.zoom||1,w=(this.viewWidth||960)/z,h=(this.viewHeight||700)/z;
+    if(Math.abs(p.x-this.x)>w*.28||p.y-this.y>h*.08||p.y-this.y<-h*.28){
+      target=null;p.waypoint={x:this.x+Math.cos(this.a)*110,y:this.y+Math.sin(this.a)*110};p.speed=Math.max(210,Math.min(260,(this.speed||185)+55));
+    }
+  }
   p.waypoint??={x:this.x,y:this.y};
   if(!target&&Math.hypot(p.waypoint.x-p.x,p.waypoint.y-p.y)<90){const angle=this.rng()*Math.PI*2;p.waypoint={x:this.x+Math.cos(angle)*320,y:this.y+Math.sin(angle)*320}}
   patrolEngagementStep(p,target,p.waypoint,dt);
@@ -1755,7 +1764,7 @@ Game.prototype.update=function(dt,input={}){
  for(const p of this.particles){p.x+=p.vx*step;p.y+=p.vy*step;p.life-=step}
  {const _ph=this.particles;let _w=0;for(let _i=0;_i<_ph.length;_i++)if(_ph[_i].life>0)_ph[_w++]=_ph[_i];_ph.length=_w}
 };
-import {installNinePilots} from './pilot-nine-combat.js?v=gun1';
+import {installNinePilots} from './pilot-nine-combat.js?v=r5';
 const _preNineHit=Game.prototype.hit;Game.prototype.hit=function(n){if(this.pilot==='barker'&&this.invuln<=0&&n>0){this.barkerStacks=Math.min(this.skillTime>0?5:3,(this.barkerStacks||0)+1);this.barkerStackTime=3;if(this.skillTime>0)n=Math.min(n,Math.max(0,this.hp-1))}_preNineHit.call(this,n)};
 installNinePilots(Game,PILOTS);
 

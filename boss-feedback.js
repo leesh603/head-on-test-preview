@@ -94,7 +94,7 @@ export function bossTactic(encounter,locale='ko'){
    case 'treffas-wagen':return gone('turret')?text('주포가 멈췄습니다. 차체 기관총을 피하세요.','Turret down · main gun silenced; hull guns remain'):b.phase==='emplacement'?text('이동이 멈췄습니다. 번갈아 쏘는 포격을 피하세요.','Fixed emplacement · bracket and aimed line alternate'):b.coreVulnerable?text('노출된 차체를 공격하세요. 포탑과 바퀴도 파괴할 수 있습니다.','Hull exposed · turret and wheels remain targets'):gone('wheel-left')||gone('wheel-right')?text('바퀴 하나가 남았습니다. 나머지도 부숴 이동을 막으세요.','One wheel down · mobility reduced'):text('바퀴를 부수면 이동이 멈추고, 포탑을 부수면 주포가 멈춥니다.','Destroy wheels or turret to change its attacks');
   case 'jasta11-circus':return text('좌우 편대기를 격추해 포위를 푸세요. 리히트호펜도 바로 공격할 수 있습니다.','Break the wing attack lanes to weaken the trap · Richthofen is always vulnerable');
   case 'naval10-black-flight':return text('두 기 중 하나를 격추하면 해당 조의 협공이 끊깁니다.','Split each bait-hunter pair · losing either aircraft breaks that pair attack');
-  case 'mark4-wedge':return b.tacticalState==='halt-fire'?text('엄호 사격을 피해 멈춰 선 전차의 측면을 공격하세요.','Male halts to fire · avoid female covering guns and flank'):text('궤도를 부숴 이동을 막고, 측면 무장을 파괴해 장갑을 여세요.','Advance and reverse regroup · break tracks to stop, sponsons to expose armor');
+  case 'mark4-wedge':if(b.recovering)return text('최후 돌파 종료 · 재장전 중인 전차 측면을 공격하세요.','Final push over · flank the reloading tanks');if(b.lastStandActive)return text('수형 포격 뒤 암형이 차례로 사격합니다 · 포신 방향 밖으로 기동하세요.','Male cannon then staggered female guns · move outside the bores');return b.tacticalState==='halt-fire'?text('엄호 사격을 피해 멈춰 선 전차의 측면을 공격하세요.','Male halts to fire · avoid female covering guns and flank'):text('궤도를 부숴 이동을 막고, 측면 무장을 파괴해 장갑을 여세요.','Advance and reverse regroup · break tracks to stop, sponsons to expose armor');
   case 'morser-battery':return b.coreVulnerable?text('남은 포격을 피해 노출된 중앙 지휘부를 공격하세요.','Command core exposed · evade surviving guns and strike center'):gone('observer')?text('추적 포격이 멈췄습니다. 표시된 안전 통로로 피하세요.','Observer destroyed · blind sectors; use the marked clear corridor'):gone('ammo')?text('포격이 느려졌습니다. 중포 2문을 부숴 중앙부를 노출시키세요.','Ammo cooked off · slower fire; break two heavy mounts to expose core'):text('표시된 통로로 피하고, 관측소와 탄약고를 부숴 포격을 약화시키세요.','Curtain and creeping barrage alternate · use the marked lane; silence observer or ammo');
   case 'staaken-rvi':return b.coreVulnerable?text('엔진이 모두 멈췄습니다. 남은 폭탄을 피하며 동체를 공격하세요.','All engines stopped · evade the bomb dump and strike fuselage'):text('폭탄과 사수의 사격을 피하며 엔진 4개를 파괴하세요.','Destroy all four nacelles · avoid stick bombs and gunners');
   case 'london-searchlight':return b.coreVulnerable?text('방공 장치가 멈췄습니다. 노출된 중앙 지휘부를 공격하세요.','Defense disabled · command generator exposed'):gone('light')?text('추적이 멈췄습니다. 남은 포좌와 탄약고를 파괴하세요.','Tracking stopped · disable gun and ammunition'):text('탐조등을 먼저 부수세요. 오래 비춰지면 집중 포격을 받습니다.','Sustained illumination triggers focused flak · destroy the lamp');
@@ -142,7 +142,7 @@ export function bossSoundFor(event,kind=''){
   if(visual==='rail-shell')return kind==='lincomparable'?'railShellImpact520':'railShellImpact';
   if(/minenwerfer|observer-shell/.test(visual))return 'earthImpact';
   if(/zubian|naval|harbor/.test(visual))return 'waterImpact';
-  if(visual.startsWith('somme-'))return 'earthImpact';
+  if(visual==='somme-landship-shell')return 'earthImpact';
   if(/flak/.test(visual))return 'flak';
   if(visual==='carpet-bomb')return 'earthImpact';
  }

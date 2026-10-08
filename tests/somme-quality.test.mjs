@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 const {createBossEncounter}=await import('../headon-stageboss-patterns.js?v=gun1');
-const {landshipClearance,sommeMuzzle}=await import('../somme-boss-layout.js?v=gun1');
+const {landshipClearance,sommeMuzzle,sommePoint,syncSommeParts}=await import('../somme-boss-layout.js?v=gun1');
 const {bossHudModel}=await import('../headon-stageboss-hud.js?v=gun1');
 const bounds={left:0,right:800,top:0,bottom:844};
 const players=[{id:'p1',alive:true,x:680,y:390,radius:12},{id:'p2',alive:true,x:140,y:420,radius:12}];
@@ -15,6 +15,7 @@ test('Mark I entrance uses the real three hulls and waits for visible movement b
  const {e,events,bs}=make({sommeApproach:true});assert.equal(bossHudModel(e),null);
  const first=[...bs.map(b=>[b.x,b.y])];assert(bs[0].y>bs[1].y);
  advance(e,5,{players,bounds:{...bounds,top:1000,bottom:1844}});
+ assert(bs[1].x<first[1][0]&&bs[2].x>first[2][0],'female escorts must actually spread outward');
  assert.equal(e.markEntry.age,0);assert(!events.some(q=>q.type==='hazard'));assert.equal(bossHudModel(e),null);
  advance(e,1.5);assert(bs.every(b=>b.discovered));assert(bossHudModel(e));
  assert.equal(events.filter(q=>q.type==='somme-discovered').length,1);
@@ -43,4 +44,12 @@ test('final push keeps fully broken tracks fixed while surviving sponsons defend
  const pose=bs.map(b=>[b.x,b.y,b.hullYaw]);advance(e,11);assert.deepEqual(bs.map(b=>[b.x,b.y,b.hullYaw]),pose);
  assert(events.some(q=>q.visual==='somme-landship-shell'));
  for(const b of bs)for(const p of b.parts.values())if(p.muzzleLength){const m=sommeMuzzle(b,p);assert(Number.isFinite(m.x)&&Number.isFinite(m.y));}
+});
+test('QA sponson attack reaches the exposed outer mount before the overlapping track strip',()=>{
+ for(const width of [390,1280])for(const yaw of [Math.PI,.8])for(const id of ['sponson-left','sponson-right']){
+  const {bs}=make({regionalViewWidth:width}),b=bs[0];b.hullYaw=yaw;syncSommeParts(b);
+  const p=b.parts.get(id),side=Math.sign(p.localX),q=sommePoint(b,p.localX+side*13,p.localY),dx=Math.cos(yaw)*side,dy=Math.sin(yaw)*side;
+  const hit=b.hitAt({x:q.x-dx,y:q.y-dy,previousX:q.x+dx*3,previousY:q.y+dy*3,radius:0,damage:20});
+  assert.equal(hit.partId,id);assert.equal(b.parts.get('track-left').hp,b.parts.get('track-left').maxHp);assert.equal(b.parts.get('track-right').hp,b.parts.get('track-right').maxHp);
+ }
 });
