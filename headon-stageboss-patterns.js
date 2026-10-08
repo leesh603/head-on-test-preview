@@ -863,7 +863,7 @@ export class MinenwerferBattery extends PatternBoss {
     this.phase='cross-barrage';this.coreVulnerable=true;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
     this.shotSerial=0;this.baseVolleyCount=0;this.specialWave=0;this.specialClock=4.2;this._gasTier=3;
     this.discovered=false;this.discoveryClock=0;this.raidPhase=1;this.cycleClock=.3;this.recovery=0;this.finalGrace=2.8;this.finalCounts=new Set();this.mortarPlan=null;
-    for(const gun of this.parts.values()){gun.discovered=false;gun.mortarMouth={x:0,y:-86};gun.mortarFlash=0;gun.mortarSmoke=0;gun.mortarTube=1;gun.mortarRecoil=0;gun.tubeCursor=0;}
+    for(const gun of this.parts.values()){gun.discovered=false;gun.mortarMouth={x:0,y:-86};gun.mortarFlash=0;gun.mortarSmoke=0;gun.mortarTube=1;gun.mortarRecoil=0;gun.mortarRecoils=[0,0,0];gun.tubeCursor=0;}
   }
   suppressive(){/* The three emplacements own every Minenwerfer attack. */}
   liveGuns(){return [...this.parts.values()].filter(p=>!p.destroyed);}
@@ -907,7 +907,7 @@ export class MinenwerferBattery extends PatternBoss {
   }
   blast(gun,tube=gun.tubeCursor++%3){
     if(gun.destroyed||this.dead)return;const source=this.muzzle(gun,tube),t=MINEN_TUBES[tube];
-    gun.mortarTube=tube;gun.mortarMouth={x:t.muzzleX,y:t.muzzleY};gun.mortarRecoil=MINEN_ART.recoilDuration;
+    gun.mortarTube=tube;gun.mortarMouth={x:t.muzzleX,y:t.muzzleY};gun.mortarRecoil=MINEN_ART.recoilDuration;gun.mortarRecoils??=[0,0,0];gun.mortarRecoils[tube]=MINEN_ART.recoilDuration;
     gun.mortarFlash=.22;gun.mortarSmoke=1.5;
     this.command('mortar-launch',{...source,partId:gun.id,tube});this.command('muzzle',{...source,partId:gun.id});
   }
@@ -960,7 +960,7 @@ export class MinenwerferBattery extends PatternBoss {
     if(this.dead||paused)return;dt=Math.min(dt,.25);this.x=this.anchorX;this.y=this.anchorY;
     this.trenchScale=1;
     const guns=this.liveGuns();if(!guns.length)return;this.discoveryClock=Math.max(0,this.discoveryClock-dt);
-    for(const gun of this.parts.values()){gun.mortarFlash=Math.max(0,gun.mortarFlash-dt);gun.mortarSmoke=Math.max(0,gun.mortarSmoke-dt);gun.mortarRecoil=Math.max(0,gun.mortarRecoil-dt);}
+    for(const gun of this.parts.values()){gun.mortarFlash=Math.max(0,gun.mortarFlash-dt);gun.mortarSmoke=Math.max(0,gun.mortarSmoke-dt);gun.mortarRecoil=Math.max(0,gun.mortarRecoil-dt);if(gun.mortarRecoils)for(let tube=0;tube<3;tube++)gun.mortarRecoils[tube]=Math.max(0,gun.mortarRecoils[tube]-dt);}
     // Every pit already exists at its authored world pose. Visibility reveals
     // its identity, not its position or an animation that raises the facility.
     if(!this.discoveryClock){const visible=guns.find(p=>!p.discovered&&players.some(v=>v.alive&&Math.hypot(v.x-this.x-p.x,v.y-this.y-p.y)<600));
