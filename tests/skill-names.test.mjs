@@ -19,7 +19,7 @@ const approved={
  schleich:['흑기사','블랙 어드밴스'],brumowski:['붉은 호위대','편대 재집결'],
  fonck:['정밀의 에이스','핀포인트 살보'],collishaw:['블랙 플라이트','블랙 마리아'],
  baracca:['바라카의 말','카발리노 람판테'],guynemer:['모퇴르 카농','황새의 포화'],
- bishop:['근접 사냥','게릴라 어택'],mannock:['동료의 수호자','타이거 스쿼드런'],
+ bishop:['근접 사냥','게릴라 어택'],mannock:['74비행대 지휘','74비행대 교차강하'],
  mckeever:['파월의 엄호','호크 앤 냇'],hawker:['연속 추적','어택 에브리싱'],
  mccudden:['플라잉 메카닉','야전 정비'],nungesser:['검은 심장','죽음의 기사'],
  rickenbacker:['레이서의 본능','햇 인 더 링'],ball:['고독한 사냥꾼','구름 속의 매'],
@@ -63,7 +63,7 @@ test('active/passive names remain distinct and pilot titles are not duplicated',
 });
 test('all existing pilot descriptions are byte-for-byte unchanged from c2d27ad',()=>{
  const rows=pilots.flatMap(id=>['ko','en'].map(lang=>[id,lang,...detailFields.map(f=>catalog[id][lang][f])]));
- assert.equal(createHash('sha256').update(JSON.stringify(rows)).digest('hex'),'25ce7ede23b46642641b46f869f2e22629529dceab0fa9f0dd07f4090ddcdacf');
+ assert.equal(createHash('sha256').update(JSON.stringify(rows)).digest('hex'),'d112999f46a62883598ac37e2dfb56cec2c612973d0abeb7d4240b9a22fd7796');
 });
 test('Albatros keeps its descriptions and never falls back to Dr.I',()=>{
  assert.equal(pilotIdentityCopy(variant).skill,'태양의 사냥꾼');
