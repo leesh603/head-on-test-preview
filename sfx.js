@@ -6,7 +6,7 @@ let ctx=null,bus=null,noise=null,muted=false,paused=false,master=1,priority=0,re
 const railBuffers=new Map();
 const sources=new Map(),lastVoices=new Map();
 const PRIORITY={trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1,armorClink:2,whizz:1,closePass:2,airframeBreak:1,engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0};
-const INTERVAL={trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
+const INTERVAL={armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
 let inputMedia=null;
 const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
 export function stopSfx(){for(const [source,entry]of sources){try{source.stop()}catch{}entry.release()}lastVoices.clear()}
@@ -77,6 +77,9 @@ const VOICES={
   closePass(){tone(jit(155),47,.38,.068,'sawtooth',680,0,.045);hiss(1600,250,.34,.074,'bandpass',.65,0,.035)},
   airframeBreak(){tone(jit(180),53,.18,.062,'triangle',700);hiss(jit(1800),420,.26,.057,'bandpass',.65);hiss(3200,1200,.05,.026,'highpass',.7,.035)},
   // Mechanical/material cues follow actual boss actions, not a generic beep.
+  armorDrive(){tone(49,46,.3,.02,'sawtooth',170);for(let i=0;i<3;i++){hiss(760,350,.045,.016,'bandpass',.7,i*.09);tone(117,72,.07,.01,'triangle',310,i*.09)}},
+  armorEntry(){tone(72,43,1.2,.045,'sawtooth',220);hiss(480,180,.9,.03,'lowpass',.5);for(let i=0;i<6;i++)hiss(1200,550,.06,.024,'bandpass',1,i*.15)},
+  armorBrake(){tone(82,34,.4,.038,'sawtooth',270);hiss(900,360,.3,.038,'bandpass',.6)},
   mortarLaunch(){tone(135,46,.22,.075,'sine',440);hiss(680,180,.16,.065,'bandpass',.7);hiss(1250,500,.44,.018,'bandpass',3,.14)},
   earthImpact(){tone(78,28,.34,.09,'sine',250);hiss(1100,170,.48,.075,'lowpass',.6);hiss(2700,850,.09,.035,'bandpass',1.2)},
   waterImpact(){hiss(1900,430,.62,.065,'bandpass',.45);tone(68,35,.3,.045,'sine',240);hiss(3600,1700,.2,.022,'highpass',.5,.14)},

@@ -10,7 +10,9 @@ import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} fro
 import {sommeExtents} from './somme-boss-layout.js?v=raid1';
 import {drawZubianShip} from './adriatic-boss-render.js?v=raid1';
 import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=raid1';
-import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=raid1';
+import {drawArmorGround,drawArmorTreads,drawArmorDamageFX} from './trench-armor-render.js?v=raid1';
+import {armorGunMuzzle} from './trench-armor-layout.js?v=raid1';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta} from './trench-armor-layout.js?v=raid1';
 import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=raid1';
 import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=raid1';
 import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=raid1';
@@ -62,6 +64,7 @@ const bossSources={
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
 const alpsGroup=createLazyImageGroup({gik:'./alps-gik-damage-20261001.webp?v=raid1',ca4:'./alps-ca4-damage-20261001.webp?v=raid1'}),alpsArt=alpsGroup.images;
 const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.webp',a7vTurret:'./boss-a7v-turret-rebuild.webp',markvHull:'./boss-mark-v-hull-rebuild.webp',markvSponson:'./boss-mark-v-sponson-rebuild.webp'}),rebuildArt=rebuildGroup.images;
+const armorMotionGroup=createLazyImageGroup({treads:'./boss-trench-treads-20261008.webp',wire:'./boss-trench-wire-20261008.webp',crossing:'./boss-trench-crossing-20261008.webp',lamp:'./boss-searchlight.webp',lampWreck:'./boss-searchlight-wreck.webp'}),armorMotionArt=armorMotionGroup.images;
 const armorDamageGroup=createLazyImageGroup({a7vLeft:'./boss-a7v-track-left-20260930.webp',a7vRight:'./boss-a7v-track-right-20260930.webp',a7vBreached:'./boss-a7v-breached-20260930.webp',a7vWreck:'./boss-a7v-wreck-20260930.webp',a7vGunWreck:'./boss-a7v-gun-wreck-20260930.webp',markLeft:'./boss-mark-v-track-left-20260930.webp',markRight:'./boss-mark-v-track-right-20260930.webp',markBreached:'./boss-mark-v-breached-20260930.webp',markWreck:'./boss-mark-v-wreck-20260930.webp',markGunWreck:'./boss-mark-v-gun-wreck-20260930.webp'}),armorDamage=armorDamageGroup.images;
 const flakTowerGroup=createLazyImageGroup({hull:'./boss-flak-tower-hull.webp?v=raid1',siege:'./boss-flak-tower-siege.webp?v=raid1',ears:'./boss-flak-tower-ears.webp?v=raid1',gun:'./boss-flak-tower-platform.webp?v=raid1',damage:'./city-flak-damage-20261001.webp?v=raid1'}),flakArt=flakTowerGroup.images;
 // Part sprites hold their ring disc off-center inside the frame; anchoring
@@ -84,12 +87,12 @@ const BOSS_KEYS_BY_REGION=Object.freeze({
 export function prepareStageBossAssets(region){
  if([1,7,16].includes(region))prepareSinkingWater();
  const jobs=[prepareBossCutins(region),prepareRegionalBossArt(region)];releaseSommeAssets();if(region===10)jobs.push(prepareSommeAssets());releaseLondonArt();if(region===11)jobs.push(prepareLondonArt());releaseVerdunAssets();if(region===12)jobs.push(prepareVerdunAssets());releaseParisArt();if(region===15)jobs.push(prepareParisArt());jobs.push(prepareMaanAssets(region),prepareGallipoliAssets(region),prepareJutlandAssets(region));
- bossGroup.release();alpsGroup.release();supportGroup.release();rebuildGroup.release();armorDamageGroup.release();harborGroup.release();trenchGroup.release();zubianGroup.release();cityGroup.release();buildingGroup.release();flakTowerGroup.release();
+ bossGroup.release();alpsGroup.release();supportGroup.release();rebuildGroup.release();armorDamageGroup.release();armorMotionGroup.release();harborGroup.release();trenchGroup.release();zubianGroup.release();cityGroup.release();buildingGroup.release();flakTowerGroup.release();
  for(const group of [...Object.values(railGroups),...Object.values(railWreckGroups)])group.release();
  const bossKeys=BOSS_KEYS_BY_REGION[region]||[];if(bossKeys.length)jobs.push(bossGroup.preload(bossKeys));
  if(region===0)for(const key of ['parisGun','lincomparable'])jobs.push(railGroups[key].preload(),railWreckGroups[key].preload());
  if(region===1){jobs.push(supportGroup.preload());jobs.push(zubianGroup.preload());jobs.push(sinkFoamGroup.preload())}
-  if(region===2){jobs.push(rebuildGroup.preload());jobs.push(armorDamageGroup.preload())}
+  if(region===2){jobs.push(rebuildGroup.preload());jobs.push(armorDamageGroup.preload());jobs.push(armorMotionGroup.preload())}
   if([2,4,8,10,11].includes(region))jobs.push(prepareAADefenseAssets(region===11?['fx','drachen','london']:region===4?['fx','drachen']:['fx']));
   else releaseAADefenseAssets();
  if(region===3){prepareLivensFlame();jobs.push(trenchGroup.preload());jobs.push(impactGroup.preload())}else{impactGroup.release();releaseLivensFlame();}
@@ -304,16 +307,14 @@ function drawTrenchArmor(c,b){
  const key=b.destroying?'Wreck':left&&right?'Breached':left?'Left':right?'Right':null;
  const image=key?armorDamage[prefix+key]:(mark?rebuildArt.markvHull:rebuildArt.a7vHull);
  c.save();c.rotate(b.hullYaw||0);c.imageSmoothingEnabled=true;
- if(Math.abs(b.driveVelocity||0)>2&&!b.destroying){
-  const y=b.driveVelocity<0?114:-114;
-  for(const side of [-1,1])if(!part(side<0?'track-left':'track-right')?.destroyed)fx(c,'dustPuff',side*TRENCH_ARMOR_LAYOUT[b.assetKey].trackX,y,52,36,0,.22);
- }
  if(image?.naturalWidth)c.drawImage(image,-128,-128,256,256);
  else{const intact=mark?rebuildArt.markvHull:rebuildArt.a7vHull;if(intact.naturalWidth)c.drawImage(intact,-128,-128,256,256);}
+ drawArmorTreads(c,b,armorMotionArt.treads);drawArmorDamageFX(c,b);
  if(!b.destroying&&!(left&&right)&&(b.coreVulnerable||part('engine-deck')?.destroyed)){
   // The authored ruptured engine panel is the same registered hull patch.
   const breached=armorDamage[prefix+'Breached'];if(breached.naturalWidth){c.save();c.beginPath();c.rect(-31,-61,62,99);c.clip();c.drawImage(breached,-128,-128,256,256);c.restore();}
  }
+ const lamp=part('searchlight');if(lamp){const light=lamp.destroyed?armorMotionArt.lampWreck:armorMotionArt.lamp;if(light?.naturalWidth)c.drawImage(light,337,183,100,100,lamp.localX/s-15,lamp.localY/s-15,30,30);}
  for(const p of parts)if(p.kind==='armor-gun')drawArmorGun(c,b.destroying?{...p,destroyed:true}:p,b.assetKey,s);
  for(const p of parts)if(p.destroyed&&!b.destroying){
   const x=p.localX/s,y=p.localY/s;
@@ -542,7 +543,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    // Churned-earth trail under the Treffas-Wagen, in world space before any scale.
    if(b.assetKey==='treffas-wagen'&&b.churn?.length){c.save();for(const pt of b.churn){c.save();c.translate(pt.x-b.x,pt.y-b.y);c.rotate(pt.heading||0);c.globalAlpha=Math.max(0,1-(pt.age||0)/12)*.25;c.fillStyle='#33291d';for(const side of [-1,1]){c.beginPath();c.ellipse(side*112,65,29,18,0,0,Math.PI*2);c.fill();}c.restore();}c.restore();}
    const trenchArmor=['a7v-flak','mark-v-cruiser'].includes(b.assetKey);
-   if(trenchArmor)c.scale(b.geometryScale,b.geometryScale);
+   if(trenchArmor){drawArmorGround(c,b,armorMotionArt.wire,armorMotionArt.crossing);c.scale(b.geometryScale,b.geometryScale);}
    else if(!rail&&!structure&&!plane){c.scale(2.025,2.025);c.translate(0,b.recoil*18);}
    if(b.recoil>0&&!structure&&!trenchArmor){pixelBlast(c,0,-100,24,b.motionTime);c.fillStyle='#d6d2b04d';c.fillRect(-13,-160,26,48);}
    if(rail){drawRailConsist181(c,b);}
@@ -766,7 +767,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
   if(layer!=='bodies')for(const effect of g.aaEffects||[])
     drawAADefense(c,effect.kind,effect.x,effect.y,effect.size||115,effect.size||115,0,Math.max(0,1-effect.age/effect.life));
   if(layer!=='bodies')for(const b of addon.stages.encounter?.bodies.values()||[]){if(!b.dead&&b.ruralRailBoss)drawRuralRailWarnings(c,b);if(!b.dead&&['gik','ca4'].includes(b.kind))drawAlpsWarnings(c,b);if(!b.dead&&b.kind==='treffas-wagen')drawCambraiFlakWarning(c,b);}
-  if(layer!=='bodies')for(const cue of g.bossCues){if(drawRegionalCue(c,cue))continue;c.strokeStyle='#ffce80';c.setLineDash([8,6]);c.beginPath();c.moveTo(cue.x,cue.y);c.lineTo(cue.targetX,cue.targetY);c.stroke();c.setLineDash([]);}
+  if(layer!=='bodies')for(const cue of g.bossCues){if(drawRegionalCue(c,cue))continue;let line=cue;const owner=addon.stages.encounter?.bodies.get(cue.bossId);if(cue.partId&&['a7v-flak','mark-v-cruiser'].includes(owner?.kind)){const gun=owner.parts.get(cue.partId);if(gun?.destroyed)continue;const q=armorGunMuzzle(owner.kind,gun,owner.hullYaw,owner.t?.geometryScale||1);line={x:owner.x+q.x,y:owner.y+q.y,targetX:owner.x+q.x+Math.cos(q.angle)*420,targetY:owner.y+q.y+Math.sin(q.angle)*420};}if(cue.hullMountY&&['a7v-flak','mark-v-cruiser'].includes(owner?.kind)){const m=armorRotate(0,cue.hullMountY*(owner.t?.geometryScale||1),owner.hullYaw),facing=owner.hullYaw+(cue.hullMountY>0?Math.PI/2:-Math.PI/2),angle=facing+Math.max(-.3,Math.min(.3,armorAngleDelta(cue.lockedAngle,facing)));line={x:owner.x+m.x,y:owner.y+m.y,targetX:owner.x+m.x+Math.cos(angle)*420,targetY:owner.y+m.y+Math.sin(angle)*420};}c.strokeStyle='#ffce80';c.setLineDash([8,6]);c.beginPath();c.moveTo(line.x,line.y);c.lineTo(line.targetX,line.targetY);c.stroke();c.setLineDash([]);}
  c.restore();
  if(layer==='bodies')return;for(const b of addon.stages.encounter?.bodies.values()||[]){if(b.dead||b.hidden||(b.layout&&b.entryAge<7))continue;if(b.jutlandBoss){drawJutlandGuide(c,b,g,W,H,z);continue;}if(b.gallipoliBoss){drawGallipoliGuide(c,b,g,W,H,z);continue;}const hull=b.gallipoliBoss?{halfWidth:1640,halfHeight:1080}:b.layout?{halfWidth:b.layout.width/2,halfHeight:b.layout.height/2}:b.kind==='maan-rolls-royce'?{halfWidth:20,halfHeight:35}:b.fortressBoss?verdunFortExtents(b):b.sommeBoss?sommeExtents(b):b.kind==='drachen-net'?{halfWidth:400*b.cityArtScale,halfHeight:360*b.cityArtScale}:b.kind==='flak-tower-cell'?{halfWidth:190*b.regionalScale,halfHeight:190*b.regionalScale}:ALPS_BOMBER_LAYOUT[b.kind]?alpsHullExtents(b):LARGE_HULLS[b.kind]||{halfWidth:0,halfHeight:0},sx=(b.x-g.x)*z+W/2,sy=(b.y-g.y)*z+H/2,hx=hull.halfWidth*z,hy=hull.halfHeight*z;const visW=Math.min(sx+hx,W-30)-Math.max(sx-hx,30),visH=Math.min(sy+hy,H-100)-Math.max(sy-hy,190),frac=(Math.max(0,visW)*Math.max(0,visH))/(Math.max(1,4*hx*hy)||1),formation=FORMATION_BOSS_KEYS.has(b.kind);if(frac>.45||(b.gallipoliBoss&&sx>30&&sx<W-30&&sy>190&&sy<H-100)){if(formation)drawFormationNameplate(c,sx,sy-54*z,(getLocale()==='en'?(b.callSign||b.callSignKo):(b.callSignKo||b.callSign)),W);continue;}const x=clamp(sx,26,W-26),y=clamp(sy,190,H-100),a=Math.atan2(b.y-g.y,b.x-g.x);if(formation){drawFormationEdgeBadge(c,x,y,a);continue;}c.save();c.translate(x,y);c.rotate(a);c.fillStyle='#ffcd7c';c.beginPath();c.moveTo(12,0);c.lineTo(-7,-7);c.lineTo(-7,7);c.fill();c.restore();}
 }
