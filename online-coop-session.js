@@ -1,4 +1,4 @@
-import {OnlineCoopGame} from './online-coop-game.js?v=lc1&coopfix=1';
+import {OnlineCoopGame} from './online-coop-game.js?v=lc2&coopfix=1';
 
 export function relayUrl(){
  const configured=globalThis.HEADON_COOP_RELAY||new URLSearchParams(location.search).get('coopRelay');

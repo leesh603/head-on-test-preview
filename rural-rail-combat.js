@@ -1,7 +1,7 @@
-import {RailAdapter} from './boss-adapters129.js?v=lc1';
-import {BaseBoss} from './headon-stageboss-core.js?v=lc1';
-import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=lc1';
-import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=lc1';
+import {RailAdapter} from './boss-adapters129.js?v=lc2';
+import {BaseBoss} from './headon-stageboss-core.js?v=lc2';
+import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=lc2';
+import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=lc2';
 import {brunoSalvo} from './bruno-raid.js?v=1';
 import {lincomparableRound} from './lincomparable-raid.js?v=1';
 

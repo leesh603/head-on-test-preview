@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {FortDouaumont,FortSouville,VERDUN_FORT_LAYOUT,verdunFortExtents} from '../verdun-fortresses.js?v=lc1';
-import {verdunGroundTiles} from '../verdun-ground.js?v=lc1';
+import {FortDouaumont,FortSouville,VERDUN_FORT_LAYOUT,verdunFortExtents} from '../verdun-fortresses.js?v=lc2';
+import {verdunGroundTiles} from '../verdun-ground.js?v=lc2';
 
 const frame={players:[{id:'p1',alive:true,x:0,y:400,radius:10}],bounds:{left:-480,right:480,top:-350,bottom:650}};
 function fort(Ctor){const events=[];return{events,b:new Ctor({id:'fort',x:0,y:0,tuning:{maxHp:4000,damage:20,bulletSpeed:260,regionalViewWidth:960},emit:e=>events.push(e)})};}
@@ -52,7 +52,7 @@ test('ammunition destruction cancels a pending repair permanently',()=>{
  }
 });
 test('defeated or paused native encounters cannot repair AA',async()=>{
- const {BossEncounter}=await import('../headon-stageboss-core.js?v=lc1');
+ const {BossEncounter}=await import('../headon-stageboss-core.js?v=lc2');
  const {b,events}=fort(FortDouaumont);destroy(b,'aa-left');const encounter=new BossEncounter({id:'encounter',bossId:b.kind,bodies:[b]});
  const remaining=b.parts.get('aa-left').repairRemaining;encounter.update(0,frame);assert.equal(b.parts.get('aa-left').repairRemaining,remaining);
  for(const id of ['heavy-left','heavy-right','ammo-left','ammo-right'])destroy(b,id);
