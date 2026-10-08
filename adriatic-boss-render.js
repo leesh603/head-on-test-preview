@@ -5,9 +5,9 @@ import {drawSinkingShip} from './ship-sinking.js?v=tame3';
 
 // Source rectangles in the authored damage sheet; destinations are world units.
 export const ZUBIAN_DAMAGE_FRAMES=Object.freeze({
- intact:[82,6,288,751],intactWreck:[82,763,288,753],
- front:[373,145,280,492],frontWreck:[372,893,280,492],
- rear:[641,312,286,446],rearWreck:[646,1073,288,443]
+ intact:[180,8,370,1000],intactWreck:[180,8,370,1000],
+ front:[634,24,370,648],frontWreck:[634,24,370,648],
+ rear:[1020,390,390,618],rearWreck:[1020,390,390,618]
 });
 function atlasSprite(c,image,frame,x,y,width,height){if(!image?.naturalWidth)return false;c.drawImage(image,...frame,x-width/2,y-height/2,width,height);return true;}
 export function drawNavalWake(c,b,width,height){const a=b.hullYaw??b.angle??0,ca=Math.cos(a),sa=Math.sin(a);drawShipWater(c,{...b,x:0,y:0,hullYaw:0,wakeTrail:(b.wakeTrail||[]).map(p=>({...p,x:(p.x-b.x)*ca+(p.y-b.y)*sa,y:-(p.x-b.x)*sa+(p.y-b.y)*ca}))},width,height);}
@@ -19,15 +19,14 @@ export function drawZubianShip(c,b,images){
  const wreck=b.sunkWreck?1:0;
  if(!wreck)drawNavalWake(c,b,size.width,size.height);
  const damage=images.damage,frame=key=>ZUBIAN_DAMAGE_FRAMES[key];
- if(role)atlasSprite(c,damage,frame(role+(wreck?'Wreck':'')),0,0,size.width,size.height);
+ if(role)atlasSprite(c,wreck?damage:images.atlas,frame(role+(wreck?'Wreck':'')),0,0,size.width,size.height);
  else if(b.phase==='splitting'){
    const gap=b.splitGap||0;
-   atlasSprite(c,damage,frame('front'),0,(ZUBIAN_LAYOUT.frontY-gap/2)*s,size.width,ZUBIAN_LAYOUT.frontHeight*s);
-   atlasSprite(c,damage,frame('rear'),0,(ZUBIAN_LAYOUT.rearY+gap/2)*s,size.width,ZUBIAN_LAYOUT.rearHeight*s);
+   atlasSprite(c,images.atlas,frame('front'),0,(ZUBIAN_LAYOUT.frontY-gap/2)*s,size.width,ZUBIAN_LAYOUT.frontHeight*s);
+   atlasSprite(c,images.atlas,frame('rear'),0,(ZUBIAN_LAYOUT.rearY+gap/2)*s,size.width,ZUBIAN_LAYOUT.rearHeight*s);
    const alpha=Math.sin(Math.min(1,b.stateAge/1.2)*Math.PI);for(const y of [-1,1])fx(c,'waterColumn',y*size.width*.22,20*s,size.width*.65,size.width*.95,0,alpha*.65);fx(c,'splashShell',0,20*s,size.width*1.25,size.width*.65,0,alpha*.7);
  }else{
-   const damaged=b.hp<b.maxHp*.75||b.parts?.some(p=>p.destroyed);
-   if(wreck||damaged)atlasSprite(c,damage,frame(wreck?'intactWreck':'intact'),0,0,size.width,size.height);
+   if(wreck)atlasSprite(c,damage,frame('intactWreck'),0,0,size.width,size.height);
    else atlasSprite(c,images.atlas,[180,8,370,1000],0,0,size.width,size.height);
    if(b.phase==='seam-warning'){c.save();c.globalAlpha*=.35+.45*Math.abs(Math.sin(b.stateAge*12));c.strokeStyle='#e7bc7e';c.lineWidth=2;c.setLineDash([7*s,5*s]);c.beginPath();c.moveTo(-size.width*.36,20*s);c.lineTo(size.width*.36,20*s);c.stroke();c.restore();}
  }

@@ -16,12 +16,12 @@ for(const teamFaction of ['central','entente'])test(`${teamFaction} trench produ
  assert.doesNotThrow(draw);step(f,2);assert.doesNotThrow(draw);
  if(teamFaction==='central'){for(let i=0;i<100&&!b.coreVulnerable;i++)step(f,.05);b.hit({damage:780});step(f,4);}else b.finalOrder(f.frame.players,f.frame.bounds,b.liveGuns());
  step(f,.8);calls.length=0;assert.doesNotThrow(draw);assert(calls.some(c=>c[0]==='drawImage'));
- if(teamFaction==='entente'){const pits=calls.filter(c=>c[0]==='drawImage'&&c[1]?.src?.includes('boss-minenwerfer-composite188'));assert.equal(pits.length,3);assert(calls.some(c=>c[0]==='fillText'&&c[1]==='1'));}
+ if(teamFaction==='entente'){const pits=calls.filter(c=>c[0]==='drawImage'&&c[1]?.src?.includes('boss-minenwerfer-recoil-20261008'));assert.equal(pits.length,3);assert(calls.some(c=>c[0]==='fillText'&&c[1]==='1'));}
  const part=[...b.parts.values()][0];b.hit({partId:part.id,damage:part.hp});assert.doesNotThrow(draw);
  for(const p of b.parts.values())b.hit({partId:p.id,damage:p.hp});if(teamFaction==='central')b.hit({damage:b.hp});step(f,.1);assert.doesNotThrow(draw);f.addon.dispose();
 });
 test('Livens entry renders soil at the fixed mount and keeps the buried nozzle hidden',()=>{
  const f=fixture({stageIndex:3,teamFaction:'central'}),enc=f.addon.startBoss({x:0,y:0});f.frame.bounds={left:-195,right:195,top:-422,bottom:422};f.frame.players=[{id:'p1',alive:true,x:0,y:180,radius:12}];const draw=()=>drawStageBoss(context(),{stageBoss:f.addon,x:0,y:0,bossBuildings:[],bossCues:[],t:1,gasZones:[]},390,844,{drawZeppelin(){},drawFieldArt(){}});
- step(f,.3);calls.length=0;draw();assert(calls.some(c=>c[0]==='drawImage'&&c[1]?.src?.includes('fx-dust-puff')));assert(!calls.some(c=>c[0]==='drawImage'&&c[1]?.src?.includes('boss_livens_nozzle_normal_pivot187')));
- step(f,.65);calls.length=0;draw();assert(calls.some(c=>c[0]==='drawImage'&&c[1]?.src?.includes('fx-dirt-burst')));assert(calls.some(c=>c[0]==='drawImage'&&c[1]?.src?.includes('boss_livens_nozzle_normal_pivot187')));f.addon.dispose();
+ step(f,.3);calls.length=0;draw();assert(calls.some(c=>c[0]==='drawImage'&&c[1]?.src?.includes('fx-dust-puff')));assert(!calls.some(c=>c[0]==='drawImage'&&c[1]?.src?.includes('livens-nozzle-20261008')));
+ step(f,.65);calls.length=0;draw();assert(calls.some(c=>c[0]==='drawImage'&&c[1]?.src?.includes('fx-dirt-burst')));assert(calls.some(c=>c[0]==='drawImage'&&c[1]?.src?.includes('livens-nozzle-20261008')));f.addon.dispose();
 });
