@@ -76,7 +76,7 @@ class CityAirships extends BaseBoss{
 export class LondonApron extends CityAirships{
  constructor(o){super(o,'london-apron');this.apronTime=0;this.apronStarted=false;}
  rigHit(s){
-  const pose=apronPose(this.apronTime,3-this.live().length),dx=s.x-(s.previousX??s.x),dy=s.y-(s.previousY??s.y),steps=Math.max(1,Math.ceil(Math.hypot(dx,dy)/10));
+  const pose=this.apronPoseOverride||apronPose(this.apronTime,3-this.live().length),dx=s.x-(s.previousX??s.x),dy=s.y-(s.previousY??s.y),steps=Math.max(1,Math.ceil(Math.hypot(dx,dy)/10));
   for(const p of this.live()){
    const index=Number(p.id.at(-1)),v=apronPanelHull(index,pose,this.apronScale,this.x,this.y);
    for(let i=0;i<=Math.min(steps,32);i++){const q=i/Math.min(steps,32);if(netContact({x:s.x-dx*(1-q),y:s.y-dy*(1-q),radius:s.radius||0},v))return{partId:'net-'+index};}
@@ -84,10 +84,10 @@ export class LondonApron extends CityAirships{
  }
  update(dt,{players}){
   if(this.dead)return;this.apronTime+=dt;this.guns(dt,players);
-  const pose=apronPose(this.apronTime,3-this.live().length);
+  const pose=this.apronPoseOverride||apronPose(this.apronTime,3-this.live().length);
   for(const p of this.live()){
    const index=Number(p.id.at(-1)),tag='apron-'+p.id,vertices=apronPanelHull(index,pose,this.apronScale,this.x,this.y);
-   if(!this.apronStarted)this.hazard('net',{x:this.x,y:this.y,vertices,warning:1.5,duration:3600,tickInterval:.8,damage:this.t.damage*.5,blocks:true,visual:'apron-attached',tag});
+   if(!this.apronStarted)this.hazard('net',{x:this.x,y:this.y,vertices,warning:this.apronEntryRemaining??1.5,duration:3600,tickInterval:.8,damage:this.t.damage*.5,blocks:true,visual:'apron-attached',tag});
    this.command('apron-pose',{x:this.x,y:this.y,vertices,tag});
   }this.apronStarted=true;
  }
