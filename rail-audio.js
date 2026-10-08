@@ -22,9 +22,9 @@ export function railAudioSamples(name,sampleRate=48000){
    const cyl=Math.floor(rev*4),pos=rev*4-cyl,strong=cyl%2===0;
    const puff=Math.exp(-pos*(strong?11:14))*(strong?1:.58);
    const boom=Math.sin(tau*82*t)*.8+Math.sin(tau*164*t)*.3+Math.sin(tau*246*t)*.12;
-   const tick=(body-steam)*.35;
+   const tick=Math.sin(tau*520*t)*.1;
    const distance=arrival?.22+.78*Math.sin(Math.min(1,q*1.25)*Math.PI/2):.5;
-   v=(low*.04+(tick+boom*1.05)*puff)*distance;
+   v=((tick+boom*1.05)*puff)*distance;
    // rod knock between puffs
    v+=Math.sin(tau*295*t+Math.sin(tau*51*t)*2)*.05*Math.exp(-Math.abs(pos-.6)*28)*distance;
    if(arrival){
@@ -33,15 +33,15 @@ export function railAudioSamples(name,sampleRate=48000){
     const wt=t-.32,env=wt>0&&wt<2.9?Math.min(1,wt/.09)*Math.min(1,(2.9-wt)/.65):0;
     const drift=1+.024*Math.exp(-wt*6)+.0045*Math.sin(tau*5.4*t);
     const horn=Math.sin(tau*330*t*drift)+.55*Math.sin(tau*660*t*(drift+.001))+.4*Math.sin(tau*494*t*(drift-.0008)+.6)+.22*Math.sin(tau*988*t*drift+1.1)+.12*Math.sin(tau*220*t*drift+2);
-    v+=env*(horn*.7+(body-steam)*.1);
+    v+=env*horn*.7;
    }
   }else if(name==='trainBrake'){
-   v=Math.sin(tau*(1120*t-180*t*t))*.16*Math.sin(Math.PI*q)+low*.12*(1-q);
+   v=Math.sin(tau*(1120*t-180*t*t))*.16*Math.sin(Math.PI*q);
   }else if(name==='railBreech'){
    const strike=Math.exp(-t*45)+.6*Math.exp(-Math.max(0,t-.16)*60)*(t>.16?1:0);
-   v=strike*(body*.32+Math.sin(tau*390*t)*.16)+low*.2*Math.sin(Math.PI*q);
+   v=strike*(Math.sin(tau*390*t)*.16+Math.sin(tau*195*t)*.1);
   }else{
-   v=low*.65*Math.exp(-t*5)+body*.5*Math.exp(-t*15)+Math.sin(tau*(68*t-13*t*t))*.3*Math.exp(-t*7)+(body-steam)*.17*Math.exp(-t*3);
+   v=Math.sin(tau*(68*t-13*t*t))*.5*Math.exp(-t*7)+Math.sin(tau*340*t)*.2*Math.exp(-t*15)+Math.sin(tau*136*t)*.3*Math.exp(-t*5);
   }
   const edge=Math.min(1,t/.006,(RAIL_AUDIO_SECONDS[name]-t)/.04);
   data[i]=Math.tanh(v*1.3)*Math.max(0,edge);
