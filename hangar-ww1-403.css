@@ -1002,6 +1002,21 @@ body.astra-ui:not(.playing) #pilotTabs .pilot-tab-portrait[data-crew-floor]{
  padding:0!important;
 }
 
+/* Huffzky & Ehmann: fit the crew, not the square canvas. Keep both heads in
+   frame; crop the shoulders so their bust height matches the solo pilots. */
+body.astra-ui:not(.playing) #hangar .astra-hero #hangarPortrait[data-crew-floor="huffzky"],
+body.astra-ui:not(.playing) #hangar #pilotTabs .pilot-tab-portrait[data-crew-floor="huffzky"]{
+ object-view-box:inset(6% 10% 6% 10%);
+ object-fit:cover!important;
+ object-position:center bottom!important;
+}
+@media(max-width:720px){
+ body.astra-ui:not(.playing) #hangar .astra-hero #hangarPortrait[data-crew-floor="huffzky"],
+ body.astra-ui:not(.playing) #hangar #pilotTabs .pilot-tab-portrait[data-crew-floor="huffzky"]{
+  object-view-box:inset(12% 20% 28% 20%);
+ }
+}
+
 /* ---- PC hangar, short viewports: the aircraft data card ran under the faction tabs ----
    The taller faction tabs (44px) and the random-sortie line grew the bottom tray, so at <=820px tall
    the stats card overflowed its grid row and painted over the faction picker. Tighten the tray on
