@@ -51,6 +51,7 @@ export function basicFirePaused(b){
   b.kind==='paris-searchlight-fortress'&&b.phase==='last-stand'||
   b.kind==='sinai-landship'&&!!b.encirclement||
   b.kind==='livens-flame-projector'&&(b.trenchEntry?.state!=='active'||b.lockedFlameAngle!=null)||
+  b.kind==='mark4-wedge'&&(!b.discovered||/mark1-(approach|regroup|counter)/.test(String(b.phase)))||
   b.formationBoss129&&b.finalAge!=null||quietPhase.test(String(b.phase))||
   b.entryAge<(b.entryDuration||0)||b.formationBoss129&&!b.entryComplete||
   b.recovery>0||b.recoveryRemaining>0||b.serviceWindow>0||b.recoverLeft>0||
