@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {Game}=await import('../engine.js?v=sfx2&rail=15');
-const {CoopGame}=await import('../coop-engine.js?v=sfx2&rail=15');
-const {stageBossCollision,damageStageBoss}=await import('../stageboss-host.js?v=sfx2&rail=15');
+const {Game}=await import('../engine.js?v=sfx2&rail=16');
+const {CoopGame}=await import('../coop-engine.js?v=sfx2&rail=16');
+const {stageBossCollision,damageStageBoss}=await import('../stageboss-host.js?v=sfx2&rail=16');
 
 function sortie(team,count,width){
  const pilots=team==='entente'?['fonck','collishaw']:['baron','voss'];

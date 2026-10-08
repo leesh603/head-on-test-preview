@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createBossEncounter} from '../headon-stageboss-patterns.js?v=tame3&rail=15';
+import {createBossEncounter} from '../headon-stageboss-patterns.js?v=tame3&rail=16';
 import {navalPoint,navalOverlap,zubianSize,zubianSplitPose} from '../adriatic-boss-layout.js?v=tame3';
 
 

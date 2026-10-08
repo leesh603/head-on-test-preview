@@ -1,4 +1,4 @@
-import {prepareBossCutins} from './boss-cutin-art.js?v=tame3&rail=15';
+import {prepareBossCutins} from './boss-cutin-art.js?v=tame3&rail=16';
 import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=tame3';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=tame3';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=tame3&rail=12';
@@ -6,7 +6,7 @@ import {verdunFortExtents} from './verdun-fortresses.js?v=tame3';
 import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=tame3&rail=1';
 import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=tame3';
 import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=tame3';
-import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=tame3&rail=15';
+import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=tame3&rail=16';
 import {sommeExtents} from './somme-boss-layout.js?v=tame3';
 import {drawZubianShip} from './adriatic-boss-render.js?v=tame3';
 import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=tame3';
@@ -22,7 +22,7 @@ import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=tame3'
 import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=tame3';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=tame3';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=tame3&rail=1';
-import {bossHudModel} from './headon-stageboss-hud.js?v=tame3&rail=15';
+import {bossHudModel} from './headon-stageboss-hud.js?v=tame3&rail=16';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=tame3&hints=1&rail=12';
 import {planeSprite} from './aircraft.js?v=tame3';
 import {getLocale} from './i18n.js?v=tame3';
@@ -143,15 +143,15 @@ function drawLivens(c,b){
  c.restore();
 }
 function drawMinenwerfer(c,b){
- const parts=b.parts?.values?b.parts.values():(b.parts||[]);
+ const parts=[...(b.parts?.values?b.parts.values():(b.parts||[]))];
  c.save();c.imageSmoothingEnabled=true;
- // Each gun renders only its own slice of the connected-installation composite —
- // three emplacements spaced apart, never the whole mural stacked three times.
+ // Each gun position renders its own complete emplacement image — three full
+ // installations spaced apart, not slices of one shared mural.
  const scale=b.trenchScale||1,im=trenchBossArt.minenComposite;
- // Source slices inside the composite (left wing / center pit / right wing).
- const slices={'gun-left':[6,60,160,264],'main-gun':[166,36,168,288],'gun-right':[334,60,160,264]};
- const drawInstallation=(image,p)=>{if(!(image?.naturalWidth||image?.width))return;const slice=slices[p.id]||slices['main-gun'];const [sx,sy,sw,sh]=slice;const dw=sw*1.2*scale,dh=sh*1.2*scale;
-  c.save();c.beginPath();c.rect(p.x-dw/2,p.y-dh/2,dw,dh);c.clip();c.drawImage(image,sx,sy,sw,sh,p.x-dw/2,p.y-dh/2,dw,dh);c.restore();};
+ const xs=[...parts].map(p=>p.x).sort((a,z)=>a-z);let spacing=186;for(let i=1;i<xs.length;i++)spacing=Math.min(spacing,xs[i]-xs[i-1]);
+ const dw=Math.max(180,Math.min(330,spacing*1.18))*scale;
+ const drawInstallation=(image,p)=>{if(!(image?.naturalWidth||image?.width))return;const dh=dw*(image.height||image.naturalHeight||1)/(image.width||image.naturalWidth||500);
+  c.drawImage(image,p.x-dw/2,p.y-dh/2,dw,dh);};
  for(const p of parts){
   const x=p.x,y=p.y,dead=b.destroying||p.destroyed,damaged=!dead&&p.hp<=p.maxHp*.5;
   const state=dead?'grayscale(.72) brightness(.55)':damaged?'saturate(.72) brightness(.82)':null;

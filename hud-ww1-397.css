@@ -1115,7 +1115,8 @@ body.astra-ui.playing #modal.build-modal151 #modalTitle{margin:0!important;font:
 body.astra-ui.playing #modal.build-modal151 #modalText{margin:4px 0 0!important;font-size:12px!important;color:var(--ho-muted)!important}
 @media(pointer:coarse){body.astra-ui.playing #modal.build-modal151 #modalText{display:none}}
 body.astra-ui.playing #modal #build151{display:block!important;margin:14px 0 0!important}
-body.astra-ui.playing #modal #build151>section{display:block!important;margin:0 0 14px}
+body.astra-ui.playing #modal #build151>section{display:none}
+body.astra-ui.playing #modal #build151>section.build-active{display:block!important;margin:0 0 14px}
 body.astra-ui.playing #modal #build151 h3{margin:0!important;font:700 16px/1.3 var(--astra-type)!important;color:var(--ho-parchment)!important}
 body.astra-ui.playing #modal #build151 .build-meta151{margin:3px 0 12px!important;font-size:12px!important;line-height:1.45!important;color:var(--ho-muted)!important}
 /* Stat tiles: equal height, 2 up on phones, 3 up wider. */
