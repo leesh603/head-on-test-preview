@@ -182,9 +182,17 @@ def ace_bugle_t():
     d=1.3;t=T(d)
     x=trumpet(392,.0,.1,t,.8)+trumpet(392,.15,.1,t,.8)+trumpet(523.3,.3,.42,t,.9)
     return reverb(lp(x,3200),.6,.12)
+
+# Chosen 2026-10-08: enemy ace = a plane passing low overhead (doppler engine), no music.
+def ace_flyby_quiet():
+    d=1.6;t=T(d);tc=.7;f=np.where(t<tc,150+25*(t/tc),130-45*np.minimum(1,(t-tc)/.8))
+    ph=2*np.pi*np.cumsum(f)/SR;amp=1/(1+((t-tc)/.3)**2)
+    x=(np.sin(ph)+.6*np.sin(2*ph)+.3*np.sin(3*ph)+.15*np.sin(4*ph))*amp
+    x+=lp(N(d),600)*amp*.4
+    return lp(x,1800)
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..'))
 os.makedirs(os.path.join(ROOT,'sfx'),exist_ok=True)
-bank={'boss-siren':boss_siren(),'boss-drums':boss_drums(),'boss-klaxon':boss_klaxon(),'ship-horn':ship_horn(),'airship':airship(),'armour':armour(),'ace-bugle':ace_bugle_t()}
+bank={'boss-siren':boss_siren(),'boss-drums':boss_drums(),'boss-klaxon':boss_klaxon(),'ship-horn':ship_horn(),'airship':airship(),'armour':armour(),'ace-bugle':ace_flyby_quiet()}
 tmp=tempfile.mkdtemp()
 for name,x in bank.items():
     wav=os.path.join(tmp,name+'.wav');save(wav,x)
