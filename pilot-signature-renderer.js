@@ -281,7 +281,16 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
    for(const w of signatureWingPositions(p)){c.save();c.translate(w.x,w.y);c.rotate(w.a);texture(c,'engineSmoke',-40,0,65,20,Math.PI,.26);if(w.muzzleFlash>0){const aim=w.muzzleAngle-w.a;muzzleAt(c,Math.cos(aim)*23,Math.sin(aim)*23,aim,'muzzleTwin',.95);}c.restore();}
    return;
   }
-  if(p.pilot==='mannock'&&active)return;
+  if(p.pilot==='mannock'&&active){
+   for(const w of p.divingSquadron||[]){
+    const dx=w.x-p.x,dy=w.y-p.y,vertical=w.pass==='vertical';
+    c.save();c.translate(dx*Math.cos(p.a)+dy*Math.sin(p.a),-dx*Math.sin(p.a)+dy*Math.cos(p.a));c.rotate(w.a-p.a);
+    texture(c,vertical?'engineSmoke':'smokeWisp',-55,0,vertical?91:115,vertical?25:18,Math.PI,vertical?.36:.28);
+    if(w.muzzleFlash>0)muzzleAt(c,25,0,0,vertical?'muzzleTwin':'muzzleRear',vertical?1.15:.95);
+    c.restore();
+   }
+   return;
+  }
   if(!active)return;
   switch(profile.sustain){
    case 'charge':if(p.chargeTime>0&&!globalThis.__hoLance?.has(p))cavalrySlipstream(c,t,Math.min(1,p.chargeTime/.12));break;

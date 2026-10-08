@@ -78,8 +78,8 @@ export const PILOT_IDENTITY_COPY={
  ['근접 사냥','게릴라 어택','적에게 가까이 접근할수록 기관총 피해가 증가합니다.','3초간 가속하며 돌입하고, 가까운 적에게 더 큰 피해를 줍니다.','적에게 가까이 접근할수록 기관총 피해가 증가합니다.','3초간 가속하며 돌입하고, 가까운 적에게 더 큰 피해를 줍니다.'],
  ['Close Hunter','Guerrilla Attack','Machine-gun damage increases as you close on an enemy.','Accelerate into close range and deal extra damage for 3 seconds.','Machine-gun damage increases as you close on an enemy.','Accelerate into close range and deal extra damage for 3 seconds.']),
  mannock:entry(
- ['동료의 수호자','타이거 스쿼드런','아군을 추격하는 적에게 추가 피해를 줍니다.','5초간 아군을 추격하는 적에게 강한 관통 엄호 사격을 가합니다.','아군을 추격하는 적에게 추가 피해를 줍니다. 자기 편대의 연사가 빨라집니다.','5초간 아군을 추격하는 적에게 강한 관통 엄호 사격을 가합니다.'],
- ['Flight Guardian','Tiger Squadron','Deal extra damage to enemies pursuing allies.','Fire powerful piercing cover shots at enemies pursuing allies for 5 seconds.','Deal extra damage to enemies pursuing allies. Your flight fires faster.','Fire powerful piercing cover shots at enemies pursuing allies for 5 seconds.']),
+ ['74비행대 지휘','74비행대 교차강하','아군 편대기와 윙맨의 연사가 15% 빨라집니다.','S.E.5a 7기씩 두 차례 진입해 교차 관통 사격합니다.','아군 편대기와 윙맨의 연사 속도가 15% 증가합니다.','S.E.5a 7기가 위에서 강하한 뒤, 다른 7기가 측면에서 가로질러 관통 사격합니다.'],
+ ['74 Squadron Command','74 Sqn Cross Dive','Allied wingmen fire 15% faster.','Seven S.E.5as make two crossing strafing runs with piercing fire.','Increase allied wingmen fire rate by 15%.','Seven S.E.5as dive from above; seven more cross from the side, firing piercing rounds.']),
  mckeever:entry(
  ['파월의 엄호','호크 앤 냇','파월이 후방의 적을 독립적으로 조준해 견제합니다.','5초간 전방과 후방 사수가 서로 다른 적을 추적하며 사격합니다.','파월이 후방의 적을 독립적으로 조준해 견제합니다.','5초간 전방과 후방 사수가 서로 다른 적을 추적하며 사격합니다.'],
  ['Powell\'s Cover','Hawk & Gnat','Powell independently aims at and suppresses enemies behind you.','Front and rear gunners track and fire at separate enemies for 5 seconds.','Powell independently aims at and suppresses enemies behind you.','Front and rear gunners track and fire at separate enemies for 5 seconds.']),
