@@ -19,10 +19,10 @@ for(const count of [1,2])test(`Gotha flight protects distinct real districts and
  f.advance(50);const bombs=f.events.filter(e=>e.type==='city-bomb');
  for(const target of f.ctx.londonTargets)assert.ok(bombs.filter(e=>e.targetId===target.id).length>=2);
  for(const bomb of bombs){assert.ok(Math.abs(bomb.sourceX-bomb.x)<55);assert.ok(Math.abs(bomb.sourceY-bomb.y)<5);assert.equal(bomb.damage,18);}
- assert.equal(f.encounter.maxHpBudget,1000);assert.equal(f.bodies.length,3);
+ assert.ok(Math.abs(f.encounter.maxHpBudget-1000)<1e-6);assert.equal(f.bodies.length,9);
 });
 test('engine loss delays actual arrival; both engines retain the falling defeat',()=>{
- const a=flight(),b=flight();b.bodies[0].hit({partId:'engine-left',damage:1000});a.advance(18);b.advance(18);
+ const a=flight(),b=flight();b.bodies[0].hit({partId:'engine-left',damage:1000});a.advance(30);b.advance(30);
  const first=f=>f.events.find(e=>e.type==='city-bomb'&&e.bossId.endsWith(':0'))?.time;
  assert.ok(first(b)>first(a));b.bodies[0].hit({partId:'engine-right',damage:1000});assert.equal(b.bodies[0].phase,'gliding');b.events.length=0;b.advance(5);
  assert.ok(b.bodies[0].dead);assert.ok(b.events.some(e=>e.type==='aa-effect'&&e.kind==='aaWreckSmoke'));assert.ok(!b.events.some(e=>e.type==='city-bomb'&&e.bossId.endsWith(':0')));
@@ -31,7 +31,7 @@ test('bomb bay destruction aborts warned and final runs without disabling other 
  const f=flight();f.advance(6);assert.ok(f.bodies[0].runTarget);f.bodies[0].hit({partId:'bomb-bay',damage:1000});
  assert.equal(f.bodies[0].runTarget,null);assert.ok(f.events.some(e=>e.type==='city-bomb-abort'));f.events.length=0;f.advance(35);
  assert.ok(!f.events.some(e=>e.type==='city-bomb'&&e.bossId.endsWith(':0')));assert.ok(f.events.some(e=>e.type==='city-bomb'&&e.bossId.endsWith(':1')));
- f.bodies[1].hit({damage:10000});f.bodies[0].hit({damage:f.bodies[0].hp*.97/.7});f.advance(.1);assert.ok(f.encounter.finalBombing);assert.equal(f.events.filter(e=>e.type==='gotha-final-bombing').length,1);
+ f.bodies[1].hit({damage:10000});f.bodies[0].hit({damage:f.bodies[0].hp*.97/.7});for(const g of f.bodies.slice(3))g.hit({damage:10000});f.advance(.1);assert.ok(f.encounter.finalBombing);assert.equal(f.events.filter(e=>e.type==='gotha-final-bombing').length,1);
  f.events.length=0;f.advance(35);assert.ok(f.events.some(e=>e.type==='city-bomb'&&e.bossId.endsWith(':2')));assert.ok(!f.events.some(e=>e.type==='city-bomb'&&e.bossId.endsWith(':0')));
 });
 test('rear gun destruction cancels its shots; empty targets never create fake city objectives',()=>{
