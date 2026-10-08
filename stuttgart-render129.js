@@ -9,19 +9,23 @@ function shipPath(g,b){g.beginPath();SHIP_OUTLINE.forEach(([x,y],i)=>{const px=(
 export function drawSupportShip(g,b,images,{camera={x:0,y:0},debug=false}={}){
  if(!b||b.dead)return;g.save();g.translate(b.x-camera.x,b.y-camera.y);g.rotate(b.angle);g.imageSmoothingEnabled=false;
  drawNavalWake(g,b,b.width*.45,b.height);g.globalAlpha*=Math.min(1,Math.max(0,(b.time-1.2)/1.2));
- const atlas=images.damage,cell=atlas?.naturalWidth/2,drawFrame=(index)=>g.drawImage(atlas,index%2*cell,Math.floor(index/2)*cell,cell,cell,-b.width/2,-b.height/2,b.width,b.height);
- if(atlas?.naturalWidth&&b.hp<=b.maxHp*.28)drawFrame(b.wreck?3:2);
- else if(images.shipMat?.naturalWidth)g.drawImage(images.shipMat,-b.width/2,-b.height/2,b.width,b.height);
+ const atlas=images.damage,source=[285,0,640,1024];
+ // The cover sits on the right of this atlas. Restrict the hull source to its
+ // own rectangle while retaining the full-canvas normalization for hit parts.
+ const drawHull=image=>g.drawImage(image,430,0,360,1024,-.2734375*b.width,-b.height/2,.5625*b.width,b.height);
+ const drawFrame=()=>drawHull(atlas);
+ const cover=(x,y)=>g.drawImage(images.cover,858,399,236,322,x,y,HANGAR.w*b.width,HANGAR.h*b.height);
+ if(atlas?.naturalWidth&&b.hp<=b.maxHp*.28)drawFrame();
+ else if(images.shipMat?.naturalWidth)drawHull(images.shipMat);
  else {g.save();shipPath(g,b);g.clip();g.drawImage(images.ship,-b.width/2,-b.height/2,b.width,b.height);g.restore();}
- if(b.phase===1)g.drawImage(images.cover,-HANGAR.w*b.width/2,(HANGAR.y-HANGAR.h/2)*b.height,HANGAR.w*b.width,HANGAR.h*b.height);
+ if(b.phase===1)cover(-HANGAR.w*b.width/2,(HANGAR.y-HANGAR.h/2)*b.height);
  for(const p of b.parts.values()){if(p.id==='cover')continue;
- if(p.hp<p.maxHp&&atlas?.naturalWidth){const index=p.hp<=0?2:1,sx=index%2*cell,sy=Math.floor(index/2)*cell;
-  g.drawImage(atlas,sx+(p.nx+.5-p.rx)*cell,sy+(p.ny+.5-p.ry)*cell,p.rx*2*cell,p.ry*2*cell,(p.nx-p.rx)*b.width,(p.ny-p.ry)*b.height,p.rx*2*b.width,p.ry*2*b.height);
+ if(p.hp<p.maxHp&&atlas?.naturalWidth){g.drawImage(atlas,source[0]+(p.nx+.5-p.rx)*source[2],source[1]+(p.ny+.5-p.ry)*source[3],p.rx*2*source[2],p.ry*2*source[3],(p.nx-p.rx)*b.width,(p.ny-p.ry)*b.height,p.rx*2*b.width,p.ry*2*b.height);
   if(p.hp<=0&&(p.id==='fuel'||p.id==='boiler')){const r=p.rx*b.width;fx(g,'fireEngine',p.nx*b.width,p.ny*b.height,r*2.4,r*2.4,0,b.wreck?.15:.5);fx(g,'smokeDark',p.nx*b.width,p.ny*b.height-r,r*3,r*3,0,.3);}
  }
  if(debug&&b.hittable(p)){g.strokeStyle='#efd4a2';g.lineWidth=1.5;g.beginPath();g.ellipse(p.nx*b.width,p.ny*b.height,p.rx*b.width,p.ry*b.height,0,0,Math.PI*2);g.stroke();}}
  g.restore();
- if(b.cover&&!b.wreck){const c=b.cover,scale=1+Math.sin(Math.min(1,c.age/1.8)*Math.PI)*.20;g.save();g.translate(c.x-camera.x,c.y-camera.y-c.age*55);g.rotate(c.angle);g.globalAlpha=Math.max(0,1-c.age/1.8);g.scale(scale,scale);g.drawImage(images.cover,-HANGAR.w*b.width/2,-HANGAR.h*b.height/2,HANGAR.w*b.width,HANGAR.h*b.height);g.restore();}
+ if(b.cover&&!b.wreck){const c=b.cover,scale=1+Math.sin(Math.min(1,c.age/1.8)*Math.PI)*.20;g.save();g.translate(c.x-camera.x,c.y-camera.y-c.age*55);g.rotate(c.angle);g.globalAlpha=Math.max(0,1-c.age/1.8);g.scale(scale,scale);g.drawImage(images.cover,858,399,236,322,-HANGAR.w*b.width/2,-HANGAR.h*b.height/2,HANGAR.w*b.width,HANGAR.h*b.height);g.restore();}
 }
 function visitRenderPool(pool,fn){if(typeof pool?.visit==='function')pool.visit(fn);else for(const row of pool?.records||[])if(row.active)fn(row);}
 export function drawSupportEffects(g,b,{camera={x:0,y:0},screenScale=1}={}){if(!b)return;g.save();g.translate(-camera.x,-camera.y);
