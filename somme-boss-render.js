@@ -1,3 +1,4 @@
+import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=tame3';
 import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 import {drawAADefense} from './aa-defense-art.js?v=tame3';

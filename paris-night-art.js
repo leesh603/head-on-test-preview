@@ -1,3 +1,4 @@
+import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=tame3';
 import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=tame3';

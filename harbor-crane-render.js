@@ -1,3 +1,4 @@
+import {partMark,stripMark,arcMark} from './tactical-marks.js?v=tame3';
 import {HARBOR_BOOM,harborScale,harborCranePose} from './harbor-crane-layout.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 

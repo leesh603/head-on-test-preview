@@ -1,3 +1,4 @@
+import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
 import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=tame3';
 import {spawnCityDefense,tickCityDefense} from './city-defense.js?v=tame3';
 import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=tame3&rail=11';

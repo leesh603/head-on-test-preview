@@ -1,3 +1,4 @@
+import {impactMark} from './tactical-marks.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 import {TREFFAS_ART} from './cambrai-layout.js?v=tame3';
 

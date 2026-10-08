@@ -1,3 +1,4 @@
+import {impactMark} from './tactical-marks.js?v=tame3';
 import {drawEnemyProjectile} from './projectiles.js?v=tame3';
 import {HANGAR} from './stuttgart129.js?v=tame3';
 import {drawNavalWake} from './adriatic-boss-render.js?v=tame3';

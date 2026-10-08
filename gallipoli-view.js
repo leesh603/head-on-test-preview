@@ -1,3 +1,4 @@
+import {impactMark,aimLine,laneEdge} from './tactical-marks.js?v=tame3';
 import {applySeaColor} from './sea-colors.js?v=tame3';
 import {fx,fxReady} from './fx-art.js?v=tame3';
 import {GALLIPOLI_PARTS,GALLIPOLI_SECTORS,gallipoliObjective,GALLIPOLI_HANGAR,GALLIPOLI_EXTENTS} from './gallipoli-boss.js?v=tame3&rail=18';

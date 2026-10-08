@@ -1,3 +1,4 @@
+import {impactMark,partMark,aimLine} from './tactical-marks.js?v=tame3';
 import {applySeaColor} from './sea-colors.js?v=tame3';
 import {fleetGunStations} from './naval-faction-atlas.js?v=tame3';
 import {drawFactionHull,prepareFactionHulls} from './naval-faction-art.js?v=tame3';

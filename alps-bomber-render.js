@@ -1,3 +1,4 @@
+import {impactMark,partMark,aimLine,stripMark} from './tactical-marks.js?v=tame3';
 import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 

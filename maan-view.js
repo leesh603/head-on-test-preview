@@ -1,3 +1,4 @@
+import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=tame3';
 import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=tame3';
 import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
 import {sandOpacity} from './maan-weather.js?v=tame3';

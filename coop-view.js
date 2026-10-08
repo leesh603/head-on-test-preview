@@ -1,3 +1,4 @@
+import {impactMark} from './tactical-marks.js?v=tame3';
 import {drawGroundEnemy} from './ground-enemy-art.js?v=tame3';
 import {getLocale} from './i18n.js?v=tame3';
 import {unitNameEN} from './event-text-en.js?v=tame3';
@@ -12,7 +13,7 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=tame3';
 import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=tame3';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=tame3';
-import {drawStageBoss} from './stageboss-view.js?v=tame3&hints=1&treads=2&rail=31';
+import {drawStageBoss} from './stageboss-view.js?v=tame3&hints=1&treads=2&rail=32';
 
 const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};

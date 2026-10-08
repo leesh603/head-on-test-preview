@@ -1,3 +1,4 @@
+import {impactMark} from './tactical-marks.js?v=tame3';
 import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun-ground.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID} from './verdun-art-layout.js?v=tame3';
