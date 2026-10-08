@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {LivensFlameProjector} from '../headon-stageboss-patterns.js?v=tame3';
+import {LivensFlameProjector} from '../headon-stageboss-patterns.js?v=tame3&rail=12';
 import {BossHazards,contains} from '../headon-stageboss-hazards.js?v=tame3';
-import {bossHudModel} from '../headon-stageboss-hud.js?v=tame3';
+import {bossHudModel} from '../headon-stageboss-hud.js?v=tame3&rail=12';
 import {fixture,step} from './stageboss-fixture94.mjs';
 const tuning={maxHp:1000,partHp:100,damage:12,bulletSpeed:160,flameInterval:4.4};
 const frame={players:[{id:'p1',alive:true,x:0,y:170,vx:0,vy:0,radius:12}],bounds:{left:-195,right:195,top:-422,bottom:422}};

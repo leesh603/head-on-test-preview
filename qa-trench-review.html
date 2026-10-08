@@ -7,7 +7,7 @@
 // Public branch CDNs redirect images across origins; request anonymous CORS
 // explicitly so the existing canvas atlas/terrain pixel reads remain permitted.
 const game=new URLSearchParams(location.search).get('mode')==='game';
-let html=await (await fetch(game?'./index.html':'./test-lab.html')).text();
+let html=await (await fetch(game?'./index.html?v=':'./test-lab.html')).text();
 if(game){
  const boot=`<script>(()=>{const NativeImage=window.Image;window.Image=class extends NativeImage{constructor(...args){super(...args);this.crossOrigin='anonymous';}};const create=document.createElement.bind(document);document.createElement=(name,...args)=>{const element=create(name,...args);if(String(name).toLowerCase()==='img')element.crossOrigin='anonymous';return element;};})();<\/script>`;
  html=html.replace('<head>','<head>'+boot).replace(/<img\s/gi,'<img crossorigin="anonymous" ');
