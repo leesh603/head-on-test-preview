@@ -1,4 +1,4 @@
-import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js';
+import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=tame3&rail=19';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {ParisSearchlightFortress,ParisStaakenRVI} from './paris-night-bosses.js?v=tame3';
 import {GallipoliFortress} from './gallipoli-boss.js?v=tame3&rail=18';
@@ -120,7 +120,7 @@ class NavalPatternBoss extends PatternBoss {
     this.gunVolley={left:.85,angle,partId:gun.id};
     this.command('charge-warning',{...q,targetX:q.x+Math.cos(angle)*460,targetY:q.y+Math.sin(angle)*460,seconds:.85});
   }
-  tickVolley(dt){const v=this.gunVolley;if(!v)return;v.left-=dt;if(v.left>0)return;this.gunVolley=null;if(this.parts.get(v.partId)?.destroyed)return;const q=this.gunPoint();this.command('muzzle',{...q,partId:v.partId});broadsideBreak(this,{source:q,partId:v.partId,angle:v.angle,speed:330,visual:'zubian-shell',tag:'zubian-'+v.partId,beats:this.role==='rear'?2:3,beat:.48,warning:.15});}
+  tickVolley(dt){const v=this.gunVolley;if(!v)return;v.left-=dt;if(v.left>0)return;this.gunVolley=null;if(this.parts.get(v.partId)?.destroyed)return;const q=this.gunPoint();this.command('muzzle',{...q,partId:v.partId});broadsideBreak(this,{source:q,partId:v.partId,angle:v.angle,speed:330,visual:'zubian-shell',tag:'zubian-'+v.partId,beats:this.role==='rear'?2:3,beat:.48,warning:.15,cue:false});}
   mortar(players,{count=3,tag='zubian-mortar',crossAngle=null}={}){
     if(this.gun()?.destroyed)return;const p=this.target(players);if(!p)return;const velocity=Math.hypot(p.vx||0,p.vy||0),a=crossAngle??(velocity>8?Math.atan2(p.vy,p.vx):this.hullYaw-Math.PI/2),nx=-Math.sin(a),ny=Math.cos(a),tx=p.x+(p.vx||0)*.7,ty=p.y+(p.vy||0)*.7;
     this.command('mortar-launch',{...this.gunPoint()});

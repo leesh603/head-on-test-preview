@@ -15,10 +15,10 @@ export function shellMarch(boss,{source,partId,target,visual,tag,rows=3,step=74,
  return warning+rows*beat+.23;
 }
 
-export function broadsideBreak(boss,{source,partId,target,visual,tag,angle,spread=1.65,warning=1.1,beats=3,beat=.42,speed=350}){
+export function broadsideBreak(boss,{source,partId,target,visual,tag,angle,spread=1.65,warning=1.1,beats=3,beat=.42,speed=350,cue=true}){
  const now=boss.combatTime??boss.motionTime??0;boss.breakOrders??=new Map();if((boss.breakOrders.get(tag)||0)>now)return 0;boss.breakOrders.set(tag,now+warning+(beats-1)*beat+2.4+1.6);
  angle??=Math.atan2(target.y-source.y,target.x-source.x);
- boss.emit({type:'charge-warning',bossId:boss.id,...source,partId,targetX:source.x+Math.cos(angle)*700,targetY:source.y+Math.sin(angle)*700,seconds:warning});
+ if(cue)boss.emit({type:'charge-warning',bossId:boss.id,...source,partId,targetX:source.x+Math.cos(angle)*700,targetY:source.y+Math.sin(angle)*700,seconds:warning});
  for(let row=0;row<beats;row++)for(let i=0;i<13;i++){
   // Two alternating openings, then a short, solid finishing broadside. The
   // last row can be crossed with a roll; lateral escape stays possible.
