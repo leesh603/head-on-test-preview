@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {ParisGun,LIncomparable} from '../headon-stageboss-patterns.js?v=sfx2';
-import {brunoSalvo} from '../bruno-raid.js?v=sfx2';
+import {ParisGun,LIncomparable} from '../headon-stageboss-patterns.js?v=tame1';
+import {brunoSalvo} from '../bruno-raid.js?v=tame1';
 import {BossHazards} from '../headon-stageboss-hazards.js';
 const tuning={maxHp:2400,partHp:288,damage:18,bulletSpeed:270,warningSeconds:1.15,railCycle:5.4,barrageInterval:.26};
 const frame={players:[{id:'p1',alive:true,x:0,y:0,vx:0,vy:-180,radius:12}],bounds:{left:-480,right:480,top:-350,bottom:350}};

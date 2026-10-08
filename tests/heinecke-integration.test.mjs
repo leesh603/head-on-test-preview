@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import {Game,LEGENDARIES,UPGRADES} from '../engine.js?v=sfx2';
-import {CoopGame} from '../coop-engine.js?v=sfx2';
+import {Game,LEGENDARIES,UPGRADES} from '../engine.js?v=tame1';
+import {CoopGame} from '../coop-engine.js?v=tame1';
 
 const id='heineckeRettungsfallschirm';
 assert(LEGENDARIES.some(x=>x.id===id));
