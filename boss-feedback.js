@@ -104,6 +104,7 @@ export function bossTactic(encounter,locale='ko'){
 }
 export function bossSoundFor(event,kind=''){
  const type=event.type,visual=event.visual||'';
+ if(type==='somme-approach')return 'armorEntry';
  if(type==='armor-drive')return 'armorDrive';
  if(type==='armor-entry')return 'armorEntry';
  if(type==='armor-brake')return 'armorBrake';
@@ -128,6 +129,7 @@ export function bossSoundFor(event,kind=''){
  if(type==='charge-warning'||type==='reentry-warning')return 'approachWarning';
  if(type==='aa-volley')return 'navalGun';
  if(type==='flak-burst')return 'flak';
+ if(type==='muzzle'&&kind==='mark4-wedge')return event.weapon==='mg'?'enemyShot':'heavyShot';
  if(type==='muzzle')return ['gik','ca4'].includes(kind)?'enemyShot':/stuttgart|zubian|harbor/.test(kind)?'navalGun':kind==='minenwerfer-battery'?null:'heavyShot';
  if(type==='heavy-gun-fired')return event.railArtillery?(event.heavy||kind==='lincomparable'?'railGunFire520':'railGunFire'):'heavyShot';
  // Rail shells: a falling whistle while the marker shows, then the train-gun impact.
@@ -140,6 +142,7 @@ export function bossSoundFor(event,kind=''){
   if(visual==='rail-shell')return kind==='lincomparable'?'railShellImpact520':'railShellImpact';
   if(/minenwerfer|observer-shell/.test(visual))return 'earthImpact';
   if(/zubian|naval|harbor/.test(visual))return 'waterImpact';
+  if(visual.startsWith('somme-'))return 'earthImpact';
   if(/flak/.test(visual))return 'flak';
   if(visual==='carpet-bomb')return 'earthImpact';
  }
@@ -154,3 +157,5 @@ export function bossEncounterCutinReady(encounter){
  if(encounter.bossId==='minenwerfer-battery')return bodies.some(b=>b.discovered&&[...b.parts.values()].every(p=>p.discovered||p.destroyed));
  return true;
 }
+
+Object.assign(PHASES,{'mark1-approach':['강철의 돌파 · 선두 전차 접근','Steel breakthrough · lead tank approaching'],'mark1-flank':['양익 압박 · 서로 다른 측면 사격','Flank pressure · staggered sponson fire'],'mark1-broken-formation':['대형 붕괴 · 잔존 전차 엄호','Formation broken · surviving tanks cover'],'mark1-regroup':['최후 돌파 준비 · 사선을 읽으세요','Final push preparing · read the gun lanes'],'mark1-last-push':['최후의 돌파 · 측면 포격 뒤 시간차 기총','Last breakthrough · cannon then staggered guns'],'mark1-counter':['재장전 · 전차 측면 반격 기회','Reloading · flank counterattack window']});

@@ -131,7 +131,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    if(event.type==='livens-pressure-rise'){g.shake=Math.max(g.shake,2);g.event('wave','지면 진동 · 매설 노즐의 압력 상승');}
    if(event.type==='livens-soil-burst'){g.shake=Math.max(g.shake,3);}
    if(event.type==='minenwerfer-final-order'){g.event('wave','최후의 포격 명령 · 번호 순서대로 착탄');g.shake=Math.max(g.shake,2);}
-   if(event.type==='trench-discovered'){g.event('wave','지역 보스 발견 · '+BOSS_CATALOG[body?.kind]?.name);}
+   if(event.type==='trench-discovered'||event.type==='somme-discovered'){g.event('wave','지역 보스 발견 · '+BOSS_CATALOG[body?.kind]?.name);}
    const sound=bossSoundFor(event,body?.kind||event.bossId);if(sound)g.event('bossSound',sound);
    if(event.type==='city-mine-lane'&&body?.kind==='drachen-net')for(const f of g.hostileMinefields||[])if(f.encounterId===event.encounterId)for(const m of f.mines)if(Math.abs((m.targetX??m.x)-event.x)<event.width/2){m.dead=true;m.chainHandled=true;}
    if(event.type==='spawn-minefield'){
@@ -361,7 +361,7 @@ export function beginStageBossFrame(g,dt){
    }else if(stage===14){const p=gallipoliPoint(g.gallipoliRoute,GALLIPOLI_ROUTE.fort);x=p.x;y=p.y;
    }else if(stage===13){x=g.x;y=g.y-Math.min(340,(bounds.bottom-bounds.top)*.42);
    }else{
-    const structure=stage===3||stage===12;
+    const structure=stage===3||stage===12||stage===10;
     const distantMortar=stage===3&&addon.stages.bossId==='minenwerfer-battery';
     const forward=distantMortar?Math.max(680,(bounds.bottom-bounds.top)*.95+180):naval?Math.max(520,Math.min(760,(bounds.bottom-bounds.top)*1.05)):structure?Math.max(520,Math.min(700,(bounds.bottom-bounds.top)*.95)):rail?Math.max(460,Math.min(650,(bounds.bottom-bounds.top)*.82)):0;
     const heading=Number.isFinite(g.a)?g.a:-Math.PI/2;
