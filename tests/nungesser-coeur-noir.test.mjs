@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=adr1';
-import {CoopGame} from '../coop-engine.js?v=adr1';
+import {Game,PILOTS,PILOT_PLANES} from '../engine.js?v=raid1';
+import {CoopGame} from '../coop-engine.js?v=raid1';
 
 import {nungesserSmokeStage,nungesserAimOffset,signatureState} from '../pilot-signature-state.js';
-import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js?v=adr1';
+import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js?v=raid1';
 const solo=()=>new Game(PILOT_PLANES.nungesser,'nungesser',()=>.5);
 const setup=coop=>{const world=coop?new CoopGame([{pilot:'nungesser'},{pilot:'fonck'}],{rng:()=>.5}):solo();return {world,p:coop?world.players[0]:world};};
 const close=(a,b)=>assert.ok(Math.abs(a-b)<1e-9,`${a} != ${b}`);
