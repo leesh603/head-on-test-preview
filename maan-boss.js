@@ -1,7 +1,7 @@
-import {impactPulse} from './boss-raid-strikes.js?v=raid3&rail=19';
+import {impactPulse} from './boss-raid-strikes.js?v=raid4&rail=19';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=raid3';
-import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan,segmentBox,maanLocal,maanWorld,maanClearance,maanGroundBlocked,resolveMaanGround,MAAN_ESCORT_RADIUS} from './maan-layout.js?v=raid3';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=raid4';
+import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan,segmentBox,maanLocal,maanWorld,maanClearance,maanGroundBlocked,resolveMaanGround,MAAN_ESCORT_RADIUS} from './maan-layout.js?v=raid4';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 class DesertHull extends BaseBoss {
  constructor(o,kind){

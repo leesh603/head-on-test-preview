@@ -1,8 +1,9 @@
-import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=raid3';
-import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=raid3';
-import {fx} from './fx-art.js?v=raid3';
-import {impactMark,partMark,aimLine,laneEdge,MARK} from './tactical-marks.js?v=raid3';
-import {drawAADefense} from './aa-defense-art.js?v=raid3';
+import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=raid4';
+import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=raid4';
+import {fx} from './fx-art.js?v=raid4';
+import {impactMark,partMark,aimLine,laneEdge,MARK} from './tactical-marks.js?v=raid4';
+import {drawShellFlight} from './boss-rounds.js?v=raid4';
+import {drawAADefense} from './aa-defense-art.js?v=raid4';
 
 // These are authored/derived RGBA sprites, not canvas-painted replacement art.
 // Only the current battlefield's small atlas set remains resident.
@@ -178,8 +179,8 @@ export function drawRegionalHazard(c,h,bossKind){
  const warning=h.phase==='warning',q=clamp((h.age-h.delay)/Math.max(.01,h.warning));c.save();
  if(warning){
   impactMark(c,h.x,h.y,h.radius,q,{heavy:h.raidHeavy});
-  if(h.sourceX!=null&&q>0){const x=h.sourceX+(h.x-h.sourceX)*q,y=h.sourceY+(h.y-h.sourceY)*q-Math.sin(q*Math.PI)*74,angle=Math.atan2(h.y-h.sourceY,h.x-h.sourceX);
-    fx(c,'shellHeavy',x,y,h.visual==='carpet-bomb'?25:27,9,angle,.96);}
+  if(h.visual==='carpet-bomb'){if(h.sourceX!=null&&q>0){const x=h.sourceX+(h.x-h.sourceX)*q,y=h.sourceY+(h.y-h.sourceY)*q-Math.sin(q*Math.PI)*30;fx(c,'bomb',x,y,28,12,Math.atan2(h.y-h.sourceY,h.x-h.sourceX),.96);}}
+  else drawShellFlight(c,h,q,{arc:74});
  }else{
   const age=Math.max(0,h.age-h.delay-h.warning),progress=clamp(age/Math.max(.01,h.duration)),opacity=Math.min(1,(1-progress)*3);
   if(h.visual==='black-flak'||h.visual==='observer-shell')drawAADefense(c,progress<.25?'aaFlakHot':progress<.65?'aaFlakDark':'aaFlakSmoke',h.x,h.y,h.radius*2.25,h.radius*2.25,0,opacity);

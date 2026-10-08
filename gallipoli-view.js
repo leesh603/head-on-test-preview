@@ -1,9 +1,10 @@
-import {applySeaColor} from './sea-colors.js?v=raid3';
-import {fx,fxReady} from './fx-art.js?v=raid3';
-import {impactMark,aimLine,laneEdge} from './tactical-marks.js?v=raid3';
-import {GALLIPOLI_PARTS,GALLIPOLI_SECTORS,gallipoliObjective,GALLIPOLI_HANGAR,GALLIPOLI_EXTENTS} from './gallipoli-boss.js?v=raid3&rail=18';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=raid3&rail=18';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=raid3';
+import {applySeaColor} from './sea-colors.js?v=raid4';
+import {fx,fxReady} from './fx-art.js?v=raid4';
+import {impactMark,aimLine,laneEdge} from './tactical-marks.js?v=raid4';
+import {drawShellFlight} from './boss-rounds.js?v=raid4';
+import {GALLIPOLI_PARTS,GALLIPOLI_SECTORS,gallipoliObjective,GALLIPOLI_HANGAR,GALLIPOLI_EXTENTS} from './gallipoli-boss.js?v=raid4&rail=18';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=raid4&rail=18';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=raid4';
 export const GALLIPOLI_ASSETS=Object.freeze({guns:'gallipoli-siege-guns.webp',facilities:'gallipoli-siege-facilities.webp',base:'gallipoli-siege-bases.webp',star:'gallipoli-siege-star.webp',wing:'gallipoli-siege-wing.webp',hangar:'maan-workshop-r2.webp',ground:'gallipoli-siege-ground.webp',coast:'asset-bank/terrain/gallipoli_coast.webp',sea:'terrain-sea359r2.webp',central:'gallipoli-overlay-central.webp',entente:'gallipoli-overlay-entente.webp'});
 const images=new Map(),tiles=new Map(),pending=new Map();
 function load(k){if(!GALLIPOLI_ASSETS[k])return null;if(images.has(k))return images.get(k);const im=new Image();images.set(k,im);im.decoding='async';im.crossOrigin='anonymous';pending.set(k,new Promise((resolve,reject)=>{im.onload=()=>{if(!im.naturalWidth){reject(new Error('Gallipoli empty asset '+k));return}(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))};im.onerror=()=>reject(new Error('Gallipoli asset '+k));}));im.src='./'+GALLIPOLI_ASSETS[k]+'?v=r5';return im;}
@@ -55,7 +56,7 @@ export function drawGallipoliHazard(c,h){
  const warning=h.phase==='warning',q=Math.max(0,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)));
  c.save();if(warning){
   impactMark(c,h.x,h.y,h.radius,q,{heavy:h.raidHeavy});
-  if(h.sourceX!=null){const x=h.sourceX+(h.x-h.sourceX)*q,y=h.sourceY+(h.y-h.sourceY)*q-Math.sin(q*Math.PI)*55;fx(c,'shellHeavy',x,y,26,9,Math.atan2(h.y-h.sourceY,h.x-h.sourceX),.95);}
+  drawShellFlight(c,h,q);
  }else{const age=Math.max(0,h.age-h.delay-h.warning),t=Math.min(.999,age/h.duration),frame=Math.floor(t*4),size=h.radius*2.5;fx(c,'mortarImpact'+frame,h.x,h.y,size,size,0,Math.min(1,(1-t)*3));}
  c.restore();return true;
 }

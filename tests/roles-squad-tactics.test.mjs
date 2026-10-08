@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PLANES,PILOTS,BATTLE_DIRECTOR_PATTERNS as P,angleDiff} from '../engine.js?v=raid3&rail=18';
-import {CoopGame} from '../coop-engine.js?v=raid3&rail=18';
+import {Game,PLANES,PILOTS,BATTLE_DIRECTOR_PATTERNS as P,angleDiff} from '../engine.js?v=raid4&rail=18';
+import {CoopGame} from '../coop-engine.js?v=raid4&rail=18';
 
 import {AIRCRAFT_MASTER} from '../aircraft-master.js';
-import {DIRECTOR_LIVERIES} from '../battle-director169.js?v=raid3';
+import {DIRECTOR_LIVERIES} from '../battle-director169.js?v=raid4';
 
 const quiet=g=>{for(const key of ['spawn','eventTimer','nextBossAt','nextHeavyAt','_zeppelinSchedule','flakTimer','regionThreat','fieldUnitTimer','gasTimer','gustTimer','patrolTimer','supplyTimer','allyTimer'])g[key]=Infinity;g.invuln=Infinity;return g};
 function scene(pattern,coop=false){
@@ -21,7 +21,7 @@ test('roles are independent of performance tier and preserve pilot records',()=>
  assert.equal(PLANES.eindecker.speed,118);assert.equal(PLANES.eindecker.hp,85);assert.equal(PILOTS.loewenhardt.cooldown,17);
 });
 test('early aircraft retain growth cost after the app imports campaign aircraft',async()=>{
- await import('../campaign.js?v=raid3&rail=18');
+ await import('../campaign.js?v=raid4&rail=18');
 
  const g=new Game('eindecker','immelmann',()=>.2),late=new Game('fokkerd7','fonck',()=>.2);
  assert.equal(g.xpCostMultiplier,.72);assert.equal(g.need,4);assert(g.levelRequirement(40)<late.levelRequirement(40));

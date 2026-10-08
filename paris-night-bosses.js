@@ -1,6 +1,6 @@
-import {broadsideBreak,shellMarch} from './boss-raid-strikes.js?v=raid3&rail=19';
+import {broadsideBreak,shellMarch} from './boss-raid-strikes.js?v=raid4&rail=19';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
-import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=raid3';
+import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=raid4';
 
 // These mounts are also the sprite atlas contract: source art faces north.
 export const PARIS_FORTRESS_PARTS = Object.freeze([

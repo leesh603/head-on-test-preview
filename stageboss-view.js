@@ -1,40 +1,41 @@
-import {prepareBossCutins} from './boss-cutin-art.js?v=raid3&rail=18';
-import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=raid3';
-import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=raid3';
-import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=raid3&rail=18';
-import {verdunFortExtents} from './verdun-fortresses.js?v=raid3&rail=18';
-import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=raid3&rail=1';
-import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=raid3';
-import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=raid3';
-import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=raid3&rail=18';
-import {sommeExtents} from './somme-boss-layout.js?v=raid3';
-import {drawZubianShip} from './adriatic-boss-render.js?v=raid3';
-import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=raid3';
-import {prepareArmorTreads,drawArmorGround,drawArmorTreads,drawArmorDamageFX} from './trench-armor-render.js?v=raid3&treads=2';
-import {armorGunMuzzle} from './trench-armor-layout.js?v=raid3';
-import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta} from './trench-armor-layout.js?v=raid3';
-import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=raid3';
-import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=raid3';
-import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=raid3';
-import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=raid3';
-import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=raid3';
-import {impactMark,bandMark,partMark,shieldMark,aimLine,laneEdge,stripMark,sectorMark,lockMark,MARK} from './tactical-marks.js?v=raid3';
-import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=raid3';
-import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=raid3';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=raid3';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=raid3&rail=1';
-import {bossHudModel} from './headon-stageboss-hud.js?v=raid3&rail=18';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=raid3&hints=1&rail=18';
-import {planeSprite} from './aircraft.js?v=raid3';
-import {getLocale} from './i18n.js?v=raid3';
-import {londonStatus} from './london-battle.js?v=raid3';
-import {parisStatus} from './paris-night-battle.js?v=raid3';
-import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=raid3';
-import {prepareParisArt,releaseParisArt,drawParisBoss,drawParisWorld} from './paris-night-art.js?v=raid3';
-import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=raid3';
-import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=raid3';
-import {drawAlpsBomber,drawAlpsPart,drawAlpsWarnings,drawAlpsHazard} from './alps-bomber-render.js?v=raid3';
-import {drawHarborFortress} from './harbor-crane-render.js?v=raid3';
+import {prepareBossCutins} from './boss-cutin-art.js?v=raid4&rail=18';
+import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=raid4';
+import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=raid4';
+import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=raid4&rail=18';
+import {verdunFortExtents} from './verdun-fortresses.js?v=raid4&rail=18';
+import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=raid4&rail=1';
+import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=raid4';
+import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=raid4';
+import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=raid4&rail=18';
+import {sommeExtents} from './somme-boss-layout.js?v=raid4';
+import {drawZubianShip} from './adriatic-boss-render.js?v=raid4';
+import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=raid4';
+import {prepareArmorTreads,drawArmorGround,drawArmorTreads,drawArmorDamageFX} from './trench-armor-render.js?v=raid4&treads=2';
+import {armorGunMuzzle} from './trench-armor-layout.js?v=raid4';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta} from './trench-armor-layout.js?v=raid4';
+import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=raid4';
+import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=raid4';
+import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=raid4';
+import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=raid4';
+import {fx,fxReady,fxImage,FX3} from './fx-art.js?v=raid4';
+import {impactMark,bandMark,partMark,shieldMark,aimLine,laneEdge,stripMark,sectorMark,lockMark,MARK} from './tactical-marks.js?v=raid4';
+import {drawBossRound,drawShellFlight} from './boss-rounds.js?v=raid4';
+import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=raid4';
+import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=raid4';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=raid4';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=raid4&rail=1';
+import {bossHudModel} from './headon-stageboss-hud.js?v=raid4&rail=18';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=raid4&hints=1&rail=18';
+import {planeSprite} from './aircraft.js?v=raid4';
+import {getLocale} from './i18n.js?v=raid4';
+import {londonStatus} from './london-battle.js?v=raid4';
+import {parisStatus} from './paris-night-battle.js?v=raid4';
+import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=raid4';
+import {prepareParisArt,releaseParisArt,drawParisBoss,drawParisWorld} from './paris-night-art.js?v=raid4';
+import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=raid4';
+import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=raid4';
+import {drawAlpsBomber,drawAlpsPart,drawAlpsWarnings,drawAlpsHazard} from './alps-bomber-render.js?v=raid4';
+import {drawHarborFortress} from './harbor-crane-render.js?v=raid4';
 
 
 function createLazyImageGroup(sources){
@@ -683,9 +684,8 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    drawBossPart(c,p,ring,g?.t||0);
   },
    drawHazard(h){if(layer==='bodies')return;
-    if(h.raidHeavy){c.save();
-     if(h.phase==='active'&&h.kind==='projectile'){const speed=Math.hypot(h.vx,h.vy)||1;c.globalCompositeOperation='lighter';c.strokeStyle='#ffd89aaa';c.lineWidth=5;c.beginPath();c.moveTo(h.x-h.vx/speed*27,h.y-h.vy/speed*27);c.lineTo(h.x,h.y);c.stroke();}
-     c.restore();}
+    // Every ordinary boss round shares one renderer (special bodies excepted).
+    if(h.kind==='projectile'&&h.phase==='active'&&!['treffas-debris','building-debris','livens-ember','jutland-torpedo'].includes(h.visual)){drawBossRound(c,h,z);return;}
 
     if(drawGallipoliHazard(c,h)||drawJutlandHazard(c,h)||drawVerdunHazard(c,h)||drawMaanHazard(c,h))return;
     const warning=h.phase==='warning';c.save();
@@ -698,8 +698,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
      const q=clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1);
      if(warning){if(h.sourceX!=null){
        if(q<.24)drawAADefense(c,'aaMuzzle',h.sourceX,h.sourceY,34,34,0,1-q);
-       const sx=h.sourceX+(h.x-h.sourceX)*q,sy=h.sourceY+(h.y-h.sourceY)*q;
-       fx(c,'shellHeavy',sx,sy-32*Math.sin(q*Math.PI),23,9,Math.atan2(h.y-h.sourceY,h.x-h.sourceX),.95);}
+       drawShellFlight(c,h,q);}
        impactMark(c,h.x,h.y,h.radius,q,{heavy:h.raidHeavy});}
      else{const age=h.age-h.delay-h.warning,frame=age<h.duration*.28?'aaFlakHot':age<h.duration*.65?'aaFlakDark':'aaFlakSmoke';
        drawAADefense(c,frame,h.x,h.y,h.radius*2.35,h.radius*2.35);}
@@ -707,7 +706,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     }
    if(h.visual==='city-flak-shell'||h.visual==='minenwerfer-heavy'||h.visual==='minenwerfer-shell'){
     const progress=clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1);
-    if(warning){impactMark(c,h.x,h.y,h.radius,progress,{heavy:h.raidHeavy});if(h.sourceX!=null){const x=h.sourceX+(h.x-h.sourceX)*progress,y=h.sourceY+(h.y-h.sourceY)*progress-Math.sin(progress*Math.PI)*80;fx(c,'shellHeavy',x,y,26,8,Math.atan2(h.y-h.sourceY,h.x-h.sourceX),.95)}c.restore();return;}
+    if(warning){impactMark(c,h.x,h.y,h.radius,progress,{heavy:h.raidHeavy});drawShellFlight(c,h,progress,{arc:80});c.restore();return;}
     if(!warning&&FX3){const age=Math.max(0,h.age-h.delay-h.warning),q=clamp(age/Math.max(.01,h.duration),0,.999),frame=Math.min(3,Math.floor(q*4)),size=Math.min(240,h.radius*2.5);if(fx(c,'mortarImpact'+frame,h.x,h.y,size,size,0,Math.min(1,(1-q)*3))){if(fxReady('fireFlash')){if(q<.3)fx(c,'fireFlash',h.x,h.y,size*.6,size*.6,0,(1-q/.3)*.75);else if(q<.72)fx(c,'fireGround',h.x,h.y,size*.52,size*.52,0,(1-(q-.3)/.42)*.45);}c.restore();return}}
     if(!warning){const img=impactArt.atlas;if(img.naturalWidth){const age=h.age-h.delay-h.warning,index=Math.min(3,Math.floor(age/.16)),cw=img.naturalWidth/2,ch=img.naturalHeight/2,size=h.radius*2.5;c.imageSmoothingEnabled=true;c.globalAlpha*=Math.min(1,Math.max(0,(h.duration-age)/.18));c.drawImage(img,(index%2)*cw,Math.floor(index/2)*ch,cw,ch,h.x-size/2,h.y-size/2,size,size);c.restore();return}}
    }

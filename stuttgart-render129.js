@@ -1,8 +1,9 @@
-import {drawEnemyProjectile} from './projectiles.js?v=raid3';
-import {impactMark} from './tactical-marks.js?v=raid3';
-import {HANGAR} from './stuttgart129.js?v=raid3';
-import {drawNavalWake} from './adriatic-boss-render.js?v=raid3';
-import {fx} from './fx-art.js?v=raid3';
+import {drawEnemyProjectile} from './projectiles.js?v=raid4';
+import {drawBossRound} from './boss-rounds.js?v=raid4';
+import {impactMark} from './tactical-marks.js?v=raid4';
+import {HANGAR} from './stuttgart129.js?v=raid4';
+import {drawNavalWake} from './adriatic-boss-render.js?v=raid4';
+import {fx} from './fx-art.js?v=raid4';
 // Geometry masks remove the source canvas outside the drawn silhouette at render time.
 // Never color-key gray pixels: doing so also erases metal highlights inside the ship.
 export const SHIP_OUTLINE=[[.498,.007],[.504,.007],[.51,.026],[.538,.05],[.562,.08],[.60,.13],[.628,.161],[.661,.158],[.663,.165],[.642,.174],[.661,.206],[.674,.267],[.681,.343],[.697,.355],[.699,.403],[.683,.416],[.682,.441],[.724,.437],[.727,.444],[.698,.451],[.702,.482],[.688,.499],[.692,.537],[.700,.56],[.696,.61],[.695,.646],[.70,.66],[.695,.71],[.697,.74],[.69,.775],[.696,.81],[.685,.87],[.678,.90],[.663,.932],[.638,.955],[.613,.963],[.61,.974],[.57,.983],[.574,.991],[.565,.995],[.55,.986],[.455,.986],[.43,.995],[.42,.991],[.415,.98],[.358,.958],[.34,.94],[.321,.908],[.309,.873],[.303,.82],[.307,.775],[.298,.743],[.300,.709],[.306,.67],[.303,.628],[.304,.60],[.296,.575],[.300,.536],[.313,.511],[.302,.49],[.291,.475],[.289,.456],[.275,.443],[.28,.438],[.313,.445],[.315,.416],[.301,.401],[.301,.358],[.317,.348],[.326,.32],[.317,.294],[.326,.271],[.333,.23],[.341,.209],[.354,.18],[.339,.162],[.344,.156],[.365,.166],[.392,.131],[.436,.08],[.46,.05],[.489,.025]];
@@ -27,7 +28,7 @@ export function drawSupportShip(g,b,images,{camera={x:0,y:0},debug=false}={}){
 function visitRenderPool(pool,fn){if(typeof pool?.visit==='function')pool.visit(fn);else for(const row of pool?.records||[])if(row.active)fn(row);}
 export function drawSupportEffects(g,b,{camera={x:0,y:0},screenScale=1}={}){if(!b)return;g.save();g.translate(-camera.x,-camera.y);
  visitRenderPool(b.projectiles,p=>{if(p.kind==='flak'){if(p.age<0)return;if(p.age<p.warning)impactMark(g,p.x,p.y,p.radius,p.age/p.warning,{heavy:p.raidHeavy});return;}
- drawEnemyProjectile(g,{enemy:true,life:1,visualType:'boss',vx:p.vx,vy:p.vy},p.x,p.y,0,screenScale);});
+ drawBossRound(g,{x:p.x,y:p.y,vx:p.vx,vy:p.vy,visual:'stuttgart-flak',raidHeavy:p.raidHeavy,radius:p.radius},screenScale);});
  visitRenderPool(b.effects,f=>{const t=f.age/f.life;g.save();g.globalAlpha=1-t;g.translate(f.x,f.y);
  if(f.kind==='smoke'){fx(g,'smokeDark',0,0,f.radius*(1+t),f.radius*(1+t),0,.55);}
  else if(f.kind==='muzzle'&&fx(g,'muzzleHeavy',0,0,f.radius*3,f.radius*2,f.angle)){}

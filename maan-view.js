@@ -1,8 +1,9 @@
-import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=raid3';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=raid3';
-import {sandOpacity} from './maan-weather.js?v=raid3';
-import {fx} from './fx-art.js?v=raid3';
-import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=raid3';
+import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=raid4';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=raid4';
+import {sandOpacity} from './maan-weather.js?v=raid4';
+import {fx} from './fx-art.js?v=raid4';
+import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=raid4';
+import {drawShellFlight} from './boss-rounds.js?v=raid4';
 export const MAAN_ASSETS=Object.freeze({terrain:'terrain-maan-r2.webp',workshop:'maan-workshop-r2.webp',wusten:'boss-maan-wusten-r2.webp',sinai:'boss-maan-sinai-r2.webp',car:'boss-maan-rolls-royce.webp'});
 const images=new Map();let ground=null;
 const _filterBakes=new WeakMap();
@@ -164,8 +165,7 @@ export function drawMaanHazard(c,h){
  c.save();const warning=h.phase==='warning';
  if(h.kind==='projectile'){fx(c,h.visual.endsWith('mg')?'tracerAmber':'shellHeavy',h.x,h.y,h.visual.endsWith('mg')?12:20,5,Math.atan2(h.vy,h.vx),.95);}
  else if(warning){impactMark(c,h.x,h.y,h.radius,Math.max(0,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning))),{heavy:h.raidHeavy,tone:h.visual==='wusten-steam'?'blind':'warn'});
-  if(h.visual.endsWith('impact')&&h.sourceX!=null){const q=Math.max(0,Math.min(1,(h.age-h.delay)/h.warning)),dx=h.x-h.sourceX,dy=h.y-h.sourceY;
-   fx(c,'shellHeavy',h.sourceX+dx*q,h.sourceY+dy*q-Math.sin(q*Math.PI)*35,22,7,Math.atan2(dy,dx),.95);}
+  if(h.visual.endsWith('impact'))drawShellFlight(c,h,Math.max(0,Math.min(1,(h.age-h.delay)/h.warning)));
  }
  else{const age=Math.max(0,h.age-h.delay-h.warning),q=Math.min(.999,age/h.duration);
   if(h.visual==='wusten-steam')fx(c,'smokeGray',h.x,h.y,h.radius*2,h.radius*2,0,.55*(1-q));

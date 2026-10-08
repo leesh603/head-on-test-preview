@@ -1,7 +1,7 @@
-import {impactPulse} from './boss-raid-strikes.js?v=raid3&rail=19';
+import {impactPulse} from './boss-raid-strikes.js?v=raid4&rail=19';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=raid3';
-import {ALPS_BOMBER_LAYOUT,alpsAngleDelta,alpsPoint,alpsMuzzle,locateAlpsHit} from './alps-bomber-layout.js?v=raid3';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=raid4';
+import {ALPS_BOMBER_LAYOUT,alpsAngleDelta,alpsPoint,alpsMuzzle,locateAlpsHit} from './alps-bomber-layout.js?v=raid4';
 
 class AlpsBomber extends BaseBoss {
  constructor({tuning,rng=Math.random,faction,kind,...base}){

@@ -1,8 +1,9 @@
-import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun-ground.js?v=raid3';
-import {fx} from './fx-art.js?v=raid3';
-import {impactMark} from './tactical-marks.js?v=raid3';
-import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID} from './verdun-art-layout.js?v=raid3';
-import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=raid3&rail=18';
+import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun-ground.js?v=raid4';
+import {fx} from './fx-art.js?v=raid4';
+import {impactMark} from './tactical-marks.js?v=raid4';
+import {drawShellFlight} from './boss-rounds.js?v=raid4';
+import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID} from './verdun-art-layout.js?v=raid4';
+import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=raid4&rail=18';
 
 // Authored PNG/WebP atlas frames; no generated geometry or per-frame raster copy.
 const sources={map:'./terrain-verdun-r8.webp?v=r5',douaumont:'./boss-douaumont-atlas-r8.webp?v=r5',souville:'./boss-souville-atlas-r8.webp?v=r5',douaumontParts:'./boss-douaumont-parts-r8.webp?v=r5',souvilleParts:'./boss-souville-parts-r8.webp?v=r5'};
@@ -118,7 +119,7 @@ export function drawVerdunHazard(c,h){
  if(warning){
   // Functional landing telegraph uses the same circle as the native hit area.
   impactMark(c,h.x,h.y,h.radius,q,{heavy:h.raidHeavy});
-  if(h.sourceX!=null){const x=h.sourceX+(h.x-h.sourceX)*q,y=h.sourceY+(h.y-h.sourceY)*q-Math.sin(q*Math.PI)*90;fx(c,'shellHeavy',x,y,24,8,Math.atan2(h.y-h.sourceY,h.x-h.sourceX),.92);}
+  drawShellFlight(c,h,q,{arc:90});
  }else{const age=h.age-h.delay-h.warning,frame=Math.min(3,Math.floor(age/Math.max(.01,h.duration)*4));fx(c,'mortarImpact'+frame,h.x,h.y,h.radius*2.5,h.radius*2.5,0,Math.min(1,(h.duration-age)/.14));}
  c.restore();return true;
 }

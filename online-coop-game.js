@@ -1,6 +1,6 @@
-import {CoopGame} from './coop-engine.js?v=raid3&rail=18';
-import {BossEncounter} from './headon-stageboss-core.js?v=raid3';
-import {stageBossSpeed} from './stageboss-host.js?v=raid3&hints=1&rail=19';
+import {CoopGame} from './coop-engine.js?v=raid4&rail=18';
+import {BossEncounter} from './headon-stageboss-core.js?v=raid4';
+import {stageBossSpeed} from './stageboss-host.js?v=raid4&hints=1&rail=19';
 import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFields,pose,mixAngle} from './online-coop-protocol.js';
 
 const LANES=['enemies','drops','allies','patrols','mines','friendlyBombers','friendlyBombs','bombZones','flakBursts','hostileMinefields','gasZones','gusts','grenades','smokeZones','combatFX','revisionDecoys','enemyAirshipPasses'];

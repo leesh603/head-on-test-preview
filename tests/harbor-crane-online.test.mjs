@@ -2,9 +2,9 @@ import test from 'node:test';import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){queueMicrotask(()=>this.onload?.());}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 const {OnlineCoopGame}=await import('../online-coop-game.js');
-const {enableStageBoss,beginStageBossFrame}=await import('../stageboss-host.js?v=raid3&rail=18');
+const {enableStageBoss,beginStageBossFrame}=await import('../stageboss-host.js?v=raid4&rail=18');
 const {pack,unpack}=await import('../online-coop-protocol.js');
-const {renderStageBossLayer}=await import('../headon-stageboss-render.js?v=raid3');
+const {renderStageBossLayer}=await import('../headon-stageboss-render.js?v=raid4');
 test('harbor host/guest retain the real crane release, airborne mine, gun warning and facility damage',()=>{
  const start={seed:135,runId:'harbor-online',players:['baron','voss'].map(pilot=>({pilot,plane:'fokker',faction:'central'}))};let host,guest;
  const hostSession={role:'host',send:m=>{guest.receive(JSON.parse(JSON.stringify(m)));return true;}},guestSession={role:'guest',send:m=>{host.receive(m);return true;}};

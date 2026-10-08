@@ -1,7 +1,7 @@
-import {fx} from './fx-art.js?v=raid3';
-import {impactMark,aimLine} from './tactical-marks.js?v=raid3';
-import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=raid3';
-import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=raid3';
+import {fx} from './fx-art.js?v=raid4';
+import {impactMark,aimLine} from './tactical-marks.js?v=raid4';
+import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=raid4';
+import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=raid4';
 let images={};
 export function releaseParisArt(){images={};}
 export function prepareParisArt(){

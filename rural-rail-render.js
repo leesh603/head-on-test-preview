@@ -1,8 +1,8 @@
-import {fx} from './fx-art.js?v=raid3';
-import {getLocale} from './i18n.js?v=raid3';
-import {impactMark,bandMark,partMark,aimLine,MARK} from './tactical-marks.js?v=raid3';
-import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=raid3';
-import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=raid3';
+import {fx} from './fx-art.js?v=raid4';
+import {getLocale} from './i18n.js?v=raid4';
+import {impactMark,bandMark,partMark,aimLine,MARK} from './tactical-marks.js?v=raid4';
+import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=raid4';
+import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=raid4';
 const circle=(c,x,y,r)=>{c.beginPath();c.arc(x,y,r,0,Math.PI*2);};
 // Called with the body's translation already applied. Original RGBA car art.
 export function drawRuralRail(c,b,images,wrecks){
