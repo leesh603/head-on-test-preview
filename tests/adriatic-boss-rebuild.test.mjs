@@ -17,7 +17,7 @@ test('Zubian replacement starts at the rendered cut poses and conserves HP',()=>
 test('moving, turning and charging Zubian halves never overlap their painted extents',()=>{
  const f=setup('hms-zubian');split(f);
  for(let i=0;i<3500;i++){frame.players[0].x=200+Math.sin(i*.017)*330;frame.players[0].y=250+Math.cos(i*.013)*320;f.enc.update(.02,frame);const [a,b]=f.enc.bodies.values();assert.equal(navalOverlap(a,b,0),null,'overlap at step '+i);}
- assert.ok(f.events.some(e=>e.type==='charge-warning'));assert.ok(f.events.some(e=>e.tag==='zubian-crossfire'));
+ assert.ok(f.events.some(e=>e.tag==='zubian-crossfire'));
 });
 test('destroyed guns survive the split, stop their attacks, and both halves remain hittable',()=>{
  const f=setup('hms-zubian');for(const id of ['frontGun','rearGun'])f.body.hit({partId:id,damage:9999});const halves=split(f);f.events.length=0;
@@ -25,11 +25,10 @@ test('destroyed guns survive the split, stop their attacks, and both halves rema
  assert.ok(halves.every(h=>h.gun().destroyed));assert.equal(f.events.some(e=>e.visual==='zubian-shell'||e.visual==='zubian-mortar'),false);
  for(const h of halves){const size=zubianSize(h),q=navalPoint(h,size.width*.24,-size.height*.28);assert.ok(h.locateHit({...q,radius:1}),'hull beyond the old core disc is hittable');assert.equal(h.locateHit(navalPoint(h,size.width*2,0)),null);}
 });
-test('a torpedo follows its locked warning course and does not accelerate the hull to bullet speed',()=>{
+test('a bow charge launches no projectile and never accelerates the hull to bullet speed',()=>{
  const f=setup('hms-zubian'),halves=split(f),bow=halves.find(h=>h.role==='front');bow.timers.set('charge',0);
- f.enc.update(.02,frame);const warning=f.events.findLast(e=>e.type==='charge-warning');for(let i=0;i<60;i++)f.enc.update(.02,frame);
- const torpedo=f.events.findLast(e=>e.visual==='torpedo-charge');assert.ok(torpedo);assert.equal(torpedo.x,warning.x);assert.equal(torpedo.y,warning.y);
- const cross=torpedo.vx*(warning.targetY-warning.y)-torpedo.vy*(warning.targetX-warning.x);assert.ok(Math.abs(cross)<1e-7);assert.ok(bow.driveVelocity<90);
+ for(let i=0;i<90;i++)f.enc.update(.02,frame);
+ assert.ok(!f.events.some(e=>e.visual==='torpedo-charge'));assert.ok(bow.driveVelocity<90);
 });
 test('Stuttgart navigation, rotated parts and swept collision share the live transform',()=>{
  const f=setup('sms-stuttgart');for(let i=0;i<500;i++)f.enc.update(.02,frame);const b=f.body,s=b.support129;
@@ -43,13 +42,11 @@ test('destroying all Stuttgart guns removes both shell volleys and targeted flak
 });
 
 // Repeat the launch check while hull turns force the stern to yield clearance.
-test('every torpedo emerges from the bow muzzle throughout a long moving encounter',()=>{
- let enc,launches=0;
+test('a long moving encounter never emits a charge projectile',()=>{
+ let enc;const seen=[];
  const dynamicFrame={players:[{id:'p1',alive:true,x:100,y:550,vx:30,vy:0}],bounds:{...frame.bounds}};
- enc=createBossEncounter({id:'launch-alignment',bossId:'hms-zubian',tuning:{...tuning},x:200,y:50,rng:()=>.5,emit:e=>{
-  if(e.visual==='torpedo-charge'){const b=enc.bodies.get(e.bossId),q=navalPoint(b,0,-zubianSize(b).height*.42);assert.ok(Math.hypot(e.x-q.x,e.y-q.y)<1e-7,'launch moved off the actual bow muzzle');launches++;}
- }});
+ enc=createBossEncounter({id:'launch-alignment',bossId:'hms-zubian',tuning:{...tuning},x:200,y:50,rng:()=>.5,emit:e=>{if(e.visual==='torpedo-charge')seen.push(e);}});
  [...enc.bodies.values()][0].hit({damage:99999});
  for(let i=0;i<5000;i++){dynamicFrame.players[0].x=200+Math.sin(i*.017)*330;dynamicFrame.players[0].y=250+Math.cos(i*.013)*320;enc.update(.02,dynamicFrame);}
- assert.ok(launches>=15);
+ assert.equal(seen.length,0);
 });
