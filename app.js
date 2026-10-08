@@ -23,7 +23,7 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=lc3';
 import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=lc3';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=lc3';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=lc3&rail=1&hints=1';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=lc3&rail=1&hints=1&treads=2';
 import {paintParis} from './paris-night-art.js?v=lc3';
 import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=lc3&rail=1&hints=1';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=lc3';

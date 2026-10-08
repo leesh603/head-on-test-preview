@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {createBossEncounter} from '../headon-stageboss-patterns.js?v=lc3';
 import {armorRotate,armorGunMuzzle,armorAngleDelta,TRENCH_ARMOR_LAYOUT} from '../trench-armor-layout.js?v=lc3';
-import {treadFrame,drawArmorTreads} from '../trench-armor-render.js?v=lc3';
+import {treadFrame,drawArmorTreads,prepareArmorTreads,TREAD_PROFILES,TREAD_FRAMES} from '../trench-armor-render.js?v=lc3';
 import {fixture,step} from './stageboss-fixture94.mjs';
 const tuning={maxHp:2400,partHp:280,damage:18,bulletSpeed:270,geometryScale:2.025,projectileDensity:.85,patternMultiplier:1};
 const frame={players:[{id:'p1',alive:true,x:100,y:180,vx:40,vy:0,radius:12},{id:'p2',alive:true,x:280,y:220,vx:0,vy:-20,radius:12}],bounds:{left:5,right:395,top:-422,bottom:422}};
@@ -15,7 +15,24 @@ test('A7V phase gates at 70/35%, actual steel rotation and hunting-net recovery 
 test('A7V broken tread freezes its own animation, limits turning, and two broken treads or engine stop the tank',()=>{const {b}=setup();drive(b,3,0,.6);b.hit({partId:'track-left',damage:99999});const roll=b.leftTrack.roll;b.drive(.02,0,.6);assert(Math.abs(b.angularVelocity)<=.14+1e-9);drive(b,2,0,.6);assert.equal(b.leftTrack.roll,roll);assert.equal(b.leftTrack.speed,0);assert(Math.abs(b.angularVelocity)<=.14+1e-9);b.hit({partId:'track-right',damage:99999});const pose=[b.x,b.y,b.hullYaw];drive(b,3,35,.6);assert.deepEqual([b.x,b.y,b.hullYaw],pose);assert(b.parts.get('engine-deck').hittable);b.hit({partId:'engine-deck',damage:99999});drive(b,2,35,.6);assert.equal(b.driveVelocity,0);});
 test('A7V searchlight destruction clears only its attached beam and cancels future tracking',()=>{const f=fixture({stageIndex:2,teamFaction:'entente'});f.hooks.getTuning=()=>tuning;const e=f.addon.startBoss({x:200,y:-160}),b=[...e.bodies.values()][0];step(f,3);assert(f.addon.hazards.pool.count>0);b.hit({partId:'searchlight',damage:99999});step(f,8);const hazards=[];f.addon.hazards.pool.visit(h=>hazards.push(h));assert(!hazards.some(h=>h.kind==='searchlight'));assert(f.log.cues.some(e=>e.phase==='a7v-light-lost'));});
 test('A7V destroyed port cancels a warned volley and disappears from rotating shot order',()=>{const f=setup(),b=f.b,gun=b.parts.get('left');b.scheduleGun(gun);b.hit({partId:'left',damage:99999});assert.equal(b.pendingVolley,null);f.events.length=0;run(f,20);assert(!f.events.some(e=>e.kind==='projectile'&&e.tag==='a7v-left'));});
-test('new tread atlas phase runs in opposite directions and broken belts are not painted',()=>{assert.equal(treadFrame(4.6),1);assert.equal(treadFrame(-4.6),2);const f=setup(),b=f.b,calls=[],ctx=new Proxy({},{get:(_,k)=>(...args)=>calls.push([k,...args])});const model={assetKey:b.kind,parts:[...b.parts.values()],leftTrack:{roll:5,speed:0},rightTrack:{roll:-5,speed:0}};drawArmorTreads(ctx,model,{naturalWidth:512});const draws=calls.filter(c=>c[0]==='drawImage');assert.equal(draws.length,2);assert.notEqual(draws[0][2],draws[1][2]);b.hit({partId:'track-left',damage:99999});calls.length=0;drawArmorTreads(ctx,model,{naturalWidth:512});assert.equal(calls.filter(c=>c[0]==='drawImage').length,1);});
+for(const kind of ['a7v-flak','mark-v-cruiser'])test(kind+': registered hull ribbons follow drive phase and stop drawing destroyed belts',()=>{
+ const f=setup(kind),b=f.b,calls=[],ctx=new Proxy({},{get:(_,k)=>(...args)=>calls.push([k,...args])});
+ const hull={naturalWidth:640},pitch=TREAD_PROFILES[b.kind].pitch*.4;
+ const makeCanvas=()=>({getContext:()=>({drawImage(){}})});
+ const cache=prepareArmorTreads(hull,b.kind,makeCanvas);
+ assert.equal(prepareArmorTreads(hull,b.kind,()=>{throw Error('cache rebuilt')}),cache);
+ assert.equal(treadFrame(pitch/TREAD_FRAMES*1.1,b.kind),1);
+ assert.equal(treadFrame(-pitch/TREAD_FRAMES*.9,b.kind),TREAD_FRAMES-1);
+ assert.equal(treadFrame(pitch,b.kind),0);
+ assert.equal(treadFrame(-pitch,b.kind),0);
+ const model={assetKey:b.kind,parts:[...b.parts.values()],leftTrack:{roll:5,speed:0},rightTrack:{roll:-5,speed:0}};
+ drawArmorTreads(ctx,model,hull);const draws=calls.filter(c=>c[0]==='drawImage');assert.equal(draws.length,2);
+ assert.notEqual(draws[0][1],draws[1][1]);assert.notEqual(draws[0][2],draws[1][2]);
+ assert(draws[0][6]<0&&draws[1][6]>0,'belts remain on opposite hull edges');
+ assert(Object.values(cache).reduce((sum,r)=>sum+r.image.width*r.image.height*4,0)<1024*1024,'bounded mobile atlas memory');
+ b.hit({partId:'track-left',damage:99999});calls.length=0;drawArmorTreads(ctx,model,hull);assert.equal(calls.filter(c=>c[0]==='drawImage').length,1);
+ model.destroying=true;calls.length=0;drawArmorTreads(ctx,model,hull);assert.equal(calls.length,0);
+});
 
 test('Mark V entry advances on both belts, waits before warned alternating sponsons',()=>{const f=setup('mark-v-cruiser');run(f,2.2);assert(f.b.driveDistance>28);assert(!f.events.some(e=>e.kind==='projectile'));run(f,5);assert(f.events.some(e=>e.phase==='markv-entry'));assert(f.events.some(e=>e.type==='charge-warning'));for(const id of f.b.gunIds)assert(f.events.some(e=>e.kind==='projectile'&&e.tag===id));});
 test('Mark V wide turn precedes braking, genuine counter-drive waltz and recovery',()=>{const f=setup('mark-v-cruiser'),b=f.b;b.entryAge=3;b.startWaltz(false);const seen=new Set(),start=[b.x,b.y,b.hullYaw];for(let i=0;i<600;i++){run(f,.02);seen.add(b.rotation?.stage);if(b.rotation?.stage==='spin'&&Math.abs(b.angularVelocity)>.2)assert(b.leftTrack.speed*b.rightTrack.speed<0);}assert(Math.hypot(b.x-start[0],b.y-start[1])>30);assert(Math.abs(b.hullYaw-start[2])>1);for(const state of ['arc','brake','spin','recover'])assert(seen.has(state));assert(f.events.some(e=>e.phase==='markv-steel-waltz'));});

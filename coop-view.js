@@ -12,7 +12,7 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=lc3';
 import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=lc3';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=lc3';
-import {drawStageBoss} from './stageboss-view.js?v=lc3&rail=1&hints=1';
+import {drawStageBoss} from './stageboss-view.js?v=lc3&rail=1&hints=1&treads=2';
 const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};
 const NO_SKILL_RING=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker','wolff','immelmann']);
