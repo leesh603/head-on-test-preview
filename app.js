@@ -25,7 +25,7 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=tame3';
 import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=tame3';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=tame3';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=tame3&hints=1&treads=2&rail=32';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=tame3&hints=1&treads=2&rail=33';
 import {paintParis} from './paris-night-art.js?v=tame3';
 import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=tame3&hints=1&rail=19';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=tame3';
@@ -56,7 +56,7 @@ import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=tame3';
 import {drawTailEngagement} from './engagement-hud410.js?v=tame3';
 import {portraitSources,portraitsReady,portraitLoaded} from './portraits.js?v=tame3';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=tame3&rail=32';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=tame3&rail=33';
 import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN,bossArrivalCues} from './boss-feedback.js?v=tame3&hints=1&rail=18';
 import {drawEquipment} from './equipment.js?v=tame3';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=tame3';

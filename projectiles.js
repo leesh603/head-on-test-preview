@@ -56,7 +56,6 @@ export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
  }
  if(kind==='railgun'&&fxReady('shell')){fx(c,'shell',-8,0,30,9);c.restore();return}
  if(kind==='rocket'&&fxReady('rocket')){fx(c,'rocket',-4,0,34,10);c.restore();return}
- if(FX3&&fxReady('tracerOrange')){fx(c,'tracerOrange',-length*.35,0,length+10,Math.max(4,width*1.8),0,.92);c.restore();return}
  const head=kind==='rocket'?-15:2;
  // Two short, fading rectangular tail segments echo the aircraft pixel grid.
  c.globalAlpha=.2;c.fillStyle=color;c.fillRect(head-length-7,-width/2,7,width);
