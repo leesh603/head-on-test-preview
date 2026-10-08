@@ -1,0 +1,69 @@
+name: Mission rewards task
+on:
+  push:
+    branches: [feat/mission-combat-rewards]
+    paths:
+      - .github/workflows/mission-rewards-task.yml
+      - tools/mission-rewards-apply.py
+permissions:
+  contents: write
+concurrency:
+  group: mission-rewards-task
+  cancel-in-progress: false
+jobs:
+  mission-rewards:
+    if: github.ref == 'refs/heads/feat/mission-combat-rewards'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*.js
+            /package.json
+            /tests/
+            /tools/mission-rewards-apply.py
+            /.github/workflows/mission-rewards-task.yml
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Export source context only (no assets)
+        run: |
+          python3 - <<'PY'
+          import pathlib, tarfile, subprocess, json
+          root=pathlib.Path('.')
+          paths=sorted(root.glob('*.js'))+[root/'package.json']
+          paths += [p for p in (root/'tests').glob('*') if p.is_file() and any(k in p.name.lower() for k in ('battlefield','mission','regional-event','director','stageboss'))]
+          with tarfile.open('/tmp/mission-source-context.tar.gz','w:gz') as tar:
+              for p in paths:
+                  if p.is_file(): tar.add(p,arcname=str(p))
+          print('Source commit:',subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip())
+          print('Source-only archive bytes:',pathlib.Path('/tmp/mission-source-context.tar.gz').stat().st_size)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mission-source-context
+          path: /tmp/mission-source-context.tar.gz
+          retention-days: 1
+      - name: Apply scoped patch and run mission checks
+        if: hashFiles('tools/mission-rewards-apply.py') != ''
+        run: |
+          python3 tools/mission-rewards-apply.py
+          git diff --check
+          node --check battlefield-events170.js
+          node --check app.js
+          node --check headon-stageboss-core.js
+          node --test tests/mission-combat-rewards.test.mjs
+      - name: Commit checked changes to this task branch only
+        if: hashFiles('tools/mission-rewards-apply.py') != ''
+        env:
+          EXPECTED_HEAD: ${{ github.sha }}
+        run: |
+          test "$(git ls-remote origin refs/heads/feat/mission-combat-rewards | cut -f1)" = "$EXPECTED_HEAD"
+          git add -- battlefield-events170.js app.js headon-stageboss-core.js tests/mission-combat-rewards.test.mjs
+          git config user.name 'HEAD-ON mission rewards task'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat: mission combat rewards with full repair and focused tests'
+          git push origin HEAD:refs/heads/feat/mission-combat-rewards
