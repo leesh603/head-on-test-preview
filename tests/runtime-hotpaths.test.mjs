@@ -77,7 +77,7 @@ test('tint churn retains frequently used canvases and stays bounded at 48 entrie
 });
 test('the final HUD entry throttles the whole wrapper chain, including special ammo labels',()=>{
  const source=after('app.js'),start=source.indexOf('hud=()=>{if(!game||performance.now()-hudAt<90)return;'),end=source.indexOf('\n',start);
- let calls=0;const c=context({hud:()=>{},game:{plane:'fokker',weapon:{guns:2}},plane:'fokker',hudAt:-Infinity,now:0,performance:{now:()=>c.now},hudWithDynamicLocale:()=>{calls++;c.hudAt=c.now},localizedEquippedWeapon:()=>'',__attr(){},__txt(){},$:()=>({})});
+ let calls=0;const c=context({hud:()=>{},game:{plane:'fokker',weapon:{guns:2}},plane:'fokker',hudAt:-Infinity,now:0,performance:{now:()=>c.now},hudWithDynamicLocale:()=>{calls++;c.hudAt=c.now},hudPlayer:()=>({plane:'fokker',weapon:{guns:2}}),localizedEquippedWeapon:()=>'',__attr(){},__txt(){},$:()=>({})});
  vm.runInContext(source.slice(start,end),c);for(let i=0;i<600;i++){c.now=i*1000/60;c.hud()}assert.equal(calls,100);
 });
 if(process.argv.includes('--benchmark')){
