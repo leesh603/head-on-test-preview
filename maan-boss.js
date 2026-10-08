@@ -180,6 +180,7 @@ export class SinaiLandship extends DesertHull {
   const lane={x:clamp(aim.x,ctx.bounds.left+65,ctx.bounds.right-65),y:aim.y,width:110,depth:260,remaining:6.3};
   this.duneLane=lane;this.escortOrder=disrupted?'withdraw':'flank';
   this.encirclement={age:0,index:0,stage:'flank',disrupted,lane,guns:this.gunOrder(this.side).slice(0,disrupted?2:4)};
+  if(!disrupted)for(const car of this.encounter.bodies.values())if(car.leader===this&&!car.dead)car.timers.set('escort-gun',0);
   this.tactic(disrupted?'broken-encirclement':'desert-encirclement');
  }
  finalAttack(dt,ctx){

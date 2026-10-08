@@ -60,8 +60,8 @@ test('Sinai prioritizes the approach flank and fires each of its four surviving 
 test('Sinai final alternates escort pressure and surviving-gun fire around a safe mobile/PC lane',()=>{
  for(const width of [390,1280]){
   const f=battle('central',width),b=f.body;b.hp=b.maxHp*.25;step(f,.1);const lane={...b.duneLane};assert.ok(b.encirclement);const start=b.motionTime;
-  const car=[...b.encounter.bodies.values()].find(c=>c.leader);car.timers.set('escort-gun',.01);
   step(f,6.3);const artillery=f.events.filter(e=>e.visual==='sinai-impact');assert.ok(artillery.length>=2);
+  assert.ok(f.events.some(e=>e.kind==='projectile'&&e.bossId!==b.id),'surviving escorts execute the final order using their production timer');
   assert.ok(artillery.every(e=>e.at>=start+2.1&&Math.abs(e.x-lane.x)-e.radius>=lane.width/2+12&&e.warning>=1.7));
   for(const h of f.events.filter(e=>e.kind==='projectile'))for(let i=0;i<=80;i++){
    const moving={...h,x:h.x+h.vx*i*.05,y:h.y+h.vy*i*.05};assert.ok(!contains(moving,{x:lane.x,y:lane.y+80,radius:12}),'escort rounds cannot seal the advertised central route');
