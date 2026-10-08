@@ -4,20 +4,83 @@ on:
     branches: [fix/boss-pattern-rhythm-20261008]
     paths: [.github/workflows/boss-rhythm-diagnostic.yml]
 permissions:
-  contents: read
+  contents: write
 jobs:
-  source-snapshot:
+  verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
-      - name: Collect exact branch source for focused boss tests
-        run: |
-          mkdir -p /tmp/boss-diagnostic
-          git archive HEAD -- '*.js' '*.mjs' '*.json' '*.html' '*.css' tests tools > /tmp/boss-diagnostic/source.tar
-          git rev-parse HEAD > /tmp/boss-diagnostic/commit.txt
-          git ls-tree -r HEAD > /tmp/boss-diagnostic/tree.txt
-      - uses: actions/upload-artifact@v4
         with:
-          name: boss-diagnostic-source
-          path: /tmp/boss-diagnostic/
-          retention-days: 1
+          ref: fix/boss-pattern-rhythm-20261008
+          fetch-depth: 16
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*.js
+            /*.mjs
+            /*.json
+            /*.html
+            /*.css
+            /tests/
+            /tools/
+            /.github/workflows/
+      - name: Recheck current main and apply exact tested patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/boss-results
+          git config user.name 'HEAD-ON boss verification'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch --depth=16 origin main
+          git rev-parse origin/main > /tmp/boss-results/main.txt
+          test "$(git rev-parse origin/main:stageboss-host.js)" = f78174362e5496c25757db80bde70489a37f6b57
+          test "$(git rev-parse origin/main:headon-stageboss-patterns.js)" = 5ec88b951a550ae43f901d25ba4cb0178d659d1c
+          git merge --no-edit origin/main
+          git apply --check tools/boss-rhythm-code.patch
+          git apply tools/boss-rhythm-code.patch
+          test "$(git hash-object stageboss-host.js)" = d369d5958c29ee37a5f8dd542021a912bfbf8a57
+          test "$(git hash-object headon-stageboss-patterns.js)" = 609c35d80c427cbf65aab704fa1d881224837d9f
+          git diff --check
+          git diff -- stageboss-host.js headon-stageboss-patterns.js > /tmp/boss-results/verified.patch
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Focused native-engine and pattern regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check stageboss-host.js
+          node --check headon-stageboss-patterns.js
+          node --test tests/boss-pattern-rhythm.test.mjs tests/trench-armor-tactics.test.mjs tests/trench-armor-gun.test.mjs tests/trench-armor-online.test.mjs tests/maan-engine-integration.test.mjs tests/verdun-siege.test.mjs tests/rural-rail-bosses.test.mjs tests/somme-host.test.mjs tests/paris-night-bosses.test.mjs | tee /tmp/boss-results/tests.txt
+      - name: Install isolated Chromium browser
+        run: |
+          python -m pip install playwright==1.55.0
+          python -m playwright install --with-deps chromium
+      - name: Compare existing live server against local patch injection (no deploy)
+        run: python tools/boss-rhythm-browser.py | tee /tmp/boss-results/browser.txt
+      - name: Commit verified changes only to the work branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = fix/boss-pattern-rhythm-20261008
+          python - <<'PY'
+          import json
+          rows=json.load(open('/tmp/boss-results/browser-results.json'))
+          assert len(rows)==8 and all(r.get('pass') for r in rows), rows
+          PY
+          git fetch --depth=16 origin main
+          test "$(git rev-parse origin/main:stageboss-host.js)" = f78174362e5496c25757db80bde70489a37f6b57
+          test "$(git rev-parse origin/main:headon-stageboss-patterns.js)" = 5ec88b951a550ae43f901d25ba4cb0178d659d1c
+          git rm tools/boss-rhythm-browser.py tools/boss-rhythm-code.patch
+          git add stageboss-host.js headon-stageboss-patterns.js tests/boss-pattern-rhythm.test.mjs
+          git commit -m 'fix: restore boss motion prediction and readable tank/carpet attack beats'
+          git push origin HEAD:refs/heads/fix/boss-pattern-rhythm-20261008
+          git rev-parse HEAD > /tmp/boss-results/commit.txt
+          git diff origin/main --stat > /tmp/boss-results/diff-stat.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: boss-rhythm-verification
+          path: /tmp/boss-results/
+          retention-days: 3
