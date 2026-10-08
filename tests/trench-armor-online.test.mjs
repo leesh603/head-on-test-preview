@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.());}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 const {OnlineCoopGame}=await import('../online-coop-game.js');
-const {enableStageBoss}=await import('../stageboss-host.js?v=tame3&rail=16');
+const {enableStageBoss}=await import('../stageboss-host.js?v=tame3&rail=17');
 const {renderStageBossLayer}=await import('../headon-stageboss-render.js?v=tame3');
 for(const [kind,faction,pilots]of [['a7v-flak','entente',['fonck','guynemer']],['mark-v-cruiser','central',['baron','voss']]])test(kind+': real host/guest protocol retains counter-driven belts, rotating guns, marks and part destruction',()=>{
  const start={seed:135,runId:'trench-online-'+kind,players:pilots.map(pilot=>({pilot,plane:pilot==='fonck'?'camel':pilot==='guynemer'?'guynemer_spad':'fokker',faction}))};

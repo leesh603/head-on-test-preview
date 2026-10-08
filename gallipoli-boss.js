@@ -110,6 +110,7 @@ export class GallipoliFortress extends BaseBoss{
   for(const s of a.sources){const index=s.next||0,shot=s.shots[index];if(!shot||a.age<(shot.delay||0)||!aligned(s,shot))continue;
    let q;if(s.id){const p=this.parts.get(s.id);p.recoil=.28;q=gallipoliMuzzle(this,p,shot.barrel||0);Object.assign(p,{gunFlash:.16,flashX:q.x,flashY:q.y});}else{this.coreRecoil=.28;q=gallipoliCommandMuzzle(this,shot.barrel??-1);this.coreFlash=.16;this.coreFlashX=q.x;this.coreFlashY=q.y;}
    this.command('muzzle',{...q,partId:s.id});this.hazard({...shot,delay:0,sourceX:q.x,sourceY:q.y});
+   if(s.id){const _p=this.parts.get(s.id);if(Number.isFinite(_p.angle)){this.aaSourceId=s.id;this.shot(q.x,q.y,_p.angle,4,.85,this.t.bulletSpeed*.7,'gallipoli-aa');}}
    a.endsAt=Math.max(a.endsAt,this.clock+shot.warning+.45);if(a.lane)this.lane.remaining=Math.max(this.lane.remaining,shot.warning+.45);
    s.next=index+1;const next=s.shots[s.next];s.target=next||shot;if(s.id)this.parts.get(s.id).aimTarget=next||null;else this.coreAimTarget=next||null;
   }
@@ -129,10 +130,22 @@ export class GallipoliFortress extends BaseBoss{
   if(this.pendingAttack?.kind==='final'){this.fireIfAligned(dt);return;}
   if(!this.pendingAttack&&!this.lane?.remaining&&!this.centralRemaining&&this.defensePhase===3&&this.finalClock>=18){const target=this.target(players);if(target){this.planFinal(target);this.fireIfAligned(dt);return;}}
   this.aaClock=(this.aaClock??0)+dt*mult;
-  if(this.aaClock>=2.4){this.aaClock=0;const mounts=[...this.parts.values()].filter(p=>p.kind==='aa'&&!p.destroyed&&p.repairGrace<=0);
-   if(mounts.length){const m=mounts[(this.aaCursor=(this.aaCursor||0)+1)%mounts.length];m.recoil=.18;const q=gallipoliMuzzle(this,m);Object.assign(m,{gunFlash:.12,flashX:q.x,flashY:q.y});this.aaSourceId=m.id;this.command('muzzle',{...q,partId:m.id});this.shot(q.x,q.y,m.angle,5,.5);}}
+  if(this.aaClock>=1.5&&!this.recoveryRemaining){this.aaClock=0;const mounts=[...this.parts.values()].filter(p=>p.kind==='aa'&&!p.destroyed&&p.repairGrace<=0);
+   if(mounts.length){const m=mounts[(this.aaCursor=(this.aaCursor||0)+1)%mounts.length];m.recoil=.18;const q=gallipoliMuzzle(this,m);Object.assign(m,{gunFlash:.12,flashX:q.x,flashY:q.y});this.aaSourceId=m.id;this.command('muzzle',{...q,partId:m.id});this.shot(q.x,q.y,m.angle,7,.95);}}
+  // Bullet-hell: every surviving gun turret tracks a live pilot and sprays an
+  // aimed fan — the fortress rains real projectiles, not just warned circles.
+  this.fanClock=(this.fanClock??0)+dt*mult;
+  if(this.fanClock>=1.6&&!this.pendingAttack&&!this.recoveryRemaining){this.fanClock=0;
+   const live=players.filter(p=>p.alive),guns=[...this.parts.values()].filter(p=>p.kind==='gun'&&!p.destroyed&&p.repairGrace<=0);
+   if(guns.length&&live.length){const g=guns[(this.fanCursor=(this.fanCursor||0)+1)%guns.length];
+    const tp=live[this.fanCursor%live.length]||live[0],gx=this.x+g.x,gy=this.y+g.y,aim=Math.atan2(tp.y+(tp.vy||0)*.35-gy,tp.x+(tp.vx||0)*.35-gx);
+    if(!Number.isFinite(aim))return;
+    g.angle=Number.isFinite(g.angle)?turnGallipoliTurret(g.angle,aim,4,dt):aim;
+    g.recoil=.2;const q=gallipoliMuzzle(this,g);Object.assign(g,{gunFlash:.14,flashX:q.x,flashY:q.y});
+    this.aaSourceId=g.id;this.command('muzzle',{...q,partId:g.id});
+    this.shot(q.x,q.y,aim,this.defensePhase>=2?8:6,1.05,this.t.bulletSpeed*.78,'gallipoli-aa');}}
   this.ringClock=(this.ringClock??0)+dt*mult;
-  if(!this.commandDestroyed&&this.ringClock>=7.5){this.ringClock=0;this.coreRecoil=.28;const q=gallipoliCommandMuzzle(this);this.coreFlash=.16;this.coreFlashX=q.x;this.coreFlashY=q.y;this.command('muzzle',q);this.ring(12);}
+  if(!this.commandDestroyed&&this.ringClock>=5.5){this.ringClock=0;this.coreRecoil=.28;const q=gallipoliCommandMuzzle(this);this.coreFlash=.16;this.coreFlashX=q.x;this.coreFlashY=q.y;this.command('muzzle',q);this.ring(12);}
   if(this.pendingAttack){this.fireIfAligned(dt);return;}if(this.lane?.remaining||this.centralRemaining)return;const target=this.target(players);if(!target)return;
   if(!this.commandDestroyed&&this.centralClock>=8)this.planCentral(target);else if(this.coastalClock>=4.4)this.planCoastal(target);this.fireIfAligned(dt);
  }
