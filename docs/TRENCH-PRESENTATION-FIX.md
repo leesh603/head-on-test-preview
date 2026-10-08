@@ -29,7 +29,7 @@ HP·공격력 증가는 없다. 다른 지역의 보스 동작을 바꾸지 않�
 - 실제 Game/CoopGame 자동 시뮬레이션: 390×844와 1280×800에서 시설 고정, 자연 조우, 첫 화염 종료까지 노즐이 화면 안에 있는지 검증. 부위에 일반 발사체를 맞히고 파괴·일시정지·120초 위험 객체/파티클 상한·정리 검증.
 - 무적 없는 판정 시뮬레이션: 두 화면 폭에서 첫 화염 경로 직진은 피해 발생, 고정 예고 중 옆으로 이동하면 피해 0. 기존 발악기 회피·단일 보상·지역 전환·재시작 검사는 전체 테스트에 포함.
 - 화면 검사: `tools/render-trench-presentation.mjs`가 실제 Game의 비행과 운영 렌더러·지형·원본 에셋을 실행한다. 아래 이미지는 자동 렌더링 결과이며 브라우저 실플레이 캡처가 아니다.
-- 브라우저 실플레이: 원격 체크포인트의 Test Lab 로딩 및 시작을 시도했다. raw.githack 이미지 리다이렉트가 캔버스를 오염시켜 `getImageData` SecurityError로 전장 그리기가 중단됐다. 수정본 PC·모바일 실플레이, 실기기 FPS·터치 조작, 협동 화면, 실제 컷인·음향 감상은 **미검증**이다. 이 미리보기 서버 문제를 우회하려고 게임 공용 이미지 로더나 다른 지역 코드를 변경하지 않았다.
+- 브라우저 실플레이: 원격 체크포인트의 Test Lab 로딩 및 시작을 시도했다. raw.githack 이미지 리다이렉트가 캔버스를 오염시켜 `getImageData` SecurityError로 전장 그리기가 중단됐다. 수정본 PC·모바일 실플레이, 실기기 FPS·터치 조작, 협동 화면, 실제 컷인·음향 감상은 **미검증**이다. 검사용 `qa-trench-review.html`에서만 표준 anonymous CORS를 적용하는 진입 페이지를 추가했다. 이 페이지는 HTTP 429 응답이 한 번 새로고침 후에도 계속되어 실제 실행을 검증하지 못했다. 게임 공용 이미지 로더나 다른 지역 코드는 변경하지 않았다.
 - 현재 테섭 main에는 이 브랜치가 적용되지 않았다. main 병합·배포하지 않았다.
 
 ## 변경 파일
@@ -38,7 +38,7 @@ HP·공격력 증가는 없다. 다른 지역의 보스 동작을 바꾸지 않�
 
 검사: `tests/livens-trench-raid.test.mjs`, `tests/minenwerfer-trench-raid.test.mjs`, `tests/trench-raid-render.test.mjs`, `tests/trench-presentation-fix.test.mjs`.
 
-QA: 이 문서, `tools/render-trench-presentation.mjs`, `qa/trench-presentation/*.webp`. `@napi-rs/canvas`는 선택적 QA 도구에만 필요하며 게임 의존성은 추가하지 않는다.
+QA: 이 문서, `qa-trench-review.html`(브라우저 실행 미검증), `tools/render-trench-presentation.mjs`, `qa/trench-presentation/*.webp`. `@napi-rs/canvas`는 선택적 QA 도구에만 필요하며 게임 의존성은 추가하지 않는다.
 
 ## 자동 렌더링 증거
 
