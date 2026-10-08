@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import './_globals-stub.mjs';
-import {PILOTS} from '../engine.js?v=tame3&rail=13';
+import {PILOTS} from '../engine.js?v=tame3&rail=13rail=14';
 
 import {BOSS_CATALOG,STAGES,createBossEncounter} from '../headon-stageboss-patterns.js';
 import {CAMPAIGN_DATA} from '../campaign-data.js';

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {ParisGun,LIncomparable} from '../headon-stageboss-patterns.js?v=tame3&rail=13';
+import {ParisGun,LIncomparable} from '../headon-stageboss-patterns.js?v=tame3&rail=13rail=14';
 import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from '../rural-rail-artillery.js?v=tame3';
 import {renderStageBossLayer} from '../headon-stageboss-render.js?v=tame3&rail=1';
 import {bossSoundFor} from '../boss-feedback.js?v=tame3&rail=12';

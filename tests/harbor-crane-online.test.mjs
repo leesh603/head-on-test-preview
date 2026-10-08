@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){queueMicrotask(()=>this.onload?.());}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 const {OnlineCoopGame}=await import('../online-coop-game.js');
-const {enableStageBoss,beginStageBossFrame}=await import('../stageboss-host.js?v=tame3&rail=13');
+const {enableStageBoss,beginStageBossFrame}=await import('../stageboss-host.js?v=tame3&rail=13rail=14');
 const {pack,unpack}=await import('../online-coop-protocol.js');
 const {renderStageBossLayer}=await import('../headon-stageboss-render.js?v=tame3');
 test('harbor host/guest retain the real crane release, airborne mine, gun warning and facility damage',()=>{
