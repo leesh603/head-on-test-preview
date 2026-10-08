@@ -914,12 +914,12 @@ export class MinenwerferBattery extends PatternBoss {
   }
   update(dt,{players=[],bounds,paused=false}){
     if(this.dead||paused)return;dt=Math.min(dt,.25);this.x=this.anchorX;this.y=this.anchorY;
-    if(!this.trenchScale&&bounds){this.trenchScale=Math.min(1,((bounds.right-bounds.left)/2-75)/560);for(const p of this.parts.values()){p.x*=this.trenchScale;p.y*=this.trenchScale;p.radius*=this.trenchScale;p.mortarMouth.x*=this.trenchScale;p.mortarMouth.y*=this.trenchScale;}}
+    this.trenchScale=1;
     const guns=this.liveGuns();if(!guns.length)return;this.discoveryClock=Math.max(0,this.discoveryClock-dt);
     for(const gun of this.parts.values()){gun.mortarFlash=Math.max(0,gun.mortarFlash-dt);gun.mortarSmoke=Math.max(0,gun.mortarSmoke-dt);}
     // Every pit already exists at its authored world pose. Visibility reveals
     // its identity, not its position or an animation that raises the facility.
-    if(!this.discoveryClock){const visible=guns.find(p=>!p.discovered&&(!bounds||(this.x+p.x>=bounds.left+55&&this.x+p.x<=bounds.right-55&&this.y+p.y>=bounds.top+55&&this.y+p.y<=bounds.bottom-55))&&players.some(v=>v.alive&&Math.hypot(v.x-this.x-p.x,v.y-this.y-p.y)<600));
+    if(!this.discoveryClock){const visible=guns.find(p=>!p.discovered&&players.some(v=>v.alive&&Math.hypot(v.x-this.x-p.x,v.y-this.y-p.y)<600));
       if(visible){visible.discovered=true;this.discoveryClock=.45;this.command('minenwerfer-emplacement-found',{partId:visible.id,x:this.x+visible.x,y:this.y+visible.y});if(!this.discovered){this.discovered=true;this.command('trench-discovered');}}}
     const pilot=players.find(p=>p.alive);if(pilot&&bounds){const unseen=guns.filter(p=>!p.discovered),dest=(unseen.length?unseen:guns).reduce((a,p)=>Math.hypot(pilot.x-this.x-p.x,pilot.y-this.y-p.y)<Math.hypot(pilot.x-this.x-a.x,pilot.y-this.y-a.y)?p:a),m=this.muzzle(dest);
       this.mortarGuide={x:Math.max(bounds.left+34,Math.min(bounds.right-34,m.x)),y:Math.max(bounds.top+90,Math.min(bounds.bottom-45,m.y)),angle:Math.atan2(m.y-pilot.y,m.x-pilot.x),known:[...this.parts.values()].filter(p=>p.discovered).length};}
