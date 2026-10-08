@@ -1,11 +1,11 @@
-import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=tame3';
 import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
+import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=tame3';
+import {drawShellFlight} from './boss-rounds.js?v=tame3';
 import {drawAADefense} from './aa-defense-art.js?v=tame3';
 import {clamp,sommeMuzzle} from './somme-boss-layout.js?v=tame3';
-
 const images={},pending={};
-function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';images[key]=im;pending[key]=new Promise((resolve,reject)=>{im.addEventListener('load',()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))},{once:true});im.addEventListener('error',()=>reject(new Error('Missing Somme atlas: '+SOMME_SHEETS[key])),{once:true});});im.src='./'+SOMME_SHEETS[key]+'?v=tame3';return im;}
+function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';images[key]=im;pending[key]=new Promise((resolve,reject)=>{im.addEventListener('load',()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))},{once:true});im.addEventListener('error',()=>reject(new Error('Missing Somme atlas: '+SOMME_SHEETS[key])),{once:true});});im.src='./'+SOMME_SHEETS[key]+'?v=r5';return im;}
 export function prepareSommeAssets(){for(const key of Object.keys(SOMME_SHEETS))load(key);return Promise.all(Object.values(pending));}
 export function releaseSommeAssets(){for(const key of Object.keys(images)){delete images[key];delete pending[key];}}
 // Pivot is measured on the normal sprite's visible silhouette. Damage-state
@@ -38,9 +38,7 @@ export function drawSommeBoss(c,b){
   c.restore();
   for(const p of parts.filter(p=>p.id.startsWith('sponson-'))){
    sprite(c,b.tankRole+'-sponson',state(p,dead),p.x,p.y,p.drawWidth,p.drawHeight,b.hullYaw);
-   // A broken barrel stays attached to its fixed socket as painted wreck art.
-   weapon(c,b.tankRole==='male'?'mark1-gun-heavy':'mark1-gun-mg',state(p,dead),p);
-   if(p.destroyed&&!dead)fx(c,'smokeDark',p.x,p.y-14*s,26*s,36*s,0,.22);
+   if(!p.destroyed&&!dead)weapon(c,b.tankRole==='male'?'gun-heavy':'gun-mg',state(p,dead),p);
   }
   if(b.driveMoving&&!dead)for(const side of [-1,1]){const a=b.hullYaw||0,x=b.x+Math.cos(a)*side*48*s-Math.sin(a)*92*s,y=b.y+Math.sin(a)*side*48*s+Math.cos(a)*92*s;fx(c,'smokeDust',x-b.x,y-b.y,24*s,32*s,a,.12);}
   if(b.salvo&&!dead){const q=b.salvo,prog=clamp(1-q.remaining/(q.warning||1.05),0,1);const p=parts.find(p=>p.id===q.partId);if(p){const m=sommeMuzzle(b,p);aimLine(c,m.x-b.x,m.y-b.y,q.x-b.x,q.y-b.y,{alpha:.6,chevron:false,dash:[6,7]});}warningRing(c,q.x-b.x,q.y-b.y,clamp(37*s,24,37),prog);}
@@ -60,9 +58,9 @@ export function drawSommeBoss(c,b){
 }
 export function drawSommeHazard(c,h){
  if(!h.visual?.startsWith('somme-'))return false;
- if(h.kind==='projectile')return false;
+ if(h.kind==='projectile'){fx(c,'tracerAmber',h.x,h.y,18,4,Math.atan2(h.vy,h.vx),.9);c.save();c.fillStyle='#edce93';c.beginPath();c.arc(h.x,h.y,2,0,Math.PI*2);c.fill();c.restore();return true;}
  c.save();const warning=h.phase==='warning',q=clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1);
- if(warning){warningRing(c,h.x,h.y,h.radius,q,h.raidHeavy);if(h.sourceX!=null){const x=h.sourceX+(h.x-h.sourceX)*q,y=h.sourceY+(h.y-h.sourceY)*q-Math.sin(q*Math.PI)*62;fx(c,'shellHeavy',x,y,20,7,Math.atan2(h.y-h.sourceY,h.x-h.sourceX),.9);}}
+ if(warning){warningRing(c,h.x,h.y,h.radius,q,h.raidHeavy);drawShellFlight(c,h,q,{arc:62,size:.85});}
  else{const age=Math.max(0,h.age-h.delay-h.warning),frame=age<h.duration*.28?'aaFlakHot':age<h.duration*.62?'aaFlakDark':'aaFlakSmoke';if(!drawAADefense(c,frame,h.x,h.y,h.radius*2.35,h.radius*2.35))fx(c,'flak',h.x,h.y,h.radius*2.35,h.radius*2.35,0,clamp(1-age/h.duration,0,1));}
  c.restore();return true;
 }

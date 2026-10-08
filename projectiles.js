@@ -1,4 +1,4 @@
-import {FXS,fxsFireZone} from './fx-sample-preview.js?v=tame3&rail=11';
+import {FXS,fxsFireZone} from './fx-sample-preview.js?v=tame3&rail=37';
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // (FX layer exception: hostile bolts get a crimson body + white-hot tip for dodge readability.)
 // Rendering never changes projectile movement, damage or collision.
@@ -21,7 +21,7 @@ export function friendlyTracerColor(b,gunUpgradeBonus=0){
  return '#'+a.map((v,j)=>Math.round(v+(z[j]-v)*t).toString(16).padStart(2,'0')).join('');
 }
 const cannonAtlas=typeof Image==='undefined'?null:new Image();
-if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.webp?v=tame3';
+if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.webp?v=r5';
 const ENEMY_BOLTS={scout:[17,4],hunter:[19,4],bomber:[16,4.5],heavyBomber:[21,5.5],boss:[20,4.5],zeppelin:[17,4.5],naval:[21,5],balloon:[12,5],flak:[11,5]};
 const boltCache=new Map();
 function enemyBolt(len,wid){
@@ -56,6 +56,7 @@ export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
  }
  if(kind==='railgun'&&fxReady('shell')){fx(c,'shell',-8,0,30,9);c.restore();return}
  if(kind==='rocket'&&fxReady('rocket')){fx(c,'rocket',-4,0,34,10);c.restore();return}
+ if(FX3&&fxReady('tracerOrange')){fx(c,'tracerOrange',-length*.35,0,length+10,Math.max(4,width*1.8),0,.92);c.restore();return}
  const head=kind==='rocket'?-15:2;
  // Two short, fading rectangular tail segments echo the aircraft pixel grid.
  c.globalAlpha=.2;c.fillStyle=color;c.fillRect(head-length-7,-width/2,7,width);

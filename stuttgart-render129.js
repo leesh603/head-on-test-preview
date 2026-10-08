@@ -1,9 +1,9 @@
-import {impactMark} from './tactical-marks.js?v=tame3';
 import {drawEnemyProjectile} from './projectiles.js?v=tame3';
+import {drawBossRound} from './boss-rounds.js?v=tame3';
+import {impactMark} from './tactical-marks.js?v=tame3';
 import {HANGAR} from './stuttgart129.js?v=tame3';
 import {drawNavalWake} from './adriatic-boss-render.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
-
 // Geometry masks remove the source canvas outside the drawn silhouette at render time.
 // Never color-key gray pixels: doing so also erases metal highlights inside the ship.
 export const SHIP_OUTLINE=[[.498,.007],[.504,.007],[.51,.026],[.538,.05],[.562,.08],[.60,.13],[.628,.161],[.661,.158],[.663,.165],[.642,.174],[.661,.206],[.674,.267],[.681,.343],[.697,.355],[.699,.403],[.683,.416],[.682,.441],[.724,.437],[.727,.444],[.698,.451],[.702,.482],[.688,.499],[.692,.537],[.700,.56],[.696,.61],[.695,.646],[.70,.66],[.695,.71],[.697,.74],[.69,.775],[.696,.81],[.685,.87],[.678,.90],[.663,.932],[.638,.955],[.613,.963],[.61,.974],[.57,.983],[.574,.991],[.565,.995],[.55,.986],[.455,.986],[.43,.995],[.42,.991],[.415,.98],[.358,.958],[.34,.94],[.321,.908],[.309,.873],[.303,.82],[.307,.775],[.298,.743],[.300,.709],[.306,.67],[.303,.628],[.304,.60],[.296,.575],[.300,.536],[.313,.511],[.302,.49],[.291,.475],[.289,.456],[.275,.443],[.28,.438],[.313,.445],[.315,.416],[.301,.401],[.301,.358],[.317,.348],[.326,.32],[.317,.294],[.326,.271],[.333,.23],[.341,.209],[.354,.18],[.339,.162],[.344,.156],[.365,.166],[.392,.131],[.436,.08],[.46,.05],[.489,.025]];
@@ -11,28 +11,24 @@ function shipPath(g,b){g.beginPath();SHIP_OUTLINE.forEach(([x,y],i)=>{const px=(
 export function drawSupportShip(g,b,images,{camera={x:0,y:0},debug=false}={}){
  if(!b||b.dead)return;g.save();g.translate(b.x-camera.x,b.y-camera.y);g.rotate(b.angle);g.imageSmoothingEnabled=false;
  drawNavalWake(g,b,b.width*.45,b.height);g.globalAlpha*=Math.min(1,Math.max(0,(b.time-1.2)/1.2));
- const atlas=images.damage,source=[285,0,640,1024];
- // The cover sits on the right of this atlas. Restrict the hull source to its
- // own rectangle while retaining the full-canvas normalization for hit parts.
- const drawHull=image=>g.drawImage(image,430,0,360,1024,-.2734375*b.width,-b.height/2,.5625*b.width,b.height);
- const drawFrame=()=>drawHull(atlas);
- const cover=(x,y)=>g.drawImage(images.cover,858,399,236,322,x,y,HANGAR.w*b.width,HANGAR.h*b.height);
- if(atlas?.naturalWidth&&b.hp<=b.maxHp*.28)drawFrame();
- else if(images.shipMat?.naturalWidth)drawHull(images.shipMat);
+ const atlas=images.damage,cell=atlas?.naturalWidth/2,drawFrame=(index)=>g.drawImage(atlas,index%2*cell,Math.floor(index/2)*cell,cell,cell,-b.width/2,-b.height/2,b.width,b.height);
+ if(atlas?.naturalWidth&&b.hp<=b.maxHp*.28)drawFrame(b.wreck?3:2);
+ else if(images.shipMat?.naturalWidth)g.drawImage(images.shipMat,-b.width/2,-b.height/2,b.width,b.height);
  else {g.save();shipPath(g,b);g.clip();g.drawImage(images.ship,-b.width/2,-b.height/2,b.width,b.height);g.restore();}
- if(b.phase===1)cover(-HANGAR.w*b.width/2,(HANGAR.y-HANGAR.h/2)*b.height);
+ if(b.phase===1)g.drawImage(images.cover,-HANGAR.w*b.width/2,(HANGAR.y-HANGAR.h/2)*b.height,HANGAR.w*b.width,HANGAR.h*b.height);
  for(const p of b.parts.values()){if(p.id==='cover')continue;
- if(p.hp<p.maxHp&&atlas?.naturalWidth){g.drawImage(atlas,source[0]+(p.nx+.5-p.rx)*source[2],source[1]+(p.ny+.5-p.ry)*source[3],p.rx*2*source[2],p.ry*2*source[3],(p.nx-p.rx)*b.width,(p.ny-p.ry)*b.height,p.rx*2*b.width,p.ry*2*b.height);
+ if(p.hp<p.maxHp&&atlas?.naturalWidth){const index=p.hp<=0?2:1,sx=index%2*cell,sy=Math.floor(index/2)*cell;
+  g.drawImage(atlas,sx+(p.nx+.5-p.rx)*cell,sy+(p.ny+.5-p.ry)*cell,p.rx*2*cell,p.ry*2*cell,(p.nx-p.rx)*b.width,(p.ny-p.ry)*b.height,p.rx*2*b.width,p.ry*2*b.height);
   if(p.hp<=0&&(p.id==='fuel'||p.id==='boiler')){const r=p.rx*b.width;fx(g,'fireEngine',p.nx*b.width,p.ny*b.height,r*2.4,r*2.4,0,b.wreck?.15:.5);fx(g,'smokeDark',p.nx*b.width,p.ny*b.height-r,r*3,r*3,0,.3);}
  }
  if(debug&&b.hittable(p)){g.strokeStyle='#efd4a2';g.lineWidth=1.5;g.beginPath();g.ellipse(p.nx*b.width,p.ny*b.height,p.rx*b.width,p.ry*b.height,0,0,Math.PI*2);g.stroke();}}
  g.restore();
- if(b.cover&&!b.wreck){const c=b.cover,scale=1+Math.sin(Math.min(1,c.age/1.8)*Math.PI)*.20;g.save();g.translate(c.x-camera.x,c.y-camera.y-c.age*55);g.rotate(c.angle);g.globalAlpha=Math.max(0,1-c.age/1.8);g.scale(scale,scale);g.drawImage(images.cover,858,399,236,322,-HANGAR.w*b.width/2,-HANGAR.h*b.height/2,HANGAR.w*b.width,HANGAR.h*b.height);g.restore();}
+ if(b.cover&&!b.wreck){const c=b.cover,scale=1+Math.sin(Math.min(1,c.age/1.8)*Math.PI)*.20;g.save();g.translate(c.x-camera.x,c.y-camera.y-c.age*55);g.rotate(c.angle);g.globalAlpha=Math.max(0,1-c.age/1.8);g.scale(scale,scale);g.drawImage(images.cover,-HANGAR.w*b.width/2,-HANGAR.h*b.height/2,HANGAR.w*b.width,HANGAR.h*b.height);g.restore();}
 }
 function visitRenderPool(pool,fn){if(typeof pool?.visit==='function')pool.visit(fn);else for(const row of pool?.records||[])if(row.active)fn(row);}
 export function drawSupportEffects(g,b,{camera={x:0,y:0},screenScale=1}={}){if(!b)return;g.save();g.translate(-camera.x,-camera.y);
  visitRenderPool(b.projectiles,p=>{if(p.kind==='flak'){if(p.age<0)return;if(p.age<p.warning)impactMark(g,p.x,p.y,p.radius,p.age/p.warning,{heavy:p.raidHeavy});return;}
- drawEnemyProjectile(g,{enemy:true,life:1,visualType:'boss',vx:p.vx,vy:p.vy},p.x,p.y,0,screenScale);});
+ drawBossRound(g,{x:p.x,y:p.y,vx:p.vx,vy:p.vy,visual:'stuttgart-flak',raidHeavy:p.raidHeavy,radius:p.radius},screenScale);});
  visitRenderPool(b.effects,f=>{const t=f.age/f.life;g.save();g.globalAlpha=1-t;g.translate(f.x,f.y);
  if(f.kind==='smoke'){fx(g,'smokeDark',0,0,f.radius*(1+t),f.radius*(1+t),0,.55);}
  else if(f.kind==='muzzle'&&fx(g,'muzzleHeavy',0,0,f.radius*3,f.radius*2,f.angle)){}

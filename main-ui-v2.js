@@ -21,7 +21,7 @@ if(hangar){
  for(const [action,key]of items){
   const control=action==='records'?document.createElement('a'):document.createElement('button');
   if(control.tagName==='BUTTON')control.type='button';
-  if(action==='records'){control.href='./field-record.html?v=tame3&rail=18';control.target='_blank';control.rel='noopener'}
+  if(action==='records'){control.href='./field-record.html?v=tame3&rail=37';control.target='_blank';control.rel='noopener'}
   control.dataset.action=action;
   if(action==='online')control.id='onlineCoopEntry';
   const full=document.createElement('span');full.className='operation-label-full';

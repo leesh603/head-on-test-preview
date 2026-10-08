@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game} from '../engine.js?v=tame3&rail=18';
+import {Game} from '../engine.js?v=tame3&rail=37';
 import {FORMATION_MANUAL_BALANCE} from '../augmentation-overhaul150.js?v=tame3';
 
 

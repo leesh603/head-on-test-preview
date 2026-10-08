@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 
-import {Mark1Landship,SchwabenFortress} from '../somme-boss-combat.js?v=tame3&rail=18';
+import {Mark1Landship,SchwabenFortress} from '../somme-boss-combat.js?v=tame3&rail=37';
 import {sponsonAim,sommeMuzzle,angleDelta} from '../somme-boss-layout.js?v=tame3';
 import {SOMME_FRAMES,SOMME_SHEETS} from '../somme-boss-atlas.js?v=tame3';
 import {existsSync} from 'node:fs';
@@ -69,7 +69,7 @@ test('observer loss makes heavy and AA impact coordinates independent of pilot p
 });
 
 test('atlas references exist and all cell rectangles remain within authored images',()=>{
- const sizes={'schwaben-body':[1774,887],'schwaben-guns':[1254,1254],'schwaben-support':[1536,1024],'mark1-hulls':[1536,1024],'mark1-hardware':[1448,1086],'mark1-guns':[724,1086]};
+ const sizes={'schwaben-body':[1774,887],'schwaben-guns':[1254,1254],'schwaben-support':[1536,1024],'mark1-hulls':[1536,1024],'mark1-hardware':[1448,1086]};
  for(const filename of Object.values(SOMME_SHEETS))assert(existsSync(new URL('../'+filename,import.meta.url)));
  for(const f of Object.values(SOMME_FRAMES)){const [w,h]=sizes[f.sheet],[x,y,rw,rh]=f.rect;assert(x>=0&&y>=0&&x+rw<=w&&y+rh<=h);}
 });
@@ -77,7 +77,7 @@ test('atlas references exist and all cell rectangles remain within authored imag
 test('support roofs draw below weapons, bore tips meet native muzzles and sponson housings stay fixed',async()=>{
  const oldImage=globalThis.Image;
  globalThis.Image=class{naturalWidth=1536;naturalHeight=1024;listeners={};addEventListener(k,fn){this.listeners[k]=fn}set src(v){this.url=v;queueMicrotask(()=>{this.listeners.load?.();this.onload?.()})}};
- const art=await import('../somme-boss-render.js?v=tame3&rail=18');
+ const art=await import('../somme-boss-render.js?v=tame3&rail=37');
  let matrix=[1,0,0,1,0,0],stack=[],calls=[];
  const c=new Proxy({globalAlpha:1,save(){stack.push([...matrix])},restore(){matrix=stack.pop()},translate(x,y){matrix[4]+=matrix[0]*x+matrix[2]*y;matrix[5]+=matrix[1]*x+matrix[3]*y},rotate(a){const [x,y,u,v]=matrix,cs=Math.cos(a),sn=Math.sin(a);matrix[0]=x*cs+u*sn;matrix[1]=y*cs+v*sn;matrix[2]=u*cs-x*sn;matrix[3]=v*cs-y*sn},drawImage(im,...args){calls.push({url:im.url,args,matrix:[...matrix]})}},{get:(o,k)=>k in o?o[k]:()=>{}});
  try{
@@ -85,12 +85,12 @@ test('support roofs draw below weapons, bore tips meet native muzzles and sponso
   for(const Ctor of [SchwabenFortress,Mark1Landship]){
    const b=new Ctor({id:'render',x:73,y:-40,tuning,emit(){}});for(const p of b.parts.values())p.angle=.35;
    calls=[];art.drawSommeBoss(c,{...b,assetKey:b.kind,parts:[...b.parts.values()]});
-   const gunCalls=calls.filter(q=>q.url.includes(Ctor===Mark1Landship?'mark1-guns-r3':'schwaben-guns-r2'));
+   const gunCalls=calls.filter(q=>q.url.includes('schwaben-guns-r2'));
    assert(gunCalls.length>0);
    const support=calls.filter(q=>q.url.includes('schwaben-support'));
    if(Ctor===SchwabenFortress)assert(Math.max(...support.map(q=>calls.indexOf(q)))<Math.min(...gunCalls.map(q=>calls.indexOf(q))));
    for(const p of [...b.parts.values()].filter(p=>p.muzzleLength>0)){
-    const key=p.art==='casemate'?'gun-heavy':p.art==='mg'?'gun-mg':p.art==='sponson'?'mark1-gun-heavy':'gun-twin-aa',f=SOMME_FRAMES[key+'-normal'];
+    const key=p.art==='casemate'?'gun-heavy':p.art==='mg'?'gun-mg':p.art==='sponson'?'gun-heavy':'gun-twin-aa',f=SOMME_FRAMES[key+'-normal'];
     const call=gunCalls.find(q=>q.args.slice(0,4).every((v,i)=>v===f.rect[i]));assert(call);
     // Multiple identical gun frames use per-part position in draw order.
     const same=[...b.parts.values()].filter(q=>q.muzzleLength>0&&(q.art===p.art));const chosen=gunCalls.filter(q=>q.args.slice(0,4).every((v,i)=>v===f.rect[i]))[same.indexOf(p)];

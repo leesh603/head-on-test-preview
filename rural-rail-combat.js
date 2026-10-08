@@ -2,7 +2,7 @@ import {RailAdapter} from './boss-adapters129.js?v=tame3';
 import {BaseBoss} from './headon-stageboss-core.js?v=tame3';
 import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=tame3';
 import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=tame3';
-import {brunoSalvo} from './bruno-raid.js?v=tame3&rail=18';
+import {brunoSalvo} from './bruno-raid.js?v=tame3&rail=37';
 import {lincomparableRound} from './lincomparable-raid.js?v=tame3';
 
 // Rural-only mechanics. The Cambrai carrier keeps its separate controller.
@@ -114,7 +114,7 @@ export class RuralRailBoss extends RailAdapter {
   const detachSpeed=Math.min(this.rail129.velocity,this.rail129.c.speed);
   p.detachedPose={x:this.x+p.x,y:this.y+p.y,vx:10,vy:detachSpeed*this.rail129.direction*.45,angle:0,age:0};
   this.pullAway=true;
-  if(p.id==='car-rear')this.aaPlan=null;
+  if(this.aaPlan?.car===p)this.aaPlan=null;
   if(p.id==='car-middle'){
    if(this.aimPlan)this.blindOrigin={...this.aimPlan.target};
    this.aimPlan=null;
@@ -250,22 +250,21 @@ export class RuralRailBoss extends RailAdapter {
   return true;
  }
  updateDefense(dt,players){
-  const cars=this.railCarOrder.map(id=>this.parts.get(id)).filter(p=>p&&!p.destroyed);
-  for(const id of this.railCarOrder){const p=this.parts.get(id);if(p)p.gunFlash=Math.max(0,(p.gunFlash||0)-dt);}
+  const cars=this.railCarOrder.map(id=>this.parts.get(id)).filter(c=>c&&!c.destroyed);
+  for(const c of this.railCarOrder){const car=this.parts.get(c);if(car)car.gunFlash=Math.max(0,(car.gunFlash||0)-dt);}
   if(!cars.length||this.runawayTriggered129)return;
   if(this.aaPlan){this.aaPlan.remaining-=dt;if(this.aaPlan.remaining<=0){
-   const car=this.aaPlan.car;
-   if(car.destroyed){this.aaPlan=null;this.aaClock=.6;return;}
+   const car=this.aaPlan.car;if(car.destroyed){this.aaPlan=null;this.aaClock=.5;return;}
    const a=this.aaPlan.angle,x=this.x,y=this.y+car.y-145,speed=(this.t.bulletSpeed||260)*.85;
    car.gunFlash=.14;car.shotAngle=a;
    for(const da of [-.14,0,.14])this.emit({type:'hazard',bossId:this.id,kind:'projectile',x,y,vx:Math.cos(a+da)*speed,vy:Math.sin(a+da)*speed,radius:5,warning:0,delay:0,duration:3.2,damage:this.t.damage*.32,visual:'rail-mg'});
    this.aaPlan=null;this.aaClock=2.8/(this.t.patternMultiplier||1)/cars.length;
   }return;}
   this.aaClock-=dt;if(this.aaClock>0)return;
-  const car=cars[(this._defenseTurn=(this._defenseTurn||0)+1)%cars.length];
+  this._defenseTurn=((this._defenseTurn||0)+1)%cars.length;const car=cars[this._defenseTurn];
   const p=players.filter(p=>p.alive!==false).sort((a,b)=>Math.hypot(a.x-this.x,a.y-this.y-car.y)-Math.hypot(b.x-this.x,b.y-this.y-car.y))[0];
   if(!p||Math.hypot(p.x-this.x,p.y-this.y-car.y)>850)return;
-  this.aaPlan={angle:Math.atan2(p.y-(this.y+car.y-145),p.x-this.x),remaining:.45,car};
+  this.aaPlan={car,angle:Math.atan2(p.y-(this.y+car.y-145),p.x-this.x),remaining:.45};
  }
  hit(s){
   if(!Number.isFinite(s.damage)||s.damage<0)throw new Error('Invalid damage');

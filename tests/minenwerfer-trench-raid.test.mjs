@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {MinenwerferBattery} from '../headon-stageboss-patterns.js?v=tame3&rail=18';
+import {MinenwerferBattery} from '../headon-stageboss-patterns.js?v=tame3&rail=37';
 import {BossHazards,contains} from '../headon-stageboss-hazards.js?v=tame3';
-import {bossHudModel} from '../headon-stageboss-hud.js?v=tame3&rail=18';
+import {bossHudModel} from '../headon-stageboss-hud.js?v=tame3&rail=37';
 import {fixture,step} from './stageboss-fixture94.mjs';
 const tuning={maxHp:1000,partHp:100,damage:12,bulletSpeed:160,mortarInterval:1.9};
 const pilot={id:'p1',alive:true,x:0,y:150,vx:0,vy:-180,radius:12};
@@ -17,12 +17,12 @@ for(const [w,h]of [[390,844],[487.5,1055],[1280,800]])for(const coop of [false,t
 });
 test('spaced guns reveal one at a time as the pilot approaches each emplacement; no position/HP budget changes',()=>{
  const {b,events}=make();run(b,.02);assert.equal([...b.parts.values()].filter(p=>p.discovered).length,1);run(b,.3);assert.equal([...b.parts.values()].filter(p=>p.discovered).length,1);
- run(b,1,{players:[{...pilot,x:-1120,y:-160}],bounds:frame.bounds});assert.equal([...b.parts.values()].filter(p=>p.discovered).length,2);
- run(b,1,{players:[{...pilot,x:960,y:-50}],bounds:frame.bounds});assert.equal([...b.parts.values()].filter(p=>p.discovered).length,3);assert.equal(b.maxHp,1200);assert.equal(b.hp,1200);assert.deepEqual(events.filter(e=>e.type==='mortar-launch').slice(0,2).map(e=>e.partId),['gun-left','main-gun']);
+ run(b,1,{players:[{...pilot,x:-560}],bounds:frame.bounds});assert.equal([...b.parts.values()].filter(p=>p.discovered).length,2);
+ run(b,1,{players:[{...pilot,x:560}],bounds:frame.bounds});assert.equal([...b.parts.values()].filter(p=>p.discovered).length,3);assert.equal(b.maxHp,1200);assert.equal(b.hp,1200);assert.deepEqual(events.filter(e=>e.type==='mortar-launch').slice(0,2).map(e=>e.partId),['gun-left','main-gun']);
 });
 test('all mortar shells, flashes and sounds originate at each surviving physical tube mouth',()=>{
  const {b,events}=make();run(b,7);const launches=events.filter(e=>e.type==='mortar-launch'),shells=events.filter(e=>e.type==='hazard');assert(launches.some(e=>e.partId==='gun-right'));
- for(const e of shells){const gun=b.parts.get(e.tag.slice('minenwerfer-'.length)),m=b.muzzle(gun,e.sourceTube);assert.equal(e.sourceX,m.x);assert.equal(e.sourceY,m.y);assert.equal(e.visual,gun.id==='main-gun'?'minenwerfer-heavy':'minenwerfer-shell');assert(e.warning>=1.2&&e.warning<=4);assert(launches.some(e=>e.partId===gun.id&&e.x===m.x&&e.y===m.y));}
+ for(const e of shells){const gun=b.parts.get(e.tag.slice('minenwerfer-'.length)),m=b.muzzle(gun);assert.equal(e.sourceX,m.x);assert.equal(e.sourceY,m.y);assert.equal(e.visual,gun.id==='main-gun'?'minenwerfer-heavy':'minenwerfer-shell');assert(e.warning>=1.2&&e.warning<=4);assert(launches.some(e=>e.partId===gun.id&&e.x===m.x&&e.y===m.y));}
 });
 test('HP 70% through ordinary local hits starts alternating encirclement and cross patterns',()=>{
  const {b,events}=make();run(b,1);b.hit({partId:'gun-left',damage:370});assert.equal(b.hp,830);run(b,20);assert.equal(b.raidPhase,2);assert.equal(b.liveGuns().length,3);assert(events.some(e=>e.phase==='minenwerfer-encirclement'));assert(events.some(e=>e.phase==='minenwerfer-crossing'));
