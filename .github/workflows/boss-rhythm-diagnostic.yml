@@ -5,6 +5,9 @@ on:
     paths: [.github/workflows/boss-rhythm-diagnostic.yml]
 permissions:
   contents: write
+concurrency:
+  group: boss-rhythm-diagnostic
+  cancel-in-progress: true
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -58,7 +61,11 @@ jobs:
           python -m pip install playwright==1.55.0
           python -m playwright install --with-deps chromium
       - name: Compare existing live server against local patch injection (no deploy)
-        run: python tools/boss-rhythm-browser.py | tee /tmp/boss-results/browser.txt
+        shell: bash
+        run: |
+          set -euo pipefail
+          sed 's/steer:Math.max(-1,Math.min(1,error)),inputAnalog:1/steer:Math.max(-1,Math.min(1,error)),moveX:Math.max(-1,Math.min(1,error))/g' tools/boss-rhythm-browser.py > /tmp/boss-rhythm-browser.py
+          python /tmp/boss-rhythm-browser.py | tee /tmp/boss-results/browser.txt
       - name: Commit verified changes only to the work branch
         shell: bash
         run: |
