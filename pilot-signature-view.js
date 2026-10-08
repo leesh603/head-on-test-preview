@@ -1,6 +1,6 @@
-import {fx} from './fx-art.js?v=lc3';
-import {drawGameIcon} from './icons.js?v=lc3';
-import {createPilotSignatureRenderer} from './pilot-signature-renderer.js?v=lc3';
+import {fx} from './fx-art.js?v=lc4';
+import {drawGameIcon} from './icons.js?v=lc4';
+import {createPilotSignatureRenderer} from './pilot-signature-renderer.js?v=lc4';
 
 // Ferrari's original prancing-horse vector is used only as a small Baracca marking.
 // Source: simple-icons/simple-icons, icons/ferrari.svg (the horse only, without a shield or text).

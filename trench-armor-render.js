@@ -1,5 +1,5 @@
-import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=lc3';
-import {fx} from './fx-art.js?v=lc3';
+import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=lc4';
+import {fx} from './fx-art.js?v=lc4';
 export const TREAD_ATLAS={columns:4,cellWidth:128,cellHeight:256,sourceX:32,sourceY:8,sourceWidth:64,sourceHeight:240,pitch:4.5};
 export function treadFrame(roll=0){return ((Math.floor(roll/TREAD_ATLAS.pitch)%4)+4)%4;}
 export function drawArmorGround(c,b,wire,crossing){

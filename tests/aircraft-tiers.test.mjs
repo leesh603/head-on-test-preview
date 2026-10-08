@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PLANES,WEAPONS} from '../engine.js?v=lc3';
-import '../campaign.js?v=lc3';
-import {AIRCRAFT_TIERS,TIER_XP_GAIN,aircraftTierFor,registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from '../aircraft-tiers.js?v=lc3';
+import {Game,PLANES,WEAPONS} from '../engine.js?v=lc4';
+import '../campaign.js?v=lc4';
+import {AIRCRAFT_TIERS,TIER_XP_GAIN,aircraftTierFor,registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from '../aircraft-tiers.js?v=lc4';
 
 
 test('every playable runtime/campaign fit has a tier and one or two clear operating traits',()=>{

@@ -1,25 +1,25 @@
-import {ParisSearchlightFortress,ParisStaakenRVI} from './paris-night-bosses.js?v=lc3';
-import {GallipoliFortress} from './gallipoli-boss.js?v=lc3';
-import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=lc3';
-import {RuralRailBoss} from './rural-rail-combat.js?v=lc3&rail=1';
-import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=lc3';
-import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=lc3';
-import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=lc3';
-import {createJutlandEncounter} from './jutland-boss.js?v=lc3';
+import {ParisSearchlightFortress,ParisStaakenRVI} from './paris-night-bosses.js?v=lc4';
+import {GallipoliFortress} from './gallipoli-boss.js?v=lc4';
+import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=lc4';
+import {RuralRailBoss} from './rural-rail-combat.js?v=lc4&rail=1';
+import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=lc4';
+import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=lc4';
+import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=lc4';
+import {createJutlandEncounter} from './jutland-boss.js?v=lc4';
 export {Mark1Landship as Mark4Wedge,SchwabenFortress as MorserBattery};
-import {sommeScale} from './somme-boss-layout.js?v=lc3';
-import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose,steerNaval} from './adriatic-boss-layout.js?v=lc3';
-import {initArmorDrive,stepArmorDrive} from './trench-armor-drive.js?v=lc3';
-import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=lc3';
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=lc3';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=lc3';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=lc3';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=lc3';
-import {GIK,Ca4} from './alps-bomber-combat.js?v=lc3';
-import {FlakTowerNet} from './city-flak-combat.js?v=lc3';
+import {sommeScale} from './somme-boss-layout.js?v=lc4';
+import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose,steerNaval} from './adriatic-boss-layout.js?v=lc4';
+import {initArmorDrive,stepArmorDrive} from './trench-armor-drive.js?v=lc4';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=lc4';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=lc4';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=lc4';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=lc4';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=lc4';
+import {GIK,Ca4} from './alps-bomber-combat.js?v=lc4';
+import {FlakTowerNet} from './city-flak-combat.js?v=lc4';
 
 export {GIK,Ca4};
-import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=lc3';
+import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=lc4';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -766,7 +766,7 @@ export class MinenwerferBattery extends PatternBoss {
     this.phase='cross-barrage';this.coreVulnerable=true;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
     this.shotSerial=0;this.baseVolleyCount=0;this.specialWave=0;this.specialClock=4.2;this._gasTier=3;
     this.discovered=false;this.discoveryClock=0;this.raidPhase=1;this.cycleClock=.3;this.recovery=0;this.finalGrace=2.8;this.finalCounts=new Set();this.mortarPlan=null;
-    for(const gun of this.parts.values()){gun.discovered=false;gun.mortarMouth=gun.id==='main-gun'?{x:2,y:-69}:gun.id==='gun-left'?{x:7,y:-33}:{x:-12,y:-33};gun.mortarFlash=0;gun.mortarSmoke=0;}
+    for(const gun of this.parts.values()){gun.discovered=false;gun.mortarMouth=gun.id==='main-gun'?{x:0,y:-68}:{x:0,y:-56};gun.mortarFlash=0;gun.mortarSmoke=0;}
   }
   suppressive(){/* The three emplacements own every Minenwerfer attack. */}
   liveGuns(){return [...this.parts.values()].filter(p=>!p.destroyed);}
