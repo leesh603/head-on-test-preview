@@ -115,3 +115,29 @@ test('actual modal reconciliation keeps manual pause and does not rebuild the sa
  let item=host.activeUpgrade;host.chooseUpgrade(item.id,item.choices[0].id);sync();ui.sync();item=guest.activeUpgrade;guest.chooseUpgrade(item.id,item.choices[0].id);sync();ui.sync();
  assert.equal(host.state,'paused');assert.equal(ui.pauses,1);assert(!ui.el.classList.contains('hidden'));assert.equal(ui.el.dataset.onlineUpgrade,undefined);
 });
+
+// Run the actual solo HUD and its existing wrappers against independent seats.
+function soloHudHarness(game){
+ const nodes=new Map(),make=()=>({textContent:'',dataset:{},style:{setProperty(){}},attributes:{},children:[],width:72,classList:{toggle(){}},setAttribute(k,v){this.attributes[k]=v},getContext(){return{clearRect(){}}},replaceChildren(){this.children=[]},append(...xs){this.children.push(...xs)}});
+ const $=id=>{if(!nodes.has(id))nodes.set(id,make());return nodes.get(id)};
+ const source=readFileSync(new URL('../app.js',import.meta.url),'utf8');
+ const code=source.split('\n').filter(l=>l.startsWith('function hudPlayer(')||l.startsWith('let hudAt=')||l.startsWith('function hud(')||l.startsWith('hud=()=>')||/^(?:const|let) .*?=hud;/.test(l)).join('\n');
+ let saved=0;const refs=[];
+ const context={game,$,performance:{now:()=>1000},best:999,plane:'fokker',document:{createElement:make},localStorage:{setItem(){saved++}},drawGameIcon(){},relicCooldownTick(){},paintRelicBadge(){},drawRefinedFactionMark120(){},durabilityMark:{getContext:()=>({})},aircraftIronCrossImage:{},aircraftRoundelImage:{},UPGRADES:[{id:'ironCross',legendary:true,desc:'equipment'}],PLANES:{fokker:{faction:'central'}},legendarySignature:'',soloRelicRefs:refs,reinforcementName:u=>u.id,cleanDescription:s=>s,localizedEquippedWeapon:(_p,w)=>w.name,t:(key,args)=>args?.seconds?String(args.seconds):key,__txt:(el,v)=>el.textContent=v,__data:(el,k,v)=>el.dataset[k]=v,__attr:(el,k,v)=>el.setAttribute(k,v)};
+ const update=runInNewContext(code+';hud',context);return{update,$,refs,get saved(){return saved}};
+}
+for(const role of ['host','guest'])test('existing solo HUD uses only the '+role+' own HP / ammo / XP / skills / equipment',()=>{
+ const games=pair(),g=games[role],own=g.player(g.localPlayerId),other=g.players.find(p=>p!==own);
+ g.priorityKills=41;Object.assign(own,{hp:43,level:5,xp:4,need:10,cooldown:15,evadeCooldown:7});own.ammo.fill(29);own.upgrades.ironCross=1;
+ Object.assign(other,{hp:71,level:3,xp:2,need:8,cooldown:9});other.ammo.fill(51);
+ const ui=soloHudHarness(g);ui.update();
+ assert.equal(ui.$('healthCurrent151').textContent,43);assert.equal(ui.$('healthMax151').textContent,Math.round(own.maxHp));
+ assert.equal(ui.$('ammoCount').textContent,own.ammo.reduce((a,b)=>a+b,0)+' / '+own.weapon.belt*own.weapon.guns);
+ assert.equal(ui.$('level').textContent,'LV. 5');assert.equal(ui.$('xpBar').style.width,'40%');assert.equal(ui.$('kills').textContent,41);
+ assert.equal(ui.$('skillButtonState').textContent,'15s');assert.equal(ui.$('maneuverButtonState').textContent,'7s');
+ assert.equal(ui.$('legendaryInventory').children.length,1);assert.equal(ui.refs[0].owner(),own);assert.equal(ui.saved,0);
+});
+test('existing solo HUD keeps the normal single-player data route',()=>{
+ const g=pair().host.player('p1');g.priorityKills=7;g.hp=61;g.ammo.fill(19);g.level=2;g.xp=3;g.need=12;
+ const ui=soloHudHarness(g);ui.update();assert.equal(ui.$('healthCurrent151').textContent,61);assert.equal(ui.$('level').textContent,'LV. 2');assert.equal(ui.$('xpBar').style.width,'25%');assert.equal(ui.$('kills').textContent,7);assert.equal(ui.$('legendaryInventory').children.length,0);
+});
