@@ -45,7 +45,7 @@ export function drawHarborFortress(c,b,art){
  if(!broken&&(b.craneState==='windup'||b.craneState==='sweep')){
   if(b.craneState==='windup'){c.save();c.setLineDash([5,6]);c.strokeStyle='#dfbd8273';c.lineWidth=1.2;c.beginPath();c.arc(pivot.x,pivot.y+38,HARBOR_BOOM.reach,Math.min(b.craneStart,b.craneEnd),Math.max(b.craneStart,b.craneEnd));c.stroke();c.restore();}
   c.strokeStyle='#353c35';c.lineWidth=2.5;c.beginPath();c.moveTo(tip.x,tip.y);c.lineTo(load.x,load.y);c.stroke();c.strokeStyle='#aca18a';c.lineWidth=.8;c.stroke();
-  if(!dead('ammo-storage'))fx(c,'mine',load.x,load.y,32,32,0,1);
+  if(!dead('ammo-storage')&&!(b.craneReleaseClock>0))fx(c,'mine',load.x,load.y,32,32,0,1);
   else{c.strokeStyle='#b0a08a';c.lineWidth=3;c.beginPath();c.moveTo(load.x,load.y-7);c.lineTo(load.x,load.y+5);c.arc(load.x-4,load.y+5,4,0,Math.PI*1.5);c.stroke();}
  }
  if(b.coreVulnerable){c.strokeStyle='#d8965f88';c.lineWidth=1.5;c.beginPath();c.arc(pivot.x,pivot.y,30,0,Math.PI*2);c.stroke();}
