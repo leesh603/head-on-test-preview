@@ -139,3 +139,12 @@ export function bossSoundFor(event,kind=''){
  }
  return null;
 }
+
+// Keep the real first attack visible before the trench encounter poster.
+export function bossEncounterCutinReady(encounter){
+ if(!encounter)return false;
+ const bodies=[...encounter.bodies.values()];
+ if(encounter.bossId==='livens-flame-projector')return bodies.some(b=>b.discovered&&b.trenchEntry?.firstDone);
+ if(encounter.bossId==='minenwerfer-battery')return bodies.some(b=>b.discovered&&[...b.parts.values()].every(p=>p.discovered||p.destroyed));
+ return true;
+}

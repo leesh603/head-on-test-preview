@@ -30,10 +30,10 @@ test('firestorm uses three separate jets with collision-free gaps and a three-se
  const {b,events}=make();counter(b);b.hit({damage:780});run(b,2.5);assert(b.stormTriggered);const first=events.find(e=>e.type==='livens-firestorm');assert(first);let gaps=0,recovery=0,maxJets=0;
  for(let t=0;t<17;t+=.02){b.update(.02,frame);if(b.stormActive&&b.lockedFlameAngle==null){assert(b.flameGap>0);gaps++;}if(!b.stormActive&&b.recovery>2.8)recovery++;maxJets=Math.max(maxJets,b.lockedFlameAngle==null?0:1);}
  assert(gaps>=50);assert(recovery>0);assert.equal(maxJets,1);assert.equal(events.filter(e=>e.type==='livens-firestorm').length,1);assert(events.some(e=>e.phase==='livens-depressurized'));
- const jets=events.filter(e=>e.visual==='livens-flame'&&e.length===685);assert.equal(jets.length,3);assert(jets[0].angularSpeed>0&&jets[1].angularSpeed<0&&jets[2].angularSpeed>0);
+ const jets=events.filter(e=>e.visual==='livens-flame'&&e.length-e.muzzleLength===600);assert.equal(jets.length,3);assert(jets[0].angularSpeed>0&&jets[1].angularSpeed<0&&jets[2].angularSpeed>0);
 });
 test('pressure rupture interrupts current jet and weakens the remaining final jets',()=>{
- const {b,events}=make();counter(b);b.hit({damage:780});run(b,2.5);assert(b.stormActive);b.hit({partId:'pressure',damage:1000});assert.equal(b.lockedFlameAngle,null);assert(events.some(e=>e.type==='cancel-hazards'&&e.tag==='livens-flame'));assert(events.some(e=>e.visual==='livens-pressure'));const at=events.length;run(b,12);const jets=events.slice(at).filter(e=>e.visual==='livens-flame');assert(jets.length>=2);assert(jets.every(e=>e.length===475&&e.thickness===38&&e.damage===tuning.damage*.65));
+ const {b,events}=make();counter(b);b.hit({damage:780});run(b,2.5);assert(b.stormActive);b.hit({partId:'pressure',damage:1000});assert.equal(b.lockedFlameAngle,null);assert(events.some(e=>e.type==='cancel-hazards'&&e.tag==='livens-flame'));assert(events.some(e=>e.visual==='livens-pressure'));const at=events.length;run(b,12);const jets=events.slice(at).filter(e=>e.visual==='livens-flame');assert(jets.length>=2);assert(jets.every(e=>e.length-e.muzzleLength===390&&e.thickness===38&&e.damage===tuning.damage*.65));
 });
 test('real hazard clock and the visible nozzle stay synchronized through warnings and rotation',()=>{
  const f=fixture({teamFaction:'central',stageIndex:3}),e=f.addon.startBoss({x:400,y:180}),b=[...e.bodies.values()][0];f.frame.players=[{...frame.players[0],x:400,y:350}];step(f,5);assert(b.coreVulnerable);b.hit({damage:300});
