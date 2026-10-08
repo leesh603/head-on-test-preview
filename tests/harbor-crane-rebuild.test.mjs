@@ -52,8 +52,8 @@ test('live crane releases three separate mines vertically from the moving chain,
 });
 test('ammo destruction detonates once, removes mine replenishment and reduces a three-round salvo to one',()=>{
  const healthy=fixture(),weak=fixture();for(const f of [healthy,weak]){f.body.craneClock=99;f.body.elapsed=3;f.body.timers.set('harbor-guns',0);}destroy(weak,'ammo-storage');destroy(weak,'ammo-storage');
- assert.equal(weak.events.filter(e=>e.type==='ammo-detonation').length,1);tick(healthy,1.7);tick(weak,1.7);
- assert.equal(healthy.addon.hazards.pool.records.filter(h=>h.active&&h.visual==='harbor-shell').length,3);assert.equal(weak.addon.hazards.pool.records.filter(h=>h.active&&h.visual==='harbor-shell').length,1);
+ assert.equal(weak.events.filter(e=>e.type==='ammo-detonation').length,1);tick(healthy,2.1);tick(weak,2.1);
+ assert.equal(healthy.addon.hazards.pool.records.filter(h=>h.active&&h.visual==='harbor-shell').length,21);assert.equal(weak.addon.hazards.pool.records.filter(h=>h.active&&h.visual==='harbor-shell').length,7);
  weak.body.startCrane(weak.frame.players);tick(weak,.02);const hook=weak.addon.hazards.pool.records.find(h=>h.active&&h.visual==='harbor-swing');assert.equal(hook.radius,9*tuning.geometryScale);assert.equal(hook.damage,tuning.damage*.5);
  tick(weak,weak.body.craneWarn+3);assert.equal(weak.events.some(e=>e.type==='spawn-minefield'),false);
 });
@@ -102,8 +102,8 @@ test('installed fortress waits for the approach, then distant harmless splashes 
 test('blockade lays mines before staggered locked gun warnings, then leaves a counterattack window',()=>{
  const f=fixture(),b=f.body;destroy(f,'gun-left');b.t.patternMultiplier=2;b.elapsed=3;b.startCrane(f.frame.players,f.frame.bounds);const timeline=[],emit=b.emit;b.emit=e=>{if(['spawn-minefield','charge-warning'].includes(e.type)||e.visual==='harbor-shell')timeline.push({...e,at:b.elapsed});emit(e);};
  tick(f,b.craneWarn+2.9);const mines=timeline.filter(e=>e.type==='spawn-minefield');assert.equal(mines.length,3);assert(mines[1].at-mines[0].at>.65);assert(mines[2].at-mines[1].at>.65);
- const recoveryStart=b.elapsed;tick(f,4.1);const warnings=timeline.filter(e=>e.type==='charge-warning');assert.equal(warnings.length,3);
- for(let i=0;i<warnings.length;i++){const w=warnings[i],rounds=timeline.filter(e=>e.tag==='harbor-'+w.partId);assert.equal(rounds.length,3);assert(w.at>mines.at(-1).at);assert(rounds[0].at-w.at>=1.09);if(i)assert(w.at-warnings[i-1].at>=.639999);for(const r of rounds){const a=Math.atan2(w.targetY-w.y,w.targetX-w.x);assert(Math.abs(Math.atan2(r.vy,r.vx)-a)<1e-8);}}
+ const recoveryStart=b.elapsed;tick(f,4.5);const warnings=timeline.filter(e=>e.type==='charge-warning');assert.equal(warnings.length,3);
+ for(let i=0;i<warnings.length;i++){const w=warnings[i],rounds=timeline.filter(e=>e.tag==='harbor-'+w.partId);assert.equal(rounds.length,21);assert(w.at>mines.at(-1).at);assert(rounds[0].at-w.at>=1.09);if(i)assert(w.at-warnings[i-1].at>=.639999);for(const r of rounds){const a=Math.atan2(w.targetY-w.y,w.targetX-w.x);assert(Math.abs(Math.atan2(Math.sin(Math.atan2(r.vy,r.vx)-a),Math.cos(Math.atan2(r.vy,r.vx)-a)))<=.52);}}
  assert.equal(b.craneState,'recover');const last=timeline.filter(e=>e.visual==='harbor-shell').at(-1).at;assert(b.elapsed-last>.8);assert(b.craneClock>.5);assert(b.elapsed>recoveryStart);
 });
 test('mobile crane arc keeps three physical drops visible with an open gap, never relocates the source',()=>{

@@ -105,8 +105,8 @@ export class RuralRailBoss extends RailAdapter {
   emit({...target,warning:.02,delay:0,duration:plan.centerDuration,once:true,radius:plan.radius,damage:this.t.damage*(plan.final?1.1:.74),visual:'rail-shell'});
   emit({...target,warning:plan.waveWarning,delay:plan.waveDelay,duration:plan.waveDuration,once:true,radius:plan.wave,radiusStart:plan.start,radiusLimit:plan.wave,ringWidth:42,ringSpeed:(plan.wave-plan.start)/plan.waveDuration,damage:this.t.damage*(plan.final?.8:.62),visual:'rural-rail-shock'});
   emit({...plan.smoke,warning:plan.smokeWarning,delay:plan.smokeDelay,duration:plan.smokeDuration,once:false,tickInterval:.7,damage:this.t.damage*.22,visual:'rural-rail-smoke'});
-  if(plan.final)for(let i=0;i<8;i++){const a=i/8*Math.PI*2+.39,speed=155;
-   emit({...target,kind:'projectile',tag:tag+'-shrapnel',vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,radius:6,warning:plan.waveDelay,delay:0,duration:2.4,damage:this.t.damage*.3,visual:'rail-shrapnel'});}
+  if(plan.final||this.raidPhase>=2)for(let i=0;i<16;i++){if(i%8===2||i%8===3)continue;const a=(i%8)/8*Math.PI*2+.39+(i>=8?.18:0),speed=155;
+   emit({...target,kind:'projectile',tag:tag+'-shrapnel',vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,radius:6,warning:plan.waveDelay+(i>=8?.48:0),delay:0,duration:2.4,damage:this.t.damage*.3,visual:'rail-shrapnel'});}
   fireRailArtillery(this);
  }
  onPartDestroyed(p){

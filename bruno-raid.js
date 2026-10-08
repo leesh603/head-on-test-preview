@@ -25,7 +25,7 @@ export function brunoSalvo(target,phase,shot,bounds,{blind=false,final=false,bro
    :Math.sin(i*.6)*55;
   let x=origin.x-dy*side+dx*along,y=origin.y+dx*side+dy*along;
   if(b){x=fold(x,b.left+margin,b.right-margin);y=fold(y,b.top+margin,b.bottom-margin);}
-  points.push({x,y});
+  if(!final&&i===2&&!blind){x=origin.x;y=origin.y;}points.push({x,y});
  }
  return{target:{...target},points,mode,blind,final,radius,warning,interval,duration:final?.22:.35};
 }

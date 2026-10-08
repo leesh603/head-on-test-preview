@@ -63,6 +63,7 @@ export class BossEncounter {
     this.bodies.delete(id);for(const b of children){b.encounter=this;this.bodies.set(b.id,b);}return true;
   }
   update(dt,ctx){for(const b of this.bodies.values())if(!b.dead){
+    b.combatTime=(b.combatTime||0)+dt;
     b.motionTime=(b.motionTime||0)+dt*(b.t?.motionMultiplier||1);b.recoil=Math.max(0,(b.recoil||0)-dt);
     if(b.t?.mobileBoss&&!b.role&&!b.ownsMotion129){
       b.anchorX??=b.x;b.anchorY??=b.y;

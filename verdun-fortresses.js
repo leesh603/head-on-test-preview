@@ -1,3 +1,4 @@
+import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3';
 import {segmentDistance} from './alps-geometry117.js?v=tame3';
 
@@ -124,8 +125,8 @@ class VerdunFortress extends BaseBoss{
  aim(p,target,dt,speed=1.1){const angle=Math.atan2(target.y-this.y-p.y,target.x-this.x-p.x);p.angle=turn(p.angle,angle,speed*dt);return angle;}
  muzzle(p){p.recoil=.24;const m=verdunFortMuzzle(this,p);this.command('muzzle',{...m,partId:p.id});return m;}
  burst(p,target,count=3,spread=.17){
-  const m=this.muzzle(p),n=Math.max(2,Math.min(7,Math.ceil(count*(this.t.projectileDensity||1))));
-  for(let i=0;i<n;i++){const a=p.angle+(i-(n-1)/2)*spread;this.hazard('projectile',{...m,vx:Math.cos(a)*this.t.bulletSpeed*.82,vy:Math.sin(a)*this.t.bulletSpeed*.82,radius:3.5,damage:this.t.damage*.48,visual:'verdun-mg',tag:this.tag(p.id),delay:i*.05});}
+  const m=this.muzzle(p);
+  fireFanSalvo(this,{...m,angle:p.angle,speed:this.t.bulletSpeed*.76,damage:this.t.damage*.48,visual:'verdun-mg',tag:this.tag(p.id),sourcePartId:p.id,count:13,spread:1.8,beats:3,beat:.4,warning:.85,gapIndex:p.id.endsWith('left')?2:8,step:p.id.endsWith('left')?1:-1});
  }
  landing(target,bounds,lead=.55,radius=43){
   return{x:clamp(target.x+(target.vx||0)*lead,bounds.left+radius+8,bounds.right-radius-8),y:clamp(target.y+(target.vy||0)*lead,bounds.top+radius+8,bounds.bottom-radius-8)};
@@ -194,7 +195,7 @@ export class FortDouaumont extends VerdunFortress{
   while(run.index<order.length&&run.age>=1.2+run.index*1.25){
    const i=run.index++,p=this.parts.get(order[i]),target=this.target(players);if(p.destroyed||!target)continue;
    const r=Math.min(48*this.fortScale,(bounds.right-bounds.left)*.1),q=this.landing(target,bounds,.2,r);
-   q.x=bounds.left+(bounds.right-bounds.left)*(i%2?.77:.23);
+   q.x=clamp(q.x+(i%2?1:-1)*r*.8,bounds.left+r,bounds.right-r);
    p.salvo={...q,remaining:.7,angle:Math.atan2(q.y-this.y-p.y,q.x-this.x-p.x),final:true,radius:r};
    this.command('fort-gun-ready',{partId:p.id,x:this.x+p.x,y:this.y+p.y,targetX:q.x,targetY:q.y,seconds:1.4});
   }
@@ -227,7 +228,7 @@ export class FortDouaumont extends VerdunFortress{
   if(this.finalHeavy(dt,players,bounds)||this.recovery>0)return;
   for(const side of ['left','right']){
    const starved=this.flankStarved(side),mg=this.parts.get('mg-'+side),aa=this.parts.get('aa-'+side),target=players.find(q=>q.alive);
-   if(target&&!mg.destroyed){this.aim(mg,target,dt,1.35);if(this.due(mg.id,dt,starved?3.6:2.2)&&Math.abs(delta(mg.angle,Math.atan2(target.y-this.y-mg.y,target.x-this.x-mg.x)))<.3)this.burst(mg,target,starved?3:6,.12);}
+   if(target&&!mg.destroyed){this.aim(mg,target,dt,1.35);if(this.due(mg.id,dt,starved?7.5:6.2)&&Math.abs(delta(mg.angle,Math.atan2(target.y-this.y-mg.y,target.x-this.x-mg.x)))<.3)this.burst(mg,target,starved?2:4,.07);}
    if(target&&!aa.destroyed){this.aim(aa,target,dt,.8);if(this.due(aa.id,dt,starved?6.5:4.2)){const r=clamp(35*this.fortScale,23,35),q=this.landing(target,bounds,.4,r);this.shell(aa,q,{radius:r,warning:1.45,damage:.8,visual:'verdun-aa-shell'});}}
    this.heavyGun(this.parts.get('heavy-'+side),side,dt,players,bounds);
   }
@@ -316,7 +317,7 @@ export class FortSouville extends VerdunFortress{
    }
   }
   if(final||this.recovery>0)return;
-  for(const id of ['bunker-left','bunker-right']){const p=this.parts.get(id),target=players.find(q=>q.alive);if(!p.destroyed&&target){this.aim(p,target,dt,.95);if(this.due(id,dt,this.parts.get('ammo').destroyed?4.4:2.6))this.burst(p,target,5,.15);}}
+  for(const id of ['bunker-left','bunker-right']){const p=this.parts.get(id),target=players.find(q=>q.alive);if(!p.destroyed&&target){this.aim(p,target,dt,.95);if(this.due(id,dt,this.parts.get('ammo').destroyed?7.5:6.2))this.burst(p,target,3,.09);}}
   for(const id of ['aa-left','aa-right']){
    const p=this.parts.get(id),target=players.find(q=>q.alive);
    if(!p.destroyed&&target){this.aim(p,target,dt,.8);if(this.due(id,dt,4.8)){

@@ -72,5 +72,5 @@ test('Apron light and gun destruction remove their own attacks while preserving 
 });
 test('Apron illumination increases aimed flak and alternates warning times without extra mines',()=>{
  function volley(lit){const events=[],b=new LondonRaidApron({id:'apron',x:400,y:250,tuning,emit:e=>events.push(e),rng:()=>.5});const ctx={players:[{id:'p',alive:true,x:400,y:550,vx:80,vy:0}],bounds:{left:0,right:800,top:0,bottom:800},isIlluminated:()=>lit};for(let i=0;i<140;i++){b.motionTime=i*.05;b.update(.05,ctx);}return events;}
- const dark=volley(false),lit=volley(true),flak=events=>events.filter(e=>e.type==='hazard'&&e.tag==='raid-gun');assert.equal(flak(dark).length,2);assert.equal(flak(lit).length,3);assert.ok(flak(lit).every(e=>e.warning===1.05));assert.ok(flak(dark).every(e=>e.warning===1.4));assert.deepEqual(dark.filter(e=>e.type==='spawn-minefield'),lit.filter(e=>e.type==='spawn-minefield'));
+ const dark=volley(false),lit=volley(true),flak=events=>events.filter(e=>e.type==='hazard'&&e.tag==='raid-gun');assert.equal(flak(dark).length,3);assert.equal(flak(lit).length,3);assert.deepEqual(flak(lit).map(e=>e.warning),[1.05,1.53,2.01]);assert.deepEqual(flak(dark).map(e=>e.warning),[1.4,1.88,2.36]);assert.deepEqual(dark.filter(e=>e.type==='spawn-minefield'),lit.filter(e=>e.type==='spawn-minefield'));
 });

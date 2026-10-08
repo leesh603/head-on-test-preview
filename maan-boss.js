@@ -1,3 +1,4 @@
+import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3';
 import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan,segmentBox,maanLocal,maanWorld,maanClearance,maanGroundBlocked,resolveMaanGround,MAAN_ESCORT_RADIUS} from './maan-layout.js?v=tame3';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
@@ -70,6 +71,7 @@ class DesertHull extends BaseBoss {
   return r;
  }
  onPartDestroyed(p){
+  this.command('cancel-hazards',{tag:this.id+':'+p.id});
   // Parts remain attached; the renderer swaps authored plate/track regions.
   this.command('maan-damage',{partId:p.id,x:this.x+p.x,y:this.y+p.y,material:p.kind});
   this.breached=this.live('gun').length<=1||this.live('track').length<=1||this.gone(this.kind==='wustenpanzer'?'radiator':'command');
@@ -161,9 +163,9 @@ export class Wustenpanzer extends DesertHull {
    else{while(s.index<(s.walking?3:1)&&s.age>=.9+s.index*.48){const i=s.index++;this.heavyShot({...s.target,x:s.target.x+(s.target.vx||0)*i*.35,y:s.target.y+(s.walking?(i-1)*78:0)},s.walking);}
     if(s.index>=(s.walking?3:1))this.heavyPlan=null;}
   }
-  if(this.due('crossfire',dt,overheat?5.8:3.7))for(const [id,side]of [['sponson-left',-1],['sponson-right',1]]){
+  if(this.due('crossfire',dt,overheat?8:6.5))for(const [id,side]of [['sponson-left',-1],['sponson-right',1]]){
    const gun=this.parts.get(id);if(!gun.destroyed&&!p.sandCover){const m=this.muzzle(gun,side),a=Math.atan2(aim.y-m.y,aim.x-m.x)+side*.17;
-    gun.gunFlash=.14;this.command('muzzle',{...m,partId:id});this.fan(m.x,m.y,a,4,.36,this.t.bulletSpeed*.82,'wusten-shell');}
+    gun.gunFlash=.14;this.command('muzzle',{...m,partId:id});fireFanSalvo(this,{...m,angle:a,speed:this.t.bulletSpeed*.75,damage:this.t.damage*.7,visual:'wusten-shell',tag:this.id+':'+id,sourcePartId:id,count:11,spread:1.4,beats:3,beat:.45,warning:.9,gapIndex:side<0?2:7,step:side<0?1:-1});}
   }
   if(this.due('close-defence',dt,2.5)&&!p.sandCover)for(const gun of this.live('mg')){const m=this.muzzle(gun);if(Math.hypot(aim.x-m.x,aim.y-m.y)<360)this.aimed(gun,aim,{count:5,spread:.55,visual:'wusten-mg'});}
   if(this.due('aa-sweep',dt,13)){
@@ -227,12 +229,13 @@ export class SinaiLandship extends DesertHull {
    const width=ctx.bounds.right-ctx.bounds.left,offset=Math.min(140,width*.3),radius=Math.min(42,width*.085);
    this.tactic('corridor-barrage');this.drivePause=2.4;
    // The announced escape lane keeps the dashed telegraph drawn by the view.
-   this.duneLane={x:aim.x,y:aim.y,width:110,depth:220,remaining:2.2};
+   const gate=clamp(aim.x+(this.side<0?1:-1)*Math.min(100,width*.24),ctx.bounds.left+65,ctx.bounds.right-65);
+   this.duneLane={x:gate,y:aim.y,width:100,depth:220,remaining:3.5};
    for(const side of [-1,1])for(let row=0;row<3;row++){
     const gun=this.parts.get(`sponson-${side<0?'left':'right'}-${row%2?'rear':'front'}`);if(gun.destroyed)continue;
-    const x=clamp(aim.x+side*offset,ctx.bounds.left+radius+12,ctx.bounds.right-radius-12);if(Math.abs(x-aim.x)<radius+60)continue;
+    const x=clamp(gate+side*offset,ctx.bounds.left+radius+12,ctx.bounds.right-radius-12);if(Math.abs(x-gate)<radius+50)continue;
     const m=this.muzzle(gun,side);this.command('muzzle',{...m,partId:gun.id});
-    this.hazard('circle',{x,y:aim.y+(row-1)*95,radius,warning:1.7,delay:row*.42,once:true,sourceX:m.x,sourceY:m.y,visual:'sinai-impact',tag:'sinai-command'});
+    this.hazard('circle',{x,y:aim.y+(row-1)*95,radius,warning:1.65+row*.48,delay:0,once:true,sourceX:m.x,sourceY:m.y,visual:'sinai-impact',tag:'sinai-command'});
    }
   }
   if(this.duneLane)this.duneLane.remaining=Math.max(0,this.duneLane.remaining-dt);
