@@ -11,17 +11,22 @@ export function drawGotha(c,b){const im=londonImage('gotha');if(!im)return;const
  c.save();c.translate(b.x,b.y+f*95);c.rotate(a+f*.22);c.imageSmoothingEnabled=true;c.globalAlpha*=1-f*.85;
  const cell=(wreck=false)=>c.drawImage(im,wreck?cw:0,0,cw,ch,-105,-105,210,210);
  cell(b.destroying);
+ // Reuse the painted fuselage skin for the two opening leaves, and the
+ // existing bomb sprite for the exposed load. No replacement aircraft art.
+ if(!b.destroying&&b.bayOpen>0&&!b.parts?.find(p=>p.id==='bomb-bay')?.destroyed){
+  const q=b.bayOpen;fx(c,'bomb',0,-14,9,19,0,q*.9);
+  for(const side of [-1,1]){c.save();c.translate(side*(3+q*5),-14);c.rotate(side*q*.35);c.drawImage(im,cw*.48+(side>0?cw*.02:0),ch*.39,cw*.02,ch*.10,-2,-10,4,20);c.restore();}
+ }
  if(!b.destroying)for(const p of b.parts||[]){if(p.hp>=p.maxHp)continue;const dx=p.x*Math.cos(a)+p.y*Math.sin(a),dy=-p.x*Math.sin(a)+p.y*Math.cos(a);c.save();c.beginPath();c.ellipse(dx,dy,p.id.startsWith('engine')?16:13,p.id.startsWith('engine')?24:18,0,0,Math.PI*2);c.clip();c.globalAlpha*=p.destroyed?1:.55;cell(true);c.restore();if(p.destroyed){fx(c,'fire',dx,dy,29,34,0,.8);fx(c,'smokeDark',dx,dy-28,46,46,0,.65);}}
  c.restore();
 }
 export function drawLondonRaidApron(c,b){
  const intact=londonImage('apron');if(intact)drawAttachedApron(c,b,intact,londonImage('apronDamage')||intact);
- if(b.coreVulnerable&&!b.destroying){c.strokeStyle='#e9c88b';c.lineWidth=2;c.setLineDash([7,5]);c.strokeRect(b.x-66,b.y-12,132,84);c.setLineDash([]);}
- for(const p of b.parts||[])if(p.id==='light'||p.id==='gun')installation(c,p.id,b.x+p.x,b.y+p.y,70,p.destroyed);
+ for(const p of b.parts||[])if(p.id==='light'||p.id==='gun')installation(c,p.id,b.x+p.x,b.y+p.y,70*(b.apronScale||1),p.destroyed);
 }
 export function drawLondonWorld(c,g,locale='ko'){const battle=g.londonBattle;if(!battle)return;const en=locale==='en';
  for(const e of g.enemies||[]){if(!e.londonInstallation||e.hp<=0)continue;const target=(g.players||[g]).find(p=>(p.londonLitUntil||0)>g.t)||(g.players||[g])[0];drawGroundEnemy(c,target&&e.londonInstallation==='gun'?{...e,gunAim:Math.atan2(target.y-e.y,target.x-e.x)}:e,e.x,e.y,74);if(e.londonInstallation==='light'){c.save();c.translate(e.x,e.y);c.rotate(e.scanA);const gradient=c.createLinearGradient(0,0,570,0);gradient.addColorStop(0,'#dfdc9a33');gradient.addColorStop(1,'#dfdc9a00');c.fillStyle=gradient;c.beginPath();c.moveTo(0,0);c.lineTo(570,-96);c.lineTo(570,96);c.closePath();c.fill();c.restore();}}
  for(const d of battle.districts){c.save();c.strokeStyle=d.hp>0?'#a9c7bd80':'#ce816366';c.lineWidth=1.5;c.setLineDash([5,6]);c.beginPath();c.arc(d.x,d.y,56,0,Math.PI*2);c.stroke();c.setLineDash([]);c.font='12px system-ui';c.textAlign='center';c.fillStyle='#e1e6da';c.fillText((en?d.en:d.name)+' '+Math.ceil(d.hp/d.maxHp*100)+'%',d.x,d.y+75);if(d.hp<d.maxHp*.5){fx(c,'fire',d.x,d.y,45,52,0,.6);fx(c,'smokeDark',d.x,d.y-35,84,84,0,.5);}c.restore();}
  const encounter=g.stageBoss?.stages.encounter;
- for(const w of battle.warnings){const body=encounter?.bodies.get(w.bodyId);if(!body?.runTarget)continue;c.save();c.strokeStyle='#e5b07999';c.lineWidth=1.5;c.setLineDash([6,8]);c.beginPath();c.moveTo(body.x,body.y);c.lineTo(w.x,w.y);c.stroke();c.setLineDash([]);c.beginPath();c.arc(w.x,w.y,58,0,Math.PI*2);c.stroke();c.fillStyle='#f4cb9b';c.textAlign='center';c.font='bold 13px system-ui';c.fillText((en?'DROP ':'투하 ')+Math.max(0,body.runRemaining/(body.engines()===1?.55:1)).toFixed(1)+'s',w.x,w.y-66);c.restore();}
+ for(const w of battle.warnings){const body=encounter?.bodies.get(w.bodyId);if(!body?.runTarget)continue;c.save();c.strokeStyle='#e5b07999';c.lineWidth=1.5;c.setLineDash([6,8]);c.beginPath();c.moveTo(body.x,body.y);c.lineTo(w.x,w.y);c.stroke();c.setLineDash([]);c.beginPath();c.arc(w.x,w.y,58,0,Math.PI*2);c.stroke();c.fillStyle='#f4cb9b';c.textAlign='center';c.font='bold 13px system-ui';c.fillText((body.onBombLine?(en?'DROP ':'투하 '):(en?'APPROACH ':'폭격 접근 '))+Math.max(0,body.runRemaining).toFixed(1)+'s',w.x,w.y-66);c.restore();}
 }

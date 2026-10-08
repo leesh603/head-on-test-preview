@@ -48,7 +48,7 @@ function triangle(c,image,src,dst){
 }
 export function drawAttachedApron(c,b,intact,damaged){
  if(!intact?.naturalWidth)return false;
- const parts=b.parts||[],lost=parts.filter(p=>p.destroyed).length,pose=apronPose(b.apronTime||0,lost),s=b.apronScale||1;
+ const parts=b.parts||[],lost=parts.filter(p=>p.id?.startsWith('airship-')&&p.destroyed).length,pose=b.apronPoseOverride||apronPose(b.apronTime||0,lost),s=b.apronScale||1;
  c.save();c.translate(b.x,b.y);c.imageSmoothingEnabled=true;
  if(b.destroying)c.globalAlpha*=Math.max(0,1-b.destructionAge/b.destructionDuration);
  // A balloon and its suspended bay form one falling assembly. Removing a
