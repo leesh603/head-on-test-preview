@@ -48,7 +48,7 @@ export class RuralRailBoss extends RailAdapter {
    if(this.kind==='lincomparable'){
     this.fire520(plan);this.recovery=this.rail129.c.recoilSeconds+this.rail129.c.reloadSeconds;
    }else{
-    this.barrage={...plan,points:plan.points.map(p=>({...p})),index:0,clock:0};
+    this.fireBarrage(plan);
     if(this.raidPhase===2&&!this.parts.get('car-rear').destroyed){this.aaPlan=null;this.aaClock=(plan.points.length-1)*plan.interval+.3;}
    }
    return;
@@ -71,7 +71,7 @@ export class RuralRailBoss extends RailAdapter {
     const p=this.lastRaidPlayers?.[rail.shot%this.lastRaidPlayers.length]||this.blindOrigin;
     const blind=this.parts.get('car-middle').destroyed,motion=blind?this.observerMotion:p;
     const plan=brunoSalvo({...p,vx:motion.vx||0,vy:motion.vy||0},2,rail.shot,this.frameBounds,{final:true,blind,broken:rail.broken,starved:this.parts.get('car-front').destroyed});
-    this.barrage={...plan,index:0,clock:0};this.raidPhase=3;
+    this.fireBarrage(plan);this.raidPhase=3;
     this.emit({type:'bruno-iron-rain',bossId:this.id,...this.rail129.pose});
    }
    if(this.kind==='lincomparable'){
@@ -89,12 +89,24 @@ export class RuralRailBoss extends RailAdapter {
   }
   super.railEvent(e);
  }
+ // The whole wave is laid out at once so the march reads as a domino: every
+ // marker shows immediately and the shells land on the gun's firing beat.
+ fireBarrage(plan){
+  const interval=plan.interval||this.t.barrageInterval||.32;
+  fireRailArtillery(this);
+  plan.points.forEach((p,i)=>this.emit({type:'hazard',bossId:this.id,kind:'circle',...p,warning:(plan.warning??.85)+i*interval,delay:0,duration:plan.duration??.35,once:true,radius:plan.radius??88,damage:this.t.damage,visual:'rail-shell',tag:plan.final?this.id+':iron-rain':this.kind==='paris-gun'?this.id+':bruno-salvo':null}));
+  // The volley ends when the gun's last shot leaves the barrel; the trailing
+  // markers still count down on their own.
+  this.barrage={...plan,index:1,clock:0,total:(plan.points.length-1)*interval+.02};
+ }
  fire520(plan){
   const target={x:plan.target.x,y:plan.target.y},tag=this.id+(plan.final?':last-520':':520-round');
   const emit=spec=>this.emit({type:'hazard',bossId:this.id,kind:'circle',tag,...spec});
   emit({...target,warning:.02,delay:0,duration:plan.centerDuration,once:true,radius:plan.radius,damage:this.t.damage*(plan.final?1.1:.74),visual:'rail-shell'});
   emit({...target,warning:plan.waveWarning,delay:plan.waveDelay,duration:plan.waveDuration,once:true,radius:plan.wave,radiusStart:plan.start,radiusLimit:plan.wave,ringWidth:42,ringSpeed:(plan.wave-plan.start)/plan.waveDuration,damage:this.t.damage*(plan.final?.8:.62),visual:'rural-rail-shock'});
   emit({...plan.smoke,warning:plan.smokeWarning,delay:plan.smokeDelay,duration:plan.smokeDuration,once:false,tickInterval:.7,damage:this.t.damage*.22,visual:'rural-rail-smoke'});
+  if(plan.final)for(let i=0;i<8;i++){const a=i/8*Math.PI*2+.39,speed=155;
+   emit({...target,kind:'projectile',tag:tag+'-shrapnel',vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,radius:6,warning:plan.waveDelay,delay:0,duration:2.4,damage:this.t.damage*.3,visual:'rail-shrapnel'});}
   fireRailArtillery(this);
  }
  onPartDestroyed(p){
@@ -153,8 +165,10 @@ export class RuralRailBoss extends RailAdapter {
   this.syncRailPart();
   // Armor is open throughout the real recoil/reload state, including slow reload.
   this.recovery=this.kind==='lincomparable'&&['recoil','reload'].includes(rail.phase)?Math.max(.01,(rail.phase==='recoil'?rail.c.recoilSeconds-rail.time+rail.c.reloadSeconds:rail.c.reloadSeconds-rail.time)):0;
-  if(this.barrage){const q=this.barrage;q.clock-=dt;while(q.index<q.points.length&&q.clock<=0){const p=q.points[q.index++];fireRailArtillery(this);this.emit({type:'hazard',bossId:this.id,kind:'circle',...p,warning:q.warning??.85,delay:0,duration:q.duration??.35,once:true,radius:q.radius??88,damage:this.t.damage,visual:'rail-shell',tag:q.final?this.id+':iron-rain':this.kind==='paris-gun'?this.id+':bruno-salvo':null});q.clock+=q.interval||this.t.barrageInterval||.32;}
-   if(q.index===q.points.length){this.barrage=null;if(this.kind==='paris-gun'&&this.raidPhase===2&&!q.final&&!this.parts.get('car-rear').destroyed)this.aaClock=.3;}}
+  if(this.barrage){const q=this.barrage,interval=q.interval||this.t.barrageInterval||.32;q.clock+=dt;
+   // Muzzle flash keeps the firing beat; the markers themselves were pre-placed.
+   while(q.index<q.points.length&&q.clock>=q.index*interval){q.index++;fireRailArtillery(this);}
+   if(q.clock>=q.total){this.barrage=null;if(this.kind==='paris-gun'&&this.raidPhase===2&&!q.final&&!this.parts.get('car-rear').destroyed)this.aaClock=.3;}}
   updateRailArtillery(this,dt);
   if(this.finalAim){
    const q=this.finalAim;q.remaining-=dt;
