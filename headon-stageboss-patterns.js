@@ -7,7 +7,7 @@ import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=tame
 import {RuralRailBoss} from './rural-rail-combat.js?v=tame3&rail=18';
 import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=tame3&rail=18';
 import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=tame3';
-import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=tame3&rail=36';
+import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=tame3&rail=37';
 import {createJutlandEncounter} from './jutland-boss.js?v=tame3';
 export {Mark1Landship as Mark4Wedge,SchwabenFortress as MorserBattery};
 import {sommeScale} from './somme-boss-layout.js?v=tame3';
@@ -767,7 +767,7 @@ export class LivensFlameProjector extends PatternBoss {
   suppressive(){/* Livens attacks through its persistent flamethrower and fuel leaks. */}
   onPartDestroyed(p){
     if(p.id.startsWith('tank-')){this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:54,warning:.65,duration:2,tickInterval:.35,damage:this.t.damage*.55,visual:'livens-leak',tag:'livens-leak'});
-     this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:145,warning:1.1,duration:6.5,tickInterval:.55,damage:this.t.damage*.4,visual:'livens-gas',tag:'livens-gas'});}
+     this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:435,warning:1.1,duration:13,tickInterval:.55,damage:this.t.damage*.4,visual:'livens-gas',tag:'livens-gas'});}
     if(p.id==='pressure'){if(this.flameMode==='entry'&&this.trenchEntry.state==='active')this.trenchEntry.firstDone=true;this.command('cancel-hazards',{tag:'livens-flame'});this.lockedFlameAngle=null;this.flameGap=.6;this.recovery=1.8;}
     if(p.id==='pressure')this.hazard('circle',{x:this.x+p.x,y:this.y+p.y,radius:68,warning:.8,duration:.4,once:true,damage:this.t.damage*.75,visual:'livens-pressure'});
     // The core opens once the fuel/pressure system is wrecked; the nozzle
@@ -1651,10 +1651,11 @@ export class GothaRaider extends PatternBoss {
    if(this.runTarget){const t=this.runTarget,entryY=t.y-240;
     if(!this.onBombLine){this.fly(dt,t.x,entryY,speed,engines===1?.65:.95,false);this.runRemaining=(Math.hypot(t.x-this.x,entryY-this.y)+240)/speed;
      if(this.y<entryY+20&&Math.abs(t.x-this.x)<160)this.onBombLine=true;}
-    else{this.fly(dt,t.x,this.y+140,speed,engines===1?.65:.95,false);const p=this.parts.get('bomb-bay'),sourceX=this.x+p.x,sourceY=this.y+p.y;
+    else{this.fly(dt,t.x,this.y+140,speed,engines===1?.65:.95,false);const xTrim=t.x-(this.x+this.parts.get('bomb-bay').x);this.x+=Math.sign(xTrim)*Math.min(Math.abs(xTrim),speed*dt*.8);
+     const p=this.parts.get('bomb-bay'),sourceX=this.x+p.x,sourceY=this.y+p.y;
      this.runRemaining=Math.max(0,(t.y-sourceY)/speed);const opening=this.runRemaining<=2.6;this.bayOpen=Math.max(0,Math.min(1,this.bayOpen+dt*(opening?1.8:-2)));
      if(opening&&!this.bayWarned){this.bayWarned=true;this.command('gotha-bay-open',{x:sourceX,y:sourceY,runId:this.runId});}
-     if(sourceY>=t.y&&Math.abs(sourceX-t.x)<55&&Math.sin(this.a)>.85&&this.bayOpen>.9){
+     if(sourceY>=t.y&&Math.abs(sourceX-t.x)<55&&Math.sin(this.a)>.5&&this.bayOpen>.9){
       this.command('city-bomb',{runId:this.runId,targetId:t.id,x:t.x,y:t.y,sourceX,sourceY,seconds:1.3,damage:18});
       this.hazard('circle',{x:t.x,y:t.y,radius:54,warning:1.3,duration:.35,once:true,damage:this.t.damage,visual:'carpet-bomb',airborneBomb:true,sourceX,sourceY,tag:this.id+'-payload'});
       for(const side of [-1,1])this.hazard('circle',{x:t.x+side*78,y:t.y-72,delay:side<0?.42:.84,radius:48,warning:1.3,duration:.3,once:true,visual:'carpet-bomb',airborneBomb:true,sourceX,sourceY,tag:this.id+'-payload'});
@@ -1683,7 +1684,14 @@ const constructors={'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttg
 export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   if(bossId==='jutland-grand-fleet')return createJutlandEncounter({id,bossId,tuning,x,y,emit,rng,faction});
   if(bossId==='mark4-wedge'){const scale=sommeScale(tuning,true),t={...tuning,maxHp:tuning.maxHp/3,sommeScale:scale};return new BossEncounter({id,bossId,bodies:[0,1,2].map(slot=>new Mark1Landship({id:id+':mark1:'+slot,slot,tuning:t,x:x+(slot===1?-155:slot===2?155:0)*scale,y:y+(tuning.sommeApproach?(slot===0?80:-110):(slot===0?-100:65))*scale,emit,rng,faction:faction||'entente'}))});}
-  if(bossId==='gotha-squadron'){const flightTuning={...tuning,maxHp:tuning.maxHp/3,partHp:tuning.partHp/3,geometryScale:1};return new BossEncounter({id,bossId,bodies:[0,1,2].map(slot=>new GothaRaider({id:id+':gotha:'+slot,slot,tuning:flightTuning,x:x+(slot-1)*215,y:y+(slot===1?0:-90),emit,rng,faction:faction||'central'}))});}
+  if(bossId==='gotha-squadron'){
+   const flightTuning={...tuning,maxHp:tuning.maxHp/9,partHp:tuning.partHp/9,geometryScale:1},bodies=[];
+   for(let slot=0;slot<9;slot++){
+    const formation=Math.floor(slot/3),inFlight=slot%3,cx=x+(formation-1)*880;
+    bodies.push(new GothaRaider({id:id+':gotha:'+slot,slot,tuning:flightTuning,x:cx+(inFlight-1)*215,y:y+(inFlight===1?0:-90)-formation*60,emit,rng,faction:faction||'central'}));
+   }
+   return new BossEncounter({id,bossId,bodies});
+  }
   const entry=BOSS_CATALOG[bossId]||{faction:bossId==='staaken-rvi'?'central':'entente'},Ctor=constructors[bossId];if(!Ctor)throw new Error('Unknown boss: '+bossId);
   const body=new Ctor({id:id+':body',tuning,x,y,emit,rng,faction:faction||entry.faction,coreRadius:tuning.coreRadius||100});
   const bodies=[body];
