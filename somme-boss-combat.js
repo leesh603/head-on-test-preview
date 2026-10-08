@@ -144,8 +144,15 @@ export class Mark1Landship extends SommeBoss{
   return {entry,final:q,live};
  }
  tracks(){return ['track-left','track-right'].filter(id=>!this.parts.get(id).destroyed).length;}
+ locateHit(s){
+  if(this.dead)return null;
+  // A side gun projects over the track: shots at the visible housing hit it.
+  for(const p of this.parts.values())if(p.id.startsWith('sponson-')&&!p.destroyed&&p.hittable){const q=sommePoint(this,p.hitLocalX,p.localY);if(intersectsEllipse(s,q.x,q.y,p.hitRadiusX,p.hitRadiusY,p.hitAngle))return{partId:p.id};}
+  return super.locateHit(s);
+ }
  hullArmor(){return ['sponson-left','sponson-right'].every(id=>this.parts.get(id).destroyed)?1:.45;}
- onPartDestroyed(p){this.cancel(p.id);if(this.salvo?.partId===p.id)this.salvo=null;if(this.tracks()===0){this.driveVelocity=0;this.driveMoving=false;}this.phase=this.tracks()===0?'tracks-disabled':this.tracks()===1?'track-disabled':this.hullArmor()===1?'exposed':'weapon-disabled';this.command('phase-change',{phase:this.phase});}
+ onPartDestroyed(p){this.cancel(p.id);this.cancel(p.id+':volley');if(this.salvo?.partId===p.id)this.salvo=null;if(this.tracks()===0){this.driveVelocity=0;this.driveMoving=false;}this.phase=this.tracks()===0?'tracks-disabled':this.tracks()===1?'track-disabled':this.hullArmor()===1?'exposed':'weapon-disabled';this.command('phase-change',{phase:this.phase});}
+ onDeath(){super.onDeath();for(const p of this.parts.values())this.cancel(p.id+':volley');}
  move(dt,bounds){driveLandship(this,dt);}
  update(dt,{players,bounds}){
   if(this.dead)return;this.tickParts(dt);const tactic=this.tactics(dt,bounds);this.move(dt,bounds);
