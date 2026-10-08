@@ -1,7 +1,7 @@
-import {PLANES} from './engine.js?v=tame3&rail=17';
+import {PLANES} from './engine.js?v=tame3&rail=18';
 import {drawGroundEnemy} from './ground-enemy-art.js?v=tame3';
 import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=tame3';
-import {SPRITE_ALIASES} from './campaign.js?v=tame3&rail=17';
+import {SPRITE_ALIASES} from './campaign.js?v=tame3&rail=18';
 import {drawEquipment} from './equipment.js?v=tame3';
 
 registerCampaignSpriteAliases(SPRITE_ALIASES);

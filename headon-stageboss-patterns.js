@@ -1,10 +1,10 @@
 import {ParisSearchlightFortress,ParisStaakenRVI} from './paris-night-bosses.js?v=tame3';
-import {GallipoliFortress} from './gallipoli-boss.js?v=tame3&rail=17';
+import {GallipoliFortress} from './gallipoli-boss.js?v=tame3&rail=18';
 import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=tame3';
-import {RuralRailBoss} from './rural-rail-combat.js?v=tame3&rail=17';
-import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=tame3';
+import {RuralRailBoss} from './rural-rail-combat.js?v=tame3&rail=18';
+import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=tame3&rail=18';
 import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=tame3';
-import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=tame3&rail=17';
+import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=tame3&rail=18';
 import {createJutlandEncounter} from './jutland-boss.js?v=tame3';
 export {Mark1Landship as Mark4Wedge,SchwabenFortress as MorserBattery};
 import {sommeScale} from './somme-boss-layout.js?v=tame3';
@@ -17,7 +17,7 @@ import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=ta
 import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=tame3';
 import {apronPose} from './london-apron369.js?v=tame3';
 import {GIK,Ca4} from './alps-bomber-combat.js?v=tame3';
-import {FlakTowerNet} from './city-flak-combat.js?v=tame3';
+import {FlakTowerNet} from './city-flak-combat.js?v=tame3&rail=18';
 
 export {GIK,Ca4};
 import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=tame3';
