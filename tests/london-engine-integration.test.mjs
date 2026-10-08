@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {Game}=await import('../engine.js?v=tame3&rail=12');
-const {CoopGame}=await import('../coop-engine.js?v=tame3&rail=12');
+const {Game}=await import('../engine.js?v=tame3&rail=13');
+const {CoopGame}=await import('../coop-engine.js?v=tame3&rail=13');
 
 function sortie(team,count,width){
  const pilots=team==='entente'?['fonck','collishaw']:['baron','voss'];
