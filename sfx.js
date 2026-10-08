@@ -199,9 +199,9 @@ const VOICES={
   reloadSynth(){tone(520,340,.04,.05,'square',1600);tone(300,220,.05,.06,'square',1200,.06)},
   loaded(){bankSample('ui-loaded',.34,()=>VOICES.loadedSynth())},
   loadedSynth(){tone(340,340,.05,.05,'square',1400);tone(560,560,.08,.05,'square',1800,.05)},
-  // Field upgrade: bright four-note arp.
+  // Field upgrade: short confirm tick.
   levelup(){VOICES.levelupSynth()},
-  levelupSynth(){for(let i=0;i<4;i++)tone([523,659,784,1046][i],[523,659,784,1046][i],.12,.05,'triangle',2600,i*.07)},
+  levelupSynth(){hiss(2100,900,.03,.02,'bandpass',1.5);tone(520,520,.07,.045,'triangle',2000);tone(780,780,.1,.04,'triangle',2200,.07)},
   // Wave / signal toast stingers.
   wave(){tone(660,660,.07,.04,'triangle',1800);tone(880,880,.09,.04,'triangle',2000,.08)},
   ally(){tone(523,523,.08,.05,'triangle',2000);tone(659,659,.1,.05,'triangle',2200,.09)},
