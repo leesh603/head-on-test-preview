@@ -2,11 +2,12 @@ import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=tame3';
 import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
 import {sandOpacity} from './maan-weather.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
+
 export const MAAN_ASSETS=Object.freeze({terrain:'terrain-maan-r2.webp',workshop:'maan-workshop-r2.webp',wusten:'boss-maan-wusten-r2.webp',sinai:'boss-maan-sinai-r2.webp',car:'boss-maan-rolls-royce.webp'});
 const images=new Map();let ground=null;
 const _filterBakes=new WeakMap();
 function bakedFiltered(img,filter){if(!img?.naturalWidth)return img;let m=_filterBakes.get(img);if(!m){m=new Map();_filterBakes.set(img,m)}let cv=m.get(filter);if(cv===undefined){cv=document.createElement('canvas');cv.width=img.naturalWidth;cv.height=img.naturalHeight;const cc=cv.getContext('2d');cc.filter=filter;cc.drawImage(img,0,0);m.set(filter,cv)}return cv}
-const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=r5';images.set(key,im);return im;};
+const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=tame3';images.set(key,im);return im;};
 export function prepareMaanAssets(region){
  if(region!==13){images.clear();ground=null;return Promise.resolve();}
  return Promise.all(Object.keys(MAAN_ASSETS).map(key=>{const im=load(key);if(im.complete&&im.naturalWidth)return Promise.resolve();return new Promise((resolve,reject)=>{im.onload=()=>{if(!im.naturalWidth){reject(new Error('Ma’an empty asset: '+MAAN_ASSETS[key]));return}(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.onerror=()=>reject(new Error('Ma’an asset: '+MAAN_ASSETS[key]));});})).then(()=>{seamlessGround(load('terrain'));});
@@ -130,7 +131,7 @@ export function drawMaanBoss(c,b){
  }
  if(b.heavyPlan&&!b.gone('heavy-gun')){
   const m=b.muzzle(parts.get('heavy-gun')),a=b.heavyPlan.target;
-  c.save();c.strokeStyle='#ffdf99';c.lineWidth=2;c.setLineDash([7,6]);c.beginPath();c.moveTo(m.x,m.y);c.lineTo(a.x,a.y);c.stroke();c.restore();
+  aimLine(c,m.x,m.y,a.x,a.y,{heavy:true});
  }
  if(t<b.entryDuration){
   if(factory&&t>2.8&&t<6){const age=t-2.8,q=age/3.2;for(let i=0;i<10;i++){const side=i%2?1:-1;fx(c,'metalShard'+i%6,factory.x+side*(80+age*(50+i*7)),factory.openingY-80+Math.sin(i*2.1)*90+age*age*20,28+i%3*12,32+i%4*10,side*age*(.8+i*.1),(1-q)*.9);}if(age<.9)fx(c,'structure'+Math.min(3,Math.floor(age/.225)),factory.x,factory.openingY-100,330,310,0,1-age/.9);}
@@ -140,7 +141,7 @@ export function drawMaanBoss(c,b){
   }
  }
  const lane=b.duneLane;
- if(lane?.remaining>0){c.save();c.strokeStyle='#dfd1a7';c.lineWidth=2;c.setLineDash([10,8]);for(const side of [-1,1]){c.beginPath();c.moveTo(lane.x+side*lane.width/2,lane.y-50);c.lineTo(lane.x+side*lane.width/2,lane.y+lane.depth-50);c.stroke();}c.restore();}
+ if(lane?.remaining>0)for(const side of [-1,1])laneEdge(c,lane.x+side*lane.width/2,lane.y-50,lane.x+side*lane.width/2,lane.y+lane.depth-50);
  return true;
 }
 export function drawMaanWeather(c,g){
@@ -155,15 +156,14 @@ export function drawMaanWeather(c,g){
 export function drawMaanHazard(c,h){
  if(h.visual==='maan-sand-ring'){
   c.save();const warning=h.phase==='warning',r=warning?h.radiusLimit:h.radius;
-  c.strokeStyle=warning?'#ffe0a0':'#cbac71';c.lineWidth=warning?2:3;c.setLineDash(warning?[8,6]:[]);c.beginPath();c.arc(h.x,h.y,r,0,Math.PI*2);c.stroke();
-  if(warning){c.globalAlpha=.5;c.beginPath();c.arc(h.x,h.y,44,0,Math.PI*2);c.stroke();}
+  if(warning)bandMark(c,h.x,h.y,44,r,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)),{heavy:h.raidHeavy});
   else for(let i=0;i<8;i++){const a=i*Math.PI/4+(h.age-h.warning)*.1;fx(c,'dustPuff',h.x+Math.cos(a)*(r-11),h.y+Math.sin(a)*(r-11),44,30,a,.55);}
   c.restore();return true;
  }
  if(!/^(wusten|sinai)-/.test(h.visual))return false;
  c.save();const warning=h.phase==='warning';
  if(h.kind==='projectile'){fx(c,h.visual.endsWith('mg')?'tracerAmber':'shellHeavy',h.x,h.y,h.visual.endsWith('mg')?12:20,5,Math.atan2(h.vy,h.vx),.95);}
- else if(warning){c.strokeStyle='#ffdf99';c.lineWidth=2;c.setLineDash([7,5]);c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.stroke();
+ else if(warning){impactMark(c,h.x,h.y,h.radius,Math.max(0,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning))),{heavy:h.raidHeavy,tone:h.visual==='wusten-steam'?'blind':'warn'});
   if(h.visual.endsWith('impact')&&h.sourceX!=null){const q=Math.max(0,Math.min(1,(h.age-h.delay)/h.warning)),dx=h.x-h.sourceX,dy=h.y-h.sourceY;
    fx(c,'shellHeavy',h.sourceX+dx*q,h.sourceY+dy*q-Math.sin(q*Math.PI)*35,22,7,Math.atan2(dy,dx),.95);}
  }
