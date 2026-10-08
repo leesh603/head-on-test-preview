@@ -1,6 +1,6 @@
 import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=tame3';
 import {recordShipWake} from './naval-water.js?v=tame3';
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=tame3&rail=29';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=tame3&rail=30';
 import {verdunFortCollapseSites} from './verdun-fortresses.js?v=tame3&rail=18';
 import {BossHazards} from './headon-stageboss-hazards.js?v=tame3';
 

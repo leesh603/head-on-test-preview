@@ -17,8 +17,8 @@ for(const [w,h]of [[390,844],[487.5,1055],[1280,800]])for(const coop of [false,t
 });
 test('spaced guns reveal one at a time as the pilot approaches each emplacement; no position/HP budget changes',()=>{
  const {b,events}=make();run(b,.02);assert.equal([...b.parts.values()].filter(p=>p.discovered).length,1);run(b,.3);assert.equal([...b.parts.values()].filter(p=>p.discovered).length,1);
- run(b,1,{players:[{...pilot,x:-560}],bounds:frame.bounds});assert.equal([...b.parts.values()].filter(p=>p.discovered).length,2);
- run(b,1,{players:[{...pilot,x:560}],bounds:frame.bounds});assert.equal([...b.parts.values()].filter(p=>p.discovered).length,3);assert.equal(b.maxHp,1200);assert.equal(b.hp,1200);assert.deepEqual(events.filter(e=>e.type==='mortar-launch').slice(0,2).map(e=>e.partId),['gun-left','main-gun']);
+ run(b,1,{players:[{...pilot,x:-1120,y:-160}],bounds:frame.bounds});assert.equal([...b.parts.values()].filter(p=>p.discovered).length,2);
+ run(b,1,{players:[{...pilot,x:960,y:-50}],bounds:frame.bounds});assert.equal([...b.parts.values()].filter(p=>p.discovered).length,3);assert.equal(b.maxHp,1200);assert.equal(b.hp,1200);assert.deepEqual(events.filter(e=>e.type==='mortar-launch').slice(0,2).map(e=>e.partId),['gun-left','main-gun']);
 });
 test('all mortar shells, flashes and sounds originate at each surviving physical tube mouth',()=>{
  const {b,events}=make();run(b,7);const launches=events.filter(e=>e.type==='mortar-launch'),shells=events.filter(e=>e.type==='hazard');assert(launches.some(e=>e.partId==='gun-right'));
