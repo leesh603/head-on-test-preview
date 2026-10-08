@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {GIK,Ca4} from '../alps-bomber-combat.js?v=tame3';
 import {ALPS_BOMBER_LAYOUT,alpsPoint,alpsMuzzle,alpsHullExtents} from '../alps-bomber-layout.js?v=tame3';
-import {StageBossAddon} from '../headon-stageboss-runtime.js?v=tame3&rail=13rail=14';
-import {enableStageBoss,stageBossCollision,damageStageBoss} from '../stageboss-host.js?v=tame3&rail=13rail=14';
+import {StageBossAddon} from '../headon-stageboss-runtime.js?v=tame3&rail=14';
+import {enableStageBoss,stageBossCollision,damageStageBoss} from '../stageboss-host.js?v=tame3&rail=14';
 import {renderStageBossLayer} from '../headon-stageboss-render.js?v=tame3&rail=1';
 
 
