@@ -1,6 +1,6 @@
 import {steerNaval} from './adriatic-boss-layout.js?v=tame3';
 import {FixedPool} from './support-pool129.js';
-export const HANGAR=Object.freeze({x:0,y:.213,w:.25,h:.314}); // normalized to full base image
+export const HANGAR=Object.freeze({x:0,y:.176,w:.25,h:.314}); // normalized to full base image
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function segmentDistance(x,y,a,b){const dx=b.x-a.x,dy=b.y-a.y,l=dx*dx+dy*dy,t=l?clamp(((x-a.x)*dx+(y-a.y)*dy)/l,0,1):0;return Math.hypot(x-a.x-t*dx,y-a.y-t*dy);}
 export class StuttgartSupport {
@@ -13,8 +13,8 @@ export class StuttgartSupport {
   this.fireClock=1.8;this.spawnClock=tuning.spawnInterval;this.linkedLaunchClock=0;this.volley=0;this.fireSide=0;this.fxSerial=0;this.cover=null;this.sortieLaunched=false;
   this.introLaunched=false;this.finalSortie=false;this.finalWave=0;this.finalClock=0;this.fireWarning=null;this.smokeClock=0;
   this.anchorX=x;this.anchorY=y;this.initialAngle=angle;this.navigationAge=0;this.driveVelocity=0;
-  this.parts=new Map([['cover',0,.213,.125,.157,.18],['fuel',.084,.24,.032,.105,.10],['gun0',-.12,-.324,.048,.033,.06],['gun1',.12,-.324,.048,.033,.06],['gun2',-.165,-.045,.048,.033,.06],['gun3',.165,-.045,.048,.033,.06]].map(([id,nx,ny,rx,ry,hp])=>[id,{id,nx,ny,rx,ry,hp:hp*this.maxHp,maxHp:hp*this.maxHp}]));
-  if(tuning.navigation)this.parts.set('boiler',{id:'boiler',nx:0,ny:-.13,rx:.075,ry:.085,hp:this.maxHp*.12,maxHp:this.maxHp*.12});
+  this.parts=new Map([['cover',0,HANGAR.y,HANGAR.w/2,HANGAR.h/2,.18],['fuel',.084,.24,.032,.105,.10],['gun0',-.12,-.35,.048,.033,.06],['gun1',.12,-.35,.048,.033,.06],['gun2',-.175,-.086,.048,.033,.06],['gun3',.175,-.086,.048,.033,.06]].map(([id,nx,ny,rx,ry,hp])=>[id,{id,nx,ny,rx,ry,hp:hp*this.maxHp,maxHp:hp*this.maxHp}]));
+  if(tuning.navigation)this.parts.set('boiler',{id:'boiler',nx:0,ny:-.16,rx:.075,ry:.085,hp:this.maxHp*.12,maxHp:this.maxHp*.12});
   this.parts.set('hangar',{id:'hangar',nx:0,ny:.35,rx:.10,ry:.07,hp:this.maxHp*.10,maxHp:this.maxHp*.10});
   this.projectiles=new FixedPool(256,()=>({hits:new Set()}));this.effects=new FixedPool(160);this.damageSerial=0;
  }
