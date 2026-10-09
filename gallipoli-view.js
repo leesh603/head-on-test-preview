@@ -1,11 +1,12 @@
+import {drawGallipoliWeapon,gallipoliSectorArtState} from './gallipoli-art-r10.js';
 import {applySeaColor} from './sea-colors.js?v=tame3';
 import {fx,fxReady} from './fx-art.js?v=tame3';
 import {impactMark,aimLine,laneEdge} from './tactical-marks.js?v=tame3';
 import {drawShellFlight} from './boss-rounds.js?v=tame3';
-import {GALLIPOLI_PARTS,GALLIPOLI_SECTORS,gallipoliObjective,GALLIPOLI_HANGAR,GALLIPOLI_EXTENTS} from './gallipoli-boss.js?v=tame3&rail=41';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=tame3&rail=41';
+import {GALLIPOLI_PARTS,GALLIPOLI_SECTORS,gallipoliObjective,GALLIPOLI_HANGAR,GALLIPOLI_EXTENTS,GALLIPOLI_COMMAND_MUZZLE} from './gallipoli-boss.js?v=tame3&rail=42';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=tame3&rail=42';
 import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
-export const GALLIPOLI_ASSETS=Object.freeze({guns:'gallipoli-siege-guns.webp',facilities:'gallipoli-siege-facilities.webp',base:'gallipoli-siege-bases.webp',star:'gallipoli-siege-star.webp',wing:'gallipoli-siege-wing.webp',hangar:'maan-workshop-r2.webp',ground:'gallipoli-siege-ground.webp',coast:'asset-bank/terrain/gallipoli_coast.webp',sea:'terrain-sea359r2.webp',central:'gallipoli-overlay-central.webp',entente:'gallipoli-overlay-entente.webp'});
+export const GALLIPOLI_ASSETS=Object.freeze({guns:'gallipoli-weapons-r10.webp',facilities:'gallipoli-facilities-r10.webp',base:'gallipoli-foundations-r10.webp',star:'gallipoli-star-r10.webp',wing:'gallipoli-wing-r10.webp',starDamage:'gallipoli-star-damage-r10.webp',wingDamage:'gallipoli-wing-damage-r10.webp',ground:'gallipoli-siege-ground.webp',coast:'asset-bank/terrain/gallipoli_coast.webp',sea:'terrain-sea359r2.webp',central:'gallipoli-overlay-central.webp',entente:'gallipoli-overlay-entente.webp'});
 const images=new Map(),tiles=new Map(),pending=new Map();
 function load(k){if(!GALLIPOLI_ASSETS[k])return null;if(images.has(k))return images.get(k);const im=new Image();images.set(k,im);im.decoding='async';im.crossOrigin='anonymous';pending.set(k,new Promise((resolve,reject)=>{im.onload=()=>{if(!im.naturalWidth){reject(new Error('Gallipoli empty asset '+k));return}(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))};im.onerror=()=>reject(new Error('Gallipoli asset '+k));}));im.src='./'+GALLIPOLI_ASSETS[k]+'?v=r5';return im;}
 function canvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c;}
@@ -21,26 +22,35 @@ export function paintGallipoli(c,g,cx,cy,w,h){const r=g?.gallipoliRoute;if(!r)re
  if(!g.stageBoss?.stages.encounter&&s>GALLIPOLI_ROUTE.fort-span-GALLIPOLI_EXTENTS.halfHeight){const body=r.preview||{x:r.x+Math.cos(r.a)*GALLIPOLI_ROUTE.fort,y:r.y+Math.sin(r.a)*GALLIPOLI_ROUTE.fort,captured:new Set(),commandMaxHp:1,commandHp:1,commandDestroyed:false,phase:'active-defense',coreAngle:Math.PI/2,hp:1,maxHp:1,faction:g.stageBoss?.stages.teamFaction==='central'?'entente':'central',parts:new Map(GALLIPOLI_PARTS.map(p=>[p.id,{...p,hp:1,maxHp:1,angle:Math.PI/2}]))};c.save();c.translate(w/2-cx,h/2-cy);drawGallipoliBoss(c,body);c.restore();}
 }
 // Authored atlas rectangles and measured pivots; the full barrels remain visible.
-const gunRows=[[0,444,.69],[444,424,.70],[868,412,.63]];
 const artRows={twin:0,howitzer:1,aa:2,command:0,ammo:1,signal:2};
-function sprite(c,key,row,state,x,y,w,angle=0){const im=load(key);if(!im?.naturalWidth)return;const single=key==='star'||key==='wing',cw=im.naturalWidth/(single?1:3);let sy,sh,pivot;
- if(single){sy=0;sh=im.naturalHeight;pivot=key==='wing'?.48:.5;state=0;}else if(key==='guns'){[sy,sh,pivot]=gunRows[row];sy*=im.naturalHeight/1280;sh*=im.naturalHeight/1280;}else if(key==='base'){[sy,sh]=[[0,470],[470,365],[835,445]][row];sy*=im.naturalHeight/1280;sh*=im.naturalHeight/1280;pivot=.5;}else{sy=row*im.naturalHeight/3;sh=im.naturalHeight/3;pivot=.5;}
- c.save();c.translate(x,y);c.rotate(angle);c.imageSmoothingEnabled=true;const h=w*sh/cw;c.drawImage(im,state*cw,sy,cw,sh,-w*(single?.5:.53),-h*pivot,w,h);c.restore();}
+function sprite(c,key,row,state,x,y,w,angle=0,height=0){const im=load(key);if(!im?.naturalWidth)return;
+ const cw=im.naturalWidth/3;let sy,sh;
+ if(key==='base'){[sy,sh]=[[0,490],[490,377],[867,387]][row];sy*=im.naturalHeight/1254;sh*=im.naturalHeight/1254;}
+ else{sh=im.naturalHeight/4;sy=row*sh;}
+ c.save();c.translate(x,y);c.rotate(angle);c.imageSmoothingEnabled=true;const h=height||w*sh/cw;
+ c.drawImage(im,state*cw,sy,cw,sh,-w*.5,-h*.5,w,h);c.restore();}
+function weapon(c,b,p,state){const im=load('guns'),q={...p,x:b.x+p.x,y:b.y+p.y};
+ const blend=gallipoliRepairBlend(p,b.commandDestroyed);
+ if(!blend){drawGallipoliWeapon(c,im,q,state);return;}
+ drawGallipoliWeapon(c,im,q,blend.from);c.save();c.globalAlpha*=blend.amount;drawGallipoliWeapon(c,im,q,blend.to);c.restore();}
+function fortress(c,key,state,x,y,w){const im=load(state?key+'Damage':key);if(!im?.naturalWidth)return;
+ const cw=im.naturalWidth/(state?2:1),sh=im.naturalHeight,h=w*sh/cw;
+ c.drawImage(im,state?(state-1)*cw:0,0,cw,sh,x-w/2,y-h*(key==='wing'?.48:.5),w,h);}
 // Blend registered authored damage columns; collision/18s repair timing is unchanged.
 export function gallipoliRepairBlend(p,commandDestroyed){if(p.destroyed)return !commandDestroyed&&p.repairRemaining>0&&p.repairRemaining<=3?{from:2,to:1,amount:Math.min(1,(3-p.repairRemaining)/.35)}:null;return p.repairGrace>0?{from:1,to:0,amount:Math.max(0,1-p.repairGrace/.35)}:null;}
 function repairedSprite(c,b,p,key,row,state,x,y,w,angle){const blend=gallipoliRepairBlend(p,b.commandDestroyed);if(!blend||blend.amount===1||blend.amount===0){sprite(c,key,row,blend?(blend.amount===1?blend.to:blend.from):state,x,y,w,angle);return;}sprite(c,key,row,blend.from,x,y,w,angle);c.save();c.globalAlpha*=blend.amount;sprite(c,key,row,blend.to,x,y,w,angle);c.restore();}
 function road(c,x1,y1,x2,y2){c.lineCap='round';c.strokeStyle='#272823';c.lineWidth=62;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();c.strokeStyle='#666353';c.lineWidth=45;c.stroke();c.strokeStyle='#373b32';c.lineWidth=3;c.setLineDash([16,22]);c.stroke();c.setLineDash([]);}
 export function drawGallipoliBoss(c,b){const state=p=>b.dead||p?.destroyed?2:p&&p.hp<p.maxHp*.55?1:0;c.save();
- for(const s of GALLIPOLI_SECTORS){road(c,b.x,b.y,b.x+s.x,b.y+s.y);sprite(c,s.id==='citadel'?'star':'wing',0,0,b.x+s.x,b.y+s.y,920);}
- road(c,b.x,b.y,b.x,b.y+530);sprite(c,'star',0,0,b.x,b.y,757);sprite(c,'base',2,b.dead?2:0,b.x,b.y+507,562);
- for(const p of b.parts.values()){const gun=p.kind==='gun'||p.kind==='aa';const recoil=(p.recoil||0)*25,x=b.x+p.x-Math.cos(p.angle)*recoil,y=b.y+p.y-Math.sin(p.angle)*recoil;repairedSprite(c,b,p,gun?'guns':'facilities',artRows[p.art],state(p),x,y,p.size,gun?p.angle+Math.PI/2:0);if(!p.destroyed&&p.gunFlash>0)fx(c,'muzzleHeavy',p.flashX,p.flashY,gun&&p.kind==='aa'?30:48,30,p.angle,Math.min(1,p.gunFlash/.08));
+ for(const s of GALLIPOLI_SECTORS){road(c,b.x,b.y,b.x+s.x,b.y+s.y);fortress(c,s.id==='citadel'?'star':'wing',gallipoliSectorArtState(b,s),b.x+s.x,b.y+s.y,920);}
+ road(c,b.x,b.y,b.x,b.y+530);fortress(c,'star',b.dead||b.commandDestroyed?2:b.commandHp<b.commandMaxHp*.55?1:0,b.x,b.y,757);sprite(c,'base',2,b.dead?2:0,b.x,b.y+507,562);
+ for(const p of b.parts.values()){const gun=p.kind==='gun'||p.kind==='aa';if(gun)weapon(c,b,p,state(p));else repairedSprite(c,b,p,'facilities',artRows[p.art],state(p),b.x+p.x,b.y+p.y,p.size,0);if(!p.destroyed&&p.gunFlash>0)fx(c,'muzzleHeavy',p.flashX,p.flashY,gun&&p.kind==='aa'?30:48,30,p.angle,Math.min(1,p.gunFlash/.08));
  if(p.destroyed){fx(c,'smokeDark',b.x+p.x,b.y+p.y,50,70,0,.23);if(p.repairRemaining>0&&!b.commandDestroyed){c.strokeStyle=p.repairRemaining<=3?'#edc482':'#b8bdb1';c.lineWidth=3;c.beginPath();c.arc(b.x+p.x,b.y+p.y,p.radius+16,-Math.PI/2,-Math.PI/2+Math.PI*2*(1-p.repairRemaining/18));c.stroke();c.fillStyle='#e4d7b6';c.font='bold 13px sans-serif';c.textAlign='center';c.fillText('수리 '+Math.ceil(p.repairRemaining)+'초',b.x+p.x,b.y+p.y+73);}continue;}
  // Small persistent HP strips distinguish targetable installations from scenery.
  c.fillStyle='#181d19';c.fillRect(b.x+p.x-27,b.y+p.y+59,55,5);c.fillStyle=p.kind==='supply'?'#ccb079':'#bf7d62';c.fillRect(b.x+p.x-27,b.y+p.y+59,55*p.hp/p.maxHp,5);}
  sprite(c,'facilities',0,b.dead||b.commandDestroyed?2:b.commandHp<b.commandMaxHp*.55?1:0,b.x,b.y,398);
- sprite(c,'guns',0,b.dead||b.commandDestroyed?2:b.commandHp<b.commandMaxHp*.55?1:0,b.x-Math.cos(b.coreAngle)*(b.coreRecoil||0)*25,b.y-Math.sin(b.coreAngle)*(b.coreRecoil||0)*25,374,b.coreAngle+Math.PI/2);if(!b.commandDestroyed&&b.coreFlash>0)fx(c,'muzzleHeavy',b.coreFlashX,b.coreFlashY,65,42,b.coreAngle,Math.min(1,b.coreFlash/.08));
+ drawGallipoliWeapon(c,load('guns'),{x:b.x,y:b.y,art:'twin',angle:b.coreAngle,recoil:b.coreRecoil,size:374,muzzle:GALLIPOLI_COMMAND_MUZZLE,barrelOffset:22},b.dead||b.commandDestroyed?2:b.commandHp<b.commandMaxHp*.55?1:0);if(!b.commandDestroyed&&b.coreFlash>0)fx(c,'muzzleHeavy',b.coreFlashX,b.coreFlashY,65,42,b.coreAngle,Math.min(1,b.coreFlash/.08));
  if(!b.dead){c.fillStyle='#222720';c.fillRect(b.x-51,b.y-121,101,6);c.fillStyle='#d7af76';c.fillRect(b.x-51,b.y-121,101*Math.max(0,b.commandHp/b.commandMaxHp),6);c.fillStyle='#e2d0a8';c.font='bold 14px sans-serif';c.textAlign='center';c.fillText(b.commandDestroyed?'지휘포대 파괴':'중앙 지휘포대',b.x,b.y-131);}
- const hangar=load('hangar'),hh=GALLIPOLI_HANGAR;if(hangar?.naturalWidth){c.drawImage(hangar,0,0,hangar.naturalWidth/2,hangar.naturalHeight,b.x+hh.x-hh.width/2,b.y+hh.y-hh.height/2,hh.width,hh.height);c.font='bold 13px sans-serif';c.textAlign='center';c.fillStyle=b.commandDestroyed?'#a6aa9b':b.launchWarning?'#efd198':'#d4c9ac';c.fillText(b.commandDestroyed?'요격기 증원 중단':b.launchWarning?'요격기 출격 준비':'요격기 격납고',b.x+hh.x,b.y+hh.y-hh.height/2-12);if(b.launchWarning||b.launchFlash>0){c.strokeStyle='#ddc18a';c.lineWidth=3;c.beginPath();c.moveTo(b.x+hh.exitX-25,b.y+hh.exitY);c.lineTo(b.x+hh.exitX+25,b.y+hh.exitY);c.stroke();}}
+ const hh=GALLIPOLI_HANGAR;{sprite(c,'facilities',3,b.dead?2:b.commandDestroyed?1:0,b.x+hh.x,b.y+hh.y,hh.width,0,hh.height);c.font='bold 13px sans-serif';c.textAlign='center';c.fillStyle=b.commandDestroyed?'#a6aa9b':b.launchWarning?'#efd198':'#d4c9ac';c.fillText(b.commandDestroyed?'요격기 증원 중단':b.launchWarning?'요격기 출격 준비':'요격기 격납고',b.x+hh.x,b.y+hh.y-hh.height/2-12);if(b.launchWarning||b.launchFlash>0){c.strokeStyle='#ddc18a';c.lineWidth=3;c.beginPath();c.moveTo(b.x+hh.exitX-25,b.y+hh.exitY);c.lineTo(b.x+hh.exitX+25,b.y+hh.exitY);c.stroke();}}
  if(!b.dead&&b.pendingAttack){for(const s of b.pendingAttack.sources){const p=s.id?b.parts.get(s.id):{x:0,y:0};aimLine(c,b.x+p.x,b.y+p.y,s.target.x,s.target.y,{alpha:.6,chevron:false,dash:[6,10]});}}
  for(const s of GALLIPOLI_SECTORS){const captured=b.captured?.has(s.id),im=load(captured?(b.faction==='central'?'entente':'central'):b.faction);if(im?.naturalWidth&&!b.dead)c.drawImage(im,b.x+s.x-22,b.y+s.y-59,44,45);
  c.fillStyle=captured?'#9dcc9e':'#dbcaa8';c.font='bold 17px sans-serif';c.textAlign='center';c.fillText(captured?'진지 무력화':s.name,b.x+s.x,b.y+s.y+382);}

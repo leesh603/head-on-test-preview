@@ -1,5 +1,5 @@
 import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from './aircraft-crash.js?v=tame3';
-import {drawTracerBolt} from './projectiles.js?v=tame3&rail=41';
+import {drawTracerBolt} from './projectiles.js?v=tame3&rail=42';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.
 const worlds=new WeakMap(),poses=new WeakMap();

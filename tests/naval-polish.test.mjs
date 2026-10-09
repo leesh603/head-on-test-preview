@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 globalThis.Image=class {set src(v){queueMicrotask(()=>this.onload?.());}};globalThis.document={createElement:()=>({getContext:()=>null})};
-const {Game}=await import('../engine.js?v=tame3&rail=41'),{CoopGame}=await import('../coop-engine.js?v=tame3&rail=41');
-const {updateNavalFleet,fireSurfaceExchange,SHIP_TYPES}=await import('../fleet-naval1.js?v=tame3&rail=41');
+const {Game}=await import('../engine.js?v=tame3&rail=42'),{CoopGame}=await import('../coop-engine.js?v=tame3&rail=42');
+const {updateNavalFleet,fireSurfaceExchange,SHIP_TYPES}=await import('../fleet-naval1.js?v=tame3&rail=42');
 
 const {fixture,step}=await import('./stageboss-fixture94.mjs');
 const {recordShipWake}=await import('../naval-water.js?v=tame3');
