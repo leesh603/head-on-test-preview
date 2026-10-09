@@ -304,7 +304,7 @@ function frameInner(now){try{let dt=Math.min(.12,(now-last)/1000||.016);last=now
  frameInner(now);__perfFrame(performance.now()-__s)
 }roster();syncStartHint();resize();requestAnimationFrame(frame);
 
-function drawSupport(){if(!game)return;let cx=game.x,cy=game.y;const point=(x,y)=>{_ptShare[0]=x-cx+W/2;_ptShare[1]=y-cy+H/2;return _ptShare};for(let a of (game.allies||[])){if(!a.plane||!PLANES[a.plane])continue;let[x,y]=point(a.x,a.y),allyKey=game.pilot==='goering'?'goering_fokkerd7':a.plane==='fokker'?'fokker_standard':a.plane;ctx.globalAlpha=.95;planeSprite(ctx,x+12,y+20,a.a,allyKey,.78,false,true);planeSprite(ctx,x,y,a.a,allyKey,.78,false,false,a.hitFlash||0,a.hp!=null&&a.hp<=a.maxHp*.5);ctx.globalAlpha=1}}hangarArtReady.then(()=>roster());aircraftReady.then(()=>roster());
+function drawSupport(){if(!game)return;let cx=game.x,cy=game.y;const point=(x,y)=>{_ptShare[0]=x-cx+W/2;_ptShare[1]=y-cy+H/2;return _ptShare};for(let a of (game.allies||[])){if(!a.plane||!PLANES[a.plane]&&!a.eventReconEscort)continue;let[x,y]=point(a.x,a.y),allyKey=game.pilot==='goering'?'goering_fokkerd7':a.plane==='fokker'?'fokker_standard':a.plane;ctx.globalAlpha=.95;planeSprite(ctx,x+12,y+20,a.a,allyKey,.78,false,true);planeSprite(ctx,x,y,a.a,allyKey,.78,false,false,a.hitFlash||0,a.hp!=null&&a.hp<=a.maxHp*.5);ctx.globalAlpha=1}}hangarArtReady.then(()=>roster());aircraftReady.then(()=>roster());
 
 portraitsReady.then(()=>{roster();applyPilotPortrait('cutinPortrait')});
 
@@ -1405,7 +1405,7 @@ function syncBattlefieldMissionHud(){
  let objective='',meta='';
  if(event.type==='HIGH_VALUE_TARGET'){objective=t('event.hud.commander',{done:String(destroyed)});meta=t('event.hud.time',{seconds:String(Math.max(0,Math.ceil(event.deadline-game.t)))})}
  else if(event.type==='BOMBER_INTERCEPT'){objective=t('event.hud.bombers',{done:String(destroyed),total:String(targets.length)});meta=t('event.hud.time',{seconds:String(Math.max(0,Math.ceil(event.deadline-game.t)))} )}
- else if(event.type==='RESCUE'){const rescue=event.rescue,percent=Math.max(0,Math.round(100*(rescue?.hp||0)/(rescue?.maxHp||1)));objective=t('event.hud.rescue');meta=t('event.hud.hp',{percent:String(percent)})+' · '+t('event.hud.time',{seconds:String(Math.max(0,Math.ceil(event.endsAt-game.t)))})}
+ else if(event.type==='RESCUE'||event.type==='RECON_ESCORT'){const rescue=event.rescue,percent=Math.max(0,Math.round(100*(rescue?.hp||0)/(rescue?.maxHp||1)));objective=t('event.hud.rescue');meta=t('event.hud.hp',{percent:String(percent)})+' · '+t('event.hud.time',{seconds:String(Math.max(0,Math.ceil(event.endsAt-game.t)))})}
  else if(event.type==='PHOTO_RECON'){const wps=event.waypoints||[],done=wps.filter(w=>w.done).length;objective=t('event.hud.recon',{done:String(done),total:String(wps.length)});meta=t('event.hud.time',{seconds:String(Math.max(0,Math.ceil(event.deadline-game.t)))})}
  else if(event.type==='SUPPLY_RECOVERY'){objective=t('event.hud.supply');meta=t('event.hud.time',{seconds:String(Math.max(0,Math.ceil(event.deadline-game.t)))})}
  else {objective=t('event.hud.ace',{done:String(destroyed)});meta=t('event.hud.time',{seconds:String(Math.max(0,Math.ceil(event.deadline-game.t)))})}
@@ -1417,8 +1417,8 @@ syncBattlefieldEventUi=()=>{syncBattlefieldEventUiWithMissionHud();syncBattlefie
 const battlefieldMissionDraw=draw;
 function drawBattlefieldMissionTarget(target,index,total,eventType){
  const x=target.x-game.x+W/2,y=target.y-game.y+H/2,dx=x-W/2,dy=y-H/2,distance=Math.round(Math.hypot(dx,dy)),bomber=eventType==='BOMBER_INTERCEPT',edge=28;
- ctx.save();ctx.strokeStyle=bomber?'#ffd27b':eventType==='RESCUE'?'#b9e3d2':'#dfc384';ctx.fillStyle=bomber?'#ffd27b':'#eadfc5';ctx.lineWidth=bomber?2.5:1.5;
- if(x>edge&&x<W-edge&&y>edge&&y<H-edge){const r=bomber?24:18;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(x-r,y-r*.55);ctx.lineTo(x-r,y-r);ctx.lineTo(x-r*.55,y-r);ctx.moveTo(x+r,y-r*.55);ctx.lineTo(x+r,y-r);ctx.lineTo(x+r*.55,y-r);ctx.stroke();if(eventType==='RESCUE'){ctx.fillStyle='#1a2928';ctx.fillRect(x-19,y+18,38,3);ctx.fillStyle='#b9e3d2';ctx.fillRect(x-19,y+18,38*Math.max(0,target.hp||0)/(target.maxHp||1),3)}}
+ ctx.save();ctx.strokeStyle=bomber?'#ffd27b':['RESCUE','RECON_ESCORT'].includes(eventType)?'#b9e3d2':'#dfc384';ctx.fillStyle=bomber?'#ffd27b':'#eadfc5';ctx.lineWidth=bomber?2.5:1.5;
+ if(x>edge&&x<W-edge&&y>edge&&y<H-edge){const r=bomber?24:18;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(x-r,y-r*.55);ctx.lineTo(x-r,y-r);ctx.lineTo(x-r*.55,y-r);ctx.moveTo(x+r,y-r*.55);ctx.lineTo(x+r,y-r);ctx.lineTo(x+r*.55,y-r);ctx.stroke();if(eventType==='RESCUE'||eventType==='RECON_ESCORT'){ctx.fillStyle='#1a2928';ctx.fillRect(x-19,y+18,38,3);ctx.fillStyle='#b9e3d2';ctx.fillRect(x-19,y+18,38*Math.max(0,target.hp||0)/(target.maxHp||1),3)}}
  else{const angle=Math.atan2(dy,dx),scale=Math.min((W/2-edge)/Math.max(.001,Math.abs(Math.cos(angle))),(H/2-edge)/Math.max(.001,Math.abs(Math.sin(angle))));ctx.save();ctx.translate(W/2+Math.cos(angle)*scale,H/2+Math.sin(angle)*scale);ctx.rotate(angle);ctx.beginPath();ctx.moveTo(bomber?13:9,0);ctx.lineTo(bomber?-8:-6,bomber?-7:-5);ctx.lineTo(bomber?-4:-6,0);ctx.lineTo(bomber?-8:-6,bomber?7:5);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();}
  ctx.font=bomber?'bold 12px monospace':'11px monospace';ctx.textAlign='center';ctx.fillStyle='#fff0c2';const prefix=bomber&&total>1?'B'+(index+1)+' · ':'';ctx.fillText(prefix+t('event.hud.distance',{distance:String(distance)}),Math.max(54,Math.min(W-54,x)),Math.max(18,Math.min(H-12,y-32)));ctx.restore();
 }
@@ -1444,7 +1444,7 @@ function drawMissionReconWeakpoint(){
  const label=getLocale()==='en'?'RECON WEAK POINT +35%':'정찰 약점 · 피해 +35%';
  ctx.strokeStyle='#1b2628';ctx.fillStyle='#ffe0a1';ctx.strokeText(label,x,y-28);ctx.fillText(label,x,y-28);ctx.restore();
 }
-draw=frameTime=>{battlefieldMissionDraw(frameTime);drawMissionReconWeakpoint();const event=game?.battlefieldEvents?.current;if(!event||event.status!=='active')return;if(event.type==='PHOTO_RECON'){const wps=event.waypoints||[],active=wps.findIndex(w=>!w.done);wps.forEach((wp,index)=>{if(!wp.done)drawReconWaypoint(wp,index===active,index+1,wps.length)});return}const targets=event.type==='RESCUE'?[event.rescue]:event.type==='SUPPLY_RECOVERY'?[event.supplyDrop].filter(drop=>drop&&!drop.dead):(event.targets||[]).filter(unit=>unit.hp>0&&!unit.deathHandled);if(!targets.length)return;const visible=event.type==='BOMBER_INTERCEPT'?targets:[targets[0]];visible.forEach((target,index)=>drawBattlefieldMissionTarget(target,index,visible.length,event.type));};
+draw=frameTime=>{battlefieldMissionDraw(frameTime);drawMissionReconWeakpoint();const event=game?.battlefieldEvents?.current;if(!event||event.status!=='active')return;if(event.type==='PHOTO_RECON'){const wps=event.waypoints||[],active=wps.findIndex(w=>!w.done);wps.forEach((wp,index)=>{if(!wp.done)drawReconWaypoint(wp,index===active,index+1,wps.length)});return}const targets=event.type==='RESCUE'||event.type==='RECON_ESCORT'?[event.rescue]:event.type==='SUPPLY_RECOVERY'?[event.supplyDrop].filter(drop=>drop&&!drop.dead):(event.targets||[]).filter(unit=>unit.hp>0&&!unit.deathHandled);if(!targets.length)return;const visible=event.type==='BOMBER_INTERCEPT'?targets:[targets[0]];visible.forEach((target,index)=>drawBattlefieldMissionTarget(target,index,visible.length,event.type));};
 
 
 // HEAD-ON Test Lab bridge. It is inert on production and only activates on the
