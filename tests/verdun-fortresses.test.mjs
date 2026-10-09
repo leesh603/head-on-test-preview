@@ -144,7 +144,7 @@ test('direct Verdun entry loads terrain and both fortress atlas layers without a
   const {paintVerdun,drawVerdunFort,releaseVerdunAssets}=await import('../verdun-art.js?v=tame3');
   const draws=[],c=new Proxy({globalAlpha:1,drawImage(...a){draws.push(a)}},{get:(o,k)=>k in o?o[k]:()=>{},set:(o,k,v)=>(o[k]=v,true)});
   paintVerdun(c,{},0,0,960,700);drawVerdunFort(c,fixture(FortDouaumont).b);drawVerdunFort(c,fixture(FortSouville).b);
-  for(const name of ['terrain-verdun-r8.webp','boss-douaumont-atlas-r8.webp','boss-douaumont-parts-r8.webp','boss-souville-atlas-r8.webp','boss-souville-parts-r8.webp']){
+  for(const name of ['terrain-verdun-r8.webp','boss-douaumont-atlas-r9.webp','boss-douaumont-parts-r9.webp','boss-souville-atlas-r9.webp','boss-souville-parts-r9.webp','boss-verdun-weapons-r9.webp']){
    assert(requests.some(url=>url.includes(name)),name+' must load on direct entry');assert(existsSync(new URL('../'+name,import.meta.url)));
   }
   assert(draws.length>20,'the terrain, body and individual parts must all render');releaseVerdunAssets();

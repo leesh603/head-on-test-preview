@@ -16,3 +16,35 @@ export const VERDUN_PART_FRAMES={"douaumont":{"mounts":{"heavy":{"size":[210,207
 }};
 
 export const VERDUN_BODY_GRID={douaumont:{columns:2,rows:1},souville:{columns:1,rows:2}};
+
+// r9 standalone weapon atlas, measured in native 1619 x 971 pixels.
+// Pivots are breech mounting centers; reach ends at the illustrated muzzle.
+// Wrecks retain the intact scale and last bearing, rather than stretching a bent barrel.
+export const VERDUN_GUN_ATLAS_SIZE=[1619,971];
+export const VERDUN_GUN_FRAMES={
+ heavy:[
+  {rect:[68,30,278,294],pivot:[139,233],reach:220},
+  {rect:[65,343,279,286],pivot:[142,227],reach:213},
+  {rect:[59,658,290,272],pivot:[147,212],reach:220}
+ ],
+ mg:[
+  {rect:[395,89,249,232],pivot:[123,181],reach:170},
+  {rect:[392,385,253,238],pivot:[126,183],reach:172},
+  {rect:[390,691,257,229],pivot:[128,176],reach:170}
+ ],
+ aa:[
+  {rect:[697,27,228,308],pivot:[114,243],reach:235},
+  {rect:[694,337,235,294],pivot:[117,234],reach:227},
+  {rect:[698,648,231,275],pivot:[113,217],reach:235}
+ ],
+ bunker:[
+  {rect:[995,97,241,228],pivot:[121,173],reach:159},
+  {rect:[987,392,258,232],pivot:[129,176],reach:157},
+  {rect:[978,687,279,232],pivot:[138,176],reach:159}
+ ],
+ pit:[
+  {rect:[1357,43,157,279],pivot:[78,220],reach:204},
+  {rect:[1358,350,165,274],pivot:[79,216],reach:200},
+  {rect:[1339,663,214,259],pivot:[97,198],reach:204}
+ ]
+};

@@ -4,7 +4,7 @@ import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './m
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=tame3&rail=38';
 import {verdunFortExtents} from './verdun-fortresses.js?v=tame3&rail=38';
 import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=tame3&rail=38';
-import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=tame3';
+import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=verdun-r9';
 import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=tame3';
 import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=tame3&rail=38';
 import {sommeExtents} from './somme-boss-layout.js?v=tame3';
