@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 // Lazily loaded atlas images also resolve after individual tests end; keep the
 // stub at file scope like the other browser-asset suites.
 globalThis.Image=class{naturalWidth=1774;naturalHeight=887;set src(value){this.url=value;if(value)queueMicrotask(()=>this.onload?.())}};
-import {FortDouaumont,FortSouville,verdunFortMuzzle} from '../verdun-fortresses.js?v=tame3&rail=40';
+import {FortDouaumont,FortSouville,verdunFortMuzzle} from '../verdun-fortresses.js?v=tame3&rail=41';
 import {VERDUN_PART_FRAMES,VERDUN_GUN_FRAMES,VERDUN_GUN_ATLAS_SIZE} from '../verdun-art-layout.js?v=verdun-r9';
 
 function context(){
