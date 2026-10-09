@@ -1,4 +1,4 @@
-// Optional native renderer QA, not browser gameplay. Uses unchanged authored assets.
+// Optional native renderer QA, not browser gameplay. Uses production authored assets.
 // HEADON_QA_OUT selects a scratch output folder; never rewrites game artwork.
 import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
@@ -22,7 +22,7 @@ globalThis.Image=class extends Image{
   super.src=readFileSync(path);
  }get src(){return super.src}
 };
-const view=await import('../gallipoli-view.js?v=tame3'),{drawStageBoss}=await import('../stageboss-view.js'),{fxArtReady}=await import('../fx-art.js?v=tame3'),{fixture,step}=await import('../tests/stageboss-fixture94.mjs'),{createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE}=await import('../gallipoli-route.js');
+const view=await import('../gallipoli-view.js?v=gallipoli-r10'),{drawStageBoss}=await import('../stageboss-view.js'),{fxArtReady}=await import('../fx-art.js?v=tame3'),{fixture,step}=await import('../tests/stageboss-fixture94.mjs'),{createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE}=await import('../gallipoli-route.js');
 
 await view.prepareGallipoliAssets(14);await fxArtReady;
 const {planeSprite,aircraftReady}=await import('../aircraft.js?v=tame3');await aircraftReady;
