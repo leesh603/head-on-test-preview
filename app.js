@@ -9,7 +9,7 @@ import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=tame3';
 import {paintVerdun} from './verdun-art.js?v=tame3';
 import {paintGallipoli,prepareGallipoliAssets} from './gallipoli-view.js?v=gallipoli-r10';
 import {createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=tame3&rail=42';
-import {paintMaan,prepareMaanAssets} from './maan-view.js?v=tame3';
+import {paintMaan,prepareMaanAssets} from './maan-view.js?v=maan-r3';
 import {drawRegionalBug} from './regional-boss-view352.js?v=tame3';
 import {drawGust3} from './atmosphere-role3.js?v=tame3';
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=tame3';
@@ -25,7 +25,7 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=tame3';
 import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=tame3';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=tame3';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=tame3&hints=1&treads=2&rail=42';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=tame3&hints=1&treads=2&rail=42&maan=3';
 import {paintParis} from './paris-night-art.js?v=tame3';
 import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=tame3&hints=1&rail=42';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=tame3';

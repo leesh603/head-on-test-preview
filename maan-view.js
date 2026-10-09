@@ -1,15 +1,14 @@
-import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=tame3';
+import {MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=maan-r3';
 import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
 import {sandOpacity} from './maan-weather.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 import {drawTracerBolt} from './projectiles.js?v=tame3&rail=42';
 import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=tame3';
 import {drawShellFlight} from './boss-rounds.js?v=tame3';
-export const MAAN_ASSETS=Object.freeze({terrain:'terrain-maan-r2.webp',workshop:'maan-workshop-r2.webp',wusten:'boss-maan-wusten-r2.webp',sinai:'boss-maan-sinai-r2.webp',car:'boss-maan-rolls-royce.webp'});
+import {MAAN_ART_COLUMNS,MAAN_TRACK_WINDOWS,maanArtState,maanHullSprite,maanWorkshopSpread} from './maan-art.js?v=maan-r3';
+export const MAAN_ASSETS=Object.freeze({terrain:'terrain-maan-r2.webp',workshop:'maan-workshop-r3.webp',wusten:'boss-maan-wusten-r3.webp',sinai:'boss-maan-sinai-r3.webp',car:'boss-maan-rolls-royce.webp'});
 const images=new Map();let ground=null;
-const _filterBakes=new WeakMap();
-function bakedFiltered(img,filter){if(!img?.naturalWidth)return img;let m=_filterBakes.get(img);if(!m){m=new Map();_filterBakes.set(img,m)}let cv=m.get(filter);if(cv===undefined){cv=document.createElement('canvas');cv.width=img.naturalWidth;cv.height=img.naturalHeight;const cc=cv.getContext('2d');cc.filter=filter;cc.drawImage(img,0,0);m.set(filter,cv)}return cv}
-const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=r5';images.set(key,im);return im;};
+const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=maan-r3';images.set(key,im);return im;};
 export function prepareMaanAssets(region){
  if(region!==13){images.clear();ground=null;return Promise.resolve();}
  return Promise.all(Object.keys(MAAN_ASSETS).map(key=>{const im=load(key);if(im.complete&&im.naturalWidth)return Promise.resolve();return new Promise((resolve,reject)=>{im.onload=()=>{if(!im.naturalWidth){reject(new Error('Ma’an empty asset: '+MAAN_ASSETS[key]));return}(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.onerror=()=>reject(new Error('Ma’an asset: '+MAAN_ASSETS[key]));});})).then(()=>{seamlessGround(load('terrain'));});
@@ -30,54 +29,39 @@ export function paintMaan(c,g,cx,cy,width,height){
  for(const q of maanGroundTiles(cx,cy,width,height,pw,ph))c.drawImage(tile,q.x,q.y,q.width,q.height);
  c.restore();
 }
-// Equal atlas columns share the hull axis and full cell size. Never trim each
-// damage state independently: part ownership must stay registered to the hull.
-function drawHullImage(c,im,l,state=0){if(im.naturalWidth)c.drawImage(im,state*im.naturalWidth/2,0,im.naturalWidth/2,im.naturalHeight,-l.width/2,-l.height/2,l.width,l.height);}
-const regionCache=new Map();
-function regions(kind){
- if(regionCache.has(kind))return regionCache.get(kind);const l=MAAN_LAYOUT[kind],step=4,rows=[];
- for(let y=-l.height/2;y<l.height/2;y+=step){let last=null,start=-l.width/2;
-  const owner=x=>l.parts.reduce((best,p)=>{const d=((x-p[1])/p[3])**2+((y+step/2-p[2])/p[4])**2;return !best||d<best?{id:p[0],d}:best;},null).id;
-  for(let x=-l.width/2;x<=l.width/2;x+=step){const id=x>=l.width/2?null:owner(x+step/2);if(last!==id){if(last)rows.push({id:last,x:start,y,w:x-start,h:Math.min(step,l.height/2-y)});last=id;start=x;}}
- }regionCache.set(kind,rows);return rows;
-}
 export function drawMaanWorkshop(c,b){
  const f=b.workshop,im=load('workshop');if(!im.naturalWidth||!f)return;
- const cw=im.naturalWidth/2,ch=im.naturalHeight,x=f.x-f.width/2,y=f.y-f.height/2;
+ const cw=im.naturalWidth/MAAN_ART_COLUMNS,ch=im.naturalHeight,x=f.x-f.width/2,y=f.y-f.height/2;
  const age=f.destroyedAt==null?-1:b.entryAge-f.destroyedAt;
  c.save();c.imageSmoothingEnabled=true;
  if(age<0){
   const shake=b.entryAge>MAAN_ENTRY.ignition?Math.sin(b.entryAge*45)*1.1:0;
   c.drawImage(im,0,0,cw,ch,x+shake,y,f.width,f.height);
  }else{
-  // Break up the authored roof itself. Every fragment keeps the original art
-  // and alpha, then lands outside the tank's exit corridor as scorched rubble.
-  const columns=8,rows=10,flight=Math.min(age,2.8),settled=age>=2.8;
-  const rim=settled?bakedFiltered(im,'brightness(.5) saturate(.55)'):im;
-  for(let row=0;row<rows;row++)for(let col=0;col<columns;col++){
-   const i=row*columns+col,side=col<columns/2?-1:1,w=f.width/columns,h=f.height/rows;
-   const dx=(col+.5)*w-f.width/2,dy=(row+.5)*h-f.height/2,pace=.75+(Math.sin(i*13.7)+1)*.25;
-   const px=f.x+dx+side*(80+Math.abs(dx)*.18)*flight*pace,py=f.y+dy+(row-3.5)*15*flight+25*flight*flight;
-   c.save();c.translate(px,py);c.rotate(side*flight*(.25+(i%5)*.12));c.globalAlpha=settled?.55:1;
-   c.beginPath();c.moveTo(-w*.5,-h*(.2+(i%3)*.1));c.lineTo(-w*.2,-h*.5);c.lineTo(w*.5,-h*.32);c.lineTo(w*(.2+(i%4)*.07),h*.5);c.lineTo(-w*.5,h*.24);c.closePath();c.clip();
-   c.drawImage(rim,col*cw/columns,row*ch/rows,cw/columns,ch/rows,-w/2,-h/2,w,h);c.restore();
+  // Authored open corridor replaces the old eighty flying roof crops.
+  // Two roof wings move outward before the hull starts its forward emergence.
+  // Their inner bounds guarantee a hull-width corridor even at protruding beams.
+  const settle=Math.max(0,Math.min(1,(age-.65)/.8));
+  const spread=maanWorkshopSpread(age,b.layout.width);
+  for(const [state,opacity] of [[1,1-settle],[2,settle]])if(opacity>0){
+   c.globalAlpha=opacity;
+   c.drawImage(im,state*cw,0,cw/2,ch,x-spread,y,f.width/2,f.height);
+   c.drawImage(im,state*cw+cw/2,0,cw/2,ch,f.x+spread,y,f.width/2,f.height);
   }
+  c.globalAlpha=1;
   if(age<3.2)for(let i=0;i<7;i++){const q=(age*.65+i/7)%1;fx(c,'smokeDust',f.x+(i-3)*66,f.openingY-110-q*160,150+q*140,140+q*130,0,(1-q)*Math.max(0,1-age/3.2)*.65);}
  }
  c.restore();
 }
-const trackStrips={
- wustenpanzer:[['track-left',-88,157,26,112],['track-right',88,157,26,112]],
- 'sinai-landship':[['track-front-left',-36,-238,21,35],['track-front-right',36,-238,21,35],['track-rear-left',-57,228,23,46],['track-rear-right',57,228,23,46]]
-};
 function drawTracks(c,b,im){
  if(b.dead||!im.naturalWidth)return;
- const l=b.layout,sx=im.naturalWidth/2/l.width,sy=im.naturalHeight/l.height;
- for(const [id,x,y,w,h] of trackStrips[b.kind]||[]){
-  const p=b.parts.get(id);if(p.destroyed)continue;
+ const l=b.layout,sx=im.naturalWidth/MAAN_ART_COLUMNS/l.width,sy=im.naturalHeight/l.height;
+ for(const [id,x,y,w,h] of MAAN_TRACK_WINDOWS[b.kind]||[]){
+  const p=b.parts.get(id);if(!p||p.destroyed)continue;
+  const column=maanArtState(p)*im.naturalWidth/MAAN_ART_COLUMNS;
   const pitch=b.kind==='wustenpanzer'?11:9,offset=((p.trackRoll||0)%pitch+pitch)%pitch;
   c.save();c.beginPath();c.rect(x-w/2,y-h/2,w,h);c.clip();
-  for(let dy=-h/2-pitch+offset;dy<h/2;dy+=pitch)c.drawImage(im,(x-w/2+l.width/2)*sx,(y+l.height/2-pitch/2)*sy,w*sx,pitch*sy,x-w/2,y+dy,w,pitch);
+  for(let dy=-h/2-pitch+offset;dy<h/2;dy+=pitch)c.drawImage(im,column+(x-w/2+l.width/2)*sx,(y+l.height/2-pitch/2)*sy,w*sx,pitch*sy,x-w/2,y+dy,w,pitch);
   c.restore();
  }
 }
@@ -94,27 +78,16 @@ export function drawMaanBoss(c,b){
   if(b.gunFlash>0)fx(c,'muzzleTwin',0,-31,23,23,-Math.PI/2,Math.min(1,b.gunFlash/.06));
   c.restore();return true;}
  const l=b.layout,t=b.entryAge,key=b.kind==='wustenpanzer'?'wusten':'sinai',im=load(key);
- const parts=b.parts,broken=[...parts.values()].some(p=>p.destroyed||p.hp<p.maxHp*.5);
- const main=parts.get('heavy-gun'),recoil=!b.dead&&!main?.destroyed?main?.recoil||0:0;
- c.save();
- if(recoil>0){c.beginPath();c.rect(-l.width/2-20,-l.height/2-20,l.width+40,l.height+40);c.rect(-12,-260,24,100);c.clip('evenodd');}
- if(b.dead)drawHullImage(c,im,l,1);
- else if(!broken)drawHullImage(c,im,l);
- else if(im.naturalWidth){
-  const signature=[...parts.values()].map(p=>p.destroyed||p.hp<=p.maxHp*.5?'1':'0').join('');
-  if(b._maanSprite?.signature!==signature){
-   const canvas=document.createElement('canvas');canvas.width=l.width;canvas.height=l.height;const cc=canvas.getContext('2d'),cw=im.naturalWidth/2;
-   for(const r of regions(b.kind)){const p=parts.get(r.id),state=p&&(p.destroyed||p.hp<=p.maxHp*.5)?1:0;
-    cc.drawImage(im,state*cw+(r.x+l.width/2)/l.width*cw,(r.y+l.height/2)/l.height*im.naturalHeight,r.w/l.width*cw,r.h/l.height*im.naturalHeight,r.x+l.width/2,r.y+l.height/2,r.w,r.h);}
-   b._maanSprite={signature,canvas};
-  }
-  c.drawImage(b._maanSprite.canvas,-l.width/2,-l.height/2);
+ const parts=b.parts,main=parts.get('heavy-gun'),sprite=maanHullSprite(b,im);
+ const recoil=!b.dead&&!main?.destroyed?main?.recoil||0:0;
+ // The barrel is always isolated from this same registered hull composite.
+ // Both body and barrel therefore retain the correct individual damage state.
+ if(sprite){
+  c.save();
+  if(recoil>0){c.beginPath();c.rect(-l.width/2-20,-l.height/2-20,l.width+40,l.height+40);c.rect(-12,-260,24,100);c.clip('evenodd');}
+  c.drawImage(sprite,-l.width/2,-l.height/2);c.restore();
+  if(recoil>0)c.drawImage(sprite,l.width/2-12,0,24,100,-12,-260+recoil,24,100);
  }
- c.restore();
- // Retract the original steel barrel inside its existing breech. No new
- // plate, black cover or rotating rectangular crop replaces the artwork.
- if(recoil>0&&im.naturalWidth){const cw=im.naturalWidth/2,state=main.hp<main.maxHp*.5?1:0;
-  c.drawImage(im,state*cw+(l.width/2-12)/l.width*cw,0,24/l.width*cw,100/l.height*im.naturalHeight,-12,-260+recoil,24,100);}
  drawTracks(c,b,im);
  c.filter='none';
  const time=b.motionTime||0;

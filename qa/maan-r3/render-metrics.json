@@ -1,0 +1,485 @@
+{
+  "workshop": {
+    "settledCorridorClear": true,
+    "hullWidth": 248
+  },
+  "tile": {
+    "width": 1104,
+    "height": 1104,
+    "edgesExact": true
+  },
+  "groundMeanMs": 7.022162030000017,
+  "wusten-pc-warnings": [
+    {
+      "visual": "maan-mg",
+      "phase": "active",
+      "x": 764.3817149964718,
+      "y": 632.1839011257695,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "active",
+      "x": 768.9682170261544,
+      "y": 630.2865676357266,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "active",
+      "x": 773.1839889570384,
+      "y": 627.9004461935878,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "active",
+      "x": 777.9944080433057,
+      "y": 623.03789175247,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "active",
+      "x": 781.2600663732832,
+      "y": 619.772148999113,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "active",
+      "x": 784.0361805878352,
+      "y": 616.1551074044685,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 788,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 788,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 788,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 788,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 788,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 788,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 788,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 788,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 788,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 788,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 788,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 788,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "wusten-impact",
+      "phase": "warning",
+      "x": 720,
+      "y": 720,
+      "radius": 44
+    },
+    {
+      "visual": "maan-sand-ring",
+      "phase": "warning",
+      "x": 720,
+      "y": 720,
+      "radius": 38
+    }
+  ],
+  "wusten-pc": {
+    "meanMs": 6.3758804249998775,
+    "p95Ms": 10.238675000000512
+  },
+  "wusten-mobile-warnings": [
+    {
+      "visual": "maan-mg",
+      "phase": "active",
+      "x": 230.1774478674289,
+      "y": 600.2173558553053,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "active",
+      "x": 234.16331754908896,
+      "y": 603.1751790619126,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "active",
+      "x": 238.3777375158764,
+      "y": 605.5636875616686,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "active",
+      "x": 245.0218355223206,
+      "y": 607.1886580718997,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "active",
+      "x": 249.50204487699443,
+      "y": 608.309962757321,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "active",
+      "x": 254.0317878722276,
+      "y": 608.8307587123392,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 263,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 263,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 263,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 263,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 263,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 263,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 263,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 263,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 263,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 263,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 263,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 263,
+      "y": 608.075,
+      "radius": 4
+    },
+    {
+      "visual": "wusten-impact",
+      "phase": "warning",
+      "x": 195,
+      "y": 607.68,
+      "radius": 44
+    },
+    {
+      "visual": "maan-sand-ring",
+      "phase": "warning",
+      "x": 195,
+      "y": 607.68,
+      "radius": 38
+    }
+  ],
+  "wusten-mobile": {
+    "meanMs": 4.476973841666647,
+    "p95Ms": 6.0992910000004485
+  },
+  "sinai-pc-warnings": [
+    {
+      "visual": "sinai-impact",
+      "phase": "warning",
+      "x": 633,
+      "y": 720,
+      "radius": 44
+    },
+    {
+      "visual": "sinai-impact",
+      "phase": "warning",
+      "x": 691,
+      "y": 750,
+      "radius": 44
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "active",
+      "x": 720,
+      "y": 609.7859999999998,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "active",
+      "x": 719.5157011973072,
+      "y": 591.1009791567789,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 720,
+      "y": 576.7329999999998,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 720,
+      "y": 576.7329999999998,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 720,
+      "y": 576.7329999999998,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 720,
+      "y": 576.7329999999998,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 720,
+      "y": 576.7329999999998,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 720,
+      "y": 576.7329999999998,
+      "radius": 4
+    },
+    {
+      "visual": "sinai-impact",
+      "phase": "warning",
+      "x": 749,
+      "y": 780,
+      "radius": 44
+    },
+    {
+      "visual": "sinai-impact",
+      "phase": "warning",
+      "x": 807,
+      "y": 810,
+      "radius": 44
+    }
+  ],
+  "sinai-pc": {
+    "meanMs": 6.524663358333465,
+    "p95Ms": 9.031928000000335
+  },
+  "sinai-mobile-warnings": [
+    {
+      "visual": "sinai-impact",
+      "phase": "warning",
+      "x": 108,
+      "y": 607.68,
+      "radius": 44
+    },
+    {
+      "visual": "sinai-impact",
+      "phase": "warning",
+      "x": 166,
+      "y": 637.68,
+      "radius": 44
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "active",
+      "x": 195.00000000000003,
+      "y": 531.7859999999998,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "active",
+      "x": 194.51570119730727,
+      "y": 513.1009791567787,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 195.00000000000003,
+      "y": 498.73299999999983,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 195.00000000000003,
+      "y": 498.73299999999983,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 195.00000000000003,
+      "y": 498.73299999999983,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 195.00000000000003,
+      "y": 498.73299999999983,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 195.00000000000003,
+      "y": 498.73299999999983,
+      "radius": 4
+    },
+    {
+      "visual": "maan-mg",
+      "phase": "waiting",
+      "x": 195.00000000000003,
+      "y": 498.73299999999983,
+      "radius": 4
+    },
+    {
+      "visual": "sinai-impact",
+      "phase": "warning",
+      "x": 224,
+      "y": 667.68,
+      "radius": 44
+    },
+    {
+      "visual": "sinai-impact",
+      "phase": "warning",
+      "x": 282,
+      "y": 697.68,
+      "radius": 44
+    }
+  ],
+  "sinai-mobile": {
+    "meanMs": 5.19373506666675,
+    "p95Ms": 6.912927000001218
+  },
+  "missingAssetCount": 0
+}
