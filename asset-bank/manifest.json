@@ -1,368 +1,56 @@
 {
-  "purpose": "Stock asset bank for HEAD-ON — pre-generated painterly sprites and terrain tiles, not yet registered in-game. Use candidates for new aces/bosses/stages.",
-  "planes": {
-    "nieuport_11_bebe": {
-      "name": "Nieuport 11 Bébé",
-      "faction": "entente",
-      "era": "1916"
-    },
-    "nieuport_24": {
-      "name": "Nieuport 24",
-      "faction": "entente",
-      "era": "1917"
-    },
-    "sopwith_pup": {
-      "name": "Sopwith Pup",
-      "faction": "entente",
-      "era": "1917"
-    },
-    "sopwith_dolphin": {
-      "name": "Sopwith Dolphin",
-      "faction": "entente",
-      "era": "1918"
-    },
-    "sopwith_strutter": {
-      "name": "Sopwith 1½ Strutter",
-      "faction": "entente",
-      "era": "1916"
-    },
-    "dh4": {
-      "name": "Airco DH.4",
-      "faction": "entente",
-      "era": "1917"
-    },
-    "re8": {
-      "name": "RE.8",
-      "faction": "entente",
-      "era": "1917"
-    },
-    "pfalz_d12": {
-      "name": "Pfalz D.XII",
-      "faction": "central",
-      "era": "1918"
-    },
-    "junkers_d1": {
-      "name": "Junkers D.I",
-      "faction": "central",
-      "era": "1918"
-    },
-    "ssw_d4": {
-      "name": "Siemens-Schuckert D.IV",
-      "faction": "central",
-      "era": "1918"
-    },
-    "hp_o400": {
-      "name": "Handley Page O/400",
-      "faction": "entente",
-      "era": "1918",
-      "role": "heavy-bomber"
-    },
-    "caudron_r11": {
-      "name": "Caudron R.11",
-      "faction": "entente",
-      "era": "1918",
-      "role": "escort-gunship"
-    },
-    "staaken_r6": {
-      "name": "Zeppelin-Staaken R.VI",
-      "faction": "central",
-      "era": "1917",
-      "role": "giant-bomber"
-    },
-    "sopwith_triplane": {
-      "name": "Sopwith Triplane",
-      "faction": "entente",
-      "era": "1917"
-    },
-    "fokker_ev": {
-      "name": "Fokker E.V/D.VIII",
-      "faction": "central",
-      "era": "1918"
-    },
-    "albatros_d3": {
-      "name": "Albatros D.III",
-      "faction": "central",
-      "era": "1917"
-    },
-    "phoenix_d1": {
-      "name": "Phönix D.I",
-      "faction": "central",
-      "era": "1917"
-    },
-    "hannover_cl3": {
-      "name": "Hannover CL.III",
-      "faction": "central",
-      "era": "1918"
-    },
-    "ilya_muromets": {
-      "name": "Sikorsky Ilya Muromets",
-      "faction": "entente",
-      "era": "1914",
-      "role": "giant-bomber"
-    },
-    "caproni_ca3": {
-      "name": "Caproni Ca.3",
-      "faction": "entente",
-      "era": "1917",
-      "role": "heavy-bomber"
-    },
-    "vickers_fb5": {
-      "name": "Vickers F.B.5 Gunbus",
-      "faction": "entente",
-      "era": "1915"
-    },
-    "dh9": {
-      "name": "Airco DH.9",
-      "faction": "entente",
-      "era": "1917",
-      "role": "day-bomber"
-    },
-    "rumpler_taube": {
-      "name": "Rumpler Taube",
-      "faction": "central",
-      "era": "1914"
-    },
-    "avro_504": {
-      "name": "Avro 504",
-      "faction": "entente",
-      "era": "1913"
-    },
-    "salmson_2a2": {
-      "name": "Salmson 2A2",
-      "faction": "entente",
-      "era": "1917",
-      "role": "recon"
-    },
-    "armstrong_fk8": {
-      "name": "Armstrong Whitworth F.K.8",
-      "faction": "entente",
-      "era": "1916",
-      "role": "recon"
-    },
-    "savoia_pomilio": {
-      "name": "Savoia-Pomilio SP.4",
-      "faction": "entente",
-      "era": "1917",
-      "role": "recon"
-    }
-  },
-  "vehicles": {
-    "railway_gun": {
-      "name": "28cm K5 Railway Gun",
-      "faction": "central",
-      "role": "boss"
-    },
-    "river_monitor": {
-      "name": "River Monitor Gunboat",
-      "role": "boss",
-      "tags": [
-        "naval",
-        "turret"
-      ]
-    },
-    "armored_train": {
-      "name": "Armored Train (loco + gun car)",
-      "role": "boss",
-      "tags": [
-        "rail"
-      ]
-    },
-    "whippet": {
-      "name": "Medium Mark A Whippet",
-      "faction": "entente",
-      "role": "tank"
-    },
-    "renault_ft": {
-      "name": "Renault FT",
-      "faction": "entente",
-      "role": "tank"
-    },
-    "schneider_ca1": {
-      "name": "Schneider CA1",
-      "faction": "entente",
-      "role": "tank"
-    },
-    "uboat": {
-      "name": "U-Boat (surfaced)",
-      "faction": "central",
-      "role": "naval"
-    },
-    "destroyer": {
-      "name": "Destroyer",
-      "role": "naval"
-    },
-    "mas_boat": {
-      "name": "MAS Torpedo Boat",
-      "faction": "entente",
-      "role": "naval"
-    }
-  },
-  "terrain": {
-    "gallipoli_coast": {
-      "name": "Gallipoli Coast",
-      "tags": [
-        "beach",
-        "hills",
-        "trenches"
-      ]
-    },
-    "passchendaele_mud": {
-      "name": "Passchendaele Mud",
-      "tags": [
-        "craters",
-        "flooded",
-        "trenches"
-      ]
-    },
-    "argonne_forest": {
-      "name": "Meuse-Argonne Forest",
-      "tags": [
-        "forest",
-        "autumn",
-        "trenches",
-        "stream"
-      ]
-    },
-    "alpine_snow": {
-      "name": "Alpine Peaks",
-      "tags": [
-        "snow",
-        "rock",
-        "trenches"
-      ]
-    },
-    "piave_lagoon": {
-      "name": "Piave River / Venetian Lagoon",
-      "tags": [
-        "river",
-        "lagoon",
-        "trenches"
-      ]
-    },
-    "zeebrugge_coast": {
-      "name": "Zeebrugge Coast / Mole",
-      "tags": [
-        "coast",
-        "harbor",
-        "trenches"
-      ]
-    },
-    "isonzo_karst": {
-      "name": "Isonzo Karst",
-      "tags": [
-        "rock",
-        "trenches",
-        "plateau"
-      ]
-    },
-    "winter_front": {
-      "name": "Eastern Front Winter",
-      "tags": [
-        "snow",
-        "frozen",
-        "trenches"
-      ]
-    },
-    "sinai_dunes": {
-      "name": "Sinai Dunes",
-      "tags": [
-        "desert",
-        "railway",
-        "oasis"
-      ]
-    },
-    "mesopotamia_river": {
-      "name": "Tigris / Mesopotamia",
-      "tags": [
-        "river",
-        "palms",
-        "villages"
-      ]
-    }
-  },
-  "notes": "Planes/vehicles: transparent PNG-alpha, nose-up, top-down painterly style matching plane-bank.,Terrain: square painterly tiles intended for the seamlessGround world-locked tiling (8% bleed bake) — see verdun-ground.js / maan-view.js.,Terrain sea/ridge features sit near edges; bake pass feathers seams.\n\ntemplates/: 무채색 리넨 밑바탕 — livery-studio.html에서 도색해 변형 제작. liveries/: 도색 스튜디오 산출물 보관용.",
-  "seaplanes": {
-    "friedrichshafen_ff33": {
-      "name": "Friedrichshafen FF.33",
-      "faction": "central",
-      "era": "1915"
-    },
-    "short_184": {
-      "name": "Short 184",
-      "faction": "entente",
-      "era": "1915"
-    },
-    "sopwith_baby": {
-      "name": "Sopwith Baby",
-      "faction": "entente",
-      "era": "1915"
-    },
-    "fba_h": {
-      "name": "FBA Type H",
-      "faction": "entente",
-      "era": "1915"
-    },
-    "hansa_w12": {
-      "name": "Hansa-Brandenburg W.12",
-      "faction": "central",
-      "era": "1917"
-    },
-    "gotha_wd14": {
-      "name": "Gotha WD.14",
-      "faction": "central",
-      "era": "1916",
-      "role": "torpedo"
-    }
-  },
-  "airships": {
-    "zeppelin_l30": {
-      "name": "Zeppelin L.30",
-      "faction": "central",
-      "role": "rigid"
-    },
-    "ss_blimp": {
-      "name": "SS Type Blimp",
-      "faction": "entente",
-      "role": "patrol"
-    },
-    "parseval_pl25": {
-      "name": "Parseval PL.25",
-      "faction": "central",
-      "role": "non-rigid"
-    }
-  },
-  "templates": {
-    "primer_biplane": {
-      "name": "도색용 밑바탕 · biplane",
-      "role": "paint-template"
-    },
-    "primer_sesquiplane": {
-      "name": "도색용 밑바탕 · sesquiplane",
-      "role": "paint-template"
-    },
-    "primer_triplane": {
-      "name": "도색용 밑바탕 · triplane",
-      "role": "paint-template"
-    },
-    "primer_monoplane": {
-      "name": "도색용 밑바탕 · monoplane",
-      "role": "paint-template"
-    },
-    "primer_pusher": {
-      "name": "도색용 밑바탕 · pusher",
-      "role": "paint-template"
-    },
-    "primer_giant": {
-      "name": "도색용 밑바탕 · giant",
-      "role": "paint-template"
-    },
-    "primer_twoseat": {
-      "name": "도색용 밑바탕 · twoseat",
-      "role": "paint-template"
-    },
-    "primer_float": {
-      "name": "도색용 밑바탕 · float",
-      "role": "paint-template"
-    }
+  "note": "Candidate sprite stock — NOT wired into the game. Keyed webp sprites (border flood-fill white cutout, alpha-cropped, max 768px) generated with in-game sprite references as the style source. Source PNGs archived at C:\\Users\\Administrator\\asset-src\\gen-batch1 on the build box. Batch 1: 17 new type sprites + 21 ace liveries + 6 boss concepts.",
+  "generated": "2026-10-09",
+  "categories": {
+    "planes": [
+      {"file": "planes/ssw_d3.webp", "name": "Siemens-Schuckert D.III", "nation": "germany", "role": "scout", "year": 1918},
+      {"file": "planes/sopwith_dolphin.webp", "name": "Sopwith Dolphin (negative stagger)", "nation": "britain", "role": "scout", "year": 1918},
+      {"file": "planes/roland_d6b.webp", "name": "Roland D.VIb 'Walfisch' (lozenge)", "nation": "germany", "role": "scout", "year": 1918},
+      {"file": "planes/junkers_d1.webp", "name": "Junkers D.I corrugated monoplane", "nation": "germany", "role": "monoplane scout", "year": 1918},
+      {"file": "planes/junkers_j1.webp", "name": "Junkers J.I armored sesquiplane", "nation": "germany", "role": "ground attack", "year": 1917},
+      {"file": "planes/gotha_g4.webp", "name": "Gotha G.IV twin heavy bomber", "nation": "germany", "role": "heavy bomber", "year": 1917},
+      {"file": "planes/macchi_m5.webp", "name": "Macchi M.5 flying boat fighter", "nation": "italy", "role": "flying boat", "year": 1917},
+      {"file": "planes/re8.webp", "name": "R.E.8", "nation": "britain", "role": "reconnaissance", "year": 1917},
+      {"file": "planes/dh4.webp", "name": "Airco DH.4", "nation": "britain", "role": "day bomber", "year": 1917},
+      {"file": "planes/pfalz_d12.webp", "name": "Pfalz D.XII", "nation": "germany", "role": "scout", "year": 1918},
+      {"file": "planes/sopwith_strutter.webp", "name": "Sopwith 1½ Strutter", "nation": "britain/france", "role": "two-seat scout", "year": 1916},
+      {"file": "planes/voisin_8.webp", "name": "Voisin VIII pusher", "nation": "france", "role": "night bomber", "year": 1917},
+      {"file": "planes/fokker_e4.webp", "name": "Fokker E.IV Eindecker", "nation": "germany", "role": "monoplane scout", "year": 1916},
+      {"file": "planes/aeg_c4.webp", "name": "AEG C.IV", "nation": "germany", "role": "reconnaissance", "year": 1916},
+      {"file": "planes/caudron_g4.webp", "name": "Caudron G.4 twin-engine lattice-tail", "nation": "france", "role": "bomber", "year": 1916},
+      {"file": "planes/felixstowe_f2a.webp", "name": "Felixstowe F.2A flying boat", "nation": "britain", "role": "patrol flying boat", "year": 1918},
+      {"file": "planes/staaken_r6.webp", "name": "Zeppelin-Staaken R.VI giant", "nation": "germany", "role": "giant bomber", "year": 1918}
+    ],
+    "aces": [
+      {"file": "aces/mai_fokkerd7.webp", "name": "Fokker D.VII (Josef Mai, zebra)", "nation": "germany", "ace": "Josef Mai", "year": 1918},
+      {"file": "aces/kissenberth_albatros.webp", "name": "Albatros D.V (Kissenberth, lozenge)", "nation": "germany", "ace": "Otto Kissenberth", "year": 1918},
+      {"file": "aces/menckhoff_albatros.webp", "name": "Albatros D.V (Menckhoff, green/white)", "nation": "germany", "ace": "Carl Menckhoff", "year": 1917},
+      {"file": "aces/lufbery_spad7.webp", "name": "SPAD VII (Lufbery, Lafayette)", "nation": "france/usa", "ace": "Raoul Lufbery", "year": 1917},
+      {"file": "aces/boyau_spad13.webp", "name": "SPAD XIII (Boyau, serpent)", "nation": "france", "ace": "Maurice Boyau", "year": 1918},
+      {"file": "aces/tarascon_nieuport24.webp", "name": "Nieuport 24 (Tarascon 'Zigomar', red)", "nation": "france", "ace": "Paul Tarascon", "year": 1917},
+      {"file": "aces/mcelroy_se5a.webp", "name": "SE5a (McElroy)", "nation": "britain", "ace": "George McElroy", "year": 1918},
+      {"file": "aces/nieuport28_hatring.webp", "name": "Nieuport 28 (USAS 'Hat in the Ring')", "nation": "usa", "ace": "94th Aero Squadron", "year": 1918},
+      {"file": "aces/bourjade_spad13.webp", "name": "SPAD XIII (Bourjade, blue butterfly)", "nation": "france", "ace": "Leonard Bourjade", "year": 1918},
+      {"file": "aces/piccio_spad7.webp", "name": "SPAD VII (Piccio)", "nation": "italy", "ace": "Pier Ruggero Piccio", "year": 1917},
+      {"file": "aces/thieffry_hanriot.webp", "name": "Hanriot HD.1 (Thieffry, white)", "nation": "belgium", "ace": "Andre Thieffry", "year": 1918},
+      {"file": "aces/smirnov_nieuport.webp", "name": "Nieuport 17 (Smirnov, skull)", "nation": "russia", "ace": "Ivan Smirnov", "year": 1917},
+      {"file": "aces/aviatik_d1_falcon.webp", "name": "Aviatik D.I (Linke-Crawford, falcon)", "nation": "austria-hungary", "ace": "Frank Linke-Crawford", "year": 1918},
+      {"file": "aces/arigi_aviatik.webp", "name": "Aviatik D.I (Arigi, witch)", "nation": "austria-hungary", "ace": "Julius Arigi", "year": 1918},
+      {"file": "aces/schaefer_albatros.webp", "name": "Albatros D.III (Schaefer, black/red)", "nation": "germany", "ace": "Karl Emil Schaefer", "year": 1917},
+      {"file": "aces/kirschstein_dri.webp", "name": "Fokker Dr.I (Kirschstein, yellow/white)", "nation": "germany", "ace": "Hans Kirschstein", "year": 1918},
+      {"file": "aces/loerzer_albatros.webp", "name": "Albatros D.III (Loerzer, checkerboard)", "nation": "germany", "ace": "Bruno Loerzer", "year": 1917},
+      {"file": "aces/degelow_pfalz.webp", "name": "Pfalz D.IIIa (Degelow, white stag)", "nation": "germany", "ace": "Carl Degelow", "year": 1918},
+      {"file": "aces/madon_spad13.webp", "name": "SPAD XIII (Madon, black)", "nation": "france", "ace": "Georges Madon", "year": 1918},
+      {"file": "aces/heurtaux_spad7.webp", "name": "SPAD VII (Heurtaux, white stag)", "nation": "france", "ace": "Alfred Heurtaux", "year": 1917},
+      {"file": "aces/coiffard_spad13.webp", "name": "SPAD XIII (Coiffard, red/white bands)", "nation": "france", "ace": "Michel Coiffard", "year": 1918}
+    ],
+    "bosses": [
+      {"file": "bosses/uboat.webp", "name": "U-9 class surfaced U-boat", "kind": "naval boss hull"},
+      {"file": "bosses/monitor.webp", "name": "Monitor gunboat (twin turret)", "kind": "naval boss hull"},
+      {"file": "bosses/friedrichshafen_g3.webp", "name": "Friedrichshafen G.III bomber", "kind": "formation boss airframe"},
+      {"file": "bosses/carrier_furious.webp", "name": "HMS Furious experimental carrier", "kind": "naval boss hull"},
+      {"file": "bosses/armored_cruiser.webp", "name": "Armored cruiser", "kind": "naval boss hull"},
+      {"file": "bosses/balloon_tender.webp", "name": "Balloon tender ship + drachen", "kind": "naval boss hull"}
+    ]
   }
 }
