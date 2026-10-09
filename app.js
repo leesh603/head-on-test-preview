@@ -1382,7 +1382,7 @@ function syncBattlefieldEventUi(){
  }else{
   hideBattlefieldEvent();
   // Auto-started missions announce themselves through a toast.
-  if(event?.status==='active'){const signature=event.id+':announced:'+getLocale();if(signature!==shownBattlefieldEvent){shownBattlefieldEvent=signature;$('toast').textContent=t(`event.${event.type}.title`)+' · '+t('event.hud.status');show('toast');toastUntil=performance.now()+2400}}
+  if(event?.status==='active'){const signature=event.id+':announced:'+getLocale();if(signature!==shownBattlefieldEvent){shownBattlefieldEvent=signature;$('toast').textContent=t(`event.${event.type}.title`)+' · '+t(`event.reward.${event.type}`);show('toast');toastUntil=performance.now()+2400}}
  }
  const result=state?.result;if(!result)return;const signature=result.id+':'+result.outcome;if(signature===shownBattlefieldResult)return;shownBattlefieldResult=signature;
  $('toast').textContent=t(`event.${result.outcome}`);show('toast');toastUntil=performance.now()+2200;
@@ -1407,12 +1407,13 @@ function syncBattlefieldMissionHud(){
  else if(event.type==='BOMBER_INTERCEPT'){objective=t('event.hud.bombers',{done:String(destroyed),total:String(targets.length)});meta=t('event.hud.time',{seconds:String(Math.max(0,Math.ceil(event.deadline-game.t)))} )}
  else if(event.type==='RESCUE'){const rescue=event.rescue,percent=Math.max(0,Math.round(100*(rescue?.hp||0)/(rescue?.maxHp||1)));objective=t('event.hud.rescue');meta=t('event.hud.hp',{percent:String(percent)})+' · '+t('event.hud.time',{seconds:String(Math.max(0,Math.ceil(event.endsAt-game.t)))})}
  else if(event.type==='PHOTO_RECON'){const wps=event.waypoints||[],done=wps.filter(w=>w.done).length;objective=t('event.hud.recon',{done:String(done),total:String(wps.length)});meta=t('event.hud.time',{seconds:String(Math.max(0,Math.ceil(event.deadline-game.t)))})}
+ else if(event.type==='SUPPLY_RECOVERY'){objective=t('event.hud.supply');meta=t('event.hud.time',{seconds:String(Math.max(0,Math.ceil(event.deadline-game.t)))})}
  else {objective=t('event.hud.ace',{done:String(destroyed)});meta=t('event.hud.time',{seconds:String(Math.max(0,Math.ceil(event.deadline-game.t)))})}
- $('eventMissionObjective').textContent=objective;$('eventMissionMeta').textContent=meta;show('eventMissionHud');
+ $('eventMissionObjective').textContent=objective;$('eventMissionMeta').textContent=meta+' · '+t(`event.reward.${event.type}`);show('eventMissionHud');
  const notice=event.type==='ACE_CHALLENGE'?event.id+':'+getLocale():'';if(notice&&notice!==shownBattlefieldMissionNotice){shownBattlefieldMissionNotice=notice;$('toast').textContent=t('event.notice.ace');show('toast');toastUntil=performance.now()+1800}
 }
 const syncBattlefieldEventUiWithMissionHud=syncBattlefieldEventUi;
-syncBattlefieldEventUi=()=>{syncBattlefieldEventUiWithMissionHud();syncBattlefieldMissionHud();const result=game?.battlefieldEvents?.result;if(!result){shownBattlefieldFeedback='';return}const signature=result.id+':'+result.outcome;if(signature===shownBattlefieldFeedback)return;shownBattlefieldFeedback=signature;if(result.outcome==='completed'){$('toast').textContent=t('event.complete');show('toast');toastUntil=performance.now()+1800}else if(result.outcome==='failed'){$('toast').textContent=t(`event.failedReason.${result.reason||'timeExpired'}`);show('toast');toastUntil=performance.now()+1800}};
+syncBattlefieldEventUi=()=>{syncBattlefieldEventUiWithMissionHud();syncBattlefieldMissionHud();const result=game?.battlefieldEvents?.result;if(!result){shownBattlefieldFeedback='';return}const signature=result.id+':'+result.outcome;if(signature===shownBattlefieldFeedback)return;shownBattlefieldFeedback=signature;if(result.outcome==='completed'){$('toast').textContent=t('event.complete')+' · '+t(`event.reward.${result.type}`);show('toast');toastUntil=performance.now()+2300}else if(result.outcome==='failed'){$('toast').textContent=t(`event.failedReason.${result.reason||'timeExpired'}`);show('toast');toastUntil=performance.now()+1800}};
 const battlefieldMissionDraw=draw;
 function drawBattlefieldMissionTarget(target,index,total,eventType){
  const x=target.x-game.x+W/2,y=target.y-game.y+H/2,dx=x-W/2,dy=y-H/2,distance=Math.round(Math.hypot(dx,dy)),bomber=eventType==='BOMBER_INTERCEPT',edge=28;
@@ -1432,7 +1433,18 @@ function drawReconWaypoint(wp,isActive,label,total){
  if(isActive){ctx.font='11px monospace';ctx.textAlign='center';ctx.fillStyle='#dff6ff';const distance=Math.round(Math.hypot(dx,dy));ctx.fillText(t('event.hud.reconPoint',{index:String(label),total:String(total)})+' · '+t('event.hud.distance',{distance:String(distance)}),Math.max(54,Math.min(W-54,x)),Math.max(18,Math.min(H-12,y-150)))}
  ctx.restore();
 }
-draw=frameTime=>{battlefieldMissionDraw(frameTime);const event=game?.battlefieldEvents?.current;if(!event||event.status!=='active')return;if(event.type==='PHOTO_RECON'){const wps=event.waypoints||[],active=wps.findIndex(w=>!w.done);wps.forEach((wp,index)=>{if(!wp.done)drawReconWaypoint(wp,index===active,index+1,wps.length)});return}const targets=event.type==='RESCUE'?[event.rescue]:(event.targets||[]).filter(unit=>unit.hp>0&&!unit.deathHandled);if(!targets.length)return;const visible=event.type==='BOMBER_INTERCEPT'?targets:[targets[0]];visible.forEach((target,index)=>drawBattlefieldMissionTarget(target,index,visible.length,event.type));};
+function drawMissionReconWeakpoint(){
+ const intel=game?.battlefieldEvents?.bossIntel,encounter=game?.stageBoss?.stages?.encounter;
+ if(!intel?.applied||!encounter||intel.encounterId!==encounter.id)return;
+ const body=encounter.bodies.get(intel.bodyId),part=intel.partId?body?.parts.get(intel.partId):null;
+ if(!body||body.dead||intel.partId&&(!part||part.destroyed))return;
+ const x=body.x+(part?.x||0)-game.x+W/2,y=body.y+(part?.y||0)-game.y+H/2;
+ if(x<24||x>W-24||y<32||y>H-32)return;
+ ctx.save();ctx.font='bold 12px monospace';ctx.textAlign='center';ctx.lineWidth=3;
+ const label=getLocale()==='en'?'RECON WEAK POINT +35%':'정찰 약점 · 피해 +35%';
+ ctx.strokeStyle='#1b2628';ctx.fillStyle='#ffe0a1';ctx.strokeText(label,x,y-28);ctx.fillText(label,x,y-28);ctx.restore();
+}
+draw=frameTime=>{battlefieldMissionDraw(frameTime);drawMissionReconWeakpoint();const event=game?.battlefieldEvents?.current;if(!event||event.status!=='active')return;if(event.type==='PHOTO_RECON'){const wps=event.waypoints||[],active=wps.findIndex(w=>!w.done);wps.forEach((wp,index)=>{if(!wp.done)drawReconWaypoint(wp,index===active,index+1,wps.length)});return}const targets=event.type==='RESCUE'?[event.rescue]:event.type==='SUPPLY_RECOVERY'?[event.supplyDrop].filter(drop=>drop&&!drop.dead):(event.targets||[]).filter(unit=>unit.hp>0&&!unit.deathHandled);if(!targets.length)return;const visible=event.type==='BOMBER_INTERCEPT'?targets:[targets[0]];visible.forEach((target,index)=>drawBattlefieldMissionTarget(target,index,visible.length,event.type));};
 
 
 // HEAD-ON Test Lab bridge. It is inert on production and only activates on the
