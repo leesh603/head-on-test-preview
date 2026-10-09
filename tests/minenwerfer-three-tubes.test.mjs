@@ -62,3 +62,10 @@ for(const coop of [false,true])test(`native ${coop?'coop':'solo'} mortar launch 
  g.shake=6;b.blast(b.parts.get('main-gun'),1);assert.equal(g.shake,6);
  g.stageBoss.dispose();
 });
+
+test('one scheduled mortar round creates exactly one impact per planned shot',()=>{
+ const b=make(),events=[];b.emit=e=>events.push(e);
+ b.plan('qa',[{partId:'gun-left',x:20,y:50,at:.3},{partId:'main-gun',x:60,y:90,at:.6},{partId:'gun-right',x:100,y:50,at:.9}]);
+ const hazards=events.filter(e=>e.type==='hazard');assert.equal(hazards.length,3);
+ assert.deepEqual(hazards.map(h=>h.sourceTube),b.mortarPlan.shots.map(s=>s.tube));
+});
