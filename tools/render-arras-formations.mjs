@@ -21,7 +21,7 @@ const {fxArtReady}=await import('../fx-art.js?v=r5');
 const {planeSprite,aircraftKey,aircraftReady}=await import('../aircraft.js?v=r5');
 const {TerrainRenderer,preloadTerrainProfile}=await import('../alps-terrain117.js?v=r5');
 const {Game}=await import('../engine.js?v=r5');
-const {enableStageBoss,beginStageBossFrame,endStageBossFrame}=await import('../stageboss-host.js?v=r5&rail=40');
+const {enableStageBoss,beginStageBossFrame,endStageBossFrame}=await import('../stageboss-host.js?v=r5&rail=41');
 const {drawAircraftCrash,enemyCrashScale}=await import('../aircraft-crash.js?v=r5');
 const {fx}=await import('../fx-art.js?v=r5');
 const {drawEnemyProjectile}=await import('../projectiles.js?v=r5');

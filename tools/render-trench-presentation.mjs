@@ -21,7 +21,7 @@ const {fxArtReady}=await import('../fx-art.js?v=r5');
 const {planeSprite,aircraftKey,aircraftReady}=await import('../aircraft.js?v=r5');
 const {TerrainRenderer,preloadTerrainProfile}=await import('../alps-terrain117.js?v=r5');
 const {Game}=await import('../engine.js?v=r5');
-const {enableStageBoss,beginStageBossFrame,endStageBossFrame}=await import('../stageboss-host.js?v=r5&rail=40');
+const {enableStageBoss,beginStageBossFrame,endStageBossFrame}=await import('../stageboss-host.js?v=r5&rail=41');
 await prepareStageBossAssets(3);await fxArtReady;await aircraftReady;await preloadTerrainProfile('burning');
 const terrain=new TerrainRenderer({canvasFactory:createCanvas});mkdirSync(resolve(root,'qa/trench-presentation'),{recursive:true});
 for(const faction of ['entente','central'])for(const [w,h]of [[390,844],[1280,800]]){

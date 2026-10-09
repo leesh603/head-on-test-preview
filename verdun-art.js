@@ -1,13 +1,13 @@
 import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun-ground.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
-import {drawTracerBolt} from './projectiles.js?v=tame3&rail=40';
+import {drawTracerBolt} from './projectiles.js?v=tame3&rail=41';
 import {impactMark} from './tactical-marks.js?v=tame3';
 import {drawShellFlight} from './boss-rounds.js?v=tame3';
-import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID} from './verdun-art-layout.js?v=tame3';
-import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=tame3&rail=40';
+import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID,VERDUN_GUN_FRAMES} from './verdun-art-layout.js?v=verdun-r9';
+import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=tame3&rail=41';
 
 // Authored PNG/WebP atlas frames; no generated geometry or per-frame raster copy.
-const sources={map:'./terrain-verdun-r8.webp?v=r5',douaumont:'./boss-douaumont-atlas-r8.webp?v=r5',souville:'./boss-souville-atlas-r8.webp?v=r5',douaumontParts:'./boss-douaumont-parts-r8.webp?v=r5',souvilleParts:'./boss-souville-parts-r8.webp?v=r5'};
+const sources={map:'./terrain-verdun-r8.webp?v=r5',douaumont:'./boss-douaumont-atlas-r9.webp',souville:'./boss-souville-atlas-r9.webp',douaumontParts:'./boss-douaumont-parts-r9.webp',souvilleParts:'./boss-souville-parts-r9.webp',weapons:'./boss-verdun-weapons-r9.webp'};
 const images={},pending={};
 function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';pending[key]=new Promise((resolve,reject)=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))};im.onerror=()=>reject(new Error('Missing Verdun asset: '+sources[key]));});im.src=sources[key];images[key]=im;return im;}
 export function prepareVerdunAssets(){for(const key of Object.keys(sources))load(key);return Promise.all(Object.values(pending)).then(result=>{prepareVerdunGround(images.map);return result;});}
@@ -31,8 +31,9 @@ function drawMountAlpha(c,im,type,state,p,gun,sou,alpha=1){
  drawMount(c,im,type,state,p.x,p.y,p.drawWidth,gun?p.drawWidth*.76:p.drawHeight,sou);c.restore();
 }
 function drawWeapon(c,im,type,state,x,y,muzzle,angle,sou=false,recoil=0){
+ im=load('weapons');
  if(!im?.naturalWidth)return;
- const frames=VERDUN_PART_FRAMES[sou?'souville':'douaumont'].guns[type];if(!frames)return;
+ const frames=VERDUN_GUN_FRAMES[type];if(!frames)return;
  const frame=frames[state],[sx,sy,sw,sh]=frame.rect,[px,py]=frame.pivot;
  // Functional states put the illustrated muzzle on the native shot origin.
  // A wreck uses the original scale and retains the gun's last aim direction.
@@ -83,7 +84,7 @@ export function drawVerdunFort(c,b,destruction={}){
  for(const p of b.parts.values()){
   const dead=collapsed||p.destroyed||b.dead&&fallen.has(p.id),damaged=p.hp<p.maxHp*.55;
   const artSou=sou&&p.kind!=='aa',artKey=artSou?'souville':'douaumont',partImage=p.kind==='aa'&&sou?load('douaumontParts'):parts;
-  const gun=!!VERDUN_PART_FRAMES[artKey].guns[p.art];
+  const gun=!!VERDUN_GUN_FRAMES[p.art];
   const opens=['pit','ammo','core'].includes(p.art);
   const state=artSou?(dead?3:damaged?2:opens&&p.revealed?1:0):(dead?2:damaged?1:0);
   // Souville's intact casemates and AA foundations belong to the connected
@@ -98,7 +99,7 @@ export function drawVerdunFort(c,b,destruction={}){
   }
   if(gun&&(p.kind!=='pit'||p.active)&&(dead||p.revealed||p.openAmount>0||!sou)){
    c.save();if(p.kind==='pit'&&!dead)c.globalAlpha*=p.openAmount??1;
-   const gunState=artSou?(dead?1:0):(dead?2:damaged?1:0);
+   const gunState=dead?2:damaged?1:0;
    if(dead&&p.damageBlend<1)drawWeapon(c,partImage,p.art,0,p.x,p.y,p.muzzleLength,p.angle,artSou);
    if(dead)c.globalAlpha*=Math.max(.01,p.repairBlend>0?1-p.repairBlend:p.damageBlend??1);
    drawWeapon(c,partImage,p.art,gunState,p.x,p.y,p.muzzleLength,p.angle,artSou,dead?0:(p.recoil||0)*24*scale);

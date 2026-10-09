@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createBossEncounter} from '../headon-stageboss-patterns.js?v=tame3&rail=40';
-import {StageBossAddon} from '../headon-stageboss-runtime.js?v=tame3&rail=40';
-import {beginStageBossFrame,enableStageBoss} from '../stageboss-host.js?v=tame3&rail=40';
+import {createBossEncounter} from '../headon-stageboss-patterns.js?v=tame3&rail=41';
+import {StageBossAddon} from '../headon-stageboss-runtime.js?v=tame3&rail=41';
+import {beginStageBossFrame,enableStageBoss} from '../stageboss-host.js?v=tame3&rail=41';
 import {harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from '../harbor-crane-layout.js?v=tame3';
 
 const tuning={maxHp:2400,partHp:288,damage:18,bulletSpeed:270,geometryScale:2.025,mobileBoss:true,motionMultiplier:1,patternMultiplier:1,projectileDensity:1,coastalInterval:2.5,harborLaunchInterval:5.6};

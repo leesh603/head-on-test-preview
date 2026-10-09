@@ -1,4 +1,4 @@
-import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
+import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=41';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3';
 import {segmentDistance} from './alps-geometry117.js?v=tame3';

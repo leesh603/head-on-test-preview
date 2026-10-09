@@ -1,7 +1,7 @@
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
 import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
 import {signatureWingPositions} from './pilot-signature-geometry.js';
-import {drawTracerBolt} from './projectiles.js?v=tame3&rail=40';
+import {drawTracerBolt} from './projectiles.js?v=tame3&rail=41';
 import {drawCavalryGuard,drawCavalryLance,drawRickenbackerHalfRing} from './pilot-directed-fx.js';
 const TAU=Math.PI*2;
 const _wCache=new Map();

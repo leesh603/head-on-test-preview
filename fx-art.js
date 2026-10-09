@@ -9,7 +9,7 @@ import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,
 // falls back to procedural drawing exactly as before.
 import {FX3,roleArtReady,roleReady,roleDraw,roleImage} from './fx-role3.js?v=tame3';
 // FX sample preview (?fxs=1 only).
-import {FXS,fxsReady,fxsHas,fxsDraw,fxsImage,fxsTintedCanvas,fxsTint,fxsRocketTrail} from './fx-sample-preview.js?v=tame3&rail=40';
+import {FXS,fxsReady,fxsHas,fxsDraw,fxsImage,fxsTintedCanvas,fxsTint,fxsRocketTrail} from './fx-sample-preview.js?v=tame3&rail=41';
 export {FXS};
 
 export {FX3};

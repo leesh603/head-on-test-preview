@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 
-const {Game}=await import('../engine.js?v=tame3&rail=40');
+const {Game}=await import('../engine.js?v=tame3&rail=41');
 const {DOGFIGHT_PASS_STATES}=await import('../dogfight-pass165.js?v=tame3');
 
 
