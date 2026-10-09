@@ -1,6 +1,6 @@
 import {drawGameIcon} from './icons.js?v=tame3';
 import {fx,fxReady,FX56,FX3} from './fx-art.js?v=tame3';
-import {fxsBoom} from './fx-sample-preview.js?v=tame3&rail=38';
+import {fxsBoom} from './fx-sample-preview.js?v=tame3&rail=39';
 
 export function drawGrenade(c,g,x,y){
  c.save();c.translate(x,y-g.height);c.rotate(g.phase==='flight'?g.age*7:0);

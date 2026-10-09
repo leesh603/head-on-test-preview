@@ -9,7 +9,7 @@ function context(){const c={globalAlpha:1,canvas:{},getImageData:(x,y,w,h)=>({da
 globalThis.document={createElement:()=>({width:1,height:1,getContext:()=>context()})};
 globalThis.location={search:'',href:'http://localhost/index.html'};
 globalThis.Image=class{constructor(){this.listeners={};this.naturalWidth=500;this.naturalHeight=375;this.width=500;this.height=375;}addEventListener(k,f){(this.listeners[k]??=[]).push(f);}decode(){return Promise.resolve();}set src(s){this._src=s;queueMicrotask(()=>{this.onload?.();for(const f of this.listeners.load||[])f();});}get src(){return this._src;}};
-const {prepareStageBossAssets,drawStageBoss}=await import('../stageboss-view.js?v=tame3&rail=38');
+const {prepareStageBossAssets,drawStageBoss}=await import('../stageboss-view.js?v=tame3&rail=39');
 await prepareStageBossAssets(3);
 for(const teamFaction of ['central','entente'])test(`${teamFaction} trench production view executes entry, warnings, final, part damage and wreck callbacks`,()=>{
  const f=fixture({stageIndex:3,teamFaction}),enc=f.addon.startBoss({x:0,y:0}),b=[...enc.bodies.values()][0];f.frame.bounds={left:-640,right:640,top:-400,bottom:400};f.frame.players=[{id:'p1',alive:true,x:0,y:180,vx:100,vy:0,radius:12}];const draw=()=>drawStageBoss(context(),{stageBoss:f.addon,x:0,y:0,bossBuildings:[],bossCues:[],t:5,gasZones:[]},1280,800,{drawZeppelin(){},drawFieldArt(){}});

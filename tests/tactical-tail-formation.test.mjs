@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,TAILING_BALANCE,BATTLE_DIRECTOR_PATTERNS as P} from '../engine.js?v=tame3&rail=38';
+import {Game,TAILING_BALANCE,BATTLE_DIRECTOR_PATTERNS as P} from '../engine.js?v=tame3&rail=39';
 
 
 const quiet=g=>{for(const key of ['spawn','eventTimer','nextBossAt','nextHeavyAt','_zeppelinSchedule','flakTimer','regionThreat','fieldUnitTimer','gasTimer','gustTimer','patrolTimer'])g[key]=Infinity;return g};
@@ -36,12 +36,14 @@ const target=(extra={})=>({x:200,y:0,a:0,type:'hunter',hp:100,maxHp:100,speed:80
  g.t=wing.formationCollapseUntil+.1;g.update(.01,{});assert.equal(wing.formationCollapseUntil,0);assert.equal(wing.formationBreakHeading,null);assert.equal(wing.formationLeader,null);
  });
 
- test('a consumed commander outcome breaks the next directed group at entry only',()=>{
+ test('a consumed commander outcome breaks two directed groups at entry only',()=>{
  const g=setup();g.viewWidth=600;g.t=400;g.battlefieldEvents={pending:{formation:{value:true,expiresAt:418,region:g.worldRegion()}}};g.beginBattleDirectorPattern(P.CROSS_ATTACK);
  for(let i=0;i<3;i++){g.t+=.5;g.tickBattleDirector(.04)}
  const group=g.enemies.filter(e=>e.directorSceneId===1);assert.equal(group.length,4);assert(group.every(e=>e.formationCollapseUntil>g.t));
  g.battlefieldEvents.engagement.endsAt=0;g.beginBattleDirectorPattern(P.CROSS_ATTACK);for(let i=0;i<3;i++){g.t+=.5;g.tickBattleDirector(.04)}
- assert(g.enemies.filter(e=>e.directorSceneId===2).every(e=>!e.formationCollapseUntil));
+ assert(g.enemies.filter(e=>e.directorSceneId===2).every(e=>e.formationCollapseUntil>g.t));
+ g.battlefieldEvents.engagement.endsAt=0;g.beginBattleDirectorPattern(P.CROSS_ATTACK);for(let i=0;i<3;i++){g.t+=.5;g.tickBattleDirector(.04)}
+ assert(g.enemies.filter(e=>e.directorSceneId===3).every(e=>!e.formationCollapseUntil));
  });
 
  test('elite command loss creates a 2.6s real break and only later formations can regroup',async()=>{
@@ -65,7 +67,7 @@ const target=(extra={})=>({x:200,y:0,a:0,type:'hunter',hp:100,maxHp:100,speed:80
  });
 
 const coopFormation=async()=>{
- const {CoopGame}=await import('../coop-engine.js?v=tame3&rail=38');
+ const {CoopGame}=await import('../coop-engine.js?v=tame3&rail=39');
 
  const world=quiet(new CoopGame([{plane:'camel',pilot:'fonck'},{plane:'camel',pilot:'bishop'}],{rng:()=>.5}));
  world.t=400;world.beginBattleDirectorPattern(P.PINCER);for(let i=0;i<3;i++){world.t+=.5;world.tickBattleDirector(.04)}
