@@ -1,5 +1,5 @@
 export const BATTLEFIELD_EVENT_TYPES=Object.freeze({
- HIGH_VALUE_TARGET:'HIGH_VALUE_TARGET',RESCUE:'RESCUE',BOMBER_INTERCEPT:'BOMBER_INTERCEPT',ACE_CHALLENGE:'ACE_CHALLENGE',PHOTO_RECON:'PHOTO_RECON',SUPPLY_RECOVERY:'SUPPLY_RECOVERY'
+ HIGH_VALUE_TARGET:'HIGH_VALUE_TARGET',RESCUE:'RESCUE',BOMBER_INTERCEPT:'BOMBER_INTERCEPT',ACE_CHALLENGE:'ACE_CHALLENGE',PHOTO_RECON:'PHOTO_RECON',RECON_ESCORT:'RECON_ESCORT',SUPPLY_RECOVERY:'SUPPLY_RECOVERY'
 });
 
 export const BATTLEFIELD_EVENT_BALANCE=Object.freeze({
@@ -72,7 +72,7 @@ function spawnTargets(game,event){
   const p=playerFor(game),a=p.a||0,drop={x:p.x+Math.cos(a)*460,y:p.y+Math.sin(a)*460,value:0,heal:true,healFraction:1,supply:true,vx:0,vy:0,life:80,battlefieldEvent:true,eventMissionSupply:true};
   (game.drops||=[]).push(drop);event.supplyDrop=drop;
  }else{
-  const p=playerFor(game),ally={ownerId:p.id,eventRescue:true,life:BATTLEFIELD_EVENT_BALANCE.rescueDuration+2,hp:60,maxHp:60,x:p.x-Math.cos(p.a)*90,y:p.y-Math.sin(p.a)*90,a:p.a,fire:.3,plane:p.allyPlane||game.allyPlane};
+  const p=playerFor(game),ally={ownerId:p.id,eventRescue:true,eventReconEscort:event.type===P.RECON_ESCORT,life:BATTLEFIELD_EVENT_BALANCE.rescueDuration+2,hp:60,maxHp:60,x:p.x-Math.cos(p.a)*90,y:p.y-Math.sin(p.a)*90,a:p.a,fire:.3,plane:event.type===P.RECON_ESCORT?(game.teamFaction==='central'||game.allyPlane==='fokker'?'dfw_cv':'re7'):(p.allyPlane||game.allyPlane)};
   (game.allies||=[]).push(ally);event.rescue=ally;event.endsAt=(game.t||0)+BATTLEFIELD_EVENT_BALANCE.rescueDuration;
   for(let i=0;i<2;i++){const threat=game.spawnEnemy?.('hunter');if(threat)Object.assign(threat,{eventRescueThreat:true,battlefieldEventId:event.id,x:ally.x+(i?130:-130),y:ally.y-100,a:Math.PI/2,fire:.35})}
  }
@@ -93,6 +93,7 @@ export function recordBattlefieldOutcome(game,event,outcome){
  if([P.BOMBER_INTERCEPT,'BOMBER_STREAM'].includes(event.type))pending.bomber={...result,value:win?-1:1};
  if(event.type===P.HIGH_VALUE_TARGET&&win)pending.formation={...result,value:true,remaining:2,expiresAt:(game.t||0)+230};
  if(event.type===P.BOMBER_INTERCEPT&&win)pending.airSupport={...result,remaining:3,expiresAt:(game.t||0)+300};
+ if(event.type===P.RECON_ESCORT&&win&&event.rescue?.hp>0){pending.airSupport={...result,remaining:3,expiresAt:(game.t||0)+300};event.rescue.life=0;}
  if(event.type===P.PHOTO_RECON&&win)state.bossIntel={region,applied:false,bonus:1.35};
  if(event.type===P.SUPPLY_RECOVERY&&win)for(const p of game.players||[game])if(p.hp>0)p.hp=p.maxHp;
  if(event.type===P.ACE_CHALLENGE&&win){
@@ -213,7 +214,7 @@ function tick(game){
    const drop=event.supplyDrop;if(drop?.dead)return finish(game,state,'completed');
    if(!drop||drop.life<=0||!game.drops?.includes(drop))return finish(game,state,'failed','timeExpired');
   }
-  else if(event.type===P.RESCUE){const rescue=event.rescue,threats=(game.enemies||[]).filter(e=>e.hp>0&&e.eventRescueThreat&&e.battlefieldEventId===event.id&&Math.hypot(e.x-rescue.x,e.y-rescue.y)<BATTLEFIELD_EVENT_BALANCE.rescueThreatRange);if(threats.length){rescue.hp=Math.max(0,rescue.hp-BATTLEFIELD_EVENT_BALANCE.rescueThreatDamage*threats.length*dt);if(rescue.hp<=0)rescue.life=0}if(!rescue||rescue.life<=0||!game.allies?.includes(rescue))return finish(game,state,'failed','rescueLost');if(now>=event.endsAt)return finish(game,state,'completed')}
+  else if(event.type===P.RESCUE||event.type===P.RECON_ESCORT){const rescue=event.rescue,threats=(game.enemies||[]).filter(e=>e.hp>0&&e.eventRescueThreat&&e.battlefieldEventId===event.id&&Math.hypot(e.x-rescue.x,e.y-rescue.y)<BATTLEFIELD_EVENT_BALANCE.rescueThreatRange);if(threats.length){rescue.hp=Math.max(0,rescue.hp-BATTLEFIELD_EVENT_BALANCE.rescueThreatDamage*threats.length*dt);if(rescue.hp<=0)rescue.life=0}if(!rescue||rescue.life<=0||!game.allies?.includes(rescue))return finish(game,state,'failed','rescueLost');if(now>=event.endsAt)return finish(game,state,'completed')}
   else if(event.type===P.BOMBER_INTERCEPT){for(const target of event.targets||[])if(target.hp>0&&target.eventExitOrigin){target.a=target.eventExitHeading;if(Math.hypot(target.x-target.eventExitOrigin.x,target.y-target.eventExitOrigin.y)>=(target.eventExitDistance||BATTLEFIELD_EVENT_BALANCE.bomberExitDistance))return finish(game,state,'failed','targetEscaped')}if(event.targets?.length&&event.targets.every(target=>target.hp<=0||target.deathHandled))return finish(game,state,'completed')}
   else if(event.type===P.PHOTO_RECON){
    const p=playerFor(game),wp=(event.waypoints||[]).find(w=>!w.done);
