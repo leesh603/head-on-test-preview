@@ -3,7 +3,7 @@ import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=ta
 import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {ParisSearchlightFortress,ParisStaakenRVI} from './paris-night-bosses.js?v=tame3';
 import {GallipoliFortress} from './gallipoli-boss.js?v=tame3&rail=42';
-import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=tame3';
+import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=maan-r3';
 import {RuralRailBoss} from './rural-rail-combat.js?v=tame3&rail=42';
 import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=tame3&rail=42';
 import {treffasPoint,treffasGunPivot,treffasGunMuzzle} from './cambrai-layout.js?v=tame3';

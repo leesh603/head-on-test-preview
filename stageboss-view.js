@@ -1,6 +1,6 @@
 import {prepareBossCutins} from './boss-cutin-art.js?v=tame3&rail=42';
 import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=tame3';
-import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=tame3';
+import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=maan-r3';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=gallipoli-r10';
 import {verdunFortExtents} from './verdun-fortresses.js?v=tame3&rail=42';
 import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=tame3&rail=42';

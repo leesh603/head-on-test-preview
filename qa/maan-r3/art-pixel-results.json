@@ -1,0 +1,149 @@
+[
+  {
+    "kind": "wustenpanzer",
+    "part": "track-left",
+    "changedChannels": 26135,
+    "damageVsDestroyedChannels": 26085,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "wustenpanzer",
+    "part": "track-right",
+    "changedChannels": 28062,
+    "damageVsDestroyedChannels": 28406,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "wustenpanzer",
+    "part": "heavy-gun",
+    "changedChannels": 20440,
+    "damageVsDestroyedChannels": 19796,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "wustenpanzer",
+    "part": "sponson-left",
+    "changedChannels": 10900,
+    "damageVsDestroyedChannels": 10914,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "wustenpanzer",
+    "part": "sponson-right",
+    "changedChannels": 11453,
+    "damageVsDestroyedChannels": 11147,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "wustenpanzer",
+    "part": "aa-left",
+    "changedChannels": 9752,
+    "damageVsDestroyedChannels": 9502,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "wustenpanzer",
+    "part": "aa-right",
+    "changedChannels": 9849,
+    "damageVsDestroyedChannels": 8491,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "wustenpanzer",
+    "part": "radiator",
+    "changedChannels": 32110,
+    "damageVsDestroyedChannels": 31701,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "wustenpanzer",
+    "part": "engine",
+    "changedChannels": 43072,
+    "damageVsDestroyedChannels": 42526,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "sinai-landship",
+    "part": "track-front-left",
+    "changedChannels": 7595,
+    "damageVsDestroyedChannels": 7134,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "sinai-landship",
+    "part": "track-front-right",
+    "changedChannels": 7962,
+    "damageVsDestroyedChannels": 4447,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "sinai-landship",
+    "part": "track-rear-left",
+    "changedChannels": 14800,
+    "damageVsDestroyedChannels": 13634,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "sinai-landship",
+    "part": "track-rear-right",
+    "changedChannels": 13290,
+    "damageVsDestroyedChannels": 12372,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "sinai-landship",
+    "part": "sponson-left-front",
+    "changedChannels": 11247,
+    "damageVsDestroyedChannels": 10186,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "sinai-landship",
+    "part": "sponson-right-front",
+    "changedChannels": 13606,
+    "damageVsDestroyedChannels": 10040,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "sinai-landship",
+    "part": "sponson-left-rear",
+    "changedChannels": 12524,
+    "damageVsDestroyedChannels": 11570,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "sinai-landship",
+    "part": "sponson-right-rear",
+    "changedChannels": 13413,
+    "damageVsDestroyedChannels": 10230,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "sinai-landship",
+    "part": "lewis",
+    "changedChannels": 9860,
+    "damageVsDestroyedChannels": 9858,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "sinai-landship",
+    "part": "tank",
+    "changedChannels": 36881,
+    "damageVsDestroyedChannels": 36975,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "sinai-landship",
+    "part": "command",
+    "changedChannels": 39908,
+    "damageVsDestroyedChannels": 39292,
+    "unaffectedPanelsExact": true
+  },
+  {
+    "kind": "sinai-landship",
+    "part": "support",
+    "changedChannels": 11546,
+    "damageVsDestroyedChannels": 11510,
+    "unaffectedPanelsExact": true
+  }
+]
