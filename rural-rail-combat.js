@@ -2,7 +2,7 @@ import {RailAdapter} from './boss-adapters129.js?v=tame3';
 import {BaseBoss} from './headon-stageboss-core.js?v=tame3';
 import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=tame3';
 import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=tame3';
-import {brunoSalvo} from './bruno-raid.js?v=tame3&rail=39';
+import {brunoSalvo} from './bruno-raid.js?v=tame3&rail=40';
 import {lincomparableRound} from './lincomparable-raid.js?v=tame3';
 
 // Rural-only mechanics. The Cambrai carrier keeps its separate controller.
