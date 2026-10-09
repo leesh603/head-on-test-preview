@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {GIK,Ca4} from '../alps-bomber-combat.js?v=tame3';
 import {ALPS_BOMBER_LAYOUT,alpsPoint,alpsMuzzle,alpsHullExtents} from '../alps-bomber-layout.js?v=tame3';
-import {StageBossAddon} from '../headon-stageboss-runtime.js?v=tame3&rail=38';
-import {enableStageBoss,stageBossCollision,damageStageBoss} from '../stageboss-host.js?v=tame3&rail=38';
-import {renderStageBossLayer} from '../headon-stageboss-render.js?v=tame3&rail=38';
+import {StageBossAddon} from '../headon-stageboss-runtime.js?v=tame3&rail=39';
+import {enableStageBoss,stageBossCollision,damageStageBoss} from '../stageboss-host.js?v=tame3&rail=39';
+import {renderStageBossLayer} from '../headon-stageboss-render.js?v=tame3&rail=39';
 
 
 const tuning={maxHp:2400,partHp:288,damage:18,bulletSpeed:270,geometryScale:1.45,mobileBoss:false,patternMultiplier:1,projectileDensity:1};

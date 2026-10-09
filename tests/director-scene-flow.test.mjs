@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game} from '../engine.js?v=tame3&rail=38';
+import {Game} from '../engine.js?v=tame3&rail=39';
 import {BATTLE_DIRECTOR_PATTERNS as P} from '../battle-director169.js?v=tame3';
 
 

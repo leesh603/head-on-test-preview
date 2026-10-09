@@ -125,6 +125,7 @@ function beginEngagement(game,pattern,sceneId,endsAt){
  state.engagement={sceneId,region,endsAt:Math.min(endsAt??now+18,now+18),formationWeakened:!!formation,artillery:artillery?.value||0,supportAt:now+3};
  if(rescue){
   const p=playerFor(game),spec=rescue.ally;
+  if(game.allies)game.allies=game.allies.filter(a=>a.life>0);
   for(let i=0;i<5;i++){const side=(i-2)*64,back=88+Math.abs(i-2)*32;
    (game.allies||=[]).push({...spec,slot:i+2,eventRescueSupport:true,life:22,x:p.x-Math.cos(p.a)*back-Math.sin(p.a)*side,y:p.y-Math.sin(p.a)*back+Math.cos(p.a)*side,a:p.a,fire:.25+i*.07});
   }
