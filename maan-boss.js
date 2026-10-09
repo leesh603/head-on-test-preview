@@ -1,4 +1,4 @@
-import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=41';
+import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=42';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3';
 import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan,segmentBox,maanLocal,maanWorld,maanClearance,maanGroundBlocked,resolveMaanGround,MAAN_ESCORT_RADIUS} from './maan-layout.js?v=tame3';

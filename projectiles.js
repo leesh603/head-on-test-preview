@@ -1,4 +1,4 @@
-import {FXS,fxsFireZone} from './fx-sample-preview.js?v=tame3&rail=41';
+import {FXS,fxsFireZone} from './fx-sample-preview.js?v=tame3&rail=42';
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // (FX layer exception: hostile bolts get a crimson body + white-hot tip for dodge readability.)
 // Rendering never changes projectile movement, damage or collision.
