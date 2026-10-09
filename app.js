@@ -7,7 +7,7 @@ import {pilotIdentityCopy} from './pilot-identity-copy.js';
 import {drawHeineckeParachute,heineckeRemaining,HEINECKE} from './heinecke-rettungsfallschirm.js?v=tame3';
 import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=tame3';
 import {paintVerdun} from './verdun-art.js?v=tame3';
-import {paintGallipoli,prepareGallipoliAssets} from './gallipoli-view.js?v=tame3&rail=41';
+import {paintGallipoli,prepareGallipoliAssets} from './gallipoli-view.js?v=gallipoli-r10';
 import {createGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=tame3&rail=41';
 import {paintMaan,prepareMaanAssets} from './maan-view.js?v=tame3';
 import {drawRegionalBug} from './regional-boss-view352.js?v=tame3';
