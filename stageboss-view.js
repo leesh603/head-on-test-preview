@@ -1,3 +1,5 @@
+import {minenMuzzleLocal} from './minenwerfer-art-layout.js?v=minen-r4';
+import {drawMinenInstallation} from './minenwerfer-art-render.js?v=minen-r4';
 import {prepareBossCutins} from './boss-cutin-art.js?v=tame3&rail=42';
 import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=tame3';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=maan-r3';
@@ -79,7 +81,7 @@ const trenchGroup=createLazyImageGroup({
  livensMount:'./boss_livens_nozzle_mount187.webp',livensNozzle:'./boss_livens_nozzle_normal_pivot187.webp',livensTurret:'./boss-livens-turret2x.webp',
  livensCoreClosed:'./boss_livens_core_closed187.webp',livensCoreExposed:'./boss_livens_core_exposed187.webp',livensCoreDestroyed:'./boss_livens_core_destroyed187.webp',
  livensPipeL:'./boss_livens_pipe_l_normal194.png',livensPipeR:'./boss_livens_pipe_r_normal194.png',livensPipeLBroken:'./boss_livens_pipe_l_broken194.png',livensPipeRBroken:'./boss_livens_pipe_r_broken194.png',
- minenComposite:'./boss-minenwerfer-composite188.webp',
+ minenBase:'./boss-minenwerfer-base-20261009.webp?v=minen-r4',minenBarrels:'./boss-minenwerfer-barrels-20261009.webp?v=minen-r4',minenDamage:'./boss-minenwerfer-damage-20261008.webp?v=minen-r4',
  livensComposite:'./boss-livens-composite317.webp',livensPivot:'./boss-livens-pivot317.webp',livensPivotDamaged:'./boss-livens-pivot-damaged317.webp',livensPivotDestroyed:'./boss-livens-pivot-destroyed317.webp'
 }),trenchBossArt=trenchGroup.images;
 // Four authored RGBA frames, graded/packed offline; no runtime filter or canvas copy.
@@ -149,17 +151,11 @@ function drawMinenwerfer(c,b){
  c.save();c.imageSmoothingEnabled=true;
  // Each gun position renders its own complete emplacement image — three full
  // installations spaced apart, not slices of one shared mural.
- const scale=b.trenchScale||1,im=trenchBossArt.minenComposite;
- // Each emplacement paints at the full authored size; parts sit far enough
- // apart that the three installations stay visually separate.
- const dw=500*scale,dh=375*scale;
- const silhouette=[[8,92],[168,71],[168,40],[325,40],[325,72],[490,92],[490,260],[326,260],[326,308],[318,324],[180,324],[174,274],[8,274]];
- const drawInstallation=(image,p)=>{if(!(image?.naturalWidth||image?.width))return;c.save();c.beginPath();for(let i=0;i<silhouette.length;i++){const [sx,sy]=silhouette[i],px=p.x+(sx-250)*1.2*scale,py=p.y+(sy-187.5)*1.2*scale;i?c.lineTo(px,py):c.moveTo(px,py);}c.closePath();c.clip();c.drawImage(image,p.x-dw/2,p.y-dh/2,dw,dh);c.restore();};
+ const scale=b.trenchScale||1;
  for(const p of parts){
   const x=p.x,y=p.y,dead=b.destroying||p.destroyed,damaged=!dead&&p.hp<=p.maxHp*.5;
-  const state=dead?'grayscale(.72) brightness(.55)':damaged?'saturate(.72) brightness(.82)':null;
-  drawInstallation(state?bakedImage(im,state):im,p);
-  const mouth=p.mortarMouth||(p.id==='main-gun'?{x:0,y:-112}:{x:0,y:-32});
+  drawMinenInstallation(c,p,{base:trenchBossArt.minenBase,barrels:trenchBossArt.minenBarrels,damage:trenchBossArt.minenDamage},{scale,destroying:b.destroying});
+  const mouth=minenMuzzleLocal(p);
   if(!dead&&p.mortarFlash>0)fx(c,'fireFlash',x+mouth.x,y+mouth.y,55,55,0,p.mortarFlash/.22);
   if(!dead&&p.mortarSmoke>0)fx(c,'smokeHeavy',x+mouth.x,y+mouth.y-18,64,48,0,Math.min(.35,p.mortarSmoke*.3));
   if(damaged){fx(c,'smokeTrail',x+8,y-58,62,34,-Math.PI/2,.2);fx(c,'fireEngine',x-12,y-18,28,28,0,.42);}

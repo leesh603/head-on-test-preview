@@ -139,7 +139,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    if(event.type==='flieger-final-raid')g.event('wave','최후의 폭탄기 공습 · 발진차를 파괴해 출격 저지');
    if(event.type==='livens-pressure-rise'){g.shake=Math.max(g.shake,2);g.event('wave','지면 진동 · 매설 노즐의 압력 상승');}
    if(event.type==='livens-soil-burst'){g.shake=Math.max(g.shake,3);}
-   if(event.type==='minenwerfer-final-order'){g.event('wave','최후의 포격 명령 · 번호 순서대로 착탄');g.shake=Math.max(g.shake,2);}
+   if(event.type==='minenwerfer-final-order'){g.event('wave','최후의 포격 명령 · 번호 순서대로 착탄');}
    if(event.type==='trench-discovered'||event.type==='somme-discovered'){g.event('wave','지역 보스 발견 · '+BOSS_CATALOG[body?.kind]?.name);}
    const sound=bossSoundFor(event,body?.kind||event.bossId);if(sound)g.event('bossSound',sound);
    if(event.type==='city-mine-lane'&&body?.kind==='drachen-net')for(const f of g.hostileMinefields||[])if(f.encounterId===event.encounterId)for(const m of f.mines)if(Math.abs((m.targetX??m.x)-event.x)<event.width/2){m.dead=true;m.chainHandled=true;}
