@@ -1,4 +1,4 @@
-import {prepareMaanAssets,drawMaanBoss} from './maan-view.js?v=485';
+import {prepareMaanAssets,drawMaanBoss} from './maan-view.js?v=maan-r3';
 import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js';
 import {drawTrenchArmorGun} from './trench-armor-gun-render.js';
 import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=485&b=345';

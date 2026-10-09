@@ -1,6 +1,7 @@
 {
   "note": "Candidate sprite stock — NOT wired into the game. Keyed webp sprites (border flood-fill white cutout, alpha-cropped, max 768px) generated with in-game sprite references as the style source. Source PNGs archived at C:\\Users\\Administrator\\asset-src\\gen-batch1 on the build box. Batch 1: 17 new type sprites + 21 ace liveries + 6 boss concepts.",
   "generated": "2026-10-09",
+  "v": 3,
   "categories": {
     "planes": [
       {"file": "planes/ssw_d3.webp", "name": "Siemens-Schuckert D.III", "nation": "germany", "role": "scout", "year": 1918},

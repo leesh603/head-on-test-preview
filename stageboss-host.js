@@ -3,7 +3,7 @@ import {resolveSurfaceSpacing} from './naval-spacing.js?v=tame3';
 import {tickRegionalConditions} from './region-doctrine1.js?v=tame3';
 
 import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=tame3&rail=42';
-import {handleMaanCue} from './maan-view.js?v=tame3';
+import {handleMaanCue} from './maan-view.js?v=maan-r3';
 import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=tame3';
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=tame3';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=tame3';

@@ -37,7 +37,7 @@ fetch('./manifest.json').then(r=>r.json()).then(m=>{
     for(const e of m.categories[cat]){
       const c=document.createElement('div');c.className='card';
       const meta=[e.nation,e.role,e.ace,e.year].filter(Boolean).join(' · ');
-      c.innerHTML='<img loading="lazy" src="./'+e.file+'" alt="'+e.name+'">'+
+      c.innerHTML='<img loading="lazy" src="./'+e.file+'?v='+(m.v||1)+'" alt="'+e.name+'">'+
         '<div class="name">'+e.name+'</div>'+
         '<div class="meta">'+meta+'</div>';
       g.appendChild(c);

@@ -1,4 +1,4 @@
-import {paintMaan,prepareMaanAssets} from './maan-view.js?v=485';
+import {paintMaan,prepareMaanAssets} from './maan-view.js?v=maan-r3';
 import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js';
 import {drawGust3} from './atmosphere-role3.js?v=485';
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=485';

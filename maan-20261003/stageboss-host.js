@@ -1,5 +1,5 @@
 
-import {handleMaanCue} from './maan-view.js?v=485';
+import {handleMaanCue} from './maan-view.js?v=maan-r3';
 import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=485';
 import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=485';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=485';
