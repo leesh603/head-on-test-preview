@@ -923,10 +923,6 @@ export class MinenwerferBattery extends PatternBoss {
     // wave: impacts still arrive on each gun's firing beat (shot.at + warning).
     for(const shot of this.mortarPlan.shots){const gun=this.parts.get(shot.partId);
       if(gun&&!gun.destroyed&&!shot.retarget)this.shell(gun,shot.x,shot.y,{warning:shot.at+shot.warning,heavy:shot.partId==='main-gun',raidHeavy:!!shot.heavy||final&&shot.order===points.length,fx:false,tube:shot.tube});}
-    // The whole salvo's landing markers go down at once so the volley reads as a
-    // wave: impacts still arrive on each gun's firing beat (shot.at + warning).
-    for(const shot of this.mortarPlan.shots){const gun=this.parts.get(shot.partId);
-      if(gun&&!gun.destroyed&&!shot.retarget)this.shell(gun,shot.x,shot.y,{warning:shot.at+shot.warning,heavy:shot.partId==='main-gun',raidHeavy:!!shot.heavy||final&&shot.order===points.length,fx:false});}
     this.command(final?'minenwerfer-final-order':'phase-change',{phase:final?'minenwerfer-final-order':name,count:this.liveGuns().length});
   }
   cooperative(players,bounds,guns){
