@@ -4,8 +4,8 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 
-const {Game}=await import('../engine.js?v=tame3&rail=38');
-const {CoopGame}=await import('../coop-engine.js?v=tame3&rail=38');
+const {Game}=await import('../engine.js?v=tame3&rail=40');
+const {CoopGame}=await import('../coop-engine.js?v=tame3&rail=40');
 const {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCrashScale}=await import('../aircraft-crash.js?v=tame3');
 const {attachCombatFeedback,combatVisualPose,impactMaterial,drawCombatFeedback,COMBAT_CRASH_PROFILES,combatFlightSound}=await import('../combat-feedback.js?v=tame3');
 

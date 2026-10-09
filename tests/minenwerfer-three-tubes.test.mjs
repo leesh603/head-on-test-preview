@@ -33,9 +33,9 @@ test('actual mortar shots alternate tubes and recoil only the firing tube smooth
 });
 globalThis.Image??=class{set src(v){queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {Game}=await import('../engine.js?v=tame3&rail=38');
-const {CoopGame}=await import('../coop-engine.js?v=tame3&rail=38');
-const {enableStageBoss}=await import('../stageboss-host.js?v=tame3&rail=38');
+const {Game}=await import('../engine.js?v=tame3&rail=40');
+const {CoopGame}=await import('../coop-engine.js?v=tame3&rail=40');
+const {enableStageBoss}=await import('../stageboss-host.js?v=tame3&rail=40');
 for(const coop of [false,true])for(const [w,h]of [[390,844],[1280,800]])test(`native ${coop?'coop':'solo'} ${w}: ordinary projectiles damage all NINE mounts without multiplying installation HP`,()=>{
  const g=coop?new CoopGame([{pilot:'fonck'},{pilot:'fonck'}],{rng:()=>.5}):new Game('spad','fonck',()=>.5);
  g.viewWidth=w;g.viewHeight=h;g.region=3;g.spawn=Infinity;g.nextBossAt=Infinity;g.need=Infinity;

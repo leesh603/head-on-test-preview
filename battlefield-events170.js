@@ -1,5 +1,5 @@
 export const BATTLEFIELD_EVENT_TYPES=Object.freeze({
- HIGH_VALUE_TARGET:'HIGH_VALUE_TARGET',RESCUE:'RESCUE',BOMBER_INTERCEPT:'BOMBER_INTERCEPT',ACE_CHALLENGE:'ACE_CHALLENGE',PHOTO_RECON:'PHOTO_RECON'
+ HIGH_VALUE_TARGET:'HIGH_VALUE_TARGET',RESCUE:'RESCUE',BOMBER_INTERCEPT:'BOMBER_INTERCEPT',ACE_CHALLENGE:'ACE_CHALLENGE',PHOTO_RECON:'PHOTO_RECON',RECON_ESCORT:'RECON_ESCORT',SUPPLY_RECOVERY:'SUPPLY_RECOVERY'
 });
 
 export const BATTLEFIELD_EVENT_BALANCE=Object.freeze({
@@ -68,8 +68,11 @@ function spawnTargets(game,event){
    waypoints.push(wp||{x:p.x+Math.cos(i*2.4)*reach*.72,y:p.y+Math.sin(i*2.4)*reach*.72,index:i,progress:0,done:false});
   }
   event.waypoints=waypoints;
+ }else if(event.type===P.SUPPLY_RECOVERY){
+  const p=playerFor(game),a=p.a||0,drop={x:p.x+Math.cos(a)*460,y:p.y+Math.sin(a)*460,value:0,heal:true,healFraction:1,supply:true,vx:0,vy:0,life:80,battlefieldEvent:true,eventMissionSupply:true};
+  (game.drops||=[]).push(drop);event.supplyDrop=drop;
  }else{
-  const p=playerFor(game),ally={ownerId:p.id,eventRescue:true,life:BATTLEFIELD_EVENT_BALANCE.rescueDuration+2,hp:60,maxHp:60,x:p.x-Math.cos(p.a)*90,y:p.y-Math.sin(p.a)*90,a:p.a,fire:.3,plane:p.allyPlane||game.allyPlane};
+  const p=playerFor(game),ally={ownerId:p.id,eventRescue:true,eventReconEscort:event.type===P.RECON_ESCORT,life:BATTLEFIELD_EVENT_BALANCE.rescueDuration+2,hp:60,maxHp:60,x:p.x-Math.cos(p.a)*90,y:p.y-Math.sin(p.a)*90,a:p.a,fire:.3,plane:event.type===P.RECON_ESCORT?(game.teamFaction==='central'||game.allyPlane==='fokker'?'dfw_cv':'re7'):(p.allyPlane||game.allyPlane)};
   (game.allies||=[]).push(ally);event.rescue=ally;event.endsAt=(game.t||0)+BATTLEFIELD_EVENT_BALANCE.rescueDuration;
   for(let i=0;i<2;i++){const threat=game.spawnEnemy?.('hunter');if(threat)Object.assign(threat,{eventRescueThreat:true,battlefieldEventId:event.id,x:ally.x+(i?130:-130),y:ally.y-100,a:Math.PI/2,fire:.35})}
  }
@@ -88,9 +91,19 @@ export function recordBattlefieldOutcome(game,event,outcome){
  const result={eventId:event.id,region,expiresAt};
  if(['FORWARD_OBSERVER','ARTILLERY_SPOTTER'].includes(event.type))pending.artillery={...result,value:win?-1:1};
  if([P.BOMBER_INTERCEPT,'BOMBER_STREAM'].includes(event.type))pending.bomber={...result,value:win?-1:1};
- if(event.type===P.HIGH_VALUE_TARGET&&win)pending.formation={...result,value:true};
+ if(event.type===P.HIGH_VALUE_TARGET&&win)pending.formation={...result,value:true,remaining:2,expiresAt:(game.t||0)+230};
+ if(event.type===P.BOMBER_INTERCEPT&&win)pending.airSupport={...result,remaining:3,expiresAt:(game.t||0)+300};
+ if(event.type===P.RECON_ESCORT&&win&&event.rescue?.hp>0){pending.airSupport={...result,remaining:3,expiresAt:(game.t||0)+300};event.rescue.life=0;}
+ if(event.type===P.PHOTO_RECON&&win)state.bossIntel={region,applied:false,bonus:1.35};
+ if(event.type===P.SUPPLY_RECOVERY&&win)for(const p of game.players||[game])if(p.hp>0)p.hp=p.maxHp;
+ if(event.type===P.ACE_CHALLENGE&&win){
+  if(game.players&&game.pendingLevelUps){
+   for(const p of game.players)if(p.hp>0&&(!p.status||p.status==='alive'))game.pendingLevelUps.push({id:++game.upgradeSequence,playerId:p.id,level:p.level,choices:null});
+   if(!game.activeUpgrade)game.openUpgrade?.();
+  }else if(game.state==='playing'){game.state='upgrade';game.event?.('upgrade','에이스 격추 · 강화 선택')}
+ }
  if(event.type===P.RESCUE&&win&&event.rescue?.hp>0){
-  const ally=event.rescue;pending.rescue={...result,ally:{ownerId:ally.ownerId,plane:ally.plane,hp:ally.hp,maxHp:ally.maxHp}};ally.life=0;
+  const ally=event.rescue;pending.rescue={...result,remaining:3,expiresAt:(game.t||0)+300,ally:{ownerId:ally.ownerId,plane:ally.plane,hp:ally.hp,maxHp:ally.maxHp}};ally.life=0;
  }
  if(event.type==='AMMO_DEPOT'&&win&&region===7)pending.facility={...result,bossKind:'armored-harbor-fortress',expiresAt:(game.t||0)+120};
  return pending;
@@ -100,13 +113,30 @@ function beginEngagement(game,pattern,sceneId,endsAt){
  if(pattern==='RECOVERY'||pattern==='ACE_PRESSURE')return pattern;
  const state=eventState(game),pending=state.pending||{},now=game.t||0,region=game.worldRegion?.();
  const take=key=>{const item=pending[key];delete pending[key];return item&&item.expiresAt>now&&(item.region==null||item.region===region)?item:null};
- const bomber=take('bomber'),formation=take('formation'),artillery=take('artillery'),rescue=take('rescue');
+ const bomber=take('bomber'),artillery=take('artillery');
+ const consumeWave=key=>{
+  const item=pending[key];if(!item)return null;
+  if(item.expiresAt<=now||item.region!=null&&item.region!==region){delete pending[key];return null}
+  if(--item.remaining<=0)delete pending[key];return item;
+ };
+ const formation=consumeWave('formation'),rescue=consumeWave('rescue'),airSupport=consumeWave('airSupport');
  if(bomber?.value===1)pattern='BOMBER_RUN';
  else if(bomber?.value===-1&&['BOMBER_RUN','ESCORT'].includes(pattern))pattern='HEAD_ON_PASS';
  state.engagement={sceneId,region,endsAt:Math.min(endsAt??now+18,now+18),formationWeakened:!!formation,artillery:artillery?.value||0,supportAt:now+3};
  if(rescue){
   const p=playerFor(game),spec=rescue.ally;
-  (game.allies||=[]).push({...spec,eventRescueSupport:true,life:16,x:p.x-Math.cos(p.a)*70,y:p.y-Math.sin(p.a)*70,a:p.a,fire:.6});
+  if(game.allies)game.allies=game.allies.filter(a=>a.life>0);
+  for(let i=0;i<5;i++){const side=(i-2)*64,back=88+Math.abs(i-2)*32;
+   (game.allies||=[]).push({...spec,slot:i+2,eventRescueSupport:true,life:22,x:p.x-Math.cos(p.a)*back-Math.sin(p.a)*side,y:p.y-Math.sin(p.a)*back+Math.cos(p.a)*side,a:p.a,fire:.25+i*.07});
+  }
+  game.event?.('ally','구출 편대 복귀 · 아군 전투기 5기 지원');
+ }
+ if(airSupport){
+  const p=playerFor(game),a=p.a||0,plane=game.teamFaction==='central'||game.allyPlane==='fokker'?'staaken':'handley-page';
+  for(let i=0;i<2;i++){const side=(i?1:-1)*92,ox=p.x-Math.sin(a)*side,oy=p.y+Math.cos(a)*side;
+   (game.friendlyBombers||=[]).push({ownerId:p.id||'p1',ox,oy,x:ox-Math.cos(a)*650,y:oy-Math.sin(a)*650,a,age:0,drop:.45+i*.28,left:5,airframe:plane,eventMissionSupport:true});
+  }
+  game.event?.('ally','폭격 지원 도착 · 2기 편대 폭격');
  }
  return pattern;
 }
@@ -117,9 +147,34 @@ function consumeArtilleryCancellation(game){
  engagement.artillery=0;return true;
 }
 
+function applyReconIntel(game,state,region){
+ const intel=state.bossIntel,addon=game.stageBoss,encounter=addon?.stages?.encounter;
+ if(!intel)return;
+ if(intel.region!==region){state.bossIntel=null;return}
+ if(!intel.applied&&addon?.stages?.phase==='boss'&&encounter){
+  const liveBodies=[...encounter.bodies.values()].filter(b=>!b.dead);let target=null;
+  for(const body of liveBodies){
+   const parts=[...body.parts.values()].filter(p=>p.hittable&&!p.destroyed);if(!parts.length)continue;
+   const prefer=parts.find(p=>/engine|gun|turret|barrel|generator|launcher|mount|front/i.test(p.id));
+   target={bodyId:body.id,partId:(prefer||parts[0]).id,encounterId:encounter.id,bonus:intel.bonus};break;
+  }
+  if(!target){const body=liveBodies.find(b=>b.coreVulnerable);if(body)target={bodyId:body.id,partId:null,encounterId:encounter.id,bonus:intel.bonus}}
+  if(!target)return;Object.assign(intel,target,{applied:true});
+  if(!addon.__missionReconBaseHit){
+   addon.__missionReconBaseHit=addon.hit;
+   addon.hit=function(args){
+    const weak=this.__missionReconTarget,active=this.stages?.encounter;
+    const allowed=weak&&active?.id===weak.encounterId&&args.bodyId===weak.bodyId&&args.partId===(weak.partId??null)&&(!weak.partId||!active.bodies.get(weak.bodyId)?.parts.get(weak.partId)?.destroyed);
+    return this.__missionReconBaseHit.call(this,allowed?{...args,damage:args.damage*weak.bonus}:args);
+   };
+  }
+  addon.__missionReconTarget=intel;game.event?.('wave','정찰 정보 확보 · 표시된 보스 약점 피해 +35%');
+ }else if(intel.applied&&addon?.stages?.phase==='explore')state.bossIntel=null;
+}
 function tickConsequences(game){
  if(game.state!=='playing')return;
  const state=game.battlefieldEvents,now=game.t||0,region=game.worldRegion?.();if(!state)return;
+ applyReconIntel(game,state,region);
  for(const [key,item]of Object.entries(state.pending||{}))if(item.expiresAt<=now||item.region!=null&&item.region!==region)delete state.pending[key];
  const engagement=state.engagement;
  if(engagement&&engagement.endsAt>now&&engagement.region===region&&engagement.artillery===1&&now>=engagement.supportAt&&!scriptedBoss(game)){
@@ -147,7 +202,7 @@ function finish(game,state,outcome,reason){
   (game.drops||=[]).push({x:p.x-60,y:p.y,value:0,heal:true,supply:true,life:16,vx:0,vy:0,battlefieldEvent:true});
  }
  recordBattlefieldOutcome(game,event,outcome);
- state.result={id:event.id,type:event.type,outcome,reason:reason||null};state.history.push({type:event.type,outcome,time:game.t||0});state.history=state.history.slice(-8);state.lastType=event.type;state.current=null;
+ state.result={id:event.id,type:event.type,outcome,reason:reason||null,rewardType:outcome==='completed'?event.type:null};state.history.push({type:event.type,outcome,time:game.t||0});state.history=state.history.slice(-8);state.lastType=event.type;state.current=null;
  return true;
 }
 
@@ -156,7 +211,11 @@ function tick(game){
  const state=eventState(game),event=state.current,now=game.t||0;
  if(event?.status==='active'){
   const dt=Math.max(0,Math.min(.08,now-(event.lastTickAt??now)));event.lastTickAt=now;
-  if(event.type===P.RESCUE){const rescue=event.rescue,threats=(game.enemies||[]).filter(e=>e.hp>0&&e.eventRescueThreat&&e.battlefieldEventId===event.id&&Math.hypot(e.x-rescue.x,e.y-rescue.y)<BATTLEFIELD_EVENT_BALANCE.rescueThreatRange);if(threats.length){rescue.hp=Math.max(0,rescue.hp-BATTLEFIELD_EVENT_BALANCE.rescueThreatDamage*threats.length*dt);if(rescue.hp<=0)rescue.life=0}if(!rescue||rescue.life<=0||!game.allies?.includes(rescue))return finish(game,state,'failed','rescueLost');if(now>=event.endsAt)return finish(game,state,'completed')}
+  if(event.type===P.SUPPLY_RECOVERY){
+   const drop=event.supplyDrop;if(drop?.dead)return finish(game,state,'completed');
+   if(!drop||drop.life<=0||!game.drops?.includes(drop))return finish(game,state,'failed','timeExpired');
+  }
+  else if(event.type===P.RESCUE||event.type===P.RECON_ESCORT){const rescue=event.rescue,threats=(game.enemies||[]).filter(e=>e.hp>0&&e.eventRescueThreat&&e.battlefieldEventId===event.id&&Math.hypot(e.x-rescue.x,e.y-rescue.y)<BATTLEFIELD_EVENT_BALANCE.rescueThreatRange);if(threats.length){rescue.hp=Math.max(0,rescue.hp-BATTLEFIELD_EVENT_BALANCE.rescueThreatDamage*threats.length*dt);if(rescue.hp<=0)rescue.life=0}if(!rescue||rescue.life<=0||!game.allies?.includes(rescue))return finish(game,state,'failed','rescueLost');if(now>=event.endsAt)return finish(game,state,'completed')}
   else if(event.type===P.BOMBER_INTERCEPT){for(const target of event.targets||[])if(target.hp>0&&target.eventExitOrigin){target.a=target.eventExitHeading;if(Math.hypot(target.x-target.eventExitOrigin.x,target.y-target.eventExitOrigin.y)>=(target.eventExitDistance||BATTLEFIELD_EVENT_BALANCE.bomberExitDistance))return finish(game,state,'failed','targetEscaped')}if(event.targets?.length&&event.targets.every(target=>target.hp<=0||target.deathHandled))return finish(game,state,'completed')}
   else if(event.type===P.PHOTO_RECON){
    const p=playerFor(game),wp=(event.waypoints||[]).find(w=>!w.done);

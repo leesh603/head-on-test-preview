@@ -15,8 +15,8 @@ globalThis.Image=class extends Image{
 };
 const {fxArtReady}=await import('../fx-art.js?v=ui5');
 const {ParisGun,LIncomparable}=await import('../headon-stageboss-patterns.js?v=ui5');
-const {drawRuralRail}=await import('../rural-rail-render.js?v=ui5&rail=38');
-const {renderStageBossLayer}=await import('../headon-stageboss-render.js?v=ui5&rail=38');
+const {drawRuralRail}=await import('../rural-rail-render.js?v=ui5&rail=40');
+const {renderStageBossLayer}=await import('../headon-stageboss-render.js?v=ui5&rail=40');
 const {drawRailTrack,drawRailDamage}=await import('../rail-render129.js?v=ui5');
 const {railAudioSamples}=await import('../rail-audio.js?v=rail1');
 await fxArtReady;

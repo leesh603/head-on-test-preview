@@ -1,6 +1,6 @@
 # 베르됭 두오몽·수빌 아트 r9
 
-기준: `leesh603/head-on-test-preview` main `ac098e20036e0ac21d90f1dcf1ac6e72a244525c`.
+기준: `leesh603/head-on-test-preview` main `a481cd6fbd39c9143f03da47c070fa63a4322a16`.
 브랜치: `feat/verdun-art-rework-20261009`.
 
 ## 반영 내용
@@ -14,7 +14,7 @@
 
 ## 검증
 
-- `npm test`: **1007/1007 통과**.
+- `npm test`: **1013/1013 통과**.
 - 베르됭 전용 테스트: **38/38 통과**. 5종 무기의 정상/손상/파괴 상태, 반동 0/.12/.24에서 고정 진지 축과 실제 총구 좌표를 확인했다.
 - `git diff --check`: 통과.
 - `npm run build`: 루트 188개 모듈 문법 검사 통과. 전체 참조 검사는 기존 `asset-gallery.html`의 미존재 파일 4개 때문에 실패한다. 해당 경로는 기준 main의 Git tree에도 없다. 이번 범위 밖의 갤러리는 수정하지 않았다:
@@ -34,3 +34,5 @@
 ![수빌 모바일 포대](qa/verdun-r9/fort-souville-mobile-gun.webp)
 
 재현: `CANVAS_MODULE=<@napi-rs/canvas 경로> node tools/qa-verdun-art-r9.mjs`.
+
+최신 main의 rail=40 캐시 갱신 및 미션 보상 수정과 통합 후 전체 테스트를 다시 통과했다.

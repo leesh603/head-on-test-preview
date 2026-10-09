@@ -6,14 +6,14 @@ import {drawRegionalBug} from './regional-boss-view352.js?v=tame3';
 import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=tame3';
 import {drawGasCloud196} from './gas-cloud196.js?v=tame3';
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=tame3';
-import {fxsBoomTail} from './fx-sample-preview.js?v=tame3&rail=38';
+import {fxsBoomTail} from './fx-sample-preview.js?v=tame3&rail=40';
 import {fx,fxReady,fxTint} from './fx-art.js?v=tame3';
 import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=tame3';
 import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=tame3';
 import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=tame3';
 import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=tame3';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=tame3';
-import {drawStageBoss} from './stageboss-view.js?v=tame3&hints=1&treads=2&rail=38';
+import {drawStageBoss} from './stageboss-view.js?v=tame3&hints=1&treads=2&rail=40';
 const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};
 const NO_SKILL_RING=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker','wolff','immelmann']);
@@ -23,7 +23,7 @@ import {drawEquipment} from './equipment.js?v=tame3';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor,drawTracerBolt} from './projectiles.js?v=tame3';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=tame3';
 import {drawSpecialAmmoIcon} from './icons.js?v=tame3';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=tame3&rail=38';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=tame3&rail=40';
 import {drawCombatFeedback,combatCameraOffset,combatVisualPose} from './combat-feedback.js?v=tame3';
 
 

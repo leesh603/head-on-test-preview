@@ -1,10 +1,10 @@
 import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun-ground.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
-import {drawTracerBolt} from './projectiles.js?v=tame3&rail=38';
+import {drawTracerBolt} from './projectiles.js?v=tame3&rail=40';
 import {impactMark} from './tactical-marks.js?v=tame3';
 import {drawShellFlight} from './boss-rounds.js?v=tame3';
 import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID,VERDUN_GUN_FRAMES} from './verdun-art-layout.js?v=verdun-r9';
-import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=tame3&rail=38';
+import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=tame3&rail=40';
 
 // Authored PNG/WebP atlas frames; no generated geometry or per-frame raster copy.
 const sources={map:'./terrain-verdun-r8.webp?v=r5',douaumont:'./boss-douaumont-atlas-r9.webp',souville:'./boss-souville-atlas-r9.webp',douaumontParts:'./boss-douaumont-parts-r9.webp',souvilleParts:'./boss-souville-parts-r9.webp',weapons:'./boss-verdun-weapons-r9.webp'};

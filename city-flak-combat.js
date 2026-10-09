@@ -1,4 +1,4 @@
-import {shellMarch} from './boss-raid-strikes.js?v=tame3&rail=38';
+import {shellMarch} from './boss-raid-strikes.js?v=tame3&rail=40';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3';
 import {intersectsEllipse} from './regional-boss-layout352.js?v=tame3';
