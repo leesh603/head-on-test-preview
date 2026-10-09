@@ -55,12 +55,12 @@ test('regional bomber escape is failure, not completion, and creates next-run pr
 });
 
 test('commander and rescue outcomes use bounded next-scene state and existing ally path',()=>{
- const commander=ready(),event=commander.offerBattlefieldEvent(E.HIGH_VALUE_TARGET);complete(commander,event);begin(commander);assert.equal(commander.battlefieldEvents.engagement.formationWeakened,true);assert.equal(commander.battlefieldEvents.engagement.sceneId,commander.battleDirector.sceneId);begin(commander);assert.equal(commander.battlefieldEvents.engagement.formationWeakened,false);
- const rescue=ready(),mission=rescue.offerBattlefieldEvent(E.RESCUE),saved=mission.rescue;rescue.t=mission.endsAt;rescue.tickBattlefieldEvents();assert.equal(saved.life,0);begin(rescue);const support=rescue.allies.filter(a=>a.eventRescueSupport);assert.equal(support.length,1);assert.equal(support[0].life,16);assert.equal(support[0].hp,saved.hp);begin(rescue);assert.equal(rescue.allies.filter(a=>a.eventRescueSupport).length,1);
+ const commander=ready(),event=commander.offerBattlefieldEvent(E.HIGH_VALUE_TARGET);complete(commander,event);begin(commander);assert.equal(commander.battlefieldEvents.engagement.formationWeakened,true);assert.equal(commander.battlefieldEvents.engagement.sceneId,commander.battleDirector.sceneId);begin(commander);assert.equal(commander.battlefieldEvents.engagement.formationWeakened,true);begin(commander);assert.equal(commander.battlefieldEvents.engagement.formationWeakened,false);
+ const rescue=ready(),mission=rescue.offerBattlefieldEvent(E.RESCUE),saved=mission.rescue;rescue.t=mission.endsAt;rescue.tickBattlefieldEvents();assert.equal(saved.life,0);begin(rescue);const support=rescue.allies.filter(a=>a.eventRescueSupport);assert.equal(support.length,5);assert(support.every(a=>a.life===22&&a.hp===saved.hp));begin(rescue);assert.equal(rescue.allies.filter(a=>a.eventRescueSupport).length,10);begin(rescue);assert.equal(rescue.allies.filter(a=>a.eventRescueSupport).length,15);begin(rescue);assert.equal(rescue.allies.filter(a=>a.eventRescueSupport).length,15);
 });
 
 test('later outcomes replace pending slots; expiration or leaving region consumes nothing elsewhere',()=>{
- const game=ready();game.recordBattlefieldOutcome({id:1,type:E.BOMBER_INTERCEPT},'failed');game.recordBattlefieldOutcome({id:2,type:E.BOMBER_INTERCEPT},'completed');assert.equal(Object.keys(game.battlefieldEvents.pending).length,1);assert.equal(begin(game,'BOMBER_RUN'),'HEAD_ON_PASS');
+ const game=ready();game.recordBattlefieldOutcome({id:1,type:E.BOMBER_INTERCEPT},'failed');game.recordBattlefieldOutcome({id:2,type:E.BOMBER_INTERCEPT},'completed');assert.equal(Object.keys(game.battlefieldEvents.pending).length,2);assert.equal(begin(game,'BOMBER_RUN'),'HEAD_ON_PASS');assert.equal(game.friendlyBombers.length,2);
  game.recordBattlefieldOutcome({id:3,type:E.BOMBER_INTERCEPT},'failed');game.t+=91;assert.equal(begin(game),'CHASE');
  game.recordBattlefieldOutcome({id:4,type:'ARTILLERY_SPOTTER'},'failed');game.region=1;begin(game);game.t+=3;game.tickBattlefieldConsequences();assert.equal(game.volleyCount,0);
 });
