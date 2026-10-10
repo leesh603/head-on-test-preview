@@ -902,7 +902,28 @@
      "year": 1918,
      "role": "거폭격기",
      "base": "planes/staaken_r6.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "로젠지 위장천",
+       "file": "liveries/staaken_r6/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 침습 칠흑",
+       "file": "liveries/staaken_r6/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "초기 연색 생산",
+       "file": "liveries/staaken_r6/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 반입 평가기",
+       "file": "liveries/staaken_r6/usas.webp"
+      }
+     ]
     },
     {
      "id": "ff33",
