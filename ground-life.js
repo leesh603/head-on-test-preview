@@ -20,7 +20,7 @@ const atlasReady=typeof Image==='undefined'?Promise.resolve(false):new Promise(r
 });
 // FX source sheets include large transparent margins. Bake tight 128px
 // ground-only copies once; no per-frame pixel reads, filters or new images.
-const groundFxImages={};
+const groundFxImages={};let groundFxRemaining=Infinity;
 export const groundLifeStats={atlas:0,fx:0,vehicles:0,groups:0,emitters:0,alpha:1};
 export const groundLifeReady=Promise.all([atlasReady,fxArtReady]).then(([ok])=>{
  if(typeof document==='undefined')return ok;
@@ -40,13 +40,14 @@ export const groundLifeReady=Promise.all([atlasReady,fxArtReady]).then(([ok])=>{
  }return ok;
 });
 function groundFx(c,key,x,y,w,h,angle=0,alpha=1){
+ if(groundFxRemaining--<=0)return false;
  const im=groundFxImages[key];if(!im)return fx(c,key,x,y,w,h,angle,alpha);
  const k=Math.min(w/im.width,h/im.height),dw=im.width*k,dh=im.height*k;
  c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha*=alpha;c.drawImage(im,-dw/2,-dh/2,dw,dh);c.restore();return true;
 }
 function sprite(c,frame,x,y,height,a,alpha){
  const im=sprites[frame];if(!im)return;const width=height*im.width/im.height;
- c.save();c.translate(x,y);c.rotate(a);c.globalAlpha*=alpha;c.drawImage(im,-width/2,-height/2,width,height);c.restore();
+ c.save();c.imageSmoothingEnabled=true;c.translate(x,y);c.rotate(a);c.globalAlpha*=alpha;c.drawImage(im,-width/2,-height/2,width,height);c.restore();
 }
 const hash=(x,y)=>((Math.imul(x,73856093)^Math.imul(y,19349663))>>>0);
 const mod=(x,n)=>(x%n+n)%n;
@@ -120,7 +121,7 @@ function shellScene(c,x,y,age,burning,low,ignite=false){
  if(age<.32)groundFx(c,'profileEarth'+Math.min(3,Math.floor(age/.08)),x,y,54,48,0,.76*(1-age/.55));
  if(age<1.65)groundFx(c,'dirtBurst',x,y-age*8,54+age*24,48+age*22,0,.7*(1-age/1.65));
  if(age<5.5)groundFx(c,'smokeDust',x+age*3,y-age*4,58+age*12,52+age*10,0,.55*Math.min(1,age/.4)*(1-age/5.5));
- for(let n=0;n<(low?1:3);n++){
+ for(let n=0;n<(low||age>8?1:3);n++){
   const q=age-n*1.1;if(q<.3||q>16)continue;
   const fade=Math.min(1,q/1.2)*Math.max(0,1-q/16);
   groundFx(c,burning?'smokeDark':'smokeDust',x+q*2.6+n*5,y-q*3.7-n*5,44+q*4,52+q*5.2,-.12,.48*fade);
@@ -140,7 +141,7 @@ export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
  groundLifeStats.atlas=sprites.length;groundLifeStats.alpha=c.globalAlpha;
  if(!sprites.length||!Number.isFinite(period)||period<=0||!Number.isFinite(t)||density<=0)return;
  const routes=GROUND_ROUTES[key],fights=GROUND_FIGHTS[key],events=GROUND_EVENTS[key];if(!routes&&!fights&&!events)return;
- let vehicles=0,groups=0,emitters=0;
+ let vehicles=0,groups=0,emitters=0;groundFxRemaining=density<.7?28:64;
  const low=density<.7,mirror=key==='cambrai',xmin=Math.floor(left/period),xmax=Math.floor((left+width)/period),ymin=Math.floor(top/period),ymax=Math.floor((top+height)/period);
  for(let iy=ymin;iy<=ymax;iy++)for(let ix=xmin;ix<=xmax;ix++){
   const seed=hash(ix,iy),mx=mirror&&Math.abs(ix%2),my=mirror&&Math.abs(iy%2),sx=mx?-1:1,sy=my?-1:1;
@@ -175,7 +176,7 @@ export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
     const y=y0+ty*((n-1)*7+p.along)+Math.sin(aim)*p.forward;
     const a=p.state==='retreat'?Math.atan2(-ty,-tx):p.state==='regroup'?Math.atan2(ty,tx):aim+p.heading;
     const bob=run?Math.sin(t*13+n*2)*.22:0;
-    sprite(c,p.frame,x,y+bob,n===1&&p.frame===10?15:14,a+Math.PI/2,.78*p.alpha);
+    sprite(c,p.frame,x,y+bob,n===1&&p.frame===10?19:18,a+Math.PI/2,.84*p.alpha);
     // Short, dim volleys. No ambient projectiles crossing the flight layer.
     if(p.state==='fire'&&mod(p.local+n*.17,n===1?.22:.8)<.075){const tip=n===1?6:5;groundFx(c,'muzzle',x+Math.cos(aim)*tip,y+Math.sin(aim)*tip,7,5,aim,.55);}
    }
@@ -201,12 +202,13 @@ export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
    if(x<-115||y<-135||x>width+115||y>height+135)continue;emitters++;
    if(e[2]==='fire')wreckFire(c,x,y,t,j+seed,low);
    else {
-    const cycle=key==='burning'?13:17,q=mod(t+j*3.31+(seed%61)*.47,cycle);
+    const cycle=key==='burning'?10:key==='trenches'?13:15,q=mod(t+j*3.31+(seed%61)*.47,cycle);
     shellScene(c,x,y,q,key==='burning',low,key==='burning'&&j%3===0);
+    shellScene(c,x,y,q+cycle,key==='burning',true);
    }
   }
  }
- groundLifeStats.vehicles=vehicles;groundLifeStats.groups=groups;groundLifeStats.emitters=emitters;
+ groundFxRemaining=Infinity;groundLifeStats.vehicles=vehicles;groundLifeStats.groups=groups;groundLifeStats.emitters=emitters;
 }
 // The harbor is one authored landmark, so activity is clipped to that same
 // transform/fade by its caller. Coordinates use the harbor master, not sea tiles.
