@@ -1026,6 +1026,26 @@
        "kind": "livery",
        "name": "영국 반입 평가기",
        "file": "liveries/friedrichshafen_g3/raf.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "오스만 튀르크",
+       "file": "liveries/friedrichshafen_g3/ottoman.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "폴란드 샤호비차",
+       "file": "liveries/friedrichshafen_g3/polish.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "바이에른 마름모",
+       "file": "liveries/friedrichshafen_g3/bavarian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/friedrichshafen_g3/leader.webp"
       }
      ]
     },
