@@ -230,8 +230,8 @@ const VOICES={
   // Balloon burst: taut fabric pop plus pressure release.
   balloon(){tone(500,60,.22,.14,'sine',800);hiss(4000,300,.2,.12,'bandpass',.6);tone(1300,400,.06,.04,'square',3000);tone(70,30,.3,.12,'sine',260,.03)},
   // Repair pickup: soft double chime.
-  heal(){bankSample('ui-repair',.3,()=>VOICES.healSynth())},
-  healSynth(){tone(720,720,.06,.05,'sine',2200);tone(960,960,.09,.05,'sine',2600,.07)},
+  heal(){bankSample('ui-repair',.18,()=>VOICES.healSynth())},
+  healSynth(){tone(720,720,.06,.035,'sine',2200);tone(960,960,.09,.035,'sine',2600,.07)},
   // Engine idle: one propeller/exhaust beat per call (the host fires it on an interval).
   engineTick(flight){const p=typeof flight==='object'?flight:{reload:flight};if(!engineLoop(p))VOICES.engineTickSynth(flight)},
   engineTickSynth(flight){const p=typeof flight==='object'?flight:{reload:flight},speed=Math.max(.7,Math.min(1.2,p.speed??1)),turn=Math.min(4,p.turn||0),damage=Math.max(0,Math.min(1,p.damage||0));
