@@ -729,13 +729,14 @@ const soloRelicRefs=[],coopRelicRefs={p1:[],p2:[]};
 
 // Cut-in art swaps only once the new picture is decoded: the element stays hidden meanwhile, so a
 // second ace never opens on the previous ace's portrait, and the card waits up to 600 ms for it.
+// Failed decodes stay hidden and are not cached, so a later appearance can retry.
 var bossCutinArtWait=0;
 function swapArt(el,url){const artSwapToken=swapArt.tokens||(swapArt.tokens=new WeakMap()),next=url?new URL(url,document.baseURI).href:'',current=artSwapToken.get(el);
  if(current&&current.url===next)return current.done;
  if(!url){artSwapToken.delete(el);el.removeAttribute('src');el.style.visibility='';return Promise.resolve()}
  if(el.src===next&&el.complete&&el.naturalWidth){el.style.visibility='';const done=Promise.resolve();artSwapToken.set(el,{url:next,done});return done}
  const token={url:next};artSwapToken.set(el,token);el.style.visibility='hidden';el.src=url;
- return token.done=(el.decode?el.decode():Promise.resolve()).catch(()=>{}).then(()=>{if(artSwapToken.get(el)===token)el.style.visibility=''})}
+ return token.done=(el.decode?el.decode():Promise.resolve()).catch(()=>{}).then(()=>{if(artSwapToken.get(el)!==token)return;if(!el.decode||el.complete&&el.naturalWidth)el.style.visibility='';else artSwapToken.delete(el)})}
 function bossCutinHeld(){return bossCutinArtWait&&performance.now()<bossCutinArtWait}
 function setBossCutin(imgSrc,name,kicker,detail,side='boss'){$('bossCutin').classList.toggle('skill-side',side==='skill');{const wait=performance.now()+600;bossCutinArtWait=wait;swapArt($('bossCutinImg'),imgSrc).then(()=>{if(bossCutinArtWait===wait)bossCutinArtWait=0})}$('bossCutinImg').alt=name;$('bossCutinKicker').textContent=kicker;$('bossCutinName').textContent=name;$('bossCutinDetail').textContent=detail||''}
 function stageBossCutinCheck(){const sb=game?.stageBoss?.stages;if(sb&&sb.phase==='boss'&&sb.bossId&&sb.bossId!==lastStageBossId&&![...sb.encounter.bodies.values()].some(b=>b.formationBoss129&&!b.entryComplete)&&(!['livens-flame-projector','minenwerfer-battery','mark4-wedge'].includes(sb.bossId)||[...sb.encounter.bodies.values()].some(b=>b.discovered))){lastStageBossId=sb.bossId;const nm=(getLocale()==='en'?BOSS_NAMES_EN[sb.bossId]:BOSS_CATALOG[sb.bossId]?.name)||sb.bossId;setBossCutin(bossCutinSource(sb.bossId),nm,getLocale()==='en'?'AREA BOSS':'지역 보스',bossTactic(sb.encounter,getLocale()));$('bossWarnSub').textContent=nm+' · AREA BOSS INBOUND';show('bossWarning');{const warningRun=game,warningBoss=sb.encounter;setTimeout(()=>{if(game===warningRun&&game?.stageBoss?.stages.encounter===warningBoss)show('bossWarning',false)},1600)}bossCardFrom=performance.now()+1400;bossCutinUntil=bossCardFrom+2600;{const run=game,encounter=sb.encounter;const later=(name,delay)=>setTimeout(()=>{if(game===run&&run.stageBoss?.stages.encounter===encounter&&run.state==='playing'&&!regionTransitionUntil&&!document.hidden)sfx(name)},delay);
