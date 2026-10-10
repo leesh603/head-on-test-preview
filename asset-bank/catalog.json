@@ -911,6 +911,26 @@
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "planes/sopwith_pup.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "수비·훈련 은색",
+       "file": "liveries/pup/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스군 평가기",
+       "file": "liveries/pup/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 시험기",
+       "file": "liveries/pup/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 칠흑",
+       "file": "liveries/pup/night.webp"
       }
      ]
     },
