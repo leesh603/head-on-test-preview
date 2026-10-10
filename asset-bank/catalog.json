@@ -1152,6 +1152,26 @@
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "planes/sopwith_dolphin.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스군 평가기",
+       "file": "liveries/dolphin/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "폴란드군 적백 체커",
+       "file": "liveries/dolphin/polish.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 칠흑",
+       "file": "liveries/dolphin/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 시험기",
+       "file": "liveries/dolphin/captured.webp"
       }
      ]
     },
