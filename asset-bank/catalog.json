@@ -879,6 +879,26 @@
        "kind": "ace",
        "name": "Collishaw",
        "file": "../collishaw_sopwith.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 해군 코카드",
+       "file": "liveries/triplane/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아 붉은별",
+       "file": "liveries/triplane/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미국 평가기 별",
+       "file": "liveries/triplane/us.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 시험기",
+       "file": "liveries/triplane/captured.webp"
       }
      ]
     },
