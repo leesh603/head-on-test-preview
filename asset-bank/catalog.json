@@ -2669,6 +2669,26 @@
        "kind": "livery",
        "name": "벨기에 전후 인수기",
        "file": "liveries/dh9/belgian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/dh9/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 시험기",
+       "file": "liveries/dh9/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/dh9/leader.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "폴란드 샤호비차",
+       "file": "liveries/dh9/polish.webp"
       }
      ]
     },
