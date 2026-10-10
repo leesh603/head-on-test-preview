@@ -1271,6 +1271,26 @@
        "kind": "livery",
        "name": "은색 도포",
        "file": "liveries/hansa_cc/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아 노획 해군",
+       "file": "liveries/hansa_cc/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 노획 평가기",
+       "file": "liveries/hansa_cc/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "북해 파문 위장",
+       "file": "liveries/hansa_cc/wave.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은선체",
+       "file": "liveries/hansa_cc/leader.webp"
       }
      ]
     }
