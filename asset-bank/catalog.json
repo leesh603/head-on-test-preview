@@ -356,6 +356,26 @@
        "kind": "ace",
        "name": "Mai (지브라)",
        "file": "aces/mai_fokkerd7.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "로젠지 위장",
+       "file": "liveries/fokkerd7/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "베르톨트 기 (적청 대비)",
+       "file": "liveries/fokkerd7/berthold.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "노획기 (RAF 마킹)",
+       "file": "liveries/fokkerd7/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "은색 동체 + 붉은 기수",
+       "file": "liveries/fokkerd7/silver.webp"
       }
      ]
     },
@@ -897,6 +917,26 @@
        "kind": "ace",
        "name": "Woollett",
        "file": "../woollett_camel.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "표준 카키 도장",
+       "file": "liveries/camel/standard.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "벨기에 체커 동체",
+       "file": "liveries/camel/checker.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "해군항공대 닻 마킹",
+       "file": "liveries/camel/naval.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 칠흑 도장",
+       "file": "liveries/camel/night.webp"
       }
      ]
     },
