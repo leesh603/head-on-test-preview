@@ -32,6 +32,26 @@
        "kind": "livery",
        "name": "전선 얼룩 위장",
        "file": "liveries/rumpler_taube/camo.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아제국 공군",
+       "file": "liveries/rumpler_taube/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 노획 평가기",
+       "file": "liveries/rumpler_taube/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전선 얼룩 위장",
+       "file": "liveries/rumpler_taube/camo.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/rumpler_taube/leader.webp"
       }
      ]
     },
