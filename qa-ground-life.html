@@ -30,6 +30,7 @@ async function loadVersion(which){
  // The comparison version stays pinned; the app's deploy-version reload is
  // irrelevant inside a srcdoc verification fixture.
  html=html.replace(/<script>fetch\('version.txt'[\s\S]*?<\/script>/,'');
+ html=html.replace("catch(e){if(!sessionStorage", "catch(e){console.error('Ground QA boot',e);parent.document.querySelector('output').textContent='BOOT ERROR: '+e.message;if(!sessionStorage");
  frame.srcdoc=html;
 }
 document.querySelector('#before').onclick=()=>loadVersion('before');document.querySelector('#after').onclick=()=>loadVersion('after');
