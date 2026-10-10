@@ -1795,6 +1795,26 @@
        "kind": "livery",
        "name": "야간전 칠흑 도장",
        "file": "liveries/camel/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/camel/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "폴란드 샤호비차",
+       "file": "liveries/camel/polish.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "중동전선 사막 크림",
+       "file": "liveries/camel/desert.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "그리스 육군 항공대",
+       "file": "liveries/camel/greek.webp"
       }
      ]
     },
