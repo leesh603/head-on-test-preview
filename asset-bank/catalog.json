@@ -2752,6 +2752,26 @@
        "kind": "livery",
        "name": "35비행대 지휘관기",
        "file": "liveries/armstrong_fk8/sqn35.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/armstrong_fk8/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스군 평가기",
+       "file": "liveries/armstrong_fk8/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/armstrong_fk8/leader.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전선 얼룩 위장",
+       "file": "liveries/armstrong_fk8/camo.webp"
       }
      ]
     },
