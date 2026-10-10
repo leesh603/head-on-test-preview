@@ -1,16 +1,16 @@
-import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=ui5';
-import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=ui5';
-import {fx} from './fx-art.js?v=ui5';
-import {drawAADefense} from './aa-defense-art.js?v=ui5';
+import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=gal1';
+import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=gal1';
+import {fx} from './fx-art.js?v=gal1';
+import {drawAADefense} from './aa-defense-art.js?v=gal1';
 
 // These are authored/derived RGBA sprites, not canvas-painted replacement art.
 // Only the current battlefield's small atlas set remains resident.
 const SOURCES=Object.freeze({
  train:'./boss-fliegerzug-parts352.webp',treffas:'./boss-treffas-parts352.webp',support:'./boss-regional-support352.webp',
  staaken:'./boss-staaken-body352.webp',staakenEngines:'./boss-staaken-engines352.webp',staakenWreck:'./boss-staaken-wreck352.webp',
- tank:'./boss-mark4.webp?v=ui5',tankWreck:'./boss-mark4-wreck.webp?v=ui5',
- morser:'./boss-morser.webp?v=ui5',morserWreck:'./boss-morser-wreck.webp?v=ui5',
- bugFolded:'./boss-cambrai-bug.webp?v=ui5',bugFlight:'./boss-cambrai-bug.webp?v=ui5',impact:'./fx-mortar-impact340.webp'
+ tank:'./boss-mark4.webp?v=gal1',tankWreck:'./boss-mark4-wreck.webp?v=gal1',
+ morser:'./boss-morser.webp?v=gal1',morserWreck:'./boss-morser-wreck.webp?v=gal1',
+ bugFolded:'./boss-cambrai-bug.webp?v=gal1',bugFlight:'./boss-cambrai-bug.webp?v=gal1',impact:'./fx-mortar-impact340.webp'
 });
 const SHEETS={train:'boss-fliegerzug-parts352',treffas:'boss-treffas-parts352',support:'boss-regional-support352',staakenEngines:'boss-staaken-engines352'};
 const REGION_KEYS={4:['support'],8:['support','bugFlight','impact'],10:[],11:['support','staaken','staakenEngines','staakenWreck','impact']};

@@ -1,11 +1,11 @@
-import {fx} from './fx-art.js?v=ui5';
-import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=ui5';
-import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=ui5';
+import {fx} from './fx-art.js?v=gal1';
+import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=gal1';
+import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=gal1';
 let images={};
 export function releaseParisArt(){images={};}
 export function prepareParisArt(){
  return Promise.all([['map','terrain-paris-night1918.webp'],['fortress','paris-fortress-parts1918.webp'],['fortressWreck','paris-fortress-wreck1918.webp'],['staaken','paris-staaken-parts1918.webp'],['staakenWreck','paris-staaken-wreck1918.webp']].map(([key,path])=>new Promise(resolve=>{
-  const im=new Image();im.decoding='async';images[key]=im;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(true))};im.onerror=()=>resolve(false);im.src='./'+path+'?v=ui5&b=city4';
+  const im=new Image();im.decoding='async';images[key]=im;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(true))};im.onerror=()=>resolve(false);im.src='./'+path+'?v=gal1&b=city4';
  })));
 }
 export function paintParis(c,g,cx,cy,w,h){

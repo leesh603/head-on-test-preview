@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {BossEncounter} from '../headon-stageboss-core.js?v=ui5';
-import {BossHazards} from '../headon-stageboss-hazards.js?v=ui5';
-import {FortDouaumont,FortSouville,VERDUN_FORT_LAYOUT,verdunFortMuzzle,verdunFortCollapseSites} from '../verdun-fortresses.js?v=ui5';
-import {BossStages} from '../headon-stageboss-runtime.js?v=ui5';
-import {BOSS_CATALOG,STAGES,createBossEncounter} from '../headon-stageboss-patterns.js?v=ui5';
+import {BossEncounter} from '../headon-stageboss-core.js?v=gal1';
+import {BossHazards} from '../headon-stageboss-hazards.js?v=gal1';
+import {FortDouaumont,FortSouville,VERDUN_FORT_LAYOUT,verdunFortMuzzle,verdunFortCollapseSites} from '../verdun-fortresses.js?v=gal1';
+import {BossStages} from '../headon-stageboss-runtime.js?v=gal1';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from '../headon-stageboss-patterns.js?v=gal1';
 
 import {fixture as nativeFixture,step as nativeStep} from './stageboss-fixture94.mjs';
 import {existsSync} from 'node:fs';
@@ -121,7 +121,7 @@ function hostGame(){
  return{g,log};
 }
 test('host Verdun tuning, forward spawn and local bullet impact preserve native ownership and other spawn rates',async()=>{
- const {enableStageBoss,beginStageBossFrame,damageStageBoss,stageSpawnInterval,STAGE_NAMES}=await import('../stageboss-host.js?v=ui5');
+ const {enableStageBoss,beginStageBossFrame,damageStageBoss,stageSpawnInterval,STAGE_NAMES}=await import('../stageboss-host.js?v=gal1');
 
  const {g,log}=hostGame(),a=enableStageBoss(g,{teamFaction:'entente'});a.stages.stageIndex=12;g.t=91;beginStageBossFrame(g,.01);
  const b=a.stages.encounter.bodies.values().next().value,e=g.enemies.find(e=>e.stageBossBody===b);assert.equal(STAGE_NAMES[12],'베르됭');assert(b.y<=g.y-500);assert(Math.abs(b.x-g.x)<1e-9);assert.equal(b.fortScale,.8);assert.equal(b.t.geometryScale,1);
@@ -129,7 +129,7 @@ test('host Verdun tuning, forward spawn and local bullet impact preserve native 
  const p=b.parts.get('mg-left'),shot={x:b.x+p.x,y:b.y+p.y,ownerId:'p1'},hp=b.hp;damageStageBoss(g,e,shot,35);assert.equal(b.hp,hp-35);assert.equal(g.stageBossLastOwner,'p1');assert.deepEqual(log.smoke.at(-1),{x:shot.x,y:shot.y,dark:false});assert(g.events.some(e=>e.type==='impact'));
 });
 test('host stores fortress wreck pose after completed collapse and clears it at the next stage',async()=>{
- const {enableStageBoss}=await import('../stageboss-host.js?v=ui5');const {g}=hostGame(),a=enableStageBoss(g,{teamFaction:'central'});a.stages.stageIndex=12;
+ const {enableStageBoss}=await import('../stageboss-host.js?v=gal1');const {g}=hostGame(),a=enableStageBoss(g,{teamFaction:'central'});a.stages.stageIndex=12;
 
  const e=a.startBoss({x:70,y:-580}),b=clearNativeFortress({addon:a});a.reconcile({blocked:true});
  const frame={players:[{id:'p1',alive:true,x:0,y:0,radius:10}],bounds:{left:-195,right:195,top:-422,bottom:422}};
@@ -141,7 +141,7 @@ test('direct Verdun entry loads terrain and both fortress atlas layers without a
  const oldImage=globalThis.Image,requests=[];
  globalThis.Image=class{naturalWidth=1774;naturalHeight=887;set src(value){this.url=value;if(value){requests.push(value);queueMicrotask(()=>this.onload?.());}}};
  try{
-  const {paintVerdun,drawVerdunFort,releaseVerdunAssets}=await import('../verdun-art.js?v=ui5');
+  const {paintVerdun,drawVerdunFort,releaseVerdunAssets}=await import('../verdun-art.js?v=gal1');
   const draws=[],c=new Proxy({globalAlpha:1,drawImage(...a){draws.push(a)}},{get:(o,k)=>k in o?o[k]:()=>{},set:(o,k,v)=>(o[k]=v,true)});
   paintVerdun(c,{},0,0,960,700);drawVerdunFort(c,fixture(FortDouaumont).b);drawVerdunFort(c,fixture(FortSouville).b);
   for(const name of ['terrain-verdun-r8.webp','boss-douaumont-atlas-r8.webp','boss-douaumont-parts-r8.webp','boss-souville-atlas-r8.webp','boss-souville-parts-r8.webp']){

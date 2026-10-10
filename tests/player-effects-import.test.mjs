@@ -5,7 +5,7 @@ import {readFile} from 'node:fs/promises';
 // Load the renderer with only its declared imports replaced by asset-free modules.
 // An undeclared fx reference must still throw, as it does in the browser.
 const data=s=>'data:text/javascript;base64,'+Buffer.from(s).toString('base64');
-const source=await readFile(new URL('../player-effects129.js?v=ui5',import.meta.url),'utf8');
+const source=await readFile(new URL('../player-effects129.js?v=gal1',import.meta.url),'utf8');
 const moduleSource=source.replace(/(['"])\.\/fx-art\.js[^'"]*\1/g,JSON.stringify(data('export const fx=()=>true,fxTint=()=>true;')))
  .replace(/(['"])\.\/icons\.js[^'"]*\1/g,JSON.stringify(data('export const drawGameIcon=()=>true;')))
  .replace(/(['"])\.\/pilot-signature-view\.js[^'"]*\1/g,JSON.stringify(data('export const createSignatureView=()=>()=>{};')))

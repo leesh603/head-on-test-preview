@@ -1,10 +1,10 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 globalThis.Image=class {set src(v){queueMicrotask(()=>this.onload?.());}};globalThis.document={createElement:()=>({getContext:()=>null})};
-const {Game}=await import('../engine.js?v=ui5'),{CoopGame}=await import('../coop-engine.js?v=ui5');
-const {updateNavalFleet,fireSurfaceExchange,SHIP_TYPES}=await import('../fleet-naval1.js?v=ui5');
+const {Game}=await import('../engine.js?v=gal1'),{CoopGame}=await import('../coop-engine.js?v=gal1');
+const {updateNavalFleet,fireSurfaceExchange,SHIP_TYPES}=await import('../fleet-naval1.js?v=gal1');
 
 const {fixture,step}=await import('./stageboss-fixture94.mjs');
-const {recordShipWake}=await import('../naval-water.js?v=ui5');
+const {recordShipWake}=await import('../naval-water.js?v=gal1');
 function game(mode,region,faction='entente'){const pilot=faction==='central'?'baron':'fonck',g=mode==='solo'?new Game(faction==='central'?'fokker':'spad',pilot,()=>.5):new CoopGame([{pilot},{pilot}],{rng:()=>.5});g.region=region;g.worldRegion=()=>g.region;g.invuln=Infinity;for(const p of g.players||[])p.invuln=Infinity;return g;}
 test('All three seas spawn opposite mortal fleets, ally hulls never enter enemy collision lists',()=>{for(const mode of ['solo','coop'])for(const region of [1,7,16])for(const faction of ['central','entente']){const g=game(mode,region,faction);g.spawnMovingFleet(faction==='central'?'entente':'central');g.spawnMovingFleet(faction);assert.equal(g.friendlyShips.length,2);assert.equal(g.enemies.filter(e=>e.movingShip).length,2);assert(g.friendlyShips.every(e=>!g.enemies.includes(e)&&e.faction===faction));assert(g.enemies.filter(e=>e.movingShip).every(e=>e.speed===0&&e.stationary));}});
 test('Both fleets exchange aimed shells with real HP loss, without player damage or kill credit',()=>{for(const mode of ['solo','coop']){const g=game(mode,1),enemy=g.spawnMovingFleet()[0],ally=g.spawnMovingFleet('entente')[0];enemy.x=200;enemy.y=0;ally.x=0;ally.y=0;const hp=enemy.hp,ahp=ally.hp,playerHp=g.hp,kills=g.kills;assert(fireSurfaceExchange(g,ally,SHIP_TYPES[ally.shipClass]));assert(fireSurfaceExchange(g,enemy,SHIP_TYPES[enemy.shipClass]));for(let i=0;i<30;i++)updateNavalFleet(g,.04);assert(enemy.hp<hp);assert(ally.hp<ahp);assert.equal(g.hp,playerHp);assert.equal(g.kills,kills);assert(g.navalExchanges.length<=24);}});

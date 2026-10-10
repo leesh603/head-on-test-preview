@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=ui5';
-import {segmentDistance} from './alps-geometry117.js?v=ui5';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=gal1';
+import {segmentDistance} from './alps-geometry117.js?v=gal1';
 export const GALLIPOLI_SCALE=.78;
 const gs=v=>Math.round(v*GALLIPOLI_SCALE);
 export const GALLIPOLI_EXTENTS=Object.freeze({halfWidth:gs(1640),halfHeight:gs(1300)});

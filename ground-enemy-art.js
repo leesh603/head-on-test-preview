@@ -1,6 +1,6 @@
-import {GROUND_SHEETS,GROUND_FRAMES} from './ground-enemy-atlas.js?v=ui5';
+import {GROUND_SHEETS,GROUND_FRAMES} from './ground-enemy-atlas.js?v=gal1';
 const images=new Map(),pending=new Map();
-function load(key){if(images.has(key))return images.get(key);const im=new Image();im.crossOrigin='anonymous';im.decoding='async';images.set(key,im);pending.set(key,new Promise((resolve,reject)=>{im.onload=()=>resolve(im);im.onerror=()=>reject(new Error('Ground enemy art '+key));}));im.src='./'+GROUND_SHEETS[key]+'?v=ui5';return im;}
+function load(key){if(images.has(key))return images.get(key);const im=new Image();im.crossOrigin='anonymous';im.decoding='async';images.set(key,im);pending.set(key,new Promise((resolve,reject)=>{im.onload=()=>resolve(im);im.onerror=()=>reject(new Error('Ground enemy art '+key));}));im.src='./'+GROUND_SHEETS[key]+'?v=gal1';return im;}
 export function prepareGroundEnemyArt(){for(const key of Object.keys(GROUND_SHEETS))load(key);return Promise.all([...pending.values()]);}
 export function groundEnemyKind(e){if(e.groundEscort)return 'aatank';if(e.missionTank)return 'tank';if(e.fieldUnit==='railgun')return 'railgun';if(e.cityUnit==='light'||e.londonInstallation==='light')return 'light';if(e.facSprite?.includes('twinmg'))return 'mg';if(e.missionGround||e.cityUnit==='pit'||e.londonInstallation==='gun')return 'aa';return null;}
 export function groundEnemyFrame(faction,kind,state=0){return GROUND_FRAMES[faction==='entente'?'entente':'central']?.[kind]?.[state];}
