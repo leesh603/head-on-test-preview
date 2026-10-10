@@ -3345,6 +3345,26 @@
        "kind": "livery",
        "name": "일본해군 평가기",
        "file": "liveries/felixstowe_f2/japan.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아제국 해군",
+       "file": "liveries/felixstowe_f2/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 해군 평가기",
+       "file": "liveries/felixstowe_f2/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 대잠 초계",
+       "file": "liveries/felixstowe_f2/nightpatrol.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/felixstowe_f2/leader.webp"
       }
      ]
     },
