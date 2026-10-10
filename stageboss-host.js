@@ -1,3 +1,4 @@
+import {doverPatrolChart} from './dover-patrol-chart.js?v=dover3';
 import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=gal1';
 import {resolveSurfaceSpacing} from './naval-spacing.js?v=gal1';
 
@@ -6,7 +7,7 @@ import {tickRegionalConditions} from './region-doctrine1.js?v=gal1';
 import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42';
 import {handleMaanCue} from './maan-view.js?v=gal1-r3';
 import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=gal1';
-import {isDoverBoss} from './dover-night-view.js?v=dover2';
+import {isDoverBoss} from './dover-night-view.js?v=dover3';
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=gal1';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=gal1';
 import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=gal1&rail=42';
@@ -71,8 +72,8 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    const density=loop===0?({0:.55,1:.7,2:.85}[stage]??1):1;
    const maxHp=Math.round(2100*(1+g.t/150)*(1+1.2*loop+.35*loop*loop))*heavyHp;
    const bossTuning={
-    'supermarine-nighthawk':{geometryScale:Math.min(.55,Math.max(.26,(g.viewWidth||960)*.8/1200)),mobileBoss:false,motionMultiplier:1,coreRadius:48,partHp:maxHp*.065},
-    'siemens-schuckert-r-viii':{geometryScale:Math.min(.72,Math.max(.32,(g.viewWidth||960)*.94/1200)),mobileBoss:false,motionMultiplier:1,coreRadius:50,partHp:maxHp*.055},
+    'supermarine-nighthawk':{geometryScale:1.2*Math.min(.55,Math.max(.26,(g.viewWidth||960)*.8/1200)),mobileBoss:false,motionMultiplier:1,coreRadius:48,partHp:maxHp*.065},
+    'siemens-schuckert-r-viii':{geometryScale:1.2*Math.min(.72,Math.max(.32,(g.viewWidth||960)*.94/1200)),mobileBoss:false,motionMultiplier:1,coreRadius:50,partHp:maxHp*.055},
     'paris-gun':{warningSeconds:1.15,railCycle:5.4,railMoveSeconds:3.6,shellCount:6,barrageInterval:.26,hpScale:.72},
     lincomparable:{warningSeconds:1.4,railCycle:5.8,railMoveSeconds:3.6,hpScale:.72},
     'sms-stuttgart':{launchInterval:1.8,fireScale:.62,suppressiveInterval:1.9},
@@ -469,7 +470,7 @@ export function endStageBossFrame(g,dt){
  const bounds=stageBossBounds(g),playerFrames=players(g).map(p=>({id:p.id||'p1',alive:alive(p),x:p.x,y:p.y,a:p.a,vx:Number.isFinite(p.previousX)?(p.x-p.previousX)/Math.max(dt,1/120):addon.stages.stageIndex===9?Math.cos(p.a)*(p.speed||0)*(p.airframeSpeed??1):0,vy:Number.isFinite(p.previousY)?(p.y-p.previousY)/Math.max(dt,1/120):addon.stages.stageIndex===9?Math.sin(p.a)*(p.speed||0)*(p.airframeSpeed??1):0,radius:12,londonRiver:addon.stages.stageIndex===11&&londonRiverCover(p.x,p.y)}));
  const defenderFrames=addon.stages.stageIndex===9?(g.patrols||[]).map(a=>formationDefenderFrame(g,a)):[];
  if(addon.stages.stageIndex===13)for(const p of playerFrames)p.sandCover=maanSandCover(g.maanWeather,p.x,p.y);
- const frame={paused:blocked(g),players:playerFrames,defenders:defenderFrames,defenderLosses:g.patrolLosses||0,bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings,londonTargets:g.londonBattle?.districts||[],parisTargets:g.parisBattle?.districts||[]};
+ const frame={mapBounds:addon.stages.stageIndex===17?doverPatrolChart(g):undefined,paused:blocked(g),players:playerFrames,defenders:defenderFrames,defenderLosses:g.patrolLosses||0,bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings,londonTargets:g.londonBattle?.districts||[],parisTargets:g.parisBattle?.districts||[]};
  addon.tick(dt,frame);addon.reconcile({blocked:blocked(g)});separateLargeBossBodies(g);syncStageBossTargets(g);
   // No invisible composite-sized apron collision. Wire hazards and mines are
   // the actual dangerous geometry, and destroyed sections leave open air.

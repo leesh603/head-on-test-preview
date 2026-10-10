@@ -1,5 +1,5 @@
 {
- "v": 16,
+ "v": 17,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -378,6 +378,11 @@
        "kind": "livery",
        "name": "바이에른 부대",
        "file": "liveries/albatros_d5a/bavarian.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Edelweiss (목재동체)",
+       "file": "aces/edelweiss_albatros.webp"
       }
      ]
     },

@@ -1,3 +1,4 @@
+import {steerDoverBoundary,containDoverPlayer} from './dover-map-boundary.js?v=dover3';
 import {advanceExplosionFx} from './explosion-profiles.js?v=gal1';
 import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=gal1';
 import {nungesserAimOffset,nungesserRoundReaction} from './pilot-signature-state.js?v=gal1';
@@ -188,7 +189,7 @@ export class CoopGame {
   if(inGas){p.turn*=.55;const drift=Math.sin(this.t*2.4)*.22;if(Number.isFinite(control.angle))control.angle+=drift;else control.steer=(control.steer||0)+drift}
   p.duoSpinStep=duo?Math.min(dt,active):0;p.flyAirframe(dt,control);p.duoSpinStep=0;p.turn=turn;
   const velocity=p.baseSpeed*p.healthSpeedFactor()*stageBossSpeed(p)*(boost?1.7:1)*(charge?4.6:p.evadeTime>0?2.35:p.airframeSpeed??1)*(p.pursuitSpeedFactor??1);
-  p.x+=Math.cos(p.a)*velocity*dt;p.y+=Math.sin(p.a)*velocity*dt;this.constrainMove(p,oldX,oldY);p.distance+=Math.hypot(p.x-oldX,p.y-oldY);
+  steerDoverBoundary(this,p,dt,velocity);p.x+=Math.cos(p.a)*velocity*dt;p.y+=Math.sin(p.a)*velocity*dt;this.constrainMove(p,oldX,oldY);containDoverPlayer(this,p);p.distance+=Math.hypot(p.x-oldX,p.y-oldY);
   p.updateTailLock(dt);
   if(charge){p.invuln=Math.max(p.invuln,dt+.02);p.a=p.chargeAngle;p.chargeTime=Math.max(0,p.chargeTime-dt);for(const e of this.enemies)if(e.hp>0&&!p.chargeHits.has(e)&&segmentDistance(e.x,e.y,oldX,oldY,p.x,p.y)<(e.heavyBomber?85:52)){p.chargeHits.add(e);this.emit(p,{x:e.x,y:e.y,vx:0,vy:0,life:.15,damage:p.damage*18,blast:true});this.combatBlast(e.x,e.y,48,'friendly','charge')}}
   tickLegendaryDefenses(p,this,dt);
