@@ -1373,7 +1373,28 @@
      "year": 1916,
      "role": "정찰기",
      "base": "../re7.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "러시아제국 공군",
+       "file": "liveries/re7/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 칠흑",
+       "file": "liveries/re7/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "초기 연색 도포",
+       "file": "liveries/re7/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/re7/usas.webp"
+      }
+     ]
     },
     {
      "id": "nieuport11",
