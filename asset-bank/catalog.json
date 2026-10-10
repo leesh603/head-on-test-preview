@@ -1065,6 +1065,26 @@
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "planes/sopwith_strutter.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 면허생산 은색",
+       "file": "liveries/strutter/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아제국 공군",
+       "file": "liveries/strutter/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "벨기에 공군",
+       "file": "liveries/strutter/belgian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "수비·훈련 은색",
+       "file": "liveries/strutter/silver.webp"
       }
      ]
     },
