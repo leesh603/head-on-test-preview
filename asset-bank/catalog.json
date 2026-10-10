@@ -2711,6 +2711,26 @@
        "kind": "ace",
        "name": "Smirnov (해골)",
        "file": "aces/smirnov_nieuport.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "소련 적군 붉은별",
+       "file": "liveries/ilya_muromets/soviet.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간폭격 칠흑",
+       "file": "liveries/ilya_muromets/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "겨울 백색 위장",
+       "file": "liveries/ilya_muromets/winter.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "우크라이나 청황띠",
+       "file": "liveries/ilya_muromets/ukrainian.webp"
       }
      ]
     }
