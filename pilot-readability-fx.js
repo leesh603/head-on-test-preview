@@ -7,7 +7,7 @@ export function createPilotReadability(fx){
    if(p.pilot!=='fonck')return false;
    const e=p.pilotIdentity?.target,f=clamp(p.pilotIdentity?.focus||0);
    if(!e||!(e.hp>0)||f<=0)return false;
-   const [x,y]=point(e.x,e.y),r=sizeOf(e)*.85+8+(1-f)*17,len=5+f*4;
+   const [x,y]=point(e.x,e.y),r=sizeOf(e)*1.3+10+(1-f)*17,len=5+f*4;
    // Open-center, worn brass sight. It converges around the aircraft silhouette,
    // never into a bright star covering the target or a blue laser-like beam.
    c.save();c.globalAlpha*=.38+f*.5;c.lineCap='round';

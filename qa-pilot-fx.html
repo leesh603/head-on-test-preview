@@ -6,17 +6,18 @@
 const $=id=>document.getElementById(id),frames=[$('before'),$('after')];let apis=[],games=[];
 frames[0].src='./qa-pilot-before.html?headonTest=1&autostart=0';frames[1].src='./qa-pilot-after.html?headonTest=1&autostart=0';
 function status(){ $('status').textContent='재현 완료 · '+games.map((g,i)=>(i?'후':'전')+' HP '+g.hp.toFixed(1)+' · 집중 '+(g.pilotIdentity?.focus||0).toFixed(2)+' · 전환 '+(g.pilotIdentity?.switches||0)+' · 은폐 '+(g.ballCloak||0).toFixed(2)+' · 탄 '+g.bullets.length+' · FX '+apis[i].equipmentInspect().keys.filter(k=>k[1]).length+'/6').join(' / ');}
-function target(g,x,y){g.spawnEnemy('bomber');const e=g.enemies.at(-1);Object.assign(e,{x:g.x+x,y:g.y+y,a:-Math.PI/2,fire:Infinity,hp:10000,maxHp:10000,speed:0});return e;}
-function step(g,fire=false,dt=.02){const focus=g.enemies[0];if(g.pilot==='fonck'&&focus){focus.x=g.x;focus.y=g.y-185;focus.a=-Math.PI/2;}g.state='playing';g.update(dt,{inputMode:'gamepad',fireHeld:fire,angle:-Math.PI/2});g.state='paused';}
+function target(g,x,y){g.spawnEnemy('bomber');const e=g.enemies.at(-1);Object.assign(e,{x:g.x+x,y:g.y+y,a:-Math.PI/2,fire:Infinity,hp:10000,maxHp:10000,speed:0});(g.qaTargets??=[]).push({e,x,y});return e;}
+function step(g,fire=false,dt=.02){for(const v of g.qaTargets||[]){v.e.x=g.x+v.x;v.e.y=g.y+v.y;v.e.a=-Math.PI/2;}g.state='playing';g.update(dt,{inputMode:'gamepad',fireHeld:fire,angle:-Math.PI/2});g.state='paused';}
 async function advance(time,fire=false){for(let t=0;t<time-.001;t+=.02){games.forEach(g=>step(g,fire));if(Math.round(t*50)%3===0)await new Promise(requestAnimationFrame);}}
 function hit(g,e){g.bullets.push({x:e.x,y:e.y,vx:0,vy:0,life:.1,enemy:false,ownerId:g.id||'p1',gun:0,identityGun:true,damage:1,hit:new Set()});step(g);}
 $('prepare').onclick=async()=>{ $('prepare').disabled=true;$('status').textContent='실제 상태 재현 중…';try{
  const [pilot,phase]=$('scene').value.split('-');games=apis.map((api,i)=>{const win=frames[i].contentWindow,old=win.Math.random;win.Math.random=()=>.5;api.start({pilot,region:Number($('region').value),invincible:false,freeze:true});win.Math.random=old;const g=api.debug();g.rng=()=>.5;
  for(const k of ['spawn','eventTimer','nextBossAt','nextHeavyAt','flakTimer','regionThreat','fieldUnitTimer','gasTimer','gustTimer','patrolTimer','supplyTimer','allyTimer'])g[k]=Infinity;
  g.enemies.length=0;g.bullets.length=0;g.drops.length=0;g.allies.length=0;g.x=g.y=0;g.a=-Math.PI/2;g.need=Infinity;
- if(pilot==='fonck')target(g,0,-185);if(pilot==='rickenbacker'){target(g,-95,-170);target(g,95,-135);target(g,0,-215);}return g;});
+ if(pilot==='fonck')target(g,0,-185);if(pilot==='rickenbacker'){target(g,-95,-240);target(g,95,-220);target(g,0,-290);}return g;});
+ while(frames.some(f=>!f.contentDocument.getElementById('regionTransition').classList.contains('hidden')))await new Promise(requestAnimationFrame);
  await advance(pilot==='fonck'?1.8:.6);
- if(pilot==='rickenbacker')for(let i=0;i<3;i++){games.forEach(g=>hit(g,g.enemies[i]));await advance(.08);}
+ if(pilot==='rickenbacker')for(let i=0;i<3;i++){games.forEach(g=>hit(g,g.qaTargets[i].e));await advance(.08);}
  if(phase==='active'||phase==='ambush'){games.forEach(g=>{g.state='playing';g.skill();g.state='paused'});await advance(pilot==='ball'?(phase==='ambush'?1.6:.5):.25);}
  if(phase==='active'&&pilot!=='ball'||phase==='ambush'||phase==='passive'&&pilot==='ball'){games.forEach(g=>g.fire=0);await advance(.02,true);}
  games.forEach(g=>g.events.length=0);status();
