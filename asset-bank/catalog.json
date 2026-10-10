@@ -2580,7 +2580,28 @@
      "year": 1917,
      "role": "정찰기",
      "base": "planes/savoia_pomilio.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "전선 얼룩 위장",
+       "file": "liveries/savoia_pomilio/mottle.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 운용기",
+       "file": "liveries/savoia_pomilio/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/savoia_pomilio/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "초기 연색 생산",
+       "file": "liveries/savoia_pomilio/linen.webp"
+      }
+     ]
     },
     {
      "id": "caproni_ca3",
