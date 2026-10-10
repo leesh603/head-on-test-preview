@@ -3219,6 +3219,26 @@
        "kind": "livery",
        "name": "미해군 평가기 별",
        "file": "liveries/macchi_m3/usn.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아제국 해군",
+       "file": "liveries/macchi_m3/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 해군 평가기",
+       "file": "liveries/macchi_m3/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "아드리아 파문 위장",
+       "file": "liveries/macchi_m3/wave.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은선체",
+       "file": "liveries/macchi_m3/leader.webp"
       }
      ]
     },
