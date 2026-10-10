@@ -636,6 +636,26 @@
        "kind": "ace",
        "name": "Linke-Crawford (매)",
        "file": "aces/aviatik_d1_falcon.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "무위장 은색",
+       "file": "liveries/aviatik_d1/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "인쇄 위장천 로젠지",
+       "file": "liveries/aviatik_d1/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "합판 바니시 동체",
+       "file": "liveries/aviatik_d1/wood.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "붉은 동체 지휘기",
+       "file": "liveries/aviatik_d1/red.webp"
       }
      ]
     },
