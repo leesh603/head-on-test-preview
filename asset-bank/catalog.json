@@ -989,7 +989,28 @@
      "year": 1917,
      "role": "수상전투기",
      "base": "../hansa_brandenburg_cc.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "전선 얼룩 위장",
+       "file": "liveries/hansa_cc/mottle.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "이탈리아 노획 운용기",
+       "file": "liveries/hansa_cc/italian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "후기 직선십자",
+       "file": "liveries/hansa_cc/cross.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "은색 도포",
+       "file": "liveries/hansa_cc/silver.webp"
+      }
+     ]
     }
    ]
   },
