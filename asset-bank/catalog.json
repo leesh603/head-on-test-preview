@@ -2855,6 +2855,26 @@
        "kind": "livery",
        "name": "폴란드 샤호비차",
        "file": "liveries/caudron_g4/polish.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아제국 공군",
+       "file": "liveries/caudron_g4/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "벨기에 항공대",
+       "file": "liveries/caudron_g4/belgian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "중동전선 사막 크림",
+       "file": "liveries/caudron_g4/desert.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은 나셀",
+       "file": "liveries/caudron_g4/leader.webp"
       }
      ]
     },
