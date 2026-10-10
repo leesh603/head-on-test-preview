@@ -2591,6 +2591,26 @@
        "kind": "livery",
        "name": "독일 노획 시험기",
        "file": "liveries/dh4/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "중동전선 사막 크림",
+       "file": "liveries/dh4/desert.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "벨기에 전후 인수기",
+       "file": "liveries/dh4/belgian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "그리스 육군 항공대",
+       "file": "liveries/dh4/greek.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/dh4/leader.webp"
       }
      ]
     },
