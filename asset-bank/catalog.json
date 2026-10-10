@@ -557,6 +557,26 @@
        "kind": "livery",
        "name": "은색 동체 + 붉은 기수",
        "file": "liveries/fokkerd7/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "수칠 얼룩 위장",
+       "file": "liveries/fokkerd7/mottle.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 칠흑",
+       "file": "liveries/fokkerd7/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 반입 평가기",
+       "file": "liveries/fokkerd7/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "폴란드 샤호비차",
+       "file": "liveries/fokkerd7/polish.webp"
       }
      ]
     },
