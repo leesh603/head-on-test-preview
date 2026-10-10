@@ -278,6 +278,26 @@
        "kind": "livery",
        "name": "겨울 백색 도장",
        "file": "liveries/albatros_d5a/winter.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "후기 로젠지 인쇄천",
+       "file": "liveries/albatros_d5a/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "영국 노획기",
+       "file": "liveries/albatros_d5a/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 반입 평가기",
+       "file": "liveries/albatros_d5a/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "바이에른 부대",
+       "file": "liveries/albatros_d5a/bavarian.webp"
       }
      ]
     },
