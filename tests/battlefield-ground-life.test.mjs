@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {GROUND_ROUTES,GROUND_FIGHTS,GROUND_EVENTS,groundRoutePose} from '../ground-life.js';
+import {GROUND_ROUTES,GROUND_FIGHTS,GROUND_EVENTS,groundRoutePose,groundInfantryPose} from '../ground-life.js';
 
 const source=readFileSync(new URL('../ground-life.js',import.meta.url),'utf8')
  .split('\n').filter(line=>!/^import\b/.test(line.trim())).join('\n').replace(/\bexport (function|const)\b/g,'$1');
@@ -37,6 +37,18 @@ test('water regions have no infantry, ground vehicles or ground fire',async()=>{
  const {drawGroundLife,fxKeys}=await renderer();const {c,counts}=context();
  for(const key of ['sea','channel','sky','night','alps']){assert.equal(GROUND_ROUTES[key],undefined);assert.equal(GROUND_FIGHTS[key],undefined);assert.equal(GROUND_EVENTS[key],undefined);drawGroundLife(c,key,-800,-800,1600,1600,1254,2,1);}
  assert.equal(counts.images,0);assert.equal(fxKeys.length,0);
+});
+test('squads charge, scatter, withdraw and lose a member within the inspected dry apron',()=>{
+ const states=new Set(),p={};let hiddenCasualty=false;
+ for(let n=0;n<3;n++)for(let tick=0;tick<840;tick++){
+  groundInfantryPose(tick*.1,0,0,n,p);states.add(p.state);
+  assert.ok(Math.abs((n-1)*7+p.along)<=17);
+  assert.ok(p.forward>=0&&p.forward<=7);
+  assert.ok(p.alpha>=0&&p.alpha<=1);
+  if(p.state==='fallen'&&p.alpha===0)hiddenCasualty=true;
+ }
+ for(const state of ['fire','cover','charge','scatter','retreat','regroup','fallen'])assert.ok(states.has(state),state);
+ assert.ok(hiddenCasualty,'casualties fade without a permanent corpse pool');
 });
 test('scenery uses painted images and existing FX without a live filter or drawn bodies',async()=>{
  const {drawGroundLife,fxKeys}=await renderer();const {c,counts}=context();

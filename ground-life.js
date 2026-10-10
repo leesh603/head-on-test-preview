@@ -35,8 +35,8 @@ export const GROUND_ROUTES=Object.freeze({
  cambrai:[['tank',.850,.280,.885,.286,32,32]],
  somme:[['tank',.226,.696,.248,.691,32,35]]
 });
-// u,v, trench direction, firing direction. Members move only along the short
-// straight trench floor; they never wander into no-man's-land or water.
+// u,v, trench direction, firing direction. The short sorties stay within the
+// inspected dry parapet apron (at most 17px from each station), never free roam.
 export const GROUND_FIGHTS=Object.freeze({
  trenches:[[.291,.165,-.52,.55],[.765,.163,.63,2.4],[.694,.636,-.48,-2.2]],
  burning:[[.286,.213,-.07,.6],[.742,.427,.22,-2.4],[.548,.574,-.34,-.9]]
@@ -62,6 +62,28 @@ export function groundRoutePose(route,t,seed,out){
  out.moving=travel>.02&&travel<.98;out.progress=p;return out;
 }
 const pose={};
+const infantryPose={};
+// A squad shares an attack/withdrawal clock, with small individual delays.
+// One occasional casualty stays down and fades before a replacement regroups.
+// All movement is bounded; no entities, pathfinding or growing corpse pool.
+export function groundInfantryPose(t,seed,station,member,out){
+ const clock=t+(seed%83)*.27+station*6.1,local=mod(clock-member*.45,28),epoch=Math.floor((clock-member*.45)/28);
+ let along=0,forward=0,heading=0,frame=9,alpha=1,state='cover';
+ if(local<3){state='fire';frame=member===1?10:8;}
+ else if(local<7){frame=9;}
+ else if(local<10){state='charge';forward=(local-7)/3*7;frame=8;}
+ else if(local<13){state='scatter';const p=(local-10)/3;forward=7*(1-p);along=(member-1)*3*p;heading=Math.PI;frame=8;}
+ else if(local<17){state='retreat';along=(member-1)*3-(local-13)/4*7;heading=-Math.PI/2;frame=8;}
+ else if(local<23){along=(member-1)*3-7;}
+ else {state='regroup';along=((member-1)*3-7)*(1-(local-23)/5);heading=Math.PI/2;frame=8;}
+ // Every third cycle, only the outside rifleman falls in the short sortie.
+ if(member===2&&mod(epoch+station,3)===0&&local>=10){
+  state='fallen';forward=7;along=0;heading=.9;frame=11;
+  alpha=local<14?1:local<17?(17-local)/3:0;
+ }
+ out.along=along;out.forward=forward;out.heading=heading;out.frame=frame;out.alpha=alpha;out.state=state;out.local=local;
+ return out;
+}
 const LIMIT=Object.freeze({vehicle:6,fight:5,event:7});
 export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
  if(!sprites.length||!Number.isFinite(period)||period<=0||!Number.isFinite(t)||density<=0)return;
@@ -91,17 +113,19 @@ export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
   if(fights)for(let j=0;j<fights.length&&groups<(low?2:LIMIT.fight);j++){
    const f=fights[j],x0=baseX+(mx?1-f[0]:f[0])*period,y0=baseY+(my?1-f[1]:f[1])*period;
    if(x0<-35||y0<-35||x0>width+35||y0>height+35)continue;groups++;
-   const cycle=mod(t+(seed%83)*.27+j*2.3,14),tx=Math.cos(f[2])*sx,ty=Math.sin(f[2])*sy;
+   const tx=Math.cos(f[2])*sx,ty=Math.sin(f[2])*sy;
    const aim=Math.atan2(Math.sin(f[3])*sy,Math.cos(f[3])*sx);
    const count=low?2:3;
    for(let n=0;n<count;n++){
-    const local=mod(cycle+n*3.4,14),moving=local>8&&local<11;
-    const crawl=moving?Math.sin((local-8)/3*Math.PI)*4:0;
-    const x=x0+tx*((n-1)*9+crawl),y=y0+ty*((n-1)*9+crawl);
-    const shooting=local<2.2,frame=n===1?10:shooting?8:moving?11:9;
-    sprite(c,frame,x,y,n===1?11:10,aim+Math.PI/2,.70);
+    groundInfantryPose(t,seed,j,n,infantryPose);
+    const p=infantryPose,run=p.frame===8&&p.state!=='fire';
+    const x=x0+tx*((n-1)*7+p.along)+Math.cos(aim)*p.forward;
+    const y=y0+ty*((n-1)*7+p.along)+Math.sin(aim)*p.forward;
+    const a=p.state==='retreat'?Math.atan2(-ty,-tx):p.state==='regroup'?Math.atan2(ty,tx):aim+p.heading;
+    const bob=run?Math.sin(t*13+n*2)*.22:0;
+    sprite(c,p.frame,x,y+bob,n===1&&p.frame===10?11:10,a+Math.PI/2,.70*p.alpha);
     // Short, dim volleys. No ambient projectiles crossing the flight layer.
-    if(shooting&&mod(local,n===1?.19:.72)<.065){const tip=n===1?4.5:4;fx(c,'muzzle',x+Math.cos(aim)*tip,y+Math.sin(aim)*tip,5,4,aim,.33);}
+    if(p.state==='fire'&&mod(p.local,n===1?.19:.72)<.065){const tip=n===1?4.5:4;fx(c,'muzzle',x+Math.cos(aim)*tip,y+Math.sin(aim)*tip,5,4,aim,.33);}
    }
   }
   const battery=BATTERIES[key];
