@@ -12,6 +12,7 @@ export const groundLifeReady=typeof Image==='undefined'?Promise.resolve(false):n
   for(let i=0;i<CELLS.length;i++){
    const [x,y,w,h]=CELLS[i],cv=document.createElement('canvas'),size=i<8?128:40;
    cv.width=Math.ceil(size*w/h)+4;cv.height=size+4;const c=cv.getContext('2d');
+   if(!c){resolve(false);return}
    c.imageSmoothingEnabled=true;c.filter='blur(0.3px)';c.drawImage(im,x-2,y-2,w+4,h+4,2,2,cv.width-4,size);c.filter='none';
    c.globalCompositeOperation='source-atop';c.globalAlpha=.22;c.fillStyle='#929b9e';c.fillRect(0,0,cv.width,cv.height);sprites[i]=cv;
   }resolve(true);
