@@ -92,3 +92,28 @@ test('Opposite-facing R.VIII aligns without snapping before telegraphing one com
     assert.equal(bombs[i].sourcePartId,null);assert.ok(Number.isFinite(bombs[i].sourceX+bombs[i].sourceY));
   }
 });
+
+test('R.VIII camera-flow runs keep the bomber, paired blasts, and recovery core reachable on mobile',()=>{
+  const events=[],dt=.02,boundsAt=[],body=make(SiemensSchuckertRVIII,{x:-127,y:-135,emit:e=>events.push({...e,time:clock,heading:body.a})});let clock=0,longestOff=0,offFor=0,lastPhase=body.phase;const recoveries=[];
+  for(let i=0;i<2000;i++){
+    clock=(i+1)*dt;const cy=-180*clock,bounds={left:-195,right:195,top:cy-422,bottom:cy+422},player={id:'one',alive:true,x:0,y:cy,vx:0,vy:0,radius:12};
+    body.update(dt,{players:[player],bounds});boundsAt.push(bounds);const extent=body.airframeExtents(),visible=body.x+extent.x>=bounds.left&&body.x-extent.x<=bounds.right&&body.y+extent.y>=bounds.top&&body.y-extent.y<=bounds.bottom;
+    if(visible)offFor=0;else{offFor+=dt;longestOff=Math.max(longestOff,offFor);}
+    if(body.phase!==lastPhase&&body.phase==='recovery'){const q=body.coreOffset(),x=body.x+q.x,y=body.y+q.y;recoveries.push(x>=bounds.left&&x<=bounds.right&&y>=bounds.top&&y<=bounds.bottom);}lastPhase=body.phase;
+  }
+  assert.ok(longestOff<=6);assert.ok(recoveries.length>=2&&recoveries.every(Boolean),'every vulnerable recovery begins with its core in view');
+  const warnings=events.filter(e=>e.type==='dover-bomb-warning');assert.ok(warnings.length>=2);assert.ok(warnings.every(e=>Math.sin(e.angle)*-180>100),'committed headings travel with the camera flow');
+  const bombs=events.filter(e=>e.type==='hazard'&&e.visual==='rviii-bomb');assert.ok(bombs.length>=16&&bombs.length%8===0);assert.ok(bombs.every(e=>Math.abs(angleDelta(e.angle,e.heading))<.04));
+  for(let i=0;i<bombs.length;i+=2){let visible=false;for(let j=i;j<i+2;j++){const e=bombs[j],bounds=boundsAt[Math.min(boundsAt.length-1,Math.round((e.time+e.warning)/dt)-1)];if(e.x+e.radius>=bounds.left&&e.x-e.radius<=bounds.right&&e.y+e.radius>=bounds.top&&e.y-e.radius<=bounds.bottom)visible=true;}assert.ok(visible,'each staggered pair retains a visible blast lane');}
+});
+
+test('Damaged R.VIII propulsion still returns its vulnerable core to a moving mobile viewport',()=>{
+  const body=make(SiemensSchuckertRVIII,{x:-127,y:-135});body.hit({partId:'drive-outer-left',damage:1e6});body.hit({partId:'drive-inner-left',damage:1e6});assert.equal(body.drives(),2);assert.equal(body.hit({damage:1}).damage,0);
+  let previous=body.phase,longestOff=0,offFor=0,recoveries=0,coreDamage=0;
+  for(let i=0;i<2000;i++){
+    const time=(i+1)*.02,cy=-180*time,bounds={left:-195,right:195,top:cy-422,bottom:cy+422},player={id:'one',alive:true,x:0,y:cy,vx:0,vy:0,radius:12};body.update(.02,{players:[player],bounds});
+    const extent=body.airframeExtents(),visible=body.x+extent.x>=bounds.left&&body.x-extent.x<=bounds.right&&body.y+extent.y>=bounds.top&&body.y-extent.y<=bounds.bottom;if(visible)offFor=0;else{offFor+=.02;longestOff=Math.max(longestOff,offFor);}
+    if(body.phase!==previous&&body.phase==='recovery'){const q=body.coreOffset(),x=body.x+q.x,y=body.y+q.y;assert.ok(x>=bounds.left&&x<=bounds.right&&y>=bounds.top&&y<=bounds.bottom);recoveries++;if(!coreDamage)coreDamage=body.hit({damage:1}).damage;}previous=body.phase;
+  }
+  assert.ok(longestOff<=6);assert.ok(recoveries>=2);assert.equal(coreDamage,1);assert.ok(body.hullYaw>0&&body.currentSpeed<112);
+});
