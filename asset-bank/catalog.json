@@ -779,6 +779,26 @@
        "kind": "ace",
        "name": "Lufbery",
        "file": "../lufbery_nieuport17.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스군 표준 (빨강바깥 코카드)",
+       "file": "liveries/nieuport17/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "영국 RFC 상면 위장",
+       "file": "liveries/nieuport17/camo.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아제국 공군",
+       "file": "liveries/nieuport17/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 시험기",
+       "file": "liveries/nieuport17/captured.webp"
       }
      ]
     },
