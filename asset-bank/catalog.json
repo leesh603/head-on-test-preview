@@ -925,6 +925,26 @@
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "planes/nieuport_11_bebe.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "영국 RFC PC10",
+       "file": "liveries/nieuport11/british.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아제국 공군",
+       "file": "liveries/nieuport11/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "이탈리아 마키 면허기",
+       "file": "liveries/nieuport11/italian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 팔츠 파생기",
+       "file": "liveries/nieuport11/german.webp"
       }
      ]
     },
