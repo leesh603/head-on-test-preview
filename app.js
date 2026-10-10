@@ -43,6 +43,7 @@ import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?
 import {drawEnemyDanger} from './enemy-danger-view.js?v=tame3';
 import {drawGas} from './gas-view.js?v=tame3';
 import {drawWarAmbience} from './war-ambience.js?v=tame3';
+import {backgroundDressingReady,drawRepeatedDressing,bakeHarborDressing,drawGallipoliDressing,drawDesertDressing,drawParisDressing} from './background-dressing.js?v=1';
 import {missionNavigation,drawMissionRadar} from './navigation.js?v=tame3';
 import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=tame3';
 import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=tame3&rail=42';
@@ -572,7 +573,7 @@ function harborLandmark(){
  if(!zeebruggeHarborArt.naturalWidth)return null;
  if(zeebruggeHarborBlend)return zeebruggeHarborBlend;
  const w=zeebruggeHarborArt.naturalWidth,h=zeebruggeHarborArt.naturalHeight,c=document.createElement('canvas');c.width=w;c.height=h;
- const g=c.getContext('2d');g.drawImage(zeebruggeHarborArt,0,0);
+ const g=c.getContext('2d');g.drawImage(zeebruggeHarborArt,0,0);bakeHarborDressing(g,w,h);
  g.globalCompositeOperation='destination-in';
  for(const vertical of [true,false]){
   const length=vertical?h:w,fade=length*.18,gradient=g.createLinearGradient(0,0,vertical?0:w,vertical?h:0);
@@ -652,6 +653,7 @@ function paintTrenchHellOverlay(cx,cy,W,H){
 // integer-aligned slice instead of re-rasterizing every 768px tile + transform.
 // The buffer only repaints when the camera crosses its inner margin.
 const _terrBufs=new Map();
+backgroundDressingReady.then(()=>{_terrBufs.clear();zeebruggeHarborBlend=null;});
 function drawTerrainBuffered(key,cx,cy,W,H){
  const M=192,bw=W+2*M,bh=H+2*M;
  let b=_terrBufs.get(key);
@@ -662,6 +664,7 @@ function drawTerrainBuffered(key,cx,cy,W,H){
   b.ax=vx-M;b.ay=vy-M;
   const g=b.cv.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,bw,bh);
   terrainAlpsRenderer.draw(g,{key,camera:{x:b.ax,y:b.ay},width:bw,height:bh});
+  drawRepeatedDressing(g,key,b.ax,b.ay,bw,bh,terrainAlpsRenderer.sizeFor(key));
   if(key==='alps'&&game?.alpsMountains)game.alpsMountains.draw(g,{camera:{x:b.ax,y:b.ay},width:bw,height:bh});
  }
  const sx=Math.round(vx-b.ax),sy=Math.round(vy-b.ay);
@@ -671,9 +674,9 @@ function paintRegion(region,cx,cy,width=W,height=H){
  const W=width,H=height;
  if(region===12){paintVerdun(ctx,game,cx,cy,W,H);return;}
  if(region===16){paintJutland(ctx,game,cx,cy,W,H);return;}
- if(region===14){paintGallipoli(ctx,game,cx,cy,W,H);return;}
- if(region===15){paintParis(ctx,game,cx,cy,W,H,terrainAlpsRenderer);return;}
- if(region===13){paintMaan(ctx,game,cx,cy,W,H);return;}
+ if(region===14){paintGallipoli(ctx,game,cx,cy,W,H);drawGallipoliDressing(ctx,game?.gallipoliRoute,cx,cy,W,H);return;}
+ if(region===15){paintParis(ctx,game,cx,cy,W,H,terrainAlpsRenderer);drawParisDressing(ctx,game,cx,cy,W,H);return;}
+ if(region===13){paintMaan(ctx,game,cx,cy,W,H);drawDesertDressing(ctx,cx,cy,W,H);return;}
  if(region===7){paintZeebrugge(cx,cy,W,H);return;}
  if(region>=0&&region<terrainKeys.length){
   drawTerrainBuffered(terrainKeys[region],cx,cy,W,H);
@@ -1101,7 +1104,7 @@ const visiblePortraitReady=Promise.all(Object.keys(PILOTS).filter(id=>PILOTS[id]
 const gateDeps={portraits:visiblePortraitReady,figure:hangarArt(shownKey),icons:hangarIconsReady,sprite:paintedReady(shownKey)};
 const hangarReady=Promise.all(Object.values(gateDeps));
 for(const n of Object.keys(gateDeps))gateDeps[n].then(()=>{(window.__gateMarks=window.__gateMarks||{})[n]=Math.round(performance.now()/100)/10},()=>{(window.__gateMarks=window.__gateMarks||{})[n]='err'});
-const battleReady=Promise.all([fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady,aircraftReady]);
+const battleReady=Promise.all([fxArtReady,battlefieldArtReady,fieldUnitsReady,terrainProfilesReady,terrainAtlasReady,warmStageAssetsReady,aircraftReady,backgroundDressingReady]);
 // The splash stays up until everything the first hangar screen shows can paint at once:
 // every visible <img> and CSS background decoded, measured on the laid-out
 // hangar itself (so nothing added later by other modules is missed). 30 s caps a dead network.

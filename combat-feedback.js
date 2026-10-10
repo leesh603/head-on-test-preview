@@ -1,3 +1,4 @@
+import {drawFuelFire} from './explosion-profiles.js?v=fx5';
 import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from './aircraft-crash.js?v=tame3';
 import {drawTracerBolt} from './projectiles.js?v=tame3&rail=42';
 // Presentation owns its own state and deterministic variation. Never consume the
@@ -39,7 +40,7 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
  const burst=world.burst,smoke=world.smoke;
  const crashEffects={rng:visualRandom,
   smoke(x,y,heavy){let w=0;for(const p of state.trail)if(p.life>0)state.trail[w++]=p;state.trail.length=w;if(state.trail.length>=(compact()?COMBAT_FEEDBACK_LIMITS.compactTrail:COMBAT_FEEDBACK_LIMITS.trail))return;smoke.call({rng:visualRandom,particles:world.particles},x,y,heavy);state.trail.push(world.particles.at(-1))},
-  burst(x,y,color){world.combatFX??=[];const fire=this.wreck?.style==='fire';burst.call({rng:visualRandom,particles:world.particles,combatFX:world.combatFX},x,y,fire?color:'#ab9471',fire?30:12,'aircraftMedium')},
+  burst(x,y,color){world.combatFX??=[];const fire=this.wreck?.style==='fire';burst.call({rng:visualRandom,particles:world.particles,combatFX:world.combatFX,viewWidth:world.viewWidth},x,y,fire?color:'#ab9471',fire?30:12,'aircraftMedium')},
   event(){play(this.wreck?.style==='fire'?'impact':'airframeBreak')}
  };
  world.burst=function(x,y,color,n,...args){
@@ -144,7 +145,8 @@ export function drawCombatFeedback(c,world,point,{fx,planeSprite,bolt=drawTracer
  const s=worlds.get(world);if(!s)return;
  const visible=(x,y)=>Math.abs(x-world.x)<(world.viewWidth||960)+160&&Math.abs(y-world.y)<(world.viewHeight||700)+160;
  for(const f of s.plumes){if(!visible(f.x,f.y))continue;const [x,y]=point(f.x,f.y),k=f.age/f.life,size=16+k*(f.heavy?38:24);fx(c,f.heavy?'smokeDark':'engineSmoke',x,y,size,size,f.a,(1-k)*(f.heavy?.55:.35))}
- for(const e of world.enemies||[])if(ordinary(e)&&e.hp>0&&visible(e.x,e.y)){
+ let fuelCount=0;for(const e of world.enemies||[])if(e.hp>0&&e.burnTime>0&&!e.gontermannBurn&&visible(e.x,e.y)&&fuelCount<(world.viewWidth<=720?6:10)){const [x,y]=point(e.x,e.y);drawFuelFire(c,fx,x,y,e.fuelFxAge||0,e.surface?58:38,e.surface?0:e.a+Math.PI/2,e.burnTime);fuelCount++}
+ for(const e of world.enemies||[])if(ordinary(e)&&e.hp>0&&!(e.burnTime>0)&&visible(e.x,e.y)){
   const d=s.damage.get(e);if(!d||e.hp/e.maxHp>=.4)continue;const [x,y]=point(...localPoint(e,d.engine>0?14:0,d.engine>0?0:d.side*18));
   fx(c,d.engine>0?'fireEngine':'fireWing',x,y,32,32,e.a+Math.PI/2,.6+Math.sin(s.time*21)*.12);
  }

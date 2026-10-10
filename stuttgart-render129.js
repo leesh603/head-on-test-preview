@@ -1,3 +1,4 @@
+import {drawPartFuelFire} from './explosion-profiles.js?v=fx5';
 import {drawEnemyProjectile} from './projectiles.js?v=tame3';
 import {drawBossRound} from './boss-rounds.js?v=tame3';
 import {impactMark} from './tactical-marks.js?v=tame3';
@@ -19,7 +20,8 @@ export function drawSupportShip(g,b,images,{camera={x:0,y:0},debug=false}={}){
  for(const p of b.parts.values()){if(p.id==='cover')continue;
  if(p.hp<p.maxHp&&atlas?.naturalWidth){const index=p.hp<=0?2:1,sx=index%2*cell,sy=Math.floor(index/2)*cell;
   g.drawImage(atlas,sx+(p.nx+.5-p.rx)*cell,sy+(p.ny+.5-p.ry)*cell,p.rx*2*cell,p.ry*2*cell,(p.nx-p.rx)*b.width,(p.ny-p.ry)*b.height,p.rx*2*b.width,p.ry*2*b.height);
-  if(p.hp<=0&&(p.id==='fuel'||p.id==='boiler')){const r=p.rx*b.width;fx(g,'fireEngine',p.nx*b.width,p.ny*b.height,r*2.4,r*2.4,0,b.wreck?.15:.5);fx(g,'smokeDark',p.nx*b.width,p.ny*b.height-r,r*3,r*3,0,.3);}
+  if(p.hp<=0&&p.id==='fuel')drawPartFuelFire(g,fx,p,p.nx*b.width,p.ny*b.height,b.time||0,Math.min(70,p.rx*b.width*2.4),b.wreck?.35:3);
+  else if(p.hp<=0&&p.id==='boiler'){const r=p.rx*b.width;fx(g,'fireEngine',p.nx*b.width,p.ny*b.height,r*2.4,r*2.4,0,b.wreck?.15:.5);fx(g,'smokeDark',p.nx*b.width,p.ny*b.height-r,r*3,r*3,0,.3);}
  }
  if(debug&&b.hittable(p)){g.strokeStyle='#efd4a2';g.lineWidth=1.5;g.beginPath();g.ellipse(p.nx*b.width,p.ny*b.height,p.rx*b.width,p.ry*b.height,0,0,Math.PI*2);g.stroke();}}
  g.restore();

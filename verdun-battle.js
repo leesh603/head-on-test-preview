@@ -1,3 +1,4 @@
+import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=fx5';
 // Verdun-only environment; damage stays in the existing bounded hazard pool.
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const players=g=>g.players||[g];
@@ -35,7 +36,8 @@ const dust=(g,x,y,radius=55)=>{const v=g.verdunBattle;if(v){v.dust.push({x,y,rad
 export function handleVerdunCue(g,event){
  const body=g.stageBoss?.stages.encounter?.bodies.get(event.bossId),fort=body?.fortressBoss;
  if(event.type==='hazard-activated'&&event.visual?.startsWith('verdun-')){
-  dust(g,event.x,event.y,event.radius*1.55);g.burst?.(event.x,event.y,'#c6af86',10,'shell');g.smoke?.(event.x,event.y,true);g.shake=Math.max(g.shake||0,3);g.event('heavyShot','');return true;
+  const profile=groundShellProfile(event.visual);if(profile)pushExplosionFx(g,initExplosionProfile({x:event.x,y:event.y,radius:event.radius,side:'enemy',kind:'shell'},profile));
+  dust(g,event.x,event.y,event.radius*1.55);g.burst?.(event.x,event.y,'#c6af86',10,profile?'profileOnly':'shell');g.smoke?.(event.x,event.y,true,!!profile);g.shake=Math.max(g.shake||0,profile==='heavyShell'?5:3);g.event('heavyShot','');return true;
  }
  if(!fort)return false;
  if(event.type==='muzzle'){
@@ -44,7 +46,8 @@ export function handleVerdunCue(g,event){
  if(event.type==='fort-aa-repairing'){g.event('wave','외곽 대공포 정비 · 곧 재가동');return true;}
  if(event.type==='fort-aa-restored'){dust(g,event.x,event.y,28);g.event('wave','외곽 대공포 수리 완료');return true;}
  if(event.type==='ammo-cookoff'){
-  dust(g,event.x,event.y,100);g.burst?.(event.x,event.y,'#e9b66c',30,'structure');g.smoke?.(event.x-18,event.y,true);g.smoke?.(event.x+20,event.y,true);g.shake=Math.max(g.shake||0,9);g.event('wave','요새 탄약고 유폭 · 주변 포대 화력 약화');return true;
+  pushExplosionFx(g,initExplosionProfile({x:event.x,y:event.y,radius:82,side:'enemy',kind:'structure'},'ammoCookoff'));
+  dust(g,event.x,event.y,100);g.burst?.(event.x,event.y,'#e9b66c',30,'profileOnly');g.smoke?.(event.x-18,event.y,true,true);g.smoke?.(event.x+20,event.y,true,true);g.shake=Math.max(g.shake||0,9);g.event('wave','요새 탄약고 유폭 · 주변 포대 화력 약화');return true;
  }
  if(event.type==='fort-section-exposed'){g.event('wave',event.partId==='ammo'?'폐허 붕괴 · 지하 탄약고 노출':'외부 장갑 붕괴 · 탄약고 노출');dust(g,event.x,event.y,45);return true;}
  if(event.type==='fort-pit-open'){dust(g,event.x,event.y,25);return true;}

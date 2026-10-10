@@ -1,3 +1,4 @@
+import {groundShellProfile} from './explosion-profiles.js?v=fx5';
 import {minenMuzzleLocal} from './minenwerfer-art-layout.js?v=minen-r4';
 import {drawMinenInstallation} from './minenwerfer-art-render.js?v=minen-r4';
 import {prepareBossCutins} from './boss-cutin-art.js?v=tame3&rail=42';
@@ -680,6 +681,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    drawBossPart(c,p,ring,g?.t||0);
   },
    drawHazard(h){if(layer==='bodies')return;
+    if(h.kind==='circle'&&h.phase==='active'&&groundShellProfile(h.visual)&&![1,7].includes(g.worldRegion?.()??-1)&&fxReady('mortarImpact0'))return;
     // Every ordinary boss round shares one renderer (special bodies excepted).
     if(h.kind==='projectile'&&h.phase==='active'&&!['treffas-debris','building-debris','livens-ember','jutland-torpedo'].includes(h.visual)){drawBossRound(c,h,z);return;}
 
