@@ -1411,7 +1411,28 @@
      "year": 1917,
      "role": "전투기",
      "base": "../bristol_duo.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "폴란드군 적백 체커",
+       "file": "liveries/bristol_f2b/polish.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 칠흑",
+       "file": "liveries/bristol_f2b/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "훈련·지휘 은색",
+       "file": "liveries/bristol_f2b/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 시험기",
+       "file": "liveries/bristol_f2b/captured.webp"
+      }
+     ]
     },
     {
      "id": "bristol_m1",
