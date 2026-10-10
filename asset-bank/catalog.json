@@ -527,6 +527,26 @@
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "planes/junkers_d1.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "녹갈 얼룩 위장",
+       "file": "liveries/junkers_d1/mottle.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "수칠 로젠지",
+       "file": "liveries/junkers_d1/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 흑색",
+       "file": "liveries/junkers_d1/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "황색 꼬리+흑띠 편대",
+       "file": "liveries/junkers_d1/band.webp"
       }
      ]
     },
