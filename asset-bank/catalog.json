@@ -1682,7 +1682,28 @@
      "year": 1917,
      "role": "전투기",
      "base": "../bristol_m1.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "중동전선 사막 크림",
+       "file": "liveries/bristol_m1/desert.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "칠레 공군 흰별",
+       "file": "liveries/bristol_m1/chile.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "훈련기 은색",
+       "file": "liveries/bristol_m1/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전후 민간 경주기 붉은색",
+       "file": "liveries/bristol_m1/red.webp"
+      }
+     ]
     },
     {
      "id": "dh4",
