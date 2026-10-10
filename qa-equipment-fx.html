@@ -9,7 +9,7 @@ for(const [id,name] of items)$('item').add(new Option(name,id));
 const q='?headonTest=1&autostart=0';
 $('before').src='./qa-equipment-before.html'+q;
 $('after').src='./qa-equipment-after.html'+q;
-const status=()=>{ $('status').textContent=apis.map((a,i)=>{const g=a.debug();return (i?'후':'전')+' HP '+g.hp.toFixed(1)+' · 탄 '+g.bullets.length+' · 수리 '+(g.repairFlash151||0).toFixed(2)+' · 파편 '+(g.rankinFlash||0).toFixed(2)}).join(' / ');};
+const status=()=>{ $('status').textContent=apis.map((a,i)=>{const g=a.debug();return (i?'후':'전')+' HP '+g.hp.toFixed(1)+' · 탄 '+g.bullets.length+' · FX '+a.equipmentInspect?.().keys.filter(k=>k[1]).length+'/6 · 수리 '+(g.repairFlash151||0).toFixed(2)+' · 파편 '+(g.rankinFlash||0).toFixed(2)}).join(' / ');};
 function advance(g,seconds,fire=false){g.state='playing';for(let t=0;t<seconds-.0001;t+=.02)g.update(.02,{inputMode:'gamepad',fireHeld:fire,angle:-Math.PI/2});g.state='paused';}
 function equip(g,id){g.state='upgrade';g.upgrade(id,'legendary');g.state='playing';}
 function scenario(api){

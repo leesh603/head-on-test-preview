@@ -85,13 +85,6 @@ function drawEquipmentEffects151(c,p,x,y){
  }
  // Existing engine upgrade is outside the special-equipment pass.
  if(p.upgrades?.mercedesEngine){const output=Math.max(0,Math.min(1,p.mercedesOutput160||0));c.save();c.globalAlpha=.18+output*.28;c.strokeStyle='#c6d0c6';c.lineWidth=1+output*.7;for(const side of [-1,1]){c.beginPath();c.moveTo(-25,side*8);c.quadraticCurveTo(-40-output*13,side*(10+Math.sin(t*18)*2),-52-output*24,side*12);c.stroke()}c.restore()}
- if(p.jArmorCapsule&&p.equipmentArmorFlash>0){
-  const q=1-p.equipmentArmorFlash/.24,a=(p.equipmentImpactAngle??p.a)-p.a;
-  const ix=Math.cos(a)*23,iy=Math.sin(a)*18;
-  fx(c,'ricochet',ix,iy,43,25,a,(1-q)*.9);
-  // A couple of metal fragments travel away from the impact; no force field.
-  for(let i=0;i<2;i++){const b=a+(i?-.45:.45),d=8+q*30;fx(c,'metalShard'+i,ix+Math.cos(b)*d,iy+Math.sin(b)*d,10,6,b+q*3,(1-q)*.65)}
- }
  if(p.scarffRing){
   const a=(p.scarffAim??p.a)-p.a;c.save();c.rotate(a);
   // Short inked bearing at the gun, following the actual 66 degree/s mount.
@@ -174,6 +167,13 @@ function drawPrecisionEquipment156(c,p,x,y){
 
 export function drawEquipmentDefense(c,p,x,y){
  c.save();c.translate(x,y);c.rotate(p.a);
+ if(p.jArmorCapsule&&p.equipmentArmorFlash>0){
+  const q=1-p.equipmentArmorFlash/.24,a=(p.equipmentImpactAngle??p.a)-p.a;
+  const ix=Math.cos(a)*29,iy=Math.sin(a)*24;
+  fx(c,'ricochet',ix,iy,60,38,a,(1-q)*.95);
+  // A couple of metal fragments travel away from the impact; no force field.
+  for(let i=0;i<2;i++){const b=a+(i?-.45:.45),d=8+q*30;fx(c,'metalShard'+i,ix+Math.cos(b)*d,iy+Math.sin(b)*d,17,10,b+q*3,(1-q)*.65)}
+ }
  if(p.kaiserFogTime>0){
   const age=3-p.kaiserFogTime,fade=Math.min(1,age/.25,p.kaiserFogTime/.55);
   // An irregular trailing smoke curtain; the nose and incoming rounds remain
@@ -188,8 +188,9 @@ export function drawEquipmentDefense(c,p,x,y){
   // front. Visual radius is deliberately smaller than the 500px hit range.
   fx(c,'shellBurst0',-30,0,42+q*18,40,Math.PI,Math.max(0,1-q*3)*.65);
   for(let i=0;i<9;i++){const a=Math.PI+(i/8-.5)*220*Math.PI/180,d=35+q*(58+(i%3)*12);
-   fx(c,'metalShard'+i%3,Math.cos(a)*d,Math.sin(a)*d,13-i%2*3,7,a+q*2,fade*.85);
-   if(i%2===0)fx(c,'smokePuff',Math.cos(a)*(d-9),Math.sin(a)*(d-9),20+q*17,14+q*9,a,fade*.17);
+   fx(c,'metalShard'+i%3,Math.cos(a)*d,Math.sin(a)*d,24-i%2*4,14,a+q*2,fade*.95);
+   if(i%2===0)fx(c,'spark',Math.cos(a)*d,Math.sin(a)*d,21,21,a,fade*.65);
+   if(i%2===0)fx(c,'smokePuff',Math.cos(a)*(d-9),Math.sin(a)*(d-9),30+q*22,22+q*14,a,fade*.4);
   }
  }
  c.restore();
