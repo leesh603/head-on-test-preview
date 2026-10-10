@@ -34,6 +34,7 @@ import {getLocale} from './i18n.js?v=gal1';
 import {londonStatus} from './london-battle.js?v=gal1';
 import {parisStatus} from './paris-night-battle.js?v=gal1';
 import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=gal1';
+import {prepareDoverAssets,drawDoverBoss,drawDoverHazard,isDoverBoss,doverExtents} from './dover-night-view.js?v=dover1';
 import {prepareParisArt,releaseParisArt,drawParisBoss,drawParisWorld} from './paris-night-art.js?v=gal1';
 import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=gal1';
 import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=gal1';
@@ -91,8 +92,8 @@ const BOSS_KEYS_BY_REGION=Object.freeze({
   0:['parisGun','lincomparable'],1:['stuttgart','zubian'],2:['a7v','markv'],3:[],4:['drachenLeft','drachenCenter','drachenRight'],5:['l70','hma23'],6:['gik','ca4'],7:[],8:[],10:[],11:[]
 });
 export function prepareStageBossAssets(region){
- if([1,7,16].includes(region))prepareSinkingWater();
- const jobs=[prepareBossCutins(region),prepareRegionalBossArt(region)];releaseSommeAssets();if(region===10)jobs.push(prepareSommeAssets());releaseLondonArt();if(region===11)jobs.push(prepareLondonArt());releaseVerdunAssets();if(region===12)jobs.push(prepareVerdunAssets());releaseParisArt();if(region===15)jobs.push(prepareParisArt());jobs.push(prepareMaanAssets(region),prepareGallipoliAssets(region),prepareJutlandAssets(region));
+ if([1,7,16,17].includes(region))prepareSinkingWater();
+ const jobs=[prepareBossCutins(region),prepareRegionalBossArt(region),prepareDoverAssets(region)];releaseSommeAssets();if(region===10)jobs.push(prepareSommeAssets());releaseLondonArt();if(region===11)jobs.push(prepareLondonArt());releaseVerdunAssets();if(region===12)jobs.push(prepareVerdunAssets());releaseParisArt();if(region===15)jobs.push(prepareParisArt());jobs.push(prepareMaanAssets(region),prepareGallipoliAssets(region),prepareJutlandAssets(region));
  bossGroup.release();alpsGroup.release();supportGroup.release();rebuildGroup.release();armorDamageGroup.release();armorMotionGroup.release();harborGroup.release();trenchGroup.release();zubianGroup.release();cityGroup.release();buildingGroup.release();flakTowerGroup.release();
  for(const group of [...Object.values(railGroups),...Object.values(railWreckGroups)])group.release();
  const bossKeys=BOSS_KEYS_BY_REGION[region]||[];if(bossKeys.length)jobs.push(bossGroup.preload(bossKeys));
@@ -385,6 +386,7 @@ function drawCityFlak(c,b){
 
 function drawBossPart(c,p,ring,t=0){
  if(MAAN_KEYS.has(p.bodyKey))return;
+ if(isDoverBoss(p.bodyKey)){if(p.hittable&&!p.destroyed&&p.hp<p.maxHp)partMark(c,p.x,p.y,p.radius,p.radius,{hp:p.hp/p.maxHp});return;}
  if(p.bodyKey==='paris-searchlight-fortress'||p.bodyKey==='paris-staaken-rvi'){const r=p.radius;if(p.hittable&&!p.destroyed)partMark(c,p.x,p.y,r,r,{color:p.partId==='bomb-bay'?'#f2c27c':'#cfe2d4',hp:p.hp<p.maxHp?p.hp/p.maxHp:null});return;}
  if(p.bodyKey==='armored-harbor-fortress')return;
  if(p.bodyKey==='gotha-raider'||p.bodyKey==='london-apron-raid'){const r=p.radius;if(!p.destroyed&&(p.hp<p.maxHp||p.partId==='bomb-bay'&&p.phase==='bombing-run'))partMark(c,p.x,p.y,r,r,{hp:p.hp/p.maxHp});return;}
@@ -536,6 +538,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
  const bodyOf=match=>{for(const _v of addon.stages.encounter?.bodies?.values?.()||[])if(match(_v))return _v;return null};
  renderStageBossLayer(addon,{
   drawBody(b){if(layer==='hazards')return;
+   if(isDoverBoss(b.assetKey)){const body=addon.stages.encounter.bodies.get(b.id);if(body)drawDoverBoss(c,body,addon.defeatSequence);return;}
    if(b.assetKey.startsWith('jutland-')){const body=addon.stages.encounter.bodies.get(b.id);if(body)drawJutlandBody(c,body,body.deathAge||0);return;}
    if(b.assetKey==='gallipoli-fortress'){const body=bodyOf(v=>v.kind===b.assetKey);if(body)drawGallipoliBoss(c,body);return;}
    if(b.sommeBoss){drawSommeBoss(c,b);return;}
@@ -681,6 +684,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    drawBossPart(c,p,ring,g?.t||0);
   },
    drawHazard(h){if(layer==='bodies')return;
+    if(drawDoverHazard(c,h,z))return;
     if(h.kind==='circle'&&h.phase==='active'&&groundShellProfile(h.visual)&&![1,7].includes(g.worldRegion?.()??-1)&&fxReady('mortarImpact0'))return;
     // Every ordinary boss round shares one renderer (special bodies excepted).
     if(h.kind==='projectile'&&h.phase==='active'&&!['treffas-debris','building-debris','livens-ember','jutland-torpedo'].includes(h.visual)){drawBossRound(c,h,z);return;}
@@ -809,7 +813,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
   if(layer!=='bodies')for(const b of addon.stages.encounter?.bodies.values()||[]){if(!b.dead&&b.ruralRailBoss)drawRuralRailWarnings(c,b);if(!b.dead&&['gik','ca4'].includes(b.kind))drawAlpsWarnings(c,b);if(!b.dead&&b.kind==='treffas-wagen')drawCambraiFlakWarning(c,b);}
   if(layer!=='bodies')for(const cue of g.bossCues){if(drawRegionalCue(c,cue))continue;let line=cue;const owner=addon.stages.encounter?.bodies.get(cue.bossId);if(cue.formationAim){const aircraft=cue.minionId?g.enemies.find(e=>e.id===cue.minionId&&e.hp>0):owner;if(!aircraft||aircraft.dead)continue;line={x:aircraft.x+Math.cos(aircraft.a)*30,y:aircraft.y+Math.sin(aircraft.a)*30,targetX:aircraft.x+Math.cos(aircraft.a)*530,targetY:aircraft.y+Math.sin(aircraft.a)*530};}if(cue.harborGun&&(!owner||owner.dead||owner.parts.get(cue.partId)?.destroyed))continue;if(cue.partId&&['a7v-flak','mark-v-cruiser'].includes(owner?.kind)){const gun=owner.parts.get(cue.partId);if(gun?.destroyed)continue;const q=armorGunMuzzle(owner.kind,gun,owner.hullYaw,owner.t?.geometryScale||1);line={x:owner.x+q.x,y:owner.y+q.y,targetX:owner.x+q.x+Math.cos(q.angle)*420,targetY:owner.y+q.y+Math.sin(q.angle)*420};}if(cue.hullMountY&&['a7v-flak','mark-v-cruiser'].includes(owner?.kind)){const m=armorRotate(0,cue.hullMountY*(owner.t?.geometryScale||1),owner.hullYaw),facing=owner.hullYaw+(cue.hullMountY>0?Math.PI/2:-Math.PI/2),angle=facing+Math.max(-.3,Math.min(.3,armorAngleDelta(cue.lockedAngle,facing)));line={x:owner.x+m.x,y:owner.y+m.y,targetX:owner.x+m.x+Math.cos(angle)*420,targetY:owner.y+m.y+Math.sin(angle)*420};}aimLine(c,line.x,line.y,line.targetX,line.targetY,{p:cue.seconds?1-cue.life/cue.seconds:null,heavy:!!cue.formationAim});}
  c.restore();
- if(layer==='bodies')return;for(const b of addon.stages.encounter?.bodies.values()||[]){if(b.dead||b.hidden||(b.layout&&b.entryAge<7))continue;if(b.jutlandBoss){drawJutlandGuide(c,b,g,W,H,z);continue;}if(b.gallipoliBoss){drawGallipoliGuide(c,b,g,W,H,z);continue;}const hull=b.gallipoliBoss?{halfWidth:1640,halfHeight:1080}:b.layout?{halfWidth:b.layout.width/2,halfHeight:b.layout.height/2}:b.kind==='maan-rolls-royce'?{halfWidth:20,halfHeight:35}:b.fortressBoss?verdunFortExtents(b):b.sommeBoss?sommeExtents(b):b.kind==='drachen-net'?{halfWidth:400*b.cityArtScale,halfHeight:360*b.cityArtScale}:b.kind==='flak-tower-cell'?{halfWidth:190*b.regionalScale,halfHeight:190*b.regionalScale}:ALPS_BOMBER_LAYOUT[b.kind]?alpsHullExtents(b):LARGE_HULLS[b.kind]||{halfWidth:0,halfHeight:0},sx=(b.x-g.x)*z+W/2,sy=(b.y-g.y)*z+H/2,hx=hull.halfWidth*z,hy=hull.halfHeight*z;const visW=Math.min(sx+hx,W-30)-Math.max(sx-hx,30),visH=Math.min(sy+hy,H-100)-Math.max(sy-hy,190),frac=(Math.max(0,visW)*Math.max(0,visH))/(Math.max(1,4*hx*hy)||1),formation=FORMATION_BOSS_KEYS.has(b.kind);if(frac>.45||(b.gallipoliBoss&&sx>30&&sx<W-30&&sy>190&&sy<H-100)){if(formation)drawFormationNameplate(c,sx,sy-54*z,(getLocale()==='en'?(b.callSign||b.callSignKo):(b.callSignKo||b.callSign)),W);continue;}const x=clamp(sx,26,W-26),y=clamp(sy,190,H-100),a=Math.atan2(b.y-g.y,b.x-g.x);if(formation){drawFormationEdgeBadge(c,x,y,a);continue;}c.save();c.translate(x,y);c.rotate(a);c.fillStyle='#ffcd7c';c.beginPath();c.moveTo(12,0);c.lineTo(-7,-7);c.lineTo(-7,7);c.fill();c.restore();}
+ if(layer==='bodies')return;for(const b of addon.stages.encounter?.bodies.values()||[]){if(b.dead||b.hidden||(b.layout&&b.entryAge<7))continue;if(b.jutlandBoss){drawJutlandGuide(c,b,g,W,H,z);continue;}if(b.gallipoliBoss){drawGallipoliGuide(c,b,g,W,H,z);continue;}const hull=isDoverBoss(b.kind)?doverExtents(b):b.gallipoliBoss?{halfWidth:1640,halfHeight:1080}:b.layout?{halfWidth:b.layout.width/2,halfHeight:b.layout.height/2}:b.kind==='maan-rolls-royce'?{halfWidth:20,halfHeight:35}:b.fortressBoss?verdunFortExtents(b):b.sommeBoss?sommeExtents(b):b.kind==='drachen-net'?{halfWidth:400*b.cityArtScale,halfHeight:360*b.cityArtScale}:b.kind==='flak-tower-cell'?{halfWidth:190*b.regionalScale,halfHeight:190*b.regionalScale}:ALPS_BOMBER_LAYOUT[b.kind]?alpsHullExtents(b):LARGE_HULLS[b.kind]||{halfWidth:0,halfHeight:0},sx=(b.x-g.x)*z+W/2,sy=(b.y-g.y)*z+H/2,hx=hull.halfWidth*z,hy=hull.halfHeight*z;const visW=Math.min(sx+hx,W-30)-Math.max(sx-hx,30),visH=Math.min(sy+hy,H-100)-Math.max(sy-hy,190),frac=(Math.max(0,visW)*Math.max(0,visH))/(Math.max(1,4*hx*hy)||1),formation=FORMATION_BOSS_KEYS.has(b.kind);if(frac>.45||(b.gallipoliBoss&&sx>30&&sx<W-30&&sy>190&&sy<H-100)){if(formation)drawFormationNameplate(c,sx,sy-54*z,(getLocale()==='en'?(b.callSign||b.callSignKo):(b.callSignKo||b.callSign)),W);continue;}const x=clamp(sx,26,W-26),y=clamp(sy,190,H-100),a=Math.atan2(b.y-g.y,b.x-g.x);if(formation){drawFormationEdgeBadge(c,x,y,a);continue;}c.save();c.translate(x,y);c.rotate(a);c.fillStyle='#ffcd7c';c.beginPath();c.moveTo(12,0);c.lineTo(-7,-7);c.lineTo(-7,7);c.fill();c.restore();}
 }
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
@@ -843,3 +847,4 @@ export function paintCity(c,cx,cy,W,H,city='london'){
   c.strokeStyle='#f2dda13d';c.lineWidth=1;c.beginPath();c.moveTo(ox,oy);c.lineTo(tx,ty);c.stroke();c.fillStyle='#413e35';c.fillRect(ox-12,H-18,24,18);c.fillStyle='#d9c883';c.fillRect(ox-5,H-22,10,5);}
  c.restore();
 }
+

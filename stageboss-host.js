@@ -6,6 +6,7 @@ import {tickRegionalConditions} from './region-doctrine1.js?v=gal1';
 import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42';
 import {handleMaanCue} from './maan-view.js?v=gal1-r3';
 import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=gal1';
+import {isDoverBoss} from './dover-night-view.js?v=dover1';
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=gal1';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=gal1';
 import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=gal1&rail=42';
@@ -17,7 +18,7 @@ import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=gal1';
 
 
 import {createJutlandRoute,tickJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=gal1';
-export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭','마안 전투','갈리폴리 전선','1918 파리 야간공습','유틀란트 해전'];
+export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭','마안 전투','갈리폴리 전선','1918 파리 야간공습','유틀란트 해전','도버 해협 · 해상 야간 차단선'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const players=g=>g.players||[g];
@@ -70,6 +71,8 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    const density=loop===0?({0:.55,1:.7,2:.85}[stage]??1):1;
    const maxHp=Math.round(2100*(1+g.t/150)*(1+1.2*loop+.35*loop*loop))*heavyHp;
    const bossTuning={
+    'supermarine-nighthawk':{geometryScale:Math.min(.55,Math.max(.26,(g.viewWidth||960)*.8/1200)),mobileBoss:false,motionMultiplier:1,coreRadius:48,partHp:maxHp*.065},
+    'siemens-schuckert-r-viii':{geometryScale:Math.min(.72,Math.max(.32,(g.viewWidth||960)*.94/1200)),mobileBoss:false,motionMultiplier:1,coreRadius:50,partHp:maxHp*.055},
     'paris-gun':{warningSeconds:1.15,railCycle:5.4,railMoveSeconds:3.6,shellCount:6,barrageInterval:.26,hpScale:.72},
     lincomparable:{warningSeconds:1.4,railCycle:5.8,railMoveSeconds:3.6,hpScale:.72},
     'sms-stuttgart':{launchInterval:1.8,fireScale:.62,suppressiveInterval:1.9},
@@ -165,9 +168,11 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     else if(event.type==='hazard-activated'&&event.kind==='circle'&&(event.visual?.startsWith('aa-')||event.visual==='city-flak-shell'||event.visual==='drachen-fuse'||event.visual?.startsWith('somme-')||event.visual?.startsWith('rural-rail-')||event.visual==='black-flak'&&['fliegerzug','treffas-wagen'].includes(body?.kind))){
       // Authored AA atlas draws these effects; do not stack a generic blast.
     }
+    else if(event.type==='hazard-activated'&&event.visual==='rviii-bomb'){g.shake=Math.max(g.shake,3);g.event('heavyShot','');}
+    else if(event.type==='hazard-activated'&&event.visual==='davis-cannon'){g.shake=Math.max(g.shake,4);g.event('heavyShot','');}
     else if(event.type==='hazard-activated'&&event.visual==='gallipoli-shell'){g.shake=Math.max(g.shake,3);}
     else if(event.type==='hazard-activated'&&event.kind==='circle'&&event.visual!=='hull-ram'){
-    const SHELL_VISUALS=new Set(['rail-shell','rail-shell-outer','observer-shell','zubian-mortar','naval-gun','alps-cannon','black-flak','zubian-shell','coastal-shell','building-debris']),sea=[1,7].includes(g.worldRegion?.()??-1);
+    const SHELL_VISUALS=new Set(['rail-shell','rail-shell-outer','observer-shell','zubian-mortar','naval-gun','alps-cannon','black-flak','zubian-shell','coastal-shell','building-debris']),sea=[1,7,17].includes(g.worldRegion?.()??-1);
     g.combatBlast(event.x,event.y,event.radius,'enemy',event.visual==='carpet-bomb'?'bomb':event.visual==='torpedo-charge'?'mineBlast':SHELL_VISUALS.has(event.visual)?(sea?'mineBlast':'shell'):'blast',sea?null:groundShellProfile(event.visual));
     if(!sea&&groundShellProfile(event.visual)==='heavyShell')g.shake=Math.max(g.shake,5);
     if(sea&&SHELL_VISUALS.has(event.visual)){const effect=g.combatFX?.at(-1);if(effect)effect.fxSource='navalShell'}
@@ -200,7 +205,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     else if(event.type==='muzzle'&&['london-apron','drachen-net'].includes(body?.kind)){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:.12,size:23*body.cityArtScale,kind:'aaMuzzle'});}
     else if(event.type==='muzzle'&&(body?.gallipoliBoss||event.bossId==='gallipoli-approach')){g.shake=Math.max(g.shake,event.partId?.startsWith('aa-')?1:3);}
     else if(event.type==='muzzle'&&body?.sommeBoss){g.shake=Math.max(g.shake,2);}
-    else if(event.type==='muzzle'){if(['a7v-flak','mark-v-cruiser','fliegerzug','treffas-wagen','mark4-wedge','morser-battery','staaken-rvi','london-searchlight'].includes(body?.kind))(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:.23,size:44,kind:'aaMuzzle'});
+    else if(event.type==='muzzle'){if(['a7v-flak','mark-v-cruiser','fliegerzug','treffas-wagen','mark4-wedge','morser-battery','staaken-rvi','london-searchlight','supermarine-nighthawk','siemens-schuckert-r-viii'].includes(body?.kind))(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:.23,size:44,kind:'aaMuzzle'});
      else g.burst(event.x,event.y,'#ffe0a2',12);g.shake=Math.max(g.shake,3);}
    else if(event.type==='camera-shake')g.shake=Math.max(g.shake,event.strength||5);
    else if(['safe-corridor','bug-launch-warning','bug-launch','searchlight-lock'].includes(event.type))g.bossCues.push({...event,life:event.seconds});
@@ -239,7 +244,7 @@ export function syncStageBossTargets(g){
  const incoming=[...bodies?.values()||[]].filter(body=>!body.dead&&!g.enemies.some(e=>e.stageBossBody===body));
  if(incoming.length)g.reserveEnemySlots(incoming.length);
  for(const body of bodies?.values()||[]){if(body.dead||g.enemies.some(e=>e.stageBossBody===body))continue;
-  const e={stageBossBody:body,encounterId:encounter.id,id:body.id,type:'stageBoss',faction:body.faction,stationary:true,surface:!body.jutlandAirship,missionTarget:true,a:-Math.PI/2,speed:0,fire:Infinity};
+  const e={stageBossBody:body,encounterId:encounter.id,id:body.id,type:'stageBoss',faction:body.faction,stationary:!isDoverBoss(body.kind),surface:!body.jutlandAirship&&!isDoverBoss(body.kind),missionTarget:true,a:-Math.PI/2,speed:0,fire:Infinity};
   const synced=['x','y','hp','maxHp'];if(Number.isFinite(body.a))synced.push('a');
   for(const key of synced)Object.defineProperty(e,key,{enumerable:true,get:()=>body[key]});g.enemies.push(e);
  }
@@ -484,3 +489,4 @@ export function separateAces(g,dt){
   a.x-=ux*move;a.y-=uy*move;b.x+=ux*move;b.y+=uy*move;
  }
 }
+

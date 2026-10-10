@@ -1,3 +1,4 @@
+import {SupermarineNighthawk,SiemensSchuckertRVIII} from './dover-night-bosses.js?v=dover1';
 import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js';
 import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=gal1&rail=42';
 import {fireFanSalvo} from './boss-salvo-geometry.js';
@@ -27,8 +28,10 @@ import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harbor
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
-export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai', 'arras', 'somme', 'london', 'verdun', 'maan', 'gallipoli', 'paris-night', 'jutland']);
+export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai', 'arras', 'somme', 'london', 'verdun', 'maan', 'gallipoli', 'paris-night', 'jutland', 'dover-night']);
 export const BOSS_CATALOG = Object.freeze({
+  'supermarine-nighthawk': {name:'슈퍼마린 나이트호크',faction:'entente',stage:17},
+  'siemens-schuckert-r-viii': {name:'지멘스-슈쿠케르트 R.VIII',faction:'central',stage:17},
   'paris-gun': {name:'브루노 열차포', faction:'central', stage:0},
   lincomparable: {name:'520mm 열차포 · 랑콩파라블', faction:'entente', stage:0},
   'sms-stuttgart': {name:'수상기 모함 · SMS 슈투트가르트', faction:'central', stage:1},
@@ -1674,7 +1677,7 @@ export class GothaRaider extends PatternBoss {
  }
 }
 
-const constructors={'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttgart':Stuttgart,'hms-zubian':Zubian,
+const constructors={'supermarine-nighthawk':SupermarineNighthawk,'siemens-schuckert-r-viii':SiemensSchuckertRVIII,'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttgart':Stuttgart,'hms-zubian':Zubian,
   'zeppelin-l70':ZeppelinL70,hma23:HMA23,'a7v-flak':A7VFlak,'mark-v-cruiser':MarkVCruiser,
   'livens-flame-projector':LivensFlameProjector,'minenwerfer-battery':MinenwerferBattery,
   'london-apron':LondonApron,'drachen-net':DrachenMineNet,gik:GIK,ca4:Ca4,'armored-harbor-fortress':ArmoredHarborFortress,'flak-tower':FlakTowerNet,
@@ -1697,3 +1700,4 @@ export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   if(bossId==='sinai-landship')for(const side of [-1,1])bodies.push(new RollsRoyceEscort({id:id+':escort:'+side,leader:body,side,tuning,emit,faction:body.faction,x,y}));
   return new BossEncounter({id,bossId,bodies});
 }
+

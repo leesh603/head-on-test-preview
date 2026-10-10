@@ -35,6 +35,10 @@ export const BASIC_BARRAGES=Object.freeze({
  // Bombers: gunners hose and traverse.
  gik:profile(['rearGun'],'alps-mg',.9,7,1.5,[['stream','sweep',R2],['stream','sweep','bracket',R],[stream2,sweep2,R]]),
  ca4:profile(['frontGun','rearGun'],'alps-mg',1.05,7,1.5,[['stream','cross',R2],['sweep','cross','stream',R],[sweep2,'cross',R]]),
+ // Dover night patrol: routine gunfire stays sparse around each aircraft's
+ // native searchlight/cannon or bomb phrase.
+ 'supermarine-nighthawk':profile(['gun-left','gun-right'],'nighthawk-mg',.62,5,2.05,[['fan',R2],['fan',{p:'stream',n:5},R],[{p:'fan',n:6},{p:'stream',n:6},R]],.34),
+ 'siemens-schuckert-r-viii':profile(['gun-nose','gun-dorsal','gun-tail'],'rviii-gun',.72,5,2.1,[[{p:'stream',n:5},R2],['cross',{p:'stream',n:5},R],['cross',{p:'ripple',rows:2,n:7},R]],.36),
  'armored-harbor-fortress':profile(['gun-left','gun-right','gun-front-left','gun-front-right'],'harbor-shell',1.15,7,1.5,[['wall','cross',R2],['cross','wall','ripple',R],['sweep',{p:'wall',rows:2},ripple4,R]]),
  fliegerzug:profile(['car-flak','car-rear'],'rail-mg',1.1,7,1.6,[['wall','stream',R2],['cross','wall',R],[{p:'wall',rows:2},stream2,R]]),
  'treffas-wagen':profile([],'treffas-mg',.95,7,1.55,[['sweep','fan',R2],[sweep2,'bracket',R],[sweep2p,'bracket',R]]),
@@ -281,3 +285,4 @@ export function basicBarrageMuzzle(b,h){
  const p=h.sourcePartId?b.parts.get(h.sourcePartId):null,a=Math.atan2(h.vy,h.vx);
  return mount(b,p,{x:b.x+Math.cos(a)*800,y:b.y+Math.sin(a)*800},h.basicSerial||0);
 }
+

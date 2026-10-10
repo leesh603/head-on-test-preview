@@ -4,6 +4,7 @@
 const minor=[0,2,3,5,7,8,10],dorian=[0,2,3,5,7,9,10],phrygian=[0,1,3,5,7,8,10];
 const theme=(bpm,beats,key,scale,lead,pulse,motif,rhythm,drums,harmony)=>({bpm,beats,key,scale,lead,pulse,motif,rhythm,drums,harmony});
 export const REGIONAL_VARIATIONS=Object.freeze({
+ 'dover-night':theme(78,4,45,minor,'clarinet','cello',[7,4,6,3,4,1,0,3,7,8,4,1],[0,3,6],[0,6],[0,1,3,4,0,5,1,4]),
  'trenches-hell':theme(70,5,41,phrygian,'bassoon','cello',[7,8,7,3,4,2,1,0,4,3,1,0],[0,3,7,9],[0,7],[0,1,0,4,1,3,0,4]),
  cambrai:theme(108,2,52,minor,'trombone','spiccato',[0,4,7,4,3,7,8,6,4,1,3,0],[0,1,3],[0,3],[0,4,0,1,3,0,5,4]),
  arras:theme(126,6,54,minor,'strings','spiccato',[7,9,11,10,8,7,9,6,4,7,8,6],[0,2,3,5,6,8,9,11],[0,6,9],[0,3,5,4,0,5,1,4]),
@@ -42,6 +43,8 @@ export const ACE_MOTIFS=Object.freeze({
 // Individual orchestration, attack rhythm and motif for every catalog boss.
 const boss=(voice,steps,notes,mechanic,finalVoice)=>({voice,steps,notes,mechanic,finalVoice});
 export const BOSS_ARRANGEMENTS=Object.freeze({
+ 'supermarine-nighthawk':boss('clarinet',[0,3,6],[7,8,4,1],'searchlight','horn'),
+ 'siemens-schuckert-r-viii':boss('trombone',[0,2,4,7],[0,1,4,3],'bomber','cello'),
  'paris-gun':boss('horn',[0,6],[0,4,3,0],'rail','cello'),lincomparable:boss('trombone',[0,9],[0,1,4,0],'rail','bassoon'),
  'sms-stuttgart':boss('horn',[0,4,8],[0,4,7,5],'naval','clarinet'),'hms-zubian':boss('clarinet',[0,3,7,10],[7,4,6,3],'split','bassoon'),
  'a7v-flak':boss('trombone',[0,2,6],[0,0,3,1],'armor','trombone'),'mark-v-cruiser':boss('horn',[0,3,4],[0,4,2,7],'armor','horn'),

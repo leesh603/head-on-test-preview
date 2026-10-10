@@ -123,13 +123,13 @@ export function drawCloudCover(c,game,{point,scale=1,region}){
   const [sx,sy]=point(cl.x,cl.y);
   const w=t.rx*2*scale,h=t.ry*2*scale;
   if(sx<-w||sx>cw+w||sy<-h||sy>ch+h)continue;
-  const img=cloudImg(region===15&&cl.type!=='wispy'?'dark':cl.type,cl.seed);
+  const img=cloudImg((region===15||region===17)&&cl.type!=='wispy'?'dark':cl.type,cl.seed);
   if(!img||!img.naturalWidth)continue;
   c.save();
   c.translate(sx,sy);
   if(cl.mirror)c.scale(-1,1);
   c.rotate(Math.sin(cl.seed)*.14);
-  c.globalAlpha=t.alpha*(region===15?.4:region===6?.62:1);
+  c.globalAlpha=t.alpha*((region===15||region===17)?.4:region===6?.62:1);
   c.drawImage(img,-w/2,-h/2,w,h);
   c.restore();
  }
@@ -146,3 +146,4 @@ export function drawCloudCover(c,game,{point,scale=1,region}){
   c.restore();
  }
 }
+
