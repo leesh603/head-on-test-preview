@@ -2609,7 +2609,28 @@
      "year": 1917,
      "role": "중폭격기",
      "base": "planes/caproni_ca3.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "전선 얼룩 위장",
+       "file": "liveries/caproni_ca3/mottle.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 운용기",
+       "file": "liveries/caproni_ca3/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/caproni_ca3/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간폭격 칠흑",
+       "file": "liveries/caproni_ca3/night.webp"
+      }
+     ]
     },
     {
      "id": "felixstowe_f2",
