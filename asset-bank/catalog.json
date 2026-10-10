@@ -681,6 +681,26 @@
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "planes/junkers_j1.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "로젠지 위장천",
+       "file": "liveries/junkers_j1/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "올리브 야전 단색",
+       "file": "liveries/junkers_j1/green.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "수칠 얼룩 위장",
+       "file": "liveries/junkers_j1/mottle.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 반입 평가기",
+       "file": "liveries/junkers_j1/usas.webp"
       }
      ]
     },
