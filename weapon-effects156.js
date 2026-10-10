@@ -1,3 +1,4 @@
+import {drawExplosionProfile} from './explosion-profiles.js?v=fx5';
 import {drawGameIcon} from './icons.js?v=tame3';
 import {fx,fxReady,FX56,FX3} from './fx-art.js?v=tame3';
 import {fxsBoom} from './fx-sample-preview.js?v=tame3&rail=42';
@@ -46,6 +47,8 @@ function blastFlame(c,x,y,d,q){
  else if(q<.72)fx(c,'fireGround',x,y,d*.6,d*.6,0,(1-(q-.3)/.42)*.5);
 }
 export function drawFxExplosion(c,f,x,y,radius=0){
+ if(f.fxHidden)return true;
+ if(f.fxProfile&&fxReady(f.fxProfile==='groundShell'||f.fxProfile==='heavyShell'?'mortarImpact0':f.fxProfile==='ammoCookoff'?'bossBlast0':'airblast0')&&drawExplosionProfile(c,f,x,y,fx))return true;
  if(f.fxOnly&&!FX3)return true;
  if(f.mortarOverlay&&FX3&&fxReady('mortarImpact0'))return true;
  if(fxsBoom(c,f,x,y,radius))return true;

@@ -1,3 +1,4 @@
+import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=fx5';
 import {resolveSurfaceSpacing} from './naval-spacing.js?v=tame3';
 
 import {tickRegionalConditions} from './region-doctrine1.js?v=tame3';
@@ -156,7 +157,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    }
     if(event.type==='boss-enter'){g.event('wave','지역 보스 출현! · '+BOSS_CATALOG[event.bossId].name);g.event('heavyShot','');}
     else if(event.type==='aa-effect'){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:event.life||.5,size:event.size||115,kind:event.kind});}
-    else if(event.type==='hazard-activated'&&event.kind==='circle'&&['morser-shell','mark4-shell','treffas-shell'].includes(event.visual)){g.shake=Math.max(g.shake,3);}
+    else if(event.type==='hazard-activated'&&event.kind==='circle'&&(['morser-shell','mark4-shell','treffas-shell'].includes(event.visual)||groundShellProfile(event.visual)&&event.visual.startsWith('somme-'))){const profile=groundShellProfile(event.visual);pushExplosionFx(g,initExplosionProfile({x:event.x,y:event.y,radius:event.radius,side:'enemy',kind:'shell'},profile));g.shake=Math.max(g.shake,profile==='heavyShell'?5:3);}
     else if(event.type==='hazard-activated'&&event.kind==='circle'&&event.visual==='carpet-bomb'&&['staaken-rvi','gik','ca4'].includes(body?.kind)){g.combatBlast(event.x,event.y,event.radius,'enemy','bomb');g.shake=Math.max(g.shake,3);}
     else if(event.type==='hazard-activated'&&event.visual==='harbor-swing'){
       // The attached payload remains intact throughout the physical sweep.
@@ -167,19 +168,20 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     else if(event.type==='hazard-activated'&&event.visual==='gallipoli-shell'){g.shake=Math.max(g.shake,3);}
     else if(event.type==='hazard-activated'&&event.kind==='circle'&&event.visual!=='hull-ram'){
     const SHELL_VISUALS=new Set(['rail-shell','rail-shell-outer','observer-shell','zubian-mortar','naval-gun','alps-cannon','black-flak','zubian-shell','coastal-shell','building-debris']),sea=[1,7].includes(g.worldRegion?.()??-1);
-    g.combatBlast(event.x,event.y,event.radius,'enemy',event.visual==='carpet-bomb'?'bomb':event.visual==='torpedo-charge'?'mineBlast':SHELL_VISUALS.has(event.visual)?(sea?'mineBlast':'shell'):'blast');
+    g.combatBlast(event.x,event.y,event.radius,'enemy',event.visual==='carpet-bomb'?'bomb':event.visual==='torpedo-charge'?'mineBlast':SHELL_VISUALS.has(event.visual)?(sea?'mineBlast':'shell'):'blast',sea?null:groundShellProfile(event.visual));
+    if(!sea&&groundShellProfile(event.visual)==='heavyShell')g.shake=Math.max(g.shake,5);
     if(sea&&SHELL_VISUALS.has(event.visual)){const effect=g.combatFX?.at(-1);if(effect)effect.fxSource='navalShell'}
     // The shared hazard renderer already animates this ground impact. Avoid a
     // second aerial fireball on top, while preserving all original events.
     if(['minenwerfer-heavy','minenwerfer-shell'].includes(event.visual)){const effect=g.combatFX?.at(-1);if(effect)effect.mortarOverlay=true}}
-   else if(event.type==='internal-explosion'&&['morser-battery','london-searchlight','flak-tower-cell','ca4'].includes(body?.kind)){g.combatBlast(x,y,80,'enemy','structure');g.shake=Math.max(g.shake,8);}
-   else if(event.type==='part-destroyed'){const part=body?.parts.get(event.partId),minen=body?.kind==='minenwerfer-battery',apron=body?.kind==='london-apron';g.combatBlast(x+(part?.x||0),y+(part?.y||0),apron?22*body.apronScale:minen?34:46,'enemy','structure');g.shake=Math.max(g.shake,apron?3:minen?5:7);
+   else if(event.type==='internal-explosion'&&['morser-battery','london-searchlight','flak-tower-cell','ca4'].includes(body?.kind)){g.combatBlast(x,y,80,'enemy','structure','ammoCookoff');g.shake=Math.max(g.shake,8);}
+   else if(event.type==='part-destroyed'){const part=body?.parts.get(event.partId),minen=body?.kind==='minenwerfer-battery',apron=body?.kind==='london-apron',ammo=event.partId==='ammo'||event.partId==='ammo-storage'||event.partId==='car-front'&&['paris-gun','lincomparable'].includes(body?.kind)||minen||part?.kind==='engine-deck';g.combatBlast(x+(part?.x||0),y+(part?.y||0),apron?22*body.apronScale:minen?34:46,'enemy','structure',part?.kind==='fuel'||event.partId==='fuel'||body?.kind==='livens-flame-projector'&&event.partId?.startsWith('tank-')?'fuelFire':ammo?'suppressed':null);g.shake=Math.max(g.shake,apron?3:minen?5:7);
      if(['a7v-flak','mark-v-cruiser','drachen-net'].includes(body?.kind))(g.aaEffects??=[]).push({x:x+(part?.x||0),y:y+(part?.y||0),age:0,life:.9,size:90,kind:'aaWreckSmoke'});}
-   else if(event.type==='ammo-cookoff'){g.combatBlast(event.x,event.y,82,'enemy','structure');if(g.burst)g.burst(event.x,event.y,'#ffbb62',10);if(g.smoke){g.smoke(event.x-18,event.y+8,true);g.smoke(event.x+22,event.y-5,true)}g.shake=Math.max(g.shake,9);}
+   else if(event.type==='ammo-cookoff'){g.combatBlast(event.x,event.y,82,'enemy','structure','ammoCookoff');if(g.burst)g.burst(event.x,event.y,'#ffbb62',10,'profileOnly');if(g.smoke){g.smoke(event.x-18,event.y+8,true,true);g.smoke(event.x+22,event.y-5,true,true)}g.shake=Math.max(g.shake,9);}
    else if(event.type==='harbor-crane-disabled'){for(const f of g.hostileMinefields||[])if(f.sourceBossId===event.bossId&&f.sourcePartId==='crane-arm')for(const m of f.mines)if(m.deploying){m.dead=true;m.chainHandled=true;}}
-   else if(event.type==='ammo-detonation'){g.combatBlast(event.x,event.y,105,'enemy','structure');g.shake=Math.max(g.shake,12);g.event('wave','항구요새 탄약고 유폭 · 기뢰 보급 중단·포격 약화');}
-   else if(event.type==='rail-car-detached'){g.combatBlast(event.x,event.y,58,'enemy','structure');g.shake=Math.max(g.shake,8);
-    for(let i=0;i<4;i++){const ox=(g.rng?g.rng()-.5:Math.random()-.5)*120,oy=(i-1.5)*55+(g.rng?g.rng()-.5:Math.random()-.5)*30,r=24+((i*37)%3)*14;g.combatBlast(event.x+ox,event.y+oy,r,'enemy','structure');if(g.burst)g.burst(event.x+ox,event.y+oy,'#ffd06a',6);if(g.smoke)g.smoke(event.x+ox,event.y+oy,true)}
+   else if(event.type==='ammo-detonation'){g.combatBlast(event.x,event.y,105,'enemy','structure','ammoCookoff');g.shake=Math.max(g.shake,12);g.event('wave','항구요새 탄약고 유폭 · 기뢰 보급 중단·포격 약화');}
+   else if(event.type==='rail-car-detached'){const ammo=event.partId==='car-front'&&['paris-gun','lincomparable'].includes(body?.kind);g.combatBlast(event.x,event.y,58,'enemy','structure',ammo?'suppressed':null);g.shake=Math.max(g.shake,8);
+    for(let i=0;i<4;i++){const ox=(g.rng?g.rng()-.5:Math.random()-.5)*120,oy=(i-1.5)*55+(g.rng?g.rng()-.5:Math.random()-.5)*30,r=24+((i*37)%3)*14;g.combatBlast(event.x+ox,event.y+oy,r,'enemy','structure',ammo?'suppressed':null);if(g.burst)g.burst(event.x+ox,event.y+oy,'#ffd06a',6,ammo?'profileOnly':undefined);if(g.smoke)g.smoke(event.x+ox,event.y+oy,true,ammo)}
     g.event('wave','열차 객차 파괴 · 기관차 방호 약화');}
    else if(event.type==='rail-runaway'){g.event('wave','기관차 폭주! · 선로에서 이탈하기 전에 추격하세요');g.shake=Math.max(g.shake,6);}
    else if(event.type==='bruno-iron-rain'){g.event('wave','철의 폭우 · 착탄 순서를 벗어나 급선회!');g.shake=Math.max(g.shake,6);}

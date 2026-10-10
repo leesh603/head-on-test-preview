@@ -1,3 +1,4 @@
+import {drawPartFuelFire} from './explosion-profiles.js?v=fx5';
 import {MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=maan-r3';
 import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
 import {sandOpacity} from './maan-weather.js?v=tame3';
@@ -92,7 +93,8 @@ export function drawMaanBoss(c,b){
  c.filter='none';
  const time=b.motionTime||0;
  for(const p of parts.values())if(p.destroyed||p.hp<p.maxHp*.5){
-  if(['fuel','engine','command'].includes(p.kind))fx(c,'fireSmall',p.localX,p.localY,42,55,0,.85);
+  if(p.kind==='fuel'){drawPartFuelFire(c,fx,p,p.localX,p.localY,time,46);continue;}
+  if(['engine','command'].includes(p.kind))fx(c,'fireSmall',p.localX,p.localY,42,55,0,.85);
   for(let i=0;i<2;i++){const drift=(time*.32+i*.5)%1;fx(c,p.kind==='cooling'?'smokeGray':'smokeDark',p.localX+Math.sin(i+time)*10,p.localY-drift*58,30+drift*48,30+drift*48,0,(1-drift)*.58);}
  }
  if(b.driveVelocity>1)for(const side of [-1,1])for(let i=0;i<3;i++){

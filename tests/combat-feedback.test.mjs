@@ -70,7 +70,7 @@ test('shared ace choreography preserves trajectory, smoke cadence and final cras
  assert(calls[0][0]==='smoke'&&calls[0][3]===true);
  advanceAircraftCrash(host,e,.04);assert.equal(calls.length,1);
  for(let i=0;i<18;i++)advanceAircraftCrash(host,e,.04);
- assert.equal(e.crashed,true);assert.equal(calls.filter(c=>c[0]==='burst').length,1);assert.deepEqual(calls.find(c=>c[0]==='burst').slice(3),['#f2aa52',30,'aircraftMedium']);assert(calls.every(c=>c[0]!=='event'));
+ assert.equal(e.crashed,true);assert.equal(calls.filter(c=>c[0]==='burst').length,1);assert.deepEqual(calls.find(c=>c[0]==='burst').slice(3),['#f2aa52',30,'aircraft']);assert(calls.every(c=>c[0]!=='event'));
 });
 
 test('machine-gun recoil is subpixel, axial and follows muzzle decay without firing jitter',()=>{

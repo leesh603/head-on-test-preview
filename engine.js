@@ -1,3 +1,4 @@
+import {EXPLOSION_LIFE,initExplosionProfile,pushExplosionFx,advanceExplosionFx} from './explosion-profiles.js?v=fx5';
 import {beginAircraftCrash,advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=tame3';
 import {wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=tame3';
 import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=tame3';
@@ -94,8 +95,8 @@ export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this
  reload(){if(this.unlimitedAmmo){this.reloadTime=0;this.ammo.fill(this.weapon.belt);return false}if(this.state!=='playing'||this.reloadTime>0||this.ammo.every(n=>n===this.weapon.belt))return false;this.reloadTime=this.weapon.reload*(this.reloadPenalty||1)*(!this.cow37&&!this.motorCannon?aircraftReloadMultiplier(this):1);if(this.pilot==='gontermann')this.reloadTime*=.88;this.fire=0;this.muzzleFlash=0;this.event('reload','재장전');return true}
  upgrade(id,rarity='normal'){if(this.state!=='upgrade')return;let u=UPGRADES.find(u=>u.id===id);if(!u)return;u.apply(this);if(rarity==='rare'){u.apply(this)}else if(rarity==='unique'){u.apply(this);u.apply(this);if(id==='rockets')this.rocketFire=0;if(id==='mines')this.mineTimer=0}this.upgrades[id]=(this.upgrades[id]||0)+1;this.state='playing';this.checkLevel()}
  checkLevel(){if(this.xp>=this.need&&this.state==='playing'){this.xp-=this.need;this.level++;this.baseLevelNeed=Math.ceil(this.baseLevelNeed*1.28);this.need=this.levelRequirement(this.baseLevelNeed);this.state='upgrade';this.event('upgrade','전술 개조')}}
- burst(x,y,color,n=8,kind){if(color==='#f2aa52'&&n>=26){this.combatFX??=[];if(!this.combatFX.some(f=>f.killExplosion&&f.life>.38&&Math.hypot(f.x-x,f.y-y)<8))this.combatFX.push({x,y,radius:n>=36?46:34,life:.48,maxLife:.48,killExplosion:true,side:'friendly',kind})}for(let i=0;i<n;i++){let a=this.rng()*Math.PI*2,s=20+this.rng()*90;this.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.4+this.rng()*.5,color})}}
- smoke(x,y,heavy=false){this.particles.push({x,y,vx:(this.rng()-.5)*18,vy:-10-this.rng()*12,life:heavy?.85:.6,maxLife:heavy?.85:.6,smoke:true,size:heavy?7:4,color:heavy?'#343a35':'#bac1ae'})}
+ burst(x,y,color,n=8,kind){const profile=EXPLOSION_LIFE[kind]?kind:color==='#f2aa52'&&n>=26&&(!kind||kind==='aircraftMedium'&&n<34)?'aircraft':null;if(profile||color==='#f2aa52'&&n>=26){this.combatFX??=[];if(!this.combatFX.some(f=>f.killExplosion&&f.life>.38&&Math.hypot(f.x-x,f.y-y)<8))pushExplosionFx(this,initExplosionProfile({x,y,radius:n>=36?46:34,life:.48,maxLife:.48,killExplosion:color==='#f2aa52',side:'friendly',kind},profile))}for(let i=0;i<n;i++){const a=this.rng()*Math.PI*2,s=20+this.rng()*90,life=.4+this.rng()*.5;/* Keep simulation RNG identical; painted fragments need no particle objects. */if(!profile&&kind!=='profileOnly')this.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life,color})}}
+ smoke(x,y,heavy=false,spriteOnly=false){const vx=(this.rng()-.5)*18,vy=-10-this.rng()*12;if(!spriteOnly)this.particles.push({x,y,vx,vy,life:heavy?.85:.6,maxLife:heavy?.85:.6,smoke:true,size:heavy?7:4,color:heavy?'#343a35':'#bac1ae'})}
  supportPlane(){if(this.pilot==='goering')return 'fokkerd7';if(this.pilot==='collishaw')return 'collishaw_sopwith';const choices=(WING_PLANES[PLANES[this.plane].faction]||[]).filter(id=>id!==this.plane&&PLANES[id]);return choices.length?choices[Math.floor(this.rng()*choices.length)]:this.allyPlane}
  permanentWingPlane(){if(this.pilot==='goering')return 'fokkerd7';if(this.pilot==='collishaw')return 'collishaw_sopwith';const choices=(WING_PLANES[PLANES[this.plane].faction]||[]).filter(id=>id!==this.plane);return choices.length?choices[Math.floor(this.rng()*choices.length)]:this.allyPlane}
  permanentWingCount(){let count=0;const allies=this.combatWorld?.()?.allies||this.allies||[];for(const a of allies)if(a.permanent&&a.life>0&&(a.ownerId===(this.id||'p1')))count++;return count}
@@ -275,9 +276,10 @@ Game.prototype._updHeavy=function(dt,input={}){
 // Weapon-based ace specials reuse the game's detailed equipment sprites.
 PILOTS.guynemer.cooldown=26;
 PILOTS.baracca.cooldown=28;
-Game.prototype.combatBlast=function(x,y,radius,side='enemy',kind='blast'){
- this.combatFX??=[];this.combatFX.push({x,y,radius,side,kind,life:.65,maxLife:.65});
- this.burst(x,y,side==='enemy'?'#ff8542':'#ffd58a',18);this.smoke(x,y,true);
+Game.prototype.combatBlast=function(x,y,radius,side='enemy',kind='blast',profile=null){
+ profile=profile||(EXPLOSION_LIFE[kind]?kind:null);
+ pushExplosionFx(this,initExplosionProfile({x,y,radius,side,kind,life:.65,maxLife:.65},profile));
+ this.burst(x,y,side==='enemy'?'#ff8542':'#ffd58a',18,profile?'profileOnly':undefined);this.smoke(x,y,true,!!profile);
  this.shake=Math.max(this.shake,Math.hypot(x-this.x,y-this.y)<240?5:1);
  this.event('explosion',side);
 };
@@ -302,8 +304,7 @@ Game.prototype._updCombat=function(dt,input={}){
  if(this.state!=='playing')return;
  const step=Math.min(.04,Math.max(0,dt));
  this.combatFX??=[];this.bombZones??=[];
- for(const fx of this.combatFX)fx.life-=step;
- {const _fx=this.combatFX;let _w=0;for(let _i=0;_i<_fx.length;_i++)if(_fx[_i].life>0)_fx[_w++]=_fx[_i];_fx.length=_w;if(_w>35)_fx.splice(0,_w-35)}
+ advanceExplosionFx(this,step);
  if(this.salvoWaves>0){
   this.salvoTimer-=step;
   if(this.salvoTimer<=0){
@@ -341,7 +342,7 @@ Game.prototype._updCombat=function(dt,input={}){
    this.event('bombWarning','폭격 투하! 붉은 표적을 벗어나세요');
   }
  }
- for(const z of this.bombZones){z.delay-=step;if(z.delay<=0){this.combatBlast(z.x,z.y,z.radius,'enemy','bomb');
+ for(const z of this.bombZones){z.delay-=step;if(z.delay<=0){this.combatBlast(z.x,z.y,z.radius,'enemy','bomb',z.artyFire?'groundShell':null);
   if(z.artyFire)for(const e of this.enemies){if(e.hp<=0||e.stageBossBody||e.bossMinion)continue;if(Math.hypot(e.x-z.x,e.y-z.y)<z.radius+12){e.hp-=Math.round(z.damage*1.9);e.hitFlash=.22;if(e.hp<=0&&!e.deathCounted){e.deathCounted=true;this.kills++;if(e.bossPilot||e.type==='boss'||e.type==='zeppelin'||e.type==='bomber')this.priorityKills=(this.priorityKills||0)+1;if(e.type==='zeppelin')this.wreckGust(e);this.event('kill','')}}}
   if(Math.hypot(this.x-z.x,this.y-z.y)<z.radius)this.hit(highRiskDamage(z.damage,this.maxHp,z))}}
  {const _bz=this.bombZones;let _w=0;for(let _i=0;_i<_bz.length;_i++)if(_bz[_i].delay>0)_bz[_w++]=_bz[_i];_bz.length=_w}
@@ -1116,7 +1117,7 @@ Game.prototype.specialRoundImpact=function(b,e){
  if(b.cow37){world.cannonImpacts??=[];world.cannonImpacts.push({x:b.x,y:b.y,life:.24});world.cannonImpacts=world.cannonImpacts.slice(-24);
   for(let i=0;i<7;i++){const a=i*Math.PI*2/7;world.particles.push({x:b.x,y:b.y,vx:Math.cos(a)*92,vy:Math.sin(a)*92,life:.38,color:i%2?'#acaa94':'#e2c38a'});}
  }
- if(b.burn&&e.hp>0){if(b.gontermannIncendiary){e.gontermannBurn={age:e.gontermannBurn?.age||0,x:b.x-e.x,y:b.y-e.y,a:e.a||0};}e.burnTime=3;const dps=b.damage*.32;if(dps>=(e.burnDps||0)){e.burnDps=dps;e.burnOwnerId=b.ownerId??this.id}}
+ if(b.burn&&e.hp>0){if(!(e.burnTime>0))e.fuelFxAge=0;if(b.gontermannIncendiary){e.gontermannBurn={age:e.gontermannBurn?.age||0,x:b.x-e.x,y:b.y-e.y,a:e.a||0};}e.burnTime=3;const dps=b.damage*.32;if(dps>=(e.burnDps||0)){e.burnDps=dps;e.burnOwnerId=b.ownerId??this.id}}
 };
 Game.prototype.dropObservationRepair=function(e){
  if(e?.fieldUnit!=='balloon'||e.observationRepairDropped)return null;e.observationRepairDropped=true;const world=this.combatWorld(),drop={x:e.x,y:e.y,value:0,heal:true,healFraction:DURABILITY_BALANCE.repairPickupFraction,observationRepair:true};if(world.nextEntityId)drop.id=world.nextEntityId++;world.drops.push(drop);return drop;
