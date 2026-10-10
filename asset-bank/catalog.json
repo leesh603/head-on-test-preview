@@ -928,7 +928,28 @@
      "year": 1915,
      "role": "전투기",
      "base": "planes/vickers_fb5.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "훈련기 은색",
+       "file": "liveries/vickers_fb5/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 면허기",
+       "file": "liveries/vickers_fb5/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 방어 칠흑",
+       "file": "liveries/vickers_fb5/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 시험기",
+       "file": "liveries/vickers_fb5/captured.webp"
+      }
+     ]
     },
     {
      "id": "airco_dh2",
