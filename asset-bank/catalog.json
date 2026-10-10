@@ -3653,6 +3653,26 @@
        "kind": "livery",
        "name": "우크라이나 청황띠",
        "file": "liveries/ilya_muromets/ukrainian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 노획 평가기",
+       "file": "liveries/ilya_muromets/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 시험기",
+       "file": "liveries/ilya_muromets/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "바이에른 마름모 평가",
+       "file": "liveries/ilya_muromets/bavarian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/ilya_muromets/leader.webp"
       }
      ]
     }
