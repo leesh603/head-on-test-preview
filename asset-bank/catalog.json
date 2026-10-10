@@ -917,6 +917,26 @@
        "kind": "squadron",
        "name": "Hat-in-the-Ring (미국단)",
        "file": "aces/nieuport28_hatring.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미국 USAS 별 인시그니아",
+       "file": "liveries/nieuport28/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "초기 납품 은색",
+       "file": "liveries/nieuport28/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 시험기",
+       "file": "liveries/nieuport28/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "그리스 육군 항공대",
+       "file": "liveries/nieuport28/greek.webp"
       }
      ]
     },
