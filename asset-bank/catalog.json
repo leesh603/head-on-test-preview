@@ -1068,7 +1068,28 @@
      "year": 1916,
      "role": "비행정",
      "base": "../lohner_l.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "아드리아해 얼룩 위장",
+       "file": "liveries/lohner_l/mottle.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "해군 회색",
+       "file": "liveries/lohner_l/grey.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "이탈리아 마키 카피",
+       "file": "liveries/lohner_l/italian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 초계 칠흑",
+       "file": "liveries/lohner_l/night.webp"
+      }
+     ]
     }
    ]
   },
