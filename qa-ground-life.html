@@ -27,7 +27,7 @@ async function loadVersion(which){
  // srcdoc has an empty hostname. Enable only its existing Test Lab bridge.
  code=code.replace("['localhost','127.0.0.1'", "['','localhost','127.0.0.1'");
  code=code.replace(/(from\s*|import\s*\(?)(['"])(\.{1,2}\/[^'"]+)\2/g,(_,prefix,quote,url)=>prefix+quote+new URL(url,root).href+quote);
- code=code.replace(/drawMovingDressing\((ctx,key,[^;]+)\);/,(_,args)=>'{const qaBegin=performance.now();drawMovingDressing('+args+');(window.__groundTimes||=[]).push(performance.now()-qaBegin);if(window.__groundTimes.length>600)window.__groundTimes.shift();}');
+ code=code.replace(/drawMovingDressing\((ctx,key,[^;]+)\);/,(_,args)=>'{const qaBegin=performance.now();drawMovingDressing('+args+');parent.document.querySelector("#assets").textContent="LIVE "+key+" t="+(game?.t??ambient)+" period="+terrainAlpsRenderer.sizeFor(key)+" density="+detailDensity;(window.__groundTimes||=[]).push(performance.now()-qaBegin);if(window.__groundTimes.length>600)window.__groundTimes.shift();}');
  const blob=URL.createObjectURL(new Blob([code],{type:'text/javascript'}));
  const probe='<script type="module">import {groundLifeReady} from "'+new URL('ground-life.js?v=livingww1a',root).href+'";groundLifeReady.then(ok=>{parent.document.querySelector("#assets").textContent="지상 atlas: "+(ok?"로드 완료":"로드 실패")});<\/script>';
  const cors='<script>window.Image=class extends Image{constructor(...args){super(...args);this.crossOrigin="anonymous"}};<\/script>';
