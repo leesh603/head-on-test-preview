@@ -385,7 +385,28 @@
      "year": 1918,
      "role": "전투기",
      "base": "planes/fokker_ev.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "Jasta 6 흑백 줄무늬",
+       "file": "liveries/fokker_ev/jasta6.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "JG1 전체 적색",
+       "file": "liveries/fokker_ev/red.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "바이에른 청백 체커",
+       "file": "liveries/fokker_ev/checker.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "Jasta 19 황색 기수·꼬리",
+       "file": "liveries/fokker_ev/yellow.webp"
+      }
+     ]
     },
     {
      "id": "ssw_d3",
