@@ -8,7 +8,7 @@ export function beginThreeSkill(p){
  const s=threeState(p);Object.assign(s,{age:0,beat:-1,target:null,previous:null,hold:0,deflections:0,lane:p.a});
 }
 export function tickThreePilot(p,dt){
- if(!['proctor','schleich','lufbery'].includes(p.pilot)||!(p.hp>0)||p.status==='downed')return;
+ if(!['schleich'].includes(p.pilot)||!(p.hp>0)||p.status==='downed')return;
  const s=threeState(p),active=p.skillTime>0;
  s.turn=wrap(p.a-(s.heading??p.a))/Math.max(.001,dt);s.heading=p.a;
  if(!active){s.target=null;s.hold=0;s.beat=-1;return;}

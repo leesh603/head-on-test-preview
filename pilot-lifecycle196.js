@@ -4,19 +4,7 @@ const stepTime = dt => Number.isFinite(dt) ? Math.max(0, Math.min(.04, dt)) : 0;
 const playing = p => p.state === 'playing' && p.hp > 0 && p.status !== 'downed';
 
 export function preparePersonalRound1918(p, b) {
-  if (p.pilot === 'gontermann' && p.skillTime > 0 && !b.enemy && !b.ally && !b.formation && !b.patrol) {
-    b.burn = 3;
-    b.gontermannIncendiary = true;
-    if(b.gun!==undefined && !b.rocket && !b.motorCannon && !b.cow37){
-      let target=null,best=780;
-      for(const e of p.enemies){
-        if(e.hp<=0||!(e.type==='zeppelin'||e.type==='bomber'||e.type==='boss'||e.heavyBomber||e.bossPilot||e.fieldUnit==='balloon'))continue;
-        const d=Math.hypot(e.x-p.x,e.y-p.y),a=Math.atan2(e.y-b.y,e.x-b.x);
-        if(d<best&&Math.abs(Math.atan2(Math.sin(a-p.a),Math.cos(a-p.a)))<Math.PI/3){target=e;best=d}
-      }
-      if(target){const a=Math.atan2(target.y-b.y,target.x-b.x),speed=Math.hypot(b.vx,b.vy);b.vx=Math.cos(a)*speed;b.vy=Math.sin(a)*speed;}
-    }
-  }
+  // Finite Gontermann ignition is handled by the owned projectile impact hook (pilot-five-combat.js).
   return b;
 }
 

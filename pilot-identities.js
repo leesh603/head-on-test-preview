@@ -57,28 +57,25 @@ export function installPilotIdentities(Game,PILOTS){
  Game.prototype.normalGunMultiplier=function(){let m=oldGun.call(this),s=this.identityState();if(this.pilot==='rickenbacker'){let n=0;for(const e of this.enemies)if(e.hp>0&&!e.surface&&Math.hypot(e.x-this.x,e.y-this.y)<700)n++;m*=1+Math.min(5,n)*.06}return m};
  const oldRound=Game.prototype.applySpecialRound;
  Game.prototype.applySpecialRound=function(b,type){oldRound.call(this,b,type);if(!personal(b))return b;const s=this.identityState();b.identityGun=true;b.identityOrigin={x:this.x,y:this.y,a:this.a};
-  if(this.pilot==='fonck'){delete b.fonckGuided;delete b.fonckSeeker;if(this.skillTime>0)b.pierce=true;const speed=Math.hypot(b.vx,b.vy),a=this.a+delta(Math.atan2(b.vy,b.vx),this.a)*.25;b.vx=Math.cos(a)*speed;b.vy=Math.sin(a)*speed;}
+  if(this.pilot==='fonck'){delete b.fonckGuided;delete b.fonckSeeker;const speed=Math.hypot(b.vx,b.vy),a=this.a+delta(Math.atan2(b.vy,b.vx),this.a)*.25;b.vx=Math.cos(a)*speed;b.vy=Math.sin(a)*speed;}
  
-  if(this.pilot==='luke'){b.identityIgnite=true;b.specialColor='#d99658'}
-  if(this.pilot==='gontermann'&&s.focus>=1&&(this.skillTime>0||!(s.ignitionCooldown>0))){s.ignitionCooldown=1.2;b.identityIgnite=true;b.identityPrepared=true;b.identityTarget=s.target;b.specialColor='#d99658'}
   return b;
  };
  const oldDamage=Game.prototype.roundDamageMultiplier;
  Game.prototype.roundDamageMultiplier=function(b,e){if(b.identityDot||b.identityChain)return 1;let m=oldDamage.call(this,b,e);if(!b.identityGun&&!personal(b))return m;const s=this.identityState(),origin=b.identityOrigin||this;
-  if(this.pilot==='fonck'&&e===s.target)m*=1+(s.focus||0)*(this.skillTime>0?.8:.35);
+  if(this.pilot==='fonck'&&e===s.target)m*=1+(s.focus||0)*.35;
   if(this.pilot==='bishop')m*=1+clamp(1-distance(origin,e)/360)*(this.skillTime>0?1.1:.65);
   if(this.pilot==='baracca'&&pilotHeadOn(origin,e))m*=1.3;
  
   if(this.pilot==='ball'&&this.ballAmbush>0&&s.alone&&Math.abs(delta(Math.atan2(origin.y-e.y,origin.x-e.x),e.a||0))>Math.PI*.72)m*=2.2;
-  if(this.pilot==='luke'&&[...s.burns.values()].some(burn=>burn.enemy===e&&burn.time>0))m*=this.skillTime>0?1.55:1.2;
-  if(this.pilot==='gontermann'&&b.identityPrepared&&e===b.identityTarget)m*=this.skillTime>0?1.6:1.2;
+  if(this.pilot==='luke'&&[...s.burns.values()].some(burn=>burn.enemy===e&&burn.time>0))m*=1.2;
   if(this.pilot==='boelcke'&&Math.abs(delta(Math.atan2(this.y-e.y,this.x-e.x),e.a||0))>Math.PI/2)m*=1.25;
  
   return m;
  };
  Game.prototype.identityImpact=function(b,e,target=e,position=e){
   const s=this.identityState(),mine=(b.ownerId||'p1')===own(this),marked=s.burns.get(target),dead=target.destroyed||target.dead||target.hp<=0;
-  if(marked&&dead){s.burns.delete(target);if(this.pilot==='luke'&&this.skillTime>0&&!b.identityChain){const w=this.combatWorld();w.identityDetonated??=new WeakSet();if(!w.identityDetonated.has(target)){w.identityDetonated.add(target);this.identityChain(position,e)}}}
+  if(marked&&dead)s.burns.delete(target);
   if(!mine||b.identityDot||b.identityChain||b.patrol||b.ally||b.formation||b.actualExplosion)return;
 
   if(this.pilot==='rickenbacker'&&b.identityGun&&e!==s.lastHit){const previous=s.switchSeen.get(e)??-Infinity;const fresh=s.clock-previous>=2;if(s.lastHit&&s.clock-(s.lastHitAt||0)<2&&fresh){s.switches=Math.min(3,(s.switches||0)+1);s.switchTime=3;this.identityFx('muzzle',this.x+Math.cos(this.a)*26,this.y+Math.sin(this.a)*26,this.a,38,.16)}s.lastHit=e;s.lastHitAt=s.clock;s.switchSeen.set(e,s.clock)}
@@ -104,8 +101,8 @@ export function installPilotIdentities(Game,PILOTS){
   for(const [e,t]of s.switchSeen)if(s.clock-t>3)s.switchSeen.delete(e);
   const yaw=Math.abs(delta(this.a,s.previousHeading??this.a))/dt;s.previousHeading=this.a;
 
-  if(['fonck','gontermann'].includes(this.pilot)){const target=this.identityTarget(.13);s.focus=target&&target===s.target?clamp((s.focus||0)+dt/(this.pilot==='hawker'?2:1.5)):0;s.target=target;}
-  if(this.pilot==='gontermann'&&s.focus>.65&&s.clock-(s.prepareFxAt??-1)>.25){s.prepareFxAt=s.clock;this.identityFx('gunSmoke',this.x+Math.cos(this.a)*25,this.y+Math.sin(this.a)*25,this.a,20,.18)}
+  if(this.pilot==='fonck'){const target=this.identityTarget(.13);s.focus=target&&target===s.target?clamp((s.focus||0)+dt/1.5):0;s.target=target;}
+
 
   if(this.pilot==='voss'&&active){this.turn*=1.35;this.speed*=1.35;this.baseSpeed*=1.35}
 
