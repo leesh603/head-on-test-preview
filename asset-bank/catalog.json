@@ -2299,7 +2299,28 @@
      "year": 1914,
      "role": "연습/폭격기",
      "base": "planes/avro_504.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "PC10 전투기",
+       "file": "liveries/avro_504/pc10.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "일본 나카지마 면허",
+       "file": "liveries/avro_504/japan.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 요격 칠흑",
+       "file": "liveries/avro_504/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "소련 U-1 카피",
+       "file": "liveries/avro_504/soviet.webp"
+      }
+     ]
     },
     {
      "id": "caudron_g4",
