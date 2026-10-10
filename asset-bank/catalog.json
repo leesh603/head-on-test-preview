@@ -1191,6 +1191,26 @@
        "kind": "ace",
        "name": "Barker (2)",
        "file": "../barker_snipe_v2.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "소비에트 노획 붉은별",
+       "file": "liveries/snipe/soviet.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전후 은색",
+       "file": "liveries/snipe/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전후 편대 청백 띠",
+       "file": "liveries/snipe/band.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 칠흑",
+       "file": "liveries/snipe/night.webp"
       }
      ]
     },
