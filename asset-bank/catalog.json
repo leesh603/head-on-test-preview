@@ -802,7 +802,28 @@
      "year": 1916,
      "role": "정찰기",
      "base": "planes/aeg_c4.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "로젠지 위장천",
+       "file": "liveries/aeg_c4/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "초기 연색 생산",
+       "file": "liveries/aeg_c4/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 칠흑",
+       "file": "liveries/aeg_c4/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 노획 평가기",
+       "file": "liveries/aeg_c4/captured.webp"
+      }
+     ]
     },
     {
      "id": "aeg_g4",
