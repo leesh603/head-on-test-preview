@@ -332,6 +332,26 @@
        "kind": "livery",
        "name": "붉은 동체 편대기",
        "file": "liveries/pfalz_d3a/red.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "후기 로젠지 인쇄천",
+       "file": "liveries/pfalz_d3a/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "영국 노획기",
+       "file": "liveries/pfalz_d3a/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 반입 평가기",
+       "file": "liveries/pfalz_d3a/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 칠흑",
+       "file": "liveries/pfalz_d3a/night.webp"
       }
      ]
     },
