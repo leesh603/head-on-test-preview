@@ -1164,6 +1164,26 @@
        "kind": "ace",
        "name": "Brumowski (2)",
        "file": "../brumowski_albatros_v2.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전선 얼룩 위장",
+       "file": "liveries/albatros_oeffag/mottle.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "스위스 전후 훈련기",
+       "file": "liveries/albatros_oeffag/swiss.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "후기 직선십자",
+       "file": "liveries/albatros_oeffag/cross.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "폴란드 샤호비차",
+       "file": "liveries/albatros_oeffag/polish.webp"
       }
      ]
     },
