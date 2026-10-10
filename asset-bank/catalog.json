@@ -2580,6 +2580,26 @@
        "kind": "alt",
        "name": "F.2A 뱅크",
        "file": "planes/felixstowe_f2a.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미해군 운용 별",
+       "file": "liveries/felixstowe_f2/usn.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 초계 칠흑",
+       "file": "liveries/felixstowe_f2/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "초기 회색 도포",
+       "file": "liveries/felixstowe_f2/grey.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "일본해군 평가기",
+       "file": "liveries/felixstowe_f2/japan.webp"
       }
      ]
     },
