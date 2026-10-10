@@ -35,6 +35,26 @@
        "kind": "alt",
        "name": "Fokker E.IV",
        "file": "planes/fokker_e4.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "올리브 야전 도장",
+       "file": "liveries/eindecker/green.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "후기 발켄크로이츠",
+       "file": "liveries/eindecker/balken.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 노획 시험기",
+       "file": "liveries/eindecker/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "공장 은색 도포",
+       "file": "liveries/eindecker/silver.webp"
       }
      ]
     },
