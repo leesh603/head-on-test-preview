@@ -1,12 +1,12 @@
 // Authored scenery, below combat. No entities, collisions, RNG or particle pool.
-import {fx} from './fx-art.js?v=gal1';
+import {fx,fxImage,fxArtReady} from './fx-art.js?v=gal1';
 const CELLS=[
  [92,39,257,324],[435,40,259,321],[772,42,257,319],[1117,40,258,323],
  [140,400,151,346],[485,397,153,348],[822,398,158,335],[1161,394,161,345],
  [169,764,101,285],[500,788,127,226],[807,765,185,292],[1184,763,108,302]
 ];
 const sprites=[];
-export const groundLifeReady=typeof Image==='undefined'?Promise.resolve(false):new Promise(resolve=>{
+const atlasReady=typeof Image==='undefined'?Promise.resolve(false):new Promise(resolve=>{
  const im=new Image();im.decoding='async';im.onload=()=>{
   // Atmosphere and a fractional blur are baked ONCE, never a live filter.
   for(let i=0;i<CELLS.length;i++){
@@ -18,6 +18,31 @@ export const groundLifeReady=typeof Image==='undefined'?Promise.resolve(false):n
   }resolve(true);
  };im.onerror=()=>resolve(false);im.src='./ground-life-20261011.webp?v=groundlife1';
 });
+// FX source sheets include large transparent margins. Bake tight 128px
+// ground-only copies once; no per-frame pixel reads, filters or new images.
+const groundFxImages={};
+export const groundLifeReady=Promise.all([atlasReady,fxArtReady]).then(([ok])=>{
+ if(typeof document==='undefined')return ok;
+ const keys=['smokeDark','smokeDust','fireGround','dirtBurst','gunSmoke','dustPuff'];
+ for(const key of keys){
+  const im=fxImage(key);if(!im)continue;
+  try{
+   const cv=document.createElement('canvas');cv.width=cv.height=128;const g=cv.getContext('2d');if(!g)continue;
+   const iw=im.naturalWidth||im.width,ih=im.naturalHeight||im.height,k=128/Math.max(iw,ih);
+   g.drawImage(im,0,0,iw*k,ih*k);const pixels=g.getImageData(0,0,128,128).data;
+   let l=128,r=0,top=128,b=0;
+   for(let y=0;y<128;y++)for(let x=0;x<128;x++)if(pixels[(y*128+x)*4+3]>5){l=Math.min(l,x);r=Math.max(r,x);top=Math.min(top,y);b=Math.max(b,y);}
+   if(r<=l||b<=top)continue;l=Math.max(0,l-2);top=Math.max(0,top-2);r=Math.min(127,r+2);b=Math.min(127,b+2);
+   const tight=document.createElement('canvas');tight.width=r-l+1;tight.height=b-top+1;const tc=tight.getContext('2d');if(!tc)continue;
+   tc.drawImage(cv,l,top,tight.width,tight.height,0,0,tight.width,tight.height);groundFxImages[key]=tight;
+  }catch{/* Original painted FX remains the safe fallback. */}
+ }return ok;
+});
+function groundFx(c,key,x,y,w,h,angle=0,alpha=1){
+ const im=groundFxImages[key];if(!im)return fx(c,key,x,y,w,h,angle,alpha);
+ const k=Math.min(w/im.width,h/im.height),dw=im.width*k,dh=im.height*k;
+ c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha*=alpha;c.drawImage(im,-dw/2,-dh/2,dw,dh);c.restore();return true;
+}
 function sprite(c,frame,x,y,height,a,alpha){
  const im=sprites[frame];if(!im)return;const width=height*im.width/im.height;
  c.save();c.translate(x,y);c.rotate(a);c.globalAlpha*=alpha;c.drawImage(im,-width/2,-height/2,width,height);c.restore();
@@ -84,28 +109,28 @@ export function groundInfantryPose(t,seed,station,member,out){
   state='fallen';forward=9;along=1;heading=.9;frame=11;
   alpha=local<15?1:local<19?(19-local)/4:0;
  }
- Object.assign(out,{along,forward,heading,frame,alpha,state,local});return out;
+ out.along=along;out.forward=forward;out.heading=heading;out.frame=frame;out.alpha=alpha;out.state=state;out.local=local;return out;
 }
 // Painted sprites only. Ground blasts are brown earth, never air fireballs.
 // All tails have a finite lifetime and at most three baked smoke images.
 function shellScene(c,x,y,age,burning,low){
  if(age<0||age>18)return;
- if(age<.32)fx(c,'profileEarth'+Math.min(3,Math.floor(age/.08)),x,y,54,48,0,.76*(1-age/.55));
- if(age<1.65)fx(c,'dirtBurst',x,y-age*8,44+age*24,38+age*22,0,.65*(1-age/1.65));
- if(age<5.5)fx(c,'smokeDust',x+age*3,y-age*4,48+age*12,42+age*10,0,.46*Math.min(1,age/.4)*(1-age/5.5));
+ if(age<.32)groundFx(c,'profileEarth'+Math.min(3,Math.floor(age/.08)),x,y,54,48,0,.76*(1-age/.55));
+ if(age<1.65)groundFx(c,'dirtBurst',x,y-age*8,54+age*24,48+age*22,0,.7*(1-age/1.65));
+ if(age<5.5)groundFx(c,'smokeDust',x+age*3,y-age*4,58+age*12,52+age*10,0,.55*Math.min(1,age/.4)*(1-age/5.5));
  for(let n=0;n<(low?1:3);n++){
   const q=age-n*1.1;if(q<.3||q>16)continue;
   const fade=Math.min(1,q/1.2)*Math.max(0,1-q/16);
-  fx(c,burning?'smokeDark':'smokeDust',x+q*2.6+n*5,y-q*3.7-n*5,38+q*4,44+q*4.6,-.12,.36*fade);
+  groundFx(c,burning?'smokeDark':'smokeDust',x+q*2.6+n*5,y-q*3.7-n*5,44+q*4,52+q*5.2,-.12,.48*fade);
  }
 }
 function wreckFire(c,x,y,t,seed,low){
  const flicker=.87+Math.sin(t*7+seed)*.08+Math.sin(t*11+seed)*.05;
- fx(c,'fireGround',x,y,39*flicker,35*flicker,0,.62);
+ groundFx(c,'fireGround',x,y,49*flicker,28*flicker,0,.7);
  // Staggered rising smoke prevents a solitary puff from resetting visibly.
  for(let n=0;n<(low?2:3);n++){
   const q=mod(t*.065+n/3+seed*.003,1),fade=Math.sin(q*Math.PI);
-  fx(c,'smokeDark',x+q*26+n*3,y-12-q*66,35+q*55,48+q*71,-.16,.48*fade);
+  groundFx(c,'smokeDark',x+q*26+n*3,y-12-q*66,44+q*60,62+q*88,-.16,.63*fade);
  }
 }
 const LIMIT=Object.freeze({vehicle:6,fight:5,event:10});
@@ -132,7 +157,7 @@ export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
     // These are clip masks over painted image pixels, not drawn tracks.
     for(const side of [-1,1]){c.save();c.beginPath();c.rect(side<0?-size*.31:size*.19,-size*.37,size*.12,size*.74);c.clip();sprite(c,frame,0,0,size,0,alpha);c.restore();}c.restore();
    }
-   if(pose.moving&&!low){const aft=tank?size*.38:size*.31,q=mod(t*.65+seed*.01,1);fx(c,'dustPuff',x-Math.cos(a)*(aft+q*8),y-Math.sin(a)*(aft+q*8),12+q*9,9+q*7,a,.14*(1-q)*pose.alpha);}
+   if(pose.moving&&!low){const aft=tank?size*.38:size*.31,q=mod(t*.65+seed*.01,1);groundFx(c,'dustPuff',x-Math.cos(a)*(aft+q*8),y-Math.sin(a)*(aft+q*8),12+q*9,9+q*7,a,.14*(1-q)*pose.alpha);}
   }
   if(fights)for(let j=0;j<fights.length&&groups<(low?2:LIMIT.fight);j++){
    const f=fights[j],x0=baseX+(mx?1-f[0]:f[0])*period,y0=baseY+(my?1-f[1]:f[1])*period;
@@ -149,7 +174,7 @@ export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
     const bob=run?Math.sin(t*13+n*2)*.22:0;
     sprite(c,p.frame,x,y+bob,n===1&&p.frame===10?15:14,a+Math.PI/2,.78*p.alpha);
     // Short, dim volleys. No ambient projectiles crossing the flight layer.
-    if(p.state==='fire'&&mod(p.local+n*.17,n===1?.22:.8)<.075){const tip=n===1?6:5;fx(c,'muzzle',x+Math.cos(aim)*tip,y+Math.sin(aim)*tip,7,5,aim,.55);}
+    if(p.state==='fire'&&mod(p.local+n*.17,n===1?.22:.8)<.075){const tip=n===1?6:5;groundFx(c,'muzzle',x+Math.cos(aim)*tip,y+Math.sin(aim)*tip,7,5,aim,.55);}
    }
    // Two impacts on the inspected dry apron, timed to the same squad clock.
    if(emitters<(low?6:LIMIT.event)){
@@ -164,8 +189,8 @@ export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
    if(x>-50&&y>-50&&x<width+50&&y<height+50){
     emitters++;const a=(mx?-battery[3]:battery[3])*(my?-1:1)+(my?Math.PI:0),q=mod(t+(seed%53)*.4,9);
     const tip=battery[2]*.31,gx=x+Math.sin(a)*tip,gy=y-Math.cos(a)*tip;
-    if(q<.18)fx(c,'muzzleHeavy',gx,gy,21,25,a,.52*(1-q/.22));
-    if(q<3.5)fx(c,'gunSmoke',gx+q*4,gy-q*6,22+q*10,25+q*12,a,.34*(1-q/3.5));
+    if(q<.18)groundFx(c,'muzzleHeavy',gx,gy,21,25,a,.52*(1-q/.22));
+    if(q<3.5)groundFx(c,'gunSmoke',gx+q*4,gy-q*6,22+q*10,25+q*12,a,.34*(1-q/3.5));
    }
   }
   if(events)for(let j=0;j<events.length&&emitters<(low?6:LIMIT.event);j++){
@@ -190,5 +215,5 @@ export function drawHarborLife(c,width,height,t){
 export function drawCoastLife(c,x,y,t){
  if(!sprites.length)return;
  sprite(c,mod(t,10)<2?8:9,x,y,9,-.3,.62);
- if(mod(t,8)<.1)fx(c,'muzzle',x-1,y-4,4,4,-.3,.3);
+ if(mod(t,8)<.1)groundFx(c,'muzzle',x-1,y-4,4,4,-.3,.3);
 }

@@ -14,7 +14,7 @@ function context(){
 async function renderer(){
  const fxKeys=[],document={createElement(){return {width:0,height:0,getContext:()=>context().c}}};
  const Image=class{set src(v){this.naturalWidth=1448;queueMicrotask(()=>this.onload())}};
- const api=new Function('fx','Image','document',source+'\nreturn {groundLifeReady,drawGroundLife};')((c,key)=>{fxKeys.push(key);return true;},Image,document);
+ const api=new Function('fx','Image','document','fxImage','fxArtReady',source+'\nreturn {groundLifeReady,drawGroundLife};')((c,key)=>{fxKeys.push(key);return true;},Image,document,()=>null,Promise.resolve());
  await api.groundLifeReady;return {...api,fxKeys};
 }
 test('vehicles accelerate along finite approved paths without sideways/reverse drift',()=>{
