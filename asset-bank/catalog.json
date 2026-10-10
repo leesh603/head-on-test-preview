@@ -1,5 +1,5 @@
 {
- "v": 12,
+ "v": 13,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -284,6 +284,16 @@
        "kind": "livery",
        "name": "편대장 붉은띠",
        "file": "liveries/albatros_d3/leader.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Lothar v. Richthofen (노란 동체)",
+       "file": "aces/lothar_albatros_d3.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Menckhoff (검정 위장)",
+       "file": "aces/menckhoff_albatros.webp"
       }
      ]
     },
@@ -553,7 +563,7 @@
      "name": "Fokker Dr.I",
      "year": 1917,
      "role": "전투기",
-     "base": "../fokker_f1.webp",
+     "base": "../fokker_standard.webp",
      "variants": [
       {
        "kind": "ace",
@@ -562,8 +572,8 @@
       },
       {
        "kind": "alt",
-       "name": "표준 생산형 위장",
-       "file": "../fokker_standard.webp"
+       "name": "F.I 시제기 (보스형)",
+       "file": "../fokker_f1.webp"
       },
       {
        "kind": "ace",
@@ -649,6 +659,31 @@
        "kind": "ace",
        "name": "Kirschstein (황백)",
        "file": "aces/kirschstein_dri.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Voss (F.I 시제 얼굴카울)",
+       "file": "aces/voss_f1_face.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Menckhoff (흑백 줄무늬)",
+       "file": "aces/menckhoff_dr1.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Raben (흰 꼬리)",
+       "file": "aces/raben_dr1.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Carlsen (청황)",
+       "file": "aces/carlsen_dr1.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Bäumer (셰브론)",
+       "file": "aces/baeumer_dr1.webp"
       }
      ]
     },
@@ -1936,17 +1971,17 @@
       {
        "kind": "ace",
        "name": "Guynemer",
-       "file": "../guynemer_nieuport.webp"
+       "file": "aces/guynemer_nieuport_vieuxcharles.webp"
       },
       {
        "kind": "ace",
        "name": "Navarre",
-       "file": "../navarre_nieuport.webp"
+       "file": "aces/navarre_nieuport_red.webp"
       },
       {
        "kind": "ace",
        "name": "Stork",
-       "file": "../stork_nieuport.webp"
+       "file": "aces/stork_nieuport_n3.webp"
       },
       {
        "kind": "ace",
@@ -1961,7 +1996,7 @@
       {
        "kind": "ace",
        "name": "Heurteaux",
-       "file": "../heurteaux_nieuport.webp"
+       "file": "aces/heurteaux_nieuport_check.webp"
       },
       {
        "kind": "ace",
@@ -2759,7 +2794,7 @@
       {
        "kind": "ace",
        "name": "Guynemer",
-       "file": "../guynemer_spad.webp"
+       "file": "aces/guynemer_spad_vieuxcharles.webp"
       },
       {
        "kind": "ace",
@@ -2804,7 +2839,7 @@
       {
        "kind": "ace",
        "name": "Carli",
-       "file": "../carli_spad.webp"
+       "file": "aces/carli_spad_italian.webp"
       },
       {
        "kind": "ace",
