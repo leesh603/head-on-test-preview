@@ -76,6 +76,26 @@
        "kind": "livery",
        "name": "공장 은색 도포",
        "file": "liveries/eindecker/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "오스트리아-헝가리 운용",
+       "file": "liveries/eindecker/austria.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "오스만 제국",
+       "file": "liveries/eindecker/ottoman.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "스위스 억류기",
+       "file": "liveries/eindecker/swiss.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 칠흑",
+       "file": "liveries/eindecker/night.webp"
       }
      ]
     },
