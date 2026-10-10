@@ -1166,14 +1166,16 @@ function openBuildPop151(tile,{name,rarity,count,category,stats,desc,en}){
  if(desc)pop.append(el('p',desc));
  area.append(pop);tile.setAttribute('aria-expanded','true');
  // Anchor under the tile (above it when the tile sits low in view), clamped to the build column.
- const a=area.getBoundingClientRect(),r=tile.getBoundingClientRect(),w=pop.offsetWidth,h=pop.offsetHeight,card=area.closest('.modal-card')?.getBoundingClientRect(),acts=document.getElementById('modalActions')?.getBoundingClientRect();
+ const a=area.getBoundingClientRect(),r=tile.getBoundingClientRect(),card=area.closest('.modal-card')?.getBoundingClientRect(),acts=document.getElementById('modalActions')?.getBoundingClientRect();
  const floor=Math.min(window.innerHeight,card?.bottom??Infinity,acts&&acts.top>r.bottom?acts.top:Infinity)-8,ceil=Math.max(0,card?.top??0)+8;
+ pop.style.maxHeight=Math.max(0,floor-ceil)+'px';pop.style.overflowY='auto';pop.style.maxWidth=Math.max(0,Math.min(a.width,window.innerWidth-16))+'px';
+ const w=pop.offsetWidth,h=pop.offsetHeight;
  const left=Math.max(0,Math.min(a.width-w,r.left-a.left+r.width/2-w/2)),below=r.bottom+8+h<=floor||r.top-8-h<ceil&&floor-r.bottom>=r.top-ceil;
- pop.style.left=left+'px';pop.style.top=(below?r.bottom-a.top+8:r.top-a.top-8-h)+'px';pop.style.setProperty('--tip',(r.left-a.left+r.width/2-left)+'px');pop.classList.toggle('above151',!below);
+ pop.style.left=left+'px';pop.style.top=(Math.max(ceil,Math.min(floor-h,below?r.bottom+8:r.top-8-h))-a.top)+'px';pop.style.setProperty('--tip',(r.left-a.left+r.width/2-left)+'px');pop.classList.toggle('above151',!below);
 }
 document.addEventListener('click',e=>{if(!e.target.closest?.('.build-pop151,.build-tile151'))closeBuildPop151()},true);
 function showBuildPause151(){
- modal('PAUSED','현재 빌드','ESC · 계속하기',[{label:'계속하기',run:resume},{label:'설정',run:showSettings151},{label:'전투 종료',run:returnHangar}]);$('modal').classList.remove('settings-modal151','manual-modal151');$('modal').classList.add('build-modal151');
+ modal('PAUSED','전투 현황','ESC · 계속하기',[{label:'계속하기',run:resume},{label:'설정',run:showSettings151},{label:'전투 종료',run:returnHangar}]);$('modal').classList.remove('settings-modal151','manual-modal151');$('modal').classList.add('build-modal151');
  document.getElementById('build151')?.remove();
  const area=document.createElement('div');area.id='build151';
  const el=(tag,text,cls)=>{const e=document.createElement(tag);e.textContent=text;if(cls)e.className=cls;return e};
