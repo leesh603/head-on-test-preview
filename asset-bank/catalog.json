@@ -2362,7 +2362,28 @@
      "year": 1918,
      "role": "호위전투기",
      "base": "planes/caudron_r11.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "이탈리아 운용기",
+       "file": "liveries/caudron_r11/italian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/caudron_r11/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 호위 칠흑",
+       "file": "liveries/caudron_r11/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "초기 연색 생산",
+       "file": "liveries/caudron_r11/linen.webp"
+      }
+     ]
     },
     {
      "id": "voisin8",
