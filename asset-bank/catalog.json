@@ -1725,6 +1725,26 @@
        "kind": "ace",
        "name": "Ruffo",
        "file": "../ruffo_sva5.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 USAS 별",
+       "file": "liveries/ansaldo_sva5/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "세레니시마 붉은 동체",
+       "file": "liveries/ansaldo_sva5/red.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전선 상면 위장",
+       "file": "liveries/ansaldo_sva5/camo.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "열병·홍보 백색",
+       "file": "liveries/ansaldo_sva5/white.webp"
       }
      ]
     },
