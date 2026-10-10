@@ -555,6 +555,26 @@
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "planes/hannover_cl3.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전면 로젠지 위장천",
+       "file": "liveries/hannover_cl3/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "초기 올리브 단색",
+       "file": "liveries/hannover_cl3/green.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "슐라스타 흑백 나선띠",
+       "file": "liveries/hannover_cl3/band.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "영국 노획 평가기",
+       "file": "liveries/hannover_cl3/captured.webp"
       }
      ]
     },
