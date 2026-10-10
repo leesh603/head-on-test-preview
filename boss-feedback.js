@@ -90,6 +90,10 @@ export function bossTactic(encounter,locale='ko'){
  if(!TACTIC_RAIL_ONLY.has(encounter?.bossId)&&!['mark4-wedge','morser-battery','wustenpanzer','sinai-landship','gallipoli-fortress','paris-staaken-rvi','paris-searchlight-fortress','jutland-grand-fleet','supermarine-nighthawk','siemens-schuckert-r-viii'].includes(encounter?.bossId))return '';
  const bodies=[...encounter?.bodies.values()||[]].filter(b=>!b.dead),b=bodies[0];if(!b)return '';
  const text=(ko,en)=>pair(ko,en,locale),gone=id=>b.parts.get(id)?.destroyed;
+ if(['supermarine-nighthawk','siemens-schuckert-r-viii'].includes(encounter.bossId)){
+  if(b.phase==='sortie-depart')return text('폭격기가 이탈합니다 · 폭격 예고를 확인하세요.','Bomber departing · watch for bombing lanes.');
+  if(b.phase==='sortie-hidden'||b.phase==='sortie-return')return text('폭격 사이 빈 통로로 회피 · 복귀 후 동체를 공격하세요.','Use the clear bombing corridor · strike the fuselage on return.');
+ }
  switch(encounter.bossId){
   case 'supermarine-nighthawk':return b.coreVulnerable?text('재장전 틈에 동체를 공격하세요.','Strike the fuselage during reload.'):gone('lamp')?text('탐조등 제압 · 주포와 엔진을 공략하세요.','Light disabled · attack the cannon and engines.'):text('빛을 벗어나 주포 사선을 피하세요. 탐조등을 부수면 추적 사격이 멈춥니다.','Leave the light and cannon lane · break the lamp to stop focus fire.');
   case 'siemens-schuckert-r-viii':return b.coreVulnerable?text('동체 노출 · 남은 포좌를 피하며 반격하세요.','Fuselage exposed · evade surviving guns and counterattack.'):text('폭격 사이 빈 통로를 이용하세요. 추진부를 부수면 느려지고, 폭탄창을 부수면 투하가 멈춥니다.','Use gaps between bombs · break drives to slow it and bays to stop drops.');
