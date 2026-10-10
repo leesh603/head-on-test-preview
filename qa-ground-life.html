@@ -21,7 +21,7 @@ document.querySelector('#perf').onclick=()=>{const g=api()?.debug();if(!g)return
 // Both versions run their actual module graphs and terrain, not mock renders.
 async function loadVersion(which){
  mode=which;status.textContent='실제 게임 로딩 · '+mode;
- const root=which==='before'?new URL('../2119fe2045d69eab968b0e2f2b0af683ec7d37e1/',location.href):new URL('./',location.href);
+ const root=which==='before'?new URL('../9d1948f5b35bf6b523a4f11ff09967e1a97df186/',location.href):new URL('./',location.href);
  const response=await fetch(new URL('index.html',root)),text=await response.text();
  const appPath=text.match(/\.\/app\.js\?[^'"]+/)[0];let code=await(await fetch(new URL(appPath,root))).text();
  // srcdoc has an empty hostname. Enable only its existing Test Lab bridge.

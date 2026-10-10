@@ -30,6 +30,9 @@
   }
  }
  Object.defineProperty(P,'src',{configurable:true,enumerable:src.enumerable,get(){return held.has(this)?held.get(this).url:src.get.call(this)},set(v){
+  // The supported branch review host redirects bitmaps to another origin.
+  // Opt into CORS only in its explicit test session so canvas atlases can bake.
+  if(typeof location!=='undefined'&&location.hostname==='raw.githack.com'&&new URLSearchParams(location.search).get('headonTest')==='1')this.crossOrigin='anonymous';
   const url=abs(v);if(active.delete(this))queueMicrotask(pump);// a re-set aborts the load in flight
   if(open||pass.test(url)){held.delete(this);src.set.call(this,v);return}
   held.set(this,{url,n:serial++,rank:rank(url)});queueMicrotask(pump);
