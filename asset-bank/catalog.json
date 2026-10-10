@@ -1435,6 +1435,26 @@
        "kind": "livery",
        "name": "독일 노획 운용기",
        "file": "liveries/fe2b/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/fe2b/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "중동전선 사막 크림",
+       "file": "liveries/fe2b/desert.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은 나셀",
+       "file": "liveries/fe2b/leader.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "파문 위장 실험기",
+       "file": "liveries/fe2b/wavy.webp"
       }
      ]
     },
