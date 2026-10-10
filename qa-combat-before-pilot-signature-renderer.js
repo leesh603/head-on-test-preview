@@ -1,6 +1,5 @@
-import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=gal1';
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
-import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
+import {PILOT_SIGNATURES,nungesserSmokeStage} from './qa-combat-before-pilot-signature-state.js';
 import {signatureWingPositions} from './pilot-signature-geometry.js';
 import {drawTracerBolt} from './projectiles.js?v=gal1&rail=42';
 import {drawCavalryGuard,drawCavalryLance,drawRickenbackerHalfRing} from './pilot-directed-fx.js';
@@ -53,7 +52,6 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
   }
  }
  function worldEffects(c,p){
-  drawThreeWorld(c,p,texture,bolt);
   const world=p.combatWorld?.()||p,owner=p.id||'p1';
   if(p.pilot==='hawker'&&!(p.skillTime>0)&&p.straightCharge>0)for(const b of world.bullets||[]){
    if(b.life<=0||b.enemy||b.ally||b.patrol||b.formation||b.rocket||b.motorCannon||b.cow37||b.mauserRound||b.blast||b.actualExplosion||b.gun===undefined||(b.ownerId!==undefined&&b.ownerId!==owner)||Math.hypot(b.x-p.x,b.y-p.y)>700)continue;
@@ -90,7 +88,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
   }
  }
  function start(c,p,e,foreground=false){
-  const q=clamp(e.age/e.maxLife),fade=Math.min(1,e.age/.09)*Math.min(1,e.life/.28),time=e.age;c.globalAlpha*=fade;if(['proctor','schleich','lufbery','huffzky','mckeever','jacobs','hawker','berthold','goering','nungesser','barker'].includes(p.pilot)&&e.kind==='shotAccent')return;
+  const q=clamp(e.age/e.maxLife),fade=Math.min(1,e.age/.09)*Math.min(1,e.life/.28),time=e.age;c.globalAlpha*=fade;if(['huffzky','mckeever','jacobs','hawker','berthold','goering','nungesser','barker'].includes(p.pilot)&&e.kind==='shotAccent')return;
   switch(e.kind){   case 'rearBurst':{const a=e.a-p.a;muzzleAt(c,0,0,a,'muzzleRear',e.strong?1.2:.85);for(let i=0;i<3;i++)texture(c,'metalShard'+i,time*(18+i*9),10+time*(25+i*10),6,3,time*9+i,.7);break;}
    case 'rearAcquire':{c.rotate(e.a-p.a);for(const side of [-1,1])tracer(c,-8,side*(1-q)*12,14,4,side*.25,.42*(1-q));break;}
    case 'hawkerLink':texture(c,'armorSpark',0,0,24,14,e.a-p.a,.5*(1-q));texture(c,'gunSmoke',-8,0,23,13,0,.16);break;
@@ -191,7 +189,6 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
  }
  const safeTurn=p=>p.pilotSignatureState?.turnRate||0;
  function continuous(c,p,profile,s){
-  if(drawThreeLocal(c,p,texture))return;
   const t=s.clock,age=s.activeAge,shot=p.muzzleFlash>0,active=p.skillTime>0;
   if(p.pilot==='huffzky'||p.pilot==='mckeever'){
    if(p.nineRearFlash>0){const a=(p.nineRearAim??p.a+Math.PI)-p.a;muzzleAt(c,-23,0,a,'muzzleRear',p.pilot==='huffzky'&&active?1.3:.85);}

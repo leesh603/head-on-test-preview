@@ -1,10 +1,8 @@
-import {PILOT_IDENTITY_COPY as THREE_COPY} from './pilot-identity-copy.js';
-import {beginThreeSkill,tickThreePilot,threeGunDirection} from './pilot-three-combat.js?v=gal1';
 import {EXPLOSION_LIFE,initExplosionProfile,pushExplosionFx,advanceExplosionFx} from './explosion-profiles.js?v=gal1';
 import {beginAircraftCrash,advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=gal1';
 import {wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=gal1';
 import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=gal1';
-import {installPilotIdentities} from './pilot-identities.js?v=gal1';
+import {installPilotIdentities} from './qa-combat-before-pilot-identities.js?v=gal1';
 import {EnemyCollisionGrid} from './collision-grid.js?v=gal1';
 import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=gal1';
 import {installRevision} from './rebalance103.js?v=gal1&rail=42';
@@ -1630,8 +1628,8 @@ Game.prototype.roundDamageMultiplier=Game.prototype._rdmDri;
 Game.prototype.skillDuration=Game.prototype._durAces1918;
 installPilotIdentities(Game,PILOTS);
 // Signature presentation is installed after the final legacy pilot overrides.
-import {installPilotSignatures} from './pilot-signatures.js';
-import {nungesserSmokeStage,nungesserAimOffset,nungesserRoundReaction} from './pilot-signature-state.js';
+import {installPilotSignatures} from './qa-combat-before-pilot-signatures.js';
+import {nungesserSmokeStage,nungesserAimOffset,nungesserRoundReaction} from './qa-combat-before-pilot-signature-state.js';
 installPilotSignatures(Game);
 registerAircraftTiers(PLANES);
 Game.prototype.aircraftTailPursuit=function(){return aircraftTailPursuit(this)};
@@ -1699,40 +1697,50 @@ Object.assign(PILOTS,{
  schleich:{name:'에두아르트 폰 슐라이히',alias:'THE BLACK KNIGHT',faction:'central',portrait:30,skill:'흑기사의 진격',cooldown:18},
  lufbery:{name:'라울 러프베리',alias:"LAFAYETTE'S WALL",faction:'entente',portrait:31,skill:'라파예트의 사격술',cooldown:17}
 });
-for(const id of ['proctor','schleich','lufbery']){const c=THREE_COPY[id].ko;Object.assign(PILOTS[id],{skill:c.skill,passive:c.passive,desc:c.activeDetail,passiveDesc:c.passiveDetail});}
 PILOT_PLANES.proctor='proctor_se5a';PILOT_PLANES.schleich='schleich_albatros';PILOT_PLANES.lufbery='lufbery_nieuport17';
 const _skill3=Game.prototype.skill;
 Game.prototype.skill=function(){
  if(!['proctor','schleich','lufbery'].includes(this.pilot))return _skill3.call(this);
  this.ensureRevisionPilot?.();if(this.state!=='playing'||this.hp<=0||this.cooldown>0)return false;
  this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.aceHeading129=this.a;
- beginThreeSkill(this);
- if(this.pilot==='proctor')this.invuln=Math.max(this.invuln,.35);
- if(this.pilot==='schleich')this.invuln=Math.max(this.invuln,.6);
- if(this.pilot==='lufbery')this.invuln=Math.max(this.invuln,.3);
+ if(this.pilot==='proctor'){this.invuln=Math.max(this.invuln,.35);this.burst(this.x,this.y,'#e8f0c8',14)}
+ if(this.pilot==='schleich'){this.invuln=Math.max(this.invuln,.6);this.burst(this.x,this.y,'#5a5f6a',18);this.identityFx?.('armorSpark',this.x,this.y,0,52,.4)}
+ if(this.pilot==='lufbery'){this.invuln=Math.max(this.invuln,.3);this.burst(this.x,this.y,'#9fb8d8',14)}
  this.event('skill',PILOTS[this.pilot].skill);return true;
 };
 const _dur3=Game.prototype.skillDuration;
 Game.prototype.skillDuration=function(){const base=({proctor:2.4,schleich:3,lufbery:3})[this.pilot];return base===undefined?_dur3.call(this):base*(this.skillEnhanced?1.3:1)};
 const _incoming3=Game.prototype.incomingDamageMultiplier;
-Game.prototype.incomingDamageMultiplier=function(source){let mult=_incoming3.call(this,source);if(this.pilot==='schleich'){mult*=.92;if(source&&this.invuln<=0&&(this.t-(this._armorCueAt??-10)>.12)){this._armorCueAt=this.t;const a=Math.atan2(source.y-this.y,source.x-this.x);this.identityFx?.('ricochet',this.x+Math.cos(a)*19,this.y+Math.sin(a)*19,a,30,.25,{height:15,alpha:.8})}}return mult};
+Game.prototype.incomingDamageMultiplier=function(source){let mult=_incoming3.call(this,source);if(this.pilot==='schleich')mult*=this.skillTime>0?.45:.92;return mult};
 const _fan3=Game.prototype.buildGunFan;
 Game.prototype.buildGunFan=function(base){let f=_fan3.call(this,base);if(this.pilot==='proctor')f*=this.skillTime>0?.35:.65;return f};
 const _round3=Game.prototype.applySpecialRound;
-Game.prototype.applySpecialRound=function(b,type){const r=_round3.call(this,b,type);if(this.pilot==='proctor'&&this.skillTime>0){r.pierce=true;r.proctorSalvo=true;r.specialColor='#e6c783'}if(this.pilot==='lufbery'&&this.skillTime>0)r.lafayetteShot=true;return r};
+Game.prototype.applySpecialRound=function(b,type){const r=_round3.call(this,b,type);if(this.pilot==='proctor'&&this.skillTime>0)r.pierce=true;return r};
 const _dir3=Game.prototype.gunDirection;
 Game.prototype.gunDirection=function(gun=0){
  const base=_dir3.call(this,gun);
- return threeGunDirection(this,base,gun);
+ if(this.pilot==='lufbery'&&this.skillTime>0&&gun!==1){const e=this.identityTarget?.(.4,620,this,this.a);if(e)return Math.atan2(e.y-this.y,e.x-this.x)}
+ return base;
 };
 const _frame3=Game.prototype.beginRevisionFrame;
 Game.prototype.beginRevisionFrame=function(dt,input={}){
  const prior=_frame3.call(this,dt,input);
  for(const pl of this.players||[this]){
   if(!pl||!(pl.hp>0))continue;
-  if(pl.pilot==='lufbery')pl.energyRecoveryBonus=(pl.energyRecoveryBonus||0)+.4;
-  tickThreePilot(pl,dt);
-  if(['proctor','schleich','lufbery'].includes(pl.pilot)&&!pl.skillTime)pl.aceSkillPhase=null;
+  if(pl.pilot==='proctor'&&pl.skillTime>0){
+   pl.rate*=.42;pl.revisionDamageMult*=1.35;pl.speed*=1.15;pl.baseSpeed*=1.15;pl.aceSkillPhase='salvo';
+   pl._proctorFxT=(pl._proctorFxT||0)-dt;if(pl._proctorFxT<=0){pl._proctorFxT=.06;pl.identityFx?.('gunSmoke',pl.x+Math.cos(pl.a)*22,pl.y+Math.sin(pl.a)*22,pl.a,20,.3,{alpha:.4})}
+  }else if(pl.pilot==='proctor'&&!pl.skillTime)pl.aceSkillPhase=null;
+  if(pl.pilot==='schleich'&&pl.skillTime>0){
+   pl.speed*=1.4;pl.baseSpeed*=1.4;pl.turn*=.75;pl.aceSkillPhase='advance';
+   pl._schleichFxT=(pl._schleichFxT||0)-dt;if(pl._schleichFxT<=0){pl._schleichFxT=.12;pl.identityFx?.('armorSpark',pl.x+(this.rng()-.5)*24,pl.y+(this.rng()-.5)*24,pl.a,30,.28,{alpha:.7})}
+  }else if(pl.pilot==='schleich'&&!pl.skillTime)pl.aceSkillPhase=null;
+  if(pl.pilot==='lufbery'){
+   pl.energyRecoveryBonus=(pl.energyRecoveryBonus||0)+.4;
+   if(pl.skillTime>0){pl.rate*=.7;pl.revisionDamageMult*=1.2;pl.aceSkillPhase='mark';
+    pl._lufberyFxT=(pl._lufberyFxT||0)-dt;if(pl._lufberyFxT<=0){pl._lufberyFxT=.09;pl.identityFx?.('muzzle',pl.x+Math.cos(pl.a)*25,pl.y+Math.sin(pl.a)*25,pl.a,24,.16,{alpha:.8})}
+   }else pl.aceSkillPhase=null;
+  }
  }
  return prior;
 };
