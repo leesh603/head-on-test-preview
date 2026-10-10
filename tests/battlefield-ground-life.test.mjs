@@ -85,6 +85,7 @@ test('tight FX are baked once, and actual bitmap draws have a hard viewport boun
  const {c,counts}=context();let reads=0;c.getImageData=()=>{reads++;throw Error('live pixel read')};
  let maximum=0;
  for(let n=0;n<240;n++){const prior=counts.images;drawGroundLife(c,'burning',n*41-700,n*23-400,1920,1080,1254,n*.2,1);maximum=Math.max(maximum,counts.images-prior)}
+ for(let n=0;n<240;n++){const prior=counts.images;drawGroundLife(c,'burning',n*41-700,n*23-400,390,844,1254,n*.2,.65);assert.ok(counts.images-prior<=43,'mobile bitmap budget')}
  assert.equal(reads,0);assert.ok(maximum<=102,'at most 38 vehicle/infantry images plus 64 FX');
  assert.equal(counts.filters,0);
 });
