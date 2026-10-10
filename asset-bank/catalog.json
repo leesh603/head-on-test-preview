@@ -817,7 +817,28 @@
      "year": 1917,
      "role": "전투기",
      "base": "../morane_ai.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "프랑스군 은색",
+       "file": "liveries/morane_ai/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 추격훈련 USAS 별",
+       "file": "liveries/morane_ai/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "상면 파동 위장",
+       "file": "liveries/morane_ai/camo.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 시험기",
+       "file": "liveries/morane_ai/captured.webp"
+      }
+     ]
     },
     {
      "id": "vickers_fb5",
