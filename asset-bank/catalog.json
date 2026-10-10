@@ -535,6 +535,26 @@
        "kind": "livery",
        "name": "미군 반입 평가기",
        "file": "liveries/roland_d6/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 노획 평가기",
+       "file": "liveries/roland_d6/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "영국 노획 평가기",
+       "file": "liveries/roland_d6/british.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "수칠 모틀 위장",
+       "file": "liveries/roland_d6/mottle.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/roland_d6/leader.webp"
       }
      ]
     },
