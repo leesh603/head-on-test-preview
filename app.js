@@ -42,8 +42,8 @@ import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174
 import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?v=gal1';
 import {drawEnemyDanger} from './enemy-danger-view.js?v=gal1';
 import {drawGas} from './gas-view.js?v=gal1';
-import {drawWarAmbience} from './war-ambience.js?v=gal1';
-import {backgroundDressingReady,drawRepeatedDressing,bakeHarborDressing,drawGallipoliDressing,drawDesertDressing,drawParisDressing} from './background-dressing.js?v=gal1';
+import {drawWarAmbience} from './war-ambience.js?v=gal2';
+import {backgroundDressingReady,drawRepeatedDressing,drawMovingDressing,bakeHarborDressing,drawGallipoliDressing,drawDesertDressing,drawParisDressing} from './background-dressing.js?v=gal2';
 import {missionNavigation,drawMissionRadar} from './navigation.js?v=gal1';
 import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=gal1';
 import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=gal1&rail=42';
@@ -679,10 +679,12 @@ function paintRegion(region,cx,cy,width=W,height=H){
  if(region===13){paintMaan(ctx,game,cx,cy,W,H);drawDesertDressing(ctx,cx,cy,W,H);return;}
  if(region===7){paintZeebrugge(cx,cy,W,H);return;}
  if(region>=0&&region<terrainKeys.length){
-  drawTerrainBuffered(terrainKeys[region],cx,cy,W,H);
+  const key=terrainKeys[region],detailDensity=(mobileDisplay&&batterySaver)?.45:1;
+  drawTerrainBuffered(key,cx,cy,W,H);
+  drawMovingDressing(ctx,key,cx-W/2,cy-H/2,W,H,terrainAlpsRenderer.sizeFor(key),(game?.t||0)+ambient,detailDensity);
   if(region===3)paintTrenchHellOverlay(cx,cy,W,H);
   if(region===11){ctx.save();ctx.fillStyle='#101b2c45';ctx.fillRect(0,0,W,H);ctx.restore();}
-  drawWarAmbience(ctx,region,cx,cy,W,H,(game?.t||0)+ambient,(mobileDisplay&&batterySaver)?.45:1);
+  drawWarAmbience(ctx,region,cx,cy,W,H,(game?.t||0)+ambient,detailDensity,terrainAlpsRenderer.sizeFor(key));
   return;
  }
  if(region===5){paintSky(ctx,cx,cy,W,H);return}if(region===4){paintCity(ctx,cx,cy,W,H,PLANES[game?.plane]?.faction==='central'?'london':'berlin');return}

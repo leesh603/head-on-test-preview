@@ -1,3 +1,4 @@
+import {fx} from './fx-art.js?v=gal1';
 // Ambient battlefield dressing drawn on top of terrain, below entities.
 // All emitters are deterministic in world space so they scroll with the map.
 const hash=(x,y,s=0)=>{const n=Math.sin(x*127.1+y*311.7+s*74.7)*43758.5453;return n-Math.floor(n)};
@@ -44,7 +45,81 @@ const flashSprite=()=>{
  g.fillStyle=gr;g.fillRect(0,0,64,64);return FLASH_SPRITE=k;
 };
 
-export function drawWarAmbience(c,region,cx,cy,W,H,t,density=1){
+
+/* Distant trench skirmishes: sprite-sized ground detail, not enemies/projectiles.
+   Sites coincide with surveyed gun and trench-shoulder terrain dressing spots.
+   No RNG ownership, AI, collision bodies, combat damage or particle allocations. */
+const SKIRMISH_FIELDS=Object.freeze({
+ 2:[[.194,.178],[.493,.333]],
+ 3:[[.731,.444],[.524,.252]],
+ 8:[[.475,.683]],
+ 10:[[.800,.320]]
+});
+const SOLDIER_PALETTE=Object.freeze([
+ {coat:'#565f50',edge:'#353e35',helmet:'#697266',pack:'#514b38'}, // feldgrau
+ {coat:'#656e71',edge:'#3f4947',helmet:'#78817b',pack:'#736b56'}  // muted Entente
+]);
+const soldierCache=[null,null];
+function soldierSprite(side){
+ if(soldierCache[side])return soldierCache[side];
+ const p=SOLDIER_PALETTE[side],cv=document.createElement('canvas');cv.width=38;cv.height=26;
+ const g=cv.getContext('2d');g.translate(18,13);g.lineCap='round';
+ // Small top-down infantry silhouette, a single prerendered sprite.
+ g.fillStyle='#17191166';g.beginPath();g.ellipse(-1,3,14,5,0,0,Math.PI*2);g.fill();
+ g.strokeStyle=p.edge;g.lineWidth=4.3;g.beginPath();
+ g.moveTo(-6,-2);g.lineTo(-13,-4);g.moveTo(-6,3);g.lineTo(-13,5);g.stroke();
+ g.fillStyle=p.pack;g.fillRect(-7,-6,6,12);
+ g.fillStyle=p.coat;g.beginPath();g.ellipse(1,0,10,6,0,0,Math.PI*2);g.fill();
+ g.strokeStyle=p.edge;g.lineWidth=2;g.beginPath();g.moveTo(-7,-5);g.lineTo(7,-5);g.stroke();
+ // Rifle silhouette, wood stock and dark steel barrel.
+ g.strokeStyle='#473b2c';g.lineWidth=2.8;g.beginPath();g.moveTo(1,7);g.lineTo(11,7);g.stroke();
+ g.strokeStyle='#242b28';g.lineWidth=1.6;g.beginPath();g.moveTo(10,7);g.lineTo(18,7);g.stroke();
+ g.fillStyle=p.helmet;g.beginPath();g.ellipse(7,-1,5.1,5.2,-.15,0,Math.PI*2);g.fill();
+ g.strokeStyle='#353a32';g.lineWidth=1.3;g.beginPath();g.ellipse(7,-1,5.1,5.2,-.15,0,Math.PI*2);g.stroke();
+ g.strokeStyle='#afb49b66';g.lineWidth=1;g.beginPath();g.moveTo(6,-4);g.lineTo(9,-3);g.stroke();
+ return soldierCache[side]=cv;
+}
+function drawTrenchSkirmishes(c,region,wx,wy,W,H,t,density,period){
+ if(!Number.isFinite(period)||period<=0)return;
+ const sites=SKIRMISH_FIELDS[region];if(!sites)return;
+ const loX=Math.floor(wx/period),hiX=Math.floor((wx+W)/period);
+ const loY=Math.floor(wy/period),hiY=Math.floor((wy+H)/period);
+ for(let gy=loY;gy<=hiY;gy++)for(let gx=loX;gx<=hiX;gx++){
+  const seed=hash(gx,gy,16);
+  if(seed>.66 || (density<.7&&seed>.32))continue;
+  for(let k=0;k<sites.length;k++){
+   if(k===1&&(seed>.28||density<.7))continue;
+   const site=sites[k],x=(gx+site[0])*period-wx,y=(gy+site[1])*period-wy;
+   if(x<-100||x>W+100||y<-70||y>H+70)continue;
+   const phase=(t+seed*22+k*5.1)%5.4;
+   for(let side=0;side<2;side++)for(let i=0;i<3;i++){
+    const dir=side===0?1:-1;
+    const sx=x-dir*(29+i*3)+Math.sin(t*.64+seed*31+i*1.8+side)*2;
+    const sy=y+(i-1)*12+(side?.5:-.5);
+    const duck=(phase>4.5&&i===1);
+    c.save();c.translate(sx,sy);if(side)c.rotate(Math.PI);
+    c.globalAlpha*=duck?.56:.76;c.imageSmoothingEnabled=true;
+    c.drawImage(soldierSprite(side),-13,-9,26,18);c.restore();
+   }
+   // Short muted ground-level volleys. Deliberately never target the player.
+   if(phase<.24){
+    const fade=1-phase/.24,shootRight=((gx+gy+k)&1)===0;
+    const x1=x+(shootRight?-12:12),x2=x+(shootRight?15:-15);
+    c.globalAlpha=.42*fade;c.strokeStyle='#dbb886';c.lineWidth=1.3;
+    c.beginPath();c.moveTo(x1,y-10);c.lineTo(x2,y-9);c.stroke();
+    c.globalAlpha=1;
+    fx(c,'muzzlePistol',x1,y-10,10,8,shootRight?0:Math.PI,.34*fade);
+    fx(c,'dustPuff',x2,y-9,16,12,0,.18*fade);
+   }
+   if(phase>3.7&&phase<4.9){
+    const q=(phase-3.7)/1.2;
+    fx(c,'smokePuff',x+3+q*5,y-3-q*9,24+q*12,18+q*12,0,.10*(1-q));
+   }
+  }
+ }
+}
+
+export function drawWarAmbience(c,region,cx,cy,W,H,t,density=1,terrainPeriod=768){
  const cfg0=CFG[region];if(!cfg0)return;
  const cfg=density<1?{flash:(cfg0.flash||0)*density,smoke:(cfg0.smoke||0)*density,ember:(cfg0.ember||0)*density,aa:(cfg0.aa||0)*density,gull:(cfg0.gull||0)*density}:cfg0;
  const wx=cx-W/2,wy=cy-H/2;
@@ -55,9 +130,15 @@ export function drawWarAmbience(c,region,cx,cy,W,H,t,density=1){
   for(let j=0;j<seeds.length;j+=3){
    const gx=seeds[j],gy=seeds[j+1],s=seeds[j+2];
    const x=gx*cell-wx+cell*(.15+s*.7),y=gy*cell-wy+cell*(.15+(s*13%1)*.7),ph=(t*.09+s*7)%1;
-   for(let i=0;i<3;i++){const q=(ph+i/3)%1,yy=y-q*130,r=10+q*34+s*14;
-    c.globalAlpha=.13*(1-q);c.fillStyle=region===11?'#2a3038':'#24221e';
-    c.beginPath();c.arc(x+Math.sin(t*.35+i+s*9)*14*q,yy,r,0,Math.PI*2);c.fill();}
+   for(let i=0;i<2;i++){
+    const q=(ph+i*.5)%1,yy=y-q*118,r=16+q*48+s*19,xx=x+Math.sin(t*.35+i+s*9)*15*q;
+    c.globalAlpha=.20*(1-q)*Math.min(1,cfg.smoke+.15);
+    // Reuse the approved painted smoke atlas instead of flat radial circles.
+    if(!fx(c,region===11?'smokeGray':'smokeDark',xx,yy,r*1.8,r*1.6,0,1)){
+     c.fillStyle=region===11?'#2a3038':'#24221e';
+     c.beginPath();c.arc(xx,yy,r*.65,0,Math.PI*2);c.fill();
+    }
+   }
   }
  }
  if(cfg.flash){ // brief artillery muzzle flashes on a slower grid
@@ -100,5 +181,7 @@ export function drawWarAmbience(c,region,cx,cy,W,H,t,density=1){
    c.beginPath();c.moveTo(px-4,py);c.quadraticCurveTo(px-1,py-3-fl,px,py);c.quadraticCurveTo(px+1,py-3-fl,px+4,py);c.stroke();
   }
  }
+ c.globalAlpha=1;
+ drawTrenchSkirmishes(c,region,wx,wy,W,H,t,density,terrainPeriod);
  c.restore();
 }
