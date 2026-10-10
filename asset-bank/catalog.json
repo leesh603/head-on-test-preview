@@ -3510,6 +3510,26 @@
        "kind": "livery",
        "name": "열병·홍보 백색",
        "file": "liveries/ansaldo_sva5/white.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "영국 RAF 평가기",
+       "file": "liveries/ansaldo_sva5/british.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스군 평가기",
+       "file": "liveries/ansaldo_sva5/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아제국 평가기",
+       "file": "liveries/ansaldo_sva5/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/ansaldo_sva5/leader.webp"
       }
      ]
     },
