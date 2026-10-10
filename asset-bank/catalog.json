@@ -481,6 +481,26 @@
        "kind": "livery",
        "name": "미군 반입 평가기",
        "file": "liveries/pfalz_d12/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 노획 평가기",
+       "file": "liveries/pfalz_d12/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "영국 노획 평가기",
+       "file": "liveries/pfalz_d12/british.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전면 로젠지 위장",
+       "file": "liveries/pfalz_d12/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/pfalz_d12/leader.webp"
       }
      ]
     },
