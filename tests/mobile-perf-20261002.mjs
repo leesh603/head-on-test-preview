@@ -12,17 +12,33 @@ import {performance} from 'node:perf_hooks';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const current=process.env.HEADON_CURRENT_DIR||root;
 const BASE='ce0110523bf5d08f4cfa7467490a649bb6f2cb59';
+// war-ambience.js gained moving vehicles, trench skirmishes and an fx-art
+// import in 44fa7b75 (ground battlefield life). Its rendering baseline is
+// re-pinned there; the other files still compare against the v499 baseline.
+const baseFor={'war-ambience.js':'44fa7b75946967ca0f70213cb335d6d2a229e585'};
 const expected={
  'collision-grid.js':'a5880fad5179f930754e79e9b62e75a682d6eeef',
- 'war-ambience.js':'fcb212bf3f07d83778db3992099098099b1e42a5',
+ 'war-ambience.js':'c3e66dbb9ebe056a6c1a2ba11404747725154bf7',
  'flight-viewport.js':'1173ff0687fbce51a7d102266ee9e252075abea6'
+};
+// data: modules cannot resolve relative specifiers, so files that grew a
+// top-level import compile from source instead; dependencies are injected
+// the way runtime importers provide them (fx-art's draw entry is fx()).
+const depsFor={'war-ambience.js':{fx:()=>true}};
+const load=(file,data)=>{
+ const text=data.toString('utf8');
+ if(!/^import\b/m.test(text))return import('data:text/javascript;base64,'+data.toString('base64'));
+ const deps=depsFor[file]||{},names=Object.keys(deps);
+ const code=text.split('\n').filter(line=>!/^import\b/.test(line.trim())).join('\n')
+  .replace(/\bexport (function|const|let|class)\b/g,'$1');
+ return new Function(...names,code+'\nreturn {drawWarAmbience};')(...names.map(n=>deps[n]));
 };
 const original={},modified={};
 for(const file of Object.keys(expected)){
- const data=process.env.HEADON_BASELINE_DIR?readFileSync(resolve(process.env.HEADON_BASELINE_DIR,file)):execFileSync('git',['show',`${BASE}:${file}`],{cwd:root});
+ const data=process.env.HEADON_BASELINE_DIR?readFileSync(resolve(process.env.HEADON_BASELINE_DIR,file)):execFileSync('git',['show',`${baseFor[file]||BASE}:${file}`],{cwd:root});
  assert.equal(createHash('sha1').update(`blob ${data.length}\0`).update(data).digest('hex'),expected[file],`baseline blob: ${file}`);
- original[file]=await import('data:text/javascript;base64,'+data.toString('base64'));
- modified[file]=await import('data:text/javascript;base64,'+readFileSync(resolve(current,file)).toString('base64'));
+ original[file]=await load(file,data);
+ modified[file]=await load(file,readFileSync(resolve(current,file)));
 }
 const OldGrid=original['collision-grid.js'].EnemyCollisionGrid;
 const NewGrid=modified['collision-grid.js'].EnemyCollisionGrid;
@@ -36,9 +52,13 @@ function pair(enemies){const a=new OldGrid(radius),b=new NewGrid(radius);a.build
 function same(a,b,bullet,enemies){const x=a.query(bullet,enemies),y=b.query(bullet,enemies);assert.equal(x.length,y.length);for(let i=0;i<x.length;i++)assert.equal(x[i],y[i]);}
 function context(record=false){
  const log=[],out={globalAlpha:1};
- const methods=['save','restore','beginPath','arc','fill','stroke','fillRect','moveTo','quadraticCurveTo','drawImage'];
+ const methods=['save','restore','beginPath','arc','fill','stroke','fillRect','moveTo','quadraticCurveTo','drawImage',
+  'translate','rotate','scale','setTransform','lineTo','closePath','ellipse','rect','strokeRect','clearRect','fillText'];
  for(const method of methods)out[method]=(...args)=>{if(record)log.push([method,...args.map(v=>v&&typeof v==='object'?'canvas':v)])};
- const c=record?new Proxy(out,{set(target,key,value){log.push([key,value]);target[key]=value;return true}}):out;
+ // Canvas calls beyond the list stay silent no-ops; the recorded stream only
+ // needs the listed ones. Property reads/writes pass through to `out`.
+ const c=new Proxy(out,{get(t,p){return p in t?t[p]:()=>{}},
+  set(t,p,v){if(record)log.push([p,v]);t[p]=v;return true}});
  return {c,log};
 }
 globalThis.document={createElement(){const {c}=context();c.createRadialGradient=()=>({addColorStop(){}});return{getContext:()=>c}}};

@@ -1,5 +1,6 @@
 // Scenery only: no Game/RNG ownership, collision, AI, particles or update loop.
 // Coordinates were measured on the current authored terrain, never scattered.
+import {fx} from './fx-art.js?v=gal1';
 const FRAMES=Object.freeze({gun:0,tank:1,farm:2,wagon:3,ambulance:4,lorry:5,train:6,supplies:7,landing:8,camp:9,desertWagon:10,brokenGun:11});
 const images={};
 export const backgroundDressingReady=typeof Image==='undefined'?Promise.resolve(false):Promise.all([
@@ -31,6 +32,8 @@ export function drawRepeatedDressing(c,key,left,top,width,height,period){
   const seed=variant(ix,iy),mirror=key==='cambrai',mx=mirror&&Math.abs(ix%2),my=mirror&&Math.abs(iy%2);
   for(let j=0;j<sites.length;j++){
    const [kind,u,v,size,a]=sites[j];
+   // Animated vehicles are painted in a live pass, never baked as ghosts.
+   if(kind==='tank'||kind==='ambulance'||kind==='lorry')continue;
    // Two or three approved sites per tile, with alternating damage/heading.
    if((seed+j)%4===3)continue;
    if(kind==='train'&&(ix%3!==0||iy%3!==0||trains))continue;
@@ -42,6 +45,46 @@ export function drawRepeatedDressing(c,key,left,top,width,height,period){
   }
  }
 }
+
+// Live layer for existing vehicle sprites. Travel is deliberately short and
+// follows the same hand-approved roadside/trench-approach coordinates as the
+// static layer. The vehicle never roams across a tile or over the sea.
+export function drawMovingDressing(c,key,left,top,width,height,period,t,density=1){
+ const sites=TERRAIN_DRESSING[key];if(!sites||!Number.isFinite(period)||period<=0)return;
+ const mirror=key==='cambrai';
+ const firstX=Math.floor(left/period),lastX=Math.floor((left+width)/period);
+ const firstY=Math.floor(top/period),lastY=Math.floor((top+height)/period);
+ for(let iy=firstY;iy<=lastY;iy++)for(let ix=firstX;ix<=lastX;ix++){
+  const seed=variant(ix,iy),mx=mirror&&Math.abs(ix%2),my=mirror&&Math.abs(iy%2);
+  for(let j=0;j<sites.length;j++){
+   const [kind,u,v,size,a]=sites[j];
+   if(kind!=='tank'&&kind!=='ambulance'&&kind!=='lorry')continue;
+   if((seed+j)%4===3)continue;
+   // Battery saver: skip a stable subset, without flickering on/off in flight.
+   if(density<.7&&(seed+j)%2)continue;
+   const heading=(mx?-a:a)*(my?-1:1)+(my?Math.PI:0);
+   const x0=(ix+(mx?1-u:u))*period-left,y0=(iy+(my?1-v:v))*period-top;
+   const phase=t*(kind==='tank'?.48:.7)+(seed%71)*.37+j*1.41;
+   const travel=kind==='tank'?13:kind==='ambulance'?15:17;
+   const offset=Math.sin(phase)*travel;
+   const x=x0+Math.cos(heading)*offset,y=y0+Math.sin(heading)*offset;
+   if(x<-size||y<-size||x>width+size||y>height+size)continue;
+   // Tracks and dust are subdued: the original painted sprite stays dominant.
+   if(kind==='tank'){
+    c.save();c.translate(x0,y0);c.rotate(heading);c.globalAlpha*=.16;
+    c.strokeStyle='#332e23';c.lineWidth=2;c.beginPath();
+    c.moveTo(-20,-size*.18);c.lineTo(20,-size*.18);
+    c.moveTo(-20,size*.18);c.lineTo(20,size*.18);c.stroke();c.restore();
+   }
+   drawDressingSprite(c,kind,x,y,size,heading+(kind==='tank'?Math.sin(phase*.48)*.025:0),kind==='tank'?.78:.74);
+   if(Math.cos(phase)>.65 && ((seed+j)%3===0)){
+    const aft=size*.34,dx=x-Math.cos(heading)*aft,dy=y-Math.sin(heading)*aft;
+    fx(c,'dustPuff',dx,dy,kind==='tank'?19:13,kind==='tank'?14:10,heading,.12);
+   }
+  }
+ }
+}
+
 // The harbor image itself supplies every dock/land coordinate. Bake before
 // the existing landmark's fade, so no ground prop survives beyond its land.
 export const HARBOR_DRESSING=Object.freeze([
