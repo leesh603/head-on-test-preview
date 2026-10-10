@@ -2256,6 +2256,26 @@
        "kind": "livery",
        "name": "독일 노획 시험기",
        "file": "liveries/triplane/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "영국 RFC 표준",
+       "file": "liveries/triplane/british.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "벨기에 항공대",
+       "file": "liveries/triplane/belgian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 방어 칠흑",
+       "file": "liveries/triplane/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/triplane/leader.webp"
       }
      ]
     },
