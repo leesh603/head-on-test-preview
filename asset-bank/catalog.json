@@ -150,6 +150,26 @@
        "kind": "livery",
        "name": "동부전선 겨울 백색",
        "file": "liveries/albatros_d2/winter.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 노획 평가기",
+       "file": "liveries/albatros_d2/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아 노획 공군",
+       "file": "liveries/albatros_d2/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "후기 발켄크로이츠",
+       "file": "liveries/albatros_d2/balken.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/albatros_d2/leader.webp"
       }
      ]
     },
