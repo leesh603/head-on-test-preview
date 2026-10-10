@@ -10,9 +10,10 @@ export function musicModeForGame(game){
   if(game.enemies.some(e=>e.hp>0&&e.type==='boss'))return 'boss';
   return MAP_KEYS[game.worldRegion()]||'rural';
 }
-const MAP_KEYS=['rural','sea','trench','trench','city','sky','alps','zeebrugge','cambrai','arras','somme','london','verdun','maan','gallipoli','paris-night','jutland'];
+const MAP_KEYS=['rural','sea','trench','trench','city','sky','alps','zeebrugge','cambrai','arras','somme','london','verdun','maan','gallipoli','paris-night','jutland','dover-night'];
 // Stage-boss id -> score family. Related boss pairs share a family.
 const BOSS_TRACKS={
+ 'supermarine-nighthawk':'bomber','siemens-schuckert-r-viii':'bomber',
  'paris-gun':'railgun',lincomparable:'railgun',
  'sms-stuttgart':'naval','hms-zubian':'naval',
  'a7v-flak':'landship','mark-v-cruiser':'landship',
@@ -349,3 +350,4 @@ export class BattleMusic {
     }
   }
 }
+

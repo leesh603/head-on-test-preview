@@ -75,7 +75,7 @@ PHASES['livens-sweep']=['연료 누출 · 좌우 화염 쓸기','Fuel leaks · a
 PHASES['livens-unstable']=['압력 불안정 · 단속 분사와 회전','Unstable pressure · pulses and rotation'];
 PHASES['livens-depressurized']=['압력 저하 · 본체 반격 기회','Depressurized · strike the core'];
 export function bossPhaseLabel(phase,locale='ko'){const words=PHASES[phase];return words?words[locale==='en'?1:0]:pair('보스 전술 변화','Boss tactics changed',locale)}
-export const BOSS_NAMES_EN=Object.freeze({'jutland-grand-fleet':'Jutland Battle Squadron','paris-staaken-rvi':'Zeppelin-Staaken R.VI · Paris raid','paris-searchlight-fortress':'Paris searchlight fortress','gallipoli-fortress':'Gallipoli Grand Fortress · Siege','wustenpanzer':'Wüstenpanzer · Desert cruiser','sinai-landship':'Sinai Landship','fort-douaumont':'Fort Douaumont','fort-souville':'Fort de Souville',
+export const BOSS_NAMES_EN=Object.freeze({'supermarine-nighthawk':'Supermarine Nighthawk','siemens-schuckert-r-viii':'Siemens-Schuckert R.VIII','jutland-grand-fleet':'Jutland Battle Squadron','paris-staaken-rvi':'Zeppelin-Staaken R.VI · Paris raid','paris-searchlight-fortress':'Paris searchlight fortress','gallipoli-fortress':'Gallipoli Grand Fortress · Siege','wustenpanzer':'Wüstenpanzer · Desert cruiser','sinai-landship':'Sinai Landship','fort-douaumont':'Fort Douaumont','fort-souville':'Fort de Souville',
  'paris-gun':'Bruno railway gun',lincomparable:"520mm L’Incomparable",'sms-stuttgart':'SMS Stuttgart','hms-zubian':'HMS Zubian',
  'a7v-flak':'A7V Flakpanzer','mark-v-cruiser':'Mark V land cruiser','livens-flame-projector':'Livens flame projector','minenwerfer-battery':'Minenwerfer crossfire battery',
  'drachen-net':'Drachen mine network','london-apron':'London balloon apron','zeppelin-l70':'Zeppelin L 70',hma23:'HMA 23 carrier',gik:'Hansa-Brandenburg G.IK',ca4:'Caproni Ca.4','armored-harbor-fortress':'Armored harbor fortress',
@@ -87,10 +87,12 @@ export const BOSS_NAMES_EN=Object.freeze({'jutland-grand-fleet':'Jutland Battle 
 const TACTIC_RAIL_ONLY=new Set(['paris-gun','lincomparable','a7v-flak','mark-v-cruiser','flak-tower','fliegerzug','treffas-wagen']);
 export function bossTactic(encounter,locale='ko'){
  // Keep existing hint visibility; Somme's new component choices need cues.
- if(!TACTIC_RAIL_ONLY.has(encounter?.bossId)&&!['mark4-wedge','morser-battery','wustenpanzer','sinai-landship','gallipoli-fortress','paris-staaken-rvi','paris-searchlight-fortress','jutland-grand-fleet'].includes(encounter?.bossId))return '';
+ if(!TACTIC_RAIL_ONLY.has(encounter?.bossId)&&!['mark4-wedge','morser-battery','wustenpanzer','sinai-landship','gallipoli-fortress','paris-staaken-rvi','paris-searchlight-fortress','jutland-grand-fleet','supermarine-nighthawk','siemens-schuckert-r-viii'].includes(encounter?.bossId))return '';
  const bodies=[...encounter?.bodies.values()||[]].filter(b=>!b.dead),b=bodies[0];if(!b)return '';
  const text=(ko,en)=>pair(ko,en,locale),gone=id=>b.parts.get(id)?.destroyed;
  switch(encounter.bossId){
+  case 'supermarine-nighthawk':return b.coreVulnerable?text('재장전 틈에 동체를 공격하세요.','Strike the fuselage during reload.'):gone('lamp')?text('탐조등 제압 · 주포와 엔진을 공략하세요.','Light disabled · attack the cannon and engines.'):text('빛을 벗어나 주포 사선을 피하세요. 탐조등을 부수면 추적 사격이 멈춥니다.','Leave the light and cannon lane · break the lamp to stop focus fire.');
+  case 'siemens-schuckert-r-viii':return b.coreVulnerable?text('동체 노출 · 남은 포좌를 피하며 반격하세요.','Fuselage exposed · evade surviving guns and counterattack.'):text('폭격 사이 빈 통로를 이용하세요. 추진부를 부수면 느려지고, 폭탄창을 부수면 투하가 멈춥니다.','Use gaps between bombs · break drives to slow it and bays to stop drops.');
   case 'jutland-grand-fleet':return text('함포와 사격지휘소를 부숴 공격을 줄이고, 함선 3척을 격파하세요.','Destroy three ships · disable director, tubes and observers to interrupt attacks');
   case 'gallipoli-fortress':if(b.pendingAttack?.kind==='final'||b.barrageRemaining>0)return text('표시된 통로로 회피 · 생존 포대를 파괴하면 해당 포격 중단','Follow the corridor · destroy guns to cancel their fire');if(b.recoveryRemaining>0)return text('포대 재장전 · 지금 반격하세요.','Guns reloading · counterattack now');return b.commandDestroyed?text('수리와 증원이 멈췄습니다. 남은 포대를 파괴하세요.','Command destroyed · no repairs or sorties / clear remaining guns'):text('지휘포대를 부수면 수리와 요격기 증원이 멈춥니다.','Destroy command to stop repairs and sorties · attack any battery');
   case 'wustenpanzer':return b.serviceWindow>0?text('과열 정지 · 무장이 멈췄습니다. 노출된 본체에 반격하세요.','Overheat stop · weapons silent · strike the open hull'):b.pressureCycle?text('양옆 증기를 피하고, 순차 포격이 끝나면 반격하세요.','Avoid side vents · evade the salvo · counterattack after it'):b.sandBlind?text('모래바람 속에 숨고, 마지막으로 포착된 위치에서 벗어나세요.','Sand cover breaks tracking · watch the last observed target'):gone('radiator')?text('증기 사이로 공격하고, 엔진을 부숴 폭주를 억제하세요.','Cooling destroyed · attack between vents · break engine'):text('포격을 옆으로 피하고, 냉각장치를 부숴 과열 정지를 유도하세요.','Dodge walking artillery sideways · break cooling to force a stop');
@@ -198,7 +200,7 @@ export function bossEncounterCutinReady(encounter){
 const ARRIVAL_FAMILY={
  naval:['sms-stuttgart','hms-zubian','jutland-grand-fleet'],
  airship:['zeppelin-l70','hma23'],
- bomber:['gotha-squadron','paris-staaken-rvi','gik','ca4'],
+ bomber:['supermarine-nighthawk','siemens-schuckert-r-viii','gotha-squadron','paris-staaken-rvi','gik','ca4'],
  net:['drachen-net','flak-tower','london-apron-raid','paris-searchlight-fortress'],
  armour:['a7v-flak','mark-v-cruiser','treffas-wagen','mark4-wedge','wustenpanzer','sinai-landship'],
  squadron:['jasta11-circus','naval10-black-flight'],

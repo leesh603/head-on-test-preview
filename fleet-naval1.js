@@ -18,7 +18,7 @@ export function installFleet(Game){
  const P=Game.prototype;
  P.spawnMovingFleet=function(faction){
   const region=this.worldRegion();
-  if(![1,7,16].includes(region)||this.enemies.length>60)return null;
+  if(![1,7,16,17].includes(region)||this.enemies.length>60)return null;
   const friendly=faction===playerFaction(this),list=friendly?(this.friendlyShips??=[]):this.enemies;const live=list.filter(e=>e.navalVessel&&e.hp>0).length;
   if(live>=(friendly?2:4))return null;
   const playerSide=(typeof PLANES==='object'&&this.plane&&PLANES[this.plane])?PLANES[this.plane].faction:'entente';
@@ -42,11 +42,11 @@ export function installFleet(Game){
  };
  const _fleetSpawn61=Game.prototype.spawnFleet;
  Game.prototype.spawnFleet=function(){
-  if(![1,7,14,16].includes(this.worldRegion()))return _fleetSpawn61.call(this);
+  if(![1,7,14,16,17].includes(this.worldRegion()))return _fleetSpawn61.call(this);
   return this.spawnMovingFleet();
  };
  P.fleetCrossing=function(){
-  if(![1,7,16].includes(this.worldRegion()))return null;
+  if(![1,7,16,17].includes(this.worldRegion()))return null;
   const playerSide=PLANES[this.plane]?.faction??'entente';
   const foe=playerSide==='central'?'entente':'central';
   this.spawnMovingFleet(foe);this.spawnMovingFleet(playerSide);
@@ -112,7 +112,7 @@ export function drawFleetLayer(c,game,{point}){
 
 const playerFaction=g=>g.teamFaction??PLANES[g.plane]?.faction??'entente';
 export function updateNavalFleet(g,dt){if(g.state!=='playing')return;
-  const step=Math.min(.04,Math.max(0,dt)),region=g.worldRegion();if(g.navalRegion!==undefined&&g.navalRegion!==region){g.friendlyShips=[];g.navalExchanges=[];g.shipSinkPuffs=[];}g.navalRegion=region;if(![1,7,16].includes(region)){g.friendlyShips=[];g.navalExchanges=[];}
+  const step=Math.min(.04,Math.max(0,dt)),region=g.worldRegion();if(g.navalRegion!==undefined&&g.navalRegion!==region){g.friendlyShips=[];g.navalExchanges=[];g.shipSinkPuffs=[];}g.navalRegion=region;if(![1,7,16,17].includes(region)){g.friendlyShips=[];g.navalExchanges=[];}
   const _fleetShipIter=[];for(const e of g.enemies)_fleetShipIter.push(e);for(const e of g.friendlyShips||[])_fleetShipIter.push(e);
   const _obstacles=shipObstacles(g);
   for(const e of _fleetShipIter){
@@ -138,7 +138,7 @@ export function updateNavalFleet(g,dt){if(g.state!=='playing')return;
    if(Math.hypot(e.x-g.x,e.y-g.y)>2600)e.expired=true;
   }
   // Ambient fleet cadence — the sea should regularly show real ships.
-  if([1,7,16].includes(region)){
+  if([1,7,16,17].includes(region)){
    g.fleetAmbient=(g.fleetAmbient??6)-step;
    if(g.fleetAmbient<=0){g.fleetAmbient=30+g.rng()*10;
     const liveShips=g.enemies.filter(e=>e.navalVessel&&e.hp>0&&!e.patrolShip).length;
@@ -147,7 +147,7 @@ export function updateNavalFleet(g,dt){if(g.state!=='playing')return;
    }
   }else g.fleetAmbient=6;
   // Ambient recon planes over the sea.
-  if([1,7,16].includes(region)){
+  if([1,7,16,17].includes(region)){
    g.reconTimer=(g.reconTimer??18)-step;
    if(g.reconTimer<=0){g.reconTimer=42;
     if(!g.enemies.some(e=>e.recon&&e.hp>0)&&g.enemies.length<58){
@@ -173,3 +173,4 @@ export function fireSurfaceExchange(g,e,t){
  for(const along of fleetGunStations(e.faction,e.shipClass,t.drawnH*.9).slice(0,2)){if(g.navalExchanges.length>=24)break;const sx=e.x+Math.cos(e.a)*along,sy=e.y+Math.sin(e.a)*along;g.navalExchanges.push({sx,sy,x,y,age:0,duration,target,damage:18,faction:e.faction});}e.gunAim=Math.atan2(y-e.y,x-e.x);e.muzzleFlash=.16;g.event('enemyShot','');return true;
 }
 export function installCoopFleet(Coop,Game){const p=Coop.prototype;for(const key of ['spawnMovingFleet','spawnFleet','_friendlyShipFire','fleetCrossing'])p[key]=Game.prototype[key];const fire=p.fireEnemy;p.fireEnemy=function(e){return e.movingShip?Game.prototype.fireEnemy.call(this,e):fire.call(this,e)};const update=p.update;p.update=function(dt,input){update.call(this,dt,input);updateNavalFleet(this,dt)};}
+

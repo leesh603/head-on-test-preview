@@ -10,7 +10,7 @@ test('route always opens rural and moves Arras into the randomized mid pool',()=
  assert.deepEqual(new Set(low.slice(4,11)),new Set(STAGE_ROUTE_POOLS.mid));
  assert.deepEqual(new Set(low.slice(11)),new Set(STAGE_ROUTE_POOLS.late));
  assert(STAGE_ROUTE_POOLS.mid.includes(9));assert(!STAGE_ROUTE_POOLS.early.includes(9));
- assert.equal(new Set(low).size,17);
+ assert.equal(new Set(low).size,18);
 });
 
 test('normal run starts rural while explicit Test Lab starts remain exact',()=>{
@@ -19,3 +19,4 @@ test('normal run starts rural while explicit Test Lab starts remain exact',()=>{
  const direct=new BossStages({teamFaction:'central',stageIndex:12,rng:()=>0});
  assert.equal(direct.stageIndex,12);
 });
+

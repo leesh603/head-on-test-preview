@@ -11,7 +11,7 @@ export const STAGE_ROUTE_POOLS=Object.freeze({
   opening:0,
   early:Object.freeze([2,1,4]),
   mid:Object.freeze([9,8,3,10,7,5,6]),
-  late:Object.freeze([11,12,13,14,16,15])
+  late:Object.freeze([11,12,13,14,16,15,17])
 });
 const mix=(values,rng)=>{const a=[...values];for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 export function buildStageRoute(rng=Math.random){
@@ -138,6 +138,11 @@ export class StageBossAddon {
     // Queued rounds leave the actual surviving mount, even while the hull
     // moves during the warning. Once fired, their trajectory stays committed.
     this.hazards.pool.visit(h=>{
+      if(h.visual==='dover-searchlight'){
+        const body=encounter?.bodies.get(h.bossId),lamp=body?.parts.get(h.sourcePartId);
+        if(!body||body.dead||!lamp||lamp.destroyed){this.hazards.pool.release(h.index,h.generation);return;}
+        h.x=body.x+lamp.x;h.y=body.y+lamp.y;return;
+      }
       if(h.activated)return;
       const body=encounter?.bodies.get(h.bossId);
       if(body&&h.kind==='projectile'&&h.tag===body.id+':basic-fire'){
@@ -200,3 +205,4 @@ export class StageBossAddon {
     this.defeatSequence=null;this.bodyDefeats=[];
   }
 }
+
