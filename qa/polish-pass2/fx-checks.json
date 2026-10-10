@@ -1,0 +1,44 @@
+{
+  "base": "32f637d6ba5f56f2ae45b4d7bf2858b75ea7417a",
+  "rows": [
+    {
+      "kind": "aircraft",
+      "samples": 241,
+      "maxCalls": 6,
+      "maxAlphaDelta": 0.38
+    },
+    {
+      "kind": "groundShell",
+      "samples": 241,
+      "maxCalls": 4,
+      "maxAlphaDelta": 0.21
+    },
+    {
+      "kind": "heavyShell",
+      "samples": 241,
+      "maxCalls": 8,
+      "maxAlphaDelta": 0.3119895607353091
+    },
+    {
+      "kind": "fuelFire",
+      "samples": 241,
+      "maxCalls": 3,
+      "maxAlphaDelta": 0.5472149884259259
+    },
+    {
+      "kind": "ammoCookoff",
+      "samples": 241,
+      "maxCalls": 10,
+      "maxAlphaDelta": 0.7433127572016464
+    }
+  ],
+  "unchanged": [
+    "draw counts",
+    "sprites",
+    "positions",
+    "sizes",
+    "effect lifetime",
+    "pool limits"
+  ],
+  "missing": []
+}
