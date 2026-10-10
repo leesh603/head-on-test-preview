@@ -903,7 +903,28 @@
      "year": 1916,
      "role": "전투기",
      "base": "../fe2b.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "영국 RFC 주간형",
+       "file": "liveries/fe2b/raf.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간폭격 칠흑",
+       "file": "liveries/fe2b/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "훈련기 은색",
+       "file": "liveries/fe2b/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 운용기",
+       "file": "liveries/fe2b/captured.webp"
+      }
+     ]
     },
     {
      "id": "be2c",
