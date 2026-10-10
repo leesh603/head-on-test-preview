@@ -1039,6 +1039,21 @@
        "kind": "ace",
        "name": "McElroy (뱅크)",
        "file": "aces/mcelroy_se5a.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미국 25비행대",
+       "file": "liveries/se5a/us.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 칠흑",
+       "file": "liveries/se5a/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획기",
+       "file": "liveries/se5a/captured.webp"
       }
      ]
     },
