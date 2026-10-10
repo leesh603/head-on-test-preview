@@ -831,7 +831,28 @@
      "year": 1917,
      "role": "중폭격기",
      "base": "../aeg_g4.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "로젠지 위장천",
+       "file": "liveries/aeg_g4/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간폭격 칠흑",
+       "file": "liveries/aeg_g4/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "초기 연색 생산",
+       "file": "liveries/aeg_g4/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 반입 평가기",
+       "file": "liveries/aeg_g4/usas.webp"
+      }
+     ]
     },
     {
      "id": "friedrichshafen_g3",
