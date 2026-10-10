@@ -26,7 +26,7 @@ import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=gal1';
 import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=gal1';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawEquipmentDefense} from './player-effects129.js?v=gal1';
 import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=gal1&hints=1&treads=2&rail=42&maan=3&minen=4';
-import {paintDover} from './dover-night-view.js?v=dover2';
+import {paintDover} from './dover-night-view.js?v=dover3';
 import {paintParis} from './paris-night-art.js?v=gal1';
 import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=gal1&hints=1&rail=42';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=gal1';

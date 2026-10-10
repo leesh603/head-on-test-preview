@@ -116,7 +116,7 @@ class DoverAircraft extends BaseBoss {
     const scale=tuning.geometryScale||1;
     const parts=layout.parts.map(spec=>new BossPart({...spec,maxHp:tuning.partHp,...tuning.parts?.[spec.id],x:spec.x*scale,y:spec.y*scale,radius:spec.radius*scale}));
     super({...base,maxHp:tuning.maxHp,coreRadius:(tuning.coreRadius||layout.core.radius)*scale,parts});
-    this.t=tuning;this.kind=kind;this.layout=layout;this.faction=faction;this.a=-Math.PI/2;this.hullYaw=0;this.bank=0;this.turnVelocity=0;this.asymmetryState=0;this.flightSpeed=0;this.patrolPhase=null;this.patrolCenterX=null;this.patrolCenterY=null;this.patrolFlowX=0;this.patrolFlowY=0;this.ownsMotion129=true;
+    this.t=tuning;this.kind=kind;this.layout=layout;this.faction=faction;this.a=-Math.PI/2;this.hullYaw=0;this.bank=0;this.turnVelocity=0;this.asymmetryState=0;this.flightSpeed=0;this.patrolPhase=null;this.patrolCenterX=null;this.patrolCenterY=null;this.patrolFlowX=0;this.patrolFlowY=0;this.ownsMotion129=true;this.hidden=false;this.sortieDone=false;this.sortieSide=1;this.sortieDropIndex=0;this.sortieDropClock=0;this.sortieAngle=null;this.sortieSpeed=null;this.sortieLaneCount=2;this.sortieRows=0;this.sortieCenterX=0;this.sortieCenterY=0;this.sortieRunAngle=-Math.PI/2;this.sortieRowSpan=0;
     this.geometryScale=scale;this.coreLocalX=layout.core.x*scale;this.coreLocalY=layout.core.y*scale;this.targetCursor=0;
     for(const p of this.parts.values()){p.localX=p.x;p.localY=p.y;}
     this.rotateMounts();
@@ -140,34 +140,42 @@ class DoverAircraft extends BaseBoss {
     return found?{partId:found.id}:null;
   }
   locateHit(attack){
+    if(this.hidden)return null;
     const part=this.nearestPart(attack);if(part)return part;if(!this.coreVulnerable)return null;
     const q=this.localPoint(attack.x,attack.y),p=this.localPoint(attack.previousX??attack.x,attack.previousY??attack.y),r=(attack.radius||0)/this.geometryScale;
     for(const poly of this.layout.hull)if(sweptPolygonHit([p.x,p.y],[q.x,q.y],r,poly))return{partId:null};
     return null;
   }
   hitAt(attack){const route=this.locateHit(attack);return route?this.hit({...route,damage:attack.damage}):{damage:0,miss:true};}
-  hit(attack){const result=super.hit(attack);if(result.bodyDefeated){this.cancelAll();this.command('cancel-hazards',{tag:this.id+':released-bombs'});}return result;}
+  hit(attack){if(this.hidden)return{damage:0,blocked:true};const result=super.hit(attack);if(result.bodyDefeated){this.cancelAll();this.command('cancel-hazards',{tag:this.id+':released-bombs'});}return result;}
   cancelPart(part){this.command('cancel-hazards',{tag:this.id+':'+part.id,sourcePartId:part.id});}
   cancelAll(){for(const p of this.parts.values())this.cancelPart(p);}
   holdBasic(seconds){this.basicHoldUntil=Math.max(this.basicHoldUntil||0,(this.combatTime||0)+seconds);this.basicClock=Math.max(this.basicClock||0,.55);this.command('cancel-hazards',{tag:this.id+':basic-fire'});}
   selectTarget(players){const target=aliveAt(players,this.targetCursor);if(target)this.targetCursor=(this.targetCursor+1)&65535;return target;}
   airframeExtents(){const rotation=this.a+Math.PI/2,c=Math.abs(Math.cos(rotation)),s=Math.abs(Math.sin(rotation)),w=this.layout.width*this.geometryScale/2,h=this.layout.height*this.geometryScale/2;return{x:c*w+s*h,y:s*w+c*h};}
   easeSpeed(target,rate,dt){this.currentSpeed+=(clamp(target-this.currentSpeed,-rate*dt,rate*dt));return this.currentSpeed;}
-  fly(dt,players,bounds,speed,turn,asymmetry,committedAngle=null,committedSpeed=null){
+  fly(dt,players,bounds,speed,turn,asymmetry,committedAngle=null,committedSpeed=null,worldBounds=null){
     bounds||={left:this.x-600,right:this.x+600,top:this.y-600,bottom:this.y+600};
     const oldX=this.x,oldY=this.y,oldA=this.a,oldFlightSpeed=this.flightSpeed;
     const cx=(bounds.left+bounds.right)/2,cy=(bounds.top+bounds.bottom)/2,spanX=Math.max(240,bounds.right-bounds.left),spanY=Math.max(240,bounds.bottom-bounds.top);
     if(Number.isFinite(this.patrolCenterX)&&dt>0){const measuredX=clamp((cx-this.patrolCenterX)/dt,-260,260),measuredY=clamp((cy-this.patrolCenterY)/dt,-260,260),flowStep=55*dt;this.patrolFlowX+=clamp(measuredX-this.patrolFlowX,-flowStep,flowStep);this.patrolFlowY+=clamp(measuredY-this.patrolFlowY,-flowStep,flowStep);}this.patrolCenterX=cx;this.patrolCenterY=cy;
-    const rx=Math.max(190,spanX*.46),ry=Math.max(165,spanY*.44),direction=this.kind==='siemens-schuckert-r-viii'?-1:1;
+    // The patrol is an attack orbit around the playable airspace. Its centre
+    // travels with the camera, while the aircraft adds only a modest relative
+    // loop. This keeps the core in a useful firing window instead of making
+    // every ordinary phrase an edge-to-edge escape.
+    const recoveryOrbit=this.coreVulnerable&&this.phase!=='last-stand',attackOrbit=this.phase==='cannon'||this.phase==='cannon-exit'||this.phase==='bomb-approach'||this.phase==='bomb-run'||this.phase==='bomb-exit',tightOrbit=recoveryOrbit||attackOrbit,rx=tightOrbit?clamp(spanX*.06,18,70):clamp(spanX*.18,58,230),ry=tightOrbit?clamp(spanY*.055,36,65):clamp(spanY*.15,105,170),direction=this.kind==='siemens-schuckert-r-viii'?-1:1;
     if(!Number.isFinite(this.patrolPhase))this.patrolPhase=Math.atan2((this.y-cy)/ry,(this.x-cx)/rx);
     const tangent=Math.max(80,Math.hypot(rx*Math.sin(this.patrolPhase),ry*Math.cos(this.patrolPhase)));
-    const flow=Math.hypot(this.patrolFlowX,this.patrolFlowY),orbitSpeed=Math.max(24,speed-Math.min(speed*.84,flow*.82));this.patrolPhase=wrap(this.patrolPhase+direction*orbitSpeed/tangent*dt);
-    const tx=cx+Math.cos(this.patrolPhase)*rx,ty=cy+Math.sin(this.patrolPhase)*ry,phaseTangent=Math.max(1,Math.hypot(rx*Math.sin(this.patrolPhase),ry*Math.cos(this.patrolPhase)));
+    const flow=Math.hypot(this.patrolFlowX,this.patrolFlowY),orbitSpeed=clamp(speed*.28,18,42);this.patrolPhase=wrap(this.patrolPhase+direction*orbitSpeed/tangent*dt);
+    let tx=cx+Math.cos(this.patrolPhase)*rx,ty=cy+Math.sin(this.patrolPhase)*ry;const extent=this.airframeExtents();
+    if(worldBounds){const left=worldBounds.left+extent.x+18,right=worldBounds.right-extent.x-18,top=worldBounds.top+extent.y+18,bottom=worldBounds.bottom-extent.y-18;if(left<=right)tx=clamp(tx,left,right);if(top<=bottom)ty=clamp(ty,top,bottom);}
+    const phaseTangent=Math.max(1,Math.hypot(rx*Math.sin(this.patrolPhase),ry*Math.cos(this.patrolPhase)));
     const tangentX=-Math.sin(this.patrolPhase)*rx/phaseTangent*direction,tangentY=Math.cos(this.patrolPhase)*ry/phaseTangent*direction;
     const far=this.x<bounds.left-spanX*.06||this.x>bounds.right+spanX*.06||this.y<bounds.top-spanY*.06||this.y>bounds.bottom+spanY*.06;
-    const correctionLimit=far?240:70,ex=tx-this.x,ey=ty-this.y,correction=Math.min(correctionLimit,Math.hypot(ex,ey)*(far?.95:.2)),errorLength=Math.max(1,Math.hypot(ex,ey)),routeSpeed=far?orbitSpeed*.22:orbitSpeed;
+    const correctionLimit=far?250:tightOrbit?190:105,ex=tx-this.x,ey=ty-this.y,correction=Math.min(correctionLimit,Math.hypot(ex,ey)*(far?.95:tightOrbit?.95:.48)),errorLength=Math.max(1,Math.hypot(ex,ey)),routeSpeed=far?orbitSpeed*.35:tightOrbit?orbitSpeed*.2:orbitSpeed;
     const desiredX=this.patrolFlowX+tangentX*routeSpeed+ex/errorLength*correction,desiredY=this.patrolFlowY+tangentY*routeSpeed+ey/errorLength*correction,routeGroundSpeed=Math.hypot(desiredX,desiredY);
-    const want=Number.isFinite(committedAngle)?committedAngle:Math.atan2(desiredY,desiredX),desiredSpeed=Number.isFinite(committedAngle)?Number.isFinite(committedSpeed)?committedSpeed:Math.max(speed,Math.abs(this.patrolFlowX*Math.cos(committedAngle)+this.patrolFlowY*Math.sin(committedAngle))+speed*.35):far&&flow<50?Math.min(speed,routeGroundSpeed):routeGroundSpeed;
+    let want=Number.isFinite(committedAngle)?committedAngle:Math.atan2(desiredY,desiredX),desiredSpeed=Number.isFinite(committedAngle)?Number.isFinite(committedSpeed)?committedSpeed:Math.max(speed,Math.abs(this.patrolFlowX*Math.cos(committedAngle)+this.patrolFlowY*Math.sin(committedAngle))+speed*.35):far&&flow<50?Math.min(speed,routeGroundSpeed):routeGroundSpeed;if(recoveryOrbit)desiredSpeed=Math.min(desiredSpeed,Math.max(48,flow+18));else if(attackOrbit)desiredSpeed=Math.min(desiredSpeed,Math.max(80,flow+35));if(far&&!recoveryOrbit&&!Number.isFinite(committedAngle)&&Math.abs(wrap(want-this.a))>.45)desiredSpeed=Math.min(desiredSpeed,Math.max(52,flow+28));
+    if(worldBounds){const marginX=extent.x+36,marginY=extent.y+36,baseX=Number.isFinite(committedAngle)?Math.cos(want)*desiredSpeed:desiredX,baseY=Number.isFinite(committedAngle)?Math.sin(want)*desiredSpeed:desiredY;let wallX=0,wallY=0;if(this.x<worldBounds.left+marginX)wallX=180;if(this.x>worldBounds.right-marginX)wallX=-180;if(this.y<worldBounds.top+marginY)wallY=180;if(this.y>worldBounds.bottom-marginY)wallY=-180;if(wallX||wallY)want=Math.atan2(baseY+wallY,baseX+wallX);}
     this.asymmetryState+=clamp(asymmetry-this.asymmetryState,-.055*dt,.055*dt);this.hullYaw=this.asymmetryState;
     const wantedTurn=clamp(wrap(want-this.a)*.72+(Number.isFinite(committedAngle)?0:this.asymmetryState),-turn,turn),turnAccel=Math.max(.08,turn*.9);
     this.turnVelocity+=clamp(wantedTurn-this.turnVelocity,-turnAccel*dt,turnAccel*dt);this.a=wrap(this.a+this.turnVelocity*dt);
@@ -177,6 +185,48 @@ class DoverAircraft extends BaseBoss {
     if(!Number.isFinite(this.x+this.y+this.a+this.turnVelocity)){this.x=Number.isFinite(oldX)?oldX:cx;this.y=Number.isFinite(oldY)?oldY:cy;this.a=Number.isFinite(oldA)?oldA:-Math.PI/2;this.flightSpeed=Number.isFinite(oldFlightSpeed)?oldFlightSpeed:0;this.turnVelocity=0;this.bank=0;this.hullYaw=0;this.patrolPhase=null;this.patrolFlowX=this.patrolFlowY=0;}
     this.rotateMounts();
   }
+  wholeOutside(bounds){const e=this.airframeExtents();return this.x+e.x<bounds.left||this.x-e.x>bounds.right||this.y+e.y<bounds.top||this.y-e.y>bounds.bottom;}
+  coreInside(bounds,margin=18){const q=this.coreOffset(),x=this.x+q.x,y=this.y+q.y;return x>=bounds.left+margin&&x<=bounds.right-margin&&y>=bounds.top+margin&&y<=bounds.bottom-margin;}
+  beginSortie(bounds,worldBounds){
+    if(this.sortieDone||!bounds)return false;this.sortieDone=true;this.sortieDropIndex=0;this.sortieDropClock=0;this.phaseClock=0;this.coreVulnerable=false;
+    let flowX=this.patrolFlowX,flowY=this.patrolFlowY;const flow=Math.hypot(flowX,flowY),fx=flow>30?flowX/flow:0,fy=flow>30?flowY/flow:-1,nx=-fy,ny=fx,extent=this.airframeExtents();
+    if(worldBounds){const marginX=extent.x+100,marginY=extent.y+100;if(this.x<=worldBounds.left+marginX&&flowX<0||this.x>=worldBounds.right-marginX&&flowX>0)flowX=0;if(this.y<=worldBounds.top+marginY&&flowY<0||this.y>=worldBounds.bottom-marginY&&flowY>0)flowY=0;}
+    const exitDistance=(dx,dy)=>{let d=Infinity;if(dx>.001)d=Math.min(d,(bounds.right+extent.x-this.x)/dx);else if(dx<-.001)d=Math.min(d,(this.x-(bounds.left-extent.x))/-dx);if(dy>.001)d=Math.min(d,(bounds.bottom+extent.y-this.y)/dy);else if(dy<-.001)d=Math.min(d,(this.y-(bounds.top-extent.y))/-dy);return Math.max(0,d);};
+    const clearance=(dx,dy)=>{if(!worldBounds)return 1e6;let d=Infinity,left=worldBounds.left+extent.x+18,right=worldBounds.right-extent.x-18,top=worldBounds.top+extent.y+18,bottom=worldBounds.bottom-extent.y-18;if(dx>.001)d=Math.min(d,(right-this.x)/dx);else if(dx<-.001)d=Math.min(d,(this.x-left)/-dx);if(dy>.001)d=Math.min(d,(bottom-this.y)/dy);else if(dy<-.001)d=Math.min(d,(this.y-top)/-dy);return Math.max(0,d);};
+    let choices=[[nx,ny],[-nx,-ny]],best=null;for(const [dx,dy] of choices){const needed=exitDistance(dx,dy),room=clearance(dx,dy),angle=Math.atan2(flowY+dy*205,flowX+dx*205),valid=room>=needed+180,score=(valid?1e6:0)+room-needed-Math.abs(wrap(angle-this.a))*35;if(!best||score>best.score)best={dx,dy,score,valid,needed,angle};}
+    if(!best?.valid){choices=[[1,0],[-1,0],[0,1],[0,-1]];for(const [dx,dy] of choices){const needed=exitDistance(dx,dy),room=clearance(dx,dy),angle=Math.atan2(flowY+dy*205,flowX+dx*205),valid=room>=needed+180,score=(valid?1e6:0)+room-needed-Math.abs(wrap(angle-this.a))*35;if(!best||score>best.score)best={dx,dy,score,valid,needed,angle};}}
+    this.sortieDirectionX=best?.dx??nx;this.sortieDirectionY=best?.dy??ny;this.sortieSide=Math.sign(nx*this.sortieDirectionX+ny*this.sortieDirectionY)||1;this.sortieVX=flowX+this.sortieDirectionX*205;this.sortieVY=flowY+this.sortieDirectionY*205;if(Math.hypot(this.sortieVX,this.sortieVY)<90){this.sortieVX=this.sortieDirectionX*205;this.sortieVY=this.sortieDirectionY*205;}
+    this.sortieAngle=Math.atan2(this.sortieVY,this.sortieVX);this.sortieSpeed=clamp(Math.hypot(this.sortieVX,this.sortieVY),150,275);this.sortieDepartLimit=clamp(3+(best?.needed||0)/205+Math.abs(wrap(this.sortieAngle-this.a))/.42,7,12);this.phase='sortie-depart';this.holdBasic(18);this.command('phase-change',{phase:'sortie-depart'});return true;
+  }
+  updateSortie(dt,bounds,worldBounds,turn,asymmetry){
+    this.phaseClock+=dt;const returning=this.phase==='sortie-return';
+    if(returning){const cx=(bounds.left+bounds.right)/2,cy=(bounds.top+bounds.bottom)/2,ex=cx-this.x,ey=cy-this.y,d=Math.max(1,Math.hypot(ex,ey)),closure=clamp(d*.72,175,240),vx=this.patrolFlowX+ex/d*closure,vy=this.patrolFlowY+ey/d*closure;this.sortieAngle=Math.atan2(vy,vx);this.sortieSpeed=clamp(Math.hypot(vx,vy),145,275);}
+    const hiddenTurn=Math.max(turn,returning?3.6:.56),hiddenSpeed=this.hidden&&returning?Math.abs(wrap(this.sortieAngle-this.a))>.32?100:this.sortieSpeed:this.sortieSpeed;
+    this.fly(dt,[],bounds,this.currentSpeed,hiddenTurn,asymmetry,this.sortieAngle,hiddenSpeed,worldBounds);
+    if(this.phase==='sortie-depart'){
+      if(this.wholeOutside(bounds)){this.hidden=true;this.phase='sortie-hidden';this.phaseClock=0;this.sortieDropClock=0;this.command('phase-change',{phase:'sortie-hidden'});this.warnSortie(bounds);}
+      else if(this.phaseClock>=(this.sortieDepartLimit||7)){this.phase='sortie-return';this.phaseClock=0;}
+      return true;
+    }
+    if(this.phase==='sortie-hidden'){
+      this.sortieDropClock+=dt;const interval=.8/Math.max(1,this.sortieBombCount-1);while(this.sortieDropIndex<this.sortieBombCount&&this.sortieDropClock>=.08+this.sortieDropIndex*interval)this.releaseSortieBomb(this.sortieDropIndex++,bounds);
+      if(this.phaseClock>=1){this.phase='sortie-return';this.phaseClock=0;this.command('phase-change',{phase:'sortie-return'});}return true;
+    }
+    if(!this.wholeOutside(bounds))this.hidden=false;
+    if(!this.hidden&&this.phaseClock>=.35&&this.coreInside(bounds)){this.enterRecovery(4.6,'sortie-recovery');return true;}
+    return true;
+  }
+  warnSortie(bounds){
+    const flow=Math.hypot(this.patrolFlowX,this.patrolFlowY),angle=flow>30?Math.atan2(this.patrolFlowY,this.patrolFlowX):-Math.PI/2,width=bounds.right-bounds.left,height=bounds.bottom-bounds.top;
+    this.sortieRunAngle=angle;this.sortieLaneCount=width>720?4:2;this.sortieRows=this.sortieLaneCount===4?this.sortieWideRows:this.sortieMobileRows;this.sortieBombCount=this.sortieRows*this.sortieLaneCount;
+    this.sortieCenterX=(bounds.left+bounds.right)/2+this.patrolFlowX*1.55;this.sortieCenterY=(bounds.top+bounds.bottom)/2+this.patrolFlowY*1.55;this.sortieRowSpan=Math.max(260,height*.7);
+    this.command('dover-bomb-warning',{seconds:1.25,safeGap:80,angle,x:this.sortieCenterX,y:this.sortieCenterY,length:this.sortieRowSpan,rows:this.sortieRows,lanes:this.sortieLaneCount,count:this.sortieBombCount,sortie:true});
+  }
+  sortieImpact(index,bounds,partIds,visual,radius,damage){
+    const id=partIds[index%partIds.length],part=this.parts.get(id);if(!part||part.destroyed)return false;const dx=Math.cos(this.sortieRunAngle),dy=Math.sin(this.sortieRunAngle),nx=-dy,ny=dx,row=Math.floor(index/this.sortieLaneCount),laneIndex=index%this.sortieLaneCount,inner=radius+40,outer=Math.min((bounds.right-bounds.left)*.32,inner+165),lateral=this.sortieLaneCount===2?(laneIndex?-inner:inner):[-outer,-inner,inner,outer][laneIndex];
+    const along=this.sortieRows>1?(row/(this.sortieRows-1)-.5)*this.sortieRowSpan:0,x=this.sortieCenterX+dx*along+nx*lateral,y=this.sortieCenterY+dy*along+ny*lateral,sourceX=this.x+part.x,sourceY=this.y+part.y;
+    this.command('hazard',{kind:'circle',x,y,sourceX,sourceY,sourcePartId:null,launchPartId:id,tag:this.id+':released-bombs',damage:this.t.damage*damage,warning:1.1,duration:.3,radius,once:true,visual,airborneBomb:true,sortie:true});return true;
+  }
   suppressive(){}
 }
 
@@ -184,13 +234,13 @@ export class SupermarineNighthawk extends DoverAircraft {
   constructor(options){
     const layout=options.layout||options.tuning.layout||DOVER_NIGHTHAWK_LAYOUT;
     super({...options,kind:'supermarine-nighthawk',layout,faction:options.faction||'entente'});
-    this.phase='hunt';this.coreVulnerable=false;this.phaseClock=0;this.beat=0;this.currentSpeed=148;this.lockFireIn=.4;this.lastStandSlot=0;this.lightBombed=false;this.lightBombPending=0;this.lightBombClock=0;this.lightBombX=0;this.lightBombY=0;this.lightBombNX=0;this.lightBombNY=0;this.lightBombTargetId=null;
+    this.phase='hunt';this.coreVulnerable=false;this.phaseClock=0;this.beat=0;this.currentSpeed=148;this.lockFireIn=.4;this.lastStandSlot=0;this.lightBombed=false;this.lightBombPending=0;this.lightBombTotal=4;this.lightBombClock=0;this.lightBombX=0;this.lightBombY=0;this.lightBombNX=0;this.lightBombNY=0;this.lightBombTargetId=null;this.sortieMobileRows=5;this.sortieWideRows=5;this.sortieBombCount=10;
   }
   engines(){return this.countKinds('engine');}
   wings(){return this.countKinds('structure');}
   weapons(){return this.countKinds('searchlight','cannon','gun','payload');}
   speedRatio(){return [0.26,.68,1][this.engines()]*(this.wings()===2?1:this.wings()===1?.78:.46);}
-  enterRecovery(){this.phase='recovery';this.phaseClock=0;this.coreVulnerable=true;this.cancelPart(this.parts.get('lamp'));this.command('phase-change',{phase:'recovery',seconds:3.2});}
+  enterRecovery(seconds=3.8,phase='recovery'){this.phase=phase;this.phaseClock=0;this.coreVulnerable=true;this.hidden=false;this.cancelPart(this.parts.get('lamp'));this.command('phase-change',{phase,seconds});}
   enterLastStand(){if(this.phase==='last-stand')return;this.phase='last-stand';this.phaseClock=0;this.coreVulnerable=true;this.lastStandSlot=0;this.holdBasic(Infinity);this.cancelAll();this.command('phase-change',{phase:'last-stand'});}
   disabled(){return !this.weapons()||!this.engines()||!this.wings();}
   onPartDestroyed(part){this.cancelPart(part);if(part.id==='bomb-rack')this.lightBombPending=0;if(this.disabled())this.enterLastStand();else this.command('phase-change',{phase:this.phase,partId:part.id});}
@@ -207,14 +257,15 @@ export class SupermarineNighthawk extends DoverAircraft {
   }
   lightBombRack(target){
     const rack=this.parts.get('bomb-rack');if(rack.destroyed||!target)return;const vx=target.vx||0,vy=target.vy||0,v=Math.hypot(vx,vy),lead=1.05;
-    this.lightBombX=target.x+vx*lead;this.lightBombY=target.y+vy*lead;this.lightBombNX=v>20?-vy/v:Math.cos(this.a+Math.PI/2);this.lightBombNY=v>20?vx/v:Math.sin(this.a+Math.PI/2);this.lightBombTargetId=target.id;this.lightBombPending=3;this.lightBombClock=0;
-    this.command('dover-light-bomb-warning',{partId:rack.id,targetId:target.id,seconds:1.05,count:3,safeOutside:92});
+    this.lightBombX=target.x+vx*lead;this.lightBombY=target.y+vy*lead;this.lightBombNX=v>20?-vy/v:Math.cos(this.a+Math.PI/2);this.lightBombNY=v>20?vx/v:Math.sin(this.a+Math.PI/2);this.lightBombTargetId=target.id;this.lightBombPending=this.lightBombTotal;this.lightBombClock=0;
+    this.command('dover-light-bomb-warning',{partId:rack.id,targetId:target.id,seconds:1.05,count:this.lightBombTotal,safeGap:80,x:this.lightBombX,y:this.lightBombY});
   }
   updateLightBombs(dt){
     if(!this.lightBombPending)return;const rack=this.parts.get('bomb-rack');if(rack.destroyed){this.lightBombPending=0;return;}this.lightBombClock+=dt;
-    while(this.lightBombPending&&this.lightBombClock>=(3-this.lightBombPending)*.2){const index=3-this.lightBombPending--,offset=(index-1)*58,sourceX=this.x+rack.x,sourceY=this.y+rack.y;
+    const offsets=[-102,-68,68,102];while(this.lightBombPending&&this.lightBombClock>=(this.lightBombTotal-this.lightBombPending)*.2){const index=this.lightBombTotal-this.lightBombPending--,offset=offsets[index],sourceX=this.x+rack.x,sourceY=this.y+rack.y;
       this.command('hazard',{kind:'circle',x:this.lightBombX+this.lightBombNX*offset,y:this.lightBombY+this.lightBombNY*offset,sourceX,sourceY,sourcePartId:null,launchPartId:rack.id,tag:this.id+':released-bombs',damage:this.t.damage*.62,warning:1.05,duration:.24,radius:28,once:true,targetId:this.lightBombTargetId,visual:'nighthawk-light-bomb',airborneBomb:true});}
   }
+  releaseSortieBomb(index,bounds){return this.sortieImpact(index,bounds,['bomb-rack'],'nighthawk-light-bomb',30,.72);}
   cannonShot(target){
     const cannon=this.parts.get('davis-cannon');if(cannon.destroyed||!target)return;const x=this.x+cannon.x,y=this.y+cannon.y,speed=550,warning=1.35,range=speed*1.6;
     // Lock the future launch bearing before the warning starts. The shell is
@@ -236,14 +287,19 @@ export class SupermarineNighthawk extends DoverAircraft {
     if(!aliveCount(players))return;this.phaseClock-=dt;if(this.phaseClock>0)return;const id=NIGHTHAWK_LAST_STAND[this.lastStandSlot++%NIGHTHAWK_LAST_STAND.length],part=this.parts.get(id),target=this.selectTarget(players);this.phaseClock=1.05;
     if(part.destroyed)return;if(id==='davis-cannon')this.cannonShot(target);else if(id==='lamp')this.fixedBeam(target);else if(id==='bomb-rack')this.lightBombRack(target);else this.machineBurst(id,target,false);
   }
-  update(dt,{players=[],bounds,isIlluminated,paused=false}={}){
+  update(dt,{players=[],bounds,isIlluminated,paused=false,mapBounds,worldBounds}={}){
     if(this.dead||paused||!Number.isFinite(dt)||dt<=0)return;if(this.disabled())this.enterLastStand();
     const left=this.partAlive('engine-left')?0:1,right=this.partAlive('engine-right')?0:1,asymmetry=(left-right)*.12;
-    this.easeSpeed(148*this.speedRatio(),30,dt);this.fly(dt,players,bounds,this.currentSpeed,(this.wings()===2?.5:.34),asymmetry);this.updateLightBombs(dt);
+    this.easeSpeed(148*this.speedRatio(),30,dt);const turn=this.coreVulnerable?Math.max(this.wings()===2?.5:.34,1.2):this.wings()===2?.5:.34,chart=mapBounds||worldBounds;
+    if(this.phase.startsWith('sortie-')&&!this.phase.includes('recovery')){this.updateLightBombs(dt);this.updateSortie(dt,bounds,chart,turn,asymmetry);return;}
+    this.fly(dt,players,bounds,this.currentSpeed,turn,asymmetry,null,null,chart);this.updateLightBombs(dt);
+    if(this.phase==='cannon-exit')this.holdBasic(.5);
     if(this.phase==='last-stand'){this.lastStand(dt,players);return;}
     if(this.phase==='hunt'){this.hunt(dt,players,isIlluminated);return;}
-    this.phaseClock+=dt;if(this.phase==='cannon'&&this.phaseClock>=1.9){this.enterRecovery();return;}
-    if(this.phase==='recovery'&&this.phaseClock>=3.2){this.phase='hunt';this.phaseClock=0;this.beat=0;this.lightBombed=false;this.coreVulnerable=false;this.command('phase-change',{phase:'hunt'});}
+    this.phaseClock+=dt;if(this.phase==='cannon'&&this.phaseClock>=1.9){if(this.coreInside(bounds))this.enterRecovery();else{this.phase='cannon-exit';this.phaseClock=0;this.coreVulnerable=false;this.command('phase-change',{phase:'cannon-exit'});}return;}
+    if(this.phase==='cannon-exit'&&(this.coreInside(bounds)||this.phaseClock>=6)){this.enterRecovery();return;}
+    const recovering=this.phase==='recovery'||this.phase==='sortie-recovery',duration=this.phase==='sortie-recovery'?4.6:3.8;
+    if(recovering&&this.phaseClock>=duration&&this.coreInside(bounds)){if(this.phase==='recovery'&&!this.sortieDone&&this.partAlive('bomb-rack')){this.beginSortie(bounds,chart);return;}this.sortieDone=true;this.phase='hunt';this.phaseClock=0;this.beat=0;this.lightBombed=false;this.coreVulnerable=false;this.command('phase-change',{phase:'hunt'});}
   }
 }
 
@@ -251,14 +307,14 @@ export class SiemensSchuckertRVIII extends DoverAircraft {
   constructor(options){
     const layout=options.layout||options.tuning.layout||DOVER_RVIII_LAYOUT;
     super({...options,kind:'siemens-schuckert-r-viii',layout,faction:options.faction||'central'});
-    this.phase='barrage';this.coreVulnerable=false;this.phaseClock=0;this.beat=0;this.currentSpeed=112;this.lastStandSlot=0;this.runAngle=null;this.runGroundSpeed=null;this.runCenterX=0;this.runCenterY=0;this.runDropIndex=0;this.runSerial=0;
+    this.phase='barrage';this.coreVulnerable=false;this.phaseClock=0;this.beat=0;this.currentSpeed=112;this.lastStandSlot=0;this.runAngle=null;this.runGroundSpeed=null;this.runCenterX=0;this.runCenterY=0;this.runDropIndex=0;this.runSerial=0;this.sortieMobileRows=6;this.sortieWideRows=6;this.sortieBombCount=12;
   }
   drives(){return this.countKinds('drive');}
   wings(){return this.countKinds('structure');}
   weapons(){return this.countKinds('gun','payload');}
   speedRatio(){return [.2,.42,.63,.82,1][this.drives()]*(this.wings()===2?1:this.wings()===1?.8:.5);}
   disabled(){return !this.weapons()||this.drives()<=1||!this.wings();}
-  enterRecovery(){this.phase='recovery';this.phaseClock=0;this.runAngle=null;this.runGroundSpeed=null;this.coreVulnerable=true;this.command('phase-change',{phase:'recovery',seconds:3});}
+  enterRecovery(seconds=4,phase='recovery'){this.phase=phase;this.phaseClock=0;this.runAngle=null;this.runGroundSpeed=null;this.coreVulnerable=true;this.hidden=false;this.command('phase-change',{phase,seconds});}
   enterLastStand(){if(this.phase==='last-stand')return;this.phase='last-stand';this.phaseClock=0;this.coreVulnerable=true;this.lastStandSlot=0;this.holdBasic(Infinity);this.cancelAll();this.command('phase-change',{phase:'last-stand'});}
   onPartDestroyed(part){this.cancelPart(part);if(this.disabled())this.enterLastStand();else this.command('phase-change',{phase:this.phase,partId:part.id});}
   turretBurst(id,target,heavy=false){
@@ -267,15 +323,12 @@ export class SiemensSchuckertRVIII extends DoverAircraft {
     this.command('muzzle',{x,y,partId:id,targetId:target.id});
     for(let i=0;i<count;i++){const angle=aim+(i-(count-1)/2)*(heavy?.09:.14);this.hazard('projectile',gun,{vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,radius:5,warning:.75,duration:4,damage:this.t.damage*(heavy?.58:.4),targetId:target.id,visual:'rviii-gun'});}
   }
-  beginBombRun(target){
-    if(!target)return false;const tx=target.x,ty=target.y,rx=tx-this.x,ry=ty-this.y,flow=Math.hypot(this.patrolFlowX,this.patrolFlowY);let runVX,runVY;
-    if(flow>50){const fx=this.patrolFlowX/flow,fy=this.patrolFlowY/flow,nx=-fy,ny=fx,lateral=rx*nx+ry*ny,along=rx*fx+ry*fy,side=Math.abs(lateral)>12?Math.sign(lateral):(this.runSerial%2?-1:1),alongClosure=clamp(along/7,-35,35);runVX=this.patrolFlowX+nx*side*70+fx*alongClosure;runVY=this.patrolFlowY+ny*side*70+fy*alongClosure;}
-    else{const distance=Math.max(1,Math.hypot(rx,ry));runVX=rx/distance*80;runVY=ry/distance*80;}
-    this.runAngle=Math.atan2(runVY,runVX);this.runGroundSpeed=clamp(Math.max(this.currentSpeed*.72,Math.hypot(runVX,runVY)),72,250);this.runCenterX=tx;this.runCenterY=ty;this.runDropIndex=0;this.runTargetId=target.id;this.runSerial=(this.runSerial+1)&65535;this.phase='bomb-align';this.phaseClock=0;this.holdBasic(14);return true;
-  }
-  startBombApproach(){
-    const dx=Math.cos(this.runAngle),dy=Math.sin(this.runAngle),lead=clamp(this.flightSpeed*1.6+190,390,620);this.runCenterX=this.x+dx*lead;this.runCenterY=this.y+dy*lead;this.phase='bomb-approach';this.phaseClock=0;
-    this.command('dover-bomb-warning',{targetId:this.runTargetId,seconds:1.35,safeGap:76,angle:this.runAngle,exitAngle:this.runAngle+(this.runSerial%2?Math.PI/2:-Math.PI/2),x:this.runCenterX,y:this.runCenterY,length:430});
+  beginBombRun(target,bounds){
+    if(!target)return false;const flow=Math.hypot(this.patrolFlowX,this.patrolFlowY),vx=target.vx||0,vy=target.vy||0;
+    this.runAngle=flow>30?Math.atan2(this.patrolFlowY,this.patrolFlowX):this.a;this.runGroundSpeed=null;this.runCenterX=target.x+vx*1.05;this.runCenterY=target.y+vy*1.05;
+    if(bounds){this.runCenterX=clamp(this.runCenterX,bounds.left+90,bounds.right-90);this.runCenterY=clamp(this.runCenterY,bounds.top+150,bounds.bottom-150);}
+    this.runDropIndex=0;this.runTargetId=target.id;this.runSerial=(this.runSerial+1)&65535;this.phase='bomb-approach';this.phaseClock=0;this.holdBasic(4.2);
+    this.command('dover-bomb-warning',{targetId:this.runTargetId,seconds:1.2,safeGap:76,angle:this.runAngle,exitAngle:this.runAngle+(this.runSerial%2?Math.PI/2:-Math.PI/2),x:this.runCenterX,y:this.runCenterY,length:430});return true;
   }
   releaseRunBomb(index){
     const side=index%2?-1:1,id=side<0?'bomb-bay-left':'bomb-bay-right',bay=this.parts.get(id);if(bay.destroyed)return false;
@@ -287,16 +340,16 @@ export class SiemensSchuckertRVIII extends DoverAircraft {
     if(!bay||bay.destroyed||!target)return;const x=target.x+(target.vx||0)*1.05,y=target.y+(target.vy||0)*1.05,sourceX=this.x+bay.x,sourceY=this.y+bay.y;
     this.command('hazard',{kind:'circle',x,y,sourceX,sourceY,sourcePartId:null,launchPartId:bay.id,tag:this.id+':released-bombs',damage:this.t.damage*.78,warning:1.05,duration:.28,radius:32,once:true,targetId:target.id,visual:'rviii-bomb',airborneBomb:true});
   }
-  barrage(dt,players){
+  releaseSortieBomb(index,bounds){return this.sortieImpact(index,bounds,['bomb-bay-right','bomb-bay-left'],'rviii-bomb',34,.88);}
+  barrage(dt,players,bounds){
     this.phaseClock+=dt;
     if(this.beat===0&&this.phaseClock>=2.15){this.turretBurst(RVIII_GUNS[(this.runSerial+1)%RVIII_GUNS.length],this.selectTarget(players),true);this.beat=1;}
-    if(this.phaseClock>=3.45){if(this.countKinds('payload'))this.beginBombRun(this.selectTarget(players));else this.enterRecovery();}
+    if(this.phaseClock>=3.45){if(this.countKinds('payload'))this.beginBombRun(this.selectTarget(players),bounds);else this.enterRecovery();}
   }
   bombRun(dt){
-    this.phaseClock+=dt;if(this.phase==='bomb-align'){if(Math.abs(wrap(this.runAngle-this.a))<=.08&&Math.abs(this.turnVelocity)<=.1)this.startBombApproach();return;}
-    if(this.phase==='bomb-approach'&&this.phaseClock>=1.35){this.phase='bomb-run';this.phaseClock=0;this.command('phase-change',{phase:'bomb-run',angle:this.runAngle});return;}
+    this.phaseClock+=dt;if(this.phase==='bomb-approach'&&this.phaseClock>=1.2){this.phase='bomb-run';this.phaseClock=0;this.command('phase-change',{phase:'bomb-run',angle:this.runAngle});return;}
     if(this.phase!=='bomb-run')return;while(this.runDropIndex<8&&this.phaseClock>=.18+this.runDropIndex*.25)this.releaseRunBomb(this.runDropIndex++);
-    if(this.phaseClock>=2.15){this.phase='bomb-exit';this.phaseClock=0;this.runAngle=null;this.runGroundSpeed=null;this.command('phase-change',{phase:'bomb-exit'});}
+    if(this.phaseClock>=2.15){this.phase='bomb-exit';this.phaseClock=0;this.coreVulnerable=false;this.command('phase-change',{phase:'bomb-exit'});}
   }
   bombExit(dt,bounds){
     this.phaseClock+=dt;const q=this.coreOffset(),x=this.x+q.x,y=this.y+q.y,accessible=!bounds||x>=bounds.left+12&&x<=bounds.right-12&&y>=bounds.top+12&&y<=bounds.bottom-12;
@@ -306,13 +359,15 @@ export class SiemensSchuckertRVIII extends DoverAircraft {
     if(!aliveCount(players))return;this.phaseClock-=dt;if(this.phaseClock>0)return;const id=RVIII_LAST_STAND[this.lastStandSlot++%RVIII_LAST_STAND.length],part=this.parts.get(id),target=this.selectTarget(players);this.phaseClock=1.2;
     if(part.destroyed)return;if(part.kind==='payload')this.singleBomb(part,target);else this.turretBurst(id,target,false);
   }
-  update(dt,{players=[],bounds,paused=false}={}){
+  update(dt,{players=[],bounds,paused=false,mapBounds,worldBounds}={}){
     if(this.dead||paused||!Number.isFinite(dt)||dt<=0)return;if(this.disabled())this.enterLastStand();
     let left=0,right=0;for(const id of RVIII_LEFT_DRIVES)if(!this.partAlive(id))left++;for(const id of RVIII_RIGHT_DRIVES)if(!this.partAlive(id))right++;
-    this.easeSpeed(112*this.speedRatio(),18,dt);const committed=this.phase==='bomb-align'||this.phase==='bomb-approach'||this.phase==='bomb-run'?this.runAngle:null;if(Number.isFinite(committed)||this.phase==='bomb-exit')this.basicHoldUntil=Math.max(this.basicHoldUntil||0,(this.combatTime||0)+.45);this.fly(dt,players,bounds,this.currentSpeed,(this.wings()===2?.4:.28),(left-right)*.075,committed,this.runGroundSpeed);
-    if(this.phase==='last-stand'){this.lastStand(dt,players);return;}if(this.phase==='barrage'){this.barrage(dt,players);return;}
-    if(this.phase==='bomb-align'||this.phase==='bomb-approach'||this.phase==='bomb-run'){this.bombRun(dt);return;}
-    if(this.phase==='bomb-exit'){this.bombExit(dt,bounds);return;}
-    this.phaseClock+=dt;if(this.phase==='recovery'&&this.phaseClock>=3){this.phase='barrage';this.phaseClock=0;this.beat=0;this.coreVulnerable=false;this.command('phase-change',{phase:'barrage'});}
+    this.easeSpeed(112*this.speedRatio(),18,dt);const turn=this.coreVulnerable?Math.max(this.wings()===2?.4:.28,1.2):this.wings()===2?.4:.28,asymmetry=(left-right)*.075,chart=mapBounds||worldBounds;
+    if(this.phase.startsWith('sortie-')&&!this.phase.includes('recovery')){this.updateSortie(dt,bounds,chart,turn,asymmetry);return;}
+    if(this.phase==='bomb-approach'||this.phase==='bomb-run'||this.phase==='bomb-exit')this.basicHoldUntil=Math.max(this.basicHoldUntil||0,(this.combatTime||0)+.45);this.fly(dt,players,bounds,this.currentSpeed,turn,asymmetry,null,null,chart);
+    if(this.phase==='last-stand'){this.lastStand(dt,players);return;}if(this.phase==='barrage'){this.barrage(dt,players,bounds);return;}
+    if(this.phase==='bomb-approach'||this.phase==='bomb-run'){this.bombRun(dt);return;}if(this.phase==='bomb-exit'){this.bombExit(dt,bounds);return;}
+    this.phaseClock+=dt;const recovering=this.phase==='recovery'||this.phase==='sortie-recovery',duration=this.phase==='sortie-recovery'?4.6:4;
+    if(recovering&&this.phaseClock>=duration&&this.coreInside(bounds)){if(this.phase==='recovery'&&!this.sortieDone&&this.countKinds('payload')){this.beginSortie(bounds,chart);return;}this.sortieDone=true;this.phase='barrage';this.phaseClock=0;this.beat=0;this.coreVulnerable=false;this.command('phase-change',{phase:'barrage'});}
   }
 }

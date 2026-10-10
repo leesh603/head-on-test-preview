@@ -5,9 +5,9 @@ import {BossHazards} from '../headon-stageboss-hazards.js';
 import {SupermarineNighthawk,SiemensSchuckertRVIII,DOVER_NIGHTHAWK_LAYOUT,DOVER_RVIII_LAYOUT,DOVER_PART_CLIPS} from '../dover-night-bosses.js';
 
 const tuning={maxHp:1200,partHp:100,damage:20,bulletSpeed:240,geometryScale:1};
-function fixture(Ctor){
+function fixture(Ctor,options={}){
   const events=[],hits=[],statuses=[],hazards=new BossHazards({onDamage:(...v)=>hits.push(v),onStatus:(...v)=>statuses.push(v),onBarrierContact:()=>{}});
-  const body=new Ctor({id:'dover:body',tuning,x:700,y:430,emit:event=>{
+  const body=new Ctor({id:'dover:body',tuning:{...tuning,...options.tuning},x:700,y:430,emit:event=>{
     events.push(event);
     if(event.type==='hazard')hazards.spawn({...event,encounterId:'dover'});
     if(event.type==='cancel-hazards')hazards.clearTagged('dover',event.tag);
@@ -113,11 +113,11 @@ test('Nighthawk locks fixed warnings, alternates co-op targets, then grants a qu
   assert.deepEqual([...targets].sort(),['one','two']);
   const cannon=attacks(f).filter(e=>e.visual==='davis-cannon');assert.equal(cannon.length,2);assert.ok(cannon.every(e=>e.kind==='projectile'&&Math.abs(Math.hypot(e.vx,e.vy)-550)<1e-9));
   assert.ok(cannon.every(e=>e.radius===8&&e.warning===1.35&&e.duration===1.6&&e.length===880));
-  const lightBombs=attacks(f).filter(e=>e.visual==='nighthawk-light-bomb');assert.equal(lightBombs.length,3);assert.ok(lightBombs.every(e=>e.sourcePartId===null&&e.launchPartId==='bomb-rack'&&e.tag===f.body.id+':released-bombs'&&e.once));
+  const lightBombs=attacks(f).filter(e=>e.visual==='nighthawk-light-bomb');assert.equal(lightBombs.length,4);assert.ok(lightBombs.every(e=>e.sourcePartId===null&&e.launchPartId==='bomb-rack'&&e.tag===f.body.id+':released-bombs'&&e.once));
   const thirdLight=f.events.map(e=>e.type).lastIndexOf('dover-search-warning'),rackWarning=f.events.findIndex(e=>e.type==='dover-light-bomb-warning'),cannonWarning=f.events.findIndex(e=>e.type==='dover-cannon-warning');
   assert.ok(thirdLight<rackWarning&&rackWarning<cannonWarning);assert.ok(f.events[cannonWarning].safeGap===80);assert.equal(f.body.phase,'cannon');
   step(f,1.92);assert.equal(f.body.phase,'recovery');assert.equal(f.body.coreVulnerable,true);const count=attacks(f).length;
-  step(f,2.8);assert.equal(attacks(f).length,count,'recovery is a real attack gap');step(f,.42);assert.equal(f.body.phase,'hunt');assert.equal(f.body.coreVulnerable,false);
+  step(f,3.5);assert.equal(attacks(f).length,count,'recovery is a real attack gap');step(f,.32);assert.equal(f.body.phase,'sortie-depart');assert.equal(f.body.coreVulnerable,false);
 });
 
 test('Destroyed Nighthawk mounts cease and cancel their queued hazards',()=>{
@@ -148,8 +148,8 @@ test('R.VIII uses tagged ordinary turret fire and a two-sided warned bomb ladder
   assert.ok(f.events.some(e=>e.type==='charge-warning'&&e.basicFire));assert.equal(bombs.length,8);assert.ok(bombs.every(e=>e.warning===1.05&&e.sourcePartId===null&&e.launchPartId.startsWith('bomb-bay-')));
   assert.ok(f.events.some(e=>e.type==='dover-bomb-warning'&&e.safeGap===76&&Number.isFinite(e.exitAngle)));
   assert.deepEqual([...new Set(attacks(f).map(e=>e.targetId).filter(Boolean))].sort(),['one','two']);
-  assert.equal(f.body.phase,'recovery');assert.equal(f.body.coreVulnerable,true);const count=attacks(f).length;step(f,2.7);assert.equal(attacks(f).length,count);
-  step(f,.32);assert.equal(f.body.phase,'barrage');assert.equal(f.body.coreVulnerable,false);
+  assert.equal(f.body.phase,'recovery');assert.equal(f.body.coreVulnerable,true);const count=attacks(f).length;step(f,3.7);assert.equal(attacks(f).length,count);
+  step(f,.32);assert.equal(f.body.phase,'sortie-depart');assert.equal(f.body.coreVulnerable,false);
 });
 
 test('Released R.VIII bombs survive their bay while destruction cancels every unlaunched drop',()=>{
@@ -162,6 +162,26 @@ test('Released R.VIII bombs survive their bay while destruction cancels every un
   stepUntil(f,()=>f.body.phase==='recovery',5);assert.equal(released().filter(e=>e.launchPartId==='bomb-bay-right').length,1,'right rack cannot launch queued bombs after destruction');
   assert.equal(released().filter(e=>e.launchPartId==='bomb-bay-left').length,4,'surviving rack completes its staggered half of the run');
   f.body.coreVulnerable=true;f.body.hit({damage:f.body.maxHp});let afterDeath=0;f.hazards.pool.visit(h=>{if(h.tag===f.body.id+':released-bombs')afterDeath++;});assert.equal(afterDeath,0,'defeat clears detached ordnance owned by the encounter');
+});
+
+test('Each aircraft performs one honest hidden bombing sortie, then returns hittable for a long recovery',()=>{
+  for(const [Ctor,count,rows] of [[SupermarineNighthawk,20,5],[SiemensSchuckertRVIII,24,6]]){
+    const f=fixture(Ctor,{tuning:{geometryScale:.32}});stepUntil(f,()=>f.body.phase==='sortie-hidden',30);assert.equal(f.body.hidden,true);assert.equal(f.body.coreVulnerable,false);
+    const part=[...f.body.parts.values()].find(p=>!p.destroyed),shot={x:f.body.x+part.x,y:f.body.y+part.y,radius:4,damage:50};
+    assert.equal(f.body.locateHit(shot),null);assert.deepEqual(f.body.hit({partId:part.id,damage:50}),{damage:0,blocked:true});
+    stepUntil(f,()=>attacks(f).filter(e=>e.sortie).length===count,3);const bombs=attacks(f).filter(e=>e.sortie);assert.equal(bombs.length,count);
+    assert.ok(bombs.every(e=>e.kind==='circle'&&e.airborneBomb&&e.sourcePartId===null&&e.tag===f.body.id+':released-bombs'));
+    const warning=f.events.find(e=>e.type==='dover-bomb-warning'&&e.sortie);assert.ok(warning&&warning.safeGap===80&&warning.seconds===1.25);assert.deepEqual([warning.rows,warning.lanes,warning.count],[rows,4,count]);
+    stepUntil(f,()=>f.body.phase==='sortie-recovery',15);assert.equal(f.body.hidden,false);assert.equal(f.body.coreVulnerable,true);assert.ok(f.body.locateHit({x:f.body.x+f.body.coreOffset().x,y:f.body.y+f.body.coreOffset().y,radius:2}));
+    step(f,20);assert.equal(f.events.filter(e=>e.type==='phase-change'&&e.phase==='sortie-hidden').length,1);
+  }
+});
+
+test('Destroyed payload prevents the dedicated sortie instead of dropping from an empty rack',()=>{
+  for(const [Ctor,ids] of [[SupermarineNighthawk,['bomb-rack']],[SiemensSchuckertRVIII,['bomb-bay-left','bomb-bay-right']]]){
+    const f=fixture(Ctor);for(const id of ids)destroy(f,id);step(f,35);
+    assert.equal(f.events.some(e=>e.type==='phase-change'&&e.phase==='sortie-hidden'),false);assert.equal(attacks(f).some(e=>e.sortie),false);
+  }
 });
 
 test('Dover ordinary fire obeys the density gate, recovery pause, and shared mount cancellation',()=>{

@@ -1,60 +1,38 @@
-import {DOVER_PART_CLIPS} from './dover-night-bosses.js?v=dover2';
-import {periodicCoastPixels} from './dover-coast-tiles.js?v=dover2';
-import {periodicSandPixels} from './maan-ground.js?v=gal1';
+import {DOVER_PART_CLIPS} from './dover-night-bosses.js?v=dover3';
 import {fx} from './fx-art.js?v=gal1';
 import {drawBossOrdnance} from './boss-ordnance-art.js?v=gal1';
 import {drawDressingSprite} from './background-dressing.js?v=1';
-import {doverPatrolChart} from './dover-patrol-chart.js?v=dover2';
+import {doverPatrolChart,doverWaterInterval} from './dover-patrol-chart.js?v=dover3';
 import {impactMark,aimLine,laneEdge,sectorMark,partMark,shieldMark} from './tactical-marks.js?v=gal1';
 
-export const DOVER_ASSETS=Object.freeze({sea:'terrain-dover-night.webp',nighthawk:'boss-dover-nighthawk.webp',nighthawkWreck:'boss-dover-nighthawk-wreck.webp',rviii:'boss-dover-rviii.webp',rviiiWreck:'boss-dover-rviii-wreck.webp',rotor:'propeller-dover.webp',englishCoast:'terrain-dover-chalk-coast.webp',frenchCoast:'terrain-dover-french-coast.webp'});
-const images=new Map(),coasts=new Map();let pending=null,water=null,generation=0;
+export const DOVER_ASSETS=Object.freeze({terrain:'terrain-dover-finite.webp',nighthawk:'boss-dover-nighthawk.webp',nighthawkWreck:'boss-dover-nighthawk-wreck.webp',rviii:'boss-dover-rviii.webp',rviiiWreck:'boss-dover-rviii-wreck.webp',rotor:'propeller-dover.webp'});
+const images=new Map();let pending=null,generation=0;
 export const isDoverBoss=kind=>kind==='supermarine-nighthawk'||kind==='siemens-schuckert-r-viii';
 export function doverExtents(b){const a=b.a+Math.PI/2,s=b.geometryScale||1,w=b.layout.width*s/2,h=b.layout.height*s/2;return {halfWidth:Math.abs(Math.cos(a))*w+Math.abs(Math.sin(a))*h,halfHeight:Math.abs(Math.sin(a))*w+Math.abs(Math.cos(a))*h};}
 export function prepareDoverAssets(region){
- if(region!==17){generation++;images.clear();coasts.clear();water=null;pending=null;return Promise.resolve();}
- if(pending)return pending;
- const epoch=generation;
+ if(region!==17){generation++;images.clear();pending=null;return Promise.resolve();}
+ if(pending)return pending;const epoch=generation;
  pending=Promise.all(Object.entries(DOVER_ASSETS).map(([key,path])=>new Promise(resolve=>{
   const im=new Image();im.decoding='async';images.set(key,im);
-  im.onload=()=>{(im.decode?.()||Promise.resolve()).catch(()=>{}).then(()=>{
-   if(epoch!==generation){resolve(false);return;}
-   if(key==='sea'){
-    const canvas=document.createElement('canvas');canvas.width=im.naturalWidth;canvas.height=im.naturalHeight;
-    const c=canvas.getContext('2d',{willReadFrequently:true});if(!c){resolve(false);return;}c.drawImage(im,0,0);
-    const tile=periodicSandPixels(c.getImageData(0,0,canvas.width,canvas.height).data,canvas.width,canvas.height);
-    canvas.width=tile.width;canvas.height=tile.height;const data=c.createImageData(tile.width,tile.height);data.data.set(tile.data);c.putImageData(data,0,0);
-    c.fillStyle='#060e1d33';c.fillRect(0,0,canvas.width,canvas.height);water=canvas;
-   }
-   if(key==='englishCoast'||key==='frenchCoast'){
-    const canvas=document.createElement('canvas');canvas.width=im.naturalWidth;canvas.height=im.naturalHeight;
-    const c=canvas.getContext('2d',{willReadFrequently:true});if(!c){resolve(false);return;}
-    c.drawImage(im,0,0);const tile=periodicCoastPixels(c.getImageData(0,0,canvas.width,canvas.height).data,canvas.width,canvas.height);
-    canvas.height=tile.height;const data=c.createImageData(tile.width,tile.height);data.data.set(tile.data);c.putImageData(data,0,0);coasts.set(key,canvas);
-   }
-   resolve(true);
-  });};im.onerror=()=>resolve(false);im.src='./'+path+'?v=dover2';
- })));
- return pending;
+  im.onload=()=>{(im.decode?.()||Promise.resolve()).catch(()=>{}).then(()=>resolve(epoch===generation));};
+  im.onerror=()=>resolve(false);im.src='./'+path+'?v=dover3';
+ })));return pending;
 }
 export function paintDover(c,g,cx,cy,w,h){
- c.save();c.fillStyle='#0d2031';c.fillRect(0,0,w,h);
- if(water){const tw=water.width,th=water.height,left=cx-w/2,top=cy-h/2;
-  for(let row=Math.floor(top/th);row<=Math.floor((top+h)/th);row++)for(let col=Math.floor(left/tw);col<=Math.floor((left+w)/tw);col++)
-   c.drawImage(water,col*tw-left,row*th-top,tw+.5,th+.5);
+ const chart=doverPatrolChart(g),left=cx-w/2,top=cy-h/2,im=images.get('terrain');
+ c.save();c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.fillStyle='#0d2031';c.fillRect(0,0,w,h);
+ // Crop a single opaque painting. No tile wraps, separate strip edges or coast seams.
+ if(im?.naturalWidth){
+  const x=Math.max(left,chart.left),y=Math.max(top,chart.top),right=Math.min(left+w,chart.right),bottom=Math.min(top+h,chart.bottom);
+  if(right>x&&bottom>y)c.drawImage(im,(x-chart.left)/chart.width*im.naturalWidth,(y-chart.top)/chart.height*im.naturalHeight,(right-x)/chart.width*im.naturalWidth,(bottom-y)/chart.height*im.naturalHeight,x-left,y-top,right-x,bottom-y);
  }
- // Registered world shorelines: Dover chalk to the west, France to the east.
- const chart=doverPatrolChart(g,w),left=cx-w/2,top=cy-h/2,stripW=480,stripH=720;
- for(const [key,side,fraction] of [['englishCoast',-1,.6],['frenchCoast',1,.4]]){
-  const im=coasts.get(key);if(!im?.width)continue;
-  const shoreX=chart.x+side*chart.halfChannel,x=shoreX-fraction*stripW-left;
-  for(let row=Math.floor((top-chart.y)/stripH);row<=Math.floor((top+h-chart.y)/stripH);row++){
-   const y=chart.y+row*stripH-top;c.drawImage(im,x,y,stripW,stripH+.5);
-   const gx=shoreX+side*56-left,gy=y+stripH*.38;
-   drawDressingSprite(c,'coastalGun',gx,gy,52,side<0?0:Math.PI,.72);
-   const t=g?.t||0,a=side<0?.12+Math.sin(t*.22+row)*.45:Math.PI-.12-Math.sin(t*.19+row)*.45;
-   fx(c,'searchlight',gx+Math.cos(a)*96,gy+Math.sin(a)*96,200,38,a,.14);
-  }
+ // Small, fixed cliff batteries belong to the coast, never to scrolling tile rows.
+ for(const [v,side] of [[.16,-1],[.37,-1],[.61,-1],[.28,1],[.53,1],[.77,1]]){
+  const gy=chart.top+chart.height*v,shore=doverWaterInterval(g,gy),gx=(side<0?shore.left-150:shore.right+150);
+  const x=gx-left,y=gy-top;if(x< -160||x>w+160||y< -160||y>h+160)continue;
+  drawDressingSprite(c,'coastalGun',x,y,56,side<0?0:Math.PI,.7);
+  const a=side<0?.12+Math.sin((g?.t||0)*.18+v*8)*.35:Math.PI-.12-Math.sin((g?.t||0)*.18+v*8)*.35;
+  fx(c,'searchlight',x+Math.cos(a)*90,y+Math.sin(a)*90,190,32,a,.12);
  }
  c.restore();
 }
@@ -124,6 +102,6 @@ export function drawDoverCue(c,cue){
   laneEdge(c,sx-dx*len,sy-dy*len,sx+dx*len,sy+dy*len,{alpha:.55});
  }
  const ex=cue.x+dx*len,ey=cue.y+dy*len;
- aimLine(c,ex,ey,ex+Math.cos(cue.exitAngle)*65,ey+Math.sin(cue.exitAngle)*65,{tone:'safe',alpha:.65});
+ if(Number.isFinite(cue.exitAngle))aimLine(c,ex,ey,ex+Math.cos(cue.exitAngle)*65,ey+Math.sin(cue.exitAngle)*65,{tone:'safe',alpha:.65});
  return true;
 }

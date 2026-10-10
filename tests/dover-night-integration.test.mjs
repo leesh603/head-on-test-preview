@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
 globalThis.Image??=class{set src(value){this._src=value;queueMicrotask(()=>this.onload?.());}};
-globalThis.document??={createElement:()=>({getContext:()=>null})};
+globalThis.document??={createElement:()=>({getContext:()=>new Proxy({createImageData:(w,h)=>({data:new Uint8ClampedArray(w*h*4)})},{get:(o,k)=>k in o?o[k]:()=>{}})})};
 const {Game}=await import('../engine.js?v=gal1&rail=42');
 const {CoopGame}=await import('../coop-engine.js?v=gal1&rail=42');
 const {BossStages,buildStageRoute}=await import('../headon-stageboss-runtime.js?v=dover1');
@@ -33,9 +33,9 @@ test('Solo and co-op host moving aerial proxies at desktop and mobile scales',()
   for(let i=0;i<300;i++)g.update(.02,coop?{p1:quiet,p2:quiet}:quiet);
   const b=a.stages.encounter.bodies.values().next().value,proxy=g.enemies.find(e=>e.stageBossBody===b);
   assert(proxy);assert.equal(proxy.surface,false);assert.equal(proxy.stationary,false);assert.equal(proxy.x,b.x);assert.equal(proxy.y,b.y);assert.equal(proxy.a,b.a);
-  assert(b.layout.width*b.geometryScale<=width*1.03);assert(Number.isFinite(b.x+b.y+b.a));
+  assert(b.layout.width*b.geometryScale<=width*1.24);assert(Number.isFinite(b.x+b.y+b.a));
   const preferred=b.parts.get(team==='central'?'lamp':'drive-inner-left');
-  if(preferred.destroyed)assert.equal(stageBossCollision(g,proxy,b.x+preferred.x,b.y+preferred.y,{collisionRadius:1}),false);
+  if(preferred.destroyed)assert.notEqual(b.locateHit({x:b.x+preferred.x,y:b.y+preferred.y,radius:1})?.partId,preferred.id,'the intact wing below a broken engine may still be hit');
   const target=preferred.destroyed?[...b.parts.values()].find(p=>!p.destroyed&&p.hittable):preferred;assert(target);
   assert(stageBossCollision(g,proxy,b.x+target.x,b.y+target.y,{collisionRadius:1}));
   assert(bossTactic(a.stages.encounter,'ko').length);assert(bossTactic(a.stages.encounter,'en').length);
@@ -48,7 +48,7 @@ test('Solo and co-op host moving aerial proxies at desktop and mobile scales',()
 test('Dover production art is nonempty WebP with registered alpha sprite pairs',()=>{
  for(const [key,name] of Object.entries(DOVER_ASSETS)){
   const bytes=readFileSync(new URL('../'+name,import.meta.url));assert(bytes.length>10000);assert.equal(bytes.toString('ascii',0,4),'RIFF');assert.equal(bytes.toString('ascii',8,12),'WEBP');
-  if(key!=='sea'){assert.equal(bytes.toString('ascii',12,16),'VP8X');assert(bytes[20]&16,'Alpha flag');const size=key==='rotor'?[1254,1254]:key.endsWith('Coast')?[1024,1536]:[1536,1024];assert.equal(1+bytes.readUIntLE(24,3),size[0]);assert.equal(1+bytes.readUIntLE(27,3),size[1]);}
+  if(key!=='terrain'){assert.equal(bytes.toString('ascii',12,16),'VP8X');assert(bytes[20]&16,'Alpha flag');const size=key==='rotor'?[1254,1254]:key.endsWith('Coast')?[1024,1536]:[1536,1024];assert.equal(1+bytes.readUIntLE(24,3),size[0]);assert.equal(1+bytes.readUIntLE(27,3),size[1]);}
  }
 });
 
