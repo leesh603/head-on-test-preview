@@ -211,6 +211,26 @@
        "kind": "ace",
        "name": "Bäumer",
        "file": "../baeumer_pfalz.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "바이에른 체커+청색 꼬리",
+       "file": "liveries/pfalz_d3a/bavarian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "Jasta 10 황색 기수",
+       "file": "liveries/pfalz_d3a/jasta10.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "팔츠 공장 마모 위장",
+       "file": "liveries/pfalz_d3a/mottle.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "붉은 동체 편대기",
+       "file": "liveries/pfalz_d3a/red.webp"
       }
      ]
     },
