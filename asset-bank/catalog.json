@@ -2364,7 +2364,28 @@
      "year": 1917,
      "role": "폭격기",
      "base": "../breguet14.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "미군 95비행대 별",
+       "file": "liveries/breguet14/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간폭격 칠흑",
+       "file": "liveries/breguet14/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "폴란드 샤호비차",
+       "file": "liveries/breguet14/polish.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "그리스 육군 항공대",
+       "file": "liveries/breguet14/greek.webp"
+      }
+     ]
     },
     {
      "id": "salmson_2a2",
