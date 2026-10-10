@@ -343,6 +343,26 @@
        "kind": "ace",
        "name": "Gontermann (2)",
        "file": "../gontermann_fokker_v2.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "Jasta 11 청색 꼬리",
+       "file": "liveries/fokker_dr1/jasta11.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "Jasta 15 적백 체커 기수",
+       "file": "liveries/fokker_dr1/jasta15.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "Jasta 26 흑동체 백띠",
+       "file": "liveries/fokker_dr1/jasta26.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "Jasta 36 청색 동체",
+       "file": "liveries/fokker_dr1/jasta36.webp"
       }
      ]
     },
