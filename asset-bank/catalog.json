@@ -1484,6 +1484,26 @@
        "kind": "livery",
        "name": "독일 노획 시험기",
        "file": "liveries/be2c/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/be2c/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "그리스 육군 항공대",
+       "file": "liveries/be2c/greek.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/be2c/leader.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전선 얼룩 위장",
+       "file": "liveries/be2c/camo.webp"
       }
      ]
     },
