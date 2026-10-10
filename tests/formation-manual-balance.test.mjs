@@ -5,9 +5,9 @@ import {FORMATION_MANUAL_BALANCE} from '../augmentation-overhaul150.js?v=gal1';
 
 
 const expected=[
- ['normal',.20,.10,'피해 +20%, 공격 속도 +10%'],
- ['magic',.30,.15,'피해 +30%, 공격 속도 +15%'],
- ['rare',.45,.20,'피해 +45%, 공격 속도 +20%']
+ ['normal',.20,.10,'피해 +20%, 연사 +10%'],
+ ['magic',.30,.15,'피해 +30%, 연사 +15%'],
+ ['rare',.45,.20,'피해 +45%, 연사 +20%']
 ];
 
 test('Formation Gunnery Manual uses nerfed independent damage and fire-rate tiers',()=>{

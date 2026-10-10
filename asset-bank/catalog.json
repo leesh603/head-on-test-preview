@@ -385,7 +385,28 @@
      "year": 1918,
      "role": "전투기",
      "base": "planes/fokker_ev.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "Jasta 6 흑백 줄무늬",
+       "file": "liveries/fokker_ev/jasta6.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "JG1 전체 적색",
+       "file": "liveries/fokker_ev/red.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "바이에른 청백 체커",
+       "file": "liveries/fokker_ev/checker.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "Jasta 19 황색 기수·꼬리",
+       "file": "liveries/fokker_ev/yellow.webp"
+      }
+     ]
     },
     {
      "id": "ssw_d3",
@@ -758,6 +779,26 @@
        "kind": "ace",
        "name": "Lufbery",
        "file": "../lufbery_nieuport17.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스군 표준 (빨강바깥 코카드)",
+       "file": "liveries/nieuport17/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "영국 RFC 상면 위장",
+       "file": "liveries/nieuport17/camo.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아제국 공군",
+       "file": "liveries/nieuport17/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 시험기",
+       "file": "liveries/nieuport17/captured.webp"
       }
      ]
     },
@@ -858,6 +899,26 @@
        "kind": "ace",
        "name": "Collishaw",
        "file": "../collishaw_sopwith.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 해군 코카드",
+       "file": "liveries/triplane/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아 붉은별",
+       "file": "liveries/triplane/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미국 평가기 별",
+       "file": "liveries/triplane/us.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 시험기",
+       "file": "liveries/triplane/captured.webp"
       }
      ]
     },
@@ -1039,6 +1100,21 @@
        "kind": "ace",
        "name": "McElroy (뱅크)",
        "file": "aces/mcelroy_se5a.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미국 25비행대",
+       "file": "liveries/se5a/us.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 칠흑",
+       "file": "liveries/se5a/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획기",
+       "file": "liveries/se5a/captured.webp"
       }
      ]
     },
