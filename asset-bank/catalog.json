@@ -931,7 +931,28 @@
      "year": 1916,
      "role": "수상정찰기",
      "base": "../ff33.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "로젠지 위장천",
+       "file": "liveries/ff33/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "해군 회색",
+       "file": "liveries/ff33/grey.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "덴마크 해군 전후",
+       "file": "liveries/ff33/danish.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 초계 칠흑",
+       "file": "liveries/ff33/night.webp"
+      }
+     ]
     },
     {
      "id": "hb_w29",
