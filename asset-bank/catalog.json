@@ -732,7 +732,28 @@
      "year": 1917,
      "role": "중폭격기",
      "base": "planes/gotha_g4.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "전체 로젠지 위장천",
+       "file": "liveries/gotha_g4/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "주간 녹황 파문 위장",
+       "file": "liveries/gotha_g4/day.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "심야 칠흑 침습기",
+       "file": "liveries/gotha_g4/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 반입 평가기",
+       "file": "liveries/gotha_g4/usas.webp"
+      }
+     ]
     },
     {
      "id": "staaken_r6",
