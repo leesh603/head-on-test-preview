@@ -3304,6 +3304,26 @@
        "kind": "livery",
        "name": "초기 연색 생산",
        "file": "liveries/caudron_r11/linen.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "영국 RFC 평가기",
+       "file": "liveries/caudron_r11/british.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아제국 공군",
+       "file": "liveries/caudron_r11/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전선 얼룩 위장",
+       "file": "liveries/caudron_r11/camo.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/caudron_r11/leader.webp"
       }
      ]
     },
