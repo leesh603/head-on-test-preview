@@ -5,7 +5,7 @@ const charts=new WeakMap(),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 export function doverPatrolChart(game){
  if(!game)return {left:0,top:0,right:DOVER_MAP.width,bottom:DOVER_MAP.height,...DOVER_MAP};
  let chart=charts.get(game);
- if(!chart){const left=(game.x||0)-DOVER_MAP.width*.18,top=(game.y||0)-DOVER_MAP.height*.43;
+ if(!chart){const left=(game.x||0)-DOVER_MAP.width*.30,top=(game.y||0)-DOVER_MAP.height*.43;
   chart=Object.freeze({left,top,right:left+DOVER_MAP.width,bottom:top+DOVER_MAP.height,...DOVER_MAP});charts.set(game,chart);}
  return chart;
 }
