@@ -1556,6 +1556,26 @@
        "kind": "livery",
        "name": "독일 노획 시험기",
        "file": "liveries/nieuport17/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "벨기에 항공대",
+       "file": "liveries/nieuport17/belgian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "이탈리아 마키 면허기",
+       "file": "liveries/nieuport17/italian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 훈련 별",
+       "file": "liveries/nieuport17/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 남색",
+       "file": "liveries/nieuport17/night.webp"
       }
      ]
     },
