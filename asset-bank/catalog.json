@@ -539,6 +539,26 @@
        "kind": "alt",
        "name": "인게임형",
        "file": "../ssw_d3.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "방어전선 백색",
+       "file": "liveries/ssw_d3/white.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "로젠지 위장천",
+       "file": "liveries/ssw_d3/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "지휘기 흑동체+흰띠",
+       "file": "liveries/ssw_d3/black.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 반입 평가기",
+       "file": "liveries/ssw_d3/usas.webp"
       }
      ]
     },
