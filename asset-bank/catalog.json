@@ -2048,6 +2048,26 @@
        "kind": "livery",
        "name": "야간전 칠흑",
        "file": "liveries/snipe/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/snipe/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "중동전선 사막 크림",
+       "file": "liveries/snipe/desert.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/snipe/leader.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "파문 위장 실험기",
+       "file": "liveries/snipe/wavy.webp"
       }
      ]
     },
