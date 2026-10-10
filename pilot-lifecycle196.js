@@ -52,7 +52,7 @@ export function advancePersonal1918(p, dt, previousRounds = p.roundsFired) {
     } else if (p.ballAmbush > 0) p.ballAmbush = Math.max(0, p.ballAmbush - step);
   }
   if (p.pilot === 'rickenbacker' && p.skillTime <= 0) p.rickRingDone = false;
-  if (p.pilot === 'rickenbacker' && p.skillTime > 0 && !p.rickRingDone) {
+  if (p.pilot === 'rickenbacker' && p.skillTime > 0 && (p.roundsFired > previousRounds || !p.rickRingDone)) {
     p.rickRingDone = true;
     let count = 0;
     for (const e of p.enemies) {

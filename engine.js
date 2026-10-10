@@ -4,9 +4,9 @@ import {EXPLOSION_LIFE,initExplosionProfile,pushExplosionFx,advanceExplosionFx} 
 import {beginAircraftCrash,advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=gal1';
 import {wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=gal1';
 import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=gal1';
-import {installPilotIdentities} from './pilot-identities.js?v=gal1';
+import {installPilotIdentities} from './pilot-identities.js?v=gn1';
 import {EnemyCollisionGrid} from './collision-grid.js?v=gal1';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=gal1';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=gn1';
 import {installRevision} from './rebalance103.js?v=gal1&rail=42';
 import {installCloudCover} from './cloud-cover1.js?v=gal1';
 import {installFleet} from './fleet-naval1.js?v=gal1&rail=42';
@@ -72,7 +72,7 @@ PILOTS.guynemer={name:'조르즈 기네미르',alias:'THE STORK',faction:'entent
 PLANES.re7={...PLANES.camel,name:'R.E.7 복좌기',role:'근거리 강습',speed:128,hp:125,turn:2.4};
 PLANES.fokkerd7={...PLANES.albatros,name:'포커 D.VII · 백색',role:'편대 지휘',speed:147,hp:115};
 WEAPONS.re7={...WEAPONS.camel,name:'Lewis',guns:1};WEAPONS.fokkerd7={...WEAPONS.fokker};
-PILOTS.bishop={name:'빌리 비숍',alias:'GUERRILLA NIGHT',faction:'entente',portrait:1,cooldown:25};
+PILOTS.bishop={name:'빌리 비숍',alias:'GUERRILLA NIGHT',faction:'entente',portrait:1,skill:'게릴라 나이트',cooldown:25};
 PILOTS.goering={name:'헤르만 괴링',alias:'WHITE FLIGHT LEADER',faction:'central',portrait:0,cooldown:27};
 export const PILOT_PLANES={baron:'fokker_red',voss:'fokker_voss',boelcke:'albatros',immelmann:'eindecker',fonck:'camel',collishaw:'sopwith',baracca:'nieuport',udet:'fokkerdv',guynemer:'spad12',bishop:'re7',goering:'fokkerd7',mannock:'se5a'};
 export const DOCTRINE_BALANCE=Object.freeze({
@@ -129,7 +129,7 @@ export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this
  let evading=this.evadeTime>0;let velocity=this.speed*stageBossSpeed(this)*(this.chargeTime>0?4.6:evading?2.35:(this.airframeSpeed??1))*(this.pursuitSpeedFactor??1);this.x+=Math.cos(this.a)*velocity*dt;this.y+=Math.sin(this.a)*velocity*dt;// Resolve player-driven entry before enemy shots and hazards are evaluated.
  const wasReloading=this.reloadTime>0;
  if(wasReloading){this.reloadTime=Math.max(0,this.reloadTime-dt);this.fire=0;if(this.reloadTime===0){this.ammo.fill(this.weapon.belt);this.event('loaded','재장전 완료')}}
- else if(!this.cow37&&(input.inputMode!=='gamepad'||input.fireHeld)){this.fire-=dt;let volleys=0;while(this.fire<=0&&this.reloadTime===0&&volleys++<8){
+ else if(!this.cow37&&(input.inputMode!=='gamepad'||input.fireHeld)){this.fire-=dt;if(this.bishopTime>0)this.fire=Math.max(this.fire,.1);let volleys=0;while(this.fire<=0&&this.reloadTime===0&&volleys++<8){
   if((this.ammo.every(n=>n===0)||(DUO_GUN_PILOTS.has(this.pilot)&&this.ammo[0]<=0&&!this.nineRearTarget))){this.reload();break}
   this.fire+=Math.max(.02,this.rate/(this.pilot==='jacobs'?1+(this.jacobsStacks||0)*.1:1));const skillDamage=this.normalGunMultiplier()/Math.sqrt(this.shots);
   for(let gun=0;gun<this.weapon.guns;gun++){if(DUO_GUN_PILOTS.has(this.pilot)&&gun===1)continue;
@@ -1695,7 +1695,7 @@ Game.prototype._aatBase=function(e){
 // Aces round 3 (2026-10-03): Beauchamp-Proctor (84 Sqn's top scorer),
 // Eduard von Schleich "the Black Knight", and Lafayette's Raoul Lufbery.
 Object.assign(PILOTS,{
- proctor:{name:'앤드류 뷰챔프-프록터',alias:'THE BALLOON BUSTER',faction:'entente',portrait:29,skill:'버스터 살보',cooldown:16},
+ proctor:{name:'앤드류 뷰챔프-프록터',alias:'THE BALLOON BUSTER',faction:'entente',portrait:29,skill:'버스터 점사',cooldown:16},
  schleich:{name:'에두아르트 폰 슐라이히',alias:'THE BLACK KNIGHT',faction:'central',portrait:30,skill:'흑기사의 진격',cooldown:18},
  lufbery:{name:'라울 러프베리',alias:"LAFAYETTE'S WALL",faction:'entente',portrait:31,skill:'라파예트의 사격술',cooldown:17}
 });
@@ -1765,3 +1765,25 @@ installNinePilots(Game,PILOTS);
 const _spawnSeaRoster=Game.prototype.spawnEnemy;
 Game.prototype.spawnEnemy=function(type,...args){const e=_spawnSeaRoster.call(this,type,...args);if(e&&!e.bossPilot&&!e.heavyBomber&&!e.bossMinion&&!e.formationLeader&&['scout','hunter','bomber'].includes(type)&&SEAPLANE_REGIONS.includes(this.worldRegion())&&this.rng()<.82){const pool=type==='bomber'?(e.faction==='central'?['ff33','lohner_l']:['macchi_m3']):SEAPLANE_POOLS[e.faction];e.escortPlane=pool[Math.floor(this.rng()*pool.length)];attachAircraftPersonality(PLANES,e,e.escortPlane);}return e;};
 
+
+// Guerrilla Night rollback: leave the screen and re-enter with eight bombs.
+const _skillGuerrilla=Game.prototype.skill;
+Game.prototype.skill=function(){
+ if(this.pilot!=='bishop')return _skillGuerrilla.call(this);
+ this.ensureRevisionPilot?.();if(this.state!=='playing'||this.hp<=0||this.cooldown>0)return false;
+ this.cooldown=this.skillCooldown();this.skillTime=this.bishopTime=this.skillDuration();
+ this.invuln=Math.max(this.invuln,this.skillTime);this.bishopDrops=Math.ceil(8*(this.skillTime/2.4));this.bishopBombTimer=.5;this.bishopHeading=this.a;
+ this.event('skill',PILOTS[this.pilot].skill);return true;
+};
+const _updateGuerrilla=Game.prototype.update;
+Game.prototype.update=function(dt,input={}){
+ const step=Math.min(.04,Math.max(0,dt||0));
+ if(this.bishopTime>0){this.invuln=Math.max(this.invuln,step+.05);this.bishopTime=Math.max(0,this.bishopTime-step);if(this.bishopTime===0)this.bishopEmptyPending=true;this.bishopBombTimer-=step;
+  if(this.bishopDrops>0&&this.bishopBombTimer<=0){this.bishopDrops--;this.bishopBombTimer=.23;
+   const target=this.enemies.filter(e=>e.hp>0).sort((a,b)=>Math.hypot(a.x-this.x,a.y-this.y)-Math.hypot(b.x-this.x,b.y-this.y))[0];
+   this.queueExplosionDamage(target?.x??this.x+Math.cos(this.a)*120,target?.y??this.y+Math.sin(this.a)*120,110,this.payloadPower(90),{fxSource:'bomb'});
+  }
+ }
+ _updateGuerrilla.call(this,dt,input);
+ if(this.bishopEmptyPending){this.bishopEmptyPending=false;this.ammo.fill(0);this.reloadTime=0;this.fire=.1;this.muzzleFlash=0;this.event('wave','폭격 종료 · 탄약 소진, 재장전 필요')}
+};

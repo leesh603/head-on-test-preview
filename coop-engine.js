@@ -2,8 +2,8 @@ import {advanceExplosionFx} from './explosion-profiles.js?v=gal1';
 import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=gal1';
 import {nungesserAimOffset,nungesserRoundReaction} from './pilot-signature-state.js?v=gal1';
 import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=gal1';
-import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=gal1';
-import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=gal1&rail=42';
+import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=gn1';
+import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=gn1';
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=gal1&hints=1&rail=42';
 import {registerAircraftTiers} from './aircraft-tiers.js?v=gal1';
 import {attachAircraftPersonality} from './aircraft-personality164.js?v=gal1';
@@ -75,7 +75,7 @@ export class CoopGame {
  }
  downPlayer(p){
   if(p.status==='downed')return;p.status='downed';p.hp=0;p.respawnRemaining=COOP_BALANCE.revive;p.downedCooldown=Math.max(p.cooldown,5);
-  for(const key of ['skillTime','chargeTime','salvoWaves','udetBoost','wingBoost','evadeTime','invuln','muzzleFlash','crossfireFlash','barkerStacks','barkerStackTime','ballCloak','ballAmbush'])p[key]=0;p.ballGhost=null;
+  for(const key of ['skillTime','chargeTime','bishopTime','bishopDrops','salvoWaves','udetBoost','wingBoost','evadeTime','invuln','muzzleFlash','crossfireFlash','barkerStacks','barkerStackTime','ballCloak','ballAmbush'])p[key]=0;p.ballGhost=null;
   if(p.pilotIdentity){p.pilotIdentity.debts=[];p.pilotIdentity.burns.clear();p.pilotIdentity.escape=null;p.pilotIdentity.barkerReady=false;p.pilotIdentity.fx=[];}p.formationWings=[];p.divingSquadron=[];p.airshipFleet=[];
   if(p.pilot==='immelmann'){p.immelmannTurn=null;p.immelmannAltitude=0;p.eagleTime=0;p.immelmannTurnAmount=0;}
   this.allies=this.allies.filter(a=>a.ownerId!==p.id);this.friendlyBombers=this.friendlyBombers.filter(b=>b.ownerId!==p.id);
@@ -193,12 +193,14 @@ export class CoopGame {
   if(charge){p.invuln=Math.max(p.invuln,dt+.02);p.a=p.chargeAngle;p.chargeTime=Math.max(0,p.chargeTime-dt);for(const e of this.enemies)if(e.hp>0&&!p.chargeHits.has(e)&&segmentDistance(e.x,e.y,oldX,oldY,p.x,p.y)<(e.heavyBomber?85:52)){p.chargeHits.add(e);this.emit(p,{x:e.x,y:e.y,vx:0,vy:0,life:.15,damage:p.damage*18,blast:true});this.combatBlast(e.x,e.y,48,'friendly','charge')}}
   tickLegendaryDefenses(p,this,dt);
   if(p.cow37){p.cow37Timer=(p.cow37Timer??.15)-dt;if(p.reloadTime<=0&&p.cow37Timer<=0){if((p.ammo[0]||0)<=0)p.reload();else{p.cow37Timer+=p.ordnanceInterval(COW37_BALANCE.interval);p.ammo[0]--;p.roundsFired++;this.emit(p,{x:p.x+Math.cos(p.a)*38,y:p.y+Math.sin(p.a)*38,vx:Math.cos(p.a)*COW37_BALANCE.speed,vy:Math.sin(p.a)*COW37_BALANCE.speed,life:2.5,cow37:true,collisionRadius:20,damage:p.payloadPower(COW37_BALANCE.damage)*(p.damage/12)*p.normalGunMultiplier()});p.muzzleFlash=.2;this.shake=Math.max(this.shake,6);p.burst(p.x+Math.cos(p.a)*32,p.y+Math.sin(p.a)*32,'#e8d39a',16);p.cannonMuzzleSmoke('cow');p.event('shot','')}}}
+  if(p.bishopTime>0){p.invuln=Math.max(p.invuln,dt+.05);p.bishopTime=Math.max(0,p.bishopTime-dt);p.bishopBombTimer-=dt;if(p.bishopDrops>0&&p.bishopBombTimer<=0){p.bishopDrops--;p.bishopBombTimer=.23;const target=this.enemies.filter(e=>e.hp>0).sort((a,b)=>squared(a,p)-squared(b,p))[0];this.blast(p,target?.x??p.x+Math.cos(p.a)*120,target?.y??p.y+Math.sin(p.a)*120,110,p.payloadPower(90),'bomb')}if(p.bishopTime===0){p.bishopEmptyPending=true}}
   if(p.unlimitedAmmo){p.reloadTime=0;p.ammo.fill(p.weapon.belt)}
   if(p.reloadTime>0){p.reloadTime=Math.max(0,p.reloadTime-dt);p.fire=0;if(p.reloadTime===0){p.ammo.fill(p.weapon.belt);p.event('loaded','재장전 완료')}}
-  else if(!p.cow37){p.fire-=dt;let volleys=0;while(p.fire<=0&&p.reloadTime===0&&volleys++<8){
+  else if(!p.cow37){p.fire-=dt;if(p.bishopTime>0)p.fire=Math.max(p.fire,.1);let volleys=0;while(p.fire<=0&&p.reloadTime===0&&volleys++<8){
    if((p.ammo.every(n=>n===0)||(['huffzky','mckeever'].includes(p.pilot)&&p.ammo[0]<=0&&!p.nineRearTarget))){p.reload();break}p.fire+=Math.max(.02,p.rate/((boost?2.4:1)*(p.pilot==='jacobs'?1+(p.jacobsStacks||0)*.1:1)));
    for(let gun=0;gun<p.weapon.guns;gun++){if(['huffzky','mckeever'].includes(p.pilot)&&gun===1)continue;const rounds=Math.min(p.shots,p.ammo[gun]),offset=p.weapon.bidirectional?0:(gun-(p.weapon.guns-1)/2)*8,ga=p.gunDirection(gun);for(let i=0;i<rounds;i++){const a=ga+(i-(rounds-1)/2)*p.buildGunFan(p.pilot==='fonck'?.025:p.pilot==='immelmann'&&p.eagleTime>0?.04:.11),tailTargetId=p.tailLocked?p.tailTargetId:null,round={x:p.x+Math.cos(ga)*23-Math.sin(ga)*offset,y:p.y+Math.sin(ga)*23+Math.cos(ga)*offset,vx:Math.cos(a)*520,vy:Math.sin(a)*520,life:p.pilot==='bishop'?.6:1.35,gun,damage:p.damage*p.normalGunMultiplier()/Math.sqrt(p.shots),tailBonus:!!tailTargetId,tailTargetId};this.emit(p,p.applySpecialRound(round,null))}if(!p.unlimitedAmmo)p.ammo[gun]-=rounds?Math.max(1,rounds-(p.freeVolleyShots||0)):0;p.roundsFired+=rounds}p.muzzleFlash=.055;p.event('shot','');if((p.ammo.every(n=>n===0)||(['huffzky','mckeever'].includes(p.pilot)&&p.ammo[0]<=0&&!p.nineRearTarget)))p.reload();
   }}
+  if(p.bishopEmptyPending){p.bishopEmptyPending=false;if(!p.unlimitedAmmo)p.ammo.fill(0);p.reloadTime=0;p.fire=.1;p.muzzleFlash=0}
   if(boost)stepTimer(p,'udetBoost',dt);
   if(p.salvoWaves>0){p.salvoTimer-=dt;if(p.salvoTimer<=0){p.salvoTimer+=.36;p.salvoWaves--;for(let j=0;j<6;j++){const side=j<3?-1:1,a=p.a+(j-2.5)*.16;this.emit(p,{x:p.x+Math.cos(p.a)*12-Math.sin(p.a)*side*23,y:p.y+Math.sin(p.a)*12+Math.cos(p.a)*side*23,vx:Math.cos(a)*330,vy:Math.sin(a)*330,life:3.2,damage:p.payloadPower(32.4),rocket:true,special:true})}p.event('rocketSalvo','')}}
   if(p.rockets>0){p.rocketFire-=dt;if(p.rocketFire<=0)p.launchUpgradeRocket()}

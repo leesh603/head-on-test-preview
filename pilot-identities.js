@@ -54,7 +54,7 @@ export function installPilotIdentities(Game,PILOTS){
   this.event('skill',PILOTS[this.pilot].skill);return true;
  };
  const oldGun=Game.prototype.normalGunMultiplier;
- Game.prototype.normalGunMultiplier=function(){let m=oldGun.call(this),s=this.identityState();if(this.pilot==='rickenbacker')m*=1+(s.switches||0)*(this.skillTime>0?.18:.1);return m};
+ Game.prototype.normalGunMultiplier=function(){let m=oldGun.call(this),s=this.identityState();if(this.pilot==='rickenbacker'){let n=0;for(const e of this.enemies)if(e.hp>0&&!e.surface&&Math.hypot(e.x-this.x,e.y-this.y)<700)n++;m*=1+Math.min(5,n)*.06}return m};
  const oldRound=Game.prototype.applySpecialRound;
  Game.prototype.applySpecialRound=function(b,type){oldRound.call(this,b,type);if(!personal(b))return b;const s=this.identityState();b.identityGun=true;b.identityOrigin={x:this.x,y:this.y,a:this.a};
   if(this.pilot==='fonck'){delete b.fonckGuided;delete b.fonckSeeker;if(this.skillTime>0)b.pierce=true;const speed=Math.hypot(b.vx,b.vy),a=this.a+delta(Math.atan2(b.vy,b.vx),this.a)*.25;b.vx=Math.cos(a)*speed;b.vy=Math.sin(a)*speed;}
@@ -110,7 +110,6 @@ export function installPilotIdentities(Game,PILOTS){
   if(this.pilot==='voss'&&active){this.turn*=1.35;this.speed*=1.35;this.baseSpeed*=1.35}
 
 
-  if(this.pilot==='bishop'&&active){this.speed*=1.25;this.baseSpeed*=1.25}
   if(this.pilot==='mannock'){
    s.mannockPassTimer=(s.mannockPassTimer??Infinity)-dt;
    const squadron=this.divingSquadron||[];
