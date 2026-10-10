@@ -320,6 +320,26 @@
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "planes/pfalz_d12.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "바이에른 체커띠+청백 꼬리",
+       "file": "liveries/pfalz_d12/bavarian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "공장 얼룩 위장",
+       "file": "liveries/pfalz_d12/mottle.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "지휘기 흑동체+흰띠",
+       "file": "liveries/pfalz_d12/black.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 반입 평가기",
+       "file": "liveries/pfalz_d12/usas.webp"
       }
      ]
     },
