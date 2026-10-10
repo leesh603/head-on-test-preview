@@ -2781,6 +2781,26 @@
        "kind": "livery",
        "name": "소련 U-1 카피",
        "file": "liveries/avro_504/soviet.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/avro_504/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "벨기에 전후 인수기",
+       "file": "liveries/avro_504/belgian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "중동전선 사막 크림",
+       "file": "liveries/avro_504/desert.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/avro_504/leader.webp"
       }
      ]
     },
