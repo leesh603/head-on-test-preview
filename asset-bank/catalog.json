@@ -644,7 +644,28 @@
      "year": 1917,
      "role": "정찰기",
      "base": "../dfw_cv.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "후기 전체 로젠지",
+       "file": "liveries/dfw_cv/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "초기 연색 생산",
+       "file": "liveries/dfw_cv/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "바이에른 체커띠",
+       "file": "liveries/dfw_cv/bavarian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 노획 평가기",
+       "file": "liveries/dfw_cv/captured.webp"
+      }
+     ]
     },
     {
      "id": "halberstadt_duo",
