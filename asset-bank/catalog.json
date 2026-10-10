@@ -49,6 +49,26 @@
        "kind": "ace",
        "name": "Boelcke",
        "file": "../boelcke_albatros.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "초기형 몰타식 십자+흰판",
+       "file": "liveries/albatros_d2/early.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "심록 전체 도장",
+       "file": "liveries/albatros_d2/green.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "Jasta 5 황색 기수",
+       "file": "liveries/albatros_d2/jasta5.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "동부전선 겨울 백색",
+       "file": "liveries/albatros_d2/winter.webp"
       }
      ]
     },
