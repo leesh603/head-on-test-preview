@@ -23,7 +23,7 @@ async function loadVersion(which){
  const appPath=text.match(/\.\/app\.js\?[^'"]+/)[0];let code=await(await fetch(new URL(appPath,root))).text();
  // srcdoc has an empty hostname. Enable only its existing Test Lab bridge.
  code=code.replace("['localhost','127.0.0.1'", "['','localhost','127.0.0.1'");
- code=code.replace(/(from\s*|import\s*\()(['"])(\.{1,2}\/[^'"]+)\2/g,(_,prefix,quote,url)=>prefix+quote+new URL(url,root).href+quote);
+ code=code.replace(/(from\s*|import\s*\(?)(['"])(\.{1,2}\/[^'"]+)\2/g,(_,prefix,quote,url)=>prefix+quote+new URL(url,root).href+quote);
  const blob=URL.createObjectURL(new Blob([code],{type:'text/javascript'}));
  const cors='<script>window.Image=class extends Image{constructor(...args){super(...args);this.crossOrigin="anonymous"}};<\/script>';
  let html=text.replace('<head>','<head><base href="'+root.href+'">'+cors).replace(appPath,blob);
