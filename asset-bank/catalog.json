@@ -464,6 +464,26 @@
        "kind": "livery",
        "name": "Jasta 36 청색 동체",
        "file": "liveries/fokker_dr1/jasta36.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 반입 평가기",
+       "file": "liveries/fokker_dr1/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 노획기",
+       "file": "liveries/fokker_dr1/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 칠흑",
+       "file": "liveries/fokker_dr1/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "공장 연색 시험기",
+       "file": "liveries/fokker_dr1/silver.webp"
       }
      ]
     },
