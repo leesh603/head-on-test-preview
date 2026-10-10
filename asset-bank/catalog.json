@@ -573,6 +573,26 @@
        "kind": "alt",
        "name": "인게임형",
        "file": "../siemens_d4.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "후기 발켄크로이츠",
+       "file": "liveries/ssw_d4/balken.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "방어전선 백색",
+       "file": "liveries/ssw_d4/white.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "지휘기 적동체+흰띠",
+       "file": "liveries/ssw_d4/red.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 반입 평가기",
+       "file": "liveries/ssw_d4/usas.webp"
       }
      ]
     },
