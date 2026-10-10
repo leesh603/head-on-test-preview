@@ -2328,6 +2328,26 @@
        "kind": "livery",
        "name": "독일 노획 시험기",
        "file": "liveries/bristol_f2b/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "중동전선 사막 크림",
+       "file": "liveries/bristol_f2b/desert.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/bristol_f2b/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "이탈리아 평가기",
+       "file": "liveries/bristol_f2b/italian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/bristol_f2b/leader.webp"
       }
      ]
     },
