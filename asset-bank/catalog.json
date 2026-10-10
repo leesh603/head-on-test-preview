@@ -1767,6 +1767,26 @@
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "planes/macchi_m5.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "그리스 해군항공대",
+       "file": "liveries/macchi_m5/greek.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "해상 파문 위장",
+       "file": "liveries/macchi_m5/camo.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "무위장 시험 은색",
+       "file": "liveries/macchi_m5/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 초계 암청",
+       "file": "liveries/macchi_m5/night.webp"
       }
      ]
     },
