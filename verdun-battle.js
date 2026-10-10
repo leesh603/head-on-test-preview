@@ -1,4 +1,4 @@
-import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=fx5';
+import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=gal1';
 // Verdun-only environment; damage stays in the existing bounded hazard pool.
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const players=g=>g.players||[g];

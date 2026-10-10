@@ -1,6 +1,6 @@
 // Semantic asset keys, not generated replacement graphics. Map to the current
 // main build's pixel atlas. Bodies stay top-down; part offsets are world-aligned.
-import {netContact} from './london-apron369.js?v=tame3';
+import {netContact} from './london-apron369.js?v=gal1';
 export const BOSS_ASSET_KEYS=Object.freeze([
   'paris-gun','lincomparable','sms-stuttgart','hms-zubian','hms-zubian-front','hms-zubian-rear',
   'zeppelin-l70','hma23','a7v-flak','mark-v-cruiser','livens-flame-projector','minenwerfer-battery','london-apron','drachen-net','gik','ca4','armored-harbor-fortress','fliegerzug','treffas-wagen','mark4-wedge','morser-battery','staaken-rvi','london-searchlight'

@@ -4,9 +4,9 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 
-import {Mark1Landship,SchwabenFortress} from '../somme-boss-combat.js?v=tame3&rail=42';
-import {sponsonAim,sommeMuzzle,angleDelta} from '../somme-boss-layout.js?v=tame3';
-import {SOMME_FRAMES,SOMME_SHEETS} from '../somme-boss-atlas.js?v=tame3';
+import {Mark1Landship,SchwabenFortress} from '../somme-boss-combat.js?v=gal1&rail=42';
+import {sponsonAim,sommeMuzzle,angleDelta} from '../somme-boss-layout.js?v=gal1';
+import {SOMME_FRAMES,SOMME_SHEETS} from '../somme-boss-atlas.js?v=gal1';
 import {existsSync} from 'node:fs';
 const tuning={maxHp:3000,damage:20,bulletSpeed:240,regionalViewWidth:390,regionalViewHeight:844};
 const bounds={left:-195,right:195,top:-422,bottom:422};
@@ -77,7 +77,7 @@ test('atlas references exist and all cell rectangles remain within authored imag
 test('support roofs draw below weapons, bore tips meet native muzzles and sponson housings stay fixed',async()=>{
  const oldImage=globalThis.Image;
  globalThis.Image=class{naturalWidth=1536;naturalHeight=1024;listeners={};addEventListener(k,fn){this.listeners[k]=fn}set src(v){this.url=v;queueMicrotask(()=>{this.listeners.load?.();this.onload?.()})}};
- const art=await import('../somme-boss-render.js?v=tame3&rail=42');
+ const art=await import('../somme-boss-render.js?v=gal1&rail=42');
  let matrix=[1,0,0,1,0,0],stack=[],calls=[];
  const c=new Proxy({globalAlpha:1,save(){stack.push([...matrix])},restore(){matrix=stack.pop()},translate(x,y){matrix[4]+=matrix[0]*x+matrix[2]*y;matrix[5]+=matrix[1]*x+matrix[3]*y},rotate(a){const [x,y,u,v]=matrix,cs=Math.cos(a),sn=Math.sin(a);matrix[0]=x*cs+u*sn;matrix[1]=y*cs+v*sn;matrix[2]=u*cs-x*sn;matrix[3]=v*cs-y*sn},drawImage(im,...args){calls.push({url:im.url,args,matrix:[...matrix]})}},{get:(o,k)=>k in o?o[k]:()=>{}});
  try{

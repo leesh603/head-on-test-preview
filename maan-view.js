@@ -1,15 +1,15 @@
-import {drawPartFuelFire} from './explosion-profiles.js?v=fx5';
-import {MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=maan-r3';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
-import {sandOpacity} from './maan-weather.js?v=tame3';
-import {fx} from './fx-art.js?v=tame3';
-import {drawTracerBolt} from './projectiles.js?v=tame3&rail=42';
-import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=tame3';
-import {drawShellFlight} from './boss-rounds.js?v=tame3';
-import {MAAN_ART_COLUMNS,MAAN_TRACK_WINDOWS,maanArtState,maanHullSprite,maanWorkshopSpread} from './maan-art.js?v=maan-r3';
+import {drawPartFuelFire} from './explosion-profiles.js?v=gal1';
+import {MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=gal1-r3';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=gal1';
+import {sandOpacity} from './maan-weather.js?v=gal1';
+import {fx} from './fx-art.js?v=gal1';
+import {drawTracerBolt} from './projectiles.js?v=gal1&rail=42';
+import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=gal1';
+import {drawShellFlight} from './boss-rounds.js?v=gal1';
+import {MAAN_ART_COLUMNS,MAAN_TRACK_WINDOWS,maanArtState,maanHullSprite,maanWorkshopSpread} from './maan-art.js?v=gal1-r3';
 export const MAAN_ASSETS=Object.freeze({terrain:'terrain-maan-r2.webp',workshop:'maan-workshop-r3.webp',wusten:'boss-maan-wusten-r3.webp',sinai:'boss-maan-sinai-r3.webp',car:'boss-maan-rolls-royce.webp'});
 const images=new Map();let ground=null;
-const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=maan-r3';images.set(key,im);return im;};
+const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=gal1-r3';images.set(key,im);return im;};
 export function prepareMaanAssets(region){
  if(region!==13){images.clear();ground=null;return Promise.resolve();}
  return Promise.all(Object.keys(MAAN_ASSETS).map(key=>{const im=load(key);if(im.complete&&im.naturalWidth)return Promise.resolve();return new Promise((resolve,reject)=>{im.onload=()=>{if(!im.naturalWidth){reject(new Error('Ma’an empty asset: '+MAAN_ASSETS[key]));return}(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.onerror=()=>reject(new Error('Ma’an asset: '+MAAN_ASSETS[key]));});})).then(()=>{seamlessGround(load('terrain'));});

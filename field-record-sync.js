@@ -2,9 +2,9 @@
 // Game text (name, alias, skill, passive, descriptions) is pulled from the live
 // engine — PILOTS/pilotLoadout are the single source so record entries can
 // never drift from what the game actually shows.
-import{Game,PILOTS,PILOT_PLANES,pilotLoadout}from'./engine.js?v=tame3&rail=42';
+import{Game,PILOTS,PILOT_PLANES,pilotLoadout}from'./engine.js?v=gal1&rail=42';
 import {pilotIdentityCopy} from './pilot-identity-copy.js';
-import {getLocale,pilotName} from './i18n.js?v=tame3';
+import {getLocale,pilotName} from './i18n.js?v=gal1';
 
 for(const p of DATA.pilots){
  const loadout=PILOTS[p.key]?pilotLoadout(p.key,PILOT_PLANES[p.key]||'fokker'):null;

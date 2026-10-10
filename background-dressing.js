@@ -3,7 +3,7 @@
 const FRAMES=Object.freeze({gun:0,tank:1,farm:2,wagon:3,ambulance:4,lorry:5,train:6,supplies:7,landing:8,camp:9,desertWagon:10,brokenGun:11});
 const images={};
 export const backgroundDressingReady=typeof Image==='undefined'?Promise.resolve(false):Promise.all([
- ['atlas','./background-dressing-20261010.webp?v=1'],['coastalGun','./zeebrugge-harbor-props.webp?v=r5']
+ ['atlas','./background-dressing-20261010.webp?v=gal1'],['coastalGun','./zeebrugge-harbor-props.webp?v=gal1']
 ].map(([key,src])=>new Promise(resolve=>{const im=new Image();images[key]=im;im.decoding='async';im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(!!im.naturalWidth))};im.onerror=()=>resolve(false);im.src=src;})));
 export function drawDressingSprite(c,kind,x,y,size,angle=0,alpha=.74){
  const coastal=kind==='coastalGun',im=images[coastal?'coastalGun':'atlas'];if(!im?.naturalWidth)return;

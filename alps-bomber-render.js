@@ -1,7 +1,7 @@
-import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=tame3';
-import {fx} from './fx-art.js?v=tame3';
-import {drawTracerBolt} from './projectiles.js?v=tame3&rail=42';
-import {impactMark,partMark,aimLine,stripMark} from './tactical-marks.js?v=tame3';
+import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=gal1';
+import {fx} from './fx-art.js?v=gal1';
+import {drawTracerBolt} from './projectiles.js?v=gal1&rail=42';
+import {impactMark,partMark,aimLine,stripMark} from './tactical-marks.js?v=gal1';
 
 function atlasFrame(c,im,frame,w,h){if(!im?.naturalWidth)return false;const sw=im.naturalWidth/3,sh=im.naturalHeight/2;c.drawImage(im,(frame%3)*sw,Math.floor(frame/3)*sh,sw,sh,-w/2,-h/2,w,h);return true;}
 function rectWarning(c,lane,p){stripMark(c,lane.x,lane.y,lane.width,lane.height,p,{safe:lane.safe});}

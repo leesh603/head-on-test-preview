@@ -5,8 +5,8 @@
 // alpine cannon, fragmentation shells for shrapnel and fin-stabilised darts
 // for rocket rings. Mortars and howitzers lob finned bombs; direct-fire guns
 // fly a straight line. No streak lines are drawn.
-import {drawBossOrdnance,bossOrdnanceLoaded} from './boss-ordnance-art.js?v=tame3';
-import {drawEnemyProjectile} from './projectiles.js?v=tame3';
+import {drawBossOrdnance,bossOrdnanceLoaded} from './boss-ordnance-art.js?v=gal1';
+import {drawEnemyProjectile} from './projectiles.js?v=gal1';
 const ROUND={
  'aa-shell':['ap-small',34],'zeppelin-flak':['ap-small',34],'airship-flak':['ap-small',34],'carrier-flak':['ap-small',34],'stuttgart-flak':['ap-small',28],'gallipoli-aa':['ap-small',34],'twin-aa':['ap-small',34],
  'zubian-shell':['he-shell',38],'harbor-shell':['he-shell',38],'l70-broadside':['he-shell',32],'wusten-shell':['he-shell',38],'jutland-shell':['he-shell',36],

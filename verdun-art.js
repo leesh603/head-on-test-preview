@@ -1,13 +1,13 @@
-import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun-ground.js?v=tame3';
-import {fx} from './fx-art.js?v=tame3';
-import {drawTracerBolt} from './projectiles.js?v=tame3&rail=42';
-import {impactMark} from './tactical-marks.js?v=tame3';
-import {drawShellFlight} from './boss-rounds.js?v=tame3';
-import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID,VERDUN_GUN_FRAMES} from './verdun-art-layout.js?v=verdun-r9';
-import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=tame3&rail=42';
+import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun-ground.js?v=gal1';
+import {fx} from './fx-art.js?v=gal1';
+import {drawTracerBolt} from './projectiles.js?v=gal1&rail=42';
+import {impactMark} from './tactical-marks.js?v=gal1';
+import {drawShellFlight} from './boss-rounds.js?v=gal1';
+import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID,VERDUN_GUN_FRAMES} from './verdun-art-layout.js?v=gal1-r9';
+import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=gal1&rail=42';
 
 // Authored PNG/WebP atlas frames; no generated geometry or per-frame raster copy.
-const sources={map:'./terrain-verdun-r8.webp?v=r5',douaumont:'./boss-douaumont-atlas-r9.webp',souville:'./boss-souville-atlas-r9.webp',douaumontParts:'./boss-douaumont-parts-r9.webp',souvilleParts:'./boss-souville-parts-r9.webp',weapons:'./boss-verdun-weapons-r9.webp'};
+const sources={map:'./terrain-verdun-r8.webp?v=gal1',douaumont:'./boss-douaumont-atlas-r9.webp',souville:'./boss-souville-atlas-r9.webp',douaumontParts:'./boss-douaumont-parts-r9.webp',souvilleParts:'./boss-souville-parts-r9.webp',weapons:'./boss-verdun-weapons-r9.webp'};
 const images={},pending={};
 function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';pending[key]=new Promise((resolve,reject)=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))};im.onerror=()=>reject(new Error('Missing Verdun asset: '+sources[key]));});im.src=sources[key];images[key]=im;return im;}
 export function prepareVerdunAssets(){for(const key of Object.keys(sources))load(key);return Promise.all(Object.values(pending)).then(result=>{prepareVerdunGround(images.map);return result;});}

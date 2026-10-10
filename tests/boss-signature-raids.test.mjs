@@ -32,8 +32,8 @@ test('Livens pressure pulse is visible collision throughout its short travel; pr
 
 globalThis.Image??=class{set src(v){queueMicrotask(()=>this.onload?.());}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {Game}=await import('../engine.js?v=tame3&rail=42');
-const {enableStageBoss,endStageBossFrame}=await import('../stageboss-host.js?v=tame3&rail=42');
+const {Game}=await import('../engine.js?v=gal1&rail=42');
+const {enableStageBoss,endStageBossFrame}=await import('../stageboss-host.js?v=gal1&rail=42');
 function strikeTrial(rollAt){
  const g=new Game('spad','fonck',()=>.5);g.viewWidth=390;g.viewHeight=844;g.invuln=0;enableStageBoss(g,{teamFaction:'entente'});g.stageBoss.stages.stageIndex=4;
  const e=g.stageBoss.startBoss({x:0,y:-100}),b=e.bodies.values().next().value;b.update=()=>{};b.basicClock=Infinity;

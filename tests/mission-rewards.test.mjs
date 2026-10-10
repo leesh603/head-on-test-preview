@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_TYPES as M} from '../battlefield-events170.js?v=tame3';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_TYPES as M} from '../battlefield-events170.js?v=gal1';
 
 class MissionGame {
  constructor(){

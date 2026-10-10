@@ -1,4 +1,4 @@
-import {getLocale,subscribe,t} from './i18n.js?v=tame3';
+import {getLocale,subscribe,t} from './i18n.js?v=gal1';
 
 
 const $=id=>document.getElementById(id);
@@ -21,7 +21,7 @@ if(hangar){
  for(const [action,key]of items){
   const control=action==='records'?document.createElement('a'):document.createElement('button');
   if(control.tagName==='BUTTON')control.type='button';
-  if(action==='records'){control.href='./field-record.html?v=tame3&rail=42';control.target='_blank';control.rel='noopener'}
+  if(action==='records'){control.href='./field-record.html?v=gal1&rail=42';control.target='_blank';control.rel='noopener'}
   control.dataset.action=action;
   if(action==='online')control.id='onlineCoopEntry';
   const full=document.createElement('span');full.className='operation-label-full';
@@ -118,5 +118,5 @@ if(hangar){
 }
 
 // Direct Astra implementation: all live controls and data bindings are preserved.
-import("./astra-interface180.js?v=tame3");
+import("./astra-interface180.js?v=gal1");
 

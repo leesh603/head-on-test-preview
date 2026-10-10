@@ -4,8 +4,8 @@ import {readFileSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
 import vm from 'node:vm';
 import {performance} from 'node:perf_hooks';
-import {nungesserRoundReaction} from '../pilot-signature-state.js?v=tame3';
-import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from '../aircraft-crash.js?v=tame3';
+import {nungesserRoundReaction} from '../pilot-signature-state.js?v=gal1';
+import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from '../aircraft-crash.js?v=gal1';
 
 // Immutable production implementations, rather than copies of the new loops.
 const BASE='4b0dbb171104088a816a10efd5c274c8e2888b60';

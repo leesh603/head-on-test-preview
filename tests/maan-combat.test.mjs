@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,step} from './stageboss-fixture94.mjs';
-import {contains} from '../headon-stageboss-hazards.js?v=tame3';
-import {rotateMaan} from '../maan-layout.js?v=tame3';
+import {contains} from '../headon-stageboss-hazards.js?v=gal1';
+import {rotateMaan} from '../maan-layout.js?v=gal1';
 
 function battle(team='entente',width=800){
  const f=fixture({teamFaction:team,stageIndex:13});f.frame.bounds={left:0,right:width,top:0,bottom:844};f.frame.players=[{id:'p1',alive:true,x:width/2,y:600,radius:12}];
