@@ -2379,6 +2379,26 @@
        "kind": "livery",
        "name": "이탈리아 비행대 붉은 동체",
        "file": "liveries/hanriot/red.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/hanriot/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "폴란드 샤호비차",
+       "file": "liveries/hanriot/polish.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 남색",
+       "file": "liveries/hanriot/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/hanriot/leader.webp"
       }
      ]
     },
