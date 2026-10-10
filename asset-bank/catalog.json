@@ -1173,6 +1173,26 @@
        "kind": "livery",
        "name": "야간 초계 칠흑",
        "file": "liveries/ff33/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아 노획 해군",
+       "file": "liveries/ff33/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 노획 평가기",
+       "file": "liveries/ff33/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "북해 파문 위장",
+       "file": "liveries/ff33/wave.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은플로트",
+       "file": "liveries/ff33/leader.webp"
       }
      ]
     },
