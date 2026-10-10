@@ -1807,6 +1807,26 @@
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "planes/re8.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "훈련기 은색",
+       "file": "liveries/re8/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 칠흑",
+       "file": "liveries/re8/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "벨기에 전후 인수기",
+       "file": "liveries/re8/belgian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 운용기",
+       "file": "liveries/re8/captured.webp"
       }
      ]
     },
