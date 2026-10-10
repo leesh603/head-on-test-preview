@@ -6,17 +6,17 @@ const hash=(x,y,s=0)=>{const n=Math.sin(x*127.1+y*311.7+s*74.7)*43758.5453;retur
 // Per-region ambience: flash = distant artillery blink, smoke = rising columns,
 // ember = drifting sparks, aa = far-off AA twinkles (london night), gull = sea birds.
 const CFG={
- 0:{flash:.16,smoke:.12},
+ 0:{flash:.08,smoke:.06},
  1:{flash:.14,smoke:.08,gull:.5},
- 2:{flash:.6,smoke:.42},
- 3:{flash:.95,smoke:.75,ember:.9},
- 4:{flash:.5,smoke:.45,aa:.25},
+ 2:{flash:0,smoke:.08},
+ 3:{flash:0,smoke:.1,ember:.18},
+ 4:{flash:.08,smoke:.1,aa:.25},
  5:{gull:.35},
  6:{smoke:.1},
  7:{flash:.2,smoke:.2,gull:.6},
- 8:{flash:.55,smoke:.4},
+ 8:{flash:0,smoke:.06},
  9:{flash:.42,smoke:.3},
- 10:{flash:.8,smoke:.6},
+ 10:{flash:0,smoke:0},
  11:{flash:.25,smoke:.35,aa:1},
 };
 

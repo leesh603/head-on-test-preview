@@ -1,0 +1,69 @@
+{
+  "scope": "CPU time of drawMovingDressing; excludes full-frame/GPU/thermal measurement",
+  "implementation": "8118bdb196f5e9f422dfa1c639970cefd1561a95",
+  "samples": {
+    "before-mobile": {
+      "mode": "before",
+      "region": 2,
+      "frames": 180,
+      "layout": [
+        390,
+        844
+      ],
+      "rafMs": {
+        "p50": 16.70000000001164,
+        "p95": 1016.5,
+        "max": 1016.5
+      },
+      "dressingMs": {
+        "samples": 181,
+        "p50": 0,
+        "p95": 0.1,
+        "max": 0.2
+      },
+      "note": "Browser layout check, not physical mobile thermal measurement"
+    },
+    "after-mobile": {
+      "mode": "after",
+      "region": 2,
+      "frames": 180,
+      "layout": [
+        390,
+        844
+      ],
+      "rafMs": {
+        "p50": 33.29999999998836,
+        "p95": 1016.5,
+        "max": 1033.2000000000116
+      },
+      "dressingMs": {
+        "samples": 179,
+        "p50": 0,
+        "p95": 0.2,
+        "max": 2.3
+      },
+      "note": "Browser layout check, not physical mobile thermal measurement"
+    },
+    "after-desktop": {
+      "mode": "after",
+      "region": 2,
+      "frames": 180,
+      "layout": [
+        1280,
+        800
+      ],
+      "rafMs": {
+        "p50": 66.69999999998254,
+        "p95": 1016.5,
+        "max": 1033.2000000000116
+      },
+      "dressingMs": {
+        "samples": 174,
+        "p50": 0.1,
+        "p95": 0.3,
+        "max": 7.9
+      },
+      "note": "Browser layout check, not physical mobile thermal measurement"
+    }
+  }
+}

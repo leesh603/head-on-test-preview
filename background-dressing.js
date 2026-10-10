@@ -1,11 +1,11 @@
 // Scenery only: no Game/RNG ownership, collision, AI, particles or update loop.
 // Coordinates were measured on the current authored terrain, never scattered.
-import {fx} from './fx-art.js?v=gal1';
+import {drawGroundLife,groundLifeReady,drawHarborLife,drawCoastLife} from './ground-life.js?v=groundlife1';
 const FRAMES=Object.freeze({gun:0,tank:1,farm:2,wagon:3,ambulance:4,lorry:5,train:6,supplies:7,landing:8,camp:9,desertWagon:10,brokenGun:11});
 const images={};
-export const backgroundDressingReady=typeof Image==='undefined'?Promise.resolve(false):Promise.all([
+export const backgroundDressingReady=typeof Image==='undefined'?Promise.resolve(false):Promise.all([groundLifeReady,...[
  ['atlas','./background-dressing-20261010.webp?v=gal1'],['coastalGun','./zeebrugge-harbor-props.webp?v=gal1']
-].map(([key,src])=>new Promise(resolve=>{const im=new Image();images[key]=im;im.decoding='async';im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(!!im.naturalWidth))};im.onerror=()=>resolve(false);im.src=src;})));
+].map(([key,src])=>new Promise(resolve=>{const im=new Image();images[key]=im;im.decoding='async';im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(!!im.naturalWidth))};im.onerror=()=>resolve(false);im.src=src;}))]);
 export function drawDressingSprite(c,kind,x,y,size,angle=0,alpha=.74){
  const coastal=kind==='coastalGun',im=images[coastal?'coastalGun':'atlas'];if(!im?.naturalWidth)return;
  c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha*=alpha;c.imageSmoothingEnabled=true;
@@ -46,43 +46,9 @@ export function drawRepeatedDressing(c,key,left,top,width,height,period){
  }
 }
 
-// Live layer for existing vehicle sprites. Travel is deliberately short and
-// follows the same hand-approved roadside/trench-approach coordinates as the
-// static layer. The vehicle never roams across a tile or over the sea.
+// Live authored image layer, under all combat entities and hazard markers.
 export function drawMovingDressing(c,key,left,top,width,height,period,t,density=1){
- const sites=TERRAIN_DRESSING[key];if(!sites||!Number.isFinite(period)||period<=0)return;
- const mirror=key==='cambrai';
- const firstX=Math.floor(left/period),lastX=Math.floor((left+width)/period);
- const firstY=Math.floor(top/period),lastY=Math.floor((top+height)/period);
- for(let iy=firstY;iy<=lastY;iy++)for(let ix=firstX;ix<=lastX;ix++){
-  const seed=variant(ix,iy),mx=mirror&&Math.abs(ix%2),my=mirror&&Math.abs(iy%2);
-  for(let j=0;j<sites.length;j++){
-   const [kind,u,v,size,a]=sites[j];
-   if(kind!=='tank'&&kind!=='ambulance'&&kind!=='lorry')continue;
-   if((seed+j)%4===3)continue;
-   // Battery saver: skip a stable subset, without flickering on/off in flight.
-   if(density<.7&&(seed+j)%2)continue;
-   const heading=(mx?-a:a)*(my?-1:1)+(my?Math.PI:0);
-   const x0=(ix+(mx?1-u:u))*period-left,y0=(iy+(my?1-v:v))*period-top;
-   const phase=t*(kind==='tank'?.48:.7)+(seed%71)*.37+j*1.41;
-   const travel=kind==='tank'?13:kind==='ambulance'?15:17;
-   const offset=Math.sin(phase)*travel;
-   const x=x0+Math.cos(heading)*offset,y=y0+Math.sin(heading)*offset;
-   if(x<-size||y<-size||x>width+size||y>height+size)continue;
-   // Tracks and dust are subdued: the original painted sprite stays dominant.
-   if(kind==='tank'){
-    c.save();c.translate(x0,y0);c.rotate(heading);c.globalAlpha*=.16;
-    c.strokeStyle='#332e23';c.lineWidth=2;c.beginPath();
-    c.moveTo(-20,-size*.18);c.lineTo(20,-size*.18);
-    c.moveTo(-20,size*.18);c.lineTo(20,size*.18);c.stroke();c.restore();
-   }
-   drawDressingSprite(c,kind,x,y,size,heading+(kind==='tank'?Math.sin(phase*.48)*.025:0),kind==='tank'?.78:.74);
-   if(Math.cos(phase)>.65 && ((seed+j)%3===0)){
-    const aft=size*.34,dx=x-Math.cos(heading)*aft,dy=y-Math.sin(heading)*aft;
-    fx(c,'dustPuff',dx,dy,kind==='tank'?19:13,kind==='tank'?14:10,heading,.12);
-   }
-  }
- }
+ drawGroundLife(c,key,left,top,width,height,period,t,density);
 }
 
 // The harbor image itself supplies every dock/land coordinate. Bake before
@@ -104,7 +70,7 @@ export const COAST_DRESSING=Object.freeze([
  {kind:'supplies',x:376,y:895,size:25,a:.1,terrain:'land',safe:[280,810,405,925]},
  {kind:'landing',x:580,y:1018,size:38,a:-.12,terrain:'beach',safe:[530,990,650,1043]}
 ]);
-export function drawGallipoliDressing(c,r,cx,cy,w,h){
+export function drawGallipoliDressing(c,r,cx,cy,w,h,t=0){
  if(!r)return;const dx=cx-r.x,dy=cy-r.y,n=-Math.sin(r.a)*dx+Math.cos(r.a)*dy,s=Math.cos(r.a)*dx+Math.sin(r.a)*dy,span=Math.hypot(w,h)/2+90;
  c.save();c.translate(w/2-cx,h/2-cy);c.translate(r.x,r.y);c.rotate(r.a+Math.PI/2);
  // Current bakeCoast removes 80px at each horizontal edge: period 1094.
@@ -113,6 +79,7 @@ export function drawGallipoliDressing(c,r,cx,cy,w,h){
   if(Math.abs(x-n)>span+site.size||Math.abs(y+s)>span+site.size)continue;
   // No translation jitter: the complete footprint must stay on authored land.
   drawDressingSprite(c,site.kind,x,y,site.size,site.a+((variant(ix,0)%3)-1)*.04,.7);
+  if(site.kind==='coastalGun')drawCoastLife(c,x+24,y+20,t);
  }
  c.restore();
 }
@@ -148,3 +115,5 @@ export function drawParisDressing(c,g,cx,cy,w,h){
   }
  }
 }
+
+export {drawHarborLife};
