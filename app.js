@@ -43,7 +43,7 @@ import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174
 import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?v=gal1';
 import {drawEnemyDanger} from './enemy-danger-view.js?v=gal1';
 import {drawGas} from './gas-view.js?v=gal1';
-import {drawWarAmbience} from './war-ambience.js?v=gal2';
+import {drawWarAmbience} from './war-ambience.js?v=dover1';
 import {backgroundDressingReady,drawRepeatedDressing,drawMovingDressing,bakeHarborDressing,drawGallipoliDressing,drawDesertDressing,drawParisDressing} from './background-dressing.js?v=gal2';
 import {missionNavigation,drawMissionRadar} from './navigation.js?v=gal1';
 import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=gal1';

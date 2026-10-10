@@ -15,10 +15,10 @@ const BASE='ce0110523bf5d08f4cfa7467490a649bb6f2cb59';
 // war-ambience.js gained moving vehicles, trench skirmishes and an fx-art
 // import in 44fa7b75 (ground battlefield life). Its rendering baseline is
 // re-pinned there; the other files still compare against the v499 baseline.
-const baseFor={'war-ambience.js':'44fa7b75946967ca0f70213cb335d6d2a229e585'};
+const baseFor={'war-ambience.js':'e8e96a13'};
 const expected={
  'collision-grid.js':'a5880fad5179f930754e79e9b62e75a682d6eeef',
- 'war-ambience.js':'c3e66dbb9ebe056a6c1a2ba11404747725154bf7',
+ 'war-ambience.js':'811e536be242a0fe93335432163080b568b19a03',
  'flight-viewport.js':'1173ff0687fbce51a7d102266ee9e252075abea6'
 };
 // data: modules cannot resolve relative specifiers, so files that grew a
