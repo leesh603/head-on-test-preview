@@ -354,6 +354,26 @@
        "kind": "alt",
        "name": "D.VIb 로젠지",
        "file": "planes/roland_d6b.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "로젠지 위장천",
+       "file": "liveries/roland_d6/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "올리브 야전 단색",
+       "file": "liveries/roland_d6/green.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "지휘기 흑동체+흰띠",
+       "file": "liveries/roland_d6/black.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 반입 평가기",
+       "file": "liveries/roland_d6/usas.webp"
       }
      ]
     },
