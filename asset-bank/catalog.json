@@ -1733,6 +1733,26 @@
        "kind": "livery",
        "name": "미군 평가기 별",
        "file": "liveries/re7/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스군 평가기",
+       "file": "liveries/re7/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "폴란드 샤호비차",
+       "file": "liveries/re7/polish.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전선 얼룩 위장",
+       "file": "liveries/re7/camo.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/re7/leader.webp"
       }
      ]
     },
