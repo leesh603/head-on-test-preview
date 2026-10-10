@@ -1902,6 +1902,26 @@
        "kind": "livery",
        "name": "독일 팔츠 파생기",
        "file": "liveries/nieuport11/german.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스군 표준",
+       "file": "liveries/nieuport11/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "벨기에 항공대",
+       "file": "liveries/nieuport11/belgian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 방어 칠흑",
+       "file": "liveries/nieuport11/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/nieuport11/leader.webp"
       }
      ]
     },
