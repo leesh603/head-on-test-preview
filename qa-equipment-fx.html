@@ -7,13 +7,21 @@ const base='6ef8a3dd0710ed159904f93b6abf9ed4e353fbbf',items=[['redScarf','붉은
 const $=id=>document.getElementById(id),frames=[$('before'),$('after')];let apis=[],playing=false;
 for(const [id,name] of items)$('item').add(new Option(name,id));
 const q='?headonTest=1&autostart=0';
-$('before').src=location.hostname==='raw.githack.com'?'/leesh603/head-on-test-preview/'+base+'/index.html'+q:'./index.html'+q;
-$('after').src='./index.html'+q;
+// The preview CDN redirects bitmaps to GitHub's CORS-enabled raw host.
+// Request images anonymously before loading the unchanged game document;
+// this keeps normal canvas origin checks enabled for both versions equally.
+async function loadGame(frame,root){
+ const url=new URL(root,location.href),html=await (await fetch(new URL('index.html'+q,url))).text();
+ const boot='<base href="'+url.href+'"><script>const NativeImage=window.Image;window.Image=class extends NativeImage{constructor(...args){super(...args);this.crossOrigin="anonymous";}};<\/script>';
+ frame.srcdoc=html.replace(/<head[^>]*>/i,match=>match+boot);
+}
+loadGame($('before'),'/leesh603/head-on-test-preview/'+base+'/');
+loadGame($('after'),'/leesh603/head-on-test-preview/0d223e1f101f3e60a752e8f1285582cca700e383/');
 const status=()=>{ $('status').textContent=apis.map((a,i)=>{const g=a.debug();return (i?'후':'전')+' HP '+g.hp.toFixed(1)+' · 탄 '+g.bullets.length+' · 수리 '+(g.repairFlash151||0).toFixed(2)+' · 파편 '+(g.rankinFlash||0).toFixed(2)}).join(' / ');};
 function advance(g,seconds,fire=false){g.state='playing';for(let t=0;t<seconds-.0001;t+=.02)g.update(.02,{inputMode:'gamepad',fireHeld:fire,angle:-Math.PI/2});g.state='paused';}
 function equip(g,id){g.state='upgrade';g.upgrade(id,'legendary');g.state='playing';}
 function scenario(api){
- api.start({region:Number($('region').value),pilot:'baron',invincible:false,freeze:true});const g=api.debug();g.rng=()=>.5;
+ const win=frames[apis.indexOf(api)].contentWindow,random=win.Math.random;win.Math.random=()=>.5;api.start({region:Number($('region').value),pilot:'baron',invincible:false,freeze:true});win.Math.random=random;const g=api.debug();g.rng=()=>.5;
  for(const k of ['spawn','eventTimer','nextBossAt','nextHeavyAt','flakTimer','regionThreat','fieldUnitTimer','gasTimer','gustTimer','patrolTimer','supplyTimer','allyTimer'])g[k]=Infinity;
  g.enemies.length=0;g.bullets.length=0;g.drops.length=0;g.x=0;g.y=0;g.a=-Math.PI/2;g.invuln=0;g.need=Infinity;
  const id=$('item').value;equip(g,id);advance(g,.6);g.events.length=0;
