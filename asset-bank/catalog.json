@@ -1424,6 +1424,26 @@
        "kind": "livery",
        "name": "폴란드 샤호비차",
        "file": "liveries/albatros_oeffag/polish.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "오스만 튀르크",
+       "file": "liveries/albatros_oeffag/ottoman.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 노획 평가기",
+       "file": "liveries/albatros_oeffag/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "우크라이나 인민공화국",
+       "file": "liveries/albatros_oeffag/ukrainian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/albatros_oeffag/leader.webp"
       }
      ]
     },
