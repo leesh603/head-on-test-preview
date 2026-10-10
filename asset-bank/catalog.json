@@ -1393,6 +1393,26 @@
        "kind": "livery",
        "name": "야간 초계 칠흑",
        "file": "liveries/lohner_l/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아제국 해군",
+       "file": "liveries/lohner_l/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 노획 평가기",
+       "file": "liveries/lohner_l/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "아드리아 파문 위장",
+       "file": "liveries/lohner_l/wave.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은선체",
+       "file": "liveries/lohner_l/leader.webp"
       }
      ]
     }
