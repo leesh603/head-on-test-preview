@@ -42,8 +42,8 @@ export const PILOT_IDENTITY_COPY={
  ['검은 악마','야스타 7','가까운 적을 계속 사격하면 적의 조준과 추적을 흐트러뜨립니다.','4초간 부채꼴로 사격합니다.','가까운 적을 계속 사격하면 적의 조준과 추적을 흐트러뜨립니다.','4초간 부채꼴로 사격합니다. 정면의 가까운 적에게 탄환을 집중합니다.'],
  ['Black Devil','Jasta 7','Sustained close-range fire disrupts enemy aim and pursuit.','Fire a narrow fan for 4 seconds, concentrating rounds on close enemies ahead.','Sustained close-range fire disrupts enemy aim and pursuit.','Fire a narrow fan for 4 seconds, concentrating rounds on close enemies ahead.']),
  gontermann:entry(
- ['기구 사냥꾼','플레임 살보','같은 표적을 계속 조준하면 소이탄을 준비합니다.','5초간 조준한 표적에 강한 소이탄을 집중합니다.','같은 표적을 계속 조준하면 소이탄을 준비합니다. 명중한 적은 불타며 지속 피해를 받습니다.','5초간 조준한 표적에 강한 소이탄을 집중합니다. 표적을 바꾸면 다시 조준해야 합니다.'],
- ['Balloon Hunter','Flame Salvo','Hold aim on one enemy to prepare incendiaries.','Concentrate powerful incendiaries on your sighted target for 5 seconds.','Hold aim on one enemy to prepare incendiaries. Hits ignite it for damage over time.','Concentrate powerful incendiaries on your sighted target for 5 seconds. Switching targets resets aim.']),
+ ['기구 사냥꾼','화염 집중사격','같은 표적을 계속 조준하면 소이탄을 준비합니다.','5초간 조준한 표적에 강한 소이탄을 집중합니다.','같은 표적을 계속 조준하면 소이탄을 준비합니다. 명중한 적은 불타며 지속 피해를 받습니다.','5초간 조준한 표적에 강한 소이탄을 집중합니다. 표적을 바꾸면 다시 조준해야 합니다.'],
+ ['Balloon Hunter','Flame Barrage','Hold aim on one enemy to prepare incendiaries.','Concentrate powerful incendiaries on your sighted target for 5 seconds.','Hold aim on one enemy to prepare incendiaries. Hits ignite it for damage over time.','Concentrate powerful incendiaries on your sighted target for 5 seconds. Switching targets resets aim.']),
  lothar:entry(
  ['황색 날개','캐벌리 차지','정면의 적에게 기관총 피해가 증가합니다.','2.6초간 정면으로 돌격하며 사격하고, 기수 앞의 적을 들이받습니다.','정면의 적에게 기관총 피해가 증가합니다.','2.6초간 정면으로 돌격하며 사격하고, 기수 앞의 적을 들이받습니다.'],
  ['Yellow Wings','Cavalry Charge','Deal extra machine-gun damage to enemies ahead.','Charge and fire straight ahead for 2.6 seconds, ramming enemies in front of your nose.','Deal extra machine-gun damage to enemies ahead.','Charge and fire straight ahead for 2.6 seconds, ramming enemies in front of your nose.']),
@@ -51,20 +51,20 @@ export const PILOT_IDENTITY_COPY={
  ['융커스의 날개','발트해의 매','전금속 기체가 받는 피해를 줄입니다.','3초간 무적 상승 후 빠르게 급강하하며 강한 연속 사격을 합니다.','전금속 기체가 받는 피해를 줄입니다.','3초간 무적 상승 후 빠르게 급강하하며 강한 연속 사격을 합니다.'],
  ['Junkers Wings','Baltic Hawk','Your all-metal airframe reduces incoming damage.','Climb invulnerably, then dive into powerful rapid fire over 3 seconds.','Your all-metal airframe reduces incoming damage.','Climb invulnerably, then dive into powerful rapid fire over 3 seconds.']),
  proctor:entry(
- ['사격의 명수','버스터 살보','탄퍼짐을 줄여 정밀하게 사격합니다.','2.4초간 조준 방향을 고정한 관통 점사를 반복합니다.','기관총 탄퍼짐이 줄어 정밀하게 사격합니다.','2.4초간 짧은 관통 점사와 재조준을 반복합니다. 점사 중에는 탄도가 고정되며, 멈춘 사이 다음 방향을 잡습니다.'],
- ['Master Shot','Buster Salvo','Tighter gun spread improves accuracy.','Alternate locked-heading piercing bursts and re-aiming for 2.4 seconds.','Tighter machine-gun spread improves accuracy.','For 2.4 seconds, alternate short piercing bursts with re-aiming pauses. Each burst holds its heading; turn between bursts to set the next lane.']),
+ ['사격의 명수','버스터 점사','탄퍼짐을 줄여 정밀하게 사격합니다.','2.4초간 조준 방향을 고정한 관통 점사를 반복합니다.','기관총 탄퍼짐이 줄어 정밀하게 사격합니다.','2.4초간 짧은 관통 점사와 재조준을 반복합니다. 점사 중에는 탄도가 고정되며, 멈춘 사이 다음 방향을 잡습니다.'],
+ ['Master Shot','Buster Burst','Tighter gun spread improves accuracy.','Alternate locked-heading piercing bursts and re-aiming for 2.4 seconds.','Tighter machine-gun spread improves accuracy.','For 2.4 seconds, alternate short piercing bursts with re-aiming pauses. Each burst holds its heading; turn between bursts to set the next lane.']),
  schleich:entry(
  ['흑기사','블랙 어드밴스','받는 피해가 감소합니다.','3초간 정면의 일반 탄환을 튕기며 돌파합니다.','받는 피해가 감소합니다.','3초간 가속하며 기수 앞의 일반 탄환을 튕겨냅니다. 선회는 둔해지며, 후방 공격과 중화기는 막지 못합니다.'],
  ['Black Knight','Black Advance','Reduce incoming damage.','Advance through frontal light gunfire for 3 seconds.','Reduce incoming damage.','Accelerate for 3 seconds, deflecting light gunfire directly ahead. Turns are slower. Rear attacks and heavy weapons are not intercepted.']),
  lufbery:entry(
- ['기교의 장인','라파예트 살보','에너지가 더 빠르게 회복됩니다.','3초간 전방 표적을 차례로 넘겨받아 사격합니다.','에너지가 더 빠르게 회복됩니다.','3초간 전방의 적들을 차례로 조준해 사격합니다. 선회해 새 적을 사격 범위로 끌어들이세요.'],
- ['Flight Craft','Lafayette Salvo','Recover energy faster.','Hand off fire between forward targets for 3 seconds.','Recover energy faster.','For 3 seconds, hand off rapid fire between enemies ahead. Turn to bring new enemies into your firing sector.']),
+ ['기교의 장인','라파예트 연계사격','에너지가 더 빠르게 회복됩니다.','3초간 전방 표적을 차례로 넘겨받아 사격합니다.','에너지가 더 빠르게 회복됩니다.','3초간 전방의 적들을 차례로 조준해 사격합니다. 선회해 새 적을 사격 범위로 끌어들이세요.'],
+ ['Flight Craft','Lafayette Flurry','Recover energy faster.','Hand off fire between forward targets for 3 seconds.','Recover energy faster.','For 3 seconds, hand off rapid fire between enemies ahead. Turn to bring new enemies into your firing sector.']),
  brumowski:entry(
  ['붉은 호위대','편대 재집결','호위기 2기와 출격합니다.','5초간 자기 편대를 주변으로 모아 가까운 적을 제압하고 받는 피해를 줄입니다.','호위기 2기와 출격합니다. 아군과 윙맨이 많을수록 기관총 피해가 증가합니다.','5초간 자기 편대를 주변으로 모아 가까운 적을 제압하고 받는 피해를 줄입니다.'],
  ['Red Escort','Flight Rally','Deploy with two escorts.','Regroup your flight nearby for 5 seconds to suppress close threats and reduce incoming damage.','Deploy with two escorts. Allied aircraft and wingmen increase gun damage.','Regroup your flight nearby for 5 seconds to suppress close threats and reduce incoming damage.']),
  fonck:entry(
- ['정밀의 에이스','핀포인트 살보','기관총 탄퍼짐이 줄고 탄환이 빨라집니다.','4초간 전방으로 탄도를 집중해 강력한 관통 사격을 합니다.','기관총 탄퍼짐이 줄고 탄환이 빨라집니다.','4초간 전방으로 탄도를 집중해 강력한 관통 사격을 합니다.'],
- ['Precision Ace','Pinpoint Salvo','Tighter machine-gun spread and faster bullets.','Fire a focused volley of powerful piercing rounds for 4 seconds.','Tighter machine-gun spread and faster bullets.','Fire a focused volley of powerful piercing rounds for 4 seconds.']),
+ ['정밀의 에이스','핀포인트 관통사격','기관총 탄퍼짐이 줄고 탄환이 빨라집니다.','4초간 전방으로 탄도를 집중해 강력한 관통 사격을 합니다.','기관총 탄퍼짐이 줄고 탄환이 빨라집니다.','4초간 전방으로 탄도를 집중해 강력한 관통 사격을 합니다.'],
+ ['Precision Ace','Pinpoint Barrage','Tighter machine-gun spread and faster bullets.','Fire a focused volley of powerful piercing rounds for 4 seconds.','Tighter machine-gun spread and faster bullets.','Fire a focused volley of powerful piercing rounds for 4 seconds.']),
  collishaw:entry(
  ['블랙 플라이트','블랙 마리아','검은 삼엽기 윙맨 2기가 서로 다른 적을 압박합니다.','6초간 검은 편대가 좌우로 갈라져 적을 협공합니다.','검은 삼엽기 윙맨 2기가 서로 다른 적을 압박합니다.','6초간 검은 편대가 좌우로 갈라져 적을 협공합니다.'],
  ['Black Flight','Black Maria','Two permanent Black Flight wingmen pressure separate enemies.','Black Flight splits left and right to attack from different angles for 6 seconds.','Two permanent Black Flight wingmen pressure separate enemies.','Black Flight splits left and right to attack from different angles for 6 seconds.']),
@@ -75,8 +75,8 @@ export const PILOT_IDENTITY_COPY={
  ['모퇴르 카농','황새의 포화','4초마다 전방으로 강력한 관통 기관포를 발사합니다.','3초간 르 프리외르 로켓을 여러 방향으로 쏟아냅니다.','4초마다 전방으로 강력한 관통 기관포를 발사합니다.','3초간 르 프리외르 로켓을 여러 방향으로 쏟아냅니다.'],
  ['Moteur-Canon','Stork Barrage','Fire a powerful piercing cannon round ahead every 4 seconds.','Unleash Le Prieur rockets in multiple directions for 3 seconds.','Fire a powerful piercing cannon round ahead every 4 seconds.','Unleash Le Prieur rockets in multiple directions for 3 seconds.']),
  bishop:entry(
- ['근접 사냥','게릴라 어택','적에게 가까이 접근할수록 기관총 피해가 증가합니다.','3초간 가속하며 돌입하고, 가까운 적에게 더 큰 피해를 줍니다.','적에게 가까이 접근할수록 기관총 피해가 증가합니다.','3초간 가속하며 돌입하고, 가까운 적에게 더 큰 피해를 줍니다.'],
- ['Close Hunter','Guerrilla Attack','Machine-gun damage increases as you close on an enemy.','Accelerate into close range and deal extra damage for 3 seconds.','Machine-gun damage increases as you close on an enemy.','Accelerate into close range and deal extra damage for 3 seconds.']),
+ ['근접 사냥','게릴라 나이트','적에게 가까이 접근할수록 기관총 피해가 증가합니다.','화면 밖으로 상승 후 재진입하며 폭탄 8발을 투하합니다.','적에게 가까이 접근할수록 기관총 피해가 증가합니다.','무적으로 화면 밖 상승 후 재진입하며 폭탄 8발을 투하합니다. 종료 시 탄약이 소진됩니다.'],
+ ['Close Hunter','Guerrilla Night','Machine-gun damage increases as you close on an enemy.','Rise off-screen and re-enter with eight bombs.','Machine-gun damage increases as you close on an enemy.','Invulnerable while you rise off-screen and re-enter with eight bombs. Empties your magazine.']),
  mannock:entry(
  ['74비행대 지휘','74비행대 교차강하','아군 편대기와 윙맨의 연사가 15% 빨라집니다.','S.E.5a 7기씩 두 차례 진입해 교차 관통 사격합니다.','아군 편대기와 윙맨의 연사 속도가 15% 증가합니다.','S.E.5a 7기가 위에서 강하한 뒤, 다른 7기가 측면에서 가로질러 관통 사격합니다.'],
  ['74 Squadron Command','74 Sqn Cross Dive','Allied wingmen fire 15% faster.','Seven S.E.5as make two crossing strafing runs with piercing fire.','Increase allied wingmen fire rate by 15%.','Seven S.E.5as dive from above; seven more cross from the side, firing piercing rounds.']),
@@ -93,8 +93,8 @@ export const PILOT_IDENTITY_COPY={
  ['검은 심장','죽음의 기사','체력이 낮아지면 검은 연무가 짙어지고, 스치는 탄환에 연무가 찢어집니다.','3초간 무적이 되어 적 탄환을 검은 연무 속에서 소멸시킵니다.','체력이 낮아지면 검은 연무가 짙어지고, 스치는 탄환에 연무가 찢어집니다.','3초간 무적이 되어 적 탄환을 검은 연무 속에서 소멸시킵니다.'],
  ['Black Heart','Knight of Death','Black fog thickens at low health and tears as bullets pass close by.','Become invulnerable for 3 seconds, extinguishing enemy rounds in black fog.','Black fog thickens at low health and tears as bullets pass close by.','Become invulnerable for 3 seconds, extinguishing enemy rounds in black fog.']),
  rickenbacker:entry(
- ['레이서의 본능','햇 인 더 링','서로 다른 적을 빠르게 맞히면 잠시 공격력이 쌓입니다.','4초간 빠른 표적전환으로 얻는 공격력 증가가 더 강해집니다.','서로 다른 적을 빠르게 맞히면 잠시 공격력이 쌓입니다.','4초간 빠른 표적전환으로 얻는 공격력 증가가 더 강해집니다.'],
- ['Racer\'s Instinct','Hat in the Ring','Rapid hits on different enemies build a temporary damage bonus.','Strengthen the damage bonus from rapid target switches for 4 seconds.','Rapid hits on different enemies build a temporary damage bonus.','Strengthen the damage bonus from rapid target switches for 4 seconds.']),
+ ['레이서의 본능','햇 인 더 링 록온','반경 700px 내 적 1기당 기관총 공격력 +6% (최대 +30%).','4초간 사격할 때마다 반경 780px 내 각 적에게 자동 조준 관통탄을 추가 발사합니다.','반경 700px 내 적 1기당 기관총 공격력 +6% (최대 +30%). 포위될수록 강해집니다.','4초간 사격할 때마다 반경 780px 내 각 적에게 자동 조준 관통탄을 추가 발사합니다. 최대 7개 표적.'],
+ ['Racer\'s Instinct','Hat in the Ring Lock-On','Machine-gun damage +6% per enemy within 700px (max +30%).','For 4 seconds, every shot also launches an auto-aimed piercing round at each enemy within 780px.','Machine-gun damage +6% per enemy within 700px (max +30%). The more surrounded, the deadlier.','For 4 seconds, every shot also launches an auto-aimed piercing round at each enemy within 780px — up to 7 targets.']),
  ball:entry(
  ['고독한 사냥꾼','구름 속의 매','주변에 아군이나 윙맨이 없으면 기관총 피해가 증가합니다.','1.5초간 잔상으로 적의 조준을 속입니다.','주변에 아군이나 윙맨이 없으면 기관총 피해가 증가합니다.','1.5초간 잔상으로 적의 조준을 속입니다. 재등장 후 혼자 적의 후방을 공격하면 큰 피해를 줍니다.'],
  ['Lone Hunter','Hawk in the Clouds','Deal more machine-gun damage when no ally or wingman is nearby.','Mislead enemy aim with a ghost for 1.5 seconds.','Deal more machine-gun damage when no ally or wingman is nearby.','Mislead enemy aim with a ghost for 1.5 seconds. Reappear alone behind an enemy for a powerful ambush.']),

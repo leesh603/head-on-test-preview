@@ -33,7 +33,7 @@ import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js
 import './hud-layout94.js?v=gal1';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=gal1';
 import {installOnlineLobby} from './online-coop-session.js?v=gal1&coopfix=1&rail=42';
-import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=gal1&rail=42';
+import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=gn1';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=gal1';
 import {drawCoop} from './coop-view.js?v=gal1&rail=42';
 import {drawSunStrike} from './sun-strike71.js?v=gal1&rail=42';
@@ -63,7 +63,7 @@ import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN,bossArrivalCues} from './boss-fe
 import {drawEquipment} from './equipment.js?v=gal1';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=gal1';
 import{planeSprite,aircraftReady,aircraftKey,hangarArtReady,paintedReady}from './aircraft.js?v=gal1';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=gal1&rail=42';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=gn1';
 import {AUGMENTATION_OVERHAUL_BALANCE}from'./augmentation-overhaul150.js?v=gal1';
 import {drawCloudCover}from'./cloud-cover1.js?v=dover1';
 import {drawFleetLayer}from'./fleet-naval1.js?v=gal1&rail=42';
