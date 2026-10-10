@@ -56,3 +56,28 @@ for(let frame=0;frame<84;frame++){
 writeFileSync(out+'/fx-checks.json',JSON.stringify({base,rows,unchanged:['draw counts','sprites','positions','sizes','effect lifetime','pool limits'],missing},null,2));
 assert.equal(missing.length,0);
 console.log(JSON.stringify(rows));
+
+// Same production pickup renderer, same pixels and display size.
+const oldEquipment=await import('data:text/javascript;base64,'+Buffer.from(execFileSync('git',['show',base+':equipment.js'],{cwd:root})).toString('base64'));
+const newEquipment=await import('../equipment.js');
+await new Promise(resolve=>setTimeout(resolve,50));
+const icons=createCanvas(800,360),ic=icons.getContext('2d');ic.fillStyle='#202723';ic.fillRect(0,0,800,360);
+for(let side=0;side<2;side++){
+ const draw=side?newEquipment.drawEquipment:oldEquipment.drawEquipment;
+ const small=createCanvas(80,80);draw(small.getContext('2d'),'repair',40,40,0,46);
+ ic.fillStyle='#f0e9da';ic.font='18px sans-serif';ic.fillText(side?'AFTER':'BEFORE',side*400+20,25);
+ ic.imageSmoothingEnabled=false;ic.drawImage(small,side*400+15,40,320,320);ic.drawImage(small,side*400+315,65);
+}
+writeFileSync(out+'/pickup-before-after.png',icons.toBuffer('image/png'));
+const oldCrash=await import('data:text/javascript;base64,'+Buffer.from(execFileSync('git',['show',base+':aircraft-crash.js'],{cwd:root})).toString('base64'));
+const newCrash=await import('../aircraft-crash.js');
+const crash=createCanvas(1000,340),cc=crash.getContext('2d');cc.fillStyle='#202723';cc.fillRect(0,0,1000,340);
+for(let side=0;side<2;side++){
+ cc.fillStyle='#f0e9da';cc.font='18px sans-serif';cc.fillText(side?'AFTER':'BEFORE',side*500+20,25);
+ for(let i=0;i<3;i++){
+  const remaining=[.18,.09,.01][i],e={crashStyle:'spin',crashT:remaining,crashDuration:1,a:0};
+  cc.fillStyle='#f0e9da';cc.font='13px sans-serif';cc.fillText(remaining+'s to impact',side*500+30+i*155,300);
+  (side?newCrash:oldCrash).drawAircraftCrash(cc,e,side*500+90+i*155,175,0,fx);
+ }
+}
+writeFileSync(out+'/crash-tail-before-after.png',crash.toBuffer('image/png'));
