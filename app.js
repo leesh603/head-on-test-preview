@@ -51,7 +51,7 @@ import {drawCampaign} from './campaign-view.js?v=gal1&rail=42';
 import {campaignArtReady} from './aircraft.js?v=gal1';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady,hangarIconsReady} from './icons.js?v=gal1';
 import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?v=gal1';
-import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=gal1&rail=42';
+import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=gal2&rail=42';
 import {attachCombatFeedback,combatVisualPose,drawCombatFeedback,combatCameraOffset,combatFlightSound} from './combat-feedback.js?v=gal1';
 import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=gal1';
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=gal1';
