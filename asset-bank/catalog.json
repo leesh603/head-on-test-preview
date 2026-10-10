@@ -2375,6 +2375,26 @@
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "planes/voisin_8.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "이탈리아 운용기",
+       "file": "liveries/voisin8/italian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/voisin8/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간폭격 칠흑",
+       "file": "liveries/voisin8/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아제국 공군",
+       "file": "liveries/voisin8/russian.webp"
       }
      ]
     },
