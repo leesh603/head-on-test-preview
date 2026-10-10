@@ -2207,7 +2207,28 @@
      "year": 1918,
      "role": "폭격기",
      "base": "planes/dh9.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "야간폭격 칠흑",
+       "file": "liveries/dh9/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "훈련기 은색",
+       "file": "liveries/dh9/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "중동전선 사막 크림",
+       "file": "liveries/dh9/desert.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "벨기에 전후 인수기",
+       "file": "liveries/dh9/belgian.webp"
+      }
+     ]
     },
     {
      "id": "re8",
