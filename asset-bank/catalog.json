@@ -12,7 +12,28 @@
      "year": 1914,
      "role": "정찰기",
      "base": "planes/rumpler_taube.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "오스트리아-헝가리 운용",
+       "file": "liveries/rumpler_taube/austria.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "이탈리아 면허 생산",
+       "file": "liveries/rumpler_taube/italian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "연합군 노획 평가기",
+       "file": "liveries/rumpler_taube/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전선 얼룩 위장",
+       "file": "liveries/rumpler_taube/camo.webp"
+      }
+     ]
     },
     {
      "id": "eindecker",
