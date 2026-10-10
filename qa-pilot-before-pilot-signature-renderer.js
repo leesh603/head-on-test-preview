@@ -129,7 +129,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
    case 'halfLoop':texture(c,'vaporTrail',-28,0,40,7,Math.PI,.1*(p.immelmannAltitude||0));break;
    case 'sixDirections':crest(c,'vossCowling',q,.32,92);for(let i=0;i<6;i++){c.save();c.rotate(i*TAU/6);texture(c,'engineSmoke',35+q*85,0,31,18,0,.24);c.restore()}break;
    case 'redHunt':case 'huntConfirmation':texture(c,'sunshaft',-85,0,210,85,Math.PI,.15);break;
-   case 'sightConverge':break; // Activation alone does not fire the gun.
+   case 'sightConverge':if(time<.13)muzzleAt(c,30,0,0,'muzzleHeavy',1.15);break;
    case 'steadySight':for(const side of [-1,1])tracer(c,52+q*58,side*(1-q)*26,58,6,0,.45);break;
    case 'whiteCommand':{c.rotate(e.a-p.a);const d=24+time*180;if(time<.38){tracer(c,-12,-d,24,8,-Math.PI/2,.95);texture(c,'armorSpark',-12,-d,26,18,0,.9);texture(c,'gunSmoke',-12,-d+19,25+time*30,14,-Math.PI/2,.35*(1-q))}break;}
    case 'coverOrder':break;
@@ -148,7 +148,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
    case 'rocketSalvo':for(const side of [-1,1])texture(c,'gunSmoke',12,side*23,32,15,0,.18);break;
    case 'attackRun':texture(c,'engineSmoke',-24,0,28,13,Math.PI,.2*(1-q));break;
    case 'closeAttack':break;
-   case 'cloudAmbush':for(let side=-1;side<=1;side+=2)texture(c,'mist',-6,side*(24-q*14),64,32,side*.22,.25*(1-q));break;
+   case 'cloudAmbush':texture(c,'mist',-8,-20,110,28,0,.22);texture(c,'vaporTrail',-28,20,85,16,Math.PI,.18);break;
    case 'lastStand':texture(c,'smokeDark',-30-q*45,0,65+q*38,39,Math.PI,.35);break;
    case 'battleDamage':{
     const n=Math.min(5,e.count||1);metal(c,time,2+n,.72);
@@ -159,7 +159,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
    case 'petalDive':case 'petalScatter':petals(c,time,e.count||8);break;
    case 'fieldRepair':texture(c,'armorSpark',-18,0,29,18,0,.7*(1-q));for(let i=0;i<3;i++)texture(c,'metalShard'+i,-22-time*17,(-1+i)*7,7,5,time*(i-1),.65*(1-q));break;
    case 'survivalBreak':metal(c,q,6,.7);texture(c,'smokeDark',-35-q*80,0,80,48,Math.PI,.35);break;
-   case 'ambushBreak':for(let side=-1;side<=1;side+=2)texture(c,'mist',-16-time*20,side*(14+time*24),62,24,side*.23,.25*(1-q));break;
+   case 'ambushBreak':texture(c,'mist',-50,0,116,68,0,.28);flash(c,false,1.6);break;
    case 'shotAccent':if(p.pilot==='huffzky')break;if(e.active){if(p.pilot==='jacobs'){for(const side of [-1,1])texture(c,'muzzleTwin',31,side*4,48,26,Math.abs(safeTurn(p))>.35?side*.24:0,.92);texture(c,'gunSmoke',34,0,42,25,0,.34)}else flash(c,e.gun===1,e.style==='cannon'?1.8:1,e.style==='cannon')}break;
    case 'defiantHit':case 'wound':case 'escape':metal(c,q,4,.7);crest(c,e.symbol,q,.27,92);break;
    case 'fuseHit':texture(c,'fireEngine',0,0,38,30,0,.6);break;
@@ -297,7 +297,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
   switch(profile.sustain){
    case 'charge':if(p.chargeTime>0&&!globalThis.__hoLance?.has(p))cavalrySlipstream(c,t,Math.min(1,p.chargeTime/.12));break;
    case 'defyDeath':break;
-   case 'precision':if(shot)muzzleAt(c,25,0,(p.gunDirection?.(0)??p.a)-p.a,'muzzleTwin',.72);break;
+   case 'precision':if(shot)muzzleAt(c,30,0,0,'muzzleHeavy',1.05);break;
    case 'cannon':if(p.cannonRecoil129>0)flash(c,false,1.8,true);break;
    case 'gunPlatform':if(shot){flash(c,false,1.5);texture(c,'smokePuff',41,0,38,24,0,.25)}break;
    case 'climb':if(age>.4&&age<2.5){texture(c,'vaporTrail',-48,0,95,28,Math.PI,.18);if(shot)flash(c,false,1.25)}break;
@@ -310,7 +310,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
    case 'closeFire':if(shot)flash(c,false,1.8);break;
    case 'flameAttack':if(shot){flash(c,false,1.1);texture(c,'gunSmoke',37,0,29,17,0,.2)}break;
    case 'fuse':if(shot)texture(c,'fireSmall',34,0,21,17,0,.5);break;
-   case 'concealment':if(p.ballCloak>0){for(let i=0;i<3;i++){const q=(t*.65+i/3)%1;texture(c,'mist',8-q*38,Math.sin(i*2.4+t)*11,54+q*21,26+q*12,Math.PI+i*.18,.16*(1-q*.45));}}break;
+   case 'concealment':if(p.ballCloak>0){texture(c,'mist',-14,-22,95,25,.05*Math.sin(t),.19);texture(c,'vaporTrail',-35,21,90,14,Math.PI,.17)}break;
    case 'survival':if(p.hp<Math.max(10,p.maxHp*.2))texture(c,'smokeDark',-39,0,62,28,Math.PI,.4);break;
    case 'petals':petals(c,(t*.6)%1.3,5);break;
    case 'maintenance':texture(c,'gunSmoke',-30,0,45,27,Math.PI,.22*(1-clamp(age/4)));break;
