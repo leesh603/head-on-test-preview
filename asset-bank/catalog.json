@@ -2393,7 +2393,28 @@
      "year": 1918,
      "role": "정찰기",
      "base": "planes/salmson_2a2.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "미군 91비행대 별",
+       "file": "liveries/salmson_2a2/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "일본 오쓰-1 면허",
+       "file": "liveries/salmson_2a2/japan.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "폴란드 샤호비차",
+       "file": "liveries/salmson_2a2/polish.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 칠흑",
+       "file": "liveries/salmson_2a2/night.webp"
+      }
+     ]
     },
     {
      "id": "ansaldo_sva5",
