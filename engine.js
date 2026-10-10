@@ -5,9 +5,9 @@ import {EXPLOSION_LIFE,initExplosionProfile,pushExplosionFx,advanceExplosionFx} 
 import {beginAircraftCrash,advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=gal1';
 import {wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=gal1';
 import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=gal1';
-import {installPilotIdentities} from './pilot-identities.js?v=dover2';
+import {installPilotIdentities} from './pilot-identities.js?v=fiveace1';
 import {EnemyCollisionGrid} from './collision-grid.js?v=gal1';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=dover2';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=fiveace1';
 import {installRevision} from './rebalance103.js?v=gal1&rail=42';
 import {installCloudCover} from './cloud-cover1.js?v=gal1';
 import {installFleet} from './fleet-naval1.js?v=gal1&rail=42';
@@ -1154,7 +1154,7 @@ Game.prototype.launchUpgradeRocket=function(){
 // Fonck's ballistic mastery also guides and amplifies special cannon rounds;
 // cloned COW rounds retain the base gun's spread/shot upgrades after swapping.
 const _fonckCannonUpdate120=Game.prototype.update;
-Game.prototype._updFonckCannon=function(dt,input={}){const before=this.bullets.length;_fonckCannonUpdate120.call(this,dt,input);for(const b of this.bullets.slice(before)){if(!b||b.enemy||(!b.cow37&&!b.motorCannon))continue;if(this.pilot==='fonck'&&this.skillTime>0){b.fonckVolley=true;b.pierce=true;b.damage*=1.35;}const count=Math.max(1,this.shots||1),speed=Math.hypot(b.vx,b.vy);for(let n=1;n<count;n++){const a=Math.atan2(b.vy,b.vx)+(n-(count-1)/2)*.08;this.bullets.push({...b,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,hit:new Set()});}} };
+Game.prototype._updFonckCannon=function(dt,input={}){const before=this.bullets.length;_fonckCannonUpdate120.call(this,dt,input);for(const b of this.bullets.slice(before)){if(!b||b.enemy||(!b.cow37&&!b.motorCannon))continue;const count=Math.max(1,this.shots||1),speed=Math.hypot(b.vx,b.vy);for(let n=1;n<count;n++){const a=Math.atan2(b.vy,b.vx)+(n-(count-1)/2)*.08;this.bullets.push({...b,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,hit:new Set()});}} };
 // Revision 108 — Werner Voss's reverse-turn must be a visible escape and re-entry,
 // not just a heading flip. The same pattern is applied to his ace-boss attack.
 export const VOSS_REVERSE=Object.freeze({duration:1,invulnerability:1,speedMultiplier:2.35,afterimageInterval:.075,afterimageLife:2.4,afterimageCount:6,afterimageScatterSpeed:165,afterimageFireDelay:.18,afterimageFireInterval:.42,bossSpeedMultiplier:3});
@@ -1230,7 +1230,7 @@ export function tickLegendaryDefenses(owner,world,dt){
 Game.prototype._updLegendarySystems=function(dt,input={}){
  if(this.state!=='playing')return this._updVossReverse(dt,input);const step=Math.min(.04,Math.max(0,dt));
  tickLegendaryDefenses(this,this.combatWorld(),step);
- if(this.cow37&&(input.inputMode!=='gamepad'||input.fireHeld)){this.cow37Timer=(this.cow37Timer??.15)-step;if(this.reloadTime<=0&&this.cow37Timer<=0){if((this.ammo[0]||0)<=0)this.reload();else{this.cow37Timer+=this.ordnanceInterval(COW37_BALANCE.interval);this.ammo[0]--;this.roundsFired++;const a=this.a,fonck=this.pilot==='fonck'&&this.skillTime>0;this.bullets.push({x:this.x+Math.cos(a)*38,y:this.y+Math.sin(a)*38,vx:Math.cos(a)*COW37_BALANCE.speed,vy:Math.sin(a)*COW37_BALANCE.speed,life:2.5,enemy:false,ownerId:this.id,cow37:true,fonckVolley:fonck,pierce:true,collisionRadius:24,damage:this.payloadPower(COW37_BALANCE.damage)*(this.damage/12)*this.normalGunMultiplier()*(fonck?1.35:1),hit:new Set()});this.muzzleFlash=.2;this.shake=Math.max(this.shake,6);this.burst(this.x+Math.cos(a)*32,this.y+Math.sin(a)*32,'#e8d39a',16);this.cannonMuzzleSmoke('cow');this.event('shot','')}}}
+ if(this.cow37&&(input.inputMode!=='gamepad'||input.fireHeld)){this.cow37Timer=(this.cow37Timer??.15)-step;if(this.reloadTime<=0&&this.cow37Timer<=0){if((this.ammo[0]||0)<=0)this.reload();else{this.cow37Timer+=this.ordnanceInterval(COW37_BALANCE.interval);this.ammo[0]--;this.roundsFired++;const a=this.a,fonck=false /* finite Fonck volley is emitted separately */;this.bullets.push({x:this.x+Math.cos(a)*38,y:this.y+Math.sin(a)*38,vx:Math.cos(a)*COW37_BALANCE.speed,vy:Math.sin(a)*COW37_BALANCE.speed,life:2.5,enemy:false,ownerId:this.id,cow37:true,fonckVolley:fonck,pierce:true,collisionRadius:24,damage:this.payloadPower(COW37_BALANCE.damage)*(this.damage/12)*this.normalGunMultiplier()*(fonck?1.35:1),hit:new Set()});this.muzzleFlash=.2;this.shake=Math.max(this.shake,6);this.burst(this.x+Math.cos(a)*32,this.y+Math.sin(a)*32,'#e8d39a',16);this.cannonMuzzleSmoke('cow');this.event('shot','')}}}
  this._updVossReverse(step,input);
 };
 // Revision 113: shared battlefield threat layer, without replacing flight/weapon logic.
@@ -1704,7 +1704,7 @@ for(const id of ['proctor','schleich','lufbery']){const c=THREE_COPY[id].ko;Obje
 PILOT_PLANES.proctor='proctor_se5a';PILOT_PLANES.schleich='schleich_albatros';PILOT_PLANES.lufbery='lufbery_nieuport17';
 const _skill3=Game.prototype.skill;
 Game.prototype.skill=function(){
- if(!['proctor','schleich','lufbery'].includes(this.pilot))return _skill3.call(this);
+ if(!['schleich'].includes(this.pilot))return _skill3.call(this);
  this.ensureRevisionPilot?.();if(this.state!=='playing'||this.hp<=0||this.cooldown>0)return false;
  this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.aceHeading129=this.a;
  beginThreeSkill(this);
@@ -1718,9 +1718,9 @@ Game.prototype.skillDuration=function(){const base=({proctor:2.4,schleich:3,lufb
 const _incoming3=Game.prototype.incomingDamageMultiplier;
 Game.prototype.incomingDamageMultiplier=function(source){let mult=_incoming3.call(this,source);if(this.pilot==='schleich'){mult*=.92;if(source&&this.invuln<=0&&(this.t-(this._armorCueAt??-10)>.12)){this._armorCueAt=this.t;const a=Math.atan2(source.y-this.y,source.x-this.x);this.identityFx?.('ricochet',this.x+Math.cos(a)*19,this.y+Math.sin(a)*19,a,30,.25,{height:15,alpha:.8})}}return mult};
 const _fan3=Game.prototype.buildGunFan;
-Game.prototype.buildGunFan=function(base){let f=_fan3.call(this,base);if(this.pilot==='proctor')f*=this.skillTime>0?.35:.65;return f};
+Game.prototype.buildGunFan=function(base){let f=_fan3.call(this,base);return f};
 const _round3=Game.prototype.applySpecialRound;
-Game.prototype.applySpecialRound=function(b,type){const r=_round3.call(this,b,type);if(this.pilot==='proctor'&&this.skillTime>0){r.pierce=true;r.proctorSalvo=true;r.specialColor='#e6c783'}if(this.pilot==='lufbery'&&this.skillTime>0)r.lafayetteShot=true;return r};
+Game.prototype.applySpecialRound=function(b,type){const r=_round3.call(this,b,type);return r};
 const _dir3=Game.prototype.gunDirection;
 Game.prototype.gunDirection=function(gun=0){
  const base=_dir3.call(this,gun);
@@ -1731,7 +1731,6 @@ Game.prototype.beginRevisionFrame=function(dt,input={}){
  const prior=_frame3.call(this,dt,input);
  for(const pl of this.players||[this]){
   if(!pl||!(pl.hp>0))continue;
-  if(pl.pilot==='lufbery')pl.energyRecoveryBonus=(pl.energyRecoveryBonus||0)+.4;
   tickThreePilot(pl,dt);
   if(['proctor','schleich','lufbery'].includes(pl.pilot)&&!pl.skillTime)pl.aceSkillPhase=null;
  }
@@ -1788,3 +1787,5 @@ Game.prototype.update=function(dt,input={}){
  _updateGuerrilla.call(this,dt,input);
  if(this.bishopEmptyPending){this.bishopEmptyPending=false;this.ammo.fill(0);this.reloadTime=0;this.fire=.1;this.muzzleFlash=0;this.event('wave','폭격 종료 · 탄약 소진, 재장전 필요')}
 };
+// Five authored ace attacks (fonck/gontermann/luke/proctor/lufbery) — replaces the three-pilot gate for proctor/lufbery.
+import {installFivePilots} from './pilot-five-combat.js?v=fiveace1';installFivePilots(Game,PILOTS);
