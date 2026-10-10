@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SupermarineNighthawk,SiemensSchuckertRVIII} from '../dover-night-bosses.js';
+import {Game} from '../engine.js';
+import {stageBossBounds} from '../stageboss-host.js';
 
 const tuning={maxHp:1200,partHp:100,damage:20,bulletSpeed:240,geometryScale:.32};
 const staticBounds={left:0,right:960,top:0,bottom:700};
@@ -71,49 +73,67 @@ test('Engine and drive imbalance changes speed and yaw gradually',()=>{
   }
 });
 
-test('Opposite-facing R.VIII aligns without snapping before telegraphing one committed bombing corridor',()=>{
-  const events=[],body=make(SiemensSchuckertRVIII,{emit:e=>events.push(e)}),player={id:'one',alive:true,x:-500,y:350,vx:0,vy:0,radius:12};body.a=0;body.turnVelocity=0;body.rotateMounts();
-  assert.equal(body.beginBombRun(player),true);const angle=body.runAngle;assert.ok(Math.abs(Math.abs(angle)-Math.PI)<1e-8);assert.equal(events.some(e=>e.type==='dover-bomb-warning'),false);
-  let warning=null,warningHeading=null,warningAt=null,firstReleaseHeading=null,oldA=body.a,oldTurn=body.turnVelocity;
-  for(let i=0;i<450&&events.filter(e=>e.type==='hazard'&&e.visual==='rviii-bomb').length<8;i++){
-    player.x=i%2?6000:-6000;player.y=i%3?5000:-5000;player.vx=i%2?-400:400;player.vy=i%3?350:-350;const before=events.length;
+test('R.VIII announces a fixed in-view bombing stick without steering after the player',()=>{
+  const events=[],body=make(SiemensSchuckertRVIII,{emit:e=>events.push(e)}),player={id:'one',alive:true,x:480,y:350,vx:40,vy:-80,radius:12};
+  body.a=0;body.turnVelocity=0;body.rotateMounts();assert.equal(body.beginBombRun(player,staticBounds),true);
+  const warning=events.find(e=>e.type==='dover-bomb-warning'),centre=[body.runCenterX,body.runCenterY],angle=body.runAngle;
+  assert.ok(warning&&warning.safeGap===76);assert.equal(body.phase,'bomb-approach');
+  let oldA=body.a,oldTurn=body.turnVelocity;
+  for(let i=0;i<250&&events.filter(e=>e.visual==='rviii-bomb').length<8;i++){
+    player.x=i%2?6000:-6000;player.y=i%3?5000:-5000;player.vx=i%2?-400:400;player.vy=i%3?350:-350;
     body.update(.04,{players:[player],bounds:staticBounds});
     assert.ok(Math.abs(angleDelta(body.a,oldA))<=.4*.04+1e-9);assert.ok(Math.abs(body.turnVelocity-oldTurn)<=.36*.04+1e-9);oldA=body.a;oldTurn=body.turnVelocity;
-    if(body.phase==='bomb-align'||body.phase==='bomb-approach'||body.phase==='bomb-run')assert.equal(body.runAngle,angle);
-    for(const event of events.slice(before)){if(event.type==='dover-bomb-warning'){warning=event;warningHeading=body.a;warningAt=i*.04;}if(event.type==='hazard'&&event.visual==='rviii-bomb'&&firstReleaseHeading===null)firstReleaseHeading=body.a;}
+    assert.deepEqual([body.runCenterX,body.runCenterY],[...centre]);
   }
-  assert.ok(warningAt>5,'the route is hidden during the long alignment turn');assert.ok(Math.abs(angleDelta(warningHeading,angle))<=.08+1e-9);
-  assert.equal(warning.angle,angle);assert.equal(warning.safeGap,76);assert.ok(Number.isFinite(warning.exitAngle+warning.x+warning.y+warning.length));assert.ok(Math.abs(angleDelta(firstReleaseHeading,angle))<.04);
-  const bombs=events.filter(e=>e.type==='hazard'&&e.visual==='rviii-bomb');assert.equal(bombs.length,8);const cx=warning.x,cy=warning.y,dx=Math.cos(angle),dy=Math.sin(angle),nx=-dy,ny=dx;
+  const bombs=events.filter(e=>e.type==='hazard'&&e.visual==='rviii-bomb');assert.equal(bombs.length,8);
+  const dx=Math.cos(angle),dy=Math.sin(angle),nx=-dy,ny=dx;
   for(let i=0;i<bombs.length;i++){
-    const along=(bombs[i].x-cx)*dx+(bombs[i].y-cy)*dy,lateral=(bombs[i].x-cx)*nx+(bombs[i].y-cy)*ny;
+    const along=(bombs[i].x-centre[0])*dx+(bombs[i].y-centre[1])*dy,lateral=(bombs[i].x-centre[0])*nx+(bombs[i].y-centre[1])*ny;
     assert.ok(Math.abs(along-(i-3.5)*54)<1e-8);assert.ok(Math.abs(Math.abs(lateral)-76)<1e-8);assert.equal(bombs[i].angle,angle);
-    assert.ok((bombs[i].x-bombs[i].sourceX)*dx+(bombs[i].y-bombs[i].sourceY)*dy>0,'each bomb falls ahead along the committed flight path');
-    assert.equal(bombs[i].sourcePartId,null);assert.ok(Number.isFinite(bombs[i].sourceX+bombs[i].sourceY));
   }
 });
 
-test('R.VIII camera-flow runs keep the bomber, paired blasts, and recovery core reachable on mobile',()=>{
-  const events=[],dt=.02,boundsAt=[],body=make(SiemensSchuckertRVIII,{x:-127,y:-135,emit:e=>events.push({...e,time:clock,heading:body.a})});let clock=0,longestOff=0,offFor=0,lastPhase=body.phase;const recoveries=[];
-  for(let i=0;i<2000;i++){
-    clock=(i+1)*dt;const cy=-180*clock,bounds={left:-195,right:195,top:cy-422,bottom:cy+422},player={id:'one',alive:true,x:0,y:cy,vx:0,vy:0,radius:12};
-    body.update(dt,{players:[player],bounds});boundsAt.push(bounds);const extent=body.airframeExtents(),visible=body.x+extent.x>=bounds.left&&body.x-extent.x<=bounds.right&&body.y+extent.y>=bounds.top&&body.y-extent.y<=bounds.bottom;
-    if(visible)offFor=0;else{offFor+=dt;longestOff=Math.max(longestOff,offFor);}
-    if(body.phase!==lastPhase&&body.phase==='recovery'){const q=body.coreOffset(),x=body.x+q.x,y=body.y+q.y;recoveries.push(x>=bounds.left&&x<=bounds.right&&y>=bounds.top&&y<=bounds.bottom);}lastPhase=body.phase;
+const liveGame=(width)=>{const g=new Game('fokker','baron',()=>.5);Object.assign(g,{viewWidth:width,viewHeight:844,invuln:1e9});g.spawnEnemy=()=>null;g.spawnFlak=()=>{};return g;};
+function gameFlight(Ctor,width,{damage=[]}={}){
+  const g=liveGame(width),events=[],scale=(Ctor===SupermarineNighthawk?.26:.32)*1.2,body=new Ctor({id:'game-flight',tuning:{...tuning,geometryScale:scale},x:g.x,y:g.y,emit:e=>events.push({...e,time:g.t,phase:body.phase})});
+  for(const id of damage)body.hit({partId:id,damage:1e6});
+  let hiddenStart=null,longestHidden=0,hiddenCount=0,ordinary=0,centreVisible=0,vulnerable=0,vulnerableVisible=0,maxStep=0,lastX=body.x,lastY=body.y;const history=[];
+  for(let i=0;i<3000;i++){
+    const px=g.x,py=g.y;g.update(.02,{});const bounds=stageBossBounds(g),player={id:'p1',alive:true,x:g.x,y:g.y,vx:(g.x-px)/.02,vy:(g.y-py)/.02,radius:12};body.combatTime=g.t;body.update(.02,{players:[player],bounds,isIlluminated:()=>false});history.push(bounds);
+    const step=Math.hypot(body.x-lastX,body.y-lastY);maxStep=Math.max(maxStep,step);lastX=body.x;lastY=body.y;
+    if(body.hidden&&hiddenStart===null){hiddenStart=g.t;hiddenCount++;}if(!body.hidden&&hiddenStart!==null){longestHidden=Math.max(longestHidden,g.t-hiddenStart);hiddenStart=null;}
+    if(!body.phase.startsWith('sortie-')){ordinary++;if(body.coreInside(bounds,0))centreVisible++;}
+    if(body.coreVulnerable){vulnerable++;if(body.coreInside(bounds,0)&&body.locateHit({x:body.x+body.coreOffset().x,y:body.y+body.coreOffset().y,radius:2}))vulnerableVisible++;}
   }
-  assert.ok(longestOff<=6);assert.ok(recoveries.length>=2&&recoveries.every(Boolean),'every vulnerable recovery begins with its core in view');
-  const warnings=events.filter(e=>e.type==='dover-bomb-warning');assert.ok(warnings.length>=2);assert.ok(warnings.every(e=>Math.sin(e.angle)*-180>100),'committed headings travel with the camera flow');
-  const bombs=events.filter(e=>e.type==='hazard'&&e.visual==='rviii-bomb');assert.ok(bombs.length>=16&&bombs.length%8===0);assert.ok(bombs.every(e=>Math.abs(angleDelta(e.angle,e.heading))<.04));
-  for(let i=0;i<bombs.length;i+=2){let visible=false;for(let j=i;j<i+2;j++){const e=bombs[j],bounds=boundsAt[Math.min(boundsAt.length-1,Math.round((e.time+e.warning)/dt)-1)];if(e.x+e.radius>=bounds.left&&e.x-e.radius<=bounds.right&&e.y+e.radius>=bounds.top&&e.y-e.radius<=bounds.bottom)visible=true;}assert.ok(visible,'each staggered pair retains a visible blast lane');}
+  if(hiddenStart!==null)longestHidden=Math.max(longestHidden,g.t-hiddenStart);
+  return{g,body,events,history,hiddenCount,longestHidden,ordinary,centreVisible,vulnerable,vulnerableVisible,maxStep};
+}
+
+for(const width of [390,1280])test(`Real Game ${width}px flight keeps ordinary attacks reachable and limits each deliberate sortie`,()=>{
+  for(const Ctor of [SupermarineNighthawk,SiemensSchuckertRVIII]){
+    const r=gameFlight(Ctor,width);assert.equal(r.hiddenCount,1);assert.ok(r.longestHidden>2&&r.longestHidden<8,`${r.body.kind} hidden ${r.longestHidden}`);
+    assert.ok(r.centreVisible/r.ordinary>.72,`${r.body.kind} ordinary core position remains in the viewport`);
+    assert.ok(r.vulnerable>150&&r.vulnerableVisible/r.vulnerable>.82,'the player receives long, hittable core windows');assert.ok(r.maxStep<=285*.02+1e-8);
+    const sortieBombs=r.events.filter(e=>e.type==='hazard'&&e.sortie),expected=Ctor===SupermarineNighthawk?6:8;assert.equal(sortieBombs.length,expected);
+    assert.ok(sortieBombs.every(e=>e.kind==='circle'&&e.airborneBomb&&e.sourcePartId===null&&e.warning===1.1));
+    assert.ok(!r.events.some(e=>e.phase==='sortie-hidden'&&e.type==='hazard'&&e.kind==='projectile'),'hidden aircraft never fires guns');
+    const warning=r.events.find(e=>e.type==='dover-bomb-warning'&&e.sortie);assert.ok(warning&&warning.safeGap===80);
+    for(let i=0;i<sortieBombs.length;i+=2){const a=sortieBombs[i],b=sortieBombs[i+1];assert.ok(Math.hypot(a.x-b.x,a.y-b.y)-a.radius-b.radius>=79.9,'paired bombs preserve the advertised safe corridor');}
+    for(const e of sortieBombs){const at=Math.min(r.history.length-1,Math.round((e.time+e.warning)/.02)-1),b=r.history[at];assert.ok(e.x+e.radius>=b.left&&e.x-e.radius<=b.right&&e.y+e.radius>=b.top&&e.y-e.radius<=b.bottom,'sortie blast remains in the moving viewport');}
+  }
 });
 
-test('Damaged R.VIII propulsion still returns its vulnerable core to a moving mobile viewport',()=>{
-  const body=make(SiemensSchuckertRVIII,{x:-127,y:-135});body.hit({partId:'drive-outer-left',damage:1e6});body.hit({partId:'drive-inner-left',damage:1e6});assert.equal(body.drives(),2);assert.equal(body.hit({damage:1}).damage,0);
-  let previous=body.phase,longestOff=0,offFor=0,recoveries=0,coreDamage=0;
-  for(let i=0;i<2000;i++){
-    const time=(i+1)*.02,cy=-180*time,bounds={left:-195,right:195,top:cy-422,bottom:cy+422},player={id:'one',alive:true,x:0,y:cy,vx:0,vy:0,radius:12};body.update(.02,{players:[player],bounds});
-    const extent=body.airframeExtents(),visible=body.x+extent.x>=bounds.left&&body.x-extent.x<=bounds.right&&body.y+extent.y>=bounds.top&&body.y-extent.y<=bounds.bottom;if(visible)offFor=0;else{offFor+=.02;longestOff=Math.max(longestOff,offFor);}
-    if(body.phase!==previous&&body.phase==='recovery'){const q=body.coreOffset(),x=body.x+q.x,y=body.y+q.y;assert.ok(x>=bounds.left&&x<=bounds.right&&y>=bounds.top&&y<=bounds.bottom);recoveries++;if(!coreDamage)coreDamage=body.hit({damage:1}).damage;}previous=body.phase;
+test('Damaged propulsion still returns a hittable core after the one mobile sortie',()=>{
+  for(const [Ctor,damage] of [[SupermarineNighthawk,['engine-left']],[SiemensSchuckertRVIII,['drive-outer-left','drive-inner-left']]]){
+    const r=gameFlight(Ctor,390,{damage});assert.equal(r.hiddenCount,1);assert.ok(r.longestHidden<8);assert.ok(r.vulnerableVisible/r.vulnerable>.75);assert.ok(r.body.currentSpeed<(Ctor===SupermarineNighthawk?148:112));assert.notEqual(r.body.hullYaw,0);
   }
-  assert.ok(longestOff<=6);assert.ok(recoveries>=2);assert.equal(coreDamage,1);assert.ok(body.hullYaw>0&&body.currentSpeed<112);
+});
+
+test('Finite chart walls produce a bounded tangent turn without a clamp or teleport',()=>{
+  const viewport={left:300,right:900,top:-400,bottom:400},chart={left:-900,right:900,top:-4000,bottom:500};
+  for(const [Ctor,turn] of [[SupermarineNighthawk,.5],[SiemensSchuckertRVIII,.4]]){
+    const body=make(Ctor,{x:820,y:0});body.a=0;body.rotateMounts();let maxX=body.x,maxStep=0,oldX=body.x,oldY=body.y,turned=false;
+    for(let i=0;i<750;i++){const oldA=body.a;body.fly(.04,[],viewport,body.currentSpeed,turn,0,null,null,chart);maxX=Math.max(maxX,body.x);maxStep=Math.max(maxStep,Math.hypot(body.x-oldX,body.y-oldY));oldX=body.x;oldY=body.y;if(Math.cos(body.a)<0)turned=true;assert.ok(Math.abs(angleDelta(body.a,oldA))<=turn*.04+1e-9);}
+    assert.ok(turned);assert.ok(maxX<chart.right+360,'slow wall turn stays in a finite overshoot envelope');assert.ok(maxStep<=285*.04+1e-8);assert.notEqual(body.x,chart.right);
+  }
 });

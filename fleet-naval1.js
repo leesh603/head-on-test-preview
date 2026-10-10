@@ -1,4 +1,4 @@
-import {doverPatrolSpawn} from './dover-patrol-chart.js?v=dover2';
+import {doverPatrolSpawn,doverHullMargin,doverShipAtSea,doverShipCourse} from './dover-patrol-chart.js?v=dover3';
 import {fleetGunStations} from './naval-faction-atlas.js?v=gal1';
 import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=gal1';
 import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles} from './naval-spacing.js?v=gal1';
@@ -35,9 +35,9 @@ export function installFleet(Game){
    const cls=comp[i],t=SHIP_TYPES[cls],e=friendly?{}:this.spawnEnemy('bomber');if(!e)break;
    const off=(i-(comp.length-1)/2)*130,back=i*150;
    Object.assign(e,{type:'ship',shipClass:cls,faction:side,name:side==='entente'?(cls==='aa'?'연합국 '+t.name:'연합국 '+t.name):(cls==='aa'?'중앙국가 '+t.name:'중앙국가 '+t.name),x:bx+nx*off-hx*back,y:by+ny*off-hy*back,a:heading,course:heading,weave:this.rng()*6.28,speed:0,sailingSpeed:t.speed,driveVelocity:0,stationary:true,surface:true,navalVessel:true,movingShip:true,hitRadius:cls==='aa'?44:36,hullLength:t.drawnH*.45,hullWidth:t.drawnH*.12,hp:t.hp,maxHp:t.hp,fire:2+i*.9,ace:false,escortPlane:undefined,life:70,hazardRegion:region,xpValue:cls==='aa'?16:9});
-   if(region===17){const q=doverPatrolSpawn(this,e.x,e.y,t.width*.3+28);e.x=q.x;e.y=q.y;}
+   if(region===17){const q=doverPatrolSpawn(this,e.x,e.y,doverHullMargin(e));e.x=q.x;e.y=q.y;}
    if(region===14&&this.gallipoliRoute){const r=this.gallipoliRoute,s=(e.x-r.x)*Math.cos(r.a)+(e.y-r.y)*Math.sin(r.a);if(s>2300){const n=-(e.x-r.x)*Math.sin(r.a)+(e.y-r.y)*Math.cos(r.a);e.x=r.x+Math.cos(r.a)*2300-Math.sin(r.a)*n;e.y=r.y+Math.sin(r.a)*2300+Math.cos(r.a)*n}}
-   if(!vacantShipPose(this,e)){if(!friendly)e.expired=true;continue;}if(friendly)this.friendlyShips.push(e);ships.push(e);
+   if(!vacantShipPose(this,e)||(region===17&&!doverShipAtSea(this,e))){if(!friendly)e.expired=true;continue;}if(friendly)this.friendlyShips.push(e);ships.push(e);
   }
   if(ships.length)this.event('flak',side===((this.plane&&PLANES[this.plane])?PLANES[this.plane].faction:'entente')?'아군 함대 진입 · 아군 화망을 활용하세요':'적 함대 접근 · 함선 대공 화망을 피하세요');
   return ships;
@@ -133,8 +133,9 @@ export function updateNavalFleet(g,dt){if(g.state!=='playing')return;
     if((e.spot||0)>=4&&!e.spotted){e.spotted=true;g.fleetBoostUntil=(g.t||0)+20;g.spawnMovingFleet();g.event('flak','수상기가 함대에 위치를 송신 — 지원 함대 접근 중')}
    }
    if(!e.movingShip||e.hp<=0||e.expired)continue;
+   if(region===17){e.doverPreviousX=e.x;e.doverPreviousY=e.y;}
    if(!e.moored){
-    e.weave+=step*.22;const desired=steerShipClear(g,e,step,_obstacles);const turn=Math.atan2(Math.sin(desired-e.a),Math.cos(desired-e.a));e.a+=Math.max(-.08*step,Math.min(.08*step,turn));e.driveVelocity=Math.min(e.sailingSpeed,e.driveVelocity+6*step);e.x+=Math.cos(e.a)*e.driveVelocity*step;e.y+=Math.sin(e.a)*e.driveVelocity*step;if(region===7&&g.navalRoute){const r=g.navalRoute,hx=Math.cos(r.a),hy=Math.sin(r.a),nx=-hy,ny=hx,along=(e.x-r.x)*hx+(e.y-r.y)*hy,lat=(e.x-r.x)*nx+(e.y-r.y)*ny,bank=Math.max(80,(r.bankAt?.(along,Math.sign(lat)||1)??430)-90);if(Math.abs(lat)>bank){e.x-=nx*(lat-Math.sign(lat)*bank)*Math.min(1,step*2);e.y-=ny*(lat-Math.sign(lat)*bank)*Math.min(1,step*2);}if(along>=10400)e.expired=true;}
+    e.weave+=step*.22;const trafficCourse=steerShipClear(g,e,step,_obstacles),desired=region===17?doverShipCourse(g,e,trafficCourse):trafficCourse;const turn=Math.atan2(Math.sin(desired-e.a),Math.cos(desired-e.a));e.a+=Math.max(-.08*step,Math.min(.08*step,turn));e.driveVelocity=Math.min(e.sailingSpeed,e.driveVelocity+6*step);e.x+=Math.cos(e.a)*e.driveVelocity*step;e.y+=Math.sin(e.a)*e.driveVelocity*step;if(region===17&&!doverShipAtSea(g,e)){e.x=e.doverPreviousX;e.y=e.doverPreviousY;e.driveVelocity=0;}if(region===7&&g.navalRoute){const r=g.navalRoute,hx=Math.cos(r.a),hy=Math.sin(r.a),nx=-hy,ny=hx,along=(e.x-r.x)*hx+(e.y-r.y)*hy,lat=(e.x-r.x)*nx+(e.y-r.y)*ny,bank=Math.max(80,(r.bankAt?.(along,Math.sign(lat)||1)??430)-90);if(Math.abs(lat)>bank){e.x-=nx*(lat-Math.sign(lat)*bank)*Math.min(1,step*2);e.y-=ny*(lat-Math.sign(lat)*bank)*Math.min(1,step*2);}if(along>=10400)e.expired=true;}
     if(region===14&&g.gallipoliRoute){const r=g.gallipoliRoute,s=(e.x-r.x)*Math.cos(r.a)+(e.y-r.y)*Math.sin(r.a);if(s>2350){const n=-(e.x-r.x)*Math.sin(r.a)+(e.y-r.y)*Math.cos(r.a),pull=Math.min(1,step*2.4);e.x-=Math.cos(r.a)*(s-2350)*pull;e.y-=Math.sin(r.a)*(s-2350)*pull}}
    }
    if(Math.hypot(e.x-g.x,e.y-g.y)>2600)e.expired=true;
@@ -160,7 +161,9 @@ export function updateNavalFleet(g,dt){if(g.state!=='playing')return;
     }
    }
   }else{g.reconTimer=18}
-  resolveSurfaceSpacing(g);_fleetShipIter.length=0;for(const e of g.enemies)_fleetShipIter.push(e);for(const e of g.friendlyShips||[])_fleetShipIter.push(e);for(const e of _fleetShipIter)if(e.movingShip&&e.hp>0&&!e.expired)recordShipWake(e,step,SHIP_TYPES[e.shipClass].drawnH*.9);
+  resolveSurfaceSpacing(g);
+  if(region===17)for(const e of _fleetShipIter)if(e.movingShip&&e.hp>0&&!e.expired&&!doverShipAtSea(g,e)){e.x=e.doverPreviousX;e.y=e.doverPreviousY;e.driveVelocity=0;if(!doverShipAtSea(g,e))e.expired=true;}
+  _fleetShipIter.length=0;for(const e of g.enemies)_fleetShipIter.push(e);for(const e of g.friendlyShips||[])_fleetShipIter.push(e);for(const e of _fleetShipIter)if(e.movingShip&&e.hp>0&&!e.expired)recordShipWake(e,step,SHIP_TYPES[e.shipClass].drawnH*.9);
   for(const e of g.friendlyShips||[]){e.life-=step;if(e.hp>0){e.fire-=step;if(e.fire<=0){e.fire=SHIP_TYPES[e.shipClass].interval;if(!fireSurfaceExchange(g,e,SHIP_TYPES[e.shipClass]))g._friendlyShipFire(e,SHIP_TYPES[e.shipClass]);}}}
   {const fs=g.friendlyShips||[];let w=0;for(let i=0;i<fs.length;i++){const e=fs[i];if(e.hp>0&&!e.expired&&e.life>0&&e.hazardRegion===region)fs[w++]=e}fs.length=w;g.friendlyShips=fs;}
   {const ex=g.navalExchanges||[];let w=0;for(let i=0;i<ex.length;i++){const q=ex[i];q.age+=step;if(q.age<q.duration){ex[w++]=q;continue}const target=q.target;if(target.hp>0&&Math.hypot(target.x-q.x,target.y-q.y)<70){target.hp=Math.max(0,target.hp-q.damage);target.hitFlash=.24;g.combatBlast?.(q.x,q.y,40,'enemy','naval');if(target.hp<=0&&!target.movingShip)target.expired=true;}}ex.length=w;g.navalExchanges=ex;}

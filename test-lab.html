@@ -50,6 +50,8 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <label class="check"><input id="hideHud" type="checkbox">관찰 HUD 숨김</label>
 <label>패턴 진행 조종<select id="stepControl"><option value="observe">관찰 · 위치 유지</option><option value="up">전진 ↑</option><option value="left">좌선회 ←</option><option value="right">우선회 →</option><option value="down">후진입 ↓</option></select></label>
 <label>진행 시간<select id="stepDuration"><option value="2">2초</option><option value="0.5">0.5초</option></select></label>
+<label>도버 지형 검사<select id="doverLocation"><option value="west">영국 백악 절벽</option><option value="east">프랑스 해안</option><option value="north">북쪽 맵 경계</option><option value="sea">해협 중앙</option></select></label>
+<button id="doverView" type="button">도버 검사 위치로 이동</button>
 <label>보스 부위 조준<select id="airshipAim"><option value="">수동 조종</option><option value="0">왼쪽 비행선</option><option value="1">중앙 비행선</option><option value="2">오른쪽 비행선</option><option value="livens:tank-l1">리벤스 · 좌상 탱크</option><option value="livens:tank-l2">리벤스 · 좌하 탱크</option><option value="livens:tank-r1">리벤스 · 우상 탱크</option><option value="livens:tank-r2">리벤스 · 우하 탱크</option><option value="livens:pressure">리벤스 · 압력장치</option><option value="livens:core">리벤스 · 코어</option></select></label>
 <button id="patternStep" type="button" disabled>보스 패턴 진행</button>
 <button id="reload" type="button">현재 브랜치 새로고침</button>
@@ -168,6 +170,17 @@ $('patternStep').onclick=()=>{
  if(control==='observe'){game.x=px;game.y=py;game.a=pa;}
  if($('freeze').checked)game.state='paused';
  $('status').textContent='패턴 진행 · 기뢰 '+(game.hostileMinefields?.flatMap(f=>f.mines).length||0)+' · 장벽 '+(game.stageBoss?.hazards?.pool?.count||0);
+};
+// Test Lab only: inspect registered terrain and normal fleet spawning at its edges.
+$('doverView').onclick=async()=>{
+ const g=api?.debug?.();if(!g||g.worldRegion()!==17)return;
+ const {doverPatrolChart,doverWaterInterval,doverFlightBounds}=await import('./dover-patrol-chart.js?v=dover3');
+ const c=doverPatrolChart(g),b=doverFlightBounds(g),where=$('doverLocation').value;
+ let y=c.top+c.height*(where==='east'?.61:.3),q=doverWaterInterval(g,y),x=where==='west'?q.left+170:where==='east'?q.right-170:(q.left+q.right)/2;
+ if(where==='north'){x=(b.left+b.right)/2;y=b.top+80;}
+ x=Math.max(b.left,Math.min(b.right,x));y=Math.max(b.top,Math.min(b.bottom,y));
+ if(g.players){for(const p of g.players){p.x=x;p.y=y;}g.camera.x=x;g.camera.y=y;}else{g.x=x;g.y=y;}
+ g.fleetCrossing?.();$('status').textContent='도버 유한 지형 · '+Math.round(c.width)+'×'+Math.round(c.height)+' · 선박은 바다에서만 항해';
 };
 // Trench QA stimuli use the game's friendly projectile collision. These
 // controls never assign boss HP, phases, facility pose or player position.
