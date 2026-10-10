@@ -960,7 +960,28 @@
      "year": 1918,
      "role": "수상전투기",
      "base": "../hb_w29.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "해상 얼룩 위장",
+       "file": "liveries/hb_w29/mottle.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "일본 면허 한자형",
+       "file": "liveries/hb_w29/japan.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "해군 회색",
+       "file": "liveries/hb_w29/grey.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 초계 칠흑",
+       "file": "liveries/hb_w29/night.webp"
+      }
+     ]
     },
     {
      "id": "hansa_cc",
