@@ -1,7 +1,7 @@
 import {createSignatureView} from './pilot-signature-view.js?v=gal1';
 import {fx,fxTint} from './fx-art.js?v=gal1';
 import {planeSprite,aircraftKey} from './aircraft.js?v=gal1';
-import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';
+import {drawGameIcon} from './icons.js?v=gal1';
 
 import {drawCavalryGuard} from './pilot-directed-fx.js';
 const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
@@ -61,6 +61,9 @@ export function drawPetalParticle(c,p,x,y){
 
 // Equipment uses its real activation state. These small, bounded drawings never
 // create particles, change damage, or simulate an ability in the render loop.
+function equipmentStamp(c,key,x,y,size,alpha){
+ c.save();c.globalAlpha*=alpha;drawGameIcon(c,key,x,y,size);c.restore();
+}
 function drawScarf(c,t){
  // Two folded cloth tails, attached behind the cockpit, not speed trails.
  for(let side=-1;side<=1;side+=2){
@@ -75,6 +78,11 @@ function drawScarf(c,t){
 function drawEquipmentEffects151(c,p,x,y){
  if(p.hp<=0)return;const t=p.t||0;c.save();c.translate(x,y);c.rotate(p.a);
  if(p.pilot==='baracca'&&p.prancingHorseFlash160>0)drawCavalryGuard(c,Math.min(1,p.prancingHorseFlash160/.34));
+ if(p.prancingHorseFlash160>0&&p.pilot!=='baracca'){
+  const f=Math.min(1,p.prancingHorseFlash160/.15),a=(p.equipmentImpactAngle??p.a)-p.a;
+  fx(c,'ricochet',Math.cos(a)*29,Math.sin(a)*22,40,23,a,f*.8);
+  equipmentStamp(c,'prancingHorse',8,-36,27,f*.95);
+ }
  // Existing engine upgrade is outside the special-equipment pass.
  if(p.upgrades?.mercedesEngine){const output=Math.max(0,Math.min(1,p.mercedesOutput160||0));c.save();c.globalAlpha=.18+output*.28;c.strokeStyle='#c6d0c6';c.lineWidth=1+output*.7;for(const side of [-1,1]){c.beginPath();c.moveTo(-25,side*8);c.quadraticCurveTo(-40-output*13,side*(10+Math.sin(t*18)*2),-52-output*24,side*12);c.stroke()}c.restore()}
  if(p.scarffRing){
@@ -83,17 +91,25 @@ function drawEquipmentEffects151(c,p,x,y){
   c.lineCap='round';c.strokeStyle='#30291f';c.lineWidth=4;c.beginPath();c.moveTo(24,0);c.lineTo(35,0);c.stroke();
   c.strokeStyle='#c4b696';c.lineWidth=1.5;c.stroke();c.restore();
  }
+ if(p.repairFlash151>0){
+  const q=1-p.repairFlash151/.75,f=Math.min(1,q*10)*Math.min(1,p.repairFlash151/.2);
+  // An actual kit stamp and two inward tightening seams, never damage smoke.
+  c.save();c.rotate(-p.a);equipmentStamp(c,'sparkPlug',0,-43-q*7,31,f);
+  c.globalAlpha*=f*.75;c.strokeStyle='#c5d0a7';c.lineWidth=1.4;
+  for(let s=-1;s<=1;s+=2){const dx=s*(29-q*8);c.beginPath();c.moveTo(dx,-9);c.lineTo(dx,8);c.lineTo(dx-s*4,12);c.stroke()}
+  c.restore();
+ }
  if(p.upgrades?.redScarf)drawScarf(c,t);
  c.restore();
 }
 
 function drawPrecisionEquipment156(c,p,x,y){
  if(p.hp<=0)return;
- const t=p.t||p.world?.t||0,held=p.upgrades||{};
+ const t=p.t||p.world?.t||0,held=p.upgrades||{},acquire=p.equipmentAcquire156;
  c.save();c.translate(x,y);
  if(p.telescopeFocus156>0&&p.telescopeTarget156?.hp>0){
   const e=p.telescopeTarget156,dx=e.x-p.x,dy=e.y-p.y;
-  const settle=Math.min(1,p.telescopeFocus156/.06),r=21+(1-settle)*3;
+  const settle=Math.min(1,p.telescopeFocus156/.15),r=19+(1-settle)*5;
   // Only mark the real selected target; a long line suggested a laser weapon.
   c.save();c.translate(dx,dy);c.globalAlpha*=settle*.9;
   for(let pass=0;pass<2;pass++){
@@ -104,12 +120,9 @@ function drawPrecisionEquipment156(c,p,x,y){
  c.save();c.rotate(p.a);
  if(held.badinGauge&&typeof p.badinDamageBonus==='function'){
   const q=Math.min(1,p.badinDamageBonus()/.6);
-  // Sustained engine output is visible at the gun only while it fires.
-  // No floating dial or blue dash trails. This never creates extra projectiles.
-  if(q>0&&p.muzzleFlash>0&&p.reloadTime===0){
-   const f=Math.min(1,p.muzzleFlash/.07)*q;
-   for(let side=-1;side<=1;side+=2)fx(c,'muzzle',30,side*7,24+q*9,9,0,f*.6);
-  }
+  // Sustained-power instrument, not blue speed lines that imply a dash.
+  if(q>0){c.save();c.translate(-9,37);c.rotate(-p.a);equipmentStamp(c,'badinGauge',0,0,23,.86);
+   c.strokeStyle='#e7c991';c.lineWidth=1.2;const a=-Math.PI*.85+q*Math.PI*.7;c.beginPath();c.moveTo(0,1);c.lineTo(Math.cos(a)*6,1+Math.sin(a)*6);c.stroke();c.restore()}
  }
  if(held.immelmannManual&&p.evadeTime>0){
   const f=Math.min(1,p.evadeTime/.18);
@@ -134,6 +147,7 @@ function drawPrecisionEquipment156(c,p,x,y){
  // Mauser already has its own muzzle, aimed projectile and hit FX in the
  // actual weapon renderer. Do not overlay a second purple pseudo-projectile.
  c.restore();
+ if(held.ironCross&&p.skillTime>0)equipmentStamp(c,'ironCross-'+(p.faction==='entente'||['fonck','baracca','mccudden','nungesser','guynemer','bishop','mannock','mckeever','collishaw'].includes(p.pilot)?'entente':'central'),0,-43,22,Math.min(.65,p.skillTime*2));
  if(held.fogCompass){
   // Trace only drops actually moving inward within this owner's pickup range.
   let count=0;const world=p.combatWorld?.()||p;
@@ -144,37 +158,15 @@ function drawPrecisionEquipment156(c,p,x,y){
  }
  // Mobilization is represented by its actual three additional wingmen, not
  // unrelated chevrons attached to the player's aircraft.
- // The inventory already confirms acquisition. Do not duplicate item cards
- // above the aircraft, including the horse's former round badge.
-
+ if(acquire?.life>0){
+  const q=1-acquire.life/acquire.maxLife,alpha=Math.min(1,q*8)*Math.min(1,acquire.life*4),id=acquire.id;
+  equipmentStamp(c,id==='ironCross'?(p.plane?.includes('fokker')||p.plane==='albatros'?'ironCross-central':'ironCross-entente'):id,0,-48-q*10,30,alpha);
+ }
  c.restore();
 }
 
 export function drawEquipmentDefense(c,p,x,y){
  c.save();c.translate(x,y);c.rotate(p.a);
- // Above the airframe: the isolated horse cannot disappear beneath a wing.
- if(p.prancingHorseFlash160>0){
-  const f=Math.min(1,p.prancingHorseFlash160/.14),a=(p.equipmentImpactAngle??p.a)-p.a;
-  fx(c,'ricochet',Math.cos(a)*29,Math.sin(a)*22,38,22,a,f*.75);
-  c.save();c.translate(43,0);c.rotate(-p.a);drawHorseSilhouette(c,0,-5,34,f*.92);c.restore();
- }
- if(p.repairFlash151>0){
-  const q=1-p.repairFlash151/.75,f=Math.min(1,q*10)*Math.min(1,p.repairFlash151/.2);
-  // Brief light catches the existing wing fabric as the repair completes.
-  // No floating toolbox, green aura, or false damage smoke.
-  for(let side=-1;side<=1;side+=2){
-   const y=side*(27-q*16);fx(c,'spark',1,y,12,8,side*.45,f*.65);
-   c.save();c.globalAlpha*=f*.8;c.strokeStyle='#d6c5a0';c.lineWidth=1;
-   c.beginPath();c.moveTo(-6,y-side*3);c.lineTo(6,y-side*1);c.stroke();c.restore();
-  }
- }
- if(p.upgrades?.ironCross&&p.skillTime>0){
-  // A restrained gilt glint on both wings during the actual active skill.
-  // The medal itself stays in the HUD, where it is legible.
-  const pulse=Math.pow(Math.max(0,Math.sin((p.t||0)*5)),8);
-  if(pulse>.02)for(let side=-1;side<=1;side+=2)fx(c,'spark',2,side*24,14,6,p.a,pulse*.5);
- }
-
  if(p.jArmorCapsule&&p.equipmentArmorFlash>0){
   const q=1-p.equipmentArmorFlash/.24,a=(p.equipmentImpactAngle??p.a)-p.a;
   const ix=Math.cos(a)*29,iy=Math.sin(a)*24;
@@ -187,7 +179,7 @@ export function drawEquipmentDefense(c,p,x,y){
   // An irregular trailing smoke curtain; the nose and incoming rounds remain
   // readable. Fixed six sprites, no per-frame particle or gradient allocation.
   for(let i=0;i<6;i++){const q=((age*.55+i/6)%1),side=i%2?1:-1;
-   fx(c,'smokeWisp',-8-q*64,side*(8+q*26),62+q*51,45+q*29,Math.PI+side*.25,fade*(1-q)*.44);
+   fx(c,'smokeWisp',-8-q*64,side*(8+q*26),62+q*51,45+q*29,Math.PI+side*.25,fade*(1-q)*.36);
   }
  }
  if(p.rankinFlash>0){
