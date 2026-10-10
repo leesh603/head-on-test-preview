@@ -1,0 +1,71 @@
+{
+  "baseMain": "34d81127a79943673ec14681d42732910bf59df4",
+  "runtime": "46ac54ce1e638a638558b8d19f136ba8c205ed89",
+  "branch": "feature/living-ww1-battlefield-20261011",
+  "scope": "CPU time inside drawMovingDressing only; diagnostics are excluded. Not whole-game FPS, GPU or physical phone heat.",
+  "samples": {
+    "before-mobile": {
+      "mode": "before",
+      "region": 3,
+      "frames": 180,
+      "layout": [
+        390,
+        844
+      ],
+      "rafMs": {
+        "p50": 16.699999999982538,
+        "p95": 33.40000000002328,
+        "max": 1049.8999999999942
+      },
+      "dressingMs": {
+        "samples": 181,
+        "p50": 0.1,
+        "p95": 0.3,
+        "max": 5.5
+      },
+      "note": "Browser layout check, not physical mobile thermal measurement"
+    },
+    "after-mobile": {
+      "mode": "after",
+      "region": 3,
+      "frames": 180,
+      "layout": [
+        390,
+        844
+      ],
+      "rafMs": {
+        "p50": 16.69999999999709,
+        "p95": 33.400000000001455,
+        "max": 1033.0999999999985
+      },
+      "dressingMs": {
+        "samples": 181,
+        "p50": 0.1,
+        "p95": 0.3,
+        "max": 2.8
+      },
+      "note": "Browser layout check, not physical mobile thermal measurement"
+    },
+    "after-desktop": {
+      "mode": "after",
+      "region": 3,
+      "frames": 180,
+      "layout": [
+        1280,
+        800
+      ],
+      "rafMs": {
+        "p50": 16.70000000001164,
+        "p95": 50,
+        "max": 1033.2000000000116
+      },
+      "dressingMs": {
+        "samples": 181,
+        "p50": 0.2,
+        "p95": 0.5,
+        "max": 3.2
+      },
+      "note": "Browser layout check, not physical mobile thermal measurement"
+    }
+  }
+}
