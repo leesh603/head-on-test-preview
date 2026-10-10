@@ -844,6 +844,26 @@
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "bosses/friedrichshafen_g3.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "로젠지 위장천",
+       "file": "liveries/friedrichshafen_g3/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간폭격 칠흑",
+       "file": "liveries/friedrichshafen_g3/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "초기 연색 생산",
+       "file": "liveries/friedrichshafen_g3/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "영국 반입 평가기",
+       "file": "liveries/friedrichshafen_g3/raf.webp"
       }
      ]
     },
