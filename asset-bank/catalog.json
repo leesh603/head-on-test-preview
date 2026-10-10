@@ -1553,6 +1553,26 @@
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "planes/dh4.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미국 리버티 USAS 별",
+       "file": "liveries/dh4/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 폭격 칠흑",
+       "file": "liveries/dh4/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "훈련·후방 은색",
+       "file": "liveries/dh4/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 시험기",
+       "file": "liveries/dh4/captured.webp"
       }
      ]
     },
