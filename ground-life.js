@@ -21,6 +21,7 @@ const atlasReady=typeof Image==='undefined'?Promise.resolve(false):new Promise(r
 // FX source sheets include large transparent margins. Bake tight 128px
 // ground-only copies once; no per-frame pixel reads, filters or new images.
 const groundFxImages={};
+export const groundLifeStats={atlas:0,fx:0,vehicles:0,groups:0,emitters:0,alpha:1};
 export const groundLifeReady=Promise.all([atlasReady,fxArtReady]).then(([ok])=>{
  if(typeof document==='undefined')return ok;
  const keys=['smokeDark','smokeDust','fireGround','dirtBurst','gunSmoke','dustPuff'];
@@ -135,6 +136,7 @@ function wreckFire(c,x,y,t,seed,low){
 }
 const LIMIT=Object.freeze({vehicle:6,fight:5,event:10});
 export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
+ groundLifeStats.atlas=sprites.length;groundLifeStats.fx=Object.keys(groundFxImages).length;groundLifeStats.alpha=c.globalAlpha;
  if(!sprites.length||!Number.isFinite(period)||period<=0||!Number.isFinite(t)||density<=0)return;
  const routes=GROUND_ROUTES[key],fights=GROUND_FIGHTS[key],events=GROUND_EVENTS[key];if(!routes&&!fights&&!events)return;
  let vehicles=0,groups=0,emitters=0;
@@ -203,6 +205,7 @@ export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
    }
   }
  }
+ groundLifeStats.vehicles=vehicles;groundLifeStats.groups=groups;groundLifeStats.emitters=emitters;
 }
 // The harbor is one authored landmark, so activity is clipped to that same
 // transform/fade by its caller. Coordinates use the harbor master, not sea tiles.
