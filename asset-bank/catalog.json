@@ -2897,6 +2897,26 @@
        "kind": "livery",
        "name": "전후 민간 경주기 붉은색",
        "file": "liveries/bristol_m1/red.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "영국 RFC 표준",
+       "file": "liveries/bristol_m1/british.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아제국 공군",
+       "file": "liveries/bristol_m1/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스군 평가기",
+       "file": "liveries/bristol_m1/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/bristol_m1/leader.webp"
       }
      ]
     },
