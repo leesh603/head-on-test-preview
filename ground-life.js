@@ -35,7 +35,7 @@ export const groundLifeReady=Promise.all([atlasReady,fxArtReady]).then(([ok])=>{
    for(let y=0;y<128;y++)for(let x=0;x<128;x++)if(pixels[(y*128+x)*4+3]>5){l=Math.min(l,x);r=Math.max(r,x);top=Math.min(top,y);b=Math.max(b,y);}
    if(r<=l||b<=top)continue;l=Math.max(0,l-2);top=Math.max(0,top-2);r=Math.min(127,r+2);b=Math.min(127,b+2);
    const tight=document.createElement('canvas');tight.width=r-l+1;tight.height=b-top+1;const tc=tight.getContext('2d');if(!tc)continue;
-   tc.drawImage(cv,l,top,tight.width,tight.height,0,0,tight.width,tight.height);groundFxImages[key]=tight;
+   tc.drawImage(cv,l,top,tight.width,tight.height,0,0,tight.width,tight.height);groundFxImages[key]=tight;groundLifeStats.fx++;
   }catch{/* Original painted FX remains the safe fallback. */}
  }return ok;
 });
@@ -114,8 +114,9 @@ export function groundInfantryPose(t,seed,station,member,out){
 }
 // Painted sprites only. Ground blasts are brown earth, never air fireballs.
 // All tails have a finite lifetime and at most three baked smoke images.
-function shellScene(c,x,y,age,burning,low){
+function shellScene(c,x,y,age,burning,low,ignite=false){
  if(age<0||age>18)return;
+ if(ignite&&age>.65&&age<9){const fade=Math.min(1,(age-.65)/1.2,(9-age)/2);groundFx(c,'fireGround',x,y+4,42+Math.sin(age*9)*3,28,0,.65*fade);}
  if(age<.32)groundFx(c,'profileEarth'+Math.min(3,Math.floor(age/.08)),x,y,54,48,0,.76*(1-age/.55));
  if(age<1.65)groundFx(c,'dirtBurst',x,y-age*8,54+age*24,48+age*22,0,.7*(1-age/1.65));
  if(age<5.5)groundFx(c,'smokeDust',x+age*3,y-age*4,58+age*12,52+age*10,0,.55*Math.min(1,age/.4)*(1-age/5.5));
@@ -127,16 +128,16 @@ function shellScene(c,x,y,age,burning,low){
 }
 function wreckFire(c,x,y,t,seed,low){
  const flicker=.87+Math.sin(t*7+seed)*.08+Math.sin(t*11+seed)*.05;
- groundFx(c,'fireGround',x,y,49*flicker,28*flicker,0,.7);
+ groundFx(c,'fireGround',x,y,59*flicker,36*flicker,0,.75);
  // Staggered rising smoke prevents a solitary puff from resetting visibly.
  for(let n=0;n<(low?2:3);n++){
   const q=mod(t*.065+n/3+seed*.003,1),fade=Math.sin(q*Math.PI);
-  groundFx(c,'smokeDark',x+q*26+n*3,y-12-q*66,44+q*60,62+q*88,-.16,.63*fade);
+  groundFx(c,'smokeDark',x+q*26+n*3,y-12-q*66,48+q*65,68+q*95,-.16,.7*fade);
  }
 }
 const LIMIT=Object.freeze({vehicle:6,fight:5,event:10});
 export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
- groundLifeStats.atlas=sprites.length;groundLifeStats.fx=Object.keys(groundFxImages).length;groundLifeStats.alpha=c.globalAlpha;
+ groundLifeStats.atlas=sprites.length;groundLifeStats.alpha=c.globalAlpha;
  if(!sprites.length||!Number.isFinite(period)||period<=0||!Number.isFinite(t)||density<=0)return;
  const routes=GROUND_ROUTES[key],fights=GROUND_FIGHTS[key],events=GROUND_EVENTS[key];if(!routes&&!fights&&!events)return;
  let vehicles=0,groups=0,emitters=0;
@@ -181,7 +182,7 @@ export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
    // Two impacts on the inspected dry apron, timed to the same squad clock.
    if(emitters<(low?6:LIMIT.event)){
     emitters++;const phase=groundBattlePhase(t,seed,j);
-    shellScene(c,x0+Math.cos(aim)*28,y0+Math.sin(aim)*28,mod(phase-9,24),key==='burning',low);
+    shellScene(c,x0+Math.cos(aim)*28,y0+Math.sin(aim)*28,mod(phase-9,24),key==='burning',low,key==='burning'&&j%2===0);
     if(!low)shellScene(c,x0-tx*22+Math.cos(aim)*19,y0-ty*22+Math.sin(aim)*19,mod(phase-11,24),key==='burning',low);
    }
   }
@@ -201,7 +202,7 @@ export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
    if(e[2]==='fire')wreckFire(c,x,y,t,j+seed,low);
    else {
     const cycle=key==='burning'?13:17,q=mod(t+j*3.31+(seed%61)*.47,cycle);
-    shellScene(c,x,y,q,key==='burning',low);
+    shellScene(c,x,y,q,key==='burning',low,key==='burning'&&j%3===0);
    }
   }
  }
