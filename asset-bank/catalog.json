@@ -1782,6 +1782,26 @@
        "kind": "livery",
        "name": "수비·훈련 은색",
        "file": "liveries/strutter/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/strutter/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "일본 아이치 면허기",
+       "file": "liveries/strutter/japanese.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 칠흑",
+       "file": "liveries/strutter/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전선 얼룩 위장",
+       "file": "liveries/strutter/camo.webp"
       }
      ]
     },
