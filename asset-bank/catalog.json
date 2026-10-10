@@ -2517,7 +2517,28 @@
      "year": 1916,
      "role": "비행정",
      "base": "../macchi_m3.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "아드리아해 얼룩 위장",
+       "file": "liveries/macchi_m3/mottle.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "스위스 공군 흰십자",
+       "file": "liveries/macchi_m3/swiss.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 초계 칠흑",
+       "file": "liveries/macchi_m3/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미해군 평가기 별",
+       "file": "liveries/macchi_m3/usn.webp"
+      }
+     ]
     },
     {
      "id": "macchi_m5",
