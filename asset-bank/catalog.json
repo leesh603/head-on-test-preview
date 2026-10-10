@@ -833,7 +833,28 @@
      "year": 1915,
      "role": "전투기",
      "base": "../airco_dh2.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "훈련기 은색",
+       "file": "liveries/airco_dh2/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 시험기",
+       "file": "liveries/airco_dh2/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 칠흑",
+       "file": "liveries/airco_dh2/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "비행장 붉은 동체",
+       "file": "liveries/airco_dh2/red.webp"
+      }
+     ]
     },
     {
      "id": "fe2b",
