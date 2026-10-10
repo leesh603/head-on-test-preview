@@ -197,6 +197,26 @@
        "kind": "ace",
        "name": "Wolff (2)",
        "file": "../wolff2_albatros.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "초기형 합판+은색 날개",
+       "file": "liveries/albatros_d5a/wood.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "Jasta 46 황색 동체",
+       "file": "liveries/albatros_d5a/jasta46.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "흑색 동체 야간기",
+       "file": "liveries/albatros_d5a/black.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "겨울 백색 도장",
+       "file": "liveries/albatros_d5a/winter.webp"
       }
      ]
     },
