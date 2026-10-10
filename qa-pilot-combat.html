@@ -5,7 +5,7 @@
 <script>
 const $=id=>document.getElementById(id),frames=[$('before'),$('after')];let apis=[],games=[];
 frames[0].src='./qa-combat-before.html?headonTest=1&autostart=0';frames[1].src='./qa-combat-after.html?headonTest=1&autostart=0';
-function status(){ $('status').textContent='재현 완료 · '+games.map((g,i)=>(i?'후':'전')+' HP '+g.hp.toFixed(1)+' · 발사 '+(g.roundsFired||0)+' · 도탄 '+(g.pilotIdentity?.three?.deflections||0)+' · 적중 '+g.qaTargets.map(t=>Math.round(10000-t.e.hp)).join(',')).join(' / ');}
+function status(){ $('status').textContent='재현 완료 · '+games.map((g,i)=>(i?'후':'전')+' HP '+g.hp.toFixed(1)+' · 발사 '+(g.roundsFired||0)+' · 도탄 '+(g.pilotIdentity?.three?.deflections||0)+' · 적중 '+(g.qaTargets||[]).map(t=>Math.round(10000-t.e.hp)).join(',')).join(' / ');}
 function target(g,x,y){g.spawnEnemy('bomber');const e=g.enemies.at(-1);Object.assign(e,{x:g.x+x,y:g.y+y,a:-Math.PI/2,fire:Infinity,hp:10000,maxHp:10000,speed:0});(g.qaTargets??=[]).push({e,x,y});return e;}
 function step(g,fire=false,dt=.02){for(const v of g.qaTargets||[]){v.e.x=g.x+v.x;v.e.y=g.y+v.y;v.e.a=-Math.PI/2;}g.state='playing';g.update(dt,{inputMode:'gamepad',fireHeld:fire,angle:g.qaAngle??-Math.PI/2});g.state='paused';}
 async function advance(time,fire=false){for(let t=0;t<time-.001;t+=.02){games.forEach(g=>step(g,fire));if(Math.round(t*50)%3===0)await new Promise(requestAnimationFrame);}}

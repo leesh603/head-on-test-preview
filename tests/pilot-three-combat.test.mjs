@@ -19,6 +19,7 @@ test('Schleich intercepts frontal light rounds only; rear and heavy threats stay
  const bullet=(x,y,extra={})=>({x,y,vx:-300,vy:0,life:2,enemy:true,...extra});
  const front=bullet(55,0),side=bullet(10,65),rear=bullet(-45,0,{vx:300}),heavy=bullet(55,0,{heavy:true}),away=bullet(55,0,{vx:300});p.bullets=[front,side,rear,heavy,away];tickThreePilot(p,.02);
  assert.equal(front.life,0);for(const b of [side,rear,heavy,away])assert.equal(b.life,2);assert.equal(p.identityState().three.deflections,1);
+ const fast=bullet(150,0,{vx:-10000});p.bullets=[fast];tickThreePilot(p,.02);assert.equal(fast.life,0);
  p.skillTime=0;const base=p.incomingDamageMultiplier(null);p.skillTime=2;assert.equal(p.incomingDamageMultiplier(null),base,'no old all-direction 55% active mitigation');
 });
 test('Lufbery hands off within the forward sector and loses dead/out-of-sector targets',()=>{
