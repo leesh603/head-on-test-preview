@@ -3,7 +3,7 @@
 <button data-region="2">참호</button><button data-region="3">포화참호</button><button data-region="8">캉브레</button><button data-region="10">솜</button><button data-region="0">전원</button><button data-region="4">도심</button><button data-region="7">항구</button><button data-region="14">해안</button>
 <button id="before">수정 전 main</button><button id="after">수정 후 브랜치</button><button id="mobile">390×844</button><button id="desktop">1280×800</button><button data-time="2">사격</button><button data-time="9.08">포격 순간</button><button data-time="14">잔불·후퇴</button><button id="impact">포격 직전</button><button id="sample">30초 시점</button><button id="step">2초 진행</button><button id="boss">보스 교전 검증</button><button id="play">실제 플레이</button><button id="perf">성능 180프레임</button><span id="render"></span><span id="assets">지상 atlas 확인 중</span><output id="status">로딩 중</output></header>
 <iframe id="game" title="실제 HEAD-ON 브랜치 게임"></iframe><script>
-let region=2,time=30,mode='after';const frame=document.querySelector('iframe'),status=document.querySelector('output');
+let region=3,time=8,mode='after';const frame=document.querySelector('iframe'),status=document.querySelector('output');
 const sites={2:[.291,.165,1254],3:[.286,.213,1254],8:[.86,.283,768],10:[.24,.69,1254],0:[.52,.375,768],4:[.8,.45,768],7:[0,0,1],14:[0,0,1]};
 const api=()=>frame.contentWindow.__HEADON_TEST__;
 function place(){if(!api()){status.textContent='Test bridge 로딩 중';return}api().start({region,pilot:'baron',invincible:true});const g=api().debug(),s=sites[region];let x=s[0]*s[2]+100,y=s[1]*s[2]+90;
@@ -39,6 +39,6 @@ async function loadVersion(which){
  frame.srcdoc=html;
 }
 document.querySelector('#before').onclick=()=>loadVersion('before');document.querySelector('#after').onclick=()=>loadVersion('after');
-frame.onload=()=>{const check=setInterval(()=>{if(api()){status.textContent='준비 완료 · '+mode;clearInterval(check)}},300)};
+frame.onload=()=>{const check=setInterval(()=>{if(api()){clearInterval(check);place();const g=api().debug();g.state='playing';g.fire=0;status.textContent='실제 '+mode+' 포화참호 플레이 · 위 버튼으로 시점/지형 선택'}},300)};
 loadVersion('after').catch(e=>{status.textContent='프리뷰 로딩 실패: '+e.message});
 </script>
