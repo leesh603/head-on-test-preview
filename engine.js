@@ -4,9 +4,9 @@ import {EXPLOSION_LIFE,initExplosionProfile,pushExplosionFx,advanceExplosionFx} 
 import {beginAircraftCrash,advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=gal1';
 import {wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=gal1';
 import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=gal1';
-import {installPilotIdentities} from './pilot-identities.js?v=gn1';
+import {installPilotIdentities} from './pilot-identities.js?v=dover2';
 import {EnemyCollisionGrid} from './collision-grid.js?v=gal1';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=gn1';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=dover2';
 import {installRevision} from './rebalance103.js?v=gal1&rail=42';
 import {installCloudCover} from './cloud-cover1.js?v=gal1';
 import {installFleet} from './fleet-naval1.js?v=gal1&rail=42';

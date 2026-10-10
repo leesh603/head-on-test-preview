@@ -1,3 +1,4 @@
+import {doverPatrolSpawn} from './dover-patrol-chart.js?v=dover2';
 import {fleetGunStations} from './naval-faction-atlas.js?v=gal1';
 import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=gal1';
 import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles} from './naval-spacing.js?v=gal1';
@@ -24,7 +25,7 @@ export function installFleet(Game){
   const playerSide=(typeof PLANES==='object'&&this.plane&&PLANES[this.plane])?PLANES[this.plane].faction:'entente';
   const side=faction??(playerSide==='central'?'entente':'central');
   const harbor=region===7&&this.navalRoute;if(harbor&&(this.navalRoute.maxForward||0)>=10400)return null;
-  const baseHeading=harbor?this.navalRoute.a:this.a+(this.rng()-.5)*.45,heading=baseHeading+(friendly?Math.PI:0);
+  const baseHeading=region===17?-Math.PI/2:harbor?this.navalRoute.a:this.a+(this.rng()-.5)*.45,heading=baseHeading+(friendly?Math.PI:0);
   const hx=Math.cos(baseHeading),hy=Math.sin(baseHeading),nx=-hy,ny=hx;
   const ahead=480+this.rng()*280,lateral=(friendly?-1:1)*(180+this.rng()*180);
   const bx=this.x+hx*ahead+nx*lateral,by=this.y+hy*ahead+ny*lateral;
@@ -34,6 +35,7 @@ export function installFleet(Game){
    const cls=comp[i],t=SHIP_TYPES[cls],e=friendly?{}:this.spawnEnemy('bomber');if(!e)break;
    const off=(i-(comp.length-1)/2)*130,back=i*150;
    Object.assign(e,{type:'ship',shipClass:cls,faction:side,name:side==='entente'?(cls==='aa'?'연합국 '+t.name:'연합국 '+t.name):(cls==='aa'?'중앙국가 '+t.name:'중앙국가 '+t.name),x:bx+nx*off-hx*back,y:by+ny*off-hy*back,a:heading,course:heading,weave:this.rng()*6.28,speed:0,sailingSpeed:t.speed,driveVelocity:0,stationary:true,surface:true,navalVessel:true,movingShip:true,hitRadius:cls==='aa'?44:36,hullLength:t.drawnH*.45,hullWidth:t.drawnH*.12,hp:t.hp,maxHp:t.hp,fire:2+i*.9,ace:false,escortPlane:undefined,life:70,hazardRegion:region,xpValue:cls==='aa'?16:9});
+   if(region===17){const q=doverPatrolSpawn(this,e.x,e.y,t.width*.3+28);e.x=q.x;e.y=q.y;}
    if(region===14&&this.gallipoliRoute){const r=this.gallipoliRoute,s=(e.x-r.x)*Math.cos(r.a)+(e.y-r.y)*Math.sin(r.a);if(s>2300){const n=-(e.x-r.x)*Math.sin(r.a)+(e.y-r.y)*Math.cos(r.a);e.x=r.x+Math.cos(r.a)*2300-Math.sin(r.a)*n;e.y=r.y+Math.sin(r.a)*2300+Math.cos(r.a)*n}}
    if(!vacantShipPose(this,e)){if(!friendly)e.expired=true;continue;}if(friendly)this.friendlyShips.push(e);ships.push(e);
   }

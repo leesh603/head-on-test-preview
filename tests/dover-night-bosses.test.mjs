@@ -20,6 +20,7 @@ function fixture(Ctor){
   return{body,encounter,events,hazards,frame,hits,statuses};
 }
 function step(f,seconds,ctx=f.frame){for(let i=0;i<Math.ceil(seconds/.02);i++){f.encounter.update(.02,ctx);f.hazards.update(.02,ctx);}}
+function stepUntil(f,predicate,limit=20,ctx=f.frame){for(let i=0;i<Math.ceil(limit/.02)&&!predicate();i++){f.encounter.update(.02,ctx);f.hazards.update(.02,ctx);}assert.ok(predicate(),'timed out waiting for combat phase');}
 const destroy=(f,id)=>f.body.hit({partId:id,damage:1e6});
 const attacks=f=>f.events.filter(e=>e.type==='hazard');
 function worldAt(body,x,y){
@@ -32,7 +33,7 @@ function artCorners(body){
 }
 
 test('Dover sprite contract is centered, bounded, unique, and matches every wreck clip',()=>{
-  for(const [layout,key,count] of [[DOVER_NIGHTHAWK_LAYOUT,'nighthawk',8],[DOVER_RVIII_LAYOUT,'rviii',11]]){
+  for(const [layout,key,count] of [[DOVER_NIGHTHAWK_LAYOUT,'nighthawk',9],[DOVER_RVIII_LAYOUT,'rviii',11]]){
     assert.deepEqual([layout.width,layout.height],[1200,800]);assert.equal(layout.parts.length,count);
     assert.equal(new Set(layout.parts.map(p=>p.id)).size,count);assert.deepEqual(Object.keys(DOVER_PART_CLIPS[key]).sort(),layout.parts.map(p=>p.id).sort());
     const clips=Object.entries(DOVER_PART_CLIPS[key]);for(const [id,[x,y,w,h]] of clips){
@@ -93,12 +94,12 @@ test('Swept hull routing catches painted wing and core crossings but preserves t
   assert.equal(body.locateHit(sweep([260,-160],[340,-160])),null,'same-size step through the interplane gap must miss');
 });
 
-test('Rotation-aware flight bounds contain the whole sprite when it fits and remain stable when it cannot',()=>{
+test('Airframe extents remain rotation-aware while zero-speed flight never snaps to a viewport edge',()=>{
   const bounds={left:0,right:500,top:0,bottom:500};
   for(const [Ctor,scale,rotation] of [[SupermarineNighthawk,.26,.4],[SiemensSchuckertRVIII,.32,.47]]){
     const body=new Ctor({id:'bounds',tuning:{...tuning,geometryScale:scale},x:-80,y:700});body.a=rotation-Math.PI/2;body.rotateMounts();
-    body.fly(.04,[],bounds,0,0,0);
-    for(const point of artCorners(body)){assert.ok(point.x>=bounds.left-1e-8&&point.x<=bounds.right+1e-8,`${Ctor.name} x corner`);assert.ok(point.y>=bounds.top-1e-8&&point.y<=bounds.bottom+1e-8,`${Ctor.name} y corner`);}
+    const before=[body.x,body.y],extent=body.airframeExtents(),corners=artCorners(body);body.fly(.04,[],bounds,0,0,0);
+    assert.deepEqual([body.x,body.y],before);assert.ok(corners.every(p=>Math.abs(p.x-before[0])<=extent.x+1e-8&&Math.abs(p.y-before[1])<=extent.y+1e-8));
   }
   const cramped={left:0,right:260,top:0,bottom:180},body=new SiemensSchuckertRVIII({id:'cramped',tuning:{...tuning,geometryScale:.32},x:90,y:70});
   body.a=.47-Math.PI/2;body.rotateMounts();const before=[body.x,body.y];body.fly(.04,[],cramped,0,0,0);
@@ -106,15 +107,17 @@ test('Rotation-aware flight bounds contain the whole sprite when it fits and rem
 });
 
 test('Nighthawk locks fixed warnings, alternates co-op targets, then grants a quiet recovery',()=>{
-  const f=fixture(SupermarineNighthawk);step(f,5.15);
+  const f=fixture(SupermarineNighthawk);step(f,5.4);
   const lights=attacks(f).filter(e=>e.kind==='searchlight'),targets=new Set(attacks(f).map(e=>e.targetId).filter(Boolean));
   assert.equal(lights.length,3);assert.ok(lights.every(e=>e.warning===1.1&&e.angularSpeed===0&&e.sourcePartId==='lamp'));
   assert.deepEqual([...targets].sort(),['one','two']);
-  const cannon=attacks(f).find(e=>e.visual==='davis-cannon');assert.ok(cannon);assert.equal(cannon.kind,'projectile');assert.ok(Math.abs(Math.hypot(cannon.vx,cannon.vy)-550)<1e-9);
-  assert.equal(cannon.radius,8);assert.equal(cannon.warning,1.35);assert.equal(cannon.duration,1.6);assert.equal(cannon.length,880);
-  assert.ok(f.events.some(e=>e.type==='dover-cannon-warning'&&e.safeGap===80));assert.equal(f.body.phase,'cannon');
-  step(f,1.76);assert.equal(f.body.phase,'recovery');assert.equal(f.body.coreVulnerable,true);const count=attacks(f).length;
-  step(f,2.5);assert.equal(attacks(f).length,count,'recovery is a real attack gap');step(f,.52);assert.equal(f.body.phase,'hunt');assert.equal(f.body.coreVulnerable,false);
+  const cannon=attacks(f).filter(e=>e.visual==='davis-cannon');assert.equal(cannon.length,2);assert.ok(cannon.every(e=>e.kind==='projectile'&&Math.abs(Math.hypot(e.vx,e.vy)-550)<1e-9));
+  assert.ok(cannon.every(e=>e.radius===8&&e.warning===1.35&&e.duration===1.6&&e.length===880));
+  const lightBombs=attacks(f).filter(e=>e.visual==='nighthawk-light-bomb');assert.equal(lightBombs.length,3);assert.ok(lightBombs.every(e=>e.sourcePartId===null&&e.launchPartId==='bomb-rack'&&e.tag===f.body.id+':released-bombs'&&e.once));
+  const thirdLight=f.events.map(e=>e.type).lastIndexOf('dover-search-warning'),rackWarning=f.events.findIndex(e=>e.type==='dover-light-bomb-warning'),cannonWarning=f.events.findIndex(e=>e.type==='dover-cannon-warning');
+  assert.ok(thirdLight<rackWarning&&rackWarning<cannonWarning);assert.ok(f.events[cannonWarning].safeGap===80);assert.equal(f.body.phase,'cannon');
+  step(f,1.92);assert.equal(f.body.phase,'recovery');assert.equal(f.body.coreVulnerable,true);const count=attacks(f).length;
+  step(f,2.8);assert.equal(attacks(f).length,count,'recovery is a real attack gap');step(f,.42);assert.equal(f.body.phase,'hunt');assert.equal(f.body.coreVulnerable,false);
 });
 
 test('Destroyed Nighthawk mounts cease and cancel their queued hazards',()=>{
@@ -124,6 +127,9 @@ test('Destroyed Nighthawk mounts cease and cancel their queued hazards',()=>{
   const after=f.events.length;step(f,15);assert.ok(!f.events.slice(after).some(e=>e.type==='hazard'&&e.sourcePartId==='lamp'));
   destroy(f,'gun-left');destroy(f,'davis-cannon');const later=f.events.length;step(f,12);
   assert.ok(!f.events.slice(later).some(e=>e.type==='hazard'&&['gun-left','davis-cannon'].includes(e.sourcePartId)));
+  const rack=fixture(SupermarineNighthawk);stepUntil(rack,()=>attacks(rack).some(e=>e.visual==='nighthawk-light-bomb'),6);const released=attacks(rack).filter(e=>e.visual==='nighthawk-light-bomb');assert.equal(released.length,1);
+  let airborne=0;rack.hazards.pool.visit(h=>{if(h.tag===rack.body.id+':released-bombs')airborne++;});assert.equal(airborne,1);destroy(rack,'bomb-rack');let afterLoss=0;rack.hazards.pool.visit(h=>{if(h.tag===rack.body.id+':released-bombs')afterLoss++;});assert.equal(afterLoss,airborne);
+  step(rack,14);assert.equal(attacks(rack).filter(e=>e.visual==='nighthawk-light-bomb').length,1,'destroyed rack stops the two releases still queued');
 });
 
 test('Nighthawk engine and wing losses slow and yaw it, then leave a persistent vulnerable last stand',()=>{
@@ -131,19 +137,31 @@ test('Nighthawk engine and wing losses slow and yaw it, then leave a persistent 
   destroy(f,'engine-left');step(f,.05);assert.ok(f.body.currentSpeed<full);assert.ok(f.body.hullYaw>0);
   destroy(f,'engine-right');assert.equal(f.body.phase,'last-stand');assert.equal(f.body.coreVulnerable,true);const slow=f.body.currentSpeed;step(f,14);
   assert.equal(f.body.phase,'last-stand');assert.equal(f.body.coreVulnerable,true);assert.ok(f.body.currentSpeed<=slow);assert.ok(attacks(f).some(e=>e.sourcePartId==='davis-cannon'));
-  for(const id of ['lamp','davis-cannon','gun-left','gun-right'])if(!f.body.parts.get(id).destroyed)destroy(f,id);
+  for(const id of ['lamp','davis-cannon','gun-left','gun-right','bomb-rack'])if(!f.body.parts.get(id).destroyed)destroy(f,id);
   const after=attacks(f).length;step(f,15);assert.equal(attacks(f).length,after);assert.equal(f.body.hit({damage:50}).damage,50);
 });
 
 test('R.VIII uses tagged ordinary turret fire and a two-sided warned bomb ladder with a safe center',()=>{
-  const f=fixture(SiemensSchuckertRVIII);step(f,6.15);
+  const f=fixture(SiemensSchuckertRVIII);stepUntil(f,()=>f.body.phase==='recovery',20);
   const shots=attacks(f).filter(e=>e.tag===f.body.id+':basic-fire'),bombs=attacks(f).filter(e=>e.visual==='rviii-bomb');
   assert.ok(shots.length>=5);assert.ok(shots.every(e=>e.kind==='projectile'&&e.visual==='rviii-gun'&&e.delay>=.6&&e.damage<f.body.t.damage));
-  assert.ok(f.events.some(e=>e.type==='charge-warning'&&e.basicFire));assert.equal(bombs.length,6);assert.ok(bombs.every(e=>e.warning===1.2&&e.sourcePartId.startsWith('bomb-bay-')));
-  assert.ok(f.events.some(e=>e.type==='dover-bomb-warning'&&e.safeGap===144));
+  assert.ok(f.events.some(e=>e.type==='charge-warning'&&e.basicFire));assert.equal(bombs.length,8);assert.ok(bombs.every(e=>e.warning===1.05&&e.sourcePartId===null&&e.launchPartId.startsWith('bomb-bay-')));
+  assert.ok(f.events.some(e=>e.type==='dover-bomb-warning'&&e.safeGap===76&&Number.isFinite(e.exitAngle)));
   assert.deepEqual([...new Set(attacks(f).map(e=>e.targetId).filter(Boolean))].sort(),['one','two']);
-  assert.equal(f.body.phase,'recovery');assert.equal(f.body.coreVulnerable,true);const count=attacks(f).length;step(f,2.3);assert.equal(attacks(f).length,count);
+  assert.equal(f.body.phase,'recovery');assert.equal(f.body.coreVulnerable,true);const count=attacks(f).length;step(f,2.7);assert.equal(attacks(f).length,count);
   step(f,.32);assert.equal(f.body.phase,'barrage');assert.equal(f.body.coreVulnerable,false);
+});
+
+test('Released R.VIII bombs survive their bay while destruction cancels every unlaunched drop',()=>{
+  const f=fixture(SiemensSchuckertRVIII);
+  const released=()=>attacks(f).filter(e=>e.visual==='rviii-bomb');
+  stepUntil(f,()=>released().length===1,20);
+  assert.equal(released().length,1);assert.equal(released()[0].launchPartId,'bomb-bay-right');
+  let activeBefore=0;f.hazards.pool.visit(h=>{if(h.tag===f.body.id+':released-bombs')activeBefore++;});assert.equal(activeBefore,1);
+  destroy(f,'bomb-bay-right');let activeAfter=0;f.hazards.pool.visit(h=>{if(h.tag===f.body.id+':released-bombs')activeAfter++;});assert.equal(activeAfter,activeBefore,'a bomb in the air is independent of its destroyed rack');
+  stepUntil(f,()=>f.body.phase==='recovery',5);assert.equal(released().filter(e=>e.launchPartId==='bomb-bay-right').length,1,'right rack cannot launch queued bombs after destruction');
+  assert.equal(released().filter(e=>e.launchPartId==='bomb-bay-left').length,4,'surviving rack completes its staggered half of the run');
+  f.body.coreVulnerable=true;f.body.hit({damage:f.body.maxHp});let afterDeath=0;f.hazards.pool.visit(h=>{if(h.tag===f.body.id+':released-bombs')afterDeath++;});assert.equal(afterDeath,0,'defeat clears detached ordnance owned by the encounter');
 });
 
 test('Dover ordinary fire obeys the density gate, recovery pause, and shared mount cancellation',()=>{
@@ -176,18 +194,17 @@ test('R.VIII weapon destruction removes each lane, clears warnings, and preserve
 
 test('Pause freezes combat and death cancels every tagged hazard for both aircraft',()=>{
   for(const Ctor of [SupermarineNighthawk,SiemensSchuckertRVIII]){
-    const f=fixture(Ctor);step(f,2);const state=[f.body.x,f.body.y,f.body.a,f.body.phase,f.body.phaseClock,f.body.beat,f.events.length],ages=[];f.hazards.pool.visit(h=>ages.push(h.age));
-    step(f,4,{...f.frame,paused:true});assert.deepEqual([f.body.x,f.body.y,f.body.a,f.body.phase,f.body.phaseClock,f.body.beat,f.events.length],state);const afterAges=[];f.hazards.pool.visit(h=>afterAges.push(h.age));assert.deepEqual(afterAges,ages);
+    const f=fixture(Ctor);step(f,2);const state=[f.body.x,f.body.y,f.body.a,f.body.flightSpeed,f.body.turnVelocity,f.body.bank,f.body.phase,f.body.phaseClock,f.body.beat,f.events.length],ages=[];f.hazards.pool.visit(h=>ages.push(h.age));
+    step(f,4,{...f.frame,paused:true});assert.deepEqual([f.body.x,f.body.y,f.body.a,f.body.flightSpeed,f.body.turnVelocity,f.body.bank,f.body.phase,f.body.phaseClock,f.body.beat,f.events.length],state);const afterAges=[];f.hazards.pool.visit(h=>afterAges.push(h.age));assert.deepEqual(afterAges,ages);
     f.body.coreVulnerable=true;const result=f.body.hit({damage:f.body.maxHp});assert.equal(result.bodyDefeated,true);assert.equal(f.body.dead,true);
     assert.equal(f.events.filter(e=>e.type==='cancel-hazards').slice(-f.body.parts.size).length,f.body.parts.size);assert.equal(f.hazards.pool.count,0);
     const count=f.events.length;step(f,5);assert.equal(f.events.length,count);
   }
 });
 
-test('Long fights remain finite, inside bounds, and within the fixed hazard pool',()=>{
+test('Long fights remain finite, within a bounded flypast envelope, and inside the fixed hazard pool',()=>{
   for(const Ctor of [SupermarineNighthawk,SiemensSchuckertRVIII]){
-    const f=fixture(Ctor);for(let i=0;i<6000;i++){f.encounter.update(.02,f.frame);f.hazards.update(.02,f.frame);assert.ok(Number.isFinite(f.body.x+f.body.y+f.body.a+f.body.currentSpeed));}
-    assert.ok(f.body.x>=f.frame.bounds.left&&f.body.x<=f.frame.bounds.right);assert.ok(f.body.y>=f.frame.bounds.top&&f.body.y<=f.frame.bounds.bottom);
+    const f=fixture(Ctor),w=f.frame.bounds.right-f.frame.bounds.left,h=f.frame.bounds.bottom-f.frame.bounds.top;for(let i=0;i<6000;i++){f.encounter.update(.02,f.frame);f.hazards.update(.02,f.frame);assert.ok(Number.isFinite(f.body.x+f.body.y+f.body.a+f.body.currentSpeed+f.body.bank));assert.ok(f.body.x>f.frame.bounds.left-w&&f.body.x<f.frame.bounds.right+w&&f.body.y>f.frame.bounds.top-h&&f.body.y<f.frame.bounds.bottom+h);}
     assert.ok(f.hazards.pool.count<=512);assert.ok(f.events.length<2500);for(const h of attacks(f))for(const key of ['x','y','damage','duration','warning'])assert.ok(Number.isFinite(h[key]),key);
   }
 });

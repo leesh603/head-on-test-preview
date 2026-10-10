@@ -14,7 +14,7 @@ test('Every playable area boss has a registered existing cut-in',()=>{
   assert.equal(bytes.toString('ascii',0,4),'RIFF',file);
   assert.equal(bytes.toString('ascii',8,12),'WEBP',file);
  }
- assert.equal(Object.keys(REDRAWN_BOSS_CUTINS).length,31);
+ assert.equal(Object.keys(REDRAWN_BOSS_CUTINS).length,33);
 });
 test('Cut-in preload is region scoped, cached and falls back after an image decode error',async()=>{
  const original=globalThis.Image,urls=[];
