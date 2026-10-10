@@ -67,7 +67,7 @@ function railSample(name,level){
 // Recorded-style rail-gun cues (tools/fx-sample/railgun-audio.py → rail-*.mp3), decoded once.
 const FILE_CUES=['rail-fire-520','rail-fire-bruno','rail-incoming-520','rail-incoming-bruno','rail-impact-520','rail-impact-bruno'];
 // Sample bank (tools/fx-sample/combat-audio.py, boss-audio.py → sfx/*.mp3): variants per cue, picked in turn.
-const BANK={mg:3,enemy:3,hit:4,hitmetal:2,damage:0,kill:0,flak:3,'boss-siren':0,'boss-drums':0,'boss-klaxon':0,'ship-horn':0,airship:0,armour:0,'ace-bugle':0,'ui-skill':0,'ui-levelup':0,'ui-upgrade':0,'ui-pickup':0,'ui-repair':0,'ui-reload':0,'ui-loaded':0,'engine-rotary':0,'engine-inline':0,'amb-front':0,'amb-sea':0};
+const BANK={mg:3,enemy:3,hit:4,hitmetal:2,damage:0,kill:0,flak:3,'boss-siren':0,'boss-drums':0,'boss-klaxon':0,'ship-horn':0,airship:0,armour:0,'ace-bugle':0,'ui-skill':0,'ui-levelup':0,'ui-upgrade':0,'ui-pickup':0,'ui-reload':0,'ui-loaded':0,'engine-rotary':0,'engine-inline':0,'amb-front':0,'amb-sea':0};
 const BANK_FILES=Object.entries(BANK).flatMap(([k,n])=>n?Array.from({length:n},(_,i)=>`sfx/${k}-${i}`):[`sfx/${k}`]);
 const fileBuffers=new Map();let filesRequested=false;
 // mp3 decoders prepend encoder padding; cut leading silence so rapid fire stays tight on the trigger.
