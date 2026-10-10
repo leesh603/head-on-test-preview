@@ -1786,7 +1786,28 @@
      "year": 1917,
      "role": "전투기",
      "base": "../dh5.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "훈련기 은색",
+       "file": "liveries/dh5/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "중동전선 사막 크림",
+       "file": "liveries/dh5/desert.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 칠흑",
+       "file": "liveries/dh5/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 시험기",
+       "file": "liveries/dh5/captured.webp"
+      }
+     ]
     },
     {
      "id": "dh9",
