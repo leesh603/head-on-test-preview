@@ -2409,6 +2409,26 @@
        "kind": "livery",
        "name": "독일 노획 시험기",
        "file": "liveries/dolphin/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "영국 RAF 표준",
+       "file": "liveries/dolphin/british.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "벨기에 항공대",
+       "file": "liveries/dolphin/belgian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전선 얼룩 위장",
+       "file": "liveries/dolphin/camo.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/dolphin/leader.webp"
       }
      ]
     },
