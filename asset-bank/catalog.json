@@ -2927,6 +2927,26 @@
        "kind": "livery",
        "name": "그리스 육군 항공대",
        "file": "liveries/breguet14/greek.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "벨기에 전후 인수기",
+       "file": "liveries/breguet14/belgian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "이탈리아 평가기",
+       "file": "liveries/breguet14/italian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "중동전선 사막 크림",
+       "file": "liveries/breguet14/desert.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/breguet14/leader.webp"
       }
      ]
     },
