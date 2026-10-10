@@ -1788,6 +1788,26 @@
        "kind": "livery",
        "name": "야간전 칠흑",
        "file": "liveries/pup/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/pup/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "중동전선 사막 크림",
+       "file": "liveries/pup/desert.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/pup/leader.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "이색 얼룩 위장",
+       "file": "liveries/pup/camo.webp"
       }
      ]
     },
