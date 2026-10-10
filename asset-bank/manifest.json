@@ -1,7 +1,7 @@
 {
   "note": "Candidate sprite stock — NOT wired into the game. Keyed webp sprites (border flood-fill white cutout, alpha-cropped, max 768px) generated with in-game sprite references as the style source. Source PNGs archived at C:UsersAdministratorasset-src on the build box. Batch 2: +31 boss sprites (10 new types, 3-state destruction sets, turret parts, experimental weapons).",
   "generated": "2026-10-10",
-  "v": 5,
+  "v": 6,
   "categories": {
     "planes": [
       {
@@ -275,189 +275,189 @@
     ],
     "bosses": [
       {
-        "file": "bosses/uboat.webp",
-        "name": "U-9 class surfaced U-boat",
-        "kind": "naval boss hull"
+        "file": "bosses/aa_truck/base.webp",
+        "name": "aa_truck base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/monitor.webp",
-        "name": "Monitor gunboat (twin turret)",
-        "kind": "naval boss hull"
+        "file": "bosses/armored_airship/base.webp",
+        "name": "armored_airship base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/friedrichshafen_g3.webp",
-        "name": "Friedrichshafen G.III bomber",
-        "kind": "formation boss airframe"
+        "file": "bosses/armored_cruiser/base.webp",
+        "name": "armored_cruiser base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/carrier_furious.webp",
-        "name": "HMS Furious experimental carrier",
-        "kind": "naval boss hull"
+        "file": "bosses/balloon_tender/base.webp",
+        "name": "balloon_tender base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/armored_cruiser.webp",
-        "name": "Armored cruiser",
-        "kind": "naval boss hull"
+        "file": "bosses/big_bertha/base.webp",
+        "name": "big_bertha base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/balloon_tender.webp",
-        "name": "Balloon tender ship + drachen",
-        "kind": "naval boss hull"
+        "file": "bosses/big_bertha/dmg.webp",
+        "name": "big_bertha dmg",
+        "kind": "boss (damaged)"
       },
       {
-        "file": "bosses/panzerzug.webp",
-        "name": "Armored train Panzerzug (locomotive+turret car)",
-        "kind": "land boss hull"
+        "file": "bosses/big_bertha/wreck.webp",
+        "name": "big_bertha wreck",
+        "kind": "boss (wreck)"
       },
       {
-        "file": "bosses/panzerzug_dmg.webp",
-        "name": "Panzerzug — battle damaged",
-        "kind": "land boss hull (damaged)"
+        "file": "bosses/carrier_furious/base.webp",
+        "name": "carrier_furious base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/panzerzug_wreck.webp",
-        "name": "Panzerzug — destroyed wreck",
-        "kind": "land boss hull (wreck)"
+        "file": "bosses/drachen_winch/base.webp",
+        "name": "drachen_winch base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/torpedo_boat.webp",
-        "name": "Torpedo boat destroyer (3-funnel)",
-        "kind": "naval boss hull"
+        "file": "bosses/dreadnought/base.webp",
+        "name": "dreadnought base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/torpedo_boat_dmg.webp",
-        "name": "Torpedo boat — battle damaged",
-        "kind": "naval boss hull (damaged)"
+        "file": "bosses/dreadnought/wreck.webp",
+        "name": "dreadnought wreck",
+        "kind": "boss (wreck)"
       },
       {
-        "file": "bosses/torpedo_boat_wreck.webp",
-        "name": "Torpedo boat — destroyed wreck",
-        "kind": "naval boss hull (wreck)"
+        "file": "bosses/flame_tank/base.webp",
+        "name": "flame_tank base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/big_bertha.webp",
-        "name": "Big Bertha 42cm siege howitzer emplacement",
-        "kind": "siege boss installation"
+        "file": "bosses/fortress_bunker/base.webp",
+        "name": "fortress_bunker base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/big_bertha_dmg.webp",
-        "name": "Big Bertha — battle damaged",
-        "kind": "siege boss (damaged)"
+        "file": "bosses/friedrichshafen_g3/base.webp",
+        "name": "friedrichshafen_g3 base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/big_bertha_wreck.webp",
-        "name": "Big Bertha — destroyed wreck",
-        "kind": "siege boss (wreck)"
+        "file": "bosses/gas_battery/base.webp",
+        "name": "gas_battery base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/kwagen.webp",
-        "name": "K-Wagen experimental superheavy tank (4 turrets)",
-        "kind": "land boss hull"
+        "file": "bosses/gunboat/base.webp",
+        "name": "gunboat base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/kwagen_dmg.webp",
-        "name": "K-Wagen — battle damaged",
-        "kind": "land boss hull (damaged)"
+        "file": "bosses/kwagen/base.webp",
+        "name": "kwagen base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/kwagen_wreck.webp",
-        "name": "K-Wagen — destroyed wreck",
-        "kind": "land boss hull (wreck)"
+        "file": "bosses/kwagen/dmg.webp",
+        "name": "kwagen dmg",
+        "kind": "boss (damaged)"
       },
       {
-        "file": "bosses/land_cruiser.webp",
-        "name": "Land cruiser multi-turret war machine (experimental)",
-        "kind": "land boss hull"
+        "file": "bosses/kwagen/wreck.webp",
+        "name": "kwagen wreck",
+        "kind": "boss (wreck)"
       },
       {
-        "file": "bosses/land_cruiser_dmg.webp",
-        "name": "Land cruiser — battle damaged",
-        "kind": "land boss hull (damaged)"
+        "file": "bosses/land_cruiser/base.webp",
+        "name": "land_cruiser base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/land_cruiser_wreck.webp",
-        "name": "Land cruiser — destroyed wreck",
-        "kind": "land boss hull (wreck)"
+        "file": "bosses/land_cruiser/dmg.webp",
+        "name": "land_cruiser dmg",
+        "kind": "boss (damaged)"
       },
       {
-        "file": "bosses/dreadnought.webp",
-        "name": "Dreadnought battleship (4 twin turrets)",
-        "kind": "naval boss hull"
+        "file": "bosses/land_cruiser/wreck.webp",
+        "name": "land_cruiser wreck",
+        "kind": "boss (wreck)"
       },
       {
-        "file": "bosses/dreadnought_wreck.webp",
-        "name": "Dreadnought — destroyed wreck",
-        "kind": "naval boss hull (wreck)"
+        "file": "bosses/minelayer/base.webp",
+        "name": "minelayer base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/paris_gun.webp",
-        "name": "Paris Gun railway siege cannon",
-        "kind": "siege boss installation"
+        "file": "bosses/monitor/base.webp",
+        "name": "monitor base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/armored_airship.webp",
-        "name": "Schütte-Lanz rigid armored airship (top view)",
-        "kind": "air boss hull"
+        "file": "bosses/panzerzug/base.webp",
+        "name": "panzerzug base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/gunboat.webp",
-        "name": "Armored river gunboat",
-        "kind": "naval boss hull"
+        "file": "bosses/panzerzug/dmg.webp",
+        "name": "panzerzug dmg",
+        "kind": "boss (damaged)"
       },
       {
-        "file": "bosses/minelayer.webp",
-        "name": "Minelayer ship (stern mine racks)",
-        "kind": "naval boss hull"
+        "file": "bosses/panzerzug/wreck.webp",
+        "name": "panzerzug wreck",
+        "kind": "boss (wreck)"
       },
       {
-        "file": "bosses/fortress_bunker.webp",
-        "name": "Concrete fortress bunker w/ rotating cupola",
-        "kind": "fort boss installation"
+        "file": "bosses/paris_gun/base.webp",
+        "name": "paris_gun base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/supply_depot.webp",
-        "name": "Forward supply & ammo depot",
-        "kind": "support boss installation"
+        "file": "bosses/rail_mortar_battery/base.webp",
+        "name": "rail_mortar_battery base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/drachen_winch.webp",
-        "name": "Drachen balloon winch station",
-        "kind": "support boss installation"
+        "file": "bosses/supply_depot/base.webp",
+        "name": "supply_depot base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/rail_mortar_battery.webp",
-        "name": "Railway siege mortar battery x3",
-        "kind": "siege boss installation"
+        "file": "bosses/tesla_tower/base.webp",
+        "name": "tesla_tower base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/flame_tank.webp",
-        "name": "Flammenwerfer flame tank (experimental)",
-        "kind": "land boss hull"
+        "file": "bosses/tesla_tower/dmg.webp",
+        "name": "tesla_tower dmg",
+        "kind": "boss (damaged)"
       },
       {
-        "file": "bosses/gas_battery.webp",
-        "name": "Poison gas projector battery",
-        "kind": "siege boss installation"
+        "file": "bosses/torpedo_boat/base.webp",
+        "name": "torpedo_boat base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/aa_truck.webp",
-        "name": "Armored AA gun truck (Ehrhardt-type)",
-        "kind": "land boss hull"
+        "file": "bosses/torpedo_boat/dmg.webp",
+        "name": "torpedo_boat dmg",
+        "kind": "boss (damaged)"
       },
       {
-        "file": "bosses/tesla_tower.webp",
-        "name": "Tesla arc tower (experimental weapon)",
-        "kind": "experimental boss installation"
+        "file": "bosses/torpedo_boat/wreck.webp",
+        "name": "torpedo_boat wreck",
+        "kind": "boss (wreck)"
       },
       {
-        "file": "bosses/tesla_tower_dmg.webp",
-        "name": "Tesla tower — battle damaged",
-        "kind": "experimental boss (damaged)"
+        "file": "bosses/uboat/base.webp",
+        "name": "uboat base",
+        "kind": "boss hull"
       },
       {
-        "file": "bosses/naval_turret.webp",
-        "name": "Rotating twin naval gun turret (part)",
-        "kind": "boss weapon part"
+        "file": "bosses/_parts/naval_turret.webp",
+        "name": "_parts naval_turret",
+        "kind": "boss part"
       }
     ]
   }
