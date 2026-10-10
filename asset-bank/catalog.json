@@ -1714,6 +1714,26 @@
        "kind": "livery",
        "name": "그리스 육군 항공대",
        "file": "liveries/nieuport28/greek.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간전 남색",
+       "file": "liveries/nieuport28/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "사막 크림 훈련기",
+       "file": "liveries/nieuport28/desert.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/nieuport28/leader.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "파문 위장 실험기",
+       "file": "liveries/nieuport28/wavy.webp"
       }
      ]
     },
