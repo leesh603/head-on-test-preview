@@ -3399,6 +3399,26 @@
        "kind": "livery",
        "name": "벨기에 전후 인수기",
        "file": "liveries/hp_o400/belgian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스군 평가기",
+       "file": "liveries/hp_o400/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "독일 노획 시험기",
+       "file": "liveries/hp_o400/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/hp_o400/leader.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "중동전선 사막 크림",
+       "file": "liveries/hp_o400/desert.webp"
       }
      ]
     },
