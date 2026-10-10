@@ -27,21 +27,19 @@ const mod=(x,n)=>(x%n+n)%n;
 // complete vehicle footprints checked on road/open dry ground. No free roam.
 // kind, x1,y1,x2,y2, height, duration. Natural truck art faces DOWN, tank UP.
 export const GROUND_ROUTES=Object.freeze({
- rural:[['ambulance',.500,.356,.539,.394,12,22],['lorry',.261,.681,.292,.740,12,28]],
+ rural:[['ambulance',.491,.357,.520,.373,10,22],['lorry',.2474,.694,.267,.733,10,28]],
  city:[['ambulance',.795,.358,.800,.557,18,25],['lorry',.217,.379,.375,.419,18,25]],
  london:[['ambulance',.854,.095,.857,.242,22,25],['lorry',.375,.731,.377,.843,22,28]],
  trenches:[['tank',.560,.544,.601,.542,40,34]],
  burning:[['tank',.513,.604,.562,.612,40,36]],
- cambrai:[['tank',.850,.315,.885,.330,32,32]],
+ cambrai:[['tank',.850,.280,.885,.286,32,32]],
  somme:[['tank',.226,.696,.248,.691,32,35]]
 });
 // u,v, trench direction, firing direction. Members move only along the short
 // straight trench floor; they never wander into no-man's-land or water.
 export const GROUND_FIGHTS=Object.freeze({
  trenches:[[.291,.165,-.52,.55],[.765,.163,.63,2.4],[.694,.636,-.48,-2.2]],
- burning:[[.286,.213,-.07,.6],[.742,.427,.22,-2.4],[.548,.574,-.34,-.9]],
- cambrai:[[.462,.719,-.13,.15],[.197,.311,.33,-.5]],
- somme:[[.234,.918,-.15,-.75],[.873,.405,.54,2.9]]
+ burning:[[.286,.213,-.07,.6],[.742,.427,.22,-2.4],[.548,.574,-.34,-.9]]
 });
 // u,v, event type. Fire anchors coincide with painted burning wrecks. Shells
 // land on dry no-man's-land, not on the Somme's water channels.

@@ -4,7 +4,7 @@
 <button id="before">수정 전 main</button><button id="after">수정 후 브랜치</button><button id="mobile">390×844</button><button id="desktop">1280×800</button><button id="sample">30초 시점</button><button id="step">2초 진행</button><button id="play">실제 플레이</button><button id="perf">성능 180프레임</button><output id="status">로딩 중</output></header>
 <iframe id="game" title="실제 HEAD-ON 브랜치 게임"></iframe><script>
 let region=2,time=30,mode='after';const frame=document.querySelector('iframe'),status=document.querySelector('output');
-const sites={2:[.291,.165,1254],3:[.286,.213,1254],8:[.86,.32,768],10:[.24,.69,1254],0:[.52,.375,768],4:[.8,.45,768]};
+const sites={2:[.291,.165,1254],3:[.286,.213,1254],8:[.86,.283,768],10:[.24,.69,1254],0:[.52,.375,768],4:[.8,.45,768]};
 const api=()=>frame.contentWindow.__HEADON_TEST__;
 function place(){if(!api()){status.textContent='Test bridge 로딩 중';return}api().start({region,pilot:'baron',invincible:true});const g=api().debug(),s=sites[region];Object.assign(g,{x:s[0]*s[2]+100,y:s[1]*s[2]+90,previousX:s[0]*s[2]+100,previousY:s[1]*s[2]+90,t:time,stageStartTime:time,state:'paused',fire:Infinity,enemies:[],bullets:[]});status.textContent=JSON.stringify({mode,region,time,x:g.x,y:g.y});}
 document.querySelectorAll('[data-region]').forEach(b=>b.onclick=()=>{region=+b.dataset.region;place()});
