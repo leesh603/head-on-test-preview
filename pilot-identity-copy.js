@@ -51,14 +51,14 @@ export const PILOT_IDENTITY_COPY={
  ['융커스의 날개','발트해의 매','전금속 기체가 받는 피해를 줄입니다.','3초간 무적 상승 후 빠르게 급강하하며 강한 연속 사격을 합니다.','전금속 기체가 받는 피해를 줄입니다.','3초간 무적 상승 후 빠르게 급강하하며 강한 연속 사격을 합니다.'],
  ['Junkers Wings','Baltic Hawk','Your all-metal airframe reduces incoming damage.','Climb invulnerably, then dive into powerful rapid fire over 3 seconds.','Your all-metal airframe reduces incoming damage.','Climb invulnerably, then dive into powerful rapid fire over 3 seconds.']),
  proctor:entry(
- ['사격의 명수','버스터 살보','기관총 탄퍼짐이 줄어 정밀하게 사격합니다.','2.4초간 전방으로 빠르고 강한 관통 사격을 집중합니다.','기관총 탄퍼짐이 줄어 정밀하게 사격합니다.','2.4초간 전방으로 빠르고 강한 관통 사격을 집중합니다.'],
- ['Master Shot','Buster Salvo','Tighter gun spread improves accuracy.','Concentrate powerful, rapid piercing fire ahead for 2.4 seconds.','Tighter gun spread improves accuracy.','Concentrate powerful, rapid piercing fire ahead for 2.4 seconds.']),
+ ['사격의 명수','버스터 살보','탄퍼짐을 줄여 정밀하게 사격합니다.','2.4초간 조준 방향을 고정한 관통 점사를 반복합니다.','기관총 탄퍼짐이 줄어 정밀하게 사격합니다.','2.4초간 짧은 관통 점사와 재조준을 반복합니다. 점사 중에는 탄도가 고정되며, 멈춘 사이 다음 방향을 잡습니다.'],
+ ['Master Shot','Buster Salvo','Tighter gun spread improves accuracy.','Alternate locked-heading piercing bursts and re-aiming for 2.4 seconds.','Tighter machine-gun spread improves accuracy.','For 2.4 seconds, alternate short piercing bursts with re-aiming pauses. Each burst holds its heading; turn between bursts to set the next lane.']),
  schleich:entry(
- ['흑기사','블랙 어드밴스','받는 피해가 감소합니다.','3초간 빠르게 돌입하며 받는 피해를 크게 줄입니다.','받는 피해가 감소합니다.','3초간 빠르게 돌입하며 받는 피해를 크게 줄입니다. 선회는 둔해집니다.'],
- ['Black Knight','Black Advance','Reduce incoming damage.','Advance faster and greatly reduce incoming damage for 3 seconds.','Reduce incoming damage.','Advance faster and greatly reduce incoming damage for 3 seconds. Turns are slower.']),
+ ['흑기사','블랙 어드밴스','받는 피해가 감소합니다.','3초간 정면의 일반 탄환을 튕기며 돌파합니다.','받는 피해가 감소합니다.','3초간 가속하며 기수 앞의 일반 탄환을 튕겨냅니다. 선회는 둔해지며, 후방 공격과 중화기는 막지 못합니다.'],
+ ['Black Knight','Black Advance','Reduce incoming damage.','Advance through frontal light gunfire for 3 seconds.','Reduce incoming damage.','Accelerate for 3 seconds, deflecting light gunfire directly ahead. Turns are slower. Rear attacks and heavy weapons are not intercepted.']),
  lufbery:entry(
- ['기교의 장인','라파예트 살보','에너지가 더 빠르게 회복됩니다.','3초간 전방의 적을 자동 조준해 빠르고 강하게 사격합니다.','에너지가 더 빠르게 회복됩니다.','3초간 전방의 적을 자동 조준해 빠르고 강하게 사격합니다.'],
- ['Flight Craft','Lafayette Salvo','Recover energy faster.','Auto-aim powerful rapid fire at enemies ahead for 3 seconds.','Recover energy faster.','Auto-aim powerful rapid fire at enemies ahead for 3 seconds.']),
+ ['기교의 장인','라파예트 살보','에너지가 더 빠르게 회복됩니다.','3초간 전방 표적을 차례로 넘겨받아 사격합니다.','에너지가 더 빠르게 회복됩니다.','3초간 전방의 적들을 차례로 조준해 사격합니다. 선회해 새 적을 사격 범위로 끌어들이세요.'],
+ ['Flight Craft','Lafayette Salvo','Recover energy faster.','Hand off fire between forward targets for 3 seconds.','Recover energy faster.','For 3 seconds, hand off rapid fire between enemies ahead. Turn to bring new enemies into your firing sector.']),
  brumowski:entry(
  ['붉은 호위대','편대 재집결','호위기 2기와 출격합니다.','5초간 자기 편대를 주변으로 모아 가까운 적을 제압하고 받는 피해를 줄입니다.','호위기 2기와 출격합니다. 아군과 윙맨이 많을수록 기관총 피해가 증가합니다.','5초간 자기 편대를 주변으로 모아 가까운 적을 제압하고 받는 피해를 줄입니다.'],
  ['Red Escort','Flight Rally','Deploy with two escorts.','Regroup your flight nearby for 5 seconds to suppress close threats and reduce incoming damage.','Deploy with two escorts. Allied aircraft and wingmen increase gun damage.','Regroup your flight nearby for 5 seconds to suppress close threats and reduce incoming damage.']),

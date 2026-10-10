@@ -61,9 +61,9 @@ test('active/passive names remain distinct and pilot titles are not duplicated',
   }
  }
 });
-test('all existing pilot descriptions are byte-for-byte unchanged from c2d27ad',()=>{
- const rows=pilots.flatMap(id=>['ko','en'].map(lang=>[id,lang,...detailFields.map(f=>catalog[id][lang][f])]));
- assert.equal(createHash('sha256').update(JSON.stringify(rows)).digest('hex'),'88a3e80e51fa224a368ad1ee842fb1090e2120899298b2719d38d08da7a1714a');
+test('other pilot descriptions stay unchanged after the three-pilot combat revision',()=>{
+ const rows=pilots.filter(id=>!['proctor','schleich','lufbery'].includes(id)).flatMap(id=>['ko','en'].map(lang=>[id,lang,...detailFields.map(f=>catalog[id][lang][f])]));
+ assert.equal(createHash('sha256').update(JSON.stringify(rows)).digest('hex'),'a21b279ed5a04135b0a0a62e84979973564e5d57e4c4a31b393f91ca0d64ce77');
 });
 test('Albatros keeps its descriptions and never falls back to Dr.I',()=>{
  assert.equal(pilotIdentityCopy(variant).skill,'태양의 사냥꾼');

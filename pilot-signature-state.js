@@ -2,6 +2,9 @@
 // Missing artwork is omitted, never replaced by a polygon, emoji or text glyph.
 export const SIGNATURE_LIMITS=Object.freeze({effects:32,maxDt:.05,maxLife:2.4});
 export const PILOT_SIGNATURES=Object.freeze({
+ proctor:{start:'salvoReady',sustain:'proctorSalvo',symbol:null,reaction:null},
+ schleich:{start:'advanceReady',sustain:'blackAdvance',symbol:null,reaction:null},
+ lufbery:{start:'handoffReady',sustain:'lafayetteHandoff',symbol:null,reaction:null},
  baron:{start:'redHunt',sustain:'pursuit',symbol:'redBaron',reaction:'hunt'},
  fonck:{start:'sightConverge',sustain:'precision',symbol:'cigogne',reaction:'precisionHit'},
  voss:{start:'sixDirections',sustain:'decoy',symbol:'vossCowling',reaction:null},
