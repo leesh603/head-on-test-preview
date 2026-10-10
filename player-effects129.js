@@ -1,7 +1,7 @@
 import {createSignatureView} from './pilot-signature-view.js?v=gal1';
 import {fx,fxTint} from './fx-art.js?v=gal1';
 import {planeSprite,aircraftKey} from './aircraft.js?v=gal1';
-import {drawHorseSilhouette,drawPowerInstrument} from './equipment-material-fx.js?v=eqfx2';
+import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';
 
 import {drawCavalryGuard} from './pilot-directed-fx.js';
 const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
@@ -104,8 +104,12 @@ function drawPrecisionEquipment156(c,p,x,y){
  c.save();c.rotate(p.a);
  if(held.badinGauge&&typeof p.badinDamageBonus==='function'){
   const q=Math.min(1,p.badinDamageBonus()/.6);
-  // Sustained-power instrument, not blue speed lines that imply a dash.
-  if(q>0){c.save();c.translate(-13,34);c.rotate(-p.a);drawPowerInstrument(c,q,.85);c.restore()}
+  // Sustained engine output is visible at the gun only while it fires.
+  // No floating dial or blue dash trails. This never creates extra projectiles.
+  if(q>0&&p.muzzleFlash>0&&p.reloadTime===0){
+   const f=Math.min(1,p.muzzleFlash/.07)*q;
+   for(let side=-1;side<=1;side+=2)fx(c,'muzzle',30,side*7,24+q*9,9,0,f*.6);
+  }
  }
  if(held.immelmannManual&&p.evadeTime>0){
   const f=Math.min(1,p.evadeTime/.18);

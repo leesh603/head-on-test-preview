@@ -28,7 +28,7 @@ function scenario(api){
   if(id==='rearGunner')advance(g,1.8);g.fire=0;advance(g,.02,true);
  }
  if(id==='maximBelt'){g.ammo.fill(0);g.state='playing';g.reload();advance(g,.12);}
- if(id==='badinGauge'){g.state='upgrade';g.upgrade('turn','rare');g.state='playing';advance(g,.1);}
+ if(id==='badinGauge'){g.state='upgrade';g.upgrade('turn','rare');g.state='playing';advance(g,.1);g.fire=0;advance(g,.02,true);}
  if(id==='immelmannManual'){g.state='playing';g.evade();advance(g,.1);}
  if(id==='fogCompass'){for(let i=0;i<5;i++)g.drops.push({x:g.x+(i%2?1:-1)*(85+i*12),y:g.y-130+i*53,value:1,heal:i===3});advance(g,.04);}
  if(id==='ironCross'){g.state='playing';g.skill();advance(g,.06);}
