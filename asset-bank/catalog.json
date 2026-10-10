@@ -2270,7 +2270,28 @@
      "year": 1916,
      "role": "정찰기",
      "base": "planes/armstrong_fk8.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "중동전선 사막 크림",
+       "file": "liveries/armstrong_fk8/desert.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간 침투 칠흑",
+       "file": "liveries/armstrong_fk8/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "훈련기 은색",
+       "file": "liveries/armstrong_fk8/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "35비행대 지휘관기",
+       "file": "liveries/armstrong_fk8/sqn35.webp"
+      }
+     ]
     },
     {
      "id": "avro_504",
