@@ -2012,6 +2012,26 @@
        "kind": "livery",
        "name": "독일 노획기",
        "file": "liveries/se5a/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "이탈리아 평가기",
+       "file": "liveries/se5a/italian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "훈련 은색 도포",
+       "file": "liveries/se5a/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/se5a/leader.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "이색 얼룩 위장",
+       "file": "liveries/se5a/camo.webp"
       }
      ]
     },
