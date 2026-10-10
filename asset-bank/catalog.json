@@ -457,6 +457,26 @@
        "kind": "ace",
        "name": "Udet",
        "file": "../udet_fokkerdv.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전면 수솔 위장",
+       "file": "liveries/fokker_d5/streak.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "로젠지+회색 동체",
+       "file": "liveries/fokker_d5/lozenge.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "훈련기 회색",
+       "file": "liveries/fokker_d5/grey.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "지휘기 흑동체+흰띠",
+       "file": "liveries/fokker_d5/black.webp"
       }
      ]
     },
