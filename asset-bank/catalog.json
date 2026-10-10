@@ -2643,6 +2643,26 @@
        "kind": "livery",
        "name": "독일 노획 운용기",
        "file": "liveries/re8/captured.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 평가기 별",
+       "file": "liveries/re8/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "중동전선 사막 크림",
+       "file": "liveries/re8/desert.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/re8/leader.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "고밀도 얼룩 위장",
+       "file": "liveries/re8/heavy.webp"
       }
      ]
     },
