@@ -32,7 +32,7 @@ import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js
 import './hud-layout94.js?v=gal1';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=gal1';
 import {installOnlineLobby} from './online-coop-session.js?v=gal1&coopfix=1&rail=42';
-import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=gal1&rail=42';
+import {CoopGame,coopPlane,COOP_BALANCE} from './qa-combat-before-coop-engine.js?v=gal1&rail=42';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=gal1';
 import {drawCoop} from './coop-view.js?v=gal1&rail=42';
 import {drawSunStrike} from './sun-strike71.js?v=gal1&rail=42';
@@ -46,7 +46,7 @@ import {drawWarAmbience} from './war-ambience.js?v=gal1';
 import {backgroundDressingReady,drawRepeatedDressing,bakeHarborDressing,drawGallipoliDressing,drawDesertDressing,drawParisDressing} from './background-dressing.js?v=gal1';
 import {missionNavigation,drawMissionRadar} from './navigation.js?v=gal1';
 import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=gal1';
-import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=gal1&rail=42';
+import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './qa-combat-before-campaign.js?v=gal1&rail=42';
 import {drawCampaign} from './campaign-view.js?v=gal1&rail=42';
 import {campaignArtReady} from './aircraft.js?v=gal1';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady,hangarIconsReady} from './icons.js?v=gal1';
