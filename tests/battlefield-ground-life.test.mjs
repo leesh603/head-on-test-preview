@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {GROUND_ROUTES,GROUND_FIGHTS,GROUND_EVENTS,groundRoutePose,groundInfantryPose} from '../ground-life.js';
+import {GROUND_ROUTES,GROUND_FIGHTS,GROUND_EVENTS,groundRoutePose,groundInfantryPose,groundBattlePhase} from '../ground-life.js';
 
 const source=readFileSync(new URL('../ground-life.js',import.meta.url),'utf8')
  .split('\n').filter(line=>!/^import\b/.test(line.trim())).join('\n').replace(/\bexport (function|const)\b/g,'$1');
@@ -40,10 +40,10 @@ test('water regions have no infantry, ground vehicles or ground fire',async()=>{
 });
 test('squads charge, scatter, withdraw and lose a member within the inspected dry apron',()=>{
  const states=new Set(),p={};let hiddenCasualty=false;
- for(let n=0;n<3;n++)for(let tick=0;tick<840;tick++){
+ for(let n=0;n<4;n++)for(let tick=0;tick<840;tick++){
   groundInfantryPose(tick*.1,0,0,n,p);states.add(p.state);
-  assert.ok(Math.abs((n-1)*7+p.along)<=17);
-  assert.ok(p.forward>=0&&p.forward<=7);
+  assert.ok(Math.abs((n-1)*7+p.along)<=20);
+  assert.ok(p.forward>=0&&p.forward<=10);
   assert.ok(p.alpha>=0&&p.alpha<=1);
   if(p.state==='fallen'&&p.alpha===0)hiddenCasualty=true;
  }
@@ -64,6 +64,18 @@ test('portrait mobile and broad desktop scenes remain bounded over long travel',
    const old=counts.images,oldFx=fxKeys.length;drawGroundLife(c,key,n*137-12000,n*83-9000,density===1?1920:390,density===1?1080:844,key==='cambrai'?768:1254,n*.21,density);
    maxImages=Math.max(maxImages,counts.images-old);maxFx=Math.max(maxFx,fxKeys.length-oldFx);
   }
-  assert.ok(maxImages<=(density===1?33:13),key+' sprites '+maxImages);assert.ok(maxFx<=24,key+' FX '+maxFx);
+  assert.ok(maxImages<=(density===1?38:15),key+' sprites '+maxImages);assert.ok(maxFx<=(density===1?80:32),key+' FX '+maxFx);
  }
+});
+
+test('a nearby bombardment drives scatter, retreat and sustained smoke',async()=>{
+ const p={};
+ groundInfantryPose(8.9,0,0,0,p);assert.equal(p.state,'charge');
+ groundInfantryPose(9.2,0,0,0,p);assert.equal(p.state,'scatter');
+ groundInfantryPose(11,0,0,0,p);assert.equal(p.state,'retreat');
+ assert.equal(groundBattlePhase(9,0,0),9);
+ const {drawGroundLife,fxKeys}=await renderer(),{c}=context();
+ drawGroundLife(c,'trenches',300,160,150,150,1254,14,1);
+ assert.ok(fxKeys.includes('smokeDust'),'smoke remains five seconds after the squad impact');
+ assert.ok(!fxKeys.some(k=>/explosionHot|flameJet|airblast/.test(k)),'no bright airborne combat FX reused for ground shells');
 });

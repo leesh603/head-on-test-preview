@@ -39,17 +39,17 @@ export const GROUND_ROUTES=Object.freeze({
 // u,v, trench direction, firing direction. The short sorties stay within the
 // inspected dry parapet apron (at most 17px from each station), never free roam.
 export const GROUND_FIGHTS=Object.freeze({
- trenches:[[.291,.165,-.52,.55],[.765,.163,.63,2.4],[.694,.636,-.48,-2.2]],
- burning:[[.286,.213,-.07,.6],[.742,.427,.22,-2.4],[.548,.574,-.34,-.9]]
+ trenches:[[.291,.165,-.52,.55],[.765,.163,.63,2.4],[.694,.636,-.48,-2.2],[.354,.134,-.52,-2.6]],
+ burning:[[.286,.213,-.07,.6],[.742,.427,.22,-2.4],[.548,.574,-.34,-.9]],
+ cambrai:[[.839,.617,-.27,-2.1]]
 });
 // u,v, event type. Fire anchors coincide with painted burning wrecks. Shells
 // land on dry no-man's-land, not on the Somme's water channels.
 export const GROUND_EVENTS=Object.freeze({
- trenches:[[.509,.475,'shell'],[.679,.394,'shell'],[.416,.584,'shell']],
- burning:[[.711,.140,'fire'],[.281,.461,'fire'],[.180,.704,'fire'],[.512,.357,'shell'],[.682,.571,'shell'],[.367,.540,'shell']],
- cambrai:[[.510,.380,'shell'],[.488,.635,'shell']],
- somme:[[.257,.584,'shell'],[.877,.434,'shell']],
- city:[[.426,.864,'work']],rural:[[.757,.476,'work']]
+ trenches:[[.509,.475,'shell'],[.679,.394,'shell'],[.416,.584,'shell'],[.392,.238,'shell'],[.248,.261,'shell'],[.688,.690,'shell'],[.242,.652,'shell']],
+ burning:[[.711,.140,'fire'],[.281,.461,'fire'],[.180,.704,'fire'],[.512,.357,'shell'],[.682,.571,'shell'],[.367,.540,'shell'],[.407,.249,'shell'],[.240,.307,'shell']],
+ cambrai:[[.510,.380,'shell'],[.488,.635,'shell'],[.803,.322,'shell'],[.735,.403,'shell'],[.904,.459,'shell']],
+ somme:[[.257,.584,'shell'],[.877,.434,'shell']]
 });
 const BATTERIES={trenches:[.194,.178,58,.32],burning:[.731,.444,57,.45],cambrai:[.475,.683,44,-.3],somme:[.800,.320,55,-.45]};
 // Reusable pose sampler, also used by terrain-footprint QA.
@@ -64,28 +64,51 @@ export function groundRoutePose(route,t,seed,out){
 }
 const pose={};
 const infantryPose={};
-// A squad shares an attack/withdrawal clock, with small individual delays.
-// One occasional casualty stays down and fades before a replacement regroups.
-// All movement is bounded; no entities, pathfinding or growing corpse pool.
-export function groundInfantryPose(t,seed,station,member,out){
- const clock=t+(seed%83)*.27+station*6.1,local=mod(clock-member*.45,28),epoch=Math.floor((clock-member*.45)/28);
- let along=0,forward=0,heading=0,frame=9,alpha=1,state='cover';
- if(local<3){state='fire';frame=member===1?10:8;}
- else if(local<7){frame=9;}
- else if(local<10){state='charge';forward=(local-7)/3*7;frame=8;}
- else if(local<13){state='scatter';const p=(local-10)/3;forward=7*(1-p);along=(member-1)*3*p;heading=Math.PI;frame=8;}
- else if(local<17){state='retreat';along=(member-1)*3-(local-13)/4*7;heading=-Math.PI/2;frame=8;}
- else if(local<23){along=(member-1)*3-7;}
- else {state='regroup';along=((member-1)*3-7)*(1-(local-23)/5);heading=Math.PI/2;frame=8;}
- // Every third cycle, only the outside rifleman falls in the short sortie.
- if(member===2&&mod(epoch+station,3)===0&&local>=10){
-  state='fallen';forward=7;along=0;heading=.9;frame=11;
-  alpha=local<14?1:local<17?(17-local)/3:0;
- }
- out.along=along;out.forward=forward;out.heading=heading;out.frame=frame;out.alpha=alpha;out.state=state;out.local=local;
- return out;
+// Shell strikes and nearby infantry use exactly the same 24-second clock.
+// A burst is followed by dirt, a long smoke tail, and the squad's withdrawal.
+// There is no event queue or entity pool: time reconstructs a bounded scene.
+export function groundBattlePhase(t,seed,station){
+ return mod(t+(seed%83)*.27+station*5.7,24);
 }
-const LIMIT=Object.freeze({vehicle:6,fight:5,event:7});
+export function groundInfantryPose(t,seed,station,member,out){
+ const local=groundBattlePhase(t,seed,station),epoch=Math.floor((t+(seed%83)*.27+station*5.7)/24);
+ const delay=member*.12;let along=0,forward=0,heading=0,frame=9,alpha=1,state='cover';
+ if(local<4){state='fire';frame=member===1?10:8;}
+ else if(local<6){frame=9;}
+ else if(local<9){state='charge';forward=Math.max(0,Math.min(1,(local-6-delay)/2.5))*10;frame=8;}
+ else if(local<10.5){state='scatter';const p=Math.max(0,Math.min(1,(local-9-delay)/1.1));forward=10*(1-p);along=(member-1)*3*p;heading=Math.PI;frame=8;}
+ else if(local<13){state='retreat';along=(member-1)*3-Math.min(1,(local-10.5)/1.8)*8;heading=-Math.PI/2;frame=8;}
+ else if(local<19){along=(member-1)*3-8;}
+ else {state='regroup';along=((member-1)*3-8)*(1-(local-19)/5);heading=Math.PI/2;frame=8;}
+ if(member===2&&mod(epoch+station,3)===0&&local>=9.15){
+  state='fallen';forward=9;along=1;heading=.9;frame=11;
+  alpha=local<15?1:local<19?(19-local)/4:0;
+ }
+ Object.assign(out,{along,forward,heading,frame,alpha,state,local});return out;
+}
+// Painted sprites only. Ground blasts are brown earth, never air fireballs.
+// All tails have a finite lifetime and at most three baked smoke images.
+function shellScene(c,x,y,age,burning,low){
+ if(age<0||age>18)return;
+ if(age<.32)fx(c,'profileEarth'+Math.min(3,Math.floor(age/.08)),x,y,54,48,0,.76*(1-age/.55));
+ if(age<1.65)fx(c,'dirtBurst',x,y-age*8,44+age*24,38+age*22,0,.65*(1-age/1.65));
+ if(age<5.5)fx(c,'smokeDust',x+age*3,y-age*4,48+age*12,42+age*10,0,.46*Math.min(1,age/.4)*(1-age/5.5));
+ for(let n=0;n<(low?1:3);n++){
+  const q=age-n*1.1;if(q<.3||q>16)continue;
+  const fade=Math.min(1,q/1.2)*Math.max(0,1-q/16);
+  fx(c,burning?'smokeDark':'smokeDust',x+q*2.6+n*5,y-q*3.7-n*5,38+q*4,44+q*4.6,-.12,.36*fade);
+ }
+}
+function wreckFire(c,x,y,t,seed,low){
+ const flicker=.87+Math.sin(t*7+seed)*.08+Math.sin(t*11+seed)*.05;
+ fx(c,'fireGround',x,y,39*flicker,35*flicker,0,.62);
+ // Staggered rising smoke prevents a solitary puff from resetting visibly.
+ for(let n=0;n<(low?2:3);n++){
+  const q=mod(t*.065+n/3+seed*.003,1),fade=Math.sin(q*Math.PI);
+  fx(c,'smokeDark',x+q*26+n*3,y-12-q*66,35+q*55,48+q*71,-.16,.48*fade);
+ }
+}
+const LIMIT=Object.freeze({vehicle:6,fight:5,event:10});
 export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
  if(!sprites.length||!Number.isFinite(period)||period<=0||!Number.isFinite(t)||density<=0)return;
  const routes=GROUND_ROUTES[key],fights=GROUND_FIGHTS[key],events=GROUND_EVENTS[key];if(!routes&&!fights&&!events)return;
@@ -116,7 +139,7 @@ export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
    if(x0<-35||y0<-35||x0>width+35||y0>height+35)continue;groups++;
    const tx=Math.cos(f[2])*sx,ty=Math.sin(f[2])*sy;
    const aim=Math.atan2(Math.sin(f[3])*sy,Math.cos(f[3])*sx);
-   const count=low?2:3;
+   const count=low?3:4;
    for(let n=0;n<count;n++){
     groundInfantryPose(t,seed,j,n,infantryPose);
     const p=infantryPose,run=p.frame===8&&p.state!=='fire';
@@ -124,33 +147,34 @@ export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
     const y=y0+ty*((n-1)*7+p.along)+Math.sin(aim)*p.forward;
     const a=p.state==='retreat'?Math.atan2(-ty,-tx):p.state==='regroup'?Math.atan2(ty,tx):aim+p.heading;
     const bob=run?Math.sin(t*13+n*2)*.22:0;
-    sprite(c,p.frame,x,y+bob,n===1&&p.frame===10?11:10,a+Math.PI/2,.70*p.alpha);
+    sprite(c,p.frame,x,y+bob,n===1&&p.frame===10?15:14,a+Math.PI/2,.78*p.alpha);
     // Short, dim volleys. No ambient projectiles crossing the flight layer.
-    if(p.state==='fire'&&mod(p.local,n===1?.19:.72)<.065){const tip=n===1?4.5:4;fx(c,'muzzle',x+Math.cos(aim)*tip,y+Math.sin(aim)*tip,5,4,aim,.33);}
+    if(p.state==='fire'&&mod(p.local+n*.17,n===1?.22:.8)<.075){const tip=n===1?6:5;fx(c,'muzzle',x+Math.cos(aim)*tip,y+Math.sin(aim)*tip,7,5,aim,.55);}
+   }
+   // Two impacts on the inspected dry apron, timed to the same squad clock.
+   if(emitters<(low?6:LIMIT.event)){
+    emitters++;const phase=groundBattlePhase(t,seed,j);
+    shellScene(c,x0+Math.cos(aim)*28,y0+Math.sin(aim)*28,mod(phase-9,24),key==='burning',low);
+    if(!low)shellScene(c,x0-tx*22+Math.cos(aim)*19,y0-ty*22+Math.sin(aim)*19,mod(phase-11,24),key==='burning',low);
    }
   }
   const battery=BATTERIES[key];
-  if(battery&&!(seed&1)&&seed%4!==3&&emitters<(low?3:LIMIT.event)){
+  if(battery&&!(seed&1)&&seed%4!==3&&emitters<(low?6:LIMIT.event)){
    const x=baseX+(mx?1-battery[0]:battery[0])*period,y=baseY+(my?1-battery[1]:battery[1])*period;
    if(x>-50&&y>-50&&x<width+50&&y<height+50){
     emitters++;const a=(mx?-battery[3]:battery[3])*(my?-1:1)+(my?Math.PI:0),q=mod(t+(seed%53)*.4,9);
     const tip=battery[2]*.31,gx=x+Math.sin(a)*tip,gy=y-Math.cos(a)*tip;
-    if(q<.14)fx(c,'muzzleHeavy',gx,gy,17,21,a,.36*(1-q/.14));
-    if(q<1.8)fx(c,'gunSmoke',gx+q*4,gy-q*6,15+q*10,18+q*12,a,.21*(1-q/1.8));
+    if(q<.18)fx(c,'muzzleHeavy',gx,gy,21,25,a,.52*(1-q/.22));
+    if(q<3.5)fx(c,'gunSmoke',gx+q*4,gy-q*6,22+q*10,25+q*12,a,.34*(1-q/3.5));
    }
   }
-  if(events)for(let j=0;j<events.length&&emitters<(low?3:LIMIT.event);j++){
+  if(events)for(let j=0;j<events.length&&emitters<(low?6:LIMIT.event);j++){
    const e=events[j],x=baseX+(mx?1-e[0]:e[0])*period,y=baseY+(my?1-e[1]:e[1])*period;
-   if(x<-55||y<-75||x>width+55||y>height+55)continue;emitters++;
-   if(e[2]==='work')continue; // Yard activity is handled by road vehicles.
-   if(e[2]==='fire'){
-    fx(c,'fireGround',x,y,15,19,0,.35+Math.sin(t*4+j)*.05);
-    const q=mod(t*.16+j*.29+seed*.001,1);fx(c,'smokeDark',x+q*9,y-q*35,18+q*27,20+q*30,-.1,.22*(1-q));
-   }else{
-    const cycle=key==='burning'?6.5:11,q=mod(t+j*2.19+(seed%61)*.47,cycle);
-    if(q<.24)fx(c,'profileEarth'+Math.min(3,Math.floor(q/.06)),x,y,29,26,0,.38*(1-q/.4));
-    if(q<1.4)fx(c,'dirtBurst',x+q*3,y-q*5,22+q*20,20+q*14,0,.25*(1-q/1.4));
-    if(q<3.3)fx(c,'smokeDust',x+q*4,y-q*9,24+q*12,22+q*13,0,.18*(1-q/3.3));
+   if(x<-115||y<-135||x>width+115||y>height+135)continue;emitters++;
+   if(e[2]==='fire')wreckFire(c,x,y,t,j+seed,low);
+   else {
+    const cycle=key==='burning'?13:17,q=mod(t+j*3.31+(seed%61)*.47,cycle);
+    shellScene(c,x,y,q,key==='burning',low);
    }
   }
  }
