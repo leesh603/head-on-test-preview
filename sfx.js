@@ -97,7 +97,7 @@ function engineLoop(p){
   src.connect(f);f.connect(gain);gain.connect(bus);src.start();
   engine={kind,src,gain,f};src.onended=()=>{try{src.disconnect();f.disconnect();gain.disconnect()}catch{}if(engine?.src===src)engine=null};
  }
- const level=(p.duck?.32:.6)*(p.reload?.85:1)*.42;
+ const level=(p.duck?.32:.6)*(p.reload?.85:1)*.30;
  engine.src.playbackRate.setTargetAtTime((.9+.28*(speed-.7)/.55)*(1+turn*.012)*(1-damage*.05),now,.15);
  engine.f.frequency.setTargetAtTime(2400-damage*900,now,.2);
  engine.gain.gain.setTargetAtTime(level,now,.12);
@@ -235,7 +235,7 @@ const VOICES={
   // Engine idle: one propeller/exhaust beat per call (the host fires it on an interval).
   engineTick(flight){const p=typeof flight==='object'?flight:{reload:flight};if(!engineLoop(p))VOICES.engineTickSynth(flight)},
   engineTickSynth(flight){const p=typeof flight==='object'?flight:{reload:flight},speed=Math.max(.7,Math.min(1.2,p.speed??1)),turn=Math.min(4,p.turn||0),damage=Math.max(0,Math.min(1,p.damage||0));
-    const f=(p.reload?.72:1)*(.96+speed*.04)*jit(1),level=p.duck?.35:.68;
+    const f=(p.reload?.72:1)*(.96+speed*.04)*jit(1),level=p.duck?.35:.49;
     // Reuse one original engine voice. No overlapping enemy/propeller drones.
     tone(58*f,42*f,.11,.085*level,'sawtooth',300-damage*40);
     hiss(540+speed*160+turn*70,180,.08,.05*level*(1+turn*.035),'lowpass',.5);
