@@ -29,6 +29,9 @@
   .tag.squadron{background:#3a2e4a;color:#c8a8e8}
   .tag.livery{background:#1e3a4a;color:#88c8e8}
   .tag.alt{background:#38333f;color:#b0a8b8}
+  .tag.dmg{background:#4a2e1e;color:#e8b088}
+  .tag.wreck{background:#402020;color:#e08888}
+  .tag.part{background:#2e3a4a;color:#a0b8d8}
   .empty{color:#6a6f78;font-size:12px;padding:2px 18px 12px}
 </style>
 <h1>HEAD-ON 에셋 뱅크 — 기종 카탈로그</h1>
@@ -36,7 +39,7 @@
 <div class=ftabs id=ftabs></div>
 <div id=root></div>
 <script>
-const KIND={base:'기본형',ace:'에이스',squadron:'편대',livery:'도장',alt:'대체안'};
+const KIND={base:'기본형',ace:'에이스',squadron:'편대',livery:'도장',alt:'대체안',dmg:'손상',wreck:'파괴',part:'부품'};
 fetch('catalog.json?v='+Date.now()).then(r=>r.json()).then(cat=>{
   const root=document.getElementById('root'),ftabs=document.getElementById('ftabs');
   cat.factions.forEach((f,fi)=>{

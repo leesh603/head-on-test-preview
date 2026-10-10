@@ -1,5 +1,5 @@
 {
- "v": 7,
+ "v": 8,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -644,6 +644,11 @@
        "kind": "livery",
        "name": "공장 연색 시험기",
        "file": "liveries/fokker_dr1/silver.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Kirschstein (황백)",
+       "file": "aces/kirschstein_dri.webp"
       }
      ]
     },
@@ -1105,7 +1110,7 @@
       {
        "kind": "alt",
        "name": "뱅크 재생성",
-       "file": "bosses/friedrichshafen_g3.webp"
+       "file": "bosses/friedrichshafen_g3/base.webp"
       },
       {
        "kind": "livery",
@@ -3983,45 +3988,245 @@
    "name": "보스 후보",
    "types": [
     {
+     "id": "panzerzug",
+     "name": "Panzerzug 장갑열차",
+     "role": "장갑열차",
+     "base": "bosses/panzerzug/base.webp",
+     "variants": [
+      {
+       "kind": "dmg",
+       "name": "손상",
+       "file": "bosses/panzerzug/dmg.webp"
+      },
+      {
+       "kind": "wreck",
+       "name": "파괴",
+       "file": "bosses/panzerzug/wreck.webp"
+      }
+     ]
+    },
+    {
+     "id": "kwagen",
+     "name": "K-Wagen",
+     "role": "초중전차",
+     "base": "bosses/kwagen/base.webp",
+     "variants": [
+      {
+       "kind": "dmg",
+       "name": "손상",
+       "file": "bosses/kwagen/dmg.webp"
+      },
+      {
+       "kind": "wreck",
+       "name": "파괴",
+       "file": "bosses/kwagen/wreck.webp"
+      }
+     ]
+    },
+    {
+     "id": "land_cruiser",
+     "name": "Land Cruiser",
+     "role": "랜드크루저",
+     "base": "bosses/land_cruiser/base.webp",
+     "variants": [
+      {
+       "kind": "dmg",
+       "name": "손상",
+       "file": "bosses/land_cruiser/dmg.webp"
+      },
+      {
+       "kind": "wreck",
+       "name": "파괴",
+       "file": "bosses/land_cruiser/wreck.webp"
+      }
+     ]
+    },
+    {
+     "id": "flame_tank",
+     "name": "화염전차",
+     "role": "전차",
+     "base": "bosses/flame_tank/base.webp",
+     "variants": []
+    },
+    {
+     "id": "aa_truck",
+     "name": "AA 트럭",
+     "role": "대공 차량",
+     "base": "bosses/aa_truck/base.webp",
+     "variants": []
+    },
+    {
+     "id": "big_bertha",
+     "name": "Big Bertha 42cm",
+     "role": "곡사포 진지",
+     "base": "bosses/big_bertha/base.webp",
+     "variants": [
+      {
+       "kind": "dmg",
+       "name": "손상",
+       "file": "bosses/big_bertha/dmg.webp"
+      },
+      {
+       "kind": "wreck",
+       "name": "파괴",
+       "file": "bosses/big_bertha/wreck.webp"
+      }
+     ]
+    },
+    {
+     "id": "rail_mortar_battery",
+     "name": "철도박격포대",
+     "role": "포병 진지",
+     "base": "bosses/rail_mortar_battery/base.webp",
+     "variants": []
+    },
+    {
+     "id": "gas_battery",
+     "name": "가스 포대",
+     "role": "포병 진지",
+     "base": "bosses/gas_battery/base.webp",
+     "variants": []
+    },
+    {
+     "id": "paris_gun",
+     "name": "파리포",
+     "role": "장거리포",
+     "base": "bosses/paris_gun/base.webp",
+     "variants": []
+    },
+    {
+     "id": "fortress_bunker",
+     "name": "요새 벙커",
+     "role": "요새",
+     "base": "bosses/fortress_bunker/base.webp",
+     "variants": []
+    },
+    {
+     "id": "supply_depot",
+     "name": "보급 기지",
+     "role": "보급 진지",
+     "base": "bosses/supply_depot/base.webp",
+     "variants": []
+    },
+    {
+     "id": "drachen_winch",
+     "name": "드라헨 윈치 기지",
+     "role": "기구 시설",
+     "base": "bosses/drachen_winch/base.webp",
+     "variants": []
+    },
+    {
+     "id": "tesla_tower",
+     "name": "테슬라 탑",
+     "role": "실험 병기",
+     "base": "bosses/tesla_tower/base.webp",
+     "variants": [
+      {
+       "kind": "dmg",
+       "name": "손상",
+       "file": "bosses/tesla_tower/dmg.webp"
+      }
+     ]
+    },
+    {
+     "id": "armored_airship",
+     "name": "장갑 비행선",
+     "role": "비행선",
+     "base": "bosses/armored_airship/base.webp",
+     "variants": []
+    },
+    {
      "id": "uboat",
      "name": "U-Boat",
      "role": "잠수함",
-     "base": "bosses/uboat.webp",
+     "base": "bosses/uboat/base.webp",
      "variants": []
     },
     {
      "id": "monitor",
      "name": "Monitor",
      "role": "모니터함",
-     "base": "bosses/monitor.webp",
+     "base": "bosses/monitor/base.webp",
+     "variants": []
+    },
+    {
+     "id": "torpedo_boat",
+     "name": "Torpedo Boat",
+     "role": "어뢰정",
+     "base": "bosses/torpedo_boat/base.webp",
+     "variants": [
+      {
+       "kind": "dmg",
+       "name": "손상",
+       "file": "bosses/torpedo_boat/dmg.webp"
+      },
+      {
+       "kind": "wreck",
+       "name": "파괴",
+       "file": "bosses/torpedo_boat/wreck.webp"
+      }
+     ]
+    },
+    {
+     "id": "gunboat",
+     "name": "Gunboat",
+     "role": "포함",
+     "base": "bosses/gunboat/base.webp",
+     "variants": []
+    },
+    {
+     "id": "minelayer",
+     "name": "Minelayer",
+     "role": "기뢰부설함",
+     "base": "bosses/minelayer/base.webp",
+     "variants": []
+    },
+    {
+     "id": "dreadnought",
+     "name": "Dreadnought",
+     "role": "드레드노트",
+     "base": "bosses/dreadnought/base.webp",
+     "variants": [
+      {
+       "kind": "wreck",
+       "name": "파괴",
+       "file": "bosses/dreadnought/wreck.webp"
+      }
+     ]
+    },
+    {
+     "id": "armored_cruiser",
+     "name": "Armored Cruiser",
+     "role": "장갑순양함",
+     "base": "bosses/armored_cruiser/base.webp",
      "variants": []
     },
     {
      "id": "carrier_furious",
      "name": "HMS Furious",
      "role": "항공모함",
-     "base": "bosses/carrier_furious.webp",
-     "variants": []
-    },
-    {
-     "id": "armored_cruiser",
-     "name": "Armored Cruiser",
-     "role": "장갑순양함",
-     "base": "bosses/armored_cruiser.webp",
+     "base": "bosses/carrier_furious/base.webp",
      "variants": []
     },
     {
      "id": "balloon_tender",
      "name": "Balloon Tender",
      "role": "기구모선",
-     "base": "bosses/balloon_tender.webp",
+     "base": "bosses/balloon_tender/base.webp",
      "variants": []
     },
     {
-     "id": "friedrichshafen_boss",
+     "id": "friedrichshafen_g3",
      "name": "Friedrichshafen G.III 편대",
      "role": "중폭격 편대",
-     "base": "bosses/friedrichshafen_g3.webp",
+     "base": "bosses/friedrichshafen_g3/base.webp",
+     "variants": []
+    },
+    {
+     "id": "_parts",
+     "name": "분리 부품",
+     "role": "포탑 등",
+     "base": "bosses/_parts/naval_turret.webp",
      "variants": []
     }
    ]
