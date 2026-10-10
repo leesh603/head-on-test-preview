@@ -66,15 +66,15 @@ export const GROUND_ROUTES=Object.freeze({
 // u,v, trench direction, firing direction. The short sorties stay within the
 // inspected dry parapet apron (at most 17px from each station), never free roam.
 export const GROUND_FIGHTS=Object.freeze({
- trenches:[[.291,.165,-.52,.55],[.765,.163,.63,2.4],[.694,.636,-.48,-2.2],[.354,.134,-.52,-2.6]],
- burning:[[.286,.213,-.07,.6],[.742,.427,.22,-2.4],[.548,.574,-.34,-.9]],
+ trenches:[[.291,.165,-.52,.55],[.765,.163,.63,2.4],[.694,.636,-.48,-2.2],[.354,.134,-.52,-2.6],[.40,.32,.05,1.5],[.467,.344,.1,-1.5],[.801,.50,-1.2,2.9],[.630,.652,-.48,1.2],[.337,.631,-.27,1.2],[.467,.842,.6,-1.2]],
+ burning:[[.286,.213,-.07,.6],[.742,.427,.22,-2.4],[.548,.574,-.34,-.9],[.370,.201,-.16,.9],[.782,.481,.6,-2.4],[.455,.787,.3,2.3],[.573,.823,1.1,.2]],
  cambrai:[[.839,.617,-.27,-2.1]]
 });
 // u,v, event type. Fire anchors coincide with painted burning wrecks. Shells
 // land on dry no-man's-land, not on the Somme's water channels.
 export const GROUND_EVENTS=Object.freeze({
- trenches:[[.509,.475,'shell'],[.679,.394,'shell'],[.416,.584,'shell'],[.392,.238,'shell'],[.248,.261,'shell'],[.688,.690,'shell'],[.242,.652,'shell']],
- burning:[[.711,.140,'fire'],[.281,.461,'fire'],[.180,.704,'fire'],[.512,.357,'shell'],[.682,.571,'shell'],[.367,.540,'shell'],[.407,.249,'shell'],[.240,.307,'shell']],
+ trenches:[[.509,.475,'shell'],[.679,.394,'shell'],[.416,.584,'shell'],[.392,.238,'shell'],[.248,.261,'shell'],[.688,.690,'shell'],[.242,.652,'shell'],[0.12,0.16,'shell'],[0.42,0.1,'shell'],[0.58,0.17,'shell'],[0.84,0.11,'shell'],[0.9,0.23,'shell'],[0.18,0.29,'shell'],[0.38,0.42,'shell'],[0.64,0.28,'shell'],[0.87,0.34,'shell'],[0.12,0.46,'shell'],[0.34,0.55,'shell'],[0.54,0.56,'shell'],[0.72,0.52,'shell'],[0.93,0.56,'shell'],[0.16,0.71,'shell'],[0.47,0.71,'shell'],[0.76,0.73,'shell'],[0.92,0.78,'shell'],[0.2,0.88,'shell'],[0.4,0.9,'shell'],[0.62,0.9,'shell'],[0.83,0.94,'shell']],
+ burning:[[.711,.140,'fire'],[.281,.461,'fire'],[.180,.704,'fire'],[.512,.357,'shell'],[.682,.571,'shell'],[.367,.540,'shell','timber'],[.407,.249,'shell'],[.240,.307,'shell'],[0.12,0.12,'shell'],[0.35,0.09,'shell'],[0.56,0.16,'shell'],[0.84,0.19,'shell'],[0.14,0.27,'shell'],[0.47,0.3,'shell'],[0.64,0.32,'shell'],[0.89,0.35,'shell'],[0.13,0.44,'shell'],[0.44,0.46,'shell'],[0.58,0.5,'shell'],[0.92,0.43,'shell'],[0.22,0.61,'shell'],[0.37,0.68,'shell'],[0.67,0.68,'shell'],[0.84,0.7,'shell'],[0.13,0.84,'shell'],[0.48,0.82,'shell'],[0.74,0.87,'shell'],[0.91,0.89,'shell']],
  cambrai:[[.510,.380,'shell'],[.488,.635,'shell'],[.803,.322,'shell'],[.735,.403,'shell'],[.904,.459,'shell']],
  somme:[[.257,.584,'shell'],[.877,.434,'shell']]
 });
@@ -203,7 +203,7 @@ export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
    if(e[2]==='fire')wreckFire(c,x,y,t,j+seed,low);
    else {
     const cycle=key==='burning'?10:key==='trenches'?13:15,q=mod(t+j*3.31+(seed%61)*.47,cycle);
-    shellScene(c,x,y,q,key==='burning',low,key==='burning'&&j%3===0);
+    shellScene(c,x,y,q,key==='burning',low,e[3]==='timber');
     shellScene(c,x,y,q+cycle,key==='burning',true);
    }
   }

@@ -21,7 +21,7 @@ document.querySelector('#perf').onclick=()=>{const g=api()?.debug();if(!g)return
 // Both versions run their actual module graphs and terrain, not mock renders.
 async function loadVersion(which){
  mode=which;status.textContent='실제 게임 로딩 · '+mode;
- const root=which==='before'?new URL('../ffc311c69d2c676636c6defb09c73b1a1534b6d8/',location.href):new URL('../486de944520f3ce65a75e79f3d94e2a40135fda8/',location.href);
+ const root=which==='before'?new URL('../ffc311c69d2c676636c6defb09c73b1a1534b6d8/',location.href):new URL('./',location.href);
  const response=await fetch(new URL('index.html',root)),text=await response.text();
  const appPath=text.match(/\.\/app\.js\?[^'"]+/)[0];let code=await(await fetch(new URL(appPath,root))).text();
  // srcdoc has an empty hostname. Enable only its existing Test Lab bridge.
@@ -29,7 +29,7 @@ async function loadVersion(which){
  code=code.replace(/(from\s*|import\s*\(?)(['"])(\.{1,2}\/[^'"]+)\2/g,(_,prefix,quote,url)=>prefix+quote+new URL(url,root).href+quote);
  code=code.replace(/drawMovingDressing\((ctx,key,[^;]+)\);/,(_,args)=>'{const qaBegin=performance.now();drawMovingDressing('+args+');const qaCost=performance.now()-qaBegin;parent.document.querySelector("#render").dataset.clock=key+" t="+(game?.t??ambient)+" density="+detailDensity;(window.__groundTimes||=[]).push(qaCost);if(window.__groundTimes.length>600)window.__groundTimes.shift();}');
  const blob=URL.createObjectURL(new Blob([code],{type:'text/javascript'}));
- const probe='<script type="module">import {groundLifeReady,groundLifeStats} from "'+new URL('ground-life.js?v=livingww1c',root).href+'";setInterval(()=>{parent.document.querySelector("#render").textContent="atlas "+groundLifeStats.atlas+" · FX "+groundLifeStats.fx+" · 분대 "+groundLifeStats.groups+" · 활동 "+groundLifeStats.emitters+" · "+(parent.document.querySelector("#render").dataset.clock||"")},500);groundLifeReady.then(ok=>{parent.document.querySelector("#assets").textContent="지상 atlas: "+(ok?"로드 완료":"로드 실패")});<\/script>';
+ const probe='<script type="module">import {groundLifeReady,groundLifeStats} from "'+new URL('ground-life.js?v=livingww1d',root).href+'";setInterval(()=>{parent.document.querySelector("#render").textContent="atlas "+groundLifeStats.atlas+" · FX "+groundLifeStats.fx+" · 분대 "+groundLifeStats.groups+" · 활동 "+groundLifeStats.emitters+" · "+(parent.document.querySelector("#render").dataset.clock||"")},500);groundLifeReady.then(ok=>{parent.document.querySelector("#assets").textContent="지상 atlas: "+(ok?"로드 완료":"로드 실패")});<\/script>';
  const cors='<script>window.Image=class extends Image{constructor(...args){super(...args);this.crossOrigin="anonymous"}};<\/script>';
  let html=text.replace('<head>','<head><base href="'+root.href+'">'+cors).replace(appPath,blob).replace('</body>',probe+'</body>');
  // The comparison version stays pinned; the app's deploy-version reload is

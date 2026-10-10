@@ -1,6 +1,6 @@
 // Scenery only: no Game/RNG ownership, collision, AI, particles or update loop.
 // Coordinates were measured on the current authored terrain, never scattered.
-import {drawGroundLife,groundLifeReady,drawHarborLife,drawCoastLife} from './ground-life.js?v=livingww1c';
+import {drawGroundLife,groundLifeReady,drawHarborLife,drawCoastLife} from './ground-life.js?v=livingww1d';
 const FRAMES=Object.freeze({gun:0,tank:1,farm:2,wagon:3,ambulance:4,lorry:5,train:6,supplies:7,landing:8,camp:9,desertWagon:10,brokenGun:11});
 const images={};
 export const backgroundDressingReady=typeof Image==='undefined'?Promise.resolve(false):Promise.all([groundLifeReady,...[

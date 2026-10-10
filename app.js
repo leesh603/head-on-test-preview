@@ -44,7 +44,7 @@ import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?
 import {drawEnemyDanger} from './enemy-danger-view.js?v=gal1';
 import {drawGas} from './gas-view.js?v=gal1';
 import {drawWarAmbience} from './war-ambience.js?v=groundlife1';
-import {backgroundDressingReady,drawRepeatedDressing,drawMovingDressing,bakeHarborDressing,drawHarborLife,drawGallipoliDressing,drawDesertDressing,drawParisDressing} from './background-dressing.js?v=livingww1c';
+import {backgroundDressingReady,drawRepeatedDressing,drawMovingDressing,bakeHarborDressing,drawHarborLife,drawGallipoliDressing,drawDesertDressing,drawParisDressing} from './background-dressing.js?v=livingww1d';
 import {missionNavigation,drawMissionRadar} from './navigation.js?v=gal1';
 import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=gal1';
 import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=gal1&rail=42';
