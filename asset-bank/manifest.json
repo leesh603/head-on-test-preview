@@ -1,57 +1,464 @@
 {
-  "note": "Candidate sprite stock — NOT wired into the game. Keyed webp sprites (border flood-fill white cutout, alpha-cropped, max 768px) generated with in-game sprite references as the style source. Source PNGs archived at C:\\Users\\Administrator\\asset-src\\gen-batch1 on the build box. Batch 1: 17 new type sprites + 21 ace liveries + 6 boss concepts.",
-  "generated": "2026-10-09",
-  "v": 4,
+  "note": "Candidate sprite stock — NOT wired into the game. Keyed webp sprites (border flood-fill white cutout, alpha-cropped, max 768px) generated with in-game sprite references as the style source. Source PNGs archived at C:UsersAdministratorasset-src on the build box. Batch 2: +31 boss sprites (10 new types, 3-state destruction sets, turret parts, experimental weapons).",
+  "generated": "2026-10-10",
+  "v": 5,
   "categories": {
     "planes": [
-      {"file": "planes/ssw_d3.webp", "name": "Siemens-Schuckert D.III", "nation": "germany", "role": "scout", "year": 1918},
-      {"file": "planes/sopwith_dolphin.webp", "name": "Sopwith Dolphin (negative stagger)", "nation": "britain", "role": "scout", "year": 1918},
-      {"file": "planes/roland_d6b.webp", "name": "Roland D.VIb 'Walfisch' (lozenge)", "nation": "germany", "role": "scout", "year": 1918},
-      {"file": "planes/junkers_d1.webp", "name": "Junkers D.I corrugated monoplane", "nation": "germany", "role": "monoplane scout", "year": 1918},
-      {"file": "planes/junkers_j1.webp", "name": "Junkers J.I armored sesquiplane", "nation": "germany", "role": "ground attack", "year": 1917},
-      {"file": "planes/gotha_g4.webp", "name": "Gotha G.IV twin heavy bomber", "nation": "germany", "role": "heavy bomber", "year": 1917},
-      {"file": "planes/macchi_m5.webp", "name": "Macchi M.5 flying boat fighter", "nation": "italy", "role": "flying boat", "year": 1917},
-      {"file": "planes/re8.webp", "name": "R.E.8", "nation": "britain", "role": "reconnaissance", "year": 1917},
-      {"file": "planes/dh4.webp", "name": "Airco DH.4", "nation": "britain", "role": "day bomber", "year": 1917},
-      {"file": "planes/pfalz_d12.webp", "name": "Pfalz D.XII", "nation": "germany", "role": "scout", "year": 1918},
-      {"file": "planes/sopwith_strutter.webp", "name": "Sopwith 1½ Strutter", "nation": "britain/france", "role": "two-seat scout", "year": 1916},
-      {"file": "planes/voisin_8.webp", "name": "Voisin VIII pusher", "nation": "france", "role": "night bomber", "year": 1917},
-      {"file": "planes/fokker_e4.webp", "name": "Fokker E.IV Eindecker", "nation": "germany", "role": "monoplane scout", "year": 1916},
-      {"file": "planes/aeg_c4.webp", "name": "AEG C.IV", "nation": "germany", "role": "reconnaissance", "year": 1916},
-      {"file": "planes/caudron_g4.webp", "name": "Caudron G.4 twin-engine lattice-tail", "nation": "france", "role": "bomber", "year": 1916},
-      {"file": "planes/felixstowe_f2a.webp", "name": "Felixstowe F.2A flying boat", "nation": "britain", "role": "patrol flying boat", "year": 1918},
-      {"file": "planes/staaken_r6.webp", "name": "Zeppelin-Staaken R.VI giant", "nation": "germany", "role": "giant bomber", "year": 1918}
+      {
+        "file": "planes/ssw_d3.webp",
+        "name": "Siemens-Schuckert D.III",
+        "nation": "germany",
+        "role": "scout",
+        "year": 1918
+      },
+      {
+        "file": "planes/sopwith_dolphin.webp",
+        "name": "Sopwith Dolphin (negative stagger)",
+        "nation": "britain",
+        "role": "scout",
+        "year": 1918
+      },
+      {
+        "file": "planes/roland_d6b.webp",
+        "name": "Roland D.VIb 'Walfisch' (lozenge)",
+        "nation": "germany",
+        "role": "scout",
+        "year": 1918
+      },
+      {
+        "file": "planes/junkers_d1.webp",
+        "name": "Junkers D.I corrugated monoplane",
+        "nation": "germany",
+        "role": "monoplane scout",
+        "year": 1918
+      },
+      {
+        "file": "planes/junkers_j1.webp",
+        "name": "Junkers J.I armored sesquiplane",
+        "nation": "germany",
+        "role": "ground attack",
+        "year": 1917
+      },
+      {
+        "file": "planes/gotha_g4.webp",
+        "name": "Gotha G.IV twin heavy bomber",
+        "nation": "germany",
+        "role": "heavy bomber",
+        "year": 1917
+      },
+      {
+        "file": "planes/macchi_m5.webp",
+        "name": "Macchi M.5 flying boat fighter",
+        "nation": "italy",
+        "role": "flying boat",
+        "year": 1917
+      },
+      {
+        "file": "planes/re8.webp",
+        "name": "R.E.8",
+        "nation": "britain",
+        "role": "reconnaissance",
+        "year": 1917
+      },
+      {
+        "file": "planes/dh4.webp",
+        "name": "Airco DH.4",
+        "nation": "britain",
+        "role": "day bomber",
+        "year": 1917
+      },
+      {
+        "file": "planes/pfalz_d12.webp",
+        "name": "Pfalz D.XII",
+        "nation": "germany",
+        "role": "scout",
+        "year": 1918
+      },
+      {
+        "file": "planes/sopwith_strutter.webp",
+        "name": "Sopwith 1½ Strutter",
+        "nation": "britain/france",
+        "role": "two-seat scout",
+        "year": 1916
+      },
+      {
+        "file": "planes/voisin_8.webp",
+        "name": "Voisin VIII pusher",
+        "nation": "france",
+        "role": "night bomber",
+        "year": 1917
+      },
+      {
+        "file": "planes/fokker_e4.webp",
+        "name": "Fokker E.IV Eindecker",
+        "nation": "germany",
+        "role": "monoplane scout",
+        "year": 1916
+      },
+      {
+        "file": "planes/aeg_c4.webp",
+        "name": "AEG C.IV",
+        "nation": "germany",
+        "role": "reconnaissance",
+        "year": 1916
+      },
+      {
+        "file": "planes/caudron_g4.webp",
+        "name": "Caudron G.4 twin-engine lattice-tail",
+        "nation": "france",
+        "role": "bomber",
+        "year": 1916
+      },
+      {
+        "file": "planes/felixstowe_f2a.webp",
+        "name": "Felixstowe F.2A flying boat",
+        "nation": "britain",
+        "role": "patrol flying boat",
+        "year": 1918
+      },
+      {
+        "file": "planes/staaken_r6.webp",
+        "name": "Zeppelin-Staaken R.VI giant",
+        "nation": "germany",
+        "role": "giant bomber",
+        "year": 1918
+      }
     ],
     "aces": [
-      {"file": "aces/mai_fokkerd7.webp", "name": "Fokker D.VII (Josef Mai, zebra)", "nation": "germany", "ace": "Josef Mai", "year": 1918},
-      {"file": "aces/kissenberth_albatros.webp", "name": "Albatros D.V (Kissenberth, lozenge)", "nation": "germany", "ace": "Otto Kissenberth", "year": 1918},
-      {"file": "aces/menckhoff_albatros.webp", "name": "Albatros D.V (Menckhoff, green/white)", "nation": "germany", "ace": "Carl Menckhoff", "year": 1917},
-      {"file": "aces/lufbery_spad7.webp", "name": "SPAD VII (Lufbery, Lafayette)", "nation": "france/usa", "ace": "Raoul Lufbery", "year": 1917},
-      {"file": "aces/boyau_spad13.webp", "name": "SPAD XIII (Boyau, serpent)", "nation": "france", "ace": "Maurice Boyau", "year": 1918},
-      {"file": "aces/tarascon_nieuport24.webp", "name": "Nieuport 24 (Tarascon 'Zigomar', red)", "nation": "france", "ace": "Paul Tarascon", "year": 1917},
-      {"file": "aces/mcelroy_se5a.webp", "name": "SE5a (McElroy)", "nation": "britain", "ace": "George McElroy", "year": 1918},
-      {"file": "aces/nieuport28_hatring.webp", "name": "Nieuport 28 (USAS 'Hat in the Ring')", "nation": "usa", "ace": "94th Aero Squadron", "year": 1918},
-      {"file": "aces/bourjade_spad13.webp", "name": "SPAD XIII (Bourjade, blue butterfly)", "nation": "france", "ace": "Leonard Bourjade", "year": 1918},
-      {"file": "aces/piccio_spad7.webp", "name": "SPAD VII (Piccio)", "nation": "italy", "ace": "Pier Ruggero Piccio", "year": 1917},
-      {"file": "aces/thieffry_hanriot.webp", "name": "Hanriot HD.1 (Thieffry, white)", "nation": "belgium", "ace": "Andre Thieffry", "year": 1918},
-      {"file": "aces/smirnov_nieuport.webp", "name": "Nieuport 17 (Smirnov, skull)", "nation": "russia", "ace": "Ivan Smirnov", "year": 1917},
-      {"file": "aces/aviatik_d1_falcon.webp", "name": "Aviatik D.I (Linke-Crawford, falcon)", "nation": "austria-hungary", "ace": "Frank Linke-Crawford", "year": 1918},
-      {"file": "aces/arigi_aviatik.webp", "name": "Aviatik D.I (Arigi, witch)", "nation": "austria-hungary", "ace": "Julius Arigi", "year": 1918},
-      {"file": "aces/schaefer_albatros.webp", "name": "Albatros D.III (Schaefer, black/red)", "nation": "germany", "ace": "Karl Emil Schaefer", "year": 1917},
-      {"file": "aces/kirschstein_dri.webp", "name": "Fokker Dr.I (Kirschstein, yellow/white)", "nation": "germany", "ace": "Hans Kirschstein", "year": 1918},
-      {"file": "aces/loerzer_albatros.webp", "name": "Albatros D.III (Loerzer, checkerboard)", "nation": "germany", "ace": "Bruno Loerzer", "year": 1917},
-      {"file": "aces/degelow_pfalz.webp", "name": "Pfalz D.IIIa (Degelow, white stag)", "nation": "germany", "ace": "Carl Degelow", "year": 1918},
-      {"file": "aces/madon_spad13.webp", "name": "SPAD XIII (Madon, black)", "nation": "france", "ace": "Georges Madon", "year": 1918},
-      {"file": "aces/heurtaux_spad7.webp", "name": "SPAD VII (Heurtaux, white stag)", "nation": "france", "ace": "Alfred Heurtaux", "year": 1917},
-      {"file": "aces/coiffard_spad13.webp", "name": "SPAD XIII (Coiffard, red/white bands)", "nation": "france", "ace": "Michel Coiffard", "year": 1918}
+      {
+        "file": "aces/mai_fokkerd7.webp",
+        "name": "Fokker D.VII (Josef Mai, zebra)",
+        "nation": "germany",
+        "ace": "Josef Mai",
+        "year": 1918
+      },
+      {
+        "file": "aces/kissenberth_albatros.webp",
+        "name": "Albatros D.V (Kissenberth, lozenge)",
+        "nation": "germany",
+        "ace": "Otto Kissenberth",
+        "year": 1918
+      },
+      {
+        "file": "aces/menckhoff_albatros.webp",
+        "name": "Albatros D.V (Menckhoff, green/white)",
+        "nation": "germany",
+        "ace": "Carl Menckhoff",
+        "year": 1917
+      },
+      {
+        "file": "aces/lufbery_spad7.webp",
+        "name": "SPAD VII (Lufbery, Lafayette)",
+        "nation": "france/usa",
+        "ace": "Raoul Lufbery",
+        "year": 1917
+      },
+      {
+        "file": "aces/boyau_spad13.webp",
+        "name": "SPAD XIII (Boyau, serpent)",
+        "nation": "france",
+        "ace": "Maurice Boyau",
+        "year": 1918
+      },
+      {
+        "file": "aces/tarascon_nieuport24.webp",
+        "name": "Nieuport 24 (Tarascon 'Zigomar', red)",
+        "nation": "france",
+        "ace": "Paul Tarascon",
+        "year": 1917
+      },
+      {
+        "file": "aces/mcelroy_se5a.webp",
+        "name": "SE5a (McElroy)",
+        "nation": "britain",
+        "ace": "George McElroy",
+        "year": 1918
+      },
+      {
+        "file": "aces/nieuport28_hatring.webp",
+        "name": "Nieuport 28 (USAS 'Hat in the Ring')",
+        "nation": "usa",
+        "ace": "94th Aero Squadron",
+        "year": 1918
+      },
+      {
+        "file": "aces/bourjade_spad13.webp",
+        "name": "SPAD XIII (Bourjade, blue butterfly)",
+        "nation": "france",
+        "ace": "Leonard Bourjade",
+        "year": 1918
+      },
+      {
+        "file": "aces/piccio_spad7.webp",
+        "name": "SPAD VII (Piccio)",
+        "nation": "italy",
+        "ace": "Pier Ruggero Piccio",
+        "year": 1917
+      },
+      {
+        "file": "aces/thieffry_hanriot.webp",
+        "name": "Hanriot HD.1 (Thieffry, white)",
+        "nation": "belgium",
+        "ace": "Andre Thieffry",
+        "year": 1918
+      },
+      {
+        "file": "aces/smirnov_nieuport.webp",
+        "name": "Nieuport 17 (Smirnov, skull)",
+        "nation": "russia",
+        "ace": "Ivan Smirnov",
+        "year": 1917
+      },
+      {
+        "file": "aces/aviatik_d1_falcon.webp",
+        "name": "Aviatik D.I (Linke-Crawford, falcon)",
+        "nation": "austria-hungary",
+        "ace": "Frank Linke-Crawford",
+        "year": 1918
+      },
+      {
+        "file": "aces/arigi_aviatik.webp",
+        "name": "Aviatik D.I (Arigi, witch)",
+        "nation": "austria-hungary",
+        "ace": "Julius Arigi",
+        "year": 1918
+      },
+      {
+        "file": "aces/schaefer_albatros.webp",
+        "name": "Albatros D.III (Schaefer, black/red)",
+        "nation": "germany",
+        "ace": "Karl Emil Schaefer",
+        "year": 1917
+      },
+      {
+        "file": "aces/kirschstein_dri.webp",
+        "name": "Fokker Dr.I (Kirschstein, yellow/white)",
+        "nation": "germany",
+        "ace": "Hans Kirschstein",
+        "year": 1918
+      },
+      {
+        "file": "aces/loerzer_albatros.webp",
+        "name": "Albatros D.III (Loerzer, checkerboard)",
+        "nation": "germany",
+        "ace": "Bruno Loerzer",
+        "year": 1917
+      },
+      {
+        "file": "aces/degelow_pfalz.webp",
+        "name": "Pfalz D.IIIa (Degelow, white stag)",
+        "nation": "germany",
+        "ace": "Carl Degelow",
+        "year": 1918
+      },
+      {
+        "file": "aces/madon_spad13.webp",
+        "name": "SPAD XIII (Madon, black)",
+        "nation": "france",
+        "ace": "Georges Madon",
+        "year": 1918
+      },
+      {
+        "file": "aces/heurtaux_spad7.webp",
+        "name": "SPAD VII (Heurtaux, white stag)",
+        "nation": "france",
+        "ace": "Alfred Heurtaux",
+        "year": 1917
+      },
+      {
+        "file": "aces/coiffard_spad13.webp",
+        "name": "SPAD XIII (Coiffard, red/white bands)",
+        "nation": "france",
+        "ace": "Michel Coiffard",
+        "year": 1918
+      }
     ],
     "bosses": [
-      {"file": "bosses/uboat.webp", "name": "U-9 class surfaced U-boat", "kind": "naval boss hull"},
-      {"file": "bosses/monitor.webp", "name": "Monitor gunboat (twin turret)", "kind": "naval boss hull"},
-      {"file": "bosses/friedrichshafen_g3.webp", "name": "Friedrichshafen G.III bomber", "kind": "formation boss airframe"},
-      {"file": "bosses/carrier_furious.webp", "name": "HMS Furious experimental carrier", "kind": "naval boss hull"},
-      {"file": "bosses/armored_cruiser.webp", "name": "Armored cruiser", "kind": "naval boss hull"},
-      {"file": "bosses/balloon_tender.webp", "name": "Balloon tender ship + drachen", "kind": "naval boss hull"}
+      {
+        "file": "bosses/uboat.webp",
+        "name": "U-9 class surfaced U-boat",
+        "kind": "naval boss hull"
+      },
+      {
+        "file": "bosses/monitor.webp",
+        "name": "Monitor gunboat (twin turret)",
+        "kind": "naval boss hull"
+      },
+      {
+        "file": "bosses/friedrichshafen_g3.webp",
+        "name": "Friedrichshafen G.III bomber",
+        "kind": "formation boss airframe"
+      },
+      {
+        "file": "bosses/carrier_furious.webp",
+        "name": "HMS Furious experimental carrier",
+        "kind": "naval boss hull"
+      },
+      {
+        "file": "bosses/armored_cruiser.webp",
+        "name": "Armored cruiser",
+        "kind": "naval boss hull"
+      },
+      {
+        "file": "bosses/balloon_tender.webp",
+        "name": "Balloon tender ship + drachen",
+        "kind": "naval boss hull"
+      },
+      {
+        "file": "bosses/panzerzug.webp",
+        "name": "Armored train Panzerzug (locomotive+turret car)",
+        "kind": "land boss hull"
+      },
+      {
+        "file": "bosses/panzerzug_dmg.webp",
+        "name": "Panzerzug — battle damaged",
+        "kind": "land boss hull (damaged)"
+      },
+      {
+        "file": "bosses/panzerzug_wreck.webp",
+        "name": "Panzerzug — destroyed wreck",
+        "kind": "land boss hull (wreck)"
+      },
+      {
+        "file": "bosses/torpedo_boat.webp",
+        "name": "Torpedo boat destroyer (3-funnel)",
+        "kind": "naval boss hull"
+      },
+      {
+        "file": "bosses/torpedo_boat_dmg.webp",
+        "name": "Torpedo boat — battle damaged",
+        "kind": "naval boss hull (damaged)"
+      },
+      {
+        "file": "bosses/torpedo_boat_wreck.webp",
+        "name": "Torpedo boat — destroyed wreck",
+        "kind": "naval boss hull (wreck)"
+      },
+      {
+        "file": "bosses/big_bertha.webp",
+        "name": "Big Bertha 42cm siege howitzer emplacement",
+        "kind": "siege boss installation"
+      },
+      {
+        "file": "bosses/big_bertha_dmg.webp",
+        "name": "Big Bertha — battle damaged",
+        "kind": "siege boss (damaged)"
+      },
+      {
+        "file": "bosses/big_bertha_wreck.webp",
+        "name": "Big Bertha — destroyed wreck",
+        "kind": "siege boss (wreck)"
+      },
+      {
+        "file": "bosses/kwagen.webp",
+        "name": "K-Wagen experimental superheavy tank (4 turrets)",
+        "kind": "land boss hull"
+      },
+      {
+        "file": "bosses/kwagen_dmg.webp",
+        "name": "K-Wagen — battle damaged",
+        "kind": "land boss hull (damaged)"
+      },
+      {
+        "file": "bosses/kwagen_wreck.webp",
+        "name": "K-Wagen — destroyed wreck",
+        "kind": "land boss hull (wreck)"
+      },
+      {
+        "file": "bosses/land_cruiser.webp",
+        "name": "Land cruiser multi-turret war machine (experimental)",
+        "kind": "land boss hull"
+      },
+      {
+        "file": "bosses/land_cruiser_dmg.webp",
+        "name": "Land cruiser — battle damaged",
+        "kind": "land boss hull (damaged)"
+      },
+      {
+        "file": "bosses/land_cruiser_wreck.webp",
+        "name": "Land cruiser — destroyed wreck",
+        "kind": "land boss hull (wreck)"
+      },
+      {
+        "file": "bosses/dreadnought.webp",
+        "name": "Dreadnought battleship (4 twin turrets)",
+        "kind": "naval boss hull"
+      },
+      {
+        "file": "bosses/dreadnought_wreck.webp",
+        "name": "Dreadnought — destroyed wreck",
+        "kind": "naval boss hull (wreck)"
+      },
+      {
+        "file": "bosses/paris_gun.webp",
+        "name": "Paris Gun railway siege cannon",
+        "kind": "siege boss installation"
+      },
+      {
+        "file": "bosses/armored_airship.webp",
+        "name": "Schütte-Lanz rigid armored airship (top view)",
+        "kind": "air boss hull"
+      },
+      {
+        "file": "bosses/gunboat.webp",
+        "name": "Armored river gunboat",
+        "kind": "naval boss hull"
+      },
+      {
+        "file": "bosses/minelayer.webp",
+        "name": "Minelayer ship (stern mine racks)",
+        "kind": "naval boss hull"
+      },
+      {
+        "file": "bosses/fortress_bunker.webp",
+        "name": "Concrete fortress bunker w/ rotating cupola",
+        "kind": "fort boss installation"
+      },
+      {
+        "file": "bosses/supply_depot.webp",
+        "name": "Forward supply & ammo depot",
+        "kind": "support boss installation"
+      },
+      {
+        "file": "bosses/drachen_winch.webp",
+        "name": "Drachen balloon winch station",
+        "kind": "support boss installation"
+      },
+      {
+        "file": "bosses/rail_mortar_battery.webp",
+        "name": "Railway siege mortar battery x3",
+        "kind": "siege boss installation"
+      },
+      {
+        "file": "bosses/flame_tank.webp",
+        "name": "Flammenwerfer flame tank (experimental)",
+        "kind": "land boss hull"
+      },
+      {
+        "file": "bosses/gas_battery.webp",
+        "name": "Poison gas projector battery",
+        "kind": "siege boss installation"
+      },
+      {
+        "file": "bosses/aa_truck.webp",
+        "name": "Armored AA gun truck (Ehrhardt-type)",
+        "kind": "land boss hull"
+      },
+      {
+        "file": "bosses/tesla_tower.webp",
+        "name": "Tesla arc tower (experimental weapon)",
+        "kind": "experimental boss installation"
+      },
+      {
+        "file": "bosses/tesla_tower_dmg.webp",
+        "name": "Tesla tower — battle damaged",
+        "kind": "experimental boss (damaged)"
+      },
+      {
+        "file": "bosses/naval_turret.webp",
+        "name": "Rotating twin naval gun turret (part)",
+        "kind": "boss weapon part"
+      }
     ]
   }
 }
