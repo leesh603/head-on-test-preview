@@ -64,16 +64,6 @@
      "variants": [
       {
        "kind": "alt",
-       "name": "Fokker E-type (표준)",
-       "file": "../fokker.webp"
-      },
-      {
-       "kind": "alt",
-       "name": "Fokker E-type (표준 2)",
-       "file": "../fokker_standard.webp"
-      },
-      {
-       "kind": "alt",
        "name": "Fokker E.IV",
        "file": "planes/fokker_e4.webp"
       },
@@ -567,6 +557,16 @@
      "variants": [
       {
        "kind": "ace",
+       "name": "M. v. Richthofen (전체 적색)",
+       "file": "../fokker.webp"
+      },
+      {
+       "kind": "alt",
+       "name": "표준 생산형 위장",
+       "file": "../fokker_standard.webp"
+      },
+      {
+       "kind": "ace",
        "name": "Lothar v. Richthofen",
        "file": "../lothar_dr1.webp"
       },
@@ -717,6 +717,16 @@
        "kind": "ace",
        "name": "Gabriel",
        "file": "../gabriel_fokkerd7.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Göring",
+       "file": "../goering_fokkerd7.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Löwenhardt",
+       "file": "../loewenhardt_fokkerd7.webp"
       },
       {
        "kind": "ace",
