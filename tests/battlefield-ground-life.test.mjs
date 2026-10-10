@@ -11,10 +11,10 @@ function context(){
  {get:(t,p)=>p in t?t[p]:()=>{},set(t,p,v){if(p==='filter')counts.filters++;t[p]=v;return true;}});
  return {c,counts};
 }
-async function renderer(){
- const fxKeys=[],document={createElement(){return {width:0,height:0,getContext:()=>context().c}}};
+async function renderer(trim=false){
+ const fxKeys=[],document={createElement(){return {width:0,height:0,getContext:()=>{const {c}=context();c.getImageData=()=>{const data=new Uint8ClampedArray(128*128*4);for(let y=30;y<90;y++)for(let x=20;x<100;x++)data[(y*128+x)*4+3]=255;return {data}};return c;}}}};
  const Image=class{set src(v){this.naturalWidth=1448;queueMicrotask(()=>this.onload())}};
- const api=new Function('fx','Image','document','fxImage','fxArtReady',source+'\nreturn {groundLifeReady,drawGroundLife};')((c,key)=>{fxKeys.push(key);return true;},Image,document,()=>null,Promise.resolve());
+ const api=new Function('fx','Image','document','fxImage','fxArtReady',source+'\nreturn {groundLifeReady,drawGroundLife,groundLifeStats};')((c,key)=>{fxKeys.push(key);return true;},Image,document,()=>trim?{width:128,height:128}:null,Promise.resolve());
  await api.groundLifeReady;return {...api,fxKeys};
 }
 test('vehicles accelerate along finite approved paths without sideways/reverse drift',()=>{
@@ -78,4 +78,13 @@ test('a nearby bombardment drives scatter, retreat and sustained smoke',async()=
  drawGroundLife(c,'trenches',300,160,150,150,1254,14,1);
  assert.ok(fxKeys.includes('smokeDust'),'smoke remains five seconds after the squad impact');
  assert.ok(!fxKeys.some(k=>/explosionHot|flameJet|airblast/.test(k)),'no bright airborne combat FX reused for ground shells');
+});
+
+test('tight FX are baked once, and actual bitmap draws have a hard viewport bound',async()=>{
+ const {drawGroundLife,groundLifeStats}=await renderer(true);assert.equal(groundLifeStats.fx,6);
+ const {c,counts}=context();let reads=0;c.getImageData=()=>{reads++;throw Error('live pixel read')};
+ let maximum=0;
+ for(let n=0;n<240;n++){const prior=counts.images;drawGroundLife(c,'burning',n*41-700,n*23-400,1920,1080,1254,n*.2,1);maximum=Math.max(maximum,counts.images-prior)}
+ assert.equal(reads,0);assert.ok(maximum<=102,'at most 38 vehicle/infantry images plus 64 FX');
+ assert.equal(counts.filters,0);
 });
