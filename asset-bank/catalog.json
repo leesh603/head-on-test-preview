@@ -2185,6 +2185,26 @@
        "file": "liveries/spad13/italy.webp",
        "name": "이탈리아 전선",
        "kind": "livery"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아제국 공군",
+       "file": "liveries/spad13/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "폴란드 샤호비차",
+       "file": "liveries/spad13/polish.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "훈련 은색 도포",
+       "file": "liveries/spad13/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/spad13/leader.webp"
       }
      ]
     },
