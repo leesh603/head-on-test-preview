@@ -652,7 +652,28 @@
      "year": 1917,
      "role": "지상공격기",
      "base": "../halberstadt_duo.webp",
-     "variants": []
+     "variants": [
+      {
+       "kind": "livery",
+       "name": "초기 올리브 단색",
+       "file": "liveries/halberstadt_duo/green.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "슐라스타 지휘기 나선띠",
+       "file": "liveries/halberstadt_duo/band.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "수칠 얼룩 위장",
+       "file": "liveries/halberstadt_duo/mottle.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "영국 노획 평가기",
+       "file": "liveries/halberstadt_duo/captured.webp"
+      }
+     ]
     },
     {
      "id": "aeg_c4",
