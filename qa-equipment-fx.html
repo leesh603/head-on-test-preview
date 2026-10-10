@@ -1,0 +1,43 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HEAD-ON 장비 FX 실제 게임 비교</title>
+<style>body{margin:0;background:#171c1b;color:#ece5d3;font:14px system-ui}header{padding:14px 20px}h1{font-size:19px;margin:0 0 8px}button,select{font:inherit;padding:8px;background:#303b36;color:inherit;border:1px solid #68705f;border-radius:5px}main{display:flex;gap:16px;justify-content:center}section{width:390px}h2{font-size:14px}iframe{width:390px;height:700px;border:1px solid #666}#status{margin:8px 0;min-height:20px}small{color:#bbb}label{margin-right:10px}</style>
+<header><h1>특수장비 FX · 실제 게임 렌더 비교</h1><label>장비 <select id="item"></select></label><label>전장 <select id="region"><option value="0">전원</option><option value="1">바다</option><option value="15">야간</option></select></label><button id="prepare">동일 조건 재현</button> <button id="step">0.06초 진행</button> <button id="play">재생 / 정지</button><div id="status">두 게임 로딩 중…</div><small>실제 index.html·엔진·원화·HUD 사용. 장비 지급 및 발동 조건을 고정한 Test Lab 장면이며 자연 획득 플레이와 구분합니다.</small></header>
+<main><section><h2>BEFORE · 기준 main 6ef8a3d</h2><iframe id="before" title="변경 전 실제 게임"></iframe></section><section><h2>AFTER · 장비별 FX 수정본</h2><iframe id="after" title="변경 후 실제 게임"></iframe></section></main>
+<script>
+const base='6ef8a3dd0710ed159904f93b6abf9ed4e353fbbf',items=[['redScarf','붉은남작 머플러'],['steelPlate','J형 장갑 캡슐'],['prancingHorse','검은 말 문장'],['sparkPlug','비상수선키트'],['rankinShell','랭킨 파편탄'],['kaiserFog','브록식 연막'],['telescope','망원경'],['rearGunner','스카프링'],['quadLewis','쿼드 루이스'],['flightGloves','비행장갑'],['maximBelt','연속 급탄 링크'],['badinGauge','바댕 속도계'],['immelmannManual','기동전술 교본'],['fogCompass','에어로 컴퍼스'],['goeringBaton','총동원령'],['ironCross','훈장'],['motorCannon','모퇴르 카농'],['cow37','COW 37mm'],['grunkreuz','녹십자'],['lufberyCircle','루프베리 서클'],['amatolCharge','아마톨'],['loEmblem','LO!'],['sacredCowling','얼굴 카울링'],['mauserAceKiller','마우저'],['boelckeDicta','금언집'],['urLeica','카메라'],['heineckeRettungsfallschirm','낙하산']];
+const $=id=>document.getElementById(id),frames=[$('before'),$('after')];let apis=[],playing=false;
+for(const [id,name] of items)$('item').add(new Option(name,id));
+const q='?headonTest=1&autostart=0';
+$('before').src=location.hostname==='raw.githack.com'?'/leesh603/head-on-test-preview/'+base+'/index.html'+q:'./index.html'+q;
+$('after').src='./index.html'+q;
+const status=()=>{ $('status').textContent=apis.map((a,i)=>{const g=a.debug();return (i?'후':'전')+' HP '+g.hp.toFixed(1)+' · 탄 '+g.bullets.length+' · 수리 '+(g.repairFlash151||0).toFixed(2)+' · 파편 '+(g.rankinFlash||0).toFixed(2)}).join(' / ');};
+function advance(g,seconds,fire=false){g.state='playing';for(let t=0;t<seconds-.0001;t+=.02)g.update(.02,{inputMode:'gamepad',fireHeld:fire,angle:-Math.PI/2});g.state='paused';}
+function equip(g,id){g.state='upgrade';g.upgrade(id,'legendary');g.state='playing';}
+function scenario(api){
+ api.start({region:Number($('region').value),pilot:'baron',invincible:false,freeze:true});const g=api.debug();g.rng=()=>.5;
+ for(const k of ['spawn','eventTimer','nextBossAt','nextHeavyAt','flakTimer','regionThreat','fieldUnitTimer','gasTimer','gustTimer','patrolTimer','supplyTimer','allyTimer'])g[k]=Infinity;
+ g.enemies.length=0;g.bullets.length=0;g.drops.length=0;g.x=0;g.y=0;g.a=-Math.PI/2;g.invuln=0;g.need=Infinity;
+ const id=$('item').value;equip(g,id);advance(g,.6);g.events.length=0;
+ if(['steelPlate','prancingHorse'].includes(id)){
+  g.invuln=0;const b={x:g.x,y:g.y-5,vx:0,vy:400,damage:8,enemy:true,life:1};g.resolveHostileRound(b,g.x,g.y-30);
+ }
+ if(id==='sparkPlug'){g.hp=g.maxHp*.55;g.mccuddenRepairTimer=.01;advance(g,.12);}
+ if(id==='rankinShell'){g.rankinShrapnelTimer=.01;for(let i=0;i<7;i++)g.bullets.push({x:g.x-70+i*23,y:g.y+100,vx:0,vy:-90,life:3,damage:5,enemy:true});advance(g,.14);}
+ if(id==='kaiserFog'){g.brockSmokeTimer=.01;advance(g,.6);}
+ if(['telescope','rearGunner','quadLewis','flightGloves','mauserAceKiller','motorCannon','cow37'].includes(id)){
+  g.spawnEnemy('bomber');const e=g.enemies.at(-1);if(e)Object.assign(e,{x:g.x+(id==='rearGunner'?85:15),y:g.y+(id==='rearGunner'?70:-130),a:Math.PI/2,fire:Infinity,speed:0});
+  if(id==='rearGunner')advance(g,1.8);g.fire=0;advance(g,.02,true);
+ }
+ if(id==='maximBelt'){g.ammo.fill(0);g.state='playing';g.reload();advance(g,.12);}
+ if(id==='badinGauge'){g.state='upgrade';g.upgrade('turn','rare');g.state='playing';advance(g,.1);}
+ if(id==='immelmannManual'){g.state='playing';g.evade();advance(g,.1);}
+ if(id==='fogCompass'){for(let i=0;i<5;i++)g.drops.push({x:g.x+(i%2?1:-1)*(85+i*12),y:g.y-130+i*53,value:1,heal:i===3});advance(g,.04);}
+ if(id==='ironCross'){g.state='playing';g.skill();advance(g,.06);}
+ if(id==='lufberyCircle'){equip(g,'goeringBaton');advance(g,.6);}
+ g.state='paused';return g;
+}
+$('prepare').onclick=()=>{playing=false;try{apis.forEach(scenario);status()}catch(e){$('status').textContent='오류: '+e.message;console.error(e)}};
+$('step').onclick=()=>{apis.forEach(a=>advance(a.debug(),.06));status()};
+$('play').onclick=()=>{playing=!playing;apis.forEach(a=>a.debug().state=playing?'playing':'paused');status()};
+Promise.all(frames.map(f=>new Promise(resolve=>{const timer=setInterval(()=>{const a=f.contentWindow?.__HEADON_TEST__;if(a){clearInterval(timer);resolve(a)}},200)}))).then(a=>{apis=a;$('status').textContent='준비 완료 · 장비 선택 후 동일 조건 재현';});
+window.addEventListener('error',e=>$('status').textContent='오류: '+e.message);
+</script></html>

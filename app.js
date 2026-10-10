@@ -24,7 +24,7 @@ const fieldRecordLink=document.createElement('a');fieldRecordLink.href='./field-
 import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=gal1';
 import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=gal1';
 import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=gal1';
-import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=gal1';
+import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawEquipmentDefense} from './player-effects129.js?v=gal1';
 import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=gal1&hints=1&treads=2&rail=42&maan=3&minen=4';
 import {paintParis} from './paris-night-art.js?v=gal1';
 import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=gal1&hints=1&rail=42';
@@ -748,7 +748,6 @@ hud=()=>{_hud51();const g=hudPlayer();relicCooldownTick();const held=UPGRADES.fi
 const _draw51=draw;
 draw=t=>{_draw51(t);if(!game)return;ctx.save();
  for(const w of game.divingSquadron||[]){const x=w.x-game.x+W/2,y=w.y-game.y+H/2;planeSprite(ctx,x+12,y+18,w.a, 'se5a',1,false,true);planeSprite(ctx,x,y,w.a,'se5a',1)}
- if(game.upgrades.redScarf){const a=game.a;ctx.strokeStyle='#d6f6efa8';ctx.lineWidth=2;for(const offset of [-29,-20,20,29]){const x=W/2-Math.sin(a)*offset,y=H/2+Math.cos(a)*offset,len=58+Math.sin(t*15+offset)*18;ctx.beginPath();ctx.moveTo(x-Math.cos(a)*24,y-Math.sin(a)*24);ctx.lineTo(x-Math.cos(a)*len,y-Math.sin(a)*len);ctx.stroke()}}
  ctx.restore();
 };
 iconsReady.then(()=>{legendarySignature='';for(const ref of choiceIconRefs)drawUpgradeIcon(ref.canvas,ref.id,ref.owner||game);const icon=$('pilotSkillIcon');drawGameIcon(icon.getContext('2d'),faction==='central'?'emblemCentral':'emblemEntente',24,24,44);paintControl('skillButtonIcon',faction==='central'?'emblemCentral':'emblemEntente');for(const id of ['p1','p2'])coopRelicSignatures[id]='';if(game){hud();if(game.mode==='coop2')coopHud()}});
@@ -952,8 +951,7 @@ function drawPassiveEffectMarks(){}
 function drawLegendaryDefenseOverlay(g,c,w,h){
  if(!g)return;drawPassiveEffectMarks(g,c,w,h);const players=g.players||[g],zoom=g.players?(g.camera?.zoom||1):1,cx=g.players?(g.camera?.x||0):g.x,cy=g.players?(g.camera?.y||0):g.y;
  for(const p of players){if(!p||p.hp<=0)continue;const x=g.players?(p.x-cx)*zoom+w/2:w/2,y=g.players?(p.y-cy)*zoom+h/2:h/2;
-  if(p.kaiserFogTime>0){const phase=(p.kaiserFogTime||0)*2.4,fade=Math.min(1,p.kaiserFogTime/.45);c.save();if(fxReady('mist'))for(let i=0;i<7;i++){const a=i*2.399+phase*.4,r=20+(i%3)*20,px=x+Math.cos(a)*r,py=y+Math.sin(a)*r;fx(c,'mist',px,py,96+(i%2)*30,96+(i%2)*30,a*.4,(.17+i*.012)*fade)}else{c.globalCompositeOperation='source-over';for(let i=0;i<9;i++){const a=i*2.399+phase,r=22+(i%3)*18,px=x+Math.cos(a)*r,py=y+Math.sin(a)*r,rr=28+(i%4)*7;const grad=c.createRadialGradient(px,py,2,px,py,rr);grad.addColorStop(0,`rgba(203,210,196,${.22*fade})`);grad.addColorStop(.62,`rgba(151,165,156,${.15*fade})`);grad.addColorStop(1,'rgba(110,125,121,0)');c.fillStyle=grad;c.beginPath();c.arc(px,py,rr,0,Math.PI*2);c.fill()}}c.strokeStyle='#d9d5ad66';c.lineWidth=1;c.beginPath();c.arc(x,y,54+Math.sin(phase*4)*4,0,Math.PI*2);c.stroke();c.restore()}
-  if(p.rankinFlash>0){const fade=Math.min(1,p.rankinFlash/.3),back=p.a+Math.PI;c.save();c.translate(x,y);c.rotate(back);c.globalAlpha=fade;c.strokeStyle='#ded9c2';c.lineWidth=2;c.beginPath();c.arc(0,0,52,-1.75,1.75);c.stroke();c.fillStyle='#efe7c9';for(let i=-4;i<=4;i++){const a=i*.24,d=58+Math.abs(i)*5;c.fillRect(Math.cos(a)*d-2,Math.sin(a)*d-1,5,2)}c.restore()}
+  c.save();c.translate(x,y);c.scale(zoom,zoom);drawEquipmentDefense(c,p,0,0);c.restore();
  }
 }
 
