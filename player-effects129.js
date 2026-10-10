@@ -152,7 +152,7 @@ export function drawEquipmentDefense(c,p,x,y){
  if(p.prancingHorseFlash160>0){
   const f=Math.min(1,p.prancingHorseFlash160/.14),a=(p.equipmentImpactAngle??p.a)-p.a;
   fx(c,'ricochet',Math.cos(a)*29,Math.sin(a)*22,38,22,a,f*.75);
-  c.save();c.translate(38,0);c.rotate(-p.a);drawHorseSilhouette(c,0,-5,29,f*.92);c.restore();
+  c.save();c.translate(43,0);c.rotate(-p.a);drawHorseSilhouette(c,0,-5,34,f*.92);c.restore();
  }
  if(p.repairFlash151>0){
   const q=1-p.repairFlash151/.75,f=Math.min(1,q*10)*Math.min(1,p.repairFlash151/.2);
