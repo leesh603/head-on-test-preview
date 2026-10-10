@@ -680,6 +680,26 @@
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "planes/phoenix_d1.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "무위장 은색",
+       "file": "liveries/phonix_d1/silver.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "합판 바니시+린넨 날개",
+       "file": "liveries/phonix_d1/wood.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "이탈리아 노획기",
+       "file": "liveries/phonix_d1/italian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "백색 식별밴드+백색 꼬리",
+       "file": "liveries/phonix_d1/band.webp"
       }
      ]
     },
