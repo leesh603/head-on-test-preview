@@ -2333,6 +2333,26 @@
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "planes/caudron_g4.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "이탈리아 운용기",
+       "file": "liveries/caudron_g4/italian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "미군 훈련기 별",
+       "file": "liveries/caudron_g4/usas.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "야간폭격 칠흑",
+       "file": "liveries/caudron_g4/night.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "폴란드 샤호비차",
+       "file": "liveries/caudron_g4/polish.webp"
       }
      ]
     },
