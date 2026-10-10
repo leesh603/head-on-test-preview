@@ -1,4 +1,6 @@
+import {drawFuelFire} from './explosion-profiles.js?v=gal1';
 import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from './aircraft-crash.js?v=gal1';
+import {drawTracerBolt} from './projectiles.js?v=gal1&rail=42';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.
 const worlds=new WeakMap(),poses=new WeakMap();
@@ -38,7 +40,7 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
  const burst=world.burst,smoke=world.smoke;
  const crashEffects={rng:visualRandom,
   smoke(x,y,heavy){let w=0;for(const p of state.trail)if(p.life>0)state.trail[w++]=p;state.trail.length=w;if(state.trail.length>=(compact()?COMBAT_FEEDBACK_LIMITS.compactTrail:COMBAT_FEEDBACK_LIMITS.trail))return;smoke.call({rng:visualRandom,particles:world.particles},x,y,heavy);state.trail.push(world.particles.at(-1))},
-  burst(x,y,color){world.combatFX??=[];const fire=this.wreck?.style==='fire';burst.call({rng:visualRandom,particles:world.particles,combatFX:world.combatFX},x,y,fire?color:'#ab9471',fire?30:12,'aircraftMedium')},
+  burst(x,y,color){world.combatFX??=[];const fire=this.wreck?.style==='fire';burst.call({rng:visualRandom,particles:world.particles,combatFX:world.combatFX,viewWidth:world.viewWidth},x,y,fire?color:'#ab9471',fire?30:12,'aircraftMedium')},
   event(){play(this.wreck?.style==='fire'?'impact':'airframeBreak')}
  };
  world.burst=function(x,y,color,n,...args){
@@ -132,18 +134,19 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
  return state;
 }
 export function combatCameraOffset(world){const s=worlds.get(world);return s?{x:Math.sin(s.time*83)*s.camera,y:Math.cos(s.time*71)*s.camera}:{x:0,y:0}}
-export function combatFlightSound(world){const p=(world.players||[world]).find(p=>p.hp>0)||world,s=worlds.get(world);return{reload:p.reloadTime>0,speed:p.airframeSpeed??1,turn:Math.abs(poses.get(p)?.turn||0),damage:clamp(1-p.hp/p.maxHp),duck:(s?.duckUntil||0)>(world.t||0)}}
+export function combatFlightSound(world){const p=(world.players||[world]).find(p=>p.hp>0)||world,s=worlds.get(world);return{plane:p.plane,reload:p.reloadTime>0,speed:p.airframeSpeed??1,turn:Math.abs(poses.get(p)?.turn||0),damage:clamp(1-p.hp/p.maxHp),duck:(s?.duckUntil||0)>(world.t||0)}}
 function drawWreck(c,w,x,y,time,fx,planeSprite){
  if(w.style==='spin')drawAircraftCrash(c,w,x,y,time,fx);
  else fx(c,'smokeTrail',x-Math.cos(w.a)*56,y-Math.sin(w.a)*56,160,58,w.a,.8);
  const ws=w.scale*enemyCrashScale(w);if(w.type!=='bomber')planeSprite(c,x+14,y+22,w.a,w.key,ws,true,true);
  planeSprite(c,x,y,w.a,w.key,ws,true,false,0,true);if(w.style==='fire')fx(c,'fireEngine',x+Math.cos(w.a)*12,y+Math.sin(w.a)*12,58,66,w.a+Math.PI/2,.9);
 }
-export function drawCombatFeedback(c,world,point,{fx,planeSprite}){
+export function drawCombatFeedback(c,world,point,{fx,planeSprite,bolt=drawTracerBolt}){
  const s=worlds.get(world);if(!s)return;
  const visible=(x,y)=>Math.abs(x-world.x)<(world.viewWidth||960)+160&&Math.abs(y-world.y)<(world.viewHeight||700)+160;
  for(const f of s.plumes){if(!visible(f.x,f.y))continue;const [x,y]=point(f.x,f.y),k=f.age/f.life,size=16+k*(f.heavy?38:24);fx(c,f.heavy?'smokeDark':'engineSmoke',x,y,size,size,f.a,(1-k)*(f.heavy?.55:.35))}
- for(const e of world.enemies||[])if(ordinary(e)&&e.hp>0&&visible(e.x,e.y)){
+ let fuelCount=0;for(const e of world.enemies||[])if(e.hp>0&&e.burnTime>0&&!e.gontermannBurn&&visible(e.x,e.y)&&fuelCount<(world.viewWidth<=720?6:10)){const [x,y]=point(e.x,e.y);drawFuelFire(c,fx,x,y,e.fuelFxAge||0,e.surface?58:38,e.surface?0:e.a+Math.PI/2,e.burnTime);fuelCount++}
+ for(const e of world.enemies||[])if(ordinary(e)&&e.hp>0&&!(e.burnTime>0)&&visible(e.x,e.y)){
   const d=s.damage.get(e);if(!d||e.hp/e.maxHp>=.4)continue;const [x,y]=point(...localPoint(e,d.engine>0?14:0,d.engine>0?0:d.side*18));
   fx(c,d.engine>0?'fireEngine':'fireWing',x,y,32,32,e.a+Math.PI/2,.6+Math.sin(s.time*21)*.12);
  }
@@ -151,7 +154,7 @@ export function drawCombatFeedback(c,world,point,{fx,planeSprite}){
  for(const f of s.passes)for(const side of [-1,1]){const [x,y]=point(...localPoint(f.player,-15,side*56));fx(c,'windStreak',x,y,135,22,f.player.a,f.life/.3*.5)}
  if(s.headOnUntil>s.time){let count=0;const players=world.players||[world];for(const b of world.bullets||[]){
   if(b.life<=0||b.flak||b.rocket||b.cow37||b.motorCannon||!players.some(p=>p.hp>0&&Math.hypot(b.x-p.x,b.y-p.y)<330))continue;
-  const [x,y]=point(b.x,b.y),a=Math.atan2(b.vy,b.vx);fx(c,b.enemy?'tracerOrange':'tracerCream',x,y,clamp(Math.hypot(b.vx,b.vy)*.035,18,42),5,a,.8);
+  const [x,y]=point(b.x,b.y),a=Math.atan2(b.vy,b.vx);bolt(c,x,y,a,b.enemy?'#f0965a':'#f2d9a0',clamp(Math.hypot(b.vx,b.vy)*.035,18,42),6,.85);
   if(++count>=(world.viewWidth<=720?12:20))break;
  }}
  for(const w of s.wrecks){if(!visible(w.x,w.y))continue;const [x,y]=point(w.x,w.y);drawWreck(c,w,x,y,s.time,fx,planeSprite)}

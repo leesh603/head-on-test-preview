@@ -1,4 +1,4 @@
-import {OnlineCoopGame} from './online-coop-game.js';
+import {OnlineCoopGame} from './online-coop-game.js?v=gal1&coopfix=1&rail=42';
 
 export function relayUrl(){
  const configured=globalThis.HEADON_COOP_RELAY||new URLSearchParams(location.search).get('coopRelay');
@@ -41,30 +41,33 @@ export class OnlineSession {
 export function installOnlineLobby({getLoadout,getGame,onStart,onEnd}){
  const mode=document.createElement('button');mode.id='onlineCoopMode';mode.type='button';mode.hidden=true;mode.textContent='온라인 Co-op';mode.setAttribute('aria-pressed','false');document.getElementById('hangar').append(mode);
  const panel=document.createElement('section');panel.id='onlineCoopPanel';panel.className='coop-panel hidden';panel.setAttribute('aria-label','온라인 2인 협동');
- panel.innerHTML='<span class="panel-eyebrow">ONLINE CO-OP</span><h3 class="panel-title">온라인 2인 협동</h3><p>선택한 파일럿으로 출격합니다. 친구와 같은 진영을 선택하세요.</p><div class="online-room-actions"><button type="button" id="onlineCreate">방 만들기</button><label for="onlineCode">Room Code<input id="onlineCode" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="6자리 코드"></label><button type="button" id="onlineJoin">참가</button></div><p id="onlineRoomCode"></p><p id="onlinePlayers"></p><p id="onlineStatus" role="status" aria-live="polite">방을 만들거나 친구의 코드를 입력하세요.</p><button type="button" id="onlineReady" hidden>준비</button> <button type="button" id="onlineLeave">닫기</button>';
- const seat=()=>{const anchor=document.getElementById('coopPanel');if(anchor&&panel.parentElement!==anchor.parentElement)anchor.after(panel);};
+ panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');
+ panel.innerHTML='<span class="panel-eyebrow">ONLINE CO-OP</span><h3 class="panel-title">친구와 함께 출격</h3><p>각자 파일럿을 선택하고 같은 진영으로 준비하세요.</p><div class="online-room-actions"><button type="button" id="onlineCreate">새 방 만들기</button><span class="online-room-divider">또는 친구의 방에 참가</span><label for="onlineCode">방 코드<input id="onlineCode" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="6자리 코드"></label><button type="button" id="onlineJoin">참가하기</button></div><p id="onlineRoomCode"></p><div id="onlinePlayers"></div><p id="onlineStatus" role="status" aria-live="polite">방을 만들거나 친구의 코드를 입력하세요.</p><div class="online-lobby-footer"><button type="button" id="onlineReady" hidden>출격 준비</button><button type="button" id="onlineLeave">닫기</button></div>';
+
+ const seat=()=>{if(panel.parentElement!==document.body)document.body.append(panel);};
  seat();
  const status=document.createElement('span');status.id='onlineConnection';status.hidden=true;status.setAttribute('role','status');document.getElementById('viewport').append(status);
  let session=null,ready=false;
  const $=id=>document.getElementById(id);
  const message=text=>{$('onlineStatus').textContent=text;status.textContent=text;};
- const close=()=>{session?.leave();session=null;ready=false;panel.classList.add('hidden');mode.setAttribute('aria-pressed','false');$('onlineReady').hidden=true;};
- mode.onclick=()=>{if(getGame())return;seat();panel.classList.toggle('hidden');mode.setAttribute('aria-pressed',String(!panel.classList.contains('hidden')));};
+ const close=()=>{session?.leave();session=null;ready=false;panel.classList.add('hidden');mode.setAttribute('aria-pressed','false');$('onlineReady').hidden=true;$('onlineCreate').disabled=false;$('onlineJoin').disabled=false;$('onlineCode').disabled=false;$('onlineRoomCode').textContent='';$('onlinePlayers').replaceChildren();message('방을 만들거나 친구의 코드를 입력하세요.');$('onlineLeave').textContent='닫기';if(!getGame())$('onlineCoopEntry')?.focus({preventScroll:true});};
+ mode.onclick=()=>{if(getGame())return;seat();panel.classList.toggle('hidden');mode.setAttribute('aria-pressed',String(!panel.classList.contains('hidden')));if(!panel.classList.contains('hidden'))$('onlineCreate').focus({preventScroll:true});};
  const open=type=>{
-  if(getGame())return;session?.leave();ready=false;
+  if(getGame())return;const enteredCode=$('onlineCode').value.trim().toUpperCase();if(type==='join'&&!/^[A-Z2-9]{6}$/.test(enteredCode)){message('6자리 방 코드를 확인하세요.');$('onlineCode').focus();return;}session?.leave();ready=false;
   let url;try{url=relayUrl();}catch(e){message(e.message);return;}
   session=new OnlineSession({url,onStatus:message,onLobby:m=>{
-   $('onlineRoomCode').textContent='Room Code · '+m.code;
-   $('onlinePlayers').textContent=m.players.map(p=>(p.role==='host'?'Host · P1':'Guest · P2')+' · '+(p.connected?(p.ready?'준비 완료':'준비 대기'):'미접속')).join(' / ');
-   $('onlineReady').hidden=!!m.started;const own=m.players.find(p=>p.role===session.role);ready=!!own?.ready;$('onlineReady').textContent=ready?'준비 취소':'준비';
+   $('onlineRoomCode').textContent='방 코드 · '+m.code;$('onlineCreate').disabled=true;$('onlineJoin').disabled=true;$('onlineCode').disabled=true;$('onlineLeave').textContent='방 나가기';
+   $('onlinePlayers').replaceChildren(...m.players.map(p=>{const row=document.createElement('div');row.className='online-player-seat';const name=document.createElement('b');name.textContent=p.role===session.role?'나':p.connected?'동료':'동료 대기';const state=document.createElement('span');state.textContent=p.connected?(p.ready?'준비 완료':'준비 대기'):'미접속';row.append(name,state);return row;}));
+   $('onlineReady').hidden=!!m.started;const own=m.players.find(p=>p.role===session.role);ready=!!own?.ready;$('onlineReady').textContent=ready?'준비 취소':'출격 준비';
    $('onlineCode').value=m.code;
-  },onStart:(s,data)=>{status.hidden=false;panel.classList.add('hidden');onStart(s,data);},onEnd:reason=>{message(reason);$('onlineReady').hidden=true;onEnd(reason);}});
+  },onStart:(s,data)=>{status.hidden=false;panel.classList.add('hidden');onStart(s,data);},onEnd:reason=>{message(reason);$('onlineReady').hidden=true;$('onlineCreate').disabled=false;$('onlineJoin').disabled=false;$('onlineCode').disabled=false;onEnd(reason);}});
   const code=$('onlineCode').value.trim().toUpperCase();let token;try{const saved=JSON.parse(sessionStorage.getItem('headon-online-room')||'null');if(type==='join'&&saved?.code===code&&saved.url===url)token=saved.token;}catch{}
   session.connect({type,code,token,config:getLoadout()});
  };
  $('onlineCreate').onclick=()=>open('create');$('onlineJoin').onclick=()=>open('join');
  $('onlineReady').onclick=()=>{if(session?.send({type:'ready',ready:!ready}))ready=!ready;};
  $('onlineLeave').onclick=close;
+ panel.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();close();return;}if(e.key==='Enter'&&e.target===$('onlineCode')){e.preventDefault();open('join');return;}if(e.key==='Tab'){const buttons=[...panel.querySelectorAll('button:not([hidden]):not(:disabled),input:not(:disabled)')];const first=buttons[0],last=buttons.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}};
  return {close(){close();status.hidden=true;},createGame:(s,data)=>new OnlineCoopGame(s,data),input(g,inputs,joy){return g.localInput(inputs,joy);},controls(g){
   const p=g.player(g.localPlayerId),live=g.state==='playing'&&p.status==='alive';
   $('touchSkill').disabled=!live||p.cooldown>0;$('touchEvade').disabled=!live||p.evadeCooldown>0;$('reload').disabled=!live||p.reloadTime>0;

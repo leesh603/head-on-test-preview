@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {CoopGame}=await import('../coop-engine.js?v=gal1');
-const {enableStageBoss,beginStageBossFrame,endStageBossFrame}=await import('../stageboss-host.js?v=gal1');
+const {CoopGame}=await import('../coop-engine.js?v=gal1&rail=42');
+const {enableStageBoss,beginStageBossFrame,endStageBossFrame}=await import('../stageboss-host.js?v=gal1&rail=42');
 const {spawnCityDefense,tickCityDefense}=await import('../city-defense.js?v=gal1');
 
 const {fixture,step}=await import('./stageboss-fixture94.mjs');

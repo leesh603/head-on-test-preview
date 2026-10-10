@@ -1,3 +1,5 @@
+import {broadsideBreak,shellMarch} from './boss-raid-strikes.js?v=gal1&rail=42';
+import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=gal1';
 
 // These mounts are also the sprite atlas contract: source art faces north.
@@ -163,6 +165,7 @@ export class ParisSearchlightFortress extends ParisBoss {
       const escape=routes.find(r=>r.targetId===target?.id)||{x:0,y:reverse};
       this.beam(ids[i],target,escape,bounds);
     }
+    if(beat===3)for(const id of ['aa-left','aa-right']){const gun=this.parts.get(id),target=targets[this.targetCursor%Math.max(1,targets.length)];if(!gun.destroyed&&target)broadsideBreak(this,{source:{x:this.x+gun.x,y:this.y+gun.y},partId:id,target,visual:'staaken-mg',tag:this.id+':focus',warning:1.2,beats:2,beat:.6,spread:1.5,speed:340});}
     this.targetCursor++;
     this.command('paris-light-beat',{beat,cycle:this.rhythmCycle,seconds:this.beatSeconds(),orbitDirection:reverse,safeRoutes:routes.map(({targetId,angle})=>({targetId,angle}))});
   }
@@ -173,7 +176,7 @@ export class ParisSearchlightFortress extends ParisBoss {
       const gun=this.parts.get(id),count=this.livePart('command')?3:2;
       this.command('muzzle',{x:this.x+gun.x,y:this.y+gun.y,partId:id});
       for(let i=0;i<count;i++)this.hazard('circle',{x:target.x+(i-(count-1)/2)*34,y:target.y+(i%2)*25,delay:i*.07,radius:38,
-        warning:this.livePart('command')?.2:.38,duration:.3,once:true,damage:this.t.damage*1.4,visual:'black-flak',sourceX:this.x+gun.x,sourceY:this.y+gun.y,tag:this.id+':focus'});
+        warning:this.livePart('command')?.5:.65,duration:.3,once:true,damage:this.t.damage*1.4,visual:'black-flak',sourceX:this.x+gun.x,sourceY:this.y+gun.y,tag:this.id+':focus'});
     }
     for(const id of ['mg-left','mg-right'])this.fan(this.parts.get(id),target,this.livePart('command')?6:3,.33,this.id+':focus',this.t.damage*.8,1.25);
     this.command('paris-light-lock',{targetId:record.id,seconds:record.remaining,x:target.x,y:target.y});
@@ -184,7 +187,7 @@ export class ParisSearchlightFortress extends ParisBoss {
     // Keep destroyed mounts' empty slots: each removed weapon opens a real
     // gap in the four-step battery, rather than accelerating survivors.
     const slot=this.lastStandSlot++,id=['aa-left','mg-left','aa-right','mg-right'][slot%4];
-    this.lastStandIn=1.1;if(!this.livePart(id))return;
+    this.lastStandIn=slot%4===3?3.4:.8;if(!this.livePart(id))return;
     const gun=this.parts.get(id),target=targets[(slot+Math.floor(slot/4))%targets.length];
     const x=this.x+gun.x,y=this.y+gun.y,tag=this.id+':'+id;
     this.command('muzzle',{x,y,partId:id});
@@ -288,9 +291,9 @@ export class ParisStaakenRVI extends ParisBoss {
   gunfire(dt,players){
     const arcs={'gun-front':[0,.66,750],'gun-top':[0,1.72,510],'gun-rear':[Math.PI,.8,660],'gun-left':[-Math.PI/2,.7,620],'gun-right':[Math.PI/2,.7,620]};
     for(const [id,[axis,width,range]] of Object.entries(arcs)){
-      const gun=this.parts.get(id);if(gun.destroyed||!this.due(id,dt,1.8))continue;
+      const gun=this.parts.get(id);if(gun.destroyed||!this.due(id,dt,this.phase==='regroup'?5.8:4.6))continue;
       const p=live(players).find(p=>Math.hypot(p.x-this.x,p.y-this.y)<range&&Math.abs(wrap(Math.atan2(p.y-this.y,p.x-this.x)-this.a-axis))<width);
-      if(p)this.fan(gun,p,3,.18,this.id+':'+id,this.t.damage*.55);
+      if(p){const x=this.x+gun.x,y=this.y+gun.y;broadsideBreak(this,{source:{x,y},partId:id,target:p,visual:'staaken-mg',tag:this.id+':'+id,spread:1.45,beats:3,beat:.5,warning:1.1,speed:330});}
     }
   }
   update(dt,{players=[],bounds,parisTargets=[]}){
@@ -321,6 +324,10 @@ export class ParisStaakenRVI extends ParisBoss {
                 warning:1.3,duration:.35,once:true,damage:this.t.damage*strength,visual:'carpet-bomb',airborneBomb:true,sourceX,sourceY,tag:this.id+':'+bay.id});
             }
             this.runTarget=null;this.runRemaining=0;this.phase='regroup';this.raidWait=5+(4-engines)*1.5;
+            // Below 40% the crew dumps the remaining racks on the pilot as it
+            // turns away: a warned march from the bays behind the bomber.
+            const pilot=live(players)[0];if(pilot&&this.hp<=this.maxHp*.4){const bay=this.bays().find(b=>!b.destroyed);if(bay){if(!this.lastRaid){this.lastRaid=true;this.command('phase-change',{phase:'staaken-last-raid'});}
+              shellMarch(this,{source:{x:this.x+bay.x,y:this.y+bay.y},partId:bay.id,target:pilot,rows:3,radius:48,step:82,beat:.45,warning:1.3,visual:'carpet-bomb',tag:this.id+':last-raid'});}}
           }
         }
       }else{

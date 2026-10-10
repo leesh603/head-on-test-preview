@@ -64,7 +64,7 @@ export function installTrenchWar(Game,TAILING_BALANCE){
      b.pos+=B.barrageSpeed*step;
      if(this.rng()<step*14){const a=b.pos+this.rng()*40,l=(this.rng()-.5)*2*B.barrageHalfWidth;
       const ix=b.x+Math.cos(b.dir)*a-Math.sin(b.dir)*l,iy=b.y+Math.sin(b.dir)*a+Math.cos(b.dir)*l;
-      this.burst(ix,iy,'#7a6248',5);this.smoke(ix,iy,true)}
+      this.burst(ix,iy,'#7a6248',5,'groundShell');this.smoke(ix,iy,true,true)}
      if((this._barragePlayerHit||0)<=0&&this.inBarrageBand(this.x,this.y)){
       this._barragePlayerHit=B.hitCooldown;this.hit(Math.max(6,Math.round(this.maxHp*B.playerHit)))}
      this._barragePlayerHit=(this._barragePlayerHit||0)-step;

@@ -47,12 +47,13 @@ export class BossHazards {
       x:spec.x,y:spec.y,vx:spec.vx||0,vy:spec.vy||0,radius:spec.radius||6,width:spec.width||1,height:spec.height||1,
       angle:spec.angle||0,angularSpeed:spec.angularSpeed||0,halfAngle:spec.halfAngle||.15,length:spec.length||1,thickness:spec.thickness||1,
       endX:spec.endX??null,endY:spec.endY??null,endVx:spec.endVx||0,
-      damage:spec.damage,age:0,delay:spec.delay||0,warning:spec.warning||0,duration:spec.duration,
+      basicSerial:spec.basicSerial||0,basicMuzzle:!!spec.basicMuzzle,raidHeavy:!!spec.raidHeavy,damage:spec.damage,age:0,delay:spec.delay||0,warning:spec.warning||0,duration:spec.duration,
       tickInterval:spec.tickInterval||.5,nextTick:0,phase:'waiting',once:!!spec.once,applied:false,activated:false,
       targetId:spec.targetId,lockAtWarning:!!spec.lockAtWarning,locked:false,offsetX:spec.offsetX||0,offsetY:spec.offsetY||0,telegraphHalf:spec.telegraphHalf||0,
       muzzleLength:spec.muzzleLength||0,
       innerRadius:spec.innerRadius||0,ringSpeed:spec.ringSpeed||0,ringWidth:spec.ringWidth||0,radiusStart:spec.radiusStart||0,radiusLimit:spec.radiusLimit||0,
       sourceX:spec.sourceX??null,sourceY:spec.sourceY??null,airborneBomb:!!spec.airborneBomb,
+      sourcePartId:spec.sourcePartId??null,sourceOffsetX:spec.sourceOffsetX||0,sourceOffsetY:spec.sourceOffsetY||0,
       blocks:!!spec.blocks,piercing:!!spec.piercing,visual:spec.visual||spec.kind,tag:spec.tag||null,vertices:spec.vertices||null
     });return h;
   }

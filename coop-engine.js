@@ -1,9 +1,10 @@
+import {advanceExplosionFx} from './explosion-profiles.js?v=gal1';
 import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=gal1';
 import {nungesserAimOffset,nungesserRoundReaction} from './pilot-signature-state.js?v=gal1';
 import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=gal1';
 import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=gal1';
-import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=gal1';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=gal1';
+import {Game,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=gal1&rail=42';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=gal1&hints=1&rail=42';
 import {registerAircraftTiers} from './aircraft-tiers.js?v=gal1';
 import {attachAircraftPersonality} from './aircraft-personality164.js?v=gal1';
 import {wingmanEngagementStep,wingmanAttackTarget} from './engagement-flow174.js?v=gal1';
@@ -91,11 +92,7 @@ export class CoopGame {
  openUpgrade(){if(this.state==='lost')return;this.activeUpgrade=this.pendingLevelUps[0]||null;if(!this.activeUpgrade){this.state=this.manualPaused?'paused':'playing';return}this.state='upgrade';const item=this.activeUpgrade,p=this.player(item.playerId);if(!item.choices){const level=p.level;p.level=item.level;try{item.choices=p.rollChoices()}finally{p.level=level}}this.events.push({type:'upgrade',item})}
  chooseUpgrade(itemId,id){const item=this.activeUpgrade;if(this.state!=='upgrade'||!item||item.id!==itemId)return false;const choice=item.choices.find(c=>c.id===id);if(!choice)return false;const p=this.player(item.playerId),prior=p.upgrades[id]||0;p.upgrade(id,choice.rarity);if((p.upgrades[id]||0)===prior)return false;if(!live(p))p.hp=0;this.pendingLevelUps.shift();this.activeUpgrade=null;this.openUpgrade();return true}
  cameraBounds(){const z=this.camera.zoom;return {left:this.x+(-this.viewWidth/2+55)/z, right:this.x+(this.viewWidth/2-55)/z,top:this.y+(-this.viewHeight/2+160)/z,bottom:this.y+(this.viewHeight/2-65)/z}}
- updateCamera(dt){const alive=this.living();if(!alive.length)return;const x=alive.reduce((n,p)=>n+p.x,0)/alive.length,y=alive.reduce((n,p)=>n+p.y,0)/alive.length;const spanX=alive.length===2?Math.abs(alive[0].x-alive[1].x):0,spanY=alive.length===2?Math.abs(alive[0].y-alive[1].y):0;const zoom=clamp(Math.min(this.viewWidth/(spanX+240),this.viewHeight/(spanY+300)),COOP_BALANCE.minZoom,1);this.camera.zoom=zoom<this.camera.zoom?zoom:Math.min(zoom,this.camera.zoom+dt*.6);const k=1-Math.exp(-dt*12);this.camera.x+=(x-this.camera.x)*k;this.camera.y+=(y-this.camera.y)*k;
-  // Clamp the camera, never teleport players, when smoothing or zooming in.
-  const halfW=this.viewWidth/(2*this.camera.zoom),halfH=this.viewHeight/(2*this.camera.zoom);
-  this.camera.x=clamp(this.camera.x,Math.max(...alive.map(p=>p.x))-halfW+55/this.camera.zoom,Math.min(...alive.map(p=>p.x))+halfW-55/this.camera.zoom);
-  this.camera.y=clamp(this.camera.y,Math.max(...alive.map(p=>p.y))-halfH+65/this.camera.zoom,Math.min(...alive.map(p=>p.y))+halfH-160/this.camera.zoom);
+ updateCamera(dt){const alive=this.living();if(!alive.length)return;const focus=alive.find(p=>p.id===(this.localPlayerId||'p1'))||alive[0];this.camera.zoom=Math.min(1,this.camera.zoom+dt*.6);const k=1-Math.exp(-dt*12);this.camera.x+=(focus.x-this.camera.x)*k;this.camera.y+=(focus.y-this.camera.y)*k;
  }
  constrainMove(p,x0,y0){const bounds=this.cameraBounds();p.x=clamp(p.x,Math.min(bounds.left,x0),Math.max(bounds.right,x0));p.y=clamp(p.y,Math.min(bounds.top,y0),Math.max(bounds.bottom,y0));}
  screenPoint(x,y,width=this.viewWidth,height=this.viewHeight){return [(x-this.x)*this.camera.zoom+width/2,(y-this.y)*this.camera.zoom+height/2]}
@@ -119,7 +116,7 @@ export class CoopGame {
   let first=Infinity,hit=null,hitKind=-1;
   // Scan the original groups in order without constructing per-round snapshots.
   for(let kind=0;kind<3;kind++){
-   if(kind===2&&!b.formationBoss129)continue;
+   if(kind===2&&(!b.formationBoss129||this.stageBoss?.stages.stageIndex===9))continue; // Arras never targets augmentation wingmen.
    const targets=kind===0?this.players:kind===1?this.patrols:this.allies;
    for(const target of targets){
     if(kind===0?!live(target):kind===1?!(target.hp>0&&target.life>0):!(target.life>0))continue;
@@ -129,7 +126,7 @@ export class CoopGame {
     if(t<first){first=t;hit=target;hitKind=kind}
    }
   }
-  if(hit){if(hitKind===0){hit.damageSource={x:x0,y:y0,bullet:b,impactX:x0+dx*first,impactY:y0+dy*first};this.hitPlayer(hit,highRiskDamage(b.damage,hit.maxHp,b));hit.damageSource=null;}else if(hitKind===1)this.hitPatrol(hit,b.damage);else this.hitFormationAlly(hit,b.damage);b.life=0}
+  if(hit){if(hitKind===0){hit.damageSource={x:x0,y:y0,bullet:b,impactX:x0+dx*first,impactY:y0+dy*first};this.hitPlayer(hit,highRiskDamage(b.damage,hit.maxHp,b));hit.damageSource=null;}else if(hitKind===1)this.hitPatrol(hit,b.damage,b);else this.hitFormationAlly(hit,b.damage);b.life=0}
  }
  handleDeath(e,b){if(e.stageBossBody||e.deathHandled||e.hp>0)return;e.deathHandled=true;const credited=!b.patrol||e.playerHit,owner=this.player(b.ownerId);owner?.spawnAmatolSecondary(e,b);if(credited){this.kills++;if(owner)owner.kills++;if(!e.surface&&!e.fieldUnit&&(e.bossPilot||['boss','zeppelin','bomber'].includes(e.type)))this.priorityKills++}else this.patrolKills=(this.patrolKills||0)+1;if(e.type==='zeppelin')this.wreckGust(e);{const style=chooseEnemyDeathStyle(e,()=>this.rng()),burst=enemyDeathBurst(e,style);this.burst(e.x,e.y,'#f2aa52',burst.count,burst.kind)};this.smoke(e.x,e.y,true);this.event('kill','');if(e.type==='boss'){this.bossKilled=true;if(owner&&live(owner))owner.hp=Math.min(owner.maxHp,owner.hp+owner.maxHp*DURABILITY_BALANCE.repairPickupFraction)}if(credited){const big=e.bossPilot||e.type==='boss';if(big)for(let gi=0;gi<5;gi++)this.drops.push({id:this.nextEntityId++,x:e.x+Math.cos(gi*1.26)*44,y:e.y+Math.sin(gi*1.26)*44,value:14,heal:false});this.drops.push({id:this.nextEntityId++,x:e.x,y:e.y,value:big?30:e.heavyBomber?16:e.type==='bomber'?3:(e.xpValue||1),heal:big||this.rng()<.03});Game.prototype.dropObservationRepair.call(this,e)}}
  updateSchedules(dt){
@@ -175,11 +172,11 @@ export class CoopGame {
    const tgt=pool[Math.floor(this.rng()*pool.length)];
    this.bombZones.push({x:tgt.x+(this.rng()-.5)*240,y:tgt.y+(this.rng()-.5)*240,sx:tgt.x,sy:tgt.y-460,delay:1.6,maxDelay:1.6,radius:66,damage:15+Math.floor(this.t/140),artyFire:true});
    if((this._artyToast??-99)<=this.t){this.event('bombWarning','포대 격제 사격 — 낙하지점을 피하세요');this._artyToast=this.t+16}}}
-  for(const z of this.bombZones){z.delay-=dt;if(z.delay<=0){this.combatBlast(z.x,z.y,z.radius,'enemy','bomb');if(z.artyFire)for(const e of this.enemies){if(e.hp<=0||e.stageBossBody||e.bossMinion)continue;if(Math.hypot(e.x-z.x,e.y-z.y)<z.radius+12){e.hp-=Math.round(z.damage*1.9);e.hitFlash=.22;if(e.hp<=0)this.handleDeath(e,{patrol:false})}}for(const p of this.living())if(Math.hypot(p.x-z.x,p.y-z.y)<z.radius)this.hitPlayer(p,highRiskDamage(z.damage,p.maxHp,z))}}this.bombZones=this.bombZones.filter(z=>z.delay>0);
-  for(const f of this.hostileMinefields){f.warning-=dt;f.life-=dt;for(const m of f.mines){if(m.dead||m.deploying)continue;for(const b of this.bullets){if(b.enemy||b.life<=0)continue;if(Math.hypot(b.x-m.x,b.y-m.y)<20){m.hp-=b.damage;if(!b.pierce)b.life=0;if(m.hp<=0){m.dead=true;if(!m.bossMine)this.combatBlast(m.x,m.y,32,'friendly','mine');break}}}if(!m.dead&&f.warning<=0){const targets=this.living().filter(p=>Math.hypot(p.x-m.x,p.y-m.y)<36);if(targets.length){m.dead=true;for(const p of targets)this.hitPlayer(p,30);this.combatBlast(m.x,m.y,76,'enemy','mine')}}if(!m.dead&&f.warning<=0){for(const e of this.enemies){if(e.hp<=0||e.surface||e.navalVessel||e.stationary||e.fieldUnit||e.stageBossBody||e.bossMinion)continue;if(Math.hypot(e.x-m.x,e.y-m.y)<36){m.dead=true;e.hp-=40;e.hitFlash=.24;this.combatBlast(m.x,m.y,76,'enemy','mine');if(e.hp<=0)this.handleDeath(e,{patrol:false});break}}}}}this.hostileMinefields=this.hostileMinefields.filter(f=>f.life>0&&f.region===this.region&&f.mines.some(m=>!m.dead||f.encounterId&&!m.chainHandled));
+  for(const z of this.bombZones){z.delay-=dt;if(z.delay<=0){this.combatBlast(z.x,z.y,z.radius,'enemy','bomb',z.artyFire?'groundShell':null);if(z.artyFire)for(const e of this.enemies){if(e.hp<=0||e.stageBossBody||e.bossMinion)continue;if(Math.hypot(e.x-z.x,e.y-z.y)<z.radius+12){e.hp-=Math.round(z.damage*1.9);e.hitFlash=.22;if(e.hp<=0)this.handleDeath(e,{patrol:false})}}for(const p of this.living())if(Math.hypot(p.x-z.x,p.y-z.y)<z.radius)this.hitPlayer(p,highRiskDamage(z.damage,p.maxHp,z))}}this.bombZones=this.bombZones.filter(z=>z.delay>0);
+  for(const f of this.hostileMinefields){f.warning-=dt;f.life-=dt;for(const m of f.mines){if(m.dead||m.deploying)continue;for(const b of this.bullets){if(b.enemy||b.life<=0)continue;if(Math.hypot(b.x-m.x,b.y-m.y)<20){m.hp-=b.damage;if(!b.pierce)b.life=0;if(m.hp<=0){m.dead=true;if(!m.bossMine)this.combatBlast(m.x,m.y,32,'friendly','mine');break}}}if(!m.dead&&f.warning<=0){const targets=this.living().filter(p=>Math.hypot(p.x-m.x,p.y-m.y)<(m.triggerRadius||36));if(targets.length){m.dead=true;for(const p of targets)this.hitPlayer(p,30);if(!m.triggerRadius)this.combatBlast(m.x,m.y,76,'enemy','mine')}}if(!m.dead&&f.warning<=0){for(const e of this.enemies){if(e.hp<=0||e.surface||e.navalVessel||e.stationary||e.fieldUnit||e.stageBossBody||e.bossMinion)continue;if(Math.hypot(e.x-m.x,e.y-m.y)<36){m.dead=true;e.hp-=40;e.hitFlash=.24;this.combatBlast(m.x,m.y,76,'enemy','mine');if(e.hp<=0)this.handleDeath(e,{patrol:false});break}}}}}this.hostileMinefields=this.hostileMinefields.filter(f=>f.life>0&&f.region===this.region&&f.mines.some(m=>!m.dead||f.encounterId&&!m.chainHandled));
   if(this.region!==2)this.gasZones=[];for(const z of this.gasZones){z.warning-=dt;z.life-=dt}this.gasZones=this.gasZones.filter(z=>z.life>0);for(const p of this.living()){p.inGas=this.gasZones.some(z=>z.warning<=0&&Math.hypot(p.x-z.x,p.y-z.y)<z.r);if(p.inGas&&!p.grunkreuz){p.gasExposure=(p.gasExposure||0)+dt;if(p.gasExposure>=1){p.gasExposure-=1;this.hitPlayer(p,6,{gas:true})}}else p.gasExposure=0}
   for(const g of this.gusts){g.life-=dt;g.x+=g.vx*dt;g.y+=g.vy*dt;g.hitPlayers??=new Set();for(const p of this.living())if(!g.thermal&&!g.hitPlayers.has(p.id)&&Math.hypot(g.x-p.x,g.y-p.y)<g.radius){g.hitPlayers.add(p.id);p.gustDisorient=1.35;p.gustOffset=(this.rng()-.5)*2.2;p.a+=p.gustOffset*.35;this.shake=9;p.event('flak','돌풍에 휘말렸다! 조준이 흔들린다')}}this.gusts=this.gusts.filter(g=>g.life>0);
-  for(const f of this.flakBursts)f.life-=dt;this.flakBursts=this.flakBursts.filter(f=>f.life>0);for(const fx of this.combatFX)fx.life-=dt;this.combatFX=this.combatFX.filter(f=>f.life>0).slice(-35);
+  for(const f of this.flakBursts)f.life-=dt;this.flakBursts=this.flakBursts.filter(f=>f.life>0);advanceExplosionFx(this,dt);
  }
  updatePlayer(p,dt,input){
   const previousRounds=p.roundsFired;const revisionPrior=p.beginRevisionFrame(dt,input);if(p.heineckeEscape>0){stepTimer(p,'cooldown',dt);stepTimer(p,'evadeCooldown',dt);tickHeinecke(p,dt);return}if(!live(p)){p.endRevisionFrame(revisionPrior);return;}
@@ -267,6 +264,6 @@ installCloudCover(CoopGame);
 import {installNineCoop} from './pilot-nine-combat.js?v=gal1';
 installNineCoop(CoopGame);
 
-import {installCoopFleet} from './fleet-naval1.js?v=gal1';
+import {installCoopFleet} from './fleet-naval1.js?v=gal1&rail=42';
 
 installCoopFleet(CoopGame,Game);

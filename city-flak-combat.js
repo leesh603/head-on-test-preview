@@ -1,3 +1,5 @@
+import {shellMarch} from './boss-raid-strikes.js?v=gal1&rail=42';
+import {fireFanSalvo} from './boss-salvo-geometry.js';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=gal1';
 import {intersectsEllipse} from './regional-boss-layout352.js?v=gal1';
 export const CITY_FLAK_PARTS=Object.freeze([
@@ -29,6 +31,7 @@ export class CityFlakCell extends BaseBoss{
   return r;
  }
  onPartDestroyed(p){
+  this.command('cancel-hazards',{tag:this.id+'-'+p.id});
   if(p.id==='siege'||p.id==='ears'){this.shellLock=null;this.lockProgress=0;this.command('cancel-hazards',{tag:this.id+'-shell'});}
   const lost=[...this.parts.values()].filter(p=>p.destroyed).length;
   if(lost>=2){this.coreVulnerable=true;this.phase='exposed';}
@@ -36,7 +39,9 @@ export class CityFlakCell extends BaseBoss{
   this.command('phase-change',{phase:this.phase});
  }
  planShell(x,y,mode='tracked'){
-  if(this.dead||this.parts.get('siege').destroyed||this.shellLock)return false;
+  // The synchronized city barrage outranks a tower's own tracked shot, so the
+  // corridor gate is never left with a silently missing shell.
+  if(this.dead||this.parts.get('siege').destroyed||this.shellLock&&!(mode==='corridor'&&this.shellLock.mode!=='corridor'))return false;
   if(mode==='tracked'&&this.parts.get('ears').destroyed)return false;
   this.shellLock={x,y,mode,remaining:.9,age:0};return true;
  }
@@ -52,12 +57,12 @@ export class CityFlakCell extends BaseBoss{
  update(dt,{players,bounds}){
   if(this.dead)return;const list=players.filter(p=>p.alive);if(!list.length)return;
   const target=list[this.cursor%list.length],ears=this.parts.get('ears'),siege=this.parts.get('siege'),s=this.regionalScale;
-  const lost=[...this.encounter?.bodies.values()||[]].filter(b=>b.kind==='flak-tower-cell'&&b.dead).length,enrage=Math.min(1.4,1+lost*.13);
+  const lost=[...this.encounter?.bodies.values()||[]].filter(b=>b.kind==='flak-tower-cell'&&b.dead).length,enrage=lost>=3?1.55:Math.min(1.4,1+lost*.13);
   if(!ears.destroyed){const aim=Math.atan2(target.y-this.y-ears.y,target.x-this.x-ears.x);ears.angle=turn(ears.angle,aim,1.05*dt);this.lockProgress=Math.max(0,Math.min(1.4,this.lockProgress+(Math.abs(delta(aim,ears.angle))<.35?dt:-dt*1.6)));}else this.lockProgress=0;
   this.network(dt,bounds);
   if(!siege.destroyed){
    if(this.shellLock){const q=this.shellLock;const aim=Math.atan2(q.y-this.y-siege.y,q.x-this.x-siege.x);siege.angle=turn(siege.angle,aim,.85*dt);q.remaining-=dt;q.age+=dt;
-    if(q.remaining<=0&&Math.abs(delta(aim,siege.angle))<.08){const from=this.muzzle(siege);this.hazard('circle',{x:q.x,y:q.y,...{sourceX:from.x,sourceY:from.y},radius:Math.max(32,58*s),warning:1.35,duration:.48,once:true,damage:this.t.damage*1.35,visual:'city-flak-shell',tag:this.id+'-shell'});this.command('muzzle',{...from,partId:'siege'});this.shellLock=null;this.cursor++;this.timers.set('siege',5.6/enrage);}
+    if(q.remaining<=0&&Math.abs(delta(aim,siege.angle))<.08){const from=this.muzzle(siege);this.hazard('circle',{x:q.x,y:q.y,...{sourceX:from.x,sourceY:from.y},radius:Math.max(32,58*s),warning:1.35,duration:.48,once:true,damage:this.t.damage*1.35,visual:'city-flak-shell',tag:this.id+'-shell'});if(q.mode==='tracked')shellMarch(this,{source:from,partId:'siege',target:{x:q.x,y:q.y,vx:target.vx||0,vy:target.vy||0},rows:lost>=3?3:2,step:90,radius:Math.max(38,58*s),warning:1.83,beat:.48,visual:'city-flak-shell',tag:this.id+'-shell'});this.command('muzzle',{...from,partId:'siege'});this.shellLock=null;this.cursor++;this.timers.set('siege',5.6/enrage);}
     else if(q.age>5.5)this.shellLock=null;
    }else if(this.due('siege',dt,5.6/enrage)){
     if(!ears.destroyed&&this.lockProgress>=1.4)this.planShell(clamp(target.x+(target.vx||0)*.45,bounds.left+35,bounds.right-35),clamp(target.y+(target.vy||0)*.45,bounds.top+35,bounds.bottom-35));
@@ -66,7 +71,7 @@ export class CityFlakCell extends BaseBoss{
   }
   for(const id of ['gun-bl','gun-br']){
    const p=this.parts.get(id);if(p.destroyed)continue;p.targetCursor??=this.index+(id==='gun-br'?1:0);const gunTarget=list[p.targetCursor%list.length],aim=Math.atan2(gunTarget.y-this.y-p.y,gunTarget.x-this.x-p.x);p.angle=turn(p.angle,aim,1.45*dt);
-   if(this.due(id,dt,(id==='gun-bl'?4.2:5.3)/enrage)&&Math.abs(delta(aim,p.angle))<.35){const from=this.muzzle(p),count=Math.max(3,Math.min(9,Math.ceil(5*(this.t.projectileDensity||1))));for(let i=0;i<count;i++){const a=p.angle+(i-(count-1)/2)*.11;this.hazard('projectile',{...from,vx:Math.cos(a)*this.t.bulletSpeed*.88,vy:Math.sin(a)*this.t.bulletSpeed*.88,radius:4,damage:this.t.damage*.55,duration:4.2,visual:'city-mg',tag:this.id+'-'+id});}this.command('muzzle',{...from,partId:id});p.targetCursor++;}
+   if(this.due(id,dt,(id==='gun-bl'?4.2:5.3)/enrage)&&Math.abs(delta(aim,p.angle))<.35){const from=this.muzzle(p);fireFanSalvo(this,{...from,angle:p.angle,speed:this.t.bulletSpeed*.78,damage:this.t.damage*.55,visual:'city-mg',tag:this.id+'-'+id,sourcePartId:id,count:11,spread:1.65,beats:2,beat:.48,warning:.85,gapIndex:id==='gun-bl'?2:7,step:id==='gun-bl'?1:-1});this.command('muzzle',{...from,partId:id});p.targetCursor++;}
   }
  }
 }

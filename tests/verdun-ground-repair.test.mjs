@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {FortDouaumont,FortSouville,VERDUN_FORT_LAYOUT,verdunFortExtents} from '../verdun-fortresses.js?v=gal1';
+import {FortDouaumont,FortSouville,VERDUN_FORT_LAYOUT,verdunFortExtents} from '../verdun-fortresses.js?v=gal1&rail=42';
 import {verdunGroundTiles} from '../verdun-ground.js?v=gal1';
 
 const frame={players:[{id:'p1',alive:true,x:0,y:400,radius:10}],bounds:{left:-480,right:480,top:-350,bottom:650}};
@@ -33,7 +33,7 @@ test('both fortresses repair AA after 18 seconds with warning and a fresh attack
   tick(b,3);assert(!p.destroyed&&p.hittable);assert.equal(p.hp,p.maxHp);
   assert.equal(events.filter(e=>e.type==='fort-aa-restored').length,1);
   events.length=0;tick(b,1);assert(!events.some(e=>e.type==='hazard'&&e.tag===b.tag(p.id)));
-  tick(b,2);assert(events.some(e=>e.type==='hazard'&&e.tag===b.tag(p.id)));
+  tick(b,15);assert(events.some(e=>e.type==='hazard'&&e.tag===b.tag(p.id)),'repaired AA rejoins after the coordinated barrage and recovery');
  }
 });
 test('repaired AA cannot repeatedly drain or heal the fortress core HP budget',()=>{

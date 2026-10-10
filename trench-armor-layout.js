@@ -10,7 +10,7 @@ export const TRENCH_ARMOR_LAYOUT=Object.freeze({
   trackX:50,trackY:52,trackHalfLength:88,trackWidth:13,engineY:-6
  },
  'mark-v-cruiser':{
-  gunSize:100,gunArc:.22,gunTurnSpeed:.65,gunRecoil:2,gunIds:['sponson-left','sponson-right'],
+  gunSize:100,gunArc:.55,gunTurnSpeed:.85,gunRecoil:2,gunIds:['sponson-left','sponson-right'],
   gunArt:{originX:195,originY:160,pivotX:118,pivotY:142,tipX:24,tipY:142,barrel:[0,121,118,44]},
   guns:[{id:'sponson-left',x:-57,y:-24,baseAngle:Math.PI},{id:'sponson-right',x:57,y:-24,baseAngle:0}],
   trackX:38,trackY:64,trackHalfLength:113,trackWidth:13,engineY:14

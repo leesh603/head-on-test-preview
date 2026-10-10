@@ -9,15 +9,15 @@ export function driveLandship(b,dt){
  b.driveDirection??=1;b.driveDistance??=0;b.driveVelocity??=0;b.trackDistance??=0;
  const peers=[...b.encounter?.bodies.values()||[]].filter(q=>q!==b&&q.sommeBoss);
  const clear=pose=>peers.every(q=>landshipClearance(pose,q)>=.25*s);
- const halt=!!b.salvo||b.drivePause>0;
+ const order=b.driveOrder||{},halt=!!b.salvo||b.drivePause>0||order.halt;
  b.drivePause=Math.max(0,(b.drivePause||0)-dt);
  const leg=125*s;
  if(b.driveDistance>=leg&&!halt){b.driveDirection*=-1;b.driveDistance=0;b.drivePause=1.15;}
- const heading=Math.PI+(b.slot===1?-.09:b.slot===2?.09:0);
- const yaw=tracks===1?b.hullYaw+(b.parts.get('track-left').destroyed?-.10:.10)*dt*b.driveDirection:turn(b.hullYaw,heading,.16*dt);
+ const heading=order.heading??Math.PI+(b.slot===1?-.09:b.slot===2?.09:0);
+ const yaw=tracks===1?b.hullYaw+(b.driveVelocity>.05?(b.parts.get('track-left').destroyed?-.10:.10)*dt*b.driveDirection:0):turn(b.hullYaw,heading,.16*dt);
  const canTurn=clear({x:b.x,y:b.y,sommeScale:s,hullYaw:yaw});
  const remaining=leg-b.driveDistance;
- const target=(tracks===1?5.5:17)*s*(halt||b.drivePause>0?0:clamp(remaining/(18*s),0,1));
+ const target=(tracks===1?5.5:Math.min(17,order.speed??17))*s*(halt||b.drivePause>0?0:clamp(remaining/(18*s),0,1));
  let speed=b.driveVelocity+clamp(target-b.driveVelocity,-34*s*dt,13*s*dt);
  const a=canTurn?yaw:b.hullYaw,travel=speed*dt,direction=b.driveDirection;
  const pose={sommeScale:s,hullYaw:a,x:b.x+Math.sin(a)*travel*direction,y:b.y-Math.cos(a)*travel*direction};

@@ -78,8 +78,8 @@ export const PILOT_IDENTITY_COPY={
  ['근접 사냥','게릴라 어택','적에게 가까이 접근할수록 기관총 피해가 증가합니다.','3초간 가속하며 돌입하고, 가까운 적에게 더 큰 피해를 줍니다.','적에게 가까이 접근할수록 기관총 피해가 증가합니다.','3초간 가속하며 돌입하고, 가까운 적에게 더 큰 피해를 줍니다.'],
  ['Close Hunter','Guerrilla Attack','Machine-gun damage increases as you close on an enemy.','Accelerate into close range and deal extra damage for 3 seconds.','Machine-gun damage increases as you close on an enemy.','Accelerate into close range and deal extra damage for 3 seconds.']),
  mannock:entry(
- ['동료의 수호자','타이거 스쿼드런','아군을 추격하는 적에게 추가 피해를 줍니다.','5초간 아군을 추격하는 적에게 강한 관통 엄호 사격을 가합니다.','아군을 추격하는 적에게 추가 피해를 줍니다. 자기 편대의 연사가 빨라집니다.','5초간 아군을 추격하는 적에게 강한 관통 엄호 사격을 가합니다.'],
- ['Flight Guardian','Tiger Squadron','Deal extra damage to enemies pursuing allies.','Fire powerful piercing cover shots at enemies pursuing allies for 5 seconds.','Deal extra damage to enemies pursuing allies. Your flight fires faster.','Fire powerful piercing cover shots at enemies pursuing allies for 5 seconds.']),
+ ['74비행대 지휘','74비행대 교차강하','아군 편대기와 윙맨의 연사가 15% 빨라집니다.','S.E.5a 7기씩 두 차례 진입해 교차 관통 사격합니다.','아군 편대기와 윙맨의 연사 속도가 15% 증가합니다.','S.E.5a 7기가 위에서 강하한 뒤, 다른 7기가 측면에서 가로질러 관통 사격합니다.'],
+ ['74 Squadron Command','74 Sqn Cross Dive','Allied wingmen fire 15% faster.','Seven S.E.5as make two crossing strafing runs with piercing fire.','Increase allied wingmen fire rate by 15%.','Seven S.E.5as dive from above; seven more cross from the side, firing piercing rounds.']),
  mckeever:entry(
  ['파월의 엄호','호크 앤 냇','파월이 후방의 적을 독립적으로 조준해 견제합니다.','5초간 전방과 후방 사수가 서로 다른 적을 추적하며 사격합니다.','파월이 후방의 적을 독립적으로 조준해 견제합니다.','5초간 전방과 후방 사수가 서로 다른 적을 추적하며 사격합니다.'],
  ['Powell\'s Cover','Hawk & Gnat','Powell independently aims at and suppresses enemies behind you.','Front and rear gunners track and fire at separate enemies for 5 seconds.','Powell independently aims at and suppresses enemies behind you.','Front and rear gunners track and fire at separate enemies for 5 seconds.']),
@@ -87,8 +87,8 @@ export const PILOT_IDENTITY_COPY={
  ['연속 추적','어택 에브리싱','격추 후 다음 가까운 적을 표시합니다.','5초간 적을 격추하면 총구가 다음 가까운 적을 잠시 따라갑니다.','격추 후 다음 가까운 적을 표시합니다.','5초간 적을 격추하면 총구가 다음 가까운 적을 잠시 따라갑니다.'],
  ['Relentless Hunt','Attack Everything','After a kill, highlights the next nearby enemy.','For 5 seconds, each kill briefly guides your guns toward the next nearby enemy.','After a kill, highlights the next nearby enemy.','For 5 seconds, each kill briefly guides your guns toward the next nearby enemy.']),
  mccudden:entry(
- ['플라잉 메카닉','야전 정비','레벨업 선택지가 4개로 늘고, 무료로 한 번 다시 뽑을 수 있습니다.','주변에 수리 보급품 3개를 투하합니다.','레벨업 선택지가 4개로 늘고, 무료로 한 번 다시 뽑을 수 있습니다.','주변에 수리 보급품 3개를 투하합니다. 협동 아군도 회수할 수 있습니다.'],
- ['Flying Mechanic','Field Repair','Gain four choices at each level and one free reroll.','Drop three repair supplies nearby.','Gain four choices at each level and one free reroll.','Drop three repair supplies nearby. Co-op allies can collect them too.']),
+ ['플라잉 메카닉','야전 정비','레벨업 선택지가 4개로 늘어납니다.','주변에 수리 보급품 3개를 투하합니다.','레벨업 선택지가 4개로 늘어납니다.','주변에 수리 보급품 3개를 투하합니다. 협동 아군도 회수할 수 있습니다.'],
+ ['Flying Mechanic','Field Repair','Gain four choices at each level.','Drop three repair supplies nearby.','Gain four choices at each level.','Drop three repair supplies nearby. Co-op allies can collect them too.']),
  nungesser:entry(
  ['검은 심장','죽음의 기사','체력이 낮아지면 검은 연무가 짙어지고, 스치는 탄환에 연무가 찢어집니다.','3초간 무적이 되어 적 탄환을 검은 연무 속에서 소멸시킵니다.','체력이 낮아지면 검은 연무가 짙어지고, 스치는 탄환에 연무가 찢어집니다.','3초간 무적이 되어 적 탄환을 검은 연무 속에서 소멸시킵니다.'],
  ['Black Heart','Knight of Death','Black fog thickens at low health and tears as bullets pass close by.','Become invulnerable for 3 seconds, extinguishing enemy rounds in black fog.','Black fog thickens at low health and tears as bullets pass close by.','Become invulnerable for 3 seconds, extinguishing enemy rounds in black fog.']),

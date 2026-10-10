@@ -1,4 +1,7 @@
+import {drawPartFuelFire} from './explosion-profiles.js?v=gal1';
 import {drawEnemyProjectile} from './projectiles.js?v=gal1';
+import {drawBossRound} from './boss-rounds.js?v=gal1';
+import {impactMark} from './tactical-marks.js?v=gal1';
 import {HANGAR} from './stuttgart129.js?v=gal1';
 import {drawNavalWake} from './adriatic-boss-render.js?v=gal1';
 import {fx} from './fx-art.js?v=gal1';
@@ -8,7 +11,7 @@ export const SHIP_OUTLINE=[[.498,.007],[.504,.007],[.51,.026],[.538,.05],[.562,.
 function shipPath(g,b){g.beginPath();SHIP_OUTLINE.forEach(([x,y],i)=>{const px=(x-.5)*b.width,py=(y-.5)*b.height;i?g.lineTo(px,py):g.moveTo(px,py);});g.closePath();}
 export function drawSupportShip(g,b,images,{camera={x:0,y:0},debug=false}={}){
  if(!b||b.dead)return;g.save();g.translate(b.x-camera.x,b.y-camera.y);g.rotate(b.angle);g.imageSmoothingEnabled=false;
- drawNavalWake(g,b,b.width*.45,b.height);
+ drawNavalWake(g,b,b.width*.45,b.height);g.globalAlpha*=Math.min(1,Math.max(0,(b.time-1.2)/1.2));
  const atlas=images.damage,cell=atlas?.naturalWidth/2,drawFrame=(index)=>g.drawImage(atlas,index%2*cell,Math.floor(index/2)*cell,cell,cell,-b.width/2,-b.height/2,b.width,b.height);
  if(atlas?.naturalWidth&&b.hp<=b.maxHp*.28)drawFrame(b.wreck?3:2);
  else if(images.shipMat?.naturalWidth)g.drawImage(images.shipMat,-b.width/2,-b.height/2,b.width,b.height);
@@ -17,17 +20,20 @@ export function drawSupportShip(g,b,images,{camera={x:0,y:0},debug=false}={}){
  for(const p of b.parts.values()){if(p.id==='cover')continue;
  if(p.hp<p.maxHp&&atlas?.naturalWidth){const index=p.hp<=0?2:1,sx=index%2*cell,sy=Math.floor(index/2)*cell;
   g.drawImage(atlas,sx+(p.nx+.5-p.rx)*cell,sy+(p.ny+.5-p.ry)*cell,p.rx*2*cell,p.ry*2*cell,(p.nx-p.rx)*b.width,(p.ny-p.ry)*b.height,p.rx*2*b.width,p.ry*2*b.height);
-  if(p.hp<=0&&(p.id==='fuel'||p.id==='boiler')){const r=p.rx*b.width;fx(g,'fireEngine',p.nx*b.width,p.ny*b.height,r*2.4,r*2.4,0,b.wreck?.15:.5);fx(g,'smokeDark',p.nx*b.width,p.ny*b.height-r,r*3,r*3,0,.3);}
+  if(p.hp<=0&&p.id==='fuel')drawPartFuelFire(g,fx,p,p.nx*b.width,p.ny*b.height,b.time||0,Math.min(70,p.rx*b.width*2.4),b.wreck?.35:3);
+  else if(p.hp<=0&&p.id==='boiler'){const r=p.rx*b.width;fx(g,'fireEngine',p.nx*b.width,p.ny*b.height,r*2.4,r*2.4,0,b.wreck?.15:.5);fx(g,'smokeDark',p.nx*b.width,p.ny*b.height-r,r*3,r*3,0,.3);}
  }
  if(debug&&b.hittable(p)){g.strokeStyle='#efd4a2';g.lineWidth=1.5;g.beginPath();g.ellipse(p.nx*b.width,p.ny*b.height,p.rx*b.width,p.ry*b.height,0,0,Math.PI*2);g.stroke();}}
  g.restore();
  if(b.cover&&!b.wreck){const c=b.cover,scale=1+Math.sin(Math.min(1,c.age/1.8)*Math.PI)*.20;g.save();g.translate(c.x-camera.x,c.y-camera.y-c.age*55);g.rotate(c.angle);g.globalAlpha=Math.max(0,1-c.age/1.8);g.scale(scale,scale);g.drawImage(images.cover,-HANGAR.w*b.width/2,-HANGAR.h*b.height/2,HANGAR.w*b.width,HANGAR.h*b.height);g.restore();}
 }
+function visitRenderPool(pool,fn){if(typeof pool?.visit==='function')pool.visit(fn);else for(const row of pool?.records||[])if(row.active)fn(row);}
 export function drawSupportEffects(g,b,{camera={x:0,y:0},screenScale=1}={}){if(!b)return;g.save();g.translate(-camera.x,-camera.y);
- b.projectiles.visit(p=>{if(p.kind==='flak'){if(p.age<0)return;if(p.age<p.warning){g.strokeStyle='#eab277';g.lineWidth=2;g.beginPath();g.arc(p.x,p.y,p.radius,-Math.PI/2,-Math.PI/2+Math.PI*2*p.age/p.warning);g.stroke();g.fillStyle='#bd7f3b22';g.beginPath();g.arc(p.x,p.y,p.radius,0,Math.PI*2);g.fill();}return;}
- drawEnemyProjectile(g,{enemy:true,life:1,visualType:'boss',vx:p.vx,vy:p.vy},p.x,p.y,0,screenScale);});
- b.effects.visit(f=>{const t=f.age/f.life;g.save();g.globalAlpha=1-t;g.translate(f.x,f.y);
- if(f.kind==='muzzle'&&fx(g,'muzzleHeavy',0,0,f.radius*3,f.radius*2,f.angle)){}
+ visitRenderPool(b.projectiles,p=>{if(p.kind==='flak'){if(p.age<0)return;if(p.age<p.warning)impactMark(g,p.x,p.y,p.radius,p.age/p.warning,{heavy:p.raidHeavy});return;}
+ drawBossRound(g,{x:p.x,y:p.y,vx:p.vx,vy:p.vy,visual:'stuttgart-flak',raidHeavy:p.raidHeavy,radius:p.radius},screenScale);});
+ visitRenderPool(b.effects,f=>{const t=f.age/f.life;g.save();g.globalAlpha=1-t;g.translate(f.x,f.y);
+ if(f.kind==='smoke'){fx(g,'smokeDark',0,0,f.radius*(1+t),f.radius*(1+t),0,.55);}
+ else if(f.kind==='muzzle'&&fx(g,'muzzleHeavy',0,0,f.radius*3,f.radius*2,f.angle)){}
  else if(f.kind==='burst'&&fx(g,'shellBurst'+Math.min(3,Math.floor(t*4)),0,0,f.radius*2.5,f.radius*2.5)){}
  else if(f.kind==='wake'&&fx(g,'foamRing',0,0,f.radius*(1+t)*2,f.radius*(.5+t),f.angle)){}
  else if(f.kind==='muzzle'){g.rotate(f.angle);g.fillStyle='#ffdfa0';g.beginPath();g.moveTo(-3,-5);g.lineTo(28*(1-t),0);g.lineTo(-3,5);g.closePath();g.fill();}

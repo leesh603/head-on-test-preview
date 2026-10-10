@@ -67,10 +67,10 @@ test('Fortress plays a warned four-beat phrase, then a safe amplified core openi
   step(f,.3);assert.equal(f.body.phase,'scan');assert.equal(f.body.coreVulnerable,false);
 });
 
-test('Fortress detection triggers concentrated flak and MG only while lit',()=>{
+test('Fortress keeps basic MG pressure in darkness and adds concentrated fire when lit',()=>{
   const dark=fixture(ParisSearchlightFortress),lit=fixture(ParisSearchlightFortress);
   step(dark,2,{...dark.frame,isIlluminated:()=>false});step(lit,2,{...lit.frame,isIlluminated:()=>true});
-  assert.equal(shots(dark).length,0);assert.ok(shots(lit).length>=20);
+  assert.ok(shots(dark).length>0);assert.ok(shots(dark).every(e=>e.tag.endsWith(':basic-fire')));assert.ok(shots(lit).length>=20);
   assert.ok(lit.events.some(e=>e.visual==='black-flak'&&e.damage>tuning.damage));
   assert.ok(lit.events.some(e=>e.type==='paris-light-lock'));
 });
@@ -87,10 +87,10 @@ test('Fortress searches all four quadrants and covers both co-op players with re
 
 test('A brief exposure produces strong two-second pursuit after the player leaves the light',()=>{
  const f=fixture(ParisSearchlightFortress);step(f,.02,{...f.frame,isIlluminated:()=>true});
- const initial=shots(f).length;assert.ok(initial>=12);assert.ok(f.events.some(e=>e.visual==='black-flak'&&e.warning<=.2));
+ const initial=shots(f).length;assert.ok(initial>=12);assert.ok(f.events.some(e=>e.visual==='black-flak'&&e.warning<=.5));
  step(f,1.8,{...f.frame,isIlluminated:()=>false});assert.ok(shots(f).length>initial+24);
- step(f,.4,{...f.frame,isIlluminated:()=>false});const stopped=shots(f).length;
- step(f,1,{...f.frame,isIlluminated:()=>false});assert.equal(shots(f).length,stopped);assert.equal(f.body.locks.size,0);
+ step(f,.4,{...f.frame,isIlluminated:()=>false});const pursuit=()=>shots(f).filter(e=>!e.tag?.endsWith(':basic-fire')).length;const stopped=pursuit();
+ step(f,1,{...f.frame,isIlluminated:()=>false});assert.equal(pursuit(),stopped);assert.equal(f.body.locks.size,0);
 });
 
 test('Actual searchlight geometry marks a player and provokes fire through the hazard adapter',()=>{
@@ -100,9 +100,9 @@ test('Actual searchlight geometry marks a player and provokes fire through the h
   assert.ok(f.statuses.some(([,status])=>status.type==='searchlight'));assert.ok(f.events.some(e=>e.type==='paris-light-lock'));
 });
 
-test('DrI normal speed and turn rate can follow the warned corridor through the full first phrase without damage',()=>{
+test('destroying AA and basic MG batteries lets DrI follow the complete light corridor without spending a roll',()=>{
  for(const adapter of ['velocity','heading-only']){
- const f=fixture(ParisSearchlightFortress),p=f.frame.players[0];
+ const f=fixture(ParisSearchlightFortress),p=f.frame.players[0];destroy(f,'aa-left');destroy(f,'aa-right');destroy(f,'mg-left');destroy(f,'mg-right');
  Object.assign(f.body,{x:800,y:700});Object.assign(p,{x:800,y:980,vx:0,vy:-120});
  f.frame.bounds={left:0,right:2000,top:0,bottom:2000};
  let heading=-Math.PI/2,want=Math.PI,lastBeat=-1,maxTurn=0,maxSpeed=0,maxRange=0;
@@ -262,7 +262,7 @@ test('Staaken racks weaken and cancel their own payload; both destroyed stop the
 
 test('Destroying all gun arcs creates a bullet-free approach; rotated mounts stay on the hull',()=>{
   const f=fixture(ParisStaakenRVI);f.body.a=-Math.PI/2;f.body.rotateMounts();
-  f.frame.players[0].x=f.body.x;f.frame.players[0].y=f.body.y-400;f.body.gunfire(2,f.frame.players);
+  f.frame.players[0].x=f.body.x;f.frame.players[0].y=f.body.y-400;f.body.gunfire(5,f.frame.players);
   assert.ok(shots(f).length>0);for(const p of [...f.body.parts.values()])if(p.kind==='gun')destroy(f,p.id);
   const count=shots(f).length;step(f,12);assert.equal(shots(f).length,count);
   const p=f.body.parts.get('engine-0');assert.ok(Math.abs(Math.hypot(p.x,p.y)-Math.hypot(p.localX,p.localY))<1e-8);

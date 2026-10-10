@@ -1,4 +1,4 @@
-// Coordinates are shared by sprite composition, swept hits and gun muzzles.
+// Combat centers follow the r3 painted tracks and surviving gun emplacements.
 export const MAAN_REGION=13;
 export const MAAN_ENTRY=Object.freeze({duration:9,ignition:1.6,breakAt:2.8,reveal:4.8});
 export const MAAN_LAYOUT=Object.freeze({
@@ -9,11 +9,11 @@ export const MAAN_LAYOUT=Object.freeze({
   ['radiator',0,33,48,55,'cooling'],['engine',0,154,37,62,'engine']
  ]},
  'sinai-landship':{width:284,height:540,parts:[
-  ['track-front-left',-92,-191,24,68,'track'],['track-front-right',92,-191,24,68,'track'],
-  ['track-rear-left',-92,194,24,68,'track'],['track-rear-right',92,194,24,68,'track'],
-  ['sponson-left-front',-112,-100,28,33,'gun'],['sponson-right-front',112,-100,28,33,'gun'],
-  ['sponson-left-rear',-112,92,28,33,'gun'],['sponson-right-rear',112,92,28,33,'gun'],
-  ['lewis',0,-145,35,32,'mg'],['tank',0,0,37,66,'fuel'],['command',0,171,48,45,'command'],['support',0,98,46,31,'support']
+  ['track-front-left',-78,-231,24,30,'track'],['track-front-right',78,-231,24,30,'track'],
+  ['track-rear-left',-80,202,24,48,'track'],['track-rear-right',80,202,24,48,'track'],
+  ['sponson-left-front',-112,-124,28,33,'gun'],['sponson-right-front',112,-124,28,33,'gun'],
+  ['sponson-left-rear',-112,72,28,33,'gun'],['sponson-right-rear',112,72,28,33,'gun'],
+  ['lewis',0,-197,28,30,'mg'],['tank',0,0,37,66,'fuel'],['command',0,171,48,45,'command'],['support',0,98,46,31,'support']
  ]}
 });
 export const rotateMaan=(x,y,a)=>({x:x*Math.cos(a)-y*Math.sin(a),y:x*Math.sin(a)+y*Math.cos(a)});

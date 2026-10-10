@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {runInNewContext} from 'node:vm';
 import {FieldDelta,pack,unpack,seededRandom,NET_HZ,MAX_TETHER} from '../online-coop-protocol.js';
 globalThis.Image??=class{set src(value){this._src=value;queueMicrotask(()=>this.onload?.());}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 const {OnlineCoopGame}=await import('../online-coop-game.js');
-const {enableStageBoss}=await import('../stageboss-host.js?v=gal1');
+const {enableStageBoss}=await import('../stageboss-host.js?v=gal1&rail=42');
 const {BATTLE_DIRECTOR_PATTERNS:P}=await import('../battle-director169.js?v=gal1');
 const start={seed:12345,runId:'online-test',players:[{pilot:'baron',plane:'fokker',faction:'central'},{pilot:'voss',plane:'fokker',faction:'central'}]};
 function pair(){
@@ -84,4 +85,59 @@ test('own camera is independent and tether never clamps players to a screen',()=
 test('online end bypasses every local and server ranking write',()=>{
  const app=readFileSync(new URL('../app.js',import.meta.url),'utf8');const result=app.slice(app.indexOf('function showCoopResult'),app.indexOf('function saveCoopResult'));assert(result.includes('if(run.online)'));assert(!result.slice(result.indexOf('if(run.online)'),result.indexOf('return showEndNickname')).includes('saveCoopLocal'));
  assert.match(app,/async function syncCoopRanking\(run,record\)\{if\(run.online\)return;/);
+});
+test('guest choice validates the active item and reports transport backpressure',()=>{
+ const {host,guest,sync}=pair();host.awardXp(12);const first=host.activeUpgrade;host.chooseUpgrade(first.id,first.choices[0].id);sync();const item=guest.activeUpgrade;
+ assert.equal(guest.chooseUpgrade(item.id+1,item.choices[0].id),false);assert.equal(guest.chooseUpgrade(item.id,'missing-upgrade'),false);
+ guest.session.send=()=>false;assert.equal(guest.chooseUpgrade(item.id,item.choices[0].id),false);assert.equal(host.state,'upgrade');
+});
+test('queued levels reconcile every choice and final playing state on both seats',()=>{
+ const {host,guest,sync}=pair();host.awardXp(100);sync();let choices=0;
+ while(host.activeUpgrade){const item=host.activeUpgrade,owner=item.playerId==='p1'?host:guest;assert(owner.chooseUpgrade(item.id,item.choices[0].id));sync();assert.equal(guest.activeUpgrade?.id,host.activeUpgrade?.id);assert.equal(guest.state,host.state);choices++;assert(choices<40);}
+ assert(choices>2);assert.equal(host.state,'playing');assert.equal(guest.state,'playing');assert.equal(host.pendingLevelUps.length,0);assert.equal(guest.pendingLevelUps.length,0);
+});
+
+function upgradeModalHarness(game){
+ const classList=()=>{const values=new Set();return{add:(...xs)=>xs.forEach(x=>values.add(x)),remove:(...xs)=>xs.forEach(x=>values.delete(x)),contains:x=>values.has(x)}};
+ const el={dataset:{},classList:classList()},body={classList:classList()};el.classList.add('hidden');
+ const source=readFileSync(new URL('../app.js',import.meta.url),'utf8'),a=source.indexOf('function syncOnlineUpgradeModal()'),b=source.indexOf('function chooseCoop(',a);
+ let renders=0,pauses=0;const sync=runInNewContext(source.slice(a,b)+';syncOnlineUpgradeModal',{game,$:()=>el,document:{body},show:(_id,on)=>on?el.classList.remove('hidden'):el.classList.add('hidden'),showCoopUpgrade:item=>{renders++;el.dataset.onlineUpgrade=String(item.id);el.classList.remove('hidden')},showCoopPause:()=>{pauses++;el.classList.remove('hidden')}});
+ return{el,sync,get renders(){return renders},get pauses(){return pauses}};
+}
+test('actual modal reconciliation closes host and guest wait windows after the last remote choice',()=>{
+ const {host,guest,sync}=pair(),hostUi=upgradeModalHarness(host),guestUi=upgradeModalHarness(guest);host.awardXp(12);sync();hostUi.sync();guestUi.sync();
+ assert(!hostUi.el.classList.contains('hidden'));const first=host.activeUpgrade;host.chooseUpgrade(first.id,first.choices[0].id);sync();hostUi.sync();guestUi.sync();
+ const item=guest.activeUpgrade;assert.equal(item.playerId,'p2');guest.chooseUpgrade(item.id,item.choices[0].id);sync();hostUi.sync();guestUi.sync();
+ assert.equal(host.state,'playing');assert(hostUi.el.classList.contains('hidden'));assert(guestUi.el.classList.contains('hidden'));assert.equal(hostUi.el.dataset.onlineUpgrade,undefined);assert.equal(guestUi.el.dataset.onlineUpgrade,undefined);
+});
+test('actual modal reconciliation keeps manual pause and does not rebuild the same choice every frame',()=>{
+ const {host,guest,sync}=pair(),ui=upgradeModalHarness(host);host.awardXp(12);host.pause();sync();ui.sync();for(let i=0;i<10;i++)ui.sync();assert.equal(ui.renders,1);
+ let item=host.activeUpgrade;host.chooseUpgrade(item.id,item.choices[0].id);sync();ui.sync();item=guest.activeUpgrade;guest.chooseUpgrade(item.id,item.choices[0].id);sync();ui.sync();
+ assert.equal(host.state,'paused');assert.equal(ui.pauses,1);assert(!ui.el.classList.contains('hidden'));assert.equal(ui.el.dataset.onlineUpgrade,undefined);
+});
+
+// Run the actual solo HUD and its existing wrappers against independent seats.
+function soloHudHarness(game){
+ const nodes=new Map(),make=()=>({textContent:'',dataset:{},style:{setProperty(){}},attributes:{},children:[],width:72,classList:{toggle(){}},setAttribute(k,v){this.attributes[k]=v},getContext(){return{clearRect(){}}},replaceChildren(){this.children=[]},append(...xs){this.children.push(...xs)}});
+ const $=id=>{if(!nodes.has(id))nodes.set(id,make());return nodes.get(id)};
+ const source=readFileSync(new URL('../app.js',import.meta.url),'utf8');
+ const code=source.split('\n').filter(l=>l.startsWith('function hudPlayer(')||l.startsWith('let hudAt=')||l.startsWith('function hud(')||l.startsWith('hud=()=>')||/^(?:const|let) .*?=hud;/.test(l)).join('\n');
+ let saved=0;const refs=[];
+ const context={game,$,performance:{now:()=>1000},best:999,plane:'fokker',document:{createElement:make},localStorage:{setItem(){saved++}},drawGameIcon(){},relicCooldownTick(){},paintRelicBadge(){},drawRefinedFactionMark120(){},durabilityMark:{getContext:()=>({})},aircraftIronCrossImage:{},aircraftRoundelImage:{},UPGRADES:[{id:'ironCross',legendary:true,desc:'equipment'}],PLANES:{fokker:{faction:'central'}},legendarySignature:'',soloRelicRefs:refs,reinforcementName:u=>u.id,cleanDescription:s=>s,localizedEquippedWeapon:(_p,w)=>w.name,t:(key,args)=>args?.seconds?String(args.seconds):key,__txt:(el,v)=>el.textContent=v,__data:(el,k,v)=>el.dataset[k]=v,__attr:(el,k,v)=>el.setAttribute(k,v)};
+ const update=runInNewContext(code+';hud',context);return{update,$,refs,get saved(){return saved}};
+}
+for(const role of ['host','guest'])test('existing solo HUD uses only the '+role+' own HP / ammo / XP / skills / equipment',()=>{
+ const games=pair(),g=games[role],own=g.player(g.localPlayerId),other=g.players.find(p=>p!==own);
+ g.priorityKills=41;Object.assign(own,{hp:43,level:5,xp:4,need:10,cooldown:15,evadeCooldown:7});own.ammo.fill(29);own.upgrades.ironCross=1;
+ Object.assign(other,{hp:71,level:3,xp:2,need:8,cooldown:9});other.ammo.fill(51);
+ const ui=soloHudHarness(g);ui.update();
+ assert.equal(ui.$('healthCurrent151').textContent,43);assert.equal(ui.$('healthMax151').textContent,Math.round(own.maxHp));
+ assert.equal(ui.$('ammoCount').textContent,own.ammo.reduce((a,b)=>a+b,0)+' / '+own.weapon.belt*own.weapon.guns);
+ assert.equal(ui.$('level').textContent,'LV. 5');assert.equal(ui.$('xpBar').style.width,'40%');assert.equal(ui.$('kills').textContent,41);
+ assert.equal(ui.$('skillButtonState').textContent,'15s');assert.equal(ui.$('maneuverButtonState').textContent,'7s');
+ assert.equal(ui.$('legendaryInventory').children.length,1);assert.equal(ui.refs[0].owner(),own);assert.equal(ui.saved,0);
+});
+test('existing solo HUD keeps the normal single-player data route',()=>{
+ const g=pair().host.player('p1');g.priorityKills=7;g.hp=61;g.ammo.fill(19);g.level=2;g.xp=3;g.need=12;
+ const ui=soloHudHarness(g);ui.update();assert.equal(ui.$('healthCurrent151').textContent,61);assert.equal(ui.$('level').textContent,'LV. 2');assert.equal(ui.$('xpBar').style.width,'25%');assert.equal(ui.$('kills').textContent,7);assert.equal(ui.$('legendaryInventory').children.length,0);
 });

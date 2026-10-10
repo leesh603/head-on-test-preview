@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,BATTLE_DIRECTOR_PATTERNS as P} from '../engine.js?v=gal1';
+import {Game,BATTLE_DIRECTOR_PATTERNS as P} from '../engine.js?v=gal1&rail=42';
 import {wingmanEngagementStep,patrolEngagementStep} from '../engagement-flow174.js?v=gal1';
 
 

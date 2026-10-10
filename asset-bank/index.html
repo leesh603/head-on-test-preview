@@ -1,0 +1,74 @@
+<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>HEAD-ON 에셋 뱅크 — 기종 카탈로그</title>
+<style>
+  body{font-family:system-ui;margin:0;background:#1a1d21;color:#e8e4da}
+  h1{font-size:19px;padding:14px 18px 4px;margin:0}
+  .sub{padding:0 18px 10px;color:#9a958a;font-size:12px}
+  .ftabs{display:flex;gap:6px;padding:0 18px 12px;flex-wrap:wrap}
+  .ftab{padding:6px 14px;border-radius:16px;background:#26292f;border:1px solid #3a3d44;cursor:pointer;font-size:13px;user-select:none}
+  .ftab.on{background:#4a6a9e;border-color:#6a8ac0;color:#fff}
+  .type{border-bottom:1px solid #2a2d33}
+  .thead{display:flex;align-items:center;gap:12px;padding:9px 18px;cursor:pointer;user-select:none}
+  .thead:hover{background:#22252b}
+  .thead img{width:74px;height:52px;object-fit:contain;flex:none;
+    background:repeating-conic-gradient(#3a3d44 0 25%,#2b2e34 0 50%) 0 0/14px 14px;border-radius:4px}
+  .tname{font-size:14px;font-weight:600}
+  .tmeta{font-size:11.5px;color:#9a958a;margin-top:2px}
+  .count{margin-left:auto;font-size:11px;color:#8a95aa;background:#26292f;border:1px solid #3a3d44;border-radius:10px;padding:2px 9px;flex:none}
+  .caret{color:#5a6068;font-size:12px;width:14px;flex:none;transition:transform .15s}
+  .open .caret{transform:rotate(90deg)}
+  .vgrid{display:none;padding:4px 14px 14px}
+  .open .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:8px}
+  .card{background:#23262c;border:1px solid #32363d;border-radius:8px;padding:7px;text-align:center}
+  .card img{width:100%;height:110px;object-fit:contain;
+    background:repeating-conic-gradient(#3a3d44 0 25%,#2b2e34 0 50%) 0 0/14px 14px;border-radius:4px}
+  .card .nm{font-size:11.5px;margin-top:5px;line-height:1.25}
+  .tag{display:inline-block;font-size:9.5px;border-radius:8px;padding:1px 7px;margin-top:4px}
+  .tag.base{background:#2e4a2e;color:#a8d8a8}
+  .tag.ace{background:#4a3a1e;color:#e8c878}
+  .tag.squadron{background:#3a2e4a;color:#c8a8e8}
+  .tag.livery{background:#1e3a4a;color:#88c8e8}
+  .tag.alt{background:#38333f;color:#b0a8b8}
+  .empty{color:#6a6f78;font-size:12px;padding:2px 18px 12px}
+</style>
+<h1>HEAD-ON 에셋 뱅크 — 기종 카탈로그</h1>
+<div class=sub>기종 클릭 → 기본형·에이스기·도장 변주 펼침 (인게임 스프라이트 포함)</div>
+<div class=ftabs id=ftabs></div>
+<div id=root></div>
+<script>
+const KIND={base:'기본형',ace:'에이스',squadron:'편대',livery:'도장',alt:'대체안'};
+fetch('catalog.json?v='+Date.now()).then(r=>r.json()).then(cat=>{
+  const root=document.getElementById('root'),ftabs=document.getElementById('ftabs');
+  cat.factions.forEach((f,fi)=>{
+    const t=document.createElement('div');t.className='ftab'+(fi===0?' on':'');t.textContent=f.name;
+    t.onclick=()=>{document.querySelectorAll('.ftab').forEach(e=>e.classList.remove('on'));t.classList.add('on');show(fi);};
+    ftabs.appendChild(t);
+  });
+  function show(fi){
+    root.innerHTML='';
+    const f=cat.factions[fi];
+    for(const t of f.types){
+      const el=document.createElement('div');el.className='type';
+      const nvar=(t.variants||[]).length;
+      const th=document.createElement('div');th.className='thead';
+      th.innerHTML='<span class=caret>▶</span><img loading="lazy" src="'+t.base+'?v='+cat.v+'">'+
+        '<div><div class=tname>'+t.name+'</div><div class=tmeta>'+[t.year,t.role].filter(Boolean).join(' · ')+'</div></div>'+
+        '<span class=count>'+(nvar+1)+'종</span>';
+      th.onclick=()=>el.classList.toggle('open');
+      el.appendChild(th);
+      const g=document.createElement('div');g.className='vgrid';
+      g.appendChild(card(t.base,'기본형','base'));
+      for(const v of t.variants||[])g.appendChild(card(v.file,v.name,v.kind));
+      el.appendChild(g);
+      root.appendChild(el);
+    }
+  }
+  function card(file,name,kind){
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML='<img loading="lazy" src="'+file+'?v='+cat.v+'">'+
+      '<div class=nm>'+name+'</div><span class="tag '+kind+'">'+(KIND[kind]||kind)+'</span>';
+    return c;
+  }
+  show(0);
+});
+</script>

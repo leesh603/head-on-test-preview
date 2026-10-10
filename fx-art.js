@@ -9,7 +9,7 @@ import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,
 // falls back to procedural drawing exactly as before.
 import {FX3,roleArtReady,roleReady,roleDraw,roleImage} from './fx-role3.js?v=gal1';
 // FX sample preview (?fxs=1 only).
-import {FXS,fxsReady,fxsHas,fxsDraw,fxsImage,fxsTintedCanvas,fxsTint,fxsRocketTrail} from './fx-sample-preview.js?v=gal1';
+import {FXS,fxsReady,fxsHas,fxsDraw,fxsImage,fxsTintedCanvas,fxsTint,fxsRocketTrail} from './fx-sample-preview.js?v=gal1&rail=42';
 export {FXS};
 
 export {FX3};
@@ -40,10 +40,6 @@ const FX_FILES=FX_OFF?{}:Object.assign({
  shellAuto:'fx-pack-v189/projectiles/shell-autocannon.webp',
  bulletBrass:'fx-pack-v189/projectiles/bullet-brass.webp',
  grenade:'fx-grenade-ww1.webp?v=gal1',
- tracerAmber:'fx-pack-v189/projectiles/tracer-amber.webp',
- tracerCream:'fx-pack-v189/projectiles/tracer-cream.webp',
- tracerOrange:'fx-pack-v189/projectiles/tracer-orange.webp',
- tracerViolet:'fx-pack-v189/projectiles/tracer-violet.webp',
  spark:'fx-pack-v189/explosions/impact-spark.webp',
  ricochet:'fx-pack-v189/explosions/impact-ricochet.webp',
  debris:'fx-pack-v189/explosions/impact-aircraft-debris.webp',
@@ -98,9 +94,13 @@ const fx189Ready=typeof Image==='undefined'?Promise.resolve():Promise.all([fx196
 export const fxArtReady=Promise.all([fx189Ready,fx196ArtReady,roleArtReady,fxsReady,ordnanceArtReady]);
 export function fxReady(key){return !FX_OFF&&(ordnanceReady(key)||fxsHas(key)||roleReady(key)||fx196Ready(key)||!!fxImgs[key])}
 export function fxImage(key){return FX_OFF?null:(fxsHas(key)&&fxsImage(key))||roleImage(key)||fx196Image(key)||fxImgs[key]||null}
+// These choreographed effects use the existing painted atlas directly. All
+// other callers retain their current sample/atlas precedence and rollback.
+const PROFILE_ART={profileAir0:'airblast0',profileAir1:'airblast1',profileAir2:'airblast2',profileAir3:'airblast3',profileEarth0:'mortarImpact0',profileEarth1:'mortarImpact1',profileEarth2:'mortarImpact2',profileEarth3:'mortarImpact3',profileAmmo0:'bossBlast0',profileAmmo1:'bossBlast1',profileAmmo2:'bossBlast2',profileAmmo3:'bossBlast3',profileEngine:'fireEngine',profileWing:'fireWing',profileGround:'fireGround',profileFlash:'fireFlash',profileOil:'smokeOil',profileTrail:'smokeTrail',profileDust:'dustPuff',profileDirt:'dirtBurst'};
 // Draw sprite centered at x,y, rotated to angle (0 = sprite's natural right/up orientation), fit inside w×h.
 export function fx(c,key,x,y,w,h=w,angle=0,alpha=1){
  if(FX_OFF)return false;
+ if(PROFILE_ART[key]){key=PROFILE_ART[key];if(roleReady(key))return roleDraw(c,key,x,y,w,h,angle,alpha)}
  if(drawOrdnance(c,key,x,y,w,h,angle,alpha))return true;
  if(FXS&&key==='rocket')fxsRocketTrail(c,x,y,angle,w);
  if(fxsHas(key))return fxsDraw(c,key,x,y,w,h,angle,alpha);

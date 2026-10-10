@@ -1,0 +1,1445 @@
+{
+ "v": 7,
+ "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
+ "factions": [
+  {
+   "id": "germany",
+   "name": "독일",
+   "types": [
+    {
+     "id": "rumpler_taube",
+     "name": "Rumpler Taube",
+     "year": 1914,
+     "role": "정찰기",
+     "base": "planes/rumpler_taube.webp",
+     "variants": []
+    },
+    {
+     "id": "eindecker",
+     "name": "Fokker Eindecker",
+     "year": 1915,
+     "role": "전투기",
+     "base": "../eindecker.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "Fokker E-type (표준)",
+       "file": "../fokker.webp"
+      },
+      {
+       "kind": "alt",
+       "name": "Fokker E-type (표준 2)",
+       "file": "../fokker_standard.webp"
+      },
+      {
+       "kind": "alt",
+       "name": "Fokker E.IV",
+       "file": "planes/fokker_e4.webp"
+      }
+     ]
+    },
+    {
+     "id": "albatros_d2",
+     "name": "Albatros D.II",
+     "year": 1916,
+     "role": "전투기",
+     "base": "../albatros_d2.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Boelcke",
+       "file": "../boelcke_albatros.webp"
+      }
+     ]
+    },
+    {
+     "id": "albatros_d3",
+     "name": "Albatros D.III",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../albatros.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Richthofen",
+       "file": "../baron_albatros.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Allmenröder",
+       "file": "../allmenroder_albatros.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Frommherz",
+       "file": "../frommherz_albatros.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Kirschstein",
+       "file": "../kirschstein_albatros.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Kissenberth",
+       "file": "../kissenberth_albatros.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Loerzer",
+       "file": "../loerzer_albatros.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Wolff",
+       "file": "../wolff_albatros.webp"
+      },
+      {
+       "kind": "squadron",
+       "name": "Jasta 4",
+       "file": "../jasta4_albatros.webp"
+      },
+      {
+       "kind": "squadron",
+       "name": "Jasta 5",
+       "file": "../jasta5_albatros.webp"
+      },
+      {
+       "kind": "squadron",
+       "name": "Jasta 11 A",
+       "file": "../jasta11a_albatros.webp"
+      },
+      {
+       "kind": "squadron",
+       "name": "Jasta 11 B",
+       "file": "../jasta11b_albatros.webp"
+      },
+      {
+       "kind": "squadron",
+       "name": "Jasta 11 C",
+       "file": "../jasta11c_albatros.webp"
+      },
+      {
+       "kind": "squadron",
+       "name": "Jasta 11 D",
+       "file": "../jasta11d_albatros.webp"
+      },
+      {
+       "kind": "squadron",
+       "name": "Jasta 78b",
+       "file": "../jasta78b_albatros.webp"
+      },
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/albatros_d3.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "목재도장 + 붉은 기수",
+       "file": "liveries/albatros_d3/wood.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "붉은 동체 (Jasta 11풍)",
+       "file": "liveries/albatros_d3/red.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "녹갈 위장",
+       "file": "liveries/albatros_d3/green.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "얼룩말 줄무늬",
+       "file": "liveries/albatros_d3/zebra.webp"
+      }
+     ]
+    },
+    {
+     "id": "albatros_d5a",
+     "name": "Albatros D.Va",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../albatros_d5a.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Berthold",
+       "file": "../berthold_albatros.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Schleich",
+       "file": "../schleich_albatros.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Schoder",
+       "file": "../schoder_albatros.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Büttner",
+       "file": "../buttner_albatros.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Müller",
+       "file": "../mueller_albatros.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Udet",
+       "file": "../udet_albatros.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Wolff (2)",
+       "file": "../wolff2_albatros.webp"
+      }
+     ]
+    },
+    {
+     "id": "pfalz_d3a",
+     "name": "Pfalz D.IIIa",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../pfalz_d3a.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Bäumer",
+       "file": "../baeumer_pfalz.webp"
+      }
+     ]
+    },
+    {
+     "id": "pfalz_d12",
+     "name": "Pfalz D.XII",
+     "year": 1918,
+     "role": "전투기",
+     "base": "../pfalz_d12.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Berthold",
+       "file": "../berthold_pfalz.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Degelow",
+       "file": "../degelow_pfalz.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Degelow (뱅크)",
+       "file": "aces/degelow_pfalz.webp"
+      },
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/pfalz_d12.webp"
+      }
+     ]
+    },
+    {
+     "id": "roland_d6",
+     "name": "LFG Roland D.VI",
+     "year": 1918,
+     "role": "전투기",
+     "base": "../roland_d6.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "D.VIb 로젠지",
+       "file": "planes/roland_d6b.webp"
+      }
+     ]
+    },
+    {
+     "id": "fokker_dr1",
+     "name": "Fokker Dr.I",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../fokker_f1.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Lothar v. Richthofen",
+       "file": "../lothar_dr1.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Mai",
+       "file": "../mai_dr1.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Hantelmann",
+       "file": "../hantelmann_dr1.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Beaulieu",
+       "file": "../beaulieu_dr1.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Jacobs",
+       "file": "../fokker_jacobs.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Jacobs (2)",
+       "file": "../fokker_jacobs_v2.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Gontermann",
+       "file": "../gontermann_fokker.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Gontermann (2)",
+       "file": "../gontermann_fokker_v2.webp"
+      }
+     ]
+    },
+    {
+     "id": "fokker_d5",
+     "name": "Fokker D.V",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../fokkerdv.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Udet",
+       "file": "../udet_fokkerdv.webp"
+      }
+     ]
+    },
+    {
+     "id": "fokker_d7",
+     "name": "Fokker D.VII",
+     "year": 1918,
+     "role": "전투기",
+     "base": "../fokkerd7.webp",
+     "variants": [
+      {
+       "kind": "squadron",
+       "name": "Jasta 11",
+       "file": "../jasta11_fokkerd7.webp"
+      },
+      {
+       "kind": "squadron",
+       "name": "Jasta 18",
+       "file": "../jasta18_fokkerd7.webp"
+      },
+      {
+       "kind": "squadron",
+       "name": "Jasta 27",
+       "file": "../jasta27_fokkerd7.webp"
+      },
+      {
+       "kind": "squadron",
+       "name": "Jasta 43",
+       "file": "../jasta43_fokkerd7.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Gabriel",
+       "file": "../gabriel_fokkerd7.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Mai (지브라)",
+       "file": "aces/mai_fokkerd7.webp"
+      }
+     ]
+    },
+    {
+     "id": "fokker_ev",
+     "name": "Fokker E.V (D.VIII)",
+     "year": 1918,
+     "role": "전투기",
+     "base": "planes/fokker_ev.webp",
+     "variants": []
+    },
+    {
+     "id": "ssw_d3",
+     "name": "Siemens-Schuckert D.III",
+     "year": 1918,
+     "role": "전투기",
+     "base": "planes/ssw_d3.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "인게임형",
+       "file": "../ssw_d3.webp"
+      }
+     ]
+    },
+    {
+     "id": "ssw_d4",
+     "name": "Siemens-Schuckert D.IV",
+     "year": 1918,
+     "role": "전투기",
+     "base": "planes/ssw_d4.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "인게임형",
+       "file": "../siemens_d4.webp"
+      }
+     ]
+    },
+    {
+     "id": "junkers_d1",
+     "name": "Junkers D.I",
+     "year": 1918,
+     "role": "전투기",
+     "base": "../junkers_d1.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/junkers_d1.webp"
+      }
+     ]
+    },
+    {
+     "id": "junkers_j1",
+     "name": "Junkers J.I",
+     "year": 1917,
+     "role": "지상공격기",
+     "base": "../junkers_j1.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/junkers_j1.webp"
+      }
+     ]
+    },
+    {
+     "id": "hannover_cl3",
+     "name": "Hannover CL.III",
+     "year": 1918,
+     "role": "지상공격기",
+     "base": "../hannover_cl3.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/hannover_cl3.webp"
+      }
+     ]
+    },
+    {
+     "id": "dfw_cv",
+     "name": "DFW C.V",
+     "year": 1917,
+     "role": "정찰기",
+     "base": "../dfw_cv.webp",
+     "variants": []
+    },
+    {
+     "id": "halberstadt_duo",
+     "name": "Halberstadt CL형",
+     "year": 1917,
+     "role": "지상공격기",
+     "base": "../halberstadt_duo.webp",
+     "variants": []
+    },
+    {
+     "id": "aeg_c4",
+     "name": "AEG C.IV",
+     "year": 1916,
+     "role": "정찰기",
+     "base": "planes/aeg_c4.webp",
+     "variants": []
+    },
+    {
+     "id": "aeg_g4",
+     "name": "AEG G.IV",
+     "year": 1917,
+     "role": "중폭격기",
+     "base": "../aeg_g4.webp",
+     "variants": []
+    },
+    {
+     "id": "friedrichshafen_g3",
+     "name": "Friedrichshafen G.III",
+     "year": 1917,
+     "role": "중폭격기",
+     "base": "../friedrichshafen_g3.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "bosses/friedrichshafen_g3.webp"
+      }
+     ]
+    },
+    {
+     "id": "gotha_g4",
+     "name": "Gotha G.IV",
+     "year": 1917,
+     "role": "중폭격기",
+     "base": "planes/gotha_g4.webp",
+     "variants": []
+    },
+    {
+     "id": "staaken_r6",
+     "name": "Zeppelin-Staaken R.VI",
+     "year": 1918,
+     "role": "거폭격기",
+     "base": "planes/staaken_r6.webp",
+     "variants": []
+    },
+    {
+     "id": "ff33",
+     "name": "Friedrichshafen FF.33",
+     "year": 1916,
+     "role": "수상정찰기",
+     "base": "../ff33.webp",
+     "variants": []
+    },
+    {
+     "id": "hb_w29",
+     "name": "Hansa-Brandenburg W.29",
+     "year": 1918,
+     "role": "수상전투기",
+     "base": "../hb_w29.webp",
+     "variants": []
+    },
+    {
+     "id": "hansa_cc",
+     "name": "Hansa-Brandenburg CC",
+     "year": 1917,
+     "role": "수상전투기",
+     "base": "../hansa_brandenburg_cc.webp",
+     "variants": []
+    }
+   ]
+  },
+  {
+   "id": "austria",
+   "name": "오스트리아-헝가리",
+   "types": [
+    {
+     "id": "aviatik_d1",
+     "name": "Aviatik (Berg) D.I",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../aviatik_d1.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "인게임형2",
+       "file": "../aviatik.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Arigi",
+       "file": "../arigi_aviatik.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Arigi (뱅크)",
+       "file": "aces/arigi_aviatik.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Linke-Crawford (매)",
+       "file": "aces/aviatik_d1_falcon.webp"
+      }
+     ]
+    },
+    {
+     "id": "phonix_d1",
+     "name": "Phönix D.I",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../phonix_d1.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Kiss",
+       "file": "../kiss_phonix.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Linke-Crawford",
+       "file": "../linke_crawford_phonix.webp"
+      },
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/phoenix_d1.webp"
+      }
+     ]
+    },
+    {
+     "id": "albatros_oeffag",
+     "name": "Albatros D.III (Oeffag)",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../brumowski_albatros.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Brumowski (2)",
+       "file": "../brumowski_albatros_v2.webp"
+      }
+     ]
+    },
+    {
+     "id": "lohner_l",
+     "name": "Lohner L",
+     "year": 1916,
+     "role": "비행정",
+     "base": "../lohner_l.webp",
+     "variants": []
+    }
+   ]
+  },
+  {
+   "id": "allied",
+   "name": "연합국",
+   "types": [
+    {
+     "id": "morane_ai",
+     "name": "Morane-Saulnier AI",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../morane_ai.webp",
+     "variants": []
+    },
+    {
+     "id": "vickers_fb5",
+     "name": "Vickers F.B.5",
+     "year": 1915,
+     "role": "전투기",
+     "base": "planes/vickers_fb5.webp",
+     "variants": []
+    },
+    {
+     "id": "airco_dh2",
+     "name": "Airco DH.2",
+     "year": 1915,
+     "role": "전투기",
+     "base": "../airco_dh2.webp",
+     "variants": []
+    },
+    {
+     "id": "fe2b",
+     "name": "F.E.2b",
+     "year": 1916,
+     "role": "전투기",
+     "base": "../fe2b.webp",
+     "variants": []
+    },
+    {
+     "id": "be2c",
+     "name": "B.E.2c",
+     "year": 1915,
+     "role": "정찰기",
+     "base": "../be2c.webp",
+     "variants": []
+    },
+    {
+     "id": "re7",
+     "name": "R.E.7",
+     "year": 1916,
+     "role": "정찰기",
+     "base": "../re7.webp",
+     "variants": []
+    },
+    {
+     "id": "nieuport11",
+     "name": "Nieuport 11 \"Bébé\"",
+     "year": 1916,
+     "role": "전투기",
+     "base": "../nieuport11.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Baracca",
+       "file": "../baracca_nieuport.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Bishop",
+       "file": "../bishop_nieuport.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Dorme",
+       "file": "../dorme_nieuport.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Guynemer",
+       "file": "../guynemer_nieuport.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Navarre",
+       "file": "../navarre_nieuport.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Stork",
+       "file": "../stork_nieuport.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Carli",
+       "file": "../carli_nieuport.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "위장기",
+       "file": "../camo_nieuport.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Heurteaux",
+       "file": "../heurteaux_nieuport.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Meulemeester",
+       "file": "../meulemeester_nieuport.webp"
+      },
+      {
+       "kind": "alt",
+       "name": "이탈리아형",
+       "file": "../nieuport_italian.webp"
+      },
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/nieuport_11_bebe.webp"
+      }
+     ]
+    },
+    {
+     "id": "nieuport17",
+     "name": "Nieuport 17",
+     "year": 1916,
+     "role": "전투기",
+     "base": "../nieuport.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Lufbery",
+       "file": "../lufbery_nieuport17.webp"
+      }
+     ]
+    },
+    {
+     "id": "nieuport24",
+     "name": "Nieuport 24",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../nieuport24.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Nungesser",
+       "file": "../nungesser_nieuport24.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Nungesser (2)",
+       "file": "../nungesser_nieuport24_v2.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Tarascon (지고마르)",
+       "file": "aces/tarascon_nieuport24.webp"
+      },
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/nieuport_24.webp"
+      }
+     ]
+    },
+    {
+     "id": "nieuport28",
+     "name": "Nieuport 28",
+     "year": 1918,
+     "role": "전투기",
+     "base": "../nieuport28.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Eagle",
+       "file": "../eagle_nieuport28.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Luke",
+       "file": "../luke_nieuport28.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Luke (2)",
+       "file": "../luke_nieuport28_v2.webp"
+      },
+      {
+       "kind": "squadron",
+       "name": "Hat-in-the-Ring (미국단)",
+       "file": "aces/nieuport28_hatring.webp"
+      }
+     ]
+    },
+    {
+     "id": "pup",
+     "name": "Sopwith Pup",
+     "year": 1916,
+     "role": "전투기",
+     "base": "../pup.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/sopwith_pup.webp"
+      }
+     ]
+    },
+    {
+     "id": "strutter",
+     "name": "Sopwith 1½ Strutter",
+     "year": 1916,
+     "role": "전투기",
+     "base": "../strutter.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/sopwith_strutter.webp"
+      }
+     ]
+    },
+    {
+     "id": "triplane",
+     "name": "Sopwith Triplane",
+     "year": 1917,
+     "role": "전투기",
+     "base": "planes/sopwith_triplane.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Collishaw",
+       "file": "../collishaw_sopwith.webp"
+      }
+     ]
+    },
+    {
+     "id": "camel",
+     "name": "Sopwith Camel",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../camel.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Barker",
+       "file": "../barker_camel.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Brown",
+       "file": "../brown_camel.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Belgian",
+       "file": "../belgian_camel.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Collett",
+       "file": "../collett_camel.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Dazzle 위장",
+       "file": "../dazzle_camel.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "MacLaren",
+       "file": "../maclaren_camel.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "McElroy",
+       "file": "../mcelroy_camel.webp"
+      },
+      {
+       "kind": "squadron",
+       "name": "Naval 10 (검은 편대)",
+       "file": "../naval10_camel.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Nonal",
+       "file": "../nonal_camel.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Woollett",
+       "file": "../woollett_camel.webp"
+      }
+     ]
+    },
+    {
+     "id": "dolphin",
+     "name": "Sopwith Dolphin",
+     "year": 1918,
+     "role": "전투기",
+     "base": "../dolphin.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/sopwith_dolphin.webp"
+      }
+     ]
+    },
+    {
+     "id": "snipe",
+     "name": "Sopwith Snipe",
+     "year": 1918,
+     "role": "전투기",
+     "base": "../snipe.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Barker",
+       "file": "../barker_snipe.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Barker (2)",
+       "file": "../barker_snipe_v2.webp"
+      }
+     ]
+    },
+    {
+     "id": "se5a",
+     "name": "S.E.5a",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../se5a.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Ball",
+       "file": "../ball_se5a.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Ball (2)",
+       "file": "../ball_se5a_v2.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Beauchamp",
+       "file": "../beauchamp_se5a.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Bishop",
+       "file": "../bishop_se5a.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Checkerboard",
+       "file": "../checker_se5a.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Collishaw",
+       "file": "../collishaw_se5a.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Dallas",
+       "file": "../dallas_se5a.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Mannock",
+       "file": "../mannock_se5a.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Proctor",
+       "file": "../proctor_se5a.webp"
+      },
+      {
+       "kind": "squadron",
+       "name": "85 비행대",
+       "file": "../sqn85_se5a.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "얼룩말",
+       "file": "../zebra_se5a.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "McElroy (뱅크)",
+       "file": "aces/mcelroy_se5a.webp"
+      }
+     ]
+    },
+    {
+     "id": "spad7",
+     "name": "SPAD VII",
+     "year": 1916,
+     "role": "전투기",
+     "base": "aces/heurtaux_spad7.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Lufbery",
+       "file": "aces/lufbery_spad7.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Piccio",
+       "file": "aces/piccio_spad7.webp"
+      }
+     ]
+    },
+    {
+     "id": "spad13",
+     "name": "SPAD XIII",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../spad.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "SPAD XII (37mm)",
+       "file": "../spad12.webp"
+      },
+      {
+       "kind": "alt",
+       "name": "SPAD XII (2)",
+       "file": "../spad12_v2.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Audemars",
+       "file": "../audemars_spad.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Boyau",
+       "file": "../boyau_spad.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Boyau (뱅크)",
+       "file": "aces/boyau_spad13.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Deüllin",
+       "file": "../deullin_spad.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Fonck",
+       "file": "../fonck_spad.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Germain",
+       "file": "../germain_spad.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Guynemer",
+       "file": "../guynemer_spad.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Madon",
+       "file": "../madon_spad.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Madon (뱅크)",
+       "file": "aces/madon_spad13.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Rickenbacker",
+       "file": "../rickenbacker_spad.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Rickenbacker (2)",
+       "file": "../rickenbacker_spad_v2.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Tarascon",
+       "file": "../tarascon_spad.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Thieffry",
+       "file": "../thieffry_spad.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Thieffry (뱅크)",
+       "file": "aces/thieffry_hanriot.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Belgian",
+       "file": "../belgium_spad.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Carli",
+       "file": "../carli_spad.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Italian",
+       "file": "../italian_spad.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Bourjade (파랑나비)",
+       "file": "aces/bourjade_spad13.webp"
+      },
+      {
+       "kind": "ace",
+       "name": "Coiffard (빨흰줄무늬)",
+       "file": "aces/coiffard_spad13.webp"
+      },
+      {
+       "file": "liveries/spad13/standard.webp",
+       "name": "표준 카키",
+       "kind": "livery"
+      },
+      {
+       "file": "liveries/spad13/night.webp",
+       "name": "심야전장 남색",
+       "kind": "livery"
+      },
+      {
+       "file": "liveries/spad13/us.webp",
+       "name": "미국 94비행대",
+       "kind": "livery"
+      },
+      {
+       "file": "liveries/spad13/italy.webp",
+       "name": "이탈리아 전선",
+       "kind": "livery"
+      }
+     ]
+    },
+    {
+     "id": "hanriot",
+     "name": "Hanriot HD.1",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../hanriot.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Coppens",
+       "file": "../coppens_hanriot.webp"
+      }
+     ]
+    },
+    {
+     "id": "bristol_f2b",
+     "name": "Bristol F.2b",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../bristol_duo.webp",
+     "variants": []
+    },
+    {
+     "id": "bristol_m1",
+     "name": "Bristol M.1",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../bristol_m1.webp",
+     "variants": []
+    },
+    {
+     "id": "dh4",
+     "name": "Airco DH.4",
+     "year": 1917,
+     "role": "폭격기",
+     "base": "../dh4.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/dh4.webp"
+      }
+     ]
+    },
+    {
+     "id": "dh5",
+     "name": "Airco DH.5",
+     "year": 1917,
+     "role": "전투기",
+     "base": "../dh5.webp",
+     "variants": []
+    },
+    {
+     "id": "dh9",
+     "name": "Airco DH.9",
+     "year": 1918,
+     "role": "폭격기",
+     "base": "planes/dh9.webp",
+     "variants": []
+    },
+    {
+     "id": "re8",
+     "name": "R.E.8",
+     "year": 1917,
+     "role": "정찰기",
+     "base": "../re8.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/re8.webp"
+      }
+     ]
+    },
+    {
+     "id": "armstrong_fk8",
+     "name": "Armstrong-Whitworth F.K.8",
+     "year": 1916,
+     "role": "정찰기",
+     "base": "planes/armstrong_fk8.webp",
+     "variants": []
+    },
+    {
+     "id": "avro_504",
+     "name": "Avro 504",
+     "year": 1914,
+     "role": "연습/폭격기",
+     "base": "planes/avro_504.webp",
+     "variants": []
+    },
+    {
+     "id": "caudron_g4",
+     "name": "Caudron G.4",
+     "year": 1915,
+     "role": "폭격기",
+     "base": "../caudron_g4.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/caudron_g4.webp"
+      }
+     ]
+    },
+    {
+     "id": "caudron_r11",
+     "name": "Caudron R.11",
+     "year": 1918,
+     "role": "호위전투기",
+     "base": "planes/caudron_r11.webp",
+     "variants": []
+    },
+    {
+     "id": "voisin8",
+     "name": "Voisin VIII",
+     "year": 1917,
+     "role": "야간폭격기",
+     "base": "../voisin8.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/voisin_8.webp"
+      }
+     ]
+    },
+    {
+     "id": "breguet14",
+     "name": "Bréguet 14",
+     "year": 1917,
+     "role": "폭격기",
+     "base": "../breguet14.webp",
+     "variants": []
+    },
+    {
+     "id": "salmson_2a2",
+     "name": "Salmson 2A2",
+     "year": 1918,
+     "role": "정찰기",
+     "base": "planes/salmson_2a2.webp",
+     "variants": []
+    },
+    {
+     "id": "ansaldo_sva5",
+     "name": "Ansaldo SVA.5",
+     "year": 1918,
+     "role": "전투기",
+     "base": "../ansaldo_sva5.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Ruffo",
+       "file": "../ruffo_sva5.webp"
+      }
+     ]
+    },
+    {
+     "id": "macchi_m3",
+     "name": "Macchi M.3",
+     "year": 1916,
+     "role": "비행정",
+     "base": "../macchi_m3.webp",
+     "variants": []
+    },
+    {
+     "id": "macchi_m5",
+     "name": "Macchi M.5",
+     "year": 1917,
+     "role": "비행전투정",
+     "base": "../macchi_m5.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/macchi_m5.webp"
+      }
+     ]
+    },
+    {
+     "id": "savoia_pomilio",
+     "name": "Savoia-Pomilio SP.2",
+     "year": 1917,
+     "role": "정찰기",
+     "base": "planes/savoia_pomilio.webp",
+     "variants": []
+    },
+    {
+     "id": "caproni_ca3",
+     "name": "Caproni Ca.3",
+     "year": 1917,
+     "role": "중폭격기",
+     "base": "planes/caproni_ca3.webp",
+     "variants": []
+    },
+    {
+     "id": "felixstowe_f2",
+     "name": "Felixstowe F.2",
+     "year": 1918,
+     "role": "비행정",
+     "base": "../felixstowe_f2.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "F.2A 뱅크",
+       "file": "planes/felixstowe_f2a.webp"
+      }
+     ]
+    },
+    {
+     "id": "hp_o400",
+     "name": "Handley Page O/400",
+     "year": 1918,
+     "role": "중폭격기",
+     "base": "../handley-page.webp",
+     "variants": [
+      {
+       "kind": "alt",
+       "name": "뱅크 재생성",
+       "file": "planes/hp_o400.webp"
+      }
+     ]
+    },
+    {
+     "id": "ilya_muromets",
+     "name": "Ilya Muromets",
+     "year": 1915,
+     "role": "거폭격기 (러시아)",
+     "base": "planes/ilya_muromets.webp",
+     "variants": [
+      {
+       "kind": "ace",
+       "name": "Smirnov (해골)",
+       "file": "aces/smirnov_nieuport.webp"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "bosses",
+   "name": "보스 후보",
+   "types": [
+    {
+     "id": "uboat",
+     "name": "U-Boat",
+     "role": "잠수함",
+     "base": "bosses/uboat.webp",
+     "variants": []
+    },
+    {
+     "id": "monitor",
+     "name": "Monitor",
+     "role": "모니터함",
+     "base": "bosses/monitor.webp",
+     "variants": []
+    },
+    {
+     "id": "carrier_furious",
+     "name": "HMS Furious",
+     "role": "항공모함",
+     "base": "bosses/carrier_furious.webp",
+     "variants": []
+    },
+    {
+     "id": "armored_cruiser",
+     "name": "Armored Cruiser",
+     "role": "장갑순양함",
+     "base": "bosses/armored_cruiser.webp",
+     "variants": []
+    },
+    {
+     "id": "balloon_tender",
+     "name": "Balloon Tender",
+     "role": "기구모선",
+     "base": "bosses/balloon_tender.webp",
+     "variants": []
+    },
+    {
+     "id": "friedrichshafen_boss",
+     "name": "Friedrichshafen G.III 편대",
+     "role": "중폭격 편대",
+     "base": "bosses/friedrichshafen_g3.webp",
+     "variants": []
+    }
+   ]
+  }
+ ]
+}

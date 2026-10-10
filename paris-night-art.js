@@ -1,4 +1,5 @@
 import {fx} from './fx-art.js?v=gal1';
+import {impactMark,aimLine} from './tactical-marks.js?v=gal1';
 import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=gal1';
 import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=gal1';
 let images={};
@@ -53,6 +54,6 @@ export function drawParisWorld(c,g,locale='ko'){
  for(const d of b.districts){c.strokeStyle=d.hp>0?'#b7dad590':'#d8876590';c.setLineDash([6,8]);c.beginPath();c.arc(d.x,d.y,62,0,Math.PI*2);c.stroke();c.setLineDash([]);c.fillStyle='#f0e4c7';c.fillText(en?d.en:d.name,d.x,d.y+79);
   if(d.hp<d.maxHp){fx(c,'fire',d.x,d.y,43,48,0,.6);fx(c,'smokeDark',d.x,d.y-38,67,72,0,.5);}}
  const q=g.stageBoss?.stages.encounter?.bodies.values().next().value;
- if(q?.runTarget){const d=q.runTarget;c.strokeStyle='#f5c178b0';c.setLineDash([8,9]);c.beginPath();c.moveTo(q.x,q.y);c.lineTo(d.x,d.y);c.stroke();c.setLineDash([]);c.beginPath();c.arc(d.x,d.y,78,0,Math.PI*2);c.stroke();c.fillStyle='#ffd69b';c.fillText((en?'DROP ':'투하 ')+(q.runRemaining/q.speedRatio()).toFixed(1)+'s',d.x,d.y-88);}
+ if(q?.runTarget){const d=q.runTarget;aimLine(c,q.x,q.y,d.x,d.y,{alpha:.7,chevron:false,dash:[8,9]});impactMark(c,d.x,d.y,78,1-Math.min(1,Math.max(0,q.runRemaining/q.speedRatio())/8));c.fillStyle='#ffd69b';c.fillText((en?'DROP ':'투하 ')+(q.runRemaining/q.speedRatio()).toFixed(1)+'s',d.x,d.y-88);}
  c.restore();
 }

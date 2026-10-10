@@ -10,6 +10,8 @@ export function handleLondonCue(g,e){const b=ensureLondonBattle(g);if(!b)return;
    g.event('wave','런던 방어 · 폭격 예고 중 폭탄창이나 엔진을 파괴하세요');}
   else if(b.suppressed){const boss=[...g.stageBoss.stages.encounter.bodies.values()][0];for(const id of ['light','gun']){const p=boss.parts.get(id);if(p)p.hp*=Math.max(.55,1-b.suppressed*.12);}}}
  if(e.type==='city-bomb-warning')b.warnings.push({...e,bodyId:e.bossId});
+ if(e.type==='gotha-final-bombing')g.event('wave','런던 최후 폭격 · 살아남은 고타의 폭탄창을 제압하세요');
+ if(e.type==='apron-final-blockade')g.event('wave','최후의 공중 봉쇄 · 끊어진 그물 쪽으로 돌파하세요');
  if(e.type==='city-bomb-abort')b.warnings=b.warnings.filter(w=>w.runId!==e.runId);
  if(e.type==='city-bomb'){b.warnings=b.warnings.filter(w=>w.runId!==e.runId);b.bombs.push({...e,left:e.seconds});}}
 function spawnWave(g,b){const a=Number.isFinite(g.a)?g.a:-Math.PI/2,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
@@ -31,7 +33,7 @@ export function tickLondonBattle(g,dt){const b=ensureLondonBattle(g);if(!b||g.st
  if(b.role==='defend'&&phase==='boss'&&!g.stageBoss.defeatSequence&&(b.supportClock-=dt)<=0){b.supportClock=6;const q=[...encounter.bodies.values()].find(p=>!p.dead);if(q)for(const d of b.districts.filter(d=>d.hp>0)){const a=Math.atan2(q.y-d.y,q.x-d.x);g.bullets.push({x:d.x,y:d.y,vx:Math.cos(a)*330,vy:Math.sin(a)*330,life:2.2,damage:8,enemy:false,londonFriendly:true});}}}
 export function londonStatus(g,locale='ko'){const b=g.londonBattle;if(!b)return '';const en=locale==='en';if(b.role==='attack')return (en?'ATTACK · batteries suppressed ':'공격 작전 · 제압한 포대 ')+b.suppressed+(londonRiverCover(g.x,g.y)?(en?' · dark river approach':' · 강변 암흑 접근'):'');
  if(!b.districts.length)return (en?'DEFEND · Gothas intercepted ':'방어 작전 · 고타 요격 ')+b.intercepted;
- const city=b.districts.map(d=>Math.ceil(d.hp/d.maxHp*100)+'%').join(' / '),q=b.warnings.map(w=>g.stageBoss?.stages.encounter?.bodies.get(w.bodyId)).filter(Boolean).sort((a,b)=>a.runRemaining-b.runRemaining)[0];return (en?'CITY ':'도시 ')+city+(q?(en?' · DROP ':' · 투하 ')+Math.max(0,q.runRemaining/(q.engines()===1?.55:1)).toFixed(1)+'s':'');}
+ const city=b.districts.map(d=>Math.ceil(d.hp/d.maxHp*100)+'%').join(' / '),q=b.warnings.map(w=>g.stageBoss?.stages.encounter?.bodies.get(w.bodyId)).filter(Boolean).sort((a,b)=>a.runRemaining-b.runRemaining)[0];return (en?'CITY ':'도시 ')+city+(q?(q.onBombLine?(en?' · DROP ':' · 투하 '):(en?' · APPROACH ':' · 접근 '))+Math.max(0,q.runRemaining).toFixed(1)+'s':'');}
 export function installLondonBattle(Game){const P=Game.prototype,spawn=P.spawnEnemy,comp=P.spawnComposition,flak=P.spawnFlak,fire=P.fireEnemy;
  P.spawnComposition=function(){if(!inLondon(this))return comp.call(this);const r=this.rng(),attack=(this.teamFaction||this.stageBoss?.stages.teamFaction)==='central';return attack?(r<.58?'scout':'hunter'):(r<.45?'bomber':r<.65?'scout':'hunter');};
  P.spawnEnemy=function(type){if(!inLondon(this))return spawn.call(this,type);if(inLondon(this)&&type==='boss'&&!this.bossMechanicSpawn&&!this._escortSummon)return null;const n=this.enemies.length,result=spawn.call(this,type),e=result||(this.enemies.length>n?this.enemies.at(-1):null);if(e&&inLondon(this)&&!this.bossMechanicSpawn&&!this._escortSummon&&type==='bomber')e.escortPlane=(this.teamFaction||this.stageBoss?.stages.teamFaction)==='central'?'be2c':'gotha_night';return result||e;};

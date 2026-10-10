@@ -4,8 +4,8 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 
-const {Game}=await import('../engine.js?v=gal1');
-const {CoopGame}=await import('../coop-engine.js?v=gal1');
+const {Game}=await import('../engine.js?v=gal1&rail=42');
+const {CoopGame}=await import('../coop-engine.js?v=gal1&rail=42');
 const {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCrashScale}=await import('../aircraft-crash.js?v=gal1');
 const {attachCombatFeedback,combatVisualPose,impactMaterial,drawCombatFeedback,COMBAT_CRASH_PROFILES,combatFlightSound}=await import('../combat-feedback.js?v=gal1');
 
@@ -70,7 +70,7 @@ test('shared ace choreography preserves trajectory, smoke cadence and final cras
  assert(calls[0][0]==='smoke'&&calls[0][3]===true);
  advanceAircraftCrash(host,e,.04);assert.equal(calls.length,1);
  for(let i=0;i<18;i++)advanceAircraftCrash(host,e,.04);
- assert.equal(e.crashed,true);assert.equal(calls.filter(c=>c[0]==='burst').length,1);assert.deepEqual(calls.find(c=>c[0]==='burst').slice(3),['#f2aa52',30,'aircraftMedium']);assert(calls.every(c=>c[0]!=='event'));
+ assert.equal(e.crashed,true);assert.equal(calls.filter(c=>c[0]==='burst').length,1);assert.deepEqual(calls.find(c=>c[0]==='burst').slice(3),['#f2aa52',30,'aircraft']);assert(calls.every(c=>c[0]!=='event'));
 });
 
 test('machine-gun recoil is subpixel, axial and follows muzzle decay without firing jitter',()=>{
@@ -125,6 +125,6 @@ test('HEAD-ON highlights real crossing rounds only and caps compact tracer draws
  const e={x:300,y:0,a:Math.PI,hp:50,maxHp:50,type:'hunter'},bullets=Array.from({length:30},(_,i)=>({x:100+i,y:0,vx:i%2?400:-400,vy:0,life:1,enemy:!!(i%2)}));
  const g={t:0,state:'playing',x:0,y:0,a:0,hp:100,maxHp:100,viewWidth:390,enemies:[e],bullets,burst(){},event(){},update(dt){this.t+=dt;e.x-=200*dt}};
  attachCombatFeedback(g);g.update(.02);g.update(.02);const before=structuredClone(bullets),draws=[];
- drawCombatFeedback({},g,(x,y)=>[x,y],{fx:(...args)=>draws.push(args),planeSprite(){}});
- assert.equal(draws.length,12);assert(draws.some(d=>d[1]==='tracerCream'));assert(draws.some(d=>d[1]==='tracerOrange'));assert.deepEqual(g.bullets,before);
+ drawCombatFeedback({},g,(x,y)=>[x,y],{fx:(...args)=>draws.push(['fx',...args]),planeSprite(){},bolt:(...args)=>draws.push(args)});
+ assert.equal(draws.length,12);assert(draws.some(d=>d[4]==='#f2d9a0'));assert(draws.some(d=>d[4]==='#f0965a'));assert.deepEqual(g.bullets,before);
 });

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 
-import {Mark1Landship,SchwabenFortress} from '../somme-boss-combat.js?v=gal1';
+import {Mark1Landship,SchwabenFortress} from '../somme-boss-combat.js?v=gal1&rail=42';
 import {sponsonAim,sommeMuzzle,angleDelta} from '../somme-boss-layout.js?v=gal1';
 import {SOMME_FRAMES,SOMME_SHEETS} from '../somme-boss-atlas.js?v=gal1';
 import {existsSync} from 'node:fs';
@@ -57,7 +57,7 @@ test('creeping barrage changes impact rows while preserving its committed clear 
  const events=[],b=new SchwabenFortress({id:'fort',x:0,y:0,tuning:{...tuning,regionalViewWidth:1440},emit:e=>events.push(e)});
  const wide={left:-720,right:720,top:-500,bottom:500},players=[{id:'p',alive:true,x:0,y:200}];
  b.wave=1;b.planBarrage(players,wide);const captured={...b.lock};b.launchBarrage();
- const shots=events.filter(e=>e.visual==='somme-heavy-shell');assert(shots.length>=2);assert(new Set(shots.map(s=>s.y)).size>1);
+ const shots=events.filter(e=>e.visual==='somme-heavy-shell'&&!e.raidHeavy);assert(shots.length>=2);assert(new Set(shots.map(s=>s.y)).size>1);
  for(const shot of shots){assert(Math.abs(shot.x-captured.gate)-shot.radius>=b.lane.width/2);assert(shot.warning>=1.65);assert(shot.delay<=1.28);}
  b.timers.set('twin-aa',0);b.update(.01,{players,bounds:wide});
  for(const shot of events.filter(e=>e.visual==='somme-aa-shell'))assert(Math.abs(shot.x-b.lane.x)-shot.radius>=b.lane.width/2);
@@ -69,7 +69,7 @@ test('observer loss makes heavy and AA impact coordinates independent of pilot p
 });
 
 test('atlas references exist and all cell rectangles remain within authored images',()=>{
- const sizes={'schwaben-body':[1774,887],'schwaben-guns':[1254,1254],'schwaben-support':[1536,1024],'mark1-hulls':[1536,1024],'mark1-hardware':[1448,1086]};
+ const sizes={'schwaben-body':[1774,887],'schwaben-guns':[1254,1254],'schwaben-support':[1536,1024],'mark1-hulls':[1536,1024],'mark1-hardware':[1448,1086],'mark1-guns':[1448,1086]};
  for(const filename of Object.values(SOMME_SHEETS))assert(existsSync(new URL('../'+filename,import.meta.url)));
  for(const f of Object.values(SOMME_FRAMES)){const [w,h]=sizes[f.sheet],[x,y,rw,rh]=f.rect;assert(x>=0&&y>=0&&x+rw<=w&&y+rh<=h);}
 });
@@ -77,7 +77,7 @@ test('atlas references exist and all cell rectangles remain within authored imag
 test('support roofs draw below weapons, bore tips meet native muzzles and sponson housings stay fixed',async()=>{
  const oldImage=globalThis.Image;
  globalThis.Image=class{naturalWidth=1536;naturalHeight=1024;listeners={};addEventListener(k,fn){this.listeners[k]=fn}set src(v){this.url=v;queueMicrotask(()=>{this.listeners.load?.();this.onload?.()})}};
- const art=await import('../somme-boss-render.js?v=gal1');
+ const art=await import('../somme-boss-render.js?v=gal1&rail=42');
  let matrix=[1,0,0,1,0,0],stack=[],calls=[];
  const c=new Proxy({globalAlpha:1,save(){stack.push([...matrix])},restore(){matrix=stack.pop()},translate(x,y){matrix[4]+=matrix[0]*x+matrix[2]*y;matrix[5]+=matrix[1]*x+matrix[3]*y},rotate(a){const [x,y,u,v]=matrix,cs=Math.cos(a),sn=Math.sin(a);matrix[0]=x*cs+u*sn;matrix[1]=y*cs+v*sn;matrix[2]=u*cs-x*sn;matrix[3]=v*cs-y*sn},drawImage(im,...args){calls.push({url:im.url,args,matrix:[...matrix]})}},{get:(o,k)=>k in o?o[k]:()=>{}});
  try{

@@ -30,6 +30,8 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 </select></label>
 <div id="maanQa" hidden><label class="check"><input id="maanOrbit" type="checkbox">보스 주변 순회</label><label class="check"><input id="maanFire" type="checkbox" checked>자동 사격</label><select id="maanPart" aria-label="마안 검사 부위"></select><button id="maanHalf" type="button">손상탄</button><button id="maanBreak" type="button">파괴탄</button><button id="maanFinal" type="button">후반 페이즈</button><span id="maanState"></span></div>
 <label>파일럿<select id="pilot"><option>게임 로딩 중…</option></select></label>
+<label class="check"><input id="coop" type="checkbox">2인 협동</label>
+<label>P2 파일럿<select id="pilot2"><option>게임 로딩 중…</option></select></label>
 <label>에이스<select id="ace"><option value="">등장 안 함</option></select></label>
 <label class="check"><input id="boss" type="checkbox">보스 즉시</label>
 <label class="check"><input id="invincible" type="checkbox" checked>무적</label>
@@ -55,6 +57,13 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <button id="fortStep" type="button" style="display:none" title="Shift 클릭: 전투 0.1초 진행">전투 1초 진행</button>
 <span id="status">게임 로딩 중…</span>
 <output id="bossState" style="font-size:11px;max-width:700px"></output>
+<div id="sommeQa" hidden style="width:100%;gap:8px;align-items:center;flex-wrap:wrap"><label>솜 검사 전차<select id="sommeBody"></select></label><label>검사 부위<select id="sommePart"></select></label><button id="sommeHalf" type="button">솜 부위 손상탄</button><button id="sommeBreak" type="button">솜 부위 파괴탄</button><button id="sommeFinal" type="button">최후 돌파 진입탄</button><button id="sommeKill" type="button">선택 전차 격파탄</button><output id="sommeState"></output></div>
+<div id="arrasControls" hidden style="width:100%;gap:8px;align-items:center;flex-wrap:wrap"><label>아라스 검사 기체<select id="arrasAircraft"></select></label><button id="arrasBreak" type="button">선택 기체 격추탄</button><button id="arrasFinal" type="button">발악기 진입탄</button><label>전술 검사<select id="arrasTactic"><option value="0">포위 / 공격조 분산</option><option value="1">제형 / 미끼·사냥꾼</option><option value="2">집중 돌입 / 교차공격</option><option value="3">추격 / 정면 돌입</option></select></label><button id="arrasPhase" type="button">선택 전술 검사</button><output id="arrasState"></output></div>
+<div id="trenchControls" hidden style="width:100%;gap:8px;align-items:center;flex-wrap:wrap"><label>참호 보스 검사 부위<select id="trenchPart"></select></label><button id="trenchHalf" type="button">선택 부위 손상탄</button><button id="trenchBreak" type="button">선택 부위 파괴탄</button><button id="trench70" type="button">HP 70% 진입탄</button><button id="trench35" type="button">HP 35% 진입탄</button><button id="trenchFinal" type="button">발악기 진입탄</button><span id="trenchState"></span></div>
+<div id="ruralQa" hidden style="width:100%">
+<label>열차포 검사 부위<select id="ruralPart"><option value="car-rear">후방 방어차</option><option value="car-middle">관측차</option><option value="car-front">탄약차</option><option value="rail">철로</option><option value="core">기관차</option></select></label>
+<button id="ruralHalf" type="button">열차포 손상탄</button><button id="ruralBreak" type="button">열차포 파괴탄</button><button id="ruralEvade" type="button">열차포 선회기동</button><output id="ruralState"></output>
+</div>
 <div id="fortControls" hidden style="width:100%;display:none;gap:8px;align-items:center;flex-wrap:wrap">
 <label>요새 검증 부위<select id="fortPart"></select></label>
 <button id="fortView" type="button">요새 근처로 이동</button>
@@ -64,20 +73,23 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 </div>
 </div>
 </header>
-<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=394"></iframe></main>
+<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=tame5"></iframe></main>
 </div>
 <script>
 const $=id=>document.getElementById(id),frame=$('game');let api=null;
 function query(){
  const p=new URLSearchParams({headonTest:'1',region:$('region').value,pilot:$('pilot').value,invincible:$('invincible').checked?'1':'0'});
- if($('boss').checked)p.set('boss','1');if($('ace').value)p.set('ace',$('ace').value);if($('fxs').checked)p.set('fxs','1');return p;
+ if($('boss').checked)p.set('boss','1');if($('ace').value)p.set('ace',$('ace').value);if($('fxs').checked)p.set('fxs','1');if($('coop').checked)p.set('coop',$('pilot2').value);return p;
 }
 function refreshOpen(){ $('open').href='./index.html?'+query().toString();$('fortStep').style.display=$('region').value==='12'?'':'none'; }
 function refreshAce(){
- const selected=api?.catalog?.pilots?.find(p=>p.id===$('pilot').value),old=$('ace').value;
+ const selected=api?.catalog?.pilots?.find(p=>p.id===$('pilot').value),old=$('ace').value,oldP2=$('pilot2').value;
  $('ace').replaceChildren(new Option('등장 안 함',''),new Option('랜덤 적 에이스','random'));
- for(const p of api?.catalog?.pilots||[])if(!selected||p.faction!==selected.faction)$('ace').append(new Option(p.name,p.id));
- if([...$('ace').options].some(o=>o.value===old))$('ace').value=old;refreshOpen();
+ $('pilot2').replaceChildren();
+ for(const p of api?.catalog?.pilots||[]){if(!selected||p.faction!==selected.faction)$('ace').append(new Option(p.name,p.id));if(selected&&p.faction===selected.faction)$('pilot2').append(new Option(p.name,p.id))}
+ if([...$('ace').options].some(o=>o.value===old))$('ace').value=old;
+ if([...$('pilot2').options].some(o=>o.value===oldP2))$('pilot2').value=oldP2;else $('pilot2').value=$('pilot2').options[0]?.value||'';
+ $('pilot2').disabled=!$('coop').checked;refreshOpen();
 }
 function applyViewport(){
  const value=$('viewport').value;
@@ -85,8 +97,8 @@ function applyViewport(){
  const [w,h]=value.split('x');frame.style.width=w+'px';frame.style.height=h+'px';
 }
 async function connect(){
- for(let i=0;i<100;i++){api=frame.contentWindow?.__HEADON_TEST__;if(api)break;await new Promise(r=>setTimeout(r,50))}
- if(!api){$('status').textContent='Test bridge 연결 실패';return}
+ for(let i=0;i<900;i++){api=frame.contentWindow?.__HEADON_TEST__;if(api)break;if(i%40===20)$('status').textContent='게임 로딩 중…';await new Promise(r=>setTimeout(r,50))}
+ if(!api){$('status').textContent='Test bridge 연결 실패 — 게임 로드 타임아웃';return}
  const old=$('pilot').value;$('pilot').replaceChildren();
  for(const p of api.catalog.pilots)$('pilot').append(new Option(p.name+' · '+(p.faction==='central'?'동맹국':'협상국'),p.id));
  $('pilot').value=[...$('pilot').options].some(o=>o.value===old)?old:'baron';refreshAce();$('status').textContent='준비 완료';
@@ -94,7 +106,7 @@ async function connect(){
 frame.addEventListener('load',connect);
 $('start').onclick=()=>{
  if(!api)return;$('status').textContent='시작 중…';
- const result=api.start({region:Number($('region').value),pilot:$('pilot').value,ace:$('ace').value,boss:$('boss').checked,invincible:$('invincible').checked,orbit:$('maanOrbit').checked,fire:$('maanFire').checked});
+ const result=api.start({region:Number($('region').value),pilot:$('pilot').value,ace:$('ace').value,boss:$('boss').checked,invincible:$('invincible').checked,orbit:$('maanOrbit').checked,fire:$('maanFire').checked,coop:$('coop').checked?$('pilot2').value:''});
  if(result&&$('combatScene').value)api.debug()?.beginBattleDirectorPattern($('combatScene').value);
  $('patternStep').disabled=!result;$('status').textContent=result?'실행 · '+result.plane+' · map '+result.region:'시작 실패';refreshOpen();
  if(result&&$('freeze').checked)api.debug().state='paused';
@@ -151,12 +163,64 @@ $('patternStep').onclick=()=>{
    if(livens&&selected==='livens:core'&&body)steering=Math.atan2(body.y-game.y,body.x-game.x);
    else if(part&&!part.destroyed)steering=Math.atan2(body.y+part.y-game.y,body.x+part.x-game.x);
   }
-  game.update(.02,{angle:steering});
+  pumpTrenchProbe();game.update(.02,{angle:steering});
  }
  if(control==='observe'){game.x=px;game.y=py;game.a=pa;}
  if($('freeze').checked)game.state='paused';
  $('status').textContent='패턴 진행 · 기뢰 '+(game.hostileMinefields?.flatMap(f=>f.mines).length||0)+' · 장벽 '+(game.stageBoss?.hazards?.pool?.count||0);
 };
+// Trench QA stimuli use the game's friendly projectile collision. These
+// controls never assign boss HP, phases, facility pose or player position.
+function trenchBoss(){return [...(api?.debug()?.stageBoss?.stages.encounter?.bodies?.values()||[])].find(b=>!b.dead&&['livens-flame-projector','minenwerfer-battery'].includes(b.kind))}
+function sommeBodies(){return [...api?.debug()?.stageBoss?.stages.encounter?.bodies.values()||[]].filter(b=>b.kind==='mark4-wedge')}
+function sommeShot(b,part,damage){
+ if(!b||b.dead||part?.destroyed)return;
+ const g=api.debug();let x=b.x+(part?.x||0),y=b.y+(part?.y??-15*b.sommeScale*Math.cos(b.hullYaw)),vx=200,vy=0;
+ if(part?.id.startsWith('sponson-')){const side=Math.sign(part.localX),dx=Math.cos(b.hullYaw)*side,dy=Math.sin(b.hullYaw)*side;x+=dx*(13*b.sommeScale+3);y+=dy*(13*b.sommeScale+3);vx=-dx*200;vy=-dy*200;}
+ // Stimulus enters the existing friendly swept projectile collision. No HP,
+ // movement, destruction or boss phase is assigned by these controls.
+ g.bullets.push({x,y,previousX:x,previousY:y,vx,vy,life:.15,enemy:false,ownerId:'p1',damage:damage*4,hit:new Set()});
+}
+for(const [id,fraction]of [['sommeHalf',.45],['sommeBreak',0]])$(id).onclick=()=>{const b=sommeBodies().find(b=>b.id===$('sommeBody').value),p=b?.parts.get($('sommePart').value);if(p)sommeShot(b,p,Math.max(0,p.hp-p.maxHp*fraction));};
+$('sommeFinal').onclick=()=>{for(const b of sommeBodies())sommeShot(b,null,Math.max(0,b.hp-b.maxHp*.3)/b.hullArmor());};
+$('sommeKill').onclick=()=>{const b=sommeBodies().find(b=>b.id===$('sommeBody').value);if(b)sommeShot(b,null,b.hp/b.hullArmor());};
+setInterval(()=>{
+ const bs=sommeBodies(),panel=$('sommeQa');panel.hidden=!bs.length||!$('qaTools').checked;panel.style.display=panel.hidden?'none':'flex';if(panel.hidden)return;
+ const current=$('sommeBody').value;$('sommeBody').replaceChildren(...bs.map(b=>new Option((b.tankRole||b.kind)+(b.dead?' · 격파됨':''),b.id)));if(bs.some(b=>b.id===current))$('sommeBody').value=current;
+ const b=bs.find(b=>b.id===$('sommeBody').value),part=$('sommePart').value;$('sommePart').replaceChildren(...[...b.parts.values()].map(p=>new Option(p.id+(p.destroyed?' · 파괴됨':''),p.id)));if(b.parts.has(part))$('sommePart').value=part;
+ $('sommeState').textContent=bs.map(b=>(b.tankRole||b.kind)+' '+b.phase+' HP '+Math.ceil(b.hp)+'/'+b.maxHp+' · '+b.tacticalState).join(' / ');
+},250);
+let trenchId=null,trenchGoal=null;
+function trenchShot(b,part,damage){
+ const g=api.debug(),x=b.x+(part?.x||0),y=b.y+(part?.y||0);
+ g.bullets.push({x:x-4,y,vx:520,vy:0,life:.15,enemy:false,ownerId:g.id,damage,hit:new Set()});
+}
+function trenchProbe(fraction){const b=trenchBoss();if(!b)return;const p=b.parts.get($('trenchPart').value);if(!p||p.destroyed)return;trenchShot(b,p,Math.max(0,p.hp-p.maxHp*fraction));$('trenchState').textContent='실제 아군 탄착 대기';}
+$('trenchHalf').onclick=()=>trenchProbe(.45);$('trenchBreak').onclick=()=>trenchProbe(0);
+for(const [id,ratio]of [['trench70',.69],['trench35',.34],['trenchFinal',.20]])$(id).onclick=()=>{const b=trenchBoss();if(b)trenchGoal={id:b.id,hp:b.maxHp*ratio};};
+function pumpTrenchProbe(){
+ const b=trenchBoss();if(!b||!trenchGoal||trenchGoal.id!==b.id)return;
+ if(b.hp<=trenchGoal.hp){trenchGoal=null;return;}
+ if(b.kind==='livens-flame-projector'){if(b.coreVulnerable)trenchShot(b,null,b.hp-trenchGoal.hp);}
+ else {const p=b.liveGuns()[0];if(p)trenchShot(b,p,Math.min(p.hp,b.hp-trenchGoal.hp));}
+}
+setInterval(()=>{
+ const b=trenchBoss(),panel=$('trenchControls');panel.hidden=!b||!$('qaTools').checked;panel.style.display=panel.hidden?'none':'flex';if(panel.hidden)return;
+ if(trenchId!==b.id){trenchId=b.id;trenchGoal=null;$('trenchPart').replaceChildren(...[...b.parts.values()].map(p=>new Option(p.id,p.id)));}
+ $('trenchState').textContent=b.phase+' · HP '+Math.ceil(b.hp)+'/'+Math.ceil(b.maxHp)+' · 발견 '+!!b.discovered+(b.mortarPlan?' · '+b.mortarPlan.name+' '+b.mortarPlan.age.toFixed(1)+'s':'')+' · 반격 '+(b.recovery||0).toFixed(1)+'s'+(trenchGoal?' · 탄착 목표 '+Math.ceil(trenchGoal.hp):'');
+},200);
+// Arras QA stimuli use the existing projectile collision route. No replacement NPCs or boss clones.
+let arrasId=null;
+function arrasBoss(){return [...(api?.debug()?.stageBoss?.stages.encounter?.bodies.values()||[])].find(b=>b.formationBoss129&&!b.dead);}
+function arrasShot(target,damage){const g=api?.debug();if(!g||!target||damage<=0)return;g.bullets.push({x:target.x-8,y:target.y,vx:520,vy:0,life:.2,enemy:false,ownerId:g.id||'p1',damage,hit:new Set()});}
+$('arrasBreak').onclick=()=>{const b=arrasBoss(),g=api.debug();if(!b)return;const target=$('arrasAircraft').value==='leader'?b:g.enemies.find(e=>e.id===$('arrasAircraft').value&&e.hp>0);if(target)arrasShot(target,target.hp);};
+$('arrasFinal').onclick=()=>{const b=arrasBoss();if(b&&b.entryComplete)arrasShot(b,Math.max(0,b.hp-b.maxHp*.30));};
+$('arrasPhase').onclick=()=>{const b=arrasBoss();if(!b?.entryComplete||b.finalAge!==undefined)return;const index=Number($('arrasTactic').value);b.recoverLeft=0;b.aceCycle=(b.kind==='jasta11-circus'?[0,6,12.5,19]:[0,6,13,20])[index];};
+setInterval(()=>{const b=arrasBoss(),panel=$('arrasControls');panel.hidden=!b||!$('qaTools').checked;panel.style.display=panel.hidden?'none':'flex';if(panel.hidden)return;
+ const g=api.debug(),wings=g.enemies.filter(e=>e.bossMinion&&e.escortLeaderId===b.id&&e.hp>0),signature=b.id+':'+wings.map(e=>e.id).join(',');
+ if(arrasId!==signature){arrasId=signature;$('arrasAircraft').replaceChildren(new Option(b.callSignKo||b.callSign,'leader'),...wings.map(e=>new Option(e.callSign,e.id)));}
+ $('arrasState').textContent=b.phase+' · 등장 '+b.entryAge.toFixed(1)+'s · 격추 '+(b.entryDeaths?.size||0)+'/'+(b.entryRoster?.length||0)+' · 생존 '+(1+wings.length)+'/5 · HP '+Math.ceil(b.hp)+' · 발악기 '+(b.finalAge??0).toFixed(1)+'s';
+},200);
 function fortress(){return [...(api?.debug()?.stageBoss?.stages.encounter?.bodies?.values()||[])].find(b=>b.fortressBoss)}
 let fortId=null;
 function refreshFort(){
@@ -178,6 +242,18 @@ $('fortShot').onclick=()=>{
 };
 $('fortStep').onclick=event=>api?.advanceVerdun?.(event.shiftKey?.1:1);
 setInterval(refreshFort,200);
+function ruralTrain(){return [...(api?.debug()?.stageBoss?.stages.encounter?.bodies.values()||[])].find(b=>['paris-gun','lincomparable'].includes(b.kind)&&!b.dead);}
+function ruralProbe(half){
+ const b=ruralTrain(),g=api?.debug();if(!b||!g||b.entry)return;
+ const part=b.parts.get($('ruralPart').value),x=part?b.x+part.x:b.x,y=part?b.y+part.y:b.y;
+ // QA stimuli use the normal collision and damage route, including armor,
+ // sequential carriage gates, HP reserve and the original runaway trigger.
+ g.bullets.push({x,y,vx:0,vy:0,life:.1,enemy:false,ownerId:g.players?.[0]?.id||g.id,damage:(part?.maxHp||b.maxHp)*(half?.5:2),hit:new Set()});
+ g.state='playing';g.update(.02,{inputMode:'gamepad',fireHeld:false});g.state='paused';$('freeze').checked=true;
+}
+$('ruralHalf').onclick=()=>ruralProbe(true);$('ruralBreak').onclick=()=>ruralProbe(false);
+$('ruralEvade').onclick=()=>{const g=api?.debug();if(!ruralTrain())return;const state=g.state;g.state='playing';(g.players?.[0]||g).evade();g.state=state;};
+setInterval(()=>{const b=ruralTrain(),panel=$('ruralQa');panel.hidden=!b||!$('qaTools').checked;if(!b)return;const g=api.debug();$('ruralState').textContent='페이즈 '+(b.raidPhase||1)+' · '+b.phase+' / '+b.rail129.phase+' · HP '+Math.ceil(b.hp)+'/'+b.maxHp+' · 무적 '+(Number.isFinite((g.players?.[0]||g).invuln)?'꺼짐':'켜짐')+' · 선수 HP '+(g.players||[g]).map(p=>Math.ceil(p.hp)).join('/')+' · 포격 '+(b.finalAim?.mode||b.aimPlan?.mode||b.barrage?.mode||'대기')+' · 약점 손상 '+Math.round((b.reloadStress||0)*100)+'% · 선회 '+((g.players?.[0]||g).evadeTime||0).toFixed(2);},200);
 $('maanFire').onchange=()=>api?.maanFire?.($('maanFire').checked);
 $('maanOrbit').onchange=()=>api?.maanOrbit?.($('maanOrbit').checked);
 $('maanHalf').onclick=()=>api?.maanProbe?.($('maanPart').value,'half');
@@ -185,7 +261,7 @@ $('maanBreak').onclick=()=>api?.maanProbe?.($('maanPart').value);
 $('maanFinal').onclick=()=>api?.maanProbe?.('hull');
 setInterval(()=>{const q=api?.maanInspect?.();$('maanQa').hidden=!q||!$('qaTools').checked;if(!q)return;const old=$('maanPart').value;$('maanPart').replaceChildren(...q.parts.map(p=>new Option(p.id+(p.destroyed?' · 파괴됨':' · '+Math.round(p.hp/p.maxHp*100)+'%'),p.id)));if(q.parts.some(p=>p.id===old))$('maanPart').value=old;$('maanState').textContent=q.phase+' · 진입 '+q.entry.toFixed(1)+'s · 파괴 '+q.parts.filter(p=>p.destroyed).length+'/'+q.parts.length+' · 호위 '+q.cars;},400);
 $('reload').onclick=()=>{api=null;$('status').textContent='새로고침 중…';frame.src='./index.html?headonTest=1&autostart=0&t='+Date.now()};
-$('pilot').onchange=refreshAce;$('region').onchange=refreshOpen;$('ace').onchange=refreshOpen;$('boss').onchange=refreshOpen;$('invincible').onchange=refreshOpen;$('viewport').onchange=applyViewport;
+$('pilot').onchange=refreshAce;$('region').onchange=refreshOpen;$('ace').onchange=refreshOpen;$('boss').onchange=refreshOpen;$('invincible').onchange=refreshOpen;$('viewport').onchange=applyViewport;$('coop').onchange=()=>{$('pilot2').disabled=!$('coop').checked;refreshOpen()};$('pilot2').onchange=refreshOpen;
 $('fxs').onchange=()=>{refreshOpen();api=null;$('status').textContent='FX 시안 적용 중…';frame.src='./index.html?'+query().toString()+'&autostart=0&t='+Date.now()};
 applyViewport();if(new URLSearchParams(location.search).get('fxs')==='1'){$('fxs').checked=true;$('fxs').onchange()}refreshOpen();
 $('build').textContent='live-v'+(new URL(frame.src,location.href).searchParams.get('v')||'?');

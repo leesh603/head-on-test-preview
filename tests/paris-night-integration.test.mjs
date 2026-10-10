@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {Game} from '../engine.js?v=gal1';
+import {Game} from '../engine.js?v=gal1&rail=42';
 
 import {ensureParisBattle,handleParisCue,tickParisBattle,parisStatus} from '../paris-night-battle.js';
 import {BossStages} from '../headon-stageboss-runtime.js';
@@ -63,9 +63,9 @@ test('Fortress HUD separates its final battery defense from a quiet blackout',()
  const gun={kind:'gun',destroyed:false},body={kind:'paris-searchlight-fortress',phase:'last-stand',coreVulnerable:true,parts:new Map([['aa-left',gun]])};
  g.stageBoss.stages.encounter.bodies.set('b',body);
  assert.equal(parisStatus(g),'탐조등 제압 · 잔여 포대 회피 · 지휘부 공격');
- assert.equal(bossTactic(g.stageBoss.stages.encounter),'포격 예고와 기관총 사격 회피 · 남은 포대부터 제압');
+ assert.equal(bossTactic(g.stageBoss.stages.encounter),'포격과 기관총을 피해 남은 포대를 파괴하세요.');
  gun.destroyed=true;assert.equal(parisStatus(g),'포대 제압 · 지휘부 공격');
- assert.equal(bossTactic(g.stageBoss.stages.encounter),'방공 무장 제압 · 노출된 지휘부를 공격하세요');
+ assert.equal(bossTactic(g.stageBoss.stages.encounter),'방공 무장이 멈췄습니다. 노출된 지휘부를 공격하세요.');
  body.phase='cooldown';assert.equal(parisStatus(g),'소등 · 지휘부 공격');
 });
 test('Destroying one rack cancels only its own pending city bombs',()=>{

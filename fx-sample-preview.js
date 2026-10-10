@@ -20,7 +20,6 @@ const ALIAS = {
   fire0: 'fireGround', fire1: 'fireGround', fire2: 'fireGround', fire3: 'fireGround',
   splashTiny: 'navalSplash3', splashShell: 'navalSplash3', waterColumn: 'navalSplash3', foamRing: 'navalFoam3',
   smokeDust: 'dustPuff', dirtMix: 'dustPuff', wreckGust: 'shockRing',
-  tracerOrange: 'tracerEnemy', tracerCream: 'tracerCore', tracerAmber: 'tracerCore', tracerViolet: 'tracerCore',
   gas: 'gasCloud2', gasSmall: 'gasCloud0', gasThin: 'gasCloud3', mist: 'mistPuff', gunSmokeThin: 'smokePuff',
   muzzlePistol: 'muzzle', debris: 'debrisShard',
   mineBlast0: 'navalSplash3', mineBlast1: 'navalSplash3', mineBlast2: 'navalFoam3', mineBlast3: 'navalFoam3',

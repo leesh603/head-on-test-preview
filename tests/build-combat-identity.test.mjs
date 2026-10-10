@@ -69,8 +69,8 @@ test('small damage does not start repair and further damage cancels pending resc
 });
 
 // Exercise the real projectile/hit, airframe and co-op inheritance paths.
-import {Game} from '../engine.js?v=gal1';
-import {CoopGame,PlayerState} from '../coop-engine.js?v=gal1';
+import {Game} from '../engine.js?v=gal1&rail=42';
+import {CoopGame,PlayerState} from '../coop-engine.js?v=gal1&rail=42';
 
 installBuildCombatIdentity(Game,{identityFor:buildIdentityFor});
 installBuildCombatIdentity(Object.getPrototypeOf(PlayerState.prototype).constructor,{identityFor:buildIdentityFor});

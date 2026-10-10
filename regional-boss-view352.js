@@ -1,6 +1,8 @@
 import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=gal1';
 import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=gal1';
 import {fx} from './fx-art.js?v=gal1';
+import {impactMark,partMark,aimLine,laneEdge,MARK} from './tactical-marks.js?v=gal1';
+import {drawShellFlight} from './boss-rounds.js?v=gal1';
 import {drawAADefense} from './aa-defense-art.js?v=gal1';
 
 // These are authored/derived RGBA sprites, not canvas-painted replacement art.
@@ -50,11 +52,7 @@ function smoke(c,p,t,width,dead){
  const burn=dead&&p.destroyedAt!=null?clamp(1-(t-p.destroyedAt)/6,0,1):0;
  if(burn>0)fx(c,'fireEngine',p.x,p.y+width*.1,width*.22*Math.max(.4,burn),width*.22*Math.max(.4,burn),0,.5*burn);
 }
-function brackets(c,x,y,rx,ry,alpha=.75){
- c.save();c.globalAlpha*=alpha;c.strokeStyle='#d7bc82';c.lineWidth=1.5;const n=Math.min(9,rx*.3);
- for(const sx of [-1,1])for(const sy of [-1,1]){c.beginPath();c.moveTo(x+sx*(rx-n),y+sy*ry);c.lineTo(x+sx*rx,y+sy*ry);c.lineTo(x+sx*rx,y+sy*(ry-n));c.stroke();}
- c.restore();
-}
+function brackets(c,x,y,rx,ry,alpha=.75){partMark(c,x,y,rx,ry,{alpha:Math.min(1,alpha*1.25)});}
 function drawCore(c,b,{closed='core-closed',w,h}={}){
  const k=b.regionalCore;if(!k)return;const scale=b.regionalScale||1;
  w??=Math.max(k.rx,k.ry)*2.35;h??=w;
@@ -180,10 +178,9 @@ export function drawRegionalHazard(c,h,bossKind){
  if(!artillery||h.kind!=='circle')return false;
  const warning=h.phase==='warning',q=clamp((h.age-h.delay)/Math.max(.01,h.warning));c.save();
  if(warning){
-  c.strokeStyle='#d5b781b8';c.lineWidth=1.5;c.setLineDash([6,6]);c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.stroke();c.setLineDash([]);
-  c.strokeStyle='#eed29bb8';c.lineWidth=2;c.beginPath();c.arc(h.x,h.y,h.radius,-Math.PI/2,-Math.PI/2+q*Math.PI*2);c.stroke();
-  if(h.sourceX!=null&&q>0){const x=h.sourceX+(h.x-h.sourceX)*q,y=h.sourceY+(h.y-h.sourceY)*q-Math.sin(q*Math.PI)*74,angle=Math.atan2(h.y-h.sourceY,h.x-h.sourceX);
-    fx(c,'shellHeavy',x,y,h.visual==='carpet-bomb'?25:27,9,angle,.96);}
+  impactMark(c,h.x,h.y,h.radius,q,{heavy:h.raidHeavy});
+  if(h.visual==='carpet-bomb'){if(h.sourceX!=null&&q>0){const x=h.sourceX+(h.x-h.sourceX)*q,y=h.sourceY+(h.y-h.sourceY)*q-Math.sin(q*Math.PI)*30;fx(c,'bomb',x,y,28,12,Math.atan2(h.y-h.sourceY,h.x-h.sourceX),.96);}}
+  else drawShellFlight(c,h,q,{arc:74});
  }else{
   const age=Math.max(0,h.age-h.delay-h.warning),progress=clamp(age/Math.max(.01,h.duration)),opacity=Math.min(1,(1-progress)*3);
   if(h.visual==='black-flak'||h.visual==='observer-shell')drawAADefense(c,progress<.25?'aaFlakHot':progress<.65?'aaFlakDark':'aaFlakSmoke',h.x,h.y,h.radius*2.25,h.radius*2.25,0,opacity);
@@ -193,15 +190,13 @@ export function drawRegionalHazard(c,h,bossKind){
 }
 export function drawRegionalCue(c,cue){
  if(cue.type==='bug-flight-target'){
-  c.save();c.strokeStyle='#ecc88fa8';c.lineWidth=1.5;c.setLineDash([5,7]);c.beginPath();c.arc(cue.x,cue.y,39,0,Math.PI*2);c.stroke();c.setLineDash([]);c.beginPath();c.moveTo(cue.x-7,cue.y);c.lineTo(cue.x+7,cue.y);c.moveTo(cue.x,cue.y-7);c.lineTo(cue.x,cue.y+7);c.stroke();c.restore();return true;
+  if(Number.isFinite(cue.sourceX)&&Number.isFinite(cue.sourceY))aimLine(c,cue.sourceX,cue.sourceY,cue.x,cue.y,{alpha:.45,chevron:false,dash:[5,9]});impactMark(c,cue.x,cue.y,39,.85,{heavy:true});return true;
  }
  if(cue.type==='safe-corridor'){
-  c.save();c.globalAlpha=.45*clamp(cue.life/.4);c.strokeStyle='#d6d4ab';c.lineWidth=2;
-  for(const side of [-1,1]){const x=cue.x+side*cue.width/2;c.beginPath();c.moveTo(x-side*12,cue.y-15);c.lineTo(x,cue.y-15);c.lineTo(x,cue.y+15);c.lineTo(x-side*12,cue.y+15);c.stroke();}c.restore();return true;
+  for(const side of [-1,1]){const x=cue.x+side*cue.width/2;laneEdge(c,x,cue.y-30,x,cue.y+30,{alpha:.75*clamp(cue.life/.4)});}return true;
  }
  if(cue.type==='bug-launch-warning'){
-  c.save();c.translate(cue.x,cue.y);c.rotate(cue.angle+Math.PI/2);c.strokeStyle='#d7c291b3';c.lineWidth=1.3;c.setLineDash([5,6]);
-  for(const side of [-1,1]){c.beginPath();c.moveTo(side*23,15);c.lineTo(side*23,-92);c.stroke();}c.restore();return true;
+  c.save();c.translate(cue.x,cue.y);c.rotate(cue.angle+Math.PI/2);for(const side of [-1,1])laneEdge(c,side*23,15,side*23,-92,{safe:false});c.restore();return true;
  }
  if(cue.type==='bug-launch'){
   fx(c,'smokeTrail',cue.x-Math.cos(cue.angle)*15,cue.y-Math.sin(cue.angle)*15,45,18,cue.angle,.34*clamp(cue.life/.6));return true;

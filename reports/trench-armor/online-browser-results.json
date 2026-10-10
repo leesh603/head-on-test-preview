@@ -1,0 +1,255 @@
+{
+  "results": [
+    {
+      "kind": "a7v-flak",
+      "host": {
+        "kind": "a7v-flak",
+        "yaw": 4.0774279975619185,
+        "left": {
+          "speed": 64.8,
+          "roll": 49.54666666666668
+        },
+        "right": {
+          "speed": -64.8,
+          "roll": -43.70370370370372
+        },
+        "phase": 3,
+        "parts": [
+          {
+            "id": "front",
+            "destroyed": true
+          },
+          {
+            "id": "rear",
+            "destroyed": true
+          },
+          {
+            "id": "left",
+            "destroyed": false
+          },
+          {
+            "id": "right",
+            "destroyed": false
+          },
+          {
+            "id": "track-left",
+            "destroyed": false
+          },
+          {
+            "id": "track-right",
+            "destroyed": false
+          },
+          {
+            "id": "engine-deck",
+            "destroyed": false
+          },
+          {
+            "id": "searchlight",
+            "destroyed": false
+          }
+        ],
+        "online": true,
+        "host": true,
+        "local": "p1",
+        "state": "paused",
+        "players": [
+          {
+            "id": "p1",
+            "a": -1.5707963267948966,
+            "x": -45.339451760777344,
+            "y": 5.756070156188883
+          },
+          {
+            "id": "p2",
+            "a": -1.5707963267948966,
+            "x": 44.660548239222656,
+            "y": 5.756070156188883
+          }
+        ]
+      },
+      "guest": {
+        "kind": "a7v-flak",
+        "yaw": 4.077,
+        "left": {
+          "speed": 64.8,
+          "roll": 49.547
+        },
+        "right": {
+          "speed": -64.8,
+          "roll": -43.704
+        },
+        "phase": 3,
+        "parts": [
+          {
+            "id": "front",
+            "destroyed": true
+          },
+          {
+            "id": "rear",
+            "destroyed": true
+          },
+          {
+            "id": "left",
+            "destroyed": false
+          },
+          {
+            "id": "right",
+            "destroyed": false
+          },
+          {
+            "id": "track-left",
+            "destroyed": false
+          },
+          {
+            "id": "track-right",
+            "destroyed": false
+          },
+          {
+            "id": "engine-deck",
+            "destroyed": false
+          },
+          {
+            "id": "searchlight",
+            "destroyed": false
+          }
+        ],
+        "online": true,
+        "host": false,
+        "local": "p2",
+        "state": "paused",
+        "players": [
+          {
+            "id": "p1",
+            "a": -1.57,
+            "x": -45.34,
+            "y": 5.76
+          },
+          {
+            "id": "p2",
+            "a": -1.57,
+            "x": 44.66,
+            "y": 5.76
+          }
+        ]
+      },
+      "trackBreakReplicated": true,
+      "touchSteering": true
+    },
+    {
+      "kind": "mark-v-cruiser",
+      "host": {
+        "kind": "mark-v-cruiser",
+        "yaw": 2.2152867242403507,
+        "left": {
+          "speed": -38.475,
+          "roll": -9.800296296296317
+        },
+        "right": {
+          "speed": 38.475,
+          "roll": 60.27733333333349
+        },
+        "phase": 3,
+        "parts": [
+          {
+            "id": "sponson-left",
+            "destroyed": true
+          },
+          {
+            "id": "sponson-right",
+            "destroyed": false
+          },
+          {
+            "id": "track-left",
+            "destroyed": false
+          },
+          {
+            "id": "track-right",
+            "destroyed": false
+          },
+          {
+            "id": "engine-deck",
+            "destroyed": false
+          }
+        ],
+        "online": true,
+        "host": true,
+        "local": "p1",
+        "state": "paused",
+        "players": [
+          {
+            "id": "p1",
+            "a": -1.5707963267948966,
+            "x": -44.28953182794383,
+            "y": 51.043350765771464
+          },
+          {
+            "id": "p2",
+            "a": -1.5707963267948966,
+            "x": 45.71046817205617,
+            "y": 51.043350765771464
+          }
+        ]
+      },
+      "guest": {
+        "kind": "mark-v-cruiser",
+        "yaw": 2.215,
+        "left": {
+          "speed": -38.475,
+          "roll": -9.8
+        },
+        "right": {
+          "speed": 38.475,
+          "roll": 60.277
+        },
+        "phase": 3,
+        "parts": [
+          {
+            "id": "sponson-left",
+            "destroyed": true
+          },
+          {
+            "id": "sponson-right",
+            "destroyed": false
+          },
+          {
+            "id": "track-left",
+            "destroyed": false
+          },
+          {
+            "id": "track-right",
+            "destroyed": false
+          },
+          {
+            "id": "engine-deck",
+            "destroyed": false
+          }
+        ],
+        "online": true,
+        "host": false,
+        "local": "p2",
+        "state": "paused",
+        "players": [
+          {
+            "id": "p1",
+            "a": -1.57,
+            "x": -55,
+            "y": -112.75970000000014
+          },
+          {
+            "id": "p2",
+            "a": -1.57,
+            "x": 45.71,
+            "y": 51.04
+          }
+        ]
+      },
+      "trackBreakReplicated": true,
+      "touchSteering": true
+    }
+  ],
+  "errors": [],
+  "limitations": [
+    "Controlled Test Lab-style scenarios on the branch local test server.",
+    "Physical mobile FPS, internet latency and public deployed server are not verified."
+  ]
+}
