@@ -178,12 +178,12 @@ const VOICES={
   hit(){bankSample('damage',.36,()=>VOICES.hitSynth())},
   hitSynth(){tone(jit(240),80,.12,.14,'sawtooth',1600);hiss(jit(1200),300,.1,.09,'bandpass',.7);tone(620,600,.09,.03,'square',2000,.05);hiss(2600,700,.05,.04,'bandpass',1.6,.012);tone(140,60,.08,.07,'sine',300,.015)},
   // Kill: sub boom, rolling noise, airframe tear, hot debris sparkle.
-  kill(){bankSample('kill',.32,()=>VOICES.killSynth())},
-  killSynth(){tone(100,32,.32,.18,'sine',300);tone(46,24,.4,.14,'sine',170,.01);hiss(2000,150,.3,.15,'lowpass',.4);hiss(4500,2000,.08,.05,'highpass',.8);hiss(jit(1400),300,.2,.08,'bandpass',.9,.05)},
+  kill(){bankSample('kill',.2,()=>VOICES.killSynth())},
+  killSynth(){tone(100,32,.32,.12,'sine',300);tone(46,24,.4,.09,'sine',170,.01);hiss(2000,150,.3,.1,'lowpass',.4);hiss(4500,2000,.08,.035,'highpass',.8);hiss(jit(1400),300,.2,.055,'bandpass',.9,.05)},
   // Big detonations (grenades, flak walls, hull breaks): deep sub whoomph,
   // concussion thud, long dirt-and-debris roll. No sharp crackle — reads as
   // ordnance, not ignition clicks.
-  explosion(){tone(62,18,.7,.3,'sine',200);tone(34,15,.95,.24,'sine',140,.02);tone(115,38,.2,.09,'triangle',520,.04);hiss(jit(1100),110,.55,.24,'lowpass',.5,.01);hiss(420,70,.75,.18,'lowpass',.55,.04);hiss(jit(2200),480,.14,.025,'bandpass',1,.11)},
+  explosion(){tone(62,18,.7,.24,'sine',200);tone(34,15,.95,.19,'sine',140,.02);tone(115,38,.2,.07,'triangle',520,.04);hiss(jit(1100),110,.55,.19,'lowpass',.5,.01);hiss(420,70,.75,.14,'lowpass',.55,.04);hiss(jit(2200),480,.14,.02,'bandpass',1,.11)},
   // Rocket salvo: launch pop into a rising whoosh.
   rocket(){hiss(400,2400,.3,.09,'bandpass',1.4);tone(280,900,.28,.05,'sawtooth',1800);tone(120,70,.1,.07,'square',700)},
   // Flak airburst near the plane: muffled pop, crackle, far echo.
