@@ -1626,6 +1626,26 @@
        "kind": "livery",
        "name": "비행장 붉은 동체",
        "file": "liveries/airco_dh2/red.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스군 평가기",
+       "file": "liveries/airco_dh2/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아제국 공군",
+       "file": "liveries/airco_dh2/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "전선 얼룩 위장",
+       "file": "liveries/airco_dh2/camo.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "편대장 붉은띠",
+       "file": "liveries/airco_dh2/leader.webp"
       }
      ]
     },
