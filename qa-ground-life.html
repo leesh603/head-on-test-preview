@@ -6,13 +6,13 @@
 let region=2,time=30,mode='after';const frame=document.querySelector('iframe'),status=document.querySelector('output');
 const sites={2:[.291,.165,1254],3:[.286,.213,1254],8:[.86,.32,768],10:[.24,.69,1254],0:[.52,.375,768],4:[.8,.45,768]};
 const api=()=>frame.contentWindow.__HEADON_TEST__;
-function place(){if(!api()){status.textContent='Test bridge 로딩 중';return}api().start({region,pilot:'baron',invincible:true});const g=api().debug(),s=sites[region];Object.assign(g,{x:s[0]*s[2],y:s[1]*s[2],previousX:s[0]*s[2],previousY:s[1]*s[2],t:time,stageStartTime:time,state:'paused',fire:Infinity,enemies:[],bullets:[]});status.textContent=JSON.stringify({mode,region,time,x:g.x,y:g.y});}
+function place(){if(!api()){status.textContent='Test bridge 로딩 중';return}api().start({region,pilot:'baron',invincible:true});const g=api().debug(),s=sites[region];Object.assign(g,{x:s[0]*s[2]+100,y:s[1]*s[2]+90,previousX:s[0]*s[2]+100,previousY:s[1]*s[2]+90,t:time,stageStartTime:time,state:'paused',fire:Infinity,enemies:[],bullets:[]});status.textContent=JSON.stringify({mode,region,time,x:g.x,y:g.y});}
 document.querySelectorAll('[data-region]').forEach(b=>b.onclick=()=>{region=+b.dataset.region;place()});
 document.querySelector('#sample').onclick=()=>{time=30;place()};document.querySelector('#step').onclick=()=>{time+=2;place()};
 document.querySelector('#mobile').onclick=()=>{frame.style.width='390px';frame.style.height='844px'};
 document.querySelector('#desktop').onclick=()=>{frame.style.width='1280px';frame.style.height='800px'};
 document.querySelector('#play').onclick=()=>{const g=api()?.debug();if(g){g.state='playing';g.fire=0}};
-document.querySelector('#perf').onclick=()=>{const g=api()?.debug();if(!g)return;g.state='playing';const steps=[];let last=0;const tick=now=>{if(last)steps.push(now-last);last=now;if(steps.length<180)return frame.contentWindow.requestAnimationFrame(tick);g.state='paused';steps.sort((a,b)=>a-b);status.textContent=JSON.stringify({mode,region,frames:180,layout:[frame.clientWidth,frame.clientHeight],rafMs:{p50:steps[90],p95:steps[171],max:steps[179]},note:'Browser layout check, not physical mobile thermal measurement'});};frame.contentWindow.requestAnimationFrame(tick)};
+document.querySelector('#perf').onclick=()=>{const g=api()?.debug();if(!g)return;g.state='playing';frame.contentWindow.__groundTimes=[];const steps=[];let last=0;const tick=now=>{if(last)steps.push(now-last);last=now;if(steps.length<180)return frame.contentWindow.requestAnimationFrame(tick);g.state='paused';steps.sort((a,b)=>a-b);const draws=(frame.contentWindow.__groundTimes||[]).sort((a,b)=>a-b);const pct=(a,p)=>+(a[Math.min(a.length-1,Math.floor(a.length*p))]||0).toFixed(3);status.textContent=JSON.stringify({mode,region,frames:180,layout:[frame.clientWidth,frame.clientHeight],rafMs:{p50:steps[90],p95:steps[171],max:steps[179]},dressingMs:{samples:draws.length,p50:pct(draws,.5),p95:pct(draws,.95),max:pct(draws,1)},note:'Browser layout check, not physical mobile thermal measurement'});};frame.contentWindow.requestAnimationFrame(tick)};
 // A preview proxy redirects bitmap requests to a different origin. CORS is
 // requested before loading so the engine's normal getImageData remains legal.
 // Both versions run their actual module graphs and terrain, not mock renders.
@@ -24,6 +24,7 @@ async function loadVersion(which){
  // srcdoc has an empty hostname. Enable only its existing Test Lab bridge.
  code=code.replace("['localhost','127.0.0.1'", "['','localhost','127.0.0.1'");
  code=code.replace(/(from\s*|import\s*\(?)(['"])(\.{1,2}\/[^'"]+)\2/g,(_,prefix,quote,url)=>prefix+quote+new URL(url,root).href+quote);
+ code=code.replace(/drawMovingDressing\((ctx,key,[^;]+)\);/,(_,args)=>'{const qaBegin=performance.now();drawMovingDressing('+args+');(window.__groundTimes||=[]).push(performance.now()-qaBegin);if(window.__groundTimes.length>600)window.__groundTimes.shift();}');
  const blob=URL.createObjectURL(new Blob([code],{type:'text/javascript'}));
  const cors='<script>window.Image=class extends Image{constructor(...args){super(...args);this.crossOrigin="anonymous"}};<\/script>';
  let html=text.replace('<head>','<head><base href="'+root.href+'">'+cors).replace(appPath,blob);
