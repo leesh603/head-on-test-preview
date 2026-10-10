@@ -868,6 +868,26 @@
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "planes/nieuport_24.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스군 표준 은색",
+       "file": "liveries/nieuport24/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "영국 RFC PC10",
+       "file": "liveries/nieuport24/british.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "러시아제국 공군",
+       "file": "liveries/nieuport24/russian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "일본 육군 훈련기",
+       "file": "liveries/nieuport24/japan.webp"
       }
      ]
     },
