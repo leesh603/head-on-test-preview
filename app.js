@@ -43,8 +43,8 @@ import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174
 import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?v=gal1';
 import {drawEnemyDanger} from './enemy-danger-view.js?v=gal1';
 import {drawGas} from './gas-view.js?v=gal1';
-import {drawWarAmbience} from './war-ambience.js?v=dover1';
-import {backgroundDressingReady,drawRepeatedDressing,drawMovingDressing,bakeHarborDressing,drawGallipoliDressing,drawDesertDressing,drawParisDressing} from './background-dressing.js?v=gal2';
+import {drawWarAmbience} from './war-ambience.js?v=groundlife1';
+import {backgroundDressingReady,drawRepeatedDressing,drawMovingDressing,bakeHarborDressing,drawHarborLife,drawGallipoliDressing,drawDesertDressing,drawParisDressing} from './background-dressing.js?v=groundlife1';
 import {missionNavigation,drawMissionRadar} from './navigation.js?v=gal1';
 import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=gal1';
 import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=gal1&rail=42';
@@ -624,7 +624,8 @@ function paintZeebrugge(cx,cy,W,H){
   const p=point(12100,150),height=2400,width=height*landmark.width/landmark.height;
   if(p[0]>-width&&p[0]<W+width&&p[1]>-height&&p[1]<H+height){
    ctx.save();ctx.translate(...p);ctx.rotate(a+Math.PI*1.5);ctx.imageSmoothingEnabled=true;
-   ctx.drawImage(landmark,-width/2,-height/2,width,height);ctx.restore();
+   ctx.drawImage(landmark,-width/2,-height/2,width,height);
+   ctx.save();ctx.translate(-width/2,-height/2);drawHarborLife(ctx,width,height,(game?.t||0)+ambient);ctx.restore();ctx.restore();
   }
  }
  applyTerrainAtmosphere(ctx,'zeebrugge',W,H);
@@ -639,15 +640,8 @@ function paintZeebrugge(cx,cy,W,H){
  ctx.setLineDash([]);ctx.restore();
 }
 function paintTrenchHellOverlay(cx,cy,W,H){
- const wx=cx-W/2,wy=cy-H/2,time=(globalThis.performance?.now?.()||0)/1000;
  ctx.save();ctx.fillStyle='#27181142';ctx.fillRect(0,0,W,H);
- const cell=190,minX=Math.floor(wx/cell)-1,maxX=Math.ceil((wx+W)/cell)+1,minY=Math.floor(wy/cell)-1,maxY=Math.ceil((wy+H)/cell)+1;
- for(let gx=minX;gx<=maxX;gx++)for(let gy=minY;gy<=maxY;gy++){
-  const seed=Math.abs(Math.sin(gx*91.73+gy*47.19)*43758.5453)%1;if(seed<.63)continue;
-  const x=gx*cell-wx+cell*(.2+seed*.6),y=gy*cell-wy+cell*(.2+(seed*7%1)*.6),pulse=.72+.18*Math.sin(time*2+seed*20);
-  ctx.globalAlpha=.16*pulse;ctx.fillStyle='#ff7a38';ctx.beginPath();ctx.arc(x,y,12+seed*16,0,Math.PI*2);ctx.fill();
-  ctx.globalAlpha=.11;ctx.fillStyle='#171817';ctx.beginPath();ctx.arc(x+10,y-24,24+seed*24,0,Math.PI*2);ctx.fill();
- }
+ // Painted wreck fires and their smoke are now terrain-anchored in ground-life.
  ctx.restore();
 }
 // Terrain stays in a world-anchored offscreen buffer: each frame blits one
@@ -676,7 +670,7 @@ function paintRegion(region,cx,cy,width=W,height=H){
  if(region===17){paintDover(ctx,game,cx,cy,W,H);return;}
  if(region===12){paintVerdun(ctx,game,cx,cy,W,H);return;}
  if(region===16){paintJutland(ctx,game,cx,cy,W,H);return;}
- if(region===14){paintGallipoli(ctx,game,cx,cy,W,H);drawGallipoliDressing(ctx,game?.gallipoliRoute,cx,cy,W,H);return;}
+ if(region===14){paintGallipoli(ctx,game,cx,cy,W,H);drawGallipoliDressing(ctx,game?.gallipoliRoute,cx,cy,W,H,(game?.t||0)+ambient);return;}
  if(region===15){paintParis(ctx,game,cx,cy,W,H,terrainAlpsRenderer);drawParisDressing(ctx,game,cx,cy,W,H);return;}
  if(region===13){paintMaan(ctx,game,cx,cy,W,H);drawDesertDressing(ctx,cx,cy,W,H);return;}
  if(region===7){paintZeebrugge(cx,cy,W,H);return;}

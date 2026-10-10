@@ -1,60 +1,57 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {GROUND_ROUTES,GROUND_FIGHTS,GROUND_EVENTS,groundRoutePose} from '../ground-life.js';
 
-// Isolate terrain painters so the test doesn't pull the browser game's boot
-// graph into Node. The exact checked-in renderer source is compiled unchanged
-// apart from ESM import/export declarations; production imports stay untouched.
-const source=file=>readFileSync(new URL('../'+file,import.meta.url),'utf8')
- .split('\n').filter(line=>!/^import\b/.test(line.trim())).join('\n')
- .replace(/\bexport (function|const)\b/g,'$1');
-const renderContext=()=>{
- const counts={images:0,positions:[],fx:[]};
- const ctx=new Proxy({globalAlpha:1,
-  save(){},restore(){},
-  translate(x,y){counts.positions.push([x,y])},
-  drawImage(){counts.images++},
-  createRadialGradient(){return {addColorStop(){}}}
- },{get(t,p){return p in t?t[p]:()=>{}},set(t,p,v){t[p]=v;return true}});
- return {ctx,counts};
-};
-const Img=class{constructor(){this.naturalWidth=400;this.naturalHeight=300}
- set src(v){this.path=v;this.onload?.()}decode(){return Promise.resolve()}};
-
-test('ground vehicles animate only in hand-authored land regions, not sea',()=>{
- const {drawMovingDressing,drawRepeatedDressing}=new Function('fx','Image',source('background-dressing.js')+'\nreturn {drawMovingDressing,drawRepeatedDressing};')(()=>true,Img);
- const {ctx,counts}=renderContext();
- drawMovingDressing(ctx,'trenches',0,0,1920,1080,768,2,1);
- const first=counts.positions.map(p=>p.join(':')).join(',');
- assert.ok(counts.images>0,'tank sprites are visible');
- counts.positions=[];counts.images=0;
- drawMovingDressing(ctx,'trenches',0,0,1920,1080,768,4,1);
- assert.notEqual(counts.positions.map(p=>p.join(':')).join(','),first,'vehicles actually move');
- counts.images=0;
- drawMovingDressing(ctx,'sea',0,0,1920,1080,768,2,1);
- assert.equal(counts.images,0,'sea never contains a moving tank or ambulance');
-});
-
-test('infantry render only on configured land battlefields, smoke uses existing FX',()=>{
- const fxKeys=[],document={createElement(){return {width:0,height:0,getContext(){return renderContext().ctx}}}};
- const {drawTrenchSkirmishes,drawWarAmbience}=new Function('fx','document',source('war-ambience.js')+'\nreturn {drawTrenchSkirmishes,drawWarAmbience};')((c,key)=>{fxKeys.push(key);return true},document);
- const {ctx,counts}=renderContext();
- drawTrenchSkirmishes(ctx,1,0,0,1920,1080,3,1,768);
- assert.equal(counts.images,0,'no infantry on the sea');
- drawTrenchSkirmishes(ctx,2,0,0,1920,1080,3,1,768);
- assert.ok(counts.images>0,'trench infantry fight in world space');
- drawWarAmbience(ctx,3,1180,940,1920,1080,3,1,768);
- assert.ok(fxKeys.includes('smokeDark'),'terrain plumes use the existing smoke atlas');
-});
-
-test('reduced-detail mode remains bounded on portrait mobile viewports',()=>{
- const document={createElement(){return {width:0,height:0,getContext(){return renderContext().ctx}}}};
- let fxCalls=0;
- const {drawWarAmbience}=new Function('fx','document',source('war-ambience.js')+'\nreturn {drawWarAmbience};')(()=>{fxCalls++;return true},document);
- const {ctx,counts}=renderContext();
- for(let frame=0;frame<120;frame++){
-  drawWarAmbience(ctx,3,800+frame*5,900+frame*7,412,915,frame/60,.45,768);
+const source=readFileSync(new URL('../ground-life.js',import.meta.url),'utf8')
+ .split('\n').filter(line=>!/^import\b/.test(line.trim())).join('\n').replace(/\bexport (function|const)\b/g,'$1');
+function context(){
+ const counts={images:0,filters:0,geometry:0,fx:0};
+ const c=new Proxy({globalAlpha:1,save(){},restore(){},drawImage(){counts.images++},fillRect(){counts.geometry++}},
+ {get:(t,p)=>p in t?t[p]:()=>{},set(t,p,v){if(p==='filter')counts.filters++;t[p]=v;return true;}});
+ return {c,counts};
+}
+async function renderer(){
+ const fxKeys=[],document={createElement(){return {width:0,height:0,getContext:()=>context().c}}};
+ const Image=class{set src(v){this.naturalWidth=1448;queueMicrotask(()=>this.onload())}};
+ const api=new Function('fx','Image','document',source+'\nreturn {groundLifeReady,drawGroundLife};')((c,key)=>{fxKeys.push(key);return true;},Image,document);
+ await api.groundLifeReady;return {...api,fxKeys};
+}
+test('vehicles accelerate along finite approved paths without sideways/reverse drift',()=>{
+ const pose={},last={};
+ for(const [key,routes]of Object.entries(GROUND_ROUTES))for(const r of routes){
+  assert.ok(!['sea','channel','sky'].includes(key));
+  let progress=-1;
+  for(let n=0;n<100;n++){
+   groundRoutePose(r,r[6]*n/100,0,pose);
+   assert.ok(pose.progress>=progress);progress=pose.progress;
+   assert.ok(pose.u>=Math.min(r[1],r[3])&&pose.u<=Math.max(r[1],r[3]));
+   assert.ok(pose.v>=Math.min(r[2],r[4])&&pose.v<=Math.max(r[2],r[4]));
+   if(n&&pose.moving){const dx=pose.u-last.u,dy=pose.v-last.v;assert.ok(dx*Math.cos(pose.heading)+dy*Math.sin(pose.heading)>0);}
+   Object.assign(last,pose);
+  }
+  groundRoutePose(r,0,0,pose);assert.equal(pose.alpha,0,'loop wrap is invisible');assert.equal(pose.moving,false);
  }
- assert.ok(counts.images<120*28,'mobile skirmish art keeps a small per-frame bound');
- assert.ok(fxCalls<120*45,'mobile terrain FX avoids unbounded emitters');
+});
+test('water regions have no infantry, ground vehicles or ground fire',async()=>{
+ const {drawGroundLife,fxKeys}=await renderer();const {c,counts}=context();
+ for(const key of ['sea','channel','sky','night','alps']){assert.equal(GROUND_ROUTES[key],undefined);assert.equal(GROUND_FIGHTS[key],undefined);assert.equal(GROUND_EVENTS[key],undefined);drawGroundLife(c,key,-800,-800,1600,1600,1254,2,1);}
+ assert.equal(counts.images,0);assert.equal(fxKeys.length,0);
+});
+test('scenery uses painted images and existing FX without a live filter or drawn bodies',async()=>{
+ const {drawGroundLife,fxKeys}=await renderer();const {c,counts}=context();
+ for(let n=0;n<100;n++)drawGroundLife(c,'burning',0,0,1254,1254,1254,n*.07,1);
+ assert.ok(counts.images>0);assert.ok(fxKeys.includes('fireGround'));assert.ok(fxKeys.includes('smokeDark'));
+ assert.equal(counts.geometry,0,'no canvas-filled infantry, vehicles or smoke');assert.equal(counts.filters,0);
+});
+test('portrait mobile and broad desktop scenes remain bounded over long travel',async()=>{
+ const {drawGroundLife,fxKeys}=await renderer();
+ for(const density of [1,.45])for(const key of ['trenches','burning','cambrai','somme','city']){
+  const {c,counts}=context();let maxImages=0,maxFx=0;
+  for(let n=0;n<200;n++){
+   const old=counts.images,oldFx=fxKeys.length;drawGroundLife(c,key,n*137-12000,n*83-9000,density===1?1920:390,density===1?1080:844,key==='cambrai'?768:1254,n*.21,density);
+   maxImages=Math.max(maxImages,counts.images-old);maxFx=Math.max(maxFx,fxKeys.length-oldFx);
+  }
+  assert.ok(maxImages<=(density===1?33:13),key+' sprites '+maxImages);assert.ok(maxFx<=24,key+' FX '+maxFx);
+ }
 });
