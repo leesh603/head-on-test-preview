@@ -1342,6 +1342,26 @@
        "kind": "ace",
        "name": "Coppens",
        "file": "../coppens_hanriot.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "벨기에 황토 동체",
+       "file": "liveries/hanriot/belgian.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "이탈리아 전선 녹갈 위장",
+       "file": "liveries/hanriot/camo.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "프랑스 해군 평가기",
+       "file": "liveries/hanriot/french.webp"
+      },
+      {
+       "kind": "livery",
+       "name": "이탈리아 비행대 붉은 동체",
+       "file": "liveries/hanriot/red.webp"
       }
      ]
     },
