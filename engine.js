@@ -1702,6 +1702,13 @@ Object.assign(PILOTS,{
 });
 for(const id of ['proctor','schleich','lufbery']){const c=THREE_COPY[id].ko;Object.assign(PILOTS[id],{skill:c.skill,passive:c.passive,desc:c.activeDetail,passiveDesc:c.passiveDetail});}
 PILOT_PLANES.proctor='proctor_se5a';PILOT_PLANES.schleich='schleich_albatros';PILOT_PLANES.lufbery='lufbery_nieuport17';
+// Endless/solo loadouts reference dedicated ace liveries; campaign.js registers them
+// into its own instance only, so register the same frames here to keep solo playable.
+const SOLO_ACE_BASES={snipe:'camel',nieuport28:'nieuport',junkers_d1:'albatros'},SOLO_ACE_HP={snipe:115,nieuport28:95,junkers_d1:125},SOLO_ACE_NAMES={snipe:'Sopwith Snipe',nieuport28:'Nieuport 28',junkers_d1:'Junkers D.I'};
+for(const[key,base]of Object.entries(SOLO_ACE_BASES))if(!PLANES[key]){PLANES[key]={...PLANES[base],name:SOLO_ACE_NAMES[key],hp:SOLO_ACE_HP[key],maxHp:SOLO_ACE_HP[key],campaignOnly:false};WEAPONS[key]={...WEAPONS[base]};}
+const SOLO_ACE_LIVERIES={rickenbacker_spad:'spad',ball_se5a:'se5a',barker_snipe:'snipe',luke_nieuport28:'nieuport28',brumowski_albatros:'albatros',gontermann_fokker:'fokker',lothar_dr1:'fokker',lufbery_nieuport17:'nieuport',proctor_se5a:'se5a',schleich_albatros:'albatros'};
+const SOLO_ACE_LIVERY_NAMES={rickenbacker_spad:'SPAD XIII · 리켄바커',ball_se5a:'S.E.5a · 앨버트 볼',barker_snipe:'숍위드 스나이프 · 바커',luke_nieuport28:'니외포르 28 · 프랭크 루크',brumowski_albatros:'알바트로스 D.III · 브루모프스키',gontermann_fokker:'포커 Dr.I · 곤터만',lothar_dr1:'포커 Dr.I · 로타르',lufbery_nieuport17:'니외포르 17 · 러프베리',proctor_se5a:'S.E.5a · 프록터',schleich_albatros:'알바트로스 D.Va · 슐라이히'};
+for(const[key,base]of Object.entries(SOLO_ACE_LIVERIES))if(!PLANES[key]){PLANES[key]={...PLANES[base],name:SOLO_ACE_LIVERY_NAMES[key],handling:PLANES[base].handling,campaignOnly:false};WEAPONS[key]={...WEAPONS[base]};}
 const _skill3=Game.prototype.skill;
 Game.prototype.skill=function(){
  if(!['schleich'].includes(this.pilot))return _skill3.call(this);
