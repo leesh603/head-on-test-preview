@@ -1779,7 +1779,7 @@ Game.prototype.skill=function(){
  if(this.pilot!=='bishop')return _skillGuerrilla.call(this);
  this.ensureRevisionPilot?.();if(this.state!=='playing'||this.hp<=0||this.cooldown>0)return false;
  this.cooldown=this.skillCooldown();this.skillTime=this.bishopTime=this.skillDuration();
- this.invuln=Math.max(this.invuln,this.skillTime);this.bishopDrops=Math.ceil(8*(this.skillTime/2.4));this.bishopBombTimer=.65;this.bishopHeading=this.a;
+ this.invuln=Math.max(this.invuln,this.skillTime);this.bishopDrops=this.bishopDropsTotal=Math.ceil(8*(this.skillTime/2.4));this.bishopBombTimer=.65;this.bishopHeading=this.a;
  this.event('skill',PILOTS[this.pilot].skill);return true;
 };
 // Guerrilla Night altitude arc: the player climbs off-screen for .5s, dives back
@@ -1796,8 +1796,8 @@ Game.prototype.update=function(dt,input={}){
  const step=Math.min(.04,Math.max(0,dt||0));
  if(this.bishopTime>0){this.invuln=Math.max(this.invuln,step+.05);this.bishopTime=Math.max(0,this.bishopTime-step);if(this.bishopTime===0)this.bishopEmptyPending=true;this.bishopBombTimer-=step;
   if(this.bishopDrops>0&&this.bishopBombTimer<=0){this.bishopDrops--;this.bishopBombTimer=.23;
-   const target=this.enemies.filter(e=>e.hp>0).sort((a,b)=>Math.hypot(a.x-this.x,a.y-this.y)-Math.hypot(b.x-this.x,b.y-this.y))[0];
-   const bx=target?.x??this.x+Math.cos(this.a)*120,by=target?.y??this.y+Math.sin(this.a)*120;
+   const i=(this.bishopDropsTotal||8)-this.bishopDrops-1,row=Math.floor(i/4),lane=i%4-1.5,f=Math.max(80,this.speed*.8),ca=Math.cos(this.bishopHeading),sa=Math.sin(this.bishopHeading),px=-sa,py=ca;
+   const bx=this.x+ca*(f+row*92)+px*lane*72,by=this.y+sa*(f+row*92)+py*lane*72;
    this.friendlyBombs.push({ownerId:this.id,sx:this.x,sy:this.y-bishopFlightHeight(this),x:bx,y:by,life:.38,maxLife:.38,radius:110,damage:this.payloadPower(90),bishopBomb:true});
   }
  }
