@@ -1,5 +1,5 @@
 {
- "v": 85,
+ "v": 86,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -2595,7 +2595,7 @@
       {
        "kind": "ace",
        "name": "Collishaw",
-       "file": "../collishaw_sopwith.webp"
+       "file": "aces/collishaw_sopwith.webp"
       },
       {
        "kind": "livery",
