@@ -122,7 +122,7 @@ export function fxsBombFall(c, drawBody, sx, sy, tx, ty, p) {
   // body shrinks with altitude read from the top-down camera
   const s = 1.55 - 0.75 * e;
   c.save(); c.globalAlpha *= 0.98;
-  drawBody(x, y, s, Math.atan2(ty - sy, tx - sx) + p * 0.6);
+  drawBody(x, y, s, Math.PI / 2 + Math.atan2(tx - sx, Math.abs(ty - sy) + 160) * 0.3 + Math.sin(p * Math.PI) * 0.12);
   c.restore();
   // aim ring tightens
   c.save(); c.strokeStyle = 'rgba(245,230,200,.55)'; c.lineWidth = 1.2; c.setLineDash([3, 4]);
