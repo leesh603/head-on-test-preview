@@ -25,7 +25,7 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=gal1';
 import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=gal1';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawEquipmentDefense} from './player-effects129.js?v=livingww1d';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=bomb3&hints=1&treads=2&rail=42&maan=3&minen=4';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=bomb4&hints=1&treads=2&rail=42&maan=3&minen=4';
 import {paintDover} from './dover-night-view.js?v=dover6';
 import {paintParis} from './paris-night-art.js?v=gal1';
 import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=bomb4&hints=1&rail=42';
