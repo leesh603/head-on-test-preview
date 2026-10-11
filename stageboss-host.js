@@ -11,7 +11,7 @@ import {isDoverBoss} from './dover-night-view.js?v=dover6';
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=gal1';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=gal1';
 import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=livingww1d&rail=42';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb5&rail=42';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb6&rail=42';
 import {bossSoundFor} from './boss-feedback.js?v=gal1&hints=1&rail=42';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=gal1&rail=42';
 import {advanceCambraiBug} from './cambrai-bug-flight.js?v=gal1';
