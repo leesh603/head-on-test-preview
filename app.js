@@ -25,7 +25,7 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=gal1';
 import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=gal1';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawEquipmentDefense} from './player-effects129.js?v=livingww1d';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=livingww1d&hints=1&treads=2&rail=42&maan=3&minen=4';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=bomb2&hints=1&treads=2&rail=42&maan=3&minen=4';
 import {paintDover} from './dover-night-view.js?v=dover6';
 import {paintParis} from './paris-night-art.js?v=gal1';
 import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=livingww1d&hints=1&rail=42';
@@ -35,7 +35,7 @@ import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.
 import {installOnlineLobby} from './online-coop-session.js?v=livingww1d&coopfix=1&rail=42';
 import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=livingww1d';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=gal1';
-import {drawCoop} from './coop-view.js?v=livingww1d&rail=42';
+import {drawCoop} from './coop-view.js?v=bomb2&rail=42';
 import {drawSunStrike} from './sun-strike71.js?v=gal1&rail=42';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor,drawTracerBolt} from './projectiles.js?v=gal1';
 import {installFlightViewport} from './flight-viewport.js?v=gal1';
@@ -71,6 +71,7 @@ import {drawTrenchLayer}from'./trench-war1.js?v=gal1';
 import {drawCityAirLayer}from'./city-air1.js?v=gal1';
 import {TerrainRenderer,MountainField,applyTerrainAtmosphere,preloadTerrainProfile,terrainProfilesReady} from './alps-terrain117.js?v=gal1';
 import {FXS,fxsTracer,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=gal1&rail=42';
+import {bombSprite} from './bomb-sprites.js?v=bomb2';
 import {drawPassiveFx,drawPassiveFxFront} from './passive-fx.js?v=gal1&rail=42';
 
 const flightViewport=installFlightViewport(document,window);
@@ -432,7 +433,7 @@ draw=t=>{
   const [x,y]=point(z.x,z.y),p=1-z.delay/z.maxDelay;
   impactMark(ctx,x,y,z.radius,p);
   const [bx,by]=point(z.sx+(z.x-z.sx)*p,z.sy+(z.y-z.sy)*p);
-  if(FXS&&fxsBombFall(ctx,(X,Y,k,a)=>fx(ctx,'bomb',X,Y,40*k,20*k,a),...point(z.sx,z.sy),x,y,p)){}else if(!fx(ctx,'bomb',bx,by,40,20,Math.PI/2))drawEquipment(ctx,'rocket',bx,by,Math.PI,38);
+  if(FXS&&fxsBombFall(ctx,(X,Y,k,a)=>bombSprite(ctx,'puw',X,Y,44,a)||fx(ctx,'bomb',X,Y,40*k,20*k,a),...point(z.sx,z.sy),x,y,p)){}else if(!bombSprite(ctx,'puw',bx,by,44,Math.PI/2)&&!fx(ctx,'bomb',bx,by,40,20,Math.PI/2))drawEquipment(ctx,'rocket',bx,by,Math.PI,38);
  }
  fxsBoomTail(ctx,game.combatFX,point,game.t||0);
  for(const f of game.combatFX||[]){const[x,y]=point(f.x,f.y);const _m=(f.radius||60)*2.6+80;if(x<-_m||x>W+_m||y<-_m||y>H+_m)continue;const p=1-f.life/f.maxLife;
@@ -713,7 +714,7 @@ draw=t=>{
   ctx.fillStyle='#b4f4dd';ctx.font='12px monospace';ctx.textAlign='center';ctx.fillText(getLocale()==='en'?'Friendly Bombers':'아군 폭격대',x,y-h/2-12);
  }
  for(const b of game.friendlyBombs||[]){const p=1-b.life/b.maxLife,x=b.sx+(b.x-b.sx)*p-game.x+W/2,y=b.sy+(b.y-b.sy)*p-game.y+H/2;
-  if(!(FXS&&fxsBombFall(ctx,(X,Y,k,a)=>fx(ctx,'bomb',X,Y,40*k,20*k,a),b.sx-game.x+W/2,b.sy-game.y+H/2,b.x-game.x+W/2,b.y-game.y+H/2,p)))drawEquipment(ctx,'rocket',x,y,Math.PI,38);
+  if(!(FXS&&fxsBombFall(ctx,(X,Y,k,a)=>bombSprite(ctx,'cooper',X,Y,44,a)||fx(ctx,'bomb',X,Y,40*k,20*k,a),b.sx-game.x+W/2,b.sy-game.y+H/2,b.x-game.x+W/2,b.y-game.y+H/2,p))&&!bombSprite(ctx,'cooper',x,y,44,Math.PI/2))drawEquipment(ctx,'rocket',x,y,Math.PI,38);
   if(!b.bishopBomb){ctx.strokeStyle='#a2eddb70';ctx.lineWidth=1;ctx.beginPath();ctx.arc(b.x-game.x+W/2,b.y-game.y+H/2,22,0,Math.PI*2);ctx.stroke();}
  }
  ctx.restore();
