@@ -1,5 +1,5 @@
 {
- "v": 65,
+ "v": 66,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -1581,7 +1581,7 @@
      "name": "Hansa-Brandenburg W.29",
      "year": 1918,
      "role": "수상전투기",
-     "base": "../hb_w29.webp",
+     "base": "planes/hb_w29_clean.webp",
      "variants": [
       {
        "kind": "livery",
