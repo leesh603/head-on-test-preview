@@ -1,6 +1,6 @@
 import {updateAllyRing,hideAllyRing} from './ally-ring.js?v=gal1';
 import {hangarArt,hangarArtSource,hangarKeyFile} from './hangar-art.js?v=gal1';
-import {bossCutinSource} from './boss-cutin-art.js?v=gal1&rail=42';
+import {bossCutinSource} from './boss-cutin-art.js?v=livingww1d&rail=42';
 import {applySeaColor} from './sea-colors.js?v=gal1';
 import {drawGroundEnemy} from './ground-enemy-art.js?v=gal1';
 import {pilotIdentityCopy} from './pilot-identity-copy.js';
@@ -21,21 +21,21 @@ import {t,getLocale,setLocale,subscribe,initLocale,applyTranslations,rarityName,
 import {GamepadInput} from './gamepad-input.js?v=gal1';
 installEventTextEN(Game,CoopGame,CampaignGame);registerEventPilots(PILOTS);
 const fieldRecordLink=document.createElement('a');fieldRecordLink.href='./field-record.html?v=gal1&rail=42';fieldRecordLink.target='_blank';fieldRecordLink.rel='noopener';fieldRecordLink.textContent=getLocale()==='en'?'Official Battle Record':'공식 전장 기록';fieldRecordLink.className='field-record-link';fieldRecordLink.style.cssText='display:block;margin:10px auto 0;text-align:center;color:#d7b26d;font-weight:800;text-decoration:none';document.getElementById('start')?.after(fieldRecordLink);
-import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=gal1';
+import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=livingww1d';
 import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=gal1';
 import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=gal1';
-import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawEquipmentDefense} from './player-effects129.js?v=dover4';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=gal1&hints=1&treads=2&rail=42&maan=3&minen=4';
+import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawEquipmentDefense} from './player-effects129.js?v=livingww1d';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=livingww1d&hints=1&treads=2&rail=42&maan=3&minen=4';
 import {paintDover} from './dover-night-view.js?v=dover6';
 import {paintParis} from './paris-night-art.js?v=gal1';
-import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=gal1&hints=1&rail=42';
+import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=livingww1d&hints=1&rail=42';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=gal1';
 import './hud-layout94.js?v=gal1';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=gal1';
-import {installOnlineLobby} from './online-coop-session.js?v=gal1&coopfix=1&rail=42';
-import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=bomb1';
+import {installOnlineLobby} from './online-coop-session.js?v=livingww1d&coopfix=1&rail=42';
+import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=livingww1d';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=gal1';
-import {drawCoop} from './coop-view.js?v=bomb1&rail=42';
+import {drawCoop} from './coop-view.js?v=livingww1d&rail=42';
 import {drawSunStrike} from './sun-strike71.js?v=gal1&rail=42';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor,drawTracerBolt} from './projectiles.js?v=gal1';
 import {installFlightViewport} from './flight-viewport.js?v=gal1';
@@ -44,7 +44,7 @@ import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?
 import {drawEnemyDanger} from './enemy-danger-view.js?v=gal1';
 import {drawGas} from './gas-view.js?v=gal1';
 import {drawWarAmbience} from './war-ambience.js?v=groundlife1';
-import {backgroundDressingReady,drawRepeatedDressing,drawMovingDressing,bakeHarborDressing,drawHarborLife,drawGallipoliDressing,drawDesertDressing,drawParisDressing} from './background-dressing.js?v=groundlife1';
+import {backgroundDressingReady,drawRepeatedDressing,drawMovingDressing,bakeHarborDressing,drawHarborLife,drawGallipoliDressing,drawDesertDressing,drawParisDressing} from './background-dressing.js?v=livingww1d';
 import {missionNavigation,drawMissionRadar} from './navigation.js?v=gal1';
 import {drawBattlefieldSprite,drawBattlefieldSpriteShadowed,battlefieldArtReady,fieldUnitsReady} from './battlefield-art.js?v=gal1';
 import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liveryVariant} from './campaign.js?v=gal1&rail=42';
@@ -58,12 +58,12 @@ import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=gal1';
 import {drawTailEngagement} from './engagement-hud410.js?v=gal1';
 import {portraitSources,portraitsReady,portraitLoaded} from './portraits.js?v=gal1';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=gal1&rail=42';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=livingww1d&rail=42';
 import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN,bossArrivalCues} from './boss-feedback.js?v=gal1&hints=1&rail=42';
 import {drawEquipment} from './equipment.js?v=gal1';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=gal1';
 import{planeSprite,aircraftReady,aircraftKey,hangarArtReady,paintedReady}from './aircraft.js?v=gal1';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=bomb1';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=livingww1d';
 import {AUGMENTATION_OVERHAUL_BALANCE}from'./augmentation-overhaul150.js?v=gal1';
 import {drawCloudCover}from'./cloud-cover1.js?v=dover1';
 import {drawFleetLayer}from'./fleet-naval1.js?v=gal1&rail=42';
@@ -675,9 +675,9 @@ function paintRegion(region,cx,cy,width=W,height=H){
  if(region===13){paintMaan(ctx,game,cx,cy,W,H);drawDesertDressing(ctx,cx,cy,W,H);return;}
  if(region===7){paintZeebrugge(cx,cy,W,H);return;}
  if(region>=0&&region<terrainKeys.length){
-  const key=terrainKeys[region],detailDensity=(mobileDisplay&&batterySaver)?.45:1;
+  const key=terrainKeys[region],detailDensity=mobileDisplay?(batterySaver?.45:.65):1;
   drawTerrainBuffered(key,cx,cy,W,H);
-  drawMovingDressing(ctx,key,cx-W/2,cy-H/2,W,H,terrainAlpsRenderer.sizeFor(key),(game?.t||0)+ambient,detailDensity);
+  drawMovingDressing(ctx,key,cx-W/2,cy-H/2,W,H,terrainAlpsRenderer.sizeFor(key),game?.t??ambient,detailDensity);
   if(region===3)paintTrenchHellOverlay(cx,cy,W,H);
   if(region===11){ctx.save();ctx.fillStyle='#101b2c45';ctx.fillRect(0,0,W,H);ctx.restore();}
   drawWarAmbience(ctx,region,cx,cy,W,H,(game?.t||0)+ambient,detailDensity,terrainAlpsRenderer.sizeFor(key));
