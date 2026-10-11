@@ -1,5 +1,5 @@
 {
- "v": 52,
+ "v": 53,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -3874,7 +3874,7 @@
      "name": "Felixstowe F.2",
      "year": 1918,
      "role": "비행정",
-     "base": "../felixstowe_f2.webp",
+     "base": "planes/felixstowe_f2_clean.webp",
      "variants": [
       {
        "kind": "alt",
