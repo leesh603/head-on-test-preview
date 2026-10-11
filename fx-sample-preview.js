@@ -116,13 +116,13 @@ export function fxsRocketTrail(c, x, y, angle, bodyLen = 52) {
 export function fxsBombFall(c, drawBody, sx, sy, tx, ty, p) {
   if (!fxsHas('bombShadow')) return false;
   const e = p * p; // accelerating fall
-  const x = sx + (tx - sx) * p, y = sy + (ty - sy) * p;
+  const x = sx + (tx - sx) * p, y = sy + (ty - sy) * e;
   // shadow sharpens and grows as the bomb nears the ground
   fxsDraw(c, 'bombShadow', tx + 10 * (1 - e), ty + 14 * (1 - e), 22 + 18 * e, 11 + 9 * e, 0, 0.35 + 0.55 * e);
   // body shrinks with altitude read from the top-down camera
   const s = 1.55 - 0.75 * e;
   c.save(); c.globalAlpha *= 0.98;
-  drawBody(x, y, s, Math.PI / 2 + Math.atan2(tx - sx, Math.abs(ty - sy) + 160) * 0.3 + Math.sin(p * Math.PI) * 0.12);
+  drawBody(x, y, s, Math.PI / 2 + Math.atan2(tx - sx, Math.abs(ty - sy) + 160) * 0.3 + Math.sin(p * 19) * 0.22 * (1 - p));
   c.restore();
   // aim ring tightens
   c.save(); c.strokeStyle = 'rgba(245,230,200,.55)'; c.lineWidth = 1.2; c.setLineDash([3, 4]);
