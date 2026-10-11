@@ -1,4 +1,4 @@
-import {SUN_STRIKE} from './engine.js?v=bomb14&rail=42';
+import {SUN_STRIKE} from './engine.js?v=bomb15&rail=42';
 import {fx,fxReady,fxTint} from './fx-art.js?v=gal1';
 
 // Warm, restrained optical streaks; no strobe or additive whiteout.
