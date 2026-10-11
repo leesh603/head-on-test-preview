@@ -1,6 +1,6 @@
 import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=gal1';
 import {fx} from './fx-art.js?v=gal1';
-import {bombSprite} from './bomb-sprites.js?v=bomb13';
+import {bombSprite} from './bomb-sprites.js?v=bomb14';
 import {fxsBombFall} from './fx-sample-preview.js?v=bomb3&rail=42';
 import {drawTracerBolt} from './projectiles.js?v=gal1&rail=42';
 import {impactMark,partMark,aimLine,stripMark} from './tactical-marks.js?v=gal1';

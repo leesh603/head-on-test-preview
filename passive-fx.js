@@ -9,7 +9,7 @@ const pilotReadability=createPilotReadability(pilotTexture);
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=bomb13&rail=42';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=bomb14&rail=42';
 
 
 const memo = new WeakMap();
