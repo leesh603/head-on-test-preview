@@ -1,5 +1,5 @@
 {
- "v": 77,
+ "v": 78,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -3285,7 +3285,7 @@
      "name": "Airco DH.4",
      "year": 1917,
      "role": "폭격기",
-     "base": "../dh4.webp",
+     "base": "planes/dh4_clean.webp",
      "variants": [
       {
        "kind": "alt",
