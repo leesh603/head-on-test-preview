@@ -53,9 +53,9 @@ class AlpsBomber extends BaseBoss {
   if(!target)return;const angle=Math.atan2(target.y-q.y,target.x-q.x),count=Math.min(7,Math.max(1,Math.ceil((this.phase===3?3:2)*(this.t.projectileDensity??1))));gun.recoil=.12;this.command('muzzle',{...q,partId:id});
   fireFanSalvo(this,{...q,angle,speed:this.t.bulletSpeed*.8,damage:this.t.damage*.55,visual:'alps-mg',tag:this.id+':'+id,sourcePartId:id,count:11,spread:1.4,beats:2,beat:.42,warning:.75,gapIndex:rear?2:7,step:rear?1:-1});
  }
- stickBombs(bounds,{count=5,radius=36,warning=1.25,damage=.8}={}){
+ stickBombs(bounds,{count=7,radius=36,warning=2,damage=.8}={}){
   const s=this.t.geometryScale||1,source=alpsPoint(this,0,25*s),a=this.hullYaw-Math.PI/2,dx=Math.cos(a),dy=Math.sin(a);
-  for(let i=0;i<count;i++)this.hazard('circle',{x:source.x+dx*(i-2)*64,y:source.y+dy*(i-2)*64,radius,delay:i*.18,warning,duration:.3,once:true,damage:this.t.damage*damage,visual:'carpet-bomb',airborneBomb:true,sourceX:source.x,sourceY:source.y,tag:this.id+':payload'});
+  for(let i=0;i<count;i++)this.hazard('circle',{x:source.x+dx*(i-3.5)*64,y:source.y+dy*(i-3.5)*64,radius,delay:i*.18,warning,duration:.3,once:true,damage:this.t.damage*damage,visual:'carpet-bomb',airborneBomb:true,sourceX:source.x,sourceY:source.y,tag:this.id+':payload'});
  }
  onPartDestroyed(p){if(p.kind==='gun')this.command('cancel-hazards',{tag:this.id+':'+p.id});if(p.id==='cannon'){this.cannonLock=null;this.cannonRemaining=0;}if(p.kind==='engine')this.command('phase-change',{phase:'engine-damaged'});}
  updatePhase(){const loss=this.engineLoss();if(this.hp<=this.maxHp*.68||loss)this.setPhase(2);if(this.hp<=this.maxHp*.32||loss===this.layout.engines.length)this.setPhase(3);}
@@ -78,7 +78,7 @@ export class GIK extends AlpsBomber {
  update(dt,{players,bounds}){
   this.cruise(dt);this.updatePhase();this.cannon(dt,players);
   this.mountFire('rearGun',players,dt,this.phase===3?1.3:1.8,true);
-  if(!this.cannonLock&&this.due('gik-bomb-run',dt,this.phase===3?3.6:5)){this.stickBombs(bounds,{count:this.phase===3?6:5});this.command('phase-change',{phase:'gik-strafe-run'});}
+  if(!this.cannonLock&&this.due('gik-bomb-run',dt,this.phase===3?3.6:5)){this.stickBombs(bounds,{count:this.phase===3?8:7});this.command('phase-change',{phase:'gik-strafe-run'});}
  }
 }
 
@@ -95,8 +95,8 @@ export class Ca4 extends AlpsBomber {
  }
  egressBombing(bounds){
   const bottom=Math.max(this.y+120,bounds.bottom-40);
-  for(let i=0;i<2;i++){const x=this.x+(this.rng()-.5)*170,y=bottom-i*80;
-   this.hazard('circle',{x,y,radius:34,delay:0,warning:1.05+i*.25,duration:.3,once:true,damage:this.t.damage*.7,visual:'carpet-bomb',airborneBomb:true,sourceX:this.x,sourceY:this.y,tag:this.id+':payload'});}
+  for(let i=0;i<3;i++){const x=this.x+(this.rng()-.5)*170,y=bottom-i*80;
+   this.hazard('circle',{x,y,radius:34,delay:0,warning:1.9+i*.2,duration:.3,once:true,damage:this.t.damage*.7,visual:'carpet-bomb',airborneBomb:true,sourceX:this.x,sourceY:this.y,tag:this.id+':payload'});}
  }
  defenseRing(players){
   for(const id of ['frontGun','rearGun']){
@@ -114,8 +114,8 @@ export class Ca4 extends AlpsBomber {
  releaseBombRun(){
   if(this.part('bombBay').destroyed)return;
   const b=this.runBounds,source=alpsPoint(this,0,this.part('bombBay').localY),height=b.bottom-b.top;
-  for(const lane of this.laneWarnings.filter(l=>!l.safe))for(let row=0;row<6;row++)this.hazard('circle',{x:lane.x,y:b.top+height*(.24+row*.10),radius:this.runRadius,delay:0,warning:1.1+row*.38,duration:.3,once:true,damage:this.t.damage*.85,visual:'carpet-bomb',airborneBomb:true,sourceX:source.x,sourceY:source.y,tag:this.id+':payload'});
-  const lane=this.laneWarnings.find(l=>l.safe);if(lane)impactPulse(this,{x:lane.x,y:b.top+height*.6,radius:Math.min(115,(b.right-b.left)/3*.48),warning:3.65,source,partId:'bombBay',visual:'carpet-bomb',tag:this.id+':payload'});this.timers.set('ca4-bombs',8);
+  for(const lane of this.laneWarnings.filter(l=>!l.safe))for(let row=0;row<8;row++)this.hazard('circle',{x:lane.x,y:b.top+height*(.24+row*.10),radius:this.runRadius,delay:0,warning:2+row*.32,duration:.3,once:true,damage:this.t.damage*.85,visual:'carpet-bomb',airborneBomb:true,sourceX:source.x,sourceY:source.y,tag:this.id+':payload'});
+  const lane=this.laneWarnings.find(l=>l.safe);if(lane)impactPulse(this,{x:lane.x,y:b.top+height*.6,radius:Math.min(115,(b.right-b.left)/3*.48),warning:5,source,partId:'bombBay',visual:'carpet-bomb',tag:this.id+':payload'});this.timers.set('ca4-bombs',8);
   this.command('bomb-release',{...source});
  }
  onPartDestroyed(p){super.onPartDestroyed(p);if(p.id==='bombBay'&&!this.bayRuptured){this.bayRuptured=true;this.bombRunRemaining=0;this.laneWarnings=[];this.bayExpose=0;this.command('cancel-hazards',{tag:this.id+':payload'});

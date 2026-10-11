@@ -16,7 +16,7 @@ import {installCityAir} from './city-air1.js?v=gal1';
 import {installRegionDoctrine} from './region-doctrine1.js?v=gal1';
 import {installLondonBattle} from './london-battle.js?v=gal1';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=gal1';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=bomb3&hints=1&rail=42';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=bomb4&hints=1&rail=42';
 import {installBuildCombatIdentity} from './build-combat-identity.js?v=gal1';
 import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=gal1';
 import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=gal1';
@@ -341,7 +341,7 @@ Game.prototype._updCombat=function(dt,input={}){
   e.bombTimer=(e.bombTimer??3)-step;
   if(e.bombTimer<=0&&Math.hypot(e.x-this.x,e.y-this.y)<650){
    e.bombTimer=4.2;const dx=Math.cos(this.a),dy=Math.sin(this.a);
-   for(let i=0;i<3;i++)this.bombZones.push({x:this.x+dx*(i-1)*95,y:this.y+dy*(i-1)*95,sx:e.x,sy:e.y,delay:1.5+i*.22,maxDelay:1.5+i*.22,radius:52,damage:22+Math.floor(this.t/90)});
+   for(let i=0;i<5;i++)this.bombZones.push({x:this.x+dx*(i-2)*95,y:this.y+dy*(i-2)*95,sx:e.x,sy:e.y,delay:2.3+i*.28,maxDelay:2.3+i*.28,radius:52,damage:22+Math.floor(this.t/90)});
    this.event('bombWarning','폭격 투하! 붉은 표적을 벗어나세요');
   }
  }
