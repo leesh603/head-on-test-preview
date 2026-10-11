@@ -1,4 +1,4 @@
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb13&rail=42';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb14&rail=42';
 
 export function bossHudModel(encounter) {
   if(!encounter||encounter.completed)return null;
