@@ -1,5 +1,5 @@
 {
- "v": 46,
+ "v": 47,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -2065,12 +2065,12 @@
      "name": "Nieuport 17",
      "year": 1916,
      "role": "전투기",
-     "base": "../nieuport.webp",
+     "base": "planes/nieuport17_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Lufbery",
-       "file": "../lufbery_nieuport17.webp"
+       "file": "aces/lufbery_nieuport17.webp"
       },
       {
        "kind": "livery",
