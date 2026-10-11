@@ -36,6 +36,7 @@ test('long camera travel has hard troop/FX ceilings and cannot alter canvas stat
   const stats=drawTrenchFrontline(c,n*67-9000,n*37-4000,density===1?1920:390,density===1?1080:844,1254,n*.19,density,{unit(){draws++},fx(c,key){fx++;fxKeys.add(key)}});
   assert.ok(stats.troops<=(density===1?TRENCH_LIMITS.troops:TRENCH_LIMITS.mobileTroops));
   assert.ok(stats.sectors<=(density===1?6:3));assert.ok(fx<=(density===1?48:24));assert.ok(draws<=stats.troops+1);
+  assert.ok(stats.plumes<=(density===1?14:7),'broad smoke has its own viewport ceiling');
   assert.equal(c.globalAlpha,.63);
  }
  assert.ok(fxKeys.has('muzzle')&&fxKeys.has('dirtBurst')&&fxKeys.has('smokeDust')&&fxKeys.has('fireGround'));

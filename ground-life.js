@@ -156,7 +156,7 @@ export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
  if(!sprites.length||!Number.isFinite(period)||period<=0||!Number.isFinite(t)||density<=0)return;
  if(key==='trenches'){
   groundFxRemaining=density<.7?24:48;
-  const stats=drawTrenchFrontline(c,left,top,width,height,period,t,density,{unit:trenchUnit,fx:groundFx});
+  const stats=drawTrenchFrontline(c,left,top,width,height,period,t,density,{unit:trenchUnit,fx:groundFx,ready:sprites.length===12});
   groundLifeStats.vehicles=stats.vehicles;groundLifeStats.groups=stats.sectors;groundLifeStats.emitters=stats.fx;
   groundFxRemaining=Infinity;return;
  }

@@ -1,13 +1,14 @@
-// Run against an un-deployed branch served locally. Baseline changes ONLY the
-// ground-life response to the pinned main blob; both run the real app/engine.
+// Run against an un-deployed branch served locally. Pin both ground modules
+// for baseline comparisons, including revisions of the same feature branch.
 import {createRequire} from 'node:module';
 import {execFileSync} from 'node:child_process';
 import {mkdirSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 const require=createRequire(import.meta.url),{chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
-const root=process.env.QA_OUTPUT||'reports/trench-frontline',base=process.env.QA_BASE||'49aa69849cb4c3f614ebe7a516ee0aa566f4ffcf';
+const root=process.env.QA_OUTPUT||'reports/trench-frontline',base=process.env.QA_BASE||'15564e8d059ce98fc70e2c7deeaa1b1d0af3c5cd';
 const url=process.env.QA_URL||'http://127.0.0.1:8765/trench/';mkdirSync(root,{recursive:true});
 const before=execFileSync('git',['show',base+':ground-life.js'],{encoding:'utf8'});
+let beforeFrontline;try{beforeFrontline=execFileSync('git',['show',base+':trench-frontline.js'],{encoding:'utf8',stdio:['ignore','pipe','ignore']});}catch{/* Original main predates this module. */}
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH,args:['--no-sandbox']});
 const results=[],errors=[];
 async function boot(label,mobile=false,baseline=false,live=false){
@@ -15,6 +16,7 @@ async function boot(label,mobile=false,baseline=false,live=false){
  const page=await context.newPage();page.on('pageerror',e=>errors.push({label,error:e.message}));page.on('console',m=>{if(m.type()==='error'&&m.text().includes('[headon]'))errors.push({label,error:m.text()});});
  if(!live){
   if(baseline)await page.route('**/ground-life.js*',route=>route.fulfill({contentType:'text/javascript',body:before}));
+  if(baseline&&beforeFrontline)await page.route('**/trench-frontline.js*',route=>route.fulfill({contentType:'text/javascript',body:beforeFrontline}));
   await page.route('**/app.js*',async route=>{
    const r=await route.fetch();let text=await r.text();
    const call='drawMovingDressing(ctx,key,cx-W/2,cy-H/2,W,H,terrainAlpsRenderer.sizeFor(key),game?.t??ambient,detailDensity);';

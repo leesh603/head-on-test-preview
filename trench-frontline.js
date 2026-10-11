@@ -10,7 +10,7 @@ export const TRENCH_SECTORS=Object.freeze([
  {id:'southern-aid-post',u:.630,v:.652,line:.10,aim:-1.90,role:'defend',count:6,offset:20,support:'stretcher',rear:[[10,22],[25,44],[41,61]],fire:true}
 ]);
 export const TRENCH_LIMITS=Object.freeze({sectors:6,mobileSectors:3,troops:96,mobileTroops:48,fx:48,mobileFx:24});
-export const trenchFrontlineStats={sectors:0,troops:0,fx:0,props:0,vehicles:0,assets:false};
+export const trenchFrontlineStats={sectors:0,troops:0,fx:0,props:0,vehicles:0,assets:false,cacheBuilds:0};
 const mod=(x,n)=>(x%n+n)%n,clamp=x=>Math.max(0,Math.min(1,x));
 const smooth=x=>{x=clamp(x);return x*x*(3-2*x)};
 const hash=(x,y)=>(Math.imul(x,73856093)^Math.imul(y,19349663))>>>0;
@@ -78,6 +78,62 @@ function prop(c,index,x,y,size,a=0,alpha=.86){
  c.save();c.translate(x,y);c.rotate(a);c.globalAlpha*=alpha;c.drawImage(im,-w/2,-h/2,w,h);c.restore();trenchFrontlineStats.props++;
 }
 const soldier={},support={};
+// Widen the six engagements into damaged defensive belts. All inert dressing
+// is baked once into ONE 1024² transparent master (4 MiB), reused across tiles.
+// No extra downloaded art, live filters, per-frame debris draws or world history.
+let damageMaster;
+function drawDamageBelt(c,left,top,width,height,period,paint){
+ if(!paint.ready||supportImages.length!==4||typeof document==='undefined')return;
+ if(!damageMaster){
+  damageMaster=document.createElement('canvas');damageMaster.width=damageMaster.height=1024;
+  const g=damageMaster.getContext('2d');if(!g){damageMaster=null;return;}
+  g.scale(1024/1254,1024/1254);trenchFrontlineStats.cacheBuilds++;
+  for(const s of TRENCH_SECTORS){
+   const x=s.u*1254,y=s.v*1254,tx=Math.cos(s.line),ty=Math.sin(s.line),ax=Math.cos(s.aim),ay=Math.sin(s.aim);
+   prop(g,2,x-tx*38,y-ty*38,44,s.line,.84);
+   prop(g,3,x+ax*62,y+ay*62,66,s.line,.78);
+   prop(g,1,x-ax*13-tx*22,y-ay*13-ty*22,12,s.line);
+   for(let n=0;n<2;n++)paint.unit(g,11,x+ax*(38+n*16)+tx*(n?28:-29),y+ay*(38+n*16)+ty*(n?28:-29),18,s.aim+1.1+n,.64);
+   for(const [n,along] of [-126,-75,74,128].entries()){
+    const bx=x+tx*along,by=y+ty*along;
+    prop(g,2,bx,by,48+n%2*16,s.line+(n%2?-.13:.12),.78);
+    prop(g,3,bx+ax*(45+n%2*19),by+ay*(45+n%2*19),62+n%2*18,s.line+.12,.72);
+    if(n%2===0)paint.unit(g,11,bx+ax*33,by+ay*33,18,s.aim+1.7,.66);
+   }
+   // Supply stacks stay behind the line, rather than scattered in open ground.
+   for(let n=0;n<5;n++)prop(g,1,x-ax*43+tx*(n%3*15-15),y-ay*43+ty*(n%3*15-15)+Math.floor(n/3)*10,17,s.line,.85);
+  }
+ }
+ const x1=Math.floor(left/period),x2=Math.floor((left+width)/period),y1=Math.floor(top/period),y2=Math.floor((top+height)/period);
+ for(let iy=y1;iy<=y2;iy++)for(let ix=x1;ix<=x2;ix++){
+  c.drawImage(damageMaster,ix*period-left,iy*period-top,period,period);trenchFrontlineStats.cachedTiles++;
+ }
+}
+
+// Three broad, slow plumes per authored sector bridge the empty spaces between
+// squads. Budgeted image stamps, not particles; central combat stays uncovered.
+function drawFrontSmoke(c,left,top,width,height,period,t,low,effect){
+ const max=low?7:14;let plumes=0,fireSites=0;
+ for(const item of visibleSectors(left,top,width,height,period)){
+  const s=item.sector,tx=Math.cos(s.line),ty=Math.sin(s.line),ax=Math.cos(s.aim),ay=Math.sin(s.aim);
+  for(let n=0;n<3;n++){
+   const along=n===0?-98:n===1?106:20,forward=n===2?180:19;
+   const x=item.x-left+tx*along+ax*forward,y=item.y-top+ty*along+ay*forward;
+   if(x<-100||y<-70||x>width+90||y>height+160||plumes>=max)continue;
+   const clock=Math.floor(t*(low?8:12))/(low?8:12),phase=clock*.11+s.offset+n*2.1+(item.seed%17);
+   const burning=n===0&&(s.fire||s.id==='west-over-top'||s.id==='east-wire');
+   // Fire remains tied to wreckage and parapets, not arbitrary terrain points.
+   if(burning&&fireSites<(low?2:4)){
+    fireSites++;effect('fireGround',x,y+3,48+Math.sin(t*7+s.offset)*3,34,0,.76);
+    effect('fireGround',x+19,y-3,30,23,0,.53+.08*Math.sin(t*9));
+   }
+   const sway=Math.sin(phase)*9,breath=1+Math.sin(phase*.71)*.09;
+   effect(burning?'smokeDark':'smokeDust',x+19+sway,y-34, (burning?150:195)*breath,(burning?184:150)*breath,-.25,.51+Math.sin(phase*.83)*.045);
+   plumes++;
+  }
+ }
+ trenchFrontlineStats.plumes=plumes;trenchFrontlineStats.fireSites=fireSites;
+}
 // Viewport-only cache (at most 54 candidates), not an unbounded world registry.
 let cacheKey='',candidates=[];
 function visibleSectors(left,top,width,height,period){
@@ -96,9 +152,11 @@ function visibleSectors(left,top,width,height,period){
 
 export function drawTrenchFrontline(c,left,top,width,height,period,t,density,paint){
  const low=density<.7,limit=low?TRENCH_LIMITS.mobileSectors:TRENCH_LIMITS.sectors,maxTroops=low?TRENCH_LIMITS.mobileTroops:TRENCH_LIMITS.troops,maxFx=low?TRENCH_LIMITS.mobileFx:TRENCH_LIMITS.fx;
- Object.assign(trenchFrontlineStats,{sectors:0,troops:0,fx:0,props:0,vehicles:0});loadTrenchSupport();
+ Object.assign(trenchFrontlineStats,{sectors:0,troops:0,fx:0,props:0,vehicles:0,cachedTiles:0,plumes:0,fireSites:0});loadTrenchSupport();
  let fires=0;
  const effect=(...args)=>{if(trenchFrontlineStats.fx>=maxFx)return;trenchFrontlineStats.fx++;paint.fx(c,...args)};
+ drawDamageBelt(c,left,top,width,height,period,paint);
+ drawFrontSmoke(c,left,top,width,height,period,t,low,effect);
  for(const item of visibleSectors(left,top,width,height,period)){
   const {sector:s,seed}=item,x0=item.x-left,y0=item.y-top;
   if(x0<-125||y0<-125||x0>width+125||y0>height+125)continue;
@@ -110,11 +168,7 @@ export function drawTrenchFrontline(c,left,top,width,height,period,t,density,pai
   const peripheral=Math.abs(x0-width/2)>width*.38||Math.abs(y0-height/2)>height*.38,hz=peripheral?12:24;
   const clock=trenchClock(t,seed,s),poseClock=trenchClock(Math.floor(t*hz)/hz,seed,s);
   const tx=Math.cos(s.line),ty=Math.sin(s.line),ax=Math.cos(s.aim),ay=Math.sin(s.aim);
-  // Shell-smashed parapet and breached wire are anchored to this engagement.
-  prop(c,2,x0-tx*38,y0-ty*38,44,s.line,.84);
-  prop(c,3,x0+ax*62,y0+ay*62,66,s.line,.78);
-  prop(c,1,x0-ax*13-tx*22,y0-ay*13-ty*22,12,s.line);
-  for(let n=0;n<2;n++)paint.unit(c,11,x0+ax*(38+n*16)+tx*(n?28:-29),y0+ay*(38+n*16)+ty*(n?28:-29),18,s.aim+1.1+n,.64);
+  // The inert parapet, wire, supply stacks and casualties are in damageMaster.
   for(let n=0;n<s.count;n++){
    const p=trenchSoldierPose(s,n,poseClock,soldier),x=x0+tx*p.along+ax*p.forward,y=y0+ty*p.along+ay*p.forward;
    const stride=p.moving?Math.sin(t*12+n*2.3):0;
