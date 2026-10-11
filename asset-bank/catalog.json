@@ -1,5 +1,5 @@
 {
- "v": 86,
+ "v": 87,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -1113,7 +1113,7 @@
       {
        "kind": "alt",
        "name": "인게임형",
-       "file": "../siemens_d4.webp"
+       "file": "planes/siemens_d4_clean.webp"
       },
       {
        "kind": "livery",
