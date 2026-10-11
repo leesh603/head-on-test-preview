@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {doverPatrolChart,doverPatrolSpawn,doverHullMargin} from '../dover-patrol-chart.js?v=dover3';
-import {doverCoastPoint,paintDoverTerrain} from '../dover-terrain-render.js?v=dover4';
+import {doverCoastPoint,paintDoverTerrain} from '../dover-terrain-render.js?v=dover5';
 
 function trace(){
  const draws=[],transforms=[],layers=[];

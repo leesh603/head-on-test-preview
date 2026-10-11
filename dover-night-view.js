@@ -1,4 +1,4 @@
-import {paintDoverTerrain,doverCoastPoint} from './dover-terrain-render.js?v=dover4';
+import {paintDoverTerrain,doverCoastPoint} from './dover-terrain-render.js?v=dover5';
 import {DOVER_PART_CLIPS} from './dover-night-bosses.js?v=dover3';
 import {fx} from './fx-art.js?v=gal1';
 import {drawBossOrdnance} from './boss-ordnance-art.js?v=gal1';
