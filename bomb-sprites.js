@@ -3,7 +3,7 @@
 // cells are 128px webp with the nose pointing right, matching the 'bomb' atlas key.
 const FILES = { cooper: 'bomb-cooper.webp', puw: 'bomb-puw.webp', hales: 'bomb-hales.webp' };
 // Slender variants draw wider so every faction's bomb keeps the same on-screen thickness.
-const SIZE_K = { cooper: 1.3, puw: 1.9, hales: 1.55 };
+const SIZE_K = { cooper: 1.3, puw: 2.6, hales: 1.55 };
 const IMGS = new Map();
 function img(v) {
   let im = IMGS.get(v);
