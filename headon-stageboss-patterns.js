@@ -20,7 +20,7 @@ import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=gal1';
 import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=gal1';
 import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=gal1';
 import {apronPose} from './london-apron369.js?v=gal1';
-import {GIK,Ca4} from './alps-bomber-combat.js?v=bomb8&rail=42';
+import {GIK,Ca4} from './alps-bomber-combat.js?v=bomb9&rail=42';
 import {FlakTowerNet} from './city-flak-combat.js?v=gal1&rail=42';
 
 export {GIK,Ca4};
