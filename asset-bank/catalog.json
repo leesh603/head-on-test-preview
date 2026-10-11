@@ -1,5 +1,5 @@
 {
- "v": 31,
+ "v": 32,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -568,57 +568,57 @@
      "name": "Fokker Dr.I",
      "year": 1917,
      "role": "전투기",
-     "base": "../fokker_standard.webp",
+     "base": "planes/fokker_dr1_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "M. v. Richthofen (전체 적색)",
-       "file": "../fokker.webp"
+       "file": "aces/fokker_red.webp"
       },
       {
        "kind": "alt",
        "name": "F.I 시제기 (보스형)",
-       "file": "../fokker_f1.webp"
+       "file": "aces/fokker_f1.webp"
       },
       {
        "kind": "ace",
        "name": "Lothar v. Richthofen",
-       "file": "../lothar_dr1.webp"
+       "file": "aces/lothar_dr1.webp"
       },
       {
        "kind": "ace",
        "name": "Mai",
-       "file": "../mai_dr1.webp"
+       "file": "aces/mai_dr1.webp"
       },
       {
        "kind": "ace",
        "name": "Hantelmann",
-       "file": "../hantelmann_dr1.webp"
+       "file": "aces/hantelmann_dr1.webp"
       },
       {
        "kind": "ace",
        "name": "Beaulieu",
-       "file": "../beaulieu_dr1.webp"
+       "file": "aces/beaulieu_dr1.webp"
       },
       {
        "kind": "ace",
        "name": "Jacobs",
-       "file": "../fokker_jacobs.webp"
+       "file": "aces/fokker_jacobs.webp"
       },
       {
        "kind": "ace",
        "name": "Jacobs (2)",
-       "file": "../fokker_jacobs_v2.webp"
+       "file": "aces/fokker_jacobs_v2.webp"
       },
       {
        "kind": "ace",
        "name": "Gontermann",
-       "file": "../gontermann_fokker.webp"
+       "file": "aces/gontermann_fokker.webp"
       },
       {
        "kind": "ace",
        "name": "Gontermann (2)",
-       "file": "../gontermann_fokker_v2.webp"
+       "file": "aces/gontermann_fokker_v2.webp"
       },
       {
        "kind": "livery",
