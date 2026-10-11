@@ -1,5 +1,5 @@
 {
- "v": 37,
+ "v": 38,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -697,12 +697,12 @@
      "name": "Fokker D.V",
      "year": 1917,
      "role": "전투기",
-     "base": "../fokkerdv.webp",
+     "base": "planes/fokker_d5_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Udet",
-       "file": "../udet_fokkerdv.webp"
+       "file": "aces/udet_fokkerdv.webp"
       },
       {
        "kind": "livery",
