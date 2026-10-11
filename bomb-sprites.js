@@ -3,14 +3,14 @@
 // cells are 128px webp with the nose pointing right, matching the 'bomb' atlas key.
 const FILES = { cooper: 'bomb-cooper.webp', puw: 'bomb-puw.webp', hales: 'bomb-hales.webp' };
 // Every variant draws into the same short-and-chubby box so on-screen size is uniform.
-const BOX_W = 1.5, BOX_H = 0.58; // call w=52 -> ~78x30px
+const BOX_W = 1.05, BOX_H = 0.42; // call w=52 -> ~55x22px
 const IMGS = new Map();
 function img(v) {
   let im = IMGS.get(v);
   if (im === undefined) {
     if (typeof Image === 'undefined') return null;
     im = new Image(); im.decoding = 'async';
-    im.src = new URL('./' + FILES[v] + '?v=bomb11', import.meta.url).href;
+    im.src = new URL('./' + FILES[v] + '?v=bomb12', import.meta.url).href;
     IMGS.set(v, im);
   }
   return im;
