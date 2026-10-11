@@ -16,7 +16,7 @@ import {installCityAir} from './city-air1.js?v=gal1';
 import {installRegionDoctrine} from './region-doctrine1.js?v=gal1';
 import {installLondonBattle} from './london-battle.js?v=gal1';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=gal1';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=bomb18&hints=1&rail=42';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=bomb19&hints=1&rail=42';
 import {installBuildCombatIdentity} from './build-combat-identity.js?v=gal1';
 import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=gal1';
 import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=gal1';
@@ -886,7 +886,11 @@ AIRFRAME_PROFILES.albatros_d2=Object.freeze({...AIRFRAME_PROFILES.albatros,speed
 PLANES.albatros_d2={...PLANES.albatros,name:'알바트로스 D.II',speed:140,turn:2.85,role:'초기 알바트로스',handling:AIRFRAME_PROFILES.albatros_d2};
 WEAPONS.albatros_d2={...WEAPONS.albatros};
 configureAirframeBalance(PLANES.albatros_d2,110);configureAirframeBalance(PLANES.baron_albatros,115);
-PILOT_PLANES.boelcke='albatros_d2';
+// Boelcke flies his own marked D.II; generic albatros_d2 spawns keep the stock livery.
+PLANES.boelcke_albatros={...PLANES.albatros_d2,name:'알바트로스 D.II · 뵐케 도안',handling:PLANES.albatros_d2.handling};
+WEAPONS.boelcke_albatros={...WEAPONS.albatros_d2};
+configureAirframeBalance(PLANES.boelcke_albatros,110);
+PILOT_PLANES.boelcke='boelcke_albatros';
 export function pilotLoadout(pilot,plane){const p=PILOTS[pilot];return pilot==='baron'&&plane==='baron_albatros'?{...p,skill:'태양을 등진 사냥꾼',passive:'붉은 전투기 조종사',passiveDesc:'이동속도와 선회력이 증가합니다.',desc:'4초간 전방 적을 제압합니다. 적의 바로 뒤에서 공격하면 추가 피해를 줍니다.',cooldown:PILOT_BALANCE.cooldowns.baron_albatros}:p}
 Game.prototype.isRedHunter=function(){return this.pilot==='baron'&&this.plane==='baron_albatros'};
 Game.prototype._sklAirframe=function(){if(!this.isRedHunter())return this._sklDuo();if(this.state!=='playing'||this.cooldown>0)return false;this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();this.event('skill','태양을 등진 사냥꾼');return true};

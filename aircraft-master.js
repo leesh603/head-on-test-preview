@@ -186,7 +186,7 @@ const pilotRows = [
   ["baron","fokker_red",["baron_albatros"]],
   ["fonck","camel",[]],
   ["voss","fokker_voss",[]],
-  ["boelcke","albatros_d2",[]],
+  ["boelcke","boelcke_albatros",[]],
   ["collishaw","collishaw_sopwith",[]],
   ["baracca","baracca_nieuport",[]],
   ["udet","udet_fokkerdv",[]],

@@ -78,7 +78,7 @@ const rows=[
 
 const aliases={
  dh2:'airco_dh2',bristol:'bristol_duo',halberstadt:'halberstadt_duo',fokker_campaign:'fokker',fokker_d7_campaign:'fokkerd7',
- nieuport_italian:'nieuport',baron_albatros:'albatros',wolff_albatros:'albatros',loewenhardt_fokkerd7:'fokkerd7',mccudden_se5a:'se5a',nungesser_nieuport24:'nieuport24',fokker_jacobs:'fokker',
+ nieuport_italian:'nieuport',baron_albatros:'albatros',wolff_albatros:'albatros',boelcke_albatros:'albatros_d2',loewenhardt_fokkerd7:'fokkerd7',mccudden_se5a:'se5a',nungesser_nieuport24:'nieuport24',fokker_jacobs:'fokker',
  goering_fokkerd7:'fokkerd7',collishaw_sopwith:'sopwith',guynemer_spad:'spad12',udet_fokkerdv:'fokkerdv',baracca_nieuport:'nieuport',berthold_pfalz:'pfalz_d3a',
  rickenbacker_spad:'spad',ball_se5a:'se5a',barker_snipe:'snipe',luke_nieuport28:'nieuport28',brumowski_albatros:'albatros',gontermann_fokker:'fokker',
  fokker_standard:'fokker',fokker_f1:'fokker',fokker_red:'fokker',fokker_voss:'fokker',
@@ -118,7 +118,7 @@ export function registerAircraftTiers(planes){
 const EMPTY_MECHANICS=Object.freeze({});
 // A model tier applies to every player fit, but new handling/gun refinements
 // leave dedicated pilot fits alone. Their existing aircraft traits still apply.
-const DEDICATED_FITS=new Set(['baron_albatros','wolff_albatros','loewenhardt_fokkerd7','mccudden_se5a','nungesser_nieuport24','fokker_jacobs','goering_fokkerd7','collishaw_sopwith','guynemer_spad','udet_fokkerdv','baracca_nieuport','berthold_pfalz','rickenbacker_spad','ball_se5a','barker_snipe','luke_nieuport28','brumowski_albatros','gontermann_fokker']);
+const DEDICATED_FITS=new Set(['baron_albatros','wolff_albatros','loewenhardt_fokkerd7','mccudden_se5a','nungesser_nieuport24','fokker_jacobs','goering_fokkerd7','collishaw_sopwith','guynemer_spad','udet_fokkerdv','baracca_nieuport','berthold_pfalz','rickenbacker_spad','ball_se5a','barker_snipe','luke_nieuport28','brumowski_albatros','gontermann_fokker','boelcke_albatros']);
 export function aircraftTailPursuit(game){return DEDICATED_FITS.has(game.plane)?EMPTY_MECHANICS:aircraftTierFor(game.plane)?.mechanics||EMPTY_MECHANICS}
 export function aircraftGunSpreadMultiplier(game){return aircraftTailPursuit(game).gunSpreadMultiplier??1}
 export function aircraftReloadMultiplier(game){return aircraftTailPursuit(game).reloadMultiplier??1}
