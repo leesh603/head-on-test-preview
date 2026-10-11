@@ -1,5 +1,5 @@
 {
- "v": 47,
+ "v": 62,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -60,7 +60,7 @@
      "name": "Fokker Eindecker",
      "year": 1915,
      "role": "전투기",
-     "base": "../eindecker.webp",
+     "base": "planes/eindecker_clean.webp",
      "variants": [
       {
        "kind": "alt",
@@ -114,12 +114,12 @@
      "name": "Albatros D.II",
      "year": 1916,
      "role": "전투기",
-     "base": "../albatros_d2.webp",
+     "base": "planes/albatros_d2_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Boelcke",
-       "file": "../boelcke_albatros.webp"
+       "file": "aces/boelcke_albatros.webp"
       },
       {
        "kind": "livery",
@@ -576,6 +576,126 @@
        "file": "aces/fokker_red.webp"
       },
       {
+        "kind": "ace",
+        "name": "M. v. Richthofen (152/17 부분적색)",
+        "file": "aces/mvr_dr1_15217.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Udet (LO!)",
+        "file": "aces/udet_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Göring (순백)",
+        "file": "aces/goering_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Rahn (백띠)",
+        "file": "aces/rahn_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Wenzl (흑백줄무늬)",
+        "file": "aces/wenzl_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "K. Wolff (올리브+적색)",
+        "file": "aces/kwolff_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Bolle (체커보드)",
+        "file": "aces/bolle_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Allmenröder (백카울)",
+        "file": "aces/allmenroder_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Kempf (문구)",
+        "file": "aces/kempf_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Mohnicke (백띠)",
+        "file": "aces/mohnicke_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Reinhard (적/흑백)",
+        "file": "aces/reinhard_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Hemer (지그재그)",
+        "file": "aces/hemer_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Beckmann (흑테두리)",
+        "file": "aces/beckmann_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Monkowius (파이프)",
+        "file": "aces/monkowius_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Böning (바이에른)",
+        "file": "aces/boening_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "H. Weiss (백꼬리)",
+        "file": "aces/hweiss_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Dobrowolski (황카울)",
+        "file": "aces/dobrowolski_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Friedrichs (황카울)",
+        "file": "aces/friedrichs_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Grassmann (황카울)",
+        "file": "aces/grassmann_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Billik (흑+백십자)",
+        "file": "aces/billik_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Klimke (닻)",
+        "file": "aces/klimke_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Papenmeyer (스페이드)",
+        "file": "aces/papenmeyer_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Löwenhardt (황색)",
+        "file": "aces/loewenhardt_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Siegle (사선띠)",
+        "file": "aces/siegle_dr1.webp"
+      },
+      {
        "kind": "alt",
        "name": "F.I 시제기 (보스형)",
        "file": "aces/fokker_f1.webp"
@@ -951,7 +1071,7 @@
      "name": "Junkers J.I",
      "year": 1917,
      "role": "지상공격기",
-     "base": "../junkers_j1.webp",
+     "base": "planes/junkers_j1_clean.webp",
      "variants": [
       {
        "kind": "alt",
@@ -985,7 +1105,7 @@
      "name": "Hannover CL.III",
      "year": 1918,
      "role": "지상공격기",
-     "base": "../hannover_cl3.webp",
+     "base": "planes/hannover_cl3_clean.webp",
      "variants": [
       {
        "kind": "alt",
@@ -1019,7 +1139,7 @@
      "name": "DFW C.V",
      "year": 1917,
      "role": "정찰기",
-     "base": "../dfw_cv.webp",
+     "base": "planes/dfw_cv_clean.webp",
      "variants": [
       {
        "kind": "livery",
@@ -1048,7 +1168,7 @@
      "name": "Halberstadt CL형",
      "year": 1917,
      "role": "지상공격기",
-     "base": "../halberstadt_duo.webp",
+     "base": "planes/halberstadt_duo_clean.webp",
      "variants": [
       {
        "kind": "livery",
@@ -1553,12 +1673,12 @@
      "name": "Albatros D.III (Oeffag)",
      "year": 1917,
      "role": "전투기",
-     "base": "../brumowski_albatros.webp",
+     "base": "planes/albatros_oeffag_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Brumowski (2)",
-       "file": "../brumowski_albatros_v2.webp"
+       "file": "aces/brumowski_albatros_v2.webp"
       },
       {
        "kind": "livery",
@@ -2188,22 +2308,22 @@
      "name": "Nieuport 28",
      "year": 1918,
      "role": "전투기",
-     "base": "../nieuport28.webp",
+     "base": "planes/nieuport28_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Eagle",
-       "file": "../eagle_nieuport28.webp"
+       "file": "aces/eagle_nieuport28.webp"
       },
       {
        "kind": "ace",
        "name": "Luke",
-       "file": "../luke_nieuport28.webp"
+       "file": "aces/luke_nieuport28.webp"
       },
       {
        "kind": "ace",
        "name": "Luke (2)",
-       "file": "../luke_nieuport28_v2.webp"
+       "file": "aces/luke_nieuport28_v2.webp"
       },
       {
        "kind": "squadron",
@@ -2572,17 +2692,17 @@
      "name": "Sopwith Snipe",
      "year": 1918,
      "role": "전투기",
-     "base": "../snipe.webp",
+     "base": "planes/snipe_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Barker",
-       "file": "../barker_snipe.webp"
+       "file": "aces/barker_snipe.webp"
       },
       {
        "kind": "ace",
        "name": "Barker (2)",
-       "file": "../barker_snipe_v2.webp"
+       "file": "aces/barker_snipe_v2.webp"
       },
       {
        "kind": "livery",
@@ -2631,7 +2751,7 @@
      "name": "S.E.5a",
      "year": 1917,
      "role": "전투기",
-     "base": "../se5a.webp",
+     "base": "planes/se5a_clean.webp",
      "variants": [
       {
        "kind": "ace",
@@ -2908,12 +3028,12 @@
      "name": "Hanriot HD.1",
      "year": 1917,
      "role": "전투기",
-     "base": "../hanriot.webp",
+     "base": "planes/hanriot_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Coppens",
-       "file": "../coppens_hanriot.webp"
+       "file": "aces/coppens_hanriot.webp"
       },
       {
        "kind": "livery",
@@ -3722,7 +3842,7 @@
      "name": "Macchi M.5",
      "year": 1917,
      "role": "비행전투정",
-     "base": "../macchi_m5.webp",
+     "base": "planes/macchi_m5_clean.webp",
      "variants": [
       {
        "kind": "alt",
@@ -3874,7 +3994,7 @@
      "name": "Felixstowe F.2",
      "year": 1918,
      "role": "비행정",
-     "base": "../felixstowe_f2.webp",
+     "base": "planes/felixstowe_f2_clean.webp",
      "variants": [
       {
        "kind": "alt",
@@ -3928,7 +4048,7 @@
      "name": "Handley Page O/400",
      "year": 1918,
      "role": "중폭격기",
-     "base": "../handley-page.webp",
+     "base": "planes/hp_o400_clean.webp",
      "variants": [
       {
        "kind": "alt",
