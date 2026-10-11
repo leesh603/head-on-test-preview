@@ -1,5 +1,5 @@
 {
- "v": 42,
+ "v": 43,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -1460,17 +1460,17 @@
      "name": "Aviatik (Berg) D.I",
      "year": 1917,
      "role": "전투기",
-     "base": "../aviatik_d1.webp",
+     "base": "planes/aviatik_d1_clean.webp",
      "variants": [
       {
        "kind": "alt",
        "name": "인게임형2",
-       "file": "../aviatik.webp"
+       "file": "aces/aviatik_ingame.webp"
       },
       {
        "kind": "ace",
        "name": "Arigi",
-       "file": "../arigi_aviatik.webp"
+       "file": "aces/arigi_root_aviatik.webp"
       },
       {
        "kind": "ace",
