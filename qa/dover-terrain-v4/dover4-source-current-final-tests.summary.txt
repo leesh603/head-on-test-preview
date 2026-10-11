@@ -1,0 +1,13 @@
+ℹ Error: A resource generated asynchronous activity after the test ended. This activity created the error "ReferenceError: location is not defined" which triggered an unhandledRejection event, caught by the test runner.
+ℹ Error: A resource generated asynchronous activity after the test ended. This activity created the error "Error: Jutland asset parts" which triggered an unhandledRejection event, caught by the test runner.
+ℹ Error: A resource generated asynchronous activity after the test ended. This activity created the error "Error: Naval hull asset entente_light" which triggered an unhandledRejection event, caught by the test runner.
+ℹ Error: A resource generated asynchronous activity after the test ended. This activity created the error "Error: Naval hull asset entente_light" which triggered an unhandledRejection event, caught by the test runner.
+ℹ Error: A resource generated asynchronous activity after the test ended. This activity created the error "ReferenceError: location is not defined" which triggered an unhandledRejection event, caught by the test runner.
+ℹ tests 853
+ℹ suites 0
+ℹ pass 531
+ℹ fail 322
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 51856.556515

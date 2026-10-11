@@ -1,0 +1,10 @@
+  syntax: 205 modules checked
+  imports: 1890 resolved, 7 skipped (dynamic/dev), 7 missing
+validate: 7 problem(s)
+  FAIL make-gallery.js: missing import/script target ./${it.f}
+  FAIL asset-gallery.html: missing import/script target ./asset-bank/bosses/armored_cruiser.webp
+  FAIL asset-gallery.html: missing import/script target ./asset-bank/bosses/balloon_tender.webp
+  FAIL asset-gallery.html: missing import/script target ./asset-bank/bosses/carrier_furious.webp
+  FAIL asset-gallery.html: missing import/script target ./asset-bank/bosses/friedrichshafen_g3.webp
+  FAIL asset-gallery.html: missing import/script target ./asset-bank/bosses/monitor.webp
+  FAIL asset-gallery.html: missing import/script target ./asset-bank/bosses/uboat.webp

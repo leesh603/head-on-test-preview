@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
 import {doverPatrolChart,doverPatrolSpawn,doverHullMargin} from '../dover-patrol-chart.js?v=dover3';
 import {doverCoastPoint,paintDoverTerrain} from '../dover-terrain-render.js?v=dover4';
 
@@ -30,12 +31,24 @@ test('Both visible shores use original ground materials and bounded native-densi
 });
 
 test('Camera movement preserves the same world-anchored coast texture through segment and material joins',()=>{
- const chart=doverPatrolChart({x:0,y:0}),p=doverCoastPoint(chart,.3,-1),frames=[];
- for(const dx of [0,7]){
-  const t=trace(),cx=p.x+170+dx,cy=p.y;paintDoverTerrain(t.c,chart,cx,cy,1280,800,coast,t.renderer);
-  frames.push(t.transforms.map((m,i)=>[...m.slice(0,4),m[4]+cx-640,m[5]+cy-400,t.draws[i][2],t.draws[i][4]].map(x=>Math.round(x*1e6)/1e6)));
+ const chart=doverPatrolChart({x:0,y:0});
+ for(const side of [-1,1])for(const row of [.11,.3,.61,.87]){
+  const p=doverCoastPoint(chart,row,side),frames=[];
+  for(const [dx,dy] of [[0,0],[7,45],[7,450]]){
+   const t=trace(),cx=p.x-side*170+dx,cy=p.y+dy;paintDoverTerrain(t.c,chart,cx,cy,1280,800,coast,t.renderer);
+   const vertices=new Map();
+   for(let i=0;i<t.transforms.length;i++){
+    const m=t.transforms[i],world=[...m.slice(0,4),m[4]+cx-640,m[5]+cy-400].map(x=>Math.round(x*1e6)/1e6);
+    vertices.set(JSON.stringify(world),[t.draws[i][2],t.draws[i][4]]);
+   }
+   frames.push(vertices);
+  }
+  for(const frame of frames.slice(1)){
+   let overlap=0;
+   for(const [world,source] of frames[0])if(frame.has(world)){assert.deepEqual(frame.get(world),source);overlap++;}
+   assert(overlap>8,'moving across coastline segments and material periods retains shared world texture coordinates');
+  }
  }
- assert.deepEqual(frames[0],frames[1]);
 });
 
 test('Full patrol hulls remain clear of both rendered coast materials across the finite chart',()=>{
@@ -52,6 +65,7 @@ test('Full patrol hulls remain clear of both rendered coast materials across the
 
 test('The coastal material is a real alpha WebP at its untouched authored pixel dimensions',()=>{
  const b=readFileSync(new URL('../terrain-dover-chalk-material-v4.webp',import.meta.url));
+ assert.equal(createHash('sha1').update(Buffer.from('blob '+b.length+'\0')).update(b).digest('hex'),'00af6005092dc816b20ddefab862c996f6f5bebc','review the measured alpha coastline clearance whenever the authored material changes');
  assert(b.length>100000);assert.equal(b.toString('ascii',0,4),'RIFF');assert.equal(b.toString('ascii',12,16),'VP8L');
  const bits=b.readUInt32LE(21);assert(bits&(1<<28),'lossless alpha flag');
  assert.equal(1+(bits&16383),coast.naturalWidth);assert.equal(1+((bits>>>14)&16383),coast.naturalHeight);

@@ -1,0 +1,3 @@
+Hosted image payload: 233.7 MiB -> 34.6 MiB (229 images)
+Built Worker with 235 text assets and lossless external images
+Deployment staging: .sites-runtime/hosting-package-159
