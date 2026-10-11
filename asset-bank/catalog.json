@@ -1,5 +1,5 @@
 {
- "v": 30,
+ "v": 31,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -302,42 +302,42 @@
      "name": "Albatros D.Va",
      "year": 1917,
      "role": "전투기",
-     "base": "../albatros_d5a.webp",
+     "base": "planes/albatros_d5a_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Berthold",
-       "file": "../berthold_albatros.webp"
+       "file": "aces/berthold_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Schleich",
-       "file": "../schleich_albatros.webp"
+       "file": "aces/schleich_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Schoder",
-       "file": "../schoder_albatros.webp"
+       "file": "aces/schoder_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Büttner",
-       "file": "../buttner_albatros.webp"
+       "file": "aces/buttner_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Müller",
-       "file": "../mueller_albatros.webp"
+       "file": "aces/mueller_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Udet",
-       "file": "../udet_albatros.webp"
+       "file": "aces/udet_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Wolff (2)",
-       "file": "../wolff2_albatros.webp"
+       "file": "aces/wolff2_albatros.webp"
       },
       {
        "kind": "livery",
