@@ -1,5 +1,5 @@
 {
- "v": 69,
+ "v": 70,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -2034,7 +2034,7 @@
      "name": "F.E.2b",
      "year": 1916,
      "role": "전투기",
-     "base": "../fe2b.webp",
+     "base": "planes/fe2b_clean.webp",
      "variants": [
       {
        "kind": "livery",
