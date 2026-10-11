@@ -1,5 +1,5 @@
 {
- "v": 73,
+ "v": 74,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -2536,7 +2536,7 @@
      "name": "Sopwith 1½ Strutter",
      "year": 1916,
      "role": "전투기",
-     "base": "../strutter.webp",
+     "base": "planes/strutter_clean.webp",
      "variants": [
       {
        "kind": "alt",
