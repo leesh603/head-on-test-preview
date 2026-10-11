@@ -1,5 +1,5 @@
 {
- "v": 27,
+ "v": 47,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -168,77 +168,77 @@
      "name": "Albatros D.III",
      "year": 1917,
      "role": "전투기",
-     "base": "../albatros.webp",
+     "base": "planes/albatros_d3_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Richthofen",
-       "file": "../baron_albatros.webp"
+       "file": "aces/baron_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Allmenröder",
-       "file": "../allmenroder_albatros.webp"
+       "file": "aces/allmenroder_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Frommherz",
-       "file": "../frommherz_albatros.webp"
+       "file": "aces/frommherz_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Kirschstein",
-       "file": "../kirschstein_albatros.webp"
+       "file": "aces/kirschstein_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Kissenberth",
-       "file": "../kissenberth_albatros.webp"
+       "file": "aces/kissenberth_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Loerzer",
-       "file": "../loerzer_albatros.webp"
+       "file": "aces/loerzer_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Wolff",
-       "file": "../wolff_albatros.webp"
+       "file": "aces/wolff_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 4",
-       "file": "../jasta4_albatros.webp"
+       "file": "aces/jasta4_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 5",
-       "file": "../jasta5_albatros.webp"
+       "file": "aces/jasta5_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 11 A",
-       "file": "../jasta11a_albatros.webp"
+       "file": "aces/jasta11a_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 11 B",
-       "file": "../jasta11b_albatros.webp"
+       "file": "aces/jasta11b_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 11 C",
-       "file": "../jasta11c_albatros.webp"
+       "file": "aces/jasta11c_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 11 D",
-       "file": "../jasta11d_albatros.webp"
+       "file": "aces/jasta11d_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 78b",
-       "file": "../jasta78b_albatros.webp"
+       "file": "aces/jasta78b_albatros.webp"
       },
       {
        "kind": "alt",
@@ -302,42 +302,42 @@
      "name": "Albatros D.Va",
      "year": 1917,
      "role": "전투기",
-     "base": "../albatros_d5a.webp",
+     "base": "planes/albatros_d5a_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Berthold",
-       "file": "../berthold_albatros.webp"
+       "file": "aces/berthold_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Schleich",
-       "file": "../schleich_albatros.webp"
+       "file": "aces/schleich_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Schoder",
-       "file": "../schoder_albatros.webp"
+       "file": "aces/schoder_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Büttner",
-       "file": "../buttner_albatros.webp"
+       "file": "aces/buttner_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Müller",
-       "file": "../mueller_albatros.webp"
+       "file": "aces/mueller_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Udet",
-       "file": "../udet_albatros.webp"
+       "file": "aces/udet_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Wolff (2)",
-       "file": "../wolff2_albatros.webp"
+       "file": "aces/wolff2_albatros.webp"
       },
       {
        "kind": "livery",
@@ -391,12 +391,12 @@
      "name": "Pfalz D.IIIa",
      "year": 1917,
      "role": "전투기",
-     "base": "../pfalz_d3a.webp",
+     "base": "planes/pfalz_d3a_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Bäumer",
-       "file": "../baeumer_pfalz.webp"
+       "file": "aces/baeumer_pfalz.webp"
       },
       {
        "kind": "livery",
@@ -445,17 +445,17 @@
      "name": "Pfalz D.XII",
      "year": 1918,
      "role": "전투기",
-     "base": "../pfalz_d12.webp",
+     "base": "planes/pfalz_d12_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Berthold",
-       "file": "../berthold_pfalz.webp"
+       "file": "aces/berthold_pfalz.webp"
       },
       {
        "kind": "ace",
        "name": "Degelow",
-       "file": "../degelow_pfalz.webp"
+       "file": "aces/degelow_root_pfalz.webp"
       },
       {
        "kind": "ace",
@@ -514,7 +514,7 @@
      "name": "LFG Roland D.VI",
      "year": 1918,
      "role": "전투기",
-     "base": "../roland_d6.webp",
+     "base": "planes/roland_d6_clean.webp",
      "variants": [
       {
        "kind": "alt",
@@ -568,57 +568,57 @@
      "name": "Fokker Dr.I",
      "year": 1917,
      "role": "전투기",
-     "base": "../fokker_standard.webp",
+     "base": "planes/fokker_dr1_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "M. v. Richthofen (전체 적색)",
-       "file": "../fokker.webp"
+       "file": "aces/fokker_red.webp"
       },
       {
        "kind": "alt",
        "name": "F.I 시제기 (보스형)",
-       "file": "../fokker_f1.webp"
+       "file": "aces/fokker_f1.webp"
       },
       {
        "kind": "ace",
        "name": "Lothar v. Richthofen",
-       "file": "../lothar_dr1.webp"
+       "file": "aces/lothar_dr1.webp"
       },
       {
        "kind": "ace",
        "name": "Mai",
-       "file": "../mai_dr1.webp"
+       "file": "aces/mai_dr1.webp"
       },
       {
        "kind": "ace",
        "name": "Hantelmann",
-       "file": "../hantelmann_dr1.webp"
+       "file": "aces/hantelmann_dr1.webp"
       },
       {
        "kind": "ace",
        "name": "Beaulieu",
-       "file": "../beaulieu_dr1.webp"
+       "file": "aces/beaulieu_dr1.webp"
       },
       {
        "kind": "ace",
        "name": "Jacobs",
-       "file": "../fokker_jacobs.webp"
+       "file": "aces/fokker_jacobs.webp"
       },
       {
        "kind": "ace",
        "name": "Jacobs (2)",
-       "file": "../fokker_jacobs_v2.webp"
+       "file": "aces/fokker_jacobs_v2.webp"
       },
       {
        "kind": "ace",
        "name": "Gontermann",
-       "file": "../gontermann_fokker.webp"
+       "file": "aces/gontermann_fokker.webp"
       },
       {
        "kind": "ace",
        "name": "Gontermann (2)",
-       "file": "../gontermann_fokker_v2.webp"
+       "file": "aces/gontermann_fokker_v2.webp"
       },
       {
        "kind": "livery",
@@ -697,12 +697,12 @@
      "name": "Fokker D.V",
      "year": 1917,
      "role": "전투기",
-     "base": "../fokkerdv.webp",
+     "base": "planes/fokker_d5_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Udet",
-       "file": "../udet_fokkerdv.webp"
+       "file": "aces/udet_fokkerdv.webp"
       },
       {
        "kind": "livery",
@@ -731,42 +731,42 @@
      "name": "Fokker D.VII",
      "year": 1918,
      "role": "전투기",
-     "base": "../fokkerd7.webp",
+     "base": "planes/fokker_d7_clean.webp",
      "variants": [
       {
        "kind": "squadron",
        "name": "Jasta 11",
-       "file": "../jasta11_fokkerd7.webp"
+       "file": "aces/jasta11_fokkerd7.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 18",
-       "file": "../jasta18_fokkerd7.webp"
+       "file": "aces/jasta18_fokkerd7.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 27",
-       "file": "../jasta27_fokkerd7.webp"
+       "file": "aces/jasta27_fokkerd7.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 43",
-       "file": "../jasta43_fokkerd7.webp"
+       "file": "aces/jasta43_fokkerd7.webp"
       },
       {
        "kind": "ace",
        "name": "Gabriel",
-       "file": "../gabriel_fokkerd7.webp"
+       "file": "aces/gabriel_fokkerd7.webp"
       },
       {
        "kind": "ace",
        "name": "Göring",
-       "file": "../goering_fokkerd7.webp"
+       "file": "aces/goering_fokkerd7.webp"
       },
       {
        "kind": "ace",
        "name": "Löwenhardt",
-       "file": "../loewenhardt_fokkerd7.webp"
+       "file": "aces/loewenhardt_fokkerd7.webp"
       },
       {
        "kind": "ace",
@@ -849,12 +849,12 @@
      "name": "Siemens-Schuckert D.III",
      "year": 1918,
      "role": "전투기",
-     "base": "planes/ssw_d3.webp",
+     "base": "planes/ssw_d3_clean.webp",
      "variants": [
       {
        "kind": "alt",
        "name": "인게임형",
-       "file": "../ssw_d3.webp"
+       "file": "aces/ssw_d3_ingame.webp"
       },
       {
        "kind": "livery",
@@ -917,7 +917,7 @@
      "name": "Junkers D.I",
      "year": 1918,
      "role": "전투기",
-     "base": "../junkers_d1.webp",
+     "base": "planes/junkers_d1_clean.webp",
      "variants": [
       {
        "kind": "alt",
@@ -1155,7 +1155,7 @@
      "name": "Friedrichshafen G.III",
      "year": 1917,
      "role": "중폭격기",
-     "base": "../friedrichshafen_g3.webp",
+     "base": "planes/friedrichshafen_g3_clean.webp",
      "variants": [
       {
        "kind": "alt",
@@ -1460,17 +1460,17 @@
      "name": "Aviatik (Berg) D.I",
      "year": 1917,
      "role": "전투기",
-     "base": "../aviatik_d1.webp",
+     "base": "planes/aviatik_d1_clean.webp",
      "variants": [
       {
        "kind": "alt",
        "name": "인게임형2",
-       "file": "../aviatik.webp"
+       "file": "aces/aviatik_ingame.webp"
       },
       {
        "kind": "ace",
        "name": "Arigi",
-       "file": "../arigi_aviatik.webp"
+       "file": "aces/arigi_root_aviatik.webp"
       },
       {
        "kind": "ace",
@@ -1509,17 +1509,17 @@
      "name": "Phönix D.I",
      "year": 1917,
      "role": "전투기",
-     "base": "../phonix_d1.webp",
+     "base": "planes/phonix_d1_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Kiss",
-       "file": "../kiss_phonix.webp"
+       "file": "aces/kiss_phonix.webp"
       },
       {
        "kind": "ace",
        "name": "Linke-Crawford",
-       "file": "../linke_crawford_phonix.webp"
+       "file": "aces/linke_crawford_phonix.webp"
       },
       {
        "kind": "alt",
@@ -1760,7 +1760,7 @@
      "name": "Airco DH.2",
      "year": 1915,
      "role": "전투기",
-     "base": "../airco_dh2.webp",
+     "base": "planes/airco_dh2_clean.webp",
      "variants": [
       {
        "kind": "livery",
@@ -2065,12 +2065,12 @@
      "name": "Nieuport 17",
      "year": 1916,
      "role": "전투기",
-     "base": "../nieuport.webp",
+     "base": "planes/nieuport17_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Lufbery",
-       "file": "../lufbery_nieuport17.webp"
+       "file": "aces/lufbery_nieuport17.webp"
       },
       {
        "kind": "livery",
@@ -2119,17 +2119,17 @@
      "name": "Nieuport 24",
      "year": 1917,
      "role": "전투기",
-     "base": "../nieuport24.webp",
+     "base": "planes/nieuport24_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Nungesser",
-       "file": "../nungesser_nieuport24.webp"
+       "file": "aces/nungesser_nieuport24.webp"
       },
       {
        "kind": "ace",
        "name": "Nungesser (2)",
-       "file": "../nungesser_nieuport24_v2.webp"
+       "file": "aces/nungesser_nieuport24_v2.webp"
       },
       {
        "kind": "ace",
@@ -2419,57 +2419,57 @@
      "name": "Sopwith Camel",
      "year": 1917,
      "role": "전투기",
-     "base": "../camel.webp",
+     "base": "planes/camel_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Barker",
-       "file": "../barker_camel.webp"
+       "file": "aces/barker_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Brown",
-       "file": "../brown_camel.webp"
+       "file": "aces/brown_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Belgian",
-       "file": "../belgian_camel.webp"
+       "file": "aces/belgian_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Collett",
-       "file": "../collett_camel.webp"
+       "file": "aces/collett_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Dazzle 위장",
-       "file": "../dazzle_camel.webp"
+       "file": "aces/dazzle_camel.webp"
       },
       {
        "kind": "ace",
        "name": "MacLaren",
-       "file": "../maclaren_camel.webp"
+       "file": "aces/maclaren_camel.webp"
       },
       {
        "kind": "ace",
        "name": "McElroy",
-       "file": "../mcelroy_camel.webp"
+       "file": "aces/mcelroy_camel.webp"
       },
       {
        "kind": "squadron",
        "name": "Naval 10 (검은 편대)",
-       "file": "../naval10_camel.webp"
+       "file": "aces/naval10_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Nonal",
-       "file": "../nonal_camel.webp"
+       "file": "aces/nonal_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Woollett",
-       "file": "../woollett_camel.webp"
+       "file": "aces/woollett_camel.webp"
       },
       {
        "kind": "livery",
@@ -2754,27 +2754,27 @@
      "name": "SPAD XIII",
      "year": 1917,
      "role": "전투기",
-     "base": "../spad.webp",
+     "base": "planes/spad13_clean.webp",
      "variants": [
       {
        "kind": "alt",
        "name": "SPAD XII (37mm)",
-       "file": "../spad12.webp"
+       "file": "aces/spad12.webp"
       },
       {
        "kind": "alt",
        "name": "SPAD XII (2)",
-       "file": "../spad12_v2.webp"
+       "file": "aces/spad12_v2.webp"
       },
       {
        "kind": "ace",
        "name": "Audemars",
-       "file": "../audemars_spad.webp"
+       "file": "aces/audemars_spad.webp"
       },
       {
        "kind": "ace",
        "name": "Boyau",
-       "file": "../boyau_spad.webp"
+       "file": "aces/boyau_spad_root.webp"
       },
       {
        "kind": "ace",
@@ -2784,17 +2784,17 @@
       {
        "kind": "ace",
        "name": "Deüllin",
-       "file": "../deullin_spad.webp"
+       "file": "aces/deullin_spad.webp"
       },
       {
        "kind": "ace",
        "name": "Fonck",
-       "file": "../fonck_spad.webp"
+       "file": "aces/fonck_spad.webp"
       },
       {
        "kind": "ace",
        "name": "Germain",
-       "file": "../germain_spad.webp"
+       "file": "aces/germain_spad.webp"
       },
       {
        "kind": "ace",
@@ -2804,7 +2804,7 @@
       {
        "kind": "ace",
        "name": "Madon",
-       "file": "../madon_spad.webp"
+       "file": "aces/madon_spad_root.webp"
       },
       {
        "kind": "ace",
@@ -2814,22 +2814,22 @@
       {
        "kind": "ace",
        "name": "Rickenbacker",
-       "file": "../rickenbacker_spad.webp"
+       "file": "aces/rickenbacker_spad.webp"
       },
       {
        "kind": "ace",
        "name": "Rickenbacker (2)",
-       "file": "../rickenbacker_spad_v2.webp"
+       "file": "aces/rickenbacker_spad_v2.webp"
       },
       {
        "kind": "ace",
        "name": "Tarascon",
-       "file": "../tarascon_spad.webp"
+       "file": "aces/tarascon_spad.webp"
       },
       {
        "kind": "ace",
        "name": "Thieffry",
-       "file": "../thieffry_spad.webp"
+       "file": "aces/thieffry_spad.webp"
       },
       {
        "kind": "ace",
@@ -2839,7 +2839,7 @@
       {
        "kind": "ace",
        "name": "Belgian",
-       "file": "../belgium_spad.webp"
+       "file": "aces/belgium_spad.webp"
       },
       {
        "kind": "ace",
@@ -2849,7 +2849,7 @@
       {
        "kind": "ace",
        "name": "Italian",
-       "file": "../italian_spad.webp"
+       "file": "aces/italian_spad.webp"
       },
       {
        "kind": "ace",
