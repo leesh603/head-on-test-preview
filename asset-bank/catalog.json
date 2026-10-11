@@ -1,5 +1,5 @@
 {
- "v": 36,
+ "v": 37,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -514,7 +514,7 @@
      "name": "LFG Roland D.VI",
      "year": 1918,
      "role": "전투기",
-     "base": "../roland_d6.webp",
+     "base": "planes/roland_d6_clean.webp",
      "variants": [
       {
        "kind": "alt",
