@@ -1,6 +1,7 @@
 import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=gal1';
 import {fx} from './fx-art.js?v=gal1';
 import {bombSprite} from './bomb-sprites.js?v=bomb3';
+import {fxsBombFall} from './fx-sample-preview.js?v=bomb3&rail=42';
 import {drawTracerBolt} from './projectiles.js?v=gal1&rail=42';
 import {impactMark,partMark,aimLine,stripMark} from './tactical-marks.js?v=gal1';
 
@@ -46,7 +47,7 @@ export function drawAlpsHazard(c,h,ring){
   const a=Math.atan2(h.vy,h.vx),big=h.visual==='alps-cannon';c.save();c.translate(h.x,h.y);c.rotate(a);c.strokeStyle=big?'#e9b472b0':'#f6d19fa0';c.lineWidth=big?3:1.5;c.beginPath();c.moveTo(big?-34:-14,0);c.lineTo(-4,0);c.stroke();if(big)fx(c,'shellHeavy',0,0,30,10,0,1);else drawTracerBolt(c,0,0,0,'#f2cf9e',18,5,1);c.restore();return true;
  }
  if(warning){impactMark(c,h.x,h.y,h.radius,progress,{heavy:h.raidHeavy});
-  const bx=h.sourceX+(h.x-h.sourceX)*progress,by=h.sourceY+(h.y-h.sourceY)*progress-Math.sin(progress*Math.PI)*30;const ba=Math.PI/2+Math.atan2(h.x-h.sourceX,Math.abs(h.y-h.sourceY)+160)*.3;if(!bombSprite(c,'puw',bx,by,44,ba,.95))fx(c,'bomb',bx,by,26+progress*8,11+progress*3,ba,.95);
+  if(!fxsBombFall(c,(X,Y,k,a)=>bombSprite(c,'puw',X,Y,44,a)||fx(c,'bomb',X,Y,40*k,20*k,a),h.sourceX,h.sourceY,h.x,h.y,progress)){const bx=h.sourceX+(h.x-h.sourceX)*progress,by=h.sourceY+(h.y-h.sourceY)*progress-Math.sin(progress*Math.PI)*30;if(!bombSprite(c,'puw',bx,by,44,Math.PI/2,.95))fx(c,'bomb',bx,by,26+progress*8,11+progress*3,Math.PI/2,.95);}
  }else{const age=h.age-h.delay-h.warning;fx(c,'explosion0',h.x,h.y,h.radius*2.1,h.radius*2.1,0,Math.max(0,1-age/h.duration));fx(c,'smokeDark',h.x,h.y-age*24,h.radius*(1.5+age),h.radius*(1.5+age),0,.6);}
  return true;
 }
