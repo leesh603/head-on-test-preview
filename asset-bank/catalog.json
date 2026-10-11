@@ -1,5 +1,5 @@
 {
- "v": 43,
+ "v": 44,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -1509,17 +1509,17 @@
      "name": "Phönix D.I",
      "year": 1917,
      "role": "전투기",
-     "base": "../phonix_d1.webp",
+     "base": "planes/phonix_d1_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Kiss",
-       "file": "../kiss_phonix.webp"
+       "file": "aces/kiss_phonix.webp"
       },
       {
        "kind": "ace",
        "name": "Linke-Crawford",
-       "file": "../linke_crawford_phonix.webp"
+       "file": "aces/linke_crawford_phonix.webp"
       },
       {
        "kind": "alt",
