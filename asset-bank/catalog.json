@@ -1,5 +1,5 @@
 {
- "v": 27,
+ "v": 28,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -2119,17 +2119,17 @@
      "name": "Nieuport 24",
      "year": 1917,
      "role": "전투기",
-     "base": "../nieuport24.webp",
+     "base": "planes/nieuport24_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Nungesser",
-       "file": "../nungesser_nieuport24.webp"
+       "file": "aces/nungesser_nieuport24.webp"
       },
       {
        "kind": "ace",
        "name": "Nungesser (2)",
-       "file": "../nungesser_nieuport24_v2.webp"
+       "file": "aces/nungesser_nieuport24_v2.webp"
       },
       {
        "kind": "ace",
