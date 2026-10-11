@@ -1,5 +1,5 @@
 {
- "v": 34,
+ "v": 35,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -391,12 +391,12 @@
      "name": "Pfalz D.IIIa",
      "year": 1917,
      "role": "전투기",
-     "base": "../pfalz_d3a.webp",
+     "base": "planes/pfalz_d3a_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Bäumer",
-       "file": "../baeumer_pfalz.webp"
+       "file": "aces/baeumer_pfalz.webp"
       },
       {
        "kind": "livery",
