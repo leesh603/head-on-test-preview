@@ -1,5 +1,5 @@
 {
- "v": 56,
+ "v": 57,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -574,6 +574,46 @@
        "kind": "ace",
        "name": "M. v. Richthofen (전체 적색)",
        "file": "aces/fokker_red.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "M. v. Richthofen (152/17 부분적색)",
+        "file": "aces/mvr_dr1_15217.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Udet (LO!)",
+        "file": "aces/udet_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Göring (순백)",
+        "file": "aces/goering_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Rahn (백띠)",
+        "file": "aces/rahn_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Wenzl (흑백줄무늬)",
+        "file": "aces/wenzl_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "K. Wolff (올리브+적색)",
+        "file": "aces/kwolff_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Bolle (체커보드)",
+        "file": "aces/bolle_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Allmenröder (백카울)",
+        "file": "aces/allmenroder_dr1.webp"
       },
       {
        "kind": "alt",
