@@ -38,7 +38,8 @@ function landPath(c,chart,left,top,w,h,side,first,last){
 function triangle(c,im,sy,sh,ax,ay,bx,by,cx,cy,dx,dy,ex,ey,fx,fy){
  const mx=(ax+bx+cx)/3,my=(ay+by+cy)/3;
  c.save();c.beginPath();c.moveTo(ax+(ax-mx)*.006,ay+(ay-my)*.006);c.lineTo(bx+(bx-mx)*.006,by+(by-my)*.006);c.lineTo(cx+(cx-mx)*.006,cy+(cy-my)*.006);c.closePath();c.clip();
- c.transform(dx,dy,ex,ey,fx,fy);c.drawImage(im,0,sy,im.naturalWidth,sh,0,0,im.naturalWidth,sh);c.restore();
+ // Keep neighbouring source rows available to bilinear sampling at every clip edge.
+ c.transform(dx,dy,ex,ey,fx,fy);c.drawImage(im,0,0,im.naturalWidth,im.naturalHeight,0,-sy,im.naturalWidth,im.naturalHeight);c.restore();
 }
 
 function quad(c,im,sy,sh,ax,ay,bx,by,cx,cy,dx,dy){
@@ -58,7 +59,7 @@ function paintShore(c,im,chart,left,top,w,h,side,first,last){
  const q=shore[side],width=SHORE_WIDTH[side],half=width/2,density=im.naturalWidth/width;
  const entry=DOVER_MAP.entryY*(N-1),row=Math.min(N-2,Math.floor(entry)),arc=q.arc[row]+(q.arc[row+1]-q.arc[row])*(entry-row);
  // Keep the reflected edge outside the normal entry view; the two shores use independent phases.
- const phase=im.naturalHeight*(.5+side*.17)-arc*density;
+ const phase=im.naturalHeight*(.5+side*.05)-arc*density;
  for(let i=Math.max(0,first-1);i<Math.min(N-1,last+1);i++){
   if(Math.max(q.x[i],q.x[i+1])+half<left-chart.left||Math.min(q.x[i],q.x[i+1])-half>left+w-chart.left)continue;
   const x0=chart.left+q.x[i]-left,y0=chart.top+i*STEP-top,x1=chart.left+q.x[i+1]-left,y1=y0+STEP;

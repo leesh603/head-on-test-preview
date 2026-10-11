@@ -33,9 +33,9 @@ import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js
 import './hud-layout94.js?v=gal1';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=gal1';
 import {installOnlineLobby} from './online-coop-session.js?v=gal1&coopfix=1&rail=42';
-import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=dover4';
+import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=bomb1';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=gal1';
-import {drawCoop} from './coop-view.js?v=groundlife2&rail=42';
+import {drawCoop} from './coop-view.js?v=bomb1&rail=42';
 import {drawSunStrike} from './sun-strike71.js?v=gal1&rail=42';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor,drawTracerBolt} from './projectiles.js?v=gal1';
 import {installFlightViewport} from './flight-viewport.js?v=gal1';
@@ -63,7 +63,7 @@ import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN,bossArrivalCues} from './boss-fe
 import {drawEquipment} from './equipment.js?v=gal1';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=gal1';
 import{planeSprite,aircraftReady,aircraftKey,hangarArtReady,paintedReady}from './aircraft.js?v=gal1';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=dover4';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=bomb1';
 import {AUGMENTATION_OVERHAUL_BALANCE}from'./augmentation-overhaul150.js?v=gal1';
 import {drawCloudCover}from'./cloud-cover1.js?v=dover1';
 import {drawFleetLayer}from'./fleet-naval1.js?v=gal1&rail=42';
@@ -713,7 +713,7 @@ draw=t=>{
   ctx.fillStyle='#b4f4dd';ctx.font='12px monospace';ctx.textAlign='center';ctx.fillText(getLocale()==='en'?'Friendly Bombers':'아군 폭격대',x,y-h/2-12);
  }
  for(const b of game.friendlyBombs||[]){const p=1-b.life/b.maxLife,x=b.sx+(b.x-b.sx)*p-game.x+W/2,y=b.sy+(b.y-b.sy)*p-game.y+H/2;
-  if(b.bishopBomb)fx(ctx,'bomb',x,y,40,20,Math.PI/2);else if(!(FXS&&fxsBombFall(ctx,(X,Y,k,a)=>fx(ctx,'bomb',X,Y,40*k,20*k,a),b.sx-game.x+W/2,b.sy-game.y+H/2,b.x-game.x+W/2,b.y-game.y+H/2,p)))drawEquipment(ctx,'rocket',x,y,Math.PI,38);
+  if(!(FXS&&fxsBombFall(ctx,(X,Y,k,a)=>fx(ctx,'bomb',X,Y,40*k,20*k,a),b.sx-game.x+W/2,b.sy-game.y+H/2,b.x-game.x+W/2,b.y-game.y+H/2,p)))drawEquipment(ctx,'rocket',x,y,Math.PI,38);
   if(!b.bishopBomb){ctx.strokeStyle='#a2eddb70';ctx.lineWidth=1;ctx.beginPath();ctx.arc(b.x-game.x+W/2,b.y-game.y+H/2,22,0,Math.PI*2);ctx.stroke();}
  }
  ctx.restore();

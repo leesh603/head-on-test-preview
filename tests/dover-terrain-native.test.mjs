@@ -39,7 +39,7 @@ test('Camera movement preserves the same world-anchored coast texture through se
    const vertices=new Map();
    for(let i=0;i<t.transforms.length;i++){
     const m=t.transforms[i],world=[...m.slice(0,4),m[4]+cx-640,m[5]+cy-400].map(x=>Math.round(x*1e6)/1e6);
-    vertices.set(JSON.stringify(world),[t.draws[i][2],t.draws[i][4]]);
+    vertices.set(JSON.stringify(world),[t.draws[i][6],t.draws[i][8]]);
    }
    frames.push(vertices);
   }
