@@ -1,6 +1,6 @@
 import {DOVER_COAST_PROFILE} from './dover-terrain-profile.js?v=dover3';
 // One authored world, shared by rendering, flight boundaries and naval navigation.
-export const DOVER_MAP=Object.freeze({width:6144,height:9216,inset:320,coastInset:192,entryY:.43,entryOffshore:150});
+export const DOVER_MAP=Object.freeze({width:6144,height:9216,inset:320,coastInset:240,entryY:.47,entryOffshore:330});
 const charts=new WeakMap(),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 export function doverPatrolChart(game){
  if(!game)return {left:0,top:0,right:DOVER_MAP.width,bottom:DOVER_MAP.height,...DOVER_MAP};

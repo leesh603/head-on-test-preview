@@ -1,6 +1,0 @@
-
-> build
-> node tools/validate.mjs
-
-  syntax: 205 modules checked
-  imports: 1892 resolved, 7 skipped (dynamic/dev), 7 missing

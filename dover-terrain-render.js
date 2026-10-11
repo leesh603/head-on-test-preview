@@ -4,7 +4,7 @@ import {DOVER_MAP} from './dover-patrol-chart.js?v=dover3';
 // The finite coastline is geometry; the native-resolution art is its material.
 // Never stretch a complete 1024px landscape across a 6144px battlefield.
 const N=DOVER_COAST_PROFILE.length,STEP=DOVER_MAP.height/(N-1),CLEARANCE=DOVER_MAP.coastInset;
-const SHORE_WIDTH=[512,384],shore=[];
+const SHORE_WIDTH=[640,560],shore=[];
 for(let side=0;side<2;side++){
  const x=Float64Array.from(DOVER_COAST_PROFILE,q=>q[side]*DOVER_MAP.width+(side?CLEARANCE:-CLEARANCE)),nx=new Float64Array(N),ny=new Float64Array(N),arc=new Float64Array(N);
  for(let i=0;i<N;i++){
@@ -56,12 +56,15 @@ export function doverMaterialY(distance,height){
 
 function paintShore(c,im,chart,left,top,w,h,side,first,last){
  const q=shore[side],width=SHORE_WIDTH[side],half=width/2,density=im.naturalWidth/width;
+ const entry=DOVER_MAP.entryY*(N-1),row=Math.min(N-2,Math.floor(entry)),arc=q.arc[row]+(q.arc[row+1]-q.arc[row])*(entry-row);
+ // Keep the reflected edge outside the normal entry view; the two shores use independent phases.
+ const phase=im.naturalHeight*(.5+side*.17)-arc*density;
  for(let i=Math.max(0,first-1);i<Math.min(N-1,last+1);i++){
   if(Math.max(q.x[i],q.x[i+1])+half<left-chart.left||Math.min(q.x[i],q.x[i+1])-half>left+w-chart.left)continue;
   const x0=chart.left+q.x[i]-left,y0=chart.top+i*STEP-top,x1=chart.left+q.x[i+1]-left,y1=y0+STEP;
   let ax=x0-q.nx[i]*half,ay=y0-q.ny[i]*half,bx=x0+q.nx[i]*half,by=y0+q.ny[i]*half;
   const cx=x1-q.nx[i+1]*half,cy=y1-q.ny[i+1]*half,dx=x1+q.nx[i+1]*half,dy=y1+q.ny[i+1]*half;
-  let at=q.arc[i]*density,remaining=(q.arc[i+1]-q.arc[i])*density;
+  let at=q.arc[i]*density+phase,remaining=(q.arc[i+1]-q.arc[i])*density;
   while(remaining>.001){
    const period=Math.floor((at+1e-7)/im.naturalHeight),sy=Math.max(0,at-period*im.naturalHeight),flip=period%2!==0;
    const sh=Math.min(remaining,im.naturalHeight-sy),t=sh/remaining;

@@ -1,5 +1,5 @@
 {
- "v": 23,
+ "v": 26,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -1956,22 +1956,22 @@
      "name": "Nieuport 11 \"Bébé\"",
      "year": 1916,
      "role": "전투기",
-     "base": "../nieuport11.webp",
+     "base": "planes/nieuport_11_bebe.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Baracca",
-       "file": "../baracca_nieuport.webp"
+       "file": "aces/baracca_nieuport.webp"
       },
       {
        "kind": "ace",
        "name": "Bishop",
-       "file": "../bishop_nieuport.webp"
+       "file": "aces/bishop_nieuport.webp"
       },
       {
        "kind": "ace",
        "name": "Dorme",
-       "file": "../dorme_nieuport.webp"
+       "file": "aces/dorme_nieuport.webp"
       },
       {
        "kind": "ace",
@@ -1991,12 +1991,12 @@
       {
        "kind": "ace",
        "name": "Carli",
-       "file": "../carli_nieuport.webp"
+       "file": "aces/carli_nieuport.webp"
       },
       {
        "kind": "ace",
        "name": "위장기",
-       "file": "../camo_nieuport.webp"
+       "file": "aces/camo_nieuport.webp"
       },
       {
        "kind": "ace",
@@ -2006,12 +2006,12 @@
       {
        "kind": "ace",
        "name": "Meulemeester",
-       "file": "../meulemeester_nieuport.webp"
+       "file": "aces/meulemeester_nieuport.webp"
       },
       {
        "kind": "alt",
        "name": "이탈리아형",
-       "file": "../nieuport_italian.webp"
+       "file": "aces/nieuport_italian.webp"
       },
       {
        "kind": "alt",

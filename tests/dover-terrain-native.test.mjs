@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {doverPatrolChart,doverPatrolSpawn,doverHullMargin} from '../dover-patrol-chart.js?v=dover3';
-import {doverCoastPoint,paintDoverTerrain} from '../dover-terrain-render.js?v=dover5';
+import {doverCoastPoint,paintDoverTerrain} from '../dover-terrain-render.js?v=dover6';
 
 function trace(){
  const draws=[],transforms=[],layers=[];
@@ -57,15 +57,15 @@ test('Full patrol hulls remain clear of both rendered coast materials across the
   const radius=doverHullMargin({hullLength,hullWidth}),q=doverPatrolSpawn(g,x,chart.top+chart.height*row/100,radius);
   for(let i=0;i<32;i++){
    const a=i*Math.PI/16,px=q.x+Math.cos(a)*Math.hypot(hullLength,hullWidth),py=q.y+Math.sin(a)*Math.hypot(hullLength,hullWidth),v=(py-chart.top)/chart.height;
-   assert(px>doverCoastPoint(chart,v,-1).x+125,'no hull pixels on the English coast');
-   assert(px<doverCoastPoint(chart,v,1).x-94,'no hull pixels on the French coast');
+   assert(px>doverCoastPoint(chart,v,-1).x+187,'no hull pixels on the English coast');
+   assert(px<doverCoastPoint(chart,v,1).x-164,'no hull pixels on the French coast');
   }
  }
 });
 
 test('The coastal material is a real alpha WebP at its untouched authored pixel dimensions',()=>{
- const b=readFileSync(new URL('../terrain-dover-chalk-material-v4.webp',import.meta.url));
- assert.equal(createHash('sha1').update(Buffer.from('blob '+b.length+'\0')).update(b).digest('hex'),'00af6005092dc816b20ddefab862c996f6f5bebc','review the measured alpha coastline clearance whenever the authored material changes');
+ const b=readFileSync(new URL('../terrain-dover-chalk-material-v6.webp',import.meta.url));
+ assert.equal(createHash('sha1').update(Buffer.from('blob '+b.length+'\0')).update(b).digest('hex'),'9f3b1b1ed531861604683d4480d1a6a28539816b','review the measured alpha coastline clearance whenever the authored material changes');
  assert(b.length>100000);assert.equal(b.toString('ascii',0,4),'RIFF');assert.equal(b.toString('ascii',12,16),'VP8L');
  const bits=b.readUInt32LE(21);assert(bits&(1<<28),'lossless alpha flag');
  assert.equal(1+(bits&16383),coast.naturalWidth);assert.equal(1+((bits>>>14)&16383),coast.naturalHeight);

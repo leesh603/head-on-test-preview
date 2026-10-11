@@ -1,14 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {DOVER_MAP,doverPatrolChart,doverFlightBounds} from '../dover-patrol-chart.js?v=dover3';
+import {DOVER_MAP,doverPatrolChart,doverFlightBounds,doverWaterInterval} from '../dover-patrol-chart.js?v=dover3';
 import {DOVER_COAST_PROFILE} from '../dover-terrain-profile.js?v=dover3';
-import * as view from '../dover-terrain-render.js?v=dover5';
+import * as view from '../dover-terrain-render.js?v=dover6';
 
 test('Normal Dover entry has a visible English cliff on mobile without narrowing the flight area',()=>{
  for(const w of [390,1280]){
-  const g={x:420,y:-930,viewWidth:w,viewHeight:844},c=doverPatrolChart(g),p=view.doverCoastPoint(c,.43,-1),b=doverFlightBounds(g);
-  assert(Math.abs(g.x-p.x-150)<1e-7,'spawn beside the coast, rather than in a long empty sea');
-  assert(p.x>g.x-w/2&&p.x<g.x,'coast is visible in a normal start viewport');
+  const g={x:420,y:-930,viewWidth:w,viewHeight:844},c=doverPatrolChart(g),p=view.doverCoastPoint(c,DOVER_MAP.entryY,-1),b=doverFlightBounds(g);
+  assert(Math.abs(g.x-p.x-330)<1e-7,'spawn beside the coast, rather than in a long empty sea');
+  assert(p.x+187>g.x-w/2&&p.x+187<g.x,'the measured alpha shore is visible in a normal start viewport');
+  assert(g.x>=doverWaterInterval(g,g.y).left,'normal aircraft entry is inside the sea corridor');
+  assert(g.x-(p.x+187)>140,'the foam is about150 world units off the player, not brushing against it');
+  const ahead=view.doverCoastPoint(c,DOVER_MAP.entryY-400/c.height,-1);assert(ahead.x-p.x>100,'an authored headland is immediately visible ahead');
   assert(b.right-b.left>w*3);assert(b.bottom-b.top>844*8);
   assert.equal(c.width,6144);assert.equal(c.height,9216);
  }
@@ -42,5 +45,5 @@ test('Material repeat joins the exact same source edge and alpha pixels on both 
 test('The navigable channel stays between 2.4 and 3.1 km while keeping broad unique headlands',()=>{
  const widths=DOVER_COAST_PROFILE.map(p=>(p[1]-p[0])*DOVER_MAP.width);
  assert(Math.min(...widths)>2400);assert(Math.max(...widths)<3100);
- assert(Math.abs(DOVER_COAST_PROFILE[57][0]-DOVER_COAST_PROFILE[287][0])*DOVER_MAP.width>600);
+ assert((Math.max(...DOVER_COAST_PROFILE.map(p=>p[0]))-Math.min(...DOVER_COAST_PROFILE.map(p=>p[0])))*DOVER_MAP.width>700);
 });
