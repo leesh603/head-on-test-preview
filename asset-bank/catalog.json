@@ -1,5 +1,5 @@
 {
- "v": 76,
+ "v": 77,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -3236,7 +3236,7 @@
      "name": "Bristol M.1",
      "year": 1917,
      "role": "전투기",
-     "base": "../bristol_m1.webp",
+     "base": "planes/bristol_m1_clean.webp",
      "variants": [
       {
        "kind": "livery",
