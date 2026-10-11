@@ -1,7 +1,7 @@
 import {groundShellProfile} from './explosion-profiles.js?v=gal1';
 import {minenMuzzleLocal} from './minenwerfer-art-layout.js?v=gal1-r4';
 import {drawMinenInstallation} from './minenwerfer-art-render.js?v=gal1-r4';
-import {prepareBossCutins} from './boss-cutin-art.js?v=gal1&rail=42';
+import {prepareBossCutins} from './boss-cutin-art.js?v=livingww1d&rail=42';
 import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=gal1';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=gal1-r3';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=gal1-r10';
@@ -27,7 +27,7 @@ import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=gal1';
 import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=gal1';
 import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=gal1';
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=gal1&rail=42';
-import {bossHudModel} from './headon-stageboss-hud.js?v=gal1&rail=42';
+import {bossHudModel} from './headon-stageboss-hud.js?v=livingww1d&rail=42';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=gal1&hints=1&rail=42';
 import {planeSprite} from './aircraft.js?v=gal1';
 import {getLocale} from './i18n.js?v=gal1';

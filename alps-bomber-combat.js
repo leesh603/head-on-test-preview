@@ -28,9 +28,14 @@ class AlpsBomber extends BaseBoss {
   const span=this.kind==='gik'?250:290,oldX=this.x,oldY=this.y;
   this.x=this.fixedX+Math.sin(this.routeClock)*span+this.imbalance;
   this.y=this.fixedY+Math.sin(this.routeClock*2)*(this.kind==='gik'?68:90);
-  this.driveVelocity=Math.hypot(this.x-oldX,this.y-oldY)/Math.max(.001,dt);
-  const yaw=this.cannonLock?this.cannonLock.angle+Math.PI/2:Math.cos(this.routeClock)*.2+sign*.055,delta=alpsAngleDelta(yaw,this.hullYaw);
-  this.hullYaw+=this.cannonLock?Math.max(-dt*.7,Math.min(dt*.7,delta)):delta*Math.min(1,dt*1.4);this.bank=Math.sin(this.routeClock)*.12+sign*.05;this.a=this.hullYaw-Math.PI/2;
+  const _dx=this.x-oldX,_dy=this.y-oldY,_speed=Math.hypot(_dx,_dy);
+  this.driveVelocity=_speed/Math.max(.001,dt);
+  const pathYaw=_speed>.001?Math.atan2(_dy,_dx)+Math.PI/2:this.hullYaw;
+  const yaw=this.cannonLock?this.cannonLock.angle+Math.PI/2:pathYaw+sign*.05,delta=alpsAngleDelta(yaw,this.hullYaw);
+  const yawStep=this.cannonLock?Math.max(-dt*.7,Math.min(dt*.7,delta)):Math.max(-dt*1.6,Math.min(dt*1.6,delta));
+  this.hullYaw+=yawStep;
+  const targetBank=Math.max(-.42,Math.min(.42,yawStep/Math.max(.001,dt)*.32))+sign*.05;
+  this.bank+=(targetBank-this.bank)*Math.min(1,dt*3);this.a=this.hullYaw-Math.PI/2;
   this.syncParts();for(const p of this.parts.values()){p.hitFlash=Math.max(0,p.hitFlash-dt);p.recoil=Math.max(0,p.recoil-dt);}
  }
  locateHit(shot){return locateAlpsHit(this,shot);}
