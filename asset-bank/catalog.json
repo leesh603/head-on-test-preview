@@ -1,5 +1,5 @@
 {
- "v": 51,
+ "v": 52,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -3722,7 +3722,7 @@
      "name": "Macchi M.5",
      "year": 1917,
      "role": "비행전투정",
-     "base": "../macchi_m5.webp",
+     "base": "planes/macchi_m5_clean.webp",
      "variants": [
       {
        "kind": "alt",
