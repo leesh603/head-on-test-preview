@@ -1,5 +1,5 @@
 {
- "v": 57,
+ "v": 58,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -614,6 +614,86 @@
         "kind": "ace",
         "name": "Allmenröder (백카울)",
         "file": "aces/allmenroder_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Kempf (문구)",
+        "file": "aces/kempf_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Mohnicke (백띠)",
+        "file": "aces/mohnicke_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Reinhard (적/흑백)",
+        "file": "aces/reinhard_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Hemer (지그재그)",
+        "file": "aces/hemer_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Beckmann (흑테두리)",
+        "file": "aces/beckmann_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Monkowius (파이프)",
+        "file": "aces/monkowius_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Böning (바이에른)",
+        "file": "aces/boening_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "H. Weiss (백꼬리)",
+        "file": "aces/hweiss_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Dobrowolski (황카울)",
+        "file": "aces/dobrowolski_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Friedrichs (황카울)",
+        "file": "aces/friedrichs_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Grassmann (황카울)",
+        "file": "aces/grassmann_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Billik (흑+백십자)",
+        "file": "aces/billik_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Klimke (닻)",
+        "file": "aces/klimke_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Papenmeyer (스페이드)",
+        "file": "aces/papenmeyer_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Löwenhardt (황색)",
+        "file": "aces/loewenhardt_dr1.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Siegle (사선띠)",
+        "file": "aces/siegle_dr1.webp"
       },
       {
        "kind": "alt",
