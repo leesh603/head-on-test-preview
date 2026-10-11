@@ -1,5 +1,5 @@
 {
- "v": 68,
+ "v": 69,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -1887,7 +1887,7 @@
      "name": "Morane-Saulnier AI",
      "year": 1917,
      "role": "전투기",
-     "base": "../morane_ai.webp",
+     "base": "planes/morane_ai_clean.webp",
      "variants": [
       {
        "kind": "livery",
