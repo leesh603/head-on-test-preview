@@ -38,8 +38,8 @@ import {prepareDoverAssets,drawDoverBoss,drawDoverHazard,drawDoverCue,isDoverBos
 import {prepareParisArt,releaseParisArt,drawParisBoss,drawParisWorld} from './paris-night-art.js?v=gal1';
 import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=gal1';
 import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=gal1';
-import {drawAlpsBomber,drawAlpsPart,drawAlpsWarnings,drawAlpsHazard} from './alps-bomber-render.js?v=bomb6';
-import {bombSprite} from './bomb-sprites.js?v=bomb6';
+import {drawAlpsBomber,drawAlpsPart,drawAlpsWarnings,drawAlpsHazard} from './alps-bomber-render.js?v=bomb7';
+import {bombSprite} from './bomb-sprites.js?v=bomb7';
 import {drawHarborFortress} from './harbor-crane-render.js?v=gal1';
 
 
@@ -802,7 +802,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     else if(h.duration>.6&&h.visual!=='zubian-mortar')impactMark(c,h.x,h.y,h.radius,1,{alpha:.5,cross:false});
     if(warning){const progress=clamp((h.age-h.delay)/h.warning,0,1);
      if(h.visual==='rail-shell'||h.visual==='observer-shell'){c.fillStyle='#fff0bd';c.strokeStyle=MARK.ink;c.lineWidth=3;c.font='bold 13px monospace';c.textAlign='center';const label=getLocale()==='en'?(h.visual==='observer-shell'?'OBSERVED FIRE':'RAIL SHELL'):(h.visual==='observer-shell'?'관측 포격':'열차포 낙탄');c.strokeText(label,h.x,h.y-h.radius*1.28-10);c.fillText(label,h.x,h.y-h.radius*1.28-10);}
-     if(h.visual==='carpet-bomb'){const bs=h.airborneBomb?28+progress*12:26+progress*46,bx=h.airborneBomb?h.sourceX+(h.x-h.sourceX)*progress:h.x,by=h.airborneBomb?h.sourceY+(h.y-h.sourceY)*progress-Math.sin(progress*Math.PI)*24:h.y-h.radius*.85*(1-progress)-24;c.globalAlpha=.9;if(!bombSprite(c,'puw',h.airborneBomb&&h.bossId?.includes(':gotha:')?bx:h.x,h.airborneBomb&&h.bossId?.includes(':gotha:')?by:h.y-h.radius*.85*(1-progress)-24,46,Math.PI/2))fx(c,'bomb',h.airborneBomb&&h.bossId?.includes(':gotha:')?bx:h.x,h.airborneBomb&&h.bossId?.includes(':gotha:')?by:h.y-h.radius*.85*(1-progress)-24,bs,bs*.55,Math.PI/2);c.globalAlpha=1;}}
+     if(h.visual==='carpet-bomb'){const bs=h.airborneBomb?28+progress*12:26+progress*46,bx=h.airborneBomb?h.sourceX+(h.x-h.sourceX)*progress:h.x,by=h.airborneBomb?h.sourceY+(h.y-h.sourceY)*progress-Math.sin(progress*Math.PI)*24:h.y-h.radius*.85*(1-progress)-24;c.globalAlpha=.9;if(!bombSprite(c,'puw',h.airborneBomb&&h.bossId?.includes(':gotha:')?bx:h.x,h.airborneBomb&&h.bossId?.includes(':gotha:')?by:h.y-h.radius*.85*(1-progress)-24,52,Math.PI/2))fx(c,'bomb',h.airborneBomb&&h.bossId?.includes(':gotha:')?bx:h.x,h.airborneBomb&&h.bossId?.includes(':gotha:')?by:h.y-h.radius*.85*(1-progress)-24,bs,bs*.55,Math.PI/2);c.globalAlpha=1;}}
     else if(h.visual==='zubian-mortar')pixelBlast(c,h.x,h.y,h.radius*.65,h.age,true);
    }
    c.restore();

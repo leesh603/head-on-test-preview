@@ -8,7 +8,7 @@ function img(v) {
   if (im === undefined) {
     if (typeof Image === 'undefined') return null;
     im = new Image(); im.decoding = 'async';
-    im.src = new URL('./' + FILES[v] + '?v=bomb6', import.meta.url).href;
+    im.src = new URL('./' + FILES[v] + '?v=bomb7', import.meta.url).href;
     IMGS.set(v, im);
   }
   return im;
@@ -20,5 +20,6 @@ export function bombSprite(c, v, x, y, w, angle = 0, alpha = 1) {
   const h = w * im.naturalHeight / im.naturalWidth;
   c.save(); c.translate(x, y); if (angle) c.rotate(angle);
   c.globalAlpha *= Math.max(0, Math.min(1, alpha)); c.imageSmoothingEnabled = true;
+  try { c.filter = 'brightness(1.22) saturate(1.05)'; } catch (_) {}
   c.drawImage(im, -w / 2, -h / 2, w, h); c.restore(); return true;
 }
