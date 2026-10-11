@@ -11,10 +11,11 @@ import {isDoverBoss} from './dover-night-view.js?v=dover6';
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=gal1';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=gal1';
 import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=livingww1d&rail=42';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb3&rail=42';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb4&rail=42';
 import {bossSoundFor} from './boss-feedback.js?v=gal1&hints=1&rail=42';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=gal1&rail=42';
 import {advanceCambraiBug} from './cambrai-bug-flight.js?v=gal1';
+const SEAPLANE_BOMBERS=new Set(['hansa_brandenburg_cc','hb_w29','ff33','lohner_l','macchi_m5','macchi_m3']);
 import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=gal1';
 
 
@@ -329,6 +330,7 @@ function updateMinions(g,dt){
   if(e.surface){e.x+=e.vx*dt;e.a=e.vx<0?Math.PI:0;const viewH=g.viewHeight||640,floorY=g.y+viewH*.34;e.y=Math.max(e.y,floorY);}else if(e.behavior==='attack-pass'){
    e.passAge=(e.passAge||0)+dt;if(!e.passLocked){const a=Math.atan2((e.passTargetY??p.y)-e.y,(e.passTargetX??p.x)-e.x);e.a=a;e.passLocked=true;e.speed=Math.max(205,e.speed||0);}
    const lane=((e.formationIndex||0)-((e.formationCount||1)-1)/2)*9;e.x+=Math.cos(e.a)*e.speed*dt-Math.sin(e.a)*Math.sin(e.passAge*2.2)*lane*dt;e.y+=Math.sin(e.a)*e.speed*dt+Math.cos(e.a)*Math.sin(e.passAge*2.2)*lane*dt;
+   if(!e.bombDropped&&SEAPLANE_BOMBERS.has(e.escortPlane)&&e.passAge>1&&e.formationRole!=='jutland-recon'){e.bombDropped=true;const tx=e.passTargetX??p.x,ty=e.passTargetY??p.y,ca=Math.cos(e.a),sa=Math.sin(e.a);for(let i=0;i<5;i++){const off=(i-2)*82,fwd=i*26;(g.bombZones??=[]).push({x:tx-sa*off+ca*fwd,y:ty+ca*off+sa*fwd,sx:e.x,sy:e.y,delay:2.2+i*.16,maxDelay:2.2+i*.16,radius:58,damage:14+Math.floor(g.t/200),sprite:e.faction==='entente'?'cooper':'puw'});}g.event?.('bombWarning','폭격 투하! 붉은 표적을 벗어나세요');}
   }else if(e.behavior==='jasta-formation'||e.behavior==='black-flight-formation'){
    const leader=g.stageBoss?.stages.encounter?.bodies.get(e.escortLeaderId);
    if(!leader||leader.dead)e.behavior='chase';else updateFormationMinion(g,e,p,leader,dt);

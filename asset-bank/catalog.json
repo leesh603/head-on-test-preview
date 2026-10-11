@@ -1,5 +1,5 @@
 {
- "v": 73,
+ "v": 81,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -2536,7 +2536,7 @@
      "name": "Sopwith 1½ Strutter",
      "year": 1916,
      "role": "전투기",
-     "base": "../strutter.webp",
+     "base": "planes/strutter_clean.webp",
      "variants": [
       {
        "kind": "alt",
@@ -2743,7 +2743,7 @@
      "name": "Sopwith Dolphin",
      "year": 1918,
      "role": "전투기",
-     "base": "../dolphin.webp",
+     "base": "planes/dolphin_clean.webp",
      "variants": [
       {
        "kind": "alt",
@@ -3187,7 +3187,7 @@
      "name": "Bristol F.2b",
      "year": 1917,
      "role": "전투기",
-     "base": "../bristol_duo.webp",
+     "base": "planes/bristol_duo_clean.webp",
      "variants": [
       {
        "kind": "livery",
@@ -3236,7 +3236,7 @@
      "name": "Bristol M.1",
      "year": 1917,
      "role": "전투기",
-     "base": "../bristol_m1.webp",
+     "base": "planes/bristol_m1_clean.webp",
      "variants": [
       {
        "kind": "livery",
@@ -3285,7 +3285,7 @@
      "name": "Airco DH.4",
      "year": 1917,
      "role": "폭격기",
-     "base": "../dh4.webp",
+     "base": "planes/dh4_clean.webp",
      "variants": [
       {
        "kind": "alt",
@@ -3339,7 +3339,7 @@
      "name": "Airco DH.5",
      "year": 1917,
      "role": "전투기",
-     "base": "../dh5.webp",
+     "base": "planes/dh5_clean.webp",
      "variants": [
       {
        "kind": "livery",
@@ -3437,7 +3437,7 @@
      "name": "R.E.8",
      "year": 1917,
      "role": "정찰기",
-     "base": "../re8.webp",
+     "base": "planes/re8_clean.webp",
      "variants": [
       {
        "kind": "alt",
@@ -3589,7 +3589,7 @@
      "name": "Caudron G.4",
      "year": 1915,
      "role": "폭격기",
-     "base": "../caudron_g4.webp",
+     "base": "planes/caudron_g4_clean.webp",
      "variants": [
       {
        "kind": "alt",

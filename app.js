@@ -25,17 +25,17 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=gal1';
 import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=gal1';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawEquipmentDefense} from './player-effects129.js?v=livingww1d';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=bomb3&hints=1&treads=2&rail=42&maan=3&minen=4';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=bomb5&hints=1&treads=2&rail=42&maan=3&minen=4';
 import {paintDover} from './dover-night-view.js?v=dover6';
 import {paintParis} from './paris-night-art.js?v=gal1';
-import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=bomb3&hints=1&rail=42';
+import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=bomb4&hints=1&rail=42';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=gal1';
 import './hud-layout94.js?v=gal1';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=gal1';
 import {installOnlineLobby} from './online-coop-session.js?v=livingww1d&coopfix=1&rail=42';
-import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=bomb3';
+import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=bomb4';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=gal1';
-import {drawCoop} from './coop-view.js?v=bomb3&rail=42';
+import {drawCoop} from './coop-view.js?v=bomb5&rail=42';
 import {drawSunStrike} from './sun-strike71.js?v=gal1&rail=42';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor,drawTracerBolt} from './projectiles.js?v=gal1';
 import {installFlightViewport} from './flight-viewport.js?v=gal1';
@@ -58,12 +58,12 @@ import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=gal1';
 import {drawTailEngagement} from './engagement-hud410.js?v=gal1';
 import {portraitSources,portraitsReady,portraitLoaded} from './portraits.js?v=gal1';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb3&rail=42';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb4&rail=42';
 import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN,bossArrivalCues} from './boss-feedback.js?v=gal1&hints=1&rail=42';
 import {drawEquipment} from './equipment.js?v=gal1';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=gal1';
 import{planeSprite,aircraftReady,aircraftKey,hangarArtReady,paintedReady}from './aircraft.js?v=gal1';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=bomb3';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=bomb4';
 import {AUGMENTATION_OVERHAUL_BALANCE}from'./augmentation-overhaul150.js?v=gal1';
 import {drawCloudCover}from'./cloud-cover1.js?v=dover1';
 import {drawFleetLayer}from'./fleet-naval1.js?v=gal1&rail=42';
@@ -71,7 +71,7 @@ import {drawTrenchLayer}from'./trench-war1.js?v=gal1';
 import {drawCityAirLayer}from'./city-air1.js?v=gal1';
 import {TerrainRenderer,MountainField,applyTerrainAtmosphere,preloadTerrainProfile,terrainProfilesReady} from './alps-terrain117.js?v=gal1';
 import {FXS,fxsTracer,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=bomb3&rail=42';
-import {bombSprite} from './bomb-sprites.js?v=bomb3';
+import {bombSprite} from './bomb-sprites.js?v=bomb5';
 import {drawPassiveFx,drawPassiveFxFront} from './passive-fx.js?v=gal1&rail=42';
 
 const flightViewport=installFlightViewport(document,window);
@@ -433,7 +433,7 @@ draw=t=>{
   const [x,y]=point(z.x,z.y),p=1-z.delay/z.maxDelay;
   impactMark(ctx,x,y,z.radius,p);
   const [bx,by]=point(z.sx+(z.x-z.sx)*p,z.sy+(z.y-z.sy)*p);
-  if(FXS&&fxsBombFall(ctx,(X,Y,k,a)=>bombSprite(ctx,'puw',X,Y,44,a)||fx(ctx,'bomb',X,Y,40*k,20*k,a),...point(z.sx,z.sy),x,y,p)){}else if(!bombSprite(ctx,'puw',bx,by,44,Math.PI/2)&&!fx(ctx,'bomb',bx,by,40,20,Math.PI/2))drawEquipment(ctx,'rocket',bx,by,Math.PI,38);
+  if(FXS&&fxsBombFall(ctx,(X,Y,k,a)=>bombSprite(ctx,z.sprite||'puw',X,Y,44,a)||fx(ctx,'bomb',X,Y,40*k,20*k,a),...point(z.sx,z.sy),x,y,p)){}else if(!bombSprite(ctx,'puw',bx,by,44,Math.PI/2)&&!fx(ctx,'bomb',bx,by,40,20,Math.PI/2))drawEquipment(ctx,'rocket',bx,by,Math.PI,38);
  }
  fxsBoomTail(ctx,game.combatFX,point,game.t||0);
  for(const f of game.combatFX||[]){const[x,y]=point(f.x,f.y);const _m=(f.radius||60)*2.6+80;if(x<-_m||x>W+_m||y<-_m||y>H+_m)continue;const p=1-f.life/f.maxLife;
