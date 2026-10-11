@@ -1,5 +1,6 @@
 // Authored scenery, below combat. No entities, collisions, RNG or particle pool.
 import {fx,fxImage,fxArtReady} from './fx-art.js?v=gal1';
+import {drawTrenchFrontline} from './trench-frontline.js?v=frontline1';
 const CELLS=[
  [92,39,257,324],[435,40,259,321],[772,42,257,319],[1117,40,258,323],
  [140,400,151,346],[485,397,153,348],[822,398,158,335],[1161,394,161,345],
@@ -48,6 +49,19 @@ function groundFx(c,key,x,y,w,h,angle=0,alpha=1){
 function sprite(c,frame,x,y,height,a,alpha){
  const im=sprites[frame];if(!im)return;const width=height*im.width/im.height;
  c.save();c.imageSmoothingEnabled=true;c.translate(x,y);c.rotate(a);c.globalAlpha*=alpha;c.drawImage(im,-width/2,-height/2,width,height);c.restore();
+}
+// Trench-only silhouettes: reuse the approved art, with a wider readable
+// footprint and a single pre-baked contrast pass. Other regions keep their art.
+const trenchSprites=[];
+function trenchUnit(c,frame,x,y,height,a,alpha){
+ if(frame<8)return sprite(c,frame,x,y,height,a,alpha);
+ const original=sprites[frame];if(!original)return;
+ let im=trenchSprites[frame];
+ if(!im){im=document.createElement('canvas');im.width=original.width;im.height=original.height;const g=im.getContext('2d');
+  g.filter='contrast(1.4) brightness(0.78)';g.drawImage(original,0,0);g.filter='none';trenchSprites[frame]=im;
+ }
+ const w=height*im.width/im.height*1.28;
+ c.save();c.translate(x,y);c.rotate(a);c.globalAlpha*=alpha;c.drawImage(im,-w/2,-height/2,w,height);c.restore();
 }
 const hash=(x,y)=>((Math.imul(x,73856093)^Math.imul(y,19349663))>>>0);
 const mod=(x,n)=>(x%n+n)%n;
@@ -140,6 +154,12 @@ const LIMIT=Object.freeze({vehicle:6,fight:5,event:10});
 export function drawGroundLife(c,key,left,top,width,height,period,t,density=1){
  groundLifeStats.atlas=sprites.length;groundLifeStats.alpha=c.globalAlpha;
  if(!sprites.length||!Number.isFinite(period)||period<=0||!Number.isFinite(t)||density<=0)return;
+ if(key==='trenches'){
+  groundFxRemaining=density<.7?24:48;
+  const stats=drawTrenchFrontline(c,left,top,width,height,period,t,density,{unit:trenchUnit,fx:groundFx,ready:sprites.length===12});
+  groundLifeStats.vehicles=stats.vehicles;groundLifeStats.groups=stats.sectors;groundLifeStats.emitters=stats.fx;
+  groundFxRemaining=Infinity;return;
+ }
  const routes=GROUND_ROUTES[key],fights=GROUND_FIGHTS[key],events=GROUND_EVENTS[key];if(!routes&&!fights&&!events)return;
  let vehicles=0,groups=0,emitters=0;groundFxRemaining=density<.7?28:64;
  const low=density<.7,mirror=key==='cambrai',xmin=Math.floor(left/period),xmax=Math.floor((left+width)/period),ymin=Math.floor(top/period),ymax=Math.floor((top+height)/period);
