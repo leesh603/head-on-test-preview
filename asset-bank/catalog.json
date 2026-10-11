@@ -1,5 +1,5 @@
 {
- "v": 62,
+ "v": 74,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -291,6 +291,51 @@
        "file": "aces/lothar_albatros_d3.webp"
       },
       {
+        "kind": "ace",
+        "name": "Voss (합판+청백카울)",
+        "file": "aces/voss_albatros_d3.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Bolle (황흑사선)",
+        "file": "aces/bolle_albatros_d3.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Gontermann (적색카울)",
+        "file": "aces/gontermann_albatros_d3.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Zolhart (녹백소용돌이)",
+        "file": "aces/zolhart_albatros_d3.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Döring (갈합판+적테두리)",
+        "file": "aces/doering_albatros_d3.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Jacobs (흑+악마)",
+        "file": "aces/jacobs_albatros_d3.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Osterkamp (흑꼬리)",
+        "file": "aces/osterkamp_albatros_d3.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Stork (청백사선)",
+        "file": "aces/stork_albatros_d3.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "H. Wolff (적색+흑테)",
+        "file": "aces/hwolff_albatros_d3.webp"
+      },
+      {
        "kind": "ace",
        "name": "Menckhoff (검정 위장)",
        "file": "aces/menckhoff_albatros.webp"
@@ -383,6 +428,66 @@
        "kind": "ace",
        "name": "Edelweiss (목재동체)",
        "file": "aces/edelweiss_albatros.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Löwenhardt (황기수)",
+        "file": "aces/loewenhardt_albatros_d5.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Bäumer (흑백줄무늬)",
+        "file": "aces/baeumer_albatros_d5.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Rumey (청+백까마귀)",
+        "file": "aces/rumey_albatros_d5.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Strauss (주황흑사선)",
+        "file": "aces/strauss_albatros_d5.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Schönfelder (적불꽃)",
+        "file": "aces/schoenfelder_albatros_d5.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Tzetzsche (흑백체크카울)",
+        "file": "aces/tzetzsche_albatros_d5.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Korten (적하트)",
+        "file": "aces/korten_albatros_d5.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Mai (녹잎무늬)",
+        "file": "aces/mai_albatros_d5.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Frisch (백페가수스)",
+        "file": "aces/frisch_albatros_d5.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Schwede (황링띠)",
+        "file": "aces/schwede_albatros_d5.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Bohm (녹황체크카울)",
+        "file": "aces/bohm_albatros_d5.webp"
+      },
+      {
+        "kind": "ace",
+        "name": "Wart (독수리)",
+        "file": "aces/wart_albatros_d5.webp"
       }
      ]
     },
@@ -1226,7 +1331,7 @@
      "name": "AEG G.IV",
      "year": 1917,
      "role": "중폭격기",
-     "base": "../aeg_g4.webp",
+     "base": "planes/aeg_g4_clean.webp",
      "variants": [
       {
        "kind": "livery",
@@ -1427,7 +1532,7 @@
      "name": "Friedrichshafen FF.33",
      "year": 1916,
      "role": "수상정찰기",
-     "base": "../ff33.webp",
+     "base": "planes/ff33_clean.webp",
      "variants": [
       {
        "kind": "livery",
@@ -1476,7 +1581,7 @@
      "name": "Hansa-Brandenburg W.29",
      "year": 1918,
      "role": "수상전투기",
-     "base": "../hb_w29.webp",
+     "base": "planes/hb_w29_clean.webp",
      "variants": [
       {
        "kind": "livery",
@@ -1525,7 +1630,7 @@
      "name": "Hansa-Brandenburg CC",
      "year": 1917,
      "role": "수상전투기",
-     "base": "../hansa_brandenburg_cc.webp",
+     "base": "planes/hansa_cc_clean.webp",
      "variants": [
       {
        "kind": "livery",
@@ -1727,7 +1832,7 @@
      "name": "Lohner L",
      "year": 1916,
      "role": "비행정",
-     "base": "../lohner_l.webp",
+     "base": "planes/lohner_l_clean.webp",
      "variants": [
       {
        "kind": "livery",
@@ -1782,7 +1887,7 @@
      "name": "Morane-Saulnier AI",
      "year": 1917,
      "role": "전투기",
-     "base": "../morane_ai.webp",
+     "base": "planes/morane_ai_clean.webp",
      "variants": [
       {
        "kind": "livery",
@@ -1929,7 +2034,7 @@
      "name": "F.E.2b",
      "year": 1916,
      "role": "전투기",
-     "base": "../fe2b.webp",
+     "base": "planes/fe2b_clean.webp",
      "variants": [
       {
        "kind": "livery",
@@ -1978,7 +2083,7 @@
      "name": "B.E.2c",
      "year": 1915,
      "role": "정찰기",
-     "base": "../be2c.webp",
+     "base": "planes/be2c_clean.webp",
      "variants": [
       {
        "kind": "livery",
@@ -2027,7 +2132,7 @@
      "name": "R.E.7",
      "year": 1916,
      "role": "정찰기",
-     "base": "../re7.webp",
+     "base": "planes/re7_clean.webp",
      "variants": [
       {
        "kind": "livery",
@@ -2377,7 +2482,7 @@
      "name": "Sopwith Pup",
      "year": 1916,
      "role": "전투기",
-     "base": "../pup.webp",
+     "base": "planes/pup_clean.webp",
      "variants": [
       {
        "kind": "alt",
@@ -2431,7 +2536,7 @@
      "name": "Sopwith 1½ Strutter",
      "year": 1916,
      "role": "전투기",
-     "base": "../strutter.webp",
+     "base": "planes/strutter_clean.webp",
      "variants": [
       {
        "kind": "alt",
