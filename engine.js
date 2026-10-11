@@ -1798,7 +1798,7 @@ Game.prototype.update=function(dt,input={}){
   if(this.bishopDrops>0&&this.bishopBombTimer<=0){this.bishopDrops--;this.bishopBombTimer=.58/Math.max(1,this.bishopDropsTotal);
    const i=(this.bishopDropsTotal||8)-this.bishopDrops-1,row=Math.floor(i/4),lane=i%4-1.5,f=Math.max(80,this.speed*.8),ca=Math.cos(this.bishopHeading),sa=Math.sin(this.bishopHeading),px=-sa,py=ca;
    const bx=this.x+ca*(f+row*92)+px*lane*72,by=this.y+sa*(f+row*92)+py*lane*72;
-   this.friendlyBombs.push({ownerId:this.id,sx:bx,sy:by-560,x:bx,y:by,life:1.8,maxLife:1.8,radius:110,damage:this.payloadPower(90),bishopBomb:true});
+   const bl=1.5+this.rng()*.7;this.friendlyBombs.push({ownerId:this.id,sx:bx+(this.rng()-.5)*150,sy:by-540-this.rng()*110,x:bx,y:by,life:bl,maxLife:bl,radius:110,damage:this.payloadPower(90),bishopBomb:true});
   }
  }
  _updateGuerrilla.call(this,dt,input);
