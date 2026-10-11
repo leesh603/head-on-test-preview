@@ -1,5 +1,5 @@
 {
- "v": 26,
+ "v": 27,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -2636,57 +2636,57 @@
       {
        "kind": "ace",
        "name": "Ball",
-       "file": "../ball_se5a.webp"
+       "file": "aces/ball_se5a.webp"
       },
       {
        "kind": "ace",
        "name": "Ball (2)",
-       "file": "../ball_se5a_v2.webp"
+       "file": "aces/ball2_se5a.webp"
       },
       {
        "kind": "ace",
        "name": "Beauchamp",
-       "file": "../beauchamp_se5a.webp"
+       "file": "aces/beauchamp_se5a.webp"
       },
       {
        "kind": "ace",
        "name": "Bishop",
-       "file": "../bishop_se5a.webp"
+       "file": "aces/bishop_se5a.webp"
       },
       {
        "kind": "ace",
        "name": "Checkerboard",
-       "file": "../checker_se5a.webp"
+       "file": "aces/checker_se5a.webp"
       },
       {
        "kind": "ace",
        "name": "Collishaw",
-       "file": "../collishaw_se5a.webp"
+       "file": "aces/collishaw_se5a.webp"
       },
       {
        "kind": "ace",
        "name": "Dallas",
-       "file": "../dallas_se5a.webp"
+       "file": "aces/dallas_se5a.webp"
       },
       {
        "kind": "ace",
        "name": "Mannock",
-       "file": "../mannock_se5a.webp"
+       "file": "aces/mannock_se5a.webp"
       },
       {
        "kind": "ace",
        "name": "Proctor",
-       "file": "../proctor_se5a.webp"
+       "file": "aces/proctor_se5a.webp"
       },
       {
        "kind": "squadron",
        "name": "85 비행대",
-       "file": "../sqn85_se5a.webp"
+       "file": "aces/sqn85_se5a.webp"
       },
       {
        "kind": "livery",
        "name": "얼룩말",
-       "file": "../zebra_se5a.webp"
+       "file": "aces/zebra_se5a.webp"
       },
       {
        "kind": "ace",
