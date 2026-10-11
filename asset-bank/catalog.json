@@ -1,5 +1,5 @@
 {
- "v": 25,
+ "v": 26,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -1956,7 +1956,7 @@
      "name": "Nieuport 11 \"Bébé\"",
      "year": 1916,
      "role": "전투기",
-     "base": "../nieuport11.webp",
+     "base": "planes/nieuport_11_bebe.webp",
      "variants": [
       {
        "kind": "ace",
