@@ -1,5 +1,5 @@
 {
- "v": 28,
+ "v": 29,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -2754,27 +2754,27 @@
      "name": "SPAD XIII",
      "year": 1917,
      "role": "전투기",
-     "base": "../spad.webp",
+     "base": "planes/spad13_clean.webp",
      "variants": [
       {
        "kind": "alt",
        "name": "SPAD XII (37mm)",
-       "file": "../spad12.webp"
+       "file": "aces/spad12.webp"
       },
       {
        "kind": "alt",
        "name": "SPAD XII (2)",
-       "file": "../spad12_v2.webp"
+       "file": "aces/spad12_v2.webp"
       },
       {
        "kind": "ace",
        "name": "Audemars",
-       "file": "../audemars_spad.webp"
+       "file": "aces/audemars_spad.webp"
       },
       {
        "kind": "ace",
        "name": "Boyau",
-       "file": "../boyau_spad.webp"
+       "file": "aces/boyau_spad_root.webp"
       },
       {
        "kind": "ace",
@@ -2784,17 +2784,17 @@
       {
        "kind": "ace",
        "name": "Deüllin",
-       "file": "../deullin_spad.webp"
+       "file": "aces/deullin_spad.webp"
       },
       {
        "kind": "ace",
        "name": "Fonck",
-       "file": "../fonck_spad.webp"
+       "file": "aces/fonck_spad.webp"
       },
       {
        "kind": "ace",
        "name": "Germain",
-       "file": "../germain_spad.webp"
+       "file": "aces/germain_spad.webp"
       },
       {
        "kind": "ace",
@@ -2804,7 +2804,7 @@
       {
        "kind": "ace",
        "name": "Madon",
-       "file": "../madon_spad.webp"
+       "file": "aces/madon_spad_root.webp"
       },
       {
        "kind": "ace",
@@ -2814,22 +2814,22 @@
       {
        "kind": "ace",
        "name": "Rickenbacker",
-       "file": "../rickenbacker_spad.webp"
+       "file": "aces/rickenbacker_spad.webp"
       },
       {
        "kind": "ace",
        "name": "Rickenbacker (2)",
-       "file": "../rickenbacker_spad_v2.webp"
+       "file": "aces/rickenbacker_spad_v2.webp"
       },
       {
        "kind": "ace",
        "name": "Tarascon",
-       "file": "../tarascon_spad.webp"
+       "file": "aces/tarascon_spad.webp"
       },
       {
        "kind": "ace",
        "name": "Thieffry",
-       "file": "../thieffry_spad.webp"
+       "file": "aces/thieffry_spad.webp"
       },
       {
        "kind": "ace",
@@ -2839,7 +2839,7 @@
       {
        "kind": "ace",
        "name": "Belgian",
-       "file": "../belgium_spad.webp"
+       "file": "aces/belgium_spad.webp"
       },
       {
        "kind": "ace",
@@ -2849,7 +2849,7 @@
       {
        "kind": "ace",
        "name": "Italian",
-       "file": "../italian_spad.webp"
+       "file": "aces/italian_spad.webp"
       },
       {
        "kind": "ace",
