@@ -12,7 +12,7 @@ import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=gal1';
 import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=gal1';
 import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=gal1';
 import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=gal1';
-import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=gal1';
+import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=dover4';
 import {drawStageBoss} from './stageboss-view.js?v=gal1&hints=1&treads=2&rail=42&maan=3&minen=4';
 const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};

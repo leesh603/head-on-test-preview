@@ -3,6 +3,7 @@ import {fx,fxTint} from './fx-art.js?v=gal1';
 import {planeSprite,aircraftKey} from './aircraft.js?v=gal1';
 import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';
 
+import {bishopFlightHeight} from './engine.js?v=dover4';
 import {drawCavalryGuard} from './pilot-directed-fx.js';
 const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
@@ -10,9 +11,10 @@ export function playerPose(p,x,y){
  const t=Math.max(0,Math.min(1,(p.cannonRecoil129||0)/.24));
  const kick=(p.cannonKick129||0)*Math.sin(t*Math.PI/2);
  const altitude=p.pilot==='immelmann'?(p.immelmannAltitude||0):0;
- const height=altitude*52;
+ const bishopHeight=p.pilot==='bishop'?bishopFlightHeight(p):0,bishopAltitude=bishopHeight/((p.viewHeight||900)*.9);
+ const height=altitude*52+bishopHeight;
  const roll=p.pilot==='huffzky'&&p.skillTime>0?Math.sin(p.nineRoll||0)*4:p.pilot==='udet'&&p.skillTime>0?Math.sin((p.t||0)*45)*.8:0;
- return {x:x-Math.cos(p.a)*kick-Math.sin(p.a)*roll,y:y-Math.sin(p.a)*kick+Math.cos(p.a)*roll-height,scale:(p.aceScale129||1)*(1+altitude*.1),height,shadowX:18+altitude*10,shadowY:28+altitude*12,shadowScale:1-altitude*.3,shadowAlpha:1-altitude*.35};
+ return {x:x-Math.cos(p.a)*kick-Math.sin(p.a)*roll,y:y-Math.sin(p.a)*kick+Math.cos(p.a)*roll-height,scale:(p.aceScale129||1)*(1+altitude*.1)*(1-bishopAltitude*.25),height,shadowX:18+altitude*10,shadowY:28+altitude*12,shadowScale:1-altitude*.3,shadowAlpha:1-altitude*.35};
 }
 // Project the existing aircraft art through pitch and roll instead of swapping
 // its heading at the apex. Vertical projection keeps the rising fuselage visible.
