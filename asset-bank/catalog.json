@@ -1,5 +1,5 @@
 {
- "v": 29,
+ "v": 30,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -168,77 +168,77 @@
      "name": "Albatros D.III",
      "year": 1917,
      "role": "전투기",
-     "base": "../albatros.webp",
+     "base": "planes/albatros_d3_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Richthofen",
-       "file": "../baron_albatros.webp"
+       "file": "aces/baron_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Allmenröder",
-       "file": "../allmenroder_albatros.webp"
+       "file": "aces/allmenroder_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Frommherz",
-       "file": "../frommherz_albatros.webp"
+       "file": "aces/frommherz_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Kirschstein",
-       "file": "../kirschstein_albatros.webp"
+       "file": "aces/kirschstein_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Kissenberth",
-       "file": "../kissenberth_albatros.webp"
+       "file": "aces/kissenberth_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Loerzer",
-       "file": "../loerzer_albatros.webp"
+       "file": "aces/loerzer_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Wolff",
-       "file": "../wolff_albatros.webp"
+       "file": "aces/wolff_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 4",
-       "file": "../jasta4_albatros.webp"
+       "file": "aces/jasta4_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 5",
-       "file": "../jasta5_albatros.webp"
+       "file": "aces/jasta5_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 11 A",
-       "file": "../jasta11a_albatros.webp"
+       "file": "aces/jasta11a_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 11 B",
-       "file": "../jasta11b_albatros.webp"
+       "file": "aces/jasta11b_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 11 C",
-       "file": "../jasta11c_albatros.webp"
+       "file": "aces/jasta11c_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 11 D",
-       "file": "../jasta11d_albatros.webp"
+       "file": "aces/jasta11d_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 78b",
-       "file": "../jasta78b_albatros.webp"
+       "file": "aces/jasta78b_albatros.webp"
       },
       {
        "kind": "alt",
