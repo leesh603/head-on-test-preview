@@ -1,5 +1,5 @@
 {
- "v": 58,
+ "v": 59,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -114,12 +114,12 @@
      "name": "Albatros D.II",
      "year": 1916,
      "role": "전투기",
-     "base": "../albatros_d2.webp",
+     "base": "planes/albatros_d2_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Boelcke",
-       "file": "../boelcke_albatros.webp"
+       "file": "aces/boelcke_albatros.webp"
       },
       {
        "kind": "livery",
