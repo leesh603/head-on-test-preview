@@ -75,7 +75,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 </div>
 </div>
 </header>
-<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=dover3"></iframe></main>
+<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=dover4"></iframe></main>
 </div>
 <script>
 const $=id=>document.getElementById(id),frame=$('game');let api=null;
@@ -178,8 +178,9 @@ $('patternStep').onclick=()=>{
 $('doverView').onclick=async()=>{
  const g=api?.debug?.();if(!g||g.worldRegion()!==17)return;
  const {doverPatrolChart,doverWaterInterval,doverFlightBounds}=await import('./dover-patrol-chart.js?v=dover3');
+ const {doverCoastPoint}=await import('./dover-terrain-render.js?v=dover4');
  const c=doverPatrolChart(g),b=doverFlightBounds(g),where=$('doverLocation').value;
- let y=c.top+c.height*(where==='east'?.61:.3),q=doverWaterInterval(g,y),x=where==='west'?q.left+170:where==='east'?q.right-170:(q.left+q.right)/2;
+ let v=where==='east'?.61:.3,y=c.top+c.height*v,q=doverWaterInterval(g,y),x=where==='west'?doverCoastPoint(c,v,-1).x+170:where==='east'?doverCoastPoint(c,v,1).x-170:(q.left+q.right)/2;
  if(where==='north'){x=(b.left+b.right)/2;y=b.top+80;}
  x=Math.max(b.left,Math.min(b.right,x));y=Math.max(b.top,Math.min(b.bottom,y));
  if(g.players){for(const p of g.players){p.x=x;p.y=y;}g.camera.x=x;g.camera.y=y;}else{g.x=x;g.y=y;}
