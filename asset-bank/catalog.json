@@ -1,5 +1,5 @@
 {
- "v": 39,
+ "v": 40,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -849,12 +849,12 @@
      "name": "Siemens-Schuckert D.III",
      "year": 1918,
      "role": "전투기",
-     "base": "planes/ssw_d3.webp",
+     "base": "planes/ssw_d3_clean.webp",
      "variants": [
       {
        "kind": "alt",
        "name": "인게임형",
-       "file": "../ssw_d3.webp"
+       "file": "aces/ssw_d3_ingame.webp"
       },
       {
        "kind": "livery",
