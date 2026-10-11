@@ -3,19 +3,10 @@ import {DOVER_MAP} from './dover-patrol-chart.js?v=dover3';
 
 // The finite coastline is geometry; the native-resolution art is its material.
 // Never stretch a complete 1024px landscape across a 6144px battlefield.
-const N=DOVER_COAST_PROFILE.length,STEP=DOVER_MAP.height/(N-1),CLEARANCE=192;
-const SHORE_WIDTH=[512,384],shore=[];
+const N=DOVER_COAST_PROFILE.length,STEP=DOVER_MAP.height/(N-1),CLEARANCE=DOVER_MAP.coastInset;
+const SHORE_WIDTH=[640,560],shore=[];
 for(let side=0;side<2;side++){
- const median=new Float64Array(N),x=new Float64Array(N),nx=new Float64Array(N),ny=new Float64Array(N),arc=new Float64Array(N);
- for(let i=0;i<N;i++){
-  const values=[];for(let j=-2;j<=2;j++)values.push(DOVER_COAST_PROFILE[Math.max(0,Math.min(N-1,i+j))][side]);
-  values.sort((a,b)=>a-b);median[i]=values[2];
- }
- for(let i=0;i<N;i++){
-  let sum=0;for(let j=-2;j<=2;j++)sum+=median[Math.max(0,Math.min(N-1,i+j))]*[1,4,6,4,1][j+2];
-  x[i]=sum/16*DOVER_MAP.width+(side?CLEARANCE:-CLEARANCE);
-  if(i)arc[i]=arc[i-1]+Math.hypot(x[i]-x[i-1],STEP);
- }
+ const x=Float64Array.from(DOVER_COAST_PROFILE,q=>q[side]*DOVER_MAP.width+(side?CLEARANCE:-CLEARANCE)),nx=new Float64Array(N),ny=new Float64Array(N),arc=new Float64Array(N);
  for(let i=0;i<N;i++){
   const a=Math.max(0,i-1),b=Math.min(N-1,i+1),dx=x[b]-x[a],dy=(b-a)*STEP,len=Math.hypot(dx,dy);
   nx[i]=dy/len*(side?-1:1);ny[i]=-dx/len*(side?-1:1);
@@ -47,7 +38,8 @@ function landPath(c,chart,left,top,w,h,side,first,last){
 function triangle(c,im,sy,sh,ax,ay,bx,by,cx,cy,dx,dy,ex,ey,fx,fy){
  const mx=(ax+bx+cx)/3,my=(ay+by+cy)/3;
  c.save();c.beginPath();c.moveTo(ax+(ax-mx)*.006,ay+(ay-my)*.006);c.lineTo(bx+(bx-mx)*.006,by+(by-my)*.006);c.lineTo(cx+(cx-mx)*.006,cy+(cy-my)*.006);c.closePath();c.clip();
- c.transform(dx,dy,ex,ey,fx,fy);c.drawImage(im,0,sy,im.naturalWidth,sh,0,0,im.naturalWidth,sh);c.restore();
+ // Keep neighbouring source rows available to bilinear sampling at every clip edge.
+ c.transform(dx,dy,ex,ey,fx,fy);c.drawImage(im,0,0,im.naturalWidth,im.naturalHeight,0,-sy,im.naturalWidth,im.naturalHeight);c.restore();
 }
 
 function quad(c,im,sy,sh,ax,ay,bx,by,cx,cy,dx,dy){
@@ -57,19 +49,32 @@ function quad(c,im,sy,sh,ax,ay,bx,by,cx,cy,dx,dy){
  triangle(c,im,sy,sh,bx,by,dx,dy,cx,cy,a,b,(dx-bx)/sh,(dy-by)/sh,bx-a*iw,by-b*iw);
 }
 
+// Mirrored repeat joins a material edge to itself, including its alpha contour.
+export function doverMaterialY(distance,height){
+ const period=height*2,phase=((distance%period)+period)%period;
+ return phase<=height?phase:period-phase;
+}
+
 function paintShore(c,im,chart,left,top,w,h,side,first,last){
  const q=shore[side],width=SHORE_WIDTH[side],half=width/2,density=im.naturalWidth/width;
+ const entry=DOVER_MAP.entryY*(N-1),row=Math.min(N-2,Math.floor(entry)),arc=q.arc[row]+(q.arc[row+1]-q.arc[row])*(entry-row);
+ // Keep the reflected edge outside the normal entry view; the two shores use independent phases.
+ const phase=im.naturalHeight*(.5+side*.05)-arc*density;
  for(let i=Math.max(0,first-1);i<Math.min(N-1,last+1);i++){
   if(Math.max(q.x[i],q.x[i+1])+half<left-chart.left||Math.min(q.x[i],q.x[i+1])-half>left+w-chart.left)continue;
   const x0=chart.left+q.x[i]-left,y0=chart.top+i*STEP-top,x1=chart.left+q.x[i+1]-left,y1=y0+STEP;
   let ax=x0-q.nx[i]*half,ay=y0-q.ny[i]*half,bx=x0+q.nx[i]*half,by=y0+q.ny[i]*half;
   const cx=x1-q.nx[i+1]*half,cy=y1-q.ny[i+1]*half,dx=x1+q.nx[i+1]*half,dy=y1+q.ny[i+1]*half;
-  let sy=q.arc[i]*density%im.naturalHeight,remaining=(q.arc[i+1]-q.arc[i])*density;
+  let at=q.arc[i]*density+phase,remaining=(q.arc[i+1]-q.arc[i])*density;
   while(remaining>.001){
+   const period=Math.floor((at+1e-7)/im.naturalHeight),sy=Math.max(0,at-period*im.naturalHeight),flip=period%2!==0;
    const sh=Math.min(remaining,im.naturalHeight-sy),t=sh/remaining;
    const ex=ax+(cx-ax)*t,ey=ay+(cy-ay)*t,fx=bx+(dx-bx)*t,fy=by+(dy-by)*t;
-   quad(c,im,sy,sh,ax,ay,bx,by,ex,ey,fx,fy);
-   ax=ex;ay=ey;bx=fx;by=fy;remaining-=sh;sy=0;
+   // Mirrored material periods meet on the very same authored edge pixels.
+   // Reversing destination vertices preserves x (land/sea) orientation.
+   if(flip)quad(c,im,doverMaterialY(at+sh,im.naturalHeight),sh,ex,ey,fx,fy,ax,ay,bx,by);
+   else quad(c,im,doverMaterialY(at,im.naturalHeight),sh,ax,ay,bx,by,ex,ey,fx,fy);
+   ax=ex;ay=ey;bx=fx;by=fy;remaining-=sh;at+=sh;
   }
  }
 }
