@@ -11,7 +11,7 @@ import {isDoverBoss} from './dover-night-view.js?v=dover6';
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=gal1';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=gal1';
 import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=livingww1d&rail=42';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=livingww1d&rail=42';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb3&rail=42';
 import {bossSoundFor} from './boss-feedback.js?v=gal1&hints=1&rail=42';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=gal1&rail=42';
 import {advanceCambraiBug} from './cambrai-bug-flight.js?v=gal1';
@@ -78,7 +78,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     lincomparable:{warningSeconds:1.4,railCycle:5.8,railMoveSeconds:3.6,hpScale:.72},
     'sms-stuttgart':{launchInterval:1.8,fireScale:.62,suppressiveInterval:1.9},
     'hms-zubian':{broadsideInterval:.75/density,mortarInterval:1.3,chargeInterval:1.85,suppressiveInterval:1.8/density},
-    'zeppelin-l70':{engineInterval:5.6,engineShotCount:3,suppressiveInterval:2.6,suppressiveCount:6,gasInterval:5.4},
+    'zeppelin-l70':{engineInterval:5.6,engineShotCount:3,suppressiveInterval:2.6,suppressiveCount:6,gasInterval:4.4},
     hma23:{launchInterval:4.8,panicInterval:5.8},
     gik:{suppressiveInterval:2.4,suppressiveCount:6,rearFinalInterval:.48},
     'livens-flame-projector':{flameInterval:4.4},

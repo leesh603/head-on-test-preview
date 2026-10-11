@@ -78,7 +78,7 @@ export class GIK extends AlpsBomber {
  update(dt,{players,bounds}){
   this.cruise(dt);this.updatePhase();this.cannon(dt,players);
   this.mountFire('rearGun',players,dt,this.phase===3?1.3:1.8,true);
-  if(!this.cannonLock&&this.due('gik-bomb-run',dt,this.phase===3?5.1:7.2)){this.stickBombs(bounds,{count:this.phase===3?6:5});this.command('phase-change',{phase:'gik-strafe-run'});}
+  if(!this.cannonLock&&this.due('gik-bomb-run',dt,this.phase===3?3.6:5)){this.stickBombs(bounds,{count:this.phase===3?6:5});this.command('phase-change',{phase:'gik-strafe-run'});}
  }
 }
 
@@ -128,14 +128,14 @@ export class Ca4 extends AlpsBomber {
    else if(this.egress.phase==='hold'){this.egress.left-=dt;if(this.egress.left<=0)this.egress.phase='return';}
    else{this.egressLift=Math.max(0,this.egressLift-dt*540);if(this.egressLift<=0){this.egress=null;if(!bay.destroyed)this.startBombRun(bounds);}}
    this.y-=this.egressLift;this.syncParts();
-   if(!bay.destroyed&&this.due('ca4-egress-bombs',dt,.6))this.egressBombing(bounds);
+   if(!bay.destroyed&&this.due('ca4-egress-bombs',dt,.45))this.egressBombing(bounds);
    this.mountFire('frontGun',players,dt,1.6);this.mountFire('rearGun',players,dt,1.6,true);
    return;
   }
   if(!bay.destroyed&&!this.egressDone&&this.hp<=this.maxHp*.45){this.egressDone=true;this.egress={phase:'away'};this.egressLift=0;this.bombRunRemaining=0;this.laneWarnings=[];this.bayExpose=0;this.command('cancel-hazards',{tag:this.id+':payload'});this.command('phase-change',{phase:'ca4-egress'});return;}
   if(this.bayExpose>0)this.bayExpose=Math.max(0,this.bayExpose-dt);
   if(this.bombRunRemaining>0){this.bombRunRemaining=Math.max(0,this.bombRunRemaining-dt);if(!this.bombRunRemaining)this.releaseBombRun();}
-  else if(!bay.destroyed&&this.due('ca4-bombs',dt,(this.t.bombInterval||(this.phase===3?4.6:6.3))*(1+this.engineLoss()*.18)))this.startBombRun(bounds);
+  else if(!bay.destroyed&&this.due('ca4-bombs',dt,(this.t.bombInterval||(this.phase===3?3.4:4.8))*(1+this.engineLoss()*.18)))this.startBombRun(bounds);
   bay.hittable=!bay.destroyed&&(this.bayExpose>0||this.phase===3);
   if(this.due('ca4-ring',dt,this.phase===3?3.2:4.4))this.defenseRing(players);
   this.mountFire('frontGun',players,dt,2.15);this.mountFire('rearGun',players,dt,2.15,true);

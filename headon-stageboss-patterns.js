@@ -20,7 +20,7 @@ import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=gal1';
 import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=gal1';
 import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=gal1';
 import {apronPose} from './london-apron369.js?v=gal1';
-import {GIK,Ca4} from './alps-bomber-combat.js?v=livingww1d&rail=42';
+import {GIK,Ca4} from './alps-bomber-combat.js?v=bomb3&rail=42';
 import {FlakTowerNet} from './city-flak-combat.js?v=gal1&rail=42';
 
 export {GIK,Ca4};
@@ -263,7 +263,7 @@ export class ZeppelinL70 extends PatternBoss {
     if(this.phase==='cloud') {
       const live=living(players),p=live[this.cursor%Math.max(1,live.length)],c=this.parts.get('capsule');
       if(p){const wx=Math.cos(mt*.9)*48,wy=Math.sin(mt*.66)*34;c.x+=((p.x-this.x+wx)-c.x)*Math.min(1,dt*.9);c.y+=((p.y-this.y+wy)-c.y)*Math.min(1,dt*.9);const dx=c.x,dy=c.y-150,d=Math.hypot(dx,dy),leash=168;if(d>leash){c.x=dx/d*leash;c.y=150+dy/d*leash;}}
-      if(this.due('carpet',dt,this.t.bombInterval||4)) {
+      if(this.due('carpet',dt,this.t.bombInterval||3)) {
         const target=this.target(players);if(target)shellMarch(this,{source:{x:this.x,y:this.y},target,rows:4,radius:62,step:80,beat:.45,visual:'carpet-bomb',tag:'l70-cloud-run'});
       }
     } else if(this.phase==='reveal') {
@@ -281,10 +281,10 @@ export class ZeppelinL70 extends PatternBoss {
       this.broadsideQueue=(this.broadsideQueue||[]).filter(q=>!q.done);
       // Last raid: below 20% the bomb bays open over the pilot on a fixed beat.
       if(this.hp<=this.maxHp*.2){if(!this.lastRaid){this.lastRaid=true;this.timers.set('last-raid',.6);this.command('phase-change',{phase:'l70-last-raid'});}
-        if(this.due('last-raid',dt,5.2)){const target=this.target(players);if(target)shellMarch(this,{source:{x:this.x,y:this.y},target,rows:4,radius:56,step:84,beat:.42,warning:1.25,visual:'carpet-bomb',tag:'l70-last-raid'});}}
+        if(this.due('last-raid',dt,4.2)){const target=this.target(players);if(target)shellMarch(this,{source:{x:this.x,y:this.y},target,rows:4,radius:56,step:84,beat:.42,warning:1.25,visual:'carpet-bomb',tag:'l70-last-raid'});}}
       // Escort airships arrive as the hull bleeds, not all at once on reveal.
       if(this._summonTiers.length&&this.hp<=this.maxHp*this._summonTiers[0]){this._summonTiers.shift();const ox=[-170,170,0][this._summonCount%3];this.command('spawn-minion',{minion:'airship',faction:this.faction,x:this.x+ox,y:this.y-140-(this._summonCount%2)*40});this._summonCount++;}
-      if(this.due('bombline',dt,(this.t.gasInterval||6)*(this.lastStand ? .72 : 1))){
+      if(this.due('bombline',dt,(this.t.gasInterval||4.6)*(this.lastStand ? .72 : 1))){
         const p=this.target(players);
         if(p){const horizontal=(this.gasSide*=-1)>0,n=5,tx=p.x+(p.vx||0)*.4,ty=p.y+(p.vy||0)*.4;
           for(let i=0;i<n;i++){const off=(i-2)*78;
@@ -1488,7 +1488,7 @@ export class StaakenRVI extends RegionalPatternBoss {
     this.y=this.anchorY+(4-live)*(doomed?46:22)+Math.sin(mt*.19+1.3)*14
       +(doomed?Math.min(150,(mt-this.doomedAt)*12):0);
     // Stick bombing: a row of bursts laid along the run toward the target.
-    if(!doomed&&this.due('stick',dt,Math.max(4.6,6.4-(this.t.loopIndex||0)*.35))){
+    if(!doomed&&this.due('stick',dt,Math.max(3.2,4.8-(this.t.loopIndex||0)*.35))){
       const p=this.target(players);
       if(p){const dx=p.x-this.x,dy=p.y-this.y,d=Math.max(1,Math.hypot(dx,dy)),ux=dx/d,uy=dy/d;
         for(let i=0;i<5;i++)this.hazard('circle',{x:this.x+ux*(70+i*58)+randBetween(this.rng,-16,16),y:this.y+uy*(70+i*58),delay:i*.15,radius:54,warning:1.05,duration:.42,once:true,damage:Math.round(this.t.damage*1.35),visual:'carpet-bomb',sourceX:this.x,sourceY:this.y+38*(this.regionalScale||1),tag:'staaken-stick'});
@@ -1500,7 +1500,7 @@ export class StaakenRVI extends RegionalPatternBoss {
       if(p&&Math.hypot(p.x-this.x,p.y-this.y)<780){const gy=((this.gunSide*=-1)>0?58:-83)*(this.regionalScale||1),mx=this.x,my=this.y+gy,a=Math.atan2(p.y-my,p.x-mx);
         this.command('muzzle',{x:mx,y:my});this.fan(mx,my,a,3,.24,this.t.bulletSpeed*.92,'staaken-mg');}
     }
-    if(doomed&&this.due('dump',dt,9)){
+    if(doomed&&this.due('dump',dt,6.5)){
       const p=this.target(players),cx=p?p.x:this.x,cy=p?p.y:this.y+200;
       for(let i=0;i<7;i++)this.hazard('circle',{x:cx+(i-3)*62+randBetween(this.rng,-20,20),y:cy+randBetween(this.rng,-30,60),delay:.1+i*.09,radius:58,warning:1.15,duration:.45,once:true,damage:Math.round(this.t.damage*1.3),visual:'carpet-bomb',sourceX:this.x,sourceY:this.y+38*(this.regionalScale||1),tag:'staaken-dump'});
     }
@@ -1663,7 +1663,7 @@ export class GothaRaider extends PatternBoss {
       for(const side of [-1,1])this.hazard('circle',{x:t.x+side*78,y:t.y-72,delay:side<0?.42:.84,radius:48,warning:1.3,duration:.3,once:true,visual:'carpet-bomb',airborneBomb:true,sourceX,sourceY,tag:this.id+'-payload'});
       // The final run empties the bays: a longer march walks after the pilot.
       const pilot=players.find(p=>p.alive);if(pilot)shellMarch(this,{source:{x:sourceX,y:sourceY},partId:'bomb-bay',target:pilot,rows:this.finalRun?4:2,radius:55,step:78,beat:this.finalRun?.4:.48,visual:'carpet-bomb',tag:this.id+'-payload'});
-      this.runTarget=null;this.phase='egress';this.raidWait=11.5+(engines===1?4:0);this.egressY=t.y+200;this.bayWarned=false;
+      this.runTarget=null;this.phase='egress';this.raidWait=8.5+(engines===1?3:0);this.egressY=t.y+200;this.bayWarned=false;
      }else if(sourceY>t.y+70){this.onBombLine=false;this.bayOpen=0;this.bayWarned=false;}
     }
    }else{this.bayOpen=Math.max(0,this.bayOpen-dt*2);

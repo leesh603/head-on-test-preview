@@ -16,7 +16,7 @@ import {installCityAir} from './city-air1.js?v=gal1';
 import {installRegionDoctrine} from './region-doctrine1.js?v=gal1';
 import {installLondonBattle} from './london-battle.js?v=gal1';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=gal1';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=livingww1d&hints=1&rail=42';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=bomb3&hints=1&rail=42';
 import {installBuildCombatIdentity} from './build-combat-identity.js?v=gal1';
 import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=gal1';
 import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=gal1';
@@ -340,7 +340,7 @@ Game.prototype._updCombat=function(dt,input={}){
   if(!e.heavyBomber)continue;
   e.bombTimer=(e.bombTimer??3)-step;
   if(e.bombTimer<=0&&Math.hypot(e.x-this.x,e.y-this.y)<650){
-   e.bombTimer=6;const dx=Math.cos(this.a),dy=Math.sin(this.a);
+   e.bombTimer=4.2;const dx=Math.cos(this.a),dy=Math.sin(this.a);
    for(let i=0;i<3;i++)this.bombZones.push({x:this.x+dx*(i-1)*95,y:this.y+dy*(i-1)*95,sx:e.x,sy:e.y,delay:1.5+i*.22,maxDelay:1.5+i*.22,radius:52,damage:22+Math.floor(this.t/90)});
    this.event('bombWarning','폭격 투하! 붉은 표적을 벗어나세요');
   }
@@ -566,7 +566,7 @@ Game.prototype._updFriendlyBomber=function(dt,input={}){
  }}
  for(const b of this.friendlyBombers){b.age+=step;const d=-650+b.age*480;b.x=b.ox+Math.cos(b.a)*d;b.y=b.oy+Math.sin(b.a)*d;b.drop-=step;
   if(b.left>0&&b.drop<=0){b.drop=.42;b.left--;const targets=this.enemies.filter(e=>e.hp>0&&Math.hypot(e.x-b.x,e.y-b.y)<650);const target=targets[Math.floor(this.rng()*targets.length)];
-   this.friendlyBombs.push({sx:b.x,sy:b.y,x:target?.x??b.x+Math.cos(b.a)*120,y:target?.y??b.y+Math.sin(b.a)*120,life:.55,maxLife:.55,damage:this.payloadPower(80),radius:100});
+   this.friendlyBombs.push({sx:b.x,sy:b.y,x:target?.x??b.x+Math.cos(b.a)*120,y:target?.y??b.y+Math.sin(b.a)*120,life:.9,maxLife:.9,damage:this.payloadPower(80),radius:100});
   }
  }
  {const _fb=this.friendlyBombers;let _w=0;for(let _i=0;_i<_fb.length;_i++)if(_fb[_i].age<3.6)_fb[_w++]=_fb[_i];_fb.length=_w}
@@ -1798,7 +1798,7 @@ Game.prototype.update=function(dt,input={}){
   if(this.bishopDrops>0&&this.bishopBombTimer<=0){this.bishopDrops--;this.bishopBombTimer=.58/Math.max(1,this.bishopDropsTotal);
    const i=(this.bishopDropsTotal||8)-this.bishopDrops-1,row=Math.floor(i/4),lane=i%4-1.5,f=Math.max(80,this.speed*.8),ca=Math.cos(this.bishopHeading),sa=Math.sin(this.bishopHeading),px=-sa,py=ca;
    const bx=this.x+ca*(f+row*92)+px*lane*72,by=this.y+sa*(f+row*92)+py*lane*72;
-   this.friendlyBombs.push({ownerId:this.id,sx:bx,sy:by-560,x:bx,y:by,life:.8,maxLife:.8,radius:110,damage:this.payloadPower(90),bishopBomb:true});
+   this.friendlyBombs.push({ownerId:this.id,sx:bx,sy:by-560,x:bx,y:by,life:1.2,maxLife:1.2,radius:110,damage:this.payloadPower(90),bishopBomb:true});
   }
  }
  _updateGuerrilla.call(this,dt,input);
