@@ -1,5 +1,5 @@
 {
- "v": 33,
+ "v": 34,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -2419,57 +2419,57 @@
      "name": "Sopwith Camel",
      "year": 1917,
      "role": "전투기",
-     "base": "../camel.webp",
+     "base": "planes/camel_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Barker",
-       "file": "../barker_camel.webp"
+       "file": "aces/barker_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Brown",
-       "file": "../brown_camel.webp"
+       "file": "aces/brown_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Belgian",
-       "file": "../belgian_camel.webp"
+       "file": "aces/belgian_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Collett",
-       "file": "../collett_camel.webp"
+       "file": "aces/collett_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Dazzle 위장",
-       "file": "../dazzle_camel.webp"
+       "file": "aces/dazzle_camel.webp"
       },
       {
        "kind": "ace",
        "name": "MacLaren",
-       "file": "../maclaren_camel.webp"
+       "file": "aces/maclaren_camel.webp"
       },
       {
        "kind": "ace",
        "name": "McElroy",
-       "file": "../mcelroy_camel.webp"
+       "file": "aces/mcelroy_camel.webp"
       },
       {
        "kind": "squadron",
        "name": "Naval 10 (검은 편대)",
-       "file": "../naval10_camel.webp"
+       "file": "aces/naval10_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Nonal",
-       "file": "../nonal_camel.webp"
+       "file": "aces/nonal_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Woollett",
-       "file": "../woollett_camel.webp"
+       "file": "aces/woollett_camel.webp"
       },
       {
        "kind": "livery",
