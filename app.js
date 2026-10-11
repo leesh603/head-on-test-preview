@@ -25,7 +25,7 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=gal1';
 import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=gal1';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawEquipmentDefense} from './player-effects129.js?v=livingww1d';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=bomb2&hints=1&treads=2&rail=42&maan=3&minen=4';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=bomb3&hints=1&treads=2&rail=42&maan=3&minen=4';
 import {paintDover} from './dover-night-view.js?v=dover6';
 import {paintParis} from './paris-night-art.js?v=gal1';
 import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=livingww1d&hints=1&rail=42';
@@ -35,7 +35,7 @@ import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.
 import {installOnlineLobby} from './online-coop-session.js?v=livingww1d&coopfix=1&rail=42';
 import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=livingww1d';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=gal1';
-import {drawCoop} from './coop-view.js?v=bomb2&rail=42';
+import {drawCoop} from './coop-view.js?v=bomb3&rail=42';
 import {drawSunStrike} from './sun-strike71.js?v=gal1&rail=42';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor,drawTracerBolt} from './projectiles.js?v=gal1';
 import {installFlightViewport} from './flight-viewport.js?v=gal1';
@@ -70,8 +70,8 @@ import {drawFleetLayer}from'./fleet-naval1.js?v=gal1&rail=42';
 import {drawTrenchLayer}from'./trench-war1.js?v=gal1';
 import {drawCityAirLayer}from'./city-air1.js?v=gal1';
 import {TerrainRenderer,MountainField,applyTerrainAtmosphere,preloadTerrainProfile,terrainProfilesReady} from './alps-terrain117.js?v=gal1';
-import {FXS,fxsTracer,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=gal1&rail=42';
-import {bombSprite} from './bomb-sprites.js?v=bomb2';
+import {FXS,fxsTracer,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=bomb3&rail=42';
+import {bombSprite} from './bomb-sprites.js?v=bomb3';
 import {drawPassiveFx,drawPassiveFxFront} from './passive-fx.js?v=gal1&rail=42';
 
 const flightViewport=installFlightViewport(document,window);

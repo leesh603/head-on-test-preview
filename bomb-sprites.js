@@ -6,16 +6,17 @@ const IMGS = new Map();
 function img(v) {
   let im = IMGS.get(v);
   if (im === undefined) {
+    if (typeof Image === 'undefined') return null;
     im = new Image(); im.decoding = 'async';
-    im.src = new URL('./' + FILES[v] + '?v=bomb2', import.meta.url).href;
+    im.src = new URL('./' + FILES[v] + '?v=bomb3', import.meta.url).href;
     IMGS.set(v, im);
   }
   return im;
 }
-for (const v in FILES) img(v); // eager load alongside the FX atlas
+if (typeof Image !== 'undefined') for (const v in FILES) img(v); // eager load alongside the FX atlas
 export function bombSprite(c, v, x, y, w, angle = 0, alpha = 1) {
   const im = img(v);
-  if (!im || !im.complete || !im.naturalWidth) return false;
+  if (!im || !im.complete || !(im.naturalWidth > 0)) return false;
   const h = w * im.naturalHeight / im.naturalWidth;
   c.save(); c.translate(x, y); if (angle) c.rotate(angle);
   c.globalAlpha *= Math.max(0, Math.min(1, alpha)); c.imageSmoothingEnabled = true;
