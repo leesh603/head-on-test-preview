@@ -1,5 +1,5 @@
 {
- "v": 35,
+ "v": 36,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -445,17 +445,17 @@
      "name": "Pfalz D.XII",
      "year": 1918,
      "role": "전투기",
-     "base": "../pfalz_d12.webp",
+     "base": "planes/pfalz_d12_clean.webp",
      "variants": [
       {
        "kind": "ace",
        "name": "Berthold",
-       "file": "../berthold_pfalz.webp"
+       "file": "aces/berthold_pfalz.webp"
       },
       {
        "kind": "ace",
        "name": "Degelow",
-       "file": "../degelow_pfalz.webp"
+       "file": "aces/degelow_root_pfalz.webp"
       },
       {
        "kind": "ace",
