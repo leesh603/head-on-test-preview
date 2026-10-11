@@ -1,5 +1,5 @@
 {
- "v": 60,
+ "v": 61,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -1105,7 +1105,7 @@
      "name": "Hannover CL.III",
      "year": 1918,
      "role": "지상공격기",
-     "base": "../hannover_cl3.webp",
+     "base": "planes/hannover_cl3_clean.webp",
      "variants": [
       {
        "kind": "alt",
