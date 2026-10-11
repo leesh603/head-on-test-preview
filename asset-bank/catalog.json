@@ -1,5 +1,5 @@
 {
- "v": 71,
+ "v": 72,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -2132,7 +2132,7 @@
      "name": "R.E.7",
      "year": 1916,
      "role": "정찰기",
-     "base": "../re7.webp",
+     "base": "planes/re7_clean.webp",
      "variants": [
       {
        "kind": "livery",
