@@ -38,8 +38,8 @@ import {prepareDoverAssets,drawDoverBoss,drawDoverHazard,drawDoverCue,isDoverBos
 import {prepareParisArt,releaseParisArt,drawParisBoss,drawParisWorld} from './paris-night-art.js?v=gal1';
 import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=gal1';
 import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=gal1';
-import {drawAlpsBomber,drawAlpsPart,drawAlpsWarnings,drawAlpsHazard} from './alps-bomber-render.js?v=bomb12';
-import {bombSprite} from './bomb-sprites.js?v=bomb12';
+import {drawAlpsBomber,drawAlpsPart,drawAlpsWarnings,drawAlpsHazard} from './alps-bomber-render.js?v=bomb13';
+import {bombSprite} from './bomb-sprites.js?v=bomb13';
 import {drawHarborFortress} from './harbor-crane-render.js?v=gal1';
 
 
