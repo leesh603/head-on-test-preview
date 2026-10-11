@@ -15,7 +15,7 @@ export const aircraftArt=Object.freeze({
   "se5a": "./legacy/field-img-af3ccaba028180ed101c.webp",
   "bristol_duo": "./legacy/field-img-207fe19207589032a52b.webp",
   "baron_albatros": "./legacy/field-img-4a3d670e759948f451fd.webp",
-  "albatros_d2": "./legacy/field-img-c503048e396b31644205.webp",
+  "albatros_d2": "./boelcke_albatros.webp",
   "halberstadt_duo": "./legacy/field-img-327b2ecfd1f0cafb2baf.webp",
   "nieuport24": "./legacy/field-img-4d8b3906391da3bb0d50.webp",
   "pfalz_d3a": "./legacy/field-img-8b8b01f84ec7d78d52c5.webp",
