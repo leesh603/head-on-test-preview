@@ -49,9 +49,11 @@ class AlpsBomber extends BaseBoss {
  }
  mountFire(id,players,dt,interval,rear=false){
   const gun=this.part(id);if(!gun||gun.destroyed||!this.due(id+'-fire',dt,Math.max(2.4,interval)))return;
-  const forward=this.hullYaw+(rear?Math.PI/2:-Math.PI/2),q=alpsMuzzle(this,id),target=this.target(players,p=>Math.abs(alpsAngleDelta(Math.atan2(p.y-q.y,p.x-q.x),forward))<1.15&&Math.hypot(p.x-q.x,p.y-q.y)<720);
-  if(!target)return;const angle=Math.atan2(target.y-q.y,target.x-q.x),count=Math.min(7,Math.max(1,Math.ceil((this.phase===3?3:2)*(this.t.projectileDensity??1))));gun.recoil=.12;this.command('muzzle',{...q,partId:id});
-  fireFanSalvo(this,{...q,angle,speed:this.t.bulletSpeed*.8,damage:this.t.damage*.55,visual:'alps-mg',tag:this.id+':'+id,sourcePartId:id,count:11,spread:1.4,beats:2,beat:.42,warning:.75,gapIndex:rear?2:7,step:rear?1:-1});
+  // Gunners hose the sky in every direction instead of waiting for a target
+  // to enter their mount's arc — bombers fly barrage screens, not snipers.
+  const q=alpsMuzzle(this,id),base=this.rng()*Math.PI*2,arms=this.phase===3?4:3;
+  gun.recoil=.12;this.command('muzzle',{...q,partId:id});
+  for(let k=0;k<arms;k++)fireFanSalvo(this,{...q,angle:base+k*Math.PI*2/arms,speed:this.t.bulletSpeed*.8,damage:this.t.damage*.55,visual:'alps-mg',tag:this.id+':'+id+':'+k,sourcePartId:id,count:7,spread:2.3,beats:1,warning:0});
  }
  stickBombs(bounds,{count=7,radius=36,warning=2,damage=.8}={}){
   const s=this.t.geometryScale||1,source=alpsPoint(this,0,25*s),a=this.hullYaw-Math.PI/2,dx=Math.cos(a),dy=Math.sin(a);
