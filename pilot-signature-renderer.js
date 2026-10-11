@@ -1,6 +1,7 @@
 import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=gal1';
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
 import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
+import {bishopFlightHeight} from './engine.js?v=dover4';
 import {signatureWingPositions} from './pilot-signature-geometry.js';
 import {drawTracerBolt} from './projectiles.js?v=gal1&rail=42';
 import {drawCavalryGuard,drawCavalryLance,drawRickenbackerHalfRing} from './pilot-directed-fx.js';
@@ -284,6 +285,11 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
   }
   if(p.pilot==='goering'&&active){
    for(const w of signatureWingPositions(p)){c.save();c.translate(w.x,w.y);c.rotate(w.a);texture(c,'engineSmoke',-40,0,65,20,Math.PI,.26);if(w.muzzleFlash>0){const aim=w.muzzleAngle-w.a;muzzleAt(c,Math.cos(aim)*23,Math.sin(aim)*23,aim,'muzzleTwin',.95);}c.restore();}
+   return;
+  }
+  if(p.pilot==='bishop'&&p.bishopTime>0){
+   const elapsed=(p.skillDuration?.()??2.4)-p.bishopTime,height=bishopFlightHeight(p),q=height/((p.viewHeight||900)*.9);
+   if(elapsed<1.05){for(const side of [-1,1])texture(c,'vaporTrail',-35,side*21,70+q*65,13+q*9,Math.PI,.22+q*.24);if(elapsed>.5)texture(c,'windStreak',-60,0,135,18,Math.PI,.48*(1-q));}
    return;
   }
   if(p.pilot==='mannock'&&active){
