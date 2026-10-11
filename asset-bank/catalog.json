@@ -1,5 +1,5 @@
 {
- "v": 64,
+ "v": 65,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -1532,7 +1532,7 @@
      "name": "Friedrichshafen FF.33",
      "year": 1916,
      "role": "수상정찰기",
-     "base": "../ff33.webp",
+     "base": "planes/ff33_clean.webp",
      "variants": [
       {
        "kind": "livery",
