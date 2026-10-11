@@ -1,5 +1,5 @@
 {
- "v": 81,
+ "v": 82,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -3692,7 +3692,7 @@
      "name": "Voisin VIII",
      "year": 1917,
      "role": "야간폭격기",
-     "base": "../voisin8.webp",
+     "base": "planes/voisin8_clean.webp",
      "variants": [
       {
        "kind": "alt",
