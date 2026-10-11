@@ -1,5 +1,5 @@
 {
- "v": 32,
+ "v": 33,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -731,42 +731,42 @@
      "name": "Fokker D.VII",
      "year": 1918,
      "role": "전투기",
-     "base": "../fokkerd7.webp",
+     "base": "planes/fokker_d7_clean.webp",
      "variants": [
       {
        "kind": "squadron",
        "name": "Jasta 11",
-       "file": "../jasta11_fokkerd7.webp"
+       "file": "aces/jasta11_fokkerd7.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 18",
-       "file": "../jasta18_fokkerd7.webp"
+       "file": "aces/jasta18_fokkerd7.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 27",
-       "file": "../jasta27_fokkerd7.webp"
+       "file": "aces/jasta27_fokkerd7.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 43",
-       "file": "../jasta43_fokkerd7.webp"
+       "file": "aces/jasta43_fokkerd7.webp"
       },
       {
        "kind": "ace",
        "name": "Gabriel",
-       "file": "../gabriel_fokkerd7.webp"
+       "file": "aces/gabriel_fokkerd7.webp"
       },
       {
        "kind": "ace",
        "name": "Göring",
-       "file": "../goering_fokkerd7.webp"
+       "file": "aces/goering_fokkerd7.webp"
       },
       {
        "kind": "ace",
        "name": "Löwenhardt",
-       "file": "../loewenhardt_fokkerd7.webp"
+       "file": "aces/loewenhardt_fokkerd7.webp"
       },
       {
        "kind": "ace",
