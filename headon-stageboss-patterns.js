@@ -20,7 +20,7 @@ import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=gal1';
 import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=gal1';
 import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=gal1';
 import {apronPose} from './london-apron369.js?v=gal1';
-import {GIK,Ca4} from './alps-bomber-combat.js?v=bomb15&rail=42';
+import {GIK,Ca4} from './alps-bomber-combat.js?v=bomb16&rail=42';
 import {FlakTowerNet} from './city-flak-combat.js?v=gal1&rail=42';
 
 export {GIK,Ca4};
@@ -1491,7 +1491,7 @@ export class StaakenRVI extends RegionalPatternBoss {
     if(!doomed&&this.due('stick',dt,Math.max(3.2,4.8-(this.t.loopIndex||0)*.35))){
       const p=this.target(players);
       if(p){const dx=p.x-this.x,dy=p.y-this.y,d=Math.max(1,Math.hypot(dx,dy)),ux=dx/d,uy=dy/d;
-        for(let i=0;i<7;i++)this.hazard('circle',{x:this.x+ux*(70+i*58)+randBetween(this.rng,-16,16),y:this.y+uy*(70+i*58),delay:i*.15,radius:54,warning:1.9,duration:.42,once:true,damage:Math.round(this.t.damage*1.35),visual:'carpet-bomb',sourceX:this.x,sourceY:this.y+38*(this.regionalScale||1),tag:'staaken-stick'});
+        for(let i=0;i<7;i++)this.hazard('circle',{x:this.x+ux*(210+i*58)+randBetween(this.rng,-16,16),y:this.y+uy*(210+i*58),delay:i*.15,radius:54,warning:1.9,duration:.42,once:true,damage:Math.round(this.t.damage*1.35),visual:'carpet-bomb',sourceX:this.x,sourceY:this.y+38*(this.regionalScale||1),tag:'staaken-stick'});
         this.command('muzzle',{x:this.x,y:this.y+60});}
     }
     // Nose and ventral gunners alternate streams at close attackers.

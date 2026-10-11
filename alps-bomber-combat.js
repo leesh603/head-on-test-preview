@@ -48,14 +48,15 @@ class AlpsBomber extends BaseBoss {
   return result;
  }
  mountFire(id,players,dt,interval,rear=false){
-  const gun=this.part(id);if(!gun||gun.destroyed||!this.due(id+'-fire',dt,Math.max(4.6,interval)))return;
+  const gun=this.part(id);if(!gun||gun.destroyed||!this.due(id+'-fire',dt,Math.max(2.4,interval)))return;
   const forward=this.hullYaw+(rear?Math.PI/2:-Math.PI/2),q=alpsMuzzle(this,id),target=this.target(players,p=>Math.abs(alpsAngleDelta(Math.atan2(p.y-q.y,p.x-q.x),forward))<1.15&&Math.hypot(p.x-q.x,p.y-q.y)<720);
   if(!target)return;const angle=Math.atan2(target.y-q.y,target.x-q.x),count=Math.min(7,Math.max(1,Math.ceil((this.phase===3?3:2)*(this.t.projectileDensity??1))));gun.recoil=.12;this.command('muzzle',{...q,partId:id});
   fireFanSalvo(this,{...q,angle,speed:this.t.bulletSpeed*.8,damage:this.t.damage*.55,visual:'alps-mg',tag:this.id+':'+id,sourcePartId:id,count:11,spread:1.4,beats:2,beat:.42,warning:.75,gapIndex:rear?2:7,step:rear?1:-1});
  }
  stickBombs(bounds,{count=7,radius=36,warning=2,damage=.8}={}){
   const s=this.t.geometryScale||1,source=alpsPoint(this,0,25*s),a=this.hullYaw-Math.PI/2,dx=Math.cos(a),dy=Math.sin(a);
-  for(let i=0;i<count;i++)this.hazard('circle',{x:source.x+dx*(i-3.5)*64,y:source.y+dy*(i-3.5)*64,radius,delay:i*.18,warning,duration:.3,once:true,damage:this.t.damage*damage,visual:'carpet-bomb',airborneBomb:true,sourceX:source.x,sourceY:source.y,tag:this.id+':payload'});
+  // Bombs land ahead of the airframe along the run, never on the boss itself.
+  for(let i=0;i<count;i++)this.hazard('circle',{x:source.x+dx*(150+i*64),y:source.y+dy*(150+i*64),radius,delay:i*.18,warning,duration:.3,once:true,damage:this.t.damage*damage,visual:'carpet-bomb',airborneBomb:true,sourceX:source.x,sourceY:source.y,tag:this.id+':payload'});
  }
  onPartDestroyed(p){if(p.kind==='gun')this.command('cancel-hazards',{tag:this.id+':'+p.id});if(p.id==='cannon'){this.cannonLock=null;this.cannonRemaining=0;}if(p.kind==='engine')this.command('phase-change',{phase:'engine-damaged'});}
  updatePhase(){const loss=this.engineLoss();if(this.hp<=this.maxHp*.68||loss)this.setPhase(2);if(this.hp<=this.maxHp*.32||loss===this.layout.engines.length)this.setPhase(3);}
