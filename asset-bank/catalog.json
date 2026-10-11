@@ -1,5 +1,5 @@
 {
- "v": 61,
+ "v": 62,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -1139,7 +1139,7 @@
      "name": "DFW C.V",
      "year": 1917,
      "role": "정찰기",
-     "base": "../dfw_cv.webp",
+     "base": "planes/dfw_cv_clean.webp",
      "variants": [
       {
        "kind": "livery",
@@ -1168,7 +1168,7 @@
      "name": "Halberstadt CL형",
      "year": 1917,
      "role": "지상공격기",
-     "base": "../halberstadt_duo.webp",
+     "base": "planes/halberstadt_duo_clean.webp",
      "variants": [
       {
        "kind": "livery",
