@@ -13,8 +13,8 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=gal1';
 import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=gal1';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162} from './player-effects129.js?v=livingww1d';
-import {drawStageBoss} from './stageboss-view.js?v=bomb12&hints=1&treads=2&rail=42&maan=3&minen=4';
-import {bombSprite} from './bomb-sprites.js?v=bomb12';
+import {drawStageBoss} from './stageboss-view.js?v=bomb13&hints=1&treads=2&rail=42&maan=3&minen=4';
+import {bombSprite} from './bomb-sprites.js?v=bomb13';
 const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};
 const NO_SKILL_RING=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker','wolff','immelmann']);
@@ -24,7 +24,7 @@ import {drawEquipment} from './equipment.js?v=gal1';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor,drawTracerBolt} from './projectiles.js?v=gal1';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=gal1';
 import {drawSpecialAmmoIcon} from './icons.js?v=gal1';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=bomb12&rail=42';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=bomb13&rail=42';
 import {drawCombatFeedback,combatCameraOffset,combatVisualPose} from './combat-feedback.js?v=gal1';
 
 
