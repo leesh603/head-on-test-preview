@@ -4,7 +4,7 @@ import {aircraftArt} from './main-ui-art180.js?v=gal1';
 
 export const hangarKeyFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',fokker:'fokker_standard'};
 const cleanMech=new Set(['halberstadt_duo','fokker_jacobs','gontermann_fokker','nungesser_nieuport24','rickenbacker_spad','luke_nieuport28']);
-const rawArt={fokker:'./fokker.webp?v=gal1&b=349',baron_albatros:'./baron_albatros.webp?v=gal1&b=345',albatros_d2:'./albatros_d2.webp?v=gal1&b=345',nieuport_italian:'./nieuport.webp?v=gal1&b=345'};
+const rawArt={fokker:'./fokker.webp?v=gal1&b=349',baron_albatros:'./baron_albatros.webp?v=gal1&b=345',albatros_d2:'./boelcke_albatros.webp?v=gal1&b=345',nieuport_italian:'./nieuport.webp?v=gal1&b=345'};
 const artCache=new Map(),artReady=new Map();
 // The decoded display images stay referenced, so switching back to a pilot paints at once.
 export function hangarArtNow(key){return artReady.get(key)?.url||''}
