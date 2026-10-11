@@ -10,7 +10,7 @@ function img(v) {
   if (im === undefined) {
     if (typeof Image === 'undefined') return null;
     im = new Image(); im.decoding = 'async';
-    im.src = new URL('./' + FILES[v] + '?v=bomb14', import.meta.url).href;
+    im.src = new URL('./' + FILES[v] + '?v=bomb15', import.meta.url).href;
     IMGS.set(v, im);
   }
   return im;

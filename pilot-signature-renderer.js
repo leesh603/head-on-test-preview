@@ -1,7 +1,7 @@
 import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=gal1';
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
 import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
-import {bishopFlightHeight} from './engine.js?v=bomb14';
+import {bishopFlightHeight} from './engine.js?v=bomb15';
 import {signatureWingPositions} from './pilot-signature-geometry.js';
 import {drawTracerBolt} from './projectiles.js?v=gal1&rail=42';
 import {drawCavalryGuard,drawCavalryLance,drawRickenbackerHalfRing} from './pilot-directed-fx.js';

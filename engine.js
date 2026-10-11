@@ -16,7 +16,7 @@ import {installCityAir} from './city-air1.js?v=gal1';
 import {installRegionDoctrine} from './region-doctrine1.js?v=gal1';
 import {installLondonBattle} from './london-battle.js?v=gal1';
 import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=gal1';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=bomb14&hints=1&rail=42';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=bomb15&hints=1&rail=42';
 import {installBuildCombatIdentity} from './build-combat-identity.js?v=gal1';
 import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=gal1';
 import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=gal1';
@@ -1794,7 +1794,12 @@ Game.prototype.bishopFlightHeight=function(){return bishopFlightHeight(this)};
 const _updateGuerrilla=Game.prototype.update;
 Game.prototype.update=function(dt,input={}){
  const step=Math.min(.04,Math.max(0,dt||0));
- if(this.bishopTime>0){this.invuln=Math.max(this.invuln,step+.05);this.bishopTime=Math.max(0,this.bishopTime-step);if(this.bishopTime===0)this.bishopEmptyPending=true;this.bishopBombTimer-=step;
+ if(this.bishopTime>0){this.invuln=Math.max(this.invuln,step+.05);
+  // Hold the descent at peak altitude until every bishop bomb has landed.
+  const bishopDescend=(this.skillDuration?.()??2.4)-this.bishopTime>=.5,
+   bishopLive=this.bishopDrops>0||this.friendlyBombs.some(b=>b.bishopBomb&&b.ownerId===this.id&&b.life>0);
+  if(!(bishopDescend&&bishopLive))this.bishopTime=Math.max(0,this.bishopTime-step);
+  if(this.bishopTime===0)this.bishopEmptyPending=true;this.bishopBombTimer-=step;
   if(this.bishopDrops>0&&this.bishopBombTimer<=0){this.bishopDrops--;this.bishopBombTimer=.58/Math.max(1,this.bishopDropsTotal);
    const i=(this.bishopDropsTotal||8)-this.bishopDrops-1,row=Math.floor(i/4),lane=i%4-1.5,f=Math.max(80,this.speed*.8),ca=Math.cos(this.bishopHeading),sa=Math.sin(this.bishopHeading),px=-sa,py=ca;
    const bx=this.x+ca*(f+row*92)+px*lane*72,by=this.y+sa*(f+row*92)+py*lane*72;
