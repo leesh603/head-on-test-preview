@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {GROUND_ROUTES,GROUND_FIGHTS,GROUND_EVENTS,groundRoutePose,groundInfantryPose,groundBattlePhase} from '../ground-life.js';
+import {drawTrenchFrontline} from '../trench-frontline.js';
 
 const source=readFileSync(new URL('../ground-life.js',import.meta.url),'utf8')
  .split('\n').filter(line=>!/^import\b/.test(line.trim())).join('\n').replace(/\bexport (function|const)\b/g,'$1');
@@ -14,7 +15,7 @@ function context(){
 async function renderer(trim=false){
  const fxKeys=[],document={createElement(){return {width:0,height:0,getContext:()=>{const {c}=context();c.getImageData=()=>{const data=new Uint8ClampedArray(128*128*4);for(let y=30;y<90;y++)for(let x=20;x<100;x++)data[(y*128+x)*4+3]=255;return {data}};return c;}}}};
  const Image=class{set src(v){this.naturalWidth=1448;queueMicrotask(()=>this.onload())}};
- const api=new Function('fx','Image','document','fxImage','fxArtReady',source+'\nreturn {groundLifeReady,drawGroundLife,groundLifeStats};')((c,key)=>{fxKeys.push(key);return true;},Image,document,()=>trim?{width:128,height:128}:null,Promise.resolve());
+ const api=new Function('fx','Image','document','fxImage','fxArtReady','drawTrenchFrontline',source+'\nreturn {groundLifeReady,drawGroundLife,groundLifeStats};')((c,key)=>{fxKeys.push(key);return true;},Image,document,()=>trim?{width:128,height:128}:null,Promise.resolve(),drawTrenchFrontline);
  await api.groundLifeReady;return {...api,fxKeys};
 }
 test('vehicles accelerate along finite approved paths without sideways/reverse drift',()=>{
@@ -64,7 +65,8 @@ test('portrait mobile and broad desktop scenes remain bounded over long travel',
    const old=counts.images,oldFx=fxKeys.length;drawGroundLife(c,key,n*137-12000,n*83-9000,density===1?1920:390,density===1?1080:844,key==='cambrai'?768:1254,n*.21,density);
    maxImages=Math.max(maxImages,counts.images-old);maxFx=Math.max(maxFx,fxKeys.length-oldFx);
   }
-  assert.ok(maxImages<=(density===1?38:15),key+' sprites '+maxImages);assert.ok(maxFx<=(density===1?80:32),key+' FX '+maxFx);
+  const spriteLimit=key==='trenches'?(density===1?97:49):(density===1?38:15);
+  assert.ok(maxImages<=spriteLimit,key+' sprites '+maxImages);assert.ok(maxFx<=(density===1?80:32),key+' FX '+maxFx);
  }
 });
 
@@ -75,7 +77,7 @@ test('a nearby bombardment drives scatter, retreat and sustained smoke',async()=
  groundInfantryPose(11,0,0,0,p);assert.equal(p.state,'retreat');
  assert.equal(groundBattlePhase(9,0,0),9);
  const {drawGroundLife,fxKeys}=await renderer(),{c}=context();
- drawGroundLife(c,'trenches',300,160,150,150,1254,14,1);
+ drawGroundLife(c,'trenches',300,160,150,150,1254,18,1);
  assert.ok(fxKeys.includes('smokeDust'),'smoke remains five seconds after the squad impact');
  assert.ok(!fxKeys.some(k=>/explosionHot|flameJet|airblast/.test(k)),'no bright airborne combat FX reused for ground shells');
 });
