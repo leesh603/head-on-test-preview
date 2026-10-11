@@ -713,7 +713,7 @@ draw=t=>{
   ctx.fillStyle='#b4f4dd';ctx.font='12px monospace';ctx.textAlign='center';ctx.fillText(getLocale()==='en'?'Friendly Bombers':'아군 폭격대',x,y-h/2-12);
  }
  for(const b of game.friendlyBombs||[]){const p=1-b.life/b.maxLife,x=b.sx+(b.x-b.sx)*p-game.x+W/2,y=b.sy+(b.y-b.sy)*p-game.y+H/2;
-  if(b.bishopBomb)fx(ctx,'bomb',x,y,40,20,Math.PI/2);else if(!(FXS&&fxsBombFall(ctx,(X,Y,k,a)=>fx(ctx,'bomb',X,Y,40*k,20*k,a),b.sx-game.x+W/2,b.sy-game.y+H/2,b.x-game.x+W/2,b.y-game.y+H/2,p)))drawEquipment(ctx,'rocket',x,y,Math.PI,38);
+  if(!(FXS&&fxsBombFall(ctx,(X,Y,k,a)=>fx(ctx,'bomb',X,Y,40*k,20*k,a),b.sx-game.x+W/2,b.sy-game.y+H/2,b.x-game.x+W/2,b.y-game.y+H/2,p)))drawEquipment(ctx,'rocket',x,y,Math.PI,38);
   if(!b.bishopBomb){ctx.strokeStyle='#a2eddb70';ctx.lineWidth=1;ctx.beginPath();ctx.arc(b.x-game.x+W/2,b.y-game.y+H/2,22,0,Math.PI*2);ctx.stroke();}
  }
  ctx.restore();
