@@ -39,7 +39,7 @@ test('GIK locks warning direction, fires later from its current muzzle and honor
 });
 test('GIK does not fire its nose cannon backwards, and rear gun has its own sector',()=>{
  const f=make();step(f.b,10,{...frame,players:[frame.players[1]]});assert.equal(f.events.some(e=>e.visual==='alps-cannon'),false);assert.ok(f.events.some(e=>e.visual==='alps-mg'));
- const c=make(Ca4);step(c.b,5,{...frame,players:[frame.players[0]]});assert.ok(c.events.some(e=>e.tag==='test:frontGun'));assert.equal(c.events.some(e=>e.tag==='test:rearGun'),false);
+ const c=make(Ca4);for(let i=0;i<250;i++)c.b.update(.02,{...frame,players:[{...frame.players[0],x:c.b.x+Math.cos(c.b.a)*400,y:c.b.y+Math.sin(c.b.a)*400}]});assert.ok(c.events.some(e=>e.tag==='test:frontGun'));assert.equal(c.events.some(e=>e.tag==='test:rearGun'),false);
 });
 test('Ca4 keeps the first carpet lane clear, then warns its closure and rotates the next gap',()=>{
  const {b,events}=make(Ca4),lanes=[];

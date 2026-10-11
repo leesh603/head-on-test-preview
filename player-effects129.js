@@ -1,9 +1,9 @@
-import {createSignatureView} from './pilot-signature-view.js?v=gal1';
+import {createSignatureView} from './pilot-signature-view.js?v=livingww1d';
 import {fx,fxTint} from './fx-art.js?v=gal1';
 import {planeSprite,aircraftKey} from './aircraft.js?v=gal1';
 import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';
 
-import {bishopFlightHeight} from './engine.js?v=bomb1';
+import {bishopFlightHeight} from './engine.js?v=livingww1d';
 import {drawCavalryGuard} from './pilot-directed-fx.js';
 const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
