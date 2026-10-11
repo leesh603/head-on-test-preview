@@ -1,5 +1,5 @@
 {
- "v": 59,
+ "v": 60,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -1071,7 +1071,7 @@
      "name": "Junkers J.I",
      "year": 1917,
      "role": "지상공격기",
-     "base": "../junkers_j1.webp",
+     "base": "planes/junkers_j1_clean.webp",
      "variants": [
       {
        "kind": "alt",
