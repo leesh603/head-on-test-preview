@@ -1,5 +1,5 @@
 {
- "v": 72,
+ "v": 73,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -2482,7 +2482,7 @@
      "name": "Sopwith Pup",
      "year": 1916,
      "role": "전투기",
-     "base": "../pup.webp",
+     "base": "planes/pup_clean.webp",
      "variants": [
       {
        "kind": "alt",
