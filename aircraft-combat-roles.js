@@ -18,7 +18,7 @@ const style=(role,name,mode,condition,weakness,tuning={})=>Object.freeze({
 });
 export const SORTIE_COMBAT_STYLES=Object.freeze({
  fokker:style('TURN','저속 선회전','slow','연속 선회로 감속하면 회전반경 축소','직선 추격과 속도 회복', {threshold:.87,yaw:1.38}),
- albatros_d2:style('HEAVY','중속 사격선','steady','0.65초 직진 후 중속 사격 탄도 수렴·좁은 기수 조준 보정','급선회하면 조준 이점 소멸',{steady:.65,group:.38,maxEnergy:1}),
+ boelcke_albatros:style('HEAVY','중속 사격선','steady','0.65초 직진 후 중속 사격 탄도 수렴·좁은 기수 조준 보정','급선회하면 조준 이점 소멸',{steady:.65,group:.38,maxEnergy:1}),
  eindecker:style('GROWTH','초기 동조사격·성장','early','레벨 8 이전 짧은 직진 후 조준 안정; 기존 빠른 성장 유지','8레벨 이후 초기 조준 보너스 종료',{steady:.3,group:.35}),
  camel:style('TURN','우선회 근거리 난전','close','240px 안 적과 우선회 시 작은 회전반경','원거리 추격·좌선회',{range:240,yaw:1.32}),
  collishaw_sopwith:style('FORMATION','연속 선회 편대전','sustain','같은 방향으로 0.7초 선회하면 감속 완화','좌우를 반복하면 선회 유지 이점 소멸',{hold:.7,retention:.55}),
@@ -61,7 +61,7 @@ const assigned=Object.freeze({
  sopwith:'FORMATION',collishaw_sopwith:'FORMATION',goering_fokkerd7:'FORMATION',fokkerd7:'FORMATION',bristol_duo:'FORMATION',halberstadt_duo:'FORMATION',
  spad:'INTERCEPTOR',se5a:'INTERCEPTOR',mccudden_se5a:'INTERCEPTOR',fokkerdv:'INTERCEPTOR',
  fokker:'TURN',camel:'TURN',nieuport:'TURN',nieuport_italian:'TURN',nieuport24:'TURN',nungesser_nieuport24:'TURN',
- albatros:'HEAVY',albatros_d2:'HEAVY',baron_albatros:'HEAVY',pfalz_d3a:'HEAVY',spad12:'HEAVY',re7:'HEAVY',wolff_albatros:'INTERCEPTOR'
+ albatros:'HEAVY',albatros_d2:'HEAVY',baron_albatros:'HEAVY',boelcke_albatros:'HEAVY',pfalz_d3a:'HEAVY',spad12:'HEAVY',re7:'HEAVY',wolff_albatros:'INTERCEPTOR'
 });
 export function aircraftCombatRole(plane,planes){
  if(SORTIE_COMBAT_STYLES[plane])return SORTIE_COMBAT_STYLES[plane];
