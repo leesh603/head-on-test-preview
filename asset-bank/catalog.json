@@ -1,5 +1,5 @@
 {
- "v": 132,
+ "v": 133,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -6606,11 +6606,11 @@
      "id": "a7v",
      "name": "A7V 전차",
      "role": "보스",
-     "base": "../boss-art-a7v-flak.webp",
+     "base": "../boss-a7v-hull-rebuild.webp",
      "live": true,
      "variants": [
       {
-       "kind": "part",
+       "kind": "dmg",
        "name": "boss-a7v-breached-20260930",
        "file": "../boss-a7v-breached-20260930.webp",
        "live": true
@@ -6619,18 +6619,6 @@
        "kind": "part",
        "name": "boss-a7v-flak94",
        "file": "../boss-a7v-flak94.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-a7v-gun-wreck-20260930",
-       "file": "../boss-a7v-gun-wreck-20260930.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-a7v-hull-rebuild",
-       "file": "../boss-a7v-hull-rebuild.webp",
        "live": true
       },
       {
@@ -6652,9 +6640,21 @@
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "wreck",
+       "name": "boss-a7v-gun-wreck-20260930",
+       "file": "../boss-a7v-gun-wreck-20260930.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
        "name": "boss-a7v-wreck-20260930",
        "file": "../boss-a7v-wreck-20260930.webp",
+       "live": true
+      },
+      {
+       "kind": "art",
+       "name": "boss-art-a7v-flak",
+       "file": "../boss-art-a7v-flak.webp",
        "live": true
       }
      ]
@@ -6663,7 +6663,7 @@
      "id": "armored_harbor",
      "name": "장갑 항구 요새",
      "role": "보스",
-     "base": "../boss-art-armored-harbor-fortress.webp",
+     "base": "../boss-armored-harbor-main-base.webp",
      "live": true,
      "variants": [
       {
@@ -6692,14 +6692,14 @@
       },
       {
        "kind": "part",
-       "name": "boss-armored-harbor-main-base",
-       "file": "../boss-armored-harbor-main-base.webp",
+       "name": "boss-armored-harbor-seaplane-facility",
+       "file": "../boss-armored-harbor-seaplane-facility.webp",
        "live": true
       },
       {
-       "kind": "part",
-       "name": "boss-armored-harbor-seaplane-facility",
-       "file": "../boss-armored-harbor-seaplane-facility.webp",
+       "kind": "art",
+       "name": "boss-art-armored-harbor-fortress",
+       "file": "../boss-art-armored-harbor-fortress.webp",
        "live": true
       }
      ]
@@ -6713,20 +6713,8 @@
      "variants": [
       {
        "kind": "part",
-       "name": "rail-boss-bruno-engine-wreck192",
-       "file": "../rail-boss-bruno-engine-wreck192.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "rail-boss-bruno-engine181",
        "file": "../rail-boss-bruno-engine181.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "rail-boss-bruno-front-wreck192",
-       "file": "../rail-boss-bruno-front-wreck192.webp",
        "live": true
       },
       {
@@ -6737,20 +6725,8 @@
       },
       {
        "kind": "part",
-       "name": "rail-boss-bruno-middle-wreck192",
-       "file": "../rail-boss-bruno-middle-wreck192.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "rail-boss-bruno-middle181",
        "file": "../rail-boss-bruno-middle181.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "rail-boss-bruno-rear-wreck192",
-       "file": "../rail-boss-bruno-rear-wreck192.webp",
        "live": true
       },
       {
@@ -6770,6 +6746,30 @@
        "name": "rail-bruno-gun-r1",
        "file": "../rail-bruno-gun-r1.webp",
        "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "rail-boss-bruno-engine-wreck192",
+       "file": "../rail-boss-bruno-engine-wreck192.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "rail-boss-bruno-front-wreck192",
+       "file": "../rail-boss-bruno-front-wreck192.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "rail-boss-bruno-middle-wreck192",
+       "file": "../rail-boss-bruno-middle-wreck192.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "rail-boss-bruno-rear-wreck192",
+       "file": "../rail-boss-bruno-rear-wreck192.webp",
+       "live": true
       }
      ]
     },
@@ -6781,13 +6781,13 @@
      "live": true,
      "variants": [
       {
-       "kind": "part",
+       "kind": "dmg",
        "name": "alps-ca4-damage-20261001",
        "file": "../alps-ca4-damage-20261001.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "boss-art-ca4",
        "file": "../boss-art-ca4.webp",
        "live": true
@@ -6798,7 +6798,7 @@
      "id": "cambrai",
      "name": "캉브레 (버그·열차·트레파스)",
      "role": "보스",
-     "base": "../boss-cambrai-bug.webp",
+     "base": "../boss-cambrai-treffas-hull.webp",
      "live": true,
      "variants": [
       {
@@ -6845,38 +6845,14 @@
       },
       {
        "kind": "part",
-       "name": "boss-cambrai-train-wreck-atlas",
-       "file": "../boss-cambrai-train-wreck-atlas.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-cambrai-treffas-connected-wreck",
-       "file": "../boss-cambrai-treffas-connected-wreck.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "boss-cambrai-treffas-connected",
        "file": "../boss-cambrai-treffas-connected.webp",
        "live": true
       },
       {
        "kind": "part",
-       "name": "boss-cambrai-treffas-hull",
-       "file": "../boss-cambrai-treffas-hull.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "boss-cambrai-treffas-rudder",
        "file": "../boss-cambrai-treffas-rudder.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-cambrai-treffas-turret-wreck",
-       "file": "../boss-cambrai-treffas-turret-wreck.webp",
        "live": true
       },
       {
@@ -6893,14 +6869,32 @@
       },
       {
        "kind": "part",
-       "name": "boss-cambrai-treffas-wheel-wreck",
-       "file": "../boss-cambrai-treffas-wheel-wreck.webp",
+       "name": "boss-cambrai-treffas-wheel",
+       "file": "../boss-cambrai-treffas-wheel.webp",
        "live": true
       },
       {
-       "kind": "part",
-       "name": "boss-cambrai-treffas-wheel",
-       "file": "../boss-cambrai-treffas-wheel.webp",
+       "kind": "wreck",
+       "name": "boss-cambrai-train-wreck-atlas",
+       "file": "../boss-cambrai-train-wreck-atlas.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "boss-cambrai-treffas-connected-wreck",
+       "file": "../boss-cambrai-treffas-connected-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "boss-cambrai-treffas-turret-wreck",
+       "file": "../boss-cambrai-treffas-turret-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "boss-cambrai-treffas-wheel-wreck",
+       "file": "../boss-cambrai-treffas-wheel-wreck.webp",
        "live": true
       }
      ]
@@ -6909,7 +6903,7 @@
      "id": "douaumont",
      "name": "두오몽 요새",
      "role": "보스",
-     "base": "../boss-douaumont-cut-in.webp",
+     "base": "../boss-douaumont-atlas-r9.webp",
      "live": true,
      "variants": [
       {
@@ -6920,20 +6914,8 @@
       },
       {
        "kind": "part",
-       "name": "boss-douaumont-atlas-r9",
-       "file": "../boss-douaumont-atlas-r9.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "boss-douaumont-atlas",
        "file": "../boss-douaumont-atlas.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-douaumont-cut-in",
-       "file": "../boss-douaumont-cut-in.webp",
        "live": true
       },
       {
@@ -6953,6 +6935,12 @@
        "name": "boss-douaumont-parts",
        "file": "../boss-douaumont-parts.webp",
        "live": true
+      },
+      {
+       "kind": "art",
+       "name": "boss-douaumont-cut-in",
+       "file": "../boss-douaumont-cut-in.webp",
+       "live": true
       }
      ]
     },
@@ -6965,26 +6953,20 @@
      "variants": [
       {
        "kind": "part",
+       "name": "boss-dover-rviii",
+       "file": "../boss-dover-rviii.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
        "name": "boss-dover-nighthawk-wreck",
        "file": "../boss-dover-nighthawk-wreck.webp",
        "live": true
       },
       {
-       "kind": "part",
-       "name": "boss-dover-nighthawk",
-       "file": "../boss-dover-nighthawk.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
+       "kind": "wreck",
        "name": "boss-dover-rviii-wreck",
        "file": "../boss-dover-rviii-wreck.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-dover-rviii",
-       "file": "../boss-dover-rviii.webp",
        "live": true
       }
      ]
@@ -6993,11 +6975,11 @@
      "id": "drachen",
      "name": "드라헨 기구",
      "role": "보스",
-     "base": "../boss-art-drachen-net.webp",
+     "base": "../boss-drachen-net115.webp",
      "live": true,
      "variants": [
       {
-       "kind": "part",
+       "kind": "dmg",
        "name": "boss-drachen-airships-damage378",
        "file": "../boss-drachen-airships-damage378.png",
        "live": true
@@ -7016,18 +6998,12 @@
       },
       {
        "kind": "part",
-       "name": "boss-drachen-net115",
-       "file": "../boss-drachen-net115.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "boss-drachen-parts-v2",
        "file": "../boss-drachen-parts-v2.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "dmg",
        "name": "boss-drachen-registered-damage369",
        "file": "../boss-drachen-registered-damage369.png",
        "live": true
@@ -7037,6 +7013,12 @@
        "name": "boss-drachen-right380",
        "file": "../boss-drachen-right380.webp",
        "live": true
+      },
+      {
+       "kind": "art",
+       "name": "boss-art-drachen-net",
+       "file": "../boss-art-drachen-net.webp",
+       "live": true
       }
      ]
     },
@@ -7044,19 +7026,13 @@
      "id": "flak_tower",
      "name": "대공포탑",
      "role": "보스",
-     "base": "../boss-art-flak-tower.webp",
+     "base": "../boss-flak-tower-hull.webp",
      "live": true,
      "variants": [
       {
        "kind": "part",
        "name": "boss-flak-tower-ears",
        "file": "../boss-flak-tower-ears.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-flak-tower-hull",
-       "file": "../boss-flak-tower-hull.webp",
        "live": true
       },
       {
@@ -7070,6 +7046,12 @@
        "name": "boss-flak-tower-siege",
        "file": "../boss-flak-tower-siege.webp",
        "live": true
+      },
+      {
+       "kind": "art",
+       "name": "boss-art-flak-tower",
+       "file": "../boss-art-flak-tower.webp",
+       "live": true
       }
      ]
     },
@@ -7077,13 +7059,13 @@
      "id": "fliegerzug",
      "name": "플리거추크 비행열차",
      "role": "보스",
-     "base": "../boss-art-fliegerzug.webp",
+     "base": "../boss-fliegerzug-parts352.webp",
      "live": true,
      "variants": [
       {
-       "kind": "part",
-       "name": "boss-fliegerzug-parts352",
-       "file": "../boss-fliegerzug-parts352.webp",
+       "kind": "art",
+       "name": "boss-art-fliegerzug",
+       "file": "../boss-art-fliegerzug.webp",
        "live": true
       }
      ]
@@ -7096,13 +7078,13 @@
      "live": true,
      "variants": [
       {
-       "kind": "part",
+       "kind": "dmg",
        "name": "alps-gik-damage-20261001",
        "file": "../alps-gik-damage-20261001.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "boss-art-gik",
        "file": "../boss-art-gik.webp",
        "live": true
@@ -7117,7 +7099,7 @@
      "live": true,
      "variants": [
       {
-       "kind": "part",
+       "kind": "art",
        "name": "boss-art-hma23",
        "file": "../boss-art-hma23.webp",
        "live": true
@@ -7131,12 +7113,6 @@
      "base": "../boss-hms-zubian94.webp",
      "live": true,
      "variants": [
-      {
-       "kind": "part",
-       "name": "boss-art-hms-zubian",
-       "file": "../boss-art-hms-zubian.webp",
-       "live": true
-      },
       {
        "kind": "part",
        "name": "zubian-art-20261008",
@@ -7156,21 +7132,27 @@
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "dmg",
        "name": "zubian-damage-20261001",
        "file": "../zubian-damage-20261001.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "dmg",
        "name": "zubian-damage-tone",
        "file": "../zubian-damage-tone.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "wreck",
        "name": "zubian-wreck-20261008",
        "file": "../zubian-wreck-20261008.webp",
+       "live": true
+      },
+      {
+       "kind": "art",
+       "name": "boss-art-hms-zubian",
+       "file": "../boss-art-hms-zubian.webp",
        "live": true
       }
      ]
@@ -7184,26 +7166,8 @@
      "variants": [
       {
        "kind": "part",
-       "name": "boss-art-lincomparable",
-       "file": "../boss-art-lincomparable.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "rail-boss-lincomparable-engine-wreck192",
-       "file": "../rail-boss-lincomparable-engine-wreck192.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "rail-boss-lincomparable-engine181",
        "file": "../rail-boss-lincomparable-engine181.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "rail-boss-lincomparable-front-wreck192",
-       "file": "../rail-boss-lincomparable-front-wreck192.webp",
        "live": true
       },
       {
@@ -7214,20 +7178,8 @@
       },
       {
        "kind": "part",
-       "name": "rail-boss-lincomparable-middle-wreck192",
-       "file": "../rail-boss-lincomparable-middle-wreck192.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "rail-boss-lincomparable-middle181",
        "file": "../rail-boss-lincomparable-middle181.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "rail-boss-lincomparable-rear-wreck192",
-       "file": "../rail-boss-lincomparable-rear-wreck192.webp",
        "live": true
       },
       {
@@ -7247,6 +7199,36 @@
        "name": "rail-lincomparable-gun-r1",
        "file": "../rail-lincomparable-gun-r1.webp",
        "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "rail-boss-lincomparable-engine-wreck192",
+       "file": "../rail-boss-lincomparable-engine-wreck192.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "rail-boss-lincomparable-front-wreck192",
+       "file": "../rail-boss-lincomparable-front-wreck192.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "rail-boss-lincomparable-middle-wreck192",
+       "file": "../rail-boss-lincomparable-middle-wreck192.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "rail-boss-lincomparable-rear-wreck192",
+       "file": "../rail-boss-lincomparable-rear-wreck192.webp",
+       "live": true
+      },
+      {
+       "kind": "art",
+       "name": "boss-art-lincomparable",
+       "file": "../boss-art-lincomparable.webp",
+       "live": true
       }
      ]
     },
@@ -7257,12 +7239,6 @@
      "base": "../boss-livens-composite317.webp",
      "live": true,
      "variants": [
-      {
-       "kind": "part",
-       "name": "boss-art-livens-flame-projector",
-       "file": "../boss-art-livens-flame-projector.webp",
-       "live": true
-      },
       {
        "kind": "part",
        "name": "boss-livens-composite188",
@@ -7276,13 +7252,7 @@
        "live": true
       },
       {
-       "kind": "part",
-       "name": "boss-livens-composite317",
-       "file": "../boss-livens-composite317.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
+       "kind": "dmg",
        "name": "boss-livens-pivot-damaged317",
        "file": "../boss-livens-pivot-damaged317.webp",
        "live": true
@@ -7310,6 +7280,12 @@
        "name": "boss-livens-turret2x",
        "file": "../boss-livens-turret2x.webp",
        "live": true
+      },
+      {
+       "kind": "art",
+       "name": "boss-art-livens-flame-projector",
+       "file": "../boss-art-livens-flame-projector.webp",
+       "live": true
       }
      ]
     },
@@ -7317,17 +7293,17 @@
      "id": "london_apron",
      "name": "런던 비행장",
      "role": "보스",
-     "base": "../boss-art-london-apron.webp",
+     "base": "../boss-london-apron115.webp",
      "live": true,
      "variants": [
       {
-       "kind": "part",
+       "kind": "dmg",
        "name": "boss-london-apron-damage1",
        "file": "../boss-london-apron-damage1.png",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "dmg",
        "name": "boss-london-apron-damage2",
        "file": "../boss-london-apron-damage2.png",
        "live": true
@@ -7345,15 +7321,15 @@
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "dmg",
        "name": "boss-london-apron-registered-damage369",
        "file": "../boss-london-apron-registered-damage369.png",
        "live": true
       },
       {
-       "kind": "part",
-       "name": "boss-london-apron115",
-       "file": "../boss-london-apron115.webp",
+       "kind": "art",
+       "name": "boss-art-london-apron",
+       "file": "../boss-art-london-apron.webp",
        "live": true
       }
      ]
@@ -7362,19 +7338,19 @@
      "id": "searchlight",
      "name": "런던 서치라이트",
      "role": "보스",
-     "base": "../boss-art-london-searchlight.webp",
+     "base": "../boss-searchlight.webp",
      "live": true,
      "variants": [
       {
-       "kind": "part",
+       "kind": "wreck",
        "name": "boss-searchlight-wreck",
        "file": "../boss-searchlight-wreck.webp",
        "live": true
       },
       {
-       "kind": "part",
-       "name": "boss-searchlight",
-       "file": "../boss-searchlight.webp",
+       "kind": "art",
+       "name": "boss-art-london-searchlight",
+       "file": "../boss-art-london-searchlight.webp",
        "live": true
       }
      ]
@@ -7383,25 +7359,13 @@
      "id": "mark_v",
      "name": "Mark V 탱크",
      "role": "보스",
-     "base": "../boss-art-mark-v-cruiser.webp",
+     "base": "../boss-mark-v-hull-rebuild.webp",
      "live": true,
      "variants": [
       {
-       "kind": "part",
+       "kind": "dmg",
        "name": "boss-mark-v-breached-20260930",
        "file": "../boss-mark-v-breached-20260930.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-mark-v-gun-wreck-20260930",
-       "file": "../boss-mark-v-gun-wreck-20260930.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-mark-v-hull-rebuild",
-       "file": "../boss-mark-v-hull-rebuild.webp",
        "live": true
       },
       {
@@ -7424,14 +7388,26 @@
       },
       {
        "kind": "part",
+       "name": "boss-mark-v94",
+       "file": "../boss-mark-v94.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "boss-mark-v-gun-wreck-20260930",
+       "file": "../boss-mark-v-gun-wreck-20260930.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
        "name": "boss-mark-v-wreck-20260930",
        "file": "../boss-mark-v-wreck-20260930.webp",
        "live": true
       },
       {
-       "kind": "part",
-       "name": "boss-mark-v94",
-       "file": "../boss-mark-v94.webp",
+       "kind": "art",
+       "name": "boss-art-mark-v-cruiser",
+       "file": "../boss-art-mark-v-cruiser.webp",
        "live": true
       }
      ]
@@ -7440,7 +7416,7 @@
      "id": "mark1",
      "name": "Mark I/IV 탱크",
      "role": "보스",
-     "base": "../boss-art-mark1-20261001.webp",
+     "base": "../boss-mark1-hulls-r2.webp",
      "live": true,
      "variants": [
       {
@@ -7469,12 +7445,6 @@
       },
       {
        "kind": "part",
-       "name": "boss-mark1-hulls-r2",
-       "file": "../boss-mark1-hulls-r2.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "boss-mark1-hulls-r3",
        "file": "../boss-mark1-hulls-r3.webp",
        "live": true
@@ -7487,14 +7457,20 @@
       },
       {
        "kind": "part",
+       "name": "boss-mark4",
+       "file": "../boss-mark4.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
        "name": "boss-mark4-wreck",
        "file": "../boss-mark4-wreck.webp",
        "live": true
       },
       {
-       "kind": "part",
-       "name": "boss-mark4",
-       "file": "../boss-mark4.webp",
+       "kind": "art",
+       "name": "boss-art-mark1-20261001",
+       "file": "../boss-art-mark1-20261001.webp",
        "live": true
       }
      ]
@@ -7514,38 +7490,14 @@
       },
       {
        "kind": "part",
-       "name": "boss-maan-sinai-cut-in-r2",
-       "file": "../boss-maan-sinai-cut-in-r2.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "boss-maan-sinai-r2",
        "file": "../boss-maan-sinai-r2.webp",
        "live": true
       },
       {
        "kind": "part",
-       "name": "boss-maan-sinai-r3",
-       "file": "../boss-maan-sinai-r3.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-maan-sinai-wreck",
-       "file": "../boss-maan-sinai-wreck.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "boss-maan-sinai",
        "file": "../boss-maan-sinai.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-maan-wusten-cut-in-r2",
-       "file": "../boss-maan-wusten-cut-in-r2.webp",
        "live": true
       },
       {
@@ -7562,14 +7514,32 @@
       },
       {
        "kind": "part",
+       "name": "boss-maan-wusten",
+       "file": "../boss-maan-wusten.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "boss-maan-sinai-wreck",
+       "file": "../boss-maan-sinai-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
        "name": "boss-maan-wusten-wreck",
        "file": "../boss-maan-wusten-wreck.webp",
        "live": true
       },
       {
-       "kind": "part",
-       "name": "boss-maan-wusten",
-       "file": "../boss-maan-wusten.webp",
+       "kind": "art",
+       "name": "boss-maan-sinai-cut-in-r2",
+       "file": "../boss-maan-sinai-cut-in-r2.webp",
+       "live": true
+      },
+      {
+       "kind": "art",
+       "name": "boss-maan-wusten-cut-in-r2",
+       "file": "../boss-maan-wusten-cut-in-r2.webp",
        "live": true
       }
      ]
@@ -7578,7 +7548,7 @@
      "id": "minenwerfer",
      "name": "미넨베르퍼 박격포대",
      "role": "보스",
-     "base": "../boss-art-minenwerfer-battery.webp",
+     "base": "../boss-minenwerfer-composite188.webp",
      "live": true,
      "variants": [
       {
@@ -7594,13 +7564,7 @@
        "live": true
       },
       {
-       "kind": "part",
-       "name": "boss-minenwerfer-composite188",
-       "file": "../boss-minenwerfer-composite188.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
+       "kind": "dmg",
        "name": "boss-minenwerfer-damage-20261008",
        "file": "../boss-minenwerfer-damage-20261008.webp",
        "live": true
@@ -7609,6 +7573,12 @@
        "kind": "part",
        "name": "boss-minenwerfer-recoil-20261008",
        "file": "../boss-minenwerfer-recoil-20261008.webp",
+       "live": true
+      },
+      {
+       "kind": "art",
+       "name": "boss-art-minenwerfer-battery",
+       "file": "../boss-art-minenwerfer-battery.webp",
        "live": true
       }
      ]
@@ -7621,7 +7591,7 @@
      "live": true,
      "variants": [
       {
-       "kind": "part",
+       "kind": "wreck",
        "name": "boss-morser-wreck",
        "file": "../boss-morser-wreck.webp",
        "live": true
@@ -7632,31 +7602,13 @@
      "id": "paris",
      "name": "파리 요새·슈타켄·파리포",
      "role": "보스",
-     "base": "../boss-art-paris-gun.webp",
+     "base": "../boss-staaken-body352.webp",
      "live": true,
      "variants": [
       {
        "kind": "part",
-       "name": "boss-staaken-body352",
-       "file": "../boss-staaken-body352.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "boss-staaken-engines352",
        "file": "../boss-staaken-engines352.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-staaken-wreck",
-       "file": "../boss-staaken-wreck.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-staaken-wreck352",
-       "file": "../boss-staaken-wreck352.webp",
        "live": true
       },
       {
@@ -7667,32 +7619,50 @@
       },
       {
        "kind": "part",
-       "name": "paris-fortress-preview1918",
-       "file": "../paris-fortress-preview1918.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "paris-fortress-wreck1918",
-       "file": "../paris-fortress-wreck1918.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "paris-staaken-parts1918",
        "file": "../paris-staaken-parts1918.webp",
        "live": true
       },
       {
-       "kind": "part",
-       "name": "paris-staaken-preview1918",
-       "file": "../paris-staaken-preview1918.webp",
+       "kind": "wreck",
+       "name": "boss-staaken-wreck",
+       "file": "../boss-staaken-wreck.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "wreck",
+       "name": "boss-staaken-wreck352",
+       "file": "../boss-staaken-wreck352.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "paris-fortress-wreck1918",
+       "file": "../paris-fortress-wreck1918.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
        "name": "paris-staaken-wreck1918",
        "file": "../paris-staaken-wreck1918.webp",
+       "live": true
+      },
+      {
+       "kind": "art",
+       "name": "boss-art-paris-gun",
+       "file": "../boss-art-paris-gun.webp",
+       "live": true
+      },
+      {
+       "kind": "art",
+       "name": "paris-fortress-preview1918",
+       "file": "../paris-fortress-preview1918.webp",
+       "live": true
+      },
+      {
+       "kind": "art",
+       "name": "paris-staaken-preview1918",
+       "file": "../paris-staaken-preview1918.webp",
        "live": true
       }
      ]
@@ -7701,25 +7671,13 @@
      "id": "rail_carrier",
      "name": "철도 항공모함",
      "role": "보스",
-     "base": "../boss-art-rail-carrier.webp",
+     "base": "../boss-rail-carrier-loco.webp",
      "live": true,
      "variants": [
       {
        "kind": "part",
-       "name": "boss-rail-carrier-flak-wreck",
-       "file": "../boss-rail-carrier-flak-wreck.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "boss-rail-carrier-flak",
        "file": "../boss-rail-carrier-flak.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-rail-carrier-hangar-wreck",
-       "file": "../boss-rail-carrier-hangar-wreck.webp",
        "live": true
       },
       {
@@ -7730,26 +7688,38 @@
       },
       {
        "kind": "part",
-       "name": "boss-rail-carrier-launch-wreck",
-       "file": "../boss-rail-carrier-launch-wreck.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "boss-rail-carrier-launch",
        "file": "../boss-rail-carrier-launch.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "wreck",
+       "name": "boss-rail-carrier-flak-wreck",
+       "file": "../boss-rail-carrier-flak-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "boss-rail-carrier-hangar-wreck",
+       "file": "../boss-rail-carrier-hangar-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "boss-rail-carrier-launch-wreck",
+       "file": "../boss-rail-carrier-launch-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
        "name": "boss-rail-carrier-loco-wreck",
        "file": "../boss-rail-carrier-loco-wreck.webp",
        "live": true
       },
       {
-       "kind": "part",
-       "name": "boss-rail-carrier-loco",
-       "file": "../boss-rail-carrier-loco.webp",
+       "kind": "art",
+       "name": "boss-art-rail-carrier",
+       "file": "../boss-art-rail-carrier.webp",
        "live": true
       }
      ]
@@ -7758,15 +7728,9 @@
      "id": "schwaben",
      "name": "슈바벤 요새",
      "role": "보스",
-     "base": "../boss-art-schwaben20261001.webp",
+     "base": "../boss-schwaben-body-r2.webp",
      "live": true,
      "variants": [
-      {
-       "kind": "part",
-       "name": "boss-schwaben-body-r2",
-       "file": "../boss-schwaben-body-r2.webp",
-       "live": true
-      },
       {
        "kind": "part",
        "name": "boss-schwaben-body20261001",
@@ -7790,6 +7754,12 @@
        "name": "boss-schwaben-weapons20261001",
        "file": "../boss-schwaben-weapons20261001.webp",
        "live": true
+      },
+      {
+       "kind": "art",
+       "name": "boss-art-schwaben20261001",
+       "file": "../boss-art-schwaben20261001.webp",
+       "live": true
       }
      ]
     },
@@ -7800,12 +7770,6 @@
      "base": "../boss-sms-stuttgart94.webp",
      "live": true,
      "variants": [
-      {
-       "kind": "part",
-       "name": "boss-art-sms-stuttgart",
-       "file": "../boss-art-sms-stuttgart.webp",
-       "live": true
-      },
       {
        "kind": "part",
        "name": "stuttgart-art-20261008",
@@ -7819,7 +7783,7 @@
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "dmg",
        "name": "stuttgart-damage-20261001",
        "file": "../stuttgart-damage-20261001.webp",
        "live": true
@@ -7837,9 +7801,15 @@
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "wreck",
        "name": "stuttgart-wreck-20261008",
        "file": "../stuttgart-wreck-20261008.webp",
+       "live": true
+      },
+      {
+       "kind": "art",
+       "name": "boss-art-sms-stuttgart",
+       "file": "../boss-art-sms-stuttgart.webp",
        "live": true
       }
      ]
@@ -7848,7 +7818,7 @@
      "id": "souville",
      "name": "수빌 요새·베르됭 무기",
      "role": "보스",
-     "base": "../boss-souville-cut-in.webp",
+     "base": "../boss-souville-atlas-r9.webp",
      "live": true,
      "variants": [
       {
@@ -7859,20 +7829,8 @@
       },
       {
        "kind": "part",
-       "name": "boss-souville-atlas-r9",
-       "file": "../boss-souville-atlas-r9.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "boss-souville-atlas",
        "file": "../boss-souville-atlas.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-souville-cut-in",
-       "file": "../boss-souville-cut-in.webp",
        "live": true
       },
       {
@@ -7898,6 +7856,12 @@
        "name": "boss-verdun-weapons-r9",
        "file": "../boss-verdun-weapons-r9.webp",
        "live": true
+      },
+      {
+       "kind": "art",
+       "name": "boss-souville-cut-in",
+       "file": "../boss-souville-cut-in.webp",
+       "live": true
       }
      ]
     },
@@ -7905,21 +7869,9 @@
      "id": "treffas",
      "name": "트레파스 바겐",
      "role": "보스",
-     "base": "../boss-art-treffas.webp",
+     "base": "../boss-treffas-hull.webp",
      "live": true,
      "variants": [
-      {
-       "kind": "part",
-       "name": "boss-art-treffas-wagen",
-       "file": "../boss-art-treffas-wagen.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-treffas-hull",
-       "file": "../boss-treffas-hull.webp",
-       "live": true
-      },
       {
        "kind": "part",
        "name": "boss-treffas-parts352",
@@ -7949,6 +7901,18 @@
        "name": "boss-treffas-wheel",
        "file": "../boss-treffas-wheel.webp",
        "live": true
+      },
+      {
+       "kind": "art",
+       "name": "boss-art-treffas-wagen",
+       "file": "../boss-art-treffas-wagen.webp",
+       "live": true
+      },
+      {
+       "kind": "art",
+       "name": "boss-art-treffas",
+       "file": "../boss-art-treffas.webp",
+       "live": true
       }
      ]
     },
@@ -7956,13 +7920,13 @@
      "id": "zeppelin_l70",
      "name": "Zeppelin L.70",
      "role": "보스",
-     "base": "../boss-art-zeppelin-l70.webp",
+     "base": "../boss-zeppelin-l7094.webp",
      "live": true,
      "variants": [
       {
-       "kind": "part",
-       "name": "boss-zeppelin-l7094",
-       "file": "../boss-zeppelin-l7094.webp",
+       "kind": "art",
+       "name": "boss-art-zeppelin-l70",
+       "file": "../boss-art-zeppelin-l70.webp",
        "live": true
       }
      ]
@@ -7971,55 +7935,13 @@
      "id": "boss_parts",
      "name": "보스 공용 부품·참호 소품",
      "role": "보스",
-     "base": "../boss-parts100.webp",
+     "base": "../boss-regional-support352.webp",
      "live": true,
      "variants": [
       {
        "kind": "part",
-       "name": "boss-part-wreck-gun",
-       "file": "../boss-part-wreck-gun.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-part-wreck-light",
-       "file": "../boss-part-wreck-light.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-part-wreck-pit",
-       "file": "../boss-part-wreck-pit.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-part-wreck-tail",
-       "file": "../boss-part-wreck-tail.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-part-wreck-turret",
-       "file": "../boss-part-wreck-turret.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-part-wreck-wheel",
-       "file": "../boss-part-wreck-wheel.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "boss-parts100",
        "file": "../boss-parts100.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "boss-regional-support352",
-       "file": "../boss-regional-support352.webp",
        "live": true
       },
       {
@@ -8033,6 +7955,42 @@
        "name": "boss-trench-wire-20261008",
        "file": "../boss-trench-wire-20261008.webp",
        "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "boss-part-wreck-gun",
+       "file": "../boss-part-wreck-gun.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "boss-part-wreck-light",
+       "file": "../boss-part-wreck-light.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "boss-part-wreck-pit",
+       "file": "../boss-part-wreck-pit.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "boss-part-wreck-tail",
+       "file": "../boss-part-wreck-tail.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "boss-part-wreck-turret",
+       "file": "../boss-part-wreck-turret.webp",
+       "live": true
+      },
+      {
+       "kind": "wreck",
+       "name": "boss-part-wreck-wheel",
+       "file": "../boss-part-wreck-wheel.webp",
+       "live": true
       }
      ]
     },
@@ -8044,193 +8002,193 @@
      "live": true,
      "variants": [
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-armored-harbor-fortress",
        "file": "../cutin-armored-harbor-fortress.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-ca4",
        "file": "../cutin-ca4.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-douaumont",
        "file": "../cutin-douaumont.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-dover-nighthawk",
        "file": "../cutin-dover-nighthawk.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-dover-rviii",
        "file": "../cutin-dover-rviii.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-drachen-net",
        "file": "../cutin-drachen-net.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-flak-tower",
        "file": "../cutin-flak-tower.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-fliegerzug",
        "file": "../cutin-fliegerzug.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-gallipoli",
        "file": "../cutin-gallipoli.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-gik",
        "file": "../cutin-gik.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-gotha-squadron",
        "file": "../cutin-gotha-squadron.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-hma23",
        "file": "../cutin-hma23.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-hms-zubian",
        "file": "../cutin-hms-zubian.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-jasta11-circus",
        "file": "../cutin-jasta11-circus.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-jutland-fleet",
        "file": "../cutin-jutland-fleet.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-lincomparable",
        "file": "../cutin-lincomparable.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-livens-flame-projector",
        "file": "../cutin-livens-flame-projector.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-london-apron-raid",
        "file": "../cutin-london-apron-raid.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-mark-v-cruiser",
        "file": "../cutin-mark-v-cruiser.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-mark1-landships",
        "file": "../cutin-mark1-landships.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-minenwerfer-battery",
        "file": "../cutin-minenwerfer-battery.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-naval10-black-flight",
        "file": "../cutin-naval10-black-flight.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-paris-fortress",
        "file": "../cutin-paris-fortress.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-paris-gun",
        "file": "../cutin-paris-gun.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-paris-staaken",
        "file": "../cutin-paris-staaken.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-schwaben-fortress",
        "file": "../cutin-schwaben-fortress.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-sinai-landship",
        "file": "../cutin-sinai-landship.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-sms-stuttgart",
        "file": "../cutin-sms-stuttgart.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-souville",
        "file": "../cutin-souville.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-treffas-wagen",
        "file": "../cutin-treffas-wagen.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-wustenpanzer",
        "file": "../cutin-wustenpanzer.webp",
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "art",
        "name": "cutin-zeppelin-l70",
        "file": "../cutin-zeppelin-l70.webp",
        "live": true
@@ -8254,12 +8212,6 @@
        "kind": "part",
        "name": "ground-central-defenses",
        "file": "../ground-central-defenses.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "ground-central-vehicles",
-       "file": "../ground-central-vehicles.webp",
        "live": true
       },
       {
@@ -8291,12 +8243,6 @@
      "variants": [
       {
        "kind": "part",
-       "name": "naval-central-capital",
-       "file": "../naval-central-capital.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "naval-central-light",
        "file": "../naval-central-light.webp",
        "live": true
@@ -8322,12 +8268,6 @@
      "base": "../naval-water-atlas.webp",
      "live": true,
      "variants": [
-      {
-       "kind": "part",
-       "name": "naval-water-atlas",
-       "file": "../naval-water-atlas.webp",
-       "live": true
-      },
       {
        "kind": "part",
        "name": "ship-bowwave",
@@ -8370,7 +8310,7 @@
      "id": "jutland",
      "name": "유틀란드 해전",
      "role": "함선",
-     "base": "../jutland-sea.webp",
+     "base": "../jutland-parts.webp",
      "live": true,
      "variants": [
       {
@@ -8393,20 +8333,14 @@
       },
       {
        "kind": "part",
-       "name": "jutland-fleet-cut-in",
-       "file": "../jutland-fleet-cut-in.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "jutland-parts",
-       "file": "../jutland-parts.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "jutland-sea",
        "file": "../jutland-sea.webp",
+       "live": true
+      },
+      {
+       "kind": "art",
+       "name": "jutland-fleet-cut-in",
+       "file": "../jutland-fleet-cut-in.webp",
        "live": true
       }
      ]
@@ -8415,7 +8349,7 @@
      "id": "city",
      "name": "도시·시설",
      "role": "배경",
-     "base": "../city-buildings107.webp",
+     "base": "../harbor-parts-20261001.webp",
      "live": true,
      "variants": [
       {
@@ -8431,15 +8365,9 @@
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "dmg",
        "name": "city-flak-damage-20261001",
        "file": "../city-flak-damage-20261001.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "harbor-parts-20261001",
-       "file": "../harbor-parts-20261001.webp",
        "live": true
       }
      ]
@@ -8458,7 +8386,7 @@
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "dmg",
        "name": "damage-decals",
        "file": "../damage-decals.webp",
        "live": true
@@ -8467,12 +8395,6 @@
        "kind": "part",
        "name": "propeller-dover",
        "file": "../propeller-dover.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "repair-pickup",
-       "file": "../repair-pickup.webp",
        "live": true
       }
      ]
@@ -8491,14 +8413,7 @@
      "role": "아틀라스",
      "base": "../new-aces-aircraft124.webp",
      "live": true,
-     "variants": [
-      {
-       "kind": "part",
-       "name": "new-aces-aircraft124",
-       "file": "../new-aces-aircraft124.webp",
-       "live": true
-      }
-     ]
+     "variants": []
     }
    ]
   },
@@ -8510,7 +8425,7 @@
      "id": "terrain",
      "name": "전장 지형 아틀라스",
      "role": "지형",
-     "base": "../terrain-trenches.webp",
+     "base": "../terrain-burning359r2.webp",
      "live": true,
      "variants": [
       {
@@ -8541,12 +8456,6 @@
        "kind": "part",
        "name": "terrain-burning",
        "file": "../terrain-burning.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "terrain-burning359r2",
-       "file": "../terrain-burning359r2.webp",
        "live": true
       },
       {
@@ -8747,25 +8656,13 @@
      "id": "gallipoli",
      "name": "갈리폴리 전선",
      "role": "지형",
-     "base": "../gallipoli-siege-ground.webp",
+     "base": "../gallipoli-facilities-r10.webp",
      "live": true,
      "variants": [
       {
        "kind": "part",
-       "name": "gallipoli-facilities-r10",
-       "file": "../gallipoli-facilities-r10.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "gallipoli-fortress-atlas",
        "file": "../gallipoli-fortress-atlas.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
-       "name": "gallipoli-fortress-cut-in",
-       "file": "../gallipoli-fortress-cut-in.webp",
        "live": true
       },
       {
@@ -8823,7 +8720,7 @@
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "dmg",
        "name": "gallipoli-star-damage-r10",
        "file": "../gallipoli-star-damage-r10.webp",
        "live": true
@@ -8841,7 +8738,7 @@
        "live": true
       },
       {
-       "kind": "part",
+       "kind": "dmg",
        "name": "gallipoli-wing-damage-r10",
        "file": "../gallipoli-wing-damage-r10.webp",
        "live": true
@@ -8850,6 +8747,12 @@
        "kind": "part",
        "name": "gallipoli-wing-r10",
        "file": "../gallipoli-wing-r10.webp",
+       "live": true
+      },
+      {
+       "kind": "art",
+       "name": "gallipoli-fortress-cut-in",
+       "file": "../gallipoli-fortress-cut-in.webp",
        "live": true
       }
      ]
@@ -8869,12 +8772,6 @@
       },
       {
        "kind": "part",
-       "name": "alps-peak-ridge182",
-       "file": "../alps-peak-ridge182.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "alps-peak-sharp182",
        "file": "../alps-peak-sharp182.webp",
        "live": true
@@ -8885,7 +8782,7 @@
      "id": "ambience",
      "name": "날씨·분위기",
      "role": "환경",
-     "base": "../background-dressing-20261010.webp",
+     "base": "../maan-workshop-r3.webp",
      "live": true,
      "variants": [
       {
@@ -8908,12 +8805,6 @@
       },
       {
        "kind": "part",
-       "name": "maan-workshop-r3",
-       "file": "../maan-workshop-r3.webp",
-       "live": true
-      },
-      {
-       "kind": "part",
        "name": "maan-workshop",
        "file": "../maan-workshop.webp",
        "live": true
@@ -8929,34 +8820,41 @@
       {
        "kind": "part",
        "name": "gen-burning",
-       "file": "../mapgen/gen-burning.png"
+       "file": "../mapgen/gen-burning.png",
+       "live": true
       },
       {
        "kind": "part",
        "name": "gen-city",
-       "file": "../mapgen/gen-city.png"
+       "file": "../mapgen/gen-city.png",
+       "live": true
       },
       {
        "kind": "part",
        "name": "gen-rural",
-       "file": "../mapgen/gen-rural.png"
+       "file": "../mapgen/gen-rural.png",
+       "live": true
       },
       {
        "kind": "part",
        "name": "gen-sea",
-       "file": "../mapgen/gen-sea.png"
+       "file": "../mapgen/gen-sea.png",
+       "live": true
       },
       {
        "kind": "part",
        "name": "gen-sky",
-       "file": "../mapgen/gen-sky.png"
+       "file": "../mapgen/gen-sky.png",
+       "live": true
       },
       {
        "kind": "part",
        "name": "gen-trenches",
-       "file": "../mapgen/gen-trenches.png"
+       "file": "../mapgen/gen-trenches.png",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     }
    ]
   },
