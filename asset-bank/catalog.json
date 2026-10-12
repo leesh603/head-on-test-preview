@@ -1,5 +1,5 @@
 {
- "v": 130,
+ "v": 131,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -291,49 +291,49 @@
        "file": "aces/lothar_albatros_d3.webp"
       },
       {
-        "kind": "ace",
-        "name": "Voss (합판+청백카울)",
-        "file": "aces/voss_albatros_d3.webp"
+       "kind": "ace",
+       "name": "Voss (합판+청백카울)",
+       "file": "aces/voss_albatros_d3.webp"
       },
       {
-        "kind": "ace",
-        "name": "Bolle (황흑사선)",
-        "file": "aces/bolle_albatros_d3.webp"
+       "kind": "ace",
+       "name": "Bolle (황흑사선)",
+       "file": "aces/bolle_albatros_d3.webp"
       },
       {
-        "kind": "ace",
-        "name": "Gontermann (적색카울)",
-        "file": "aces/gontermann_albatros_d3.webp"
+       "kind": "ace",
+       "name": "Gontermann (적색카울)",
+       "file": "aces/gontermann_albatros_d3.webp"
       },
       {
-        "kind": "ace",
-        "name": "Zolhart (녹백소용돌이)",
-        "file": "aces/zolhart_albatros_d3.webp"
+       "kind": "ace",
+       "name": "Zolhart (녹백소용돌이)",
+       "file": "aces/zolhart_albatros_d3.webp"
       },
       {
-        "kind": "ace",
-        "name": "Döring (갈합판+적테두리)",
-        "file": "aces/doering_albatros_d3.webp"
+       "kind": "ace",
+       "name": "Döring (갈합판+적테두리)",
+       "file": "aces/doering_albatros_d3.webp"
       },
       {
-        "kind": "ace",
-        "name": "Jacobs (흑+악마)",
-        "file": "aces/jacobs_albatros_d3.webp"
+       "kind": "ace",
+       "name": "Jacobs (흑+악마)",
+       "file": "aces/jacobs_albatros_d3.webp"
       },
       {
-        "kind": "ace",
-        "name": "Osterkamp (흑꼬리)",
-        "file": "aces/osterkamp_albatros_d3.webp"
+       "kind": "ace",
+       "name": "Osterkamp (흑꼬리)",
+       "file": "aces/osterkamp_albatros_d3.webp"
       },
       {
-        "kind": "ace",
-        "name": "Stork (청백사선)",
-        "file": "aces/stork_albatros_d3.webp"
+       "kind": "ace",
+       "name": "Stork (청백사선)",
+       "file": "aces/stork_albatros_d3.webp"
       },
       {
-        "kind": "ace",
-        "name": "H. Wolff (적색+흑테)",
-        "file": "aces/hwolff_albatros_d3.webp"
+       "kind": "ace",
+       "name": "H. Wolff (적색+흑테)",
+       "file": "aces/hwolff_albatros_d3.webp"
       },
       {
        "kind": "ace",
@@ -430,64 +430,64 @@
        "file": "aces/edelweiss_albatros.webp"
       },
       {
-        "kind": "ace",
-        "name": "Löwenhardt (황기수)",
-        "file": "aces/loewenhardt_albatros_d5.webp"
+       "kind": "ace",
+       "name": "Löwenhardt (황기수)",
+       "file": "aces/loewenhardt_albatros_d5.webp"
       },
       {
-        "kind": "ace",
-        "name": "Bäumer (흑백줄무늬)",
-        "file": "aces/baeumer_albatros_d5.webp"
+       "kind": "ace",
+       "name": "Bäumer (흑백줄무늬)",
+       "file": "aces/baeumer_albatros_d5.webp"
       },
       {
-        "kind": "ace",
-        "name": "Rumey (청+백까마귀)",
-        "file": "aces/rumey_albatros_d5.webp"
+       "kind": "ace",
+       "name": "Rumey (청+백까마귀)",
+       "file": "aces/rumey_albatros_d5.webp"
       },
       {
-        "kind": "ace",
-        "name": "Strauss (주황흑사선)",
-        "file": "aces/strauss_albatros_d5.webp"
+       "kind": "ace",
+       "name": "Strauss (주황흑사선)",
+       "file": "aces/strauss_albatros_d5.webp"
       },
       {
-        "kind": "ace",
-        "name": "Schönfelder (적불꽃)",
-        "file": "aces/schoenfelder_albatros_d5.webp"
+       "kind": "ace",
+       "name": "Schönfelder (적불꽃)",
+       "file": "aces/schoenfelder_albatros_d5.webp"
       },
       {
-        "kind": "ace",
-        "name": "Tzetzsche (흑백체크카울)",
-        "file": "aces/tzetzsche_albatros_d5.webp"
+       "kind": "ace",
+       "name": "Tzetzsche (흑백체크카울)",
+       "file": "aces/tzetzsche_albatros_d5.webp"
       },
       {
-        "kind": "ace",
-        "name": "Korten (적하트)",
-        "file": "aces/korten_albatros_d5.webp"
+       "kind": "ace",
+       "name": "Korten (적하트)",
+       "file": "aces/korten_albatros_d5.webp"
       },
       {
-        "kind": "ace",
-        "name": "Mai (녹잎무늬)",
-        "file": "aces/mai_albatros_d5.webp"
+       "kind": "ace",
+       "name": "Mai (녹잎무늬)",
+       "file": "aces/mai_albatros_d5.webp"
       },
       {
-        "kind": "ace",
-        "name": "Frisch (백페가수스)",
-        "file": "aces/frisch_albatros_d5.webp"
+       "kind": "ace",
+       "name": "Frisch (백페가수스)",
+       "file": "aces/frisch_albatros_d5.webp"
       },
       {
-        "kind": "ace",
-        "name": "Schwede (황링띠)",
-        "file": "aces/schwede_albatros_d5.webp"
+       "kind": "ace",
+       "name": "Schwede (황링띠)",
+       "file": "aces/schwede_albatros_d5.webp"
       },
       {
-        "kind": "ace",
-        "name": "Bohm (녹황체크카울)",
-        "file": "aces/bohm_albatros_d5.webp"
+       "kind": "ace",
+       "name": "Bohm (녹황체크카울)",
+       "file": "aces/bohm_albatros_d5.webp"
       },
       {
-        "kind": "ace",
-        "name": "Wart (독수리)",
-        "file": "aces/wart_albatros_d5.webp"
+       "kind": "ace",
+       "name": "Wart (독수리)",
+       "file": "aces/wart_albatros_d5.webp"
       }
      ]
     },
@@ -681,124 +681,124 @@
        "file": "aces/fokker_red.webp"
       },
       {
-        "kind": "ace",
-        "name": "M. v. Richthofen (152/17 부분적색)",
-        "file": "aces/mvr_dr1_15217.webp"
+       "kind": "ace",
+       "name": "M. v. Richthofen (152/17 부분적색)",
+       "file": "aces/mvr_dr1_15217.webp"
       },
       {
-        "kind": "ace",
-        "name": "Udet (LO!)",
-        "file": "aces/udet_dr1.webp"
+       "kind": "ace",
+       "name": "Udet (LO!)",
+       "file": "aces/udet_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Göring (순백)",
-        "file": "aces/goering_dr1.webp"
+       "kind": "ace",
+       "name": "Göring (순백)",
+       "file": "aces/goering_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Rahn (백띠)",
-        "file": "aces/rahn_dr1.webp"
+       "kind": "ace",
+       "name": "Rahn (백띠)",
+       "file": "aces/rahn_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Wenzl (흑백줄무늬)",
-        "file": "aces/wenzl_dr1.webp"
+       "kind": "ace",
+       "name": "Wenzl (흑백줄무늬)",
+       "file": "aces/wenzl_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "K. Wolff (올리브+적색)",
-        "file": "aces/kwolff_dr1.webp"
+       "kind": "ace",
+       "name": "K. Wolff (올리브+적색)",
+       "file": "aces/kwolff_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Bolle (체커보드)",
-        "file": "aces/bolle_dr1.webp"
+       "kind": "ace",
+       "name": "Bolle (체커보드)",
+       "file": "aces/bolle_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Allmenröder (백카울)",
-        "file": "aces/allmenroder_dr1.webp"
+       "kind": "ace",
+       "name": "Allmenröder (백카울)",
+       "file": "aces/allmenroder_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Kempf (문구)",
-        "file": "aces/kempf_dr1.webp"
+       "kind": "ace",
+       "name": "Kempf (문구)",
+       "file": "aces/kempf_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Mohnicke (백띠)",
-        "file": "aces/mohnicke_dr1.webp"
+       "kind": "ace",
+       "name": "Mohnicke (백띠)",
+       "file": "aces/mohnicke_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Reinhard (적/흑백)",
-        "file": "aces/reinhard_dr1.webp"
+       "kind": "ace",
+       "name": "Reinhard (적/흑백)",
+       "file": "aces/reinhard_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Hemer (지그재그)",
-        "file": "aces/hemer_dr1.webp"
+       "kind": "ace",
+       "name": "Hemer (지그재그)",
+       "file": "aces/hemer_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Beckmann (흑테두리)",
-        "file": "aces/beckmann_dr1.webp"
+       "kind": "ace",
+       "name": "Beckmann (흑테두리)",
+       "file": "aces/beckmann_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Monkowius (파이프)",
-        "file": "aces/monkowius_dr1.webp"
+       "kind": "ace",
+       "name": "Monkowius (파이프)",
+       "file": "aces/monkowius_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Böning (바이에른)",
-        "file": "aces/boening_dr1.webp"
+       "kind": "ace",
+       "name": "Böning (바이에른)",
+       "file": "aces/boening_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "H. Weiss (백꼬리)",
-        "file": "aces/hweiss_dr1.webp"
+       "kind": "ace",
+       "name": "H. Weiss (백꼬리)",
+       "file": "aces/hweiss_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Dobrowolski (황카울)",
-        "file": "aces/dobrowolski_dr1.webp"
+       "kind": "ace",
+       "name": "Dobrowolski (황카울)",
+       "file": "aces/dobrowolski_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Friedrichs (황카울)",
-        "file": "aces/friedrichs_dr1.webp"
+       "kind": "ace",
+       "name": "Friedrichs (황카울)",
+       "file": "aces/friedrichs_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Grassmann (황카울)",
-        "file": "aces/grassmann_dr1.webp"
+       "kind": "ace",
+       "name": "Grassmann (황카울)",
+       "file": "aces/grassmann_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Billik (흑+백십자)",
-        "file": "aces/billik_dr1.webp"
+       "kind": "ace",
+       "name": "Billik (흑+백십자)",
+       "file": "aces/billik_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Klimke (닻)",
-        "file": "aces/klimke_dr1.webp"
+       "kind": "ace",
+       "name": "Klimke (닻)",
+       "file": "aces/klimke_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Papenmeyer (스페이드)",
-        "file": "aces/papenmeyer_dr1.webp"
+       "kind": "ace",
+       "name": "Papenmeyer (스페이드)",
+       "file": "aces/papenmeyer_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Löwenhardt (황색)",
-        "file": "aces/loewenhardt_dr1.webp"
+       "kind": "ace",
+       "name": "Löwenhardt (황색)",
+       "file": "aces/loewenhardt_dr1.webp"
       },
       {
-        "kind": "ace",
-        "name": "Siegle (사선띠)",
-        "file": "aces/siegle_dr1.webp"
+       "kind": "ace",
+       "name": "Siegle (사선띠)",
+       "file": "aces/siegle_dr1.webp"
       },
       {
        "kind": "alt",
@@ -4503,6 +4503,958 @@
      "role": "포탑 등",
      "base": "bosses/_parts/naval_turret.webp",
      "variants": []
+    }
+   ]
+  },
+  {
+   "id": "ordnance",
+   "name": "무장·탄약",
+   "types": [
+    {
+     "id": "bombs",
+     "name": "투하 폭탄",
+     "role": "폭탄",
+     "base": "../fx-bomb-body.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "Cooper 20lb",
+       "file": "../bomb-cooper.webp"
+      },
+      {
+       "kind": "part",
+       "name": "PuW",
+       "file": "../bomb-puw.webp"
+      },
+      {
+       "kind": "part",
+       "name": "Hales",
+       "file": "../bomb-hales.webp"
+      },
+      {
+       "kind": "part",
+       "name": "비행 탄체",
+       "file": "../fx-ordnance-body-flight.webp"
+      },
+      {
+       "kind": "part",
+       "name": "보스 병기",
+       "file": "../fx-boss-ordnance.webp"
+      }
+     ]
+    },
+    {
+     "id": "shells",
+     "name": "포탄·주포탄",
+     "role": "탄약",
+     "base": "../fx-shell-heavy.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "박격포탄",
+       "file": "../fx-mortar-shell.webp"
+      },
+      {
+       "kind": "part",
+       "name": "박격포탄(전투)",
+       "file": "../fx-combat-mortar-shell.webp"
+      },
+      {
+       "kind": "part",
+       "name": "37mm 포탄",
+       "file": "../fx-pack-v189/projectiles/shell-37mm.webp"
+      },
+      {
+       "kind": "part",
+       "name": "기관포탄",
+       "file": "../fx-pack-v189/projectiles/shell-autocannon.webp"
+      },
+      {
+       "kind": "part",
+       "name": "함포탄",
+       "file": "../fx-pack-v189/projectiles/shell-naval.webp"
+      },
+      {
+       "kind": "part",
+       "name": "탄피",
+       "file": "../fx-pack-v189/projectiles/bullet-brass.webp"
+      }
+     ]
+    },
+    {
+     "id": "rockets",
+     "name": "로켓·르프리외",
+     "role": "탄약",
+     "base": "../fx-combat-le-prieur.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "르프리외",
+       "file": "../fx-le-prieur.webp"
+      },
+      {
+       "kind": "part",
+       "name": "르프리외 로켓",
+       "file": "../fx-pack-v189/projectiles/rocket-le-prieur.webp"
+      },
+      {
+       "kind": "part",
+       "name": "중로켓",
+       "file": "../fx-pack-v189/projectiles/rocket-heavy.webp"
+      },
+      {
+       "kind": "part",
+       "name": "공중 수류탄",
+       "file": "../fx-pack-v189/projectiles/grenade-aerial.webp"
+      }
+     ]
+    },
+    {
+     "id": "mines",
+     "name": "수류탄·기뢰·어뢰·소이탄",
+     "role": "탄약",
+     "base": "../fx-grenade-ww1.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "수류탄 몸체",
+       "file": "../fx-grenade-body.webp"
+      },
+      {
+       "kind": "part",
+       "name": "기뢰",
+       "file": "../fx-mine-body.webp"
+      },
+      {
+       "kind": "part",
+       "name": "철 기뢰",
+       "file": "../fx-combat-iron-mine.webp"
+      },
+      {
+       "kind": "part",
+       "name": "어뢰",
+       "file": "../fx-torpedo.webp"
+      },
+      {
+       "kind": "part",
+       "name": "소이탄",
+       "file": "../fx-incendiary.webp"
+      }
+     ]
+    },
+    {
+     "id": "muzzle",
+     "name": "총구 화염",
+     "role": "총구FX",
+     "base": "../fx-muzzle-twin.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "중기관총",
+       "file": "../fx-muzzle-heavy.webp"
+      },
+      {
+       "kind": "part",
+       "name": "후방 기관총",
+       "file": "../fx-muzzle-rear.webp"
+      },
+      {
+       "kind": "part",
+       "name": "권총",
+       "file": "../fx-muzzle-pistol.webp"
+      },
+      {
+       "kind": "part",
+       "name": "기본",
+       "file": "../fx-pack-v189/projectiles/muzzle-flash.webp"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "fx_blast",
+   "name": "FX — 폭발·파편",
+   "types": [
+    {
+     "id": "airburst",
+     "name": "공중 폭발",
+     "role": "폭발",
+     "base": "../fx-airblast-0.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "air-1",
+       "file": "../fx-airblast-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "air-2",
+       "file": "../fx-airblast-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "air-3",
+       "file": "../fx-airblast-3.webp"
+      },
+      {
+       "kind": "part",
+       "name": "공기폭발 0",
+       "file": "../fx-pack-v189/explosions/explosion-air-0.webp"
+      },
+      {
+       "kind": "part",
+       "name": "공기폭발 1",
+       "file": "../fx-pack-v189/explosions/explosion-air-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "공기폭발 2",
+       "file": "../fx-pack-v189/explosions/explosion-air-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "공기폭발 3",
+       "file": "../fx-pack-v189/explosions/explosion-air-3.webp"
+      }
+     ]
+    },
+    {
+     "id": "groundburst",
+     "name": "지상 폭발 (흙먼지)",
+     "role": "폭발",
+     "base": "../fx-bombfx-0.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "bomb-1",
+       "file": "../fx-bombfx-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "bomb-2",
+       "file": "../fx-bombfx-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "bomb-3",
+       "file": "../fx-bombfx-3.webp"
+      },
+      {
+       "kind": "part",
+       "name": "먼지 0",
+       "file": "../fx-explosion-dust-0.webp"
+      },
+      {
+       "kind": "part",
+       "name": "먼지 1",
+       "file": "../fx-explosion-dust-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "먼지 2",
+       "file": "../fx-explosion-dust-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "먼지 3",
+       "file": "../fx-explosion-dust-3.webp"
+      },
+      {
+       "kind": "part",
+       "name": "지상 폭발",
+       "file": "../fx-pack-v189/explosions/explosion-ground.webp"
+      },
+      {
+       "kind": "part",
+       "name": "중폭탄 폭발",
+       "file": "../fx-pack-v189/explosions/explosion-heavy-bomb.webp"
+      }
+     ]
+    },
+    {
+     "id": "shellburst",
+     "name": "포탄·대공포 폭발",
+     "role": "폭발",
+     "base": "../fx-shellburst-0.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "burst-1",
+       "file": "../fx-shellburst-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "burst-2",
+       "file": "../fx-shellburst-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "burst-3",
+       "file": "../fx-shellburst-3.webp"
+      },
+      {
+       "kind": "part",
+       "name": "플락 버스트",
+       "file": "../flak-burst.webp"
+      },
+      {
+       "kind": "part",
+       "name": "대공 플락",
+       "file": "../fx-combat-flak-burst.webp"
+      },
+      {
+       "kind": "part",
+       "name": "공중 플락",
+       "file": "../fx-pack-v189/explosions/flak-airburst.webp"
+      }
+     ]
+    },
+    {
+     "id": "oily",
+     "name": "중폭발·보스 폭발",
+     "role": "폭발",
+     "base": "../fx-bossblast-0.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-1",
+       "file": "../fx-bossblast-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "boss-2",
+       "file": "../fx-bossblast-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "boss-3",
+       "file": "../fx-bossblast-3.webp"
+      },
+      {
+       "kind": "part",
+       "name": "oily-0",
+       "file": "../fx-explosion-oily-0.webp"
+      },
+      {
+       "kind": "part",
+       "name": "oily-1",
+       "file": "../fx-explosion-oily-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "oily-2",
+       "file": "../fx-explosion-oily-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "oily-3",
+       "file": "../fx-explosion-oily-3.webp"
+      }
+     ]
+    },
+    {
+     "id": "hot",
+     "name": "고열 폭발",
+     "role": "폭발",
+     "base": "../fx-explosion-hot-0.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "hot-1",
+       "file": "../fx-explosion-hot-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "hot-2",
+       "file": "../fx-explosion-hot-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "hot-3",
+       "file": "../fx-explosion-hot-3.webp"
+      }
+     ]
+    },
+    {
+     "id": "mine_water",
+     "name": "기뢰·수면·박격포 폭발",
+     "role": "폭발",
+     "base": "../fx-mineblast-0.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "mine-1",
+       "file": "../fx-mineblast-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "mine-2",
+       "file": "../fx-mineblast-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "mine-3",
+       "file": "../fx-mineblast-3.webp"
+      },
+      {
+       "kind": "part",
+       "name": "해상 스플래시",
+       "file": "../fx-pack-v189/explosions/splash-naval.webp"
+      },
+      {
+       "kind": "part",
+       "name": "박격포 착탄",
+       "file": "../fx-mortar-impact340.webp"
+      }
+     ]
+    },
+    {
+     "id": "pop",
+     "name": "경폭발 (pop)",
+     "role": "폭발",
+     "base": "../fx-pop-0.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "pop-1",
+       "file": "../fx-pop-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "pop-2",
+       "file": "../fx-pop-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "pop-3",
+       "file": "../fx-pop-3.webp"
+      }
+     ]
+    },
+    {
+     "id": "legacy_explosion",
+     "name": "구형 폭발 세트",
+     "role": "폭발",
+     "base": "../fx-explosion-0.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "exp-1",
+       "file": "../fx-explosion-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "exp-2",
+       "file": "../fx-explosion-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "exp-3",
+       "file": "../fx-explosion-3.webp"
+      }
+     ]
+    },
+    {
+     "id": "combat_blast",
+     "name": "전투 폭발 세트",
+     "role": "폭발",
+     "base": "../fx-combat-blast-0.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "blast-1",
+       "file": "../fx-combat-blast-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "blast-2",
+       "file": "../fx-combat-blast-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "blast-3",
+       "file": "../fx-combat-blast-3.webp"
+      },
+      {
+       "kind": "part",
+       "name": "난파 화재",
+       "file": "../fx-pack-v189/explosions/fire-wreck.webp"
+      }
+     ]
+    },
+    {
+     "id": "amatol",
+     "name": "아마톨·시트 폭발",
+     "role": "폭발",
+     "base": "../amatol_explosion_effects.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "전투 FX 시트",
+       "file": "../combat-fx196.webp"
+      }
+     ]
+    },
+    {
+     "id": "debris",
+     "name": "파편·잔해·충격",
+     "role": "파편",
+     "base": "../fx-debris-shard.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "금속파편 0",
+       "file": "../fx-metal-shard-0.webp"
+      },
+      {
+       "kind": "part",
+       "name": "금속파편 1",
+       "file": "../fx-metal-shard-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "금속파편 2",
+       "file": "../fx-metal-shard-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "금속파편 3",
+       "file": "../fx-metal-shard-3.webp"
+      },
+      {
+       "kind": "part",
+       "name": "금속파편 4",
+       "file": "../fx-metal-shard-4.webp"
+      },
+      {
+       "kind": "part",
+       "name": "금속파편 5",
+       "file": "../fx-metal-shard-5.webp"
+      },
+      {
+       "kind": "part",
+       "name": "암석파편 0",
+       "file": "../fx-rock-chunk-0.webp"
+      },
+      {
+       "kind": "part",
+       "name": "암석파편 1",
+       "file": "../fx-rock-chunk-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "암석파편 2",
+       "file": "../fx-rock-chunk-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "암석파편 3",
+       "file": "../fx-rock-chunk-3.webp"
+      },
+      {
+       "kind": "part",
+       "name": "암석파편 4",
+       "file": "../fx-rock-chunk-4.webp"
+      },
+      {
+       "kind": "part",
+       "name": "암석파편 5",
+       "file": "../fx-rock-chunk-5.webp"
+      },
+      {
+       "kind": "part",
+       "name": "구조물 0",
+       "file": "../fx-structure-0.webp"
+      },
+      {
+       "kind": "part",
+       "name": "구조물 1",
+       "file": "../fx-structure-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "구조물 2",
+       "file": "../fx-structure-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "구조물 3",
+       "file": "../fx-structure-3.webp"
+      },
+      {
+       "kind": "part",
+       "name": "스파크",
+       "file": "../fx-pack-v189/explosions/impact-spark.webp"
+      },
+      {
+       "kind": "part",
+       "name": "도탄",
+       "file": "../fx-pack-v189/explosions/impact-ricochet.webp"
+      },
+      {
+       "kind": "part",
+       "name": "기체 잔해",
+       "file": "../fx-pack-v189/explosions/impact-aircraft-debris.webp"
+      },
+      {
+       "kind": "part",
+       "name": "흙 폭발",
+       "file": "../fx-dirt-burst.webp"
+      },
+      {
+       "kind": "part",
+       "name": "흙먼지 혼합",
+       "file": "../fx-dirt-mix.webp"
+      },
+      {
+       "kind": "part",
+       "name": "먼지 퍼프",
+       "file": "../fx-dust-puff.webp"
+      },
+      {
+       "kind": "part",
+       "name": "충격파 링",
+       "file": "../fx-shock-ring.webp"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "fx_ambient",
+   "name": "FX — 연기·화염·환경",
+   "types": [
+    {
+     "id": "smoke",
+     "name": "연기",
+     "role": "연기",
+     "base": "../fx-engine-smoke.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "짙은 연기",
+       "file": "../fx-smoke-heavy.webp"
+      },
+      {
+       "kind": "part",
+       "name": "연기 궤적",
+       "file": "../fx-smoke-trail.webp"
+      },
+      {
+       "kind": "part",
+       "name": "총 연기",
+       "file": "../fx-gun-smoke.webp"
+      },
+      {
+       "kind": "part",
+       "name": "먼지 연기",
+       "file": "../fx-smoke-dust.webp"
+      },
+      {
+       "kind": "part",
+       "name": "엔진 연기(전투)",
+       "file": "../fx-combat-engine-smoke.webp"
+      },
+      {
+       "kind": "part",
+       "name": "총 연기(전투)",
+       "file": "../fx-combat-gun-smoke.webp"
+      },
+      {
+       "kind": "part",
+       "name": "피해 연기",
+       "file": "../fx-pack-v189/gas-smoke/smoke-damage.webp"
+      },
+      {
+       "kind": "part",
+       "name": "엔진 연기",
+       "file": "../fx-pack-v189/gas-smoke/smoke-engine.webp"
+      },
+      {
+       "kind": "part",
+       "name": "총구 연기",
+       "file": "../fx-pack-v189/gas-smoke/smoke-gun.webp"
+      },
+      {
+       "kind": "part",
+       "name": "기름 연기",
+       "file": "../fx-pack-v189/gas-smoke/smoke-oil.webp"
+      },
+      {
+       "kind": "part",
+       "name": "가스 소산",
+       "file": "../fx-pack-v189/gas-smoke/gas-dissipate.webp"
+      },
+      {
+       "kind": "part",
+       "name": "증기 궤적",
+       "file": "../fx-pack-v189/gas-smoke/vapor-trail.webp"
+      },
+      {
+       "kind": "part",
+       "name": "로켓 배기",
+       "file": "../fx-pack-v189/gas-smoke/exhaust-rocket.webp"
+      }
+     ]
+    },
+    {
+     "id": "fire",
+     "name": "화염·화재",
+     "role": "화염",
+     "base": "../fx-fire-engine.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "날개 화재",
+       "file": "../fx-fire-wing.webp"
+      },
+      {
+       "kind": "part",
+       "name": "지상 화재",
+       "file": "../fx-fire-ground.webp"
+      },
+      {
+       "kind": "part",
+       "name": "화염 플래시",
+       "file": "../fx-fire-flash.webp"
+      },
+      {
+       "kind": "part",
+       "name": "화염 분사",
+       "file": "../fx-flame-jet.webp"
+      },
+      {
+       "kind": "part",
+       "name": "화염 1",
+       "file": "../fx-flame-tongue-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "화염 2",
+       "file": "../fx-flame-tongue-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "화염 3",
+       "file": "../fx-flame-tongue-3.webp"
+      },
+      {
+       "kind": "part",
+       "name": "소형 화재",
+       "file": "../fx-pack-v189/gas-smoke/fire-small.webp"
+      },
+      {
+       "kind": "part",
+       "name": "기체 화재",
+       "file": "../fx-pack-v189/gas-smoke/fire-aircraft.webp"
+      },
+      {
+       "kind": "part",
+       "name": "지상 화재(전투)",
+       "file": "../fx-combat-ground-fire.webp"
+      }
+     ]
+    },
+    {
+     "id": "gas",
+     "name": "독가스",
+     "role": "가스",
+     "base": "../fx-pack-v189/gas-smoke/gas-broad.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "중간 가스",
+       "file": "../fx-pack-v189/gas-smoke/gas-medium.webp"
+      },
+      {
+       "kind": "part",
+       "name": "소형 가스",
+       "file": "../fx-pack-v189/gas-smoke/gas-small.webp"
+      }
+     ]
+    },
+    {
+     "id": "water",
+     "name": "물·파도",
+     "role": "수면FX",
+     "base": "../fx-water-column.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "작은 물보라",
+       "file": "../fx-splash-tiny.webp"
+      },
+      {
+       "kind": "part",
+       "name": "포탄 물보라",
+       "file": "../fx-splash-shell.webp"
+      },
+      {
+       "kind": "part",
+       "name": "빠른 항적",
+       "file": "../fx-wake-fast.webp"
+      },
+      {
+       "kind": "part",
+       "name": "거품 링",
+       "file": "../fx-foam-ring.webp"
+      },
+      {
+       "kind": "part",
+       "name": "구름 폭발",
+       "file": "../fx-ball-cloud.webp"
+      }
+     ]
+    },
+    {
+     "id": "atmosphere",
+     "name": "대기·구름",
+     "role": "환경",
+     "base": "../fx-mist.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "햇빛 샤프트",
+       "file": "../fx-sunshaft.webp"
+      },
+      {
+       "kind": "part",
+       "name": "바람 줄기",
+       "file": "../fx-wind-streak.webp"
+      },
+      {
+       "kind": "part",
+       "name": "구름 뭉치 0",
+       "file": "../fx-cloud-bank-0.webp"
+      },
+      {
+       "kind": "part",
+       "name": "구름 뭉치 1",
+       "file": "../fx-cloud-bank-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "적란운 0",
+       "file": "../fx-cloud-cumulus-0.webp"
+      },
+      {
+       "kind": "part",
+       "name": "적란운 1",
+       "file": "../fx-cloud-cumulus-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "적란운 2",
+       "file": "../fx-cloud-cumulus-2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "먹구름 0",
+       "file": "../fx-cloud-dark-0.webp"
+      },
+      {
+       "kind": "part",
+       "name": "먹구름 1",
+       "file": "../fx-cloud-dark-1.webp"
+      },
+      {
+       "kind": "part",
+       "name": "실구름 0",
+       "file": "../fx-cloud-wispy-0.webp"
+      },
+      {
+       "kind": "part",
+       "name": "실구름 1",
+       "file": "../fx-cloud-wispy-1.webp"
+      }
+     ]
+    },
+    {
+     "id": "city",
+     "name": "도시·항구·함선 소품",
+     "role": "배경FX",
+     "base": "../fx-city-searchlight.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "서치라이트 진지",
+       "file": "../fx-city-searchlight-pit2.webp"
+      },
+      {
+       "kind": "part",
+       "name": "도시 대공포",
+       "file": "../fx-city-aagun.webp"
+      },
+      {
+       "kind": "part",
+       "name": "도시 쌍기관총",
+       "file": "../fx-city-twinmg.webp"
+      },
+      {
+       "kind": "part",
+       "name": "도시 탄약",
+       "file": "../fx-city-ammo.webp"
+      },
+      {
+       "kind": "part",
+       "name": "항구 방파제",
+       "file": "../fx-harbor-mole.webp"
+      },
+      {
+       "kind": "part",
+       "name": "수상기 기지",
+       "file": "../fx-harbor-seaplane-base.webp"
+      },
+      {
+       "kind": "part",
+       "name": "중앙국 함선 AA",
+       "file": "../fx-ship-cen-aa.webp"
+      },
+      {
+       "kind": "part",
+       "name": "중앙국 함선 DD",
+       "file": "../fx-ship-cen-dd.webp"
+      },
+      {
+       "kind": "part",
+       "name": "연합국 함선 AA",
+       "file": "../fx-ship-ent-aa.webp"
+      },
+      {
+       "kind": "part",
+       "name": "연합국 함선 DD",
+       "file": "../fx-ship-ent-dd.webp"
+      },
+      {
+       "kind": "part",
+       "name": "대공 방어 아틀라스",
+       "file": "../fx-aa-defense-atlas.webp"
+      }
+     ]
+    },
+    {
+     "id": "atlases",
+     "name": "절전 아틀라스",
+     "role": "아틀라스",
+     "base": "../fx-pack-v189/preview.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "폭발 아틀라스",
+       "file": "../fx-pack-v189/explosions-atlas.webp"
+      },
+      {
+       "kind": "part",
+       "name": "가스·연기 아틀라스",
+       "file": "../fx-pack-v189/gas-smoke-atlas.webp"
+      },
+      {
+       "kind": "part",
+       "name": "탄 아틀라스",
+       "file": "../fx-pack-v189/projectiles-atlas.webp"
+      }
+     ]
     }
    ]
   }
