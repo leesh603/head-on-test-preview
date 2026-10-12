@@ -43,7 +43,7 @@
 <div class=ftabs id=ftabs></div>
 <div id=root></div>
 <script>
-const KIND={base:'기본형',ace:'에이스',squadron:'편대',livery:'도장',alt:'대체안',dmg:'손상',wreck:'파괴',part:'부품',ingame:'인게임',art:'일러스트'};
+const KIND={base:'기본형',ace:'에이스',squadron:'편대',livery:'도장',alt:'대체안',dmg:'손상',wreck:'파괴',part:'부품',ingame:'인게임',art:'일러스트',bank:'뱅크 원본'};
 fetch('catalog.json?v='+Date.now()).then(r=>r.json()).then(cat=>{
   const root=document.getElementById('root'),ftabs=document.getElementById('ftabs');
   cat.factions.forEach((f,fi)=>{
