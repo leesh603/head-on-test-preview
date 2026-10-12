@@ -56,7 +56,7 @@ fetch('catalog.json?v='+Date.now()).then(r=>r.json()).then(cat=>{
     const f=cat.factions[fi];
     for(const t of f.types){
       const el=document.createElement('div');el.className='type';
-      const nvar=(t.variants||[]).length;
+      const nvar=(t.variants||[]).filter(v=>!v.hidden).length;
       const th=document.createElement('div');th.className='thead';
       th.innerHTML='<span class=caret>▶</span><img loading="lazy" src="'+t.base+'?v='+cat.v+'">'+
         '<div><div class=tname>'+t.name+(t.live?'<span class=livehead>인게임</span>':'')+'</div><div class=tmeta>'+[t.year,t.role].filter(Boolean).join(' · ')+'</div></div>'+
@@ -65,7 +65,7 @@ fetch('catalog.json?v='+Date.now()).then(r=>r.json()).then(cat=>{
       el.appendChild(th);
       const g=document.createElement('div');g.className='vgrid';
       g.appendChild(card(t.base,'기본형','base',t.live));
-      for(const v of t.variants||[])g.appendChild(card(v.file,v.name,v.kind,v.live));
+      for(const v of t.variants||[])if(!v.hidden)g.appendChild(card(v.file,v.name,v.kind,v.live));
       el.appendChild(g);
       root.appendChild(el);
     }
