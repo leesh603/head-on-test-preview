@@ -1,5 +1,5 @@
 {
- "v": 131,
+ "v": 132,
  "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
  "factions": [
   {
@@ -63,6 +63,18 @@
      "base": "planes/eindecker_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../eindecker.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/eindecker.webp",
+       "live": true
+      },
+      {
        "kind": "alt",
        "name": "Fokker E.IV",
        "file": "planes/fokker_e4.webp"
@@ -107,7 +119,8 @@
        "name": "야간전 칠흑",
        "file": "liveries/eindecker/night.webp"
       }
-     ]
+     ],
+     "live": "../eindecker.webp"
     },
     {
      "id": "albatros_d2",
@@ -117,9 +130,22 @@
      "base": "planes/albatros_d2_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../albatros_d2.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/albatros_d2.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Boelcke",
-       "file": "aces/boelcke_albatros.webp"
+       "file": "aces/boelcke_albatros.webp",
+       "live": "../boelcke_albatros.webp"
       },
       {
        "kind": "livery",
@@ -161,7 +187,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/albatros_d2/leader.webp"
       }
-     ]
+     ],
+     "live": "../albatros_d2.webp"
     },
     {
      "id": "albatros_d3",
@@ -171,74 +198,100 @@
      "base": "planes/albatros_d3_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../albatros.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/albatros.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Richthofen",
-       "file": "aces/baron_albatros.webp"
+       "file": "aces/baron_albatros.webp",
+       "live": "../baron_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Allmenröder",
-       "file": "aces/allmenroder_albatros.webp"
+       "file": "aces/allmenroder_albatros.webp",
+       "live": "../allmenroder_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Frommherz",
-       "file": "aces/frommherz_albatros.webp"
+       "file": "aces/frommherz_albatros.webp",
+       "live": "../frommherz_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Kirschstein",
-       "file": "aces/kirschstein_albatros.webp"
+       "file": "aces/kirschstein_albatros.webp",
+       "live": "../kirschstein_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Kissenberth",
-       "file": "aces/kissenberth_albatros.webp"
+       "file": "aces/kissenberth_albatros.webp",
+       "live": "../kissenberth_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Loerzer",
-       "file": "aces/loerzer_albatros.webp"
+       "file": "aces/loerzer_albatros.webp",
+       "live": "../loerzer_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Wolff",
-       "file": "aces/wolff_albatros.webp"
+       "file": "aces/wolff_albatros.webp",
+       "live": "../wolff_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 4",
-       "file": "aces/jasta4_albatros.webp"
+       "file": "aces/jasta4_albatros.webp",
+       "live": "../jasta4_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 5",
-       "file": "aces/jasta5_albatros.webp"
+       "file": "aces/jasta5_albatros.webp",
+       "live": "../jasta5_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 11 A",
-       "file": "aces/jasta11a_albatros.webp"
+       "file": "aces/jasta11a_albatros.webp",
+       "live": "../jasta11a_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 11 B",
-       "file": "aces/jasta11b_albatros.webp"
+       "file": "aces/jasta11b_albatros.webp",
+       "live": "../jasta11b_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 11 C",
-       "file": "aces/jasta11c_albatros.webp"
+       "file": "aces/jasta11c_albatros.webp",
+       "live": "../jasta11c_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 11 D",
-       "file": "aces/jasta11d_albatros.webp"
+       "file": "aces/jasta11d_albatros.webp",
+       "live": "../jasta11d_albatros.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 78b",
-       "file": "aces/jasta78b_albatros.webp"
+       "file": "aces/jasta78b_albatros.webp",
+       "live": "../jasta78b_albatros.webp"
       },
       {
        "kind": "alt",
@@ -340,7 +393,8 @@
        "name": "Menckhoff (검정 위장)",
        "file": "aces/menckhoff_albatros.webp"
       }
-     ]
+     ],
+     "live": "../albatros.webp"
     },
     {
      "id": "albatros_d5a",
@@ -350,39 +404,58 @@
      "base": "planes/albatros_d5a_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../albatros_d5a.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/albatros_d5a.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Berthold",
-       "file": "aces/berthold_albatros.webp"
+       "file": "aces/berthold_albatros.webp",
+       "live": "../berthold_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Schleich",
-       "file": "aces/schleich_albatros.webp"
+       "file": "aces/schleich_albatros.webp",
+       "live": "../schleich_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Schoder",
-       "file": "aces/schoder_albatros.webp"
+       "file": "aces/schoder_albatros.webp",
+       "live": "../schoder_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Büttner",
-       "file": "aces/buttner_albatros.webp"
+       "file": "aces/buttner_albatros.webp",
+       "live": "../buttner_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Müller",
-       "file": "aces/mueller_albatros.webp"
+       "file": "aces/mueller_albatros.webp",
+       "live": "../mueller_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Udet",
-       "file": "aces/udet_albatros.webp"
+       "file": "aces/udet_albatros.webp",
+       "live": "../udet_albatros.webp"
       },
       {
        "kind": "ace",
        "name": "Wolff (2)",
-       "file": "aces/wolff2_albatros.webp"
+       "file": "aces/wolff2_albatros.webp",
+       "live": "../wolff2_albatros.webp"
       },
       {
        "kind": "livery",
@@ -489,7 +562,8 @@
        "name": "Wart (독수리)",
        "file": "aces/wart_albatros_d5.webp"
       }
-     ]
+     ],
+     "live": "../albatros_d5a.webp"
     },
     {
      "id": "pfalz_d3a",
@@ -499,9 +573,22 @@
      "base": "planes/pfalz_d3a_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../pfalz_d3a.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/pfalz_d3a.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Bäumer",
-       "file": "aces/baeumer_pfalz.webp"
+       "file": "aces/baeumer_pfalz.webp",
+       "live": "../baeumer_pfalz.webp"
       },
       {
        "kind": "livery",
@@ -543,7 +630,8 @@
        "name": "야간전 칠흑",
        "file": "liveries/pfalz_d3a/night.webp"
       }
-     ]
+     ],
+     "live": "../pfalz_d3a.webp"
     },
     {
      "id": "pfalz_d12",
@@ -553,9 +641,22 @@
      "base": "planes/pfalz_d12_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../pfalz_d12.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/pfalz_d12.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Berthold",
-       "file": "aces/berthold_pfalz.webp"
+       "file": "aces/berthold_pfalz.webp",
+       "live": "../berthold_pfalz.webp"
       },
       {
        "kind": "ace",
@@ -565,12 +666,14 @@
       {
        "kind": "ace",
        "name": "Degelow (뱅크)",
-       "file": "aces/degelow_pfalz.webp"
+       "file": "aces/degelow_pfalz.webp",
+       "live": "../degelow_pfalz.webp"
       },
       {
        "kind": "alt",
        "name": "뱅크 재생성",
-       "file": "planes/pfalz_d12.webp"
+       "file": "planes/pfalz_d12.webp",
+       "live": "../pfalz_d12.webp"
       },
       {
        "kind": "livery",
@@ -612,7 +715,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/pfalz_d12/leader.webp"
       }
-     ]
+     ],
+     "live": "../pfalz_d12.webp"
     },
     {
      "id": "roland_d6",
@@ -621,6 +725,18 @@
      "role": "전투기",
      "base": "planes/roland_d6_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../roland_d6.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/roland_d6.webp",
+       "live": true
+      },
       {
        "kind": "alt",
        "name": "D.VIb 로젠지",
@@ -666,7 +782,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/roland_d6/leader.webp"
       }
-     ]
+     ],
+     "live": "../roland_d6.webp"
     },
     {
      "id": "fokker_dr1",
@@ -675,6 +792,24 @@
      "role": "전투기",
      "base": "planes/fokker_dr1_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "메카닉(에이스): voss_dr1",
+       "file": "../mech/voss_dr1.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../fokker_standard.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/fokker_standard.webp",
+       "live": true
+      },
       {
        "kind": "ace",
        "name": "M. v. Richthofen (전체 적색)",
@@ -803,47 +938,56 @@
       {
        "kind": "alt",
        "name": "F.I 시제기 (보스형)",
-       "file": "aces/fokker_f1.webp"
+       "file": "aces/fokker_f1.webp",
+       "live": "../fokker_f1.webp"
       },
       {
        "kind": "ace",
        "name": "Lothar v. Richthofen",
-       "file": "aces/lothar_dr1.webp"
+       "file": "aces/lothar_dr1.webp",
+       "live": "../lothar_dr1.webp"
       },
       {
        "kind": "ace",
        "name": "Mai",
-       "file": "aces/mai_dr1.webp"
+       "file": "aces/mai_dr1.webp",
+       "live": "../mai_dr1.webp"
       },
       {
        "kind": "ace",
        "name": "Hantelmann",
-       "file": "aces/hantelmann_dr1.webp"
+       "file": "aces/hantelmann_dr1.webp",
+       "live": "../hantelmann_dr1.webp"
       },
       {
        "kind": "ace",
        "name": "Beaulieu",
-       "file": "aces/beaulieu_dr1.webp"
+       "file": "aces/beaulieu_dr1.webp",
+       "live": "../beaulieu_dr1.webp"
       },
       {
        "kind": "ace",
        "name": "Jacobs",
-       "file": "aces/fokker_jacobs.webp"
+       "file": "aces/fokker_jacobs.webp",
+       "live": "../fokker_jacobs.webp"
       },
       {
        "kind": "ace",
        "name": "Jacobs (2)",
-       "file": "aces/fokker_jacobs_v2.webp"
+       "file": "aces/fokker_jacobs_v2.webp",
+       "live": "../fokker_jacobs_v2.webp"
       },
       {
        "kind": "ace",
        "name": "Gontermann",
-       "file": "aces/gontermann_fokker.webp"
+       "file": "aces/gontermann_fokker.webp",
+       "live": "../gontermann_fokker.webp"
       },
       {
        "kind": "ace",
        "name": "Gontermann (2)",
-       "file": "aces/gontermann_fokker_v2.webp"
+       "file": "aces/gontermann_fokker_v2.webp",
+       "live": "../gontermann_fokker_v2.webp"
       },
       {
        "kind": "livery",
@@ -915,7 +1059,8 @@
        "name": "Bäumer (셰브론)",
        "file": "aces/baeumer_dr1.webp"
       }
-     ]
+     ],
+     "live": "../fokker_standard.webp"
     },
     {
      "id": "fokker_d5",
@@ -927,7 +1072,8 @@
       {
        "kind": "ace",
        "name": "Udet",
-       "file": "aces/udet_fokkerdv.webp"
+       "file": "aces/udet_fokkerdv.webp",
+       "live": "../udet_fokkerdv.webp"
       },
       {
        "kind": "livery",
@@ -959,39 +1105,76 @@
      "base": "planes/fokker_d7_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "메카닉(에이스): udet_fokkerd7",
+       "file": "../mech/udet_fokkerd7.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉(에이스): steinhauser_fokkerd7",
+       "file": "../mech/steinhauser_fokkerd7.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉(에이스): greim_fokkerd7",
+       "file": "../mech/greim_fokkerd7.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../fokkerd7.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/fokkerd7.webp",
+       "live": true
+      },
+      {
        "kind": "squadron",
        "name": "Jasta 11",
-       "file": "aces/jasta11_fokkerd7.webp"
+       "file": "aces/jasta11_fokkerd7.webp",
+       "live": "../jasta11_fokkerd7.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 18",
-       "file": "aces/jasta18_fokkerd7.webp"
+       "file": "aces/jasta18_fokkerd7.webp",
+       "live": "../jasta18_fokkerd7.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 27",
-       "file": "aces/jasta27_fokkerd7.webp"
+       "file": "aces/jasta27_fokkerd7.webp",
+       "live": "../jasta27_fokkerd7.webp"
       },
       {
        "kind": "squadron",
        "name": "Jasta 43",
-       "file": "aces/jasta43_fokkerd7.webp"
+       "file": "aces/jasta43_fokkerd7.webp",
+       "live": "../jasta43_fokkerd7.webp"
       },
       {
        "kind": "ace",
        "name": "Gabriel",
-       "file": "aces/gabriel_fokkerd7.webp"
+       "file": "aces/gabriel_fokkerd7.webp",
+       "live": "../gabriel_fokkerd7.webp"
       },
       {
        "kind": "ace",
        "name": "Göring",
-       "file": "aces/goering_fokkerd7.webp"
+       "file": "aces/goering_fokkerd7.webp",
+       "live": "../goering_fokkerd7.webp"
       },
       {
        "kind": "ace",
        "name": "Löwenhardt",
-       "file": "aces/loewenhardt_fokkerd7.webp"
+       "file": "aces/loewenhardt_fokkerd7.webp",
+       "live": "../loewenhardt_fokkerd7.webp"
       },
       {
        "kind": "ace",
@@ -1038,7 +1221,8 @@
        "name": "폴란드 샤호비차",
        "file": "liveries/fokkerd7/polish.webp"
       }
-     ]
+     ],
+     "live": "../fokkerd7.webp"
     },
     {
      "id": "fokker_ev",
@@ -1077,6 +1261,18 @@
      "base": "planes/ssw_d3_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../ssw_d3.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/ssw_d3.webp",
+       "live": true
+      },
+      {
        "kind": "alt",
        "name": "인게임형",
        "file": "aces/ssw_d3_ingame.webp"
@@ -1101,7 +1297,8 @@
        "name": "미군 반입 평가기",
        "file": "liveries/ssw_d3/usas.webp"
       }
-     ]
+     ],
+     "live": "../ssw_d3.webp"
     },
     {
      "id": "ssw_d4",
@@ -1110,6 +1307,18 @@
      "role": "전투기",
      "base": "planes/ssw_d4.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../siemens_d4.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/siemens_d4.webp",
+       "live": true
+      },
       {
        "kind": "alt",
        "name": "인게임형",
@@ -1135,7 +1344,8 @@
        "name": "미군 반입 평가기",
        "file": "liveries/ssw_d4/usas.webp"
       }
-     ]
+     ],
+     "live": "../siemens_d4.webp"
     },
     {
      "id": "junkers_d1",
@@ -1145,9 +1355,22 @@
      "base": "planes/junkers_d1_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../junkers_d1.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/junkers_d1.webp",
+       "live": true
+      },
+      {
        "kind": "alt",
        "name": "뱅크 재생성",
-       "file": "planes/junkers_d1.webp"
+       "file": "planes/junkers_d1.webp",
+       "live": "../junkers_d1.webp"
       },
       {
        "kind": "livery",
@@ -1169,7 +1392,8 @@
        "name": "황색 꼬리+흑띠 편대",
        "file": "liveries/junkers_d1/band.webp"
       }
-     ]
+     ],
+     "live": "../junkers_d1.webp"
     },
     {
      "id": "junkers_j1",
@@ -1179,9 +1403,22 @@
      "base": "planes/junkers_j1_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../junkers_j1.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/junkers_j1.webp",
+       "live": true
+      },
+      {
        "kind": "alt",
        "name": "뱅크 재생성",
-       "file": "planes/junkers_j1.webp"
+       "file": "planes/junkers_j1.webp",
+       "live": "../junkers_j1.webp"
       },
       {
        "kind": "livery",
@@ -1203,7 +1440,8 @@
        "name": "미군 반입 평가기",
        "file": "liveries/junkers_j1/usas.webp"
       }
-     ]
+     ],
+     "live": "../junkers_j1.webp"
     },
     {
      "id": "hannover_cl3",
@@ -1213,9 +1451,22 @@
      "base": "planes/hannover_cl3_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../hannover_cl3.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/hannover_cl3.webp",
+       "live": true
+      },
+      {
        "kind": "alt",
        "name": "뱅크 재생성",
-       "file": "planes/hannover_cl3.webp"
+       "file": "planes/hannover_cl3.webp",
+       "live": "../hannover_cl3.webp"
       },
       {
        "kind": "livery",
@@ -1237,7 +1488,8 @@
        "name": "영국 노획 평가기",
        "file": "liveries/hannover_cl3/captured.webp"
       }
-     ]
+     ],
+     "live": "../hannover_cl3.webp"
     },
     {
      "id": "dfw_cv",
@@ -1246,6 +1498,18 @@
      "role": "정찰기",
      "base": "planes/dfw_cv_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../dfw_cv.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/dfw_cv.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "후기 전체 로젠지",
@@ -1266,7 +1530,8 @@
        "name": "프랑스 노획 평가기",
        "file": "liveries/dfw_cv/captured.webp"
       }
-     ]
+     ],
+     "live": "../dfw_cv.webp"
     },
     {
      "id": "halberstadt_duo",
@@ -1275,6 +1540,18 @@
      "role": "지상공격기",
      "base": "planes/halberstadt_duo_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../halberstadt_duo.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/halberstadt_duo.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "초기 올리브 단색",
@@ -1295,7 +1572,8 @@
        "name": "영국 노획 평가기",
        "file": "liveries/halberstadt_duo/captured.webp"
       }
-     ]
+     ],
+     "live": "../halberstadt_duo.webp"
     },
     {
      "id": "aeg_c4",
@@ -1333,6 +1611,18 @@
      "role": "중폭격기",
      "base": "planes/aeg_g4_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../aeg_g4.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/aeg_g4.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "로젠지 위장천",
@@ -1373,7 +1663,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/aeg_g4/leader.webp"
       }
-     ]
+     ],
+     "live": "../aeg_g4.webp"
     },
     {
      "id": "friedrichshafen_g3",
@@ -1382,6 +1673,18 @@
      "role": "중폭격기",
      "base": "planes/friedrichshafen_g3_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../friedrichshafen_g3.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/friedrichshafen_g3.webp",
+       "live": true
+      },
       {
        "kind": "alt",
        "name": "뱅크 재생성",
@@ -1427,7 +1730,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/friedrichshafen_g3/leader.webp"
       }
-     ]
+     ],
+     "live": "../friedrichshafen_g3.webp"
     },
     {
      "id": "gotha_g4",
@@ -1436,6 +1740,18 @@
      "role": "중폭격기",
      "base": "planes/gotha_g4.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../gotha.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/gotha.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "전체 로젠지 위장천",
@@ -1476,7 +1792,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/gotha_g4/leader.webp"
       }
-     ]
+     ],
+     "live": "../gotha.webp"
     },
     {
      "id": "staaken_r6",
@@ -1485,6 +1802,18 @@
      "role": "거폭격기",
      "base": "planes/staaken_r6.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../staaken.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/staaken.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "로젠지 위장천",
@@ -1525,7 +1854,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/staaken_r6/leader.webp"
       }
-     ]
+     ],
+     "live": "../staaken.webp"
     },
     {
      "id": "ff33",
@@ -1534,6 +1864,18 @@
      "role": "수상정찰기",
      "base": "planes/ff33_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../ff33.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/ff33.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "로젠지 위장천",
@@ -1574,7 +1916,8 @@
        "name": "편대장 붉은플로트",
        "file": "liveries/ff33/leader.webp"
       }
-     ]
+     ],
+     "live": "../ff33.webp"
     },
     {
      "id": "hb_w29",
@@ -1583,6 +1926,18 @@
      "role": "수상전투기",
      "base": "planes/hb_w29_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../hb_w29.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/hb_w29.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "해상 얼룩 위장",
@@ -1623,7 +1978,8 @@
        "name": "편대장 붉은플로트",
        "file": "liveries/hb_w29/leader.webp"
       }
-     ]
+     ],
+     "live": "../hb_w29.webp"
     },
     {
      "id": "hansa_cc",
@@ -1632,6 +1988,18 @@
      "role": "수상전투기",
      "base": "planes/hansa_cc_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../hansa_brandenburg_cc.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/hansa_brandenburg_cc.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "전선 얼룩 위장",
@@ -1672,7 +2040,8 @@
        "name": "편대장 붉은선체",
        "file": "liveries/hansa_cc/leader.webp"
       }
-     ]
+     ],
+     "live": "../hansa_brandenburg_cc.webp"
     }
    ]
   },
@@ -1688,6 +2057,18 @@
      "base": "planes/aviatik_d1_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../aviatik_d1.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/aviatik_d1.webp",
+       "live": true
+      },
+      {
        "kind": "alt",
        "name": "인게임형2",
        "file": "aces/aviatik_ingame.webp"
@@ -1700,7 +2081,8 @@
       {
        "kind": "ace",
        "name": "Arigi (뱅크)",
-       "file": "aces/arigi_aviatik.webp"
+       "file": "aces/arigi_aviatik.webp",
+       "live": "../arigi_aviatik.webp"
       },
       {
        "kind": "ace",
@@ -1727,7 +2109,8 @@
        "name": "붉은 동체 지휘기",
        "file": "liveries/aviatik_d1/red.webp"
       }
-     ]
+     ],
+     "live": "../aviatik_d1.webp"
     },
     {
      "id": "phonix_d1",
@@ -1737,14 +2120,28 @@
      "base": "planes/phonix_d1_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../phonix_d1.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/phonix_d1.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Kiss",
-       "file": "aces/kiss_phonix.webp"
+       "file": "aces/kiss_phonix.webp",
+       "live": "../kiss_phonix.webp"
       },
       {
        "kind": "ace",
        "name": "Linke-Crawford",
-       "file": "aces/linke_crawford_phonix.webp"
+       "file": "aces/linke_crawford_phonix.webp",
+       "live": "../linke_crawford_phonix.webp"
       },
       {
        "kind": "alt",
@@ -1771,7 +2168,8 @@
        "name": "백색 식별밴드+백색 꼬리",
        "file": "liveries/phonix_d1/band.webp"
       }
-     ]
+     ],
+     "live": "../phonix_d1.webp"
     },
     {
      "id": "albatros_oeffag",
@@ -1781,9 +2179,22 @@
      "base": "planes/albatros_oeffag_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../albatros.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/albatros.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Brumowski (2)",
-       "file": "aces/brumowski_albatros_v2.webp"
+       "file": "aces/brumowski_albatros_v2.webp",
+       "live": "../brumowski_albatros_v2.webp"
       },
       {
        "kind": "livery",
@@ -1825,7 +2236,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/albatros_oeffag/leader.webp"
       }
-     ]
+     ],
+     "live": "../albatros.webp"
     },
     {
      "id": "lohner_l",
@@ -1834,6 +2246,18 @@
      "role": "비행정",
      "base": "planes/lohner_l_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../lohner_l.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/lohner_l.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "아드리아해 얼룩 위장",
@@ -1874,7 +2298,8 @@
        "name": "편대장 붉은선체",
        "file": "liveries/lohner_l/leader.webp"
       }
-     ]
+     ],
+     "live": "../lohner_l.webp"
     }
    ]
   },
@@ -1889,6 +2314,18 @@
      "role": "전투기",
      "base": "planes/morane_ai_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../morane_ai.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/morane_ai.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "프랑스군 은색",
@@ -1929,7 +2366,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/morane_ai/leader.webp"
       }
-     ]
+     ],
+     "live": "../morane_ai.webp"
     },
     {
      "id": "vickers_fb5",
@@ -1938,6 +2376,18 @@
      "role": "전투기",
      "base": "planes/vickers_fb5.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../gunbus.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/gunbus.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "훈련기 은색",
@@ -1978,7 +2428,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/vickers_fb5/leader.webp"
       }
-     ]
+     ],
+     "live": "../gunbus.webp"
     },
     {
      "id": "airco_dh2",
@@ -1987,6 +2438,18 @@
      "role": "전투기",
      "base": "planes/airco_dh2_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../airco_dh2.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/airco_dh2.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "훈련기 은색",
@@ -2027,7 +2490,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/airco_dh2/leader.webp"
       }
-     ]
+     ],
+     "live": "../airco_dh2.webp"
     },
     {
      "id": "fe2b",
@@ -2036,6 +2500,18 @@
      "role": "전투기",
      "base": "planes/fe2b_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../fe2b.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/fe2b.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "영국 RFC 주간형",
@@ -2076,7 +2552,8 @@
        "name": "파문 위장 실험기",
        "file": "liveries/fe2b/wavy.webp"
       }
-     ]
+     ],
+     "live": "../fe2b.webp"
     },
     {
      "id": "be2c",
@@ -2085,6 +2562,18 @@
      "role": "정찰기",
      "base": "planes/be2c_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../be2c.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/be2c.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "대체페린 야간 방어기",
@@ -2125,7 +2614,8 @@
        "name": "전선 얼룩 위장",
        "file": "liveries/be2c/camo.webp"
       }
-     ]
+     ],
+     "live": "../be2c.webp"
     },
     {
      "id": "re7",
@@ -2134,6 +2624,18 @@
      "role": "정찰기",
      "base": "planes/re7_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../re7.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/re7.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "러시아제국 공군",
@@ -2174,7 +2676,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/re7/leader.webp"
       }
-     ]
+     ],
+     "live": "../re7.webp"
     },
     {
      "id": "nieuport11",
@@ -2184,19 +2687,34 @@
      "base": "planes/nieuport_11_bebe.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../nieuport11.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/nieuport11.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Baracca",
-       "file": "aces/baracca_nieuport.webp"
+       "file": "aces/baracca_nieuport.webp",
+       "live": "../baracca_nieuport.webp"
       },
       {
        "kind": "ace",
        "name": "Bishop",
-       "file": "aces/bishop_nieuport.webp"
+       "file": "aces/bishop_nieuport.webp",
+       "live": "../bishop_nieuport.webp"
       },
       {
        "kind": "ace",
        "name": "Dorme",
-       "file": "aces/dorme_nieuport.webp"
+       "file": "aces/dorme_nieuport.webp",
+       "live": "../dorme_nieuport.webp"
       },
       {
        "kind": "ace",
@@ -2216,12 +2734,14 @@
       {
        "kind": "ace",
        "name": "Carli",
-       "file": "aces/carli_nieuport.webp"
+       "file": "aces/carli_nieuport.webp",
+       "live": "../carli_nieuport.webp"
       },
       {
        "kind": "ace",
        "name": "위장기",
-       "file": "aces/camo_nieuport.webp"
+       "file": "aces/camo_nieuport.webp",
+       "live": "../camo_nieuport.webp"
       },
       {
        "kind": "ace",
@@ -2231,12 +2751,14 @@
       {
        "kind": "ace",
        "name": "Meulemeester",
-       "file": "aces/meulemeester_nieuport.webp"
+       "file": "aces/meulemeester_nieuport.webp",
+       "live": "../meulemeester_nieuport.webp"
       },
       {
        "kind": "alt",
        "name": "이탈리아형",
-       "file": "aces/nieuport_italian.webp"
+       "file": "aces/nieuport_italian.webp",
+       "live": "../nieuport_italian.webp"
       },
       {
        "kind": "alt",
@@ -2283,7 +2805,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/nieuport11/leader.webp"
       }
-     ]
+     ],
+     "live": "../nieuport11.webp"
     },
     {
      "id": "nieuport17",
@@ -2293,9 +2816,28 @@
      "base": "planes/nieuport17_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "메카닉(에이스): lafayette_nieuport17",
+       "file": "../mech/lafayette_nieuport17.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../nieuport.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/nieuport.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Lufbery",
-       "file": "aces/lufbery_nieuport17.webp"
+       "file": "aces/lufbery_nieuport17.webp",
+       "live": "../lufbery_nieuport17.webp"
       },
       {
        "kind": "livery",
@@ -2337,7 +2879,8 @@
        "name": "야간전 남색",
        "file": "liveries/nieuport17/night.webp"
       }
-     ]
+     ],
+     "live": "../nieuport.webp"
     },
     {
      "id": "nieuport24",
@@ -2347,14 +2890,28 @@
      "base": "planes/nieuport24_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../nieuport24.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/nieuport24.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Nungesser",
-       "file": "aces/nungesser_nieuport24.webp"
+       "file": "aces/nungesser_nieuport24.webp",
+       "live": "../nungesser_nieuport24.webp"
       },
       {
        "kind": "ace",
        "name": "Nungesser (2)",
-       "file": "aces/nungesser_nieuport24_v2.webp"
+       "file": "aces/nungesser_nieuport24_v2.webp",
+       "live": "../nungesser_nieuport24_v2.webp"
       },
       {
        "kind": "ace",
@@ -2406,7 +2963,8 @@
        "name": "야간전 남색",
        "file": "liveries/nieuport24/night.webp"
       }
-     ]
+     ],
+     "live": "../nieuport24.webp"
     },
     {
      "id": "nieuport28",
@@ -2416,19 +2974,34 @@
      "base": "planes/nieuport28_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../nieuport28.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/nieuport28.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Eagle",
-       "file": "aces/eagle_nieuport28.webp"
+       "file": "aces/eagle_nieuport28.webp",
+       "live": "../eagle_nieuport28.webp"
       },
       {
        "kind": "ace",
        "name": "Luke",
-       "file": "aces/luke_nieuport28.webp"
+       "file": "aces/luke_nieuport28.webp",
+       "live": "../luke_nieuport28.webp"
       },
       {
        "kind": "ace",
        "name": "Luke (2)",
-       "file": "aces/luke_nieuport28_v2.webp"
+       "file": "aces/luke_nieuport28_v2.webp",
+       "live": "../luke_nieuport28_v2.webp"
       },
       {
        "kind": "squadron",
@@ -2475,7 +3048,8 @@
        "name": "파문 위장 실험기",
        "file": "liveries/nieuport28/wavy.webp"
       }
-     ]
+     ],
+     "live": "../nieuport28.webp"
     },
     {
      "id": "pup",
@@ -2484,6 +3058,18 @@
      "role": "전투기",
      "base": "planes/pup_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../pup.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/pup.webp",
+       "live": true
+      },
       {
        "kind": "alt",
        "name": "뱅크 재생성",
@@ -2529,7 +3115,8 @@
        "name": "이색 얼룩 위장",
        "file": "liveries/pup/camo.webp"
       }
-     ]
+     ],
+     "live": "../pup.webp"
     },
     {
      "id": "strutter",
@@ -2538,6 +3125,18 @@
      "role": "전투기",
      "base": "planes/strutter_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../strutter.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/strutter.webp",
+       "live": true
+      },
       {
        "kind": "alt",
        "name": "뱅크 재생성",
@@ -2583,7 +3182,8 @@
        "name": "전선 얼룩 위장",
        "file": "liveries/strutter/camo.webp"
       }
-     ]
+     ],
+     "live": "../strutter.webp"
     },
     {
      "id": "triplane",
@@ -2593,9 +3193,22 @@
      "base": "planes/sopwith_triplane.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../sopwith.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/sopwith.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Collishaw",
-       "file": "aces/collishaw_sopwith.webp"
+       "file": "aces/collishaw_sopwith.webp",
+       "live": "../collishaw_sopwith.webp"
       },
       {
        "kind": "livery",
@@ -2637,7 +3250,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/triplane/leader.webp"
       }
-     ]
+     ],
+     "live": "../sopwith.webp"
     },
     {
      "id": "camel",
@@ -2647,54 +3261,76 @@
      "base": "planes/camel_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../camel.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/camel.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Barker",
-       "file": "aces/barker_camel.webp"
+       "file": "aces/barker_camel.webp",
+       "live": "../barker_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Brown",
-       "file": "aces/brown_camel.webp"
+       "file": "aces/brown_camel.webp",
+       "live": "../brown_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Belgian",
-       "file": "aces/belgian_camel.webp"
+       "file": "aces/belgian_camel.webp",
+       "live": "../belgian_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Collett",
-       "file": "aces/collett_camel.webp"
+       "file": "aces/collett_camel.webp",
+       "live": "../collett_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Dazzle 위장",
-       "file": "aces/dazzle_camel.webp"
+       "file": "aces/dazzle_camel.webp",
+       "live": "../dazzle_camel.webp"
       },
       {
        "kind": "ace",
        "name": "MacLaren",
-       "file": "aces/maclaren_camel.webp"
+       "file": "aces/maclaren_camel.webp",
+       "live": "../maclaren_camel.webp"
       },
       {
        "kind": "ace",
        "name": "McElroy",
-       "file": "aces/mcelroy_camel.webp"
+       "file": "aces/mcelroy_camel.webp",
+       "live": "../mcelroy_camel.webp"
       },
       {
        "kind": "squadron",
        "name": "Naval 10 (검은 편대)",
-       "file": "aces/naval10_camel.webp"
+       "file": "aces/naval10_camel.webp",
+       "live": "../naval10_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Nonal",
-       "file": "aces/nonal_camel.webp"
+       "file": "aces/nonal_camel.webp",
+       "live": "../nonal_camel.webp"
       },
       {
        "kind": "ace",
        "name": "Woollett",
-       "file": "aces/woollett_camel.webp"
+       "file": "aces/woollett_camel.webp",
+       "live": "../woollett_camel.webp"
       },
       {
        "kind": "livery",
@@ -2736,7 +3372,8 @@
        "name": "그리스 육군 항공대",
        "file": "liveries/camel/greek.webp"
       }
-     ]
+     ],
+     "live": "../camel.webp"
     },
     {
      "id": "dolphin",
@@ -2745,6 +3382,18 @@
      "role": "전투기",
      "base": "planes/dolphin_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../dolphin.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/dolphin.webp",
+       "live": true
+      },
       {
        "kind": "alt",
        "name": "뱅크 재생성",
@@ -2790,7 +3439,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/dolphin/leader.webp"
       }
-     ]
+     ],
+     "live": "../dolphin.webp"
     },
     {
      "id": "snipe",
@@ -2800,14 +3450,28 @@
      "base": "planes/snipe_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../snipe.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/snipe.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Barker",
-       "file": "aces/barker_snipe.webp"
+       "file": "aces/barker_snipe.webp",
+       "live": "../barker_snipe.webp"
       },
       {
        "kind": "ace",
        "name": "Barker (2)",
-       "file": "aces/barker_snipe_v2.webp"
+       "file": "aces/barker_snipe_v2.webp",
+       "live": "../barker_snipe_v2.webp"
       },
       {
        "kind": "livery",
@@ -2849,7 +3513,8 @@
        "name": "파문 위장 실험기",
        "file": "liveries/snipe/wavy.webp"
       }
-     ]
+     ],
+     "live": "../snipe.webp"
     },
     {
      "id": "se5a",
@@ -2859,9 +3524,22 @@
      "base": "planes/se5a_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../se5a.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/se5a.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Ball",
-       "file": "aces/ball_se5a.webp"
+       "file": "aces/ball_se5a.webp",
+       "live": "../ball_se5a.webp"
       },
       {
        "kind": "ace",
@@ -2871,47 +3549,56 @@
       {
        "kind": "ace",
        "name": "Beauchamp",
-       "file": "aces/beauchamp_se5a.webp"
+       "file": "aces/beauchamp_se5a.webp",
+       "live": "../beauchamp_se5a.webp"
       },
       {
        "kind": "ace",
        "name": "Bishop",
-       "file": "aces/bishop_se5a.webp"
+       "file": "aces/bishop_se5a.webp",
+       "live": "../bishop_se5a.webp"
       },
       {
        "kind": "ace",
        "name": "Checkerboard",
-       "file": "aces/checker_se5a.webp"
+       "file": "aces/checker_se5a.webp",
+       "live": "../checker_se5a.webp"
       },
       {
        "kind": "ace",
        "name": "Collishaw",
-       "file": "aces/collishaw_se5a.webp"
+       "file": "aces/collishaw_se5a.webp",
+       "live": "../collishaw_se5a.webp"
       },
       {
        "kind": "ace",
        "name": "Dallas",
-       "file": "aces/dallas_se5a.webp"
+       "file": "aces/dallas_se5a.webp",
+       "live": "../dallas_se5a.webp"
       },
       {
        "kind": "ace",
        "name": "Mannock",
-       "file": "aces/mannock_se5a.webp"
+       "file": "aces/mannock_se5a.webp",
+       "live": "../mannock_se5a.webp"
       },
       {
        "kind": "ace",
        "name": "Proctor",
-       "file": "aces/proctor_se5a.webp"
+       "file": "aces/proctor_se5a.webp",
+       "live": "../proctor_se5a.webp"
       },
       {
        "kind": "squadron",
        "name": "85 비행대",
-       "file": "aces/sqn85_se5a.webp"
+       "file": "aces/sqn85_se5a.webp",
+       "live": "../sqn85_se5a.webp"
       },
       {
        "kind": "livery",
        "name": "얼룩말",
-       "file": "aces/zebra_se5a.webp"
+       "file": "aces/zebra_se5a.webp",
+       "live": "../zebra_se5a.webp"
       },
       {
        "kind": "ace",
@@ -2953,7 +3640,8 @@
        "name": "이색 얼룩 위장",
        "file": "liveries/se5a/camo.webp"
       }
-     ]
+     ],
+     "live": "../se5a.webp"
     },
     {
      "id": "spad7",
@@ -2962,6 +3650,18 @@
      "role": "전투기",
      "base": "aces/heurtaux_spad7.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../spad.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/spad.webp",
+       "live": true
+      },
       {
        "kind": "ace",
        "name": "Lufbery",
@@ -2972,7 +3672,8 @@
        "name": "Piccio",
        "file": "aces/piccio_spad7.webp"
       }
-     ]
+     ],
+     "live": "../spad.webp"
     },
     {
      "id": "spad13",
@@ -2982,19 +3683,40 @@
      "base": "planes/spad13_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "메카닉(에이스): stork_spad",
+       "file": "../mech/stork_spad.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../spad.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/spad.webp",
+       "live": true
+      },
+      {
        "kind": "alt",
        "name": "SPAD XII (37mm)",
-       "file": "aces/spad12.webp"
+       "file": "aces/spad12.webp",
+       "live": "../spad12.webp"
       },
       {
        "kind": "alt",
        "name": "SPAD XII (2)",
-       "file": "aces/spad12_v2.webp"
+       "file": "aces/spad12_v2.webp",
+       "live": "../spad12_v2.webp"
       },
       {
        "kind": "ace",
        "name": "Audemars",
-       "file": "aces/audemars_spad.webp"
+       "file": "aces/audemars_spad.webp",
+       "live": "../audemars_spad.webp"
       },
       {
        "kind": "ace",
@@ -3009,17 +3731,20 @@
       {
        "kind": "ace",
        "name": "Deüllin",
-       "file": "aces/deullin_spad.webp"
+       "file": "aces/deullin_spad.webp",
+       "live": "../deullin_spad.webp"
       },
       {
        "kind": "ace",
        "name": "Fonck",
-       "file": "aces/fonck_spad.webp"
+       "file": "aces/fonck_spad.webp",
+       "live": "../fonck_spad.webp"
       },
       {
        "kind": "ace",
        "name": "Germain",
-       "file": "aces/germain_spad.webp"
+       "file": "aces/germain_spad.webp",
+       "live": "../germain_spad.webp"
       },
       {
        "kind": "ace",
@@ -3039,22 +3764,26 @@
       {
        "kind": "ace",
        "name": "Rickenbacker",
-       "file": "aces/rickenbacker_spad.webp"
+       "file": "aces/rickenbacker_spad.webp",
+       "live": "../rickenbacker_spad.webp"
       },
       {
        "kind": "ace",
        "name": "Rickenbacker (2)",
-       "file": "aces/rickenbacker_spad_v2.webp"
+       "file": "aces/rickenbacker_spad_v2.webp",
+       "live": "../rickenbacker_spad_v2.webp"
       },
       {
        "kind": "ace",
        "name": "Tarascon",
-       "file": "aces/tarascon_spad.webp"
+       "file": "aces/tarascon_spad.webp",
+       "live": "../tarascon_spad.webp"
       },
       {
        "kind": "ace",
        "name": "Thieffry",
-       "file": "aces/thieffry_spad.webp"
+       "file": "aces/thieffry_spad.webp",
+       "live": "../thieffry_spad.webp"
       },
       {
        "kind": "ace",
@@ -3064,7 +3793,8 @@
       {
        "kind": "ace",
        "name": "Belgian",
-       "file": "aces/belgium_spad.webp"
+       "file": "aces/belgium_spad.webp",
+       "live": "../belgium_spad.webp"
       },
       {
        "kind": "ace",
@@ -3074,7 +3804,8 @@
       {
        "kind": "ace",
        "name": "Italian",
-       "file": "aces/italian_spad.webp"
+       "file": "aces/italian_spad.webp",
+       "live": "../italian_spad.webp"
       },
       {
        "kind": "ace",
@@ -3126,7 +3857,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/spad13/leader.webp"
       }
-     ]
+     ],
+     "live": "../spad.webp"
     },
     {
      "id": "hanriot",
@@ -3136,9 +3868,22 @@
      "base": "planes/hanriot_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../hanriot.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/hanriot.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Coppens",
-       "file": "aces/coppens_hanriot.webp"
+       "file": "aces/coppens_hanriot.webp",
+       "live": "../coppens_hanriot.webp"
       },
       {
        "kind": "livery",
@@ -3180,7 +3925,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/hanriot/leader.webp"
       }
-     ]
+     ],
+     "live": "../hanriot.webp"
     },
     {
      "id": "bristol_f2b",
@@ -3189,6 +3935,18 @@
      "role": "전투기",
      "base": "planes/bristol_duo_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../bristol_duo.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/bristol_duo.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "폴란드군 적백 체커",
@@ -3229,7 +3987,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/bristol_f2b/leader.webp"
       }
-     ]
+     ],
+     "live": "../bristol_duo.webp"
     },
     {
      "id": "bristol_m1",
@@ -3238,6 +3997,18 @@
      "role": "전투기",
      "base": "planes/bristol_m1_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../bristol_m1.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/bristol_m1.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "중동전선 사막 크림",
@@ -3278,7 +4049,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/bristol_m1/leader.webp"
       }
-     ]
+     ],
+     "live": "../bristol_m1.webp"
     },
     {
      "id": "dh4",
@@ -3288,9 +4060,22 @@
      "base": "planes/dh4_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../dh4.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/dh4.webp",
+       "live": true
+      },
+      {
        "kind": "alt",
        "name": "뱅크 재생성",
-       "file": "planes/dh4.webp"
+       "file": "planes/dh4.webp",
+       "live": "../dh4.webp"
       },
       {
        "kind": "livery",
@@ -3332,7 +4117,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/dh4/leader.webp"
       }
-     ]
+     ],
+     "live": "../dh4.webp"
     },
     {
      "id": "dh5",
@@ -3341,6 +4127,18 @@
      "role": "전투기",
      "base": "planes/dh5_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../dh5.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/dh5.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "훈련기 은색",
@@ -3381,7 +4179,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/dh5/leader.webp"
       }
-     ]
+     ],
+     "live": "../dh5.webp"
     },
     {
      "id": "dh9",
@@ -3440,9 +4239,22 @@
      "base": "planes/re8_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../re8.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/re8.webp",
+       "live": true
+      },
+      {
        "kind": "alt",
        "name": "뱅크 재생성",
-       "file": "planes/re8.webp"
+       "file": "planes/re8.webp",
+       "live": "../re8.webp"
       },
       {
        "kind": "livery",
@@ -3484,7 +4296,8 @@
        "name": "고밀도 얼룩 위장",
        "file": "liveries/re8/heavy.webp"
       }
-     ]
+     ],
+     "live": "../re8.webp"
     },
     {
      "id": "armstrong_fk8",
@@ -3592,9 +4405,22 @@
      "base": "planes/caudron_g4_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../caudron_g4.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/caudron_g4.webp",
+       "live": true
+      },
+      {
        "kind": "alt",
        "name": "뱅크 재생성",
-       "file": "planes/caudron_g4.webp"
+       "file": "planes/caudron_g4.webp",
+       "live": "../caudron_g4.webp"
       },
       {
        "kind": "livery",
@@ -3636,7 +4462,8 @@
        "name": "편대장 붉은 나셀",
        "file": "liveries/caudron_g4/leader.webp"
       }
-     ]
+     ],
+     "live": "../caudron_g4.webp"
     },
     {
      "id": "caudron_r11",
@@ -3695,6 +4522,18 @@
      "base": "planes/voisin8_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../voisin8.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/voisin8.webp",
+       "live": true
+      },
+      {
        "kind": "alt",
        "name": "뱅크 재생성",
        "file": "planes/voisin_8.webp"
@@ -3739,7 +4578,8 @@
        "name": "편대장 붉은 나셀",
        "file": "liveries/voisin8/leader.webp"
       }
-     ]
+     ],
+     "live": "../voisin8.webp"
     },
     {
      "id": "breguet14",
@@ -3748,6 +4588,18 @@
      "role": "폭격기",
      "base": "planes/breguet14_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../breguet14.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/breguet14.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "미군 95비행대 별",
@@ -3788,7 +4640,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/breguet14/leader.webp"
       }
-     ]
+     ],
+     "live": "../breguet14.webp"
     },
     {
      "id": "salmson_2a2",
@@ -3847,9 +4700,22 @@
      "base": "planes/ansaldo_sva5_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../ansaldo_sva5.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/ansaldo_sva5.webp",
+       "live": true
+      },
+      {
        "kind": "ace",
        "name": "Ruffo",
-       "file": "aces/ruffo_sva5.webp"
+       "file": "aces/ruffo_sva5.webp",
+       "live": "../ruffo_sva5.webp"
       },
       {
        "kind": "livery",
@@ -3891,7 +4757,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/ansaldo_sva5/leader.webp"
       }
-     ]
+     ],
+     "live": "../ansaldo_sva5.webp"
     },
     {
      "id": "macchi_m3",
@@ -3900,6 +4767,18 @@
      "role": "비행정",
      "base": "planes/macchi_m3_clean.webp",
      "variants": [
+      {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../macchi_m3.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/macchi_m3.webp",
+       "live": true
+      },
       {
        "kind": "livery",
        "name": "아드리아해 얼룩 위장",
@@ -3940,7 +4819,8 @@
        "name": "편대장 붉은선체",
        "file": "liveries/macchi_m3/leader.webp"
       }
-     ]
+     ],
+     "live": "../macchi_m3.webp"
     },
     {
      "id": "macchi_m5",
@@ -3950,9 +4830,22 @@
      "base": "planes/macchi_m5_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../macchi_m5.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/macchi_m5.webp",
+       "live": true
+      },
+      {
        "kind": "alt",
        "name": "뱅크 재생성",
-       "file": "planes/macchi_m5.webp"
+       "file": "planes/macchi_m5.webp",
+       "live": "../macchi_m5.webp"
       },
       {
        "kind": "livery",
@@ -3994,7 +4887,8 @@
        "name": "편대장 붉은선체",
        "file": "liveries/macchi_m5/leader.webp"
       }
-     ]
+     ],
+     "live": "../macchi_m5.webp"
     },
     {
      "id": "savoia_pomilio",
@@ -4102,6 +4996,18 @@
      "base": "planes/felixstowe_f2_clean.webp",
      "variants": [
       {
+       "kind": "ingame",
+       "name": "인게임 스프라이트",
+       "file": "../felixstowe_f2.webp",
+       "live": true
+      },
+      {
+       "kind": "ingame",
+       "name": "메카닉 대체 아트",
+       "file": "../mech/felixstowe_f2.webp",
+       "live": true
+      },
+      {
        "kind": "alt",
        "name": "F.2A 뱅크",
        "file": "planes/felixstowe_f2a.webp"
@@ -4146,7 +5052,8 @@
        "name": "편대장 붉은띠",
        "file": "liveries/felixstowe_f2/leader.webp"
       }
-     ]
+     ],
+     "live": "../felixstowe_f2.webp"
     },
     {
      "id": "hp_o400",
@@ -4519,29 +5426,35 @@
       {
        "kind": "part",
        "name": "Cooper 20lb",
-       "file": "../bomb-cooper.webp"
+       "file": "../bomb-cooper.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "PuW",
-       "file": "../bomb-puw.webp"
+       "file": "../bomb-puw.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "Hales",
-       "file": "../bomb-hales.webp"
+       "file": "../bomb-hales.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "비행 탄체",
-       "file": "../fx-ordnance-body-flight.webp"
+       "file": "../fx-ordnance-body-flight.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "보스 병기",
-       "file": "../fx-boss-ordnance.webp"
+       "file": "../fx-boss-ordnance.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "shells",
@@ -4552,34 +5465,47 @@
       {
        "kind": "part",
        "name": "박격포탄",
-       "file": "../fx-mortar-shell.webp"
+       "file": "../fx-mortar-shell.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "박격포탄(전투)",
-       "file": "../fx-combat-mortar-shell.webp"
+       "file": "../fx-combat-mortar-shell.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "37mm 포탄",
-       "file": "../fx-pack-v189/projectiles/shell-37mm.webp"
+       "file": "../fx-pack-v189/projectiles/shell-37mm.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "기관포탄",
-       "file": "../fx-pack-v189/projectiles/shell-autocannon.webp"
+       "file": "../fx-pack-v189/projectiles/shell-autocannon.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "함포탄",
-       "file": "../fx-pack-v189/projectiles/shell-naval.webp"
+       "file": "../fx-pack-v189/projectiles/shell-naval.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "탄피",
-       "file": "../fx-pack-v189/projectiles/bullet-brass.webp"
+       "file": "../fx-pack-v189/projectiles/bullet-brass.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "탄 아틀라스",
+       "file": "../cannon-projectiles135.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "rockets",
@@ -4590,24 +5516,29 @@
       {
        "kind": "part",
        "name": "르프리외",
-       "file": "../fx-le-prieur.webp"
+       "file": "../fx-le-prieur.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "르프리외 로켓",
-       "file": "../fx-pack-v189/projectiles/rocket-le-prieur.webp"
+       "file": "../fx-pack-v189/projectiles/rocket-le-prieur.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "중로켓",
-       "file": "../fx-pack-v189/projectiles/rocket-heavy.webp"
+       "file": "../fx-pack-v189/projectiles/rocket-heavy.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "공중 수류탄",
-       "file": "../fx-pack-v189/projectiles/grenade-aerial.webp"
+       "file": "../fx-pack-v189/projectiles/grenade-aerial.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "mines",
@@ -4618,29 +5549,35 @@
       {
        "kind": "part",
        "name": "수류탄 몸체",
-       "file": "../fx-grenade-body.webp"
+       "file": "../fx-grenade-body.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "기뢰",
-       "file": "../fx-mine-body.webp"
+       "file": "../fx-mine-body.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "철 기뢰",
-       "file": "../fx-combat-iron-mine.webp"
+       "file": "../fx-combat-iron-mine.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "어뢰",
-       "file": "../fx-torpedo.webp"
+       "file": "../fx-torpedo.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "소이탄",
-       "file": "../fx-incendiary.webp"
+       "file": "../fx-incendiary.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "muzzle",
@@ -4651,24 +5588,29 @@
       {
        "kind": "part",
        "name": "중기관총",
-       "file": "../fx-muzzle-heavy.webp"
+       "file": "../fx-muzzle-heavy.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "후방 기관총",
-       "file": "../fx-muzzle-rear.webp"
+       "file": "../fx-muzzle-rear.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "권총",
-       "file": "../fx-muzzle-pistol.webp"
+       "file": "../fx-muzzle-pistol.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "기본",
-       "file": "../fx-pack-v189/projectiles/muzzle-flash.webp"
+       "file": "../fx-pack-v189/projectiles/muzzle-flash.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     }
    ]
   },
@@ -4685,39 +5627,47 @@
       {
        "kind": "part",
        "name": "air-1",
-       "file": "../fx-airblast-1.webp"
+       "file": "../fx-airblast-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "air-2",
-       "file": "../fx-airblast-2.webp"
+       "file": "../fx-airblast-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "air-3",
-       "file": "../fx-airblast-3.webp"
+       "file": "../fx-airblast-3.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "공기폭발 0",
-       "file": "../fx-pack-v189/explosions/explosion-air-0.webp"
+       "file": "../fx-pack-v189/explosions/explosion-air-0.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "공기폭발 1",
-       "file": "../fx-pack-v189/explosions/explosion-air-1.webp"
+       "file": "../fx-pack-v189/explosions/explosion-air-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "공기폭발 2",
-       "file": "../fx-pack-v189/explosions/explosion-air-2.webp"
+       "file": "../fx-pack-v189/explosions/explosion-air-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "공기폭발 3",
-       "file": "../fx-pack-v189/explosions/explosion-air-3.webp"
+       "file": "../fx-pack-v189/explosions/explosion-air-3.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "groundburst",
@@ -4728,49 +5678,59 @@
       {
        "kind": "part",
        "name": "bomb-1",
-       "file": "../fx-bombfx-1.webp"
+       "file": "../fx-bombfx-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "bomb-2",
-       "file": "../fx-bombfx-2.webp"
+       "file": "../fx-bombfx-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "bomb-3",
-       "file": "../fx-bombfx-3.webp"
+       "file": "../fx-bombfx-3.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "먼지 0",
-       "file": "../fx-explosion-dust-0.webp"
+       "file": "../fx-explosion-dust-0.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "먼지 1",
-       "file": "../fx-explosion-dust-1.webp"
+       "file": "../fx-explosion-dust-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "먼지 2",
-       "file": "../fx-explosion-dust-2.webp"
+       "file": "../fx-explosion-dust-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "먼지 3",
-       "file": "../fx-explosion-dust-3.webp"
+       "file": "../fx-explosion-dust-3.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "지상 폭발",
-       "file": "../fx-pack-v189/explosions/explosion-ground.webp"
+       "file": "../fx-pack-v189/explosions/explosion-ground.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "중폭탄 폭발",
-       "file": "../fx-pack-v189/explosions/explosion-heavy-bomb.webp"
+       "file": "../fx-pack-v189/explosions/explosion-heavy-bomb.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "shellburst",
@@ -4781,34 +5741,41 @@
       {
        "kind": "part",
        "name": "burst-1",
-       "file": "../fx-shellburst-1.webp"
+       "file": "../fx-shellburst-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "burst-2",
-       "file": "../fx-shellburst-2.webp"
+       "file": "../fx-shellburst-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "burst-3",
-       "file": "../fx-shellburst-3.webp"
+       "file": "../fx-shellburst-3.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "플락 버스트",
-       "file": "../flak-burst.webp"
+       "file": "../flak-burst.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "대공 플락",
-       "file": "../fx-combat-flak-burst.webp"
+       "file": "../fx-combat-flak-burst.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "공중 플락",
-       "file": "../fx-pack-v189/explosions/flak-airburst.webp"
+       "file": "../fx-pack-v189/explosions/flak-airburst.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "oily",
@@ -4819,39 +5786,47 @@
       {
        "kind": "part",
        "name": "boss-1",
-       "file": "../fx-bossblast-1.webp"
+       "file": "../fx-bossblast-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "boss-2",
-       "file": "../fx-bossblast-2.webp"
+       "file": "../fx-bossblast-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "boss-3",
-       "file": "../fx-bossblast-3.webp"
+       "file": "../fx-bossblast-3.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "oily-0",
-       "file": "../fx-explosion-oily-0.webp"
+       "file": "../fx-explosion-oily-0.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "oily-1",
-       "file": "../fx-explosion-oily-1.webp"
+       "file": "../fx-explosion-oily-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "oily-2",
-       "file": "../fx-explosion-oily-2.webp"
+       "file": "../fx-explosion-oily-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "oily-3",
-       "file": "../fx-explosion-oily-3.webp"
+       "file": "../fx-explosion-oily-3.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "hot",
@@ -4862,19 +5837,23 @@
       {
        "kind": "part",
        "name": "hot-1",
-       "file": "../fx-explosion-hot-1.webp"
+       "file": "../fx-explosion-hot-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "hot-2",
-       "file": "../fx-explosion-hot-2.webp"
+       "file": "../fx-explosion-hot-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "hot-3",
-       "file": "../fx-explosion-hot-3.webp"
+       "file": "../fx-explosion-hot-3.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "mine_water",
@@ -4885,29 +5864,35 @@
       {
        "kind": "part",
        "name": "mine-1",
-       "file": "../fx-mineblast-1.webp"
+       "file": "../fx-mineblast-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "mine-2",
-       "file": "../fx-mineblast-2.webp"
+       "file": "../fx-mineblast-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "mine-3",
-       "file": "../fx-mineblast-3.webp"
+       "file": "../fx-mineblast-3.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "해상 스플래시",
-       "file": "../fx-pack-v189/explosions/splash-naval.webp"
+       "file": "../fx-pack-v189/explosions/splash-naval.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "박격포 착탄",
-       "file": "../fx-mortar-impact340.webp"
+       "file": "../fx-mortar-impact340.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "pop",
@@ -4918,19 +5903,23 @@
       {
        "kind": "part",
        "name": "pop-1",
-       "file": "../fx-pop-1.webp"
+       "file": "../fx-pop-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "pop-2",
-       "file": "../fx-pop-2.webp"
+       "file": "../fx-pop-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "pop-3",
-       "file": "../fx-pop-3.webp"
+       "file": "../fx-pop-3.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "legacy_explosion",
@@ -4941,19 +5930,23 @@
       {
        "kind": "part",
        "name": "exp-1",
-       "file": "../fx-explosion-1.webp"
+       "file": "../fx-explosion-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "exp-2",
-       "file": "../fx-explosion-2.webp"
+       "file": "../fx-explosion-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "exp-3",
-       "file": "../fx-explosion-3.webp"
+       "file": "../fx-explosion-3.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "combat_blast",
@@ -4964,24 +5957,29 @@
       {
        "kind": "part",
        "name": "blast-1",
-       "file": "../fx-combat-blast-1.webp"
+       "file": "../fx-combat-blast-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "blast-2",
-       "file": "../fx-combat-blast-2.webp"
+       "file": "../fx-combat-blast-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "blast-3",
-       "file": "../fx-combat-blast-3.webp"
+       "file": "../fx-combat-blast-3.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "난파 화재",
-       "file": "../fx-pack-v189/explosions/fire-wreck.webp"
+       "file": "../fx-pack-v189/explosions/fire-wreck.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "amatol",
@@ -4992,9 +5990,11 @@
       {
        "kind": "part",
        "name": "전투 FX 시트",
-       "file": "../combat-fx196.webp"
+       "file": "../combat-fx196.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "debris",
@@ -5005,119 +6005,143 @@
       {
        "kind": "part",
        "name": "금속파편 0",
-       "file": "../fx-metal-shard-0.webp"
+       "file": "../fx-metal-shard-0.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "금속파편 1",
-       "file": "../fx-metal-shard-1.webp"
+       "file": "../fx-metal-shard-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "금속파편 2",
-       "file": "../fx-metal-shard-2.webp"
+       "file": "../fx-metal-shard-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "금속파편 3",
-       "file": "../fx-metal-shard-3.webp"
+       "file": "../fx-metal-shard-3.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "금속파편 4",
-       "file": "../fx-metal-shard-4.webp"
+       "file": "../fx-metal-shard-4.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "금속파편 5",
-       "file": "../fx-metal-shard-5.webp"
+       "file": "../fx-metal-shard-5.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "암석파편 0",
-       "file": "../fx-rock-chunk-0.webp"
+       "file": "../fx-rock-chunk-0.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "암석파편 1",
-       "file": "../fx-rock-chunk-1.webp"
+       "file": "../fx-rock-chunk-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "암석파편 2",
-       "file": "../fx-rock-chunk-2.webp"
+       "file": "../fx-rock-chunk-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "암석파편 3",
-       "file": "../fx-rock-chunk-3.webp"
+       "file": "../fx-rock-chunk-3.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "암석파편 4",
-       "file": "../fx-rock-chunk-4.webp"
+       "file": "../fx-rock-chunk-4.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "암석파편 5",
-       "file": "../fx-rock-chunk-5.webp"
+       "file": "../fx-rock-chunk-5.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "구조물 0",
-       "file": "../fx-structure-0.webp"
+       "file": "../fx-structure-0.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "구조물 1",
-       "file": "../fx-structure-1.webp"
+       "file": "../fx-structure-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "구조물 2",
-       "file": "../fx-structure-2.webp"
+       "file": "../fx-structure-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "구조물 3",
-       "file": "../fx-structure-3.webp"
+       "file": "../fx-structure-3.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "스파크",
-       "file": "../fx-pack-v189/explosions/impact-spark.webp"
+       "file": "../fx-pack-v189/explosions/impact-spark.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "도탄",
-       "file": "../fx-pack-v189/explosions/impact-ricochet.webp"
+       "file": "../fx-pack-v189/explosions/impact-ricochet.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "기체 잔해",
-       "file": "../fx-pack-v189/explosions/impact-aircraft-debris.webp"
+       "file": "../fx-pack-v189/explosions/impact-aircraft-debris.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "흙 폭발",
-       "file": "../fx-dirt-burst.webp"
+       "file": "../fx-dirt-burst.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "흙먼지 혼합",
-       "file": "../fx-dirt-mix.webp"
+       "file": "../fx-dirt-mix.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "먼지 퍼프",
-       "file": "../fx-dust-puff.webp"
+       "file": "../fx-dust-puff.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "충격파 링",
-       "file": "../fx-shock-ring.webp"
+       "file": "../fx-shock-ring.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     }
    ]
   },
@@ -5134,69 +6158,83 @@
       {
        "kind": "part",
        "name": "짙은 연기",
-       "file": "../fx-smoke-heavy.webp"
+       "file": "../fx-smoke-heavy.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "연기 궤적",
-       "file": "../fx-smoke-trail.webp"
+       "file": "../fx-smoke-trail.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "총 연기",
-       "file": "../fx-gun-smoke.webp"
+       "file": "../fx-gun-smoke.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "먼지 연기",
-       "file": "../fx-smoke-dust.webp"
+       "file": "../fx-smoke-dust.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "엔진 연기(전투)",
-       "file": "../fx-combat-engine-smoke.webp"
+       "file": "../fx-combat-engine-smoke.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "총 연기(전투)",
-       "file": "../fx-combat-gun-smoke.webp"
+       "file": "../fx-combat-gun-smoke.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "피해 연기",
-       "file": "../fx-pack-v189/gas-smoke/smoke-damage.webp"
+       "file": "../fx-pack-v189/gas-smoke/smoke-damage.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "엔진 연기",
-       "file": "../fx-pack-v189/gas-smoke/smoke-engine.webp"
+       "file": "../fx-pack-v189/gas-smoke/smoke-engine.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "총구 연기",
-       "file": "../fx-pack-v189/gas-smoke/smoke-gun.webp"
+       "file": "../fx-pack-v189/gas-smoke/smoke-gun.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "기름 연기",
-       "file": "../fx-pack-v189/gas-smoke/smoke-oil.webp"
+       "file": "../fx-pack-v189/gas-smoke/smoke-oil.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "가스 소산",
-       "file": "../fx-pack-v189/gas-smoke/gas-dissipate.webp"
+       "file": "../fx-pack-v189/gas-smoke/gas-dissipate.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "증기 궤적",
-       "file": "../fx-pack-v189/gas-smoke/vapor-trail.webp"
+       "file": "../fx-pack-v189/gas-smoke/vapor-trail.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "로켓 배기",
-       "file": "../fx-pack-v189/gas-smoke/exhaust-rocket.webp"
+       "file": "../fx-pack-v189/gas-smoke/exhaust-rocket.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "fire",
@@ -5207,54 +6245,65 @@
       {
        "kind": "part",
        "name": "날개 화재",
-       "file": "../fx-fire-wing.webp"
+       "file": "../fx-fire-wing.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "지상 화재",
-       "file": "../fx-fire-ground.webp"
+       "file": "../fx-fire-ground.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "화염 플래시",
-       "file": "../fx-fire-flash.webp"
+       "file": "../fx-fire-flash.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "화염 분사",
-       "file": "../fx-flame-jet.webp"
+       "file": "../fx-flame-jet.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "화염 1",
-       "file": "../fx-flame-tongue-1.webp"
+       "file": "../fx-flame-tongue-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "화염 2",
-       "file": "../fx-flame-tongue-2.webp"
+       "file": "../fx-flame-tongue-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "화염 3",
-       "file": "../fx-flame-tongue-3.webp"
+       "file": "../fx-flame-tongue-3.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "소형 화재",
-       "file": "../fx-pack-v189/gas-smoke/fire-small.webp"
+       "file": "../fx-pack-v189/gas-smoke/fire-small.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "기체 화재",
-       "file": "../fx-pack-v189/gas-smoke/fire-aircraft.webp"
+       "file": "../fx-pack-v189/gas-smoke/fire-aircraft.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "지상 화재(전투)",
-       "file": "../fx-combat-ground-fire.webp"
+       "file": "../fx-combat-ground-fire.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "gas",
@@ -5265,14 +6314,17 @@
       {
        "kind": "part",
        "name": "중간 가스",
-       "file": "../fx-pack-v189/gas-smoke/gas-medium.webp"
+       "file": "../fx-pack-v189/gas-smoke/gas-medium.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "소형 가스",
-       "file": "../fx-pack-v189/gas-smoke/gas-small.webp"
+       "file": "../fx-pack-v189/gas-smoke/gas-small.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "water",
@@ -5283,29 +6335,35 @@
       {
        "kind": "part",
        "name": "작은 물보라",
-       "file": "../fx-splash-tiny.webp"
+       "file": "../fx-splash-tiny.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "포탄 물보라",
-       "file": "../fx-splash-shell.webp"
+       "file": "../fx-splash-shell.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "빠른 항적",
-       "file": "../fx-wake-fast.webp"
+       "file": "../fx-wake-fast.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "거품 링",
-       "file": "../fx-foam-ring.webp"
+       "file": "../fx-foam-ring.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "구름 폭발",
-       "file": "../fx-ball-cloud.webp"
+       "file": "../fx-ball-cloud.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "atmosphere",
@@ -5316,59 +6374,71 @@
       {
        "kind": "part",
        "name": "햇빛 샤프트",
-       "file": "../fx-sunshaft.webp"
+       "file": "../fx-sunshaft.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "바람 줄기",
-       "file": "../fx-wind-streak.webp"
+       "file": "../fx-wind-streak.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "구름 뭉치 0",
-       "file": "../fx-cloud-bank-0.webp"
+       "file": "../fx-cloud-bank-0.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "구름 뭉치 1",
-       "file": "../fx-cloud-bank-1.webp"
+       "file": "../fx-cloud-bank-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "적란운 0",
-       "file": "../fx-cloud-cumulus-0.webp"
+       "file": "../fx-cloud-cumulus-0.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "적란운 1",
-       "file": "../fx-cloud-cumulus-1.webp"
+       "file": "../fx-cloud-cumulus-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "적란운 2",
-       "file": "../fx-cloud-cumulus-2.webp"
+       "file": "../fx-cloud-cumulus-2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "먹구름 0",
-       "file": "../fx-cloud-dark-0.webp"
+       "file": "../fx-cloud-dark-0.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "먹구름 1",
-       "file": "../fx-cloud-dark-1.webp"
+       "file": "../fx-cloud-dark-1.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "실구름 0",
-       "file": "../fx-cloud-wispy-0.webp"
+       "file": "../fx-cloud-wispy-0.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "실구름 1",
-       "file": "../fx-cloud-wispy-1.webp"
+       "file": "../fx-cloud-wispy-1.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "city",
@@ -5379,59 +6449,71 @@
       {
        "kind": "part",
        "name": "서치라이트 진지",
-       "file": "../fx-city-searchlight-pit2.webp"
+       "file": "../fx-city-searchlight-pit2.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "도시 대공포",
-       "file": "../fx-city-aagun.webp"
+       "file": "../fx-city-aagun.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "도시 쌍기관총",
-       "file": "../fx-city-twinmg.webp"
+       "file": "../fx-city-twinmg.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "도시 탄약",
-       "file": "../fx-city-ammo.webp"
+       "file": "../fx-city-ammo.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "항구 방파제",
-       "file": "../fx-harbor-mole.webp"
+       "file": "../fx-harbor-mole.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "수상기 기지",
-       "file": "../fx-harbor-seaplane-base.webp"
+       "file": "../fx-harbor-seaplane-base.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "중앙국 함선 AA",
-       "file": "../fx-ship-cen-aa.webp"
+       "file": "../fx-ship-cen-aa.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "중앙국 함선 DD",
-       "file": "../fx-ship-cen-dd.webp"
+       "file": "../fx-ship-cen-dd.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "연합국 함선 AA",
-       "file": "../fx-ship-ent-aa.webp"
+       "file": "../fx-ship-ent-aa.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "연합국 함선 DD",
-       "file": "../fx-ship-ent-dd.webp"
+       "file": "../fx-ship-ent-dd.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "대공 방어 아틀라스",
-       "file": "../fx-aa-defense-atlas.webp"
+       "file": "../fx-aa-defense-atlas.webp",
+       "live": true
       }
-     ]
+     ],
+     "live": true
     },
     {
      "id": "atlases",
@@ -5442,17 +6524,3691 @@
       {
        "kind": "part",
        "name": "폭발 아틀라스",
-       "file": "../fx-pack-v189/explosions-atlas.webp"
+       "file": "../fx-pack-v189/explosions-atlas.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "가스·연기 아틀라스",
-       "file": "../fx-pack-v189/gas-smoke-atlas.webp"
+       "file": "../fx-pack-v189/gas-smoke-atlas.webp",
+       "live": true
       },
       {
        "kind": "part",
        "name": "탄 아틀라스",
-       "file": "../fx-pack-v189/projectiles-atlas.webp"
+       "file": "../fx-pack-v189/projectiles-atlas.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "역할 시트: atmosphere-smoke-gas",
+       "file": "../fx-role-split/atmosphere-smoke-gas.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "역할 시트: combat-families",
+       "file": "../fx-role-split/combat-families.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "역할 시트: naval-contact",
+       "file": "../fx-role-split/naval-contact.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "역할 시트: role-impacts",
+       "file": "../fx-role-split/role-impacts.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "역할 시트: surface-fire",
+       "file": "../fx-role-split/surface-fire.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "역할 시트: weather-clouds",
+       "file": "../fx-role-split/weather-clouds.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "샘플: fx-boom",
+       "file": "../fx-sample/fx-boom.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "샘플: fx-flame",
+       "file": "../fx-sample/fx-flame.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "샘플: fx-sample-atlas",
+       "file": "../fx-sample/fx-sample-atlas.webp",
+       "live": true
+      }
+     ],
+     "live": true
+    }
+   ]
+  },
+  {
+   "id": "bosses_live",
+   "name": "보스 (인게임)",
+   "types": [
+    {
+     "id": "a7v",
+     "name": "A7V 전차",
+     "role": "보스",
+     "base": "../boss-art-a7v-flak.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-a7v-breached-20260930",
+       "file": "../boss-a7v-breached-20260930.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-a7v-flak94",
+       "file": "../boss-a7v-flak94.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-a7v-gun-wreck-20260930",
+       "file": "../boss-a7v-gun-wreck-20260930.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-a7v-hull-rebuild",
+       "file": "../boss-a7v-hull-rebuild.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-a7v-track-left-20260930",
+       "file": "../boss-a7v-track-left-20260930.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-a7v-track-right-20260930",
+       "file": "../boss-a7v-track-right-20260930.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-a7v-turret-rebuild",
+       "file": "../boss-a7v-turret-rebuild.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-a7v-wreck-20260930",
+       "file": "../boss-a7v-wreck-20260930.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "armored_harbor",
+     "name": "장갑 항구 요새",
+     "role": "보스",
+     "base": "../boss-art-armored-harbor-fortress.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-armored-harbor-ammo-storage",
+       "file": "../boss-armored-harbor-ammo-storage.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-armored-harbor-crane-arm",
+       "file": "../boss-armored-harbor-crane-arm.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-armored-harbor-crane-pivot",
+       "file": "../boss-armored-harbor-crane-pivot.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-armored-harbor-gun-emplacements",
+       "file": "../boss-armored-harbor-gun-emplacements.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-armored-harbor-main-base",
+       "file": "../boss-armored-harbor-main-base.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-armored-harbor-seaplane-facility",
+       "file": "../boss-armored-harbor-seaplane-facility.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "bruno",
+     "name": "브루노 장갑열차",
+     "role": "보스",
+     "base": "../boss-bruno-train115.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "rail-boss-bruno-engine-wreck192",
+       "file": "../rail-boss-bruno-engine-wreck192.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-boss-bruno-engine181",
+       "file": "../rail-boss-bruno-engine181.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-boss-bruno-front-wreck192",
+       "file": "../rail-boss-bruno-front-wreck192.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-boss-bruno-front181",
+       "file": "../rail-boss-bruno-front181.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-boss-bruno-middle-wreck192",
+       "file": "../rail-boss-bruno-middle-wreck192.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-boss-bruno-middle181",
+       "file": "../rail-boss-bruno-middle181.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-boss-bruno-rear-wreck192",
+       "file": "../rail-boss-bruno-rear-wreck192.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-boss-bruno-rear181",
+       "file": "../rail-boss-bruno-rear181.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-bruno-chassis-r1",
+       "file": "../rail-bruno-chassis-r1.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-bruno-gun-r1",
+       "file": "../rail-bruno-gun-r1.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "ca4",
+     "name": "Caproni Ca.4 폭격기",
+     "role": "보스",
+     "base": "../boss-ca4.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "alps-ca4-damage-20261001",
+       "file": "../alps-ca4-damage-20261001.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-art-ca4",
+       "file": "../boss-art-ca4.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "cambrai",
+     "name": "캉브레 (버그·열차·트레파스)",
+     "role": "보스",
+     "base": "../boss-cambrai-bug.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-cambrai-bug",
+       "file": "../boss-cambrai-bug.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-cambrai-flak",
+       "file": "../boss-cambrai-flak.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-cambrai-launch",
+       "file": "../boss-cambrai-launch.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-cambrai-loco",
+       "file": "../boss-cambrai-loco.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-cambrai-rear",
+       "file": "../boss-cambrai-rear.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-cambrai-supply",
+       "file": "../boss-cambrai-supply.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-cambrai-train-atlas",
+       "file": "../boss-cambrai-train-atlas.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-cambrai-train-wreck-atlas",
+       "file": "../boss-cambrai-train-wreck-atlas.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-cambrai-treffas-connected-wreck",
+       "file": "../boss-cambrai-treffas-connected-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-cambrai-treffas-connected",
+       "file": "../boss-cambrai-treffas-connected.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-cambrai-treffas-hull",
+       "file": "../boss-cambrai-treffas-hull.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-cambrai-treffas-rudder",
+       "file": "../boss-cambrai-treffas-rudder.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-cambrai-treffas-turret-wreck",
+       "file": "../boss-cambrai-treffas-turret-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-cambrai-treffas-turret",
+       "file": "../boss-cambrai-treffas-turret.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-cambrai-treffas-wheel-r",
+       "file": "../boss-cambrai-treffas-wheel-r.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-cambrai-treffas-wheel-wreck",
+       "file": "../boss-cambrai-treffas-wheel-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-cambrai-treffas-wheel",
+       "file": "../boss-cambrai-treffas-wheel.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "douaumont",
+     "name": "두오몽 요새",
+     "role": "보스",
+     "base": "../boss-douaumont-cut-in.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-douaumont-atlas-r8",
+       "file": "../boss-douaumont-atlas-r8.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-douaumont-atlas-r9",
+       "file": "../boss-douaumont-atlas-r9.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-douaumont-atlas",
+       "file": "../boss-douaumont-atlas.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-douaumont-cut-in",
+       "file": "../boss-douaumont-cut-in.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-douaumont-parts-r8",
+       "file": "../boss-douaumont-parts-r8.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-douaumont-parts-r9",
+       "file": "../boss-douaumont-parts-r9.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-douaumont-parts",
+       "file": "../boss-douaumont-parts.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "dover_bosses",
+     "name": "도버 야간 보스",
+     "role": "보스",
+     "base": "../boss-dover-nighthawk.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-dover-nighthawk-wreck",
+       "file": "../boss-dover-nighthawk-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-dover-nighthawk",
+       "file": "../boss-dover-nighthawk.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-dover-rviii-wreck",
+       "file": "../boss-dover-rviii-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-dover-rviii",
+       "file": "../boss-dover-rviii.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "drachen",
+     "name": "드라헨 기구",
+     "role": "보스",
+     "base": "../boss-art-drachen-net.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-drachen-airships-damage378",
+       "file": "../boss-drachen-airships-damage378.png",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-drachen-center380",
+       "file": "../boss-drachen-center380.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-drachen-left380",
+       "file": "../boss-drachen-left380.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-drachen-net115",
+       "file": "../boss-drachen-net115.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-drachen-parts-v2",
+       "file": "../boss-drachen-parts-v2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-drachen-registered-damage369",
+       "file": "../boss-drachen-registered-damage369.png",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-drachen-right380",
+       "file": "../boss-drachen-right380.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "flak_tower",
+     "name": "대공포탑",
+     "role": "보스",
+     "base": "../boss-art-flak-tower.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-flak-tower-ears",
+       "file": "../boss-flak-tower-ears.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-flak-tower-hull",
+       "file": "../boss-flak-tower-hull.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-flak-tower-platform",
+       "file": "../boss-flak-tower-platform.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-flak-tower-siege",
+       "file": "../boss-flak-tower-siege.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "fliegerzug",
+     "name": "플리거추크 비행열차",
+     "role": "보스",
+     "base": "../boss-art-fliegerzug.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-fliegerzug-parts352",
+       "file": "../boss-fliegerzug-parts352.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "gik",
+     "name": "GIK 비행요새",
+     "role": "보스",
+     "base": "../boss-gik.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "alps-gik-damage-20261001",
+       "file": "../alps-gik-damage-20261001.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-art-gik",
+       "file": "../boss-art-gik.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "hma23",
+     "name": "HMA23 비행선",
+     "role": "보스",
+     "base": "../boss-hma2394.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-art-hma23",
+       "file": "../boss-art-hma23.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "hms_zubian",
+     "name": "HMS Zubian",
+     "role": "보스",
+     "base": "../boss-hms-zubian94.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-art-hms-zubian",
+       "file": "../boss-art-hms-zubian.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "zubian-art-20261008",
+       "file": "../zubian-art-20261008.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "zubian-atlas-tone",
+       "file": "../zubian-atlas-tone.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "zubian-atlas",
+       "file": "../zubian-atlas.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "zubian-damage-20261001",
+       "file": "../zubian-damage-20261001.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "zubian-damage-tone",
+       "file": "../zubian-damage-tone.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "zubian-wreck-20261008",
+       "file": "../zubian-wreck-20261008.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "lincomparable",
+     "name": "링컴퍼러블 장갑열차",
+     "role": "보스",
+     "base": "../boss-lincomparable94.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-art-lincomparable",
+       "file": "../boss-art-lincomparable.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-boss-lincomparable-engine-wreck192",
+       "file": "../rail-boss-lincomparable-engine-wreck192.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-boss-lincomparable-engine181",
+       "file": "../rail-boss-lincomparable-engine181.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-boss-lincomparable-front-wreck192",
+       "file": "../rail-boss-lincomparable-front-wreck192.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-boss-lincomparable-front181",
+       "file": "../rail-boss-lincomparable-front181.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-boss-lincomparable-middle-wreck192",
+       "file": "../rail-boss-lincomparable-middle-wreck192.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-boss-lincomparable-middle181",
+       "file": "../rail-boss-lincomparable-middle181.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-boss-lincomparable-rear-wreck192",
+       "file": "../rail-boss-lincomparable-rear-wreck192.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-boss-lincomparable-rear181",
+       "file": "../rail-boss-lincomparable-rear181.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-lincomparable-chassis-r1",
+       "file": "../rail-lincomparable-chassis-r1.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "rail-lincomparable-gun-r1",
+       "file": "../rail-lincomparable-gun-r1.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "livens",
+     "name": "리븐스 화염방사기",
+     "role": "보스",
+     "base": "../boss-livens-composite317.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-art-livens-flame-projector",
+       "file": "../boss-art-livens-flame-projector.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-livens-composite188",
+       "file": "../boss-livens-composite188.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-livens-composite2x",
+       "file": "../boss-livens-composite2x.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-livens-composite317",
+       "file": "../boss-livens-composite317.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-livens-pivot-damaged317",
+       "file": "../boss-livens-pivot-damaged317.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-livens-pivot-destroyed317",
+       "file": "../boss-livens-pivot-destroyed317.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-livens-pivot317",
+       "file": "../boss-livens-pivot317.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-livens-turret",
+       "file": "../boss-livens-turret.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-livens-turret2x",
+       "file": "../boss-livens-turret2x.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "london_apron",
+     "name": "런던 비행장",
+     "role": "보스",
+     "base": "../boss-art-london-apron.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-london-apron-damage1",
+       "file": "../boss-london-apron-damage1.png",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-london-apron-damage2",
+       "file": "../boss-london-apron-damage2.png",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-london-apron-net-sweep",
+       "file": "../boss-london-apron-net-sweep.png",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-london-apron-parts-v2",
+       "file": "../boss-london-apron-parts-v2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-london-apron-registered-damage369",
+       "file": "../boss-london-apron-registered-damage369.png",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-london-apron115",
+       "file": "../boss-london-apron115.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "searchlight",
+     "name": "런던 서치라이트",
+     "role": "보스",
+     "base": "../boss-art-london-searchlight.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-searchlight-wreck",
+       "file": "../boss-searchlight-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-searchlight",
+       "file": "../boss-searchlight.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "mark_v",
+     "name": "Mark V 탱크",
+     "role": "보스",
+     "base": "../boss-art-mark-v-cruiser.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-mark-v-breached-20260930",
+       "file": "../boss-mark-v-breached-20260930.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-mark-v-gun-wreck-20260930",
+       "file": "../boss-mark-v-gun-wreck-20260930.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-mark-v-hull-rebuild",
+       "file": "../boss-mark-v-hull-rebuild.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-mark-v-sponson-rebuild",
+       "file": "../boss-mark-v-sponson-rebuild.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-mark-v-track-left-20260930",
+       "file": "../boss-mark-v-track-left-20260930.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-mark-v-track-right-20260930",
+       "file": "../boss-mark-v-track-right-20260930.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-mark-v-wreck-20260930",
+       "file": "../boss-mark-v-wreck-20260930.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-mark-v94",
+       "file": "../boss-mark-v94.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "mark1",
+     "name": "Mark I/IV 탱크",
+     "role": "보스",
+     "base": "../boss-art-mark1-20261001.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-mark1-guns-r3",
+       "file": "../boss-mark1-guns-r3.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-mark1-hardware-r2",
+       "file": "../boss-mark1-hardware-r2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-mark1-hardware-r3",
+       "file": "../boss-mark1-hardware-r3.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-mark1-hardware20261001",
+       "file": "../boss-mark1-hardware20261001.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-mark1-hulls-r2",
+       "file": "../boss-mark1-hulls-r2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-mark1-hulls-r3",
+       "file": "../boss-mark1-hulls-r3.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-mark1-hulls20261001",
+       "file": "../boss-mark1-hulls20261001.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-mark4-wreck",
+       "file": "../boss-mark4-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-mark4",
+       "file": "../boss-mark4.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "maan",
+     "name": "마안 사막 보스 (시나이·뷔스텐팬처)",
+     "role": "보스",
+     "base": "../boss-maan-sinai-r3.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-maan-rolls-royce",
+       "file": "../boss-maan-rolls-royce.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-maan-sinai-cut-in-r2",
+       "file": "../boss-maan-sinai-cut-in-r2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-maan-sinai-r2",
+       "file": "../boss-maan-sinai-r2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-maan-sinai-r3",
+       "file": "../boss-maan-sinai-r3.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-maan-sinai-wreck",
+       "file": "../boss-maan-sinai-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-maan-sinai",
+       "file": "../boss-maan-sinai.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-maan-wusten-cut-in-r2",
+       "file": "../boss-maan-wusten-cut-in-r2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-maan-wusten-r2",
+       "file": "../boss-maan-wusten-r2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-maan-wusten-r3",
+       "file": "../boss-maan-wusten-r3.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-maan-wusten-wreck",
+       "file": "../boss-maan-wusten-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-maan-wusten",
+       "file": "../boss-maan-wusten.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "minenwerfer",
+     "name": "미넨베르퍼 박격포대",
+     "role": "보스",
+     "base": "../boss-art-minenwerfer-battery.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-minenwerfer-barrels-20261009",
+       "file": "../boss-minenwerfer-barrels-20261009.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-minenwerfer-base-20261009",
+       "file": "../boss-minenwerfer-base-20261009.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-minenwerfer-composite188",
+       "file": "../boss-minenwerfer-composite188.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-minenwerfer-damage-20261008",
+       "file": "../boss-minenwerfer-damage-20261008.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-minenwerfer-recoil-20261008",
+       "file": "../boss-minenwerfer-recoil-20261008.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "morser",
+     "name": "모르저 곡사포",
+     "role": "보스",
+     "base": "../boss-morser.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-morser-wreck",
+       "file": "../boss-morser-wreck.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "paris",
+     "name": "파리 요새·슈타켄·파리포",
+     "role": "보스",
+     "base": "../boss-art-paris-gun.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-staaken-body352",
+       "file": "../boss-staaken-body352.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-staaken-engines352",
+       "file": "../boss-staaken-engines352.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-staaken-wreck",
+       "file": "../boss-staaken-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-staaken-wreck352",
+       "file": "../boss-staaken-wreck352.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "paris-fortress-parts1918",
+       "file": "../paris-fortress-parts1918.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "paris-fortress-preview1918",
+       "file": "../paris-fortress-preview1918.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "paris-fortress-wreck1918",
+       "file": "../paris-fortress-wreck1918.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "paris-staaken-parts1918",
+       "file": "../paris-staaken-parts1918.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "paris-staaken-preview1918",
+       "file": "../paris-staaken-preview1918.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "paris-staaken-wreck1918",
+       "file": "../paris-staaken-wreck1918.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "rail_carrier",
+     "name": "철도 항공모함",
+     "role": "보스",
+     "base": "../boss-art-rail-carrier.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-rail-carrier-flak-wreck",
+       "file": "../boss-rail-carrier-flak-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-rail-carrier-flak",
+       "file": "../boss-rail-carrier-flak.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-rail-carrier-hangar-wreck",
+       "file": "../boss-rail-carrier-hangar-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-rail-carrier-hangar",
+       "file": "../boss-rail-carrier-hangar.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-rail-carrier-launch-wreck",
+       "file": "../boss-rail-carrier-launch-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-rail-carrier-launch",
+       "file": "../boss-rail-carrier-launch.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-rail-carrier-loco-wreck",
+       "file": "../boss-rail-carrier-loco-wreck.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-rail-carrier-loco",
+       "file": "../boss-rail-carrier-loco.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "schwaben",
+     "name": "슈바벤 요새",
+     "role": "보스",
+     "base": "../boss-art-schwaben20261001.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-schwaben-body-r2",
+       "file": "../boss-schwaben-body-r2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-schwaben-body20261001",
+       "file": "../boss-schwaben-body20261001.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-schwaben-guns-r2",
+       "file": "../boss-schwaben-guns-r2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-schwaben-support20261001",
+       "file": "../boss-schwaben-support20261001.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-schwaben-weapons20261001",
+       "file": "../boss-schwaben-weapons20261001.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "stuttgart",
+     "name": "SMS Stuttgart",
+     "role": "보스",
+     "base": "../boss-sms-stuttgart94.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-art-sms-stuttgart",
+       "file": "../boss-art-sms-stuttgart.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "stuttgart-art-20261008",
+       "file": "../stuttgart-art-20261008.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "stuttgart-cover129",
+       "file": "../stuttgart-cover129.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "stuttgart-damage-20261001",
+       "file": "../stuttgart-damage-20261001.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "stuttgart-open129-mat",
+       "file": "../stuttgart-open129-mat.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "stuttgart-open129",
+       "file": "../stuttgart-open129.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "stuttgart-wreck-20261008",
+       "file": "../stuttgart-wreck-20261008.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "souville",
+     "name": "수빌 요새·베르됭 무기",
+     "role": "보스",
+     "base": "../boss-souville-cut-in.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-souville-atlas-r8",
+       "file": "../boss-souville-atlas-r8.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-souville-atlas-r9",
+       "file": "../boss-souville-atlas-r9.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-souville-atlas",
+       "file": "../boss-souville-atlas.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-souville-cut-in",
+       "file": "../boss-souville-cut-in.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-souville-parts-r8",
+       "file": "../boss-souville-parts-r8.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-souville-parts-r9",
+       "file": "../boss-souville-parts-r9.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-souville-parts",
+       "file": "../boss-souville-parts.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-verdun-weapons-r9",
+       "file": "../boss-verdun-weapons-r9.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "treffas",
+     "name": "트레파스 바겐",
+     "role": "보스",
+     "base": "../boss-art-treffas.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-art-treffas-wagen",
+       "file": "../boss-art-treffas-wagen.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-treffas-hull",
+       "file": "../boss-treffas-hull.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-treffas-parts352",
+       "file": "../boss-treffas-parts352.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-treffas-tail",
+       "file": "../boss-treffas-tail.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-treffas-turret",
+       "file": "../boss-treffas-turret.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-treffas-wheel-r",
+       "file": "../boss-treffas-wheel-r.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-treffas-wheel",
+       "file": "../boss-treffas-wheel.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "zeppelin_l70",
+     "name": "Zeppelin L.70",
+     "role": "보스",
+     "base": "../boss-art-zeppelin-l70.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-zeppelin-l7094",
+       "file": "../boss-zeppelin-l7094.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "boss_parts",
+     "name": "보스 공용 부품·참호 소품",
+     "role": "보스",
+     "base": "../boss-parts100.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "boss-part-wreck-gun",
+       "file": "../boss-part-wreck-gun.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-part-wreck-light",
+       "file": "../boss-part-wreck-light.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-part-wreck-pit",
+       "file": "../boss-part-wreck-pit.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-part-wreck-tail",
+       "file": "../boss-part-wreck-tail.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-part-wreck-turret",
+       "file": "../boss-part-wreck-turret.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-part-wreck-wheel",
+       "file": "../boss-part-wreck-wheel.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-parts100",
+       "file": "../boss-parts100.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-regional-support352",
+       "file": "../boss-regional-support352.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-trench-crossing-20261008",
+       "file": "../boss-trench-crossing-20261008.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "boss-trench-wire-20261008",
+       "file": "../boss-trench-wire-20261008.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "cutins",
+     "name": "보스 컷인 일러스트",
+     "role": "컷인",
+     "base": "../cutin-a7v-flak.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "cutin-armored-harbor-fortress",
+       "file": "../cutin-armored-harbor-fortress.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-ca4",
+       "file": "../cutin-ca4.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-douaumont",
+       "file": "../cutin-douaumont.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-dover-nighthawk",
+       "file": "../cutin-dover-nighthawk.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-dover-rviii",
+       "file": "../cutin-dover-rviii.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-drachen-net",
+       "file": "../cutin-drachen-net.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-flak-tower",
+       "file": "../cutin-flak-tower.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-fliegerzug",
+       "file": "../cutin-fliegerzug.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-gallipoli",
+       "file": "../cutin-gallipoli.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-gik",
+       "file": "../cutin-gik.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-gotha-squadron",
+       "file": "../cutin-gotha-squadron.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-hma23",
+       "file": "../cutin-hma23.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-hms-zubian",
+       "file": "../cutin-hms-zubian.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-jasta11-circus",
+       "file": "../cutin-jasta11-circus.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-jutland-fleet",
+       "file": "../cutin-jutland-fleet.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-lincomparable",
+       "file": "../cutin-lincomparable.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-livens-flame-projector",
+       "file": "../cutin-livens-flame-projector.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-london-apron-raid",
+       "file": "../cutin-london-apron-raid.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-mark-v-cruiser",
+       "file": "../cutin-mark-v-cruiser.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-mark1-landships",
+       "file": "../cutin-mark1-landships.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-minenwerfer-battery",
+       "file": "../cutin-minenwerfer-battery.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-naval10-black-flight",
+       "file": "../cutin-naval10-black-flight.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-paris-fortress",
+       "file": "../cutin-paris-fortress.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-paris-gun",
+       "file": "../cutin-paris-gun.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-paris-staaken",
+       "file": "../cutin-paris-staaken.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-schwaben-fortress",
+       "file": "../cutin-schwaben-fortress.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-sinai-landship",
+       "file": "../cutin-sinai-landship.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-sms-stuttgart",
+       "file": "../cutin-sms-stuttgart.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-souville",
+       "file": "../cutin-souville.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-treffas-wagen",
+       "file": "../cutin-treffas-wagen.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-wustenpanzer",
+       "file": "../cutin-wustenpanzer.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "cutin-zeppelin-l70",
+       "file": "../cutin-zeppelin-l70.webp",
+       "live": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "units_live",
+   "name": "유닛·함선 (인게임)",
+   "types": [
+    {
+     "id": "ground",
+     "name": "지상 차량·방어진지",
+     "role": "유닛",
+     "base": "../ground-central-vehicles.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "ground-central-defenses",
+       "file": "../ground-central-defenses.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "ground-central-vehicles",
+       "file": "../ground-central-vehicles.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "ground-entente-defenses",
+       "file": "../ground-entente-defenses.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "ground-entente-vehicles",
+       "file": "../ground-entente-vehicles.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "ground-life-20261011",
+       "file": "../ground-life-20261011.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "naval_ships",
+     "name": "함선 아틀라스",
+     "role": "함선",
+     "base": "../naval-central-capital.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "naval-central-capital",
+       "file": "../naval-central-capital.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "naval-central-light",
+       "file": "../naval-central-light.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "naval-entente-capital",
+       "file": "../naval-entente-capital.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "naval-entente-light",
+       "file": "../naval-entente-light.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "ship_fx",
+     "name": "침몰·항적·수면",
+     "role": "함선FX",
+     "base": "../naval-water-atlas.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "naval-water-atlas",
+       "file": "../naval-water-atlas.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "ship-bowwave",
+       "file": "../ship-bowwave.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "ship-sinkchurn",
+       "file": "../ship-sinkchurn.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "ship-sinkfoam",
+       "file": "../ship-sinkfoam.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "ship-sinksplash",
+       "file": "../ship-sinksplash.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "ship-sinkwater",
+       "file": "../ship-sinkwater.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "ship-wake",
+       "file": "../ship-wake.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "jutland",
+     "name": "유틀란드 해전",
+     "role": "함선",
+     "base": "../jutland-sea.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "jutland-battleship-neutral",
+       "file": "../jutland-battleship-neutral.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "jutland-battleship",
+       "file": "../jutland-battleship.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "jutland-cruiser",
+       "file": "../jutland-cruiser.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "jutland-fleet-cut-in",
+       "file": "../jutland-fleet-cut-in.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "jutland-parts",
+       "file": "../jutland-parts.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "jutland-sea",
+       "file": "../jutland-sea.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "city",
+     "name": "도시·시설",
+     "role": "배경",
+     "base": "../city-buildings107.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "campaign-units",
+       "file": "../campaign-units.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "city-buildings107",
+       "file": "../city-buildings107.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "city-flak-damage-20261001",
+       "file": "../city-flak-damage-20261001.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "harbor-parts-20261001",
+       "file": "../harbor-parts-20261001.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "pickups",
+     "name": "픽업·데칼·소품",
+     "role": "소품",
+     "base": "../repair-pickup.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "aa-gun",
+       "file": "../aa-gun.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "damage-decals",
+       "file": "../damage-decals.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "propeller-dover",
+       "file": "../propeller-dover.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "repair-pickup",
+       "file": "../repair-pickup.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "elite_patch",
+     "name": "엘리트 편대 패치",
+     "role": "엠블럼",
+     "base": "../elite-patch/assets/halberstadt-cliv-squadron.webp",
+     "live": true,
+     "variants": []
+    },
+    {
+     "id": "new_aces",
+     "name": "신형 에이스 아틀라스",
+     "role": "아틀라스",
+     "base": "../new-aces-aircraft124.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "new-aces-aircraft124",
+       "file": "../new-aces-aircraft124.webp",
+       "live": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "world_live",
+   "name": "지형·맵 (인게임)",
+   "types": [
+    {
+     "id": "terrain",
+     "name": "전장 지형 아틀라스",
+     "role": "지형",
+     "base": "../terrain-trenches.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "terrain-alps-atlas",
+       "file": "../terrain-alps-atlas.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-alps-tile",
+       "file": "../terrain-alps-tile.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-alps359",
+       "file": "../terrain-alps359.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-arras",
+       "file": "../terrain-arras.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-burning",
+       "file": "../terrain-burning.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-burning359r2",
+       "file": "../terrain-burning359r2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-cambrai",
+       "file": "../terrain-cambrai.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-city-berlin96",
+       "file": "../terrain-city-berlin96.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-city-london96",
+       "file": "../terrain-city-london96.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-city",
+       "file": "../terrain-city.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-city359",
+       "file": "../terrain-city359.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-dover-chalk-coast",
+       "file": "../terrain-dover-chalk-coast.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-dover-chalk-material-v4",
+       "file": "../terrain-dover-chalk-material-v4.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-dover-chalk-material-v6",
+       "file": "../terrain-dover-chalk-material-v6.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-dover-finite",
+       "file": "../terrain-dover-finite.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-dover-french-coast",
+       "file": "../terrain-dover-french-coast.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-dover-night",
+       "file": "../terrain-dover-night.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-london",
+       "file": "../terrain-london.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-london359r2",
+       "file": "../terrain-london359r2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-maan-r2",
+       "file": "../terrain-maan-r2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-maan",
+       "file": "../terrain-maan.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-paris-night1918",
+       "file": "../terrain-paris-night1918.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-rural",
+       "file": "../terrain-rural.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-rural359",
+       "file": "../terrain-rural359.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-sea",
+       "file": "../terrain-sea.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-sea359r2",
+       "file": "../terrain-sea359r2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-sky-cell",
+       "file": "../terrain-sky-cell.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-sky",
+       "file": "../terrain-sky.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-somme",
+       "file": "../terrain-somme.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-somme359r2",
+       "file": "../terrain-somme359r2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-trenches",
+       "file": "../terrain-trenches.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-trenches359r2",
+       "file": "../terrain-trenches359r2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-verdun-r8",
+       "file": "../terrain-verdun-r8.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-verdun",
+       "file": "../terrain-verdun.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-zeebrugge-harbor",
+       "file": "../terrain-zeebrugge-harbor.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-zeebrugge-route",
+       "file": "../terrain-zeebrugge-route.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-zeebrugge-water",
+       "file": "../terrain-zeebrugge-water.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "terrain-zeebrugge-water189",
+       "file": "../terrain-zeebrugge-water189.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "gallipoli",
+     "name": "갈리폴리 전선",
+     "role": "지형",
+     "base": "../gallipoli-siege-ground.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "gallipoli-facilities-r10",
+       "file": "../gallipoli-facilities-r10.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gallipoli-fortress-atlas",
+       "file": "../gallipoli-fortress-atlas.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gallipoli-fortress-cut-in",
+       "file": "../gallipoli-fortress-cut-in.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gallipoli-foundations-r10",
+       "file": "../gallipoli-foundations-r10.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gallipoli-overlay-central",
+       "file": "../gallipoli-overlay-central.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gallipoli-overlay-entente",
+       "file": "../gallipoli-overlay-entente.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gallipoli-siege-bases",
+       "file": "../gallipoli-siege-bases.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gallipoli-siege-facilities",
+       "file": "../gallipoli-siege-facilities.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gallipoli-siege-ground",
+       "file": "../gallipoli-siege-ground.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gallipoli-siege-guns",
+       "file": "../gallipoli-siege-guns.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gallipoli-siege-star",
+       "file": "../gallipoli-siege-star.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gallipoli-siege-wing",
+       "file": "../gallipoli-siege-wing.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gallipoli-star-damage-r10",
+       "file": "../gallipoli-star-damage-r10.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gallipoli-star-r10",
+       "file": "../gallipoli-star-r10.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gallipoli-weapons-r10",
+       "file": "../gallipoli-weapons-r10.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gallipoli-wing-damage-r10",
+       "file": "../gallipoli-wing-damage-r10.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gallipoli-wing-r10",
+       "file": "../gallipoli-wing-r10.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "alps",
+     "name": "알프스 산악",
+     "role": "지형",
+     "base": "../alps-peak-ridge182.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "alps-peak-cliff182",
+       "file": "../alps-peak-cliff182.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "alps-peak-ridge182",
+       "file": "../alps-peak-ridge182.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "alps-peak-sharp182",
+       "file": "../alps-peak-sharp182.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "ambience",
+     "name": "날씨·분위기",
+     "role": "환경",
+     "base": "../background-dressing-20261010.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "background-dressing-20261010",
+       "file": "../background-dressing-20261010.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gust",
+       "file": "../gust.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "maan-workshop-r2",
+       "file": "../maan-workshop-r2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "maan-workshop-r3",
+       "file": "../maan-workshop-r3.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "maan-workshop",
+       "file": "../maan-workshop.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "mapgen",
+     "name": "맵 생성 후보",
+     "role": "후보",
+     "base": "../mapgen/gen-alps.png",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "gen-burning",
+       "file": "../mapgen/gen-burning.png"
+      },
+      {
+       "kind": "part",
+       "name": "gen-city",
+       "file": "../mapgen/gen-city.png"
+      },
+      {
+       "kind": "part",
+       "name": "gen-rural",
+       "file": "../mapgen/gen-rural.png"
+      },
+      {
+       "kind": "part",
+       "name": "gen-sea",
+       "file": "../mapgen/gen-sea.png"
+      },
+      {
+       "kind": "part",
+       "name": "gen-sky",
+       "file": "../mapgen/gen-sky.png"
+      },
+      {
+       "kind": "part",
+       "name": "gen-trenches",
+       "file": "../mapgen/gen-trenches.png"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ui_live",
+   "name": "UI·아이콘·초상 (인게임)",
+   "types": [
+    {
+     "id": "portraits",
+     "name": "파일럿 초상",
+     "role": "초상",
+     "base": "../portrait-baron.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "portrait-ball",
+       "file": "../portrait-ball.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-baracca",
+       "file": "../portrait-baracca.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-barker",
+       "file": "../portrait-barker.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-berthold",
+       "file": "../portrait-berthold.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-bishop",
+       "file": "../portrait-bishop.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-boelcke",
+       "file": "../portrait-boelcke.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-brumowski",
+       "file": "../portrait-brumowski.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-collishaw",
+       "file": "../portrait-collishaw.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-fonck",
+       "file": "../portrait-fonck.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-goering",
+       "file": "../portrait-goering.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-gontermann",
+       "file": "../portrait-gontermann.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-guynemer",
+       "file": "../portrait-guynemer.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-hawker",
+       "file": "../portrait-hawker.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-huffzky",
+       "file": "../portrait-huffzky.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-immelmann",
+       "file": "../portrait-immelmann.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-jacobs",
+       "file": "../portrait-jacobs.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-loewenhardt-field",
+       "file": "../portrait-loewenhardt-field.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-lothar-field",
+       "file": "../portrait-lothar-field.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-lufbery-field",
+       "file": "../portrait-lufbery-field.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-luke",
+       "file": "../portrait-luke.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-mannock",
+       "file": "../portrait-mannock.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-mccudden-field",
+       "file": "../portrait-mccudden-field.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-mckeever-powell129",
+       "file": "../portrait-mckeever-powell129.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-mckeever",
+       "file": "../portrait-mckeever.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-mckeever70",
+       "file": "../portrait-mckeever70.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-nungesser-field",
+       "file": "../portrait-nungesser-field.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-proctor-field",
+       "file": "../portrait-proctor-field.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-rickenbacker",
+       "file": "../portrait-rickenbacker.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-sachsenberg-field",
+       "file": "../portrait-sachsenberg-field.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-schleich-field",
+       "file": "../portrait-schleich-field.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-stork",
+       "file": "../portrait-stork.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-udet",
+       "file": "../portrait-udet.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-voss",
+       "file": "../portrait-voss.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "portrait-wolff-field",
+       "file": "../portrait-wolff-field.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "pilot_marks",
+     "name": "파일럿 마크",
+     "role": "엠블럼",
+     "base": "../pilot-mark-nungesser.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "pilot-mark-baracca-ferrari",
+       "file": "../pilot-mark-baracca-ferrari.svg",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "pilot-mark-brumowski-skull",
+       "file": "../pilot-mark-brumowski-skull.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "aug_icons",
+     "name": "강화·메달 아이콘",
+     "role": "아이콘",
+     "live": true,
+     "base": "../augmentation-icons/amatol_high_explosive_charge.webp",
+     "variants": [
+      {
+       "kind": "part",
+       "name": "armor_piercing_ammo",
+       "file": "../augmentation-icons/armor_piercing_ammo.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "badin_gauge",
+       "file": "../augmentation-icons/badin_gauge.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "bombing_request_carrier_pigeon",
+       "file": "../augmentation-icons/bombing_request_carrier_pigeon.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "brock_smoke_device",
+       "file": "../augmentation-icons/brock_smoke_device.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "co_5_17_aero_compass",
+       "file": "../augmentation-icons/co_5_17_aero_compass.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "combined_projectile_distributor",
+       "file": "../augmentation-icons/combined_projectile_distributor.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "emblem_bare_central",
+       "file": "../augmentation-icons/emblem_bare_central.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "emblem_bare_entente",
+       "file": "../augmentation-icons/emblem_bare_entente.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "grenade_throwing_gear",
+       "file": "../augmentation-icons/grenade_throwing_gear.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "grunkreuz",
+       "file": "../augmentation-icons/grunkreuz.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "heinecke_rettungsfallschirm",
+       "file": "../augmentation-icons/heinecke_rettungsfallschirm.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "high_output_mercedes_engine",
+       "file": "../augmentation-icons/high_output_mercedes_engine.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "high_quality_powder",
+       "file": "../augmentation-icons/high_quality_powder.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "iron_cross",
+       "file": "../augmentation-icons/iron_cross.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "j_type_armor_capsule",
+       "file": "../augmentation-icons/j_type_armor_capsule.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "laminated_wood_propeller",
+       "file": "../augmentation-icons/laminated_wood_propeller.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "le_prieur_rocket_launcher",
+       "file": "../augmentation-icons/le_prieur_rocket_launcher.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "lufbery_circle",
+       "file": "../augmentation-icons/lufbery_circle.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "mauser_c96_ace_killer",
+       "file": "../augmentation-icons/mauser_c96_ace_killer.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "mccudden_emergency_repair_kit",
+       "file": "../augmentation-icons/mccudden_emergency_repair_kit.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "mechanics_oil_pump",
+       "file": "../augmentation-icons/mechanics_oil_pump.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "medal_award_british_victoria_cross",
+       "file": "../augmentation-icons/medal_award_british_victoria_cross.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "medal_award_central_powers",
+       "file": "../augmentation-icons/medal_award_central_powers.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "medal_award_pour_le_merite",
+       "file": "../augmentation-icons/medal_award_pour_le_merite.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "medal_general_central",
+       "file": "../augmentation-icons/medal_general_central.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "medal_general_entente",
+       "file": "../augmentation-icons/medal_general_entente.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "new_fighter_supply",
+       "file": "../augmentation-icons/new_fighter_supply.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "plywood_monocoque_fuselage",
+       "file": "../augmentation-icons/plywood_monocoque_fuselage.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "pour_le_merite",
+       "file": "../augmentation-icons/pour_le_merite.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "scarff_ring_gun_mount",
+       "file": "../augmentation-icons/scarff_ring_gun_mount.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "skill_emblem_central",
+       "file": "../augmentation-icons/skill_emblem_central.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "skill_emblem_entente",
+       "file": "../augmentation-icons/skill_emblem_entente.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "squadron_flight_manual",
+       "file": "../augmentation-icons/squadron_flight_manual.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "squadron_general_mobilization",
+       "file": "../augmentation-icons/squadron_general_mobilization.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "synchronization_gear",
+       "file": "../augmentation-icons/synchronization_gear.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "ur_leica_camera",
+       "file": "../augmentation-icons/ur_leica_camera.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "victoria_cross",
+       "file": "../augmentation-icons/victoria_cross.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "wide_barrage_firing_device",
+       "file": "../augmentation-icons/wide_barrage_firing_device.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "wingman_joining",
+       "file": "../augmentation-icons/wingman_joining.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "icon_atlases",
+     "name": "UI 아이콘 아틀라스",
+     "role": "아이콘",
+     "base": "../icons51.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "controls53",
+       "file": "../controls53.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "equipment-atlas",
+       "file": "../equipment-atlas.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "gun-atlas114",
+       "file": "../gun-atlas114.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "hazards53",
+       "file": "../hazards53.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "icons51",
+       "file": "../icons51.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legendary-icons103",
+       "file": "../legendary-icons103.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legendary-icons109",
+       "file": "../legendary-icons109.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legendary-icons83",
+       "file": "../legendary-icons83.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "medal55",
+       "file": "../medal55.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "special-ammo-icons92",
+       "file": "../special-ammo-icons92.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "relic_icons",
+     "name": "유물 아이콘",
+     "role": "아이콘",
+     "base": "../relic-maxim-belt128.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "relic-immelmann-manual128",
+       "file": "../relic-immelmann-manual128.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "relic-lo-emblem128",
+       "file": "../relic-lo-emblem128.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "relic-maxim-belt128",
+       "file": "../relic-maxim-belt128.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "relic-sacred-cowling128",
+       "file": "../relic-sacred-cowling128.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "relic-steel-plate128",
+       "file": "../relic-steel-plate128.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "emblems",
+     "name": "라운델·휘장 SVG",
+     "role": "엠블럼",
+     "base": "../aircraft-roundel.svg",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "aircraft-iron-cross",
+       "file": "../aircraft-iron-cross.svg",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "aircraft-roundel",
+       "file": "../aircraft-roundel.svg",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "ui_misc",
+     "name": "기타 UI·키아트",
+     "role": "UI",
+     "base": "../hangar-keyart-pc.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "astra-reload180",
+       "file": "../astra-reload180.svg",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "favicon-180",
+       "file": "../favicon-180.png",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "favicon-32",
+       "file": "../favicon-32.png",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "favicon-64",
+       "file": "../favicon-64.png",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "favicon",
+       "file": "../favicon.svg",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "hangar-keyart-mobile",
+       "file": "../hangar-keyart-mobile.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "hangar-keyart-pc",
+       "file": "../hangar-keyart-pc.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "new-aces-portraits124",
+       "file": "../new-aces-portraits124.webp",
+       "live": true
+      }
+     ]
+    },
+    {
+     "id": "field_records",
+     "name": "전장 기록 이미지",
+     "role": "기록",
+     "base": "../legacy/field-img-114b9f38804fe831ceb0.webp",
+     "live": true,
+     "variants": [
+      {
+       "kind": "part",
+       "name": "legacy/field-img-04bd6ece51d59d06569a",
+       "file": "../legacy/field-img-04bd6ece51d59d06569a.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-0ab5810e2825a688ac7d",
+       "file": "../legacy/field-img-0ab5810e2825a688ac7d.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-0ad4db60852007a3f47d",
+       "file": "../legacy/field-img-0ad4db60852007a3f47d.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-0e40f21d76124117ccb3",
+       "file": "../legacy/field-img-0e40f21d76124117ccb3.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-114b9f38804fe831ceb0",
+       "file": "../legacy/field-img-114b9f38804fe831ceb0.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-187ac7f0ef8c4844074e",
+       "file": "../legacy/field-img-187ac7f0ef8c4844074e.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-207fe19207589032a52b",
+       "file": "../legacy/field-img-207fe19207589032a52b.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-20cbb216a301e89fa104",
+       "file": "../legacy/field-img-20cbb216a301e89fa104.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-2a4a411f20ff71b28cfe",
+       "file": "../legacy/field-img-2a4a411f20ff71b28cfe.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-2ac123a7ffa5e210fae4",
+       "file": "../legacy/field-img-2ac123a7ffa5e210fae4.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-2c13185fd7bc3dfa6c56",
+       "file": "../legacy/field-img-2c13185fd7bc3dfa6c56.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-2e05def872abe81e4104",
+       "file": "../legacy/field-img-2e05def872abe81e4104.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-327b2ecfd1f0cafb2baf",
+       "file": "../legacy/field-img-327b2ecfd1f0cafb2baf.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-33691e14d26a31dd5524",
+       "file": "../legacy/field-img-33691e14d26a31dd5524.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-373735106c4559609042",
+       "file": "../legacy/field-img-373735106c4559609042.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-3970c462d3c2837a0999",
+       "file": "../legacy/field-img-3970c462d3c2837a0999.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-39e33bc0c8153797c0a3",
+       "file": "../legacy/field-img-39e33bc0c8153797c0a3.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-3afd531dde3aac24c511",
+       "file": "../legacy/field-img-3afd531dde3aac24c511.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-3e962bbcb5f73000c89a",
+       "file": "../legacy/field-img-3e962bbcb5f73000c89a.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-4353db5c7b373278f8d7",
+       "file": "../legacy/field-img-4353db5c7b373278f8d7.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-4466b00a9e0d36f84d8d",
+       "file": "../legacy/field-img-4466b00a9e0d36f84d8d.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-48318606e6a008f25b62",
+       "file": "../legacy/field-img-48318606e6a008f25b62.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-4a3d670e759948f451fd",
+       "file": "../legacy/field-img-4a3d670e759948f451fd.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-4a8fcb98dd93e48b418a",
+       "file": "../legacy/field-img-4a8fcb98dd93e48b418a.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-4bab299d9b761ab3cac6",
+       "file": "../legacy/field-img-4bab299d9b761ab3cac6.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-4c9d8ee27c496e2b6abb",
+       "file": "../legacy/field-img-4c9d8ee27c496e2b6abb.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-4d8b3906391da3bb0d50",
+       "file": "../legacy/field-img-4d8b3906391da3bb0d50.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-53b6d36d5587cfa4440f",
+       "file": "../legacy/field-img-53b6d36d5587cfa4440f.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-55da8b681fbfc5c404f3",
+       "file": "../legacy/field-img-55da8b681fbfc5c404f3.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-56fc8d2fd13bfd692a8b",
+       "file": "../legacy/field-img-56fc8d2fd13bfd692a8b.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-5b4217058c8ea7273eb7",
+       "file": "../legacy/field-img-5b4217058c8ea7273eb7.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-6023233b755759da9afc",
+       "file": "../legacy/field-img-6023233b755759da9afc.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-625e5e1f5e5e8eef5d64",
+       "file": "../legacy/field-img-625e5e1f5e5e8eef5d64.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-62c2b89bb8efe5eaada5",
+       "file": "../legacy/field-img-62c2b89bb8efe5eaada5.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-6568a89e09d55f6e0302",
+       "file": "../legacy/field-img-6568a89e09d55f6e0302.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-66f58bc34cb2d6a2acf9",
+       "file": "../legacy/field-img-66f58bc34cb2d6a2acf9.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-66fc46f4c78572783115",
+       "file": "../legacy/field-img-66fc46f4c78572783115.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-699801c578605932abfb",
+       "file": "../legacy/field-img-699801c578605932abfb.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-6a522d64411e41c27822",
+       "file": "../legacy/field-img-6a522d64411e41c27822.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-6abfb6f085f05a8748ba",
+       "file": "../legacy/field-img-6abfb6f085f05a8748ba.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-6d483edca29d8118cede",
+       "file": "../legacy/field-img-6d483edca29d8118cede.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-70de8a67313f691a8081",
+       "file": "../legacy/field-img-70de8a67313f691a8081.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-70eaf48ebdd4331870f4",
+       "file": "../legacy/field-img-70eaf48ebdd4331870f4.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-762c36fa383ffe3d6a23",
+       "file": "../legacy/field-img-762c36fa383ffe3d6a23.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-7861f774c842fb93b7bb",
+       "file": "../legacy/field-img-7861f774c842fb93b7bb.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-78b3935bdbc9a1294995",
+       "file": "../legacy/field-img-78b3935bdbc9a1294995.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-7a2dc7e988190f2f636d",
+       "file": "../legacy/field-img-7a2dc7e988190f2f636d.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-810cf2a381918ee792d6",
+       "file": "../legacy/field-img-810cf2a381918ee792d6.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-84c7e12e1d5465560925",
+       "file": "../legacy/field-img-84c7e12e1d5465560925.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-897cfcd132e9ee94c899",
+       "file": "../legacy/field-img-897cfcd132e9ee94c899.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-8b8b01f84ec7d78d52c5",
+       "file": "../legacy/field-img-8b8b01f84ec7d78d52c5.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-8dff8885ab816566b67b",
+       "file": "../legacy/field-img-8dff8885ab816566b67b.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-8e245f003f5d36b98400",
+       "file": "../legacy/field-img-8e245f003f5d36b98400.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-8e55242a3c48d15cf70a",
+       "file": "../legacy/field-img-8e55242a3c48d15cf70a.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-8fcf64775670282763b4",
+       "file": "../legacy/field-img-8fcf64775670282763b4.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-915dd705c13421524f21",
+       "file": "../legacy/field-img-915dd705c13421524f21.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-9318519a7b295c3af54b",
+       "file": "../legacy/field-img-9318519a7b295c3af54b.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-9fda1fdd9673e0ef148d",
+       "file": "../legacy/field-img-9fda1fdd9673e0ef148d.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-a32b892eb2ddb7314294",
+       "file": "../legacy/field-img-a32b892eb2ddb7314294.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-ab53f0bf67c663f44206",
+       "file": "../legacy/field-img-ab53f0bf67c663f44206.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-af3ccaba028180ed101c",
+       "file": "../legacy/field-img-af3ccaba028180ed101c.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-affcedcae4497973aacf",
+       "file": "../legacy/field-img-affcedcae4497973aacf.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-b156c05491194f29db6c",
+       "file": "../legacy/field-img-b156c05491194f29db6c.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-b20dde160bab6a92af55",
+       "file": "../legacy/field-img-b20dde160bab6a92af55.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-b64a45273185861e1387",
+       "file": "../legacy/field-img-b64a45273185861e1387.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-b8f5173486e4abb2bc06",
+       "file": "../legacy/field-img-b8f5173486e4abb2bc06.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-ba9fed192581c674628a",
+       "file": "../legacy/field-img-ba9fed192581c674628a.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-bd6dfd1b9a25e0245650",
+       "file": "../legacy/field-img-bd6dfd1b9a25e0245650.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-c30af70ba39cca70ded4",
+       "file": "../legacy/field-img-c30af70ba39cca70ded4.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-c503048e396b31644205",
+       "file": "../legacy/field-img-c503048e396b31644205.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-c55f255038d9a0078085",
+       "file": "../legacy/field-img-c55f255038d9a0078085.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-c62b13e488f9843573ea",
+       "file": "../legacy/field-img-c62b13e488f9843573ea.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-c70f9d5ec197aee00c22",
+       "file": "../legacy/field-img-c70f9d5ec197aee00c22.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-c70fcfe38c5bbe8567a8",
+       "file": "../legacy/field-img-c70fcfe38c5bbe8567a8.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-c829ce384f1508844473",
+       "file": "../legacy/field-img-c829ce384f1508844473.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-c850a33a4ceb878aea2e",
+       "file": "../legacy/field-img-c850a33a4ceb878aea2e.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-cc3b84b0b3cc54e6a5e0",
+       "file": "../legacy/field-img-cc3b84b0b3cc54e6a5e0.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-ce03a5735ce21c3a278a",
+       "file": "../legacy/field-img-ce03a5735ce21c3a278a.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-d17dd6c1b7c244d466a2",
+       "file": "../legacy/field-img-d17dd6c1b7c244d466a2.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-d1f09a84b3cdc742069b",
+       "file": "../legacy/field-img-d1f09a84b3cdc742069b.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-d7eae8547b108181758e",
+       "file": "../legacy/field-img-d7eae8547b108181758e.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-de9d163b5ed2070f8c1c",
+       "file": "../legacy/field-img-de9d163b5ed2070f8c1c.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-defdef96b29d2e2f04e5",
+       "file": "../legacy/field-img-defdef96b29d2e2f04e5.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-e0d743f99a03187a4bcb",
+       "file": "../legacy/field-img-e0d743f99a03187a4bcb.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-e1be07a9ffd993468092",
+       "file": "../legacy/field-img-e1be07a9ffd993468092.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-e40d337a7485b12e97fb",
+       "file": "../legacy/field-img-e40d337a7485b12e97fb.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-ee662aad50e69542cdfa",
+       "file": "../legacy/field-img-ee662aad50e69542cdfa.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-ee698d260f48227e219b",
+       "file": "../legacy/field-img-ee698d260f48227e219b.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-f66170fc80d83a603a34",
+       "file": "../legacy/field-img-f66170fc80d83a603a34.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-f730ddc77f2703fc9e45",
+       "file": "../legacy/field-img-f730ddc77f2703fc9e45.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-f92c0bb0b17d1a8fe396",
+       "file": "../legacy/field-img-f92c0bb0b17d1a8fe396.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-faa6729b1cb4795f0be7",
+       "file": "../legacy/field-img-faa6729b1cb4795f0be7.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-fb9253215812dde9746f",
+       "file": "../legacy/field-img-fb9253215812dde9746f.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-fcc31b88378e8d764c51",
+       "file": "../legacy/field-img-fcc31b88378e8d764c51.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-fe0aecd87b5445fd4f06",
+       "file": "../legacy/field-img-fe0aecd87b5445fd4f06.webp",
+       "live": true
+      },
+      {
+       "kind": "part",
+       "name": "legacy/field-img-ffb9beb9dcc5f5ae63dc",
+       "file": "../legacy/field-img-ffb9beb9dcc5f5ae63dc.webp",
+       "live": true
       }
      ]
     }

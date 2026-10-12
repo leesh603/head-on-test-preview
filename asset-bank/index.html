@@ -32,14 +32,17 @@
   .tag.dmg{background:#4a2e1e;color:#e8b088}
   .tag.wreck{background:#402020;color:#e08888}
   .tag.part{background:#2e3a4a;color:#a0b8d8}
+  .tag.ingame{background:#1e4a34;color:#8ee6b0}
+  .live{display:inline-block;font-size:9px;border-radius:8px;padding:1px 6px;margin-top:4px;margin-left:4px;background:#123826;border:1px solid #2e7d54;color:#8ee6b0}
+  .livehead{font-size:10px;border-radius:8px;padding:1px 7px;margin-left:8px;background:#123826;border:1px solid #2e7d54;color:#8ee6b0;vertical-align:2px}
   .empty{color:#6a6f78;font-size:12px;padding:2px 18px 12px}
 </style>
 <h1>HEAD-ON 에셋 뱅크 — 기종 카탈로그</h1>
-<div class=sub>기종 클릭 → 기본형·에이스기·도장 변주 펼침 (인게임 스프라이트 포함)</div>
+<div class=sub>기종 클릭 → 기본형·에이스기·도장 변주 펼침 — <b>인게임</b> 칩 = 실제 게임에 적용된 파일</div>
 <div class=ftabs id=ftabs></div>
 <div id=root></div>
 <script>
-const KIND={base:'기본형',ace:'에이스',squadron:'편대',livery:'도장',alt:'대체안',dmg:'손상',wreck:'파괴',part:'부품'};
+const KIND={base:'기본형',ace:'에이스',squadron:'편대',livery:'도장',alt:'대체안',dmg:'손상',wreck:'파괴',part:'부품',ingame:'인게임'};
 fetch('catalog.json?v='+Date.now()).then(r=>r.json()).then(cat=>{
   const root=document.getElementById('root'),ftabs=document.getElementById('ftabs');
   cat.factions.forEach((f,fi)=>{
@@ -55,21 +58,23 @@ fetch('catalog.json?v='+Date.now()).then(r=>r.json()).then(cat=>{
       const nvar=(t.variants||[]).length;
       const th=document.createElement('div');th.className='thead';
       th.innerHTML='<span class=caret>▶</span><img loading="lazy" src="'+t.base+'?v='+cat.v+'">'+
-        '<div><div class=tname>'+t.name+'</div><div class=tmeta>'+[t.year,t.role].filter(Boolean).join(' · ')+'</div></div>'+
+        '<div><div class=tname>'+t.name+(t.live?'<span class=livehead>인게임</span>':'')+'</div><div class=tmeta>'+[t.year,t.role].filter(Boolean).join(' · ')+'</div></div>'+
         '<span class=count>'+(nvar+1)+'종</span>';
       th.onclick=()=>el.classList.toggle('open');
       el.appendChild(th);
       const g=document.createElement('div');g.className='vgrid';
-      g.appendChild(card(t.base,'기본형','base'));
-      for(const v of t.variants||[])g.appendChild(card(v.file,v.name,v.kind));
+      g.appendChild(card(t.base,'기본형','base',t.live));
+      for(const v of t.variants||[])g.appendChild(card(v.file,v.name,v.kind,v.live));
       el.appendChild(g);
       root.appendChild(el);
     }
   }
-  function card(file,name,kind){
+  function card(file,name,kind,live){
     const c=document.createElement('div');c.className='card';
+    if(typeof live==='string')c.title=live;
     c.innerHTML='<img loading="lazy" src="'+file+'?v='+cat.v+'">'+
-      '<div class=nm>'+name+'</div><span class="tag '+kind+'">'+(KIND[kind]||kind)+'</span>';
+      '<div class=nm>'+name+'</div><span class="tag '+kind+'">'+(KIND[kind]||kind)+'</span>'+
+      (live?'<span class=live>인게임</span>':'');
     return c;
   }
   show(0);
