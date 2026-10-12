@@ -33,6 +33,7 @@
   .tag.wreck{background:#402020;color:#e08888}
   .tag.part{background:#2e3a4a;color:#a0b8d8}
   .tag.ingame{background:#1e4a34;color:#8ee6b0}
+  .tag.art{background:#4a3a4a;color:#d8a8e8}
   .live{display:inline-block;font-size:9px;border-radius:8px;padding:1px 6px;margin-top:4px;margin-left:4px;background:#123826;border:1px solid #2e7d54;color:#8ee6b0}
   .livehead{font-size:10px;border-radius:8px;padding:1px 7px;margin-left:8px;background:#123826;border:1px solid #2e7d54;color:#8ee6b0;vertical-align:2px}
   .empty{color:#6a6f78;font-size:12px;padding:2px 18px 12px}
@@ -42,7 +43,7 @@
 <div class=ftabs id=ftabs></div>
 <div id=root></div>
 <script>
-const KIND={base:'기본형',ace:'에이스',squadron:'편대',livery:'도장',alt:'대체안',dmg:'손상',wreck:'파괴',part:'부품',ingame:'인게임'};
+const KIND={base:'기본형',ace:'에이스',squadron:'편대',livery:'도장',alt:'대체안',dmg:'손상',wreck:'파괴',part:'부품',ingame:'인게임',art:'일러스트'};
 fetch('catalog.json?v='+Date.now()).then(r=>r.json()).then(cat=>{
   const root=document.getElementById('root'),ftabs=document.getElementById('ftabs');
   cat.factions.forEach((f,fi)=>{
