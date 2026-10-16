@@ -1,7 +1,7 @@
 import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=buildfit1&afc=1';
 import {createSignatureView} from './pilot-signature-view.js?v=buildfit1&afc=1';
 import {fx,fxTint} from './fx-art.js?v=gal1';
-import {planeSprite,aircraftKey} from './aircraft.js?v=buildfit1';
+import {planeSprite,aircraftKey} from './aircraft.js?v=outline1';
 import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';
 
 import {bishopFlightHeight} from './engine.js?v=buildfit1&afc=1';
@@ -236,3 +236,4 @@ export function drawRedGhosts162(c,p,x,y,sprite,key){
   c.globalAlpha=.38*Math.pow(Math.max(0,g.life/.32),1.25);c.drawImage(redGhostCanvas162,x+g.x-p.x-120,y+g.y-p.y-120);
  }c.restore();
 }
+

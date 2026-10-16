@@ -1,5 +1,5 @@
 import {fx} from './fx-art.js?v=gal1';
-import {planeSprite} from './aircraft.js?v=buildfit1';
+import {planeSprite} from './aircraft.js?v=outline1';
 import {drawGameIcon} from './icons.js?v=buildfit1&afc=1';
 
 const clamp=n=>Math.max(0,Math.min(1,n));
@@ -44,3 +44,4 @@ export function drawTransferStations(c,p,x,y){
   fx(c,'muzzleTwin',px+Math.cos(a)*5,py+Math.sin(a)*5,21,14,a,Math.min(1,station.flash*12));
  }
 }
+

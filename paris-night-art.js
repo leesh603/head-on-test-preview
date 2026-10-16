@@ -5,7 +5,7 @@ import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=tame3
 let images={};
 export function releaseParisArt(){images={};}
 export function prepareParisArt(){
- return Promise.all([['map','terrain-paris-night1918.webp'],['fortress','paris-fortress-parts1918.webp'],['fortressWreck','paris-fortress-wreck1918.webp'],['staaken','paris-staaken-parts1918.webp'],['staakenWreck','paris-staaken-wreck1918.webp']].map(([key,path])=>new Promise(resolve=>{
+ return Promise.all([['map','terrain-paris-night1918.webp'],['fortress','paris-fortress-parts1918.webp'],['fortressWreck','paris-fortress-wreck1918.webp'],['staaken','asset-bank/outlined/native/paris-staaken-parts1918.webp'],['staakenWreck','asset-bank/outlined/native/paris-staaken-wreck1918.webp']].map(([key,path])=>new Promise(resolve=>{
   const im=new Image();im.decoding='async';images[key]=im;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(true))};im.onerror=()=>resolve(false);im.src='./'+path+'?v=r5&b=city4';
  })));
 }

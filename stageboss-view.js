@@ -2,7 +2,7 @@ import {groundShellProfile} from './explosion-profiles.js?v=gal1';
 import {minenMuzzleLocal} from './minenwerfer-art-layout.js?v=gal1-r4';
 import {drawMinenInstallation} from './minenwerfer-art-render.js?v=gal1-r4';
 import {prepareBossCutins} from './boss-cutin-art.js?v=livingww1d&rail=42';
-import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=gal1';
+import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=outline1';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=gal1-r3';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=gal1-r10';
 import {verdunFortExtents} from './verdun-fortresses.js?v=gal1&rail=42';
@@ -17,7 +17,7 @@ import {prepareArmorTreads,drawArmorGround,drawArmorTreads,drawArmorDamageFX} fr
 import {armorGunMuzzle} from './trench-armor-layout.js?v=gal1';
 import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta} from './trench-armor-layout.js?v=gal1';
 import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=gal1';
-import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=gal1';
+import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=outline1';
 import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=gal1';
 import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=gal1';
 import {fx,fxReady,fxImage,fxTint,FX3} from './fx-art.js?v=gal1';
@@ -29,13 +29,13 @@ import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=gal
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=gal1&rail=42';
 import {bossHudModel} from './headon-stageboss-hud.js?v=livingww1d&rail=42';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=gal1&hints=1&rail=42';
-import {planeSprite} from './aircraft.js?v=buildfit1';
+import {planeSprite} from './aircraft.js?v=outline1';
 import {getLocale} from './i18n.js?v=buildfit1&afc=1';
 import {londonStatus} from './london-battle.js?v=gal1';
 import {parisStatus} from './paris-night-battle.js?v=gal1';
-import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=gal1';
-import {prepareDoverAssets,drawDoverBoss,drawDoverHazard,drawDoverCue,isDoverBoss,doverExtents} from './dover-night-view.js?v=dover6';
-import {prepareParisArt,releaseParisArt,drawParisBoss,drawParisWorld} from './paris-night-art.js?v=gal1';
+import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=outline1';
+import {prepareDoverAssets,drawDoverBoss,drawDoverHazard,drawDoverCue,isDoverBoss,doverExtents} from './dover-night-view.js?v=outline1';
+import {prepareParisArt,releaseParisArt,drawParisBoss,drawParisWorld} from './paris-night-art.js?v=outline1';
 import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=gal1';
 import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=gal1';
 import {drawAlpsBomber,drawAlpsPart,drawAlpsWarnings,drawAlpsHazard} from './alps-bomber-render.js?v=bomb19';
@@ -63,14 +63,14 @@ const supportGroup=createLazyImageGroup({ship:'./stuttgart-open129.webp',shipMat
 
 const bossSources={
  parisGun:'./boss-bruno-train115.webp',lincomparable:'./boss-lincomparable94.webp?v=gal1&b=345',stuttgart:'./boss-sms-stuttgart94.webp',zubian:'./boss-hms-zubian94.webp',
- l70:'./boss-zeppelin-l7094.webp',hma23:'./boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./boss-gik.webp?v=gal1&b=345',ca4:'./boss-ca4.webp?v=gal1&b=345',
- londonApron:'./boss-london-apron115.webp?v=gal1',londonApronDamage1:'./boss-london-apron-registered-damage369.png?v=gal1',drachenNet:'./boss-drachen-net115.webp?v=gal1',drachenLeft:'./boss-drachen-left380.webp?v=gal1',drachenCenter:'./boss-drachen-center380.webp?v=gal1',drachenRight:'./boss-drachen-right380.webp?v=gal1',
+ l70:'./asset-bank/outlined/native/boss-zeppelin-l7094.webp',hma23:'./asset-bank/outlined/native/boss-hma2394.webp',a7v:'./boss-a7v-flak94.webp',markv:'./boss-mark-v94.webp',gik:'./asset-bank/outlined/native/boss-gik.webp?v=gal1&b=345',ca4:'./asset-bank/outlined/native/boss-ca4.webp?v=gal1&b=345',
+ londonApron:'./boss-london-apron115.webp?v=gal1',londonApronDamage1:'./boss-london-apron-registered-damage369.png?v=gal1',drachenNet:'./boss-drachen-net115.webp?v=gal1',drachenLeft:'./asset-bank/outlined/native/boss-drachen-left380.webp?v=gal1',drachenCenter:'./asset-bank/outlined/native/boss-drachen-center380.webp?v=gal1',drachenRight:'./asset-bank/outlined/native/boss-drachen-right380.webp?v=gal1',
  railCarrier:'./boss-art-rail-carrier.webp?v=gal1',treffasWagen:'./boss-art-treffas-wagen.webp?v=gal1',
  mark4:'./boss-mark4.webp?v=gal1',mark4Wreck:'./boss-mark4-wreck.webp?v=gal1',morser:'./boss-morser.webp?v=gal1',morserWreck:'./boss-morser-wreck.webp?v=gal1',
- staaken:'./staaken_dark.webp?v=gal1',staakenWreck:'./boss-staaken-wreck.webp?v=gal1',searchlight:'./boss-searchlight.webp?v=gal1',searchlightWreck:'./boss-searchlight-wreck.webp?v=gal1'
+ staaken:'./staaken_dark.webp?v=gal1',staakenWreck:'./asset-bank/outlined/native/boss-staaken-wreck.webp?v=gal1',searchlight:'./boss-searchlight.webp?v=gal1',searchlightWreck:'./boss-searchlight-wreck.webp?v=gal1'
 };
 const bossGroup=createLazyImageGroup(bossSources),bossArt=bossGroup.images;
-const alpsGroup=createLazyImageGroup({gik:'./alps-gik-damage-20261001.webp?v=gal1',ca4:'./alps-ca4-damage-20261001.webp?v=gal1'}),alpsArt=alpsGroup.images;
+const alpsGroup=createLazyImageGroup({gik:'./asset-bank/outlined/native/alps-gik-damage-20261001.webp?v=gal1',ca4:'./asset-bank/outlined/native/alps-ca4-damage-20261001.webp?v=gal1'}),alpsArt=alpsGroup.images;
 const rebuildGroup=createLazyImageGroup({a7vHull:'./boss-a7v-hull-rebuild.webp',a7vTurret:'./boss-a7v-turret-rebuild.webp',markvHull:'./boss-mark-v-hull-rebuild.webp',markvSponson:'./boss-mark-v-sponson-rebuild.webp'}),rebuildArt=rebuildGroup.images;
 const armorMotionGroup=createLazyImageGroup({wire:'./boss-trench-wire-20261008.webp',crossing:'./boss-trench-crossing-20261008.webp',lamp:'./boss-searchlight.webp',lampWreck:'./boss-searchlight-wreck.webp'}),armorMotionArt=armorMotionGroup.images;
 const armorDamageGroup=createLazyImageGroup({a7vLeft:'./boss-a7v-track-left-20260930.webp',a7vRight:'./boss-a7v-track-right-20260930.webp',a7vBreached:'./boss-a7v-breached-20260930.webp',a7vWreck:'./boss-a7v-wreck-20260930.webp',a7vGunWreck:'./boss-a7v-gun-wreck-20260930.webp',markLeft:'./boss-mark-v-track-left-20260930.webp',markRight:'./boss-mark-v-track-right-20260930.webp',markBreached:'./boss-mark-v-breached-20260930.webp',markWreck:'./boss-mark-v-wreck-20260930.webp',markGunWreck:'./boss-mark-v-gun-wreck-20260930.webp'}),armorDamage=armorDamageGroup.images;
@@ -187,7 +187,7 @@ const railWreckSources={
  railCarrier:{engine:'./boss-rail-carrier-loco-wreck.webp?v=gal1',front:'./boss-rail-carrier-flak-wreck.webp?v=gal1',middle:'./boss-rail-carrier-launch-wreck.webp?v=gal1',rear:'./boss-rail-carrier-hangar-wreck.webp?v=gal1'}
 };
 // Fliegerzug munition + Treffas-Wagen separable parts (destroyed parts get a burn filter).
-const bugGroup=createLazyImageGroup({folded:'./boss-cambrai-bug.webp?v=gal1',flight:'./boss-cambrai-bug.webp?v=gal1'}),bugArt=bugGroup.images;
+const bugGroup=createLazyImageGroup({folded:'./asset-bank/outlined/native/boss-cambrai-bug.webp?v=gal1',flight:'./asset-bank/outlined/native/boss-cambrai-bug.webp?v=gal1'}),bugArt=bugGroup.images;
 const cambraiGroup=createLazyImageGroup({atlas:'./boss-cambrai-train-atlas.webp?v=gal1',wreck:'./boss-cambrai-train-wreck-atlas.webp?v=gal1'}),cambraiArt=cambraiGroup.images;
 const treffasGroup=createLazyImageGroup({body:'./boss-cambrai-treffas-connected.webp?v=gal1',wreck:'./boss-cambrai-treffas-connected-wreck.webp?v=gal1'}),treffasArt=treffasGroup.images;
 // Wreck sprites drawn over destroyed boss parts (wheels, turrets, gun pits...).
@@ -852,4 +852,5 @@ export function paintCity(c,cx,cy,W,H,city='london'){
   c.strokeStyle='#f2dda13d';c.lineWidth=1;c.beginPath();c.moveTo(ox,oy);c.lineTo(tx,ty);c.stroke();c.fillStyle='#413e35';c.fillRect(ox-12,H-18,24,18);c.fillStyle='#d9c883';c.fillRect(ox-5,H-22,10,5);}
  c.restore();
 }
+
 

@@ -2,7 +2,7 @@ import {drawGroundEnemy} from './ground-enemy-art.js?v=gal1';
 import {impactMark} from './tactical-marks.js?v=gal1';
 import {getLocale} from './i18n.js?v=buildfit1&afc=1';
 import {unitNameEN} from './event-text-en.js?v=buildfit1&afc=1';
-import {drawRegionalBug} from './regional-boss-view352.js?v=gal1';
+import {drawRegionalBug} from './regional-boss-view352.js?v=outline1';
 import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=gal1';
 import {drawGasCloud196} from './gas-cloud196.js?v=gal1';
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=buildfit1&afc=1';
@@ -13,13 +13,13 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=buildfit1';
 import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=gal1';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=buildfit1&afc=1';
-import {drawStageBoss} from './stageboss-view.js?v=buildfit1&hints=1&treads=2&rail=42&maan=3&minen=4&afc=1';
+import {drawStageBoss} from './stageboss-view.js?v=outline1';
 import {bombSprite} from './bomb-sprites.js?v=bomb20';
 const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};
 const NO_SKILL_RING=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker','wolff','immelmann']);
 const DUO_PILOTS=new Set(['huffzky','mckeever']);
-import {planeSprite,aircraftKey} from './aircraft.js?v=buildfit1';
+import {planeSprite,aircraftKey} from './aircraft.js?v=outline1';
 import {drawEquipment} from './equipment.js?v=gal1';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor,drawTracerBolt} from './projectiles.js?v=gal1';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=gal1';
@@ -110,5 +110,6 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  for(const p of g.players){const isMe=g.online?p.id===g.localPlayerId:p.id==='p1';if(isMe||p.hp<=0)continue;const sx=(p.x-g.x)*z+W/2,sy=(p.y-g.y)*z+H/2;if(sx>-24&&sx<W+24&&sy>-24&&sy<H+24)continue;const ax=Math.min(Math.max(sx,30),W-30),ay=Math.min(Math.max(sy,30),H-30),ang=Math.atan2(sy-ay,sx-ax);c.save();c.translate(ax,ay);c.rotate(ang);c.fillStyle='#47d160';c.strokeStyle='#0c1f10';c.lineWidth=2;c.beginPath();c.moveTo(16,0);c.lineTo(-9,-9);c.lineTo(-4,0);c.lineTo(-9,9);c.closePath();c.fill();c.stroke();c.restore();c.save();c.font='800 10px sans-serif';c.textAlign='center';c.fillStyle='#c9ffce';c.fillText(p.id.toUpperCase(),ax,ay-14);c.restore()}
  c.font='14px sans-serif';c.textAlign='left';c.fillStyle='#f1edd0';c.fillText(((g.worldRegion?.()??g.region)===17?'도버 해협 · 해상 야간 차단선':(['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭'][g.worldRegion?.()??g.region]||'전원 지대'))+' · 팀 비행 '+(g.distance/1000).toFixed(1)+' km',14,H-14);
 }
+
 
 
