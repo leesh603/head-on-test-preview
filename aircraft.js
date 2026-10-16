@@ -90,7 +90,13 @@ const decodePainted=key=>new Promise(resolve=>{
     const art=BANK_ART[key]||BOMBER_TRANSFER_ART[key];if(!art){finish(false);return;}
     oc.drawImage(img,art.x,art.y,art.w,art.h,0,0,288,320);
     if(key==='bomber-transfer-gotha'){const pixels=oc.getImageData(0,0,288,320);clearAircraftMatte(key,pixels.data,288,320);oc.putImageData(pixels,0,0);}
-    setPainted(key,out);finish(true);return;
+    // Bank cells need the same thin baked rim as the original painted aircraft.
+    // Build once per decode; live draws and the existing bounded cache stay unchanged.
+    const sil=document.createElement('canvas');sil.width=288;sil.height=320;
+    const sx=sil.getContext('2d');sx.drawImage(out,0,0);sx.globalCompositeOperation='source-in';sx.fillStyle='#140f08';sx.fillRect(0,0,288,320);
+    const rim=document.createElement('canvas');rim.width=288;rim.height=320;
+    const rc=rim.getContext('2d');for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)if(dx*dx+dy*dy<=5)rc.drawImage(sil,dx,dy);
+    rc.drawImage(out,0,0);setPainted(key,rim);finish(true);return;
   }
   const scan=document.createElement('canvas');scan.width=Math.ceil(img.naturalWidth/2);scan.height=Math.ceil(img.naturalHeight/2);const sc=scan.getContext('2d',{willReadFrequently:true});sc.drawImage(img,0,0,scan.width,scan.height);const pixels=sc.getImageData(0,0,scan.width,scan.height),rgba=pixels.data;if(key==='nieuport_italian')for(let i=0;i<rgba.length;i+=4){const r=rgba[i],g=rgba[i+1],b=rgba[i+2];if(rgba[i+3]>0&&b>70&&b>r*1.18&&b>g*1.05){rgba[i]=55;rgba[i+1]=132;rgba[i+2]=78}}clearAircraftMatte(key,rgba,scan.width,scan.height);clearCrewMatte(key,rgba,scan.width,scan.height);sc.putImageData(pixels,0,0);let minX=scan.width,minY=scan.height,maxX=-1,maxY=-1;
   for(let y=0;y<scan.height;y++)for(let x=0;x<scan.width;x++)if(rgba[(y*scan.width+x)*4+3]>128){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}

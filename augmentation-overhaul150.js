@@ -1,5 +1,5 @@
-import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment} from './build-airframe-transfer.js?v=buildfit1';
-import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget} from './bomber-transfer.js?v=buildfit1';
+import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment} from './build-airframe-transfer.js?v=buildfit1&afc=1';
+import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget} from './bomber-transfer.js?v=buildfit1&afc=1';
 // Augmentation catalog revision 150. Display data mirrors the live 강화정리 sheet;
 // legacy ids stay stable so existing runs and local saves remain compatible.
 export const AUGMENTATION_OVERHAUL_BALANCE=Object.freeze({

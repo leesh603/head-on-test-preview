@@ -10,8 +10,8 @@ export const BUILD_TRANSFER=Object.freeze({
   central:Object.freeze({name:'AEG J.I',sprite:'transfer-aeg-ji',kind:'gunship',hp:1,speed:.74,turn:.62,scale:1.4,front:17,rear:13,hullLength:22,hullWidth:42,response:2.6,recovery:.52,gunInterval:.28,gunPower:.56,belt:70,reload:2.4,stationOffsets:[-6,6]})
  }),
  airshipTransfer:Object.freeze({
-  entente:Object.freeze({name:'R.29',sprite:'transfer-r29',kind:'airship',hp:1,speed:.45,turn:.26,scale:2.05,front:55,rear:44,hullLength:72,hullWidth:18,response:1.25,recovery:.28,gunInterval:.65,gunPower:.4,belt:44,reload:3.2,stationOffsets:[-10,10,0]}),
-  central:Object.freeze({name:'Zeppelin L30',sprite:'transfer-l30',kind:'airship',hp:1,speed:.45,turn:.26,scale:2.15,front:57,rear:46,hullLength:76,hullWidth:22,response:1.25,recovery:.28,gunInterval:.65,gunPower:.4,belt:44,reload:3.2,stationOffsets:[-13,13,0]})
+  entente:Object.freeze({name:'R.29',sprite:'transfer-r29',kind:'airship',hp:1,speed:.45,turn:.26,scale:3.9,front:105,rear:84,hullLength:137,hullWidth:34,response:1.25,recovery:.28,gunInterval:.65,gunPower:.4,belt:44,reload:3.2,stationOffsets:[-19,19,0]}),
+  central:Object.freeze({name:'Zeppelin L30',sprite:'transfer-l30',kind:'airship',hp:1,speed:.45,turn:.26,scale:4.1,front:109,rear:88,hullLength:145,hullWidth:42,response:1.25,recovery:.28,gunInterval:.65,gunPower:.4,belt:44,reload:3.2,stationOffsets:[-25,25,0]})
  })
 });
 const WEIGHT_IDS=Object.freeze({bomberTransfer:['bomber','rockets','mines','explosives','combinedProjectiles','amatolCharge','motorCannon'],mgTransfer:['damage','rate','spread','quadLewis','maximBelt','rearGunner','telescope','flightGloves'],airshipTransfer:['wingman','command','fighterSupply','goeringBaton','lufberyCircle']});
@@ -71,3 +71,4 @@ export function tickTransferGuns(p,dt,gunnerAim,gunnerTarget){
   p.event('shot','');
  }
 }
+

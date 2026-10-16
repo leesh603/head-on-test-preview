@@ -1,12 +1,12 @@
-import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=buildfit1';
-import {createSignatureView} from './pilot-signature-view.js?v=buildfit1';
+import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=buildfit1&afc=1';
+import {createSignatureView} from './pilot-signature-view.js?v=buildfit1&afc=1';
 import {fx,fxTint} from './fx-art.js?v=gal1';
 import {planeSprite,aircraftKey} from './aircraft.js?v=buildfit1';
 import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';
 
-import {bishopFlightHeight} from './engine.js?v=buildfit1';
+import {bishopFlightHeight} from './engine.js?v=buildfit1&afc=1';
 import {drawCavalryGuard} from './pilot-directed-fx.js';
-import {bomberEntryPose} from './bomber-transfer.js?v=buildfit1';
+import {bomberEntryPose} from './bomber-transfer.js?v=buildfit1&afc=1';
 import {bombSprite} from './bomb-sprites.js?v=bomb20';
 import {fxsBombFall} from './fx-sample-preview.js?v=bomb3&rail=42';
 const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);

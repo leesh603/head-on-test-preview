@@ -1,5 +1,5 @@
 import {drawExplosionProfile} from './explosion-profiles.js?v=fx5';
-import {drawGameIcon} from './icons.js?v=buildfit1';
+import {drawGameIcon} from './icons.js?v=buildfit1&afc=1';
 import {fx,fxReady,FX56,FX3} from './fx-art.js?v=tame3';
 import {fxsBoom} from './fx-sample-preview.js?v=bomb3&rail=40';
 
