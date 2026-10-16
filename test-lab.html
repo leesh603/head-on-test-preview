@@ -41,6 +41,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <label>화면<select id="viewport"><option value="auto">자동</option><option value="390x844">모바일 390×844</option><option value="1280x800">PC 1280×800</option></select></label>
 <button id="start" class="primary" type="button">선택 조건으로 시작</button>
 <label>전환 장비<select id="transferKind"><option value="bomberTransfer">폭격비행대 전속명령</option><option value="mgTransfer">집중화력 개조령</option><option value="airshipTransfer">공중요새 동원령</option></select></label>
+<button id="trenchDemo" type="button">참호 지상전 18초 시연</button><label class="check"><input id="trenchDioramaOn" type="checkbox" checked>지상전 ON / OFF</label><label>구역<select id="trenchZone"><option value="0">북측 돌격로</option><option value="1">남측 방어선</option></select></label><output id="trenchDioramaState"></output><button id="trenchBenchmark" type="button">전후 2×18초 측정</button><button id="trenchRecord" type="button">시연 18초 WEBM 저장</button><output id="trenchPerfResult" style="width:100%;font-size:12px;white-space:pre-wrap"></output>
 <button id="transferEquip" type="button">전환 장비 장착</button>
 <button id="transferSkill" type="button">파일럿 액티브 발동</button>
 <output id="transferState" style="font-size:12px"></output>
@@ -110,7 +111,7 @@ async function connect(){
  if(!api){$('status').textContent='Test bridge 연결 실패 — 게임 로드 타임아웃';return}
  const old=$('pilot').value;$('pilot').replaceChildren();
  for(const p of api.catalog.pilots)$('pilot').append(new Option(p.name+' · '+(p.faction==='central'?'동맹국':'협상국'),p.id));
- $('pilot').value=[...$('pilot').options].some(o=>o.value===old)?old:[...$('pilot').options].some(o=>o.value===presets.get('pilot'))?presets.get('pilot'):'baron';refreshAce();$('status').textContent='준비 완료';
+ $('pilot').value=[...$('pilot').options].some(o=>o.value===old)?old:[...$('pilot').options].some(o=>o.value===presets.get('pilot'))?presets.get('pilot'):'baron';refreshAce();$('status').textContent='준비 완료';if(presets.get('diorama')==='1')$('trenchDemo').click();
 }
 frame.addEventListener('load',connect);
 $('start').onclick=()=>{
@@ -122,6 +123,19 @@ $('start').onclick=()=>{
  if(result&&$('noFire').checked)api.debug().fire=Infinity;
  applyHud();
 };
+$('trenchDemo').onclick=()=>{if(!api)return;$('region').value='2';$('boss').checked=false;$('ace').value='';$('start').click();api.trenchDioramaDemo($('trenchDioramaOn').checked,Number($('trenchZone').value));$('status').textContent='참호 지상전 · 18초 순환 · 실제 게임 렌더러';};
+$('trenchBenchmark').onclick=async()=>{
+ if(!api)return;$('trenchDemo').click();$('trenchBenchmark').disabled=true;const result={};
+ for(const [name,on]of [['before',false],['after',true]]){const g=api.debug();g.trenchDioramaEnabled=on;g.t=0;await new Promise(r=>setTimeout(r,2000));api.trenchPerfReset();$('trenchPerfResult').textContent=name+' 측정 중 · 18초';await new Promise(r=>setTimeout(r,18000));result[name]=api.trenchPerfRead();}
+ $('trenchDioramaOn').checked=true;$('trenchPerfResult').textContent=JSON.stringify(result,null,1);$('trenchBenchmark').disabled=false;
+};
+$('trenchRecord').onclick=async()=>{
+ if(!api)return;$('trenchDemo').click();const canvas=frame.contentDocument.getElementById('game');if(!canvas.captureStream||!window.MediaRecorder){$('status').textContent='이 브라우저는 녹화를 지원하지 않습니다';return;}
+ const stream=canvas.captureStream(12),chunks=[],rec=new MediaRecorder(stream,{mimeType:'video/webm'});rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};rec.onstop=()=>{stream.getTracks().forEach(t=>t.stop());const url=URL.createObjectURL(new Blob(chunks,{type:'video/webm'})),a=document.createElement('a');a.href=url;a.download='HEADON_trench_diorama_18s.webm';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);$('status').textContent='18초 WEBM 저장 완료';};rec.start();$('status').textContent='18초 시연 녹화 중';setTimeout(()=>rec.stop(),18000);
+};
+$('trenchDioramaOn').onchange=()=>{const g=api?.debug();if(g)g.trenchDioramaEnabled=$('trenchDioramaOn').checked;};
+$('trenchZone').onchange=()=>api?.trenchDioramaDemo($('trenchDioramaOn').checked,Number($('trenchZone').value));
+setInterval(()=>{const d=api?.trenchDiorama?.();if(d)$('trenchDioramaState').textContent=(d.ready?'준비':'대기')+' · 구역 '+d.zones+' · draw '+d.draws+' · decoded '+(d.decodedBytes/1048576).toFixed(1)+' MiB';},500);
 const transferState=()=>{const g=api?.debug?.(),p=g?.players?.[0]||g,f=p?.bomberTransfer;$('transferState').textContent=f?`${f.name} · ${p.pilot} · HP ${Math.round(p.hp)}/${Math.round(p.maxHp)} · 전환 ${(f.entryTime||0).toFixed(1)}s · ${f.stations?.length||0} 총좌`:'전투기';};
 $('transferEquip').onclick=()=>{const g=api?.debug?.(),p=g?.players?.[0]||g;if(!p)return;g.state='upgrade';const ok=p.upgrade($('transferKind').value,'legendary');g.state=$('freeze').checked?'paused':'playing';$('status').textContent=ok?'전환 장비 적용':'다른 전환 장비 장착 중 · 새 출격 필요';transferState();};
 $('transferSkill').onclick=()=>{const g=api?.debug?.(),p=g?.players?.[0]||g;if(!p)return;g.state='playing';p.cooldown=0;const ok=p.skill();if($('freeze').checked)g.state='paused';$('status').textContent=ok?'파일럿 액티브 발동':'발동 실패';transferState();};
