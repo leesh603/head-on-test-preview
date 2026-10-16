@@ -14,10 +14,10 @@ if(!['127.0.0.1','localhost','terminal.local','leesh603.github.io'].includes(loc
 const $=id=>document.getElementById(id),frame=$('game');let api=null;
 function size(){const [w,h]=$('size').value.split('x');frame.width=w;frame.height=h;}
 size();$('size').onchange=size;
-frame.onload=()=>{const timer=setInterval(()=>{api=frame.contentWindow.__HEADON_TEST__;if(!api)return;clearInterval(timer);
+const connect=()=>{const timer=setInterval(()=>{api=frame.contentWindow.__HEADON_TEST__;if(!api)return;clearInterval(timer);
  for(const r of api.catalog.regions)$('region').add(new Option(r.name,r.id));
  for(const p of api.catalog.pilots){$('pilot').add(new Option(p.name,p.id));$('ace').add(new Option(p.name,p.id));}
- $('pilot').value='fonck';$('ace').value='baron';},100);};
+ $('pilot').value='fonck';$('ace').value='baron';},100);};frame.onload=connect;connect();
 $('start').onclick=()=>{api?.start({region:+$('region').value,pilot:$('pilot').value,invincible:true});const g=api?.debug();if(g)g.need=Infinity;};
 const run=()=>api?.debug();
 $('director').onclick=()=>run()?.beginBattleDirectorPattern('CROSS_ATTACK');
