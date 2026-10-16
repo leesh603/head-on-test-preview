@@ -80,7 +80,7 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 </div>
 </div>
 </header>
-<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=dover6"></iframe></main>
+<main><iframe id="game" title="HEAD-ON Test Lab game" src="./index.html?headonTest=1&autostart=0&v=td2"></iframe></main>
 </div>
 <script>
 const $=id=>document.getElementById(id),frame=$('game');let api=null;
@@ -123,7 +123,7 @@ $('start').onclick=()=>{
  if(result&&$('noFire').checked)api.debug().fire=Infinity;
  applyHud();
 };
-$('trenchDemo').onclick=()=>{if(!api)return;$('region').value='2';$('boss').checked=false;$('ace').value='';$('start').click();api.trenchDioramaDemo($('trenchDioramaOn').checked,Number($('trenchZone').value));$('status').textContent='참호 지상전 · 18초 순환 · 실제 게임 렌더러';};
+$('trenchDemo').onclick=()=>{if(!api)return;$('trenchPerfResult').textContent='';$('region').value='2';$('boss').checked=false;$('ace').value='';$('start').click();api.trenchDioramaDemo($('trenchDioramaOn').checked,Number($('trenchZone').value));$('status').textContent='참호 지상전 · 18초 순환 · 실제 게임 렌더러';};
 $('trenchBenchmark').onclick=async()=>{
  if(!api)return;$('trenchDemo').click();$('trenchBenchmark').disabled=true;const result={};
  for(const [name,on]of [['before',false],['after',true]]){const g=api.debug();g.trenchDioramaEnabled=on;g.t=0;await new Promise(r=>setTimeout(r,2000));api.trenchPerfReset();$('trenchPerfResult').textContent=name+' 측정 중 · 18초';await new Promise(r=>setTimeout(r,18000));result[name]=api.trenchPerfRead();}

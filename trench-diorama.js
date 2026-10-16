@@ -31,15 +31,15 @@ for(let f=0;f<DIORAMA.frames;f++){
  // A wreck on the existing open shoulder: a persistent landmark, subtle fire.
  command(f,6,14+(Math.floor(t*4)%2),123,62,68,.8);
 }
-let image=null,loading=null,generation=0,failed=false;
+let image=null,loading=null,generation=0,failed=false,settle=null;
 export const dioramaStats={ready:false,draws:0,zones:0,frame:0,decodedBytes:0};
 export function prepareTrenchDiorama(){
  if(loading)return loading;if(failed||typeof Image==='undefined')return Promise.resolve(false);
  const token=++generation,im=new Image();image=im;im.decoding='async';
- loading=new Promise(resolve=>{im.onload=async()=>{try{await im.decode?.()}catch{}if(token!==generation){resolve(false);return}dioramaStats.ready=im.naturalWidth===1024;dioramaStats.decodedBytes=dioramaStats.ready?DIORAMA.decodedBytes:0;resolve(dioramaStats.ready)};im.onerror=()=>{failed=true;resolve(false)};im.src='./trench-diorama-20261016.webp?v=td1'});
+ loading=new Promise(resolve=>{settle=resolve;im.onload=async()=>{try{await im.decode?.()}catch{}if(token!==generation){resolve(false);return}dioramaStats.ready=im.naturalWidth===1024;dioramaStats.decodedBytes=dioramaStats.ready?DIORAMA.decodedBytes:0;resolve(dioramaStats.ready)};im.onerror=()=>{failed=true;resolve(false)};im.src='./trench-diorama-20261016.webp?v=td1'});
  return loading;
 }
-export function releaseTrenchDiorama(){if(!image)return;generation++;image.onload=image.onerror=null;image.src='';image=null;loading=null;dioramaStats.ready=false;dioramaStats.decodedBytes=0;}
+export function releaseTrenchDiorama(){if(!image)return;generation++;settle?.(false);settle=null;image.onload=image.onerror=null;image.src='';image=null;loading=null;dioramaStats.ready=false;dioramaStats.decodedBytes=0;}
 export function drawTrenchDiorama(c,cx,cy,width,height,time,mobile=false,reduced=false,enabled=true){
  dioramaStats.draws=0;dioramaStats.zones=0;
  if(!enabled||reduced){releaseTrenchDiorama();return 0;}
