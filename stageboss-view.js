@@ -29,7 +29,7 @@ import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=gal
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=gal1&rail=42';
 import {bossHudModel} from './headon-stageboss-hud.js?v=livingww1d&rail=42';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=gal1&hints=1&rail=42';
-import {planeSprite} from './aircraft.js?v=outline1';
+import {planeSprite} from './aircraft.js?v=outline2';
 import {getLocale} from './i18n.js?v=buildfit1&afc=1';
 import {londonStatus} from './london-battle.js?v=gal1';
 import {parisStatus} from './paris-night-battle.js?v=gal1';
