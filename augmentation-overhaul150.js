@@ -200,7 +200,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    case 'grunkreuz':this.grunkreuz=true;this.grunkreuzTimer=8;break;
    case 'kaiserFog':this.brockSmoke=true;this.brockSmokeTimer=AUGMENTATION_OVERHAUL_BALANCE.smokeInterval;this.kaiserFogTime=0;break;
    case 'fogCompass':this.magnet=Math.max(this.magnet,AUGMENTATION_OVERHAUL_BALANCE.compassRadius);break;
-   case 'maximBelt':{const old=this.weapon.belt,thisBase=this.baseBeltCapacity??old,next=Math.round(thisBase*AUGMENTATION_OVERHAUL_BALANCE.pridoBelt);this.baseBeltCapacity=thisBase;this.weapon.belt=Math.max(old,next);this.ammo=this.ammo.map(n=>Math.min(this.weapon.belt,n+this.weapon.belt-old));this.weapon.reload=Math.max(.45,this.weapon.reload*AUGMENTATION_OVERHAUL_BALANCE.pridoReload);break;}
+   case 'maximBelt':{const old=this.weapon.belt,thisBase=this.baseBeltCapacity??old,next=Math.round(thisBase*AUGMENTATION_OVERHAUL_BALANCE.pridoBelt);this.baseBeltCapacity=thisBase;this.weapon.belt=Math.max(old,next);this.ammo=this.ammo.map(n=>Math.min(this.weapon.belt,n+this.weapon.belt-old));this.weapon.reload=Math.max(.45,this.weapon.reload*AUGMENTATION_OVERHAUL_BALANCE.pridoReload);for(const station of this.bomberTransfer?.stations||[])station.ammo=Math.min(Math.round(this.bomberTransfer.belt*1.75),station.ammo+Math.round(this.bomberTransfer.belt*.75));break;}
   }
   if(u.legendary)this.equipmentAcquire156={id,life:.5,maxLife:.5};
   this.upgradeRarities??={};this.upgradeRarities[id]=rarity;this.upgrades[id]=(this.upgrades[id]||0)+1;this.state='playing';this.checkLevel();return true;

@@ -41,11 +41,13 @@ const world=p=>p.combatWorld?.()||p;
 export function transferStationPosition(p,front,lateral){const ca=Math.cos(p.a),sa=Math.sin(p.a);return {x:p.x+ca*front-sa*lateral,y:p.y+sa*front+ca*lateral};}
 export function tickTransferGuns(p,dt,gunnerAim,gunnerTarget){
  const fit=p.bomberTransfer,w=world(p);
- if(p.bishopTime>0||p.ballCloak>0||p.aceRetreat129)return;
- fit.stations??=fit.stationOffsets.map((lateral,i)=>({front:fit.kind==='airship'?(i===2?-fit.rear:fit.front*.45):fit.front,lateral,aim:p.a+(fit.kind==='airship'?i*2*Math.PI/3:0),timer:.1+i*.08,ammo:fit.belt,reload:0,flash:0}));
+ const concealed=p.bishopTime>0||p.ballCloak>0||p.aceRetreat129;
+ fit.stations??=fit.stationOffsets.map((lateral,i)=>({front:fit.kind==='airship'?(i===2?-fit.rear:fit.front*.45):fit.front,lateral,aim:p.a+(fit.kind==='airship'?i*2*Math.PI/3:0),timer:.1+i*.08,ammo:Math.round(fit.belt*(p.upgrades?.maximBelt?1.75:1)),reload:0,flash:0}));
  for(let index=0;index<fit.stations.length;index++){
   const station=fit.stations[index];station.flash=Math.max(0,station.flash-dt);
   const capacity=Math.round(fit.belt*(p.upgrades?.maximBelt?1.75:1));
+  if(concealed)continue;
+  if(p.unlimitedAmmo){station.reload=0;station.ammo=capacity;}
   if(station.reload>0){station.reload=Math.max(0,station.reload-dt);if(!station.reload)station.ammo=capacity;continue;}
   station.timer=Math.max(0,station.timer-dt);
   const target=fit.kind==='airship'?gunnerTarget(p,500,false,p.a+index*2*Math.PI/3):null;
@@ -64,7 +66,7 @@ export function tickTransferGuns(p,dt,gunnerAim,gunnerTarget){
    const b={...position,vx:Math.cos(a)*520,vy:Math.sin(a)*520,life:p.longRange?p.shotLifetime(520):1.2,enemy:false,ownerId:p.id,gun:0,damage,hit:new Set(),transferGun:true,transferStation:index,visualType:'normal'};
    w.bullets.push(p.applySpecialRound(b,null));
   }
-  p.roundsFired+=count;station.flash=.09;station.ammo--;
+  p.roundsFired+=count;station.flash=.09;if(!p.unlimitedAmmo)station.ammo--;
   if(station.ammo<=0)station.reload=fit.reload*(p.upgrades?.maximBelt?.65:1)*(p.upgrades?.flightGloves?.45:1);
   p.event('shot','');
  }

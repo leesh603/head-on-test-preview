@@ -22,7 +22,8 @@ export function drawBuildTransferEntry(c,p,x,y){
   const q=clamp((t-.35)/2.25);
   c.save();c.globalAlpha=clamp(t/.45)*(1-q)*.65;
   planeSprite(c,x+15,y+22,p.a,fit.sprite,fit.scale*(1.35-.35*q),false,true);c.restore();
-  c.save();c.translate(x,y);c.rotate(p.a);
+  const arrival=clamp((t-.65)/1.95),height=(1-arrival)*(p.viewHeight||900)*.42;
+  c.save();c.translate(x,y-height);c.rotate(p.a);c.scale(1.35-.35*arrival,1.35-.35*arrival);
   for(let i=0;i<3;i++){
    const age=t-.65-i*.25;if(age<0||age>1.35)continue;
    const phase=age/1.35,side=i===2?0:i?1:-1,forward=i===2?-fit.rear:8;
