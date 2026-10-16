@@ -1,7 +1,7 @@
 // Layered procedural SFX — every combat feedback voice is synthesized from
 // oscillators plus filtered noise, matching the music.js approach. No audio
 // assets, no external requests.
-import {railAudioSamples} from './rail-audio.js?v=gal1';
+import {railAudioSamples} from './rail-audio.js?v=tame3';
 const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproach
 let ctx=null,bus=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();
@@ -26,12 +26,12 @@ function track(source,filter,gain){
 }
 const jit=f=>f*(0.94+Math.random()*0.12); // ±6% pitch drift so repeat hits never sound identical
 export function setSfxMuted(v){muted=!!v;if(muted)stopSfx()}
-export function setSfxVolume(v){master=Math.max(0,Math.min(1,v));if(bus){bus.gain.cancelScheduledValues(ctx.currentTime);bus.gain.setTargetAtTime(.9*master,ctx.currentTime,.015)}}
+export function setSfxVolume(v){master=Math.max(0,Math.min(1,v))}
 function ac(){
   if(ctx)return ctx.state;
   try{
     ctx=new (window.AudioContext||window.webkitAudioContext)();
-    bus=ctx.createGain();bus.gain.value=.9*master;
+    bus=ctx.createGain();bus.gain.value=.9;
     const comp=ctx.createDynamicsCompressor();bus.connect(comp);comp.connect(ctx.destination);
     noise=ctx.createBuffer(1,ctx.sampleRate,ctx.sampleRate);
     const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
@@ -44,7 +44,7 @@ function tone(f0,f1,d,v,type='square',cut=1600,when=0,att=.004){
   const t=ctx.currentTime+when,o=ctx.createOscillator(),g=ctx.createGain(),f=ctx.createBiquadFilter();
   o.type=type;o.frequency.setValueAtTime(f0,t);if(f1!==f0)o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+d);
   f.type='lowpass';f.frequency.value=cut;
-  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+Math.min(att,d*.3));g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v*master,t+Math.min(att,d*.3));g.gain.exponentialRampToValueAtTime(.0001,t+d);
   o.connect(f);f.connect(g);g.connect(bus);o.start(t);o.stop(t+d+.03);
   track(o,f,g);
 }
@@ -53,7 +53,7 @@ function hiss(f0,f1,d,v,type='bandpass',Q=.8,when=0,att=.003){
   const t=ctx.currentTime+when,n=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();
   n.buffer=noise;n.loop=true;
   f.type=type;f.frequency.setValueAtTime(f0,t);if(f1!==f0)f.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+d);f.Q.value=Q;
-  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+Math.min(att,d*.3));g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v*master,t+Math.min(att,d*.3));g.gain.exponentialRampToValueAtTime(.0001,t+d);
   n.connect(f);f.connect(g);g.connect(bus);n.start(t);n.stop(t+d+.03);
   track(n,f,g);
 }
@@ -61,7 +61,7 @@ function railSample(name,level){
 
  if(!reserve())return;
  let buffer=railBuffers.get(name);if(!buffer){const data=railAudioSamples(name,ctx.sampleRate);buffer=ctx.createBuffer(1,data.length,ctx.sampleRate);buffer.getChannelData(0).set(data);railBuffers.set(name,buffer);}
- const n=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();n.buffer=buffer;f.type='lowpass';f.frequency.value=7200;g.gain.value=level;
+ const n=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();n.buffer=buffer;f.type='lowpass';f.frequency.value=7200;g.gain.value=level*master;
  n.connect(f);f.connect(g);g.connect(bus);track(n,f,g);n.start();
 }
 // Recorded-style rail-gun cues (tools/fx-sample/railgun-audio.py → rail-*.mp3), decoded once.
@@ -77,8 +77,8 @@ function trimLead(buf){
 }
 function loadFileCues(){
  if(filesRequested||!ctx||typeof fetch!=='function')return;filesRequested=true;
- for(const name of FILE_CUES)fetch(`./${name}.mp3?v=gal1`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,buf)).catch(()=>{});
- for(const name of BANK_FILES)fetch(`./${name}.mp3?v=gal1`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,trimLead(buf))).catch(()=>{});
+ for(const name of FILE_CUES)fetch(`./${name}.mp3?v=gun1`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,buf)).catch(()=>{});
+ for(const name of BANK_FILES)fetch(`./${name}.mp3?v=tame3`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,trimLead(buf))).catch(()=>{});
 }
 const bankTurn=new Map();
 // Engine: one looping sample per airframe type, its rate following speed and turn. engineTick keeps
@@ -97,7 +97,7 @@ function engineLoop(p){
   src.connect(f);f.connect(gain);gain.connect(bus);src.start();
   engine={kind,src,gain,f};src.onended=()=>{try{src.disconnect();f.disconnect();gain.disconnect()}catch{}if(engine?.src===src)engine=null};
  }
- const level=(p.duck?.32:.6)*(p.reload?.85:1)*.30;
+ const level=(p.duck?.32:.6)*(p.reload?.85:1)*master*.30;
  engine.src.playbackRate.setTargetAtTime((.9+.28*(speed-.7)/.55)*(1+turn*.012)*(1-damage*.05),now,.15);
  engine.f.frequency.setTargetAtTime(2400-damage*900,now,.2);
  engine.gain.gain.setTargetAtTime(level,now,.12);
@@ -110,13 +110,13 @@ function bankSample(key,level,fallback,rate=1){
  const name=n?`sfx/${key}-${i}`:`sfx/${key}`,buffer=fileBuffers.get(name);
  if(!buffer){loadFileCues();fallback?.();return}
  if(!reserve())return;
- const src=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();src.buffer=buffer;src.playbackRate.value=rate;f.type='lowpass';f.frequency.value=16000;g.gain.value=level;
+ const src=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();src.buffer=buffer;src.playbackRate.value=rate;f.type='lowpass';f.frequency.value=16000;g.gain.value=level*master;
  src.connect(f);f.connect(g);g.connect(bus);track(src,f,g);src.start();
 }
 function fileSample(name,level,fallback){
  const buffer=fileBuffers.get(name);if(!buffer){loadFileCues();fallback?.();return}
  if(!reserve())return;
- const n=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();n.buffer=buffer;f.type='lowpass';f.frequency.value=16000;g.gain.value=level;
+ const n=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();n.buffer=buffer;f.type='lowpass';f.frequency.value=16000;g.gain.value=level*master;
  n.connect(f);f.connect(g);g.connect(bus);track(n,f,g);n.start();
 }
 const VOICES={

@@ -1,48 +1,66 @@
-import {createSignatureView} from './pilot-signature-view.js?v=livingww1d';
+import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=buildfit1';
+import {createSignatureView} from './pilot-signature-view.js?v=buildfit1';
 import {fx,fxTint} from './fx-art.js?v=gal1';
-import {planeSprite,aircraftKey} from './aircraft.js?v=gal1';
+import {planeSprite,aircraftKey} from './aircraft.js?v=buildfit1';
 import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';
 
-import {bishopFlightHeight} from './engine.js?v=bomb19';
+import {bishopFlightHeight} from './engine.js?v=buildfit1';
 import {drawCavalryGuard} from './pilot-directed-fx.js';
+import {bomberEntryPose} from './bomber-transfer.js?v=buildfit1';
+import {bombSprite} from './bomb-sprites.js?v=bomb20';
+import {fxsBombFall} from './fx-sample-preview.js?v=bomb3&rail=42';
 const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
 export function playerPose(p,x,y){
+ const entry=p.bomberTransfer?bomberEntryPose(p):null;
+
  const t=Math.max(0,Math.min(1,(p.cannonRecoil129||0)/.24));
  const kick=(p.cannonKick129||0)*Math.sin(t*Math.PI/2);
  const altitude=p.pilot==='immelmann'?(p.immelmannAltitude||0):0;
  const bishopHeight=p.pilot==='bishop'?bishopFlightHeight(p):0,bishopAltitude=bishopHeight/((p.viewHeight||900)*.9);
  const height=altitude*52+bishopHeight;
+ if(entry)return {x,y:y-entry.height-height,scale:(entry.departing?1:p.bomberTransfer.scale)*entry.scale,height:entry.height+height,alpha:entry.alpha,sprite:entry.departing?aircraftKey(p.plane,false,p.pilot):p.bomberTransfer.sprite,shadowX:18,shadowY:28,shadowScale:entry.scale,shadowAlpha:entry.alpha*(1-entry.height/((p.viewHeight||900)*.9))};
  const roll=p.pilot==='huffzky'&&p.skillTime>0?Math.sin(p.nineRoll||0)*4:p.pilot==='udet'&&p.skillTime>0?Math.sin((p.t||0)*45)*.8:0;
- return {x:x-Math.cos(p.a)*kick-Math.sin(p.a)*roll,y:y-Math.sin(p.a)*kick+Math.cos(p.a)*roll-height,scale:(p.aceScale129||1)*(1+altitude*.1)*(1-bishopAltitude*.25),height,shadowX:18+altitude*10,shadowY:28+altitude*12,shadowScale:1-altitude*.3,shadowAlpha:1-altitude*.35};
+ return {x:x-Math.cos(p.a)*kick-Math.sin(p.a)*roll,y:y-Math.sin(p.a)*kick+Math.cos(p.a)*roll-height,scale:(p.bomberTransfer?.scale??1)*(p.aceScale129||1)*(1+altitude*.1)*(1-bishopAltitude*.25),height,shadowX:18+altitude*10,shadowY:28+altitude*12,shadowScale:1-altitude*.3,shadowAlpha:1-altitude*.35};
 }
-// Project the existing aircraft art through pitch and roll instead of swapping
-// its heading at the apex. Vertical projection keeps the rising fuselage visible.
+export function drawBomberRearGunner(c,p,x,y){
+ drawTransferStations(c,p,x,y);
+ const fit=p.bomberTransfer;if(!fit||!(fit.rearFlash>0))return;
+ const a=fit.rearAim;fx(c,'muzzleRear',x-Math.cos(p.a)*fit.rear+Math.cos(a)*6,y-Math.sin(p.a)*fit.rear+Math.sin(a)*6,22,16,a,Math.min(1,fit.rearFlash*12));
+}
+// Active turns use the same heading and bank projection as ordinary flight.
 export function applyPlayerAttitude(c,p,pose={},shadow=false){
- const m=p.pilot==='immelmann'&&p.immelmannTurn;
- if(!m){c.rotate(p.a+(shadow?0:pose.roll||0));if(!shadow)c.scale(1,pose.bank??1);return}
- const h=m.heading,theta=m.pitch||0,phi=m.roll||0;
- const ch=Math.cos(h),sh=Math.sin(h),ct=Math.cos(theta),st=Math.sin(theta),cr=Math.cos(phi),sr=Math.sin(phi),depth=shadow?.12:.42;
- let a=ch*ct,b=sh*ct-depth*st,d=ch*cr-sh*st*sr-depth*ct*sr,w=-sh*cr-ch*st*sr;
- // Flat artwork has no fuselage thickness. Keep a narrow edge-on profile so
- // Canvas never drops the entire aircraft at a singular pitch/roll angle.
- const det=a*d-b*w,thickness=shadow?.025:.06;
- if(Math.abs(det)<thickness){
-  const correction=(det<0?-thickness:thickness)-det,forward=a*a+b*b,wing=w*w+d*d;
-  if(wing>forward){a+=correction*d/wing;b-=correction*w/wing}
-  else{w-=correction*b/forward;d+=correction*a/forward}
- }
- c.transform(a,b,w,d,0,0);
+ c.rotate(p.a+(shadow?0:pose.roll||0));if(!shadow)c.scale(1,pose.bank??1);
 }
 export function drawPlayerAura(c,p,x,y){
+ const entry=bomberEntryPose(p);
+ if(entry){if(!drawBuildTransferEntry(c,p,x,y+entry.height)){drawBomberEntry(c,p,x,y+entry.height);return;}}
  drawEquipmentEffects151(c,p,x,y);
  drawPrecisionEquipment156(c,p,x,y);
  if(p.ballCloak>0)fx(c,'mist',x,y,72,38,p.a,Math.min(.35,p.ballCloak*.3));
  // The reversal is carried by the aircraft pose and a short signature trail.
  if(p.fxOverheat>0&&p.pilot!=='udet')fx(c,'muzzle',x+Math.cos(p.a)*24,y+Math.sin(p.a)*24,28,20,p.a,Math.min(.7,p.fxOverheat));
- for(const g of p.pilot==='immelmann'?[]:p.pilotIdentity?.feedback?.ghosts||[]){c.save();c.globalAlpha*=.3*Math.pow(Math.max(0,g.life/g.maxLife),.8);planeSprite(c,x+g.x-p.x,y+g.y-p.y,g.a,aircraftKey(g.plane,false,g.pilot),g.scale,false,false);c.restore()}
+ for(const g of p.pilot==='immelmann'?[]:p.pilotIdentity?.feedback?.ghosts||[]){c.save();c.globalAlpha*=.3*Math.pow(Math.max(0,g.life/g.maxLife),.8);planeSprite(c,x+g.x-p.x,y+g.y-p.y,g.a,p.bomberTransfer?.sprite||aircraftKey(g.plane,false,g.pilot),g.scale*(p.bomberTransfer?.scale??1),false,false);c.restore()}
  for(const f of p.pilotIdentity?.fx||[]){if(p.pilot==='immelmann'&&f.key==='windStreak')continue;const q=Math.min(1,f.life/.12),alpha=q*(f.alpha??.72),height=f.height??(f.key==='windStreak'?f.size*.35:f.size);if(f.color)fxTint(c,f.key,f.color,x+f.x-p.x,y+f.y-p.y,f.size,height,f.a,alpha);else fx(c,f.key,x+f.x-p.x,y+f.y-p.y,f.size,height,f.a,alpha)}
  if(p.pilotSignatureState)drawPilotSignatureLayer(c,p,x,y);
+}
+
+// Five authored bomb sprites and atlas impacts, with no extra damage or particles.
+// The acquisition clock advances only in playing frames, including local co-op.
+function drawBomberEntry(c,p,x,y){
+ const fit=p.bomberTransfer,time=fit.entryTime;
+ for(let i=0;i<5;i++){
+  const age=time-.6-i*.12;if(age<0||age>1.2)continue;
+  const tx=x+(i-2)*62,ty=y+70+(i%2)*48;
+  if(age<.7){
+   const kind=fit.sprite==='bomber-transfer-gotha'?'puw':i%2?'hales':'cooper';
+   fxsBombFall(c,(X,Y,k,a,pitch)=>bombSprite(c,kind,X,Y,54*k,a,1,pitch),tx-24,ty-(p.viewHeight||900)*.72,tx,ty,age/.7,Math.PI/2);
+  }else{
+   const q=(age-.7)/.5,frame=Math.min(3,Math.floor(q*4));
+   fx(c,'bombfx'+frame,tx,ty,100+q*55,100+q*55,0,(1-q)*.8);
+   fx(c,'smokeDark',tx,ty-q*22,60+q*70,45+q*55,0,(1-q)*.35);
+  }
+ }
 }
 
 // Same visual language as tail lock; derived from the real passive state.
@@ -208,14 +226,13 @@ export function drawEquipmentDefense(c,p,x,y){
 
 // Aircraft silhouettes use the live sprite and world positions, behind the player.
 const redGhostCanvas162=typeof document==='undefined'?null:document.createElement('canvas');
-if(redGhostCanvas162){redGhostCanvas162.width=180;redGhostCanvas162.height=180;}
+if(redGhostCanvas162){redGhostCanvas162.width=240;redGhostCanvas162.height=240;}
 export function drawRedGhosts162(c,p,x,y,sprite,key){
  if(!redGhostCanvas162||!p.redGhosts162?.length)return;
  const ink=redGhostCanvas162.getContext('2d');c.save();
  for(const g of p.redGhosts162){
-  ink.clearRect(0,0,180,180);ink.save();sprite(ink,90,90,g.a,key,1,false,false);
-  ink.globalCompositeOperation='source-in';ink.fillStyle='#b51f32';ink.fillRect(0,0,180,180);ink.restore();
-  c.globalAlpha=.38*Math.pow(Math.max(0,g.life/.32),1.25);c.drawImage(redGhostCanvas162,x+g.x-p.x-90,y+g.y-p.y-90);
+  ink.clearRect(0,0,240,240);ink.save();sprite(ink,120,120,g.a,key,p.bomberTransfer?.scale??1,false,false);
+  ink.globalCompositeOperation='source-in';ink.fillStyle='#b51f32';ink.fillRect(0,0,240,240);ink.restore();
+  c.globalAlpha=.38*Math.pow(Math.max(0,g.life/.32),1.25);c.drawImage(redGhostCanvas162,x+g.x-p.x-120,y+g.y-p.y-120);
  }c.restore();
 }
-

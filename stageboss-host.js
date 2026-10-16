@@ -1,8 +1,10 @@
+import {capBomberSalvoDamage} from './bomber-transfer.js?v=buildfit1';
+import {achievementBossCue,achievementBossClear,awardPriorityKill} from './achievements.js?v=medals2';
 import {doverPatrolChart} from './dover-patrol-chart.js?v=dover3';
 import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=gal1';
 import {resolveSurfaceSpacing} from './naval-spacing.js?v=gal1';
 
-import {tickRegionalConditions} from './region-doctrine1.js?v=gal1';
+import {tickRegionalConditions} from './region-doctrine1.js?v=buildfit1';
 
 import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42';
 import {handleMaanCue} from './maan-view.js?v=gal1-r3';
@@ -135,6 +137,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    if(event.type==='formation-final-order')g.event('wave',event.name+' · 예고선 밖으로 선회!');
    if(event.type==='carrier-sortie-orders')redirectStuttgartSortie(g.enemies,event);
    const body=g.stageBoss?.stages.encounter?.bodies.get(event.bossId);
+   achievementBossCue(g,event,body);
    if(event.type==='hazard-activated'&&event.raidHeavy){g.shake=Math.max(g.shake,event.kind==='projectile'?3:8);if(g.t-(g.raidHeavySoundAt??-10)>.16){g.event('heavyShot','');g.raidHeavySoundAt=g.t;}const mount=body?.parts.get(event.sourcePartId);if(mount)mount.recoil=Math.max(mount.recoil||0,.3);}
    if(handleVerdunCue(g,event))return;
    if(handleMaanCue(g,event,body))return;
@@ -189,7 +192,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    else if(event.type==='ammo-detonation'){g.combatBlast(event.x,event.y,105,'enemy','structure','ammoCookoff');g.shake=Math.max(g.shake,12);g.event('wave','항구요새 탄약고 유폭 · 기뢰 보급 중단·포격 약화');}
    else if(event.type==='rail-car-detached'){const ammo=event.partId==='car-front'&&['paris-gun','lincomparable'].includes(body?.kind);g.combatBlast(event.x,event.y,58,'enemy','structure',ammo?'suppressed':null);g.shake=Math.max(g.shake,8);
     for(let i=0;i<4;i++){const ox=(g.rng?g.rng()-.5:Math.random()-.5)*120,oy=(i-1.5)*55+(g.rng?g.rng()-.5:Math.random()-.5)*30,r=24+((i*37)%3)*14;g.combatBlast(event.x+ox,event.y+oy,r,'enemy','structure',ammo?'suppressed':null);if(g.burst)g.burst(event.x+ox,event.y+oy,'#ffd06a',6,ammo?'profileOnly':undefined);if(g.smoke)g.smoke(event.x+ox,event.y+oy,true,ammo)}
-    g.event('wave','열차 객차 파괴 · 기관차 방호 약화');}
+    g.event('wave',body?.coreVulnerable?'열차 객차 파괴 · 기관차 노출':'열차 객차 파괴');}
    else if(event.type==='rail-runaway'){g.event('wave','기관차 폭주! · 선로에서 이탈하기 전에 추격하세요');g.shake=Math.max(g.shake,6);}
    else if(event.type==='bruno-iron-rain'){g.event('wave','철의 폭우 · 착탄 순서를 벗어나 급선회!');g.shake=Math.max(g.shake,6);}
    else if(event.type==='heavy-gun-fired'&&event.railArtillery&&body?.kind==='lincomparable'){g.shake=Math.max(g.shake,5);}
@@ -222,7 +225,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    if(fortresses.length)g.verdunWrecks=[...(g.verdunWrecks||[]),...fortresses];
    if(g.londonBattle){g.londonBattle.cleared=true;if(g.londonBattle.role==='defend')for(const d of g.londonBattle.districts.filter(d=>d.hp>0))(g.drops||=[]).push({x:d.x,y:d.y,value:24,bossReward:true});}
    if(g.parisBattle)g.parisBattle.cleared=true;
-   g.kills++;g.priorityKills=(g.priorityKills||0)+1;const owner=players(g).find(p=>(p.id||'p1')===g.stageBossLastOwner);if(g.players&&owner)owner.kills++;
+   g.kills++;awardPriorityKill(g,{stageBossBody:true});achievementBossClear(g,{id,bossId});const owner=players(g).find(p=>(p.id||'p1')===g.stageBossLastOwner);if(g.players&&owner)owner.kills++;
    g.event('kill','');g.event('wave',BOSS_CATALOG[bossId].name+' 격파 · 다음 지역 진입');
    const hero=players(g)[0]||g;for(let i=0;i<9;i++){const a=i*.7;(g.drops||=[]).push({x:hero.x+Math.cos(a)*70,y:hero.y+Math.sin(a)*70,value:16,heal:i===0,bossReward:true})}
   },
@@ -255,10 +258,11 @@ export function stageBossCollision(g,e,x,y,b){const body=e.stageBossBody;if(!bod
 export function damageStageBoss(g,e,b,damage){
  const notify=(target,pos)=>{for(const p of g.players||[g])p.identityImpact?.(b,e,target,pos)};
  if(b.identityDotTarget&&b.identityDotTarget!==e&&!e.stageBossBody)return;
- if(!e.stageBossBody){if(e.bossPilot==='berthold'){if(e.hp<=e.maxHp*.5)damage*=.75;if(e.ironWillUntil>g.t)damage*=.35;}e.hp-=damage;notify(e,e);return;}
+ if(!e.stageBossBody){damage=capBomberSalvoDamage(e,b,damage);if(!(damage>0))return;if(e.bossPilot==='berthold'){if(e.hp<=e.maxHp*.5)damage*=.75;if(e.ironWillUntil>g.t)damage*=.35;}e.hp-=damage;notify(e,e);return;}
  if(blocked(g)||b.patrol)return;const body=e.stageBossBody;
  const hit=body.locateHit({x:b.x,y:b.y,previousX:b.previousX,previousY:b.previousY,radius:b.collisionRadius||0});if(!hit)return;
  const part=hit.partId?body.parts.get(hit.partId):null,target=part||body;if(b.identityDotTarget&&b.identityDotTarget!==target)return;
+ damage=capBomberSalvoDamage(e,b,damage);if(!(damage>0))return;
  const result=g.stageBoss.hit({bodyId:body.id,...hit,damage,faction:g.teamFaction});
  if(result.damage>0){const raw=part&&body.support129?.parts.get(part.id),pos=raw?body.support129.world(raw.nx,raw.ny):{x:body.x+(part?.x||0),y:body.y+(part?.y||0)};notify(target,pos);}
  if(result.damage>0){g.stageBossLastOwner=b.ownerId||'p1';
@@ -359,8 +363,25 @@ function updateMinions(g,dt){
   e.fire-=dt;if(e.fire<=0&&gated){if(formation)e.muzzleFlash=.08;e.fire=arrival?.18:finale?.3:e.surface ? 1.5 : e.type==='zeppelin' ? 3.4 : e.behavior==='attack-pass' ? .48 : e.behavior==='jasta-formation' ? (order?.phase==='echelon-assault'?.78:.98) : e.behavior==='black-flight-formation' ? (order?.phase==='cross-attack'?.76:1.02) : e.behavior==='circus-escort' ? 1.05 : e.behavior==='pusher-escort' ? 1.45 : 2.5;const a=formation||e.behavior==='attack-pass'?e.a:aim;const zep=e.type==='zeppelin',rear=e.rearGunner&&Math.abs(rel)>1.9;const shots=zep?3:rear?2:1;for(let j=0;j<shots;j++){const aa=a+(formation?0:(j-1)*(zep?.14:.08)),mx=e.x+(formation?Math.cos(e.a)*28:0)+(zep?Math.cos(e.a)*(j-1)*60:rear?-Math.cos(e.a)*24:0),my=e.y+(formation?Math.sin(e.a)*28:0)+(zep?Math.sin(e.a)*(j-1)*60:rear?-Math.sin(e.a)*24:0);g.bullets.push({x:mx,y:my,vx:Math.cos(aa)*(formation?430:zep?185:210),vy:Math.sin(aa)*(formation?430:zep?185:210),life:zep?5:4,enemy:true,visualType:zep?'zeppelin':e.surface?'flak':'fighter',damage:Math.round((zep?14:9)*(1+g.t/240)),encounterId:e.encounterId,formationBoss129:formation||undefined,sourceMinionId:formation?e.id:undefined});}}
  }
 }
+// Track ordinary ace combat before and after simulation, independent of boss readiness.
+export function updateAceRecovery(g){
+ if(blocked(g)||g.stageBoss?.stages.phase!=='explore')return;
+ const region=g.stageBoss.stages.stageIndex;
+ if(g._aceCombatRegion!==region){g._aceCombatRegion=region;g._aceCombatSeen=new WeakSet();g._aceCombatActive=new Set();g._aceCombatEndedAt=null;}
+ const ordinary=e=>e.bossPilot&&!e.bossMinion&&!e.stageBossBody&&!e.encounterId&&!e.escortLeaderId;
+ const fighting=e=>e.hp>0&&!e.expired&&!e.rivalEscaped&&!e.deathHandled&&!e.crashing&&!e.crashed;
+ for(const e of g.enemies||[]){
+  if(!ordinary(e)||g._aceCombatSeen.has(e))continue;
+  g._aceCombatSeen.add(e);
+  if(fighting(e))g._aceCombatActive.add(e);
+  else if(Number.isFinite(e.aceSpawnT)&&e.aceSpawnT>=g.stageStartTime)g._aceCombatEndedAt=g.t;
+ }
+ for(const e of g._aceCombatActive)if(!(g.enemies||[]).includes(e)||!fighting(e)){g._aceCombatActive.delete(e);g._aceCombatEndedAt=g.t;}
+}
+export function aceRecoveryReady(g){return !g._aceCombatActive?.size&&(g._aceCombatEndedAt==null||g.t-g._aceCombatEndedAt>=8);}
 export function beginStageBossFrame(g,dt){
  const addon=g.stageBoss;if(!addon||blocked(g)||dt<=0)return;
+ updateAceRecovery(g);
  addon.reconcile({blocked:false});
  for(const p of players(g))for(const [id,s]of p.bossStatuses||[]){s.remaining-=dt;if(s.remaining<=0||!alive(p))p.bossStatuses.delete(id);}
  g.bossCues=g.bossCues.filter(c=>(c.life-=dt)>0&&(c.type!=='bug-flight-target'||g.enemies.some(e=>e.id===c.minionId&&e.hp>0)));
@@ -385,13 +406,12 @@ export function beginStageBossFrame(g,dt){
  }
  const ready=travel>=stageDistance*(stage===7?.78:1)||(stage!==7&&stage!==14&&stage!==16&&g.t-g.stageStartTime>=STAGE_BOSS_BALANCE.deadline);
  if(addon.stages.phase==='explore'&&ready){
-  // Aces fight before the regional boss: pull the scheduled ace wave forward
-  // the moment the boss gate opens, then hold the boss entry until the ace's
-  // arrival cut-in has played out so the two cut-ins never collide.
-  const liveAce=(g.enemies||[]).find(e=>e.hp>0&&e.bossPilot&&!e.expired);
-  if(!liveAce&&Number.isFinite(g.nextBossAt)&&g.nextBossAt>g.t){g.nextBossAt=g.t;g._aceGateAt=g.t;}
-  const aceAt=liveAce?(liveAce.aceSpawnT??g.t):g._aceGateAt;
-  if(aceAt==null||g.t-aceAt>=6.5){
+  // Keep this gate latched after an ace dies: a quick kill must not pull
+  // another scheduled ace forward or erase the interval before the boss.
+  const liveAces=(g.enemies||[]).filter(e=>e.hp>0&&e.bossPilot&&!e.expired&&!e.rivalEscaped&&!e.deathHandled&&!e.crashing&&!e.crashed&&!e.bossMinion&&!e.stageBossBody&&!e.encounterId&&!e.escortLeaderId);
+  for(const ace of liveAces)g._aceGateAt=Math.max(g._aceGateAt??-Infinity,ace.aceSpawnT??g.t);
+  if(g._aceGateAt==null&&Number.isFinite(g.nextBossAt)){g.nextBossAt=Math.min(g.nextBossAt,g.t);g._aceGateAt=g.t;}
+  if(aceRecoveryReady(g)&&(g._aceGateAt==null||g.t-g._aceGateAt>=20)&&(g.t>=(g.bossPresentationAfter||0))){
   if(naval&&!g.navalApproachAt){g.navalApproachAt=g.t;g.event('wave',stage===16?'경고 · 북해 전투전대 접근 / 함대 선회에 주의':stage===7?'경고 · 장갑 항구요새 전면 도달':'경고 · 적 주력함이 전방에서 접근 중');g.event('heavyShot','');}
   // Harbor is an installed structure: reveal it along the existing approach,
   // at the same authored quay coordinates, instead of materializing after it.
@@ -442,6 +462,7 @@ export function separateLargeBossBodies(g){
 export function endStageBossFrame(g,dt){
  separateAces(g,dt);
  const addon=g.stageBoss;if(!addon)return;
+ updateAceRecovery(g);
  constrainHarborRoute(g);
  if(addon.stages.phase==='sky-ace'&&g.skyChampion?.hp<=0){
   addon.stages.encounter={id:'sky-ace-'+addon.serial++,completed:true};addon.stages.phase='clear-pending';
@@ -492,4 +513,6 @@ export function separateAces(g,dt){
   a.x-=ux*move;a.y-=uy*move;b.x+=ux*move;b.y+=uy*move;
  }
 }
+
+
 

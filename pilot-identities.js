@@ -1,6 +1,6 @@
 import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js';
 import {installPilotFeedback} from './pilot-feedback.js';
-import {headOnTarget} from './engagement-feedback.js?v=gal1';
+import {headOnTarget} from './engagement-feedback.js?v=tame3';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
@@ -34,7 +34,7 @@ export function installPilotIdentities(Game,PILOTS){
   this.ensureRevisionPilot();if(this.state!=='playing'||this.hp<=0||this.cooldown>0||this.status==='downed')return false;
   const s=this.identityState();this.cooldown=this.skillCooldown();this.skillTime=this.skillDuration();s.activeAge=0;
   if(this.pilot==='voss'){this.invuln=Math.max(this.invuln,.45);const w=this.combatWorld();w.revisionDecoys??=[];for(let i=0;i<6;i++){const a=this.a+i*Math.PI/3;w.revisionDecoys.push({x:this.x,y:this.y,a,plane:this.plane,pilot:this.pilot,ownerId:own(this),life:1.2,hp:1,decoy:true,identityDecoy:true,vx:Math.cos(a)*140,vy:Math.sin(a)*140})}}
-  if(this.pilot==='immelmann'){this.bullets=this.bullets.filter(b=>!b.enemy);this.invuln=Math.max(this.invuln,this.skillEnhanced?1.35:1.1);this.immelmannTurn={heading:this.a,elapsed:0,spread:this.skillEnhanced?3:2,fired:false}}
+  if(this.pilot==='immelmann'){this.bullets=this.bullets.filter(b=>!b.enemy);this.invuln=Math.max(this.invuln,this.skillEnhanced?1.35:1.1);this.evadeDirection=-(this.evadeDirection||1);this.immelmannTurn={heading:this.a,direction:this.evadeDirection,elapsed:0,spread:this.skillEnhanced?3:2,fired:false}}
  if(this.pilot==='boelcke'){const w=this.combatWorld();w.allies??=[];const formationSize=this.skillEnhanced?5:4;for(let i=0;i<formationSize;i++)w.allies.push({ownerId:own(this),slot:(this.permanentWingman||0)+i,plane:this.plane,x:this.x,y:this.y,a:this.a,life:this.skillTime,fire:.85+Math.floor(i/2)*.12,temporary:true,boelckePincer:true})}
   if(this.pilot==='udet'){this.udetBoost=0;this.evadeTime=this.skillTime;this.evadeDirection=-(this.evadeDirection||1);this.invuln=Math.max(this.invuln,this.skillTime);this.fire=Math.min(this.fire,0);s.udetActiveBonus=(s.grazes||0)*.1;s.grazes=0}
   if(this.pilot==='goering')s.commandTarget=this.identityTarget();
@@ -58,19 +58,17 @@ export function installPilotIdentities(Game,PILOTS){
  const oldRound=Game.prototype.applySpecialRound;
  Game.prototype.applySpecialRound=function(b,type){oldRound.call(this,b,type);if(!personal(b))return b;const s=this.identityState();b.identityGun=true;b.identityOrigin={x:this.x,y:this.y,a:this.a};
   if(this.pilot==='fonck'){delete b.fonckGuided;delete b.fonckSeeker;const speed=Math.hypot(b.vx,b.vy),a=this.a+delta(Math.atan2(b.vy,b.vx),this.a)*.25;b.vx=Math.cos(a)*speed;b.vy=Math.sin(a)*speed;}
- 
+
   return b;
  };
  const oldDamage=Game.prototype.roundDamageMultiplier;
  Game.prototype.roundDamageMultiplier=function(b,e){if(b.identityDot||b.identityChain)return 1;let m=oldDamage.call(this,b,e);if(!b.identityGun&&!personal(b))return m;const s=this.identityState(),origin=b.identityOrigin||this;
-  if(this.pilot==='fonck'&&e===s.target)m*=1+(s.focus||0)*.35;
   if(this.pilot==='bishop')m*=1+clamp(1-distance(origin,e)/360)*(this.skillTime>0?1.1:.65);
   if(this.pilot==='baracca'&&pilotHeadOn(origin,e))m*=1.3;
- 
+
   if(this.pilot==='ball'&&this.ballAmbush>0&&s.alone&&Math.abs(delta(Math.atan2(origin.y-e.y,origin.x-e.x),e.a||0))>Math.PI*.72)m*=2.2;
-  if(this.pilot==='luke'&&[...s.burns.values()].some(burn=>burn.enemy===e&&burn.time>0))m*=1.2;
   if(this.pilot==='boelcke'&&Math.abs(delta(Math.atan2(this.y-e.y,this.x-e.x),e.a||0))>Math.PI/2)m*=1.25;
- 
+
   return m;
  };
  Game.prototype.identityImpact=function(b,e,target=e,position=e){
@@ -101,8 +99,7 @@ export function installPilotIdentities(Game,PILOTS){
   for(const [e,t]of s.switchSeen)if(s.clock-t>3)s.switchSeen.delete(e);
   const yaw=Math.abs(delta(this.a,s.previousHeading??this.a))/dt;s.previousHeading=this.a;
 
-  if(this.pilot==='fonck'){const target=this.identityTarget(.13);s.focus=target&&target===s.target?clamp((s.focus||0)+dt/1.5):0;s.target=target;}
-
+  if(this.pilot==='fonck'){const target=this.identityTarget(.13);s.focus=target&&target===s.target?clamp((s.focus||0)+dt/(this.pilot==='hawker'?2:1.5)):0;s.target=target;}
 
   if(this.pilot==='voss'&&active){this.turn*=1.35;this.speed*=1.35;this.baseSpeed*=1.35}
 

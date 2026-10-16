@@ -3,18 +3,24 @@
 export const NORMAL_FORMATION_LIVERIES=Object.freeze({
  albatros:Object.freeze(['jasta4_albatros','jasta5_albatros','jasta78b_albatros']),
  fokkerd7:Object.freeze(['jasta18_fokkerd7','fokkerd7','jasta43_fokkerd7']),
- camel:Object.freeze(['dazzle_camel','camel']),
- se5a:Object.freeze(['checker_se5a','se5a']),
- nieuport28:Object.freeze(['eagle_nieuport28','nieuport28'])
+ camel:Object.freeze(['dazzle_camel','naval10_camel','belgian_camel','camel']),
+ se5a:Object.freeze(['checker_se5a','sqn85_se5a','se5a']),
+ nieuport28:Object.freeze(['eagle_nieuport28','nieuport28']),
+  nieuport:Object.freeze(['camo_nieuport','nieuport']),
+  spad:Object.freeze(['hatring_spad','italian_spad','belgium_spad','spad'])
 });
 const ordinary=e=>!!e&&!e.bossPilot&&!e.bossPlane&&!e.stageBossBody&&!e.bossMinion&&!e.heavyBomber&&['hunter','scout'].includes(e.type);
 export function installNormalFormationLiveries(Game,planes,attach){
  if(Game.prototype.__normalFormationLiveries)return;Game.prototype.__normalFormationLiveries=true;
  Game.prototype.assignNormalFormationLivery=function(member,leader,index=0){
   if(!ordinary(member)||!ordinary(leader))return false;
+   // Mixed historical formations retain their distinct bank airframes; don't
+   // silently replace the leader's aircraft when its wingman arrives.
+   if((member.bankAircraft&&member.escortPlane===member.bankAircraft)||(leader.bankAircraft&&leader.escortPlane===leader.bankAircraft)){member.formationLivery=member.escortPlane||(member.faction==='central'?'albatros':'camel');return true;}
   if(!leader.normalFormationFamily){
    const id=leader.escortPlane||leader.personalityId;
-   leader.normalFormationFamily=NORMAL_FORMATION_LIVERIES[id]?id:leader.faction==='central'?((this.t||0)>=360?'fokkerd7':'albatros'):((this.t||0)>=180?'se5a':'camel');
+   const families=leader.faction==='central'?((this.t||0)>=180?['albatros','fokkerd7']:['albatros']):((this.t||0)>=180?['camel','se5a','spad','nieuport28']:['camel','nieuport','spad']);
+    leader.normalFormationFamily=NORMAL_FORMATION_LIVERIES[id]?id:families[Math.floor((leader.wobble||0)*13+Math.abs(leader.x||0))%families.length];
   }
   const family=leader.normalFormationFamily,pool=NORMAL_FORMATION_LIVERIES[family];
   leader.formationLivery=pool[0];

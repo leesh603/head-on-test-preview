@@ -1,0 +1,179 @@
+import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=buildfit1';
+// Sortie-only heavy-airframe fit. The selected plane and pilot remain authoritative.
+export const BOMBER_TRANSFER_ID='bomberTransfer';
+export const BOMBER_TRANSFER_DESCRIPTION='현재 기체를 소속 진영의 대형 중폭격기로 전환합니다. 최대 내구도가 크게 증가하고 자동 폭격 및 후방 방어사수를 획득하지만, 비행속도와 선회력이 감소합니다. 다른 기체 전환 장비와 동시 장착할 수 없습니다.';
+export const BOMBER_TRANSFER=Object.freeze({
+ entente:Object.freeze({name:'Handley Page O/400',sprite:'bomber-transfer-o400',hp:3,hpCap:420,speed:.6,turn:.4,period:7,count:5,spacing:64,interval:.18,radius:80,damage:76,scale:1.65,front:30,rear:23,hullLength:22,hullWidth:43}),
+ central:Object.freeze({name:'Gotha G.V',sprite:'bomber-transfer-gotha',hp:2.7,hpCap:380,speed:.7,turn:.5,period:6.5,count:3,spacing:20,interval:.15,radius:72,damage:100,scale:1.48,front:43,rear:34,hullLength:32,hullWidth:38})
+});
+const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const active=p=>p.state==='playing'&&p.hp>0&&p.status!=='downed'&&!(p.heineckeEscape>0);
+const world=p=>p.combatWorld?.()||p;
+
+export const BOMBER_ENTRY_DURATION=2.6;
+export function bomberEntryPose(p){
+ const time=p.bomberTransfer?.entryTime;
+ if(!Number.isFinite(time)||time>=BOMBER_ENTRY_DURATION)return null;
+ const kind=p.bomberTransfer.kind;
+ if(kind==='gunship'){const q=clamp((time-.9)/1.25,0,1);return {departing:time<.9,height:0,scale:time<.9?1:1.08-.08*q,alpha:time<.9?1-clamp(time/.9,0,.75):clamp(q*3,0,1)};}
+ if(kind==='airship'){const q=clamp((time-.65)/1.95,0,1),height=(1-q)*(p.viewHeight||900)*.42;return {departing:time<.65,height:time<.65?0:height,scale:time<.65?1:1.35-.35*q,alpha:time<.65?1-time/.65:clamp(q*4,0,1)};}
+ const departing=time<.65,q=clamp(departing?time/.65:(time-1.65)/.95,0,1);
+ const altitude=departing?Math.sin(q*Math.PI/2):Math.pow(1-q,3);
+ return {departing,height:altitude*(p.viewHeight||900)*.9,scale:1-altitude*.25,alpha:departing?1-clamp((q-.65)/.35,0,1):clamp(q*4,0,1)};
+}
+
+// Reuse the Scarff mount's bounded aiming and target scan for the bomber gun.
+export function gunnerAim(current,desired,dt,turnRate){return current+clamp(wrap(desired-current),-turnRate*dt,turnRate*dt)}
+export function gunnerTarget(p,range,rearOnly=false,sector=null){
+ let target=null,best=range;const scan=e=>{
+  if(!e||e.hp<=0)return;
+  if(rearOnly&&(e.dead||e.crashing||e.rivalEscaped||e.surface||e.fieldUnit||e.stationary))return;
+  const dx=e.x-p.x,dy=e.y-p.y,d=Math.hypot(dx,dy);
+  if(sector!==null&&Math.abs(wrap(Math.atan2(dy,dx)-sector))>Math.PI*.55)return;
+  if(d>best||rearOnly&&Math.abs(wrap(Math.atan2(dy,dx)-p.a-Math.PI))>Math.PI*.48)return;
+  best=d;target=e;
+ };
+ for(const e of world(p).enemies||[])scan(e);
+ const bodies=world(p).stageBoss?.stages?.encounter?.bodies;
+ if(bodies)for(const body of bodies.values())scan(body);
+ return target;
+}
+
+// Swept hull intersection: wings grow wider without turning the whole sprite into a circle.
+export function bomberRoundImpact(p,b,x0,y0){
+ const fit=p.bomberTransfer;if(!fit)return null;
+ const ca=Math.cos(p.a),sa=Math.sin(p.a),pad=b.flak?6:0,l=fit.hullLength+pad,w=fit.hullWidth+pad;
+ const ox=x0-p.x,oy=y0-p.y,dx=b.x-x0,dy=b.y-y0;
+ const u=(ox*ca+oy*sa)/l,v=(-ox*sa+oy*ca)/w,du=(dx*ca+dy*sa)/l,dv=(-dx*sa+dy*ca)/w;
+ const c=u*u+v*v-1;if(c<=0)return 0;
+ const a=du*du+dv*dv;if(!a)return null;
+ const dot=u*du+v*dv,disc=dot*dot-a*c;if(disc<0)return null;
+ const t=(-dot-Math.sqrt(disc))/a;return t>=0&&t<=1?t:null;
+}
+export function bomberContactPadding(p,e){
+ const fit=p.bomberTransfer;if(!fit)return 0;
+ const angle=Math.atan2(e.y-p.y,e.x-p.x)-p.a;
+ return 1/Math.hypot(Math.cos(angle)/fit.hullLength,Math.sin(angle)/fit.hullWidth)-10;
+}
+
+// Each boss body shares two full bomb hits per salvo, even when proxies/parts overlap.
+export function capBomberSalvoDamage(e,b,damage){
+ const salvo=b.bomberSalvo;if(!salvo||!(e.stageBossBody||e.bossPilot||e.type==='boss'))return damage;
+ const key=e.stageBossBody||e,used=salvo.bossDamage.get(key)||0;
+ const cap=salvo.bossCap*(b.explosionDamage||b.damage)/(b.explosionBaseDamage||b.damage||1);
+ const dealt=Math.max(0,Math.min(damage,cap-used));salvo.bossDamage.set(key,used+dealt);return dealt;
+}
+
+export function detonateFriendlyBomb(w,b){
+ const p=w.players?w.players.find(p=>p.id===b.ownerId):w;
+ if(!p||b.bomberTransfer&&(!active(p)))return;
+ p.queueExplosionDamage(b.x,b.y,b.radius,b.damage,{fxSource:'bomb',bomberSalvo:b.bomberSalvo});
+}
+
+function bombingTarget(p){
+ let target=null,best=440;const w=world(p),scan=e=>{
+  if(!e||!(e.hp>0)||e.dead||e.crashing||e.rivalEscaped)return;
+  const dx=e.x-p.x,dy=e.y-p.y,d=Math.hypot(dx,dy);
+  if(d<best&&Math.abs(wrap(Math.atan2(dy,dx)-p.a))<Math.PI*.55){target=e;best=d;}
+ };
+ for(const e of w.enemies||[])scan(e);
+ const bodies=w.stageBoss?.stages?.encounter?.bodies;if(bodies)for(const body of bodies.values())scan(body);
+ return target;
+}
+function beginSalvo(p,fit){
+ const target=bombingTarget(p),lead=target&&!target.surface&&!target.stationary&&!target.stageBossBody?(target.speed||0)*.65:0;
+ fit.heading=p.a;fit.tx=target?target.x+Math.cos(target.a||0)*lead:p.x+Math.cos(p.a)*160;
+ fit.ty=target?target.y+Math.sin(target.a||0)*lead:p.y+Math.sin(p.a)*160;
+ fit.remaining=fit.count;fit.index=0;fit.drop=0;
+ fit.salvo={bossDamage:new Map(),bossCap:p.payloadPower(fit.damage)*2};
+ p.event('ally',fit.name+' · '+(fit.count===5?'융단폭격':'집중폭격'));
+}
+function releaseBomb(p,fit){
+ const ca=Math.cos(fit.heading),sa=Math.sin(fit.heading),index=fit.index++,offset=(index-(fit.count-1)/2)*fit.spacing;
+ const lateral=fit.count===3?(index-1)*12:0,flight=.85;
+ (world(p).friendlyBombs??=[]).push({ownerId:p.id,sx:p.x-ca*5,sy:p.y-sa*5,x:fit.tx+ca*offset-sa*lateral,y:fit.ty+sa*offset+ca*lateral,life:flight,maxLife:flight,radius:fit.radius,damage:p.payloadPower(fit.damage),releaseAngle:fit.heading,sprite:fit.count===3?'puw':index%2?'hales':'cooper',bomberTransfer:true,bomberSalvo:fit.salvo});
+ fit.remaining--;fit.drop+=fit.interval;
+}
+
+export function installBomberTransfer(Game,planes,scarff){
+ const q=Game.prototype;
+ q.acquireAirframeTransfer=function(id='bomberTransfer'){
+  if(this.bomberTransfer||AIRFRAME_TRANSFER_IDS.some(key=>this.upgrades?.[key]))return false;
+  const config=(id==='bomberTransfer'?BOMBER_TRANSFER:BUILD_TRANSFER[id])?.[planes[this.plane]?.faction];if(!config)return false;
+  const ratio=this.maxHp?this.hp/this.maxHp:1;
+  this.bomberTransfer={...config,id,entryTime:0,cooldown:config.period,remaining:0,drop:0,rearTimer:.2,rearAim:this.a+Math.PI,rearFlash:0,yaw:0};
+  const oldHp=this.maxHp;this.maxHp=Math.min(config.hpCap??Infinity,this.maxHp*config.hp);this.hp=this.maxHp*ratio;this.bomberTransfer.hpMultiplier=this.maxHp/oldHp;this.transferBaseRate=this.rate;
+  this.enemyCruiseReference??=this.baseSpeed??this.speed;
+  this.speed*=config.speed;if(this.baseSpeed)this.baseSpeed*=config.speed;this.turn*=config.turn;
+  this.airframeSpeed=1;this.event('ally',(id==='mgTransfer'?'집중화력 개조 · ':id==='airshipTransfer'?'공중요새 동원 · ':'폭격비행대 전속 · ')+config.name);return true;
+ };
+ q.acquireBomberTransfer=function(){return this.acquireAirframeTransfer('bomberTransfer');};
+ q.clearAirframeTransfer=function(){const fit=this.bomberTransfer;if(!fit)return false;const ratio=this.maxHp?this.hp/this.maxHp:0;this.maxHp/=fit.hpMultiplier||fit.hp;this.hp=this.maxHp*ratio;this.speed/=fit.speed;if(this.baseSpeed)this.baseSpeed/=fit.speed;this.turn/=fit.turn;delete this.upgrades[fit.id||'bomberTransfer'];delete this.bomberTransfer;this.airframeSpeed=1;return true;};
+ q.isBomberEntering=function(){return Number.isFinite(this.bomberTransfer?.entryTime)&&this.bomberTransfer.entryTime<BOMBER_ENTRY_DURATION;};
+ q.bomberGunMount=function(gun=0,angle=this.a,offset=0){
+  const fit=this.bomberTransfer;if(!fit)return {x:this.x+Math.cos(angle)*23-Math.sin(angle)*offset,y:this.y+Math.sin(angle)*23+Math.cos(angle)*offset};
+  const back=this.weapon.bidirectional&&gun===1,forward=back?-fit.rear:fit.front,ca=Math.cos(this.a),sa=Math.sin(this.a);
+  return {x:this.x+ca*forward-Math.sin(angle)*offset,y:this.y+sa*forward+Math.cos(angle)*offset};
+ };
+ q.tickBomberTransfer=function(dt){
+  const fit=this.bomberTransfer;if(!fit||!active(this))return;
+  const step=clamp(dt||0,0,.04);if(!step)return;
+  if(this.isBomberEntering()){
+   const before=fit.entryTime;fit.entryTime=Math.min(BOMBER_ENTRY_DURATION,before+step);this.muzzleFlash=0;
+   const beats=fit.kind==='gunship'?[.45,.9,1.45]:fit.kind==='airship'?[.7,1.4,2.05]:[1.3,1.54,1.78];
+   for(const beat of beats)if(before<beat&&fit.entryTime>=beat)this.event('bossSound',fit.kind==='gunship'?'reload':fit.kind==='airship'?'formationPass':'explosion');
+   return;
+  }
+  if(fit.kind){tickTransferGuns(this,step,gunnerAim,gunnerTarget);if(fit.kind==='airship')return;}
+  if(!fit.kind){fit.cooldown-=step;if(fit.cooldown<=0){fit.cooldown+=this.ordnanceInterval(fit.period);beginSalvo(this,fit);}
+  if(fit.remaining>0){fit.drop-=step;if(fit.drop<=0)releaseBomb(this,fit);}
+  }
+  fit.rearFlash=Math.max(0,fit.rearFlash-step);
+  // Existing two-seater pilots retain their authored rear gun, ammo and skills.
+  if(this.weapon.bidirectional||['huffzky','mckeever'].includes(this.pilot))return;
+  const target=gunnerTarget(this,scarff.scarffRange,true),desired=target?Math.atan2(target.y-this.y,target.x-this.x):this.a+Math.PI;
+  fit.rearAim=gunnerAim(fit.rearAim,desired,step,scarff.scarffTurnRate);
+  fit.rearTimer=Math.max(0,fit.rearTimer-step);
+  if(!target||fit.rearTimer>0||Math.abs(wrap(fit.rearAim-desired))>.16)return;
+  fit.rearTimer=this.ordnanceInterval(scarff.scarffInterval);fit.rearFlash=.09;
+  const a=fit.rearAim,x=this.x-Math.cos(this.a)*fit.rear,y=this.y-Math.sin(this.a)*fit.rear;
+  world(this).bullets.push({x,y,vx:Math.cos(a)*520,vy:Math.sin(a)*520,life:1.25,enemy:false,ownerId:this.id,ally:true,bomberRear:true,damage:scarff.scarffDamage*(1+(this.gunUpgradeBonus||0)),hit:new Set()});this.event('shot','');
+ };
+ q.resetBomberSortieTimers=function(){const fit=this.bomberTransfer;if(fit){fit.entryTime=BOMBER_ENTRY_DURATION;fit.remaining=0;fit.salvo=null;fit.cooldown=fit.period;fit.rearTimer=.2;fit.rearFlash=0;fit.yaw=0;fit.evadeTurn=0;for(const station of fit.stations||[]){station.timer=.2;station.flash=0;station.reload=0;station.ammo=fit.belt;station.aim=this.a;}}};
+ const begin=q.beginRevisionFrame;
+ q.beginRevisionFrame=function(dt,input={}){this.transferFiring=input.inputMode!=='gamepad'||!!input.fireHeld;return begin.call(this,dt,input);};
+ const hit=q.hit;
+ q.hit=function(...args){if(this.isBomberEntering()&&this.hp>0)return;const result=hit.apply(this,args);if(this.bomberTransfer&&this.hp<=0){this.resetBomberSortieTimers();this.friendlyBombs=(this.friendlyBombs||[]).filter(b=>!b.bomberTransfer||b.ownerId!==this.id);}return result;};
+ const evade=q.evade;
+ q.evade=function(){
+  if(!this.bomberTransfer)return evade.call(this);
+  const before=this.a,used=evade.call(this);if(used){this.a=before;this.bomberTransfer.evadeTurn=this.evadeDirection;this.evadeTime=1.25;}
+  return used;
+ };
+ const round=q.applySpecialRound;
+ q.applySpecialRound=function(b,type){
+  const fit=this.bomberTransfer;
+  const gunRound=fit&&!b.enemy&&!b.ally&&!b.rocket&&!b.motorCannon&&!b.cow37&&b.gun!==undefined;
+  // Correct before pilot processing too: authored duplicate rounds inherit this origin.
+  const mount=gunRound?(b.transferGun?transferStationPosition(this,fit.stations[b.transferStation].front,fit.stations[b.transferStation].lateral):this.bomberGunMount(b.gun,this.gunDirection(b.gun),this.weapon.bidirectional?0:(b.gun-(this.weapon.guns-1)/2)*8)):null;
+  if(mount)Object.assign(b,mount);
+  const start=world(this).bullets?.length||0,heading=this.a;let result;
+  try{if(b.transferGun)this.a=fit.stations[b.transferStation].aim;result=round.call(this,b,type);}finally{this.a=heading;}
+  if(mount){Object.assign(result||b,mount);for(let i=start;i<(world(this).bullets?.length||0);i++){const copy=world(this).bullets[i];if(copy.gun===b.gun&&copy.jacobsSuppress)Object.assign(copy,mount);}}
+  return result;
+ };
+ const fly=q.flyAirframe;
+ q.flyAirframe=function(dt,input={}){
+  const fit=this.bomberTransfer;if(!fit||this.aceRetreat129||this.chargeTime>0)return fly.call(this,dt,input);
+  const step=clamp(dt||0,0,.04);if(!step)return;
+  const before=this.a,current=this.airframeSpeed??1;
+  // Run all existing pilot hooks first; smooth their requested yaw into heavy inertia.
+  fly.call(this,step,fit.evadeTurn?{...input,angle:undefined,steer:fit.evadeTurn}:input);
+  const requested=wrap(this.a-before)/step;
+  if(!(this.evadeTime>0))fit.evadeTurn=0;
+  fit.yaw+=(requested-fit.yaw)*(1-Math.exp(-step*(fit.response||3)));this.a=before+fit.yaw*step;
+  const effort=this.turn?Math.min(1,Math.abs(fit.yaw/this.turn)):0,target=1-.22*effort*effort;
+  this.airframeSpeed=current+(target-current)*(1-Math.exp(-step*(target<current?1.6:fit.recovery||.65)*(1+(this.energyRecoveryBonus||0))));
+ };
+}
