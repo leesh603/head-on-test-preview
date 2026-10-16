@@ -9,7 +9,7 @@ import {tickRegionalConditions} from './region-doctrine1.js?v=buildfit1&afc=1';
 import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42';
 import {handleMaanCue} from './maan-view.js?v=gal1-r3';
 import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=gal1';
-import {isDoverBoss} from './dover-night-view.js?v=dover6';
+import {isDoverBoss} from './dover-night-view.js?v=outline1';
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=gal1';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=gal1';
 import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=livingww1d&rail=42';
@@ -513,6 +513,7 @@ export function separateAces(g,dt){
   a.x-=ux*move;a.y-=uy*move;b.x+=ux*move;b.y+=uy*move;
  }
 }
+
 
 
 

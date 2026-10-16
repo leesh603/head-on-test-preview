@@ -1,6 +1,6 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
 import {getLocale,subscribe} from './i18n.js?v=buildfit1&afc=1';
-import {aircraftKey} from './aircraft.js?v=buildfit1';
+import {aircraftKey} from './aircraft.js?v=outline1';
 import {hangarArt,hangarArtNow,hangarKeyFile} from './hangar-art.js?v=buildfit1';
 export {hangarArt} from './hangar-art.js?v=buildfit1';
 
@@ -201,3 +201,4 @@ function installHud(){
  subscribe(schedule);syncReadout();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+

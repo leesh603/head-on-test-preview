@@ -1,6 +1,6 @@
 import {doverPatrolSpawn,doverHullMargin,doverShipAtSea,doverShipCourse} from './dover-patrol-chart.js?v=dover3';
 import {fleetGunStations} from './naval-faction-atlas.js?v=gal1';
-import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=gal1';
+import {drawFleetShip,prepareFleetShipArt} from './jutland-view.js?v=outline1';
 import {vacantShipPose,steerShipClear,resolveSurfaceSpacing,shipObstacles} from './naval-spacing.js?v=gal1';
 import {drawShipWater,recordShipWake} from './naval-water.js?v=gal1';
 import {drawSinkingShip,prepareSinkingWater,FLEET_SINK_DURATION} from './ship-sinking.js?v=gal1';
@@ -178,4 +178,5 @@ export function fireSurfaceExchange(g,e,t){
  for(const along of fleetGunStations(e.faction,e.shipClass,t.drawnH*.9).slice(0,2)){if(g.navalExchanges.length>=24)break;const sx=e.x+Math.cos(e.a)*along,sy=e.y+Math.sin(e.a)*along;g.navalExchanges.push({sx,sy,x,y,age:0,duration,target,damage:18,faction:e.faction});}e.gunAim=Math.atan2(y-e.y,x-e.x);e.muzzleFlash=.16;g.event('enemyShot','');return true;
 }
 export function installCoopFleet(Coop,Game){const p=Coop.prototype;for(const key of ['spawnMovingFleet','spawnFleet','_friendlyShipFire','fleetCrossing'])p[key]=Game.prototype[key];const fire=p.fireEnemy;p.fireEnemy=function(e){return e.movingShip?Game.prototype.fireEnemy.call(this,e):fire.call(this,e)};const update=p.update;p.update=function(dt,input){update.call(this,dt,input);updateNavalFleet(this,dt)};}
+
 

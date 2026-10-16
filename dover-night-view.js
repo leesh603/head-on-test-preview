@@ -6,7 +6,7 @@ import {drawDressingSprite} from './background-dressing.js?v=mobileperf1';
 import {doverPatrolChart} from './dover-patrol-chart.js?v=dover3';
 import {impactMark,aimLine,laneEdge,sectorMark,partMark,shieldMark} from './tactical-marks.js?v=tame3';
 
-export const DOVER_ASSETS=Object.freeze({terrain:'terrain-dover-chalk-material-v6.webp',nighthawk:'boss-dover-nighthawk.webp',nighthawkWreck:'boss-dover-nighthawk-wreck.webp',rviii:'boss-dover-rviii.webp',rviiiWreck:'boss-dover-rviii-wreck.webp',rotor:'propeller-dover.webp'});
+export const DOVER_ASSETS=Object.freeze({terrain:'terrain-dover-chalk-material-v6.webp',nighthawk:'asset-bank/outlined/native/boss-dover-nighthawk.webp',nighthawkWreck:'asset-bank/outlined/native/boss-dover-nighthawk-wreck.webp',rviii:'asset-bank/outlined/native/boss-dover-rviii.webp',rviiiWreck:'asset-bank/outlined/native/boss-dover-rviii-wreck.webp',rotor:'propeller-dover.webp'});
 const images=new Map();let pending=null,generation=0;
 export const isDoverBoss=kind=>kind==='supermarine-nighthawk'||kind==='siemens-schuckert-r-viii';
 export function doverExtents(b){const a=b.a+Math.PI/2,s=b.geometryScale||1,w=b.layout.width*s/2,h=b.layout.height*s/2;return {halfWidth:Math.abs(Math.cos(a))*w+Math.abs(Math.sin(a))*h,halfHeight:Math.abs(Math.sin(a))*w+Math.abs(Math.cos(a))*h};}

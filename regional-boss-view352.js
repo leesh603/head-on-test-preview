@@ -9,10 +9,10 @@ import {drawAADefense} from './aa-defense-art.js?v=tame3';
 // Only the current battlefield's small atlas set remains resident.
 const SOURCES=Object.freeze({
  train:'./boss-fliegerzug-parts352.webp',treffas:'./boss-treffas-parts352.webp',support:'./boss-regional-support352.webp',
- staaken:'./boss-staaken-body352.webp',staakenEngines:'./boss-staaken-engines352.webp',staakenWreck:'./boss-staaken-wreck352.webp',
+ staaken:'./asset-bank/outlined/native/boss-staaken-body352.webp',staakenEngines:'./asset-bank/outlined/native/boss-staaken-engines352.webp',staakenWreck:'./asset-bank/outlined/native/boss-staaken-wreck352.webp',
  tank:'./boss-mark4.webp?v=r5',tankWreck:'./boss-mark4-wreck.webp?v=r5',
  morser:'./boss-morser.webp?v=r5',morserWreck:'./boss-morser-wreck.webp?v=r5',
- bugFolded:'./boss-cambrai-bug.webp?v=r5',bugFlight:'./boss-cambrai-bug.webp?v=r5',impact:'./fx-mortar-impact340.webp'
+ bugFolded:'./asset-bank/outlined/native/boss-cambrai-bug.webp?v=r5',bugFlight:'./asset-bank/outlined/native/boss-cambrai-bug.webp?v=r5',impact:'./fx-mortar-impact340.webp'
 });
 const SHEETS={train:'boss-fliegerzug-parts352',treffas:'boss-treffas-parts352',support:'boss-regional-support352',staakenEngines:'boss-staaken-engines352'};
 const REGION_KEYS={4:['support'],8:['support','bugFlight','impact'],10:[],11:['support','staaken','staakenEngines','staakenWreck','impact']};
