@@ -8,7 +8,7 @@ export function recordingForScene(scene){
  return scene.state==='BOSS_FINAL'&&boss?TRACKS['final-'+boss.family]||boss:boss||null;
 }
 export class RecordedBattleMusic{
- constructor({fetcher=globalThis.fetch,onStart=()=>{}}={}){
+ constructor({fetcher=globalThis.fetch?.bind(globalThis),onStart=()=>{}}={}){
   this.fetcher=fetcher;this.onStart=onStart;this.cache=new Map();this.serial=0;this.voice=null;this.retiring=null;this.request=null;this.resume=null;this.error=null;this.failedAt=0;
  }
  get playing(){return !!this.voice;}
