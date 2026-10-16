@@ -71,7 +71,7 @@ const SPECIAL=[
  ['heineckeRettungsfallschirm','하이네케 구명낙하산','치명 피해 시 탈출해 예비기로 재출격. 출격당 2회, 재사용 180초.'],
  ['bomberTransfer','폭격비행대 전속명령',BOMBER_TRANSFER_DESCRIPTION],
  ['mgTransfer','집중화력 개조령',BUILD_TRANSFER_DESCRIPTIONS.mgTransfer],
- ['airshipTransfer','공중요새 동원령',BUILD_TRANSFER_DESCRIPTIONS.airshipTransfer]
+ ['airshipTransfer','공중함대 지휘명령',BUILD_TRANSFER_DESCRIPTIONS.airshipTransfer]
 ];
 
 const tierIndex=rarity=>rarity==='rare'?2:rarity==='magic'?1:0;

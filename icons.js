@@ -47,7 +47,7 @@ export const iconsReady=atlasReady.then(async results=>{
  const direct=await Promise.all(directLoads);
  return results.every(Boolean)&&direct.every(([,ok])=>ok);
 });
-export function drawGameIcon(c,key,x,y,size){const f=frames.get(key);if(!f)return;const k=size/Math.max(f.w,f.h);c.save();c.imageSmoothingEnabled=f.smooth;c.drawImage(f.atlas,f.x,f.y,f.w,f.h,x-f.w*k/2,y-f.h*k/2,f.w*k,f.h*k);c.restore()}
+export function drawGameIcon(c,key,x,y,size){const f=frames.get(key);if(!f)return;const k=size/Math.max(f.w,f.h);c.save();c.imageSmoothingEnabled=f.smooth;c.drawImage(f.atlas,f.x,f.y,f.w,f.h,x-f.w*k/2,y-f.h*k/2,f.w*k,f.h*k);c.restore();if(key==='airshipTransfer'){drawGameIcon(c,'wingman',x-size*.29,y+size*.26,size*.4);drawGameIcon(c,'wingman',x+size*.29,y+size*.26,size*.4);}}
 
 export function drawSpecialAmmoIcon(c,type,x,y,size=38){drawGameIcon(c,'ammo-'+type,x,y,size)}
 

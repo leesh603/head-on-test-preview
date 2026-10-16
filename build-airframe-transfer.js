@@ -2,7 +2,7 @@
 export const AIRFRAME_TRANSFER_IDS=Object.freeze(['bomberTransfer','mgTransfer','airshipTransfer']);
 export const BUILD_TRANSFER_DESCRIPTIONS=Object.freeze({
  mgTransfer:'다수 기관총좌를 갖춘 중무장 공격기로 전환합니다. 증설 기관총 2정과 후방 사수가 지속 화망을 형성하며 기관총 강화를 계승합니다. 속도 −26%, 선회력 −38%, 가속·회피 성능 감소, 피탄 면적 증가. 다른 기체 전환 장비와 동시 장착할 수 없습니다.',
- airshipTransfer:'거대한 무장 비행선을 동원합니다. 최대 내구도 ×4.5와 다방향 방어 기관총을 획득하며 체력·회복 강화를 유지합니다. 속도 −55%, 선회력 −74%, 가속·회피 성능 크게 감소, 피탄 면적 크게 증가. 피해 감소나 방탄 효과는 없습니다. 다른 기체 전환 장비와 동시 장착할 수 없습니다.'
+ airshipTransfer:'편대 지휘 비행선으로 전환합니다. 하부에서 호위기 2기가 출격합니다(상시 윙맨과 합산 최대 7기). 명중시킨 적에게 집중사격하고 편대 비행 교범·전투기 보급을 계승합니다. 기존 내구도 유지. 속도 −55%, 선회력 −74%, 피탄 면적 크게 증가. 다른 기체 전환 장비와 동시 장착 불가.'
 });
 export const BUILD_TRANSFER=Object.freeze({
  mgTransfer:Object.freeze({
@@ -10,11 +10,11 @@ export const BUILD_TRANSFER=Object.freeze({
   central:Object.freeze({name:'AEG J.I',sprite:'transfer-aeg-ji',kind:'gunship',hp:1,speed:.74,turn:.62,scale:1.4,front:17,rear:13,hullLength:22,hullWidth:42,response:2.6,recovery:.52,gunInterval:.28,gunPower:.56,belt:70,reload:2.4,stationOffsets:[-6,6]})
  }),
  airshipTransfer:Object.freeze({
-  entente:Object.freeze({name:'R.29',sprite:'transfer-r29',kind:'airship',hp:4.5,speed:.45,turn:.26,scale:2.05,front:55,rear:44,hullLength:72,hullWidth:18,response:1.25,recovery:.28,gunInterval:.65,gunPower:.4,belt:44,reload:3.2,stationOffsets:[-10,10,0]}),
-  central:Object.freeze({name:'Zeppelin L30',sprite:'transfer-l30',kind:'airship',hp:4.5,speed:.45,turn:.26,scale:2.15,front:57,rear:46,hullLength:76,hullWidth:22,response:1.25,recovery:.28,gunInterval:.65,gunPower:.4,belt:44,reload:3.2,stationOffsets:[-13,13,0]})
+  entente:Object.freeze({name:'R.29',sprite:'transfer-r29',kind:'airship',hp:1,speed:.45,turn:.26,scale:2.05,front:55,rear:44,hullLength:72,hullWidth:18,response:1.25,recovery:.28,gunInterval:.65,gunPower:.4,belt:44,reload:3.2,stationOffsets:[-10,10,0]}),
+  central:Object.freeze({name:'Zeppelin L30',sprite:'transfer-l30',kind:'airship',hp:1,speed:.45,turn:.26,scale:2.15,front:57,rear:46,hullLength:76,hullWidth:22,response:1.25,recovery:.28,gunInterval:.65,gunPower:.4,belt:44,reload:3.2,stationOffsets:[-13,13,0]})
  })
 });
-const WEIGHT_IDS=Object.freeze({bomberTransfer:['bomber','rockets','mines','explosives','combinedProjectiles','amatolCharge','motorCannon'],mgTransfer:['damage','rate','spread','quadLewis','maximBelt','rearGunner','telescope','flightGloves'],airshipTransfer:['armor','regen','sparkPlug']});
+const WEIGHT_IDS=Object.freeze({bomberTransfer:['bomber','rockets','mines','explosives','combinedProjectiles','amatolCharge','motorCannon'],mgTransfer:['damage','rate','spread','quadLewis','maximBelt','rearGunner','telescope','flightGloves'],airshipTransfer:['wingman','command','fighterSupply','goeringBaton','lufberyCircle']});
 export function transferWeight(g,id){
  const ids=WEIGHT_IDS[id];if(!ids)return 1;
  const count=ids.reduce((sum,key)=>sum+Math.max(0,Number(g.upgrades?.[key])||0),0);

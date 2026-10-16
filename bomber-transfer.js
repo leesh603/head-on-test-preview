@@ -106,11 +106,53 @@ export function installBomberTransfer(Game,planes,scarff){
   const oldHp=this.maxHp;this.maxHp=Math.min(config.hpCap??Infinity,this.maxHp*config.hp);this.hp=this.maxHp*ratio;this.bomberTransfer.hpMultiplier=this.maxHp/oldHp;this.transferBaseRate=this.rate;
   this.enemyCruiseReference??=this.baseSpeed??this.speed;
   this.speed*=config.speed;if(this.baseSpeed)this.baseSpeed*=config.speed;this.turn*=config.turn;
-  this.airframeSpeed=1;this.event('ally',(id==='mgTransfer'?'집중화력 개조 · ':id==='airshipTransfer'?'공중요새 동원 · ':'폭격비행대 전속 · ')+config.name);return true;
+  if(config.kind==='airship'){
+   const count=this.permanentWingman||0;this.bomberTransfer.escortBonus=Math.max(0,Math.min(2,7-count));
+   this.permanentWingman=count+this.bomberTransfer.escortBonus;
+  }
+  this.airframeSpeed=1;this.event('ally',(id==='mgTransfer'?'집중화력 개조 · ':id==='airshipTransfer'?'공중함대 지휘 · ':'폭격비행대 전속 · ')+config.name);return true;
  };
  q.acquireBomberTransfer=function(){return this.acquireAirframeTransfer('bomberTransfer');};
- q.clearAirframeTransfer=function(){const fit=this.bomberTransfer;if(!fit)return false;const ratio=this.maxHp?this.hp/this.maxHp:0;this.maxHp/=fit.hpMultiplier||fit.hp;this.hp=this.maxHp*ratio;this.speed/=fit.speed;if(this.baseSpeed)this.baseSpeed/=fit.speed;this.turn/=fit.turn;delete this.upgrades[fit.id||'bomberTransfer'];delete this.bomberTransfer;this.airframeSpeed=1;return true;};
+ q.clearAirframeTransfer=function(){const fit=this.bomberTransfer;if(!fit)return false;const ratio=this.maxHp?this.hp/this.maxHp:0;this.maxHp/=fit.hpMultiplier||fit.hp;this.hp=this.maxHp*ratio;this.speed/=fit.speed;if(this.baseSpeed)this.baseSpeed/=fit.speed;this.turn/=fit.turn;if(fit.kind==='airship'){this.permanentWingman=Math.max(0,(this.permanentWingman||0)-(fit.escortBonus||0));const w=world(this);let kept=0;w.allies=w.allies.filter(a=>{if(!a.permanent||a.ownerId!==this.id)return true;delete a.carrierLaunchAt;delete a.carrierHidden;delete a.carrierScale;return kept++<this.permanentWingman;});}delete this.upgrades[fit.id||'bomberTransfer'];delete this.bomberTransfer;this.airframeSpeed=1;return true;};
  q.isBomberEntering=function(){return Number.isFinite(this.bomberTransfer?.entryTime)&&this.bomberTransfer.entryTime<BOMBER_ENTRY_DURATION;};
+ // Command data belongs to this sortie and owner; existing allies, guns and upgrades do the work.
+ q.airshipFocusTarget=function(){
+  const fit=this.bomberTransfer;if(fit?.kind!=='airship')return null;
+  const e=fit._netCarrierFocus,w=world(this);
+  if(e?.hp>0&&!e.dead&&!e.crashing&&!e.rivalEscaped&&this.t<=fit.focusUntil&&w.enemies.includes(e)&&Math.hypot(e.x-this.x,e.y-this.y)<=620)return e;
+  fit._netCarrierFocus=null;return null;
+ };
+ q.airshipWingTarget=function(){
+  const fit=this.bomberTransfer;if(fit?.kind!=='airship')return null;
+  const focus=this.airshipFocusTarget();if(focus)return focus;
+  if(this.t>=(fit.scanAt??-1)||fit._netCarrierGuard&&(fit._netCarrierGuard.hp<=0||fit._netCarrierGuard.crashing||!world(this).enemies.includes(fit._netCarrierGuard))){
+   fit.scanAt=this.t+.2;fit._netCarrierGuard=null;let best=520;
+   for(const e of world(this).enemies){if(!(e.hp>0)||e.dead||e.crashing||e.rivalEscaped)continue;const d=Math.hypot(e.x-this.x,e.y-this.y);if(d<best){best=d;fit._netCarrierGuard=e;}}
+  }
+  return fit._netCarrierGuard&&Math.hypot(fit._netCarrierGuard.x-this.x,fit._netCarrierGuard.y-this.y)<=560?fit._netCarrierGuard:null;
+ };
+ const impact=q.specialRoundImpact;
+ q.specialRoundImpact=function(b,e){const result=impact.call(this,b,e);const fit=this.bomberTransfer;
+  if(fit?.kind==='airship'&&!b.enemy&&!b.ally&&!b.patrol&&!b.formation&&!b.ghost&&!b.transferGun&&!b.identityDot&&(!b.ownerId||b.ownerId===this.id)&&e.hp>0){fit._netCarrierFocus=e;fit.focusUntil=this.t+1.8;}
+  return result;
+ };
+ const formation=q.wingFormationTarget;
+ q.wingFormationTarget=function(a,count){
+  if(this.bomberTransfer?.kind!=='airship'||!a.permanent||this.upgrades.lufberyCircle||this.skillTime>0&&['goering','boelcke','collishaw','brumowski'].includes(this.pilot))return formation.call(this,a,count);
+  const slot=a.slot??0,side=slot%2?-1:1,row=Math.floor(slot/2),phase=this.t*.75+slot*.65;
+  return transferStationPosition(this,38-row*64+Math.sin(phase)*14,side*(100+row*19)+Math.cos(phase)*9);
+ };
+ const pilotWing=q.updatePilotWing;
+ q.updatePilotWing=function(a,dt){
+  if(this.bomberTransfer?.kind==='airship'&&a.ownerId===this.id&&Number.isFinite(a.carrierLaunchAt)){
+   const age=this.t-a.carrierLaunchAt,q=clamp(age/1.15,0,1),ease=q*q*(3-2*q),home=this.wingFormationTarget(a,this.permanentWingCount());
+   const start=transferStationPosition(this,-14,(a.slot%2?-1:1)*22);
+   a.x=start.x+(home.x-start.x)*ease;a.y=start.y+(home.y-start.y)*ease;a.a=this.a+(a.slot%2?-1:1)*Math.sin(q*Math.PI)*.65;
+   a.carrierHidden=age<0;a.carrierScale=.45+.55*q;a.muzzleFlash=0;a.fire=.2;
+   if(q<1)return true;delete a.carrierLaunchAt;delete a.carrierHidden;delete a.carrierScale;
+  }
+  return pilotWing?.call(this,a,dt)||false;
+ };
  q.bomberGunMount=function(gun=0,angle=this.a,offset=0){
   const fit=this.bomberTransfer;if(!fit)return {x:this.x+Math.cos(angle)*23-Math.sin(angle)*offset,y:this.y+Math.sin(angle)*23+Math.cos(angle)*offset};
   const back=this.weapon.bidirectional&&gun===1,forward=back?-fit.rear:fit.front,ca=Math.cos(this.a),sa=Math.sin(this.a);
@@ -141,7 +183,7 @@ export function installBomberTransfer(Game,planes,scarff){
   const a=fit.rearAim,x=this.x-Math.cos(this.a)*fit.rear,y=this.y-Math.sin(this.a)*fit.rear;
   world(this).bullets.push({x,y,vx:Math.cos(a)*520,vy:Math.sin(a)*520,life:1.25,enemy:false,ownerId:this.id,ally:true,bomberRear:true,damage:scarff.scarffDamage*(1+(this.gunUpgradeBonus||0)),hit:new Set()});this.event('shot','');
  };
- q.resetBomberSortieTimers=function(){const fit=this.bomberTransfer;if(fit){fit.entryTime=BOMBER_ENTRY_DURATION;fit.remaining=0;fit.salvo=null;fit.cooldown=fit.period;fit.rearTimer=.2;fit.rearFlash=0;fit.yaw=0;fit.evadeTurn=0;for(const station of fit.stations||[]){station.timer=.2;station.flash=0;station.reload=0;station.ammo=Math.round(fit.belt*(this.upgrades?.maximBelt?1.75:1));station.aim=this.a;}}};
+ q.resetBomberSortieTimers=function(){const fit=this.bomberTransfer;if(fit){fit.launchSequence=0;fit._netCarrierFocus=null;fit._netCarrierGuard=null;fit.entryTime=BOMBER_ENTRY_DURATION;fit.remaining=0;fit.salvo=null;fit.cooldown=fit.period;fit.rearTimer=.2;fit.rearFlash=0;fit.yaw=0;fit.evadeTurn=0;for(const station of fit.stations||[]){station.timer=.2;station.flash=0;station.reload=0;station.ammo=Math.round(fit.belt*(this.upgrades?.maximBelt?1.75:1));station.aim=this.a;}}};
  const begin=q.beginRevisionFrame;
  q.beginRevisionFrame=function(dt,input={}){this.transferFiring=input.inputMode!=='gamepad'||!!input.fireHeld;return begin.call(this,dt,input);};
  const hit=q.hit;

@@ -71,7 +71,7 @@ export class CoopGame {
  tagSummons(p){for(const key of ['formationWings','divingSquadron','airshipFleet'])for(const unit of p[key]||[])unit.ownerId=p.id}
  emit(p,b){preparePersonalRound1918(p,b);b.ownerId=p.id;b.enemy=false;b.hit??=new Set();if(p.longRange&&!b.rangeExtended&&Math.hypot(b.vx,b.vy)>0){b.life=Math.max(b.life,p.shotLifetime(Math.hypot(b.vx,b.vy)));b.rangeExtended=true}this.bullets.push(b);return b}
  blast(p,x,y,radius,damage,fxSource){p?.queueExplosionDamage(x,y,radius,damage,{fxSource})}
- ensureWingmen(){for(const p of this.players){if(!live(p))continue;let active=p.permanentWingCount();while(active<(p.permanentWingman||0)){const slot=active++,target=p.wingFormationTarget({slot},p.permanentWingman);this.allies.push({ownerId:p.id,slot,permanent:true,life:1e9,x:target.x,y:target.y,a:p.a,fire:.18,plane:p.permanentWingPlane()})}}for(const a of this.allies)attachAircraftPersonality(PLANES,a,a.plane)}
+ ensureWingmen(){for(const p of this.players)if(live(p))p.ensureWingmen();for(const a of this.allies)attachAircraftPersonality(PLANES,a,a.plane)}
  hitPlayer(p,damage,{gas=false}={}){
   if(!live(p)||p.invuln>0||p.isBomberEntering()||this.state==='lost')return false;const before=p.hp;const actual=barkerDamage1918(p,damage*p.incomingDamageMultiplier(p.damageSource));if(triggerHeinecke(p,actual))return true;p.hp=Math.max(0,p.hp-actual);p.buildReceivedDamage?.(before);p.invuln=gas?0:.75;p.hitFlash=.16;this.shake=7;p.smoke(p.x,p.y,true);p.burst(p.x,p.y,'#ffce8e',9);p.event('hit','');
   if(p.hp<=0)this.downPlayer(p);return true;

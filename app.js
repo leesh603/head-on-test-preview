@@ -345,7 +345,7 @@ function frameInner(now){try{let dt=Math.min(.12,(now-last)/1000||.016);last=now
  frameInner(now);const frameCost=performance.now()-__s;__perfFrame(frameCost);if(game?.testMode&&game?.trenchDioramaDemoRunning){const i=trenchPerf.n++%2048;trenchPerf.cost[i]=frameCost;trenchPerf.gap[i]=trenchPerf.last?now-trenchPerf.last:0;trenchPerf.last=now;}
 }roster();syncStartHint();resize();requestAnimationFrame(frame);
 
-function drawSupport(){if(!game)return;let cx=game.x,cy=game.y;const point=(x,y)=>{_ptShare[0]=x-cx+W/2;_ptShare[1]=y-cy+H/2;return _ptShare};for(let a of (game.allies||[])){if(!a.plane||!PLANES[a.plane]&&!a.eventReconEscort)continue;let[x,y]=point(a.x,a.y),allyKey=game.pilot==='goering'?'goering_fokkerd7':a.plane==='fokker'?'fokker_standard':a.plane;ctx.globalAlpha=.95;planeSprite(ctx,x+12,y+20,a.a,allyKey,.78,false,true);planeSprite(ctx,x,y,a.a,allyKey,.78,false,false,a.hitFlash||0,a.hp!=null&&a.hp<=a.maxHp*.5);ctx.globalAlpha=1}}hangarArtReady.then(()=>roster());aircraftReady.then(()=>roster());
+function drawSupport(){if(!game)return;let cx=game.x,cy=game.y;const point=(x,y)=>{_ptShare[0]=x-cx+W/2;_ptShare[1]=y-cy+H/2;return _ptShare};for(let a of (game.allies||[])){if(a.carrierHidden||!a.plane||!PLANES[a.plane]&&!a.eventReconEscort)continue;let[x,y]=point(a.x,a.y),allyKey=game.pilot==='goering'?'goering_fokkerd7':a.plane==='fokker'?'fokker_standard':a.plane;ctx.globalAlpha=.95;planeSprite(ctx,x+12,y+20,a.a,allyKey,.78*(a.carrierScale??1),false,true);planeSprite(ctx,x,y,a.a,allyKey,.78*(a.carrierScale??1),false,false,a.hitFlash||0,a.hp!=null&&a.hp<=a.maxHp*.5);ctx.globalAlpha=1}}hangarArtReady.then(()=>roster());aircraftReady.then(()=>roster());
 
 portraitsReady.then(()=>{roster();applyPilotPortrait('cutinPortrait')});
 
