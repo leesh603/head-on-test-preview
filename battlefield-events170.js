@@ -1,3 +1,9 @@
+import {achievementMission} from './achievements.js?v=medals2';
+import {doverFlightBounds} from './dover-patrol-chart.js?v=dover3';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42';
+import {JUTLAND_ROUTE} from './jutland-route.js?v=gal1';
+import {ZEEBRUGGE_ROUTE,harborRouteHalfWidth} from './stageboss-host.js?v=buildfit1';
+
 export const BATTLEFIELD_EVENT_TYPES=Object.freeze({
  HIGH_VALUE_TARGET:'HIGH_VALUE_TARGET',RESCUE:'RESCUE',BOMBER_INTERCEPT:'BOMBER_INTERCEPT',ACE_CHALLENGE:'ACE_CHALLENGE',PHOTO_RECON:'PHOTO_RECON',RECON_ESCORT:'RECON_ESCORT',SUPPLY_RECOVERY:'SUPPLY_RECOVERY'
 });
@@ -11,6 +17,22 @@ const P=BATTLEFIELD_EVENT_TYPES;
 const liveAce=game=>(game.enemies||[]).some(e=>e.hp>0&&!e.expired&&!e.rivalEscaped&&(e.bossPilot||e.type==='boss'));
 const scriptedBoss=game=>game.stageBoss?.stages?.phase==='boss';
 const playerFor=game=>game.players?.find(p=>p?.hp>0&&(!p.status||p.status==='alive'))||game;
+const crossRegionSupport=key=>key==='rescue'||key==='airSupport';
+
+function reconPoint(game,p,x,y){
+ const region=game.worldRegion?.(),margin=BATTLEFIELD_EVENT_BALANCE.reconRadius,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+ if(region===17){
+  const b=doverFlightBounds(game),clearance=margin+Math.max(360,Math.min(800,(p.speed||200)*2.1));
+  const ix=Math.min(clearance,(b.right-b.left)/2),iy=Math.min(clearance,(b.bottom-b.top)/2);
+  return{x:clamp(x,b.left+ix,b.right-ix),y:clamp(y,b.top+iy,b.bottom-iy)};
+ }
+ const route=region===7?game.navalRoute:region===14?game.gallipoliRoute:region===16?game.jutlandRoute:null;
+ if(!route)return{x,y};
+ const limits=region===7?ZEEBRUGGE_ROUTE:region===14?GALLIPOLI_ROUTE:JUTLAND_ROUTE,hx=Math.cos(route.a),hy=Math.sin(route.a),dx=x-route.x,dy=y-route.y;
+ const end=region===7&&game.stageBoss?.stages.phase==='explore'?limits.approachLimit:limits.bossLimit;
+ const s=clamp(dx*hx+dy*hy,limits.backLimit+margin,end-margin),halfWidth=region===7?harborRouteHalfWidth(s):limits.halfWidth,n=clamp(-dx*hy+dy*hx,-halfWidth+margin,halfWidth-margin);
+ return{x:route.x+hx*s-hy*n,y:route.y+hy*s+hx*n};
+}
 
 function eventState(game){
  return game.battlefieldEvents??=(game.battlefieldEvents={nextOfferAt:BATTLEFIELD_EVENT_BALANCE.firstOfferAt,serial:0,current:null,lastType:null,history:[],result:null});
@@ -64,8 +86,10 @@ function spawnTargets(game,event){
   const reach=Math.max(680,(game.viewWidth||960)*1.05),waypoints=[];
   for(let i=0;i<count;i++){
    let wp=null;
-   for(let tries=0;tries<24&&!wp;tries++){const ang=rng()*Math.PI*2,d=240+rng()*(reach-240),x=p.x+Math.cos(ang)*d,y=p.y+Math.sin(ang)*d;if(waypoints.every(w=>Math.hypot(w.x-x,w.y-y)>=BATTLEFIELD_EVENT_BALANCE.reconMinGap))wp={x,y,index:i,progress:0,done:false}}
-   waypoints.push(wp||{x:p.x+Math.cos(i*2.4)*reach*.72,y:p.y+Math.sin(i*2.4)*reach*.72,index:i,progress:0,done:false});
+   for(let tries=0;tries<24&&!wp;tries++){const ang=rng()*Math.PI*2,d=240+rng()*(reach-240),x=p.x+Math.cos(ang)*d,y=p.y+Math.sin(ang)*d,q=reconPoint(game,p,x,y);if(Math.hypot(q.x-x,q.y-y)<.01&&waypoints.every(w=>Math.hypot(w.x-x,w.y-y)>=BATTLEFIELD_EVENT_BALANCE.reconMinGap))wp={x,y,index:i,progress:0,done:false}}
+   // Bounded deterministic alternatives still work when RNG repeatedly points outside a route.
+   if(!wp){const fallbackReach=Math.max(reach*.72,count*BATTLEFIELD_EVENT_BALANCE.reconMinGap/2);let best=null,bestGap=-1;for(let j=0;j<48;j++){const a=j*Math.PI*2/48,q=reconPoint(game,p,p.x+Math.cos(a)*fallbackReach,p.y+Math.sin(a)*fallbackReach),gap=waypoints.length?Math.min(...waypoints.map(w=>Math.hypot(w.x-q.x,w.y-q.y))):Infinity;if(gap>bestGap){best=q;bestGap=gap}}wp={...best,index:i,progress:0,done:false}}
+   waypoints.push(wp);
   }
   event.waypoints=waypoints;
  }else if(event.type===P.SUPPLY_RECOVERY){
@@ -110,33 +134,38 @@ export function recordBattlefieldOutcome(game,event,outcome){
 }
 
 function beginEngagement(game,pattern,sceneId,endsAt){
- if(pattern==='RECOVERY'||pattern==='ACE_PRESSURE')return pattern;
+ if(game.state!=='playing'||pattern==='RECOVERY'||pattern==='ACE_PRESSURE')return pattern;
  const state=eventState(game),pending=state.pending||{},now=game.t||0,region=game.worldRegion?.();
+ if(sceneId!=null&&state.engagement?.sceneId===sceneId&&state.engagement.region===region)return state.engagement.pattern??pattern;
  const take=key=>{const item=pending[key];delete pending[key];return item&&item.expiresAt>now&&(item.region==null||item.region===region)?item:null};
  const bomber=take('bomber'),artillery=take('artillery');
- const consumeWave=key=>{
+ const wave=key=>{
   const item=pending[key];if(!item)return null;
-  if(item.expiresAt<=now||item.region!=null&&item.region!==region){delete pending[key];return null}
-  if(--item.remaining<=0)delete pending[key];return item;
+  if(item.expiresAt<=now||!crossRegionSupport(key)&&item.region!=null&&item.region!==region||item.remaining<=0){delete pending[key];return null}
+  return item;
  };
- const formation=consumeWave('formation'),rescue=consumeWave('rescue'),airSupport=consumeWave('airSupport');
+ const consumeWave=(key,item)=>{if(--item.remaining<=0)delete pending[key]};
+ const formation=wave('formation'),rescue=wave('rescue'),airSupport=wave('airSupport');
+ if(formation)consumeWave('formation',formation);
  if(bomber?.value===1)pattern='BOMBER_RUN';
  else if(bomber?.value===-1&&['BOMBER_RUN','ESCORT'].includes(pattern))pattern='HEAD_ON_PASS';
- state.engagement={sceneId,region,endsAt:Math.min(endsAt??now+18,now+18),formationWeakened:!!formation,artillery:artillery?.value||0,supportAt:now+3};
- if(rescue){
+ state.engagement={sceneId,region,pattern,endsAt:Math.min(endsAt??now+18,now+18),formationWeakened:!!formation,artillery:artillery?.value||0,supportAt:now+3};
+ if(rescue?.ally){
   const p=playerFor(game),spec=rescue.ally;
   if(game.allies)game.allies=game.allies.filter(a=>a.life>0);
+  const before=game.allies?.length||0;
   for(let i=0;i<5;i++){const side=(i-2)*64,back=88+Math.abs(i-2)*32;
    (game.allies||=[]).push({...spec,slot:i+2,eventRescueSupport:true,life:22,x:p.x-Math.cos(p.a)*back-Math.sin(p.a)*side,y:p.y-Math.sin(p.a)*back+Math.cos(p.a)*side,a:p.a,fire:.25+i*.07});
   }
-  game.event?.('ally','구출 편대 복귀 · 아군 전투기 5기 지원');
+  if(game.allies.length>before){consumeWave('rescue',rescue);game.event?.('ally','구출 편대 복귀 · 아군 전투기 5기 지원')}
  }
  if(airSupport){
   const p=playerFor(game),a=p.a||0,plane=game.teamFaction==='central'||game.allyPlane==='fokker'?'staaken':'handley-page';
+  const before=game.friendlyBombers?.length||0;
   for(let i=0;i<2;i++){const side=(i?1:-1)*92,ox=p.x-Math.sin(a)*side,oy=p.y+Math.cos(a)*side;
    (game.friendlyBombers||=[]).push({ownerId:p.id||'p1',ox,oy,x:ox-Math.cos(a)*650,y:oy-Math.sin(a)*650,a,age:0,drop:.45+i*.28,left:5,airframe:plane,eventMissionSupport:true});
   }
-  game.event?.('ally','폭격 지원 도착 · 2기 편대 폭격');
+  if(game.friendlyBombers.length>before){consumeWave('airSupport',airSupport);game.event?.('ally','폭격 지원 도착 · 2기 편대 폭격')}
  }
  return pattern;
 }
@@ -149,8 +178,10 @@ function consumeArtilleryCancellation(game){
 
 function applyReconIntel(game,state,region){
  const intel=state.bossIntel,addon=game.stageBoss,encounter=addon?.stages?.encounter;
- if(!intel)return;
- if(intel.region!==region){state.bossIntel=null;return}
+ const clear=()=>{state.bossIntel=null;if(addon)addon.__missionReconTarget=null};
+ if(!intel){if(addon)addon.__missionReconTarget=null;return}
+ if(intel.region!==region){clear();return}
+ if(intel.applied){const body=encounter?.bodies.get(intel.bodyId),part=intel.partId?body?.parts.get(intel.partId):null;if(addon?.stages?.phase!=='boss'||encounter?.id!==intel.encounterId||!body||body.dead||intel.partId&&(!part||part.destroyed)){clear();return}}
  if(!intel.applied&&addon?.stages?.phase==='boss'&&encounter){
   const liveBodies=[...encounter.bodies.values()].filter(b=>!b.dead);let target=null;
   for(const body of liveBodies){
@@ -164,18 +195,19 @@ function applyReconIntel(game,state,region){
    addon.__missionReconBaseHit=addon.hit;
    addon.hit=function(args){
     const weak=this.__missionReconTarget,active=this.stages?.encounter;
-    const allowed=weak&&active?.id===weak.encounterId&&args.bodyId===weak.bodyId&&args.partId===(weak.partId??null)&&(!weak.partId||!active.bodies.get(weak.bodyId)?.parts.get(weak.partId)?.destroyed);
+    const body=weak&&active?.bodies.get(weak.bodyId),part=weak?.partId?body?.parts.get(weak.partId):null;
+    const allowed=weak&&active?.id===weak.encounterId&&body&&!body.dead&&args.bodyId===weak.bodyId&&args.partId===(weak.partId??null)&&(!weak.partId||part&&!part.destroyed);
     return this.__missionReconBaseHit.call(this,allowed?{...args,damage:args.damage*weak.bonus}:args);
    };
   }
   addon.__missionReconTarget=intel;game.event?.('wave','정찰 정보 확보 · 표시된 보스 약점 피해 +35%');
- }else if(intel.applied&&addon?.stages?.phase==='explore')state.bossIntel=null;
+ }
 }
 function tickConsequences(game){
  if(game.state!=='playing')return;
  const state=game.battlefieldEvents,now=game.t||0,region=game.worldRegion?.();if(!state)return;
  applyReconIntel(game,state,region);
- for(const [key,item]of Object.entries(state.pending||{}))if(item.expiresAt<=now||item.region!=null&&item.region!==region)delete state.pending[key];
+ for(const [key,item]of Object.entries(state.pending||{}))if(item.expiresAt<=now||!crossRegionSupport(key)&&item.region!=null&&item.region!==region)delete state.pending[key];
  const engagement=state.engagement;
  if(engagement&&engagement.endsAt>now&&engagement.region===region&&engagement.artillery===1&&now>=engagement.supportAt&&!scriptedBoss(game)){
   engagement.artillery=0;game.observedVolley?.(false);
@@ -202,6 +234,7 @@ function finish(game,state,outcome,reason){
   (game.drops||=[]).push({x:p.x-60,y:p.y,value:0,heal:true,supply:true,life:16,vx:0,vy:0,battlefieldEvent:true});
  }
  recordBattlefieldOutcome(game,event,outcome);
+ achievementMission(game,event,outcome);
  state.result={id:event.id,type:event.type,outcome,reason:reason||null,rewardType:outcome==='completed'?event.type:null};state.history.push({type:event.type,outcome,time:game.t||0});state.history=state.history.slice(-8);state.lastType=event.type;state.current=null;
  return true;
 }
@@ -257,3 +290,4 @@ export function installBattlefieldEvents(Game){
  const update=Game.prototype.update;
  Game.prototype.update=function(dt,input={}){const result=update.call(this,dt,input);this.tickBattlefieldEvents();return result};
 }
+

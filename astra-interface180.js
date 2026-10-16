@@ -1,8 +1,8 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
-import {getLocale,subscribe} from './i18n.js?v=gal1';
-import {aircraftKey} from './aircraft.js?v=gal1';
-import {hangarArt,hangarArtNow,hangarKeyFile} from './hangar-art.js?v=gal1';
-export {hangarArt} from './hangar-art.js?v=gal1';
+import {getLocale,subscribe} from './i18n.js?v=buildfit1';
+import {aircraftKey} from './aircraft.js?v=buildfit1';
+import {hangarArt,hangarArtNow,hangarKeyFile} from './hangar-art.js?v=buildfit1';
+export {hangarArt} from './hangar-art.js?v=buildfit1';
 
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
@@ -21,6 +21,7 @@ const paths={
 };
 export function interfaceIcon(name,cls='astra-icon'){
  const holder=el('span',cls);holder.setAttribute('aria-hidden','true');
+ if(name==='medals'){holder.classList.add('service-nav-medal');return holder}
  holder.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round">${paths[name]||paths.sortie}</svg>`;
  return holder;
 }
@@ -171,7 +172,7 @@ function installHud(){
   const button=$(id);
   if(name==='active'){const f=$('central')?.classList.contains('active')?'central':'entente';
    const img=el('img','astra-control-icon astra-skill-emblem');img.alt='';img.decoding='async';
-   img.src=`./augmentation-icons/emblem_bare_${f}.webp?v=gal1`;button.prepend(img,ring());}
+   img.src=`./augmentation-icons/emblem_bare_${f}.webp?v=r5`;button.prepend(img,ring());}
   else button.prepend(interfaceIcon(name,'astra-control-icon'),ring());
  }
  const readout=el('div','astra-reload-readout'),caption=el('span'),seconds=el('b'),track=el('span','astra-reload-track'),fill=el('i');track.append(fill);readout.append(caption,seconds,track);survival.append(readout);

@@ -1,7 +1,7 @@
-import {CoopGame} from './coop-engine.js?v=bomb19&rail=42';
+import {CoopGame} from './coop-engine.js?v=buildfit1';
 import {BossEncounter} from './headon-stageboss-core.js?v=gal1';
-import {stageBossSpeed} from './stageboss-host.js?v=bomb19&hints=1&rail=42';
-import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFields,pose,mixAngle} from './online-coop-protocol.js';
+import {stageBossSpeed} from './stageboss-host.js?v=buildfit1';
+import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFields,pose,mixAngle} from './online-coop-protocol.js?v=bomber21';
 
 const LANES=['enemies','drops','allies','patrols','mines','friendlyBombers','friendlyBombs','bombZones','flakBursts','hostileMinefields','gasZones','gusts','grenades','smokeZones','combatFX','revisionDecoys','enemyAirshipPasses'];
 const WORLD=['t','distance','kills','priorityKills','score','state','manualPaused','region','wave','stageStartDistance','stageStartTime','battleDirectorPattern','battleDirector','battlefieldEvents','navalRoute','jutlandRoute','gallipoliRoute','bossBuildings','bossCues','londonBattle','parisBattle','verdunBattle','maanWeather','alpsMountains','cityDefense','activeUpgrade','pendingLevelUps','upgradeSequence'];
@@ -134,7 +134,7 @@ export class OnlineCoopGame extends CoopGame {
   const step=Math.min(.04,Math.max(0,dt));
   if(this.state==='playing'){
    const p=this.player(this.localPlayerId);if(p.status==='alive'){
-    p.flyAirframe(step,this._netInput);const velocity=p.baseSpeed*p.healthSpeedFactor()*stageBossSpeed(p)*(p.udetBoost>0?1.7:1)*(p.chargeTime>0?4.6:p.evadeTime>0?2.35:p.airframeSpeed??1)*(p.pursuitSpeedFactor??1)*(p.vossReverse>0?2.35:1);
+    p.flyAirframe(step,this._netInput);const velocity=p.baseSpeed*p.healthSpeedFactor()*stageBossSpeed(p)*(p.udetBoost>0?1.7:1)*(p.chargeTime>0?4.6:p.evadeTime>0?(p.bomberTransfer?1.12:2.35):p.airframeSpeed??1)*(p.pursuitSpeedFactor??1)*(p.vossReverse>0?2.35:1);
     const x=p.x,y=p.y;p.x+=Math.cos(p.a)*velocity*step;p.y+=Math.sin(p.a)*velocity*step;this.constrainMove(p,x,y);
     const k=1-Math.exp(-step*10),c=this._netCorrection;p.x+=c.x*k;p.y+=c.y*k;p.a+=c.a*k;c.x*=1-k;c.y*=1-k;c.a*=1-k;
    }

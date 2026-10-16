@@ -1,8 +1,9 @@
+import {bombFallPose} from './bomb-sprites.js?v=bomb20';
 // HEAD-ON FX layer (painted atlas). ON by default on this branch; ?fxs=0 rolls
 // back to the previous FX (?fx=0 still disables all sprite FX). Swaps the listed FX keys for the sample atlas in
 // fx-sample/, adds tracer / rocket-trail / bomb-fall drawing hooks, and
 // otherwise leaves every renderer untouched. Remove this file and the few
-// `FXS` lines in fx-art.js / app.js?v=gal1 to drop the preview.
+// `FXS` lines in fx-art.js / app.js?v=tame3 to drop the preview.
 const params = typeof location === 'undefined' ? null : new URLSearchParams(location.search);
 export const FXS = params?.get('fxs') !== '0' && params?.get('fx') !== '0';
 
@@ -112,21 +113,19 @@ export function fxsRocketTrail(c, x, y, angle, bodyLen = 52) {
   return true;
 }
 
-// Bomb fall: shrinking body over a growing ground shadow, both on the aim point.
-export function fxsBombFall(c, drawBody, sx, sy, tx, ty, p) {
-  if (!fxsHas('bombShadow')) return false;
-  const e = p * p; // accelerating fall
-  const x = sx + (tx - sx) * p, y = sy + (ty - sy) * e;
+// The body path also works while the FX atlas loads or sprite FX are disabled.
+const bombPose = {};
+export function fxsBombFall(c, drawBody, sx, sy, tx, ty, p, releaseAngle) {
+  const pose = bombFallPose(sx, sy, tx, ty, p, releaseAngle, bombPose);
+  const e = Math.max(0, Math.min(1, p)) ** 2, decorated = fxsHas('bombShadow');
   // shadow sharpens and grows as the bomb nears the ground
-  fxsDraw(c, 'bombShadow', tx + 10 * (1 - e), ty + 14 * (1 - e), 22 + 18 * e, 11 + 9 * e, 0, 0.35 + 0.55 * e);
-  // body shrinks with altitude read from the top-down camera
-  const s = 1.55 - 0.75 * e;
+  if (decorated) fxsDraw(c, 'bombShadow', tx + 10 * (1 - e), ty + 14 * (1 - e), 22 + 18 * e, 11 + 9 * e, 0, 0.35 + 0.55 * e);
   c.save(); c.globalAlpha *= 0.98;
-  drawBody(x, y, s, Math.PI / 2 + Math.atan2(tx - sx, Math.abs(ty - sy) + 160) * 0.3 + Math.sin(p * 19) * 0.22 * (1 - p));
+  drawBody(pose.x, pose.y, pose.scale, pose.angle, pose.pitch);
   c.restore();
   // aim ring tightens
-  c.save(); c.strokeStyle = 'rgba(245,230,200,.55)'; c.lineWidth = 1.2; c.setLineDash([3, 4]);
-  c.beginPath(); c.arc(tx, ty, 28 - 12 * e, 0, Math.PI * 2); c.stroke(); c.restore();
+  if (decorated) { c.save(); c.strokeStyle = 'rgba(245,230,200,.55)'; c.lineWidth = 1.2; c.setLineDash([3, 4]);
+  c.beginPath(); c.arc(tx, ty, 28 - 12 * e, 0, Math.PI * 2); c.stroke(); c.restore(); }
   return true;
 }
 

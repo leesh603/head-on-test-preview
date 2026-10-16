@@ -1,10 +1,10 @@
 import {paintDoverTerrain,doverCoastPoint} from './dover-terrain-render.js?v=dover6';
 import {DOVER_PART_CLIPS} from './dover-night-bosses.js?v=dover3';
-import {fx} from './fx-art.js?v=gal1';
-import {drawBossOrdnance} from './boss-ordnance-art.js?v=gal1';
+import {fx} from './fx-art.js?v=tame3';
+import {drawBossOrdnance} from './boss-ordnance-art.js?v=tame3';
 import {drawDressingSprite} from './background-dressing.js?v=1';
 import {doverPatrolChart} from './dover-patrol-chart.js?v=dover3';
-import {impactMark,aimLine,laneEdge,sectorMark,partMark,shieldMark} from './tactical-marks.js?v=gal1';
+import {impactMark,aimLine,laneEdge,sectorMark,partMark,shieldMark} from './tactical-marks.js?v=tame3';
 
 export const DOVER_ASSETS=Object.freeze({terrain:'terrain-dover-chalk-material-v6.webp',nighthawk:'boss-dover-nighthawk.webp',nighthawkWreck:'boss-dover-nighthawk-wreck.webp',rviii:'boss-dover-rviii.webp',rviiiWreck:'boss-dover-rviii-wreck.webp',rotor:'propeller-dover.webp'});
 const images=new Map();let pending=null,generation=0;

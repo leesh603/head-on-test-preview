@@ -1,6 +1,6 @@
 import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=gal1';
 import {fx} from './fx-art.js?v=gal1';
-import {bombSprite} from './bomb-sprites.js?v=bomb19';
+import {bombSprite} from './bomb-sprites.js?v=bomb20';
 import {fxsBombFall} from './fx-sample-preview.js?v=bomb3&rail=42';
 import {drawTracerBolt} from './projectiles.js?v=gal1&rail=42';
 import {impactMark,partMark,aimLine,stripMark} from './tactical-marks.js?v=gal1';
@@ -48,7 +48,7 @@ export function drawAlpsHazard(c,h,ring){
  }
  if(warning){impactMark(c,h.x,h.y,h.radius,progress,{heavy:h.raidHeavy});
   const sx=Number.isFinite(h.sourceX)?h.sourceX:h.x,sy=Number.isFinite(h.sourceY)?h.sourceY:h.y-560;
-  if(!fxsBombFall(c,(X,Y,k,a)=>bombSprite(c,'puw',X,Y,52,a)||fx(c,'bomb',X,Y,40*k,20*k,a),sx,sy,h.x,h.y,progress)){const bx=sx+(h.x-sx)*progress,by=sy+(h.y-sy)*progress-Math.sin(progress*Math.PI)*30;if(!bombSprite(c,'puw',bx,by,52,Math.PI/2,.95))fx(c,'bomb',bx,by,26+progress*8,11+progress*3,Math.PI/2,.95);}
+  fxsBombFall(c,(X,Y,k,a,pitch)=>bombSprite(c,h.sprite||'puw',X,Y,52*k,a,.95,pitch)||fx(c,'bomb',X,Y,36*k*pitch,16*k,a,.95),sx,sy,h.x,h.y,progress,h.releaseAngle);
  }else{const age=h.age-h.delay-h.warning;fx(c,'explosion0',h.x,h.y,h.radius*2.1,h.radius*2.1,0,Math.max(0,1-age/h.duration));fx(c,'smokeDark',h.x,h.y-age*24,h.radius*(1.5+age),h.radius*(1.5+age),0,.6);}
  return true;
 }

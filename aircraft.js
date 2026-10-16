@@ -1,4 +1,14 @@
 import {clearCrewMatte} from './matte70.js?v=gal1';
+import {BANK_ART} from './aircraft-bank-art.js?v=bank2';
+// Exact stock-bank paint cells; these stay outside the evictable NPC art cache.
+const BOMBER_TRANSFER_ART=Object.freeze({
+ 'transfer-caudron-r11':{path:'asset-bank/flight/bank_plane_caudron_r11.webp',x:0,y:0,w:288,h:320},
+ 'transfer-aeg-ji':{path:'asset-bank/flight/transfer-aeg-ji.webp',x:0,y:0,w:288,h:320},
+ 'transfer-r29':{path:'asset-bank/flight/transfer-r29.webp',x:0,y:0,w:288,h:320},
+ 'transfer-l30':{path:'asset-bank/flight/bank_airship_zeppelin_l30.webp',x:0,y:0,w:288,h:320},
+ 'bomber-transfer-o400':{path:'asset-bank/flight/livery_hp_o400.webp',x:576,y:0,w:288,h:320},
+ 'bomber-transfer-gotha':{path:'asset-bank/flight/livery_gotha_g4.webp',x:288,y:0,w:288,h:320}
+});
 // Hand-authored game-native pixel sprites. All detail is rasterized once on an
 // integer grid; Canvas scaling keeps the same pixels in flight and the roster.
 const AIRFRAMES={
@@ -20,6 +30,7 @@ const painted=new Map();
 // An unrelated late image must not force every on-screen plane to rebake.
 function setPainted(key,image){
  const previous=painted.get(key);painted.set(key,image);
+ if(key.startsWith('bank_')){bankTouched.delete(key);bankTouched.set(key,1);trimBankArtwork();}
  if(!previous)return;
  for(const [id,sprite] of cache)if(sprite===previous){
   cache.delete(id);shadows.delete(id);
@@ -28,11 +39,30 @@ function setPainted(key,image){
  }
 }
 
+// Bound bank canvases and all derived variants; live aircraft cannot be evicted.
+const bankTouched=new Map();let bankRetained=new Set();
+export const hasPaintedAircraft=key=>painted.has(key);
+export function retainBankArtwork(keys){bankRetained=new Set(keys)}
+function trimBankArtwork(){
+ while(bankTouched.size>24){const key=[...bankTouched.keys()].find(k=>!bankRetained.has(k));if(!key)break;
+  const previous=painted.get(key);painted.delete(key);bankTouched.delete(key);
+  for(const [id,sprite]of cache)if(id===key||sprite===previous){cache.delete(id);shadows.delete(id);
+   for(const k of flashes.keys())if(k===id||k.startsWith(id+'#d'))flashes.delete(k);
+   for(const k of damageCache.keys())if(k===id||k.startsWith(id+'#stage'))damageCache.delete(k);
+  }
+ }
+}
 // Load the detailed painted WWI sprites once; each airframe keeps its own
 // cache entry so Albatros can never inherit Fokker's canvas.
 // Sprites ship with baked alpha; the matte pass only defensively clears any
 // neutral preview matte still connected to the exterior on legacy art.
 export function clearAircraftMatte(key,data,w,h){
+ if(key==='bomber-transfer-gotha'){
+  // The current bank cell already has open wing gaps; its chroma scraps are
+  // alpha 1. Discard only that nearly invisible residue, keeping painted parts.
+  for(let i=3;i<data.length;i+=4)if(data[i]>0&&data[i]<=8)data[i]=0;
+  return;
+ }
  if(!['baron_albatros','albatros_d2'].includes(key))return;
  const seen=new Uint8Array(w*h),queue=new Int32Array(w*h);let head=0,tail=0;
  const add=(x,y)=>{if(x<0||x>=w||y<0||y>=h)return;const n=y*w+x;if(seen[n])return;seen[n]=1;const i=n*4,r=data[i],g=data[i+1],b=data[i+2];if(Math.min(r,g,b)<90||Math.max(r,g,b)-Math.min(r,g,b)>32)return;queue[tail++]=n;data[i+3]=0;};
@@ -45,25 +75,61 @@ const WINGSPAN_M={fokker:7.19,fokker_standard:7.19,fokker_f1:7.19,fokker_jacobs:
 const spriteScale=key=>WINGSPAN_M[key]==null?1:Math.min(1.18,Math.max(.8,(WINGSPAN_M[key]/8.5)**.8));
 const PAINTED_KEYS=['fokker','fokker_standard','fokker_f1','albatros','camel','sopwith','nieuport','nieuport_italian','spad12','fokkerdv','re7','fokkerd7','eindecker','se5a','bristol_duo','halberstadt_duo','baron_albatros','albatros_d2','nieuport24','pfalz_d3a','airco_dh2','spad','be2c','aviatik','strutter','nieuport11','nieuport28','hanriot','pup','dh5','re8','dh4','albatros_d5a','fokker_jacobs','goering_fokkerd7','collishaw_sopwith','guynemer_spad','udet_fokkerdv','baracca_nieuport','berthold_pfalz','siemens_d4','roland_d6','hannover_cl3','dfw_cv','junkers_j1','gotha','bristol_m1','dolphin','snipe','fe2b','gunbus','morane_ai','rickenbacker_spad','voss_dr1','udet_fokkerd7','nungesser_nieuport','ball_se5a','barker_snipe','luke_nieuport28','brumowski_albatros','gontermann_fokker','hansa_brandenburg_cc','lohner_l','macchi_m3','macchi_m5','wolff_albatros','loewenhardt_fokkerd7','mccudden_se5a','nungesser_nieuport24','aeg_g4','friedrichshafen_g3','breguet14','voisin8','caudron_g4','ssw_d3','pfalz_d12','phonix_d1','aviatik_d1','junkers_d1','ansaldo_sva5','hb_w29','ff33','felixstowe_f2','shuttelanz_sl11','parseval','caquot_balloon','staaken','handley-page','jasta4_albatros','jasta5_albatros','jasta78b_albatros','kissenberth_albatros','allmenroder_albatros','jasta11a_albatros','jasta11b_albatros','jasta11c_albatros','jasta11d_albatros','lothar_dr1','beaulieu_dr1','mai_dr1','hantelmann_dr1','jasta11_fokkerd7','jasta18_fokkerd7','jasta43_fokkerd7','gabriel_fokkerd7','jasta27_fokkerd7','baeumer_pfalz','degelow_pfalz','linke_crawford_phonix','kiss_phonix','arigi_aviatik','gotha_night','staaken_dark','brown_camel','mcelroy_camel','dazzle_camel','lufbery_nieuport17','dorme_nieuport','meulemeester_nieuport','eagle_nieuport28','coppens_hanriot','madon_spad','tarascon_spad','boyau_spad','hatring_spad','springs_se5a','proctor_se5a','checker_se5a','ruffo_sva5','pierozzi_macchi','udet_albatros','loerzer_albatros','frommherz_albatros','kirschstein_albatros','boelcke_albatros','woollett_camel','collett_camel','naval10_camel','belgian_camel','fonck_spad','thieffry_spad','italian_spad','deullin_spad','mannock_se5a','sqn85_se5a','collishaw_se5a','stork_nieuport','bishop_nieuport','navarre_nieuport','camo_nieuport','zebra_se5a','berthold_albatros','mueller_albatros','schoder_albatros','buttner_albatros','wolff2_albatros','nonal_camel','maclaren_camel','barker_camel','germain_spad','audemars_spad','carli_spad','belgium_spad','bishop_se5a','dallas_se5a','beauchamp_se5a','guynemer_nieuport','heurteaux_nieuport','carli_nieuport','schleich_albatros'];
 const HANGAR_KEYS=['fokker','fokker_f1','fokker_standard','fokker_jacobs','baron_albatros','albatros','albatros_d2','eindecker','camel','sopwith','collishaw_sopwith','nieuport','nieuport_italian','nieuport24','baracca_nieuport','nungesser_nieuport24','luke_nieuport28','fokkerdv','udet_fokkerdv','spad','spad12','guynemer_spad','rickenbacker_spad','re7','fokkerd7','goering_fokkerd7','loewenhardt_fokkerd7','se5a','mccudden_se5a','ball_se5a','bristol_duo','halberstadt_duo','barker_snipe','brumowski_albatros','gontermann_fokker','wolff_albatros','berthold_pfalz'];
-const loadPainted=key=>new Promise(resolve=>{
+const decodePainted=key=>new Promise(resolve=>{
  // resolve() is idempotent — the 45 s ceiling guarantees a stuck request or a
  // thrown decode can never hang whatever gate waits on this promise.
- setTimeout(()=>resolve(false),45000);
- const img=new Image();img.onload=()=>{try{
+ let settled=false;const img=new Image();
+ const finish=ok=>{if(settled)return;settled=true;clearTimeout(deadline);img.onload=null;img.onerror=null;if(!ok)img.src='';resolve(ok)};
+ const deadline=setTimeout(()=>finish(false),45000);
+ img.onload=()=>{try{
+  // Pre-cropped transparent stock-bank art needs no full image pixel readback.
+  // Downsample once on first appearance; the established cache/shadow pipeline follows.
+  if(key.startsWith('bank_')||BOMBER_TRANSFER_ART[key]){
+    const out=document.createElement('canvas');out.width=288;out.height=320;
+    const oc=out.getContext('2d');oc.imageSmoothingEnabled=true;oc.imageSmoothingQuality='high';
+    const art=BANK_ART[key]||BOMBER_TRANSFER_ART[key];if(!art){finish(false);return;}
+    oc.drawImage(img,art.x,art.y,art.w,art.h,0,0,288,320);
+    if(key==='bomber-transfer-gotha'){const pixels=oc.getImageData(0,0,288,320);clearAircraftMatte(key,pixels.data,288,320);oc.putImageData(pixels,0,0);}
+    setPainted(key,out);finish(true);return;
+  }
   const scan=document.createElement('canvas');scan.width=Math.ceil(img.naturalWidth/2);scan.height=Math.ceil(img.naturalHeight/2);const sc=scan.getContext('2d',{willReadFrequently:true});sc.drawImage(img,0,0,scan.width,scan.height);const pixels=sc.getImageData(0,0,scan.width,scan.height),rgba=pixels.data;if(key==='nieuport_italian')for(let i=0;i<rgba.length;i+=4){const r=rgba[i],g=rgba[i+1],b=rgba[i+2];if(rgba[i+3]>0&&b>70&&b>r*1.18&&b>g*1.05){rgba[i]=55;rgba[i+1]=132;rgba[i+2]=78}}clearAircraftMatte(key,rgba,scan.width,scan.height);clearCrewMatte(key,rgba,scan.width,scan.height);sc.putImageData(pixels,0,0);let minX=scan.width,minY=scan.height,maxX=-1,maxY=-1;
   for(let y=0;y<scan.height;y++)for(let x=0;x<scan.width;x++)if(rgba[(y*scan.width+x)*4+3]>128){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}
-  if(maxX>=minX&&maxY>=minY){const out=document.createElement('canvas');out.width=288;out.height=320;const oc=out.getContext('2d');oc.imageSmoothingEnabled=true;oc.imageSmoothingQuality='high';const w=maxX-minX+1,h=maxY-minY+1,k=Math.min(228/w,264/h)*spriteScale(key),dw=Math.round(w*k),dh=Math.round(h*k);oc.drawImage(scan,minX,minY,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);const sil=document.createElement('canvas');sil.width=288;sil.height=320;const sx=sil.getContext('2d');sx.drawImage(out,0,0);sx.globalCompositeOperation='source-in';sx.fillStyle='#140f08';sx.fillRect(0,0,288,320);const rim=document.createElement('canvas');rim.width=288;rim.height=320;const rc=rim.getContext('2d');for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)if(dx*dx+dy*dy<=5)rc.drawImage(sil,dx,dy);rc.drawImage(out,0,0);setPainted(key,rim)}resolve(true);}catch{resolve(false)}
- };let tries=0;const sourceKey=key==='nieuport_italian'?'nieuport':key;const mechDir=new URLSearchParams(location.search).get('mech')==='0'?'':'mech/';const base=new URL(`./${mechDir}${sourceKey}.webp?v=gal1&b=347`,import.meta.url).href;
+  if(maxX>=minX&&maxY>=minY){const out=document.createElement('canvas');out.width=288;out.height=320;const oc=out.getContext('2d');oc.imageSmoothingEnabled=true;oc.imageSmoothingQuality='high';const w=maxX-minX+1,h=maxY-minY+1,k=Math.min(228/w,264/h)*spriteScale(key),dw=Math.round(w*k),dh=Math.round(h*k);oc.drawImage(scan,minX,minY,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);const sil=document.createElement('canvas');sil.width=288;sil.height=320;const sx=sil.getContext('2d');sx.drawImage(out,0,0);sx.globalCompositeOperation='source-in';sx.fillStyle='#140f08';sx.fillRect(0,0,288,320);const rim=document.createElement('canvas');rim.width=288;rim.height=320;const rc=rim.getContext('2d');for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)if(dx*dx+dy*dy<=5)rc.drawImage(sil,dx,dy);rc.drawImage(out,0,0);setPainted(key,rim)}finish(true);}catch{finish(false)}
+ };let tries=0;const sourceKey=key==='nieuport_italian'?'nieuport':key;const mechDir=new URLSearchParams(location.search).get('mech')==='0'?'':'mech/';
+ const stock=key.startsWith('bank_')||!!BOMBER_TRANSFER_ART[key],stockArt=BANK_ART[key]||BOMBER_TRANSFER_ART[key];if(stock&&!stockArt){finish(false);return;}
+ const artRevision=key==='barker_snipe'&&mechDir?'barker-alpha-20261015':'347';
+ const base=new URL(stock?`./${stockArt.path}?v=bank2`:`./${mechDir}${sourceKey}.webp?v=gal1&b=${artRevision}`,import.meta.url).href;
  // A failed fetch must never cache the plane as permanently invisible: retry with
  // a cache-busting tag so stale error responses and flaky mobile radio recover.
- img.onerror=()=>{if(++tries<8){img.src=base+'&r='+tries;return}resolve(false)};img.src=base;
+ img.onerror=()=>{if(++tries<(stock?2:8)){img.src=base+'&r='+tries;return}finish(false)};img.src=base;
 });
+// Shared promise ownership prevents spawn gates and drawing from decoding twice.
+const paintedLoads=new Map(),bankLoadQueue=[];let bankDecodes=0;
+function loadPainted(key){
+ if(painted.has(key))return Promise.resolve(true);
+ if(paintedLoads.has(key))return paintedLoads.get(key);
+ const bank=key.startsWith('bank_');let complete;
+ const result=new Promise(resolve=>{complete=resolve});paintedLoads.set(key,result);
+ const run=()=>{if(bank)bankDecodes++;decodePainted(key).then(complete,()=>complete(false)).finally(()=>{
+  paintedLoads.delete(key);if(bank){bankDecodes--;bankLoadQueue.shift()?.();}
+ });};
+ if(bank&&bankDecodes>=2)bankLoadQueue.push(run);else run();
+ return result;
+}
 // Sprites that failed or arrived late get re-requested on demand instead of the
 // plane staying invisible for the rest of the session.
 const paintedPending=new Set();
 // A failing key waits a few seconds before the next draw retries it — otherwise an
 // unreachable file spawns a new request on every frame the plane is on screen.
-function ensurePainted(key){if(!key||painted.has(key)||paintedPending.has(key))return;paintedPending.add(key);loadPainted(key).finally(()=>setTimeout(()=>paintedPending.delete(key),4000))}
+let activeBankLoads=0;
+function ensurePainted(key){
+ if(!key||painted.has(key)||paintedPending.has(key))return;
+ const bank=key.startsWith('bank_');
+ // Bank aircraft load only when first visible; cap concurrent image decode on mobile.
+ if(bank&&activeBankLoads>=2)return;
+ paintedPending.add(key);if(bank)activeBankLoads++;
+ loadPainted(key).finally(()=>{if(bank)activeBankLoads--;setTimeout(()=>paintedPending.delete(key),bank?10000:4000)});
+}
 export const hangarArtReady=Promise.all(HANGAR_KEYS.map(loadPainted));
 // Gates a single painted sprite — the hangar waits on just the shown airframe
 // instead of the whole painted set.
@@ -198,6 +264,7 @@ export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0
  // Never fall back to the retired procedural planes while the authored art is
  // loading (or if an asset fails). A blank frame is preferable to a visual swap.
  if(!painted.has(sourceKey)){ensurePainted(sourceKey);return}
+ if(sourceKey.startsWith('bank_')){bankTouched.delete(sourceKey);bankTouched.set(sourceKey,1);}
  if(!cache.has(cacheKey)){const source=cache.get(cacheKey)||build(redAce?'fokker':variant?'fokker_f1':standard?'fokker_standard':key);cache.set(cacheKey,source)}const damageStage=typeof damaged==='number'?Math.min(5,damaged):0;const sprite=damaged&&damageDecals.length?damagedSprite(cache.get(cacheKey),damageStage?cacheKey+'#stage'+damageStage:cacheKey,damageStage):cache.get(cacheKey);
  c.save();c.imageSmoothingEnabled=false;c.translate(Math.round(x),Math.round(y));c.rotate(a+Math.PI/2);
  const s=scale*.54;c.scale(s,s);
