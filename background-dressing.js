@@ -1,11 +1,10 @@
 // Scenery only: no Game/RNG ownership, collision, AI, particles or update loop.
 // Coordinates were measured on the current authored terrain, never scattered.
-import {drawGroundLife,groundLifeReady,drawHarborLife,drawCoastLife} from './ground-life.js?v=livingww1d';
 const FRAMES=Object.freeze({gun:0,tank:1,farm:2,wagon:3,ambulance:4,lorry:5,train:6,supplies:7,landing:8,camp:9,desertWagon:10,brokenGun:11});
 const images={};
-export const backgroundDressingReady=typeof Image==='undefined'?Promise.resolve(false):Promise.all([groundLifeReady,...[
+export const backgroundDressingReady=typeof Image==='undefined'?Promise.resolve(false):Promise.all([
  ['atlas','./background-dressing-20261010.webp?v=gal1'],['coastalGun','./zeebrugge-harbor-props.webp?v=gal1']
-].map(([key,src])=>new Promise(resolve=>{const im=new Image();images[key]=im;im.decoding='async';im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(!!im.naturalWidth))};im.onerror=()=>resolve(false);im.src=src;}))]);
+].map(([key,src])=>new Promise(resolve=>{const im=new Image();images[key]=im;im.decoding='async';im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(!!im.naturalWidth))};im.onerror=()=>resolve(false);im.src=src;})));
 export function drawDressingSprite(c,kind,x,y,size,angle=0,alpha=.74){
  const coastal=kind==='coastalGun',im=images[coastal?'coastalGun':'atlas'];if(!im?.naturalWidth)return;
  c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha*=alpha;c.imageSmoothingEnabled=true;
@@ -46,11 +45,6 @@ export function drawRepeatedDressing(c,key,left,top,width,height,period){
  }
 }
 
-// Live authored image layer, under all combat entities and hazard markers.
-export function drawMovingDressing(c,key,left,top,width,height,period,t,density=1){
- drawGroundLife(c,key,left,top,width,height,period,t,density);
-}
-
 // The harbor image itself supplies every dock/land coordinate. Bake before
 // the existing landmark's fade, so no ground prop survives beyond its land.
 export const HARBOR_DRESSING=Object.freeze([
@@ -79,7 +73,6 @@ export function drawGallipoliDressing(c,r,cx,cy,w,h,t=0){
   if(Math.abs(x-n)>span+site.size||Math.abs(y+s)>span+site.size)continue;
   // No translation jitter: the complete footprint must stay on authored land.
   drawDressingSprite(c,site.kind,x,y,site.size,site.a+((variant(ix,0)%3)-1)*.04,.7);
-  if(site.kind==='coastalGun')drawCoastLife(c,x+24,y+20,t);
  }
  c.restore();
 }
@@ -115,5 +108,3 @@ export function drawParisDressing(c,g,cx,cy,w,h){
   }
  }
 }
-
-export {drawHarborLife};

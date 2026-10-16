@@ -2,7 +2,7 @@ import {paintDoverTerrain,doverCoastPoint} from './dover-terrain-render.js?v=dov
 import {DOVER_PART_CLIPS} from './dover-night-bosses.js?v=dover3';
 import {fx} from './fx-art.js?v=tame3';
 import {drawBossOrdnance} from './boss-ordnance-art.js?v=tame3';
-import {drawDressingSprite} from './background-dressing.js?v=1';
+import {drawDressingSprite} from './background-dressing.js?v=mobileperf1';
 import {doverPatrolChart} from './dover-patrol-chart.js?v=dover3';
 import {impactMark,aimLine,laneEdge,sectorMark,partMark,shieldMark} from './tactical-marks.js?v=tame3';
 
