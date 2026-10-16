@@ -5,6 +5,13 @@ const angleDiff=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 
 export function wingmanEngagementStep(world,owner,wing,home,dt){
+ if(owner.bomberTransfer?.kind==='airship'&&wing.permanent&&!wing.boelckePincer&&!wing.orbit){
+  const target=owner.airshipWingTarget(),goal=target?Math.atan2(target.y-wing.y,target.x-wing.x):owner.a;
+  wing._netCarrierTarget=target;wing.engagementTarget=null;wing.engagementState=target?'INTERCEPT':'HOME';
+  wing.a+=clamp(angleDiff(goal,wing.a),-dt*3.3,dt*3.3);
+  const response=1-Math.exp(-dt*2.6);wing.x+=(home.x-wing.x)*response;wing.y+=(home.y-wing.y)*response;
+  return true;
+ }
  if(owner.upgrades?.lufberyCircle||owner.wingmanDamageMult>1||wing.boelckePincer||wing.orbit||['collishaw','brumowski','boelcke','goering'].includes(owner.pilot))return false;
  const now=world.t||0,active=wing.engagementTarget;
  if(active&&(active.hp<=0||!world.enemies.includes(active)||distance(active,owner)>580||distance(active,wing)>700))wing.engagementTarget=null;
@@ -36,7 +43,7 @@ export function wingmanEngagementStep(world,owner,wing,home,dt){
  return true;
 }
 
-export function wingmanAttackTarget(wing){return wing.engagementState==='INTERCEPT'||wing.engagementState==='PASS'?wing.engagementTarget:null}
+export function wingmanAttackTarget(wing){if(wing._netCarrierTarget)return wing._netCarrierTarget;return wing.engagementState==='INTERCEPT'||wing.engagementState==='PASS'?wing.engagementTarget:null}
 
 export function patrolEngagementStep(p,target,home,dt){
  const S=p.combatPassState||'APPROACH',nowDt=Math.max(0,dt),range=clamp(p.personality?.preferredRange||210,145,310);
