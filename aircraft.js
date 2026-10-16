@@ -83,7 +83,7 @@ const decodePainted=key=>new Promise(resolve=>{
  const finish=ok=>{if(settled)return;settled=true;clearTimeout(deadline);img.onload=null;img.onerror=null;if(!ok)img.src='';resolve(ok)};
  const deadline=setTimeout(()=>finish(false),45000);
  img.onload=()=>{try{
-  if(bakedArt){setPainted(key,img);finish(true);return;}
+  if(bakedArt){const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0);setPainted(key,out);finish(true);return;}
   // Pre-cropped transparent stock-bank art needs no full image pixel readback.
   // Downsample once on first appearance; the established cache/shadow pipeline follows.
   if(key.startsWith('bank_')||BOMBER_TRANSFER_ART[key]){
