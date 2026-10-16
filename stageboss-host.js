@@ -1,10 +1,10 @@
-import {capBomberSalvoDamage} from './bomber-transfer.js?v=buildfit1';
+import {capBomberSalvoDamage} from './bomber-transfer.js?v=buildfit1&afc=1';
 import {achievementBossCue,achievementBossClear,awardPriorityKill} from './achievements.js?v=medals2';
 import {doverPatrolChart} from './dover-patrol-chart.js?v=dover3';
 import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=gal1';
 import {resolveSurfaceSpacing} from './naval-spacing.js?v=gal1';
 
-import {tickRegionalConditions} from './region-doctrine1.js?v=buildfit1';
+import {tickRegionalConditions} from './region-doctrine1.js?v=buildfit1&afc=1';
 
 import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42';
 import {handleMaanCue} from './maan-view.js?v=gal1-r3';

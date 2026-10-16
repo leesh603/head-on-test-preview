@@ -36,9 +36,10 @@ const rows = [
  ['fba_h','FBA Type H','entente',1915,'sea-recon','macchi_m3',.76,1.29,.83,1.29,1.28],
  ['hansa_w12','Hansa-Brandenburg W.12','central',1917,'sea-fighter','hb_w29',.99,1.16,.92,1.04,1.16],
  ['gotha_wd14','Gotha WD.14','central',1916,'sea-bomber','lohner_l',.73,1.67,.62,1.27,1.45],
- ['zeppelin_l30','Zeppelin L.30','central',1916,'airship','parseval',.81,1.36,.67,1.05,2.78],
- ['ss_blimp','SS Type Blimp','entente',1915,'airship','parseval',.93,.72,1.13,1.17,2.20],
- ['parseval_pl25','Parseval PL.25','central',1915,'airship','parseval',1.06,.88,.91,1.12,2.34]
+ // Match the established Zeppelin's ~368-world-unit hull; keep smaller blimps proportional.
+ ['zeppelin_l30','Zeppelin L.30','central',1916,'airship','parseval',.81,1.36,.67,1.05,5.28],
+ ['ss_blimp','SS Type Blimp','entente',1915,'airship','parseval',.93,.72,1.13,1.17,4.18],
+ ['parseval_pl25','Parseval PL.25','central',1915,'airship','parseval',1.06,.88,.91,1.12,4.45]
 ];
 // Existing dogfight archetypes supply AI decisions for fits not previously playable.
 const aiBase=Object.freeze({pup:'nieuport',dolphin:'se5a',strutter:'re7',dh4:'bristol_duo',re8:'re7',pfalz_d12:'pfalz_d3a',junkers_d1:'spad12',siemens_d4:'fokkerdv',gotha:'re7',caudron_g4:'re7',phonix_d1:'albatros',hannover_cl3:'halberstadt_duo',gunbus:'airco_dh2',aviatik:'re7',be2c:'re7',ff33:'re7',macchi_m3:'re7',hb_w29:'nieuport',lohner_l:'re7',parseval:'re7'});

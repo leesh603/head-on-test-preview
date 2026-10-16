@@ -1,19 +1,19 @@
 import {drawGroundEnemy} from './ground-enemy-art.js?v=gal1';
 import {impactMark} from './tactical-marks.js?v=gal1';
-import {getLocale} from './i18n.js?v=buildfit1';
-import {unitNameEN} from './event-text-en.js?v=buildfit1';
+import {getLocale} from './i18n.js?v=buildfit1&afc=1';
+import {unitNameEN} from './event-text-en.js?v=buildfit1&afc=1';
 import {drawRegionalBug} from './regional-boss-view352.js?v=gal1';
 import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=gal1';
 import {drawGasCloud196} from './gas-cloud196.js?v=gal1';
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=buildfit1';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=buildfit1&afc=1';
 import {FXS,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=bomb3&rail=42';
 import {fx,fxReady,fxTint} from './fx-art.js?v=gal1';
 import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=gal1';
-import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=buildfit1';
+import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=buildfit1&afc=1';
 import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=buildfit1';
 import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=gal1';
-import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=buildfit1';
-import {drawStageBoss} from './stageboss-view.js?v=buildfit1&hints=1&treads=2&rail=42&maan=3&minen=4';
+import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=buildfit1&afc=1';
+import {drawStageBoss} from './stageboss-view.js?v=buildfit1&hints=1&treads=2&rail=42&maan=3&minen=4&afc=1';
 import {bombSprite} from './bomb-sprites.js?v=bomb20';
 const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};
@@ -23,8 +23,8 @@ import {planeSprite,aircraftKey} from './aircraft.js?v=buildfit1';
 import {drawEquipment} from './equipment.js?v=gal1';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor,drawTracerBolt} from './projectiles.js?v=gal1';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=gal1';
-import {drawSpecialAmmoIcon} from './icons.js?v=buildfit1';
-import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=buildfit1';
+import {drawSpecialAmmoIcon} from './icons.js?v=buildfit1&afc=1';
+import {SUN_STRIKE,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=buildfit1&afc=1';
 import {drawCombatFeedback,combatCameraOffset,combatVisualPose} from './combat-feedback.js?v=gal1';
 
 
