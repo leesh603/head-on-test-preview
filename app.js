@@ -54,7 +54,7 @@ import {CampaignGame,STAGES,stageFaction,historicalAircraft,sortieAircraft,liver
 import {drawCampaign} from './campaign-view.js?v=buildfit1&rail=42';
 import {campaignArtReady} from './aircraft.js?v=buildfit1';
 import {drawGameIcon,drawSpecialAmmoIcon,iconsReady,hangarIconsReady} from './icons.js?v=buildfit1';
-import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?v=bgmpack1';
+import {BattleMusic,musicContextForGame,musicModeForGame} from './music.js?v=bgmpack2';
 import {sfx,setSfxMuted,setSfxPaused,stopSfx} from './sfx.js?v=dover1&rail=42';
 import {attachCombatFeedback,combatVisualPose,drawCombatFeedback,combatCameraOffset,combatFlightSound} from './combat-feedback.js?v=gal1';
 import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=buildfit1';
