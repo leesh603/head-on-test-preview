@@ -1,6 +1,6 @@
 // Trim generated atlas cells by alpha once; preserve the established upgrade illustrations.
 const keys=['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','legacyExtraMagazine','cooldown','control','turn','command','damage','rate','spread','rockets','mines','armor','magnet','repair','regen'];
-export const LEGENDARY_ICON_KEYS=Object.freeze(['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','goeringBaton','immelmannManual','motorCannon','loEmblem','sacredCowling','steelPlate','mauserAceKiller','boelckeDicta','fogCompass','rearGunner','quadLewis','cow37','rankinShell','kaiserFog','grunkreuz','maximBelt','amatolCharge','lufberyCircle','urLeica','badinGauge','heineckeRettungsfallschirm']);
+export const LEGENDARY_ICON_KEYS=Object.freeze(['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','goeringBaton','immelmannManual','motorCannon','loEmblem','sacredCowling','steelPlate','mauserAceKiller','boelckeDicta','fogCompass','rearGunner','quadLewis','cow37','rankinShell','kaiserFog','grunkreuz','maximBelt','amatolCharge','lufberyCircle','urLeica','badinGauge','heineckeRettungsfallschirm','bomberTransfer','mgTransfer','airshipTransfer']);
 const frames=new Map();
 function loadIconAtlas(file,columns,rows,names,smooth=false){return new Promise(resolve=>{const atlas=new Image();atlas.onload=()=>{
  const c=document.createElement('canvas');c.width=atlas.naturalWidth;c.height=atlas.naturalHeight;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(atlas,0,0);const d=ctx.getImageData(0,0,c.width,c.height).data;
@@ -23,15 +23,15 @@ const DIRECT_ICONS=Object.freeze({
  sparkPlug:'mccudden_emergency_repair_kit.webp',goeringBaton:'squadron_general_mobilization.webp',steelPlate:'j_type_armor_capsule.webp',mauserAceKiller:'mauser_c96_ace_killer.webp',rearGunner:'scarff_ring_gun_mount.webp',kaiserFog:'brock_smoke_device.webp',grunkreuz:'grunkreuz.webp',fogCompass:'co_5_17_aero_compass.webp',
  'ironCross-central':'medal_award_pour_le_merite.webp','ironCross-entente':'medal_award_british_victoria_cross.webp',
  emblemCentral:'emblem_bare_central.webp',emblemEntente:'emblem_bare_entente.webp',
- urLeica:'ur_leica_camera.webp',badinGauge:'badin_gauge.webp',heineckeRettungsfallschirm:'heinecke_rettungsfallschirm.webp'
+ urLeica:'ur_leica_camera.webp',badinGauge:'badin_gauge.webp',heineckeRettungsfallschirm:'heinecke_rettungsfallschirm.webp',bomberTransfer:'bomber_squadron_transfer_orders.webp',mgTransfer:'concentrated_firepower_refit_orders.webp',airshipTransfer:'airship_mobilization_orders.webp'
 });
 const atlasReady=Promise.all([
- loadIconAtlas('./icons51.webp?v=gal1',5,4,keys,true),
- loadIconAtlas('./controls53.webp?v=gal1',2,2,['control','turn','command','cooldown']),
- loadIconAtlas('./special-ammo-icons92.webp?v=gal1',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
- loadIconAtlas('./legendary-icons103.webp?v=gal1',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
- loadIconAtlas('./gun-atlas114.webp?v=gal1',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
- loadIconAtlas('./legendary-icons109.webp?v=gal1',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
+ loadIconAtlas('./icons51.webp?v=tame3',5,4,keys,true),
+ loadIconAtlas('./controls53.webp?v=tame3',2,2,['control','turn','command','cooldown']),
+ loadIconAtlas('./special-ammo-icons92.webp?v=tame3',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
+ loadIconAtlas('./legendary-icons103.webp?v=tame3',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
+ loadIconAtlas('./gun-atlas114.webp?v=tame3',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
+ loadIconAtlas('./legendary-icons109.webp?v=tame3',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
  loadIconAtlas('./relic-maxim-belt128.webp',1,1,['maximBelt'],true),
  loadIconAtlas('./relic-steel-plate128.webp',1,1,['steelPlate'],true),
  loadIconAtlas('./relic-immelmann-manual128.webp',1,1,['immelmannManual'],true),
@@ -41,7 +41,7 @@ const atlasReady=Promise.all([
 // The hangar only needs the atlases and the faction emblems/medals; the upgrade illustrations
 // (several MB) load behind them and are only drawn in battle.
 const HANGAR_ICONS=new Set(['cooldown-central','cooldown-entente','emblemCentral','emblemEntente']);
-const directLoads=Object.entries(DIRECT_ICONS).map(([key,file])=>loadDirectIcon('./augmentation-icons/'+file+'?v=gal1',key).then(ok=>[key,ok]));
+const directLoads=Object.entries(DIRECT_ICONS).map(([key,file])=>loadDirectIcon('./augmentation-icons/'+file+'?v=tame3',key).then(ok=>[key,ok]));
 export const hangarIconsReady=Promise.all([atlasReady,...directLoads.filter((_,i)=>HANGAR_ICONS.has(Object.keys(DIRECT_ICONS)[i]))]).then(([results,...direct])=>results.every(Boolean)&&direct.every(([,ok])=>ok));
 export const iconsReady=atlasReady.then(async results=>{
  const direct=await Promise.all(directLoads);

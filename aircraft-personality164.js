@@ -63,7 +63,7 @@ export const AIRCRAFT_PERSONALITY_ALIASES=freeze({
 export function resolveAircraftPersonalityId(id){return AIRCRAFT_PERSONALITY_ALIASES[id]||id}
 export function personalityFor(id){const resolved=resolveAircraftPersonalityId(id);return AIRCRAFT_PERSONALITIES[resolved]||SPECIAL_AIRCRAFT_PERSONALITIES[resolved]||null}
 
-function fighterAirframeId(e){return e?.bossPlane||e?.escortPlane||e?.plane||e?.airframe||null}
+function fighterAirframeId(e){return e?.bankAircraft&&e.escortPlane===e.bankAircraft&&e.bankHandlingBase?e.bankHandlingBase:e?.bossPlane||e?.escortPlane||e?.plane||e?.airframe||null}
 export function attachAircraftPersonality(PLANES,unit,id,{retuneCruise=false}={}){
  const resolved=resolveAircraftPersonalityId(id),personality=personalityFor(resolved)||PLANES[resolved]?.personality;
  if(!personality){delete unit.personalityId;delete unit.personality;delete unit.airframeHandling;return null}

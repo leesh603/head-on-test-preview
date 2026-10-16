@@ -4,7 +4,7 @@ const stepTime = dt => Number.isFinite(dt) ? Math.max(0, Math.min(.04, dt)) : 0;
 const playing = p => p.state === 'playing' && p.hp > 0 && p.status !== 'downed';
 
 export function preparePersonalRound1918(p, b) {
-  // Finite Gontermann ignition is handled by the owned projectile impact hook (pilot-five-combat.js).
+  // Finite Gontermann ignition is handled by the owned projectile impact hook.
   return b;
 }
 
@@ -114,4 +114,3 @@ export function advanceBurns1918(world, dt) {
   }
   return killed;
 }
-

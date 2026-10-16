@@ -39,17 +39,17 @@ export const REDRAWN_BOSS_CUTINS=Object.freeze({
 export const BOSS_CUTIN_ART=Object.freeze(Object.fromEntries(
  Object.keys(BOSS_CATALOG).map(id=>[id,REDRAWN_BOSS_CUTINS[id]?
  './'+REDRAWN_BOSS_CUTINS[id]+(id==='supermarine-nighthawk'||id==='siemens-schuckert-r-viii'?'?v=dover2':'?v=gal1'):BOSS_CUTIN_FALLBACKS[id]])));
-const pending=new Map(),failed=new Set();let currentRegion=null;
-// Preload only the current region's cut-ins, without retaining decoded artwork.
+const pending=new Map(),failed=new Set(),decoded=new Map();let currentRegion=null;
+// Keep only this region's decoded cut-ins alive until their presentation.
 export function prepareBossCutins(region){
- if(currentRegion!==region){pending.clear();currentRegion=region;}
+ if(currentRegion!==region){pending.clear();decoded.clear();currentRegion=region;}
  const ids=Object.keys(BOSS_CATALOG).filter(id=>BOSS_CATALOG[id].stage===region);
  return Promise.all(ids.map(id=>{
   if(pending.has(id))return pending.get(id);
   if(typeof Image==='undefined')return Promise.resolve(false);
   const p=new Promise(resolve=>{
    const im=new Image();im.decoding='async';
-   im.onload=()=>{failed.delete(id);resolve(true)};
+   im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).then(()=>{failed.delete(id);if(currentRegion===region)decoded.set(id,im);resolve(true)})};
    im.onerror=()=>{failed.add(id);resolve(false)};
    im.src=BOSS_CUTIN_ART[id];
   });pending.set(id,p);return p;
@@ -58,4 +58,5 @@ export function prepareBossCutins(region){
 export function bossCutinSource(id){
  return failed.has(id)?BOSS_CUTIN_FALLBACKS[id]:BOSS_CUTIN_ART[id]||'';
 }
+
 

@@ -1,7 +1,7 @@
 import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=gal1';
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
 import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
-import {bishopFlightHeight} from './engine.js?v=bomb19';
+import {bishopFlightHeight} from './engine.js?v=buildfit1';
 import {signatureWingPositions} from './pilot-signature-geometry.js';
 import {drawTracerBolt} from './projectiles.js?v=gal1&rail=42';
 import {drawCavalryGuard,drawCavalryLance,drawRickenbackerHalfRing} from './pilot-directed-fx.js';
@@ -195,9 +195,9 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
   if(drawThreeLocal(c,p,texture))return;
   const t=s.clock,age=s.activeAge,shot=p.muzzleFlash>0,active=p.skillTime>0;
   if(p.pilot==='huffzky'||p.pilot==='mckeever'){
-   if(p.nineRearFlash>0){const a=(p.nineRearAim??p.a+Math.PI)-p.a;muzzleAt(c,-23,0,a,'muzzleRear',p.pilot==='huffzky'&&active?1.3:.85);}
-   if(p.nineRearTarget&&p.rearAcquire<.24){const a=Math.atan2(p.nineRearTarget.y-p.y,p.nineRearTarget.x-p.x)-p.a;texture(c,'gunSmoke',-23,0,17,9,a,.12);}
-   if(shot){const a=(p.gunDirection?.(0)??p.a)-p.a;muzzleAt(c,23,0,a,'muzzleTwin',.8);}
+   if(p.nineRearFlash>0){const a=(p.nineRearAim??p.a+Math.PI)-p.a;muzzleAt(c,-(p.bomberTransfer?.rear??23),0,a,'muzzleRear',p.pilot==='huffzky'&&active?1.3:.85);}
+   if(p.nineRearTarget&&p.rearAcquire<.24){const a=Math.atan2(p.nineRearTarget.y-p.y,p.nineRearTarget.x-p.x)-p.a;texture(c,'gunSmoke',-(p.bomberTransfer?.rear??23),0,17,9,a,.12);}
+   if(shot){const a=(p.gunDirection?.(0)??p.a)-p.a;muzzleAt(c,p.bomberTransfer?.front??23,0,a,'muzzleTwin',.8);}
    return;
   }
   if(p.pilot==='jacobs'){

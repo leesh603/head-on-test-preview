@@ -6,7 +6,7 @@ import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide}
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=gal1-r3';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=gal1-r10';
 import {verdunFortExtents} from './verdun-fortresses.js?v=gal1&rail=42';
-import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=gal1&rail=42';
+import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=buildfit1&rail=42';
 import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=gal1-r9';
 import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=gal1';
 import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=gal1&rail=42';
@@ -29,8 +29,8 @@ import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=gal
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=gal1&rail=42';
 import {bossHudModel} from './headon-stageboss-hud.js?v=livingww1d&rail=42';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=gal1&hints=1&rail=42';
-import {planeSprite} from './aircraft.js?v=gal1';
-import {getLocale} from './i18n.js?v=gal1';
+import {planeSprite} from './aircraft.js?v=buildfit1';
+import {getLocale} from './i18n.js?v=buildfit1';
 import {londonStatus} from './london-battle.js?v=gal1';
 import {parisStatus} from './paris-night-battle.js?v=gal1';
 import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=gal1';
@@ -39,7 +39,8 @@ import {prepareParisArt,releaseParisArt,drawParisBoss,drawParisWorld} from './pa
 import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=gal1';
 import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=gal1';
 import {drawAlpsBomber,drawAlpsPart,drawAlpsWarnings,drawAlpsHazard} from './alps-bomber-render.js?v=bomb19';
-import {bombSprite} from './bomb-sprites.js?v=bomb19';
+import {bombSprite} from './bomb-sprites.js?v=bomb20';
+import {fxsBombFall} from './fx-sample-preview.js?v=bomb3&rail=42';
 import {drawHarborFortress} from './harbor-crane-render.js?v=gal1';
 
 
@@ -802,7 +803,10 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
     else if(h.duration>.6&&h.visual!=='zubian-mortar')impactMark(c,h.x,h.y,h.radius,1,{alpha:.5,cross:false});
     if(warning){const progress=clamp((h.age-h.delay)/h.warning,0,1);
      if(h.visual==='rail-shell'||h.visual==='observer-shell'){c.fillStyle='#fff0bd';c.strokeStyle=MARK.ink;c.lineWidth=3;c.font='bold 13px monospace';c.textAlign='center';const label=getLocale()==='en'?(h.visual==='observer-shell'?'OBSERVED FIRE':'RAIL SHELL'):(h.visual==='observer-shell'?'관측 포격':'열차포 낙탄');c.strokeText(label,h.x,h.y-h.radius*1.28-10);c.fillText(label,h.x,h.y-h.radius*1.28-10);}
-     if(h.visual==='carpet-bomb'){const bs=h.airborneBomb?28+progress*12:26+progress*46,bx=h.airborneBomb?h.sourceX+(h.x-h.sourceX)*progress:h.x,by=h.airborneBomb?h.sourceY+(h.y-h.sourceY)*progress-Math.sin(progress*Math.PI)*24:h.y-h.radius*.85*(1-progress)-24;c.globalAlpha=.9;if(!bombSprite(c,'puw',h.airborneBomb&&h.bossId?.includes(':gotha:')?bx:h.x,h.airborneBomb&&h.bossId?.includes(':gotha:')?by:h.y-h.radius*.85*(1-progress)-24,52,Math.PI/2))fx(c,'bomb',h.airborneBomb&&h.bossId?.includes(':gotha:')?bx:h.x,h.airborneBomb&&h.bossId?.includes(':gotha:')?by:h.y-h.radius*.85*(1-progress)-24,bs,bs*.55,Math.PI/2);c.globalAlpha=1;}}
+     if(h.visual==='carpet-bomb'){
+      const sx=Number.isFinite(h.sourceX)?h.sourceX:h.x,sy=Number.isFinite(h.sourceY)?h.sourceY:h.y-h.radius*.85-24;
+      fxsBombFall(c,(X,Y,k,a,pitch)=>bombSprite(c,h.sprite||'puw',X,Y,52*k,a,.9,pitch)||fx(c,'bomb',X,Y,36*k*pitch,16*k,a,.9),sx,sy,h.x,h.y,progress,h.releaseAngle);
+     }}
     else if(h.visual==='zubian-mortar')pixelBlast(c,h.x,h.y,h.radius*.65,h.age,true);
    }
    c.restore();

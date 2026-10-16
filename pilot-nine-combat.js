@@ -1,5 +1,5 @@
 // Nine pilot mechanics, installed on the existing firing/frame/impact hooks.
-import {signatureCue,activatePilotSignature} from './pilot-signature-state.js?v=gal1';
+import {signatureCue,activatePilotSignature} from './pilot-signature-state.js?v=tame3';
 export const NINE_PILOTS=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker']);
 const durations={huffzky:3,mckeever:5,jacobs:4,hawker:5,berthold:5,udet:2.6,goering:5,nungesser:3,barker:6};
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -16,7 +16,7 @@ function cue(p,kind,data={}){return signatureCue(p,kind,data)}
 function suppress(p,e,seconds){if(!aerial(e))return;e.pilotSuppressedUntil=Math.max(e.pilotSuppressedUntil||0,clock(p)+seconds);e.pilotSuppressOwner=p.id;e.pilotSuppressKind=p.pilot;cue(p,'suppressed',{x:e.x,y:e.y,a:e.a||0,life:.45});}
 function rearBurst(p,target,strong=false){
  if(!aerial(target)||p.reloadTime>0||!(p.ammo?.[1]>0)||Math.abs(wrap(bearing(p,target)-p.a-Math.PI))>Math.PI*.49)return false;
- const a=p.nineRearAim??bearing(p,target),x=p.x-Math.cos(p.a)*23,y=p.y-Math.sin(p.a)*23;
+ const a=p.nineRearAim??bearing(p,target),mount=p.bomberTransfer?.rear??23,x=p.x-Math.cos(p.a)*mount,y=p.y-Math.sin(p.a)*mount;
  if(Math.abs(wrap(a-p.a-Math.PI))>Math.PI*.49||Math.abs(wrap(a-bearing(p,target)))>.18)return false;
  const count=Math.min(Math.max(strong?3:2,p.shots||1),p.ammo[1]);if(!p.unlimitedAmmo)p.ammo[1]-=Math.max(1,count-(p.freeVolleyShots||0));p.roundsFired+=count;
  for(let i=0;i<count;i++){const aa=a+(i-(count-1)/2)*.022;world(p).bullets.push(p.applySpecialRound({x,y,vx:Math.cos(aa)*550,vy:Math.sin(aa)*550,life:1.15,enemy:false,ownerId:p.id,gun:1,damage:p.damage*p.normalGunMultiplier()*(strong?1.45:1.1),hit:new Set(),pilotRear:true,visualType:'normal'},null));}

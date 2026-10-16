@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><meta charset="utf-8"><title>HEAD-ON Music Review — local only</title><link rel="icon" type="image/svg+xml" href="favicon.svg?v=gal1"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=gal1"><link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png?v=gal1"><link rel="apple-touch-icon" href="favicon-180.png?v=gal1">
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>HEAD-ON Music Review — local only</title>
 <style>body{margin:0;background:#171b20;color:#eee;font:14px system-ui}header{padding:10px}button,select{margin:4px;padding:7px}pre{white-space:pre-wrap;font:12px monospace}iframe{display:block;border:0;margin:auto;background:#000}</style>
 <header><b>HEAD-ON 음악 검증 · 로컬 전용</b>
 <label>전장<select id="region"></select></label><label>파일럿<select id="pilot"></select></label><label>에이스<select id="ace"></select></label>
@@ -6,8 +6,10 @@
 <button id="start">새 출격</button><button id="director">Director CROSS ATTACK</button><button id="recovery">Director RECOVERY</button>
 <button id="aceStart">에이스 등장</button><button id="boss">지역 보스 등장</button><button id="final">보스 HP 20%</button><button id="part">부위 파괴</button><button id="clear">보스 격파</button>
 <button id="pause">일시정지</button><button id="resume">재개</button><button id="lost">게임오버 상태</button><button id="won">결과 상태</button><button id="mute">음소거 전환</button>
+<button id="audit">전체 보스 재생 검증</button><pre id="auditStatus">검증 대기</pre>
 <pre id="status">연결 중</pre></header><iframe id="game" title="실제 HEAD-ON 게임" src="./index.html?headonTest=1&autostart=0"></iframe>
-<script>
+<script type="module">
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js';
 if(!['127.0.0.1','localhost','terminal.local'].includes(location.hostname))throw new Error('Local review only');
 const $=id=>document.getElementById(id),frame=$('game');let api=null;
 function size(){const [w,h]=$('size').value.split('x');frame.width=w;frame.height=h;}
@@ -29,5 +31,40 @@ $('pause').onclick=()=>{if(run()?.state==='playing')frame.contentDocument.getEle
 $('resume').onclick=()=>{if(run()?.state==='paused')frame.contentDocument.getElementById('pause').click();};
 $('lost').onclick=()=>{const g=run();if(g)g.state='lost';};$('won').onclick=()=>{const g=run();if(g)g.state='won';};
 $('mute').onclick=()=>frame.contentDocument.getElementById('sound').click();
+// Local-only runtime sweep: real game encounters and the real audio graph.
+// It reports signal/state coverage, not subjective listening quality.
+$('audit').onclick=async()=>{
+ const results=[],buttons=[...document.querySelectorAll('button,select')];
+ buttons.forEach(b=>b.disabled=true);
+ const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+ const resume=()=>{if(run()?.state==='paused')frame.contentDocument.getElementById('pause').click();};
+ const sample=async(id,state)=>{
+  const deadline=performance.now()+10000;let first;
+  while(performance.now()<deadline){resume();first=api.music();if(first.bossId===id&&first.state===state)break;await delay(100);}
+  if(first?.bossId!==id||first.state!==state)return {state,ok:false,observed:first};
+  const readings=[];
+  for(let i=0;i<30;i++){resume();readings.push(api.music());await delay(100);}
+  const last=readings.at(-1),peak=Math.max(...readings.map(s=>s.peak)),rmsMean=readings.reduce((sum,s)=>sum+s.rms,0)/readings.length;
+  return {state,ok:readings.every(s=>s.bossId===id&&s.state===state&&!s.errors.length)&&last.step>first.step&&peak>.01,
+   bpm:last.bpm,peak,rmsMean,maxVoices:Math.max(...readings.map(s=>s.voices)),steps:last.step-first.step};
+ };
+ try{
+  if(!api)throw new Error('Game not ready');
+  for(const [id,entry] of Object.entries(BOSS_CATALOG)){
+   $('auditStatus').textContent=JSON.stringify({running:id,size:$('size').value,results},null,1);
+   api.start({region:entry.stage,pilot:entry.faction==='central'?'fonck':'baron',boss:true,invincible:true});
+   run().need=Infinity;
+   const normal=await sample(id,'BOSS');
+   for(const body of run()?.stageBoss?.stages.encounter?.bodies.values()||[]){
+    if(body.dead)continue;body.hp=body.maxHp*.2;
+    if(body.support129)body.support129.hp=body.hp;
+   }
+   const final=await sample(id,'BOSS_FINAL');
+   results.push({id,normal,final});
+  }
+  $('auditStatus').textContent=JSON.stringify({complete:true,size:$('size').value,passed:results.filter(r=>r.normal.ok&&r.final.ok).length,results},null,1);
+ }catch(error){$('auditStatus').textContent=JSON.stringify({complete:false,error:String(error),results},null,1);}
+ finally{buttons.forEach(b=>b.disabled=false);}
+};
 setInterval(()=>{if(api)$('status').textContent=JSON.stringify({game:api.status(),music:api.music(),director:run()?.battleDirector?.pattern},null,1);},300);
 </script></html>

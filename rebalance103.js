@@ -1,5 +1,5 @@
 // Excel revision 103. Unspecified numbers are explicit first-playtest tuning.
-import {WING_PLANES} from './engine.js?v=bomb19&rail=42';
+import {WING_PLANES} from './engine.js?v=buildfit1';
 
 export const REVISION_BALANCE=Object.freeze({soloCap:12,coopCap:18,soloRegular:10,coopRegular:11,interval:1.6,coopInterval:1.65,countrysideInterval:1,countrysideCoopInterval:1.15,frontReduction:.25,rearBonus:.3,compassXp:1.3});
 const pilotMachineGunRound=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.actualExplosion&&!b.blast&&!b.mauserRound;
@@ -132,14 +132,10 @@ const maneuverEase=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
     this.eagleTime=Math.max(0,(this.eagleTime||0)-dt);
   if(this.pilot==='immelmann'&&this.immelmannTurn){
    const m=this.immelmannTurn;m.elapsed+=dt;const q=Math.min(1,m.elapsed/.9);
-   // A half loop followed by a half roll, level before the existing volley.
-   m.pitch=Math.PI*maneuverEase(q/.56);m.roll=Math.PI*maneuverEase((q-.44)/.28);
-   const forward=Math.cos(m.pitch),groundSpeed=Math.abs(forward);
-   this.a=m.heading+(forward<0?Math.PI:0);this.turn=0;
-   // Project flight speed onto the ground: no velocity snap at the loop apex.
-   this.baseSpeed*=groundSpeed;this.speed*=groundSpeed;
+   // Use the ordinary flight plane: keep moving through a smooth half turn.
+   this.a=m.heading+m.direction*Math.PI*maneuverEase(q/.72);this.turn=0;
    this.fire=Math.max(this.fire,dt+.03);
-   this.immelmannAltitude=Math.sin(Math.PI*maneuverEase(q/.72));
+   this.immelmannAltitude=0;
    if(!m.fired&&q>=.72){m.fired=true;for(let i=-m.spread;i<=m.spread;i++){const aa=this.a+i*.07;this.bullets.push({x:this.x+Math.cos(aa)*24,y:this.y+Math.sin(aa)*24,vx:Math.cos(aa)*620,vy:Math.sin(aa)*620,life:1.5,enemy:false,ownerId:this.id,damage:this.damage*3.5,pierce:true,hit:new Set(),formation:true})}this.muzzleFlash=.12}
    if(q>=1){this.immelmannTurn=null;this.immelmannAltitude=0;this.eagleTime=1.5;this.immelmannPreviousHeading=this.a}
   }else if(this.pilot==='immelmann')this.immelmannAltitude=0;
@@ -224,4 +220,3 @@ const maneuverEase=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
  };
  Game.prototype.reserveEnemySlots=function(){/* Existing enemies stay on the battlefield. */};
 }
-

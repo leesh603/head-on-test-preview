@@ -1,9 +1,9 @@
 // Categories: current 강화 and 특수장비(개편) sheets. Blank merged cells inherit the category above.
 // Telescope category follows the user-requested machine-gun-only effect.
 // Presentation only. Preview uses the existing upgrade implementation on a detached copy.
-import {getLocale,upgradeName as i18nUpgradeName} from './i18n.js?v=gal1';
+import {getLocale,upgradeName as i18nUpgradeName} from './i18n.js?v=buildfit1';
 
-export const CATEGORIES={"damage":"기관총","rate":"기관총","rockets":"로켓","mines":"수류탄","explosives":"폭발 피해","command":"편대","turn":"이동","armor":"내구도","regen":"내구도","cooldown":"액티브","bomber":"공통","wingman":"편대","mercedesEngine":"이동속도","spread":"기관총","combinedProjectiles":"로켓 · 수류탄","redScarf":"이동","prancingHorse":"이동 · 방어력","ironCross":"액티브","telescope":"기관총","flightGloves":"발사 · 투척 주기","amatolCharge":"폭발 피해","lufberyCircle":"편대 · 방어","fighterSupply":"편대","sparkPlug":"내구도","goeringBaton":"편대","immelmannManual":"이동","motorCannon":"특수기","loEmblem":"공통","sacredCowling":"이동","steelPlate":"내구도","mauserAceKiller":"특수기","boelckeDicta":"공통","rearGunner":"특수기","quadLewis":"기관총","cow37":"무기교체","rankinShell":"특수기","kaiserFog":"특수기","fogCompass":"특수기","maximBelt":"기관총"};
+export const CATEGORIES={"bomberTransfer":"폭탄","mgTransfer":"기관총","airshipTransfer":"내구도","damage":"기관총","rate":"기관총","rockets":"로켓","mines":"수류탄","explosives":"폭발 피해","command":"편대","turn":"이동","armor":"내구도","regen":"내구도","cooldown":"액티브","bomber":"공통","wingman":"편대","mercedesEngine":"이동속도","spread":"기관총","combinedProjectiles":"로켓 · 수류탄","redScarf":"이동","prancingHorse":"이동 · 방어력","ironCross":"액티브","telescope":"기관총","flightGloves":"발사 · 투척 주기","amatolCharge":"폭발 피해","lufberyCircle":"편대 · 방어","fighterSupply":"편대","sparkPlug":"내구도","goeringBaton":"편대","immelmannManual":"이동","motorCannon":"특수기","loEmblem":"공통","sacredCowling":"이동","steelPlate":"내구도","mauserAceKiller":"특수기","boelckeDicta":"공통","rearGunner":"특수기","quadLewis":"기관총","cow37":"무기교체","rankinShell":"특수기","kaiserFog":"특수기","fogCompass":"특수기","maximBelt":"기관총"};
 const EN_CATEGORY={기관총:'Machine Gun',로켓:'Rockets',수류탄:'Grenades','폭발 피해':'Explosive Damage',편대:'Formation',이동:'Flight',내구도:'Durability',액티브:'Active',공통:'General',이동속도:'Flight Speed','로켓 · 수류탄':'Rockets · Grenades','이동 · 방어력':'Flight · Defense','발사 · 투척 주기':'Fire · Deployment Cycle','편대 · 방어':'Formation · Defense',특수기:'Special Weapon',무기교체:'Weapon Replacement',탄약:'Ammunition',폭탄:'Bombs',회복:'Repair'};
 const EN_LABEL={피해:'Damage',연사:'Fire Rate',탄띠:'Belt',재장전:'Reload',속도:'Speed',선회:'Turn','최대 체력':'Max Durability','초당 최대 체력':'Max Durability / sec','재사용 대기시간':'Cooldown','동시 발사':'Simultaneous Fire','투척 주기':'Deployment Cycle'};
 const label=value=>getLocale()==='en'?(EN_LABEL[value]||EN_CATEGORY[value]||value):value;
@@ -22,7 +22,7 @@ export function buildStats(p){
   mines:[label('수류탄'),label('투척 주기'),p.mineCount?num(3.6/(1+p.mineCount*.3)*(p.upgrades?.flightGloves?.6:1))+(getLocale()==='en'?'s':'초'):(getLocale()==='en'?'Not equipped':'미장착')]
  };
 }
-const fields={damage:['damage'],rate:['rate'],rockets:['rockets','explosives'],mines:['mines','explosives'],explosives:['explosives'],command:['command','commandRate'],turn:['speed','turn'],armor:['armor'],regen:['regen'],cooldown:['cooldown']};
+const fields={mgTransfer:['speed','turn'],airshipTransfer:['armor','speed','turn'],bomberTransfer:['armor','speed','turn'],damage:['damage'],rate:['rate'],rockets:['rockets','explosives'],mines:['mines','explosives'],explosives:['explosives'],command:['command','commandRate'],turn:['speed','turn'],armor:['armor'],regen:['regen'],cooldown:['cooldown']};
 // Pause-screen popup: which totals of the current build each held upgrade feeds into.
 const HELD={...fields,fighterSupply:['command','commandRate'],goeringBaton:['command'],mercedesEngine:['speed'],combinedProjectiles:['rockets','mines'],amatolCharge:['explosives'],redScarf:['speed'],prancingHorse:['speed'],ironCross:['cooldown'],flightGloves:['rate','reload'],loEmblem:['damage','armor','speed','turn'],steelPlate:['speed','turn'],maximBelt:['belt','reload'],cow37:['belt','reload']};
 const idle=new Set(['+0%','+0 HP','미장착','Not equipped','0발','0 rounds']);
@@ -36,4 +36,3 @@ export function cumulativeText(p,id,rarity){
  const after=buildStats(copy);return fields[id].filter(k=>before[k][2]!==after[k][2]).map(k=>before[k][1]+current+before[k][2]+' → '+after[k][2]).join('\n');
 }
 export function cleanDescription(text){return text.replace(/(?:한\s*)?출격(?:당)?\s*(?:1회|한\s*번)[^.。]*(?:[.。]|$)/g,'').replace(/1회 획득 가능[.]?/g,'').trim()}
-

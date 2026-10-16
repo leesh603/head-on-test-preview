@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#10171d">
-<title>HEAD-ON Test Lab</title><link rel="icon" type="image/svg+xml" href="favicon.svg?v=gal1"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=gal1"><link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png?v=gal1"><link rel="apple-touch-icon" href="favicon-180.png?v=gal1">
+<title>HEAD-ON Test Lab</title><link rel="icon" type="image/svg+xml" href="favicon.svg?v=tame3"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=tame3"><link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png?v=tame3"><link rel="apple-touch-icon" href="favicon-180.png?v=tame3">
 <style>
 :root{color-scheme:dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0d1216;color:#e8e2d4}
 *{box-sizing:border-box}body{margin:0;background:#0d1216}.shell{min-height:100vh;display:grid;grid-template-rows:auto 1fr}
@@ -40,6 +40,10 @@ iframe{display:block;border:1px solid #303840;background:#000;width:100%;height:
 <label class="check"><input id="fxs" type="checkbox">FX 시안</label>
 <label>화면<select id="viewport"><option value="auto">자동</option><option value="390x844">모바일 390×844</option><option value="1280x800">PC 1280×800</option></select></label>
 <button id="start" class="primary" type="button">선택 조건으로 시작</button>
+<label>전환 장비<select id="transferKind"><option value="bomberTransfer">폭격비행대 전속명령</option><option value="mgTransfer">집중화력 개조령</option><option value="airshipTransfer">공중요새 동원령</option></select></label>
+<button id="transferEquip" type="button">전환 장비 장착</button>
+<button id="transferSkill" type="button">파일럿 액티브 발동</button>
+<output id="transferState" style="font-size:12px"></output>
 <button id="crashCompare" type="button">추락 비교</button>
 <button id="wreckSet" type="button">격추 5종 확인</button>
 <button id="damageSet" type="button">명중·손상 확인</button>
@@ -118,6 +122,10 @@ $('start').onclick=()=>{
  if(result&&$('noFire').checked)api.debug().fire=Infinity;
  applyHud();
 };
+const transferState=()=>{const g=api?.debug?.(),p=g?.players?.[0]||g,f=p?.bomberTransfer;$('transferState').textContent=f?`${f.name} · ${p.pilot} · HP ${Math.round(p.hp)}/${Math.round(p.maxHp)} · 전환 ${(f.entryTime||0).toFixed(1)}s · ${f.stations?.length||0} 총좌`:'전투기';};
+$('transferEquip').onclick=()=>{const g=api?.debug?.(),p=g?.players?.[0]||g;if(!p)return;g.state='upgrade';const ok=p.upgrade($('transferKind').value,'legendary');g.state=$('freeze').checked?'paused':'playing';$('status').textContent=ok?'전환 장비 적용':'다른 전환 장비 장착 중 · 새 출격 필요';transferState();};
+$('transferSkill').onclick=()=>{const g=api?.debug?.(),p=g?.players?.[0]||g;if(!p)return;g.state='playing';p.cooldown=0;const ok=p.skill();if($('freeze').checked)g.state='paused';$('status').textContent=ok?'파일럿 액티브 발동':'발동 실패';transferState();};
+setInterval(transferState,300);
 $('crashCompare').onclick=()=>{const game=api?.debug?.();if(!game)return;game.paused=false;game.t??=0;const spawn=(type,a,dist)=>{game.spawnEnemy(type);const e=game.enemies.at(-1);e.x=game.x+Math.cos(a)*dist;e.y=game.y+Math.sin(a)*dist;e.a=a+Math.PI;e.hit?.(0)};spawn('scout',-.35,180);spawn('boss',.15,260);for(const e of game.enemies.slice(-2)){e.crashing=false;e.crashed=false;e.hp=0;const b={x:e.x,y:e.y,vx:0,vy:0,life:0,enemy:false,damage:0,hit:new Set([e])};game.bullets.push(b)}for(let i=0;i<30;i++)game.update(.02);game.paused=true;$('status').textContent='추락 연출 비교 — 재생 버튼으로 재개'};
 window.addEventListener('error',e=>{$('status').textContent='검증 오류: '+e.message});
 function feedbackFixture(){

@@ -2,7 +2,7 @@
 const atlas = new Image();
 const sprites = {};
 const repair = new Image();
-repair.src = './repair-pickup.webp?v=gal1&b=345';
+repair.src = './repair-pickup.webp?v=tame3&b=345';
 atlas.onload = () => {
   const names = ['rocket', 'mine', 'gun'];
   names.forEach((name, i) => {
@@ -20,17 +20,17 @@ atlas.onload = () => {
     sprites[name]={x:left+minX,y:minY,w:maxX-minX+1,h:maxY-minY+1};
   });
 };
-atlas.src = './equipment-atlas.webp?v=gal1&b=345';
+atlas.src = './equipment-atlas.webp?v=tame3&b=345';
 export function drawEquipment(ctx, name, x, y, rotation=0, size=40){
   if(name==='repair'){
     if(!repair.complete||!repair.naturalWidth)return;
-    ctx.save();ctx.imageSmoothingEnabled=size<Math.max(repair.naturalWidth,repair.naturalHeight);
+    ctx.save();ctx.imageSmoothingEnabled=false;
     ctx.drawImage(repair,x-size/2,y-size/2,size,size);ctx.restore();return;
   }
   if(name==='gun')ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
   const s=sprites[name];if(!s)return;
   const scale=size/Math.max(s.w,s.h);
-  ctx.save();ctx.imageSmoothingEnabled=scale<1;ctx.translate(Math.round(x),Math.round(y));ctx.rotate(rotation);
+  ctx.save();ctx.imageSmoothingEnabled=false;ctx.translate(Math.round(x),Math.round(y));ctx.rotate(rotation);
   ctx.drawImage(atlas,s.x,s.y,s.w,s.h,-s.w*scale/2,-s.h*scale/2,s.w*scale,s.h*scale);
   ctx.restore();
 }

@@ -2,7 +2,7 @@ export const NET_HZ=15;
 export const MAX_TETHER=1100;
 export function seededRandom(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296;};}
 export function cleanInput(value={}){const out={};if(Number.isFinite(value.angle))out.angle=Math.atan2(Math.sin(value.angle),Math.cos(value.angle));if(Number.isFinite(value.steer))out.steer=Math.max(-1,Math.min(1,value.steer));return out;}
-const OMIT=new Set(['world','encounter','emit','hooks','rng','formationLeader','directorSquad','target','leader','chargeHits','damageSource','collisionGrid','enemyCollisionGrid']);
+const OMIT=new Set(['world','encounter','emit','hooks','rng','formationLeader','directorSquad','target','leader','chargeHits','damageSource','collisionGrid','enemyCollisionGrid','bossDamage','bomberSalvo']);
 const FORBIDDEN=new Set(['__proto__','prototype','constructor']);
 
 // Bounded render/state data only. Maps/Sets matter for boss parts and pilot FX.
