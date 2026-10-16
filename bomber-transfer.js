@@ -130,6 +130,7 @@ export function installBomberTransfer(Game,planes,scarff){
   if(fit.remaining>0){fit.drop-=step;if(fit.drop<=0)releaseBomb(this,fit);}
   }
   fit.rearFlash=Math.max(0,fit.rearFlash-step);
+  if(this.bishopTime>0||this.ballCloak>0||this.aceRetreat129){fit.rearFlash=0;return;}
   // Existing two-seater pilots retain their authored rear gun, ammo and skills.
   if(this.weapon.bidirectional||['huffzky','mckeever'].includes(this.pilot))return;
   const target=gunnerTarget(this,scarff.scarffRange,true),desired=target?Math.atan2(target.y-this.y,target.x-this.x):this.a+Math.PI;
@@ -140,7 +141,7 @@ export function installBomberTransfer(Game,planes,scarff){
   const a=fit.rearAim,x=this.x-Math.cos(this.a)*fit.rear,y=this.y-Math.sin(this.a)*fit.rear;
   world(this).bullets.push({x,y,vx:Math.cos(a)*520,vy:Math.sin(a)*520,life:1.25,enemy:false,ownerId:this.id,ally:true,bomberRear:true,damage:scarff.scarffDamage*(1+(this.gunUpgradeBonus||0)),hit:new Set()});this.event('shot','');
  };
- q.resetBomberSortieTimers=function(){const fit=this.bomberTransfer;if(fit){fit.entryTime=BOMBER_ENTRY_DURATION;fit.remaining=0;fit.salvo=null;fit.cooldown=fit.period;fit.rearTimer=.2;fit.rearFlash=0;fit.yaw=0;fit.evadeTurn=0;for(const station of fit.stations||[]){station.timer=.2;station.flash=0;station.reload=0;station.ammo=fit.belt;station.aim=this.a;}}};
+ q.resetBomberSortieTimers=function(){const fit=this.bomberTransfer;if(fit){fit.entryTime=BOMBER_ENTRY_DURATION;fit.remaining=0;fit.salvo=null;fit.cooldown=fit.period;fit.rearTimer=.2;fit.rearFlash=0;fit.yaw=0;fit.evadeTurn=0;for(const station of fit.stations||[]){station.timer=.2;station.flash=0;station.reload=0;station.ammo=Math.round(fit.belt*(this.upgrades?.maximBelt?1.75:1));station.aim=this.a;}}};
  const begin=q.beginRevisionFrame;
  q.beginRevisionFrame=function(dt,input={}){this.transferFiring=input.inputMode!=='gamepad'||!!input.fireHeld;return begin.call(this,dt,input);};
  const hit=q.hit;
