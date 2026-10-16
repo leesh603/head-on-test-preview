@@ -10,7 +10,7 @@
 <pre id="status">연결 중</pre></header><iframe id="game" title="실제 HEAD-ON 게임" src="./index.html?headonTest=1&autostart=0"></iframe>
 <script type="module">
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js';
-if(!['127.0.0.1','localhost','terminal.local'].includes(location.hostname))throw new Error('Local review only');
+if(!['127.0.0.1','localhost','terminal.local','leesh603.github.io'].includes(location.hostname))throw new Error('Test preview only');
 const $=id=>document.getElementById(id),frame=$('game');let api=null;
 function size(){const [w,h]=$('size').value.split('x');frame.width=w;frame.height=h;}
 size();$('size').onchange=size;
@@ -40,12 +40,12 @@ $('audit').onclick=async()=>{
  const resume=()=>{if(run()?.state==='paused')frame.contentDocument.getElementById('pause').click();};
  const sample=async(id,state)=>{
   const deadline=performance.now()+10000;let first;
-  while(performance.now()<deadline){resume();first=api.music();if(first.bossId===id&&first.state===state)break;await delay(100);}
+  while(performance.now()<deadline){resume();first=api.music();if(first.bossId===id&&first.state===state&&first.engine==='original-recording')break;await delay(100);}
   if(first?.bossId!==id||first.state!==state)return {state,ok:false,observed:first};
   const readings=[];
   for(let i=0;i<30;i++){resume();readings.push(api.music());await delay(100);}
   const last=readings.at(-1),peak=Math.max(...readings.map(s=>s.peak)),rmsMean=readings.reduce((sum,s)=>sum+s.rms,0)/readings.length;
-  return {state,ok:readings.every(s=>s.bossId===id&&s.state===state&&!s.errors.length)&&last.step>first.step&&peak>.01,
+  return {state,ok:readings.every(s=>s.bossId===id&&s.state===state&&!s.errors.length)&&last.engine==='original-recording'&&!!last.recording?.trackId&&peak>.01,
    bpm:last.bpm,peak,rmsMean,maxVoices:Math.max(...readings.map(s=>s.voices)),steps:last.step-first.step};
  };
  try{

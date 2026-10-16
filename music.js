@@ -1,4 +1,5 @@
 import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=tame3';
+import {RecordedBattleMusic} from './music-recordings.js?v=bgmpack1';
 export {musicContextForGame} from './music-context.js?v=tame3';
 // Original adaptive score. Map themes share no borrowed soundtrack melodies.
 // Modes: 'idle' | map regions (rural/sea/trench/city/sky/alps/zeebrugge) |
@@ -50,7 +51,7 @@ const BOSS_TEMPO={railgun:108,naval:96,landship:104,net:110,airship:92,bomber:11
 const familyFor=id=>BOSS_TRACKS[id]||({rail:'railgun',naval:'naval',split:'naval',armor:'landship',siege:'fortress',net:'net',airship:'airship',bomber:'bomber',formation:'duel',searchlight:'net'}[BOSS_ARRANGEMENTS[id]?.mechanic])||id;
 export const MUSIC_THEME_IDS=Object.freeze([...Object.keys(THEMES).filter(k=>k!=='trench'),'trenches',...Object.keys(REGIONAL_VARIATIONS)]);
 export class BattleMusic {
-  constructor(){this.mode='idle';this.muted=false;this.step=0;this.next=0;this.timer=null;this.track=null;this.positions={};this.scene=null;this.seenAces=new WeakSet();this.intensity=.2;this.signatureCount=0;this.pulseCount=0;this.volume=1;this.voices=new Set();this.noteGain=1;this.errors=[];}
+  constructor(){this.mode='idle';this.muted=false;this.step=0;this.next=0;this.timer=null;this.track=null;this.positions={};this.scene=null;this.seenAces=new WeakSet();this.intensity=.2;this.signatureCount=0;this.pulseCount=0;this.volume=1;this.voices=new Set();this.noteGain=1;this.errors=[];this.recorded=new RecordedBattleMusic({onStart:()=>this.stopVoices(()=>true,1)});}
   unlock(){try{if(!this.ctx){
     this.ctx=new (window.AudioContext||window.webkitAudioContext)();
     this.bus=this.ctx.createGain();this.bus.gain.value=0;
@@ -59,7 +60,7 @@ export class BattleMusic {
     this.noise=this.ctx.createBuffer(1,this.ctx.sampleRate,this.ctx.sampleRate);
     const d=this.noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
     this.timer=setInterval(()=>this.schedule(),50);
-  }this.ctx.resume().catch(error=>{this.errors=[error.message];});}catch(error){this.errors=[error.message];}}
+  }this.ctx.resume().catch(error=>{this.errors=[error.message];});this.recorded.sync(this.ctx,this.bus,this.scene,this.muted||this.mode==='idle');}catch(error){this.errors=[error.message];}}
   trackVoice(source,gain,filter,start,layer){
     const voice={source,gain,filter,start,layer};this.voices.add(voice);
     source.onended=()=>{source.disconnect();gain.disconnect();filter.disconnect();this.voices.delete(voice);};
@@ -82,6 +83,7 @@ export class BattleMusic {
     this.layer=this.ctx.createGain();this.layer.gain.setValueAtTime(0,now);this.layer.gain.linearRampToValueAtTime(1,now+fade);this.layer.connect(this.bus);
   }
   reset(){
+    this.recorded.reset();
     this.stopVoices();this.setState('idle',this.muted);this.layer?.disconnect();this.layer=null;
     this.scene=null;this.run=null;this.positions={};this.track=null;this.step=0;this.intensity=.2;
     this.seenAces=new WeakSet();this.intro=null;this.signatureCount=0;this.pulseCount=0;this.lastPulse=null;this.pendingPulse=false;this.tempo=null;this.noteGain=1;
@@ -99,11 +101,12 @@ export class BattleMusic {
     if(inactive||muted)this.intro=null;
     const mode=inactive?'idle':scene.state==='ACE'?'boss':scene.state==='BOSS'||scene.state==='BOSS_FINAL'?'boss:'+scene.bossId:scene.theme;
     this.setState(mode,muted);
+    this.recorded.sync(this.ctx,this.bus,this.scene,muted||inactive);
   }
   setVolume(value){this.volume=Math.max(0,Math.min(1,Number.isFinite(value)?value:1));this.setState(this.mode,this.muted);}
   status(){let rms=0,peak=0;if(this.meter){this.meter.getFloatTimeDomainData(this.meterData);for(const v of this.meterData){rms+=v*v;peak=Math.max(peak,Math.abs(v));}rms=Math.sqrt(rms/this.meterData.length);}
     return {theme:this.scene?.theme,state:this.mode==='idle'?'IDLE':this.scene?.state,mode:this.mode,muted:this.muted,volume:this.volume,rms,peak,
-    ready:!!this.ctx,engine:'original-synth',context:this.ctx?.state||'locked',errors:this.errors,
+    ready:!!this.ctx,engine:this.recorded.playing?'original-recording':'original-synth',recording:this.recorded.status(),context:this.ctx?.state||'locked',errors:this.errors,
     voices:this.voices.size,step:this.step,bpm:this.tempo,intensity:this.intensity,signatureCount:this.signatureCount,pulseCount:this.pulseCount,bossId:this.scene?.bossId,aceId:this.scene?.aceId};}
   bossTrack(){return this.mode==='boss'?'duel':this.mode.startsWith('boss:')?familyFor(this.mode.slice(5)):null}
   setState(mode,muted){
@@ -319,6 +322,7 @@ export class BattleMusic {
   }
   schedule(){
     if(!this.ctx||this.ctx.state!=='running')return;
+    if(this.recorded.playing){this.next=this.ctx.currentTime;return;}
     const now=this.ctx.currentTime;if(this.mode==='idle'||this.muted){this.next=now;return}
     if(this.next<now)this.next=now+.015;
     while(this.next<now+.15){
