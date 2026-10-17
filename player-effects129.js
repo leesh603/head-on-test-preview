@@ -6,6 +6,7 @@ import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';
 
 import {bishopFlightHeight} from './engine.js?v=merge20261017';
 import {drawCavalryGuard} from './pilot-directed-fx.js';
+import {udetRollPose} from './udet-acrobat-fx.js';
 import {bomberEntryPose} from './bomber-transfer.js?v=buildfit1&afc=1';
 import {bombSprite} from './bomb-sprites.js?v=bomb20';
 import {fxsBombFall} from './fx-sample-preview.js?v=bomb3&rail=42';
@@ -20,7 +21,7 @@ export function playerPose(p,x,y){
  const bishopHeight=p.pilot==='bishop'?bishopFlightHeight(p):0,bishopAltitude=bishopHeight/((p.viewHeight||900)*.9);
  const height=altitude*52+bishopHeight;
  if(entry)return {x,y:y-entry.height-height,scale:(entry.departing?1:p.bomberTransfer.scale)*entry.scale,height:entry.height+height,alpha:entry.alpha,sprite:entry.departing?aircraftKey(p.plane,false,p.pilot):p.bomberTransfer.sprite,shadowX:18,shadowY:28,shadowScale:entry.scale,shadowAlpha:entry.alpha*(1-entry.height/((p.viewHeight||900)*.9))};
- const roll=p.pilot==='huffzky'&&p.skillTime>0?Math.sin(p.nineRoll||0)*4:p.pilot==='udet'&&p.skillTime>0?Math.sin((p.t||0)*45)*.8:0;
+ const roll=p.pilot==='huffzky'&&p.skillTime>0?Math.sin(p.nineRoll||0)*4:p.pilot==='udet'?udetRollPose(p).offset:0;
  return {x:x-Math.cos(p.a)*kick-Math.sin(p.a)*roll,y:y-Math.sin(p.a)*kick+Math.cos(p.a)*roll-height,scale:(p.bomberTransfer?.scale??1)*(p.aceScale129||1)*(1+altitude*.1)*(1-bishopAltitude*.25),height,shadowX:18+altitude*10,shadowY:28+altitude*12,shadowScale:1-altitude*.3,shadowAlpha:1-altitude*.35};
 }
 export function drawBomberRearGunner(c,p,x,y){
@@ -30,18 +31,18 @@ export function drawBomberRearGunner(c,p,x,y){
 }
 // Active turns use the same heading and bank projection as ordinary flight.
 export function applyPlayerAttitude(c,p,pose={},shadow=false){
- c.rotate(p.a+(shadow?0:pose.roll||0));if(!shadow)c.scale(1,pose.bank??1);
+ const acrobat=p.pilot==='udet'?udetRollPose(p):{bank:1,roll:0};c.rotate(p.a+(shadow?0:(pose.roll||0)+acrobat.roll));if(!shadow)c.scale(1,(pose.bank??1)*acrobat.bank);
 }
 export function drawPlayerAura(c,p,x,y){
  const entry=bomberEntryPose(p);
  if(entry){if(!drawBuildTransferEntry(c,p,x,y+entry.height)){drawBomberEntry(c,p,x,y+entry.height);return;}}
  drawEquipmentEffects151(c,p,x,y);
  drawPrecisionEquipment156(c,p,x,y);
- if(p.ballCloak>0)fx(c,'mist',x,y,72,38,p.a,Math.min(.35,p.ballCloak*.3));
+ if(p.ballCloak>0&&!p.sortieFlightFx)fx(c,'mist',x,y,72,38,p.a,Math.min(.35,p.ballCloak*.3));
  // The reversal is carried by the aircraft pose and a short signature trail.
  if(p.fxOverheat>0&&p.pilot!=='udet')fx(c,'muzzle',x+Math.cos(p.a)*24,y+Math.sin(p.a)*24,28,20,p.a,Math.min(.7,p.fxOverheat));
- for(const g of p.pilot==='immelmann'?[]:p.pilotIdentity?.feedback?.ghosts||[]){c.save();c.globalAlpha*=.3*Math.pow(Math.max(0,g.life/g.maxLife),.8);planeSprite(c,x+g.x-p.x,y+g.y-p.y,g.a,p.bomberTransfer?.sprite||aircraftKey(g.plane,false,g.pilot),g.scale*(p.bomberTransfer?.scale??1),false,false);c.restore()}
- for(const f of p.pilotIdentity?.fx||[]){if(p.pilot==='immelmann'&&f.key==='windStreak')continue;const q=Math.min(1,f.life/.12),alpha=q*(f.alpha??.72),height=f.height??(f.key==='windStreak'?f.size*.35:f.size);if(f.color)fxTint(c,f.key,f.color,x+f.x-p.x,y+f.y-p.y,f.size,height,f.a,alpha);else fx(c,f.key,x+f.x-p.x,y+f.y-p.y,f.size,height,f.a,alpha)}
+ for(const g of p.pilot==='immelmann'||p.pilot==='loewenhardt'&&p.loewAscentFx?[]:p.pilotIdentity?.feedback?.ghosts||[]){c.save();c.globalAlpha*=.3*Math.pow(Math.max(0,g.life/g.maxLife),.8);planeSprite(c,x+g.x-p.x,y+g.y-p.y,g.a,p.bomberTransfer?.sprite||aircraftKey(g.plane,false,g.pilot),g.scale*(p.bomberTransfer?.scale??1),false,false);c.restore()}
+ for(const f of p.pilotIdentity?.fx||[]){if(f.fonckLegacy&&p.fonckPrecisionFx)continue;if(f.loewLegacy&&p.loewAscentFx)continue;if(f.udetLegacy&&p.udetAcrobat)continue;if(f.sortiePilotLegacy&&p.sortieFlightFx)continue;if(f.metalPilotLegacy&&p.metalFlightFx)continue;if(p.pilot==='immelmann'&&f.key==='windStreak')continue;const q=Math.min(1,f.life/.12),alpha=q*(f.alpha??.72),height=f.height??(f.key==='windStreak'?f.size*.35:f.size);if(f.color)fxTint(c,f.key,f.color,x+f.x-p.x,y+f.y-p.y,f.size,height,f.a,alpha);else fx(c,f.key,x+f.x-p.x,y+f.y-p.y,f.size,height,f.a,alpha)}
  if(p.pilotSignatureState)drawPilotSignatureLayer(c,p,x,y);
 }
 

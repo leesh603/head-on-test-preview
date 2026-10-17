@@ -1690,10 +1690,10 @@ Game.prototype.beginRevisionFrame=function(dt,input={}){
    const duration=pl._sachsenbergDur||pl.skillTime,elapsed=duration-pl.skillTime,diving=elapsed>=1;
    pl._sachFxT=(pl._sachFxT||0)-dt;
    if(!diving){const q=Math.min(1,elapsed),curve=Math.sin(Math.PI*q);pl.aceRetreat129=true;pl.baseSpeed*=-.32*curve;pl.speed*=-.32*curve;pl.turn=0;pl.invuln=Math.max(pl.invuln,dt+.06);pl.aceSkillPhase='climb';
-    if(pl._sachFxT<=0){pl._sachFxT=.06;for(const w of [-12,12])pl.identityFx?.('gunSmoke',pl.x-Math.sin(pl.a)*w,pl.y+Math.cos(pl.a)*w,pl.a,24,.45,{alpha:.45,color:'#e8eef4'})}}
+    if(pl._sachFxT<=0){pl._sachFxT=.06;for(const w of [-12,12])pl.identityFx?.('gunSmoke',pl.x-Math.sin(pl.a)*w,pl.y+Math.cos(pl.a)*w,pl.a,24,.45,{alpha:.45,color:'#e8eef4',metalPilotLegacy:true})}}
    else{const q=Math.min(1,(elapsed-1)/.65),ease=q*q*(3-2*q),entry=Math.sin(Math.min(1,q/.16)*Math.PI/2);pl.aceRetreat129=true;pl.baseSpeed*=entry*(1.35+.45*ease);pl.speed*=entry*(1.35+.45*ease);pl.turn*=.6-.12*ease;pl.rate*=.5;pl.revisionDamageMult*=1+.3*ease;pl.aceSkillPhase='dive';
-    if(pl._sachFxT<=0){pl._sachFxT=.045;for(const w of [-12,12])pl.identityFx?.('windStreak',pl.x-Math.cos(pl.a)*20-Math.sin(pl.a)*w,pl.y-Math.sin(pl.a)*20+Math.cos(pl.a)*w,pl.a,64,.36,{height:26,alpha:.8,color:'#cfe0ee'})}
-    if(!pl._sachDiveTold){pl._sachDiveTold=true;pl.identityFx?.('fireFlash',pl.x,pl.y,0,46,.3);this.combatBlast?.(pl.x,pl.y,26,'friendly','pop');this.burst(pl.x,pl.y,'#cfe0ee',16);this.event('wave','발트해의 매 · 급강하 사격')}}
+    if(pl._sachFxT<=0){pl._sachFxT=.045;for(const w of [-12,12])pl.identityFx?.('windStreak',pl.x-Math.cos(pl.a)*20-Math.sin(pl.a)*w,pl.y-Math.sin(pl.a)*20+Math.cos(pl.a)*w,pl.a,64,.36,{height:26,alpha:.8,color:'#cfe0ee',metalPilotLegacy:true})}
+    if(!pl._sachDiveTold){pl._sachDiveTold=true;pl.identityFx?.('fireFlash',pl.x,pl.y,0,46,.3,{metalPilotLegacy:true});this.combatBlast?.(pl.x,pl.y,26,'friendly','pop');this.burst(pl.x,pl.y,'#cfe0ee',16);this.event('wave','발트해의 매 · 급강하 사격')}}
   }else if(pl.pilot==='sachsenberg'&&!pl.skillTime)pl.aceSkillPhase=null;
  }
  return prior;
@@ -1736,7 +1736,7 @@ Game.prototype.skill=function(){
 const _dur3=Game.prototype.skillDuration;
 Game.prototype.skillDuration=function(){const base=({proctor:2.4,schleich:3,lufbery:3})[this.pilot];return base===undefined?_dur3.call(this):base*(this.skillEnhanced?1.3:1)};
 const _incoming3=Game.prototype.incomingDamageMultiplier;
-Game.prototype.incomingDamageMultiplier=function(source){let mult=_incoming3.call(this,source);if(this.pilot==='schleich'){mult*=.92;if(source&&this.invuln<=0&&(this.t-(this._armorCueAt??-10)>.12)){this._armorCueAt=this.t;const a=Math.atan2(source.y-this.y,source.x-this.x);this.identityFx?.('ricochet',this.x+Math.cos(a)*19,this.y+Math.sin(a)*19,a,30,.25,{height:15,alpha:.8})}}return mult};
+Game.prototype.incomingDamageMultiplier=function(source){let mult=_incoming3.call(this,source);if(this.pilot==='schleich'){mult*=.92;if(source&&this.invuln<=0&&(this.t-(this._armorCueAt??-10)>.12)){this._armorCueAt=this.t;const a=Math.atan2(source.y-this.y,source.x-this.x);this.identityFx?.('ricochet',this.x+Math.cos(a)*19,this.y+Math.sin(a)*19,a,30,.25,{height:15,alpha:.8,metalPilotLegacy:true})}}return mult};
 const _fan3=Game.prototype.buildGunFan;
 Game.prototype.buildGunFan=function(base){let f=_fan3.call(this,base);return f};
 const _round3=Game.prototype.applySpecialRound;
@@ -1834,3 +1834,20 @@ installBomberTransfer(Game,PLANES,AUGMENTATION_OVERHAUL_BALANCE);
 // Player-local kill/transfer rewards share the same hooks in solo and co-op.
 import {installLothar} from './lothar-combat.js?v=merge20261017';
 installLothar(Game);
+
+// Observe the two metal-airframe pilots after all legacy combat layers.
+import {installMetalPilotFx} from './metal-pilot-fx.js';
+installMetalPilotFx(Game);
+
+// Cloud deception and survival FX observe the final authoritative pilot states.
+import {installCloudSurvivalFx} from './pilot-cloud-survival-fx.js';
+installCloudSurvivalFx(Game);
+
+import {installUdetAcrobatics} from './udet-acrobatics.js';
+installUdetAcrobatics(Game,PILOTS);
+
+import {installLoewenhardtFx} from './loewenhardt-ascent-fx.js';
+installLoewenhardtFx(Game);
+
+import {installFonckPrecisionFx} from './fonck-precision-fx.js';
+installFonckPrecisionFx(Game);

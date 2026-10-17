@@ -15,8 +15,8 @@ const alive=e=>e&&e.hp>0&&!e.dead&&!e.expired&&!e.rivalEscaped&&!e.aceRetreat;
 const ratio=(value,total)=>total>0?Math.max(0,Math.min(1,value/total)):1;
 export function musicContextForGame(game){
  const theme=CAMPAIGN_MUSIC[game?.stage?.id]||MUSIC_REGIONS[game?.worldRegion?.()]||'rural';
- if(!game||game.state!=='playing')return {theme,state:'IDLE',intensity:0,run:game};
- const base={theme,state:'CALM',intensity:.2,run:game,parts:1,engines:1,urgency:0,locked:false};
+ if(!game||game.state!=='playing')return {theme,state:'IDLE',intensity:0,run:game,situation:musicSituationForGame(game)};
+ const base={theme,state:'CALM',intensity:.2,run:game,parts:1,engines:1,urgency:0,locked:false,situation:musicSituationForGame(game)};
  const stages=game.stageBoss?.stages,encounter=stages?.encounter;
  if(stages?.phase==='boss'&&encounter&&!encounter.completed){
   const snapshot=encounter.snapshot(),bodies=[...encounter.bodies.values()].filter(alive);
@@ -61,4 +61,19 @@ export function musicContextForGame(game){
  if(game.battlefieldEvents?.current)threat+=.14;
  const intensity=active?pressure[pattern]||.5:Math.min(.95,(near?Math.min(.78,.38+near*.065):.2)+threat);
  return {...base,state:active||near>0?'COMBAT':'CALM',pattern:active?pattern:null,intensity};
+}
+
+// Music reads the local player, never the boss HP ratio or a partner's HP.
+export function musicSituationForGame(game){
+ const local=game?.players?.find(p=>p.id===(game.localPlayerId||'p1'))||game?.players?.[0]||game;
+ const boss=game?.stageBoss?.stages?.encounter,now=game?.t||0;
+ const aces=(game?.enemies||[]).filter(e=>(e.bossPilot||e.type==='boss')&&!e.stageBossBody&&alive(e));
+ let nearFire=0;for(const b of game?.bullets||[])if(b.enemy&&b.life!==0&&Math.hypot(b.x-(local?.x||0),b.y-(local?.y||0))<300&&++nearFire>=6)break;
+ const bossEntering=boss&&!boss.completed&&[...boss.bodies.values()].some(b=>
+  Number.isFinite(b.entryAge)&&b.entryAge<(b.entryDuration||3.4)||['entry','approach','formation-arrival','lowering-net'].includes(b.phase)&&(b.combatTime||0)<3.4);
+ const aceEntering=aces.some(e=>Number.isFinite(e.aceSpawnT)&&now-e.aceSpawnT>=0&&now-e.aceSpawnT<2.6);
+ const approach=bossEntering||game?.stageBoss?.stages?.phase==='explore'&&Number.isFinite(game.navalApproachAt)&&game.navalApproachAt>0?'boss':aceEntering?'ace':null;
+ return {now,runId:game,playing:game?.state==='playing',alive:local?.status!=='downed'&&(local?.hp==null||local.hp>0),
+  playerHp:local?.hp,playerMaxHp:local?.maxHp,underFire:nearFire>=6,approach,boss,aces,
+  encounter:boss&&!boss.completed?'boss':aces.length?'ace':'flight'};
 }

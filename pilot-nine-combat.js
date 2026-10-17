@@ -79,12 +79,6 @@ function advance(p,dt){
   p.hawkerSeenKills=p.kills;p.hawkerLinkTime=Math.max(0,(p.hawkerLinkTime||0)-dt);
   if(!aerial(p.hawkerNext)||dist(p,p.hawkerNext)>500)p.hawkerNext=null;
  }
- if(p.pilot==='udet'){
-  // Existing shot counter supplies the sustained-fire window; reload is its limit.
-  const firing=p.roundsFired>(p.udetLastRounds??p.roundsFired);p.udetLastRounds=p.roundsFired;
-  if(p.reloadTime>0||p.ammo.every(n=>n<=0)){p.udetRunStart=p.roundsFired;p.fxOverheat=0;p.udetDanger=false;}
-  else {p.udetRunStart??=p.roundsFired;if(!firing&&!p.nineFiring)p.udetRunStart=p.roundsFired;const used=p.roundsFired-p.udetRunStart;p.fxOverheat=clamp((used-28)/42,0,1);p.udetDanger=p.fxOverheat>.7;}
- }
  if(p.pilot==='berthold'&&p.skillTime>0){
   p.gustDisorient=0;p.cannonRecoil129=(p.cannonRecoil129||0)*.2;w.shake=Math.min(w.shake||0,2);
   if(p.skillTime<=dt+.16&&!p.ironSalvoDone&&(p.ironActiveDamage||0)>=p.maxHp*.12){
@@ -118,7 +112,6 @@ export function installNinePilots(Game,PILOTS){
   jacobs:['야스타 7의 노련함','가까운 적을 계속 압박하면 적의 조준·추적 반응을 잠시 흔듭니다.','Jasta 7 · 근접 폭풍','4초간 좁은 부채꼴 사격. 초근접 정면에서는 탄도가 다시 수렴합니다.'],
   hawker:['연속 공격','격추 직후 가까운 다음 적을 짧게 강조합니다.','Attack Everything','5초간 격추 후 다음 표적 방향으로 총구가 잠시 이어집니다. 조작권은 유지됩니다.'],
   berthold:['철혈의 에이스','큰 피격 일부를 버틴 피해로 기억합니다.','Iron Knight · 불굴의 의지','5초간 피탄 흔들림을 억누르고 사격을 지속합니다. 버틴 피해가 충분하면 마지막 일제사격.'],
-  udet:['공중 곡예사','연속 사격의 위험 구간에서 총열 스파크·정밀도가 상승. 탄약 소진·재장전 시 종료.','Du doch nicht!!','2.6초간 조종 한계의 급선회. 총구가 가까운 적을 짧게 따라 곡선 진입사격합니다.'],
   goering:['백색 편대장','백색 윙맨 1기와 상시 출격합니다.','White Flight · 집중 포화','백색 신호탄 후 윙맨이 좌우로 벌어져 표적에 교차 재진입하고 편대로 복귀합니다.'],
   nungesser:['죽음의 기사','저체력에서 짙어지는 검은 연무. 근접 탄환이 연무를 찢고 빈사 시 촛불이 남습니다.','죽음의 기사','3초간 무적. 접근 탄환은 검은 연무·불씨 속에서 소멸하고 종료 시 연무가 흩어집니다.'],
   barker:['불굴의 각성','피격 중첩에 따라 탄흔·찢긴 천·엔진 불꽃과 사격 반응이 강해집니다.','Last Stand · 새니에트의 기적','6초간 사망 불가. 빈사일수록 손상·총구화염이 최고조에 이르고 생존 후 손상이 남습니다.']
@@ -147,7 +140,7 @@ export function installNinePilots(Game,PILOTS){
  const duo=q.duoVolley;q.duoVolley=function(){if(this.pilot==='huffzky'||this.pilot==='mckeever')return;return duo.call(this)};
  const fly=q.flyAirframe;q.flyAirframe=function(dt,input={}){
   const duo=this.pilot==='huffzky'||this.pilot==='mckeever',saved=this.duoSpinStep;if(duo)this.duoSpinStep=0;
-  const oldTurn=this.turn;if(this.pilot==='udet'&&this.skillTime>0)this.turn*=2.1;
+  const oldTurn=this.turn;
   try{fly.call(this,dt,input);if(this.pilot==='huffzky'&&this.skillTime>0){const age=this.nineDuration-this.skillTime;this.a+=Math.cos(age*Math.PI*4)*dt*.75;this.nineRoll=Math.sin(age*Math.PI*4)*.12;}}
   finally{this.turn=oldTurn;if(duo)this.duoSpinStep=saved;}
  };
@@ -156,7 +149,6 @@ export function installNinePilots(Game,PILOTS){
   if(this.pilot==='mckeever'&&this.skillTime>0&&gun===0&&aerial(this.nineFrontTarget))return this.nineFrontAim??bearing(this,this.nineFrontTarget);
   let a=direction.call(this,gun);
   if(this.pilot==='hawker'&&this.skillTime>0&&this.hawkerLinkTime>0&&aerial(this.hawkerNext))a+=clamp(wrap(bearing(this,this.hawkerNext)-a),-.65,.65)*clamp(this.hawkerLinkTime/.2,0,1);
-  if(this.pilot==='udet'&&this.skillTime>0){const t=pick(this,a,.8,340);if(t)a+=clamp(wrap(bearing(this,t)-a),-.5,.5);}
   return a;
  };
  const round=q.applySpecialRound;q.applySpecialRound=function(b,type){
@@ -166,7 +158,6 @@ export function installNinePilots(Game,PILOTS){
    const near=pick(this,this.a,.25,100),fan=near?.018:.14,a=Math.atan2(b.vy,b.vx),s=Math.hypot(b.vx,b.vy);b.damage/=3;
    for(const side of [-1,1])world(this).bullets.push({...b,vx:Math.cos(a+side*fan)*s,vy:Math.sin(a+side*fan)*s,enemy:false,ownerId:this.id,hit:new Set(),jacobsSuppress:true});b.jacobsSuppress=true;
   }
-  if(this.pilot==='udet'&&this.udetDanger&&!(this.reloadTime>0)){const a=this.gunDirection(b.gun),s=Math.hypot(b.vx,b.vy);b.vx=Math.cos(a)*s;b.vy=Math.sin(a)*s;}
   if(this.pilot==='barker'){const stage=Math.min(5,this.barkerStacks||0),a=Math.atan2(b.vy,b.vx)+Math.sin(clock(this)*29+b.gun*1.3)*.008*stage,s=Math.hypot(b.vx,b.vy);b.vx=Math.cos(a)*s;b.vy=Math.sin(a)*s;b.barkerRough=stage;}
   return r;
  };

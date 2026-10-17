@@ -1,3 +1,4 @@
+import {isAlbatrosHunter} from './albatros-hunter-fx.js';
 import {fx as pilotTexture} from './fx-art.js?v=gal1';
 import {createPilotReadability} from './pilot-readability-fx.js?v=gal1';
 const pilotReadability=createPilotReadability(pilotTexture);
@@ -176,6 +177,7 @@ export function drawBertholdWill(c, g, point, t, px, py) {
 
 // Single entry for the renderer. Returns true only when the pilot's legacy marker should be skipped.
 export function drawPassiveFx(c, g, point, t, px, py) {
+  if(isAlbatrosHunter(g))return true; // Shared signature renderer owns both Albatros layers.
   sprites(); if (!EMBER) return false;
   if (g.pilot === 'baron') { drawRedFighter(c, g, point, t, px, py); drawSunHunter(c, g, point, t, px, py, 'back'); return drawBaronHunt(c, g, point, t, px, py); }
   if (g.pilot === 'berthold') drawBertholdWill(c, g, point, t, px, py);
@@ -515,28 +517,9 @@ export function drawBoelckeDicta(c, g, point, t) {
 
 
 // ---- Richthofen on the red Albatros ("붉은 전투기 조종사" / Red Fighter Pilot: +12% speed and turn).
-// No hunt marks on this airframe; the always-on agility shows in the air instead: in hard turns
-// crimson-tinged vortices peel off both wingtips, stronger the tighter he turns.
-export function drawRedFighter(c, g, point, t, px, py) {
-  if (g.pilot !== 'baron' || !g.isRedHunter?.()) return false;
-  const m = pst(g, () => ({ trail: [], a: g.a || 0, lt: t, rate: 0 }));
-  const dt = Math.max(1e-3, Math.min(.1, t - m.lt)), da = Math.atan2(Math.sin((g.a || 0) - m.a), Math.cos((g.a || 0) - m.a));
-  m.rate = m.rate * .8 + Math.abs(da / dt) * .2; m.a = g.a || 0; m.lt = t;
-  push(m.trail, { x: g.x, y: g.y, a: g.a || 0, k: clamp((m.rate - .5) / 1.4) }, t, .42);
-  const n = m.trail.length; if (n < 2) return true;
-  c.save(); c.lineCap = 'round';
-  for (const side of [-1, 1]) for (let i = 1; i < n; i++) {
-    const p0 = m.trail[i - 1], p1 = m.trail[i], k = (p0.k + p1.k) / 2; if (k <= .02) continue;
-    const u = i / n, off = 19;
-    const [x0, y0] = point(p0.x - Math.sin(p0.a) * off * side, p0.y + Math.cos(p0.a) * off * side);
-    const [x1, y1] = point(p1.x - Math.sin(p1.a) * off * side, p1.y + Math.cos(p1.a) * off * side);
-    c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1);
-    c.globalAlpha = k * u * .5; c.strokeStyle = '#c8352c'; c.lineWidth = 6 * u; c.stroke();
-    c.globalAlpha = k * u * .9; c.strokeStyle = '#fff0ea'; c.lineWidth = 1.8 * u; c.stroke();
-  }
-  c.restore();
-  return true;
-}
+// The shared signature renderer reads the real turn rate for painted wingtip fans.
+// Compatibility entry: the shared signature view draws the Albatros agility.
+export function drawRedFighter(c,g,point,t,px,py){return isAlbatrosHunter(g);}
 
 
 // ---- Baracca active "검은 말의 돌파" / Prancing-horse charge: a straight invulnerable dash that
@@ -623,69 +606,12 @@ export function drawBaraccaLance(c, g, point, t, px, py, layer = 'back') {
 }
 
 
-// ---- Richthofen (red Albatros) active "태양을 등진 사냥꾼" / Hunter from the Sun: for 4 s enemies in
-// a 650 px / ±36° cone ahead can't fire.  Diving out of the sun: a blazing sun sits behind his
-// tail, hard god-rays fan forward through the cone with lens-flare ghosts along the axis, and
-// every enemy caught in it is dazzled (white glare star + flinching halo).
-export function drawSunHunter(c, g, point, t, px, py, layer = 'back') {
-  if (g.pilot !== 'baron' || !g.isRedHunter?.()) return false;
-  sprites(); if (!EMBER) return false;
-  const m = pst(g, () => ({}));
-  m.sun ??= { k: 0, last: t, t0: -9 };
-  const S = m.sun;
-  (globalThis.__hoSun ??= new WeakSet()).add(g);
-  const on = (g.skillTime || 0) > 0;
-  if (layer === 'back') { const dt = Math.max(0, Math.min(.1, t - S.last)); S.last = t; if (on && S.k === 0) S.t0 = t; S.k = clamp(S.k + (on ? dt / .25 : -dt / .35)); }
-  if (S.k <= .01) return true;
-  const k = S.k, a = g.a || 0, ca = Math.cos(a), sa = Math.sin(a), R = 650, half = Math.PI / 5;
-  const sx = px - ca * 70, sy = py - sa * 70;                    // the sun, just behind his tail
-  c.save();
-  if (layer === 'back') {
-    // god-rays: a fan of hard, slowly breathing beams through the strike cone
-    c.globalCompositeOperation = 'lighter';
-    for (let i = 0; i < 9; i++) {
-      const u = i / 8 * 2 - 1, ra = a + u * half * .95 + Math.sin(t * 1.3 + i) * .02, w = (.025 + .02 * hash(i, 4)) * (1 + .3 * Math.sin(t * 2.1 + i * 1.7));
-      const L = R * (.8 + .2 * hash(i, 9)), gr = c.createLinearGradient(sx, sy, sx + Math.cos(ra) * L, sy + Math.sin(ra) * L);
-      gr.addColorStop(0, 'rgba(255,240,200,.32)'); gr.addColorStop(.5, 'rgba(255,214,140,.12)'); gr.addColorStop(1, 'rgba(255,200,120,0)');
-      c.fillStyle = gr; c.globalAlpha = k; c.beginPath(); c.moveTo(sx, sy);
-      c.lineTo(sx + Math.cos(ra - w) * L, sy + Math.sin(ra - w) * L); c.lineTo(sx + Math.cos(ra + w) * L, sy + Math.sin(ra + w) * L); c.closePath(); c.fill();
-    }
-    // the sun disc + corona
-    const pulse = 1 + .06 * Math.sin(t * 5), flash = Math.max(0, 1 - (t - S.t0) / .35);
-    const cor = c.createRadialGradient(sx, sy, 0, sx, sy, 120 * pulse);
-    cor.addColorStop(0, 'rgba(255,255,240,.95)'); cor.addColorStop(.12, 'rgba(255,236,180,.8)'); cor.addColorStop(.35, 'rgba(255,190,110,.25)'); cor.addColorStop(1, 'rgba(255,160,80,0)');
-    c.globalAlpha = k; c.fillStyle = cor; c.beginPath(); c.arc(sx, sy, 120 * pulse, 0, Math.PI * 2); c.fill();
-    if (flash > 0) { c.globalAlpha = flash * .6; c.fillStyle = 'rgba(255,250,230,1)'; c.beginPath(); c.arc(sx, sy, 40 + 260 * (1 - flash), 0, Math.PI * 2); c.fill(); }
-    for (let i = 0; i < 6; i++) {                                // star spikes off the sun
-      const sa2 = t * .4 + i * Math.PI / 3, L = 70 + 20 * Math.sin(t * 3 + i);
-      c.beginPath(); c.moveTo(sx, sy); c.lineTo(sx + Math.cos(sa2) * L, sy + Math.sin(sa2) * L);
-      c.globalAlpha = k * .5; c.strokeStyle = '#fff6dc'; c.lineWidth = 1.5; c.stroke();
-    }
-  } else {
-    // lens-flare ghosts strung along the axis ahead, and dazzled enemies in the cone
-    c.globalCompositeOperation = 'lighter';
-    for (const [d, r, col] of [[120, 10, 'rgba(255,220,150,.35)'], [210, 18, 'rgba(160,220,255,.22)'], [300, 7, 'rgba(255,255,255,.4)'], [420, 26, 'rgba(255,190,120,.16)']]) {
-      const gx = sx + ca * d, gy = sy + sa * d, gr = c.createRadialGradient(gx, gy, 0, gx, gy, r);
-      gr.addColorStop(0, col); gr.addColorStop(.7, col.replace(/[\d.]+\)$/, '0.06)')); gr.addColorStop(1, 'rgba(0,0,0,0)');
-      c.globalAlpha = k; c.fillStyle = gr; c.beginPath(); c.arc(gx, gy, r, 0, Math.PI * 2); c.fill();
-    }
-    let n = 0;
-    for (const e of g.enemies || []) {
-      if (n >= 8 || !g.sunStrikeContains?.(e)) continue; n++;
-      const [x, y] = point(e.x, e.y), tw = .8 + .2 * Math.sin(t * 17 + n), L = 14 * tw;
-      c.globalAlpha = k * .9; c.strokeStyle = '#ffffff'; c.lineWidth = 1.4;
-      c.beginPath(); c.moveTo(x - L, y - 6); c.lineTo(x + L, y - 6); c.moveTo(x, y - 6 - L); c.lineTo(x, y - 6 + L); c.stroke();
-      c.globalAlpha = k * .55; c.drawImage(EMBER, x - 12, y - 18, 24, 24);
-      c.beginPath(); c.arc(x, y, sizeOf(e) * (.9 + .08 * Math.sin(t * 9 + n)), 0, Math.PI * 2);
-      c.globalAlpha = k * .35; c.strokeStyle = '#ffe9b8'; c.lineWidth = 2; c.stroke();
-    }
-  }
-  c.restore();
-  return true;
-}
+// Compatibility entry: Sun Hunter is drawn once by the shared signature view.
+export function drawSunHunter(c,g,point,t,px,py,layer='back'){return isAlbatrosHunter(g);}
 
 // Front layer (drawn after the player's plane): only effects that must sit over the plane.
 export function drawPassiveFxFront(c, g, point, t, px, py) {
+  if(isAlbatrosHunter(g))return;
   sprites(); if (!EMBER) return;
   if (g.pilot === 'rickenbacker') drawRickenbackerRing(c, g, point, t, px, py, 'front');
   else if (g.pilot === 'baracca') drawBaraccaLance(c, g, point, t, px, py, 'front');

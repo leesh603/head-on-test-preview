@@ -58,7 +58,7 @@ export function installPilotFeedback(Game){
   const s=this.identityState(),f=state(this),before=f.previous,active=this.skillTime>0;
   f.ghosts=f.ghosts.filter(g=>(g.life-=dt)>0);f.counterFlash=Math.max(0,(f.counterFlash||0)-dt);
   const turned=Math.abs(wrap(this.a-(f.heading??this.a)))/dt;f.heading=this.a;
-  if(this.pilot==='udet'){
+  if(this.pilot==='udet'&&!this.udetAcrobat){
    // Detect successful real near-misses, including a refresh at the stack cap.
    if((s.grazes||0)>(before.grazes||0)||s.grazeTime>(before.grazeTime||0)+.08){wind(this,this,2);ghost(this,this,.55);f.counterFlash=.65;this.identityFx('windStreak',this.x,this.y,this.a+Math.PI/2,112,.3,{height:20,alpha:.95})}
    if((s.grazes>0||active)&&stamp(this,'acrobatTrail',.2)){wind(this,this,active?1.4:.65);if(turned>.3||f.counterFlash>0)ghost(this)}

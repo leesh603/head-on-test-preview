@@ -1,6 +1,7 @@
+import {SituationPolicy} from './music-situation-policy.js?v=situations1';
 import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=tame3';
-import {RecordedBattleMusic} from './music-recordings.js?v=bgmpack2';
-export {musicContextForGame} from './music-context.js?v=tame3';
+import {RecordedBattleMusic} from './music-recordings.js?v=situations1';
+export {musicContextForGame} from './music-context.js?v=situations1';
 // Original adaptive score. Map themes share no borrowed soundtrack melodies.
 // Modes: 'idle' | map regions (rural/sea/trench/city/sky/alps/zeebrugge) |
 // 'boss' (enemy ace duel) | 'boss:<family>' for stage bosses.
@@ -51,7 +52,7 @@ const BOSS_TEMPO={railgun:108,naval:96,landship:104,net:110,airship:92,bomber:11
 const familyFor=id=>BOSS_TRACKS[id]||({rail:'railgun',naval:'naval',split:'naval',armor:'landship',siege:'fortress',net:'net',airship:'airship',bomber:'bomber',formation:'duel',searchlight:'net'}[BOSS_ARRANGEMENTS[id]?.mechanic])||id;
 export const MUSIC_THEME_IDS=Object.freeze([...Object.keys(THEMES).filter(k=>k!=='trench'),'trenches',...Object.keys(REGIONAL_VARIATIONS)]);
 export class BattleMusic {
-  constructor(){this.mode='idle';this.muted=false;this.step=0;this.next=0;this.timer=null;this.track=null;this.positions={};this.scene=null;this.seenAces=new WeakSet();this.intensity=.2;this.signatureCount=0;this.pulseCount=0;this.volume=1;this.voices=new Set();this.noteGain=1;this.errors=[];this.recorded=new RecordedBattleMusic({onStart:()=>this.stopVoices(()=>true,1)});}
+  constructor(){this.mode='idle';this.muted=false;this.step=0;this.next=0;this.timer=null;this.track=null;this.positions={};this.scene=null;this.seenAces=new WeakSet();this.intensity=.2;this.signatureCount=0;this.pulseCount=0;this.volume=1;this.voices=new Set();this.noteGain=1;this.errors=[];this.situationPolicy=new SituationPolicy();this.situationAces=new Set();this.situationBoss=null;this.clearedMusicBoss=null;this.recorded=new RecordedBattleMusic({onStart:()=>this.stopVoices(()=>true,1)});}
   unlock(){try{if(!this.ctx){
     this.ctx=new (window.AudioContext||window.webkitAudioContext)();
     this.bus=this.ctx.createGain();this.bus.gain.value=0;
@@ -83,6 +84,7 @@ export class BattleMusic {
     this.layer=this.ctx.createGain();this.layer.gain.setValueAtTime(0,now);this.layer.gain.linearRampToValueAtTime(1,now+fade);this.layer.connect(this.bus);
   }
   reset(){
+    this.situationPolicy.reset();this.situationAces.clear();this.situationBoss=null;this.clearedMusicBoss=null;
     this.recorded.reset();
     this.stopVoices();this.setState('idle',this.muted);this.layer?.disconnect();this.layer=null;
     this.scene=null;this.run=null;this.positions={};this.track=null;this.step=0;this.intensity=.2;
@@ -94,14 +96,26 @@ export class BattleMusic {
     const previous=this.scene;
     if(previous?.state==='BOSS_FINAL'&&scene?.encounterId&&scene.encounterId===previous.encounterId)scene={...scene,state:'BOSS_FINAL'};
     if(previous?.ace!==scene?.ace||scene?.state!=='ACE')this.intro=null;
+    const frame=scene?.situation;let stingers=[];
+    if(frame){
+      const choice=this.situationPolicy.update(frame);stingers=[...choice.stingers];
+      if(frame.playing&&frame.alive){
+        const boss=frame.boss?.completed?frame.boss:this.situationBoss;
+        if(boss?.completed&&boss.id!==this.clearedMusicBoss){stingers.push('boss-down');this.clearedMusicBoss=boss.id;}
+        for(const ace of this.situationAces)if(ace.hp<=0&&!ace.expired&&!ace.rivalEscaped&&!ace.aceRetreat){stingers.push('ace-down');break;}
+        this.situationAces=new Set(frame.aces||[]);this.situationBoss=frame.boss;
+      }
+      scene={...scene,situationTrack:choice.loop,musicCrossfade:choice.crossfade};
+    }
     this.scene=scene;
     if(scene?.pulse&&scene.pulse!==this.lastPulse){this.pendingPulse=true;this.lastPulse=scene.pulse;}
     if(!scene?.pulse)this.pendingPulse=false;
-    const inactive=!scene||scene.state==='IDLE';
+    const inactive=!scene||scene.state==='IDLE'||scene.situation?.alive===false;
     if(inactive||muted)this.intro=null;
     const mode=inactive?'idle':scene.state==='ACE'?'boss':scene.state==='BOSS'||scene.state==='BOSS_FINAL'?'boss:'+scene.bossId:scene.theme;
     this.setState(mode,muted);
     this.recorded.sync(this.ctx,this.bus,this.scene,muted||inactive);
+    if(!muted&&!inactive)for(const id of stingers)this.recorded.playStinger(this.ctx,this.bus,id);
   }
   setVolume(value){this.volume=Math.max(0,Math.min(1,Number.isFinite(value)?value:1));this.setState(this.mode,this.muted);}
   status(){let rms=0,peak=0;if(this.meter){this.meter.getFloatTimeDomainData(this.meterData);for(const v of this.meterData){rms+=v*v;peak=Math.max(peak,Math.abs(v));}rms=Math.sqrt(rms/this.meterData.length);}

@@ -33,6 +33,7 @@ export function createPilotReadability(fx){
   },
   ball(c,p,point,t,px,py){
    if(p.pilot!=='ball')return false;
+   if(p.sortieFlightFx)return true;
    if(!p.pilotIdentity?.alone||p.ballCloak>0)return true;
    const a=p.a||0; c.save();c.translate(px,py);c.rotate(a);
    // A narrow, neutral slipstream follows the airframe. No magic halo and no

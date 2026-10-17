@@ -77,7 +77,7 @@ export class CoopGame {
   if(p.hp<=0)this.downPlayer(p);return true;
  }
  downPlayer(p){
-  if(p.status==='downed')return;p.resetLotharPursuit?.();p.resetBomberSortieTimers();this.friendlyBombs=this.friendlyBombs.filter(b=>!b.bomberTransfer||b.ownerId!==p.id);p.status='downed';p.hp=0;p.respawnRemaining=COOP_BALANCE.revive;p.downedCooldown=Math.max(p.cooldown,5);
+  if(p.status==='downed')return;p.resetLotharPursuit?.();p.resetMetalPilotFx?.();p.resetCloudSurvivalFx?.();p.resetUdetAcrobatics?.();p.resetLoewenhardtFx?.();p.resetFonckPrecisionFx?.();p.resetBomberSortieTimers();this.friendlyBombs=this.friendlyBombs.filter(b=>!b.bomberTransfer||b.ownerId!==p.id);p.status='downed';p.hp=0;p.respawnRemaining=COOP_BALANCE.revive;p.downedCooldown=Math.max(p.cooldown,5);
   for(const key of ['skillTime','chargeTime','bishopTime','bishopDrops','salvoWaves','udetBoost','wingBoost','evadeTime','invuln','muzzleFlash','crossfireFlash','barkerStacks','barkerStackTime','ballCloak','ballAmbush'])p[key]=0;p.ballGhost=null;
   if(p.pilotIdentity){p.pilotIdentity.debts=[];p.pilotIdentity.burns.clear();p.pilotIdentity.escape=null;p.pilotIdentity.barkerReady=false;p.pilotIdentity.fx=[];}p.formationWings=[];p.divingSquadron=[];p.airshipFleet=[];
   if(p.pilot==='immelmann'){p.immelmannTurn=null;p.immelmannAltitude=0;p.eagleTime=0;p.immelmannTurnAmount=0;}
@@ -275,3 +275,6 @@ import {installCoopFleet} from './fleet-naval1.js?v=buildfit1&rail=42&afc=1';
 installCoopFleet(CoopGame,Game);
 
 installAchievementTracking(CoopGame,{coop:true});
+
+import {installUdetCoop} from './udet-acrobatics.js';
+installUdetCoop(CoopGame);
