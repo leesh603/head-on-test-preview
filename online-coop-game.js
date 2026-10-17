@@ -1,3 +1,4 @@
+import {advanceUdetReplica,udetFlightModifiers} from './udet-acrobatics.js';
 import {CoopGame} from './coop-engine.js?v=merge20261017';
 import {BossEncounter} from './headon-stageboss-core.js?v=gal1';
 import {stageBossSpeed} from './stageboss-host.js?v=merge20261017';
@@ -133,8 +134,9 @@ export class OnlineCoopGame extends CoopGame {
   // Guest never calls CoopGame.update, Director, boss update, collision or RNG.
   const step=Math.min(.04,Math.max(0,dt));
   if(this.state==='playing'){
+   for(const owner of this.players)advanceUdetReplica(owner,step);
    const p=this.player(this.localPlayerId);if(p.status==='alive'){
-    p.flyAirframe(step,this._netInput);const velocity=p.baseSpeed*p.healthSpeedFactor()*stageBossSpeed(p)*(p.udetBoost>0?1.7:1)*(p.chargeTime>0?4.6:p.evadeTime>0?(p.bomberTransfer?1.12:2.35):p.airframeSpeed??1)*(p.pursuitSpeedFactor??1)*(p.vossReverse>0?2.35:1);
+    const acrobat=udetFlightModifiers(p),turn=p.turn;p.turn*=acrobat.turn;try{p.flyAirframe(step,this._netInput);}finally{p.turn=turn;}const velocity=acrobat.speed*p.baseSpeed*p.healthSpeedFactor()*stageBossSpeed(p)*(p.udetBoost>0?1.7:1)*(p.chargeTime>0?4.6:p.evadeTime>0?(p.bomberTransfer?1.12:2.35):p.airframeSpeed??1)*(p.pursuitSpeedFactor??1)*(p.vossReverse>0?2.35:1);
     const x=p.x,y=p.y;p.x+=Math.cos(p.a)*velocity*step;p.y+=Math.sin(p.a)*velocity*step;this.constrainMove(p,x,y);
     const k=1-Math.exp(-step*10),c=this._netCorrection;p.x+=c.x*k;p.y+=c.y*k;p.a+=c.a*k;c.x*=1-k;c.y*=1-k;c.a*=1-k;
    }

@@ -1,4 +1,4 @@
-import {fx} from './fx-art.js?v=tame3';
+import {fx,fxTint} from './fx-art.js?v=tame3';
 import {drawGameIcon} from './icons.js?v=buildfit1&afc=1';
 import {createPilotSignatureRenderer} from './pilot-signature-renderer.js?v=buildfit1&afc=1';
 
@@ -17,7 +17,7 @@ function insignia(c,key,x,y,size){
  const scale=size/Math.max(im.naturalWidth,im.naturalHeight);
  c.drawImage(im,x-im.naturalWidth*scale/2,y-im.naturalHeight*scale/2,im.naturalWidth*scale,im.naturalHeight*scale);return true;
 }
-export function createSignatureView(petal){return createPilotSignatureRenderer({fx,icon:drawGameIcon,petal,insignia})}
+export function createSignatureView(petal){return createPilotSignatureRenderer({fx,tint:fxTint,icon:drawGameIcon,petal,insignia})}
 let foreground;
 export function drawPilotSignatureFront(c,p,x,y){
  foreground??=createSignatureView(()=>{});

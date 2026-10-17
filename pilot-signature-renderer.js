@@ -1,3 +1,10 @@
+import {isAlbatrosHunter,drawAlbatrosLocal,drawAlbatrosWorld} from './albatros-hunter-fx.js';
+import {drawFonckLocal,drawFonckCue} from './fonck-precision-fx.js';
+import {METAL_PILOTS,drawMetalWake,drawMetalLocal,drawMetalGuns,drawMetalCue} from './metal-pilot-fx.js';
+import {SORTIE_PILOTS,drawSortieWake,drawSortieLocal,drawSortieCue} from './pilot-cloud-survival-fx.js';
+import {drawUdetWake,drawUdetLocal,drawUdetCue} from './udet-acrobat-fx.js';
+import {drawLoewWake,drawLoewLocal,drawLoewCue} from './loewenhardt-ascent-fx.js';
+import {drawLotharWake,drawLotharGuns,drawLotharCue} from './lothar-pursuit-fx.js';
 import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=gal1';
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
 import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
@@ -10,9 +17,10 @@ const _wCache=new Map();
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const SYMBOL_ICONS=Object.freeze({lo:'loEmblem',vossCowling:'sacredCowling'});
 export const UNRESOLVED_SIGNATURE_ART=Object.freeze(['wingedSword','blackDevil','cigogne']);
-export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>false,bolt=drawTracerBolt}){
+export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia=()=>false,bolt=drawTracerBolt}){
  if(typeof fx!=='function'||typeof icon!=='function')throw new TypeError('Authored FX and icon renderers are required');
  const texture=(c,key,x,y,w,h=w,a=0,opacity=1)=>fx(c,key,x,y,w,h,a,clamp(opacity));
+ const lotharTexture=(c,key,x,y,w,h=w,a=0,opacity=1,color)=>color&&typeof tint==='function'?tint(c,key,color,x,y,w,h,a,clamp(opacity)):texture(c,key,x,y,w,h,a,opacity);
  const tracer=(c,x,y,w,h,a,opacity)=>bolt(c,x,y,a,'#f2d9a0',w,h,clamp(opacity));
  function smokeArc(c,r,from,to,time,opacity=.3,flatten=1,count=12){
   for(let i=0;i<count;i++){const q=i/(count-1),a=from+(to-from)*q;texture(c,'gunSmoke',Math.cos(a)*r,Math.sin(a)*r*flatten,18+q*13,12+q*9,a+time*.15,opacity*(.35+.65*q))}
@@ -54,7 +62,13 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
   }
  }
  function worldEffects(c,p){
+  if(isAlbatrosHunter(p))drawAlbatrosWorld(c,p,lotharTexture);
   drawThreeWorld(c,p,texture,bolt);
+  if(p.pilot==='loewenhardt')drawLoewWake(c,p,lotharTexture);
+  if(p.pilot==='udet')drawUdetWake(c,p,lotharTexture);
+  if(SORTIE_PILOTS.has(p.pilot))drawSortieWake(c,p,lotharTexture);
+  if(METAL_PILOTS.has(p.pilot))drawMetalWake(c,p,lotharTexture);
+  if(p.pilot==='lothar')drawLotharWake(c,p,lotharTexture);
   const world=p.combatWorld?.()||p,owner=p.id||'p1';
   if(p.pilot==='hawker'&&!(p.skillTime>0)&&p.straightCharge>0)for(const b of world.bullets||[]){
    if(b.life<=0||b.enemy||b.ally||b.patrol||b.formation||b.rocket||b.motorCannon||b.cow37||b.mauserRound||b.blast||b.actualExplosion||b.gun===undefined||(b.ownerId!==undefined&&b.ownerId!==owner)||Math.hypot(b.x-p.x,b.y-p.y)>700)continue;
@@ -91,7 +105,14 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
   }
  }
  function start(c,p,e,foreground=false){
+  if(isAlbatrosHunter(p)&&['redHunt','huntConfirmation','hunt','shotAccent'].includes(e.kind))return;
   const q=clamp(e.age/e.maxLife),fade=Math.min(1,e.age/.09)*Math.min(1,e.life/.28),time=e.age;c.globalAlpha*=fade;if(['proctor','schleich','lufbery','huffzky','mckeever','jacobs','hawker','berthold','goering','nungesser','barker'].includes(p.pilot)&&e.kind==='shotAccent')return;
+  if(METAL_PILOTS.has(p.pilot)&&drawMetalCue(c,p,e,lotharTexture,foreground))return;
+  if(SORTIE_PILOTS.has(p.pilot)&&drawSortieCue(c,p,e,lotharTexture,foreground))return;
+  if(p.pilot==='udet'&&drawUdetCue(c,p,e,lotharTexture,foreground))return;
+  if(p.pilot==='fonck'&&drawFonckCue(c,p,e,lotharTexture,foreground))return;
+  if(p.pilot==='loewenhardt'&&drawLoewCue(c,p,e,lotharTexture,foreground))return;
+  if(p.pilot==='lothar'&&drawLotharCue(c,p,e,lotharTexture,foreground))return;
   switch(e.kind){   case 'rearBurst':{const a=e.a-p.a;muzzleAt(c,0,0,a,'muzzleRear',e.strong?1.2:.85);for(let i=0;i<3;i++)texture(c,'metalShard'+i,time*(18+i*9),10+time*(25+i*10),6,3,time*9+i,.7);break;}
    case 'rearAcquire':{c.rotate(e.a-p.a);for(const side of [-1,1])tracer(c,-8,side*(1-q)*12,14,4,side*.25,.42*(1-q));break;}
    case 'hawkerLink':texture(c,'armorSpark',0,0,24,14,e.a-p.a,.5*(1-q));texture(c,'gunSmoke',-8,0,23,13,0,.16);break;
@@ -123,7 +144,7 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
    case 'counterRoll':{
     if(foreground){
      const alpha=clamp((.72-time)/.18);if(!alpha)break;
-     const text='Du doch nicht!!';c.translate(-14,36);c.font='italic 600 11px Georgia,"Times New Roman",serif';c.textAlign='center';c.textBaseline='alphabetic';
+     const text='Du doch nicht!!';c.rotate(-p.a);c.translate(-14,36);c.font='italic 600 11px Georgia,"Times New Roman",serif';c.textAlign='center';c.textBaseline='alphabetic';
      const _k=c.font+'\u0000'+text;let widths=_wCache.get(_k);if(!widths){widths=[...text].map(ch=>c.measureText(ch).width);_wCache.set(_k,widths)}let x=-widths.reduce((sum,w)=>sum+w,0)/2;
      [...text].forEach((ch,i)=>{const w=widths[i],phase=time*5.1+i*.83+2.3;c.save();c.translate(x+w/2,Math.sin(phase)*1.9+Math.sin(phase*1.73+1.2)*.9);c.rotate(Math.sin(phase*.9+i)*.14);c.globalAlpha*=alpha*(.7+.3*Math.sin(phase*.6+i*1.9));c.strokeStyle='#2c241c';c.lineWidth=2.2;c.strokeText(ch,0,0);c.fillStyle='#e8d7b4';c.fillText(ch,0,0);c.restore();x+=w});
     }else{texture(c,'spark',19,0,24,13,0,.65);texture(c,'fireSmall',-24,4,17,10,Math.PI,.5)}
@@ -192,6 +213,12 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
  }
  const safeTurn=p=>p.pilotSignatureState?.turnRate||0;
  function continuous(c,p,profile,s){
+  if(isAlbatrosHunter(p)){drawAlbatrosLocal(c,p,lotharTexture);return;}
+  if(p.pilot==='fonck'){drawFonckLocal(c,p,lotharTexture);return;}
+  if(p.pilot==='loewenhardt'){drawLoewLocal(c,p,lotharTexture);return;}
+  if(p.pilot==='udet'){drawUdetLocal(c,p,lotharTexture);return;}
+  if(SORTIE_PILOTS.has(p.pilot)){drawSortieLocal(c,p,lotharTexture);return;}
+  if(METAL_PILOTS.has(p.pilot)){drawMetalLocal(c,p,lotharTexture);return;}
   if(drawThreeLocal(c,p,texture))return;
   const t=s.clock,age=s.activeAge,shot=p.muzzleFlash>0,active=p.skillTime>0;
   if(p.pilot==='huffzky'||p.pilot==='mckeever'){
@@ -331,15 +358,22 @@ export function createPilotSignatureRenderer({fx,icon,petal=()=>{},insignia=()=>
  return function drawPilotSignature(c,p,x,y,layer='under'){
   const s=p.pilotSignatureState,profile=PILOT_SIGNATURES[p.pilot];if(!s||!profile||!(p.hp>0)||![x,y,p.a].every(Number.isFinite))return false;
   c.save();try{
-   c.translate(x,y);if(layer!=='front')worldEffects(c,p);c.rotate(p.a);if(layer!=='front')continuous(c,p,profile,s);
+   c.translate(x,y);if(isAlbatrosHunter(p))c.globalCompositeOperation='source-over';if(layer!=='front')worldEffects(c,p);else if(isAlbatrosHunter(p))drawAlbatrosWorld(c,p,lotharTexture,true);c.rotate(p.a);if(layer!=='front')continuous(c,p,profile,s);
    if(layer==='front'){
+    if(isAlbatrosHunter(p))drawAlbatrosLocal(c,p,lotharTexture,true);
+    if(p.pilot==='fonck')drawFonckLocal(c,p,lotharTexture,true);
+    if(p.pilot==='loewenhardt')drawLoewLocal(c,p,lotharTexture,true);
+    if(p.pilot==='udet')drawUdetLocal(c,p,lotharTexture,true);
+    if(SORTIE_PILOTS.has(p.pilot))drawSortieLocal(c,p,lotharTexture,true);
+    if(METAL_PILOTS.has(p.pilot))drawMetalGuns(c,p,lotharTexture);
+    if(p.pilot==='lothar')drawLotharGuns(c,p,lotharTexture);
     if(p.pilot==='nungesser'&&p.skillTime>0){const cover=Math.min(1,p.skillTime/.15);for(const side of [-1,1])texture(c,'smokeDark',-3,side*9,64,31,Math.PI+side*.2,.40*cover);}
     if(p.pilot==='rickenbacker'&&p.skillTime>0&&!globalThis.__hoHoop?.has(p))drawRickenbackerHalfRing(c,s.clock,Math.min(1,p.skillTime/.15),true);
     if(p.pilot==='baracca'&&(p.chargeTime>0||p.prancingHorseFlash160>0||s.effects.some(e=>e.kind==='cavalryGuard'))){
      c.save();c.rotate(Math.PI/2);c.globalAlpha*=.82;insignia(c,'baraccaHorse',0,5,16,s.clock);c.restore();
     }
    }
-   for(const e of s.effects){if(layer==='front'&&!(p.pilot==='nungesser'&&['deathKnight','deathKnightEnd','smokeTear'].includes(e.kind))&&e.kind!=='ringPass'&&e.kind!=='ringVolley'&&e.kind!=='counterRoll')continue;const dx=e.x-p.x,dy=e.y-p.y;c.save();try{if((!e.signatureStart||e.kind==='whiteCommand')&&e.kind!=='shotAccent')c.translate(dx*Math.cos(p.a)+dy*Math.sin(p.a),-dx*Math.sin(p.a)+dy*Math.cos(p.a));start(c,p,e,layer==='front')}finally{c.restore()}}
+   for(const e of s.effects){if(layer==='front'&&!(p.pilot==='fonck'&&['fonckBrass','fonckImpact'].includes(e.kind))&&!(p.pilot==='loewenhardt'&&['loewBrass','loewFrontHit'].includes(e.kind))&&!(p.pilot==='udet'&&['udetGraze','udetBrass'].includes(e.kind))&&!(SORTIE_PILOTS.has(p.pilot)&&['sortieBrass','cloudStrike','survivalHit'].includes(e.kind))&&!(METAL_PILOTS.has(p.pilot)&&['metalBrass','metalArmor','metalDeflect'].includes(e.kind))&&!(p.pilot==='lothar'&&e.kind==='lotharBrass')&&!(p.pilot==='nungesser'&&['deathKnight','deathKnightEnd','smokeTear'].includes(e.kind))&&e.kind!=='ringPass'&&e.kind!=='ringVolley'&&e.kind!=='counterRoll')continue;const dx=e.x-p.x,dy=e.y-p.y;c.save();try{if((!e.signatureStart||e.kind==='whiteCommand')&&e.kind!=='shotAccent')c.translate(dx*Math.cos(p.a)+dy*Math.sin(p.a),-dx*Math.sin(p.a)+dy*Math.cos(p.a));start(c,p,e,layer==='front')}finally{c.restore()}}
   }finally{c.restore()}
   return true;
  };

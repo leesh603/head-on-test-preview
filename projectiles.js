@@ -44,6 +44,26 @@ export function drawTracerBolt(c,x,y,angle,color,len=20,wid=5,alpha=1){
  else{c.globalAlpha=.5*alpha;c.strokeStyle=color;c.lineWidth=Math.max(1.4,wid*.4);c.beginPath();c.moveTo(-len,0);c.lineTo(0,0);c.stroke();c.globalAlpha=alpha;c.strokeStyle='#fff6e0';c.lineWidth=Math.max(1,wid*.22);c.beginPath();c.moveTo(-len*.35,0);c.lineTo(0,0);c.stroke();}
  c.restore();
 }
+// These are still machine-gun rounds: short painted needles with a restrained
+// warm tail, rather than the old 48–50px white capsules joining into a beam.
+const PILOT_GUN_TRACERS=Object.freeze({
+ fonck:Object.freeze({length:22,width:4.2,color:'#c8ac79',core:'#f0e3c5',glow:.18}),
+ vertical:Object.freeze({length:19,width:3.8,color:'#bfa77a',core:'#e9d8b4',glow:.14}),
+ horizontal:Object.freeze({length:19,width:3.8,color:'#b18d66',core:'#e4c9a3',glow:.14})
+});
+export function pilotGunTracerStyle(b){
+ if(!b||b.enemy||b.rocket||b.motorCannon||b.cow37||b.actualExplosion||b.blast||!(b.life>0))return null;
+ return b.mannockPass?PILOT_GUN_TRACERS[b.mannockPass]||null:(b.fonckVolley||b.fonckSeeker)?PILOT_GUN_TRACERS.fonck:null;
+}
+export function drawPilotGunTracer(c,b,x,y,paint=fxTint,ready=fxReady){
+ const s=pilotGunTracerStyle(b);if(!s||![x,y,b.vx,b.vy].every(Number.isFinite))return false;
+ const a=Math.atan2(b.vy,b.vx),cx=x-Math.cos(a)*s.length*.42,cy=y-Math.sin(a)*s.length*.42;
+ if(ready('tracerCore')){
+  if(ready('tracerGlow'))paint(c,'tracerGlow',s.color,cx,cy,s.length*1.08,s.width*1.7,a,s.glow);
+  paint(c,'tracerCore',s.core,cx,cy,s.length,s.width,a,.95);
+ }else drawTracerBolt(c,x,y,a,s.color,s.length,s.width,.78);
+ return true;
+}
 function enemyBolt(len,wid){
  const key=len+'x'+wid;if(boltCache.has(key))return boltCache.get(key);
  if(typeof document==='undefined')return null;

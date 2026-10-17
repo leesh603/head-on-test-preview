@@ -38,8 +38,9 @@ export function tickThreePilot(p,dt){
    if(front<18||front>76||Math.abs(side)>front*.72||x*x+y*y>76*76+.001)continue;
    b.life=0;s.deflections++;
    if(count++<3){const px=p.x+x,py=p.y+y,a=p.a+(side<0?-1:1)*1.05;
-    p.identityFx('ricochet',px,py,a,38,.28,{height:17,alpha:.88});
-    p.identityFx('gunSmoke',px,py,a,34,.38,{height:18,alpha:.27});
+    p.metalDeflectionFx?.(px,py,a);
+    p.identityFx('ricochet',px,py,a,38,.28,{height:17,alpha:.88,metalPilotLegacy:true});
+    p.identityFx('gunSmoke',px,py,a,34,.38,{height:18,alpha:.27,metalPilotLegacy:true});
    }
   }
  }
