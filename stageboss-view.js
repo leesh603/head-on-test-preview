@@ -110,7 +110,9 @@ export function prepareStageBossAssets(region){
  if(region===7)jobs.push(harborGroup.preload(['base','cranePivot','guns','parts']));
  // Requested regional bosses use independent preloaded RGBA atlases above.
  if(region===8){jobs.push(cambraiGroup.preload());jobs.push(treffasGroup.preload());jobs.push(bugGroup.preload());}else{cambraiGroup.release();treffasGroup.release();bugGroup.release();partWreckGroup.release();}
- if(region>=0)jobs.push(partGroup.preload());else{partGroup.release();skyCloud113=null}
+ if(airshipPartRegion!==(region===5))bakedCellCache.clear();
+ airshipPartRegion=region===5;
+ if(region>=0){partGroup.release([airshipPartRegion?'atlas':'airships']);jobs.push(partGroup.preload([airshipPartRegion?'airships':'atlas']));}else{partGroup.release();skyCloud113=null}
  return Promise.all(jobs);
 }
 const drawTrenchImage=(c,image,x,y,w,h,angle=0,alpha=1)=>{if(!(image?.naturalWidth||image?.width))return false;c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha=alpha;c.imageSmoothingEnabled=true;c.drawImage(image,-w/2,-h/2,w,h);c.restore();return true;};
@@ -283,9 +285,10 @@ function drawZubianFrame(c,key,x,y,w,h){const zubianAtlas=zubianArt.atlas;if(!zu
 const drawBossArt=(c,key,w,h)=>{const image=bossArt[key];if(image?.naturalWidth)c.drawImage(image,-w/2,-h/2,w,h)};
 const cityGroup=createLazyImageGroup({london:'./terrain-city-london96.webp?v=gal1&b=345',berlin:'./terrain-city-berlin96.webp?v=gal1&b=345'}),cityArt=cityGroup.images;
 // Dedicated aircraft-style sprite atlas; collider sizes remain authoritative.
-const partGroup=createLazyImageGroup({atlas:'./boss-parts100.webp'}),partArt=partGroup.images;
+const partGroup=createLazyImageGroup({atlas:'./boss-parts100.webp',airships:'./asset-bank/outlined/native/boss-airship-parts-20261017.webp'}),partArt=partGroup.images;
+let airshipPartRegion=false;
 function bossSprite(c,index,x,y,w,h,angle=0,alpha=1){
- const partAtlas=partArt.atlas;if(!partAtlas.naturalWidth)return;
+ const partAtlas=partArt[airshipPartRegion?'airships':'atlas'];if(!partAtlas.naturalWidth)return;
  const cell=partAtlas.naturalWidth/4,row=partAtlas.naturalHeight/4;
  c.save();c.translate(Math.round(x),Math.round(y));c.rotate(angle);c.globalAlpha*=alpha;c.imageSmoothingEnabled=false;
  c.drawImage(partAtlas,(index%4)*cell,Math.floor(index/4)*row,cell,row,-w/2,-h/2,w,h);c.restore();
@@ -295,7 +298,7 @@ function bossSprite(c,index,x,y,w,h,angle=0,alpha=1){
 // canvases instead.
 const bakedCellCache=new Map();
 function bakedCell(index,filter){
- const partAtlas=partArt.atlas;if(!partAtlas.naturalWidth)return null;
+ const partAtlas=partArt[airshipPartRegion?'airships':'atlas'];if(!partAtlas.naturalWidth)return null;
  const key=index+'|'+filter,prev=bakedCellCache.get(key);if(prev)return prev;
  const cell=partAtlas.naturalWidth/4,row=partAtlas.naturalHeight/4,cv=document.createElement('canvas');
  cv.width=cell;cv.height=row;const cc=cv.getContext('2d');cc.filter=filter;
@@ -825,7 +828,7 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 let skyCloud113;
 export function paintSky(c,cx,cy,W,H){
  c.fillStyle='#607c89';c.fillRect(0,0,W,H);
- const partAtlas=partArt.atlas;if(!partAtlas.naturalWidth)return;
+ const partAtlas=partArt[airshipPartRegion?'airships':'atlas'];if(!partAtlas.naturalWidth)return;
  if(!skyCloud113){skyCloud113=document.createElement('canvas');skyCloud113.width=skyCloud113.height=128;const q=skyCloud113.getContext('2d');q.imageSmoothingEnabled=false;const w=partAtlas.naturalWidth/4,h=partAtlas.naturalHeight/4;q.drawImage(partAtlas,3*w,2*h,w,h,0,0,128,128);q.globalCompositeOperation='source-in';q.fillStyle='#d3dedd';q.fillRect(0,0,128,128);}
  c.save();c.imageSmoothingEnabled=false;
  for(const layer of [0,1]){const tile=layer?440:620,parallax=layer?.35:.16,px=cx*parallax,py=cy*parallax,sx=Math.floor(px/tile)-1,sy=Math.floor(py/tile)-1;
@@ -852,5 +855,3 @@ export function paintCity(c,cx,cy,W,H,city='london'){
   c.strokeStyle='#f2dda13d';c.lineWidth=1;c.beginPath();c.moveTo(ox,oy);c.lineTo(tx,ty);c.stroke();c.fillStyle='#413e35';c.fillRect(ox-12,H-18,24,18);c.fillStyle='#d9c883';c.fillRect(ox-5,H-22,10,5);}
  c.restore();
 }
-
-

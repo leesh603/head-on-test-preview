@@ -1421,3 +1421,13 @@ body.astra-ui.playing #modal.build-modal151 .astra-ability.ho-tip .ho-skill-pop{
 body.astra-ui.playing #modal.build-modal151 #build151 .build-abilities151 .astra-ability.ho-tip{position:relative;z-index:30}
 body.astra-ui.playing #modal.build-modal151 #build151 .build-abilities151 .astra-active.ho-tip .ho-skill-pop{left:0!important;right:auto!important;width:calc(200% + 8px)!important}
 body.astra-ui.playing #modal.build-modal151 #build151 .build-abilities151 .astra-passive.ho-tip .ho-skill-pop{right:0!important;left:auto!important;width:calc(200% + 8px)!important}
+
+/* Settings opened from the pause menu: the generic pause-button rule above
+   (centred flex, nowrap, 14px side padding) was flattening the settings
+   rows into centred clumps. Restore the same row layout as the hangar. */
+body.astra-ui.playing #modal.settings-modal151:not(.build-modal151) #modalActions{display:grid!important;grid-template-columns:minmax(0,1fr);gap:0!important}
+body.astra-ui.playing #modal.settings-modal151 #modalActions button.settings-row151{
+ display:grid!important;justify-content:stretch!important;text-align:left!important;white-space:normal!important;
+ height:auto!important;min-height:76px!important;max-height:none!important;padding:13px 0!important;
+}
+body.astra-ui.playing #modal.settings-modal151 .setting-copy151{text-align:left}

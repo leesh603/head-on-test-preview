@@ -1,5 +1,5 @@
 import {getAircraftDisplayName} from './aircraft-master.js?v=tame3';
-import {pilotIdentityCopy} from './pilot-identity-copy.js';
+import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
 
 const STORAGE_KEY='headon-locale';
 const SUPPORTED=new Set(['ko','en']);

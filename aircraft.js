@@ -5,8 +5,10 @@ import {AIRCRAFT_OUTLINE_ART} from './aircraft-outline-art.js?v=outline1';
 const BOMBER_TRANSFER_ART=Object.freeze({
  'transfer-caudron-r11':{path:'asset-bank/outlined/native/asset-bank/flight/bank_plane_caudron_r11.webp',x:0,y:0,w:288,h:320},
  'transfer-aeg-ji':{path:'asset-bank/outlined/native/asset-bank/flight/transfer-aeg-ji.webp',x:0,y:0,w:288,h:320},
- 'transfer-r29':{path:'asset-bank/outlined/native/asset-bank/flight/transfer-r29.webp',x:0,y:0,w:288,h:320},
- 'transfer-l30':{path:'asset-bank/outlined/native/asset-bank/flight/bank_airship_zeppelin_l30.webp',x:0,y:0,w:288,h:320},
+ // These large hulls already have a fine authored outline; the added bank rim
+ // becomes several screen pixels wide at the player airship's display scale.
+ 'transfer-r29':{path:'asset-bank/flight/transfer-r29.webp',x:0,y:0,w:288,h:320},
+ 'transfer-l30':{path:'asset-bank/flight/bank_airship_zeppelin_l30.webp',x:0,y:0,w:288,h:320},
  'bomber-transfer-o400':{path:'asset-bank/outlined/native/asset-bank/flight/livery_hp_o400.webp',x:576,y:0,w:288,h:320},
  'bomber-transfer-gotha':{path:'asset-bank/outlined/native/asset-bank/flight/livery_gotha_g4.webp',x:288,y:0,w:288,h:320}
 });
@@ -279,7 +281,7 @@ export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0
 // Campaign aircraft mostly have dedicated PNGs; only the Mark IV tank remains on
 // the atlas. The alias defaults below resolve the remaining campaign ids even when
 // registerCampaignSpriteAliases has not run in this module instance.
-const campaignSpriteAliases={dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',albatros_d5:'albatros_d5a',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard'};
+const campaignSpriteAliases={'white-fokkerdv55':'goering_fokkerd7',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',albatros_d5:'albatros_d5a',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard'};
 export function registerCampaignSpriteAliases(aliases){Object.assign(campaignSpriteAliases,aliases)}
 export const campaignArtReady=new Promise(resolve=>{
  const img=new Image();img.onload=()=>{
