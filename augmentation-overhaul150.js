@@ -1,4 +1,4 @@
-import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment} from './build-airframe-transfer.js?v=buildfit1&afc=1';
+import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=buildfit1&afc=1';
 import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget} from './bomber-transfer.js?v=buildfit1&afc=1';
 // Augmentation catalog revision 150. Display data mirrors the live 강화정리 sheet;
 // legacy ids stay stable so existing runs and local saves remain compatible.
@@ -115,7 +115,17 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  Game.prototype.legendaryCount=function(){return LEGENDARIES.reduce((n,u)=>n+(this.upgrades[u.id]?1:0),0)};
  Game.prototype.legendaryChance=function(){return Math.min(.5,Math.max(.05,(this.level||1)*.05))};
  const namedSpecial=(g,u)=>({...u,name:u.id==='ironCross'?(PLANES[g.plane]?.faction==='entente'?'빅토리아 십자훈장 · Victoria Cross':'푸르 르 메리트 · Pour le Mérite'):u.name,legendary:true,rarity:'legendary'});
- const specialAllowed=function(g,u){return !(AIRFRAME_TRANSFER_IDS.includes(u.id)&&(g.bomberTransfer||AIRFRAME_TRANSFER_IDS.some(id=>g.upgrades[id])))&&!g.upgrades[u.id]&&(u.id!=='rearGunner'||!g.weapon.bidirectional&&!g.rearGunner)&&!(u.id==='cow37'&&(g.upgrades.quadLewis||g.upgrades.maximBelt))&&!(u.id==='quadLewis'&&g.upgrades.cow37)&&!(u.id==='maximBelt'&&g.upgrades.cow37)};
+ const hasExplosiveMeans=g=>g.rockets>0||g.mineCount>0||(g.bomberLevel||0)>0||g.motorCannon||g.cow37||g.bomberTransfer&&!g.bomberTransfer.kind||g.upgrades.rankinShell||g.legendaryMineTrail||['bishop','guynemer'].includes(g.pilot);
+ const specialAllowed=function(g,u){return !(AIRFRAME_TRANSFER_IDS.includes(u.id)&&(g.bomberTransfer||AIRFRAME_TRANSFER_IDS.some(id=>g.upgrades[id])))&&!g.upgrades[u.id]&&(u.id!=='rearGunner'||!g.weapon.bidirectional&&!g.rearGunner)&&!(u.id==='cow37'&&(g.upgrades.quadLewis||g.upgrades.maximBelt))&&!(u.id==='quadLewis'&&g.upgrades.cow37)&&!(u.id==='maximBelt'&&g.upgrades.cow37)&&(u.id!=='amatolCharge'||hasExplosiveMeans(g))&&(u.id!=='lufberyCircle'||(g.permanentWingman||0)>=1)};
+ const SPECIAL_SYNERGY=Object.freeze({amatolCharge:'EXPLOSIVE',motorCannon:'EXPLOSIVE',lufberyCircle:'FORMATION',goeringBaton:'FORMATION',redScarf:'SPEED',prancingHorse:'SPEED',sacredCowling:'SPEED',immelmannManual:'SPEED',flightGloves:'GUN',telescope:'GUN',quadLewis:'GUN',maximBelt:'GUN',rearGunner:'GUN',sparkPlug:'SURVIVAL',steelPlate:'SURVIVAL',rankinShell:'SURVIVAL',kaiserFog:'SURVIVAL',fogCompass:'SURVIVAL'});
+ const specialSynergyWeight=(g,u)=>{const owned=Object.keys(g.upgrades||{}).filter(id=>g.upgrades[id]),count=identity=>owned.filter(id=>buildIdentityFor(id)===identity).length,identity=SPECIAL_SYNERGY[u.id],n=u.id==='mauserAceKiller'?Math.max(count('GUN'),count('EXPLOSIVE')):identity?count(identity)+(identity==='FORMATION'&&(g.permanentWingman||0)>0?1:0):0;return Math.min(1.6,1+.15*Math.min(3,n))};
+ const pickWeightedSpecials=(g,pool)=>{
+  if(pool.every(u=>specialSynergyWeight(g,u)===1))return pickSpecialEquipment(g,pool);
+  const source=pool.slice(),picks=[],weight=u=>transferWeight(g,u.id)*specialSynergyWeight(g,u);
+  while(source.length&&picks.length<3){let ticket=g.rng()*source.reduce((sum,u)=>sum+weight(u),0),index=source.length-1;for(let i=0;i<source.length;i++){ticket-=weight(source[i]);if(ticket<0){index=i;break}}picks.push(source.splice(index,1)[0])}
+  if(picks.every(u=>AIRFRAME_TRANSFER_IDS.includes(u.id))){const alternatives=pool.filter(u=>!AIRFRAME_TRANSFER_IDS.includes(u.id));if(alternatives.length)picks[picks.length-1]=alternatives[Math.floor(g.rng()*alternatives.length)];else picks.pop()}
+  return picks;
+ };
  const normalAllowed=function(g,u,rarity){
   if(!u||u.legendary||specialIds.has(u.id))return false;
   if(u.uniqueOnly?rarity!=='unique':u.rareOnly?rarity!=='rare':rarity==='unique')return false;
@@ -135,9 +145,9 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    const r=this.rng();let rarity=forceRarity||(r<AUGMENTATION_OVERHAUL_BALANCE.rarity.normal?'normal':r<AUGMENTATION_OVERHAUL_BALANCE.rarity.normal+AUGMENTATION_OVERHAUL_BALANCE.rarity.magic?'magic':r<1-AUGMENTATION_OVERHAUL_BALANCE.rarity.unique?'rare':'unique');
    let u=normalPick(this,rarity,picks,this.lastChoices||[]);if(!u)for(const fallback of ['normal','magic','rare','unique']){if(fallback===rarity)continue;u=normalPick(this,fallback,picks,this.lastChoices||[]);if(u){rarity=fallback;break}}if(u)picks.push({...u,rarity});
   }
-  const offers=this.legendaryOffers??(this.legendaryOffered?1:0),limit=this.level>=20?4:this.level>=10?2:1,pool=LEGENDARIES.filter(u=>specialAllowed(this,u)&&!(this.seenLegendaries||[]).includes(u.id));
+  const offers=this.legendaryOffers??(this.legendaryOffered?1:0),limit=this.level>=20?4:this.level>=10?2:1,cooldown=this.specialDraftCooldownIds||[],pool=LEGENDARIES.filter(u=>specialAllowed(this,u)&&!cooldown.includes(u.id));
   if(!forceRarity&&!this.mission?.unarmed&&offers<limit&&this.legendaryCount()<4&&pool.length>=3&&pool.some(u=>!AIRFRAME_TRANSFER_IDS.includes(u.id))&&(this.rng()<this.legendaryChance()||this.level>=(offers===0?5:offers===1?12:22))){
-   picks.length=0;picks.push(...pickSpecialEquipment(this,pool).map(u=>namedSpecial(this,u)));this.legendaryOffered=true;this.legendaryOffers=offers+1;this.seenLegendaries??=[];this.seenLegendaries.push(...picks.map(u=>u.id));
+   picks.length=0;picks.push(...pickWeightedSpecials(this,pool).map(u=>namedSpecial(this,u)));this.legendaryOffered=true;this.legendaryOffers=offers+1;this.specialDraftSuppressedIds=[...cooldown];this.specialDraftCooldownIds=picks.map(u=>u.id);
   }
   this.lastChoices=picks.map(u=>u.id);this.choiceDraftSerial=(this.choiceDraftSerial||0)+1;this.choiceRerollUsed=false;this.choiceDraftKind=picks.every(u=>u.rarity==='legendary')?'special':'normal';return picks;
  };
@@ -147,9 +157,9 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  Game.prototype.canRerollChoices=function(current=[]){const state=this.state??this.combatWorld?.()?.state,special=current.length===3&&current.every(u=>(u.rarity||'legendary')==='legendary');return state==='upgrade'&&!this.choiceRerollUsed&&special&&new Set(current.map(u=>u.id)).size===3};
  Game.prototype.rerollChoices=function(current=[]){
   if(!this.canRerollChoices(current))return null;const special=current.every(u=>(u.rarity||'legendary')==='legendary'),previous=current.map(u=>u.id),picks=[];
-  if(special){const eligible=LEGENDARIES.filter(u=>specialAllowed(this,u)),fresh=eligible.filter(u=>!previous.includes(u.id)),source=[...(fresh.length>=3&&fresh.some(u=>!AIRFRAME_TRANSFER_IDS.includes(u.id))?fresh:eligible)];picks.push(...pickSpecialEquipment(this,source).map(u=>namedSpecial(this,u)))}
+  if(special){const cooldown=this.specialDraftSuppressedIds||[],eligible=LEGENDARIES.filter(u=>specialAllowed(this,u)&&!cooldown.includes(u.id)),fresh=eligible.filter(u=>!previous.includes(u.id)),source=fresh.length>=3&&fresh.some(u=>!AIRFRAME_TRANSFER_IDS.includes(u.id))?fresh:eligible;picks.push(...pickWeightedSpecials(this,source).map(u=>namedSpecial(this,u)))}
   else for(const old of current){let rarity=old.rarity||'normal',u=normalPick(this,rarity,picks,previous);if(!u)for(const fallback of ['normal','magic','rare','unique']){if(fallback===rarity)continue;u=normalPick(this,fallback,picks,previous);if(u){rarity=fallback;break}}if(u)picks.push({...u,rarity})}
-  if(picks.length!==current.length||new Set(picks.map(u=>u.id)).size!==current.length)return null;this.choiceRerollUsed=true;this.lastChoices=picks.map(u=>u.id);if(special){this.seenLegendaries??=[];this.seenLegendaries.push(...picks.map(u=>u.id))}return picks;
+  if(picks.length!==current.length||new Set(picks.map(u=>u.id)).size!==current.length)return null;this.choiceRerollUsed=true;this.lastChoices=picks.map(u=>u.id);if(special)this.specialDraftCooldownIds=picks.map(u=>u.id);return picks;
  };
 
  Game.prototype.upgrade=function(id,rarity='normal'){

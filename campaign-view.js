@@ -1,4 +1,4 @@
-import {PLANES} from './engine.js?v=buildfit1&afc=1';
+import {PLANES} from './engine.js?v=merge20261017';
 import {drawGroundEnemy} from './ground-enemy-art.js?v=gal1';
 import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=outline2';
 import {SPRITE_ALIASES} from './campaign.js?v=buildfit1&rail=42&afc=1';

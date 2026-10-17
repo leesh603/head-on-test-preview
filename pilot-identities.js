@@ -1,4 +1,4 @@
-import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js';
+import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
 import {installPilotFeedback} from './pilot-feedback.js';
 import {headOnTarget} from './engagement-feedback.js?v=tame3';
 // Final player-only pilot layer. Installed after every historical engine override.

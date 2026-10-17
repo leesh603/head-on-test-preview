@@ -6,8 +6,8 @@ import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=b
 import {nungesserAimOffset,nungesserRoundReaction} from './pilot-signature-state.js?v=gal1';
 import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=gal1';
 import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=fiveace1';
-import {Game,bishopFlightHeight,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=buildfit1&afc=1';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=buildfit1&afc=1';
+import {Game,bishopFlightHeight,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=merge20261017';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=merge20261017';
 import {registerAircraftTiers} from './aircraft-tiers.js?v=gal1';
 import {attachAircraftPersonality} from './aircraft-personality164.js?v=gal1';
 import {wingmanEngagementStep,wingmanAttackTarget} from './engagement-flow174.js?v=gal1&afc=1';
@@ -27,8 +27,8 @@ const segmentDistance=(x,y,x0,y0,x1,y1)=>{const dx=x1-x0,dy=y1-y0,t=clamp(((x-x0
 export class PlayerState {
  constructor(world,id,{nickname,pilot,plane=coopPlane(pilot)}){
   registerAircraftTiers(PLANES);const fit=PLANES[plane];this.world=world;this.id=id;this.nickname=String(nickname||id.toUpperCase()).trim().slice(0,12)||id.toUpperCase();this.pilot=pilot;this.plane=plane;
-  Object.assign(this,{status:'alive',x:id==='p1'?-55:55,y:0,a:-Math.PI/2,speed:fit.speed*1.18,turn:fit.turn*1.12*.72,maxHp:fit.hp,hp:fit.hp,weapon:{...WEAPONS[plane]},damage:12,shots:1,rockets:0,mineCount:0,rocketFire:1.8,mineTimer:3,magnet:120,cooldownMult:1,level:1,xp:0,baseLevelNeed:6,xpCostMultiplier:fit.xpCostMultiplier??1,upgrades:{},reloadTime:0,roundsFired:0,muzzleFlash:0,fire:0,cooldown:0,evadeCooldown:0,evadeTime:0,evadeDirection:1,skillTime:0,invuln:1.5,hitFlash:0,smokeTimer:0,respawnRemaining:0,distance:0,kills:0,formationWings:[],divingSquadron:[],airshipFleet:[]});
-  this.rate=60/this.weapon.rpm;this.ammo=Array(this.weapon.guns).fill(this.weapon.belt);this.need=this.levelRequirement(6);
+  Object.assign(this,{status:'alive',x:id==='p1'?-55:55,y:0,a:-Math.PI/2,speed:fit.speed*1.18,turn:fit.turn*1.12*.72,maxHp:fit.hp,hp:fit.hp,weapon:{...WEAPONS[plane]},damage:12,shots:1,rockets:0,mineCount:0,rocketFire:1.8,mineTimer:3,magnet:120,cooldownMult:1,level:1,xp:0,baseLevelNeed:8,xpCostMultiplier:fit.xpCostMultiplier??1,upgrades:{},reloadTime:0,roundsFired:0,muzzleFlash:0,fire:0,cooldown:0,evadeCooldown:0,evadeTime:0,evadeDirection:1,skillTime:0,invuln:1.5,hitFlash:0,smokeTimer:0,respawnRemaining:0,distance:0,kills:0,formationWings:[],divingSquadron:[],airshipFleet:[]});
+  this.rate=60/this.weapon.rpm;this.ammo=Array(this.weapon.guns).fill(this.weapon.belt);this.need=this.levelRequirement(8);
   this.doctrine=['강습 편대','고속 정찰','장기 초계'][Math.floor(this.rng()*3)];
   if(this.doctrine==='강습 편대'){this.damage*=1.15;this.reloadPenalty=1.15}else if(this.doctrine==='고속 정찰'){this.speed*=1.12;this.maxHp*=.9;this.hp=this.maxHp}else{this.maxHp+=15;this.hp=this.maxHp;this.rate*=1.08}
 
@@ -77,7 +77,7 @@ export class CoopGame {
   if(p.hp<=0)this.downPlayer(p);return true;
  }
  downPlayer(p){
-  if(p.status==='downed')return;p.resetBomberSortieTimers();this.friendlyBombs=this.friendlyBombs.filter(b=>!b.bomberTransfer||b.ownerId!==p.id);p.status='downed';p.hp=0;p.respawnRemaining=COOP_BALANCE.revive;p.downedCooldown=Math.max(p.cooldown,5);
+  if(p.status==='downed')return;p.resetLotharPursuit?.();p.resetBomberSortieTimers();this.friendlyBombs=this.friendlyBombs.filter(b=>!b.bomberTransfer||b.ownerId!==p.id);p.status='downed';p.hp=0;p.respawnRemaining=COOP_BALANCE.revive;p.downedCooldown=Math.max(p.cooldown,5);
   for(const key of ['skillTime','chargeTime','bishopTime','bishopDrops','salvoWaves','udetBoost','wingBoost','evadeTime','invuln','muzzleFlash','crossfireFlash','barkerStacks','barkerStackTime','ballCloak','ballAmbush'])p[key]=0;p.ballGhost=null;
   if(p.pilotIdentity){p.pilotIdentity.debts=[];p.pilotIdentity.burns.clear();p.pilotIdentity.escape=null;p.pilotIdentity.barkerReady=false;p.pilotIdentity.fx=[];}p.formationWings=[];p.divingSquadron=[];p.airshipFleet=[];
   if(p.pilot==='immelmann'){p.immelmannTurn=null;p.immelmannAltitude=0;p.eagleTime=0;p.immelmannTurnAmount=0;}
@@ -89,7 +89,7 @@ export class CoopGame {
  awardXp(value){if(this.state==='lost'||!Number.isFinite(value)||value<=0)return;for(const p of this.players)p.xp+=value*COOP_BALANCE.xp*(p.xpGainMult||1)*(PLANES[p.plane].xpGainMultiplier??1);this.queueLevels()}
  queueLevels(){
   if(this.state==='lost')return;let advanced=true;
-  while(advanced){advanced=false;for(const p of this.players)if(p.xp+1e-9>=p.need){p.xp=Math.max(0,p.xp-p.need);p.level++;p.baseLevelNeed=Math.ceil(p.baseLevelNeed*1.28);p.need=p.levelRequirement(p.baseLevelNeed);this.pendingLevelUps.push({id:++this.upgradeSequence,playerId:p.id,level:p.level,choices:null});advanced=true}}
+  while(advanced){advanced=false;for(const p of this.players)if(p.xp+1e-9>=p.need){p.xp=Math.max(0,p.xp-p.need);p.level++;p.baseLevelNeed=Math.ceil(p.baseLevelNeed*1.22);p.need=p.levelRequirement(p.baseLevelNeed);this.pendingLevelUps.push({id:++this.upgradeSequence,playerId:p.id,level:p.level,choices:null});advanced=true}}
   if(this.pendingLevelUps.length&&!this.activeUpgrade)this.openUpgrade();
  }
  openUpgrade(){if(this.state==='lost')return;this.activeUpgrade=this.pendingLevelUps[0]||null;if(!this.activeUpgrade){this.state=this.manualPaused?'paused':'playing';return}this.state='upgrade';const item=this.activeUpgrade,p=this.player(item.playerId);if(!item.choices){const level=p.level;p.level=item.level;try{item.choices=p.rollChoices()}finally{p.level=level}}this.events.push({type:'upgrade',item})}
@@ -132,7 +132,7 @@ export class CoopGame {
   }
   if(hit){if(hitKind===0){hit.damageSource={x:x0,y:y0,bullet:b,impactX:x0+dx*first,impactY:y0+dy*first};this.hitPlayer(hit,highRiskDamage(b.damage,hit.maxHp,b));hit.damageSource=null;}else if(hitKind===1)this.hitPatrol(hit,b.damage,b);else this.hitFormationAlly(hit,b.damage);b.life=0}
  }
- handleDeath(e,b){if(e.stageBossBody||e.deathHandled||e.hp>0)return;e.deathHandled=true;const credited=!b.patrol||e.playerHit,owner=this.player(b.ownerId);owner?.spawnAmatolSecondary(e,b);if(credited){this.kills++;achievementEnemyDefeated(this,e);if(owner)owner.kills++;if(!e.surface&&!e.fieldUnit&&(e.bossPilot||['boss','zeppelin','bomber'].includes(e.type)))awardPriorityKill(this,e,b.ownerId)}else this.patrolKills=(this.patrolKills||0)+1;if(e.type==='zeppelin')this.wreckGust(e);{const style=chooseEnemyDeathStyle(e,()=>this.rng()),burst=enemyDeathBurst(e,style);this.burst(e.x,e.y,'#f2aa52',burst.count,burst.kind)};this.smoke(e.x,e.y,true);this.event('kill','');if(e.type==='boss'){this.bossKilled=true;if(owner&&live(owner))owner.hp=Math.min(owner.maxHp,owner.hp+owner.maxHp*DURABILITY_BALANCE.repairPickupFraction)}if(credited){const big=e.bossPilot||e.type==='boss';if(big)for(let gi=0;gi<5;gi++)this.drops.push({id:this.nextEntityId++,x:e.x+Math.cos(gi*1.26)*44,y:e.y+Math.sin(gi*1.26)*44,value:14,heal:false});this.drops.push({id:this.nextEntityId++,x:e.x,y:e.y,value:big?30:e.heavyBomber?16:e.type==='bomber'?3:(e.xpValue||1),heal:big||this.rng()<.03});Game.prototype.dropObservationRepair.call(this,e)}}
+ handleDeath(e,b){if(e.stageBossBody||e.deathHandled||e.hp>0)return;e.deathHandled=true;const credited=!b.patrol||e.playerHit,owner=this.player(b.ownerId);owner?.spawnAmatolSecondary(e,b);if(credited){this.kills++;achievementEnemyDefeated(this,e);if(owner)owner.kills++;if(!e.surface&&!e.fieldUnit&&(e.bossPilot||['boss','zeppelin','bomber'].includes(e.type)))awardPriorityKill(this,e,b.ownerId)}else this.patrolKills=(this.patrolKills||0)+1;if(e.type==='zeppelin')this.wreckGust(e);{const style=chooseEnemyDeathStyle(e,()=>this.rng()),burst=enemyDeathBurst(e,style);this.burst(e.x,e.y,'#f2aa52',burst.count,burst.kind)};this.smoke(e.x,e.y,true);this.event('kill','');if(e.type==='boss'){this.bossKilled=true;if(owner&&live(owner))owner.hp=Math.min(owner.maxHp,owner.hp+owner.maxHp*DURABILITY_BALANCE.repairPickupFraction)}if(credited){this.dropXpReward(e,{healChance:.03});Game.prototype.dropObservationRepair.call(this,e)}}
  updateSchedules(dt){
   const wave=this.t<60?1:this.t<120?2:3;if(wave!==this.wave){this.wave=wave;this.event('wave',wave===1?'2인 협동 · 서로의 꼬리를 지켜주세요':wave===2?'제2파 · 추격기 접근':'제3파 · 전선 돌파')}
   this.eventTimer-=dt;if(this.eventTimer<=0){this.eventTimer=22+this.rng()*20;const roll=this.rng(),quiet=this.mobSpawnsSuppressed();if(roll<.35&&!quiet){for(let i=0;i<3;i++)this.spawnRegular('hunter');this.event('wave','기습! 고속 추격 편대')}else if(roll<.6&&!quiet){this.spawnRegular('bomber');this.spawnRegular('bomber');this.event('wave','폭격 편대 통과')}else if(roll<.8||quiet){this.drops.push({x:this.x+Math.cos(this.a)*180,y:this.y+Math.sin(this.a)*180,value:0,heal:true,supply:true,vx:0,vy:0,life:14});this.event('wave','전방 수리 보급품!')}}

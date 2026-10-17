@@ -140,7 +140,7 @@ export function installBomberTransfer(Game,planes,scarff){
  q.wingFormationTarget=function(a,count){
   if(this.bomberTransfer?.kind!=='airship'||!a.permanent||this.upgrades.lufberyCircle||this.skillTime>0&&['goering','boelcke','collishaw','brumowski'].includes(this.pilot))return formation.call(this,a,count);
   const slot=a.slot??0,side=slot%2?-1:1,row=Math.floor(slot/2),phase=this.t*.75+slot*.65;
-  return transferStationPosition(this,38-row*64+Math.sin(phase)*14,side*(100+row*19)+Math.cos(phase)*9);
+  return transferStationPosition(this,38-row*75+Math.sin(phase)*18,side*(145+row*32)+Math.cos(phase)*12);
  };
  const pilotWing=q.updatePilotWing;
  q.updatePilotWing=function(a,dt){

@@ -227,7 +227,10 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    if(g.parisBattle)g.parisBattle.cleared=true;
    g.kills++;awardPriorityKill(g,{stageBossBody:true});achievementBossClear(g,{id,bossId});const owner=players(g).find(p=>(p.id||'p1')===g.stageBossLastOwner);if(g.players&&owner)owner.kills++;
    g.event('kill','');g.event('wave',BOSS_CATALOG[bossId].name+' 격파 · 다음 지역 진입');
-   const hero=players(g)[0]||g;for(let i=0;i<9;i++){const a=i*.7;(g.drops||=[]).push({x:hero.x+Math.cos(a)*70,y:hero.y+Math.sin(a)*70,value:16,heal:i===0,bossReward:true})}
+   const hero=players(g)[0]||g,stages=g.stageBoss?.stages||{},stageIndex=stages.stageIndex||0,loopIndex=stages.loopIndex||0;
+   const total=Math.min(36,12+stageIndex*2+loopIndex*4),gems=g.xpGemSplits(total);
+   for(let i=0;i<gems.length;i++){const a=i*.7;(g.drops||=[]).push({x:hero.x+Math.cos(a)*70,y:hero.y+Math.sin(a)*70,value:gems[i],heal:false,bossReward:true})}
+   (g.drops||=[]).push({x:hero.x,y:hero.y,value:0,heal:true,bossReward:true})
   },
   onStageChange({stageIndex,loopIndex}){if(g.gallipoliRoute)g.stageBoss.hazards.clear(g.gallipoliRoute.encounterId);g.maanStartX=g.x;g.jutlandRoute=stageIndex===16?createJutlandRoute(g):null;g.gallipoliRoute=stageIndex===14?createGallipoliRoute(g):null;g.verdunWrecks=[];g.verdunBattle=null;g.londonBattle=null;g.enemies=g.enemies.filter(e=>!e.londonOwned);const previousRegion=g.region;g.region=stageIndex;g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.clearRegionalHazards();g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=stageIndex===7?createHarborRoute(g):null;
    // A fresh map starts clean: leftover stragglers must not be sitting on top
