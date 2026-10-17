@@ -101,7 +101,7 @@ const decodePainted=key=>new Promise(resolve=>{
  const stock=key.startsWith('bank_')||!!BOMBER_TRANSFER_ART[key],stockArt=BANK_ART[key]||BOMBER_TRANSFER_ART[key];if(stock&&!stockArt){finish(false);return;}
  const artRevision=key==='barker_snipe'&&mechDir?'barker-alpha-20261015':'347';
  const bakedArt=!stock&&AIRCRAFT_OUTLINE_ART[mechDir+key];
- const base=new URL(bakedArt?`./${bakedArt}?v=outline1`:stock?`./${stockArt.path}?v=outline1`:`./${mechDir}${sourceKey}.webp?v=gal1&b=${artRevision}`,import.meta.url).href;
+ const base=new URL(bakedArt?`./${bakedArt}?v=outline1-bomber17`:stock?`./${stockArt.path}?v=outline1-bomber17`:`./${mechDir}${sourceKey}.webp?v=gal1&b=${artRevision}`,import.meta.url).href;
  // A failed fetch must never cache the plane as permanently invisible: retry with
  // a cache-busting tag so stale error responses and flaky mobile radio recover.
  img.onerror=()=>{if(++tries<(stock?2:8)){img.src=base+'&r='+tries;return}finish(false)};img.src=base;
