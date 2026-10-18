@@ -239,6 +239,8 @@ def _src_mark_frac(im, sx0,y0,pw,ph, m):
 
 def erase_region(im, box, cx, marks=(), m=None):
     x0,y0,x1,y1 = box
+    H,W = im.shape[:2]
+    x0=max(0,x0); y0=max(0,y0); x1=min(W-1,x1); y1=min(H-1,y1)
     pw,ph = x1-x0, y1-y0
     side = 'L' if (x0+x1)/2 < cx else 'R'
     # rib pitch AND pattern pitch (lozenge/camo cell width): try both.
@@ -247,8 +249,9 @@ def erase_region(im, box, cx, marks=(), m=None):
     P1 = rib_pitch(im, y0, y1, strip_x0, strip_x1) or 46
     P2 = pattern_pitch(im, y0, y1, strip_x0, strip_x1)
     pitches = [P1]+([P2] if P2 and P2!=P1 else [])
-    pw_pad = pw+24; ph_pad = ph+24
-    x0e,y0e = x0-12, y0-12
+    x0e,y0e = max(0,x0-12), max(0,y0-12)
+    x1e,y1e = min(W,x1+12), min(H,y1+12)
+    pw_pad, ph_pad = x1e-x0e, y1e-y0e
     # inward = toward the fuselage (+x on the left wing, -x on the right)
     s = 1 if side=='L' else -1
     cands=[]
