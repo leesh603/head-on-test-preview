@@ -1,7 +1,7 @@
 import {drawGroundEnemy} from './ground-enemy-art.js?v=gal1';
 import {impactMark} from './tactical-marks.js?v=gal1';
-import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery1';
-import {unitNameEN} from './event-text-en.js?v=buildfit1&afc=1&art=pilot-recovery1';
+import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {unitNameEN} from './event-text-en.js?v=buildfit1&afc=1&art=pilot-recovery2';
 import {drawRegionalBug} from './regional-boss-view352.js?v=outline1&ai=1018';
 import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=regionalair2';
 import {drawGasCloud196} from './gas-cloud196.js?v=gal1';
@@ -9,22 +9,22 @@ import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './we
 import {FXS,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=pilotfx20261018';
 import {fx,fxReady,fxTint} from './fx-art.js?v=gal1';
 import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=gal1';
-import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=pilotfx20261018&ai=1018&art=pilot-recovery1';
-import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=buildfit1&art=pilot-recovery1';
+import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=pilotfx20261018&ai=1018&art=pilot-recovery2';
+import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=buildfit1&art=pilot-recovery2';
 import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=gal1';
-import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=buildfit1&afc=1&ai=1018&art=pilot-recovery1';
-import {drawStageBoss} from './stageboss-view.js?v=outline2&ai=1018&art=pilot-recovery1';
+import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=buildfit1&afc=1&ai=1018&art=pilot-recovery2';
+import {drawStageBoss} from './stageboss-view.js?v=outline2&ai=1018&art=pilot-recovery2';
 import {bombSprite} from './bomb-sprites.js?v=bomb20';
 const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};
 const NO_SKILL_RING=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker','wolff','immelmann']);
 const DUO_PILOTS=new Set(['huffzky','mckeever']);
-import {planeSprite,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery1';
+import {planeSprite,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2';
 import {drawEquipment} from './equipment.js?v=gal1';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=pilotfx20261018';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=gal1';
 import {drawSpecialAmmoIcon} from './icons.js?v=buildfit1&afc=1';
-import {TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery1';
+import {TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery2';
 import {drawCombatFeedback,combatCameraOffset,combatVisualPose} from './combat-feedback.js?v=gal1';
 
 

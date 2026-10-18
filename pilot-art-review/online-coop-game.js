@@ -1,5 +1,5 @@
 import {advanceUdetReplica,udetFlightModifiers} from './udet-acrobatics.js';
-import {CoopGame} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery1';
+import {CoopGame} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2';
 import {BossEncounter} from './headon-stageboss-core.js?v=gal1&ai=1018';
 import {stageBossSpeed} from './stageboss-host.js?v=merge20261017&ai=1018';
 import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFields,pose,mixAngle} from './online-coop-protocol.js?v=bomber21';

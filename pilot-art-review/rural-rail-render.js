@@ -1,5 +1,5 @@
 import {fx} from './fx-art.js?v=tame3';
-import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery1';
+import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 import {impactMark,bandMark,partMark,aimLine,MARK} from './tactical-marks.js?v=tame3';
 import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=tame3';
 import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=tame3';

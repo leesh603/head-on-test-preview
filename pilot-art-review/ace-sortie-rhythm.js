@@ -1,4 +1,4 @@
-import {pilotAircraftChoices,SORTIE_FITS} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery1';
+import {pilotAircraftChoices,SORTIE_FITS} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 import {resolveAircraftPersonalityId} from './aircraft-personality164.js?v=gal1';
 
 export const ACE_SORTIE_BALANCE=Object.freeze({maxAces:3,recovery:8,ruralOpening:40,ruralReinforce:65});

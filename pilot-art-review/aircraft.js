@@ -1,7 +1,7 @@
-import {SORTIE_FITS,PILOT_RENDER_ART} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery1';
+import {SORTIE_FITS,PILOT_RENDER_ART} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 import {clearCrewMatte} from './matte70.js?v=gal1';
 import {BANK_ART} from './aircraft-bank-art.js?v=outline1';
-import {AIRCRAFT_OUTLINE_ART,AIRCRAFT_ART_REVISION} from './aircraft-outline-art.js?v=outline1&art=pilot-recovery1';
+import {AIRCRAFT_OUTLINE_ART,AIRCRAFT_ART_REVISION} from './aircraft-outline-art.js?v=outline1&art=pilot-recovery2';
 // Exact stock-bank paint cells; these stay outside the evictable NPC art cache.
 const BOMBER_TRANSFER_ART=Object.freeze({
  'transfer-caudron-r11':{path:'asset-bank/outlined/native/asset-bank/flight/bank_plane_caudron_r11.webp',x:0,y:0,w:288,h:320},

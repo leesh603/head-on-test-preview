@@ -8,13 +8,13 @@ import {beginThreeSkill,tickThreePilot,threeGunDirection} from './pilot-three-co
 import {EXPLOSION_LIFE,initExplosionProfile,pushExplosionFx,advanceExplosionFx} from './explosion-profiles.js?v=gal1';
 import {beginAircraftCrash,advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=gal1';
 import {weaponModWingActive,wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=gal1&afc=1';
-import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=buildfit1&art=pilot-recovery1';
+import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=buildfit1&art=pilot-recovery2';
 import {installPilotIdentities} from './pilot-identities.js?v=fiveace1&afc=1';
 import {EnemyCollisionGrid} from './collision-grid.js?v=gal1';
 import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=fiveace1';
-import {installRevision} from './rebalance103.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery1';
+import {installRevision} from './rebalance103.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2';
 import {installCloudCover} from './cloud-cover1.js?v=gal1';
-import {installFleet} from './fleet-naval1.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery1';
+import {installFleet} from './fleet-naval1.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2';
 import {installTrenchWar} from './trench-war1.js?v=gal1';
 import {installCityAir} from './city-air1.js?v=gal1';
 import {installRegionDoctrine} from './region-doctrine1.js?v=buildfit1&afc=1&ai=1018';
@@ -23,9 +23,9 @@ import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITI
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=regionalair2&ai=1018';
 import {installBuildCombatIdentity} from './build-combat-identity.js?v=gal1';
 import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=gal1';
-import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=gal1&art=pilot-recovery1';
+import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=gal1&art=pilot-recovery2';
 import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=gal1';
-import {installAircraftBankRoster} from './aircraft-bank-roster.js?v=buildfit1&art=pilot-recovery1';
+import {installAircraftBankRoster} from './aircraft-bank-roster.js?v=buildfit1&art=pilot-recovery2';
 import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42&ai=1018';
 import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=gal1';
 import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=gal1';
@@ -33,8 +33,8 @@ import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense16
 import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=gal1';
 import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=regionalair20261018';
 import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=buildfit1&afc=1&ai=1018';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=sortierhythm1&art=pilot-recovery1';
-import {installAceSortieRhythm,ACE_SORTIE_BALANCE} from './ace-sortie-rhythm.js?v=sortierhythm1&art=pilot-recovery1';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=sortierhythm1&art=pilot-recovery2';
+import {installAceSortieRhythm,ACE_SORTIE_BALANCE} from './ace-sortie-rhythm.js?v=sortierhythm1&art=pilot-recovery2';
 
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
@@ -1865,7 +1865,7 @@ installLoewenhardtFx(Game);
 import {installFonckPrecisionFx} from './fonck-precision-fx.js';
 installFonckPrecisionFx(Game);
 
-import {installPilotAircraft} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery1';
+import {installPilotAircraft} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 installPilotAircraft(PLANES,WEAPONS,PILOTS,PILOT_PLANES,AIRFRAME_PROFILES,configureAirframeBalance);
 registerAircraftTiers(PLANES);
 

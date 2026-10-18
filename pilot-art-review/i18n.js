@@ -1,4 +1,4 @@
-import {getAircraftDisplayName} from './aircraft-master.js?v=tame3&art=pilot-recovery1';
+import {getAircraftDisplayName} from './aircraft-master.js?v=tame3&art=pilot-recovery2';
 import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
 import {WEAPON_MODS} from './weapon-modifications.js?v=weaponmods20261018';
 
