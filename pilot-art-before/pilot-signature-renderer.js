@@ -5,7 +5,7 @@ import {SORTIE_PILOTS,drawSortieWake,drawSortieLocal,drawSortieCue} from './pilo
 import {drawUdetWake,drawUdetLocal,drawUdetCue} from './udet-acrobat-fx.js';
 import {drawLoewWake,drawLoewLocal,drawLoewCue} from './loewenhardt-ascent-fx.js';
 import {drawLotharWake,drawLotharGuns,drawLotharCue} from './lothar-pursuit-fx.js';
-import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=gal1';
+import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=gal2';
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
 import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
 import {bishopFlightHeight} from './engine.js?v=merge20261017&ai=1018';

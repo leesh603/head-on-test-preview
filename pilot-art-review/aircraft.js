@@ -1,5 +1,5 @@
 import {SORTIE_FITS,PILOT_RENDER_ART} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
-import {clearCrewMatte} from './matte70.js?v=gal1';
+import {clearCrewMatte} from './matte70.js?v=gal2';
 import {BANK_ART} from './aircraft-bank-art.js?v=outline1';
 import {AIRCRAFT_OUTLINE_ART,AIRCRAFT_ART_REVISION} from './aircraft-outline-art.js?v=outline1&art=pilot-recovery2';
 // Exact stock-bank paint cells; these stay outside the evictable NPC art cache.
@@ -104,7 +104,7 @@ const decodePainted=key=>new Promise(resolve=>{
  const stock=key.startsWith('bank_')||!!BOMBER_TRANSFER_ART[key],stockArt=BANK_ART[key]||BOMBER_TRANSFER_ART[key];if(stock&&!stockArt){finish(false);return;}
  const artRevision=key==='barker_snipe'&&mechDir?'barker-alpha-20261015':'347';
  const bakedArt=!stock&&(SORTIE_FITS[key]?`sortie-aircraft/flight/${key}.webp`:AIRCRAFT_OUTLINE_ART[mechDir+key]);
- const base=new URL(bakedArt?`./${bakedArt}?v=${AIRCRAFT_ART_REVISION}`:stock?`./${stockArt.path}?v=outline1-bomber17`:`./${mechDir}${sourceKey}.webp?v=gal1&b=${artRevision}`,import.meta.url).href;
+ const base=new URL(bakedArt?`./${bakedArt}?v=${AIRCRAFT_ART_REVISION}`:stock?`./${stockArt.path}?v=outline1-bomber17`:`./${mechDir}${sourceKey}.webp?v=gal2&b=${artRevision}`,import.meta.url).href;
  // A failed fetch must never cache the plane as permanently invisible: retry with
  // a cache-busting tag so stale error responses and flaky mobile radio recover.
  img.onerror=()=>{if(++tries<(stock?2:8)){img.src=base+'&r='+tries;return}finish(false)};img.src=base;
@@ -173,7 +173,7 @@ const newAceAircraftReady=!NEW_ACE_AIRCRAFT.length?Promise.resolve(true):new Pro
    if(maxX<minX||maxY<minY)return;const out=document.createElement('canvas');out.width=288;out.height=320;const oc=out.getContext('2d');oc.imageSmoothingEnabled=true;oc.imageSmoothingQuality='high';
    const w=maxX-minX+1,h=maxY-minY+1,k=Math.min(236/w,272/h)*spriteScale(key),dw=Math.round(w*k),dh=Math.round(h*k);oc.drawImage(scan,minX,minY,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);setPainted(key,out);
   });resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./new-aces-aircraft124.webp?v=gal1&b=345',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./new-aces-aircraft124.webp?v=gal2&b=345',import.meta.url).href;
 });
 // Painted battle-damage marks (bullet holes, torn canvas, scorch) applied over the
 // authored sprites once a hull drops below half durability.
@@ -189,7 +189,7 @@ const damageDecalReady=new Promise(resolve=>{
    if(!any){damageDecals.push(null);continue}
    const cell=document.createElement('canvas');cell.width=r-l+1;cell.height=b-t+1;cell.getContext('2d').drawImage(sc,l,t,r-l+1,b-t+1,0,0,r-l+1,b-t+1);damageDecals.push(cell);
   }damageCache.clear();resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./damage-decals.webp?v=gal1&b=345',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./damage-decals.webp?v=gal2&b=345',import.meta.url).href;
 });
 // Deterministic per-airframe mark layout so a plane's scars stay put between frames.
 function damageSeed(key){let h=2166136261;for(const ch of key){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
@@ -299,6 +299,6 @@ export const campaignArtReady=new Promise(resolve=>{
    const [x,y,w,h]=boxes[i],k=Math.min(228/w,264/h),dw=Math.round(w*k),dh=Math.round(h*k);
    c.drawImage(img,cell%3*512+x,Math.floor(cell/3)*512+y,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);setPainted(key,out);
   }resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./campaign-units.webp?v=gal1&b=345',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./campaign-units.webp?v=gal2&b=345',import.meta.url).href;
 });
 

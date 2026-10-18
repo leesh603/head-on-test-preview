@@ -1,7 +1,7 @@
 import {achievementMission} from './achievements.js?v=medals2';
 import {doverFlightBounds} from './dover-patrol-chart.js?v=dover3';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42&ai=1018';
-import {JUTLAND_ROUTE} from './jutland-route.js?v=gal1';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal2&rail=42&ai=1018';
+import {JUTLAND_ROUTE} from './jutland-route.js?v=gal2';
 import {ZEEBRUGGE_ROUTE,harborRouteHalfWidth} from './stageboss-host.js?v=merge20261017&ai=1018';
 
 export const BATTLEFIELD_EVENT_TYPES=Object.freeze({

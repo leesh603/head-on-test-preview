@@ -1,12 +1,12 @@
 import {PLANES} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery2';
-import {drawGroundEnemy} from './ground-enemy-art.js?v=gal1';
+import {drawGroundEnemy} from './ground-enemy-art.js?v=gal2';
 import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=outline2&art=pilot-recovery2';
 import {SPRITE_ALIASES} from './campaign.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2';
-import {drawEquipment} from './equipment.js?v=gal1';
+import {drawEquipment} from './equipment.js?v=gal2';
 
 registerCampaignSpriteAliases(SPRITE_ALIASES);
-import {drawBattlefieldSprite} from './battlefield-art.js?v=gal1';
-import {missionNavigation,navigationScreenPoint} from './navigation.js?v=gal1';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=gal2';
+import {missionNavigation,navigationScreenPoint} from './navigation.js?v=gal2';
 const _ptShare=[0,0],_twCache=new Map();
 const _tw=(c,txt)=>{const k=c.font+'\u0000'+txt;let w=_twCache.get(k);if(w===undefined){w=c.measureText(txt).width;_twCache.set(k,w)}return w};
 export function drawCampaign(c,g,W,H){

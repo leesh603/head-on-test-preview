@@ -1,7 +1,7 @@
 // Regional doctrine for ordinary aircraft.  This module only selects among the
 // Battle Director's existing manoeuvres and bends those manoeuvres around live
 // battlefield hazards; it never changes aircraft stats, spawn counts or caps.
-import {maanSandCover} from './maan-weather.js?v=gal1';
+import {maanSandCover} from './maan-weather.js?v=gal2';
 
 const P=Object.freeze({
  HEAD_ON_PASS:'HEAD_ON_PASS',CROSS_ATTACK:'CROSS_ATTACK',PINCER:'PINCER',CHASE:'CHASE',ESCORT:'ESCORT',DECOY:'DECOY',

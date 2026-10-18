@@ -1,27 +1,27 @@
 import {capBomberSalvoDamage} from './bomber-transfer.js?v=buildfit1&afc=1';
 import {achievementBossCue,achievementBossClear,awardPriorityKill} from './achievements.js?v=medals2';
 import {doverPatrolChart} from './dover-patrol-chart.js?v=dover3';
-import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=gal1';
-import {resolveSurfaceSpacing} from './naval-spacing.js?v=gal1';
+import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=gal2';
+import {resolveSurfaceSpacing} from './naval-spacing.js?v=gal2';
 
 import {tickRegionalConditions} from './region-doctrine1.js?v=buildfit1&afc=1&ai=1018';
 
-import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42&ai=1018';
+import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal2&rail=42&ai=1018';
 import {handleMaanCue} from './maan-view.js?v=regionalair2&ai=1018';
-import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=gal1';
+import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=gal2';
 import {isDoverBoss} from './dover-night-view.js?v=outline1&ai=1018';
-import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=gal1';
-import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=gal1';
+import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=gal2';
+import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=gal2';
 import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=livingww1d&rail=42&ai=1018';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018';
-import {bossSoundFor} from './boss-feedback.js?v=gal1&hints=1&rail=42&ai=1018';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=gal1&rail=42';
-import {advanceCambraiBug} from './cambrai-bug-flight.js?v=gal1';
+import {bossSoundFor} from './boss-feedback.js?v=gal2&hints=1&rail=42&ai=1018';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=gal2&rail=42';
+import {advanceCambraiBug} from './cambrai-bug-flight.js?v=gal2';
 const SEAPLANE_BOMBERS=new Set(['hansa_brandenburg_cc','hb_w29','ff33','lohner_l','macchi_m5','macchi_m3']);
 import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=regionalair2';
 
 
-import {createJutlandRoute,tickJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=gal1';
+import {createJutlandRoute,tickJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=gal2';
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭','마안 전투','갈리폴리 전선','1918 파리 야간공습','유틀란트 해전','도버 해협 · 해상 야간 차단선'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
