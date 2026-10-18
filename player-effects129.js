@@ -1,15 +1,15 @@
-import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=buildfit1&afc=1';
-import {createSignatureView} from './pilot-signature-view.js?v=buildfit1&afc=1';
-import {fx,fxTint} from './fx-art.js?v=gal1';
-import {planeSprite,aircraftKey} from './aircraft.js?v=outline2';
-import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';
+import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=sortierhythm20261018&afc=1';
+import {createSignatureView} from './pilot-signature-view.js?v=sortierhythm20261018&afc=1';
+import {fx,fxTint} from './fx-art.js?v=sortierhythm20261018';
+import {planeSprite,aircraftKey} from './aircraft.js?v=sortierhythm20261018';
+import {drawHorseSilhouette} from './equipment-material-fx.js?v=sortierhythm20261018';
 
-import {bishopFlightHeight} from './engine.js?v=merge20261017';
+import {bishopFlightHeight} from './engine.js?v=sortierhythm20261018';
 import {drawCavalryGuard} from './pilot-directed-fx.js';
 import {udetRollPose} from './udet-acrobat-fx.js';
-import {bomberEntryPose} from './bomber-transfer.js?v=buildfit1&afc=1';
-import {bombSprite} from './bomb-sprites.js?v=bomb20';
-import {fxsBombFall} from './fx-sample-preview.js?v=bomb3&rail=42';
+import {bomberEntryPose} from './bomber-transfer.js?v=sortierhythm20261018&afc=1';
+import {bombSprite} from './bomb-sprites.js?v=sortierhythm20261018';
+import {fxsBombFall} from './fx-sample-preview.js?v=sortierhythm20261018';
 const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
 export function playerPose(p,x,y){
@@ -237,4 +237,5 @@ export function drawRedGhosts162(c,p,x,y,sprite,key){
   c.globalAlpha=.38*Math.pow(Math.max(0,g.life/.32),1.25);c.drawImage(redGhostCanvas162,x+g.x-p.x-120,y+g.y-p.y-120);
  }c.restore();
 }
+
 

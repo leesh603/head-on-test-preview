@@ -1,10 +1,10 @@
-import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=tame3';
-import {fx} from './fx-art.js?v=tame3';
-import {drawTracerBolt} from './projectiles.js?v=tame3&rail=40';
-import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=tame3';
-import {drawShellFlight} from './boss-rounds.js?v=tame3';
-import {drawAADefense} from './aa-defense-art.js?v=tame3';
-import {clamp,sommeMuzzle} from './somme-boss-layout.js?v=tame3';
+import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=sortierhythm20261018';
+import {fx} from './fx-art.js?v=sortierhythm20261018';
+import {drawTracerBolt} from './projectiles.js?v=sortierhythm20261018';
+import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=sortierhythm20261018';
+import {drawShellFlight} from './boss-rounds.js?v=sortierhythm20261018';
+import {drawAADefense} from './aa-defense-art.js?v=sortierhythm20261018';
+import {clamp,sommeMuzzle} from './somme-boss-layout.js?v=sortierhythm20261018';
 const images={},pending={};
 function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';images[key]=im;pending[key]=new Promise((resolve,reject)=>{im.addEventListener('load',()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))},{once:true});im.addEventListener('error',()=>reject(new Error('Missing Somme atlas: '+SOMME_SHEETS[key])),{once:true});});im.src='./'+SOMME_SHEETS[key]+'?v=r5';return im;}
 export function prepareSommeAssets(){for(const key of Object.keys(SOMME_SHEETS))load(key);return Promise.all(Object.values(pending));}
@@ -65,3 +65,4 @@ export function drawSommeHazard(c,h){
  else{const age=Math.max(0,h.age-h.delay-h.warning),frame=age<h.duration*.28?'aaFlakHot':age<h.duration*.62?'aaFlakDark':'aaFlakSmoke';if(!drawAADefense(c,frame,h.x,h.y,h.radius*2.35,h.radius*2.35))fx(c,'flak',h.x,h.y,h.radius*2.35,h.radius*2.35,0,clamp(1-age/h.duration,0,1));}
  c.restore();return true;
 }
+

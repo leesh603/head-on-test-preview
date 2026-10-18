@@ -1,3 +1,4 @@
+import {modGunRounds,modGunDamage,modGunFan,modGunInterval} from './weapon-modifications.js';
 // Three mutually exclusive, sortie-only fits. Pilot and chosen aircraft IDs stay intact.
 export const AIRFRAME_TRANSFER_IDS=Object.freeze(['bomberTransfer','mgTransfer','airshipTransfer']);
 export const BUILD_TRANSFER_DESCRIPTIONS=Object.freeze({
@@ -56,9 +57,9 @@ export function tickTransferGuns(p,dt,gunnerAim,gunnerTarget){
   if(fit.kind==='airship'&&(!target||Math.abs(wrap(station.aim-desired))>.18))continue;
   if(station.timer>0||fit.kind==='gunship'&&p.transferFiring===false)continue;
   const cadence=Math.max(.1,fit.gunInterval*(p.rate/(p.buildBaseline?.rate||p.transferBaseRate||p.rate)));
-  station.timer=cadence;
-  const shots=Math.max(1,p.shots||1),count=Math.min(3,shots),spread=p.buildGunFan?.(.07)??.07;
-  const damage=p.damage*p.normalGunMultiplier()*fit.gunPower*Math.sqrt(shots)/count;
+  const shots=Math.max(1,p.shots||1),normalCount=Math.min(3,shots),count=modGunRounds(p,normalCount,4),spread=modGunFan(p,p.buildGunFan?.(.07)??.07);
+  station.timer=modGunInterval(p,cadence,station,normalCount,4);
+  const damage=p.damage*p.normalGunMultiplier()*fit.gunPower*Math.sqrt(shots)/normalCount*modGunDamage(p,normalCount,count);
   const position=transferStationPosition(p,station.front,station.lateral);
   for(let i=0;i<count;i++){
    const a=station.aim+(i-(count-1)/2)*spread;

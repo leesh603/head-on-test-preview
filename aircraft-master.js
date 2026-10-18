@@ -1,3 +1,4 @@
+import {PILOT_AIRCRAFT as SORTIE_ROSTER,SORTIE_FITS} from './pilot-aircraft.js?v=sortierhythm20261018';
 // Identity and display metadata only. No art paths, render geometry or combat values.
 // Catalog presence does NOT register a fit, unlock a sortie or activate a pilot.
 // Existing PLANES/PILOT_PLANES and mode-specific selection remain authoritative.
@@ -168,6 +169,12 @@ const identityRows = [
   ["schleich_albatros","Albatros D.Va · 슐라이히","central",null,"albatros","schleich_albatros",["campaign","livery"]],
 ];
 
+// Preserve existing identities and append only the playable alternate fits.
+for(const [id,fit] of Object.entries(SORTIE_FITS))if(!identityRows.some(r=>r[0]===id)){
+ const faction=['fokker','fokkerd7','albatros','albatros_d2','pfalz_d3a'].includes(fit.base)?'central':'entente';
+ identityRows.push([id,fit.name,faction,null,fit.base,id,['sortie']]);
+}
+
 export const AIRCRAFT_MASTER = Object.freeze(Object.fromEntries(identityRows.map(
   ([aircraftId, modelName, faction, exclusivePilotId, baseAirframeId, simulationId, tags]) => {
     const owner = exclusivePilotId ? ownerLabels[exclusivePilotId] : null;
@@ -182,35 +189,7 @@ export const AIRCRAFT_MASTER = Object.freeze(Object.fromEntries(identityRows.map
 )));
 
 // Descriptive pilot associations only; never use this table to overwrite live loadouts.
-const pilotRows = [
-  ["baron","fokker_red",["baron_albatros"]],
-  ["fonck","camel",[]],
-  ["voss","fokker_voss",[]],
-  ["boelcke","boelcke_albatros",[]],
-  ["collishaw","collishaw_sopwith",[]],
-  ["baracca","baracca_nieuport",[]],
-  ["udet","udet_fokkerdv",[]],
-  ["guynemer","guynemer_spad",[]],
-  ["bishop","re7",[]],
-  ["goering","goering_fokkerd7",[]],
-  ["immelmann","eindecker",[]],
-  ["mannock","se5a",[]],
-  ["mckeever","bristol_duo",[]],
-  ["huffzky","halberstadt_duo",[]],
-  ["hawker","airco_dh2",[]],
-  ["berthold","berthold_pfalz",[]],
-  ["wolff","wolff_albatros",[]],
-  ["loewenhardt","loewenhardt_fokkerd7",[]],
-  ["mccudden","mccudden_se5a",[]],
-  ["nungesser","nungesser_nieuport24",[]],
-  ["jacobs","fokker_jacobs",[]],
-  ["rickenbacker","rickenbacker_spad",[]],
-  ["ball","ball_se5a",[]],
-  ["barker","barker_snipe",[]],
-  ["luke","luke_nieuport28",[]],
-  ["brumowski","brumowski_albatros",[]],
-  ["gontermann","gontermann_fokker",[]]
-];
+const pilotRows = Object.entries(SORTIE_ROSTER).map(([id,p])=>[id,p.defaultAircraft,p.unlockAircraft?[p.unlockAircraft]:[]]);
 export const PILOT_AIRCRAFT = Object.freeze(Object.fromEntries(pilotRows.map(
   ([pilotId, defaultAircraftId, alternateAircraftIds]) => [pilotId, Object.freeze({
     pilotId, defaultAircraftId, alternateAircraftIds: Object.freeze(alternateAircraftIds),

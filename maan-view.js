@@ -1,11 +1,12 @@
-import {drawPartFuelFire} from './explosion-profiles.js?v=fx5';
-import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=tame3';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
-import {sandOpacity} from './maan-weather.js?v=tame3';
-import {fx} from './fx-art.js?v=tame3';
-import {drawTracerBolt} from './projectiles.js?v=tame3&rail=40';
-import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=tame3';
-import {drawShellFlight} from './boss-rounds.js?v=tame3';
+import {drawPartFuelFire} from './explosion-profiles.js?v=sortierhythm20261018';
+import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=sortierhythm20261018';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=sortierhythm20261018';
+import {sandOpacity} from './maan-weather.js?v=sortierhythm20261018';
+import {drawSandVortex,prepareSandVortexArt} from './sand-vortex-art.js?v=sortierhythm20261018';
+import {fx} from './fx-art.js?v=sortierhythm20261018';
+import {drawTracerBolt} from './projectiles.js?v=sortierhythm20261018';
+import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=sortierhythm20261018';
+import {drawShellFlight} from './boss-rounds.js?v=sortierhythm20261018';
 export const MAAN_ASSETS=Object.freeze({terrain:'terrain-maan-r2.webp',workshop:'maan-workshop-r2.webp',wusten:'boss-maan-wusten-r2.webp',sinai:'boss-maan-sinai-r2.webp',car:'boss-maan-rolls-royce.webp'});
 const images=new Map();let ground=null;
 const _filterBakes=new WeakMap();
@@ -13,6 +14,7 @@ function bakedFiltered(img,filter){if(!img?.naturalWidth)return img;let m=_filte
 const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=r5';images.set(key,im);return im;};
 export function prepareMaanAssets(region){
  if(region!==13){images.clear();ground=null;return Promise.resolve();}
+ prepareSandVortexArt();
  return Promise.all(Object.keys(MAAN_ASSETS).map(key=>{const im=load(key);if(im.complete&&im.naturalWidth)return Promise.resolve();return new Promise((resolve,reject)=>{im.onload=()=>{if(!im.naturalWidth){reject(new Error('Ma’an empty asset: '+MAAN_ASSETS[key]));return}(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.onerror=()=>reject(new Error('Ma’an asset: '+MAAN_ASSETS[key]));});})).then(()=>{seamlessGround(load('terrain'));});
 }
 function seamlessGround(im){
@@ -151,7 +153,10 @@ export function drawMaanBoss(c,b){
 export function drawMaanWeather(c,g){
  if(g.stageBoss?.stages.stageIndex!==13)return;
  for(const s of g.maanWeather?.cells||[]){
+  const zoom=g.camera?.zoom||1;
+  if(Math.abs(s.x-g.x)>(g.viewWidth||960)/zoom/2+220||Math.abs(s.y-g.y)>(g.viewHeight||700)/zoom/2+220)continue;
   const opacity=sandOpacity(s);if(opacity<=0)continue;
+  if(s.vortex&&drawSandVortex(c,s,opacity))continue;
   // At most three puffs per bounded cell. Dust never dims telegraphs rendered
   // afterward, nor replaces clouds or forces player movement/slowdown.
   for(let i=0;i<3;i++){const drift=Math.sin(s.age*.35+s.seed+i)*18;fx(c,'smokeDust',s.x+(i-1)*55+drift,s.y+Math.cos(i+s.seed)*16,s.rx*1.6,s.ry*1.7,s.seed*.07,opacity*(i===1?.26:.16));}

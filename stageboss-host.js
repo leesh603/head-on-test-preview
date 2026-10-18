@@ -1,27 +1,27 @@
-import {capBomberSalvoDamage} from './bomber-transfer.js?v=buildfit1&afc=1';
-import {achievementBossCue,achievementBossClear,awardPriorityKill} from './achievements.js?v=medals2';
-import {doverPatrolChart} from './dover-patrol-chart.js?v=dover3';
-import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=gal1';
-import {resolveSurfaceSpacing} from './naval-spacing.js?v=gal1';
+import {capBomberSalvoDamage} from './bomber-transfer.js?v=sortierhythm20261018&afc=1';
+import {achievementBossCue,achievementBossClear,awardPriorityKill} from './achievements.js?v=sortierhythm20261018';
+import {doverPatrolChart} from './dover-patrol-chart.js?v=sortierhythm20261018';
+import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=sortierhythm20261018';
+import {resolveSurfaceSpacing} from './naval-spacing.js?v=sortierhythm20261018';
 
-import {tickRegionalConditions} from './region-doctrine1.js?v=buildfit1&afc=1';
+import {tickRegionalConditions} from './region-doctrine1.js?v=sortierhythm20261018&afc=1';
 
-import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42';
-import {handleMaanCue} from './maan-view.js?v=gal1-r3';
-import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=gal1';
-import {isDoverBoss} from './dover-night-view.js?v=outline1';
-import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=gal1';
-import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=gal1';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=livingww1d&rail=42';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb19&rail=42';
-import {bossSoundFor} from './boss-feedback.js?v=gal1&hints=1&rail=42';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=gal1&rail=42';
-import {advanceCambraiBug} from './cambrai-bug-flight.js?v=gal1';
+import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=sortierhythm20261018&rail=42';
+import {handleMaanCue} from './maan-view.js?v=sortierhythm20261018';
+import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=sortierhythm20261018';
+import {isDoverBoss} from './dover-night-view.js?v=sortierhythm20261018';
+import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=sortierhythm20261018';
+import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=sortierhythm20261018';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=sortierhythm20261018&rail=42';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=sortierhythm20261018&rail=42';
+import {bossSoundFor} from './boss-feedback.js?v=sortierhythm20261018&hints=1&rail=42';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=sortierhythm20261018&rail=42';
+import {advanceCambraiBug} from './cambrai-bug-flight.js?v=sortierhythm20261018';
 const SEAPLANE_BOMBERS=new Set(['hansa_brandenburg_cc','hb_w29','ff33','lohner_l','macchi_m5','macchi_m3']);
-import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=gal1';
+import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=sortierhythm20261018';
 
 
-import {createJutlandRoute,tickJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=gal1';
+import {createJutlandRoute,tickJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=sortierhythm20261018';
 export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭','마안 전투','갈리폴리 전선','1918 파리 야간공습','유틀란트 해전','도버 해협 · 해상 야간 차단선'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -235,8 +235,10 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
   onStageChange({stageIndex,loopIndex}){if(g.gallipoliRoute)g.stageBoss.hazards.clear(g.gallipoliRoute.encounterId);g.maanStartX=g.x;g.jutlandRoute=stageIndex===16?createJutlandRoute(g):null;g.gallipoliRoute=stageIndex===14?createGallipoliRoute(g):null;g.verdunWrecks=[];g.verdunBattle=null;g.londonBattle=null;g.enemies=g.enemies.filter(e=>!e.londonOwned);const previousRegion=g.region;g.region=stageIndex;g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.clearRegionalHazards();g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=stageIndex===7?createHarborRoute(g):null;
    // A fresh map starts clean: leftover stragglers must not be sitting on top
    // of the player at the transition moment.
-   g.enemies=g.enemies.filter(e=>e.missionTarget||e.stageBossBody||e.navalVessel||e.heavyBomber);
-   if(stageIndex===9){const reserved=new Set(['baron','collishaw']);g.enemies=g.enemies.filter(e=>!reserved.has(e.bossPilot));g.bossDeck=(g.bossDeck||[]).filter(id=>!reserved.has(id));if(reserved.has(g.rivalAce?.pilot)){g.rivalAce.active=null;g.rivalAce.returnAt=Infinity;g.rivalAceNotice=null;}}
+   g.enemies=g.enemies.filter(e=>e.missionTarget||e.stageBossBody||e.navalVessel||e.heavyBomber||e.bossPilot&&e.hp>0&&!e.expired&&!e.rivalEscaped&&!e.deathHandled&&!e.crashing&&!e.crashed);
+   if(stageIndex===9){const reserved=new Set(['baron','collishaw']);g.enemies=g.enemies.filter(e=>!reserved.has(e.bossPilot));g.bossDeck=(g.bossDeck||[]).filter(id=>!reserved.has(id));if(reserved.has(g.rivalAce?.pilot)&&g.rivalAce.phase!=='DEFEATED'){g.rivalAce.active=null;g.rivalAce.phase='ESCAPED';g.rivalAce.returnAt=Infinity;g.rivalAceNotice=null;}}
+   else if(previousRegion===9&&g.rivalAce?.phase==='ESCAPED'&&g.rivalAce.returnAt===Infinity)g.rivalAce.returnAt=g.t+5;
+   g.stageCombatWindow=null;g.syncAceSortie?.();
    g.bullets=g.bullets.filter(b=>!b.enemy);
    if(previousRegion!==undefined&&previousRegion!==stageIndex)g.events.push({type:'regionTransition',region:stageIndex,previousRegion,text:STAGE_NAMES[stageIndex]});g.event('wave',STAGE_NAMES[stageIndex]+' · '+(loopIndex+1)+'회차');},
    clearEncounterOwned(id){g.enemies=g.enemies.filter(e=>e.encounterId!==id);g.bullets=g.bullets.filter(b=>b.encounterId!==id);g.hostileMinefields=(g.hostileMinefields||[]).filter(f=>f.encounterId!==id);g.aaEffects=[];for(const p of players(g))for(const [key,s] of p.bossStatuses||[])if(s.encounterId===id)p.bossStatuses.delete(key);g.bossCues=[];}
@@ -382,6 +384,19 @@ export function updateAceRecovery(g){
  for(const e of g._aceCombatActive)if(!(g.enemies||[]).includes(e)||!fighting(e)){g._aceCombatActive.delete(e);g._aceCombatEndedAt=g.t;}
 }
 export function aceRecoveryReady(g){return !g._aceCombatActive?.size&&(g._aceCombatEndedAt==null||g.t-g._aceCombatEndedAt>=8);}
+// Share the authored approach window with the existing Director and missions.
+// This observes distance/time; it never advances or moves the boss trigger.
+export function stageCombatWindow(g){
+ const stages=g.stageBoss?.stages;if(!stages)return null;
+ const stage=stages.stageIndex,route=stage===7?g.navalRoute:stage===14?g.gallipoliRoute:stage===16?g.jutlandRoute:null;
+ const distance=stage===14?GALLIPOLI_ROUTE.fort:STAGE_BOSS_BALANCE.distance;
+ const target=distance*(stage===7?.78:1),travel=route?Math.max(0,route.maxForward||0):Math.max(0,(g.distance||0)-(g.stageStartDistance||0));
+ const speed=Math.max(170,...players(g).filter(alive).map(p=>Math.abs(p.speed||0)));
+ const travelLeft=Math.max(0,(target-travel)/speed),timed=![7,14,16].includes(stage);
+ const timeLeft=timed?Math.max(0,STAGE_BOSS_BALANCE.deadline-((g.t||0)-(g.stageStartTime||0))):Infinity;
+ const remaining=stages.phase==='explore'?Math.min(travelLeft,timeLeft):0;
+ return {stageIndex:stage,loopIndex:stages.loopIndex||0,remaining,progress:Math.min(1,travel/target),approaching:remaining<=18,ready:travel>=target||timeLeft===0};
+}
 export function beginStageBossFrame(g,dt){
  const addon=g.stageBoss;if(!addon||blocked(g)||dt<=0)return;
  updateAceRecovery(g);
@@ -408,13 +423,13 @@ export function beginStageBossFrame(g,dt){
   g.navalRouteCues??=new Set();for(const [mark,message]of messages)if(progress>=mark&&!g.navalRouteCues.has(mark)){g.navalRouteCues.add(mark);g.event('wave',message);}
  }
  const ready=travel>=stageDistance*(stage===7?.78:1)||(stage!==7&&stage!==14&&stage!==16&&g.t-g.stageStartTime>=STAGE_BOSS_BALANCE.deadline);
+ g.stageCombatWindow=stageCombatWindow(g);
  if(addon.stages.phase==='explore'&&ready){
   // Keep this gate latched after an ace dies: a quick kill must not pull
   // another scheduled ace forward or erase the interval before the boss.
   const liveAces=(g.enemies||[]).filter(e=>e.hp>0&&e.bossPilot&&!e.expired&&!e.rivalEscaped&&!e.deathHandled&&!e.crashing&&!e.crashed&&!e.bossMinion&&!e.stageBossBody&&!e.encounterId&&!e.escortLeaderId);
   for(const ace of liveAces)g._aceGateAt=Math.max(g._aceGateAt??-Infinity,ace.aceSpawnT??g.t);
-  if(g._aceGateAt==null&&Number.isFinite(g.nextBossAt)){g.nextBossAt=Math.min(g.nextBossAt,g.t);g._aceGateAt=g.t;}
-  if(aceRecoveryReady(g)&&(g._aceGateAt==null||g.t-g._aceGateAt>=20)&&(g.t>=(g.bossPresentationAfter||0))){
+  if(aceRecoveryReady(g)&&g.t>=(g.battleRecoveryUntil||0)&&g.battlefieldEvents?.current?.status!=='active'&&!g.eliteEnemies?.active&&(g._aceGateAt==null||g.t-g._aceGateAt>=20)&&(g.t>=(g.bossPresentationAfter||0))){
   if(naval&&!g.navalApproachAt){g.navalApproachAt=g.t;g.event('wave',stage===16?'경고 · 북해 전투전대 접근 / 함대 선회에 주의':stage===7?'경고 · 장갑 항구요새 전면 도달':'경고 · 적 주력함이 전방에서 접근 중');g.event('heavyShot','');}
   // Harbor is an installed structure: reveal it along the existing approach,
   // at the same authored quay coordinates, instead of materializing after it.
@@ -516,7 +531,3 @@ export function separateAces(g,dt){
   a.x-=ux*move;a.y-=uy*move;b.x+=ux*move;b.y+=uy*move;
  }
 }
-
-
-
-

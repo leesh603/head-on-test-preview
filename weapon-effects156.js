@@ -1,7 +1,7 @@
-import {drawExplosionProfile} from './explosion-profiles.js?v=fx5';
-import {drawGameIcon} from './icons.js?v=buildfit1&afc=1';
-import {fx,fxReady,FX56,FX3} from './fx-art.js?v=tame3';
-import {fxsBoom} from './fx-sample-preview.js?v=bomb3&rail=40';
+import {drawExplosionProfile} from './explosion-profiles.js?v=sortierhythm20261018';
+import {drawGameIcon} from './icons.js?v=sortierhythm20261018&afc=1';
+import {fx,fxReady,FX56,FX3} from './fx-art.js?v=sortierhythm20261018';
+import {fxsBoom} from './fx-sample-preview.js?v=sortierhythm20261018';
 
 export function drawGrenade(c,g,x,y){
  c.save();c.translate(x,y-g.height);c.rotate(g.phase==='flight'?g.age*7:0);
@@ -121,3 +121,4 @@ export function drawAmatolBlast(c,f,x,y){
  const diameter=Math.min(f.secondaryExplosion?120:260,f.radius*2.15)*(0.82+q*.18);
  c.save();c.globalAlpha=Math.min(1,(1-q)*3);c.drawImage(amatolEffect,sx,sy,sw,sh,x-diameter/2,y-diameter/2,diameter,diameter);c.restore();
 }
+

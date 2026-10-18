@@ -1,6 +1,7 @@
+import {SORTIE_FITS} from './pilot-aircraft.js?v=sortierhythm20261018';
 // Presentation-only artwork, prepared once and shared by boot and pilot changes.
-import {clearAircraftMatte} from './aircraft.js?v=outline2';
-import {aircraftArt} from './main-ui-art180.js?v=gal1';
+import {clearAircraftMatte} from './aircraft.js?v=sortierhythm20261018';
+import {aircraftArt} from './main-ui-art180.js?v=sortierhythm20261018';
 
 export const hangarKeyFile={fokker_voss:'fokker_f1',fokker_red:'fokker',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard',fokker:'fokker_standard'};
 const cleanMech=new Set(['halberstadt_duo','fokker_jacobs','gontermann_fokker','nungesser_nieuport24','rickenbacker_spad','luke_nieuport28']);
@@ -9,6 +10,7 @@ const artCache=new Map(),artReady=new Map();
 // The decoded display images stay referenced, so switching back to a pilot paints at once.
 export function hangarArtNow(key){return artReady.get(key)?.url||''}
 export function hangarArtSource(key){
+ if(SORTIE_FITS[key])return `./sortie-aircraft/${key}.webp?v=pilotair1`;
  const file=hangarKeyFile[key]||key;
  return cleanMech.has(file)?`./mech/${file}.webp?v=gal1`:rawArt[key]||`./${file}.webp?v=gal1&b=349`;
 }

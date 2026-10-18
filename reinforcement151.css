@@ -1,4 +1,12 @@
 /* WWI instrument panels and consistent reinforcement cards. */
+/* Weapon branches reuse the same cards, with a quiet brass and steel frame. */
+#modal.choice-modal151.weapon-mod-draft151 .modal-card{border-top:3px double #bca77c}
+#modal.choice-modal151 #modalActions .reinforcement-card151.weapon-mod-card151{--frame151:#c5b389;--surface151:linear-gradient(135deg,#343e3df2,#151d1efa);border:3px double #bca77c;border-left:3px solid #85978e;box-shadow:inset 0 0 0 2px #101817,inset 0 0 0 3px #76857b55}
+#modal.choice-modal151 #modalActions .weapon-mod-card151 .rarity-label160{color:#e0cba2;opacity:1!important;letter-spacing:.06em}
+@media(max-width:720px),(pointer:coarse){
+ #modal.choice-modal151 #modalActions .weapon-mod-card151 .effect-category151{visibility:hidden}
+ #modal.choice-modal151 #modalActions .weapon-mod-card151 .rarity-label160{left:10px!important;right:auto!important;max-width:calc(100% - 20px);white-space:nowrap}
+}
 .choice-modal151 .modal-card{width:min(1080px,96vw);max-width:1080px;max-height:94dvh;overflow-y:auto;padding:24px;background:#202723f7;border:1px solid #777d7299;border-top:3px solid #c49a52;border-radius:3px}
 .choice-modal151 #modalActions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:stretch}
 .choice-modal151 #modalActions:has(.choice:nth-child(4)){grid-template-columns:repeat(4,minmax(0,1fr))}
