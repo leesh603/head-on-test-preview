@@ -1,0 +1,43 @@
+{
+  "source": {
+    "baseline": [
+      "\u2139 tests 855",
+      "\u2139 pass 533",
+      "\u2139 fail 322"
+    ],
+    "feature": [
+      "\u2139 tests 859",
+      "\u2139 pass 537",
+      "\u2139 fail 322"
+    ],
+    "sameFailureNames": true,
+    "newFailures": []
+  },
+  "public": {
+    "baseline": [
+      "\u2139 tests 1123",
+      "\u2139 pass 1122",
+      "\u2139 fail 1"
+    ],
+    "feature": [
+      "\u2139 tests 1127",
+      "\u2139 pass 1126",
+      "\u2139 fail 1"
+    ],
+    "sameFailureNames": true,
+    "newFailures": []
+  },
+  "focused": {
+    "tests": 52,
+    "pass": 52,
+    "fail": 0
+  },
+  "runtime": {
+    "publicCommit": "6c894f95993b49f84dd1afcb18a1171b327f62f1",
+    "pc": "1280x800 normal entry",
+    "mobile": "390x844 normal entry and forward2s/6s",
+    "French": "PC QA relocation; separate from entry proof",
+    "consoleErrors": 0
+  },
+  "sourceMain": "622a18395d0473fa0b57f45b7f88a1d3a89c9679"
+}

@@ -1,0 +1,34 @@
+{
+  "boss-maan-wusten-r2.webp": {
+    "width": 1192,
+    "height": 1320,
+    "alphaThreshold": 32,
+    "connectedHullCount": 2,
+    "detachedPixelCount": 0,
+    "saturatedRedEdgePixels": 0,
+    "cornerAlpha": [
+      0,
+      0
+    ],
+    "opaqueHullPixels": [
+      581501,
+      575039
+    ]
+  },
+  "boss-maan-sinai-r2.webp": {
+    "width": 1422,
+    "height": 1106,
+    "alphaThreshold": 32,
+    "connectedHullCount": 2,
+    "detachedPixelCount": 0,
+    "saturatedRedEdgePixels": 0,
+    "cornerAlpha": [
+      0,
+      0
+    ],
+    "opaqueHullPixels": [
+      459104,
+      448070
+    ]
+  }
+}

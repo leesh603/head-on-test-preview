@@ -1,0 +1,89 @@
+{
+  "tile": {
+    "width": 1104,
+    "height": 1104,
+    "edgesExact": true
+  },
+  "groundMeanMs": 6.449262190000026,
+  "wusten-pc-warnings": [
+    {
+      "visual": "wusten-impact",
+      "phase": "warning",
+      "x": 720,
+      "y": 720,
+      "radius": 44
+    },
+    {
+      "visual": "maan-sand-ring",
+      "phase": "warning",
+      "x": 720,
+      "y": 720,
+      "radius": 38
+    }
+  ],
+  "wusten-pc": {
+    "meanMs": 5.609738641666763,
+    "p95Ms": 7.472399000000223
+  },
+  "wusten-mobile-warnings": [
+    {
+      "visual": "wusten-impact",
+      "phase": "warning",
+      "x": 195,
+      "y": 607.68,
+      "radius": 44
+    },
+    {
+      "visual": "maan-sand-ring",
+      "phase": "warning",
+      "x": 195,
+      "y": 607.68,
+      "radius": 38
+    }
+  ],
+  "wusten-mobile": {
+    "meanMs": 4.315743983333338,
+    "p95Ms": 5.431227000000945
+  },
+  "sinai-pc-warnings": [
+    {
+      "visual": "sinai-impact",
+      "phase": "warning",
+      "x": 841,
+      "y": 720,
+      "radius": 44
+    },
+    {
+      "visual": "sinai-impact",
+      "phase": "warning",
+      "x": 599,
+      "y": 750,
+      "radius": 44
+    }
+  ],
+  "sinai-pc": {
+    "meanMs": 6.933879941666691,
+    "p95Ms": 8.54379499999959
+  },
+  "sinai-mobile-warnings": [
+    {
+      "visual": "sinai-impact",
+      "phase": "warning",
+      "x": 316,
+      "y": 607.68,
+      "radius": 44
+    },
+    {
+      "visual": "sinai-impact",
+      "phase": "warning",
+      "x": 74,
+      "y": 637.68,
+      "radius": 44
+    }
+  ],
+  "sinai-mobile": {
+    "meanMs": 4.703610683333348,
+    "p95Ms": 6.17641200000071
+  },
+  "missingAssetCount": 0
+}

@@ -1,0 +1,16 @@
+{
+  "implementationCommit": "20edb31296dc02aa2fd51f0c6e4be4cc7d744990",
+  "host": "raw.githack.com",
+  "observed": [
+    "fortress and hangar rendered",
+    "Korean command tactic rendered",
+    "entry warning completed",
+    "HUD time advanced 00:00 to 00:02",
+    "pause and continue worked"
+  ],
+  "errors": "Common image loaders: cross-origin canvas getImageData SecurityError",
+  "testLab": "undefined",
+  "longPlay": "unverified",
+  "mobileBrowser": "unverified",
+  "deviceFPS": "unverified"
+}

@@ -1,0 +1,54 @@
+/* Compact progress instruments: they belong directly below the durability readout. */
+.xp-hud{top:112px;left:25px;right:auto;width:150px;gap:5px;font-size:10px;pointer-events:none}
+.xp-hud .bar{height:4px}
+.xp-hud button{position:absolute;left:164px;top:-9px;white-space:nowrap;pointer-events:auto}
+
+.stageboss-playing:not(.coop-playing) #xpHud{top:112px;bottom:auto;left:25px;right:auto;width:150px;background:transparent;padding:0;border-radius:0}
+.stageboss-playing:not(.coop-playing) #xpHud .bar{height:4px}
+
+/* One compact personal bar below each co-op durability panel. */
+#coopXpHud{top:148px;bottom:auto;left:18px;right:18px;grid-template-columns:minmax(0,330px) minmax(0,330px);justify-content:space-between;gap:14px;font-size:10px}
+#coopXpHud>div{background:#13222dea;border:1px solid #74d9fb66;border-radius:4px;padding:3px 6px}
+#coopXpHud>div:last-child{border-color:#ffcd7866}
+#coopXpHud .bar{height:4px;margin:2px 0}
+
+@media(max-width:720px){
+ body.playing .hud{top:max(4px,env(safe-area-inset-top));left:8px;right:auto;height:auto;justify-content:flex-start;align-items:flex-start;gap:8px}
+ body.playing .hud>div:first-child{width:115px}
+ body.playing .hud .time{min-width:68px;text-align:left}
+ body.playing .hud small{font-size:9px;line-height:9px;margin:0 0 1px}
+ body.playing .hud b,body.playing .hud .time b{font-size:18px;line-height:18px;margin:0 0 2px}
+ body.playing .hud .bar{height:4px}
+ body.playing .hud .time small{font-size:9px;letter-spacing:0;margin:2px 0 0}
+ body.playing #hud>#xpHud{position:relative;top:auto;left:auto;right:auto;display:grid;grid-template-columns:32px minmax(0,1fr);align-items:center;column-gap:4px;width:115px;height:14px;min-height:14px;margin:0;padding:0;min-width:0;background:transparent;border:0;border-radius:0;box-shadow:none;line-height:12px}
+ body.playing #hud>#xpHud>span{display:block;padding:0;background:none;font-size:10px;line-height:12px;white-space:nowrap}
+ body.playing #hud>#xpHud .bar{height:3px;min-width:0}
+ .xp-hud button,.stageboss-playing #xpHud .quiet{left:204px;top:-34px;font-size:10px;padding:2px 5px}
+ .stageboss-playing:not(.coop-playing) #stageBossHud{top:max(52px,calc(env(safe-area-inset-top) + 48px));left:8px;transform:none;width:calc(100% - 16px);padding:3px 6px;font-size:10px;line-height:1.15}
+ .stageboss-playing:not(.coop-playing) #stageBossParts{font-size:10px}
+ .stageboss-playing:not(.coop-playing) #stageBossHud .bar{height:4px;margin-top:2px}
+}
+@media(max-height:540px){
+ .stageboss-playing:not(.coop-playing) #xpHud{top:82px;left:16px;width:115px}
+ .coop-playing #coopXpHud{top:124px}
+}
+@media(max-width:720px) and (max-height:540px){
+ .stageboss-playing:not(.coop-playing) #xpHud{top:auto;left:auto;width:115px}
+}
+/* Revision 103: controls occupy real cells, never the ammunition column. */
+#aircraftSelect103{max-width:100%;padding:8px;background:#142933;color:#f3deb3;border:1px solid #ae965f;border-radius:5px}#passive103{font-size:13px;color:#dacaa5;line-height:1.45}
+@media(max-width:720px){
+ body.playing:not(.coop-playing) #hud{position:absolute;top:max(4px,env(safe-area-inset-top));left:8px;right:auto;width:calc(44% - 12px);display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:2px;align-items:stretch;height:auto;box-sizing:border-box}
+ body.playing:not(.coop-playing) #hud>div:first-child{grid-column:1/-1;width:100%;min-width:0;box-sizing:border-box;margin:0}
+ body.playing:not(.coop-playing) #hud>#xpHud{position:static!important;grid-column:1/-1;display:grid;grid-template-columns:34px minmax(0,1fr);align-items:center;width:100%!important;height:12px;gap:4px;padding:0 3px;margin:0;font-size:9px;line-height:12px;box-sizing:border-box;background:transparent}
+ body.playing:not(.coop-playing) #xpHud .bar{height:3px;margin:0}
+ body.playing:not(.coop-playing) #hud>.time{position:static;width:auto;min-width:0;margin:0;padding:2px 4px;display:flex;flex-wrap:wrap;align-content:center;gap:2px;box-sizing:border-box}
+ body.playing:not(.coop-playing) #clock{font-size:clamp(14px,4vw,20px);line-height:1;white-space:nowrap}
+ body.playing:not(.coop-playing) #hud>.time small{font-size:8px;line-height:1.1}
+ body.playing:not(.coop-playing) #hud>#pause{position:static!important;display:inline-flex!important;justify-content:center;align-items:center;width:44px;min-width:44px;height:44px;padding:2px;margin:0;font-size:9px;white-space:normal;pointer-events:auto;touch-action:manipulation;box-sizing:border-box}
+ body.playing:not(.coop-playing) #ammoHud{top:max(4px,env(safe-area-inset-top));left:calc(44% + 4px);right:8px;width:auto;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px;padding:5px;box-sizing:border-box}
+ body.playing:not(.coop-playing) #ammoHud>div{min-width:0}body.playing:not(.coop-playing) #ammoGunIcon{width:42px;height:auto;max-width:100%}
+ body.playing:not(.coop-playing) #ammoCount{font-size:clamp(11px,3.1vw,16px);white-space:normal}body.playing:not(.coop-playing) #reload{min-height:44px;max-width:54px;padding:3px;font-size:10px;white-space:normal}
+ body.playing:not(.coop-playing) #stageBossHud{top:var(--mobile-hud-bottom,128px)!important}
+ body.playing #hud.hidden,body.playing #ammoHud.hidden,body.playing #xpHud.hidden{display:none!important}
+}

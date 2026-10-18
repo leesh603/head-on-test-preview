@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 480">
+<defs><linearGradient id="coat" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5c625c"/><stop offset="1" stop-color="#202622"/></linearGradient></defs>
+<g shape-rendering="crispEdges">
+<path fill="#171c1b" d="M92 452q8-122 36-162l-22-34q-12-34 9-84 22-54 75-54t75 54q21 50 9 84l-22 34q28 40 36 162z"/>
+<path fill="#a8a58e" d="M116 188q-5-85 74-93 79 8 74 93l-19 67q-24 36-55 36t-55-36z"/>
+<path fill="#d2c7a8" d="M140 205h28v18h-28zm52 0h28v18h-28zM163 250h34v8h-34z"/>
+<path fill="#282e2a" d="M112 154q18-72 78-72t78 72l-25-13-18 13-35-18-35 18-18-13z"/>
+<path fill="#d8c892" d="M93 116h134v12H93zM110 104h102v12H110z"/>
+<path fill="#eee2b0" d="M155 304h50l-13 25h-24z"/><path fill="url(#coat)" d="M103 330h114l26 122H78z"/>
+<path fill="#d3bd7a" d="M102 354h116v8H102zM92 391h136v8H92z"/>
+<path fill="#ad6f4d" d="M126 270h20v15h-20zm48 0h20v15h-20z"/>
+</g></svg>

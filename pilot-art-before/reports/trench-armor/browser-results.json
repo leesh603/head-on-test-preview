@@ -1,0 +1,1459 @@
+{
+  "results": [
+    {
+      "label": "a7v-flak-desktop-solo",
+      "original": {
+        "kind": "a7v-flak",
+        "hp": 2100,
+        "maxHp": 2100,
+        "combatPhase": 1,
+        "x": 2.2043642384652358e-14,
+        "y": -360,
+        "yaw": 3.141592653589793,
+        "left": {
+          "speed": 0,
+          "roll": 0
+        },
+        "right": {
+          "speed": 0,
+          "roll": 0
+        },
+        "rotation": null,
+        "tactical": "advance",
+        "marks": 0,
+        "parts": [
+          {
+            "id": "front",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "rear",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "left",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "right",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 176.39999999999998,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 176.39999999999998,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 277.20000000000005,
+            "hittable": false
+          },
+          {
+            "id": "searchlight",
+            "hp": 163.8,
+            "hittable": true
+          }
+        ],
+        "hazards": 0,
+        "players": [
+          {
+            "x": 0,
+            "y": 0,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "phase1": {
+        "kind": "a7v-flak",
+        "hp": 2100,
+        "maxHp": 2100,
+        "combatPhase": 1,
+        "x": -0.13463873969579426,
+        "y": -288.91245504716534,
+        "yaw": 3.1398795533482544,
+        "left": {
+          "speed": 0,
+          "roll": 35.282962962962955
+        },
+        "right": {
+          "speed": 0,
+          "roll": 35.282962962962955
+        },
+        "rotation": {
+          "stage": "brake",
+          "age": 0.5200000000000001,
+          "sign": 1,
+          "clock": 0.65,
+          "index": 0,
+          "final": false
+        },
+        "tactical": "braking",
+        "marks": 28,
+        "parts": [
+          {
+            "id": "front",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "rear",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "left",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "right",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 176.39999999999998,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 176.39999999999998,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 277.20000000000005,
+            "hittable": false
+          },
+          {
+            "id": "searchlight",
+            "hp": 163.8,
+            "hittable": true
+          }
+        ],
+        "hazards": 5,
+        "players": [
+          {
+            "x": -0.13463873969579426,
+            "y": -168.91245504716534,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "final": {
+        "kind": "a7v-flak",
+        "hp": 735,
+        "maxHp": 2100,
+        "combatPhase": 3,
+        "x": -0.4958732598096773,
+        "y": -288.82785316483415,
+        "yaw": 3.4347369564014185,
+        "left": {
+          "speed": 64.8,
+          "roll": 50.02583311562142
+        },
+        "right": {
+          "speed": -64.8,
+          "roll": 20.540092810304557
+        },
+        "rotation": {
+          "stage": "spin",
+          "age": 2.4600000000000017,
+          "sign": 1,
+          "clock": 0.05999999999999989,
+          "index": 2,
+          "final": true
+        },
+        "tactical": "steel-turret",
+        "marks": 40,
+        "parts": [
+          {
+            "id": "front",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "rear",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "left",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "right",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 176.39999999999998,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 176.39999999999998,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 277.20000000000005,
+            "hittable": true
+          },
+          {
+            "id": "searchlight",
+            "hp": 163.8,
+            "hittable": true
+          }
+        ],
+        "hazards": 5,
+        "players": [
+          {
+            "x": -0.4958732598096773,
+            "y": -168.82785316483415,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "stopped": {
+        "kind": "a7v-flak",
+        "hp": 735,
+        "maxHp": 2100,
+        "combatPhase": 3,
+        "x": 2.3514856658578482,
+        "y": -296.95464818624396,
+        "yaw": 3.52127647321888,
+        "left": {
+          "speed": 0,
+          "roll": 50.02583311562142
+        },
+        "right": {
+          "speed": 0,
+          "roll": 12.010463180674911
+        },
+        "rotation": {
+          "stage": "spin",
+          "age": 4.459999999999993,
+          "sign": 1,
+          "clock": 0.25999999999999984,
+          "index": 7,
+          "final": true
+        },
+        "tactical": "steel-turret",
+        "marks": 44,
+        "parts": [
+          {
+            "id": "front",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "rear",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "left",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "right",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 277.20000000000005,
+            "hittable": true
+          },
+          {
+            "id": "searchlight",
+            "hp": 163.8,
+            "hittable": true
+          }
+        ],
+        "hazards": 10,
+        "players": [
+          {
+            "x": -0.4958732598096591,
+            "y": -444.51361316483366,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "wreck": {
+        "kind": "a7v-flak",
+        "hp": 0,
+        "maxHp": 2100,
+        "combatPhase": 3,
+        "x": 2.493926232553117,
+        "y": -296.3399662890124,
+        "yaw": 3.52127647321888,
+        "left": {
+          "speed": 0,
+          "roll": 50.02583311562142
+        },
+        "right": {
+          "speed": 0,
+          "roll": 12.010463180674911
+        },
+        "rotation": {
+          "stage": "spin",
+          "age": 1.2800000000000007,
+          "sign": -1,
+          "clock": 0.34999999999999976,
+          "index": 0,
+          "final": true
+        },
+        "tactical": "steel-turret",
+        "marks": 0,
+        "parts": [
+          {
+            "id": "front",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "rear",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "left",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "right",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "searchlight",
+            "hp": 0,
+            "hittable": true
+          }
+        ],
+        "hazards": 0,
+        "players": [
+          {
+            "x": 1548.9181127351749,
+            "y": -229.67943270009314,
+            "a": 0
+          }
+        ],
+        "state": "paused"
+      },
+      "defeat": {
+        "hp": 0,
+        "cleared": true,
+        "state": "paused"
+      }
+    },
+    {
+      "label": "a7v-flak-mobile-coop",
+      "original": {
+        "kind": "a7v-flak",
+        "hp": 3465,
+        "maxHp": 3465,
+        "combatPhase": 1,
+        "x": 2.2043642384652358e-14,
+        "y": -360,
+        "yaw": 3.141592653589793,
+        "left": {
+          "speed": 0,
+          "roll": 0
+        },
+        "right": {
+          "speed": 0,
+          "roll": 0
+        },
+        "rotation": null,
+        "tactical": "advance",
+        "marks": 0,
+        "parts": [
+          {
+            "id": "front",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "rear",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "left",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "right",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 291.06,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 291.06,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 457.38000000000005,
+            "hittable": false
+          },
+          {
+            "id": "searchlight",
+            "hp": 270.27000000000004,
+            "hittable": true
+          }
+        ],
+        "hazards": 0,
+        "players": [
+          {
+            "x": -55,
+            "y": 0,
+            "a": -1.5707963267948966
+          },
+          {
+            "x": 55,
+            "y": 0,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "phase1": {
+        "kind": "a7v-flak",
+        "hp": 3465,
+        "maxHp": 3465,
+        "combatPhase": 1,
+        "x": 0.08618401468498774,
+        "y": -284.5930904519073,
+        "yaw": 3.1373921232113156,
+        "left": {
+          "speed": 0,
+          "roll": 37.41629629629626
+        },
+        "right": {
+          "speed": 0,
+          "roll": 37.41629629629626
+        },
+        "rotation": {
+          "stage": "brake",
+          "age": 0.5200000000000001,
+          "sign": 1,
+          "clock": 0.65,
+          "index": 0,
+          "final": false
+        },
+        "tactical": "braking",
+        "marks": 30,
+        "parts": [
+          {
+            "id": "front",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "rear",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "left",
+            "hp": 312.3,
+            "hittable": true
+          },
+          {
+            "id": "right",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 291.06,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 291.06,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 457.38000000000005,
+            "hittable": false
+          },
+          {
+            "id": "searchlight",
+            "hp": 270.27000000000004,
+            "hittable": true
+          }
+        ],
+        "hazards": 5,
+        "players": [
+          {
+            "x": -23.91381598531501,
+            "y": -164.5930904519073,
+            "a": -1.5707963267948966
+          },
+          {
+            "x": 24.08618401468499,
+            "y": -164.5930904519073,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "final": {
+        "kind": "a7v-flak",
+        "hp": 1212.75,
+        "maxHp": 3465,
+        "combatPhase": 3,
+        "x": -0.27483894368392214,
+        "y": -284.5075902866131,
+        "yaw": 3.4322495262644797,
+        "left": {
+          "speed": 64.8,
+          "roll": 52.15916644895473
+        },
+        "right": {
+          "speed": -64.8,
+          "roll": 22.67342614363782
+        },
+        "rotation": {
+          "stage": "spin",
+          "age": 2.4600000000000017,
+          "sign": 1,
+          "clock": 0.05999999999999989,
+          "index": 2,
+          "final": true
+        },
+        "tactical": "steel-turret",
+        "marks": 40,
+        "parts": [
+          {
+            "id": "front",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "rear",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "left",
+            "hp": 312.3,
+            "hittable": true
+          },
+          {
+            "id": "right",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 187.56,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 291.06,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 353.88000000000005,
+            "hittable": true
+          },
+          {
+            "id": "searchlight",
+            "hp": 270.27000000000004,
+            "hittable": true
+          }
+        ],
+        "hazards": 5,
+        "players": [
+          {
+            "x": -24.27483894368392,
+            "y": -164.5075902866131,
+            "a": -1.5707963267948966
+          },
+          {
+            "x": 23.72516105631608,
+            "y": -164.5075902866131,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "stopped": {
+        "kind": "a7v-flak",
+        "hp": 1161,
+        "maxHp": 3465,
+        "combatPhase": 3,
+        "x": 2.5442618659752427,
+        "y": -292.6561604241081,
+        "yaw": 3.5180665882337525,
+        "left": {
+          "speed": 0,
+          "roll": 52.15916644895473
+        },
+        "right": {
+          "speed": 0,
+          "roll": 14.143796514008173
+        },
+        "rotation": {
+          "stage": "spin",
+          "age": 4.459999999999993,
+          "sign": 1,
+          "clock": 0.25999999999999984,
+          "index": 7,
+          "final": true
+        },
+        "tactical": "steel-turret",
+        "marks": 44,
+        "parts": [
+          {
+            "id": "front",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "rear",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "left",
+            "hp": 312.3,
+            "hittable": true
+          },
+          {
+            "id": "right",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 353.88000000000005,
+            "hittable": true
+          },
+          {
+            "id": "searchlight",
+            "hp": 270.27000000000004,
+            "hittable": true
+          }
+        ],
+        "hazards": 10,
+        "players": [
+          {
+            "x": -24.27483894368392,
+            "y": -461.46053748661217,
+            "a": -1.5707963267948966
+          },
+          {
+            "x": 23.72516105631608,
+            "y": -490.1285502866133,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "wreck": {
+        "kind": "a7v-flak",
+        "hp": 0,
+        "maxHp": 3465,
+        "combatPhase": 3,
+        "x": 3.358866400922613,
+        "y": -291.7769991277125,
+        "yaw": 3.5180665882337525,
+        "left": {
+          "speed": 0,
+          "roll": 52.15916644895473
+        },
+        "right": {
+          "speed": 0,
+          "roll": 14.143796514008173
+        },
+        "rotation": {
+          "stage": "spin",
+          "age": 1.3000000000000007,
+          "sign": -1,
+          "clock": 0.32999999999999974,
+          "index": 0,
+          "final": true
+        },
+        "tactical": "steel-turret",
+        "marks": 0,
+        "parts": [
+          {
+            "id": "front",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "rear",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "left",
+            "hp": 312.3,
+            "hittable": true
+          },
+          {
+            "id": "right",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "searchlight",
+            "hp": 0,
+            "hittable": true
+          }
+        ],
+        "hazards": 0,
+        "players": [
+          {
+            "x": 530.7648625484892,
+            "y": -228.46169803951886,
+            "a": 0
+          },
+          {
+            "x": 26.764862548489422,
+            "y": -1208.4616979645898,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "defeat": {
+        "hp": 0,
+        "cleared": true,
+        "state": "paused"
+      }
+    },
+    {
+      "label": "mark-v-cruiser-desktop-solo",
+      "original": {
+        "kind": "mark-v-cruiser",
+        "hp": 2100,
+        "maxHp": 2100,
+        "combatPhase": 1,
+        "x": 2.2043642384652358e-14,
+        "y": -360,
+        "yaw": 3.141592653589793,
+        "left": {
+          "speed": 0,
+          "roll": 0
+        },
+        "right": {
+          "speed": 0,
+          "roll": 0
+        },
+        "rotation": null,
+        "tactical": "advance",
+        "marks": 0,
+        "parts": [
+          {
+            "id": "sponson-left",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "sponson-right",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 176.39999999999998,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 176.39999999999998,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 277.20000000000005,
+            "hittable": false
+          }
+        ],
+        "hazards": 0,
+        "players": [
+          {
+            "x": 0,
+            "y": 0,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "phase1": {
+        "kind": "mark-v-cruiser",
+        "hp": 2100,
+        "maxHp": 2100,
+        "combatPhase": 1,
+        "x": 0.006045893586630844,
+        "y": -278.98239557812866,
+        "yaw": 3.1389798751258287,
+        "left": {
+          "speed": 0,
+          "roll": 39.928098765432004
+        },
+        "right": {
+          "speed": 0,
+          "roll": 39.928098765432004
+        },
+        "rotation": null,
+        "tactical": "forward-pressure",
+        "marks": 28,
+        "parts": [
+          {
+            "id": "sponson-left",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "sponson-right",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 176.39999999999998,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 176.39999999999998,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 277.20000000000005,
+            "hittable": false
+          }
+        ],
+        "hazards": 3,
+        "players": [
+          {
+            "x": 0.006045893586630844,
+            "y": -158.98239557812866,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "final": {
+        "kind": "mark-v-cruiser",
+        "hp": 735,
+        "maxHp": 2100,
+        "combatPhase": 3,
+        "x": -38.28688986964991,
+        "y": -182.0156257984038,
+        "yaw": 2.7203633631607667,
+        "left": {
+          "speed": -38.475,
+          "roll": 76.56201481481477
+        },
+        "right": {
+          "speed": 38.475,
+          "roll": 108.05922370370317
+        },
+        "rotation": {
+          "stage": "spin",
+          "age": 2.520000000000002,
+          "sign": -1,
+          "clock": 0.1399999999999999,
+          "index": 5,
+          "final": true
+        },
+        "tactical": "steel-waltz",
+        "marks": 49,
+        "parts": [
+          {
+            "id": "sponson-left",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "sponson-right",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 176.39999999999998,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 176.39999999999998,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 277.20000000000005,
+            "hittable": true
+          }
+        ],
+        "hazards": 4,
+        "players": [
+          {
+            "x": -38.28688986964991,
+            "y": -62.01562579840379,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "stopped": {
+        "kind": "mark-v-cruiser",
+        "hp": 735,
+        "maxHp": 2100,
+        "combatPhase": 3,
+        "x": -34.75463093574723,
+        "y": -176.60764118066535,
+        "yaw": 2.63845863093799,
+        "left": {
+          "speed": 0,
+          "roll": 76.56201481481477
+        },
+        "right": {
+          "speed": 0,
+          "roll": 114.27569777777701
+        },
+        "rotation": {
+          "stage": "breakthrough",
+          "age": 0.7200000000000003,
+          "sign": -1,
+          "clock": 0.17999999999999988,
+          "index": 8,
+          "final": true
+        },
+        "tactical": "final-breakthrough",
+        "marks": 38,
+        "parts": [
+          {
+            "id": "sponson-left",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "sponson-right",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 277.20000000000005,
+            "hittable": true
+          }
+        ],
+        "hazards": 12,
+        "players": [
+          {
+            "x": -38.28688986964991,
+            "y": -378.2556257984032,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "wreck": {
+        "kind": "mark-v-cruiser",
+        "hp": 0,
+        "maxHp": 2100,
+        "combatPhase": 3,
+        "x": -33.83242500733708,
+        "y": -177.2085982347076,
+        "yaw": 2.63845863093799,
+        "left": {
+          "speed": 0,
+          "roll": 76.56201481481477
+        },
+        "right": {
+          "speed": 0,
+          "roll": 114.27569777777701
+        },
+        "rotation": {
+          "stage": "charge",
+          "age": 1.2000000000000006,
+          "sign": -1,
+          "clock": 0.24999999999999936,
+          "index": 1,
+          "final": true
+        },
+        "tactical": "runaway-advance",
+        "marks": 0,
+        "parts": [
+          {
+            "id": "sponson-left",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "sponson-right",
+            "hp": 252,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 0,
+            "hittable": true
+          }
+        ],
+        "hazards": 0,
+        "players": [
+          {
+            "x": 1355.2918594063121,
+            "y": -102.83307572616428,
+            "a": 0
+          }
+        ],
+        "state": "paused"
+      },
+      "defeat": {
+        "hp": 0,
+        "cleared": true,
+        "state": "paused"
+      }
+    },
+    {
+      "label": "mark-v-cruiser-mobile-coop",
+      "original": {
+        "kind": "mark-v-cruiser",
+        "hp": 3465,
+        "maxHp": 3465,
+        "combatPhase": 1,
+        "x": 2.2043642384652358e-14,
+        "y": -360,
+        "yaw": 3.141592653589793,
+        "left": {
+          "speed": 0,
+          "roll": 0
+        },
+        "right": {
+          "speed": 0,
+          "roll": 0
+        },
+        "rotation": null,
+        "tactical": "advance",
+        "marks": 0,
+        "parts": [
+          {
+            "id": "sponson-left",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "sponson-right",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 291.06,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 291.06,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 457.38000000000005,
+            "hittable": false
+          }
+        ],
+        "hazards": 0,
+        "players": [
+          {
+            "x": -55,
+            "y": 0,
+            "a": -1.5707963267948966
+          },
+          {
+            "x": 55,
+            "y": 0,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "phase1": {
+        "kind": "mark-v-cruiser",
+        "hp": 3465,
+        "maxHp": 3465,
+        "combatPhase": 1,
+        "x": -0.022061809389965457,
+        "y": -267.5426072753833,
+        "yaw": 3.1457995395742118,
+        "left": {
+          "speed": 0,
+          "roll": 45.57748148148135
+        },
+        "right": {
+          "speed": 0,
+          "roll": 45.57748148148135
+        },
+        "rotation": null,
+        "tactical": "forward-pressure",
+        "marks": 32,
+        "parts": [
+          {
+            "id": "sponson-left",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "sponson-right",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 291.06,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 291.06,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 457.38000000000005,
+            "hittable": false
+          }
+        ],
+        "hazards": 3,
+        "players": [
+          {
+            "x": -24.022061809389964,
+            "y": -147.54260727538332,
+            "a": -1.5707963267948966
+          },
+          {
+            "x": 23.977938190610036,
+            "y": -147.54260727538332,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "final": {
+        "kind": "mark-v-cruiser",
+        "hp": 1212.75,
+        "maxHp": 3465,
+        "combatPhase": 3,
+        "x": -52.06550586798235,
+        "y": -152.60834102436664,
+        "yaw": 2.7892166485049246,
+        "left": {
+          "speed": -38.475,
+          "roll": 95.54099753086406
+        },
+        "right": {
+          "speed": 38.475,
+          "roll": 122.49019654320945
+        },
+        "rotation": {
+          "stage": "spin",
+          "age": 2.520000000000002,
+          "sign": -1,
+          "clock": 0.1399999999999999,
+          "index": 5,
+          "final": true
+        },
+        "tactical": "steel-waltz",
+        "marks": 53,
+        "parts": [
+          {
+            "id": "sponson-left",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "sponson-right",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 291.06,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 291.06,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 457.38000000000005,
+            "hittable": true
+          }
+        ],
+        "hazards": 4,
+        "players": [
+          {
+            "x": -76.06550586798235,
+            "y": -32.60834102436664,
+            "a": -1.5707963267948966
+          },
+          {
+            "x": -28.065505867982353,
+            "y": -32.60834102436664,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "stopped": {
+        "kind": "mark-v-cruiser",
+        "hp": 1212.75,
+        "maxHp": 3465,
+        "combatPhase": 3,
+        "x": -48.92137697168485,
+        "y": -146.96589054037653,
+        "yaw": 2.7083402348805707,
+        "left": {
+          "speed": 0,
+          "roll": 95.54099753086406
+        },
+        "right": {
+          "speed": 0,
+          "roll": 128.70667061728338
+        },
+        "rotation": {
+          "stage": "breakthrough",
+          "age": 0.7200000000000003,
+          "sign": -1,
+          "clock": 0.17999999999999988,
+          "index": 8,
+          "final": true
+        },
+        "tactical": "final-breakthrough",
+        "marks": 42,
+        "parts": [
+          {
+            "id": "sponson-left",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "sponson-right",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 457.38000000000005,
+            "hittable": true
+          }
+        ],
+        "hazards": 12,
+        "players": [
+          {
+            "x": -76.06550586798235,
+            "y": -348.8483410243661,
+            "a": -1.5707963267948966
+          },
+          {
+            "x": -28.065505867982353,
+            "y": -361.49794102436704,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "wreck": {
+        "kind": "mark-v-cruiser",
+        "hp": 0,
+        "maxHp": 3465,
+        "combatPhase": 3,
+        "x": -47.95946022405865,
+        "y": -147.5009880332911,
+        "yaw": 2.7083402348805707,
+        "left": {
+          "speed": 0,
+          "roll": 95.54099753086406
+        },
+        "right": {
+          "speed": 0,
+          "roll": 128.70667061728338
+        },
+        "rotation": {
+          "stage": "charge",
+          "age": 1.2400000000000007,
+          "sign": -1,
+          "clock": 0.20999999999999938,
+          "index": 1,
+          "final": true
+        },
+        "tactical": "runaway-advance",
+        "marks": 0,
+        "parts": [
+          {
+            "id": "sponson-left",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "sponson-right",
+            "hp": 415.8,
+            "hittable": true
+          },
+          {
+            "id": "track-left",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "track-right",
+            "hp": 0,
+            "hittable": true
+          },
+          {
+            "id": "engine-deck",
+            "hp": 0,
+            "hittable": true
+          }
+        ],
+        "hazards": 0,
+        "players": [
+          {
+            "x": 479.445064627493,
+            "y": -83.9173277427103,
+            "a": 0
+          },
+          {
+            "x": -24.554935372506,
+            "y": -1063.9173261069018,
+            "a": -1.5707963267948966
+          }
+        ],
+        "state": "paused"
+      },
+      "defeat": {
+        "hp": 0,
+        "cleared": true,
+        "state": "paused"
+      }
+    }
+  ],
+  "errors": [],
+  "limitations": [
+    "Controlled Test Lab scenarios use native hit/update paths; not a natural full-run clear.",
+    "Headless desktop emulation; physical mobile FPS and audible sound quality are not verified."
+  ]
+}

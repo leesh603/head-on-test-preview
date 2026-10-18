@@ -1,0 +1,162 @@
+[
+  {
+    "id": "baron",
+    "file": "./portrait-baron.webp",
+    "exists": true
+  },
+  {
+    "id": "voss",
+    "file": "./portrait-voss.webp",
+    "exists": true
+  },
+  {
+    "id": "boelcke",
+    "file": "./portrait-boelcke.webp",
+    "exists": true
+  },
+  {
+    "id": "immelmann",
+    "file": "./portrait-immelmann.webp",
+    "exists": true
+  },
+  {
+    "id": "udet",
+    "file": "./portrait-udet.webp",
+    "exists": true
+  },
+  {
+    "id": "fonck",
+    "file": "./portrait-fonck.webp",
+    "exists": true
+  },
+  {
+    "id": "collishaw",
+    "file": "./portrait-collishaw.webp",
+    "exists": true
+  },
+  {
+    "id": "baracca",
+    "file": "./portrait-baracca.webp",
+    "exists": true
+  },
+  {
+    "id": "guynemer",
+    "file": "./portrait-guynemer.webp",
+    "exists": true
+  },
+  {
+    "id": "bishop",
+    "file": "./portrait-bishop.webp",
+    "exists": true
+  },
+  {
+    "id": "goering",
+    "file": "./portrait-goering.webp",
+    "exists": true
+  },
+  {
+    "id": "mannock",
+    "file": "./portrait-mannock.webp",
+    "exists": true
+  },
+  {
+    "id": "mckeever",
+    "file": "./portrait-mckeever-powell129.webp",
+    "exists": true
+  },
+  {
+    "id": "huffzky",
+    "file": "./portrait-huffzky.webp",
+    "exists": true
+  },
+  {
+    "id": "hawker",
+    "file": "./portrait-hawker.webp",
+    "exists": true
+  },
+  {
+    "id": "berthold",
+    "file": "./portrait-berthold.webp",
+    "exists": true
+  },
+  {
+    "id": "jacobs",
+    "file": "./portrait-jacobs.webp",
+    "exists": true
+  },
+  {
+    "id": "rickenbacker",
+    "file": "./portrait-rickenbacker.webp",
+    "exists": true
+  },
+  {
+    "id": "ball",
+    "file": "./portrait-ball.webp",
+    "exists": true
+  },
+  {
+    "id": "barker",
+    "file": "./portrait-barker.webp",
+    "exists": true
+  },
+  {
+    "id": "luke",
+    "file": "./portrait-luke.webp",
+    "exists": true
+  },
+  {
+    "id": "brumowski",
+    "file": "./portrait-brumowski.webp",
+    "exists": true
+  },
+  {
+    "id": "gontermann",
+    "file": "./portrait-gontermann.webp",
+    "exists": true
+  },
+  {
+    "id": "wolff",
+    "file": "./portrait-wolff-field.webp",
+    "exists": true
+  },
+  {
+    "id": "loewenhardt",
+    "file": "./portrait-loewenhardt-field.webp",
+    "exists": true
+  },
+  {
+    "id": "mccudden",
+    "file": "./portrait-mccudden-field.webp",
+    "exists": true
+  },
+  {
+    "id": "nungesser",
+    "file": "./portrait-nungesser-field.webp",
+    "exists": true
+  },
+  {
+    "id": "lothar",
+    "file": "./portrait-lothar-field.webp",
+    "exists": true
+  },
+  {
+    "id": "sachsenberg",
+    "file": "./portrait-sachsenberg-field.webp",
+    "exists": true
+  },
+  {
+    "id": "proctor",
+    "file": "./portrait-proctor-field.webp",
+    "exists": true
+  },
+  {
+    "id": "schleich",
+    "file": "./portrait-schleich-field.webp",
+    "exists": true
+  },
+  {
+    "id": "lufbery",
+    "file": "./portrait-lufbery-field.webp",
+    "exists": true
+  }
+]

@@ -1,0 +1,31 @@
+{
+  "implementationCommit": "47393f542e65cd2c1a524f9af7e3e836b4181914",
+  "host": "raw.githack.com",
+  "selectedAll": [
+    "schleich",
+    "sachsenberg",
+    "lufbery",
+    "proctor"
+  ],
+  "centralPair": {
+    "beforeScroll": 838,
+    "afterScroll": 838,
+    "focus": "sachsenberg",
+    "first": "baron"
+  },
+  "ententePair": {
+    "beforeScroll": 838,
+    "afterScroll": 838,
+    "focus": "proctor",
+    "first": "fonck"
+  },
+  "lastTitle": "앤드류 뷰챔프-프록터",
+  "lastAircraft": "S.E.5a",
+  "portraitNaturalWidth": 1254,
+  "state": "portrait and roster selection verified",
+  "limitations": [
+    "Common legacy image canvas SecurityError on preview host",
+    "Mobile device unverified",
+    "Long gameplay unverified"
+  ]
+}
