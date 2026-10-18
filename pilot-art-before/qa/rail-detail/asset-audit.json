@@ -1,0 +1,78 @@
+[
+  {
+    "file": "rail-bruno-chassis-r1.webp",
+    "dimensions": [
+      367,
+      1097
+    ],
+    "source": "exec-ba586c98-af8a-4a95-9e90-40f083ae4196.png",
+    "rect": [
+      331,
+      3,
+      335,
+      1065
+    ],
+    "bytes": 439844,
+    "alpha": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "rail-bruno-gun-r1.webp",
+    "dimensions": [
+      197,
+      800
+    ],
+    "source": "exec-ba586c98-af8a-4a95-9e90-40f083ae4196.png",
+    "rect": [
+      911,
+      83,
+      165,
+      768
+    ],
+    "bytes": 104928,
+    "alpha": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "rail-lincomparable-chassis-r1.webp",
+    "dimensions": [
+      448,
+      1059
+    ],
+    "source": "exec-b6964df1-e02e-42d0-bb27-013df7b0d716.png",
+    "rect": [
+      252,
+      41,
+      416,
+      1027
+    ],
+    "bytes": 520750,
+    "alpha": [
+      0,
+      255
+    ]
+  },
+  {
+    "file": "rail-lincomparable-gun-r1.webp",
+    "dimensions": [
+      232,
+      898
+    ],
+    "source": "exec-b6964df1-e02e-42d0-bb27-013df7b0d716.png",
+    "rect": [
+      945,
+      39,
+      200,
+      866
+    ],
+    "bytes": 166292,
+    "alpha": [
+      0,
+      255
+    ]
+  }
+]

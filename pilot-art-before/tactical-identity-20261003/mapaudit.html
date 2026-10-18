@@ -1,0 +1,60 @@
+<!doctype html><meta charset="utf-8"><style>
+body{background:#14181c;color:#ddd;font:14px system-ui;margin:16px}
+canvas{background:#222;display:block}
+</style>
+<canvas id="c"></canvas>
+<script>
+const ATLAS_W=768,ATLAS_H=307,COLS=5,ROWS=2;
+const cellW=ATLAS_W/COLS,cellH=ATLAS_H/ROWS;
+const cellOf=c=>({x:(c%5)*cellW,y:Math.floor(c/5)*cellH,w:cellW,h:cellH});
+// Actual paintRegion sources: region -> [label, source]
+const R=[
+ ['0 전원 지대','atlas',0,'cell ~154px'],
+ ['1 아드리아해','atlas',1,'cell ~154px'],
+ ['2 참호 전선','atlas',2,'cell ~154px'],
+ ['3 포화의 참호전선','atlas',9,'cell ~154px + 화염 오버레이'],
+ ['4 도심','atlas',4,'cell ~154px + 시설 오버레이'],
+ ['5 고공 전역','atlas',3,'cell ~154px'],
+ ['6 알프스','atlas',5,'cell ~154px + 봉우리'],
+ ['7 제브뤼헤','terrain-zeebrugge-route.webp',0,'1254² 경로 + 물 400²'],
+ ['8 캉브레','terrain-cambrai.webp',0,'768²'],
+ ['9 아라스','terrain-arras.webp',0,'768²'],
+ ['10 솜','terrain-somme.webp',0,'768²'],
+ ['11 런던','terrain-london.webp',0,'768²'],
+];
+const TILE=340,GAP=14,LABEL=20,CPR=3;
+const rows=Math.ceil(R.length/CPR);
+const c=document.getElementById('c');
+c.width=CPR*(TILE+GAP)+GAP;c.height=rows*(TILE+LABEL+GAP)+GAP;
+const atlas=new Image();
+const ims={};
+let pending=1+R.length;
+const done=()=>{if(--pending===0)draw()};
+atlas.onload=done;atlas.src='./terrain-alps-atlas.webp';
+R.forEach(([name,src])=>{
+ if(src==='atlas'){done();return}
+ const im=new Image();im.onload=done;im.src='./'+src;ims[name]=im;
+});
+function draw(){
+ const g=c.getContext('2d');
+ g.fillStyle='#1a2027';g.fillRect(0,0,c.width,c.height);
+ R.forEach((r,i)=>{
+  const [name,src,cell,meta]=r;
+  const col=i%CPR,row=Math.floor(i/CPR);
+  const x=GAP+col*(TILE+GAP),y=GAP+row*(TILE+LABEL+GAP);
+  g.fillStyle='#0c0f12';g.fillRect(x,y,TILE,TILE);
+  g.save();g.beginPath();g.rect(x,y,TILE,TILE);g.clip();
+  if(src==='atlas'){
+   const cr=cellOf(cell);
+   g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
+   g.drawImage(atlas,cr.x+2,cr.y+2,cr.w-4,cr.h-4,x,y,TILE,TILE);
+  }else{
+   const im=ims[name];
+   if(im.naturalWidth){g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.drawImage(im,x,y,TILE,TILE)}
+  }
+  g.restore();
+  g.strokeStyle='#3a4550';g.strokeRect(x+.5,y+.5,TILE,TILE);
+  g.fillStyle='#cfd8e3';g.fillText(`${name}  —  ${meta}`,x+2,y+TILE+14);
+ });
+}
+</script>

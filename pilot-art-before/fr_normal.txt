@@ -1,0 +1,11 @@
+{"name": "특제 철갑탄 개조", "desc": "기관총 피해 증가", "target": "일반 · 매직 · 레어", "icon": "./augmentation-icons/armor_piercing_ammo.webp", "tiers": {"normal": "일반 +18%", "magic": "매직 +27%", "rare": "레어 +36%"}}
+{"name": "고속 싱크로나이즈 기어", "desc": "기관총 공격속도 증가", "target": "일반 · 매직 · 레어", "icon": "./augmentation-icons/synchronization_gear.webp", "tiers": {"normal": "일반 −10%", "magic": "매직 −14%", "rare": "레어 −20%"
+{"name": "르 프리외르 로켓 발사대", "desc": "전방 직진 로켓. 등급이 높으면 폭발물 피해도 증가", "target": "일반 · 매직 · 레어", "icon": "./augmentation-icons/le_prieur_rocket_launcher.webp", "tiers": {"normal": "로켓 +1", "magic": "로켓 +1 
+{"name": "수류탄 투척 장비", "desc": "후방 수류탄 투척. 등급이 높으면 폭발물 피해도 증가", "target": "일반 · 매직 · 레어", "icon": "./augmentation-icons/grenade_throwing_gear.webp", "tiers": {"normal": "장비 +1", "magic": "장비 +1 · 폭발물 +
+{"name": "고품질 화약 개량", "desc": "로켓·수류탄·폭탄·37mm 포탄 등 모든 폭발물 피해 증가", "target": "일반 · 매직 · 레어", "icon": "./augmentation-icons/high_quality_powder.webp", "tiers": {"normal": "+30%p", "magic": "+50%p", "rar
+{"name": "편대 비행 교범", "desc": "윙맨과 뵐케·매녹 편대 액티브의 피해 및 공격속도 증가", "target": "일반 · 매직 · 레어", "icon": "./augmentation-icons/squadron_flight_manual.webp", "tiers": {"normal": "+30%p", "magic": "+50%p", "rar
+{"name": "적층 목재 프로펠러", "desc": "이동 속도와 선회력 증가", "target": "일반 · 매직 · 레어", "icon": "./augmentation-icons/laminated_wood_propeller.webp", "tiers": {"normal": "선회 +20% · 이속 +8%", "magic": "선회 +32% · 이속 +
+{"name": "합판 모노코크 동체", "desc": "최대 내구도와 즉시 회복량 증가", "target": "일반 · 매직 · 레어", "icon": "./augmentation-icons/plywood_monocoque_fuselage.webp", "tiers": {"normal": "+18 · 18 회복", "magic": "+28 · 28 회복",
+{"name": "정비공의 오일 펌프", "desc": "초당 최대 내구도 비례 회복. 누적 상한 4%", "target": "일반 · 매직 · 레어", "icon": "./augmentation-icons/mechanics_oil_pump.webp", "tiers": {"normal": "+0.6%/초", "magic": "+1.0%/초", "rare":
+{"name": "훈장 수여", "desc": "파일럿 액티브 재사용 대기시간 감소. 기본의 50%까지", "target": "일반 · 매직 · 레어", "icon": "./augmentation-icons/medal_award_pour_le_merite.webp", "tiers": {"normal": "−8%", "magic": "−12%", "rare"
+{"name": "편대기 합류", "desc": "상시 편대기 +1. 한 출격 최대 2회, 전체 최대 7대.", "target": "레어 강화", "icon": "./augmentation-icons/wingman_joining.webp"}

@@ -1,0 +1,30 @@
+{
+  "baseSha": "30cd6b569a9396c18f025a2bd60924ac9f3c4da0",
+  "branch": "feat/trench-armor-tactics",
+  "tests": {
+    "total": 674,
+    "passed": 674,
+    "failed": 0,
+    "focused": 27
+  },
+  "build": {
+    "syntaxModules": 179,
+    "importsResolved": 1587,
+    "missing": 0
+  },
+  "browser": {
+    "soloLocalCoopScenarios": 4,
+    "liveRelayScenarios": 2,
+    "pageFrameErrors": 0,
+    "chromium": "155.0.8059.39"
+  },
+  "limitations": [
+    "Controlled native Test Lab scenarios, not a natural human full-run clear.",
+    "Physical mobile FPS/thermal load, audible audio quality, public deployed test server and real internet latency unverified."
+  ],
+  "scope": [
+    "a7v-flak",
+    "mark-v-cruiser"
+  ],
+  "deployment": "No main merge or deployment."
+}

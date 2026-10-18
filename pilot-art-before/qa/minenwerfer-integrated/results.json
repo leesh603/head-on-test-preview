@@ -1,0 +1,188 @@
+{
+  "source": "stageboss-view.js → drawStageBoss → drawMinenInstallation",
+  "results": [
+    {
+      "viewport": [
+        1000,
+        800
+      ],
+      "part": "gun-left",
+      "tube": 0,
+      "changedPixels": 811,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        1000,
+        800
+      ],
+      "part": "gun-left",
+      "tube": 1,
+      "changedPixels": 3492,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        1000,
+        800
+      ],
+      "part": "gun-left",
+      "tube": 2,
+      "changedPixels": 820,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        1000,
+        800
+      ],
+      "part": "main-gun",
+      "tube": 0,
+      "changedPixels": 811,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        1000,
+        800
+      ],
+      "part": "main-gun",
+      "tube": 1,
+      "changedPixels": 3492,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        1000,
+        800
+      ],
+      "part": "main-gun",
+      "tube": 2,
+      "changedPixels": 820,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        1000,
+        800
+      ],
+      "part": "gun-right",
+      "tube": 0,
+      "changedPixels": 811,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        1000,
+        800
+      ],
+      "part": "gun-right",
+      "tube": 1,
+      "changedPixels": 3492,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        1000,
+        800
+      ],
+      "part": "gun-right",
+      "tube": 2,
+      "changedPixels": 820,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "part": "gun-left",
+      "tube": 0,
+      "changedPixels": 811,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "part": "gun-left",
+      "tube": 1,
+      "changedPixels": 3491,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "part": "gun-left",
+      "tube": 2,
+      "changedPixels": 820,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "part": "main-gun",
+      "tube": 0,
+      "changedPixels": 811,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "part": "main-gun",
+      "tube": 1,
+      "changedPixels": 3491,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "part": "main-gun",
+      "tube": 2,
+      "changedPixels": 820,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "part": "gun-right",
+      "tube": 0,
+      "changedPixels": 811,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "part": "gun-right",
+      "tube": 1,
+      "changedPixels": 3491,
+      "stationaryPixelChanges": 0
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "part": "gun-right",
+      "tube": 2,
+      "changedPixels": 820,
+      "stationaryPixelChanges": 0
+    }
+  ],
+  "limitations": [
+    "Native Canvas, not browser gameplay or physical-device performance"
+  ]
+}

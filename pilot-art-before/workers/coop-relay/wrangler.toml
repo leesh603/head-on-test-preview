@@ -1,0 +1,12 @@
+name = "headon-coop-relay"
+main = "worker.mjs"
+compatibility_date = "2026-10-01"
+
+[durable_objects]
+bindings = [
+  { name = "COOP_HUB", class_name = "CoopHub" }
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["CoopHub"]
