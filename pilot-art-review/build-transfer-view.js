@@ -1,4 +1,4 @@
-import {fx} from './fx-art.js?v=gal1';
+import {fx} from './fx-art.js?v=gal2';
 import {planeSprite} from './aircraft.js?v=outline2&art=pilot-recovery2';
 import {drawGameIcon} from './icons.js?v=buildfit1&afc=1';
 

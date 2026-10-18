@@ -1,5 +1,5 @@
 import {pilotAircraftChoices,SORTIE_FITS} from './pilot-aircraft.js?v=pilotair1';
-import {resolveAircraftPersonalityId} from './aircraft-personality164.js?v=gal1';
+import {resolveAircraftPersonalityId} from './aircraft-personality164.js?v=gal2';
 
 export const ACE_SORTIE_BALANCE=Object.freeze({maxAces:3,recovery:8,ruralOpening:40,ruralReinforce:65});
 // These are actual model identities, independent of personal paint or sprite ID.

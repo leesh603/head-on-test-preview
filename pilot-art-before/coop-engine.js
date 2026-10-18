@@ -3,18 +3,18 @@ import {regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from '.
 import {bomberRoundImpact,bomberContactPadding,detonateFriendlyBomb} from './bomber-transfer.js?v=buildfit1&afc=1';
 import {awardPriorityKill,achievementEnemyDefeated,installAchievementTracking} from './achievements.js?v=medals2';
 import {steerDoverBoundary,containDoverPlayer} from './dover-map-boundary.js?v=dover3';
-import {advanceExplosionFx} from './explosion-profiles.js?v=gal1';
+import {advanceExplosionFx} from './explosion-profiles.js?v=gal2';
 import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=buildfit1';
-import {nungesserAimOffset,nungesserRoundReaction} from './pilot-signature-state.js?v=gal1';
-import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=gal1';
+import {nungesserAimOffset,nungesserRoundReaction} from './pilot-signature-state.js?v=gal2';
+import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=gal2';
 import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=fiveace1';
 import {Game,bishopFlightHeight,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=merge20261017&ai=1018';
 import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=regionalair2&ai=1018';
-import {registerAircraftTiers} from './aircraft-tiers.js?v=gal1';
-import {attachAircraftPersonality} from './aircraft-personality164.js?v=gal1';
-import {weaponModWingActive,wingmanEngagementStep,wingmanAttackTarget} from './engagement-flow174.js?v=gal1&afc=1';
-import {installCloudCover} from './cloud-cover1.js?v=gal1';
-import {tickCityDefense} from './city-defense.js?v=gal1';
+import {registerAircraftTiers} from './aircraft-tiers.js?v=gal2';
+import {attachAircraftPersonality} from './aircraft-personality164.js?v=gal2';
+import {weaponModWingActive,wingmanEngagementStep,wingmanAttackTarget} from './engagement-flow174.js?v=gal2&afc=1';
+import {installCloudCover} from './cloud-cover1.js?v=gal2';
+import {tickCityDefense} from './city-defense.js?v=gal2';
 
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.

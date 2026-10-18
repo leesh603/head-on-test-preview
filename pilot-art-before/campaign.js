@@ -1,7 +1,7 @@
-import {registerAircraftTiers} from './aircraft-tiers.js?v=gal1';
+import {registerAircraftTiers} from './aircraft-tiers.js?v=gal2';
 import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=merge20261017&ai=1018';
-import {CAMPAIGN_DATA} from './campaign-data.js?v=gal1';
-import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=gal1';
+import {CAMPAIGN_DATA} from './campaign-data.js?v=gal2';
+import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=gal2';
 
 export const STAGES=[...CAMPAIGN_DATA.stages].sort((a,b)=>a.faction.localeCompare(b.faction)||a.historicalAnchorDate.localeCompare(b.historicalAnchorDate)||a.id.localeCompare(b.id));
 export const stageFaction=s=>s.faction==='allies'?'entente':'central';

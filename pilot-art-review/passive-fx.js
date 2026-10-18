@@ -1,6 +1,6 @@
 import {isAlbatrosHunter} from './albatros-hunter-fx.js';
-import {fx as pilotTexture} from './fx-art.js?v=gal1';
-import {createPilotReadability} from './pilot-readability-fx.js?v=gal1';
+import {fx as pilotTexture} from './fx-art.js?v=gal2';
+import {createPilotReadability} from './pilot-readability-fx.js?v=gal2';
 const pilotReadability=createPilotReadability(pilotTexture);
 // Passive-state FX (sample: Richthofen "사냥 본능" / Hunting Instinct).
 // In-world effects rather than HUD marks. Purely visual: reads the engine's existing

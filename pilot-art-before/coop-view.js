@@ -1,17 +1,17 @@
-import {drawGroundEnemy} from './ground-enemy-art.js?v=gal1';
-import {impactMark} from './tactical-marks.js?v=gal1';
+import {drawGroundEnemy} from './ground-enemy-art.js?v=gal2';
+import {impactMark} from './tactical-marks.js?v=gal2';
 import {getLocale} from './i18n.js?v=buildfit1&afc=1';
 import {unitNameEN} from './event-text-en.js?v=buildfit1&afc=1';
 import {drawRegionalBug} from './regional-boss-view352.js?v=outline1&ai=1018';
 import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=regionalair2';
-import {drawGasCloud196} from './gas-cloud196.js?v=gal1';
+import {drawGasCloud196} from './gas-cloud196.js?v=gal2';
 import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=buildfit1&afc=1';
 import {FXS,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=pilotfx20261018';
-import {fx,fxReady,fxTint} from './fx-art.js?v=gal1';
-import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=gal1';
+import {fx,fxReady,fxTint} from './fx-art.js?v=gal2';
+import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=gal2';
 import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=pilotfx20261018&ai=1018';
 import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=buildfit1';
-import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=gal1';
+import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=gal2';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=buildfit1&afc=1&ai=1018';
 import {drawStageBoss} from './stageboss-view.js?v=outline2&ai=1018';
 import {bombSprite} from './bomb-sprites.js?v=bomb20';
@@ -20,16 +20,16 @@ const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefin
 const NO_SKILL_RING=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker','wolff','immelmann']);
 const DUO_PILOTS=new Set(['huffzky','mckeever']);
 import {planeSprite,aircraftKey} from './aircraft.js?v=outline2';
-import {drawEquipment} from './equipment.js?v=gal1';
+import {drawEquipment} from './equipment.js?v=gal2';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=pilotfx20261018';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=gal1';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=gal2';
 import {drawSpecialAmmoIcon} from './icons.js?v=buildfit1&afc=1';
 import {TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=merge20261017&ai=1018';
-import {drawCombatFeedback,combatCameraOffset,combatVisualPose} from './combat-feedback.js?v=gal1';
+import {drawCombatFeedback,combatCameraOffset,combatVisualPose} from './combat-feedback.js?v=gal2';
 
 
 // Every combat layer uses the same world transform; rendering never edits the session.
-const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=gal1&b=326';
+const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=gal2&b=326';
 export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fieldArtImg,groundLayer}){
  const t=g.t,z=g.camera.zoom;c.save();c.scale(z,z);terrain(g.x,g.y,W/z,H/z);c.restore();drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});c.save();const kick=combatCameraOffset(g);c.translate(W/2+kick.x,H/2+kick.y);c.scale(z,z);c.translate(-g.x,-g.y);
  groundLayer?.();drawBattlefieldFire(c,g);
