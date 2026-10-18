@@ -1,0 +1,179 @@
+import {FXS,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=pilotfx20261018';
+// Muted tracer families: no black borders, outlined gems, or neon rings.
+// (FX layer exception: hostile bolts get a crimson body + white-hot tip for dodge readability.)
+// Rendering never changes projectile movement, damage or collision.
+import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=tame3';
+export function projectileStyle(b){return b.hostileRocket?'rocket':b.flak?'flak':b.visualType||(b.naval?'naval':b.fieldShell?'balloon':b.heavy?'heavyBomber':'scout')}
+const TRACERS={scout:['#e7a06b',10,2],hunter:['#efb77f',14,2],bomber:['#dfbc7b',11,3],heavyBomber:['#e4ae72',15,3],boss:['#e58f7c',16,3],zeppelin:['#d8bb8b',12,3],railgun:['#efaa89',23,3],naval:['#dfaa82',16,3],balloon:['#dbbf8b',8,3],flak:['#dfac80',6,3],rocket:['#edac77',15,3]};
+// gunUpgradeBonus is the cumulative machine-gun attack bonus, not temporary
+// skill damage. Interpolation avoids sudden color jumps at upgrade thresholds.
+// FX layer: rounds heat up with the gun upgrades — dull orange → amber → yellow → pale → white-hot.
+const GUN_COLORS=FXS?[[0,[226,120,50]],[.3,[236,146,58]],[.6,[244,176,76]],[1,[248,206,116]],[1.6,[250,230,178]],[2.5,[255,249,236]]]
+ :[[0,[248,223,135]],[.3,[245,204,145]],[.6,[238,177,132]],[1,[222,147,119]],[1.6,[199,117,123]],[2.5,[173,111,131]]];
+export function friendlyTracerColor(b,gunUpgradeBonus=0){
+ if(b.mauserRound)return '#a98cff';
+ if(b.specialColor)return b.specialColor;
+ if(b.ally||b.formation)return '#d4c8a3';
+ if(b.pierce)return '#f8f5cd';
+ const value=Math.max(0,Math.min(2.5,Number(gunUpgradeBonus)||0));
+ let i=1;while(i<GUN_COLORS.length-1&&value>GUN_COLORS[i][0])i++;
+ const [lo,a]=GUN_COLORS[i-1],[hi,z]=GUN_COLORS[i],t=(value-lo)/(hi-lo);
+ return '#'+a.map((v,j)=>Math.round(v+(z[j]-v)*t).toString(16).padStart(2,'0')).join('');
+}
+const cannonAtlas=typeof Image==='undefined'?null:new Image();
+if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.webp?v=r5';
+const ENEMY_BOLTS={scout:[17,4],hunter:[19,4],bomber:[16,4.5],heavyBomber:[21,5.5],boss:[20,4.5],zeppelin:[17,4.5],naval:[21,5],balloon:[12,5],flak:[11,5]};
+const boltCache=new Map();
+const tracerCache=new Map();
+// Code-drawn tracer round used wherever a projectile needs a tail: tinted glow
+// bed, colour-fading body, white-hot head. Cached per colour/size.
+export function tracerBolt(color,len=20,wid=5){
+ const key=color+'/'+len+'x'+wid;if(tracerCache.has(key))return tracerCache.get(key);
+ if(typeof document==='undefined')return null;
+ const pad=4,S=2,cv=document.createElement('canvas');cv.width=(len+pad*2)*S;cv.height=(wid+pad*2)*S;cv.pad=pad;const g=cv.getContext('2d');g.scale(S,S);
+ const cy=pad+wid/2,cap=(x0,x1,h,fill)=>{g.beginPath();g.moveTo(x0+h/2,cy-h/2);g.lineTo(x1-h/2,cy-h/2);g.arc(x1-h/2,cy,h/2,-Math.PI/2,Math.PI/2);g.lineTo(x0+h/2,cy+h/2);g.arc(x0+h/2,cy,h/2,Math.PI/2,Math.PI*1.5);g.closePath();g.fillStyle=fill;g.fill()};
+ const n=parseInt(color.slice(1,7),16)||0,r=n>>16&255,gc=n>>8&255,b=n&255,rgba=a=>`rgba(${r},${gc},${b},${a})`;
+ g.filter='blur(1.8px)';cap(pad,pad+len+1,wid+2,rgba(.26));g.filter='none';
+ const body=g.createLinearGradient(pad,0,pad+len,0);body.addColorStop(0,rgba(0));body.addColorStop(.4,rgba(.8));body.addColorStop(1,rgba(1));cap(pad,pad+len,wid,body);
+ const core=g.createLinearGradient(pad+len*.35,0,pad+len,0);core.addColorStop(0,'rgba(255,246,224,0)');core.addColorStop(.65,'rgba(255,246,224,.85)');core.addColorStop(1,'#ffffff');cap(pad+len*.35,pad+len-.4,Math.max(1.4,wid*.45),core);
+ tracerCache.set(key,cv);return cv;
+}
+export function drawTracerBolt(c,x,y,angle,color,len=20,wid=5,alpha=1){
+ const spr=tracerBolt(color,len,wid);c.save();c.translate(x,y);c.rotate(angle);
+ if(spr){c.globalAlpha=alpha;c.drawImage(spr,2-len-spr.pad,-spr.height/4,spr.width/2,spr.height/2);}
+ else{c.globalAlpha=.5*alpha;c.strokeStyle=color;c.lineWidth=Math.max(1.4,wid*.4);c.beginPath();c.moveTo(-len,0);c.lineTo(0,0);c.stroke();c.globalAlpha=alpha;c.strokeStyle='#fff6e0';c.lineWidth=Math.max(1,wid*.22);c.beginPath();c.moveTo(-len*.35,0);c.lineTo(0,0);c.stroke();}
+ c.restore();
+}
+// One ordinary MG view for solo and co-op. Special ammunition changes colour
+// and a little weight, never the old 6–12px luminous capsule thickness.
+export function drawFriendlyGunTracer(c,b,x,y,gunUpgradeBonus=0){
+ if(!b||b.enemy||![x,y,b.vx,b.vy].every(Number.isFinite))return false;
+ const color=b.mauserRound?'#a98cff':b.eagle?'#9fdcff':b.specialColor||(b.formation||b.ally?'#b9f2de':friendlyTracerColor(b,gunUpgradeBonus));
+ const weight=b.specialAmmo?3:b.formation||b.ally?2.5:b.pierce?2.6:2;
+ if(FXS&&fxsTracer(c,x,y,b.vx,b.vy,color,weight))return true;
+ drawTracerBolt(c,x,y,Math.atan2(b.vy,b.vx),color,14+weight*2,1.8+weight*.4,.88);return true;
+}
+// These are still machine-gun rounds: short painted needles with a restrained
+// warm tail, rather than the old 48–50px white capsules joining into a beam.
+const PILOT_GUN_TRACERS=Object.freeze({
+ fonck:Object.freeze({length:22,width:3.3,color:'#c8ac79',core:'#f0e3c5',glow:.18}),
+ vertical:Object.freeze({length:19,width:3,color:'#bfa77a',core:'#e9d8b4',glow:.14}),
+ horizontal:Object.freeze({length:19,width:3,color:'#b18d66',core:'#e4c9a3',glow:.14})
+});
+export function pilotGunTracerStyle(b){
+ if(!b||b.enemy||b.rocket||b.motorCannon||b.cow37||b.actualExplosion||b.blast||!(b.life>0))return null;
+ return b.mannockPass?PILOT_GUN_TRACERS[b.mannockPass]||null:(b.fonckVolley||b.fonckSeeker)?PILOT_GUN_TRACERS.fonck:null;
+}
+export function drawPilotGunTracer(c,b,x,y,paint=fxTint,ready=fxReady){
+ const s=pilotGunTracerStyle(b);if(!s||![x,y,b.vx,b.vy].every(Number.isFinite))return false;
+ const a=Math.atan2(b.vy,b.vx),cx=x-Math.cos(a)*s.length*.5,cy=y-Math.sin(a)*s.length*.5;
+ if(ready('tracerCore')){
+  if(ready('tracerGlow'))paint(c,'tracerGlow',s.color,cx,cy,s.length*1.08,s.width*1.7,a,s.glow);
+  paint(c,'tracerCore',s.core,cx,cy,s.length,s.width,a,.95);
+ }else drawTracerBolt(c,x,y,a,s.color,s.length,s.width,.78);
+ return true;
+}
+function enemyBolt(len,wid){
+ const key=len+'x'+wid;if(boltCache.has(key))return boltCache.get(key);
+ if(typeof document==='undefined')return null;
+ const pad=5,S=2,cv=document.createElement('canvas');cv.width=(len+pad*2)*S;cv.height=(wid+pad*2)*S;cv.pad=pad;const g=cv.getContext('2d');g.scale(S,S);
+ const cy=pad+wid/2,cap=(x0,x1,h,fill)=>{g.beginPath();g.moveTo(x0+h/2,cy-h/2);g.lineTo(x1-h/2,cy-h/2);g.arc(x1-h/2,cy,h/2,-Math.PI/2,Math.PI/2);g.lineTo(x0+h/2,cy+h/2);g.arc(x0+h/2,cy,h/2,Math.PI/2,Math.PI*1.5);g.closePath();g.fillStyle=fill;g.fill()};
+ // faint warm bed (no hard outline) so the bolt still lifts off bright fields, sea and cloud
+ g.filter='blur(2.2px)';cap(pad,pad+len+1.5,wid+2.5,'rgba(120,20,14,.26)');g.filter='none';
+ const body=g.createLinearGradient(pad,0,pad+len,0);body.addColorStop(0,'rgba(222,48,46,0)');body.addColorStop(.35,'rgba(236,58,50,.8)');body.addColorStop(1,'#ff5a44');
+ cap(pad,pad+len,wid,body);
+ const core=g.createLinearGradient(pad+len*.35,0,pad+len,0);core.addColorStop(0,'rgba(255,214,190,0)');core.addColorStop(.6,'rgba(255,236,220,.9)');core.addColorStop(1,'#ffffff');
+ cap(pad+len*.35,pad+len-.4,Math.max(1.5,wid*.5),core);
+ boltCache.set(key,cv);return cv;
+}
+export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
+ if(!b.enemy||b.life<=0)return;const kind=projectileStyle(b),[color,length,width]=TRACERS[kind]||TRACERS.scout;
+ c.save();c.translate(Math.round(x),Math.round(y));c.rotate(Math.atan2(b.vy,b.vx));
+ // FX layer: hostile fire must read instantly on every terrain and never be confused
+ // with the player's orange→white rounds — crimson bolt, warm-white core, soft dark bed.
+ if(FXS&&kind!=='railgun'&&kind!=='rocket'){
+  const [len,wid]=ENEMY_BOLTS[kind]||ENEMY_BOLTS.scout,k=kind==='boss'?Math.max(1,1/Math.max(.35,screenScale)):1,spr=enemyBolt(len,wid);
+  if(spr){c.scale(k,k);c.drawImage(spr,2-len-spr.pad,-spr.height/4,spr.width/2,spr.height/2);c.restore();return}
+ }
+ if(kind==='boss'){
+  const k=Math.max(1,1/Math.max(.35,screenScale));
+  c.scale(k,k);
+  c.globalAlpha=.35;c.fillStyle='#ff947d';c.fillRect(-22,-2,8,4);
+  c.globalAlpha=1;c.fillStyle='#ff947d';c.fillRect(-14,-2,16,4);
+  c.fillStyle='#fff4d2';c.fillRect(-3,-1,5,2);c.restore();return;
+ }
+ if(kind==='railgun'&&fxReady('shell')){fx(c,'shell',-8,0,30,9);c.restore();return}
+ if(kind==='rocket'&&fxReady('rocket')){fx(c,'rocket',-4,0,34,10);c.restore();return}
+
+ const head=kind==='rocket'?-15:2;
+ // Two short, fading rectangular tail segments echo the aircraft pixel grid.
+ c.globalAlpha=.2;c.fillStyle=color;c.fillRect(head-length-7,-width/2,7,width);
+ c.globalAlpha=.5;c.fillRect(head-length,-width/2,length*.55,width);
+ c.globalAlpha=1;c.fillRect(head-length*.45,-width/2,length*.45,width);
+ c.fillStyle='#fff0cc';c.fillRect(head-3,-.5,3,1);
+ if(kind==='heavyBomber'||kind==='naval'){c.globalAlpha=.65;c.fillStyle=color;c.fillRect(head-5,-2,3,4)}
+ c.restore();
+}
+
+export function drawCannonProjectile(c,b,x,y){
+ if(b.life<=0)return;const cow=!!b.cow37;
+ c.save();c.translate(Math.round(x),Math.round(y));c.rotate(Math.atan2(b.vy,b.vx));
+ // Approved flight sprites retain a body-centered anchor; no rocket flame.
+ const flightKey=cow?'cannonCow':'cannonMotor',oldKey=cow?'shellHeavy':'shellAuto';
+ if(FX3&&(fxReady(flightKey)||fxReady(oldKey))){
+  fx(c,fxReady(flightKey)?flightKey:oldKey,0,0,cow?24:31,cow?8:7);
+  c.restore();return;
+ }
+ // Original cannon atlas remains the rollback and loading fallback.
+ if(cannonAtlas&&cannonAtlas.complete&&cannonAtlas.naturalWidth){
+  const sw=cannonAtlas.naturalWidth/2,sh=cannonAtlas.naturalHeight,dw=cow?24:20,dh=cow?56:49;
+  c.imageSmoothingEnabled=false;c.rotate(Math.PI/2);
+  c.drawImage(cannonAtlas,cow?0:sw,0,sw,sh,-dw/2,-dh*.42,dw,dh);
+ }else{
+  const len=cow?16:13,w=cow?6:5;
+  c.globalAlpha=.28;c.fillStyle='#cbc8b8';c.fillRect(-len-15,-1,13,2);
+  c.globalAlpha=1;c.fillStyle=cow?'#c5ad74':'#b8bdb5';c.fillRect(-len,-w/2,len,w);
+  c.fillStyle='#f3e4bc';c.fillRect(-3,-1,4,2);
+ }
+ c.restore();
+}
+// Deterministic, bounded pixel embers; no per-frame sprite allocation or gradients.
+const _ptShare=[0,0];
+export function drawBattlefieldFire(c,g,point=(x,y)=>{_ptShare[0]=x;_ptShare[1]=y;return _ptShare}){
+ if(FX3&&fxReady('fireWing'))for(const e of g.enemies||[]){
+  if(!(e.hp>0&&e.hp<e.maxHp*.35)||e.surface||e.fieldUnit||e.stageBossBody||e.crashing)continue;
+  const a=e.a||0,[x,y]=point(e.x-Math.sin(a)*15,e.y+Math.cos(a)*15);
+  fx(c,'fireWing',x,y,26,22,a+Math.PI/2,.42);
+ }
+ for(const e of g.enemies||[])if(e.sunBlindUntil>g.t){const[x,y]=point(e.x,e.y);c.save();c.translate(x,y);c.rotate(e.a);
+  if(fxReady('sunshaft')){fx(c,'sunshaft',250,0,520,260,0,.5)}else{c.globalAlpha=.12;c.fillStyle='#e5ca7c';c.beginPath();c.moveTo(0,0);c.arc(0,0,470,-.7,.7);c.closePath();c.fill();c.globalAlpha=.35;c.fillStyle='#f1dca4';for(let i=-2;i<=2;i++){c.save();c.rotate(i*.22);c.fillRect(20,-1,160+Math.abs(i)*25,2);c.restore();}}c.restore();}
+ for(const f of g.cannonImpacts||[]){if(FX3&&fxReady('cowImpact0'))continue;const[x,y]=point(f.x,f.y);fx(c,'armorSpark',x,y,25,25,0,Math.min(1,f.life/.2));}
+ for(const f of g.fireZones||[]){const[x,y]=point(f.x,f.y),fade=Math.min(1,f.life/1.5);
+  if(FX3&&fxReady('fireGround')){
+   const d=f.radius*2,seed=f.seed||0,phase=(g.t||0)*6.5+seed*.17,pulse=.94+Math.sin(phase)*.06;
+   const angle=f.angle||0,ca=Math.cos(angle),sa=Math.sin(angle),lowDetail=(c.canvas?.width||999)<900;
+   const shards=()=>{if(f.wreck&&!lowDetail)for(let i=0;i<2;i++){const side=i?1:-1,along=(i?-.14:.08)*f.radius,across=side*(.18+(seed%5)*.015)*f.radius;
+    fx(c,'metalShard'+((seed+i)%6),x+ca*along-sa*across,y+sa*along+ca*across,42+i*7,30+i*5,angle+side*(.35+i*.42),fade*.72);}};
+   if(FXS&&fxsFireZone(c,f,x,y,g.t||0,fade,shards))continue;
+   shards();
+   fx(c,'fireGround',x,y,d,d,((seed%17)-8)*.08,fade*.9*pulse);
+   const flames=lowDetail?1:2;
+   for(let i=0;i<flames;i++){const side=i?1:-1,along=(i?-.23:.28)*f.radius,across=side*.2*f.radius,s=d*(i?.48:.56)*pulse;
+    fx(c,'fireEngine',x+ca*along-sa*across,y+sa*along+ca*across,s,s,angle+side*.45,fade*(i?.58:.72));}
+   fx(c,'fireFlash',x-ca*f.radius*.06,y-sa*f.radius*.06,d*.42,d*.42,phase*.02,fade*(.16+.08*Math.sin(phase)));
+   fx(c,'smokeOil',x+ca*f.radius*.24-sa*f.radius*.12,y+sa*f.radius*.24+ca*f.radius*.12,d*.62,d*.62,angle,fade*.18);
+   if(f.wreck&&!lowDetail)fx(c,'wreckSmoke',x-ca*f.radius*.22,y-sa*f.radius*.22,d*.7,d*.58,angle,fade*.13);
+   continue;
+  }
+  c.save();c.globalAlpha=.13*fade;c.fillStyle='#c57138';c.beginPath();c.arc(x,y,f.radius,0,Math.PI*2);c.fill();
+  if(fxReady('fire')){
+   c.globalAlpha=1;
+   const n=Math.max(3,Math.round(f.radius/26));
+   for(let i=0;i<n;i++){const a=i*2.399,r=Math.sqrt((i+.5)/n)*f.radius*.7,px=x+Math.cos(a)*r,py=y+Math.sin(a)*r,s=34+((i*37)%22);
+    const fireKey=fxReady('fireGround')?'fireGround':'fire';
+    if(FX56){fx(c,fireKey,px,py,s,s*.6,i*1.7,fade*.7);if(i%2)fx(c,'smokeDark',px,py-s*.5,s*.8,s*.6,0,fade*.24)}
+    else{fx(c,fireKey,px,py,s,s*1.2,i*1.7,fade*.8);if(i%2)fx(c,'smokeDark',px,py-s*.7,s*1.1,s,i*.9,fade*.4)}}
+  }else for(let i=0;i<38;i++){const a=i*2.399,r=Math.sqrt((i+.5)/38)*f.radius*.92,phase=(g.t*2+i*.37)%1,px=Math.round(x+Math.cos(a)*r),py=Math.round(y+Math.sin(a)*r),h=8+Math.round((1-phase)*14);c.globalAlpha=fade*(.5+.5*(1-phase));c.fillStyle='#b56534';c.fillRect(px-6,py-8,12,9);c.fillRect(px-4,py-h,8,h);c.fillRect(px+3,py-h+4,3,7);c.fillStyle='#e3a34d';c.fillRect(px-3,py-h+5,6,h-3);c.fillRect(px-5,py-5,9,5);c.fillStyle='#f5d38b';c.fillRect(px-1,py-4,3,4);c.globalAlpha=.25*fade;c.fillStyle='#686a60';c.fillRect(px-3,py-h-8-phase*14,6,6);}
+  c.restore();
+ }
+}
