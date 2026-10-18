@@ -1,9 +1,9 @@
-import {broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
+import {broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=sortierhythm20261018&rail=40';
 import {fireFanSalvo,barrageStrip} from './boss-salvo-geometry.js';
-import {driveLandship} from './somme-landship-drive.js?v=tame3';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=tame3';
-import {SCHWABEN_PARTS,MARK1_PARTS,sommeScale,sommePoint,syncSommeParts,sommeMuzzle,sponsonAim,clamp,turn,angleDelta} from './somme-boss-layout.js?v=tame3';
+import {driveLandship} from './somme-landship-drive.js?v=sortierhythm20261018';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=sortierhythm20261018';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=sortierhythm20261018';
+import {SCHWABEN_PARTS,MARK1_PARTS,sommeScale,sommePoint,syncSommeParts,sommeMuzzle,sponsonAim,clamp,turn,angleDelta} from './somme-boss-layout.js?v=sortierhythm20261018';
 
 class SommeBoss extends BaseBoss{
  constructor(o,layout,kind,tank=false){

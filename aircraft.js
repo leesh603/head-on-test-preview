@@ -1,6 +1,7 @@
-import {clearCrewMatte} from './matte70.js?v=gal1';
-import {BANK_ART} from './aircraft-bank-art.js?v=outline1';
-import {AIRCRAFT_OUTLINE_ART} from './aircraft-outline-art.js?v=outline1';
+import {SORTIE_FITS} from './pilot-aircraft.js?v=sortierhythm20261018';
+import {clearCrewMatte} from './matte70.js?v=sortierhythm20261018';
+import {BANK_ART} from './aircraft-bank-art.js?v=sortierhythm20261018';
+import {AIRCRAFT_OUTLINE_ART} from './aircraft-outline-art.js?v=sortierhythm20261018';
 // Exact stock-bank paint cells; these stay outside the evictable NPC art cache.
 const BOMBER_TRANSFER_ART=Object.freeze({
  'transfer-caudron-r11':{path:'asset-bank/outlined/native/asset-bank/flight/bank_plane_caudron_r11.webp',x:0,y:0,w:288,h:320},
@@ -102,7 +103,7 @@ const decodePainted=key=>new Promise(resolve=>{
  };let tries=0;const sourceKey=key==='nieuport_italian'?'nieuport':key;const mechDir=new URLSearchParams(location.search).get('mech')==='0'?'':'mech/';
  const stock=key.startsWith('bank_')||!!BOMBER_TRANSFER_ART[key],stockArt=BANK_ART[key]||BOMBER_TRANSFER_ART[key];if(stock&&!stockArt){finish(false);return;}
  const artRevision=key==='barker_snipe'&&mechDir?'barker-alpha-20261015':'347';
- const bakedArt=!stock&&AIRCRAFT_OUTLINE_ART[mechDir+key];
+ const bakedArt=!stock&&(SORTIE_FITS[key]?`sortie-aircraft/flight/${key}.webp`:AIRCRAFT_OUTLINE_ART[mechDir+key]);
  const base=new URL(bakedArt?`./${bakedArt}?v=outline1-bomber17`:stock?`./${stockArt.path}?v=outline1-bomber17`:`./${mechDir}${sourceKey}.webp?v=gal1&b=${artRevision}`,import.meta.url).href;
  // A failed fetch must never cache the plane as permanently invisible: retry with
  // a cache-busting tag so stale error responses and flaky mobile radio recover.

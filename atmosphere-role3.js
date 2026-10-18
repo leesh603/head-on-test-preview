@@ -1,7 +1,8 @@
-import {roleReady,roleDraw} from './fx-role3.js?v=tame3';
+import {roleReady,roleDraw} from './fx-role3.js?v=sortierhythm20261018';
 const clamp=n=>Math.max(0,Math.min(1,n));
 // Rendering only: weather movement, exposure and collision remain in the engine.
 export function drawGust3(c,g,x,y,time=0){
+ if(g.sandVortex)return true; // Its visible core is drawn by drawMaanWeather.
  const key=g.wreck?'wreckGust':'gustFront';if(!roleReady(key))return false;
  const duration=g.maxLife||6,age=Math.max(0,duration-g.life),fade=clamp(Math.min(age/.65,g.life/.9))*.66;
  const direction=(g.vx||g.vy)?Math.atan2(g.vy||0,g.vx||0):(g.a||0);

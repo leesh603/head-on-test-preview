@@ -1,9 +1,9 @@
-import {bombFallPose} from './bomb-sprites.js?v=bomb20';
+import {bombFallPose} from './bomb-sprites.js?v=sortierhythm20261018';
 // HEAD-ON FX layer (painted atlas). ON by default on this branch; ?fxs=0 rolls
 // back to the previous FX (?fx=0 still disables all sprite FX). Swaps the listed FX keys for the sample atlas in
 // fx-sample/, adds tracer / rocket-trail / bomb-fall drawing hooks, and
 // otherwise leaves every renderer untouched. Remove this file and the few
-// `FXS` lines in fx-art.js / app.js?v=tame3 to drop the preview.
+// `FXS` lines in fx-art.js / app.js?v=sortierhythm20261018 to drop the preview.
 const params = typeof location === 'undefined' ? null : new URLSearchParams(location.search);
 export const FXS = params?.get('fxs') !== '0' && params?.get('fx') !== '0';
 
@@ -80,7 +80,10 @@ export function fxsTint(c, key, color, x, y, w, h = w, angle = 0, alpha = 1) {
   const cv = fxsTintedCanvas(key, color); if (!cv) return false;
   c.save(); c.translate(x, y); if (angle) c.rotate(angle); c.globalAlpha *= alpha;
   if (contain.has(resolve(key))) { const f = Math.min(w / cv.width, h / cv.height); w = cv.width * f; h = cv.height * f; }
-  c.drawImage(cv, -w / 2, -h / 2, w, h); c.restore(); return true;
+  // This 96x24 cell stores the painted needle inside x=10..92,y=8..16.
+  // Crop its transparent padding so a thin 2–3px round still has a visible core.
+  if(resolve(key)==='tracerCore')c.drawImage(cv,10,8,82,8,-w/2,-h/2,w,h);
+  else c.drawImage(cv, -w / 2, -h / 2, w, h); c.restore(); return true;
 }
 
 // ---- hooks used by the preview edits -------------------------------------
@@ -88,9 +91,10 @@ export function fxsTint(c, key, color, x, y, w, h = w, angle = 0, alpha = 1) {
 // Machine-gun round: tinted glow + white-hot core, head at the bullet position.
 export function fxsTracer(c, x, y, vx, vy, color, weight = 2) {
   if (!fxsHas('tracerCore')) return false;
-  const a = Math.atan2(vy, vx), len = 14 + weight * 5, th = 4.5 + weight * 1.5;
-  const cx = x - Math.cos(a) * len * 0.42, cy = y - Math.sin(a) * len * 0.42;
-  fxsTint(c, 'tracerGlow', color, cx, cy, len * 1.1, th * 1.8, a, 0.45);
+  const strength = Math.max(1, Math.min(4, weight));
+  const a = Math.atan2(vy, vx), len = 14 + strength * 2, th = 1.8 + strength * .4;
+  const cx = x - Math.cos(a) * len * 0.5, cy = y - Math.sin(a) * len * 0.5;
+  fxsTint(c, 'tracerGlow', color, cx, cy, len * 1.08, th * 1.6, a, 0.18);
   // core follows the heat colour too (lighter), so the upgrade ramp reads on the round itself
   fxsTint(c, 'tracerCore', lighten(color, 0.45), cx, cy, len, th, a, 1);
   return true;

@@ -1,3 +1,5 @@
+import {ACE_SORTIE_BALANCE} from './ace-sortie-rhythm.js?v=sortierhythm20261018';
+
 export const RIVAL_ACE_PHASES=Object.freeze({
  FIRST_ENCOUNTER:'FIRST_ENCOUNTER',ESCAPED:'ESCAPED',RETURNED:'RETURNED',FINAL_DUEL:'FINAL_DUEL',DEFEATED:'DEFEATED'
 });
@@ -48,8 +50,12 @@ function beginFinal(game,state,e){
 }
 
 function spawnReturn(game,state){
+ const now=game.t||0,endedAt=Math.max(game.aceSortie?.endedAt??-Infinity,game._aceCombatEndedAt??-Infinity);
+ if(now-endedAt<ACE_SORTIE_BALANCE.recovery||now<(game.battleRecoveryUntil||0)||game.eliteEnemies?.active||game.stageCombatWindow?.approaching||game.battlefieldEvents?.current?.status==='active'){
+  state.returnAt=now+RIVAL_ACE_BALANCE.returnRetry;return null;
+ }
  if((game.enemies||[]).some(e=>e.hp>0&&!e.expired&&e.bossPilot)){state.returnAt=(game.t||0)+RIVAL_ACE_BALANCE.returnRetry;return null}
- game._rivalReturnPilot=state.pilot;let e;try{e=game.spawnEnemy?.('boss')}finally{game._rivalReturnPilot=null}
+ game._rivalReturnPilot=state.pilot;game._rivalReturnAircraft=state.aircraft;let e;try{e=game.spawnEnemy?.('boss')}finally{game._rivalReturnPilot=null;game._rivalReturnAircraft=null}
  if(!e){state.returnAt=(game.t||0)+RIVAL_ACE_BALANCE.returnRetry;return null}return e;
 }
 
@@ -79,7 +85,7 @@ export function installRivalAce(Game,{PILOTS,PLANES,attachAircraftPersonality,an
   if(forced){
    const state=this.rivalAce;if(!state||state.pilot!==forced)return e;Object.assign(e,{rivalAce:true,rivalPhase:P.RETURNED});state.phase=P.RETURNED;state.active=e;state.encounters=(state.encounters||1)+1;tuneReturned(e);addReturnSupport(this,e,attachAircraftPersonality,PLANES);notice(this,state,P.RETURNED);return e;
   }
-  if(!this.rivalAce){const state=this.rivalAce={pilot:e.bossPilot,name:PILOTS[e.bossPilot]?.name||e.name,phase:P.FIRST_ENCOUNTER,active:e,encounters:1,noticeId:0};Object.assign(e,{rivalAce:true,rivalPhase:P.FIRST_ENCOUNTER});notice(this,state,P.FIRST_ENCOUNTER)}
+  if(!this.rivalAce){const state=this.rivalAce={pilot:e.bossPilot,aircraft:e.bossPlane,name:PILOTS[e.bossPilot]?.name||e.name,phase:P.FIRST_ENCOUNTER,active:e,encounters:1,noticeId:0};Object.assign(e,{rivalAce:true,rivalPhase:P.FIRST_ENCOUNTER});notice(this,state,P.FIRST_ENCOUNTER)}
   return e;
  };
  const steer=Game.prototype.dogfightSteering;
@@ -89,7 +95,7 @@ export function installRivalAce(Game,{PILOTS,PLANES,attachAircraftPersonality,an
  };
  const attack=Game.prototype.aceAttack;
  Game.prototype.aceAttack=function(e){const result=attack.call(this,e);if(e?.rivalAce&&e.rivalAbilityRate>1&&Number.isFinite(e.abilityTimer))e.abilityTimer/=e.rivalAbilityRate;return result};
- Game.prototype.tickRivalAce=function(dt){return tick(this,dt)};
+ Game.prototype.tickRivalAce=function(dt){this.syncAceSortie?.();return tick(this,dt)};
  const update=Game.prototype.update;
  Game.prototype.update=function(dt,input={}){const result=update.call(this,dt,input);this.tickRivalAce(dt);return result};
 }

@@ -1,7 +1,7 @@
-import {SituationPolicy} from './music-situation-policy.js?v=situations1';
-import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=tame3';
-import {RecordedBattleMusic} from './music-recordings.js?v=situations1';
-export {musicContextForGame} from './music-context.js?v=situations1';
+import {SituationPolicy} from './music-situation-policy.js?v=sortierhythm20261018';
+import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=sortierhythm20261018';
+import {RecordedBattleMusic} from './music-recordings.js?v=sortierhythm20261018';
+export {musicContextForGame} from './music-context.js?v=sortierhythm20261018';
 // Original adaptive score. Map themes share no borrowed soundtrack melodies.
 // Modes: 'idle' | map regions (rural/sea/trench/city/sky/alps/zeebrugge) |
 // 'boss' (enemy ace duel) | 'boss:<family>' for stage bosses.

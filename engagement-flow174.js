@@ -4,7 +4,71 @@ const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
 const angleDiff=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 
+export const WEAPON_WING_BALANCE=Object.freeze({strikeCycle:6,strikeAttack:2.4,coverCycle:3.6,coverAttack:2.4,launchWindow:.65,guardRange:250,guardLeash:300,scanInterval:.2});
+const commandPilots=new Set(['goering','boelcke','collishaw','brumowski']);
+export function weaponModWingActive(owner,wing){
+ return !!wing.permanent&&!Number.isFinite(wing.carrierLaunchAt)&&['strike','cover'].includes(owner.weaponMods?.FORMATION)&&!owner.upgrades?.lufberyCircle&&!wing.boelckePincer&&!wing.orbit&&!(owner.skillTime>0&&commandPilots.has(owner.pilot));
+}
+const eligibleModTarget=(owner,target,range)=>!!target&&target.hp>0&&!target.dead&&!target.crashing&&!target.rivalEscaped&&distance(target,owner)<=range;
+const validModTarget=(world,owner,target,range)=>eligibleModTarget(owner,target,range)&&(world.enemies||[]).includes(target);
+const priorityTarget=e=>e.bossPilot||e.type==='boss'?3:e.ace||e.formationCommand||e.missionTarget||e.heavyBomber?2:0;
+function modWingPlan(world,owner,mode,now){
+ let plan=owner._netWeaponWingPlan;
+ if(!plan||plan.mode!==mode){plan=owner._netWeaponWingPlan={mode,epoch:now,window:-1,scanAt:0,guardScanAt:0};}
+ const period=mode==='strike'?WEAPON_WING_BALANCE.strikeCycle:WEAPON_WING_BALANCE.coverCycle;
+ const window=Math.floor(Math.max(0,now-plan.epoch)/period),start=plan.epoch+window*period;
+ if(window!==plan.window){plan.window=window;plan.start=start;plan.target=null;plan.scanAt=0;}
+ if(plan.checkedAt===now)return plan;plan.checkedAt=now;
+ if(!plan.target&&now>=plan.scanAt||plan.target&&!validModTarget(world,owner,plan.target,520)){
+  plan.scanAt=now+WEAPON_WING_BALANCE.scanInterval;let best=-Infinity;plan.target=null;
+  const carrier=owner.bomberTransfer?.kind==='airship',focus=owner.buildWingTarget?.(owner)||owner.airshipFocusTarget?.();
+  for(const enemy of world.enemies||[]){if(!eligibleModTarget(owner,enemy,520)||!carrier&&(enemy.surface||enemy.stationary))continue;
+   const score=priorityTarget(enemy)*1000+(enemy===focus?600:0)-distance(enemy,owner);
+   if(score>best){best=score;plan.target=enemy;}
+  }
+ }
+ if(now>=plan.guardScanAt||plan.guardTarget&&!validModTarget(world,owner,plan.guardTarget,WEAPON_WING_BALANCE.guardRange)){
+  plan.guardScanAt=now+WEAPON_WING_BALANCE.scanInterval;plan.guardTarget=null;let best=WEAPON_WING_BALANCE.guardRange;
+  for(const enemy of world.enemies||[]){if(!eligibleModTarget(owner,enemy,WEAPON_WING_BALANCE.guardRange)||enemy.surface||enemy.stationary)continue;const d=distance(enemy,owner);if(d<best){best=d;plan.guardTarget=enemy;}}
+ }
+ return plan;
+}
+// Adjust dispatch and target assignment, retaining the existing movement states.
+function prepareModWing(world,owner,wing,home,now){
+ const mode=owner.weaponMods?.FORMATION;
+ if(!weaponModWingActive(owner,wing)){
+  if(wing.weaponModFormation){wing.engagementTarget=null;wing._netCarrierEngagement=null;wing._netCarrierTarget=null;wing.engagementState='HOME';}
+  wing.weaponModFormation=null;wing.weaponModGuard=false;wing._netWeaponWingGuardTarget=null;return null;
+ }
+ const plan=modWingPlan(world,owner,mode,now),elapsed=now-plan.start;
+ const guard=mode==='cover'&&(wing.slot||0)%2!==plan.window%2;
+ const attacking=!guard&&elapsed<(mode==='strike'?WEAPON_WING_BALANCE.strikeAttack:WEAPON_WING_BALANCE.coverAttack);
+ wing.weaponModFormation=mode;wing.weaponModGuard=guard;wing._netWeaponWingGuardTarget=null;
+ let state=wing.engagementState||'HOME';
+ if(guard){
+  const target=distance(wing,owner)<=WEAPON_WING_BALANCE.guardLeash?plan.guardTarget:null;
+  if(target){
+   if(state==='HOME'||state==='RETURN'&&distance(wing,home)<110){state='INTERCEPT';wing.engagementUntil=now+1.2;wing.fire=0;}
+   if(state==='INTERCEPT'||state==='PASS'){wing.engagementTarget=target;wing._netCarrierEngagement=target;wing._netWeaponWingGuardTarget=target;}
+  }else{state=distance(wing,home)<80?'HOME':'RETURN';wing.engagementTarget=null;wing._netCarrierEngagement=null;}
+ }else if(!attacking){
+  if(state==='INTERCEPT'||state==='PASS'){state='BREAK';wing.engagementUntil=now+.65;wing.engagementHeading=wing.a+((wing.slot||0)%2?-.7:.7);}
+  wing.engagementTarget=null;wing._netCarrierEngagement=null;
+ }else if(elapsed<=WEAPON_WING_BALANCE.launchWindow&&wing._netWeaponWingLaunch!==plan.start&&(state==='HOME'||state==='RETURN'&&distance(wing,home)<110)&&plan.target){
+  state='INTERCEPT';wing.engagementTarget=plan.target;wing._netCarrierEngagement=plan.target;wing.engagementUntil=plan.start+(mode==='strike'?WEAPON_WING_BALANCE.strikeAttack:WEAPON_WING_BALANCE.coverAttack);wing._netWeaponWingLaunch=plan.start;wing.fire=0;
+ }
+ wing.engagementState=state;
+ return true;
+}
+
+function modWingHome(wing,owner,home,dt){
+ const response=2.6*Math.max(.75,Math.min(1.25,wing.personality?.acceleration??1));
+ wing.x+=(home.x-wing.x)*Math.min(1,dt*response);wing.y+=(home.y-wing.y)*Math.min(1,dt*response);wing.a=owner.a;
+ return true;
+}
+
 export function wingmanEngagementStep(world,owner,wing,home,dt){
+ const mod=prepareModWing(world,owner,wing,home,world.t??owner.t??0);
  if(owner.bomberTransfer?.kind==='airship'&&wing.permanent&&!wing.boelckePincer&&!wing.orbit){
   const commanded=owner.skillTime>0&&['goering','boelcke','collishaw','brumowski'].includes(owner.pilot);
   if(owner.upgrades?.lufberyCircle||commanded){wing._netCarrierTarget=null;wing._netCarrierEngagement=null;wing.engagementTarget=null;wing.engagementState='HOME';return false}
@@ -16,7 +80,7 @@ export function wingmanEngagementStep(world,owner,wing,home,dt){
   if(state==='PASS'&&now>=wing.engagementUntil){state='BREAK';wing.engagementUntil=now+.9;wing.engagementHeading=wing.a+side*.75;target=null}
   if(state==='BREAK'&&now>=wing.engagementUntil)state='RETURN';
   if(state==='RETURN'&&distance(wing,home)<105){state='HOME';wing.engagementUntil=now+.45+slot*.12}
-  if(state==='HOME'&&now>=(wing.engagementUntil||0)){
+  if(!mod&&state==='HOME'&&now>=(wing.engagementUntil||0)){
    target=owner.airshipWingTarget();
    if(target){state='INTERCEPT';wing.engagementUntil=now+2.4}
   }
@@ -40,10 +104,10 @@ export function wingmanEngagementStep(world,owner,wing,home,dt){
   wing.engagementState=state;wing.engagementTarget=null;wing._netCarrierEngagement=target;wing._netCarrierTarget=(state==='INTERCEPT'||state==='PASS')?target:null;
   return true;
  }
- if(owner.upgrades?.lufberyCircle||owner.wingmanDamageMult>1||wing.boelckePincer||wing.orbit||['collishaw','brumowski','boelcke','goering'].includes(owner.pilot))return false;
+ if(owner.upgrades?.lufberyCircle||wing.boelckePincer||wing.orbit||!mod&&(owner.wingmanDamageMult>1||commandPilots.has(owner.pilot))||mod&&owner.skillTime>0&&commandPilots.has(owner.pilot))return false;
  const now=world.t||0,active=wing.engagementTarget;
  if(active&&(active.hp<=0||!world.enemies.includes(active)||distance(active,owner)>580||distance(active,wing)>700))wing.engagementTarget=null;
- if((wing.engagementState==='HOME'||!wing.engagementState||wing.engagementState==='RETURN'&&distance(wing,home)<110)&&!wing.engagementTarget){
+ if(!mod&&(wing.engagementState==='HOME'||!wing.engagementState||wing.engagementState==='RETURN'&&distance(wing,home)<110)&&!wing.engagementTarget){
   let best=650,chosen=null;
   for(const enemy of world.enemies||[]){if(enemy.hp<=0||enemy.crashing||enemy.surface||enemy.stationary||distance(enemy,owner)>520)continue;
    let assigned=0;if(world.allies)for(const other of world.allies)if(other!==wing&&other.engagementTarget===enemy)assigned++;
@@ -52,16 +116,17 @@ export function wingmanEngagementStep(world,owner,wing,home,dt){
   }
   if(chosen){wing.engagementTarget=chosen;wing.engagementState='INTERCEPT';wing.engagementUntil=now+1.2}
  }
- if(!wing.engagementState||wing.engagementState==='HOME')return false;
+ if(!wing.engagementState||wing.engagementState==='HOME')return mod?modWingHome(wing,owner,home,dt):false;
  const target=wing.engagementTarget;
  if(wing.engagementState==='INTERCEPT'&&!target)wing.engagementState='RETURN';
  if(wing.engagementState==='INTERCEPT'&&target){
   const bearing=Math.atan2(target.y-wing.y,target.x-wing.x),gap=distance(wing,target);
   if(gap<240&&Math.abs(angleDiff(bearing,wing.a))<.55){wing.engagementState='PASS';wing.engagementUntil=now+.75;wing.engagementHeading=bearing}
+  else if(mod&&now>=wing.engagementUntil){wing.engagementState='RETURN';wing.engagementTarget=null;}
  }
  if(wing.engagementState==='PASS'&&now>=wing.engagementUntil){wing.engagementState='BREAK';wing.engagementUntil=now+1.1;wing.engagementHeading=wing.a+((wing.slot||0)%2?-.7:.7);wing.engagementTarget=null}
  if(wing.engagementState==='BREAK'&&now>=wing.engagementUntil)wing.engagementState='RETURN';
- if(wing.engagementState==='RETURN'&&distance(wing,home)<80){wing.engagementState='HOME';wing.engagementTarget=null;return false}
+ if(wing.engagementState==='RETURN'&&distance(wing,home)<80){wing.engagementState='HOME';wing.engagementTarget=null;return mod?modWingHome(wing,owner,home,dt):false}
  if(distance(wing,owner)>500){wing.engagementState='RETURN';wing.engagementTarget=null}
  const goal=wing.engagementState==='INTERCEPT'&&target?Math.atan2(target.y-wing.y,target.x-wing.x):wing.engagementState==='RETURN'?Math.atan2(home.y-wing.y,home.x-wing.x):wing.engagementHeading??wing.a;
  const turn=clamp((wing.personality?.highSpeedHandling||1)*(wing.engagementState==='RETURN'?2.8:2.25),1.6,3.3)*dt;
@@ -71,7 +136,7 @@ export function wingmanEngagementStep(world,owner,wing,home,dt){
  return true;
 }
 
-export function wingmanAttackTarget(wing){if(wing._netCarrierTarget)return wing._netCarrierTarget;return wing.engagementState==='INTERCEPT'||wing.engagementState==='PASS'?wing.engagementTarget:null}
+export function wingmanAttackTarget(wing){if(wing.weaponModFormation&&wing.engagementState!=='INTERCEPT'&&wing.engagementState!=='PASS')return null;if(wing.weaponModGuard&&wing._netWeaponWingGuardTarget)return wing._netWeaponWingGuardTarget;if(wing._netCarrierTarget)return wing._netCarrierTarget;return wing.engagementState==='INTERCEPT'||wing.engagementState==='PASS'?wing.engagementTarget:null}
 
 export function patrolEngagementStep(p,target,home,dt){
  const S=p.combatPassState||'APPROACH',nowDt=Math.max(0,dt),range=clamp(p.personality?.preferredRange||210,145,310);

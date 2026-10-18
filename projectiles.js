@@ -1,8 +1,8 @@
-import {FXS,fxsFireZone} from './fx-sample-preview.js?v=bomb3&rail=40';
+import {FXS,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=sortierhythm20261018';
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // (FX layer exception: hostile bolts get a crimson body + white-hot tip for dodge readability.)
 // Rendering never changes projectile movement, damage or collision.
-import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=tame3';
+import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=sortierhythm20261018';
 export function projectileStyle(b){return b.hostileRocket?'rocket':b.flak?'flak':b.visualType||(b.naval?'naval':b.fieldShell?'balloon':b.heavy?'heavyBomber':'scout')}
 const TRACERS={scout:['#e7a06b',10,2],hunter:['#efb77f',14,2],bomber:['#dfbc7b',11,3],heavyBomber:['#e4ae72',15,3],boss:['#e58f7c',16,3],zeppelin:['#d8bb8b',12,3],railgun:['#efaa89',23,3],naval:['#dfaa82',16,3],balloon:['#dbbf8b',8,3],flak:['#dfac80',6,3],rocket:['#edac77',15,3]};
 // gunUpgradeBonus is the cumulative machine-gun attack bonus, not temporary
@@ -44,12 +44,21 @@ export function drawTracerBolt(c,x,y,angle,color,len=20,wid=5,alpha=1){
  else{c.globalAlpha=.5*alpha;c.strokeStyle=color;c.lineWidth=Math.max(1.4,wid*.4);c.beginPath();c.moveTo(-len,0);c.lineTo(0,0);c.stroke();c.globalAlpha=alpha;c.strokeStyle='#fff6e0';c.lineWidth=Math.max(1,wid*.22);c.beginPath();c.moveTo(-len*.35,0);c.lineTo(0,0);c.stroke();}
  c.restore();
 }
+// One ordinary MG view for solo and co-op. Special ammunition changes colour
+// and a little weight, never the old 6–12px luminous capsule thickness.
+export function drawFriendlyGunTracer(c,b,x,y,gunUpgradeBonus=0){
+ if(!b||b.enemy||![x,y,b.vx,b.vy].every(Number.isFinite))return false;
+ const color=b.mauserRound?'#a98cff':b.eagle?'#9fdcff':b.specialColor||(b.formation||b.ally?'#b9f2de':friendlyTracerColor(b,gunUpgradeBonus));
+ const weight=b.specialAmmo?3:b.formation||b.ally?2.5:b.pierce?2.6:2;
+ if(FXS&&fxsTracer(c,x,y,b.vx,b.vy,color,weight))return true;
+ drawTracerBolt(c,x,y,Math.atan2(b.vy,b.vx),color,14+weight*2,1.8+weight*.4,.88);return true;
+}
 // These are still machine-gun rounds: short painted needles with a restrained
 // warm tail, rather than the old 48–50px white capsules joining into a beam.
 const PILOT_GUN_TRACERS=Object.freeze({
- fonck:Object.freeze({length:22,width:4.2,color:'#c8ac79',core:'#f0e3c5',glow:.18}),
- vertical:Object.freeze({length:19,width:3.8,color:'#bfa77a',core:'#e9d8b4',glow:.14}),
- horizontal:Object.freeze({length:19,width:3.8,color:'#b18d66',core:'#e4c9a3',glow:.14})
+ fonck:Object.freeze({length:22,width:3.3,color:'#c8ac79',core:'#f0e3c5',glow:.18}),
+ vertical:Object.freeze({length:19,width:3,color:'#bfa77a',core:'#e9d8b4',glow:.14}),
+ horizontal:Object.freeze({length:19,width:3,color:'#b18d66',core:'#e4c9a3',glow:.14})
 });
 export function pilotGunTracerStyle(b){
  if(!b||b.enemy||b.rocket||b.motorCannon||b.cow37||b.actualExplosion||b.blast||!(b.life>0))return null;
@@ -57,7 +66,7 @@ export function pilotGunTracerStyle(b){
 }
 export function drawPilotGunTracer(c,b,x,y,paint=fxTint,ready=fxReady){
  const s=pilotGunTracerStyle(b);if(!s||![x,y,b.vx,b.vy].every(Number.isFinite))return false;
- const a=Math.atan2(b.vy,b.vx),cx=x-Math.cos(a)*s.length*.42,cy=y-Math.sin(a)*s.length*.42;
+ const a=Math.atan2(b.vy,b.vx),cx=x-Math.cos(a)*s.length*.5,cy=y-Math.sin(a)*s.length*.5;
  if(ready('tracerCore')){
   if(ready('tracerGlow'))paint(c,'tracerGlow',s.color,cx,cy,s.length*1.08,s.width*1.7,a,s.glow);
   paint(c,'tracerCore',s.core,cx,cy,s.length,s.width,a,.95);

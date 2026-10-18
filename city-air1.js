@@ -1,7 +1,7 @@
-import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=tame3';
-import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
-import {spawnCityDefense,tickCityDefense} from './city-defense.js?v=tame3';
-import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=bomb3&rail=40';
+import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=sortierhythm20261018';
+import {impactMark,aimLine} from './tactical-marks.js?v=sortierhythm20261018';
+import {spawnCityDefense,tickCityDefense} from './city-defense.js?v=sortierhythm20261018';
+import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=sortierhythm20261018';
 // Region 4 searchlight network + ground fire net; region 5 wind streams.
 // Buildings stay scenery: no collision structures. Guns fire only while player is ILLUMINATED.
 export const CITY_BALANCE=Object.freeze({
@@ -98,3 +98,4 @@ const _cityImgs={};
 function cityImg(k){let i=_cityImgs[k];if(!i){i=new Image();i.decoding='async';i.src=`./${k}.webp?v=r5&b=345`;_cityImgs[k]=i}return i}
 
 export function prepareCityAirAssets(){return Promise.all([prepareGroundEnemyArt(),Promise.all(['fx-city-searchlight-pit2','fx-city-aagun'].map(k=>new Promise(resolve=>{const im=cityImg(k);if(im.complete){resolve();return}im.addEventListener('load',()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())},{once:true});im.addEventListener('error',resolve,{once:true})}))) ]);}
+

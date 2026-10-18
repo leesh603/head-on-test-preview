@@ -233,7 +233,8 @@ export class EliteEnemySystem {
       m.hitFlash = Math.max(0, m.hitFlash - dt);
       const aim = Math.atan2(player.y - m.y, player.x - m.x);
       const turn = squadron.phase === 'aim' ? 1.45 : 1.9;
-      m.a += clamp(angleDiff(aim, m.a), -turn * dt, turn * dt);
+      const steering=this.host.steerAircraft?.(m,player,turn,{delta:angleDiff(aim,m.a),turn})||{delta:angleDiff(aim,m.a),turn};
+      m.a += clamp(steering.delta, -steering.turn * dt, steering.turn * dt);
       const formationSide = m.a + Math.PI / 2;
       const targetX = player.x - Math.cos(m.a) * 250 + Math.cos(formationSide) * m.slot * 66;
       const targetY = player.y - Math.sin(m.a) * 250 + Math.sin(formationSide) * m.slot * 66;
@@ -267,7 +268,8 @@ export class EliteEnemySystem {
     for (const m of living) {
       m.hitFlash = Math.max(0, m.hitFlash - dt);
       const aim = Math.atan2(player.y - m.y, player.x - m.x);
-      m.a += clamp(angleDiff(aim, m.a), -turn * dt, turn * dt);
+      const steering=this.host.steerAircraft?.(m,player,turn,{delta:angleDiff(aim,m.a),turn})||{delta:angleDiff(aim,m.a),turn};
+      m.a += clamp(steering.delta, -steering.turn * dt, steering.turn * dt);
       const sideA = m.a + Math.PI / 2;
       const forwardOffset = m.slot === 0 ? 0 : -34;
       const targetX = player.x - Math.cos(m.a) * (285 - forwardOffset) + Math.cos(sideA) * m.slot * 76;
@@ -396,3 +398,4 @@ export class EliteEnemySystem {
 }
 
 export {ELITE_ENEMY_TYPE, ELITE_KINDS};
+

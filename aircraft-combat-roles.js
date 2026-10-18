@@ -66,6 +66,7 @@ const assigned=Object.freeze({
 export function aircraftCombatRole(plane,planes){
  if(SORTIE_COMBAT_STYLES[plane])return SORTIE_COMBAT_STYLES[plane];
  const fit=planes?.[plane];if(!fit)return null;
+ if(SORTIE_COMBAT_STYLES[fit.sortieStyle])return SORTIE_COMBAT_STYLES[fit.sortieStyle];
  const key=assigned[plane];if(key)return R[key];
  const archetype=fit.personality?.archetype;
  if(['TURN_FIGHTER','LOW_SPEED_AGILITY'].includes(archetype))return R.TURN;
@@ -87,7 +88,7 @@ export function installAircraftCombatRoles(Game,planes,angleDiff){
  Game.prototype.aircraftCombatRole=function(){return aircraftCombatRole(this.plane,planes)};
  const fly=Game.prototype.flyAirframe;
  Game.prototype.flyAirframe=function(dt,input={}){
-  const step=clamp(dt||0,0,.04),before=this.a,profile=SORTIE_COMBAT_STYLES[this.plane];
+  const step=clamp(dt||0,0,.04),before=this.a,profile=SORTIE_COMBAT_STYLES[this.plane]||SORTIE_COMBAT_STYLES[planes[this.plane]?.sortieStyle];
   const request=Number.isFinite(input.angle)?angleDiff(input.angle,this.a):(input.steer||0);
   const sign=Math.abs(request)>.08?Math.sign(request):0,oldSign=this.aircraftTurnSign||0;
   const held=this.aircraftTurnTime||0;
@@ -138,7 +139,7 @@ export function installAircraftCombatRoles(Game,planes,angleDiff){
  const round=Game.prototype.applySpecialRound;
  Game.prototype.applySpecialRound=function(b,...args){
   const result=round.call(this,b,...args);
-  const profile=SORTIE_COMBAT_STYLES[this.plane],role=this.aircraftCombatRole();
+  const profile=SORTIE_COMBAT_STYLES[this.plane]||SORTIE_COMBAT_STYLES[planes[this.plane]?.sortieStyle],role=this.aircraftCombatRole();
   const straight=this.aircraftStraightTime>(profile?.steady??.65);
   const mode=profile?.mode,energy=this.airframeSpeed??1;
   const aimed=profile?(['steady','twoSeat','pass'].includes(mode)||mode==='early'&&this.level<8):role===R.HEAVY;

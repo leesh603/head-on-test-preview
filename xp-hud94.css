@@ -52,3 +52,5 @@
  body.playing:not(.coop-playing) #stageBossHud{top:var(--mobile-hud-bottom,128px)!important}
  body.playing #hud.hidden,body.playing #ammoHud.hidden,body.playing #xpHud.hidden{display:none!important}
 }
+
+#aircraftAvailability{display:block;margin-top:5px;color:#c7b78f;font-size:11px;line-height:1.35}#aircraftSelect103,#coopAircraft103{width:100%;min-width:0;max-width:100%;box-sizing:border-box}

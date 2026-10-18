@@ -1,3 +1,4 @@
+import {SORTIE_FITS} from './pilot-aircraft.js?v=sortierhythm20261018';
 // Generation/performance bands, not rarity. Existing handling and weapons are
 // authoritative; growth is granted once at XP pickup, never again in level cost.
 export const TIER_XP_GAIN=Object.freeze({1:1.28,2:1.18,3:1,4:1,5:.88});
@@ -102,14 +103,14 @@ for(const [id,baseId]of Object.entries(aliases))catalog[id]=Object.freeze({...ca
 catalog.gotha_night=Object.freeze({...catalog.gotha_night,description:'야간형 지속사격 · 지원 운용',descriptionEn:'Night sustained fire / support',identity:Object.freeze(['sustainedFire','support']),mechanics:Object.freeze({reloadMultiplier:.95})});
 catalog.staaken_dark=Object.freeze({...catalog.staaken_dark,description:'대형기 지속사격 · 지원 운용',descriptionEn:'Large-craft sustained fire / support',identity:Object.freeze(['sustainedFire','support']),mechanics:Object.freeze({reloadMultiplier:.9})});
 export const AIRCRAFT_TIERS=Object.freeze(catalog);
-export const aircraftTierFor=id=>AIRCRAFT_TIERS[id]||null;
+export const aircraftTierFor=id=>AIRCRAFT_TIERS[id]||AIRCRAFT_TIERS[SORTIE_FITS[id]?.tier||SORTIE_FITS[id]?.base]||null;
 
 // Campaign planes are non-enumerable. Re-running after that registry finishes
 // is deliberate and idempotent, and also handles late historical/livery fits.
 export function registerAircraftTiers(planes){
  const missing=[];
  for(const id of Object.getOwnPropertyNames(planes)){
-  const profile=aircraftTierFor(id);if(!profile){missing.push(id);continue}
+  const profile=aircraftTierFor(planes[id].sortieBase||id);if(!profile){missing.push(id);continue}
   Object.assign(planes[id],{aircraftTier:profile,tier:profile.tier,tierLabel:profile.tierLabel,identityDescription:profile.description,xpGainMultiplier:profile.xpGainMultiplier,xpCostMultiplier:1});
  }
  return missing;

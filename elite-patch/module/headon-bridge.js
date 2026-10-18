@@ -1,4 +1,5 @@
-import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js';
+import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js?v=sortierhythm20261018';
+import {regionalSteering} from '../../regional-air-tactics.js?v=sortierhythm20261018';
 
 const INSTALL_KEY = Symbol.for('headon.eliteEnemyPatch.v1');
 
@@ -31,6 +32,7 @@ export function createHeadOnHost(game, bindings = {}) {
     random: bindings.random || game.rng || Math.random,
     getTime: () => bindings.getTime?.(game) ?? game.t ?? 0,
     getPlayer: () => bindings.getPlayer?.(game) || game,
+    steerAircraft: (member,contact,turn,result) => regionalSteering(game,member,contact,turn,result,true),
     getPlayerFaction: faction,
     getNormalStats: normalStats,
     getAceStats: aceStats,
@@ -127,3 +129,4 @@ export function installHeadOnElitePatch(GameClass, bindings = {}, options = {}) 
   GameClass.prototype[INSTALL_KEY] = {uninstall, enemyType: ELITE_ENEMY_TYPE};
   return GameClass.prototype[INSTALL_KEY];
 }
+

@@ -1,16 +1,16 @@
-import {isAlbatrosHunter,drawAlbatrosLocal,drawAlbatrosWorld} from './albatros-hunter-fx.js';
+import {isAlbatrosHunter,drawAlbatrosLocal,drawAlbatrosWorld} from './albatros-hunter-fx.js?v=sortierhythm20261018';
 import {drawFonckLocal,drawFonckCue} from './fonck-precision-fx.js';
 import {METAL_PILOTS,drawMetalWake,drawMetalLocal,drawMetalGuns,drawMetalCue} from './metal-pilot-fx.js';
 import {SORTIE_PILOTS,drawSortieWake,drawSortieLocal,drawSortieCue} from './pilot-cloud-survival-fx.js';
 import {drawUdetWake,drawUdetLocal,drawUdetCue} from './udet-acrobat-fx.js';
 import {drawLoewWake,drawLoewLocal,drawLoewCue} from './loewenhardt-ascent-fx.js';
 import {drawLotharWake,drawLotharGuns,drawLotharCue} from './lothar-pursuit-fx.js';
-import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=gal1';
+import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=sortierhythm20261018';
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
 import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
-import {bishopFlightHeight} from './engine.js?v=merge20261017';
+import {bishopFlightHeight} from './engine.js?v=sortierhythm20261018';
 import {signatureWingPositions} from './pilot-signature-geometry.js';
-import {drawTracerBolt} from './projectiles.js?v=gal1&rail=42';
+import {drawTracerBolt} from './projectiles.js?v=sortierhythm20261018';
 import {drawCavalryGuard,drawCavalryLance,drawRickenbackerHalfRing} from './pilot-directed-fx.js';
 const TAU=Math.PI*2;
 const _wCache=new Map();
@@ -20,7 +20,13 @@ export const UNRESOLVED_SIGNATURE_ART=Object.freeze(['wingedSword','blackDevil',
 export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia=()=>false,bolt=drawTracerBolt}){
  if(typeof fx!=='function'||typeof icon!=='function')throw new TypeError('Authored FX and icon renderers are required');
  const texture=(c,key,x,y,w,h=w,a=0,opacity=1)=>fx(c,key,x,y,w,h,a,clamp(opacity));
- const lotharTexture=(c,key,x,y,w,h=w,a=0,opacity=1,color)=>color&&typeof tint==='function'?tint(c,key,color,x,y,w,h,a,clamp(opacity)):texture(c,key,x,y,w,h,a,opacity);
+ const lotharTexture=(c,key,x,y,w,h=w,a=0,opacity=1,color)=>{
+  // The painted ribbon occupies only a thin part of its transparent cell.
+  // Keep wing wakes readable at 1x; muzzle flashes and bullets are unchanged.
+  if(key==='vaporTrail'){h*=1.65;opacity=Math.min(.9,opacity*1.35);}
+  else if(key==='windStreak'){h*=1.35;opacity=Math.min(.9,opacity*1.3);}
+  return color&&typeof tint==='function'?tint(c,key,color,x,y,w,h,a,clamp(opacity)):texture(c,key,x,y,w,h,a,opacity);
+ };
  const tracer=(c,x,y,w,h,a,opacity)=>bolt(c,x,y,a,'#f2d9a0',w,h,clamp(opacity));
  function smokeArc(c,r,from,to,time,opacity=.3,flatten=1,count=12){
   for(let i=0;i<count;i++){const q=i/(count-1),a=from+(to-from)*q;texture(c,'gunSmoke',Math.cos(a)*r,Math.sin(a)*r*flatten,18+q*13,12+q*9,a+time*.15,opacity*(.35+.65*q))}
@@ -234,7 +240,7 @@ export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia
    }return;
   }
   if(p.pilot==='hawker'){
-   if(shot){const a=(p.gunDirection?.(0)??p.a)-p.a;muzzleAt(c,25,0,a,'muzzle',p.hawkerLinkTime>0?1.1:.65);texture(c,'gunSmoke',35,0,30,13,a,.2);}return;
+   if(shot){const a=(p.gunDirection?.(0)??p.a)-p.a;muzzleAt(c,Number.isFinite(p.weapon?.sortieMuzzleSide)?23:25,p.weapon?.sortieMuzzleSide||0,a,'muzzle',p.hawkerLinkTime>0?1.1:.65);texture(c,'gunSmoke',35,0,30,13,a,.2);}return;
   }
   if(p.pilot==='berthold'){
    if(active&&shot)muzzleAt(c,25,0,0,'muzzleTwin',1.2);

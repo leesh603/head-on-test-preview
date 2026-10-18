@@ -1,9 +1,9 @@
-import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=gal1';
-import {fx} from './fx-art.js?v=gal1';
-import {bombSprite} from './bomb-sprites.js?v=bomb20';
-import {fxsBombFall} from './fx-sample-preview.js?v=bomb3&rail=42';
-import {drawTracerBolt} from './projectiles.js?v=gal1&rail=42';
-import {impactMark,partMark,aimLine,stripMark} from './tactical-marks.js?v=gal1';
+import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=sortierhythm20261018';
+import {fx} from './fx-art.js?v=sortierhythm20261018';
+import {bombSprite} from './bomb-sprites.js?v=sortierhythm20261018';
+import {fxsBombFall} from './fx-sample-preview.js?v=sortierhythm20261018';
+import {drawTracerBolt} from './projectiles.js?v=sortierhythm20261018';
+import {impactMark,partMark,aimLine,stripMark} from './tactical-marks.js?v=sortierhythm20261018';
 
 function atlasFrame(c,im,frame,w,h){if(!im?.naturalWidth)return false;const sw=im.naturalWidth/3,sh=im.naturalHeight/2;c.drawImage(im,(frame%3)*sw,Math.floor(frame/3)*sh,sw,sh,-w/2,-h/2,w,h);return true;}
 function rectWarning(c,lane,p){stripMark(c,lane.x,lane.y,lane.width,lane.height,p,{safe:lane.safe});}
@@ -52,3 +52,4 @@ export function drawAlpsHazard(c,h,ring){
  }else{const age=h.age-h.delay-h.warning;fx(c,'explosion0',h.x,h.y,h.radius*2.1,h.radius*2.1,0,Math.max(0,1-age/h.duration));fx(c,'smokeDark',h.x,h.y-age*24,h.radius*(1.5+age),h.radius*(1.5+age),0,.6);}
  return true;
 }
+
