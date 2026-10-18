@@ -1,31 +1,31 @@
-import {drawGroundEnemy} from './ground-enemy-art.js?v=gal1';
-import {impactMark} from './tactical-marks.js?v=gal1';
-import {getLocale} from './i18n.js?v=buildfit1&afc=1';
-import {unitNameEN} from './event-text-en.js?v=buildfit1&afc=1';
-import {drawRegionalBug} from './regional-boss-view352.js?v=outline1';
-import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=gal1';
-import {drawGasCloud196} from './gas-cloud196.js?v=gal1';
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=buildfit1&afc=1';
-import {FXS,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=bomb3&rail=42';
-import {fx,fxReady,fxTint} from './fx-art.js?v=gal1';
-import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=gal1';
-import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=buildfit1&afc=1';
-import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=buildfit1';
-import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=gal1';
-import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=buildfit1&afc=1';
-import {drawStageBoss} from './stageboss-view.js?v=outline2';
-import {bombSprite} from './bomb-sprites.js?v=bomb20';
+import {drawGroundEnemy} from './ground-enemy-art.js?v=sortierhythm20261018';
+import {impactMark} from './tactical-marks.js?v=sortierhythm20261018';
+import {getLocale} from './i18n.js?v=sortierhythm20261018&afc=1';
+import {unitNameEN} from './event-text-en.js?v=sortierhythm20261018&afc=1';
+import {drawRegionalBug} from './regional-boss-view352.js?v=sortierhythm20261018';
+import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=sortierhythm20261018';
+import {drawGasCloud196} from './gas-cloud196.js?v=sortierhythm20261018';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=sortierhythm20261018&afc=1';
+import {FXS,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=sortierhythm20261018';
+import {fx,fxReady,fxTint} from './fx-art.js?v=sortierhythm20261018';
+import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=sortierhythm20261018';
+import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=sortierhythm20261018';
+import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=sortierhythm20261018';
+import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=sortierhythm20261018';
+import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=sortierhythm20261018&afc=1';
+import {drawStageBoss} from './stageboss-view.js?v=sortierhythm20261018';
+import {bombSprite} from './bomb-sprites.js?v=sortierhythm20261018';
 const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};
 const NO_SKILL_RING=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker','wolff','immelmann']);
 const DUO_PILOTS=new Set(['huffzky','mckeever']);
-import {planeSprite,aircraftKey} from './aircraft.js?v=outline2';
-import {drawEquipment} from './equipment.js?v=gal1';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,friendlyTracerColor,drawTracerBolt,drawPilotGunTracer} from './projectiles.js?v=gal1';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=gal1';
-import {drawSpecialAmmoIcon} from './icons.js?v=buildfit1&afc=1';
-import {TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=merge20261017';
-import {drawCombatFeedback,combatCameraOffset,combatVisualPose} from './combat-feedback.js?v=gal1';
+import {planeSprite,aircraftKey} from './aircraft.js?v=sortierhythm20261018';
+import {drawEquipment} from './equipment.js?v=sortierhythm20261018';
+import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=sortierhythm20261018';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=sortierhythm20261018';
+import {drawSpecialAmmoIcon} from './icons.js?v=sortierhythm20261018&afc=1';
+import {TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=sortierhythm20261018';
+import {drawCombatFeedback,combatCameraOffset,combatVisualPose} from './combat-feedback.js?v=sortierhythm20261018';
 
 
 // Every combat layer uses the same world transform; rendering never edits the session.
@@ -77,7 +77,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
    for(const ship of p.airshipFleet||[])if(ship.age>=0&&ship.age<6)drawZeppelin(c,ship.x,ship.y,ship.a,ship.scale||.825,false,'central')}
  for(const b of g.friendlyBombers){if(cl(b.x,b.y,200))continue;const im=(fieldArtImg?fieldArtImg(b.airframe):fieldArt[b.airframe]);if(im?.naturalWidth)drawFieldArt(b.airframe,b.x,b.y,150,150*im.naturalHeight/im.naturalWidth,b.a+Math.PI/2)}
  for(const b of g.friendlyBombs){if(cl(b.x,b.y,80))continue;const f=1-b.life/b.maxLife;fxsBombFall(c,(X,Y,k,a,pitch)=>bombSprite(c,b.sprite||'cooper',X,Y,40*k,a,1,pitch)||fx(c,'bomb',X,Y,28*k*pitch,13*k,a),b.sx,b.sy,b.x,b.y,f,b.releaseAngle);if(!b.bishopBomb)ring(b.x,b.y,22,'#a2eddb70')}
- for(const b of g.bullets){if(b.life<=0||cl(b.x,b.y,80))continue;if(b.enemy){continue}else if(b.rocket){if(!fx(c,'rocket',b.x,b.y,52,16,Math.atan2(b.vy,b.vx)))drawEquipment(c,'rocket',b.x,b.y,Math.atan2(b.vy,b.vx)+Math.PI/2,48)}else if(b.motorCannon||b.cow37){drawCannonProjectile(c,b,b.x,b.y)}else if(drawPilotGunTracer(c,b,b.x,b.y)){}else{const bc=(b.mauserRound?'#a98cff':b.eagle?'#9fdcff':b.specialColor)||(b.formation||b.ally?'#b9f2de':b.pierce?'#f8f5cd':friendlyTracerColor(b,g.gunUpgradeBonus)),bw=b.specialAmmo?4:b.formation||b.ally?4:2;drawTracerBolt(c,b.x,b.y,Math.atan2(b.vy,b.vx),bc,bw*9,bw*3)}}
+ for(const b of g.bullets){if(b.life<=0||cl(b.x,b.y,80))continue;if(b.enemy){continue}else if(b.rocket){if(!fx(c,'rocket',b.x,b.y,52,16,Math.atan2(b.vy,b.vx)))drawEquipment(c,'rocket',b.x,b.y,Math.atan2(b.vy,b.vx)+Math.PI/2,48)}else if(b.motorCannon||b.cow37){drawCannonProjectile(c,b,b.x,b.y)}else if(drawPilotGunTracer(c,b,b.x,b.y)){}else{drawFriendlyGunTracer(c,b,b.x,b.y,g.gunUpgradeBonus);}}
  for(const zone of g.bombZones){if(cl(zone.x,zone.y,zone.radius+20))continue;const progress=1-zone.delay/zone.maxDelay;impactMark(c,zone.x,zone.y,zone.radius,progress);fxsBombFall(c,(X,Y,k,a,pitch)=>bombSprite(c,zone.sprite||'puw',X,Y,44*k,a,1,pitch)||fx(c,'bomb',X,Y,31*k*pitch,14*k,a),zone.sx,zone.sy,zone.x,zone.y,progress,zone.releaseAngle);}
  for(const fxf of g.combatFX){if(cl(fxf.x,fxf.y,(fxf.radius||60)*2.6+80))continue;const f=1-fxf.life/fxf.maxLife;if(fxf.amatol){drawAmatolBlast(c,fxf,fxf.x,fxf.y);continue}if(fxf.grenade){drawGrenadeBlast(c,fxf,fxf.x,fxf.y);continue}if(!drawFxExplosion(c,fxf,fxf.x,fxf.y))fx(c,'smokeDark',fxf.x,fxf.y,fxf.radius*(1+f)*2.2,fxf.radius*(1+f)*2.2,0,Math.min(1,fxf.life*3))}
  for(const gust of g.gusts)if(!cl(gust.x,gust.y,(gust.radius||60)*1.4+60)&&!drawGust3(c,gust,gust.x,gust.y,t))drawFieldArt('gust',gust.x,gust.y,gust.radius*2.6,gust.radius*2.6,gust.a+t*.15,Math.max(0,Math.min(.85,gust.life,6-gust.life)));

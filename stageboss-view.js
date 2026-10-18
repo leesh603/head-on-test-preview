@@ -1,47 +1,47 @@
-import {groundShellProfile} from './explosion-profiles.js?v=gal1';
-import {minenMuzzleLocal} from './minenwerfer-art-layout.js?v=gal1-r4';
-import {drawMinenInstallation} from './minenwerfer-art-render.js?v=gal1-r4';
-import {prepareBossCutins} from './boss-cutin-art.js?v=livingww1d&rail=42';
-import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=outline1';
-import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=gal1-r3';
-import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=gal1-r10';
-import {verdunFortExtents} from './verdun-fortresses.js?v=gal1&rail=42';
-import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=buildfit1&rail=42&afc=1';
-import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=gal1-r9';
-import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=gal1';
-import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=gal1&rail=42';
-import {sommeExtents} from './somme-boss-layout.js?v=gal1';
-import {drawZubianShip} from './adriatic-boss-render.js?v=gal1';
-import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=gal1';
-import {prepareArmorTreads,drawArmorGround,drawArmorTreads,drawArmorDamageFX} from './trench-armor-render.js?v=gal1&treads=2';
-import {armorGunMuzzle} from './trench-armor-layout.js?v=gal1';
-import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta} from './trench-armor-layout.js?v=gal1';
-import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=gal1';
-import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=outline1';
-import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=gal1';
-import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=gal1';
-import {fx,fxReady,fxImage,fxTint,FX3} from './fx-art.js?v=gal1';
-import {impactMark,bandMark,partMark,shieldMark,aimLine,laneEdge,stripMark,sectorMark,lockMark,MARK} from './tactical-marks.js?v=gal1';
-import {drawBossRound,drawShellFlight} from './boss-rounds.js?v=gal1';
-import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=gal1';
-import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=gal1';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=gal1';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=gal1&rail=42';
-import {bossHudModel} from './headon-stageboss-hud.js?v=livingww1d&rail=42';
-import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=gal1&hints=1&rail=42';
-import {planeSprite} from './aircraft.js?v=outline2';
-import {getLocale} from './i18n.js?v=buildfit1&afc=1';
-import {londonStatus} from './london-battle.js?v=gal1';
-import {parisStatus} from './paris-night-battle.js?v=gal1';
-import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=outline1';
-import {prepareDoverAssets,drawDoverBoss,drawDoverHazard,drawDoverCue,isDoverBoss,doverExtents} from './dover-night-view.js?v=outline1';
-import {prepareParisArt,releaseParisArt,drawParisBoss,drawParisWorld} from './paris-night-art.js?v=outline1';
-import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=gal1';
-import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=gal1';
-import {drawAlpsBomber,drawAlpsPart,drawAlpsWarnings,drawAlpsHazard} from './alps-bomber-render.js?v=bomb19';
-import {bombSprite} from './bomb-sprites.js?v=bomb20';
-import {fxsBombFall} from './fx-sample-preview.js?v=bomb3&rail=42';
-import {drawHarborFortress} from './harbor-crane-render.js?v=gal1';
+import {groundShellProfile} from './explosion-profiles.js?v=sortierhythm20261018';
+import {minenMuzzleLocal} from './minenwerfer-art-layout.js?v=sortierhythm20261018';
+import {drawMinenInstallation} from './minenwerfer-art-render.js?v=sortierhythm20261018';
+import {prepareBossCutins} from './boss-cutin-art.js?v=sortierhythm20261018&rail=42';
+import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=sortierhythm20261018';
+import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=sortierhythm20261018';
+import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=sortierhythm20261018';
+import {verdunFortExtents} from './verdun-fortresses.js?v=sortierhythm20261018&rail=42';
+import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-rail-render.js?v=sortierhythm20261018&rail=42&afc=1';
+import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=sortierhythm20261018';
+import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=sortierhythm20261018';
+import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=sortierhythm20261018&rail=42';
+import {sommeExtents} from './somme-boss-layout.js?v=sortierhythm20261018';
+import {drawZubianShip} from './adriatic-boss-render.js?v=sortierhythm20261018';
+import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=sortierhythm20261018';
+import {prepareArmorTreads,drawArmorGround,drawArmorTreads,drawArmorDamageFX} from './trench-armor-render.js?v=sortierhythm20261018&treads=2';
+import {armorGunMuzzle} from './trench-armor-layout.js?v=sortierhythm20261018';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta} from './trench-armor-layout.js?v=sortierhythm20261018';
+import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=sortierhythm20261018';
+import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=sortierhythm20261018';
+import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=sortierhythm20261018';
+import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=sortierhythm20261018';
+import {fx,fxReady,fxImage,fxTint,FX3} from './fx-art.js?v=sortierhythm20261018';
+import {impactMark,bandMark,partMark,shieldMark,aimLine,laneEdge,stripMark,sectorMark,lockMark,MARK} from './tactical-marks.js?v=sortierhythm20261018';
+import {drawBossRound,drawShellFlight} from './boss-rounds.js?v=sortierhythm20261018';
+import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=sortierhythm20261018';
+import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=sortierhythm20261018';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=sortierhythm20261018';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=sortierhythm20261018&rail=42';
+import {bossHudModel} from './headon-stageboss-hud.js?v=sortierhythm20261018&rail=42';
+import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=sortierhythm20261018&hints=1&rail=42';
+import {planeSprite} from './aircraft.js?v=sortierhythm20261018';
+import {getLocale} from './i18n.js?v=sortierhythm20261018&afc=1';
+import {londonStatus} from './london-battle.js?v=sortierhythm20261018';
+import {parisStatus} from './paris-night-battle.js?v=sortierhythm20261018';
+import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=sortierhythm20261018';
+import {prepareDoverAssets,drawDoverBoss,drawDoverHazard,drawDoverCue,isDoverBoss,doverExtents} from './dover-night-view.js?v=sortierhythm20261018';
+import {prepareParisArt,releaseParisArt,drawParisBoss,drawParisWorld} from './paris-night-art.js?v=sortierhythm20261018';
+import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=sortierhythm20261018';
+import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=sortierhythm20261018';
+import {drawAlpsBomber,drawAlpsPart,drawAlpsWarnings,drawAlpsHazard} from './alps-bomber-render.js?v=sortierhythm20261018';
+import {bombSprite} from './bomb-sprites.js?v=sortierhythm20261018';
+import {fxsBombFall} from './fx-sample-preview.js?v=sortierhythm20261018';
+import {drawHarborFortress} from './harbor-crane-render.js?v=sortierhythm20261018';
 
 
 function createLazyImageGroup(sources){
@@ -855,5 +855,6 @@ export function paintCity(c,cx,cy,W,H,city='london'){
   c.strokeStyle='#f2dda13d';c.lineWidth=1;c.beginPath();c.moveTo(ox,oy);c.lineTo(tx,ty);c.stroke();c.fillStyle='#413e35';c.fillRect(ox-12,H-18,24,18);c.fillStyle='#d9c883';c.fillRect(ox-5,H-22,10,5);}
  c.restore();
 }
+
 
 

@@ -1,37 +1,39 @@
-import {installBomberTransfer,bomberRoundImpact,bomberContactPadding,detonateFriendlyBomb} from './bomber-transfer.js?v=buildfit1&afc=1';
-import {awardPriorityKill,achievementEnemyDefeated,installAchievementTracking} from './achievements.js?v=medals2';
-import {steerDoverBoundary,containDoverPlayer} from './dover-map-boundary.js?v=dover3';
-import {PILOT_IDENTITY_COPY as THREE_COPY} from './pilot-identity-copy.js?v=merge20261017';
-import {beginThreeSkill,tickThreePilot,threeGunDirection} from './pilot-three-combat.js?v=gal1';
-import {EXPLOSION_LIFE,initExplosionProfile,pushExplosionFx,advanceExplosionFx} from './explosion-profiles.js?v=gal1';
-import {beginAircraftCrash,advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=gal1';
-import {wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=gal1&afc=1';
-import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=buildfit1';
-import {installPilotIdentities} from './pilot-identities.js?v=fiveace1&afc=1';
-import {EnemyCollisionGrid} from './collision-grid.js?v=gal1';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=fiveace1';
-import {installRevision} from './rebalance103.js?v=buildfit1&rail=42&afc=1';
-import {installCloudCover} from './cloud-cover1.js?v=gal1';
-import {installFleet} from './fleet-naval1.js?v=buildfit1&rail=42&afc=1';
-import {installTrenchWar} from './trench-war1.js?v=gal1';
-import {installCityAir} from './city-air1.js?v=gal1';
-import {installRegionDoctrine} from './region-doctrine1.js?v=buildfit1&afc=1';
-import {installLondonBattle} from './london-battle.js?v=gal1';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=merge20261017';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=merge20261017';
-import {installBuildCombatIdentity} from './build-combat-identity.js?v=gal1';
-import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=gal1';
-import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=gal1';
-import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=gal1';
-import {installAircraftBankRoster} from './aircraft-bank-roster.js?v=buildfit1';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=gal1';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=gal1';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=gal1';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=gal1';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=gal1';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=buildfit1&afc=1';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=gal1';
+import {modGunRounds,modGunDamage,modGunFan,modGunInterval} from './weapon-modifications.js';
+import {installBomberTransfer,bomberRoundImpact,bomberContactPadding,detonateFriendlyBomb} from './bomber-transfer.js?v=sortierhythm20261018&afc=1';
+import {awardPriorityKill,achievementEnemyDefeated,installAchievementTracking} from './achievements.js?v=sortierhythm20261018';
+import {steerDoverBoundary,containDoverPlayer} from './dover-map-boundary.js?v=sortierhythm20261018';
+import {PILOT_IDENTITY_COPY as THREE_COPY} from './pilot-identity-copy.js?v=sortierhythm20261018';
+import {beginThreeSkill,tickThreePilot,threeGunDirection} from './pilot-three-combat.js?v=sortierhythm20261018';
+import {EXPLOSION_LIFE,initExplosionProfile,pushExplosionFx,advanceExplosionFx} from './explosion-profiles.js?v=sortierhythm20261018';
+import {beginAircraftCrash,advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=sortierhythm20261018';
+import {weaponModWingActive,wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=sortierhythm20261018&afc=1';
+import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=sortierhythm20261018';
+import {installPilotIdentities} from './pilot-identities.js?v=sortierhythm20261018&afc=1';
+import {EnemyCollisionGrid} from './collision-grid.js?v=sortierhythm20261018';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=sortierhythm20261018';
+import {installRevision} from './rebalance103.js?v=sortierhythm20261018&rail=42&afc=1';
+import {installCloudCover} from './cloud-cover1.js?v=sortierhythm20261018';
+import {installFleet} from './fleet-naval1.js?v=sortierhythm20261018&rail=42&afc=1';
+import {installTrenchWar} from './trench-war1.js?v=sortierhythm20261018';
+import {installCityAir} from './city-air1.js?v=sortierhythm20261018';
+import {installRegionDoctrine} from './region-doctrine1.js?v=sortierhythm20261018&afc=1';
+import {installLondonBattle} from './london-battle.js?v=sortierhythm20261018';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=sortierhythm20261018';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=sortierhythm20261018';
+import {installBuildCombatIdentity} from './build-combat-identity.js?v=sortierhythm20261018';
+import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=sortierhythm20261018';
+import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=sortierhythm20261018';
+import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=sortierhythm20261018';
+import {installAircraftBankRoster} from './aircraft-bank-roster.js?v=sortierhythm20261018';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=sortierhythm20261018&rail=42';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=sortierhythm20261018';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible} from './dogfight-pass165.js?v=sortierhythm20261018';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=sortierhythm20261018';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=sortierhythm20261018';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=sortierhythm20261018';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=sortierhythm20261018&afc=1';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=sortierhythm20261018';
+import {installAceSortieRhythm,ACE_SORTIE_BALANCE} from './ace-sortie-rhythm.js?v=sortierhythm20261018';
 
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
@@ -135,13 +137,13 @@ export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this
  if(wasReloading){this.reloadTime=Math.max(0,this.reloadTime-dt);this.fire=0;if(this.reloadTime===0){this.ammo.fill(this.weapon.belt);this.event('loaded','재장전 완료')}}
  else if(!this.cow37&&(input.inputMode!=='gamepad'||input.fireHeld)){this.fire-=dt;if(this.bishopTime>0||this.isBomberEntering())this.fire=Math.max(this.fire,.1);let volleys=0;while(this.fire<=0&&this.reloadTime===0&&volleys++<8){
   if((this.ammo.every(n=>n===0)||(DUO_GUN_PILOTS.has(this.pilot)&&this.ammo[0]<=0&&!this.nineRearTarget))){this.reload();break}
-  this.fire+=Math.max(.02,this.rate/(this.pilot==='jacobs'?1+(this.jacobsStacks||0)*.1:1));const skillDamage=this.normalGunMultiplier()/Math.sqrt(this.shots);
+  this.fire+=modGunInterval(this,Math.max(.02,this.rate/(this.pilot==='jacobs'?1+(this.jacobsStacks||0)*.1:1)));const skillDamage=this.normalGunMultiplier()/Math.sqrt(this.shots);
   for(let gun=0;gun<this.weapon.guns;gun++){if(DUO_GUN_PILOTS.has(this.pilot)&&gun===1)continue;
-   const rounds=Math.min(this.shots,this.ammo[gun]),offset=this.weapon.bidirectional?0:(gun-(this.weapon.guns-1)/2)*8,gunAngle=this.gunDirection(gun),mount=this.bomberTransfer?this.bomberGunMount(gun,gunAngle,offset):null;
-   for(let i=0;i<rounds;i++){const fan=this.buildGunFan(this.pilot==='fonck'?.025:this.pilot==='immelmann'&&this.eagleTime>0?.04:.11),a=gunAngle+(i-(rounds-1)/2)*fan,tailTargetId=this.tailLocked?this.tailTargetId:null;
-    const round={x:mount?.x??this.x+Math.cos(gunAngle)*23-Math.sin(gunAngle)*offset,y:mount?.y??this.y+Math.sin(gunAngle)*23+Math.cos(gunAngle)*offset,vx:Math.cos(a)*520,vy:Math.sin(a)*520,life:this.longRange?this.shotLifetime(520):this.pilot==='bishop'?.6:1.35,enemy:false,ownerId:this.id,gun,damage:this.damage*skillDamage,pierce:false,hit:new Set(),tailBonus:!!tailTargetId,tailTargetId,eagle:this.eagleTime>0||undefined};
+   const ordinaryRounds=Math.min(this.shots,this.ammo[gun]),rounds=modGunRounds(this,ordinaryRounds),offset=this.weapon.bidirectional?0:(gun-(this.weapon.guns-1)/2)*8,gunAngle=this.gunDirection(gun),mount=this.bomberTransfer?this.bomberGunMount(gun,gunAngle,offset):Number.isFinite(this.weapon.sortieMuzzleSide)?{x:this.x+Math.cos(this.a)*23-Math.sin(this.a)*this.weapon.sortieMuzzleSide,y:this.y+Math.sin(this.a)*23+Math.cos(this.a)*this.weapon.sortieMuzzleSide}:null;
+   for(let i=0;i<rounds;i++){const fan=modGunFan(this,this.buildGunFan(this.pilot==='fonck'?.025:this.pilot==='immelmann'&&this.eagleTime>0?.04:.11)),a=gunAngle+(i-(rounds-1)/2)*fan,tailTargetId=this.tailLocked?this.tailTargetId:null;
+    const round={x:mount?.x??this.x+Math.cos(gunAngle)*23-Math.sin(gunAngle)*offset,y:mount?.y??this.y+Math.sin(gunAngle)*23+Math.cos(gunAngle)*offset,vx:Math.cos(a)*520,vy:Math.sin(a)*520,life:this.longRange?this.shotLifetime(520):this.pilot==='bishop'?.6:1.35,enemy:false,ownerId:this.id,gun,damage:this.damage*skillDamage*modGunDamage(this,ordinaryRounds,rounds),pierce:false,hit:new Set(),tailBonus:!!tailTargetId,tailTargetId,eagle:this.eagleTime>0||undefined};
     this.bullets.push(this.applySpecialRound(round,null));
-   }if(!this.unlimitedAmmo)this.ammo[gun]-=rounds?Math.max(1,rounds-(this.freeVolleyShots||0)):0;this.roundsFired+=rounds;
+   }if(!this.unlimitedAmmo)this.ammo[gun]-=ordinaryRounds?Math.max(1,ordinaryRounds-(this.freeVolleyShots||0)):0;this.roundsFired+=rounds;
   }this.muzzleFlash=.055;this.event('shot','');
   if((this.ammo.every(n=>n===0)||(DUO_GUN_PILOTS.has(this.pilot)&&this.ammo[0]<=0&&!this.nineRearTarget)))this.reload();
  }}
@@ -157,7 +159,7 @@ export class Game{constructor(plane='fokker',pilot='baron',rng=Math.random){this
  this.supplyTimer-=dt;if(this.supplyTimer<=0){this.supplyTimer=30+this.rng()*24;let a=this.rng()*Math.PI*2,d=520;this.drops.push({x:this.x+Math.cos(a)*d,y:this.y+Math.sin(a)*d,value:0,heal:true,supply:true,vx:-Math.cos(a)*78,vy:-Math.sin(a)*78,life:18})}
  this.runScheduledAces();
  this.ensureWingmen();const permanentCount=this.permanentWingCount();
- for(let a of this.allies){if(this.updatePilotWing?.(a,dt))continue;a.life-=dt;a.invuln=Math.max(0,(a.invuln||0)-dt);a.hitFlash=Math.max(0,(a.hitFlash||0)-dt);let target;const personalPose=pilotSupportPose(this,a,dt);if(personalPose)target={x:a.x,y:a.y};else if(a.boelckePincer)target=this.boelckeWingTarget(a);else if(a.permanent||this.pilot==='goering'&&this.wingBoost>0)target=this.wingFormationTarget(a,permanentCount);else{const slot=a.slot??this.allies.indexOf(a),row=Math.floor(slot/2),side=slot%2?-1:1,back=45+row*65,off=side*(70+row*34);target={x:this.x-Math.cos(this.a)*back-Math.sin(this.a)*off,y:this.y-Math.sin(this.a)*back+Math.cos(this.a)*off}}const independent=!personalPose&&wingmanEngagementStep(this,this,a,target,dt);if(!independent){if(!((this.pilot==='collishaw'&&a.permanent)||(this.pilot==='brumowski'&&a.orbit)))a.a=a.boelckePincer?target.a:this.a;const response=2.6*Math.max(.75,Math.min(1.25,a.personality?.acceleration??1));a.x+=(target.x-a.x)*Math.min(1,dt*response);a.y+=(target.y-a.y)*Math.min(1,dt*response)}a.muzzleFlash=Math.max(0,(a.muzzleFlash||0)-dt);{const bodies=this.stageBoss?.stages?.encounter?.bodies;if(bodies)for(const body of bodies.values()){if(body.dead)continue;for(const part of body.parts.values()){if(part.destroyed)continue;const dx=a.x-(body.x+part.x),dy=a.y-(body.y+part.y),d=Math.hypot(dx,dy),r=(part.radius||30)+26;if(d<r&&d>0.01){a.x+=dx/d*(r-d)*.7;a.y+=dy/d*(r-d)*.7}}}}a.fire-=dt;if(a.fire<=0){a.fire=.58*(a.permanent&&this.upgrades.fighterSupply?.9:1)/((this.wingBoost>0&&this.pilot!=='goering'?GOERING_WING_BOOST.fireRateMultiplier:1)*(1+(this.commandRateBonus||0))*((this.pilot==='mannock'||(this.players||[]).some(p=>p.pilot==='mannock'))?1.15:1));let nearest=pilotWingTarget(this,a)||this.buildWingTarget(a),best=nearest?0:Infinity;if(!nearest){nearest=this.pilot==='goering'&&this.wingBoost>0?this.goeringFocusTarget():null;best=nearest?0:Infinity}if(independent){nearest=wingmanAttackTarget(a);best=nearest?0:Infinity}else if(!['collishaw','brumowski'].includes(this.pilot)&&!(this.pilot==='goering'&&this.skillTime>0))for(const e of this.enemies)if(e.hp>0){const d=(e.x-a.x)**2+(e.y-a.y)**2;if(d<best){best=d;nearest=e}}if(a.boelckePincer&&this.boelckePincerTarget?.hp>0)nearest=this.boelckePincerTarget;if(nearest){let aa=Math.atan2(nearest.y-a.y,nearest.x-a.x);if(Math.abs(angleDiff(aa,a.a))>(independent?.28:1)){nearest=null}else this.bullets.push({x:a.x+Math.cos(aa)*23,y:a.y+Math.sin(aa)*23,vx:Math.cos(aa)*470,vy:Math.sin(aa)*470,life:1.5,enemy:false,ownerId:this.id,ally:true,damage:this.supportPower(5)*(this.wingmanDamageMult||1)*(this.wingBoost>0&&this.pilot!=='goering'?GOERING_WING_BOOST.damageMultiplier:1)*(a.permanent&&this.upgrades.fighterSupply?1.2:1),hit:new Set()});if(nearest){a.muzzleFlash=.09;a.muzzleAngle=aa;if(['collishaw','brumowski'].includes(this.pilot))a.fireHeading=aa;this.burst(a.x+Math.cos(aa)*22,a.y+Math.sin(aa)*22,'#b9f2de',2)}}}}
+ for(let a of this.allies){const modifiedWing=weaponModWingActive(this,a);if(!modifiedWing&&this.updatePilotWing?.(a,dt))continue;a.life-=dt;a.invuln=Math.max(0,(a.invuln||0)-dt);a.hitFlash=Math.max(0,(a.hitFlash||0)-dt);let target;const personalPose=!modifiedWing&&pilotSupportPose(this,a,dt);if(personalPose)target={x:a.x,y:a.y};else if(a.boelckePincer)target=this.boelckeWingTarget(a);else if(a.permanent||this.pilot==='goering'&&this.wingBoost>0)target=this.wingFormationTarget(a,permanentCount);else{const slot=a.slot??this.allies.indexOf(a),row=Math.floor(slot/2),side=slot%2?-1:1,back=45+row*65,off=side*(70+row*34);target={x:this.x-Math.cos(this.a)*back-Math.sin(this.a)*off,y:this.y-Math.sin(this.a)*back+Math.cos(this.a)*off}}const independent=!personalPose&&wingmanEngagementStep(this,this,a,target,dt);if(!independent){if(!((this.pilot==='collishaw'&&a.permanent)||(this.pilot==='brumowski'&&a.orbit)))a.a=a.boelckePincer?target.a:this.a;const response=2.6*Math.max(.75,Math.min(1.25,a.personality?.acceleration??1));a.x+=(target.x-a.x)*Math.min(1,dt*response);a.y+=(target.y-a.y)*Math.min(1,dt*response)}a.muzzleFlash=Math.max(0,(a.muzzleFlash||0)-dt);{const bodies=this.stageBoss?.stages?.encounter?.bodies;if(bodies)for(const body of bodies.values()){if(body.dead)continue;for(const part of body.parts.values()){if(part.destroyed)continue;const dx=a.x-(body.x+part.x),dy=a.y-(body.y+part.y),d=Math.hypot(dx,dy),r=(part.radius||30)+26;if(d<r&&d>0.01){a.x+=dx/d*(r-d)*.7;a.y+=dy/d*(r-d)*.7}}}}a.fire-=dt;if(a.fire<=0){a.fire=.58*(a.permanent&&this.upgrades.fighterSupply?.9:1)/((this.wingBoost>0&&this.pilot!=='goering'?GOERING_WING_BOOST.fireRateMultiplier:1)*(1+(this.commandRateBonus||0))*((this.pilot==='mannock'||(this.players||[]).some(p=>p.pilot==='mannock'))?1.15:1));let nearest=pilotWingTarget(this,a)||this.buildWingTarget(a),best=nearest?0:Infinity;if(!nearest){nearest=this.pilot==='goering'&&this.wingBoost>0?this.goeringFocusTarget():null;best=nearest?0:Infinity}if(independent||a.weaponModFormation){nearest=wingmanAttackTarget(a);best=nearest?0:Infinity}else if(!['collishaw','brumowski'].includes(this.pilot)&&!(this.pilot==='goering'&&this.skillTime>0))for(const e of this.enemies)if(e.hp>0){const d=(e.x-a.x)**2+(e.y-a.y)**2;if(d<best){best=d;nearest=e}}if(a.boelckePincer&&this.boelckePincerTarget?.hp>0)nearest=this.boelckePincerTarget;if(nearest){let aa=Math.atan2(nearest.y-a.y,nearest.x-a.x);if(Math.abs(angleDiff(aa,a.a))>(independent?.28:1)){nearest=null}else this.bullets.push({x:a.x+Math.cos(aa)*23,y:a.y+Math.sin(aa)*23,vx:Math.cos(aa)*470,vy:Math.sin(aa)*470,life:1.5,enemy:false,ownerId:this.id,ally:true,damage:this.supportPower(5)*(this.wingmanDamageMult||1)*(this.wingBoost>0&&this.pilot!=='goering'?GOERING_WING_BOOST.damageMultiplier:1)*(a.permanent&&this.upgrades.fighterSupply?1.2:1),hit:new Set()});if(nearest){a.muzzleFlash=.09;a.muzzleAngle=aa;if(['collishaw','brumowski'].includes(this.pilot))a.fireHeading=aa;this.burst(a.x+Math.cos(aa)*22,a.y+Math.sin(aa)*22,'#b9f2de',2)}}}}
  {const _al=this.allies;let _w=0;for(let _i=0;_i<_al.length;_i++)if(_al[_i].life>0)_al[_w++]=_al[_i];_al.length=_w}
  for(let e of this.enemies){if(e.stageBossBody||e.bossMinion)continue;if(e.crashing){advanceAircraftCrash(this,e,dt);continue}e.hitFlash=Math.max(0,(e.hitFlash||0)-dt);e.smokeTimer=(e.smokeTimer||0)-dt;if(e.hp<e.maxHp&&e.smokeTimer<=0){this.smoke(e.x-Math.cos(e.a)*12,e.y-Math.sin(e.a)*12,e.hp/e.maxHp<.4);e.smokeTimer=e.hp/e.maxHp<.4?.07:.16}const contact=this.enemyCombatTarget(e),energySpeed=e.energySpeed??1;// Bombers fly a straight bombing run past the player — no fighter-style
 // circling, just a gentle weave on course.
@@ -364,18 +366,18 @@ Game.prototype._updSpacing=function(dt,input={}){
 Game.prototype._spnWorld=function(type){
  if(type==='zeppelin'&&!this._escortSummon&&this.enemies.filter(e=>e.type==='zeppelin'&&e.hp>0).length>=2)type='bomber';
  if(type==='boss'){
-  const live=new Set(this.enemies.filter(e=>e.hp>0&&e.bossPilot).map(e=>e.bossPilot));
-  if(live.size>=8)return;
-  const available=Object.keys(PILOTS).filter(id=>PILOTS[id].faction!==PLANES[this.plane].faction&&!live.has(id)&&stageAceEligible(this,id));
+  if(!this.battlefieldEventSpawning&&(this.stageCombatWindow?.approaching||this.battlefieldEvents?.current?.status==='active'))return;
+  const state=this.syncAceSortie();
+  if(state.active.size>=ACE_SORTIE_BALANCE.maxAces)return;
+  const available=this.availableAcePilots();
   this.bossDeck=[...new Set(this.bossDeck||[])].filter(id=>available.includes(id));
   if(!this.bossDeck.length){this.bossDeck=available;for(let i=this.bossDeck.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[this.bossDeck[i],this.bossDeck[j]]=[this.bossDeck[j],this.bossDeck[i]]}}
   if(!this.bossDeck.length)return;
  }
  this._spnHeavy(type);const e=this.enemies.at(-1);e.ace=false;if(type==='zeppelin'){e.hp=e.maxHp=Math.round(e.hp*1.6);e.hitRadius=90;e.hullLength=170;e.hullWidth=45;}
  if(type!=='boss')return;
- if(!this.bossDeck?.length){this.bossDeck=Object.keys(PILOTS).filter(id=>PILOTS[id].faction!==PLANES[this.plane].faction&&stageAceEligible(this,id));for(let i=this.bossDeck.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[this.bossDeck[i],this.bossDeck[j]]=[this.bossDeck[j],this.bossDeck[i]]}}
  const threatWeight=.12+.88*Math.min(1,this.t/600);const weights=this.bossDeck.map(id=>['baron','fonck'].includes(id)?threatWeight:1);let roll=this.rng()*weights.reduce((a,b)=>a+b,0),pick=weights.length-1;for(let i=0;i<weights.length;i++){roll-=weights[i];if(roll<=0){pick=i;break}}
- e.bossPilot=this.bossDeck.splice(pick,1)[0];e.bossPlane=PILOT_PLANES[e.bossPilot];e.name=PILOTS[e.bossPilot].name;e.ace=true;
+ const pilotId=this.bossDeck.splice(pick,1)[0],fits=this.availableAceAircraft(pilotId);e.bossPilot=pilotId;e.bossPlane=fits[Math.floor(this.rng()*fits.length)];e.name=PILOTS[e.bossPilot].name;e.ace=true;this.registerSortieAce(e);
  e.hp=e.maxHp=Math.round(700*(1+this.t/150));e.abilityTimer=4;e.fire=.8;e.encounterPending=true;e.aceSpawnT=this.t;if(e.bossPilot==='baron')e.speed*=2.4;
  if(e.bossPilot==='bishop'){e.hp=e.maxHp=Math.round(e.maxHp*ENEMY_BOSS_BALANCE.bishopHpMultiplier);e.speed*=1.1;e.abilityTimer=ENEMY_BOSS_BALANCE.bishopFirstAbility;e.fire=.5}
  this.event('wave','적 에이스 · '+e.name+' / '+PILOTS[e.bossPilot].skill);
@@ -973,8 +975,9 @@ Game.prototype._stgBase=function(e,contact,dt,baseTurn){
 };
 Game.prototype.spawnPatrol=function(){
  this.patrols??=[];
- const cap=this.mode==='campaign'?4:this.t>=PATROL_BALANCE.lateAfter?PATROL_BALANCE.lateCap:PATROL_BALANCE.earlyCap;
- const count=Math.min(PATROL_BALANCE.batch,cap-this.patrols.length);if(count<=0)return;
+ const rural=this.mode!=='campaign'&&this.worldRegion()===0&&!(this.stageBoss?.stages?.loopIndex>0)&&this.t<ACE_SORTIE_BALANCE.ruralReinforce;
+ const cap=rural?(this.t<ACE_SORTIE_BALANCE.ruralOpening?2:4):this.mode==='campaign'?4:this.t>=PATROL_BALANCE.lateAfter?PATROL_BALANCE.lateCap:PATROL_BALANCE.earlyCap;
+ const count=Math.min(rural?1:PATROL_BALANCE.batch,cap-this.patrols.length);if(count<=0)return;
  const faction=PLANES[this.plane].faction,planes=this.friendlyAircraftMix?.(faction)??(faction==='central'?['fokker_standard','albatros','fokkerd7']:['camel','se5a','sopwith']);
  const angle=this.a+(this.rng()<.5?-1:1)*1.1,radius=Math.max(300,Math.min(650,(this.viewHeight||600)*.65));
  const x=this.x+Math.cos(angle)*radius,y=this.y+Math.sin(angle)*radius;
@@ -1076,12 +1079,15 @@ Game.prototype.reserveEnemySlots=function(count){
  const disposable=this.enemies.filter(e=>!e.missionTarget&&!e.bossPilot&&!e.formationLeader&&!e.navalVessel&&!e.fieldUnit).sort((a,b)=>Math.hypot(b.x-this.x,b.y-this.y)-Math.hypot(a.x-this.x,a.y-this.y));
  while(this.enemies.length>65-count&&disposable.length){const old=disposable.shift();this.enemies.splice(this.enemies.indexOf(old),1)}
 };
-Game.prototype.aceWaveCount=function(time=this.t){return Math.min(8,time>=720?5+Math.floor((time-720)/120):time>=600?4:time>=420?3:time>=300?2:1)};
+Game.prototype.aceWaveCount=function(time=this.t){
+ const stage=this.stageBoss?.stages?.orderPosition??this.stageBoss?.stages?.stageIndex??(time<300?0:time<600?5:12),loop=this.stageBoss?.stages?.loopIndex||0;
+ if(loop>0)return this.rng()<.35?3:2;
+ return stage<4?1:stage<10?(this.rng()<.55?2:1):this.rng()<.14?3:2;
+};
 Game.prototype.nextAceWaveAt=function(time=this.t){return time<185?185:time<300?300:time<420?420:time<600?600:time<720?720:720+(Math.floor((time-720)/120)+1)*120};
 Game.prototype.prepareBossWave=function(count){
- const live=new Set(this.enemies.filter(e=>e.hp>0&&e.bossPilot).map(e=>e.bossPilot));
- const available=Object.keys(PILOTS).filter(id=>PILOTS[id].faction!==PLANES[this.plane].faction&&!live.has(id)&&stageAceEligible(this,id));
- count=Math.min(count,8-live.size,available.length);
+ const state=this.syncAceSortie(),available=this.availableAcePilots();
+ count=Math.max(0,Math.min(count,ACE_SORTIE_BALANCE.maxAces-state.active.size,available.length));
  this.bossDeck=[...new Set(this.bossDeck||[])].filter(id=>available.includes(id));
  if((this.bossDeck?.length||0)>=count)return count;
  this.bossDeck=[...available];
@@ -1744,7 +1750,7 @@ Game.prototype.applySpecialRound=function(b,type){const r=_round3.call(this,b,ty
 const _dir3=Game.prototype.gunDirection;
 Game.prototype.gunDirection=function(gun=0){
  const base=_dir3.call(this,gun);
- return threeGunDirection(this,base,gun);
+ return threeGunDirection(this,base,gun)+(this.bomberTransfer?0:(this.weapon.sortieGunAngle||0));
 };
 const _frame3=Game.prototype.beginRevisionFrame;
 Game.prototype.beginRevisionFrame=function(dt,input={}){
@@ -1777,7 +1783,7 @@ Game.prototype.update=function(dt,input={}){
  for(const p of this.particles){p.x+=p.vx*step;p.y+=p.vy*step;p.life-=step}
  {const _ph=this.particles;let _w=0;for(let _i=0;_i<_ph.length;_i++)if(_ph[_i].life>0)_ph[_w++]=_ph[_i];_ph.length=_w}
 };
-import {installNinePilots} from './pilot-nine-combat.js?v=bomber20';
+import {installNinePilots} from './pilot-nine-combat.js?v=sortierhythm20261018';
 const _preNineHit=Game.prototype.hit;Game.prototype.hit=function(n){if(this.pilot==='barker'&&this.invuln<=0&&n>0){this.barkerStacks=Math.min(this.skillTime>0?5:3,(this.barkerStacks||0)+1);this.barkerStackTime=3;if(this.skillTime>0)n=Math.min(n,Math.max(0,this.hp-1))}_preNineHit.call(this,n)};
 installNinePilots(Game,PILOTS);
 
@@ -1823,7 +1829,7 @@ Game.prototype.update=function(dt,input={}){
  if(this.bishopEmptyPending){this.bishopEmptyPending=false;this.ammo.fill(0);this.reloadTime=0;this.fire=.1;this.muzzleFlash=0;this.event('wave','폭격 종료 · 탄약 소진, 재장전 필요')}
 };
 // Five authored ace attacks (fonck/gontermann/luke/proctor/lufbery) — replaces the three-pilot gate for proctor/lufbery.
-import {installFivePilots} from './pilot-five-combat.js?v=fiveace1';installFivePilots(Game,PILOTS);
+import {installFivePilots} from './pilot-five-combat.js?v=sortierhythm20261018';installFivePilots(Game,PILOTS);
 // Attach after legacy spawns and coastal aircraft so the stock roster is the final ordinary-fit choice.
 installAircraftBankRoster(Game,PLANES,attachAircraftPersonality);
 
@@ -1832,7 +1838,7 @@ installAchievementTracking(Game);
 installBomberTransfer(Game,PLANES,AUGMENTATION_OVERHAUL_BALANCE);
 
 // Player-local kill/transfer rewards share the same hooks in solo and co-op.
-import {installLothar} from './lothar-combat.js?v=merge20261017';
+import {installLothar} from './lothar-combat.js?v=sortierhythm20261018';
 installLothar(Game);
 
 // Observe the two metal-airframe pilots after all legacy combat layers.
@@ -1851,3 +1857,10 @@ installLoewenhardtFx(Game);
 
 import {installFonckPrecisionFx} from './fonck-precision-fx.js';
 installFonckPrecisionFx(Game);
+
+import {installPilotAircraft} from './pilot-aircraft.js?v=sortierhythm20261018';
+installPilotAircraft(PLANES,WEAPONS,PILOTS,PILOT_PLANES,AIRFRAME_PROFILES,configureAirframeBalance);
+registerAircraftTiers(PLANES);
+
+// One shared ace identity/aircraft lifecycle for every named spawn and co-op world.
+installAceSortieRhythm(Game,{PILOTS,PLANES,PILOT_PLANES,stageAceEligible,angleDiff});

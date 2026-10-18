@@ -1,5 +1,5 @@
-import {AchievementBook,MEDALS,MEDAL_SAVE_KEY,setAchievementBook,achievementRun} from './achievements.js?v=medals2';
-import {getLocale,subscribe} from './i18n.js?v=buildfit1&afc=1';
+import {AchievementBook,MEDALS,MEDAL_SAVE_KEY,setAchievementBook,achievementRun} from './achievements.js?v=sortierhythm20261018';
+import {getLocale,subscribe} from './i18n.js?v=sortierhythm20261018&afc=1';
 
 export function installAchievementUI({getGame,document:doc=globalThis.document}={}){
  if(!doc?.getElementById('hangar'))return null;
@@ -8,7 +8,7 @@ export function installAchievementUI({getGame,document:doc=globalThis.document}=
  const en=()=>getLocale()==='en',text=(ko,eng)=>en()?eng:ko;
  const node=(tag,cls,content)=>{const e=doc.createElement(tag);if(cls)e.className=cls;if(content!==undefined)e.textContent=content;return e};
  const icon=(d,tier=0)=>{const e=node('span','service-medal-art');e.style.backgroundPosition=`${d.icon%3*50}% ${Math.floor(d.icon/3)*100}%`;e.setAttribute('aria-hidden','true');if(!tier)e.classList.add('is-locked');return e};
- const link=node('link');link.rel='stylesheet';link.href='./achievements.css?v=medals3';doc.head.append(link);
+ const link=node('link');link.rel='stylesheet';link.href='./achievements.css?v=sortierhythm20261018';doc.head.append(link);
  const button=node('button','service-record-entry');button.type='button';button.id='serviceRecordEntry';button.dataset.action='medals';button.setAttribute('aria-haspopup','dialog');
  const entryFull=node('span','operation-label-full'),entryShort=node('span','operation-label-short');button.append(entryFull,entryShort);
  const strip=node('div','service-featured');strip.id='serviceFeatured';

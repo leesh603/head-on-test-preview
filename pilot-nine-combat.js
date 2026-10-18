@@ -1,5 +1,5 @@
 // Nine pilot mechanics, installed on the existing firing/frame/impact hooks.
-import {signatureCue,activatePilotSignature} from './pilot-signature-state.js?v=tame3';
+import {signatureCue,activatePilotSignature} from './pilot-signature-state.js?v=sortierhythm20261018';
 export const NINE_PILOTS=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker']);
 const durations={huffzky:3,mckeever:5,jacobs:4,hawker:5,berthold:5,udet:2.6,goering:5,nungesser:3,barker:6};
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -153,7 +153,7 @@ export function installNinePilots(Game,PILOTS){
  };
  const round=q.applySpecialRound;q.applySpecialRound=function(b,type){
   const r=round.call(this,b,type);if(!gunRound(b))return r;
-  if(['mckeever','hawker','udet'].includes(this.pilot)&&!b.pilotRear){const offset=this.weapon.bidirectional?0:(b.gun-(this.weapon.guns-1)/2)*8;b.x=this.x+Math.cos(this.a)*23-Math.sin(this.a)*offset;b.y=this.y+Math.sin(this.a)*23+Math.cos(this.a)*offset;}
+  if(['mckeever','hawker','udet'].includes(this.pilot)&&!b.pilotRear){const offset=this.weapon.sortieMuzzleSide??(this.weapon.bidirectional?0:(b.gun-(this.weapon.guns-1)/2)*8);b.x=this.x+Math.cos(this.a)*23-Math.sin(this.a)*offset;b.y=this.y+Math.sin(this.a)*23+Math.cos(this.a)*offset;}
   if(this.pilot==='jacobs'&&this.skillTime>0){
    const near=pick(this,this.a,.25,100),fan=near?.018:.14,a=Math.atan2(b.vy,b.vx),s=Math.hypot(b.vx,b.vy);b.damage/=3;
    for(const side of [-1,1])world(this).bullets.push({...b,vx:Math.cos(a+side*fan)*s,vy:Math.sin(a+side*fan)*s,enemy:false,ownerId:this.id,hit:new Set(),jacobsSuppress:true});b.jacobsSuppress=true;

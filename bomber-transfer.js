@@ -1,4 +1,4 @@
-import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=buildfit1&afc=1';
+import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=sortierhythm20261018&afc=1';
 // Sortie-only heavy-airframe fit. The selected plane and pilot remain authoritative.
 export const BOMBER_TRANSFER_ID='bomberTransfer';
 export const BOMBER_TRANSFER_DESCRIPTION='현재 기체를 소속 진영의 대형 중폭격기로 전환합니다. 최대 내구도가 크게 증가하고 자동 폭격 및 후방 방어사수를 획득하지만, 비행속도와 선회력이 감소합니다. 다른 기체 전환 장비와 동시 장착할 수 없습니다.';

@@ -1,14 +1,14 @@
-import {applySeaColor} from './sea-colors.js?v=tame3';
-import {fleetGunStations} from './naval-faction-atlas.js?v=tame3';
-import {drawFactionHull,prepareFactionHulls} from './naval-faction-art.js?v=tame3';
-import {drawShipWater,drawTorpedo,drawFactionMark} from './naval-water.js?v=tame3';
-import {drawSinkingShip} from './ship-sinking.js?v=tame3';
-import {fx} from './fx-art.js?v=tame3';
-import {impactMark,partMark,aimLine} from './tactical-marks.js?v=tame3';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
-import {jutlandRotate} from './jutland-boss.js?v=tame3';
-import {jutlandPoint} from './jutland-route.js?v=tame3';
-import {JUTLAND_RECTS,JUTLAND_HULL_MASKS} from './jutland-atlas.js?v=tame3';
+import {applySeaColor} from './sea-colors.js?v=sortierhythm20261018';
+import {fleetGunStations} from './naval-faction-atlas.js?v=sortierhythm20261018';
+import {drawFactionHull,prepareFactionHulls} from './naval-faction-art.js?v=sortierhythm20261018';
+import {drawShipWater,drawTorpedo,drawFactionMark} from './naval-water.js?v=sortierhythm20261018';
+import {drawSinkingShip} from './ship-sinking.js?v=sortierhythm20261018';
+import {fx} from './fx-art.js?v=sortierhythm20261018';
+import {impactMark,partMark,aimLine} from './tactical-marks.js?v=sortierhythm20261018';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=sortierhythm20261018';
+import {jutlandRotate} from './jutland-boss.js?v=sortierhythm20261018';
+import {jutlandPoint} from './jutland-route.js?v=sortierhythm20261018';
+import {JUTLAND_RECTS,JUTLAND_HULL_MASKS} from './jutland-atlas.js?v=sortierhythm20261018';
 export const JUTLAND_ASSETS=Object.freeze({sea:'jutland-sea.webp',battleship:'jutland-battleship-neutral.webp',cruiser:'jutland-cruiser.webp',parts:'jutland-parts.webp',central:'asset-bank/outlined/native/boss-zeppelin-l7094.webp',entente:'asset-bank/outlined/native/boss-hma2394.webp'});
 const images=new Map(),pending=new Map();let water=null;
 function load(key){if(images.has(key))return images.get(key);const im=new Image();images.set(key,im);im.crossOrigin='anonymous';im.decoding='async';pending.set(key,new Promise((resolve,reject)=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))};im.onerror=()=>reject(new Error('Jutland asset '+key));}));im.src='./'+JUTLAND_ASSETS[key]+'?v=r5';return im;}

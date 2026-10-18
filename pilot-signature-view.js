@@ -1,6 +1,6 @@
-import {fx,fxTint} from './fx-art.js?v=tame3';
-import {drawGameIcon} from './icons.js?v=buildfit1&afc=1';
-import {createPilotSignatureRenderer} from './pilot-signature-renderer.js?v=buildfit1&afc=1';
+import {fx,fxTint} from './fx-art.js?v=sortierhythm20261018';
+import {drawGameIcon} from './icons.js?v=sortierhythm20261018&afc=1';
+import {createPilotSignatureRenderer} from './pilot-signature-renderer.js?v=sortierhythm20261018';
 
 // Ferrari's original prancing-horse vector is used only as a small Baracca marking.
 // Source: simple-icons/simple-icons, icons/ferrari.svg (the horse only, without a shield or text).
@@ -33,3 +33,4 @@ export function drawMccuddenSupply(c,d,x,y){
  c.rotate((d.dropHeading||0)*height);c.drawImage(im,-im.naturalWidth*scale/2,-im.naturalHeight*scale/2,im.naturalWidth*scale,im.naturalHeight*scale);
  if(height>0){fx(c,'metalShard1',-8,7,7,5,q*2,.55*height);fx(c,'armorSpark',-12,0,20,13,0,.45*height)}c.restore();return true;
 }
+

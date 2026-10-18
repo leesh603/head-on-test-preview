@@ -1,4 +1,4 @@
-import {getLocale,subscribe,t} from './i18n.js?v=buildfit1&afc=1';
+import {getLocale,subscribe,t} from './i18n.js?v=sortierhythm20261018&afc=1';
 
 
 const $=id=>document.getElementById(id);
@@ -74,4 +74,4 @@ if(hangar){
 }
 
 // Direct Astra implementation: all live controls and data bindings are preserved.
-import("./astra-interface180.js?v=buildfit1&afc=1");
+import("./astra-interface180.js?v=sortierhythm20261018&afc=1");
