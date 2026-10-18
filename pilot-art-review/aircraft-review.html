@@ -1,0 +1,25 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HEAD-ON · Aircraft render verification</title>
+<style>body{margin:0;background:#263627;color:#f4e7c5;font:14px system-ui}header{position:sticky;top:0;background:#101b18;padding:12px;z-index:2}button,select{font:inherit;padding:8px;margin:4px}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:12px;padding:12px}article{border:1px solid #a59869;padding:8px;background:#314634}h2{font-size:15px;overflow-wrap:anywhere}img{width:144px;height:160px;object-fit:contain}canvas{width:144px;height:160px}figure{display:inline-block;margin:0}figcaption{font-size:11px;color:#ceceae}small{display:block;overflow-wrap:anywhere}.fail{background:#730b13}.views{display:flex;flex-wrap:wrap}#summary{font-weight:bold}</style>
+<header><strong>HEAD-ON · 실제 렌더 모듈 검증</strong><p id="summary">Loading 56 choices…</p><label>회전 <select id="angle"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></label><label>상태 <select id="damage"><option value="0">정상</option><option value="1">피격 1</option><option value="3">피격 3</option></select></label></header><main></main>
+<script type="module">
+const base='./';
+const aircraft=await import(base+'aircraft.js?review=pilot-recovery1');
+const roster=await import(base+'pilot-aircraft.js?review=pilot-recovery1');
+const hangar=await import(base+'hangar-art.js?review=pilot-recovery1');
+await aircraft.aircraftReady;
+const rows=[];let failures=0;
+for(const pilot of Object.keys(roster.PILOT_AIRCRAFT))for(const plane of roster.pilotAircraftChoices(pilot)){
+ const key=aircraft.aircraftKey(plane,false,pilot),card=document.createElement('article');card.dataset.pilot=pilot;card.dataset.plane=plane;card.dataset.key=key;
+ const title=document.createElement('h2');title.textContent=pilot+' / '+plane;card.append(title);
+ const views=document.createElement('div');views.className='views';card.append(views);
+ const im=new Image();im.alt=key+' hangar';const f1=document.createElement('figure');f1.append(im);f1.insertAdjacentHTML('beforeend','<figcaption>격납고 · 사전 윤곽선</figcaption>');views.append(f1);
+ const canvas=document.createElement('canvas');canvas.width=288;canvas.height=320;const f2=document.createElement('figure');f2.append(canvas);f2.insertAdjacentHTML('beforeend','<figcaption>실제 planeSprite · 같은 원화</figcaption>');views.append(f2);
+ const detail=document.createElement('small');card.append(detail);document.querySelector('main').append(card);
+ let ok=await aircraft.paintedReady(key);const url=await hangar.hangarArt(key);if(url){im.src=url;try{await im.decode()}catch{ok=false}}else ok=false;
+ const source=aircraft.aircraftFlightSource(key);detail.textContent=key+' | '+(ok?'PASS':'FAIL')+' | '+new URL(source,location.href).pathname.split('/').slice(-2).join('/');
+ card.dataset.status=ok?'pass':'fail';if(!ok){failures++;card.classList.add('fail')}
+ rows.push({key,canvas});
+}
+function draw(){const angle=Number(document.querySelector('#angle').value),damage=Number(document.querySelector('#damage').value);for(const {key,canvas} of rows){const c=canvas.getContext('2d');c.clearRect(0,0,288,320);aircraft.planeSprite(c,144,152,(-90+angle)*Math.PI/180,key,1,false,false,0,damage);canvas.dataset.angle=String(angle);canvas.dataset.damage=String(damage)}}
+draw();document.querySelector('#angle').onchange=draw;document.querySelector('#damage').onchange=draw;document.querySelector('#summary').textContent=`32 pilots · ${rows.length} choices · ${rows.length-failures} loaded · ${failures} failed`;
+</script></html>
