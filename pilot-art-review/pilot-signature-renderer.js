@@ -8,7 +8,7 @@ import {drawLotharWake,drawLotharGuns,drawLotharCue} from './lothar-pursuit-fx.j
 import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=gal1';
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
 import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
-import {bishopFlightHeight} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery1';
+import {bishopFlightHeight} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery2';
 import {signatureWingPositions} from './pilot-signature-geometry.js';
 import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
 import {drawCavalryGuard,drawCavalryLance,drawRickenbackerHalfRing} from './pilot-directed-fx.js';

@@ -1,5 +1,5 @@
 import {AchievementBook,MEDALS,MEDAL_SAVE_KEY,setAchievementBook,achievementRun} from './achievements.js?v=medals2';
-import {getLocale,subscribe} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery1';
+import {getLocale,subscribe} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 
 export function installAchievementUI({getGame,document:doc=globalThis.document}={}){
  if(!doc?.getElementById('hangar'))return null;

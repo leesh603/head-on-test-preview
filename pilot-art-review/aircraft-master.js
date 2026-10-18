@@ -1,4 +1,4 @@
-import {PILOT_AIRCRAFT as SORTIE_ROSTER,SORTIE_FITS} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery1';
+import {PILOT_AIRCRAFT as SORTIE_ROSTER,SORTIE_FITS} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 // Identity and display metadata only. No art paths, render geometry or combat values.
 // Catalog presence does NOT register a fit, unlock a sortie or activate a pilot.
 // Existing PLANES/PILOT_PLANES and mode-specific selection remain authoritative.

@@ -1,10 +1,10 @@
-import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=buildfit1&afc=1&art=pilot-recovery1';
-import {createSignatureView} from './pilot-signature-view.js?v=buildfit1&afc=1&ai=1018&art=pilot-recovery1';
+import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {createSignatureView} from './pilot-signature-view.js?v=buildfit1&afc=1&ai=1018&art=pilot-recovery2';
 import {fx,fxTint} from './fx-art.js?v=gal1';
-import {planeSprite,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery1';
+import {planeSprite,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2';
 import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';
 
-import {bishopFlightHeight} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery1';
+import {bishopFlightHeight} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery2';
 import {drawCavalryGuard} from './pilot-directed-fx.js';
 import {udetRollPose} from './udet-acrobat-fx.js';
 import {bomberEntryPose} from './bomber-transfer.js?v=buildfit1&afc=1';

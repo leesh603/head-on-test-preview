@@ -1,7 +1,7 @@
-import {PLANES} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery1';
+import {PLANES} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery2';
 import {drawGroundEnemy} from './ground-enemy-art.js?v=gal1';
-import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=outline2&art=pilot-recovery1';
-import {SPRITE_ALIASES} from './campaign.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery1';
+import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=outline2&art=pilot-recovery2';
+import {SPRITE_ALIASES} from './campaign.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2';
 import {drawEquipment} from './equipment.js?v=gal1';
 
 registerCampaignSpriteAliases(SPRITE_ALIASES);
