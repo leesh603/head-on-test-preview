@@ -1091,7 +1091,7 @@ function tickAlpsTerrain(g,dt){
  g.alpsMountains.step(dt,{players:roster.map(p=>({id:p.id||'p1',alive:p.hp>0,x:p.x,y:p.y,maxHp:p.maxHp,radius:14})),paused:false});
 }
 const _alpsFrame117=frame;
-frame=now=>{const run=game,before=run?.t||0;_alpsFrame117(now);if(run===game&&game?.state==='playing')tickAlpsTerrain(game,Math.max(0,(game.t||before)-before));};
+frame=(now,...args)=>{const run=game,before=run?.t||0;_alpsFrame117(now,...args);if(run===game&&game?.state==='playing')tickAlpsTerrain(game,Math.max(0,(game.t||before)-before));};
 // Revision 118 — pre-sortie solo leaderboard.  Keep it alongside the co-op
 // briefing without altering the flight mode or pilot lock rules.
 const soloRankingButton=document.createElement('button');
@@ -1589,7 +1589,7 @@ function syncRivalAceUi(){
  $('toast').textContent=t(`rival.${notice.phase}`,{name:pilotName(notice.pilot,notice.name)});show('toast');toastUntil=performance.now()+2600;
 }
 const frameWithBattlefieldEvents=frame;
-frame=now=>{const run=game;frameWithBattlefieldEvents(now);if(run===game){syncBattlefieldEventUi();syncRivalAceUi()}};
+frame=(now,...args)=>{const run=game;frameWithBattlefieldEvents(now,...args);if(run===game){syncBattlefieldEventUi();syncRivalAceUi()}};
 
 // Active missions use a compact, DOM HUD so the shared Game state remains the
 // sole owner for solo and co-op. It is intentionally absent while an offer is up.
@@ -1791,7 +1791,7 @@ function captureBossNotice(run){
 const eventsBeforeBossNotice=events;events=()=>{captureBossNotice(game);return eventsBeforeBossNotice()};
 const coopEventsBeforeBossNotice=coopEvents;coopEvents=()=>{captureBossNotice(game);return coopEventsBeforeBossNotice()};
 const frameBeforeBossNotice=frame;
-frame=now=>{frameBeforeBossNotice(now);const n=protectedBossNotice;
+frame=(now,...args)=>{frameBeforeBossNotice(now,...args);const n=protectedBossNotice;
  if(!$('bossWarning').classList.contains('hidden')){show('toast',false);return}
  if(!n||n.run!==game)return;
  if(game.t>=n.until||n.counter&&!bossCounterActive(game.stageBoss?.stages.encounter)){if($('toast').textContent===n.text)show('toast',false);protectedBossNotice=null;return}
