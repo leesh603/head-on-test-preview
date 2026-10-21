@@ -1,0 +1,58 @@
+{
+  "scene": "dogfight",
+  "seed": 1918,
+  "scripted": true,
+  "simulationStep": 0.02,
+  "invincible": false,
+  "damageMultiplier": 1,
+  "viewport": [
+    1280,
+    800
+  ],
+  "startedAt": "2026-10-21T02:10:52.669Z",
+  "note": "Seeded fixture + fixed-step steering; native AI, shots, damage and rewards.",
+  "captureClock": "timer-30hz",
+  "performanceScope": "Diagnostic timer cadence and render cost only; not display FPS or physical-device performance.",
+  "simulationSteps": 898,
+  "simulationTime": 17.959999999999706,
+  "state": "playing",
+  "kills": 2,
+  "enemyCount": 3,
+  "projectiles": 24,
+  "perf": {
+    "samples": 544,
+    "renderScale": 1,
+    "fps": 30.24749470604573,
+    "frameP95": 33.400001525878906,
+    "frameMax": 63.599998474121094,
+    "renderP95": 8.699999809265137,
+    "renderMax": 22.799999237060547,
+    "heapBytes": 76802272,
+    "ready": false,
+    "draws": 0,
+    "zones": 0,
+    "frame": 0,
+    "decodedBytes": 0
+  },
+  "build": "baseline",
+  "requestedViewport": "1280x800",
+  "actualViewport": [
+    1280,
+    800
+  ],
+  "canvasPixels": [
+    1280,
+    800
+  ],
+  "recordingFps": 30,
+  "displayPerformanceValidated": false,
+  "diagnosticTimer": true,
+  "audioTracks": 1,
+  "audioPeak": 0.4696277976036072,
+  "audio": "SFX + BGM post-compressor mix",
+  "elapsedWallSeconds": 20.09060000000149,
+  "valid": true,
+  "error": null,
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+  "deviceNote": "Browser viewport preset; not proof of physical mobile-device performance."
+}
