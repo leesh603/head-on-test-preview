@@ -345,13 +345,13 @@ document.addEventListener('visibilitychange',()=>{invalidateRender();last=perfor
 // Test-only diagnostic clock for environments that throttle visible rAF.
 // Real elapsed time still drives the normal update/render path; these samples
 // describe timer scheduling, never display refresh rate or device performance.
-let combatCaptureClockTimer=null,gameFrameRequest=null;
+let combatCaptureClockTimer=null,combatCaptureClockHost=window,gameFrameRequest=null;
 function scheduleGameFrame(){if(combatCaptureClockTimer!==null||gameFrameRequest!==null)return;gameFrameRequest=requestAnimationFrame(now=>{gameFrameRequest=null;frame(now);});}
 function stopCombatCaptureClock(){
  if(combatCaptureClockTimer===null)return;
- clearInterval(combatCaptureClockTimer);combatCaptureClockTimer=null;last=performance.now();renderStamp=-1e9;scheduleGameFrame();
+ combatCaptureClockHost.clearInterval(combatCaptureClockTimer);combatCaptureClockTimer=null;last=performance.now();renderStamp=-1e9;scheduleGameFrame();
 }
-function startCombatCaptureClock(mode='native-raf',onFrame){
+function startCombatCaptureClock(mode='native-raf',onFrame,clockHost=window){
  stopCombatCaptureClock();
  if(!game?.testMode||!game.combatBenchmarkRunning)throw Error('Capture clock requires an active test benchmark');
  const clock=mode==='timer-30hz'?'timer-30hz':'native-raf';
@@ -359,8 +359,8 @@ function startCombatCaptureClock(mode='native-raf',onFrame){
  game.combatBenchmarkMeta.performanceScope=clock==='timer-30hz'?'Diagnostic timer cadence and render cost only; not display FPS or physical-device performance.':'Native requestAnimationFrame cadence in this browser; not physical-device performance.';
  if(clock==='native-raf')return;
  if(gameFrameRequest!==null){cancelAnimationFrame(gameFrameRequest);gameFrameRequest=null;}
- const run=game;last=performance.now();renderStamp=-1e9;
- combatCaptureClockTimer=setInterval(()=>{if(game!==run||!run.combatBenchmarkRunning){stopCombatCaptureClock();return;}try{frame(performance.now(),true);if(frameErrors>20)throw Error('Repeated game frame errors');onFrame?.();}catch(error){run.combatBenchmarkMeta.captureClockError=error.message;run.combatBenchmarkRunning=false;stopCombatCaptureClock();}},1000/30);
+ const run=game;combatCaptureClockHost=clockHost;last=performance.now();renderStamp=-1e9;
+ combatCaptureClockTimer=combatCaptureClockHost.setInterval(()=>{if(game!==run||!run.combatBenchmarkRunning){stopCombatCaptureClock();return;}try{frame(performance.now(),true);if(frameErrors>20)throw Error('Repeated game frame errors');onFrame?.();}catch(error){run.combatBenchmarkMeta.captureClockError=error.message;run.combatBenchmarkRunning=false;stopCombatCaptureClock();}},1000/30);
 }
 const trenchPerf={cost:new Float32Array(2048),gap:new Float32Array(2048),n:0,last:0};
 function trenchPerfReset(){trenchPerf.n=0;trenchPerf.last=0;}
