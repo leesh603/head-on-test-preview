@@ -1,0 +1,72 @@
+{
+  "scene": "ground",
+  "seed": 1918,
+  "scripted": true,
+  "simulationStep": 0.02,
+  "invincible": true,
+  "damageMultiplier": 1,
+  "qaProjectiles": true,
+  "maximumReplaySeconds": 18,
+  "completionCondition": "groundDefeated",
+  "viewport": [
+    1280,
+    800
+  ],
+  "startedAt": "2026-10-21T02:19:22.036Z",
+  "note": "Diagnostic fixture: seeded QA projectiles, native collision/damage/AI/collapse, invulnerable observer. Not an ordinary-player victory or balance test.",
+  "captureClock": "timer-30hz",
+  "performanceScope": "Diagnostic timer cadence and render cost only; not display FPS or physical-device performance.",
+  "groundDefeated": true,
+  "destroyedParts": 0,
+  "encounterCompleted": false,
+  "qaShots": 3,
+  "lastQaTarget": {
+    "body": "railgun",
+    "part": null,
+    "x": -93.91911344036026,
+    "y": -263.26445893139953
+  },
+  "groundBlastQueued": true,
+  "simulationSteps": 894,
+  "simulationTime": 17.879999999999708,
+  "state": "playing",
+  "kills": 1,
+  "enemyCount": 1,
+  "projectiles": 2,
+  "perf": {
+    "samples": 541,
+    "renderScale": 0.944,
+    "fps": 30.208607191529516,
+    "frameP95": 33.400001525878906,
+    "frameMax": 110.80000305175781,
+    "renderP95": 10.399999618530273,
+    "renderMax": 106,
+    "heapBytes": 62580218,
+    "ready": true,
+    "draws": 9,
+    "zones": 2,
+    "frame": 5,
+    "decodedBytes": 4194304
+  },
+  "build": "candidate",
+  "requestedViewport": "1280x800",
+  "actualViewport": [
+    1280,
+    800
+  ],
+  "canvasPixels": [
+    964,
+    602
+  ],
+  "recordingFps": 30,
+  "displayPerformanceValidated": false,
+  "diagnosticTimer": true,
+  "audioTracks": 1,
+  "audioPeak": 0.5041313171386719,
+  "audio": "SFX + BGM post-compressor mix",
+  "elapsedWallSeconds": 20.09870000000298,
+  "valid": true,
+  "error": null,
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+  "deviceNote": "Browser viewport preset; not proof of physical mobile-device performance."
+}
