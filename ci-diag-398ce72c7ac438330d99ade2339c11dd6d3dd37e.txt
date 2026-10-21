@@ -1,0 +1,40 @@
+syntax=success testlab=success smoke=failure ios=failure baseout=success compare=failure boss=failure pillow=success build=success
+,256);source.lowDetail=tileCanvas;}
+     const image=source.lowDetail;
+     const tile=1024,startX=Math.floor(cx*.4/tile),startY=Math.floor(cy*.4/tile),ox=startX*tile-cx*.4,oy=startY*tile-cy*.4;
+     c.save();c.imageSmoothingEnabled=false;
+     for(let x=ox,ix=startX;x<W;x+=tile,ix++)for(let y=oy,iy=startY;y<H;y+=tile,iy++){
+      c.save();c.translate(x+tile/2,y+tile/2);c.scale(ix&1?-1:1,iy&1?-1:1);c.drawImage(image,-tile/2,-tile/2,tile,tile);c.restore();
+     }
+     c.fillStyle=city==='berlin'?'#17232a18':'#26302914';c.fillRect(0,0,W,H);c.restore();
+     const time=(globalThis.performance?.now?.()||0)/1000;c.save();c.globalCompositeOperation='screen';
+     for(let i=0;i<3;i++){const ox=(i+.5)*W/3,oy=H+18,a=-Math.PI/2+Math.sin(time*.28+i*2.1)*.48,len=H*.9,tx=ox+Math.cos(a)*len,ty=oy+Math.sin(a)*len;
+      if(fxReady('searchlight')){const bx=ox+Math.cos(a)*len*.5,by=oy+Math.sin(a)*len*.5;fx(c,'searchlight',bx,by,len,110,a,.35);}
+      else{c.fillStyle='#ead89b14';c.beginPath();c.moveTo(ox-9,oy);c.lineTo(tx-42,ty);c.lineTo(tx+42,ty);c.lineTo(ox+9,oy);c.closePath();c.fill();}
+      c.strokeStyle='#f2dda13d';c.lineWidth=1;c.beginPath();c.moveTo(ox,oy);c.lineTo(tx,ty);c.stroke();c.fillStyle='#413e35';c.fillRect(ox-12,H-18,24,18);c.fillStyle='#d9c883';c.fillRect(ox-5,H-22,10,5);}
+     c.restore();
+    }
+    
+    
+    
+    
+    
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///home/runner/work/head-on-aces-source/head-on-aces-source/tests/zubian-rebuild103.test.mjs:35:9)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..1968
+# tests 1968
+# suites 0
+# pass 1608
+# fail 347
+# cancelled 0
+# skipped 13
+# todo 0
+# duration_ms 176553.805648
