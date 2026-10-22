@@ -1,6 +1,6 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=sortierhythm20261018';
-import {RailBossController} from './rail-boss129.js?v=sortierhythm20261018';
-import {StuttgartSupport} from './stuttgart129.js?v=sortierhythm20261018';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {RailBossController} from './rail-boss129.js?v=tame3';
+import {StuttgartSupport} from './stuttgart129.js?v=tame3&boss=20261020b';
 
 export class RailAdapter extends BaseBoss {
  constructor(o,kind){
@@ -67,9 +67,11 @@ export class RailAdapter extends BaseBoss {
   if(s.partId==='rail')return{damage:this.rail129.hitRail(s.damage),partId:'rail'};
   if(s.partId){const r=super.hit(s);return r;}
   if(!this.coreVulnerable&&!this.runawayTriggered129){
-   const dealt=Math.min(this.hp,s.damage*.22);this.hp-=dealt;
-   if(this.hp<=0){this.hp=0;this.dead=true;this.phase='defeated';this.emit({type:'body-defeated',bossId:this.id});}
-   return{damage:dealt,bodyDefeated:this.dead};
+   // Armoured chip damage can wear the gun down to its runaway threshold, but
+   // never past it: the train always gets its runaway and last shot.
+   const threshold=this.maxHp*.28,dealt=Math.min(Math.max(0,this.hp-threshold),s.damage*.22);this.hp-=dealt;
+   if(this.hp<=threshold&&!this.dead){this.runawayTriggered129=true;this.coreVulnerable=false;this.rail129.startRunaway();}
+   return{damage:dealt};
   }
   if(!this.coreVulnerable)return{damage:0,blocked:true};
   if(!this.runawayTriggered129){
@@ -93,10 +95,11 @@ export class StuttgartAdapter extends BaseBoss {
    clearOwned:()=>this.emit({type:'support-cleanup',bossId:this.id}),onCleared:()=>{},onCue:e=>this.emit({...e,bossId:this.id})});
   for(const p of this.support129.parts.values()){const support=this.support129;this.parts.set(p.id,{id:p.id,maxHp:p.maxHp,get hp(){return p.hp},get destroyed(){return p.hp<=0},get hittable(){return support.hittable(p)},x:p.nx*support.width,y:p.ny*support.height,radius:p.rx*support.width});}
  }
- update(dt,ctx){this.support129.tick(dt,ctx);this.sync129();}
- sync129(){const s=this.support129;this.hp=s.hp;this.x=s.x;this.y=s.y;this.hullYaw=s.angle;this.driveVelocity=s.driveVelocity;this.phase=s.phase===1?'carrier':s.phase===2?'sortie':s.phase===3?'carrier-evasive':'carrier-final-sortie';this.dead=s.dead;for(const p of s.parts.values()){const q=s.world(p.nx,p.ny),part=this.parts.get(p.id);part.x=q.x-s.x;part.y=q.y-s.y;}}
+ update(dt,ctx){this.basicHoldUntil=(this.combatTime||0)+dt+.1;this.support129.tick(dt,ctx);this.sync129();}
+ sync129(){const s=this.support129;this.hp=s.hp;this.x=s.x;this.y=s.y;this.hullYaw=s.angle;this.driveVelocity=s.driveVelocity;this.phase=s.tacticalPhase||(s.phase===1?'carrier':s.phase===2?'sortie':s.phase===3?'carrier-evasive':'carrier-final-sortie');this.dead=s.dead;for(const p of s.parts.values()){const q=s.world(p.nx,p.ny),part=this.parts.get(p.id);part.x=q.x-s.x;part.y=q.y-s.y;}}
  locateHit(s){const id=this.support129.locateHit(s);return id?{partId:id}:null;}
  hit(s){const was=this.dead,result=this.support129.hit({...s,partId:s.partId||'hull'});this.sync129();if(this.dead&&!was)this.emit({type:'body-defeated',bossId:this.id});return result;}
  hitAt(s){const hit=this.locateHit(s);return hit?this.hit({...hit,damage:s.damage}):{damage:0};}
  dispose(){this.support129.dispose();}
 }
+

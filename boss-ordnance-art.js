@@ -1,12 +1,17 @@
-// Painted WWI ordnance for hostile boss rounds (nose right, hostile ink rim
-// and crimson under-glow baked in). Frames: [x,y,w,h] in fx-boss-ordnance.webp.
-export const BOSS_ORDNANCE_FRAMES=Object.freeze({"ap-small": [0, 0, 132, 63], "he-shell": [134, 0, 132, 63], "he-big": [268, 0, 156, 80], "ap-big": [426, 0, 156, 68], "frag-shell": [584, 0, 132, 81], "iron-bomb": [718, 0, 132, 92], "mortar-small": [852, 0, 156, 75], "mortar-big": [1010, 0, 156, 70], "rifle-grenade": [1168, 0, 156, 44], "pineapple": [1326, 0, 132, 86], "stick-grenade": [1460, 0, 156, 54], "dart": [1618, 0, 156, 54]});
+// Painted WWI ordnance for hostile boss rounds (nose right). The painted body
+// is untouched (no ink rim); a soft crimson under-glow, slightly toward the
+// tail, is baked in so hostile rounds still read on sea, snow and dirt.
+// Frames: [x,y,w,h,bodyLength] in fx-boss-ordnance-e.webp.
+export const BOSS_ORDNANCE_FRAMES=Object.freeze({"ap-small": [0, 0, 136, 67, 112], "he-shell": [138, 0, 136, 67, 112], "he-big": [276, 0, 160, 84, 136], "ap-big": [438, 0, 160, 72, 136], "frag-shell": [600, 0, 136, 85, 112], "iron-bomb": [738, 0, 136, 96, 112], "mortar-small": [876, 0, 160, 79, 136], "mortar-big": [1038, 0, 160, 74, 136], "rifle-grenade": [1200, 0, 160, 48, 136], "pineapple": [1362, 0, 136, 90, 112], "stick-grenade": [1500, 0, 160, 58, 136], "dart": [1662, 0, 160, 58, 136]});
 const image=typeof Image==='undefined'?null:new Image();let ready=false;
-export const bossOrdnanceReady=new Promise(resolve=>{if(!image){resolve(false);return;}image.decoding='async';image.onload=()=>{ready=true;resolve(true)};image.onerror=()=>resolve(false);image.src=new URL('./fx-boss-ordnance.webp?v=r1',import.meta.url).href;});
+export const bossOrdnanceReady=new Promise(resolve=>{if(!image){resolve(false);return;}image.decoding='async';image.onload=()=>{ready=true;resolve(true)};image.onerror=()=>resolve(false);image.src=new URL('./fx-boss-ordnance-e.webp?v=e1',import.meta.url).href;});
 export function bossOrdnanceLoaded(){return ready;}
 // Draw a round centred on x,y, `length` px long along `angle` (frame aspect kept).
+// Callers keep their historical `length`; rounds are drawn at a little over
+// half of it (a 46 heavy reads as a 25 px shell), smaller and less sticker-like.
+const ROUND_SCALE=.55;
 export function drawBossOrdnance(c,name,x,y,length,angle=0,alpha=1){
  const f=BOSS_ORDNANCE_FRAMES[name];if(!ready||!f||!(length>0))return false;
- const k=length/f[2];c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha*=alpha;c.imageSmoothingEnabled=true;
- c.drawImage(image,f[0],f[1],f[2],f[3],-f[2]*k*.55,-f[3]*k/2,f[2]*k,f[3]*k);c.restore();return true;
+ const k=length*ROUND_SCALE/f[4];c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha*=alpha;c.imageSmoothingEnabled=true;
+ c.drawImage(image,f[0],f[1],f[2],f[3],-f[2]*k*.5,-f[3]*k/2,f[2]*k,f[3]*k);c.restore();return true;
 }

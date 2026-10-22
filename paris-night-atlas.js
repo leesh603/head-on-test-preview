@@ -1,4 +1,4 @@
-import {PARIS_FORTRESS_LAYOUT,PARIS_STAAKEN_LAYOUT} from './paris-night-bosses.js?v=sortierhythm20261018';
+import {PARIS_FORTRESS_LAYOUT,PARIS_STAAKEN_LAYOUT} from './paris-night-bosses.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
 // Clip coordinates share the combat mounts' world space. Original artwork
 // is assembled without individually shrinking or redesigning its machinery.
 export const PARIS_ART_LAYOUTS={fortress:PARIS_FORTRESS_LAYOUT,staaken:PARIS_STAAKEN_LAYOUT};
@@ -19,3 +19,4 @@ export const PARIS_PART_CLIPS={
   'bomb-bay-left':[-105,-70,45,147],'bomb-bay-right':[61,-70,45,147]
  }
 };
+

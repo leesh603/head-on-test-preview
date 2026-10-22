@@ -1,15 +1,16 @@
-import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=sortierhythm20261018&afc=1';
-import {createSignatureView} from './pilot-signature-view.js?v=sortierhythm20261018&afc=1';
-import {fx,fxTint} from './fx-art.js?v=sortierhythm20261018';
-import {planeSprite,aircraftKey} from './aircraft.js?v=sortierhythm20261018';
-import {drawHorseSilhouette} from './equipment-material-fx.js?v=sortierhythm20261018';
+import {drawMaterialPetal,drawRepairRecovery} from './petal-supply-fx.js?v=petalsupply1';
+import {nungesserCombatStatus} from './nungesser-combat.js';
+import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {createSignatureView} from './pilot-signature-view.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021';
+import {fx,fxTint} from './fx-art.js?v=gal1';
+import {planeSprite,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2';
+import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';
 
-import {bishopFlightHeight} from './engine.js?v=sortierhythm20261018';
-import {drawCavalryGuard} from './pilot-directed-fx.js';
+import {bishopFlightHeight} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
 import {udetRollPose} from './udet-acrobat-fx.js';
-import {bomberEntryPose} from './bomber-transfer.js?v=sortierhythm20261018&afc=1';
-import {bombSprite} from './bomb-sprites.js?v=sortierhythm20261018';
-import {fxsBombFall} from './fx-sample-preview.js?v=sortierhythm20261018';
+import {bomberEntryPose} from './bomber-transfer.js?v=buildfit1&afc=1';
+import {bombSprite} from './bomb-sprites.js?v=bomb20';
+import {fxsBombFall} from './fx-sample-preview.js?v=pilotfx20261018';
 const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
 export function playerPose(p,x,y){
@@ -37,12 +38,13 @@ export function drawPlayerAura(c,p,x,y){
  const entry=bomberEntryPose(p);
  if(entry){if(!drawBuildTransferEntry(c,p,x,y+entry.height)){drawBomberEntry(c,p,x,y+entry.height);return;}}
  drawEquipmentEffects151(c,p,x,y);
+ drawRepairRecovery(c,p,x,y);
  drawPrecisionEquipment156(c,p,x,y);
  if(p.ballCloak>0&&!p.sortieFlightFx)fx(c,'mist',x,y,72,38,p.a,Math.min(.35,p.ballCloak*.3));
  // The reversal is carried by the aircraft pose and a short signature trail.
  if(p.fxOverheat>0&&p.pilot!=='udet')fx(c,'muzzle',x+Math.cos(p.a)*24,y+Math.sin(p.a)*24,28,20,p.a,Math.min(.7,p.fxOverheat));
- for(const g of p.pilot==='immelmann'||p.pilot==='loewenhardt'&&p.loewAscentFx?[]:p.pilotIdentity?.feedback?.ghosts||[]){c.save();c.globalAlpha*=.3*Math.pow(Math.max(0,g.life/g.maxLife),.8);planeSprite(c,x+g.x-p.x,y+g.y-p.y,g.a,p.bomberTransfer?.sprite||aircraftKey(g.plane,false,g.pilot),g.scale*(p.bomberTransfer?.scale??1),false,false);c.restore()}
- for(const f of p.pilotIdentity?.fx||[]){if(f.fonckLegacy&&p.fonckPrecisionFx)continue;if(f.loewLegacy&&p.loewAscentFx)continue;if(f.udetLegacy&&p.udetAcrobat)continue;if(f.sortiePilotLegacy&&p.sortieFlightFx)continue;if(f.metalPilotLegacy&&p.metalFlightFx)continue;if(p.pilot==='immelmann'&&f.key==='windStreak')continue;const q=Math.min(1,f.life/.12),alpha=q*(f.alpha??.72),height=f.height??(f.key==='windStreak'?f.size*.35:f.size);if(f.color)fxTint(c,f.key,f.color,x+f.x-p.x,y+f.y-p.y,f.size,height,f.a,alpha);else fx(c,f.key,x+f.x-p.x,y+f.y-p.y,f.size,height,f.a,alpha)}
+ for(const g of ['nungesser','barker','jacobs','hawker','boelcke','collishaw','guynemer','bishop','baracca','rickenbacker','goering','brumowski','huffzky','berthold','luke','mannock','wolff','mccudden','immelmann'].includes(p.pilot)||p.pilot==='loewenhardt'&&p.loewAscentFx?[]:p.pilotIdentity?.feedback?.ghosts||[]){c.save();c.globalAlpha*=.3*Math.pow(Math.max(0,g.life/g.maxLife),.8);planeSprite(c,x+g.x-p.x,y+g.y-p.y,g.a,p.bomberTransfer?.sprite||aircraftKey(g.plane,false,g.pilot),g.scale*(p.bomberTransfer?.scale??1),false,false);c.restore()}
+ for(const f of p.pilotIdentity?.fx||[]){if(['nungesser','barker'].includes(p.pilot)&&['windStreak','mist','muzzle','muzzleTwin','muzzleRear','muzzleHeavy','gunSmoke','spark','smokeDark','smokeTrail','engineSmoke','fireEngine','fireWing'].includes(f.key))continue;if(['jacobs','hawker'].includes(p.pilot)&&['windStreak','mist','muzzle','muzzleTwin','muzzleRear','muzzleHeavy','gunSmoke','spark','smokeDark'].includes(f.key))continue;if(['huffzky','berthold'].includes(p.pilot)&&['windStreak','mist','muzzle','muzzleTwin','muzzleRear','muzzleHeavy','gunSmoke','spark','armorSpark','metalShard','debris'].includes(f.key))continue;if(['luke','mannock'].includes(p.pilot)&&['windStreak','mist','muzzle','muzzleTwin','muzzleRear','muzzleHeavy','gunSmoke','spark','fireEngine','fireFlash'].includes(f.key))continue;if(['wolff','mccudden'].includes(p.pilot)&&['windStreak','mist','muzzle','muzzleTwin','muzzleHeavy','gunSmoke','spark'].includes(f.key))continue;if(['baracca','rickenbacker','goering','brumowski'].includes(p.pilot)&&['windStreak','mist','muzzle','muzzleTwin','muzzleHeavy','gunSmoke','spark'].includes(f.key))continue;if(['guynemer','bishop'].includes(p.pilot)&&['windStreak','mist','muzzle','muzzleTwin','muzzleHeavy','gunSmoke'].includes(f.key))continue;if(['boelcke','collishaw'].includes(p.pilot)&&['windStreak','mist','muzzle','muzzleTwin','gunSmoke'].includes(f.key))continue;if(f.fonckLegacy&&p.fonckPrecisionFx)continue;if(f.loewLegacy&&p.loewAscentFx)continue;if(f.udetLegacy&&p.udetAcrobat)continue;if(f.sortiePilotLegacy&&p.sortieFlightFx)continue;if(f.metalPilotLegacy&&p.metalFlightFx)continue;if(p.pilot==='immelmann'&&f.key==='windStreak')continue;const q=Math.min(1,f.life/.12),alpha=q*(f.alpha??.72),height=f.height??(f.key==='windStreak'?f.size*.35:f.size);if(f.color)fxTint(c,f.key,f.color,x+f.x-p.x,y+f.y-p.y,f.size,height,f.a,alpha);else fx(c,f.key,x+f.x-p.x,y+f.y-p.y,f.size,height,f.a,alpha)}
  if(p.pilotSignatureState)drawPilotSignatureLayer(c,p,x,y);
 }
 
@@ -67,17 +69,13 @@ function drawBomberEntry(c,p,x,y){
 // Same visual language as tail lock; derived from the real passive state.
 export function passiveGaugeProgress(p){
  if(p.pilot==='wolff')return Math.min(1,Math.max(0,(p.wolffSafeTime||0)/18));
- if(p.pilot==='nungesser')return Math.min(1,Math.max(0,(1-p.hp/p.maxHp)/.8));
+ if(p.pilot==='nungesser')return nungesserCombatStatus(p).readyFraction;
  return 0;
 }
-export function drawPassiveGauge(c,p,x,y){/* Nungesser uses airframe smoke rather than an instrument ring. */}
+export function drawPassiveGauge(c,p,x,y){/* Current passive readiness uses owner-local painted cues. */}
 
-export function drawPetalParticle(c,p,x,y){
- if(p.life<=0)return;
- c.save();c.translate(x,y);c.rotate(p.angle+(p.maxLife-p.life)*p.spin);
- c.globalAlpha=.78*Math.min(1,p.life/.25);c.fillStyle='#f5eedb';
- c.beginPath();c.moveTo(-p.size,0);c.quadraticCurveTo(0,-p.size*.8,p.size,0);c.quadraticCurveTo(0,p.size*.55,-p.size,0);c.fill();
- c.strokeStyle='#cabda6';c.lineWidth=.7;c.beginPath();c.moveTo(-p.size*.65,0);c.lineTo(p.size*.55,0);c.stroke();c.restore();
+export function drawPetalParticle(c,p,x,y,owner){
+ return drawMaterialPetal(c,p,x,y,owner);
 }
 
 // Equipment uses its real activation state. These small, bounded drawings never
@@ -95,7 +93,6 @@ function drawScarf(c,t){
 }
 function drawEquipmentEffects151(c,p,x,y){
  if(p.hp<=0)return;const t=p.t||0;c.save();c.translate(x,y);c.rotate(p.a);
- if(p.pilot==='baracca'&&p.prancingHorseFlash160>0)drawCavalryGuard(c,Math.min(1,p.prancingHorseFlash160/.34));
  // Existing engine upgrade is outside the special-equipment pass.
  if(p.upgrades?.mercedesEngine){const output=Math.max(0,Math.min(1,p.mercedesOutput160||0));c.save();c.globalAlpha=.18+output*.28;c.strokeStyle='#c6d0c6';c.lineWidth=1+output*.7;for(const side of [-1,1]){c.beginPath();c.moveTo(-25,side*8);c.quadraticCurveTo(-40-output*13,side*(10+Math.sin(t*18)*2),-52-output*24,side*12);c.stroke()}c.restore()}
  if(p.scarffRing){
@@ -237,5 +234,6 @@ export function drawRedGhosts162(c,p,x,y,sprite,key){
   c.globalAlpha=.38*Math.pow(Math.max(0,g.life/.32),1.25);c.drawImage(redGhostCanvas162,x+g.x-p.x-120,y+g.y-p.y-120);
  }c.restore();
 }
+
 
 

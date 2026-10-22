@@ -1,4 +1,4 @@
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=sortierhythm20261018&rail=42';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 
 export function bossHudModel(encounter) {
   if(!encounter||encounter.completed)return null;
@@ -36,3 +36,4 @@ export function bindStageBossHUD({bossSlot,xpBindings=[]}) {
     }
   };
 }
+

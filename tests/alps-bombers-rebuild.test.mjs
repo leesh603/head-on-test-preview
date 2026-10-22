@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {GIK,Ca4} from '../alps-bomber-combat.js?v=gal1';
-import {ALPS_BOMBER_LAYOUT,alpsPoint,alpsMuzzle,alpsHullExtents} from '../alps-bomber-layout.js?v=gal1';
-import {StageBossAddon} from '../headon-stageboss-runtime.js?v=gal1&rail=42';
-import {enableStageBoss,stageBossCollision,damageStageBoss} from '../stageboss-host.js?v=gal1&rail=42';
-import {renderStageBossLayer} from '../headon-stageboss-render.js?v=gal1&rail=42';
+import {GIK,Ca4} from '../alps-bomber-combat.js?v=tame3';
+import {ALPS_BOMBER_LAYOUT,alpsPoint,alpsMuzzle,alpsHullExtents} from '../alps-bomber-layout.js?v=tame3';
+import {StageBossAddon} from '../headon-stageboss-runtime.js?v=tame3&rail=40';
+import {enableStageBoss,stageBossCollision,damageStageBoss} from '../stageboss-host.js?v=tame3&rail=40';
+import {renderStageBossLayer} from '../headon-stageboss-render.js?v=tame3&rail=40';
 
 
 const tuning={maxHp:2400,partHp:288,damage:18,bulletSpeed:270,geometryScale:1.45,mobileBoss:false,patternMultiplier:1,projectileDensity:1};
@@ -39,12 +39,12 @@ test('GIK locks warning direction, fires later from its current muzzle and honor
 });
 test('GIK does not fire its nose cannon backwards, and rear gun has its own sector',()=>{
  const f=make();step(f.b,10,{...frame,players:[frame.players[1]]});assert.equal(f.events.some(e=>e.visual==='alps-cannon'),false);assert.ok(f.events.some(e=>e.visual==='alps-mg'));
- const c=make(Ca4);for(let i=0;i<250;i++)c.b.update(.02,{...frame,players:[{...frame.players[0],x:c.b.x+Math.cos(c.b.a)*400,y:c.b.y+Math.sin(c.b.a)*400}]});assert.ok(c.events.some(e=>e.tag==='test:frontGun'));assert.equal(c.events.some(e=>e.tag==='test:rearGun'),false);
+ const c=make(Ca4);step(c.b,5,{...frame,players:[frame.players[0]]});assert.ok(c.events.some(e=>e.tag==='test:frontGun'));assert.equal(c.events.some(e=>e.tag==='test:rearGun'),false);
 });
 test('Ca4 keeps the first carpet lane clear, then warns its closure and rotates the next gap',()=>{
  const {b,events}=make(Ca4),lanes=[];
  for(let run=0;run<3;run++){b.startBombRun(frame.bounds);lanes.push(b.bombLane);const safe=b.laneWarnings.find(l=>l.safe),rect={left:safe.x-safe.width/2,right:safe.x+safe.width/2};
-  const start=events.length;step(b,1.26,{...frame,bounds:{left:800,right:1600,top:700,bottom:1400}});const bombs=events.slice(start).filter(e=>e.visual==='carpet-bomb');assert.equal(bombs.length,17);const finisher=bombs.find(h=>h.raidHeavy);assert.equal(finisher.x,safe.x);assert(finisher.warning>Math.max(...bombs.filter(h=>!h.raidHeavy).map(h=>h.warning))+.4);for(const h of bombs.filter(h=>!h.raidHeavy)){assert.ok(h.x+h.radius<rect.left||h.x-h.radius>rect.right);assert.ok(h.x>=frame.bounds.left&&h.x<=frame.bounds.right);assert.equal(h.airborneBomb,true);assert.ok(Number.isFinite(h.sourceX));}b.bombRunRemaining=0;
+  const start=events.length;step(b,1.26,{...frame,bounds:{left:800,right:1600,top:700,bottom:1400}});const bombs=events.slice(start).filter(e=>e.visual==='carpet-bomb');assert.equal(bombs.length,13);const finisher=bombs.find(h=>h.raidHeavy);assert.equal(finisher.x,safe.x);assert(finisher.warning>Math.max(...bombs.filter(h=>!h.raidHeavy).map(h=>h.warning))+.4);for(const h of bombs.filter(h=>!h.raidHeavy)){assert.ok(h.x+h.radius<rect.left||h.x-h.radius>rect.right);assert.ok(h.x>=frame.bounds.left&&h.x<=frame.bounds.right);assert.equal(h.airborneBomb,true);assert.ok(Number.isFinite(h.sourceX));}b.bombRunRemaining=0;
  }
  assert.deepEqual(lanes,[0,1,2]);
 });

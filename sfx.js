@@ -1,18 +1,18 @@
-// Layered procedural SFX — every combat feedback voice is synthesized from
-// oscillators plus filtered noise, matching the music.js approach. No audio
-// assets, no external requests.
-import {railAudioSamples} from './rail-audio.js?v=sortierhythm20261018';
+// Existing sample bank with procedural fallbacks; bounded, on-demand decoding.
+import {railAudioSamples} from './rail-audio.js?v=tame3';
 const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproach
-let ctx=null,bus=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
+let ctx=null,bus=null,ambienceBus=null,compressor=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();
 const sources=new Map(),lastVoices=new Map();
-const PRIORITY={bossSiren:3,bossKlaxon:3,airshipArrival:3,railGunFire520:2,railShellIncoming:1,railShellIncoming520:1,railShellImpact:1,railShellImpact520:2,trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1,armorClink:2,whizz:1,closePass:2,airframeBreak:1,engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0};
+const PRIORITY={bossSiren:3,bossKlaxon:3,airshipArrival:3,railGunFire520:2,railShellIncoming:1,railShellIncoming520:1,railShellImpact:1,railShellImpact520:2,trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1,armorClink:2,whizz:1,closePass:2,airframeBreak:1,engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0,environmentWind:0};
 const INTERVAL={upgradeChosen:.3,pickup:.09,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
 let inputMedia=null;
 const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
-export function stopSfx(){if(engine){try{engine.src.stop()}catch{}engine=null}for(const [source,entry]of sources){try{source.stop()}catch{}entry.release()}lastVoices.clear()}
+let duckListener=()=>{},lastDuck=-Infinity,lastDuckDepth=1,ambientVoice=false;
+export function setSfxDuckingListener(fn){duckListener=fn||(()=>{})}
+export function stopSfx(){if(engine){clearTimeout(engine.idle);try{engine.src.stop()}catch{}engine=null}if(wind)clearTimeout(wind.idle);wind=null;lastDuck=-Infinity;lastDuckDepth=1;for(const [source,entry]of sources){try{source.stop()}catch{}entry.release()}lastVoices.clear()}
 export function setSfxPaused(v){if(paused===!!v)return;paused=!!v;if(paused)stopSfx()}
-export function sfxStats(){return{active:sources.size,limit:sourceLimit(),muted,paused}}
+export function sfxStats(){return{active:sources.size,limit:sourceLimit(),muted,paused,queued:loadQueue.length,loading:loadingCount,buffers:fileBuffers.size,decodedBytes:decodedBytes(),contexts:ctx?1:0}}
 function reserve(){
  const limit=sourceLimit(),budget=priority<2?limit-8:limit;
  if(sources.size<budget)return true;
@@ -21,7 +21,7 @@ function reserve(){
  return false;
 }
 function track(source,filter,gain){
- const release=()=>{if(!sources.delete(source))return;source.onended=null;source.disconnect();filter.disconnect();gain.disconnect()};
+ const release=()=>{if(!sources.delete(source))return;source.onended=null;if(engine?.src===source){clearTimeout(engine.idle);engine=null}if(wind?.src===source){clearTimeout(wind.idle);wind=null}source.disconnect();filter.disconnect();gain.disconnect()};
  sources.set(source,{priority,release});source.onended=release;
 }
 const jit=f=>f*(0.94+Math.random()*0.12); // ±6% pitch drift so repeat hits never sound identical
@@ -31,12 +31,12 @@ function ac(){
   if(ctx)return ctx.state;
   try{
     ctx=new (window.AudioContext||window.webkitAudioContext)();
-    bus=ctx.createGain();bus.gain.value=.9;
-    const comp=ctx.createDynamicsCompressor();bus.connect(comp);comp.connect(ctx.destination);
+    bus=ctx.createGain();bus.gain.value=.9;ambienceBus=ctx.createGain();ambienceBus.gain.value=1;ambienceBus.connect(bus);
+    const comp=compressor=ctx.createDynamicsCompressor();bus.connect(comp);comp.connect(ctx.destination);
     noise=ctx.createBuffer(1,ctx.sampleRate,ctx.sampleRate);
     const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
   }catch{}
-  loadFileCues();
+  if(ctx)for(const name of ['sfx/mg-0','sfx/hit-0','sfx/damage'])loadFileCue(name);
   return ctx?.state;
 }
 function tone(f0,f1,d,v,type='square',cut=1600,when=0,att=.004){
@@ -45,7 +45,7 @@ function tone(f0,f1,d,v,type='square',cut=1600,when=0,att=.004){
   o.type=type;o.frequency.setValueAtTime(f0,t);if(f1!==f0)o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+d);
   f.type='lowpass';f.frequency.value=cut;
   g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v*master,t+Math.min(att,d*.3));g.gain.exponentialRampToValueAtTime(.0001,t+d);
-  o.connect(f);f.connect(g);g.connect(bus);o.start(t);o.stop(t+d+.03);
+  o.connect(f);f.connect(g);g.connect(ambientVoice?ambienceBus:bus);o.start(t);o.stop(t+d+.03);
   track(o,f,g);
 }
 function hiss(f0,f1,d,v,type='bandpass',Q=.8,when=0,att=.003){
@@ -54,7 +54,7 @@ function hiss(f0,f1,d,v,type='bandpass',Q=.8,when=0,att=.003){
   n.buffer=noise;n.loop=true;
   f.type=type;f.frequency.setValueAtTime(f0,t);if(f1!==f0)f.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+d);f.Q.value=Q;
   g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v*master,t+Math.min(att,d*.3));g.gain.exponentialRampToValueAtTime(.0001,t+d);
-  n.connect(f);f.connect(g);g.connect(bus);n.start(t);n.stop(t+d+.03);
+  n.connect(f);f.connect(g);g.connect(ambientVoice?ambienceBus:bus);n.start(t);n.stop(t+d+.03);
   track(n,f,g);
 }
 function railSample(name,level){
@@ -62,44 +62,72 @@ function railSample(name,level){
  if(!reserve())return;
  let buffer=railBuffers.get(name);if(!buffer){const data=railAudioSamples(name,ctx.sampleRate);buffer=ctx.createBuffer(1,data.length,ctx.sampleRate);buffer.getChannelData(0).set(data);railBuffers.set(name,buffer);}
  const n=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();n.buffer=buffer;f.type='lowpass';f.frequency.value=7200;g.gain.value=level*master;
- n.connect(f);f.connect(g);g.connect(bus);track(n,f,g);n.start();
+ n.connect(f);f.connect(g);g.connect(ambientVoice?ambienceBus:bus);track(n,f,g);n.start();
 }
 // Recorded-style rail-gun cues (tools/fx-sample/railgun-audio.py → rail-*.mp3), decoded once.
 const FILE_CUES=['rail-fire-520','rail-fire-bruno','rail-incoming-520','rail-incoming-bruno','rail-impact-520','rail-impact-bruno'];
 // Sample bank (tools/fx-sample/combat-audio.py, boss-audio.py → sfx/*.mp3): variants per cue, picked in turn.
 const BANK={mg:3,enemy:3,hit:4,hitmetal:2,damage:0,kill:0,flak:3,'boss-siren':0,'boss-drums':0,'boss-klaxon':0,'ship-horn':0,airship:0,armour:0,'ace-bugle':0,'ui-skill':0,'ui-levelup':0,'ui-upgrade':0,'ui-pickup':0,'ui-reload':0,'ui-loaded':0,'engine-rotary':0,'engine-inline':0,'amb-front':0,'amb-sea':0};
-const BANK_FILES=Object.entries(BANK).flatMap(([k,n])=>n?Array.from({length:n},(_,i)=>`sfx/${k}-${i}`):[`sfx/${k}`]);
-const fileBuffers=new Map();let filesRequested=false;
-// mp3 decoders prepend encoder padding; cut leading silence so rapid fire stays tight on the trigger.
+const fileBuffers=new Map(),fileLoads=new Map(),failedFiles=new Set(),loadQueue=[];
+let loadingCount=0;
+const CACHE_BYTES=12*1024*1024;
+const decodedBytes=()=>[...fileBuffers.values()].reduce((n,b)=>n+b.length*b.numberOfChannels*4,0);
+// Encoder padding is removed once, outside the synchronous combat path.
 function trimLead(buf){
  const d=buf.getChannelData(0);let i=0;while(i<d.length&&Math.abs(d[i])<.002)i++;i=Math.max(0,i-24);if(i<8)return buf;
  const out=ctx.createBuffer(1,d.length-i,buf.sampleRate);out.getChannelData(0).set(d.subarray(i));return out;
 }
-function loadFileCues(){
- if(filesRequested||!ctx||typeof fetch!=='function')return;filesRequested=true;
- for(const name of FILE_CUES)fetch(`./${name}.mp3?v=gun1`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,buf)).catch(()=>{});
- for(const name of BANK_FILES)fetch(`./${name}.mp3?v=tame3`).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).then(buf=>fileBuffers.set(name,trimLead(buf))).catch(()=>{});
+function cachedFile(name){const b=fileBuffers.get(name);if(b){fileBuffers.delete(name);fileBuffers.set(name,b)}return b}
+function drainLoads(){
+ while(ctx&&loadingCount<2&&loadQueue.length){
+  const {name,done}=loadQueue.shift();loadingCount++;
+  fetch(`./${name}.mp3?v=${name.startsWith('sfx/')?'tame3':'gun1'}`)
+   .then(r=>{if(!r.ok)throw Error('audio unavailable');return r.arrayBuffer()})
+   .then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no)))
+   .then(buf=>{const b=name.startsWith('sfx/')?trimLead(buf):buf;fileBuffers.set(name,b);
+    while(decodedBytes()>CACHE_BYTES&&fileBuffers.size>1){const oldest=fileBuffers.keys().next().value;fileBuffers.delete(oldest)}
+   }).catch(()=>failedFiles.add(name)).finally(()=>{loadingCount--;fileLoads.delete(name);done();drainLoads()});
+ }
+}
+function loadFileCue(name){
+ if(!ctx||typeof fetch!=='function'||failedFiles.has(name)||fileBuffers.has(name))return Promise.resolve();
+ if(fileLoads.has(name))return fileLoads.get(name);
+ let done;const promise=new Promise(ok=>done=ok);fileLoads.set(name,promise);loadQueue.push({name,done});drainLoads();return promise;
+}
+export function engineSampleKind(plane=''){return ROTARY.test(plane)?'engine-rotary':'engine-inline'}
+// Called during flight, never creates an AudioContext or waits for decoding.
+export function prepareSfx(plane,region){
+ if(!ctx||muted||paused)return;
+ loadFileCue('sfx/'+engineSampleKind(plane));
+ const profile=REGION_AMBIENCE[region];if(profile?.sample)loadFileCue('sfx/'+profile.sample);
+ // Prepare arrival cues during exploration, before the boss can enter.
+ for(const name of ['boss-siren','boss-klaxon','boss-drums','ace-bugle'])loadFileCue('sfx/'+name);
+ if([1,7,16].includes(region))loadFileCue('sfx/ship-horn');
+ if(region===5)loadFileCue('sfx/airship');
+ if([2,3,8,10,13].includes(region))loadFileCue('sfx/armour');
+ if(region===8||region===9)for(const name of FILE_CUES)loadFileCue(name);
 }
 const bankTurn=new Map();
 // Engine: one looping sample per airframe type, its rate following speed and turn. engineTick keeps
 // it alive; if the ticks stop (menu, pause, death) it fades out on its own.
-const ROTARY=/^(fokker(_red|_voss|_f1|_jacobs|_standard)?|fokker|camel|pup|strutter|snipe|sopwith.*|.*nieuport.*|eindecker|fokker_e1|airco_dh2|dh2|hanriot|siemens_d4|morane.*|bristol_m1|.*camel|.*dr1|.*_sopwith|.*_snipe)$/;
+const ROTARY=/^(fokker(_red|_voss|_f1|_jacobs|_standard)?|fokker|camel|pup|strutter|snipe|sopwith.*|.*nieuport.*|eindecker|fokker_e1|airco_dh2|dh2|hanriot|siemens_d4|morane.*|bristol_m1|bristol_scout_c|fokkerdv|udet_fokkerdv|dh5|ssw_d3|.*camel|.*dr1|.*_sopwith|.*_snipe)$/;
 let engine=null;
 function engineLoop(p){
- const kind=ROTARY.test(p.plane||'')?'engine-rotary':'engine-inline',buffer=fileBuffers.get('sfx/'+kind);
- if(!buffer){loadFileCues();return false}
- const now=ctx.currentTime,speed=Math.max(.7,Math.min(1.25,p.speed??1)),turn=Math.min(4,p.turn||0),damage=Math.max(0,Math.min(1,p.damage||0));
+ const kind=engineSampleKind(p.plane),buffer=cachedFile('sfx/'+kind);
+ if(!buffer){loadFileCue('sfx/'+kind);return false}
+ const now=ctx.currentTime,speed=Math.max(.3,Math.min(1.35,p.speed??1)),turn=Math.min(4,p.turn||0),damage=Math.max(0,Math.min(1,p.damage||0));
  if(!engine||engine.kind!==kind){
-  if(engine)try{engine.gain.gain.setTargetAtTime(0,now,.08);engine.src.stop(now+.4)}catch{}
+  if(engine)try{clearTimeout(engine.idle);engine.gain.gain.setTargetAtTime(0,now,.08);engine.src.stop(now+.4)}catch{}
+  if(!reserve())return false;
   const src=ctx.createBufferSource(),gain=ctx.createGain(),f=ctx.createBiquadFilter();
   if(buffer.loopEndAt==null){const d=buffer.getChannelData(0);let e=d.length-1;while(e>0&&Math.abs(d[e])<.01)e--;buffer.loopEndAt=(e+1)/buffer.sampleRate}
   src.buffer=buffer;src.loop=true;src.loopStart=0;src.loopEnd=buffer.loopEndAt;f.type='lowpass';f.frequency.value=2400;gain.gain.value=0;
   src.connect(f);f.connect(gain);gain.connect(bus);src.start();
-  engine={kind,src,gain,f};src.onended=()=>{try{src.disconnect();f.disconnect();gain.disconnect()}catch{}if(engine?.src===src)engine=null};
+  engine={kind,src,gain,f};track(src,f,gain);
  }
- const level=(p.duck?.32:.6)*(p.reload?.85:1)*master*.30;
- engine.src.playbackRate.setTargetAtTime((.9+.28*(speed-.7)/.55)*(1+turn*.012)*(1-damage*.05),now,.15);
- engine.f.frequency.setTargetAtTime(2400-damage*900,now,.2);
+ const level=(p.duck?.32:.6)*(p.reload?.85:1)*(1-damage*.22)*master*.26;
+ engine.src.playbackRate.setTargetAtTime((.67+.39*speed)*(1-damage*.055)*(1+damage*.008*Math.sin(now*31)),now,.15);
+ engine.f.frequency.setTargetAtTime(2400-damage*900-turn*95,now,.2);
  engine.gain.gain.setTargetAtTime(level,now,.12);
  clearTimeout(engine.idle);const e=engine;e.idle=setTimeout(()=>{try{e.gain.gain.setTargetAtTime(0,ctx.currentTime,.1);e.src.stop(ctx.currentTime+.5)}catch{}},450);
  return true;
@@ -107,17 +135,44 @@ function engineLoop(p){
 
 function bankSample(key,level,fallback,rate=1){
  const n=BANK[key],i=n?(bankTurn.get(key)||0)%n:0;if(n)bankTurn.set(key,i+1);
- const name=n?`sfx/${key}-${i}`:`sfx/${key}`,buffer=fileBuffers.get(name);
- if(!buffer){loadFileCues();fallback?.();return}
+ const name=n?`sfx/${key}-${i}`:`sfx/${key}`,buffer=cachedFile(name);
+ if(!buffer){loadFileCue(name);fallback?.();return}
  if(!reserve())return;
  const src=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();src.buffer=buffer;src.playbackRate.value=rate;f.type='lowpass';f.frequency.value=16000;g.gain.value=level*master;
- src.connect(f);f.connect(g);g.connect(bus);track(src,f,g);src.start();
+ src.connect(f);f.connect(g);g.connect(ambientVoice?ambienceBus:bus);track(src,f,g);src.start();
 }
 function fileSample(name,level,fallback){
- const buffer=fileBuffers.get(name);if(!buffer){loadFileCues();fallback?.();return}
+ const buffer=cachedFile(name);if(!buffer){loadFileCue(name);fallback?.();return}
  if(!reserve())return;
  const n=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();n.buffer=buffer;f.type='lowpass';f.frequency.value=16000;g.gain.value=level*master;
- n.connect(f);f.connect(g);g.connect(bus);track(n,f,g);n.start();
+ n.connect(f);f.connect(g);g.connect(ambientVoice?ambienceBus:bus);track(n,f,g);n.start();
+}
+// Each entry corresponds to the authoritative 18-region order.
+const rural={kind:'rural',sample:'amb-front',level:.10,cut:420,wind:.0035};
+const front={kind:'front',sample:'amb-front',level:.18,cut:550,wind:.004};
+const sea={kind:'sea',sample:'amb-sea',level:.16,cut:700,wind:.006};
+const city={kind:'city',sample:'amb-front',level:.11,cut:360,wind:.003};
+const sky={kind:'sky',sample:null,level:0,cut:380,wind:.005};
+const alps={kind:'alps',sample:null,level:0,cut:1700,wind:.005};
+const desert={kind:'desert',sample:null,level:0,cut:900,wind:.004};
+export const REGION_AMBIENCE=Object.freeze([rural,sea,front,front,city,sky,alps,sea,rural,front,front,city,front,desert,sea,city,sea,sea].map(p=>Object.freeze(p)));
+let wind=null;
+export function environmentWindLevel(world){
+ const region=world?.worldRegion?.()??0,p=REGION_AMBIENCE[region]||rural;let gust=0;
+ if(region===13)for(const s of world?.maanWeather?.cells||[]){
+  const fade=Math.max(0,Math.min(1,s.age/3,(s.life-s.age)/3));
+  gust=Math.max(gust,fade*Math.max(0,1-Math.hypot(s.x-world.x,s.y-world.y)/420));
+ }
+ return {cut:p.cut+gust*900,level:p.wind+gust*.009};
+}
+function updateWind(world){
+ const now=ctx.currentTime,p=environmentWindLevel(world);
+ if(!wind){if(!reserve())return;const src=ctx.createBufferSource(),f=ctx.createBiquadFilter(),gain=ctx.createGain();
+  src.buffer=noise;src.loop=true;f.type='lowpass';f.frequency.value=p.cut;gain.gain.value=0;
+  src.connect(f);f.connect(gain);gain.connect(ambienceBus);track(src,f,gain);src.start();wind={src,f,gain};
+ }
+ wind.f.frequency.setTargetAtTime(p.cut,now,.6);wind.gain.gain.setTargetAtTime(p.level*master,now,.6);
+ clearTimeout(wind.idle);const w=wind;w.idle=setTimeout(()=>{try{w.gain.gain.setTargetAtTime(0,ctx.currentTime,.1);w.src.stop(ctx.currentTime+.4)}catch{}},450);
 }
 const VOICES={
   trainApproach(){railSample('trainApproach',.68)},
@@ -159,8 +214,15 @@ const VOICES={
   approachWarning(){tone(172,228,.24,.045,'sawtooth',650);hiss(820,360,.35,.03,'bandpass',1)},
   shipBreak(){tone(93,27,.75,.07,'sawtooth',250);hiss(2300,260,.55,.055,'bandpass',.6);hiss(900,350,.75,.03,'lowpass',.4,.25)},
   uiSelect(){hiss(2100,900,.025,.023,'bandpass',1.5);tone(180,100,.025,.018,'triangle',700)},
-  environment(region){const name=region===1||region===7||region===16||region===14?'amb-sea':region===5||region===6?null:'amb-front';if(name)bankSample(name,.32)},
-  environmentSynth(region){if(region===1||region===7)hiss(520,280,1.3,.009,'bandpass',.35);else if(region===5){hiss(2600,1900,1.5,.005,'highpass',.3);tone(210,195,1,.003,'triangle',60)}else if(region===6)hiss(1500,850,1.4,.008,'bandpass',.4);else{tone(46,25,.6,.014,'sine',130);hiss(280,100,.8,.01,'lowpass',.4)}},
+  environment(input){const region=typeof input==='number'?input:input?.worldRegion?.()??0,profile=REGION_AMBIENCE[region]||REGION_AMBIENCE[0];
+    // Quiet sampled distance cues, with variation in pitch and no extra loop.
+    if(profile.sample)bankSample(profile.sample,profile.level,()=>VOICES.environmentSynth(region),.96+Math.random()*.08);
+  },
+  environmentSynth(region){const p=REGION_AMBIENCE[region]||REGION_AMBIENCE[0];
+    if(p.sample==='amb-sea'){hiss(520,280,2.4,.008,'bandpass',.35);tone(48,30,1.1,.005,'sine',110)}
+    else if(p.sample){tone(46,25,.8,p.level*.035,'sine',130);hiss(280,100,1.3,.006,'lowpass',.4)}
+  },
+  environmentWind(world){updateWind(world)},
   // Brief propeller rush and mechanical rattle, below weapon volume.
   headOn(){hiss(320,950,.16,.045,'bandpass',.6);tone(92,140,.14,.035,'sawtooth',450);hiss(1400,420,.09,.022,'bandpass',1,.08)},
   // Player machine guns: a bright crack over a short mechanical body.
@@ -234,8 +296,8 @@ const VOICES={
   healSynth(){tone(720,720,.06,.035,'sine',2200);tone(960,960,.09,.035,'sine',2600,.07)},
   // Engine idle: one propeller/exhaust beat per call (the host fires it on an interval).
   engineTick(flight){const p=typeof flight==='object'?flight:{reload:flight};if(!engineLoop(p))VOICES.engineTickSynth(flight)},
-  engineTickSynth(flight){const p=typeof flight==='object'?flight:{reload:flight},speed=Math.max(.7,Math.min(1.2,p.speed??1)),turn=Math.min(4,p.turn||0),damage=Math.max(0,Math.min(1,p.damage||0));
-    const f=(p.reload?.72:1)*(.96+speed*.04)*jit(1),level=p.duck?.35:.49;
+  engineTickSynth(flight){const p=typeof flight==='object'?flight:{reload:flight},speed=Math.max(.3,Math.min(1.35,p.speed??1)),turn=Math.min(4,p.turn||0),damage=Math.max(0,Math.min(1,p.damage||0));
+    const f=(.67+.39*speed)*(1-damage*.055),level=(p.duck?.35:.43)*(1-damage*.22);
     // Reuse one original engine voice. No overlapping enemy/propeller drones.
     tone(58*f,42*f,.11,.085*level,'sawtooth',300-damage*40);
     hiss(540+speed*160+turn*70,180,.08,.05*level*(1+turn*.035),'lowpass',.5);
@@ -256,5 +318,20 @@ export function sfx(name,arg){
   // The arrival call already carries its own chuff rhythm; rolling beats wait until it ends.
   if(name==='trainRoll'&&now-(lastVoices.get('trainApproach')??-Infinity)<RAIL_APPROACH_SECONDS-.3)return;
   lastVoices.set(name,now);priority=PRIORITY[name]??2;
-  try{VOICES[name](arg)}catch{}finally{priority=0}
+  const depth=name==='hit'?.68:name==='explosion'?.84:.74;
+  if(['hit','bossSiren','bossKlaxon','approachWarning','railGunFire520','explosion'].includes(name)&&(now-lastDuck>(name==='explosion'?4:1.8)||depth<lastDuckDepth-.01)){
+   lastDuck=now;lastDuckDepth=depth;
+   ambienceBus.gain.cancelScheduledValues(now);ambienceBus.gain.setTargetAtTime(.45,now,.035);ambienceBus.gain.setTargetAtTime(1,now+.32,.38);
+   try{duckListener(depth)}catch{}
+  }
+  ambientVoice=name==='environment'||name==='environmentWind';
+  try{VOICES[name](arg)}catch{}finally{priority=0;ambientVoice=false}
+}
+
+
+// Capture-only branch; never reroutes or changes the audible production mix.
+export async function captureSfxStream(){
+ ac();if(!ctx||!compressor)throw Error('SFX AudioContext unavailable');
+ await ctx.resume();const tap=ctx.createMediaStreamDestination();compressor.connect(tap);
+ return {stream:tap.stream,close(){try{compressor.disconnect(tap)}catch{}tap.stream.getTracks().forEach(t=>t.stop());}};
 }

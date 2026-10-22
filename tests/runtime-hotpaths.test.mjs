@@ -1,11 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {execFileSync} from 'node:child_process';
 import vm from 'node:vm';
 import {performance} from 'node:perf_hooks';
-const BASE='636f45bd35cfce2d383d5d4102dd9f76ed1caac5';
-const before=file=>execFileSync('git',['show',`${BASE}:${file}`],{encoding:'utf8'});
+// Exact original preview baseline, portable across production repository layouts.
+const before=file=>readFileSync(new URL('./fixtures/runtime-hotpaths-636f45bd/'+file,import.meta.url),'utf8');
 const after=file=>readFileSync(new URL('../'+file,import.meta.url),'utf8');
 const context=c=>vm.createContext(c);
 const plain=x=>JSON.parse(JSON.stringify(x));

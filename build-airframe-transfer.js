@@ -2,13 +2,13 @@ import {modGunRounds,modGunDamage,modGunFan,modGunInterval} from './weapon-modif
 // Three mutually exclusive, sortie-only fits. Pilot and chosen aircraft IDs stay intact.
 export const AIRFRAME_TRANSFER_IDS=Object.freeze(['bomberTransfer','mgTransfer','airshipTransfer']);
 export const BUILD_TRANSFER_DESCRIPTIONS=Object.freeze({
- mgTransfer:'다수 기관총좌를 갖춘 중무장 공격기로 전환합니다. 증설 기관총 2정과 후방 사수가 지속 화망을 형성하며 기관총 강화를 계승합니다. 속도 −26%, 선회력 −38%, 가속·회피 성능 감소, 피탄 면적 증가. 다른 기체 전환 장비와 동시 장착할 수 없습니다.',
- airshipTransfer:'편대 지휘 비행선으로 전환합니다. 하부에서 호위기 2기가 출격합니다(상시 윙맨과 합산 최대 7기). 명중시킨 적에게 집중사격하고 편대 비행 교범·전투기 보급을 계승합니다. 기존 내구도 유지. 속도 −55%, 선회력 −74%, 피탄 면적 크게 증가. 다른 기체 전환 장비와 동시 장착 불가.'
+ mgTransfer:'대형 중무장 공격기로 전환합니다. 전방 기관총 피해 +18%, 추가 기관총 2정 강화 및 표적 추적, 후방 사수 유지. 선회기동 대신 탄환을 요격하는 화망 전개를 사용합니다. 속도 −26%, 선회력 −38%, 피탄 면적 증가. 다른 기체 전환과 동시 장착 불가.',
+ airshipTransfer:'편대 지휘 비행선으로 전환합니다. 하부 호위기 2기 출격(상시 윙맨 합산 최대 7기), 집중사격 및 기존 편대 강화 계승. 선회기동 대신 전방위 대공 방어망을 사용합니다. 기존 내구도 유지, 속도 −55%, 선회력 −74%, 피탄 면적 크게 증가. 다른 기체 전환과 동시 장착 불가.'
 });
 export const BUILD_TRANSFER=Object.freeze({
  mgTransfer:Object.freeze({
-  entente:Object.freeze({name:'Caudron R.11',sprite:'transfer-caudron-r11',kind:'gunship',hp:1,speed:.74,turn:.62,scale:1.42,front:27,rear:23,hullLength:29,hullWidth:43,response:2.6,recovery:.52,gunInterval:.28,gunPower:.56,belt:70,reload:2.4,stationOffsets:[-10,10]}),
-  central:Object.freeze({name:'AEG J.I',sprite:'transfer-aeg-ji',kind:'gunship',hp:1,speed:.74,turn:.62,scale:1.4,front:17,rear:13,hullLength:22,hullWidth:42,response:2.6,recovery:.52,gunInterval:.28,gunPower:.56,belt:70,reload:2.4,stationOffsets:[-6,6]})
+  entente:Object.freeze({name:'Caudron R.11',sprite:'transfer-caudron-r11',kind:'gunship',hp:1,speed:.74,turn:.62,scale:1.95,front:37,rear:30,hullLength:39,hullWidth:58,response:2.6,recovery:.52,gunInterval:.25,gunPower:.78,belt:70,reload:2.4,stationOffsets:[-16,16]}),
+  central:Object.freeze({name:'AEG J.I',sprite:'transfer-aeg-ji',kind:'gunship',hp:1,speed:.74,turn:.62,scale:1.76,front:25,rear:19,hullLength:29,hullWidth:53,response:2.6,recovery:.52,gunInterval:.25,gunPower:.78,belt:70,reload:2.4,stationOffsets:[-10,10]})
  }),
  airshipTransfer:Object.freeze({
   entente:Object.freeze({name:'R.29',sprite:'transfer-r29',kind:'airship',hp:1,speed:.45,turn:.26,scale:3.9,front:105,rear:84,hullLength:137,hullWidth:34,response:1.25,recovery:.28,gunInterval:.65,gunPower:.4,belt:44,reload:3.2,stationOffsets:[-19,19,0]}),
@@ -51,9 +51,12 @@ export function tickTransferGuns(p,dt,gunnerAim,gunnerTarget){
   if(p.unlimitedAmmo){station.reload=0;station.ammo=capacity;}
   if(station.reload>0){station.reload=Math.max(0,station.reload-dt);if(!station.reload)station.ammo=capacity;continue;}
   station.timer=Math.max(0,station.timer-dt);
-  const target=fit.kind==='airship'?gunnerTarget(p,500,false,p.a+index*2*Math.PI/3):null;
+  const sector=fit.kind==='airship'?p.a+index*2*Math.PI/3:p.a+(index%2?.3:-.3);
+  const candidate=gunnerTarget(p,fit.kind==='airship'?500:430,false,sector);
+  const bearing=candidate?Math.atan2(candidate.y-p.y,candidate.x-p.x):p.a;
+  const target=fit.kind==='gunship'&&Math.abs(wrap(bearing-p.a))>.85?null:candidate;
   const desired=target?Math.atan2(target.y-p.y,target.x-p.x):p.a;
-  station.aim=gunnerAim(station.aim,desired,dt,1.15);
+  station.aim=gunnerAim(station.aim,desired,dt,fit.kind==='gunship'?2.5:1.15);
   if(fit.kind==='airship'&&(!target||Math.abs(wrap(station.aim-desired))>.18))continue;
   if(station.timer>0||fit.kind==='gunship'&&p.transferFiring===false)continue;
   const cadence=Math.max(.1,fit.gunInterval*(p.rate/(p.buildBaseline?.rate||p.transferBaseRate||p.rate)));

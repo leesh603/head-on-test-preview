@@ -1,5 +1,5 @@
-import {roleReady,roleImage,roleArtReady} from './fx-role3.js?v=sortierhythm20261018';
-import {fxsHas,fxsImage} from './fx-sample-preview.js?v=sortierhythm20261018';
+import {roleReady,roleImage,roleArtReady} from './fx-role3.js?v=tame3';
+import {fxsHas,fxsImage} from './fx-sample-preview.js?v=pilotfx20261018';
 // Cloud concealment — shared tactical system across all regions (전장 개성화 패치).
 // Dense clouds break enemy tracking; wispy clouds only soften accuracy.
 export const CLOUD_TYPES=Object.freeze({
@@ -40,11 +40,11 @@ export function installCloudCover(Game){
  const P=Game.prototype;
  P.cloudDepthAt=function(x,y){
   let d=0;
-  for(const c of this.clouds||[]){const t=CLOUD_TYPES[c.type];const dx=(x-c.x)/t.rx,dy=(y-c.y)/t.ry;if(dx*dx+dy*dy<=1&&t.dense>d)d=t.dense}
+  for(const c of this.clouds||[]){const t=CLOUD_TYPES[c.type];if(!t)continue;const dx=(x-c.x)/t.rx,dy=(y-c.y)/t.ry;if(dx*dx+dy*dy<=1&&t.dense>d)d=t.dense}
   return d;
  };
  P.inCloudType=function(x,y,type){
-  for(const c of this.clouds||[]){if(c.type!==type)continue;const t=CLOUD_TYPES[c.type];const dx=(x-c.x)/t.rx,dy=(y-c.y)/t.ry;if(dx*dx+dy*dy<=1)return true}
+  for(const c of this.clouds||[]){if(c.type!==type)continue;const t=CLOUD_TYPES[c.type];if(!t)continue;const dx=(x-c.x)/t.rx,dy=(y-c.y)/t.ry;if(dx*dx+dy*dy<=1)return true}
   return false;
  };
  P.playerConcealed=function(threshold){return (this.cloudConceal||0)>=(threshold??CLOUD_CONCEAL.normal)};
@@ -56,10 +56,13 @@ export function installCloudCover(Game){
   return{x:this.x+Math.cos(ahead)*d-Math.sin(ahead)*side,y:this.y+Math.sin(ahead)*d+Math.cos(ahead)*side,type,vx:Math.cos(dr)*t.drift,vy:Math.sin(dr)*t.drift,seed:(this.rng?.()??Math.random())*6.28,mirror:(this.rng?.()??Math.random())<.5};
  };
  P.tickCloudCover=function(step){
+  // Campaign clouds are timed mission scenery, with their own r/life schema.
+  if(this.mode==='campaign')return;
   const region=this.worldRegion?.()??0;
   const want=Math.min(MAX_CLOUDS,Math.max(2,Math.round(2+7*(CLOUD_DENSITY[region]??.5))));
   this.clouds??=[];
   for(const c of this.clouds){
+   if(!CLOUD_TYPES[c.type])continue;
    c.x+=c.vx*step;c.y+=c.vy*step;
    if(Math.hypot(c.x-this.x,c.y-this.y)>1700)Object.assign(c,this._spawnCloud(region));
   }
@@ -119,7 +122,7 @@ export function installCloudCover(Game){
 export function drawCloudCover(c,game,{point,scale=1,region}){
  const cw=c.canvas.width,ch=c.canvas.height;
  for(const cl of game.clouds||[]){
-  const t=CLOUD_TYPES[cl.type];
+  const t=CLOUD_TYPES[cl.type];if(!t)continue;
   const [sx,sy]=point(cl.x,cl.y);
   const w=t.rx*2*scale,h=t.ry*2*scale;
   if(sx<-w||sx>cw+w||sy<-h||sy>ch+h)continue;

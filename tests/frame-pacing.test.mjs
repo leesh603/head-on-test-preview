@@ -6,10 +6,14 @@ const app=readFileSync(new URL('../app.js',import.meta.url),'utf8');
 const view=readFileSync(new URL('../stageboss-view.js',import.meta.url),'utf8');
 function loop(source=app,options={}){
  const frames=[],samples=[],scheduled=[],resizes=[];
- const c=vm.createContext({mobileDisplay:true,hiFpsMode:false,batterySaver:false,renderStamp:-1e9,__perfResize:false,
+ const c=vm.createContext({document:{hidden:false},game:{state:'playing'},gamepadInput:{poll:()=>({})},pause(){},regionTransitionUntil:0,renderDirty:true,lastRenderGame:null,lastRenderState:'',staticRenderAt:-Infinity,last:0,frameErrors:0,
+  cancelAnimationFrame(){},setInterval(){throw Error('default loop must not start a timer')},clearInterval(){},mobileDisplay:true,hiFpsMode:false,batterySaver:false,renderStamp:-1e9,__perfResize:false,
   performance:{now:()=>0},requestAnimationFrame:f=>scheduled.push(f),resize:()=>resizes.push(1),
   frameInner:t=>frames.push(t),__perfFrame:ms=>samples.push(ms),...options});
- vm.runInContext(source.slice(source.indexOf('function frame(now){'),source.indexOf('roster();syncStartHint();resize();requestAnimationFrame(frame);')),c);
+ const start=source.search(/function frame\(now(?:,[^)]*)?\)\s*\{/),end=source.indexOf('}roster();syncStartHint();resize();',start);
+ const scheduler=source.indexOf('let combatCaptureClockTimer='),schedulerEnd=source.indexOf('const trenchPerf=',scheduler);
+ assert(start>=0&&end>start&&scheduler>=0&&schedulerEnd>scheduler,'actual frame and scheduler must be found');
+ c.window=c;vm.runInContext(source.slice(scheduler,schedulerEnd)+'\n'+source.slice(start,end+1),c);
  return{c,frames,samples,scheduled,resizes,run:t=>c.frame(t)};
 }
 function timeline(hz,seconds=10,jitter=false){return Array.from({length:hz*seconds+1},(_,i)=>i*1000/hz+(jitter&&i%2?.8:0))}
@@ -25,9 +29,9 @@ test('skipped callbacks neither sample performance nor resize the canvas',()=>{
  const x=loop();x.run(0);x.c.__perfResize=true;x.run(8.333);assert.equal(x.samples.length,1);assert.equal(x.resizes.length,0);assert.equal(x.c.__perfResize,true);
  x.run(16.667);assert.equal(x.resizes.length,1);assert.equal(x.samples.length,2);
 });
-test('desktop and high-FPS setting render every callback; saver retains its 24 ms budget',()=>{
+test('desktop and high-FPS setting render every callback; saver retains its existing 24 fps budget',()=>{
  for(const options of [{mobileDisplay:false},{hiFpsMode:true}]){const x=loop(app,options);timeline(144,1).forEach(x.run);assert.equal(x.frames.length,145)}
- for(const hz of [60,90,120,144]){const x=loop(app,{batterySaver:true});timeline(hz).forEach(x.run);assert(Math.abs(x.frames.length-417)<=1,`${hz} Hz saver: ${x.frames.length}`)}
+ for(const hz of [60,90,120,144]){const x=loop(app,{batterySaver:true});timeline(hz).forEach(x.run);assert(Math.abs(x.frames.length-241)<=1,`${hz} Hz saver: ${x.frames.length}`)}
 });
 test('resume and settings changes do not catch up a backlog or stall',()=>{
  const x=loop();[0,8.33,16.67,5000,5008.33,5016.67].forEach(x.run);assert.equal(x.frames.length,4);

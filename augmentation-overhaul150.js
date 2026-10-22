@@ -1,5 +1,5 @@
-import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=sortierhythm20261018&afc=1';
-import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget} from './bomber-transfer.js?v=sortierhythm20261018&afc=1';
+import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=buildfit1&afc=1';
+import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget} from './bomber-transfer.js?v=buildfit1&afc=1';
 import {WEAPON_MODS,WEAPON_MOD_BY_ID,weaponModAvailable,ordnancePattern,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js';
 // Augmentation catalog revision 150. Display data mirrors the live 강화정리 sheet;
 // legacy ids stay stable so existing runs and local saves remain compatible.
@@ -161,7 +161,11 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  Game.prototype.rerollLegendaryChoices=function(current=[]){
   return this.rerollChoices(current);
  };
- Game.prototype.canRerollChoices=function(current=[]){const state=this.state??this.combatWorld?.()?.state,special=current.length===3&&current.every(u=>(u.rarity||'legendary')==='legendary');return state==='upgrade'&&!this.choiceRerollUsed&&special&&new Set(current.map(u=>u.id)).size===3};
+ Game.prototype.canRerollChoices=function(current=[]){
+  const state=this.state??this.combatWorld?.()?.state,special=current.length===3&&current.every(u=>(u.rarity||'legendary')==='legendary');
+  const regular=this.pilot==='mccudden'&&current.length===4&&current.every(u=>(u.rarity||'normal')!=='legendary');
+  return state==='upgrade'&&!this.choiceRerollUsed&&(special||regular)&&new Set(current.map(u=>u.id)).size===current.length;
+ };
  Game.prototype.rerollChoices=function(current=[]){
   if(!this.canRerollChoices(current))return null;const special=current.every(u=>(u.rarity||'legendary')==='legendary'),previous=current.map(u=>u.id),picks=[];
   if(special){const cooldown=this.specialDraftSuppressedIds||[],eligible=LEGENDARIES.filter(u=>specialAllowed(this,u)&&!cooldown.includes(u.id)),fresh=eligible.filter(u=>!previous.includes(u.id)),source=fresh.length>=3&&fresh.some(u=>!AIRFRAME_TRANSFER_IDS.includes(u.id))?fresh:eligible;picks.push(...pickWeightedSpecials(this,source).map(u=>namedSpecial(this,u)))}

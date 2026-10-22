@@ -1,5 +1,5 @@
 // Nine pilot mechanics, installed on the existing firing/frame/impact hooks.
-import {signatureCue,activatePilotSignature} from './pilot-signature-state.js?v=sortierhythm20261018';
+import {signatureCue,activatePilotSignature} from './pilot-signature-state.js?v=tame3';
 export const NINE_PILOTS=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker']);
 const durations={huffzky:3,mckeever:5,jacobs:4,hawker:5,berthold:5,udet:2.6,goering:5,nungesser:3,barker:6};
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -34,10 +34,8 @@ export function recordNineDamage(p,damage){
   cue(p,'battleDamage',{life:.85,count:p.barkerDamageStage});
  }
 }
-export function deflectNineRound(p,b,x=b.x,y=b.y){
- if(p.pilot!=='nungesser'||!(p.skillTime>0)||p.hp<=0)return false;
- const a=Math.atan2(b.vy,b.vx);cue(p,'deathDeflect',{x,y,a,life:.48});b.life=0;return true;
-}
+// Kept as a compatibility entry point; interception now requires an actual MG path.
+export function deflectNineRound(){return false;}
 // Applied only to enemies actually suppressed by these pilots. Other AI is untouched.
 export function wobbleSuppressedRounds(w,e,start){
  if(!(e.pilotSuppressedUntil>(w.t||0)))return;
@@ -90,14 +88,6 @@ function advance(p,dt){
  p.wingBoost=Math.max(0,(p.wingBoost||0)-dt);if(p.pilot==='goering'&&p.skillTime>0){
   if(!aerial(p.whiteFocus)||dist(p,p.whiteFocus)>800)p.whiteFocus=pick(p,p.a,Math.PI,760);
  }
- if(p.pilot==='nungesser'){
-  const active=p.skillTime>0;p.deathFogTear=Math.max(0,(p.deathFogTear||0)-dt);
-  if(p.nineWasActive&&!active)cue(p,'deathRelease',{life:1.1});
-  for(const b of w.bullets||[]){if(!b.enemy||b.life<=0)continue;const d=dist(p,b);if(d>60)continue;
-   if(active&&d<34){deflectNineRound(p,b);continue;}
-   if(d<48&&now-(p.deathNearMissAt??-Infinity)>.16){p.deathNearMissAt=now;p.deathFogTear=.32;p.deathTearAngle=bearing(p,b);cue(p,'fogTear',{x:b.x,y:b.y,a:Math.atan2(b.vy,b.vx),life:.35});}
-  }
- }
  if(p.pilot==='barker'){
   if(p.nineWasActive&&!(p.skillTime>0))p.barkerScarStage=Math.max(p.barkerScarStage||0,p.barkerDamageStage||0);
   if(!(p.barkerStackTime>0)&&!(p.skillTime>0))p.barkerDamageStage=0;
@@ -113,20 +103,18 @@ export function installNinePilots(Game,PILOTS){
   hawker:['연속 공격','격추 직후 가까운 다음 적을 짧게 강조합니다.','Attack Everything','5초간 격추 후 다음 표적 방향으로 총구가 잠시 이어집니다. 조작권은 유지됩니다.'],
   berthold:['철혈의 에이스','큰 피격 일부를 버틴 피해로 기억합니다.','Iron Knight · 불굴의 의지','5초간 피탄 흔들림을 억누르고 사격을 지속합니다. 버틴 피해가 충분하면 마지막 일제사격.'],
   goering:['백색 편대장','백색 윙맨 1기와 상시 출격합니다.','White Flight · 집중 포화','백색 신호탄 후 윙맨이 좌우로 벌어져 표적에 교차 재진입하고 편대로 복귀합니다.'],
-  nungesser:['죽음의 기사','저체력에서 짙어지는 검은 연무. 근접 탄환이 연무를 찢고 빈사 시 촛불이 남습니다.','죽음의 기사','3초간 무적. 접근 탄환은 검은 연무·불씨 속에서 소멸하고 종료 시 연무가 흩어집니다.'],
   barker:['불굴의 각성','피격 중첩에 따라 탄흔·찢긴 천·엔진 불꽃과 사격 반응이 강해집니다.','Last Stand · 새니에트의 기적','6초간 사망 불가. 빈사일수록 손상·총구화염이 최고조에 이르고 생존 후 손상이 남습니다.']
  };
  for(const [id,v] of Object.entries(labels))Object.assign(PILOTS[id],{passive:v[0],passiveDesc:v[1],skill:v[2],desc:v[3]});
  const duration=q.skillDuration;q.skillDuration=function(){return NINE_PILOTS.has(this.pilot)?durations[this.pilot]*(this.skillEnhanced?1.35:1):duration.call(this)};
  const skill=q.skill;q.skill=function(){
-  if(!NINE_PILOTS.has(this.pilot))return skill.call(this);
+  if(!NINE_PILOTS.has(this.pilot)||this.pilot==='nungesser')return skill.call(this);
   this.ensureRevisionPilot();if(this.state!=='playing'||this.hp<=0||this.cooldown>0||this.mission?.unarmed)return false;
   this.cooldown=this.skillCooldown();this.skillTime=this.nineDuration=this.skillDuration();this.nineWasActive=true;
   if(this.pilot==='huffzky'){this.reverseBursts=0;this.crossfireTimer=.08;}
   if(this.pilot==='mckeever')this.crossfireTimer=.08;
   if(this.pilot==='udet'){this.udetBoost=0;this.nineTurnSide=1;}
   if(this.pilot==='berthold'){this.ironActiveDamage=0;this.ironSalvoDone=false;}
-  if(this.pilot==='nungesser')this.invuln=Math.max(this.invuln,this.skillTime);
   if(this.pilot==='goering'){
    this.wingBoost=this.skillTime;this.whiteFocus=pick(this,this.a,Math.PI,760);
    const w=world(this),owned=(w.allies||[]).filter(a=>a.life>0&&(a.ownerId===undefined||a.ownerId===this.id));
@@ -162,7 +150,7 @@ export function installNinePilots(Game,PILOTS){
   return r;
  };
  const impact=q.specialRoundImpact;q.specialRoundImpact=function(b,e){const r=impact.call(this,b,e);if(b.pilotRear&&b.ownerId===this.id&&this.pilot==='huffzky')suppress(this,e,.65);if(this.pilot==='jacobs'&&b.jacobsSuppress&&gunRound(b)&&dist(this,e)<300)suppress(this,e,.75);return r;};
- const hit=q.hit;q.hit=function(n){recordNineDamage(this,n);if(this.pilot==='nungesser'&&this.skillTime>0&&this.damageSource?.bullet)deflectNineRound(this,this.damageSource.bullet,this.damageSource.impactX,this.damageSource.impactY);return hit.call(this,n)};
+ const hit=q.hit;q.hit=function(n){recordNineDamage(this,n);return hit.call(this,n)};
  const volley=q.enemyVolley;q.enemyVolley=function(e,...args){const start=this.bullets.length,r=volley.call(this,e,...args);wobbleSuppressedRounds(this,e,start);return r;};
  const steer=q.dogfightSteering;q.dogfightSteering=function(e,contact,dt,baseTurn){const r=steer.call(this,e,contact,dt,baseTurn);if(e.pilotSuppressedUntil>clock(this)&&r){r.turn*=.7;r.delta+=Math.sin(clock(this)*17)*.1;}return r;};
  const wing=q.wingFormationTarget;q.wingFormationTarget=function(a,count){
@@ -176,7 +164,8 @@ export function installNinePilots(Game,PILOTS){
 }
 export function installNineCoop(CoopGame){
  const q=CoopGame.prototype,hit=q.hitPlayer;
- q.hitPlayer=function(p,n,...args){recordNineDamage(p,n);if(p.pilot==='nungesser'&&p.skillTime>0&&p.damageSource?.bullet)deflectNineRound(p,p.damageSource.bullet,p.damageSource.impactX,p.damageSource.impactY);return hit.call(this,p,n,...args)};
+ q.hitPlayer=function(p,n,...args){recordNineDamage(p,n);return hit.call(this,p,n,...args)};
  const volley=q.enemyVolley;q.enemyVolley=function(e,...args){const start=this.bullets.length,r=volley.call(this,e,...args);wobbleSuppressedRounds(this,e,start);return r;};
  const revive=q.revive;q.revive=function(p,...args){const result=revive.call(this,p,...args);if(NINE_PILOTS.has(p.pilot)&&p.status==='alive'){for(const k of ['nineRearTarget','nineFrontTarget','whiteFocus','hawkerNext','jacobsPressureTarget'])p[k]=null;for(const k of ['heldDamage','ironActiveDamage','barkerDamageStage','barkerScarStage','fxOverheat','rearAcquire','nineRearFlash','hawkerLinkTime','jacobsPressure'])p[k]=0;p.nineRearAim=p.a+Math.PI;p.nineFrontAim=p.a;p.nineWasActive=false;p.udetRunStart=p.roundsFired;}return result;};
 }
+

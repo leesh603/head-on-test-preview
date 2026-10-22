@@ -1,8 +1,9 @@
-import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=sortierhythm20261018';
-import {recordShipWake} from './naval-water.js?v=sortierhythm20261018';
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=sortierhythm20261018&rail=42';
-import {verdunFortCollapseSites} from './verdun-fortresses.js?v=sortierhythm20261018&rail=42';
-import {BossHazards} from './headon-stageboss-hazards.js?v=sortierhythm20261018';
+import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=20261021&cambrai=20261021';
+import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=gal1&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021';
+import {recordShipWake} from './naval-water.js?v=gal1';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021';
+import {verdunFortCollapseSites} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {BossHazards} from './headon-stageboss-hazards.js?v=gal1&cambrai=20261021';
 
 
 // Every sortie starts in the rural battlefield, then keeps difficulty
@@ -48,15 +49,15 @@ export function normalSpawnInterval(currentInterval,{bossPresent,factor=.55,alre
 }
 
 export class StageBossAddon {
-  constructor({runId,teamFaction,stageIndex=null,loopIndex=0,hooks,rng=Math.random,capacity=512,minionCap=12}) {
+  constructor({runId,teamFaction,stageIndex=null,loopIndex=0,hooks,rng=Math.random,capacity=512,minionCap=12,showFloors=false}) {
     for(const key of ['getTuning','onDamage','onStatus','onBarrierContact','spawnMinion','countMinions','onBuildingImpact','onCue','onEncounterCleared','onStageChange','clearEncounterOwned']) {
       if(typeof hooks?.[key]!=='function')throw new Error('Required host adapter: '+key);
     }
     if(!runId||!Number.isInteger(minionCap)||minionCap<0)throw new Error('Run ID and bounded minion budget required');
-    Object.assign(this,{runId,hooks,rng,minionCap});this.serial=0;this.time=0;this.frameContext=null;this.defeatSequence=null;this.bodyDefeats=[];
+    Object.assign(this,{runId,hooks,rng,minionCap,showFloors});this.serial=0;this.time=0;this.frameContext=null;this.defeatSequence=null;this.bodyDefeats=[];
     this.stages=new BossStages({teamFaction,stageIndex,loopIndex,rng});
     this.hazards=new BossHazards({capacity,onDamage:hooks.onDamage,onStatus:hooks.onStatus,onBarrierContact:hooks.onBarrierContact,
-      onActivate:h=>{if(h.basicMuzzle){const body=this.stages.encounter?.bodies.get(h.bossId),part=body?.parts.get(h.sourcePartId);if(part)part.recoil=Math.max(part.recoil||0,.18);hooks.onCue({type:'muzzle',encounterId:h.encounterId,bossId:h.bossId,partId:h.sourcePartId,x:h.x,y:h.y});}hooks.onCue({type:'hazard-activated',encounterId:h.encounterId,bossId:h.bossId,kind:h.kind,visual:h.visual,x:h.x,y:h.y,radius:h.radius,raidHeavy:h.raidHeavy,sourcePartId:h.sourcePartId});}});
+      onActivate:h=>{const cb=this.stages.encounter?.bodies.get(h.bossId),cp=cb?.parts.get(h.sourcePartId);if(h.kind==='projectile'&&cp&&((cb.kind==='fliegerzug'&&['car-flak','car-rear'].includes(cp.id))||(cb.kind==='treffas-wagen'&&cp.id.startsWith('mg-')))){const flash=cp.gunFlash||0;cp.gunFlash=.16;cp.recoil=.18;if(Number.isFinite(h.sourceAngle)){cp.shotAngle=h.sourceAngle;cp.aimAngle=h.sourceAngle;}if(!h.basicMuzzle&&!flash)hooks.onCue({type:'muzzle',encounterId:h.encounterId,bossId:h.bossId,partId:cp.id,x:h.x,y:h.y});}if(h.basicMuzzle){const body=this.stages.encounter?.bodies.get(h.bossId),part=body?.parts.get(h.sourcePartId);if(part)part.recoil=Math.max(part.recoil||0,.18);hooks.onCue({type:'muzzle',encounterId:h.encounterId,bossId:h.bossId,partId:h.sourcePartId,x:h.x,y:h.y});}hooks.onCue({type:'hazard-activated',encounterId:h.encounterId,bossId:h.bossId,kind:h.kind,visual:h.visual,x:h.x,y:h.y,radius:h.radius,raidHeavy:h.raidHeavy,sourcePartId:h.sourcePartId});}});
     this.canBasicFire=()=>this.hazards.pool.count<42;
     this.metrics={minionsDenied:0};this.ended=false;
   }
@@ -116,7 +117,20 @@ export class StageBossAddon {
     // Announced counter windows (reloads, regroups) multiply pilot damage only;
     // internal explosions and scripted damage call body.hit directly.
     const counter=typeof body.counterWindow==='function'?body.counterWindow():1;
-    return body.hit({partId,damage:damage*(Number.isFinite(counter)&&counter>0?counter:1)});
+    damage*=Number.isFinite(counter)&&counter>0?counter:1;
+    // Show-before-fall floor: a boss keeps a slice of health until it has
+    // shown what its current phase is for (its own gate, or the encounter's
+    // signature strikes). Firepower still shortens every wait; it cannot skip
+    // the fight. Internal/scripted damage calls body.hit directly.
+    const floor=!this.showFloors?0:typeof body.hpFloor==='function'?body.hpFloor():this.stages.encounter?.guardFloor?.(body)||0;
+    // Breaking a weak point is the reward route: part hits pass untouched unless the
+    // parts are the hull itself or the body keeps its own scripted floor (rail guns).
+    if(!(floor>0)||partId&&!body.partsCarryHull&&typeof body.hpFloor!=='function')return body.hit({partId,damage});
+    const before=body.hp;if(!partId||body.partsCarryHull)damage=Math.min(damage,Math.max(0,before-floor)/1.5);
+    const result=body.hit({partId,damage});
+    // Part hits that also wear the hull stop at the floor too; never heals.
+    if(!body.dead&&body.hp<Math.min(floor,before))body.hp=Math.min(floor,before);
+    return result;
   }
   hitAt({x,y,radius=0,damage,faction}) {
     for(const body of this.stages.encounter?.bodies.values()||[]) {
@@ -153,7 +167,7 @@ export class StageBossAddon {
       if(!h.sourcePartId)return;
       const part=body?.parts.get(h.sourcePartId);
       if(!body||body.dead||!part||part.destroyed){this.hazards.pool.release(h.index,h.generation);return;}
-      if(h.kind==='projectile'){h.x=body.x+part.x+h.sourceOffsetX;h.y=body.y+part.y+h.sourceOffsetY;}
+      if(h.kind==='projectile'){const m=body.kind==='fliegerzug'?fliegerGunMuzzle(body,part,h.sourceAngle??part.shotAngle):body.kind==='treffas-wagen'&&part.id.startsWith('mg-')?treffasMgMuzzle(body,part,h.sourceAngle??part.aimAngle):null;if(m){h.x=m.x;h.y=m.y;}else{h.x=body.x+part.x+h.sourceOffsetX;h.y=body.y+part.y+h.sourceOffsetY;}}
     });
     this.hazards.update(dt,frame);
     return true;
@@ -205,4 +219,6 @@ export class StageBossAddon {
     this.defeatSequence=null;this.bodyDefeats=[];
   }
 }
+
+
 

@@ -1,8 +1,15 @@
-// One authoritative pre-sortie roster. Beta access is independent of pilot unlocks.
+// One authoritative pre-sortie roster and pilot-specific aircraft unlock policy.
 // Historical sources and exceptions: docs/pilot-aircraft-20261018.md.
+export const PILOT_AIRCRAFT_KILLS=50;
+export const pilotKillMetric=id=>'pilotKills'+id;
+let pilotKillProvider=null;
+export const setPilotKillProvider=provider=>{pilotKillProvider=provider};
+export function pilotKillCount(id){
+ try{const value=pilotKillProvider?pilotKillProvider(id):JSON.parse(globalThis.localStorage?.getItem('headon-service-medals-1')||'{}').metrics?.[pilotKillMetric(id)];return Number.isFinite(value)&&value>0?Math.floor(value):0}catch{return 0}
+}
 const row=(defaultAircraft,unlockAircraft=null,holdReason='')=>Object.freeze({
- defaultAircraft,unlockAircraft,unlockRequirement:null,unlockStatus:!!unlockAircraft,
- holdReason,betaAccess:true
+ defaultAircraft,unlockAircraft,unlockRequirement:unlockAircraft?PILOT_AIRCRAFT_KILLS:null,unlockStatus:false,
+ holdReason,betaAccess:false
 });
 export const PILOT_AIRCRAFT=Object.freeze({
  baron:row('fokker','baron_albatros'),voss:row('fokker','voss_pfalz'),
@@ -32,34 +39,42 @@ export const PILOT_AIRCRAFT=Object.freeze({
 // New models use authored transparent WebPs, loaded only when selected.
 export const SORTIE_FITS=Object.freeze({
  fonck_spad:{base:'spad',sprite:'fonck_spad',name:'SPAD XIII · 폰크',style:'rickenbacker_spad'},
- luke_spad:{base:'spad',sprite:'bank_livery_spad13__us',name:'SPAD XIII · 프랭크 루크',style:'rickenbacker_spad'},
+ luke_spad:{base:'spad',sprite:'luke_spad',name:'SPAD XIII · 프랭크 루크',style:'rickenbacker_spad'},
  bishop_nieuport:{base:'nieuport',sprite:'bishop_nieuport',name:'Nieuport 17 · 비숍',style:'baracca_nieuport'},
  bishop_se5a:{base:'se5a',sprite:'bishop_se5a',name:'S.E.5a · 비숍'},
  voss_pfalz:{base:'pfalz_d3a',sprite:'voss_pfalz',name:'Pfalz D.III · Jasta 10',style:'berthold_pfalz'},
- udet_dr1:{base:'fokker',sprite:'fokker_standard',name:'Fokker Dr.I · 우데트'},
- goering_dr1:{base:'fokker',sprite:'fokker_standard',name:'Fokker Dr.I · 괴링'},
- berthold_d7:{base:'fokkerd7',sprite:'bank_livery_fokkerd7__berthold',name:'Fokker D.VII · 베르톨트',style:'goering_fokkerd7'},
+ udet_dr1:{base:'fokker',sprite:'udet_dr1',name:'Fokker Dr.I · 우데트'},
+ goering_dr1:{base:'fokker',sprite:'goering_dr1',name:'Fokker Dr.I · 괴링'},
+ berthold_d7:{base:'fokkerd7',sprite:'berthold_d7',name:'Fokker D.VII · 베르톨트',style:'goering_fokkerd7'},
  wolff_f1:{base:'fokker',sprite:'wolff_f1',name:'Fokker F.I · 102/17'},
  loewenhardt_albatros:{base:'albatros',sprite:'loewenhardt_albatros',name:'Albatros D.III (OAW) · Jasta 10',style:'boelcke_albatros'},
- jacobs_d7:{base:'fokkerd7',sprite:'bank_livery_fokkerd7__night',name:'Fokker D.VII · 야콥스',style:'goering_fokkerd7'},
- lothar_albatros:{base:'albatros',sprite:'baron_albatros',name:'Albatros D.III · Jasta 11',style:'boelcke_albatros'},
+ jacobs_d7:{base:'fokkerd7',sprite:'jacobs_d7',name:'Fokker D.VII · 야콥스',style:'goering_fokkerd7'},
+ lothar_albatros:{base:'albatros',sprite:'lothar_albatros',name:'Albatros D.III · 로타르 D.2006/16',style:'boelcke_albatros'},
  sachsenberg_d7:{base:'fokkerd7',sprite:'sachsenberg_d7',name:'Fokker D.VII · 작센베르크',style:'goering_fokkerd7'},
- collishaw_camel:{base:'camel',sprite:'naval10_camel',name:'Sopwith Camel · Naval 10'},
- baracca_spad:{base:'spad',sprite:'italian_spad',name:'SPAD XIII · 이탈리아',style:'rickenbacker_spad'},
- mannock_nieuport:{base:'nieuport',sprite:'nieuport',name:'Nieuport 17 · RFC',style:'baracca_nieuport'},
- rickenbacker_n28:{base:'nieuport28',fallback:'nieuport',sprite:'bank_livery_nieuport28__usas',name:'Nieuport 28 · USAS',style:'baracca_nieuport',speed:150,turn:3.8,hp:95,drag:.19,recovery:1.15,guns:2},
- ball_nieuport:{base:'nieuport',sprite:'nieuport',name:'Nieuport 17 · 앨버트 볼',style:'baracca_nieuport'},
- barker_re8:{base:'re7',weaponBase:'bristol_duo',sprite:'re8',name:'R.E.8 · 복좌 정찰기',style:'bristol_duo',tier:'re8',speed:126,turn:2.25,hp:120,drag:.21,recovery:.85,guns:2,bidirectional:true,role:'복좌 전후방 지원형'},
- fonck_caudron:{base:'re7',sprite:'caudron_g4',name:'Caudron G.4 · 폰크',style:'re7',tier:'caudron_g4',speed:112,turn:2.3,hp:150,drag:.21,recovery:.75,guns:1,gunName:'Hotchkiss',role:'쌍발 정찰·지속사격형'},
+ collishaw_camel:{base:'camel',sprite:'collishaw_camel',name:'Sopwith Camel · 콜리쇼 Black Maria'},
+ baracca_spad:{base:'spad',sprite:'baracca_spad',name:'SPAD XIII · 이탈리아',style:'rickenbacker_spad'},
+ mannock_nieuport:{base:'nieuport',sprite:'mannock_nieuport',name:'Nieuport 17 · 매녹 40 Sqn',style:'baracca_nieuport'},
+ rickenbacker_n28:{base:'nieuport28',fallback:'nieuport',sprite:'rickenbacker_n28',name:'Nieuport 28 · 리켄바커 12',style:'baracca_nieuport',speed:150,turn:3.8,hp:95,drag:.19,recovery:1.15,guns:2},
+ ball_nieuport:{base:'nieuport',sprite:'ball_nieuport',name:'Nieuport 17 · 앨버트 볼',style:'baracca_nieuport'},
+ barker_re8:{base:'re7',weaponBase:'bristol_duo',sprite:'barker_re8',name:'R.E.8 · 복좌 정찰기',style:'bristol_duo',tier:'re8',speed:126,turn:2.25,hp:120,drag:.21,recovery:.85,guns:2,bidirectional:true,role:'복좌 전후방 지원형'},
+ fonck_caudron:{base:'re7',sprite:'fonck_caudron',name:'Caudron G.4 · 폰크',style:'re7',tier:'caudron_g4',speed:112,turn:2.3,hp:150,drag:.21,recovery:.75,guns:1,gunName:'Hotchkiss',role:'쌍발 정찰·지속사격형'},
  morane_l:{base:'nieuport',sprite:'morane_l',name:'Morane-Saulnier L',style:'eindecker',tier:'be2c',speed:113,turn:2.65,hp:100,drag:.22,recovery:.8,guns:1,gunName:'Hotchkiss',role:'초기 파라솔 정찰형',wings:1},
  bristol_scout_c:{base:'airco_dh2',sprite:'bristol_scout_c',name:'Bristol Scout C · 1609',style:'airco_dh2',tier:'airco_dh2',speed:137,turn:3.55,hp:80,drag:.23,recovery:.95,guns:1,gunName:'Lewis',gunAngle:-.3,muzzleSide:-5,role:'경량 좌측 경사사격형'},
  hansa_brandenburg_di:{base:'albatros_d2',sprite:'hansa_brandenburg_di',name:'Hansa-Brandenburg D.I',style:'boelcke_albatros',tier:'albatros_d2',speed:133,turn:3.15,hp:105,drag:.23,recovery:.9,guns:1,gunName:'Schwarzlose',role:'초기형 경량 강습기'},
  voisin_iii:{base:'re7',sprite:'voisin_iii',name:'Voisin III',style:'re7',tier:'be2c',speed:102,turn:2.1,hp:140,drag:.25,recovery:.65,guns:1,gunName:'Hotchkiss',role:'푸셔 복좌 지속사격형'}
 });
+// Artwork variants only: keep saved aircraft IDs and every flight/skill value intact.
+export const PILOT_RENDER_ART=Object.freeze({
+ boelcke:Object.freeze({eindecker:'boelcke_eindecker'}),
+ hawker:Object.freeze({airco_dh2:'hawker_dh2'}),
+ mccudden:Object.freeze({airco_dh2:'mccudden_dh2'}),
+ mannock:Object.freeze({se5a:'mannock_se5a'})
+});
 export const NEW_SORTIE_ART=Object.freeze(['morane_l','bristol_scout_c','hansa_brandenburg_di','voisin_iii','loewenhardt_albatros','sachsenberg_d7','wolff_f1','voss_pfalz']);
 export const pilotAircraftChoices=id=>{const r=PILOT_AIRCRAFT[id];return r?[r.defaultAircraft,...(r.unlockAircraft?[r.unlockAircraft]:[])]:[]};
-export const selectedPilotAircraft=(id,choice)=>pilotAircraftChoices(id).includes(choice)?choice:PILOT_AIRCRAFT[id]?.defaultAircraft;
-export const aircraftChoiceLabel=(id,plane,name,role,locale='ko')=>`${plane===PILOT_AIRCRAFT[id]?.defaultAircraft?(locale==='en'?'Default':'기본'):(locale==='en'?'Unlock · Beta open':'해금 · 베타 개방')} · ${name} · ${role||''}`;
+export const pilotAircraftUnlocked=(id,choice,kills=pilotKillCount(id))=>!!PILOT_AIRCRAFT[id]&&(choice===PILOT_AIRCRAFT[id].defaultAircraft||!!PILOT_AIRCRAFT[id].unlockAircraft&&choice===PILOT_AIRCRAFT[id].unlockAircraft&&kills>=PILOT_AIRCRAFT_KILLS);
+export const selectedPilotAircraft=(id,choice)=>pilotAircraftChoices(id).includes(choice)&&pilotAircraftUnlocked(id,choice)?choice:PILOT_AIRCRAFT[id]?.defaultAircraft;
+export const aircraftChoiceLabel=(id,plane,name,role,locale='ko')=>[plane===PILOT_AIRCRAFT[id]?.defaultAircraft?(locale==='en'?'Default':'기본'):pilotAircraftUnlocked(id,plane)?'':(locale==='en'?`Locked · ${Math.min(pilotKillCount(id),PILOT_AIRCRAFT_KILLS)}/${PILOT_AIRCRAFT_KILLS} kills`:`잠김 · 격추 ${Math.min(pilotKillCount(id),PILOT_AIRCRAFT_KILLS)}/${PILOT_AIRCRAFT_KILLS}`),name,role].filter(Boolean).join(' · ');
 
 export const AIRCRAFT_SELECTION_KEY='headon.pilot-aircraft.v1';
 export function readAircraftSelections(storage){
@@ -68,7 +83,7 @@ export function readAircraftSelections(storage){
  return out;
 }
 export function saveAircraftSelection(storage,selections,slot,id,choice){
- if(!['p1','p2'].includes(slot)||!pilotAircraftChoices(id).includes(choice))return false;
+ if(!['p1','p2'].includes(slot)||!pilotAircraftChoices(id).includes(choice)||!pilotAircraftUnlocked(id,choice))return false;
  selections[slot][id]=choice;try{storage.setItem(AIRCRAFT_SELECTION_KEY,JSON.stringify(selections))}catch{}return true;
 }
 

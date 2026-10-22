@@ -1,9 +1,9 @@
-import {RailAdapter} from './boss-adapters129.js?v=sortierhythm20261018';
-import {BaseBoss} from './headon-stageboss-core.js?v=sortierhythm20261018';
-import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=sortierhythm20261018';
-import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=sortierhythm20261018';
-import {brunoSalvo} from './bruno-raid.js?v=sortierhythm20261018&rail=40';
-import {lincomparableRound} from './lincomparable-raid.js?v=sortierhythm20261018';
+import {RailAdapter} from './boss-adapters129.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {BaseBoss} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=tame3';
+import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=tame3';
+import {brunoSalvo} from './bruno-raid.js?v=tame3&rail=40';
+import {lincomparableRound} from './lincomparable-raid.js?v=tame3';
 
 // Rural-only mechanics. The Cambrai carrier keeps its separate controller.
 export class RuralRailBoss extends RailAdapter {
@@ -12,12 +12,12 @@ export class RuralRailBoss extends RailAdapter {
   super({...o,y:(o.y||0)-(RURAL_RAIL.tailY-465)},kind);
   this.ruralRailBoss=true;this.baseReload=this.rail129.c.reloadSeconds;
   this.aimPlan=null;this.barrage=null;this.gunFlash=0;this.recovery=0;this.aaClock=1.6;this.aaPlan=null;
-  this.railGun=createRailArtillery();
-  if(kind==='paris-gun'){this.raidPhase=1;this.entry={age:0,initialized:false};this.observerMotion={vx:0,vy:-1};}
+  this.railGun=createRailArtillery();this.phaseShots={1:0,2:0,3:0};
+  if(kind==='paris-gun'){this.raidPhase=1;this.entry={age:0,initialized:false};this.observerMotion={vx:0,vy:-1};this.baseReload=Math.max(2.8,this.baseReload);this.rail129.c.reloadSeconds=this.baseReload;}
   if(kind==='lincomparable'){
    this.raidPhase=1;this.entry={age:0,initialized:false};this.reloadStress=0;this.finalAim=null;this.observerMotion={vx:0,vy:0};
-   this.baseReload=Math.max(3.2,this.baseReload);this.rail129.c.reloadSeconds=this.baseReload;
-   this.rail129.c.brakeSeconds=1.2;this.rail129.c.aimSeconds=Math.max(1.8,this.rail129.c.aimSeconds);
+   this.baseReload=Math.max(5.2,this.baseReload);this.rail129.c.reloadSeconds=this.baseReload;
+   this.rail129.c.brakeSeconds=1.2;this.rail129.c.aimSeconds=Math.max(2.8,this.rail129.c.aimSeconds);
   }
   this.blindOrigin={x:this.x,y:this.y+RURAL_RAIL.tailY};this.frameBounds=null;this.ruralClock=0;
   for(const spec of RURAL_CARS){const p=this.parts.get(spec.id);Object.assign(p,{x:0,y:spec.y,hp:this.maxHp*spec.share,maxHp:this.maxHp*spec.share,hitRadiusY:188,role:spec.role});}
@@ -25,6 +25,20 @@ export class RuralRailBoss extends RailAdapter {
   this.rail129.railTarget={x:this.x,y:this.y+RURAL_RAIL.tailY+220,radius:34};this.syncRailPart();
  }
  syncRailPart(){const p=this.parts.get('rail'),q=this.rail129.railTarget;p.x=q.x-this.x;p.y=q.y-this.y;}
+ // What the gun must still show before it can fall: each phase's own shot,
+ // then the runaway's last salvo / last 520 mm round. Destroying every car
+ // skips straight to the last shot; heavy firepower only shortens the waits.
+ hpFloor(){
+  if(this.dead)return 0;const m=this.maxHp,carsGone=this.railCarOrder.every(id=>this.parts.get(id).destroyed);
+  // Released once the last salvo / round has actually landed: the derailed
+  // locomotive is the finishing target, not the shell in flight.
+  const finalDone=(this.kind==='lincomparable'?!!this.finalCounter:!!this.ironRainFired)&&this.ruralClock>=(this.finalLandAt||0);
+  if(this.runawayTriggered129||carsGone)return finalDone?0:m*.06;
+  if(this.entry||this.raidPhase===1&&!this.phaseShots[1])return m*(this.kind==='lincomparable'?.84:.92)+1;
+  if(!this.phaseShots[2])return m*.28+1;
+  return m*.06;
+ }
+ counterWindow(){return this.recovery>0?1.35:super.counterWindow();}
  refreshReload(){this.rail129.c.reloadSeconds=this.baseReload*(this.parts.get('car-front').destroyed?1.6:1)*(this.kind==='lincomparable'&&this.rail129.broken?1.4:1);}
  railEvent(e){
   if(e.type==='aim'){
@@ -45,10 +59,11 @@ export class RuralRailBoss extends RailAdapter {
   if(e.type==='fire'){
    const plan=this.aimPlan||{target:e.target,points:[e.target]};this.blindOrigin={...plan.target};this.aimPlan=null;
    this.refreshReload();
+   this.phaseShots[this.raidPhase||1]=(this.phaseShots[this.raidPhase||1]||0)+1;
    if(this.kind==='lincomparable'){
     this.fire520(plan);this.recovery=this.rail129.c.recoilSeconds+this.rail129.c.reloadSeconds;
    }else{
-    this.fireBarrage(plan);
+    this.fireBarrage(plan);this.recovery=this.rail129.c.recoilSeconds+this.rail129.c.reloadSeconds;
     if(this.raidPhase===2&&this.railCarOrder.some(id=>!this.parts.get(id).destroyed)){this.aaPlan=null;this.aaClock=(plan.points.length-1)*plan.interval+.3;}
    }
    return;
@@ -59,7 +74,7 @@ export class RuralRailBoss extends RailAdapter {
     this.barrage=null;this.emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':iron-rain'});
    }
    if(this.kind==='lincomparable'&&this.finalAim){
-    const q=this.finalAim;Object.assign(q,lincomparableRound(q.target,2,this,{blind:q.blind,final:true,stress:this.reloadStress,broken:true}));
+    const q=this.finalAim,remaining=q.remaining,locked=q.locked;Object.assign(q,lincomparableRound(q.target,2,this,{blind:q.blind,final:true,stress:this.reloadStress,broken:true}),{remaining,locked});
    }
   }
   if(e.type==='runaway-start'){
@@ -71,19 +86,19 @@ export class RuralRailBoss extends RailAdapter {
     const p=this.lastRaidPlayers?.[rail.shot%this.lastRaidPlayers.length]||this.blindOrigin;
     const blind=this.parts.get('car-middle').destroyed,motion=blind?this.observerMotion:p;
     const plan=brunoSalvo({...p,vx:motion.vx||0,vy:motion.vy||0},2,rail.shot,this.frameBounds,{final:true,blind,broken:rail.broken,starved:this.parts.get('car-front').destroyed});
-    this.fireBarrage(plan);this.raidPhase=3;
+    this.fireBarrage(plan);this.raidPhase=3;this.ironRainFired=true;this.finalLandAt=this.ruralClock+(plan.warning||1)+plan.points.length*(plan.interval||.22)+.4;
     this.emit({type:'bruno-iron-rain',bossId:this.id,...this.rail129.pose});
    }
    if(this.kind==='lincomparable'){
     this.emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':520-round'});
     const p=this.lastRaidPlayers?.[rail.shot%this.lastRaidPlayers.length]||this.blindOrigin;
     const blind=this.parts.get('car-middle').destroyed;
-    const motion=blind?this.observerMotion:p;
-    // Preview a drifting aim for 1.4s, then lock for another full 1.4s.
-    // The destroyed observer uses stale motion, never a new homing sample.
-    this.finalAim={...lincomparableRound(p,2,this,{blind,final:true,stress:this.reloadStress,broken:rail.broken}),remaining:2.8,
-     originTarget:{x:p.x,y:p.y},forecast:{x:p.x+(motion.vx||0)*2.8,y:p.y+(motion.vy||0)*2.8}};
+    // The last 520 mm shot commits one coordinate for the full long lay. It
+    // cannot follow the pilot after the warning has begun.
+    this.finalAim={...lincomparableRound({x:p.x,y:p.y,vx:0,vy:0},2,this,{blind,final:true,stress:this.reloadStress,broken:rail.broken}),remaining:2.8,locked:true};
     this.raidPhase=3;aimRailArtillery(this,this.finalAim.target);
+    this.emit({type:'rural-aim',target:{...this.finalAim.target},seconds:2.8,bossId:this.id});
+    this.emit({type:'phase-change',bossId:this.id,phase:'lincomparable-locked'});
     this.emit({type:'lincomparable-last-520',bossId:this.id,...rail.pose});
    }
   }
@@ -126,6 +141,12 @@ export class RuralRailBoss extends RailAdapter {
    this.emit({type:'phase-change',bossId:this.id,phase:'ammo-starved'});
   }
   super.onPartDestroyed(p);
+  if(this.railCarOrder.every(id=>this.parts.get(id).destroyed)){
+   this.aimPlan=null;this.aaPlan=null;this.barrage=null;this.coreVulnerable=true;this.hp=Math.min(this.hp,this.maxHp*.14);
+   this.emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':bruno-salvo'});
+   this.emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':520-round'});
+   this.emit({type:'phase-change',bossId:this.id,phase:'locomotive-finish'});
+  }
  }
  update(dt,ctx){
   if(this.dead||ctx.paused)return;dt=Math.min(dt,.25);this.ruralClock+=dt;this.frameBounds=ctx.bounds;
@@ -151,11 +172,11 @@ export class RuralRailBoss extends RailAdapter {
    if(this.raidPhase===1&&(this.hp<=this.maxHp*.84||rear.destroyed)){
     this.raidPhase=2;this.emit({type:'phase-change',bossId:this.id,phase:'lincomparable-shock-link'});
    }
-   // Below 55% the crew rams the next round home faster: the reload counter
-   // window shrinks and the 520 comes round more often.
+   // Damage shakes the loading crew, but the 520 mm round still has a long,
+   // readable reload rather than cycling like a field gun.
    if(this.raidPhase===2&&!this.hastyReload&&this.hp<=this.maxHp*.55){
-    this.hastyReload=true;this.baseReload=Math.max(2.5,this.baseReload*.78);this.refreshReload();
-    this.emit({type:'phase-change',bossId:this.id,phase:'lincomparable-hasty-reload'});
+    this.hastyReload=true;this.baseReload=Math.max(4.6,this.baseReload*.9);this.refreshReload();
+    this.emit({type:'phase-change',bossId:this.id,phase:'lincomparable-strained-reload'});
    }
   }
   this.gunFlash=Math.max(0,this.gunFlash-dt);this.refreshReload();
@@ -175,20 +196,16 @@ export class RuralRailBoss extends RailAdapter {
   }
   this.syncRailPart();
   // Armor is open throughout the real recoil/reload state, including slow reload.
-  this.recovery=this.kind==='lincomparable'&&['recoil','reload'].includes(rail.phase)?Math.max(.01,(rail.phase==='recoil'?rail.c.recoilSeconds-rail.time+rail.c.reloadSeconds:rail.c.reloadSeconds-rail.time)):0;
+  this.recovery=['recoil','reload'].includes(rail.phase)?Math.max(.01,(rail.phase==='recoil'?rail.c.recoilSeconds-rail.time+rail.c.reloadSeconds:rail.c.reloadSeconds-rail.time)):0;
   if(this.barrage){const q=this.barrage,interval=q.interval||this.t.barrageInterval||.32;q.clock+=dt;
-   // Muzzle flash keeps the firing beat; the markers themselves were pre-placed.
-   while(q.index<q.points.length&&q.clock>=q.index*interval){q.index++;fireRailArtillery(this);}
+   // One railway round owns the full committed impact pattern. Recoil and
+   // reload begin immediately; later markers do not fake extra gun shots.
+   while(q.index<q.points.length&&q.clock>=q.index*interval)q.index++;
    if(q.clock>=q.total){this.barrage=null;if(this.kind==='paris-gun'&&this.raidPhase===2&&!q.final&&this.railCarOrder.some(id=>!this.parts.get(id).destroyed))this.aaClock=.3;}}
   updateRailArtillery(this,dt);
   if(this.finalAim){
    const q=this.finalAim;q.remaining-=dt;
-   if(!q.locked){
-    const f=Math.min(1,(2.8-q.remaining)/1.4),target={x:q.originTarget.x+(q.forecast.x-q.originTarget.x)*f,y:q.originTarget.y+(q.forecast.y-q.originTarget.y)*f};
-    Object.assign(q,lincomparableRound(target,2,this,{blind:q.blind,final:true,stress:this.reloadStress,broken:rail.broken}));aimRailArtillery(this,q.target);
-    if(q.remaining<=1.4){q.locked=true;this.emit({type:'phase-change',bossId:this.id,phase:'lincomparable-locked'});}
-   }
-   if(this.finalAim.remaining<=0){const plan=this.finalAim;this.finalAim=null;this.fire520(plan);this.finalCounter=true;this.emit({type:'phase-change',bossId:this.id,phase:'lincomparable-counter'});}
+   if(this.finalAim.remaining<=0){const plan=this.finalAim;this.finalAim=null;this.fire520(plan);this.finalCounter=true;this.finalLandAt=this.ruralClock+(plan.waveDelay||1)+(plan.waveDuration||.6)+.3;this.emit({type:'phase-change',bossId:this.id,phase:'lincomparable-counter'});}
   }
   this.updateDefense(dt,ctx.players||[]);
   if(!this.runawayTriggered129)this.phase=this.coreVulnerable?'locomotive':rail.phase;
@@ -253,6 +270,10 @@ export class RuralRailBoss extends RailAdapter {
   const cars=this.railCarOrder.map(id=>this.parts.get(id)).filter(c=>c&&!c.destroyed);
   for(const c of this.railCarOrder){const car=this.parts.get(c);if(car)car.gunFlash=Math.max(0,(car.gunFlash||0)-dt);}
   if(!cars.length||this.runawayTriggered129)return;
+  // During the heavy gun's lay, recoil and reload the car gunners stand down;
+  // the train's move phase is the lure and screening-fire beat.
+  if(['aim','brake'].includes(this.rail129.phase)){this.aaPlan=null;this.aaClock=Math.max(this.aaClock||0,.6);return;}
+  if(this.recovery>0){this.aaPlan=null;this.aaClock=Math.max(this.aaClock||0,.6);return;}
   if(this.aaPlan){this.aaPlan.remaining-=dt;if(this.aaPlan.remaining<=0){
    const car=this.aaPlan.car;if(car.destroyed){this.aaPlan=null;this.aaClock=.5;return;}
    const a=this.aaPlan.angle,x=this.x,y=this.y+car.y-145,speed=(this.t.bulletSpeed||260)*.85;
@@ -282,3 +303,4 @@ export class RuralRailBoss extends RailAdapter {
  locateHit(s){return this.dead?null:super.locateHit(s);}
  dispose(){this.entry=null;this.finalAim=null;this.aimPlan=null;this.aaPlan=null;this.barrage=null;super.dispose();}
 }
+

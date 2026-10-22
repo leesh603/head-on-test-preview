@@ -1,9 +1,10 @@
-import {PILOT_AIRCRAFT as SORTIE_ROSTER,SORTIE_FITS} from './pilot-aircraft.js?v=sortierhythm20261018';
+import {PILOT_AIRCRAFT as SORTIE_ROSTER,SORTIE_FITS} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 // Identity and display metadata only. No art paths, render geometry or combat values.
 // Catalog presence does NOT register a fit, unlock a sortie or activate a pilot.
 // Existing PLANES/PILOT_PLANES and mode-specific selection remain authoritative.
 
 const ownerLabels = {
+  "boelcke": ["뵐케", "Oswald Boelcke"],
   "baron": ["리히트호펜", "Manfred von Richthofen"],
   "voss": ["베르너 포스", "Werner Voss"],
   "collishaw": ["콜리쇼", "Raymond Collishaw"],
@@ -43,6 +44,7 @@ const identityRows = [
   ["bristol_duo","Bristol F.2B","entente",null,"bristol_duo","bristol_duo",["two-seater","duo"]],
   ["baron_albatros","Albatros D.III","central","baron","albatros","baron_albatros",[]],
   ["albatros_d2","Albatros D.II","central",null,"albatros_d2","albatros_d2",[]],
+  ["boelcke_albatros","Albatros D.II","central","boelcke","albatros_d2","boelcke_albatros",[]],
   ["halberstadt_duo","Halberstadt CL.II","central",null,"halberstadt_duo","halberstadt_duo",["two-seater","duo"]],
   ["nieuport_italian","Nieuport 17 (Italian)","entente",null,"nieuport_italian","nieuport_italian",[]],
   ["nieuport24","Nieuport 24","entente",null,"nieuport24","nieuport24",[]],

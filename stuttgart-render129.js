@@ -1,10 +1,10 @@
-import {drawPartFuelFire} from './explosion-profiles.js?v=sortierhythm20261018';
-import {drawEnemyProjectile} from './projectiles.js?v=sortierhythm20261018';
-import {drawBossRound} from './boss-rounds.js?v=sortierhythm20261018';
-import {impactMark} from './tactical-marks.js?v=sortierhythm20261018';
-import {HANGAR} from './stuttgart129.js?v=sortierhythm20261018';
-import {drawNavalWake} from './adriatic-boss-render.js?v=sortierhythm20261018';
-import {fx} from './fx-art.js?v=sortierhythm20261018';
+import {drawPartFuelFire} from './explosion-profiles.js?v=fx5';
+import {drawEnemyProjectile} from './projectiles.js?v=pilotfx20261018';
+import {drawBossRound} from './boss-rounds.js?v=tame3&ai=1018';
+import {impactMark} from './tactical-marks.js?v=tame3';
+import {HANGAR} from './stuttgart129.js?v=tame3&boss=20261020b';
+import {drawNavalWake} from './adriatic-boss-render.js?v=tame3';
+import {fx} from './fx-art.js?v=tame3';
 // Geometry masks remove the source canvas outside the drawn silhouette at render time.
 // Never color-key gray pixels: doing so also erases metal highlights inside the ship.
 export const SHIP_OUTLINE=[[.498,.007],[.504,.007],[.51,.026],[.538,.05],[.562,.08],[.60,.13],[.628,.161],[.661,.158],[.663,.165],[.642,.174],[.661,.206],[.674,.267],[.681,.343],[.697,.355],[.699,.403],[.683,.416],[.682,.441],[.724,.437],[.727,.444],[.698,.451],[.702,.482],[.688,.499],[.692,.537],[.700,.56],[.696,.61],[.695,.646],[.70,.66],[.695,.71],[.697,.74],[.69,.775],[.696,.81],[.685,.87],[.678,.90],[.663,.932],[.638,.955],[.613,.963],[.61,.974],[.57,.983],[.574,.991],[.565,.995],[.55,.986],[.455,.986],[.43,.995],[.42,.991],[.415,.98],[.358,.958],[.34,.94],[.321,.908],[.309,.873],[.303,.82],[.307,.775],[.298,.743],[.300,.709],[.306,.67],[.303,.628],[.304,.60],[.296,.575],[.300,.536],[.313,.511],[.302,.49],[.291,.475],[.289,.456],[.275,.443],[.28,.438],[.313,.445],[.315,.416],[.301,.401],[.301,.358],[.317,.348],[.326,.32],[.317,.294],[.326,.271],[.333,.23],[.341,.209],[.354,.18],[.339,.162],[.344,.156],[.365,.166],[.392,.131],[.436,.08],[.46,.05],[.489,.025]];
@@ -40,4 +40,5 @@ export function drawSupportEffects(g,b,{camera={x:0,y:0},screenScale=1}={}){if(!
  else if(f.kind==='debris'){g.rotate(f.age*4);g.fillStyle='#b49b6d';g.fillRect(-3,-2,7,4);}
  else if(f.kind==='wake'){g.rotate(f.angle);g.strokeStyle='#91b4be';g.lineWidth=3;for(let i=0;i<3;i++){g.beginPath();g.ellipse(0,i*7,f.radius*(.5+t),6+t*12,0,0,Math.PI*2);g.stroke();}}
  else {g.fillStyle=t<.3?'#ffd697':'#423c36';for(let i=0;i<7;i++){const a=i*2.4,r=f.radius*(.1+t*.5);g.beginPath();g.arc(Math.cos(a)*r,Math.sin(a)*r,f.radius*(.13+t*.2),0,Math.PI*2);g.fill();}g.strokeStyle='#ddac76';g.lineWidth=2;g.beginPath();g.arc(0,0,f.radius*(.3+t),0,Math.PI*2);g.stroke();}g.restore();});g.restore();}
+
 

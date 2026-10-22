@@ -1,6 +1,9 @@
-import {drawFuelFire} from './explosion-profiles.js?v=sortierhythm20261018';
-import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from './aircraft-crash.js?v=sortierhythm20261018';
-import {drawTracerBolt} from './projectiles.js?v=sortierhythm20261018';
+import {combatImpactResult} from './combat-impact-result.js';
+import {queueCombatImpact,advanceReplicaImpactFx} from './explosion-profiles.js?v=fx5';
+import {playerAirframeModel} from './player-airframe-handling.js?v=handling5';
+import {drawFuelFire} from './explosion-profiles.js?v=fx5';
+import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from './aircraft-crash.js?v=tame3';
+import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.
 const worlds=new WeakMap(),poses=new WeakMap();
@@ -18,21 +21,23 @@ export function impactMaterial(e,b){
 }
 const NO_POSE={x:0,y:0,roll:0,bank:1,active:false};
 export function combatVisualPose(e){return poses.get(e)||NO_POSE}
-function pose(e,time,dt,damageState){
+function pose(e,time,dt,damageState,flight=false){
  const q=poses.get(e)||{x:0,y:0,roll:0,bank:1,lastA:e.a,lastHp:e.hp,kick:0,turn:0};
+ if(flight){const elapsed=time-(q.flightAt??time);q.flightSpeed=elapsed>0&&q.lastX!=null&&e.speed>0?Math.hypot(e.x-q.lastX,e.y-q.lastY)/elapsed/e.speed:(e.airframeSpeed??1);q.lastX=e.x;q.lastY=e.y;q.flightAt=time;}
  const rate=dt>0?clamp(angle(e.a-q.lastA)/dt,-4,4):0;
  q.turn+=(rate-q.turn)*(1-Math.exp(-dt*12));q.kick=Math.max(e.hp<q.lastHp-.4?1:0,q.kick-dt*6);
- const shot=!(e.reloadTime>0)&&!(e.cannonRecoil129>0)?clamp((e.muzzleFlash||0)/.04)*.18:0;
- const side=Math.sin(time*67)*q.kick*1.6;
+ const shot=!(e.reloadTime>0)&&!(e.cannonRecoil129>0)?Math.sin(clamp((e.muzzleFlash||0)/.09)*Math.PI)*1.25:0;
+ const weight=e.bomberTransfer?.kind==='airship'?.35:e.bomberTransfer?.6:e.weapon?.bidirectional?.7:1;
+ const side=Math.sin(time*67)*q.kick*1.6*weight;
  q.x=-Math.cos(e.a)*shot-Math.sin(e.a)*side;q.y=-Math.sin(e.a)*shot+Math.cos(e.a)*side;
  const hit=damageState?clamp(1-(time-damageState.lastHit)/.18):0;
- q.roll=Math.sin(time*61)*q.kick*.018+(damageState?.side||1)*Math.sin(hit*Math.PI)*.045;
+ q.roll=(Math.sin(time*61)*q.kick*.018+(damageState?.side||1)*Math.sin(hit*Math.PI)*.045)*weight;
  q.active=true;q.bank=1;q.lastA=e.a;q.lastHp=e.hp;poses.set(e,q);
 }
 export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.escortPlane||e.bossPlane||e.plane,scale=()=>1}={}){
  if(worlds.has(world))return worlds.get(world);
- const state={impacts:[],wrecks:[],trail:[],plumes:[],passes:[],damage:new WeakMap(),serial:0,impactSerial:0,time:world.t||0,nextNear:0,nextPass:0,nextApproach:0,camera:0,duckUntil:0,headOnUntil:0,previous:new WeakMap(),whizzed:new WeakSet(),dead:new WeakSet(),pendingKill:null};
- worlds.set(world,state);
+ const state={impacts:[],wrecks:[],trail:[],plumes:[],passes:[],damage:new WeakMap(),serial:0,impactSerial:0,time:world.t||0,nextNear:0,nextPass:0,nextApproach:0,camera:0,duckUntil:0,headOnUntil:0,previous:new WeakMap(),whizzed:new WeakSet(),dead:new WeakSet(),pendingKill:null,heard:new WeakSet(),heardIds:new Set()};
+ worlds.set(world,state);world.combatPresentation=true;
  const compact=()=>world.viewWidth<=720;
  const cap=(list,small,big)=>{const max=compact()?small:big;if(list.length>max)list.splice(0,list.length-max)};
  // Cosmetic copies reuse ace motion and production FX without simulation RNG.
@@ -67,39 +72,62 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
   return result;
  };
  const blast=world.combatBlast;
- if(blast)world.combatBlast=function(x,y,...args){const result=blast.call(this,x,y,...args);if((this.players||[this]).some(p=>p.hp>0&&Math.hypot(x-p.x,y-p.y)<240)){state.camera=Math.max(state.camera,1.1);pulse('explosion')}return result};
+ if(blast)world.combatBlast=function(x,y,...args){const result=blast.call(this,x,y,...args);const effect=this.combatFX?.at(-1);if(effect)effect.feedbackId='blast:'+(this.combatFeedbackSerial=(this.combatFeedbackSerial||0)+1);if((this.players||[this]).some(p=>p.hp>0&&Math.hypot(x-p.x,y-p.y)<240)){state.camera=Math.max(state.camera,1.1);pulse('explosion')}return result};
  const event=world.event;
  world.event=function(type,...args){const result=event.call(this,type,...args);if(type==='kill'&&state.pendingKill){const emitted=this.events?.at(-1);if(emitted?.type==='kill')emitted.combatSound=state.pendingKill;state.pendingKill=null}if(type==='impact'&&state.pendingImpact){const emitted=this.events?.at(-1);if(emitted?.type==='impact')emitted.combatMaterial=true;state.pendingImpact=false}if(type==='shot')pulse('shot');else if(type==='hit'){state.camera=Math.max(state.camera,.9);pulse('hit')}return result};
+ const recordPlayerHit=(p,hp,source)=>{
+  if(p.hp<hp&&source&&Number.isFinite(source.x)&&Number.isFinite(source.y)){
+   const side=-(source.x-p.x)*Math.sin(p.a)+(source.y-p.y)*Math.cos(p.a);
+   state.damage.set(p,{lastHit:world.t||0,side:Math.sign(side)||1});
+  }
+ };
+ const hitPlayer=world.hitPlayer;
+ if(hitPlayer)world.hitPlayer=function(p,...args){const hp=p.hp,source=p.damageSource,result=hitPlayer.call(this,p,...args);recordPlayerHit(p,hp,source);return result};
  for(const p of world.players||[world]){
+  const hit=p.hit;
+  if(hit)p.hit=function(...args){
+   const hp=this.hp,source=this.damageSource,result=hit.apply(this,args);
+   recordPlayerHit(this,hp,source);
+   return result;
+  };
   const impact=p.specialRoundImpact;
   if(impact)p.specialRoundImpact=function(b,e){
-   const result=impact.call(this,b,e);if(b.patrol||b.flak||b.rocket||b.cow37||b.motorCannon)return result;
+   const resolved=combatImpactResult(b,e),result=impact.call(this,b,e);if(b.patrol)return result;
+   if(resolved?.blocked){queueCombatImpact(world,b,e,{material:'metal',blocked:true});play('armorClink');return result;}
+   if(!resolved||!(resolved.damage>0)||b.flak||b.rocket||b.cow37||b.motorCannon)return result;
    const material=impactMaterial(e,b),index=++state.impactSerial;
    const dx=b.x-e.x,dy=b.y-e.y,forward=clamp(dx*Math.cos(e.a)+dy*Math.sin(e.a),-30,30),side=clamp(-dx*Math.sin(e.a)+dy*Math.cos(e.a),-30,30);
    const d=state.damage.get(e)||{engine:0,structure:0,lastHit:-Infinity,streak:0,nextSmoke:0,side:1,broken:false};
    d.streak=(world.t||0)-d.lastHit<.45?Math.min(6,d.streak+1):1;d.lastHit=world.t||0;d.side=Math.sign(side)||d.side;
    if(material==='metal')d.engine++;else d.structure++;state.damage.set(e,d);
    if(ordinary(e)&&e.hp>0&&e.hp/e.maxHp<.4&&!d.broken){d.broken=true;play('airframeBreak')}
-   state.impacts.push({target:e,forward,side,x:b.x,y:b.y,a:Math.atan2(b.vy,b.vx),material,streak:d.streak,age:0,life:.28+(index%3)*.025});
-   cap(state.impacts,COMBAT_FEEDBACK_LIMITS.compactImpacts,COMBAT_FEEDBACK_LIMITS.impacts);
+   queueCombatImpact(world,b,e,{material,streak:d.streak,piercing:!!b.pierce});
    state.pendingImpact=true;play('materialImpact',{material,streak:d.streak});return result;
   };
  }
  const update=world.update;
  world.update=function(dt,...args){
-  const before=this.t||0,result=update.call(this,dt,...args),step=Math.min(.04,Math.max(0,(this.t||0)-before));
+  const before=this.t||0,result=update.call(this,dt,...args),replica=this.online&&!this.host,step=Math.min(.04,Math.max(0,replica?(this.state==='playing'?dt:0):(this.t||0)-before));
   if(!step)return result;
   const players=state.players??=[];players.length=0;
   if(this.players){for(const p of this.players)if(p.hp>0&&(!p.status||p.status==='alive'))players.push(p)}else if(this.hp>0&&(!this.status||this.status==='alive'))players.push(this);
-  state.time=this.t;state.camera=Math.max(0,state.camera-step*9);
-  for(const p of players)pose(p,this.t,step);
-  for(const e of this.enemies||[])if(ordinary(e)&&e.hp>0){
-   const d=state.damage.get(e);pose(e,this.t,step,d);
+  state.time=replica?state.time+step:this.t;state.camera=Math.max(0,state.camera-step*9);
+  if(replica)advanceReplicaImpactFx(this,step);
+  for(const f of this.combatFX||[])if(!state.heard.has(f)){
+   state.heard.add(f);
+   if(f.feedbackId){if(state.heardIds.has(f.feedbackId))continue;state.heardIds.add(f.feedbackId);if(state.heardIds.size>256)state.heardIds.delete(state.heardIds.values().next().value);}
+   if(f.fxProfile==='bulletImpact'&&replica)play(f.blocked?'armorClink':'materialImpact',{material:f.material,streak:f.streak});
+   else if(['armorBreak','engineBreak','navalBreak'].includes(f.fxProfile)){play(f.fxProfile==='navalBreak'?'shipBreak':f.fxProfile==='engineBreak'?'airframeBreak':'metalBreak');pulse('explosion');}
+  }
+  for(const p of players)pose(p,state.time,step,state.damage.get(p),true);
+  for(const e of this.enemies||[])if(enemyCanCrash(e)&&e.hp>0){
+   const d=state.damage.get(e);pose(e,state.time,step,d);
    if(d&&e.hp/e.maxHp<.72&&this.t>=d.nextSmoke){
     d.nextSmoke=this.t+(compact()?.14:.09);const engine=d.engine>0,[x,y]=localPoint(e,engine?14:0,engine?0:d.side*20*scale(e));
     state.plumes.push({x,y,a:e.a,age:0,life:.85,heavy:e.hp/e.maxHp<.35,engine});
    }
   }
+  for(const e of this.enemies||[])if(e.crashing){const progress=clamp(1-(e.crashT||0)/(e.crashDuration||1)),q={x:0,y:0,roll:Math.sin(progress*Math.PI*2)*(e.crashSpin<0?-1:1)*.12,bank:Math.max(.28,Math.abs(Math.cos(progress*Math.PI*(e.crashStyle==='spin'?2.2:.55)))),active:true};poses.set(e,q);}
   {let w=0;for(const f of state.impacts){f.age+=step;if(f.target.hp>0&&f.age<.12)[f.x,f.y]=localPoint(f.target,f.forward,f.side);if(f.age<f.life)state.impacts[w++]=f}state.impacts.length=w}
   {let w=0;for(const f of state.plumes){f.age+=step;if(f.age<f.life)state.plumes[w++]=f}state.plumes.length=w}cap(state.plumes,COMBAT_FEEDBACK_LIMITS.compactPlumes,COMBAT_FEEDBACK_LIMITS.plumes);
   {let w=0;for(const f of state.passes){f.life-=step;if(f.life>0)state.passes[w++]=f}state.passes.length=w}
@@ -134,7 +162,7 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
  return state;
 }
 export function combatCameraOffset(world){const s=worlds.get(world);return s?{x:Math.sin(s.time*83)*s.camera,y:Math.cos(s.time*71)*s.camera}:{x:0,y:0}}
-export function combatFlightSound(world){const p=(world.players||[world]).find(p=>p.hp>0)||world,s=worlds.get(world);return{plane:p.plane,reload:p.reloadTime>0,speed:p.airframeSpeed??1,turn:Math.abs(poses.get(p)?.turn||0),damage:clamp(1-p.hp/p.maxHp),duck:(s?.duckUntil||0)>(world.t||0)}}
+export function combatFlightSound(world,planes){const p=(world.players||[world]).find(p=>p.hp>0)||world,s=worlds.get(world);return{plane:playerAirframeModel(p.plane,planes)||p.plane,reload:p.reloadTime>0,speed:poses.get(p)?.flightSpeed??p.airframeSpeed??1,turn:Math.abs(poses.get(p)?.turn||0),damage:clamp(1-p.hp/p.maxHp),duck:(s?.duckUntil||0)>(world.t||0)}}
 function drawWreck(c,w,x,y,time,fx,planeSprite){
  if(w.style==='spin')drawAircraftCrash(c,w,x,y,time,fx);
  else fx(c,'smokeTrail',x-Math.cos(w.a)*56,y-Math.sin(w.a)*56,160,58,w.a,.8);

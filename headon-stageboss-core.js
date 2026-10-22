@@ -1,5 +1,5 @@
-import {updateBasicBarrage} from './boss-basic-barrage.js?v=sortierhythm20261018';
-import {separateZubianHalves} from './adriatic-boss-layout.js?v=sortierhythm20261018';
+import {updateBasicBarrage} from './boss-basic-barrage.js?v=tame3&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021';
+import {separateZubianHalves} from './adriatic-boss-layout.js?v=tame3';
 export class BossPart {
   constructor({id,maxHp,x=0,y=0,radius=24,hittable=true,kind='weakpoint',angle=0}) {
     if(!id||!Number.isFinite(maxHp)||maxHp<=0)throw new Error('Invalid part');
@@ -13,7 +13,27 @@ export class BaseBoss {
     if(!id||!Number.isFinite(maxHp)||maxHp<=0)throw new Error('Invalid boss');
     Object.assign(this,{id,maxHp,hp:maxHp,x,y,coreRadius});this.timers=new Map();
     this.emit=event=>{
-      if(event.type==='hazard'&&event.raidHeavy){this.basicHoldUntil=Math.max(this.basicHoldUntil||0,(this.combatTime||0)+(event.delay||0)+(event.warning||0)+(event.duration||0)+.4);emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':basic-fire'});}
+      // Re-entrant part destruction may invalidate a queued native order
+      // during the same update. Never emit it from an unavailable weapon.
+      if(event.type==='hazard'&&event.sourcePartId){const source=this.parts?.get(event.sourcePartId);if(!source||source.destroyed)return;}
+      const enc=this.encounter;
+      if(enc?.breath&&enc.breathBlocks(event))return;
+      if(enc?.breathCfg&&event.type==='hazard')enc.noteHazard(event);
+      if(event.type==='hazard'&&event.raidHeavy){this.basicHoldUntil=Math.max(this.basicHoldUntil||0,(this.combatTime||0)+(event.delay||0)+(event.warning||0)+(event.duration||0)+.4);if(this._heavyCancelAt!==this.combatTime){this._heavyCancelAt=this.combatTime;emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':basic-fire'});}}
+      // While a warned signature attack is being read (its marker or aim line
+      // is up), ordinary fire waits rather than layering on top of it. Plain
+      // unwarned gunfire does not hold anything.
+      if(!event.basicFire&&!String(event.tag||'').endsWith(':basic-fire')){
+        const now=this.combatTime||0;
+        if(event.type==='hazard'&&!event.raidHeavy&&(event.warning||0)>=.5)this.basicSoftHold=Math.max(this.basicSoftHold||0,now+(event.delay||0)+event.warning+.25);
+        else if(event.type==='charge-warning'&&(event.seconds||0)>=.5)this.basicSoftHold=Math.max(this.basicSoftHold||0,now+event.seconds+.25);
+      }
+      // A warned native attack (marker, aim line or heavy round) is what the
+      // show-before-fall floor waits for; ordinary unwarned fire does not count.
+      if(!event.basicFire&&!String(event.tag||'').endsWith(':basic-fire')){
+        const lead=event.type==='charge-warning'?(event.seconds||0):event.type==='hazard'?(event.delay||0)+(event.warning||0):-1;
+        if(lead>=.5||event.type==='hazard'&&event.raidHeavy){this.shownCount=(this.shownCount||0)+1;(this.shownEnds??=[]).push((this.combatTime||0)+Math.max(0,lead)+.3);}
+      }
       if(event.type==='body-defeated'||event.type==='part-destroyed'){emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':basic-fire'});this.basicClock=Math.max(this.basicClock||0,.65);}
       emit(event);
     };
@@ -33,6 +53,9 @@ export class BaseBoss {
     return{damage:dealt,bodyDefeated:this.dead};
   }
   onPartDestroyed(){}
+  // A shared crew-rest beat (see BREATHERS) doubles pilot damage-in like any
+  // other announced counter window. Bosses with their own windows override.
+  counterWindow(){return this.encounter?.breathOpen?.()?1.4:1;}
   due(key,dt,interval) {
     if(!Number.isFinite(interval)||interval<=0)throw new Error('Invalid interval');
     interval/=this.t?.patternMultiplier||1;
@@ -53,14 +76,75 @@ export class BaseBoss {
   }
   update(){}
 }
+// Bosses whose gunnery never let up get a crew-rest beat: every `every`
+// seconds they stop launching, let what is already in the air land, then hold
+// fire for `rest` seconds behind the normal counter-window HUD. Each boss keeps
+// its own cadence and wording; bosses with authored recoveries are not listed.
+const BREATHERS=Object.freeze({
+  'zeppelin-l70':{every:11,rest:2.6,phase:'l70-gun-reload'},
+  hma23:{every:10.5,rest:2.4,phase:'hma23-rearm'},
+  ca4:{every:9,rest:2.2,phase:'bomber-gunner-reload'},
+  gik:{every:9.5,rest:2.2,phase:'bomber-gunner-reload'},
+  'treffas-wagen':{every:10,rest:2.5,phase:'treffas-recovery'},
+  'drachen-net':{every:9,rest:2.2,phase:'gondola-reload'},
+  'london-apron-raid':{every:10,rest:2.3,phase:'gondola-reload'},
+  'flak-tower':{every:12,rest:2.4,phase:'flak-resupply'},
+  'morser-battery':{every:10.5,rest:2.6,phase:'schwaben-reload'},
+  'paris-staaken-rvi':{every:9.5,rest:2.2,phase:'staaken-gunner-reload'},
+  'sinai-landship':{every:10,rest:2.4,phase:'sinai-reload'},
+  'jutland-grand-fleet':{every:12,rest:2.8,phase:'fleet-reload'},
+  'gotha-squadron':{every:11,rest:2.4,phase:'gotha-regroup'}
+});
+const BREATH_BLOCKED=new Set(['charge-warning','muzzle','mortar-launch','heavy-gun-fired','spawn-minefield']);
 export class BossEncounter {
   constructor({id,bossId,bodies}) {
     if(!id||!bodies?.length||new Set(bodies.map(b=>b.id)).size!==bodies.length)throw new Error('Invalid encounter');
     Object.assign(this,{id,bossId});this.bodies=new Map(bodies.map(b=>[b.id,b]));
+    this.clock=0;this.breath=null;this.breathCfg=BREATHERS[bossId]||null;this.breathNext=this.breathCfg?.every||0;
     this.maxHpBudget=bodies.reduce((n,b)=>n+b.maxHp,0);
     for(const b of bodies)b.encounter=this;
   }
   get completed(){return this.bodies.size>0&&[...this.bodies.values()].every(b=>b.dead);}
+  noteHazard(e){if(e.kind==='searchlight'||e.kind==='net')return;const life=e.kind==='projectile'?Math.min(e.duration??2.2,2.2):Math.min(e.duration??.5,1.2);this.lastResolve=Math.max(this.lastResolve||0,this.clock+(e.delay||0)+(e.warning||0)+life);}
+  // Objective bombing (a raid on a city district) is not gunnery and runs on its own clock.
+  breathBlocks(e){const b=this.breath;if(!b||this.clock<b.blockFrom||this.clock>=b.until||e.objective)return false;return e.type==='hazard'?e.kind!=='searchlight'&&e.kind!=='net':BREATH_BLOCKED.has(e.type);}
+  breathOpen(){const b=this.breath;return !!b&&this.clock>=b.from&&this.clock<b.until;}
+  // Show-before-fall floor for bosses without their own gate (hpFloor): the
+  // last standing body holds at 66 % / 33 % / 5 % of its health until it has
+  // put a warned attack in the air after reaching that line and the attack has
+  // landed. A body that cannot attack (or a stall) is released after 7 s.
+  guardFloor(b){
+    if(b.dead)return 0;let alive=0;for(const x of this.bodies.values())if(!x.dead)alive++;if(alive>1)return 0;
+    // A boss whose weapons never warn (fighter formations) has its own pace.
+    if(b.gallipoliBoss)return 0;// gates itself: sectors, repairs and an exposed command
+    if(!b.shownCount&&(b.combatTime||0)>8)return 0;
+    const gates=[.66,.33,.05],g=b.guard??={i:0,at:null,base:0};
+    while(g.i<gates.length){
+      const floor=gates[g.i]*b.maxHp,now=b.combatTime||0;
+      // One landed warned attack pays for one gate. At normal pace the gates are paid
+      // before the pilot reaches them, so nothing is held; a heavy build waits for the
+      // next attack to land (or 7 s at the floor if the boss cannot attack).
+      if(now>=(b.shownEnds?.[g.base]??Infinity)){g.i++;g.at=null;g.base=b.shownCount||0;continue;}
+      if(b.hp>floor+1)return floor;
+      g.at??=now;
+      // A disarmed or silent body (nothing shown for 6 s) is not held: no stalling.
+      if(now-g.at<7&&now-(b.shownEnds?.at(-1)??0)<6)return floor;
+      g.i++;g.at=null;g.base=b.shownCount||0;
+    }
+    return 0;
+  }
+  updateBreath(dt){
+    this.clock+=dt;const cfg=this.breathCfg;if(!cfg)return;
+    const b=this.breath;
+    if(b){if(!b.announced&&this.clock>=b.from){b.announced=true;const body=[...this.bodies.values()].find(x=>!x.dead);body?.emit({type:'phase-change',bossId:body.id,phase:cfg.phase});}
+      if(this.clock>=b.until){this.breath=null;let hp=0;for(const x of this.bodies.values())hp+=Math.max(0,x.hp);this.breathNext=this.clock+cfg.every*(hp<this.maxHpBudget*.4?.85:1);}return;}
+    // Stop launching now; the rest opens once what is already in the air has
+    // landed (never more than 3.2 s later, so a long fire field cannot stall it).
+    // Native weapons own the attack that earns this pause. Do not insert a
+    // generic heavy strike here: it can fire through destroyed weapon gates.
+    if(this.clock>=this.breathNext){
+      const from=Math.max(this.clock+.3,Math.min(this.lastResolve||0,this.clock+3.2));this.breath={blockFrom:this.clock,from,until:from+cfg.rest,announced:false};}
+  }
   replaceBody(id,children) {
     const parent=this.bodies.get(id);if(!parent||!children.length||new Set(children.map(b=>b.id)).size!==children.length)return false;
     if(children.some(b=>b.id===id||this.bodies.has(b.id)))throw new Error('Duplicate split body ID');
@@ -68,7 +152,7 @@ export class BossEncounter {
     // Atomic replacement: never poll completion between parent removal and children insertion.
     this.bodies.delete(id);for(const b of children){b.encounter=this;this.bodies.set(b.id,b);}return true;
   }
-  update(dt,ctx){for(const b of this.bodies.values())if(!b.dead){
+  update(dt,ctx){this.lastCtx=ctx;this.updateBreath(dt);for(const b of this.bodies.values())if(!b.dead){
     b.combatTime=(b.combatTime||0)+dt;
     b.motionTime=(b.motionTime||0)+dt*(b.t?.motionMultiplier||1);b.recoil=Math.max(0,(b.recoil||0)-dt);
     if(b.t?.mobileBoss&&!b.role&&!b.ownsMotion129){
@@ -93,3 +177,5 @@ export class BossEncounter {
     return{id:this.id,bossId:this.bossId,hp,maxHp:this.maxHpBudget,shielded,aliveParts,totalParts,formationAlive,formationTotal,phases,completed:this.completed};
   }
 }
+
+

@@ -1,11 +1,11 @@
-import {clamp,landshipClearance,syncSommeParts,turn} from './somme-boss-layout.js?v=sortierhythm20261018';
+import {clamp,landshipClearance,syncSommeParts,turn} from './somme-boss-layout.js?v=tame3&somme=20261021';
 
 // World-space tracked drive: translation follows the hull, never the camera
 // bounds or a steering target. Partners yield before collision, without pushes.
 export function driveLandship(b,dt){
  if(!(dt>0)||b.dead)return;
  const tracks=b.tracks(),s=b.sommeScale;
- if(!tracks){b.driveVelocity=0;b.driveMoving=false;b.tacticalState='immobilized';return;}
+ if(!tracks||b.parts.get('engine-deck')?.destroyed){b.driveVelocity=0;b.driveMoving=false;b.tacticalState='immobilized';return;}
  b.driveDirection??=1;b.driveDistance??=0;b.driveVelocity??=0;b.trackDistance??=0;
  const peers=[...b.encounter?.bodies.values()||[]].filter(q=>q!==b&&q.sommeBoss);
  const clear=pose=>peers.every(q=>landshipClearance(pose,q)>=.25*s);
@@ -35,3 +35,4 @@ export function driveLandship(b,dt){
   if(b.trackMarks.length>18)b.trackMarks.shift();
  }
 }
+

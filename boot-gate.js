@@ -12,7 +12,7 @@
  if(!src?.set||!complete?.get){window.HEADON_GATE={raise(){},releaseAll(){},open:true};return}
  const decode=P.decode,held=new Map(),waiting=new WeakMap(),LIMIT=6;let open=false,serial=0;const active=new Map();
  // Inline and vector art never waits.
- const pass=/^(data:|blob:)|\.svg(\?|$)|favicon/;
+ const pass=/^(data:|blob:)|\.svg(\?|$)|favicon|lobby-ic-(?:ranking|aces|medals|home)420\.webp(?:\?|$)/;
  const abs=u=>{try{return new URL(u,document.baseURI).href}catch{return String(u)}};
  let rank=()=>2;
  const done=img=>{active.delete(img);pump()};let relaxed=false;

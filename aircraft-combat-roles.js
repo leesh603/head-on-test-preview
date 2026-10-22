@@ -1,3 +1,4 @@
+import {playerAirframeModel} from './player-airframe-handling.js?v=handling5';
 // Airframe roles compose the existing handling, pursuit, round and wing hooks.
 // They are independent of aircraft tier and never change pilot skills or gun power.
 export const AIRCRAFT_COMBAT_ROLES=Object.freeze({
@@ -26,15 +27,15 @@ export const SORTIE_COMBAT_STYLES=Object.freeze({
  udet_fokkerdv:style('INTERCEPTOR','짧은 이탈·재진입','exit','선회 후 0.3초 직진하면 빠르게 속도 회복','연속 원선회',{steady:.3,recover:2.6}),
  guynemer_spad:style('HEAVY','중무장 진입 사격','steady','0.95초 직선 사격선 유지 시 강한 탄도 수렴·좁은 기수 조준 보정','준비 중 방향을 바꾸면 다시 조준',{steady:.95,group:.22}),
  re7:style('HEAVY','복좌 직선 방어','defensive','0.8초 직진 중 후방 320px 내 적이 있으면 속도 회복','저속 선회전; 기존 무장만 사용',{steady:.8,recover:2,range:320}),
- goering_fokkerd7:style('FORMATION','후반 편대 안정','late','8레벨부터 지속 선회 시 속도 유지; 기존 넓은 윙맨 대형','초반에는 선회 유지 보너스 없음',{hold:.6,retention:.52}),
- se5a:style('INTERCEPTOR','고에너지 재돌입','energy','속도 90% 이상에서 완만하게 돌면 에너지 유지','급선회는 이점 소멸',{threshold:.90,retention:.7}),
+ goering_fokkerd7:style('FORMATION','지속 교전·편대 안정','late','같은 방향으로 0.6초 선회하면 속도 유지; 기존 넓은 윙맨 대형','순간 저속 선회·최고속 추격',{hold:.6,retention:.52}),
+ se5a:style('INTERCEPTOR','고에너지 재돌입','energy','속도 90% 이상에서 완만하게 돌면 에너지 유지','급선회는 이점 소멸',{threshold:.90,retention:.7,steady:.45,group:.48}),
  bristol_duo:style('FORMATION','전후방 통과 교전','twoSeat','0.5초 직진 후 전방 탄도 안정·좁은 기수 조준 보정·후방 탄도 추가 수렴','선회 중 사격선 흐트러짐',{steady:.5,group:.65,rearGroup:.28}),
  halberstadt_duo:style('FORMATION','후방 방어 복좌기','twoSeat','0.75초 직진하면 후방 사수 탄도 수렴·좁은 기수 조준 보정','전방 공격은 기존 탄도 유지',{steady:.75,group:1,rearGroup:.2}),
  airco_dh2:style('GROWTH','저속 안쪽 선회','slow','속도 86% 아래에서 높은 선회력·기존 빠른 성장','직선 추격',{threshold:.86,yaw:1.42}),
  berthold_pfalz:style('HEAVY','방어적 이탈','defensive','후방 360px 적을 두고 0.55초 직진하면 에너지 회복','적을 향해 도는 동안 이점 소멸',{steady:.55,recover:3,range:360}),
  wolff_albatros:style('INTERCEPTOR','중속 재공격','exit','선회 후 0.55초 직진하면 재공격 속도 회복','길게 선회하면 감속',{steady:.55,recover:2.1}),
  loewenhardt_fokkerd7:style('INTERCEPTOR','후반 고속 안정','late','8레벨부터 같은 방향 0.9초 선회 시 속도 유지','보너스 전 선회 준비시간',{hold:.9,retention:.65}),
- mccudden_se5a:style('INTERCEPTOR','넓은 고속 선회','energy','속도 92% 이상 완만한 선회에서 높은 에너지 유지','급격한 반전',{threshold:.92,retention:.85}),
+ mccudden_se5a:style('INTERCEPTOR','넓은 고속 선회','energy','속도 92% 이상 완만한 선회에서 높은 에너지 유지','급격한 반전',{threshold:.92,retention:.85,steady:.5,group:.5}),
  nungesser_nieuport24:style('TURN','반전 후 추격','reverse','0.55초 선회 후 반전하면 0.6초 선회 응답 강화','짧은 좌우 흔들기로는 발동하지 않음',{hold:.55,window:.6,yaw:1.34}),
  rickenbacker_spad:style('INTERCEPTOR','고속 돌입·이탈','pass','0.8초 직진 후 기수 정렬 사격 탄도 수렴·좁은 기수 조준 보정·이탈 회복','급선회 시 회복·조준 이점 종료',{steady:.8,recover:3.4,group:.35}),
  ball_se5a:style('INTERCEPTOR','짧은 재진입 선회','exit','선회 후 0.4초 직진하면 빠른 재진입 회복','선회만 지속하면 이점 없음',{steady:.4,recover:2.8}),
@@ -50,7 +51,9 @@ export const SORTIE_COMBAT_STYLES=Object.freeze({
  baron_albatros:style('HEAVY','중속 돌입 사격','steady','0.55초 직진 후 탄도 안정·좁은 기수 조준 보정','지속 선회 중 이점 소멸',{steady:.55,group:.46})
 });
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
-const scripted=g=>g.skillTime>0||g.evadeTime>0||g.chargeTime>0||g.aceRetreat129||g.duoSpinStep>0;
+const scripted=g=>!!g.bomberTransfer||g.skillTime>0||g.evadeTime>0||g.chargeTime>0||g.aceRetreat129||g.duoSpinStep>0;
+const MODEL_STYLE=Object.freeze({nieuport:'baracca_nieuport',nieuport24:'nungesser_nieuport24',nieuport28:'luke_nieuport28',sopwith:'collishaw_sopwith',fokkerdv:'udet_fokkerdv',fokkerd7:'goering_fokkerd7',albatros:'boelcke_albatros',albatros_d2:'boelcke_albatros',spad:'rickenbacker_spad',spad12:'guynemer_spad',snipe:'barker_snipe',pfalz_d3a:'berthold_pfalz'});
+function sortieStyle(id,planes){return SORTIE_COMBAT_STYLES[id]||SORTIE_COMBAT_STYLES[planes[id]?.sortieStyle]||SORTIE_COMBAT_STYLES[MODEL_STYLE[playerAirframeModel(id,planes)]||playerAirframeModel(id,planes)]}
 function nearby(g,range,rear=false){
  const world=g.combatWorld?.()||g;
  return (world.enemies||[]).some(e=>e.hp>0&&!e.surface&&!e.stationary&&Math.hypot(e.x-g.x,e.y-g.y)<range&&(!rear||((e.x-g.x)*Math.cos(g.a)+(e.y-g.y)*Math.sin(g.a)<0)));
@@ -88,7 +91,7 @@ export function installAircraftCombatRoles(Game,planes,angleDiff){
  Game.prototype.aircraftCombatRole=function(){return aircraftCombatRole(this.plane,planes)};
  const fly=Game.prototype.flyAirframe;
  Game.prototype.flyAirframe=function(dt,input={}){
-  const step=clamp(dt||0,0,.04),before=this.a,profile=SORTIE_COMBAT_STYLES[this.plane]||SORTIE_COMBAT_STYLES[planes[this.plane]?.sortieStyle];
+  const step=clamp(dt||0,0,.04),before=this.a,profile=sortieStyle(this.plane,planes);
   const request=Number.isFinite(input.angle)?angleDiff(input.angle,this.a):(input.steer||0);
   const sign=Math.abs(request)>.08?Math.sign(request):0,oldSign=this.aircraftTurnSign||0;
   const held=this.aircraftTurnTime||0;
@@ -101,7 +104,7 @@ export function installAircraftCombatRoles(Game,planes,angleDiff){
   let factor=1;
   if(active){
    if(profile.mode==='slow'&&energy<profile.threshold&&held>.25)factor=profile.yaw;
-   if(profile.mode==='close'&&sign>0&&nearby(this,profile.range))factor=profile.yaw;
+   if(profile.mode==='close'&&sign>0)factor=1+(profile.yaw-1)*(nearby(this,profile.range)?1:.65);
    if(profile.mode==='reverse'&&this.aircraftReversalTime>0)factor=profile.yaw;
   }
   this.turn=turn*factor;let result;
@@ -116,7 +119,7 @@ export function installAircraftCombatRoles(Game,planes,angleDiff){
   if(mode==='pass'&&straight)recovery=profile.recover;
   if(mode==='defensive'&&straight&&nearby(this,profile.range,true))recovery=profile.recover;
   if(mode==='energy'&&energy>=profile.threshold&&yaw>step*.22&&yaw<turn*step*.65)retention=profile.retention;
-  if((mode==='sustain'||mode==='late'&&this.level>=8)&&this.aircraftTurnTime>profile.hold)retention=profile.retention;
+  if((mode==='sustain'||mode==='late'&&(playerAirframeModel(this.plane,planes)==='fokkerd7'||this.level>=8))&&this.aircraftTurnTime>profile.hold)retention=profile.retention;
   if(retention&&this.airframeSpeed<energy)this.airframeSpeed+=(energy-this.airframeSpeed)*retention;
   // Sustained turns converge to a bounded energy floor, never to full cruise.
   if(retention&&['sustain','late'].includes(mode)){
@@ -130,7 +133,7 @@ export function installAircraftCombatRoles(Game,planes,angleDiff){
  const tail=Game.prototype.updateTailLock;
  Game.prototype.updateTailLock=function(dt){
   const result=tail.call(this,dt);
-  if(this.aircraftCombatRole()?.id==='TURN'&&this.tailLocked&&this.pursuitClosingSpeed>22&&!(this.skillTime>0||this.evadeTime>0||this.chargeTime>0)){
+  if(this.aircraftCombatRole()?.id==='TURN'&&this.tailLocked&&this.pursuitClosingSpeed>22&&!scripted(this)){
    const desired=1-Math.min(.22,this.pursuitClosingSpeed/240),factor=this.pursuitSpeedFactor??1;
    if(desired<factor)this.pursuitSpeedFactor=factor+(desired-factor)*(1-Math.exp(-3.8*Math.max(0,dt||0)));
   }
@@ -139,10 +142,10 @@ export function installAircraftCombatRoles(Game,planes,angleDiff){
  const round=Game.prototype.applySpecialRound;
  Game.prototype.applySpecialRound=function(b,...args){
   const result=round.call(this,b,...args);
-  const profile=SORTIE_COMBAT_STYLES[this.plane]||SORTIE_COMBAT_STYLES[planes[this.plane]?.sortieStyle],role=this.aircraftCombatRole();
+  const profile=sortieStyle(this.plane,planes),role=this.aircraftCombatRole();
   const straight=this.aircraftStraightTime>(profile?.steady??.65);
   const mode=profile?.mode,energy=this.airframeSpeed??1;
-  const aimed=profile?(['steady','twoSeat','pass'].includes(mode)||mode==='early'&&this.level<8):role===R.HEAVY;
+  const aimed=profile?(['steady','twoSeat','pass','energy'].includes(mode)||mode==='early'&&this.level<8):role===R.HEAVY;
   if(aimed&&straight&&(!profile?.maxEnergy||energy<=profile.maxEnergy)&&!scripted(this)&&!b.special&&!b.rocket&&!b.motorCannon&&!b.cow37&&Number.isInteger(b.gun)){
    const rear=this.weapon?.bidirectional&&b.gun===1;
    const group=rear&&profile?.rearGroup!==undefined?profile.rearGroup:(profile?.group??.55);
@@ -150,7 +153,7 @@ export function installAircraftCombatRoles(Game,planes,angleDiff){
    // Reuse the existing narrow-cone target query. Single-gun/one-round fits
    // gain a real firing-line benefit too; no damage, rate or ammunition buff.
    const world=this.combatWorld?.()||this;
-   const target=profile&&group<1?world.identityTarget?.(.16,mode==='early'?230:rear?300:420,this,heading):null;
+   const target=profile&&group<1&&mode!=='energy'?world.identityTarget?.(.16,mode==='early'?230:rear?300:420,this,heading):null;
    const correction=target?clamp(angleDiff(Math.atan2(target.y-this.y,target.x-this.x),heading),-.08,.08)*(1-group):0;
    const a=heading+angleDiff(Math.atan2(b.vy,b.vx),heading)*group+correction;
    b.vx=Math.cos(a)*speed;b.vy=Math.sin(a)*speed;this.aircraftStyleActive=group<1;
@@ -159,8 +162,9 @@ export function installAircraftCombatRoles(Game,planes,angleDiff){
  };
  const wing=Game.prototype.wingFormationTarget;
  Game.prototype.wingFormationTarget=function(member,count=this.permanentWingCount()){
-  if(this.aircraftCombatRole()?.id!=='FORMATION'||this.skillTime>0||this.upgrades?.lufberyCircle||member.orbit||['collishaw','brumowski'].includes(this.pilot))return wing.call(this,member,count);
+  if(this.aircraftCombatRole()?.id!=='FORMATION'||scripted(this)||this.upgrades?.lufberyCircle||member.orbit||['collishaw','brumowski'].includes(this.pilot))return wing.call(this,member,count);
   const slot=member.slot??0,offset=this.wingFormationOffset(slot,count),side=count<=1?85:offset.side*1.45,forward=offset.forward+25;
   return{x:this.x+Math.cos(this.a)*forward-Math.sin(this.a)*side,y:this.y+Math.sin(this.a)*forward+Math.cos(this.a)*side};
  };
 }
+

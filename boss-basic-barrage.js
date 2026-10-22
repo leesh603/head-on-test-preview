@@ -1,8 +1,8 @@
-import {armorGunMuzzle,armorAngleDelta} from './trench-armor-layout.js?v=sortierhythm20261018';
-import {alpsMuzzle} from './alps-bomber-layout.js?v=sortierhythm20261018';
-import {harborMuzzle} from './harbor-crane-layout.js?v=sortierhythm20261018';
-import {sommeMuzzle,sponsonAim} from './somme-boss-layout.js?v=sortierhythm20261018';
-import {treffasPoint} from './cambrai-layout.js?v=sortierhythm20261018';
+import {armorGunMuzzle,armorAngleDelta} from './trench-armor-layout.js?v=tame3&ai=1018';
+import {alpsMuzzle} from './alps-bomber-layout.js?v=tame3';
+import {harborMuzzle} from './harbor-crane-layout.js?v=tame3';
+import {sommeMuzzle,sommeMuzzles,sponsonAim,landshipGunAim} from './somme-boss-layout.js?v=tame3&somme=20261021';
+import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=tame3&cambrai=20261021';
 
 // Ordinary fire is separate from the raid controller. Only authored weapons
 // fire; destroying one removes its lane. No new HP or difficulty multipliers.
@@ -41,11 +41,11 @@ export const BASIC_BARRAGES=Object.freeze({
  'siemens-schuckert-r-viii':profile(['gun-nose','gun-dorsal','gun-tail'],'rviii-gun',.72,5,2.1,[[{p:'stream',n:5},R2],['cross',{p:'stream',n:5},R],['cross',{p:'ripple',rows:2,n:7},R]],.36),
  'armored-harbor-fortress':profile(['gun-left','gun-right','gun-front-left','gun-front-right'],'harbor-shell',1.15,7,1.5,[['wall','cross',R2],['cross','wall','ripple',R],['sweep',{p:'wall',rows:2},ripple4,R]]),
  fliegerzug:profile(['car-flak','car-rear'],'rail-mg',1.1,7,1.6,[['wall','stream',R2],['cross','wall',R],[{p:'wall',rows:2},stream2,R]]),
- 'treffas-wagen':profile([],'treffas-mg',.95,7,1.55,[['sweep','fan',R2],[sweep2,'bracket',R],[sweep2p,'bracket',R]]),
+ 'treffas-wagen':profile(['mg-left','mg-right'],'treffas-mg',.95,7,1.55,[['sweep','fan',R2],[sweep2,'bracket',R],[sweep2p,'bracket',R]]),
  // Ace formations: bracketing bursts from the leader's guns.
  'jasta11-circus':profile([],'aa-shell',.45,5,1.3,[['bracket',R2],['bracket','stream',R],['bracket',stream2,R]]),
  'naval10-black-flight':profile([],'aa-shell',.6,5,1.45,[['stream',R2],['stream','bracket',R],[stream2,'bracket',R]]),
- 'mark4-wedge':profile(['sponson-left','sponson-right'],'somme-mg',.85,5,2,[['stream',R2],['cross','stream',R],['cross',stream2,R]]),
+ 'mark4-wedge':profile(['sponson-left','sponson-right','hull-mg-front','hull-mg-rear'],'somme-mg',.85,5,2,[['stream',R2],['cross','stream',R],['cross',stream2,R]]),
  'morser-battery':profile(['mg-left','mg-right','twin-aa'],'somme-mg',1.2,7,1.6,[['wall','cross',R2],['cross','ripple','wall',R],[{p:'wall',rows:2},ripple4,'sweep',R]]),
  'gotha-raider':profile(['rear-gun'],'gotha-mg',1.05,5,2.1,[['stream',R2],['sweep','stream',R],[stream2,'sweep',R]]),
  // Fortresses: casemates cross, then the whole work fires round.
@@ -61,7 +61,7 @@ export const BASIC_BARRAGES=Object.freeze({
 });
 const quietPhase=/(arrival|entry|buried|lowering|recover|cooldown|reform|service|depressurized|gliding|seam-warning|splitting)/;
 export function basicFirePaused(b){
- return b.dead||b.hidden||b.phase==='approach'&&(b.combatTime||0)<4||
+ return b.ownsBasicBarrage||b.dead||b.hidden||b.phase==='approach'&&(b.combatTime||0)<4||
   b.kind==='armored-harbor-fortress'&&(b.elapsed<3||b.craneState==='recover')||
   b.kind==='gallipoli-fortress'&&(b.entryAge<5||b.pendingAttack?.kind==='final')||
   b.kind==='paris-searchlight-fortress'&&b.phase==='last-stand'||
@@ -70,7 +70,9 @@ export function basicFirePaused(b){
   b.kind==='mark4-wedge'&&(!b.discovered||/mark1-(approach|regroup|counter|last-push)/.test(String(b.phase)))||
   b.formationBoss129&&b.finalAge!=null||quietPhase.test(String(b.phase))||
   b.entryAge<(b.entryDuration||0)||b.formationBoss129&&!b.entryComplete||
-  b.recovery>0||b.recoveryRemaining>0||b.serviceWindow>0||b.recoverLeft>0||
+  b.recovery>0||b.recoveryRemaining>0||b.serviceWindow>0||b.recoverLeft>0||b.raidRecovery>0||
+ // Any announced counter window is a cease-fire for ordinary fire as well.
+ typeof b.counterWindow==='function'&&b.counterWindow()>1||
   b.rotation?.stage==='recover'||b.rotation?.stage==='windup'||b.rotation?.stage==='breakthrough'||
   b.fleet?.phase==='reform'||b.finalAim||b.stormActive||
   (b.basicHoldUntil||0)>(b.combatTime||0);
@@ -86,17 +88,21 @@ function mount(b,p,target,serial){
   const index=Number(p.id.at(-1)),points=b.cityArtKind==='drachen-net'?[[154,295],[441,292],[641,432]]:[[123,193],[384,199],[646,193]];
   q={...b.point(...points[index],index),angle:aim};
  }else if(b.ruralRailBoss){q.y-=145;}
- else if(k==='fliegerzug'){q.y-=45;}
+ else if(k==='fliegerzug'){p.shotAngle=aim;q={...fliegerGunMuzzle(b,p,aim,serial%2?1:-1),angle:aim};}
  else if(k==='gik'||k==='ca4'){
   const base=b.hullYaw+(p.id==='rearGun'?Math.PI/2:-Math.PI/2);
   q={...alpsMuzzle(b,p.id,aim),angle:base+Math.max(-1.2,Math.min(1.2,armorAngleDelta(aim,base))),arc:1.2,base};
  }else if(k==='armored-harbor-fortress'){q={...harborMuzzle(b,p),angle:p.angle};}
  else if(k==='mark4-wedge'||k==='morser-battery'){
-  q={...sommeMuzzle(b,p),angle:p.angle};
+  if(k==='mark4-wedge'&&p.art==='hull-mg'){
+   const a=landshipGunAim(b,p,target.x,target.y);if(!a.reachable)return null;
+   p.angle=a.angle;q={...sommeMuzzle(b,p),angle:p.angle,arc:a.arc,base:a.center};return q;
+  }
+  const mouths=sommeMuzzles(b,p);q={...mouths[serial%mouths.length],angle:p.angle};
   if(k==='mark4-wedge'){const a=sponsonAim(b,p,target.x,target.y);if(!a.reachable)return null;q.angle=a.angle;q.arc=.45;q.base=b.hullYaw+(p.id==='sponson-left'?Math.PI:0);}
  }else if(k==='minenwerfer-battery'){
   if(!p.discovered)return null;q={...b.muzzle(p),angle:aim};
- }else if(k==='treffas-wagen'){q={...treffasPoint(b,serial%2?-64:64,-24),angle:aim};}
+ }else if(k==='treffas-wagen'){p.aimAngle=aim;q={...treffasMgMuzzle(b,p,aim),angle:aim};}
  else if(b.formationBoss129){q={x:b.x+Math.cos(b.a)*30,y:b.y+Math.sin(b.a)*30,angle:b.a};}
  else if(k==='gotha-raider'){
   const base=b.a+Math.PI;q.angle=base+Math.max(-1.1,Math.min(1.1,armorAngleDelta(aim,base)));q.base=base;q.arc=1.1;
@@ -111,6 +117,26 @@ function mount(b,p,target,serial){
  return q;
 }
 function emit(b,e){b.emit({...e,bossId:b.id,faction:b.faction});}
+// Rank every physical weapon that can cover the target. A modest alternation
+// bias prevents one gun monopolising ordinary volleys.
+function rankMounts(b,config,target,serial,ports=config.ports,slack=.15){
+ const mounts=[];
+ for(let i=0;i<Math.max(1,ports.length);i++){
+  const id=ports[(i+serial)%ports.length],p=id&&b.parts.get(id);
+  if(id&&(!p||p.destroyed||p.active===false||p.revealed===false))continue;
+  const q=mount(b,p,target,serial);if(!q)continue;
+  const distance=Math.hypot(target.x-q.x,target.y-q.y),angle=Math.atan2(target.y-q.y,target.x-q.x);
+  // A gun with a limited traverse only joins in when the pilot is inside it
+  // (plus a little lead). Clamping the shot to the arc edge would throw it at
+  // empty sky; the boss's own manoeuvring brings the gun to bear instead.
+  if(q.arc&&Math.abs(armorAngleDelta(angle,q.base))>q.arc+slack)continue;
+  const rank=distance+Math.abs(armorAngleDelta(angle,q.angle))*250+i*24;
+  if(distance<1100)mounts.push({p,q,rank});
+ }
+ return mounts.sort((m,n)=>m.rank-n.rank);
+}
+// Heavy attacks belong to each boss's physical weapon controller. Ordinary
+// gunfire must not inject a second, family-wide attack over a native phrase.
 export function updateBasicBarrage(b,dt,ctx){
  const config=BASIC_BARRAGES[b.kind];if(!config)return false;
  if(ctx.paused||dt<=0)return true;
@@ -119,24 +145,17 @@ export function updateBasicBarrage(b,dt,ctx){
  b.basicClock=(b.basicClock??(1+(b.slot||b.index||0)*.27))-dt;if(b.basicClock>0)return true;
  const players=ctx.players||[],serial=b.basicSerial||0;let live=0;for(const p of players)if(p.alive)live++;
  if(!live)return true;let cursor=serial%live,target;for(const p of players)if(p.alive&&cursor--===0){target=p;break;}
- // Rank every physical weapon that can cover the current target. A modest
- // alternation bias prevents one gun monopolising ordinary volleys.
- const mounts=[];
- for(let i=0;i<Math.max(1,config.ports.length);i++){
-  const id=config.ports[(i+serial)%config.ports.length],p=id&&b.parts.get(id);
-  if(id&&(!p||p.destroyed||p.active===false||p.revealed===false))continue;
-  const q=mount(b,p,target,serial);if(!q)continue;
-  const distance=Math.hypot(target.x-q.x,target.y-q.y),angle=Math.atan2(target.y-q.y,target.x-q.x);
-  const rank=distance+Math.abs(armorAngleDelta(angle,q.angle))*250+i*24;
-  if(distance<1100)mounts.push({p,q,rank});
- }
+ const mounts=rankMounts(b,config,target,serial);
  if(!mounts.length){b.basicClock=.25;return true;}
- mounts.sort((m,n)=>m.rank-n.rank);
  // A fleet/network shares one ordinary-fire beat rather than multiplying its
  // screen density by the number of bodies. Signature attacks remain native.
  const encounter=b.encounter,now=b.combatTime||0;
  if(encounter&&(encounter.basicNext||0)>now){b.basicClock=.18;return true;}
  if(ctx.canBasicFire&&!ctx.canBasicFire()){b.basicClock=.35;return true;}
+ // Soft hold: wait while a warned signature attack is being read, but a boss
+ // whose signature fire is continuous still gets an ordinary phrase in.
+ if((b.basicSoftHold||0)>now&&now-(b.basicLastFire??-9)<3.5){b.basicClock=.2;return true;}
+ b.basicLastFire=now;
  const step=nextStep(b,config);
  const length=fireStep(b,config,step,mounts,target,serial);
  if(encounter)encounter.basicNext=now+Math.max(.72,length*.8);
@@ -165,7 +184,7 @@ function fireStep(b,config,step,mounts,target,serial){
  const damage=b.t.damage*(config.damage??.5);
  const shot=(m,a,delay,extra)=>{const q=m.q,p=m.p;emit(b,{type:'hazard',kind:'projectile',x:q.x,y:q.y,vx:Math.cos(a)*speed*(extra?.speed||1),vy:Math.sin(a)*speed*(extra?.speed||1),
   partId:p?.id,sourceX:q.x,sourceY:q.y,sourcePartId:p?.id,sourceOffsetX:p?q.x-b.x-p.x:0,sourceOffsetY:p?q.y-b.y-p.y:0,
-  basicSerial:serial,basicMuzzle:!!extra?.muzzle,radius:4,damage,delay,warning:0,
+  basicSerial:serial,basicMuzzle:!!extra?.muzzle,sourceAngle:['fliegerzug','treffas-wagen'].includes(b.kind)?q.angle:null,radius:4,damage,delay,warning:0,
   duration:Math.min(3.4,Math.max(2,Math.max(Math.hypot(target.x-q.x,target.y-q.y),Math.hypot(target.x+(target.vx||0)*2-q.x,target.y+(target.vy||0)*2-q.y))/(speed*(extra?.speed||1))+.6)),visual:config.visual,tag});};
  const cue=(m,a,seconds=warning)=>emit(b,{type:'charge-warning',x:m.q.x,y:m.q.y,targetX:m.q.x+Math.cos(a)*420,targetY:m.q.y+Math.sin(a)*420,seconds,partId:m.p?.id,basicFire:true});
  const aimOf=m=>clampArc(m.q,Math.atan2(target.y-m.q.y,target.x-m.q.x));
@@ -283,6 +302,10 @@ export function basicBarrageMuzzle(b,h){
  // Broadside fence rounds leave the hull line itself, not a turret.
  if(!h.sourcePartId&&BASIC_BARRAGES[b.kind]?.ports.length)return null;
  const p=h.sourcePartId?b.parts.get(h.sourcePartId):null,a=Math.atan2(h.vy,h.vx);
+ if(p&&b.kind==='fliegerzug')return fliegerGunMuzzle(b,p,h.sourceAngle??p.shotAngle,(h.basicSerial||0)%2?1:-1);
+ if(p&&b.kind==='treffas-wagen')return treffasMgMuzzle(b,p,h.sourceAngle??p.aimAngle);
  return mount(b,p,{x:b.x+Math.cos(a)*800,y:b.y+Math.sin(a)*800},h.basicSerial||0);
 }
+
+
 

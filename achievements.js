@@ -1,5 +1,8 @@
-// Cosmetic, device-local service record. Combat and ranking remain authoritative.
+// Service record also retains per-pilot aircraft unlock progress.
+import {PILOT_AIRCRAFT,PILOT_AIRCRAFT_KILLS,pilotKillMetric,setPilotKillProvider} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 const medal=(id,group,icon,name,en,description,descriptionEn,metric,goals=[1],hidden=false)=>Object.freeze({id,group,icon,name,en,description,descriptionEn,metric,goals:Object.freeze(goals),hidden});
+const pilotLabels={baron:'리히트호펜',voss:'포스',boelcke:'뵐케',udet:'우데트',goering:'괴링',berthold:'베르톨트',wolff:'볼프',loewenhardt:'뢰벤하르트',jacobs:'야콥스',brumowski:'브루모프스키',lothar:'로타르',sachsenberg:'작센베르크',fonck:'폰크',collishaw:'콜리쇼',baracca:'바라카',guynemer:'기네미르',bishop:'비숍',mannock:'매녹',hawker:'호커',mccudden:'맥커든',nungesser:'넝제세르',rickenbacker:'리켄바커',ball:'볼',barker:'바커'};
+export const PILOT_AIRCRAFT_MEDALS=Object.freeze(Object.entries(PILOT_AIRCRAFT).filter(([,r])=>r.unlockAircraft).map(([id])=>medal('aircraft_'+id,'aircraft',0,pilotLabels[id]+' · 기체 전환 허가',id[0].toUpperCase()+id.slice(1)+' · Aircraft Clearance',`${pilotLabels[id]}로 누적 ${PILOT_AIRCRAFT_KILLS}기 격추 · 추가 기체 해금`,`Record ${PILOT_AIRCRAFT_KILLS} kills with ${id} to unlock the additional aircraft.`,pilotKillMetric(id),[PILOT_AIRCRAFT_KILLS])));
 export const MEDALS=Object.freeze([
  medal('first','entry',0,'첫 전과','First Victory','정예 표적 최초 격추','Record your first priority kill.','priority'),
  medal('ace','entry',0,'에이스의 탄생','An Ace Is Born','한 출격 정예 표적 5기 격추','Record 5 priority kills in one sortie.','sortiePriority',[5]),
@@ -29,7 +32,8 @@ export const MEDALS=Object.freeze([
  medal('perfect','special',4,'완벽한 공략','Flawless Assault','보스 교전 시작부터 격파까지 피격·부활 없이 승리','Clear a boss encounter without being hit or reviving.','perfect'),
  medal('legend','special',4,'전설이 된 출격','Legendary Sortie','한 출격 특수장비 4개 동시 보유','Hold 4 special equipment items at once.','equipment',[4]),
  medal('miracle','special',4,'기적의 생환','Miraculous Return','내구도 10% 이하 → 긴급 보급으로 완전 수리 → 부활 없이 다음 보스 격파','Recover from 10% hull with emergency supplies, then defeat the next boss without reviving.','miracle',[1],true),
- medal('two_wings','coop',5,'두 개의 날개','Two Wings','로컬 협동에서 두 플레이어가 생존한 채 지역 보스 격파','Clear a regional boss with both local co-op pilots alive.','twoWings')
+ medal('two_wings','coop',5,'두 개의 날개','Two Wings','로컬 협동에서 두 플레이어가 생존한 채 지역 보스 격파','Clear a regional boss with both local co-op pilots alive.','twoWings'),
+ ...PILOT_AIRCRAFT_MEDALS
 ]);
 export const MEDAL_SAVE_KEY='headon-service-medals-1';
 const ids=new Set(MEDALS.map(d=>d.id)),finite=n=>Number.isFinite(n)&&n>0?Math.min(1e9,Math.floor(n)):0;
@@ -59,8 +63,20 @@ export class AchievementBook {
  progress(d){const tier=this.data.awards[d.id]?.tier||0,circuit=d.id==='circuit'&&!tier&&this.data.metrics.routeGoal,value=this.data.metrics[circuit?'routeCoverage':d.metric]||0,goal=circuit||d.goals[Math.min(tier,d.goals.length-1)];return{tier,value,goal,complete:tier===d.goals.length}}
 }
 
-let book=null;const runs=new WeakMap();
-export const setAchievementBook=value=>{book=value};
+let book=null;const runs=new WeakMap(),pilotKillRuns=new WeakMap();
+export const setAchievementBook=value=>{book=value;setPilotKillProvider(value?id=>value.data.metrics[pilotKillMetric(id)]||0:null)};
+// Existing personal kill counters include ordinary aircraft and owned support kills.
+// Online replicas carry these counters: each device records only its own pilot.
+export function syncPilotKills(g){
+ g=g?.world||g;if(!book||!g||g.testMode||g.mode==='campaign')return;
+ let seen=pilotKillRuns.get(g);if(!seen){seen=new Map();pilotKillRuns.set(g,seen)}
+ const add={};for(const p of g.players||[g]){
+  if(g.online&&p.id!==g.localPlayerId||!PILOT_AIRCRAFT[p.pilot])continue;
+  const key=p.id||'p1',count=finite(p.kills),previous=seen.get(key)||0;if(count<=previous)continue;
+  seen.set(key,count);const metric=pilotKillMetric(p.pilot);add[metric]=(add[metric]||0)+count-previous;
+ }
+ if(Object.keys(add).length){const earned=book.record({add});const r=runs.get(g);if(r)for(const id of earned)r.sessionAwards.add(id)}
+}
 export const eligibleForMedals=g=>{g=g?.world||g;return !!g&&!g.testMode&&!g.online&&g.mode!=='campaign'};
 const pilots=g=>g.players||[g],living=p=>p.hp>0&&(!p.status||p.status==='alive');
 export function achievementRun(g){g=g?.world||g;if(!book||!eligibleForMedals(g))return null;let r=runs.get(g);if(!r){r=new SortieAchievements(g,book);runs.set(g,r)}return r}
@@ -138,7 +154,7 @@ export class SortieAchievements {
 }
 
 export function installAchievementTracking(Type,{coop=false}={}){
- const update=Type.prototype.update;Type.prototype.update=function(dt,...args){const r=achievementRun(this),before=this.t||0;if(r&&this.state==='playing'){r.beginFrame();r.tick(0)}const result=update.call(this,dt,...args);const elapsed=Math.max(0,(this.t||0)-before);if(r&&elapsed>0){for(const p of pilots(this))if(p.hp<(r.frameHp?.get(p.id||'p1')??p.hp))r.damage(p);r.tick(elapsed)}return result};
+ const update=Type.prototype.update;Type.prototype.update=function(dt,...args){const r=achievementRun(this),before=this.t||0;if(r&&this.state==='playing'){r.beginFrame();r.tick(0)}const result=update.call(this,dt,...args);syncPilotKills(this);const elapsed=Math.max(0,(this.t||0)-before);if(r&&elapsed>0){for(const p of pilots(this))if(p.hp<(r.frameHp?.get(p.id||'p1')??p.hp))r.damage(p);r.tick(elapsed)}return result};
  const key=coop?'hitPlayer':'hit',hit=Type.prototype[key];
  Type.prototype[key]=function(...args){const p=coop?args[0]:this,before=p?.hp,uses=p?.heineckeUses||0,result=hit.apply(this,args);if(p&&(p.hp<before||(p.heineckeUses||0)>uses))achievementRun(this)?.damage(p);return result};
 }

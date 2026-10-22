@@ -1,4 +1,4 @@
-import {GALLIPOLI_PARTS,gallipoliMuzzle,gallipoliAngleDelta,turnGallipoliTurret} from './gallipoli-boss.js?v=sortierhythm20261018&rail=40';
+import {GALLIPOLI_PARTS,gallipoliMuzzle,gallipoliAngleDelta,turnGallipoliTurret} from './gallipoli-boss.js?v=tame3&rail=40&ai=1018&sig=1019&boss=20261020b&phase=1021';
 export const GALLIPOLI_ROUTE=Object.freeze({shore:2800,cliff:4000,fort:8000,halfWidth:3600,backLimit:-1500,bossLimit:10800});
 export function createGallipoliRoute(g){return{x:g.x,y:g.y,a:Number.isFinite(g.a)?g.a:-Math.PI/2,maxForward:0,cues:new Set(),encounterId:(g.stageBoss?.runId||'route')+':gallipoli-approach'};}
 export function gallipoliPoint(r,s,n=0){return{x:r.x+Math.cos(r.a)*s-Math.sin(r.a)*n,y:r.y+Math.sin(r.a)*s+Math.cos(r.a)*n};}
@@ -23,3 +23,4 @@ export function tickGallipoliRoute(g,dt=0){
   addon.hooks.onCue({type:'muzzle',bossId:'gallipoli-approach',partId:p.id,...muzzle});p.aimTarget=null;
  }
 }
+

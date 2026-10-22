@@ -1,19 +1,15 @@
-import '../campaign.js?v=gal1&rail=42';
+import '../campaign.js?v=tame3&rail=40';
 import './pilot-feedback-globals.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,PLANES,PILOT_PLANES,PILOTS} from '../engine.js?v=fiveace1';
-import {CoopGame} from '../coop-engine.js?v=fiveace1';
+import {Game,PILOT_PLANES,PILOTS} from '../engine.js?v=tame3&rail=40';
+import {CoopGame} from '../coop-engine.js?v=dover2';
 import {PILOT_IDENTITY_COPY} from '../pilot-identity-copy.js';
 import {fiveAceState,isFiveAceAirship} from '../pilot-five-combat.js';
 const ids=['fonck','gontermann','luke','proctor','lufbery'];
-// TP dedicated ace liveries are registered by campaign.js into its own engine instance;
-// the plain engine falls back to each ace's base airframe.
-const BASE_PLANE={fonck:'camel',gontermann:'fokker',luke:'nieuport',proctor:'se5a',lufbery:'nieuport',schleich:'albatros'};
-const planeOf=id=>PILOT_PLANES[id] in PLANES?PILOT_PLANES[id]:BASE_PLANE[id]||PILOT_PLANES[id];
 const makeRound=(p,extra={})=>({x:p.x+25,y:p.y,vx:650,vy:0,life:1.55,gun:0,enemy:false,ownerId:p.id||'p1',damage:12,hit:new Set(),...extra});
 function session(id,coop=false){
- const g=coop?new CoopGame([{pilot:id},{pilot:PILOTS[id].faction==='central'?'baron':'ball'}],{rng:()=>.5}):new Game(planeOf(id),id,()=>.5),p=g.players?.[0]||g;
+ const g=coop?new CoopGame([{pilot:id},{pilot:PILOTS[id].faction==='central'?'baron':'ball'}],{rng:()=>.5}):new Game(PILOT_PLANES[id],id,()=>.5),p=g.players?.[0]||g;
  for(const key of ['spawn','nextBossAt','_zeppelinSchedule','nextHeavyAt','eventTimer','allyTimer','flakTimer','regionThreat','gustTimer','supplyTimer','fieldUnitTimer','gasTimer','patrolTimer'])g[key]=Infinity;
  Object.assign(p,{x:0,y:0,a:0,invuln:0,need:Infinity,speed:0,baseSpeed:0,fire:0});if(g.players)Object.assign(g.players[1],{x:1500,y:1500,fire:Infinity,need:Infinity});
  const tick=(n=1,input={})=>{for(let i=0;i<n;i++){if(coop){g.t+=.02;g.updatePlayer(p,.02,input);g.ensureWingmen();g.updateSupport(.02);g.updateOrdnance(.02);}else g.update(.02,input);}};
@@ -59,7 +55,7 @@ for(const coop of [false,true]){
 test('five pilot catalog is identical across hangar short/full text and runtime',()=>{for(const id of ids){const copy=PILOT_IDENTITY_COPY[id];assert.equal(PILOTS[id].skill,copy.ko.skill);assert.equal(PILOTS[id].passive,copy.ko.passive);assert.equal(PILOTS[id].desc,copy.ko.activeDetail);assert.ok(copy.en.activeShort&&copy.en.passiveDetail);}});
 test('airship class never inferred from brand or generic boss type',()=>{assert.ok(isFiveAceAirship({kind:'hma23'}));assert.equal(isFiveAceAirship({type:'boss',name:'Zeppelin-Staaken R.VI'}),false);});
 
-test('all five real loadouts exist in the browser engine instance',async()=>{const {Game:G2,PLANES,WEAPONS}=await import('../engine.js?v=gal1&rail=42');const {CampaignGame}=await import('../campaign.js?v=gal1&rail=42');assert.ok(CampaignGame.prototype instanceof G2);for(const id of ids){const k=BASE_PLANE[id]&&BASE_PLANE[id] in PLANES?BASE_PLANE[id]:PILOT_PLANES[id];assert.ok(PLANES[k],id);assert.ok(WEAPONS[k],id);}});
+test('all five real loadouts exist in the browser engine instance',async()=>{const {PLANES,WEAPONS}=await import('../engine.js?v=tame3&rail=40');const {CampaignGame}=await import('../campaign.js?v=tame3&rail=40');assert.ok(CampaignGame.prototype instanceof Game);for(const id of ids){assert.ok(PLANES[PILOT_PLANES[id]],id);assert.ok(WEAPONS[PILOT_PLANES[id]],id);}});
 
 for(const coop of [false,true])test(`Luke lethal detonation keeps the queued cookoff (${coop?'coop':'solo'})`,()=>{
  const {p,tick,enemy}=session('luke',coop),a=enemy(200,0),b=enemy(235,15);

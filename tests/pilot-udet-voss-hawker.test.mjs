@@ -1,11 +1,11 @@
 import './pilot-feedback-globals.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Game,VOSS_REVERSE} from '../engine.js?v=gal1&rail=42';
-import {CoopGame,coopPlane} from '../coop-engine.js?v=gal1&rail=42';
+import {Game,VOSS_REVERSE} from '../engine.js?v=tame3&rail=40';
+import {CoopGame,coopPlane} from '../coop-engine.js?v=tame3&rail=40';
 
 import {signatureState,advancePilotSignature,pilotSignatureReaction} from '../pilot-signature-state.js';
-import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js?v=gal1';
+import {createPilotSignatureRenderer} from '../pilot-signature-renderer.js?v=tame3';
 
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
 function session(id,mode='solo'){
@@ -29,7 +29,7 @@ function render(p,layer='under'){
 
 for(const mode of ['solo','coop']){
  test(`${mode} Udet activation has brief equipment-style motto, no LO emblem or graze reaction`,()=>{
-  const {p}=session('udet',mode),hp=p.hp;p.skill();near(p.hp,hp);near(p.skillDuration(),2.6);near(p.skillCooldown(),18);assert.equal(p.udetBoost,0);
+  const {p}=session('udet',mode),hp=p.hp;p.skill();near(p.hp,hp);near(p.skillDuration(),.42+2.4);near(p.skillCooldown(),18);assert.equal(p.udetBoost,0);
   advancePilotSignature(p,.05);assert.equal(render(p,'front').text,'Du doch nicht!!');assert.equal(render(p,'under').text,'');assert.deepEqual(render(p).marks,[]);
   assert.equal(pilotSignatureReaction(p,'hit',{target:{x:40,y:0}}),null);
   p.skillTime=0;for(let i=0;i<15;i++)advancePilotSignature(p,.05);assert.equal(render(p,'front').text,'');

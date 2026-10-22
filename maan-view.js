@@ -1,19 +1,19 @@
-import {drawPartFuelFire} from './explosion-profiles.js?v=sortierhythm20261018';
-import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=sortierhythm20261018';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=sortierhythm20261018';
-import {sandOpacity} from './maan-weather.js?v=sortierhythm20261018';
-import {drawSandVortex,prepareSandVortexArt} from './sand-vortex-art.js?v=sortierhythm20261018';
-import {fx} from './fx-art.js?v=sortierhythm20261018';
-import {drawTracerBolt} from './projectiles.js?v=sortierhythm20261018';
-import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=sortierhythm20261018';
-import {drawShellFlight} from './boss-rounds.js?v=sortierhythm20261018';
+import {drawPartFuelFire} from './explosion-profiles.js?v=fx5';
+import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=tame3';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
+import {sandOpacity} from './maan-weather.js?v=regionalair2';
+import {drawSandVortex,prepareSandVortexArt} from './sand-vortex-art.js?v=regionalair2';
+import {fx} from './fx-art.js?v=tame3';
+import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
+import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=tame3';
+import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
 export const MAAN_ASSETS=Object.freeze({terrain:'terrain-maan-r2.webp',workshop:'maan-workshop-r2.webp',wusten:'boss-maan-wusten-r2.webp',sinai:'boss-maan-sinai-r2.webp',car:'boss-maan-rolls-royce.webp'});
-const images=new Map();let ground=null;
+const images=new Map();let ground=null,settledWorkshop=null;
 const _filterBakes=new WeakMap();
 function bakedFiltered(img,filter){if(!img?.naturalWidth)return img;let m=_filterBakes.get(img);if(!m){m=new Map();_filterBakes.set(img,m)}let cv=m.get(filter);if(cv===undefined){cv=document.createElement('canvas');cv.width=img.naturalWidth;cv.height=img.naturalHeight;const cc=cv.getContext('2d');cc.filter=filter;cc.drawImage(img,0,0);m.set(filter,cv)}return cv}
 const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=r5';images.set(key,im);return im;};
 export function prepareMaanAssets(region){
- if(region!==13){images.clear();ground=null;return Promise.resolve();}
+ if(region!==13){images.clear();ground=null;if(settledWorkshop){settledWorkshop.canvas.width=settledWorkshop.canvas.height=1;settledWorkshop=null;}return Promise.resolve();}
  prepareSandVortexArt();
  return Promise.all(Object.keys(MAAN_ASSETS).map(key=>{const im=load(key);if(im.complete&&im.naturalWidth)return Promise.resolve();return new Promise((resolve,reject)=>{im.onload=()=>{if(!im.naturalWidth){reject(new Error('Ma’an empty asset: '+MAAN_ASSETS[key]));return}(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.onerror=()=>reject(new Error('Ma’an asset: '+MAAN_ASSETS[key]));});})).then(()=>{seamlessGround(load('terrain'));});
 }
@@ -44,6 +44,22 @@ function regions(kind){
   for(let x=-l.width/2;x<=l.width/2;x+=step){const id=x>=l.width/2?null:owner(x+step/2);if(last!==id){if(last)rows.push({id:last,x:start,y,w:x-start,h:Math.min(step,l.height/2-y)});last=id;start=x;}}
  }regionCache.set(kind,rows);return rows;
 }
+function workshopPieces(f,flight){
+ const pieces=[],columns=8,rows=10;
+ for(let row=0;row<rows;row++)for(let col=0;col<columns;col++){
+  const i=row*columns+col,side=col<columns/2?-1:1,w=f.width/columns,h=f.height/rows;
+  const dx=(col+.5)*w-f.width/2,dy=(row+.5)*h-f.height/2,pace=.75+(Math.sin(i*13.7)+1)*.25;
+  pieces.push({i,row,col,w,h,px:f.x+dx+side*(80+Math.abs(dx)*.18)*flight*pace,py:f.y+dy+(row-3.5)*15*flight+25*flight*flight,angle:side*flight*(.25+(i%5)*.12)});
+ }
+ return pieces;
+}
+function paintWorkshopPieces(c,image,pieces,cw,ch,alpha){
+ for(const {i,row,col,w,h,px,py,angle} of pieces){
+  c.save();c.translate(px,py);c.rotate(angle);c.globalAlpha=alpha;
+  c.beginPath();c.moveTo(-w*.5,-h*(.2+(i%3)*.1));c.lineTo(-w*.2,-h*.5);c.lineTo(w*.5,-h*.32);c.lineTo(w*(.2+(i%4)*.07),h*.5);c.lineTo(-w*.5,h*.24);c.closePath();c.clip();
+  c.drawImage(image,col*cw/8,row*ch/10,cw/8,ch/10,-w/2,-h/2,w,h);c.restore();
+ }
+}
 export function drawMaanWorkshop(c,b){
  const f=b.workshop,im=load('workshop');if(!im.naturalWidth||!f)return;
  const cw=im.naturalWidth/2,ch=im.naturalHeight,x=f.x-f.width/2,y=f.y-f.height/2;
@@ -55,16 +71,24 @@ export function drawMaanWorkshop(c,b){
  }else{
   // Break up the authored roof itself. Every fragment keeps the original art
   // and alpha, then lands outside the tank's exit corridor as scorched rubble.
-  const columns=8,rows=10,flight=Math.min(age,2.8),settled=age>=2.8;
-  const rim=settled?bakedFiltered(im,'brightness(.5) saturate(.55)'):im;
-  for(let row=0;row<rows;row++)for(let col=0;col<columns;col++){
-   const i=row*columns+col,side=col<columns/2?-1:1,w=f.width/columns,h=f.height/rows;
-   const dx=(col+.5)*w-f.width/2,dy=(row+.5)*h-f.height/2,pace=.75+(Math.sin(i*13.7)+1)*.25;
-   const px=f.x+dx+side*(80+Math.abs(dx)*.18)*flight*pace,py=f.y+dy+(row-3.5)*15*flight+25*flight*flight;
-   c.save();c.translate(px,py);c.rotate(side*flight*(.25+(i%5)*.12));c.globalAlpha=settled?.55:1;
-   c.beginPath();c.moveTo(-w*.5,-h*(.2+(i%3)*.1));c.lineTo(-w*.2,-h*.5);c.lineTo(w*.5,-h*.32);c.lineTo(w*(.2+(i%4)*.07),h*.5);c.lineTo(-w*.5,h*.24);c.closePath();c.clip();
-   c.drawImage(rim,col*cw/columns,row*ch/rows,cw/columns,ch/rows,-w/2,-h/2,w,h);c.restore();
-  }
+  if(age>=2.8){
+   // The landed roof never changes again. Bake its exact clipped atlas pieces
+   // once, rather than re-running eighty rotated clips on every mobile frame.
+   const cache=settledWorkshop;
+   if(!cache||cache.source!==im||cache.width!==f.width||cache.height!==f.height){
+    if(cache)cache.canvas.width=cache.canvas.height=1;
+    const local={...f,x:0,y:0},pieces=workshopPieces(local,2.8);
+    const left=Math.floor(Math.min(...pieces.map(p=>p.px-Math.hypot(p.w,p.h)/2)))-2;
+    const top=Math.floor(Math.min(...pieces.map(p=>p.py-Math.hypot(p.w,p.h)/2)))-2;
+    const right=Math.ceil(Math.max(...pieces.map(p=>p.px+Math.hypot(p.w,p.h)/2)))+2;
+    const bottom=Math.ceil(Math.max(...pieces.map(p=>p.py+Math.hypot(p.w,p.h)/2)))+2;
+    const canvas=document.createElement('canvas');canvas.width=right-left;canvas.height=bottom-top;
+    const cc=canvas.getContext('2d');cc.imageSmoothingEnabled=true;cc.translate(-left,-top);
+    paintWorkshopPieces(cc,bakedFiltered(im,'brightness(.5) saturate(.55)'),pieces,cw,ch,.55);
+    settledWorkshop={source:im,width:f.width,height:f.height,canvas,left,top};
+   }
+   c.globalAlpha=1;c.drawImage(settledWorkshop.canvas,f.x+settledWorkshop.left,f.y+settledWorkshop.top);
+  }else paintWorkshopPieces(c,im,workshopPieces(f,age),cw,ch,1);
   if(age<3.2)for(let i=0;i<7;i++){const q=(age*.65+i/7)%1;fx(c,'smokeDust',f.x+(i-3)*66,f.openingY-110-q*160,150+q*140,140+q*130,0,(1-q)*Math.max(0,1-age/3.2)*.65);}
  }
  c.restore();
@@ -203,3 +227,4 @@ export function handleMaanCue(g,event,body){
  if(event.type==='muzzle'&&['wustenpanzer','sinai-landship','maan-rolls-royce'].includes(body?.kind)){const mg=body.kind==='maan-rolls-royce'||body.parts.get(event.partId)?.kind==='mg';g.event('bossSound',mg?'enemyShot':'heavyShot');g.shake=Math.max(g.shake,mg?1:3);return true;}
  return false;
 }
+

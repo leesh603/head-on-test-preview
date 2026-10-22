@@ -1,7 +1,7 @@
-import {fx} from './fx-art.js?v=sortierhythm20261018';
-import {impactMark,aimLine} from './tactical-marks.js?v=sortierhythm20261018';
-import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=sortierhythm20261018';
-import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=sortierhythm20261018';
+import {fx} from './fx-art.js?v=tame3';
+import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
+import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=tame3';
+import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
 let images={};
 export function releaseParisArt(){images={};}
 export function prepareParisArt(){
@@ -57,3 +57,4 @@ export function drawParisWorld(c,g,locale='ko'){
  if(q?.runTarget){const d=q.runTarget;aimLine(c,q.x,q.y,d.x,d.y,{alpha:.7,chevron:false,dash:[8,9]});impactMark(c,d.x,d.y,78,1-Math.min(1,Math.max(0,q.runRemaining/q.speedRatio())/8));c.fillStyle='#ffd69b';c.fillText((en?'DROP ':'투하 ')+(q.runRemaining/q.speedRatio()).toFixed(1)+'s',d.x,d.y-88);}
  c.restore();
 }
+

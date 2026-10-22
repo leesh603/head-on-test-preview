@@ -1,12 +1,27 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
-import {getLocale,subscribe} from './i18n.js?v=sortierhythm20261018&afc=1';
-import {aircraftKey} from './aircraft.js?v=sortierhythm20261018';
-import {hangarArt,hangarArtNow,hangarKeyFile} from './hangar-art.js?v=sortierhythm20261018';
-export {hangarArt} from './hangar-art.js?v=sortierhythm20261018';
+import {getLocale,subscribe} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2';
+import {hangarArt,hangarArtNow,hangarKeyFile,hangarArtLayout} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
+export {hangarArt} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
 
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
 const put=(node,text)=>{if(node&&node.textContent!==text)node.textContent=text};
+// The live select owns pilot choices, campaign locks, and the existing change handler.
+function availableAircraftOptions(select){return [...(select?.options||[])].filter(option=>!option.disabled&&!option.hidden&&!option.parentElement?.disabled)}
+function hasAircraftChoice(select){return !!select&&!select.disabled&&availableAircraftOptions(select).length>1}
+function cycleAircraftChoice(select,direction){
+ if(!hasAircraftChoice(select))return false;
+ const options=availableAircraftOptions(select),step=direction<0?-1:1,current=options.findIndex(option=>option.value===select.value),index=current<0?(step>0?-1:0):current;
+ select.value=options[(index+step+options.length)%options.length].value;
+ select.dispatchEvent(new Event('change',{bubbles:true}));return true;
+}
+function aircraftHeading(select,fallback=''){
+ const option=select?.selectedOptions?.[0];if(!option)return fallback;
+ // Strip only the choice badge and final role; keep separators inside model/livery names.
+ const text=option.textContent.replace(/^(?:기본|해금 · 베타 개방|Default|Unlock · Beta open) · /,'');
+ const role=text.lastIndexOf(' · ');return role<0?text:text.slice(0,role);
+}
 const paths={
  arrow:'<path d="m9 5 7 7-7 7"/>',
  sortie:'<path d="M4 12h15m-6-6 6 6-6 6"/>',
@@ -58,6 +73,13 @@ function install(){
  const figure=el('div','astra-aircraft-figure'),art=el('img','astra-aircraft-art');art.alt='';art.decoding='async';art.hidden=true;
  // This is a dedicated hangar illustration; the world renderer and sprite scale are untouched.
  figure.append($('selectedAircraft'),art);
+ function fitArt(){
+  const layout=hangarArtLayout(lastArt||"",art.clientWidth,art.clientHeight,figure.classList.contains("art-floor"));
+  art.toggleAttribute("data-hangar-fit",!!layout);
+  for(const [name,value]of Object.entries(layout||{scale:1,x:0,y:0}))art.style.setProperty("--hangar-art-"+name,String(value)+(name==="scale"?"":"px"));
+ }
+ const artResize=new ResizeObserver(fitArt);artResize.observe(figure);artResize.observe(art);
+ art.addEventListener("load",fitArt);
  const data=el('div','astra-aircraft-data'),brief=selected.querySelector('.airframe-brief');
  const hp=el('div','astra-base-hp'),hpLabel=el('span'),hpBar=el('span','astra-base-hp-track'),hpFill=el('i'),hpValue=el('b');hpBar.append(hpFill);hp.append(hpLabel,hpBar,hpValue);
  const weapon=roster.querySelector('.weapon-spec');
@@ -94,10 +116,7 @@ function install(){
  const mobileSettings=el('button','astra-mobile-settings');mobileSettings.type='button';mobileSettings.dataset.action='settings';mobileSettings.append(interfaceIcon('settings'));mobileSettings.addEventListener('click',()=>nav.querySelector('[data-action="settings"]').click());header.append(mobileSettings);
  railPrev.addEventListener('click',()=>scrollRoster(-1));railNext.addEventListener('click',()=>scrollRoster(1));
  function scrollRoster(direction){const tabs=$('pilotTabs');tabs.scrollBy({left:direction*tabs.clientWidth*.8,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'})}
- function changeAircraft(direction){
-  if($('baronAircraftChoice').classList.contains('hidden')||$('baronTriplane').disabled)return;
-  const current=$('aircraftSelect103').value;const id=current==='baron_albatros'?'baronTriplane':'baronAlbatros';$(id).click();
- }
+ function changeAircraft(direction){cycleAircraftChoice($('aircraftSelect103'),direction)}
  previous.addEventListener('click',()=>changeAircraft(-1));next.addEventListener('click',()=>changeAircraft(1));
  let queued=false,lastArt='',lastPilot='';
  const schedule=()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;sync()})};
@@ -111,14 +130,14 @@ function install(){
   put(activeLabel,en?'ACTIVE':'액티브');put(passiveLabel,en?'PASSIVE':'패시브');
   const raw=$('passive103').textContent,index=raw.indexOf(' · ');
   put(passiveName,index>=0?raw.slice(0,index):'');put(passiveDesc,index>=0?raw.slice(index+3):raw);
-  const option=$('aircraftSelect103').selectedOptions?.[0],airLabel=(option?.textContent||$('pilotAircraft').textContent).split(' · ')[0],airParen=airLabel.indexOf(' (');
+  const airLabel=aircraftHeading($('aircraftSelect103'),$('pilotAircraft').textContent);
  // Model on the first line, the ace's "personal aircraft" note as a smaller second line. The EN label has no
  // space before "(" (word-joiner instead), so split on the parenthesis itself, not on " (".
  const airSplit=airLabel.match(/^(.*?)\s*\(\u2060?\s*(.*?)\)\s*$/),esc=v=>v.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);
  airName.innerHTML=airSplit?esc(airSplit[1])+'<small class="ho-air-owner">'+esc(airSplit[2])+'</small>':esc(airLabel);
   // Korean role phrases keep their words together so the line breaks only between " · " parts (no lone "교전").
   put(airRole,[$('pilotAircraft').textContent.split(' · ').slice(1).join(' · '),$('airframeTip').textContent].filter(Boolean).join(' · ').split(' · ').map(seg=>en?seg:seg.replace(/ /g,'\u00a0')).join(' · '));
-  const hasChoice=!$('baronAircraftChoice').classList.contains('hidden')&&!$('baronTriplane').disabled;previous.hidden=next.hidden=!hasChoice;
+  const hasChoice=hasAircraftChoice($('aircraftSelect103'));previous.hidden=next.hidden=!hasChoice;previous.disabled=next.disabled=!hasChoice;
   previous.setAttribute('aria-label',en?'Switch aircraft':'이전 기체');next.setAttribute('aria-label',en?'Switch aircraft':'다음 기체');
   if(aircraftId!==lastArt&&hangarArtNow(aircraftId)){lastArt=aircraftId;art.onload=art.onerror=null;
    // Already decoded: swap straight to the illustration, never through the pixel fallback.
@@ -133,7 +152,7 @@ function install(){
     art.onerror=()=>{art.hidden=true;figure.classList.remove('has-art');figure.classList.add('use-canvas')};art.src=url;if(art.complete&&art.naturalWidth)art.onload();
    });
   }
-  art.alt=airName.textContent;
+  art.alt=airName.textContent;fitArt();
   // Derive display values from the already-rendered authoritative roster, not a second stats table.
   for(const row of $('airframeStats').querySelectorAll('.airframe-rating-row')){
    let value=row.querySelector('.astra-rating-value');if(!value){value=el('small','astra-rating-value');row.append(value)}
@@ -162,7 +181,8 @@ function install(){
   document.body.classList.add('boot-ready');
  }
  new MutationObserver(schedule).observe($('pilotTabs'),{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
- new MutationObserver(schedule).observe($('aircraftSelect103'),{childList:true});
+ new MutationObserver(schedule).observe($('aircraftSelect103'),{childList:true,subtree:true,attributes:true,attributeFilter:['disabled','hidden','selected']});
+ $('aircraftSelect103').addEventListener('change',schedule);
  subscribe(schedule);schedule();
  installHud();
 }

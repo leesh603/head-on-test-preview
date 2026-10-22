@@ -1,9 +1,10 @@
-import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=sortierhythm20261018';
-import {fx} from './fx-art.js?v=sortierhythm20261018';
-import {bombSprite} from './bomb-sprites.js?v=sortierhythm20261018';
-import {fxsBombFall} from './fx-sample-preview.js?v=sortierhythm20261018';
-import {drawTracerBolt} from './projectiles.js?v=sortierhythm20261018';
-import {impactMark,partMark,aimLine,stripMark} from './tactical-marks.js?v=sortierhythm20261018';
+import {drawAuthoredAlpsBomber} from './alps-bomber-art.js?v=alpsart20261020tone1';
+import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=gal1';
+import {fx} from './fx-art.js?v=gal1';
+import {bombSprite} from './bomb-sprites.js?v=bomb20';
+import {fxsBombFall} from './fx-sample-preview.js?v=pilotfx20261018';
+import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
+import {impactMark,partMark,aimLine,stripMark} from './tactical-marks.js?v=gal1';
 
 function atlasFrame(c,im,frame,w,h){if(!im?.naturalWidth)return false;const sw=im.naturalWidth/3,sh=im.naturalHeight/2;c.drawImage(im,(frame%3)*sw,Math.floor(frame/3)*sh,sw,sh,-w/2,-h/2,w,h);return true;}
 function rectWarning(c,lane,p){stripMark(c,lane.x,lane.y,lane.width,lane.height,p,{safe:lane.safe});}
@@ -12,6 +13,10 @@ export function drawAlpsWarnings(c,body){
  if(body.bombRunRemaining>0){c.save();for(const l of body.laneWarnings||[])rectWarning(c,l,1-body.bombRunRemaining/1.25);c.restore();}
 }
 export function drawAlpsBomber(c,b,original,atlas){
+ if(drawAuthoredAlpsBomber(c,b,{effect:(...a)=>fx(c,...a)})){
+  if(b.cannonFlash>0&&!b.destroying){const q=alpsMuzzle({...b,parts:b.parts},'cannon',b.cannonShotAngle);fx(c,'muzzle',q.x,q.y,42,42,b.cannonShotAngle||0,b.cannonFlash/.16);}
+  return;
+ }
  const layout=ALPS_BOMBER_LAYOUT[b.assetKey],s=b.geometryScale||1,w=layout.width*s,h=layout.height*s,parts=b.parts||[],wreck=b.destroying?Math.min(1,b.destructionAge/Math.max(.1,b.destructionDuration)):0;
  c.save();c.translate(b.x,b.y+wreck*130);c.rotate(b.hullYaw+wreck*.8);c.globalAlpha*=1-wreck*.88;c.imageSmoothingEnabled=false;
  const frac=b.hp/b.maxHp,fullFrame=b.destroying?5:frac<.3?4:frac<.65?0:-1;
@@ -52,4 +57,5 @@ export function drawAlpsHazard(c,h,ring){
  }else{const age=h.age-h.delay-h.warning;fx(c,'explosion0',h.x,h.y,h.radius*2.1,h.radius*2.1,0,Math.max(0,1-age/h.duration));fx(c,'smokeDark',h.x,h.y-age*24,h.radius*(1.5+age),h.radius*(1.5+age),0,.6);}
  return true;
 }
+
 

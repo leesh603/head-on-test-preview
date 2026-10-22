@@ -1,6 +1,28 @@
 // Choreography for the existing combatFX list and approved painted sprites.
 // No damage, timers, simulation RNG, emitted particles, or additional atlas.
-export const EXPLOSION_LIFE=Object.freeze({aircraft:.72,fuelFire:3.2,groundShell:.48,heavyShell:.88,ammoCookoff:2.65});
+export const EXPLOSION_LIFE=Object.freeze({aircraft:.72,fuelFire:3.2,groundShell:.48,heavyShell:.88,ammoCookoff:2.65,bulletImpact:.27,armorBreak:.85,engineBreak:1.5,navalBreak:1.3});
+const impactTimes=new WeakMap();
+const replicaAges=new WeakMap();
+export function advanceReplicaImpactFx(world,dt){
+ for(const f of world.combatFX||[])if(f.fxProfile==='bulletImpact'){
+  let clock=replicaAges.get(f);
+  if(!clock||clock.life!==f.life){clock={life:f.life,age:0};replicaAges.set(f,clock);}
+  else clock.age+=dt;
+ }
+}
+export function queueCombatImpact(world,round,target,details){
+ const now=world.t||0,previous=impactTimes.get(target)??-Infinity;
+ if(now-previous<(world.viewWidth<=720?.065:.045))return null;
+ impactTimes.set(target,now);
+ const list=world.combatFX??=[],limit=world.viewWidth<=720?8:14;
+ let count=0,oldest=-1;
+ for(let i=0;i<list.length;i++)if(list[i].fxProfile==='bulletImpact'){count++;if(oldest<0)oldest=i;}
+ if(count>=limit)list.splice(oldest,1);
+ // A light hit must never evict a boss collapse or a heavy impact.
+ if(list.length>=EXPLOSION_LIMITS.total)return null;
+ const f={x:round.x,y:round.y,radius:18,life:.27,maxLife:.27,fxProfile:'bulletImpact',feedbackId:'hit:'+(world.combatFeedbackSerial=(world.combatFeedbackSerial||0)+1),direction:Math.atan2(round.vy||0,round.vx||0),...details};
+ list.push(f);return f;
+}
 export const EXPLOSION_LIMITS=Object.freeze({mobile:18,desktop:28,total:35});
 const FRAMES=Object.freeze({air:['profileAir0','profileAir1','profileAir2','profileAir3'],earth:['profileEarth0','profileEarth1','profileEarth2','profileEarth3'],ammo:['profileAmmo0','profileAmmo1','profileAmmo2','profileAmmo3']});
 const METAL=['metalShard0','metalShard1','metalShard2','metalShard3'];
@@ -56,7 +78,26 @@ export function drawFuelFire(c,fx,x,y,age,size=48,angle=0,remaining=3){
 }
 export function drawExplosionProfile(c,f,x,y,fx){
  const profile=f.fxProfile;if(!EXPLOSION_LIFE[profile])return false;
- const age=Math.max(0,f.maxLife-f.life),r=f.radius||34;
+ const age=Math.max(0,f.maxLife-f.life)+(replicaAges.get(f)?.age||0),r=f.radius||34;
+ if(profile==='bulletImpact'){
+  const a=f.direction||0,q=clamp(age/.27),fade=1-q,metal=f.material==='metal',blocked=!!f.blocked;
+  const size=blocked?21:metal?28:34;
+  fx(c,blocked?'ricochet':metal?'armorSpark':f.material==='fabric'?'smokePuff':'debris',x,y,size*(.7+q*.5),size,a,fade*(blocked?.65:.9));
+  if(!blocked)for(let i=0;i<(f.piercing?3:2);i++){
+   const dir=a+(i-.5)*.7,travel=(18+i*11)*q;
+   fx(c,metal?'metalShard'+i:'debrisShard',x+Math.cos(dir)*travel,y+Math.sin(dir)*travel,metal?8:11,metal?8:11,dir+q*3,fade*.85);
+  }
+  return true;
+ }
+ if(profile==='armorBreak'||profile==='engineBreak'||profile==='navalBreak'){
+  const d=Math.min(150,Math.max(48,r*1.8)),naval=profile==='navalBreak',engine=profile==='engineBreak';
+  if(age<.1)fx(c,'profileFlash',x,y,d*.6,d*.6,0,(1-age/.1)*.8);
+  if(age<.38)fx(c,naval?'splashShell':engine?FRAMES.ammo[Math.min(3,Math.floor(age/.095))]:FRAMES.earth[Math.min(3,Math.floor(age/.095))],x,y,d,d*(naval?1.35:1),f.direction||0,clamp((.38-age)/.14));
+  shards(c,fx,x,y,age,d,true,engine?4:3);
+  if(age>.12)fx(c,naval?'mist':engine?'profileOil':'profileDust',x+d*.08,y-d*age*.22,d*(.55+age*.4),d*(.6+age*.3),0,clamp(f.life/.4)*(engine?.35:.22));
+  if(engine&&age>.25)fx(c,'profileEngine',x,y,d*.42,d*.55,0,clamp(f.life/.35)*.65);
+  return true;
+ }
  if(profile==='fuelFire')return drawFuelFire(c,fx,x,y,age,Math.min(78,r*1.3),0,f.life);
  if(profile==='aircraft'){
   const d=Math.min(110,Math.max(48,r*2.25));
@@ -90,3 +131,4 @@ export function drawExplosionProfile(c,f,x,y,fx){
  }
  return true;
 }
+

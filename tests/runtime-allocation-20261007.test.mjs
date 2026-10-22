@@ -1,15 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {execFileSync} from 'node:child_process';
 import vm from 'node:vm';
 import {performance} from 'node:perf_hooks';
-import {nungesserRoundReaction} from '../pilot-signature-state.js?v=gal1';
-import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from '../aircraft-crash.js?v=gal1';
+import {nungesserRoundReaction} from '../pilot-signature-state.js?v=tame3';
+import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from '../aircraft-crash.js?v=tame3';
 
 // Immutable production implementations, rather than copies of the new loops.
-const BASE='4b0dbb171104088a816a10efd5c274c8e2888b60';
-const old=file=>execFileSync('git',['show',`${BASE}:${file}`],{encoding:'utf8'});
+const old=file=>readFileSync(new URL('./fixtures/runtime-allocation-4b0dbb17/'+file,import.meta.url),'utf8');
 const now=file=>readFileSync(new URL('../'+file,import.meta.url),'utf8');
 const plain=x=>JSON.parse(JSON.stringify(x));
 const globals={Math,nungesserRoundReaction,

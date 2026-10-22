@@ -1,6 +1,6 @@
 import {isAlbatrosHunter} from './albatros-hunter-fx.js';
-import {fx as pilotTexture} from './fx-art.js?v=sortierhythm20261018';
-import {createPilotReadability} from './pilot-readability-fx.js?v=sortierhythm20261018';
+import {fx as pilotTexture} from './fx-art.js?v=gal1';
+import {createPilotReadability} from './pilot-readability-fx.js?v=gal1';
 const pilotReadability=createPilotReadability(pilotTexture);
 // Passive-state FX (sample: Richthofen "사냥 본능" / Hunting Instinct).
 // In-world effects rather than HUD marks. Purely visual: reads the engine's existing
@@ -10,7 +10,7 @@ const pilotReadability=createPilotReadability(pilotTexture);
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=sortierhythm20261018';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
 
 
 const memo = new WeakMap();
@@ -113,67 +113,9 @@ export function drawBaronHunt(c, g, point, t, px, py) {
   return true;
 }
 
-// ---- Berthold "강철의 의지" / Iron Will: 40% of each hit is deferred and paid over 4 s.
-//   hit absorbed  -> a steel "clang": cold white-blue sparks glancing off the hull + a brief iron sheen ring
-//   damage owed   -> the plane trails dark oily smoke with a few embers while the deferred damage
-//                    is still being paid; thicker the more is owed, gone once the debt clears
-const bmemo = new WeakMap();
-const bst = g => { let s = bmemo.get(g); if (!s) bmemo.set(g, s = { owed: 0, clang: -9, seed: 0, trail: [] }); return s; };
-let STEEL = null, SOOT = null;
-function bsprites() {
-  if (STEEL || typeof document === 'undefined') return;
-  const mk = stops => { const k = document.createElement('canvas'); k.width = k.height = 48; const x = k.getContext('2d'), gr = x.createRadialGradient(24, 24, 0, 24, 24, 24);
-    for (const [o, c] of stops) gr.addColorStop(o, c); x.fillStyle = gr; x.fillRect(0, 0, 48, 48); return k; };
-  STEEL = mk([[0, 'rgba(255,255,255,1)'], [.25, 'rgba(200,225,255,.8)'], [.6, 'rgba(120,160,220,.22)'], [1, 'rgba(90,130,200,0)']]);
-  SOOT = mk([[0, 'rgba(38,34,32,.75)'], [.5, 'rgba(34,30,28,.38)'], [1, 'rgba(30,26,24,0)']]);
-}
-export function drawBertholdWill(c, g, point, t, px, py) {
-  if (g.pilot !== 'berthold') return false;
-  sprites(); bsprites(); if (!STEEL) return false;
-  const s = bst(g), debts = g.pilotIdentity?.debts || [];
-  const owed = debts.reduce((a, d) => a + (d.amount || 0), 0);
-  if (owed > s.owed + .5) { s.clang = t; s.seed = (s.seed + 1) % 97; }
-  s.owed = owed;
-  c.save();
-  // smoke while damage is owed
-  const k = clamp(owed / Math.max(8, (g.maxHp || 100) * .12));
-  push(s.trail, { x: g.x, y: g.y, a: g.a || 0 }, t, .55);
-  if (k > .02) {
-    const n = s.trail.length;
-    for (let i = 0; i < n - 1; i++) {
-      const p = s.trail[i], age = (t - p.t) / .55; if (i % 2) continue;
-      const bx = p.x - Math.cos(p.a) * 14, by = p.y - Math.sin(p.a) * 14, [x, y] = point(bx, by);
-      const w = 6 + 16 * age * (.6 + .6 * k), drift = (hash(p.t * 9, i) - .5) * 8 * age;
-      c.globalAlpha = (1 - age) * (.25 + .6 * k); c.drawImage(SOOT, x - w + drift, y - w - age * 6, w * 2, w * 2);
-    }
-    c.globalCompositeOperation = 'lighter';
-    for (let i = 0; i < n - 1; i++) {
-      const p = s.trail[i], age = (t - p.t) / .55; if (hash(p.t * 17, 5) > .05 + .12 * k) continue;
-      const [x, y] = point(p.x - Math.cos(p.a) * 14, p.y - Math.sin(p.a) * 14), e = 1.6 + 1.6 * hash(p.t, 2);
-      c.globalAlpha = (1 - age) * .9; c.drawImage(EMBER, x - e + (hash(p.t, 6) - .5) * 10 * age, y - e - age * 8, e * 2, e * 2);
-    }
-    c.globalCompositeOperation = 'source-over';
-  }
-  // steel clang on each absorbed hit
-  const q = (t - s.clang) / .32;
-  if (q >= 0 && q < 1) {
-    c.globalCompositeOperation = 'lighter';
-    const r = 26 + 10 * (1 - Math.pow(1 - q, 3));
-    for (let j = 0; j < 3; j++) {                                  // three glinting armour-plate arcs, not a bubble
-      const a0 = hash(j, s.seed) * Math.PI * 2; c.beginPath(); c.arc(px, py, r, a0, a0 + .7);
-      c.globalAlpha = (1 - q) * .8; c.strokeStyle = '#dbe9ff'; c.lineWidth = 2.4 * (1 - q) + .6; c.stroke(); }
-    for (let i = 0; i < 9; i++) {
-      const a = hash(i, s.seed) * Math.PI * 2, d = (12 + 30 * hash(s.seed, i)) * (1 - Math.pow(1 - q, 2)), ln = 6 * (1 - q) + 2;
-      const x0 = px + Math.cos(a) * (14 + d), y0 = py + Math.sin(a) * (14 + d);
-      c.beginPath(); c.moveTo(x0, y0); c.lineTo(x0 + Math.cos(a) * ln, y0 + Math.sin(a) * ln);
-      c.globalAlpha = 1 - q; c.strokeStyle = '#f2f7ff'; c.lineWidth = 1.4; c.stroke();
-    }
-    c.globalAlpha = (1 - q) * .6; c.drawImage(STEEL, px - 22, py - 22, 44, 44);
-    c.globalCompositeOperation = 'source-over';
-  }
-  c.restore();
-  return true;
-}
+// Berthold's held damage is shown by attached cloth in the shared front layer.
+// Keep the old export for callers; the retired damage-debt/steel effect is unused.
+export function drawBertholdWill(){return false;}
 
 // Single entry for the renderer. Returns true only when the pilot's legacy marker should be skipped.
 export function drawPassiveFx(c, g, point, t, px, py) {
@@ -194,22 +136,8 @@ export function drawPassiveFx(c, g, point, t, px, py) {
   return false;
 }
 
-// Mannock's 74 Squadron command: small amber flashes mark the faster wingman fire.
-export function drawMannockCover(c,g,point,t){
- if(g.pilot!=='mannock')return false;
- sprites();if(!EMBER)return false;
- let shown=0;c.save();c.globalCompositeOperation='lighter';
- for(const wing of g.allies||[]){
-  if(wing.life<=0||shown>=8)continue;
-  const [x,y]=point(wing.x,wing.y),a=wing.a||0,flash=wing.muzzleFlash>0,s=flash?11:5;
-  if(flash||Math.sin(t*5+shown*1.9)>.45){
-   c.globalAlpha=flash?.87:.22;
-   c.drawImage(EMBER,x+Math.cos(a)*24-s/2,y+Math.sin(a)*24-s/2,s,s);
-  }
-  shown++;
- }
- c.restore();return shown>0;
-}
+// The real wing aircraft's recoil and short muzzle carry Mannock's faster fire.
+export function drawMannockCover(){return false;}
 
 // shared: a tiny per-game memo
 const pmemo = new WeakMap();
@@ -223,12 +151,8 @@ export function drawFonckFocus(c, g, point, t) {
  return pilotReadability.fonck(c,g,point,t,sizeOf);
 }
 
-// ---- Rickenbacker "빠른 표적전환" / Quick Switch: hitting a new enemy within 2 s stacks +10% (max 3, 3 s).
-//   each switch throws a quick white-blue arc from the last enemy to the new one;
-//   while stacks are live his plane streams red-white-blue ribbons from the wingtips (longer per stack)
-export function drawRickenbackerSwitch(c, g, point, t, px, py) {
- return pilotReadability.rickenbacker(c,g,point,t,px,py);
-}
+// Rickenbacker's confirmed switch is owned by the shared signature observer.
+export function drawRickenbackerSwitch(c,g){return g.pilot==='rickenbacker';}
 
 // ---- Ball "고독한 사냥꾼" / Lone Hunter: no ally within 320 px -> +15% MG damage.
 //   while he flies alone a cold moonlit sheen rims his plane and a thin silver vapour trails
@@ -237,66 +161,8 @@ export function drawBallLone(c, g, point, t, px, py) {
  return pilotReadability.ball(c,g,point,t,px,py);
 }
 
-// ---- Rickenbacker active "햇 인 더 링" / Hat in the Ring: while active, every burst also fires
-// rounds at up to 7 enemies within 780 px. Show the squadron ring on himself and stamp it on
-// each enemy the burst reaches.
-// The 94th's hoop seen in perspective: a tilted yellow tube; the far half is drawn behind the
-// plane (back layer) and the near half over it (front layer), so it reads as a ring the plane
-// sits inside, like the hat being tossed through the squadron ring.
-function hoop(c, x, y, r, a, layer, tilt = -.38, squash = .42, w = 1) {
-  const from = layer === 'back' ? Math.PI : 0, to = layer === 'back' ? Math.PI * 2 : Math.PI;
-  const arc = () => { c.beginPath(); c.ellipse(x, y, r, r * squash, tilt, from, to); };
-  c.lineCap = 'round';
-  arc(); c.globalAlpha = a * .5; c.strokeStyle = 'rgba(40,22,2,.9)'; c.lineWidth = 7.5 * w; c.stroke();     // dark bed
-  arc(); c.globalAlpha = a; c.strokeStyle = layer === 'back' ? '#c99a1c' : '#f2c230'; c.lineWidth = 5.2 * w; c.stroke(); // far side a touch darker
-  c.beginPath(); c.ellipse(x, y - 1.2 * w, r, r * squash, tilt, from + .25, to - .25);                    // tube highlight
-  c.globalAlpha = a * (layer === 'back' ? .35 : .85); c.strokeStyle = '#fff3b0'; c.lineWidth = 1.4 * w; c.stroke();
-}
-function hatGlyph(c, x, y, s) {                               // small Uncle-Sam top hat
-  c.save(); c.translate(x, y);
-  c.fillStyle = '#1f3f86'; c.fillRect(-s * .62, s * .18, s * 1.24, s * .2);           // brim
-  c.fillStyle = '#f2efe6'; c.fillRect(-s * .38, -s * .62, s * .76, s * .82);          // crown
-  c.fillStyle = '#c8332b'; for (let i = 0; i < 3; i++) c.fillRect(-s * .38 + i * s * .26, -s * .62, s * .12, s * .82);
-  c.fillStyle = '#1f3f86'; c.fillRect(-s * .38, -s * .04, s * .76, s * .16);          // band
-  c.restore();
-}
-export function drawRickenbackerRing(c, g, point, t, px, py, layer = 'back') {
-  if (g.pilot !== 'rickenbacker') return false;
-  const m = pst(g, () => ({ prev: null, sw: 0, arc: null, wing: [] }));
-  m.ring ??= { k: 0, last: t, rounds: g.roundsFired || 0, stamps: [], pulse: -9 };
-  const R = m.ring;
-  (globalThis.__hoHoop ??= new WeakSet()).add(g);                 // the painted hoop replaces the legacy half-ring for this plane
-  if (layer === 'back') {                                       // state advances once per frame, on the back pass
-    const dt = Math.max(0, Math.min(.1, t - R.last)); R.last = t;
-    const active = g.skillTime > 0;
-    R.k = clamp(R.k + (active ? dt / .2 : -dt / .3));
-    if (active && (g.roundsFired || 0) > R.rounds) {            // a burst went out: stamp the same targets the engine picks
-      let n = 0;
-      for (const e of g.enemies || []) { if (n >= 7) break; if (!(e.hp > 0) || e.surface || Math.hypot(e.x - g.x, e.y - g.y) > 780) continue;
-        if (!R.stamps.some(s => s.e === e && t - s.t0 < .25)) R.stamps.push({ e, t0: t }); n++; }
-      if (n) R.pulse = t;
-    }
-    R.rounds = g.roundsFired || 0;
-    {const _st=R.stamps;let _w=0;for(let _i=0;_i<_st.length;_i++){const s=_st[_i];if(t-s.t0<.45&&s.e.hp>0)_st[_w++]=s}_st.length=_w}
-  }
-  if (R.k <= .01 && !R.stamps.length) return true;
-  c.save();
-  for (const s of R.stamps) {                                   // hoop drops over each struck enemy, then fades
-    const q = (t - s.t0) / .45, [x, y] = point(s.e.x, s.e.y), sz = sizeOf(s.e);
-    const r = sz * (1.05 + .9 * Math.pow(1 - Math.min(1, q / .35), 2));
-    hoop(c, x, y, r, (1 - q) * .9, layer, -.38, .42, .8);
-  }
-  if (R.k > .01) {
-    const kick = Math.max(0, 1 - (t - R.pulse) / .2), r = 42 + 5 * kick, a = R.k * (.85 + .15 * kick), tilt = -.38 + Math.sin(t * 1.4) * .05;
-    if (layer === 'front') {                                    // hat tossed through the hoop's left rim, under the near arc
-      const hx = px - r * Math.cos(tilt) * .9, hy = py - r * Math.sin(tilt) * .9 - 8 + Math.sin(t * 1.6) * 1.2;   // brim sits on the left rim
-      c.save(); c.translate(hx, hy); c.rotate(-.5 + Math.sin(t * 1.6) * .05); c.globalAlpha = R.k; hatGlyph(c, 0, 0, 17); c.restore();
-    }
-    hoop(c, px, py, r, a, layer, tilt);
-  }
-  c.restore();
-  return true;
-}
+// Compatibility: the shared view draws cowl readiness and actual radial gun origins.
+export function drawRickenbackerRing(c,g){return g.pilot==='rickenbacker';}
 
 // ---- Immelmann: one short, neutral slipstream follows the real attack window.
 export function drawImmelmannEagle(c,g,point,t,px,py){
@@ -317,24 +183,8 @@ export function drawImmelmannEagle(c,g,point,t,px,py){
 
 // ---- Jacobs "선회전의 베테랑" / Black Falcon: stacks of extra fire rate (max 3).
 //   black-falcon wisps: a pair of dark vapour ribbons off the wingtips, heavier with each stack
-export function drawJacobsFalcon(c, g, point, t, px, py) {
-  if (g.pilot !== 'jacobs') return false;
-  sprites(); if (!VAPOR) return false;
-  const m = pst(g, () => ({ trail: [] }));
-  push(m.trail, { x: g.x, y: g.y, a: g.a || 0 }, t, .5);
-  const st = g.jacobsStacks || 0; if (st <= 0) return true;
-  const k = clamp((g.jacobsStackTime || 0) / .6);
-  c.save(); c.lineCap = 'round';
-  const W = (q, side) => { const off = 17; return point(q.x - Math.sin(q.a) * off * side - Math.cos(q.a) * 6, q.y + Math.cos(q.a) * off * side - Math.sin(q.a) * 6); };
-  const n = m.trail.length;
-  for (const side of [-1, 1]) for (let i = 1; i < n; i++) {        // tapered dark wingtip vapour, heavier per stack
-    const u = i / n, [x0, y0] = W(m.trail[i - 1], side), [x1, y1] = W(m.trail[i], side);
-    c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1);
-    c.globalAlpha = (.12 + .1 * st) * k * u; c.strokeStyle = '#151417'; c.lineWidth = (1 + 1.4 * st) * (.3 + .7 * u); c.stroke();
-  }
-  c.restore();
-  return true;
-}
+// Actual suppression is rendered on the struck aircraft.
+export function drawJacobsFalcon(c,g){return g.pilot==='jacobs';}
 
 // ---- Gontermann "점화 조준" / Ignition Sight: hold aim 1.5 s -> incendiary rounds every 1.2 s.
 //   his gun muzzles heat up while the aim holds (dull red -> white-orange), and once primed a
@@ -366,31 +216,8 @@ export function drawGontermannHeat(c, g, point, t, px, py) {
 // ---- Barker "불굴의 각성" / Undaunted: each hit taken adds +13% MG damage for 3 s (max 3).
 //   embers kindle around his plane and swirl in a slow spiral, a ring of them per stack;
 //   each new stack flares outward once
-export function drawBarkerDefiance(c, g, point, t, px, py) {
-  if (g.pilot !== 'barker') return false;
-  sprites(); if (!EMBER) return false;
-  const st = g.barkerStacks || 0, m = pst(g, () => ({ st: 0, flare: -9 }));
-  if (st > m.st) m.flare = t; m.st = st;
-  const k = clamp((g.barkerStackTime || 0) / .5);
-  c.save(); c.globalCompositeOperation = 'lighter';
-  if (st > 0) {
-    const gr = c.createRadialGradient(px, py, 6, px, py, 34 + 6 * st);
-    gr.addColorStop(0, 'rgba(255,120,40,' + (.18 + .08 * st) + ')'); gr.addColorStop(1, 'rgba(200,50,20,0)');
-    c.globalAlpha = k; c.fillStyle = gr; c.beginPath(); c.arc(px, py, 34 + 6 * st, 0, Math.PI * 2); c.fill();
-    for (let ring = 0; ring < st; ring++) for (let i = 0; i < 5; i++) {
-      const a = t * (1.6 + ring * .5) * (ring % 2 ? -1 : 1) + i * Math.PI * 2 / 5 + ring, r = 22 + ring * 7 + 2 * Math.sin(t * 5 + i);
-      const e = 3.4 + 1.2 * Math.sin(t * 9 + i + ring);
-      c.globalAlpha = k * (.6 + .3 * Math.sin(t * 7 + i)); c.drawImage(EMBER, px + Math.cos(a) * r - e, py + Math.sin(a) * r - e, e * 2, e * 2);
-    }
-  }
-  const q = (t - m.flare) / .35;
-  if (q >= 0 && q < 1) for (let i = 0; i < 10; i++) {
-    const a = i * Math.PI / 5 + m.flare, d = 16 + 34 * (1 - Math.pow(1 - q, 2)), e = 3 * (1 - q) + .8;
-    c.globalAlpha = 1 - q; c.drawImage(EMBER, px + Math.cos(a) * d - e, py + Math.sin(a) * d - e, e * 2, e * 2);
-  }
-  c.restore();
-  return true;
-}
+// Shared authored death/defiance layers own this pilot in solo and co-op.
+export function drawBarkerDefiance(c,g){return g.pilot==='barker';}
 
 // ---- Luke "소이탄 사냥꾼" / Balloon Buster: burning enemies take +20% MG damage.
 //   every enemy he has set alight carries a hot orange underglow and sheds rising embers,
@@ -445,75 +272,18 @@ export function drawMckeeverHandoff(c, g, point, t) {
 // ---- Nungesser "죽음의 기사" / Knight of Death: the lower his HP, the faster he fires and flies.
 //   a cold spectral glow gathers around his plane and pale blue-white wisps stream off the
 //   fuselage, growing as HP falls toward 20%
-export function drawNungesserDeath(c, g, point, t, px, py) {
-  if (g.pilot !== 'nungesser') return false;
-  sprites(); if (!VAPOR) return false;
-  const m = pst(g, () => ({ trail: [] }));
-  push(m.trail, { x: g.x, y: g.y, a: g.a || 0 }, t, .45);
-  const k = clamp((1 - (g.hp || 0) / Math.max(1, g.maxHp || 1)) / .8); if (k <= .03) return true;
-  c.save(); c.globalCompositeOperation = 'lighter';
-  const gr = c.createRadialGradient(px, py, 8, px, py, 40);
-  gr.addColorStop(0, 'rgba(150,200,255,' + (.14 * k) + ')'); gr.addColorStop(1, 'rgba(120,170,255,0)');
-  c.globalAlpha = .85 + .15 * Math.sin(t * 6); c.fillStyle = gr; c.beginPath(); c.arc(px, py, 40, 0, Math.PI * 2); c.fill();
-  const n = m.trail.length;
-  for (const side of [-1, 0, 1]) for (let i = 1; i < n; i++) {
-    const p0 = m.trail[i - 1], p1 = m.trail[i], u = i / n, off = side * 9;
-    const wob = (q, p) => Math.sin((t - p.t) * 22 + side * 2) * 3 * (t - p.t) * 3;
-    const [x0, y0] = point(p0.x - Math.sin(p0.a) * (off + wob(0, p0)) - Math.cos(p0.a) * 10, p0.y + Math.cos(p0.a) * (off + wob(0, p0)) - Math.sin(p0.a) * 10);
-    const [x1, y1] = point(p1.x - Math.sin(p1.a) * (off + wob(0, p1)) - Math.cos(p1.a) * 10, p1.y + Math.cos(p1.a) * (off + wob(0, p1)) - Math.sin(p1.a) * 10);
-    c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.lineCap = 'round';
-    c.globalAlpha = k * u * (side ? .45 : .7); c.strokeStyle = side ? '#9cc8ff' : '#e8f3ff'; c.lineWidth = (side ? 1.6 : 2.4) * (.4 + .6 * u) * (.7 + .5 * k); c.stroke();
-  }
-  c.restore();
-  return true;
-}
+// Shared authored death/defiance layers own this pilot in solo and co-op.
+export function drawNungesserDeath(c,g){return g.pilot==='nungesser';}
 
-// ---- Bishop "근접기습" / Close Ambush: inside 360 px, the closer the target the harder he hits (to +65%).
-//   his muzzle blaze swells as he closes in, and at point-blank range hot sparks spray off the
-//   flash toward the nearest enemy
-export function drawBishopClose(c, g, point, t, px, py) {
-  if (g.pilot !== 'bishop') return false;
-  sprites(); if (!EMBER) return false;
-  let best = null, bd = 360;
-  for (const e of g.enemies || []) { if (!(e.hp > 0) || e.surface) continue; const d = Math.hypot(e.x - g.x, e.y - g.y); if (d < bd) { bd = d; best = e; } }
-  if (!best) return true;
-  const p = 1 - bd / 360, firing = (g.muzzleFlash || 0) > 0; if (!firing || p <= .05) return true;
-  const a = g.a || 0, nx = px + Math.cos(a) * 26, ny = py + Math.sin(a) * 26, r = 8 + 18 * p;
-  c.save(); c.globalCompositeOperation = 'lighter';
-  c.globalAlpha = .4 + .5 * p; c.drawImage(EMBER, nx - r, ny - r, r * 2, r * 2);
-  if (p > .4) { const [ex, ey] = point(best.x, best.y), ta = Math.atan2(ey - ny, ex - nx);
-    for (let i = 0; i < 6; i++) { const q = ((t * 6 + i / 6) % 1), sa = ta + (hash(i, Math.floor(t * 6)) - .5) * .6, d = 8 + q * 40 * p, e = 2.2 * (1 - q) + .6;
-      c.globalAlpha = (1 - q) * p; c.drawImage(EMBER, nx + Math.cos(sa) * d - e, ny + Math.sin(sa) * d - e, e * 2, e * 2); } }
-  c.restore();
-  return true;
-}
+// Bishop: compact painted contact sparks follow confirmed close-range damage.
+export function drawBishopClose(c,g){return g.pilot==='bishop';}
 
 // ---- Boelcke "딕타 뵐케" / Dicta: +25% MG damage on an enemy's flank or rear.
 //   enemies that currently show him their flank or tail get a cold steel glint along the exposed
 //   side (the side facing him), so the openings in the furball read at a glance
-export function drawBoelckeDicta(c, g, point, t) {
-  if (g.pilot !== 'boelcke') return false;
-  sprites(); if (!EMBER) return false;
-  let n = 0;
-  c.save(); c.lineCap = 'round';
-  for (const e of g.enemies || []) {
-    if (n >= 4 || !(e.hp > 0) || e.surface || e.stageBossBody) continue;
-    const dx = g.x - e.x, dy = g.y - e.y, d = Math.hypot(dx, dy); if (d > 560 || d < 30) continue;
-    const toMe = Math.atan2(dy, dx), head = e.a ?? 0, off = Math.abs(Math.atan2(Math.sin(toMe - head), Math.cos(toMe - head)));
-    if (off < Math.PI / 3) continue;                              // he is in front of it: no opening
-    n++;
-    const [x, y] = point(e.x, e.y), R = sizeOf(e) * .95, k = clamp((off - Math.PI / 3) / .5) * clamp((560 - d) / 120);
-    const span = .9, sweep = (t * 1.8 + n) % 1;
-    c.beginPath(); c.arc(x, y, R, toMe - span / 2, toMe + span / 2);
-    c.globalAlpha = .35 * k; c.strokeStyle = '#9fb7cf'; c.lineWidth = 4; c.stroke();
-    c.globalAlpha = .85 * k; c.strokeStyle = '#eef5ff'; c.lineWidth = 1.4; c.stroke();
-    const ga = toMe - span / 2 + span * sweep;                    // glint running along the arc
-    c.globalCompositeOperation = 'lighter'; c.globalAlpha = k * (1 - Math.abs(sweep - .5) * 1.6);
-    c.drawImage(EMBER, x + Math.cos(ga) * R - 4, y + Math.sin(ga) * R - 4, 8, 8); c.globalCompositeOperation = 'source-over';
-  }
-  c.restore();
-  return true;
-}
+// Shared command-flight rendering uses compact painted reflections and confirmed impacts.
+export function drawBoelckeDicta(c,g){return g.pilot==='boelcke';}
+
 
 
 // ---- Richthofen on the red Albatros ("붉은 전투기 조종사" / Red Fighter Pilot: +12% speed and turn).
@@ -522,89 +292,8 @@ export function drawBoelckeDicta(c, g, point, t) {
 export function drawRedFighter(c,g,point,t,px,py){return isAlbatrosHunter(g);}
 
 
-// ---- Baracca active "검은 말의 돌파" / Prancing-horse charge: a straight invulnerable dash that
-// pierces everything in its path.  Drawn as a cavalry lance charge: a long couched lance thrust
-// out ahead of the nose with an Italian tricolour pennant streaming off it, a pressure cone
-// splitting the air at the tip, speed streaks peeling past, and a spark burst + shock ring on
-// every plane the lance runs through.  (Lance replaced by a black wedge enveloping the plane.)
-export function drawBaraccaLance(c, g, point, t, px, py, layer = 'back') {
-  if (g.pilot !== 'baracca') return false;
-  sprites(); if (!EMBER) return false;
-  const m = pst(g, () => ({ k: 0, last: t, hits: 0, bursts: [], wake: [] }));
-  (globalThis.__hoLance ??= new WeakSet()).add(g);
-  const charging = (g.chargeTime || 0) > 0;
-  if (layer === 'back') {
-    const dt = Math.max(0, Math.min(.1, t - m.last)); m.last = t;
-    if (charging && !m.on) m.start = t; m.on = charging;
-    m.k = clamp(m.k + (charging ? dt / .08 : -dt / .25));
-    const hits = g.chargeHits?.size || 0;
-    if (charging && hits > m.hits) {                         // a new plane run through: burst at the nearest enemy ahead
-      let best = null, bd = 1e9;
-      for (const e of g.enemies || []) { if (!(e.hp >= 0)) continue; const d = Math.hypot(e.x - g.x, e.y - g.y); if (d < bd) { bd = d; best = e; } }
-      if (best && bd < 160) m.bursts.push({ x: best.x, y: best.y, a: g.a || 0, t0: t });
-    }
-    m.hits = charging ? hits : 0;
-    {const _bu=m.bursts;let _w=0;for(let _i=0;_i<_bu.length;_i++){const b=_bu[_i];if(t-b.t0<.5)_bu[_w++]=b}_bu.length=_w}
-    if (m.px !== undefined && t > m.pt) { const dx = g.x - m.px, dy = g.y - m.py; if (Math.hypot(dx, dy) > 2) m.mv = { dx, dy }; }
-    m.px = g.x; m.py = g.y; m.pt = t;
-    push(m.wake, { x: g.x, y: g.y, a: g.a || 0 }, t, .35);
-  }
-  const a = g.a || 0, ca = Math.cos(a), sa = Math.sin(a);
-  c.save(); c.lineCap = 'round';
-  if (layer === 'back' && m.k > .01) {                        // speed streaks + churned air behind
-    for (let i = 0; i < 10; i++) {
-      const q = ((t * 5 + i / 10) % 1), side = (hash(i, 3) - .5) * 70, back = 20 + q * 150, len = 30 + 40 * hash(i, 7);
-      const x0 = px - ca * back - sa * side, y0 = py - sa * back + ca * side;
-      c.beginPath(); c.moveTo(x0, y0); c.lineTo(x0 - ca * len, y0 - sa * len);
-      c.globalAlpha = m.k * (1 - q) * .55; c.strokeStyle = '#f2f0e8'; c.lineWidth = 1.3; c.stroke();
-    }
-    for (const p of m.wake) { const age = (t - p.t) / .35, [x, y] = point(p.x, p.y), w = 10 + 22 * age;
-      c.globalAlpha = m.k * (1 - age) * .22; c.drawImage(VAPOR, x - w, y - w, w * 2, w * 2); }
-  }
-  // dark veil: a soft black membrane of driven air streaming around the plane and drawing to a
-  // point ahead — reads as a lance only through its silhouette. No outlines; built from layered,
-  // feathered smoke so the edges stay soft and keep moving.
-  if (layer === 'back' && m.k > .01) {
-    const k = m.k, mv = m.mv, ang = mv && Math.hypot(mv.dx, mv.dy) > 2 ? Math.atan2(mv.dy, mv.dx) : a;
-    c.save(); c.translate(px, py); c.rotate(ang);
-    const tip = 96 + 16 * k, back = -70;
-    // 1) soft body: several stacked, slightly jittered tapering sheets (feathered by alpha stacking)
-    for (let l = 0; l < 5; l++) {
-      const w = 34 + l * 7, j = Math.sin(t * 17 + l * 1.9) * 2, tp = tip - l * 9;
-      const gr = c.createLinearGradient(back, 0, tp, 0);
-      gr.addColorStop(0, 'rgba(6,7,9,0)'); gr.addColorStop(.4, 'rgba(8,9,11,' + (.26 - l * .03) + ')'); gr.addColorStop(.92, 'rgba(5,6,8,' + (.5 - l * .07) + ')'); gr.addColorStop(1, 'rgba(5,6,8,.2)');
-      c.beginPath(); c.moveTo(tp, j * .3);
-      c.bezierCurveTo(tp * .55, -w * .12 + j * .5, tp * .1, -w * .8, back, -w * .82 + j);
-      c.lineTo(back, w * .82 - j);
-      c.bezierCurveTo(tp * .1, w * .8, tp * .55, w * .12 - j * .5, tp, -j * .3); c.closePath();
-      c.globalAlpha = k; c.fillStyle = gr; c.fill();
-    }
-    // 2) streaming smoke filaments peeling off the veil and rushing back past the plane
-    for (let i = 0; i < 16; i++) {
-      const q = ((t * 3.2 + hash(i, 5)) % 1), side = i % 2 ? 1 : -1, lane = .25 + .75 * hash(i, 11);
-      const x = tip * (1 - q * 1.15) - q * 90, wHere = 6 + 36 * lane * Math.min(1, (tip - x) / (tip - back));
-      const y = side * wHere + Math.sin(t * 9 + i) * 3, r = 6 + 16 * q;
-      c.globalAlpha = k * Math.sin(Math.PI * q) * .75; c.drawImage(SOOTV, x - r, y - r, r * 2, r * 2);
-    }
-    // 3) a dense, dark point where the veil gathers ahead of the nose
-    const pg = c.createRadialGradient(tip - 14, 0, 0, tip - 14, 0, 26);
-    pg.addColorStop(0, 'rgba(4,5,7,.55)'); pg.addColorStop(1, 'rgba(4,5,7,0)');
-    c.globalAlpha = k; c.fillStyle = pg; c.beginPath(); c.ellipse(tip - 14, 0, 30, 12, 0, 0, Math.PI * 2); c.fill();
-    c.restore();
-  }
-  if (layer === 'front') for (const b of m.bursts) {          // impact: sparks thrown forward + shock ring
-    const q = (t - b.t0) / .5, [x, y] = point(b.x, b.y);
-    c.globalCompositeOperation = 'lighter';
-    c.beginPath(); c.arc(x, y, 14 + 46 * (1 - Math.pow(1 - q, 3)), 0, Math.PI * 2);
-    c.globalAlpha = (1 - q) * .8; c.strokeStyle = '#fff3d6'; c.lineWidth = 3 * (1 - q) + .6; c.stroke();
-    for (let i = 0; i < 14; i++) { const sa2 = b.a + (hash(i, b.t0) - .5) * 2.2, d = (10 + 60 * hash(b.t0, i)) * (1 - Math.pow(1 - q, 2)), e = 3 * (1 - q) + .6;
-      c.globalAlpha = 1 - q; c.drawImage(EMBER, x + Math.cos(sa2) * d - e, y + Math.sin(sa2) * d - e, e * 2, e * 2); }
-    c.globalCompositeOperation = 'source-over';
-  }
-  c.restore();
-  return true;
-}
-
+// Compatibility: Baracca's dark charge uses the shared authored-texture view.
+export function drawBaraccaLance(c,g){return g.pilot==='baracca';}
 
 // Compatibility entry: Sun Hunter is drawn once by the shared signature view.
 export function drawSunHunter(c,g,point,t,px,py,layer='back'){return isAlbatrosHunter(g);}
@@ -621,3 +310,4 @@ export function drawPassiveFxFront(c, g, point, t, px, py) {
   else if (g.pilot === 'bishop') drawBishopClose(c, g, point, t, px, py);
   else if (g.pilot === 'boelcke') drawBoelckeDicta(c, g, point, t);
 }
+

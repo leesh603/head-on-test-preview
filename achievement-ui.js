@@ -1,5 +1,5 @@
-import {AchievementBook,MEDALS,MEDAL_SAVE_KEY,setAchievementBook,achievementRun} from './achievements.js?v=sortierhythm20261018';
-import {getLocale,subscribe} from './i18n.js?v=sortierhythm20261018&afc=1';
+import {AchievementBook,MEDALS,MEDAL_SAVE_KEY,setAchievementBook,achievementRun,syncPilotKills} from './achievements.js?v=medals2';
+import {getLocale,subscribe} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 
 export function installAchievementUI({getGame,document:doc=globalThis.document}={}){
  if(!doc?.getElementById('hangar'))return null;
@@ -8,7 +8,7 @@ export function installAchievementUI({getGame,document:doc=globalThis.document}=
  const en=()=>getLocale()==='en',text=(ko,eng)=>en()?eng:ko;
  const node=(tag,cls,content)=>{const e=doc.createElement(tag);if(cls)e.className=cls;if(content!==undefined)e.textContent=content;return e};
  const icon=(d,tier=0)=>{const e=node('span','service-medal-art');e.style.backgroundPosition=`${d.icon%3*50}% ${Math.floor(d.icon/3)*100}%`;e.setAttribute('aria-hidden','true');if(!tier)e.classList.add('is-locked');return e};
- const link=node('link');link.rel='stylesheet';link.href='./achievements.css?v=sortierhythm20261018';doc.head.append(link);
+ const link=node('link');link.rel='stylesheet';link.href='./achievements.css?v=medals3';doc.head.append(link);
  const button=node('button','service-record-entry');button.type='button';button.id='serviceRecordEntry';button.dataset.action='medals';button.setAttribute('aria-haspopup','dialog');
  const entryFull=node('span','operation-label-full'),entryShort=node('span','operation-label-short');button.append(entryFull,entryShort);
  const strip=node('div','service-featured');strip.id='serviceFeatured';
@@ -22,7 +22,7 @@ export function installAchievementUI({getGame,document:doc=globalThis.document}=
  dialog.append(head,summary,strip,note,filters,featuredNote,grid);doc.body.append(dialog);
  const toast=node('div','service-medal-toast');toast.id='serviceMedalToast';toast.hidden=true;toast.setAttribute('role','status');toast.setAttribute('aria-live','polite');doc.body.append(toast);
  let filter='all',timer=0,queue=[],focusBefore=null,shownRun=null,resultSignature='';
- const groups=[['all','전체','All'],['earned','획득','Earned'],['entry','출격','Sortie'],['combat','전투','Combat'],['mission','임무','Mission'],['boss','보스','Boss'],['special','특별','Special'],['coop','협동','Co-op']];
+ const groups=[['all','전체','All'],['earned','획득','Earned'],['aircraft','기체 해금','Aircraft'],['entry','출격','Sortie'],['combat','전투','Combat'],['mission','임무','Mission'],['boss','보스','Boss'],['special','특별','Special'],['coop','협동','Co-op']];
  const label=d=>en()?d.en:d.name;
  const tierName=(d,tier)=>tier?(d.goals.length>1?[text('동장','Bronze'),text('은장','Silver'),text('금장','Gold')][tier-1]:text('획득','Earned')):text('미획득','Locked');
  function renderStrip(target=strip){
@@ -36,7 +36,7 @@ export function installAchievementUI({getGame,document:doc=globalThis.document}=
   const earned=Object.keys(book.data.awards).length;
   renderEntry();title.textContent=text('전공 훈장','Service Medals');close.setAttribute('aria-label',text('닫기','Close'));
   summary.textContent=text(`획득 ${earned} / ${MEDALS.length} · 대표 뱃지 ${book.data.featured.length} / 3`,`Earned ${earned} / ${MEDALS.length} · Featured ${book.data.featured.length} / 3`);
-  note.textContent=text('격추 수는 라이카 보너스를 포함한 랭킹의 정예 격추 기록을 따릅니다. 도입 이후의 출격부터 이 브라우저에 저장되며, 협동 전과는 팀 기준입니다.','Kill counts follow ranked priority kills, including the Leica bonus. New sorties are recorded in this browser; co-op combat totals belong to the team.')+(book.saved?'':text(' 현재 영구 저장을 사용할 수 없습니다.',' Persistent storage is currently unavailable.'));
+  note.textContent=text('기체 해금은 파일럿별 일반·정예 누적 50기 격추입니다. 협동에서는 각자의 격추만 기록합니다. 기존 전투 훈장은 라이카 보너스를 포함한 랭킹 정예 기록·팀 전과를 따릅니다. 도입 이후 기록을 이 브라우저에 저장합니다.','Aircraft unlock after 50 ordinary or priority kills with that pilot. Co-op unlock progress counts each pilot’s own kills. Combat medals still use ranked priority kills and team totals. Records are saved in this browser from this update onward.')+(book.saved?'':text(' 현재 영구 저장을 사용할 수 없습니다.',' Persistent storage is currently unavailable.'));
   featuredNote.textContent=text('획득한 훈장 중 대표 뱃지를 최대 3개 선택하세요.','Choose up to 3 earned medals to feature.');
   filters.replaceChildren();for(const [id,ko,eng]of groups){const b=node('button',filter===id?'active':'',text(ko,eng));b.type='button';b.dataset.filter=id;b.setAttribute('aria-pressed',String(filter===id));filters.append(b)}
   grid.replaceChildren();for(const d of MEDALS){const p=book.progress(d);if(filter==='earned'&&!p.tier||!['all','earned'].includes(filter)&&d.group!==filter)continue;
@@ -63,7 +63,7 @@ export function installAchievementUI({getGame,document:doc=globalThis.document}=
  const localeOff=subscribe(()=>{render();if(dialog.open)dialog.setAttribute('lang',en()?'en':'ko')});
  const onStorage=e=>{if(e.key===MEDAL_SAVE_KEY){try{book.load(JSON.parse(e.newValue));render()}catch{}}};globalThis.addEventListener?.('storage',onStorage);
  function sync(){
-  const g=getGame?.();if(g!==shownRun){shownRun=g;resultSignature='';queue=[];clearTimeout(timer);timer=0;toast.hidden=true;doc.getElementById('serviceResultMedals')?.remove();if(dialog.open)dialog.close()}
+  const g=getGame?.();syncPilotKills(g);if(g!==shownRun){shownRun=g;resultSignature='';queue=[];clearTimeout(timer);timer=0;toast.hidden=true;doc.getElementById('serviceResultMedals')?.remove();if(dialog.open)dialog.close()}
   if(!g||!['lost','won'].includes(g.state))return;
   const signature=book.data.featured.join(',')+':'+[...achievementRun(g)?.sessionAwards||[]].join(',');if(signature===resultSignature&&doc.getElementById('serviceResultMedals'))return;
   const modal=doc.getElementById('modal');if(!modal||modal.classList.contains('hidden'))return;resultSignature=signature;

@@ -1,8 +1,12 @@
+import {FIRE_DIVE_PILOTS} from './fire-dive-fx.js?v=firedive1';
+import {installEscortCommandFx,ESCORT_PILOTS} from './escort-command-fx.js?v=escortfx1';
+import {installCavalryRacerFx,CAVALRY_RACER_PILOTS} from './cavalry-racer-fx.js?v=cavalryracer1';
+import {installOrdnancePilotFx,ORDNANCE_PILOTS} from './ordnance-pilot-fx.js?v=ordnancefx1';
+import {installCommandFlightFx,COMMAND_PILOTS} from './command-flight-fx.js?v=commandfx2';
 // Install after the engine's final pilot layer. Existing working attacks stay intact.
 import {PILOT_SIGNATURES,signatureState,advancePilotSignature,activatePilotSignature,signatureCue,pilotSignatureReaction,signatureInterval} from './pilot-signature-state.js';
 const WRAPPED=Symbol.for('headon.pilot-signatures.v1');
 const own=p=>p.id??'p1';
-const angle=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
 export function installPilotSignatures(Game){
  const proto=Game.prototype;if(proto[WRAPPED])return;Object.defineProperty(proto,WRAPPED,{value:true});
  const begin=proto.beginRevisionFrame;
@@ -15,7 +19,6 @@ export function installPilotSignatures(Game){
   if(this.pilot==='loewenhardt'&&this.aceSkillPhase!==s.lastPhase){
    if(this.aceSkillPhase==='vertical-fire')signatureCue(this,'climbSalvo',{life:.75,signatureStart:true});s.lastPhase=this.aceSkillPhase;
   }
-  if(this.pilot==='guynemer'&&this.passiveCannonTimer>(s.lastCannonTimer??this.passiveCannonTimer)+.5)signatureCue(this,'cannonShot',{life:.35,signatureStart:true});
   s.lastCannonTimer=this.passiveCannonTimer;
   if(this.pilot==='boelcke'&&this.skillTime>0&&signatureInterval(this,'wingPaths',.12))for(const w of this.combatWorld().allies||[])if(w.boelckePincer&&w.life>0&&(w.ownerId===this.id||w.ownerId===undefined&&!this.world))signatureCue(this,'wingSlipstream',{x:w.x,y:w.y,a:w.a,life:.55});
   s.lastKills=this.kills;
@@ -35,16 +38,18 @@ export function installPilotSignatures(Game){
  proto.applySpecialRound=function(b,type){
   const result=round.call(this,b,type);
   // Jacobs' real fan/convergence is emitted once by the nine-pilot combat hook.
-  if(!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.actualExplosion&&(b.ownerId===undefined||b.ownerId===own(this)))pilotSignatureReaction(this,'shot',{gun:b.gun||0});
+  if(!FIRE_DIVE_PILOTS.has(this.pilot)&&!ESCORT_PILOTS.has(this.pilot)&&!CAVALRY_RACER_PILOTS.has(this.pilot)&&!ORDNANCE_PILOTS.has(this.pilot)&&!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.actualExplosion&&(b.ownerId===undefined||b.ownerId===own(this)))pilotSignatureReaction(this,'shot',{gun:b.gun||0});
   return result;
  };
  const impact=proto.specialRoundImpact;
  proto.specialRoundImpact=function(b,e){
   const result=impact.call(this,b,e);
   if(b.enemy||b.ally||b.patrol||(b.ownerId!==undefined&&b.ownerId!==own(this)))return result;
-  if(this.pilot==='luke'&&this.skillTime>0&&e&&signatureInterval(this,'ignition',.12))signatureCue(this,'incendiaryImpact',{x:b.x,y:b.y,life:1.4,target:e});
-  else if(this.pilot!=='baracca')pilotSignatureReaction(this,'hit',{target:e,position:b});
-  if(this.pilot==='baracca'&&e&&!b.formation&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.actualExplosion&&!b.blast&&!b.mauserRound&&Math.abs(angle(Math.atan2(e.y-this.y,e.x-this.x),this.a))<Math.PI/3&&Math.abs(angle(Math.atan2(this.y-e.y,this.x-e.x),e.a||0))<Math.PI/3&&signatureInterval(this,'cavalryGuard',.12))signatureCue(this,'cavalryGuard',{life:.42,signatureStart:true});
+  if(!FIRE_DIVE_PILOTS.has(this.pilot)&&!ESCORT_PILOTS.has(this.pilot)&&!CAVALRY_RACER_PILOTS.has(this.pilot)&&!COMMAND_PILOTS.has(this.pilot)&&!ORDNANCE_PILOTS.has(this.pilot))pilotSignatureReaction(this,'hit',{target:e,position:b});
   return result;
  };
+ installCommandFlightFx(Game);
+ installOrdnancePilotFx(Game);
+ installCavalryRacerFx(Game);
+ installEscortCommandFx(Game);
 }

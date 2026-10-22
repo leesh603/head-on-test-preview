@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import WebSocket from 'ws';
-import {createCoopRelay} from '../server/coop-relay.mjs';
+import {createCoopRelay} from '../test-server/coop-relay.mjs';
 const config={pilot:'baron',plane:'fokker',faction:'central',nickname:'P'};
 async function client(url){const ws=new WebSocket(url),queue=[],waiters=[];ws.on('message',raw=>{const m=JSON.parse(raw);const i=waiters.findIndex(w=>w.type===m.type);if(i>=0)waiters.splice(i,1)[0].resolve(m);else queue.push(m);});await new Promise((r,j)=>{ws.once('open',r);ws.once('error',j);});return {ws,send:m=>ws.send(JSON.stringify(m)),next(type){const i=queue.findIndex(m=>m.type===type);if(i>=0)return Promise.resolve(queue.splice(i,1)[0]);return new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Missing '+type)),3000);waiters.push({type,resolve:m=>{clearTimeout(timer);resolve(m);}});});}};}
 async function setup(t,options={}){const relay=createCoopRelay({staticRoot:null,...options});await new Promise(r=>relay.server.listen(0,'127.0.0.1',r));t.after(()=>relay.close());return {relay,url:'ws://127.0.0.1:'+relay.server.address().port+'/coop'};}

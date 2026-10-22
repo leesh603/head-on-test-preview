@@ -1,5 +1,6 @@
-import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js?v=sortierhythm20261018';
-import {regionalSteering} from '../../regional-air-tactics.js?v=sortierhythm20261018';
+import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js?v=regionalair20261018';
+import {recordCombatImpact} from '../../combat-impact-result.js';
+import {regionalSteering} from '../../regional-air-tactics.js?v=regionalair20261018';
 
 const INSTALL_KEY = Symbol.for('headon.eliteEnemyPatch.v1');
 
@@ -92,7 +93,10 @@ export function routeFriendlyProjectileHits(game, system, bindings = {}) {
       projectile.eliteHits.add(member.id);
       const owner=projectile.ownerId?game.players?.find(p=>p.id===projectile.ownerId)||game:game;
       const damage=(projectile.mauserRound?(projectile.damage||1)*3:(projectile.damage||1))*(owner.roundDamageMultiplier?.(projectile,member)??1);
+      const hpBefore=member.hp;
       system.damageMember(member,damage,{projectile});
+      const appliedDamage=Math.max(0,hpBefore-member.hp);
+      recordCombatImpact(projectile,member,{damage:appliedDamage,blocked:!(appliedDamage>0)});
       owner.specialRoundImpact?.(projectile,member);
       bindings.onEliteImpact?.(game,member,projectile);
       if(!projectile.pierce){projectile.life=0;break;}
@@ -129,4 +133,5 @@ export function installHeadOnElitePatch(GameClass, bindings = {}, options = {}) 
   GameClass.prototype[INSTALL_KEY] = {uninstall, enemyType: ELITE_ENEMY_TYPE};
   return GameClass.prototype[INSTALL_KEY];
 }
+
 

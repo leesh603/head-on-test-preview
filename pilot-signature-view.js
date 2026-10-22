@@ -1,10 +1,11 @@
-import {fx,fxTint} from './fx-art.js?v=sortierhythm20261018';
-import {drawGameIcon} from './icons.js?v=sortierhythm20261018&afc=1';
-import {createPilotSignatureRenderer} from './pilot-signature-renderer.js?v=sortierhythm20261018';
+import {drawMaterialSupply} from './petal-supply-fx.js?v=petalsupply1';
+import {fx,fxTint} from './fx-art.js?v=tame3';
+import {drawGameIcon} from './icons.js?v=buildfit1&afc=1';
+import {createPilotSignatureRenderer} from './pilot-signature-renderer.js?v=nungesser20261020&sig=1019&boss=20261020b&phase=1021';
 
 // Ferrari's original prancing-horse vector is used only as a small Baracca marking.
 // Source: simple-icons/simple-icons, icons/ferrari.svg (the horse only, without a shield or text).
-const files={blackHeart:'pilot-mark-nungesser.webp',repairSupply:'repair-pickup.webp',baraccaHorse:'pilot-mark-baracca-ferrari.svg',skull:'pilot-mark-brumowski-skull.webp'};
+const files={blackHeart:'pilot-mark-nungesser-alpha2.webp',baraccaHorse:'pilot-mark-baracca-ferrari.svg',skull:'pilot-mark-brumowski-skull.webp'};
 const images=new Map();
 export const pilotSignatureArtReady=Promise.all(Object.entries(files).map(([key,file])=>new Promise(resolve=>{
  if(typeof Image==='undefined'){resolve(false);return}
@@ -25,12 +26,6 @@ export function drawPilotSignatureFront(c,p,x,y){
 }
 
 
-// Reuse the painted repair crate, with a physical descent and a compact landing spark.
-export function drawMccuddenSupply(c,d,x,y){
- const im=images.get('repairSupply');if(!pilotSignatureInsigniaReady('repairSupply'))return false;
- const q=Math.max(0,Math.min(1,1-(d.fallTime||0)/.65)),height=1-q,size=34+height*9,scale=size/Math.max(im.naturalWidth,im.naturalHeight);
- c.save();c.translate(x,y);c.save();c.globalAlpha*=.16;c.translate(8+height*13,11+height*17);c.rotate(d.dropHeading||0);c.drawImage(im,-im.naturalWidth*scale/2,-im.naturalHeight*scale/2,im.naturalWidth*scale,im.naturalHeight*scale);c.restore();
- c.rotate((d.dropHeading||0)*height);c.drawImage(im,-im.naturalWidth*scale/2,-im.naturalHeight*scale/2,im.naturalWidth*scale,im.naturalHeight*scale);
- if(height>0){fx(c,'metalShard1',-8,7,7,5,q*2,.55*height);fx(c,'armorSpark',-12,0,20,13,0,.45*height)}c.restore();return true;
-}
+// Actual engine drops, shared by solo and cooperative views.
+export function drawMccuddenSupply(c,d,x,y){return drawMaterialSupply(c,d,x,y);}
 

@@ -90,8 +90,8 @@ export const PILOT_IDENTITY_COPY={
  ['플라잉 메카닉','야전 정비','레벨업 선택지가 4개로 늘어납니다.','주변에 수리 보급품 3개를 투하합니다.','레벨업 선택지가 4개로 늘어납니다.','주변에 수리 보급품 3개를 투하합니다. 협동 아군도 회수할 수 있습니다.'],
  ['Flying Mechanic','Field Repair','Gain four choices at each level.','Drop three repair supplies nearby.','Gain four choices at each level.','Drop three repair supplies nearby. Co-op allies can collect them too.']),
  nungesser:entry(
- ['검은 심장','죽음의 기사','체력이 낮아지면 검은 연무가 짙어지고, 스치는 탄환에 연무가 찢어집니다.','3초간 무적이 되어 적 탄환을 검은 연무 속에서 소멸시킵니다.','체력이 낮아지면 검은 연무가 짙어지고, 스치는 탄환에 연무가 찢어집니다.','3초간 무적이 되어 적 탄환을 검은 연무 속에서 소멸시킵니다.'],
- ['Black Heart','Knight of Death','Black fog thickens at low health and tears as bullets pass close by.','Become invulnerable for 3 seconds, extinguishing enemy rounds in black fog.','Black fog thickens at low health and tears as bullets pass close by.','Become invulnerable for 3 seconds, extinguishing enemy rounds in black fog.']),
+ ['검은 심장의 반격','죽음의 기사 · 돌파','적탄을 가까스로 피하면 다음 사격에 관통탄 2발로 반격합니다.','3초간 기관총이 적을 관통하며 탄로에 닿은 적탄을 요격합니다.','무적·회피 중이 아닐 때 적탄을 근접 회피하면 2초 안의 다음 기관총 사격에 관통탄 2발을 추가합니다. 각 탄환은 일반 기관총탄 피해의 75%. 재발동 간격 1초.','3초간 직접 조준하는 기관총탄이 적을 관통하고, 탄로 9px 안의 적탄을 요격합니다. 발동 직후 0.5초만 무적이며 측후방과 탄로 밖 공격은 직접 피해야 합니다.'],
+ ['Black Heart Reprisal','Knight of Death · Breakthrough','A close dodge arms two piercing rounds for your next shot.','For 3 seconds, machine-gun rounds pierce enemies and intercept incoming gunfire along their paths.','Narrowly dodge enemy gunfire while vulnerable to arm two piercing rounds for the next machine-gun shot within 2 seconds. Each deals 75% of normal round damage. Rearm interval: 1 second.','For 3 seconds, manually aimed machine-gun rounds pierce enemies and intercept hostile rounds within 9px of their paths. Only the first 0.5 seconds are invulnerable; dodge attacks from behind, the sides and outside your fire.']),
  rickenbacker:entry(
  ['레이서의 본능','햇 인 더 링 록온','반경 700px 내 적 1기당 기관총 공격력 +6% (최대 +30%).','4초간 사격할 때마다 반경 780px 내 각 적에게 자동 조준 관통탄을 추가 발사합니다.','반경 700px 내 적 1기당 기관총 공격력 +6% (최대 +30%).','4초간 사격할 때마다 반경 780px 내 각 적에게 자동 조준 관통탄을 추가 발사합니다.'],
  ['Racer\'s Instinct','Hat in the Ring Lock-On','Machine-gun damage +6% per enemy within 700px (max +30%).','For 4 seconds, every shot also launches an auto-aimed piercing round at each enemy within 780px.','Machine-gun damage +6% per enemy within 700px (max +30%).','For 4 seconds, every shot also launches an auto-aimed piercing round at each enemy within 780px.']),
@@ -106,3 +106,4 @@ export const PILOT_IDENTITY_COPY={
  ["Balloon Buster","Chain Detonation","Machine-gun damage +20% against airships and airship bosses.","Ignite, then detonate nearby burning targets in sequence.","Deal 20% more machine-gun damage to airships, including airship bosses. Ordinary bombers and ground bosses are excluded.","Fire incendiary bursts followed by detonating bursts. A hit on a burning target triggers nearby burning enemies in sequence, up to six detonations. Targets are damaged, not automatically killed. Requires ammunition."])
 };
 export const pilotIdentityCopy=(id,locale='ko')=>PILOT_IDENTITY_COPY[id]?.[locale==='en'?'en':'ko'];
+

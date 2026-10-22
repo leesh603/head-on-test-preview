@@ -1,6 +1,6 @@
 // Regional enemy doctrine weights + regional battlefield events.
 // Wraps spawnComposition (keeps time-scaling) and offerBattlefieldEvent (keeps canOffer guards).
-import {BATTLEFIELD_EVENT_BALANCE} from './battlefield-events170.js?v=sortierhythm20261018&afc=1';
+import {BATTLEFIELD_EVENT_BALANCE} from './battlefield-events170.js?v=buildfit1&afc=1&ai=1018&sig=1019&boss=20261020b&phase=1021';
 const AIR_TYPES=['scout','hunter','bomber','heavyBomber'];
 // weight = [scout,hunter,bomber,heavy,zeppelinShare]
 const DOCTRINE={
@@ -194,3 +194,4 @@ export function installRegionDoctrine(Game){
   if((this.blackoutUntil||0)>(this.t||0))this.illuminatedUntil=0;
  };
 };
+

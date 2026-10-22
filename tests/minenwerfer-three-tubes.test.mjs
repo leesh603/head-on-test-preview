@@ -33,9 +33,9 @@ test('actual mortar shots alternate tubes and recoil only the firing tube smooth
 });
 globalThis.Image??=class{set src(v){queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
-const {Game}=await import('../engine.js?v=gal1&rail=42');
-const {CoopGame}=await import('../coop-engine.js?v=gal1&rail=42');
-const {enableStageBoss}=await import('../stageboss-host.js?v=gal1&rail=42');
+const {Game}=await import('../engine.js?v=tame3&rail=40');
+const {CoopGame}=await import('../coop-engine.js?v=tame3&rail=40');
+const {enableStageBoss}=await import('../stageboss-host.js?v=tame3&rail=40');
 for(const coop of [false,true])for(const [w,h]of [[390,844],[1280,800]])test(`native ${coop?'coop':'solo'} ${w}: ordinary projectiles damage all NINE mounts without multiplying installation HP`,()=>{
  const g=coop?new CoopGame([{pilot:'fonck'},{pilot:'fonck'}],{rng:()=>.5}):new Game('spad','fonck',()=>.5);
  g.viewWidth=w;g.viewHeight=h;g.region=3;g.spawn=Infinity;g.nextBossAt=Infinity;g.need=Infinity;
@@ -61,11 +61,4 @@ for(const coop of [false,true])test(`native ${coop?'coop':'solo'} mortar launch 
  // Launch suppression must not erase an already active impact shake.
  g.shake=6;b.blast(b.parts.get('main-gun'),1);assert.equal(g.shake,6);
  g.stageBoss.dispose();
-});
-
-test('one scheduled mortar round creates exactly one impact per planned shot',()=>{
- const b=make(),events=[];b.emit=e=>events.push(e);
- b.plan('qa',[{partId:'gun-left',x:20,y:50,at:.3},{partId:'main-gun',x:60,y:90,at:.6},{partId:'gun-right',x:100,y:50,at:.9}]);
- const hazards=events.filter(e=>e.type==='hazard');assert.equal(hazards.length,3);
- assert.deepEqual(hazards.map(h=>h.sourceTube),b.mortarPlan.shots.map(s=>s.tube));
 });

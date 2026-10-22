@@ -1,4 +1,4 @@
-import {OnlineCoopGame} from './online-coop-game.js?v=sortierhythm20261018&afc=1';
+import {OnlineCoopGame} from './online-coop-game.js?v=buildfit1&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
 
 export function relayUrl(){
  const configured=globalThis.HEADON_COOP_RELAY||new URLSearchParams(location.search).get('coopRelay');
@@ -75,3 +75,4 @@ export function installOnlineLobby({getLoadout,getGame,onStart,onEnd}){
   $('touchSkill').style.setProperty('--ready',1-Math.min(1,p.cooldown/p.skillCooldown()));$('touchEvade').style.setProperty('--ready',1-Math.min(1,p.evadeCooldown/(8*(p.evadeCooldownMult||1))));
  }};
 }
+

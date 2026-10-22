@@ -14,12 +14,13 @@ export const representativeArchetypeKey=id=>ARCHETYPE_KEYS[id]||null;
 // the five steps stable when unrelated aircraft are added to the roster.
 export function aircraftFeelRatings(plane){
  if(!plane?.handling||!plane?.personality)return null;
- const handling=plane.handling,personality=plane.personality;
+ const handling=plane.handling,personality=plane.personality,envelope=plane.playerHandling;
  return Object.freeze({
   speed:stepped(plane.speed,[115,140,160,178]),
-  turn:stepped(plane.turn,[2.2,2.7,3.3,3.9]),
-  retention:stepped(1-handling.drag,[.76,.79,.85,.895]),
-  acceleration:stepped(handling.recovery*personality.acceleration,[.6,.95,1.25,1.8]),
+  turn:stepped(plane.turn*(envelope?.low??1),[2.2,2.7,3.3,3.9]),
+  retention:stepped(1-handling.drag*(envelope?.drag??1),[.76,.79,.85,.895]),
+  acceleration:stepped(handling.recovery*personality.acceleration*(envelope?.recovery??1),[.6,.95,1.25,1.8]),
   growth:growthRating((plane.xpCostMultiplier??1)/(plane.xpGainMultiplier??1))
  });
 }
+

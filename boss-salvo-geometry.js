@@ -16,6 +16,10 @@ export function fanSalvo({x,y,angle,speed,damage,visual,tag,count=13,spread=1.65
 }
 
 export function fireFanSalvo(boss,spec){
+  const source=spec.sourcePartId&&boss.parts.get(spec.sourcePartId);
+  // A missing/destroyed named weapon is not an unowned fallback gun.
+  if(boss.dead||spec.sourcePartId&&(!source||source.destroyed||source.active===false||source.revealed===false))return false;
+
   // A later difficulty loop may accelerate native timers, but cannot stack
   // the same weapon's next phrase on top of its still-flying previous phrase.
   const now=boss.combatTime??boss.motionTime??0,key=spec.tag;
@@ -46,3 +50,4 @@ export function barrageStrip({bounds,y,gate,gap=100,radius=42,warning=1.25,
   }
   return shots;
 }
+

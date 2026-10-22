@@ -1,7 +1,7 @@
-import {SituationPolicy} from './music-situation-policy.js?v=sortierhythm20261018';
-import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=sortierhythm20261018';
-import {RecordedBattleMusic} from './music-recordings.js?v=sortierhythm20261018';
-export {musicContextForGame} from './music-context.js?v=sortierhythm20261018';
+import {SituationPolicy} from './music-situation-policy.js?v=lowhp1';
+import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=tame3';
+import {RecordedBattleMusic} from './music-recordings.js?v=lowhp1';
+export {musicContextForGame} from './music-context.js?v=situations1';
 // Original adaptive score. Map themes share no borrowed soundtrack melodies.
 // Modes: 'idle' | map regions (rural/sea/trench/city/sky/alps/zeebrugge) |
 // 'boss' (enemy ace duel) | 'boss:<family>' for stage bosses.
@@ -56,7 +56,7 @@ export class BattleMusic {
   unlock(){try{if(!this.ctx){
     this.ctx=new (window.AudioContext||window.webkitAudioContext)();
     this.bus=this.ctx.createGain();this.bus.gain.value=0;
-    const comp=this.ctx.createDynamicsCompressor();this.bus.connect(comp);comp.connect(this.ctx.destination);
+    const comp=this.ctx.createDynamicsCompressor();this.duckBus=this.ctx.createGain();this.duckBus.gain.value=1;this.bus.connect(this.duckBus);this.duckBus.connect(comp);comp.connect(this.ctx.destination);
     this.meter=this.ctx.createAnalyser();this.meter.fftSize=256;comp.connect(this.meter);this.meterData=new Float32Array(256);
     this.noise=this.ctx.createBuffer(1,this.ctx.sampleRate,this.ctx.sampleRate);
     const d=this.noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
@@ -105,7 +105,7 @@ export class BattleMusic {
         for(const ace of this.situationAces)if(ace.hp<=0&&!ace.expired&&!ace.rivalEscaped&&!ace.aceRetreat){stingers.push('ace-down');break;}
         this.situationAces=new Set(frame.aces||[]);this.situationBoss=frame.boss;
       }
-      scene={...scene,situationTrack:choice.loop,musicCrossfade:choice.crossfade};
+      scene={...scene,situationTrack:choice.loop,musicCrossfade:choice.crossfade,musicTempoScale:choice.tempoScale};
     }
     this.scene=scene;
     if(scene?.pulse&&scene.pulse!==this.lastPulse){this.pendingPulse=true;this.lastPulse=scene.pulse;}
@@ -116,6 +116,11 @@ export class BattleMusic {
     this.setState(mode,muted);
     this.recorded.sync(this.ctx,this.bus,this.scene,muted||inactive);
     if(!muted&&!inactive)for(const id of stingers)this.recorded.playStinger(this.ctx,this.bus,id);
+  }
+  duck(depth=.74){
+    if(!this.ctx||!this.duckBus||this.muted||this.mode==='idle')return;
+    const now=this.ctx.currentTime;if(now-(this.lastDuck??-Infinity)<1.8&&depth>=(this.lastDuckDepth??1)-.01)return;this.lastDuck=now;this.lastDuckDepth=depth;
+    const g=this.duckBus.gain;g.cancelScheduledValues(now);g.setTargetAtTime(Math.max(.65,depth),now,.035);g.setTargetAtTime(1,now+.32,.38);
   }
   setVolume(value){this.volume=Math.max(0,Math.min(1,Number.isFinite(value)?value:1));this.setState(this.mode,this.muted);}
   status(){let rms=0,peak=0;if(this.meter){this.meter.getFloatTimeDomainData(this.meterData);for(const v of this.meterData){rms+=v*v;peak=Math.max(peak,Math.abs(v));}rms=Math.sqrt(rms/this.meterData.length);}
@@ -142,7 +147,7 @@ export class BattleMusic {
     }
     this.mode=mode;this.muted=muted;
     if(mode==='idle'||muted)this.stopVoices();
-    if(this.ctx)this.bus.gain.setTargetAtTime(mode==='idle'||muted?0:.88*this.volume,now,.08);
+    if(this.ctx)this.bus.gain.setTargetAtTime(mode==='idle'||muted?0:.72*this.volume,now,.08);
   }
   tone(midi,time,duration,volume,type='sawtooth',cutoff=1500,attack=.025){
     if(this.voices.size>=96)return;
@@ -343,7 +348,7 @@ export class BattleMusic {
       const elapsed=Math.max(0,now-(this.bossSince||0));
       const bossT=this.bossTrack(),T=bossT?BOSS_SCORES[bossT]||BOSS_SCORES.duel:null;
       const map=THEMES[originalKey(this.mode)]||REGIONAL_VARIATIONS[this.mode]||THEMES.rural;
-      const targetTempo=T?BOSS_TEMPO[bossT]+Math.min(18,elapsed*.55)+(this.scene?.urgency||0)*8+(this.scene?.state==='BOSS_FINAL'?8:0):map.bpm;
+      const targetTempo=(T?BOSS_TEMPO[bossT]+Math.min(18,elapsed*.55)+(this.scene?.urgency||0)*8+(this.scene?.state==='BOSS_FINAL'?8:0):map.bpm)*(this.scene?.musicTempoScale||1);
       // Every boss and ace uses the same restrained acceleration and dark mix.
       this.tempo=this.scene?(this.tempo??targetTempo)+(targetTempo-(this.tempo??targetTempo))*.12:targetTempo;
       const b=60/this.tempo/2;
@@ -368,4 +373,3 @@ export class BattleMusic {
     }
   }
 }
-

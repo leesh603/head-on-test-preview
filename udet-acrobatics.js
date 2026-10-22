@@ -60,7 +60,9 @@ export function installUdetAcrobatics(Game,PILOTS){
  const duration=q.skillDuration;q.skillDuration=function(){return this.pilot==='udet'?.42+2.4*(this.skillEnhanced?1.35:1):duration.call(this);};
  const skill=q.skill;q.skill=function(){
   if(this.pilot!=='udet')return skill.call(this);
-  if(!live(this)||this.cooldown>0||this.mission?.unarmed||this.bomberTransfer||this.isBomberEntering?.()||this.heineckeEscape>0)return false;
+  // Airframe conversion replaces evade with defensive fire, while retaining
+  // the selected pilot's active, including during the arrival animation.
+  if(!live(this)||this.cooldown>0||this.mission?.unarmed||this.heineckeEscape>0)return false;
   this.ensureRevisionPilot();const f=udetState(this),spent=udetStacks(this),duration=this.skillDuration();
   f.stacks=0;f.buffUntil=0;f.active={at:f.clock,rollUntil:f.clock+.42,until:f.clock+duration,spent,counterShown:false};
   this.skillTime=duration;this.cooldown=this.skillCooldown();this.invuln=Math.max(this.invuln,.42);this.udetBoost=0;this.fxOverheat=0;this.udetDanger=false;

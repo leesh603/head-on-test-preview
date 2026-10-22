@@ -14,17 +14,17 @@ const approved={
  goering:['백색 편대장','화이트 플라이트'],immelmann:['릴의 독수리','임멜만 턴'],
  huffzky:['에만의 엄호','슐라스타 15'],berthold:['날개 달린 검','아이언 나이트'],
  wolff:['여린 꽃','붐 앤 줌'],loewenhardt:['옐로 포커','라이징 스트라이크'],
- jacobs:['검은 악마','야스타 7'],gontermann:['기구 사냥꾼','집중 점화'],
- lothar:['황색 날개','캐벌리 차지'],sachsenberg:['융커스의 날개','발트해의 매'],
+ jacobs:['검은 악마','야스타 7'],gontermann:['기구 사냥꾼','플레임 살보'],
+ lothar:['격추 확인 생략','한 놈 더'],sachsenberg:['융커스의 날개','발트해의 매'],
  schleich:['흑기사','블랙 어드밴스'],brumowski:['붉은 호위대','편대 재집결'],
- fonck:['정밀의 에이스','필살의 일제사격'],collishaw:['블랙 플라이트','블랙 마리아'],
+ fonck:['정밀의 에이스','핀포인트 살보'],collishaw:['블랙 플라이트','블랙 마리아'],
  baracca:['바라카의 말','카발리노 람판테'],guynemer:['모퇴르 카농','황새의 포화'],
- bishop:['근접 사냥','게릴라 나이트'],mannock:['74비행대 지휘','74비행대 교차강하'],
+ bishop:['근접 사냥','게릴라 어택'],mannock:['74비행대 지휘','74비행대 교차강하'],
  mckeever:['파월의 엄호','호크 앤 냇'],hawker:['연속 추적','어택 에브리싱'],
  mccudden:['플라잉 메카닉','야전 정비'],nungesser:['검은 심장','죽음의 기사'],
- rickenbacker:['레이서의 본능','햇 인 더 링 록온'],ball:['고독한 사냥꾼','구름 속의 매'],
+ rickenbacker:['레이서의 본능','햇 인 더 링'],ball:['고독한 사냥꾼','구름 속의 매'],
  barker:['불굴의 각성','라스트 스탠드'],luke:['벌룬 버스터','연쇄 폭파'],
- proctor:['기선 제압','전선 돌파'],lufbery:['라파예트 동료','라파예트 방어선회']
+ proctor:['사격의 명수','버스터 살보'],lufbery:['기교의 장인','라파예트 살보']
 };
 test('covers the 32 pilots and the separate Richthofen Albatros loadout',()=>{
  assert.deepEqual(Object.keys(catalog).sort(),[...pilots,variant].sort());
@@ -61,9 +61,9 @@ test('active/passive names remain distinct and pilot titles are not duplicated',
   }
  }
 });
-test('other pilot descriptions stay unchanged after the five-ace combat revision',()=>{
- const rows=pilots.filter(id=>!['fonck','gontermann','luke','proctor','schleich','lufbery'].includes(id)).flatMap(id=>['ko','en'].map(lang=>[id,lang,...detailFields.map(f=>catalog[id][lang][f])]));
- assert.equal(createHash('sha256').update(JSON.stringify(rows)).digest('hex'),'71074f8ea2d742c568908eeb311095c21ae1d241292a6a99d678735ee37f01ba');
+test('all existing pilot descriptions are byte-for-byte unchanged from c2d27ad',()=>{
+ const rows=pilots.flatMap(id=>['ko','en'].map(lang=>[id,lang,...detailFields.map(f=>catalog[id][lang][f])]));
+ assert.equal(createHash('sha256').update(JSON.stringify(rows)).digest('hex'),'88a3e80e51fa224a368ad1ee842fb1090e2120899298b2719d38d08da7a1714a');
 });
 test('Albatros keeps its descriptions and never falls back to Dr.I',()=>{
  assert.equal(pilotIdentityCopy(variant).skill,'태양의 사냥꾼');
@@ -84,8 +84,8 @@ test('locale fallback and unknown-ID behavior stay intact',()=>{
 });
 test('title guard fits its container without hiding titles or changing descriptions',()=>{
  const css=readFileSync(new URL('../skill-names.css',import.meta.url),'utf8');
- assert.match(css,/white-space:nowrap!important/);
- assert.match(css,/container-type:inline-size/);
- assert.match(css,/font-size:clamp\(11px,10cqi,15px\)/);
+ assert.match(css,/white-space:normal!important/);
+ assert.match(css,/overflow-wrap:anywhere!important/);
+ assert.doesNotMatch(css,/white-space:nowrap/);
  assert.doesNotMatch(css,/#skillDesc|\.astra-ability-copy\s*>?\s*p\b|display\s*:\s*none|text-overflow\s*:\s*ellipsis/);
 });

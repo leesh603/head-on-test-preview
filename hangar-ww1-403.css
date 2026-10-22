@@ -1141,3 +1141,9 @@ body.astra-ui:not(.playing) #hangar .astra-aircraft-heading h2 .ho-air-owner{
  html body.astra-ui:not(.playing) #hangar #coopPanel #coopP1Summary{display:none!important}
  html body.astra-ui:not(.playing) #hangar #coopPanel:not(.hidden){margin-top:100px!important}
 }
+
+/* Normalize visible wing width against the unchanged Loewenhardt D.VII. */
+body.astra-ui:not(.playing) #hangar .astra-aircraft-figure .astra-aircraft-art[data-hangar-fit]{
+ transform:translate(var(--hangar-art-x,0px),var(--hangar-art-y,0px)) scale(var(--hangar-art-scale,1))!important;
+ transform-origin:center!important;
+}

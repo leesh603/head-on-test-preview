@@ -1,7 +1,8 @@
+import {ordinaryFighter,fighterShotReady} from './dogfight-pass165.js?v=gal1';
 // Regional doctrine for ordinary aircraft.  This module only selects among the
 // Battle Director's existing manoeuvres and bends those manoeuvres around live
 // battlefield hazards; it never changes aircraft stats, spawn counts or caps.
-import {maanSandCover} from './maan-weather.js?v=sortierhythm20261018';
+import {maanSandCover} from './maan-weather.js?v=gal1';
 
 const P=Object.freeze({
  HEAD_ON_PASS:'HEAD_ON_PASS',CROSS_ATTACK:'CROSS_ATTACK',PINCER:'PINCER',CHASE:'CHASE',ESCORT:'ESCORT',DECOY:'DECOY',
@@ -159,6 +160,7 @@ export function regionalCombatTarget(game,e,contact){
 // bosses retain their authored weapons and timings.
 export function regionalShotReady(game,e,contact){
  if(!regionalTacticsActive(game)||!regionalAircraftEligible(e)||e.type==='bomber')return true;
+ if(ordinaryFighter(e))return fighterShotReady(game,e,contact);
  if(!contact||contact.fogHidden||contact.kaiserFogTime>0||contact.ballCloak>0)return false;
  const aim=Math.atan2(contact.y-e.y,contact.x-e.x),error=Math.abs(Math.atan2(Math.sin(aim-e.a),Math.cos(aim-e.a)));
  return error<=.55;

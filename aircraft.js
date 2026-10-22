@@ -1,7 +1,7 @@
-import {SORTIE_FITS} from './pilot-aircraft.js?v=sortierhythm20261018';
-import {clearCrewMatte} from './matte70.js?v=sortierhythm20261018';
-import {BANK_ART} from './aircraft-bank-art.js?v=sortierhythm20261018';
-import {AIRCRAFT_OUTLINE_ART} from './aircraft-outline-art.js?v=sortierhythm20261018';
+import {SORTIE_FITS,PILOT_RENDER_ART} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {clearCrewMatte} from './matte70.js?v=gal1';
+import {BANK_ART} from './aircraft-bank-art.js?v=outline1';
+import {AIRCRAFT_OUTLINE_ART,AIRCRAFT_ART_REVISION} from './aircraft-outline-art.js?v=outline1&art=pilot-recovery2';
 // Exact stock-bank paint cells; these stay outside the evictable NPC art cache.
 const BOMBER_TRANSFER_ART=Object.freeze({
  'transfer-caudron-r11':{path:'asset-bank/outlined/native/asset-bank/flight/bank_plane_caudron_r11.webp',x:0,y:0,w:288,h:320},
@@ -104,7 +104,7 @@ const decodePainted=key=>new Promise(resolve=>{
  const stock=key.startsWith('bank_')||!!BOMBER_TRANSFER_ART[key],stockArt=BANK_ART[key]||BOMBER_TRANSFER_ART[key];if(stock&&!stockArt){finish(false);return;}
  const artRevision=key==='barker_snipe'&&mechDir?'barker-alpha-20261015':'347';
  const bakedArt=!stock&&(SORTIE_FITS[key]?`sortie-aircraft/flight/${key}.webp`:AIRCRAFT_OUTLINE_ART[mechDir+key]);
- const base=new URL(bakedArt?`./${bakedArt}?v=outline1-bomber17`:stock?`./${stockArt.path}?v=outline1-bomber17`:`./${mechDir}${sourceKey}.webp?v=gal2&b=${artRevision}`,import.meta.url).href;
+ const base=new URL(bakedArt?`./${bakedArt}?v=${AIRCRAFT_ART_REVISION}`:stock?`./${stockArt.path}?v=outline1-bomber17`:`./${mechDir}${sourceKey}.webp?v=gal1&b=${artRevision}`,import.meta.url).href;
  // A failed fetch must never cache the plane as permanently invisible: retry with
  // a cache-busting tag so stale error responses and flaky mobile radio recover.
  img.onerror=()=>{if(++tries<(stock?2:8)){img.src=base+'&r='+tries;return}finish(false)};img.src=base;
@@ -143,6 +143,12 @@ export const hangarArtReady=Promise.all(HANGAR_KEYS.map(loadPainted));
 // sprite actually draws, as planeSprite does. Asking for 'fokker_red' fetched a file that does not exist
 // and held the hangar splash through eight failed retries.
 const paintedSource=key=>campaignSpriteAliases[key]||(key==='fokker_red'?'fokker':key==='fokker_voss'?'fokker_f1':key==='fokker'?'fokker_standard':key);
+// Exact same baked source as decodePainted; boot prioritization must not warm raw/foreign art.
+export function aircraftFlightSource(key){
+ const source=paintedSource(key),mech=new URLSearchParams(location.search).get('mech')==='0'?'':'mech/';
+ const path=SORTIE_FITS[source]?`sortie-aircraft/flight/${source}.webp`:AIRCRAFT_OUTLINE_ART[mech+source];
+ return path?new URL(`./${path}?v=${AIRCRAFT_ART_REVISION}`,import.meta.url).href:'';
+}
 export const paintedReady=key=>{const source=paintedSource(key);return painted.has(source)?Promise.resolve(true):loadPainted(source)};
 const individualAircraftReady=[hangarArtReady,hangarArtReady.then(()=>Promise.all(PAINTED_KEYS.filter(k=>!HANGAR_KEYS.includes(k)).map(loadPainted)))];
 // The four aces once cut from this 2x2 atlas now ship as individual PNGs and are
@@ -167,7 +173,7 @@ const newAceAircraftReady=!NEW_ACE_AIRCRAFT.length?Promise.resolve(true):new Pro
    if(maxX<minX||maxY<minY)return;const out=document.createElement('canvas');out.width=288;out.height=320;const oc=out.getContext('2d');oc.imageSmoothingEnabled=true;oc.imageSmoothingQuality='high';
    const w=maxX-minX+1,h=maxY-minY+1,k=Math.min(236/w,272/h)*spriteScale(key),dw=Math.round(w*k),dh=Math.round(h*k);oc.drawImage(scan,minX,minY,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);setPainted(key,out);
   });resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./new-aces-aircraft124.webp?v=gal2&b=345',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./new-aces-aircraft124.webp?v=gal1&b=345',import.meta.url).href;
 });
 // Painted battle-damage marks (bullet holes, torn canvas, scorch) applied over the
 // authored sprites once a hull drops below half durability.
@@ -183,7 +189,7 @@ const damageDecalReady=new Promise(resolve=>{
    if(!any){damageDecals.push(null);continue}
    const cell=document.createElement('canvas');cell.width=r-l+1;cell.height=b-t+1;cell.getContext('2d').drawImage(sc,l,t,r-l+1,b-t+1,0,0,r-l+1,b-t+1);damageDecals.push(cell);
   }damageCache.clear();resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./damage-decals.webp?v=gal2&b=345',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./damage-decals.webp?v=gal1&b=345',import.meta.url).href;
 });
 // Deterministic per-airframe mark layout so a plane's scars stay put between frames.
 function damageSeed(key){let h=2166136261;for(const ch of key){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
@@ -263,7 +269,7 @@ function build(key){
  r(-24,p.wings.at(-1)[1]+3,3,1,'#e8d1a066');r(20,p.wings.at(-1)[1]+15,2,1,dark);
  return canvas;
 }
-export function aircraftKey(key,enemy=false,pilot=null){if(key==='fokker'&&!enemy){if(pilot==='baron')return 'fokker_red';if(pilot==='voss')return 'fokker_voss';if(pilot==='jacobs')return 'fokker_jacobs'}return key}
+export function aircraftKey(key,enemy=false,pilot=null){if(!enemy&&PILOT_RENDER_ART[pilot]?.[key])return PILOT_RENDER_ART[pilot][key];if(key==='fokker'&&!enemy){if(pilot==='baron')return 'fokker_red';if(pilot==='voss')return 'fokker_voss';if(pilot==='jacobs')return 'fokker_jacobs'}return key}
 export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0,damaged=false){
  const redAce=key==='fokker_red',variant=key==='fokker_voss',standard=key==='fokker';const cacheKey=redAce?'fokker':variant?'fokker_voss':standard?'fokker_standard':key;
  const sourceKey=campaignSpriteAliases[key]||(redAce?'fokker':variant?'fokker_f1':standard?'fokker_standard':key);
@@ -293,6 +299,6 @@ export const campaignArtReady=new Promise(resolve=>{
    const [x,y,w,h]=boxes[i],k=Math.min(228/w,264/h),dw=Math.round(w*k),dh=Math.round(h*k);
    c.drawImage(img,cell%3*512+x,Math.floor(cell/3)*512+y,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);setPainted(key,out);
   }resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./campaign-units.webp?v=gal2&b=345',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./campaign-units.webp?v=gal1&b=345',import.meta.url).href;
 });
 

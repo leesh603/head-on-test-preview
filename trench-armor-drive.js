@@ -1,4 +1,4 @@
-import {armorRotate} from './trench-armor-layout.js?v=sortierhythm20261018';
+import {armorRotate} from './trench-armor-layout.js?v=tame3&ai=1018';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const approach=(v,w,step)=>v+clamp(w-v,-step,step);
 export function initArmorDrive(b){
@@ -8,11 +8,11 @@ export function initArmorDrive(b){
 // rotate the actual chassis, with the same pose used by mounts and collision.
 export function stepArmorDrive(b,dt,{speed=0,turn=0,brake=false,bounds}={}){
  const s=b.t.geometryScale||1,gauge=b.layout.trackX*2*s,lost=b.trackLoss(),engine=b.parts.get('engine-deck').destroyed;
- const mobility=engine?(b.kind==='a7v-flak'?0:.18):1,turnLimit=(lost===2?0:lost===1?.14:.68)*mobility;
+ const mobility=engine?(b.kind==='a7v-flak'?0:.18):1,turnLimit=(lost===2?0:lost===1?.14:b.layout.turnRate||.68)*mobility;
  const omega=clamp(turn,-turnLimit,turnLimit),v=speed*mobility;
  let left=v+omega*gauge/2,right=v-omega*gauge/2;
  if(lost){const limit=gauge*.14*mobility;if(b.parts.get('track-left').destroyed){left=0;right=clamp(right,-limit,limit);}if(b.parts.get('track-right').destroyed){right=0;left=clamp(left,-limit,limit);}}
- const accel=(brake?160:engine?8:34)*dt;
+ const accel=(brake?160:engine?8:34)*dt,prevLeft=b.leftTrack.speed,prevRight=b.rightTrack.speed;
  b.leftTrack.speed=approach(b.leftTrack.speed,left,accel);b.rightTrack.speed=approach(b.rightTrack.speed,right,accel);
  if(b.parts.get('track-left').destroyed||!mobility)b.leftTrack.speed=0;
  if(b.parts.get('track-right').destroyed||!mobility)b.rightTrack.speed=0;
@@ -21,7 +21,12 @@ export function stepArmorDrive(b,dt,{speed=0,turn=0,brake=false,bounds}={}){
  const yaw=b.hullYaw+angular*dt,nx=b.x+Math.sin(yaw)*forward*dt,ny=b.y-Math.cos(yaw)*forward*dt;
  // Brake at a bounded route edge; no camera-relative teleport or sliding.
  if(bounds){const mx=Math.min(38,(bounds.right-bounds.left)*.1),my=Math.min(65,(bounds.bottom-bounds.top)*.1);
-  if((nx<bounds.left+mx&&nx<b.x)||(nx>bounds.right-mx&&nx>b.x)||(ny<bounds.top+my&&ny<b.y)||(ny>bounds.bottom-my&&ny>b.y)){b.leftTrack.speed=b.rightTrack.speed=0;forward=angular=0;}
+  // Only the travel stops at the edge: the tracks may still counter-rotate,
+  // so a hull pinned at the route edge can pivot its guns back on target.
+  if((nx<bounds.left+mx&&nx<b.x)||(nx>bounds.right-mx&&nx>b.x)||(ny<bounds.top+my&&ny<b.y)||(ny>bounds.bottom-my&&ny>b.y)){
+   const spin=omega*mobility*gauge/2;b.leftTrack.speed=approach(prevLeft,spin,accel);b.rightTrack.speed=approach(prevRight,-spin,accel);
+   if(b.parts.get('track-left').destroyed||!mobility)b.leftTrack.speed=0;if(b.parts.get('track-right').destroyed||!mobility)b.rightTrack.speed=0;
+   forward=0;angular=(b.leftTrack.speed-b.rightTrack.speed)/gauge;}
  }
  const oldSuspension=b.suspension;const rocking=Math.sin((b.leftTrack.roll+b.rightTrack.roll)*.23)*Math.min(.65,Math.abs(forward)/45);b.hullYaw+=angular*dt+(forward?(rocking-oldSuspension)*.008:0);b.suspension=rocking;
  b.x+=(b.kickX||0)*dt;b.y+=(b.kickY||0)*dt;b.kickX=(b.kickX||0)*Math.exp(-12*dt);b.kickY=(b.kickY||0)*Math.exp(-12*dt);

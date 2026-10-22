@@ -8,6 +8,15 @@ export function beginAircraftCrash(e,rng){const ace=e.bossPilot||e.type==='boss'
 export function advanceAircraftCrash(world,e,dt){const spin=e.crashStyle==='spin';e.crashT-=dt;e.a+=e.crashSpin*dt;if(spin)e.crashDir+=e.crashSpin*.27*dt;e.x+=Math.cos(e.crashDir)*e.crashSpeed*dt;e.y+=Math.sin(e.crashDir)*e.crashSpeed*dt;e.crashSpeed=Math.max(25,e.crashSpeed*(1-(spin?.65:.35)*dt));e.crashSmoke-=dt;if(e.crashSmoke<=0){e.crashSmoke=spin?.07:.14;world.smoke(e.x+(world.rng()-.5)*8,e.y+(world.rng()-.5)*8,spin)}if(e.crashT<=0){e.crashed=true;world.burst(e.x,e.y,'#f2aa52',spin?(e.bossPilot||e.type==='boss'?34:30):20,e.bossPilot||e.type==='boss'?(spin?'aircraftMedium':undefined):'aircraft');for(let k=0;k<(spin?5:2);k++)world.smoke(e.x+(world.rng()-.5)*22,e.y+(world.rng()-.5)*22,spin)}}
 export function drawAircraftCrash(c,e,x,y,t,fx){
  const sink=enemyCrashScale(e),spin=e.crashStyle==='spin';
- fx(c,'smokeTrail',x-Math.cos(e.a)*30*sink,y-Math.sin(e.a)*30*sink,(spin?90:64)*sink,(spin?32:22)*sink,e.a,spin?.42:.22);
- if(spin)fx(c,'fireEngine',x,y,30*sink,30*sink,e.a+Math.PI/2,.55);
+ const progress=Math.min(1,Math.max(0,1-(e.crashT||0)/(e.crashDuration||1))),travel=e.crashDir??e.a;
+ // The hot origin stays on the engine; the wake follows travel, not the spinning nose.
+ const ox=x+Math.cos(e.a)*12*sink,oy=y+Math.sin(e.a)*12*sink;
+ fx(c,'smokeTrail',ox-Math.cos(travel)*40*sink,oy-Math.sin(travel)*40*sink,(spin?124:92)*sink,(spin?34:23)*sink,travel,.35+progress*.16);
+ if(spin){fx(c,'fireEngine',ox,oy,32*sink,40*sink,e.a+Math.PI/2,.7);fx(c,'engineSmoke',ox-Math.cos(travel)*20,oy-Math.sin(travel)*20,36+progress*20,36+progress*20,travel,.32);}
+ // Painted fragments peel away during the opening break only; no new entities or collision.
+ if(progress<.55)for(let i=0;i<2;i++){
+  const a=travel+(i?1.15:-1.15),d=progress*(60+i*28),fade=1-progress/.55;
+  fx(c,'debrisShard',x+Math.cos(a)*d,y+Math.sin(a)*d,12*sink,16*sink,a+progress*(i?5:-4),fade*.8);
+ }
 }
+

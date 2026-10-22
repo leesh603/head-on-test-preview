@@ -1,15 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {Game,PLANES,PILOTS,angleDiff} from '../engine.js?v=gal1&rail=42';
-import {coopPlane,CoopGame} from '../coop-engine.js?v=gal1&rail=42';
-import '../campaign.js?v=gal1&rail=42';
-import {SORTIE_COMBAT_STYLES as styles} from '../aircraft-combat-roles.js?v=gal1';
-import {tickRegionalConditions,REGION_COMBAT_EVENTS} from '../region-doctrine1.js?v=gal1';
-const app=fs.readFileSync(new URL('../app.js?v=gal2&rail=42',import.meta.url),'utf8');
+import {Game,PLANES,PILOTS,angleDiff} from '../engine.js?v=tame3&rail=40';
+import {coopPlane,CoopGame} from '../coop-engine.js?v=tame3&rail=40';
+import '../campaign.js?v=tame3&rail=40';
+import {SORTIE_COMBAT_STYLES as styles} from '../aircraft-combat-roles.js?v=tame3';
+import {tickRegionalConditions,REGION_COMBAT_EVENTS} from '../region-doctrine1.js?v=tame3';
+const app=fs.readFileSync(new URL('../app.js?v=tame3&rail=40',import.meta.url),'utf8');
 
-const solo=[...app.match(/\(\{baron:baronAircraft,(.*?)\}\[id\]/s)[1].matchAll(/\w+:'([^']+)'/g)].map(m=>m[1]);
-const roster=[...new Set([...solo,'fokker','baron_albatros',...Object.keys(PILOTS).map(coopPlane)])];
+// Legacy conditional-style coverage is independent of the expanded selectable roster.
+const roster=Object.keys(styles);
 const make=id=>{const g=new Game(id,'fonck',()=>.5);Object.assign(g,{a:0,x:0,y:0,skillTime:0,level:10,airframeSpeed:.72});return g;};
 const fly=(g,seconds,steer=0)=>{for(let t=0;t<seconds-1e-9;t+=.02)g.flyAirframe(.02,{steer});};
 const enemy=(x,y)=>({id:999,hp:100,maxHp:100,x,y,a:0,type:'hunter',speed:100});

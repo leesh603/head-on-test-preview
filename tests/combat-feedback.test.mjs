@@ -4,10 +4,13 @@ import assert from 'node:assert/strict';
 globalThis.Image??=class{set src(v){this._src=v;queueMicrotask(()=>this.onload?.())}};
 globalThis.document??={createElement:()=>({getContext:()=>null})};
 
-const {Game}=await import('../engine.js?v=gal1&rail=42');
-const {CoopGame}=await import('../coop-engine.js?v=gal1&rail=42');
-const {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCrashScale}=await import('../aircraft-crash.js?v=gal1');
-const {attachCombatFeedback,combatVisualPose,impactMaterial,drawCombatFeedback,COMBAT_CRASH_PROFILES,combatFlightSound}=await import('../combat-feedback.js?v=gal1');
+const {Game}=await import('../engine.js?v=tame3&rail=40');
+const {CoopGame}=await import('../coop-engine.js?v=tame3&rail=40');
+const {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCrashScale}=await import('../aircraft-crash.js?v=tame3');
+const {attachCombatFeedback,combatVisualPose,impactMaterial,drawCombatFeedback,COMBAT_CRASH_PROFILES,combatFlightSound}=await import('../combat-feedback.js?v=tame3');
+
+const {damageStageBoss}=await import('../stageboss-host.js');
+const {advanceExplosionFx,drawExplosionProfile}=await import('../explosion-profiles.js?v=fx5');
 
 const rng=()=>{let n=17;return()=>((n=(n*1664525+1013904223)>>>0)/4294967296)};
 const quiet=g=>{for(const k of ['spawn','nextBossAt','nextHeavyAt','eventTimer','flakTimer','patrolTimer','gasTimer','regionThreat','fieldUnitTimer'])g[k]=Infinity;return g};
@@ -48,7 +51,7 @@ test('co-op instance hooks preserve player-owned firing and shared rewards',()=>
 test('an actual bullet kill has identical collision, kill credit, drops and RNG',()=>{
  const a=quiet(new Game('fokker','baron',rng())),b=quiet(new Game('fokker','baron',rng())),state=attachCombatFeedback(b,{key:()=> 'camel'});
  for(const g of [a,b]){g.region=g.worldRegion();const e=g.spawnEnemy('scout');Object.assign(e,{x:0,y:-120,a:Math.PI/2,hp:8,fire:100});g.bullets.push({x:0,y:-120,vx:0,vy:0,life:1,damage:50,enemy:false,hit:new Set()});g.update(.016,{})}
- assert(a.kills>0);assert.deepEqual(snapshot(b),snapshot(a));assert.equal(a.rng(),b.rng());assert.equal(state.wrecks.length,0);assert.equal(state.impacts.length,1);
+ assert(a.kills>0);assert.deepEqual(snapshot(b),snapshot(a));assert.equal(a.rng(),b.rng());assert.equal(state.wrecks.length,0);assert.equal(state.impacts.length,0);assert.equal(b.combatFX.filter(f=>f.fxProfile==='bulletImpact').length,1);
 });
 
 test('only nearby blast produces haptics and a small camera reaction',()=>{
@@ -70,14 +73,16 @@ test('shared ace choreography preserves trajectory, smoke cadence and final cras
  assert(calls[0][0]==='smoke'&&calls[0][3]===true);
  advanceAircraftCrash(host,e,.04);assert.equal(calls.length,1);
  for(let i=0;i<18;i++)advanceAircraftCrash(host,e,.04);
- assert.equal(e.crashed,true);assert.equal(calls.filter(c=>c[0]==='burst').length,1);assert.deepEqual(calls.find(c=>c[0]==='burst').slice(3),['#f2aa52',30,'aircraft']);assert(calls.every(c=>c[0]!=='event'));
+ assert.equal(e.crashed,true);assert.equal(calls.filter(c=>c[0]==='burst').length,1);assert.deepEqual(calls.find(c=>c[0]==='burst').slice(3),['#f2aa52',30,'aircraftMedium']);assert(calls.every(c=>c[0]!=='event'));
 });
 
-test('machine-gun recoil is subpixel, axial and follows muzzle decay without firing jitter',()=>{
- const g={t:0,x:0,y:0,a:0,hp:100,maxHp:100,muzzleFlash:.04,enemies:[],bullets:[],burst(){},event(){},update(dt){this.t+=dt}};
+test('machine-gun recoil is bounded, axial and ends with the muzzle envelope without moving the aircraft',()=>{
+ const g={t:0,x:0,y:0,a:0,hp:100,maxHp:100,muzzleFlash:.09,enemies:[],bullets:[],burst(){},event(){},update(dt){this.t+=dt}};
  attachCombatFeedback(g);
- for(const flash of [.04,.03,.02,.01,0]){g.muzzleFlash=flash;g.update(.016);const p=combatVisualPose(g);assert(Math.abs(p.x)<=.18);assert.equal(Math.abs(p.y),0);assert.equal(Math.abs(p.roll),0);assert(Math.abs(p.x+.18*flash/.04)<1e-12)}
- g.muzzleFlash=.04;g.cannonRecoil129=.2;g.update(.016);assert.equal(Math.abs(combatVisualPose(g).x),0,'do not stack on existing cannon recoil');
+ let peak=0;
+ for(const flash of [.09,.075,.045,.015,0]){g.muzzleFlash=flash;g.update(.016);const p=combatVisualPose(g);peak=Math.max(peak,Math.abs(p.x));assert(Math.abs(p.x)<=1.25);assert(p.x<=0);assert.equal(Math.abs(p.y),0);assert.equal(Math.abs(p.roll),0);assert.deepEqual([g.x,g.y,g.a],[0,0,0]);if(!flash)assert.equal(Math.abs(p.x),0)}
+ assert(peak>1,'decisive recoil remains visible at aircraft scale');
+ for(const field of ['cannonRecoil129','reloadTime']){g.muzzleFlash=.045;g[field]=.2;g.update(.016);assert.equal(Math.abs(combatVisualPose(g).x),0,'no recoil during reload or on top of existing cannon recoil');g[field]=0;}
 });
 
 test('regular wreck uses the same ace artwork and shrinks as it falls',()=>{
@@ -100,16 +105,18 @@ test('single and co-op crash completion never changes rewards, target lists or s
  }
 });
 
-test('sustained hits follow the struck airframe and emit bounded damage trails without changing its flight',()=>{
+test('sustained real hits leave impact flashes at contact and bounded trails follow the damaged airframe',()=>{
  const e={x:100,y:0,a:0,hp:60,maxHp:100,type:'hunter',speed:100},sounds=[];
- const g={t:0,state:'playing',x:0,y:0,a:0,hp:100,maxHp:100,viewWidth:390,enemies:[e],bullets:[],burst(){},event(){},specialRoundImpact(){},update(dt){this.t+=dt;e.x+=100*dt}};
+ const g={t:0,state:'playing',x:0,y:0,a:0,hp:100,maxHp:100,viewWidth:390,enemies:[e],bullets:[],burst(){},event(){},specialRoundImpact(){},update(dt){this.t+=dt;e.x+=100*dt;advanceExplosionFx(this,dt)}};
  const s=attachCombatFeedback(g,{play:(name,arg)=>sounds.push([name,arg])});
- for(let i=0;i<4;i++){g.specialRoundImpact({x:e.x+20,y:e.y,vx:300,vy:0},e);g.update(.02)}
- assert.equal(e.hp,60);assert.equal(e.x,108);assert.equal(s.damage.get(e).engine,4);assert.equal(s.damage.get(e).streak,4);assert(s.plumes.length>0);
- const fx=[];drawCombatFeedback({},g,(x,y)=>[x,y],{fx:(...args)=>fx.push(args),planeSprite(){}});
- const lastSpark=fx.filter(f=>f[1]==='armorSpark').at(-1);assert(lastSpark[2]>125,'impact follows moving nose instead of lingering behind');
+ for(let i=0;i<4;i++){const b={x:e.x+20,y:e.y,vx:300,vy:0};damageStageBoss(g,e,b,1);const hp=e.hp;g.specialRoundImpact(b,e);assert.equal(e.hp,hp,'presentation adds no damage');g.update(.02)}
+ assert.equal(e.hp,56);assert.equal(e.x,108);assert.equal(e.a,0);assert.equal(s.damage.get(e).engine,4);assert.equal(s.damage.get(e).streak,4);assert(s.plumes.length>0);
+ const impacts=g.combatFX.filter(f=>f.fxProfile==='bulletImpact');assert.equal(impacts.length,1,'mobile repeated hits coalesce within the target cooldown');
+ assert.deepEqual([impacts[0].x,impacts[0].y],[120,0],'shared impact stays at the actual collision coordinate');
+ const fx=[];drawExplosionProfile({},impacts[0],impacts[0].x,impacts[0].y,(...args)=>fx.push(args));
+ assert.equal(fx.find(f=>f[1]==='armorSpark')[2],120);assert(s.plumes[0].x>e.x,'engine trail originates on the moving airframe');
  assert.equal(sounds.filter(([k])=>k==='materialImpact').at(-1)[1].streak,4);
- for(let i=0;i<150;i++)g.update(.02);assert(s.plumes.length<=32);assert.equal(s.impacts.length,0);
+ for(let i=0;i<150;i++)g.update(.02);assert(s.plumes.length<=32);assert.equal(s.impacts.length,0);assert.equal(g.combatFX.length,0);
 });
 
 
@@ -128,3 +135,4 @@ test('HEAD-ON highlights real crossing rounds only and caps compact tracer draws
  drawCombatFeedback({},g,(x,y)=>[x,y],{fx:(...args)=>draws.push(['fx',...args]),planeSprite(){},bolt:(...args)=>draws.push(args)});
  assert.equal(draws.length,12);assert(draws.some(d=>d[4]==='#f2d9a0'));assert(draws.some(d=>d[4]==='#f0965a'));assert.deepEqual(g.bullets,before);
 });
+

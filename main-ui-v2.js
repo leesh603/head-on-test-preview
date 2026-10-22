@@ -1,4 +1,4 @@
-import {getLocale,subscribe,t} from './i18n.js?v=sortierhythm20261018&afc=1';
+import {getLocale,subscribe,t} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 
 
 const $=id=>document.getElementById(id);
@@ -40,7 +40,7 @@ if(hangar){
 
  const labels=()=>{
   const en=getLocale()==='en';
-  const short={sortie:en?'Sortie':'출격',ranking:en?'Ranking':'랭킹',medals:en?'Medals':'훈장',coop:en?'Co-op':'협동',online:en?'Online':'온라인',records:en?'Records':'기록',settings:t('settings.title')};
+  const short={sortie:en?'Sortie':'출격',ranking:en?'Ranking':'랭킹',medals:en?'Medals':'훈장',coop:en?'Co-op':'협동',online:en?'Online':'온라인',records:en?'Homepage':'홈페이지',settings:t('settings.title')};
   const full={sortie:t('status.waiting'),ranking:t('ranking.title'),medals:en?'Service Medals':'전공 훈장',coop:t('mode.coop'),online:en?'Online Co-op':'온라인 Co-op',records:en?'Official Battle Record':'공식 전장 기록',settings:t('settings.title')};
   nav.querySelectorAll('[data-action]').forEach(control=>{
    const action=control.dataset.action;
@@ -74,4 +74,4 @@ if(hangar){
 }
 
 // Direct Astra implementation: all live controls and data bindings are preserved.
-import("./astra-interface180.js?v=sortierhythm20261018&afc=1");
+import("./astra-interface180.js?v=buildfit1&afc=1&art=pilot-recovery2");

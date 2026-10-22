@@ -1,6 +1,6 @@
-import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=sortierhythm20261018';
+import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
 import {installPilotFeedback} from './pilot-feedback.js';
-import {headOnTarget} from './engagement-feedback.js?v=sortierhythm20261018';
+import {headOnTarget} from './engagement-feedback.js?v=tame3';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
@@ -50,7 +50,7 @@ export function installPilotIdentities(Game,PILOTS){
   if(this.pilot==='berthold')s.debts=s.debts.map(d=>({...d,remaining:Math.max(d.remaining,6)}));
   if(this.pilot==='barker'){s.barkerReady=true;s.escape=null}
   if(this.pilot==='ball'){this.ballCloak=this.skillTime;this.ballGhost={x:this.x,y:this.y,a:this.a,speed:this.speed,hp:1};this.ballAmbush=0;this.invuln=Math.max(this.invuln,.25)}
-  if(this.pilot==='nungesser')this.invuln=Math.max(this.invuln,this.skillTime);
+  if(this.pilot==='nungesser')this.invuln=Math.max(this.invuln,.5);
   this.event('skill',PILOTS[this.pilot].skill);return true;
  };
  const oldGun=Game.prototype.normalGunMultiplier;
@@ -67,7 +67,8 @@ export function installPilotIdentities(Game,PILOTS){
   if(this.pilot==='baracca'&&pilotHeadOn(origin,e))m*=1.3;
 
   if(this.pilot==='ball'&&this.ballAmbush>0&&s.alone&&Math.abs(delta(Math.atan2(origin.y-e.y,origin.x-e.x),e.a||0))>Math.PI*.72)m*=2.2;
-  if(this.pilot==='boelcke'&&Math.abs(delta(Math.atan2(this.y-e.y,this.x-e.x),e.a||0))>Math.PI/2)m*=1.25;
+  // Dicta Boelcke's personal-gun flank bonus is already applied by rebalance103.
+  // Applying it again here squares the multiplier for rear attacks.
 
   return m;
  };
@@ -163,3 +164,4 @@ export function installPilotIdentities(Game,PILOTS){
  Game.prototype.tickRevisionWorld=function(dt){oldTickWorld.call(this,dt);for(const d of this.revisionDecoys||[])if(d.identityDecoy){d.x+=d.vx*dt;d.y+=d.vy*dt}};
  installPilotFeedback(Game,PILOTS);
 }
+

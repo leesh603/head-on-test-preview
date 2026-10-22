@@ -1,6 +1,6 @@
 import {FixedPool} from './headon-stageboss-pool.js';
-import {netContact} from './london-apron369.js?v=sortierhythm20261018';
-import {livensFlameHalfWidth,livensFlameSpan} from './livens-fire195.js?v=sortierhythm20261018';
+import {netContact} from './london-apron369.js?v=tame3';
+import {livensFlameHalfWidth,livensFlameSpan} from './livens-fire195.js?v=tame3';
 const wrap = angle => Math.atan2(Math.sin(angle),Math.cos(angle));
 const segmentDistance = (px,py,x0,y0,x1,y1) => {
   const dx=x1-x0,dy=y1-y0,len=dx*dx+dy*dy,t=len?Math.max(0,Math.min(1,((px-x0)*dx+(py-y0)*dy)/len)):0;
@@ -53,7 +53,7 @@ export class BossHazards {
       muzzleLength:spec.muzzleLength||0,
       innerRadius:spec.innerRadius||0,ringSpeed:spec.ringSpeed||0,ringWidth:spec.ringWidth||0,radiusStart:spec.radiusStart||0,radiusLimit:spec.radiusLimit||0,
       sourceX:spec.sourceX??null,sourceY:spec.sourceY??null,airborneBomb:!!spec.airborneBomb,
-      sourcePartId:spec.sourcePartId??null,sourceOffsetX:spec.sourceOffsetX||0,sourceOffsetY:spec.sourceOffsetY||0,
+      sourcePartId:spec.sourcePartId??null,sourceOffsetX:spec.sourceOffsetX||0,sourceOffsetY:spec.sourceOffsetY||0,sourceAngle:Number.isFinite(spec.sourceAngle)?spec.sourceAngle:null,
       blocks:!!spec.blocks,piercing:!!spec.piercing,visual:spec.visual||spec.kind,tag:spec.tag||null,vertices:spec.vertices||null
     });return h;
   }
@@ -102,3 +102,4 @@ export class BossHazards {
   clear(encounterId) {this.pool.clear(h=>h.encounterId===encounterId);}
   clearTagged(encounterId,tag) {this.pool.clear(h=>h.encounterId===encounterId&&h.tag===tag);}
 }
+

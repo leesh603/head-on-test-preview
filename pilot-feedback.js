@@ -71,7 +71,7 @@ export function installPilotFeedback(Game){
    if((active||s.energy>.65)&&stamp(this,'energyTrail',active?.1:.3)){wind(this,this,active?1.9:.7);if(active)ghost(this)}
   }
   if(this.pilot==='jacobs'&&(active||s.turnCharge>.5)&&stamp(this,'turnTrail',.15)){wind(this,this,active?1.2:.6);ghost(this)}
-  if(['bishop','nungesser','immelmann','baracca'].includes(this.pilot)&&(active||this.pilot==='nungesser'&&this.hp/this.maxHp<.4)&&stamp(this,'dashTrail',active?.14:.26)){wind(this,this,active?1.5:.9);if(active)ghost(this)}
+  if(['bishop','immelmann','baracca'].includes(this.pilot)&&active&&stamp(this,'dashTrail',.14)){wind(this,this,active?1.5:.9);if(active)ghost(this)}
   if(this.pilot==='voss'){const pressure=this.enemies.filter(e=>e.hp>0&&dist(this,e)<400).length;if((active||pressure>0)&&stamp(this,'vossTrail',active?.16:.4))wind(this,this,active?1.3:.45+Math.min(6,pressure)*.1)}
   if(this.pilot==='baron'&&this.huntBoost>0&&stamp(this,'huntTrail',.16))wind(this,this,1,'#81352b');
   if(this.pilot==='wolff'&&(this.wolffStacks||0)>(before.petals||0)){
@@ -99,7 +99,6 @@ export function installPilotFeedback(Game){
   if(this.pilot==='gontermann'||this.pilot==='luke')strength=b.identityIgnite?active?1.4:.65:0;
   if(this.pilot==='ball')strength=this.ballAmbush>0?1.5:0;
   if(this.pilot==='barker')strength=(this.barkerStacks||0)*.35;
-  if(this.pilot==='nungesser')strength=clamp((1-this.hp/this.maxHp)/.8);
   const rear=b.gun===1&&this.weapon.bidirectional;
   if(strength>0&&stamp(this,rear?'rearFlash':'gunFlash',.12))muzzle(this,this,false,rear,strength);
   return r;
@@ -119,3 +118,4 @@ export function installPilotFeedback(Game){
   return used;
  };
 }
+
