@@ -1,4 +1,4 @@
-import {drawAuthoredAlpsBomber} from './alps-bomber-art.js?v=alpsart20261020tone1';
+import {drawAuthoredAlpsBomber} from './alps-bomber-art.js?v=alpsmotion20261022';
 import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=gal1';
 import {fx} from './fx-art.js?v=gal1';
 import {bombSprite} from './bomb-sprites.js?v=bomb20';

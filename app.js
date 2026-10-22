@@ -34,17 +34,17 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {paintJutland,prepareJutlandAssets} from './jutland-view.js?v=outline1&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {createJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=gal1';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner,drawEquipmentDefense} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021';
-import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=outline2&ai=1018&art=pilot-recovery2&livens=20261019&sig=1019&boss=20261020b&skyart=20261020tone1&alpsart=20261020tone1&somme=20261021&cambrai=20261021&phase=1021';
-import {paintDover} from './dover-night-view.js?v=outline1&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {drawStageBoss,updateStageBossHud,paintCity,paintSky,prepareStageBossAssets} from './stageboss-view.js?v=outline2&ai=1018&art=pilot-recovery2&livens=20261019&sig=1019&boss=20261020b&skyart=20261020tone1&alpsart=20261020tone1&somme=20261021&cambrai=20261021&phase=1021&armorart=20261022&gothaart=20261022&adriaticart=20261022&trenchart=20261022&skymechanics=20261022&doverart=1022';
+import {paintDover} from './dover-night-view.js?v=outline1&ai=1018&sig=1019&boss=20261020b&phase=1021&hardware=1022';
 import {paintParis} from './paris-night-art.js?v=outline1&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=merge20261017&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021';
+import {enableStageBoss,stageBossBounds,harborBankOffset,harborRouteHalfWidth} from './stageboss-host.js?v=merge20261017&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&adriaticart=20261022';
 import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js?v=gal1';
 import './hud-layout94.js?v=gal1';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=gal1';
-import {installOnlineLobby} from './online-coop-session.js?v=buildfit1&coopfix=1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
-import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
+import {installOnlineLobby} from './online-coop-session.js?v=buildfit1&coopfix=1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022';
+import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=gal1';
-import {drawCoop} from './coop-view.js?v=deathdefiance1&livens=20261019&sig=1019&boss=20261020b&phase=1021';
+import {drawCoop} from './coop-view.js?v=deathdefiance1&livens=20261019&sig=1019&boss=20261020b&phase=1021&armorart=20261022&gothaart=20261022&adriaticart=20261022&trenchart=20261022&skymechanics=20261022&doverart=1022';
 import {drawSunStrike} from './sun-strike71.js?v=buildfit1&rail=42&afc=1';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawTracerBolt,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=pilotfx20261018';
 import {installFlightViewport} from './flight-viewport.js?v=gal1';
@@ -396,7 +396,7 @@ function frameInner(now){try{let dt=Math.min(.12,(now-last)/1000||.016);last=now
  frameInner(now);const frameCost=performance.now()-__s;__perfFrame(frameCost);if(game?.testMode&&(game.trenchDioramaDemoRunning||game.combatBenchmarkRunning)){const i=trenchPerf.n++%2048;trenchPerf.cost[i]=frameCost;trenchPerf.gap[i]=trenchPerf.last?now-trenchPerf.last:0;trenchPerf.last=now;}
 }roster();syncStartHint();resize();scheduleGameFrame();
 
-function drawSupport(){if(!game)return;let cx=game.x,cy=game.y;const point=(x,y)=>{_ptShare[0]=x-cx+W/2;_ptShare[1]=y-cy+H/2;return _ptShare};for(let a of (game.allies||[])){if(a.carrierHidden||!a.plane||!PLANES[a.plane]&&!a.eventReconEscort)continue;let[x,y]=point(a.x,a.y),allyKey=game.pilot==='goering'?'goering_fokkerd7':a.plane==='fokker'?'fokker_standard':a.plane;if(drawMannockWing(ctx,game,a,x,y,planeSprite,fx,false))continue;ctx.globalAlpha=.95;planeSprite(ctx,x+12,y+20,a.a,allyKey,.78*(a.carrierScale??1),false,true);planeSprite(ctx,x,y,a.a,allyKey,.78*(a.carrierScale??1),false,false,a.hitFlash||0,a.hp!=null&&a.hp<=a.maxHp*.5);ctx.globalAlpha=1}}hangarArtReady.then(()=>roster());aircraftReady.then(()=>roster());
+function drawSupport(){if(!game)return;let cx=game.x,cy=game.y;const point=(x,y)=>{_ptShare[0]=x-cx+W/2;_ptShare[1]=y-cy+H/2;return _ptShare};for(let a of (game.allies||[])){if(a.carrierHidden||!a.plane||!PLANES[a.plane]&&!a.eventReconEscort)continue;let[x,y]=point(a.x,a.y),allyKey=game.pilot==='goering'&&!a.aceWingman?'goering_fokkerd7':a.plane==='fokker'?'fokker_standard':a.plane;if(!a.aceWingman&&drawMannockWing(ctx,game,a,x,y,planeSprite,fx,false))continue;ctx.globalAlpha=.95;planeSprite(ctx,x+12,y+20,a.a,allyKey,.78*(a.carrierScale??1),false,true);planeSprite(ctx,x,y,a.a,allyKey,.78*(a.carrierScale??1),false,false,a.hitFlash||0,a.hp!=null&&a.hp<=a.maxHp*.5);if(a.aceWingman&&PILOTS[a.acePilot]){ctx.save();ctx.font='600 10px sans-serif';ctx.textAlign='center';ctx.shadowColor='#000';ctx.shadowBlur=4;ctx.fillStyle='#e4c894';ctx.fillText(PILOTS[a.acePilot].name,x,y-29);ctx.restore()}ctx.globalAlpha=1}}hangarArtReady.then(()=>roster());aircraftReady.then(()=>roster());
 
 portraitsReady.then(()=>{roster();applyPilotPortrait('cutinPortrait')});
 

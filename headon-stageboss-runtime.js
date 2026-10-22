@@ -122,15 +122,48 @@ export class StageBossAddon {
     // shown what its current phase is for (its own gate, or the encounter's
     // signature strikes). Firepower still shortens every wait; it cannot skip
     // the fight. Internal/scripted damage calls body.hit directly.
-    const floor=!this.showFloors?0:typeof body.hpFloor==='function'?body.hpFloor():this.stages.encounter?.guardFloor?.(body)||0;
-    // Breaking a weak point is the reward route: part hits pass untouched unless the
-    // parts are the hull itself or the body keeps its own scripted floor (rail guns).
-    if(!(floor>0)||partId&&!body.partsCarryHull&&typeof body.hpFloor!=='function')return body.hit({partId,damage});
-    const before=body.hp;if(!partId||body.partsCarryHull)damage=Math.min(damage,Math.max(0,before-floor)/1.5);
+    // Scripted weak points (rail cars) may also hold until the boss has fired.
+    if(this.showFloors&&partId&&typeof body.partFloor==='function'){const part=body.parts.get(partId),pf=body.partFloor(partId);if(part&&pf>0)damage=Math.min(damage,Math.max(0,part.hp-pf));}
+    const floor=this.floorFor(body);
+    if(!(floor>0))return body.hit({partId,damage});
+    // Approaching a phase gate the boss braces: the last 4 % above the line takes
+    // a tenth of the damage, the line itself holds, and the boss is hurried into
+    // its next warned attack (see noteGate). Weak points still break at full
+    // damage; any hull loss they cause past the line is banked, not lost.
+    const before=body.hp,band=this.stages.encounter?.gateBand?.()||body.maxHp*.04,top=floor+band,hull=!partId||body.partsCarryHull;
+    // The cap keeps a margin (/1.5) for bosses that scale damage inside their own hit;
+    // a boss whose kill pool is not its gauge (Gallipoli's command post) reports it.
+    if(hull){const free=Math.max(0,before-top);damage=Math.min(damage<=free?damage:free+(damage-free)*.1,Math.max(0,before-floor)/1.5);
+      if(!partId&&typeof body.coreReserve==='function')damage=Math.min(damage,Math.max(0,body.coreReserve()-1));}
+    // Several bosses pass weak-point damage into the hull and can die inside the
+    // part hit, so a part hit spends at most the hull left above the line.
+    else damage=Math.min(damage,Math.max(0,before-floor));
     const result=body.hit({partId,damage});
-    // Part hits that also wear the hull stop at the floor too; never heals.
-    if(!body.dead&&body.hp<Math.min(floor,before))body.hp=Math.min(floor,before);
+    if(!body.dead&&body.hp<Math.min(floor,before)){const held=Math.min(floor,before);if(!hull)body.pendingDrop=(body.pendingDrop||0)+held-body.hp;body.hp=held;}
+    if(!body.dead&&body.hp<=top+.5){this.noteGate(body,floor);result.armored=true;}
     return result;
+  }
+  floorFor(body){return !this.showFloors||body.dead?0:typeof body.hpFloor==='function'?body.hpFloor():this.stages.encounter?.guardFloor?.(body)||0;}
+  // The pilot has reached a gate: hurry every living body into its next warned
+  // attack (at most every 2.5 s) and tell the HUD which line is holding.
+  noteGate(body,floor){
+    const enc=this.stages.encounter;if(!enc)return;const now=enc.clock||0;
+    enc.gateHold={bodyId:body.id,frac:floor/body.maxHp,until:now+.6};
+    // One toast per gate; hurry may repeat.
+    const key=enc.gate?.at??Math.round(floor);if(enc.gateCueKey!==key){enc.gateCueKey=key;this.hooks.onCue?.({type:'boss-gate-armor',bossId:body.id,encounterId:enc.id});}
+    if(now<(enc.gateHurryAt??-Infinity)+1.2)return;enc.gateHurryAt=now;
+    for(const b of enc.bodies.values())if(!b.dead)b.hurry?.();
+  }
+  // While a shared gate is up, keep hurrying (a timer that fired nothing warned is
+  // skipped next time) and keep the bar locked; banked weak-point loss lands after.
+  settleBanked(){
+    const enc=this.stages.encounter;
+    // Advance the shared gate on the clock too, so a pause in hits never leaves it held.
+    if(enc?.gate?.at!=null){const live=[...enc.bodies.values()].find(b=>!b.dead&&typeof b.hpFloor!=='function');if(live)enc.guardFloor(live);}
+    if(enc?.gate?.at!=null){const now=enc.clock||0;enc.gateHold={bodyId:enc.gateHold?.bodyId,frac:enc.gateLine,until:now+.3};
+      if(now>=(enc.gateHurryAt??-Infinity)+1.2){enc.gateHurryAt=now;for(const b of enc.bodies.values())if(!b.dead)b.hurry?.();}}
+    for(const b of this.stages.encounter?.bodies.values()||[]){if(b.dead||!(b.pendingDrop>0))continue;
+      const floor=this.floorFor(b),take=Math.min(b.pendingDrop,Math.max(0,b.hp-Math.max(floor,1)));if(take>0){b.hp-=take;b.pendingDrop-=take;}}
   }
   hitAt({x,y,radius=0,damage,faction}) {
     for(const body of this.stages.encounter?.bodies.values()||[]) {
@@ -148,6 +181,7 @@ export class StageBossAddon {
     this.reconcile({blocked:true});
     if(this.defeatSequence)this.updateDefeat(dt);
     else if(encounter&&!encounter.completed)encounter.update(dt,{...frame,canBasicFire:this.canBasicFire,isIlluminated:p=>this.hazards.isIlluminated(p)});
+    if(this.showFloors&&encounter&&!encounter.completed)this.settleBanked();
     for(const b of encounter?.bodies.values()||[]){const ship=b.support129||(b.kind.startsWith('hms-zubian')?b:null);if(ship&&!b.dead){if(b.support129)ship.hullYaw=ship.angle||0;recordShipWake(ship,dt,ship.height||950);}}
     // Queued rounds leave the actual surviving mount, even while the hull
     // moves during the warning. Once fired, their trajectory stays committed.

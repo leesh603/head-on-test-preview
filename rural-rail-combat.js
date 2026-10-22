@@ -34,10 +34,19 @@ export class RuralRailBoss extends RailAdapter {
   // locomotive is the finishing target, not the shell in flight.
   const finalDone=(this.kind==='lincomparable'?!!this.finalCounter:!!this.ironRainFired)&&this.ruralClock>=(this.finalLandAt||0);
   if(this.runawayTriggered129||carsGone)return finalDone?0:m*.06;
-  if(this.entry||this.raidPhase===1&&!this.phaseShots[1])return m*(this.kind==='lincomparable'?.84:.92)+1;
-  if(!this.phaseShots[2])return m*.28+1;
+  // Count shots actually fired, not phase labels: heavy damage moves the raid
+  // phase on before the gun has fired, so a per-phase check never held.
+  // Bruno fires every few seconds, so it must show four salvos before its last
+  // one; the 520 mm gun has a long lay and shows two rounds.
+  const shots=this.shotsFired();if(this.entry)return this.showSchedule().hull[0][1]*m+1;
+  for(const [need,pct] of this.showSchedule().hull)if(shots<need)return m*pct+1;
   return m*.06;
  }
+ showSchedule(){return this.kind==='lincomparable'?{hull:[[1,.84],[2,.28]],cars:[1,1,2]}:{hull:[[1,.92],[2,.66],[3,.45],[4,.28]],cars:[1,2,4]};}
+ shotsFired(){return (this.phaseShots[1]||0)+(this.phaseShots[2]||0)+(this.phaseShots[3]||0);}
+ // Cars are the weak-point route, so they unlock with the gun's shots instead of
+ // falling in the first second. Breaking cars stays as fast as the hull route.
+ partFloor(id){const i=this.railCarOrder.indexOf(id);if(i<0||this.dead)return 0;return this.shotsFired()>=this.showSchedule().cars[i]?0:1;}
  counterWindow(){return this.recovery>0?1.35:super.counterWindow();}
  refreshReload(){this.rail129.c.reloadSeconds=this.baseReload*(this.parts.get('car-front').destroyed?1.6:1)*(this.kind==='lincomparable'&&this.rail129.broken?1.4:1);}
  railEvent(e){

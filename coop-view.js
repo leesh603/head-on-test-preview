@@ -16,7 +16,7 @@ import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view
 import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=buildfit1&art=pilot-recovery2';
 import {drawAircraftCrash,enemyCrashScale} from './aircraft-crash.js?v=gal1';
 import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021';
-import {drawStageBoss} from './stageboss-view.js?v=outline2&ai=1018&art=pilot-recovery2&livens=20261019&sig=1019&boss=20261020b&skyart=20261020tone1&alpsart=20261020tone1&somme=20261021&cambrai=20261021&phase=1021';
+import {drawStageBoss} from './stageboss-view.js?v=outline2&ai=1018&art=pilot-recovery2&livens=20261019&sig=1019&boss=20261020b&skyart=20261020tone1&alpsart=20261020tone1&somme=20261021&cambrai=20261021&phase=1021&armorart=20261022&gothaart=20261022&adriaticart=20261022&trenchart=20261022&skymechanics=20261022&doverart=1022';
 import {bombSprite} from './bomb-sprites.js?v=bomb20';
 const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};
@@ -112,7 +112,3 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  for(const p of g.players){const isMe=g.online?p.id===g.localPlayerId:p.id==='p1';if(isMe||p.hp<=0)continue;const sx=(p.x-g.x)*z+W/2,sy=(p.y-g.y)*z+H/2;if(sx>-24&&sx<W+24&&sy>-24&&sy<H+24)continue;const ax=Math.min(Math.max(sx,30),W-30),ay=Math.min(Math.max(sy,30),H-30),ang=Math.atan2(sy-ay,sx-ax);c.save();c.translate(ax,ay);c.rotate(ang);c.fillStyle='#47d160';c.strokeStyle='#0c1f10';c.lineWidth=2;c.beginPath();c.moveTo(16,0);c.lineTo(-9,-9);c.lineTo(-4,0);c.lineTo(-9,9);c.closePath();c.fill();c.stroke();c.restore();c.save();c.font='800 10px sans-serif';c.textAlign='center';c.fillStyle='#c9ffce';c.fillText(p.id.toUpperCase(),ax,ay-14);c.restore()}
  c.font='14px sans-serif';c.textAlign='left';c.fillStyle='#f1edd0';c.fillText(((g.worldRegion?.()??g.region)===17?'도버 해협 · 해상 야간 차단선':(['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭'][g.worldRegion?.()??g.region]||'전원 지대'))+' · 팀 비행 '+(g.distance/1000).toFixed(1)+' km',14,H-14);
 }
-
-
-
-

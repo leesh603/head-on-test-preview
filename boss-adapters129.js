@@ -82,6 +82,7 @@ export class RailAdapter extends BaseBoss {
   const r=super.hit(s);if(this.dead)this.dispose();return r;
  }
  hitAt(s){const hit=this.locateHit(s);return hit?this.hit({...hit,damage:s.damage}):{damage:0};}
+ hurry(){if(this.entry||this.runawayTriggered129)return null;super.hurry();this.rail129.hurry?.();return 'rail';}
  dispose(){this.rail129.destroy();}
 }
 export class StuttgartAdapter extends BaseBoss {
@@ -98,6 +99,7 @@ export class StuttgartAdapter extends BaseBoss {
  update(dt,ctx){this.basicHoldUntil=(this.combatTime||0)+dt+.1;this.support129.tick(dt,ctx);this.sync129();}
  sync129(){const s=this.support129;this.hp=s.hp;this.x=s.x;this.y=s.y;this.hullYaw=s.angle;this.driveVelocity=s.driveVelocity;this.phase=s.tacticalPhase||(s.phase===1?'carrier':s.phase===2?'sortie':s.phase===3?'carrier-evasive':'carrier-final-sortie');this.dead=s.dead;for(const p of s.parts.values()){const q=s.world(p.nx,p.ny),part=this.parts.get(p.id);part.x=q.x-s.x;part.y=q.y-s.y;}}
  locateHit(s){const id=this.support129.locateHit(s);return id?{partId:id}:null;}
+ hurry(){const s=this.support129;if(s&&s.fireClock>.2)s.fireClock=.2;return 'fire';}
  hit(s){const was=this.dead,result=this.support129.hit({...s,partId:s.partId||'hull'});this.sync129();if(this.dead&&!was)this.emit({type:'body-defeated',bossId:this.id});return result;}
  hitAt(s){const hit=this.locateHit(s);return hit?this.hit({...hit,damage:s.damage}):{damage:0};}
  dispose(){this.support129.dispose();}

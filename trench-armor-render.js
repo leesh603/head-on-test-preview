@@ -23,10 +23,10 @@ function trackCenter(points,y){
  return points[points.length-1][1];
 }
 // Build once at native art resolution; live rendering is two cached blits.
-export function prepareArmorTreads(hull,kind,makeCanvas=()=>typeof OffscreenCanvas==='function'?new OffscreenCanvas(1,1):document.createElement('canvas')){
+export function prepareArmorTreads(hull,kind,makeCanvas=()=>typeof OffscreenCanvas==='function'?new OffscreenCanvas(1,1):document.createElement('canvas'),profile=TREAD_PROFILES[kind]){
  if(!hull?.naturalWidth)return null;
  let cached=treadCache.get(hull);if(cached)return cached;
- const profile=TREAD_PROFILES[kind];cached={};
+ cached={};
  for(const side of ['left','right']){
   const points=profile[side],width=profile.halfWidth*2;
   const minX=Math.floor(Math.min(...points.map(p=>p[1]))-profile.halfWidth),maxX=Math.ceil(Math.max(...points.map(p=>p[1]))+profile.halfWidth),stripWidth=maxX-minX;
@@ -53,8 +53,8 @@ export function drawArmorGround(c,b,wire,crossing){
  const art=b.assetKey==='mark-v-cruiser'?crossing:wire,mark=b.assetKey==='mark-v-cruiser';
  if(b.entryAge<3.3&&art?.naturalWidth){const row=b.entryAge>1?1:0,hh=art.naturalHeight/2,s=b.geometryScale||1;c.save();c.translate((b.anchorX??b.x)-b.x,(b.anchorY??b.y)+22*s-b.y);c.globalAlpha*=Math.min(1,(3.3-b.entryAge)*2);c.drawImage(art,0,row*hh,art.naturalWidth,hh,-155*s,-(mark?46:30)*s,310*s,(mark?92:60)*s);c.restore();}
 }
-export function drawArmorTreads(c,b,hull){
- if(b.destroying||!hull?.naturalWidth)return;const layout=TRENCH_ARMOR_LAYOUT[b.assetKey],parts=b.parts||[],atlas=prepareArmorTreads(hull,b.assetKey);
+export function drawArmorTreads(c,b,hull,profile){
+ if(b.destroying||!hull?.naturalWidth)return;const layout=TRENCH_ARMOR_LAYOUT[b.assetKey],parts=b.parts||[],atlas=prepareArmorTreads(hull,b.assetKey,undefined,profile);
  for(let i=0;i<2;i++){
   const side=i?'right':'left',tread=i?b.rightTrack:b.leftTrack;
   if(parts.find(p=>p.id==='track-'+side)?.destroyed)continue;

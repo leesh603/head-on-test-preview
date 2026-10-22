@@ -5,7 +5,7 @@ import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
 import {ParisSearchlightFortress,ParisStaakenRVI} from './paris-night-bosses.js?v=gal1&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {GallipoliFortress} from './gallipoli-boss.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=gal1-r3&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {RuralRailBoss} from './rural-rail-combat.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {RuralRailBoss} from './rural-rail-combat.js?v=gal1&rail=43&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {treffasPoint,treffasGunPivot,treffasGunMuzzle,treffasMgMuzzle,fliegerGunPivot,fliegerGunMuzzle} from './cambrai-layout.js?v=gal1&cambrai=20261021';
 import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&phase=1021';
@@ -1098,6 +1098,7 @@ export class MinenwerferBattery extends PatternBoss {
     }
     this.phase=!this.discovered?'minenwerfer-approach':this.mortarPlan?.final?'minenwerfer-final-order':this.recovery?'minenwerfer-reload':guns.length===1?'final-assault':guns.length===2?'weakened':this.raidPhase===2?(this.mortarPlan?.name||'minenwerfer-prediction'):'minenwerfer-sequence';
   }
+  hurry(){super.hurry();if(this.discovered&&!this.mortarPlan&&this.specialClock>.2)this.specialClock=.2;return 'special';}
   dispose(){this.mortarPlan=null;this.mortarGuide=null;}
 }
 
@@ -1124,6 +1125,10 @@ export class Fliegerzug extends RailAdapter {
     this.locomotiveReserve=this.maxHp*.30;this.combatPhase=1;this.finalRaid=false;this.finalRaidTriggered=false;this.raidRecovery=0;this.sortieSide=0;
   }
   liveLaunchers(){return ['car-launch-a','car-launch-b'].map(id=>this.parts.get(id)).filter(p=>!p.destroyed);}
+  // Wagons are the weak-point route, so they unlock as the train shows its drone
+  // salvos instead of all falling in the first seconds. A wagon also unlocks on
+  // time (9 s per salvo owed) so an off-screen launcher can never stall the fight.
+  partFloor(id){const i=this.railCarOrder.indexOf(id);if(i<0||this.dead)return 0;const need=[1,1,2,2,3][i]??3;return (this.salvosShown||0)>=need||(this.combatTime||0)>=need*9?0:1;}
   carPoint(car,dx=0,dy=0){const a=car.angle||0;return{x:this.x+car.x+dx*Math.cos(a)-dy*Math.sin(a),y:this.y+car.y+dx*Math.sin(a)+dy*Math.cos(a)};}
   selectTarget(players){const live=players.filter(p=>p.alive!==false&&Number.isFinite(p.x)&&Number.isFinite(p.y));return live.length?live[this.targetIndex++%live.length]:null;}
   launchVisible(car,q=this.carPoint(car)){const b=this.currentBounds;return !b||(q.x>=b.left+42&&q.x<=b.right-42&&q.y>=b.top+60&&q.y<=b.bottom-60);}
@@ -1178,7 +1183,7 @@ export class Fliegerzug extends RailAdapter {
   railEvent(e){
     if(e.type==='fire'){
       const ports=this.liveLaunchers();
-      if(ports.length&&!this.finalRaid&&!this.raidRecovery&&!this.bugSalvo){this.bugSalvo={ports,clock:0,interval:this.combatPhase>=2?.75:1.05};this.emit({type:'bug-salvo',bossId:this.id,x:this.x,y:this.y});}
+      if(ports.length&&!this.finalRaid&&!this.raidRecovery&&!this.bugSalvo){this.bugSalvo={ports,clock:0,interval:this.combatPhase>=2?.75:1.05};this.salvosShown=(this.salvosShown||0)+1;this.emit({type:'bug-salvo',bossId:this.id,x:this.x,y:this.y});}
       return;
     }
     if(e.type==='aim')return;

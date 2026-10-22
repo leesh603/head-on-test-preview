@@ -1,3 +1,4 @@
+import {recordAdriaticGunCue} from './adriatic-gun-art.js?v=20261022';
 import {capBomberSalvoDamage} from './bomber-transfer.js?v=buildfit1&afc=1';
 import {recordCombatImpact} from './combat-impact-result.js';
 import {achievementBossCue,achievementBossClear,awardPriorityKill} from './achievements.js?v=medals2';
@@ -10,10 +11,10 @@ import {tickRegionalConditions} from './region-doctrine1.js?v=buildfit1&afc=1&ai
 import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {handleMaanCue} from './maan-view.js?v=regionalair2&ai=1018&boss=20261020b';
 import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=gal1';
-import {isDoverBoss} from './dover-night-view.js?v=outline1&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {isDoverBoss} from './dover-night-view.js?v=outline1&ai=1018&sig=1019&boss=20261020b&phase=1021&hardware=1022';
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=gal1';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=gal1';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=livingww1d&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=livingww1d&rail=43&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021';
 import {bossSoundFor} from './boss-feedback.js?v=gal1&hints=1&rail=42&ai=1018&sig=1019';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=gal1&rail=42';
@@ -135,9 +136,11 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
   onCue(event){
    if(event.type==='formation-shot'){g.bullets.push({x:event.x,y:event.y,vx:Math.cos(event.angle)*event.speed,vy:Math.sin(event.angle)*event.speed,life:2,enemy:true,visualType:'boss',damage:Math.max(event.damage,event.raidHeavy?(g.maxHp||100)*.72:0),encounterId:event.encounterId,formationBoss129:true,sourceBossId:event.bossId});g.event('enemyShot','');return;}
    if(event.type==='formation-engaged')g.event('wave','아군 편대 격추 · 정예 편대와 교전');
+   if(event.type==='boss-gate-armor'){g.event('wave','장갑 강화 · 공격을 피한 뒤 반격');return;}
    if(event.type==='formation-final-order')g.event('wave',event.name+' · 예고선 밖으로 선회!');
    if(event.type==='carrier-sortie-orders')redirectStuttgartSortie(g.enemies,event);
    const body=g.stageBoss?.stages.encounter?.bodies.get(event.bossId);
+   recordAdriaticGunCue(body,event);
    achievementBossCue(g,event,body);
    if(event.type==='hazard-activated'&&event.raidHeavy){g.shake=Math.max(g.shake,event.kind==='projectile'?3:8);if(g.t-(g.raidHeavySoundAt??-10)>.16){g.event('heavyShot','');g.raidHeavySoundAt=g.t;}const mount=body?.parts.get(event.sourcePartId);if(mount)mount.recoil=Math.max(mount.recoil||0,.3);}
    if(handleVerdunCue(g,event))return;
@@ -271,7 +274,7 @@ export function damageStageBoss(g,e,b,damage){
  const part=hit.partId?body.parts.get(hit.partId):null,target=part||body;if(b.identityDotTarget&&b.identityDotTarget!==target)return;
  damage=capBomberSalvoDamage(e,b,damage);if(!(damage>0))return;
  const result=g.stageBoss.hit({bodyId:body.id,...hit,damage,faction:g.teamFaction});
- recordCombatImpact(b,e,{...result,partId:hit.partId,partKind:part?.kind,blocked:!(result.damage>0)});
+ recordCombatImpact(b,e,{...result,partId:hit.partId,partKind:part?.kind,blocked:!(result.damage>0)||!!result.armored});
  if(result.damage>0){const raw=part&&body.support129?.parts.get(part.id),pos=raw?body.support129.world(raw.nx,raw.ny):{x:body.x+(part?.x||0),y:body.y+(part?.y||0)};notify(target,pos);}
  if(result.damage>0){g.stageBossLastOwner=b.ownerId||'p1';
   if(body.fortressBoss){if(g.t>=(body.impactSmokeAt??-Infinity)){body.impactSmokeAt=g.t+.12;g.smoke?.(b.x,b.y,false);}g.event('impact','');}

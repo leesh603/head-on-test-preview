@@ -32,7 +32,10 @@ export class BaseBoss {
       // show-before-fall floor waits for; ordinary unwarned fire does not count.
       if(!event.basicFire&&!String(event.tag||'').endsWith(':basic-fire')){
         const lead=event.type==='charge-warning'?(event.seconds||0):event.type==='hazard'?(event.delay||0)+(event.warning||0):-1;
-        if(lead>=.5||event.type==='hazard'&&event.raidHeavy){this.shownCount=(this.shownCount||0)+1;(this.shownEnds??=[]).push((this.combatTime||0)+Math.max(0,lead)+.3);}
+        if(lead>=.5||event.type==='hazard'&&event.raidHeavy){this.shownCount=(this.shownCount||0)+1;(this.shownEnds??=[]).push((this.combatTime||0)+Math.max(0,lead)+.3);
+          enc?.noteShown?.(Math.max(0,lead));this._hurryTried?.clear();
+          // Learn which timer fires this boss's warned attacks so hurry() can pull it forward.
+          const d=this._dueFired;if(d&&d.t===(this.combatTime||0))(this.signatureKeys??=new Set).add(d.key);}
       }
       if(event.type==='body-defeated'||event.type==='part-destroyed'){emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':basic-fire'});this.basicClock=Math.max(this.basicClock||0,.65);}
       emit(event);
@@ -60,7 +63,22 @@ export class BaseBoss {
     if(!Number.isFinite(interval)||interval<=0)throw new Error('Invalid interval');
     interval/=this.t?.patternMultiplier||1;
     const left=(this.timers.get(key)??interval)-dt;
+    (this._dueIv??=new Map()).set(key,interval);
+    if(left<=0)this._dueFired={key,t:this.combatTime||0};
     this.timers.set(key,left<=0?interval:left);return left<=0;
+  }
+  // Phase gate reached: bring the next warned attack forward instead of making
+  // the pilot wait out its timer. Bosses with their own clocks override this.
+  hurry(){
+    // Known signature timers first; otherwise long timers. A timer that was
+    // pulled forward without producing a warned attack is skipped next time.
+    const tried=this._hurryTried??=new Set(),ok=k=>this.timers.has(k)&&!tried.has(k);
+    const known=[...(this.signatureKeys||[])].filter(ok);
+    const plain=k=>ok(k)&&!/sound|debris|smoke|cue|vent/.test(k),long=[...this.timers.keys()].filter(k=>plain(k)&&(this._dueIv?.get(k)||0)>=2.5);
+    const pool=known.length?known:long.length?long:[...this.timers.keys()].filter(plain);
+    let best=null;for(const k of pool)if(best==null||this.timers.get(k)<this.timers.get(best))best=k;
+    if(best!=null){this.timers.set(best,Math.min(this.timers.get(best),.15));tried.add(best);}
+    return best;
   }
   locateHit({x,y,radius=0}) {
     for(const p of this.parts.values())if(p.hittable&&!p.destroyed&&Math.hypot(x-(this.x+p.x),y-(this.y+p.y))<=p.radius+radius)return{partId:p.id};
@@ -109,29 +127,40 @@ export class BossEncounter {
   // Objective bombing (a raid on a city district) is not gunnery and runs on its own clock.
   breathBlocks(e){const b=this.breath;if(!b||this.clock<b.blockFrom||this.clock>=b.until||e.objective)return false;return e.type==='hazard'?e.kind!=='searchlight'&&e.kind!=='net':BREATH_BLOCKED.has(e.type);}
   breathOpen(){const b=this.breath;return !!b&&this.clock>=b.from&&this.clock<b.until;}
-  // Show-before-fall floor for bosses without their own gate (hpFloor): the
-  // last standing body holds at 66 % / 33 % / 5 % of its health until it has
-  // put a warned attack in the air after reaching that line and the attack has
-  // landed. A body that cannot attack (or a stall) is released after 7 s.
+  // Phase gates for bosses without their own (hpFloor). The encounter's total
+  // health stops at 66 % / 33 % / 5 % until the boss has put a warned attack in the
+  // air at that line and it has landed; the host calls hurry() so that attack comes
+  // at once instead of on its normal timer (rules inside guardFloor). Formations
+  // and split bodies share one gauge.
+  // Hazards launched within half a second of each other are one attack (a salvo).
+  noteShown(lead){const list=this.shown??=[],last=list.at(-1),end=this.clock+lead+.3;if(last&&this.clock-last.start<.5)last.end=Math.max(last.end,end);else list.push({start:this.clock,end});}
+  gateBand(){return this.maxHpBudget*.04;}
+  // Lines drawn on the boss bar: a rail gun's own schedule, otherwise the shared gates.
+  gateLines(){const live=[...this.bodies.values()].filter(b=>!b.dead);if(live.length===1&&typeof live[0].showSchedule==='function')return [...live[0].showSchedule().hull.map(([,f])=>f),.06];return [.66,.33,.05];}
+  gateHeld(){return !!this.gateHold&&this.clock<this.gateHold.until;}
   guardFloor(b){
-    if(b.dead)return 0;let alive=0;for(const x of this.bodies.values())if(!x.dead)alive++;if(alive>1)return 0;
-    // A boss whose weapons never warn (fighter formations) has its own pace.
-    if(b.gallipoliBoss)return 0;// gates itself: sectors, repairs and an exposed command
-    if(!b.shownCount&&(b.combatTime||0)>8)return 0;
-    const gates=[.66,.33,.05],g=b.guard??={i:0,at:null,base:0};
+    if(b.dead)return 0;
+    let S=0;for(const x of this.bodies.values())if(!x.dead)S+=Math.max(0,x.hp);
+    const B=this.maxHpBudget,gates=[.66,.33,.05],g=this.gate??={i:0,at:null,used:0,openAt:0},now=this.clock,shown=this.shown||[];
     while(g.i<gates.length){
-      const floor=gates[g.i]*b.maxHp,now=b.combatTime||0;
-      // One landed warned attack pays for one gate. At normal pace the gates are paid
-      // before the pilot reaches them, so nothing is held; a heavy build waits for the
-      // next attack to land (or 7 s at the floor if the boss cannot attack).
-      if(now>=(b.shownEnds?.[g.base]??Infinity)){g.i++;g.at=null;g.base=b.shownCount||0;continue;}
-      if(b.hp>floor+1)return floor;
-      g.at??=now;
-      // A disarmed or silent body (nothing shown for 6 s) is not held: no stalling.
-      if(now-g.at<7&&now-(b.shownEnds?.at(-1)??0)<6)return floor;
-      g.i++;g.at=null;g.base=b.shownCount||0;
+      const G=gates[g.i]*B;this.gateLine=gates[g.i];
+      // Each warned attack made since the previous gate opened pays exactly one gate, and
+      // gates open at least 5 s apart: a normal-pace fight is slower than that and
+      // never waits, an overwhelming build sees an attack per phase. A boss that
+      // starts nothing within 3 s of being hurried (disarmed, hidden) is released.
+      const paidBy=()=>{if(now-g.openAt<5)return {paid:-1,started:false};const from=g.openAt;let started=false;
+        for(let k=g.used;k<shown.length;k++){const q=shown[k];if(q.start<from)continue;started=true;if(q.end<=now)return {paid:k,started};}return {paid:-1,started};};
+      if(g.at==null){
+        if(S>G+this.gateBand()){
+          // Already paid on the way in: open early so a normal-pace pilot never feels it.
+          const pre=S<=G+B*.2?paidBy():null;if(pre?.paid>=0){g.used=pre.paid+1;g.i++;g.openAt=now;continue;}
+          return Math.max(0,b.hp-(S-G));}
+        g.at=now;}
+      const {paid,started}=paidBy();const anyStart=started||shown.slice(g.used).some(q=>q.start>=Math.max(g.at-6,g.openAt));
+      if(paid>=0||!anyStart&&now-g.at>=3||now-g.at>=8){if(paid>=0)g.used=paid+1;g.i++;g.at=null;g.openAt=now;continue;}
+      return Math.max(0,b.hp-(S-G));
     }
-    return 0;
+    this.gateLine=null;return 0;
   }
   updateBreath(dt){
     this.clock+=dt;const cfg=this.breathCfg;if(!cfg)return;

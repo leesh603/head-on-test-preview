@@ -1,3 +1,4 @@
+import {DOVER_HARDWARE_SOURCES,DOVER_DECK_FRAMES,doverHardwarePart,doverHardwareSignals,drawDoverHardware} from './dover-hardware-art.js?v=1022';
 import {paintDoverTerrain,doverCoastPoint} from './dover-terrain-render.js?v=dover6';
 import {DOVER_PART_CLIPS} from './dover-night-bosses.js?v=dover3&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {fx} from './fx-art.js?v=tame3';
@@ -13,7 +14,7 @@ export function doverExtents(b){const a=b.a+Math.PI/2,s=b.geometryScale||1,w=b.l
 export function prepareDoverAssets(region){
  if(region!==17){generation++;images.clear();pending=null;return Promise.resolve();}
  if(pending)return pending;const epoch=generation;
- pending=Promise.all(Object.entries(DOVER_ASSETS).map(([key,path])=>new Promise(resolve=>{
+ pending=Promise.all(Object.entries({...DOVER_ASSETS,...DOVER_HARDWARE_SOURCES}).map(([key,path])=>new Promise(resolve=>{
   const im=new Image();im.decoding='async';images.set(key,im);
   im.onload=()=>{(im.decode?.()||Promise.resolve()).catch(()=>{}).then(()=>resolve(epoch===generation));};
   im.onerror=()=>resolve(false);im.src='./'+path+'?v=dover6';
@@ -49,18 +50,20 @@ function drawPropellers(c,b,key){
   }c.restore();
  }
 }
-export function drawDoverBoss(c,b,destruction){
+export function drawDoverBoss(c,b,destruction,hazards){
  const key=b.kind==='supermarine-nighthawk'?'nighthawk':'rviii',normal=images.get(key),wreck=images.get(key+'Wreck');if(!normal?.naturalWidth)return;
  const clips=DOVER_PART_CLIPS[key],layout=b.layout,s=b.geometryScale||1,dying=b.dead,age=destruction?.age||0,q=dying?Math.min(1,age/(destruction?.duration||2.65)):0;
  c.save();c.translate(b.x,b.y);c.rotate(b.a+Math.PI/2);
  if(dying){c.translate(0,q*115);c.rotate(q*.14);c.scale(1-q*.3,1-q*.3);c.globalAlpha*=1-q;}
  c.scale(s,s);c.imageSmoothingEnabled=true;
  c.scale(1-Math.abs(b.bank||0)*.025,1);
+ const deck=images.get('deck'),hardware=images.get('hardware'),separated=!dying&&!!deck?.naturalWidth&&!!hardware?.naturalWidth,signals=separated?doverHardwareSignals(b,hazards):null;
  const whole=im=>c.drawImage(im,-layout.width/2,-layout.height/2,layout.width,layout.height);
  c.save();c.beginPath();c.rect(-layout.width/2,-layout.height/2,layout.width,layout.height);for(const rect of Object.values(clips))c.rect(...rect);c.clip('evenodd');whole(normal);c.restore();
  for(const p of b.parts.values()){
   const rect=clips[p.id];if(!rect)continue;const broken=p.destroyed||dying;
-  c.save();c.beginPath();c.rect(...rect);c.clip();whole(broken&&wreck?.naturalWidth?wreck:normal);c.restore();
+  c.save();c.beginPath();c.rect(...rect);c.clip();if(separated&&doverHardwarePart(p.id)){const f=DOVER_DECK_FRAMES[key][p.id];c.drawImage(deck,...f,...rect);}else whole(broken&&wreck?.naturalWidth?wreck:normal);c.restore();
+  if(separated&&doverHardwarePart(p.id))drawDoverHardware(c,b,p,hardware,signals);
   if(broken){const x=p.localX/s,y=p.localY/s,t=(((b.motionTime||0)*.3+x*.003)%1+1)%1;
    if(p.kind==='engine'||p.kind==='drive')fx(c,'fireEngine',x,y,25,42,0,.7);
    fx(c,'smokeDark',x+12*t,y-t*45,26+t*40,28+t*46,.15,(1-t)*.5);

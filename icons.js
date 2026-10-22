@@ -18,7 +18,7 @@ const DIRECT_ICONS=Object.freeze({
  damage:'armor_piercing_ammo.webp',rate:'synchronization_gear.webp',rockets:'le_prieur_rocket_launcher.webp',mines:'grenade_throwing_gear.webp',
  explosives:'high_quality_powder.webp',command:'squadron_flight_manual.webp',turn:'laminated_wood_propeller.webp',armor:'plywood_monocoque_fuselage.webp',regen:'mechanics_oil_pump.webp',
 
- bomber:'bombing_request_carrier_pigeon.webp',wingman:'wingman_joining.webp',fighterSupply:'new_fighter_supply.webp',mercedesEngine:'high_output_mercedes_engine.webp',spread:'wide_barrage_firing_device.webp',combinedProjectiles:'combined_projectile_distributor.webp',
+ bomber:'bombing_request_carrier_pigeon.webp',wingman:'wingman_joining.webp',aceWingman:'ace_wingman.webp',fighterSupply:'new_fighter_supply.webp',mercedesEngine:'high_output_mercedes_engine.webp',spread:'wide_barrage_firing_device.webp',combinedProjectiles:'combined_projectile_distributor.webp',
  amatolCharge:'amatol_high_explosive_charge.webp',lufberyCircle:'lufbery_circle.webp',
  sparkPlug:'mccudden_emergency_repair_kit.webp',goeringBaton:'squadron_general_mobilization.webp',steelPlate:'j_type_armor_capsule.webp',mauserAceKiller:'mauser_c96_ace_killer.webp',rearGunner:'scarff_ring_gun_mount.webp',kaiserFog:'brock_smoke_device.webp',grunkreuz:'grunkreuz.webp',fogCompass:'co_5_17_aero_compass.webp',
  'ironCross-central':'medal_award_pour_le_merite.webp','ironCross-entente':'medal_award_british_victoria_cross.webp',

@@ -1,29 +1,34 @@
+import {drawAdriaticGun} from './adriatic-gun-art.js?v=20261022';
 import {drawPartFuelFire} from './explosion-profiles.js?v=fx5';
 import {drawEnemyProjectile} from './projectiles.js?v=pilotfx20261018';
 import {drawBossRound} from './boss-rounds.js?v=tame3&ai=1018';
 import {impactMark} from './tactical-marks.js?v=tame3';
 import {HANGAR} from './stuttgart129.js?v=tame3&boss=20261020b';
-import {drawNavalWake} from './adriatic-boss-render.js?v=tame3';
+import {drawNavalWake} from './adriatic-boss-render.js?v=tame3&adriaticart=20261022';
 import {fx} from './fx-art.js?v=tame3';
 // Geometry masks remove the source canvas outside the drawn silhouette at render time.
 // Never color-key gray pixels: doing so also erases metal highlights inside the ship.
 export const SHIP_OUTLINE=[[.498,.007],[.504,.007],[.51,.026],[.538,.05],[.562,.08],[.60,.13],[.628,.161],[.661,.158],[.663,.165],[.642,.174],[.661,.206],[.674,.267],[.681,.343],[.697,.355],[.699,.403],[.683,.416],[.682,.441],[.724,.437],[.727,.444],[.698,.451],[.702,.482],[.688,.499],[.692,.537],[.700,.56],[.696,.61],[.695,.646],[.70,.66],[.695,.71],[.697,.74],[.69,.775],[.696,.81],[.685,.87],[.678,.90],[.663,.932],[.638,.955],[.613,.963],[.61,.974],[.57,.983],[.574,.991],[.565,.995],[.55,.986],[.455,.986],[.43,.995],[.42,.991],[.415,.98],[.358,.958],[.34,.94],[.321,.908],[.309,.873],[.303,.82],[.307,.775],[.298,.743],[.300,.709],[.306,.67],[.303,.628],[.304,.60],[.296,.575],[.300,.536],[.313,.511],[.302,.49],[.291,.475],[.289,.456],[.275,.443],[.28,.438],[.313,.445],[.315,.416],[.301,.401],[.301,.358],[.317,.348],[.326,.32],[.317,.294],[.326,.271],[.333,.23],[.341,.209],[.354,.18],[.339,.162],[.344,.156],[.365,.166],[.392,.131],[.436,.08],[.46,.05],[.489,.025]];
 function shipPath(g,b){g.beginPath();SHIP_OUTLINE.forEach(([x,y],i)=>{const px=(x-.5)*b.width,py=(y-.5)*b.height;i?g.lineTo(px,py):g.moveTo(px,py);});g.closePath();}
-export function drawSupportShip(g,b,images,{camera={x:0,y:0},debug=false}={}){
- if(!b||b.dead)return;g.save();g.translate(b.x-camera.x,b.y-camera.y);g.rotate(b.angle);g.imageSmoothingEnabled=false;
+export function drawSupportShip(g,b,images,{camera={x:0,y:0},debug=false,detail}={}){
+ if(!b||b.dead)return;g.save();g.translate(b.x-camera.x,b.y-camera.y);g.rotate(b.angle);g.imageSmoothingEnabled=true;
  drawNavalWake(g,b,b.width*.45,b.height);g.globalAlpha*=Math.min(1,Math.max(0,(b.time-1.2)/1.2));
  const atlas=images.damage,cell=atlas?.naturalWidth/2,drawFrame=(index)=>g.drawImage(atlas,index%2*cell,Math.floor(index/2)*cell,cell,cell,-b.width/2,-b.height/2,b.width,b.height);
- if(atlas?.naturalWidth&&b.hp<=b.maxHp*.28)drawFrame(b.wreck?3:2);
+ const layered=!b.wreck&&detail?.stuttgart?.naturalWidth&&detail?.guns?.naturalWidth;
+ if(layered)g.drawImage(detail.stuttgart,-b.width/2,-b.height/2,b.width,b.height);
+ else if(atlas?.naturalWidth&&b.hp<=b.maxHp*.28)drawFrame(b.wreck?3:2);
  else if(images.shipMat?.naturalWidth)g.drawImage(images.shipMat,-b.width/2,-b.height/2,b.width,b.height);
  else {g.save();shipPath(g,b);g.clip();g.drawImage(images.ship,-b.width/2,-b.height/2,b.width,b.height);g.restore();}
  if(b.phase===1)g.drawImage(images.cover,-HANGAR.w*b.width/2,(HANGAR.y-HANGAR.h/2)*b.height,HANGAR.w*b.width,HANGAR.h*b.height);
  for(const p of b.parts.values()){if(p.id==='cover')continue;
- if(p.hp<p.maxHp&&atlas?.naturalWidth){const index=p.hp<=0?2:1,sx=index%2*cell,sy=Math.floor(index/2)*cell;
-  g.drawImage(atlas,sx+(p.nx+.5-p.rx)*cell,sy+(p.ny+.5-p.ry)*cell,p.rx*2*cell,p.ry*2*cell,(p.nx-p.rx)*b.width,(p.ny-p.ry)*b.height,p.rx*2*b.width,p.ry*2*b.height);
+ if(p.hp<p.maxHp&&atlas?.naturalWidth&&!(layered&&p.id.startsWith('gun'))){const index=p.hp<=0?2:1,sx=index%2*cell,sy=Math.floor(index/2)*cell;
+  g.save();g.beginPath();g.ellipse(p.nx*b.width,p.ny*b.height,p.rx*b.width,p.ry*b.height,0,0,Math.PI*2);g.clip();
+  g.drawImage(atlas,sx+(p.nx+.5-p.rx)*cell,sy+(p.ny+.5-p.ry)*cell,p.rx*2*cell,p.ry*2*cell,(p.nx-p.rx)*b.width,(p.ny-p.ry)*b.height,p.rx*2*b.width,p.ry*2*b.height);g.restore();
   if(p.hp<=0&&p.id==='fuel')drawPartFuelFire(g,fx,p,p.nx*b.width,p.ny*b.height,b.time||0,Math.min(70,p.rx*b.width*2.4),b.wreck?.35:3);
   else if(p.hp<=0&&p.id==='boiler'){const r=p.rx*b.width;fx(g,'fireEngine',p.nx*b.width,p.ny*b.height,r*2.4,r*2.4,0,b.wreck?.15:.5);fx(g,'smokeDark',p.nx*b.width,p.ny*b.height-r,r*3,r*3,0,.3);}
  }
  if(debug&&b.hittable(p)){g.strokeStyle='#efd4a2';g.lineWidth=1.5;g.beginPath();g.ellipse(p.nx*b.width,p.ny*b.height,p.rx*b.width,p.ry*b.height,0,0,Math.PI*2);g.stroke();}}
+ if(layered)for(const p of b.parts.values())if(p.id.startsWith('gun'))drawAdriaticGun(g,detail.guns,p,p.nx*b.width,p.ny*b.height,p.rx*b.width*1.7,(p.aimAngle??(b.angle+(p.nx<0?Math.PI:0)))-b.angle,b.time||0);
  g.restore();
  if(b.cover&&!b.wreck){const c=b.cover,scale=1+Math.sin(Math.min(1,c.age/1.8)*Math.PI)*.20;g.save();g.translate(c.x-camera.x,c.y-camera.y-c.age*55);g.rotate(c.angle);g.globalAlpha=Math.max(0,1-c.age/1.8);g.scale(scale,scale);g.drawImage(images.cover,-HANGAR.w*b.width/2,-HANGAR.h*b.height/2,HANGAR.w*b.width,HANGAR.h*b.height);g.restore();}
 }

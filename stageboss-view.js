@@ -1,9 +1,10 @@
+import {prepareTrenchArmorArt,releaseTrenchArmorArt,trenchArmorArtReady,trenchArmorTreadSource,drawTrenchArmorHull,MARKV_TREAD_PROFILE} from './trench-armor-art.js?v=20261022';
 import {prepareCambraiDetailArt,releaseCambraiDetailArt,cambraiDetailReady,drawAuthoredTreffas,drawCambraiTrainCar} from './cambrai-detail-art.js?v=20261021';
 import {prepareAlpsBomberArt,releaseAlpsBomberArt,alpsBomberArtReady} from './alps-bomber-art.js?v=alpsart20261020tone1';
 import {groundShellProfile} from './explosion-profiles.js?v=gal1';
-import {prepareSkyAirshipArt,releaseSkyAirshipArt,drawSkyAirship,skyAirshipReady} from './sky-airship-art.js?v=skyart20261020tone1';
+import {prepareSkyAirshipArt,releaseSkyAirshipArt,drawSkyAirship,skyAirshipReady} from './sky-airship-art.js?v=skymechanics20261022';
 import {minenMuzzleLocal} from './minenwerfer-art-layout.js?v=gal1-r4';
-import {drawMinenInstallation} from './minenwerfer-art-render.js?v=gal1-r4';
+import {drawMinenInstallation} from './minenwerfer-art-render.js?v=gal1-r4&trenchart=20261022';
 import {prepareBossCutins} from './boss-cutin-art.js?v=livingww1d&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=outline1&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=regionalair2&ai=1018&boss=20261020b';
@@ -14,9 +15,9 @@ import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,
 import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=gal1';
 import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=gal1&rail=42&ai=1018&somme=20261021';
 import {sommeExtents} from './somme-boss-layout.js?v=gal1&somme=20261021';
-import {drawZubianShip} from './adriatic-boss-render.js?v=gal1';
+import {drawZubianShip} from './adriatic-boss-render.js?v=gal1&adriaticart=20261022';
 import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=gal1';
-import {prepareArmorTreads,drawArmorGround,drawArmorTreads,drawArmorDamageFX} from './trench-armor-render.js?v=gal1&treads=2&ai=1018';
+import {prepareArmorTreads,drawArmorGround,drawArmorTreads,drawArmorDamageFX} from './trench-armor-render.js?v=gal1&treads=2&ai=1018&armorart=20261022';
 import {armorGunMuzzle} from './trench-armor-layout.js?v=gal1&ai=1018';
 import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta} from './trench-armor-layout.js?v=gal1&ai=1018';
 import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=gal1&ai=1018';
@@ -28,17 +29,17 @@ import {impactMark,bandMark,partMark,shieldMark,aimLine,laneEdge,stripMark,secto
 import {drawBossRound,drawShellFlight} from './boss-rounds.js?v=gal1&ai=1018';
 import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=pilotfx20261018';
 import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=gal1';
-import {LIVENS_ART_SOURCES,drawLivensInstallation} from './livens-art.js?v=20261019';
-import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=gal1&ai=1018&boss=20261020b';
-import {renderStageBossLayer} from './headon-stageboss-render.js?v=gal1&rail=42&skyart=20261020&alpsart=20261020&cambrai=20261021';
+import {LIVENS_ART_SOURCES,drawLivensInstallation} from './livens-art.js?v=20261019&trenchart=20261022';
+import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=gal1&ai=1018&boss=20261020b&adriaticart=20261022';
+import {renderStageBossLayer} from './headon-stageboss-render.js?v=gal1&rail=42&skyart=20261020&alpsart=20261020&cambrai=20261021&adriaticart=20261022&skymechanics=20261022';
 import {bossHudModel} from './headon-stageboss-hud.js?v=livingww1d&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=gal1&hints=1&rail=42&ai=1018&sig=1019';
 import {planeSprite} from './aircraft.js?v=outline2&art=pilot-recovery2';
 import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 import {londonStatus} from './london-battle.js?v=gal1';
 import {parisStatus} from './paris-night-battle.js?v=gal1';
-import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=outline1';
-import {prepareDoverAssets,drawDoverBoss,drawDoverHazard,drawDoverCue,isDoverBoss,doverExtents} from './dover-night-view.js?v=outline1&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {prepareLondonArt,releaseLondonArt,drawGotha,drawLondonRaidApron,drawLondonWorld} from './london-art.js?v=outline1&gothaart=20261022';
+import {prepareDoverAssets,drawDoverBoss,drawDoverHazard,drawDoverCue,isDoverBoss,doverExtents} from './dover-night-view.js?v=outline1&ai=1018&sig=1019&boss=20261020b&phase=1021&hardware=1022';
 import {prepareParisArt,releaseParisArt,drawParisBoss,drawParisWorld} from './paris-night-art.js?v=outline1&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAssets} from './aa-defense-art.js?v=gal1';
 import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=gal1';
@@ -63,6 +64,7 @@ function createLazyImageGroup(sources){
   release(keys=Object.keys(cache)){for(const key of keys){if(cache[key]){try{delete cache[key].lowDetail}catch{}}delete cache[key];delete pending[key]}}
  };
 }
+const adriaticDetailGroup=createLazyImageGroup({stuttgart:'./stuttgart-base-separated-20261022.webp',zubian:'./zubian-base-separated-20261022.webp',guns:'./jutland-parts.webp?v=r5'}),adriaticDetailArt=adriaticDetailGroup.images;
 const supportGroup=createLazyImageGroup({ship:'./stuttgart-open129.webp',shipMat:'./stuttgart-open129-mat.webp?v=gal1',cover:'./stuttgart-cover129.webp',damage:'./stuttgart-damage-20261001.webp?v=gal1'}),supportImages129=supportGroup.images;
 
 const bossSources={
@@ -92,27 +94,41 @@ const trenchGroup=createLazyImageGroup({
  minenBase:'./boss-minenwerfer-base-20261009.webp?v=gal1-r4',minenBarrels:'./boss-minenwerfer-barrels-20261009.webp?v=gal1-r4',minenDamage:'./boss-minenwerfer-damage-20261008.webp?v=gal1-r4',
  livensComposite:'./boss-livens-composite317.webp',livensPivot:'./boss-livens-pivot317.webp',livensPivotDamaged:'./boss-livens-pivot-damaged317.webp',livensPivotDestroyed:'./boss-livens-pivot-destroyed317.webp'
 }),trenchBossArt=trenchGroup.images;
+const trenchDetailGroup=createLazyImageGroup({foundation:'./livens-foundation-separated-20261022.webp',pipes:'./livens-supply-pipes-20261022.webp',minenStates:'./minenwerfer-structural-states-20261022.webp'}),trenchDetailArt=trenchDetailGroup.images;
 const livensGroup=createLazyImageGroup(LIVENS_ART_SOURCES),livensArt=livensGroup.images;
 // Four authored RGBA frames, graded/packed offline; no runtime filter or canvas copy.
 const impactGroup=createLazyImageGroup({atlas:'./fx-mortar-impact340.webp'}),impactArt=impactGroup.images;
 const BOSS_KEYS_BY_REGION=Object.freeze({
   0:['parisGun','lincomparable'],1:['stuttgart','zubian'],2:['a7v','markv'],3:[],4:['drachenLeft','drachenCenter','drachenRight'],5:['l70','hma23'],6:['gik','ca4'],7:[],8:[],10:[],11:[]
 });
+let armorLoadGeneration=0;
 export function prepareStageBossAssets(region){
+ const armorGeneration=++armorLoadGeneration;releaseTrenchArmorArt();
  if(region!==6)releaseAlpsBomberArt();
  if(region!==5)releaseSkyAirshipArt();
  if([1,7,16,17].includes(region))prepareSinkingWater();
  const jobs=[prepareBossCutins(region),prepareRegionalBossArt(region),prepareDoverAssets(region)];releaseSommeAssets();if(region===10)jobs.push(prepareSommeAssets());releaseLondonArt();if(region===11)jobs.push(prepareLondonArt());releaseVerdunAssets();if(region===12)jobs.push(prepareVerdunAssets());releaseParisArt();if(region===15)jobs.push(prepareParisArt());jobs.push(prepareMaanAssets(region),prepareGallipoliAssets(region),prepareJutlandAssets(region));
- bossGroup.release();alpsGroup.release();supportGroup.release();rebuildGroup.release();armorDamageGroup.release();armorMotionGroup.release();harborGroup.release();trenchGroup.release();zubianGroup.release();cityGroup.release();buildingGroup.release();flakTowerGroup.release();
+ bossGroup.release();alpsGroup.release();supportGroup.release();adriaticDetailGroup.release();rebuildGroup.release();armorDamageGroup.release();armorMotionGroup.release();harborGroup.release();trenchGroup.release();zubianGroup.release();cityGroup.release();buildingGroup.release();flakTowerGroup.release();
  for(const group of [...Object.values(railGroups),...Object.values(railWreckGroups)])group.release();
  const bossKeys=BOSS_KEYS_BY_REGION[region]||[];if(bossKeys.length)jobs.push(bossGroup.preload(bossKeys));
  if(region===0)for(const key of ['parisGun','lincomparable'])jobs.push(railGroups[key].preload(),railWreckGroups[key].preload());
- if(region===1){jobs.push(supportGroup.preload());jobs.push(zubianGroup.preload());jobs.push(sinkFoamGroup.preload())}
-  if(region===2){jobs.push(rebuildGroup.preload().then(()=>{prepareArmorTreads(rebuildArt.a7vHull,'a7v-flak');prepareArmorTreads(rebuildArt.markvHull,'mark-v-cruiser')}));jobs.push(armorDamageGroup.preload());jobs.push(armorMotionGroup.preload())}
+ if(region===1){jobs.push(adriaticDetailGroup.preload());jobs.push(supportGroup.preload());jobs.push(zubianGroup.preload());jobs.push(sinkFoamGroup.preload())}
+  if(region===2){jobs.push(prepareTrenchArmorArt().then(()=>{
+   if(armorGeneration!==armorLoadGeneration)return;
+   const ready=trenchArmorArtReady('a7v-flak')&&trenchArmorArtReady('mark-v-cruiser');
+   return Promise.all([rebuildGroup.preload(ready?['a7vTurret','markvSponson']:undefined),armorDamageGroup.preload(ready?['a7vGunWreck','markGunWreck']:undefined)]).then(()=>{
+    if(armorGeneration!==armorLoadGeneration)return;
+    for(const [kind,legacy]of [['a7v-flak','a7vHull'],['mark-v-cruiser','markvHull']]){
+     const hull=trenchArmorTreadSource(kind)||rebuildArt[legacy];
+     prepareArmorTreads(hull,kind,undefined,trenchArmorArtReady(kind)&&kind==='mark-v-cruiser'?MARKV_TREAD_PROFILE:undefined);
+    }
+   });
+  }));jobs.push(armorMotionGroup.preload())}
   if([2,4,8,10,11].includes(region))jobs.push(prepareAADefenseAssets(region===11?['fx','drachen','london']:region===4?['fx','drachen']:['fx']));
   else releaseAADefenseAssets();
- livensGroup.release();
+ livensGroup.release();trenchDetailGroup.release();
  if(region===3){
+  jobs.push(trenchDetailGroup.preload());
   prepareLivensFlame();
   jobs.push(trenchGroup.preload(['soilBurst','soilDust','minenBase','minenBarrels','minenDamage']));
   // Load the old complete kit only if an upgraded layer fails to decode.
@@ -139,7 +155,7 @@ const drawLivensPart=(c,row,state,x,y,width)=>{
  c.drawImage(image,sx,sy,405,sh,x-width/2,y-height/2,width,height);
 };
 function drawLivens(c,b,live=b){
- const upgraded=drawLivensInstallation(c,{...b,flameWarn:live.flameWarn,flameAge:live.flameAge,flameLockTime:live.flameLockTime},livensArt);
+ const upgraded=drawLivensInstallation(c,{...b,flameWarn:live.flameWarn,flameAge:live.flameAge,flameLockTime:live.flameLockTime},livensArt,trenchDetailArt);
  const part=id=>b.parts?.find?.(p=>p.id===id)||b.parts?.get?.(id),state=p=>p?.destroyed?2:p&&p.hp<=p.maxHp*.5?1:0;
  const destroyed=b.destroying;
  c.save();c.scale(b.trenchScale||1,b.trenchScale||1);c.imageSmoothingEnabled=true;
@@ -178,7 +194,7 @@ function drawMinenwerfer(c,b){
  const scale=b.trenchScale||1;
  for(const p of parts){
   const x=p.x,y=p.y,dead=b.destroying||p.destroyed,damaged=!dead&&p.hp<=p.maxHp*.5;
-  drawMinenInstallation(c,p,{base:trenchBossArt.minenBase,barrels:trenchBossArt.minenBarrels,damage:trenchBossArt.minenDamage},{scale,destroying:b.destroying});
+  drawMinenInstallation(c,p,{base:trenchBossArt.minenBase,barrels:trenchBossArt.minenBarrels,damage:trenchBossArt.minenDamage,states:trenchDetailArt.minenStates},{scale,destroying:b.destroying});
   const mouth=minenMuzzleLocal(p);
   if(!dead&&p.mortarFlash>0)fx(c,'fireFlash',x+mouth.x,y+mouth.y,55,55,0,p.mortarFlash/.22);
   if(!dead&&p.mortarSmoke>0)fx(c,'smokeHeavy',x+mouth.x,y+mouth.y-18,64,48,0,Math.min(.35,p.mortarSmoke*.3));
@@ -353,14 +369,17 @@ function drawArmorGun(c,part,kind,scale){
 function drawTrenchArmor(c,b){
  const mark=b.assetKey==='mark-v-cruiser',prefix=mark?'mark':'a7v',s=b.geometryScale||1;
  const parts=b.parts||[],part=id=>parts.find(p=>p.id===id),left=part('track-left')?.destroyed,right=part('track-right')?.destroyed;
- const key=b.destroying?'Wreck':left&&right?'Breached':left?'Left':right?'Right':null;
- const image=key?armorDamage[prefix+key]:(mark?rebuildArt.markvHull:rebuildArt.a7vHull);
  c.save();c.rotate(b.hullYaw||0);c.imageSmoothingEnabled=true;
- if(image?.naturalWidth)c.drawImage(image,-128,-128,256,256);
- else{const intact=mark?rebuildArt.markvHull:rebuildArt.a7vHull;if(intact.naturalWidth)c.drawImage(intact,-128,-128,256,256);}
- drawArmorTreads(c,b,mark?rebuildArt.markvHull:rebuildArt.a7vHull);drawArmorDamageFX(c,b);
- if(!b.destroying&&!(left&&right)&&(b.coreVulnerable||part('engine-deck')?.destroyed)){
-  // The authored ruptured engine panel is the same registered hull patch.
+ const authored=drawTrenchArmorHull(c,b);
+ if(!authored){
+  const key=b.destroying?'Wreck':left&&right?'Breached':left?'Left':right?'Right':null;
+  const image=key?armorDamage[prefix+key]:(mark?rebuildArt.markvHull:rebuildArt.a7vHull);
+  if(image?.naturalWidth)c.drawImage(image,-128,-128,256,256);
+  else{const intact=mark?rebuildArt.markvHull:rebuildArt.a7vHull;if(intact.naturalWidth)c.drawImage(intact,-128,-128,256,256);}
+ }
+ const treadSource=authored?trenchArmorTreadSource(b.assetKey):(mark?rebuildArt.markvHull:rebuildArt.a7vHull);
+ drawArmorTreads(c,b,treadSource,authored&&mark?MARKV_TREAD_PROFILE:undefined);drawArmorDamageFX(c,b);
+ if(!authored&&!b.destroying&&!(left&&right)&&(b.coreVulnerable||part('engine-deck')?.destroyed)){
   const breached=armorDamage[prefix+'Breached'];if(breached.naturalWidth){c.save();c.beginPath();c.rect(-31,-61,62,99);c.clip();c.drawImage(breached,-128,-128,256,256);c.restore();}
  }
  const lamp=part('searchlight');if(lamp){const light=lamp.destroyed?armorMotionArt.lampWreck:armorMotionArt.lamp;if(light?.naturalWidth)c.drawImage(light,337,183,100,100,lamp.localX/s-15,lamp.localY/s-15,30,30);}
@@ -504,6 +523,11 @@ export function updateStageBossHud(g){
  document.body.classList.toggle('stageboss-playing',active);
  const slot=document.getElementById('stageBossHud');slot.classList.toggle('hidden',!model);
  if(model&&tick){const en=getLocale()==='en';document.getElementById('stageBossTitle').textContent=(en?(BOSS_NAMES_EN[model.bossId]||model.name):model.name)+(g.stageBoss.defeatSequence?(en?' · BREAKING UP':' · 붕괴 중'):model.shielded?(en?' · ARMORED':' · 본체 보호'):'');document.getElementById('stageBossParts').textContent=(model.formationTotal?(en?'Formation ':'편대 생존 ')+model.formationAlive+'/'+model.formationTotal:(en?'Parts ':'부위 ')+model.aliveParts+'/'+model.totalParts)+' · '+Math.ceil(model.hp)+' / '+Math.round(model.maxHp);let hint=document.getElementById('stageBossTactic');if(!hint){hint=document.createElement('small');hint.id='stageBossTactic';slot.append(hint)}const tactic=bossTactic(g.stageBoss.stages.encounter,getLocale())+(g.londonBattle?'\n'+londonStatus(g,getLocale()):'')+(g.parisBattle?'\n'+parisStatus(g,getLocale()):'');if(hint.textContent!==tactic)hint.textContent=tactic;const bar=document.getElementById('stageBossHp');bar.style.width=model.fraction*100+'%';slot.setAttribute('aria-valuenow',String(Math.ceil(model.hp)));slot.setAttribute('aria-valuemax',String(Math.round(model.maxHp)));}
+ // Phase gates: tick marks on the bar; the held line locks while the boss is braced.
+ if(model){const bar=document.getElementById('stageBossHp')?.parentElement;
+  if(bar){if(bar.dataset.gateEnc!==encounter.id){bar.querySelectorAll('.gate-tick').forEach(x=>x.remove());for(const f of encounter.gateLines?.()||[]){const t=document.createElement('b');t.className='gate-tick';t.dataset.frac=f;t.style.left=(f*100).toFixed(1)+'%';bar.append(t);}bar.dataset.gateEnc=encounter.id;}
+   const held=!!encounter.gateHeld?.();if(slot.classList.contains('gate-armored')!==held){slot.classList.toggle('gate-armored',held);let tag=document.getElementById('stageBossGate');if(!tag){tag=document.createElement('em');tag.id='stageBossGate';slot.append(tag);}tag.textContent=getLocale()==='en'?'Braced · dodge the attack, then strike':'장갑 강화 · 공격을 피한 뒤 반격';}
+   if(tick)for(const t of bar.querySelectorAll('.gate-tick'))t.classList.toggle('passed',model.fraction<=Number(t.dataset.frac)-.004);}}
  const coop=active&&g.mode==='coop2';document.getElementById('coopXpHud').classList.toggle('hidden',!coop);
  if(coop&&tick)for(const p of g.players){document.getElementById(p.id+'XpLabel').textContent=p.id.toUpperCase()+' · LV. '+p.level;document.getElementById(p.id+'XpBar').style.width=Math.min(100,p.xp/p.need*100)+'%';}
 }
@@ -563,12 +587,12 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
  renderStageBossLayer(addon,{
   drawBody(b){if(layer==='hazards')return;
    if((b.assetKey==='zeppelin-l70'||b.assetKey==='hma23')&&drawSkyAirship(c,b,{cloud:(...a)=>bossSprite(c,11,...a),effect:(...a)=>fx(c,...a),mark:(...a)=>partMark(c,...a)}))return;
-   if(isDoverBoss(b.assetKey)){const body=addon.stages.encounter.bodies.get(b.id);if(body)drawDoverBoss(c,body,addon.defeatSequence);return;}
+   if(isDoverBoss(b.assetKey)){const body=addon.stages.encounter.bodies.get(b.id);if(body)drawDoverBoss(c,body,addon.defeatSequence,addon.hazards);return;}
    if(b.assetKey.startsWith('jutland-')){const body=addon.stages.encounter.bodies.get(b.id);if(body)drawJutlandBody(c,body,body.deathAge||0);return;}
    if(b.assetKey==='gallipoli-fortress'){const body=bodyOf(v=>v.kind===b.assetKey);if(body)drawGallipoliBoss(c,body);return;}
    if(b.sommeBoss){drawSommeBoss(c,b);return;}
    if(b.assetKey==='armored-harbor-fortress'){const parts=harborArt.parts;drawHarborFortress(c,b,{base:harborArt.base,pivot:harborArt.cranePivot,ammo:parts.naturalWidth?null:harborArt.ammo,facility:parts.naturalWidth?null:harborArt.facility,guns:harborArt.guns,parts});return;}
-   if(b.assetKey.startsWith('hms-zubian')){drawZubianShip(c,b,zubianArt);return;}
+   if(b.assetKey.startsWith('hms-zubian')){drawZubianShip(c,b,zubianArt,adriaticDetailArt);return;}
    if(b.assetKey==='gik'||b.assetKey==='ca4'){drawAlpsBomber(c,b,bossArt[b.assetKey],alpsBomberArtReady(b.assetKey)?null:alpsArt[b.assetKey]);return;}
    if(b.assetKey==='fort-douaumont'||b.assetKey==='fort-souville'){const body=bodyOf(v=>v.kind===b.assetKey);if(body)drawVerdunFort(c,body,b);return;}
    if(MAAN_KEYS.has(b.assetKey)){const live=addon.stages.encounter?.bodies.values();for(const body of live||[])if(body.kind===b.assetKey&&body.x===b.x&&body.y===b.y){drawMaanBoss(c,body);break;}return;}
@@ -583,8 +607,8 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    if(b.assetKey==='sms-stuttgart'){const body=bodyOf(v=>v.support129?.projectiles);if(body&&supportImages129.ship.naturalWidth&&supportImages129.cover.naturalWidth){
     c.save();c.imageSmoothingEnabled=true;
     const ship=body.support129;
-    if(b.destroying)drawSinkingShip(c,{key:b,x:ship.x,y:ship.y,yaw:ship.angle||0,width:ship.width*.46,height:ship.height,age:b.destructionAge,duration:b.destructionDuration},k=>drawSupportShip(k,{...ship,dead:false,wreck:true,destroying:true},supportImages129));
-    else drawSupportShip(c,ship,supportImages129);
+    if(b.destroying)drawSinkingShip(c,{key:b,x:ship.x,y:ship.y,yaw:ship.angle||0,width:ship.width*.46,height:ship.height,age:b.destructionAge,duration:b.destructionDuration},k=>drawSupportShip(k,{...ship,dead:false,wreck:true,destroying:true},supportImages129,{detail:adriaticDetailArt}));
+    else drawSupportShip(c,ship,supportImages129,{detail:adriaticDetailArt});
     c.restore();
    }return;}
    c.save();const wreck=b.destroying?Math.min(1,b.destructionAge/Math.max(.1,b.destructionDuration)):0;
@@ -875,8 +899,3 @@ export function paintCity(c,cx,cy,W,H,city='london'){
   c.strokeStyle='#f2dda13d';c.lineWidth=1;c.beginPath();c.moveTo(ox,oy);c.lineTo(tx,ty);c.stroke();c.fillStyle='#413e35';c.fillRect(ox-12,H-18,24,18);c.fillStyle='#d9c883';c.fillRect(ox-5,H-22,10,5);}
  c.restore();
 }
-
-
-
-
-

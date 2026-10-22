@@ -1,13 +1,18 @@
 import {MINEN_ART,MINEN_TUBES,minenAtlasFrame,minenRecoilOffset} from './minenwerfer-art-layout.js';
 export function drawMinenInstallation(c,part,images,{scale=1,destroying=false}={}){
- const dead=destroying||part.destroyed,image=dead?images.damage:images.base;
+ const dead=destroying||part.destroyed;
+ const authored=!!((images.states?.naturalWidth||images.states?.width)&&(images.barrels?.naturalWidth||images.barrels?.width));
+ const state=destroying?3:part.destroyed?2:part.hp<=part.maxHp*.5?1:0;
+ const image=authored?images.states:dead?images.damage:images.base;
  if(!(image?.naturalWidth||image?.width))return false;
  const w=MINEN_ART.width*scale,h=MINEN_ART.height*scale;
  c.save();c.translate(part.x,part.y);c.imageSmoothingEnabled=true;
  // One complete, connected installation per world anchor in EVERY state.
- if(dead)c.drawImage(image,...minenAtlasFrame(image,2),-w/2,-h/2,w,h);
+ const frame=authored?minenAtlasFrame(image,state):[0,0,image.naturalWidth||image.width,image.naturalHeight||image.height];
+ if(authored)c.drawImage(image,...frame,-w/2,-h/2,w,h);
+ else if(dead)c.drawImage(image,...minenAtlasFrame(image,2),-w/2,-h/2,w,h);
  else c.drawImage(image,-w/2,-h/2,w,h);
- if(!dead&&part.hp<=part.maxHp*.5&&(images.damage?.naturalWidth||images.damage?.width)){
+ if(!authored&&!dead&&part.hp<=part.maxHp*.5&&(images.damage?.naturalWidth||images.damage?.width)){
   // Damage stays fixed to the perimeter, behind the separated moving tubes.
   c.save();c.beginPath();c.rect(-290*scale,-170*scale,580*scale,80*scale);c.rect(-290*scale,105*scale,580*scale,100*scale);c.clip();
   c.drawImage(images.damage,...minenAtlasFrame(images.damage,0),-w/2,-h/2,w,h);c.restore();
@@ -27,10 +32,10 @@ export function drawMinenInstallation(c,part,images,{scale=1,destroying=false}={
   }
   // The fixed receiver lips sit IN FRONT of the lower tube. Recoil slides the
   // barrel into the socket instead of dragging its base over the carriage.
-  const kx=(image.naturalWidth||image.width)/MINEN_ART.width,ky=(image.naturalHeight||image.height)/MINEN_ART.height;
+  const kx=frame[2]/MINEN_ART.width,ky=frame[3]/MINEN_ART.height;
   for(let tube=0;tube<MINEN_TUBES.length;tube++){
    const t=MINEN_TUBES[tube],ow=tube===1?60:44,oy=tube===1?-10:8,oh=75;
-   c.drawImage(image,(t.x-ow/2+MINEN_ART.width/2)*kx,(oy+MINEN_ART.height/2)*ky,ow*kx,oh*ky,(t.x-ow/2)*scale,oy*scale,ow*scale,oh*scale);
+   c.drawImage(image,frame[0]+(t.x-ow/2+MINEN_ART.width/2)*kx,frame[1]+(oy+MINEN_ART.height/2)*ky,ow*kx,oh*ky,(t.x-ow/2)*scale,oy*scale,ow*scale,oh*scale);
   }
  }
  c.restore();return true;

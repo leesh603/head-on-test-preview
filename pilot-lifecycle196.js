@@ -98,7 +98,8 @@ export function advanceBurns1918(world, dt) {
     e.burnTime = Math.max(0, e.burnTime - step);
     if(e.gontermannBurn)e.gontermannBurn.age+=active;
     const burnDamage = Math.max(0, e.burnDps || 0)*active;
-    if (e.stageBossBody) e.stageBossBody.hit({damage: burnDamage});
+    // Burn goes through the boss addon so show-before-fall floors apply to it too.
+    if (e.stageBossBody) world.stageBoss?.hit ? world.stageBoss.hit({bodyId: e.stageBossBody.id, damage: burnDamage, faction: world.teamFaction}) : e.stageBossBody.hit({damage: burnDamage});
     else e.hp -= burnDamage;
     e.burnFxTime = (e.burnFxTime || 0) - step;
     if (e.burnFxTime <= 0 && !e.gontermannBurn) {

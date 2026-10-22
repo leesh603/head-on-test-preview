@@ -47,6 +47,8 @@ export class GallipoliFortress extends BaseBoss{
  syncHp(){this.hp=Math.max(0,this.commandHp)+[...this.parts.values()].reduce((n,p)=>n+Math.max(0,p.hp),0);}
  // Gun crews reloading after a barrage: the announced opening deals 1.5x.
  counterWindow(){return this.recoveryRemaining>0?1.5:1;}
+ // The command post is the kill pool: phase gates hold it rather than the total gauge.
+ coreReserve(){return this.commandHp;}
  hit(a){if(!Number.isFinite(a.damage)||a.damage<0)throw new Error('Invalid damage');if(this.entryAge<5||this.dead)return{damage:0,blocked:true};let result;
  if(a.partId){result=super.hit(a);}
  else{if(this.commandDestroyed||!this.coreVulnerable)return{damage:0,blocked:true};const damage=Math.min(a.damage,this.commandHp);this.commandHp-=damage;result={damage,commandDestroyed:this.commandHp<=0};

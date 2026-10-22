@@ -22,6 +22,27 @@ const NOZZLES=[
 const loaded=im=>!!(im?.naturalWidth||im?.width);
 const partState=(p,wreck)=>wreck?3:p?.destroyed?2:p&&p.hp<=p.maxHp*.5?1:0;
 
+// Registered to the original foundation, before the outer reservoir layers.
+// The right-hand pipes mirror the left-hand coupling positions exactly.
+export const LIVENS_PIPE_LAYOUT=Object.freeze([
+ Object.freeze({suffix:'1',sourceY:0,sourceH:288,x:-222.5,y:-116.5,w:202.5,h:115}),
+ Object.freeze({suffix:'2',sourceY:288,sourceH:224,x:-112.5,y:3.5,w:92.5,h:82.5})
+]);
+export function drawLivensSupplyPipes(c,b,image){
+ if(!loaded(image))return false;
+ const parts=[...(b.parts?.values?b.parts.values():(b.parts||[]))],wreck=!!(b.destroying||b.dead);
+ const k=(image.naturalWidth||image.width)/768;
+ for(const side of [-1,1]){
+  c.save();if(side>0)c.scale(-1,1);
+  for(const p of LIVENS_PIPE_LAYOUT){
+   const part=parts.find(v=>v.id===`tank-${side<0?'l':'r'}${p.suffix}`),state=Math.min(2,partState(part,wreck));
+   c.drawImage(image,state*256*k,p.sourceY*k,256*k,p.sourceH*k,p.x,p.y,p.w,p.h);
+  }
+  c.restore();
+ }
+ return true;
+}
+
 export function livensNozzleState(b){
  if(b.destroying||b.dead)return 3;
  if(b.lockedFlameAngle!=null&&b.flameLockTime>0&&b.flameAge>=b.flameWarn)return 1;
@@ -35,14 +56,16 @@ function sprite(c,image,frame,x,y,scale){
 }
 
 // Returns false until the complete set is ready: never mix new and old kits.
-export function drawLivensInstallation(c,b,art){
+export function drawLivensInstallation(c,b,art,detail){
  if(!Object.keys(LIVENS_ART_SOURCES).every(key=>loaded(art[key])))return false;
  const parts=[...(b.parts?.values?b.parts.values():(b.parts||[]))];
  const part=id=>parts.find(p=>p.id===id),wreck=!!(b.destroying||b.dead);
  c.save();c.imageSmoothingEnabled=true;c.scale(b.trenchScale||1,b.trenchScale||1);
  // Preserve the foundation's aspect ratio. Its bearing is registered to -98.
- const height=520*(art.foundation.naturalHeight||art.foundation.height)/(art.foundation.naturalWidth||art.foundation.width);
- c.drawImage(art.foundation,-260,-height/2,520,height);
+ const separated=loaded(detail?.foundation)&&loaded(detail?.pipes),foundation=separated?detail.foundation:art.foundation;
+ const height=520*(foundation.naturalHeight||foundation.height)/(foundation.naturalWidth||foundation.width);
+ c.drawImage(foundation,-260,-height/2,520,height);
+ if(separated)drawLivensSupplyPipes(c,b,detail.pipes);
  const drawPart=(row,state,x,y,width)=>sprite(c,art.machinery,MACHINERY[row][state],x,y,width/PART_SPAN[row][state]);
  const broken=parts.filter(p=>p.destroyed).length;
  // Opening the armoured doors is distinct from a shattered pump housing.

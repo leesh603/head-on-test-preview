@@ -1,14 +1,15 @@
+import {prepareGothaDetailArt,releaseGothaDetailArt,drawDetailedGotha} from './gotha-detail-art.js?v=20261022';
 import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=tame3';
 import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 import {drawAttachedApron} from './london-apron369.js?v=tame3';
 const paths={gotha:'./asset-bank/outlined/native/gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=r5',apronDamage:'./boss-london-apron-registered-damage369.png?v=r5'};
 let art={},artLoadP=null;
-export function releaseLondonArt(){art={};artLoadP=null;}
-export function prepareLondonArt(){return Promise.all([prepareGroundEnemyArt(),...Object.entries(paths).map(([key,path])=>new Promise(resolve=>{const im=new Image();art[key]=im;im.decoding='async';im.onerror=resolve;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.src=path;}))]);}
+export function releaseLondonArt(){art={};artLoadP=null;releaseGothaDetailArt();}
+export function prepareLondonArt(){return Promise.all([prepareGothaDetailArt(),prepareGroundEnemyArt(),...Object.entries(paths).map(([key,path])=>new Promise(resolve=>{const im=new Image();art[key]=im;im.decoding='async';im.onerror=resolve;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.src=path;}))]);}
 const londonImage=key=>{const im=art[key];if(im?.naturalWidth)return im;if(!artLoadP)artLoadP=prepareLondonArt();return null;};
 function installation(c,key,x,y,size,ruined=false){const im=londonImage(key);if(!im)return;c.save();c.imageSmoothingEnabled=true;c.globalAlpha*=ruined?.32:1;c.drawImage(im,x-size/2,y-size/2,size,size);c.restore();if(ruined)fx(c,'smokeDark',x,y-18,50,50,0,.6);}
-export function drawGotha(c,b){const im=londonImage('gotha');if(!im)return;const f=b.destroying?Math.min(1,b.destructionAge/b.destructionDuration):0,a=(b.a||0)+Math.PI/2,cw=im.naturalWidth/2,ch=im.naturalHeight;
+export function drawGotha(c,b){const im=londonImage('gotha');if(drawDetailedGotha(c,b,im))return;if(!im)return;const f=b.destroying?Math.min(1,b.destructionAge/b.destructionDuration):0,a=(b.a||0)+Math.PI/2,cw=im.naturalWidth/2,ch=im.naturalHeight;
  c.save();c.translate(b.x,b.y+f*95);c.rotate(a+f*.22);c.imageSmoothingEnabled=true;c.globalAlpha*=1-f*.85;
  const cell=(wreck=false)=>c.drawImage(im,wreck?cw:0,0,cw,ch,-105,-105,210,210);
  cell(b.destroying);

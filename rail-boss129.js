@@ -19,6 +19,8 @@ export class RailBossController {
   get pose(){return{x:this.from.x+this.axis.x*this.s,y:this.from.y+this.axis.y*this.s};}
   event(type,extra={}){this.emit({type,bossId:this.id,...this.pose,...extra});}
   enter(phase){this.phase=phase;this.time=0;}
+  // Phase gate: cut the run or the reload short so the next aim starts now.
+  hurry(){if(this.dead||this.broken&&this.phase==='move')return;if(this.phase==='move')this.time=Math.max(this.time,this.c.moveSeconds);else if(this.phase==='reload')this.time=Math.max(this.time,this.c.reloadSeconds-.1);}
   // Fix the destructible section to the world, never attach it to the train.
   setRailTarget({x,y,radius=30}) {
     if(![x,y].every(Number.isFinite)||!positive(radius)) throw new Error('Invalid rail target');
