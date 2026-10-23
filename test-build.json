@@ -1,1 +1,1 @@
-{"sha":"a14ba60414185a718ed3190e22d90606bfac6e55","ref":"recovery/tactical-overhaul-20261023","validation":"2430 unit + 1 smoke passed; 39 tactical checks passed; canonical build passed"}
+{"sha":"2f6d7a5d212099a4c287e4c3e3d2b98732c55f24","ref":"feat/living-air-battle-20261023","base":"144555851672840675955ad1b775cd9e22c34e53","scope":"six combat modules; existing preview content preserved"}

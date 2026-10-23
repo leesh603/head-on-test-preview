@@ -172,12 +172,29 @@ export function recordBattlefieldOutcome(game,event,outcome){
  return pending;
 }
 
+export function recordBattleSceneOutcome(game,result){
+ if(!['intercepted','breakthrough'].includes(result.outcome))return false;
+ const state=eventState(game),key=regionKey(game);
+ if(state.lastSceneOutcome?.sceneId===result.sceneId&&state.lastSceneOutcome.regionKey===key)return false;
+ if(result.region!==game.worldRegion?.())return false;
+ state.lastSceneOutcome={...result,regionKey:key};
+ (state.pending??={}).tactical={...result,regionKey:key,expiresAt:(game.t||0)+60};
+ return true;
+}
+
 function beginEngagement(game,pattern,sceneId,endsAt){
  if(game.state!=='playing'||pattern==='RECOVERY'||pattern==='ACE_PRESSURE')return pattern;
+ if(pattern==='ELITE_FORMATION')return pattern;
  const state=eventState(game),pending=state.pending||{},now=game.t||0,region=game.worldRegion?.();
  if(sceneId!=null&&state.engagement?.sceneId===sceneId&&state.engagement.region===region)return state.engagement.pattern??pattern;
  const take=key=>{const item=pending[key];delete pending[key];return item&&item.expiresAt>now&&(item.region==null||item.region===region)?item:null};
- const bomber=take('bomber'),artillery=take('artillery');
+ // A successful mission's interception persists until a bomber operation is
+ // actually cancelled. A fighter scene must not silently consume its benefit.
+ let bomber=pending.bomber;
+ if(bomber&&(bomber.expiresAt<=now||bomber.region!=null&&bomber.region!==region)){delete pending.bomber;bomber=null;}
+ const applicableBomber=bomber&&(bomber.value===1||['BOMBER_RUN','ESCORT'].includes(pattern));
+ if(applicableBomber)delete pending.bomber;
+ const artillery=take('artillery'),tactical=take('tactical');
  const wave=key=>{
   const item=pending[key];if(!item)return null;
   if(item.expiresAt<=now||!crossRegionSupport(key)&&item.region!=null&&item.region!==region||item.remaining<=0){delete pending[key];return null}
@@ -186,9 +203,11 @@ function beginEngagement(game,pattern,sceneId,endsAt){
  const consumeWave=(key,item)=>{if(--item.remaining<=0)delete pending[key]};
  const formation=wave('formation'),rescue=wave('rescue'),airSupport=wave('airSupport');
  if(formation)consumeWave('formation',formation);
- if(bomber?.value===1)pattern='BOMBER_RUN';
- else if(bomber?.value===-1&&['BOMBER_RUN','ESCORT'].includes(pattern))pattern='HEAD_ON_PASS';
- state.engagement={sceneId,region,pattern,endsAt:Math.min(endsAt??now+18,now+18),formationWeakened:!!formation,artillery:artillery?.value||0,supportAt:now+3};
+ const consequence=tactical?.regionKey===regionKey(game)?tactical:null;
+ if(applicableBomber){if(bomber.value===1)pattern='BOMBER_RUN';else pattern='HEAD_ON_PASS';}
+ else if(!bomber&&consequence?.outcome==='breakthrough')pattern='BOMBER_RUN';
+ else if(consequence?.outcome==='intercepted'&&['BOMBER_RUN','ESCORT'].includes(pattern))pattern='CROSS_ATTACK';
+ state.engagement={sceneId,region,pattern,endsAt:Math.min(endsAt??now+18,now+18),formationWeakened:!!formation||consequence?.outcome==='intercepted',tacticalOutcome:consequence?.outcome||null,artillery:artillery?.value||0,supportAt:now+3};
  if(rescue?.ally){
   const p=playerFor(game),spec=rescue.ally;
   if(game.allies)game.allies=game.allies.filter(a=>a.life>0);
@@ -333,6 +352,7 @@ export function installBattlefieldEvents(Game){
  if(Game.prototype.__battlefieldEvents170)return;Game.prototype.__battlefieldEvents170=true;
  Game.prototype.beginBattlefieldEngagement=function(pattern,sceneId,endsAt){return beginEngagement(this,pattern,sceneId,endsAt)};
  Game.prototype.recordBattlefieldOutcome=function(event,outcome){return recordBattlefieldOutcome(this,event,outcome)};
+ Game.prototype.recordBattleSceneOutcome=function(result){return recordBattleSceneOutcome(this,result)};
  Game.prototype.tickBattlefieldConsequences=function(){return tickConsequences(this)};
  const steering=Game.prototype.dogfightSteering;
  if(steering)Game.prototype.dogfightSteering=function(e,contact,dt,turn){
@@ -398,6 +418,7 @@ export function installBattlefieldEvents(Game){
  const update=Game.prototype.update;
  Game.prototype.update=function(dt,input={}){const result=update.call(this,dt,input);this.tickBattlefieldEvents();return result};
 }
+
 
 
 

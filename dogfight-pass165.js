@@ -83,7 +83,7 @@ export function installDogfightPass(Game,angleDiff){
     e.directorIntentUntil=0;e.directorEscort=null;
     setState(e,DOGFIGHT_PASS_STATES.DISENGAGE,2.4);
     e.combatPassHeading=e.a+(e.combatPassSide||1)*.7;
-   }else if(!e.directorSquad?.passActive&&this.battleDirector?.sceneId===e.directorSceneId&&['approach','formation','melee'].includes(this.battleDirector.phase)){
+   }else if(!e.defensivePressure&&!(e.directorBreakUntil>now)&&e.directorLayout!=='recovery'&&!e.directorRole&&!e.directorSquad?.passActive&&this.battleDirector?.sceneId===e.directorSceneId&&['approach','formation','melee'].includes(this.battleDirector.phase)){
     const x=leader.x-Math.cos(leader.a)*e.formationBack-Math.sin(leader.a)*e.formationOffset;
     const y=leader.y-Math.sin(leader.a)*e.formationBack+Math.cos(leader.a)*e.formationOffset;
     const gap=Math.hypot(x-e.x,y-e.y),heading=gap>65?Math.atan2(y-e.y,x-e.x):leader.a;
@@ -178,3 +178,4 @@ export function installDogfightPass(Game,angleDiff){
   return base();
  };
 }
+
