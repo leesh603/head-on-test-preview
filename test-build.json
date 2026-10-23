@@ -1,1 +1,1 @@
-{"sha":"f0d57d6b22c8a9177166eac2c20d9a9c0fdea7cc","ref":"recovery/tactical-overhaul-20261023","validation":"2431 passed; production build passed"}
+{"sha":"a14ba60414185a718ed3190e22d90606bfac6e55","ref":"recovery/tactical-overhaul-20261023","validation":"2430 unit + 1 smoke passed; 39 tactical checks passed; canonical build passed"}

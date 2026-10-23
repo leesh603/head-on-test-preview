@@ -168,4 +168,3 @@ export function patrolEngagementStep(p,target,home,dt){
  p.a+=clamp(angleDiff(goal,p.a),-turn,turn);
  return true;
 }
-

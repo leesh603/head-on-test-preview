@@ -319,5 +319,3 @@ installUdetCoop(CoopGame);
 
 import {installEscortCoopFx} from './escort-command-fx.js?v=escortfx1';
 installEscortCoopFx(CoopGame);
-
-

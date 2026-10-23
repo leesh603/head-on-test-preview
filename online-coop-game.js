@@ -220,5 +220,3 @@ export class OnlineCoopGame extends CoopGame {
   this.updateCamera(step);
  }
 }
-
-

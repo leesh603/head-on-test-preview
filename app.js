@@ -2006,4 +2006,3 @@ frame=(now,...args)=>{frameBeforeBossNotice(now,...args);const n=protectedBossNo
  if(game.t>=n.until||n.counter&&!bossCounterActive(game.stageBoss?.stages.encounter)){if($('toast').textContent===n.text)show('toast',false);protectedBossNotice=null;return}
  $('toast').textContent=n.text;show('toast');if(game.mode==='coop2')coopToastUntil=n.until;else toastUntil=performance.now()+100;
 };
-

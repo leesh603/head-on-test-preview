@@ -39,4 +39,3 @@ export function ordnancePattern(p,type,index,total){
  }
  return {angle:heading,distance:reach};
 }
-
