@@ -92,7 +92,7 @@ export function routeFriendlyProjectileHits(game, system, bindings = {}) {
     for(const {member} of contacts){
       projectile.eliteHits.add(member.id);
       const owner=projectile.ownerId?game.players?.find(p=>p.id===projectile.ownerId)||game:game;
-      const damage=(projectile.mauserRound?(projectile.damage||1)*3:(projectile.damage||1))*(owner.roundDamageMultiplier?.(projectile,member)??1);
+      const damage=(projectile.damage||1)*(owner.roundDamageMultiplier?.(projectile,member)??1);
       const hpBefore=member.hp;
       system.damageMember(member,damage,{projectile});
       const appliedDamage=Math.max(0,hpBefore-member.hp);
@@ -133,5 +133,6 @@ export function installHeadOnElitePatch(GameClass, bindings = {}, options = {}) 
   GameClass.prototype[INSTALL_KEY] = {uninstall, enemyType: ELITE_ENEMY_TYPE};
   return GameClass.prototype[INSTALL_KEY];
 }
+
 
 

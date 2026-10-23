@@ -2,14 +2,14 @@ import {combatImpactResult} from './combat-impact-result.js';
 import {queueCombatImpact,advanceReplicaImpactFx} from './explosion-profiles.js?v=fx5';
 import {playerAirframeModel} from './player-airframe-handling.js?v=handling5';
 import {drawFuelFire} from './explosion-profiles.js?v=fx5';
-import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale} from './aircraft-crash.js?v=tame3';
+import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=descent20261022';
 import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.
 const worlds=new WeakMap(),poses=new WeakMap();
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const angle=n=>Math.atan2(Math.sin(n),Math.cos(n));
-const ordinary=e=>e&&!e.bossPilot&&!e.ace&&!e.rivalAce&&!e.eliteKind&&!e.formationLeader&&!e.missionTarget&&!e.stageBossBody&&!e.bossMinion&&!e.heavyBomber&&!e.surface&&!e.stationary&&!e.fieldUnit&&!e.navalVessel&&!e.bugDrone&&['scout','hunter','bomber'].includes(e.type);
+const ordinary=e=>e&&!e.bossPilot&&!e.ace&&!e.rivalAce&&!e.eliteKind&&!e.stageBossBody&&!e.heavyBomber&&!e.surface&&!e.stationary&&!e.fieldUnit&&!e.navalVessel&&!e.bugDrone&&!e.groundEscort&&!e.missionGround&&!e.londonInstallation&&!e.cityUnit&&!e.bossAirship&&!e.expired&&['scout','hunter','bomber'].includes(e.type);
 export const COMBAT_FEEDBACK_LIMITS=Object.freeze({impacts:40,compactImpacts:20,wrecks:10,compactWrecks:5,trail:48,compactTrail:24,plumes:64,compactPlumes:32});
 export const COMBAT_CRASH_PROFILES=Object.freeze(['spin','smoke','fire','runaway']);
 const _lpShare=[0,0];
@@ -21,6 +21,13 @@ export function impactMaterial(e,b){
 }
 const NO_POSE={x:0,y:0,roll:0,bank:1,active:false};
 export function combatVisualPose(e){return poses.get(e)||NO_POSE}
+// Caller-owned output avoids allocations during continuous multi-gun fire.
+export function combatMountPoint(e,forward,side,out){
+ const q=combatVisualPose(e),a=e.a+q.roll,c=Math.cos(a),s=Math.sin(a);
+ out.x=e.x+q.x+c*forward-s*side*q.bank;
+ out.y=e.y+q.y+s*forward+c*side*q.bank;
+ return out;
+}
 function pose(e,time,dt,damageState,flight=false){
  const q=poses.get(e)||{x:0,y:0,roll:0,bank:1,lastA:e.a,lastHp:e.hp,kick:0,turn:0};
  if(flight){const elapsed=time-(q.flightAt??time);q.flightSpeed=elapsed>0&&q.lastX!=null&&e.speed>0?Math.hypot(e.x-q.lastX,e.y-q.lastY)/elapsed/e.speed:(e.airframeSpeed??1);q.lastX=e.x;q.lastY=e.y;q.flightAt=time;}
@@ -31,7 +38,12 @@ function pose(e,time,dt,damageState,flight=false){
  const side=Math.sin(time*67)*q.kick*1.6*weight;
  q.x=-Math.cos(e.a)*shot-Math.sin(e.a)*side;q.y=-Math.sin(e.a)*shot+Math.cos(e.a)*side;
  const hit=damageState?clamp(1-(time-damageState.lastHit)/.18):0;
- q.roll=(Math.sin(time*61)*q.kick*.018+(damageState?.side||1)*Math.sin(hit*Math.PI)*.045)*weight;
+ const punch=Math.sin(hit*Math.PI)*(damageState?.impulse||0);
+ // A damped visual recoil follows the incoming round, never the simulation body.
+ q.x+=Math.cos(damageState?.direction||0)*punch;
+ q.y+=Math.sin(damageState?.direction||0)*punch;
+ q.roll=(Math.sin(time*61)*q.kick*.018+(damageState?.side||1)*Math.sin(hit*Math.PI)*(.045+(damageState?.impulse||0)*.012))*weight;
+ // Keep the authored top-down wing shape during ordinary flight.
  q.active=true;q.bank=1;q.lastA=e.a;q.lastHp=e.hp;poses.set(e,q);
 }
 export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.escortPlane||e.bossPlane||e.plane,scale=()=>1}={}){
@@ -49,7 +61,9 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
   event(){play(this.wreck?.style==='fire'?'impact':'airframeBreak')}
  };
  world.burst=function(x,y,color,n,...args){
-  const e=color==='#f2aa52'&&n>=26?(this.enemies||[]).find(e=>ordinary(e)&&e.hp<=0&&!e.crashing&&!e.crashed&&!enemyCanCrash(e)&&Math.hypot(e.x-x,e.y-y)<2):null;
+  // Online guests receive combatFX, not these local wreck copies. Preserve the
+  // shared explosion there so killing a minion remains visible on both peers.
+  const e=!this.online&&color==='#f2aa52'&&n>=26?(this.enemies||[]).find(e=>ordinary(e)&&e.hp<=0&&!e.crashing&&!e.crashed&&!enemyCanCrash(e)&&Math.hypot(e.x-x,e.y-y)<2):null;
   const particleStart=this.particles?.length||0,oldFx=e?new Set(this.combatFX||[]):null;
   const result=burst.call(this,x,y,color,n,...args);
   if(!e)return result;
@@ -66,6 +80,7 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
    if(wreck.style==='smoke'){wreck.crashT=1.65;wreck.crashSpin*=.12}
    if(wreck.style==='fire'){wreck.crashT=1.45;wreck.crashSpin*=.3}
    if(wreck.style==='runaway'){wreck.crashT=1.9;wreck.crashDir=e.a;wreck.crashSpeed=Math.max(160,e.speed||100);wreck.crashSpin*=.055}
+   wreck.crashDuration=wreck.crashT;
    state.wrecks.push(wreck);
    cap(state.wrecks,COMBAT_FEEDBACK_LIMITS.compactWrecks,COMBAT_FEEDBACK_LIMITS.wrecks);
   }
@@ -100,9 +115,25 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
    const d=state.damage.get(e)||{engine:0,structure:0,lastHit:-Infinity,streak:0,nextSmoke:0,side:1,broken:false};
    d.streak=(world.t||0)-d.lastHit<.45?Math.min(6,d.streak+1):1;d.lastHit=world.t||0;d.side=Math.sign(side)||d.side;
    if(material==='metal')d.engine++;else d.structure++;state.damage.set(e,d);
-   if(ordinary(e)&&e.hp>0&&e.hp/e.maxHp<.4&&!d.broken){d.broken=true;play('airframeBreak')}
-   queueCombatImpact(world,b,e,{material,streak:d.streak,piercing:!!b.pierce});
-   state.pendingImpact=true;play('materialImpact',{material,streak:d.streak});return result;
+   const aircraft=enemyCanCrash(e)||ordinary(e),finisher=aircraft&&e.hp<=0&&!d.finished;
+   const breakup=aircraft&&e.hp>0&&e.hp/e.maxHp<.4&&!d.broken;
+   d.direction=Math.atan2(b.vy||0,b.vx||0);
+   d.impulse=aircraft?Math.min(e.type==='bomber'?2.5:4.5,1.4+d.streak*.45+(breakup?1.5:0)):0;
+   if(breakup)d.broken=true;
+   if(finisher)d.finished=true;
+   const cue=queueCombatImpact(world,b,e,{material,streak:d.streak,piercing:!!b.pierce,breakup,finisher});
+   if(cue&&aircraft&&e.hp>0){state.impacts.push({effect:cue,target:e,forward,side,age:0});cap(state.impacts,COMBAT_FEEDBACK_LIMITS.compactImpacts,COMBAT_FEEDBACK_LIMITS.impacts)}
+   // Only the decisive local hit gets a short camera/pad accent. Continuous MG
+   // fire and distant kills must not shake the screen or drown incoming warnings.
+   if(cue&&(breakup||finisher)){
+    const local=world.online?(world.players||[]).filter(p=>p.id===world.localPlayerId):(world.players||[world]);
+    const zoom=world.camera?.zoom||1;
+    if(local.some(p=>p.hp>0&&Math.abs(e.x-p.x)<(world.viewWidth||960)/zoom*.5&&Math.abs(e.y-p.y)<(world.viewHeight||700)/zoom*.5)){
+     state.camera=Math.max(state.camera,finisher?2.2:1.15);state.duckUntil=(world.t||0)+.16;pulse('explosion');
+    }
+    if(finisher)state.pendingKill='airframeBreak';else play('airframeBreak');
+   }
+   state.pendingImpact=true;if(cue&&!finisher&&!breakup)play('materialImpact',{material,streak:d.streak});return result;
   };
  }
  const update=world.update;
@@ -116,19 +147,19 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
   for(const f of this.combatFX||[])if(!state.heard.has(f)){
    state.heard.add(f);
    if(f.feedbackId){if(state.heardIds.has(f.feedbackId))continue;state.heardIds.add(f.feedbackId);if(state.heardIds.size>256)state.heardIds.delete(state.heardIds.values().next().value);}
-   if(f.fxProfile==='bulletImpact'&&replica)play(f.blocked?'armorClink':'materialImpact',{material:f.material,streak:f.streak});
+   if(f.fxProfile==='bulletImpact'&&replica)play(f.blocked?'armorClink':f.finisher||f.breakup?'airframeBreak':'materialImpact',{material:f.material,streak:f.streak});
    else if(['armorBreak','engineBreak','navalBreak'].includes(f.fxProfile)){play(f.fxProfile==='navalBreak'?'shipBreak':f.fxProfile==='engineBreak'?'airframeBreak':'metalBreak');pulse('explosion');}
   }
   for(const p of players)pose(p,state.time,step,state.damage.get(p),true);
-  for(const e of this.enemies||[])if(enemyCanCrash(e)&&e.hp>0){
+  for(const e of this.enemies||[])if((enemyCanCrash(e)||ordinary(e))&&e.hp>0){
    const d=state.damage.get(e);pose(e,state.time,step,d);
    if(d&&e.hp/e.maxHp<.72&&this.t>=d.nextSmoke){
     d.nextSmoke=this.t+(compact()?.14:.09);const engine=d.engine>0,[x,y]=localPoint(e,engine?14:0,engine?0:d.side*20*scale(e));
     state.plumes.push({x,y,a:e.a,age:0,life:.85,heavy:e.hp/e.maxHp<.35,engine});
    }
   }
-  for(const e of this.enemies||[])if(e.crashing){const progress=clamp(1-(e.crashT||0)/(e.crashDuration||1)),q={x:0,y:0,roll:Math.sin(progress*Math.PI*2)*(e.crashSpin<0?-1:1)*.12,bank:Math.max(.28,Math.abs(Math.cos(progress*Math.PI*(e.crashStyle==='spin'?2.2:.55)))),active:true};poses.set(e,q);}
-  {let w=0;for(const f of state.impacts){f.age+=step;if(f.target.hp>0&&f.age<.12)[f.x,f.y]=localPoint(f.target,f.forward,f.side);if(f.age<f.life)state.impacts[w++]=f}state.impacts.length=w}
+  for(const e of this.enemies||[])if(e.crashing){const v=enemyCrashVisual(e),q={x:0,y:0,roll:v.roll,bank:v.bank,active:true};poses.set(e,q);}
+  {let w=0;for(const f of state.impacts){f.age+=step;if(f.target.hp>0&&f.age<.085&&f.effect.life>0){[f.effect.x,f.effect.y]=localPoint(f.target,f.forward,f.side);state.impacts[w++]=f}}state.impacts.length=w}
   {let w=0;for(const f of state.plumes){f.age+=step;if(f.age<f.life)state.plumes[w++]=f}state.plumes.length=w}cap(state.plumes,COMBAT_FEEDBACK_LIMITS.compactPlumes,COMBAT_FEEDBACK_LIMITS.plumes);
   {let w=0;for(const f of state.passes){f.life-=step;if(f.life>0)state.passes[w++]=f}state.passes.length=w}
   for(const w of state.wrecks){w.age+=step;crashEffects.wreck=w;advanceAircraftCrash(crashEffects,w,step)}
@@ -162,12 +193,13 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
  return state;
 }
 export function combatCameraOffset(world){const s=worlds.get(world);return s?{x:Math.sin(s.time*83)*s.camera,y:Math.cos(s.time*71)*s.camera}:{x:0,y:0}}
-export function combatFlightSound(world,planes){const p=(world.players||[world]).find(p=>p.hp>0)||world,s=worlds.get(world);return{plane:playerAirframeModel(p.plane,planes)||p.plane,reload:p.reloadTime>0,speed:poses.get(p)?.flightSpeed??p.airframeSpeed??1,turn:Math.abs(poses.get(p)?.turn||0),damage:clamp(1-p.hp/p.maxHp),duck:(s?.duckUntil||0)>(world.t||0)}}
+export function combatFlightSound(world,planes){const players=world.players||[world],p=(world.online&&players.find(p=>p.id===world.localPlayerId&&p.hp>0))||players.find(p=>p.hp>0)||world,s=worlds.get(world);return{plane:playerAirframeModel(p.plane,planes)||p.plane,reload:p.reloadTime>0,speed:poses.get(p)?.flightSpeed??p.airframeSpeed??1,turn:Math.abs(poses.get(p)?.turn||0),damage:clamp(1-p.hp/p.maxHp),duck:(s?.duckUntil||0)>(world.t||0)}}
 function drawWreck(c,w,x,y,time,fx,planeSprite){
  if(w.style==='spin')drawAircraftCrash(c,w,x,y,time,fx);
  else fx(c,'smokeTrail',x-Math.cos(w.a)*56,y-Math.sin(w.a)*56,160,58,w.a,.8);
- const ws=w.scale*enemyCrashScale(w);if(w.type!=='bomber')planeSprite(c,x+14,y+22,w.a,w.key,ws,true,true);
- planeSprite(c,x,y,w.a,w.key,ws,true,false,0,true);if(w.style==='fire')fx(c,'fireEngine',x+Math.cos(w.a)*12,y+Math.sin(w.a)*12,58,66,w.a+Math.PI/2,.9);
+ const v=enemyCrashVisual(w),ws=w.scale*v.scale;
+ if(w.type!=='bomber'){c.save();c.translate(x+v.shadowX,y+v.shadowY);c.rotate(w.a+v.roll);c.scale(1,v.bank);planeSprite(c,0,0,0,w.key,ws,true,true);c.restore();}
+ c.save();c.translate(x,y);c.rotate(w.a+v.roll);c.scale(1,v.bank);planeSprite(c,0,0,0,w.key,ws,true,false,0,true);c.restore();if(w.style==='fire')fx(c,'fireEngine',x+Math.cos(w.a)*12,y+Math.sin(w.a)*12,58,66,w.a+Math.PI/2,.9);
 }
 export function drawCombatFeedback(c,world,point,{fx,planeSprite,bolt=drawTracerBolt}){
  const s=worlds.get(world);if(!s)return;
@@ -186,11 +218,7 @@ export function drawCombatFeedback(c,world,point,{fx,planeSprite,bolt=drawTracer
   if(++count>=(world.viewWidth<=720?12:20))break;
  }}
  for(const w of s.wrecks){if(!visible(w.x,w.y))continue;const [x,y]=point(w.x,w.y);drawWreck(c,w,x,y,s.time,fx,planeSprite)}
- for(const f of s.impacts){
-  const attached=f.target.hp>0&&f.age<.12,[wx,wy]=attached?localPoint(f.target,f.forward,f.side):[f.x,f.y];if(!visible(wx,wy))continue;
-  const [x,y]=point(wx,wy),k=f.age/f.life,size=(f.material==='metal'?29:35)+Math.min(4,f.streak)*2;
-  fx(c,f.material==='metal'?'armorSpark':f.material==='fabric'?'smokePuff':'debris',x,y,size*(.8+k*.5),size,f.a,1-k);
-  if(f.material!=='metal')fx(c,'debrisShard',x+Math.cos(f.a)*k*28,y+Math.sin(f.a)*k*28,14,14,f.a+k*3,(1-k)*.85);
- }
+ // Contact anchors move the existing combatFX entries; drawing them again here
+ // would double the impact budget and obscure the aircraft.
 }
 

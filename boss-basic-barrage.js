@@ -140,7 +140,7 @@ function rankMounts(b,config,target,serial,ports=config.ports,slack=.15){
 export function updateBasicBarrage(b,dt,ctx){
  const config=BASIC_BARRAGES[b.kind];if(!config)return false;
  if(ctx.paused||dt<=0)return true;
- if(basicFirePaused(b)){if(!b.basicPaused&&b.basicSerial)emit(b,{type:'cancel-hazards',tag:b.id+':basic-fire'});b.basicPaused=true;b.basicClock=.55;return true;}
+ if(basicFirePaused(b)){if(!b.basicPaused&&b.basicSerial)emit(b,{type:'cancel-hazards',tag:b.id+':basic-fire',pendingOnly:true});b.basicPaused=true;b.basicClock=.55;return true;}
  b.basicPaused=false;
  b.basicClock=(b.basicClock??(1+(b.slot||b.index||0)*.27))-dt;if(b.basicClock>0)return true;
  const players=ctx.players||[],serial=b.basicSerial||0;let live=0;for(const p of players)if(p.alive)live++;

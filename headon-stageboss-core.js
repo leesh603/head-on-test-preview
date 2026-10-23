@@ -19,7 +19,7 @@ export class BaseBoss {
       const enc=this.encounter;
       if(enc?.breath&&enc.breathBlocks(event))return;
       if(enc?.breathCfg&&event.type==='hazard')enc.noteHazard(event);
-      if(event.type==='hazard'&&event.raidHeavy){this.basicHoldUntil=Math.max(this.basicHoldUntil||0,(this.combatTime||0)+(event.delay||0)+(event.warning||0)+(event.duration||0)+.4);if(this._heavyCancelAt!==this.combatTime){this._heavyCancelAt=this.combatTime;emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':basic-fire'});}}
+      if(event.type==='hazard'&&event.raidHeavy){this.basicHoldUntil=Math.max(this.basicHoldUntil||0,(this.combatTime||0)+(event.delay||0)+(event.warning||0)+(event.duration||0)+.4);if(this._heavyCancelAt!==this.combatTime){this._heavyCancelAt=this.combatTime;emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':basic-fire',pendingOnly:true});}}
       // While a warned signature attack is being read (its marker or aim line
       // is up), ordinary fire waits rather than layering on top of it. Plain
       // unwarned gunfire does not hold anything.
@@ -28,16 +28,17 @@ export class BaseBoss {
         if(event.type==='hazard'&&!event.raidHeavy&&(event.warning||0)>=.5)this.basicSoftHold=Math.max(this.basicSoftHold||0,now+(event.delay||0)+event.warning+.25);
         else if(event.type==='charge-warning'&&(event.seconds||0)>=.5)this.basicSoftHold=Math.max(this.basicSoftHold||0,now+event.seconds+.25);
       }
-      // A warned native attack (marker, aim line or heavy round) is what the
-      // show-before-fall floor waits for; ordinary unwarned fire does not count.
+      // Learn the native attack timer at telegraph time, but only an activated
+      // hazard earns phase credit. Cancelled warnings must never open a gate.
       if(!event.basicFire&&!String(event.tag||'').endsWith(':basic-fire')){
-        const lead=event.type==='charge-warning'?(event.seconds||0):event.type==='hazard'?(event.delay||0)+(event.warning||0):-1;
-        if(lead>=.5||event.type==='hazard'&&event.raidHeavy){this.shownCount=(this.shownCount||0)+1;(this.shownEnds??=[]).push((this.combatTime||0)+Math.max(0,lead)+.3);
-          enc?.noteShown?.(Math.max(0,lead));this._hurryTried?.clear();
-          // Learn which timer fires this boss's warned attacks so hurry() can pull it forward.
-          const d=this._dueFired;if(d&&d.t===(this.combatTime||0))(this.signatureKeys??=new Set).add(d.key);}
+        const now=this.combatTime||0;
+        if(event.type==='charge-warning'&&(event.seconds||0)>=.5){this.signatureWarningUntil=now+event.seconds+.4;this.signatureWarningPartId=event.partId||null;}
+        if(event.type==='hazard'&&((event.delay||0)+(event.warning||0)>=.5||event.raidHeavy||now<(this.signatureWarningUntil||0)&&(!this.signatureWarningPartId||event.sourcePartId===this.signatureWarningPartId)))event.signatureAttack=true;
+        if(event.signatureAttack||event.type==='charge-warning'){
+          const d=this._dueFired;if(d&&d.t===now)(this.signatureKeys??=new Set).add(d.key);
+        }
       }
-      if(event.type==='body-defeated'||event.type==='part-destroyed'){emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':basic-fire'});this.basicClock=Math.max(this.basicClock||0,.65);}
+      if(event.type==='body-defeated'||event.type==='part-destroyed'){emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':basic-fire',pendingOnly:event.type==='part-destroyed'});this.basicClock=Math.max(this.basicClock||0,.65);}
       emit(event);
     };
     if(new Set(parts.map(p=>p.id)).size!==parts.length)throw new Error('Duplicate part ID');
@@ -54,6 +55,15 @@ export class BaseBoss {
     const dealt=Math.min(this.hp,damage);this.hp-=dealt;
     if(this.hp<=0){this.dead=true;this.phase='defeated';this.emit({type:'body-defeated',bossId:this.id});}
     return{damage:dealt,bodyDefeated:this.dead};
+  }
+  noteAttackActivated(h){
+    if(this.dead||!h.signatureAttack||!(h.damage>0))return;
+    // Keep the boss alive through the dodge, not merely until a projectile
+    // appears. Long-lived rounds are bounded so this cannot stall the fight.
+    const resolve=h.kind==='projectile'?Math.min(h.duration,1.4):Math.min(h.duration,2.2);
+    this.shownCount=(this.shownCount||0)+1;
+    (this.shownEnds??=[]).push((this.combatTime||0)+resolve+.3);
+    this.encounter?.noteShown(resolve,h.signatureStarted);this._hurryTried?.clear();
   }
   onPartDestroyed(){}
   // A shared crew-rest beat (see BREATHERS) doubles pilot damage-in like any
@@ -133,7 +143,8 @@ export class BossEncounter {
   // at once instead of on its normal timer (rules inside guardFloor). Formations
   // and split bodies share one gauge.
   // Hazards launched within half a second of each other are one attack (a salvo).
-  noteShown(lead){const list=this.shown??=[],last=list.at(-1),end=this.clock+lead+.3;if(last&&this.clock-last.start<.5)last.end=Math.max(last.end,end);else list.push({start:this.clock,end});}
+  noteShown(lead,start=this.clock){const list=this.shown??=[],end=this.clock+lead+.3,group=list.find(q=>Math.abs(start-q.start)<.5);if(group)group.end=Math.max(group.end,end);else list.push({start,end});}
+  pendingAttack(){this.pendingShown=(this.pendingShown||[]).filter(q=>q.h.active&&q.h.generation===q.generation&&!q.h.activated);return this.pendingShown.some(q=>q.start>=(this.gate?.openAt||0));}
   gateBand(){return this.maxHpBudget*.04;}
   // Lines drawn on the boss bar: a rail gun's own schedule, otherwise the shared gates.
   gateLines(){const live=[...this.bodies.values()].filter(b=>!b.dead);if(live.length===1&&typeof live[0].showSchedule==='function')return [...live[0].showSchedule().hull.map(([,f])=>f),.06];return [.66,.33,.05];}
@@ -156,7 +167,7 @@ export class BossEncounter {
           const pre=S<=G+B*.2?paidBy():null;if(pre?.paid>=0){g.used=pre.paid+1;g.i++;g.openAt=now;continue;}
           return Math.max(0,b.hp-(S-G));}
         g.at=now;}
-      const {paid,started}=paidBy();const anyStart=started||shown.slice(g.used).some(q=>q.start>=Math.max(g.at-6,g.openAt));
+      const {paid,started}=paidBy();const anyStart=this.pendingAttack()||started||shown.slice(g.used).some(q=>q.start>=Math.max(g.at-6,g.openAt));
       if(paid>=0||!anyStart&&now-g.at>=3||now-g.at>=8){if(paid>=0)g.used=paid+1;g.i++;g.at=null;g.openAt=now;continue;}
       return Math.max(0,b.hp-(S-G));
     }

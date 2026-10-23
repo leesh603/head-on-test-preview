@@ -264,7 +264,7 @@ export class ZeppelinL70 extends PatternBoss {
     for(let i=0;i<7;i++)parts.push({id:'engine-'+i,x:(i-3)*34,y:45,radius:19,hittable:false,kind:'engine'});
     super({...options,parts,kind:'zeppelin-l70'});this.phase='cloud';this.coreVulnerable=false;this.phaseTime=0;
     this.broadside=0;this.gasSide=-1;this.lastStand=false;this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;
-    this._summonTiers=[.75,.5,.3,.15];this._summonCount=0;
+    this._summonTiers=[.75,.5,.3,.15];this._summonCount=0;this.cruiseSpan=150;
   }
   liveEngines(){return [...this.parts.values()].filter(p=>p.kind==='engine'&&!p.destroyed);}
   hit(attack) {
@@ -279,7 +279,8 @@ export class ZeppelinL70 extends PatternBoss {
     const engines=this.liveEngines(),mt=this.motionTime||0,span=this.phase==='cloud'?150:72+engines.length*11;
     // A cloud fortress makes long lateral bombing runs. Engine losses visibly
     // shorten that run instead of sharing the generic mobile-boss wobble.
-    this.x=this.anchorX+Math.sin(mt*.22)*span;this.y=this.anchorY+Math.sin(mt*.13+1.1)*20;
+    this.cruiseSpan+=(span-this.cruiseSpan)*(1-Math.exp(-Math.max(0,dt)*1.8));
+    this.x=this.anchorX+Math.sin(mt*.22)*this.cruiseSpan;this.y=this.anchorY+Math.sin(mt*.13+1.1)*20;
     if(!this.lastStand&&this.hp<=this.maxHp*.35){this.lastStand=true;this.command('phase-change',{phase:'bomb-surge'});this.timers.set('bombline',Math.min(this.timers.get('bombline')??Infinity,.5));}
     if(this.phase==='cloud') {
       const live=living(players),p=live[this.cursor%Math.max(1,live.length)],c=this.parts.get('capsule');
@@ -289,7 +290,9 @@ export class ZeppelinL70 extends PatternBoss {
       }
     } else if(this.phase==='reveal') {
       this.phaseTime-=dt;if(this.phaseTime<=0){this.phase='exposed';this.coreVulnerable=true;for(const p of this.parts.values())if(p.kind==='engine')p.hittable=true;this.command('phase-change',{phase:this.phase});}
-    } else if(this.phase==='exposed') {
+    } else if(this.phase==='exposed'||this.phase==='l70-core-exposed') {
+      // Engine losses disable their gun decks; surviving hull bomb bays still
+      // finish the existing last raid instead of leaving an inert airship.
       // One gun deck at a time: the engine car with the clearest line on the
       // pilot fires its broadside (two in the last stand, 0.8 s apart), and
       // the next one waits until that wall has passed. Stacking every engine
@@ -395,7 +398,14 @@ class TrenchArmor extends PatternBoss {
   drive(dt,speed,turn=0,bounds,brake=false){stepArmorDrive(this,dt,{speed,turn,bounds,brake});this.tickHullShots(dt);}
   updatePhase(){
     const next=this.hp<=this.maxHp*.35?3:this.hp<=this.maxHp*.7?2:1;
-    if(next>this.combatPhase){this.combatPhase=next;this.pendingVolley=null;this.rotation=null;this.timers.set('armor-pattern',.15);this.command('phase-change',{phase:(this.kind==='a7v-flak'?'a7v':'markv')+(next===3?'-last-stand':'-tracking')});}
+    if(next>this.combatPhase){this.combatPhase=next;this.timers.set('armor-pattern',.15);this.command('phase-change',{phase:(this.kind==='a7v-flak'?'a7v':'markv')+(next===3?'-last-stand':'-tracking')});}
+  }
+  hurry(){
+    // A phase response is the tank's authored manoeuvre, not another short
+    // turret tick. Finish any committed warning before starting that phrase.
+    if(this.rotation||this.overlapRelease)return 'armor-pattern';
+    if(this.liveGuns().length){this.timers.set('armor-pattern',.15);return 'armor-pattern';}
+    return super.hurry();
   }
   volleyAngle(gun,spread=0){const arc=this.layout.gunArc,half=Math.min(spread,arc*2)/2,offset=Math.max(-arc+half,Math.min(arc-half,armorAngleDelta(gun.aimAngle,gun.baseAngle)));return this.hullYaw+gun.baseAngle+offset;}
   warnGun(gun,seconds=.85,angle=null){const point=armorGunMuzzle(this.kind,gun,this.hullYaw,this.t.geometryScale||1),lockedAngle=Number.isFinite(angle)?angle:point.angle;this.command('charge-warning',{partId:gun.id,x:this.x+point.x,y:this.y+point.y,targetX:this.x+point.x+Math.cos(lockedAngle)*420,targetY:this.y+point.y+Math.sin(lockedAngle)*420,seconds});return lockedAngle;}
@@ -406,7 +416,7 @@ class TrenchArmor extends PatternBoss {
     count=Math.max(1,Math.ceil(count*(this.t.projectileDensity??1)));
     const width=Math.min(spread,arc*2),center=Number.isFinite(lockedAngle)?lockedAngle:this.hullYaw+gun.baseAngle+Math.max(-arc+width/2,Math.min(arc-width/2,armorAngleDelta(gun.aimAngle,gun.baseAngle)));
     for(let i=0;i<count;i++){const angle=center+(count===1?0:i/(count-1)-.5)*width;
-      this.hazard('projectile',{...m,vx:Math.cos(angle)*this.t.bulletSpeed*.82,vy:Math.sin(angle)*this.t.bulletSpeed*.82,radius:heavy?7:5,duration:heavy?1.6:3,raidHeavy:heavy,damage:this.t.damage*(heavy?2.4:.7),visual:'aa-shell',tag:this.gunTag(gun)});
+      this.hazard('projectile',{...m,sourcePartId:gun.id,sourceOffsetX:m.x-this.x-gun.x,sourceOffsetY:m.y-this.y-gun.y,vx:Math.cos(angle)*this.t.bulletSpeed*.82,vy:Math.sin(angle)*this.t.bulletSpeed*.82,radius:heavy?7:5,duration:heavy?1.6:3,raidHeavy:heavy,damage:this.t.damage*(heavy?2.4:.7),visual:'aa-shell',tag:this.gunTag(gun)});
     }
   }
   startRotation(final=false){
@@ -608,7 +618,7 @@ export class A7VFlak extends TrenchArmor {
     // Moving or halted, the hull turns so a surviving casemate faces the pilot.
     const focus=this.focus(players),turn=this.pendingVolley?0:this.bearingTurn(focus,this.combatPhase>=2?.62:.5);
     this.tacticalState=move?'reposition':'alternating-fire';this.drive(dt,move?(reverse?-26:32):0,move?turn*.65:turn,bounds,!move);this.aim(dt,players);this.tickGun(dt);
-    if(this.liveGuns().length&&this.due('armor-pattern',dt,this.combatPhase===3?6.8:this.combatPhase===2?9.4:11.5)){this.startRotation(this.combatPhase===3);return;}
+    if(this.liveGuns().length&&!this.pendingVolley&&this.due('armor-pattern',dt,this.combatPhase===3?6.8:this.combatPhase===2?9.4:11.5)){this.startRotation(this.combatPhase===3);return;}
     if(!move&&!this.pendingVolley&&this.due('turret-cycle',dt,.6)){const gun=focus&&this.bestGun(focus);if(this.bears(gun,focus,.3))this.scheduleGun(gun);else this.timers.set('turret-cycle',.2);}
     if(this.combatPhase>=2&&this.due('precision',dt,4.7)){if((this.precisionSerial=(this.precisionSerial||0)+1)%2===0)this.finalFlak(players,bounds);else{const guns=this.liveGuns(),p=this.focus(players);if(p&&guns.length&&this.bears(this.bestGun(p),p,.3)){const gun=guns.reduce((a,g)=>Math.abs(armorAngleDelta(Math.atan2(p.y-this.y-g.y,p.x-this.x-g.x),this.hullYaw+g.baseAngle))<Math.abs(armorAngleDelta(Math.atan2(p.y-this.y-a.y,p.x-this.x-a.x),this.hullYaw+a.baseAngle))?g:a),locked=(this.illumination.get(p.id??p)||0)>=.55,lead=locked?.48:.2,scatter=locked?12:44;this.impact(gun,p.x+(p.vx||0)*lead+randBetween(this.rng,-scatter,scatter),p.y+(p.vy||0)*lead+randBetween(this.rng,-scatter,scatter),{radius:35,warning:1.22,bounds});}}}
     this.hullGun(dt,players,3.4);this.engineVent(dt);
@@ -704,7 +714,7 @@ export class MarkVCruiser extends TrenchArmor {
     const close=range<230&&!reverse,cruise=reverse||close?-26:this.combatPhase===3?42:range>520?40:34;
     if(close)this.tacticalState='reverse-regroup';
     this.drive(dt,cruise*Math.max(.3,1-Math.abs(turn)/.85),turn,bounds);this.aim(dt,players);this.tickGun(dt);
-    if(this.liveGuns().length&&this.due('armor-pattern',dt,this.combatPhase===3?6:this.combatPhase===2?8:11.2)){this.startWaltz(this.combatPhase===3);return;}
+    if(this.liveGuns().length&&!this.pendingVolley&&this.due('armor-pattern',dt,this.combatPhase===3?6:this.combatPhase===2?8:11.2)){this.startWaltz(this.combatPhase===3);return;}
     if(!this.pendingVolley&&this.due('sponson-cycle',dt,.8)){const gun=this.broadsideGun(players);if(this.bears(gun,focus,.35))this.scheduleGun(gun,{wait:.9,spread:1.1,count:9});else this.timers.set('sponson-cycle',.25);}
     this.hullGun(dt,players,3.6);this.engineVent(dt);
   }

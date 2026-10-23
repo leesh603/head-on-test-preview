@@ -32,7 +32,7 @@ export function drawBomberRearGunner(c,p,x,y){
 }
 // Active turns use the same heading and bank projection as ordinary flight.
 export function applyPlayerAttitude(c,p,pose={},shadow=false){
- const acrobat=p.pilot==='udet'?udetRollPose(p):{bank:1,roll:0};c.rotate(p.a+(shadow?0:(pose.roll||0)+acrobat.roll));if(!shadow)c.scale(1,(pose.bank??1)*acrobat.bank);
+ const acrobat=p.pilot==='udet'?udetRollPose(p):{bank:1,roll:0};c.rotate(p.a+(shadow?0:(pose.roll||0)+acrobat.roll));if(!shadow)c.scale(1,(pose.bank??1)*acrobat.bank);else if(p.pilot!=='loewenhardt')c.scale(1,pose.bank??1);
 }
 export function drawPlayerAura(c,p,x,y){
  const entry=bomberEntryPose(p);

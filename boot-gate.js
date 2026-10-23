@@ -4,8 +4,8 @@
 // `img.src` (except data:/blob: and small interface art) go through a small priority queue:
 // a few downloads at a time, most urgent first, and nothing less urgent while it loads.
 // app.js ranks what the hangar shows; everything else follows in request order. Held images report complete=false and decode() waits
-// for the real load, so loader code behaves exactly as on a slow network. The queue drains at
-// once on sortie, and after 45 s the strict-priority hold relaxes — the rest still loads in rank order.
+// for the real load, so loader code behaves exactly as on a slow network. At
+// sortie (or after45s) priority holds relax; the download limit stays in place.
 (()=>{
  const P=typeof HTMLImageElement!=='undefined'&&HTMLImageElement.prototype;
  const src=P&&Object.getOwnPropertyDescriptor(P,'src'),complete=P&&Object.getOwnPropertyDescriptor(P,'complete');
@@ -16,13 +16,13 @@
  const abs=u=>{try{return new URL(u,document.baseURI).href}catch{return String(u)}};
  let rank=()=>2;
  const done=img=>{active.delete(img);pump()};let relaxed=false;
- const go=img=>{const h=held.get(img);held.delete(img);active.set(img,h.rank);
+ const go=(img,immediateUrl)=>{const h=held.get(img);held.delete(img);active.set(img,h.rank);
   const end=()=>{img.removeEventListener('load',end);img.removeEventListener('error',end);done(img)};
-  img.addEventListener('load',end);img.addEventListener('error',end);src.set.call(img,h.url);
+  img.addEventListener('load',end);img.addEventListener('error',end);src.set.call(img,immediateUrl??h.url);
   const w=waiting.get(img);if(w){waiting.delete(img);for(const f of w)f()}};
  function pump(){
   // Strict priority: nothing less urgent starts while something more urgent is still loading.
-  while(held.size&&(open||active.size<LIMIT)){
+  while(held.size&&active.size<LIMIT){
    let best=null,bestKey=Infinity;
    for(const [img,h] of held){const key=h.rank*1e9+h.n;if(key<bestKey){bestKey=key;best=img}}
    if(!open&&!relaxed&&active.size&&held.get(best).rank>Math.min(...active.values()))break;
@@ -34,8 +34,11 @@
   // Opt into CORS only in its explicit test session so canvas atlases can bake.
   if(typeof location!=='undefined'&&location.hostname==='raw.githack.com'&&new URLSearchParams(location.search).get('headonTest')==='1')this.crossOrigin='anonymous';
   const url=abs(v);if(active.delete(this))queueMicrotask(pump);// a re-set aborts the load in flight
-  if(open||pass.test(url)){held.delete(this);src.set.call(this,v);return}
-  held.set(this,{url,n:serial++,rank:rank(url)});queueMicrotask(pump);
+  if(pass.test(url)){held.delete(this);src.set.call(this,v);return}
+  held.set(this,{url,n:serial++,rank:rank(url)});
+  // Once released, preserve a native synchronous assignment when a download
+  // slot is free and no older request is waiting; it still counts toward LIMIT.
+  if(open&&held.size===1&&active.size<LIMIT)go(this,v);else queueMicrotask(pump);
  }});
  Object.defineProperty(P,'complete',{configurable:true,enumerable:complete.enumerable,get(){return held.has(this)?false:complete.get.call(this)}});
  // Every decode() caller waits (several modules may decode the same held image).
@@ -49,7 +52,8 @@
   // Drop the strict-priority hold but keep draining in rank order — a late
   // releaseAll would re-queue every warm behind hundreds of earlier requests.
   relax(){relaxed=true;pump()},
-  releaseAll(){if(open)return;open=true;pump()}
+  releaseAll(){if(open)return;open=true;relaxed=true;pump()}
  };
  setTimeout(()=>window.HEADON_GATE.relax(),45000);
 })();
+

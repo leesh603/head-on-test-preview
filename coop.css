@@ -20,10 +20,14 @@ body.local-coop #bossArrival{bottom:65px}
 #allyRing[data-state="down"] b{color:#e0503a;animation:allyDown 1s steps(2) infinite}
 @keyframes allyDown{50%{opacity:.25}}
 body:not(.local-coop):not(.online-playing) #allyRing{display:none}
-body.local-coop #coopP2{display:none!important}
+body.local-coop #coopP2:not(.hidden){display:grid!important;grid-template-columns:auto 1fr;column-gap:7px;row-gap:3px;position:absolute;top:76px;right:10px;left:auto;transform:none;max-width:224px;padding:7px 9px;border:1px solid #bd9d6166;background:#171b18e8;white-space:normal}
+body.local-coop #coopP2>small{grid-column:1;font-weight:800;align-self:start}
+body.local-coop #coopP2>.bar{grid-column:1;width:24px;grid-row:2}
+body.local-coop #coopP2Text{grid-column:2;grid-row:1 / 3;white-space:pre-line;font-size:10px;line-height:1.45;font-weight:600;color:#e5dfcf;text-align:left}
 body.online-playing #flightTop151 #coopHud{display:none!important}
 
 /* Pause build panel: show own pilot first, arrow-key between seats */
 #build151>section{display:none}#build151>section.build-active{display:block}
 #build151 .build-nav151{display:flex;justify-content:center;gap:18px;margin:2px 0 6px}
 #build151 .build-nav-btn{min-width:44px;min-height:36px;font-size:16px;border:1px solid var(--ho-hair-strong,#e8e2d440);background:#151512;color:#efebe2;border-radius:8px}
+

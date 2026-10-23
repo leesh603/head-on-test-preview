@@ -45,5 +45,3 @@ export function drawSupportEffects(g,b,{camera={x:0,y:0},screenScale=1}={}){if(!
  else if(f.kind==='debris'){g.rotate(f.age*4);g.fillStyle='#b49b6d';g.fillRect(-3,-2,7,4);}
  else if(f.kind==='wake'){g.rotate(f.angle);g.strokeStyle='#91b4be';g.lineWidth=3;for(let i=0;i<3;i++){g.beginPath();g.ellipse(0,i*7,f.radius*(.5+t),6+t*12,0,0,Math.PI*2);g.stroke();}}
  else {g.fillStyle=t<.3?'#ffd697':'#423c36';for(let i=0;i<7;i++){const a=i*2.4,r=f.radius*(.1+t*.5);g.beginPath();g.arc(Math.cos(a)*r,Math.sin(a)*r,f.radius*(.13+t*.2),0,Math.PI*2);g.fill();}g.strokeStyle='#ddac76';g.lineWidth=2;g.beginPath();g.arc(0,0,f.radius*(.3+t),0,Math.PI*2);g.stroke();}g.restore();});g.restore();}
-
-

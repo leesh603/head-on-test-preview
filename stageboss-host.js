@@ -60,6 +60,8 @@ export function constrainHarborRoute(g){
   p.x=route.x+hx*s+nx*n;p.y=route.y+hy*s+ny*n;
  }
 }
+// Combat classification is independent of stationary collision/render proxies.
+const AIRBORNE_BOSSES=new Set(['zeppelin-l70','hma23','gik','ca4','jasta11-circus','naval10-black-flight','gotha-squadron','gotha-raider','paris-staaken-rvi']);
 const alive=p=>p.hp>0&&(!p.status||p.status==='alive');
 const blocked=g=>g.state!=='playing'||!!g.pendingLevelUps?.length;
 export function stageBossBounds(g){const z=g.camera?.zoom||1,w=(g.viewWidth||960)/z,h=(g.viewHeight||700)/z;return {left:g.x-w/2,right:g.x+w/2,top:g.y-h/2,bottom:g.y+h/2};}
@@ -69,13 +71,13 @@ export function stageSpawnInterval(g,interval){return normalSpawnInterval(interv
 export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
  if(g.mode==='campaign'||g.stageBoss)return g.stageBoss;
  g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=null;
- const hitPlayer=(id,damage,source)=>{if(blocked(g))return;const defender=formationDefenders(g).find(a=>formationDefenderId(g,a)===id);if(defender){if((g.patrols||[]).includes(defender))g.hitPatrol(defender,damage);else g.hitFormationAlly?.(defender,damage);return;}const p=players(g).find(p=>(p.id||'p1')===id);if(!p||!alive(p))return;const percent=({'rail-shell':.06,'rail-shell-outer':.045,'alps-cannon':.05,'torpedo-charge':.05,'zubian-mortar':.04,'carpet-bomb':.04,'observer-shell':.04,'black-flak':.03})[source?.visual]||0,finalDamage=source?.raidHeavy?Math.max(damage,p.maxHp*.72):damage+p.maxHp*percent;if(g.players)g.hitPlayer(p,finalDamage);else g.hit(finalDamage);if(source?.visual==='torpedo-charge'){g.combatBlast(p.x,p.y,54,'enemy','mineBlast');g.shake=Math.max(g.shake,10);}else if(source?.visual==='zubian-shell')g.combatBlast(p.x,p.y,24,'enemy','pop');};
+ const hitPlayer=(id,damage,source)=>{if(blocked(g))return;const defender=formationDefenders(g).find(a=>formationDefenderId(g,a)===id);if(defender){if((g.patrols||[]).includes(defender))g.hitPatrol(defender,damage);else g.hitFormationAlly?.(defender,damage);return;}const p=players(g).find(p=>(p.id||'p1')===id);if(!p||!alive(p))return;const percent=({'rail-shell':.06,'rail-shell-outer':.045,'alps-cannon':.05,'torpedo-charge':.05,'zubian-mortar':.04,'carpet-bomb':.04,'observer-shell':.04,'black-flak':.03})[source?.visual]||0,finalDamage=source?.raidHeavy?Math.max(damage,p.maxHp*.72):damage+p.maxHp*percent;const smallArms=source?.kind==='projectile'&&(/-mg$/.test(source.visual)||source.visual==='rviii-gun');const priorSource=p.damageSource;p.damageSource=source?{x:source.x-(source.vx||0),y:source.y-(source.vy||0),kind:source.kind,visual:source.visual,hazard:source,bullet:source.kind==='projectile'?{...source,flak:!smallArms,heavyShell:!smallArms,gas:false}:null}:null;try{if(g.players)g.hitPlayer(p,finalDamage);else g.hit(finalDamage);}finally{p.damageSource=priorSource;}if(source?.visual==='torpedo-charge'){g.combatBlast(p.x,p.y,54,'enemy','mineBlast');g.shake=Math.max(g.shake,10);}else if(source?.visual==='zubian-shell')g.combatBlast(p.x,p.y,24,'enemy','pop');};
  const hooks={
   getTuning({bossId}){
    // Reuse the current ace HP/time growth and current heavy coop multiplier once.
    const loop=g.stageBoss?.stages.loopIndex||0,stage=g.stageBoss?.stages.stageIndex||0;
    const density=loop===0?({0:.55,1:.7,2:.85}[stage]??1):1;
-   const maxHp=Math.round(2100*(1+g.t/150)*(1+1.2*loop+.35*loop*loop))*heavyHp;
+   const maxHp=Math.round(2100*(1+g.t/150)*(1+1.2*loop+.35*loop*loop))*heavyHp*1.2;
    const bossTuning={
     'supermarine-nighthawk':{geometryScale:1.2*Math.min(.55,Math.max(.26,(g.viewWidth||960)*.8/1200)),mobileBoss:false,motionMultiplier:1,coreRadius:48,partHp:maxHp*.065},
     'siemens-schuckert-r-viii':{geometryScale:1.2*Math.min(.72,Math.max(.32,(g.viewWidth||960)*.94/1200)),mobileBoss:false,motionMultiplier:1,coreRadius:50,partHp:maxHp*.055},
@@ -258,7 +260,7 @@ export function syncStageBossTargets(g){
  const incoming=[...bodies?.values()||[]].filter(body=>!body.dead&&!g.enemies.some(e=>e.stageBossBody===body));
  if(incoming.length)g.reserveEnemySlots(incoming.length);
  for(const body of bodies?.values()||[]){if(body.dead||g.enemies.some(e=>e.stageBossBody===body))continue;
-  const e={stageBossBody:body,encounterId:encounter.id,id:body.id,type:'stageBoss',faction:body.faction,stationary:!isDoverBoss(body.kind),surface:!body.jutlandAirship&&!isDoverBoss(body.kind),missionTarget:true,a:-Math.PI/2,speed:0,fire:Infinity};
+  const e={stageBossBody:body,encounterId:encounter.id,id:body.id,type:'stageBoss',faction:body.faction,combatLayer:body.jutlandAirship||isDoverBoss(body.kind)||AIRBORNE_BOSSES.has(body.kind)?'air':'surface',stationary:!isDoverBoss(body.kind),surface:!body.jutlandAirship&&!isDoverBoss(body.kind),missionTarget:true,a:-Math.PI/2,speed:0,fire:Infinity};
   const synced=['x','y','hp','maxHp'];if(Number.isFinite(body.a))synced.push('a');
   for(const key of synced)Object.defineProperty(e,key,{enumerable:true,get:()=>body[key]});g.enemies.push(e);
  }
@@ -537,5 +539,4 @@ export function separateAces(g,dt){
   a.x-=ux*move;a.y-=uy*move;b.x+=ux*move;b.y+=uy*move;
  }
 }
-
 

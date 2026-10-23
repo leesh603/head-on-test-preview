@@ -7,13 +7,14 @@ import {FortDouaumont,FortSouville,verdunFortMuzzle} from '../verdun-fortresses.
 import {VERDUN_PART_FRAMES} from '../verdun-art-layout.js?v=tame3';
 
 function context(){
- let matrix=[1,0,0,1,0,0];const stack=[],calls=[];
+ let matrix=[1,0,0,1,0,0],clipped=false;const stack=[],calls=[];
  const ctx=new Proxy({
-  calls,save(){stack.push(matrix.slice())},restore(){matrix=stack.pop()},
+  calls,save(){stack.push({matrix:matrix.slice(),clipped})},restore(){({matrix,clipped}=stack.pop())},
   translate(x,y){matrix[4]+=matrix[0]*x+matrix[2]*y;matrix[5]+=matrix[1]*x+matrix[3]*y},
   rotate(angle){const [a,b,c,d]=matrix,C=Math.cos(angle),S=Math.sin(angle);matrix[0]=a*C+c*S;matrix[1]=b*C+d*S;matrix[2]=c*C-a*S;matrix[3]=d*C-b*S},
-  drawImage(image,...args){calls.push({url:image.url,args,matrix:matrix.slice()})},
-  clip(){throw new Error('Part destruction must not mask in a different whole-fort image')}
+  drawImage(image,...args){if(clipped)assert(image.url?.includes('-parts-r8.webp'),'Local masks cannot swap in a different whole-fort image');calls.push({url:image.url,args,matrix:matrix.slice()})},
+  // Local hatch clipping uses the registered part atlas, never a whole-fort swap.
+  clip(){clipped=true}
  },{get:(o,k)=>k in o?o[k]:()=>{},set:(o,k,v)=>(o[k]=v,true)});
  return ctx;
 }

@@ -39,7 +39,7 @@ export function applyTerrainAtmosphere(ctx,key,width,height){
 const profileImages=new Map(),profileImageLoads=new Map();
 function profileImage(key){
  const p=TERRAIN_PROFILES[key];if(!p?.src)return null;
- if(!profileImages.has(key)&&typeof Image!=='undefined'){const image=new Image();image.src=p.src;profileImages.set(key,image);}
+ if(!profileImages.has(key)&&typeof Image!=='undefined'){const image=new Image();image.decoding='async';image.src=p.src;profileImages.set(key,image);}
  return profileImages.get(key)||null;
 }
 // Warm a profile texture ahead of a region transition so the first tile never
@@ -56,9 +56,9 @@ export function preloadTerrainProfile(key){
  }));
  return profileImageLoads.get(key);
 }
-// Boot warm-up: decode every painterly tile source up front so the first
-// sortie doesn't stream terrain in under the player's plane.
-export const terrainProfilesReady=typeof Image==='undefined'?Promise.resolve(true):Promise.all(Object.keys(TERRAIN_PROFILES).map(preloadTerrainProfile));
+// Warm the opening land/sea pair; region-transition callers prepare their
+// actual destination through preloadTerrainProfile without decoding all tiles.
+export const terrainProfilesReady=typeof Image==='undefined'?Promise.resolve(true):Promise.all(['rural','sea'].map(preloadTerrainProfile));
 export const ALPS_PEAK_VARIANTS=Object.freeze([
  {id:'sharp',src:'./alps-peak-sharp182.webp',rx:1,ry:1},
  {id:'ridge',src:'./alps-peak-ridge182.webp',rx:1.35,ry:.75},
@@ -149,3 +149,4 @@ export class MountainField {
  }
  reset(){this.contacts.clear();this.cache.clear();this.time=0;}
 }
+

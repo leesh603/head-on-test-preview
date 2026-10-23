@@ -1,4 +1,4 @@
-import {drawAuthoredAlpsBomber} from './alps-bomber-art.js?v=alpsmotion20261022';
+import {drawAuthoredAlpsBomber} from './alps-bomber-art.js?v=alpsgun20261022';
 import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=gal1';
 import {fx} from './fx-art.js?v=gal1';
 import {bombSprite} from './bomb-sprites.js?v=bomb20';
@@ -14,7 +14,7 @@ export function drawAlpsWarnings(c,body){
 }
 export function drawAlpsBomber(c,b,original,atlas){
  if(drawAuthoredAlpsBomber(c,b,{effect:(...a)=>fx(c,...a)})){
-  if(b.cannonFlash>0&&!b.destroying){const q=alpsMuzzle({...b,parts:b.parts},'cannon',b.cannonShotAngle);fx(c,'muzzle',q.x,q.y,42,42,b.cannonShotAngle||0,b.cannonFlash/.16);}
+  if(b.cannonFlash>0&&!b.destroying&&!b.parts?.find(p=>p.id==='cannon')?.destroyed){const q=alpsMuzzle({...b,parts:b.parts},'cannon',b.cannonShotAngle);fx(c,'muzzle',q.x,q.y,42,42,b.cannonShotAngle||0,b.cannonFlash/.16);}
   return;
  }
  const layout=ALPS_BOMBER_LAYOUT[b.assetKey],s=b.geometryScale||1,w=layout.width*s,h=layout.height*s,parts=b.parts||[],wreck=b.destroying?Math.min(1,b.destructionAge/Math.max(.1,b.destructionDuration)):0;
@@ -36,7 +36,7 @@ export function drawAlpsBomber(c,b,original,atlas){
   for(const p of parts)if(p.hitFlash>0){c.save();c.globalAlpha=p.hitFlash/.14*.45;c.strokeStyle='#fff2c6';c.lineWidth=2;c.beginPath();c.arc(p.localX,p.localY,p.radius,0,Math.PI*2);c.stroke();c.restore();}
  }
  c.restore();
- if(b.cannonFlash>0&&!b.destroying){const q=alpsMuzzle({...b,parts:b.parts},'cannon',b.cannonShotAngle);fx(c,'muzzle',q.x,q.y,42,42,b.cannonShotAngle||0,b.cannonFlash/.16);}
+ if(b.cannonFlash>0&&!b.destroying&&!b.parts?.find(p=>p.id==='cannon')?.destroyed){const q=alpsMuzzle({...b,parts:b.parts},'cannon',b.cannonShotAngle);fx(c,'muzzle',q.x,q.y,42,42,b.cannonShotAngle||0,b.cannonFlash/.16);}
 }
 export function drawAlpsPart(c,p,ring){
  if(!p.hittable||p.destroyed)return;
@@ -57,5 +57,3 @@ export function drawAlpsHazard(c,h,ring){
  }else{const age=h.age-h.delay-h.warning;fx(c,'explosion0',h.x,h.y,h.radius*2.1,h.radius*2.1,0,Math.max(0,1-age/h.duration));fx(c,'smokeDark',h.x,h.y-age*24,h.radius*(1.5+age),h.radius*(1.5+age),0,.6);}
  return true;
 }
-
-

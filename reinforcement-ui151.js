@@ -2,6 +2,7 @@
 // Telescope category follows the user-requested machine-gun-only effect.
 // Presentation only. Preview uses the existing upgrade implementation on a detached copy.
 import {getLocale,upgradeName as i18nUpgradeName} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {AUGMENTATION_OVERHAUL_BALANCE} from './augmentation-overhaul150.js?v=equipment20261022';
 import {WEAPON_MODS,WEAPON_MOD_BY_ID,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js?v=weaponmods20261018';
 
 export const CATEGORIES={"bomberTransfer":"폭탄","mgTransfer":"기관총","airshipTransfer":"편대","damage":"기관총","rate":"기관총","rockets":"로켓","mines":"수류탄","explosives":"폭발 피해","command":"편대","turn":"이동","armor":"내구도","regen":"내구도","cooldown":"액티브","bomber":"공통","wingman":"편대","mercedesEngine":"이동속도","spread":"기관총","combinedProjectiles":"로켓 · 수류탄","redScarf":"이동","prancingHorse":"이동 · 방어력","ironCross":"액티브","telescope":"기관총","flightGloves":"발사 · 투척 주기","amatolCharge":"폭발 피해","lufberyCircle":"편대 · 방어","fighterSupply":"편대","sparkPlug":"내구도","goeringBaton":"편대","immelmannManual":"이동","motorCannon":"특수기","loEmblem":"공통","sacredCowling":"이동","steelPlate":"내구도","mauserAceKiller":"특수기","boelckeDicta":"공통","rearGunner":"특수기","quadLewis":"기관총","cow37":"무기교체","rankinShell":"특수기","kaiserFog":"특수기","fogCompass":"특수기","maximBelt":"기관총"};
@@ -14,6 +15,10 @@ export function reinforcementName(u,p,planes){if(u.id==='ironCross')return plane
 export function reinforcementIconId(id){return WEAPON_MOD_BY_ID[id]?.icon||id}
 function modName(p,family){const mod=WEAPON_MODS.find(mod=>mod.family===family&&mod.value===p.weaponMods?.[family]);return mod?i18nUpgradeName(mod.id,mod.name):(getLocale()==='en'?'Unmodified':'미개조')}
 const num=n=>Number(n.toFixed(1)),pct=n=>(n>=0?'+':'')+num(n*100)+'%';
+export function grenadeIntervalForDisplay(p){
+ const base=3.6/(1+Math.min(5,p.mineCount||0)*.3);
+ return typeof p.ordnanceInterval==='function'?p.ordnanceInterval(base):base*(p.upgrades?.flightGloves?AUGMENTATION_OVERHAUL_BALANCE.glovesInterval:1);
+}
 export function buildStats(p){
  const b=p.buildBaseline||{rate:p.rate,maxHp:p.maxHp,speed:p.baseSpeed||p.speed,turn:p.turn};
  return {
@@ -25,7 +30,7 @@ export function buildStats(p){
   armor:[label('내구도'),label('최대 체력'),(p.maxHp-b.maxHp>=0?'+':'')+num(p.maxHp-b.maxHp)+' HP'],regen:[label('회복'),label('초당 최대 체력'),pct(p.regen||0)],cooldown:[label('액티브'),label('재사용 대기시간'),pct(p.cooldownMult-1)],
   rockets:[label('로켓'),label('주기당 발사'),Math.min(5,p.rockets||0)+(getLocale()==='en'?' rounds':'발')],
   grenadeCount:[label('수류탄'),label('투척 개수'),Math.min(5,p.mineCount||0)+(getLocale()==='en'?' grenades':'개')],
-  mines:[label('수류탄'),label('투척 주기'),p.mineCount?num(3.6/(1+p.mineCount*.3)*(p.upgrades?.flightGloves?.6:1))+(getLocale()==='en'?'s':'초'):(getLocale()==='en'?'Not equipped':'미장착')],
+  mines:[label('수류탄'),label('투척 주기'),p.mineCount?num(grenadeIntervalForDisplay(p))+(getLocale()==='en'?'s':'초'):(getLocale()==='en'?'Not equipped':'미장착')],
   staggerDelay:[label('로켓 · 수류탄'),label('시차 발사'),p.upgrades?.combinedProjectiles?ORDNANCE_STAGGER_DELAY+(getLocale()==='en'?'s · same total':'초 · 총량 유지'):(getLocale()==='en'?'Not equipped':'미장착')],
   gunMod:[label('기관총'),label('개조'),modName(p,'GUN')],explosiveMod:[label('로켓 · 수류탄'),label('개조'),modName(p,'EXPLOSIVE')],wingMod:[label('편대'),label('개조'),modName(p,'FORMATION')]
  };
@@ -46,3 +51,4 @@ export function cumulativeText(p,id,rarity){
  const after=buildStats(copy);return fields[id].filter(k=>before[k][2]!==after[k][2]).map(k=>before[k][1]+current+before[k][2]+' → '+after[k][2]).join('\n');
 }
 export function cleanDescription(text){return text.replace(/(?:한\s*)?출격(?:당)?\s*(?:1회|한\s*번)[^.。]*(?:[.。]|$)/g,'').replace(/1회 획득 가능[.]?/g,'').trim()}
+

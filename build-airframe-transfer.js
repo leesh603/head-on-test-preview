@@ -71,7 +71,7 @@ export function tickTransferGuns(p,dt,gunnerAim,gunnerTarget){
    w.bullets.push(p.applySpecialRound(b,null));
   }
   p.roundsFired+=count;station.flash=.09;if(!p.unlimitedAmmo)station.ammo--;
-  if(station.ammo<=0)station.reload=fit.reload*(p.upgrades?.maximBelt?.65:1)*(p.upgrades?.flightGloves?.45:1);
+  if(station.ammo<=0)station.reload=fit.reload*p.equipmentReloadMultiplier();
   p.event('shot','');
  }
 }

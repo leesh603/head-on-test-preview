@@ -1,3 +1,4 @@
+import {drawHarborGunArt,drawHarborPivotArt} from './harbor-hardware-art.js?v=20261022';
 import {HARBOR_BOOM,harborScale,harborCranePose} from './harbor-crane-layout.js?v=tame3';
 import {partMark,stripMark,arcMark} from './tactical-marks.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
@@ -30,7 +31,8 @@ export function drawHarborFortress(c,b,art){
   if(dead(id)){const burn=Math.max(0,1-(time-(p.destroyedAt??time))/5)*(1-wreck);fx(c,'smokeDark',x+4,y-11,42,48,0,burn*.36);if(kind==='ammo')fx(c,'fireGround',x,y,34,26,0,burn*.55);}
   else{damageBar(c,p,x,y);if(p.launchWarmup>0)stripMark(c,x,y+5,34,36,1-p.launchWarmup/1.05);}
  }
- const guns=buildGuns(art.guns);for(const p of parts.filter(p=>p.kind==='harbor-gun')){
+ const guns=art.hardware?.naturalWidth?null:buildGuns(art.guns);for(const p of parts.filter(p=>p.kind==='harbor-gun')){
+  if(drawHarborGunArt(c,b,p,art.hardware)){if(!dead(p.id))damageBar(c,p,p.localX,p.localY);continue;}
   const index=p.cell??parts.filter(q=>q.kind==='harbor-gun').indexOf(p),g=guns?.[index];if(!g)continue;const w=p.drawWidth,h=p.drawHeight,k=w/384;
   c.save();c.translate(p.localX,p.localY);c.drawImage(g.base,-g.x*k,-g.y*k,w,h);c.rotate(p.angle+(dead(p.id)?.22:0));
   if(dead(p.id))c.globalAlpha*=.75;else c.translate(-(p.recoil||0)*2,0);
@@ -41,7 +43,7 @@ export function drawHarborFortress(c,b,art){
  if(art.parts?.naturalWidth){const dx=HARBOR_BOOM.tip[0]-HARBOR_BOOM.root[0],dy=HARBOR_BOOM.tip[1]-HARBOR_BOOM.root[1],unit=HARBOR_BOOM.reach/Math.hypot(dx,dy);
   c.save();c.translate(pivot.x,pivot.y);c.rotate((b.craneAngle||0)-Math.atan2(dy,dx)+(wreck*.1));c.drawImage(art.parts,...f,-HARBOR_BOOM.root[0]*unit,-HARBOR_BOOM.root[1]*unit,f[2]*unit,f[3]*unit);c.restore();
  }
- const pivotPart=part('crane-pivot');if(art.pivot?.naturalWidth){c.save();c.drawImage(dead('crane-pivot')?bakedFiltered(art.pivot,'grayscale(.6) brightness(.6)'):art.pivot,pivot.x-41,pivot.y-41,82,82);c.restore();}
+ const pivotPart=part('crane-pivot');if(!drawHarborPivotArt(c,pivotPart,art.hardware,pivot.x,pivot.y,!!b.destroying)&&art.pivot?.naturalWidth){c.save();c.drawImage(dead('crane-pivot')?bakedFiltered(art.pivot,'grayscale(.6) brightness(.6)'):art.pivot,pivot.x-41,pivot.y-41,82,82);c.restore();}
  if(pivotPart?.hittable&&!pivotPart.destroyed){partMark(c,pivot.x,pivot.y,21);damageBar(c,pivotPart,pivot.x,pivot.y);}
  if(!broken&&(b.craneState==='windup'||b.craneState==='sweep')){
   if(b.craneState==='windup')arcMark(c,pivot.x,pivot.y+38,HARBOR_BOOM.reach,Math.min(b.craneStart,b.craneEnd),Math.max(b.craneStart,b.craneEnd),{alpha:.85});

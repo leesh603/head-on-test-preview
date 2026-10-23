@@ -29,7 +29,7 @@ export class OnlineSession {
     this.reconnectUntil||=Date.now()+28000;
     if(Date.now()<this.reconnectUntil){this.onStatus?.('연결 끊김 · 같은 방으로 재접속 중…');this.onGameMessage?.({type:'linkLost'});this.retry=setTimeout(()=>this.connect({type:'join',code:this.code,token:this.token}),1000);return;}
    }
-   this.finish(this.role==='host'?'Host 연결이 끊겨 작전이 종료되었습니다.':'방 연결이 종료되었습니다.');
+   this.finish(!this.role?'온라인 서버에 연결하지 못했습니다. 잠시 후 다시 시도하세요.':this.role==='host'?'Host 연결이 끊겨 작전이 종료되었습니다.':'방 연결이 종료되었습니다.');
   };
  }
  send(message){if(this.socket?.readyState!==1||this.socket.bufferedAmount>512*1024)return false;this.socket.send(JSON.stringify(message));return true;}
@@ -75,3 +75,4 @@ export function installOnlineLobby({getLoadout,getGame,onStart,onEnd}){
   $('touchSkill').style.setProperty('--ready',1-Math.min(1,p.cooldown/p.skillCooldown()));$('touchEvade').style.setProperty('--ready',1-Math.min(1,p.evadeCooldown/(8*(p.evadeCooldownMult||1))));
  }};
 }
+

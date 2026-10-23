@@ -134,7 +134,7 @@ export function installBomberTransfer(Game,planes,scarff){
   const config=(id==='bomberTransfer'?BOMBER_TRANSFER:BUILD_TRANSFER[id])?.[planes[this.plane]?.faction];if(!config)return false;
   const ratio=this.maxHp?this.hp/this.maxHp:1;
   this.bomberTransfer={...config,id,entryTime:0,cooldown:config.period,remaining:0,drop:0,rearTimer:.2,rearAim:this.a+Math.PI,rearFlash:0,yaw:0};
-  const oldHp=this.maxHp;this.maxHp=Math.min(config.hpCap??Infinity,this.maxHp*config.hp);this.hp=this.maxHp*ratio;this.bomberTransfer.hpMultiplier=this.maxHp/oldHp;this.transferBaseRate=this.rate;
+  const oldHp=this.maxHp;this.maxHp=Math.min((config.hpCap??Infinity)*(this.upgrades?.loEmblem?.5:1),this.maxHp*config.hp);this.hp=this.maxHp*ratio;this.bomberTransfer.hpMultiplier=this.maxHp/oldHp;this.transferBaseRate=this.rate;
   this.enemyCruiseReference??=this.baseSpeed??this.speed;
   this.speed*=config.speed;if(this.baseSpeed)this.baseSpeed*=config.speed;this.turn*=config.turn;
   if(config.kind==='airship'){

@@ -38,6 +38,9 @@ function cloudImg(type,seed){
 
 export function installCloudCover(Game){
  const P=Game.prototype;
+ // Contacts belong to an enemy, not to the serialized game state. Reuse the
+ // wrapper while tracking the same player; inherited values stay live.
+ const aimContacts=new WeakMap();
  P.cloudDepthAt=function(x,y){
   let d=0;
   for(const c of this.clouds||[]){const t=CLOUD_TYPES[c.type];if(!t)continue;const dx=(x-c.x)/t.rx,dy=(y-c.y)/t.ry;if(dx*dx+dy*dy<=1&&t.dense>d)d=t.dense}
@@ -98,7 +101,9 @@ export function installCloudCover(Game){
    const j=(e._jit??=((this.rng?.()??Math.random())*6.283));
    // A contact only overrides aim coordinates. Copying the entire Game here
    // cloned hundreds of unrelated fields for every enemy, every frame.
-   const contact=Object.create(c);
+   let cached=aimContacts.get(e);
+   if(!cached||cached.target!==c){cached={target:c,contact:Object.create(c)};aimContacts.set(e,cached)}
+   const contact=cached.contact;
    contact.x=c.x+Math.cos(j+(this.t||0)*.9)*CLOUD_CONCEAL.aimWobble;
    contact.y=c.y+Math.sin(j+(this.t||0)*.9)*CLOUD_CONCEAL.aimWobble;
    return contact;

@@ -80,7 +80,8 @@ export function createCoopRelay({staticRoot=root,reconnectMs=30000,maxRooms=500,
  return {server,rooms,async close(){clearInterval(heartbeat);for(const room of rooms.values())end(room,'서버 종료');for(const ws of wss.clients)ws.terminate();await new Promise(r=>wss.close(r));await new Promise(r=>server.close(r));}};
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
- const origins=process.env.COOP_ORIGINS?.split(',').filter(Boolean)||['http://localhost:8787','http://127.0.0.1:8787','https://leesh603.github.io'];
+ const origins=process.env.COOP_ORIGINS?.split(',').filter(Boolean)||['http://localhost:8787','http://127.0.0.1:8787','https://leesh603.github.io','https://head-on-aces.justzeon.chatgpt.site'];
  const relay=createCoopRelay({staticRoot:process.env.COOP_STATIC==='0'?null:root,origins});
  relay.server.listen(Number(process.env.PORT)||8787,process.env.HOST||'127.0.0.1',()=>console.log('HEAD-ON Co-op relay: http://'+(process.env.HOST||'127.0.0.1')+':'+(Number(process.env.PORT)||8787)));
 }
+

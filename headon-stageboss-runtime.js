@@ -57,7 +57,7 @@ export class StageBossAddon {
     Object.assign(this,{runId,hooks,rng,minionCap,showFloors});this.serial=0;this.time=0;this.frameContext=null;this.defeatSequence=null;this.bodyDefeats=[];
     this.stages=new BossStages({teamFaction,stageIndex,loopIndex,rng});
     this.hazards=new BossHazards({capacity,onDamage:hooks.onDamage,onStatus:hooks.onStatus,onBarrierContact:hooks.onBarrierContact,
-      onActivate:h=>{const cb=this.stages.encounter?.bodies.get(h.bossId),cp=cb?.parts.get(h.sourcePartId);if(h.kind==='projectile'&&cp&&((cb.kind==='fliegerzug'&&['car-flak','car-rear'].includes(cp.id))||(cb.kind==='treffas-wagen'&&cp.id.startsWith('mg-')))){const flash=cp.gunFlash||0;cp.gunFlash=.16;cp.recoil=.18;if(Number.isFinite(h.sourceAngle)){cp.shotAngle=h.sourceAngle;cp.aimAngle=h.sourceAngle;}if(!h.basicMuzzle&&!flash)hooks.onCue({type:'muzzle',encounterId:h.encounterId,bossId:h.bossId,partId:cp.id,x:h.x,y:h.y});}if(h.basicMuzzle){const body=this.stages.encounter?.bodies.get(h.bossId),part=body?.parts.get(h.sourcePartId);if(part)part.recoil=Math.max(part.recoil||0,.18);hooks.onCue({type:'muzzle',encounterId:h.encounterId,bossId:h.bossId,partId:h.sourcePartId,x:h.x,y:h.y});}hooks.onCue({type:'hazard-activated',encounterId:h.encounterId,bossId:h.bossId,kind:h.kind,visual:h.visual,x:h.x,y:h.y,radius:h.radius,raidHeavy:h.raidHeavy,sourcePartId:h.sourcePartId});}});
+      onActivate:h=>{const cb=this.stages.encounter?.bodies.get(h.bossId),cp=cb?.parts.get(h.sourcePartId);cb?.noteAttackActivated?.(h);if(h.kind==='projectile'&&cp&&((cb.kind==='fliegerzug'&&['car-flak','car-rear'].includes(cp.id))||(cb.kind==='treffas-wagen'&&cp.id.startsWith('mg-')))){const flash=cp.gunFlash||0;cp.gunFlash=.16;cp.recoil=.18;if(Number.isFinite(h.sourceAngle)){cp.shotAngle=h.sourceAngle;cp.aimAngle=h.sourceAngle;}if(!h.basicMuzzle&&!flash)hooks.onCue({type:'muzzle',encounterId:h.encounterId,bossId:h.bossId,partId:cp.id,x:h.x,y:h.y});}if(h.basicMuzzle){const body=this.stages.encounter?.bodies.get(h.bossId),part=body?.parts.get(h.sourcePartId);if(part)part.recoil=Math.max(part.recoil||0,.18);hooks.onCue({type:'muzzle',encounterId:h.encounterId,bossId:h.bossId,partId:h.sourcePartId,x:h.x,y:h.y});}hooks.onCue({type:'hazard-activated',encounterId:h.encounterId,bossId:h.bossId,kind:h.kind,visual:h.visual,x:h.x,y:h.y,radius:h.radius,raidHeavy:h.raidHeavy,sourcePartId:h.sourcePartId});}});
     this.canBasicFire=()=>this.hazards.pool.count<42;
     this.metrics={minionsDenied:0};this.ended=false;
   }
@@ -80,8 +80,13 @@ export class StageBossAddon {
   accept(event,encounterId,tuning) {
     if(this.ended)return;
     if(event.type==='support-damage'){this.hooks.onDamage(event.playerId,event.damage,event.source);return;}if(event.type==='support-cleanup'){this.hooks.clearEncounterOwned(encounterId);return;}
-    if(event.type==='hazard')this.hazards.spawn({...event,encounterId});
-    else if(event.type==='cancel-hazards')this.hazards.clearTagged(encounterId,event.tag);
+    if(event.type==='hazard'){
+      const enc=this.stages.encounter,start=enc?.clock||0,h=this.hazards.spawn({...event,encounterId,signatureStarted:start});
+      if(this.showFloors&&h&&event.signatureAttack&&event.damage>0&&enc)(enc.pendingShown??=[]).push({h,generation:h.generation,start});
+    }
+    // Native attack holds also use this tag. Only explicit death/cleanup may
+    // erase basic rounds that have already left their weapons.
+    else if(event.type==='cancel-hazards')this.hazards.clearTagged(encounterId,event.tag,{pendingOnly:event.pendingOnly??String(event.tag||'').endsWith(':basic-fire')});
     else if(event.type==='harbor-load-pose'){
       if([event.x,event.y,event.radius,event.damage].every(Number.isFinite)&&event.radius>0&&event.damage>=0)this.hazards.pool.visit(h=>{if(h.encounterId===encounterId&&h.bossId===event.bossId&&h.tag==='harbor-crane'){h.x=event.x;h.y=event.y;h.radius=event.radius;h.damage=event.damage;}});
     }
@@ -157,7 +162,7 @@ export class StageBossAddon {
   // While a shared gate is up, keep hurrying (a timer that fired nothing warned is
   // skipped next time) and keep the bar locked; banked weak-point loss lands after.
   settleBanked(){
-    const enc=this.stages.encounter;
+    const enc=this.stages.encounter;enc?.pendingAttack();
     // Advance the shared gate on the clock too, so a pause in hits never leaves it held.
     if(enc?.gate?.at!=null){const live=[...enc.bodies.values()].find(b=>!b.dead&&typeof b.hpFloor!=='function');if(live)enc.guardFloor(live);}
     if(enc?.gate?.at!=null){const now=enc.clock||0;enc.gateHold={bodyId:enc.gateHold?.bodyId,frac:enc.gateLine,until:now+.3};

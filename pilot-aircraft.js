@@ -74,7 +74,7 @@ export const NEW_SORTIE_ART=Object.freeze(['morane_l','bristol_scout_c','hansa_b
 export const pilotAircraftChoices=id=>{const r=PILOT_AIRCRAFT[id];return r?[r.defaultAircraft,...(r.unlockAircraft?[r.unlockAircraft]:[])]:[]};
 export const pilotAircraftUnlocked=(id,choice,kills=pilotKillCount(id))=>!!PILOT_AIRCRAFT[id]&&(choice===PILOT_AIRCRAFT[id].defaultAircraft||!!PILOT_AIRCRAFT[id].unlockAircraft&&choice===PILOT_AIRCRAFT[id].unlockAircraft&&kills>=PILOT_AIRCRAFT_KILLS);
 export const selectedPilotAircraft=(id,choice)=>pilotAircraftChoices(id).includes(choice)&&pilotAircraftUnlocked(id,choice)?choice:PILOT_AIRCRAFT[id]?.defaultAircraft;
-export const aircraftChoiceLabel=(id,plane,name,role,locale='ko')=>[plane===PILOT_AIRCRAFT[id]?.defaultAircraft?(locale==='en'?'Default':'기본'):pilotAircraftUnlocked(id,plane)?'':(locale==='en'?`Locked · ${Math.min(pilotKillCount(id),PILOT_AIRCRAFT_KILLS)}/${PILOT_AIRCRAFT_KILLS} kills`:`잠김 · 격추 ${Math.min(pilotKillCount(id),PILOT_AIRCRAFT_KILLS)}/${PILOT_AIRCRAFT_KILLS}`),name,role].filter(Boolean).join(' · ');
+export const aircraftChoiceLabel=(id,plane,name,role,locale='ko')=>[plane===PILOT_AIRCRAFT[id]?.defaultAircraft?(locale==='en'?'Default':'기본'):pilotAircraftUnlocked(id,plane)?'':(locale==='en'?`Locked · ${Math.min(pilotKillCount(id),PILOT_AIRCRAFT_KILLS)}/${PILOT_AIRCRAFT_KILLS} kills`:`잠김 · 격추 ${Math.min(pilotKillCount(id),PILOT_AIRCRAFT_KILLS)}/${PILOT_AIRCRAFT_KILLS}`),name].filter(Boolean).join(' · ');
 
 export const AIRCRAFT_SELECTION_KEY='headon.pilot-aircraft.v1';
 export function readAircraftSelections(storage){

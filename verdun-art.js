@@ -1,3 +1,4 @@
+import {drawVerdunWeapon as drawWeapon,drawVerdunMount,drawVerdunPit,releaseVerdunHardware} from './verdun-hardware-art.js?v=20261022';
 import {drawVerdunGround,prepareVerdunGround,releaseVerdunGround} from './verdun-ground.js?v=tame3';
 import {fx} from './fx-art.js?v=tame3';
 import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
@@ -6,12 +7,12 @@ import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
 import {VERDUN_PART_FRAMES,VERDUN_BODY_GRID} from './verdun-art-layout.js?v=tame3';
 import {VERDUN_FORT_LAYOUT,VERDUN_FORT_ENLARGEMENT,verdunFortCollapseSites} from './verdun-fortresses.js?v=tame3&rail=40&ai=1018&sig=1019&boss=20261020b&phase=1021';
 
-// Authored PNG/WebP atlas frames; no generated geometry or per-frame raster copy.
+// Authored atlas frames keep measured pivots; component transition canvases are reused.
 const sources={map:'./terrain-verdun-r8.webp?v=r5',douaumont:'./boss-douaumont-atlas-r8.webp?v=r5',souville:'./boss-souville-atlas-r8.webp?v=r5',douaumontParts:'./boss-douaumont-parts-r8.webp?v=r5',souvilleParts:'./boss-souville-parts-r8.webp?v=r5'};
 const images={},pending={};
 function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';pending[key]=new Promise((resolve,reject)=>{im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))};im.onerror=()=>reject(new Error('Missing Verdun asset: '+sources[key]));});im.src=sources[key];images[key]=im;return im;}
 export function prepareVerdunAssets(){for(const key of Object.keys(sources))load(key);return Promise.all(Object.values(pending)).then(result=>{prepareVerdunGround(images.map);return result;});}
-export function releaseVerdunAssets(){releaseVerdunGround();shadows.clear();foundations=new WeakMap();for(const k of Object.keys(images)){images[k].src='';delete images[k];delete pending[k];}}
+export function releaseVerdunAssets(){releaseVerdunGround();releaseVerdunHardware();shadows.clear();foundations=new WeakMap();for(const k of Object.keys(images)){images[k].src='';delete images[k];delete pending[k];}}
 export function paintVerdun(c,g,cx,cy,w,h){
  c.save();c.fillStyle='#55493a';c.fillRect(0,0,w,h);const im=load('map');if(!im?.naturalWidth){c.restore();return;}
  drawVerdunGround(c,im,cx,cy,w,h);c.restore();
@@ -25,21 +26,6 @@ function drawMount(c,im,type,state,x,y,w,h,sou=false){
  const kx=w/set.size[0],ky=h/set.size[1];
  c.save();c.translate(x,y);c.imageSmoothingEnabled=true;
  c.drawImage(im,sx,sy,sw,sh,-px*kx,-py*ky,sw*kx,sh*ky);c.restore();
-}
-function drawMountAlpha(c,im,type,state,p,gun,sou,alpha=1){
- if(alpha<=0)return;c.save();c.globalAlpha*=alpha;
- drawMount(c,im,type,state,p.x,p.y,p.drawWidth,gun?p.drawWidth*.76:p.drawHeight,sou);c.restore();
-}
-function drawWeapon(c,im,type,state,x,y,muzzle,angle,sou=false,recoil=0){
- if(!im?.naturalWidth)return;
- const frames=VERDUN_PART_FRAMES[sou?'souville':'douaumont'].guns[type];if(!frames)return;
- const frame=frames[state],[sx,sy,sw,sh]=frame.rect,[px,py]=frame.pivot;
- // Functional states put the illustrated muzzle on the native shot origin.
- // A wreck uses the original scale and retains the gun's last aim direction.
- const k=muzzle/(state===frames.length-1?frames[0].reach:frame.reach);
- c.save();c.translate(x,y);c.rotate(angle+Math.PI/2);c.imageSmoothingEnabled=true;
- c.translate(0,recoil);
- c.drawImage(im,sx,sy,sw,sh,-px*k,-py*k,sw*k,sh*k);c.restore();
 }
 const shadows=new Map();
 function drawContactShadow(c,im,key,w,h,scale){
@@ -81,7 +67,7 @@ export function drawVerdunFort(c,b,destruction={}){
  c.drawImage(im,collapsed&&!sou?cw:0,collapsed&&sou?ch:0,cw,ch,-w/2,-h/2,w,h);
  drawFoundation(c,b,im,key,w,h,cw,ch);
  for(const p of b.parts.values()){
-  const dead=collapsed||p.destroyed||b.dead&&fallen.has(p.id),damaged=p.hp<p.maxHp*.55;
+  const structuralFall=collapsed||b.dead&&fallen.has(p.id),dead=structuralFall||p.destroyed,damaged=p.hp<p.maxHp*.55;
   const artSou=sou&&p.kind!=='aa',artKey=artSou?'souville':'douaumont',partImage=p.kind==='aa'&&sou?load('douaumontParts'):parts;
   const gun=!!VERDUN_PART_FRAMES[artKey].guns[p.art];
   const opens=['pit','ammo','core'].includes(p.art);
@@ -89,20 +75,18 @@ export function drawVerdunFort(c,b,destruction={}){
   // Souville's intact casemates and AA foundations belong to the connected
   // authored hull. Overlay independent foundations only for state changes.
   if(p.kind==='pit'&&!dead){
-   drawMountAlpha(c,partImage,p.art,0,p,gun,artSou);drawMountAlpha(c,partImage,p.art,damaged?2:1,p,gun,artSou,p.openAmount??(p.revealed?1:0));
+   drawVerdunPit(c,partImage,p);
   }else if(!sou||dead||damaged||opens&&p.revealed){
-   const blend=dead?(p.repairBlend>0?1-p.repairBlend:p.damageBlend??1):damaged?p.damageBlend??1:1;
-   if((dead||damaged)&&blend<1)drawMountAlpha(c,partImage,p.art,artSou&&opens&&p.revealed?1:0,p,gun,artSou);
-   drawMountAlpha(c,partImage,p.art,state,p,gun,artSou,blend);
-   if(dead&&p.repairBlend>0)drawMountAlpha(c,partImage,p.art,0,p,gun,artSou,p.repairBlend);
+   const blend=structuralFall?1:dead?(p.repairBlend>0?1-p.repairBlend:p.damageBlend??1):damaged?p.damageBlend??1:1;
+   drawVerdunMount(c,partImage,p.art,state,p,gun,artSou,blend,artSou&&opens&&p.revealed?1:0);
   }
   if(gun&&(p.kind!=='pit'||p.active)&&(dead||p.revealed||p.openAmount>0||!sou)){
    c.save();if(p.kind==='pit'&&!dead)c.globalAlpha*=p.openAmount??1;
    const gunState=artSou?(dead?1:0):(dead?2:damaged?1:0);
-   if(dead&&p.damageBlend<1)drawWeapon(c,partImage,p.art,0,p.x,p.y,p.muzzleLength,p.angle,artSou);
-   if(dead)c.globalAlpha*=Math.max(.01,p.repairBlend>0?1-p.repairBlend:p.damageBlend??1);
+   const wreckBlend=structuralFall?1:dead?(p.repairBlend>0?1-p.repairBlend:p.damageBlend??1):1;
+   if(dead&&wreckBlend<1){c.save();c.globalAlpha*=1-wreckBlend;drawWeapon(c,partImage,p.art,0,p.x,p.y,p.muzzleLength,p.angle,artSou);c.restore();}
+   if(dead)c.globalAlpha*=wreckBlend;
    drawWeapon(c,partImage,p.art,gunState,p.x,p.y,p.muzzleLength,p.angle,artSou,dead?0:(p.recoil||0)*24*scale);
-   if(dead&&p.repairBlend>0){c.globalAlpha=p.repairBlend;drawWeapon(c,partImage,p.art,0,p.x,p.y,p.muzzleLength,p.angle,artSou);}
    c.restore();
   }
   if(p.repairRemaining>0&&p.repairRemaining<3){const pulse=Math.max(0,Math.sin(b.clock*13));fx(c,'spark',p.x-p.drawWidth*.2,p.y,14*artScale,14*artScale,0,pulse*.7);fx(c,'smokeDust',p.x,p.y,25*artScale,20*artScale,0,.16);}

@@ -75,12 +75,16 @@ class AlpsBomber extends BaseBoss {
 }
 
 export class GIK extends AlpsBomber {
- constructor(o){super({...o,kind:'gik'});this.cannonLock=null;this.cannonRemaining=0;this.cannonFlash=0;}
+ constructor(o){super({...o,kind:'gik'});this.cannonLock=null;this.cannonRemaining=0;this.cannonFlash=0;this.cannonVolley=0;this.gateResponse=0;}
+ hurry(){
+  const key=this.part('cannon').destroyed||this.gateResponse++%2?'gik-bomb-run':'alps-cannon';
+  if(!this.cannonLock)this.timers.set(key,.15);return key;
+ }
  cannon(dt,players){
   const gun=this.part('cannon');this.cannonFlash=Math.max(0,this.cannonFlash-dt);if(gun.destroyed)return;
   if(this.cannonLock){this.cannonRemaining=Math.max(0,this.cannonRemaining-dt);if(this.cannonRemaining>0)return;
-   // Final phase: a fourth round walks the same line; reload shortens by phase.
-   const angle=this.cannonLock.angle,q=alpsMuzzle(this,'cannon',angle),rounds=this.phase===3?4:3;for(let i=0;i<rounds;i++)this.hazard('projectile',{...q,sourcePartId:'cannon',sourceOffsetX:q.x-this.x-gun.x,sourceOffsetY:q.y-this.y-gun.y,vx:Math.cos(angle)*400,vy:Math.sin(angle)*400,radius:i===rounds-1?18:9,delay:i*.48,damage:this.t.damage*(i===rounds-1?2.4:1.2),raidHeavy:i===rounds-1,visual:'alps-cannon',duration:2.6,tag:this.id+':cannon'});this.timers.set('alps-cannon',this.phase===3?4.2:this.phase===2?5.4:6.5);
+   // Each round keeps its warned bearing; the final phase adds a fourth beat.
+   const lock=this.cannonLock,angle=lock.angle,q=alpsMuzzle(this,'cannon',angle),rounds=lock.angles.length;for(let i=0;i<rounds;i++){const shotAngle=lock.angles[i];this.hazard('projectile',{...q,sourcePartId:'cannon',sourceOffsetX:q.x-this.x-gun.x,sourceOffsetY:q.y-this.y-gun.y,vx:Math.cos(shotAngle)*400,vy:Math.sin(shotAngle)*400,radius:i===rounds-1?18:9,delay:i*.48,damage:this.t.damage*(i===rounds-1?2.4:1.2),raidHeavy:i===rounds-1,visual:'alps-cannon',duration:2.6,tag:this.id+':cannon'});}this.timers.set('alps-cannon',this.phase===3?4.2:this.phase===2?5.4:6.5);
    this.cannonShotAngle=angle;this.command('heavy-gun-fired',{...q,partId:'cannon'});gun.recoil=.22;this.cannonFlash=.16;this.cannonLock=null;return;
   }
   if(!this.due('alps-cannon',dt,this.t.cannonInterval||(this.phase===1?3.5:2.7)))return;
@@ -88,12 +92,27 @@ export class GIK extends AlpsBomber {
   if(!p){p=this.target(players);if(p)this.alignFor('cannon',p,false);this.timers.set('alps-cannon',.18);return;}
   this.alignIntent=null;
   const desired=Math.atan2(p.y-q.y+(p.vy||0)*.3,p.x-q.x+(p.vx||0)*.3),angle=forward+Math.max(-.6,Math.min(.6,alpsAngleDelta(desired,forward)));
-  this.cannonLock={angle,seconds:1.25};this.cannonRemaining=1.25;
+  const sweep=this.phase>=2&&this.cannonVolley++%2===1,rounds=this.phase===3?4:3;
+  const angles=Array.from({length:rounds},(_,i)=>angle+(sweep?(i/(rounds-1)-.5)*.36:0));
+  this.cannonLock={angle,angles,seconds:1.25};this.cannonRemaining=1.25;
+  for(const shot of new Set(angles))this.command('charge-warning',{...q,partId:'cannon',targetX:q.x+Math.cos(shot)*700,targetY:q.y+Math.sin(shot)*700,seconds:1.25});
+ }
+ bombIntercept(players){
+  const p=this.target(players);if(!p)return;
+  const source=alpsPoint(this,0,25*(this.t.geometryScale||1)),speed=Math.hypot(p.vx||0,p.vy||0),moving=speed>10;
+  const dx=moving?p.vx/speed:Math.cos(this.a),dy=moving?p.vy/speed:Math.sin(this.a),rows=this.phase===3?8:7;
+  for(let i=0;i<rows;i++){
+   const warning=1.7+i*.32,travel=moving?Math.min(speed,340)*warning:i*64,shoulder=moving?(i%2?1:-1)*22:0;
+   this.hazard('circle',{x:p.x+dx*travel-dy*shoulder,y:p.y+dy*travel+dx*shoulder,radius:36,warning,duration:.3,once:true,damage:this.t.damage*.8,visual:'carpet-bomb',airborneBomb:true,sourceX:source.x,sourceY:source.y,tag:this.id+':payload'});
+  }
  }
  update(dt,{players,bounds}){
-  this.cruise(dt,bounds);if(this.updateDisarmed(dt))return;this.updatePhase();this.cannon(dt,players);
-  this.mountFire('rearGun',players,dt,this.phase===3?1.3:1.8,true);
-  if(!this.cannonLock&&this.due('gik-bomb-run',dt,this.phase===3?3.6:5)){this.stickBombs(bounds,{count:this.phase===3?8:7});this.command('phase-change',{phase:'gik-strafe-run'});}
+  this.cruise(dt,bounds);if(this.updateDisarmed(dt))return;this.updatePhase();
+  if(this.encounter?.breathBlocks({type:'charge-warning'})){if(this.cannonLock){this.cannonLock=null;this.cannonRemaining=0;this.timers.set('alps-cannon',.2);}return;}
+  this.cannon(dt,players);
+  // The rear gun cannot steal the nose-alignment order before the cannon fires.
+  if(!this.cannonLock&&this.alignIntent?.id!=='cannon')this.mountFire('rearGun',players,dt,this.phase===3?1.3:1.8,true);
+  if(!this.cannonLock&&this.due('gik-bomb-run',dt,this.phase===3?3.6:5)){this.bombIntercept(players);this.command('phase-change',{phase:'gik-strafe-run'});}
  }
 }
 

@@ -104,4 +104,3 @@ export function drawDoverCue(c,cue){
  if(Number.isFinite(cue.exitAngle))aimLine(c,ex,ey,ex+Math.cos(cue.exitAngle)*65,ey+Math.sin(cue.exitAngle)*65,{tone:'safe',alpha:.65});
  return true;
 }
-

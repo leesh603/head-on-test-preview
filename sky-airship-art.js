@@ -85,6 +85,13 @@ export function drawSkyAirship(c,b,{cloud=()=>{},effect=()=>{},mark=()=>{}}={}){
  c.drawImage(im,0,state*im.naturalHeight/3,im.naturalWidth,im.naturalHeight/3,-width/2,-height/2,width,height);c.restore();
  // Authored hardware replaces the equipment on the old flattened picture.
  // No per-frame filters, generated canvases, or persistent particle lists.
+ // Spend the existing two-plume budget on the most recent losses.
+ let newest=null,previous=null;
+ for(const part of parts){
+  const p=part;if(!p.destroyed&&!(p.id==='capsule'&&time-(p.destroyedAt??0)>2.6))continue;
+  if(!newest||(p.destroyedAt??0)>(newest.destroyedAt??0)){previous=newest;newest=p;}
+  else if(!previous||(p.destroyedAt??0)>(previous.destroyedAt??0))previous=p;
+ }
  let plumeCount=0;
  for(const p of parts){
   if(p.id==='capsule'&&p.destroyed&&time-(p.destroyedAt??0)>2.6)continue;
@@ -105,7 +112,7 @@ export function drawSkyAirship(c,b,{cloud=()=>{},effect=()=>{},mark=()=>{}}={}){
    }else{c.scale(.24+Math.abs(Math.cos(time*38+Number(p.id.slice(7))*1.7))*.76,1);hardware(c,10,0,0,r*2.25);}
    c.restore();
   }
-  if(p.destroyed&&plumeCount<2){
+  if(p.destroyed&&(p===newest||p===previous)){
    const age=Math.max(0,time-(p.destroyedAt??time));plumeCount++;
    if(age<5.5)effect('fireEngine',p.x,p.y+drop,r*1.7,r*1.7,0,.8*(1-age/5.5));
    const drift=(time*.16+plumeCount*.37)%1;

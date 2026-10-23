@@ -21,6 +21,33 @@ const put = (node, text) => { if (node.textContent !== text) node.textContent = 
 const ICON = { ranking: 'lobby-ic-ranking420.webp?v=lobby1', aces: 'lobby-ic-aces420.webp?v=lobby1', medals: 'lobby-ic-medals420.webp?v=lobby1', home: 'lobby-ic-home420.webp?v=lobby1' };
 const LOCK = '<svg viewBox="0 0 12 14" aria-hidden="true"><path d="M3 6V4a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="1.5" y="6" width="9" height="7" rx="1.2" fill="currentColor"/></svg>';
 
+// Roster labels identify the ace, including siblings and both crew members.
+const MOBILE_PILOT_NAMES420 = {
+  ko: {baron:'만프레드',voss:'포스',boelcke:'뵐케',immelmann:'임멜만',udet:'우데트',fonck:'폰크',collishaw:'콜리쇼',baracca:'바라카',guynemer:'기느메르',bishop:'비숍',goering:'괴링',mannock:'매녹',mckeever:'맥키버\n& 파월',huffzky:'후프츠키\n& 에만',hawker:'호커',berthold:'베르토홀트',jacobs:'야콥스',rickenbacker:'리켄바커',ball:'볼',barker:'바커',luke:'루크',brumowski:'브루모프스키',gontermann:'곤터만',wolff:'볼프',loewenhardt:'뢰벤하르트',mccudden:'맥커든',nungesser:'눙게서',lothar:'로타르',sachsenberg:'작센베르크',proctor:'프록터',schleich:'슐라이히',lufbery:'러프베리'},
+  en: {baron:'Manfred',voss:'Voss',boelcke:'Boelcke',immelmann:'Immelmann',udet:'Udet',fonck:'Fonck',collishaw:'Collishaw',baracca:'Baracca',guynemer:'Guynemer',bishop:'Bishop',goering:'Göring',mannock:'Mannock',mckeever:'McKeever\n& Powell',huffzky:'Huffzky\n& Ehmann',hawker:'Hawker',berthold:'Berthold',jacobs:'Jacobs',rickenbacker:'Rickenbacker',ball:'Ball',barker:'Barker',luke:'Luke',brumowski:'Brumowski',gontermann:'Gontermann',wolff:'Wolff',loewenhardt:'Loewenhardt',mccudden:'McCudden',nungesser:'Nungesser',lothar:'Lothar',sachsenberg:'Sachsenberg',proctor:'Proctor',schleich:'Schleich',lufbery:'Lufbery'}
+};
+function mobilePilotName420(id, label, locale) {
+  return MOBILE_PILOT_NAMES420[locale === 'en' ? 'en' : 'ko'][id] || label.trim();
+}
+
+// Alpha bounds of the unchanged 1254px crew busts. Head bounds keep both
+// people inside narrow cards while the painted shoulders meet the card floor.
+const MOBILE_CREW_BOUNDS420 = {huffzky:{box:[55,227,1249,1117],heads:[290,1015]},mckeever:{box:[6,87,1251,1150],heads:[210,1090]}};
+function mobileCrewPortraitLayout420(id, width, height) {
+  const bounds = MOBILE_CREW_BOUNDS420[id];
+  if (!bounds || !(width > 0 && height > 0)) return null;
+  const [left, top, right, bottom] = bounds.box, center = (left + right) / 2;
+  const fit = Math.min(width, height) / 1254;
+  const headWidth = 2 * Math.max(center - bounds.heads[0], bounds.heads[1] - center);
+  const scale = Math.min(height * .96 / (bottom - top), width * .98 / headWidth) / fit;
+  return {scale, x: -(center - 627) * fit * scale, y: height * .48 - (bottom - 627) * fit * scale};
+}
+function fitMobileCrew420(image, id) {
+  const layout = mobileCrewPortraitLayout420(id, image.clientWidth, image.clientHeight);
+  image.toggleAttribute('data-crew-fit', !!layout);
+  for (const [name, value] of Object.entries(layout || {scale:1,x:0,y:0})) image.style.setProperty('--crew-mobile-' + name, String(value) + (name === 'scale' ? '' : 'px'));
+}
+
 /* Art without an authored layout (e.g. not-yet-unlocked aircraft) is fitted by
    its alpha bounds so every aircraft fills the stage the same way. */
 const alphaBox = new Map();
@@ -110,7 +137,6 @@ function install() {
   q('.lap-arrow.next').addEventListener('click', () => step(1));
   q('.lap-back').addEventListener('click', () => setAces(false));
   const iconFrom = (sel, slot) => { const svg = hangar.querySelector(sel + ' .astra-ability-icon svg'); if (svg && slot.dataset.src !== svg.outerHTML) { slot.dataset.src = svg.outerHTML; slot.innerHTML = svg.outerHTML; } };
-  const shortName = s => s.trim().split(/\s+/).pop();
   const syncAces = L => {
     put(q('.lap-head h2'), L.acesTitle); put(q('.lap-go'), L.ready);
     ap.querySelectorAll('.lap-seg button').forEach(b => { const src = $(b.dataset.f); if (!src) return; const img = src.querySelector('img'); if (img && b.firstChild.getAttribute('src') !== img.getAttribute('src')) b.firstChild.setAttribute('src', img.getAttribute('src')); put(b.lastChild, src.textContent.trim()); b.classList.toggle('on', src.classList.contains('active')); });
@@ -160,6 +186,7 @@ function install() {
     fig.toggleAttribute('data-hangar-fit', !!layout);
     for (const [name, value] of Object.entries(layout || {scale: 1, x: 0, y: 0})) fig.style.setProperty('--hangar-art-' + name, String(value) + (name === 'scale' ? '' : 'px'));
     q('.lap-pt').classList.toggle('duo', pilot === 'huffzky' || pilot === 'mckeever');
+    fitMobileCrew420(q('.lap-pt img'), pilot);
     let rows = [...($('airframeStats')?.querySelectorAll('.airframe-rating-row') || [])].map(r => [r.querySelector('b')?.textContent.trim() || '', r.querySelectorAll('i.active').length]);
     let hp = (hangar.querySelector('.astra-base-hp b')?.textContent || '').trim();
     if (previewing) {
@@ -178,7 +205,9 @@ function install() {
     if (q('.lap-grid').dataset.k !== gridKey) {
       q('.lap-grid').dataset.k = gridKey;
       q('.lap-grid').replaceChildren(...tabs.map(b => { const c = el('button', (b.classList.contains('active') ? 'on' : '') + (b.disabled ? ' lock' : '')); c.type = 'button'; c.dataset.pick = b.dataset.pilotId; c.disabled = b.disabled; c.title = b.title;
-        const img = el('img'); img.alt = ''; img.src = b.querySelector('img')?.src || ''; const s = el('span'); s.textContent = shortName(b.querySelector('.pilot-tab-label')?.textContent || ''); c.append(img, s); return c; }));
+        const label = b.querySelector('.pilot-tab-label')?.textContent.trim() || '';
+        c.setAttribute('aria-label', label); if (!c.title) c.title = label;
+        const img = el('img'); img.alt = ''; img.src = b.querySelector('img')?.src || ''; const s = el('span'); s.textContent = mobilePilotName420(b.dataset.pilotId, label, document.documentElement.lang); c.append(img, s); return c; }));
     }
   };
 
@@ -211,7 +240,8 @@ function install() {
     syncAces(L);
   };
   const schedule = () => { if (!queued) { queued = true; requestAnimationFrame(sync); } };
-  new ResizeObserver(schedule).observe(q('.lap-fig img'));
+  const layoutResize = new ResizeObserver(schedule);
+  for (const node of [q('.lap-fig img'), q('.lap-pt img')]) layoutResize.observe(node);
   q('.lap-fig img').addEventListener('load', schedule);
   // The logo sits in the dark band between the key art and the launch column.
   new ResizeObserver(() => document.body.style.setProperty('--lobby-launch-h', Math.round(launch.getBoundingClientRect().height) + 'px')).observe(launch);
@@ -236,4 +266,5 @@ if (!install()) {
   const obs = new MutationObserver(() => { if (install()) obs.disconnect(); });
   obs.observe(document.body, { childList: true, subtree: true });
 }
+
 

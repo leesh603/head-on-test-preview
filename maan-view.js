@@ -1,3 +1,4 @@
+import {maanHullFrame,drawMaanHullFrame,maanBarrelMotion,drawMaanBarrels} from './maan-hull-art.js?v=20261022';
 import {drawPartFuelFire} from './explosion-profiles.js?v=fx5';
 import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=tame3';
 import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
@@ -32,17 +33,6 @@ export function paintMaan(c,g,cx,cy,width,height){
  c.save();c.imageSmoothingEnabled=true;
  for(const q of maanGroundTiles(cx,cy,width,height,pw,ph))c.drawImage(tile,q.x,q.y,q.width,q.height);
  c.restore();
-}
-// Equal atlas columns share the hull axis and full cell size. Never trim each
-// damage state independently: part ownership must stay registered to the hull.
-function drawHullImage(c,im,l,state=0){if(im.naturalWidth)c.drawImage(im,state*im.naturalWidth/2,0,im.naturalWidth/2,im.naturalHeight,-l.width/2,-l.height/2,l.width,l.height);}
-const regionCache=new Map();
-function regions(kind){
- if(regionCache.has(kind))return regionCache.get(kind);const l=MAAN_LAYOUT[kind],step=4,rows=[];
- for(let y=-l.height/2;y<l.height/2;y+=step){let last=null,start=-l.width/2;
-  const owner=x=>l.parts.reduce((best,p)=>{const d=((x-p[1])/p[3])**2+((y+step/2-p[2])/p[4])**2;return !best||d<best?{id:p[0],d}:best;},null).id;
-  for(let x=-l.width/2;x<=l.width/2;x+=step){const id=x>=l.width/2?null:owner(x+step/2);if(last!==id){if(last)rows.push({id:last,x:start,y,w:x-start,h:Math.min(step,l.height/2-y)});last=id;start=x;}}
- }regionCache.set(kind,rows);return rows;
 }
 function workshopPieces(f,flight){
  const pieces=[],columns=8,rows=10;
@@ -97,14 +87,14 @@ const trackStrips={
  wustenpanzer:[['track-left',-88,157,26,112],['track-right',88,157,26,112]],
  'sinai-landship':[['track-front-left',-36,-238,21,35],['track-front-right',36,-238,21,35],['track-rear-left',-57,228,23,46],['track-rear-right',57,228,23,46]]
 };
-function drawTracks(c,b,im){
- if(b.dead||!im.naturalWidth)return;
- const l=b.layout,sx=im.naturalWidth/2/l.width,sy=im.naturalHeight/l.height;
+function drawTracks(c,b,frame){
+ if(b.dead||!frame)return;
+ const l=b.layout,sx=frame.width/l.width,sy=frame.height/l.height;
  for(const [id,x,y,w,h] of trackStrips[b.kind]||[]){
   const p=b.parts.get(id);if(p.destroyed)continue;
   const pitch=b.kind==='wustenpanzer'?11:9,offset=((p.trackRoll||0)%pitch+pitch)%pitch;
   c.save();c.beginPath();c.rect(x-w/2,y-h/2,w,h);c.clip();
-  for(let dy=-h/2-pitch+offset;dy<h/2;dy+=pitch)c.drawImage(im,(x-w/2+l.width/2)*sx,(y+l.height/2-pitch/2)*sy,w*sx,pitch*sy,x-w/2,y+dy,w,pitch);
+  for(let dy=-h/2-pitch+offset;dy<h/2;dy+=pitch)c.drawImage(frame.image,frame.x+(x-w/2+l.width/2)*sx,frame.y+(y+l.height/2-pitch/2)*sy,w*sx,pitch*sy,x-w/2,y+dy,w,pitch);
   c.restore();
  }
 }
@@ -121,28 +111,21 @@ export function drawMaanBoss(c,b){
   if(b.gunFlash>0)fx(c,'muzzleTwin',0,-31,23,23,-Math.PI/2,Math.min(1,b.gunFlash/.06));
   c.restore();return true;}
  const l=b.layout,t=b.entryAge,key=b.kind==='wustenpanzer'?'wusten':'sinai',im=load(key);
- const parts=b.parts,broken=[...parts.values()].some(p=>p.destroyed||p.hp<p.maxHp*.5);
+ const parts=b.parts,frame=maanHullFrame(im,b),motions=maanBarrelMotion(b);
  const main=parts.get('heavy-gun'),recoil=!b.dead&&!main?.destroyed?main?.recoil||0:0;
  c.save();
- if(recoil>0){c.beginPath();c.rect(-l.width/2-20,-l.height/2-20,l.width+40,l.height+40);c.rect(-12,-260,24,100);c.clip('evenodd');}
- if(b.dead)drawHullImage(c,im,l,1);
- else if(!broken)drawHullImage(c,im,l);
- else if(im.naturalWidth){
-  const signature=[...parts.values()].map(p=>p.destroyed||p.hp<=p.maxHp*.5?'1':'0').join('');
-  if(b._maanSprite?.signature!==signature){
-   const canvas=document.createElement('canvas');canvas.width=l.width;canvas.height=l.height;const cc=canvas.getContext('2d'),cw=im.naturalWidth/2;
-   for(const r of regions(b.kind)){const p=parts.get(r.id),state=p&&(p.destroyed||p.hp<=p.maxHp*.5)?1:0;
-    cc.drawImage(im,state*cw+(r.x+l.width/2)/l.width*cw,(r.y+l.height/2)/l.height*im.naturalHeight,r.w/l.width*cw,r.h/l.height*im.naturalHeight,r.x+l.width/2,r.y+l.height/2,r.w,r.h);}
-   b._maanSprite={signature,canvas};
-  }
-  c.drawImage(b._maanSprite.canvas,-l.width/2,-l.height/2);
+ if(recoil>0||motions.length){
+  c.beginPath();c.rect(-l.width/2-20,-l.height/2-20,l.width+40,l.height+40);
+  if(recoil>0)c.rect(-12,-260,24,100);
+  for(const [,x,y,w,h]of motions)c.rect(x,y,w,h);
+  c.clip('evenodd');
  }
- c.restore();
- // Retract the original steel barrel inside its existing breech. No new
- // plate, black cover or rotating rectangular crop replaces the artwork.
- if(recoil>0&&im.naturalWidth){const cw=im.naturalWidth/2,state=main.hp<main.maxHp*.5?1:0;
-  c.drawImage(im,state*cw+(l.width/2-12)/l.width*cw,0,24/l.width*cw,100/l.height*im.naturalHeight,-12,-260+recoil,24,100);}
- drawTracks(c,b,im);
+ drawMaanHullFrame(c,frame,l);c.restore();
+ // Recoil uses the same composed damage frame as the body, so a damaged
+ // barrel cannot briefly turn pristine again when it fires.
+ if(recoil>0&&frame)c.drawImage(frame.image,frame.x+(l.width/2-12)/l.width*frame.width,frame.y,24/l.width*frame.width,100/l.height*frame.height,-12,-260+recoil,24,100);
+ drawMaanBarrels(c,frame,l,motions);
+ drawTracks(c,b,frame);
  c.filter='none';
  const time=b.motionTime||0;
  for(const p of parts.values())if(p.destroyed||p.hp<p.maxHp*.5){

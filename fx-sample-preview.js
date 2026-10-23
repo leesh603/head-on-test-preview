@@ -250,6 +250,21 @@ if (FXS && typeof Image !== 'undefined') {
   }).catch(() => {});
 }
 let ZONE_T = -1, ZONE_N = 0; // per-frame budget: only the first few fire zones get smoke / cross-fades
+// Layout depends on the zone, not the camera or animation clock. Weak keys
+// release it with the expired zone instead of retaining a battle-long cache.
+const fireZoneLayouts = new WeakMap();
+function fireZoneLayout(f, R, seed) {
+  let layout = fireZoneLayouts.get(f);
+  if (layout && layout.radius === R && layout.seed === seed && layout.variants === FLAME.v) return layout.points;
+  const n = Math.max(5, Math.min(12, Math.round(R / 14))), points = [];
+  for (let i = 0; i < n; i++) {
+    const a = i * 2.39996 + seed * .7, rr = Math.sqrt((i + .5) / n) * R * .56 * (.85 + .3 * hash(seed, i));
+    points.push({ x: Math.cos(a) * rr, y: Math.sin(a) * rr * .8, h: R * (.66 + .44 * hash(i, seed)) * (1 - .4 * rr / R), v: (seed + i) % FLAME.v, ph: hash(i * 7, seed) });
+  }
+  points.sort((p, q) => p.y - q.y);
+  fireZoneLayouts.set(f, { radius: R, seed, variants: FLAME.v, points });
+  return points;
+}
 export function fxsFireZone(c, f, x, y, t = 0, fade = 1, under = null) {
   if (!FXS || !FLAME.atlas) return false;
   boomSprites();
@@ -267,17 +282,12 @@ export function fxsFireZone(c, f, x, y, t = 0, fade = 1, under = null) {
   c.globalCompositeOperation = 'source-over';
   if (under) { c.save(); under(); c.restore(); }
   // flames, back to front
-  const n = Math.max(5, Math.min(12, Math.round(R / 14))), list = [];
-  for (let i = 0; i < n; i++) {
-    const a = i * 2.39996 + seed * .7, rr = Math.sqrt((i + .5) / n) * R * .56 * (.85 + .3 * hash(seed, i));
-    list.push({ x: x + Math.cos(a) * rr, y: y + Math.sin(a) * rr * .8, h: R * (.66 + .44 * hash(i, seed)) * (1 - .4 * rr / R), v: (seed + i) % FLAME.v, ph: hash(i * 7, seed) });
-  }
-  list.sort((p, q) => p.y - q.y);
+  const list = fireZoneLayout(f, R, seed);
   for (const p of list) {
     const h = p.h * (.25 + .75 * left) * (.94 + .06 * flick), w = h * 64 / 96;
     const fp = (t * 13 + p.ph * FLAME.n) % FLAME.n, i = Math.floor(fp), u = fp - i;
     const draw = (j, al) => { const rc = FLAME.rects['flame' + p.v + '_' + (j % FLAME.n)]; if (!rc || al <= 0) return;
-      c.globalAlpha = al * fade; c.drawImage(FLAME.atlas, rc[0], rc[1], rc[2], rc[3], p.x - w / 2, p.y - h * .92, w, h); };
+      c.globalAlpha = al * fade; c.drawImage(FLAME.atlas, rc[0], rc[1], rc[2], rc[3], x + p.x - w / 2, y + p.y - h * .92, w, h); };
     draw(i, 1); if (rich) draw(i + 1, u);
   }
   // smoke plume leaning downwind + embers drifting up (looping, seeded)

@@ -1,3 +1,5 @@
+import {cityWeaponSignals,drawParisMovingMount,drawStaakenPropellers,staakenRackLoaded} from './city-defense-art.js?v=1022';
+import {PARIS_DECK_FRAMES} from './city-defense-decks.js?v=1022';
 import {fx} from './fx-art.js?v=tame3';
 import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
 import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=tame3';
@@ -5,7 +7,7 @@ import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=tame3
 let images={};
 export function releaseParisArt(){images={};}
 export function prepareParisArt(){
- return Promise.all([['map','terrain-paris-night1918.webp'],['fortress','paris-fortress-parts1918.webp'],['fortressWreck','paris-fortress-wreck1918.webp'],['staaken','asset-bank/outlined/native/paris-staaken-parts1918.webp'],['staakenWreck','asset-bank/outlined/native/paris-staaken-wreck1918.webp']].map(([key,path])=>new Promise(resolve=>{
+ return Promise.all([['map','terrain-paris-night1918.webp'],['fortress','paris-fortress-parts1918.webp'],['fortressWreck','paris-fortress-wreck1918.webp'],['staaken','asset-bank/outlined/native/paris-staaken-parts1918.webp'],['staakenWreck','asset-bank/outlined/native/paris-staaken-wreck1918.webp'],['decks','paris-mount-decks-20261022.webp'],['hardware','city-defense-hardware-20261022.webp'],['emptyStaaken','paris-staaken-empty-20261022.webp'],['rotor','city-defense-propeller-20261022.webp']].map(([key,path])=>new Promise(resolve=>{
   const im=new Image();im.decoding='async';images[key]=im;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(true))};im.onerror=()=>resolve(false);im.src='./'+path+'?v=r5&b=city4';
  })));
 }
@@ -32,19 +34,26 @@ export function drawParisBoss(c,b,addon){
  c.save();c.translate(b.x,b.y);c.rotate(a);c.imageSmoothingEnabled=true;
  const s=b.geometryScale||1;
  c.scale(s,s);
+ const native=addon?.stages?.encounter?.bodies.get(b.id)||b,signals=cityWeaponSignals(native,addon?.hazards);
+ const movingFortress=fortress&&!b.destroying&&images.decks?.naturalWidth&&images.hardware?.naturalWidth,layeredPlane=!fortress&&!b.destroying&&images.emptyStaaken?.naturalWidth&&images.rotor?.naturalWidth;
  const whole=im=>c.drawImage(im,-layout.width/2,-layout.height/2,layout.width,layout.height);
  // Foundations exclude the independently replaceable mounts. Live layers
  // retain exact source pixels; wreck layers retain broken machinery.
  c.save();c.beginPath();c.rect(-layout.width/2,-layout.height/2,layout.width,layout.height);
- for(const rect of Object.values(clips))c.rect(...rect);c.clip('evenodd');whole(normal);c.restore();
+ for(const rect of Object.values(clips))c.rect(...rect);c.clip('evenodd');whole(layeredPlane?images.emptyStaaken:normal);c.restore();
  for(const p of b.parts||[]){
   const wreck=p.destroyed||b.destroying,rect=clips[p.id];if(!rect)continue;
-  c.save();c.beginPath();c.rect(...rect);c.clip();whole(wreck&&damaged?.naturalWidth?damaged:normal);c.restore();
+  c.save();c.beginPath();c.rect(...rect);c.clip();
+  if(movingFortress&&PARIS_DECK_FRAMES[p.id]){c.drawImage(images.decks,...PARIS_DECK_FRAMES[p.id],...rect);}
+  else{const original=wreck&&damaged?.naturalWidth?damaged:normal,empty=layeredPlane&&!wreck&&(p.kind==='engine'||p.kind==='payload'&&!staakenRackLoaded(native,p,addon?.hazards));whole(empty?images.emptyStaaken:original);}
+  c.restore();
+  if(movingFortress&&PARIS_DECK_FRAMES[p.id])drawParisMovingMount(c,b,p,images.hardware,signals);
   if(wreck){const x=(p.localX??p.x)/s,y=(p.localY??p.y)/s;
    if(p.id.startsWith('engine-')||p.id.startsWith('generator-'))fx(c,'fireEngine',x,y,32,44,0,.85);
    const drift=(((b.motionTime||0)*.35+x*.001)%1+1)%1;fx(c,'smokeDark',x,y-25-drift*50,28+drift*45,28+drift*45,0,(1-drift)*.48);
   }
  }
+ if(layeredPlane)drawStaakenPropellers(c,b,images.rotor);
  if(fortress&&b.coreVulnerable&&!b.destroying){c.strokeStyle='#ead591';c.lineWidth=2;c.setLineDash([7,6]);c.beginPath();c.arc(layout.core.x,layout.core.y,layout.core.radius+9,0,Math.PI*2);c.stroke();c.setLineDash([]);}
  c.restore();
 }

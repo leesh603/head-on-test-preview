@@ -12,7 +12,7 @@ export function advanceReplicaImpactFx(world,dt){
 }
 export function queueCombatImpact(world,round,target,details){
  const now=world.t||0,previous=impactTimes.get(target)??-Infinity;
- if(now-previous<(world.viewWidth<=720?.065:.045))return null;
+ if(!details.finisher&&!details.breakup&&now-previous<(world.viewWidth<=720?.065:.045))return null;
  impactTimes.set(target,now);
  const list=world.combatFX??=[],limit=world.viewWidth<=720?8:14;
  let count=0,oldest=-1;
@@ -81,11 +81,16 @@ export function drawExplosionProfile(c,f,x,y,fx){
  const age=Math.max(0,f.maxLife-f.life)+(replicaAges.get(f)?.age||0),r=f.radius||34;
  if(profile==='bulletImpact'){
   const a=f.direction||0,q=clamp(age/.27),fade=1-q,metal=f.material==='metal',blocked=!!f.blocked;
-  const size=blocked?21:metal?28:34;
+  const strength=clamp(((f.streak||1)-1)/5),decisive=f.finisher||f.breakup;
+  const size=blocked?21:(metal?28:34)*(1+strength*.24+(decisive?.3:0));
+  // A compact painted contact flash makes the first frames legible; the torn
+  // fabric/sparks and directed fragments carry the rest of the impact.
+  if(!blocked&&age<.065)fx(c,'profileFlash',x,y,size*.62,size*.62,a,(1-age/.065)*(decisive?.95:.72));
   fx(c,blocked?'ricochet':metal?'armorSpark':f.material==='fabric'?'smokePuff':'debris',x,y,size*(.7+q*.5),size,a,fade*(blocked?.65:.9));
-  if(!blocked)for(let i=0;i<(f.piercing?3:2);i++){
-   const dir=a+(i-.5)*.7,travel=(18+i*11)*q;
-   fx(c,metal?'metalShard'+i:'debrisShard',x+Math.cos(dir)*travel,y+Math.sin(dir)*travel,metal?8:11,metal?8:11,dir+q*3,fade*.85);
+  if(!blocked)for(let i=0,count=decisive?5:f.piercing?3:2;i<count;i++){
+   const dir=a+(i-(count-1)/2)*(decisive?.63:.7),travel=(18+i*11)*q*(decisive?1.6:1);
+   const shard=(metal?8:11)*(decisive?1.3:1);
+   fx(c,metal?'metalShard'+(i%4):'debrisShard',x+Math.cos(dir)*travel,y+Math.sin(dir)*travel,shard,shard,dir+q*3,fade*.85);
   }
   return true;
  }

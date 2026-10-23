@@ -18,12 +18,24 @@ const ownerLabels = {
   "mccudden": ["맥커든", "James McCudden"],
   "nungesser": ["눙게서", "Charles Nungesser"],
   "jacobs": ["요제프 야콥스", "Josef Jacobs"],
-  "rickenbacker": ["리켄배커", "Eddie Rickenbacker"],
+  "rickenbacker": ["리켄바커", "Eddie Rickenbacker"],
   "ball": ["앨버트 볼", "Albert Ball"],
   "barker": ["빌리 바커", "Billy Barker"],
   "luke": ["프랭크 루크", "Frank Luke"],
   "brumowski": ["브루모프스키", "Godwin Brumowski"],
-  "gontermann": ["곤터만", "Heinrich Gontermann"]
+  "gontermann": ["곤터만", "Heinrich Gontermann"],
+  "fonck": ["폰크", "René Fonck"],
+  "immelmann": ["임멜만", "Max Immelmann"],
+  "bishop": ["비숍", "Billy Bishop"],
+  "mannock": ["매녹", "Mick Mannock"],
+  "mckeever": ["맥키버 & 파월", "McKeever & Powell"],
+  "huffzky": ["후프츠키 & 에만", "Huffzky & Ehmann"],
+  "hawker": ["호커", "Lanoe Hawker"],
+  "lothar": ["로타르", "Lothar von Richthofen"],
+  "sachsenberg": ["작센베르크", "Gotthard Sachsenberg"],
+  "schleich": ["슐라이히", "Eduard von Schleich"],
+  "proctor": ["프록터", "Andrew Beauchamp-Proctor"],
+  "lufbery": ["러프베리", "Raoul Lufbery"]
 };
 
 // [identity, exact in-game model, faction, owner, base fit, simulation fit, usage tags]
@@ -184,8 +196,8 @@ export const AIRCRAFT_MASTER = Object.freeze(Object.fromEntries(identityRows.map
       aircraftId, modelName, faction, exclusivePilotId, baseAirframeId, simulationId,
       category: owner ? 'exclusive' : 'basic',
       tags: Object.freeze(tags),
-      displayNameKo: modelName + (owner ? ` (⁠${owner[0]} 전용기)` : ''),
-      displayNameEn: modelName + (owner ? ` (⁠${owner[1]}'s aircraft)` : ''),
+      displayNameKo: modelName + (owner ? `(${owner[0]})` : ''),
+      displayNameEn: modelName + (owner ? `(${owner[1]})` : ''),
     })];
   }
 )));
@@ -218,7 +230,15 @@ export function getAircraftMeta(id, pilotId = null) {
 
 export function getAircraftDisplayName(id, pilotId = null, locale = 'ko', fallback = '') {
   const meta = getAircraftMeta(id, pilotId);
-  return meta ? (locale === 'en' ? meta.displayNameEn : meta.displayNameKo) : fallback || id || '';
+  if (!meta) return fallback || id || '';
+  const candidates = Object.entries(SORTIE_ROSTER).filter(([, entry]) =>
+    entry.defaultAircraft === id || entry.unlockAircraft === id);
+  const selectedOwner = candidates.find(([owner]) => owner === pilotId)?.[0];
+  const dedicatedOwner = candidates.length === 1 && (Object.hasOwn(SORTIE_FITS, id) || meta.modelName.includes(' · ')) ? candidates[0][0] : null;
+  const owner = ownerLabels[meta.exclusivePilotId || selectedOwner || dedicatedOwner];
+  const model = meta.modelName.split(' · ')[0];
+  return owner ? model + `(${owner[locale === 'en' ? 1 : 0]})`
+    : (locale === 'en' ? meta.displayNameEn : meta.displayNameKo);
 }
 
 export function getAircraftCategory(id, pilotId = null) {
@@ -258,10 +278,11 @@ export function applyAircraftRecordNames(data, locale = 'ko') {
     const mapping = own(PILOT_AIRCRAFT, pilot.key) ? PILOT_AIRCRAFT[pilot.key] : null;
     if (!mapping) continue;
     const ids = [mapping.defaultAircraftId, ...mapping.alternateAircraftIds];
-    pilot.plane = getAircraftDisplayName(ids[0], null, locale, pilot.plane);
+    pilot.plane = getAircraftDisplayName(ids[0], pilot.key, locale, pilot.plane);
     (pilot.aircraftOptions || []).forEach((option, index) => {
-      if (ids[index]) option.name = getAircraftDisplayName(ids[index], null, locale, option.name);
+      if (ids[index]) option.name = getAircraftDisplayName(ids[index], pilot.key, locale, option.name);
     });
   }
   return data;
 }
+

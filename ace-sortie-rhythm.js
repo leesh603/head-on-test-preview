@@ -134,8 +134,17 @@ export function installAceSortieRhythm(Game,{PILOTS,PLANES,PILOT_PLANES,stageAce
  }
  const scheduled=proto.runScheduledAces;
  proto.runScheduledAces=function(){
+  const state=syncAceSortie(this);
+  // Global 80/185s reservations can fall entirely inside boss approach/battle.
+  // Give each new stage an opening slot before its existing approach cutoff.
+  if(this.mode!=='campaign'&&this.stageBoss?.stages?.phase==='explore'&&Number.isFinite(this.stageStartTime)&&state.scheduleStart!==this.stageStartTime&&this.nextBossAt<=this.nextAceWaveAt(this.t)){
+   state.scheduleStart=this.stageStartTime;
+   const remaining=this.stageCombatWindow?.remaining;
+   const opening=Number.isFinite(remaining)?Math.min(16,Math.max(6,(remaining-18)/2)):16;
+   this.nextBossAt=Math.min(this.nextBossAt,this.t+opening);
+  }
   if(this.t<this.nextBossAt&&!this.pendingAceCount)return;
-  const state=syncAceSortie(this),endedAt=Math.max(state.endedAt??-Infinity,this._aceCombatEndedAt??-Infinity);
+  const endedAt=Math.max(state.endedAt??-Infinity,this._aceCombatEndedAt??-Infinity);
   if(state.active.size||this.t<(this.battleRecoveryUntil||0)||this.t-endedAt<ACE_SORTIE_BALANCE.recovery||this.stageCombatWindow?.approaching||this.stageBoss?.stages?.phase==='boss'||this.battlefieldEvents?.current?.status==='active')return;
   this.pendingAceCount=Math.min(ACE_SORTIE_BALANCE.maxAces,this.pendingAceCount||0);
   const result=scheduled.call(this);

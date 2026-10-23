@@ -1,51 +1,97 @@
-// Keep the official field record aligned with the live augmentation catalog.
-// Game text (name, alias, skill, passive, descriptions) is pulled from the live
-// engine — PILOTS/pilotLoadout are the single source so record entries can
-// never drift from what the game actually shows.
-import{Game,PILOTS,PILOT_PLANES,pilotLoadout}from'./engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
+// The field record uses the same final registries, artwork and descriptions as sortie selection.
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,pilotLoadout,UPGRADES,LEGENDARIES} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
+import {PILOT_AIRCRAFT,PILOT_RENDER_ART} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {getAircraftDisplayName,getAircraftMeta,aircraftCategoryLabel} from './aircraft-master.js?v=tame3';
+import {hangarArtSource} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
+import {portraitSources} from './portraits.js?v=gal1';
 import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
-import {getLocale,pilotName} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {WEAPON_MODS} from './weapon-modifications.js?v=weaponmods20261018';
+import {getLocale,pilotName,upgradeName,upgradeDescription,subscribe} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 
-for(const p of DATA.pilots){
- const loadout=PILOTS[p.key]?pilotLoadout(p.key,PILOT_PLANES[p.key]||'fokker'):null;
- if(!loadout)continue;const locale=getLocale(),copy=pilotIdentityCopy(p.key,locale);
- p.name=pilotName(p.key,loadout.name);p.alias=loadout.alias;
- p.skill=copy?.skill||loadout.skill;p.passive=copy?.passive||loadout.passive;
- const runtime=Object.assign(Object.create(Game.prototype),{pilot:p.key,plane:PILOT_PLANES[p.key],cooldownMult:1});
- const duration=runtime.skillDuration(),cooldown=runtime.skillCooldown(),recovery=runtime.skillRecovery();runtime.skillEnhanced=true;
- const number=n=>Number(n.toFixed(3));
- const timing=locale==='en'?` Active window ${number(duration)}s → enhanced ${number(runtime.skillDuration())}s. Base cooldown ${loadout.cooldown}s; effective cooldown ${number(cooldown)}s → enhanced ${number(runtime.skillCooldown())}s. Recovery floor ${recovery}s after the active window; cooldown scaling cannot fall below 50% of base.`:` 활동시간 ${number(duration)}초 → 강화 ${number(runtime.skillDuration())}초. 기본 쿨다운 ${loadout.cooldown}초; 실제 ${number(cooldown)}초 → 강화 ${number(runtime.skillCooldown())}초. 효과 종료 후 최소 회복 간격 ${recovery}초, 쿨다운 보정은 기본의 50%까지.`;
- p.desc=(copy?.activeDetail||loadout.desc)+timing;
- p.passiveDesc=copy?.passiveDetail||loadout.passiveDesc;
+const NORMAL_IDS=['damage','rate','rockets','mines','explosives','command','turn','armor','regen','cooldown','wingman'];
+const UNIQUE_IDS=['bomber','fighterSupply','mercedesEngine','spread','combinedProjectiles'];
+const SPECIAL_IDS=['amatolCharge','lufberyCircle','redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','goeringBaton','immelmannManual','motorCannon','loEmblem','sacredCowling','steelPlate','mauserAceKiller','boelckeDicta','rearGunner','quadLewis','cow37','rankinShell','kaiserFog','fogCompass','maximBelt','grunkreuz','urLeica','badinGauge','heineckeRettungsfallschirm'];
+const NEW_ICONS={bomberTransfer:'bomber_squadron_transfer_orders',mgTransfer:'concentrated_firepower_refit_orders',airshipTransfer:'airship_mobilization_orders',aceWingman:'ace_wingman'};
+const shortName=key=>PILOTS[key]?.name?.replace(/^.*?\s(?=리히트호펜$)/,'')||key;
+const renderKey=(id,pilot)=>PILOT_RENDER_ART[pilot]?.[id]||(id==='fokker'?({baron:'fokker_red',voss:'fokker_voss',jacobs:'fokker_jacobs'}[pilot]||id):id);
+const rating=(value,thresholds)=>1+thresholds.filter(n=>value>=n).length;
+
+export function currentRecordPlane(id,pilot=null,previous={}){
+ const fit=PLANES[id],weapon=WEAPONS[id];
+ if(!fit||!weapon)return previous;
+ const handling=fit.handling||{},en=getLocale()==='en';
+ return {...previous,key:id,name:getAircraftDisplayName(id,pilot,getLocale(),fit.name),faction:fit.faction,
+  role:fit.identityDescription||handling.role||fit.role,history:previous.history||handling.history||'',tip:previous.tip||handling.tip||'',
+  image:hangarArtSource(renderKey(id,pilot))||previous.image,
+  stats:{hp:fit.hp,speed:fit.speed,turn:fit.turn},
+  weapon:{...weapon,profiles:weapon.gunProfiles||fit.gunProfiles||[weapon.gunProfile||(/Spandau/.test(weapon.name)?'spandau':/Lewis/.test(weapon.name)?'lewis':'vickers')]},
+  year:fit.aircraftTier?.introduced||previous.year,
+  feel:[rating(1-(handling.drag??.18),[.78,.82,.86,.9]),rating(handling.recovery??1,[.8,1,1.3,1.6]),rating(1/(fit.xpCostMultiplier||1),[.8,1,1.2,1.4])],
+  categoryLabel:aircraftCategoryLabel(id,pilot,getLocale())+(en?' · Playable':' · 플레이 가능'),
+  users:previous.users|| (pilot?pilotName(pilot,PILOTS[pilot].name):(en?'Playable aircraft':'출격 기체'))};
 }
 
-const CURRENT_SPECIAL_DESCRIPTIONS={
-  '르네 퐁크의 망원경':'전방 약 21° 안의 적을 초점 포착하여 초기 0.8초 동안 최대 17° 조준 보정. 보정 궤적과 표적 표시가 나타납니다.',
-  "마우저C96 '에이스킬러'":'근거리 적을 자동 조준해 권총탄을 발사합니다. 일반 적 피해는 낮고 에이스에게 큰 피해를 줍니다.',
-  '기네메르의 37mm 모퇴르 카농':'3초마다 전방으로 거대한 37mm 관통탄을 발사합니다. 고품질 화약 개량이 적용됩니다.',
-  '스카프링 총좌':'기본 기관총이 초당 60°로 천천히 회전합니다. 반대 방향 조준에 3초. 총기 수·탄약 소모는 유지됩니다.'
-};
-
-for(const item of DATA.legendary){
-  if(CURRENT_SPECIAL_DESCRIPTIONS[item.name])item.desc=CURRENT_SPECIAL_DESCRIPTIONS[item.name];
+export function syncFieldRecord(data){
+ const en=getLocale()==='en',byPlane=new Map(data.planes.map(p=>[p.key,p]));
+ const allChoices=new Set(Object.values(PILOT_AIRCRAFT).flatMap(p=>[p.defaultAircraft,p.unlockAircraft].filter(Boolean)));
+ for(const id of allChoices){
+  // Keep the excluded pilot's existing authored record and assets.
+  if(id.startsWith('loewenhardt_'))continue;
+  const updated=currentRecordPlane(id,null,byPlane.get(id)||{});
+  if(byPlane.has(id))Object.assign(byPlane.get(id),updated);else{data.planes.push(updated);byPlane.set(id,updated)}
+ }
+ for(const p of data.planes){if(PLANES[p.key]&&WEAPONS[p.key]&&!p.key.startsWith('loewenhardt_'))Object.assign(p,currentRecordPlane(p.key,null,p));else if(!allChoices.has(p.key))p.categoryLabel=en?'Historical / display':'역사·전시';}
+ const previousPilots=new Map(data.pilots.map(p=>[p.key,p]));
+ data.pilots=Object.keys(PILOTS).map(key=>{
+  const prior=previousPilots.get(key)||{},roster=PILOT_AIRCRAFT[key];
+  if(key==='loewenhardt')return prior;
+  const plane=roster?.defaultAircraft||PILOT_PLANES[key],loadout=pilotLoadout(key,plane),copy=pilotIdentityCopy(key,getLocale());
+  const options=[plane,roster?.unlockAircraft].filter(Boolean).map(id=>({id,...currentRecordPlane(id,key,byPlane.get(id)||{})}));
+  return {...prior,key,name:pilotName(key,loadout.name),alias:loadout.alias,faction:loadout.faction,
+   plane:options[0]?.name||'',role:options[0]?.role||'',aircraft:options[0]?.image,
+   aircraftOptions:options.map(p=>({id:p.id,name:p.name,image:p.image})),portrait:portraitSources[key]||prior.portrait,
+   skill:copy?.skill||loadout.skill,passive:copy?.passive||loadout.passive,
+   desc:copy?.activeShort||loadout.desc,passiveDesc:copy?.passiveShort||loadout.passiveDesc,
+   history:prior.history|| (en?'Available in the current pilot roster.':'현재 출격 가능한 에이스입니다.'),ranking:prior.ranking||'—'};
+ });
+ const oldRows=[['normal',NORMAL_IDS],['unique',UNIQUE_IDS],['legendary',SPECIAL_IDS]];
+ const oldById=new Map();
+ for(const [group,ids] of oldRows)for(let i=0;i<data[group].length;i++){const row=data[group][i];oldById.set(row.id||ids[i],row)}
+ const description=(u,rarity)=>upgradeDescription(u.id,Game.prototype.upgradeDescription(u.id,rarity));
+ const iconFor=id=>oldById.get(id)?.icon|| (NEW_ICONS[id]?'./augmentation-icons/'+NEW_ICONS[id]+'.webp':'');
+ const rowFor=(u,group)=>({...oldById.get(u.id),id:u.id,name:upgradeName(u.id,u.name).replace('르네 퐁크','르네 폰크'),desc:description(u,group==='unique'?'unique':'normal'),icon:iconFor(u.id),target:en?(group==='legendary'?'Special Equipment':group==='unique'?'Unique Upgrade':'Standard Upgrade'):(group==='legendary'?'특수장비':group==='unique'?'유니크 강화':'일반 · 매직 · 레어')});
+ data.normal=UPGRADES.filter(u=>!u.legendary&&!u.uniqueOnly&&!u.weaponMod||u.id==='wingman').map(u=>{
+  const row=rowFor(u,'normal');row.tiers=Object.fromEntries(['normal','magic','rare'].map(tier=>[tier,description(u,tier)]));return row;
+ });
+ data.unique=UPGRADES.filter(u=>u.uniqueOnly&&!u.weaponMod&&!u.legendary).map(u=>rowFor(u,'unique'));
+ data.legendary=LEGENDARIES.map(u=>rowFor(u,'legendary'));
+ data.weaponMods=WEAPON_MODS.map(mod=>({id:mod.id,name:upgradeName(mod.id,mod.name),desc:upgradeDescription(mod.id,mod.description),icon:iconFor(mod.icon),target:en?'Weapon Modification':'무장 개조'}));
+ return data;
 }
 
-// Replace the retired zero-byte preview and provide stable fallbacks for every ace.
-DATA.images.p_nungesser='./portrait-nungesser-field.webp';
-const PORTRAIT_FALLBACKS=Object.fromEntries(DATA.pilots.map(p=>[p.key,p.portrait]));
-document.addEventListener('error',event=>{
-  const image=event.target;
-  if(!(image instanceof HTMLImageElement)||image.dataset.portraitFallback==='1')return;
-  const pilotButton=image.closest('[data-pilot]');
-  const detailAlt=image.alt?.match(/^(.+) 초상화$/)?.[1];
-  const pilot=pilotButton
-    ? DATA.pilots.find(p=>p.key===pilotButton.dataset.pilot)
-    : DATA.pilots.find(p=>p.name===detailAlt);
-  if(!pilot||!PORTRAIT_FALLBACKS[pilot.key])return;
-  image.dataset.portraitFallback='1';
-  image.src=PORTRAIT_FALLBACKS[pilot.key];
-},true);
+export function syncRecordVariants(data,variants,variantKeys){
+ for(const key of Object.keys(variants))delete variants[key];variantKeys.clear();
+ const byPlane=new Map(data.planes.map(p=>[p.key,p]));
+ for(const [pilot,roster]of Object.entries(PILOT_AIRCRAFT)){
+  if(pilot==='loewenhardt')continue;
+  for(const id of [roster.defaultAircraft,roster.unlockAircraft].filter(Boolean)){
+   const base=getAircraftMeta(id)?.baseAirframeId||id;
+   if(!byPlane.has(base)||!PLANES[id])continue;
+   const group=variants[base]??=[{key:base,record:currentRecordPlane(base,null,byPlane.get(base)),label:getLocale()==='en'?'Standard':'기본형'}];
+   const key=id+':'+pilot;if(group.some(v=>v.key===key))continue;
+   group.push({key,record:currentRecordPlane(id,pilot,byPlane.get(id)),label:pilotName(pilot,shortName(pilot))});
+   if(id!==base)variantKeys.add(id);
+  }
+ }
+}
 
-if(['augments','pilots'].includes(state.page))render();
-
-
+if(typeof DATA!=='undefined'){
+ const refresh=()=>{syncFieldRecord(DATA);if(typeof VARIANTS!=='undefined')syncRecordVariants(DATA,VARIANTS,VARIANT_KEYS);if(typeof render==='function')render()};
+ refresh();subscribe(refresh);
+ const fallbacks=()=>new Map(DATA.pilots.map(p=>[p.key,p.portrait]));
+ document.addEventListener('error',event=>{
+  const image=event.target;if(!(image instanceof HTMLImageElement)||image.dataset.portraitFallback==='1')return;
+  const key=image.closest('[data-pilot]')?.dataset.pilot;
+  if(!key||!fallbacks().get(key))return;image.dataset.portraitFallback='1';image.src=fallbacks().get(key);
+ },true);
+}
