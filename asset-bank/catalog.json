@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 102999)
-Total output lines: 13336
-
 {
   "v": "style-unified-20261023-r1",
   "note": "Type-categorized sprite catalog. base = canonical airframe sprite (in-game files referenced via ../). variants: kind ace|squadron|livery|alt. New liveries under liveries/<type>/.",
@@ -5104,7 +5101,3090 @@ Total output lines: 13336
               "kind": "livery",
               "name": "이탈리아 평가기",
               "file": "liveries/bristol_f2b/italian.webp"
-   …22999 tokens truncated…       {
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은띠",
+              "file": "liveries/bristol_f2b/leader.webp"
+            },
+            {
+              "kind": "bank",
+              "name": "plane-bank 원본",
+              "file": "../plane-bank/bristol_f2b.webp",
+              "live": false
+            }
+          ],
+          "live": "../bristol_duo.webp"
+        },
+        {
+          "id": "bristol_m1",
+          "name": "Bristol M.1",
+          "year": 1917,
+          "role": "전투기",
+          "base": "planes/bristol_m1_clean.webp",
+          "variants": [
+            {
+              "kind": "ingame",
+              "name": "인게임 스프라이트",
+              "file": "../bristol_m1.webp",
+              "live": true,
+              "hidden": "dup-live"
+            },
+            {
+              "kind": "ingame",
+              "name": "메카닉 대체 아트",
+              "file": "../mech/bristol_m1.webp",
+              "live": true,
+              "hidden": "dup-mech"
+            },
+            {
+              "kind": "livery",
+              "name": "중동전선 사막 크림",
+              "file": "liveries/bristol_m1/desert.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "칠레 공군 흰별",
+              "file": "liveries/bristol_m1/chile.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "훈련기 은색",
+              "file": "liveries/bristol_m1/silver.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "전후 민간 경주기 붉은색",
+              "file": "liveries/bristol_m1/red.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "영국 RFC 표준",
+              "file": "liveries/bristol_m1/british.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "러시아제국 공군",
+              "file": "liveries/bristol_m1/russian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "프랑스군 평가기",
+              "file": "liveries/bristol_m1/french.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은띠",
+              "file": "liveries/bristol_m1/leader.webp"
+            }
+          ],
+          "live": "../bristol_m1.webp"
+        },
+        {
+          "id": "dh4",
+          "name": "Airco DH.4",
+          "year": 1917,
+          "role": "폭격기",
+          "base": "planes/dh4_clean.webp",
+          "variants": [
+            {
+              "kind": "ingame",
+              "name": "인게임 스프라이트",
+              "file": "../dh4.webp",
+              "live": true,
+              "hidden": "dup-live"
+            },
+            {
+              "kind": "ingame",
+              "name": "메카닉 대체 아트",
+              "file": "../mech/dh4.webp",
+              "live": true,
+              "hidden": "dup-mech"
+            },
+            {
+              "kind": "alt",
+              "name": "뱅크 재생성",
+              "file": "planes/dh4.webp",
+              "live": "../dh4.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "미국 리버티 USAS 별",
+              "file": "liveries/dh4/usas.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간 폭격 칠흑",
+              "file": "liveries/dh4/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "훈련·후방 은색",
+              "file": "liveries/dh4/silver.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "독일 노획 시험기",
+              "file": "liveries/dh4/captured.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "중동전선 사막 크림",
+              "file": "liveries/dh4/desert.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "벨기에 전후 인수기",
+              "file": "liveries/dh4/belgian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "그리스 육군 항공대",
+              "file": "liveries/dh4/greek.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은띠",
+              "file": "liveries/dh4/leader.webp"
+            }
+          ],
+          "live": "../dh4.webp"
+        },
+        {
+          "id": "dh5",
+          "name": "Airco DH.5",
+          "year": 1917,
+          "role": "전투기",
+          "base": "planes/dh5_clean.webp",
+          "variants": [
+            {
+              "kind": "ingame",
+              "name": "인게임 스프라이트",
+              "file": "../dh5.webp",
+              "live": true,
+              "hidden": "dup-live"
+            },
+            {
+              "kind": "ingame",
+              "name": "메카닉 대체 아트",
+              "file": "../mech/dh5.webp",
+              "live": true,
+              "hidden": "dup-mech"
+            },
+            {
+              "kind": "livery",
+              "name": "훈련기 은색",
+              "file": "liveries/dh5/silver.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "중동전선 사막 크림",
+              "file": "liveries/dh5/desert.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간 칠흑",
+              "file": "liveries/dh5/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "독일 노획 시험기",
+              "file": "liveries/dh5/captured.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "영국 RFC 표준",
+              "file": "liveries/dh5/british.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "러시아제국 공군",
+              "file": "liveries/dh5/russian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "프랑스군 평가기",
+              "file": "liveries/dh5/french.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은띠",
+              "file": "liveries/dh5/leader.webp"
+            }
+          ],
+          "live": "../dh5.webp"
+        },
+        {
+          "id": "dh9",
+          "name": "Airco DH.9",
+          "year": 1918,
+          "role": "폭격기",
+          "base": "planes/dh9.webp",
+          "variants": [
+            {
+              "kind": "livery",
+              "name": "야간폭격 칠흑",
+              "file": "liveries/dh9/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "훈련기 은색",
+              "file": "liveries/dh9/silver.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "중동전선 사막 크림",
+              "file": "liveries/dh9/desert.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "벨기에 전후 인수기",
+              "file": "liveries/dh9/belgian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "미군 평가기 별",
+              "file": "liveries/dh9/usas.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "독일 노획 시험기",
+              "file": "liveries/dh9/captured.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은띠",
+              "file": "liveries/dh9/leader.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "폴란드 샤호비차",
+              "file": "liveries/dh9/polish.webp"
+            },
+            {
+              "kind": "bank",
+              "name": "plane-bank 원본",
+              "file": "../plane-bank/airco_dh9.webp",
+              "live": false
+            }
+          ]
+        },
+        {
+          "id": "re8",
+          "name": "R.E.8",
+          "year": 1917,
+          "role": "정찰기",
+          "base": "planes/re8_clean.webp",
+          "variants": [
+            {
+              "kind": "ingame",
+              "name": "인게임 스프라이트",
+              "file": "../re8.webp",
+              "live": true,
+              "hidden": "dup-live"
+            },
+            {
+              "kind": "ingame",
+              "name": "메카닉 대체 아트",
+              "file": "../mech/re8.webp",
+              "live": true,
+              "hidden": "dup-mech"
+            },
+            {
+              "kind": "alt",
+              "name": "뱅크 재생성",
+              "file": "planes/re8.webp",
+              "live": "../re8.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "훈련기 은색",
+              "file": "liveries/re8/silver.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간 칠흑",
+              "file": "liveries/re8/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "벨기에 전후 인수기",
+              "file": "liveries/re8/belgian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "독일 노획 운용기",
+              "file": "liveries/re8/captured.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "미군 평가기 별",
+              "file": "liveries/re8/usas.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "중동전선 사막 크림",
+              "file": "liveries/re8/desert.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은띠",
+              "file": "liveries/re8/leader.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "고밀도 얼룩 위장",
+              "file": "liveries/re8/heavy.webp"
+            }
+          ],
+          "live": "../re8.webp"
+        },
+        {
+          "id": "armstrong_fk8",
+          "name": "Armstrong-Whitworth F.K.8",
+          "year": 1916,
+          "role": "정찰기",
+          "base": "planes/armstrong_fk8.webp",
+          "variants": [
+            {
+              "kind": "livery",
+              "name": "중동전선 사막 크림",
+              "file": "liveries/armstrong_fk8/desert.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간 침투 칠흑",
+              "file": "liveries/armstrong_fk8/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "훈련기 은색",
+              "file": "liveries/armstrong_fk8/silver.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "35비행대 지휘관기",
+              "file": "liveries/armstrong_fk8/sqn35.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "미군 평가기 별",
+              "file": "liveries/armstrong_fk8/usas.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "프랑스군 평가기",
+              "file": "liveries/armstrong_fk8/french.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은띠",
+              "file": "liveries/armstrong_fk8/leader.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "전선 얼룩 위장",
+              "file": "liveries/armstrong_fk8/camo.webp"
+            }
+          ]
+        },
+        {
+          "id": "avro_504",
+          "name": "Avro 504",
+          "year": 1914,
+          "role": "연습/폭격기",
+          "base": "planes/avro_504.webp",
+          "variants": [
+            {
+              "kind": "livery",
+              "name": "PC10 전투기",
+              "file": "liveries/avro_504/pc10.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "일본 나카지마 면허",
+              "file": "liveries/avro_504/japan.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간 요격 칠흑",
+              "file": "liveries/avro_504/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "소련 U-1 카피",
+              "file": "liveries/avro_504/soviet.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "미군 평가기 별",
+              "file": "liveries/avro_504/usas.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "벨기에 전후 인수기",
+              "file": "liveries/avro_504/belgian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "중동전선 사막 크림",
+              "file": "liveries/avro_504/desert.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은띠",
+              "file": "liveries/avro_504/leader.webp"
+            },
+            {
+              "kind": "bank",
+              "name": "plane-bank 원본",
+              "file": "../plane-bank/avro_504.webp",
+              "live": false
+            }
+          ]
+        },
+        {
+          "id": "caudron_g4",
+          "name": "Caudron G.4",
+          "year": 1915,
+          "role": "폭격기",
+          "base": "planes/caudron_g4_clean.webp",
+          "variants": [
+            {
+              "kind": "ingame",
+              "name": "인게임 스프라이트",
+              "file": "../caudron_g4.webp",
+              "live": true,
+              "hidden": "dup-live"
+            },
+            {
+              "kind": "ingame",
+              "name": "메카닉 대체 아트",
+              "file": "../mech/caudron_g4.webp",
+              "live": true,
+              "hidden": "dup-mech"
+            },
+            {
+              "kind": "alt",
+              "name": "뱅크 재생성",
+              "file": "planes/caudron_g4.webp",
+              "live": "../caudron_g4.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "이탈리아 운용기",
+              "file": "liveries/caudron_g4/italian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "미군 훈련기 별",
+              "file": "liveries/caudron_g4/usas.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간폭격 칠흑",
+              "file": "liveries/caudron_g4/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "폴란드 샤호비차",
+              "file": "liveries/caudron_g4/polish.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "러시아제국 공군",
+              "file": "liveries/caudron_g4/russian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "벨기에 항공대",
+              "file": "liveries/caudron_g4/belgian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "중동전선 사막 크림",
+              "file": "liveries/caudron_g4/desert.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은 나셀",
+              "file": "liveries/caudron_g4/leader.webp"
+            }
+          ],
+          "live": "../caudron_g4.webp"
+        },
+        {
+          "id": "caudron_r11",
+          "name": "Caudron R.11",
+          "year": 1918,
+          "role": "호위전투기",
+          "base": "planes/caudron_r11.webp",
+          "variants": [
+            {
+              "kind": "livery",
+              "name": "이탈리아 운용기",
+              "file": "liveries/caudron_r11/italian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "미군 평가기 별",
+              "file": "liveries/caudron_r11/usas.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간 호위 칠흑",
+              "file": "liveries/caudron_r11/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "초기 연색 생산",
+              "file": "liveries/caudron_r11/linen.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "영국 RFC 평가기",
+              "file": "liveries/caudron_r11/british.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "러시아제국 공군",
+              "file": "liveries/caudron_r11/russian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "전선 얼룩 위장",
+              "file": "liveries/caudron_r11/camo.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은띠",
+              "file": "liveries/caudron_r11/leader.webp"
+            }
+          ]
+        },
+        {
+          "id": "voisin8",
+          "name": "Voisin VIII",
+          "year": 1917,
+          "role": "야간폭격기",
+          "base": "planes/voisin8_clean.webp",
+          "variants": [
+            {
+              "kind": "ingame",
+              "name": "인게임 스프라이트",
+              "file": "../voisin8.webp",
+              "live": true,
+              "hidden": "dup-live"
+            },
+            {
+              "kind": "ingame",
+              "name": "메카닉 대체 아트",
+              "file": "../mech/voisin8.webp",
+              "live": true,
+              "hidden": "dup-mech"
+            },
+            {
+              "kind": "alt",
+              "name": "뱅크 재생성",
+              "file": "planes/voisin_8.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "이탈리아 운용기",
+              "file": "liveries/voisin8/italian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "미군 평가기 별",
+              "file": "liveries/voisin8/usas.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간폭격 칠흑",
+              "file": "liveries/voisin8/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "러시아제국 공군",
+              "file": "liveries/voisin8/russian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "벨기에 항공대",
+              "file": "liveries/voisin8/belgian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "폴란드 샤호비차",
+              "file": "liveries/voisin8/polish.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "중동전선 사막 크림",
+              "file": "liveries/voisin8/desert.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은 나셀",
+              "file": "liveries/voisin8/leader.webp"
+            }
+          ],
+          "live": "../voisin8.webp"
+        },
+        {
+          "id": "breguet14",
+          "name": "Bréguet 14",
+          "year": 1917,
+          "role": "폭격기",
+          "base": "planes/breguet14_clean.webp",
+          "variants": [
+            {
+              "kind": "ingame",
+              "name": "인게임 스프라이트",
+              "file": "../breguet14.webp",
+              "live": true,
+              "hidden": "dup-live"
+            },
+            {
+              "kind": "ingame",
+              "name": "메카닉 대체 아트",
+              "file": "../mech/breguet14.webp",
+              "live": true,
+              "hidden": "dup-mech"
+            },
+            {
+              "kind": "livery",
+              "name": "미군 95비행대 별",
+              "file": "liveries/breguet14/usas.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간폭격 칠흑",
+              "file": "liveries/breguet14/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "폴란드 샤호비차",
+              "file": "liveries/breguet14/polish.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "그리스 육군 항공대",
+              "file": "liveries/breguet14/greek.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "벨기에 전후 인수기",
+              "file": "liveries/breguet14/belgian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "이탈리아 평가기",
+              "file": "liveries/breguet14/italian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "중동전선 사막 크림",
+              "file": "liveries/breguet14/desert.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은띠",
+              "file": "liveries/breguet14/leader.webp"
+            },
+            {
+              "kind": "bank",
+              "name": "plane-bank 원본",
+              "file": "../plane-bank/breguet_14.webp",
+              "live": false
+            }
+          ],
+          "live": "../breguet14.webp"
+        },
+        {
+          "id": "salmson_2a2",
+          "name": "Salmson 2A2",
+          "year": 1918,
+          "role": "정찰기",
+          "base": "planes/salmson_2a2.webp",
+          "variants": [
+            {
+              "kind": "livery",
+              "name": "미군 91비행대 별",
+              "file": "liveries/salmson_2a2/usas.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "일본 오쓰-1 면허",
+              "file": "liveries/salmson_2a2/japan.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "폴란드 샤호비차",
+              "file": "liveries/salmson_2a2/polish.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간 칠흑",
+              "file": "liveries/salmson_2a2/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "러시아제국 공군",
+              "file": "liveries/salmson_2a2/russian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "벨기에 전후 인수기",
+              "file": "liveries/salmson_2a2/belgian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "중동전선 사막 크림",
+              "file": "liveries/salmson_2a2/desert.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은띠",
+              "file": "liveries/salmson_2a2/leader.webp"
+            },
+            {
+              "kind": "bank",
+              "name": "plane-bank 원본",
+              "file": "../plane-bank/salmson_2.webp",
+              "live": false
+            }
+          ]
+        },
+        {
+          "id": "ansaldo_sva5",
+          "name": "Ansaldo SVA.5",
+          "year": 1918,
+          "role": "전투기",
+          "base": "planes/ansaldo_sva5_clean.webp",
+          "variants": [
+            {
+              "kind": "ingame",
+              "name": "인게임 스프라이트",
+              "file": "../ansaldo_sva5.webp",
+              "live": true,
+              "hidden": "dup-live"
+            },
+            {
+              "kind": "ingame",
+              "name": "메카닉 대체 아트",
+              "file": "../mech/ansaldo_sva5.webp",
+              "live": true,
+              "hidden": "dup-mech"
+            },
+            {
+              "kind": "ace",
+              "name": "Ruffo",
+              "file": "aces/ruffo_sva5.webp",
+              "live": "../ruffo_sva5.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "미군 평가기 USAS 별",
+              "file": "liveries/ansaldo_sva5/usas.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "세레니시마 붉은 동체",
+              "file": "liveries/ansaldo_sva5/red.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "전선 상면 위장",
+              "file": "liveries/ansaldo_sva5/camo.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "열병·홍보 백색",
+              "file": "liveries/ansaldo_sva5/white.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "영국 RAF 평가기",
+              "file": "liveries/ansaldo_sva5/british.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "프랑스군 평가기",
+              "file": "liveries/ansaldo_sva5/french.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "러시아제국 평가기",
+              "file": "liveries/ansaldo_sva5/russian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은띠",
+              "file": "liveries/ansaldo_sva5/leader.webp"
+            },
+            {
+              "kind": "ingame",
+              "name": "인게임 스프라이트",
+              "file": "../ruffo_sva5.webp",
+              "live": true,
+              "hidden": "dup-live"
+            }
+          ],
+          "live": "../ansaldo_sva5.webp"
+        },
+        {
+          "id": "macchi_m3",
+          "name": "Macchi M.3",
+          "year": 1916,
+          "role": "비행정",
+          "base": "planes/macchi_m3_clean.webp",
+          "variants": [
+            {
+              "kind": "ingame",
+              "name": "인게임 스프라이트",
+              "file": "../macchi_m3.webp",
+              "live": true,
+              "hidden": "dup-live"
+            },
+            {
+              "kind": "ingame",
+              "name": "메카닉 대체 아트",
+              "file": "../mech/macchi_m3.webp",
+              "live": true,
+              "hidden": "dup-mech"
+            },
+            {
+              "kind": "livery",
+              "name": "아드리아해 얼룩 위장",
+              "file": "liveries/macchi_m3/mottle.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "스위스 공군 흰십자",
+              "file": "liveries/macchi_m3/swiss.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간 초계 칠흑",
+              "file": "liveries/macchi_m3/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "미해군 평가기 별",
+              "file": "liveries/macchi_m3/usn.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "러시아제국 해군",
+              "file": "liveries/macchi_m3/russian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "프랑스 해군 평가기",
+              "file": "liveries/macchi_m3/french.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "아드리아 파문 위장",
+              "file": "liveries/macchi_m3/wave.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은선체",
+              "file": "liveries/macchi_m3/leader.webp"
+            }
+          ],
+          "live": "../macchi_m3.webp"
+        },
+        {
+          "id": "macchi_m5",
+          "name": "Macchi M.5",
+          "year": 1917,
+          "role": "비행전투정",
+          "base": "planes/macchi_m5_clean.webp",
+          "variants": [
+            {
+              "kind": "ingame",
+              "name": "인게임 스프라이트",
+              "file": "../macchi_m5.webp",
+              "live": true,
+              "hidden": "dup-live"
+            },
+            {
+              "kind": "ingame",
+              "name": "메카닉 대체 아트",
+              "file": "../mech/macchi_m5.webp",
+              "live": true,
+              "hidden": "dup-mech"
+            },
+            {
+              "kind": "alt",
+              "name": "뱅크 재생성",
+              "file": "planes/macchi_m5.webp",
+              "live": "../macchi_m5.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "그리스 해군항공대",
+              "file": "liveries/macchi_m5/greek.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "해상 파문 위장",
+              "file": "liveries/macchi_m5/camo.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "무위장 시험 은색",
+              "file": "liveries/macchi_m5/silver.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간 초계 암청",
+              "file": "liveries/macchi_m5/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "러시아제국 해군",
+              "file": "liveries/macchi_m5/russian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "프랑스 해군 평가기",
+              "file": "liveries/macchi_m5/french.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "아드리아 파문 위장",
+              "file": "liveries/macchi_m5/wave.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은선체",
+              "file": "liveries/macchi_m5/leader.webp"
+            },
+            {
+              "kind": "ingame",
+              "name": "인게임 스프라이트",
+              "file": "../pierozzi_macchi.webp",
+              "live": true,
+              "hidden": "dup-sameart"
+            },
+            {
+              "kind": "part",
+              "name": "메카닉 대체 아트",
+              "file": "../mech/pierozzi_macchi.webp",
+              "live": true
+            }
+          ],
+          "live": "../macchi_m5.webp"
+        },
+        {
+          "id": "savoia_pomilio",
+          "name": "Savoia-Pomilio SP.2",
+          "year": 1917,
+          "role": "정찰기",
+          "base": "planes/savoia_pomilio.webp",
+          "variants": [
+            {
+              "kind": "livery",
+              "name": "전선 얼룩 위장",
+              "file": "liveries/savoia_pomilio/mottle.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "프랑스 운용기",
+              "file": "liveries/savoia_pomilio/french.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "미군 평가기 별",
+              "file": "liveries/savoia_pomilio/usas.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "초기 연색 생산",
+              "file": "liveries/savoia_pomilio/linen.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "러시아제국 공군",
+              "file": "liveries/savoia_pomilio/russian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "벨기에 항공대",
+              "file": "liveries/savoia_pomilio/belgian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간 정찰 칠흑",
+              "file": "liveries/savoia_pomilio/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은동체",
+              "file": "liveries/savoia_pomilio/leader.webp"
+            }
+          ]
+        },
+        {
+          "id": "caproni_ca3",
+          "name": "Caproni Ca.3",
+          "year": 1917,
+          "role": "중폭격기",
+          "base": "planes/caproni_ca3.webp",
+          "variants": [
+            {
+              "kind": "livery",
+              "name": "전선 얼룩 위장",
+              "file": "liveries/caproni_ca3/mottle.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "프랑스 운용기",
+              "file": "liveries/caproni_ca3/french.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "미군 평가기 별",
+              "file": "liveries/caproni_ca3/usas.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간폭격 칠흑",
+              "file": "liveries/caproni_ca3/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "러시아제국 공군",
+              "file": "liveries/caproni_ca3/russian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "벨기에 전후 인수기",
+              "file": "liveries/caproni_ca3/belgian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "지중해 사막 크림",
+              "file": "liveries/caproni_ca3/desert.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은 나셀",
+              "file": "liveries/caproni_ca3/leader.webp"
+            },
+            {
+              "kind": "bank",
+              "name": "plane-bank 원본",
+              "file": "../plane-bank/caproni_ca3.webp",
+              "live": false
+            }
+          ]
+        },
+        {
+          "id": "felixstowe_f2",
+          "name": "Felixstowe F.2",
+          "year": 1918,
+          "role": "비행정",
+          "base": "planes/felixstowe_f2_clean.webp",
+          "variants": [
+            {
+              "kind": "ingame",
+              "name": "인게임 스프라이트",
+              "file": "../felixstowe_f2.webp",
+              "live": true,
+              "hidden": "dup-live"
+            },
+            {
+              "kind": "ingame",
+              "name": "메카닉 대체 아트",
+              "file": "../mech/felixstowe_f2.webp",
+              "live": true,
+              "hidden": "dup-mech"
+            },
+            {
+              "kind": "alt",
+              "name": "F.2A 뱅크",
+              "file": "planes/felixstowe_f2a.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "미해군 운용 별",
+              "file": "liveries/felixstowe_f2/usn.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간 초계 칠흑",
+              "file": "liveries/felixstowe_f2/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "초기 회색 도포",
+              "file": "liveries/felixstowe_f2/grey.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "일본해군 평가기",
+              "file": "liveries/felixstowe_f2/japan.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "러시아제국 해군",
+              "file": "liveries/felixstowe_f2/russian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "프랑스 해군 평가기",
+              "file": "liveries/felixstowe_f2/french.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간 대잠 초계",
+              "file": "liveries/felixstowe_f2/nightpatrol.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은띠",
+              "file": "liveries/felixstowe_f2/leader.webp"
+            },
+            {
+              "kind": "bank",
+              "name": "plane-bank 원본",
+              "file": "../plane-bank/curtiss_h12.webp",
+              "live": false
+            }
+          ],
+          "live": "../felixstowe_f2.webp"
+        },
+        {
+          "id": "hp_o400",
+          "name": "Handley Page O/400",
+          "year": 1918,
+          "role": "중폭격기",
+          "base": "planes/hp_o400_clean.webp",
+          "variants": [
+            {
+              "kind": "alt",
+              "name": "뱅크 재생성",
+              "file": "planes/hp_o400.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "미군 평가기 별",
+              "file": "liveries/hp_o400/usas.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간폭격 칠흑",
+              "file": "liveries/hp_o400/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "초기 연색 도포",
+              "file": "liveries/hp_o400/silver.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "벨기에 전후 인수기",
+              "file": "liveries/hp_o400/belgian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "프랑스군 평가기",
+              "file": "liveries/hp_o400/french.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "독일 노획 시험기",
+              "file": "liveries/hp_o400/captured.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은띠",
+              "file": "liveries/hp_o400/leader.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "중동전선 사막 크림",
+              "file": "liveries/hp_o400/desert.webp"
+            },
+            {
+              "kind": "ingame",
+              "name": "인게임 스프라이트",
+              "file": "../handley-page.webp",
+              "live": true,
+              "hidden": "dup-base"
+            },
+            {
+              "kind": "part",
+              "name": "메카닉 대체 아트",
+              "file": "../mech/handley-page.webp",
+              "live": true,
+              "hidden": "dup-pixels"
+            }
+          ],
+          "live": "../handley-page.webp"
+        },
+        {
+          "id": "ilya_muromets",
+          "name": "Ilya Muromets",
+          "year": 1915,
+          "role": "거폭격기 (러시아)",
+          "base": "planes/ilya_muromets.webp",
+          "variants": [
+            {
+              "kind": "ace",
+              "name": "Smirnov (해골)",
+              "file": "aces/smirnov_nieuport.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "소련 적군 붉은별",
+              "file": "liveries/ilya_muromets/soviet.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "야간폭격 칠흑",
+              "file": "liveries/ilya_muromets/night.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "겨울 백색 위장",
+              "file": "liveries/ilya_muromets/winter.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "우크라이나 청황띠",
+              "file": "liveries/ilya_muromets/ukrainian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "프랑스 노획 평가기",
+              "file": "liveries/ilya_muromets/french.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "독일 노획 시험기",
+              "file": "liveries/ilya_muromets/captured.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "바이에른 마름모 평가",
+              "file": "liveries/ilya_muromets/bavarian.webp"
+            },
+            {
+              "kind": "livery",
+              "name": "편대장 붉은띠",
+              "file": "liveries/ilya_muromets/leader.webp"
+            },
+            {
+              "kind": "part",
+              "name": "메카닉 대체 아트",
+              "file": "../gotha_night.webp",
+              "live": true
+            },
+            {
+              "kind": "bank",
+              "name": "plane-bank 원본",
+              "file": "../plane-bank/ilya_muromets.webp",
+              "live": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bosses",
+      "name": "보스 후보",
+      "types": [
+        {
+          "id": "panzerzug",
+          "name": "Panzerzug 장갑열차",
+          "role": "장갑열차",
+          "base": "bosses/panzerzug/base.webp",
+          "variants": [
+            {
+              "kind": "dmg",
+              "name": "손상",
+              "file": "bosses/panzerzug/dmg.webp"
+            },
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/panzerzug/wreck.webp"
+            }
+          ]
+        },
+        {
+          "id": "kwagen",
+          "name": "K-Wagen",
+          "role": "초중전차",
+          "base": "bosses/kwagen/base.webp",
+          "variants": [
+            {
+              "kind": "dmg",
+              "name": "손상",
+              "file": "bosses/kwagen/dmg.webp"
+            },
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/kwagen/wreck.webp"
+            }
+          ]
+        },
+        {
+          "id": "land_cruiser",
+          "name": "Land Cruiser",
+          "role": "랜드크루저",
+          "base": "bosses/land_cruiser/base.webp",
+          "variants": [
+            {
+              "kind": "dmg",
+              "name": "손상",
+              "file": "bosses/land_cruiser/dmg.webp"
+            },
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/land_cruiser/wreck.webp"
+            }
+          ]
+        },
+        {
+          "id": "flame_tank",
+          "name": "화염전차",
+          "role": "전차",
+          "base": "bosses/flame_tank/base.webp",
+          "variants": []
+        },
+        {
+          "id": "aa_truck",
+          "name": "AA 트럭",
+          "role": "대공 차량",
+          "base": "bosses/aa_truck/base.webp",
+          "variants": []
+        },
+        {
+          "id": "big_bertha",
+          "name": "Big Bertha 42cm",
+          "role": "곡사포 진지",
+          "base": "bosses/big_bertha/base.webp",
+          "variants": [
+            {
+              "kind": "dmg",
+              "name": "손상",
+              "file": "bosses/big_bertha/dmg.webp"
+            },
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/big_bertha/wreck.webp"
+            }
+          ]
+        },
+        {
+          "id": "rail_mortar_battery",
+          "name": "철도박격포대",
+          "role": "포병 진지",
+          "base": "bosses/rail_mortar_battery/base.webp",
+          "variants": []
+        },
+        {
+          "id": "gas_battery",
+          "name": "가스 포대",
+          "role": "포병 진지",
+          "base": "bosses/gas_battery/base.webp",
+          "variants": []
+        },
+        {
+          "id": "paris_gun",
+          "name": "파리포",
+          "role": "장거리포",
+          "base": "bosses/paris_gun/base.webp",
+          "variants": []
+        },
+        {
+          "id": "fortress_bunker",
+          "name": "요새 벙커",
+          "role": "요새",
+          "base": "bosses/fortress_bunker/base.webp",
+          "variants": []
+        },
+        {
+          "id": "supply_depot",
+          "name": "보급 기지",
+          "role": "보급 진지",
+          "base": "bosses/supply_depot/base.webp",
+          "variants": []
+        },
+        {
+          "id": "drachen_winch",
+          "name": "드라헨 윈치 기지",
+          "role": "기구 시설",
+          "base": "bosses/drachen_winch/base.webp",
+          "variants": []
+        },
+        {
+          "id": "tesla_tower",
+          "name": "테슬라 탑",
+          "role": "실험 병기",
+          "base": "bosses/tesla_tower/base.webp",
+          "variants": [
+            {
+              "kind": "dmg",
+              "name": "손상",
+              "file": "bosses/tesla_tower/dmg.webp"
+            }
+          ]
+        },
+        {
+          "id": "armored_airship",
+          "name": "장갑 비행선",
+          "role": "비행선",
+          "base": "bosses/armored_airship/base.webp",
+          "variants": []
+        },
+        {
+          "id": "uboat",
+          "name": "U-Boat",
+          "role": "잠수함",
+          "base": "bosses/uboat/base.webp",
+          "variants": []
+        },
+        {
+          "id": "monitor",
+          "name": "Monitor",
+          "role": "모니터함",
+          "base": "bosses/monitor/base.webp",
+          "variants": []
+        },
+        {
+          "id": "torpedo_boat",
+          "name": "Torpedo Boat",
+          "role": "어뢰정",
+          "base": "bosses/torpedo_boat/base.webp",
+          "variants": [
+            {
+              "kind": "dmg",
+              "name": "손상",
+              "file": "bosses/torpedo_boat/dmg.webp"
+            },
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/torpedo_boat/wreck.webp"
+            }
+          ]
+        },
+        {
+          "id": "gunboat",
+          "name": "Gunboat",
+          "role": "포함",
+          "base": "bosses/gunboat/base.webp",
+          "variants": []
+        },
+        {
+          "id": "minelayer",
+          "name": "Minelayer",
+          "role": "기뢰부설함",
+          "base": "bosses/minelayer/base.webp",
+          "variants": []
+        },
+        {
+          "id": "dreadnought",
+          "name": "Dreadnought",
+          "role": "드레드노트",
+          "base": "bosses/dreadnought/base.webp",
+          "variants": [
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/dreadnought/wreck.webp"
+            }
+          ]
+        },
+        {
+          "id": "armored_cruiser",
+          "name": "Armored Cruiser",
+          "role": "장갑순양함",
+          "base": "bosses/armored_cruiser/base.webp",
+          "variants": []
+        },
+        {
+          "id": "carrier_furious",
+          "name": "HMS Furious",
+          "role": "항공모함",
+          "base": "bosses/carrier_furious/base.webp",
+          "variants": []
+        },
+        {
+          "id": "balloon_tender",
+          "name": "Balloon Tender",
+          "role": "기구모선",
+          "base": "bosses/balloon_tender/base.webp",
+          "variants": []
+        },
+        {
+          "id": "friedrichshafen_g3",
+          "name": "Friedrichshafen G.III 편대",
+          "role": "중폭격 편대",
+          "base": "bosses/friedrichshafen_g3/base.webp",
+          "variants": []
+        },
+        {
+          "id": "_parts",
+          "name": "분리 부품",
+          "role": "포탑 등",
+          "base": "bosses/_parts/naval_turret.webp",
+          "variants": []
+        },
+        {
+          "id": "tsar_tank",
+          "name": "Tsar 차르 탱크",
+          "role": "초중전차",
+          "base": "bosses/tsar_tank/base.webp",
+          "variants": []
+        },
+        {
+          "id": "saint_chamond",
+          "name": "Saint-Chamond 생샤몽",
+          "role": "중전차",
+          "base": "bosses/saint_chamond/base.webp",
+          "variants": []
+        },
+        {
+          "id": "skoda_mortar",
+          "name": "Skoda 30.5cm 스코다 박격포",
+          "role": "공성박격포 진지",
+          "base": "bosses/skoda_mortar/base.webp",
+          "variants": []
+        },
+        {
+          "id": "char_2c",
+          "name": "Char 2C 샤르 2C",
+          "role": "초중전차",
+          "base": "bosses/char_2c/base.webp",
+          "variants": []
+        },
+        {
+          "id": "renault_ft_squad",
+          "name": "Renault FT 르노 FT 편대",
+          "role": "경전차 편대",
+          "base": "bosses/renault_ft_squad/base.webp",
+          "variants": []
+        },
+        {
+          "id": "whippet",
+          "name": "Whippet 위펫",
+          "role": "중형전차",
+          "base": "bosses/whippet/base.webp",
+          "variants": []
+        },
+        {
+          "id": "skeleton_tank",
+          "name": "Skeleton 스켈레톤 탱크",
+          "role": "골격전차",
+          "base": "bosses/skeleton_tank/base.webp",
+          "variants": []
+        },
+        {
+          "id": "langer_max",
+          "name": "Langer Max 랑거 막스 철도포",
+          "role": "철도포",
+          "base": "bosses/langer_max/base.webp",
+          "variants": []
+        },
+        {
+          "id": "coastal_battery",
+          "name": "해안포대",
+          "role": "해안포 진지",
+          "base": "bosses/coastal_battery/base.webp",
+          "variants": []
+        },
+        {
+          "id": "aa_position",
+          "name": "AA 대공포 진지",
+          "role": "대공포 진지",
+          "base": "bosses/aa_position/base.webp",
+          "variants": []
+        },
+        {
+          "id": "flamethrower_position",
+          "name": "화염방사 진지",
+          "role": "화염방사 진지",
+          "base": "bosses/flamethrower_position/base.webp",
+          "variants": []
+        },
+        {
+          "id": "radio_station",
+          "name": "무선전신국",
+          "role": "통신시설",
+          "base": "bosses/radio_station/base.webp",
+          "variants": []
+        },
+        {
+          "id": "goeben",
+          "name": "SMS Goeben 괴벤",
+          "role": "순양전함",
+          "base": "bosses/goeben/base.webp",
+          "variants": []
+        },
+        {
+          "id": "szent_istvan",
+          "name": "SMS Szent István 센트 이슈트반",
+          "role": "드레드노트",
+          "base": "bosses/szent_istvan/base.webp",
+          "variants": []
+        },
+        {
+          "id": "uboat_base",
+          "name": "U-Boat 잠수함 기지",
+          "role": "잠수함 기지",
+          "base": "bosses/uboat_base/base.webp",
+          "variants": []
+        },
+        {
+          "id": "torpedo_boat_squad",
+          "name": "어뢰정 편대",
+          "role": "어뢰정 편대",
+          "base": "bosses/torpedo_boat_squad/base.webp",
+          "variants": []
+        },
+        {
+          "id": "gotha_gv",
+          "name": "Gotha G.V 고타",
+          "role": "중폭격기",
+          "base": "bosses/gotha_gv/base.webp",
+          "variants": []
+        },
+        {
+          "id": "heavy_bomber",
+          "name": "Staaken 대형폭격기",
+          "role": "초중폭격기",
+          "base": "bosses/heavy_bomber/base.webp",
+          "variants": []
+        },
+        {
+          "id": "observation_balloon",
+          "name": "관측기구",
+          "role": "관측기구",
+          "base": "bosses/observation_balloon/base.webp",
+          "variants": []
+        },
+        {
+          "id": "zeppelin_l30",
+          "name": "Zeppelin L.30 제플린",
+          "role": "비행선",
+          "base": "bosses/zeppelin_l30/base.webp",
+          "variants": []
+        },
+        {
+          "id": "camel_convoy",
+          "name": "낙타 수송대",
+          "role": "수송대",
+          "base": "bosses/camel_convoy/base.webp",
+          "variants": []
+        },
+        {
+          "id": "turkish_fort",
+          "name": "터키 요새",
+          "role": "요새",
+          "base": "bosses/turkish_fort/base.webp",
+          "variants": []
+        },
+        {
+          "id": "schneider_ca1",
+          "name": "Schneider CA1 슈나이더",
+          "role": "돌격전차",
+          "base": "bosses/schneider_ca1/base.webp",
+          "variants": []
+        },
+        {
+          "id": "fiat_2000",
+          "name": "Fiat 2000 피아트",
+          "role": "중전차",
+          "base": "bosses/fiat_2000/base.webp",
+          "variants": []
+        },
+        {
+          "id": "rolls_royce_squad",
+          "name": "Rolls-Royce 장갑차 편대",
+          "role": "사막 장갑차 편대",
+          "base": "bosses/rolls_royce_squad/base.webp",
+          "variants": []
+        },
+        {
+          "id": "ilya_muromets",
+          "name": "Sikorsky Ilya Muromets 일리야 무로메츠",
+          "role": "4발 중폭격기",
+          "base": "bosses/ilya_muromets/base.webp",
+          "variants": []
+        },
+        {
+          "id": "caudron_g4",
+          "name": "Caudron G.4 코드롱",
+          "role": "쌍발 폭격기",
+          "base": "bosses/caudron_g4/base.webp",
+          "variants": []
+        },
+        {
+          "id": "caproni_ca3",
+          "name": "Caproni Ca.3 카프로니",
+          "role": "3발 중폭격기",
+          "base": "bosses/caproni_ca3/base.webp",
+          "variants": []
+        },
+        {
+          "id": "sound_locator",
+          "name": "청음·서치라이트 진지",
+          "role": "대공 탐지 진지",
+          "base": "bosses/sound_locator/base.webp",
+          "variants": []
+        },
+        {
+          "id": "zeppelin_shed",
+          "name": "제플린 격납고",
+          "role": "비행선 격납고",
+          "base": "bosses/zeppelin_shed/base.webp",
+          "variants": []
+        },
+        {
+          "id": "sms_baden",
+          "name": "SMS Baden 바덴",
+          "role": "초드레드노트",
+          "base": "bosses/sms_baden/base.webp",
+          "variants": []
+        },
+        {
+          "id": "mas_squad",
+          "name": "MAS 어뢰정 편대",
+          "role": "고속 어뢰정 편대",
+          "base": "bosses/mas_squad/base.webp",
+          "variants": []
+        },
+        {
+          "id": "flying_circus",
+          "name": "비행 서커스 Dr.I 편대",
+          "role": "삼엽기 편대",
+          "base": "bosses/flying_circus/base.webp",
+          "variants": []
+        },
+        {
+          "id": "supply_column",
+          "name": "마차 수송대",
+          "role": "수송대",
+          "base": "bosses/supply_column/base.webp",
+          "variants": []
+        },
+        {
+          "id": "k_wagen",
+          "name": "K-Wagen 케 바겐",
+          "role": "초중 돌파전차",
+          "base": "bosses/k_wagen/base.webp",
+          "variants": [
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/k_wagen/wreck.webp"
+            },
+            {
+              "kind": "art",
+              "name": "일러스트",
+              "file": "bosses/k_wagen/art.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포탑",
+              "file": "bosses/k_wagen/part-turret.webp"
+            },
+            {
+              "kind": "part",
+              "name": "트랙",
+              "file": "bosses/k_wagen/part-track.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포탄",
+              "file": "bosses/k_wagen/proj-shell.webp"
+            }
+          ]
+        },
+        {
+          "id": "staaken",
+          "name": "Zeppelin-Staaken R.VI 슈타켄",
+          "role": "거폭 실험기",
+          "base": "bosses/staaken/base.webp",
+          "variants": [
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/staaken/wreck.webp"
+            },
+            {
+              "kind": "art",
+              "name": "일러스트",
+              "file": "bosses/staaken/art.webp"
+            },
+            {
+              "kind": "part",
+              "name": "엔진 나셀",
+              "file": "bosses/staaken/part-engine.webp"
+            },
+            {
+              "kind": "part",
+              "name": "꼬리부",
+              "file": "bosses/staaken/part-tail.webp"
+            },
+            {
+              "kind": "part",
+              "name": "폭탄",
+              "file": "bosses/staaken/proj-bomb.webp"
+            }
+          ]
+        },
+        {
+          "id": "kugelpanzer",
+          "name": "Kugelpanzer 쿠겔팬처",
+          "role": "구형 정찰 캡슐",
+          "base": "bosses/kugelpanzer/base.webp",
+          "variants": [
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/kugelpanzer/wreck.webp"
+            },
+            {
+              "kind": "art",
+              "name": "일러스트",
+              "file": "bosses/kugelpanzer/art.webp"
+            },
+            {
+              "kind": "part",
+              "name": "트랙 링",
+              "file": "bosses/kugelpanzer/part-band.webp"
+            },
+            {
+              "kind": "part",
+              "name": "돔 해치",
+              "file": "bosses/kugelpanzer/part-dome.webp"
+            },
+            {
+              "kind": "part",
+              "name": "기관총탄",
+              "file": "bosses/kugelpanzer/proj-bullet.webp"
+            }
+          ]
+        },
+        {
+          "id": "walking_fort",
+          "name": "증기 보행요새",
+          "role": "보행 공성요새 (컨셉)",
+          "base": "bosses/walking_fort/base.webp",
+          "variants": [
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/walking_fort/wreck.webp"
+            },
+            {
+              "kind": "art",
+              "name": "일러스트",
+              "file": "bosses/walking_fort/art.webp"
+            },
+            {
+              "kind": "part",
+              "name": "보행 다리",
+              "file": "bosses/walking_fort/part-leg.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포탑",
+              "file": "bosses/walking_fort/part-turret.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포탄",
+              "file": "bosses/walking_fort/proj-shell.webp"
+            }
+          ]
+        },
+        {
+          "id": "trench_mole",
+          "name": "참호 굴착 장갑차",
+          "role": "지하굴착기 (컨셉)",
+          "base": "bosses/trench_mole/base.webp",
+          "variants": [
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/trench_mole/wreck.webp"
+            },
+            {
+              "kind": "art",
+              "name": "일러스트",
+              "file": "bosses/trench_mole/art.webp"
+            },
+            {
+              "kind": "part",
+              "name": "드릴 노즈",
+              "file": "bosses/trench_mole/part-drill.webp"
+            },
+            {
+              "kind": "part",
+              "name": "선체 링",
+              "file": "bosses/trench_mole/part-ring.webp"
+            },
+            {
+              "kind": "part",
+              "name": "굴진탄",
+              "file": "bosses/trench_mole/proj-charge.webp"
+            }
+          ]
+        },
+        {
+          "id": "sky_gunship",
+          "name": "쌍풍선 공중포대",
+          "role": "공중포 플랫폼 (컨셉)",
+          "base": "bosses/sky_gunship/base.webp",
+          "variants": [
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/sky_gunship/wreck.webp"
+            },
+            {
+              "kind": "art",
+              "name": "일러스트",
+              "file": "bosses/sky_gunship/art.webp"
+            },
+            {
+              "kind": "part",
+              "name": "기구 포피",
+              "file": "bosses/sky_gunship/part-balloon.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포좌",
+              "file": "bosses/sky_gunship/part-gun.webp"
+            },
+            {
+              "kind": "part",
+              "name": "승무원 곤돌라",
+              "file": "bosses/sky_gunship/part-basket.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포탄",
+              "file": "bosses/sky_gunship/proj-shell.webp"
+            }
+          ]
+        },
+        {
+          "id": "landship",
+          "name": "육상전함 랜드쉽",
+          "role": "다포탑 궤도요새 (컨셉)",
+          "base": "bosses/landship/base.webp",
+          "variants": [
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/landship/wreck.webp"
+            },
+            {
+              "kind": "art",
+              "name": "일러스트",
+              "file": "bosses/landship/art.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포탑",
+              "file": "bosses/landship/part-turret.webp"
+            },
+            {
+              "kind": "part",
+              "name": "트랙",
+              "file": "bosses/landship/part-track.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포탄",
+              "file": "bosses/landship/proj-shell.webp"
+            }
+          ]
+        },
+        {
+          "id": "flammenpanzer",
+          "name": "증기 화염요새차",
+          "role": "쌍 화염요새차 (컨셉)",
+          "base": "bosses/flammenpanzer/base.webp",
+          "variants": [
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/flammenpanzer/wreck.webp"
+            },
+            {
+              "kind": "art",
+              "name": "일러스트",
+              "file": "bosses/flammenpanzer/art.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포탑",
+              "file": "bosses/flammenpanzer/part-turret.webp"
+            },
+            {
+              "kind": "part",
+              "name": "돔 해치",
+              "file": "bosses/flammenpanzer/part-dome.webp"
+            },
+            {
+              "kind": "part",
+              "name": "화염구",
+              "file": "bosses/flammenpanzer/proj-flame.webp"
+            }
+          ]
+        },
+        {
+          "id": "armored_carrier",
+          "name": "장갑 항공모함차",
+          "role": "기동 발진 플랫폼 (컨셉)",
+          "base": "bosses/armored_carrier/base.webp",
+          "variants": [
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/armored_carrier/wreck.webp"
+            },
+            {
+              "kind": "art",
+              "name": "일러스트",
+              "file": "bosses/armored_carrier/art.webp"
+            },
+            {
+              "kind": "part",
+              "name": "탑재기",
+              "file": "bosses/armored_carrier/part-plane.webp"
+            },
+            {
+              "kind": "part",
+              "name": "발진 램프",
+              "file": "bosses/armored_carrier/part-ramp.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포탄",
+              "file": "bosses/armored_carrier/proj-shell.webp"
+            }
+          ]
+        },
+        {
+          "id": "amphibian",
+          "name": "수륙양용 모니터",
+          "role": "외륜 상륙함 (컨셉)",
+          "base": "bosses/amphibian/base.webp",
+          "variants": [
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/amphibian/wreck.webp"
+            },
+            {
+              "kind": "art",
+              "name": "일러스트",
+              "file": "bosses/amphibian/art.webp"
+            },
+            {
+              "kind": "part",
+              "name": "페드레일 휠",
+              "file": "bosses/amphibian/part-wheel.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포탑",
+              "file": "bosses/amphibian/part-turret.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포탄",
+              "file": "bosses/amphibian/proj-shell.webp"
+            }
+          ]
+        },
+        {
+          "id": "dornier_rs",
+          "name": "Dornier Rs.I 도르니어",
+          "role": "거형 비행정 실험기",
+          "base": "bosses/dornier_rs/base.webp",
+          "variants": [
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/dornier_rs/wreck.webp"
+            },
+            {
+              "kind": "art",
+              "name": "일러스트",
+              "file": "bosses/dornier_rs/art.webp"
+            },
+            {
+              "kind": "part",
+              "name": "엔진 나셀",
+              "file": "bosses/dornier_rs/part-engine.webp"
+            },
+            {
+              "kind": "part",
+              "name": "아웃리거 플로트",
+              "file": "bosses/dornier_rs/part-float.webp"
+            },
+            {
+              "kind": "part",
+              "name": "폭탄",
+              "file": "bosses/dornier_rs/proj-bomb.webp"
+            }
+          ]
+        },
+        {
+          "id": "flak_barge",
+          "name": "대공 로켓 바지선",
+          "role": "고정포대 바지선 (컨셉)",
+          "base": "bosses/flak_barge/base.webp",
+          "variants": [
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/flak_barge/wreck.webp"
+            },
+            {
+              "kind": "art",
+              "name": "일러스트",
+              "file": "bosses/flak_barge/art.webp"
+            },
+            {
+              "kind": "part",
+              "name": "발사 트러프",
+              "file": "bosses/flak_barge/part-trough.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포좌",
+              "file": "bosses/flak_barge/part-gun.webp"
+            },
+            {
+              "kind": "part",
+              "name": "로켓",
+              "file": "bosses/flak_barge/proj-rocket.webp"
+            }
+          ]
+        },
+        {
+          "id": "pedrail",
+          "name": "Pedrail Carrier 페드레일",
+          "role": "실험 컨셉",
+          "base": "bosses/pedrail/base.webp",
+          "variants": [
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/pedrail/wreck.webp"
+            },
+            {
+              "kind": "art",
+              "name": "일러스트",
+              "file": "bosses/pedrail/art.webp"
+            },
+            {
+              "kind": "part",
+              "name": "페드레일 휠",
+              "file": "bosses/pedrail/part-wheel.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포탑",
+              "file": "bosses/pedrail/part-turret.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포탄",
+              "file": "bosses/pedrail/proj-shell.webp"
+            }
+          ]
+        },
+        {
+          "id": "screw_drive",
+          "name": "아르키메데스 나사 수륙차",
+          "role": "실험 컨셉",
+          "base": "bosses/screw_drive/base.webp",
+          "variants": [
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/screw_drive/wreck.webp"
+            },
+            {
+              "kind": "art",
+              "name": "일러스트",
+              "file": "bosses/screw_drive/art.webp"
+            },
+            {
+              "kind": "part",
+              "name": "나사 로터",
+              "file": "bosses/screw_drive/part-rotor.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포탑",
+              "file": "bosses/screw_drive/part-turret.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포탄",
+              "file": "bosses/screw_drive/proj-shell.webp"
+            }
+          ]
+        },
+        {
+          "id": "walking_artillery",
+          "name": "보행 곡사포",
+          "role": "실험 컨셉",
+          "base": "bosses/walking_artillery/base.webp",
+          "variants": [
+            {
+              "kind": "wreck",
+              "name": "파괴",
+              "file": "bosses/walking_artillery/wreck.webp"
+            },
+            {
+              "kind": "art",
+              "name": "일러스트",
+              "file": "bosses/walking_artillery/art.webp"
+            },
+            {
+              "kind": "part",
+              "name": "보행 다리",
+              "file": "bosses/walking_artillery/part-leg.webp"
+            },
+            {
+              "kind": "part",
+              "name": "곡사포 포신",
+              "file": "bosses/walking_artillery/part-barrel.webp"
+            },
+            {
+              "kind": "part",
+              "name": "포탄",
+              "file": "bosses/walking_artillery/proj-shell.webp"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ordnance",
+      "name": "무장·탄약",
+      "types": [
+        {
+          "id": "bombs",
+          "name": "투하 폭탄",
+          "role": "폭탄",
+          "base": "../fx-bomb-body.webp",
+          "variants": [
+            {
+              "kind": "part",
+              "name": "Cooper 20lb",
+              "file": "../bomb-cooper.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "PuW",
+              "file": "../bomb-puw.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "Hales",
+              "file": "../bomb-hales.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "비행 탄체",
+              "file": "../fx-ordnance-body-flight.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "보스 병기",
+              "file": "archive/fx-boss-ordnance.webp",
+              "live": true
+            }
+          ],
+          "live": true
+        },
+        {
+          "id": "shells",
+          "name": "포탄·주포탄",
+          "role": "탄약",
+          "base": "../fx-shell-heavy.webp",
+          "variants": [
+            {
+              "kind": "part",
+              "name": "박격포탄",
+              "file": "../fx-mortar-shell.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "박격포탄(전투)",
+              "file": "../fx-combat-mortar-shell.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "37mm 포탄",
+              "file": "../fx-pack-v189/projectiles/shell-37mm.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "기관포탄",
+              "file": "../fx-pack-v189/projectiles/shell-autocannon.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "함포탄",
+              "file": "../fx-pack-v189/projectiles/shell-naval.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "탄피",
+              "file": "../fx-pack-v189/projectiles/bullet-brass.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "탄 아틀라스",
+              "file": "../cannon-projectiles135.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "예광탄",
+              "file": "../legacy/fx-pack-v189-projectiles/tracer-amber.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "예광탄",
+              "file": "../legacy/fx-pack-v189-projectiles/tracer-cream.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "예광탄",
+              "file": "../legacy/fx-pack-v189-projectiles/tracer-orange.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "예광탄",
+              "file": "../legacy/fx-pack-v189-projectiles/tracer-violet.webp",
+              "live": true
+            }
+          ],
+          "live": true
+        },
+        {
+          "id": "rockets",
+          "name": "로켓·르프리외",
+          "role": "탄약",
+          "base": "../fx-combat-le-prieur.webp",
+          "variants": [
+            {
+              "kind": "part",
+              "name": "르프리외",
+              "file": "../fx-le-prieur.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "르프리외 로켓",
+              "file": "../fx-pack-v189/projectiles/rocket-le-prieur.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "중로켓",
+              "file": "../fx-pack-v189/projectiles/rocket-heavy.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "공중 수류탄",
+              "file": "../fx-pack-v189/projectiles/grenade-aerial.webp",
+              "live": true
+            }
+          ],
+          "live": true
+        },
+        {
+          "id": "mines",
+          "name": "수류탄·기뢰·어뢰·소이탄",
+          "role": "탄약",
+          "base": "../fx-grenade-ww1.webp",
+          "variants": [
+            {
+              "kind": "part",
+              "name": "수류탄 몸체",
+              "file": "../fx-grenade-body.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "기뢰",
+              "file": "../fx-mine-body.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "철 기뢰",
+              "file": "../fx-combat-iron-mine.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "어뢰",
+              "file": "../fx-torpedo.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "소이탄",
+              "file": "../fx-incendiary.webp",
+              "live": true
+            }
+          ],
+          "live": true
+        },
+        {
+          "id": "muzzle",
+          "name": "총구 화염",
+          "role": "총구FX",
+          "base": "../fx-muzzle-twin.webp",
+          "variants": [
+            {
+              "kind": "part",
+              "name": "중기관총",
+              "file": "../fx-muzzle-heavy.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "후방 기관총",
+              "file": "../fx-muzzle-rear.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "권총",
+              "file": "../fx-muzzle-pistol.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "기본",
+              "file": "../fx-pack-v189/projectiles/muzzle-flash.webp",
+              "live": true
+            }
+          ],
+          "live": true
+        }
+      ]
+    },
+    {
+      "id": "fx_blast",
+      "name": "FX — 폭발·파편",
+      "types": [
+        {
+          "id": "airburst",
+          "name": "공중 폭발",
+          "role": "폭발",
+          "base": "../fx-airblast-0.webp",
+          "variants": [
+            {
+              "kind": "part",
+              "name": "air-1",
+              "file": "../fx-airblast-1.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "air-2",
+              "file": "../fx-airblast-2.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "air-3",
+              "file": "../fx-airblast-3.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "공기폭발 0",
+              "file": "../fx-pack-v189/explosions/explosion-air-0.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "공기폭발 1",
+              "file": "../fx-pack-v189/explosions/explosion-air-1.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "공기폭발 2",
+              "file": "../fx-pack-v189/explosions/explosion-air-2.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "공기폭발 3",
+              "file": "../fx-pack-v189/explosions/explosion-air-3.webp",
+              "live": true
+            }
+          ],
+          "live": true
+        },
+        {
+          "id": "groundburst",
+          "name": "지상 폭발 (흙먼지)",
+          "role": "폭발",
+          "base": "../fx-bombfx-0.webp",
+          "variants": [
+            {
+              "kind": "part",
+              "name": "bomb-1",
+              "file": "../fx-bombfx-1.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "bomb-2",
+              "file": "../fx-bombfx-2.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "bomb-3",
+              "file": "../fx-bombfx-3.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "먼지 0",
+              "file": "../fx-explosion-dust-0.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "먼지 1",
+              "file": "../fx-explosion-dust-1.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "먼지 2",
+              "file": "../fx-explosion-dust-2.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "먼지 3",
+              "file": "../fx-explosion-dust-3.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "지상 폭발",
+              "file": "../fx-pack-v189/explosions/explosion-ground.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "중폭탄 폭발",
+              "file": "../fx-pack-v189/explosions/explosion-heavy-bomb.webp",
+              "live": true
+            }
+          ],
+          "live": true
+        },
+        {
+          "id": "shellburst",
+          "name": "포탄·대공포 폭발",
+          "role": "폭발",
+          "base": "../fx-shellburst-0.webp",
+          "variants": [
+            {
+              "kind": "part",
+              "name": "burst-1",
+              "file": "../fx-shellburst-1.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "burst-2",
+              "file": "../fx-shellburst-2.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "burst-3",
+              "file": "../fx-shellburst-3.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "플락 버스트",
+              "file": "../flak-burst.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "대공 플락",
+              "file": "../fx-combat-flak-burst.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "공중 플락",
+              "file": "../fx-pack-v189/explosions/flak-airburst.webp",
+              "live": true
+            }
+          ],
+          "live": true
+        },
+        {
+          "id": "oily",
+          "name": "중폭발·보스 폭발",
+          "role": "폭발",
+          "base": "../fx-bossblast-0.webp",
+          "variants": [
+            {
+              "kind": "part",
+              "name": "boss-1",
+              "file": "../fx-bossblast-1.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "boss-2",
+              "file": "../fx-bossblast-2.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "boss-3",
+              "file": "../fx-bossblast-3.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "oily-0",
+              "file": "../fx-explosion-oily-0.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "oily-1",
+              "file": "../fx-explosion-oily-1.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "oily-2",
+              "file": "../fx-explosion-oily-2.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "oily-3",
+              "file": "../fx-explosion-oily-3.webp",
+              "live": true
+            }
+          ],
+          "live": true
+        },
+        {
+          "id": "hot",
+          "name": "고열 폭발",
+          "role": "폭발",
+          "base": "../fx-explosion-hot-0.webp",
+          "variants": [
+            {
+              "kind": "part",
+              "name": "hot-1",
+              "file": "../fx-explosion-hot-1.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "hot-2",
+              "file": "../fx-explosion-hot-2.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "hot-3",
+              "file": "../fx-explosion-hot-3.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "리븐스 화염·폭발",
+              "file": "../fx_livens_final_fire194.png",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "리븐스 화염·폭발",
+              "file": "../fx_livens_flame_leak194.png",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "리븐스 화염·폭발",
+              "file": "../fx_livens_flame_main_01194.png",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "리븐스 화염·폭발",
+              "file": "../fx_livens_flame_main_02194.png",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "리븐스 화염·폭발",
+              "file": "../fx_livens_pressure_burst194.png",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "리븐스 화염·폭발",
+              "file": "../sheet_explosions.png",
+              "live": false
+            }
+          ],
+          "live": true
+        },
+        {
+          "id": "mine_water",
+          "name": "기뢰·수면·박격포 폭발",
+          "role": "폭발",
+          "base": "../fx-mineblast-0.webp",
+          "variants": [
+            {
+              "kind": "part",
+              "name": "mine-1",
+              "file": "../fx-mineblast-1.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "mine-2",
+              "file": "../fx-mineblast-2.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "mine-3",
+              "file": "../fx-mineblast-3.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "해상 스플래시",
+              "file": "../fx-pack-v189/explosions/splash-naval.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "박격포 착탄",
+              "file": "../fx-mortar-impact340.webp",
+              "live": true
+            }
+          ],
+          "live": true
+        },
+        {
+          "id": "pop",
+          "name": "경폭발 (pop)",
+          "role": "폭발",
+          "base": "../fx-pop-0.webp",
+          "variants": [
+            {
+              "kind": "part",
+              "name": "pop-1",
+              "file": "../fx-pop-1.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "pop-2",
+              "file": "../fx-pop-2.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "pop-3",
+              "file": "../fx-pop-3.webp",
+              "live": true
+            }
+          ],
+          "live": true
+        },
+        {
+          "id": "legacy_explosion",
+          "name": "구형 폭발 세트",
+          "role": "폭발",
+          "base": "../fx-explosion-0.webp",
+          "variants": [
+            {
+              "kind": "part",
+              "name": "exp-1",
+              "file": "../fx-explosion-1.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "exp-2",
+              "file": "../fx-explosion-2.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "exp-3",
+              "file": "../fx-explosion-3.webp",
+              "live": true
+            }
+          ],
+          "live": true
+        },
+        {
+          "id": "combat_blast",
+          "name": "전투 폭발 세트",
+          "role": "폭발",
+          "base": "../fx-combat-blast-0.webp",
+          "variants": [
+            {
+              "kind": "part",
+              "name": "blast-1",
+              "file": "../fx-combat-blast-1.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "blast-2",
+              "file": "../fx-combat-blast-2.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "blast-3",
+              "file": "../fx-combat-blast-3.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "난파 화재",
+              "file": "../fx-pack-v189/explosions/fire-wreck.webp",
+              "live": true
+            }
+          ],
+          "live": true
+        },
+        {
+          "id": "amatol",
+          "name": "아마톨·시트 폭발",
+          "role": "폭발",
+          "base": "../amatol_explosion_effects.webp",
+          "variants": [
+            {
+              "kind": "part",
+              "name": "전투 FX 시트",
+              "file": "../combat-fx196.webp",
+              "live": true
+            }
+          ],
+          "live": true
+        },
+        {
+          "id": "debris",
+          "name": "파편·잔해·충격",
+          "role": "파편",
+          "base": "../fx-debris-shard.webp",
+          "variants": [
+            {
+              "kind": "part",
+              "name": "금속파편 0",
+              "file": "../fx-metal-shard-0.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "금속파편 1",
+              "file": "../fx-metal-shard-1.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "금속파편 2",
+              "file": "../fx-metal-shard-2.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "금속파편 3",
+              "file": "../fx-metal-shard-3.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "금속파편 4",
+              "file": "../fx-metal-shard-4.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "금속파편 5",
+              "file": "../fx-metal-shard-5.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "암석파편 0",
+              "file": "../fx-rock-chunk-0.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "암석파편 1",
+              "file": "../fx-rock-chunk-1.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "암석파편 2",
+              "file": "../fx-rock-chunk-2.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "암석파편 3",
+              "file": "../fx-rock-chunk-3.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "암석파편 4",
+              "file": "../fx-rock-chunk-4.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "암석파편 5",
+              "file": "../fx-rock-chunk-5.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "구조물 0",
+              "file": "../fx-structure-0.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "구조물 1",
+              "file": "../fx-structure-1.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "구조물 2",
+              "file": "../fx-structure-2.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "구조물 3",
+              "file": "../fx-structure-3.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "스파크",
+              "file": "../fx-pack-v189/explosions/impact-spark.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "도탄",
+              "file": "../fx-pack-v189/explosions/impact-ricochet.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "기체 잔해",
+              "file": "../fx-pack-v189/explosions/impact-aircraft-debris.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "흙 폭발",
+              "file": "../fx-dirt-burst.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "흙먼지 혼합",
+              "file": "../fx-dirt-mix.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "먼지 퍼프",
+              "file": "../fx-dust-puff.webp",
+              "live": true
+            },
+            {
+              "kind": "part",
+              "name": "충격파 링",
+              "file": "../fx-shock-ring.webp",
+              "live": true
+            }
+          ],
+          "live": true
+        }
+      ]
+    },
+    {
+      "id": "fx_ambient",
+      "name": "FX — 연기·화염·환경",
+      "types": [
+        {
+          "id": "smoke",
+          "name": "연기",
+          "role": "연기",
+          "base": "../fx-engine-smoke.webp",
+          "variants": [
+            {
               "kind": "part",
               "name": "짙은 연기",
               "file": "../fx-smoke-heavy.webp",
