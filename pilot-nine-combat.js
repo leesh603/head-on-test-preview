@@ -1,5 +1,5 @@
 // Nine pilot mechanics, installed on the existing firing/frame/impact hooks.
-import {signatureCue,activatePilotSignature} from './pilot-signature-state.js?v=headon-quality-20261023-7d8a4756';
+import {signatureCue,activatePilotSignature} from './pilot-signature-state.js?v=tame3';
 export const NINE_PILOTS=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker']);
 const durations={huffzky:3,mckeever:5,jacobs:4,hawker:5,berthold:5,udet:2.6,goering:5,nungesser:3,barker:6};
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -158,7 +158,9 @@ export function installNinePilots(Game,PILOTS){
   const focus=this.whiteFocus,age=this.nineDuration-this.skillTime,side=a.whiteSide??((a.slot||0)%2?-1:1),heading=focus?bearing(this,focus):this.a;
   const splitUntil=this.nineDuration*.18,attackUntil=this.nineDuration-1.2;
   const spread=age<splitUntil?180*age/splitUntil:age<attackUntil?180:180*clamp((this.skillTime-.1)/1.1,0,1),forward=age<splitUntil?-65:age<attackUntil?focus?Math.max(40,dist(this,focus)-130):150:-65;
-  return{x:this.x+Math.cos(heading)*forward-Math.sin(heading)*side*spread,y:this.y+Math.sin(heading)*forward+Math.cos(heading)*side*spread};
+  const x=this.x+Math.cos(heading)*forward-Math.sin(heading)*side*spread,y=this.y+Math.sin(heading)*forward+Math.cos(heading)*side*spread;
+  const onFlank=side*(-(a.x-this.x)*Math.sin(heading)+(a.y-this.y)*Math.cos(heading))>120;
+  return{x,y,a:focus&&age>=splitUntil&&onFlank?bearing({x,y},focus):heading};
  };
  const focus=q.goeringFocusTarget;q.goeringFocusTarget=function(){if(this.pilot==='goering'&&this.skillTime>0){if(!aerial(this.whiteFocus))this.whiteFocus=pick(this,this.a,Math.PI,760);return this.whiteFocus;}return focus.call(this)};
 }

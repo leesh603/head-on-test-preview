@@ -1,5 +1,6 @@
 // Five authored attacks on the existing shot/impact/wing hooks. No new input or FX renderer.
-import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=headon-quality-20261023-7d8a4756';
+import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
+import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
 const TAU=Math.PI*2;
 const IDS=new Set(['fonck','gontermann','luke','proctor','lufbery']);
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -77,16 +78,15 @@ function updateLafayette(p,a,dt){
  let threat=rearThreat(p),goal;
  if(orbit){
   const slot=a.fiveLafayetteSlot??0,angle=s.orbit.angle+s.age*1.12+slot*TAU/3,r=FIVE_ACE_BALANCE.orbitRadius;
-  goal={x:s.orbit.x+Math.cos(angle)*r,y:s.orbit.y+Math.sin(angle)*r};
+  goal={x:s.orbit.x+Math.cos(angle)*r,y:s.orbit.y+Math.sin(angle)*r,a:angle+Math.PI/2};
   for(const friend of w.allies||[]){if(friend!==a&&ownLafayette(p,friend)){const e=rearThreat(p,friend);if(e&&(!threat||distance(a,e)<distance(a,threat)))threat=e;}}
  }else{
   const behind=p.a+Math.PI;goal={x:p.x+Math.cos(behind)*100-Math.sin(p.a)*65,y:p.y+Math.sin(behind)*100+Math.cos(p.a)*65};
   if(threat&&distance(p,threat)<450)goal={x:threat.x-Math.cos(threat.a||0)*90,y:threat.y-Math.sin(threat.a||0)*90};
  }
- const dx=goal.x-a.x,dy=goal.y-a.y,d=Math.hypot(dx,dy),move=Math.min(1,dt*(orbit?3:2.6),dt*260/Math.max(1,d));
- a.x+=dx*move;a.y+=dy*move;
- const desired=d>22?Math.atan2(dy,dx):threat?bearing(a,threat):p.a;
- const turn=clamp(wrap(desired-(a.a||0)),-dt*3.1,dt*3.1);a.a=(a.a||0)+turn;a.fiveBank=clamp(turn/Math.max(dt,.001),-1,1);
+ const previous=a.a||0;
+ advanceWingFlight(a,p,goal,dt,{maxSpeed:260,turnRate:3.1,cruiseSpeed:orbit?FIVE_ACE_BALANCE.orbitRadius*1.12:undefined});
+ a.fiveBank=clamp(wrap(a.a-previous)/Math.max(dt,.001),-1,1);
  a.fire=(a.fire||0)-dt;
  if(!threat){let best=620;for(const e of w.enemies||[]){if(!live(e)||e.surface)continue;const range=distance(a,e);if(range<best&&Math.abs(wrap(bearing(a,e)-a.a))<.45){threat=e;best=range;}}}
  if(threat&&a.fire<=0&&distance(a,threat)<620&&Math.abs(wrap(bearing(a,threat)-a.a))<.5){

@@ -1,5 +1,5 @@
-import {ordinaryFighter,fighterAim,fighterRoundSpeed} from './dogfight-pass165.js?v=headon-quality-20261023-7d8a4756';
-import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=headon-quality-20261023-7d8a4756';
+import {ordinaryFighter,fighterAim,fighterRoundSpeed} from './dogfight-pass165.js?v=gal1';
+import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=regionalair20261018';
 
 export const BATTLE_DIRECTOR_PATTERNS=Object.freeze({
  HEAD_ON_PASS:'HEAD_ON_PASS',CROSS_ATTACK:'CROSS_ATTACK',PINCER:'PINCER',CHASE:'CHASE',ESCORT:'ESCORT',DECOY:'DECOY',

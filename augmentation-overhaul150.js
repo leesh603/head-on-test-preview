@@ -1,7 +1,8 @@
-import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=headon-quality-20261023-7d8a4756&afc=1';
+import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=buildfit1&afc=1';
 import {PILOT_AIRCRAFT} from './pilot-aircraft.js';
-import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget} from './bomber-transfer.js?v=headon-quality-20261023-7d8a4756&afc=1';
+import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget} from './bomber-transfer.js?v=buildfit1&afc=1';
 import {WEAPON_MODS,WEAPON_MOD_BY_ID,weaponModAvailable,ordnancePattern,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js';
+import {tacticalChoices,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES} from './tactical-doctrines.js';
 // Augmentation catalog revision 150. Display data mirrors the live 강화정리 sheet;
 // legacy ids stay stable so existing runs and local saves remain compatible.
 export const AUGMENTATION_OVERHAUL_BALANCE=Object.freeze({
@@ -98,7 +99,6 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  LEGENDARIES.splice(0,LEGENDARIES.length,...SPECIAL.map(([id,name,desc])=>({id,name,desc})));
  for(const item of LEGENDARIES)byId.set(item.id,{...item,legendary:true,uniqueOnly:false,apply:()=>{}});
  UPGRADES.splice(0,UPGRADES.length,...[...STANDARD,...UNIQUE].map(([id])=>byId.get(id)),...LEGENDARIES.map(item=>byId.get(item.id)));
- UPGRADES.push(...WEAPON_MODS.map(mod=>({id:mod.id,name:mod.name,desc:mod.description,uniqueOnly:true,weaponMod:true,legendary:false,apply:()=>{}})));
 
  const description=function(id,rarity='normal',g){
   if(WEAPON_MOD_BY_ID[id])return WEAPON_MOD_BY_ID[id].description;
@@ -149,7 +149,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    (u.id!=='explosives'||g.bomberTransfer&&!g.bomberTransfer.kind||g.rockets||g.mineCount||g.bomberLevel||g.motorCannon||g.cow37||g.upgrades.rankinShell||g.legendaryMineTrail||['bishop','guynemer'].includes(g.pilot))&&
    (u.id!=='command'||manualAvailable(g)&&(g.permanentWingman||['goering','collishaw','mannock'].includes(g.pilot)));
  };
- const shuffledPick=(g,pool)=>pool.length?pool[Math.floor(g.rng()*pool.length)]:null;
+ const shuffledPick=(g,pool)=>{if(!pool.length)return null;const weights=pool.map(u=>tacticalFollowupWeight(g,u.id,buildIdentityFor(u.id)));let ticket=g.rng()*weights.reduce((a,b)=>a+b,0);for(let i=0;i<pool.length;i++){ticket-=weights[i];if(ticket<0)return pool[i]}return pool[pool.length-1]};
  const normalPick=function(g,rarity,picks,previous=[]){const used=new Set(picks.map(u=>u.id)),eligible=UPGRADES.filter(u=>!used.has(u.id)&&normalAllowed(g,u,rarity)),fresh=eligible.filter(u=>!previous.includes(u.id));return shuffledPick(g,fresh.length?fresh:eligible)};
  Game.prototype.rollChoices=function(forceRarity=null){
   const choiceCount=this.pilot==='mccudden'?4:3;
@@ -161,16 +161,13 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   if(!forceRarity&&!this.mission?.unarmed&&offers<limit&&this.legendaryCount()<4&&pool.length>=3&&pool.some(u=>!AIRFRAME_TRANSFER_IDS.includes(u.id))&&(this.rng()<this.legendaryChance()||this.level>=(offers===0?5:offers===1?12:22))){
    picks.length=0;picks.push(...pickWeightedSpecials(this,pool).map(u=>namedSpecial(this,u)));this.legendaryOffered=true;this.legendaryOffers=offers+1;this.specialDraftSuppressedIds=[...cooldown];this.specialDraftCooldownIds=picks.map(u=>u.id);
   }
-  if(!this.mission?.unarmed&&!picks.every(u=>u.rarity==='legendary')){
-   const families=['GUN','EXPLOSIVE','FORMATION'].filter(family=>WEAPON_MODS.some(mod=>mod.family===family&&weaponModAvailable(this,mod)));
-   if(families.length){const family=families[(this.weaponModOfferCursor||0)%families.length];this.weaponModOfferCursor=(this.weaponModOfferCursor||0)+1;const mods=WEAPON_MODS.filter(mod=>mod.family===family).map(mod=>({...UPGRADES.find(u=>u.id===mod.id),rarity:'unique'}));picks.splice(0,Math.min(2,picks.length),...mods);}
-  }
   this.lastChoices=picks.map(u=>u.id);this.choiceDraftSerial=(this.choiceDraftSerial||0)+1;this.choiceRerollUsed=false;this.choiceDraftKind=picks.every(u=>u.rarity==='legendary')?'special':'normal';return picks;
  };
  Game.prototype.rerollLegendaryChoices=function(current=[]){
   return this.rerollChoices(current);
  };
  Game.prototype.canRerollChoices=function(current=[]){
+  if(this.pendingTacticalChoice)return false;
   const state=this.state??this.combatWorld?.()?.state,special=current.length===3&&current.every(u=>(u.rarity||'legendary')==='legendary');
   const regular=this.pilot==='mccudden'&&current.length===4&&current.every(u=>(u.rarity||'normal')!=='legendary');
   return state==='upgrade'&&!this.choiceRerollUsed&&(special||regular)&&new Set(current.map(u=>u.id)).size===current.length;
@@ -183,10 +180,9 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  };
 
  Game.prototype.upgrade=function(id,rarity='normal'){
-  if(this.state!=='upgrade')return false;const u=UPGRADES.find(x=>x.id===id),limit=4;
+  if(this.state!=='upgrade'||this.pendingTacticalChoice)return false;const u=UPGRADES.find(x=>x.id===id),limit=4;
   if(!u||u.rareOnly&&rarity!=='rare'||u.uniqueOnly&&rarity!=='unique'||!u.uniqueOnly&&!u.legendary&&!['normal','magic','rare'].includes(rarity)||u.legendary&&(rarity!=='legendary'||!specialAllowed(this,u)||this.legendaryCount()>=limit))return false;
   if(!u.legendary&&!identityAllowed(this,id))return false;
-  const mod=WEAPON_MOD_BY_ID[id];if(mod&&!weaponModAvailable(this,mod))return false;
   if(id==='command'&&!manualAvailable(this)||id==='armor'&&!armorAvailable(this))return false;
   if((id==='rate'&&(this.cow37||this.rate<=.045+1e-9))||(id==='rockets'&&this.rockets>=5)||(id==='mines'&&this.mineCount>=5)||(id==='regen'&&(this.regen||0)>=DURABILITY_BALANCE.regenCap-1e-9)||(id==='cooldown'&&this.cooldownMult<=.5+1e-9)||(id==='turn'&&(this.turnUpgradeBonus||0)>=AUGMENT_BALANCE.turnCap-1e-9&&(this.speedUpgradeBonus||0)>=AUGMENT_BALANCE.speedCap-1e-9))return false;
   if((id==='bomber'&&(this.bomberLevel||0)>=5)||(id==='wingman'&&((this.permanentWingman||0)>=7||(this.upgrades.wingman||0)>=2))||(id==='fighterSupply'&&this.upgrades.fighterSupply)||(id==='mercedesEngine'&&this.upgrades.mercedesEngine)||(id==='spread'&&(this.cow37||this.shots>=5))||(id==='combinedProjectiles'&&this.upgrades.combinedProjectiles))return false;
@@ -236,9 +232,12 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    case 'maximBelt':{this.addGunBonus(AUGMENTATION_OVERHAUL_BALANCE.pridoGunBonus);const old=this.weapon.belt,thisBase=this.baseBeltCapacity??old,next=Math.round(thisBase*AUGMENTATION_OVERHAUL_BALANCE.pridoBelt);this.baseBeltCapacity=thisBase;this.weapon.belt=Math.max(old,next);this.ammo=this.ammo.map(n=>Math.min(this.weapon.belt,n+this.weapon.belt-old));this.weapon.reload=Math.max(.45,this.weapon.reload*AUGMENTATION_OVERHAUL_BALANCE.pridoReload);for(const station of this.bomberTransfer?.stations||[])station.ammo=Math.min(Math.round(this.bomberTransfer.belt*1.75),station.ammo+Math.round(this.bomberTransfer.belt*.75));break;}
   }
   if(u.legendary)this.equipmentAcquire156={id,life:.5,maxLife:.5};
-  if(mod){this.weaponMods={...this.weaponMods,[mod.family]:mod.value};if(mod.family==='GUN'){this.weaponModBurst=0;for(const station of this.bomberTransfer?.stations||[])station.weaponModBurst=0;}}
-  else if(!u.legendary){const family=buildIdentityFor(id);if(['GUN','EXPLOSIVE','FORMATION'].includes(family))this.weaponModSelections={...this.weaponModSelections,[family]:(this.weaponModSelections?.[family]||0)+1};}
-  this.upgradeRarities??={};this.upgradeRarities[id]=rarity;this.upgrades[id]=(this.upgrades[id]||0)+1;this.state='playing';this.checkLevel();return true;
+  if(!u.legendary){const family=buildIdentityFor(id);if(TACTICAL_FAMILIES.includes(family)){const count=(this.weaponModSelections?.[family]||0)+1;this.weaponModSelections={...this.weaponModSelections,[family]:count};if(count===3)this.event?.('ally',`${TACTICAL_FAMILY_NAMES[family]} 전술교리 · 3 / 5`);}}
+  this.upgradeRarities??={};this.upgradeRarities[id]=rarity;this.upgrades[id]=(this.upgrades[id]||0)+1;
+  this.pendingTacticalChoice=tacticalChoices(this);
+  if(this.pendingTacticalChoice){this.state='upgrade';if(!this.world)this.event?.('tactical');}
+  else {this.state='playing';this.checkLevel();}
+  return true;
  };
 
  Game.prototype.ordnanceInterval=function(interval){return interval*(this.upgrades?.flightGloves?AUGMENTATION_OVERHAUL_BALANCE.glovesInterval:1)};
@@ -266,6 +265,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   const count=Math.max(1,Math.min(5,this.rockets||1));this.rocketFire=this.ordnanceInterval(2.6/(1+count*.3));this.releaseUpgradeOrdnance('rocket',count);
  };
  Game.prototype.releaseUpgradeOrdnance=function(type,total){
+  if(total===1&&this.weaponMods?.EXPLOSIVE==='area'){this.weaponModSingleLane??={};this.weaponModSingleLane[type]=-(this.weaponModSingleLane[type]||-1);}
   const stagger=!!(this.upgrades?.combinedProjectiles||this.projectileDistributorLevel),first=stagger?Math.ceil(total/2):total;
   this.emitUpgradeOrdnance(type,0,first,total);
   if(first<total){this.pendingOrdnance??=[];if(!this.pendingOrdnance.some(item=>item.type===type))this.pendingOrdnance.push({type,start:first,count:total-first,total,remaining:ORDNANCE_STAGGER_DELAY,createdAt:Number.isFinite(this.t)?this.t:null});}
@@ -438,4 +438,5 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  };
  for(const [id,p] of Object.entries(PILOTS))if(p?.name&&id==='mccudden')p.augmentationAffinity='sparkPlug';
 }
+
 

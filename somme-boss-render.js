@@ -1,15 +1,16 @@
-import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=headon-quality-20261023-7d8a4756';
-import {prepareSommeDetailArt,releaseSommeDetailArt,sommeDetailReady,drawSommeDetailHull,drawSommeComponent} from './somme-component-art.js?v=headon-quality-20261023-7d8a4756';
-import {fx} from './fx-art.js?v=headon-quality-20261023-7d8a4756';
-import {drawTracerBolt} from './projectiles.js?v=headon-quality-20261023-7d8a4756';
-import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=headon-quality-20261023-7d8a4756';
-import {drawShellFlight} from './boss-rounds.js?v=headon-quality-20261023-7d8a4756&ai=1018';
-import {drawAADefense} from './aa-defense-art.js?v=headon-quality-20261023-7d8a4756';
-import {clamp,sommeMuzzle,sommeMuzzles} from './somme-boss-layout.js?v=headon-quality-20261023-7d8a4756&somme=20261021';
+import {drawSommeWeapon,drawSommeTread,sommeTreadPose,prepareSommeTreads,releaseSommeHardware} from './somme-hardware-motion.js?v=20261023';
+import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=tame3';
+import {prepareSommeDetailArt,releaseSommeDetailArt,sommeDetailReady,drawSommeDetailHull,drawSommeComponent} from './somme-component-art.js?v=20261021';
+import {fx} from './fx-art.js?v=tame3';
+import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
+import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=tame3';
+import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
+import {drawAADefense} from './aa-defense-art.js?v=tame3';
+import {clamp,sommeMuzzle,sommeMuzzles} from './somme-boss-layout.js?v=tame3&somme=20261021';
 const images={},pending={};
 function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';images[key]=im;pending[key]=new Promise((resolve,reject)=>{im.addEventListener('load',()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))},{once:true});im.addEventListener('error',()=>reject(new Error('Missing Somme atlas: '+SOMME_SHEETS[key])),{once:true});});im.src='./'+SOMME_SHEETS[key]+'?v=r5';return im;}
-export async function prepareSommeAssets(){await prepareSommeDetailArt();for(const key of Object.keys(SOMME_SHEETS)){if(sommeDetailReady()&&['schwaben-body','schwaben-support','mark1-hulls'].includes(key))continue;load(key);}return Promise.all(Object.values(pending));}
-export function releaseSommeAssets(){releaseSommeDetailArt();for(const key of Object.keys(images)){delete images[key];delete pending[key];}}
+export async function prepareSommeAssets(){await prepareSommeDetailArt();for(const key of Object.keys(SOMME_SHEETS)){if(sommeDetailReady()&&['schwaben-body','schwaben-support','mark1-hulls'].includes(key))continue;load(key);}const loaded=await Promise.all(Object.values(pending));prepareSommeTreads(images['mark1-hardware']);return loaded;}
+export function releaseSommeAssets(){releaseSommeHardware();releaseSommeDetailArt();for(const key of Object.keys(images)){delete images[key];delete pending[key];}}
 // Pivot is measured on the normal sprite's visible silhouette. Damage-state
 // offsets stay relative to that cell; broken barrels/debris do not move a mount.
 function sprite(c,key,state,x,y,w,h,angle=0,pivotY=.5){
@@ -20,11 +21,7 @@ function sprite(c,key,state,x,y,w,h,angle=0,pivotY=.5){
  c.save();c.translate(x,y);c.rotate(angle);c.imageSmoothingEnabled=true;c.drawImage(im,sx,sy,sw,sh,(sx-cx-px)*scaleX,(sy-cy-py)*scaleY,sw*scaleX,sh*scaleY);c.restore();
 }
 function weapon(c,key,st,p){
- const f=SOMME_FRAMES[key+'-'+st],n=SOMME_FRAMES[key+'-normal'],im=load(f.sheet);if(!im.naturalWidth)return;
- const [sx,sy,sw,sh]=f.rect,[px,py]=f.pivot,k=p.muzzleLength/n.reach;
- const recoil=st==='wreck'?0:Math.min(1,(p.recoil||0)/.28)*p.muzzleLength*.075;
- c.save();c.translate(p.x-Math.cos(p.angle)*recoil,p.y-Math.sin(p.angle)*recoil);c.rotate(p.angle+Math.PI/2);c.imageSmoothingEnabled=true;
- c.drawImage(im,sx,sy,sw,sh,-px*k,-py*k,sw*k,sh*k);c.restore();
+ const f=SOMME_FRAMES[key+'-'+st];drawSommeWeapon(c,key,st,p,load(f.sheet));
 }
 const state=(p,dead)=>dead||p.destroyed?'wreck':p.hp<=p.maxHp*.5?'damaged':'normal';
 function warningRing(c,x,y,r,progress,heavy=false){impactMark(c,x,y,r,progress,{heavy});}
@@ -36,7 +33,8 @@ export function drawSommeBoss(c,b){
   c.save();c.rotate(b.hullYaw);
   // Inner armor on the track strip is covered by the hull; only the tread edge
   // lies outside the roof. Component destruction remains a separate overlay.
-  for(const p of parts.filter(p=>p.id.startsWith('track-')))sprite(c,p.art==='casemate'?'heavy-casemate':p.art==='mg'?'aa-mg':p.art,state(p,dead),p.localX*s,p.localY*s,p.drawWidth,p.drawHeight);
+  const treadPose=sommeTreadPose(b);
+  for(const p of parts.filter(p=>p.id.startsWith('track-'))){sprite(c,p.art,state(p,dead),p.localX*s,p.localY*s,p.drawWidth,p.drawHeight);drawSommeTread(c,b,p,load('mark1-hardware'),treadPose);}
   if(!drawSommeDetailHull(c,b))sprite(c,b.tankRole+'-hull',dead?'wreck':b.hp<b.maxHp*.55?'damaged':'normal',0,0,84*s,230*s);
   for(const p of parts.filter(p=>p.art==='engine-deck'))drawSommeComponent(c,p,dead,{x:p.localX*s,y:p.localY*s});
   c.restore();

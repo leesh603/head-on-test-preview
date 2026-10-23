@@ -1,5 +1,5 @@
-import {clearCrewMatte} from './matte70.js?v=headon-quality-20261023-7d8a4756';
-import {BANK_ART} from './outline-qa-legacy-bank-art.js?v=headon-quality-20261023-7d8a4756';
+import {clearCrewMatte} from './matte70.js?v=gal1';
+import {BANK_ART} from './outline-qa-legacy-bank-art.js?v=c61f074';
 // Exact stock-bank paint cells; these stay outside the evictable NPC art cache.
 const BOMBER_TRANSFER_ART=Object.freeze({
  'transfer-caudron-r11':{path:'asset-bank/flight/bank_plane_caudron_r11.webp',x:0,y:0,w:288,h:320},

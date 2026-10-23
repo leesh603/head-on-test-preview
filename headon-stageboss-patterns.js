@@ -1,30 +1,30 @@
-import {SupermarineNighthawk,SiemensSchuckertRVIII} from './dover-night-bosses.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {SupermarineNighthawk,SiemensSchuckertRVIII} from './dover-night-bosses.js?v=dover3&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js';
-import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=headon-quality-20261023-7d8a4756&rail=42';
+import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=gal1&rail=42';
 import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
-import {ParisSearchlightFortress,ParisStaakenRVI} from './paris-night-bosses.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {GallipoliFortress} from './gallipoli-boss.js?v=headon-quality-20261023-7d8a4756&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {RuralRailBoss} from './rural-rail-combat.js?v=headon-quality-20261023-7d8a4756&rail=43&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=headon-quality-20261023-7d8a4756&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {treffasPoint,treffasGunPivot,treffasGunMuzzle,treffasMgMuzzle,fliegerGunPivot,fliegerGunMuzzle} from './cambrai-layout.js?v=headon-quality-20261023-7d8a4756&cambrai=20261021';
-import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=headon-quality-20261023-7d8a4756&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&phase=1021';
-import {createJutlandEncounter} from './jutland-boss.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {ParisSearchlightFortress,ParisStaakenRVI} from './paris-night-bosses.js?v=gal1&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {GallipoliFortress} from './gallipoli-boss.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=gal1-r3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {RuralRailBoss} from './rural-rail-combat.js?v=gal1&rail=44&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {treffasPoint,treffasGunPivot,treffasGunMuzzle,treffasMgMuzzle,fliegerGunPivot,fliegerGunMuzzle} from './cambrai-layout.js?v=gal1&cambrai=20261021';
+import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&phase=1021';
+import {createJutlandEncounter} from './jutland-boss.js?v=gal1&ai=1018&sig=1019&boss=20261020b&phase=1021';
 export {Mark1Landship as Mark4Wedge,SchwabenFortress as MorserBattery};
-import {sommeScale} from './somme-boss-layout.js?v=headon-quality-20261023-7d8a4756&somme=20261021';
-import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose,steerNaval} from './adriatic-boss-layout.js?v=headon-quality-20261023-7d8a4756';
-import {initArmorDrive,stepArmorDrive} from './trench-armor-drive.js?v=headon-quality-20261023-7d8a4756&ai=1018';
-import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=headon-quality-20261023-7d8a4756&ai=1018';
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=headon-quality-20261023-7d8a4756';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {apronPose} from './london-apron369.js?v=headon-quality-20261023-7d8a4756';
-import {GIK,Ca4} from './alps-bomber-combat.js?v=headon-quality-20261023-7d8a4756&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {FlakTowerNet} from './city-flak-combat.js?v=headon-quality-20261023-7d8a4756&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {sommeScale} from './somme-boss-layout.js?v=gal1&somme=20261021';
+import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose,steerNaval} from './adriatic-boss-layout.js?v=gal1';
+import {initArmorDrive,stepArmorDrive} from './trench-armor-drive.js?v=gal1&ai=1018';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=gal1&ai=1018';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=gal1';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=gal1&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=gal1&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&harbor=20261021';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=gal1&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
+import {apronPose} from './london-apron369.js?v=gal1&cityart=20261022';
+import {GIK,Ca4} from './alps-bomber-combat.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {FlakTowerNet} from './city-flak-combat.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 
 export {GIK,Ca4};
-import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=headon-quality-20261023-7d8a4756';
+import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborGunMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=gal1&harbor=20261021';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
@@ -724,11 +724,11 @@ export class MarkVCruiser extends TrenchArmor {
 
 export class ArmoredHarborFortress extends PatternBoss {
   constructor(options){
-    const parts=HARBOR_PARTS.map(p=>({...p,maxHp:options.tuning.maxHp*(p.kind==='crane-arm'?.13:p.kind==='crane-pivot'?.10:p.kind==='harbor-gun'?.08:.12)}));
+    const parts=HARBOR_PARTS.map(p=>({...p,maxHp:options.tuning.maxHp*(p.kind==='crane-arm'?.13:p.kind==='crane-pivot'?.10:p.kind==='harbor-gun'?.07:p.kind==='harbor-mg'?.02:.12)}));
     super({...options,kind:'armored-harbor-fortress',parts});
     this.ownsMotion129=true;this.anchorX=this.x;this.anchorY=this.y;this.phase='coastal-battery';this.coreVulnerable=false;
     this.craneAngle=-.55;this.craneState='idle';this.craneClock=1.8;this.craneSerial=0;this.gunSide=0;this.elapsed=0;this.gunBursts=[];this.launchRun=null;this.craneDrops=0;this.craneReleaseClock=0;this.approachShots=0;this.approachActive=false;
-    for(const spec of HARBOR_PARTS){const p=this.parts.get(spec.id);Object.assign(p,{localX:spec.x,localY:spec.y,drawWidth:spec.width,drawHeight:spec.height,cell:spec.cell,artAngle:spec.artAngle,launchWarmup:0,recoil:0});if(p.kind==='harbor-gun')p.angle=spec.artAngle;}
+    for(const spec of HARBOR_PARTS){const p=this.parts.get(spec.id);Object.assign(p,{localX:spec.x,localY:spec.y,drawWidth:spec.width,drawHeight:spec.height,cell:spec.cell,artAngle:spec.artAngle,launchWarmup:0,recoil:0});if(p.kind==='harbor-gun'||p.kind==='harbor-mg')p.angle=spec.artAngle;}
     this.externalParts=['crane-arm','ammo-storage','gun-left','gun-right','gun-front-left','gun-front-right','seaplane-facility'];this.syncCrane();
   }
   pose(){return harborCranePose(this);}
@@ -756,7 +756,7 @@ export class ArmoredHarborFortress extends PatternBoss {
       this.phase='final-core';this.coreVulnerable=true;this.hp=Math.min(this.hp,this.maxHp*.42);this.command('phase-change',{phase:this.phase});
     }
     const craneDown=this.parts.get('crane-arm').destroyed||this.parts.get('crane-pivot').destroyed;
-    if(!this.liveGuns().length&&craneDown&&this.parts.get('seaplane-facility').destroyed)this.exposeFinalCore('harbor-core-exposed');
+    if(![...this.parts.values()].some(p=>['harbor-gun','harbor-mg'].includes(p.kind)&&!p.destroyed)&&craneDown&&this.parts.get('seaplane-facility').destroyed)this.exposeFinalCore('harbor-core-exposed');
   }
   startCrane(players,bounds){
     if(this.parts.get('crane-arm').destroyed||this.parts.get('crane-pivot').destroyed)return;
@@ -809,6 +809,7 @@ export class ArmoredHarborFortress extends PatternBoss {
   }
   updateGuns(dt,players){
     const guns=this.liveGuns(),target=players.find(p=>p.alive);for(const gun of guns){gun.recoil=Math.max(0,gun.recoil-dt*3);if(target&&!this.gunBursts.some(b=>b.partId===gun.id&&b.warned))gun.angle=turnToward(gun.angle,Math.atan2(target.y+(target.vy||0)*.5-this.y-gun.y,target.x+(target.vx||0)*.5-this.x-gun.x),.72*dt);}
+    for(const p of this.parts.values())if(p.kind==='harbor-mg'&&!p.destroyed){p.recoil=Math.max(0,p.recoil-dt*3);if(target)p.angle=turnToward(p.angle,Math.atan2(target.y-this.y-p.y,target.x-this.x-p.x),1.5*dt);}
     const supplied=!this.parts.get('ammo-storage').destroyed;
     const linked=this.phase!=='coastal-battery'&&this.craneState!=='collapsed'&&supplied;
     if(!linked&&guns.length&&this.due('harbor-guns',dt,(this.t.coastalInterval||2.5)*(supplied?1:1.6)))this.queueGun(guns[this.gunSide++%guns.length]);
@@ -820,7 +821,7 @@ export class ArmoredHarborFortress extends PatternBoss {
         // A turret still traversing holds its burst until the barrel is
         // actually laid on the pilot; the warning then shows a real threat.
         if(!burst.warned&&target&&Math.abs(angleDelta(Math.atan2(target.y+(target.vy||0)*.5-q.y,target.x+(target.vx||0)*.5-q.x),a))>.42){burst.clock=.15;continue;}
-        if(!burst.warned){burst.warned=true;burst.clock=1.1;this.command('charge-warning',{...q,targetX:q.x+Math.cos(a)*600,targetY:q.y+Math.sin(a)*600,seconds:1.1,partId:gun.id,harborGun:true});continue;}gun.recoil=1;this.command('muzzle',{...q,partId:gun.id});for(let j=-3;j<=3;j++){const shot=a+j*.13+(burst.left-2)*.12;this.hazard('projectile',{...q,vx:Math.cos(shot)*this.t.bulletSpeed*.82,vy:Math.sin(shot)*this.t.bulletSpeed*.82,radius:burst.left===1?8:5,duration:2.6,raidHeavy:burst.left===1,damage:this.t.damage*(burst.left===1?2.4:.8),visual:'harbor-shell',tag:'harbor-'+gun.id});}burst.left--;burst.clock+=.42;}}
+        if(!burst.warned){burst.warned=true;burst.clock=1.1;this.command('charge-warning',{...q,targetX:q.x+Math.cos(a)*600,targetY:q.y+Math.sin(a)*600,seconds:1.1,partId:gun.id,harborGun:true});continue;}gun.recoil=1;this.command('muzzle',{...harborGunMuzzle(this,gun),partId:gun.id});for(let j=-3;j<=3;j++){const shot=a+j*.13+(burst.left-2)*.12,m=harborGunMuzzle(this,gun,(j+3)%2?1:-1);this.hazard('projectile',{...m,sourcePartId:gun.id,sourceOffsetX:m.x-this.x-gun.x,sourceOffsetY:m.y-this.y-gun.y,vx:Math.cos(shot)*this.t.bulletSpeed*.82,vy:Math.sin(shot)*this.t.bulletSpeed*.82,radius:burst.left===1?8:5,duration:2.6,raidHeavy:burst.left===1,damage:this.t.damage*(burst.left===1?2.4:.8),visual:'harbor-shell',tag:'harbor-'+gun.id});}burst.left--;burst.clock+=.42;}}
     this.gunBursts=this.gunBursts.filter(b=>b.left>0);
   }
   prepareSortie(players){const p=this.target(players);if(!p)return;this.launchRun={clock:1.05,index:0,target:{x:p.x+(p.vx||0)*.7,y:p.y+(p.vy||0)*.7}};this.parts.get('seaplane-facility').launchWarmup=1.05;}
@@ -838,7 +839,7 @@ export class ArmoredHarborFortress extends PatternBoss {
     // Distant impacts establish the battery before live rounds and mine drops.
     if(this.approachShots<2&&this.elapsed>=.4+this.approachShots*1.1){
       const gun=this.parts.get(this.approachShots++?'gun-front-right':'gun-front-left'),target=players.find(p=>p.alive);
-      if(!gun.destroyed&&target&&bounds){const q=harborMuzzle(this,gun),side=this.approachShots===1?-1:1;
+      if(!gun.destroyed&&target&&bounds){const q=harborGunMuzzle(this,gun),side=this.approachShots===1?-1:1;
         this.command('muzzle',{...q,partId:gun.id});this.hazard('circle',{x:Math.max(bounds.left+60,Math.min(bounds.right-60,target.x+side*100)),y:target.y-105,radius:34,damage:0,warning:.85,duration:.3,once:true,visual:'coastal-shell',tag:'harbor-approach'});}
     }
     if(this.phase==='coastal-battery'&&this.elapsed>=8){this.phase='seaplane-support';this.command('phase-change',{phase:this.phase});}
@@ -1840,6 +1841,7 @@ export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   if(bossId==='sinai-landship')for(const side of [-1,1])bodies.push(new RollsRoyceEscort({id:id+':escort:'+side,leader:body,side,tuning,emit,faction:body.faction,x,y}));
   return new BossEncounter({id,bossId,bodies});
 }
+
 
 
 

@@ -1,3 +1,5 @@
+import {drawCityBalloonHull,drawCitySuspension,drawDetailedDrachen,cityPartState} from './city-balloon-art.js?v=20261022';
+import {drawDrachenMine} from './aa-defense-art.js?v=gal1';
 // Registered in the original 768 x 512 illustration. Rendering and collision
 // share this transform: no viewport-space attack sprites or hidden beam walls.
 export const APRON={width:768,height:512,seam:216,bottom:448,centres:[143,384,645],edges:[0,305,464,768]};
@@ -60,7 +62,9 @@ export function drawAttachedApron(c,b,intact,damaged){
   const im=dead&&damaged?.naturalWidth?damaged:intact,x0=APRON.edges[panel],width=APRON.edges[panel+1]-x0;
   c.save();if(dead){c.globalAlpha*=Math.max(0,1-age/1.8);c.translate(p.x,p.y+170*age*age*s);c.rotate((panel===0?-1:1)*age*.19);c.scale(1-age*.12,1-age*.12);c.translate(-p.x,-p.y);}
   const hull=(dead||p?.hp<p?.maxHp*.55)&&damaged?.naturalWidth?damaged:intact;
-  c.drawImage(hull,panel*256/768*hull.naturalWidth,0,256/768*hull.naturalWidth,216/512*hull.naturalHeight,(panel*256-384)*s,-256*s,256*s,216*s);
+  const hx=[123,384,646][panel]-384,hy=[132,123,132][panel]-256,gy=[193,199,193][panel]-256,state=cityPartState(p,dead||b.destroying);
+  if(drawCityBalloonHull(c,'london',state,hx*s,hy*s,234*s)){c.save();c.scale(s,s);drawCitySuspension(c,p,state,hx,gy,40,{hullX:hx,hullY:hy+34,net:true,flash:p?.gunFlash||0});c.restore();}
+  else c.drawImage(hull,panel*256/768*hull.naturalWidth,0,256/768*hull.naturalWidth,216/512*hull.naturalHeight,(panel*256-384)*s,-256*s,256*s,216*s);
   for(let row=0;row<4;row++)for(let col=0;col<2;col++){
    const xa=x0+col*width/2,xb=x0+(col+1)*width/2,ya=216+row*74,yb=216+(row+1)*74;
    const src=[{x:xa,y:ya},{x:xb,y:ya},{x:xb,y:yb},{x:xa,y:yb}],dst=src.map(v=>apronPoint(v.x,v.y,pose,s));
@@ -71,6 +75,8 @@ export function drawAttachedApron(c,b,intact,damaged){
  c.restore();return true;
 }
 export function drawDrachenRig(c,b,atlases){
+ if(drawDetailedDrachen(c,b,drawDrachenMine))return;
+ if(typeof atlases==='function')atlases=atlases();
  if(!atlases.every(im=>im?.naturalWidth))return;
  const s=b.cityArtScale||1;
  // Each atlas is an authored whole aircraft + its own suspended mines.

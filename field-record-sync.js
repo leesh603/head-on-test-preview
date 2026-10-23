@@ -1,12 +1,12 @@
 // The field record uses the same final registries, artwork and descriptions as sortie selection.
-import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,pilotLoadout,UPGRADES,LEGENDARIES} from './engine.js?v=headon-quality-20261023-7d8a4756&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
-import {PILOT_AIRCRAFT,PILOT_RENDER_ART} from './pilot-aircraft.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
-import {getAircraftDisplayName,getAircraftMeta,aircraftCategoryLabel} from './aircraft-master.js?v=headon-quality-20261023-7d8a4756';
-import {hangarArtSource} from './hangar-art.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
-import {portraitSources} from './portraits.js?v=headon-quality-20261023-7d8a4756';
-import {pilotIdentityCopy} from './pilot-identity-copy.js?v=headon-quality-20261023-7d8a4756';
-import {WEAPON_MODS} from './weapon-modifications.js?v=headon-quality-20261023-7d8a4756';
-import {getLocale,pilotName,upgradeName,upgradeDescription,subscribe} from './i18n.js?v=headon-quality-20261023-7d8a4756&afc=1&art=pilot-recovery2';
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,pilotLoadout,UPGRADES,LEGENDARIES} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021';
+import {PILOT_AIRCRAFT,PILOT_RENDER_ART} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {getAircraftDisplayName,getAircraftMeta,aircraftCategoryLabel} from './aircraft-master.js?v=tame3';
+import {hangarArtSource} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
+import {portraitSources} from './portraits.js?v=gal1';
+import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
+import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS} from './tactical-doctrines.js?v=tactics20261023';
+import {getLocale,pilotName,upgradeName,upgradeDescription,subscribe} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 
 const NORMAL_IDS=['damage','rate','rockets','mines','explosives','command','turn','armor','regen','cooldown','wingman'];
 const UNIQUE_IDS=['bomber','fighterSupply','mercedesEngine','spread','combinedProjectiles'];
@@ -65,7 +65,12 @@ export function syncFieldRecord(data){
  });
  data.unique=UPGRADES.filter(u=>u.uniqueOnly&&!u.weaponMod&&!u.legendary).map(u=>rowFor(u,'unique'));
  data.legendary=LEGENDARIES.map(u=>rowFor(u,'legendary'));
- data.weaponMods=WEAPON_MODS.map(mod=>({id:mod.id,name:upgradeName(mod.id,mod.name),desc:upgradeDescription(mod.id,mod.description),icon:iconFor(mod.icon),target:en?'Weapon Modification':'무장 개조'}));
+ const tacticalText=(item,key)=>en?(item['en'+key[0].toUpperCase()+key.slice(1)]||item[key]):item[key];
+ const tacticalRow=(item,combined)=>({id:item.id,name:tacticalText(item,'name'),desc:tacticalText(item,'description'),icon:'./'+item.icon,target:combined?(en?'Combined Tactic':'복합 전술'):(en?'Tactical Doctrine':'전술교리'),family:item.family,families:item.families,advantage:tacticalText(item,'advantage'),weakness:tacticalText(item,'weakness'),condition:combined?(en?'Primary 5 + secondary 3; one per sortie.':'주력 5회 + 다른 계열 3회 · 출격당 하나'):(en?'Five reinforcement selections in this family.':'같은 계열 강화 5회 선택')});
+ data.tacticalDoctrines=TACTICAL_DOCTRINES.map(item=>tacticalRow(item,false));
+ // Retain the old consumer key while keeping doctrines outside rarity groups.
+ data.weaponMods=data.tacticalDoctrines;
+ data.compositeTactics=COMPOSITE_TACTICS.map(item=>tacticalRow(item,true));
  return data;
 }
 

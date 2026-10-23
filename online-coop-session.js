@@ -1,4 +1,4 @@
-import {OnlineCoopGame} from './online-coop-game.js?v=headon-quality-20261023-7d8a4756&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022';
+import {OnlineCoopGame} from './online-coop-game.js?v=buildfit1&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022';
 
 export function relayUrl(){
  const configured=globalThis.HEADON_COOP_RELAY||new URLSearchParams(location.search).get('coopRelay');

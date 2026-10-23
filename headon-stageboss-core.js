@@ -1,5 +1,12 @@
-import {updateBasicBarrage} from './boss-basic-barrage.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021';
-import {separateZubianHalves} from './adriatic-boss-layout.js?v=headon-quality-20261023-7d8a4756';
+import {updateBasicBarrage} from './boss-basic-barrage.js?v=tame3&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&harbor=20261021';
+import {separateZubianHalves} from './adriatic-boss-layout.js?v=tame3';
+// Where a pilot will be after t seconds if it keeps doing what it is doing:
+// straight flight, or the turn it is in (omega rad/s, set by the boss runtime).
+export function predictPilot(p,t){
+  const vx=Number.isFinite(p.vx)?p.vx:0,vy=Number.isFinite(p.vy)?p.vy:0,v=Math.hypot(vx,vy),w=Number.isFinite(p.omega)?p.omega:0;
+  if(v<1||Math.abs(w)<.08)return{x:p.x+vx*t,y:p.y+vy*t};
+  const a=Math.atan2(vy,vx),r=v/w;return{x:p.x+r*(Math.sin(a+w*t)-Math.sin(a)),y:p.y-r*(Math.cos(a+w*t)-Math.cos(a))};
+}
 export class BossPart {
   constructor({id,maxHp,x=0,y=0,radius=24,hittable=true,kind='weakpoint',angle=0}) {
     if(!id||!Number.isFinite(maxHp)||maxHp<=0)throw new Error('Invalid part');

@@ -1,9 +1,9 @@
-import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=headon-quality-20261023-7d8a4756';
-import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=headon-quality-20261023-7d8a4756';
-import {fx} from './fx-art.js?v=headon-quality-20261023-7d8a4756';
-import {impactMark,partMark,aimLine,laneEdge,MARK} from './tactical-marks.js?v=headon-quality-20261023-7d8a4756';
-import {drawShellFlight} from './boss-rounds.js?v=headon-quality-20261023-7d8a4756&ai=1018';
-import {drawAADefense} from './aa-defense-art.js?v=headon-quality-20261023-7d8a4756';
+import {REGIONAL_ART,STAAKEN_ENGINE_RECTS} from './regional-boss-art-data352.js?v=tame3';
+import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=tame3';
+import {fx} from './fx-art.js?v=tame3';
+import {impactMark,partMark,aimLine,laneEdge,MARK} from './tactical-marks.js?v=tame3';
+import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
+import {drawAADefense} from './aa-defense-art.js?v=tame3';
 
 // These are authored/derived RGBA sprites, not canvas-painted replacement art.
 // Only the current battlefield's small atlas set remains resident.
@@ -12,7 +12,7 @@ const SOURCES=Object.freeze({
  staaken:'./asset-bank/outlined/native/boss-staaken-body352.webp',staakenEngines:'./asset-bank/outlined/native/boss-staaken-engines352.webp',staakenWreck:'./asset-bank/outlined/native/boss-staaken-wreck352.webp',
  tank:'./boss-mark4.webp?v=r5',tankWreck:'./boss-mark4-wreck.webp?v=r5',
  morser:'./boss-morser.webp?v=r5',morserWreck:'./boss-morser-wreck.webp?v=r5',
- bugFolded:'./asset-bank/outlined/native/boss-cambrai-bug.webp?v=r5',bugFlight:'./asset-bank/outlined/native/boss-cambrai-bug.webp?v=r5',impact:'./fx-mortar-impact340.webp'
+ bugFolded:'./boss-cambrai-bug-20261021.webp',bugFlight:'./boss-cambrai-bug-20261021.webp',impact:'./fx-mortar-impact340.webp'
 });
 const SHEETS={train:'boss-fliegerzug-parts352',treffas:'boss-treffas-parts352',support:'boss-regional-support352',staakenEngines:'boss-staaken-engines352'};
 const REGION_KEYS={4:['support'],8:['support','bugFlight','impact'],10:[],11:['support','staaken','staakenEngines','staakenWreck','impact']};
@@ -23,7 +23,7 @@ function load(key){
  const image=new Image();image.decoding='async';
  const record={image,failed:false,promise:null};
  record.promise=new Promise(resolve=>{
-  image.addEventListener('load',()=>{(image.decode?image.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(true))},{once:true});
+  image.addEventListener('load',()=>{(image.decode?image.decode():Promise.resolve()).catch(()=>{}).finally(()=>{try{if(key==='bugFlight'&&image.naturalWidth&&globalThis.document?.createElement){const cv=document.createElement('canvas');cv.width=image.naturalWidth;cv.height=image.naturalHeight;const c=cv.getContext('2d');if(c){c.drawImage(image,0,0);c.globalCompositeOperation='source-in';c.fillStyle='#111913';c.fillRect(0,0,cv.width,cv.height);record.shadow=cv;}}}catch{}finally{resolve(true);}})},{once:true});
   image.addEventListener('error',()=>{record.failed=true;resolve(false);},{once:true});
  });cache.set(key,record);image.src=SOURCES[key];return record;
 }
@@ -211,7 +211,7 @@ export function drawRegionalCue(c,cue){
 export function drawRegionalBug(c,e,x=e.x,y=e.y){
  if(e.hp<=0)return;const im=image('bugFlight');if(!im.naturalWidth)return;
  const angle=(e.a??-Math.PI/2)+Math.PI/2;
- sprite(c,'bugFlight',x+7,y+10,72,72*im.naturalHeight/im.naturalWidth,angle,.18);
+ const shadow=cache.get('bugFlight')?.shadow;if(shadow){c.save();c.translate(x+7,y+10);c.rotate(angle);c.globalAlpha*=.22;c.drawImage(shadow,-36,-36*im.naturalHeight/im.naturalWidth,72,72*im.naturalHeight/im.naturalWidth);c.restore();}
  sprite(c,'bugFlight',x,y,72,72*im.naturalHeight/im.naturalWidth,angle,1);
  if(e.launchAge<e.launchSeconds)fx(c,'smokeTrail',x-Math.cos(e.a)*24,y-Math.sin(e.a)*24,38,16,e.a,.3);
  if(e.hp<e.maxHp){c.save();c.fillStyle='#252b24';c.fillRect(x-14,y-24,28,3);c.fillStyle='#c08e6d';c.fillRect(x-14,y-24,28*clamp(e.hp/e.maxHp),3);c.restore();}

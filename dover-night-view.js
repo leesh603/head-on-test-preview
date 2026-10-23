@@ -1,11 +1,11 @@
-import {DOVER_HARDWARE_SOURCES,DOVER_DECK_FRAMES,doverHardwarePart,doverHardwareSignals,drawDoverHardware} from './dover-hardware-art.js?v=headon-quality-20261023-7d8a4756';
-import {paintDoverTerrain,doverCoastPoint} from './dover-terrain-render.js?v=headon-quality-20261023-7d8a4756';
-import {DOVER_PART_CLIPS} from './dover-night-bosses.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {fx} from './fx-art.js?v=headon-quality-20261023-7d8a4756';
-import {drawBossOrdnance} from './boss-ordnance-art.js?v=headon-quality-20261023-7d8a4756&ai=1018';
-import {drawDressingSprite} from './background-dressing.js?v=headon-quality-20261023-7d8a4756';
-import {doverPatrolChart} from './dover-patrol-chart.js?v=headon-quality-20261023-7d8a4756';
-import {impactMark,aimLine,laneEdge,sectorMark,partMark,shieldMark} from './tactical-marks.js?v=headon-quality-20261023-7d8a4756';
+import {DOVER_HARDWARE_SOURCES,DOVER_DECK_FRAMES,doverHardwarePart,doverHardwareSignals,drawDoverHardware} from './dover-hardware-art.js?v=1022';
+import {paintDoverTerrain,doverCoastPoint} from './dover-terrain-render.js?v=dover6';
+import {DOVER_PART_CLIPS} from './dover-night-bosses.js?v=dover3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {fx} from './fx-art.js?v=tame3';
+import {drawBossOrdnance} from './boss-ordnance-art.js?v=tame3&ai=1018';
+import {drawDressingSprite} from './background-dressing.js?v=mobileperf1';
+import {doverPatrolChart} from './dover-patrol-chart.js?v=dover3';
+import {impactMark,aimLine,laneEdge,sectorMark,partMark,shieldMark} from './tactical-marks.js?v=tame3';
 
 export const DOVER_ASSETS=Object.freeze({terrain:'terrain-dover-chalk-material-v6.webp',nighthawk:'asset-bank/outlined/native/boss-dover-nighthawk.webp',nighthawkWreck:'asset-bank/outlined/native/boss-dover-nighthawk-wreck.webp',rviii:'asset-bank/outlined/native/boss-dover-rviii.webp',rviiiWreck:'asset-bank/outlined/native/boss-dover-rviii-wreck.webp',rotor:'propeller-dover.webp'});
 const images=new Map();let pending=null,generation=0;

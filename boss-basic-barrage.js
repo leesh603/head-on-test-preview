@@ -1,8 +1,8 @@
-import {armorGunMuzzle,armorAngleDelta} from './trench-armor-layout.js?v=headon-quality-20261023-7d8a4756&ai=1018';
-import {alpsMuzzle} from './alps-bomber-layout.js?v=headon-quality-20261023-7d8a4756';
-import {harborMuzzle} from './harbor-crane-layout.js?v=headon-quality-20261023-7d8a4756';
-import {sommeMuzzle,sommeMuzzles,sponsonAim,landshipGunAim} from './somme-boss-layout.js?v=headon-quality-20261023-7d8a4756&somme=20261021';
-import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=headon-quality-20261023-7d8a4756&cambrai=20261021';
+import {armorGunMuzzle,armorAngleDelta} from './trench-armor-layout.js?v=tame3&ai=1018';
+import {alpsMuzzle} from './alps-bomber-layout.js?v=tame3';
+import {harborGunMuzzle} from './harbor-crane-layout.js?v=tame3&harbor=20261021';
+import {sommeMuzzle,sommeMuzzles,sponsonAim,landshipGunAim} from './somme-boss-layout.js?v=tame3&somme=20261021';
+import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=tame3&cambrai=20261021';
 
 // Ordinary fire is separate from the raid controller. Only authored weapons
 // fire; destroying one removes its lane. No new HP or difficulty multipliers.
@@ -39,7 +39,7 @@ export const BASIC_BARRAGES=Object.freeze({
  // native searchlight/cannon or bomb phrase.
  'supermarine-nighthawk':profile(['gun-left','gun-right'],'nighthawk-mg',.62,5,2.05,[['fan',R2],['fan',{p:'stream',n:5},R],[{p:'fan',n:6},{p:'stream',n:6},R]],.34),
  'siemens-schuckert-r-viii':profile(['gun-nose','gun-dorsal','gun-tail'],'rviii-gun',.72,5,2.1,[[{p:'stream',n:5},R2],['cross',{p:'stream',n:5},R],['cross',{p:'ripple',rows:2,n:7},R]],.36),
- 'armored-harbor-fortress':profile(['gun-left','gun-right','gun-front-left','gun-front-right'],'harbor-shell',1.15,7,1.5,[['wall','cross',R2],['cross','wall','ripple',R],['sweep',{p:'wall',rows:2},ripple4,R]]),
+ 'armored-harbor-fortress':profile(['gun-left','gun-right','gun-front-left','gun-front-right','mg-left','mg-right'],'harbor-shell',1.15,7,1.5,[['wall','cross',R2],['cross','wall','ripple',R],['sweep',{p:'wall',rows:2},ripple4,R]]),
  fliegerzug:profile(['car-flak','car-rear'],'rail-mg',1.1,7,1.6,[['wall','stream',R2],['cross','wall',R],[{p:'wall',rows:2},stream2,R]]),
  'treffas-wagen':profile(['mg-left','mg-right'],'treffas-mg',.95,7,1.55,[['sweep','fan',R2],[sweep2,'bracket',R],[sweep2p,'bracket',R]]),
  // Ace formations: bracketing bursts from the leader's guns.
@@ -92,7 +92,7 @@ function mount(b,p,target,serial){
  else if(k==='gik'||k==='ca4'){
   const base=b.hullYaw+(p.id==='rearGun'?Math.PI/2:-Math.PI/2);
   q={...alpsMuzzle(b,p.id,aim),angle:base+Math.max(-1.2,Math.min(1.2,armorAngleDelta(aim,base))),arc:1.2,base};
- }else if(k==='armored-harbor-fortress'){q={...harborMuzzle(b,p),angle:p.angle};}
+ }else if(k==='armored-harbor-fortress'){q={...harborGunMuzzle(b,p,serial%2?1:-1),angle:p.angle};}
  else if(k==='mark4-wedge'||k==='morser-battery'){
   if(k==='mark4-wedge'&&p.art==='hull-mg'){
    const a=landshipGunAim(b,p,target.x,target.y);if(!a.reachable)return null;
@@ -145,6 +145,9 @@ export function updateBasicBarrage(b,dt,ctx){
  b.basicClock=(b.basicClock??(1+(b.slot||b.index||0)*.27))-dt;if(b.basicClock>0)return true;
  const players=ctx.players||[],serial=b.basicSerial||0;let live=0;for(const p of players)if(p.alive)live++;
  if(!live)return true;let cursor=serial%live,target;for(const p of players)if(p.alive&&cursor--===0){target=p;break;}
+ // Covering fire is pressure, not the aimed threat: it leads at 40 % of the pilot's
+ // real velocity (the velocity used to be reported as 0), aimed volleys lead fully.
+ if(target)target={...target,vx:(target.vx||0)*.4,vy:(target.vy||0)*.4,omega:0};
  const mounts=rankMounts(b,config,target,serial);
  if(!mounts.length){b.basicClock=.25;return true;}
  // A fleet/network shares one ordinary-fire beat rather than multiplying its
@@ -185,7 +188,7 @@ function fireStep(b,config,step,mounts,target,serial){
  const shot=(m,a,delay,extra)=>{const q=m.q,p=m.p;emit(b,{type:'hazard',kind:'projectile',x:q.x,y:q.y,vx:Math.cos(a)*speed*(extra?.speed||1),vy:Math.sin(a)*speed*(extra?.speed||1),
   partId:p?.id,sourceX:q.x,sourceY:q.y,sourcePartId:p?.id,sourceOffsetX:p?q.x-b.x-p.x:0,sourceOffsetY:p?q.y-b.y-p.y:0,
   basicSerial:serial,basicMuzzle:!!extra?.muzzle,sourceAngle:['fliegerzug','treffas-wagen'].includes(b.kind)?q.angle:null,radius:4,damage,delay,warning:0,
-  duration:Math.min(3.4,Math.max(2,Math.max(Math.hypot(target.x-q.x,target.y-q.y),Math.hypot(target.x+(target.vx||0)*2-q.x,target.y+(target.vy||0)*2-q.y))/(speed*(extra?.speed||1))+.6)),visual:config.visual,tag});};
+  duration:Math.min(3.4,Math.max(2,Math.max(Math.hypot(target.x-q.x,target.y-q.y),Math.hypot(target.x+(target.vx||0)*2-q.x,target.y+(target.vy||0)*2-q.y))/(speed*(extra?.speed||1))+.6)),visual:p?.kind==='harbor-mg'?'treffas-mg':config.visual,tag});};
  const cue=(m,a,seconds=warning)=>emit(b,{type:'charge-warning',x:m.q.x,y:m.q.y,targetX:m.q.x+Math.cos(a)*420,targetY:m.q.y+Math.sin(a)*420,seconds,partId:m.p?.id,basicFire:true});
  const aimOf=m=>clampArc(m.q,Math.atan2(target.y-m.q.y,target.x-m.q.x));
  // Aircraft never stop, so a round aimed at the pilot's current position only

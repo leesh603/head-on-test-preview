@@ -252,8 +252,8 @@ $('patternStep').onclick=()=>{
 // Test Lab only: inspect registered terrain and normal fleet spawning at its edges.
 $('doverView').onclick=async()=>{
  const g=api?.debug?.();if(!g||g.worldRegion()!==17)return;
- const {doverPatrolChart,doverWaterInterval,doverFlightBounds}=await import('./dover-patrol-chart.js?v=headon-quality-20261023-7d8a4756');
- const {doverCoastPoint}=await import('./dover-terrain-render.js?v=headon-quality-20261023-7d8a4756');
+ const {doverPatrolChart,doverWaterInterval,doverFlightBounds}=await import('./dover-patrol-chart.js?v=dover3');
+ const {doverCoastPoint}=await import('./dover-terrain-render.js?v=dover6');
  const c=doverPatrolChart(g),b=doverFlightBounds(g),where=$('doverLocation').value;
  let v=where==='east'?.61:.3,y=c.top+c.height*v,q=doverWaterInterval(g,y),x=where==='west'?doverCoastPoint(c,v,-1).x+170:where==='east'?doverCoastPoint(c,v,1).x-170:(q.left+q.right)/2;
  if(where==='north'){x=(b.left+b.right)/2;y=b.top+80;}

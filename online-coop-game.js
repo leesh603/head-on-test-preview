@@ -1,8 +1,8 @@
 import {advanceUdetReplica,udetFlightModifiers} from './udet-acrobatics.js';
-import {CoopGame} from './coop-engine.js?v=headon-quality-20261023-7d8a4756&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022';
-import {BossEncounter} from './headon-stageboss-core.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {stageBossSpeed} from './stageboss-host.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022';
-import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFields,pose,mixAngle} from './online-coop-protocol.js?v=headon-quality-20261023-7d8a4756';
+import {CoopGame} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&harbor=20261021';
+import {BossEncounter} from './headon-stageboss-core.js?v=gal1&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {stageBossSpeed} from './stageboss-host.js?v=merge20261017&ai=1018&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cambrai=20261021&cityart=20261022&harbor=20261021&somme=20261021';
+import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFields,pose,mixAngle} from './online-coop-protocol.js?v=bomber21';
 
 const LANES=['enemies','drops','allies','patrols','mines','friendlyBombers','friendlyBombs','bombZones','flakBursts','hostileMinefields','gasZones','fireZones','grunkreuzPuffs','gusts','grenades','smokeZones','combatFX','revisionDecoys','enemyAirshipPasses'];
 const WORLD=['t','distance','kills','priorityKills','score','state','manualPaused','region','wave','stageStartDistance','stageStartTime','battleDirectorPattern','battleDirector','battlefieldEvents','navalRoute','jutlandRoute','gallipoliRoute','bossBuildings','bossCues','londonBattle','parisBattle','verdunBattle','maanWeather','cityDefense','activeUpgrade','pendingLevelUps','upgradeSequence'];
@@ -81,11 +81,12 @@ export class OnlineCoopGame extends CoopGame {
   this._netUpgradePending={requestId,itemId,at:performance.now()};return true;
  }
  rerollUpgrade(itemId){
-  const item=this.activeUpgrade;if(this.state!=='upgrade'||item?.id!==itemId||item.playerId!==this.localPlayerId)return false;
+   const item=this.activeUpgrade;if(this.state!=='upgrade'||item?.id!==itemId||item.playerId!==this.localPlayerId||item.kind==='doctrine'||item.kind==='composite')return false;
   if(!this.host)return this.requestUpgrade('reroll',itemId);
   return this.applyReroll(item);
  }
  applyReroll(item){
+   if(!item||item.kind==='doctrine'||item.kind==='composite')return false;
   const p=this.player(item.playerId),next=p.rerollChoices(item.choices);
   if(!next)return false;item.choices=next;item.revision=(item.revision||0)+1;this.events.push({type:'upgrade',item});return true;
  }
@@ -219,4 +220,5 @@ export class OnlineCoopGame extends CoopGame {
   this.updateCamera(step);
  }
 }
+
 

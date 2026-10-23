@@ -1,9 +1,10 @@
-import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=headon-quality-20261023-7d8a4756&cambrai=20261021';
-import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021';
-import {recordShipWake} from './naval-water.js?v=headon-quality-20261023-7d8a4756';
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=headon-quality-20261023-7d8a4756&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021';
-import {verdunFortCollapseSites} from './verdun-fortresses.js?v=headon-quality-20261023-7d8a4756&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {BossHazards} from './headon-stageboss-hazards.js?v=headon-quality-20261023-7d8a4756&cambrai=20261021';
+import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=20261021&cambrai=20261021';
+import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=gal1&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&harbor=20261021';
+import {recordShipWake} from './naval-water.js?v=gal1';
+import {predictPilot} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021';
+import {verdunFortCollapseSites} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {BossHazards} from './headon-stageboss-hazards.js?v=gal1&cambrai=20261021&cityart=20261022';
 
 
 // Every sortie starts in the rural battlefield, then keeps difficulty
@@ -56,8 +57,10 @@ export class StageBossAddon {
     if(!runId||!Number.isInteger(minionCap)||minionCap<0)throw new Error('Run ID and bounded minion budget required');
     Object.assign(this,{runId,hooks,rng,minionCap,showFloors});this.serial=0;this.time=0;this.frameContext=null;this.defeatSequence=null;this.bodyDefeats=[];
     this.stages=new BossStages({teamFaction,stageIndex,loopIndex,rng});
-    this.hazards=new BossHazards({capacity,onDamage:hooks.onDamage,onStatus:hooks.onStatus,onBarrierContact:hooks.onBarrierContact,
-      onActivate:h=>{const cb=this.stages.encounter?.bodies.get(h.bossId),cp=cb?.parts.get(h.sourcePartId);cb?.noteAttackActivated?.(h);if(h.kind==='projectile'&&cp&&((cb.kind==='fliegerzug'&&['car-flak','car-rear'].includes(cp.id))||(cb.kind==='treffas-wagen'&&cp.id.startsWith('mg-')))){const flash=cp.gunFlash||0;cp.gunFlash=.16;cp.recoil=.18;if(Number.isFinite(h.sourceAngle)){cp.shotAngle=h.sourceAngle;cp.aimAngle=h.sourceAngle;}if(!h.basicMuzzle&&!flash)hooks.onCue({type:'muzzle',encounterId:h.encounterId,bossId:h.bossId,partId:cp.id,x:h.x,y:h.y});}if(h.basicMuzzle){const body=this.stages.encounter?.bodies.get(h.bossId),part=body?.parts.get(h.sourcePartId);if(part)part.recoil=Math.max(part.recoil||0,.18);hooks.onCue({type:'muzzle',encounterId:h.encounterId,bossId:h.bossId,partId:h.sourcePartId,x:h.x,y:h.y});}hooks.onCue({type:'hazard-activated',encounterId:h.encounterId,bossId:h.bossId,kind:h.kind,visual:h.visual,x:h.x,y:h.y,radius:h.radius,raidHeavy:h.raidHeavy,sourcePartId:h.sourcePartId});}});
+    // A salvo re-aimed at the pilot's flight path may land at most two rounds on one pilot.
+    const onDamage=(pid,damage,h)=>{if(h?.leadAimed){const k=pid+'|'+h.bossId+'|'+h.signatureStarted,m=this.salvoHits??=new Map();const n=m.get(k)||0;if(n>=2)return;m.set(k,n+1);if(m.size>256)m.delete(m.keys().next().value);}return hooks.onDamage(pid,damage,h);};
+    this.hazards=new BossHazards({capacity,onDamage,onStatus:hooks.onStatus,onBarrierContact:hooks.onBarrierContact,
+      onActivate:h=>{const cb=this.stages.encounter?.bodies.get(h.bossId),cp=cb?.parts.get(h.sourcePartId);cb?.noteAttackActivated?.(h);if(h.kind==='projectile'&&cp&&((cb.kind==='fliegerzug'&&['car-flak','car-rear'].includes(cp.id))||(cb.kind==='treffas-wagen'&&cp.id.startsWith('mg-')))){const flash=cp.gunFlash||0;cp.gunFlash=.16;cp.recoil=.18;if(Number.isFinite(h.sourceAngle)){cp.shotAngle=h.sourceAngle;cp.aimAngle=h.sourceAngle;}if(!h.basicMuzzle&&!flash)hooks.onCue({type:'muzzle',encounterId:h.encounterId,bossId:h.bossId,partId:cp.id,x:h.x,y:h.y});}if(h.basicMuzzle){const body=this.stages.encounter?.bodies.get(h.bossId),part=body?.parts.get(h.sourcePartId);if(part)part.recoil=Math.max(part.recoil||0,.18);if(body?.kind==='armored-harbor-fortress'){const m=basicBarrageMuzzle(body,h);if(m){h.x=m.x;h.y=m.y;}}hooks.onCue({type:'muzzle',encounterId:h.encounterId,bossId:h.bossId,partId:h.sourcePartId,x:h.x,y:h.y});}hooks.onCue({type:'hazard-activated',encounterId:h.encounterId,bossId:h.bossId,kind:h.kind,visual:h.visual,x:h.x,y:h.y,radius:h.radius,raidHeavy:h.raidHeavy,sourcePartId:h.sourcePartId});}});
     this.canBasicFire=()=>this.hazards.pool.count<42;
     this.metrics={minionsDenied:0};this.ended=false;
   }
@@ -77,11 +80,70 @@ export class StageBossAddon {
     const encounter=createBossEncounter({id,bossId,tuning,x,y,rng:this.rng,faction,emit:event=>this.accept(event,id,tuning)});
     for(const b of encounter.bodies.values())if(b.support129||b.formationBoss129||b.kind==='fliegerzug'||b.kind==='armored-harbor-fortress'||b.gallipoliBoss||b.jutlandBoss){b.countMinions129=()=>this.hooks.countMinions(id);b.formationStatus129=()=>this.hooks.formationStatus?.(id)||[];}this.defeatSequence=null;this.bodyDefeats=[];this.stages.attach(encounter);this.hooks.onCue({type:['jasta11-circus','naval10-black-flight'].includes(bossId)?'formation-approach':['livens-flame-projector','minenwerfer-battery'].includes(bossId)?'trench-approach':bossId==='mark4-wedge'?'somme-approach':'boss-enter',encounterId:id,bossId});return encounter;
   }
+  // Boss rounds were laid at the spot a pilot occupied when the warning began.
+  // Pilots never stop flying, so every warned round missed a pilot who simply
+  // flew on. A warned round aimed at (or near) a pilot's recent track is moved to
+  // where that pilot will be when it lands, keeping its offset in the pattern, so
+  // flying straight is hit and turning out of the marker is the dodge.
+  leadAim(event){
+    if(event.kind==='projectile')return this.leadShot(event);
+    if(!this.showFloors||event.kind!=='circle'||!(event.damage>0)||event.objective||event.basicFire||event.lockAtWarning||event.airborneBomb||String(event.tag||'').includes('basic'))return event;
+    const lead=(event.delay||0)+(event.warning||0);if(lead<.3)return event;
+    // Lingering zones (gas, fire, smoke) keep their place: they deny ground, they do not chase.
+    if(!event.once&&(event.duration||0)>1.2)return event;
+    // One aimed volley per boss every 2.5 s (all hazards of that volley together);
+    // the rest of its fire stays as pressure. A dodge every few seconds, not a wall.
+    const clock=this.stages.encounter?.clock||0,gate=this.leadGate??=new Map(),g0=gate.get(event.bossId);
+    if(g0&&g0.at!==clock&&clock-g0.at<2.5)return event;
+    const body=this.stages.encounter?.bodies.get(event.bossId);if(!body||body.ruralRailBoss||body.ownsLeadAim)return event;
+    const trail=this.trail,players=this.frameContext?.players||[];if(!trail)return event;
+    let best=null;
+    for(const p of players){if(p.alive===false)continue;const list=trail.get(p.id);if(!list)continue;
+      for(const s of list){const d=Math.hypot(event.x-s.x,event.y-s.y);if(!best||d<best.d)best={d,s,p};}}
+    const reach=Math.max(70,(event.radius||40)*1.6);if(!best||best.d>reach)return event;
+    // Patterns that already lead the pilot (closer to where it will be than to where it was) are left alone.
+    if(Math.hypot(event.x-predictPilot(best.p,lead*.92).x,event.y-predictPilot(best.p,lead*.92).y)<best.d)return event;
+    const {p,s}=best,vx=Number.isFinite(p.vx)?p.vx:0,vy=Number.isFinite(p.vy)?p.vy:0,b=this.frameContext.bounds,r=event.radius||40,m=r*.5;
+    // Keeping the current course (straight or the current turn) is hit; changing it is the dodge.
+    // A pilot who turns hard stays within ~40 px of where the turn began, so the
+    // marker must sit at least radius+45 px down the flight path: longer warnings
+    // where needed, never shorter. Flying on is hit; turning out is the dodge.
+    const speed=Math.hypot(vx,vy),need=speed>40?(r+45)/(speed*.92):0,extra=Math.max(0,need-lead);const t=lead+extra;
+    const q=predictPilot(p,t*.92);let x=q.x+(event.x-s.x),y=q.y+(event.y-s.y);
+    if(b){x=Math.max(b.left+m,Math.min(b.right-m,x));y=Math.max(b.top+m,Math.min(b.bottom-m,y));}
+    gate.set(event.bossId,{at:clock});
+    return{...event,x,y,warning:(event.warning||0)+extra,leadAimed:true};
+  }
+  // Aimed signature rounds (not ordinary covering fire) are fired at the point
+  // where the pilot will meet them, in the same 2.5 s rhythm as aimed volleys; a
+  // burst keeps leading for 0.8 s once it starts.
+  leadShot(event){
+    if(!this.showFloors||!(event.damage>0)||event.basicFire||event.basicMuzzle||String(event.tag||'').includes('basic'))return event;
+    const speed=Math.hypot(event.vx||0,event.vy||0);if(speed<60)return event;
+    const players=(this.frameContext?.players||[]).filter(p=>p.alive!==false);if(!players.length)return event;
+    const a=Math.atan2(event.vy,event.vx);let best=null;
+    for(const p of players){const d=Math.atan2(p.y-event.y,p.x-event.x),diff=Math.abs(Math.atan2(Math.sin(d-a),Math.cos(d-a)));if(diff<.35&&(!best||diff<best.diff))best={p,diff};}
+    if(!best)return event;
+    const clock=this.stages.encounter?.clock||0,gate=this.shotGate??=new Map(),g0=gate.get(event.bossId);
+    if(g0&&clock-g0.at>.8&&clock-g0.at<2.5)return event;if(!g0||clock-g0.at>=2.5)gate.set(event.bossId,{at:clock});
+    const delay=(event.delay||0)+(event.warning||0),off=a-Math.atan2(best.p.y-event.y,best.p.x-event.x);
+    let t=Math.hypot(best.p.x-event.x,best.p.y-event.y)/speed,q=best.p;
+    for(let i=0;i<3;i++){q=predictPilot(best.p,delay+t);t=Math.hypot(q.x-event.x,q.y-event.y)/speed;}
+    const na=Math.atan2(q.y-event.y,q.x-event.x)+off;
+    return{...event,vx:Math.cos(na)*speed,vy:Math.sin(na)*speed,leadAimed:true};
+  }
+  recordTrail(frame){
+    const now=this.time,trail=this.trail??=new Map();
+    for(const p of frame.players||[]){if(!Number.isFinite(p.x))continue;const list=trail.get(p.id)||[];
+      // Turn rate from the heading 0.25 s ago, written onto the frame pilot for predictPilot.
+      const a=Math.atan2(p.vy||0,p.vx||0),old=list.find(q=>now-q.t<=.3);if(old&&now-old.t>.05){const d=Math.atan2(Math.sin(a-old.a),Math.cos(a-old.a));p.omega=d/(now-old.t);}else p.omega=0;
+      list.push({t:now,x:p.x,y:p.y,a});while(list.length&&now-list[0].t>3.2)list.shift();trail.set(p.id,list);}
+  }
   accept(event,encounterId,tuning) {
     if(this.ended)return;
     if(event.type==='support-damage'){this.hooks.onDamage(event.playerId,event.damage,event.source);return;}if(event.type==='support-cleanup'){this.hooks.clearEncounterOwned(encounterId);return;}
     if(event.type==='hazard'){
-      const enc=this.stages.encounter,start=enc?.clock||0,h=this.hazards.spawn({...event,encounterId,signatureStarted:start});
+      const enc=this.stages.encounter,start=enc?.clock||0;event=this.leadAim(event);const h=this.hazards.spawn({...event,encounterId,signatureStarted:start});if(h)h.leadAimed=!!event.leadAimed;
       if(this.showFloors&&h&&event.signatureAttack&&event.damage>0&&enc)(enc.pendingShown??=[]).push({h,generation:h.generation,start});
     }
     // Native attack holds also use this tag. Only explicit death/cleanup may
@@ -180,7 +242,8 @@ export class StageBossAddon {
     if(this.ended||frame.paused)return false;
     if(!Number.isFinite(dt)||dt<0)throw new Error('Invalid boss step');
     dt=Math.min(.05,dt);if(!dt)return false;
-    this.time+=dt;this.frameContext=frame;for(const b of this.stages.encounter?.bodies.values()||[])if(b.jutlandBoss&&b.dead)b.deathAge=(b.deathAge||0)+dt;for(const d of this.bodyDefeats)d.age+=dt;this.bodyDefeats=this.bodyDefeats.filter(d=>d.age<d.duration);
+    // Bosses see copies of the pilots carrying their turn rate; the host's frame objects stay untouched.
+    frame={...frame,dt,players:(frame.players||[]).map(p=>({...p}))};this.time+=dt;this.frameContext=frame;this.recordTrail(frame);for(const b of this.stages.encounter?.bodies.values()||[])if(b.jutlandBoss&&b.dead)b.deathAge=(b.deathAge||0)+dt;for(const d of this.bodyDefeats)d.age+=dt;this.bodyDefeats=this.bodyDefeats.filter(d=>d.age<d.duration);
     const encounter=this.stages.encounter;
     // Resolve destruction before any lingering delayed attack can fire.
     this.reconcile({blocked:true});
@@ -258,6 +321,7 @@ export class StageBossAddon {
     this.defeatSequence=null;this.bodyDefeats=[];
   }
 }
+
 
 
 

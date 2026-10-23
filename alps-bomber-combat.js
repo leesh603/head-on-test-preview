@@ -1,7 +1,7 @@
-import {impactPulse} from './boss-raid-strikes.js?v=headon-quality-20261023-7d8a4756&rail=42';
+import {impactPulse} from './boss-raid-strikes.js?v=gal1&rail=42';
 import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {ALPS_BOMBER_LAYOUT,alpsAngleDelta,alpsPoint,alpsMuzzle,locateAlpsHit} from './alps-bomber-layout.js?v=headon-quality-20261023-7d8a4756';
+import {BaseBoss,BossPart,predictPilot} from './headon-stageboss-core.js?v=gal1&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {ALPS_BOMBER_LAYOUT,alpsAngleDelta,alpsPoint,alpsMuzzle,locateAlpsHit} from './alps-bomber-layout.js?v=gal1';
 
 class AlpsBomber extends BaseBoss {
  constructor({tuning,rng=Math.random,faction,kind,...base}){
@@ -102,8 +102,9 @@ export class GIK extends AlpsBomber {
   const source=alpsPoint(this,0,25*(this.t.geometryScale||1)),speed=Math.hypot(p.vx||0,p.vy||0),moving=speed>10;
   const dx=moving?p.vx/speed:Math.cos(this.a),dy=moving?p.vy/speed:Math.sin(this.a),rows=this.phase===3?8:7;
   for(let i=0;i<rows;i++){
-   const warning=1.7+i*.32,travel=moving?Math.min(speed,340)*warning:i*64,shoulder=moving?(i%2?1:-1)*22:0;
-   this.hazard('circle',{x:p.x+dx*travel-dy*shoulder,y:p.y+dy*travel+dx*shoulder,radius:36,warning,duration:.3,once:true,damage:this.t.damage*.8,visual:'carpet-bomb',airborneBomb:true,sourceX:source.x,sourceY:source.y,tag:this.id+':payload'});
+   // Each bomb falls where the pilot will be if it holds its course (straight or turning).
+   const warning=1.7+i*.32,travel=moving?Math.min(speed,340)*warning:i*64,shoulder=moving?(i%2?1:-1)*22:0,q=moving?predictPilot(p,warning):{x:p.x+dx*travel,y:p.y+dy*travel};
+   this.hazard('circle',{x:q.x-dy*shoulder,y:q.y+dx*shoulder,radius:36,warning,duration:.3,once:true,damage:this.t.damage*.8,visual:'carpet-bomb',airborneBomb:true,sourceX:source.x,sourceY:source.y,tag:this.id+':payload'});
   }
  }
  update(dt,{players,bounds}){

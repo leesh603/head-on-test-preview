@@ -1,3 +1,4 @@
+import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
 // Shared, bounded manoeuvres for ordinary allied aircraft. Pilot-authored
 // formations continue through their existing support poses.
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
@@ -7,7 +8,7 @@ const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 export const WEAPON_WING_BALANCE=Object.freeze({strikeCycle:6,strikeAttack:2.4,coverCycle:3.6,coverAttack:2.4,launchWindow:.65,guardRange:250,guardLeash:300,scanInterval:.2});
 const commandPilots=new Set(['goering','boelcke','collishaw','brumowski']);
 export function weaponModWingActive(owner,wing){
- return !!wing.permanent&&!Number.isFinite(wing.carrierLaunchAt)&&['strike','cover'].includes(owner.weaponMods?.FORMATION)&&!owner.upgrades?.lufberyCircle&&!wing.boelckePincer&&!wing.orbit&&!(owner.skillTime>0&&commandPilots.has(owner.pilot));
+ return !!wing.permanent&&!Number.isFinite(wing.carrierLaunchAt)&&['strike','cover','reinforcement','elite','escort'].includes(owner.tacticalWingMode?.()||owner.weaponMods?.FORMATION)&&!owner.upgrades?.lufberyCircle&&!wing.boelckePincer&&!wing.orbit&&!(owner.skillTime>0&&commandPilots.has(owner.pilot));
 }
 const eligibleModTarget=(owner,target,range)=>!!target&&target.hp>0&&!target.dead&&!target.crashing&&!target.rivalEscaped&&distance(target,owner)<=range;
 const validModTarget=(world,owner,target,range)=>eligibleModTarget(owner,target,range)&&(world.enemies||[]).includes(target);
@@ -15,7 +16,7 @@ const priorityTarget=e=>e.bossPilot||e.type==='boss'?3:e.ace||e.formationCommand
 function modWingPlan(world,owner,mode,now){
  let plan=owner._netWeaponWingPlan;
  if(!plan||plan.mode!==mode){plan=owner._netWeaponWingPlan={mode,epoch:now,window:-1,scanAt:0,guardScanAt:0};}
- const period=mode==='strike'?WEAPON_WING_BALANCE.strikeCycle:WEAPON_WING_BALANCE.coverCycle;
+ const period=mode==='elite'?5.6:mode==='strike'?WEAPON_WING_BALANCE.strikeCycle:WEAPON_WING_BALANCE.coverCycle;
  const window=Math.floor(Math.max(0,now-plan.epoch)/period),start=plan.epoch+window*period;
  if(window!==plan.window){plan.window=window;plan.start=start;plan.target=null;plan.scanAt=0;}
  if(plan.checkedAt===now)return plan;plan.checkedAt=now;
@@ -35,18 +36,22 @@ function modWingPlan(world,owner,mode,now){
 }
 // Adjust dispatch and target assignment, retaining the existing movement states.
 function prepareModWing(world,owner,wing,home,now){
- const mode=owner.weaponMods?.FORMATION;
+ const mode=owner.tacticalWingMode?.()||owner.weaponMods?.FORMATION;
  if(!weaponModWingActive(owner,wing)){
   if(wing.weaponModFormation){wing.engagementTarget=null;wing._netCarrierEngagement=null;wing._netCarrierTarget=null;wing.engagementState='HOME';}
-  wing.weaponModFormation=null;wing.weaponModGuard=false;wing._netWeaponWingGuardTarget=null;return null;
+  wing.weaponModFormation=null;wing.weaponModGuard=false;wing.tacticalWing=false;wing.tacticalCrossfire=false;wing.tacticalBreakthrough=false;wing._netWeaponWingGuardTarget=null;return null;
  }
- const plan=modWingPlan(world,owner,mode,now),elapsed=now-plan.start;
- const guard=mode==='cover'&&(wing.slot||0)%2!==plan.window%2;
- const attacking=!guard&&elapsed<(mode==='strike'?WEAPON_WING_BALANCE.strikeAttack:WEAPON_WING_BALANCE.coverAttack);
+ const plan=modWingPlan(world,owner,mode,now),elapsed=now-plan.start,order=owner.tacticalWingOrder?.(wing);
+ const guard=!!order?.guard||mode==='cover'&&(wing.slot||0)%2!==plan.window%2;
+ const attacking=!guard&&(!!order||elapsed<(mode==='elite'?2.1:mode==='strike'?WEAPON_WING_BALANCE.strikeAttack:WEAPON_WING_BALANCE.coverAttack));
+ let assignedTarget=order?.target||plan.target;
+ // Reinforcements divide approach lanes; elite wings share the priority target.
+ if(mode==='reinforcement'&&!order){let best=Infinity;for(const e of world.enemies||[]){if(!eligibleModTarget(owner,e,520)||e.surface||e.stationary)continue;let assigned=0;for(const other of world.allies||[])if(other!==wing&&other.ownerId===wing.ownerId&&other.engagementTarget===e)assigned++;const score=distance(e,wing)+assigned*260;if(score<best){best=score;assignedTarget=e;}}}
+ wing.tacticalCrossfire=!!order?.cross;wing.tacticalBreakthrough=!!order?.breakthrough;wing.tacticalWing=['reinforcement','elite','escort'].includes(mode);
  wing.weaponModFormation=mode;wing.weaponModGuard=guard;wing._netWeaponWingGuardTarget=null;
  let state=wing.engagementState||'HOME';
  if(guard){
-  const target=distance(wing,owner)<=WEAPON_WING_BALANCE.guardLeash?plan.guardTarget:null;
+  const target=distance(wing,owner)<=WEAPON_WING_BALANCE.guardLeash?(order?.target||plan.guardTarget):null;
   if(target){
    if(state==='HOME'||state==='RETURN'&&distance(wing,home)<110){state='INTERCEPT';wing.engagementUntil=now+1.2;wing.fire=0;}
    if(state==='INTERCEPT'||state==='PASS'){wing.engagementTarget=target;wing._netCarrierEngagement=target;wing._netWeaponWingGuardTarget=target;}
@@ -54,16 +59,15 @@ function prepareModWing(world,owner,wing,home,now){
  }else if(!attacking){
   if(state==='INTERCEPT'||state==='PASS'){state='BREAK';wing.engagementUntil=now+.65;wing.engagementHeading=wing.a+((wing.slot||0)%2?-.7:.7);}
   wing.engagementTarget=null;wing._netCarrierEngagement=null;
- }else if(elapsed<=WEAPON_WING_BALANCE.launchWindow&&wing._netWeaponWingLaunch!==plan.start&&(state==='HOME'||state==='RETURN'&&distance(wing,home)<110)&&plan.target){
-  state='INTERCEPT';wing.engagementTarget=plan.target;wing._netCarrierEngagement=plan.target;wing.engagementUntil=plan.start+(mode==='strike'?WEAPON_WING_BALANCE.strikeAttack:WEAPON_WING_BALANCE.coverAttack);wing._netWeaponWingLaunch=plan.start;wing.fire=0;
+ }else if((order||elapsed<=WEAPON_WING_BALANCE.launchWindow)&&wing._netWeaponWingLaunch!==plan.start&&(state==='HOME'||state==='RETURN'&&distance(wing,home)<110)&&assignedTarget){
+  state='INTERCEPT';wing.engagementTarget=assignedTarget;wing._netCarrierEngagement=assignedTarget;wing.engagementUntil=order?now+1.6:plan.start+(mode==='elite'?2.1:mode==='strike'?WEAPON_WING_BALANCE.strikeAttack:WEAPON_WING_BALANCE.coverAttack);wing._netWeaponWingLaunch=plan.start;wing.fire=mode==='elite'?(wing.slot||0)*.08:0;
  }
  wing.engagementState=state;
  return true;
 }
 
 function modWingHome(wing,owner,home,dt){
- const response=2.6*Math.max(.75,Math.min(1.25,wing.personality?.acceleration??1));
- wing.x+=(home.x-wing.x)*Math.min(1,dt*response);wing.y+=(home.y-wing.y)*Math.min(1,dt*response);wing.a=owner.a;
+ advanceWingFlight(wing,owner,home,dt);
  return true;
 }
 
@@ -128,10 +132,12 @@ export function wingmanEngagementStep(world,owner,wing,home,dt){
  if(wing.engagementState==='BREAK'&&now>=wing.engagementUntil)wing.engagementState='RETURN';
  if(wing.engagementState==='RETURN'&&distance(wing,home)<80){wing.engagementState='HOME';wing.engagementTarget=null;return mod?modWingHome(wing,owner,home,dt):false}
  if(distance(wing,owner)>500){wing.engagementState='RETURN';wing.engagementTarget=null}
- const goal=wing.engagementState==='INTERCEPT'&&target?Math.atan2(target.y-wing.y,target.x-wing.x):wing.engagementState==='RETURN'?Math.atan2(home.y-wing.y,home.x-wing.x):wing.engagementHeading??wing.a;
+ let tx=target?.x,ty=target?.y;
+ if(target&&wing.tacticalCrossfire&&distance(wing,target)>170){const side=(wing.slot||0)%2?-1:1;tx-=Math.sin(owner.a)*side*130;ty+=Math.cos(owner.a)*side*130;}
+ const goal=wing.engagementState==='INTERCEPT'&&target?Math.atan2(ty-wing.y,tx-wing.x):wing.engagementState==='RETURN'?Math.atan2(home.y-wing.y,home.x-wing.x):wing.engagementHeading??wing.a;
  const turn=clamp((wing.personality?.highSpeedHandling||1)*(wing.engagementState==='RETURN'?2.8:2.25),1.6,3.3)*dt;
  wing.a+=clamp(angleDiff(goal,wing.a),-turn,turn);
- const speed=wing.engagementState==='RETURN'?clamp((owner.speed||170)*1.45,210,290):clamp((owner.speed||170)*1.08*(wing.personality?.acceleration||1),145,225);
+ const speed=wing.engagementState==='RETURN'?clamp((owner.speed||170)*1.45,210,290):clamp((owner.speed||170)*(wing.tacticalBreakthrough?1.25:1.08)*(wing.personality?.acceleration||1),145,wing.tacticalBreakthrough?260:225);
  wing.x+=Math.cos(wing.a)*speed*dt;wing.y+=Math.sin(wing.a)*speed*dt;
  return true;
 }
@@ -162,3 +168,4 @@ export function patrolEngagementStep(p,target,home,dt){
  p.a+=clamp(angleDiff(goal,p.a),-turn,turn);
  return true;
 }
+

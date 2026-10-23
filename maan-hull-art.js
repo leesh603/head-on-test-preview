@@ -1,4 +1,4 @@
-import {MAAN_LAYOUT} from './maan-layout.js?v=headon-quality-20261023-7d8a4756';
+import {MAAN_LAYOUT} from './maan-layout.js?v=tame3';
 
 // Keep both authored atlas cells on their common axis. The ownership field is
 // independent of health, so rebuilding a wreck never redoes the geometry scan.

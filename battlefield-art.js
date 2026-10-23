@@ -1,4 +1,4 @@
-import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=headon-quality-20261023-7d8a4756';
+import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=tame3';
 prepareGroundEnemyArt().catch(()=>{});
 const sheet=new Image(),sprites=new Map();
 export const battlefieldArtReady=new Promise(resolve=>{sheet.onload=()=>{

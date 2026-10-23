@@ -1,12 +1,13 @@
-import {prepareGothaDetailArt,releaseGothaDetailArt,drawDetailedGotha} from './gotha-detail-art.js?v=headon-quality-20261023-7d8a4756';
-import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=headon-quality-20261023-7d8a4756';
-import {impactMark,aimLine} from './tactical-marks.js?v=headon-quality-20261023-7d8a4756';
-import {fx} from './fx-art.js?v=headon-quality-20261023-7d8a4756';
-import {drawAttachedApron} from './london-apron369.js?v=headon-quality-20261023-7d8a4756';
+import {prepareGothaDetailArt,releaseGothaDetailArt,drawDetailedGotha} from './gotha-detail-art.js?v=20261022';
+import {prepareCityBalloonArt,releaseCityBalloonArt} from './city-balloon-art.js?v=20261022';
+import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=tame3';
+import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
+import {fx} from './fx-art.js?v=tame3';
+import {drawAttachedApron} from './london-apron369.js?v=tame3&cityart=20261022';
 const paths={gotha:'./asset-bank/outlined/native/gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=r5',apronDamage:'./boss-london-apron-registered-damage369.png?v=r5'};
 let art={},artLoadP=null;
-export function releaseLondonArt(){art={};artLoadP=null;releaseGothaDetailArt();}
-export function prepareLondonArt(){return Promise.all([prepareGothaDetailArt(),prepareGroundEnemyArt(),...Object.entries(paths).map(([key,path])=>new Promise(resolve=>{const im=new Image();art[key]=im;im.decoding='async';im.onerror=resolve;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.src=path;}))]);}
+export function releaseLondonArt(){art={};artLoadP=null;releaseGothaDetailArt();releaseCityBalloonArt();}
+export function prepareLondonArt(){return Promise.all([prepareGothaDetailArt(),prepareCityBalloonArt(),prepareGroundEnemyArt(),...Object.entries(paths).map(([key,path])=>new Promise(resolve=>{const im=new Image();art[key]=im;im.decoding='async';im.onerror=resolve;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.src=path;}))]);}
 const londonImage=key=>{const im=art[key];if(im?.naturalWidth)return im;if(!artLoadP)artLoadP=prepareLondonArt();return null;};
 function installation(c,key,x,y,size,ruined=false){const im=londonImage(key);if(!im)return;c.save();c.imageSmoothingEnabled=true;c.globalAlpha*=ruined?.32:1;c.drawImage(im,x-size/2,y-size/2,size,size);c.restore();if(ruined)fx(c,'smokeDark',x,y-18,50,50,0,.6);}
 export function drawGotha(c,b){const im=londonImage('gotha');if(drawDetailedGotha(c,b,im))return;if(!im)return;const f=b.destroying?Math.min(1,b.destructionAge/b.destructionDuration):0,a=(b.a||0)+Math.PI/2,cw=im.naturalWidth/2,ch=im.naturalHeight;

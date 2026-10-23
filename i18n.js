@@ -1,6 +1,6 @@
-import {getAircraftDisplayName,getAircraftMeta} from './aircraft-master.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
-import {pilotIdentityCopy} from './pilot-identity-copy.js?v=headon-quality-20261023-7d8a4756';
-import {WEAPON_MODS} from './weapon-modifications.js?v=headon-quality-20261023-7d8a4756';
+import {getAircraftDisplayName,getAircraftMeta} from './aircraft-master.js?v=tame3&art=pilot-recovery2';
+import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
+import {WEAPON_MODS} from './weapon-modifications.js?v=weaponmods20261018';
 
 const STORAGE_KEY='headon-locale';
 const SUPPORTED=new Set(['ko','en']);

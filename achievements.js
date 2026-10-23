@@ -1,5 +1,5 @@
 // Service record also retains per-pilot aircraft unlock progress.
-import {PILOT_AIRCRAFT,PILOT_AIRCRAFT_KILLS,pilotKillMetric,setPilotKillProvider} from './pilot-aircraft.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
+import {PILOT_AIRCRAFT,PILOT_AIRCRAFT_KILLS,pilotKillMetric,setPilotKillProvider} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 const medal=(id,group,icon,name,en,description,descriptionEn,metric,goals=[1],hidden=false)=>Object.freeze({id,group,icon,name,en,description,descriptionEn,metric,goals:Object.freeze(goals),hidden});
 const pilotLabels={baron:'리히트호펜',voss:'포스',boelcke:'뵐케',udet:'우데트',goering:'괴링',berthold:'베르톨트',wolff:'볼프',loewenhardt:'뢰벤하르트',jacobs:'야콥스',brumowski:'브루모프스키',lothar:'로타르',sachsenberg:'작센베르크',fonck:'폰크',collishaw:'콜리쇼',baracca:'바라카',guynemer:'기네미르',bishop:'비숍',mannock:'매녹',hawker:'호커',mccudden:'맥커든',nungesser:'넝제세르',rickenbacker:'리켄바커',ball:'볼',barker:'바커'};
 export const PILOT_AIRCRAFT_MEDALS=Object.freeze(Object.entries(PILOT_AIRCRAFT).filter(([,r])=>r.unlockAircraft).map(([id])=>medal('aircraft_'+id,'aircraft',0,pilotLabels[id]+' · 기체 전환 허가',id[0].toUpperCase()+id.slice(1)+' · Aircraft Clearance',`${pilotLabels[id]}로 누적 ${PILOT_AIRCRAFT_KILLS}기 격추 · 추가 기체 해금`,`Record ${PILOT_AIRCRAFT_KILLS} kills with ${id} to unlock the additional aircraft.`,pilotKillMetric(id),[PILOT_AIRCRAFT_KILLS])));

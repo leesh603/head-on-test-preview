@@ -1,4 +1,4 @@
-import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=headon-quality-20261023-7d8a4756&afc=1';
+import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=buildfit1&afc=1';
 // Sortie-only heavy-airframe fit. The selected plane and pilot remain authoritative.
 export const BOMBER_TRANSFER_ID='bomberTransfer';
 export const BOMBER_TRANSFER_DESCRIPTION='대형 중폭격기로 전환합니다. 폭발물 강화가 적용되는 고위력 융단·집중폭격, 후방 방어사수를 획득합니다. 선회기동 대신 후방 방어탄막을 사용합니다. 최대 내구도가 증가하지만 비행속도와 선회력이 감소하며 다른 기체 전환과 동시 장착 불가.';

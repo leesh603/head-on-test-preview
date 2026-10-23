@@ -8,7 +8,7 @@ export class CoopInput {
  keydown(e,game,hooks={}){
   if(e.isComposing||['INPUT','TEXTAREA','SELECT'].includes(e.target?.tagName)||e.target?.isContentEditable)return false;
   // Native button focus (including the reroll button) owns its Enter action.
-  if(e.code==='Enter'&&e.target?.tagName==='BUTTON')return false;
+  if(game.state==='upgrade'&&e.code==='Enter'&&e.target?.tagName==='BUTTON')return false;
   const used=['Escape','KeyP',...Object.values(COOP_KEYS).flatMap(Object.values)].includes(e.code);if(!used)return false;e.preventDefault();
   const repeat=e.repeat||this.held.has(e.code);this.held.add(e.code);if(repeat||this.blocked.has(e.code))return true;
   if(game.state==='upgrade'){

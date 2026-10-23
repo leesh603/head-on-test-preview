@@ -1,7 +1,7 @@
 // Material animation only. The engine owns every petal, drop and accepted heal.
 const clamp=n=>Math.max(0,Math.min(1,n));
 const art=new Map();
-export const materialArtReady=Promise.all(['petal-0','petal-1','petal-2','petal-3','petal-4','petal-5','supply-0','supply-1','supply-2','supply-3'].map(key=>new Promise(resolve=>{
+export const materialArtReady=Promise.all(['petal-0','petal-1','petal-2','petal-3','petal-4','petal-5','supply-0'].map(key=>new Promise(resolve=>{
  if(typeof Image==='undefined'){resolve(false);return;}
  const im=new Image();art.set(key,im);im.onload=()=>resolve(true);im.onerror=()=>resolve(false);im.src=new URL('./pilot-material-art/'+key+'.webp',import.meta.url).href;
 })));
@@ -28,25 +28,19 @@ export function drawMaterialPetal(c,p,x,y,owner){
  const q=petalMaterialPose(p,owner);return sprite(c,'petal-'+q.index,x+q.dx,y+q.dy,q.size,q.angle,q.alpha,[.5,.5],q.fold);
 }
 export function supplyMaterialPose(d){
- const fall=clamp((d.fallTime||0)/.65),q=1-fall,landAge=Math.max(0,25-(d.life??25)-.65);
- // Cross-fade authored cloth poses, keeping the actual package pickup at x/y.
- if(fall>0){const opening=clamp(q/.22),deploy=clamp((q-.22)/.26);return {fall,q,landAge,weights:[1-opening,opening*(1-deploy),deploy,0]};}
- const collapse=clamp(landAge/.22);return {fall,q,landAge,weights:[0,0,1-collapse,collapse]};
+ const fall=clamp((d.fallTime||0)/.65),q=1-fall;
+ // A compact repair parcel separates from the aircraft; its centre stays on
+ // the engine's actual pickup. No canopy opens over the flying aircraft.
+ return {fall,q,lift:fall*10,size:30+fall*4,angle:(d.dropHeading||0)*.12+Math.sin(q*Math.PI)*.12,alpha:clamp((d.life??25)/1.2)};
 }
-const anchors=[[.5,.5],[.5,.77],[.5,.86],[.5,.58]],sizes=[34,48,64,53];
 export function drawMaterialSupply(c,d,x,y){
  if(d.dead)return false;
- const pose=supplyMaterialPose(d),a=(d.dropHeading||0)*.12,shift=pose.fall*14;
- let drawn=false;
- for(let i=0;i<4;i++)if(pose.weights[i]>0){
-  // The shadow is the painted fabric silhouette, never an extra loot ring.
-  sprite(c,'supply-'+i,x+7+shift*.35,y+9,sizes[i]*.88,a,.13*pose.weights[i],anchors[i],.75);
-  drawn=sprite(c,'supply-'+i,x+Math.sin(pose.q*Math.PI*2)*pose.fall*3,y-shift,sizes[i]*(1+pose.fall*.08),a,pose.weights[i],anchors[i])||drawn;
- }
- return drawn;
+ const pose=supplyMaterialPose(d);
+ sprite(c,'supply-0',x+3,y+4,pose.size*.9,pose.angle,.16*pose.alpha,[.5,.5],.8);
+ return sprite(c,'supply-0',x,y-pose.lift,pose.size,pose.angle,pose.alpha);
 }
 export function drawRepairRecovery(c,p,x,y){
  if(!(p.hp>0&&p.mccuddenRepairFlash>0))return false;
  const q=clamp(1-p.mccuddenRepairFlash/.4),a=p.a||0;
- return sprite(c,'supply-3',x-Math.cos(a)*18-Math.sin(a)*24,y-Math.sin(a)*18+Math.cos(a)*24,42*(1-q*.45),a*.12,(1-q)**.7,[.5,.58],1-q*.45);
+ return sprite(c,'supply-0',x-Math.cos(a)*18-Math.sin(a)*24,y-Math.sin(a)*18+Math.cos(a)*24,28*(1-q*.45),a*.12,(1-q)**.7,[.5,.5],1-q*.45);
 }

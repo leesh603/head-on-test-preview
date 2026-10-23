@@ -1,3 +1,4 @@
+import {pilotIdentityCopy} from './pilot-identity-copy.js?v=skillcopy20261023';
 /* Hangar compact (Phase 2). Presentation only: an aircraft sheet toggle and
    tap-to-read skill badges on phones. Never clones state, never touches
    handlers of existing controls. */
@@ -31,7 +32,7 @@ function installAircraft() {
   return true;
 }
 
-/* Skill details (phone + PC): tapping a skill opens a card with the full
+/* Skill details (phone + PC): tapping a skill opens a card with the concise
    in-game description and, for the active, its duration and cooldown.
    Read-only: the numbers come from the same engine/i18n module instances the
    game loaded (resolved by URL so no second copy is evaluated). */
@@ -62,9 +63,10 @@ function currentLoadout(m) {
     duration = G.skillDuration.call(fake);
     cooldown = G.skillCooldown.call(fake);
   } catch { cooldown = hunter ? PILOT_BALANCE?.cooldowns?.baron_albatros : p.cooldown; }
+  const copy = pilotIdentityCopy(id, document.documentElement.lang);
   return {
-    active: m.i18n.pilotDescription(id, desc),
-    passive: m.i18n.passiveDescription(id, passiveDesc),
+    active: copy?.activeShort || m.i18n.pilotDescription(id, desc),
+    passive: copy?.passiveShort || m.i18n.passiveDescription(id, passiveDesc),
     duration, cooldown
   };
 }

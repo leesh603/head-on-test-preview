@@ -1,10 +1,11 @@
-import {applySeaColor} from './sea-colors.js?v=headon-quality-20261023-7d8a4756';
-import {fx,fxReady} from './fx-art.js?v=headon-quality-20261023-7d8a4756';
-import {impactMark,aimLine,laneEdge} from './tactical-marks.js?v=headon-quality-20261023-7d8a4756';
-import {drawShellFlight} from './boss-rounds.js?v=headon-quality-20261023-7d8a4756&ai=1018';
-import {GALLIPOLI_PARTS,GALLIPOLI_SECTORS,gallipoliObjective,GALLIPOLI_HANGAR,GALLIPOLI_EXTENTS} from './gallipoli-boss.js?v=headon-quality-20261023-7d8a4756&rail=40&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=headon-quality-20261023-7d8a4756&rail=40&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=headon-quality-20261023-7d8a4756';
+import {applySeaColor} from './sea-colors.js?v=tame3';
+import {fx,fxReady} from './fx-art.js?v=tame3';
+import {impactMark,aimLine,laneEdge} from './tactical-marks.js?v=tame3';
+import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
+import {GALLIPOLI_PARTS,GALLIPOLI_SECTORS,gallipoliObjective,GALLIPOLI_HANGAR,GALLIPOLI_EXTENTS,GALLIPOLI_COMMAND_MUZZLE} from './gallipoli-boss.js?v=tame3&rail=40&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=tame3&rail=40&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
+import {drawGallipoliGun} from './gallipoli-gun-art.js?v=20261023';
 export const GALLIPOLI_ASSETS=Object.freeze({guns:'gallipoli-siege-guns.webp',facilities:'gallipoli-siege-facilities.webp',base:'gallipoli-siege-bases.webp',star:'gallipoli-siege-star.webp',wing:'gallipoli-siege-wing.webp',hangar:'maan-workshop-r2.webp',ground:'gallipoli-siege-ground.webp',coast:'asset-bank/terrain/gallipoli_coast.webp',sea:'terrain-sea359r2.webp',central:'gallipoli-overlay-central.webp',entente:'gallipoli-overlay-entente.webp'});
 const images=new Map(),tiles=new Map(),pending=new Map();
 function load(k){if(!GALLIPOLI_ASSETS[k])return null;if(images.has(k))return images.get(k);const im=new Image();images.set(k,im);im.decoding='async';im.crossOrigin='anonymous';pending.set(k,new Promise((resolve,reject)=>{im.onload=()=>{if(!im.naturalWidth){reject(new Error('Gallipoli empty asset '+k));return}(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))};im.onerror=()=>reject(new Error('Gallipoli asset '+k));}));im.src='./'+GALLIPOLI_ASSETS[k]+'?v=r5';return im;}
@@ -33,12 +34,12 @@ function road(c,x1,y1,x2,y2){c.lineCap='round';c.strokeStyle='#272823';c.lineWid
 export function drawGallipoliBoss(c,b){const state=p=>b.dead||p?.destroyed?2:p&&p.hp<p.maxHp*.55?1:0;c.save();
  for(const s of GALLIPOLI_SECTORS){road(c,b.x,b.y,b.x+s.x,b.y+s.y);sprite(c,s.id==='citadel'?'star':'wing',0,0,b.x+s.x,b.y+s.y,920);}
  road(c,b.x,b.y,b.x,b.y+530);sprite(c,'star',0,0,b.x,b.y,757);sprite(c,'base',2,b.dead?2:0,b.x,b.y+507,562);
- for(const p of b.parts.values()){const gun=p.kind==='gun'||p.kind==='aa';const recoil=(p.recoil||0)*25,x=b.x+p.x-Math.cos(p.angle)*recoil,y=b.y+p.y-Math.sin(p.angle)*recoil;repairedSprite(c,b,p,gun?'guns':'facilities',artRows[p.art],state(p),x,y,p.size,gun?p.angle+Math.PI/2:0);if(!p.destroyed&&p.gunFlash>0)fx(c,'muzzleHeavy',p.flashX,p.flashY,gun&&p.kind==='aa'?30:48,30,p.angle,Math.min(1,p.gunFlash/.08));
+ for(const p of b.parts.values()){const gun=p.kind==='gun'||p.kind==='aa',x=b.x+p.x,y=b.y+p.y;if(gun)drawGallipoliGun(c,load('guns'),p,state(p),x,y,gallipoliRepairBlend(p,b.commandDestroyed));else repairedSprite(c,b,p,'facilities',artRows[p.art],state(p),x,y,p.size,0);if(!p.destroyed&&p.gunFlash>0)fx(c,'muzzleHeavy',p.flashX,p.flashY,gun&&p.kind==='aa'?30:48,30,p.angle,Math.min(1,p.gunFlash/.08));
  if(p.destroyed){fx(c,'smokeDark',b.x+p.x,b.y+p.y,50,70,0,.23);if(p.repairRemaining>0&&!b.commandDestroyed){c.strokeStyle=p.repairRemaining<=3?'#edc482':'#b8bdb1';c.lineWidth=3;c.beginPath();c.arc(b.x+p.x,b.y+p.y,p.radius+16,-Math.PI/2,-Math.PI/2+Math.PI*2*(1-p.repairRemaining/18));c.stroke();c.fillStyle='#e4d7b6';c.font='bold 13px sans-serif';c.textAlign='center';c.fillText('수리 '+Math.ceil(p.repairRemaining)+'초',b.x+p.x,b.y+p.y+73);}continue;}
  // Small persistent HP strips distinguish targetable installations from scenery.
  c.fillStyle='#181d19';c.fillRect(b.x+p.x-27,b.y+p.y+59,55,5);c.fillStyle=p.kind==='supply'?'#ccb079':'#bf7d62';c.fillRect(b.x+p.x-27,b.y+p.y+59,55*p.hp/p.maxHp,5);}
  sprite(c,'facilities',0,b.dead||b.commandDestroyed?2:b.commandHp<b.commandMaxHp*.55?1:0,b.x,b.y,398);
- sprite(c,'guns',0,b.dead||b.commandDestroyed?2:b.commandHp<b.commandMaxHp*.55?1:0,b.x-Math.cos(b.coreAngle)*(b.coreRecoil||0)*25,b.y-Math.sin(b.coreAngle)*(b.coreRecoil||0)*25,374,b.coreAngle+Math.PI/2);if(!b.commandDestroyed&&b.coreFlash>0)fx(c,'muzzleHeavy',b.coreFlashX,b.coreFlashY,65,42,b.coreAngle,Math.min(1,b.coreFlash/.08));
+ drawGallipoliGun(c,load('guns'),{art:'twin',angle:b.coreAngle,muzzle:GALLIPOLI_COMMAND_MUZZLE,barrelOffset:22,recoil:b.coreRecoil,destroyed:b.dead||b.commandDestroyed},b.dead||b.commandDestroyed?2:b.commandHp<b.commandMaxHp*.55?1:0,b.x,b.y);if(!b.commandDestroyed&&b.coreFlash>0)fx(c,'muzzleHeavy',b.coreFlashX,b.coreFlashY,65,42,b.coreAngle,Math.min(1,b.coreFlash/.08));
  if(!b.dead){c.fillStyle='#222720';c.fillRect(b.x-51,b.y-121,101,6);c.fillStyle='#d7af76';c.fillRect(b.x-51,b.y-121,101*Math.max(0,b.commandHp/b.commandMaxHp),6);c.fillStyle='#e2d0a8';c.font='bold 14px sans-serif';c.textAlign='center';c.fillText(b.commandDestroyed?'지휘포대 파괴':'중앙 지휘포대',b.x,b.y-131);}
  const hangar=load('hangar'),hh=GALLIPOLI_HANGAR;if(hangar?.naturalWidth){c.drawImage(hangar,0,0,hangar.naturalWidth/2,hangar.naturalHeight,b.x+hh.x-hh.width/2,b.y+hh.y-hh.height/2,hh.width,hh.height);c.font='bold 13px sans-serif';c.textAlign='center';c.fillStyle=b.commandDestroyed?'#a6aa9b':b.launchWarning?'#efd198':'#d4c9ac';c.fillText(b.commandDestroyed?'요격기 증원 중단':b.launchWarning?'요격기 출격 준비':'요격기 격납고',b.x+hh.x,b.y+hh.y-hh.height/2-12);if(b.launchWarning||b.launchFlash>0){c.strokeStyle='#ddc18a';c.lineWidth=3;c.beginPath();c.moveTo(b.x+hh.exitX-25,b.y+hh.exitY);c.lineTo(b.x+hh.exitX+25,b.y+hh.exitY);c.stroke();}}
  if(!b.dead&&b.pendingAttack){for(const s of b.pendingAttack.sources){const p=s.id?b.parts.get(s.id):{x:0,y:0};aimLine(c,b.x+p.x,b.y+p.y,s.target.x,s.target.y,{alpha:.6,chevron:false,dash:[6,10]});}}

@@ -1,4 +1,4 @@
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=headon-quality-20261023-7d8a4756&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021';
 
 export function bossHudModel(encounter) {
   if(!encounter||encounter.completed)return null;
@@ -36,4 +36,5 @@ export function bindStageBossHUD({bossSlot,xpBindings=[]}) {
     }
   };
 }
+
 

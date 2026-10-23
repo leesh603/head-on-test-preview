@@ -9,7 +9,9 @@ export const HARBOR_PARTS=Object.freeze([
  {id:'gun-left',x:-118,y:-47,radius:24,kind:'harbor-gun',width:76,height:76,cell:0,artAngle:-2.6},
  {id:'gun-right',x:118,y:-47,radius:24,kind:'harbor-gun',width:76,height:76,cell:1,artAngle:-.54},
  {id:'gun-front-left',x:-104,y:53,radius:24,kind:'harbor-gun',width:76,height:76,cell:2,artAngle:2.52},
- {id:'gun-front-right',x:104,y:53,radius:24,kind:'harbor-gun',width:76,height:76,cell:3,artAngle:.57}
+ {id:'gun-front-right',x:104,y:53,radius:24,kind:'harbor-gun',width:76,height:76,cell:3,artAngle:.57},
+ {id:'mg-left',x:-74,y:15,radius:16,kind:'harbor-mg',width:38,height:38,artAngle:Math.PI},
+ {id:'mg-right',x:74,y:15,radius:16,kind:'harbor-mg',width:38,height:38,artAngle:0}
 ]);
 export const harborScale=b=>b.t?.geometryScale||b.geometryScale||1;
 export const harborPoint=(b,x,y)=>({x:b.x+x*harborScale(b),y:b.y+y*harborScale(b)});
@@ -20,6 +22,11 @@ export function harborCranePose(b){
  return{pivot,tip,load:{x:tip.x+sway,y:tip.y+drop},arm:{x:pivot.x+(tip.x-pivot.x)*.55,y:pivot.y+(tip.y-pivot.y)*.55}};
 }
 export const harborMuzzle=(b,p)=>({x:b.x+p.x+Math.cos(p.angle)*30*harborScale(b),y:b.y+p.y+Math.sin(p.angle)*30*harborScale(b)});
+// Retain the current single heavy bore; MG uses its own authored reach.
+export function harborGunMuzzle(b,p,side=-1){
+ const s=harborScale(b),a=p.angle,mg=p.kind==='harbor-mg',length=(mg?22:30)-(p.recoil||0)*2,offset=0;
+ return{x:b.x+p.x+(Math.cos(a)*length-Math.sin(a)*offset)*s,y:b.y+p.y+(Math.sin(a)*length+Math.cos(a)*offset)*s};
+}
 export const harborLaunchPoint=b=>harborPoint(b,0,140);
 const distance=(x,y,a,z)=>{const dx=z.x-a.x,dy=z.y-a.y,t=Math.max(0,Math.min(1,((x-a.x)*dx+(y-a.y)*dy)/Math.max(1,dx*dx+dy*dy)));return Math.hypot(x-a.x-t*dx,y-a.y-t*dy);};
 export function harborSegmentHit(shot,a,z,radius){

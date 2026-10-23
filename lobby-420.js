@@ -3,13 +3,13 @@
    button and a bottom tab bar. Pilot/aircraft choice moves to the "에이스"
    tab, which simply re-shows the existing hangar rows. Every action is routed
    to the existing controls; nothing here owns game state. */
-import {aircraftKey} from './aircraft.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
-import {hangarArt, hangarArtLayout} from './hangar-art.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
+import {aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2';
+import {hangarArt, hangarArtLayout} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
 // Same module instances as app.js (identical URLs), read-only: locked aircraft show their real ratings.
-import {PLANES} from './engine.js?v=headon-quality-20261023-7d8a4756&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
-import {aircraftFeelRatings} from './aircraft-feel174.js?v=headon-quality-20261023-7d8a4756';
-import {t} from './i18n.js?v=headon-quality-20261023-7d8a4756&afc=1&art=pilot-recovery2';
-import {waitForLobbyIcons} from './lobby-assets-ready.js?v=headon-quality-20261023-7d8a4756';
+import {PLANES} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021';
+import {aircraftFeelRatings} from './aircraft-feel174.js?v=gal1';
+import {t} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {waitForLobbyIcons} from './lobby-assets-ready.js?v=lobbygate2';
 const mq = matchMedia('(max-width:720px)');
 const $ = id => document.getElementById(id);
 const en = () => document.documentElement.lang === 'en';

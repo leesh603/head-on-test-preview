@@ -1,4 +1,4 @@
-import {aimLine} from './tactical-marks.js?v=headon-quality-20261023-7d8a4756';
+import {aimLine} from './tactical-marks.js?v=tame3';
 // Threat cues are tied to an actual attack or formation role, using authored FX.
 export function drawEnemyDanger(ctx,e,x,y,time,fx,now){
  if(e.hp<=0||e.bossPilot||e.type==='boss'||e.surface||e.stationary)return;

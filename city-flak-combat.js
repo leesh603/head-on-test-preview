@@ -1,19 +1,20 @@
-import {shellMarch} from './boss-raid-strikes.js?v=headon-quality-20261023-7d8a4756&rail=40';
+import {shellMarch} from './boss-raid-strikes.js?v=tame3&rail=40';
 import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=headon-quality-20261023-7d8a4756';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=tame3';
+import {CITY_FLAK_SCALE,CITY_FLAK_WEAPONS} from './city-flak-geometry.js?v=qf1023';
 export const CITY_FLAK_PARTS=Object.freeze([
- {id:'siege',x:-74,y:-101,radius:34,fraction:.16},
- {id:'ears',x:77,y:-96,radius:32,fraction:.10},
- {id:'gun-bl',x:-77,y:70,radius:32,fraction:.12},
- {id:'gun-br',x:74,y:72,radius:32,fraction:.12}
+ {id:'siege',x:-73,y:-75,radius:34,fraction:.16},
+ {id:'ears',x:74,y:-75,radius:32,fraction:.10},
+ {id:'gun-bl',x:-74,y:75,radius:32,fraction:.12},
+ {id:'gun-br',x:71,y:74,radius:32,fraction:.12}
 ]);
 const delta=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
 const turn=(a,b,step)=>a+Math.max(-step,Math.min(step,delta(b,a)));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 export class CityFlakCell extends BaseBoss{
  constructor(o){
-  const s=o.tuning.cityScale||1;
+  const s=(o.tuning.cityScale||1)*CITY_FLAK_SCALE;
   super({...o,maxHp:o.tuning.maxHp,coreRadius:44*s,parts:CITY_FLAK_PARTS.map(p=>new BossPart({...p,x:p.x*s,y:p.y*s,radius:p.radius*s,maxHp:o.tuning.maxHp*p.fraction,angle:-Math.PI/2}))});
   this.t=o.tuning;this.faction=o.faction;this.kind='flak-tower-cell';this.ownsMotion129=true;this.regionalScale=s;this.coreVulnerable=false;this.phase='listening';this.lockProgress=0;this.shellLock=null;this.cursor=o.index||0;this.index=o.index||0;this.blindStep=0;
   this.timers.set('siege',3.5+this.index*1.8);this.timers.set('gun-bl',2.4+this.index*.55);this.timers.set('gun-br',3.3+this.index*.55);
@@ -21,7 +22,7 @@ export class CityFlakCell extends BaseBoss{
  command(type,spec={}){this.emit({...spec,type,bossId:this.id,faction:this.faction});}
  hazard(kind,spec){this.command('hazard',{kind,damage:this.t.damage,duration:4,warning:0,...spec});}
  suppressive(){}
- muzzle(p){const n=30*this.regionalScale;return{x:this.x+p.x+Math.cos(p.angle)*n,y:this.y+p.y+Math.sin(p.angle)*n};}
+ muzzle(p){const n=(CITY_FLAK_WEAPONS[p.id]?.muzzle||0)*this.regionalScale;return{x:this.x+p.x+Math.cos(p.angle)*n,y:this.y+p.y+Math.sin(p.angle)*n};}
  locateHit(s){for(const p of this.parts.values())if(!p.destroyed&&intersectsEllipse(s,this.x+p.x,this.y+p.y,p.radius,p.radius))return{partId:p.id};return this.coreVulnerable&&intersectsEllipse(s,this.x,this.y,this.coreRadius,this.coreRadius)?{partId:null}:null;}
  hitAt(s){const route=this.locateHit(s);return route?this.hit({...route,damage:s.damage}):{damage:0,miss:true};}
  hit(a){
@@ -66,8 +67,8 @@ export class CityFlakCell extends BaseBoss{
    for(const c of cells)c.networkRole=c.id===net.observerId?'observer':c.id===net.heavyId?'heavy-gun':'route-limiter';}
  }
  fireNetworkHeavy(net){const siege=this.parts.get('siege');if(net.heavyFired||siege.destroyed||!Number.isFinite(net.x+net.y))return;const aim=Math.atan2(net.y-this.y-siege.y,net.x-this.x-siege.x);if(Math.abs(delta(aim,siege.angle))>.12)return;
-  const from=this.muzzle(siege),warning=net.precision?1.25:1.85;this.hazard('circle',{x:net.x,y:net.y,sourceX:from.x,sourceY:from.y,sourcePartId:'siege',radius:Math.max(32,58*this.regionalScale),warning,duration:.48,once:true,damage:this.t.damage*1.35,visual:'city-flak-shell',tag:this.id+'-shell'});
-  if(net.precision)shellMarch(this,{source:from,partId:'siege',target:{x:net.x,y:net.y,vx:0,vy:0},rows:2,step:90,radius:Math.max(38,58*this.regionalScale),warning:1.55,beat:.48,visual:'city-flak-shell',tag:this.id+'-shell'});
+  const from=this.muzzle(siege),warning=net.precision?1.25:1.85,attackScale=this.regionalScale/CITY_FLAK_SCALE;this.hazard('circle',{x:net.x,y:net.y,sourceX:from.x,sourceY:from.y,sourcePartId:'siege',radius:Math.max(32,58*attackScale),warning,duration:.48,once:true,damage:this.t.damage*1.35,visual:'city-flak-shell',tag:this.id+'-shell'});
+  if(net.precision)shellMarch(this,{source:from,partId:'siege',target:{x:net.x,y:net.y,vx:0,vy:0},rows:2,step:90,radius:Math.max(38,58*attackScale),warning:1.55,beat:.48,visual:'city-flak-shell',tag:this.id+'-shell'});
   this.command('muzzle',{...from,partId:'siege'});net.heavyFired=true;
  }
  fireRouteLimit(net,players,dt){if(net.limitFired.has(this.id))return;const list=players.filter(p=>p.alive),target=list[(net.wave+this.index)%Math.max(1,list.length)];if(!target)return;

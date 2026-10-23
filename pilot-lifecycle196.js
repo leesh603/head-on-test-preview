@@ -1,4 +1,5 @@
 import {signatureCue} from './pilot-signature-state.js';
+import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
 // Personal pilot state is advanced per living pilot; persistent damage is advanced once per world.
 const stepTime = dt => Number.isFinite(dt) ? Math.max(0, Math.min(.04, dt)) : 0;
 const playing = p => p.state === 'playing' && p.hp > 0 && p.status !== 'downed';
@@ -82,9 +83,7 @@ export function pilotSupportPose(p,wing,dt,attack=false){
     const aim=target?Math.atan2(target.y-p.y,target.x-p.x):orbit;
     x=p.x+Math.cos(aim)*95-Math.sin(aim)*side*65;y=p.y+Math.sin(aim)*95+Math.cos(aim)*side*65;
   }
-  const response=Math.min(1,dt*4);wing.x+=(x-wing.x)*response;wing.y+=(y-wing.y)*response;
-  const aim=target?Math.atan2(target.y-wing.y,target.x-wing.x):p.a-side*(attack?.22:0);
-  const delta=Math.atan2(Math.sin(aim-wing.a),Math.cos(aim-wing.a));wing.a+=Math.max(-dt*4,Math.min(dt*4,delta));
+  advanceWingFlight(wing,p,{x,y,a:p.a-side*(attack?.22:0)},dt);
   wing.muzzleFlash=Math.max(0,(wing.muzzleFlash||0)-dt);return true;
 }
 // Return newly killed targets so each mode can use its existing one-time death/XP pipeline.
