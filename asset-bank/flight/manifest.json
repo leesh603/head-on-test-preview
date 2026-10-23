@@ -4942,7 +4942,7 @@
     },
     "bank_plane_dh4": {
       "source": "asset-bank/planes/dh4.webp",
-      "sha256": "eda9bcda768f8a6dae761804c10ada86a7ae861f409de36e34bf6b83a2d9abc6"
+      "sha256": "85282d6592b9a03e323e65c26b47214ee8ce71f12341d966d51021248fb599c4"
     },
     "bank_plane_dh9": {
       "source": "asset-bank/planes/dh9.webp",
@@ -4958,7 +4958,7 @@
     },
     "bank_plane_hp_o400": {
       "source": "asset-bank/planes/hp_o400.webp",
-      "sha256": "36677286d59e049c8de58cdd9a3b172127f9ab8d57c5cc3d12160d295a381f3d"
+      "sha256": "71ff84d5820538c65902f1ccdd692c333c4a059095c1bb1bd2b33ae08a1b5de5"
     },
     "bank_plane_ilya_muromets": {
       "source": "asset-bank/planes/ilya_muromets.webp",
@@ -4966,7 +4966,7 @@
     },
     "bank_plane_junkers_d1": {
       "source": "asset-bank/planes/junkers_d1.webp",
-      "sha256": "6370f6944e5aad4d87837f12f5f4bcb749306e27a4f7827567912cffeeb95752"
+      "sha256": "766d9a6063166fb64023a37f0a2ed3b7c3978651f24c6500056a7ecb0cddcd5c"
     },
     "bank_plane_nieuport_11_bebe": {
       "source": "asset-bank/planes/nieuport_11_bebe.webp",
@@ -4978,7 +4978,7 @@
     },
     "bank_plane_pfalz_d12": {
       "source": "asset-bank/planes/pfalz_d12.webp",
-      "sha256": "230e824d46990d4e5c13d2c519891ce5508c4ea5d8e2e860346631e174893d71"
+      "sha256": "5e9ffb50915ee52a61c3720f31ae0540ceb867194b52fe59c6a7925799db981d"
     },
     "bank_plane_phoenix_d1": {
       "source": "asset-bank/planes/phoenix_d1.webp",
@@ -4986,7 +4986,7 @@
     },
     "bank_plane_re8": {
       "source": "asset-bank/planes/re8.webp",
-      "sha256": "2afe28f36d2c73583769ab9d596f2522883bfc6b9deb7a4fdc35571ad1aaae6c"
+      "sha256": "9e823cb87368a118c13d9fd864e3950588bcb61ac83c62546c57a9af55bf5b60"
     },
     "bank_plane_rumpler_taube": {
       "source": "asset-bank/planes/rumpler_taube.webp",
@@ -5002,15 +5002,15 @@
     },
     "bank_plane_sopwith_dolphin": {
       "source": "asset-bank/planes/sopwith_dolphin.webp",
-      "sha256": "8eae9555ed10afe460bd477d7f4a0dc850e4a10f28c071e0493d3664ad596ebc"
+      "sha256": "b054256cee7d8923f9475ec3fbc75929619db3fc753493dcf2552523b0481f59"
     },
     "bank_plane_sopwith_pup": {
       "source": "asset-bank/planes/sopwith_pup.webp",
-      "sha256": "ac4bf0035a00946f65d1dbba857ad50c3ec60740823d1251bb3eeefc3df7b63c"
+      "sha256": "a852102b6dc5642ad2135ca8af5808bd751cb0df2d8ba41a471b503ad1bed66d"
     },
     "bank_plane_sopwith_strutter": {
       "source": "asset-bank/planes/sopwith_strutter.webp",
-      "sha256": "b5d86e2dba75076c3eca7580e0cd3d947e8b3c99a2a3e8f737780b7c7fe5bbc9"
+      "sha256": "198471c04d419b5dc674ad85bbb4b6a9b66d45562b5b76485f92e13d7a08c10d"
     },
     "bank_plane_sopwith_triplane": {
       "source": "asset-bank/planes/sopwith_triplane.webp",
@@ -5018,11 +5018,11 @@
     },
     "bank_plane_ssw_d4": {
       "source": "asset-bank/planes/ssw_d4.webp",
-      "sha256": "513001bf52d075d8c033fe012b5c6d67245fae108de093bf24ebd034be8234cb"
+      "sha256": "ec3e71b3a3736fe9fa0161c03fb9286c77241fc6990a939e67db1063bcf0547b"
     },
     "bank_plane_staaken_r6": {
       "source": "asset-bank/planes/staaken_r6.webp",
-      "sha256": "ee0212a72c51289a50f86ab8641a3702d2e42ce7dbbe720797cbac1c891d400c"
+      "sha256": "f7d7080844966fa71287123ebc53e712bd1f9564b7e3280ecbbaf14b1e7f60c6"
     },
     "bank_plane_vickers_fb5": {
       "source": "asset-bank/planes/vickers_fb5.webp",
@@ -6270,15 +6270,15 @@
     },
     "bank_livery_junkers_d1__lozenge": {
       "source": "asset-bank/liveries/junkers_d1/lozenge.webp",
-      "sha256": "49cadb655c818c033981541a35e40921d46a081358daeb40007b2b7782a41b55"
+      "sha256": "e3a9fe3f7d6c907eb060d14b2cb4473491a887d09658659a086da9ee69ff5a66"
     },
     "bank_livery_junkers_d1__mottle": {
       "source": "asset-bank/liveries/junkers_d1/mottle.webp",
-      "sha256": "8af1ca3980f35c8acc1e396a1641ab6ec7548ea35211ee16eaa0720b928cd161"
+      "sha256": "3e8b646586098408c156ac5b2864893358bd0606a03a7587ffcd20aa48f06275"
     },
     "bank_livery_junkers_d1__night": {
       "source": "asset-bank/liveries/junkers_d1/night.webp",
-      "sha256": "e55c1201c35f437344737b105cd3984d5c151401a58368b111375a34445c7498"
+      "sha256": "2d2fe7bf8e52ecfab6fdc95a5c8942f31774645320e39abd4839e7908024916f"
     },
     "bank_livery_junkers_j1__green": {
       "source": "asset-bank/liveries/junkers_j1/green.webp",
@@ -6962,15 +6962,15 @@
     },
     "bank_livery_ssw_d4__balken": {
       "source": "asset-bank/liveries/ssw_d4/balken.webp",
-      "sha256": "8362f236c9d74d55fcab0e0171b1fc4709ca0fcf5281c482fb9ae82627717120"
+      "sha256": "fc0cecd370757558f0560af36d1d557a173000dbb5bf9c2ac2a94438e64c2ddb"
     },
     "bank_livery_ssw_d4__red": {
       "source": "asset-bank/liveries/ssw_d4/red.webp",
-      "sha256": "d5c6f31bd6ec26d57764de8bc69bf568505973aeb41af3374724e25e69b2fa16"
+      "sha256": "de3d50c6e0ab5c69a67847dab4f888e3c5a2346243c9efe68abf587e6b48a605"
     },
     "bank_livery_ssw_d4__usas": {
       "source": "asset-bank/liveries/ssw_d4/usas.webp",
-      "sha256": "b6b501db1f0966d94b3091bbd93dea3b1c5408d2e16ba21b838e8aaaa9c316aa"
+      "sha256": "20c76ddc251b8b586d58b7e5a14a83a930c43bf29835b400b6aaeae5ea4ed061"
     },
     "bank_livery_ssw_d4__white": {
       "source": "asset-bank/liveries/ssw_d4/white.webp",
