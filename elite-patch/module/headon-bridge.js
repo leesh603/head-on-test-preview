@@ -1,6 +1,6 @@
-import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js?v=regionalair20261018';
+import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js?v=headon-quality-20261023-7d8a4756';
 import {recordCombatImpact} from '../../combat-impact-result.js';
-import {regionalSteering} from '../../regional-air-tactics.js?v=regionalair20261018';
+import {regionalSteering} from '../../regional-air-tactics.js?v=headon-quality-20261023-7d8a4756';
 
 const INSTALL_KEY = Symbol.for('headon.eliteEnemyPatch.v1');
 

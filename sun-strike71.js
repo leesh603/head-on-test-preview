@@ -1,4 +1,4 @@
-import {fxTint} from './fx-art.js?v=gal1';
+import {fxTint} from './fx-art.js?v=headon-quality-20261023-7d8a4756';
 import {isAlbatrosHunter,drawAlbatrosWorld,drawAlbatrosLocal} from './albatros-hunter-fx.js';
 
 // Legacy solo entry: the shared signature view normally draws this already.

@@ -1,8 +1,8 @@
-import {prepareGothaDetailArt,releaseGothaDetailArt,drawDetailedGotha} from './gotha-detail-art.js?v=20261022';
-import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=tame3';
-import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
-import {fx} from './fx-art.js?v=tame3';
-import {drawAttachedApron} from './london-apron369.js?v=tame3';
+import {prepareGothaDetailArt,releaseGothaDetailArt,drawDetailedGotha} from './gotha-detail-art.js?v=headon-quality-20261023-7d8a4756';
+import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=headon-quality-20261023-7d8a4756';
+import {impactMark,aimLine} from './tactical-marks.js?v=headon-quality-20261023-7d8a4756';
+import {fx} from './fx-art.js?v=headon-quality-20261023-7d8a4756';
+import {drawAttachedApron} from './london-apron369.js?v=headon-quality-20261023-7d8a4756';
 const paths={gotha:'./asset-bank/outlined/native/gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=r5',apronDamage:'./boss-london-apron-registered-damage369.png?v=r5'};
 let art={},artLoadP=null;
 export function releaseLondonArt(){art={};artLoadP=null;releaseGothaDetailArt();}

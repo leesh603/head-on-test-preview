@@ -1,16 +1,16 @@
-import {drawMaterialPetal,drawRepairRecovery} from './petal-supply-fx.js?v=petalsupply1';
+import {drawMaterialPetal,drawRepairRecovery} from './petal-supply-fx.js?v=headon-quality-20261023-7d8a4756';
 import {nungesserCombatStatus} from './nungesser-combat.js';
-import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=buildfit1&afc=1&art=pilot-recovery2';
-import {createSignatureView} from './pilot-signature-view.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021';
-import {fx,fxTint} from './fx-art.js?v=gal1';
-import {planeSprite,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2';
-import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';
+import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=headon-quality-20261023-7d8a4756&afc=1&art=pilot-recovery2';
+import {createSignatureView} from './pilot-signature-view.js?v=headon-quality-20261023-7d8a4756&sig=1019&boss=20261020b&phase=1021';
+import {fx,fxTint} from './fx-art.js?v=headon-quality-20261023-7d8a4756';
+import {planeSprite,aircraftKey} from './aircraft.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
+import {drawHorseSilhouette} from './equipment-material-fx.js?v=headon-quality-20261023-7d8a4756';
 
-import {bishopFlightHeight} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
+import {bishopFlightHeight} from './engine.js?v=headon-quality-20261023-7d8a4756&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
 import {udetRollPose} from './udet-acrobat-fx.js';
-import {bomberEntryPose} from './bomber-transfer.js?v=buildfit1&afc=1';
-import {bombSprite} from './bomb-sprites.js?v=bomb20';
-import {fxsBombFall} from './fx-sample-preview.js?v=pilotfx20261018';
+import {bomberEntryPose} from './bomber-transfer.js?v=headon-quality-20261023-7d8a4756&afc=1';
+import {bombSprite} from './bomb-sprites.js?v=headon-quality-20261023-7d8a4756';
+import {fxsBombFall} from './fx-sample-preview.js?v=headon-quality-20261023-7d8a4756';
 const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
 export function playerPose(p,x,y){

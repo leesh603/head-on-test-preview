@@ -1,23 +1,23 @@
-import {directorCombatTarget} from './battle-director169.js?v=formations20261022';
-import {ordinaryFighter,fighterRoundSpeed,fighterShotReady,fireFighterBurst} from './dogfight-pass165.js?v=gal1';
+import {directorCombatTarget} from './battle-director169.js?v=headon-quality-20261023-7d8a4756';
+import {ordinaryFighter,fighterRoundSpeed,fighterShotReady,fireFighterBurst} from './dogfight-pass165.js?v=headon-quality-20261023-7d8a4756';
 import {combatImpactResult} from './combat-impact-result.js';
 import {modGunRounds,modGunDamage,modGunFan,modGunInterval} from './weapon-modifications.js';
-import {regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=regionalair20261018';
-import {bomberRoundImpact,bomberContactPadding,detonateFriendlyBomb} from './bomber-transfer.js?v=buildfit1&afc=1';
-import {awardPriorityKill,achievementEnemyDefeated,installAchievementTracking} from './achievements.js?v=medals2';
-import {steerDoverBoundary,containDoverPlayer} from './dover-map-boundary.js?v=dover3';
-import {advanceExplosionFx} from './explosion-profiles.js?v=gal1';
-import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=buildfit1&art=pilot-recovery2';
-import {nungesserAimOffset,nungesserRoundReaction,nungesserInterception,consumeNungesserInterception} from './pilot-signature-state.js?v=gal1';
-import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=gal1';
-import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=fiveace1&burn=1022';
-import {Game,bishopFlightHeight,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,tickLegendaryWorldEffects,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=merge20261017&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&adriaticart=20261022';
-import {registerAircraftTiers} from './aircraft-tiers.js?v=gal1&art=pilot-recovery2';
-import {attachAircraftPersonality} from './aircraft-personality164.js?v=gal1';
-import {weaponModWingActive,wingmanEngagementStep,wingmanAttackTarget} from './engagement-flow174.js?v=gal1&afc=1';
-import {installCloudCover} from './cloud-cover1.js?v=gal1';
-import {tickCityDefense} from './city-defense.js?v=gal1';
+import {regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=headon-quality-20261023-7d8a4756';
+import {bomberRoundImpact,bomberContactPadding,detonateFriendlyBomb} from './bomber-transfer.js?v=headon-quality-20261023-7d8a4756&afc=1';
+import {awardPriorityKill,achievementEnemyDefeated,installAchievementTracking} from './achievements.js?v=headon-quality-20261023-7d8a4756';
+import {steerDoverBoundary,containDoverPlayer} from './dover-map-boundary.js?v=headon-quality-20261023-7d8a4756';
+import {advanceExplosionFx} from './explosion-profiles.js?v=headon-quality-20261023-7d8a4756';
+import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
+import {nungesserAimOffset,nungesserRoundReaction,nungesserInterception,consumeNungesserInterception} from './pilot-signature-state.js?v=headon-quality-20261023-7d8a4756';
+import {advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=headon-quality-20261023-7d8a4756';
+import {preparePersonalRound1918,barkerDamage1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=headon-quality-20261023-7d8a4756&burn=1022';
+import {Game,bishopFlightHeight,PLANES,PILOTS,PILOT_PLANES,UPGRADES,LEGENDARIES,WEAPONS,angleDiff,highRiskDamage,PILOT_BALANCE,DURABILITY_BALANCE,LEGENDARY_BALANCE,GOERING_WING_BOOST,ENEMY_BOSS_BALANCE,SUN_STRIKE,SPECIAL_AMMO,tickLegendaryDefenses,tickLegendaryWorldEffects,COW37_BALANCE,ENEMY_MOVEMENT_BALANCE} from './engine.js?v=headon-quality-20261023-7d8a4756&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,damageStageBoss} from './stageboss-host.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&adriaticart=20261022';
+import {registerAircraftTiers} from './aircraft-tiers.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
+import {attachAircraftPersonality} from './aircraft-personality164.js?v=headon-quality-20261023-7d8a4756';
+import {weaponModWingActive,wingmanEngagementStep,wingmanAttackTarget} from './engagement-flow174.js?v=headon-quality-20261023-7d8a4756&afc=1';
+import {installCloudCover} from './cloud-cover1.js?v=headon-quality-20261023-7d8a4756';
+import {tickCityDefense} from './city-defense.js?v=headon-quality-20261023-7d8a4756';
 
 
 // A single world owns simulation time, entities and deaths. PlayerState never calls Game.update.
@@ -289,10 +289,10 @@ const regionalCoopTarget=CoopGame.prototype.enemyCombatTarget;
 CoopGame.prototype.enemyCombatTarget=function(e){return directorCombatTarget(this,e,regionalCombatTarget(this,e,regionalCoopTarget.call(this,e)));};
 installCloudCover(CoopGame);
 
-import {installNineCoop} from './pilot-nine-combat.js?v=bomber20';
+import {installNineCoop} from './pilot-nine-combat.js?v=headon-quality-20261023-7d8a4756';
 installNineCoop(CoopGame);
 
-import {installCoopFleet} from './fleet-naval1.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
+import {installCoopFleet} from './fleet-naval1.js?v=headon-quality-20261023-7d8a4756&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
 
 installCoopFleet(CoopGame,Game);
 
@@ -301,6 +301,6 @@ installAchievementTracking(CoopGame,{coop:true});
 import {installUdetCoop} from './udet-acrobatics.js';
 installUdetCoop(CoopGame);
 
-import {installEscortCoopFx} from './escort-command-fx.js?v=escortfx1';
+import {installEscortCoopFx} from './escort-command-fx.js?v=headon-quality-20261023-7d8a4756';
 installEscortCoopFx(CoopGame);
 

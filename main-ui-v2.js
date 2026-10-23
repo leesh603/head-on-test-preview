@@ -1,4 +1,4 @@
-import {getLocale,subscribe,t} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {getLocale,subscribe,t} from './i18n.js?v=headon-quality-20261023-7d8a4756&afc=1&art=pilot-recovery2';
 
 
 const $=id=>document.getElementById(id);
@@ -74,4 +74,4 @@ if(hangar){
 }
 
 // Direct Astra implementation: all live controls and data bindings are preserved.
-import("./astra-interface180.js?v=buildfit1&afc=1&art=pilot-recovery2");
+import("./astra-interface180.js?v=headon-quality-20261023-7d8a4756&afc=1&art=pilot-recovery2");

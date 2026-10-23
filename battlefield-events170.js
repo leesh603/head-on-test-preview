@@ -1,8 +1,8 @@
-import {achievementMission} from './achievements.js?v=medals2';
-import {doverFlightBounds} from './dover-patrol-chart.js?v=dover3';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {JUTLAND_ROUTE} from './jutland-route.js?v=gal1';
-import {ZEEBRUGGE_ROUTE,harborRouteHalfWidth} from './stageboss-host.js?v=merge20261017&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {achievementMission} from './achievements.js?v=headon-quality-20261023-7d8a4756';
+import {doverFlightBounds} from './dover-patrol-chart.js?v=headon-quality-20261023-7d8a4756';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=headon-quality-20261023-7d8a4756&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {JUTLAND_ROUTE} from './jutland-route.js?v=headon-quality-20261023-7d8a4756';
+import {ZEEBRUGGE_ROUTE,harborRouteHalfWidth} from './stageboss-host.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&phase=1021';
 
 export const BATTLEFIELD_EVENT_TYPES=Object.freeze({
  HIGH_VALUE_TARGET:'HIGH_VALUE_TARGET',RESCUE:'RESCUE',BOMBER_INTERCEPT:'BOMBER_INTERCEPT',ACE_CHALLENGE:'ACE_CHALLENGE',PHOTO_RECON:'PHOTO_RECON',RECON_ESCORT:'RECON_ESCORT',SUPPLY_RECOVERY:'SUPPLY_RECOVERY'

@@ -1,5 +1,5 @@
-import {fx} from './fx-art.js?v=tame3';
-import {SOMME_FRAMES} from './somme-boss-atlas.js?v=tame3';
+import {fx} from './fx-art.js?v=headon-quality-20261023-7d8a4756';
+import {SOMME_FRAMES} from './somme-boss-atlas.js?v=headon-quality-20261023-7d8a4756';
 export const GOTHA_DETAIL_SOURCES=Object.freeze({
  hull:'./gotha-airframe-separated-20261022.webp',
  parts:'./boss-alps-hardware-20261020.webp?v=muted1',guns:'./boss-mark1-guns-r3.webp'

@@ -1,12 +1,12 @@
 // The field record uses the same final registries, artwork and descriptions as sortie selection.
-import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,pilotLoadout,UPGRADES,LEGENDARIES} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
-import {PILOT_AIRCRAFT,PILOT_RENDER_ART} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
-import {getAircraftDisplayName,getAircraftMeta,aircraftCategoryLabel} from './aircraft-master.js?v=tame3';
-import {hangarArtSource} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
-import {portraitSources} from './portraits.js?v=gal1';
-import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
-import {WEAPON_MODS} from './weapon-modifications.js?v=weaponmods20261018';
-import {getLocale,pilotName,upgradeName,upgradeDescription,subscribe} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,pilotLoadout,UPGRADES,LEGENDARIES} from './engine.js?v=headon-quality-20261023-7d8a4756&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
+import {PILOT_AIRCRAFT,PILOT_RENDER_ART} from './pilot-aircraft.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
+import {getAircraftDisplayName,getAircraftMeta,aircraftCategoryLabel} from './aircraft-master.js?v=headon-quality-20261023-7d8a4756';
+import {hangarArtSource} from './hangar-art.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
+import {portraitSources} from './portraits.js?v=headon-quality-20261023-7d8a4756';
+import {pilotIdentityCopy} from './pilot-identity-copy.js?v=headon-quality-20261023-7d8a4756';
+import {WEAPON_MODS} from './weapon-modifications.js?v=headon-quality-20261023-7d8a4756';
+import {getLocale,pilotName,upgradeName,upgradeDescription,subscribe} from './i18n.js?v=headon-quality-20261023-7d8a4756&afc=1&art=pilot-recovery2';
 
 const NORMAL_IDS=['damage','rate','rockets','mines','explosives','command','turn','armor','regen','cooldown','wingman'];
 const UNIQUE_IDS=['bomber','fighterSupply','mercedesEngine','spread','combinedProjectiles'];

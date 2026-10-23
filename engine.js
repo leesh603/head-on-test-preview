@@ -1,41 +1,41 @@
 import {combatImpactResult} from './combat-impact-result.js';
-import {playerHandlingProfile} from './player-airframe-handling.js?v=handling5';
+import {playerHandlingProfile} from './player-airframe-handling.js?v=headon-quality-20261023-7d8a4756';
 import {modGunRounds,modGunDamage,modGunFan,modGunInterval} from './weapon-modifications.js';
-import {installBomberTransfer,bomberRoundImpact,bomberContactPadding,detonateFriendlyBomb} from './bomber-transfer.js?v=buildfit1&afc=1';
-import {awardPriorityKill,achievementEnemyDefeated,installAchievementTracking} from './achievements.js?v=medals2';
-import {steerDoverBoundary,containDoverPlayer} from './dover-map-boundary.js?v=dover3';
-import {PILOT_IDENTITY_COPY as THREE_COPY} from './pilot-identity-copy.js?v=merge20261017';
-import {beginThreeSkill,tickThreePilot,threeGunDirection} from './pilot-three-combat.js?v=gal1';
-import {EXPLOSION_LIFE,initExplosionProfile,pushExplosionFx,advanceExplosionFx} from './explosion-profiles.js?v=gal1';
-import {beginAircraftCrash,advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=gal1';
-import {weaponModWingActive,wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=gal1&afc=1';
-import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=buildfit1&art=pilot-recovery2';
-import {installPilotIdentities} from './pilot-identities.js?v=fiveace1&afc=1';
-import {EnemyCollisionGrid} from './collision-grid.js?v=gal1';
-import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=fiveace1&burn=1022';
-import {installRevision} from './rebalance103.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
-import {installCloudCover} from './cloud-cover1.js?v=gal1';
-import {installFleet} from './fleet-naval1.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
-import {installTrenchWar} from './trench-war1.js?v=gal1';
-import {installCityAir} from './city-air1.js?v=gal1';
-import {installRegionDoctrine} from './region-doctrine1.js?v=buildfit1&afc=1&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {installLondonBattle} from './london-battle.js?v=gal1';
-import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=equipment20261022';
-import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=regionalair2&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {installBuildCombatIdentity} from './build-combat-identity.js?v=gal1';
-import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=gal1';
-import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=gal1&art=pilot-recovery2';
-import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=gal1';
-import {installAircraftBankRoster} from './aircraft-bank-roster.js?v=buildfit1&art=pilot-recovery2';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=gal1';
-import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible,ordinaryFighter,fighterRoundSpeed,fighterShotReady,fireFighterBurst} from './dogfight-pass165.js?v=gal1';
-import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=gal1';
-import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=gal1';
-import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=formations20261022';
-import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=buildfit1&afc=1&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=sortierhythm1&art=pilot-recovery2';
-import {installAceSortieRhythm,ACE_SORTIE_BALANCE} from './ace-sortie-rhythm.js?v=sortierhythm1&art=pilot-recovery2';
+import {installBomberTransfer,bomberRoundImpact,bomberContactPadding,detonateFriendlyBomb} from './bomber-transfer.js?v=headon-quality-20261023-7d8a4756&afc=1';
+import {awardPriorityKill,achievementEnemyDefeated,installAchievementTracking} from './achievements.js?v=headon-quality-20261023-7d8a4756';
+import {steerDoverBoundary,containDoverPlayer} from './dover-map-boundary.js?v=headon-quality-20261023-7d8a4756';
+import {PILOT_IDENTITY_COPY as THREE_COPY} from './pilot-identity-copy.js?v=headon-quality-20261023-7d8a4756';
+import {beginThreeSkill,tickThreePilot,threeGunDirection} from './pilot-three-combat.js?v=headon-quality-20261023-7d8a4756';
+import {EXPLOSION_LIFE,initExplosionProfile,pushExplosionFx,advanceExplosionFx} from './explosion-profiles.js?v=headon-quality-20261023-7d8a4756';
+import {beginAircraftCrash,advanceAircraftCrash,chooseEnemyDeathStyle,enemyCanCrash,enemyDeathBurst,startEnemyCrash} from './aircraft-crash.js?v=headon-quality-20261023-7d8a4756';
+import {weaponModWingActive,wingmanEngagementStep,wingmanAttackTarget,patrolEngagementStep} from './engagement-flow174.js?v=headon-quality-20261023-7d8a4756&afc=1';
+import {triggerHeinecke,tickHeinecke} from './heinecke-rettungsfallschirm.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
+import {installPilotIdentities} from './pilot-identities.js?v=headon-quality-20261023-7d8a4756&afc=1';
+import {EnemyCollisionGrid} from './collision-grid.js?v=headon-quality-20261023-7d8a4756';
+import {preparePersonalRound1918,advancePersonal1918,advanceBurns1918,pilotWingTarget,pilotSupportPose} from './pilot-lifecycle196.js?v=headon-quality-20261023-7d8a4756&burn=1022';
+import {installRevision} from './rebalance103.js?v=headon-quality-20261023-7d8a4756&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
+import {installCloudCover} from './cloud-cover1.js?v=headon-quality-20261023-7d8a4756';
+import {installFleet} from './fleet-naval1.js?v=headon-quality-20261023-7d8a4756&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021';
+import {installTrenchWar} from './trench-war1.js?v=headon-quality-20261023-7d8a4756';
+import {installCityAir} from './city-air1.js?v=headon-quality-20261023-7d8a4756';
+import {installRegionDoctrine} from './region-doctrine1.js?v=headon-quality-20261023-7d8a4756&afc=1&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {installLondonBattle} from './london-battle.js?v=headon-quality-20261023-7d8a4756';
+import {installAugmentationOverhaul,AUGMENTATION_OVERHAUL_BALANCE,BUILD_IDENTITIES,BUILD_IDENTITY_LIMIT,buildIdentityFor} from './augmentation-overhaul150.js?v=headon-quality-20261023-7d8a4756';
+import {enableStageBoss,beginStageBossFrame,endStageBossFrame,stageBossSpeed,stageSpawnInterval,stageBossCollision,damageStageBoss} from './stageboss-host.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {installBuildCombatIdentity} from './build-combat-identity.js?v=headon-quality-20261023-7d8a4756';
+import {installAircraftCombatRoles} from './aircraft-combat-roles.js?v=headon-quality-20261023-7d8a4756';
+import {registerAircraftTiers,aircraftGunSpreadMultiplier,aircraftTailPursuit,aircraftReloadMultiplier} from './aircraft-tiers.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
+import {installNormalFormationLiveries} from './normal-formation-liveries.js?v=headon-quality-20261023-7d8a4756';
+import {installAircraftBankRoster} from './aircraft-bank-roster.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=headon-quality-20261023-7d8a4756&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {attachAircraftPersonality,installAircraftPersonality} from './aircraft-personality164.js?v=headon-quality-20261023-7d8a4756';
+import {installDogfightPass,DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES,directorAircraftEligible,ordinaryFighter,fighterRoundSpeed,fighterShotReady,fireFighterBurst} from './dogfight-pass165.js?v=headon-quality-20261023-7d8a4756';
+import {installDogfightDefense,PURSUIT_MATCH_BALANCE} from './dogfight-defense166.js?v=headon-quality-20261023-7d8a4756';
+import {installEnergyCombat,ENERGY_COMBAT_BALANCE} from './energy-combat167.js?v=headon-quality-20261023-7d8a4756';
+import {installBattleDirector,BATTLE_DIRECTOR_BALANCE,BATTLE_DIRECTOR_PATTERNS} from './battle-director169.js?v=headon-quality-20261023-7d8a4756';
+import {installBattlefieldEvents,BATTLEFIELD_EVENT_BALANCE,BATTLEFIELD_EVENT_TYPES} from './battlefield-events170.js?v=headon-quality-20261023-7d8a4756&afc=1&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {installRivalAce,RIVAL_ACE_BALANCE,RIVAL_ACE_PHASES} from './rival-ace171.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
+import {installAceSortieRhythm,ACE_SORTIE_BALANCE} from './ace-sortie-rhythm.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
 
 export {DOGFIGHT_PASS_BALANCE,DOGFIGHT_PASS_STATES};
 export {PURSUIT_MATCH_BALANCE};
@@ -1807,7 +1807,7 @@ Game.prototype.update=function(dt,input={}){
  for(const p of this.particles){p.x+=p.vx*step;p.y+=p.vy*step;p.life-=step}
  {const _ph=this.particles;let _w=0;for(let _i=0;_i<_ph.length;_i++)if(_ph[_i].life>0)_ph[_w++]=_ph[_i];_ph.length=_w}
 };
-import {installNinePilots} from './pilot-nine-combat.js?v=bomber20';
+import {installNinePilots} from './pilot-nine-combat.js?v=headon-quality-20261023-7d8a4756';
 const _preNineHit=Game.prototype.hit;Game.prototype.hit=function(n){if(this.pilot==='barker'&&this.invuln<=0&&n>0){this.barkerStacks=Math.min(this.skillTime>0?5:3,(this.barkerStacks||0)+1);this.barkerStackTime=3;if(this.skillTime>0)n=Math.min(n,Math.max(0,this.hp-1))}_preNineHit.call(this,n)};
 installNinePilots(Game,PILOTS);
 
@@ -1853,7 +1853,7 @@ Game.prototype.update=function(dt,input={}){
  if(this.bishopEmptyPending){this.bishopEmptyPending=false;this.ammo.fill(0);this.reloadTime=0;this.fire=.1;this.muzzleFlash=0;this.event('wave','폭격 종료 · 탄약 소진, 재장전 필요')}
 };
 // Five authored ace attacks (fonck/gontermann/luke/proctor/lufbery) — replaces the three-pilot gate for proctor/lufbery.
-import {installFivePilots} from './pilot-five-combat.js?v=fiveace1';installFivePilots(Game,PILOTS);
+import {installFivePilots} from './pilot-five-combat.js?v=headon-quality-20261023-7d8a4756';installFivePilots(Game,PILOTS);
 // Attach after legacy spawns and coastal aircraft so the stock roster is the final ordinary-fit choice.
 installAircraftBankRoster(Game,PLANES,attachAircraftPersonality);
 
@@ -1862,7 +1862,7 @@ installAchievementTracking(Game);
 installBomberTransfer(Game,PLANES,AUGMENTATION_OVERHAUL_BALANCE);
 
 // Player-local kill/transfer rewards share the same hooks in solo and co-op.
-import {installLothar} from './lothar-combat.js?v=merge20261017';
+import {installLothar} from './lothar-combat.js?v=headon-quality-20261023-7d8a4756';
 installLothar(Game);
 
 // Observe the two metal-airframe pilots after all legacy combat layers.
@@ -1882,7 +1882,7 @@ installLoewenhardtFx(Game);
 import {installFonckPrecisionFx} from './fonck-precision-fx.js';
 installFonckPrecisionFx(Game);
 
-import {installPilotAircraft} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {installPilotAircraft} from './pilot-aircraft.js?v=headon-quality-20261023-7d8a4756&art=pilot-recovery2';
 installPilotAircraft(PLANES,WEAPONS,PILOTS,PILOT_PLANES,AIRFRAME_PROFILES,configureAirframeBalance);
 registerAircraftTiers(PLANES);
 
@@ -1892,13 +1892,13 @@ for(const [id,plane] of Object.entries(PLANES))plane.playerHandling=playerHandli
 installAceSortieRhythm(Game,{PILOTS,PLANES,PILOT_PLANES,stageAceEligible,angleDiff});
 
 // Read-only material/wing observers attach after the final five-ace impact hook.
-import {installFireDiveFx} from './fire-dive-fx.js?v=firedive1';
+import {installFireDiveFx} from './fire-dive-fx.js?v=headon-quality-20261023-7d8a4756';
 installFireDiveFx(Game);
 
-import {installPressureLinkFx} from './pressure-link-fx.js?v=pressurelink1';
+import {installPressureLinkFx} from './pressure-link-fx.js?v=headon-quality-20261023-7d8a4756';
 installPressureLinkFx(Game);
 
-import {installDeathDefianceFx} from './death-defiance-fx.js?v=deathdefiance1';
+import {installDeathDefianceFx} from './death-defiance-fx.js?v=headon-quality-20261023-7d8a4756';
 installDeathDefianceFx(Game);
 
 

@@ -1,9 +1,9 @@
 import {combatImpactResult} from './combat-impact-result.js';
-import {queueCombatImpact,advanceReplicaImpactFx} from './explosion-profiles.js?v=fx5';
-import {playerAirframeModel} from './player-airframe-handling.js?v=handling5';
-import {drawFuelFire} from './explosion-profiles.js?v=fx5';
-import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=descent20261022';
-import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
+import {queueCombatImpact,advanceReplicaImpactFx} from './explosion-profiles.js?v=headon-quality-20261023-7d8a4756';
+import {playerAirframeModel} from './player-airframe-handling.js?v=headon-quality-20261023-7d8a4756';
+import {drawFuelFire} from './explosion-profiles.js?v=headon-quality-20261023-7d8a4756';
+import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=headon-quality-20261023-7d8a4756';
+import {drawTracerBolt} from './projectiles.js?v=headon-quality-20261023-7d8a4756';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.
 const worlds=new WeakMap(),poses=new WeakMap();

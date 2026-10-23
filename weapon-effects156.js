@@ -1,7 +1,7 @@
-import {drawExplosionProfile} from './explosion-profiles.js?v=fx5';
-import {drawGameIcon} from './icons.js?v=buildfit1&afc=1';
-import {fx,fxReady,FX56,FX3} from './fx-art.js?v=tame3';
-import {fxsBoom} from './fx-sample-preview.js?v=pilotfx20261018';
+import {drawExplosionProfile} from './explosion-profiles.js?v=headon-quality-20261023-7d8a4756';
+import {drawGameIcon} from './icons.js?v=headon-quality-20261023-7d8a4756&afc=1';
+import {fx,fxReady,FX56,FX3} from './fx-art.js?v=headon-quality-20261023-7d8a4756';
+import {fxsBoom} from './fx-sample-preview.js?v=headon-quality-20261023-7d8a4756';
 
 export function drawGrenade(c,g,x,y){
  c.save();c.translate(x,y-g.height);c.rotate(g.phase==='flight'?g.age*7:0);

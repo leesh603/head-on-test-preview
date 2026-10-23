@@ -1,5 +1,5 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {segmentDistance} from './alps-geometry117.js?v=tame3';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {segmentDistance} from './alps-geometry117.js?v=headon-quality-20261023-7d8a4756';
 export const GALLIPOLI_SCALE=.78;
 const gs=v=>Math.round(v*GALLIPOLI_SCALE);
 export const GALLIPOLI_EXTENTS=Object.freeze({halfWidth:gs(1640),halfHeight:gs(1300)});

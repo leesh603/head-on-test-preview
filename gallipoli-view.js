@@ -1,10 +1,10 @@
-import {applySeaColor} from './sea-colors.js?v=tame3';
-import {fx,fxReady} from './fx-art.js?v=tame3';
-import {impactMark,aimLine,laneEdge} from './tactical-marks.js?v=tame3';
-import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
-import {GALLIPOLI_PARTS,GALLIPOLI_SECTORS,gallipoliObjective,GALLIPOLI_HANGAR,GALLIPOLI_EXTENTS} from './gallipoli-boss.js?v=tame3&rail=40&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=tame3&rail=40&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
+import {applySeaColor} from './sea-colors.js?v=headon-quality-20261023-7d8a4756';
+import {fx,fxReady} from './fx-art.js?v=headon-quality-20261023-7d8a4756';
+import {impactMark,aimLine,laneEdge} from './tactical-marks.js?v=headon-quality-20261023-7d8a4756';
+import {drawShellFlight} from './boss-rounds.js?v=headon-quality-20261023-7d8a4756&ai=1018';
+import {GALLIPOLI_PARTS,GALLIPOLI_SECTORS,gallipoliObjective,GALLIPOLI_HANGAR,GALLIPOLI_EXTENTS} from './gallipoli-boss.js?v=headon-quality-20261023-7d8a4756&rail=40&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=headon-quality-20261023-7d8a4756&rail=40&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=headon-quality-20261023-7d8a4756';
 export const GALLIPOLI_ASSETS=Object.freeze({guns:'gallipoli-siege-guns.webp',facilities:'gallipoli-siege-facilities.webp',base:'gallipoli-siege-bases.webp',star:'gallipoli-siege-star.webp',wing:'gallipoli-siege-wing.webp',hangar:'maan-workshop-r2.webp',ground:'gallipoli-siege-ground.webp',coast:'asset-bank/terrain/gallipoli_coast.webp',sea:'terrain-sea359r2.webp',central:'gallipoli-overlay-central.webp',entente:'gallipoli-overlay-entente.webp'});
 const images=new Map(),tiles=new Map(),pending=new Map();
 function load(k){if(!GALLIPOLI_ASSETS[k])return null;if(images.has(k))return images.get(k);const im=new Image();images.set(k,im);im.decoding='async';im.crossOrigin='anonymous';pending.set(k,new Promise((resolve,reject)=>{im.onload=()=>{if(!im.naturalWidth){reject(new Error('Gallipoli empty asset '+k));return}(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))};im.onerror=()=>reject(new Error('Gallipoli asset '+k));}));im.src='./'+GALLIPOLI_ASSETS[k]+'?v=r5';return im;}

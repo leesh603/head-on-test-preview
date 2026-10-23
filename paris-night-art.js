@@ -1,9 +1,9 @@
-import {cityWeaponSignals,drawParisMovingMount,drawStaakenPropellers,staakenRackLoaded} from './city-defense-art.js?v=1022';
-import {PARIS_DECK_FRAMES} from './city-defense-decks.js?v=1022';
-import {fx} from './fx-art.js?v=tame3';
-import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
-import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=tame3';
-import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {cityWeaponSignals,drawParisMovingMount,drawStaakenPropellers,staakenRackLoaded} from './city-defense-art.js?v=headon-quality-20261023-7d8a4756';
+import {PARIS_DECK_FRAMES} from './city-defense-decks.js?v=headon-quality-20261023-7d8a4756';
+import {fx} from './fx-art.js?v=headon-quality-20261023-7d8a4756';
+import {impactMark,aimLine} from './tactical-marks.js?v=headon-quality-20261023-7d8a4756';
+import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=headon-quality-20261023-7d8a4756';
+import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=headon-quality-20261023-7d8a4756&ai=1018&sig=1019&boss=20261020b&phase=1021';
 let images={};
 export function releaseParisArt(){images={};}
 export function prepareParisArt(){

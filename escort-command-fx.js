@@ -1,7 +1,7 @@
 // White Flight: signal and silver wing glints. Red Escort: inward copper curls.
 // Observe actual owned wingmen, accepted support damage and accepted guard hits.
 import {signatureCue,signatureInterval} from './pilot-signature-state.js';
-import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=ordnancefx1';
+import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=headon-quality-20261023-7d8a4756';
 export const ESCORT_PILOTS=new Set(['goering','brumowski']);
 const INSTALLED=Symbol.for('headon.escort-command-fx.v1');
 const clamp=n=>Math.max(0,Math.min(1,n));
