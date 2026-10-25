@@ -1,12 +1,14 @@
 // Categories: current 강화 and 특수장비(개편) sheets. Blank merged cells inherit the category above.
 // Telescope category follows the user-requested machine-gun-only effect.
 // Presentation only. Preview uses the existing upgrade implementation on a detached copy.
+import {WWI_EQUIPMENT} from './wwi-equipment.js';
 import {getLocale,upgradeName as i18nUpgradeName} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 import {AUGMENTATION_OVERHAUL_BALANCE} from './augmentation-overhaul150.js?v=equipment20261022';
-import {WEAPON_MODS,WEAPON_MOD_BY_ID,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js?v=weaponmods20261018';
+import {WEAPON_MODS,WEAPON_MOD_BY_ID,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js';
 import {tacticalChoices} from './tactical-doctrines.js?v=tactics20261023';
 
 export const CATEGORIES={"bomberTransfer":"폭탄","mgTransfer":"기관총","airshipTransfer":"편대","damage":"기관총","rate":"기관총","rockets":"로켓","mines":"수류탄","explosives":"폭발 피해","command":"편대","turn":"이동","armor":"내구도","regen":"내구도","cooldown":"액티브","bomber":"공통","wingman":"편대","mercedesEngine":"이동속도","spread":"기관총","combinedProjectiles":"로켓 · 수류탄","redScarf":"이동","prancingHorse":"이동 · 방어력","ironCross":"액티브","telescope":"기관총","flightGloves":"발사 · 투척 주기","amatolCharge":"폭발 피해","lufberyCircle":"편대 · 방어","fighterSupply":"편대","sparkPlug":"내구도","goeringBaton":"편대","immelmannManual":"이동","motorCannon":"특수기","loEmblem":"공통","sacredCowling":"이동","steelPlate":"내구도","mauserAceKiller":"특수기","boelckeDicta":"공통","rearGunner":"특수기","quadLewis":"기관총","cow37":"무기교체","rankinShell":"특수기","kaiserFog":"특수기","fogCompass":"특수기","maximBelt":"기관총"};
+for(const e of WWI_EQUIPMENT)CATEGORIES[e.id]={GUN:'기관총',EXPLOSIVE:'폭탄',FORMATION:'편대'}[e.family];
 for(const mod of WEAPON_MODS)CATEGORIES[mod.id]={GUN:'기관총',EXPLOSIVE:'로켓 · 수류탄',FORMATION:'편대',SPEED:'이동',SURVIVAL:'내구도'}[mod.family];
 const EN_CATEGORY={기관총:'Machine Gun',로켓:'Rockets',수류탄:'Grenades','폭발 피해':'Explosive Damage',편대:'Formation',이동:'Flight',내구도:'Durability',액티브:'Active',공통:'General',이동속도:'Flight Speed','로켓 · 수류탄':'Rockets · Grenades','이동 · 방어력':'Flight · Defense','발사 · 투척 주기':'Fire · Deployment Cycle','편대 · 방어':'Formation · Defense',특수기:'Special Weapon',무기교체:'Weapon Replacement',탄약:'Ammunition',폭탄:'Bombs',회복:'Repair'};
 const EN_LABEL={피해:'Damage',연사:'Fire Rate',탄띠:'Belt',재장전:'Reload',속도:'Speed',선회:'Turn',개조:'Modification','최대 체력':'Max Durability','초당 최대 체력':'Max Durability / sec','재사용 대기시간':'Cooldown','동시 발사':'Salvo Size','주기당 발사':'Rockets per Cycle','투척 개수':'Grenades per Deployment','투척 주기':'Deployment Cycle','시차 발사':'Release Delay'};
@@ -16,6 +18,13 @@ export function reinforcementName(u,p,planes){if(u.id==='ironCross')return plane
 export function reinforcementIconId(id){return WEAPON_MOD_BY_ID[id]?.icon||id}
 // Choice cards show the decision; the engine and build popups retain full details.
 const CHOICE_COPY={
+ strutterAirbrake:['감속 선회 후 재가속. 기체 전환 장비와 동시 장착 불가.','Brake turn, then reaccelerate. Incompatible with airframe conversions.'],
+ buckinghamBelt:['기관총 연속 명중으로 적 기체에 불을 붙입니다.','Repeated MG hits ignite enemy aircraft.'],
+ cooperRack:['전방 적을 스쳐 지나며 소형 폭탄을 연속 투하합니다.','Drops a pair of light bombs when passing a forward target.'],
+ fieryGrapnel:['스쳐 지나는 적기에 화염 갈고리를 걸어 불태웁니다.','Hooks and ignites an aircraft during a close flyby.'],
+ flechettes:['전방 적에게 관통 화살탄을 연속 살포합니다. 중장갑에는 위력이 감소합니다.','Releases piercing darts in short bursts at forward enemies. Less effective against heavy armor.'],
+ veryPistol:['신호탄으로 표적을 지정해 아군 편대의 집중 공격을 유도합니다.','Signals a forward target for your existing wingmen to focus on.'],
+ hytheCamera:['연속 명중한 표적을 분석해 기관총 피해를 높이고 공격 준비를 드러냅니다.','Analyzes a repeatedly hit target, boosting MG damage and revealing its attack warnings.'],
  amatolCharge:['폭발 피해·반경 +40%. 폭발 격추 시 30% 파편 폭발 (연쇄 없음).','Blast damage/radius +40%. Explosive kills cause a 30% secondary blast; no chains.'],
  lufberyCircle:['편대기 수에 따라 받는 피해 −20~35%. 상호 엄호 대형.','Damage taken −20–35% by wing count. Mutual-cover formation.'],
  redScarf:['이동 속도 +45%. 후방 추적 거리 +25%, 포착 시간 −35%.','Speed +45%. Rear-pursuit range +25%, lock time −35%.'],

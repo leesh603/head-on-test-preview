@@ -1,36 +1,43 @@
+import {wwiWingTarget} from './wwi-equipment.js';
 import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
 // Shared, bounded manoeuvres for ordinary allied aircraft. Pilot-authored
 // formations continue through their existing support poses.
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
 const angleDiff=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+function* wingTargets(world){yield* world.enemies||[];for(const e of world.eliteEnemies?.members||[])if(!(world.enemies||[]).includes(e))yield e;}
+const targetInWorld=(world,target)=>(world.enemies||[]).includes(target)||(world.eliteEnemies?.members||[]).includes(target);
 
 export const WEAPON_WING_BALANCE=Object.freeze({strikeCycle:6,strikeAttack:2.4,coverCycle:3.6,coverAttack:2.4,launchWindow:.65,guardRange:250,guardLeash:300,scanInterval:.2});
 const commandPilots=new Set(['goering','boelcke','collishaw','brumowski']);
 export function weaponModWingActive(owner,wing){
  return !!wing.permanent&&!Number.isFinite(wing.carrierLaunchAt)&&['strike','cover','reinforcement','elite','escort'].includes(owner.tacticalWingMode?.()||owner.weaponMods?.FORMATION)&&!owner.upgrades?.lufberyCircle&&!wing.boelckePincer&&!wing.orbit&&!(owner.skillTime>0&&commandPilots.has(owner.pilot));
 }
-const eligibleModTarget=(owner,target,range)=>!!target&&target.hp>0&&!target.dead&&!target.crashing&&!target.rivalEscaped&&distance(target,owner)<=range;
-const validModTarget=(world,owner,target,range)=>eligibleModTarget(owner,target,range)&&(world.enemies||[]).includes(target);
+const eligibleModTarget=(owner,target,range)=>!!target&&target.hp>0&&target.alive!==false&&!target.expired&&!target.dead&&!target.crashing&&!target.rivalEscaped&&!target.stageBossBody?.dead&&distance(target,owner)<=range;
+const validModTarget=(world,owner,target,range)=>eligibleModTarget(owner,target,range)&&targetInWorld(world,target);
+const offensiveWingTarget=e=>!!e.stageBossBody||!(e.surface||e.stationary);
 const priorityTarget=e=>e.bossPilot||e.type==='boss'?3:e.ace||e.formationCommand||e.missionTarget||e.heavyBomber?2:0;
 function modWingPlan(world,owner,mode,now){
  let plan=owner._netWeaponWingPlan;
  if(!plan||plan.mode!==mode){plan=owner._netWeaponWingPlan={mode,epoch:now,window:-1,scanAt:0,guardScanAt:0};}
  const period=mode==='elite'?5.6:mode==='strike'?WEAPON_WING_BALANCE.strikeCycle:WEAPON_WING_BALANCE.coverCycle;
  const window=Math.floor(Math.max(0,now-plan.epoch)/period),start=plan.epoch+window*period;
- if(window!==plan.window){plan.window=window;plan.start=start;plan.target=null;plan.scanAt=0;}
+ if(window!==plan.window){plan.window=window;plan.start=start;plan.target=null;plan.scanAt=0;plan.awaitingTarget=owner.pilot!=='loewenhardt';}
  if(plan.checkedAt===now)return plan;plan.checkedAt=now;
  if(!plan.target&&now>=plan.scanAt||plan.target&&!validModTarget(world,owner,plan.target,520)){
   plan.scanAt=now+WEAPON_WING_BALANCE.scanInterval;let best=-Infinity;plan.target=null;
   const carrier=owner.bomberTransfer?.kind==='airship',focus=owner.buildWingTarget?.(owner)||owner.airshipFocusTarget?.();
-  for(const enemy of world.enemies||[]){if(!eligibleModTarget(owner,enemy,520)||!carrier&&(enemy.surface||enemy.stationary))continue;
+  for(const enemy of wingTargets(world)){if(!eligibleModTarget(owner,enemy,520)||!carrier&&!offensiveWingTarget(enemy))continue;
    const score=priorityTarget(enemy)*1000+(enemy===focus?600:0)-distance(enemy,owner);
    if(score>best){best=score;plan.target=enemy;}
   }
  }
+ // An empty sky must not consume the shared launch window. Start this cycle
+ // when contact arrives; retargeting after a launch cannot restart the cycle.
+ if(plan.awaitingTarget&&plan.target){plan.awaitingTarget=false;plan.epoch+=now-plan.start;plan.start=now;}
  if(now>=plan.guardScanAt||plan.guardTarget&&!validModTarget(world,owner,plan.guardTarget,WEAPON_WING_BALANCE.guardRange)){
   plan.guardScanAt=now+WEAPON_WING_BALANCE.scanInterval;plan.guardTarget=null;let best=WEAPON_WING_BALANCE.guardRange;
-  for(const enemy of world.enemies||[]){if(!eligibleModTarget(owner,enemy,WEAPON_WING_BALANCE.guardRange)||enemy.surface||enemy.stationary)continue;const d=distance(enemy,owner);if(d<best){best=d;plan.guardTarget=enemy;}}
+  for(const enemy of wingTargets(world)){if(!eligibleModTarget(owner,enemy,WEAPON_WING_BALANCE.guardRange)||enemy.surface||enemy.stationary)continue;const d=distance(enemy,owner);if(d<best){best=d;plan.guardTarget=enemy;}}
  }
  return plan;
 }
@@ -46,10 +53,15 @@ function prepareModWing(world,owner,wing,home,now){
  const attacking=!guard&&(!!order||elapsed<(mode==='elite'?2.1:mode==='strike'?WEAPON_WING_BALANCE.strikeAttack:WEAPON_WING_BALANCE.coverAttack));
  let assignedTarget=order?.target||plan.target;
  // Reinforcements divide approach lanes; elite wings share the priority target.
- if(mode==='reinforcement'&&!order){let best=Infinity;for(const e of world.enemies||[]){if(!eligibleModTarget(owner,e,520)||e.surface||e.stationary)continue;let assigned=0;for(const other of world.allies||[])if(other!==wing&&other.ownerId===wing.ownerId&&other.engagementTarget===e)assigned++;const score=distance(e,wing)+assigned*260;if(score<best){best=score;assignedTarget=e;}}}
+ if(mode==='reinforcement'&&!order){let best=Infinity;for(const e of wingTargets(world)){if(!eligibleModTarget(owner,e,520)||!offensiveWingTarget(e))continue;let assigned=0;for(const other of world.allies||[])if(other!==wing&&other.ownerId===wing.ownerId&&other.engagementTarget===e)assigned++;const score=distance(e,wing)+assigned*260;if(score<best){best=score;assignedTarget=e;}}}
  wing.tacticalCrossfire=!!order?.cross;wing.tacticalBreakthrough=!!order?.breakthrough;wing.tacticalWing=['reinforcement','elite','escort'].includes(mode);
  wing.weaponModFormation=mode;wing.weaponModGuard=guard;wing._netWeaponWingGuardTarget=null;
  let state=wing.engagementState||'HOME';
+ // A killed/removed contact must not waste the rest of an already launched pass.
+ // Retarget inside its existing attack window without granting another sortie.
+ if(!guard&&attacking&&(state==='INTERCEPT'||state==='PASS')&&!validModTarget(world,owner,wing.engagementTarget,580)&&assignedTarget){
+  wing.engagementTarget=assignedTarget;wing._netCarrierEngagement=assignedTarget;if(state==='PASS')wing.engagementHeading=Math.atan2(assignedTarget.y-wing.y,assignedTarget.x-wing.x);
+ }
  if(guard){
   const target=distance(wing,owner)<=WEAPON_WING_BALANCE.guardLeash?(order?.target||plan.guardTarget):null;
   if(target){
@@ -72,13 +84,14 @@ function modWingHome(wing,owner,home,dt){
 }
 
 export function wingmanEngagementStep(world,owner,wing,home,dt){
+ const signal=wwiWingTarget(owner,wing);if(signal){const bearing=Math.atan2(signal.y-wing.y,signal.x-wing.x);wing.a+=clamp(angleDiff(bearing,wing.a),-2.5*dt,2.5*dt);const speed=clamp(owner.speed||170,145,225);wing.x+=Math.cos(wing.a)*speed*dt;wing.y+=Math.sin(wing.a)*speed*dt;return true;}
  const mod=prepareModWing(world,owner,wing,home,world.t??owner.t??0);
  if(owner.bomberTransfer?.kind==='airship'&&wing.permanent&&!wing.boelckePincer&&!wing.orbit){
   const commanded=owner.skillTime>0&&['goering','boelcke','collishaw','brumowski'].includes(owner.pilot);
   if(owner.upgrades?.lufberyCircle||commanded){wing._netCarrierTarget=null;wing._netCarrierEngagement=null;wing.engagementTarget=null;wing.engagementState='HOME';return false}
   const now=world.t??owner.t??0,slot=wing.slot||0,side=slot%2?-1:1,fit=owner.bomberTransfer;
   let state=wing.engagementState||'HOME',target=wing._netCarrierEngagement;
-  if(target&&(!(target.hp>0)||target.dead||target.crashing||!(world.enemies||[]).includes(target)||distance(target,owner)>560))target=null;
+  if(target&&(!eligibleModTarget(owner,target,560)||!targetInWorld(world,target)))target=null;
   if(distance(wing,owner)>400){state='RETURN';target=null}
   if(state==='INTERCEPT'&&!target)state='RETURN';
   if(state==='PASS'&&now>=wing.engagementUntil){state='BREAK';wing.engagementUntil=now+.9;wing.engagementHeading=wing.a+side*.75;target=null}
@@ -110,10 +123,10 @@ export function wingmanEngagementStep(world,owner,wing,home,dt){
  }
  if(owner.upgrades?.lufberyCircle||wing.boelckePincer||wing.orbit||!mod&&(owner.wingmanDamageMult>1||commandPilots.has(owner.pilot))||mod&&owner.skillTime>0&&commandPilots.has(owner.pilot))return false;
  const now=world.t||0,active=wing.engagementTarget;
- if(active&&(active.hp<=0||!world.enemies.includes(active)||distance(active,owner)>580||distance(active,wing)>700))wing.engagementTarget=null;
+ if(active&&(!eligibleModTarget(owner,active,580)||!targetInWorld(world,active)||distance(active,wing)>700))wing.engagementTarget=null;
  if(!mod&&(wing.engagementState==='HOME'||!wing.engagementState||wing.engagementState==='RETURN'&&distance(wing,home)<110)&&!wing.engagementTarget){
   let best=650,chosen=null;
-  for(const enemy of world.enemies||[]){if(enemy.hp<=0||enemy.crashing||enemy.surface||enemy.stationary||distance(enemy,owner)>520)continue;
+  for(const enemy of wingTargets(world)){if(!eligibleModTarget(owner,enemy,520)||enemy.surface||enemy.stationary)continue;
    let assigned=0;if(world.allies)for(const other of world.allies)if(other!==wing&&other.engagementTarget===enemy)assigned++;
    const score=distance(enemy,wing)+assigned*230;
    if(score<best){best=score;chosen=enemy}

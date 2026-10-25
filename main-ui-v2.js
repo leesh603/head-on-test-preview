@@ -74,4 +74,4 @@ if(hangar){
 }
 
 // Direct Astra implementation: all live controls and data bindings are preserved.
-import("./astra-interface180.js?v=buildfit1&afc=1&art=pilot-recovery2");
+import("./astra-interface180.js?v=buildfit1&afc=1&art=pilot-recovery2&hangar=atomic1");

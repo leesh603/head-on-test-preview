@@ -108,12 +108,3 @@ export function renderEliteLayer(ctx, system, camera, assets, time = 0) {
   }
 }
 
-export function assertEliteAssetsReady(assets) {
-  const missing = [];
-  if (!assets?.lePrieur?.naturalWidth && !assets?.lePrieur?.width) missing.push('le-prieur-squadron.webp');
-  if (!assets?.schlachtstaffel?.naturalWidth && !assets?.schlachtstaffel?.width) missing.push('halberstadt-cliv-squadron.webp');
-  if (!assets?.junkers?.naturalWidth && !assets?.junkers?.width) missing.push('junkers-j1-squadron.webp');
-  if (!assets?.salamander?.naturalWidth && !assets?.salamander?.width) missing.push('salamander-squadron.webp');
-  if (missing.length) throw new Error(`Elite patch assets unavailable: ${missing.join(', ')}`);
-  return true;
-}

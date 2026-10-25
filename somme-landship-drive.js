@@ -12,13 +12,14 @@ export function driveLandship(b,dt){
  const order=b.driveOrder||{},halt=!!b.salvo||b.drivePause>0||order.halt;
  b.drivePause=Math.max(0,(b.drivePause||0)-dt);
  const leg=125*s;
- if(b.driveDistance>=leg&&!halt){b.driveDirection*=-1;b.driveDistance=0;b.drivePause=1.15;}
+ // Hunting orders steer straight at their point; only patrol legs shuttle back and forth.
+ if(order.hunt)b.driveDirection=1;else if(b.driveDistance>=leg&&!halt){b.driveDirection*=-1;b.driveDistance=0;b.drivePause=1.15;}
  const heading=order.heading??Math.PI+(b.slot===1?-.09:b.slot===2?.09:0);
- const yaw=tracks===1?b.hullYaw+(b.driveVelocity>.05?(b.parts.get('track-left').destroyed?-.10:.10)*dt*b.driveDirection:0):turn(b.hullYaw,heading,.16*dt);
+ const yaw=tracks===1?b.hullYaw+(b.driveVelocity>.05?(b.parts.get('track-left').destroyed?-.10:.10)*dt*b.driveDirection:0):turn(b.hullYaw,heading,(order.hunt?.62:.16)*dt);
  const canTurn=clear({x:b.x,y:b.y,sommeScale:s,hullYaw:yaw});
  const remaining=leg-b.driveDistance;
- const target=(tracks===1?5.5:Math.min(17,order.speed??17))*s*(halt||b.drivePause>0?0:clamp(remaining/(18*s),0,1));
- let speed=b.driveVelocity+clamp(target-b.driveVelocity,-34*s*dt,13*s*dt);
+ const target=(tracks===1?5.5:Math.min(order.hunt?order.speed:17,order.speed??17))*s*(halt||b.drivePause>0?0:order.hunt?1:clamp(remaining/(18*s),0,1));
+ let speed=b.driveVelocity+clamp(target-b.driveVelocity,-34*s*dt,(order.hunt?40:13)*s*dt);
  const a=canTurn?yaw:b.hullYaw,travel=speed*dt,direction=b.driveDirection;
  const pose={sommeScale:s,hullYaw:a,x:b.x+Math.sin(a)*travel*direction,y:b.y-Math.cos(a)*travel*direction};
  const moving=clear(pose);

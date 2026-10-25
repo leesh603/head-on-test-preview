@@ -1,5 +1,5 @@
 import {isAlbatrosHunter} from './albatros-hunter-fx.js';
-import {fx as pilotTexture} from './fx-art.js?v=gal1';
+import {fx as pilotTexture} from './fx-art.js?v=tame3';
 import {createPilotReadability} from './pilot-readability-fx.js?v=gal1';
 const pilotReadability=createPilotReadability(pilotTexture);
 // Passive-state FX (sample: Richthofen "사냥 본능" / Hunting Instinct).

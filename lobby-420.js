@@ -1,3 +1,4 @@
+import {portraitThumbnailSource} from './portraits.js?v=crew20261024';
 /* Phone lobby (420). Presentation only: the key art and logo own the screen,
    the selected aircraft is named under them, then mode tabs, the sortie
    button and a bottom tab bar. Pilot/aircraft choice moves to the "에이스"
@@ -14,11 +15,20 @@ const mq = matchMedia('(max-width:720px)');
 const $ = id => document.getElementById(id);
 const en = () => document.documentElement.lang === 'en';
 const T = () => en()
-  ? { solo: 'Solo Sortie', online: 'Online Co-op', campaign: 'Campaign', soon: 'Campaign is coming soon.', ranking: 'Ranking', aces: 'Aces', medals: 'Medals', home: 'Homepage', settings: 'Settings', active: 'Active', back: 'Lobby', acesTitle: 'Aces', ready: 'Fly this ace', hp: 'Durability', aircraft: 'Aircraft', pilots: 'Pilots', locked: 'Locked · unlocks later', prev: 'Previous aircraft', next: 'Next aircraft', home: 'Homepage', backHome: 'Back to lobby' }
-  : { solo: '단독 출격', online: '온라인 협동', campaign: '캠페인', soon: '캠페인은 준비 중입니다.', ranking: '랭킹', aces: '에이스', medals: '훈장', home: '홈페이지', settings: '설정', active: '액티브', back: '로비', acesTitle: '에이스', ready: '이 에이스로 출격 준비', hp: '내구도', aircraft: '기체', pilots: '파일럿', locked: '잠김 · 추후 해금', prev: '이전 기체', next: '다음 기체', backHome: '로비로' };
+  ? { solo: 'Solo Sortie', online: 'Online Co-op', local: 'PC 2P Co-op', campaign: 'Campaign', soon: 'Campaign is coming soon.', ranking: 'Ranking', aces: 'Aces', medals: 'Medals', home: 'Homepage', settings: 'Settings', active: 'Active', back: 'Lobby', acesTitle: 'Aces', ready: 'Fly this ace', hp: 'Durability', aircraft: 'Aircraft', pilots: 'Pilots', locked: 'Locked · unlocks later', prev: 'Previous aircraft', next: 'Next aircraft', home: 'Homepage', backHome: 'Back to lobby' }
+  : { solo: '단독 출격', online: '온라인 협동', local: 'PC 2인 협동', campaign: '캠페인', soon: '캠페인은 준비 중입니다.', ranking: '랭킹', aces: '에이스', medals: '훈장', home: '홈페이지', settings: '설정', active: '액티브', back: '로비', acesTitle: '에이스', ready: '이 에이스로 출격 준비', hp: '내구도', aircraft: '기체', pilots: '파일럿', locked: '잠김 · 추후 해금', prev: '이전 기체', next: '다음 기체', backHome: '로비로' };
 const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
 const put = (node, text) => { if (node.textContent !== text) node.textContent = text; };
-const ICON = { ranking: 'lobby-ic-ranking420.webp?v=lobby1', aces: 'lobby-ic-aces420.webp?v=lobby1', medals: 'lobby-ic-medals420.webp?v=lobby1', home: 'lobby-ic-home420.webp?v=lobby1' };
+const putAircraftName=(node,text)=>{
+ if(node.textContent!==text){node.textContent=text;node.title=text;}
+ const width=node.clientWidth,max=Number(getComputedStyle(node).getPropertyValue('--aircraft-title-max'))||16;
+ if(!width)return;
+ const key=text+'|'+width+'|'+max;
+ if(node.dataset.aircraftFit===key)return;
+ node.style.setProperty('font-size',max+'px','important');
+ const size=Math.min(max,Math.floor(max*width/Math.max(width,node.scrollWidth)*10)/10);
+ node.style.setProperty('font-size',size+'px','important');node.dataset.aircraftFit=key;
+};const ICON = { ranking: 'lobby-ic-ranking420.webp?v=lobby1', aces: 'lobby-ic-aces420.webp?v=lobby1', medals: 'lobby-ic-medals420.webp?v=lobby1', home: 'lobby-ic-home420.webp?v=lobby1' };
 const LOCK = '<svg viewBox="0 0 12 14" aria-hidden="true"><path d="M3 6V4a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="1.5" y="6" width="9" height="7" rx="1.2" fill="currentColor"/></svg>';
 
 // Roster labels identify the ace, including siblings and both crew members.
@@ -30,17 +40,16 @@ function mobilePilotName420(id, label, locale) {
   return MOBILE_PILOT_NAMES420[locale === 'en' ? 'en' : 'ko'][id] || label.trim();
 }
 
-// Alpha bounds of the unchanged 1254px crew busts. Head bounds keep both
-// people inside narrow cards while the painted shoulders meet the card floor.
-const MOBILE_CREW_BOUNDS420 = {huffzky:{box:[55,227,1249,1117],heads:[290,1015]},mckeever:{box:[6,87,1251,1150],heads:[210,1090]}};
+// Fit the complete painted crew inside its frame; heads alone must never
+// determine a crop that cuts away a person's shoulders or face.
+const MOBILE_CREW_BOUNDS420 = {huffzky:{box:[0,105,1254,1235],heads:[195,1110]},mckeever:{box:[0,107,1254,1254],heads:[185,1120]}};
 function mobileCrewPortraitLayout420(id, width, height) {
   const bounds = MOBILE_CREW_BOUNDS420[id];
   if (!bounds || !(width > 0 && height > 0)) return null;
   const [left, top, right, bottom] = bounds.box, center = (left + right) / 2;
   const fit = Math.min(width, height) / 1254;
-  const headWidth = 2 * Math.max(center - bounds.heads[0], bounds.heads[1] - center);
-  const scale = Math.min(height * .96 / (bottom - top), width * .98 / headWidth) / fit;
-  return {scale, x: -(center - 627) * fit * scale, y: height * .48 - (bottom - 627) * fit * scale};
+  const scale = Math.min(height * .90 / (bottom - top), width * .90 / (right - left)) / fit;
+  return {scale, x: -(center - 627) * fit * scale, y: height * .05 - height / 2 - (top - 627) * fit * scale};
 }
 function fitMobileCrew420(image, id) {
   const layout = mobileCrewPortraitLayout420(id, image.clientWidth, image.clientHeight);
@@ -90,8 +99,8 @@ function install() {
 
   /* mode tabs */
   const modes = el('div', 'lobby-modes'); modes.setAttribute('role', 'tablist');
-  const mSolo = el('button', 'on'), mOnline = el('button'), mCamp = el('button', 'locked');
-  for (const b of [mSolo, mOnline, mCamp]) { b.type = 'button'; b.setAttribute('role', 'tab'); modes.append(b); }
+  const mSolo = el('button', 'on'), mOnline = el('button'), mLocal = el('button', 'pc-only'), mCamp = el('button', 'locked');
+  for (const b of [mSolo, mOnline, mLocal, mCamp]) { b.type = 'button'; b.setAttribute('role', 'tab'); modes.append(b); }
   mSolo.setAttribute('aria-selected', 'true'); mCamp.setAttribute('aria-disabled', 'true');
   const note = el('p', 'lobby-note'); note.hidden = true;
   launch.prepend(modes, note);
@@ -124,8 +133,13 @@ function install() {
      are selected as you land on them; locked ones (disabled/hidden) are only
      previewed, so future unlocks slot in without new UI. */
   const optLocked = o => o.disabled || o.hidden || !!o.parentElement?.disabled;
-  const optName = o => (o.textContent.split(' · ').find(s => /\(/.test(s)) || o.textContent.split(' · ').pop()).replace(/\s*\(.*$/, '').trim();
-  let view = -1, viewPilot = '';
+  const optName = o => o.dataset.aircraftName || o.textContent.replace(/^(?:기본|Default) · /,'').trim();
+  let view = -1, viewPilot = '', figureRequest = 0;
+  const fitFigure = (fig, key) => {
+    const layout = hangarArtLayout(key, fig.clientWidth || 240, fig.clientHeight || 150) || (fig.complete ? alphaFit(fig, fig.clientWidth, fig.clientHeight) : null);
+    fig.toggleAttribute('data-hangar-fit', !!layout);
+    for (const [name, value] of Object.entries(layout || {scale: 1, x: 0, y: 0})) fig.style.setProperty('--hangar-art-' + name, String(value) + (name === 'scale' ? '' : 'px'));
+  };
   const step = dir => {
     const sel = $('aircraftSelect103'); const n = sel?.options.length || 0; if (n < 2 || sel.disabled) return;
     view = ((view < 0 ? sel.selectedIndex : view) + dir + n) % n;
@@ -164,27 +178,26 @@ function install() {
       q('.lap-dots').innerHTML = n > 1 ? [...sel.options].map((o, i) => `<i class="${i === view ? 'on' : ''}${optLocked(o) ? ' lock' : ''}"></i>`).join('') : '';
     }
     put(q('.lap-lock'), previewing ? sel.options[view].dataset.unlockProgress || L.locked : '');
-    const fig = q('.lap-fig img');
-    if (previewing) {
-      const key = aircraftKey(sel.options[view].value, false, pilot);
-      if (fig.dataset.key !== key) { fig.dataset.key = key; fig.hidden = true; hangarArt(key).then(url => { if (fig.dataset.key === key && url) { fig.src = url; fig.hidden = false; } }); }
-      const o = sel.options[view], plane = PLANES[o.value];
-      put(q('.lap-air h4'), optName(o));
-      const owner = (o.textContent.match(/\(\u2060?\s*([^)]*)\)/) || [])[1] || '';
-      put(q('.lap-meta'), [plane?.tierLabel || '', owner.trim()].filter(Boolean).join(' · '));
-    } else {
-      const art = hangar.querySelector('.astra-aircraft-art'); fig.dataset.key = '';
-      if (art?.getAttribute('src') && !art.hidden) { if (fig.getAttribute('src') !== art.getAttribute('src')) fig.src = art.getAttribute('src'); fig.hidden = false; } else fig.hidden = true;
-      const h2 = hangar.querySelector('.astra-aircraft h2');
-      put(q('.lap-air h4'), (h2.firstChild?.nodeType === 3 ? h2.firstChild.textContent : h2.textContent).trim());
-      const owner = (h2.querySelector('.ho-air-owner')?.textContent || '').trim();
-      const tier = ($('pilotAircraft')?.textContent.split(' · ').find(s => /TIER/.test(s)) || '').trim();
-      const role = (hangar.querySelector('.astra-aircraft-heading p')?.textContent || '').split(' · ').filter(s => !/TIER/.test(s)).join(' · ').trim();
-      put(q('.lap-meta'), [tier, owner, role].filter(Boolean).join(' · '));
+    const fig = q('.lap-fig img'), figureKey = aircraftKey(previewing ? sel.options[view].value : sel.value, false, pilot);
+    if (fig.dataset.key !== figureKey) {
+      const request = ++figureRequest; fig.dataset.key = figureKey; fig.hidden = true; fig.onload = fig.onerror = null;
+      hangarArt(figureKey).then(url => {
+        if (request !== figureRequest || !url) return;
+        const reveal = () => { if (request !== figureRequest) return; fig.hidden = false; fitFigure(fig, figureKey); };
+        const failed = () => { if (request === figureRequest) fig.hidden = true; };
+        fig.onload = () => { fig.onload = null; if (typeof fig.decode === 'function') fig.decode().then(reveal, failed); else reveal(); };
+        fig.onerror = failed; fig.src = url; if (fig.complete && fig.naturalWidth) fig.onload();
+      });
     }
-    const layout = hangarArtLayout(aircraftKey(previewing ? sel.options[view].value : sel.value, false, pilot), fig.clientWidth || 240, fig.clientHeight || 150) || (fig.complete ? alphaFit(fig, fig.clientWidth, fig.clientHeight) : null);
-    fig.toggleAttribute('data-hangar-fit', !!layout);
-    for (const [name, value] of Object.entries(layout || {scale: 1, x: 0, y: 0})) fig.style.setProperty('--hangar-art-' + name, String(value) + (name === 'scale' ? '' : 'px'));
+    putAircraftName(q('.lap-air h4'), optName(sel.options[view]));
+    if (previewing) {
+      const plane = PLANES[sel.options[view].value];
+      put(q('.lap-meta'), plane?.tierLabel || '');
+    } else {
+      const role = (hangar.querySelector('.astra-aircraft-heading p')?.textContent || '').trim();
+      put(q('.lap-meta'), role);
+    }
+    fitFigure(fig, figureKey);
     q('.lap-pt').classList.toggle('duo', pilot === 'huffzky' || pilot === 'mckeever');
     fitMobileCrew420(q('.lap-pt img'), pilot);
     let rows = [...($('airframeStats')?.querySelectorAll('.airframe-rating-row') || [])].map(r => [r.querySelector('b')?.textContent.trim() || '', r.querySelectorAll('i.active').length]);
@@ -217,8 +230,9 @@ function install() {
   tRank.addEventListener('click', () => nav.querySelector('[data-action="ranking"]')?.click());
   tMedals.addEventListener('click', () => $('serviceRecordEntry')?.click());
   gear.addEventListener('click', () => window.dispatchEvent(new CustomEvent('headon:settings')));
-  mSolo.addEventListener('click', () => { note.hidden = true; });
+  mSolo.addEventListener('click', () => { note.hidden = true; if (document.body.classList.contains('coop-selected')) $('endlessMode')?.click(); });
   mOnline.addEventListener('click', () => { note.hidden = true; nav.querySelector('[data-action="online"]')?.click(); });
+  mLocal.addEventListener('click', () => { note.hidden = true; if (!document.body.classList.contains('coop-selected')) $('coopMode')?.click(); });
   let noteTimer = 0;
   mCamp.addEventListener('click', () => { note.textContent = T().soon; note.hidden = false; clearTimeout(noteTimer); noteTimer = setTimeout(() => { note.hidden = true; }, 2200); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('lobby-aces') && !document.querySelector('#modal:not(.hidden)')) setAces(false); });
@@ -227,13 +241,16 @@ function install() {
   const sync = () => {
     queued = false;
     const L = T();
-    put(mSolo, L.solo); put(mOnline, L.online);
+    put(mSolo, L.solo); put(mOnline, L.online); put(mLocal, L.local);
+    const coopOn = document.body.classList.contains('coop-selected'); mSolo.classList.toggle('on', !coopOn); mLocal.classList.toggle('on', coopOn); mSolo.setAttribute('aria-selected', String(!coopOn)); mLocal.setAttribute('aria-selected', String(coopOn)); mLocal.hidden = $('coopMode')?.classList.contains('hidden') ?? true;
     if (mCamp.dataset.lang !== document.documentElement.lang) { mCamp.dataset.lang = document.documentElement.lang; mCamp.innerHTML = LOCK + '<span></span>'; }
     put(mCamp.lastChild, L.campaign); if (start.dataset.lobbyMode !== L.solo) start.dataset.lobbyMode = L.solo;
     put(tRank.lastChild, L.ranking); put(tAces.lastChild, L.aces); put(tMedals.lastChild, L.medals); put(tHome.lastChild, L.home + ' ↗');
     gear.setAttribute('aria-label', L.settings); gear.title = L.settings;
     const portrait = $('hangarPortrait');
-    if (portrait?.src && chipImg.src !== portrait.src) chipImg.src = portrait.src;
+    const pilotId = $('pilotTabs').querySelector('[data-pilot-id].active')?.dataset.pilotId;
+    const chipSource = portraitThumbnailSource(pilotId) || portrait?.src;
+    if (chipSource && chipImg.getAttribute('src') !== chipSource) chipImg.src = chipSource;
     put(chipName, $('astraPilotTitle').textContent.trim());
     const h2 = hangar.querySelector('.astra-aircraft h2');
     put(chipSub, (h2.firstChild?.nodeType === 3 ? h2.firstChild.textContent : h2.textContent).trim());
@@ -241,14 +258,18 @@ function install() {
   };
   const schedule = () => { if (!queued) { queued = true; requestAnimationFrame(sync); } };
   const layoutResize = new ResizeObserver(schedule);
-  for (const node of [q('.lap-fig img'), q('.lap-pt img')]) layoutResize.observe(node);
+  for (const node of [q('.lap-fig img'), q('.lap-pt img'), q('.lap-air h4')]) layoutResize.observe(node);
+  document.fonts?.ready?.then(()=>{delete q('.lap-air h4').dataset.aircraftFit;schedule()});
   q('.lap-fig img').addEventListener('load', schedule);
   // The logo sits in the dark band between the key art and the launch column.
   new ResizeObserver(() => document.body.style.setProperty('--lobby-launch-h', Math.round(launch.getBoundingClientRect().height) + 'px')).observe(launch);
   new MutationObserver(schedule).observe(hangar, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['src', 'class'] });
   new MutationObserver(schedule).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+  new MutationObserver(schedule).observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
-  const apply = () => { document.body.classList.toggle('lobby420', mq.matches); if (!mq.matches) setAces(false); };
+  // ui423: the PC hangar reuses the same lobby controls in a right-hand column.
+  const pcUI = () => !mq.matches && document.documentElement.classList.contains('ui423');
+  const apply = () => { document.body.classList.toggle('lobby420', mq.matches); document.body.classList.toggle('lobby423pc', pcUI()); if (!mq.matches && !pcUI()) setAces(false); };
   mq.addEventListener?.('change', apply);
   apply(); sync();
   // Installation is not readiness: all four labelled controls must have decoded icons.
@@ -266,5 +287,3 @@ if (!install()) {
   const obs = new MutationObserver(() => { if (install()) obs.disconnect(); });
   obs.observe(document.body, { childList: true, subtree: true });
 }
-
-

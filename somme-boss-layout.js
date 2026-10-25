@@ -43,14 +43,4 @@ export function sommeMuzzles(b,p){
 }
 export function sommeExtents(b){const s=b.sommeScale||1;if(b.kind==='morser-battery')return{halfWidth:345*s,halfHeight:174*s};const a=b.hullYaw||0;return{halfWidth:(Math.abs(Math.cos(a))*80+Math.abs(Math.sin(a))*119)*s,halfHeight:(Math.abs(Math.sin(a))*80+Math.abs(Math.cos(a))*119)*s};}
 export function landshipClearance(a,b){const angle=Math.atan2(b.y-a.y,b.x-a.x),support=q=>Math.hypot(78*Math.cos(angle-q.hullYaw),112*Math.sin(angle-q.hullYaw))*q.sommeScale;return Math.hypot(a.x-b.x,a.y-b.y)-support(a)-support(b)-10*Math.min(a.sommeScale,b.sommeScale);}
-export function separateLandships(bodies,bounds){
- // Fixed tracks and wrecks retain their actual world pose. Moving partners
- // yield to them. Solve after the last live tank's movement, then sync mounts.
- const mobile=b=>!b.dead&&b.tracks()>0;
- for(let pass=0;pass<5;pass++)for(let i=0;i<bodies.length;i++)for(let j=i+1;j<bodies.length;j++){
-  const a=bodies[i],b=bodies[j],gap=landshipClearance(a,b);if(gap>=0||!mobile(a)&&!mobile(b))continue;
-  const angle=Math.atan2(b.y-a.y,b.x-a.x),push=-gap+.1,share=mobile(a)&&mobile(b)?.5:1;
-  for(const [q,sign]of [[a,-1],[b,1]])if(mobile(q)){const ex=sommeExtents(q);q.x=clamp(q.x+Math.cos(angle)*push*share*sign,bounds.left+ex.halfWidth+8,bounds.right-ex.halfWidth-8);q.y=clamp(q.y+Math.sin(angle)*push*share*sign,bounds.top+ex.halfHeight+8,bounds.bottom-ex.halfHeight-8);syncSommeParts(q);}
- }
-}
 

@@ -3,7 +3,7 @@ import {REGIONAL_BOSS_SET,REGIONAL_LAYOUT,RAIL_CAR_SIZE} from './regional-boss-l
 import {fx} from './fx-art.js?v=tame3';
 import {impactMark,partMark,aimLine,laneEdge,MARK} from './tactical-marks.js?v=tame3';
 import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
-import {drawAADefense} from './aa-defense-art.js?v=tame3';
+import {drawAADefense} from './aa-defense-art.js?v=gal1';
 
 // These are authored/derived RGBA sprites, not canvas-painted replacement art.
 // Only the current battlefield's small atlas set remains resident.
@@ -32,7 +32,6 @@ export function prepareRegionalBossArt(region){
  for(const key of cache.keys())if(!keys.includes(key))cache.delete(key);
  return Promise.all(keys.map(key=>load(key).promise));
 }
-export function regionalArtStatus(){return [...cache].map(([key,r])=>({key,ready:!!r.image.naturalWidth,failed:r.failed,width:r.image.naturalWidth,height:r.image.naturalHeight}));}
 const image=key=>load(key).image;
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
 function sprite(c,key,x,y,w,h,angle=0,alpha=1,pivotY=.5){

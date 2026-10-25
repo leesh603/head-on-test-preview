@@ -1,6 +1,6 @@
-import {impactPulse} from './boss-raid-strikes.js?v=gal1&rail=42';
+import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
 import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
-import {BaseBoss,BossPart,predictPilot} from './headon-stageboss-core.js?v=gal1&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {BaseBoss,BossPart,predictPilot} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
 import {ALPS_BOMBER_LAYOUT,alpsAngleDelta,alpsPoint,alpsMuzzle,locateAlpsHit} from './alps-bomber-layout.js?v=gal1';
 
 class AlpsBomber extends BaseBoss {

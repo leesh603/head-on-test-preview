@@ -1,3 +1,4 @@
+import {resetFlightEquipment} from './flight-equipment.js';
 // Heinecke Rettungsfallschirm: one independent survival insurance per sortie.
 // aircraft.js is loaded lazily: it touches DOM APIs at import time, so a static
 // import would crash the module-less test environment.
@@ -16,7 +17,7 @@ export function triggerHeinecke(p,damage){
  p.heineckeUses=(p.heineckeUses||0)+1;
  p.heineckeLastAt=p.t||0;
  p.heineckeAnchor={x:p.x,y:p.y,a:p.a};
- p.heineckeEscape=HEINECKE.escape;
+ resetFlightEquipment(p);p.heineckeEscape=HEINECKE.escape;
  p.hp=1;
  p.invuln=Math.max(p.invuln||0,HEINECKE.escape);
  p.hitFlash=0;

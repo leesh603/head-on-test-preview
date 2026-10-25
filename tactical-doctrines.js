@@ -1,9 +1,10 @@
 // Sortie-local choices; never enter the upgrade or special-equipment pool.
+import {WWI_EQUIPMENT} from './wwi-equipment.js';
 export const TACTICAL_FAMILIES=Object.freeze(['GUN','SPEED','EXPLOSIVE','FORMATION','SURVIVAL']);
 export const TACTICAL_FAMILY_NAMES=Object.freeze({GUN:'기관총',SPEED:'속도',EXPLOSIVE:'폭발물',FORMATION:'편대',SURVIVAL:'생존'});
 const EN_COPY={
  gunPrecision:['Three tightly grouped bursts, followed by a firing gap.','Concentrated fire on one target','A pause after each burst'],
- gunSuppression:['An extra round spreads fire across a wider approach.','Sustained coverage of formations','Lower damage per round'],
+ gunSuppression:['Sweeping volleys cover the approach from left to right.','Sustained coverage of formations','Lower damage per round'],
  explosiveFocus:['Concentrate explosive weapons and bombing on a narrow target area.','Large or clustered targets','Weaker against scattered enemies'],
  explosiveArea:['Disperse explosive weapons and bombing across enemy approaches.','Cover enemy approaches','Lower single-target concentration'],
  wingReinforcement:['Two additional permanent wingmen engage multiple targets.','Two extra aircraft','Lower individual wingman firepower'],
@@ -20,14 +21,14 @@ const EN_COPY={
  formationBreakthrough:['Wingmen join a fast attack pass, then regroup.','Synchronized wing attack','Reduced nearby cover during the pass'],
  emergencyEscape:['Support maneuvering and recovery when escaping after damage.','Leave danger quickly','Limited while staying engaged'],
  guidedBombing:['Deliver ordnance at a target engaged by your wingmen.','Wing-guided bombing','Wingmen must acquire a target'],
- blockingBombing:['After damage, place ordnance across a rear pursuit path.','Block pursuit','Less useful against enemies ahead'],
+ blockingBombing:['After taking damage, fly clear to drop timed bombs across your rear pursuit path.','Block pursuit','Less useful against enemies ahead'],
  mutualCover:['Wingmen prioritize nearby threats when you are in danger.','Close emergency cover','Less focus on offensive targets']
 };
 const english=id=>({enDescription:EN_COPY[id][0],enAdvantage:EN_COPY[id][1],enWeakness:EN_COPY[id][2]});
 const doctrine=(id,family,value,name,enName,description,advantage,weakness,followups)=>Object.freeze({id,family,value,name,enName,description,...english(id),advantage,weakness,followups:Object.freeze(followups),icon:`tactical-icons/${id}.webp`});
 export const TACTICAL_DOCTRINES=Object.freeze([
  doctrine('gunPrecision','GUN','precision','정밀 집중 사격','Precision Burst','좁은 탄도로 3연속 점사 후 재정비합니다.','대형·단일 표적 집중','점사 뒤 사격 공백',['damage','rate','spread']),
- doctrine('gunSuppression','GUN','suppression','연속 제압 사격','Sustained Suppression','한 발을 더 넓게 분산해 접근 경로를 제압합니다.','여러 방향에 지속 화망','개별 탄환 위력 감소',['spread','rate','damage']),
+ doctrine('gunSuppression','GUN','suppression','연속 제압 사격','Sustained Suppression','연속 사격으로 접근 경로를 좌우로 훑어 제압합니다.','여러 방향에 지속 화망','개별 탄환 위력 감소',['spread','rate','damage']),
  doctrine('explosiveFocus','EXPLOSIVE','focus','집중 폭격','Concentrated Bombing','폭발물과 폭격을 좁은 표적 구역에 집중합니다.','대형·밀집 목표 집중','넓게 흩어진 적에 불리',['rockets','explosives','combinedProjectiles']),
  doctrine('explosiveArea','EXPLOSIVE','area','광역 차단','Area Denial','폭발물과 폭격을 여러 접근 경로에 분산합니다.','편대와 접근 경로 차단','단일 표적 집중률 감소',['mines','explosives','combinedProjectiles']),
  doctrine('wingReinforcement','FORMATION','reinforcement','편대 증원 전술','Wing Reinforcements','상시 윙맨 2기가 추가로 합류해 여러 표적을 상대합니다.','실제 윙맨 2기 증원','개별 윙맨 화력 감소',['wingman','command','bomber']),
@@ -47,7 +48,7 @@ export const COMPOSITE_TACTICS=Object.freeze([
  composite('formationBreakthrough',['SPEED','FORMATION'],'편대 돌파','Formation Breakthrough','고속 진입에 윙맨이 함께 돌입한 뒤 재집결합니다.','편대의 동시 돌입','돌입 중 주변 엄호 감소'),
  composite('emergencyEscape',['SPEED','SURVIVAL'],'긴급 이탈','Emergency Egress','피격 후 적에게서 벗어날 때 기동과 방어 복귀를 지원합니다.','위험 지역에서 빠른 이탈','교전 유지 시 효과 제한'),
  composite('guidedBombing',['EXPLOSIVE','FORMATION'],'폭격 유도','Wing-guided Bombing','윙맨이 교전하는 표적에 폭발물을 연계합니다.','윙맨 표적에 폭격 집중','윙맨의 표적 확보 필요'),
- composite('blockingBombing',['EXPLOSIVE','SURVIVAL'],'차단 폭격','Blocking Bombardment','피격 후 후방 추격 경로에 폭발물을 투사합니다.','후방 추격 차단','전방 공격에는 불리'),
+ composite('blockingBombing',['EXPLOSIVE','SURVIVAL'],'차단 폭격','Blocking Bombardment','피격 후 이탈하면 후방 추격 경로에 폭탄을 투하합니다.','후방 추격 차단','전방 공격에는 불리'),
  composite('mutualCover',['FORMATION','SURVIVAL'],'상호 엄호','Mutual Cover','위험에 처하면 윙맨이 가까운 위협을 우선 엄호합니다.','위기 시 근접 보호','공격 표적 집중도 감소')
 ]);
 export const TACTICAL_BY_ID=Object.freeze(Object.fromEntries([...TACTICAL_DOCTRINES,...COMPOSITE_TACTICS].map(x=>[x.id,x])));
@@ -66,12 +67,12 @@ export function selectTactical(p,id){
  const item=TACTICAL_BY_ID[id];
  if(offer.kind==='composite')p.compositeTactic=id;
  else {p.weaponMods={...p.weaponMods,[item.family]:item.value};
-  if(item.family==='GUN'){p.weaponModBurst=0;for(const station of p.bomberTransfer?.stations||[])station.weaponModBurst=0;}
+  if(item.family==='GUN'){p.weaponModBurst=0;p.weaponModSweep=-1;for(const station of p.bomberTransfer?.stations||[]){station.weaponModBurst=0;station.weaponModSweep=-1;}}
   if(item.family==='FORMATION'&&p.hp>0)p.ensureWingmen?.();
  }
  p.event?.('ally',`${item.name} · 전술 적용`);return true;
 }
-const equipmentFamilies=Object.freeze({amatolCharge:['EXPLOSIVE'],motorCannon:['EXPLOSIVE'],bomberTransfer:['EXPLOSIVE'],mgTransfer:['GUN'],airshipTransfer:['FORMATION'],aceWingman:['FORMATION'],lufberyCircle:['FORMATION','SURVIVAL'],goeringBaton:['FORMATION'],redScarf:['SPEED'],prancingHorse:['SPEED','SURVIVAL'],sacredCowling:['GUN','SURVIVAL'],immelmannManual:['SPEED'],flightGloves:['GUN','EXPLOSIVE'],telescope:['GUN'],quadLewis:['GUN'],maximBelt:['GUN'],rearGunner:['GUN'],sparkPlug:['SURVIVAL'],steelPlate:['SURVIVAL'],rankinShell:['EXPLOSIVE','SURVIVAL'],kaiserFog:['SURVIVAL'],fogCompass:['SURVIVAL'],mauserAceKiller:['GUN','EXPLOSIVE'],cow37:['GUN','EXPLOSIVE'],badinGauge:['SPEED','GUN'],heineckeRettungsfallschirm:['SURVIVAL'],ironCross:['SURVIVAL'],grunkreuz:['SURVIVAL'],loEmblem:['GUN','FORMATION'],boelckeDicta:[],urLeica:[]});
+const equipmentFamilies=Object.freeze({...Object.fromEntries(WWI_EQUIPMENT.map(e=>[e.id,[e.family]])),amatolCharge:['EXPLOSIVE'],motorCannon:['EXPLOSIVE'],bomberTransfer:['EXPLOSIVE'],mgTransfer:['GUN'],airshipTransfer:['FORMATION'],aceWingman:['FORMATION'],lufberyCircle:['FORMATION','SURVIVAL'],goeringBaton:['FORMATION'],redScarf:['SPEED'],prancingHorse:['SPEED','SURVIVAL'],sacredCowling:['GUN','SURVIVAL'],immelmannManual:['SPEED'],flightGloves:['GUN','EXPLOSIVE'],telescope:['GUN'],quadLewis:['GUN'],maximBelt:['GUN'],rearGunner:['GUN'],sparkPlug:['SURVIVAL'],steelPlate:['SURVIVAL'],rankinShell:['EXPLOSIVE','SURVIVAL'],kaiserFog:['SURVIVAL'],fogCompass:['SURVIVAL'],mauserAceKiller:['GUN','EXPLOSIVE'],cow37:['GUN','EXPLOSIVE'],badinGauge:['SPEED','GUN'],heineckeRettungsfallschirm:['SURVIVAL'],ironCross:['SURVIVAL'],grunkreuz:['SURVIVAL'],loEmblem:['GUN','FORMATION'],boelckeDicta:[],urLeica:[]});
 export function tacticalEquipmentFamilies(id){return equipmentFamilies[id]||[];}
 export function tacticalFollowupWeight(p,id,family){
  let weight=1;for(const d of TACTICAL_DOCTRINES)if(p.weaponMods?.[d.family]===d.value&&d.followups.includes(id))weight+=.22;

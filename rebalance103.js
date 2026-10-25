@@ -26,21 +26,7 @@ const maneuverEase=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
  const names={steelPlate:'J형 장갑 캡슐',boelckeDicta:'뵐케의 금언집',fogCompass:'C-O 5/17 에어로 컴퍼스',rearGunner:'스카프링 총좌'};
  for(const[id,desc]of Object.entries(descriptions)){let l=LEGENDARIES.find(u=>u.id===id);if(!l){l={id,name:names[id]};LEGENDARIES.push(l);UPGRADES.push({...l,legendary:true,apply:()=>{}})}l.desc=desc;Object.assign(UPGRADES.find(u=>u.id===id),l);}
  const oldUpgrade=Game.prototype.upgrade;
- Game.prototype.upgrade=function(id,rarity='normal'){
-  const custom=['prancingHorse','ironCross','steelPlate','loEmblem','boelckeDicta','fogCompass','rearGunner'];
-  if(!custom.includes(id))return oldUpgrade.call(this,id,rarity);
-  if(this.state!=='upgrade'||rarity!=='legendary'||this.upgrades[id]||this.legendaryCount()>=(this.level>=20?4:this.level>=10?2:1))return;
-  const speed=n=>{this.speed*=n;if(this.baseSpeed)this.baseSpeed*=n};
-  if(id==='prancingHorse'){speed(1.2);this.frontalProtection=.25;this.legendaryMineTrail=false;}
-  if(id==='ironCross'){this.skillEnhanced=true;this.cooldownMult=Math.max(.5,this.cooldownMult*.8)}
-  if(id==='steelPlate'){const ratio=this.hp/this.maxHp;this.maxHp*=1.5;this.hp=this.maxHp*ratio}
-  if(id==='loEmblem'){this.maxHp*=.5;this.hp*=.5;this.damage*=1.3;this.explosiveBonus=(this.explosiveBonus||0)+.3;this.commandBonus=(this.commandBonus||0)+.3;speed(1.2);this.turn*=1.2;this.rate=Math.max(.045,this.rate*.85);this.weapon.reload*=.85;this.cooldownMult=Math.max(.5,this.cooldownMult*.85);this.magnet=Math.min(480,this.magnet*1.2);this.lowHpDamage=false;}
-  if(id==='boelckeDicta')this.rearDamageBonus=.3;
-  if(id==='fogCompass')this.xpGainMult=(this.xpGainMult||1)*1.3;
-  if(id==='rearGunner'&&!this.weapon.bidirectional)this.rearGunner=true;
-  this.upgrades[id]=1;this.state='playing';this.checkLevel();
- };
- Game.prototype.ensureRevisionPilot=function(){
+  Game.prototype.ensureRevisionPilot=function(){
   if(this.revisionPilotReady)return;this.revisionPilotReady=true;
   if(this.pilot==='baron'&&this.isRedHunter()){const mult=1.12;this.speed*=mult;if(this.baseSpeed)this.baseSpeed*=mult;this.turn*=1.12;}
   if(this.pilot==='hawker')this.handlingDragMult=.75;

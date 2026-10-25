@@ -47,8 +47,3 @@ export function drawRailDamage(c,boss,image){
  }
  c.restore();
 }
-export function gunRecoilOffset(boss){
- if(boss.phase!=='recoil')return 0;
- const t=boss.time/boss.c.recoilSeconds;
- return 8*Math.sin(Math.PI*Math.min(1,t))*Math.exp(-2*t);
-}

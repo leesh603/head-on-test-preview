@@ -50,8 +50,15 @@ export function drawFriendlyGunTracer(c,b,x,y,gunUpgradeBonus=0){
  if(!b||b.enemy||![x,y,b.vx,b.vy].every(Number.isFinite))return false;
  const color=b.mauserRound?'#a98cff':b.eagle?'#9fdcff':b.specialColor||(b.formation||b.ally?'#b9f2de':friendlyTracerColor(b,gunUpgradeBonus));
  const weight=b.specialAmmo?3:b.formation||b.ally?2.5:b.pierce?2.6:2;
+ const tactical=tacticalTracerProfile(b);
+ if(tactical&&fxReady('tracerCore')){const a=Math.atan2(b.vy,b.vx);fxTint(c,'tracerCore',color,x-Math.cos(a)*tactical.length*.5,y-Math.sin(a)*tactical.length*.5,tactical.length,tactical.width,a,.95);return true;}
  if(FXS&&fxsTracer(c,x,y,b.vx,b.vy,color,weight))return true;
  drawTracerBolt(c,x,y,Math.atan2(b.vy,b.vx),color,14+weight*2,1.8+weight*.4,.88);return true;
+}
+const TACTICAL_TRACERS=Object.freeze({precision:Object.freeze({length:26,width:2.4}),suppression:Object.freeze({length:14,width:2.8}),strike:Object.freeze({length:34,width:3.1}),duel:Object.freeze({length:18,width:2.8}),counter:Object.freeze({length:22,width:3.2}),intercept:Object.freeze({length:30,width:3})});
+export function tacticalTracerProfile(b){
+ if(!b||b.enemy||b.rocket||b.motorCannon||b.cow37||b.actualExplosion||b.blast||b.mauserRound||b.specialAmmo||b.eagle||b.specialColor||b.mannockPass||b.fonckVolley||b.fonckSeeker||!(b.life>0))return null;
+ return TACTICAL_TRACERS[b.tacticalStyle]||null;
 }
 // These are still machine-gun rounds: short painted needles with a restrained
 // warm tail, rather than the old 48–50px white capsules joining into a beam.

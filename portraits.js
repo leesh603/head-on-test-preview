@@ -1,4 +1,4 @@
-// Every surface shares the authored transparent bust, including crew portraits.
+// Every surface uses the same transparent bust composition, including crews.
 export const portraitSources={};
 // Per-pilot load tracking so the hangar gate can wait on just the portraits it shows.
 export const portraitLoaded=new Map();
@@ -7,16 +7,19 @@ for(const id of legacyPortraits){const key=id==='mckeever'?'mckeever-powell129':
 
 const NEW_ACE_PORTRAITS=['wolff','loewenhardt','mccudden','nungesser','lothar','sachsenberg','proctor','schleich','lufbery'];
 for(const id of NEW_ACE_PORTRAITS)portraitSources[id]=`./portrait-${id}-field.webp?v=tame3&b=bust2`;
+for(const id of ['huffzky','mckeever'])portraitSources[id]=`./portrait-${id==='mckeever'?'mckeever-powell129':id}.webp?v=crew20261024`;
+export const portraitThumbnailSources={};
+export const portraitThumbnailSource=id=>portraitThumbnailSources[id]||portraitSources[id];
 // The lobby requests its selected/visible pilots. Reusing the promise avoids
 // duplicate downloads when several surfaces request the same portrait.
 export function ensurePortrait(id){
  if(!portraitSources[id])return Promise.resolve(false);
- if(!portraitLoaded.has(id))portraitLoaded.set(id,new Promise(resolve=>{
+ if(!portraitLoaded.has(id))portraitLoaded.set(id,Promise.all([...new Set([portraitSources[id],portraitThumbnailSource(id)])].map(source=>new Promise(resolve=>{
   if(typeof Image==='undefined'){resolve(true);return;}
   const img=new Image();img.decoding='async';
-  img.onload=()=>resolve(true);img.onerror=()=>resolve(false);img.src=portraitSources[id];
+  img.onload=()=>resolve(true);img.onerror=()=>resolve(false);img.src=source;
   if(img.complete&&img.naturalWidth)resolve(true);
- }));
+ }))).then(results=>results.every(Boolean)));
  return portraitLoaded.get(id);
 }
 function clearNavyMatte(data,w,h){
@@ -32,4 +35,3 @@ function clearNavyMatte(data,w,h){
 // Sources are immediately available; callers wait for the specific portraits
 // they display through ensurePortrait/portraitLoaded instead of all32 busts.
 export const portraitsReady=Promise.all([...portraitLoaded.values()]);
-

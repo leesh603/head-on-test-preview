@@ -5,12 +5,12 @@
 const portrait186=document.getElementById("hangarPortrait");
 const tabs186=document.getElementById("pilotTabs");
 
-// Measured opaque bottoms in the unchanged 1254px crew busts. Offset only the
+// Measured opaque bottoms in the authored 1254px crew busts. Offset only the
 // image content, keeping the card frame and both faces at their existing size.
-const CREW_BOTTOM186={huffzky:1116/1254,mckeever:1141/1254};
+const CREW_BOTTOM186={huffzky:1235/1254,mckeever:1};
 const crewObserved186=new WeakSet();
 function anchorCrew186(image,id){
-  const bottom=CREW_BOTTOM186[id];
+  const bottom=image.getAttribute?.('src')?.includes('-avatar.webp')?null:CREW_BOTTOM186[id];
   if(!bottom){delete image.dataset.crewFloor;image.style.removeProperty('--crew-floor-offset');return}
   image.dataset.crewFloor=id;
   const ratio=image.naturalWidth&&image.naturalHeight?image.naturalWidth/image.naturalHeight:1;

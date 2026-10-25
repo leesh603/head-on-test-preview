@@ -88,9 +88,9 @@ export class StuttgartSupport {
    const heading=this.turnHeading??this.angle,c=Math.cos(heading),s=Math.sin(heading);
    steerNaval(this,dt,this.x+c*220,this.y+s*220,{bounds,speed:36,turn:.58,mobility});this.angle=this.hullYaw;this.driveVelocity=Math.hypot(this.x-oldX,this.y-oldY)/Math.max(.001,dt);return;
   }
-  const span=bounds?Math.min(155,(bounds.right-bounds.left)*.28):155,age=this.navigationAge+=dt*(this.tuning.motionMultiplier||1);
-  const evasive=this.phase>=3,tx=cx+Math.sin(age*(evasive?.9:.2))*span,ty=cy+(this.phase===4?-85:Math.cos(age*.24)*100);
-  steerNaval(this,dt,tx,ty,{bounds,speed:evasive?43:29,turn:evasive?.72:.38,mobility});this.angle=this.hullYaw;this.driveVelocity=Math.hypot(this.x-oldX,this.y-oldY)/Math.max(.001,dt);
+  const span=bounds?Math.min(260,(bounds.right-bounds.left)*.3):260,age=this.navigationAge+=dt*(this.tuning.motionMultiplier||1);
+  const evasive=this.phase>=3,tx=cx+Math.sin(age*(evasive?.8:.36))*span,ty=cy+(this.phase===4?-110:Math.cos(age*.36)*190);
+  steerNaval(this,dt,tx,ty,{bounds,speed:evasive?70:52,turn:evasive?.95:.62,mobility});this.angle=this.hullYaw;this.driveVelocity=Math.hypot(this.x-oldX,this.y-oldY)/Math.max(.001,dt);
  }
  prepareFire(players){
   const p=players.find(p=>p.alive);if(!p)return;

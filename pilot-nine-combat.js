@@ -1,5 +1,5 @@
 // Nine pilot mechanics, installed on the existing firing/frame/impact hooks.
-import {signatureCue,activatePilotSignature} from './pilot-signature-state.js?v=tame3';
+import {signatureCue,activatePilotSignature} from './pilot-signature-state.js';
 export const NINE_PILOTS=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','nungesser','barker']);
 const durations={huffzky:3,mckeever:5,jacobs:4,hawker:5,berthold:5,udet:2.6,goering:5,nungesser:3,barker:6};
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -35,7 +35,6 @@ export function recordNineDamage(p,damage){
  }
 }
 // Kept as a compatibility entry point; interception now requires an actual MG path.
-export function deflectNineRound(){return false;}
 // Applied only to enemies actually suppressed by these pilots. Other AI is untouched.
 export function wobbleSuppressedRounds(w,e,start){
  if(!(e.pilotSuppressedUntil>(w.t||0)))return;

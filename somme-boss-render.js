@@ -5,7 +5,7 @@ import {fx} from './fx-art.js?v=tame3';
 import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
 import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=tame3';
 import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
-import {drawAADefense} from './aa-defense-art.js?v=tame3';
+import {drawAADefense} from './aa-defense-art.js?v=gal1';
 import {clamp,sommeMuzzle,sommeMuzzles} from './somme-boss-layout.js?v=tame3&somme=20261021';
 const images={},pending={};
 function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';images[key]=im;pending[key]=new Promise((resolve,reject)=>{im.addEventListener('load',()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))},{once:true});im.addEventListener('error',()=>reject(new Error('Missing Somme atlas: '+SOMME_SHEETS[key])),{once:true});});im.src='./'+SOMME_SHEETS[key]+'?v=r5';return im;}

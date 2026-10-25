@@ -1,8 +1,8 @@
-import {drawMaterialPetal,drawRepairRecovery} from './petal-supply-fx.js?v=petalsupply1';
+import {drawMaterialPetal,drawRepairRecovery} from './petal-supply-fx.js?v=repairparcel20261023';
 import {nungesserCombatStatus} from './nungesser-combat.js';
 import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=buildfit1&afc=1&art=pilot-recovery2';
 import {createSignatureView} from './pilot-signature-view.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
-import {fx,fxTint} from './fx-art.js?v=gal1';
+import {fx,fxTint} from './fx-art.js?v=tame3';
 import {planeSprite,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2';
 import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';
 
@@ -72,7 +72,6 @@ export function passiveGaugeProgress(p){
  if(p.pilot==='nungesser')return nungesserCombatStatus(p).readyFraction;
  return 0;
 }
-export function drawPassiveGauge(c,p,x,y){/* Current passive readiness uses owner-local painted cues. */}
 
 export function drawPetalParticle(c,p,x,y,owner){
  return drawMaterialPetal(c,p,x,y,owner);

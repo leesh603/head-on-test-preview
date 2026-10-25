@@ -17,12 +17,6 @@ const REGION_EVENTS={0:'FORWARD_OBSERVER',1:'FLEET_CROSSING',2:'ARTILLERY_SPOTTE
 const EVENT_LABEL={FORWARD_OBSERVER:'전진 관측소',FLEET_CROSSING:'함대 교차 해역',ARTILLERY_SPOTTER:'포병 관측기',GAS_ATTACK:'가스 공습',BLACKOUT:'야간 정전',BOMBER_STREAM:'폭격기 대형',MOUNTAIN_PURSUIT:'산악 추격전',AMMO_DEPOT:'탄약고 타격'};
 // Existing scenery/hazard owners stay authoritative. These are regional rules,
 // not optional mission offers, so they never suspend the Battle Director.
-export const REGION_COMBAT_EVENTS=Object.freeze({
- 0:'기뢰지대·관측기구',1:'아군·적 함대 교차 화망',2:'이동 집중포격',3:'가스·연막 전선',
- 4:'탐조등 추적·연동 사격',5:'순풍·역풍 기류',6:'상승기류·난기류',7:'함포 동시 일제사격',
- 8:'진행 방향 횡단 포격',9:'고공 돌풍·비행단',10:'관측기구 격추로 포격 약화',
- 11:'진영별 런던 공격·방어',12:'요새 접근로 포격',13:'먼지바람 엄폐'
-});
 export function tickRegionalConditions(g,dt){
  if(g.state!=='playing'||dt<=0)return;
  const region=g.worldRegion(),now=g.t||0,step=Math.min(.04,dt);

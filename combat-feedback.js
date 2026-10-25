@@ -4,6 +4,7 @@ import {playerAirframeModel} from './player-airframe-handling.js?v=handling5';
 import {drawFuelFire} from './explosion-profiles.js?v=fx5';
 import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=descent20261022';
 import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
+import {tacticalCueSound} from './tactical-combat-view.js?v=combat20261024';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.
 const worlds=new WeakMap(),poses=new WeakMap();
@@ -30,7 +31,12 @@ export function combatMountPoint(e,forward,side,out){
 }
 function pose(e,time,dt,damageState,flight=false){
  const q=poses.get(e)||{x:0,y:0,roll:0,bank:1,lastA:e.a,lastHp:e.hp,kick:0,turn:0};
- if(flight){const elapsed=time-(q.flightAt??time);q.flightSpeed=elapsed>0&&q.lastX!=null&&e.speed>0?Math.hypot(e.x-q.lastX,e.y-q.lastY)/elapsed/e.speed:(e.airframeSpeed??1);q.lastX=e.x;q.lastY=e.y;q.flightAt=time;}
+ if(flight){const elapsed=time-(q.flightAt??time),prior=q.airspeed;
+  q.flightSpeed=elapsed>0&&q.lastX!=null&&e.speed>0?Math.hypot(e.x-q.lastX,e.y-q.lastY)/elapsed/e.speed:(e.airframeSpeed??1);
+  q.airspeed=clamp(q.flightSpeed*(e.speed||170),0,(e.speed||170)*1.7);
+  const acceleration=elapsed>0&&prior!=null?clamp((q.airspeed-prior)/elapsed,-300,300):0;
+  q.acceleration=(q.acceleration||0)+(acceleration-(q.acceleration||0))*(1-Math.exp(-dt*8));q.lastX=e.x;q.lastY=e.y;q.flightAt=time;
+ }
  const rate=dt>0?clamp(angle(e.a-q.lastA)/dt,-4,4):0;
  q.turn+=(rate-q.turn)*(1-Math.exp(-dt*12));q.kick=Math.max(e.hp<q.lastHp-.4?1:0,q.kick-dt*6);
  const shot=!(e.reloadTime>0)&&!(e.cannonRecoil129>0)?Math.sin(clamp((e.muzzleFlash||0)/.09)*Math.PI)*1.25:0;
@@ -147,7 +153,8 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
   for(const f of this.combatFX||[])if(!state.heard.has(f)){
    state.heard.add(f);
    if(f.feedbackId){if(state.heardIds.has(f.feedbackId))continue;state.heardIds.add(f.feedbackId);if(state.heardIds.size>256)state.heardIds.delete(state.heardIds.values().next().value);}
-   if(f.fxProfile==='bulletImpact'&&replica)play(f.blocked?'armorClink':f.finisher||f.breakup?'airframeBreak':'materialImpact',{material:f.material,streak:f.streak});
+   if(f.fxProfile==='tactical'){const cue=tacticalCueSound(f.tacticalCue);if(cue)play(cue,{tactical:true});}
+   else if(f.fxProfile==='bulletImpact'&&replica)play(f.blocked?'armorClink':f.finisher||f.breakup?'airframeBreak':'materialImpact',{material:f.material,streak:f.streak});
    else if(['armorBreak','engineBreak','navalBreak'].includes(f.fxProfile)){play(f.fxProfile==='navalBreak'?'shipBreak':f.fxProfile==='engineBreak'?'airframeBreak':'metalBreak');pulse('explosion');}
   }
   for(const p of players)pose(p,state.time,step,state.damage.get(p),true);
@@ -166,20 +173,30 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
   {let kept=0;for(const w of state.wrecks)if(!w.crashed)state.wrecks[kept++]=w;state.wrecks.length=kept}
   {let kept=0;for(const p of state.trail)if(p.life>0)state.trail[kept++]=p;state.trail.length=kept}
   if(this.state==='playing'&&players.length){
-   for(const e of this.enemies||[]){
-    if(e.hp<=0||e.surface||e.stationary||e.fieldUnit)continue;
+   // Reuse the same pass detector for separately stored elite aircraft.
+   const contacts=state.contacts??=[];contacts.length=0;
+   for(const e of this.enemies||[])contacts.push(e);
+   for(const e of this.eliteEnemies?.members||[])if(!(this.enemies||[]).includes(e))contacts.push(e);
+   for(const e of contacts){
+    if(e.hp<=0||e.alive===false||e.surface||e.stationary||e.fieldUnit)continue;
     let prior=state.previous.get(e);if(!prior){prior=new WeakMap();state.previous.set(e,prior)}
     for(const p of players){
      const d=Math.hypot(e.x-p.x,e.y-p.y),pass=prior.get(p)||{distance:d,armed:false,passed:false},radial=(d-pass.distance)/step;
      const dx=e.x-p.x,dy=e.y-p.y,headOn=d>0&&(Math.cos(p.a)*dx+Math.sin(p.a)*dy)/d>.86&&(-Math.cos(e.a)*dx-Math.sin(e.a)*dy)/d>.8;
+     const relative=pass.dx==null?0:Math.hypot(dx-pass.dx,dy-pass.dy)/step;
+     const sx=pass.dx==null?0:dx-pass.dx,sy=pass.dy==null?0:dy-pass.dy,length=sx*sx+sy*sy;
+     const u=length?clamp(-(pass.dx*sx+pass.dy*sy)/length):0;
+     const swept=length?Math.hypot(pass.dx+sx*u,pass.dy+sy*u):d;
+     const crossed=u>0&&u<1&&relative>=180&&swept<110;
+     pass.closest=Math.min(pass.closest??d,d,swept);pass.relative=Math.max(pass.relative||0,Math.min(700,relative));
      if(headOn&&d<440&&radial< -25)state.headOnUntil=this.t+.3;
      const heavy=e.heavyBomber||e.type==='bomber'||e.type==='zeppelin';
      if(d>1100)pass.announced=false;
      if(!pass.announced&&radial< -25&&d<(heavy?1000:620)&&(heavy||headOn)&&this.t>=state.nextApproach){pass.announced=true;state.nextApproach=this.t+2.5;play(heavy?'formationPass':'headOn')}
-     if(d>180){pass.passed=false;pass.armed=false}
-     if(!pass.passed&&d<180&&radial< -30)pass.armed=true;
-     if(pass.armed&&pass.distance<95&&radial>30){pass.armed=false;pass.passed=true;if(this.t>=state.nextPass){state.nextPass=this.t+.7;state.camera=Math.max(state.camera,.65);state.duckUntil=this.t+.22;state.passes.push({player:p,life:.3});play('closePass');pulse('pass')}}
-     pass.distance=d;prior.set(p,pass);
+     if(d>180){pass.passed=false;pass.armed=false;pass.closest=d;pass.relative=relative}
+     if(!pass.passed&&(d<180&&radial< -30||crossed))pass.armed=true;
+     if(pass.armed&&pass.closest<110&&(radial>30||crossed)){pass.armed=false;pass.passed=true;if(this.t>=state.nextPass){state.nextPass=this.t+.7;const rush=clamp((pass.relative-180)/320);state.camera=Math.max(state.camera,.45+rush*.65);state.duckUntil=this.t+.22;state.passes.push({player:p,life:.3,rush});play('closePass',{speed:pass.relative});pulse('pass')}}
+     pass.distance=d;pass.dx=dx;pass.dy=dy;prior.set(p,pass);
     }
    }
    for(const b of this.bullets||[]){
@@ -193,7 +210,23 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
  return state;
 }
 export function combatCameraOffset(world){const s=worlds.get(world);return s?{x:Math.sin(s.time*83)*s.camera,y:Math.cos(s.time*71)*s.camera}:{x:0,y:0}}
-export function combatFlightSound(world,planes){const players=world.players||[world],p=(world.online&&players.find(p=>p.id===world.localPlayerId&&p.hp>0))||players.find(p=>p.hp>0)||world,s=worlds.get(world);return{plane:playerAirframeModel(p.plane,planes)||p.plane,reload:p.reloadTime>0,speed:poses.get(p)?.flightSpeed??p.airframeSpeed??1,turn:Math.abs(poses.get(p)?.turn||0),damage:clamp(1-p.hp/p.maxHp),duck:(s?.duckUntil||0)>(world.t||0)}}
+export function combatFlightSound(world,planes){const players=world.players||[world],p=(world.online&&players.find(p=>p.id===world.localPlayerId&&p.hp>0))||players.find(p=>p.hp>0)||world,s=worlds.get(world),q=poses.get(p);return{plane:playerAirframeModel(p.plane,planes)||p.plane,reload:p.reloadTime>0,speed:q?.flightSpeed??p.airframeSpeed??1,airspeed:q?.airspeed??(p.speed||170)*(p.airframeSpeed??1),acceleration:q?.acceleration||0,turn:Math.abs(q?.turn||0),damage:clamp(1-p.hp/p.maxHp),duck:(s?.duckUntil||0)>(world.t||0)}}
+// The existing sparse airflow follows displacement, not the ambient clock.
+// No simulation writes, extra particles, or persistent per-frame allocations.
+export function drawFlightFlow(c,world,W,H,zoom=1){
+ if(!world)return;
+ const players=world.players||[world],p=world.online?players.find(p=>p.id===world.localPlayerId&&p.hp>0)||players.find(p=>p.hp>0):players.find(p=>p.hp>0);
+ if(!p)return;
+ const q=poses.get(p),speed=q?.airspeed??(p.speed||0)*(p.airframeSpeed??1),pace=clamp((speed-105)/165);
+ if(pace<=0)return;
+ const count=Math.floor(4+8*pace),length=(9+20*pace)*zoom,dx=Math.cos(p.a)*length,dy=Math.sin(p.a)*length;
+ c.save();c.strokeStyle='#ecf6de';c.globalAlpha*=.025+.055*pace;c.lineWidth=1;
+ for(let i=0;i<count;i++){
+  const x=((i*137.3-p.x*.35*zoom)%W+W)%W,y=((i*97.7-p.y*.35*zoom)%H+H)%H;
+  c.beginPath();c.moveTo(x,y);c.lineTo(x-dx,y-dy);c.stroke();
+ }
+ c.restore();
+}
 function drawWreck(c,w,x,y,time,fx,planeSprite){
  if(w.style==='spin')drawAircraftCrash(c,w,x,y,time,fx);
  else fx(c,'smokeTrail',x-Math.cos(w.a)*56,y-Math.sin(w.a)*56,160,58,w.a,.8);
@@ -205,13 +238,13 @@ export function drawCombatFeedback(c,world,point,{fx,planeSprite,bolt=drawTracer
  const s=worlds.get(world);if(!s)return;
  const visible=(x,y)=>Math.abs(x-world.x)<(world.viewWidth||960)+160&&Math.abs(y-world.y)<(world.viewHeight||700)+160;
  for(const f of s.plumes){if(!visible(f.x,f.y))continue;const [x,y]=point(f.x,f.y),k=f.age/f.life,size=16+k*(f.heavy?38:24);fx(c,f.heavy?'smokeDark':'engineSmoke',x,y,size,size,f.a,(1-k)*(f.heavy?.55:.35))}
- let fuelCount=0;for(const e of world.enemies||[])if(e.hp>0&&e.burnTime>0&&!e.gontermannBurn&&visible(e.x,e.y)&&fuelCount<(world.viewWidth<=720?6:10)){const [x,y]=point(e.x,e.y);drawFuelFire(c,fx,x,y,e.fuelFxAge||0,e.surface?58:38,e.surface?0:e.a+Math.PI/2,e.burnTime);fuelCount++}
+ let fuelCount=0;for(const e of world.enemies||[])if(e.hp>0&&e.burnTime>0&&!e.gontermannBurn&&!e.burnAnchorSpace&&visible(e.x,e.y)&&fuelCount<(world.viewWidth<=720?6:10)){const [x,y]=point(e.x,e.y);drawFuelFire(c,fx,x,y,e.fuelFxAge||0,e.surface?58:38,e.surface?0:e.a+Math.PI/2,e.burnTime);fuelCount++}
  for(const e of world.enemies||[])if(ordinary(e)&&e.hp>0&&!(e.burnTime>0)&&visible(e.x,e.y)){
   const d=s.damage.get(e);if(!d||e.hp/e.maxHp>=.4)continue;const [x,y]=point(...localPoint(e,d.engine>0?14:0,d.engine>0?0:d.side*18));
   fx(c,d.engine>0?'fireEngine':'fireWing',x,y,32,32,e.a+Math.PI/2,.6+Math.sin(s.time*21)*.12);
  }
  for(const p of world.players||[world]){const q=poses.get(p);if(p.hp<=0||!q)continue;const turn=clamp((Math.abs(q.turn)-1.25)/2.5);if(turn>0)for(const side of [-1,1]){const [x,y]=point(...localPoint(p,-30,side*27));fx(c,'vaporTrail',x,y,82,10,p.a,turn*.26)}}
- for(const f of s.passes)for(const side of [-1,1]){const [x,y]=point(...localPoint(f.player,-15,side*56));fx(c,'windStreak',x,y,135,22,f.player.a,f.life/.3*.5)}
+ for(const f of s.passes)for(const side of [-1,1]){const [x,y]=point(...localPoint(f.player,-15,side*56));fx(c,'windStreak',x,y,135,22,f.player.a,f.life/.3*(.22+(f.rush??1)*.28))}
  if(s.headOnUntil>s.time){let count=0;const players=world.players||[world];for(const b of world.bullets||[]){
   if(b.life<=0||b.flak||b.rocket||b.cow37||b.motorCannon||!players.some(p=>p.hp>0&&Math.hypot(b.x-p.x,b.y-p.y)<330))continue;
   const [x,y]=point(b.x,b.y),a=Math.atan2(b.vy,b.vx);bolt(c,x,y,a,b.enemy?'#f0965a':'#f2d9a0',clamp(Math.hypot(b.vx,b.vy)*.035,18,42),6,.85);
@@ -221,4 +254,3 @@ export function drawCombatFeedback(c,world,point,{fx,planeSprite,bolt=drawTracer
  // Contact anchors move the existing combatFX entries; drawing them again here
  // would double the impact budget and obscure the aircraft.
 }
-

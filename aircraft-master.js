@@ -1,4 +1,4 @@
-import {PILOT_AIRCRAFT as SORTIE_ROSTER,SORTIE_FITS} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {PILOT_AIRCRAFT as SORTIE_ROSTER,SORTIE_FITS,pilotAircraftChoices} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 // Identity and display metadata only. No art paths, render geometry or combat values.
 // Catalog presence does NOT register a fit, unlock a sortie or activate a pilot.
 // Existing PLANES/PILOT_PLANES and mode-specific selection remain authoritative.
@@ -55,6 +55,8 @@ const identityRows = [
   ["se5a","S.E.5a","entente",null,"se5a","se5a",[]],
   ["bristol_duo","Bristol F.2B","entente",null,"bristol_duo","bristol_duo",["two-seater","duo"]],
   ["baron_albatros","Albatros D.III","central","baron","albatros","baron_albatros",[]],
+  ["baron_albatros_d5_redwings","Albatros D.V","central","baron","baron_albatros","baron_albatros_d5_redwings",[]],
+  ["baron_albatros_d5_red","Albatros D.V","central","baron","baron_albatros","baron_albatros_d5_red",[]],
   ["albatros_d2","Albatros D.II","central",null,"albatros_d2","albatros_d2",[]],
   ["boelcke_albatros","Albatros D.II","central","boelcke","albatros_d2","boelcke_albatros",[]],
   ["halberstadt_duo","Halberstadt CL.II","central",null,"halberstadt_duo","halberstadt_duo",["two-seater","duo"]],
@@ -203,7 +205,7 @@ export const AIRCRAFT_MASTER = Object.freeze(Object.fromEntries(identityRows.map
 )));
 
 // Descriptive pilot associations only; never use this table to overwrite live loadouts.
-const pilotRows = Object.entries(SORTIE_ROSTER).map(([id,p])=>[id,p.defaultAircraft,p.unlockAircraft?[p.unlockAircraft]:[]]);
+const pilotRows = Object.entries(SORTIE_ROSTER).map(([id,p])=>[id,p.defaultAircraft,pilotAircraftChoices(id).slice(1)]);
 export const PILOT_AIRCRAFT = Object.freeze(Object.fromEntries(pilotRows.map(
   ([pilotId, defaultAircraftId, alternateAircraftIds]) => [pilotId, Object.freeze({
     pilotId, defaultAircraftId, alternateAircraftIds: Object.freeze(alternateAircraftIds),
@@ -231,8 +233,8 @@ export function getAircraftMeta(id, pilotId = null) {
 export function getAircraftDisplayName(id, pilotId = null, locale = 'ko', fallback = '') {
   const meta = getAircraftMeta(id, pilotId);
   if (!meta) return fallback || id || '';
-  const candidates = Object.entries(SORTIE_ROSTER).filter(([, entry]) =>
-    entry.defaultAircraft === id || entry.unlockAircraft === id);
+  const candidates = Object.entries(SORTIE_ROSTER).filter(([owner]) =>
+    pilotAircraftChoices(owner).includes(id));
   const selectedOwner = candidates.find(([owner]) => owner === pilotId)?.[0];
   const dedicatedOwner = candidates.length === 1 && (Object.hasOwn(SORTIE_FITS, id) || meta.modelName.includes(' · ')) ? candidates[0][0] : null;
   const owner = ownerLabels[meta.exclusivePilotId || selectedOwner || dedicatedOwner];
@@ -285,4 +287,3 @@ export function applyAircraftRecordNames(data, locale = 'ko') {
   }
   return data;
 }
-

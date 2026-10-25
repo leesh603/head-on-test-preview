@@ -42,7 +42,7 @@ class SommeBoss extends BaseBoss{
  onDeath(){for(const p of this.parts.values()){this.cancel(p.id);p.hp=0;}this.cancel('barrage');this.salvo=null;this.lock=null;}
  fireMG(p,dt,players,interval,visual='somme-mg',fireReady=true){
   if(p.destroyed)return;p.targetCursor??=this.cursor;const live=players.filter(q=>q.alive),target=live[p.targetCursor%live.length];if(!target)return;
-  const aim=Math.atan2(target.y-this.y-p.y,target.x-this.x-p.x);const traverse=this.kind==='mark4-wedge'?sponsonAim(this,p,target.x,target.y):{angle:aim,reachable:true};p.angle=turn(p.angle,traverse.angle,1.6*dt);if(!traverse.reachable)return;
+  const lead=this.kind==='mark4-wedge'?.4:0,aim=Math.atan2(target.y+(target.vy||0)*lead-this.y-p.y,target.x+(target.vx||0)*lead-this.x-p.x);const traverse=this.kind==='mark4-wedge'?sponsonAim(this,p,target.x,target.y):{angle:aim,reachable:true};p.angle=turn(p.angle,traverse.angle,1.6*dt);if(!traverse.reachable)return;
   if(!fireReady||!this.due(p.id,dt,interval)||Math.abs(angleDelta(aim,p.angle))>.25)return;
   const m=sommeMuzzle(this,p),count=Math.min(9,Math.max(4,Math.ceil(6*(this.t.projectileDensity||1))));
   for(let i=0;i<count;i++){const a=p.angle+(i-(count-1)/2)*.095+Math.sin(this.clock*2.1+i)*.03;this.hazard('projectile',{...m,vx:Math.cos(a)*this.t.bulletSpeed*.9,vy:Math.sin(a)*this.t.bulletSpeed*.9,radius:3.5,duration:this.lastStandActive?1.2:4,damage:this.t.damage*.5,visual,tag:this.tag(p.id),sourcePartId:p.id});}
@@ -145,7 +145,9 @@ export class Mark1Landship extends SommeBoss{
   const fan=entry?.22:q?.age<2.4?0:q?.age<5.6?.18:flank?.28:.09;
   this.driveOrder={heading:Math.PI-side*fan,speed:this.tankRole==='male'?17:flank?13+this.slot:16,halt:this.recovering||!!q&&(q.age<2.4||q.age>=5.6)};
   this.phase=entry?'mark1-approach':q?(this.recovering?'mark1-counter':q.age<2.4?'mark1-regroup':'mark1-last-push'):this.parts.get('engine-deck').destroyed?'engine-disabled':this.tracks()===0?'tracks-disabled':this.tracks()===1?'track-disabled':damaged?'mark1-broken-formation':flank?'mark1-flank':'advance';
-  if(!entry&&!q&&!damaged&&!flank)this.driveOrder=null;
+  // Hunt instead of parking: each landship rolls for its own slot beside the pilot's course.
+  if(!entry){const p=this.huntTarget;if(p){const lead=.8,px=p.x+(p.vx||0)*lead,py=p.y+(p.vy||0)*lead,off=(this.slot-1)*170,h=Math.atan2(p.vy||0,p.vx||0)+Math.PI/2,tx=px+Math.cos(h)*off+Math.cos(h-Math.PI/2)*-220,ty=py+Math.sin(h)*off+Math.sin(h-Math.PI/2)*-220,d=Math.hypot(tx-this.x,ty-this.y);
+   this.driveOrder={hunt:true,heading:Math.atan2(tx-this.x,-(ty-this.y)),speed:d>500?70:d>220?52:30,halt:this.recovering||!!q&&q.age<2.4};}}
   if(this.driveMoving&&this.due('engine-cue',dt,.75))this.command('armor-drive');
   return {entry,final:q,live};
  }
@@ -154,7 +156,7 @@ export class Mark1Landship extends SommeBoss{
  onPartDestroyed(p){this.cancel(p.id);if(this.salvo?.partId===p.id)this.salvo=null;if(this.tracks()===0||this.parts.get('engine-deck').destroyed){this.driveVelocity=0;this.driveMoving=false;}if(this.hullArmor()===1){this.coreVulnerable=true;this.hp=Math.min(this.hp,this.maxHp*.16);}this.phase=this.parts.get('engine-deck').destroyed?'engine-disabled':this.tracks()===0?'tracks-disabled':this.tracks()===1?'track-disabled':this.hullArmor()===1?'exposed':'weapon-disabled';this.command('phase-change',{phase:this.phase});}
  move(dt,bounds){driveLandship(this,dt);}
  update(dt,{players,bounds}){
-  if(this.dead)return;this.tickParts(dt);const tactic=this.tactics(dt,bounds);this.move(dt,bounds);
+  if(this.dead)return;this.tickParts(dt);this.huntTarget=players.filter(p=>p.alive).sort((a,b)=>Math.hypot(a.x-this.x,a.y-this.y)-Math.hypot(b.x-this.x,b.y-this.y))[0];const tactic=this.tactics(dt,bounds);this.move(dt,bounds);
   for(const m of this.trackMarks)m.age+=dt;this.trackMarks=this.trackMarks.filter(m=>m.age<6);
   if(tactic.entry||this.recovering)return;
   if(this.salvo&&!sponsonAim(this,this.parts.get(this.salvo.partId),this.salvo.x,this.salvo.y).reachable)this.salvo=null;
@@ -162,7 +164,7 @@ export class Mark1Landship extends SommeBoss{
   for(const id of ['sponson-left','sponson-right']){const p=this.parts.get(id);if(p.destroyed)continue;
    if(this.tankRole==='female'){
     if(tactic.final){const rank=tactic.live.filter(b=>b.tankRole==='female').indexOf(this),start=7.4+rank*1.4;if(tactic.final.age<start||tactic.final.age>=start+.65){this.fireMG(p,dt,players,1.4,'somme-mg',false);continue;}if(!this.finalMGStarted){this.finalMGStarted=true;for(const key of ['sponson-left','sponson-right'])this.timers.set(key,0);}this.fireMG(p,dt,players,1.4);}
-    else this.fireMG(p,dt,players,tactic.live.some(q=>q.tankRole==='male'&&q.salvo)?2.5:3.6+this.slot*.3);
+    else this.fireMG(p,dt,players,tactic.live.some(q=>q.tankRole==='male'&&q.salvo)?1.8:2.2+this.slot*.2);
     continue;
    }
    if(tactic.final&&(tactic.final.age<5.6||this.finalCannonPlanned))continue;

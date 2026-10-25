@@ -43,7 +43,8 @@ export class RuralRailBoss extends RailAdapter {
   for(const [need,pct] of this.showSchedule().hull)if(shots<need)return m*pct+1;
   return m*.06;
  }
- showSchedule(){return this.kind==='lincomparable'?{hull:[[1,.84],[2,.28]],cars:[1,1,2]}:{hull:[[1,.92],[2,.66],[3,.45],[4,.28]],cars:[1,2,4]};}
+ // Both guns were down in ~25 s with a late build: five 520 mm rounds / five Bruno salvos now.
+ showSchedule(){return this.kind==='lincomparable'?{hull:[[1,.9],[2,.72],[3,.54],[4,.36],[5,.18]],cars:[1,2,4]}:{hull:[[1,.92],[2,.76],[3,.58],[4,.4],[5,.22]],cars:[2,4,5]};}
  shotsFired(){return (this.phaseShots[1]||0)+(this.phaseShots[2]||0)+(this.phaseShots[3]||0);}
  // Cars are the weak-point route, so they unlock with the gun's shots instead of
  // falling in the first second. Breaking cars stays as fast as the hull route.
@@ -62,11 +63,11 @@ export class RuralRailBoss extends RailAdapter {
   // a plane flies, so flying outward escapes it.
   const q=this.finalAim;
   // Lock long enough before impact that straightening out of a tight turn clears the blast.
-  if(q?.tracking&&q.remaining>Math.min(2.7,1.6*Math.max(1,Math.min(2.6,2/(p.turn||2))))){const keep={remaining:q.remaining,locked:q.locked,tracking:true,blindAim:q.blindAim};const t=q.blindAim?this.leadPoint({...p,vx:0,vy:0},0):this.leadPoint(p,q.remaining,(q.radius||175)+45);Object.assign(q,lincomparableRound(t,2,this,{blind:false,final:true,stress:this.reloadStress,broken:rail.broken}),keep);aimRailArtillery(this,q.target);return;}
+  if(q?.tracking){q.locked=q.locked||q.remaining<=Math.min(2.7,1.6*Math.max(1,Math.min(2.6,2/(p.turn||2))));if(!q.locked){const keep={remaining:q.remaining,locked:false,tracking:true,blindAim:q.blindAim};const t=q.blindAim?this.leadPoint({...p,vx:0,vy:0},0):this.leadPoint(p,q.remaining,(q.radius||175)+45);Object.assign(q,lincomparableRound(t,2,this,{blind:false,final:true,stress:this.reloadStress,broken:rail.broken}),keep);aimRailArtillery(this,q.target);return;}}
   const plan=this.aimPlan;if(!plan||rail.phase!=='aim'||!rail.target)return;
   // Slow-turning airframes (bomber/airship transfers) get an earlier lock.
   const k=Math.max(1,Math.min(2.6,2/(p.turn||2))),LOCK=Math.min(rail.c.aimSeconds-.1,(this.kind==='lincomparable'?1.25:.6)*k);
-  const rem=rail.c.aimSeconds-rail.time;if(rem<=LOCK)return;
+  const rem=rail.c.aimSeconds-rail.time;if(plan.locked||rem<=LOCK){plan.locked=true;return;}
   // A blinded gun (observer car destroyed) still lays on the pilot it can see,
   // but cannot predict: it aims where the pilot is, so simply flying on escapes.
   // A blinded gun (observer car gone) cannot predict: it lays on where the pilot is
@@ -136,7 +137,7 @@ export class RuralRailBoss extends RailAdapter {
     // cannot follow the pilot after the warning has begun.
     // The last 520 mm round follows the pilot through its long lay and locks
     // 0.7 s before it lands, where the pilot will be: a late hard turn is the dodge.
-    this.finalAim={...lincomparableRound({x:p.x,y:p.y,vx:0,vy:0},2,this,{blind,final:true,stress:this.reloadStress,broken:rail.broken}),remaining:2.8,locked:true,tracking:true,blindAim:blind};
+    this.finalAim={...lincomparableRound({x:p.x,y:p.y,vx:0,vy:0},2,this,{blind,final:true,stress:this.reloadStress,broken:rail.broken}),remaining:2.8,locked:false,tracking:true,blindAim:blind};
     this.raidPhase=3;aimRailArtillery(this,this.finalAim.target);
     this.emit({type:'rural-aim',target:{...this.finalAim.target},seconds:2.8,bossId:this.id});
     this.emit({type:'phase-change',bossId:this.id,phase:'lincomparable-locked'});
@@ -161,7 +162,7 @@ export class RuralRailBoss extends RailAdapter {
   emit({...target,warning:.02,delay:0,duration:plan.centerDuration,once:true,radius:plan.radius,damage:this.t.damage*2.4,raidHeavy:true,visual:'rail-shell'});
   emit({...target,warning:plan.waveWarning,delay:plan.waveDelay,duration:plan.waveDuration,once:true,radius:plan.wave,radiusStart:plan.start,radiusLimit:plan.wave,ringWidth:42,ringSpeed:(plan.wave-plan.start)/plan.waveDuration,damage:this.t.damage*1.6,raidHeavy:true,visual:'rural-rail-shock'});
   emit({...plan.smoke,warning:plan.smokeWarning,delay:plan.smokeDelay,duration:plan.smokeDuration,once:false,tickInterval:.7,damage:this.t.damage*.22,visual:'rural-rail-smoke'});
-  if(plan.final||this.raidPhase>=2)for(let i=0;i<16;i++){if(i%8===2||i%8===3)continue;const a=(i%8)/8*Math.PI*2+.39+(i>=8?.18:0),speed=155;
+  for(let i=0;i<16;i++){if(i%8===2||i%8===3)continue;const a=(i%8)/8*Math.PI*2+.39+(i>=8?.18:0),speed=155;
    emit({...target,kind:'projectile',tag:tag+'-shrapnel',vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,radius:6,warning:plan.waveDelay+(i>=8?.48:0),delay:0,duration:2.4,damage:this.t.damage*.3,visual:'rail-shrapnel'});}
   fireRailArtillery(this);
  }
@@ -315,19 +316,22 @@ export class RuralRailBoss extends RailAdapter {
   // During the heavy gun's lay, recoil and reload the car gunners stand down;
   // the train's move phase is the lure and screening-fire beat.
   if(['aim','brake'].includes(this.rail129.phase)){this.aaPlan=null;this.aaClock=Math.max(this.aaClock||0,.6);return;}
+  // The recoil/reload after a heavy shot is the announced counter window: gunners hold fire.
   if(this.recovery>0){this.aaPlan=null;this.aaClock=Math.max(this.aaClock||0,.6);return;}
   if(this.aaPlan){this.aaPlan.remaining-=dt;if(this.aaPlan.remaining<=0){
    const car=this.aaPlan.car;if(car.destroyed){this.aaPlan=null;this.aaClock=.5;return;}
    const a=this.aaPlan.angle,x=this.x,y=this.y+car.y-145,speed=(this.t.bulletSpeed||260)*.85;
    car.gunFlash=.14;car.shotAngle=a;
-   for(const da of [-.14,0,.14])this.emit({type:'hazard',bossId:this.id,kind:'projectile',x,y,vx:Math.cos(a+da)*speed,vy:Math.sin(a+da)*speed,radius:5,warning:0,delay:0,duration:3.2,damage:this.t.damage*.32,visual:'rail-mg'});
+   for(const da of [-.2,-.1,0,.1,.2])this.emit({type:'hazard',bossId:this.id,kind:'projectile',x,y,vx:Math.cos(a+da)*speed,vy:Math.sin(a+da)*speed,radius:5,warning:0,delay:0,duration:3.2,damage:this.t.damage*.4,visual:'rail-mg'});
    this.aaPlan=null;this.aaClock=2.8/(this.t.patternMultiplier||1)/cars.length;
   }return;}
   this.aaClock-=dt;if(this.aaClock>0)return;
   this._defenseTurn=((this._defenseTurn||0)+1)%cars.length;const car=cars[this._defenseTurn];
   const p=players.filter(p=>p.alive!==false).sort((a,b)=>Math.hypot(a.x-this.x,a.y-this.y-car.y)-Math.hypot(b.x-this.x,b.y-this.y-car.y))[0];
   if(!p||Math.hypot(p.x-this.x,p.y-this.y-car.y)>850)return;
-  this.aaPlan={car,angle:Math.atan2(p.y-(this.y+car.y-145),p.x-this.x),remaining:.45};
+  // Lead the pilot by the bullets' flight time, so holding a straight course is punished.
+  const oy=this.y+car.y-145,speed=(this.t.bulletSpeed||260)*.85,q=predictPilot(p,.45+Math.hypot(p.x-this.x,p.y-oy)/speed*.8);
+  this.aaPlan={car,angle:Math.atan2(q.y-oy,q.x-this.x),remaining:.45};
  }
  hit(s){
   if(!Number.isFinite(s.damage)||s.damage<0)throw new Error('Invalid damage');

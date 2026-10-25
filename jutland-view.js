@@ -7,7 +7,7 @@ import {fx} from './fx-art.js?v=tame3';
 import {impactMark,partMark,aimLine} from './tactical-marks.js?v=tame3';
 import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
 import {jutlandRotate} from './jutland-boss.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {jutlandPoint} from './jutland-route.js?v=tame3';
+import {jutlandPoint} from './jutland-route.js?v=gal1';
 import {JUTLAND_RECTS,JUTLAND_HULL_MASKS} from './jutland-atlas.js?v=tame3';
 import {drawJutlandGun} from './jutland-gun-art.js?v=20261023';
 export const JUTLAND_ASSETS=Object.freeze({sea:'jutland-sea.webp',battleship:'jutland-battleship-neutral.webp',cruiser:'jutland-cruiser.webp',parts:'jutland-parts.webp',central:'asset-bank/outlined/native/boss-zeppelin-l7094.webp',entente:'asset-bank/outlined/native/boss-hma2394.webp'});

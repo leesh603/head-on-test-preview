@@ -1,15 +1,5 @@
 /* Matte instruments, machined seams and horizontal equipment drawers. */
-.choice-modal151 .modal-card{box-sizing:border-box;width:min(960px,100%);max-width:100%;border:1px solid #777c75;background:linear-gradient(120deg,#182025f7,#0c1216fa);padding:22px;border-radius:2px}
-.choice-modal151 #modalActions,.choice-modal151 #modalActions:has(.choice:nth-child(4)){grid-template-columns:1fr;gap:10px}
-#modalActions .reinforcement-card151{grid-template-columns:90px minmax(150px,.75fr) minmax(220px,1.5fr);grid-template-rows:26px 64px!important;gap:5px 18px;height:126px!important;min-height:126px!important;max-height:126px!important;padding:16px 20px;align-items:center;animation:drawer156 .32s both;animation-delay:var(--arrival)}
 #modalActions .reinforcement-card151 .rarity-label160{position:absolute!important;top:12px;right:16px;grid-column:auto!important;font:700 12px/1.2 monospace;letter-spacing:.16em;color:var(--frame151);opacity:.58;text-shadow:0 1px 2px #000;pointer-events:none}
-#modalActions .reinforcement-card151>*{grid-column:auto!important;max-width:100%}
-#modalActions .reinforcement-card151 .choice-icon{grid-column:1!important;grid-row:1/3;width:88px;height:76px;align-self:center}
-#modalActions .reinforcement-card151 .effect-category151{grid-column:2!important;grid-row:1;align-self:end;justify-self:start;line-height:18px;font-size:12px;color:#bfc8c4;padding:0 0 0 6px;background:none}
-#modalActions .reinforcement-card151>b{grid-column:2!important;grid-row:2;align-self:start;font-size:17px;line-height:1.45}
-#modalActions .reinforcement-card151>span:not(.cumulative151){grid-column:3!important;grid-row:1/3;font-size:14px;line-height:1.65}
-#modalActions .reinforcement-card151:has(.cumulative151:not(:empty))>span:not(.cumulative151){grid-row:1;align-self:end}
-#modalActions .reinforcement-card151>.cumulative151{grid-column:3!important;grid-row:2;font-size:12px;line-height:1.5;padding-top:5px;align-self:start}
 #modalActions .cumulative151:empty{display:none}
 #modalActions .rarity-legendary{border:3px double #b5b3a1;border-left:5px solid #bdad84;background:radial-gradient(ellipse at 6% 50%,#b3a27633,transparent 45%),linear-gradient(115deg,#323c40,#111b20 55%,#292d2c);box-shadow:inset 0 1px #ece2be66,inset 0 -1px #000;isolation:isolate}
 #modalActions .rarity-legendary:before{content:'';position:absolute;inset:-80% -40%;background:linear-gradient(110deg,transparent 46%,#eff3df18 49%,#eff3df33 50%,transparent 53%);animation:metal156 4.8s ease-in-out infinite;pointer-events:none;z-index:-1}
@@ -28,7 +18,6 @@
    center lane, time/level/kills + pause right. Values stay live elements. */
 #flightTop151{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;justify-items:start}
 .flight-survival{grid-column:1;grid-row:1;box-sizing:border-box;display:flex;flex-direction:column;gap:4px;width:min(400px,32vw);min-width:250px;padding:9px 12px;background:#202723e6;border:1px solid #777d7255;border-radius:4px}
-#flightTop151 #hud{display:contents}#flightTop151 #hud.hidden{display:none}
 #flightTop151 .health151{position:static;width:auto;height:auto;display:grid;grid-template-columns:auto auto minmax(60px,1fr);align-items:center;gap:0 9px;padding:0;background:none;border:0}
 #flightTop151 .health151>small{position:static;font:600 11px/1.4 sans-serif;letter-spacing:.08em;color:#b9b09c;white-space:nowrap}
 #flightTop151 #healthText{display:flex;align-items:baseline;gap:4px;font:600 17px/1.35 monospace;color:#ede5d1;white-space:nowrap}
@@ -44,12 +33,10 @@
 #flightTop151 #ammoGunIcon{display:none}
 #flightTop151 #ammoLabel{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 #flightTop151 #ammoCount{grid-column:2;grid-row:1;position:static;font:600 14px/1.4 monospace;letter-spacing:-.5px;color:#ede5d1}
-#flightTop151 #ammoHud #ammoCount{white-space:nowrap}
 #flightTop151 #ammoHud .bar{grid-column:3;grid-row:1;height:6px;margin:0;border-radius:3px;background:#111614c9}
 #flightTop151 #ammoProgress{background:#89a899;transition:width .05s linear}
 #flightTop151 #ammoHud.reloading #ammoProgress{background:#c49a52}
 #flightTop151 #reload{grid-column:4;grid-row:1/3;align-self:center;position:static;top:auto;right:auto;min-width:42px;width:42px;min-height:42px;height:42px;padding:0;border:1px solid #777d7266;border-radius:3px;background:#11161466;color:#ede5d1;font:700 13px/1 monospace;pointer-events:auto}
-#flightTop151 #reload:disabled{opacity:.4}
 .flight-status{grid-column:3;grid-row:1;justify-self:end;display:flex;align-items:stretch;gap:6px;min-width:0}
 .flight-status-panel{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:172px;padding:7px 12px;background:#202723e6;border:1px solid #777d7255;border-radius:4px}
 #flightTop151 .time{position:static;inset:auto;display:flex;align-items:baseline;gap:7px;width:auto;min-width:0;padding:0;background:none;border:0}
@@ -87,7 +74,6 @@
 #touch .touch-actions{gap:10px;align-items:flex-end}
 #touch #touchSkill,#touch #touchEvade{position:relative;width:76px;height:64px;min-width:76px;min-height:64px;border:1px solid #c1c9b42b;border-radius:3px;background:#111d2225;box-shadow:inset 0 1px #e4e9d00a;opacity:.75;color:#e1e2cd;overflow:hidden;touch-action:none;transition:background .12s,transform .12s}
 #touch #touchSkill:after,#touch #touchEvade:after{content:'';position:absolute;bottom:0;left:0;height:2px;width:calc(var(--ready,1)*100%);background:#b6bea1aa}
-#touch #touchSkill:disabled,#touch #touchEvade:disabled{opacity:.35;background:#10191a16}
 #touch #touchSkill:active,#touch #touchEvade:active{transform:translateY(2px);background:#c3c6a52e;border-color:#d7d9bd77}
 #touch .touch-actions span{font:12px/1.4 sans-serif;text-shadow:0 1px 2px #000}
 @media (hover:hover) and (pointer:fine){
@@ -98,38 +84,27 @@
  .flight-key156{grid-column:2;grid-row:1;align-self:end;padding:2px 5px;border:0;border-radius:2px;font:700 10px/1.2 monospace;color:#111614;background:#b9b09c}
  #skillButtonText,#maneuverButtonText{grid-column:3;grid-row:1;align-self:end;font:600 13px/1.25 sans-serif;color:#ede5d1;text-align:left;text-shadow:none}
  #skillButtonState,#maneuverButtonState{grid-column:2/4;grid-row:2;font:11px/1.3 monospace;letter-spacing:.04em;color:#89a899}
- #touchSkill:disabled #skillButtonState,#touchEvade:disabled #maneuverButtonState{color:#c49a52}
- .skill-cutin{bottom:calc(max(22px,env(safe-area-inset-bottom)) + 92px)}
+  .skill-cutin{bottom:calc(max(22px,env(safe-area-inset-bottom)) + 92px)}
 }
 @media (max-width:720px),(pointer:coarse){
  #touch{left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));align-items:flex-end}
  #stickCaption{display:block;margin-top:3px;font:10px/1.2 sans-serif;color:#b9b09ccc;text-align:center}
  #touch .touch-actions{display:grid;grid-template-columns:auto auto;grid-template-rows:auto auto;gap:10px;align-items:center;justify-items:end}
  #touch #reload{grid-column:1;grid-row:1/3;position:static;inset:auto;width:62px;min-width:62px;height:62px;min-height:62px;padding:0;border:1px solid #777d7266;border-radius:50%;background:#202723e6;color:#ede5d1;font:700 12px/1.2 sans-serif;pointer-events:auto;touch-action:none}
- #touch #reload:disabled{opacity:.45}
- #touch #touchSkill{grid-column:2;grid-row:1;width:88px;min-width:88px;height:88px;min-height:88px}
+  #touch #touchSkill{grid-column:2;grid-row:1;width:88px;min-width:88px;height:88px;min-height:88px}
  #touch #touchEvade{grid-column:2;grid-row:2;width:78px;min-width:78px;height:78px;min-height:78px}
  #touch #touchSkill,#touch #touchEvade{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:6px;border-radius:50%;text-align:center}
  #touch #touchSkill:after,#touch #touchEvade:after{top:auto;left:15%;width:calc(var(--ready,1)*70%);height:3px;border-radius:2px}
  #skillButtonIcon,#maneuverButtonIcon{display:block;width:26px;height:26px}
  .flight-key156{display:none}
- #skillButtonText,#maneuverButtonText{font-size:12px;font-weight:600}
- #skillButtonState,#maneuverButtonState{font:11px/1.2 monospace;color:#89a899}
- #touchSkill:disabled #skillButtonState,#touchEvade:disabled #maneuverButtonState{color:#c49a52}
-}
+  #skillButtonState,#maneuverButtonState{font:11px/1.2 monospace;color:#89a899}
+ }
 /* Legendary equipment chips: tap/hover reveals name + effect without a modal. */
 .legendary-badge{pointer-events:auto;position:relative;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border:1px solid #c49a5288;border-radius:4px;background:#202723e6;cursor:pointer}
 .legendary-badge canvas{width:30px;height:30px;image-rendering:pixelated}
 .legendary-tip156{display:none;position:absolute;bottom:calc(100% + 8px);right:0;box-sizing:border-box;width:210px;max-width:60vw;padding:8px 10px;background:#202723f7;border:1px solid #777d72;border-radius:3px;color:#ede5d1;font:12px/1.45 sans-serif;text-align:left;z-index:30;box-shadow:0 6px 20px #0008}
 .legendary-badge:hover .legendary-tip156,.legendary-badge:focus-visible .legendary-tip156,.legendary-badge.tip156 .legendary-tip156{display:block}
 @media(max-width:720px){
- .choice-modal151 .modal-card{padding:14px 10px;max-height:96dvh}.choice-modal151 h2{font-size:22px}.choice-modal151 #modalText{font-size:13px;margin-bottom:10px}
- #modalActions .reinforcement-card151{grid-template-columns:56px minmax(0,1fr);grid-template-rows:18px 42px 63px 34px!important;gap:3px 10px;padding:12px;min-height:181px!important;height:181px!important;max-height:181px!important}.rarity-label160{top:9px!important;right:10px!important;font-size:11px!important;letter-spacing:.12em!important}
- #modalActions .reinforcement-card151 .choice-icon{grid-column:1!important;grid-row:1/5;width:54px;height:60px}
- #modalActions .reinforcement-card151 .effect-category151{grid-column:2!important;grid-row:1;font-size:12px}
- #modalActions .reinforcement-card151>b{grid-column:2!important;grid-row:2;font-size:15px;line-height:1.4}
- #modalActions .reinforcement-card151>span:not(.cumulative151),#modalActions .reinforcement-card151:has(.cumulative151:not(:empty))>span:not(.cumulative151){grid-column:2!important;grid-row:3;font-size:14px;line-height:1.5}
- #modalActions .reinforcement-card151>.cumulative151{grid-column:2!important;grid-row:4;font-size:12px}
  /* Mobile: two compact panels on one row, boss + warnings on a second row. */
  #flightTop151{grid-template-columns:auto auto;gap:6px}
  #flightCenter156{grid-column:1/-1;grid-row:2}
@@ -138,8 +113,7 @@
  #flightTop151 #ammoHud{grid-template-columns:auto auto minmax(48px,1fr)}
  #flightTop151 #ammoHud>div>small{display:none}
  #flightTop151 #ammoCount{font-size:13px}
- #flightTop151 #reload{display:none}
- .flight-status{gap:5px}
+  .flight-status{gap:5px}
  .flight-status-panel{min-width:0;padding:6px 9px;gap:2px}
  #flightTop151 #clock{font-size:16px}
  #flightTop151 .compact-kills b{font-size:12px}
@@ -158,36 +132,18 @@
 #flightTop151 .coop-team{background:#202723e6;border:1px solid #777d7255;border-radius:3px;color:#ede5d1}
 
 /* Revision 160: equal-height reinforcement cards with reserved content bands. */
-.choice-modal151 #modalActions{grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:12px}
 .choice-modal151 #modalActions:has(.choice:nth-child(4)){grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;gap:12px}
 .choice-modal151 #modalActions:has(.choice:nth-child(4)) .reinforcement-card151{padding:12px 12px!important}
 .choice-modal151 #modalActions:has(.choice:nth-child(4)) .reinforcement-card151 .choice-icon{width:82px!important;height:82px!important}
 .choice-modal151 #modalActions:has(.choice:nth-child(4)) .reinforcement-card151>b{font-size:15px!important}
-#modalActions .reinforcement-card151{
- display:grid!important;box-sizing:border-box;grid-template-columns:1fr!important;
- grid-template-rows:22px 112px 48px 105px 34px!important;gap:4px!important;
- height:353px!important;min-height:353px!important;max-height:353px!important;padding:14px 16px!important;align-items:start!important
-}
-#modalActions .reinforcement-card151 .rarity-label160{top:14px!important;right:15px!important;font-size:11px!important;opacity:.46!important}
-#modalActions .reinforcement-card151 .effect-category151{grid-column:1!important;grid-row:1!important;align-self:start!important;font-size:11px!important;line-height:18px!important;padding:0!important}
-#modalActions .reinforcement-card151 .choice-icon{grid-column:1!important;grid-row:2!important;width:108px!important;height:108px!important;justify-self:center!important;align-self:center!important;object-fit:contain}
-#modalActions .reinforcement-card151>b{grid-column:1!important;grid-row:3!important;align-self:center!important;text-align:center;font-size:17px!important;line-height:1.3!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-#modalActions .reinforcement-card151>span:not(.cumulative151),#modalActions .reinforcement-card151:has(.cumulative151:not(:empty))>span:not(.cumulative151){grid-column:1!important;grid-row:4!important;align-self:start!important;font-size:13px!important;line-height:1.52!important;margin:0!important}
-#modalActions .reinforcement-card151>.cumulative151{grid-column:1!important;grid-row:5!important;align-self:end!important;font-size:11px!important;line-height:1.35!important;padding-top:6px!important;border-top:1px solid #b7c2b526;width:100%}
 @media(max-width:720px){
  /* Keep every offered card visible on phones; upgrade selection must never become a horizontal rail. */
  .choice-modal151 #modalActions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;overflow-x:hidden;overflow-y:visible;padding:2px 0 8px;margin:0}
  .choice-modal151 #modalActions:has(.choice:nth-child(4)){grid-template-columns:repeat(2,minmax(0,1fr))}
- .choice-modal151 #modalActions .choice{width:100%;min-width:0;max-width:none}
- .choice-modal151 .legendary-reroll115{grid-column:1/-1;min-width:0;align-self:stretch}
+  .choice-modal151 .legendary-reroll115{grid-column:1/-1;min-width:0;align-self:stretch}
  body.astra-ui.playing:has(#modal.choice-modal151:not(.hidden)) #touch,
  body.astra-ui.playing:has(#modal.choice-modal151:not(.hidden)) #skillCutin{display:none!important}
- #modalActions .reinforcement-card151{grid-template-rows:20px 70px 44px 113px 35px!important;height:306px!important;min-height:306px!important;max-height:306px!important;padding:10px 7px!important;gap:3px!important}
- #modalActions .reinforcement-card151 .choice-icon{width:68px!important;height:68px!important}
- #modalActions .reinforcement-card151>b{font-size:14px!important;line-height:1.32!important}
- #modalActions .reinforcement-card151>span:not(.cumulative151),#modalActions .reinforcement-card151:has(.cumulative151:not(:empty))>span:not(.cumulative151){font-size:12px!important;line-height:1.42!important}
- #modalActions .reinforcement-card151>.cumulative151{font-size:10.5px!important}
-}
+     }
 @media(max-width:350px){
  #modalActions .reinforcement-card151{grid-template-rows:19px 64px 42px 121px 34px!important;height:304px!important;min-height:304px!important;max-height:304px!important;padding:9px 7px!important}
  #modalActions .reinforcement-card151 .choice-icon{width:62px!important;height:62px!important}
@@ -197,7 +153,6 @@
 
 /* iOS memory cleanup + front transition. Uses the current HEAD-ON/Astra UI language. */
 #regionTransition.region-transition{position:absolute;inset:0;z-index:95;display:grid;place-items:center;pointer-events:auto;background:linear-gradient(180deg,#09110ef7,#0d1413fb);color:var(--ui-text,#f1e9d8);padding:24px;text-align:left}
-#regionTransition.region-transition.hidden{display:none}
 #regionTransition .region-transition-card{width:min(760px,calc(100vw - 48px));display:grid;grid-template-columns:1fr;gap:10px;padding:24px 26px 22px;background:linear-gradient(145deg,#141c19f2,#0d1413f7);border:1px solid var(--astra-line,#bdb69a55);box-shadow:0 22px 70px #0009,inset 0 1px #ffffff08}
 #regionTransition .region-transition-kicker{font:500 10px/1.3 var(--astra-numeric,monospace);letter-spacing:.2em;color:#c3c0ab;border-left:2px solid #c9c0a0;padding-left:9px}
 #regionTransition #regionTransitionName{font:900 clamp(24px,3.6vw,42px)/1.18 var(--astra-type,sans-serif);letter-spacing:-.035em;color:#f4ecd7;word-break:keep-all}

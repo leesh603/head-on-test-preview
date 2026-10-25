@@ -1,6 +1,8 @@
 // One authoritative pre-sortie roster and pilot-specific aircraft unlock policy.
 // Historical sources and exceptions: docs/pilot-aircraft-20261018.md.
 export const PILOT_AIRCRAFT_KILLS=50;
+export const BARON_ALBATROS_IDS=Object.freeze(['baron_albatros','baron_albatros_d5_redwings','baron_albatros_d5_red']);
+export const isBaronAlbatros=id=>BARON_ALBATROS_IDS.includes(id);
 export const pilotKillMetric=id=>'pilotKills'+id;
 let pilotKillProvider=null;
 export const setPilotKillProvider=provider=>{pilotKillProvider=provider};
@@ -38,6 +40,8 @@ export const PILOT_AIRCRAFT=Object.freeze({
 // Existing high-quality art is referenced by its real registered sprite ID.
 // New models use authored transparent WebPs, loaded only when selected.
 export const SORTIE_FITS=Object.freeze({
+ baron_albatros_d5_redwings:{base:'baron_albatros',sprite:'baron_albatros_d5_redwings',name:'Albatros D.V · 붉은 날개 / 목재 동체',style:'baron_albatros',history:'리히트호펜의 알바트로스 D.V를 바탕으로 한 붉은 날개·목재색 동체 도장입니다.'},
+ baron_albatros_d5_red:{base:'baron_albatros',sprite:'baron_albatros_d5_red',name:'Albatros D.V · 전체 붉은색',style:'baron_albatros',history:'리히트호펜의 알바트로스 D.V를 바탕으로 한 전체 붉은색 도장입니다.'},
  fonck_spad:{base:'spad',sprite:'fonck_spad',name:'SPAD XIII · 폰크',style:'rickenbacker_spad'},
  luke_spad:{base:'spad',sprite:'luke_spad',name:'SPAD XIII · 프랭크 루크',style:'rickenbacker_spad'},
  bishop_nieuport:{base:'nieuport',sprite:'bishop_nieuport',name:'Nieuport 17 · 비숍',style:'baracca_nieuport'},
@@ -70,9 +74,8 @@ export const PILOT_RENDER_ART=Object.freeze({
  mccudden:Object.freeze({airco_dh2:'mccudden_dh2'}),
  mannock:Object.freeze({se5a:'mannock_se5a'})
 });
-export const NEW_SORTIE_ART=Object.freeze(['morane_l','bristol_scout_c','hansa_brandenburg_di','voisin_iii','loewenhardt_albatros','sachsenberg_d7','wolff_f1','voss_pfalz']);
-export const pilotAircraftChoices=id=>{const r=PILOT_AIRCRAFT[id];return r?[r.defaultAircraft,...(r.unlockAircraft?[r.unlockAircraft]:[])]:[]};
-export const pilotAircraftUnlocked=(id,choice,kills=pilotKillCount(id))=>!!PILOT_AIRCRAFT[id]&&(choice===PILOT_AIRCRAFT[id].defaultAircraft||!!PILOT_AIRCRAFT[id].unlockAircraft&&choice===PILOT_AIRCRAFT[id].unlockAircraft&&kills>=PILOT_AIRCRAFT_KILLS);
+export const pilotAircraftChoices=id=>{const r=PILOT_AIRCRAFT[id];return r?[r.defaultAircraft,...(id==='baron'?BARON_ALBATROS_IDS:r.unlockAircraft?[r.unlockAircraft]:[])]:[]};
+export const pilotAircraftUnlocked=(id,choice,kills=pilotKillCount(id))=>!!PILOT_AIRCRAFT[id]&&(choice===PILOT_AIRCRAFT[id].defaultAircraft||!!PILOT_AIRCRAFT[id].unlockAircraft&&(id==='baron'?isBaronAlbatros(choice):choice===PILOT_AIRCRAFT[id].unlockAircraft)&&kills>=PILOT_AIRCRAFT_KILLS);
 export const selectedPilotAircraft=(id,choice)=>pilotAircraftChoices(id).includes(choice)&&pilotAircraftUnlocked(id,choice)?choice:PILOT_AIRCRAFT[id]?.defaultAircraft;
 export const aircraftChoiceLabel=(id,plane,name,role,locale='ko')=>[plane===PILOT_AIRCRAFT[id]?.defaultAircraft?(locale==='en'?'Default':'기본'):pilotAircraftUnlocked(id,plane)?'':(locale==='en'?`Locked · ${Math.min(pilotKillCount(id),PILOT_AIRCRAFT_KILLS)}/${PILOT_AIRCRAFT_KILLS} kills`:`잠김 · 격추 ${Math.min(pilotKillCount(id),PILOT_AIRCRAFT_KILLS)}/${PILOT_AIRCRAFT_KILLS}`),name].filter(Boolean).join(' · ');
 
@@ -92,7 +95,7 @@ export function installPilotAircraft(planes,weapons,pilots,mapping,profiles,conf
   if(planes[id])continue;
   const base=planes[s.base]||planes[s.fallback],weapon=weapons[s.weaponBase||s.base]||weapons[s.fallback];
   if(!base||!weapon)throw new Error('Missing sortie aircraft base: '+id);
-  const handling=Object.freeze({...base.handling,...Object.fromEntries(['speed','turn','drag','recovery'].filter(k=>s[k]!==undefined).map(k=>[k,s[k]])),role:s.role||base.role,left:base.handling?.left??1});
+  const handling=Object.freeze({...base.handling,...Object.fromEntries(['speed','turn','drag','recovery'].filter(k=>s[k]!==undefined).map(k=>[k,s[k]])),role:s.role||base.role,history:s.history||base.handling?.history,left:base.handling?.left??1});
   planes[id]={...base,name:s.name,handling,role:s.role||base.role,sortieBase:s.tier||s.base,sortieStyle:s.style||s.base,campaignOnly:false,...Object.fromEntries(['speed','turn','wings'].filter(k=>s[k]!==undefined).map(k=>[k,s[k]]))};
   weapons[id]={...weapon,...(s.guns?{guns:s.guns,gunProfiles:Array(s.guns).fill(s.gunName==='Lewis'?'lewis':weapon.gunProfile||'vickers')}:{}),...(s.gunName?{name:s.gunName,...(['Hotchkiss','Schwarzlose'].includes(s.gunName)?{caliber:'8 mm'}:{})}:{}),...(s.bidirectional?{bidirectional:true,gunProfiles:['vickers','lewis']}:{}),...(s.gunAngle?{sortieGunAngle:s.gunAngle,sortieMuzzleSide:s.muzzleSide}:{})};
   configure(planes[id],s.hp??base.baseHp??base.hp);

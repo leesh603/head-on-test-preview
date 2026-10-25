@@ -1,5 +1,5 @@
 import {applySeaColor} from './sea-colors.js?v=tame3';
-import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js';
+import {hash,clamp,sweptPolygon,positive} from './alps-geometry117.js?v=tame3';
 export const TERRAIN_PROFILES=Object.freeze({
  rural:{name:'전원 지대',src:'./terrain-rural359.webp?v=r5&b=326',base:'#424b3b',strength:1.25},
  sea:{name:'아드리아해',src:'./terrain-sea359r2.webp?v=r5&b=326',base:'#245d62',strength:1.11,tileSize:1254},
@@ -48,11 +48,14 @@ function profileImage(key){
 // non-image environments); false only when the image failed to load.
 export function preloadTerrainProfile(key){
  const im=profileImage(key);if(!im)return Promise.resolve(true);
- if(im.complete)return Promise.resolve(im.naturalWidth>0);
  if(!profileImageLoads.has(key))profileImageLoads.set(key,new Promise(resolve=>{
-  const done=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im.naturalWidth>0))};
-  im.addEventListener('load',done,{once:true});
-  im.addEventListener('error',done,{once:true});
+  let finished=false;
+  const done=()=>{if(finished)return;finished=true;
+   im.removeEventListener('load',done);im.removeEventListener('error',done);
+   (im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im.naturalWidth>0));
+  };
+  im.addEventListener('load',done,{once:true});im.addEventListener('error',done,{once:true});
+  if(im.complete)done();
  }));
  return profileImageLoads.get(key);
 }
@@ -149,4 +152,5 @@ export class MountainField {
  }
  reset(){this.contacts.clear();this.cache.clear();this.time=0;}
 }
+
 

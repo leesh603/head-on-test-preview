@@ -1,10 +1,10 @@
 // Trim generated atlas cells by alpha once; preserve the established upgrade illustrations.
 const keys=['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','legacyExtraMagazine','cooldown','control','turn','command','damage','rate','spread','rockets','mines','armor','magnet','repair','regen'];
-export const LEGENDARY_ICON_KEYS=Object.freeze(['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','goeringBaton','immelmannManual','motorCannon','loEmblem','sacredCowling','steelPlate','mauserAceKiller','boelckeDicta','fogCompass','rearGunner','quadLewis','cow37','rankinShell','kaiserFog','grunkreuz','maximBelt','amatolCharge','lufberyCircle','urLeica','badinGauge','heineckeRettungsfallschirm','bomberTransfer','mgTransfer','airshipTransfer']);
+export const LEGENDARY_ICON_KEYS=Object.freeze(['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','goeringBaton','immelmannManual','motorCannon','loEmblem','sacredCowling','steelPlate','mauserAceKiller','boelckeDicta','fogCompass','rearGunner','quadLewis','cow37','rankinShell','kaiserFog','grunkreuz','maximBelt','amatolCharge','lufberyCircle','urLeica','badinGauge','heineckeRettungsfallschirm','bomberTransfer','mgTransfer','airshipTransfer','buckinghamBelt','cooperRack','fieryGrapnel','flechettes','veryPistol','hytheCamera','strutterAirbrake','wimperisSight']);
 const frames=new Map();
 function loadIconAtlas(file,columns,rows,names,smooth=false){return new Promise(resolve=>{const atlas=new Image();atlas.onload=()=>{
  const c=document.createElement('canvas');c.width=atlas.naturalWidth;c.height=atlas.naturalHeight;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(atlas,0,0);const d=ctx.getImageData(0,0,c.width,c.height).data;
- names.forEach((key,i)=>{const x0=Math.round(i%columns*c.width/columns),x1=Math.round((i%columns+1)*c.width/columns),y0=Math.round(Math.floor(i/columns)*c.height/rows),y1=Math.round((Math.floor(i/columns)+1)*c.height/rows);let l=x1,r=x0,t=y1,b=y0;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(d[(y*c.width+x)*4+3]>100){l=Math.min(l,x);r=Math.max(r,x);t=Math.min(t,y);b=Math.max(b,y)}if(r>=l&&b>=t)frames.set(key,{atlas,x:l,y:t,w:r-l+1,h:b-t+1,smooth})});resolve(true)
+ names.forEach((key,i)=>{const x0=Math.round(i%columns*c.width/columns),x1=Math.round((i%columns+1)*c.width/columns),y0=Math.round(Math.floor(i/columns)*c.height/rows),y1=Math.round((Math.floor(i/columns)+1)*c.height/rows);let l=x1,r=x0,t=y1,b=y0;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(d[(y*c.width+x)*4+3]>100){l=Math.min(l,x);r=Math.max(r,x);t=Math.min(t,y);b=Math.max(b,y)}if(r>=l&&b>=t&&!frames.get(key)?.direct)frames.set(key,{atlas,x:l,y:t,w:r-l+1,h:b-t+1,smooth})});resolve(true)
 };atlas.onerror=()=>resolve(false);atlas.src=file})}
 function loadDirectIcon(file,key){return new Promise(resolve=>{const icon=new Image();icon.onload=()=>{if(key.startsWith('cooldown-')){
  const canvas=document.createElement('canvas');canvas.width=icon.naturalWidth;canvas.height=icon.naturalHeight;const c=canvas.getContext('2d',{willReadFrequently:true});c.drawImage(icon,0,0);const pixels=c.getImageData(0,0,canvas.width,canvas.height),d=pixels.data,w=canvas.width,h=canvas.height;
@@ -14,6 +14,8 @@ function loadDirectIcon(file,key){return new Promise(resolve=>{const icon=new Im
  c.putImageData(pixels,0,0);let l=w,r=0,t=h,b=0;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>0){l=Math.min(l,x);r=Math.max(r,x);t=Math.min(t,y);b=Math.max(b,y)}frames.set(key,{atlas:canvas,x:l,y:t,w:r-l+1,h:b-t+1,smooth:true,direct:true});
  }else frames.set(key,{atlas:icon,x:0,y:0,w:icon.naturalWidth,h:icon.naturalHeight,smooth:true,direct:true});resolve(true)};icon.onerror=()=>resolve(false);icon.src=file})}
 const DIRECT_ICONS=Object.freeze({
+ strutterAirbrake:'strutter_airbrake.webp',wimperisSight:'wimperis_sight.webp',
+ buckinghamBelt:'buckingham_belt.webp',cooperRack:'cooper_rack.webp',fieryGrapnel:'fiery_grapnel.webp',flechettes:'flechettes.webp',veryPistol:'very_pistol.webp',hytheCamera:'hythe_camera_v2.webp',
  'cooldown-central':'medal_general_central.webp','cooldown-entente':'medal_general_entente.webp',
  damage:'armor_piercing_ammo.webp',rate:'synchronization_gear.webp',rockets:'le_prieur_rocket_launcher.webp',mines:'grenade_throwing_gear.webp',
  explosives:'high_quality_powder.webp',command:'squadron_flight_manual.webp',turn:'laminated_wood_propeller.webp',armor:'plywood_monocoque_fuselage.webp',regen:'mechanics_oil_pump.webp',
@@ -60,3 +62,4 @@ function cleanLegendaryFrame(key){
  const clean=document.createElement('canvas'),w=right-left+1,h=bottom-top+1;clean.width=w;clean.height=h;const out=clean.getContext('2d').createImageData(w,h);for(const part of kept)for(const n of part){const x=n%f.w,y=Math.floor(n/f.w),from=n*4,to=((y-top)*w+x-left)*4;out.data[to]=data[from];out.data[to+1]=data[from+1];out.data[to+2]=data[from+2];out.data[to+3]=data[from+3]}clean.getContext('2d').putImageData(out,0,0);frames.set(key,{atlas:clean,x:0,y:0,w,h,smooth:f.smooth});
 }
 iconsReady.then(()=>{for(const key of LEGENDARY_ICON_KEYS)cleanLegendaryFrame(key)});
+

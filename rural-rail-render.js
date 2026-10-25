@@ -1,6 +1,6 @@
 import {fx} from './fx-art.js?v=tame3';
 import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
-import {impactMark,bandMark,partMark,aimLine,MARK} from './tactical-marks.js?v=tame3';
+import {impactMark,bandMark,partMark,aimLine,lockMark,MARK} from './tactical-marks.js?v=tame3';
 import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=tame3';
 import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=tame3';
 const circle=(c,x,y,r)=>{c.beginPath();c.arc(x,y,r,0,Math.PI*2);};
@@ -52,10 +52,18 @@ export function drawRuralRail(c,b,images,wrecks){
 export function drawRuralRailWarnings(c,b){
  if(!b.ruralRailBoss||b.dead)return;
  c.save();c.lineWidth=1.5;
- const pending=b.finalAim||b.aimPlan||(b.kind==='paris-gun'?b.barrage:null);
+ // The emitted hazards own their countdowns after firing; drawing barrage here
+ // too used to stack a second, differently-sized set of circles over them.
+ const pending=b.finalAim||b.aimPlan;
  if(pending){const plan=pending,heavy=b.kind==='lincomparable';
   const r=b.rail129,aimP=r?.phase==='aim'?Math.min(1,r.time/Math.max(.01,r.c.aimSeconds)):1,tone=plan.blind?'blind':'warn';
   const label=(text,x,y)=>{c.font='bold 14px sans-serif';c.textAlign='center';c.lineWidth=3;c.strokeStyle=MARK.ink;c.strokeText(text,x,y);c.fillStyle='#f3dca6';c.fillText(text,x,y);};
+  if(!plan.locked){
+   // Only the sight moves during the lay. The full impact pattern becomes
+   // visible once committed, so turning does not drag a whole cloud of rings.
+   lockMark(c,plan.target.x,plan.target.y,32,aimP);
+   label(getLocale()==='en'?'AIMING':'조준 중',plan.target.x,plan.target.y-46);
+  }else{
   for(const [i,p]of plan.points.entries()){
    if(i<(plan.index||0))continue;
    impactMark(c,p.x,p.y,plan.radius||88,aimP*.6,{tone,heavy:heavy||i===plan.points.length-1,cross:heavy});
@@ -72,6 +80,7 @@ export function drawRuralRailWarnings(c,b){
     const dx=smoke.x-p.x,dy=smoke.y-p.y,len=Math.hypot(dx,dy)||1,d=plan.start-65;
     partMark(c,p.x-dx/len*d,p.y-dy/len*d,14,14,{color:MARK.safe});
    }
+  }
   }
  }
  if(b.kind==='paris-gun'&&b.railGun.brakeAge<.65){const q=b.railGun.brakeAge/.65;

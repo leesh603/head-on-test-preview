@@ -96,9 +96,14 @@ export function advanceBurns1918(world, dt) {
     e.fuelFxAge=(e.fuelFxAge||0)+active;
     e.burnTime = Math.max(0, e.burnTime - step);
     if(e.gontermannBurn)e.gontermannBurn.age+=active;
-    const burnDamage = Math.max(0, e.burnDps || 0)*active;
+    let burnDamage = Math.max(0, e.burnDps || 0)*active;
+    if(e.burnAnchorSpace){const owner=(world.players||[world]).find(p=>p.id===(e.burnOwnerId||'p1'))||world;
+      if(e.supportInvulnUntil>world.t||owner.canHitTarget&&!owner.canHitTarget(e,{burn:true}))burnDamage=0;
+      if(e.burnPartId&&e.stageBossBody?.parts.get(e.burnPartId)?.destroyed)burnDamage=0;
+      if(!e.stageBossBody&&e.bossPilot==='berthold'){if(e.hp<=e.maxHp*.5)burnDamage*=.75;if(e.ironWillUntil>world.t)burnDamage*=.35;}
+    }
     // Burn goes through the boss addon so show-before-fall floors apply to it too.
-    if (e.stageBossBody) world.stageBoss?.hit ? world.stageBoss.hit({bodyId: e.stageBossBody.id, damage: burnDamage, faction: world.teamFaction}) : e.stageBossBody.hit({damage: burnDamage});
+    if (e.stageBossBody) {const hit={bodyId:e.stageBossBody.id,partId:e.burnAnchorSpace?e.burnPartId:undefined,damage:burnDamage,faction:world.teamFaction};const result=world.stageBoss?.hit ? world.stageBoss.hit(hit) : e.stageBossBody.hit(hit);if(e.burnAnchorSpace&&result?.damage>0)world.stageBossLastOwner=e.burnOwnerId;}
     else e.hp -= burnDamage;
     e.burnFxTime = (e.burnFxTime || 0) - step;
     if (e.burnFxTime <= 0 && !e.gontermannBurn) {
@@ -106,7 +111,7 @@ export function advanceBurns1918(world, dt) {
       world.smoke(e.x, e.y, false, true);
       world.burst(e.x, e.y, '#ff9a3c', 3, 'profileOnly');
     }
-    if (!e.burnTime) {e.burnDps = 0;delete e.gontermannBurn;}
+    if (!e.burnTime) {e.burnDps = 0;delete e.gontermannBurn;delete e.burnAnchorSpace;delete e.burnPartId;}
     if (e.hp <= 0 && !e.burnCounted && !e.deathHandled && !e.stageBossBody) {
       e.burnCounted = true;
       killed.push(e);

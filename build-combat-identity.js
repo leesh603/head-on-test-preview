@@ -7,10 +7,6 @@ const gunRound=b=>ownRound(b)&&!b.rocket&&!b.actualExplosion&&!b.blast&&!b.motor
 const priority=e=>!!(e?.formationCommand||e?.formationResumeCommand||e?.missionTarget||e?.bossPilot||e?.type==='boss'||e?.heavyBomber);
 const live=e=>!!e&&e.hp>0&&e.alive!==false&&!e.crashing;
 const combatEnemies=game=>{const world=game.combatWorld?.()||game;return [...(world.enemies||[]),...(world.eliteEnemies?.members||[])]};
-export function buildIdentityStrength(upgrades,identity,identityFor){
- let ranks=0;for(const [id,count] of Object.entries(upgrades||{}))if(identityFor(id)===identity)ranks+=Math.max(0,Number(count)||0);
- return clamp((ranks-1)/(BUILD_COMBAT_BALANCE.rankCap-1),0,1);
-}
 export function installBuildCombatIdentity(Game,{identityFor}){
  if(Game.prototype.__buildCombatIdentity)return;Game.prototype.__buildCombatIdentity=true;
  Game.prototype.buildCombatStrength=function(identity){

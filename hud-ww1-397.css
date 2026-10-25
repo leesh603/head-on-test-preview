@@ -51,12 +51,6 @@ body.astra-ui.playing{
 /* 2. Survival / status instruments — HP, ammo, XP, kills, clock. */
 body.astra-ui.playing #flightTop151 .health151>small,
 body.astra-ui.playing #flightTop151 #ammoHud:before{color:var(--ho-muted)}
-body.astra-ui.playing #flightTop151 #healthText,
-body.astra-ui.playing #flightTop151 #healthCurrent151,
-body.astra-ui.playing #flightTop151 #healthMax151,
-body.astra-ui.playing #flightTop151 #ammoCount,
-body.astra-ui.playing #flightTop151 .compact-kills b{color:var(--ho-numeral)}
-body.astra-ui.playing #flightTop151 #healthSlash151{color:#8a846f}
 body.astra-ui.playing #flightTop151 #clock{color:var(--ho-numeral);text-shadow:0 1px 0 #000}
 body.astra-ui.playing #flightTop151 .compact-kills>span,
 body.astra-ui.playing #flightTop151 #xpHud>span{color:var(--ho-muted)}
@@ -65,10 +59,8 @@ body.astra-ui.playing #flightTop151 #ammoHud>div>small{color:#b3ad96}
 /* HP = olive-sage, ammo = cartridge brass, XP = brass: each bar reads on its own. */
 body.astra-ui.playing #flightTop151 #healthBar,
 body.astra-ui.playing #healthBar{background:linear-gradient(90deg,var(--ho-olive-deep),var(--ho-olive))!important;box-shadow:inset 0 1px #eef3d42e}
-body.astra-ui.playing .astra-low-health #healthBar{background:linear-gradient(90deg,#7c2d24,var(--ho-brick))!important}
 body.astra-ui.playing #flightTop151 #ammoHud #ammoProgress{background:linear-gradient(90deg,var(--ho-cartridge-deep),var(--ho-cartridge));box-shadow:inset 0 1px #fff4d42a}
 body.astra-ui.playing #flightTop151 #ammoHud.reloading #ammoProgress{background:repeating-linear-gradient(-45deg,#8f7a45 0 5px,#6f5e35 5px 10px)}
-body.astra-ui.playing #flightTop151 #xpHud #xpBar{background:linear-gradient(90deg,#9c7d3a,var(--ho-brass))}
 
 /* Pause + reload keys: same brass-edged plate as the panels. */
 body.astra-ui.playing #flightTop151 #pause,
@@ -77,21 +69,11 @@ body.astra-ui.playing #flightTop151 #pause:hover,
 body.astra-ui.playing #flightTop151 #reload:hover{background:#5a261ecc;border-color:#e8e2d440}
 
 /* 3. Boss HP bar — oxblood fill, parchment title, brass seam. */
-body.astra-ui.playing #flightStack151 #stageBossHud{border-top:2px solid var(--ho-oxblood)}
-body.astra-ui.playing #flightStack151 #stageBossHp{background:linear-gradient(90deg,#6e2a21,var(--ho-brick))}
-body.astra-ui.playing #stageBossTitle{color:var(--ho-parchment)}
-body.astra-ui.playing #stageBossParts{color:var(--ho-muted)}
 
 /* 4. Notices — toast, event mission, campaign strip share one plate. */
-body.astra-ui.playing #flightNotices151 #toast{border-left-color:var(--ho-brass);color:#e6e1d5}
-body.astra-ui.playing #flightNotices151 #eventMissionTitle{color:var(--ho-brass)}
 
 /* 5. Enemy ace arrival — oxblood seam, parchment name. */
 body.astra-ui.playing #flightNotices151 #bossArrival{border-left-color:var(--ho-oxblood)}
-body.astra-ui.playing #flightNotices151 #bossArrival small{color:var(--ho-brick)}
-body.astra-ui.playing #flightNotices151 #bossArrival strong{color:var(--ho-parchment)}
-body.astra-ui.playing #flightNotices151 #bossArrivalDetail{color:var(--ho-brass-soft)}
-body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{background:linear-gradient(135deg,#252523,#111110)}
 body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window:after{background:linear-gradient(90deg,transparent 52%,#151514a8 76%,#151514 100%)}
 
 /* 6. BOSS WARNING — stencilled plate on a hazard band. No neon glow. */
@@ -138,24 +120,9 @@ body.astra-ui.playing #viewport #skillCutin .cutin-caption strong{color:#f1ece1;
 
 /* 9. Upgrade cards — rarity stays distinguishable, but as service-medal
       colours (pewter / verdigris / steel / claret / gold), not neon. */
-body.astra-ui #modal.choice-modal151{background:#0c0b08d9}
-body.astra-ui #modal.choice-modal151 .modal-card{border-color:var(--ho-edge);border-top:2px solid var(--ho-brass);background:var(--ho-surface-strong);color:var(--ho-parchment)}
-body.astra-ui #modal.choice-modal151 #modalTag{color:var(--ho-brass)}
-body.astra-ui #modal.choice-modal151 #modalTitle{color:var(--ho-parchment)}
-body.astra-ui #modal.choice-modal151 #modalText{color:var(--ho-muted)}
-body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
- border-color:#e8e2d422!important;
- background:linear-gradient(90deg,var(--hud191-choice-tint,transparent),transparent 58%),linear-gradient(120deg,#1f1f1df2,#111110f5)!important;
- color:var(--ho-parchment)!important;
-}
-body.astra-ui #modal.choice-modal151 #modalActions .rarity-normal{--hud191-choice-accent:#948f80;--hud191-choice-tint:#948f8010}
-body.astra-ui #modal.choice-modal151 #modalActions .rarity-magic{--hud191-choice-accent:#7fa46e;--hud191-choice-tint:#7fa46e14}
 body.astra-ui #modal.choice-modal151 #modalActions .rarity-rare{--hud191-choice-accent:#7e9cb0;--hud191-choice-tint:#7e9cb014}
 body.astra-ui #modal.choice-modal151 #modalActions .rarity-unique{--hud191-choice-accent:#b47a82;--hud191-choice-tint:#b47a8214}
 body.astra-ui #modal.choice-modal151 #modalActions .rarity-legendary{--hud191-choice-accent:#d6ab52;--hud191-choice-tint:#d6ab521c;--hud191-choice-glow:transparent}
-body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>b{color:var(--ho-parchment)!important}
-body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>span:not(.cumulative151){color:#c7c1ab!important}
-body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>.cumulative151{border-top-color:#e8e2d417!important;color:#c9c4b7!important}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:hover,
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:focus-visible{
  outline:1px solid #e8e2d440!important;
@@ -166,30 +133,6 @@ body.astra-ui #modal.choice-modal151 .legendary-reroll115{border-color:var(--ho-
 .coop-p2-choice .choice.coop-current{outline-color:var(--ho-brass)}
 
 /* 10. Pause / settings shell — same plate, brass primary, dark secondaries. */
-body.astra-ui.playing #modal:not(.choice-modal151) .modal-card{
- border:1px solid var(--ho-edge);
- border-top:2px solid var(--ho-brass);
- border-radius:var(--ho-radius);
- background:var(--ho-surface-strong);
- box-shadow:0 22px 60px #000b;
- color:var(--ho-parchment);
-}
-body.astra-ui.playing #modal:not(.choice-modal151) #modalTag{color:var(--ho-brass)}
-body.astra-ui.playing #modal:not(.choice-modal151) #modalText{color:var(--ho-muted)}
-body.astra-ui.playing #modal.build-modal151 #modalActions{background:var(--ho-surface-flat);border-top:1px solid var(--ho-edge-soft)}
-body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary{
- border:1px solid #faf7f0;
- border-radius:var(--ho-radius);
- background:linear-gradient(180deg,#f3efe6,#d7d1c3);
- color:var(--ho-ink);
- box-shadow:inset 0 1px #fff1c455;
-}
-body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary+.primary{
- border-color:var(--ho-edge);
- background:#14130f;
- color:var(--ho-parchment);
- box-shadow:none;
-}
 body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary:hover{filter:brightness(1.08)}
 body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary+.primary:hover{background:#23221f;border-color:#e8e2d440;filter:none}
 body.astra-ui.playing #modal #modalActions button:focus-visible{outline:2px solid var(--ho-brass);outline-offset:3px}
@@ -232,9 +175,6 @@ body.astra-ui.playing .coop-cutin small{color:var(--ho-muted)}
 body.astra-ui.playing .coop-cutin b{color:#f1ece1}
 
 /* 14. Touch controls — same plate/brass as the rest of the HUD. */
-body.astra-ui.playing #touch #touchSkill,
-body.astra-ui.playing #touch #touchEvade,
-body.astra-ui.playing #touch #reload{border-color:#e8e2d440}
 body.astra-ui.playing #touch #skillButtonState,
 body.astra-ui.playing #touch #maneuverButtonState{color:var(--ho-numeral)}
 body.astra-ui.playing #touch #skillButtonText,
@@ -247,15 +187,9 @@ body.astra-ui.playing #touch #stick{border-color:#d9d5cb66}
 
 /* 15. Legibility floor on phones — the densest labels were 7px. */
 @media(max-width:720px),(pointer:coarse){
- body.astra-ui.playing #flightNotices151 #bossArrival small{font-size:8px}
- body.astra-ui.playing #flightNotices151 #bossArrivalDetail{font-size:8px}
- body.astra-ui.playing #flightNotices151 #toast{font-size:10px}
+   body.astra-ui.playing #flightNotices151 #toast{font-size:10px}
  body.astra-ui.playing #viewport #skillCutin .cutin-caption small{font-size:9px}
- body.astra-ui.playing #viewport #skillCutin .cutin-caption strong{font-size:12px}
- body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .rarity-label160,
- body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .effect-category151{font-size:8px!important}
- body.astra-ui #bossWarning .warn-band{height:16px}
- body.astra-ui #bossWarning .warn-core span{font-size:11px;letter-spacing:.14em}
+    body.astra-ui #bossWarning .warn-core span{font-size:11px;letter-spacing:.14em}
 }
 
 @media(prefers-reduced-motion:reduce){
@@ -297,8 +231,7 @@ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151{
 }
 @media(max-width:720px),(pointer:coarse){
  body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151{grid-template-columns:minmax(0,1fr) auto;gap:5px 6px}
- body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #flightCenter156{grid-column:1/-1;grid-row:2}
-}
+ }
 
 /* ---- Left pill: survival ---- */
 body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .flight-survival{
@@ -336,7 +269,6 @@ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud{
  grid-template-columns:none;
 }
 body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud{padding-left:var(--ho-seam,10px)!important;border-left:1px solid var(--ho-edge-soft)!important;border-radius:0!important}
-body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud>div{display:contents}
 /* Icons replace the HP / 탄약 words (text stays in the DOM for screen readers). */
 body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .health151>small{
  flex:none;width:var(--ho-icon);height:var(--ho-icon);margin:0;font-size:0;line-height:0;overflow:hidden;
@@ -385,7 +317,6 @@ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .flight-status-
  grid-template-columns:none;
 }
 body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .time{display:flex;align-items:center;margin:0;padding:0}
-body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .time small{display:none}
 body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #clock{font:700 var(--ho-clock,16px)/1 var(--astra-numeric);letter-spacing:.02em;color:var(--ho-numeral)}
 body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .compact-kills{display:flex;align-items:center;gap:4px;margin:0;padding:0}
 body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .compact-kills>span{
@@ -408,17 +339,6 @@ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #pause{
 }
 
 /* ---- Bottom controls: smaller footprint, same layout. ---- */
-@media (min-width:721px) and (pointer:fine){
- body.astra-ui.playing #touch #touchSkill,
- body.astra-ui.playing #touch #touchEvade{width:168px;min-width:168px;height:58px;min-height:58px;padding:8px 12px;grid-template-columns:34px auto 1fr;gap:2px 9px}
- body.astra-ui.playing #touch .astra-skill-emblem,
- body.astra-ui.playing #touch .astra-control-icon{max-width:34px;max-height:34px}
- body.astra-ui.playing #touch #skillButtonState,
- body.astra-ui.playing #touch #maneuverButtonState{font-size:15px}
- body.astra-ui.playing #touch .flight-key156,
- body.astra-ui.playing #touch #skillButtonText,
- body.astra-ui.playing #touch #maneuverButtonText{font-size:11px}
-}
 @media(max-width:720px),(pointer:coarse){
  body.astra-ui.playing #touch{bottom:max(22px,env(safe-area-inset-bottom))}
  body.astra-ui.playing #touch #stick{width:108px;height:108px}
@@ -426,13 +346,9 @@ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #pause{
  body.astra-ui.playing #touch .touch-actions{grid-template-columns:48px 66px;grid-template-rows:66px 66px;gap:8px}
  body.astra-ui.playing #touch #touchSkill,
  body.astra-ui.playing #touch #touchEvade{width:66px;min-width:66px;height:66px;min-height:66px;padding:8px 3px 6px}
- body.astra-ui.playing #touch #reload{width:48px;min-width:48px;height:48px;min-height:48px}
- body.astra-ui.playing #touch #reload:before{inset:14px}
- body.astra-ui.playing #touch .astra-control-icon{width:20px;height:20px}
+   body.astra-ui.playing #touch .astra-control-icon{width:20px;height:20px}
  body.astra-ui.playing #touch #touchEvade .astra-control-icon{width:22px;height:22px;padding:5px}
- body.astra-ui.playing #touch #skillButtonText,
- body.astra-ui.playing #touch #maneuverButtonText{font-size:8px}
- body.astra-ui.playing #touch #skillButtonState,
+  body.astra-ui.playing #touch #skillButtonState,
  body.astra-ui.playing #touch #maneuverButtonState{font-size:11px}
  /* Relic badges sat under the old 110px HUD; follow the slimmer strip. */
  body.astra-ui.playing #legendaryInventory{top:calc(max(12px,env(safe-area-inset-top)) + 46px)}
@@ -463,7 +379,6 @@ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #pause{
  border:1px solid var(--ho-hair)!important;background:var(--ho-glass)!important;box-shadow:var(--ho-lift)!important;
  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
 }
-body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .flight-status{border:0!important;background:none!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none}
 
 /* ---- 17a. Low HP: impossible to miss. Pill turns oxblood, heart beats,
        numbers go red, a LOW tag appears and the screen edge warms red. ---- */
@@ -558,7 +473,6 @@ body.astra-ui.playing #flightNotices151 #toast{
 body.astra-ui.playing #flightNotices151 #toast:before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--ho-ready)}
 body.astra-ui.playing #flightNotices151 #toast.warn{border-color:#d35f45!important;color:#ffd9c9!important}
 body.astra-ui.playing #flightNotices151 #toast.warn:before{background:#e05336;box-shadow:0 0 7px #e05336}
-body.astra-ui.playing #flightNotices151 #toast.hidden{display:none}
 body.astra-ui.playing #flightNotices151 #eventMissionHud,
 body.astra-ui.playing #flightNotices151 #campaignHud{
  border:1px solid var(--ho-hair)!important;border-left:1px solid var(--ho-hair)!important;border-radius:var(--ho-card-r)!important;
@@ -573,7 +487,6 @@ body.astra-ui.playing #flightStack151 #stageBossHud .bar{height:6px!important;bo
 body.astra-ui.playing #flightStack151 #stageBossHp{border-radius:999px;background:linear-gradient(90deg,#8d2a1f,var(--ho-danger))!important}
 
 /* ---- 17d. Enemy ace arrival: a pill with a round portrait. ---- */
-body.astra-ui.playing #flightNotices151 #bossArrival.hidden{display:none!important}
 body.astra-ui.playing #flightNotices151 #bossArrival:not(.hidden){
  display:grid!important;grid-template-columns:52px minmax(0,1fr);align-items:center;gap:0 12px;
  width:auto!important;max-width:min(380px,100%);height:64px!important;padding:6px 22px 6px 6px!important;box-sizing:border-box;
@@ -635,7 +548,6 @@ body.astra-ui.playing #viewport #skillCutin{border:1px solid var(--ho-hair-stron
 }
 
 /* ---- 17g. Special equipment: round medals top-right + equip moment. ---- */
-body.astra-ui.playing #legendaryInventory{gap:6px}
 body.astra-ui.playing #legendaryInventory .legendary-badge{
  width:36px!important;height:36px!important;border-radius:50%!important;border:1px solid var(--ho-hair-strong)!important;
  background:radial-gradient(circle at 35% 30%,#3a3424,#111110 72%)!important;box-shadow:0 0 0 2px #0008,var(--ho-lift)!important;overflow:visible;
@@ -652,11 +564,6 @@ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151.equipp
 
 /* ---- 17h. Upgrade selection: medal cards. ---- */
 body.astra-ui #modal.choice-modal151{background:radial-gradient(ellipse at center,#141413cc,#0a0907ee)!important;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
-body.astra-ui #modal.choice-modal151 .modal-card{
- border:1px solid var(--ho-hair-strong)!important;border-top:1px solid var(--ho-hair-strong)!important;border-radius:18px!important;
- background:var(--ho-glass-strong)!important;box-shadow:0 24px 70px #000c!important;padding:20px!important;
-}
-body.astra-ui #modal.choice-modal151 #modalTag{display:inline-block;padding:3px 10px;border-radius:999px;background:#e8e2d415;color:var(--ho-ready)!important;letter-spacing:.14em}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
  border:1px solid var(--ho-hair)!important;border-left:1px solid var(--ho-hair)!important;border-radius:var(--ho-card-r)!important;
  background:linear-gradient(180deg,var(--hud191-choice-tint,transparent),transparent 45%),linear-gradient(180deg,#20201ef2,#111110f5)!important;
@@ -666,16 +573,6 @@ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:before{
  content:""!important;display:block!important;position:absolute;left:18px;right:18px;top:0;height:2px;border-radius:0 0 2px 2px;background:var(--hud191-choice-accent)!important;animation:none!important;
 }
-body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{position:relative}
-body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .rarity-label160{
- padding:3px 8px 3px 7px!important;border-radius:999px!important;background:color-mix(in srgb,var(--hud191-choice-accent) 18%,transparent)!important;
- color:var(--hud191-choice-accent)!important;letter-spacing:.08em!important;
-}
-body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .effect-category151{color:var(--ho-muted)!important}
-body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .choice-icon{
- border-radius:50%;background:radial-gradient(circle at 40% 35%,#35301f,#0f0e0b 70%);box-shadow:inset 0 0 0 1px var(--ho-hair),0 0 0 3px #0006;padding:6px;box-sizing:border-box;
-}
-body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>.cumulative151{border-top:1px dashed #e8e2d41f!important;color:var(--ho-ready)!important}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:hover,
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:focus-visible{
  outline:none!important;border-color:var(--hud191-choice-accent)!important;transform:translateY(-2px)!important;
@@ -684,30 +581,12 @@ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:focus-
 body.astra-ui #modal.choice-modal151.special-draft156 .modal-card{border-color:#d6ab5299!important;box-shadow:0 0 0 1px #d6ab5233,0 24px 70px #000c!important}
 body.astra-ui #modal.choice-modal151.special-draft156 #modalTitle{color:#f4efe4!important}
 body.astra-ui #modal.choice-modal151 .legendary-reroll115{border-radius:999px!important;border-color:var(--ho-hair-strong)!important}
-@media(max-width:720px),(pointer:coarse){
- body.astra-ui #modal.choice-modal151 .modal-card{border-radius:16px!important;padding:14px 10px!important}
- body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{border-radius:12px!important}
- body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .choice-icon{padding:4px}
-}
-
 /* ---- 17i. Pause / settings: rounded sheet, tiles, pill chips + buttons. ---- */
 body.astra-ui.playing #modal:not(.choice-modal151){background:radial-gradient(ellipse at center,#141413cc,#0a0907ee);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
-body.astra-ui.playing #modal:not(.choice-modal151) .modal-card{
- border:1px solid var(--ho-hair-strong)!important;border-top:1px solid var(--ho-hair-strong)!important;border-radius:18px!important;
- background:var(--ho-glass-strong)!important;box-shadow:0 24px 70px #000c!important;
-}
 body.astra-ui.playing #modal:not(.choice-modal151) #modalTag{display:inline-block!important;padding:3px 10px;border-radius:999px;background:#e8e2d415;color:var(--ho-ready)!important}
-body.astra-ui.playing #modal #build151 h4{color:var(--ho-ready);letter-spacing:.1em}
 /* Pause build header: the pilot's round hangar portrait left of the name. */
 body.astra-ui.playing #modal #build151 .build-head151{display:flex;align-items:center;justify-content:center;gap:11px;min-width:0}
-body.astra-ui.playing #modal #build151 .build-head151 h3{margin:0}
 body.astra-ui.playing #modal #build151 .build-portrait151{width:54px;height:54px;flex:none;border-radius:50%;border:1px solid var(--ho-hair-strong);background-repeat:no-repeat;box-shadow:0 4px 14px #0009,inset 0 0 0 1px #0006}
-body.astra-ui.playing #modal .build-stats151>div{border:1px solid var(--ho-hair)!important;border-left:1px solid var(--ho-hair)!important;border-radius:10px;background:#0f0f0ec0!important;color:var(--ho-muted)}
-body.astra-ui.playing #modal .build-stats151 b{color:var(--ho-parchment)}
-body.astra-ui.playing #modal .build-chip151{border-radius:999px!important;padding:4px 11px!important;border-color:var(--ho-hair)!important}
-body.astra-ui.playing #modal.build-modal151 #modalActions{border-top:1px solid var(--ho-hair)!important;background:transparent!important;gap:8px!important}
-body.astra-ui.playing #modal.build-modal151 .modal-card{background:#1b1914f7!important}
-body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary{border-radius:999px!important;min-height:44px}
 
 /* 17j. Placement fixes: desktop cut-in clears the control pills; the event
         notice stacks title pill / objective / meta, centred. */
@@ -717,7 +596,6 @@ body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary{border
 body.astra-ui.playing #flightNotices151 #eventMissionHud:not(.hidden){
  display:flex!important;flex-direction:column;align-items:center;gap:4px!important;width:auto!important;min-width:220px;padding:9px 18px 10px!important;
 }
-body.astra-ui.playing #flightNotices151 #eventMissionHud #eventMissionTitle{display:inline-block;width:auto;margin:0}
 body.astra-ui.playing #flightNotices151 #eventMissionObjective{font:700 13px/1.3 var(--astra-type)!important;color:var(--ho-parchment)!important}
 body.astra-ui.playing #flightNotices151 #eventMissionMeta{font:600 12px/1.2 var(--astra-numeric)!important;color:var(--ho-numeral)!important}
 @media(max-width:720px),(pointer:coarse){
@@ -774,7 +652,10 @@ body.astra-ui .boss-cutin.skill-side .boss-cutin-art{
  -webkit-mask-image:linear-gradient(180deg,#000 78%,transparent 100%);mask-image:linear-gradient(180deg,#000 78%,transparent 100%);
  animation:ho-pop .32s .05s cubic-bezier(.2,.9,.3,1) both;
 }
-body.astra-ui .boss-cutin.skill-side .boss-cutin-art img{left:0!important;right:0!important;bottom:0;margin:auto;max-width:100%!important;max-height:100%!important}
+body.astra-ui .boss-cutin.skill-side .boss-cutin-art img{
+ position:absolute!important;inset:0!important;display:block;width:100%!important;height:100%!important;
+ margin:0;max-width:100%!important;max-height:100%!important;object-fit:contain;object-position:center bottom;
+}
 body.astra-ui .boss-cutin.skill-side .boss-cutin-caption{
  position:absolute!important;inset:0 auto 0 calc(3% + 200px)!important;display:flex!important;flex-direction:column;justify-content:center;gap:2px;
  min-width:0;max-width:none;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
@@ -867,11 +748,7 @@ body.astra-ui #modal.choice-modal151 #modalActions .rarity-magic{--hud191-choice
 body.astra-ui #modal.choice-modal151 #modalActions .rarity-rare{--hud191-choice-accent:#e6bf3e;--hud191-choice-tint:#e6bf3e22}
 body.astra-ui #modal.choice-modal151 #modalActions .rarity-unique{--hud191-choice-accent:#e07ab5;--hud191-choice-tint:#e07ab522}
 body.astra-ui #modal.choice-modal151 #modalActions .rarity-legendary{--hud191-choice-accent:#f0c860;--hud191-choice-tint:#f0c86030}
-body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{
- border-color:color-mix(in srgb,var(--hud191-choice-accent) 45%,transparent)!important;
-}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:before{height:3px!important}
-body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .choice-icon{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--hud191-choice-accent) 55%,transparent),0 0 0 3px #0006!important}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .rarity-label160:before{
  content:"";display:inline-block;width:6px;height:6px;margin:0 5px 1px 0;border-radius:50%;background:var(--hud191-choice-accent);vertical-align:middle;
 }
@@ -905,12 +782,7 @@ body.astra-ui.playing #modal:not(.choice-modal151) .modal-card{text-align:center
 body.astra-ui.playing #modal:not(.choice-modal151) :is(#modalTag,#modalTitle,#modalText,#build151,#build151 h3,#build151 h4,.build-meta151){
  text-align:center;word-break:keep-all!important;overflow-wrap:normal!important;white-space:normal;
 }
-body.astra-ui.playing #modal:not(.choice-modal151) #modalTag{margin-left:auto;margin-right:auto}
 body.astra-ui.playing #modal #build151 section{display:flex;flex-direction:column;align-items:center;min-width:0}
-body.astra-ui.playing #modal .build-stats151{justify-content:center;justify-items:center;width:100%}
-body.astra-ui.playing #modal .build-stats151>div{align-items:center;text-align:center;width:100%;box-sizing:border-box;word-break:keep-all}
-body.astra-ui.playing #modal .build-chips151{justify-content:center}
-body.astra-ui.playing #modal .build-chip151{word-break:keep-all;white-space:normal}
 body.astra-ui.playing #modal:not(.choice-modal151) #modalActions{justify-content:center}
 body.astra-ui.playing #modal:not(.choice-modal151) #modalActions button,
 body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary{
@@ -918,11 +790,6 @@ body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary{
  white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;word-break:keep-all!important;
  padding-left:14px!important;padding-right:14px!important;min-width:0!important;
 }
-@media(max-width:720px),(pointer:coarse){
- body.astra-ui.playing #modal.build-modal151 #modalActions{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important}
- body.astra-ui.playing #modal.build-modal151 #modalActions button:first-child{grid-column:1/-1}
-}
-
 /* 21. Fixes: band built from two stacked clipped layers (brass edge behind,
        dark band in front) with a background-position glint; ace-card
        accent sits on the card edge; stat tiles centre as a row. */
@@ -943,8 +810,6 @@ body.astra-ui .boss-cutin.skill-side::before{
 }
 body.astra-ui .boss-cutin:not(.skill-side) .boss-cutin-caption:before{left:0!important}
 body.astra-ui .boss-cutin:not(.skill-side):has(#bossCutinImg[src*="boss-art"]) .boss-cutin-caption:before{left:0!important}
-body.astra-ui.playing #modal .build-stats151{display:flex!important;flex-wrap:wrap;justify-content:center;gap:8px}
-body.astra-ui.playing #modal .build-stats151>div{flex:0 1 200px}
 @media(prefers-reduced-motion:reduce){body.astra-ui .boss-cutin.skill-side::before{animation:ho-band-in .01s both!important}}
 
 /* ==========================================================================
@@ -1038,7 +903,6 @@ body.astra-ui.playing:not(.coop-playing) #viewport #legendaryInventory .legendar
  body.astra-ui.playing:not(.coop-playing) #viewport #legendaryInventory .legendary-badge canvas{width:100%;height:100%}
 }
 /* Steady digits: numbers don't jitter as they tick. */
-body.astra-ui.playing #flightTop151 :is(#healthText,#ammoCount,#clock,#kills,#level){font-variant-numeric:tabular-nums}
 
 /* ==========================================================================
    24. BOSS WARNING — bring back the red wash that sold the moment:
@@ -1109,56 +973,24 @@ body.astra-ui.playing #modal.build-modal151 .modal-card{
  padding:20px 18px 0!important;overflow-y:auto;overflow-x:hidden;border-radius:20px!important;background:#161615f7!important;
  border:1px solid var(--ho-hair-strong)!important;scrollbar-width:none;
 }
-body.astra-ui.playing #modal.build-modal151 .modal-card::-webkit-scrollbar{display:none}
-body.astra-ui.playing #modal.build-modal151 #modalTag{margin:0 auto 6px!important;padding:3px 10px!important;font-size:10px!important;background:#ffffff0f!important;color:var(--ho-muted)!important}
-body.astra-ui.playing #modal.build-modal151 #modalTitle{margin:0!important;font:800 21px/1.25 var(--astra-type)!important;color:var(--ho-parchment)!important}
-body.astra-ui.playing #modal.build-modal151 #modalText{margin:4px 0 0!important;font-size:12px!important;color:var(--ho-muted)!important}
 @media(pointer:coarse){body.astra-ui.playing #modal.build-modal151 #modalText{display:none}}
 body.astra-ui.playing #modal #build151{display:block!important;margin:14px 0 0!important}
-body.astra-ui.playing #modal #build151>section{display:none}
 body.astra-ui.playing #modal #build151>section.build-active{display:block!important;margin:0 0 14px}
 body.astra-ui.playing #modal #build151 h3{margin:0!important;font:700 16px/1.3 var(--astra-type)!important;color:var(--ho-parchment)!important}
 body.astra-ui.playing #modal #build151 .build-meta151{margin:3px 0 12px!important;font-size:12px!important;line-height:1.45!important;color:var(--ho-muted)!important}
 /* Stat tiles: equal height, 2 up on phones, 3 up wider. */
-body.astra-ui.playing #modal #build151 .build-stats151{
- display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:1fr;gap:8px!important;width:100%;
-}
-@media(min-width:540px){body.astra-ui.playing #modal #build151 .build-stats151{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
-body.astra-ui.playing #modal #build151 .build-stats151>div{
- display:flex!important;flex-direction:column;justify-content:center;align-items:center;gap:2px!important;min-height:64px;box-sizing:border-box;
- padding:10px 8px!important;margin:0!important;border:0!important;border-radius:12px!important;
- background:#ffffff08!important;box-shadow:inset 0 0 0 1px var(--ho-hair)!important;text-align:center;flex:initial!important;width:auto!important;
-}
-body.astra-ui.playing #modal #build151 .build-stats151 b{font:600 11px/1.3 var(--astra-type)!important;color:var(--ho-muted)!important;letter-spacing:.02em}
-body.astra-ui.playing #modal #build151 .build-stats151 span{font:600 13px/1.35 var(--astra-type)!important;color:var(--ho-numeral)!important;font-variant-numeric:tabular-nums;white-space:nowrap}
 /* Section labels: small caps line with hairlines. */
 body.astra-ui.playing #modal #build151 h4{
  display:flex!important;align-items:center;gap:10px;margin:16px 0 8px!important;font:600 11px/1 var(--astra-type)!important;letter-spacing:.14em!important;color:var(--ho-muted)!important;
 }
 body.astra-ui.playing #modal #build151 h4:before,body.astra-ui.playing #modal #build151 h4:after{content:"";flex:1;height:1px;background:var(--ho-hair)}
-body.astra-ui.playing #modal #build151 .build-chips151{display:flex!important;flex-wrap:wrap;justify-content:center;gap:6px!important}
-body.astra-ui.playing #modal #build151 .build-chip151{
- display:inline-flex;align-items:center;gap:6px;padding:6px 11px 6px 9px!important;border-radius:999px!important;border:0!important;
- background:#ffffff0a!important;box-shadow:inset 0 0 0 1px var(--ho-hair);color:var(--ho-parchment)!important;font:500 12px/1.2 var(--astra-type)!important;white-space:nowrap;
-}
-body.astra-ui.playing #modal #build151 .build-chip151:before{content:"";width:6px;height:6px;border-radius:50%;background:#a4a7a8;flex:none}
-body.astra-ui.playing #modal #build151 .build-chip151.rarity-magic:before{background:#5f9be0}
-body.astra-ui.playing #modal #build151 .build-chip151.rarity-rare:before{background:#e6bf3e}
-body.astra-ui.playing #modal #build151 .build-chip151.rarity-unique:before{background:#e07ab5}
-body.astra-ui.playing #modal #build151 .build-chip151.rarity-legendary{box-shadow:inset 0 0 0 1px #f0c86088;background:linear-gradient(180deg,#f0c86014,#f0c86008)!important;color:#f6e7bd!important}
-body.astra-ui.playing #modal #build151 .build-chip151.rarity-legendary:before{background:#f0c860}
-body.astra-ui.playing #modal #build151 .empty151{font-size:12px;color:#6f6c64}
 /* Sticky action bar: opaque, full-bleed, never overlaps content. */
 body.astra-ui.playing #modal.build-modal151 #modalActions{
  position:sticky!important;bottom:0!important;z-index:2;display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;
  margin:6px -18px 0!important;padding:12px 18px calc(14px + env(safe-area-inset-bottom))!important;
  background:#161615!important;border-top:1px solid var(--ho-hair)!important;box-shadow:0 -12px 18px #161615;
 }
-body.astra-ui.playing #modal.build-modal151 #modalActions button{grid-column:auto!important;height:46px;min-height:46px!important;margin:0!important;font:700 14px/1 var(--astra-type)!important;border-radius:14px!important;white-space:nowrap!important}
-body.astra-ui.playing #modal.build-modal151 #modalActions button:first-child{grid-column:1/-1!important}
-body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary{border-radius:14px!important;box-shadow:none!important}
 body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary:first-child{background:#f3efe6!important;border-color:#f3efe6!important;color:#141413!important}
-body.astra-ui.playing #modal:not(.choice-modal151) #modalActions .primary+.primary{background:#ffffff0a!important;border:1px solid var(--ho-hair-strong)!important;color:var(--ho-parchment)!important}
 body.astra-ui.playing #modal #modalActions button:focus-visible{outline:2px solid #f3efe6aa!important;outline-offset:2px}
 /* Settings sheet (same shell). */
 body.astra-ui.playing #modal:not(.choice-modal151):not(.build-modal151) .modal-card{border-radius:20px!important;background:#161615f7!important;width:min(460px,calc(100vw - 20px))!important}
@@ -1166,20 +998,8 @@ body.astra-ui.playing #modal:not(.choice-modal151):not(.build-modal151) #modalAc
 body.astra-ui.playing #modal:not(.choice-modal151):not(.build-modal151) #modalActions button{width:100%!important;height:46px;min-height:46px!important;border-radius:14px!important}
 
 /* ---- Upgrade cards: every card in a draft is the same height. ---- */
-body.astra-ui #modal.choice-modal151 #modalActions{grid-auto-rows:1fr}
-@media(max-width:720px),(pointer:coarse){
- body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{height:100%!important;min-height:0!important;max-height:none!important}
-}
-body.astra-ui #modal.choice-modal151 .modal-card{background:#161615f7!important;border-color:var(--ho-hair-strong)!important}
-body.astra-ui #modal.choice-modal151 #modalTag{background:#ffffff0f!important;color:var(--ho-muted)!important}
-body.astra-ui #modal.choice-modal151 #modalTitle{color:var(--ho-parchment)!important}
-body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{background:linear-gradient(180deg,var(--hud191-choice-tint,transparent),transparent 45%),#1b1b19!important}
-body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151>.cumulative151{color:#cfcabd!important;border-top-color:var(--ho-hair)!important}
 body.astra-ui #modal.choice-modal151 .legendary-reroll115{background:#ffffff08!important;color:var(--ho-parchment)!important}
-body.astra-ui.playing #modal #build151 .build-stats151>div{justify-self:stretch!important;align-self:stretch!important;width:100%!important;max-width:none!important;min-width:0!important}
-body.astra-ui.playing #modal #build151 .build-stats151 span{white-space:normal;text-wrap:balance}
 body.astra-ui.playing #modal #modalActions button:focus-visible{outline:2px solid #ffffff3d!important;outline-offset:3px}
-body.astra-ui #modal.choice-modal151 #modalActions{grid-auto-rows:auto!important}
 body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{align-self:stretch}
 body.astra-ui #modal.choice-modal151 .legendary-reroll115{height:40px!important;min-height:40px!important;max-height:40px!important;align-self:start;border-radius:12px!important;font-size:12px!important}
 /* Faction livery — Central = Feldgrau, Entente = Horizon Blue.
@@ -1194,7 +1014,6 @@ body.astra-ui:not(.playing) .portrait-caption span::before{content:'';display:in
 body.astra-ui:not(.playing) .portrait-label b{color:var(--fac-bright,inherit)}
 /* Enemy ace surfaces: kicker, name strip and portrait lip follow the foe's side. */
 body.astra-ui.playing #flightNotices151 #bossArrival{border-left-color:var(--enemy-fac,var(--ho-oxblood))}
-body.astra-ui.playing #flightNotices151 #bossArrival small{color:var(--enemy-fac,var(--ho-brick))}
 body.astra-ui .boss-cutin::before{border-bottom-color:var(--enemy-fac,var(--ho-oxblood))}
 body.astra-ui .boss-cutin-caption small{color:var(--enemy-fac-soft,#d8b8a0)}
 body.astra-ui .boss-cutin-caption strong{color:var(--enemy-fac-strong,#df7a5e)}
@@ -1202,28 +1021,13 @@ body.astra-ui .boss-cutin.skill-side::before{border-bottom-color:var(--fac,var(-
 /* Settings + manual modals in the same dossier language as the pause card. */
 body.astra-ui #modal.settings-modal151 .modal-card,
 body.astra-ui #modal.manual-modal151 .modal-card{border-color:var(--ho-edge);border-top:2px solid var(--ho-brass);background:var(--ho-surface-strong);color:var(--ho-parchment);box-shadow:0 24px 80px #0009}
-body.astra-ui #modal.settings-modal151 #modalTag,
-body.astra-ui #modal.manual-modal151 #modalTag{color:var(--ho-brass);letter-spacing:.22em}
-body.astra-ui #modal.settings-modal151 #modalTitle,
-body.astra-ui #modal.manual-modal151 #modalTitle{color:var(--ho-parchment)}
-body.astra-ui #modal.settings-modal151 #modalText,
-body.astra-ui #modal.manual-modal151 #modalText{color:#c9c4b7}
 body.astra-ui #modal.manual-modal151 #modalText{border-left:2px solid var(--fac,var(--ho-oxblood));padding-left:16px;line-height:1.85}
-body.astra-ui #modal.settings-modal151 #modalActions{display:block;margin-top:16px;border-top:1px solid var(--ho-edge-soft)}
-body.astra-ui #modal.settings-modal151 #modalActions .primary{display:flex;justify-content:space-between;align-items:center;width:100%;margin:0;padding:14px 4px;background:none;border:0;border-bottom:1px solid var(--ho-edge-soft);border-radius:0;color:var(--ho-parchment);font-size:15px;font-weight:400;text-align:left;letter-spacing:.02em}
 body.astra-ui #modal.settings-modal151 #modalActions .primary:hover{background:#e8e2d408;color:var(--fac-bright,var(--ho-brass))}
-body.astra-ui #modal.settings-modal151 #modalActions .primary:last-child{margin-top:16px;padding:12px;border:1px solid var(--ho-edge);background:var(--ho-surface-flat);justify-content:center;color:var(--ho-brass);font-weight:700;letter-spacing:.12em}
 body.astra-ui #modal.settings-modal151 #modalActions .primary:last-child:hover{background:#23221f;border-color:#e8e2d440}
 body.astra-ui #modal.manual-modal151 #modalActions .primary{border:1px solid var(--ho-edge);background:var(--ho-surface-flat);color:var(--ho-brass);font-weight:700;letter-spacing:.12em}
 
-body.astra-ui #bossWarning .warn-band{background:repeating-linear-gradient(-45deg,var(--enemy-fac,#8a2a20) 0 16px,#15100b 16px 32px)}
-body.astra-ui #bossWarning .warn-core b{color:var(--enemy-fac-strong,#d4493a)}
-body.astra-ui #bossWarning .warn-core span{color:var(--enemy-fac-soft,#eadcc6)}
-body.astra-ui.playing #flightNotices151 #bossArrival strong{color:var(--enemy-fac-strong,#f0e6d2)}
 body.astra-ui.playing #flightNotices151 #bossArrival{border-left-color:var(--enemy-fac,var(--ho-oxblood))!important}
-body.astra-ui.playing #flightNotices151 #bossArrival small{color:var(--enemy-fac,#ff8a70)!important}
 body.astra-ui.playing #flightNotices151 #bossArrival strong{color:var(--enemy-fac-strong,#f0e6d2)!important}
-body.astra-ui.playing #flightNotices151 #bossArrivalDetail{color:var(--enemy-fac-soft,var(--ho-muted))!important}
 body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{border-color:var(--enemy-fac-soft,var(--ho-edge))}
 
 /* ---- Reload: plays inside the ammo pill instead of a floating readout ----
@@ -1231,7 +1035,6 @@ body.astra-ui.playing #flightNotices151 #bossArrival .boss-portrait-window{borde
    reloading, a brass plate covers the ammo segment: it fills left→right with
    reload progress, a stripe band slides through it, and the label sits on top.
    On completion the segment gives one short brass flash. */
-body.astra-ui.playing:not(.coop-playing) #flightTop151 .astra-reload-readout{display:none!important}
 body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud,
 body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud{position:relative!important}
 body.astra-ui.playing:not(.coop-playing) #flightTop151 #ammoHud::after{
@@ -1318,7 +1121,7 @@ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #xpHud #xpBar{
 
 /* U4: on phones the upgrade card was 2px wider than the space inside the overlay padding. */
 body.astra-ui #modal.overlay>.modal-card{max-width:100%!important;min-width:0!important}
-@media(max-width:720px){body.astra-ui #modal.choice-modal151>.modal-card{width:100%!important}body.astra-ui #modal.choice-modal151 #modalActions>*{min-width:0!important;max-width:100%!important}}
+@media(max-width:720px){body.astra-ui #modal.choice-modal151 #modalActions>*{min-width:0!important;max-width:100%!important}}
 
 /* U5: touch reload key gets the same brass progress ring as the desktop R key. */
 body.astra-ui.playing #touch #reload.ho-reloading{
@@ -1343,8 +1146,6 @@ body.astra-ui.playing #modal #build151 .build-abilities151 .astra-ability-copy{d
 body.astra-ui.playing #modal #build151 .build-abilities151 .astra-ability-label{position:static!important;display:block;margin:0!important;font:700 10px/1.2 var(--astra-type)!important;letter-spacing:.12em;color:var(--ho-muted)!important}
 body.astra-ui.playing #modal #build151 .build-abilities151 .astra-active .astra-ability-label{color:#f09a84!important}
 body.astra-ui.playing #modal #build151 .build-abilities151 .astra-ability-copy b{display:block;max-width:100%;margin:0!important;font:800 14px/1.25 var(--astra-type)!important;color:var(--ho-parchment)!important;white-space:normal;overflow:visible;overflow-wrap:anywhere;text-overflow:clip}
-body.astra-ui.playing #modal #build151 .build-stats151>div:only-child{grid-column:1/-1;flex-direction:row!important;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:4px 10px!important;min-height:0}
-body.astra-ui.playing #modal #build151 .build-stats151>div:only-child>span+span:before{content:"·";margin-right:10px;color:var(--ho-muted)}
 
 /* ==== Round 2 (ui-round2) ==== */
 /* Modal body text is built with "\n" separators (result: pilot / record / prompt); show them as line breaks
@@ -1417,23 +1218,17 @@ body.astra-ui.playing #modal #build151 .build-pop151 p{display:block!important;m
 @keyframes build-pop151{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 body.astra-ui.playing #modal #build151 .build-icons151 .empty151{align-self:center}
 /* Full skill cards stay inside the modal scroll area on PC and phones. */
-body.astra-ui.playing #modal .build-abilities151{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 12px;min-width:0}
 body.astra-ui.playing #modal .build-abilities151 .astra-ability{
  display:flex;align-items:center;gap:8px;min-width:0;max-width:100%;padding:10px;border:1px solid var(--ho-hair);border-radius:12px;
  background:#ffffff08;color:var(--ho-parchment);text-align:left;white-space:normal;cursor:pointer;
 }
 body.astra-ui.playing #modal .build-abilities151 .astra-ability.ho-tip{border-color:var(--ho-brass)}
 body.astra-ui.playing #modal .build-abilities151 .astra-ability:focus-visible{outline:2px solid var(--ho-brass);outline-offset:2px}
-body.astra-ui.playing #modal .build-abilities151 .astra-ability-icon{flex:none;width:28px;height:28px}
 body.astra-ui.playing #modal .settings-skills151 .astra-ability-icon{display:none}
-body.astra-ui.playing #modal .build-abilities151 .astra-ability-copy{display:flex!important;flex-direction:column;gap:3px;min-width:0}
-body.astra-ui.playing #modal .build-abilities151 .astra-ability-label{font:700 10px/1.2 var(--astra-type);color:var(--ho-muted)}
-body.astra-ui.playing #modal .build-abilities151 .astra-ability-copy>b{font:700 13px/1.3 var(--astra-type);white-space:normal!important;overflow:visible!important;overflow-wrap:anywhere;text-overflow:clip}
 body.astra-ui.playing #modal .build-abilities151>.ho-skill-pop{
  display:flex;position:static;grid-column:1/-1;min-width:0;max-width:100%;box-sizing:border-box;flex-direction:column;gap:6px;margin:0;padding:14px 16px;
  border:1px solid var(--ho-hair);border-radius:14px;background:linear-gradient(180deg,#22221f,#171716);text-align:left;
 }
-body.astra-ui.playing #modal .build-abilities151>.ho-skill-pop[hidden]{display:none!important}
 body.astra-ui.playing #modal .build-abilities151>.ho-skill-pop.astra-active{box-shadow:inset 3px 0 0 var(--ho-oxblood)}
 body.astra-ui.playing #modal .ho-skill-kind{font:700 10px/1.2 var(--astra-type);letter-spacing:.15em;color:var(--ho-muted)}
 body.astra-ui.playing #modal .ho-skill-pop>strong{font:800 15px/1.35 var(--astra-type);color:var(--ho-parchment);white-space:normal!important;overflow-wrap:anywhere}

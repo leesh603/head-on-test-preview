@@ -1,5 +1,6 @@
-import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js?v=regionalair20261018';
+import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js?v=wwifix20261025';
 import {recordCombatImpact} from '../../combat-impact-result.js';
+import {wwiProjectileDamageMultiplier} from '../../wwi-equipment.js';
 import {regionalSteering} from '../../regional-air-tactics.js?v=regionalair20261018';
 
 const INSTALL_KEY = Symbol.for('headon.eliteEnemyPatch.v1');
@@ -44,10 +45,22 @@ export function createHeadOnHost(game, bindings = {}) {
     emitWarning: (text, meta) => bindings.emitWarning?.(game, text, meta) ?? game.event?.('elite', text),
     emitEvent: (type, detail) => bindings.emitEvent?.(game, type, detail) ?? game.event?.(type, ''),
     playSound: cue => bindings.playSound?.(game, cue),
+    canDamageMember: (member, source) => {
+      const id=source.ownerId??source.projectile?.ownerId;
+      const owner=id?game.players?.find(p=>p.id===id)||game:game;
+      return !(member.supportInvulnUntil>(game.t||0))&&(!owner.canHitTarget||owner.canHitTarget(member,source.projectile||source));
+    },
+    emitBurnFx: member => {
+      game.smoke?.(member.x,member.y,false,true);
+      game.burst?.(member.x,member.y,'#ff9a3c',3,'profileOnly');
+    },
     onEliteKilled: detail => {
       if (bindings.onEliteKilled) return bindings.onEliteKilled(game, detail);
       game.kills = (game.kills || 0) + 1;
       game.eliteKills = (game.eliteKills || 0) + 1;
+      const id=detail.source?.ownerId??detail.source?.projectile?.ownerId;
+      const owner=game.players?.find(p=>p.id===id);
+      if(owner&&owner!==game)owner.kills=(owner.kills||0)+1;
       // Intentionally do not increment priorityKills: the current HEAD-ON
       // leaderboard counts aces, airships and bombers only.
       game.event?.('kill', '');
@@ -75,15 +88,17 @@ function eliteContact(projectile, member, radius) {
   return t>=0&&t<=1?t:Infinity;
 }
 
-export function routeFriendlyProjectileHits(game, system, bindings = {}) {
-  const list=bindings.getFriendlyProjectiles?.(game)||game.bullets||[];
+export function routeFriendlyProjectileHits(game, system, bindings = {}, projectiles = null) {
+  const list=projectiles||bindings.getFriendlyProjectiles?.(game)||game.bullets||[];
   for(const projectile of list){
     if(projectile.enemy||projectile.life<=0)continue;
+    const owner=projectile.ownerId?game.players?.find(p=>p.id===projectile.ownerId)||game:game;
     projectile.eliteHits||=new Set();
     const pad=Math.max(0,(projectile.actualExplosion?projectile.explosionRadius:projectile.collisionRadius)||0);
     const contacts=[];
     for(const member of system.members){
-      if(projectile.eliteHits.has(member.id)||member.hp<=0||member.alive===false)continue;
+      if(projectile.eliteHits.has(member.id)||projectile.hit?.has?.(member)||member.hp<=0||member.alive===false)continue;
+      if(member.supportInvulnUntil>(game.t||0)||owner.canHitTarget&&!owner.canHitTarget(member,projectile))continue;
       const body=bindings.getEliteHitRadius?.(member)??(member.eliteKind==='schlachtstaffel'?24:18);
       const t=eliteContact(projectile,member,body+pad);
       if(Number.isFinite(t))contacts.push({member,t});
@@ -91,10 +106,9 @@ export function routeFriendlyProjectileHits(game, system, bindings = {}) {
     contacts.sort((a,b)=>a.t-b.t);
     for(const {member} of contacts){
       projectile.eliteHits.add(member.id);
-      const owner=projectile.ownerId?game.players?.find(p=>p.id===projectile.ownerId)||game:game;
-      const damage=(projectile.damage||1)*(owner.roundDamageMultiplier?.(projectile,member)??1);
+      const damage=(projectile.damage??1)*(owner.roundDamageMultiplier?.(projectile,member)??1)*wwiProjectileDamageMultiplier(projectile,member,owner);
       const hpBefore=member.hp;
-      system.damageMember(member,damage,{projectile});
+      system.damageMember(member,damage,{projectile,ownerId:projectile.ownerId??owner.id??'p1'});
       const appliedDamage=Math.max(0,hpBefore-member.hp);
       recordCombatImpact(projectile,member,{damage:appliedDamage,blocked:!(appliedDamage>0)});
       owner.specialRoundImpact?.(projectile,member);
@@ -105,8 +119,10 @@ export function routeFriendlyProjectileHits(game, system, bindings = {}) {
 }
 
 export function attachEliteSystem(game, bindings = {}, options = {}) {
-  if (game.eliteEnemies) return game.eliteEnemies;
-  game.eliteEnemies = new EliteEnemySystem(createHeadOnHost(game, bindings), options);
+  if (!game.eliteEnemies) game.eliteEnemies = new EliteEnemySystem(createHeadOnHost(game, bindings), options);
+  // Area rounds are consumed by the normal collision loop before this patch's
+  // end-of-update pass. Route them at that boundary using the same hit ledger.
+  if(typeof game.routeEliteExplosion!=='function')game.routeEliteExplosion=projectile=>routeFriendlyProjectileHits(game,game.eliteEnemies,bindings,[projectile]);
   return game.eliteEnemies;
 }
 

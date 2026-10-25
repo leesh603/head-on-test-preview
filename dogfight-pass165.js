@@ -25,6 +25,16 @@ function ordinaryFighterBody(e){
 export function ordinaryFighter(e){return ordinaryFighterBody(e)&&(!e.formationLeader||e.directorFormation||ordinaryFighterBody(e.formationLeader));}
 const fighterPressure=game=>clamp(((game.t||0)-90)/270,0,1);
 export const fighterRoundSpeed=game=>370+30*fighterPressure(game);
+// Fly toward a moving station with bounded longitudinal speed correction.
+// No position interpolation: velocity continues to follow the aircraft nose.
+export function formationStationSteering(e,leader,slot,dt,baseTurn,angleDiff){
+ const ca=Math.cos(leader.a),sa=Math.sin(leader.a),lead=(leader.speed||e.speed)*.3;
+ const x=leader.x+ca*(lead-slot.back)-sa*slot.lateral,y=leader.y+sa*(lead-slot.back)+ca*slot.lateral;
+ const dx=x-e.x,dy=y-e.y,gap=Math.hypot(dx,dy),cruise=e.personalityCruise||e.dogfightCruise||e.speed;
+ const along=dx*ca+dy*sa-lead,target=clamp((leader.speed||cruise)+along*.6,cruise*.78,Math.min(cruise*1.24,e.cruiseSpeedCap||Infinity));
+ e.speed+=(target-e.speed)*Math.min(1,Math.max(0,dt)*2.4);
+ return{delta:angleDiff(gap>60?Math.atan2(dy,dx):leader.a,e.a),turn:baseTurn};
+}
 export function fighterAim(game,e,contact){
  const dx=contact.x-e.x,dy=contact.y-e.y,speed=fighterRoundSpeed(game);
  const travel=clamp((contact.speed||contact.baseSpeed||0)*(contact.airframeSpeed??1)*(contact.pursuitSpeedFactor??1),0,360);
@@ -84,10 +94,7 @@ export function installDogfightPass(Game,angleDiff){
     setState(e,DOGFIGHT_PASS_STATES.DISENGAGE,2.4);
     e.combatPassHeading=e.a+(e.combatPassSide||1)*.7;
    }else if(!e.defensivePressure&&!(e.directorBreakUntil>now)&&e.directorLayout!=='recovery'&&!e.directorRole&&!e.directorSquad?.passActive&&this.battleDirector?.sceneId===e.directorSceneId&&['approach','formation','melee'].includes(this.battleDirector.phase)){
-    const x=leader.x-Math.cos(leader.a)*e.formationBack-Math.sin(leader.a)*e.formationOffset;
-    const y=leader.y-Math.sin(leader.a)*e.formationBack+Math.cos(leader.a)*e.formationOffset;
-    const gap=Math.hypot(x-e.x,y-e.y),heading=gap>65?Math.atan2(y-e.y,x-e.x):leader.a;
-    return{delta:angleDiff(heading,e.a),turn:baseTurn*(gap>120?1:.72)};
+    return formationStationSteering(e,leader,{back:e.formationBack,lateral:e.formationOffset},dt,baseTurn,angleDiff);
    }
   }
   if(e?.directorFireHoldUntil>this.t)return{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*.5};
@@ -139,7 +146,8 @@ export function installDogfightPass(Game,angleDiff){
     setState(e,DOGFIGHT_PASS_STATES.DISENGAGE,clamp(DOGFIGHT_PASS_BALANCE.disengageDuration*p.extendBias,.72,1.45));
    }else if(e.combatPassState===DOGFIGHT_PASS_STATES.DISENGAGE){
     const anchor=Number.isFinite(contact.a)?contact.a:bearing+Math.PI,range=clamp(p.preferredRange*1.35,210,440),side=e.combatPassSide||1;
-    e.combatPassWaypoint={x:contact.x+Math.cos(anchor+side*1.9)*range,y:contact.y+Math.sin(anchor+side*1.9)*range};
+    const flank=e.directorChoreographyDone&&['headOn','cross','pincer'].includes(e.directorLayout)?1.1:1.9;
+    e.combatPassWaypoint={x:contact.x+Math.cos(anchor+side*flank)*range,y:contact.y+Math.sin(anchor+side*flank)*range};
     setState(e,DOGFIGHT_PASS_STATES.REPOSITION,clamp(DOGFIGHT_PASS_BALANCE.repositionDuration/(p.reattackBias||1),.72,1.45));
    }else if(e.combatPassState===DOGFIGHT_PASS_STATES.REPOSITION)
     setState(e,DOGFIGHT_PASS_STATES.REENGAGE,DOGFIGHT_PASS_BALANCE.reengageDuration);
@@ -178,4 +186,3 @@ export function installDogfightPass(Game,angleDiff){
   return base();
  };
 }
-

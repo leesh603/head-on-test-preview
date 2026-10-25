@@ -222,13 +222,6 @@ export function bossSoundFor(event,kind=''){
 }
 
 // Keep the real first attack visible before the trench encounter poster.
-export function bossEncounterCutinReady(encounter){
- if(!encounter)return false;
- const bodies=[...encounter.bodies.values()];
- if(encounter.bossId==='livens-flame-projector')return bodies.some(b=>b.discovered&&b.trenchEntry?.firstDone);
- if(encounter.bossId==='minenwerfer-battery')return bodies.some(b=>b.discovered&&[...b.parts.values()].every(p=>p.discovered||p.destroyed));
- return true;
-}
 
 // Area-boss arrival: a call that suits what arrives (sfx names, with delays in ms).
 const ARRIVAL_FAMILY={

@@ -9,6 +9,10 @@ export function drawGrenade(c,g,x,y){
  if(g.phase==='fuse'){c.fillStyle='#f1cd8e';c.beginPath();c.arc(2,-4,.9,0,Math.PI*2);c.fill()}c.restore();
 }
 export function drawGrenadeBlast(c,f,x,y){
+ drawGrenadeBlastBase(c,f,x,y);
+ drawOrdnanceCharge(c,f,x,y);
+}
+function drawGrenadeBlastBase(c,f,x,y){
  const q=1-f.life/f.maxLife;
  if(fxReady('explosion1')){
   const d=FX56?Math.min(108,Math.max(38,f.radius*1.2))*(.72+q*.28):f.radius*2*(.5+q*.8),frame=Math.min(3,Math.floor(q*4));
@@ -48,6 +52,11 @@ function blastFlame(c,x,y,d,q){
 }
 export function drawFxExplosion(c,f,x,y,radius=0){
  if(f.fxHidden)return true;
+ const drawn=drawFxExplosionBase(c,f,x,y,radius);
+ drawOrdnanceCharge(c,f,x,y);
+ return drawn;
+}
+function drawFxExplosionBase(c,f,x,y,radius=0){
  if(f.fxProfile&&fxReady(f.fxProfile==='groundShell'||f.fxProfile==='heavyShell'?'mortarImpact0':f.fxProfile==='ammoCookoff'?'bossBlast0':'airblast0')&&drawExplosionProfile(c,f,x,y,fx))return true;
  if(f.fxOnly&&!FX3)return true;
  if(f.mortarOverlay&&FX3&&fxReady('mortarImpact0'))return true;
@@ -113,6 +122,10 @@ const amatolEffect=typeof Image==='undefined'?null:new Image();
 if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=r5';
 const AMATOL_FRAMES=[[19,319,306,315],[321,261,427,427],[744,227,475,503],[1209,245,463,489]];
 export function drawAmatolBlast(c,f,x,y){
+ drawAmatolBlastBase(c,f,x,y);
+ drawOrdnanceCharge(c,f,x,y);
+}
+function drawAmatolBlastBase(c,f,x,y){
  if(FX3&&fxReady('bossBlast0')){const q=Math.max(0,Math.min(.999,1-f.life/f.maxLife)),d=Math.min(f.secondaryExplosion?120:260,f.radius*2.15)*(.82+q*.18);
   fx(c,(f.secondaryExplosion?'structure':'bossBlast')+Math.floor(q*4),x,y,d,d,0,Math.min(1,(1-q)*3));return;
  }
@@ -120,5 +133,21 @@ export function drawAmatolBlast(c,f,x,y){
  const q=Math.max(0,Math.min(.999,1-f.life/f.maxLife)),frame=AMATOL_FRAMES[Math.min(3,Math.floor(q*4))],[sx,sy,sw,sh]=frame;
  const diameter=Math.min(f.secondaryExplosion?120:260,f.radius*2.15)*(0.82+q*.18);
  c.save();c.globalAlpha=Math.min(1,(1-q)*3);c.drawImage(amatolEffect,sx,sy,sw,sh,x-diameter/2,y-diameter/2,diameter,diameter);c.restore();
+}
+
+// Stronger charges keep their damage boundary and existing detonation art.
+// A sharper opening, directed fragments and a late smoke pulse share one FX
+// lifetime; no extra simulation objects or repeated damage are introduced.
+export function drawOrdnanceCharge(c,f,x,y,paint=fx,ready=fxReady){
+ const tier=Math.min(2,Math.max(0,f.ordnanceCharge|0));
+ if(!tier||!(f.life>0)||!(f.maxLife>0)||f.side==='enemy'||!ready('fireFlash'))return false;
+ const q=Math.max(0,Math.min(1,1-f.life/f.maxLife)),r=Math.min(95,Math.max(28,f.radius||60)),fade=1-q;
+ if(q<.22)paint(c,'fireFlash',x,y,r*.65,r*.65,0,(1-q/.22)*(.42+tier*.12));
+ if(q>.1&&q<.72)for(let i=0;i<tier+1;i++){
+  const a=i*2.399+(x+y)*.013,travel=r*q*.62,size=tier===2?10:8;
+  paint(c,'metalShard'+i,x+Math.cos(a)*travel,y+Math.sin(a)*travel,size,size,a+q*3,fade*.65);
+ }
+ if(q>.38)paint(c,'smokeGray',x,y-r*q*.18,r*(.48+q*.3),r*(.4+q*.3),0,Math.sin((q-.38)/.62*Math.PI)*(.1+tier*.04));
+ return true;
 }
 

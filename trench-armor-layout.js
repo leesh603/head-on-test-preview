@@ -1,6 +1,5 @@
 // All coordinates use the existing 640 px hull art, drawn on a square 256 px
 // canvas. Simulation, mounts, barrel pivots and rendering share this scale.
-export const TRENCH_ARMOR_SIZE=256;
 export const TRENCH_ARMOR_LAYOUT=Object.freeze({
  'a7v-flak':{
   gunSize:72,gunArc:.28,gunTurnSpeed:.75,gunRecoil:1.6,gunIds:['front','left','rear','right'],

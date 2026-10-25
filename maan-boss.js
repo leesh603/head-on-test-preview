@@ -87,12 +87,15 @@ class DesertHull extends BaseBoss {
   const origin=this.entryTarget||this.entryOrigin,bounds=this.arenaBounds,rx=Math.min(145,(bounds.right-bounds.left)*.2),ry=90;
   this.route??=[{x:origin.x,y:origin.y+ry},{x:origin.x+rx,y:origin.y},{x:origin.x,y:origin.y-ry},{x:origin.x-rx,y:origin.y}];
   this.routeIndex??=0;this.drivePause=Math.max(0,(this.drivePause||0)-dt);
-  const target=this.route[this.routeIndex],dx=target.x-this.x,dy=target.y-this.y;
-  if(Math.hypot(dx,dy)<28){this.routeIndex=(this.routeIndex+1)%this.route.length;this.drivePause=Math.max(this.drivePause,.8);}
+  // Hunting: steer for a point beside the pilot's course instead of a fixed diamond patrol.
+  const h=this.huntTarget,hunt=h?(()=>{const lead=.8,px=h.x+(h.vx||0)*lead,py=h.y+(h.vy||0)*lead,side=this.huntSide||=1,a=Math.atan2(this.y-py,this.x-px)+side*.5;return{x:px+Math.cos(a)*300,y:py+Math.sin(a)*300}})():null;
+  if(h&&this.due?.('hunt-side',dt,10))this.huntSide=-(this.huntSide||1);
+  const target=hunt||this.route[this.routeIndex],dx=target.x-this.x,dy=target.y-this.y;
+  if(!hunt&&Math.hypot(dx,dy)<28){this.routeIndex=(this.routeIndex+1)%this.route.length;this.drivePause=Math.max(this.drivePause,.8);}
   const desired=Math.atan2(dy,dx)+Math.PI/2,delta=Math.atan2(Math.sin(desired-this.hullYaw),Math.cos(desired-this.hullYaw));
-  const mobility=(left+right)/2,steering=mobility?clamp(delta*.55,-.25,.25)*mobility*(this.steeringFactor??1)+(left-right)*.22:0;
-  const wanted=this.drivePause>0?0:speed*mobility*Math.max(0,Math.cos(delta));
-  this.driveVelocity=(this.driveVelocity||0)+clamp(wanted-(this.driveVelocity||0),-28*dt,10*dt);
+  const mobility=(left+right)/2,steering=mobility?clamp(delta*(h?1.1:.55),h?-.75:-.25,h?.75:.25)*mobility*(this.steeringFactor??1)+(left-right)*.22:0;
+  const wanted=this.drivePause>0?0:speed*mobility*Math.max(h?.3:0,Math.cos(delta));
+  this.driveVelocity=(this.driveVelocity||0)+clamp(wanted-(this.driveVelocity||0),-28*dt,(h?38:10)*dt);
   if(!mobility)this.driveVelocity=0;
   const turn=this.drivePause>0?0:steering*dt,distance=this.driveVelocity*dt;
   this.hullYaw+=turn;this.x+=Math.sin(this.hullYaw)*distance;this.y-=Math.cos(this.hullYaw)*distance;
@@ -150,7 +153,7 @@ export class Wustenpanzer extends DesertHull {
   this.phaseTo(runaway?'cooling-runaway':overheat?'overheated':!engine?'engine-crippled':left!==right?'track-slew':'advance');
   this.serviceWindow=Math.max(0,this.serviceWindow-dt);
   if(this.serviceWindow>0||this.pressureCycle)this.drivePause=Math.max(this.drivePause||0,.1);
-  this.trackedDrive(dt,(engine?1:.3)*(runaway?25:12),+left,+right);
+  this.huntTarget=p;this.trackedDrive(dt,(engine?1:.3)*(runaway?95:62),+left,+right);
   if(this.serviceWindow>0)return;
   if(this.pressureCycle){this.pressure(dt,p);return;}
   // Finish an already fired shell before opening the counterattack window.
@@ -172,7 +175,8 @@ export class Wustenpanzer extends DesertHull {
    const gun=this.parts.get(id);if(!gun.destroyed&&!p.sandCover){const m=this.muzzle(gun,side),a=Math.atan2(aim.y-m.y,aim.x-m.x)+side*.17;
     gun.gunFlash=.14;this.command('muzzle',{...m,partId:id});fireFanSalvo(this,{...m,angle:a,speed:this.t.bulletSpeed*.75,damage:this.t.damage*.7,visual:'wusten-shell',tag:this.id+':'+id,sourcePartId:id,count:11,spread:1.4,beats:3,beat:.45,warning:.9,gapIndex:side<0?2:7,step:side<0?1:-1});}
   }
-  if(this.due('close-defence',dt,2.5)&&!p.sandCover)for(const gun of this.live('mg')){const m=this.muzzle(gun);if(Math.hypot(aim.x-m.x,aim.y-m.y)<360)this.aimed(gun,aim,{count:5,spread:.55,visual:'wusten-mg'});}
+  // Hull machine guns keep up a steady, led stream (was one short fan every 2.5 s inside 360 px).
+  if(this.due('close-defence',dt,2)&&!p.sandCover)for(const gun of this.live('mg')){const m=this.muzzle(gun);if(Math.hypot(aim.x-m.x,aim.y-m.y)<620)this.aimed(gun,{...aim,x:aim.x+(aim.vx||0)*.35,y:aim.y+(aim.vy||0)*.35},{count:3,spread:.3,visual:'wusten-mg'});}
   if(this.due('aa-sweep',dt,13)){
    const guns=this.live('mg');if(guns.length&&!p.sandCover){this.tactic('aa-sweep');for(const gun of guns)this.aimed(gun,aim,{count:7,spread:1.05,visual:'wusten-mg'});}
   }
@@ -216,11 +220,13 @@ export class SinaiLandship extends DesertHull {
   this.steeringFactor=.45+.55*Math.min(front,rear)/2;
   this.serviceWindow=Math.max(0,this.serviceWindow-dt);this.finalCooldown=Math.max(0,this.finalCooldown-dt);
   if(this.encirclement||this.serviceWindow>0)this.drivePause=Math.max(this.drivePause||0,.1);
-  this.trackedDrive(dt,12.8*(burning?.5:1)*(this.salvo?.35:1),left,right);
+  this.huntTarget=p;this.trackedDrive(dt,58*(burning?.6:1)*(this.salvo?.45:1),left,right);
   const order=['screen','flank','withdraw'][Math.floor((this.motionTime-this.entryDuration)/8)%3];
   this.escortOrder=disrupted?'withdraw':order;
   this.escortFocus={...aim};
   if(this.serviceWindow>0){this.escortOrder='withdraw';return;}
+  // The Lewis gun keeps firing through broadsides and the encirclement.
+  {const mg=this.parts.get('lewis');if(!mg.destroyed&&!p.sandCover&&!disrupted&&this.due('lewis',dt,1.3))this.aimed(mg,{...aim,x:aim.x+(aim.vx||0)*.35,y:aim.y+(aim.vy||0)*.35},{count:4,spread:.28,visual:'sinai-mg'});}
   if(this.encirclement){this.finalAttack(dt,ctx);return;}
   if(late&&this.finalCooldown<=0){const local=maanLocal(this,aim.x,aim.y).x;this.side=local===0?-this.side:(local<0?-1:1);this.startEncirclement(aim,ctx,disrupted);return;}
   if(this.due('broadside',dt,disrupted?3.8:late?4.5:6.2)){
@@ -248,7 +254,7 @@ export class SinaiLandship extends DesertHull {
    }
   }
   if(this.duneLane)this.duneLane.remaining=Math.max(0,this.duneLane.remaining-dt);
-  const mg=this.parts.get('lewis');if(!mg.destroyed&&!p.sandCover&&!disrupted&&this.due('lewis',dt,2.6))this.aimed(mg,aim,{count:3,spread:.22,visual:'sinai-mg'});
+  const mg=this.parts.get('lewis');
   if(!mg.destroyed&&!p.sandCover&&this.due('ring',dt,disrupted?12:9))this.ring(aim,10,this.t.bulletSpeed*.58,'sinai-mg');
   if(burning&&this.due('fuel-leak',dt,4.2)){const tank=this.parts.get('tank'),r=rotateMaan(0,75,this.hullYaw);this.hazard('circle',{x:this.x+tank.x+r.x,y:this.y+tank.y+r.y,radius:58,warning:.9,duration:2.2,tickInterval:.65,damage:this.t.damage*.5,visual:'sinai-fire'});this.command('maan-vent',{x:this.x+tank.x,y:this.y+tank.y,black:true});}
   // Existing encounter bodies provide cap, targeting, hit routing and cleanup.

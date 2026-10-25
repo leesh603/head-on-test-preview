@@ -2,6 +2,19 @@
 // Shared by solo, co-op, ace escorts and authored pilot formations.
 const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
 const angleDiff=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
+// Ace escorts fly toward their station during the ordinary enemy movement pass.
+// Never correct their position or heading again after firing/collision handling.
+export function advanceEscortFlight(world,wing,dt){
+ const leader=wing.formationLeader;
+ if(!leader||leader.hp<=0||leader.crashing||!world.enemies.includes(leader)||wing.directorSquad||wing.directorFormation||wing.stationary||world.sunStrikeContains?.(wing)){
+  if(leader)wing.formationReturning=false;return false;
+ }
+ const ca=Math.cos(leader.a),sa=Math.sin(leader.a),back=wing.formationBack||0,side=wing.formationOffset||0;
+ const station={x:leader.x-ca*back-sa*side,y:leader.y-sa*back+ca*side,a:leader.a};
+ wing.formationReturning=Math.hypot(wing.x-leader.x,wing.y-leader.y)>520;
+ const cruise=Math.max(80,leader.speed*(leader.energySpeed??1));
+ return advanceWingFlight(wing,leader,station,dt,{cruiseSpeed:cruise,maxSpeed:cruise*1.65,turnRate:2.2});
+}
 export function advanceWingFlight(wing,owner,station,dt,options={}){
  if(!Number.isFinite(dt)||dt<=0||wing.carrierHidden)return false;
  const cruise=Math.max(80,options.cruiseSpeed??(owner.speed??170)*clamp(owner.airframeSpeed??1,.4,1.5));

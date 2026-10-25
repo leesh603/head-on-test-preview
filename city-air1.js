@@ -94,8 +94,5 @@ export function drawCityAirLayer(c,game,{point}){
   c.fillStyle='#24332b';c.fillRect(x-16,y+s*.5,32,3);c.fillStyle='#de9b73';c.fillRect(x-16,y+s*.5,32*e.hp/e.maxHp,3);
  }
 };
-const _cityImgs={};
-function cityImg(k){let i=_cityImgs[k];if(!i){i=new Image();i.decoding='async';i.src=`./${k}.webp?v=r5&b=345`;_cityImgs[k]=i}return i}
 
-export function prepareCityAirAssets(){return Promise.all([prepareGroundEnemyArt(),Promise.all(['fx-city-searchlight-pit2','fx-city-aagun'].map(k=>new Promise(resolve=>{const im=cityImg(k);if(im.complete){resolve();return}im.addEventListener('load',()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())},{once:true});im.addEventListener('error',resolve,{once:true})}))) ]);}
 

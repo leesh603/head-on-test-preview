@@ -119,6 +119,13 @@ export function drawExplosionProfile(c,f,x,y,fx){
   if(heavy&&age<.1)fx(c,'profileFlash',x,y,d*.62,d*.62,0,(1-age/.1)*.95);
   shards(c,fx,x,y,age,d,false,heavy?4:2,true);
   if(heavy&&q>.12&&q<.55)fx(c,'profileDirt',x,y-d*q*.42,d*.46,d*(.9+q*.5),0,(1-q/.55)*.4);
+  if(f.railImpact){
+   // Railway HE keeps its earth column, with a painted detonation and brief
+   // flame at the contact point. Reuse the capped effect, never extra particles.
+   if(age<.36)fx(c,FRAMES.ammo[Math.min(3,Math.floor(age/.09))],x,y,d*(.7+.3*clamp(age/.14)),d,0,clamp((.36-age)/.12));
+   if(age>.1&&age<.78)fx(c,'profileGround',x,y-d*.05,d*.55,d*.65,0,clamp((age-.1)/.08)*clamp((.78-age)/.28)*.85);
+   if(age>.22)fx(c,'profileOil',x,y-d*age*.28,d*(.45+age*.25),d*(.55+age*.3),0,clamp((T-age)/.35)*.32);
+  }
  }else{
   const d=Math.min(180,Math.max(92,r*1.65));
   // Initial blast + three internal detonations. Only two can overlap.

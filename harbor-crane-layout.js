@@ -1,5 +1,4 @@
 // One measured pose for the authored harbor parts, hitboxes and attack origins.
-export const HARBOR_SIZE=300;
 export const HARBOR_BOOM=Object.freeze({root:[158,271],tip:[564,77],frame:[0,0,627,390],broken:[627,0,627,390],reach:180});
 export const HARBOR_PARTS=Object.freeze([
  {id:'crane-pivot',x:0,y:-44,radius:18,kind:'crane-pivot',width:82,height:82,hittable:false},

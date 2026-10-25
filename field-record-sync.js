@@ -3,7 +3,7 @@ import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,pilotLoadout,UPGRADES,LEGENDARIE
 import {PILOT_AIRCRAFT,PILOT_RENDER_ART} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 import {getAircraftDisplayName,getAircraftMeta,aircraftCategoryLabel} from './aircraft-master.js?v=tame3';
 import {hangarArtSource} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
-import {portraitSources} from './portraits.js?v=gal1';
+import {portraitSources} from './portraits.js?v=crew20261024';
 import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
 import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS} from './tactical-doctrines.js?v=tactics20261023';
 import {getLocale,pilotName,upgradeName,upgradeDescription,subscribe} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
@@ -11,7 +11,7 @@ import {getLocale,pilotName,upgradeName,upgradeDescription,subscribe} from './i1
 const NORMAL_IDS=['damage','rate','rockets','mines','explosives','command','turn','armor','regen','cooldown','wingman'];
 const UNIQUE_IDS=['bomber','fighterSupply','mercedesEngine','spread','combinedProjectiles'];
 const SPECIAL_IDS=['amatolCharge','lufberyCircle','redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','goeringBaton','immelmannManual','motorCannon','loEmblem','sacredCowling','steelPlate','mauserAceKiller','boelckeDicta','rearGunner','quadLewis','cow37','rankinShell','kaiserFog','fogCompass','maximBelt','grunkreuz','urLeica','badinGauge','heineckeRettungsfallschirm'];
-const NEW_ICONS={bomberTransfer:'bomber_squadron_transfer_orders',mgTransfer:'concentrated_firepower_refit_orders',airshipTransfer:'airship_mobilization_orders',aceWingman:'ace_wingman'};
+const NEW_ICONS={strutterAirbrake:'strutter_airbrake',wimperisSight:'wimperis_sight',bomberTransfer:'bomber_squadron_transfer_orders',mgTransfer:'concentrated_firepower_refit_orders',airshipTransfer:'airship_mobilization_orders',aceWingman:'ace_wingman'};
 const shortName=key=>PILOTS[key]?.name?.replace(/^.*?\s(?=리히트호펜$)/,'')||key;
 const renderKey=(id,pilot)=>PILOT_RENDER_ART[pilot]?.[id]||(id==='fokker'?({baron:'fokker_red',voss:'fokker_voss',jacobs:'fokker_jacobs'}[pilot]||id):id);
 const rating=(value,thresholds)=>1+thresholds.filter(n=>value>=n).length;

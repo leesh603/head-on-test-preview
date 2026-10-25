@@ -1,12 +1,12 @@
-import {DEFIANCE_PILOTS,drawDeathDefianceLocal,drawDeathDefianceCue} from './death-defiance-fx.js?v=nungesser20261020';
+import {DEFIANCE_PILOTS,drawDeathDefianceLocal,drawDeathDefianceCue} from './death-defiance-fx.js?v=deathdefiance1';
 import {PRESSURE_LINK_PILOTS,drawPressureLocal,drawPressureCue} from './pressure-link-fx.js?v=pressurelink1';
-import {CREW_SCAR_PILOTS,drawCrewScarLocal} from './crew-scar-fx.js?v=crewscar1';
+import {CREW_SCAR_PILOTS,drawCrewScarLocal} from './crew-scar-fx.js?v=crew20261024';
 import {FIRE_DIVE_PILOTS,drawFireDiveWorld,drawFireDiveCue} from './fire-dive-fx.js?v=firedive1';
 import {ESCORT_PILOTS,drawEscortWorld,drawEscortCue} from './escort-command-fx.js?v=escortfx1';
 import {CAVALRY_RACER_PILOTS,drawCavalryRacerWorld,drawCavalryRacerLocal,drawCavalryRacerCue} from './cavalry-racer-fx.js?v=cavalryracer1';
 import {ORDNANCE_PILOTS,drawOrdnanceWorld,drawOrdnanceLocal,drawOrdnanceCue,ordnanceGroundShift} from './ordnance-pilot-fx.js?v=ordnancefx1';
 import {COMMAND_PILOTS,drawCommandWorld,drawCommandLocal,drawCommandCue} from './command-flight-fx.js?v=commandfx2';
-import {isAlbatrosHunter,drawAlbatrosLocal,drawAlbatrosWorld} from './albatros-hunter-fx.js?v=pilotfx20261018';
+import {isAlbatrosHunter,drawAlbatrosLocal,drawAlbatrosWorld} from './albatros-hunter-fx.js';
 import {drawFonckLocal,drawFonckCue} from './fonck-precision-fx.js';
 import {METAL_PILOTS,drawMetalWake,drawMetalLocal,drawMetalGuns,drawMetalCue} from './metal-pilot-fx.js';
 import {SORTIE_PILOTS,drawSortieWake,drawSortieLocal,drawSortieCue} from './pilot-cloud-survival-fx.js';
@@ -23,7 +23,6 @@ const TAU=Math.PI*2;
 const _wCache=new Map();
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const SYMBOL_ICONS=Object.freeze({lo:'loEmblem',vossCowling:'sacredCowling'});
-export const UNRESOLVED_SIGNATURE_ART=Object.freeze(['wingedSword','blackDevil','cigogne']);
 export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia=()=>false,bolt=drawTracerBolt}){
  if(typeof fx!=='function'||typeof icon!=='function')throw new TypeError('Authored FX and icon renderers are required');
  const texture=(c,key,x,y,w,h=w,a=0,opacity=1)=>fx(c,key,x,y,w,h,a,clamp(opacity));

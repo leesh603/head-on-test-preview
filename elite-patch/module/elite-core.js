@@ -164,6 +164,9 @@ export class EliteEnemySystem {
 
     for (const squadron of this.squadrons) {
       squadron.age += step;
+      // Elites live outside world.enemies; their one shared fire advances here,
+      // including while a leader loss temporarily diverts the formation AI.
+      for(const member of squadron.members)this.advanceMemberBurn(member,step);
       if (this.updateFormationBreak(squadron,step,now))continue;
       if (squadron.kind === ELITE_KINDS.LE_PRIEUR) this.updateLePrieur(squadron, step);
       else this.updateArmored(squadron, step);
@@ -351,13 +354,27 @@ export class EliteEnemySystem {
     this.projectiles = this.projectiles.filter(p => p.life > 0).slice(-180);
   }
 
+  advanceMemberBurn(member,dt) {
+    if(!member.alive||!(member.burnTime>0))return;
+    const active=Math.min(dt,member.burnTime);
+    member.fuelFxAge=(member.fuelFxAge||0)+active;
+    member.burnTime=Math.max(0,member.burnTime-dt);
+    if(member.gontermannBurn)member.gontermannBurn.age=(member.gontermannBurn.age||0)+active;
+    this.damageMember(member,Math.max(0,member.burnDps||0)*active,{burn:true,ownerId:member.burnOwnerId??'p1'});
+    member.burnFxTime=(member.burnFxTime||0)-dt;
+    if(member.alive&&member.burnFxTime<=0&&!member.gontermannBurn){member.burnFxTime=.13;this.host.emitBurnFx?.(member);}
+    if(!member.burnTime||!member.alive){member.burnTime=0;member.burnDps=0;delete member.gontermannBurn;delete member.burnAnchorSpace;delete member.burnPartId;}
+  }
+
   damageMember(memberOrId, damage, source = {}) {
     const member = typeof memberOrId === 'string' ? this.members.find(m => m.id === memberOrId) : memberOrId;
-    if (!member?.alive || !(damage > 0)) return false;
+    if (!member?.alive || !(damage > 0) || this.host.canDamageMember?.(member,source)===false) return false;
     const armor = cfgFor(this.config, member.eliteKind).armorFactor;
-    if (armor && armor < 1) damage = Math.max(1, Math.round(damage * armor));
+    // Continuous fire keeps the armor factor without rounding every fraction
+    // of a second up to a whole projectile hit.
+    if (armor && armor < 1) damage = source.burn?damage*armor:Math.max(1, Math.round(damage * armor));
     member.hp -= damage;
-    member.hitFlash = .16;
+    if(!source.burn)member.hitFlash = .16;
     if (member.hp > 0) return true;
     member.alive = false;
     member.hp = 0;

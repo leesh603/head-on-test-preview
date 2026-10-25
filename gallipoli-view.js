@@ -3,7 +3,7 @@ import {fx,fxReady} from './fx-art.js?v=tame3';
 import {impactMark,aimLine,laneEdge} from './tactical-marks.js?v=tame3';
 import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
 import {GALLIPOLI_PARTS,GALLIPOLI_SECTORS,gallipoliObjective,GALLIPOLI_HANGAR,GALLIPOLI_EXTENTS,GALLIPOLI_COMMAND_MUZZLE} from './gallipoli-boss.js?v=tame3&rail=40&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=tame3&rail=40&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
 import {drawGallipoliGun} from './gallipoli-gun-art.js?v=20261023';
 export const GALLIPOLI_ASSETS=Object.freeze({guns:'gallipoli-siege-guns.webp',facilities:'gallipoli-siege-facilities.webp',base:'gallipoli-siege-bases.webp',star:'gallipoli-siege-star.webp',wing:'gallipoli-siege-wing.webp',hangar:'maan-workshop-r2.webp',ground:'gallipoli-siege-ground.webp',coast:'asset-bank/terrain/gallipoli_coast.webp',sea:'terrain-sea359r2.webp',central:'gallipoli-overlay-central.webp',entente:'gallipoli-overlay-entente.webp'});

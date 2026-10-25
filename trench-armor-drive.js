@@ -12,7 +12,7 @@ export function stepArmorDrive(b,dt,{speed=0,turn=0,brake=false,bounds}={}){
  const omega=clamp(turn,-turnLimit,turnLimit),v=speed*mobility;
  let left=v+omega*gauge/2,right=v-omega*gauge/2;
  if(lost){const limit=gauge*.14*mobility;if(b.parts.get('track-left').destroyed){left=0;right=clamp(right,-limit,limit);}if(b.parts.get('track-right').destroyed){right=0;left=clamp(left,-limit,limit);}}
- const accel=(brake?160:engine?8:34)*dt,prevLeft=b.leftTrack.speed,prevRight=b.rightTrack.speed;
+ const accel=(brake?160:engine?8:(b.driveAccel||34))*dt,prevLeft=b.leftTrack.speed,prevRight=b.rightTrack.speed;
  b.leftTrack.speed=approach(b.leftTrack.speed,left,accel);b.rightTrack.speed=approach(b.rightTrack.speed,right,accel);
  if(b.parts.get('track-left').destroyed||!mobility)b.leftTrack.speed=0;
  if(b.parts.get('track-right').destroyed||!mobility)b.rightTrack.speed=0;

@@ -1,5 +1,6 @@
 // Five authored attacks on the existing shot/impact/wing hooks. No new input or FX renderer.
 import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
+import {wwiWingTarget} from './wwi-equipment.js';
 import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
 const TAU=Math.PI*2;
 const IDS=new Set(['fonck','gontermann','luke','proctor','lufbery']);
@@ -72,7 +73,7 @@ function rearThreat(p,origin=p){
 function ownLafayette(p,a){return a.ownerId===owner(p)&&(a.fiveLafayette||a.permanent&&a.slot===p.fiveLafayetteSlot);}
 function updateLafayette(p,a,dt){
  if(!ownLafayette(p,a))return false;
- const s=fiveAceState(p),w=world(p),orbit=p.skillTime>0&&s.orbit;
+ const s=fiveAceState(p),w=world(p),orbit=p.skillTime>0&&s.orbit,signal=wwiWingTarget(p,a);
  a.life-=dt;a.invuln=Math.max(0,(a.invuln||0)-dt);a.hitFlash=Math.max(0,(a.hitFlash||0)-dt);a.muzzleFlash=Math.max(0,(a.muzzleFlash||0)-dt);
  if(a.fiveLafayette&&!orbit){a.a+=wrap((s.exitHeading??p.a)-a.a)*Math.min(1,dt*2);a.x+=Math.cos(a.a)*230*dt;a.y+=Math.sin(a.a)*230*dt;return true;}
  let threat=rearThreat(p),goal;
@@ -84,6 +85,7 @@ function updateLafayette(p,a,dt){
   const behind=p.a+Math.PI;goal={x:p.x+Math.cos(behind)*100-Math.sin(p.a)*65,y:p.y+Math.sin(behind)*100+Math.cos(p.a)*65};
   if(threat&&distance(p,threat)<450)goal={x:threat.x-Math.cos(threat.a||0)*90,y:threat.y-Math.sin(threat.a||0)*90};
  }
+ if(signal){threat={x:signal.x,y:signal.y,a:signal.target.a||0,speed:signal.target.speed||0};goal={x:signal.x,y:signal.y,a:Math.atan2(signal.y-a.y,signal.x-a.x)};}
  const previous=a.a||0;
  advanceWingFlight(a,p,goal,dt,{maxSpeed:260,turnRate:3.1,cruiseSpeed:orbit?FIVE_ACE_BALANCE.orbitRadius*1.12:undefined});
  a.fiveBank=clamp(wrap(a.a-previous)/Math.max(dt,.001),-1,1);

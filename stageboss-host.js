@@ -3,13 +3,13 @@ import {capBomberSalvoDamage} from './bomber-transfer.js?v=buildfit1&afc=1';
 import {recordCombatImpact} from './combat-impact-result.js';
 import {achievementBossCue,achievementBossClear,awardPriorityKill} from './achievements.js?v=medals2';
 import {doverPatrolChart} from './dover-patrol-chart.js?v=dover3';
-import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=gal1';
+import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=fx5';
 import {resolveSurfaceSpacing} from './naval-spacing.js?v=gal1';
 
 import {tickRegionalConditions} from './region-doctrine1.js?v=buildfit1&afc=1&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
 
 import {createGallipoliRoute,tickGallipoliRoute,gallipoliPoint,GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {handleMaanCue} from './maan-view.js?v=regionalair2&ai=1018&boss=20261020b';
+import {handleMaanCue} from './maan-view.js?v=regionalair2&ai=1018&boss=20261020b&maanart=20261022';
 import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle.js?v=gal1';
 import {isDoverBoss} from './dover-night-view.js?v=outline1&ai=1018&sig=1019&boss=20261020b&phase=1021&hardware=1022';
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=gal1';
@@ -17,7 +17,7 @@ import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=gal1';
 import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=livingww1d&rail=43&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021';
 import {bossSoundFor} from './boss-feedback.js?v=gal1&hints=1&rail=42&ai=1018&sig=1019';
-import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=gal1&rail=42&cityart=20261022';
+import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=gal1&rail=42&skyart=20261020&alpsart=20261020&cambrai=20261021&adriaticart=20261022&skymechanics=20261022&cityart=20261022';
 import {advanceCambraiBug} from './cambrai-bug-flight.js?v=gal1';
 const SEAPLANE_BOMBERS=new Set(['hansa_brandenburg_cc','hb_w29','ff33','lohner_l','macchi_m5','macchi_m3']);
 import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=regionalair2';
@@ -185,6 +185,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     else if(event.type==='hazard-activated'&&event.kind==='circle'&&event.visual!=='hull-ram'){
     const SHELL_VISUALS=new Set(['rail-shell','rail-shell-outer','observer-shell','zubian-mortar','naval-gun','alps-cannon','black-flak','zubian-shell','coastal-shell','building-debris']),sea=[1,7,17].includes(g.worldRegion?.()??-1);
     g.combatBlast(event.x,event.y,event.radius,'enemy',event.visual==='carpet-bomb'?'bomb':event.visual==='torpedo-charge'?'mineBlast':SHELL_VISUALS.has(event.visual)?(sea?'mineBlast':'shell'):'blast',sea?null:groundShellProfile(event.visual));
+    if(!sea&&['rail-shell','rail-shell-outer'].includes(event.visual)){const effect=g.combatFX?.at(-1);if(effect)effect.railImpact=true;}
     if(!sea&&groundShellProfile(event.visual)==='heavyShell')g.shake=Math.max(g.shake,5);
     if(sea&&SHELL_VISUALS.has(event.visual)){const effect=g.combatFX?.at(-1);if(effect)effect.fxSource='navalShell'}
     // The shared hazard renderer already animates this ground impact. Avoid a

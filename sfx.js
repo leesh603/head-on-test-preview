@@ -26,7 +26,6 @@ function track(source,filter,gain){
 }
 const jit=f=>f*(0.94+Math.random()*0.12); // ±6% pitch drift so repeat hits never sound identical
 export function setSfxMuted(v){muted=!!v;if(muted)stopSfx()}
-export function setSfxVolume(v){master=Math.max(0,Math.min(1,v))}
 function ac(){
   if(ctx)return ctx.state;
   try{
@@ -112,10 +111,16 @@ const bankTurn=new Map();
 // it alive; if the ticks stop (menu, pause, death) it fades out on its own.
 const ROTARY=/^(fokker(_red|_voss|_f1|_jacobs|_standard)?|fokker|camel|pup|strutter|snipe|sopwith.*|.*nieuport.*|eindecker|fokker_e1|airco_dh2|dh2|hanriot|siemens_d4|morane.*|bristol_m1|bristol_scout_c|fokkerdv|udet_fokkerdv|dh5|ssw_d3|.*camel|.*dr1|.*_sopwith|.*_snipe)$/;
 let engine=null;
+export function flightAudioProfile(p={}){
+ const speed=Math.max(.3,Math.min(1.35,p.speed??1)),pace=Math.max(.3,Math.min(1.7,(p.airspeed??speed*170)/170)),turn=Math.min(4,p.turn||0),damage=Math.max(0,Math.min(1,p.damage||0));
+ const drive=speed*.55+pace*.45,surge=Math.max(-.08,Math.min(.08,(p.acceleration||0)/220));
+ return {speed,turn,damage,rate:(.6+.45*drive+surge)*(1-damage*.055),cut:2400+(drive-1)*900+surge*1400-damage*900-turn*95,level:(p.duck?.32:.52+.08*drive)*(p.reload?.85:1)*(1-damage*.22)};
+}
+export function closePassAudioProfile(speed=350){const rush=Math.max(0,Math.min(1,(speed-150)/400));return {pitch:125+65*rush,duration:.4-.13*rush,level:.055+.025*rush,air:1150+1100*rush};}
 function engineLoop(p){
  const kind=engineSampleKind(p.plane),buffer=cachedFile('sfx/'+kind);
  if(!buffer){loadFileCue('sfx/'+kind);return false}
- const now=ctx.currentTime,speed=Math.max(.3,Math.min(1.35,p.speed??1)),turn=Math.min(4,p.turn||0),damage=Math.max(0,Math.min(1,p.damage||0));
+ const now=ctx.currentTime,flight=flightAudioProfile(p),{damage}=flight;
  if(!engine||engine.kind!==kind){
   if(engine)try{clearTimeout(engine.idle);engine.gain.gain.setTargetAtTime(0,now,.08);engine.src.stop(now+.4)}catch{}
   if(!reserve())return false;
@@ -125,9 +130,9 @@ function engineLoop(p){
   src.connect(f);f.connect(gain);gain.connect(bus);src.start();
   engine={kind,src,gain,f};track(src,f,gain);
  }
- const level=(p.duck?.32:.6)*(p.reload?.85:1)*(1-damage*.22)*master*.26;
- engine.src.playbackRate.setTargetAtTime((.67+.39*speed)*(1-damage*.055)*(1+damage*.008*Math.sin(now*31)),now,.15);
- engine.f.frequency.setTargetAtTime(2400-damage*900-turn*95,now,.2);
+ const level=flight.level*master*.26;
+ engine.src.playbackRate.setTargetAtTime(flight.rate*(1+damage*.008*Math.sin(now*31)),now,.12);
+ engine.f.frequency.setTargetAtTime(flight.cut,now,.16);
  engine.gain.gain.setTargetAtTime(level,now,.12);
  clearTimeout(engine.idle);const e=engine;e.idle=setTimeout(()=>{try{e.gain.gain.setTargetAtTime(0,ctx.currentTime,.1);e.src.stop(ctx.currentTime+.5)}catch{}},450);
  return true;
@@ -157,13 +162,16 @@ const alps={kind:'alps',sample:null,level:0,cut:1700,wind:.005};
 const desert={kind:'desert',sample:null,level:0,cut:900,wind:.004};
 export const REGION_AMBIENCE=Object.freeze([rural,sea,front,front,city,sky,alps,sea,rural,front,front,city,front,desert,sea,city,sea,sea].map(p=>Object.freeze(p)));
 let wind=null;
-export function environmentWindLevel(world){
+export function environmentWindLevel(input){
+ const world=input?.world||input;
  const region=world?.worldRegion?.()??0,p=REGION_AMBIENCE[region]||rural;let gust=0;
  if(region===13)for(const s of world?.maanWeather?.cells||[]){
   const fade=Math.max(0,Math.min(1,s.age/3,(s.life-s.age)/3));
   gust=Math.max(gust,fade*Math.max(0,1-Math.hypot(s.x-world.x,s.y-world.y)/420));
  }
- return {cut:p.cut+gust*900,level:p.wind+gust*.009};
+ const players=world?.players||[world],pilot=(world?.online&&players.find(p=>p?.id===world.localPlayerId&&p.hp>0))||players.find(p=>p?.hp>0),flight=input?.flight;
+ const airspeed=flight?.airspeed??(pilot?.speed||0)*(pilot?.airframeSpeed??1),rush=Math.max(0,Math.min(1,(airspeed-115)/140));
+ return {cut:p.cut+gust*900+rush*650,level:p.wind+gust*.009+rush*.005};
 }
 function updateWind(world){
  const now=ctx.currentTime,p=environmentWindLevel(world);
@@ -192,7 +200,7 @@ const VOICES={
     else if(material==='fabric'){hiss(jit(1300),450,.075,.047,'bandpass',.5);tone(jit(150),70,.045,.026,'triangle',600)}
     else{tone(jit(260),85,.055,.05,'triangle',1300);hiss(jit(2300),650,.075,.039,'bandpass',1.2)}},
   whizz(){hiss(jit(3300),720,.14,.037,'bandpass',3,0,.018);tone(jit(850),310,.08,.007,'sine',1400)},
-  closePass(){tone(jit(155),47,.38,.068,'sawtooth',680,0,.045);hiss(1600,250,.34,.074,'bandpass',.65,0,.035)},
+   closePass(pass){const p=closePassAudioProfile(pass?.speed);tone(jit(p.pitch),47,p.duration,p.level,'sawtooth',680,0,.035);hiss(p.air,250,p.duration*.9,p.level,'bandpass',.65,0,.025)},
   airframeBreak(){tone(jit(180),53,.18,.062,'triangle',700);hiss(jit(1800),420,.26,.057,'bandpass',.65);hiss(3200,1200,.05,.026,'highpass',.7,.035)},
   // Mechanical/material cues follow actual boss actions, not a generic beep.
   armorDrive(){tone(49,46,.3,.02,'sawtooth',170);for(let i=0;i<3;i++){hiss(760,350,.045,.016,'bandpass',.7,i*.09);tone(117,72,.07,.01,'triangle',310,i*.09)}},
@@ -296,8 +304,8 @@ const VOICES={
   healSynth(){tone(720,720,.06,.035,'sine',2200);tone(960,960,.09,.035,'sine',2600,.07)},
   // Engine idle: one propeller/exhaust beat per call (the host fires it on an interval).
   engineTick(flight){const p=typeof flight==='object'?flight:{reload:flight};if(!engineLoop(p))VOICES.engineTickSynth(flight)},
-  engineTickSynth(flight){const p=typeof flight==='object'?flight:{reload:flight},speed=Math.max(.3,Math.min(1.35,p.speed??1)),turn=Math.min(4,p.turn||0),damage=Math.max(0,Math.min(1,p.damage||0));
-    const f=(.67+.39*speed)*(1-damage*.055),level=(p.duck?.35:.43)*(1-damage*.22);
+   engineTickSynth(flight){const p=typeof flight==='object'?flight:{reload:flight},profile=flightAudioProfile(p),{speed,turn,damage}=profile;
+    const f=profile.rate,level=profile.level*.72;
     // Reuse one original engine voice. No overlapping enemy/propeller drones.
     tone(58*f,42*f,.11,.085*level,'sawtooth',300-damage*40);
     hiss(540+speed*160+turn*70,180,.08,.05*level*(1+turn*.035),'lowpass',.5);
@@ -314,10 +322,11 @@ export function sfx(name,arg){
   if(ctx.state==='closed')return;
   if(ctx.state!=='running'&&!resuming){try{resuming=Promise.resolve(ctx.resume()).catch(()=>{}).finally(()=>{resuming=null})}catch{}}
   const now=ctx.currentTime;
-  if(now-(lastVoices.get(name)??-Infinity)<(INTERVAL[name]||0))return;
+  const voiceKey=arg?.tactical?'tactical:'+name:name;
+  if(now-(lastVoices.get(voiceKey)??-Infinity)<Math.max(INTERVAL[name]||0,arg?.tactical?1.2:0))return;
   // The arrival call already carries its own chuff rhythm; rolling beats wait until it ends.
   if(name==='trainRoll'&&now-(lastVoices.get('trainApproach')??-Infinity)<RAIL_APPROACH_SECONDS-.3)return;
-  lastVoices.set(name,now);priority=PRIORITY[name]??2;
+  lastVoices.set(voiceKey,now);priority=arg?.tactical?0:PRIORITY[name]??2;
   const depth=name==='hit'?.68:name==='explosion'?.84:.74;
   if(['hit','bossSiren','bossKlaxon','approachWarning','railGunFire520','explosion'].includes(name)&&(now-lastDuck>(name==='explosion'?4:1.8)||depth<lastDuckDepth-.01)){
    lastDuck=now;lastDuckDepth=depth;
@@ -325,7 +334,8 @@ export function sfx(name,arg){
    try{duckListener(depth)}catch{}
   }
   ambientVoice=name==='environment'||name==='environmentWind';
-  try{VOICES[name](arg)}catch{}finally{priority=0;ambientVoice=false}
+  const previousMaster=master;if(arg?.tactical)master*=.4;
+  try{VOICES[name](arg)}catch{}finally{master=previousMaster;priority=0;ambientVoice=false}
 }
 
 

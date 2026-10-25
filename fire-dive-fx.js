@@ -4,7 +4,6 @@ import {signatureCue,signatureInterval} from './pilot-signature-state.js';
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const owner=p=>p.id??'p1';
 const living=p=>p?.hp>0&&p.status!=='downed'&&p.state==='playing';
-const world=p=>p.combatWorld?.()||p;
 const privateGun=(p,b)=>b&&(b.ownerId??'p1')===owner(p)&&Number.isInteger(b.gun)&&!['enemy','ally','formation','patrol','rocket','motorCannon','cow37','mauserRound','blast','actualExplosion','identityDot','identityChain'].some(k=>b[k]);
 export const FIRE_DIVE_PILOTS=new Set(['luke','mannock']);
 export const lukeAirship=e=>!!e&&(e.type==='zeppelin'||['zeppelin-l70','hma23'].includes(e.stageBossBody?.kind||e.kind));
@@ -76,11 +75,10 @@ export function drawFireDiveWorld(c,p,tex,front=false,shift={x:0,y:0}){
  }
 }
 export function mannockWingPose(w,pass=true){
- const age=Math.max(0,w.age||0),vertical=w.pass==='vertical';
+ const age=Math.max(0,w.age||0);
  const entry=pass?1-clamp(age/1.45):0,exit=pass?clamp((age-2.5)/1.2):0,beat=w.muzzleFlash>0?Math.sin(clamp(w.muzzleFlash/.09)*Math.PI)*1.8:0;
- // All body/heading changes are local artwork transforms around the real wing.
- const bank=pass?1-.45*entry-.32*exit:1-.10*clamp(w.muzzleFlash/.09);
- return {scale:pass?.93+entry*.18+exit*.09:.78*(w.carrierScale??1),bank,roll:pass?(vertical?1:-1)*(entry*.16-exit*.2):0,kick:beat,height:pass?entry*16+exit*13:0,alpha:pass?clamp(age/.12)*clamp((4.6-age)/.28):1};
+ // Keep the body and shadow aligned with the actual flight course.
+ return {scale:pass?.93:.78*(w.carrierScale??1),bank:1,roll:0,kick:beat,height:pass?entry*16+exit*13:0,alpha:pass?clamp(age/.12)*clamp((4.6-age)/.28):1};
 }
 export function drawMannockWing(c,p,w,x,y,plane,tex,pass=true){
  if(p.pilot!=='mannock'||!living(p)||!(w.ownerId===owner(p)||w.ownerId===undefined&&!p.world)||!pass&&(!(w.life>0)||w.hp<=0)||![x,y,w.a].every(Number.isFinite))return false;

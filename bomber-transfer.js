@@ -1,6 +1,6 @@
+import {wimperisTarget,correctWimperisBomb} from './flight-equipment.js';
 import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=buildfit1&afc=1';
 // Sortie-only heavy-airframe fit. The selected plane and pilot remain authoritative.
-export const BOMBER_TRANSFER_ID='bomberTransfer';
 export const BOMBER_TRANSFER_DESCRIPTION='대형 중폭격기로 전환합니다. 폭발물 강화가 적용되는 고위력 융단·집중폭격, 후방 방어사수를 획득합니다. 선회기동 대신 후방 방어탄막을 사용합니다. 최대 내구도가 증가하지만 비행속도와 선회력이 감소하며 다른 기체 전환과 동시 장착 불가.';
 export const BOMBER_TRANSFER=Object.freeze({
  entente:Object.freeze({name:'Handley Page O/400',sprite:'bomber-transfer-o400',hp:3,hpCap:420,speed:.6,turn:.4,period:6.6,count:5,spacing:56,interval:.18,radius:86,damage:103,scale:2.28,front:39,rear:30,hullLength:30,hullWidth:57}),
@@ -82,9 +82,9 @@ function bombingTarget(p){
  return target;
 }
 function beginSalvo(p,fit){
- const target=bombingTarget(p),lead=target&&!target.surface&&!target.stationary&&!target.stageBossBody?Math.min(140,(target.speed||0)*.85):0;
- fit.heading=p.a;fit.tx=target?target.x+Math.cos(target.a||0)*lead:p.x+Math.cos(p.a)*160;
- fit.ty=target?target.y+Math.sin(target.a||0)*lead:p.y+Math.sin(p.a)*160;
+ const target=p.upgrades?.wimperisSight?wimperisTarget(p,{range:440,cone:Math.PI*.55}):bombingTarget(p),source=target?.entity||target,lead=source&&!source.surface&&!source.stationary&&!source.stageBossBody?Math.min(140,(source.speed||0)*.85):0;
+ fit.heading=p.a;fit.tx=target?target.x+Math.cos(source.a||0)*lead:p.x+Math.cos(p.a)*160;
+ fit.ty=target?target.y+Math.sin(source.a||0)*lead:p.y+Math.sin(p.a)*160;
  fit.remaining=fit.count;fit.index=0;fit.drop=0;
  fit.salvo={bossDamage:new Map(),bossCap:p.payloadPower(fit.damage)*2};
  p.event('ally',fit.name+' · '+(fit.count===5?'융단폭격':'집중폭격'));
@@ -92,7 +92,9 @@ function beginSalvo(p,fit){
 function releaseBomb(p,fit){
  const ca=Math.cos(fit.heading),sa=Math.sin(fit.heading),index=fit.index++,offset=(index-(fit.count-1)/2)*fit.spacing;
  const lateral=fit.count===5?[0,-28,28,-28,28][index]:[22,0,-22][index],flight=.85;
- (world(p).friendlyBombs??=[]).push({ownerId:p.id,sx:p.x-ca*5,sy:p.y-sa*5,x:fit.tx+ca*offset-sa*lateral,y:fit.ty+sa*offset+ca*lateral,life:flight,maxLife:flight,radius:fit.radius,damage:p.payloadPower(fit.damage),releaseAngle:fit.heading,sprite:fit.count===3?'puw':index%2?'hales':'cooper',bomberTransfer:true,bomberSalvo:fit.salvo});
+ const bomb={ownerId:p.id,sx:p.x-ca*5,sy:p.y-sa*5,x:fit.tx+ca*offset-sa*lateral,y:fit.ty+sa*offset+ca*lateral,life:flight,maxLife:flight,radius:fit.radius,damage:p.payloadPower(fit.damage),releaseAngle:fit.heading,sprite:fit.count===3?'puw':index%2?'hales':'cooper',bomberTransfer:true,bomberSalvo:fit.salvo};
+ if(p.upgrades?.wimperisSight){bomb.wimperisCenterX=fit.tx;bomb.wimperisCenterY=fit.ty;}
+ correctWimperisBomb(p,bomb);(world(p).friendlyBombs??=[]).push(bomb);
  fit.remaining--;fit.drop+=fit.interval;
 }
 
@@ -130,7 +132,7 @@ function transferDefenseVolley(p,fit){
 export function installBomberTransfer(Game,planes,scarff){
  const q=Game.prototype;
  q.acquireAirframeTransfer=function(id='bomberTransfer'){
-  if(this.bomberTransfer||AIRFRAME_TRANSFER_IDS.some(key=>this.upgrades?.[key]))return false;
+  if(this.bomberTransfer||this.upgrades?.strutterAirbrake||AIRFRAME_TRANSFER_IDS.some(key=>this.upgrades?.[key]))return false;
   const config=(id==='bomberTransfer'?BOMBER_TRANSFER:BUILD_TRANSFER[id])?.[planes[this.plane]?.faction];if(!config)return false;
   const ratio=this.maxHp?this.hp/this.maxHp:1;
   this.bomberTransfer={...config,id,entryTime:0,cooldown:config.period,remaining:0,drop:0,rearTimer:.2,rearAim:this.a+Math.PI,rearFlash:0,yaw:0};

@@ -1,5 +1,4 @@
 // Coordinates are shared by sprite composition, swept hits and gun muzzles.
-export const MAAN_REGION=13;
 export const MAAN_ENTRY=Object.freeze({duration:9,ignition:1.6,breakAt:2.8,reveal:4.8});
 export const MAAN_LAYOUT=Object.freeze({
  'wustenpanzer':{width:248,height:520,parts:[

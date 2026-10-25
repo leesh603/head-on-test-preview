@@ -2,12 +2,12 @@ import {cityWeaponSignals,drawQfWeapon,drawQfCoreBreach} from './city-defense-ar
 import {drawCityFlakStructure,drawCityFlakMount} from './city-flak-art.js?v=qf1023';
 import {prepareTrenchArmorArt,releaseTrenchArmorArt,trenchArmorArtReady,trenchArmorTreadSource,drawTrenchArmorHull,MARKV_TREAD_PROFILE} from './trench-armor-art.js?v=20261022';
 import {prepareHarborDetailArt,releaseHarborDetailArt,harborDetailReady} from './harbor-detail-art.js?v=20261021';
-import {prepareCityBalloonArt,releaseCityBalloonArt,cityBalloonArtReady} from './city-balloon-art.js?v=20261022';
+import {prepareCityBalloonArt,releaseCityBalloonArt} from './city-balloon-art.js?v=20261022';
 import {prepareCambraiDetailArt,releaseCambraiDetailArt,cambraiDetailReady,drawAuthoredTreffas,drawCambraiTrainCar} from './cambrai-detail-art.js?v=20261021';
 import {prepareAlpsBomberArt,releaseAlpsBomberArt,alpsBomberArtReady} from './alps-bomber-art.js?v=alpsgun20261022';
-import {groundShellProfile} from './explosion-profiles.js?v=gal1';
+import {groundShellProfile} from './explosion-profiles.js?v=fx5';
 import {prepareSkyAirshipArt,releaseSkyAirshipArt,drawSkyAirship,skyAirshipReady} from './sky-airship-art.js?v=skymechanics20261022&motion=20261022';
-import {minenMuzzleLocal} from './minenwerfer-art-layout.js?v=gal1-r4';
+import {minenMuzzleLocal} from './minenwerfer-art-layout.js';
 import {drawMinenInstallation} from './minenwerfer-art-render.js?v=gal1-r4&trenchart=20261022';
 import {prepareBossCutins} from './boss-cutin-art.js?v=livingww1d&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
 import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide} from './jutland-view.js?v=outline1&ai=1018&sig=1019&boss=20261020b&phase=1021&gunart=20261023';
@@ -18,19 +18,19 @@ import {drawRuralRail,drawRuralRailWarnings,drawRuralRailHazard} from './rural-r
 import {prepareVerdunAssets,releaseVerdunAssets,drawVerdunFort,drawVerdunHazard,drawVerdunEnvironment} from './verdun-art.js?v=gal1-r9&ai=1018&sig=1019&boss=20261020b&phase=1021&verdunhw=20261022';
 import {drawCambraiTreffas,drawCambraiFlakWarning} from './cambrai-render.js?v=gal1';
 import {prepareSommeAssets,releaseSommeAssets,drawSommeBoss,drawSommeHazard} from './somme-boss-render.js?v=gal1&rail=42&ai=1018&somme=20261021&sommehw=20261023';
-import {sommeExtents} from './somme-boss-layout.js?v=gal1&somme=20261021';
-import {drawZubianShip} from './adriatic-boss-render.js?v=gal1&adriaticart=20261022';
-import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=gal1';
+import {sommeExtents} from './somme-boss-layout.js?v=tame3&somme=20261021';
+import {drawZubianShip} from './adriatic-boss-render.js?v=tame3&adriaticart=20261022';
+import {drawSinkingShip,prepareSinkingWater} from './ship-sinking.js?v=tame3';
 import {prepareArmorTreads,drawArmorGround,drawArmorTreads,drawArmorDamageFX} from './trench-armor-render.js?v=gal1&treads=2&ai=1018&armorart=20261022';
-import {armorGunMuzzle} from './trench-armor-layout.js?v=gal1&ai=1018';
-import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta} from './trench-armor-layout.js?v=gal1&ai=1018';
+import {armorGunMuzzle} from './trench-armor-layout.js?v=tame3&ai=1018';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta} from './trench-armor-layout.js?v=tame3&ai=1018';
 import {drawTrenchArmorGun} from './trench-armor-gun-render.js?v=gal1&ai=1018';
 import {prepareRegionalBossArt,drawRegionalBossBody,drawRegionalBossPart,drawRegionalHazard,drawRegionalCue} from './regional-boss-view352.js?v=outline1&ai=1018&harbor=20261021';
-import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=gal1&cityart=20261022';
+import {drawAttachedApron,drawDrachenRig} from './london-apron369.js?v=tame3&cityart=20261022';
 import {drawRailDamage,drawRailTrack} from './rail-render129.js?v=gal1';
-import {fx,fxReady,fxImage,fxTint,FX3} from './fx-art.js?v=gal1';
-import {impactMark,bandMark,partMark,shieldMark,aimLine,laneEdge,stripMark,sectorMark,lockMark,MARK} from './tactical-marks.js?v=gal1';
-import {drawBossRound,drawShellFlight} from './boss-rounds.js?v=gal1&ai=1018';
+import {fx,fxReady,fxImage,fxTint,FX3} from './fx-art.js?v=tame3';
+import {impactMark,bandMark,partMark,shieldMark,aimLine,laneEdge,stripMark,sectorMark,lockMark,MARK} from './tactical-marks.js?v=tame3';
+import {drawBossRound,drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
 import {drawEnemyProjectile,drawBattlefieldFire} from './projectiles.js?v=pilotfx20261018';
 import {drawLivensFlame,prepareLivensFlame,releaseLivensFlame} from './livens-fire382.js?v=gal1';
 import {LIVENS_ART_SOURCES,drawLivensInstallation} from './livens-art.js?v=20261019&trenchart=20261022';
@@ -106,8 +106,8 @@ const impactGroup=createLazyImageGroup({atlas:'./fx-mortar-impact340.webp'}),imp
 const BOSS_KEYS_BY_REGION=Object.freeze({
   0:['parisGun','lincomparable'],1:['stuttgart','zubian'],2:['a7v','markv'],3:[],4:['drachenLeft','drachenCenter','drachenRight'],5:['l70','hma23'],6:['gik','ca4'],7:[],8:[],10:[],11:[]
 });
-let armorLoadGeneration=0,cityBalloonRegion=-1;
-export function prepareStageBossAssets(region){ cityBalloonRegion=region; qfDetailGroup.release();
+let armorLoadGeneration=0;
+export function prepareStageBossAssets(region){ qfDetailGroup.release();
  const armorGeneration=++armorLoadGeneration;releaseTrenchArmorArt();
  if(region!==6)releaseAlpsBomberArt();
  if(region!==5)releaseSkyAirshipArt();
@@ -115,8 +115,8 @@ export function prepareStageBossAssets(region){ cityBalloonRegion=region; qfDeta
  const jobs=[prepareBossCutins(region),prepareRegionalBossArt(region),prepareDoverAssets(region)];if(region===4)jobs.push(qfDetailGroup.preload());releaseSommeAssets();if(region===10)jobs.push(prepareSommeAssets());releaseLondonArt();if(region===11)jobs.push(prepareLondonArt());releaseVerdunAssets();if(region===12)jobs.push(prepareVerdunAssets());releaseParisArt();if(region===15)jobs.push(prepareParisArt());jobs.push(prepareMaanAssets(region),prepareGallipoliAssets(region),prepareJutlandAssets(region));
  bossGroup.release();alpsGroup.release();supportGroup.release();adriaticDetailGroup.release();rebuildGroup.release();armorDamageGroup.release();armorMotionGroup.release();harborGroup.release();trenchGroup.release();zubianGroup.release();cityGroup.release();buildingGroup.release();flakTowerGroup.release();
  for(const group of [...Object.values(railGroups),...Object.values(railWreckGroups)])group.release();
- const bossKeys=BOSS_KEYS_BY_REGION[region]||[];if(region===4)jobs.push(prepareCityBalloonArt().then(()=>cityBalloonRegion===4&&!cityBalloonArtReady()?bossGroup.preload(bossKeys):null));else if(bossKeys.length)jobs.push(bossGroup.preload(bossKeys));
- if(region!==4&&region!==11)releaseCityBalloonArt();
+ const bossKeys=BOSS_KEYS_BY_REGION[region]||[];if(bossKeys.length)jobs.push(bossGroup.preload(bossKeys));
+ if(region!==11)releaseCityBalloonArt();
  if(region===0)for(const key of ['parisGun','lincomparable'])jobs.push(railGroups[key].preload(),railWreckGroups[key].preload());
  if(region===1){jobs.push(adriaticDetailGroup.preload());jobs.push(supportGroup.preload());jobs.push(zubianGroup.preload());jobs.push(sinkFoamGroup.preload())}
   if(region===2){jobs.push(prepareTrenchArmorArt().then(()=>{
@@ -360,13 +360,6 @@ function bakedImage(image,filter){
  bakedImageCache.set(key,cv);return cv;
 }
 function pixelBlast(c,x,y,r,age=0,water=false){bossSprite(c,water?13:12,x,y,r*2,r*2,water?0:age*.15)}
-function drawMarkSponson(c,gun,right,angle,size,recoil=0){
- const k=size/320;c.save();c.imageSmoothingEnabled=true;
- c.save();if(right)c.scale(-1,1);c.drawImage(gun,120,0,200,320,-40*k,-160*k,200*k,320*k);
- c.drawImage(gun,31,178,89,34,-129*k,18*k,89*k,34*k);c.restore();
- c.translate((right?1:-1)*36*k,-16*k);c.rotate(angle);if(right)c.scale(-1,1);
- c.drawImage(gun,20,123,108,45,-108*k+recoil*8,-22*k,108*k,45*k);c.restore();
-}
 function drawArmorGun(c,part,kind,scale){
  const mark=kind==='mark-v-cruiser';
  const image=part.destroyed?(mark?armorDamage.markGunWreck:armorDamage.a7vGunWreck):(mark?rebuildArt.markvSponson:rebuildArt.a7vTurret);
@@ -400,13 +393,6 @@ function drawTrenchArmor(c,b){
 
 
 // Destroyed part: scorched crater with torn plating.
-function partWreck(c,p,r,t){
- const g=c.createRadialGradient(p.x,p.y,2,p.x,p.y,r*1.25);
- g.addColorStop(0,'rgba(22,18,14,.95)');g.addColorStop(.55,'rgba(46,38,30,.6)');g.addColorStop(1,'rgba(46,38,30,0)');
- c.fillStyle=g;c.beginPath();c.arc(p.x,p.y,r*1.25,0,Math.PI*2);c.fill();
- c.strokeStyle='#4d3f30aa';c.lineWidth=1.5;
- for(let i=0;i<6;i++){const a=i*1.07+p.x*.013;c.beginPath();c.moveTo(p.x+Math.cos(a)*r*.35,p.y+Math.sin(a)*r*.35);c.lineTo(p.x+Math.cos(a)*(r*.85+(i%2)*r*.3),p.y+Math.sin(a)*(r*.85+(i%2)*r*.3));c.stroke();}
-}
 
 function drawCityFlak(c,b,hazards){
  const signals=cityWeaponSignals(b,hazards);

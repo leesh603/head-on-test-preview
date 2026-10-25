@@ -2,12 +2,12 @@ import {cityWeaponSignals,drawParisMovingMount,drawStaakenPropellers,staakenRack
 import {PARIS_DECK_FRAMES} from './city-defense-decks.js?v=1022';
 import {fx} from './fx-art.js?v=tame3';
 import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
-import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=tame3';
+import {PARIS_SIZE,ensureParisBattle} from './paris-night-battle.js?v=gal1';
 import {PARIS_ART_LAYOUTS,PARIS_PART_CLIPS} from './paris-night-atlas.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
 let images={};
 export function releaseParisArt(){images={};}
 export function prepareParisArt(){
- return Promise.all([['map','terrain-paris-night1918.webp'],['fortress','paris-fortress-parts1918.webp'],['fortressWreck','paris-fortress-wreck1918.webp'],['staaken','asset-bank/outlined/native/paris-staaken-parts1918.webp'],['staakenWreck','asset-bank/outlined/native/paris-staaken-wreck1918.webp'],['decks','paris-mount-decks-20261022.webp'],['hardware','city-defense-hardware-20261022.webp'],['emptyStaaken','paris-staaken-empty-20261022.webp'],['rotor','city-defense-propeller-20261022.webp']].map(([key,path])=>new Promise(resolve=>{
+ return Promise.all([['map','terrain-paris-night1918.webp'],['fortress','paris-fortress-parts1918.webp'],['fortressWreck','paris-fortress-wreck1918.webp'],['staaken','asset-bank/outlined/native/paris-staaken-parts1918.webp?v=bomber-style20261024'],['staakenWreck','asset-bank/outlined/native/paris-staaken-wreck1918.webp?v=bomber-style20261024'],['decks','paris-mount-decks-20261022.webp'],['hardware','city-defense-hardware-20261022.webp'],['emptyStaaken','paris-staaken-empty-20261022.webp?v=bomber-style20261024'],['rotor','city-defense-propeller-20261022.webp']].map(([key,path])=>new Promise(resolve=>{
   const im=new Image();im.decoding='async';images[key]=im;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(true))};im.onerror=()=>resolve(false);im.src='./'+path+'?v=r5&b=city4';
  })));
 }

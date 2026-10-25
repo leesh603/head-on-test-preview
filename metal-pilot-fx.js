@@ -3,7 +3,6 @@ import {signatureCue,signatureState,activatePilotSignature,signatureInterval} fr
 export const METAL_PILOTS=new Set(['sachsenberg','schleich']);
 export const METAL_FX_LIMITS=Object.freeze({wake:12,wakeLife:.42,sampleInterval:.04,shotInterval:.045});
 export const METAL_FX_PALETTES=Object.freeze({sachsenberg:Object.freeze({edge:'#8ec8e7',core:'#e6f2fa',smoke:'#a1b3c2',spark:'#ccecff'}),schleich:Object.freeze({edge:'#bd7861',core:'#c3c6cb',smoke:'#606773',spark:'#f1b17b'})});
-const world=p=>p.combatWorld?.()||p;
 const clamp=n=>Math.max(0,Math.min(1,n));
 const alive=p=>p.state==='playing'&&p.hp>0&&p.status!=='downed';
 const state=p=>p.metalFlightFx??={clock:0,wake:[],muzzles:[],lastX:p.x,lastY:p.y,sampleAt:-Infinity,phase:null};

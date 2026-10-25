@@ -1,8 +1,10 @@
+import {FLIGHT_EQUIPMENT} from './flight-equipment.js';
+import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget} from './wwi-equipment.js';
 import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=buildfit1&afc=1';
-import {PILOT_AIRCRAFT} from './pilot-aircraft.js';
+import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget} from './bomber-transfer.js?v=buildfit1&afc=1';
 import {WEAPON_MODS,WEAPON_MOD_BY_ID,weaponModAvailable,ordnancePattern,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js';
-import {tacticalChoices,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES} from './tactical-doctrines.js';
+import {tacticalChoices,tacticalFollowupWeight,TACTICAL_FAMILIES,TACTICAL_FAMILY_NAMES} from './tactical-doctrines.js?v=tactics20261023';
 // Augmentation catalog revision 150. Display data mirrors the live 강화정리 sheet;
 // legacy ids stay stable so existing runs and local saves remain compatible.
 export const AUGMENTATION_OVERHAUL_BALANCE=Object.freeze({
@@ -31,6 +33,7 @@ const manualAvailable=g=>{const b=formationManualBonus(g);return b.damage<FORMAT
 export const BUILD_IDENTITIES=Object.freeze({GUN:'GUN',SPEED:'SPEED',EXPLOSIVE:'EXPLOSIVE',FORMATION:'FORMATION',SURVIVAL:'SURVIVAL'});
 export const BUILD_IDENTITY_LIMIT=3;
 const BUILD_IDENTITY_BY_ID=Object.freeze({
+ ...Object.fromEntries([...WWI_EQUIPMENT,...FLIGHT_EQUIPMENT].map(u=>[u.id,u.family])),
  damage:'GUN',rate:'GUN',spread:'GUN',turn:'SPEED',mercedesEngine:'SPEED',rockets:'EXPLOSIVE',mines:'EXPLOSIVE',explosives:'EXPLOSIVE',combinedProjectiles:'EXPLOSIVE',
  command:'FORMATION',wingman:'FORMATION',aceWingman:'FORMATION',bomber:'FORMATION',fighterSupply:'FORMATION',armor:'SURVIVAL',regen:'SURVIVAL',cooldown:'SURVIVAL',
  amatolCharge:'EXPLOSIVE',lufberyCircle:'FORMATION',redScarf:'SPEED',prancingHorse:'SPEED',ironCross:'SURVIVAL',telescope:'GUN',flightGloves:'GUN',sparkPlug:'SURVIVAL',goeringBaton:'FORMATION',
@@ -80,7 +83,8 @@ const SPECIAL=[
  ['bomberTransfer','폭격비행대 전속명령',BOMBER_TRANSFER_DESCRIPTION],
  ['mgTransfer','집중화력 개조령',BUILD_TRANSFER_DESCRIPTIONS.mgTransfer],
  ['airshipTransfer','공중함대 지휘명령',BUILD_TRANSFER_DESCRIPTIONS.airshipTransfer],
- ['aceWingman','에이스 윙맨','무작위 아군 에이스 1명이 윙맨으로 합류합니다. 플레이어 주력 무장의 반대 계열(기관총·로켓)로 엄호하며 기체 성장에 따라 강화됩니다. 화력은 특수장비 1개 수준으로 제한됩니다.']
+ ['aceWingman','에이스 윙맨','무작위 아군 에이스 1명이 윙맨으로 합류합니다. 플레이어 주력 무장의 반대 계열(기관총·로켓)로 엄호하며 기체 성장에 따라 강화됩니다. 화력은 특수장비 1개 수준으로 제한됩니다.'],
+ ...[...WWI_EQUIPMENT,...FLIGHT_EQUIPMENT].map(({id,name,desc})=>[id,name,desc]),
 ];
 
 const tierIndex=rarity=>rarity==='rare'?2:rarity==='magic'?1:0;
@@ -125,9 +129,9 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  Game.prototype.legendaryCount=function(){return LEGENDARIES.reduce((n,u)=>n+(this.upgrades[u.id]?1:0),0)};
  Game.prototype.legendaryChance=function(){return Math.min(.5,Math.max(.05,(this.level||1)*.05))};
  const namedSpecial=(g,u)=>({...u,name:u.id==='ironCross'?(PLANES[g.plane]?.faction==='entente'?'빅토리아 십자훈장 · Victoria Cross':'푸르 르 메리트 · Pour le Mérite'):u.name,legendary:true,rarity:'legendary'});
- const hasExplosiveMeans=g=>g.rockets>0||g.mineCount>0||(g.bomberLevel||0)>0||g.motorCannon||g.cow37||g.bomberTransfer&&!g.bomberTransfer.kind||g.upgrades.rankinShell||g.legendaryMineTrail||['bishop','guynemer'].includes(g.pilot);
- const specialAllowed=function(g,u){return !(AIRFRAME_TRANSFER_IDS.includes(u.id)&&(g.bomberTransfer||AIRFRAME_TRANSFER_IDS.some(id=>g.upgrades[id])))&&!g.upgrades[u.id]&&(u.id!=='rearGunner'||!g.weapon.bidirectional&&!g.rearGunner)&&!(u.id==='cow37'&&(g.upgrades.quadLewis||g.upgrades.maximBelt))&&!(u.id==='quadLewis'&&g.upgrades.cow37)&&!(u.id==='maximBelt'&&g.upgrades.cow37)&&(u.id!=='amatolCharge'||hasExplosiveMeans(g))&&(u.id!=='lufberyCircle'||(g.permanentWingman||0)>=1)};
- const SPECIAL_SYNERGY=Object.freeze({amatolCharge:'EXPLOSIVE',motorCannon:'EXPLOSIVE',lufberyCircle:'FORMATION',goeringBaton:'FORMATION',aceWingman:'FORMATION',redScarf:'SPEED',prancingHorse:'SPEED',sacredCowling:'SPEED',immelmannManual:'SPEED',flightGloves:'GUN',telescope:'GUN',quadLewis:'GUN',maximBelt:'GUN',rearGunner:'GUN',sparkPlug:'SURVIVAL',steelPlate:'SURVIVAL',rankinShell:'SURVIVAL',kaiserFog:'SURVIVAL',fogCompass:'SURVIVAL'});
+ const hasExplosiveMeans=g=>g.rockets>0||g.mineCount>0||(g.bomberLevel||0)>0||g.motorCannon||g.cow37||g.bomberTransfer&&!g.bomberTransfer.kind||g.upgrades.rankinShell||g.legendaryMineTrail||g.upgrades.cooperRack||['bishop','guynemer'].includes(g.pilot);
+ const specialAllowed=function(g,u){if([...WWI_EQUIPMENT,...FLIGHT_EQUIPMENT].some(n=>n.id===u.id)&&!wwiEquipmentAllowed(g,u.id))return false;return !(AIRFRAME_TRANSFER_IDS.includes(u.id)&&(g.bomberTransfer||g.upgrades.strutterAirbrake||AIRFRAME_TRANSFER_IDS.some(id=>g.upgrades[id])))&&!g.upgrades[u.id]&&(u.id!=='rearGunner'||!g.weapon.bidirectional&&!g.rearGunner)&&!(u.id==='cow37'&&(g.upgrades.quadLewis||g.upgrades.maximBelt||g.upgrades.buckinghamBelt||g.upgrades.hytheCamera))&&!(u.id==='quadLewis'&&g.upgrades.cow37)&&!(u.id==='maximBelt'&&g.upgrades.cow37)&&(u.id!=='amatolCharge'||hasExplosiveMeans(g))&&(u.id!=='lufberyCircle'||(g.permanentWingman||0)>=1)};
+ const SPECIAL_SYNERGY=Object.freeze({...Object.fromEntries([...WWI_EQUIPMENT,...FLIGHT_EQUIPMENT].map(u=>[u.id,u.family])),amatolCharge:'EXPLOSIVE',motorCannon:'EXPLOSIVE',lufberyCircle:'FORMATION',goeringBaton:'FORMATION',aceWingman:'FORMATION',redScarf:'SPEED',prancingHorse:'SPEED',sacredCowling:'SPEED',immelmannManual:'SPEED',flightGloves:'GUN',telescope:'GUN',quadLewis:'GUN',maximBelt:'GUN',rearGunner:'GUN',sparkPlug:'SURVIVAL',steelPlate:'SURVIVAL',rankinShell:'SURVIVAL',kaiserFog:'SURVIVAL',fogCompass:'SURVIVAL'});
  const specialSynergyWeight=(g,u)=>{const owned=Object.keys(g.upgrades||{}).filter(id=>g.upgrades[id]),count=identity=>owned.filter(id=>buildIdentityFor(id)===identity).length,identity=SPECIAL_SYNERGY[u.id],n=u.id==='mauserAceKiller'?Math.max(count('GUN'),count('EXPLOSIVE')):identity?count(identity)+(identity==='FORMATION'&&(g.permanentWingman||0)>0?1:0):0;return Math.min(1.6,1+.15*Math.min(3,n))};
  const pickWeightedSpecials=(g,pool)=>{
   if(pool.every(u=>specialSynergyWeight(g,u)===1))return pickSpecialEquipment(g,pool);
@@ -146,7 +150,7 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    (u.id!=='fighterSupply'||!g.upgrades.fighterSupply)&&(u.id!=='mercedesEngine'||!g.upgrades.mercedesEngine)&&(u.id!=='rockets'||g.rockets<5)&&(u.id!=='mines'||g.mineCount<5)&&(u.id!=='bomber'||(g.bomberLevel||0)<5)&&
    (u.id!=='armor'||armorAvailable(g))&&(u.id!=='regen'||(g.regen||0)<DURABILITY_BALANCE.regenCap-1e-9)&&(u.id!=='rate'||!g.cow37&&g.rate>.045+1e-9)&&(u.id!=='cooldown'||g.cooldownMult>.5+1e-9)&&
    (u.id!=='turn'||(g.turnUpgradeBonus||0)<AUGMENT_BALANCE.turnCap-1e-9||(g.speedUpgradeBonus||0)<AUGMENT_BALANCE.speedCap-1e-9)&&
-   (u.id!=='explosives'||g.bomberTransfer&&!g.bomberTransfer.kind||g.rockets||g.mineCount||g.bomberLevel||g.motorCannon||g.cow37||g.upgrades.rankinShell||g.legendaryMineTrail||['bishop','guynemer'].includes(g.pilot))&&
+   (u.id!=='explosives'||g.bomberTransfer&&!g.bomberTransfer.kind||g.rockets||g.mineCount||g.bomberLevel||g.motorCannon||g.cow37||g.upgrades.rankinShell||g.legendaryMineTrail||g.upgrades.cooperRack||['bishop','guynemer'].includes(g.pilot))&&
    (u.id!=='command'||manualAvailable(g)&&(g.permanentWingman||['goering','collishaw','mannock'].includes(g.pilot)));
  };
  const shuffledPick=(g,pool)=>{if(!pool.length)return null;const weights=pool.map(u=>tacticalFollowupWeight(g,u.id,buildIdentityFor(u.id)));let ticket=g.rng()*weights.reduce((a,b)=>a+b,0);for(let i=0;i<pool.length;i++){ticket-=weights[i];if(ticket<0)return pool[i]}return pool[pool.length-1]};
@@ -202,6 +206,8 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
    case 'bomber':this.bomberLevel=Math.min(5,(this.bomberLevel||0)+1);this.bomberTimer=Math.min(this.bomberTimer??2,2);break;
    case 'wingman':this.permanentWingman=Math.min(7,(this.permanentWingman||0)+1);break;
    case 'fighterSupply':{const plane=PLANES[this.plane].faction==='central'?'fokkerd7':'camel';for(const wing of this.combatWorld().allies||[])if(wing.permanent&&(!this.id||wing.ownerId===this.id))wing.plane=plane;break;}
+   case 'strutterAirbrake':case 'wimperisSight':
+   case 'buckinghamBelt':case 'cooperRack':case 'fieryGrapnel':case 'flechettes':case 'veryPistol':case 'hytheCamera':
    case 'amatolCharge':case 'lufberyCircle':case 'urLeica':break;
    case 'mercedesEngine':this.enemyCruiseReference??=this.baseSpeed??this.speed;this.speed*=AUGMENTATION_OVERHAUL_BALANCE.mercedesBaseSpeed;if(this.baseSpeed)this.baseSpeed*=AUGMENTATION_OVERHAUL_BALANCE.mercedesBaseSpeed;this.mercedesOutput160=0;this.mercedesHeading160=this.a;break;
    case 'spread':this.shots=Math.min(5,(this.shots||1)+1);this.freeVolleyShots=(this.freeVolleyShots||0)+1;break;
@@ -251,6 +257,8 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   const world=this.combatWorld(),radius=this.explosionRadius(baseRadius),baseDamage=damage,finalDamage=this.explosionDamage(damage,{secondaryExplosion}),amatol=!!this.upgrades?.amatolCharge;
   if(grenade){world.combatFX??=[];world.combatFX.push({x,y,radius,side:'friendly',grenade:true,amatol,secondaryExplosion,life:secondaryExplosion?.24:.32,maxLife:secondaryExplosion?.24:.32});world.event('explosion','friendly')}else world.combatBlast(x,y,radius,'friendly');
   if(fxSource){const effect=world.combatFX?.at(-1);if(effect)effect.fxSource=fxSource}
+  const charge=this.pilot==='loewenhardt'?0:(this.explosiveBonus||0)>=.6?2:(this.explosiveBonus||0)>=.2?1:0;
+  if(charge){const effect=world.combatFX?.at(-1);if(effect){effect.ordnanceCharge=charge;effect.ownerId=this.id;}}
   if(amatol){const fx=world.combatFX?.at(-1);if(fx){fx.amatol=true;fx.secondaryExplosion=secondaryExplosion;fx.fragmentSecondary=secondaryExplosion}}
   const hit=new Set();if(exclude)hit.add(exclude);
   world.bullets.push({x,y,vx:0,vy:0,life:.15,enemy:false,ownerId:this.id,damage:finalDamage,hit,pierce:true,blast:true,actualExplosion:true,collisionRadius:radius,explosionRadius:radius,explosionDamage:finalDamage,explosionBaseDamage:baseDamage,explosionBaseRadius:baseRadius,secondaryExplosion,fragmentSecondary:secondaryExplosion,grenadeExplosion:grenade,bomberSalvo});
@@ -426,8 +434,8 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  };
  Game.prototype.fireAceWingman=function(wing,dt){
   if(wing.fire>0)return;
-  const world=this.combatWorld?.()||this;let target=null,best=650*650;
-  for(const e of world.enemies||[]){if(!(e.hp>0)||e.dying||e.crashing||e.rivalEscaped||e.combatLayer==='surface'||e.combatLayer!=='air'&&(e.surface||e.stationary||e.missionGround||e.navalVessel))continue;const dx=e.x-wing.x,dy=e.y-wing.y,d=dx*dx+dy*dy;if(d<best){best=d;target=e}}
+  const world=this.combatWorld?.()||this,signaled=wwiWingTarget(this,wing);let target=signaled,best=650*650;
+  if(!signaled)for(const e of world.enemies||[]){if(!(e.hp>0)||e.dying||e.crashing||e.rivalEscaped||e.combatLayer==='surface'||e.combatLayer!=='air'&&(e.surface||e.stationary||e.missionGround||e.navalVessel))continue;const dx=e.x-wing.x,dy=e.y-wing.y,d=dx*dx+dy*dy;if(d<best){best=d;target=e}}
   if(!target){wing.fire=.22;return}
   const aim=Math.atan2(target.y-wing.y,target.x-wing.x),delta=angleDiff(aim,wing.a);
   wing.a+=Math.max(-2.5*dt,Math.min(2.5*dt,delta));

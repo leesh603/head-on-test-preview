@@ -1,10 +1,6 @@
 // Semantic asset keys, not generated replacement graphics. Map to the current
 // main build's pixel atlas. Bodies stay top-down; part offsets are world-aligned.
 import {netContact} from './london-apron369.js?v=tame3&cityart=20261022';
-export const BOSS_ASSET_KEYS=Object.freeze([
-  'paris-gun','lincomparable','sms-stuttgart','hms-zubian','hms-zubian-front','hms-zubian-rear',
-  'zeppelin-l70','hma23','a7v-flak','mark-v-cruiser','livens-flame-projector','minenwerfer-battery','london-apron','drachen-net','gik','ca4','armored-harbor-fortress','fliegerzug','treffas-wagen','mark4-wedge','morser-battery','staaken-rvi','london-searchlight'
-]);
 export function renderStageBossLayer(addon,{drawBody,drawPart,drawHazard,layer='all'}) {
   for(const fn of [drawBody,drawPart,drawHazard])if(typeof fn!=='function')throw new Error('Current pixel renderer adapters required');
   if(layer!=='hazards')for(const b of addon.stages.encounter?.bodies.values()||[]) {

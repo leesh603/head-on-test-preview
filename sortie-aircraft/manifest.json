@@ -6,8 +6,8 @@
       288,
       320
     ],
-    "flightBytes": 39610,
-    "sha256": "644d1b4aeb2f5ea1163f6ae9f7c0cc50778426820c18cae5608f83bc7d055b60",
+    "flightBytes": 38932,
+    "sha256": "bd1c8f4bd660b006109cac59660f870014d3dcc539f16161fb74954bfc8e6a01",
     "pivot": [
       144,
       152
@@ -16,7 +16,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/airframe-families-20261023/masters/spad13.webp"
   },
   "luke_spad": {
     "source": "source-art/pilot-aircraft-recovery/luke_spad.png",
@@ -25,8 +26,8 @@
       288,
       320
     ],
-    "flightBytes": 38902,
-    "sha256": "d0da33fbef09fa4860ba14edb62bc8c1ff21d25eae469023668ce95bd5d6bb78",
+    "flightBytes": 38812,
+    "sha256": "94a725155e5e448f7ff0010467992c5a525e3f898cbc30342d41fc35a7fb1c29",
     "pivot": [
       144,
       152
@@ -35,7 +36,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/airframe-families-20261023/masters/spad13.webp"
   },
   "bishop_nieuport": {
     "source": "source-art/pilot-aircraft-recovery/bishop_nieuport.png",
@@ -44,8 +46,8 @@
       288,
       320
     ],
-    "flightBytes": 32902,
-    "sha256": "91e316902f38b0cf1552feed4e4f6009b7028c92aa9775fb553b19aa79f4445a",
+    "flightBytes": 28394,
+    "sha256": "7151ee37cc836b85bf66f0ad98725ea3b33889adcf5d6bff8450f20d6eb16144",
     "pivot": [
       144,
       152
@@ -54,7 +56,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/airframe-families-20261023/masters/nieuport17.png"
   },
   "bishop_se5a": {
     "source": "source-art/pilot-aircraft-recovery/bishop_se5a.png",
@@ -63,8 +66,8 @@
       288,
       320
     ],
-    "flightBytes": 39818,
-    "sha256": "2ab880a5b562d6b0ac4f7fbe86ef2612e589f438bbb835a61c8883bd71a63f2d",
+    "flightBytes": 32854,
+    "sha256": "1263fa003cfaa4c26d5f5089450c56be0994cfcc86c219a1148636a7357d6335",
     "pivot": [
       144,
       152
@@ -73,7 +76,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/airframe-families-20261023/masters/se5a.png"
   },
   "voss_pfalz": {
     "source": "source-art/pilot-aircraft-recovery/preserved/voss_pfalz.webp",
@@ -102,7 +106,7 @@
       320
     ],
     "flightBytes": 40862,
-    "sha256": "58a3ffc9e3d550b5174ce4418743044fd4758fb7e1a996ced0dc479cc0510c08",
+    "sha256": "9b38b5af2a2a73940d96e408966042a98e87749b0968a173ef51dff5efcbe1fc",
     "pivot": [
       144,
       152
@@ -111,7 +115,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/dr1-family-20261023/master.png"
   },
   "goering_dr1": {
     "source": "source-art/pilot-aircraft-recovery/goering_dr1.png",
@@ -121,7 +126,7 @@
       320
     ],
     "flightBytes": 40030,
-    "sha256": "26eacd5f6a425b9c84d493cab99d1670b23ee3c89a1c1982c9d8d4f4f9cec1e9",
+    "sha256": "1eeda726d1520d73d686445afcfe4a5b4a288d3f3c30f427c2d8bf9f07ef0870",
     "pivot": [
       144,
       152
@@ -130,7 +135,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/dr1-family-20261023/master.png"
   },
   "berthold_d7": {
     "source": "source-art/pilot-aircraft-recovery/berthold_d7.png",
@@ -139,8 +145,8 @@
       288,
       320
     ],
-    "flightBytes": 39458,
-    "sha256": "f75946857d508e5ad0a77f24a9cf9d66f7eb6902c33b940915e92f4bf0c060dc",
+    "flightBytes": 38898,
+    "sha256": "411d52758d35f04eb51eb4f7359c2efdb44d383dbabc19c1040fdf6c80dc3ae5",
     "pivot": [
       144,
       152
@@ -149,7 +155,9 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/airframe-families-20261023/masters/fokker_d7.webp",
+    "authoredRepaint": "source-art/aircraft-repaint-20261024/berthold_d7.png"
   },
   "wolff_f1": {
     "source": "source-art/pilot-aircraft-recovery/preserved/wolff_f1.webp",
@@ -159,7 +167,7 @@
       320
     ],
     "flightBytes": 40772,
-    "sha256": "b588fa4aee2af0be4880f9f2333bd6eb25530bcca8f9302fcdee58b8e3b42879",
+    "sha256": "114e183443d6d1eda0efefac2673a875aa95d088ffaebb6ca19dc587888b4e39",
     "pivot": [
       144,
       152
@@ -168,7 +176,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/dr1-family-20261023/master.png"
   },
   "loewenhardt_albatros": {
     "source": "imagegen: loewenhardt_albatros",
@@ -187,8 +196,8 @@
       288,
       320
     ],
-    "flightBytes": 34518,
-    "sha256": "d74a8a8b4f9c31198c90182118bbaeb33d41fa66d66ba7eb3aa1fbfdf1ce68be",
+    "flightBytes": 27704,
+    "sha256": "08a6dea4c48bb632b7014e401ab22499b7075abbbfd029eee4ac1cb13bf258e4",
     "pivot": [
       144,
       152
@@ -197,7 +206,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/airframe-families-20261023/masters/fokker_d7.webp"
   },
   "lothar_albatros": {
     "source": "source-art/pilot-aircraft-recovery/lothar_albatros.png",
@@ -206,8 +216,8 @@
       288,
       320
     ],
-    "flightBytes": 38622,
-    "sha256": "0aaa16616f4efe4d84eeba46b63dbaeed70588dd9b8feefe73104dd4cab66a63",
+    "flightBytes": 37930,
+    "sha256": "e8852ce33e66977c6f72c458d8e148342f3986324b1e0bce3a02607b2de55fad",
     "pivot": [
       144,
       152
@@ -216,7 +226,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/airframe-families-20261023/masters/albatros_d3.webp"
   },
   "sachsenberg_d7": {
     "source": "source-art/pilot-aircraft-recovery/preserved/sachsenberg_d7.webp",
@@ -225,8 +236,8 @@
       288,
       320
     ],
-    "flightBytes": 41670,
-    "sha256": "ae673f347588b9a83ab8adeced90314c35a2289c17513bdefdeb228816981e44",
+    "flightBytes": 38610,
+    "sha256": "33975731cb8385d16a29b7df2498b18573ff595ea08d888d295e2dca4f363bf0",
     "pivot": [
       144,
       152
@@ -235,7 +246,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/airframe-families-20261023/masters/fokker_d7.webp"
   },
   "collishaw_camel": {
     "source": "source-art/pilot-aircraft-recovery/collishaw_camel.png",
@@ -244,8 +256,8 @@
       288,
       320
     ],
-    "flightBytes": 41688,
-    "sha256": "6d8608bbd375454985f12e64a042e46378b451e86abd1eba14e39bf21234e389",
+    "flightBytes": 48666,
+    "sha256": "5d6c84c9beaee84ee473e1dee33112c64addc89d2d79ff731231100d07bfc951",
     "pivot": [
       144,
       152
@@ -254,7 +266,9 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/airframe-families-20261023/masters/camel.webp",
+    "authoredRepaint": "source-art/aircraft-repaint-20261024/collishaw_camel.png"
   },
   "baracca_spad": {
     "source": "source-art/pilot-aircraft-recovery/baracca_spad.png",
@@ -263,8 +277,8 @@
       288,
       320
     ],
-    "flightBytes": 40578,
-    "sha256": "334a856ec39612eae04ee289d3983096f32aa5a2e210811a6de915e5a7aef1c6",
+    "flightBytes": 38398,
+    "sha256": "e584390851459565ecab2b13563426b5e2ac2c8fdfa5c3e301980bd7d9234a01",
     "pivot": [
       144,
       152
@@ -273,7 +287,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/airframe-families-20261023/masters/spad13.webp"
   },
   "mannock_nieuport": {
     "source": "source-art/pilot-aircraft-recovery/mannock_nieuport.png",
@@ -282,8 +297,8 @@
       288,
       320
     ],
-    "flightBytes": 33188,
-    "sha256": "edb1299aca13a1c85b078a55ef47678d7ce0cbc766c6d7c4e38d519df99d74f7",
+    "flightBytes": 28596,
+    "sha256": "29daea7c373f97b721312b152c5efce04086fb3d92cab9bfe5ce7cf8e9caebd2",
     "pivot": [
       144,
       152
@@ -292,7 +307,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/airframe-families-20261023/masters/nieuport17.png"
   },
   "rickenbacker_n28": {
     "source": "source-art/pilot-aircraft-recovery/rickenbacker_n28.png",
@@ -301,8 +317,8 @@
       288,
       320
     ],
-    "flightBytes": 43168,
-    "sha256": "94baf13ba900f219f9f630d561a3f4742527a6fef911df878a3963cad0fdd559",
+    "flightBytes": 35572,
+    "sha256": "7b8378dda2cf69b2548de60d28fba46f62b09fd8b8ce00a7a0085fd225f6b7de",
     "pivot": [
       144,
       152
@@ -311,7 +327,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/airframe-families-20261023/masters/nieuport28.webp"
   },
   "ball_nieuport": {
     "source": "source-art/pilot-aircraft-recovery/ball_nieuport.png",
@@ -320,8 +337,8 @@
       288,
       320
     ],
-    "flightBytes": 32814,
-    "sha256": "a60a4e7c89603fd36a009470d68c3e7844cfad3caf309a6abbdd44937952cfcc",
+    "flightBytes": 28274,
+    "sha256": "a1aeb6a32d7d7959b2dcc7d93a6851472ef95d48d838c62e53e9b0f64d0a682e",
     "pivot": [
       144,
       152
@@ -330,7 +347,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/airframe-families-20261023/masters/nieuport17.png"
   },
   "barker_re8": {
     "source": "source-art/pilot-aircraft-recovery/barker_re8.png",
@@ -339,8 +357,8 @@
       288,
       320
     ],
-    "flightBytes": 55176,
-    "sha256": "886fab78b2f06905c916785bf664f13a010762ab24bf6d26e83014c8efe1e591",
+    "flightBytes": 47424,
+    "sha256": "512e01ac9ae4a5b79d78b0c6760dcbfdc0af7f8ffb4d4f1c6939e62da269ad82",
     "pivot": [
       144,
       152
@@ -349,7 +367,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/airframe-families-20261023/masters/re8.webp"
   },
   "fonck_caudron": {
     "source": "source-art/pilot-aircraft-recovery/fonck_caudron.png",
@@ -358,8 +377,8 @@
       288,
       320
     ],
-    "flightBytes": 46386,
-    "sha256": "defea8b9145963a2f497ad3dae541b1469aaaeb382b441edfeb8e30f1a46d39f",
+    "flightBytes": 41150,
+    "sha256": "cc48cbb947d8d5d70bc3c3b0ab4c756028ac8d67de86d947c2d921e4d3253e3f",
     "pivot": [
       144,
       152
@@ -368,7 +387,9 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "sharedMaster": "source-art/airframe-families-20261023/masters/caudron_g4.webp",
+    "styleRevision": "fokker-albatros-bombers-20261024"
   },
   "morane_l": {
     "source": "source-art/pilot-aircraft-recovery/morane_l.png",
@@ -377,8 +398,8 @@
       288,
       320
     ],
-    "flightBytes": 51734,
-    "sha256": "10d592a7e2d8c40e1bcf104fa39371b369d210438a8da999555d0e55495f850c",
+    "flightBytes": 54880,
+    "sha256": "8352604a8568ac9cd1b78f0e0a840d3486921666ea453f698c14fd7b7c62384e",
     "pivot": [
       144,
       152
@@ -387,7 +408,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "authoredRepaint": "source-art/aircraft-repaint-20261024/morane_l.png"
   },
   "bristol_scout_c": {
     "source": "source-art/pilot-aircraft-recovery/bristol_scout_c.png",
@@ -434,8 +456,47 @@
       288,
       320
     ],
-    "flightBytes": 60104,
-    "sha256": "7c436c08e83cc227ab7a835d8f35d59989f282bb0f4fa195ba0d6d9bd6b2393c",
+    "flightBytes": 66202,
+    "sha256": "9539c815df3a0efc3bec143ee66893b23b1f04a0f843640d6e0fb34acadf74ac",
+    "pivot": [
+      144,
+      152
+    ],
+    "outlineBaked": true,
+    "hangarSize": [
+      576,
+      640
+    ],
+    "authoredRepaint": "source-art/aircraft-repaint-20261024/voisin_iii.png"
+  },
+  "baron_albatros_d5_redwings": {
+    "source": "source-art/baron-albatros-variants-20261024/baron_albatros_d5_redwings.png",
+    "newArt": true,
+    "flightSize": [
+      288,
+      320
+    ],
+    "flightBytes": 41308,
+    "sha256": "0b7c34e4c3bbef25653bb6c681a13d9a046788ee94a12bcfa70e8a6ad1bed350",
+    "pivot": [
+      144,
+      152
+    ],
+    "outlineBaked": true,
+    "hangarSize": [
+      576,
+      640
+    ]
+  },
+  "baron_albatros_d5_red": {
+    "source": "source-art/baron-albatros-variants-20261024/baron_albatros_d5_red.png",
+    "newArt": true,
+    "flightSize": [
+      288,
+      320
+    ],
+    "flightBytes": 41640,
+    "sha256": "0557809a8443dcf788c1b485b528c7b7d757515c3db61aa0be87dd3fe8af01e6",
     "pivot": [
       144,
       152

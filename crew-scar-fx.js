@@ -1,9 +1,9 @@
-// Physical rear weapon and attached fabric. Reads existing combat state only.
+// Rear-fire flashes and attached fabric. Reads existing combat state only.
 export const CREW_SCAR_PILOTS=new Set(['huffzky','berthold']);
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const visible=p=>p?.hp>0&&p.status!=='downed';
 const art={};
-export const crewScarArtReady=Promise.all(['huffzky-rear-gun','berthold-torn-skin'].map(key=>new Promise(resolve=>{
+export const crewScarArtReady=Promise.all(['berthold-torn-skin'].map(key=>new Promise(resolve=>{
  if(typeof Image==='undefined'){resolve(false);return;}
  const im=new Image();art[key]=im;im.onload=()=>resolve(true);im.onerror=()=>resolve(false);im.src=new URL('./pilot-material-art/'+key+'.webp',import.meta.url).href;
 })));
@@ -33,8 +33,9 @@ export function drawCrewScarLocal(c,p,tex){
  const scale=(p.bomberTransfer?.scale??1)*(p.aceScale129||1);
  c.save();try{
  if(p.pilot==='huffzky'){
-  const pose=rearGunnerPose(p),im=ready('huffzky-rear-gun');if(!pose)return true;
-  if(im){c.save();c.translate(pose.x,pose.y);c.rotate(pose.a+Math.PI/2);const h=27*pose.size,w=h*im.naturalWidth/im.naturalHeight;c.drawImage(im,-w*.30,-pose.reach,w,h);c.restore();}
+  const pose=rearGunnerPose(p);if(!pose)return true;
+  // The rear station is already painted into the airframe. A detached weapon
+  // overlay floats above it as aim changes; show only actual firing feedback.
   if(pose.flash>0)tex(c,'muzzleRear',pose.muzzleX+Math.cos(pose.a)*4,pose.muzzleY+Math.sin(pose.a)*4,p.skillTime>0?22:16,8,pose.a,.92*clamp(pose.flash*2));
   if(p.muzzleFlash>0){const a=(p.gunDirection?.(0)??p.a)-p.a;tex(c,'muzzleTwin',p.bomberTransfer?.front??23,0,18,8,a,.85*clamp(p.muzzleFlash/.05));}
  }else{

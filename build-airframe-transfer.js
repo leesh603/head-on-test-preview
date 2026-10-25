@@ -1,4 +1,4 @@
-import {modGunRounds,modGunDamage,modGunFan,modGunInterval} from './weapon-modifications.js';
+import {modGunRounds,modGunDamage,modGunFan,modGunInterval,modGunOffset} from './weapon-modifications.js';
 // Three mutually exclusive, sortie-only fits. Pilot and chosen aircraft IDs stay intact.
 export const AIRFRAME_TRANSFER_IDS=Object.freeze(['bomberTransfer','mgTransfer','airshipTransfer']);
 export const BUILD_TRANSFER_DESCRIPTIONS=Object.freeze({
@@ -65,7 +65,7 @@ export function tickTransferGuns(p,dt,gunnerAim,gunnerTarget){
   const damage=p.damage*p.normalGunMultiplier()*fit.gunPower*Math.sqrt(shots)/normalCount*modGunDamage(p,normalCount,count);
   const position=transferStationPosition(p,station.front,station.lateral);
   for(let i=0;i<count;i++){
-   const a=station.aim+(i-(count-1)/2)*spread;
+   const a=station.aim+modGunOffset(p,i,count,spread,station);
    // Existing personal round modifiers apply; these remain machine-gun projectiles.
    const b={...position,vx:Math.cos(a)*520,vy:Math.sin(a)*520,life:p.longRange?p.shotLifetime(520):1.2,enemy:false,ownerId:p.id,gun:0,damage,hit:new Set(),transferGun:true,transferStation:index,visualType:'normal'};
    w.bullets.push(p.applySpecialRound(b,null));

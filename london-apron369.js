@@ -1,5 +1,4 @@
-import {drawCityBalloonHull,drawCitySuspension,drawDetailedDrachen,cityPartState} from './city-balloon-art.js?v=20261022';
-import {drawDrachenMine} from './aa-defense-art.js?v=gal1';
+import {drawCityBalloonHull,drawCitySuspension,cityPartState} from './city-balloon-art.js?v=20261022';
 // Registered in the original 768 x 512 illustration. Rendering and collision
 // share this transform: no viewport-space attack sprites or hidden beam walls.
 export const APRON={width:768,height:512,seam:216,bottom:448,centres:[143,384,645],edges:[0,305,464,768]};
@@ -75,7 +74,6 @@ export function drawAttachedApron(c,b,intact,damaged){
  c.restore();return true;
 }
 export function drawDrachenRig(c,b,atlases){
- if(drawDetailedDrachen(c,b,drawDrachenMine))return;
  if(typeof atlases==='function')atlases=atlases();
  if(!atlases.every(im=>im?.naturalWidth))return;
  const s=b.cityArtScale||1;

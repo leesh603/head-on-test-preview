@@ -46,17 +46,6 @@ export function hullOverlap(a,b,pad=10){
 }
 // Push a fleet ship out of any boss hull it entered, then bend its heading
 // away so it keeps sailing instead of cutting straight back through.
-export function separateShipFromBosses(game,e){
- const bodies=game.stageBoss?.stages?.encounter?.bodies;if(!bodies)return;
- const ship={x:e.x,y:e.y,w:e.hullWidth||44,h:e.hullLength||150,yaw:(e.a||0)-Math.PI/2};
- for(const b of bodies.values()){
-  if(b.dead)continue;const br=bossHullRect(b);if(!br)continue;
-  const ov=hullOverlap(br,ship,14);if(!ov)continue;
-  e.x+=ov.x*ov.depth;e.y+=ov.y*ov.depth;ship.x=e.x;ship.y=e.y;
-  const away=Math.atan2(ov.y,ov.x);
-  for(const key of ['course','a']){const d=Math.atan2(Math.sin(away-e[key]),Math.cos(away-e[key]));e[key]+=Math.max(-.06,Math.min(.06,d));}
- }
-}
 
 // Steering changes the live hull transform; bounds constrain the destination,
 // rather than teleporting a ship as the camera follows a moving aircraft.

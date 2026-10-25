@@ -1,5 +1,6 @@
 import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
 import {installPilotFeedback} from './pilot-feedback.js';
+import {wwiWingTarget} from './wwi-equipment.js';
 import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
 import {headOnTarget} from './engagement-feedback.js?v=tame3';
 // Final player-only pilot layer. Installed after every historical engine override.
@@ -13,7 +14,6 @@ const personal=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.actualExplosion
 const commanders=new Set(['boelcke','collishaw','brumowski']);
 const durations={fonck:4,voss:2.4,boelcke:8,udet:.55,goering:5,immelmann:2.8,huffzky:5,berthold:5,jacobs:4,gontermann:5,brumowski:5,collishaw:6,bishop:3,mannock:7.2,mckeever:5,hawker:5,nungesser:3,rickenbacker:4,ball:1.5,barker:6,luke:6};
 export const PILOT_IDENTITY_BALANCE=Object.freeze({durations:Object.freeze(durations),focusCone:.13,focusRange:780,focusTime:1.5,grazeInner:18,grazeOuter:42,grazeStacks:3,grazeDuration:3,delayedFraction:.4,debtSeconds:4,energySeconds:3,turnSeconds:2,switchWindow:2,switchStacks:3,igniteSeconds:3,igniteInterval:.25,chainRadius:110,chainDamage:36,fxCap:24});
-export const pilotOwner=own;
 export const pilotHeadOn=(p,e)=>headOnTarget({...p,hp:1},[e])===e;
 export function installPilotIdentities(Game,PILOTS){
  for(const [id,copy]of Object.entries(PILOT_IDENTITY_COPY)){const p=PILOTS[id];if(!p)continue;const c=copy.ko;Object.assign(p,{passive:c.passive,skill:c.skill,passiveDesc:c.passiveDetail,desc:c.activeDetail});}
@@ -149,7 +149,7 @@ export function installPilotIdentities(Game,PILOTS){
  };
  Game.prototype.updatePilotWing=function(a,dt){
   if(!commanders.has(this.pilot)||a.ownerId!==own(this))return false;
-  const s=this.identityState(),active=this.skillTime>0,targets=this.enemies.filter(alive),slot=a.slot||0;let e=null;
+  const s=this.identityState(),active=this.skillTime>0,targets=this.enemies.filter(alive),slot=a.slot||0,signal=wwiWingTarget(this,a);let e=null;
   if(this.pilot==='goering'){if(!alive(s.commandTarget))s.commandTarget=this.identityTarget();e=active?s.commandTarget:null}
   if(!e&&targets.length){targets.sort((a,b)=>distance(a,this)-distance(b,this));const distributed=this.pilot==='boelcke'||this.pilot==='collishaw';if(distributed){targets.splice(Math.max(1,(this.combatWorld().allies||[]).filter(a=>a.life>0&&a.ownerId===own(this)).length));const side=e=>-(e.x-this.x)*Math.sin(this.a)+(e.y-this.y)*Math.cos(this.a);targets.sort((a,b)=>side(b)-side(a))}e=targets[distributed?slot%targets.length:0]}
   const carrier=this.bomberTransfer?.kind==='airship'&&a.permanent&&!a.boelckePincer&&!a.orbit;if(carrier)e=this.airshipFocusTarget()||e;
@@ -157,6 +157,7 @@ export function installPilotIdentities(Game,PILOTS){
   if(this.pilot==='boelcke'&&e&&(!carrier||active)){const side=slot%2?-1:1,entry=active?Math.max(0,1-(s.activeAge||0)/1.1):0,off=65+entry*100;target={x:e.x-Math.cos(e.a||0)*(active?120:180)-Math.sin(e.a||0)*side*off,y:e.y-Math.sin(e.a||0)*(active?120:180)+Math.cos(e.a||0)*side*off}}
   if(this.pilot==='collishaw'&&(!carrier||active)){const side=slot%2?-1:1,entry=active?Math.min(1,(s.activeAge||0)/.8):0,off=110+entry*110,forward=50+Math.sin(entry*Math.PI)*65;target={x:this.x-Math.sin(this.a)*side*off+Math.cos(this.a)*forward,y:this.y+Math.cos(this.a)*side*off+Math.sin(this.a)*forward}}
   if(this.pilot==='brumowski'&&active){const phase=s.clock*1.5+slot*Math.PI;target={x:this.x+Math.cos(phase)*100,y:this.y+Math.sin(phase)*100};e=targets.find(e=>distance(e,this)<340)||null;}
+  if(signal){e={x:signal.x,y:signal.y,a:signal.target.a||0};target={x:signal.x,y:signal.y};}
   a.life-=dt;a.invuln=Math.max(0,(a.invuln||0)-dt);a.hitFlash=Math.max(0,(a.hitFlash||0)-dt);a.muzzleFlash=Math.max(0,(a.muzzleFlash||0)-dt);advanceWingFlight(a,this,target,dt,{maxSpeed:active?330:250,turnRate:active?2.8:2.2});
   a.fire-=dt;if(e&&distance(e,a)<650&&a.fire<=0){a.fire=.58*(a.permanent&&this.upgrades?.fighterSupply?.9:1)/((1+(this.commandRateBonus||0))*((this.combatWorld().players||[this]).some(p=>p.pilot==='mannock'&&p.hp>0)?1.15:1)*(active?(this.pilot==='goering'?1.6:1.25):1));const rear=Math.abs(delta(Math.atan2(a.y-e.y,a.x-e.x),e.a||0))>Math.PI*.72;const bonus=active&&this.pilot==='goering'?1.65:active&&this.pilot==='boelcke'&&rear?1.5:1;a.muzzleFlash=.09;a.fireHeading=a.a;this.identityShot(a.a,this.supportPower(5)*(this.wingmanDamageMult||1)*bonus*(a.permanent&&this.upgrades?.fighterSupply?1.2:1),{ally:true,speed:470},a)}
   return true;
