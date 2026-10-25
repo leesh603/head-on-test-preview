@@ -1,4 +1,4 @@
-import {ordinaryFighter,fighterShotReady} from './dogfight-pass165.js?v=airbattle4-20261025';
+import {ordinaryFighter,fighterShotReady} from './dogfight-pass165.js?v=gal1&airbattle=20261025';
 // Regional doctrine for ordinary aircraft.  This module only selects among the
 // Battle Director's existing manoeuvres and bends those manoeuvres around live
 // battlefield hazards; it never changes aircraft stats, spawn counts or caps.

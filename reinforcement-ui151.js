@@ -3,7 +3,7 @@
 // Presentation only. Preview uses the existing upgrade implementation on a detached copy.
 import {WWI_EQUIPMENT} from './wwi-equipment.js';
 import {getLocale,upgradeName as i18nUpgradeName} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
-import {AUGMENTATION_OVERHAUL_BALANCE} from './augmentation-overhaul150.js?v=airbattle4-20261025';
+import {AUGMENTATION_OVERHAUL_BALANCE} from './augmentation-overhaul150.js?v=equipment20261022&airbattle=20261025';
 import {WEAPON_MODS,WEAPON_MOD_BY_ID,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js';
 import {tacticalChoices} from './tactical-doctrines.js?v=tactics20261023';
 

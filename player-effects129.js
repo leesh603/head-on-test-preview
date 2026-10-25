@@ -6,7 +6,7 @@ import {fx,fxTint} from './fx-art.js?v=tame3';
 import {planeSprite,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2';
 import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';
 
-import {bishopFlightHeight} from './engine.js?v=airbattle4-20261025';
+import {bishopFlightHeight} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021';
 import {udetRollPose} from './udet-acrobat-fx.js';
 import {bomberEntryPose} from './bomber-transfer.js?v=buildfit1&afc=1';
 import {bombSprite} from './bomb-sprites.js?v=bomb20';
