@@ -11,6 +11,9 @@ const targetInWorld=(world,target)=>(world.enemies||[]).includes(target)||(world
 export const WEAPON_WING_BALANCE=Object.freeze({strikeCycle:6,strikeAttack:2.4,coverCycle:3.6,coverAttack:2.4,launchWindow:.65,guardRange:250,guardLeash:300,scanInterval:.2});
 const commandPilots=new Set(['goering','boelcke','collishaw','brumowski']);
 export function weaponModWingActive(owner,wing){
+ // Added support aircraft divide lanes; existing wings keep their authored
+ // attack duty unless a composite issues an explicit cooperative order.
+ if(owner.weaponMods?.FORMATION==='reinforcement'&&!wing.tacticalReinforcement&&!owner.tacticalWingOrder?.(wing))return false;
  return !!wing.permanent&&!Number.isFinite(wing.carrierLaunchAt)&&['strike','cover','reinforcement','elite','escort'].includes(owner.tacticalWingMode?.()||owner.weaponMods?.FORMATION)&&!owner.upgrades?.lufberyCircle&&!wing.boelckePincer&&!wing.orbit&&!(owner.skillTime>0&&commandPilots.has(owner.pilot));
 }
 const eligibleModTarget=(owner,target,range)=>!!target&&target.hp>0&&target.alive!==false&&!target.expired&&!target.dead&&!target.crashing&&!target.rivalEscaped&&!target.stageBossBody?.dead&&distance(target,owner)<=range;

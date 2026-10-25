@@ -143,3 +143,15 @@ body.astra-ui #modal.tactical-codex-modal .tactical-record-link{position:relativ
 body.astra-ui #modal.tactical-codex-modal .tactical-record-link:after{content:"";position:absolute;right:18px;top:50%;width:8px;height:8px;border:solid #c9a24a;border-width:2px 2px 0 0;transform:translateY(-50%) rotate(45deg)}
 body.astra-ui #modal.tactical-codex-modal .tactical-record-link:disabled{color:#77726a;cursor:default}
 body.astra-ui #modal.tactical-codex-modal .tactical-record-link:disabled:after{border-color:#77726a}
+
+/* A defer action belongs to the choice sheet, outside the fixed comparison cards. */
+body.astra-ui #modal.overlay.tactical-choice-modal:not(.choice-modal151):not(.build-modal151) #modalActions button.tactical-defer{
+ grid-column:1/-1;display:block!important;width:100%;height:44px!important;min-height:44px!important;max-height:44px!important;padding:8px 12px!important;border:1px solid #736345;border-radius:7px;background:#242720;color:#d8ceba;font:inherit;font-size:13px;text-align:center;
+}
+body.astra-ui #modal.overlay.tactical-choice-modal:not(.choice-modal151):not(.build-modal151) #modalActions{grid-auto-rows:auto}
+.tactical-family-progress{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin:0 0 8px}
+.tactical-family-progress span{font-size:11px;line-height:1.4;text-align:center;padding:6px 2px;color:#a39d8f;border-bottom:1px solid #514c3d;white-space:nowrap}
+.tactical-family-progress span.committed{color:#e2c27a;border-color:#c9a24a}
+#toast .tactical-activation-icon{display:inline-block;vertical-align:middle;object-fit:contain;width:24px;height:24px;margin:-3px 7px -3px 0;filter:none}
+#modal.choice-modal151 #modalText{height:38px;max-height:38px;line-height:19px;overflow:hidden}
+@media(max-width:540px){.tactical-family-progress span{font-size:10px}.effect-category151{font-size:10px}}

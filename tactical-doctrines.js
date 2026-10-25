@@ -7,7 +7,7 @@ const EN_COPY={
  gunSuppression:['Sweeping volleys cover the approach from left to right.','Sustained coverage of formations','Lower damage per round'],
  explosiveFocus:['Concentrate explosive weapons and bombing on a narrow target area.','Large or clustered targets','Weaker against scattered enemies'],
  explosiveArea:['Disperse explosive weapons and bombing across enemy approaches.','Cover enemy approaches','Lower single-target concentration'],
- wingReinforcement:['Two additional permanent wingmen engage multiple targets.','Two extra aircraft','Lower individual wingman firepower'],
+ wingReinforcement:['Keep existing wing firepower and add two support aircraft.','Existing wings plus wider coverage','New support aircraft have lower firepower'],
  wingElite:['Wingmen coordinate priority-target passes and regroup.','Coordinated priority attacks','Fewer targets engaged at once'],
  speedStrike:['Attack on a fast straight approach, then leave to prepare another pass.','Entry and egress attacks','Less effective in sustained turns'],
  speedDuel:['Gain an attack opportunity by turning onto a nearby enemy’s tail.','Close rear pursuit','No bonus on straight fly-throughs'],
@@ -31,7 +31,7 @@ export const TACTICAL_DOCTRINES=Object.freeze([
  doctrine('gunSuppression','GUN','suppression','연속 제압 사격','Sustained Suppression','연속 사격으로 접근 경로를 좌우로 훑어 제압합니다.','여러 방향에 지속 화망','개별 탄환 위력 감소',['spread','rate','damage']),
  doctrine('explosiveFocus','EXPLOSIVE','focus','집중 폭격','Concentrated Bombing','폭발물과 폭격을 좁은 표적 구역에 집중합니다.','대형·밀집 목표 집중','넓게 흩어진 적에 불리',['rockets','explosives','combinedProjectiles']),
  doctrine('explosiveArea','EXPLOSIVE','area','광역 차단','Area Denial','폭발물과 폭격을 여러 접근 경로에 분산합니다.','편대와 접근 경로 차단','단일 표적 집중률 감소',['mines','explosives','combinedProjectiles']),
- doctrine('wingReinforcement','FORMATION','reinforcement','편대 증원 전술','Wing Reinforcements','상시 윙맨 2기가 추가로 합류해 여러 표적을 상대합니다.','실제 윙맨 2기 증원','개별 윙맨 화력 감소',['wingman','command','bomber']),
+ doctrine('wingReinforcement','FORMATION','reinforcement','편대 증원 전술','Wing Reinforcements','기존 편대의 화력을 유지하고 지원기 2기가 합류합니다.','기존 편대 유지·다방향 엄호','추가 지원기는 화력이 낮음',['wingman','command','bomber']),
  doctrine('wingElite','FORMATION','elite','정예 편대 전술','Elite Wing','윙맨이 주요 표적에 협동 돌입하고 이탈·재집결합니다.','위협 표적 협동 공격','소수 표적에 전력 집중',['command','fighterSupply','wingman']),
  doctrine('speedStrike','SPEED','strike','일격이탈 전술','Boom and Zoom','고속 직선 진입으로 공격하고 이탈해 다음 공격을 준비합니다.','돌입·이탈 연계','지속 선회전에는 불리',['turn','mercedesEngine','damage']),
  doctrine('speedDuel','SPEED','duel','선회 결투 전술','Turning Duel','근접 선회로 적 후방을 점유할 때 공격 기회를 얻습니다.','근접 후방 추격','직선 돌파에는 효과 없음',['turn','rate','spread']),
@@ -52,6 +52,8 @@ export const COMPOSITE_TACTICS=Object.freeze([
  composite('mutualCover',['FORMATION','SURVIVAL'],'상호 엄호','Mutual Cover','위험에 처하면 윙맨이 가까운 위협을 우선 엄호합니다.','위기 시 근접 보호','공격 표적 집중도 감소')
 ]);
 export const TACTICAL_BY_ID=Object.freeze(Object.fromEntries([...TACTICAL_DOCTRINES,...COMPOSITE_TACTICS].map(x=>[x.id,x])));
+export const TACTICAL_DEFER_ID='deferComposite';
+const growthSignature=p=>TACTICAL_FAMILIES.map(f=>`${f}:${p.weaponModSelections?.[f]||0}:${p.weaponMods?.[f]||''}`).join('|');
 export function tacticalChoices(p){
  if(!p||p.mission?.unarmed)return null;
  const counts=p.weaponModSelections||{},mods=p.weaponMods||{};
@@ -60,10 +62,12 @@ export function tacticalChoices(p){
  if(family)return {kind:'doctrine',family,choices:TACTICAL_DOCTRINES.filter(d=>d.family===family).map(d=>d.id)};
  if(p.compositeTactic)return null;
  const choices=COMPOSITE_TACTICS.filter(({families:[a,b]})=>(!!mods[a]&&(counts[a]||0)>=5&&(counts[b]||0)>=3)||(!!mods[b]&&(counts[b]||0)>=5&&(counts[a]||0)>=3)).map(d=>d.id);
- return choices.length?{kind:'composite',choices}:null;
+ return choices.length&&p.deferredCompositeGrowth!==growthSignature(p)?{kind:'composite',choices}:null;
 }
 export function selectTactical(p,id){
- const offer=tacticalChoices(p);if(!offer?.choices.includes(id))return false;
+ const offer=tacticalChoices(p);
+ if(id===TACTICAL_DEFER_ID){if(offer?.kind!=='composite')return false;p.deferredCompositeGrowth=growthSignature(p);return true;}
+ if(!offer?.choices.includes(id))return false;
  const item=TACTICAL_BY_ID[id];
  if(offer.kind==='composite')p.compositeTactic=id;
  else {p.weaponMods={...p.weaponMods,[item.family]:item.value};

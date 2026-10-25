@@ -4,7 +4,7 @@ import {directorCombatTarget} from './battle-director169.js?v=formations20261022
 import {ordinaryFighter,fighterRoundSpeed,fighterShotReady,fireFighterBurst} from './dogfight-pass165.js?v=gal1';
 import {combatImpactResult} from './combat-impact-result.js';
 import {modGunRounds,modGunDamage,modGunFan,modGunInterval,modGunOffset} from './weapon-modifications.js';
-import {tacticalChoices,selectTactical} from './tactical-doctrines.js?v=tactics20261023';
+import {tacticalChoices,selectTactical,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=tactics20261023';
 import {regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=regionalair20261018';
 import {bomberRoundImpact,bomberContactPadding,detonateFriendlyBomb} from './bomber-transfer.js?v=buildfit1&afc=1';
 import {awardPriorityKill,achievementEnemyDefeated,installAchievementTracking} from './achievements.js?v=medals2';
@@ -115,7 +115,7 @@ export class CoopGame {
   // Complete every earned tactical choice before opening another level-up or
   // resuming the shared world. Each row has a new ID for network acknowledgement.
   const tactical=tacticalChoices(p);p.pendingTacticalChoice=null;
-  if(tactical)this.pendingLevelUps.unshift({...tactical,id:++this.upgradeSequence,playerId:p.id,level:p.level,choices:tactical.choices.map(id=>({id}))});
+  if(tactical)this.pendingLevelUps.unshift({...tactical,id:++this.upgradeSequence,playerId:p.id,level:p.level,choices:[...tactical.choices,...(tactical.kind==='composite'?[TACTICAL_DEFER_ID]:[])].map(id=>({id}))});
   this.openUpgrade();return true;
  }
  cameraBounds(){const z=this.camera.zoom;return {left:this.x+(-this.viewWidth/2+55)/z, right:this.x+(this.viewWidth/2-55)/z,top:this.y+(-this.viewHeight/2+160)/z,bottom:this.y+(this.viewHeight/2-65)/z}}

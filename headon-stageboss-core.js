@@ -163,10 +163,11 @@ export class BossEncounter {
     while(g.i<gates.length){
       const G=gates[g.i]*B;this.gateLine=gates[g.i];
       // Each warned attack made since the previous gate opened pays exactly one gate, and
-      // gates open at least 5 s apart: a normal-pace fight is slower than that and
+      // gates normally open at least 5 s apart. L70's shorter pacing still
+      // waits for a separate warned attack to finish for every phase.
       // never waits, an overwhelming build sees an attack per phase. A boss that
       // starts nothing within 3 s of being hurried (disarmed, hidden) is released.
-      const paidBy=()=>{if(now-g.openAt<5)return {paid:-1,started:false};const from=g.openAt;let started=false;
+      const paidBy=()=>{if(now-g.openAt<(b.kind==='zeppelin-l70'?3.5:5))return {paid:-1,started:false};const from=g.openAt;let started=false;
         for(let k=g.used;k<shown.length;k++){const q=shown[k];if(q.start<from)continue;started=true;if(q.end<=now)return {paid:k,started};}return {paid:-1,started};};
       if(g.at==null){
         if(S>G+this.gateBand()){

@@ -1,7 +1,7 @@
 // Sortie-local tactical consequences. Uses the existing rounds, grenades,
 // escape repair and wing engagement loop; never changes a pilot's skill.
 import {combatImpactResult} from './combat-impact-result.js';
-export const TACTICAL_COMBAT_BALANCE=Object.freeze({reinforcements:2,wingCap:9,reinforcementDamage:.78,passEntry:.45,passWindow:.7,passExit:190,passCooldown:4,counterWindow:3,counterCooldown:8,repairCooldown:12,linkCooldown:4,bombCooldown:6,coverCooldown:7});
+export const TACTICAL_COMBAT_BALANCE=Object.freeze({reinforcements:2,wingCap:9,reinforcementDamage:.55,passEntry:.45,passWindow:.7,passExit:190,passCooldown:4,counterWindow:3,counterCooldown:8,repairCooldown:12,linkCooldown:4,bombCooldown:6,coverCooldown:7});
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const angle=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
@@ -22,10 +22,15 @@ function cue(p,id,target=p,interval=.55){
  for(let i=0;i<list.length;i++)if(list[i].fxProfile==='tactical'){count++;if(oldest<0)oldest=i;}
  if(count>=limit)list.splice(oldest,1);if(list.length>=35)return;s.cues[id]=now+interval;
  list.push({fxProfile:'tactical',tacticalCue:id,x:p.x,y:p.y,a:p.a,targetX:target.x,targetY:target.y,ownerId:p.id||'p1',radius:28,life:.65,maxLife:.65,feedbackId:'tactic:'+(w.combatFeedbackSerial=(w.combatFeedbackSerial||0)+1)});
+ // A single sortie-local notice accompanies the first real action, never acquisition.
+ s.announced??={};if(!s.announced[id]){s.announced[id]=true;p.event?.('tacticalActivation',id);}
 }
 function damage(p,n){return typeof p.payloadPower==='function'?p.payloadPower(n):n;}
 function payload(p,target,{rear=false,base=34}={}){
  const w=world(p);if(!livePlayer(p)||(rear?(w.friendlyBombs?.length||0)>48:(w.bullets?.length||0)>480))return false;
+ // Killing hits can still link into the next live aircraft. Preserve the proc
+ // when no suitable forward target remains instead of firing at the wreck.
+ if(!rear&&!alive(target)){target=nearest(p,650,p,.65);if(!target)return false;}
  const area=p.weaponMods?.EXPLOSIVE==='area',focus=p.weaponMods?.EXPLOSIVE==='focus',count=area?2:1;
  const heading=rear?p.a+Math.PI:Math.atan2(target.y-p.y,target.x-p.x);
  for(let i=0;i<count;i++){const a=heading+(area?(i-.5)*.28:0),power=damage(p,base*(area?.55:focus?1.12:1));
@@ -47,7 +52,7 @@ function burst(p,b,amount=2,style=b.tacticalStyle){
 
 export function installTacticalCombat(Game,{PLANES={}}={}){
  if(Game.prototype.__tacticalCombat)return;Game.prototype.__tacticalCombat=true;
- Game.prototype.tacticalWingDamage=function(wing){return wing?.permanent&&this.weaponMods?.FORMATION==='reinforcement'?TACTICAL_COMBAT_BALANCE.reinforcementDamage:1;};
+ Game.prototype.tacticalWingDamage=function(wing){return wing?.permanent&&!wing.aceWingman&&wing.ownerId===(this.id||'p1')&&this.weaponMods?.FORMATION==='reinforcement'&&wing.slot>=Math.min(7,this.permanentWingman||0)?TACTICAL_COMBAT_BALANCE.reinforcementDamage:1;};
  Game.prototype.tacticalWingMode=function(){return this.weaponMods?.FORMATION||(['crossfire','formationBreakthrough','guidedBombing','mutualCover'].includes(this.compositeTactic)?'escort':null);};
  Game.prototype.tacticalWingOrder=function(wing){
   const s=state(this),now=this.t||0;
@@ -60,6 +65,7 @@ export function installTacticalCombat(Game,{PLANES={}}={}){
   const base=this.permanentWingman||0,reinforced=this.weaponMods?.FORMATION==='reinforcement';
   if(reinforced)this.permanentWingman=Math.min(TACTICAL_COMBAT_BALANCE.wingCap,Math.min(7,base)+2);
   try{ensure?.apply(this,args);}finally{if(reinforced)this.permanentWingman=base;}
+  for(const wing of world(this).allies||[])if(wing.permanent&&!wing.aceWingman&&wing.ownerId===(this.id||'p1'))wing.tacticalReinforcement=!!(reinforced&&wing.slot>=Math.min(7,base));
   if(this.weaponMods?.FORMATION==='elite')for(const wing of world(this).allies||[]){if(!wing.permanent||wing.aceWingman||wing.ownerId!==(this.id||'p1')||wing.tacticalElite)continue;
    // Preserve authored pilot airframes and fighter-supply's existing conversion.
    if(!['goering','collishaw','brumowski','boelcke'].includes(this.pilot)&&!this.upgrades?.fighterSupply){const model=PLANES[this.plane]?.faction==='central'?'fokkerd7':'se5a';if(PLANES[model])wing.plane=model;}
@@ -103,15 +109,18 @@ export function installTacticalCombat(Game,{PLANES={}}={}){
   if(gunTarget)cue(this,this.weaponMods.GUN==='precision'?'gunPrecision':'gunSuppression',gunTarget,.8);
   if(this.weaponMods?.SPEED==='strike'&&entry&&s.passReady){s.passReady=false;s.passOrigin={x:this.x,y:this.y};s.passUntil=now+.7;s.passAt=now+4;cue(this,'speedStrike',entry);}
   if(this.weaponMods?.SPEED==='strike'){
-   if(s.passUntil>now){b.pierce=true;b.tacticalStyle='strike';b.life=Math.min(b.life||1.5,1.5);b.damage*=1.12;}else b.damage*=.94;
+   if(s.passUntil>now){b.pierce=true;b.tacticalStyle='strike';b.life=Math.min(b.life||1.5,1.5);b.damage*=1.25;}
   }
-  if(this.weaponMods?.SPEED==='duel')b.life=Math.min(b.life||1.5,1.2);
+  if(this.weaponMods?.SPEED==='duel'){
+   b.life=Math.min(b.life||1.5,1.2);
+   if(s.turnTime>=.22){const e=nearest(this,250,this,.5);if(e&&Math.abs(angle(Math.atan2(this.y-e.y,this.x-e.x),(e.a||0)+Math.PI))<.85)b.damage*=1.2;}
+  }
   if(this.compositeTactic==='highSpeedIntercept'&&entry&&(!s.interceptOrigin||distance(this,s.interceptOrigin)>=190)&&ready(s,'interceptAt',now,this.weaponMods?.SPEED==='duel'?5:4)){
    s.interceptOrigin={x:this.x,y:this.y};b.pierce=true;b.tacticalStyle='intercept';burst(this,b,this.weaponMods?.GUN==='suppression'?2:1,'intercept');cue(this,'highSpeedIntercept',entry);
   }
   const counter=this.weaponMods?.SURVIVAL==='counter'&&s.counterUntil>now,defense=this.compositeTactic==='defensiveSuppression'&&s.damagedUntil>now;
   if(counter||defense){const e=nearest(this,240,this,.65);if(e){
-   if(counter){s.counterUntil=0;b.pierce=true;b.tacticalStyle='counter';burst(this,b,2,'counter');cue(this,'survivalCounter',e);}
+   if(counter){b.damage*=1.25;b.tacticalStyle='counter';if(s.counterBurstUntil!==s.counterUntil){s.counterBurstUntil=s.counterUntil;b.pierce=true;burst(this,b,2,'counter');cue(this,'survivalCounter',e);}}
    if(defense&&ready(s,'defenseAt',now,8)){burst(this,b,2,'counter');cue(this,'defensiveSuppression',e);let removed=0;for(const hostile of world(this).bullets||[]){if(removed>=2)break;if(hostile.enemy&&hostile.life>0&&!hostile.flak&&!hostile.heavyShell&&distance(hostile,this)<150&&Math.abs(angle(Math.atan2(hostile.y-this.y,hostile.x-this.x),this.a))<.8){hostile.life=0;removed++;}}}
   }}
   return b;
@@ -170,7 +179,11 @@ export function installTacticalCombat(Game,{PLANES={}}={}){
   if(b.ally&&this.compositeTactic==='guidedBombing'&&now>=(s.guidedAt||0)&&payload(this,e,{base:36})){s.guidedAt=now+(this.weaponMods?.FORMATION==='elite'?4.8:6);cue(this,'guidedBombing',e);}
   if(b.ally&&this.compositeTactic==='mutualCover'&&s.damagedUntil>now&&distance(this,e)<280&&ready(s,'coverAt',now,7)){
    // A successful protection pass suppresses this pursuer's next shot briefly.
-   e.fire=Math.max(e.fire||0,this.weaponMods?.FORMATION==='elite'?.65:.45);cue(this,'mutualCover',e);
+   const delay=this.weaponMods?.FORMATION==='elite'?.65:.45;
+   e.fire=Math.max(e.fire||0,delay);
+   // Native elites run separate countdowns for forward, rear and rocket fire.
+   for(const timer of ['fireTimer','rearTimer','rocketTimer'])if(Number.isFinite(e[timer]))e[timer]=Math.max(e[timer],delay);
+   cue(this,'mutualCover',e);
    const threat=world(this).bullets?.find(h=>h.enemy&&h.life>0&&!h.flak&&!h.heavyShell&&distance(h,this)<140);if(threat)threat.life=0;
   }
   return result;

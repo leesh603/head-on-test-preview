@@ -11,7 +11,7 @@ export function modGunRounds(p,count,cap=10){
 export function modGunDamage(p,count,emitted){
  if(p.cow37)return 1;
  // Existing sqrt(shots) normalization is retained by every caller.
- return p.weaponMods?.GUN==='precision'?1.4:p.weaponMods?.GUN==='suppression'?.82:1;
+ return p.weaponMods?.GUN==='precision'?1.55:p.weaponMods?.GUN==='suppression'?.90:1;
 }
 export function modGunFan(p,fan){
  if(p.cow37)return fan;
@@ -30,12 +30,13 @@ export function modGunInterval(p,base,clock=p,count=p.shots||1,cap=10){
  if(p.weaponMods?.GUN==='precision'){
   clock.weaponModBurst=((clock.weaponModBurst||0)+1)%3;
   const short=Math.max(.005,base*.35);
-  return clock.weaponModBurst?short:Math.max(.01,base*4.2-short*2);
+  return clock.weaponModBurst?short:Math.max(.005,base*3.6-short*2);
  }
- // One extra tracer per volley; compensate cadence to retain the original projectile budget.
+ // A modest volley-budget gain rewards a wider approach lane. Scale the
+ // interval with rate upgrades, including high-rate and converted gun mounts.
  if(p.weaponMods?.GUN==='suppression'){
   clock.weaponModSweep=((clock.weaponModSweep??-1)+1)%4;
-  return Math.max(.045,(base+(clock===p?0:.04))*modGunRounds(p,count,cap)/Math.max(1,count));
+  return Math.max(.005,base*.90*modGunRounds(p,count,cap)/Math.max(1,count));
  }
  return base;
 }

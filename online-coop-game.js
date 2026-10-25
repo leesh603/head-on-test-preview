@@ -7,7 +7,7 @@ import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFi
 
 const LANES=['enemies','drops','allies','patrols','mines','friendlyBombers','friendlyBombs','bombZones','flakBursts','hostileMinefields','gasZones','fireZones','grunkreuzPuffs','gusts','grenades','smokeZones','combatFX','revisionDecoys','enemyAirshipPasses'];
 const WORLD=['t','distance','kills','priorityKills','score','state','manualPaused','region','wave','stageStartDistance','stageStartTime','battleDirectorPattern','battleDirector','battlefieldEvents','navalRoute','jutlandRoute','gallipoliRoute','bossBuildings','bossCues','londonBattle','parisBattle','verdunBattle','maanWeather','cityDefense','activeUpgrade','pendingLevelUps','upgradeSequence'];
-const NOTICE=new Set(['aceWingmanArrival','wave','skill','downed','revived','end','kill','bossArrival','bossPhase','bossSound','regionTransition','heinecke','heineckeReturn','bombWarning']);
+const NOTICE=new Set(['tacticalActivation','aceWingmanArrival','wave','skill','downed','revived','end','kill','bossArrival','bossPhase','bossSound','regionTransition','heinecke','heineckeReturn','bombWarning']);
 const ownWithoutPose=entity=>{const data=pack(entity);delete data.x;delete data.y;delete data.a;return data;};
 const cameraTarget=g=>g.player(g.localPlayerId)?.status==='alive'?g.player(g.localPlayerId):g.living()[0]||g.player(g.localPlayerId);
 
