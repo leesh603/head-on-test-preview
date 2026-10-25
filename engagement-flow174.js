@@ -160,13 +160,13 @@ export function wingmanEngagementStep(world,owner,wing,home,dt){
 
 export function wingmanAttackTarget(wing){if(wing.weaponModFormation&&wing.engagementState!=='INTERCEPT'&&wing.engagementState!=='PASS')return null;if(wing.weaponModGuard&&wing._netWeaponWingGuardTarget)return wing._netWeaponWingGuardTarget;if(wing._netCarrierTarget)return wing._netCarrierTarget;return wing.engagementState==='INTERCEPT'||wing.engagementState==='PASS'?wing.engagementTarget:null}
 
-export function patrolEngagementStep(p,target,home,dt){
+export function patrolEngagementStep(p,target,home,dt,aim){
  const S=p.combatPassState||'APPROACH',nowDt=Math.max(0,dt),range=clamp(p.personality?.preferredRange||210,145,310);
  p.combatPassTimer=Math.max(0,(p.combatPassTimer||0)-nowDt);
  let state=S;
  if(!target){state='APPROACH';p.combatPassWaypoint=null}
  else if(state==='APPROACH'){
-  const bearing=Math.atan2(target.y-p.y,target.x-p.x);
+  const bearing=aim??Math.atan2(target.y-p.y,target.x-p.x);
   if(distance(p,target)<range*1.2&&Math.abs(angleDiff(bearing,p.a))<.55){state='ATTACK_PASS';p.combatPassTimer=.45;p.combatPassHeading=bearing}
  }else if(p.combatPassTimer===0){
   if(state==='ATTACK_PASS'){state='COMMIT';p.combatPassTimer=.7}
@@ -179,7 +179,7 @@ export function patrolEngagementStep(p,target,home,dt){
   else if(state==='REENGAGE')state='APPROACH';
  }
  p.combatPassState=state;
- const goal=state==='ATTACK_PASS'||state==='COMMIT'||state==='DISENGAGE'?p.combatPassHeading??p.a:state==='REPOSITION'?Math.atan2((p.combatPassWaypoint||target).y-p.y,(p.combatPassWaypoint||target).x-p.x):Math.atan2((target||home).y-p.y,(target||home).x-p.x);
+ const goal=state==='ATTACK_PASS'&&target?aim??p.combatPassHeading:state==='COMMIT'||state==='DISENGAGE'?p.combatPassHeading??p.a:state==='REPOSITION'?Math.atan2((p.combatPassWaypoint||target).y-p.y,(p.combatPassWaypoint||target).x-p.x):target&&aim!=null?aim:Math.atan2((target||home).y-p.y,(target||home).x-p.x);
  const turn=(p.personalityTurn||2.25)*dt*((state==='COMMIT'||state==='DISENGAGE')?.35:1);
  p.a+=clamp(angleDiff(goal,p.a),-turn,turn);
  return true;

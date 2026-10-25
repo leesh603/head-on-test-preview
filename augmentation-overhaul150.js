@@ -1,5 +1,6 @@
 import {FLIGHT_EQUIPMENT} from './flight-equipment.js';
-import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget} from './wwi-equipment.js';
+import {WWI_EQUIPMENT,wwiEquipmentAllowed,wwiWingTarget,equipmentTargets,isWWIFlyingTarget} from './wwi-equipment.js';
+import {fighterAim} from './dogfight-pass165.js?v=airbattle4-20261025';
 import {AIRFRAME_TRANSFER_IDS,BUILD_TRANSFER_DESCRIPTIONS,pickSpecialEquipment,transferWeight} from './build-airframe-transfer.js?v=buildfit1&afc=1';
 import {PILOT_AIRCRAFT} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 import {BOMBER_TRANSFER_DESCRIPTION,gunnerAim,gunnerTarget} from './bomber-transfer.js?v=buildfit1&afc=1';
@@ -411,8 +412,29 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
   const bomb=Math.max(0,this.explosiveBonus||0)*.2+Math.min(5,this.rockets||0)*.06;
   return Math.min(1.8,Math.max(1,1+gun+bomb+Math.max(0,(this.level||1)-1)*.008));
  };
- Game.prototype.aceWingmanTarget=function(){
+ Game.prototype.aceWingmanTarget=function(wing){
   const side=(this.id==='p2'?-1:1)*100;
+  if(wing){
+   const world=this.combatWorld?.()||this,now=world.t||0,signal=wwiWingTarget(this,wing);
+   const valid=e=>!!e&&e.hp>0&&(isWWIFlyingTarget(e)||e===signal?.target)&&!e.expired&&e.alive!==false&&!e.hidden&&(Math.hypot(e.x-this.x,e.y-this.y)<650||Math.hypot(e.x-wing.x,e.y-wing.y)<350);
+   let target=wing._netAceTarget;
+   if(!valid(target)||signal&&target!==signal.target||now>=(wing.aceScanAt||0)){
+    wing.aceScanAt=now+.16;target=null;let best=Infinity;
+    for(const e of signal?[signal.target]:equipmentTargets(world))if(valid(e)){
+     const distance=Math.hypot(e.x-wing.x,e.y-wing.y),bearing=Math.atan2(e.y-wing.y,e.x-wing.x);
+     const score=distance+Math.abs(angleDiff(bearing,wing.a))*65+Math.hypot(e.x-this.x,e.y-this.y)*.3;
+     if(distance<700&&score<best){best=score;target=e}
+    }
+    wing._netAceTarget=target;
+   }
+   wing._netAceAim=signal&&target===signal.target?{x:signal.x,y:signal.y,a:target.a,speed:target.speed,flightSpeed:target.flightSpeed}:null;
+   // The same nose-led flight controls both pursuit and shooting. Returning to
+   // the formation must not undo a firing turn on the following simulation step.
+   if(target&&Math.hypot(wing.x-this.x,wing.y-this.y)<650){
+    const aim=fighterAim(world,wing,wing._netAceAim||target,this.aceWingmanMode()==='rocket'?510:490,.9);
+    return{x:wing.x+Math.cos(aim)*240,y:wing.y+Math.sin(aim)*240,a:aim};
+   }
+  }
   return{x:this.x-Math.cos(this.a)*85-Math.sin(this.a)*side,y:this.y-Math.sin(this.a)*85+Math.cos(this.a)*side};
  };
  const ordinaryEnsure=Game.prototype.ensureWingmen;
@@ -434,15 +456,15 @@ export function installAugmentationOverhaul(Game,PLANES,PILOTS,UPGRADES,LEGENDAR
  };
  Game.prototype.fireAceWingman=function(wing,dt){
   if(wing.fire>0)return;
-  const world=this.combatWorld?.()||this,signaled=wwiWingTarget(this,wing);let target=signaled,best=650*650;
-  if(!signaled)for(const e of world.enemies||[]){if(!(e.hp>0)||e.dying||e.crashing||e.rivalEscaped||e.combatLayer==='surface'||e.combatLayer!=='air'&&(e.surface||e.stationary||e.missionGround||e.navalVessel))continue;const dx=e.x-wing.x,dy=e.y-wing.y,d=dx*dx+dy*dy;if(d<best){best=d;target=e}}
-  if(!target){wing.fire=.22;return}
-  const aim=Math.atan2(target.y-wing.y,target.x-wing.x),delta=angleDiff(aim,wing.a);
-  wing.a+=Math.max(-2.5*dt,Math.min(2.5*dt,delta));
-  if(Math.abs(angleDiff(aim,wing.a))>.24){wing.fire=.06;return}
-  const rocket=this.aceWingmanMode()==='rocket',power=this.aceWingmanPower(),damage=rocket?Math.min(94,54*power):Math.min(30,16*power),speed=rocket?510:490;
-  wing.fire=rocket?2.25:.54;wing.muzzleFlash=.1;wing.muzzleAngle=aim;
-  (world.bullets??=[]).push({x:wing.x+Math.cos(aim)*23,y:wing.y+Math.sin(aim)*23,vx:Math.cos(aim)*speed,vy:Math.sin(aim)*speed,life:1.5,enemy:false,ownerId:this.id||'p1',ally:true,rocket,upgradeRocket:rocket,explosionBaseRadius:rocket?84:undefined,collisionRadius:rocket?10:undefined,damage,hit:new Set()});
+  const world=this.combatWorld?.()||this;
+  this.aceWingmanTarget(wing);const target=wing._netAceTarget;
+  if(!target||Math.hypot(target.x-wing.x,target.y-wing.y)>650){wing.fire=.08;return}
+  const rocket=this.aceWingmanMode()==='rocket',speed=rocket?510:490,aim=fighterAim(world,wing,wing._netAceAim||target,speed,.9);
+  if(Math.abs(angleDiff(aim,wing.a))>.16){wing.fire=.04;return}
+  const power=this.aceWingmanPower(),damage=rocket?Math.min(58,32*power):Math.min(15,8*power);
+  wing.fire=rocket?1.1:.2;wing.muzzleFlash=.1;wing.muzzleAngle=wing.a;
+  const heading=wing.a;
+  (world.bullets??=[]).push({x:wing.x+Math.cos(heading)*23,y:wing.y+Math.sin(heading)*23,vx:Math.cos(heading)*speed,vy:Math.sin(heading)*speed,life:1.5,enemy:false,ownerId:this.id||'p1',ally:true,rocket,upgradeRocket:rocket,explosionBaseRadius:rocket?84:undefined,collisionRadius:rocket?10:undefined,damage,hit:new Set()});
  };
  for(const [id,p] of Object.entries(PILOTS))if(p?.name&&id==='mccudden')p.augmentationAffinity='sparkPlug';
 }

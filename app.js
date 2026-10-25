@@ -1,3 +1,4 @@
+import {prepareTacticalIcons} from './tactical-icon-assets.js?v=tacticalicons20261025';
 import {selectPilotKeyart} from './pilot-keyart.js?v=pilotkey1';
 import {installFireDiveFx,drawMannockWing} from './fire-dive-fx.js?v=firedive1';
 import {installPressureLinkFx,pressureAirframePose,drawPressureEnemyFront} from './pressure-link-fx.js?v=pressurelink1';
@@ -45,7 +46,7 @@ import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.
 import {installOnlineLobby} from './online-coop-session.js?v=buildfit1&coopfix=1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022';
 import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&harbor=20261021';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=gal1';
-import {drawCoop} from './coop-view.js?v=deathdefiance1&livens=20261019&sig=1019&boss=20261020b&phase=1021&armorart=20261022&gothaart=20261022&adriaticart=20261022&trenchart=20261022&skymechanics=20261022&doverart=1022&motion=20261022&cityart=1022&maanart=20261022&verdunhw=20261022&harborhw=20261022&alpsgun=20261022&harbor=20261021&sommehw=20261023&jutlandgun=20261023&gallipoligun=20261023';
+import {drawCoop} from './coop-view.js?v=airbattle4-20261025';
 import {drawSunStrike} from './sun-strike71.js?v=buildfit1&rail=42&afc=1';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawTracerBolt,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=pilotfx20261018';
 import {installFlightViewport} from './flight-viewport.js?v=gal1';
@@ -75,8 +76,8 @@ import {drawWWIEquipment} from './wwi-equipment-art.js';
 import {drawEquipment} from './equipment.js?v=gal1';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=wwifix20261025';
 import{planeSprite,aircraftReady,aircraftKey,aircraftFlightSource,hangarArtReady,paintedReady}from './aircraft.js?v=outline2&art=pilot-recovery2';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021';
-import {AUGMENTATION_OVERHAUL_BALANCE,buildIdentityFor,BUILD_IDENTITY_LIMIT}from'./augmentation-overhaul150.js?v=equipment20261022';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=airbattle4-20261025';
+import {AUGMENTATION_OVERHAUL_BALANCE,buildIdentityFor,BUILD_IDENTITY_LIMIT}from'./augmentation-overhaul150.js?v=airbattle4-20261025';
 import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,tacticalChoices,selectTactical,tacticalEquipmentFamilies,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=tactics20261023';
 import {drawCloudCover}from'./cloud-cover1.js?v=gal1';
 import {drawFleetLayer}from'./fleet-naval1.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
@@ -425,7 +426,7 @@ function frameInner(now){try{const elapsed=Math.max(0,(now-last)/1000||.016);let
  frameInner(now);const frameCost=performance.now()-__s;__perfFrame(frameCost);if(game?.testMode&&(game.trenchDioramaDemoRunning||game.combatBenchmarkRunning)){const i=trenchPerf.n++%2048;trenchPerf.cost[i]=frameCost;trenchPerf.gap[i]=trenchPerf.last?now-trenchPerf.last:0;trenchPerf.last=now;}
 }roster();syncStartHint();resize();scheduleGameFrame();
 
-function drawSupport(){if(!game)return;let cx=game.x,cy=game.y;const point=(x,y)=>{_ptShare[0]=x-cx+W/2;_ptShare[1]=y-cy+H/2;return _ptShare};for(let a of (game.allies||[])){if(a.carrierHidden||!a.plane||!PLANES[a.plane]&&!a.eventReconEscort)continue;let[x,y]=point(a.x,a.y),allyKey=a.aceWingman?aircraftKey(a.plane,false,a.acePilot):game.pilot==='goering'?'goering_fokkerd7':a.plane==='fokker'?'fokker_standard':a.plane;if(!a.aceWingman&&drawMannockWing(ctx,game,a,x,y,planeSprite,fx,false))continue;ctx.globalAlpha=.95;planeSprite(ctx,x+12,y+20,a.a,allyKey,.78*(a.carrierScale??1),false,true);planeSprite(ctx,x,y,a.a,allyKey,.78*(a.carrierScale??1),false,false,a.hitFlash||0,a.hp!=null&&a.hp<=a.maxHp*.5);if(a.aceWingman&&PILOTS[a.acePilot]){ctx.save();ctx.font='600 10px sans-serif';ctx.textAlign='center';ctx.shadowColor='#000';ctx.shadowBlur=4;ctx.fillStyle='#e4c894';ctx.fillText(PILOTS[a.acePilot].name,x,y-29);ctx.restore()}ctx.globalAlpha=1}}hangarArtReady.then(()=>roster());aircraftReady.then(()=>roster());
+function drawSupport(){if(!game)return;let cx=game.x,cy=game.y;const point=(x,y)=>{_ptShare[0]=x-cx+W/2;_ptShare[1]=y-cy+H/2;return _ptShare};for(let a of (game.allies||[])){if(a.carrierHidden||!a.plane||!PLANES[a.plane]&&!a.eventReconEscort)continue;let[x,y]=point(a.x,a.y),allyKey=a.aceWingman?aircraftKey(a.plane,false,a.acePilot):game.pilot==='goering'?'goering_fokkerd7':a.plane==='fokker'?'fokker_standard':a.plane;if(!a.aceWingman&&drawMannockWing(ctx,game,a,x,y,planeSprite,fx,false))continue;ctx.globalAlpha=.95;planeSprite(ctx,x+12,y+20,a.a,allyKey,(a.aceWingman?1:.78)*(a.carrierScale??1),false,true);planeSprite(ctx,x,y,a.a,allyKey,(a.aceWingman?1:.78)*(a.carrierScale??1),false,false,a.hitFlash||0,a.hp!=null&&a.hp<=a.maxHp*.5);if(a.aceWingman&&PILOTS[a.acePilot]){ctx.save();ctx.font='600 10px sans-serif';ctx.textAlign='center';ctx.shadowColor='#000';ctx.shadowBlur=4;ctx.fillStyle='#e4c894';ctx.fillText(PILOTS[a.acePilot].name,x,y-29);ctx.restore()}ctx.globalAlpha=1}}hangarArtReady.then(()=>roster());aircraftReady.then(()=>roster());
 
 portraitsReady.then(()=>{roster();applyPilotPortrait('cutinPortrait')});
 
@@ -1239,7 +1240,8 @@ const hangarCardsReady=Promise.all(hangarCardKeys.map(hangarArt));
 // Boot priority (boot-gate.js): the pilot on screen first, then the hangar portraits and
 // illustrations (the shown faction before the other), then battle art. The hangar reveals as soon
 // as the pilot on screen is ready, and whichever pilot the player picks jumps the queue.
-const HANGAR_UI=/icons\d*\.webp|controls\d+|gun-atlas|relic-|medal\d*\.webp|hangar-keyart|emblem_bare_|medal_general_|ranking-|equipment-atlas/;
+const tacticalIconAssets=prepareTacticalIcons([...TACTICAL_DOCTRINES,...COMPOSITE_TACTICS]);
+const HANGAR_UI=/icons\d*\.webp|controls\d+|gun-atlas|relic-|medal\d*\.webp|hangar-keyart|emblem_bare_|medal_general_|ranking-|equipment-atlas|tactical-icons\//;
 const bootGate=window.HEADON_GATE,absUrl=u=>new URL(u,document.baseURI).href;
 const artUrls=key=>[hangarArtSource(key),aircraftFlightSource(key)].filter(Boolean).map(absUrl);
 const pilotUrls=(id,airframe=pilotPlane(id))=>[absUrl(portraitSources[id]||`./portrait-${id}.webp`),...artUrls(aircraftKey(airframe,false,id))];
@@ -1264,6 +1266,7 @@ const shownPortraitReady=new Promise(r=>{const i=new Image();i.onload=i.onerror=
 // still lands quickly — but it can no longer hold the splash hostage.
 const visiblePortraitReady=Promise.all(Object.keys(PILOTS).filter(id=>PILOTS[id].faction===faction).map(id=>ensurePortrait(id)));
 const gateDeps={portraits:visiblePortraitReady,figure:hangarArt(shownKey),icons:hangarIconsReady,sprite:paintedReady(shownKey)};
+gateDeps.tactics=tacticalIconAssets.ready;
 gateDeps.keyart=selectPilotKeyart($('hangar'),pilot);
 const hangarReady=Promise.all(Object.values(gateDeps));
 for(const n of Object.keys(gateDeps))gateDeps[n].then(()=>{(window.__gateMarks=window.__gateMarks||{})[n]=Math.round(performance.now()/100)/10},()=>{(window.__gateMarks=window.__gateMarks||{})[n]='err'});
@@ -1535,7 +1538,7 @@ function tacticalCondition(entry,p){
 }
 function tacticalIcon(entry,p,equipment=false){
  if(equipment){const icon=document.createElement('canvas');icon.width=112;icon.height=88;icon.className='tactical-icon';icon.setAttribute('aria-hidden','true');choiceIconRefs.push({canvas:icon,id:entry.id,owner:p});drawUpgradeIcon(icon,entry.id,p);return icon}
- const icon=document.createElement('img');icon.className='tactical-icon';icon.src=entry.icon;icon.alt='';icon.width=112;icon.height=112;icon.decoding='async';return icon;
+ const icon=tacticalIconAssets.image(entry.id);icon.className='tactical-icon';icon.alt='';icon.width=112;icon.height=112;return icon;
 }
 const modalBeforeTactical=modal;
 modal=(...args)=>{document.getElementById('tacticalCodex')?.remove();delete $('modal').dataset.tacticalChoice;$('modal').classList.remove('tactical-choice-modal','tactical-codex-modal');modalBeforeTactical(...args)};

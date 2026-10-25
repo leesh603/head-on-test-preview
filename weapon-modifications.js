@@ -25,7 +25,7 @@ export function modGunOffset(p,index,count,fan,clock=p){
  const lane=[-1,0,1,0][clock.weaponModSweep??0];
  if(count<=1)return centered;
  const core=count-1;
- return index<core?(index-(core-1)/2)*fan/1.65:lane*Math.max(fan,core*fan*.5);
+ return index<core?(index-(core-1)/2)*fan/1.65:lane*core*fan*.5;
 }
 export function modGunInterval(p,base,clock=p,count=p.shots||1,cap=10){
  if(p.cow37)return base;

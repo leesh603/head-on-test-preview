@@ -1,5 +1,5 @@
 import {registerAircraftTiers} from './aircraft-tiers.js?v=gal1&art=pilot-recovery2';
-import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021';
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,UPGRADES,AIRFRAME_PROFILES,configureAirframeBalance,applyEnemyMovementLimits} from './engine.js?v=airbattle4-20261025';
 import {CAMPAIGN_DATA} from './campaign-data.js?v=gal1';
 import {attachAircraftPersonality,personalityFor} from './aircraft-personality164.js?v=gal1';
 

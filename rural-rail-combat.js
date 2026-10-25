@@ -96,7 +96,11 @@ export class RuralRailBoss extends RailAdapter {
    this.emit({...e,type:'rural-aim',target,bossId:this.id});return;
   }
   if(e.type==='fire'){
-   const plan=this.aimPlan||{target:e.target,points:[e.target]};this.blindOrigin={...plan.target};this.aimPlan=null;
+   const blind=this.parts.get('car-middle').destroyed;
+   const plan=this.aimPlan||(this.kind==='lincomparable'
+    ?lincomparableRound(e.target,this.raidPhase,this,{blind})
+    :brunoSalvo(e.target,this.raidPhase,this.rail129.shot,this.frameBounds,{blind}));
+   this.blindOrigin={...plan.target};this.aimPlan=null;
    this.refreshReload();
    this.phaseShots[this.raidPhase||1]=(this.phaseShots[this.raidPhase||1]||0)+1;
    if(this.kind==='lincomparable'){
@@ -184,7 +188,9 @@ export class RuralRailBoss extends RailAdapter {
   }
   super.onPartDestroyed(p);
   if(this.railCarOrder.every(id=>this.parts.get(id).destroyed)){
-   this.aimPlan=null;this.aaPlan=null;this.barrage=null;this.coreVulnerable=true;this.hp=Math.min(this.hp,this.maxHp*.14);
+   // A round already laid by the gun retains its warning and impact timings
+   // when the last car detaches. The controller still fires that same round.
+   this.aaPlan=null;this.barrage=null;this.coreVulnerable=true;this.hp=Math.min(this.hp,this.maxHp*.14);
    this.emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':bruno-salvo'});
    this.emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':520-round'});
    this.emit({type:'phase-change',bossId:this.id,phase:'locomotive-finish'});

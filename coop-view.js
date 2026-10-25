@@ -29,7 +29,7 @@ import {drawEquipment} from './equipment.js?v=gal1';
 import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=pilotfx20261018';
 import {drawBattlefieldSprite} from './battlefield-art.js?v=gal1';
 import {drawSpecialAmmoIcon} from './icons.js?v=buildfit1&afc=1';
-import {TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021';
+import {TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=airbattle4-20261025';
 import {drawCombatFeedback,combatCameraOffset,combatVisualPose,combatMountPoint,drawFlightFlow} from './combat-feedback.js?v=descent20261022&motion=20261022';
 import {drawTacticalCombatCue} from './tactical-combat-view.js?v=combat20261024';
 
@@ -72,7 +72,7 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
   else if(e.bossMinion&&(e.callSign||e.callSignKo)){c.font='600 11px "Arial Narrow",sans-serif';c.textAlign='center';c.textBaseline='middle';const w=Math.ceil(_tw(c,(getLocale()==='en'?(e.callSign||e.callSignKo):(e.callSignKo||e.callSign))))+14;c.fillStyle='rgba(18,13,11,.86)';c.fillRect(Math.round(e.x-w/2),Math.round(e.y-56),w,17);c.strokeStyle='#743d35';c.lineWidth=1;c.strokeRect(Math.round(e.x-w/2)+.5,Math.round(e.y-56)+.5,w-1,16);c.fillStyle='#f0d7a4';c.fillText((getLocale()==='en'?(e.callSign||e.callSignKo):(e.callSignKo||e.callSign)),Math.round(e.x),Math.round(e.y-48))}
  }
  drawCombatFeedback(c,g,(x,y)=>[x,y],{fx,planeSprite});
- for(const a of g.allies){if(a.carrierHidden)continue;const owner=g.player(a.ownerId);if(owner&&!a.aceWingman&&drawMannockWing(c,owner,a,a.x,a.y,planeSprite,fx,false))continue;sprite(a,a.aceWingman?aircraftKey(a.plane,false,a.acePilot):owner?.pilot==='goering'?'goering_fokkerd7':a.plane,.78*(a.carrierScale??1));if(owner?.wingBoost>0&&owner.pilot!=='goering')ring(a.x,a.y,28,'#f5e7ad',2)}
+ for(const a of g.allies){if(a.carrierHidden)continue;const owner=g.player(a.ownerId);if(owner&&!a.aceWingman&&drawMannockWing(c,owner,a,a.x,a.y,planeSprite,fx,false))continue;sprite(a,a.aceWingman?aircraftKey(a.plane,false,a.acePilot):owner?.pilot==='goering'?'goering_fokkerd7':a.plane,(a.aceWingman?1:.78)*(a.carrierScale??1));if(owner?.wingBoost>0&&owner.pilot!=='goering')ring(a.x,a.y,28,'#f5e7ad',2)}
  for(const patrol of g.patrols){if(patrol.crashing){drawAircraftCrash(c,patrol,patrol.x,patrol.y,t,fx);sprite(patrol,patrol.plane,.9*enemyCrashScale(patrol));continue;}if(patrol.hp<=0)continue;sprite(patrol,patrol.plane,.9);c.fillStyle='#83dce9';c.fillRect(patrol.x-16,patrol.y+34,32*patrol.hp/patrol.maxHp,3)}
  for(const p of g.players){for(const wing of p.formationWings||[]){c.globalAlpha=wing.alpha||0;sprite(wing,'collishaw_sopwith');c.globalAlpha=1}for(const wing of p.divingSquadron||[])drawMannockWing(c,p,wing,wing.x,wing.y,planeSprite,fx);
    if(p.pilot==='rickenbacker'&&(p.rickActive||p.skillTime)>0){const ph=t*3.1,ea=.32;c.save();c.globalAlpha=.8;c.strokeStyle='rgba(255,226,140,.85)';c.lineWidth=2;c.beginPath();c.ellipse(p.x,p.y,58,30,ea,0,Math.PI*2);c.stroke();c.globalAlpha=.22;c.lineWidth=1;c.beginPath();c.ellipse(p.x,p.y,58,30,ea,0,Math.PI*2);c.stroke();c.restore()}

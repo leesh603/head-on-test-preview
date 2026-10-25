@@ -35,13 +35,13 @@ export function formationStationSteering(e,leader,slot,dt,baseTurn,angleDiff){
  e.speed+=(target-e.speed)*Math.min(1,Math.max(0,dt)*2.4);
  return{delta:angleDiff(gap>60?Math.atan2(dy,dx):leader.a,e.a),turn:baseTurn};
 }
-export function fighterAim(game,e,contact){
- const dx=contact.x-e.x,dy=contact.y-e.y,speed=fighterRoundSpeed(game);
- const travel=clamp((contact.speed||contact.baseSpeed||0)*(contact.airframeSpeed??1)*(contact.pursuitSpeedFactor??1),0,360);
+export function fighterAim(game,e,contact,speed=fighterRoundSpeed(game),maxLead=.7+.2*fighterPressure(game)){
+ const dx=contact.x-e.x,dy=contact.y-e.y;
+ const travel=clamp((contact.flightSpeed??contact.speed??contact.baseSpeed??0)*(contact.airframeSpeed??1)*(contact.pursuitSpeedFactor??1),0,360);
  const vx=Math.cos(contact.a||0)*travel,vy=Math.sin(contact.a||0)*travel;
  const aa=vx*vx+vy*vy-speed*speed,bb=2*(dx*vx+dy*vy),cc=dx*dx+dy*dy,disc=bb*bb-4*aa*cc;
  let lead=0;if(disc>=0&&aa<-.001)lead=(-bb-Math.sqrt(disc))/(2*aa);
- lead=clamp(lead,0,.7+.2*fighterPressure(game));
+ lead=clamp(lead,0,maxLead);
  return Math.atan2(dy+vy*lead,dx+vx*lead);
 }
 export function fighterShotReady(game,e,contact){
@@ -58,11 +58,13 @@ export function fighterShotReady(game,e,contact){
 export function fireFighterBurst(game,e){
  if(!ordinaryFighter(e))return false;
  const contact=game.enemyCombatTarget(e),pressure=fighterPressure(game),now=game.t||0;
- if(!fighterShotReady(game,e,contact)||(game._fighterBurstAt??-Infinity)>now){e.fire=.1;return true;}
- game._fighterBurstAt=now+.18-.06*pressure;
- e.fire=2.1-.45*pressure;
+ // Separate independent NPC fights from the player's shared threat budget.
+ const npc=(game.patrols||[]).includes(contact),budget=npc?'_npcFighterBurstAt':'_fighterBurstAt';
+ if(!fighterShotReady(game,e,contact)||(game[budget]??-Infinity)>now){e.fire=.06;return true;}
+ game[budget]=now+.18-.06*pressure;
+ e.fire=npc?1.25-.2*pressure:1.8-.35*pressure;
  game.enemyVolley(e);
- e.burstLeft=e.type==='scout'||e.personality?.archetype==='LOW_SPEED_AGILITY'?1:2;
+ e.burstLeft=e.type==='scout'||e.personality?.archetype==='LOW_SPEED_AGILITY'?2:3;
  e.burstDelay=e.personality?.extendBias>1.25?.16:.2;
  return true;
 }
@@ -93,7 +95,7 @@ export function installDogfightPass(Game,angleDiff){
     e.directorIntentUntil=0;e.directorEscort=null;
     setState(e,DOGFIGHT_PASS_STATES.DISENGAGE,2.4);
     e.combatPassHeading=e.a+(e.combatPassSide||1)*.7;
-   }else if(!e.defensivePressure&&!(e.directorBreakUntil>now)&&e.directorLayout!=='recovery'&&!e.directorRole&&!e.directorSquad?.passActive&&this.battleDirector?.sceneId===e.directorSceneId&&['approach','formation','melee'].includes(this.battleDirector.phase)){
+   }else if(!(this.patrols||[]).includes(contact)&&!e.defensivePressure&&!(e.directorBreakUntil>now)&&e.directorLayout!=='recovery'&&!e.directorRole&&!e.directorSquad?.passActive&&this.battleDirector?.sceneId===e.directorSceneId&&['approach','formation','melee'].includes(this.battleDirector.phase)){
     return formationStationSteering(e,leader,{back:e.formationBack,lateral:e.formationOffset},dt,baseTurn,angleDiff);
    }
   }
@@ -117,7 +119,7 @@ export function installDogfightPass(Game,angleDiff){
 
   // A brief shared entry heading makes the formation readable before individual
   // pursuit begins. Defensive reactions always retain their existing priority.
-  if(directed&&e.directorRallyUntil>(this.t||0)&&distance>clamp(p.preferredRange*1.15,180,360))
+  if(directed&&!(this.patrols||[]).includes(contact)&&e.directorRallyUntil>(this.t||0)&&distance>clamp(p.preferredRange*1.15,180,360))
    return{delta:angleDiff(e.directorRallyHeading,e.a),turn:baseTurn*.55};
 
   if(e.combatPassState===DOGFIGHT_PASS_STATES.APPROACH){
@@ -157,6 +159,8 @@ export function installDogfightPass(Game,angleDiff){
    }
   }
 
+  if((this.patrols||[]).includes(contact)&&[DOGFIGHT_PASS_STATES.ATTACK_PASS,DOGFIGHT_PASS_STATES.COMMIT].includes(e.combatPassState))
+   return{delta:angleDiff(fighterAim(this,e,contact),e.a),turn:baseTurn*.85};
   if(e.combatPassState===DOGFIGHT_PASS_STATES.ATTACK_PASS)
    return{delta:angleDiff(directed&&['cross','pincer'].includes(e.directorLayout)&&ordinaryFighter(e)?fighterAim(this,e,contact):e.combatPassHeading??e.a,e.a),turn:baseTurn*.72};
   if(e.combatPassState===DOGFIGHT_PASS_STATES.COMMIT&&directed&&e.directorLayout==='chase'&&p.extendBias<=1.25)
