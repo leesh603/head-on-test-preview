@@ -17,13 +17,15 @@ export function modGunFan(p,fan){
  if(p.cow37)return fan;
  return p.weaponMods?.GUN==='precision'?fan*.23/Math.max(1,((p.shots||1)-1)/4):p.weaponMods?.GUN==='suppression'?fan*1.65:fan;
 }
-// Sweep a compact group left, centre, right, centre inside the old spread cone.
-// The volley count, cadence, ammunition and damage budget remain unchanged.
+// Keep the invested forward volley; the added tracer sweeps the outer lanes.
+// Widening every round left an avoidable hole in the original firing path.
 export function modGunOffset(p,index,count,fan,clock=p){
  const centered=(index-(count-1)/2)*fan;
  if(p.cow37||p.weaponMods?.GUN!=='suppression'||p.pilot==='loewenhardt')return centered;
  const lane=[-1,0,1,0][clock.weaponModSweep??0];
- return centered*.55+lane*(count-1)*fan*.225;
+ if(count<=1)return centered;
+ const core=count-1;
+ return index<core?(index-(core-1)/2)*fan/1.65:lane*Math.max(fan,core*fan*.5);
 }
 export function modGunInterval(p,base,clock=p,count=p.shots||1,cap=10){
  if(p.cow37)return base;
