@@ -1,5 +1,6 @@
+import {bossOrdnanceFamily,bossStrongSound} from './boss-ordnance-loadouts.js';
 import {recordAdriaticGunCue} from './adriatic-gun-art.js?v=20261022';
-import {capBomberSalvoDamage} from './bomber-transfer.js?v=buildfit1&afc=1';
+import {capBomberSalvoDamage} from './bomber-transfer.js?v=buildfit1&afc=1&td4=20261026';
 import {recordCombatImpact} from './combat-impact-result.js';
 import {achievementBossCue,achievementBossClear,awardPriorityKill} from './achievements.js?v=medals2';
 import {doverPatrolChart} from './dover-patrol-chart.js?v=dover3';
@@ -136,7 +137,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
   formationStatus(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&e.hp>0).map(e=>({id:e.id,role:e.formationRole,pairId:e.pairId,x:e.x,y:e.y}));},
   onBuildingImpact(event){const b=g.bossBuildings.find(b=>!b.destroyed&&Math.abs(event.x-b.x)<=b.w/2+8&&Math.abs(event.y-b.y)<=b.h/2);if(!b)return false;b.destroyed=true;g.combatBlast(b.x,b.y,55,'enemy','structure');return true;},
   onCue(event){
-   if(event.type==='formation-shot'){g.bullets.push({x:event.x,y:event.y,vx:Math.cos(event.angle)*event.speed,vy:Math.sin(event.angle)*event.speed,life:2,enemy:true,visualType:'boss',damage:Math.max(event.damage,event.raidHeavy?(g.maxHp||100)*.72:0),encounterId:event.encounterId,formationBoss129:true,sourceBossId:event.bossId});g.event('enemyShot','');return;}
+   if(event.type==='formation-shot'){const ordnanceFamily=bossOrdnanceFamily(g.stageBoss?.stages.encounter?.bossId,event);g.bullets.push({ordnanceFamily,hostileRocket:ordnanceFamily==='rocket',x:event.x,y:event.y,vx:Math.cos(event.angle)*event.speed,vy:Math.sin(event.angle)*event.speed,life:2,enemy:true,visualType:'boss',raidHeavy:!!event.raidHeavy,damage:Math.max(event.damage,event.raidHeavy?(g.maxHp||100)*.72:0),encounterId:event.encounterId,formationBoss129:true,sourceBossId:event.bossId});g.event('bossSound',event.raidHeavy?bossStrongSound(ordnanceFamily,'projectile'):'enemyShot');return;}
    if(event.type==='formation-engaged')g.event('wave','아군 편대 격추 · 정예 편대와 교전');
    if(event.type==='boss-gate-armor'){g.event('wave','장갑 강화 · 공격을 피한 뒤 반격');return;}
    if(event.type==='formation-final-order')g.event('wave',event.name+' · 예고선 밖으로 선회!');
@@ -144,7 +145,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    const body=g.stageBoss?.stages.encounter?.bodies.get(event.bossId);
    recordAdriaticGunCue(body,event);
    achievementBossCue(g,event,body);
-   if(event.type==='hazard-activated'&&event.raidHeavy){g.shake=Math.max(g.shake,event.kind==='projectile'?3:8);if(g.t-(g.raidHeavySoundAt??-10)>.16){g.event('heavyShot','');g.raidHeavySoundAt=g.t;}const mount=body?.parts.get(event.sourcePartId);if(mount)mount.recoil=Math.max(mount.recoil||0,.3);}
+   if(event.type==='hazard-activated'&&event.raidHeavy){g.shake=Math.max(g.shake,event.kind==='projectile'?3:8);if(g.t-(g.raidHeavySoundAt??-10)>.16){if(event.ordnanceFamily!=='rail-shell'&&!bossStrongSound(event.ordnanceFamily,event.kind))g.event('heavyShot','');g.raidHeavySoundAt=g.t;}const mount=body?.parts.get(event.sourcePartId);if(mount)mount.recoil=Math.max(mount.recoil||0,.3);}
    if(handleVerdunCue(g,event))return;
    if(handleMaanCue(g,event,body))return;
    handleLondonCue(g,event);

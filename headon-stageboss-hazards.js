@@ -53,6 +53,8 @@ export class BossHazards {
       muzzleLength:spec.muzzleLength||0,
       innerRadius:spec.innerRadius||0,ringSpeed:spec.ringSpeed||0,ringWidth:spec.ringWidth||0,radiusStart:spec.radiusStart||0,radiusLimit:spec.radiusLimit||0,
       sourceX:spec.sourceX??null,sourceY:spec.sourceY??null,airborneBomb:!!spec.airborneBomb,
+      sprite:spec.sprite??null,releaseAngle:Number.isFinite(spec.releaseAngle)?spec.releaseAngle:Math.PI/2,
+      ordnanceFamily:spec.ordnanceFamily??null,bossKind:spec.bossKind??null,sourcePartKind:spec.sourcePartKind??null,sourcePartArt:spec.sourcePartArt??null,weaponFamily:spec.weaponFamily??null,
       sourcePartId:spec.sourcePartId??null,sourceOffsetX:spec.sourceOffsetX||0,sourceOffsetY:spec.sourceOffsetY||0,sourceAngle:Number.isFinite(spec.sourceAngle)?spec.sourceAngle:null,
       blocks:!!spec.blocks,piercing:!!spec.piercing,visual:spec.visual||spec.kind,tag:spec.tag||null,vertices:spec.vertices||null
     });return h;

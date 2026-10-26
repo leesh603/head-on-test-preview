@@ -62,20 +62,20 @@ function prepareModWing(world,owner,wing,home,now){
  let state=wing.engagementState||'HOME';
  // A killed/removed contact must not waste the rest of an already launched pass.
  // Retarget inside its existing attack window without granting another sortie.
- if(!guard&&attacking&&(state==='INTERCEPT'||state==='PASS')&&!validModTarget(world,owner,wing.engagementTarget,580)&&assignedTarget){
-  wing.engagementTarget=assignedTarget;wing._netCarrierEngagement=assignedTarget;if(state==='PASS')wing.engagementHeading=Math.atan2(assignedTarget.y-wing.y,assignedTarget.x-wing.x);
+ if(!guard&&attacking&&(state==='INTERCEPT'||state==='PASS')&&(!validModTarget(world,owner,wing.engagementTarget,580)||order&&wing.engagementTarget!==assignedTarget)&&assignedTarget){
+  wing.engagementTarget=assignedTarget;wing._netCarrierEngagement=assignedTarget;if(order){state='INTERCEPT';wing.engagementUntil=Math.min(order.until,now+2.4);}else if(state==='PASS')wing.engagementHeading=Math.atan2(assignedTarget.y-wing.y,assignedTarget.x-wing.x);
  }
  if(guard){
   const target=distance(wing,owner)<=WEAPON_WING_BALANCE.guardLeash?(order?.target||plan.guardTarget):null;
   if(target){
-   if(state==='HOME'||state==='RETURN'&&distance(wing,home)<110){state='INTERCEPT';wing.engagementUntil=now+1.2;wing.fire=0;}
+   if(state==='HOME'||order?.guard&&(state==='RETURN'||state==='BREAK')||state==='RETURN'&&distance(wing,home)<110){state='INTERCEPT';wing.engagementUntil=now+(order?.guard?2.4:1.2);wing.fire=0;}
    if(state==='INTERCEPT'||state==='PASS'){wing.engagementTarget=target;wing._netCarrierEngagement=target;wing._netWeaponWingGuardTarget=target;}
   }else{state=distance(wing,home)<80?'HOME':'RETURN';wing.engagementTarget=null;wing._netCarrierEngagement=null;}
  }else if(!attacking){
   if(state==='INTERCEPT'||state==='PASS'){state='BREAK';wing.engagementUntil=now+.65;wing.engagementHeading=wing.a+((wing.slot||0)%2?-.7:.7);}
   wing.engagementTarget=null;wing._netCarrierEngagement=null;
- }else if((order||elapsed<=WEAPON_WING_BALANCE.launchWindow)&&wing._netWeaponWingLaunch!==plan.start&&(state==='HOME'||state==='RETURN'&&distance(wing,home)<110)&&assignedTarget){
-  state='INTERCEPT';wing.engagementTarget=assignedTarget;wing._netCarrierEngagement=assignedTarget;wing.engagementUntil=order?now+1.6:plan.start+(mode==='elite'?2.1:mode==='strike'?WEAPON_WING_BALANCE.strikeAttack:WEAPON_WING_BALANCE.coverAttack);wing._netWeaponWingLaunch=plan.start;wing.fire=mode==='elite'?(wing.slot||0)*.08:0;
+ }else if((order||elapsed<=WEAPON_WING_BALANCE.launchWindow)&&(order?wing._netTacticalCommand!==order.serial:wing._netWeaponWingLaunch!==plan.start)&&(state==='HOME'||state==='RETURN'&&distance(wing,home)<110)&&assignedTarget){
+  state='INTERCEPT';wing.engagementTarget=assignedTarget;wing._netCarrierEngagement=assignedTarget;wing.engagementUntil=order?Math.min(order.until,now+2.4):plan.start+(mode==='elite'?2.1:mode==='strike'?WEAPON_WING_BALANCE.strikeAttack:WEAPON_WING_BALANCE.coverAttack);wing._netWeaponWingLaunch=plan.start;if(order)wing._netTacticalCommand=order.serial;wing.fire=mode==='elite'?(wing.slot||0)*.08:0;
  }
  wing.engagementState=state;
  return true;
@@ -148,8 +148,8 @@ export function wingmanEngagementStep(world,owner,wing,home,dt){
  if(wing.engagementState==='BREAK'&&now>=wing.engagementUntil)wing.engagementState='RETURN';
  if(wing.engagementState==='RETURN'&&distance(wing,home)<80){wing.engagementState='HOME';wing.engagementTarget=null;return mod?modWingHome(wing,owner,home,dt):false}
  if(distance(wing,owner)>500){wing.engagementState='RETURN';wing.engagementTarget=null}
- let tx=target?.x,ty=target?.y;
- if(target&&wing.tacticalCrossfire&&distance(wing,target)>170){const side=(wing.slot||0)%2?-1:1;tx-=Math.sin(owner.a)*side*130;ty+=Math.cos(owner.a)*side*130;}
+ const point=target?owner.tacticalWingAim?.(wing,target)||target:null;let tx=point?.x,ty=point?.y;
+ if(target&&wing.tacticalCrossfire&&wing.engagementState==='INTERCEPT'){const side=(wing.slot||0)%2?-1:1,offset=130*clamp((distance(wing,target)-170)/180,0,1);tx-=Math.sin(owner.a)*side*offset;ty+=Math.cos(owner.a)*side*offset;}
  const goal=wing.engagementState==='INTERCEPT'&&target?Math.atan2(ty-wing.y,tx-wing.x):wing.engagementState==='RETURN'?Math.atan2(home.y-wing.y,home.x-wing.x):wing.engagementHeading??wing.a;
  const turn=clamp((wing.personality?.highSpeedHandling||1)*(wing.engagementState==='RETURN'?2.8:2.25),1.6,3.3)*dt;
  wing.a+=clamp(angleDiff(goal,wing.a),-turn,turn);

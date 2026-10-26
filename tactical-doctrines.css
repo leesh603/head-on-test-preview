@@ -18,7 +18,8 @@ canvas.tactical-icon{object-fit:contain;height:88px;margin:12px 0}
 #modal.tactical-codex-modal #modalActions .settings-return151{width:100%}
 #modal.tactical-codex-modal #modalText{margin-bottom:10px}
 .tactical-codex{min-width:0;margin-top:12px;display:flex;flex-direction:column;max-height:calc(100dvh - 240px)}
-.tactical-categories{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;flex-shrink:0;margin-bottom:12px}
+.tactical-categories{display:flex;overflow-x:auto;scrollbar-width:thin;gap:6px;flex-shrink:0;margin-bottom:12px}
+.tactical-categories button{flex:1 0 auto}
 .tactical-categories button,.tactical-detail-back,.tactical-owner{border:1px solid #675d49;background:#242720;border-radius:4px;color:#d8ceba;font:inherit;font-size:12px;line-height:1.4;padding:9px 5px;cursor:pointer}
 .tactical-categories button[aria-pressed=true]{color:#f0ddaf;border-color:#c4a86c;background:#3b3527}
 .tactical-categories button:focus-visible,.tactical-index-entry:focus-visible,.tactical-detail-back:focus-visible,.tactical-record-link:focus-visible{outline:2px solid #d0b77a;outline-offset:-2px}
@@ -155,3 +156,12 @@ body.astra-ui #modal.overlay.tactical-choice-modal:not(.choice-modal151):not(.bu
 #toast .tactical-activation-icon{display:inline-block;vertical-align:middle;object-fit:contain;width:24px;height:24px;margin:-3px 7px -3px 0;filter:none}
 #modal.choice-modal151 #modalText{height:38px;max-height:38px;line-height:19px;overflow:hidden}
 @media(max-width:540px){.tactical-family-progress span{font-size:10px}.effect-category151{font-size:10px}}
+
+/* Explicit adoption is an action, separate from the detail back link. */
+.tactical-adopt-button{position:sticky;bottom:0;z-index:1;width:100%;margin:14px 0 4px;padding:12px 16px;border:1px solid #c9a24a;border-radius:6px;background:#c9a24a;color:#181710;font:inherit;font-weight:700;cursor:pointer}
+.tactical-adopt-button:focus-visible{outline:2px solid #f0ddaf;outline-offset:2px}
+.tactical-adopt-button:disabled{opacity:.65;cursor:default}
+
+/* Doctrine images share the inventory tile's existing fixed icon area. */
+body.astra-ui.playing #modal #build151 .build-tile151 .tactical-icon{display:block;width:46px;height:36px;max-width:100%;margin:0;object-fit:contain;pointer-events:none}
+html.ui423 body.astra-ui #modal.build-modal151 #build151 h4{font-family:var(--ui-font)!important;font-size:11px!important;line-height:1.3!important;letter-spacing:.06em!important}

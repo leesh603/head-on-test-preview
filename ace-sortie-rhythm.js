@@ -139,13 +139,16 @@ export function installAceSortieRhythm(Game,{PILOTS,PLANES,PILOT_PLANES,stageAce
   // Give each new stage an opening slot before its existing approach cutoff.
   if(this.mode!=='campaign'&&this.stageBoss?.stages?.phase==='explore'&&Number.isFinite(this.stageStartTime)&&state.scheduleStart!==this.stageStartTime&&this.nextBossAt<=this.nextAceWaveAt(this.t)){
    state.scheduleStart=this.stageStartTime;
-   const remaining=this.stageCombatWindow?.remaining;
-   const opening=Number.isFinite(remaining)?Math.min(16,Math.max(6,(remaining-18)/2)):16;
-   this.nextBossAt=Math.min(this.nextBossAt,this.t+opening);
+   // The cached window may still belong to the defeated boss (remaining=0).
+   // Reserve the same opening interval instead of shortening it from stale data.
+   const opening=16;
+   // A reservation overdue from the boss fight belongs to this opening slot,
+   // not the first frame of the new region (which starved its mission).
+   state.openingAt=this.nextBossAt=this.t+opening;
   }
-  if(this.t<this.nextBossAt&&!this.pendingAceCount)return;
+  if(this.t<(state.openingAt||0)||this.t<this.nextBossAt&&!this.pendingAceCount)return;
   const endedAt=Math.max(state.endedAt??-Infinity,this._aceCombatEndedAt??-Infinity);
-  if(state.active.size||this.t<(this.battleRecoveryUntil||0)||this.t-endedAt<ACE_SORTIE_BALANCE.recovery||this.stageCombatWindow?.approaching||this.stageBoss?.stages?.phase==='boss'||this.battlefieldEvents?.current?.status==='active')return;
+  if(state.active.size||this.t<(this.battleRecoveryUntil||0)||this.t-endedAt<ACE_SORTIE_BALANCE.recovery||this.stageCombatWindow?.ready||this.stageBoss?.stages?.phase==='boss'||(this.battlefieldEvents?.current?.status==='active'&&['ACE_CHALLENGE','MOUNTAIN_PURSUIT'].includes(this.battlefieldEvents.current.type)))return;
   this.pendingAceCount=Math.min(ACE_SORTIE_BALANCE.maxAces,this.pendingAceCount||0);
   const result=scheduled.call(this);
   // A bounded encounter is one wave, never a backlog dripped into the next duel.

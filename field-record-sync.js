@@ -1,11 +1,12 @@
+import {RARE_SPECIALIZATIONS,rareSpecializationFor} from './rare-specializations.js';
 // The field record uses the same final registries, artwork and descriptions as sortie selection.
-import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,pilotLoadout,UPGRADES,LEGENDARIES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021';
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,pilotLoadout,UPGRADES,LEGENDARIES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026';
 import {PILOT_AIRCRAFT,PILOT_RENDER_ART} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 import {getAircraftDisplayName,getAircraftMeta,aircraftCategoryLabel} from './aircraft-master.js?v=tame3';
 import {hangarArtSource} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
 import {portraitSources} from './portraits.js?v=crew20261024';
 import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
-import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS} from './tactical-doctrines.js?v=tactics20261023';
+import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 import {getLocale,pilotName,upgradeName,upgradeDescription,subscribe} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 
 const NORMAL_IDS=['damage','rate','rockets','mines','explosives','command','turn','armor','regen','cooldown','wingman'];
@@ -58,12 +59,12 @@ export function syncFieldRecord(data){
  const oldById=new Map();
  for(const [group,ids] of oldRows)for(let i=0;i<data[group].length;i++){const row=data[group][i];oldById.set(row.id||ids[i],row)}
  const description=(u,rarity)=>upgradeDescription(u.id,Game.prototype.upgradeDescription(u.id,rarity));
- const iconFor=id=>oldById.get(id)?.icon|| (NEW_ICONS[id]?'./augmentation-icons/'+NEW_ICONS[id]+'.webp':'');
- const rowFor=(u,group)=>({...oldById.get(u.id),id:u.id,name:upgradeName(u.id,u.name).replace('르네 퐁크','르네 폰크'),desc:description(u,group==='unique'?'unique':'normal'),icon:iconFor(u.id),target:en?(group==='legendary'?'Special Equipment':group==='unique'?'Unique Upgrade':'Standard Upgrade'):(group==='legendary'?'특수장비':group==='unique'?'유니크 강화':'일반 · 매직 · 레어')});
- data.normal=UPGRADES.filter(u=>!u.legendary&&!u.uniqueOnly&&!u.weaponMod||u.id==='wingman').map(u=>{
-  const row=rowFor(u,'normal');row.tiers=Object.fromEntries(['normal','magic','rare'].map(tier=>[tier,description(u,tier)]));return row;
+ const iconFor=id=>oldById.get(id)?.icon||(rareSpecializationFor(id)?'./augmentation-icons/'+rareSpecializationFor(id).icon:'')|| (NEW_ICONS[id]?'./augmentation-icons/'+NEW_ICONS[id]+'.webp':'');
+ const rowFor=(u,group)=>({...oldById.get(u.id),id:u.id,name:upgradeName(u.id,u.name).replace('르네 퐁크','르네 폰크'),desc:description(u,u.rareOnly?'rare':'normal'),icon:iconFor(u.id),target:en?(group==='legendary'?'Special Equipment':u.rareOnly?'Rare-only Upgrade':'Standard Upgrade'):(group==='legendary'?'특수장비':u.rareOnly?'레어 전용 강화':'일반 · 매직 · 레어')});
+ data.normal=UPGRADES.filter(u=>!u.legendary&&!u.specialDoctrine&&!u.weaponMod).map(u=>{
+  const row=rowFor(u,'normal');if(u.rareOnly)delete row.tiers;else row.tiers=Object.fromEntries(['normal','magic','rare'].map(tier=>[tier,description(u,tier)]));return row;
  });
- data.unique=UPGRADES.filter(u=>u.uniqueOnly&&!u.weaponMod&&!u.legendary).map(u=>rowFor(u,'unique'));
+ data.unique=[];
  data.legendary=LEGENDARIES.map(u=>rowFor(u,'legendary'));
  const tacticalText=(item,key)=>en?(item['en'+key[0].toUpperCase()+key.slice(1)]||item[key]):item[key];
  const tacticalRow=(item,combined)=>({id:item.id,name:tacticalText(item,'name'),desc:tacticalText(item,'description'),icon:'./'+item.icon,target:combined?(en?'Combined Tactic':'복합 전술'):(en?'Tactical Doctrine':'전술교리'),family:item.family,families:item.families,advantage:tacticalText(item,'advantage'),weakness:tacticalText(item,'weakness'),condition:combined?(en?'Primary 5 + secondary 3; one per sortie.':'주력 5회 + 다른 계열 3회 · 출격당 하나'):(en?'Five reinforcement selections in this family.':'같은 계열 강화 5회 선택')});
@@ -71,6 +72,7 @@ export function syncFieldRecord(data){
  // Retain the old consumer key while keeping doctrines outside rarity groups.
  data.weaponMods=data.tacticalDoctrines;
  data.compositeTactics=COMPOSITE_TACTICS.map(item=>tacticalRow(item,true));
+ data.specialDoctrines=SPECIAL_DOCTRINES.map(item=>({...tacticalRow(item,false),icon:iconFor(item.id),target:en?'Special Doctrine':'특수교리'}));
  return data;
 }
 

@@ -166,8 +166,8 @@ export class RuralRailBoss extends RailAdapter {
   emit({...target,warning:.02,delay:0,duration:plan.centerDuration,once:true,radius:plan.radius,damage:this.t.damage*2.4,raidHeavy:true,visual:'rail-shell'});
   emit({...target,warning:plan.waveWarning,delay:plan.waveDelay,duration:plan.waveDuration,once:true,radius:plan.wave,radiusStart:plan.start,radiusLimit:plan.wave,ringWidth:42,ringSpeed:(plan.wave-plan.start)/plan.waveDuration,damage:this.t.damage*1.6,raidHeavy:true,visual:'rural-rail-shock'});
   emit({...plan.smoke,warning:plan.smokeWarning,delay:plan.smokeDelay,duration:plan.smokeDuration,once:false,tickInterval:.7,damage:this.t.damage*.22,visual:'rural-rail-smoke'});
-  for(let i=0;i<16;i++){if(i%8===2||i%8===3)continue;const a=(i%8)/8*Math.PI*2+.39+(i>=8?.18:0),speed=155;
-   emit({...target,kind:'projectile',tag:tag+'-shrapnel',vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,radius:6,warning:plan.waveDelay+(i>=8?.48:0),delay:0,duration:2.4,damage:this.t.damage*.3,visual:'rail-shrapnel'});}
+  // The expanding pressure front is the secondary attack. Do not add radial
+  // bullets: hiding their art would leave invisible damage beyond the wave.
   fireRailArtillery(this);
  }
  onPartDestroyed(p){

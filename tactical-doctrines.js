@@ -1,5 +1,7 @@
 // Sortie-local choices; never enter the upgrade or special-equipment pool.
 import {WWI_EQUIPMENT} from './wwi-equipment.js';
+import {SPECIAL_DOCTRINES} from './airframe-doctrines.js';
+export {SPECIAL_DOCTRINES};
 export const TACTICAL_FAMILIES=Object.freeze(['GUN','SPEED','EXPLOSIVE','FORMATION','SURVIVAL']);
 export const TACTICAL_FAMILY_NAMES=Object.freeze({GUN:'기관총',SPEED:'속도',EXPLOSIVE:'폭발물',FORMATION:'편대',SURVIVAL:'생존'});
 const EN_COPY={
@@ -14,14 +16,14 @@ const EN_COPY={
  survivalRepair:['After taking damage, leave nearby enemies to make limited repairs.','Recover after a safe escape','No repairs while engaged'],
  survivalCounter:['After taking damage, face a nearby enemy for a brief counterattack.','Close defensive retaliation','Short window and cooldown'],
  highSpeedIntercept:['Concentrate fire on a fast entry; leave before the next interception.','Flight and fire coordination','Requires another attack pass'],
- fireLink:['Follow gunfire on a target with an ordnance attack.','Ordnance follows your gun target','Link cooldown'],
+ fireLink:['Repeated gun hits trigger a staggered rocket chain that follows surviving contacts.','Ordnance follows your gun target','Link cooldown'],
  crossfire:['Player and wingmen attack from different angles.','Multi-angle pressure','Wingmen must reach position'],
  defensiveSuppression:['After taking damage, suppress a nearby threat.','Close defensive fire','Limited post-hit opportunity'],
- diveBombing:['Deliver ordnance at a forward target during a fast approach.','Entry and bombing coordination','Requires cooldown and re-entry'],
+ diveBombing:['A fast approach hit opens a rocket strike and a staggered bomb spread.','Entry and bombing coordination','Requires cooldown and re-entry'],
  formationBreakthrough:['Wingmen join a fast attack pass, then regroup.','Synchronized wing attack','Reduced nearby cover during the pass'],
- emergencyEscape:['Support maneuvering and recovery when escaping after damage.','Leave danger quickly','Limited while staying engaged'],
- guidedBombing:['Deliver ordnance at a target engaged by your wingmen.','Wing-guided bombing','Wingmen must acquire a target'],
- blockingBombing:['After taking damage, fly clear to drop timed bombs across your rear pursuit path.','Block pursuit','Less useful against enemies ahead'],
+ emergencyEscape:['A safe escape after damage finishes an active reload and restores maneuver readiness.','Leave danger quickly','Limited while staying engaged'],
+ guidedBombing:['Wing hits guide a staggered rocket chain onto the marked target and live weakpoints.','Wing-guided bombing','Wingmen must acquire a target'],
+ blockingBombing:['After damage, fly clear to lay successive timed bombs along your rear pursuit path.','Block pursuit','Less useful against enemies ahead'],
  mutualCover:['Wingmen prioritize nearby threats when you are in danger.','Close emergency cover','Less focus on offensive targets']
 };
 const english=id=>({enDescription:EN_COPY[id][0],enAdvantage:EN_COPY[id][1],enWeakness:EN_COPY[id][2]});
@@ -41,17 +43,26 @@ export const TACTICAL_DOCTRINES=Object.freeze([
 const composite=(id,families,name,enName,description,advantage,weakness)=>Object.freeze({id,families:Object.freeze(families),name,enName,description,...english(id),advantage,weakness,icon:`tactical-icons/${id}.webp`});
 export const COMPOSITE_TACTICS=Object.freeze([
  composite('highSpeedIntercept',['GUN','SPEED'],'고속 요격','High-speed Interception','고속 진입 사격을 집중시키고 이탈 후 다음 요격을 준비합니다.','기동과 사격 연계','이탈·재진입 필요'),
- composite('fireLink',['GUN','EXPLOSIVE'],'화력 연계','Linked Fire','기관총으로 공격한 표적에 폭발물을 연계합니다.','사격 표적에 폭발물 집중','연계 공격 재사용 대기'),
+ composite('fireLink',['GUN','EXPLOSIVE'],'화력 연계','Linked Fire','반복 명중한 표적에 로켓을 연속 발사해 공격을 이어갑니다.','사격 표적에 폭발물 집중','연계 공격 재사용 대기'),
  composite('crossfire',['GUN','FORMATION'],'교차 사격','Crossfire','플레이어와 윙맨이 서로 다른 각도에서 협동 사격합니다.','여러 방향에서 압박','윙맨의 접근 필요'),
  composite('defensiveSuppression',['GUN','SURVIVAL'],'방어 제압','Defensive Suppression','피격 위기에서 가까운 위협에 방어 사격을 연계합니다.','근거리 위협 제압','피격 후 제한된 기회'),
- composite('diveBombing',['SPEED','EXPLOSIVE'],'급강하 폭격','Diving Bombardment','고속 진입 중 전방 표적에 폭발물을 투사합니다.','돌입과 폭격 연계','재진입·재사용 대기 필요'),
+ composite('diveBombing',['SPEED','EXPLOSIVE'],'급강하 폭격','Diving Bombardment','고속 진입 명중 후 로켓과 연속 폭탄으로 돌입 경로를 타격합니다.','돌입과 폭격 연계','재진입·재사용 대기 필요'),
  composite('formationBreakthrough',['SPEED','FORMATION'],'편대 돌파','Formation Breakthrough','고속 진입에 윙맨이 함께 돌입한 뒤 재집결합니다.','편대의 동시 돌입','돌입 중 주변 엄호 감소'),
- composite('emergencyEscape',['SPEED','SURVIVAL'],'긴급 이탈','Emergency Egress','피격 후 적에게서 벗어날 때 기동과 방어 복귀를 지원합니다.','위험 지역에서 빠른 이탈','교전 유지 시 효과 제한'),
- composite('guidedBombing',['EXPLOSIVE','FORMATION'],'폭격 유도','Wing-guided Bombing','윙맨이 교전하는 표적에 폭발물을 연계합니다.','윙맨 표적에 폭격 집중','윙맨의 표적 확보 필요'),
- composite('blockingBombing',['EXPLOSIVE','SURVIVAL'],'차단 폭격','Blocking Bombardment','피격 후 이탈하면 후방 추격 경로에 폭탄을 투하합니다.','후방 추격 차단','전방 공격에는 불리'),
+ composite('emergencyEscape',['SPEED','SURVIVAL'],'긴급 이탈','Emergency Egress','피격 후 안전하게 이탈하면 재장전을 마치고 회피 기동을 회복합니다.','위험 지역에서 빠른 이탈','교전 유지 시 효과 제한'),
+ composite('guidedBombing',['EXPLOSIVE','FORMATION'],'폭격 유도','Wing-guided Bombing','윙맨이 명중한 표적과 약점에 로켓을 연속 유도합니다.','윙맨 표적에 폭격 집중','윙맨의 표적 확보 필요'),
+ composite('blockingBombing',['EXPLOSIVE','SURVIVAL'],'차단 폭격','Blocking Bombardment','피격 후 이탈하면 후방 추격 경로에 시차 폭탄을 연속 투하합니다.','후방 추격 차단','전방 공격에는 불리'),
  composite('mutualCover',['FORMATION','SURVIVAL'],'상호 엄호','Mutual Cover','위험에 처하면 윙맨이 가까운 위협을 우선 엄호합니다.','위기 시 근접 보호','공격 표적 집중도 감소')
 ]);
-export const TACTICAL_BY_ID=Object.freeze(Object.fromEntries([...TACTICAL_DOCTRINES,...COMPOSITE_TACTICS].map(x=>[x.id,x])));
+export function availableTacticalEntries(p){
+ if(!p||p.mission?.unarmed)return [];
+ const counts=p.weaponModSelections||{},mods=p.weaponMods||{};
+ return [
+  ...TACTICAL_DOCTRINES.filter(d=>(counts[d.family]||0)>=5&&!mods[d.family]),
+  ...COMPOSITE_TACTICS.filter(d=>!p.compositeTactic&&d.families.some((a,i)=>!!mods[a]&&(counts[a]||0)>=5&&(counts[d.families[1-i]]||0)>=3)),
+  ...SPECIAL_DOCTRINES.filter(d=>(counts[d.family]||0)>=5&&!p.bomberTransfer&&!p.upgrades?.strutterAirbrake&&!SPECIAL_DOCTRINES.some(d=>p.upgrades?.[d.id]))
+ ];
+}
+export const TACTICAL_BY_ID=Object.freeze(Object.fromEntries([...TACTICAL_DOCTRINES,...COMPOSITE_TACTICS,...SPECIAL_DOCTRINES].map(x=>[x.id,x])));
 export const TACTICAL_DEFER_ID='deferComposite';
 const growthSignature=p=>TACTICAL_FAMILIES.map(f=>`${f}:${p.weaponModSelections?.[f]||0}:${p.weaponMods?.[f]||''}`).join('|');
 export function tacticalChoices(p){
@@ -67,9 +78,10 @@ export function tacticalChoices(p){
 export function selectTactical(p,id){
  const offer=tacticalChoices(p);
  if(id===TACTICAL_DEFER_ID){if(offer?.kind!=='composite')return false;p.deferredCompositeGrowth=growthSignature(p);return true;}
- if(!offer?.choices.includes(id))return false;
+ if(!availableTacticalEntries(p).some(d=>d.id===id))return false;
  const item=TACTICAL_BY_ID[id];
- if(offer.kind==='composite')p.compositeTactic=id;
+ if(item.specialDoctrine){if(!p.acquireAirframeTransfer?.(id))return false;p.upgrades??={};p.upgrades[id]=1;p.upgradeRarities??={};p.upgradeRarities[id]='tactical';}
+ else if(item.families)p.compositeTactic=id;
  else {p.weaponMods={...p.weaponMods,[item.family]:item.value};
   if(item.family==='GUN'){p.weaponModBurst=0;p.weaponModSweep=-1;for(const station of p.bomberTransfer?.stations||[]){station.weaponModBurst=0;station.weaponModSweep=-1;}}
   if(item.family==='FORMATION'&&p.hp>0)p.ensureWingmen?.();

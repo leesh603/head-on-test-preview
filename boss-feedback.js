@@ -1,3 +1,4 @@
+import {bossStrongSound} from './boss-ordnance-loadouts.js';
 // Presentation derived from live boss state. Never changes damage or targeting.
 const pair=(ko,en,locale)=>locale==='en'?en:ko;
 const PHASES={'evade-strike':['강타 예고 · 회피기동!','Heavy salvo · evade!'],'strike-chain':['착탄 사슬 · 회피기동!','Shell chain · evade!'],'strike-walls':['현측 일제사 · 회피기동!','Broadside fences · evade!'],'strike-spiral':['포탑 선회 사격 · 회피기동!','Turret spiral · evade!'],'strike-corridor':['대공 포위망 · 회피기동!','Flak ring · evade!'],'strike-carpet':['융단 폭격 · 회피기동!','Bomb carpet · evade!'],'strike-ring':['포위 탄착 · 회피기동!','Closing barrage · evade!'],'strike-cross':['교차 기총소사 · 회피기동!','Crossing strafe · evade!'],'strike-flame':['화염 장막 · 회피기동!','Flame curtain · evade!'],'l70-gun-reload':['포열 재장전 · 곤돌라 포대를 노리세요','Gun decks reloading · hit the gondola batteries'],'hma23-rearm':['함재 포대 재장전 · 반격 기회','Carrier batteries reloading · counterattack'],
@@ -168,6 +169,7 @@ function bossTacticDetail(encounter,locale='ko'){
 }
 export function bossSoundFor(event,kind=''){
  const type=event.type,visual=event.visual||'';
+ if(type==='hazard-activated'&&event.raidHeavy){const sound=bossStrongSound(event.ordnanceFamily,event.kind);if(sound)return sound;}
  if(type==='gotha-approach')return 'formationPass';
  if(type==='gotha-bay-open')return 'armorOpen';
  if(type==='gotha-final-bombing'||type==='apron-final-blockade')return 'approachWarning';

@@ -1,6 +1,6 @@
 // Trim generated atlas cells by alpha once; preserve the established upgrade illustrations.
 const keys=['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','legacyExtraMagazine','cooldown','control','turn','command','damage','rate','spread','rockets','mines','armor','magnet','repair','regen'];
-export const LEGENDARY_ICON_KEYS=Object.freeze(['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','goeringBaton','immelmannManual','motorCannon','loEmblem','sacredCowling','steelPlate','mauserAceKiller','boelckeDicta','fogCompass','rearGunner','quadLewis','cow37','rankinShell','kaiserFog','grunkreuz','maximBelt','amatolCharge','lufberyCircle','urLeica','badinGauge','heineckeRettungsfallschirm','bomberTransfer','mgTransfer','airshipTransfer','buckinghamBelt','cooperRack','fieryGrapnel','flechettes','veryPistol','hytheCamera','strutterAirbrake','wimperisSight']);
+export const LEGENDARY_ICON_KEYS=Object.freeze(['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','goeringBaton','immelmannManual','motorCannon','loEmblem','sacredCowling','steelPlate','mauserAceKiller','boelckeDicta','fogCompass','rearGunner','quadLewis','cow37','rankinShell','kaiserFog','grunkreuz','maximBelt','amatolCharge','lufberyCircle','urLeica','badinGauge','heineckeRettungsfallschirm','fighterSupply','mercedesEngine','combinedProjectiles','buckinghamBelt','cooperRack','fieryGrapnel','flechettes','veryPistol','hytheCamera','strutterAirbrake','wimperisSight']);
 const frames=new Map();
 function loadIconAtlas(file,columns,rows,names,smooth=false){return new Promise(resolve=>{const atlas=new Image();atlas.onload=()=>{
  const c=document.createElement('canvas');c.width=atlas.naturalWidth;c.height=atlas.naturalHeight;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(atlas,0,0);const d=ctx.getImageData(0,0,c.width,c.height).data;
@@ -14,6 +14,7 @@ function loadDirectIcon(file,key){return new Promise(resolve=>{const icon=new Im
  c.putImageData(pixels,0,0);let l=w,r=0,t=h,b=0;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>0){l=Math.min(l,x);r=Math.max(r,x);t=Math.min(t,y);b=Math.max(b,y)}frames.set(key,{atlas:canvas,x:l,y:t,w:r-l+1,h:b-t+1,smooth:true,direct:true});
  }else frames.set(key,{atlas:icon,x:0,y:0,w:icon.naturalWidth,h:icon.naturalHeight,smooth:true,direct:true});resolve(true)};icon.onerror=()=>resolve(false);icon.src=file})}
 const DIRECT_ICONS=Object.freeze({
+ precisionSynchronizer:'synchronization_gear.webp',directFuse:'le_prieur_rocket_launcher.webp',fragmentationFuse:'grenade_throwing_gear.webp',inertiaRetainer:'laminated_wood_propeller.webp',maneuverSpring:'co_5_17_aero_compass.webp',emergencyPlating:'j_type_armor_capsule.webp',emergencyDope:'mechanics_oil_pump.webp',
  strutterAirbrake:'strutter_airbrake.webp',wimperisSight:'wimperis_sight.webp',
  buckinghamBelt:'buckingham_belt.webp',cooperRack:'cooper_rack.webp',fieryGrapnel:'fiery_grapnel.webp',flechettes:'flechettes.webp',veryPistol:'very_pistol.webp',hytheCamera:'hythe_camera_v2.webp',
  'cooldown-central':'medal_general_central.webp','cooldown-entente':'medal_general_entente.webp',

@@ -1,6 +1,8 @@
+import {bombSprite} from './bomb-sprites.js?v=bomb20';
 import {drawGameIcon} from './icons.js?v=buildfit1&afc=1';
 import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 import {WWI_FRAMES} from './wwi-equipment-art-data.js';
+import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js';
 import {wwiBurnPoint,wwiWingTarget,currentCameraCue,WWI_BALANCE,resolveWWITarget,equipmentTargets} from './wwi-equipment.js';
 import {playerPose,applyPlayerAttitude} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&motion=20261022&cityart=20261022';
 
@@ -10,8 +12,8 @@ const load=(file,set)=>new Promise(resolve=>{
  const image=new Image();image.onload=()=>{set(image);resolve(true);};image.onerror=()=>resolve(false);image.src=new URL(file,import.meta.url).href;
 });
 export const equipmentArtReady=Promise.all([
- load('./wwi-equipment-atlas.webp',im=>atlas=im),load('./bomb-cooper.webp',im=>bomb=im),
- load('./strutter-airbrake-panel.webp',im=>brakePanel=im),load('./wimperis-sight-mount.webp',im=>bombsight=im)
+ load('./wwi-equipment-atlas.webp',im=>atlas=im),load('./bomb-cooper-readable.webp',im=>bomb=im),
+ load('./strutter-airbrake-panel.webp',im=>brakePanel=im),load('./wimperis-sight-mount.webp',im=>bombsight=im),incendiaryArtReady
 ]).then(results=>results.every(Boolean));
 
 function sprite(c,key,x,y,width,angle=0,alpha=1){
@@ -58,7 +60,18 @@ export function drawWWIEquipment(c,world,W,H){
   if(cable?.life>0){
    const e=resolveWWITarget(p,cable.targetId);
    if(e){const body=e.stageBossBody,host=body||e,a=body?.hullYaw??body?.angle??host.a??0,x=host.x+cable.localX*Math.cos(a)-cable.localY*Math.sin(a),y=host.y+cable.localX*Math.sin(a)+cable.localY*Math.cos(a),dx=x-p.x,dy=y-p.y,length=Math.hypot(dx,dy);
-    if(length<=100){const x0=sx(p.x-Math.cos(p.a)*7),y0=sy(p.y-Math.sin(p.a)*7),x1=sx(x),y1=sy(y),alpha=Math.min(1,cable.life*5);c.save();c.globalAlpha*=alpha;c.lineWidth=2*z;c.strokeStyle='#211f1b';c.beginPath();c.moveTo(x0,y0);c.quadraticCurveTo((x0+x1)/2,(y0+y1)/2+4*z,x1,y1);c.stroke();c.lineWidth=.7*z;c.strokeStyle='#a39d86';c.stroke();sprite(c,'grapnelFire',x1,y1,15*z,Math.atan2(dy,dx));c.restore();}
+    const stretch=Math.max(0,Math.min(1,(520-length)/180));
+    if(stretch>0){
+     const x0=sx(p.x-Math.cos(p.a)*7),y0=sy(p.y-Math.sin(p.a)*7),x1=sx(x),y1=sy(y),a=Math.atan2(dy,dx);
+     const fade=Math.min(1,cable.life/.25)*stretch,sag=Math.max(1,8*(1-Math.min(1,length/150)))*z;
+     c.save();c.globalAlpha*=fade;c.lineCap='round';c.lineJoin='round';
+     c.beginPath();c.moveTo(x0,y0);c.quadraticCurveTo((x0+x1)/2-Math.sin(a)*sag,(y0+y1)/2+Math.cos(a)*sag,x1,y1);
+     c.lineWidth=4*z;c.strokeStyle='#211c16';c.stroke();
+     c.lineWidth=2.3*z;c.strokeStyle='#d5c29a';c.stroke();
+     c.lineWidth=.8*z;c.strokeStyle='#fff0c6';c.stroke();
+     sprite(c,'grapnelFire',x1,y1,29*z,a);
+     c.restore();
+    }
    }
   }
   const mark=wwiWingTarget(p),flare=p.wwiVery;
@@ -98,7 +111,8 @@ export function drawWWIEquipment(c,world,W,H){
   if(!(e.hp>0&&e.burnTime>0&&e.burnAnchorSpace)||e.gontermannBurn)continue;
   const point=wwiBurnPoint(e);if(!point||!visible(point.x,point.y))continue;
   const a=e.stageBossBody?.hullYaw??e.stageBossBody?.angle??e.a??0,width=(e.stageBossBody||e.type==='zeppelin'?72:50)*z;
-  sprite(c,Math.floor((e.fuelFxAge||0)*12)%2?'burn1':'burn0',sx(point.x)-Math.cos(a)*width*.35,sy(point.y)-Math.sin(a)*width*.35,width,a,Math.min(1,e.burnTime*4));
+  const direction=Math.hypot(e.vx||0,e.vy||0)>10?Math.atan2(e.vy,e.vx):a;
+  drawIncendiaryFire(c,sx(point.x),sy(point.y),direction+Math.PI,width,e.fuelFxAge||0,Math.min(1,e.burnTime*4));
  }
  for(const b of world.friendlyBombs||[]){
   if(b.wimperisAimed&&b.life>0&&b.life>(b.maxLife||.85)-.16){
@@ -106,14 +120,21 @@ export function drawWWIEquipment(c,world,W,H){
    if(visible(px,py)){c.save();c.globalAlpha=.55;brackets(c,sx(px),sy(py),4*z,'#c9bd91');c.restore();}
   }
   if(!b.cooperBomb||!(b.life>0)||!bomb?.naturalWidth||!visible(b.x,b.y))continue;
-  const width=23*z,height=width*bomb.naturalHeight/bomb.naturalWidth;c.save();c.translate(sx(b.x),sy(b.y));c.rotate(Math.atan2(b.vy,b.vx));c.imageSmoothingEnabled=true;c.drawImage(bomb,-width/2,-height/2,width,height);c.restore();
+  bombSprite(c,'cooper',sx(b.x),sy(b.y),23*z/.7,Math.atan2(b.vy,b.vx));
  }
  for(const b of world.bullets||[]){
   if(!(b.life>0)||!visible(b.x,b.y))continue;
   if(b.wwiIncendiary){sprite(c,'burn0',sx(b.x),sy(b.y),8*z,Math.atan2(b.vy,b.vx),.65);continue;}
   if(!b.flechette&&!b.fieryGrapnel)continue;
   if(b.flechette){c.save();c.globalAlpha*=.5;c.strokeStyle='#d8cfad';c.lineWidth=.8*z;c.beginPath();c.moveTo(sx(b.x),sy(b.y));c.lineTo(sx(b.x-b.vx*.025),sy(b.y-b.vy*.025));c.stroke();c.restore();}
-  sprite(c,b.flechette?'flechetteDart':'grapnelHead',sx(b.x),sy(b.y),(b.flechette?18:15)*z,Math.atan2(b.vy,b.vx));
+  if(b.fieryGrapnel){
+   const p=players.find(p=>(p.id??'p1')===(b.ownerId??'p1'));
+   if(p&&p.hp>0&&p.status!=='downed'){
+    c.save();c.lineCap='round';c.beginPath();c.moveTo(sx(p.x-Math.cos(p.a)*7),sy(p.y-Math.sin(p.a)*7));c.lineTo(sx(b.x),sy(b.y));
+    c.lineWidth=3*z;c.strokeStyle='#211c16';c.stroke();c.lineWidth=1.5*z;c.strokeStyle='#d5c29a';c.stroke();c.restore();
+   }
+  }
+  sprite(c,b.flechette?'flechetteDart':'grapnelHead',sx(b.x),sy(b.y),(b.flechette?24:26)*z,Math.atan2(b.vy,b.vx));
  }
  c.restore();
 }

@@ -1,3 +1,4 @@
+import {RARE_SPECIALIZATIONS} from './rare-specializations.js';
 // Categories: current 강화 and 특수장비(개편) sheets. Blank merged cells inherit the category above.
 // Telescope category follows the user-requested machine-gun-only effect.
 // Presentation only. Preview uses the existing upgrade implementation on a detached copy.
@@ -5,13 +6,13 @@ import {WWI_EQUIPMENT} from './wwi-equipment.js';
 import {getLocale,upgradeName as i18nUpgradeName} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 import {AUGMENTATION_OVERHAUL_BALANCE} from './augmentation-overhaul150.js?v=equipment20261022&airbattle=20261025';
 import {WEAPON_MODS,WEAPON_MOD_BY_ID,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js';
-import {tacticalChoices} from './tactical-doctrines.js?v=tactics20261023';
+import {tacticalChoices} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 
 export const CATEGORIES={"bomberTransfer":"폭탄","mgTransfer":"기관총","airshipTransfer":"편대","damage":"기관총","rate":"기관총","rockets":"로켓","mines":"수류탄","explosives":"폭발 피해","command":"편대","turn":"이동","armor":"내구도","regen":"내구도","cooldown":"액티브","bomber":"공통","wingman":"편대","mercedesEngine":"이동속도","spread":"기관총","combinedProjectiles":"로켓 · 수류탄","redScarf":"이동","prancingHorse":"이동 · 방어력","ironCross":"액티브","telescope":"기관총","flightGloves":"발사 · 투척 주기","amatolCharge":"폭발 피해","lufberyCircle":"편대 · 방어","fighterSupply":"편대","sparkPlug":"내구도","goeringBaton":"편대","immelmannManual":"이동","motorCannon":"특수기","loEmblem":"공통","sacredCowling":"이동","steelPlate":"내구도","mauserAceKiller":"특수기","boelckeDicta":"공통","rearGunner":"특수기","quadLewis":"기관총","cow37":"무기교체","rankinShell":"특수기","kaiserFog":"특수기","fogCompass":"특수기","maximBelt":"기관총"};
-for(const e of WWI_EQUIPMENT)CATEGORIES[e.id]={GUN:'기관총',EXPLOSIVE:'폭탄',FORMATION:'편대'}[e.family];
+for(const e of [...WWI_EQUIPMENT,...RARE_SPECIALIZATIONS])CATEGORIES[e.id]={GUN:'기관총',EXPLOSIVE:'폭탄',FORMATION:'편대',SPEED:'이동',SURVIVAL:'내구도'}[e.family];
 for(const mod of WEAPON_MODS)CATEGORIES[mod.id]={GUN:'기관총',EXPLOSIVE:'로켓 · 수류탄',FORMATION:'편대',SPEED:'이동',SURVIVAL:'내구도'}[mod.family];
 const EN_CATEGORY={기관총:'Machine Gun',로켓:'Rockets',수류탄:'Grenades','폭발 피해':'Explosive Damage',편대:'Formation',이동:'Flight',내구도:'Durability',액티브:'Active',공통:'General',이동속도:'Flight Speed','로켓 · 수류탄':'Rockets · Grenades','이동 · 방어력':'Flight · Defense','발사 · 투척 주기':'Fire · Deployment Cycle','편대 · 방어':'Formation · Defense',특수기:'Special Weapon',무기교체:'Weapon Replacement',탄약:'Ammunition',폭탄:'Bombs',회복:'Repair'};
-const EN_LABEL={피해:'Damage',연사:'Fire Rate',탄띠:'Belt',재장전:'Reload',속도:'Speed',선회:'Turn',개조:'Modification','최대 체력':'Max Durability','초당 최대 체력':'Max Durability / sec','재사용 대기시간':'Cooldown','동시 발사':'Salvo Size','주기당 발사':'Rockets per Cycle','투척 개수':'Grenades per Deployment','투척 주기':'Deployment Cycle','시차 발사':'Release Delay'};
+const EN_LABEL={피해:'Damage',연사:'Fire Rate','발사 간격':'Firing Interval',탄띠:'Belt',재장전:'Reload',속도:'Speed',선회:'Turn',개조:'Modification','최대 체력':'Max Durability','초당 최대 체력':'Max Durability / sec','재사용 대기시간':'Cooldown','동시 발사':'Salvo Size','주기당 발사':'Rockets per Cycle','투척 개수':'Grenades per Deployment','투척 주기':'Deployment Cycle','시차 발사':'Release Delay'};
 const label=value=>getLocale()==='en'?(EN_LABEL[value]||EN_CATEGORY[value]||value):value;
 export function categoryName(id){return label(CATEGORIES[id]||'공통')}
 export function reinforcementName(u,p,planes){if(u.id==='ironCross')return planes[p?.plane]?.faction==='entente'?'Victoria Cross':'Pour le Mérite';return i18nUpgradeName(u.id,u.name)}
@@ -53,13 +54,13 @@ const CHOICE_COPY={
  badinGauge:['지속 이속 강화량의 150%만큼 기관총·폭발물 피해 증가 (최대 +60%).','MG/ordnance damage gains 150% of lasting speed bonuses, up to +60%.'],
  heineckeRettungsfallschirm:['치명 피해 시 예비기로 재출격. 출격당 2회·대기 180초.','Relaunch in a reserve aircraft after lethal damage. Twice per sortie; 180s cooldown.'],
  bomberTransfer:['중폭격기 전환·자동 폭격·후방 사수. 내구도↑, 속도·선회↓. 기동은 방어탄막으로 교체.','Heavy bomber: auto-bombs, rear gunner, more durability, less speed/turn. Defensive barrage replaces maneuver.'],
- mgTransfer:['중무장기 전환·기관총 2정 추가·화망 방어. 속도 −26%, 선회 −38%, 피탄 면적↑.','Gunship: +2 MGs, anti-bullet screen replaces maneuver. Speed −26%, turn −38%, larger target.'],
- airshipTransfer:['비행선 전환·호위기 2기·대공 방어망. 속도 −55%, 선회 −74%, 피탄 면적↑.','Airship: 2 escorts, AA screen replaces maneuver. Speed −55%, turn −74%, larger target.'],
+ mgTransfer:['중무장기 전환·기관총 2정 추가·화망 방어. 내구도 2배·정면 피해 +40%. 속도 −14%, 선회 −22%, 피탄 면적↑.','Gunship: +2 MGs, anti-bullet screen replaces maneuver. Double durability, +40% forward damage. Speed −14%, turn −22%, larger target.'],
+ airshipTransfer:['비행선 전환·호위기 3기·편대 피해 +35%·내구도 4배. 속도 −38%, 선회 −50%, 피탄 면적↑.','Airship: 3 escorts, +35% wing damage, quadruple durability. Speed −38%, turn −50%, larger target.'],
  aceWingman:['아군 에이스 1명 합류. 주력 무장과 반대 계열로 엄호.','One allied ace joins, covering you with the opposite weapon family.'],
- fighterSupply:['상시 편대기 기종 개량. 피해 +20%, 발사 간격 −10%.','Upgrades permanent wingmen. Damage +20%, firing interval −10%.'],
- mercedesEngine:['기본 이동 속도 +15%. 직선 비행 시 최대 +45%, 급선회 시 감소.','Base speed +15%, rising to +45% in straight flight. Hard turns reduce output.'],
+ fighterSupply:['상시 편대기 기종 개량. 피해 +35%, 발사 간격 −20%.','Upgrades permanent wingmen. Damage +35%, firing interval −20%.'],
+ mercedesEngine:['기본 속도 +20%. 직선 1.2초로 최대 +55%, 급선회 시 0.75초에 걸쳐 감소.','Base speed +20%; reaches +55% after 1.2s straight flight. Output decays over 0.75s during hard turns.'],
  spread:['기관총 발사체 +1 (최대 5). 추가 탄약 소모 없음.','MG projectiles +1, up to 5. No extra ammunition cost.'],
- combinedProjectiles:['로켓·수류탄을 0.24초 간격으로 나눠 발사. 총수 유지.','Splits rockets/grenades into two releases 0.24s apart. Same total count.'],
+ combinedProjectiles:['총수 유지·0.24초 시차. 2차 피해 +25%·반경 +10%. 단발 피해 +15%.','Same total, 0.24s delay. Second packet: damage +25%, radius +10%. Single shot: damage +15%.'],
  gunPrecision:['고위력 3연속 점사 후 사격 공백. 단일 표적에 강하고 다방향 대응은 약함.','3 powerful bursts, then a firing gap. Strong vs one target; weak vs scattered enemies.'],
  gunSuppression:['넓은 탄도로 탄환 +1, 개별 위력 감소. 다수 제압에 유리.','Wider spread, +1 round, lower damage per hit. Suppresses groups.'],
  explosiveFocus:['로켓·수류탄 탄착 집중. 밀집 표적에 유리, 광역 대응 감소.','Tighter rocket/grenade patterns. Strong vs clusters; less area coverage.'],
@@ -67,6 +68,7 @@ const CHOICE_COPY={
  wingStrike:['편대 동시 출격 후 복귀. 순간 화력↑, 출격 중 본체 엄호↓.','Wings strike together, then return. More burst damage, less cover during sorties.'],
  wingCover:['두 조가 공격·엄호 교대. 지속 방어↑, 동시 화력↓.','Two groups alternate attack and cover. More protection, less simultaneous fire.']
 };
+for(const u of RARE_SPECIALIZATIONS)CHOICE_COPY[u.id]=[u.desc,u.enDesc];
 export function choiceDescription(id,description){
  const en=getLocale()==='en',copy=CHOICE_COPY[id];if(copy)return copy[en?1:0];
  // Keep live rarity values in ordinary upgrades rather than duplicating balance data.
@@ -94,6 +96,7 @@ export function buildStats(p){
   rockets:[label('로켓'),label('주기당 발사'),Math.min(5,p.rockets||0)+(getLocale()==='en'?' rounds':'발')],
   grenadeCount:[label('수류탄'),label('투척 개수'),Math.min(5,p.mineCount||0)+(getLocale()==='en'?' grenades':'개')],
   mines:[label('수류탄'),label('투척 주기'),p.mineCount?num(grenadeIntervalForDisplay(p))+(getLocale()==='en'?'s':'초'):(getLocale()==='en'?'Not equipped':'미장착')],
+  supplyDamage:[label('편대'),label('피해'),p.upgrades?.fighterSupply?'+35%':'+0%'],supplyInterval:[label('편대'),label('발사 간격'),p.upgrades?.fighterSupply?'−20%':'+0%'],
   staggerDelay:[label('로켓 · 수류탄'),label('시차 발사'),p.upgrades?.combinedProjectiles?ORDNANCE_STAGGER_DELAY+(getLocale()==='en'?'s · same total':'초 · 총량 유지'):(getLocale()==='en'?'Not equipped':'미장착')],
   gunMod:[label('기관총'),label('개조'),modName(p,'GUN')],explosiveMod:[label('로켓 · 수류탄'),label('개조'),modName(p,'EXPLOSIVE')],wingMod:[label('편대'),label('개조'),modName(p,'FORMATION')],speedMod:[label('이동'),label('개조'),modName(p,'SPEED')],survivalMod:[label('내구도'),label('개조'),modName(p,'SURVIVAL')]
  };
@@ -101,7 +104,7 @@ export function buildStats(p){
 const fields={mgTransfer:['speed','turn'],airshipTransfer:['wingCount','command','commandRate','speed','turn'],bomberTransfer:['armor','speed','turn'],damage:['damage'],rate:['rate'],rockets:['rockets','explosives'],mines:['grenadeCount','mines','explosives'],explosives:['explosives'],command:['command','commandRate'],turn:['speed','turn'],armor:['armor'],regen:['regen'],cooldown:['cooldown'],combinedProjectiles:['staggerDelay']};
 for(const mod of WEAPON_MODS)fields[mod.id]=[{GUN:'gunMod',EXPLOSIVE:'explosiveMod',FORMATION:'wingMod',SPEED:'speedMod',SURVIVAL:'survivalMod'}[mod.family]];
 // Pause-screen popup: which totals of the current build each held upgrade feeds into.
-const HELD={...fields,fighterSupply:['command','commandRate'],goeringBaton:['command'],mercedesEngine:['speed'],amatolCharge:['explosives'],redScarf:['speed'],prancingHorse:['speed'],ironCross:['cooldown'],flightGloves:['rate','reload'],loEmblem:['damage','armor','speed','turn'],steelPlate:['speed','turn'],maximBelt:['belt','reload'],cow37:['belt','reload']};
+const HELD={...fields,fighterSupply:['supplyDamage','supplyInterval'],goeringBaton:['command'],mercedesEngine:['speed'],amatolCharge:['explosives'],redScarf:['speed'],prancingHorse:['speed'],ironCross:['cooldown'],flightGloves:['rate','reload'],loEmblem:['damage','armor','speed','turn'],steelPlate:['speed','turn'],maximBelt:['belt','reload'],cow37:['belt','reload']};
 const idle=new Set(['+0%','+0 HP','미장착','Not equipped','0발','0 rounds','0개','0 grenades','미개조','Unmodified']);
 const HELD_LABEL={wingCount:['편대기','Formation Aircraft'],damage:['기관총 피해','MG Damage'],rate:['기관총 연사','MG Fire Rate'],belt:['탄띠','Belt'],reload:['재장전','Reload'],explosives:['폭발물 피해','Explosive Damage'],command:['편대 피해','Formation Damage'],commandRate:['편대 연사','Formation Fire Rate'],speed:['이동 속도','Speed'],turn:['선회력','Turn'],armor:['최대 내구도','Max Durability'],regen:['초당 회복','Repair / sec'],cooldown:['액티브 재사용 대기','Active Cooldown'],rockets:['로켓 1주기 발사','Rockets per Cycle'],grenadeCount:['수류탄 1주기 투척','Grenades per Cycle'],mines:['수류탄 투척 주기','Grenade Cycle'],staggerDelay:['2차 투사 간격','Second Release Delay'],gunMod:['기관총 개조','Machine-Gun Modification'],explosiveMod:['폭발물 개조','Explosive Modification'],wingMod:['편대기 개조','Formation Modification']};
 export function heldStats(p,id){const s=buildStats(p),en=getLocale()==='en';return (HELD[id]||[]).filter(k=>s[k]&&!idle.has(s[k][2])).map(k=>({key:k,name:HELD_LABEL[k]?.[en?1:0]||s[k][1],value:s[k][2]}))}

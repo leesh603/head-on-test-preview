@@ -193,7 +193,7 @@ function fireStep(b,config,step,mounts,target,serial){
    return Math.min(6.2,Math.max(2.4,ahead/v+1));
   };
  const shot=(m,a,delay,extra)=>{const q=m.q,p=m.p;emit(b,{type:'hazard',kind:'projectile',x:q.x,y:q.y,vx:Math.cos(a)*speed*(extra?.speed||1),vy:Math.sin(a)*speed*(extra?.speed||1),
-  partId:p?.id,sourceX:q.x,sourceY:q.y,sourcePartId:p?.id,sourceOffsetX:p?q.x-b.x-p.x:0,sourceOffsetY:p?q.y-b.y-p.y:0,
+  sourcePartKind:p?.kind,sourcePartArt:p?.art??p?.id,partId:p?.id,sourceX:q.x,sourceY:q.y,sourcePartId:p?.id,sourceOffsetX:p?q.x-b.x-p.x:0,sourceOffsetY:p?q.y-b.y-p.y:0,
   basicSerial:serial,basicMuzzle:!!extra?.muzzle,sourceAngle:['fliegerzug','treffas-wagen'].includes(b.kind)?q.angle:null,radius:4,damage,delay,warning:0,
   duration:projectileLife(q.x,q.y,speed*(extra?.speed||1)),visual:p?.kind==='harbor-mg'?'treffas-mg':config.visual,tag});};
  const cue=(m,a,seconds=warning)=>emit(b,{type:'charge-warning',x:m.q.x,y:m.q.y,targetX:m.q.x+Math.cos(a)*420,targetY:m.q.y+Math.sin(a)*420,seconds,partId:m.p?.id,basicFire:true});
@@ -300,7 +300,7 @@ function fireStep(b,config,step,mounts,target,serial){
     const src=Math.abs(off-((ends[0].q.x-cx)*nx+(ends[0].q.y-cy)*ny))<Math.abs(off-((ends[1].q.x-cx)*nx+(ends[1].q.y-cy)*ny))?ends[0]:ends[1];
     const x=cx+nx*off,y=cy+ny*off;
     emit(b,{type:'hazard',kind:'projectile',x,y,vx:dirx*speed,vy:diry*speed,radius:4,damage,delay:warning+r*(step.beat||.42),warning:0,
-     duration:projectileLife(x,y,speed),visual:config.visual,tag,basicSerial:serial,basicMuzzle:false});}}
+     duration:projectileLife(x,y,speed),sourcePartKind:src.p?.kind,sourcePartArt:src.p?.art??src.p?.id,visual:config.visual,tag,basicSerial:serial,basicMuzzle:false});}}
   // The guns at each end of the fence carry the muzzle flash and recoil.
   for(const e of new Set(ends))if(e.p)shot(e,aim,warning,{muzzle:true});
   return warning+(rows-1)*(step.beat||.42)+(step.t??1.2);

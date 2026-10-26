@@ -30,9 +30,18 @@ export function drawTacticalCombatCue(c,f,x,y,paint,world,point=(x,y)=>[x,y]){
    paint(c,id==='wingElite'||id==='formationBreakthrough'?'muzzleTwin':'muzzle',wx,wy,id==='mutualCover'?24:30,22,wa,fade*.8);
    if(++count>=(world?.viewWidth<=720?4:6))break;
   }
- }else if(id==='explosiveArea'||id==='blockingBombing'){
+ }else if(id==='blockingBombing'){
+  // Rearward release smoke follows each actual timed drop in the escape chain.
+  for(const side of [-1,1])stamp('gunSmoke',-24-q*18,side*(8+q*9),29+q*16,15,(1-q)*.4,a+Math.PI);
+ }else if(id==='explosiveArea'){
   for(const side of [-1,1])stamp('gunSmoke',-9-q*12,side*(11+q*14),24+q*14,18,(1-q)*.35,a+(id==='blockingBombing'?Math.PI:0));
- }else if(id==='explosiveFocus'||id==='fireLink'||id==='diveBombing'||id==='guidedBombing'){
+ }else if(id==='diveBombing'){
+  stamp('gunSmoke',-5-q*12,-12,25+q*14,14,(1-q)*.35,a-.18);
+  stamp('gunSmoke',-5-q*12,12,25+q*14,14,(1-q)*.35,a+.18);
+ }else if(id==='guidedBombing'){
+  stamp('exhaust',10-q*18,0,42+q*20,13,(1-q)*.4);
+  if(age<.09)stamp('muzzleHeavy',24,0,26,20,(1-age/.09)*.65);
+ }else if(id==='explosiveFocus'||id==='fireLink'){
   stamp('exhaust',7-q*16,0,34+q*28,16,(1-q)*.4);
   if(age<.09)stamp('muzzleHeavy',21,0,30,24,(1-age/.09)*.65);
  }else if(id==='gunSuppression'){

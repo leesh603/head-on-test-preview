@@ -15,7 +15,7 @@ export const WWI_BALANCE=Object.freeze({
  burn:Object.freeze({duration:3,grapnelDuration:1.8,dps:10,aerostatDps:18,bossDpsCap:6,aerostatBossDpsCap:10}),
  buckingham:Object.freeze({hits:5,hitGap:1.5}),
  cooper:Object.freeze({cooldown:6,stagger:.18,fuse:.55,radius:66,damage:70}),
- grapnel:Object.freeze({cooldown:15,proximity:28,maxCable:80,speed:720,life:.14,damage:28,collisionRadius:8,cableDuration:.7}),
+ grapnel:Object.freeze({cooldown:15,proximity:28,maxCable:80,speed:720,life:.14,damage:28,collisionRadius:8,cableDuration:1.4}),
  flechettes:Object.freeze({cooldown:10,count:12,burst:3,stagger:.08,minDamage:12,maxDamage:16,speed:590,life:.68,spread:.06,laneWidth:24,collisionRadius:2,heavyMultiplier:.25}),
  veryPistol:Object.freeze({cooldown:18,duration:5}),
  hytheCamera:Object.freeze({hits:4,hitGap:1.5,visibility:4,damageMultiplier:1.2})

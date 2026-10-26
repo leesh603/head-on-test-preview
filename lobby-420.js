@@ -7,7 +7,7 @@ import {portraitThumbnailSource} from './portraits.js?v=crew20261024';
 import {aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2';
 import {hangarArt, hangarArtLayout} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
 // Same module instances as app.js (identical URLs), read-only: locked aircraft show their real ratings.
-import {PLANES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021';
+import {PLANES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026';
 import {aircraftFeelRatings} from './aircraft-feel174.js?v=gal1';
 import {t} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 import {waitForLobbyIcons} from './lobby-assets-ready.js?v=lobbygate2';

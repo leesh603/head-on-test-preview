@@ -35,7 +35,7 @@ export function drawSupportShip(g,b,images,{camera={x:0,y:0},debug=false,detail}
 function visitRenderPool(pool,fn){if(typeof pool?.visit==='function')pool.visit(fn);else for(const row of pool?.records||[])if(row.active)fn(row);}
 export function drawSupportEffects(g,b,{camera={x:0,y:0},screenScale=1}={}){if(!b)return;g.save();g.translate(-camera.x,-camera.y);
  visitRenderPool(b.projectiles,p=>{if(p.kind==='flak'){if(p.age<0)return;if(p.age<p.warning)impactMark(g,p.x,p.y,p.radius,p.age/p.warning,{heavy:p.raidHeavy});return;}
- drawBossRound(g,{x:p.x,y:p.y,vx:p.vx,vy:p.vy,visual:'stuttgart-flak',raidHeavy:p.raidHeavy,radius:p.radius},screenScale);});
+ drawBossRound(g,{x:p.x,y:p.y,vx:p.vx,vy:p.vy,visual:'stuttgart-flak',ordnanceFamily:p.ordnanceFamily,raidHeavy:p.raidHeavy,radius:p.radius},screenScale);});
  visitRenderPool(b.effects,f=>{const t=f.age/f.life;g.save();g.globalAlpha=1-t;g.translate(f.x,f.y);
  if(f.kind==='smoke'){fx(g,'smokeDark',0,0,f.radius*(1+t),f.radius*(1+t),0,.55);}
  else if(f.kind==='muzzle'&&fx(g,'muzzleHeavy',0,0,f.radius*3,f.radius*2,f.angle)){}

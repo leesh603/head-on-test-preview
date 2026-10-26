@@ -74,7 +74,7 @@ const FX_FILES=FX_OFF?{}:Object.assign({
  muzzleTwin:'fx-muzzle-twin.webp',muzzleHeavy:'fx-muzzle-heavy.webp',muzzleRear:'fx-muzzle-rear.webp',muzzlePistol:'fx-muzzle-pistol.webp',
  dustPuff:'fx-dust-puff.webp',dirtBurst:'fx-dirt-burst.webp',debrisShard:'fx-debris-shard.webp',dirtMix:'fx-dirt-mix.webp',
  sunshaft:'fx-sunshaft.webp',windStreak:'fx-wind-streak.webp',mist:'fx-mist.webp',
- torpedo:'fx-torpedo.webp',shockRing:'fx-shock-ring.webp',searchlight:'fx-city-searchlight.webp',
+ torpedo:'fx-torpedo.webp',shockRing:'fx-shock-ring.webp',artilleryWave:'fx-shock-ring.webp',searchlight:'fx-city-searchlight.webp',
  mortarShell:'fx-mortar-shell.webp',lePrieur:'fx-combat-le-prieur.webp',bombBody:'fx-bomb-body.webp',grenadeBody:'fx-grenade-ww1.webp?v=r5',
 mineBody:'fx-mine-body.webp',shellHeavy:'fx-shell-heavy.webp',incendiary:'fx-incendiary.webp',
 // Boss-pair debris set — Treffas-Wagen crush debris + rail-carrier wreck shards

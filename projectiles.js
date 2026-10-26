@@ -1,3 +1,6 @@
+import {drawGunSignature,gunSignatureId,drawProjectileTactic} from './gun-signatures.js';
+import {drawBossOrdnance,bossOrdnanceLoaded} from './boss-ordnance-art.js?v=tame3&ai=1018';
+import {hostileGunAppearance,friendlyGunAppearance} from './ordnance-appearance.js';
 import {FXS,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=pilotfx20261018';
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // (FX layer exception: hostile bolts get a crimson body + white-hot tip for dodge readability.)
@@ -48,10 +51,14 @@ export function drawTracerBolt(c,x,y,angle,color,len=20,wid=5,alpha=1){
 // and a little weight, never the old 6–12px luminous capsule thickness.
 export function drawFriendlyGunTracer(c,b,x,y,gunUpgradeBonus=0){
  if(!b||b.enemy||![x,y,b.vx,b.vy].every(Number.isFinite))return false;
+ if(drawGunSignature(c,b,x,y))return true;
+ drawProjectileTactic(c,b,x,y); // Keep custom pilot paint while exposing the real active tactic.
  const color=b.mauserRound?'#a98cff':b.eagle?'#9fdcff':b.specialColor||(b.formation||b.ally?'#b9f2de':friendlyTracerColor(b,gunUpgradeBonus));
  const weight=b.specialAmmo?3:b.formation||b.ally?2.5:b.pierce?2.6:2;
+ const appearance=friendlyGunAppearance(b);
  const tactical=tacticalTracerProfile(b);
  if(tactical&&fxReady('tracerCore')){const a=Math.atan2(b.vy,b.vx);fxTint(c,'tracerCore',color,x-Math.cos(a)*tactical.length*.5,y-Math.sin(a)*tactical.length*.5,tactical.length,tactical.width,a,.95);return true;}
+ if(FXS&&fxReady('tracerCore')){const a=Math.atan2(b.vy,b.vx),q=appearance;fxTint(c,'tracerCore',color,x-Math.cos(a)*q.length*.5,y-Math.sin(a)*q.length*.5,q.length,q.width,a,.96);return true;}
  if(FXS&&fxsTracer(c,x,y,b.vx,b.vy,color,weight))return true;
  drawTracerBolt(c,x,y,Math.atan2(b.vy,b.vx),color,14+weight*2,1.8+weight*.4,.88);return true;
 }
@@ -72,12 +79,14 @@ export function pilotGunTracerStyle(b){
  return b.mannockPass?PILOT_GUN_TRACERS[b.mannockPass]||null:(b.fonckVolley||b.fonckSeeker)?PILOT_GUN_TRACERS.fonck:null;
 }
 export function drawPilotGunTracer(c,b,x,y,paint=fxTint,ready=fxReady){
+ if(['mauser','incendiary','telescope','piercing'].includes(gunSignatureId(b)))return false;
  const s=pilotGunTracerStyle(b);if(!s||![x,y,b.vx,b.vy].every(Number.isFinite))return false;
  const a=Math.atan2(b.vy,b.vx),cx=x-Math.cos(a)*s.length*.5,cy=y-Math.sin(a)*s.length*.5;
  if(ready('tracerCore')){
   if(ready('tracerGlow'))paint(c,'tracerGlow',s.color,cx,cy,s.length*1.08,s.width*1.7,a,s.glow);
   paint(c,'tracerCore',s.core,cx,cy,s.length,s.width,a,.95);
  }else drawTracerBolt(c,x,y,a,s.color,s.length,s.width,.78);
+ drawProjectileTactic(c,b,x,y,a);
  return true;
 }
 function enemyBolt(len,wid){
@@ -93,9 +102,28 @@ function enemyBolt(len,wid){
  cap(pad+len*.35,pad+len-.4,Math.max(1.5,wid*.5),core);
  boltCache.set(key,cv);return cv;
 }
+// One painted rocket and its authored propulsion trail, shared by solo/co-op/bosses.
+// Hostile rounds get a restrained warm underlight; the metal artwork is preserved.
+export function drawFlightRocket(c,b,x,y,{length=52,hostile=!!b.enemy,scale=1}={}){
+ const a=Math.atan2(b.vy,b.vx),w=length*scale;
+ if(!fxReady('rocket'))return false;
+ if(hostile)fxTint(c,'tracerGlow','#b63c2e',x,y,w*.7,9*scale,a,.28);
+ const drawn=fx(c,'rocket',x,y,w,w*.3,a);drawProjectileTactic(c,b,x,y,a);return drawn;
+}
 export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
- if(!b.enemy||b.life<=0)return;const kind=projectileStyle(b),[color,length,width]=TRACERS[kind]||TRACERS.scout;
+ if(!b.enemy||b.life<=0)return;
+ if(b.ordnanceFamily==='dart'&&bossOrdnanceLoaded())return drawBossOrdnance(c,'dart',x,y,b.raidHeavy?42:32,Math.atan2(b.vy,b.vx));
+ if(b.hostileRocket||b.ordnanceFamily==='rocket'||b.visualType==='rocket'){if(drawFlightRocket(c,b,x,y,{length:b.raidHeavy?48:40,hostile:true,scale:Math.max(1,1/Math.max(.65,screenScale))}))return;}
+ if(drawGunSignature(c,b,x,y,screenScale))return;
+ const kind=projectileStyle(b),[color,length,width]=TRACERS[kind]||TRACERS.scout;
  c.save();c.translate(Math.round(x),Math.round(y));c.rotate(Math.atan2(b.vy,b.vx));
+ if(FXS&&kind!=='railgun'&&kind!=='rocket'&&fxReady('tracerCore')){
+  const p=hostileGunAppearance(b),k=kind==='boss'?Math.max(1,1/Math.max(.45,screenScale)):1,strong=b.raidHeavy?1.3:1,len=p.length*strong,wid=p.width*(b.raidHeavy?1.3:1);c.scale(k,k);
+  fxTint(c,'tracerGlow',p.color,-len*.5,0,len*1.12,wid*2.1,0,.42);
+  fxTint(c,'tracerCore',p.color,-len*.5,0,len,wid,0,1);
+  fxTint(c,'tracerCore',p.core,-len*.2,0,len*.4,wid*.48,0,.96);
+  c.restore();return;
+ }
  // FX layer: hostile fire must read instantly on every terrain and never be confused
  // with the player's orange→white rounds — crimson bolt, warm-white core, soft dark bed.
  if(FXS&&kind!=='railgun'&&kind!=='rocket'){
@@ -125,6 +153,7 @@ export function drawEnemyProjectile(c,b,x,y,t=0,screenScale=1){
 export function drawCannonProjectile(c,b,x,y){
  if(b.life<=0)return;const cow=!!b.cow37;
  c.save();c.translate(Math.round(x),Math.round(y));c.rotate(Math.atan2(b.vy,b.vx));
+ drawProjectileTactic(c,b,0,0,0);
  // Approved flight sprites retain a body-centered anchor; no rocket flame.
  const flightKey=cow?'cannonCow':'cannonMotor',oldKey=cow?'shellHeavy':'shellAuto';
  if(FX3&&(fxReady(flightKey)||fxReady(oldKey))){

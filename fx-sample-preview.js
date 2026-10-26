@@ -108,12 +108,13 @@ function lighten(hex, k) {
 // Rocket: smoke ribbon + exhaust behind the body (called before the body is drawn).
 export function fxsRocketTrail(c, x, y, angle, bodyLen = 52) {
   if (!fxsHas('rocketTrail')) return false;
-  const back = (d) => [x - Math.cos(angle) * d, y - Math.sin(angle) * d];
-  const [tx, ty] = back(bodyLen * 0.5 + 60);
-  fxsDraw(c, 'rocketTrail', tx, ty, 132, 26, angle, 0.9);
-  const [fx_, fy] = back(bodyLen * 0.5 + 12);
-  const flick = 0.85 + 0.15 * Math.sin(performance.now() * 0.05 + x);
-  fxsDraw(c, 'rocketFlame', fx_, fy, 34 * flick, 12, angle, 1);
+  // Keep the authored flame/smoke proportions for small hostile rockets too.
+  // Scalar anchors avoid two array allocations for every rocket each frame.
+  const scale=Math.max(.55,Math.min(1.2,bodyLen/52)),ca=Math.cos(angle),sa=Math.sin(angle);
+  const tail=bodyLen*.5+60*scale,flame=bodyLen*.5+12*scale;
+  fxsDraw(c, 'rocketTrail', x-ca*tail, y-sa*tail, 132*scale, 26*scale, angle, .9);
+  const flick = .85 + .15 * Math.sin(performance.now() * .05 + x);
+  fxsDraw(c, 'rocketFlame', x-ca*flame, y-sa*flame, 34*scale*flick, 12*scale, angle, 1);
   return true;
 }
 
@@ -122,8 +123,9 @@ const bombPose = {};
 export function fxsBombFall(c, drawBody, sx, sy, tx, ty, p, releaseAngle) {
   const pose = bombFallPose(sx, sy, tx, ty, p, releaseAngle, bombPose);
   const e = Math.max(0, Math.min(1, p)) ** 2, decorated = fxsHas('bombShadow');
-  // shadow sharpens and grows as the bomb nears the ground
-  if (decorated) fxsDraw(c, 'bombShadow', tx + 10 * (1 - e), ty + 14 * (1 - e), 22 + 18 * e, 11 + 9 * e, 0, 0.35 + 0.55 * e);
+  // The shadow follows the falling body; the separate aim ring owns the target.
+  // Keeping it on the target made long drops appear detached from their bombs.
+  if (decorated) fxsDraw(c, 'bombShadow', pose.x + 10 * (1 - e), pose.y + 14 * (1 - e), 22 + 18 * e, 11 + 9 * e, 0, 0.35 + 0.55 * e);
   c.save(); c.globalAlpha *= 0.98;
   drawBody(pose.x, pose.y, pose.scale, pose.angle, pose.pitch);
   c.restore();

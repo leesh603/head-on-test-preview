@@ -9,7 +9,7 @@ export const BATTLEFIELD_EVENT_TYPES=Object.freeze({
 });
 
 export const BATTLEFIELD_EVENT_BALANCE=Object.freeze({
- firstOfferAt:20,regionOfferSpread:10,cooldownMin:120,cooldownMax:165,retryDelay:8,rescueDuration:18,objectiveTimeout:70,bossReserve:3,bomberExitDistance:980,rescueThreatRange:260,rescueThreatDamage:9,compactWidth:720,compactDangerCap:7,dangerCap:10,reconCount:5,reconCountCompact:4,reconRadius:130,reconMinGap:280,reconHold:1,reconTimeout:90
+ firstOfferAt:8,regionOfferSpread:4,cooldownMin:120,cooldownMax:165,retryDelay:8,rescueDuration:18,objectiveTimeout:70,bossReserve:3,bomberExitDistance:980,rescueThreatRange:260,rescueThreatDamage:9,compactWidth:720,compactDangerCap:7,dangerCap:10,reconCount:5,reconCountCompact:4,reconRadius:130,reconMinGap:280,reconHold:1,reconTimeout:90
 });
 
 const TYPES=Object.values(BATTLEFIELD_EVENT_TYPES);
@@ -52,11 +52,12 @@ function dangerCount(game){
 }
 
 function canOffer(game){
- const state=eventState(game),compact=(game.viewWidth||960)<=BATTLEFIELD_EVENT_BALANCE.compactWidth;
+ const state=eventState(game);
  if(game.mode==='campaign'||game.state!=='playing'||(game.t||0)<state.nextOfferAt||(game.t||0)<(game.battleRecoveryUntil||0)||state.current)return false;
- if(game.battleDirectorPattern!=='RECOVERY'||scriptedBoss(game)||liveAce(game)||game.eliteEnemies?.active)return false;
+ if(scriptedBoss(game)||liveAce(game)||game.eliteEnemies?.active)return false;
  if(game.stageCombatWindow?.approaching||game.stageCombatWindow?.ready||!availableTypes(game).length)return false;
- return dangerCount(game)<=(compact?BATTLEFIELD_EVENT_BALANCE.compactDangerCap:BATTLEFIELD_EVENT_BALANCE.dangerCap);
+ // Ordinary formations must not starve objectives as combat density rises.
+ return true;
 }
 
 function availableTypes(game){

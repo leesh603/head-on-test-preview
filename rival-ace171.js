@@ -51,7 +51,7 @@ function beginFinal(game,state,e){
 
 function spawnReturn(game,state){
  const now=game.t||0,endedAt=Math.max(game.aceSortie?.endedAt??-Infinity,game._aceCombatEndedAt??-Infinity);
- if(now-endedAt<ACE_SORTIE_BALANCE.recovery||now<(game.battleRecoveryUntil||0)||game.eliteEnemies?.active||game.stageCombatWindow?.approaching||game.battlefieldEvents?.current?.status==='active'){
+ if(now-endedAt<ACE_SORTIE_BALANCE.recovery||now<(game.battleRecoveryUntil||0)||game.eliteEnemies?.active||game.stageCombatWindow?.ready||(game.battlefieldEvents?.current?.status==='active'&&['ACE_CHALLENGE','MOUNTAIN_PURSUIT'].includes(game.battlefieldEvents.current.type))){
   state.returnAt=now+RIVAL_ACE_BALANCE.returnRetry;return null;
  }
  if((game.enemies||[]).some(e=>e.hp>0&&!e.expired&&e.bossPilot)){state.returnAt=(game.t||0)+RIVAL_ACE_BALANCE.returnRetry;return null}

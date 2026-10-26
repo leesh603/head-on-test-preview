@@ -5,7 +5,7 @@ let ctx=null,bus=null,ambienceBus=null,compressor=null,noise=null,muted=false,pa
 const railBuffers=new Map();
 const sources=new Map(),lastVoices=new Map();
 const PRIORITY={bossSiren:3,bossKlaxon:3,airshipArrival:3,railGunFire520:2,railShellIncoming:1,railShellIncoming520:1,railShellImpact:1,railShellImpact520:2,trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1,armorClink:2,whizz:1,closePass:2,airframeBreak:1,engineTick:0,enemyShot:0,shot:1,impact:1,kill:1,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0,environmentWind:0};
-const INTERVAL={upgradeChosen:.3,pickup:.09,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
+const INTERVAL={upgradeChosen:.3,pickup:.09,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,rocketHeavy:.24,dartSalvo:.18,gunSalvo:.18,grenadeLaunch:.22,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
 let inputMedia=null;
 const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
 let duckListener=()=>{},lastDuck=-Infinity,lastDuckDepth=1,ambientVoice=false;
@@ -255,6 +255,10 @@ const VOICES={
   // ordnance, not ignition clicks.
   explosion(){tone(62,18,.7,.24,'sine',200);tone(34,15,.95,.19,'sine',140,.02);tone(115,38,.2,.07,'triangle',520,.04);hiss(jit(1100),110,.55,.19,'lowpass',.5,.01);hiss(420,70,.75,.14,'lowpass',.55,.04);hiss(jit(2200),480,.14,.02,'bandpass',1,.11)},
   // Rocket salvo: launch pop into a rising whoosh.
+  rocketHeavy(){hiss(330,1900,.36,.085,'bandpass',1.1);tone(110,55,.17,.07,'triangle',520);hiss(1200,380,.2,.035,'lowpass',.6,.08)},
+  dartSalvo(){hiss(3600,1300,.09,.055,'bandpass',1.7);tone(480,160,.045,.035,'triangle',1800);hiss(2800,900,.07,.03,'bandpass',1.4,.055)},
+  gunSalvo(){bankSample('enemy',.16,()=>VOICES.enemyShotSynth(),.88);tone(110,65,.08,.035,'triangle',500)},
+  grenadeLaunch(){tone(180,75,.075,.055,'triangle',600);hiss(650,230,.09,.045,'lowpass',.8)},
   rocket(){hiss(400,2400,.3,.09,'bandpass',1.4);tone(280,900,.28,.05,'sawtooth',1800);tone(120,70,.1,.07,'square',700)},
   // Flak airburst near the plane: muffled pop, crackle, far echo.
   flak(){bankSample('flak',.26,()=>VOICES.flakSynth(),jit(1))},

@@ -1,3 +1,4 @@
+import {drawEnemyProjectile} from '../../projectiles.js?v=pilotfx20261018';
 import {ELITE_KINDS} from './elite-config.js';
 
 const defaultCrop = {};
@@ -46,22 +47,6 @@ function drawFallbackSilhouette(ctx, member, x, y) {
   ctx.fillRect(-4, -20, 8, 40); ctx.fillRect(-22, -4, 44, 8); ctx.restore();
 }
 
-function drawHostileRocket(ctx, projectile, x, y, assets) {
-  const angle = Math.atan2(projectile.vy, projectile.vx);
-  ctx.save();
-  ctx.strokeStyle = '#ff4c24'; ctx.lineWidth = 4;
-  ctx.beginPath(); ctx.moveTo(x - Math.cos(angle) * 13, y - Math.sin(angle) * 13); ctx.lineTo(x - Math.cos(angle) * 34, y - Math.sin(angle) * 34); ctx.stroke();
-  ctx.globalCompositeOperation = 'source-over';
-  if (assets.drawPlayerRocket) {
-    ctx.filter = 'sepia(1) saturate(7) hue-rotate(325deg) brightness(1.12)';
-    assets.drawPlayerRocket(ctx, x, y, angle + Math.PI / 2, 42);
-  } else if (assets.rocket?.complete || assets.rocket?.naturalWidth) {
-    ctx.translate(x, y); ctx.rotate(angle + Math.PI / 2); ctx.filter = 'sepia(1) saturate(7) hue-rotate(325deg) brightness(1.12)';
-    ctx.drawImage(assets.rocket, -9, -21, 18, 42);
-  }
-  ctx.restore();
-}
-
 export function renderEliteLayer(ctx, system, camera, assets, time = 0) {
   if (!ctx || !system) return;
   const point = camera?.point || ((x, y) => [x - (camera?.x || 0), y - (camera?.y || 0)]);
@@ -99,12 +84,7 @@ export function renderEliteLayer(ctx, system, camera, assets, time = 0) {
   }
   for (const projectile of system.projectiles) {
     const [x, y] = point(projectile.x, projectile.y);
-    if (projectile.kind === 'eliteRocket') drawHostileRocket(ctx, projectile, x, y, assets);
-    else {
-      const rear = projectile.kind === 'eliteRearTracer';
-      ctx.strokeStyle = rear ? '#ff6f55' : '#ffb04d'; ctx.lineWidth = rear ? 3 : 2;
-      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - projectile.vx * .025, y - projectile.vy * .025); ctx.stroke();
-    }
+    drawEnemyProjectile(ctx,projectile,x,y,time);
   }
 }
 

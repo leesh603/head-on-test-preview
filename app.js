@@ -1,3 +1,4 @@
+import {drawProjectileTactic} from './gun-signatures.js';
 import {prepareTacticalIcons} from './tactical-icon-assets.js?v=tacticalicons20261025';
 import {selectPilotKeyart} from './pilot-keyart.js?v=pilotkey1';
 import {installFireDiveFx,drawMannockWing} from './fire-dive-fx.js?v=firedive1';
@@ -44,11 +45,11 @@ import {chooseTransitionTip,transitionRegionLabel} from './transition-tips188.js
 import './hud-layout94.js?v=gal1';
 import {showBattlefieldEvent,hideBattlefieldEvent} from './battlefield-event-ui.js?v=gal1';
 import {installOnlineLobby} from './online-coop-session.js?v=buildfit1&coopfix=1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022';
-import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&harbor=20261021';
+import {CoopGame,coopPlane,COOP_BALANCE} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&harbor=20261021&td4=20261026';
 import {CoopInput,coopRecord,saveCoopLocal,COOP_RECORD_KEYS} from './coop-input.js?v=gal1';
 import {drawCoop} from './coop-view.js?v=deathdefiance1&airbattle=20261025&livens=20261019&sig=1019&boss=20261020b&phase=1021&armorart=20261022&gothaart=20261022&adriaticart=20261022&trenchart=20261022&skymechanics=20261022&doverart=1022&motion=20261022&cityart=1022&maanart=20261022&verdunhw=20261022&harborhw=20261022&alpsgun=20261022&harbor=20261021&sommehw=20261023&jutlandgun=20261023&gallipoligun=20261023';
 import {drawSunStrike} from './sun-strike71.js?v=buildfit1&rail=42&afc=1';
-import {drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawTracerBolt,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=pilotfx20261018';
+import {drawFlightRocket,drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawTracerBolt,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=pilotfx20261018';
 import {installFlightViewport} from './flight-viewport.js?v=gal1';
 import {aircraftFeelRatings,representativeArchetypeKey} from './aircraft-feel174.js?v=gal1';
 import {aircraftCombatRole,aircraftGrowthCost} from './aircraft-combat-roles.js?v=gal1';
@@ -67,18 +68,19 @@ import {sfx,setSfxMuted,setSfxPaused,stopSfx,prepareSfx,setSfxDuckingListener,ca
 import {attachCombatFeedback,combatVisualPose,combatMountPoint,drawCombatFeedback,combatCameraOffset,combatFlightSound,drawFlightFlow} from './combat-feedback.js?v=descent20261022&motion=20261022';
 import {installEventTextEN,registerEventPilots,unitNameEN} from './event-text-en.js?v=buildfit1&afc=1&art=pilot-recovery2';
 import {drawHeadOnFeedback} from './engagement-feedback.js?v=tame3';
-import {drawTacticalCombatCue} from './tactical-combat-view.js?v=combat20261024';
+import {drawTacticalCombatCue} from './tactical-combat-view.js?v=combat20261024&td4=20261026';
 import {drawTailEngagement} from './engagement-hud410.js?v=tame3';
 import {portraitSources,portraitThumbnailSource,portraitsReady,portraitLoaded,ensurePortrait} from './portraits.js?v=crew20261024';
 import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021';
 import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN,bossArrivalCues} from './boss-feedback.js?v=gal1&hints=1&rail=42&ai=1018&sig=1019';
 import {drawWWIEquipment} from './wwi-equipment-art.js';
+import {WWI_BALANCE} from './wwi-equipment.js';
 import {drawEquipment} from './equipment.js?v=gal1';
 import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elite-patch/module/index.js?v=wwifix20261025';
 import{planeSprite,aircraftReady,aircraftKey,aircraftFlightSource,hangarArtReady,paintedReady}from './aircraft.js?v=outline2&art=pilot-recovery2';
-import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021';
+import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026';
 import {AUGMENTATION_OVERHAUL_BALANCE,buildIdentityFor,BUILD_IDENTITY_LIMIT}from'./augmentation-overhaul150.js?v=equipment20261022&airbattle=20261025';
-import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,tacticalChoices,selectTactical,tacticalEquipmentFamilies,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=tactics20261023';
+import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,SPECIAL_DOCTRINES,availableTacticalEntries,tacticalChoices,selectTactical,tacticalEquipmentFamilies,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 import {drawCloudCover}from'./cloud-cover1.js?v=gal1';
 import {drawFleetLayer}from'./fleet-naval1.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
 import {drawTrenchLayer}from'./trench-war1.js?v=gal1';
@@ -295,7 +297,7 @@ function choose(id,rarity='normal'){
  $('upgradesText').textContent=UPGRADES.filter(u=>game.upgrades[u.id]).map(u=>reinforcementName(u,game,PLANES)).join(' · ');sound(750,.12);
  if(game.pendingTacticalChoice)showTacticalModal(game.pendingTacticalChoice,game);
 }
-function showUpgradeModal(){if(game?.pendingTacticalChoice){showTacticalModal(game.pendingTacticalChoice,game);return}if(game?.state!=='upgrade')return;choices=game.rollChoices().map(u=>({id:u.id,rarity:u.rarity}));const rarityName={normal:'일반',magic:'매직',rare:'레어',unique:'유니크',legendary:'특수장비'};modal('LEVEL '+game.level+' / FIELD UPGRADE','강화 선택','전투에 적용할 강화를 하나 선택하세요',choices.map((pick,i)=>{const u=UPGRADES.find(u=>u.id===pick.id);return{upgradeId:pick.id,label:`${i+1}. [${rarityName[pick.rarity]}] ${u?.name||pick.id}`,rarity:pick.rarity,desc:upgradeDescription(pick.id,pick.rarity,game),run:()=>choose(pick.id,pick.rarity)}}));sfx('levelup')}
+function showUpgradeModal(){if(game?.pendingTacticalChoice){showTacticalModal(game.pendingTacticalChoice,game);return}if(game?.state!=='upgrade')return;choices=game.rollChoices().map(u=>({id:u.id,rarity:u.rarity}));const rarityName={normal:'일반',magic:'매직',rare:'레어',legendary:'특수장비'};modal('LEVEL '+game.level+' / FIELD UPGRADE','강화 선택','전투에 적용할 강화를 하나 선택하세요',choices.map((pick,i)=>{const u=UPGRADES.find(u=>u.id===pick.id);return{upgradeId:pick.id,label:`${i+1}. [${rarityName[pick.rarity]}] ${u?.name||pick.id}`,rarity:pick.rarity,desc:upgradeDescription(pick.id,pick.rarity,game),run:()=>choose(pick.id,pick.rarity)}}));sfx('levelup')}
 function events(){const _evs=game.events;game.events=[];for(let e of _evs)try{if(e.type==='aceWingmanArrival'){queueAceWingmanCutin(e);continue}if(e.type==='bossPhase'){const phaseText=bossPhaseLabel(e.text,getLocale());if(bossCounterPhase(e.text)&&!bossCounterActive(game?.stageBoss?.stages.encounter))continue;$('toast').textContent=phaseText;show('toast');toastUntil=performance.now()+2200;continue}if(e.type==='bossSound'){sfx(e.text);continue}if(e.type==='regionTransition')beginRegionTransition(e.text,e.region);if(e.type==='bossArrival'){game.bossPresentationAfter=game.t+8;bossArrivalUntil=game.t+4.5;{const _ef=e.pilot&&PILOTS[e.pilot]&&PILOTS[e.pilot].faction,fc=_ef==='entente'?'#7c9bb8':_ef==='central'?'#7d8f83':null,fcs=_ef==='entente'?'#a7c2da':_ef==='central'?'#9db3a5':null;document.querySelectorAll('#bossArrival,#bossWarning,.boss-cutin').forEach(el=>{el.style.setProperty('--enemy-fac',fc||'');el.style.setProperty('--enemy-fac-soft',fcs||'');el.style.setProperty('--enemy-fac-strong',fcs||'')})}$('bossName').textContent=e.pilot?pilotName(e.pilot,e.name||t('warning.ace')):(e.name||t('warning.ace'));swapArt($('bossPortrait'),portraitSources[e.pilot]||TRANSPARENT_PORTRAIT);$('bossPortrait').alt=$('bossName').textContent;$('bossArrivalDetail').textContent=e.pilot?(PILOTS[e.pilot]?.alias||''):t('warning.airspace');$('bossWarnSub').textContent=$('bossName').textContent+' · ENEMY ACE INBOUND';bossCardFrom=performance.now();bossCutinUntil=bossCardFrom+2600;const aceImg=portraitSources[e.pilot]||(e.pilot?'portrait-'+e.pilot+'.webp?v=gal1&b=326':(e.airframe?'mech/'+e.airframe+'.webp?v=gal1&b=326':''));setBossCutin(aceImg,$('bossName').textContent,'ENEMY ACE · 적 에이스',$('bossArrivalDetail').textContent);setBgmMode('boss');sfx('aceSting');{const arrivalRun=game;setTimeout(()=>{if(game===arrivalRun&&game.state==='playing'&&!regionTransitionUntil&&!document.hidden)sfx('aceSting')},380)}}if(e.type==='upgrade')showUpgradeModal();if(['wave','skill','ally','flak','heinecke','heineckeReturn'].includes(e.type)){$('toast').classList.remove('warn');$('toast').textContent=runtimeEventText(e.text);show('toast');toastUntil=performance.now()+2200;if(e.type==='skill'){sfx('skill');const p=pilotLoadout(pilot,game?.plane||plane)||PILOTS[pilot]||{};setBossCutin(portraitSources[pilot]||'portrait-'+pilot+'.webp?v=gal1&b=326',localizedActive(pilot==='baron'&&isBaronAlbatros(game?.plane||plane)?'baron:baron_albatros':pilot,p.skill||(getLocale()==='en'?'Active':'액티브')),'',pilotName(pilot,p.name||pilot),'skill');bossCardFrom=performance.now();bossCutinUntil=bossCardFrom+2100}else if(e.type==='heinecke'||e.type==='heineckeReturn')sfx(e.type==='heinecke'?'hit':'ally');else sfx(e.type==='flak'?'flak':e.type==='ally'?'ally':'wave')}if(e.type==='eliteWarn'){$('toast').classList.add('warn');$('toast').textContent=runtimeEventText(e.text);show('toast');toastUntil=performance.now()+3400;sfx('approachWarning')}if(e.type==='armorImpact')sfx('armorClink');if(e.type==='reload')sfx('reload');if(e.type==='loaded')sfx('loaded');if(e.type==='shot'&&performance.now()-lastShotSound>100){lastShotSound=performance.now();sfx('shot')}if(e.type==='impact'&&!e.combatMaterial&&performance.now()-lastImpactSound>65){lastImpactSound=performance.now();sfx('impact')}if(e.type==='pickup'&&performance.now()-lastPickupSound>220){lastPickupSound=performance.now();sfx(e.text==='heal'?'heal':'pickup')}if(e.type==='hit')sfx('hit');if(e.type==='kill')sfx(e.combatSound||(e.text==='balloon'?'balloon':'kill'));if(e.type==='end')sfx(game.state==='won'||game.result?.won?'victory':'defeat');if(e.type==='end'&&game.mode==='campaign'){campaignEnd(game);continue}if(e.type==='end'){showSoloResult(game)}}catch(evErr){console.error('[headon] event',e&&e.type,evErr)}}
 function drawZeppelin(c,x,y,a,scale=1,damaged=false,airshipFaction=null){
  const zeppelinSprite=airshipFaction==='central'?globalZeppelinSprite:airshipFaction==='entente'?ententeAirshipSprite:faction==='central'?ententeAirshipSprite:globalZeppelinSprite;
@@ -318,7 +320,7 @@ function draw(t){let cx=game?game.x:Math.sin(t*.03)*45,cy=game?game.y:-t*12;ctx.
  // Voss reverse-turn afterimages: player and ace boss use the same pale ghost trail.
  for(const ghost of game.vossAfterimages||[]){const [gx,gy]=point(ghost.x,ghost.y);if(gx<-110||gx>W+110||gy<-110||gy>H+110)continue;ctx.save();ctx.globalAlpha=.34*(ghost.life/ghost.maxLife);planeSprite(ctx,gx,gy,ghost.a,game.bomberTransfer?.sprite||aircraftKey(plane,false,'voss'),game.bomberTransfer?.scale??1,false,false);ctx.restore()}
  for(const e of game.enemies||[])for(const ghost of e.vossTrails||[]){const [gx,gy]=point(ghost.x,ghost.y);if(gx<-110||gx>W+110||gy<-110||gy>H+110)continue;ctx.save();ctx.globalAlpha=.42*(ghost.life/ghost.maxLife);planeSprite(ctx,gx,gy,ghost.a,e.bossPlane||'fokker_voss',enemyAircraftScale(e),true,false);ctx.restore()}
- for(let d of game.drops){let[x,y]=point(d.x,d.y);if(x<-70||x>W+70||y<-70||y>H+70)continue;if(d.mccuddenSupply){drawMccuddenSupply(ctx,d,x,y)}else if(d.heal||d.supply){const pulse=22+Math.sin(t*5)*4;ctx.save();ctx.globalAlpha=.4;ctx.strokeStyle='#5fff9e';ctx.lineWidth=7;ctx.beginPath();ctx.arc(x,y,pulse,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;ctx.strokeStyle='#9cffb4';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,pulse,0,Math.PI*2);ctx.stroke();ctx.fillStyle='rgba(210,255,224,.9)';for(let i=0;i<4;i++){const sa=t*2.6+i*Math.PI/2;ctx.beginPath();ctx.arc(x+Math.cos(sa)*(pulse+6),y+Math.sin(sa)*(pulse+6),1.7,0,Math.PI*2);ctx.fill()}ctx.restore();drawEquipment(ctx,'repair',x,y+Math.sin(t*3)*2,0,46)}else{if(xpGem?.naturalWidth)ctx.drawImage(xpGem,x-9,y-9,18,18);else{ctx.fillStyle='#63d5ec';ctx.fillRect(x-3,y-3,6,6)}}}for(const grenade of game.grenades||[]){const[gx,gy]=point(grenade.x,grenade.y);if(gx<-80||gx>W+80||gy<-80||gy>H+80)continue;drawGrenade(ctx,grenade,gx,gy)}for(let m of game.mines){let[x,y]=point(m.x,m.y);if(x<-80||x>W+80||y<-80||y>H+80)continue;drawDrachenMine(ctx,x,y,62,62);if(m.arm===0){ctx.strokeStyle='#ffcc6677';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,20+Math.sin(t*5)*2,0,Math.PI*2);ctx.stroke()}}for(let b of game.bullets){if(b.flak||b.enemy||b.motorCannon||b.cow37||b.fieryGrapnel||b.flechette)continue;let[x,y]=point(b.x,b.y);if(x<-90||x>W+90||y<-90||y>H+90)continue;if(b.rocket){if(!fx(ctx,'rocket',x,y,52,16,Math.atan2(b.vy,b.vx)))drawEquipment(ctx,'rocket',x,y,Math.atan2(b.vy,b.vx)+Math.PI/2,48);}else if(drawPilotGunTracer(ctx,b,x,y)){}else{const driMult=game.pilot==='baron'&&game.dreideckerActive&&typeof game.dreideckerTurnDamageMultiplier==='function'?game.dreideckerTurnDamageMultiplier():1;if(driMult>1.02&&!b.enemy&&!b.formation&&!b.ally){const power=Math.min(1,(driMult-1)/.6);ctx.save();ctx.globalAlpha=.58+.32*power;ctx.strokeStyle=power>.7?'#7d1010':'#551010';ctx.lineWidth=1.5+power*.4;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-b.vx*.021,y-b.vy*.021);ctx.stroke();ctx.globalAlpha=.9;ctx.strokeStyle=power>.7?'#ffe0a8':'#ff9b67';ctx.lineWidth=.8+power*.35;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-b.vx*.016,y-b.vy*.016);ctx.stroke();ctx.restore();continue}drawFriendlyGunTracer(ctx,b,x,y,game.gunUpgradeBonus);}}for(const e of game.enemies){if(e.groundEscort){const[x,y]=point(e.x,e.y);if(x<-260||x>W+260||y<-260||y>H+260)continue;drawGroundEnemy(ctx,e,x,y,96)}}
+ for(let d of game.drops){let[x,y]=point(d.x,d.y);if(x<-70||x>W+70||y<-70||y>H+70)continue;if(d.mccuddenSupply){drawMccuddenSupply(ctx,d,x,y)}else if(d.heal||d.supply){const pulse=22+Math.sin(t*5)*4;ctx.save();ctx.globalAlpha=.4;ctx.strokeStyle='#5fff9e';ctx.lineWidth=7;ctx.beginPath();ctx.arc(x,y,pulse,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;ctx.strokeStyle='#9cffb4';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,pulse,0,Math.PI*2);ctx.stroke();ctx.fillStyle='rgba(210,255,224,.9)';for(let i=0;i<4;i++){const sa=t*2.6+i*Math.PI/2;ctx.beginPath();ctx.arc(x+Math.cos(sa)*(pulse+6),y+Math.sin(sa)*(pulse+6),1.7,0,Math.PI*2);ctx.fill()}ctx.restore();drawEquipment(ctx,'repair',x,y+Math.sin(t*3)*2,0,46)}else{if(xpGem?.naturalWidth)ctx.drawImage(xpGem,x-9,y-9,18,18);else{ctx.fillStyle='#63d5ec';ctx.fillRect(x-3,y-3,6,6)}}}for(const grenade of game.grenades||[]){const[gx,gy]=point(grenade.x,grenade.y);if(gx<-80||gx>W+80||gy<-80||gy>H+80)continue;drawGrenade(ctx,grenade,gx,gy)}for(let m of game.mines){let[x,y]=point(m.x,m.y);if(x<-80||x>W+80||y<-80||y>H+80)continue;drawDrachenMine(ctx,x,y,62,62);if(m.arm===0){ctx.strokeStyle='#ffcc6677';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,20+Math.sin(t*5)*2,0,Math.PI*2);ctx.stroke()}}for(let b of game.bullets){if(b.flak||b.enemy||b.motorCannon||b.cow37||b.fieryGrapnel||b.flechette)continue;let[x,y]=point(b.x,b.y);if(x<-90||x>W+90||y<-90||y>H+90)continue;if(b.rocket){if(!drawFlightRocket(ctx,b,x,y))drawEquipment(ctx,'rocket',x,y,Math.atan2(b.vy,b.vx)+Math.PI/2,48);}else if(drawPilotGunTracer(ctx,b,x,y)){}else{const driMult=game.pilot==='baron'&&game.dreideckerActive&&typeof game.dreideckerTurnDamageMultiplier==='function'?game.dreideckerTurnDamageMultiplier():1;if(driMult>1.02&&!b.enemy&&!b.formation&&!b.ally&&!b.mauserRound&&!b.wwiIncendiary&&!b.telescopeGuided&&!b.pierce){const power=Math.min(1,(driMult-1)/.6);ctx.save();ctx.globalAlpha=.58+.32*power;ctx.strokeStyle=power>.7?'#7d1010':'#551010';ctx.lineWidth=1.5+power*.4;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-b.vx*.021,y-b.vy*.021);ctx.stroke();ctx.globalAlpha=.9;ctx.strokeStyle=power>.7?'#ffe0a8':'#ff9b67';ctx.lineWidth=.8+power*.35;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-b.vx*.016,y-b.vy*.016);ctx.stroke();ctx.restore();continue}drawFriendlyGunTracer(ctx,b,x,y,game.gunUpgradeBonus);}}for(const e of game.enemies){if(e.groundEscort){const[x,y]=point(e.x,e.y);if(x<-260||x>W+260||y<-260||y>H+260)continue;drawGroundEnemy(ctx,e,x,y,96)}}
 for(const e of game.enemies){if(!e.fieldUnit||e.hp<=0)continue;const[x,y]=point(e.x,e.y);if(x<-360||x>W+360||y<-360||y>H+360)continue;ctx.save();
  if(e.rail){const r=e.rail,[rx,ry]=point(r.x,r.y);ctx.save();ctx.translate(rx,ry);ctx.rotate(r.angle);ctx.strokeStyle='#322c25';ctx.lineWidth=4;for(let pos=-r.half-20;pos<=r.half+20;pos+=18){ctx.beginPath();ctx.moveTo(pos,-13);ctx.lineTo(pos,13);ctx.stroke()}ctx.strokeStyle='#bec1ab';ctx.lineWidth=2;for(const off of [-8,8]){ctx.beginPath();ctx.moveTo(-r.half-25,off);ctx.lineTo(r.half+25,off);ctx.stroke()}ctx.restore();
   if(e.fire<.7)aimLine(ctx,x,y,W/2,H/2,{p:1-e.fire/.7,alpha:.7,chevron:false,dash:[5,8]})
@@ -326,7 +328,7 @@ for(const e of game.enemies){if(!e.fieldUnit||e.hp<=0)continue;const[x,y]=point(
  e.rail?drawGroundEnemy(ctx,e,x,y,210):drawBattlefieldSpriteShadowed(ctx,e.fieldSprite,x,y,354,0);ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffce95';{const nm=unitNameEN(e.name),half=(e.rail?210:354)/2,onX=x>-half&&x<W+half,tw=measureCached(ctx,nm),lx=onX?Math.max(tw/2+4,Math.min(W-tw/2-4,x)):x,bx=onX?Math.max(30,Math.min(W-30,x)):x;ctx.fillText(nm,lx,y-(e.rail?120:190));ctx.fillStyle='#172b23';ctx.fillRect(bx-26,y+(e.rail?118:190),52,4);ctx.fillStyle='#e6b77d';ctx.fillRect(bx-26,y+(e.rail?118:190),52*e.hp/e.maxHp,4);}if(e.muzzleFlash>0){const ra=e.rail?e.rail.angle+Math.PI/2:0;fx(ctx,'muzzleHeavy',x+Math.cos(ra)*110,y+Math.sin(ra)*110,64,64,ra,Math.min(1,e.muzzleFlash*10));fx(ctx,'dustPuff',x-Math.cos(ra)*30,y-Math.sin(ra)*30,90,60,ra,.4)}ctx.restore();}
 for(const f of game.flakBursts||[]){const [x,y]=point(f.x,f.y);if(x<-90||x>W+90||y<-90||y>H+90)continue;ctx.save();ctx.globalAlpha=Math.min(1,f.life);drawGroundEnemy(ctx,f,x,y,66,'mg',faction==='central'?'entente':'central');ctx.restore();if(f.life>5.9){const p=(f.life-5.9)/1.1;drawAADefense(ctx,'aaMuzzle',x,y-10,26,26,0,Math.min(1,p*2));fx(ctx,'smokeDark',x,y-15,30,30,0,Math.min(.85,p))}}
 for(const e of game.enemies){if(!e.navalVessel||e.hp<=0||e.movingShip)continue;const[x,y]=point(e.x,e.y);if(x<-260||x>W+260||y<-260||y>H+260)continue;drawBattlefieldSprite(ctx,'ship',x,y,320,e.a+Math.PI/2);ctx.fillStyle='#24332b';ctx.fillRect(x-22,y+172,44,4);ctx.fillStyle='#de9b73';ctx.fillRect(x-22,y+172,44*e.hp/e.maxHp,4)}
-for(let e of game.enemies){let[x,y]=point(e.x,e.y);if(x<-260||x>W+260||y<-260||y>H+260)continue;if(e.groundEscort)continue;if(e.bugDrone){drawRegionalBug(ctx,e,x,y);continue}if(e.stageBossBody||e.heavyBomber||e.missionGround||e.navalVessel||e.fieldUnit||e.cityUnit||e.londonInstallation)continue;let key=e.formationLivery&&!e.bossPilot&&!e.bossMinion?e.formationLivery:e.escortPlane?e.escortPlane:e.bossPlane?e.bossPlane:liveryVariant(e,faction==='central'?(e.type==='hunter'?'nieuport':e.type==='boss'?'spad':'camel'):(e.type==='hunter'||e.type==='boss'?'fokker':'albatros'));let size=enemyAircraftScale(e);const visual=pressureAirframePose(e,combatVisualPose(e),game.t);if(e.crashing){size*=enemyCrashScale(e);drawAircraftCrash(ctx,e,x,y,t,fx)}if(e.type!=='bomber'&&e.type!=='zeppelin'){ctx.save();ctx.translate(x+(e.crashing?enemyCrashVisual(e).shadowX:14),y+(e.crashing?enemyCrashVisual(e).shadowY:22));ctx.rotate(e.a+visual.roll);ctx.scale(1,visual.bank);planeSprite(ctx,0,0,0,key,size,true,true);ctx.restore();}ctx.save();ctx.translate(x+visual.x,y+visual.y);ctx.rotate(e.a+visual.roll);ctx.scale(1,visual.bank);planeSprite(ctx,0,0,0,key,size,true,false,visual.active?Math.min(.16,e.hitFlash||0):e.hitFlash,e.hp<=e.maxHp*.5);drawPressureEnemyFront(ctx,game,e,fx,size);ctx.restore();drawEnemyDanger(ctx,e,x,y,t,fx,game.t||0);if(e.vossInvuln>0||e.aceInvuln124>0){ctx.save();ctx.globalAlpha=.55;ctx.strokeStyle=e.aceInvuln124>0?'#35253d':'#e9f2ca';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,42+Math.sin(t*20)*4,0,Math.PI*2);ctx.stroke();ctx.restore()}if(e.vossSurge){ctx.save();ctx.globalAlpha=.9;const n2=Math.min(7,Math.max(3,e.vossSurgeCount||3));ctx.strokeStyle='rgba(255,222,140,.4)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,y,50,0,Math.PI*2);ctx.stroke();for(let i=0;i<n2;i++){const ga=t*2.3+i*Math.PI*2/n2;ctx.fillStyle=i%2?'#ffe6a2':'#cfe6ff';ctx.beginPath();ctx.arc(x+Math.cos(ga)*50,y+Math.sin(ga)*50,3,0,Math.PI*2);ctx.fill()}ctx.restore()}if(e.type==='zeppelin'&&!e.bankAircraft)drawZeppelin(ctx,x,y,e.a,size,e.hitFlash>0,e.faction);if(e.type==='boss'&&!e.crashing){ctx.fillStyle='#2a3024';ctx.fillRect(x-30,y-40,60,4);ctx.fillStyle='#e7835c';ctx.fillRect(x-30,y-40,60*e.hp/e.maxHp,4)}}drawCombatFeedback(ctx,game,point,{fx,planeSprite});for(let p of game.particles){let[x,y]=point(p.x,p.y);const margin=p.petal?180:70;if(x<-margin||x>W+margin||y<-margin||y>H+margin)continue;const smokeLife=p.smoke?Math.max(0,p.life/p.maxLife):0;ctx.globalAlpha=p.smoke?smokeLife*(p.muzzleSmoke?.88:.65):Math.min(1,p.life*3);if(p.petal){drawPetalParticle(ctx,p,x,y,game);continue}if(p.heart){drawPixelHeart(ctx,Math.round(x),Math.round(y),p.size,p.color);continue}ctx.fillStyle=p.color;let size=p.smoke?p.size+(1-smokeLife)*(p.muzzleSmoke?15:10):3;
+for(let e of game.enemies){let[x,y]=point(e.x,e.y);if(x<-260||x>W+260||y<-260||y>H+260)continue;if(e.groundEscort)continue;if(e.bugDrone){drawRegionalBug(ctx,e,x,y);continue}if(e.stageBossBody||e.heavyBomber||e.missionGround||e.navalVessel||e.fieldUnit||e.cityUnit||e.londonInstallation)continue;let key=e.formationLivery&&!e.bossPilot&&!e.bossMinion?e.formationLivery:e.escortPlane?e.escortPlane:e.bossPlane?e.bossPlane:liveryVariant(e,faction==='central'?(e.type==='hunter'?'nieuport':e.type==='boss'?'spad':'camel'):(e.type==='hunter'||e.type==='boss'?'fokker':'albatros'));if(e.bossPilot==='jacobs'&&key==='fokker')key='fokker_jacobs';let size=enemyAircraftScale(e);const visual=pressureAirframePose(e,combatVisualPose(e),game.t);if(e.crashing){size*=enemyCrashScale(e);drawAircraftCrash(ctx,e,x,y,t,fx)}if(e.type!=='bomber'&&e.type!=='zeppelin'){ctx.save();ctx.translate(x+(e.crashing?enemyCrashVisual(e).shadowX:14),y+(e.crashing?enemyCrashVisual(e).shadowY:22));ctx.rotate(e.a+visual.roll);ctx.scale(1,visual.bank);planeSprite(ctx,0,0,0,key,size,true,true);ctx.restore();}ctx.save();ctx.translate(x+visual.x,y+visual.y);ctx.rotate(e.a+visual.roll);ctx.scale(1,visual.bank);planeSprite(ctx,0,0,0,key,size,true,false,visual.active?Math.min(.16,e.hitFlash||0):e.hitFlash,e.hp<=e.maxHp*.5);drawPressureEnemyFront(ctx,game,e,fx,size);ctx.restore();drawEnemyDanger(ctx,e,x,y,t,fx,game.t||0);if(e.vossInvuln>0||e.aceInvuln124>0){ctx.save();ctx.globalAlpha=.55;ctx.strokeStyle=e.aceInvuln124>0?'#35253d':'#e9f2ca';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,42+Math.sin(t*20)*4,0,Math.PI*2);ctx.stroke();ctx.restore()}if(e.vossSurge){ctx.save();ctx.globalAlpha=.9;const n2=Math.min(7,Math.max(3,e.vossSurgeCount||3));ctx.strokeStyle='rgba(255,222,140,.4)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,y,50,0,Math.PI*2);ctx.stroke();for(let i=0;i<n2;i++){const ga=t*2.3+i*Math.PI*2/n2;ctx.fillStyle=i%2?'#ffe6a2':'#cfe6ff';ctx.beginPath();ctx.arc(x+Math.cos(ga)*50,y+Math.sin(ga)*50,3,0,Math.PI*2);ctx.fill()}ctx.restore()}if(e.type==='zeppelin'&&!e.bankAircraft)drawZeppelin(ctx,x,y,e.a,size,e.hitFlash>0,e.faction);if(e.type==='boss'&&!e.crashing){ctx.fillStyle='#2a3024';ctx.fillRect(x-30,y-40,60,4);ctx.fillStyle='#e7835c';ctx.fillRect(x-30,y-40,60*e.hp/e.maxHp,4)}}drawCombatFeedback(ctx,game,point,{fx,planeSprite});for(let p of game.particles){let[x,y]=point(p.x,p.y);const margin=p.petal?180:70;if(x<-margin||x>W+margin||y<-margin||y>H+margin)continue;const smokeLife=p.smoke?Math.max(0,p.life/p.maxLife):0;ctx.globalAlpha=p.smoke?smokeLife*(p.muzzleSmoke?.88:.65):Math.min(1,p.life*3);if(p.petal){drawPetalParticle(ctx,p,x,y,game);continue}if(p.heart){drawPixelHeart(ctx,Math.round(x),Math.round(y),p.size,p.color);continue}ctx.fillStyle=p.color;let size=p.smoke?p.size+(1-smokeLife)*(p.muzzleSmoke?15:10):3;
  if(!p.smoke&&fxReady('spark')){fxTint(ctx,'spark',p.color,x,y,size*4,size*4);continue}
  if(p.smoke){const lum=p._lum??(p._lum=parseInt(p.color?.slice(1,3)||'88',16)),sKey=p.muzzleSmoke?'smokePuff':lum<110?'smokeDark':lum>170?'smokeWisp':'smokeGray';const savedAlpha=ctx.globalAlpha;if(fx(ctx,sKey,x,y,size*2.4,size*2.4,0,savedAlpha)){ctx.globalAlpha=1;continue}}
  ctx.fillRect(Math.round(x-size/2),Math.round(y-size/2),size,size)}ctx.globalAlpha=1;let x=W/2,y=H/2;drawRedGhosts162(ctx,game,x,y,planeSprite,game.bomberTransfer?.sprite||aircraftKey(plane,false,pilot));
@@ -464,13 +466,6 @@ events=()=>{
   if(pilot==='collishaw'&&game?.skillTime>0){show('skillCutin',false);cutinUntil=0}
 };
 
-// The permanent wingman is intentionally a unique-tier choice whenever it appears.
-const _modalWingman=modal;
-modal=(tag,title,text,buttons)=>{
-  if(tag.startsWith('LEVEL'))buttons=buttons.map(b=>b.upgradeId==='wingman'?{...b,label:b.label.replace(/\[(일반|매직|레어)\]/,'[유니크]'),rarity:'unique'}:b);
-  return _modalWingman(tag,title,text,buttons);
-};
-
 // Start the score with a user gesture (required by mobile audio policies) and
 // switch to the sharper ace motif whenever an ace or boss is on the field.
 const _startWithMusic=start;start=(...args)=>{music.reset();music.unlock();_startWithMusic(...args);setBgmMode()};
@@ -542,15 +537,6 @@ draw=t=>{
  _drawCombatFX(t);if(!game)return;
  const point=(x,y)=>{_ptShare[0]=x-game.x+W/2;_ptShare[1]=y-game.y+H/2;return _ptShare};
  ctx.save();
- for(const b of game.bullets){
-  const [x,y]=point(b.x,b.y);
-  if(x<-100||x>W+100||y<-100||y>H+100)continue;
-  if(b.rocket){const a=Math.atan2(b.vy,b.vx);if(FX56){fx(ctx,'smokePuff',x-Math.cos(a)*19,y-Math.sin(a)*19,12,10,0,.22)}else{ctx.strokeStyle='#ff982baa';ctx.lineWidth=b.special?5:3;ctx.beginPath();ctx.moveTo(x-Math.cos(a)*15,y-Math.sin(a)*15);ctx.lineTo(x-Math.cos(a)*34,y-Math.sin(a)*34);ctx.stroke()}continue}
-  if(!b.enemy||b.flak)continue;
-  // Hostile round is drawn once in the final readable foreground.
-  if(b.hostileRocket){const a=Math.atan2(b.vy,b.vx);fxTint(ctx,'smokePuff','#ff9a4a',x-Math.cos(a)*14,y-Math.sin(a)*14,18,15);if(!fxTint(ctx,'rocket','#ff7a55',x,y,52,16,a)){ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.fillStyle='#f2a144';ctx.beginPath();ctx.moveTo(-14,0);ctx.lineTo(-26,-4);ctx.lineTo(-26,4);ctx.closePath();ctx.fill();ctx.fillStyle='#4a3f30';ctx.beginPath();ctx.ellipse(0,0,14,4.5,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#8a2f22';ctx.beginPath();ctx.ellipse(9,0,4.5,3.4,0,0,Math.PI*2);ctx.fill();ctx.restore()}}
-
- }
  for(const e of game.enemies){if(!(e.muzzleFlash>0))continue;
   for(const offset of e.navalVessel||e.type==='zeppelin'?[-95,0,95]:e.heavyBomber?[-42,42]:(WEAPONS[e.escortPlane||e.bossPlane]?.guns??2)>=2?[-8,8]:[0]){
    const hull=e.navalVessel||e.type==='zeppelin',vm=!hull&&!e.heavyBomber?combatMountPoint(e,22,offset,_combatMount):null;const [x,y]=point(vm?vm.x:e.x+(hull?Math.cos(e.a)*offset:Math.cos(e.a)*22-Math.sin(e.a)*offset),vm?vm.y:e.y+(hull?Math.sin(e.a)*offset:Math.sin(e.a)*22+Math.cos(e.a)*offset));
@@ -838,7 +824,7 @@ draw=t=>{
   ctx.fillStyle='#b4f4dd';ctx.font='12px monospace';ctx.textAlign='center';ctx.fillText(getLocale()==='en'?'Friendly Bombers':'아군 폭격대',x,y-h/2-12);
  }
  for(const b of game.friendlyBombs||[]){if(b.cooperBomb)continue;const p=1-b.life/b.maxLife;
-  fxsBombFall(ctx,(X,Y,k,a,pitch)=>bombSprite(ctx,b.sprite||'cooper',X,Y,40*k,a,1,pitch)||fx(ctx,'bomb',X,Y,28*k*pitch,13*k,a),b.sx-game.x+W/2,b.sy-game.y+H/2,b.x-game.x+W/2,b.y-game.y+H/2,p,b.releaseAngle);
+  fxsBombFall(ctx,(X,Y,k,a,pitch)=>(drawProjectileTactic(ctx,b,X,Y,a),bombSprite(ctx,b.sprite||'cooper',X,Y,40*k,a,1,pitch)||fx(ctx,'bomb',X,Y,28*k*pitch,13*k,a)),b.sx-game.x+W/2,b.sy-game.y+H/2,b.x-game.x+W/2,b.y-game.y+H/2,p,b.releaseAngle);
   if(!b.bishopBomb){ctx.strokeStyle='#a2eddb70';ctx.lineWidth=1;ctx.beginPath();ctx.arc(b.x-game.x+W/2,b.y-game.y+H/2,22,0,Math.PI*2);ctx.stroke();}
  }
  ctx.restore();
@@ -847,7 +833,15 @@ draw=t=>{
 // Persistent, compact inventory above touch controls; one badge per legendary.
 let legendarySignature='';
 const _hud51=hud;
-const RELIC_COOLDOWNS={heineckeRettungsfallschirm:{rem:g=>heineckeRemaining(g),iv:()=>HEINECKE.cooldown},grunkreuz:{rem:g=>g.grunkreuzOn>0?0:(g.grunkreuzOff??0),iv:()=>LEGENDARY_DEFENSE_BALANCE.grunkreuzOffDuration},rankinShell:{rem:g=>g.rankinTimer??0,iv:()=>LEGENDARY_DEFENSE_BALANCE.rankinInterval},kaiserFog:{rem:g=>g.brockSmokeTimer??g.kaiserFogTimer??0,iv:g=>g.brockSmoke?AUGMENTATION_OVERHAUL_BALANCE.smokeInterval:LEGENDARY_DEFENSE_BALANCE.fogInterval},motorCannon:{rem:g=>g.motorCannonTimer??0,iv:g=>g.ordnanceInterval?g.ordnanceInterval(LEGENDARY_BALANCE.motorCannonInterval):LEGENDARY_BALANCE.motorCannonInterval},sparkPlug:{rem:g=>g.mccuddenRepairTimer??0,iv:()=>AUGMENTATION_OVERHAUL_BALANCE.repairInterval}};
+const RELIC_COOLDOWNS={heineckeRettungsfallschirm:{rem:g=>heineckeRemaining(g),iv:()=>HEINECKE.cooldown},grunkreuz:{rem:g=>g.grunkreuzOn>0?0:(g.grunkreuzOff??0),iv:()=>LEGENDARY_DEFENSE_BALANCE.grunkreuzOffDuration},rankinShell:{rem:g=>g.rankinTimer??0,iv:()=>LEGENDARY_DEFENSE_BALANCE.rankinInterval},kaiserFog:{rem:g=>g.brockSmokeTimer??g.kaiserFogTimer??0,iv:g=>g.brockSmoke?AUGMENTATION_OVERHAUL_BALANCE.smokeInterval:LEGENDARY_DEFENSE_BALANCE.fogInterval},motorCannon:{rem:g=>g.motorCannonTimer??0,iv:g=>g.ordnanceInterval?g.ordnanceInterval(LEGENDARY_BALANCE.motorCannonInterval):LEGENDARY_BALANCE.motorCannonInterval},sparkPlug:{rem:g=>g.mccuddenRepairTimer??0,iv:()=>AUGMENTATION_OVERHAUL_BALANCE.repairInterval},
+ cooperRack:{rem:g=>g.wwiCooperCooldown??0,iv:()=>WWI_BALANCE.cooper.cooldown},
+ fieryGrapnel:{rem:g=>g.wwiGrapnelCooldown??0,iv:()=>WWI_BALANCE.grapnel.cooldown},
+ flechettes:{rem:g=>g.wwiFlechetteCooldown??0,iv:()=>WWI_BALANCE.flechettes.cooldown},
+ veryPistol:{rem:g=>g.wwiVeryCooldown>.25?g.wwiVeryCooldown:0,iv:()=>WWI_BALANCE.veryPistol.cooldown},
+ strutterAirbrake:{rem:g=>g.evadeCooldown??0,iv:g=>8*(g.evadeCooldownMult||1)},
+ buckinghamBelt:{rem:g=>WWI_BALANCE.buckingham.hits-(((g.combatWorld?.()||g.world||g).t||0)-(g.wwiBuckinghamLastHitAt??-Infinity)<=WWI_BALANCE.buckingham.hitGap?(g.wwiBuckinghamHits||0):0),iv:()=>WWI_BALANCE.buckingham.hits},
+ hytheCamera:{rem:g=>g.wwiHytheVisible>0?0:WWI_BALANCE.hytheCamera.hits-(((g.combatWorld?.()||g.world||g).t||0)-(g.wwiHytheLastHitAt??-Infinity)<=WWI_BALANCE.hytheCamera.hitGap?(g.wwiHytheHits||0):0),iv:()=>WWI_BALANCE.hytheCamera.hits}
+};
 const soloRelicRefs=[],coopRelicRefs={p1:[],p2:[]};
 
 // Cut-in art swaps only once the new picture is decoded: the element stays hidden meanwhile, so a
@@ -1124,7 +1118,7 @@ modal=(tag,title,text,buttons)=>{
  const reroll=document.createElement('button');reroll.className='legendary-reroll115';reroll.textContent=t('upgrade.freeReroll');reroll.setAttribute('aria-label',t('upgrade.freeRerollLabel'));
  reroll.onclick=()=>{if(item&&game.online){game.rerollUpgrade(item.id);return}const next=owner.rerollChoices(current);if(!next)return;sound(520,.16,'triangle');
   if(item){item.choices=next;showCoopUpgrade(item);return;}
-  choices=next.map(u=>({id:u.id,rarity:u.rarity}));const rarityName={normal:'일반',magic:'매직',rare:'레어',unique:'유니크',legendary:'특수장비'};
+  choices=next.map(u=>({id:u.id,rarity:u.rarity}));const rarityName={normal:'일반',magic:'매직',rare:'레어',legendary:'특수장비'};
   modal(tag,title,text,choices.map((pick,i)=>{const u=UPGRADES.find(u=>u.id===pick.id);return{upgradeId:pick.id,label:`${i+1}. [${rarityName[pick.rarity]}] ${u.name}`,rarity:pick.rarity,desc:upgradeDescription(pick.id,pick.rarity,game),run:()=>choose(pick.id,pick.rarity)}}));
  };
  $('modalActions').append(reroll);
@@ -1335,7 +1329,7 @@ function closeBuildPop151(){document.querySelector('#build151 .build-pop151')?.r
 function openBuildPop151(tile,{name,rarity,count,category,stats,desc,en}){
  const area=document.getElementById('build151');if(!area)return;const el=(tag,text,cls)=>{const e=document.createElement(tag);e.textContent=text;if(cls)e.className=cls;return e};
  const pop=el('div','','build-pop151 rarity-'+rarity);pop.setAttribute('role','dialog');pop.setAttribute('aria-label',name);pop.onclick=e=>e.stopPropagation();
- const head=el('div','','build-pop-head151');head.append(el('small',category+' · '+rarityName(rarity),'build-pop-kind151'));if(count>1)head.append(el('small',(en?'Stacks ×':'중첩 ×')+count,'build-pop-count151'));
+ const head=el('div','','build-pop-head151');head.append(el('small',category+(rarity?' · '+rarityName(rarity):''),'build-pop-kind151'));if(count>1)head.append(el('small',(en?'Stacks ×':'중첩 ×')+count,'build-pop-count151'));
  pop.append(head,el('strong',name));
  if(stats.length){const list=el('dl','','build-pop-stats151');list.append(el('dt',en?'Build total':'누적 효과','build-pop-cap151'));for(const s of stats){const row=el('div','');row.append(el('dt',s.name),el('dd',s.value));list.append(row)}pop.append(list)}
  if(desc)pop.append(el('p',desc));
@@ -1375,7 +1369,7 @@ function pilotSkillButtons151(p){
 document.addEventListener('click',e=>{if(!e.target.closest?.('#modal .build-abilities151'))closePilotSkillDetails151()},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('#modal .build-abilities151 .astra-ability.ho-tip')){e.preventDefault();e.stopPropagation();closePilotSkillDetails151()}},true);
 function showBuildPause151(){
- modal('PAUSED','전투 현황','ESC · 계속하기',[{label:'계속하기',run:resume},{label:getLocale()==='en'?'Tactical Codex':'전술 도감',run:()=>showSettings151('records')},{label:'설정',run:showSettings151},{label:'전투 종료',run:returnHangar}]);$('modal').classList.remove('settings-modal151','manual-modal151');$('modal').classList.add('build-modal151');
+ modal('PAUSED','전투 현황','ESC · 계속하기',[{label:'계속하기',run:resume},{label:getLocale()==='en'?'Tactics & Special Doctrines':'전술·특수교리',run:()=>showSettings151('records')},{label:'설정',run:showSettings151},{label:'전투 종료',run:returnHangar}]);$('modal').classList.remove('settings-modal151','manual-modal151');$('modal').classList.add('build-modal151');
  document.getElementById('build151')?.remove();
  const area=document.createElement('div');area.id='build151';
  const el=(tag,text,cls)=>{const e=document.createElement(tag);e.textContent=text;if(cls)e.className=cls;return e};
@@ -1389,14 +1383,27 @@ function showBuildPause151(){
  section.append(pilotSkillButtons151(p));
  // Upgrades and special equipment as an even icon grid; a tap opens what each one adds up to so far.
  const en=getLocale()==='en';
- for(const [heading,test,sectionKind]of [['획득 강화',u=>!u.legendary&&!u.uniqueOnly,'owned'],[en?'Weapon Modifications':'무장 개조',u=>u.weaponMod,'weaponMods'],['고유 강화',u=>u.uniqueOnly&&!u.weaponMod,'unique'],['SPECIAL EQUIPMENT',u=>u.legendary,'special']]){const held=UPGRADES.filter(u=>p.upgrades[u.id]&&test(u));if(heading===(en?'Weapon Modifications':'무장 개조')&&!held.length)continue;const headingNode=el('h4',heading);headingNode.dataset.sectionKind=sectionKind;section.append(headingNode);const tiles=el('div','','build-icons151');if(!held.length)tiles.append(el('span','없음','empty151'));
-  for(const u of held){const rarity=u.legendary?'legendary':u.uniqueOnly?'unique':p.upgradeRarities?.[u.id]||'normal',count=p.upgrades[u.id]||1,name=reinforcementName(u,p,PLANES);
+ const groups=[
+  {kind:'owned',heading:en?'Acquired Upgrades':'획득 강화',entries:UPGRADES.filter(u=>p.upgrades[u.id]&&!u.legendary&&!u.specialDoctrine&&!u.weaponMod)},
+  {kind:'special',heading:en?'Special Equipment':'특수장비',entries:UPGRADES.filter(u=>p.upgrades[u.id]&&u.legendary)},
+  {kind:'doctrines',heading:en?'Tactical Doctrines':'전술교리',entries:tacticalEntries.filter(entry=>tacticalSelected(p,entry))}
+ ];
+ for(const {kind,heading,entries} of groups){
+  const headingNode=el('h4',heading);headingNode.dataset.sectionKind=kind;section.append(headingNode);
+  const tiles=el('div','','build-icons151');tiles.dataset.inventorySection=kind;
+  if(!entries.length)tiles.append(el('span',en?'None':'없음','empty151'));
+  for(const u of entries){
+   const doctrine=kind==='doctrines',rarity=doctrine?'tactical':u.legendary?'legendary':u.rareOnly?'rare':p.upgradeRarities?.[u.id]==='unique'?'rare':p.upgradeRarities?.[u.id]||'normal',count=doctrine?1:p.upgrades[u.id]||1,name=doctrine?tacticalText(u,'name'):reinforcementName(u,p,PLANES);
    const tile=el('button','','build-tile151 rarity-'+rarity);tile.type='button';tile.dataset.upgradeId=u.id;tile.setAttribute('aria-label',name+(count>1?' ×'+count:''));tile.setAttribute('aria-expanded','false');
-   const icon=document.createElement('canvas');icon.width=112;icon.height=88;icon.setAttribute('aria-hidden','true');choiceIconRefs.push({canvas:icon,id:u.id,owner:p});drawUpgradeIcon(icon,u.id,p);tile.append(icon);
+   let icon;if(doctrine){icon=tacticalIcon(u,p);tile.dataset.tacticalId=u.id;}else{icon=document.createElement('canvas');icon.width=112;icon.height=88;choiceIconRefs.push({canvas:icon,id:u.id,owner:p});drawUpgradeIcon(icon,u.id,p);}
+   icon.setAttribute('aria-hidden','true');tile.append(icon);
    if(count>1)tile.append(el('b','×'+count,'build-count151'));
-   tile.onclick=e=>{e.stopPropagation();const open=tile.getAttribute('aria-expanded')!=='true';closeBuildPop151();if(open)openBuildPop151(tile,{name,rarity,count,category:categoryName(u.id),stats:heldStats(p,u.id),desc:translatedUpgradeDescription(u.id,cleanDescription(u.desc)),en})};
-   tiles.append(tile)}
-  section.append(tiles)}
+   tile.onclick=e=>{e.stopPropagation();const open=tile.getAttribute('aria-expanded')!=='true';closeBuildPop151();if(open)openBuildPop151(tile,{name,rarity:doctrine?'':rarity,count,category:doctrine?heading:categoryName(u.id),stats:doctrine?[]:heldStats(p,u.id),desc:doctrine?tacticalText(u,'description'):translatedUpgradeDescription(u.id,u.desc),en})};
+   tiles.append(tile);
+  }
+  section.append(tiles);
+ }
+
  area.append(section);
  }const panels=[...area.children];
  if(panels.length>1){
@@ -1516,15 +1523,16 @@ function saveDisplayPrefs151(){try{localStorage.setItem('headon.hiFps',hiFpsMode
 // never enters the rarity, equipment-slot, or reroll presentation paths.
 const tacticalStyle=document.createElement('link');tacticalStyle.rel='stylesheet';tacticalStyle.href=new URL('./tactical-doctrines.css?v=tactics20261023d',import.meta.url).href;document.head.append(tacticalStyle);
 const tacticalFamilies={GUN:['기관총','Gunnery'],SPEED:['속도','Speed'],EXPLOSIVE:['폭발물','Ordnance'],FORMATION:['편대','Formation'],SURVIVAL:['생존','Survival']};
-const tacticalEntries=[...TACTICAL_DOCTRINES,...COMPOSITE_TACTICS];
+const tacticalEntries=[...TACTICAL_DOCTRINES,...COMPOSITE_TACTICS,...SPECIAL_DOCTRINES];
 const tacticalEntry=id=>tacticalEntries.find(entry=>entry.id===id);
 const tacticalText=(entry,key)=>getLocale()==='en'?(entry['en'+key[0].toUpperCase()+key.slice(1)]||entry[key]||''):(entry[key]||'');
 const tacticalFamilyName=family=>(tacticalFamilies[family]||[family,family])[getLocale()==='en'?1:0];
 const tacticalElement=(tag,text,className)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(className)el.className=className;return el};
 const tacticalCount=(p,family)=>Math.max(0,Number(p?.weaponModSelections?.[family])||0);
-const tacticalSelected=(p,entry)=>entry.family?p?.weaponMods?.[entry.family]===entry.value:p?.compositeTactic===entry.id;
+const tacticalSelected=(p,entry)=>entry.specialDoctrine?!!p?.upgrades?.[entry.id]:entry.family?p?.weaponMods?.[entry.family]===entry.value:p?.compositeTactic===entry.id;
 function tacticalAvailability(p,entry){
  const en=getLocale()==='en';if(tacticalSelected(p,entry))return en?'Selected':'선택 완료';
+ if(entry.specialDoctrine){if(p?.bomberTransfer)return en?'Another conversion chosen':'다른 전환 선택';if(p?.upgrades?.strutterAirbrake)return en?'Incompatible with airbrake':'에어브레이크와 동시 사용 불가';return tacticalCount(p,entry.family)>=5?(en?'Unlocked':'해금 완료'):(en?'Locked':'미해금');}
  if(entry.family){if(p?.weaponMods?.[entry.family])return en?'Alternate doctrine chosen':'다른 교리 선택';return tacticalCount(p,entry.family)>=5?(en?'Unlocked':'해금 완료'):(en?'Locked':'미해금')}
  if(p?.compositeTactic)return en?'Another tactic chosen':'다른 복합 전술 선택';
  const [a,b]=entry.families,ready=(p?.weaponMods?.[a]&&tacticalCount(p,a)>=5&&tacticalCount(p,b)>=3)||(p?.weaponMods?.[b]&&tacticalCount(p,b)>=5&&tacticalCount(p,a)>=3);
@@ -1537,7 +1545,7 @@ function tacticalCondition(entry,p){
  return `${tacticalFamilyName(a)} ${tacticalCount(p,a)} · ${tacticalFamilyName(b)} ${tacticalCount(p,b)} / ${en?'5 + 3 selections, either primary':'어느 한쪽 5회 + 다른 쪽 3회'}`;
 }
 function tacticalIcon(entry,p,equipment=false){
- if(equipment){const icon=document.createElement('canvas');icon.width=112;icon.height=88;icon.className='tactical-icon';icon.setAttribute('aria-hidden','true');choiceIconRefs.push({canvas:icon,id:entry.id,owner:p});drawUpgradeIcon(icon,entry.id,p);return icon}
+ if(equipment||entry.specialDoctrine){const icon=document.createElement('canvas');icon.width=112;icon.height=88;icon.className='tactical-icon';icon.setAttribute('aria-hidden','true');choiceIconRefs.push({canvas:icon,id:entry.id,owner:p});drawUpgradeIcon(icon,entry.id,p);return icon}
  const icon=tacticalIconAssets.image(entry.id);icon.className='tactical-icon';icon.alt='';icon.width=112;icon.height=112;return icon;
 }
 const modalBeforeTactical=modal;
@@ -1594,7 +1602,7 @@ function renderTacticalCodex(anchor){
  const detail=tacticalElement('section',undefined,'tactical-detail');detail.hidden=true;detail.setAttribute('role','region');
  root.append(nav,content,detail);
  if(players.length>1){const select=tacticalElement('select',undefined,'tactical-owner');select.setAttribute('aria-label',en?'View pilot':'확인할 파일럿');for(const p of players){const option=tacticalElement('option',(p.id||'').toUpperCase()+' · '+pilotName(p.pilot,PILOTS[p.pilot]?.name||p.pilot));option.value=p.id;option.selected=p===owner;select.append(option)}select.onchange=()=>{owner=players.find(p=>p.id===select.value)||players[0];tacticalCodexPlayer=owner.id;renderCategory(tacticalCodexCategory)};root.prepend(select)}
- const categories=[['doctrines',en?'Doctrines':'전술교리'],['composites',en?'Combinations':'복합 전술'],['equipment',en?'Equipment':'특수장비'],['records',en?'Records':'전투 기록']];
+ const categories=[['doctrines',en?'Doctrines':'전술교리'],['composites',en?'Combinations':'복합 전술'],['special',en?'Special Doctrines':'특수교리'],['equipment',en?'Equipment':'특수장비'],['records',en?'Records':'전투 기록']];
  let openedBy=null,scrollTop=0;
  const closeDetail=()=>{detail.hidden=true;content.hidden=false;nav.hidden=false;content.scrollTop=scrollTop;openedBy?.focus({preventScroll:true});openedBy?.setAttribute('aria-expanded','false')};
  root.closeTacticalDetail=closeDetail;
@@ -1616,7 +1624,12 @@ function renderTacticalCodex(anchor){
    if(entry.family){const progress=document.createElement('progress');progress.max=5;progress.value=Math.min(5,tacticalCount(owner,entry.family));progress.setAttribute('aria-label',tacticalCondition(entry,owner));detail.append(progress)}
    else detail.append(tacticalElement('p',en?'Requires a selected doctrine in the primary family. One combined tactic per sortie.':'5회 달성한 주력 계열의 교리 선택이 필요합니다. 출격당 복합 전술 하나를 선택합니다.','tactical-rule'));
    detail.append(tacticalElement('p',tacticalText(entry,'description'),'tactical-detail-copy'),tacticalElement('h4',en?'Strength':'강점'),tacticalElement('p',tacticalText(entry,'advantage'),'tactical-strength'),tacticalElement('h4',en?'Tradeoff':'약점'),tacticalElement('p',tacticalText(entry,'weakness'),'tactical-weakness'));
+   if(entry.specialDoctrine)detail.append(tacticalElement('p',en?'Choose one airframe conversion per sortie. No equipment slot is used.':'출격당 기체 전환 하나를 선택합니다. 특수장비 슬롯을 소모하지 않습니다.','tactical-rule'));
    if(entry.family)detail.append(tacticalElement('p',en?'Each applied normal upgrade counts once, including repeats. Rarity, rerolls and special equipment do not change the count.':'일반 강화 선택·적용마다 1회 누적됩니다. 반복 선택은 인정하며 희귀도·재추첨·특수장비는 횟수에 영향을 주지 않습니다.','tactical-rule'));
+  }
+  if(!equipment&&game?.state==='paused'&&(!game.online||owner.id===game.localPlayerId)&&availableTacticalEntries(owner).some(d=>d.id===entry.id)){
+   const adopt=tacticalElement('button',en?'Adopt this doctrine':'이 교리 채택','tactical-adopt-button');adopt.type='button';adopt.dataset.adoptTactical=entry.id;
+   adopt.onclick=()=>{const ok=game.mode==='coop2'?game.action(owner.id,'tactic:'+entry.id):selectTactical(owner,entry.id);if(ok){adopt.disabled=true;adopt.textContent=game.online&&!game.host?(en?'Requested':'채택 요청됨'):(en?'Adopted':'채택 완료');if(!game.online||game.host)openDetail(entry,button,equipment);}};detail.append(adopt);
   }
   detail.scrollTop=0;back.focus({preventScroll:true});
  }
@@ -1629,13 +1642,13 @@ function renderTacticalCodex(anchor){
    const profile=tacticalElement('button',en?'Pilot cloud records':'파일럿 계정 기록','tactical-record-link');profile.type='button';profile.disabled=!!game||!pilotCloud;profile.onclick=()=>pilotCloud?.open();content.append(profile,tacticalElement('p',en?'Pilot kills · aircraft unlocks · medals. Account management is available in the hangar.':'파일럿 격추 · 기체 해금 · 훈장. 계정 관리는 격납고에서 이용할 수 있습니다.','tactical-rule'));
    const record=tacticalElement('a',en?'Official Battle Record':'공식 전장 기록','tactical-record-link');record.href=fieldRecordLink.href;record.target='_blank';record.rel='noopener';content.append(record);return;
   }
-  const equipment=category==='equipment',entries=equipment?UPGRADES.filter(u=>u.legendary):category==='composites'?COMPOSITE_TACTICS:TACTICAL_DOCTRINES;
+  const equipment=category==='equipment',entries=equipment?UPGRADES.filter(u=>u.legendary):category==='composites'?COMPOSITE_TACTICS:category==='special'?SPECIAL_DOCTRINES:TACTICAL_DOCTRINES;
   const committed=[...new Set(Object.keys(owner.upgrades||{}).filter(id=>owner.upgrades[id]).map(buildIdentityFor).filter(Boolean))];
   const progress=tacticalElement('div',undefined,'tactical-family-progress');
   for(const family of Object.keys(tacticalFamilies)){const label=tacticalElement('span',tacticalFamilyName(family)+' '+tacticalCount(owner,family)+'/5');label.classList.toggle('committed',committed.includes(family));progress.append(label)}
   content.append(progress,tacticalElement('p',(en?'Build families ':'선택 계열 ')+committed.length+'/'+BUILD_IDENTITY_LIMIT+' · '+(en?'Equipment can use a family slot; only normal upgrades count toward doctrines.':'특수장비도 계열을 차지할 수 있으며 교리 횟수는 일반 강화만 누적됩니다.'),'tactical-index-hint'));
   if(category==='composites'&&owner.compositeTactic)content.append(tacticalElement('p',(en?'Selected · ':'채택 전술 · ')+tacticalText(tacticalEntry(owner.compositeTactic),'name'),'tactical-progress'));
-  if(!equipment)content.append(tacticalElement('p',category==='doctrines'?(en?'Five selections unlock a doctrine.':'같은 계열 강화 5회 달성 시 즉시 선택'):(en?'Primary 5 + secondary 3 · one per sortie':'주력 5회 + 다른 계열 3회 · 출격당 하나'),'tactical-index-hint'));
+  if(!equipment)content.append(tacticalElement('p',category!=='composites'?(en?'Five selections unlock a doctrine. Adopt it here when ready.':'같은 계열 강화 5회 → 해금 · 원하는 때 직접 채택'):(en?'Primary 5 + secondary 3 · one per sortie':'주력 5회 + 다른 계열 3회 · 출격당 하나'),'tactical-index-hint'));
   const list=tacticalElement('div',undefined,'tactical-index');content.append(list);
   for(const entry of entries){const button=tacticalElement('button',undefined,'tactical-index-entry');button.type='button';button.setAttribute('aria-expanded','false');button.dataset.tacticalEntry=entry.id;
    const selected=equipment?!!owner.upgrades?.[entry.id]:tacticalSelected(owner,entry);button.classList.toggle('selected',selected);
@@ -1767,7 +1780,7 @@ showBuildPause151=()=>{
  const result=showBuildPauseWithDynamicLocale();
  const players=game?.players||[game];
  const build=$('build151');if(!build?.querySelectorAll)return result;
- [...build.querySelectorAll('section')].forEach((section,index)=>{const p=players[index];if(!p)return;const h3=section.querySelector?.('h3'),meta=section.querySelector?.('.build-meta151');if(h3)h3.textContent=(p.id?p.id.toUpperCase()+' · ':'')+localizedPilot(p.pilot,PILOTS[p.pilot].name);if(meta&&getLocale()==='en'){const kills=game.mode==='coop2'?(game.priorityKills||0):(p.priorityKills??game.priorityKills??0);meta.textContent=displayAircraftName(p.pilot,p.plane)+' · '+String(Math.floor(game.t/60)).padStart(2,'0')+':'+String(Math.floor(game.t%60)).padStart(2,'0')+' · Priority kills '+kills+' · LV. '+p.level}for(const heading of section.querySelectorAll?.('h4')||[])heading.textContent=heading.dataset.sectionKind==='weaponMods'?(getLocale()==='en'?'Weapon Modifications':'무장 개조'):heading.dataset.sectionKind==='owned'?t('upgrade.owned'):heading.dataset.sectionKind==='unique'?t('upgrade.unique'):t('special.title');for(const empty of section.querySelectorAll?.('.empty151')||[])empty.textContent=t('special.none');});
+ [...build.querySelectorAll('section')].forEach((section,index)=>{const p=players[index];if(!p)return;const h3=section.querySelector?.('h3'),meta=section.querySelector?.('.build-meta151');if(h3)h3.textContent=(p.id?p.id.toUpperCase()+' · ':'')+localizedPilot(p.pilot,PILOTS[p.pilot].name);if(meta&&getLocale()==='en'){const kills=game.mode==='coop2'?(game.priorityKills||0):(p.priorityKills??game.priorityKills??0);meta.textContent=displayAircraftName(p.pilot,p.plane)+' · '+String(Math.floor(game.t/60)).padStart(2,'0')+':'+String(Math.floor(game.t%60)).padStart(2,'0')+' · Priority kills '+kills+' · LV. '+p.level}for(const heading of section.querySelectorAll?.('h4')||[])heading.textContent=heading.dataset.sectionKind==='doctrines'?(getLocale()==='en'?'Tactical Doctrines':'전술교리'):heading.dataset.sectionKind==='weaponMods'?(getLocale()==='en'?'Weapon Modifications':'무장 개조'):heading.dataset.sectionKind==='owned'?t('upgrade.owned'):t('special.title');for(const empty of section.querySelectorAll?.('.empty151')||[])empty.textContent=t('special.none');});
  return result;
 };
 subscribe(()=>{if(!$('modal').classList.contains('hidden')&&$('modal').classList.contains('settings-modal151'))showSettings151();else if(game?.state==='paused')showBuildPause151();else if(game) {if(game.mode==='coop2')coopHud();else hud()}else roster()});

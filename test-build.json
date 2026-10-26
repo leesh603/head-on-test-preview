@@ -1,1 +1,1 @@
-{"sourceRepository":"leesh603/head-on-aces-source","sourceBranch":"feat/air-battle-density-phase4-20261025","sourceCommit":"8eb332e501161e161b8b5052cdec2b178b2b0d9e","baseline":"b76052d076d3901e99951c888e3f9b869b42d33b","phase":"4 candidate","productionDeployed":false}
+{"base": "3599807b54e1bcf54d9465dbfb35aeccdb4e4929", "previewBase": "84bda3e76ede5357f3ba5d9af28a5eed3c38f8e1", "ref": "feature/livens-continuous-fire-382", "version": 394}

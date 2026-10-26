@@ -4,7 +4,7 @@ import {playerAirframeModel} from './player-airframe-handling.js?v=handling5';
 import {drawFuelFire} from './explosion-profiles.js?v=fx5';
 import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=descent20261022';
 import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
-import {tacticalCueSound} from './tactical-combat-view.js?v=combat20261024';
+import {tacticalCueSound} from './tactical-combat-view.js?v=combat20261024&td4=20261026';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.
 const worlds=new WeakMap(),poses=new WeakMap();

@@ -1,11 +1,25 @@
+import {drawProjectileTactic} from './gun-signatures.js';
 import {drawExplosionProfile} from './explosion-profiles.js?v=fx5';
 import {drawGameIcon} from './icons.js?v=buildfit1&afc=1';
 import {fx,fxReady,FX56,FX3} from './fx-art.js?v=tame3';
 import {fxsBoom} from './fx-sample-preview.js?v=pilotfx20261018';
+import {drawOrdnanceFlightTrail} from './ordnance-art.js?v=tame3';
+
+export function grenadeVisualPose(g,out={}){
+ const dx=g.targetX-g.startX,dy=g.targetY-g.startY;
+ out.bearing=Number.isFinite(dx)&&Number.isFinite(dy)&&dx*dx+dy*dy>1e-8?Math.atan2(dy,dx):0;
+ out.spin=Math.min(Math.max(0,g.age||0),g.flight>0?g.flight:.6)*7;
+ return out;
+}
+const grenadePose={};
 
 export function drawGrenade(c,g,x,y){
- c.save();c.translate(x,y-g.height);c.rotate(g.phase==='flight'?g.age*7:0);
- if(!fx(c,g.phase==='flight'&&fxReady('grenadeFlight')?'grenadeFlight':'grenade',0,0,18,18))drawGameIcon(c,'mines',0,0,15);
+ const pose=grenadeVisualPose(g,grenadePose),flight=g.phase==='flight';
+ c.save();c.translate(x,y-g.height);
+ const separate=flight&&fxReady('grenadeFlight')&&drawOrdnanceFlightTrail(c,'grenadeFlight',0,0,18,18,pose.bearing);
+ drawProjectileTactic(c,g,0,0,pose.bearing);
+ c.rotate(pose.spin);
+ if(!fx(c,flight&&!separate&&fxReady('grenadeFlight')?'grenadeFlight':'grenade',0,0,18,18))drawGameIcon(c,'mines',0,0,15);
  if(g.phase==='fuse'){c.fillStyle='#f1cd8e';c.beginPath();c.arc(2,-4,.9,0,Math.PI*2);c.fill()}c.restore();
 }
 export function drawGrenadeBlast(c,f,x,y){
@@ -150,4 +164,3 @@ export function drawOrdnanceCharge(c,f,x,y,paint=fx,ready=fxReady){
  if(q>.38)paint(c,'smokeGray',x,y-r*q*.18,r*(.48+q*.3),r*(.4+q*.3),0,Math.sin((q-.38)/.62*Math.PI)*(.1+tier*.04));
  return true;
 }
-

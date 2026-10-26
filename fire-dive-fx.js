@@ -1,6 +1,7 @@
 // Luke: actual burning fuel cells. Mannock: articulated real support aircraft.
 // No projectile, damage, spawn, random-number or flight-state writes.
 import {signatureCue,signatureInterval} from './pilot-signature-state.js';
+import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js';
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const owner=p=>p.id??'p1';
 const living=p=>p?.hp>0&&p.status!=='downed'&&p.state==='playing';
@@ -9,23 +10,19 @@ export const FIRE_DIVE_PILOTS=new Set(['luke','mannock']);
 export const lukeAirship=e=>!!e&&(e.type==='zeppelin'||['zeppelin-l70','hma23'].includes(e.stageBossBody?.kind||e.kind));
 const INSTALLED=Symbol.for('headon.fire-dive-fx.v1');
 const burnAnchors=new WeakMap();
-const fireArt=[];
-export const fireDiveArtReady=Promise.all([0,1,2,3].map(i=>new Promise(resolve=>{
- if(typeof Image==='undefined'){resolve(false);return;}
- const im=new Image();fireArt[i]=im;im.onload=()=>resolve(true);im.onerror=()=>resolve(false);im.src=new URL('./pilot-material-art/luke-fire-'+i+'.webp',import.meta.url).href;
-})));
+export const fireDiveArtReady=incendiaryArtReady.then(ready=>[ready]);
 export function installFireDiveFx(Game){
  const q=Game.prototype;if(Object.hasOwn(q,INSTALLED))return;Object.defineProperty(q,INSTALLED,{value:true});
  const impact=q.identityImpact;q.identityImpact=function(b,e,target=e,pos=e){
   const before=this.pilotIdentity?.burns?.get(target),r=impact.call(this,b,e,target,pos);
-  if(this.pilot!=='luke'||!living(this)||!privateGun(this,b))return r;
+  if(!['luke','gontermann'].includes(this.pilot)||!living(this)||!privateGun(this,b))return r;
   const burn=this.pilotIdentity?.burns?.get(target);
   if(burn&&burn!==before){
    const point=e.stageBossBody?(pos||b):b,a=e.a||0,dx=point.x-e.x,dy=point.y-e.y;
-   burnAnchors.set(burn,{x:dx*Math.cos(a)+dy*Math.sin(a),y:-dx*Math.sin(a)+dy*Math.cos(a)});
+   burnAnchors.set(burn,{x:dx*Math.cos(a)+dy*Math.sin(a),y:-dx*Math.sin(a)+dy*Math.cos(a),duration:burn.time});
   }
   // identityImpact is the existing positive-damage notification, including parts.
-  if(lukeAirship(e)&&signatureInterval(this,'lukeFabricHit',.09)){
+  if(this.pilot==='luke'&&lukeAirship(e)&&signatureInterval(this,'lukeFabricHit',.09)){
    const point=e.stageBossBody?(pos||b):b;
    signatureCue(this,'lukeFabricHit',{x:point.x,y:point.y,a:Math.atan2(b.vy,b.vx),life:.3});
   }
@@ -47,31 +44,26 @@ export function lukeBurnPoint(burn){
  if(local)return {x:e.x+local.x*Math.cos(a)-local.y*Math.sin(a),y:e.y+local.x*Math.sin(a)+local.y*Math.cos(a)};
  return {x:e.x,y:e.y};
 }
-export function lukeBurns(p){
- if(p.pilot!=='luke'||!living(p))return [];
+export function incendiaryBurns(p){
+ if(!['luke','gontermann'].includes(p.pilot)||!living(p))return [];
  const out=[];
  for(const burn of p.pilotIdentity?.burns?.values()||[]){
   if(!(burn.time>0))continue;const point=lukeBurnPoint(burn);if(!point||Math.hypot(point.x-p.x,point.y-p.y)>1200)continue;
   const e=burn.enemy,a=(Math.hypot(e.vx||0,e.vy||0)>10?Math.atan2(e.vy,e.vx):e.a||0)+Math.PI;
-  out.push({burn,...point,a,age:Math.max(0,3-burn.time),large:lukeAirship(e)});if(out.length===8)break;
+  out.push({burn,...point,a,age:Math.max(0,(burnAnchors.get(burn)?.duration||3)-burn.time),large:lukeAirship(e)});if(out.length===8)break;
  }return out;
 }
+export function lukeBurns(p){return p.pilot==='luke'?incendiaryBurns(p):[];}
 export function drawLukeFlame(c,x,y,a,height,age,alpha=1){
- const frame=(age*11)%4,index=Math.floor(frame),mix=frame-index;
- let drawn=false;
- c.save();c.translate(x,y);c.rotate(a+Math.PI/2);
- for(const [i,weight]of [[index,1-mix],[(index+1)%4,mix]]){
-  const im=fireArt[i];if(!im?.complete||!im.naturalWidth||weight<=0)continue;
-  c.save();c.globalAlpha*=alpha*weight;c.drawImage(im,-height/3,-height*.9375,height*2/3,height);c.restore();drawn=true;
- }c.restore();return drawn;
+ return drawIncendiaryFire(c,x,y,a,height,age,alpha);
 }
 export function drawFireDiveWorld(c,p,tex,front=false,shift={x:0,y:0}){
- for(const f of lukeBurns(p)){
+ for(const f of incendiaryBurns(p)){
   const x=f.x-p.x+shift.x,y=f.y-p.y+shift.y,growth=clamp(f.age/.32),fade=clamp(f.burn.time/.35),size=(f.large?78:54)*(.48+.52*growth),pulse=1+Math.sin(f.age*19)*.06;
   if(front){
    drawLukeFlame(c,x,y,f.a,size*pulse,f.age,.92*fade);
    if(f.large&&growth>.5)drawLukeFlame(c,x-Math.sin(f.a)*13,y+Math.cos(f.a)*13,f.a+.16,size*.65,f.age+.17,.76*fade);
-  }else if(growth>.2){const d=17+growth*17;tex(c,'smokeOil',x+Math.cos(f.a)*d,y+Math.sin(f.a)*d,46,20,f.a,.32*fade);}
+  } // Smoke is already painted into the attached flame, sharing its root.
  }
 }
 export function mannockWingPose(w,pass=true){

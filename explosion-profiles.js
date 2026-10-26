@@ -111,14 +111,16 @@ export function drawExplosionProfile(c,f,x,y,fx){
   shards(c,fx,x,y,age,d,true,3);
   if(age<.16)fx(c,'spark',x+d*age,y-d*age*.7,14,14,age*4,(1-age/.16)*.9);
  }else if(profile==='groundShell'||profile==='heavyShell'){
-  const heavy=profile==='heavyShell',T=EXPLOSION_LIFE[profile],q=clamp(age/T),d=heavy?Math.min(205,Math.max(112,r*1.75)):Math.min(76,Math.max(38,r*1.05));
-  // Two lateral dust lobes separate the broad outer layer from the dirt column.
-  const spread=clamp(age/(heavy?.55:.3)),dust=clamp((T-age)/(heavy?.4:.22))*(heavy?.3:.21);
-  for(let i=0;i<(heavy?2:1);i++)fx(c,'profileDust',x+(i?1:-1)*d*spread*.3,y+d*.12,d*(.55+spread*.9),d*(.32+spread*.3),i?.15:-.12,dust);
-  if(age<(heavy?.42:.24))fx(c,FRAMES.earth[Math.min(3,Math.floor(age/(heavy?.105:.06)))],x,y-d*(heavy?.14:.07),d*(heavy?.78:.7),d*(heavy?1.15:.9),0,clamp(((heavy?.42:.24)-age)/.14)*.9);
+  const heavy=profile==='heavyShell',T=EXPLOSION_LIFE[profile],q=clamp(age/T),d=heavy?Math.min(300,Math.max(112,r*1.95)):Math.min(104,Math.max(38,r*1.25));
+  // Fast lateral heave loses momentum while the central soil column rises.
+  // These soft lobes are aftermath, never an extra damaging shock ring.
+  const spread=1-Math.pow(1-clamp(age/(heavy?.65:.36)),3),dust=clamp(age/.045)*clamp((T-age)/(heavy?.36:.2))*(heavy?.38:.25);
+  for(let i=0;i<(heavy?2:1);i++)fx(c,'profileDust',x+(heavy?(i?1:-1)*d*spread*.32:0),y+d*.08,d*(.8+spread),d*(.5+spread*.2),i?.15:-.12,dust);
+  if(age<(heavy?.42:.24)){const heave=.62+.38*clamp(age/(heavy?.1:.06));fx(c,FRAMES.earth[Math.min(3,Math.floor(age/(heavy?.105:.06)))],x,y-d*(heavy?.12:.06),d*.9*heave,d*(heavy?1.12:.95)*heave,0,clamp(((heavy?.42:.24)-age)/.14)*.9);}
   if(heavy&&age<.1)fx(c,'profileFlash',x,y,d*.62,d*.62,0,(1-age/.1)*.95);
   shards(c,fx,x,y,age,d,false,heavy?4:2,true);
-  if(heavy&&q>.12&&q<.55)fx(c,'profileDirt',x,y-d*q*.42,d*.46,d*(.9+q*.5),0,(1-q/.55)*.4);
+  if(heavy&&q>.12&&q<.65)fx(c,'profileDirt',x,y-d*q*.42,d*.46,d*(.9+q*.5),0,(1-q/.65)*.4);
+  if(!f.railImpact&&age>.2)fx(c,'profileOil',x+d*.04,y-d*(.12+q*.22),d*(.5+q*.4),d*(.6+q*.4),-.1,clamp((age-.2)/.12)*clamp((T-age)/.24)*(heavy?.24:.16));
   if(f.railImpact){
    // Railway HE keeps its earth column, with a painted detonation and brief
    // flame at the contact point. Reuse the capped effect, never extra particles.

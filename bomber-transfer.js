@@ -1,10 +1,11 @@
 import {wimperisTarget,correctWimperisBomb} from './flight-equipment.js';
 import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=buildfit1&afc=1';
 // Sortie-only heavy-airframe fit. The selected plane and pilot remain authoritative.
-export const BOMBER_TRANSFER_DESCRIPTION='대형 중폭격기로 전환합니다. 폭발물 강화가 적용되는 고위력 융단·집중폭격, 후방 방어사수를 획득합니다. 선회기동 대신 후방 방어탄막을 사용합니다. 최대 내구도가 증가하지만 비행속도와 선회력이 감소하며 다른 기체 전환과 동시 장착 불가.';
+import {BOMBER_TRANSFER_DESCRIPTION} from './airframe-doctrines.js';
+export {BOMBER_TRANSFER_DESCRIPTION};
 export const BOMBER_TRANSFER=Object.freeze({
- entente:Object.freeze({name:'Handley Page O/400',sprite:'bomber-transfer-o400',hp:3,hpCap:420,speed:.6,turn:.4,period:6.6,count:5,spacing:56,interval:.18,radius:86,damage:103,scale:2.28,front:39,rear:30,hullLength:30,hullWidth:57}),
- central:Object.freeze({name:'Gotha G.V',sprite:'bomber-transfer-gotha',hp:2.7,hpCap:380,speed:.7,turn:.5,period:6.1,count:3,spacing:37,interval:.15,radius:78,damage:135,scale:2.06,front:51,rear:41,hullLength:42,hullWidth:52})
+ entente:Object.freeze({name:'Handley Page O/400',sprite:'bomber-transfer-o400',hp:3.5,hpCap:520,speed:.76,turn:.62,period:4.8,count:5,spacing:56,interval:.18,radius:96,damage:145,scale:2.28,front:39,rear:30,hullLength:30,hullWidth:57}),
+ central:Object.freeze({name:'Gotha G.V',sprite:'bomber-transfer-gotha',hp:3.2,hpCap:480,speed:.8,turn:.66,period:4.5,count:3,spacing:37,interval:.15,radius:90,damage:185,scale:2.06,front:51,rear:41,hullLength:42,hullWidth:52})
 });
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
@@ -57,7 +58,7 @@ export function bomberContactPadding(p,e){
  return 1/Math.hypot(Math.cos(angle)/fit.hullLength,Math.sin(angle)/fit.hullWidth)-10;
 }
 
-// Each boss body shares two full bomb hits per salvo, even when proxies/parts overlap.
+// Each boss body shares three full bomb hits per salvo, even when proxies/parts overlap.
 export function capBomberSalvoDamage(e,b,damage){
  const salvo=b.bomberSalvo;if(!salvo||!(e.stageBossBody||e.bossPilot||e.type==='boss'))return damage;
  const key=e.stageBossBody||e,used=salvo.bossDamage.get(key)||0;
@@ -69,6 +70,7 @@ export function detonateFriendlyBomb(w,b){
  const p=w.players?w.players.find(p=>p.id===b.ownerId):w;
  if(!p||b.bomberTransfer&&(!active(p)))return;
  p.queueExplosionDamage(b.x,b.y,b.radius,b.damage,{fxSource:'bomb',bomberSalvo:b.bomberSalvo});
+ if(b.tacticalBomb){const blast=w.bullets.at(-1);if(blast?.actualExplosion&&blast.ownerId===b.ownerId){blast.tacticalRound=true;blast.projectileCombo=b.projectileCombo;}}
 }
 
 function bombingTarget(p){
@@ -86,7 +88,7 @@ function beginSalvo(p,fit){
  fit.heading=p.a;fit.tx=target?target.x+Math.cos(source.a||0)*lead:p.x+Math.cos(p.a)*160;
  fit.ty=target?target.y+Math.sin(source.a||0)*lead:p.y+Math.sin(p.a)*160;
  fit.remaining=fit.count;fit.index=0;fit.drop=0;
- fit.salvo={bossDamage:new Map(),bossCap:p.payloadPower(fit.damage)*2};
+ fit.salvo={bossDamage:new Map(),bossCap:p.payloadPower(fit.damage)*3};
  p.event('ally',fit.name+' · '+(fit.count===5?'융단폭격':'집중폭격'));
 }
 function releaseBomb(p,fit){
@@ -140,13 +142,13 @@ export function installBomberTransfer(Game,planes,scarff){
   this.enemyCruiseReference??=this.baseSpeed??this.speed;
   this.speed*=config.speed;if(this.baseSpeed)this.baseSpeed*=config.speed;this.turn*=config.turn;
   if(config.kind==='airship'){
-   const count=this.permanentWingman||0;this.bomberTransfer.escortBonus=Math.max(0,Math.min(2,7-count));
-   this.permanentWingman=count+this.bomberTransfer.escortBonus;
+   const count=this.permanentWingman||0;this.bomberTransfer.escortBonus=Math.max(0,Math.min(3,7-count));
+   this.permanentWingman=count+this.bomberTransfer.escortBonus;this.wingmanDamageMult=(this.wingmanDamageMult||1)*1.35;
   }
   this.airframeSpeed=1;this.event('ally',(id==='mgTransfer'?'집중화력 개조 · ':id==='airshipTransfer'?'공중함대 지휘 · ':'폭격비행대 전속 · ')+config.name);return true;
  };
  q.acquireBomberTransfer=function(){return this.acquireAirframeTransfer('bomberTransfer');};
- q.clearAirframeTransfer=function(){const fit=this.bomberTransfer;if(!fit)return false;const ratio=this.maxHp?this.hp/this.maxHp:0;this.maxHp/=fit.hpMultiplier||fit.hp;this.hp=this.maxHp*ratio;this.speed/=fit.speed;if(this.baseSpeed)this.baseSpeed/=fit.speed;this.turn/=fit.turn;if(fit.kind==='airship'){this.permanentWingman=Math.max(0,(this.permanentWingman||0)-(fit.escortBonus||0));const w=world(this);let kept=0;w.allies=w.allies.filter(a=>{if(!a.permanent||a.ownerId!==this.id)return true;delete a.carrierLaunchAt;delete a.carrierHidden;delete a.carrierScale;return kept++<this.permanentWingman;});}delete this.upgrades[fit.id||'bomberTransfer'];delete this.bomberTransfer;this.airframeSpeed=1;return true;};
+ q.clearAirframeTransfer=function(){const fit=this.bomberTransfer;if(!fit)return false;const ratio=this.maxHp?this.hp/this.maxHp:0;this.maxHp/=fit.hpMultiplier||fit.hp;this.hp=this.maxHp*ratio;this.speed/=fit.speed;if(this.baseSpeed)this.baseSpeed/=fit.speed;this.turn/=fit.turn;if(fit.kind==='airship'){this.wingmanDamageMult=(this.wingmanDamageMult||1)/1.35;this.permanentWingman=Math.max(0,(this.permanentWingman||0)-(fit.escortBonus||0));const w=world(this);let kept=0;w.allies=w.allies.filter(a=>{if(!a.permanent||a.ownerId!==this.id)return true;delete a.carrierLaunchAt;delete a.carrierHidden;delete a.carrierScale;return kept++<this.permanentWingman;});}delete this.upgrades[fit.id||'bomberTransfer'];delete this.bomberTransfer;this.airframeSpeed=1;return true;};
  q.isBomberEntering=function(){return Number.isFinite(this.bomberTransfer?.entryTime)&&this.bomberTransfer.entryTime<BOMBER_ENTRY_DURATION;};
  // Command data belongs to this sortie and owner; existing allies, guns and upgrades do the work.
  q.airshipFocusTarget=function(){
@@ -226,8 +228,8 @@ export function installBomberTransfer(Game,planes,scarff){
  q.evade=function(){
   if(!this.bomberTransfer)return evade.call(this);
   if(!active(this)||this.evadeCooldown>0||this.isBomberEntering())return false;
-  const fit=this.bomberTransfer;this.evadeCooldown=8*(this.evadeCooldownMult||1);
-  this.evadeTime=0;fit.evadeTurn=0;fit.defenseTime=.66;fit.defenseBeat=.14;
+  const fit=this.bomberTransfer;this.evadeCooldown=6*(this.evadeCooldownMult||1);
+  this.evadeTime=0;fit.evadeTurn=0;fit.defenseTime=.94;fit.defenseBeat=.14;
   transferDefenseVolley(this,fit);
   this.event('ally',fit.kind==='gunship'?'중무장 화망 전개':fit.kind==='airship'?'대공 방어망 전개':'후방 방어사격');
   return true;
@@ -236,7 +238,7 @@ export function installBomberTransfer(Game,planes,scarff){
  q.applySpecialRound=function(b,type){
   const fit=this.bomberTransfer;
   const gunRound=fit&&!b.enemy&&!b.ally&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.transferDefense&&b.gun!==undefined;
-  if(fit?.kind==='gunship'&&gunRound&&!b.transferGun)b.damage*=1.18;
+  if(fit?.kind==='gunship'&&gunRound&&!b.transferGun)b.damage*=1.4;
   // Correct before pilot processing too: authored duplicate rounds inherit this origin.
   const mount=gunRound?(b.transferGun?transferStationPosition(this,fit.stations[b.transferStation].front,fit.stations[b.transferStation].lateral):this.bomberGunMount(b.gun,this.gunDirection(b.gun),this.weapon.bidirectional?0:(b.gun-(this.weapon.guns-1)/2)*8)):null;
   if(mount)Object.assign(b,mount);

@@ -1,7 +1,7 @@
 // Faction-split WWI bomb sprites: Cooper-pattern (Entente/player ordnance) and
 // PuW-pattern (Central/enemy bombers). Hand-painted drafts stay in the asset bank;
 // originals point nose-right, matching the 'bomb' atlas key.
-const FILES = { cooper: 'bomb-cooper.webp', puw: 'bomb-puw.webp', hales: 'bomb-hales.webp' };
+const FILES = { cooper: 'bomb-cooper-readable.webp', puw: 'bomb-puw-readable.webp', hales: 'bomb-hales-readable.webp' };
 // Match other ordnance in length, while preserving each bomb's own proportions.
 const BOX_W = 0.7; // call w=52 -> 36px long before altitude/pitch scaling
 const IMGS = new Map();
@@ -48,4 +48,15 @@ export function bombFallPose(sx, sy, tx, ty, progress, releaseAngle = Math.PI / 
   out.angle = dx * dx + dy * dy > 1 ? Math.atan2(dy, dx) : releaseAngle;
   out.scale = 1.05 - 0.37 * fall; out.pitch = 1 - 0.28 * fall;
   return out;
+}
+
+// Preserve the existing lobbed path while aiming the nose along its tangent.
+// This is a visual pose only; hazard position, warning and impact stay owned
+// by the simulation. At both endpoints the painted body meets the same point.
+export function bombArcPose(sx,sy,tx,ty,progress,arc=28,releaseAngle=Math.PI/2,out={}){
+ const p=Math.max(0,Math.min(1,progress)),dx=tx-sx,dy=ty-sy;
+ const vy=dy-Math.cos(Math.PI*p)*Math.PI*arc;
+ out.x=sx+dx*p;out.y=sy+dy*p-Math.sin(Math.PI*p)*arc;
+ out.angle=dx*dx+vy*vy>1e-8?Math.atan2(vy,dx):releaseAngle;
+ return out;
 }

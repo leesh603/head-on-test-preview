@@ -729,7 +729,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
 
     if(drawGallipoliHazard(c,h)||drawJutlandHazard(c,h)||drawVerdunHazard(c,h)||drawMaanHazard(c,h))return;
     const warning=h.phase==='warning';c.save();
-    if(drawRuralRailHazard(c,h)){c.restore();return;}
+    if(drawRuralRailHazard(c,h,{mobile:W<=560})){c.restore();return;}
     if(drawSommeHazard(c,h)){c.restore();return;}
     if(drawAlpsHazard(c,h,ring)){c.restore();return;}
    if(h.visual==='harbor-swing'){impactMark(c,h.x,h.y,h.radius,warning?clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1):1,{alpha:warning?1:.55,cross:false});c.restore();return;}

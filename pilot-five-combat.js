@@ -92,8 +92,8 @@ function updateLafayette(p,a,dt){
  a.fire=(a.fire||0)-dt;
  if(!threat){let best=620;for(const e of w.enemies||[]){if(!live(e)||e.surface)continue;const range=distance(a,e);if(range<best&&Math.abs(wrap(bearing(a,e)-a.a))<.45){threat=e;best=range;}}}
  if(threat&&a.fire<=0&&distance(a,threat)<620&&Math.abs(wrap(bearing(a,threat)-a.a))<.5){
-  const heading=lead(a,threat,470),coop=!!p.world,supply=!!(a.permanent&&p.upgrades?.fighterSupply),mannock=(w.players||[p]).some(x=>x.pilot==='mannock'&&x.hp>0);a.fire=(coop?.42:.58)*(supply?.9:1)/((1+(p.commandRateBonus||0))*(mannock?1.15:1));a.muzzleFlash=.09;a.fireHeading=heading;
-  p.identityShot(heading,p.supportPower(coop?7.44:5)*(p.wingmanDamageMult||1)*(supply?1.2:1),{ally:true,ownerId:owner(p),speed:470,fiveLafayetteRound:true},a);
+  const heading=lead(a,threat,470),coop=!!p.world,supply=!!(a.permanent&&p.upgrades?.fighterSupply),mannock=(w.players||[p]).some(x=>x.pilot==='mannock'&&x.hp>0);a.fire=(coop?.42:.58)*p.fighterSupplyInterval(a)/((1+(p.commandRateBonus||0))*(mannock?1.15:1));a.muzzleFlash=.09;a.fireHeading=heading;
+  p.identityShot(heading,p.supportPower(coop?7.44:5)*(p.wingmanDamageMult||1)*p.fighterSupplyDamage(a),{ally:true,ownerId:owner(p),speed:470,fiveLafayetteRound:true},a);
  }
  return true;
 }

@@ -1,9 +1,9 @@
 import {fx} from './fx-art.js?v=tame3';
+import {drawArtilleryPressure,drawArtilleryMuzzle} from './artillery-fx.js?v=20261026';
 import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 import {impactMark,bandMark,partMark,aimLine,lockMark,MARK} from './tactical-marks.js?v=tame3';
 import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=tame3';
 import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=tame3';
-const circle=(c,x,y,r)=>{c.beginPath();c.arc(x,y,r,0,Math.PI*2);};
 // Called with the body's translation already applied. Original RGBA car art.
 export function drawRuralRail(c,b,images,wrecks){
  c.save();c.imageSmoothingEnabled=true;
@@ -39,8 +39,7 @@ export function drawRuralRail(c,b,images,wrecks){
  }else if(engine?.naturalWidth)c.drawImage(engine,-130,-195,260,390);
  if(!b.destroying&&b.railGun){
   const p=railGunMuzzle(b),x=p.x-b.x,y=p.y-b.y-railSuspension(b),age=b.railGun.shotAge,heavy=b.assetKey==='lincomparable',a=(b.railGun.angle||0)-Math.PI/2;
-  if(b.gunFlash>0)fx(c,'muzzleHeavy',x,y,heavy?94:67,heavy?120:84,a,Math.min(1,b.gunFlash/.1));
-  if(age<.75){const q=age/.75;fx(c,'gunSmoke',x-12,y-22-q*42,58+q*52,65+q*80,a,(1-q)*.36);}
+  drawArtilleryMuzzle(c,fx,x,y,a,age,{heavy});
   if(age<.45){const q=age/.45;for(const side of [-1,1])fx(c,'dustPuff',side*60,100,48+q*42,28+q*24,0,(1-q)*.25);}
  }
  if(b.assetKey==='lincomparable'&&b.coreVulnerable&&b.recovery>0&&!b.destroying){
@@ -92,15 +91,12 @@ export function drawRuralRailWarnings(c,b){
  }
  c.restore();
 }
-export function drawRuralRailHazard(c,h){
+export function drawRuralRailHazard(c,h,options){
  if(!['rural-rail-shock','rural-rail-smoke'].includes(h.visual))return false;
  c.save();const warning=h.phase==='warning';
  if(h.visual==='rural-rail-shock'){
-  c.strokeStyle='#f5dba6';c.lineWidth=2.5;c.setLineDash([]);
   if(warning)bandMark(c,h.x,h.y,h.radiusStart,h.radiusLimit,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)),{heavy:h.raidHeavy});
-  else{const radius=h.radius,inner=h.innerRadius;c.fillStyle='#efd0a633';c.beginPath();c.arc(h.x,h.y,radius,0,Math.PI*2);c.arc(h.x,h.y,inner,0,Math.PI*2,true);c.fill();circle(c,h.x,h.y,radius);c.stroke();circle(c,h.x,h.y,inner);c.stroke();
-   for(let i=0;i<12;i++){const a=i*Math.PI/6;fx(c,'smokeGray',h.x+Math.cos(a)*(inner+21),h.y+Math.sin(a)*(inner+21),48,48,a,.2);}
-  }
+  else drawArtilleryPressure(c,h,fx,options);
  }else{
   impactMark(c,h.x,h.y,h.radius,warning?Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)):1,{tone:'blind',cross:false,alpha:warning?1:.45,fill:warning});
   if(!warning){const size=h.radius*2;fx(c,'smokeDark',h.x,h.y,size,size,0,.38);fx(c,'smokeGray',h.x-h.radius*.18,h.y-h.radius*.14,size*.75,size*.75,0,.32);}

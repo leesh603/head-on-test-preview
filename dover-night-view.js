@@ -3,6 +3,7 @@ import {paintDoverTerrain,doverCoastPoint} from './dover-terrain-render.js?v=dov
 import {DOVER_PART_CLIPS} from './dover-night-bosses.js?v=dover3&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {fx} from './fx-art.js?v=tame3';
 import {drawBossOrdnance} from './boss-ordnance-art.js?v=tame3&ai=1018';
+import {bombArcPose} from './bomb-sprites.js?v=bomb20';
 import {drawDressingSprite} from './background-dressing.js?v=mobileperf1';
 import {doverPatrolChart} from './dover-patrol-chart.js?v=dover3';
 import {impactMark,aimLine,laneEdge,sectorMark,partMark,shieldMark} from './tactical-marks.js?v=tame3';
@@ -73,6 +74,7 @@ export function drawDoverBoss(c,b,destruction,hazards){
  if(!dying){const core=layout.core;if(b.coreVulnerable)partMark(c,core.x,core.y,core.radius*1.2);else shieldMark(c,core.x,core.y,core.radius*1.2,{alpha:.5});}
  c.restore();
 }
+const doverBombPose={};
 export function drawDoverHazard(c,h,z=1){
  if(!['davis-cannon','rviii-bomb','nighthawk-light-bomb','dover-searchlight'].includes(h.visual))return false;
  const warning=h.phase==='warning',p=Math.max(0,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)));c.save();
@@ -80,7 +82,7 @@ export function drawDoverHazard(c,h,z=1){
   if(warning)aimLine(c,h.x,h.y,h.x+Math.cos(h.angle)*h.length,h.y+Math.sin(h.angle)*h.length,{p,alpha:.85,dash:[9,9],chevron:false});
   else drawBossOrdnance(c,'he-big',h.x,h.y,40/Math.max(.7,z),Math.atan2(h.vy,h.vx));
  }else if(h.visual==='rviii-bomb'||h.visual==='nighthawk-light-bomb'){
-  if(warning){impactMark(c,h.x,h.y,h.radius,p);if(h.sourceX!=null){const x=h.sourceX+(h.x-h.sourceX)*p,y=h.sourceY+(h.y-h.sourceY)*p-Math.sin(p*Math.PI)*28;drawBossOrdnance(c,'iron-bomb',x,y,h.visual==='rviii-bomb'?28:22,h.angle??.5*Math.PI);}}
+  if(warning){impactMark(c,h.x,h.y,h.radius,p);if(h.sourceX!=null){const pose=bombArcPose(h.sourceX,h.sourceY,h.x,h.y,p,28,h.angle??.5*Math.PI,doverBombPose);drawBossOrdnance(c,'iron-bomb',pose.x,pose.y,h.visual==='rviii-bomb'?28:22,pose.angle);}}
   else{const q=Math.max(0,Math.min(1,(h.age-h.delay-h.warning)/h.duration));fx(c,'foamRing',h.x,h.y,h.radius*(1.3+q*1.8),h.radius*(1.3+q*1.8),0,(1-q)*.75);fx(c,'waterColumn',h.x,h.y-20,h.radius*.9,h.radius*1.8,0,(1-q)*.8);}
  }else{
   if(warning)sectorMark(c,h.x,h.y,h.radius,h.angle-h.halfAngle,h.angle+h.halfAngle,p);

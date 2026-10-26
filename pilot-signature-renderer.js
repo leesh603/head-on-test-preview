@@ -16,7 +16,7 @@ import {drawLotharWake,drawLotharGuns,drawLotharCue} from './lothar-pursuit-fx.j
 import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=gal1';
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
 import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
-import {bishopFlightHeight} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021';
+import {bishopFlightHeight} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026';
 import {signatureWingPositions} from './pilot-signature-geometry.js';
 import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
 const TAU=Math.PI*2;
@@ -329,7 +329,7 @@ export function createPilotSignatureRenderer({fx,tint,icon,petal=()=>{},insignia
  return function drawPilotSignature(c,p,x,y,layer='under'){
   const s=p.pilotSignatureState,profile=PILOT_SIGNATURES[p.pilot];if(!s||!profile||!(p.hp>0)||![x,y,p.a].every(Number.isFinite))return false;
   c.save();try{
-   c.translate(x,y);if(isAlbatrosHunter(p))c.globalCompositeOperation='source-over';if(layer!=='front')worldEffects(c,p);else{if(FIRE_DIVE_PILOTS.has(p.pilot))drawFireDiveWorld(c,p,texture,true,ordnanceGroundShift(p));if(ESCORT_PILOTS.has(p.pilot))drawEscortWorld(c,p,lotharTexture,true);if(CAVALRY_RACER_PILOTS.has(p.pilot))drawCavalryRacerWorld(c,p,lotharTexture,true);if(isAlbatrosHunter(p))drawAlbatrosWorld(c,p,lotharTexture,true);if(COMMAND_PILOTS.has(p.pilot))drawCommandWorld(c,p,lotharTexture,true);}c.rotate(p.a);if(layer!=='front')continuous(c,p,profile,s);
+   c.translate(x,y);if(isAlbatrosHunter(p))c.globalCompositeOperation='source-over';if(layer!=='front')worldEffects(c,p);else{if(FIRE_DIVE_PILOTS.has(p.pilot)||p.pilot==='gontermann')drawFireDiveWorld(c,p,texture,true,ordnanceGroundShift(p));if(ESCORT_PILOTS.has(p.pilot))drawEscortWorld(c,p,lotharTexture,true);if(CAVALRY_RACER_PILOTS.has(p.pilot))drawCavalryRacerWorld(c,p,lotharTexture,true);if(isAlbatrosHunter(p))drawAlbatrosWorld(c,p,lotharTexture,true);if(COMMAND_PILOTS.has(p.pilot))drawCommandWorld(c,p,lotharTexture,true);}c.rotate(p.a);if(layer!=='front')continuous(c,p,profile,s);
    if(layer==='front'){
     if(DEFIANCE_PILOTS.has(p.pilot))drawDeathDefianceLocal(c,p,texture,true,insignia);
     if(PRESSURE_LINK_PILOTS.has(p.pilot))drawPressureLocal(c,p,texture);

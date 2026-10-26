@@ -1,18 +1,16 @@
 import {modGunRounds,modGunDamage,modGunFan,modGunInterval,modGunOffset} from './weapon-modifications.js';
 // Three mutually exclusive, sortie-only fits. Pilot and chosen aircraft IDs stay intact.
 export const AIRFRAME_TRANSFER_IDS=Object.freeze(['bomberTransfer','mgTransfer','airshipTransfer']);
-export const BUILD_TRANSFER_DESCRIPTIONS=Object.freeze({
- mgTransfer:'대형 중무장 공격기로 전환합니다. 전방 기관총 피해 +18%, 추가 기관총 2정 강화 및 표적 추적, 후방 사수 유지. 선회기동 대신 탄환을 요격하는 화망 전개를 사용합니다. 속도 −26%, 선회력 −38%, 피탄 면적 증가. 다른 기체 전환과 동시 장착 불가.',
- airshipTransfer:'편대 지휘 비행선으로 전환합니다. 하부 호위기 2기 출격(상시 윙맨 합산 최대 7기), 집중사격 및 기존 편대 강화 계승. 선회기동 대신 전방위 대공 방어망을 사용합니다. 기존 내구도 유지, 속도 −55%, 선회력 −74%, 피탄 면적 크게 증가. 다른 기체 전환과 동시 장착 불가.'
-});
+import {BUILD_TRANSFER_DESCRIPTIONS} from './airframe-doctrines.js';
+export {BUILD_TRANSFER_DESCRIPTIONS};
 export const BUILD_TRANSFER=Object.freeze({
  mgTransfer:Object.freeze({
-  entente:Object.freeze({name:'Caudron R.11',sprite:'transfer-caudron-r11',kind:'gunship',hp:1,speed:.74,turn:.62,scale:1.95,front:37,rear:30,hullLength:39,hullWidth:58,response:2.6,recovery:.52,gunInterval:.25,gunPower:.78,belt:70,reload:2.4,stationOffsets:[-16,16]}),
-  central:Object.freeze({name:'AEG J.I',sprite:'transfer-aeg-ji',kind:'gunship',hp:1,speed:.74,turn:.62,scale:1.76,front:25,rear:19,hullLength:29,hullWidth:53,response:2.6,recovery:.52,gunInterval:.25,gunPower:.78,belt:70,reload:2.4,stationOffsets:[-10,10]})
+  entente:Object.freeze({name:'Caudron R.11',sprite:'transfer-caudron-r11',kind:'gunship',hp:2,hpCap:360,speed:.86,turn:.78,scale:1.95,front:37,rear:30,hullLength:39,hullWidth:58,response:2.6,recovery:.52,gunInterval:.18,gunPower:1.1,belt:100,reload:1.8,stationOffsets:[-16,16]}),
+  central:Object.freeze({name:'AEG J.I',sprite:'transfer-aeg-ji',kind:'gunship',hp:2,hpCap:360,speed:.86,turn:.78,scale:1.76,front:25,rear:19,hullLength:29,hullWidth:53,response:2.6,recovery:.52,gunInterval:.18,gunPower:1.1,belt:100,reload:1.8,stationOffsets:[-10,10]})
  }),
  airshipTransfer:Object.freeze({
-  entente:Object.freeze({name:'R.29',sprite:'transfer-r29',kind:'airship',hp:1,speed:.45,turn:.26,scale:3.9,front:105,rear:84,hullLength:137,hullWidth:34,response:1.25,recovery:.28,gunInterval:.65,gunPower:.4,belt:44,reload:3.2,stationOffsets:[-19,19,0]}),
-  central:Object.freeze({name:'Zeppelin L30',sprite:'transfer-l30',kind:'airship',hp:1,speed:.45,turn:.26,scale:4.1,front:109,rear:88,hullLength:145,hullWidth:42,response:1.25,recovery:.28,gunInterval:.65,gunPower:.4,belt:44,reload:3.2,stationOffsets:[-25,25,0]})
+  entente:Object.freeze({name:'R.29',sprite:'transfer-r29',kind:'airship',hp:4,hpCap:600,speed:.62,turn:.50,scale:3.9,front:105,rear:84,hullLength:137,hullWidth:34,response:1.25,recovery:.28,gunInterval:.32,gunPower:.8,belt:80,reload:2.4,stationOffsets:[-19,19,0]}),
+  central:Object.freeze({name:'Zeppelin L30',sprite:'transfer-l30',kind:'airship',hp:4,hpCap:600,speed:.62,turn:.50,scale:4.1,front:109,rear:88,hullLength:145,hullWidth:42,response:1.25,recovery:.28,gunInterval:.32,gunPower:.8,belt:80,reload:2.4,stationOffsets:[-25,25,0]})
  })
 });
 const WEIGHT_IDS=Object.freeze({bomberTransfer:['bomber','rockets','mines','explosives','combinedProjectiles','amatolCharge','motorCannon'],mgTransfer:['damage','rate','spread','quadLewis','maximBelt','rearGunner','telescope','flightGloves'],airshipTransfer:['wingman','command','fighterSupply','goeringBaton','lufberyCircle']});

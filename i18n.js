@@ -1,3 +1,5 @@
+import {RARE_SPECIALIZATIONS} from './rare-specializations.js';
+import {SPECIAL_DOCTRINES} from './airframe-doctrines.js';
 import {getAircraftDisplayName,getAircraftMeta} from './aircraft-master.js?v=tame3';
 import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
 import {WEAPON_MODS} from './weapon-modifications.js';
@@ -145,6 +147,9 @@ function readLocale(){try{const value=globalThis.localStorage?.getItem(STORAGE_K
 function format(value,params){return String(value).replace(/\{(\w+)\}/g,(_,key)=>params[key]??'')}
 export function getLocale(){return locale}
 export function t(key,params={}){const table=locale==='en'?EN:KO;return format(table[key]??KO[key]??key,params)}
+for(const u of RARE_SPECIALIZATIONS){UPGRADE_NAMES_EN[u.id]=u.enName;UPGRADE_DESC_EN[u.id]=u.enDesc;}
+for(const d of SPECIAL_DOCTRINES){UPGRADE_NAMES_EN[d.id]=d.enName;UPGRADE_DESC_EN[d.id]=d.enDescription;}
+Object.assign(UPGRADE_DESC_EN,{fighterSupply:'Upgrades permanent wingmen: damage +35%, firing interval −20%; same wing count.',mercedesEngine:'Base speed +20%. Straight flight ramps to +55% in 1.2s; hard turns reduce output over 0.75s.',combinedProjectiles:'Splits rockets/grenades into packets 0.24s apart without increasing their total. Second packet: damage +25%, blast radius +10%. Single projectile: damage +15%.'});
 export function upgradeName(id,fallback=''){return locale==='en'?(UPGRADE_NAMES_EN[id]||fallback):fallback.replace(/퐁크/g,'폰크').replace(/리켄배커/g,'리켄바커')}
 export function upgradeDescription(id,fallback=''){return locale==='en'?(UPGRADE_DESC_EN[id]||fallback):fallback}
 export function pilotName(id,fallback=''){return locale==='en'?(PILOT_NAMES_EN[id]||fallback):fallback}
@@ -157,7 +162,7 @@ export function passiveDescription(id,fallback=''){const copy=pilotIdentityCopy(
 export function aircraftRole(id,fallback=''){return locale==='en'?aircraftEnglish(AIRCRAFT_ROLES_EN,id,fallback):fallback}
 export function airframeHistory(id,fallback=''){return locale==='en'?aircraftEnglish(AIRFRAME_HISTORY_EN,id,fallback):fallback}
 export function airframeTip(id,fallback=''){return locale==='en'?aircraftEnglish(AIRFRAME_TIPS_EN,id,fallback):fallback}
-export function rarityName(id){return t('rarity.'+id)}
+export function rarityName(id){return t('rarity.'+(id==='unique'?'rare':id))}
 export function subscribe(listener){listeners.add(listener);return()=>listeners.delete(listener)}
 export function applyTranslations(root=globalThis.document){if(!root)return;const doc=root.ownerDocument||root;if(doc.documentElement)doc.documentElement.lang=locale;if(doc.title!==undefined)doc.title=t('app.title');for(const [id,key] of Object.entries(STATIC_TEXT)){const el=doc.getElementById?.(id);if(el)el.textContent=t(key)}for(const [selector,key] of STATIC_SELECTORS){const el=doc.querySelector?.(selector);if(el)el.textContent=t(key)}for(const el of doc.querySelectorAll?.('[data-i18n]')||[])el.textContent=t(el.dataset.i18n);for(const el of doc.querySelectorAll?.('[data-i18n-aria-label]')||[])el.setAttribute('aria-label',t(el.dataset.i18nAriaLabel));const select=doc.getElementById?.('localeSelect');if(select)select.value=locale;return locale}
 export function setLocale(next){const normalized=SUPPORTED.has(next)?next:'ko';locale=normalized;try{globalThis.localStorage?.setItem(STORAGE_KEY,normalized)}catch{}applyTranslations();for(const listener of listeners)listener(normalized);return normalized}

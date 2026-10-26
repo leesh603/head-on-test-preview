@@ -1,6 +1,6 @@
 import {airbrakeMovement} from './flight-equipment.js';
 import {advanceUdetReplica,udetFlightModifiers} from './udet-acrobatics.js';
-import {CoopGame} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&harbor=20261021';
+import {CoopGame} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&harbor=20261021&td4=20261026';
 import {BossEncounter} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
 import {stageBossSpeed} from './stageboss-host.js?v=merge20261017&ai=1018&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cambrai=20261021&cityart=20261022&harbor=20261021&somme=20261021';
 import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFields,pose,mixAngle} from './online-coop-protocol.js?v=bomber21';
@@ -45,7 +45,8 @@ export class OnlineCoopGame extends CoopGame {
   for(const action of ['skill','evade','reload'])if(e.code===bindings[action])this.action(this.localPlayerId,action);
  }
  action(_id,action){
-  if(this.state!=='playing'||!['skill','evade','reload'].includes(action))return false;
+  const tactical=typeof action==='string'&&action.startsWith('tactic:');
+  if(tactical?this.state!=='paused'||this.activeUpgrade||this.pendingLevelUps.length:this.state!=='playing'||!['skill','evade','reload'].includes(action))return false;
   if(this.host)return super.action('p1',action);
   this.session.send({type:'action',seq:++this._netInputSeq,action});return true;
  }
