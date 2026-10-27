@@ -1,0 +1,482 @@
+[
+  {
+    "id": "baron",
+    "asset": "portrait-baron.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      37,
+      40,
+      1223,
+      1232
+    ],
+    "edgeOpaque": 0,
+    "sha256": "a82353377aeac3fa438d93e70d8f08f0c5e56a9d4d7e5d0461d4f38561136513",
+    "sourceSha256": "89f6b6cc9c3e030c4665d4813e3f541f0ee9fb478d3e7f489737c9483e52d054"
+  },
+  {
+    "id": "voss",
+    "asset": "portrait-voss.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      12,
+      30,
+      1248,
+      1244
+    ],
+    "edgeOpaque": 0,
+    "sha256": "0e21023e59b1c814f36656ede73fea8d74b9f6ed9f220da507141827691c08f7",
+    "sourceSha256": "a25c1c1e3deb83afb595e1f106f651aea70efb5b4cba01fc6ce2c6b73cdbace7"
+  },
+  {
+    "id": "boelcke",
+    "asset": "portrait-boelcke.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      51,
+      49,
+      1205,
+      1221
+    ],
+    "edgeOpaque": 0,
+    "sha256": "265fdba56c4d6de04f6d9eed1307c19ed470cb642ad88e8a50253acef305f9e3",
+    "sourceSha256": "64fd1cce208fc88f7457214f024fc69681d13379bd7a9db518b963ec20543279"
+  },
+  {
+    "id": "immelmann",
+    "asset": "portrait-immelmann.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      69,
+      43,
+      1206,
+      1221
+    ],
+    "edgeOpaque": 0,
+    "sha256": "723d2866ccf5b5d0b64d4a50fbdd80e41d68047878f0931924662cf349993e25",
+    "sourceSha256": "9f44e62f2ec210f2de0cebff2e6edc4e38f4fc9947508f7517388c3056a1889d"
+  },
+  {
+    "id": "udet",
+    "asset": "portrait-udet.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      33,
+      63,
+      1225,
+      1164
+    ],
+    "edgeOpaque": 0,
+    "sha256": "a5644a02291ef969b2e1790227f9450569c33541f80932cde1dd0ec9387c7b49",
+    "sourceSha256": "57e0b6a14a71c555ad8736019eb51342c22b6530b515e3d0c8a586280fd6e8b7"
+  },
+  {
+    "id": "fonck",
+    "asset": "portrait-fonck.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      43,
+      47,
+      1210,
+      1225
+    ],
+    "edgeOpaque": 0,
+    "sha256": "c54ff4bba6499cc725e09161c12969a49aa713f3e1626e16b8750ccda5bd1800",
+    "sourceSha256": "9483178540d9b11091be21ea58e6f70fdc7ceb889990269f698654b540236b09"
+  },
+  {
+    "id": "collishaw",
+    "asset": "portrait-collishaw.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      45,
+      35,
+      1210,
+      1227
+    ],
+    "edgeOpaque": 0,
+    "sha256": "119115986a201d5bb8eed72a7fd1133dd1e2d5b01340d362dd4a53ff53556dbf",
+    "sourceSha256": "8434171ad413fa2ed543906329338fd585546c51e681cdb6a4842b73fde60c21"
+  },
+  {
+    "id": "baracca",
+    "asset": "portrait-baracca.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      24,
+      33,
+      1243,
+      1233
+    ],
+    "edgeOpaque": 0,
+    "sha256": "60ab82fdd2ee8a960ea51869d94cbcec9e7ea21a3171e2d488e05b108cf83f4a",
+    "sourceSha256": "68d5b48694878f615a11e543268f7606f9441f99aca80666fe0bf1d6c07a7996"
+  },
+  {
+    "id": "guynemer",
+    "asset": "portrait-guynemer.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      32,
+      34,
+      1225,
+      1239
+    ],
+    "edgeOpaque": 0,
+    "sha256": "8780b8e42be6c1df8372c60dba9b7ae050eba4e3e282b80d5de00acf0c4de4f4",
+    "sourceSha256": "8ec5c4d579040600b9ed1c36c309e575e6e32dd27d55fbcc19f39093b76a1323"
+  },
+  {
+    "id": "bishop",
+    "asset": "portrait-bishop.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      63,
+      44,
+      1197,
+      1234
+    ],
+    "edgeOpaque": 0,
+    "sha256": "3e954867381bcfc470709472b471588b1206ce127f6f772d4ba66fe6e4e844fd",
+    "sourceSha256": "63f6f676c612f276227f8c7952ae67a3c38c35e743ac08d9e70ea59950c2b6fd"
+  },
+  {
+    "id": "goering",
+    "asset": "portrait-goering.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      42,
+      45,
+      1217,
+      1217
+    ],
+    "edgeOpaque": 0,
+    "sha256": "5c8ff69718515ea97976c5ce6db6cd5e56806627601a30d1f4f47facbd34a865",
+    "sourceSha256": "d25d7e286dcfc86ff85e402116bb44e3efcf1c6d2f8859b6383a5aba110686ee"
+  },
+  {
+    "id": "mannock",
+    "asset": "portrait-mannock.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      45,
+      46,
+      1214,
+      1222
+    ],
+    "edgeOpaque": 0,
+    "sha256": "0697f8f7a89c1b2b24a6c3d60ddf6516f2bae53bdba75e0e67c2efb3a3ac1354",
+    "sourceSha256": "320c14323a1f0629be183cb232769857e10a72df2f0177dd5d90002c4349b679"
+  },
+  {
+    "id": "mckeever",
+    "asset": "portrait-mckeever-powell129.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      7,
+      87,
+      1250,
+      1149
+    ],
+    "edgeOpaque": 0,
+    "sha256": "9bed9aee42c587f13452bd938b4bdc537bd1544718b88ea599c5755534f1fc0d",
+    "sourceSha256": "42d6272c02bdd41963544caf123a08ec40ce27c470fc5d8a6d5f73be2bb20997"
+  },
+  {
+    "id": "huffzky",
+    "asset": "portrait-huffzky.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      55,
+      227,
+      1248,
+      1116
+    ],
+    "edgeOpaque": 0,
+    "sha256": "9cac0b3db4d5b9953e51f42f699bfe74b15d423550782be52a2c1cbe5a8f799c",
+    "sourceSha256": "56469e8552f42b5489b9392aa2ff2305c2848ae9b0a791482edf63d816ad6e36"
+  },
+  {
+    "id": "hawker",
+    "asset": "portrait-hawker.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      25,
+      40,
+      1237,
+      1240
+    ],
+    "edgeOpaque": 0,
+    "sha256": "be4268bf67f59e018a5fcb96a66a488a256b27b7d0d29212ad1f3b9e2043d150",
+    "sourceSha256": "260c16bd4c50d823370cc3f85d4b12c774428719ef57994b705c10cb43a846ae"
+  },
+  {
+    "id": "berthold",
+    "asset": "portrait-berthold.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      27,
+      50,
+      1222,
+      1221
+    ],
+    "edgeOpaque": 0,
+    "sha256": "56b415a661da62b3f5257af9efba5a2a62e9f57895d8c7a22e750ce7dfc09e2e",
+    "sourceSha256": "a4442f0ac48da8f2f12fe1ca9ff715005a0ee619e173d3ffcf1241ee1a7fe406"
+  },
+  {
+    "id": "jacobs",
+    "asset": "portrait-jacobs.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      57,
+      31,
+      1232,
+      1244
+    ],
+    "edgeOpaque": 0,
+    "sha256": "32671d081e5b722190384469b5157b2b2e33f7fe253ee249669308f35f1cb834",
+    "sourceSha256": "45b60332214d6acbadebb5d500e36055d729a96a6555d6a4ce1cb10fa7a9acae"
+  },
+  {
+    "id": "rickenbacker",
+    "asset": "portrait-rickenbacker.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      47,
+      73,
+      1214,
+      1185
+    ],
+    "edgeOpaque": 0,
+    "sha256": "05806b76cecf2b48b7fdb4a983ac46127ec18ceea516aa5822f46a5ceb4729ec",
+    "sourceSha256": "4549622b85ea3e4155f0dd2b6177bb6915decb042e628bbc86751de8e1e844e3"
+  },
+  {
+    "id": "ball",
+    "asset": "portrait-ball.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      7,
+      10,
+      1247,
+      1242
+    ],
+    "edgeOpaque": 0,
+    "sha256": "1c9a7fe5cf2d2648c555b51212d17ef99d67e1e0c07f63a68e69bf271d9f9efa",
+    "sourceSha256": "a5e5609b5e69755f49bedd728e3bc861bb75675c11d34bd7693a1acf39e66630"
+  },
+  {
+    "id": "barker",
+    "asset": "portrait-barker.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      8,
+      35,
+      1248,
+      1237
+    ],
+    "edgeOpaque": 0,
+    "sha256": "f3bf75d2814649813d551d74d86f807ad6613b1fe3a853cd59fdedbe532f2396",
+    "sourceSha256": "0adbbd02e97b6b077681e6387669bbaef7ee05f9120727da1ddde0c01991894c"
+  },
+  {
+    "id": "luke",
+    "asset": "portrait-luke.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      33,
+      44,
+      1218,
+      1226
+    ],
+    "edgeOpaque": 0,
+    "sha256": "ad5662f259ca5de2ec9fcbbc453914e4d08132d90802ffae3a0f3d863efa5d92",
+    "sourceSha256": "567c0225c7550a287d265dfef8191c2b752676f5173781d2456e5dfad88dda45"
+  },
+  {
+    "id": "brumowski",
+    "asset": "portrait-brumowski.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      12,
+      25,
+      1247,
+      1245
+    ],
+    "edgeOpaque": 0,
+    "sha256": "5953eb5e27358a377e8ac625fc569a7f9ace99a81b2ddc16c4a7915ee4bc1154",
+    "sourceSha256": "d819f60d9e8e8d1d6d11426081f086bfebb9fdf54af3b80a22454a44a66d9ebc"
+  },
+  {
+    "id": "gontermann",
+    "asset": "portrait-gontermann.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      49,
+      41,
+      1213,
+      1219
+    ],
+    "edgeOpaque": 0,
+    "sha256": "1b0105f79b8c4b5d7cbdd513160b684bf5e4c5da03279d27ac89e5babbf06533",
+    "sourceSha256": "ccbc3f133b4a4fbfa4b1283450b9eabe22e7c6a89d08e573d4a848b7479990e1"
+  },
+  {
+    "id": "wolff",
+    "asset": "portrait-wolff-field.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      8,
+      23,
+      1242,
+      1233
+    ],
+    "edgeOpaque": 0,
+    "sha256": "a6bfd0c20a5c1e4eb30830a752bf775e89a42343a37b319d0e0d26fd4a403f19",
+    "sourceSha256": "f549425a31bdf86c33019497bca1a5a6e4b48f022179499d9ca7f7edc6664095"
+  },
+  {
+    "id": "loewenhardt",
+    "asset": "portrait-loewenhardt-field.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      23,
+      30,
+      1237,
+      1237
+    ],
+    "edgeOpaque": 0,
+    "sha256": "de599d9b27734fadb493ebfc8858ec39bf2b8de11b4b0006eaa165208653f5d3",
+    "sourceSha256": "a38641eb2700b046394c6bbb094723e39946ff7299de061e643e9a3b1416d4ee"
+  },
+  {
+    "id": "mccudden",
+    "asset": "portrait-mccudden-field.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      9,
+      26,
+      1244,
+      1230
+    ],
+    "edgeOpaque": 0,
+    "sha256": "81562a842ed66d56e59efd833dd0234d170dcad76cbcfe346bd4b9e725e24b7e",
+    "sourceSha256": "b337e4a25dbb5967d89d55c79a559b01ff538ac4cce5bb562288182bdae67dd6"
+  },
+  {
+    "id": "nungesser",
+    "asset": "portrait-nungesser-field.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      11,
+      24,
+      1244,
+      1236
+    ],
+    "edgeOpaque": 0,
+    "sha256": "0a8dacf99da53b1ba835c875073612ecd8b9120714e70e6e6eef4757275c78d4",
+    "sourceSha256": "6226745f7f7b493958f6ac15b5544de2f7d9a14bbc47697ce49f9f5ea024b9ad"
+  },
+  {
+    "id": "lothar",
+    "asset": "portrait-lothar-field.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      14,
+      17,
+      1243,
+      1238
+    ],
+    "edgeOpaque": 0,
+    "sha256": "2924264898ce3c2ef6af5b050c02b8811eb0562bbb8dc68aa5cd9777638e5d61",
+    "sourceSha256": "c336ca3e052d2ba0d094f6293529ee3f436f909b98e5dd2cc67d4acaf82f1918"
+  },
+  {
+    "id": "sachsenberg",
+    "asset": "portrait-sachsenberg-field.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      16,
+      20,
+      1241,
+      1247
+    ],
+    "edgeOpaque": 0,
+    "sha256": "5114cd579d28115667dfa0e123d5a2e28ab8335fa2934d021cafc733bb35db27",
+    "sourceSha256": "898f04c34707bf381491459de2088a71b0b7f5ad23e32a25052a1805ba868968"
+  },
+  {
+    "id": "proctor",
+    "asset": "portrait-proctor-field.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      22,
+      21,
+      1241,
+      1240
+    ],
+    "edgeOpaque": 0,
+    "sha256": "d21fb09161bf84258866a9578fb9a9e6f7fe2cdf615773cc69d409de0fa2b936",
+    "sourceSha256": "d2e3c1dce30a60088a6abeaae8304f185779c85cb425b9b2e9a7ffb0fdf1beb7"
+  },
+  {
+    "id": "schleich",
+    "asset": "portrait-schleich-field.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      3,
+      23,
+      1252,
+      1243
+    ],
+    "edgeOpaque": 0,
+    "sha256": "00a7b849eb0fc063041f5a67d8689ec41d0ea56d9490d5ac87405a9af544d75c",
+    "sourceSha256": "7e9ebae9d2ef741285c9db6628e08f6a75817d7e9fbf4d6110d175720b4307d5"
+  },
+  {
+    "id": "lufbery",
+    "asset": "portrait-lufbery-field.webp",
+    "width": 1254,
+    "height": 1254,
+    "opaqueBounds": [
+      8,
+      18,
+      1244,
+      1239
+    ],
+    "edgeOpaque": 0,
+    "sha256": "042df18fe8e63dab3936b76b59204a6b648898f381779fd740c4cbeacd2e8a48",
+    "sourceSha256": "c440f5050207d8bd30a12727576bdac1913fac8a6b5830c3ab8d6c5773e22809"
+  }
+]

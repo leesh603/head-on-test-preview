@@ -1,0 +1,47 @@
+<!doctype html><meta charset="utf-8"><title>HEAD-ON 4차 공중전 비교</title>
+<style>body{margin:0;background:#141915;color:#eee4ce;font:14px system-ui}header{padding:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}button,select{padding:8px;background:#303b2d;color:inherit;border:1px solid #73755c}main{display:flex;gap:12px;align-items:start;padding:0 12px}article{flex:none}iframe{border:1px solid #73755c;display:block}h3{margin:5px 0}pre{font:12px monospace;white-space:pre-wrap;padding:12px}small{color:#b9b8a2}</style>
+<header><b>HEAD-ON · 4차 공중전 전후 비교</b><select id="viewport" aria-label="화면"><option value="390">모바일 390×844</option><option value="1280">PC 1280×800</option></select><select id="stage" aria-label="시점"><option value="0">초반</option><option value="180">중반</option><option value="480">후반</option></select><select id="wing" aria-label="윙맨"><option value="none">기본 전장</option><option value="rocket">로켓 에이스 윙맨</option><option value="gun">기총 에이스 윙맨</option></select><select id="duration" aria-label="시간"><option value="30">30초</option><option value="60">60초</option><option value="90">90초</option></select><button id="run">동일 조건 비교 출격</button><button id="stop">일시정지</button><button id="next">6조건 연속 검증</button><small>seed1918 · 고정입력 · 무적 관찰 · 실제 AI/탄환/피해. 진단 시계30Hz는 기기 FPS가 아님.</small></header>
+<main><article><h3>변경 전 · main b76052d</h3><iframe id="before" title="변경 전 게임"></iframe></article><article><h3>변경 후 · 4차 후보</h3><iframe id="after" title="변경 후 게임"></iframe></article></main><pre id="result">대기</pre>
+<script type="module">
+const $=id=>document.getElementById(id),history=[];let interval=null,runs=[],queue=[];
+const round=n=>Math.round(n*1000)/1000;
+function publish(){const current=runs.map(r=>({...r,api:undefined,frame:undefined,game:undefined}));$('result').textContent=JSON.stringify({current,completed:history},null,2)}
+function stop(){for(const r of runs){r.api?.stopCombatCaptureClock();r.api?.freeze(true)}clearInterval(interval);interval=null;publish()}
+function start(){stop();const width=+$('viewport').value,at=+$('stage').value,duration=+$('duration').value,wing=$('wing').value;
+ runs=['before','after'].map(variant=>{const frame=$(variant);frame.style.width=width+'px';frame.style.height=(width===390?844:800)+'px';frame.style.transform=width===1280?'scale(.5)':'none';frame.style.transformOrigin='top left';frame.parentElement.style.width=(width===1280?640:390)+'px';frame.parentElement.style.height=(width===1280?440:885)+'px';frame.src=(variant==='before'?'./phase4-before/':'../')+'?headonTest=1&autostart=0&phase4='+Date.now();return{variant,width,at,duration,wing,status:'loading',frame,errors:[],seed:1918,clock:'diagnostic timer30Hz, not display FPS'}});
+ interval=setInterval(()=>{for(const r of runs){try{
+  const w=r.frame.contentWindow,api=w.__HEADON_TEST__;if(!api||!r.frame.contentDocument.body.classList.contains('boot-ready'))continue;
+  if(!r.started){
+   r.api=api;api.start({region:0,pilot:'boelcke',plane:'fokker',seed:1918,invincible:true});const g=api.debug();r.game=g;
+   g.t=r.at;g.stageStartTime=r.at;
+   // Isolate ordinary Director/NPC fights from native boss/event scheduling;
+   // their protected priorities are separately checked by the regression suite.
+   for(const k of ['eventTimer','nextBossAt','nextHeavyAt','_zeppelinSchedule','flakTimer','regionThreat','fieldUnitTimer','gasTimer','gustTimer','supplyTimer'])g[k]=Infinity;
+   g.runScheduledAces=()=>{};g.tickBattlefieldEvents=()=>{};g.beginBattlefieldEngagement=p=>p;
+   if(wing!=='none'){g.upgrades.aceWingman=1;g.aceWingmanPilotId='voss';if(wing==='gun'){g.rockets=4;g.upgrades.rockets=4}g.ensureWingmen();}
+   r.started=performance.now();r.simulationSeconds=0;r.visibleAircraftSeconds=0;r.projectileSeconds=0;r.samples=0;r.wingShots=0;r.eliteAircraftSeconds=0;r.patternSeconds={};r.status='running';
+   const originalFire=g.fireAceWingman;g.fireAceWingman=function(...args){const n=this.bullets.length,result=originalFire.apply(this,args);r.wingShots+=Math.max(0,this.bullets.length-n);return result};
+   const original=g.update;g.update=function(dt){
+    this.invuln=Infinity;this.need=Infinity;this.stageStartTime=this.t;this.stageStartDistance=this.distance;this.stageCombatWindow=null;
+    if(this.state==='battlefield-event')this.acceptBattlefieldEvent?.();if(['upgrade','legendary','weapon-mod'].includes(this.state))this.state='playing';
+    const elapsed=this.t-r.at,result=original.call(this,dt,{inputMode:'gamepad',fireHeld:true,moveX:1,angle:-Math.PI/2+Math.sin(elapsed*.11)*.75});
+    r.simulationSeconds=this.t-r.at;
+    const visible=e=>Math.abs(e.x-this.x)<width/2&&Math.abs(e.y-this.y)<(width===390?844:800)/2;
+    const elites=this.eliteEnemies?.members||[],aircraft=[...new Set([...this.enemies,...elites,...this.allies,...this.patrols||[]])];
+    const live=e=>(e.hp==null||e.hp>0)&&e.alive!==false&&!e.crashing&&!e.expired&&e.life!==0&&visible(e);r.visibleAircraftSeconds+=aircraft.filter(live).length*dt;r.eliteAircraftSeconds+=elites.filter(live).length*dt;r.patternSeconds[this.battleDirectorPattern||'none']=(r.patternSeconds[this.battleDirectorPattern||'none']||0)+dt;
+    r.projectileSeconds+=this.bullets.filter(b=>b.life>0&&visible(b)).length*dt;r.samples++;
+    if(r.simulationSeconds>=duration)this.combatBenchmarkRunning=false;return result;
+   };
+   const log=w.console.error.bind(w.console);w.console.error=(...a)=>{if(String(a[0]).includes('[headon]'))r.errors.push(a.map(String).join(' '));log(...a)};
+   g.combatBenchmarkRunning=true;g.combatBenchmarkScript=false;g.combatBenchmarkSteps=0;g.combatBenchmarkMeta={scene:'phase4',fixture:'native ordinary combat, no QA projectiles'};api.trenchPerfReset();api.startCombatCaptureClock('timer-30hz',null,window);
+  }
+  if(r.status==='running'){
+   const g=r.game;r.elapsed=round((performance.now()-r.started)/1000);r.meanVisibleAircraft=round(r.visibleAircraftSeconds/Math.max(.02,r.simulationSeconds));r.meanVisibleProjectiles=round(r.projectileSeconds/Math.max(.02,r.simulationSeconds));r.meanVisibleElites=round(r.eliteAircraftSeconds/Math.max(.02,r.simulationSeconds));r.npcKills=g.patrolKills||0;r.npcLosses=g.patrolLosses||0;r.kills=g.kills;r.enemyCount=g.enemies.length;r.patrolCount=g.patrols?.length;r.perf=api.trenchPerfRead();
+   if(r.simulationSeconds>=duration){r.status='complete';api.stopCombatCaptureClock();api.freeze(true);history.push({...r,api:undefined,frame:undefined,game:undefined});}
+  }
+ }catch(e){r.status='error';r.errors.push(String(e))}}
+ publish();if(runs.every(r=>r.status==='complete')){clearInterval(interval);interval=null;if(queue.length){const q=queue.shift();$('viewport').value=q.width;$('stage').value=q.at;start();}}
+ },250);publish();}
+$('run').onclick=()=>{queue=[];start()};$('stop').onclick=()=>{queue=[];stop()};
+$('next').onclick=()=>{queue=[{width:'390',at:'0'},{width:'390',at:'180'},{width:'390',at:'480'},{width:'1280',at:'0'},{width:'1280',at:'180'},{width:'1280',at:'480'}];const q=queue.shift();$('viewport').value=q.width;$('stage').value=q.at;start()};
+</script>

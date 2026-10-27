@@ -1,0 +1,775 @@
+{
+  "baseline": "cb00baf8fe47ea345072b65b16a9ca263b95dd68",
+  "galleryBaseline": "3ab65aa9d41e77ed62815305d15159952186ee8e",
+  "review": {
+    "airframeTypes": 72,
+    "visibleUniqueAircraftImages": 853,
+    "additionalBossAndFieldRecordInspection": true
+  },
+  "protected": [
+    "Loewenhardt (all variants)",
+    "new-aces-aircraft124.webp",
+    "legacy/field-img-9fda1fdd9673e0ef148d.webp"
+  ],
+  "references": [
+    "asset-bank/outlined/individual/plain-albatros.webp",
+    "asset-bank/outlined/individual/plain-camel.webp"
+  ],
+  "generation": {
+    "mode": "built-in imagegen",
+    "uniqueRepaints": 17,
+    "prompt": "Style-transfer from the two established HEAD-ON references. Preserve airframe identity, livery markings, orientation and wing count; restrained fine warm dark contours and hand-painted fabric/wood/metal; opaque aircraft surfaces and real transparent gaps/background."
+  },
+  "gallery": [
+    {
+      "path": "asset-bank/liveries/ssw_d4/balken.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "8d7cf7a778ee84c8912ca3cd462516b324854bb478807a63e6dc1aa780e7872f",
+      "sha256": "fc0cecd370757558f0560af36d1d557a173000dbb5bf9c2ac2a94438e64c2ddb",
+      "size": [
+        1268,
+        1111
+      ]
+    },
+    {
+      "path": "asset-bank/liveries/ssw_d4/red.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "d498e9425f18da77ae7287710ebb4a15a1e03a2a0dd7aec8086e1e09d3865bb8",
+      "sha256": "de3d50c6e0ab5c69a67847dab4f888e3c5a2346243c9efe68abf587e6b48a605",
+      "size": [
+        1269,
+        1112
+      ]
+    },
+    {
+      "path": "asset-bank/liveries/ssw_d4/usas.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "64c99c81e53124022447e885ce99ca438021b6fe86a8ac0cf1bfc63da05c410e",
+      "sha256": "20c76ddc251b8b586d58b7e5a14a83a930c43bf29835b400b6aaeae5ea4ed061",
+      "size": [
+        1340,
+        1174
+      ]
+    },
+    {
+      "path": "asset-bank/liveries/junkers_d1/mottle.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "8af1ca3980f35c8acc1e396a1641ab6ec7548ea35211ee16eaa0720b928cd161",
+      "sha256": "3e8b646586098408c156ac5b2864893358bd0606a03a7587ffcd20aa48f06275",
+      "size": [
+        1548,
+        1016
+      ]
+    },
+    {
+      "path": "asset-bank/liveries/junkers_d1/lozenge.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "49cadb655c818c033981541a35e40921d46a081358daeb40007b2b7782a41b55",
+      "sha256": "e3a9fe3f7d6c907eb060d14b2cb4473491a887d09658659a086da9ee69ff5a66",
+      "size": [
+        1548,
+        1016
+      ]
+    },
+    {
+      "path": "asset-bank/liveries/junkers_d1/night.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "e55c1201c35f437344737b105cd3984d5c151401a58368b111375a34445c7498",
+      "sha256": "2d2fe7bf8e52ecfab6fdc95a5c8942f31774645320e39abd4839e7908024916f",
+      "size": [
+        1548,
+        1016
+      ]
+    },
+    {
+      "path": "asset-bank/planes/aeg_g4_clean.webp",
+      "method": "reuse-reviewed-bomber-repaint",
+      "originalSha256": "f01ede483eb5c54dd4f7765c80487dce8103e0ed1a87a6f03d6ab2ce78ed3817",
+      "sha256": "c6dce3cb9c46ef17827c587ac0f3bd691cc4704264850218b76cdb30d0486a61",
+      "size": [
+        720,
+        477
+      ]
+    },
+    {
+      "path": "asset-bank/planes/friedrichshafen_g3_clean.webp",
+      "method": "reuse-reviewed-bomber-repaint",
+      "originalSha256": "45923f48d450ebf483a0d1687a3dc75eea0a275fbbcf3486fd02bd3bdee6ee06",
+      "sha256": "5ecf2aa8f39cc0d702305c601c1491896780b93cd525c3ca58950f724df7ae36",
+      "size": [
+        720,
+        483
+      ]
+    },
+    {
+      "path": "asset-bank/planes/gotha_g4.webp",
+      "method": "reuse-reviewed-bomber-repaint",
+      "originalSha256": "8afdcd80da3cf644a091ff4fa32730d3d93f55b867e33f3f1eb1b403ce6fff01",
+      "sha256": "a5451c7ed9e647a2e1eec8d9eec59394968bcb10e56f3d30b00f7c74a8e4d790",
+      "size": [
+        720,
+        692
+      ]
+    },
+    {
+      "path": "asset-bank/planes/staaken_r6.webp",
+      "method": "reuse-reviewed-bomber-repaint",
+      "originalSha256": "ee0212a72c51289a50f86ab8641a3702d2e42ce7dbbe720797cbac1c891d400c",
+      "sha256": "f7d7080844966fa71287123ebc53e712bd1f9564b7e3280ecbbaf14b1e7f60c6",
+      "size": [
+        720,
+        584
+      ]
+    },
+    {
+      "path": "asset-bank/planes/fe2b_clean.webp",
+      "method": "reuse-reviewed-bomber-repaint",
+      "originalSha256": "e024090bb075f0f251543b5aa19d267b089289f72fee4573574c2776581ed2f0",
+      "sha256": "8dc5f4d575ee08ad3b7816505ed7d6b44d794e6a5d3c7dfa4510b9f26cbe99b3",
+      "size": [
+        720,
+        476
+      ]
+    },
+    {
+      "path": "asset-bank/planes/breguet14_clean.webp",
+      "method": "reuse-reviewed-bomber-repaint",
+      "originalSha256": "60ca9aacafb1971fd50309263fd6f95bc9bdb40efc581f6721a048ec7df130f7",
+      "sha256": "88d81a73c239ec484c16fa2817889a7edfe756f42a23a5a500b790038965972a",
+      "size": [
+        720,
+        488
+      ]
+    },
+    {
+      "path": "asset-bank/planes/felixstowe_f2_clean.webp",
+      "method": "reuse-reviewed-bomber-repaint",
+      "originalSha256": "4689693f28b30783b240fcbe64e6b03109e1326680062cce2803de392875083a",
+      "sha256": "8f294a6f906aea546d423bf95b418f5d8b03bb88868ec637f4284f7ff39d7c23",
+      "size": [
+        720,
+        480
+      ]
+    },
+    {
+      "path": "asset-bank/planes/hp_o400_clean.webp",
+      "method": "reuse-reviewed-bomber-repaint",
+      "originalSha256": "cb109292cdf313f22dad1dceea65ad361236f69297762d43e44949b1bd9b223e",
+      "sha256": "59c2a1c509d83ffe4086e921c80d1a7627ae077458567aca4f9b7061c809fe29",
+      "size": [
+        720,
+        472
+      ]
+    },
+    {
+      "path": "asset-bank/planes/hp_o400.webp",
+      "method": "reuse-reviewed-bomber-repaint",
+      "originalSha256": "36677286d59e049c8de58cdd9a3b172127f9ab8d57c5cc3d12160d295a381f3d",
+      "sha256": "71ff84d5820538c65902f1ccdd692c333c4a059095c1bb1bd2b33ae08a1b5de5",
+      "size": [
+        720,
+        584
+      ]
+    },
+    {
+      "path": "mech/fokker.webp",
+      "method": "reuse-same-airframe-paint",
+      "originalSha256": "43dbf61d9f0841cf76bd5c27bf1eb2fa911b0e73ed13061339b004fa9d889672",
+      "sha256": "018976341f16645b6ecd802ec6954bd5de78f435345743549ed5ea8dac31cf17",
+      "size": [
+        720,
+        655
+      ]
+    },
+    {
+      "path": "asset-bank/planes/sopwith_pup.webp",
+      "method": "reuse-same-airframe-paint",
+      "originalSha256": "ac4bf0035a00946f65d1dbba857ad50c3ec60740823d1251bb3eeefc3df7b63c",
+      "sha256": "a852102b6dc5642ad2135ca8af5808bd751cb0df2d8ba41a471b503ad1bed66d",
+      "size": [
+        720,
+        584
+      ]
+    },
+    {
+      "path": "asset-bank/planes/sopwith_strutter.webp",
+      "method": "reuse-same-airframe-paint",
+      "originalSha256": "b5d86e2dba75076c3eca7580e0cd3d947e8b3c99a2a3e8f737780b7c7fe5bbc9",
+      "sha256": "198471c04d419b5dc674ad85bbb4b6a9b66d45562b5b76485f92e13d7a08c10d",
+      "size": [
+        720,
+        584
+      ]
+    },
+    {
+      "path": "asset-bank/planes/sopwith_dolphin.webp",
+      "method": "reuse-same-airframe-paint",
+      "originalSha256": "8eae9555ed10afe460bd477d7f4a0dc850e4a10f28c071e0493d3664ad596ebc",
+      "sha256": "b054256cee7d8923f9475ec3fbc75929619db3fc753493dcf2552523b0481f59",
+      "size": [
+        720,
+        584
+      ]
+    },
+    {
+      "path": "asset-bank/planes/dh4.webp",
+      "method": "reuse-same-airframe-paint",
+      "originalSha256": "eda9bcda768f8a6dae761804c10ada86a7ae861f409de36e34bf6b83a2d9abc6",
+      "sha256": "85282d6592b9a03e323e65c26b47214ee8ce71f12341d966d51021248fb599c4",
+      "size": [
+        720,
+        584
+      ]
+    },
+    {
+      "path": "asset-bank/planes/re8.webp",
+      "method": "reuse-same-airframe-paint",
+      "originalSha256": "2afe28f36d2c73583769ab9d596f2522883bfc6b9deb7a4fdc35571ad1aaae6c",
+      "sha256": "9e823cb87368a118c13d9fd864e3950588bcb61ac83c62546c57a9af55bf5b60",
+      "size": [
+        720,
+        584
+      ]
+    },
+    {
+      "path": "asset-bank/planes/pfalz_d12.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "230e824d46990d4e5c13d2c519891ce5508c4ea5d8e2e860346631e174893d71",
+      "sha256": "5e9ffb50915ee52a61c3720f31ae0540ceb867194b52fe59c6a7925799db981d",
+      "size": [
+        1393,
+        1129
+      ]
+    },
+    {
+      "path": "asset-bank/planes/fokker_dr1_clean.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "5f222ccb4c708cf85055ccd1c1a619c8e645a551ee55f1aa02741c9941281b32",
+      "sha256": "da8b2e0349742364e333a117179a095b5e4e58465995e5b48b521dea773f70ce",
+      "size": [
+        720,
+        666
+      ]
+    },
+    {
+      "path": "mech/voss_dr1.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "c2cd6e279b779c0cc4edb0fb5dd460f47b62a30b8805acbe21a5d01eb6bf0865",
+      "sha256": "42e1dac6c47ad204de455c9ebe5f158d75bd003b526c9a1b16f74f431abde142",
+      "size": [
+        720,
+        720
+      ]
+    },
+    {
+      "path": "asset-bank/planes/ssw_d4.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "513001bf52d075d8c033fe012b5c6d67245fae108de093bf24ebd034be8234cb",
+      "sha256": "ec3e71b3a3736fe9fa0161c03fb9286c77241fc6990a939e67db1063bcf0547b",
+      "size": [
+        1393,
+        1129
+      ]
+    },
+    {
+      "path": "asset-bank/planes/junkers_d1.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "6370f6944e5aad4d87837f12f5f4bcb749306e27a4f7827567912cffeeb95752",
+      "sha256": "766d9a6063166fb64023a37f0a2ed3b7c3978651f24c6500056a7ecb0cddcd5c",
+      "size": [
+        1393,
+        1129
+      ]
+    },
+    {
+      "path": "asset-bank/planes/hansa_cc_clean.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "6695f1b377ec97485d3acc05e659ed21affcb9baea66989004993ca9a9c22184",
+      "sha256": "94c8e046e5110fb1c8b63bfb8c0a8420634e0cf0355ed205b0ade2f14d26c729",
+      "size": [
+        720,
+        720
+      ]
+    },
+    {
+      "path": "asset-bank/planes/lohner_l_clean.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "300bbbb50b092bc4465308e945ec3c54d87b25f57eb908b7d4f98e1563f43327",
+      "sha256": "0f427c3f7e54c2edfabb3f77b6bf9ede316459f46db0328ba6cafe2e6c07fa18",
+      "size": [
+        720,
+        720
+      ]
+    },
+    {
+      "path": "asset-bank/planes/macchi_m3_clean.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "28e95d41b288e7d8ce62b71029ed6efd8a219f92367790e74b2e7256724e2cf3",
+      "sha256": "486488be939cd1b68c5824593d335a6873bf910ca3b4758f56a92a59e4fab00f",
+      "size": [
+        720,
+        720
+      ]
+    },
+    {
+      "path": "asset-bank/planes/albatros_oeffag_clean.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "f025d2ce6da0a5a569c9029c83c8528e5ed4ab37a3d1f2c4d10f7c51697b5980",
+      "sha256": "0985b92455f4bb0159cd8e601a7132097413dbe209bd0583feec311011040563",
+      "size": [
+        720,
+        720
+      ]
+    },
+    {
+      "path": "asset-bank/aces/spad12.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "f09f3db8957aef3d631314a45021c7a6cf8e8ea54de26108afb7a73a5b7cad29",
+      "sha256": "134e20c4be05a5beb1162d9f1a0d861cf81654c4bf26a5c065e17b7ed941e473",
+      "size": [
+        1421,
+        1105
+      ]
+    },
+    {
+      "path": "asset-bank/bosses/staaken/art.webp",
+      "method": "imagegen-style-transfer",
+      "originalSha256": "1931677f4c66f774f217da5b6f03329b447646f6dca94e32fc1798dbaa7c17c7",
+      "sha256": "ed42d91723cfe06f00cae1cc215db095fa835ef8da4174adf3208fe8150207e6",
+      "size": [
+        1400,
+        765
+      ]
+    },
+    {
+      "path": "boss-art-staaken-rvi.webp",
+      "method": "reuse-reviewed-staaken-illustration",
+      "originalSha256": "ec53d2cb6437ac4b17a51499f1a4832bb63238f5c55f25f40df60ca77e1dd1f3",
+      "sha256": "fb2477d006ed780162a422611d7e51a54cfb00d1f67891e9f0a825c76eba20bc",
+      "size": [
+        768,
+        350
+      ]
+    },
+    {
+      "path": "legacy/field-img-b20dde160bab6a92af55.webp",
+      "method": "reuse-same-pilot-red-master",
+      "originalSha256": "932e9520af092fa9d7553b4f9ca8e8af38c85dded1772aa0b24fdc91225d7a25",
+      "sha256": "06fbc116cc57e635fc87c0cb22747a2b8b19829ca7ae67fab56bf59109966ce2",
+      "size": [
+        520,
+        520
+      ]
+    }
+  ],
+  "runtimeCells": {
+    "asset-bank/flight/livery_ssw_d4.webp": [
+      {
+        "key": "bank_livery_ssw_d4__balken",
+        "rect": [
+          0,
+          0,
+          216,
+          240
+        ]
+      },
+      {
+        "key": "bank_livery_ssw_d4__red",
+        "rect": [
+          216,
+          0,
+          216,
+          240
+        ]
+      },
+      {
+        "key": "bank_livery_ssw_d4__usas",
+        "rect": [
+          432,
+          0,
+          216,
+          240
+        ]
+      }
+    ],
+    "asset-bank/outlined/native/asset-bank/flight/livery_ssw_d4.webp": [
+      {
+        "key": "bank_livery_ssw_d4__balken",
+        "rect": [
+          0,
+          0,
+          216,
+          240
+        ]
+      },
+      {
+        "key": "bank_livery_ssw_d4__red",
+        "rect": [
+          216,
+          0,
+          216,
+          240
+        ]
+      },
+      {
+        "key": "bank_livery_ssw_d4__usas",
+        "rect": [
+          432,
+          0,
+          216,
+          240
+        ]
+      }
+    ],
+    "asset-bank/flight/livery_junkers_d1.webp": [
+      {
+        "key": "bank_livery_junkers_d1__mottle",
+        "rect": [
+          432,
+          0,
+          216,
+          240
+        ]
+      },
+      {
+        "key": "bank_livery_junkers_d1__lozenge",
+        "rect": [
+          216,
+          0,
+          216,
+          240
+        ]
+      },
+      {
+        "key": "bank_livery_junkers_d1__night",
+        "rect": [
+          648,
+          0,
+          216,
+          240
+        ]
+      }
+    ],
+    "asset-bank/outlined/native/asset-bank/flight/livery_junkers_d1.webp": [
+      {
+        "key": "bank_livery_junkers_d1__mottle",
+        "rect": [
+          432,
+          0,
+          216,
+          240
+        ]
+      },
+      {
+        "key": "bank_livery_junkers_d1__lozenge",
+        "rect": [
+          216,
+          0,
+          216,
+          240
+        ]
+      },
+      {
+        "key": "bank_livery_junkers_d1__night",
+        "rect": [
+          648,
+          0,
+          216,
+          240
+        ]
+      }
+    ],
+    "asset-bank/flight/bank_plane_staaken_r6.webp": [
+      {
+        "key": "bank_plane_staaken_r6",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/outlined/native/asset-bank/flight/bank_plane_staaken_r6.webp": [
+      {
+        "key": "bank_plane_staaken_r6",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/flight/bank_plane_hp_o400.webp": [
+      {
+        "key": "bank_plane_hp_o400",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/outlined/native/asset-bank/flight/bank_plane_hp_o400.webp": [
+      {
+        "key": "bank_plane_hp_o400",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/flight/bank_plane_sopwith_pup.webp": [
+      {
+        "key": "bank_plane_sopwith_pup",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/outlined/native/asset-bank/flight/bank_plane_sopwith_pup.webp": [
+      {
+        "key": "bank_plane_sopwith_pup",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/flight/bank_plane_sopwith_strutter.webp": [
+      {
+        "key": "bank_plane_sopwith_strutter",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/outlined/native/asset-bank/flight/bank_plane_sopwith_strutter.webp": [
+      {
+        "key": "bank_plane_sopwith_strutter",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/flight/bank_plane_sopwith_dolphin.webp": [
+      {
+        "key": "bank_plane_sopwith_dolphin",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/outlined/native/asset-bank/flight/bank_plane_sopwith_dolphin.webp": [
+      {
+        "key": "bank_plane_sopwith_dolphin",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/flight/bank_plane_dh4.webp": [
+      {
+        "key": "bank_plane_dh4",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/outlined/native/asset-bank/flight/bank_plane_dh4.webp": [
+      {
+        "key": "bank_plane_dh4",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/flight/bank_plane_re8.webp": [
+      {
+        "key": "bank_plane_re8",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/outlined/native/asset-bank/flight/bank_plane_re8.webp": [
+      {
+        "key": "bank_plane_re8",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/flight/bank_plane_pfalz_d12.webp": [
+      {
+        "key": "bank_plane_pfalz_d12",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/outlined/native/asset-bank/flight/bank_plane_pfalz_d12.webp": [
+      {
+        "key": "bank_plane_pfalz_d12",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/flight/bank_plane_ssw_d4.webp": [
+      {
+        "key": "bank_plane_ssw_d4",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/outlined/native/asset-bank/flight/bank_plane_ssw_d4.webp": [
+      {
+        "key": "bank_plane_ssw_d4",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/flight/bank_plane_junkers_d1.webp": [
+      {
+        "key": "bank_plane_junkers_d1",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ],
+    "asset-bank/outlined/native/asset-bank/flight/bank_plane_junkers_d1.webp": [
+      {
+        "key": "bank_plane_junkers_d1",
+        "rect": [
+          0,
+          0,
+          288,
+          320
+        ]
+      }
+    ]
+  },
+  "productionFiles": [
+    "dist/asset-bank/flight/bank_plane_dh4.webp",
+    "dist/asset-bank/flight/bank_plane_hp_o400.webp",
+    "dist/asset-bank/flight/bank_plane_junkers_d1.webp",
+    "dist/asset-bank/flight/bank_plane_pfalz_d12.webp",
+    "dist/asset-bank/flight/bank_plane_re8.webp",
+    "dist/asset-bank/flight/bank_plane_sopwith_dolphin.webp",
+    "dist/asset-bank/flight/bank_plane_sopwith_pup.webp",
+    "dist/asset-bank/flight/bank_plane_sopwith_strutter.webp",
+    "dist/asset-bank/flight/bank_plane_ssw_d4.webp",
+    "dist/asset-bank/flight/bank_plane_staaken_r6.webp",
+    "dist/asset-bank/flight/livery_junkers_d1.webp",
+    "dist/asset-bank/flight/livery_ssw_d4.webp",
+    "dist/asset-bank/flight/manifest.json",
+    "dist/asset-bank/outlined/individual/mech-fokker.webp",
+    "dist/asset-bank/outlined/individual/mech-fokker_standard.webp",
+    "dist/asset-bank/outlined/individual/mech-hansa_brandenburg_cc.webp",
+    "dist/asset-bank/outlined/individual/mech-lohner_l.webp",
+    "dist/asset-bank/outlined/individual/mech-macchi_m3.webp",
+    "dist/asset-bank/outlined/individual/mech-spad12.webp",
+    "dist/asset-bank/outlined/individual/mech-voss_dr1.webp",
+    "dist/asset-bank/outlined/individual/plain-fokker_standard.webp",
+    "dist/asset-bank/outlined/individual/plain-hansa_brandenburg_cc.webp",
+    "dist/asset-bank/outlined/individual/plain-lohner_l.webp",
+    "dist/asset-bank/outlined/individual/plain-macchi_m3.webp",
+    "dist/asset-bank/outlined/individual/plain-spad12.webp",
+    "dist/asset-bank/outlined/native/asset-bank/flight/bank_plane_dh4.webp",
+    "dist/asset-bank/outlined/native/asset-bank/flight/bank_plane_hp_o400.webp",
+    "dist/asset-bank/outlined/native/asset-bank/flight/bank_plane_junkers_d1.webp",
+    "dist/asset-bank/outlined/native/asset-bank/flight/bank_plane_pfalz_d12.webp",
+    "dist/asset-bank/outlined/native/asset-bank/flight/bank_plane_re8.webp",
+    "dist/asset-bank/outlined/native/asset-bank/flight/bank_plane_sopwith_dolphin.webp",
+    "dist/asset-bank/outlined/native/asset-bank/flight/bank_plane_sopwith_pup.webp",
+    "dist/asset-bank/outlined/native/asset-bank/flight/bank_plane_sopwith_strutter.webp",
+    "dist/asset-bank/outlined/native/asset-bank/flight/bank_plane_ssw_d4.webp",
+    "dist/asset-bank/outlined/native/asset-bank/flight/bank_plane_staaken_r6.webp",
+    "dist/asset-bank/outlined/native/asset-bank/flight/livery_junkers_d1.webp",
+    "dist/asset-bank/outlined/native/asset-bank/flight/livery_ssw_d4.webp",
+    "dist/asset-bank/planes/dh4.webp",
+    "dist/asset-bank/planes/hp_o400.webp",
+    "dist/asset-bank/planes/junkers_d1.webp",
+    "dist/asset-bank/planes/pfalz_d12.webp",
+    "dist/asset-bank/planes/re8.webp",
+    "dist/asset-bank/planes/sopwith_dolphin.webp",
+    "dist/asset-bank/planes/sopwith_pup.webp",
+    "dist/asset-bank/planes/sopwith_strutter.webp",
+    "dist/asset-bank/planes/ssw_d4.webp",
+    "dist/asset-bank/planes/staaken_r6.webp",
+    "dist/boss-art-staaken-rvi.webp",
+    "dist/fokker_standard.webp",
+    "dist/hansa_brandenburg_cc.webp",
+    "dist/legacy/field-img-b20dde160bab6a92af55.webp",
+    "dist/lohner_l.webp",
+    "dist/macchi_m3.webp",
+    "dist/mech/fokker.webp",
+    "dist/mech/fokker_standard.webp",
+    "dist/mech/hansa_brandenburg_cc.webp",
+    "dist/mech/lohner_l.webp",
+    "dist/mech/macchi_m3.webp",
+    "dist/mech/spad12.webp",
+    "dist/mech/voss_dr1.webp",
+    "dist/sortie-aircraft/hangar/fokker_red.webp",
+    "dist/spad12.webp",
+    "outline-individual-manifest.json",
+    "outline-native-manifest.json",
+    "source-art/aircraft-outlines/asset-bank/outlined/native/asset-bank/flight/bank_plane_dh4.png",
+    "source-art/aircraft-outlines/asset-bank/outlined/native/asset-bank/flight/bank_plane_hp_o400.png",
+    "source-art/aircraft-outlines/asset-bank/outlined/native/asset-bank/flight/bank_plane_staaken_r6.png",
+    "source-art/pilot-aircraft-recovery/baked-manifest.json",
+    "dist/aircraft.js",
+    "dist/aircraft-outline-art.js"
+  ]
+}

@@ -1,0 +1,37 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HEAD-ON 전술 4차 전투 검증</title>
+<style>body{margin:0;background:#1c211c;color:#ece7d5;font:14px system-ui}header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px}button,select,a{padding:8px;background:#384432;border:1px solid #9b9d7d;color:inherit}main{display:flex;gap:12px}iframe{border:0;width:390px;height:844px;flex-shrink:0}aside{max-width:420px;padding:12px}pre{white-space:pre-wrap}#downloads{display:flex;flex-wrap:wrap;gap:6px}strong{color:#eed5a5}</style>
+<header><label>전술 <select id="tactic"></select></label><label>화면 <select id="width"><option value="390">모바일 390×844</option><option value="1280">PC 1280×800</option></select></label><label>방식 <select id="mode"><option value="solo">솔로</option><option value="coop">협동 P2</option></select></label><button id="start">발동 장면 시작</button><button id="pause">정지 / 재개</button><button id="batch">20종 영상 일괄 기록</button></header>
+<main><iframe id="game" title="HEAD-ON 실제 전투 화면" src="../?headonTest=1&autostart=0"></iframe><aside><strong>통제 시험 · 대표 발동 장면</strong><p>기존 실제 엔진·원화·발사·충돌·피해를 사용합니다. 사전 강화, 반복 표적 배치, 피격·기동 조건을 구성합니다. 자연 발동률·사람의 플레이·실기기 FPS 증거가 아닙니다.</p><pre id="status">게임 로딩 후 시작</pre><div id="downloads"></div></aside></main>
+<script type="module">
+import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,selectTactical} from '../tactical-doctrines.js?v=tactics20261023&td4=20261026';
+const items=[...TACTICAL_DOCTRINES,...COMPOSITE_TACTICS],$=id=>document.getElementById(id),frame=$('game');let api,g,p,timer,recording=false,done=0;
+for(const d of items)$('tactic').add(new Option(d.name,d.id));
+$('width').onchange=()=>{frame.style.width=$('width').value+'px';frame.style.height=$('width').value==='390'?'844px':'800px';};
+const counts={GUN:5,SPEED:5,EXPLOSIVE:5,FORMATION:5,SURVIVAL:5};
+async function scene(id,record=false){
+ clearInterval(timer);api=frame.contentWindow.__HEADON_TEST__;if(!api)throw Error('게임 로딩 중');api.combatBenchmarkStop();api.start({region:0,pilot:'baron',seed:1918,invincible:true,...($('mode').value==='coop'?{coop:'voss'}:{plane:'fokker'})});g=api.debug();p=g.players?.[1]||g;
+ for(const q of g.players||[g]){q.need=Infinity;q.rockets=2;q.mineCount=1;q.permanentWingman=3;q.rate=.085;q.damage=18;q.weapon.belt=10000;q.ammo.fill(10000);}
+ p.weaponModSelections={...counts};p.weaponMods={};const item=items.find(d=>d.id===id);if(item.family)selectTactical(p,id);else{selectTactical(p,TACTICAL_DOCTRINES.find(d=>d.family===item.families[0]).id);selectTactical(p,id);}p.pendingTacticalChoice=null;g.state='playing';g.ensureWingmen();
+ const start=g.t;let step=0,damageDone=false,targets=[];g.combatBenchmarkRunning=true;g.combatBenchmarkSteps=0;g.combatBenchmarkScript=true;g.combatBenchmarkMeta={scene:'tactical-phase4-controlled',id,forcedConditions:true};
+ g.combatBenchmarkBeforeStep=()=>{
+  step++;if(step===1){for(const key of ['spawn','nextBossAt','eventTimer','flakTimer','supplyTimer'])g[key]=Infinity;g.enemies=[];for(let i=0;i<3;i++){const e=g.spawnEnemy('hunter');if(e){e.hp=e.maxHp=2000;targets.push(e);}}}
+  const age=g.t-start,turn=id==='speedDuel'?.38:0,heading=p.a+turn;
+  for(let i=0;i<targets.length;i++){const e=targets[i];if(!(e.hp>0))continue;const behind=['survivalRepair','emergencyEscape','blockingBombing'].includes(id)&&age>1.4,reach=behind?(id==='blockingBombing'?140:420):id==='speedDuel'?170:220;
+   e.x=p.x+Math.cos(heading)*(behind?-reach:reach)-Math.sin(heading)*(i-1)*36;e.y=p.y+Math.sin(heading)*(behind?-reach:reach)+Math.cos(heading)*(i-1)*36;e.a=heading;e.speed=0;e.fire=Infinity;
+  }
+  if(!damageDone&&age>1.4&&['survivalRepair','survivalCounter','emergencyEscape','blockingBombing','defensiveSuppression','mutualCover'].includes(id)){p.invuln=0;if(g.players)g.hitPlayer(p,20);else p.hit(20);p.invuln=Infinity;damageDone=true;p.reloadTime=id==='emergencyEscape'?2:p.reloadTime;}
+  return {angle:heading,inputMode:'gamepad',fireHeld:true,moveX:1};
+ };
+ let recorder,chunks=[],stream,audio;
+ const finished=new Promise(resolve=>{
+  if(record){const canvas=frame.contentDocument.querySelector('canvas#game');stream=canvas.captureStream(30);recorder=new MediaRecorder(stream,{mimeType:'video/webm',videoBitsPerSecond:1800000});recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};recorder.onstop=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(chunks,{type:'video/webm'}));a.download='HEADON-tactical4-'+id+'-'+$('width').value+'.webm';a.textContent=item.name+' 영상';$('downloads').append(a);stream.getTracks().forEach(t=>t.stop());resolve();};recorder.start(250);}
+  timer=setInterval(()=>{
+   $('status').textContent=JSON.stringify({id,mode:$('mode').value,seconds:+(g.t-start).toFixed(2),hp:p.hp,owner:p.id,projectiles:g.bullets.length,bombs:g.friendlyBombs?.length,wings:g.allies.length,cues:g.combatFX?.filter(f=>f.fxProfile==='tactical'&&f.ownerId===p.id).map(f=>f.tacticalCue),firstActions:p._netTacticalCombat?.announced},null,2);
+   if(g.t-start>=7||g.state!=='playing'){clearInterval(timer);api.combatBenchmarkStop();api.freeze(true);const cv=frame.contentDocument.querySelector('canvas#game');cv.toBlob(blob=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='HEADON-tactical4-'+id+'-'+$('width').value+'.png';a.textContent=item.name+' 화면';$('downloads').append(a);});if(recorder?.state==='recording')recorder.stop();else resolve();}
+  },100);
+ });api.startCombatCaptureClock('timer-30hz',null,window);return finished;
+}
+$('start').onclick=()=>scene($('tactic').value,true).catch(e=>$('status').textContent=e.stack);
+$('pause').onclick=()=>api.freeze(g.state!=='paused');
+$('batch').onclick=async()=>{if(recording)return;recording=true;done=0;for(const item of items){$('tactic').value=item.id;try{await scene(item.id,true);done++;document.title='HEAD-ON 전술 영상 '+done+'/20';}catch(e){$('status').textContent=e.stack;break;}}recording=false;};
+</script></html>

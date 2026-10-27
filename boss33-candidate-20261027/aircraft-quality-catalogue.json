@@ -1,0 +1,3242 @@
+[
+  {
+    "key": "fokker",
+    "group": "individual"
+  },
+  {
+    "key": "fokker_standard",
+    "group": "individual"
+  },
+  {
+    "key": "fokker_f1",
+    "group": "individual"
+  },
+  {
+    "key": "albatros",
+    "group": "individual"
+  },
+  {
+    "key": "camel",
+    "group": "individual"
+  },
+  {
+    "key": "sopwith",
+    "group": "individual"
+  },
+  {
+    "key": "nieuport",
+    "group": "individual"
+  },
+  {
+    "key": "nieuport_italian",
+    "group": "individual"
+  },
+  {
+    "key": "spad12",
+    "group": "individual"
+  },
+  {
+    "key": "fokkerdv",
+    "group": "individual"
+  },
+  {
+    "key": "re7",
+    "group": "individual"
+  },
+  {
+    "key": "fokkerd7",
+    "group": "individual"
+  },
+  {
+    "key": "eindecker",
+    "group": "individual"
+  },
+  {
+    "key": "se5a",
+    "group": "individual"
+  },
+  {
+    "key": "bristol_duo",
+    "group": "individual"
+  },
+  {
+    "key": "halberstadt_duo",
+    "group": "individual"
+  },
+  {
+    "key": "baron_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "albatros_d2",
+    "group": "individual"
+  },
+  {
+    "key": "nieuport24",
+    "group": "individual"
+  },
+  {
+    "key": "pfalz_d3a",
+    "group": "individual"
+  },
+  {
+    "key": "airco_dh2",
+    "group": "individual"
+  },
+  {
+    "key": "spad",
+    "group": "individual"
+  },
+  {
+    "key": "be2c",
+    "group": "individual"
+  },
+  {
+    "key": "aviatik",
+    "group": "individual"
+  },
+  {
+    "key": "strutter",
+    "group": "individual"
+  },
+  {
+    "key": "nieuport11",
+    "group": "individual"
+  },
+  {
+    "key": "nieuport28",
+    "group": "individual"
+  },
+  {
+    "key": "hanriot",
+    "group": "individual"
+  },
+  {
+    "key": "pup",
+    "group": "individual"
+  },
+  {
+    "key": "dh5",
+    "group": "individual"
+  },
+  {
+    "key": "re8",
+    "group": "individual"
+  },
+  {
+    "key": "dh4",
+    "group": "individual"
+  },
+  {
+    "key": "albatros_d5a",
+    "group": "individual"
+  },
+  {
+    "key": "fokker_jacobs",
+    "group": "individual"
+  },
+  {
+    "key": "goering_fokkerd7",
+    "group": "individual"
+  },
+  {
+    "key": "collishaw_sopwith",
+    "group": "individual"
+  },
+  {
+    "key": "guynemer_spad",
+    "group": "individual"
+  },
+  {
+    "key": "udet_fokkerdv",
+    "group": "individual"
+  },
+  {
+    "key": "baracca_nieuport",
+    "group": "individual"
+  },
+  {
+    "key": "berthold_pfalz",
+    "group": "individual"
+  },
+  {
+    "key": "siemens_d4",
+    "group": "individual"
+  },
+  {
+    "key": "roland_d6",
+    "group": "individual"
+  },
+  {
+    "key": "hannover_cl3",
+    "group": "individual"
+  },
+  {
+    "key": "dfw_cv",
+    "group": "individual"
+  },
+  {
+    "key": "junkers_j1",
+    "group": "individual"
+  },
+  {
+    "key": "gotha",
+    "group": "individual"
+  },
+  {
+    "key": "bristol_m1",
+    "group": "individual"
+  },
+  {
+    "key": "dolphin",
+    "group": "individual"
+  },
+  {
+    "key": "snipe",
+    "group": "individual"
+  },
+  {
+    "key": "fe2b",
+    "group": "individual"
+  },
+  {
+    "key": "gunbus",
+    "group": "individual"
+  },
+  {
+    "key": "morane_ai",
+    "group": "individual"
+  },
+  {
+    "key": "rickenbacker_spad",
+    "group": "individual"
+  },
+  {
+    "key": "voss_dr1",
+    "group": "individual"
+  },
+  {
+    "key": "udet_fokkerd7",
+    "group": "individual"
+  },
+  {
+    "key": "nungesser_nieuport",
+    "group": "individual"
+  },
+  {
+    "key": "ball_se5a",
+    "group": "individual"
+  },
+  {
+    "key": "barker_snipe",
+    "group": "individual"
+  },
+  {
+    "key": "luke_nieuport28",
+    "group": "individual"
+  },
+  {
+    "key": "brumowski_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "gontermann_fokker",
+    "group": "individual"
+  },
+  {
+    "key": "hansa_brandenburg_cc",
+    "group": "individual"
+  },
+  {
+    "key": "lohner_l",
+    "group": "individual"
+  },
+  {
+    "key": "macchi_m3",
+    "group": "individual"
+  },
+  {
+    "key": "macchi_m5",
+    "group": "individual"
+  },
+  {
+    "key": "wolff_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "loewenhardt_fokkerd7",
+    "group": "individual"
+  },
+  {
+    "key": "mccudden_se5a",
+    "group": "individual"
+  },
+  {
+    "key": "nungesser_nieuport24",
+    "group": "individual"
+  },
+  {
+    "key": "aeg_g4",
+    "group": "individual"
+  },
+  {
+    "key": "friedrichshafen_g3",
+    "group": "individual"
+  },
+  {
+    "key": "breguet14",
+    "group": "individual"
+  },
+  {
+    "key": "voisin8",
+    "group": "individual"
+  },
+  {
+    "key": "caudron_g4",
+    "group": "individual"
+  },
+  {
+    "key": "ssw_d3",
+    "group": "individual"
+  },
+  {
+    "key": "pfalz_d12",
+    "group": "individual"
+  },
+  {
+    "key": "phonix_d1",
+    "group": "individual"
+  },
+  {
+    "key": "aviatik_d1",
+    "group": "individual"
+  },
+  {
+    "key": "junkers_d1",
+    "group": "individual"
+  },
+  {
+    "key": "ansaldo_sva5",
+    "group": "individual"
+  },
+  {
+    "key": "hb_w29",
+    "group": "individual"
+  },
+  {
+    "key": "ff33",
+    "group": "individual"
+  },
+  {
+    "key": "felixstowe_f2",
+    "group": "individual"
+  },
+  {
+    "key": "shuttelanz_sl11",
+    "group": "individual"
+  },
+  {
+    "key": "parseval",
+    "group": "individual"
+  },
+  {
+    "key": "caquot_balloon",
+    "group": "individual"
+  },
+  {
+    "key": "staaken",
+    "group": "individual"
+  },
+  {
+    "key": "handley-page",
+    "group": "individual"
+  },
+  {
+    "key": "jasta4_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "jasta5_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "jasta78b_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "kissenberth_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "allmenroder_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "jasta11a_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "jasta11b_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "jasta11c_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "jasta11d_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "lothar_dr1",
+    "group": "individual"
+  },
+  {
+    "key": "beaulieu_dr1",
+    "group": "individual"
+  },
+  {
+    "key": "mai_dr1",
+    "group": "individual"
+  },
+  {
+    "key": "hantelmann_dr1",
+    "group": "individual"
+  },
+  {
+    "key": "jasta11_fokkerd7",
+    "group": "individual"
+  },
+  {
+    "key": "jasta18_fokkerd7",
+    "group": "individual"
+  },
+  {
+    "key": "jasta43_fokkerd7",
+    "group": "individual"
+  },
+  {
+    "key": "gabriel_fokkerd7",
+    "group": "individual"
+  },
+  {
+    "key": "jasta27_fokkerd7",
+    "group": "individual"
+  },
+  {
+    "key": "baeumer_pfalz",
+    "group": "individual"
+  },
+  {
+    "key": "degelow_pfalz",
+    "group": "individual"
+  },
+  {
+    "key": "linke_crawford_phonix",
+    "group": "individual"
+  },
+  {
+    "key": "kiss_phonix",
+    "group": "individual"
+  },
+  {
+    "key": "arigi_aviatik",
+    "group": "individual"
+  },
+  {
+    "key": "gotha_night",
+    "group": "individual"
+  },
+  {
+    "key": "staaken_dark",
+    "group": "individual"
+  },
+  {
+    "key": "brown_camel",
+    "group": "individual"
+  },
+  {
+    "key": "mcelroy_camel",
+    "group": "individual"
+  },
+  {
+    "key": "dazzle_camel",
+    "group": "individual"
+  },
+  {
+    "key": "lufbery_nieuport17",
+    "group": "individual"
+  },
+  {
+    "key": "dorme_nieuport",
+    "group": "individual"
+  },
+  {
+    "key": "meulemeester_nieuport",
+    "group": "individual"
+  },
+  {
+    "key": "eagle_nieuport28",
+    "group": "individual"
+  },
+  {
+    "key": "coppens_hanriot",
+    "group": "individual"
+  },
+  {
+    "key": "madon_spad",
+    "group": "individual"
+  },
+  {
+    "key": "tarascon_spad",
+    "group": "individual"
+  },
+  {
+    "key": "boyau_spad",
+    "group": "individual"
+  },
+  {
+    "key": "hatring_spad",
+    "group": "individual"
+  },
+  {
+    "key": "springs_se5a",
+    "group": "individual"
+  },
+  {
+    "key": "proctor_se5a",
+    "group": "individual"
+  },
+  {
+    "key": "checker_se5a",
+    "group": "individual"
+  },
+  {
+    "key": "ruffo_sva5",
+    "group": "individual"
+  },
+  {
+    "key": "pierozzi_macchi",
+    "group": "individual"
+  },
+  {
+    "key": "udet_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "loerzer_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "frommherz_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "kirschstein_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "boelcke_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "woollett_camel",
+    "group": "individual"
+  },
+  {
+    "key": "collett_camel",
+    "group": "individual"
+  },
+  {
+    "key": "naval10_camel",
+    "group": "individual"
+  },
+  {
+    "key": "belgian_camel",
+    "group": "individual"
+  },
+  {
+    "key": "fonck_spad",
+    "group": "individual"
+  },
+  {
+    "key": "thieffry_spad",
+    "group": "individual"
+  },
+  {
+    "key": "italian_spad",
+    "group": "individual"
+  },
+  {
+    "key": "deullin_spad",
+    "group": "individual"
+  },
+  {
+    "key": "mannock_se5a",
+    "group": "individual"
+  },
+  {
+    "key": "sqn85_se5a",
+    "group": "individual"
+  },
+  {
+    "key": "collishaw_se5a",
+    "group": "individual"
+  },
+  {
+    "key": "stork_nieuport",
+    "group": "individual"
+  },
+  {
+    "key": "bishop_nieuport",
+    "group": "individual"
+  },
+  {
+    "key": "navarre_nieuport",
+    "group": "individual"
+  },
+  {
+    "key": "camo_nieuport",
+    "group": "individual"
+  },
+  {
+    "key": "zebra_se5a",
+    "group": "individual"
+  },
+  {
+    "key": "berthold_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "mueller_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "schoder_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "buttner_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "wolff2_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "nonal_camel",
+    "group": "individual"
+  },
+  {
+    "key": "maclaren_camel",
+    "group": "individual"
+  },
+  {
+    "key": "barker_camel",
+    "group": "individual"
+  },
+  {
+    "key": "germain_spad",
+    "group": "individual"
+  },
+  {
+    "key": "audemars_spad",
+    "group": "individual"
+  },
+  {
+    "key": "carli_spad",
+    "group": "individual"
+  },
+  {
+    "key": "belgium_spad",
+    "group": "individual"
+  },
+  {
+    "key": "bishop_se5a",
+    "group": "individual"
+  },
+  {
+    "key": "dallas_se5a",
+    "group": "individual"
+  },
+  {
+    "key": "beauchamp_se5a",
+    "group": "individual"
+  },
+  {
+    "key": "guynemer_nieuport",
+    "group": "individual"
+  },
+  {
+    "key": "heurteaux_nieuport",
+    "group": "individual"
+  },
+  {
+    "key": "carli_nieuport",
+    "group": "individual"
+  },
+  {
+    "key": "schleich_albatros",
+    "group": "individual"
+  },
+  {
+    "key": "greim_fokkerd7",
+    "group": "individual"
+  },
+  {
+    "key": "lafayette_nieuport17",
+    "group": "individual"
+  },
+  {
+    "key": "steinhauser_fokkerd7",
+    "group": "individual"
+  },
+  {
+    "key": "stork_spad",
+    "group": "individual"
+  },
+  {
+    "key": "bank_plane_albatros_d3",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_armstrong_fk8",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_avro_504",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_caproni_ca3",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_caudron_r11",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_dh4",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_dh9",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_fokker_ev",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_hannover_cl3",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_hp_o400",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_ilya_muromets",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_junkers_d1",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_nieuport_11_bebe",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_nieuport_24",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_pfalz_d12",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_phoenix_d1",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_re8",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_rumpler_taube",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_salmson_2a2",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_savoia_pomilio",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_sopwith_dolphin",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_sopwith_pup",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_sopwith_strutter",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_sopwith_triplane",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_ssw_d4",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_staaken_r6",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_plane_vickers_fb5",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_sea_fba_h",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_sea_friedrichshafen_ff33",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_sea_gotha_wd14",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_sea_hansa_w12",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_sea_short_184",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_sea_sopwith_baby",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_airship_parseval_pl25",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_airship_ss_blimp",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_airship_zeppelin_l30",
+    "group": "bank-stock"
+  },
+  {
+    "key": "bank_livery_aeg_c4__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_aeg_c4__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_aeg_c4__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_aeg_c4__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_aeg_g4__bavarian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_aeg_g4__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_aeg_g4__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_aeg_g4__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_aeg_g4__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_aeg_g4__ottoman",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_aeg_g4__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_aeg_g4__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_airco_dh2__camo",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_airco_dh2__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_airco_dh2__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_airco_dh2__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_airco_dh2__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_airco_dh2__red",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_airco_dh2__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_airco_dh2__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d2__balken",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d2__early",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d2__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d2__green",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d2__jasta5",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d2__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d2__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d2__winter",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d3__balken",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d3__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d3__green",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d3__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d3__red",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d3__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d3__wood",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d3__zebra",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d5a__bavarian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d5a__black",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d5a__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d5a__jasta46",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d5a__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d5a__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d5a__winter",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_d5a__wood",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_oeffag__cross",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_oeffag__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_oeffag__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_oeffag__mottle",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_oeffag__ottoman",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_oeffag__polish",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_oeffag__swiss",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_albatros_oeffag__ukrainian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ansaldo_sva5__british",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ansaldo_sva5__camo",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ansaldo_sva5__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ansaldo_sva5__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ansaldo_sva5__red",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ansaldo_sva5__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ansaldo_sva5__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ansaldo_sva5__white",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_armstrong_fk8__camo",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_armstrong_fk8__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_armstrong_fk8__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_armstrong_fk8__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_armstrong_fk8__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_armstrong_fk8__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_armstrong_fk8__sqn35",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_armstrong_fk8__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_aviatik_d1__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_aviatik_d1__red",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_aviatik_d1__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_aviatik_d1__wood",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_avro_504__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_avro_504__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_avro_504__japan",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_avro_504__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_avro_504__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_avro_504__pc10",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_avro_504__soviet",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_avro_504__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_be2c__camo",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_be2c__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_be2c__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_be2c__greek",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_be2c__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_be2c__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_be2c__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_be2c__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_breguet14__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_breguet14__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_breguet14__greek",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_breguet14__italian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_breguet14__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_breguet14__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_breguet14__polish",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_breguet14__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_bristol_f2b__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_bristol_f2b__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_bristol_f2b__italian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_bristol_f2b__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_bristol_f2b__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_bristol_f2b__polish",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_bristol_f2b__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_bristol_f2b__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_bristol_m1__british",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_bristol_m1__chile",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_bristol_m1__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_bristol_m1__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_bristol_m1__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_bristol_m1__red",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_bristol_m1__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_bristol_m1__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_camel__checker",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_camel__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_camel__greek",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_camel__naval",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_camel__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_camel__polish",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_camel__standard",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_camel__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caproni_ca3__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caproni_ca3__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caproni_ca3__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caproni_ca3__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caproni_ca3__mottle",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caproni_ca3__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caproni_ca3__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caproni_ca3__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caudron_g4__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caudron_g4__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caudron_g4__italian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caudron_g4__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caudron_g4__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caudron_g4__polish",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caudron_g4__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caudron_g4__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caudron_r11__british",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caudron_r11__camo",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caudron_r11__italian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caudron_r11__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caudron_r11__linen",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caudron_r11__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caudron_r11__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_caudron_r11__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dfw_cv__bavarian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dfw_cv__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dfw_cv__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dfw_cv__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh4__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh4__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh4__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh4__greek",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh4__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh4__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh4__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh4__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh5__british",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh5__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh5__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh5__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh5__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh5__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh5__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh5__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh9__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh9__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh9__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh9__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh9__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh9__polish",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh9__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dh9__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dolphin__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dolphin__british",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dolphin__camo",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dolphin__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dolphin__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dolphin__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dolphin__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_dolphin__polish",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_eindecker__austria",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_eindecker__balken",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_eindecker__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_eindecker__green",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_eindecker__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_eindecker__ottoman",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_eindecker__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_eindecker__swiss",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fe2b__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fe2b__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fe2b__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fe2b__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fe2b__raf",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fe2b__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fe2b__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fe2b__wavy",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_felixstowe_f2__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_felixstowe_f2__grey",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_felixstowe_f2__japan",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_felixstowe_f2__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_felixstowe_f2__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_felixstowe_f2__nightpatrol",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_felixstowe_f2__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_felixstowe_f2__usn",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ff33__danish",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ff33__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ff33__grey",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ff33__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ff33__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ff33__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ff33__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ff33__wave",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokker_d5__black",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokker_d5__grey",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokker_d5__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokker_d5__streak",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokker_dr1__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokker_dr1__jasta11",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokker_dr1__jasta15",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokker_dr1__jasta26",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokker_dr1__jasta36",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokker_dr1__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokker_dr1__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokker_dr1__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokker_ev__checker",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokker_ev__jasta6",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokker_ev__red",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokker_ev__yellow",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokkerd7__berthold",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokkerd7__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokkerd7__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokkerd7__mottle",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokkerd7__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokkerd7__polish",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokkerd7__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_fokkerd7__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_friedrichshafen_g3__bavarian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_friedrichshafen_g3__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_friedrichshafen_g3__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_friedrichshafen_g3__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_friedrichshafen_g3__ottoman",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_friedrichshafen_g3__polish",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_friedrichshafen_g3__raf",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_friedrichshafen_g3__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_gotha_g4__bavarian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_gotha_g4__day",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_gotha_g4__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_gotha_g4__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_gotha_g4__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_gotha_g4__ottoman",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_gotha_g4__raf",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_gotha_g4__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_halberstadt_duo__band",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_halberstadt_duo__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_halberstadt_duo__green",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_halberstadt_duo__mottle",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hannover_cl3__band",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hannover_cl3__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hannover_cl3__green",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hannover_cl3__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hanriot__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hanriot__camo",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hanriot__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hanriot__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hanriot__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hanriot__polish",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hanriot__red",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hanriot__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hansa_cc__cross",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hansa_cc__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hansa_cc__italian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hansa_cc__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hansa_cc__mottle",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hansa_cc__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hansa_cc__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hansa_cc__wave",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hb_w29__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hb_w29__grey",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hb_w29__japan",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hb_w29__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hb_w29__mottle",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hb_w29__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hb_w29__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hb_w29__wave",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hp_o400__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hp_o400__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hp_o400__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hp_o400__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hp_o400__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hp_o400__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hp_o400__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_hp_o400__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ilya_muromets__bavarian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ilya_muromets__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ilya_muromets__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ilya_muromets__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ilya_muromets__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ilya_muromets__soviet",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ilya_muromets__ukrainian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ilya_muromets__winter",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_junkers_d1__band",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_junkers_d1__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_junkers_d1__mottle",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_junkers_d1__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_junkers_j1__green",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_junkers_j1__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_junkers_j1__mottle",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_junkers_j1__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_lohner_l__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_lohner_l__grey",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_lohner_l__italian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_lohner_l__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_lohner_l__mottle",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_lohner_l__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_lohner_l__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_lohner_l__wave",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_macchi_m3__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_macchi_m3__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_macchi_m3__mottle",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_macchi_m3__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_macchi_m3__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_macchi_m3__swiss",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_macchi_m3__usn",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_macchi_m3__wave",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_macchi_m5__camo",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_macchi_m5__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_macchi_m5__greek",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_macchi_m5__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_macchi_m5__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_macchi_m5__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_macchi_m5__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_macchi_m5__wave",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_morane_ai__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_morane_ai__camo",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_morane_ai__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_morane_ai__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_morane_ai__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_morane_ai__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_morane_ai__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_morane_ai__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport11__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport11__british",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport11__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport11__german",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport11__italian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport11__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport11__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport11__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport17__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport17__camo",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport17__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport17__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport17__italian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport17__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport17__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport17__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport24__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport24__british",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport24__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport24__italian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport24__japan",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport24__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport24__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport24__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport28__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport28__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport28__greek",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport28__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport28__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport28__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport28__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_nieuport28__wavy",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pfalz_d12__bavarian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pfalz_d12__black",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pfalz_d12__british",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pfalz_d12__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pfalz_d12__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pfalz_d12__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pfalz_d12__mottle",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pfalz_d12__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pfalz_d3a__bavarian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pfalz_d3a__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pfalz_d3a__jasta10",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pfalz_d3a__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pfalz_d3a__mottle",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pfalz_d3a__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pfalz_d3a__red",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pfalz_d3a__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_phonix_d1__band",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_phonix_d1__italian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_phonix_d1__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_phonix_d1__wood",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pup__camo",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pup__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pup__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pup__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pup__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pup__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pup__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_pup__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_re7__camo",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_re7__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_re7__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_re7__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_re7__polish",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_re7__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_re7__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_re7__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_re8__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_re8__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_re8__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_re8__heavy",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_re8__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_re8__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_re8__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_re8__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_roland_d6__black",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_roland_d6__british",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_roland_d6__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_roland_d6__green",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_roland_d6__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_roland_d6__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_roland_d6__mottle",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_roland_d6__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_rumpler_taube__austria",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_rumpler_taube__camo",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_rumpler_taube__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_rumpler_taube__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_rumpler_taube__italian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_rumpler_taube__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_rumpler_taube__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_salmson_2a2__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_salmson_2a2__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_salmson_2a2__japan",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_salmson_2a2__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_salmson_2a2__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_salmson_2a2__polish",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_salmson_2a2__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_salmson_2a2__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_savoia_pomilio__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_savoia_pomilio__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_savoia_pomilio__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_savoia_pomilio__linen",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_savoia_pomilio__mottle",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_savoia_pomilio__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_savoia_pomilio__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_savoia_pomilio__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_se5a__camo",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_se5a__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_se5a__italian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_se5a__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_se5a__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_se5a__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_se5a__us",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_snipe__band",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_snipe__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_snipe__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_snipe__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_snipe__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_snipe__soviet",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_snipe__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_snipe__wavy",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_spad13__italy",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_spad13__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_spad13__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_spad13__polish",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_spad13__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_spad13__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_spad13__standard",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_spad13__us",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ssw_d3__black",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ssw_d3__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ssw_d3__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ssw_d3__white",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ssw_d4__balken",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ssw_d4__red",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ssw_d4__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_ssw_d4__white",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_staaken_r6__bavarian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_staaken_r6__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_staaken_r6__lozenge",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_staaken_r6__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_staaken_r6__ottoman",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_staaken_r6__raf",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_staaken_r6__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_staaken_r6__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_strutter__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_strutter__camo",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_strutter__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_strutter__japanese",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_strutter__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_strutter__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_strutter__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_strutter__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_triplane__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_triplane__british",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_triplane__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_triplane__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_triplane__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_triplane__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_triplane__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_triplane__us",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_vickers_fb5__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_vickers_fb5__camo",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_vickers_fb5__captured",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_vickers_fb5__french",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_vickers_fb5__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_vickers_fb5__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_vickers_fb5__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_vickers_fb5__silver",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_voisin8__belgian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_voisin8__desert",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_voisin8__italian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_voisin8__leader",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_voisin8__night",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_voisin8__polish",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_voisin8__russian",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bank_livery_voisin8__usas",
+    "group": "bank-livery"
+  },
+  {
+    "key": "bomber-transfer-o400",
+    "group": "transfer"
+  },
+  {
+    "key": "bomber-transfer-gotha",
+    "group": "transfer"
+  },
+  {
+    "key": "transfer-caudron-r11",
+    "group": "transfer"
+  },
+  {
+    "key": "transfer-aeg-ji",
+    "group": "transfer"
+  },
+  {
+    "key": "transfer-r29",
+    "group": "transfer"
+  },
+  {
+    "key": "transfer-l30",
+    "group": "transfer"
+  },
+  {
+    "key": "fokker_red",
+    "group": "alias"
+  },
+  {
+    "key": "fokker_voss",
+    "group": "alias"
+  },
+  {
+    "key": "dh2",
+    "group": "alias"
+  },
+  {
+    "key": "fokker_e1",
+    "group": "alias"
+  },
+  {
+    "key": "fokker_d7_campaign",
+    "group": "alias"
+  },
+  {
+    "key": "albatros_d5",
+    "group": "alias"
+  },
+  {
+    "key": "oeffag",
+    "group": "alias"
+  },
+  {
+    "key": "bristol",
+    "group": "alias"
+  },
+  {
+    "key": "spad7",
+    "group": "alias"
+  },
+  {
+    "key": "halberstadt",
+    "group": "alias"
+  },
+  {
+    "key": "fokker_campaign",
+    "group": "alias"
+  },
+  {
+    "key": "white-fokkerdv55",
+    "group": "escort"
+  },
+  {
+    "key": "bank_plane_morane_type_n",
+    "group": "bank",
+    "name": "Morane-Saulnier Type N",
+    "ko": "모란-솔니에 타입 N",
+    "role": "fighter",
+    "conceptId": "01"
+  },
+  {
+    "key": "bank_plane_fokker_dii",
+    "group": "bank",
+    "name": "Fokker D.II",
+    "ko": "포커 D.II",
+    "role": "fighter",
+    "conceptId": "02"
+  },
+  {
+    "key": "bank_plane_farman_f50",
+    "group": "bank",
+    "name": "Farman F.50",
+    "ko": "파르망 F.50",
+    "role": "bomber",
+    "conceptId": "03"
+  },
+  {
+    "key": "bank_plane_short_bomber",
+    "group": "bank",
+    "name": "Short Bomber",
+    "ko": "쇼트 폭격기",
+    "role": "bomber",
+    "conceptId": "04"
+  },
+  {
+    "key": "bank_ace_stark_fokkerd7",
+    "group": "bank",
+    "name": "Stark - Fokker D.VII",
+    "ko": "슈타르크 - 포커 D.VII",
+    "role": "fighter",
+    "conceptId": "05"
+  },
+  {
+    "key": "bank_ace_klimke_dr1",
+    "group": "bank",
+    "name": "Klimke - Fokker Dr.I",
+    "ko": "클림케 - 포커 Dr.I",
+    "role": "fighter",
+    "conceptId": "06"
+  },
+  {
+    "key": "bank_ace_buchner_fokkerd7",
+    "group": "bank",
+    "name": "Buchner - Fokker D.VII",
+    "ko": "부흐너 - 포커 D.VII",
+    "role": "fighter",
+    "conceptId": "07"
+  },
+  {
+    "key": "bank_ace_cobby_camel",
+    "group": "bank",
+    "name": "Cobby - Sopwith Camel",
+    "ko": "코비 - 소프위드 카멜",
+    "role": "fighter",
+    "conceptId": "08"
+  },
+  {
+    "key": "bank_plane_spad_sa2",
+    "group": "bank",
+    "name": "SPAD S.A.2",
+    "ko": "스파드 S.A.2",
+    "role": "recon",
+    "conceptId": "09"
+  },
+  {
+    "key": "bank_sea_porte_baby",
+    "group": "bank",
+    "name": "Porte Baby",
+    "ko": "포르테 베이비",
+    "role": "sea-bomber",
+    "conceptId": "10"
+  },
+  {
+    "key": "bank_ace_bolle_fokkerd7",
+    "group": "bank",
+    "name": "Bolle - Fokker D.VII",
+    "ko": "볼레 - 포커 D.VII",
+    "role": "fighter",
+    "conceptId": "11"
+  },
+  {
+    "key": "bank_ace_slade_spad",
+    "group": "bank",
+    "name": "Slade - SPAD",
+    "ko": "슬레이드 - 스파드",
+    "role": "fighter",
+    "conceptId": "12"
+  },
+  {
+    "key": "bank_plane_roland_dii",
+    "group": "bank",
+    "name": "Roland D.II",
+    "ko": "롤란트 D.II",
+    "role": "fighter",
+    "conceptId": "13"
+  },
+  {
+    "key": "bank_plane_gotha_gi",
+    "group": "bank",
+    "name": "Gotha G.I",
+    "ko": "고타 G.I",
+    "role": "bomber",
+    "conceptId": "14"
+  },
+  {
+    "key": "bank_ace_bohning_albatros",
+    "group": "bank",
+    "name": "Böhning - Albatros",
+    "ko": "뵈닝 - 알바트로스",
+    "role": "fighter",
+    "conceptId": "15"
+  },
+  {
+    "key": "bank_ace_beamish_camel",
+    "group": "bank",
+    "name": "Beamish - Sopwith Camel",
+    "ko": "비미시 - 소프위드 카멜",
+    "role": "fighter",
+    "conceptId": "16"
+  },
+  {
+    "key": "bank_sea_hanriot_hd2",
+    "group": "bank",
+    "name": "Hanriot HD.2",
+    "ko": "앙리오 HD.2",
+    "role": "sea-fighter",
+    "conceptId": "17"
+  },
+  {
+    "key": "bank_plane_sopwith_cuckoo",
+    "group": "bank",
+    "name": "Sopwith Cuckoo",
+    "ko": "소프위드 쿠쿠",
+    "role": "sea-bomber",
+    "conceptId": "18"
+  },
+  {
+    "key": "bank_ace_michetti_hanriot",
+    "group": "bank",
+    "name": "Michetti - Hanriot",
+    "ko": "미케티 - 앙리오",
+    "role": "fighter",
+    "conceptId": "19"
+  },
+  {
+    "key": "bank_ace_chambers_spad",
+    "group": "bank",
+    "name": "Chambers - SPAD",
+    "ko": "체임버스 - 스파드",
+    "role": "fighter",
+    "conceptId": "20"
+  },
+  {
+    "key": "bank_plane_caproni_ca5",
+    "group": "bank",
+    "name": "Caproni Ca.5",
+    "ko": "카프로니 Ca.5",
+    "role": "bomber",
+    "conceptId": "21"
+  },
+  {
+    "key": "bank_plane_martinsyde_s1",
+    "group": "bank",
+    "name": "Martinsyde S.1",
+    "ko": "마틴사이드 S.1",
+    "role": "fighter",
+    "conceptId": "22"
+  },
+  {
+    "key": "bank_ace_hippert_fokkerd7",
+    "group": "bank",
+    "name": "Hippert - Fokker D.VII",
+    "ko": "히페르트 - 포커 D.VII",
+    "role": "fighter",
+    "conceptId": "23"
+  },
+  {
+    "key": "bank_ace_auffarth_fokkerd7",
+    "group": "bank",
+    "name": "Auffarth - Fokker D.VII",
+    "ko": "아우파르트 - 포커 D.VII",
+    "role": "fighter",
+    "conceptId": "24"
+  },
+  {
+    "key": "bank_plane_farman_mf11",
+    "group": "bank",
+    "name": "Farman MF.11",
+    "ko": "파르망 MF.11",
+    "role": "recon",
+    "conceptId": "25"
+  },
+  {
+    "key": "bank_plane_phonix_dii",
+    "group": "bank",
+    "name": "Phönix D.II",
+    "ko": "푀닉스 D.II",
+    "role": "fighter",
+    "conceptId": "26"
+  },
+  {
+    "key": "bank_ace_chavannes_spad13",
+    "group": "bank",
+    "name": "Chavannes - SPAD XIII",
+    "ko": "샤반 - 스파드 XIII",
+    "role": "fighter",
+    "conceptId": "27"
+  },
+  {
+    "key": "bank_ace_konnecke_albatros",
+    "group": "bank",
+    "name": "Könnecke - Albatros D.V",
+    "ko": "쾨네케 - 알바트로스 D.V",
+    "role": "fighter",
+    "conceptId": "28"
+  },
+  {
+    "key": "bank_plane_siemens_schuckert_di",
+    "group": "bank",
+    "name": "Siemens-Schuckert D.I",
+    "ko": "지멘스-슈케르트 D.I",
+    "role": "fighter",
+    "conceptId": "29"
+  },
+  {
+    "key": "bank_sea_donnet_denhaut_dd8",
+    "group": "bank",
+    "name": "Donnet-Denhaut D.D.8",
+    "ko": "도네-덴오 D.D.8",
+    "role": "sea-recon",
+    "conceptId": "30"
+  },
+  {
+    "key": "bank_ace_neckel_fokkerd7",
+    "group": "bank",
+    "name": "Ulrich Neckel — Fokker D.VII (OAW)",
+    "ko": "울리히 네켈 — 포커 D.VII",
+    "role": "fighter",
+    "conceptId": "31"
+  },
+  {
+    "key": "bank_ace_navratil_oeffag",
+    "group": "bank",
+    "name": "Friedrich Navratil — Albatros D.III (Oeffag) 253.116",
+    "ko": "프리드리히 나브라틸 — 알바트로스 D.III",
+    "role": "fighter",
+    "conceptId": "32"
+  }
+]

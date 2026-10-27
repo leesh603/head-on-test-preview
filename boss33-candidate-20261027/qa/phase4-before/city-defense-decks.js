@@ -1,0 +1,1 @@
+export const PARIS_DECK_FRAMES={"light-nw":[0,0,231,252],"light-ne":[256,0,231,252],"light-sw":[512,0,231,234],"light-se":[0,256,231,234],"light-main":[256,256,221,228],"aa-left":[512,256,145,165],"aa-right":[0,512,145,165],"mg-left":[256,512,131,169],"mg-right":[512,512,131,169]};

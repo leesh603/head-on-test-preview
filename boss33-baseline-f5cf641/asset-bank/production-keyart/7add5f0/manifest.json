@@ -1,0 +1,129 @@
+{
+  "source_commit": "7add5f02aefc59f9e569fb1e8b20e6267999020b",
+  "files": [
+    {
+      "path": "asset-bank/production-keyart/7add5f0/berthold.webp",
+      "git_sha": "f439d1bd7d69da9947be1e9bc836afc1fdaa8929"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/ball.webp",
+      "git_sha": "c2b6c0ea8cbf18a407951a1ca81064884cc62b29"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/barker.webp",
+      "git_sha": "12f4e8ed00ac8cc5f12c172d3d033ab7f2f10fe4"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/baracca.webp",
+      "git_sha": "40f08b8a3b060330e3c6596cefe3426172ca2873"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/boelcke.webp",
+      "git_sha": "5abc99b514bff68926ebae0889979c07a5cf407c"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/collishaw.webp",
+      "git_sha": "9f9202a94834a5d18cdd6e22eb2c2110f0bbd46c"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/fonck.webp",
+      "git_sha": "1e5dc61e0405f399c669572c5b08fb635b090e81"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/bishop.webp",
+      "git_sha": "8cf7082c311023620c66869335979a53cf4d94f2"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/brumowski.webp",
+      "git_sha": "58963f569cd17f0d5dbc798d6c98bd245d81d13b"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/guynemer.webp",
+      "git_sha": "0791438f917a0c7ef4f6d0fad756eb69cde88e5b"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/goering.webp",
+      "git_sha": "384023bc51f5e6167b73b416f9bf60f517203380"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/gontermann.webp",
+      "git_sha": "03bd88edf2e0a3442d27c58c76995b808bd7eee0"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/huffzky.webp",
+      "git_sha": "c4c0b913d110b4b81c10a5d238cf02da276311f1"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/hawker.webp",
+      "git_sha": "1cc535fa4b4d73579730ba44fc77f72d7cba884f"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/lothar.webp",
+      "git_sha": "6e7a199fb224a8a55de66d759c53d93e13292c76"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/immelmann.webp",
+      "git_sha": "01a8733d95abc2f1c20f443cbf96b5e429eed21c"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/loewenhardt.webp",
+      "git_sha": "0e1d836187f014e419e524305f9b23feb4da39ac"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/jacobs.webp",
+      "git_sha": "1808d5bdde54591ca942db884366b4b882dd5513"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/lufbery.webp",
+      "git_sha": "e7584918041123e5d250662549b95afffe61197c"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/nungesser.webp",
+      "git_sha": "8207cecbfdfe966c201cd4254d97188c3827a35d"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/mccudden.webp",
+      "git_sha": "46d68b04b102fedcd7539911112b3b700fe9c5c9"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/luke.webp",
+      "git_sha": "df219cc18be2fd5ae164218326fcaee5b25a64b7"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/mannock.webp",
+      "git_sha": "4b4a083fbee334d007dafb357053f960fa33ea6c"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/mckeever.webp",
+      "git_sha": "dd84c7e0817a5fa1efd2b0f43b5f221d8b7169c9"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/rickenbacker.webp",
+      "git_sha": "f68c56fb213025d8374558bb3c9c137453337ccc"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/schleich.webp",
+      "git_sha": "8dc956a6b468dd7ddd6549949bed9b805d599c50"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/proctor.webp",
+      "git_sha": "2a27701abea46117a91ec173f5b67443ede66f75"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/udet.webp",
+      "git_sha": "a2cecad06a7977ba40ab3ace60ca7f61d72160e2"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/sachsenberg.webp",
+      "git_sha": "481da786c5bcab0f9a0812c91a156231b18844b3"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/voss.webp",
+      "git_sha": "50737fce766a01d98071928a8a417451c956b9a1"
+    },
+    {
+      "path": "asset-bank/production-keyart/7add5f0/wolff.webp",
+      "git_sha": "7b17c15d4afaf530f3aa44ae1344ebe806a0b482"
+    }
+  ]
+}
