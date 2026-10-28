@@ -1,5 +1,6 @@
+import {cleanPilotUnlocks,setPilotUnlockBook,pilotUnlockRun,syncPilotUnlocks} from './pilot-unlocks.js?v=headon-result339-20261028';
 // Service record also retains per-pilot aircraft unlock progress.
-import {PILOT_AIRCRAFT,PILOT_AIRCRAFT_KILLS,pilotKillMetric,setPilotKillProvider} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {PILOT_AIRCRAFT,PILOT_AIRCRAFT_KILLS,pilotKillMetric,setPilotKillProvider} from './pilot-aircraft.js?v=headon-result339-20261028&art=pilot-recovery2';
 const medal=(id,group,icon,name,en,description,descriptionEn,metric,goals=[1],hidden=false)=>Object.freeze({id,group,icon,name,en,description,descriptionEn,metric,goals:Object.freeze(goals),hidden});
 const pilotLabels={baron:'리히트호펜',voss:'포스',boelcke:'뵐케',udet:'우데트',goering:'괴링',berthold:'베르톨트',wolff:'볼프',loewenhardt:'뢰벤하르트',jacobs:'야콥스',brumowski:'브루모프스키',lothar:'로타르',sachsenberg:'작센베르크',fonck:'폰크',collishaw:'콜리쇼',baracca:'바라카',guynemer:'기네미르',bishop:'비숍',mannock:'매녹',hawker:'호커',mccudden:'맥커든',nungesser:'넝제세르',rickenbacker:'리켄바커',ball:'볼',barker:'바커'};
 export const PILOT_AIRCRAFT_MEDALS=Object.freeze(Object.entries(PILOT_AIRCRAFT).filter(([,r])=>r.unlockAircraft).map(([id])=>medal('aircraft_'+id,'aircraft',0,pilotLabels[id]+' · 기체 전환 허가',id[0].toUpperCase()+id.slice(1)+' · Aircraft Clearance',`${pilotLabels[id]}로 누적 ${PILOT_AIRCRAFT_KILLS}기 격추 · 추가 기체 해금`,`Record ${PILOT_AIRCRAFT_KILLS} kills with ${id} to unlock the additional aircraft.`,pilotKillMetric(id),[PILOT_AIRCRAFT_KILLS])));
@@ -46,10 +47,10 @@ export class AchievementBook {
   const data=empty();for(const [k,v]of Object.entries(raw.metrics||{}))if(/^[a-zA-Z]+$/.test(k))data.metrics[k]=finite(v);
   for(const [k,v]of Object.entries(raw.collections||{}))if(/^[a-zA-Z]+$/.test(k)&&Array.isArray(v))data.collections[k]=[...new Set(v.filter(s=>typeof s==='string'&&/^[a-z0-9-]{1,80}$/.test(s)))].slice(0,100);
   for(const d of MEDALS){const a=raw.awards?.[d.id],tier=Math.min(d.goals.length,finite(a?.tier));if(tier)data.awards[d.id]={tier,firstAt:typeof a.firstAt==='string'?a.firstAt.slice(0,32):'',at:typeof a.at==='string'?a.at.slice(0,32):''}}
-  data.featured=[...new Set((Array.isArray(raw.featured)?raw.featured:[]).filter(id=>ids.has(id)&&data.awards[id]))].slice(0,3);this.data=data;
+  data.featured=[...new Set((Array.isArray(raw.featured)?raw.featured:[]).filter(id=>ids.has(id)&&data.awards[id]))].slice(0,3);if(raw.pilotUnlocks)data.pilotUnlocks=cleanPilotUnlocks(raw.pilotUnlocks);this.data=data;
  }
  subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn)}
- persist(newAwards=[]){try{this.storage?.setItem(MEDAL_SAVE_KEY,JSON.stringify(this.data));this.saved=!!this.storage}catch{this.saved=false}for(const fn of this.listeners)try{fn({newAwards,saved:this.saved})}catch{/* Cosmetic UI may never interrupt combat. */}}
+ persist(newAwards=[],newPilots=[]){try{this.storage?.setItem(MEDAL_SAVE_KEY,JSON.stringify(this.data));this.saved=!!this.storage}catch{this.saved=false}for(const fn of this.listeners)try{fn({newAwards,newPilots,saved:this.saved})}catch{/* Cosmetic UI may never interrupt combat. */}}
  record({add={},max={},unique={}}={}){
   let changed=false;const m=this.data.metrics;
   for(const [k,n]of Object.entries(add))if(finite(n)){m[k]=finite((m[k]||0)+finite(n));changed=true}
@@ -64,7 +65,7 @@ export class AchievementBook {
 }
 
 let book=null;const runs=new WeakMap(),pilotKillRuns=new WeakMap();
-export const setAchievementBook=value=>{book=value;setPilotKillProvider(value?id=>value.data.metrics[pilotKillMetric(id)]||0:null)};
+export const setAchievementBook=value=>{book=value;setPilotUnlockBook(value);setPilotKillProvider(value?id=>value.data.metrics[pilotKillMetric(id)]||0:null)};
 // Existing personal kill counters include ordinary aircraft and owned support kills.
 // Online replicas carry these counters: each device records only its own pilot.
 export function syncPilotKills(g){
@@ -80,11 +81,11 @@ export function syncPilotKills(g){
 export const eligibleForMedals=g=>{g=g?.world||g;return !!g&&!g.testMode&&!g.online&&g.mode!=='campaign'};
 const pilots=g=>g.players||[g],living=p=>p.hp>0&&(!p.status||p.status==='alive');
 export function achievementRun(g){g=g?.world||g;if(!book||!eligibleForMedals(g))return null;let r=runs.get(g);if(!r){r=new SortieAchievements(g,book);runs.set(g,r)}return r}
-export function awardPriorityKill(g,e,ownerId){g.priorityKills=(g.priorityKills||0)+1;achievementRun(g)?.kill(e,ownerId)}
-export function achievementEnemyDefeated(g,e){achievementRun(g)?.enemyDefeated(e)}
+export function awardPriorityKill(g,e,ownerId){const before=g.mode==='coop2'?(g.priorityKills||0):typeof g.recordedKills==='function'?g.recordedKills():(g.priorityKills||0);g.priorityKills=(g.priorityKills||0)+1;achievementRun(g)?.kill(e,ownerId);pilotUnlockRun(g)?.rankedKills(ownerId||'p1',before)}
+export function achievementEnemyDefeated(g,e,source){achievementRun(g)?.enemyDefeated(e);pilotUnlockRun(g)?.noteDeath(e,source)}
 export function achievementBossCue(g,event,body){achievementRun(g)?.bossCue(event,body)}
-export function achievementBossClear(g,info){achievementRun(g)?.bossClear(info)}
-export function achievementMission(g,event,outcome){if(outcome==='completed')achievementRun(g)?.mission(event)}
+export function achievementBossClear(g,info){achievementRun(g)?.bossClear(info);pilotUnlockRun(g)?.bossClear(info)}
+export function achievementMission(g,event,outcome){if(outcome==='completed'){achievementRun(g)?.mission(event);pilotUnlockRun(g)?.mission(event)}}
 
 export class SortieAchievements {
  constructor(world,record){this.g=world;this.book=record;this.priority=0;this.rankedPriority=0;this.bosses=0;this.seenKills=new WeakSet();this.enemyDeaths=new WeakMap();this.deathSequence=0;this.clears=new Set();this.missions=new Set();this.tail=new Map();this.tailQualified=new WeakMap();this.formations=new Map();this.low=new Map();this.recoveries=new Map();this.boss=null;this.routeLoop=null;this.routeClears=new Set();this.routeAwarded=false;this.routeOrder=[];this.lastSecond=-1;this.sessionAwards=new Set()}
@@ -154,7 +155,7 @@ export class SortieAchievements {
 }
 
 export function installAchievementTracking(Type,{coop=false}={}){
- const update=Type.prototype.update;Type.prototype.update=function(dt,...args){const r=achievementRun(this),before=this.t||0;if(r&&this.state==='playing'){r.beginFrame();r.tick(0)}const result=update.call(this,dt,...args);syncPilotKills(this);const elapsed=Math.max(0,(this.t||0)-before);if(r&&elapsed>0){for(const p of pilots(this))if(p.hp<(r.frameHp?.get(p.id||'p1')??p.hp))r.damage(p);r.tick(elapsed)}return result};
+ const update=Type.prototype.update;Type.prototype.update=function(dt,...args){const r=achievementRun(this),unlock=pilotUnlockRun(this),before=this.t||0;const unlockHp=new Map((this.players||[this]).map(p=>[p.id||'p1',{hp:p.hp,uses:p.heineckeUses||0}]));if(this.state==='playing')unlock?.tick(0);if(r&&this.state==='playing'){r.beginFrame();r.tick(0)}const result=update.call(this,dt,...args);syncPilotKills(this);syncPilotUnlocks(this);const elapsed=Math.max(0,(this.t||0)-before);if(r&&elapsed>0){for(const p of pilots(this))if(p.hp<(r.frameHp?.get(p.id||'p1')??p.hp))r.damage(p);r.tick(elapsed)}if(unlock&&elapsed>0){for(const p of this.players||[this]){const old=unlockHp.get(p.id||'p1');if(old&&(p.hp<old.hp||(p.heineckeUses||0)>old.uses))unlock.damage(p)}unlock.tick(elapsed)}return result};
  const key=coop?'hitPlayer':'hit',hit=Type.prototype[key];
- Type.prototype[key]=function(...args){const p=coop?args[0]:this,before=p?.hp,uses=p?.heineckeUses||0,result=hit.apply(this,args);if(p&&(p.hp<before||(p.heineckeUses||0)>uses))achievementRun(this)?.damage(p);return result};
+ Type.prototype[key]=function(...args){const p=coop?args[0]:this,before=p?.hp,uses=p?.heineckeUses||0,result=hit.apply(this,args);if(p&&(p.hp<before||(p.heineckeUses||0)>uses))achievementRun(this)?.damage(p);if(p&&(p.hp<before||(p.heineckeUses||0)>uses))pilotUnlockRun(this)?.damage(p);return result};
 }

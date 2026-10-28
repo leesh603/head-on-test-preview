@@ -1,9 +1,9 @@
-import {RailAdapter} from './boss-adapters129.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {BaseBoss,predictPilot} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=tame3';
-import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=tame3';
-import {brunoSalvo} from './bruno-raid.js?v=tame3&rail=40';
-import {lincomparableRound} from './lincomparable-raid.js?v=tame3&ring=1023';
+import {RailAdapter} from './boss-adapters129.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {BaseBoss,predictPilot} from './headon-stageboss-core.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=headon-result339-20261028';
+import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=headon-result339-20261028';
+import {brunoSalvo} from './bruno-raid.js?v=headon-result339-20261028&rail=40';
+import {lincomparableRound} from './lincomparable-raid.js?v=headon-result339-20261028&ring=1023';
 
 // Rural-only mechanics. The Cambrai carrier keeps its separate controller.
 export class RuralRailBoss extends RailAdapter {
@@ -176,7 +176,11 @@ export class RuralRailBoss extends RailAdapter {
   p.detachedPose={x:this.x+p.x,y:this.y+p.y,vx:10,vy:detachSpeed*this.rail129.direction*.45,angle:0,age:0};
   this.pullAway=true;
   if(this.aaPlan?.car===p)this.aaPlan=null;
+  this.emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':screen:'+p.id,pendingOnly:true});
   if(p.id==='car-middle'){
+   // Losing the observer also breaks a final 520 mm tracking solution.
+   // Keep the already displayed target and warning, rather than reacquiring.
+   if(this.finalAim){this.finalAim.blindAim=true;this.finalAim.blind=true;this.finalAim.locked=true;}
    if(this.aimPlan)this.blindOrigin={...this.aimPlan.target};
    this.aimPlan=null;
    if(this.rail129.phase==='aim'){this.rail129.target=null;this.rail129.time=0;}
@@ -321,14 +325,18 @@ export class RuralRailBoss extends RailAdapter {
   if(!cars.length||this.runawayTriggered129)return;
   // During the heavy gun's lay, recoil and reload the car gunners stand down;
   // the train's move phase is the lure and screening-fire beat.
-  if(['aim','brake'].includes(this.rail129.phase)){this.aaPlan=null;this.aaClock=Math.max(this.aaClock||0,.6);return;}
+  // Bruno's carriage screen covers braking and the early lay; the final
+  // committed dodge and all recoil/reload counter windows remain clear.
+  // The 520 mm gun retains its solitary, fully readable long aim.
+  const lay=this.rail129.phase==='aim',brunoScreen=this.kind==='paris-gun'&&(!lay||!this.aimPlan?.locked&&this.rail129.c.aimSeconds-this.rail129.time>1.3);
+  if(['aim','brake'].includes(this.rail129.phase)&&!brunoScreen){this.aaPlan=null;this.aaClock=Math.max(this.aaClock||0,.6);return;}
   // The recoil/reload after a heavy shot is the announced counter window: gunners hold fire.
   if(this.recovery>0){this.aaPlan=null;this.aaClock=Math.max(this.aaClock||0,.6);return;}
   if(this.aaPlan){this.aaPlan.remaining-=dt;if(this.aaPlan.remaining<=0){
    const car=this.aaPlan.car;if(car.destroyed){this.aaPlan=null;this.aaClock=.5;return;}
    const a=this.aaPlan.angle,x=this.x,y=this.y+car.y-145,speed=(this.t.bulletSpeed||260)*.85;
    car.gunFlash=.14;car.shotAngle=a;
-   for(const da of [-.2,-.1,0,.1,.2])this.emit({type:'hazard',bossId:this.id,kind:'projectile',x,y,vx:Math.cos(a+da)*speed,vy:Math.sin(a+da)*speed,radius:5,warning:0,delay:0,duration:3.2,damage:this.t.damage*.4,visual:'rail-mg'});
+   for(const da of [-.2,-.1,0,.1,.2])this.emit({type:'hazard',bossId:this.id,kind:'projectile',x,y,vx:Math.cos(a+da)*speed,vy:Math.sin(a+da)*speed,radius:5,warning:0,delay:0,duration:3.2,damage:this.t.damage*.4,visual:'rail-mg',sourcePartId:car.id,sourceOffsetX:x-this.x-car.x,sourceOffsetY:y-this.y-car.y,tag:this.id+':screen:'+car.id});
    this.aaPlan=null;this.aaClock=2.8/(this.t.patternMultiplier||1)/cars.length;
   }return;}
   this.aaClock-=dt;if(this.aaClock>0)return;

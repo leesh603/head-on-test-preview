@@ -296,14 +296,8 @@ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud #reloa
  order:3;flex:none;width:24px;min-width:24px;height:24px;min-height:24px;margin:0 0 0 2px;padding:0;
  border-radius:50%;font:600 10px/1 var(--astra-numeric);
 }
-/* Reload countdown hangs just under the pill instead of growing it. */
-body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .astra-reloading .astra-reload-readout,
-body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .flight-survival.astra-reloading .astra-reload-readout{
- position:absolute;top:calc(100% + 4px);left:var(--ho-pill-pad);
- display:grid;grid-template-columns:auto 30px 56px;gap:6px;align-items:center;
- margin:0;padding:3px 9px;border:1px solid var(--ho-edge-soft);border-radius:10px;
- background:#151514e6;color:#e3c687;font:500 10px/1.2 var(--astra-type);white-space:nowrap;
-}
+/* Reload progress lives on the R ring and the ammo bar; no extra band under the pill. */
+body.astra-ui.playing #viewport #flightTop151 .astra-reload-readout{display:none!important}
 
 /* ---- Right pill: time / kills / level ---- */
 body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .flight-status{
@@ -436,7 +430,9 @@ body.astra-ui.playing:has(.flight-survival.astra-low-health) #viewport .vignette
  body.astra-ui.playing #touch #touchSkill:disabled .astra-control-icon,
  body.astra-ui.playing #touch #touchEvade:disabled .astra-control-icon{filter:saturate(.2) brightness(.6)}
  body.astra-ui.playing #touch #touchSkill:not(:disabled),
- body.astra-ui.playing #touch #touchEvade:not(:disabled){border-color:var(--ho-hair-strong)!important}
+ body.astra-ui.playing #touch #touchEvade:not(:disabled){border-color:#c9a24ab3!important;box-shadow:var(--ho-lift),0 0 0 1px #c9a24a33,0 0 14px #c9a24a2e!important}
+ body.astra-ui.playing #touch #touchSkill:not(:disabled) #skillButtonText,
+ body.astra-ui.playing #touch #touchEvade:not(:disabled) #maneuverButtonText{color:var(--ho-parchment)!important}
 }
 /* Phone: round keys, same plate; cooldown = brass ring, ready = brighter rim. */
 @media(max-width:720px),(pointer:coarse){
@@ -1246,3 +1242,120 @@ body.astra-ui.playing #modal.settings-modal151 #modalActions button.settings-row
  height:auto!important;min-height:76px!important;max-height:none!important;padding:13px 0!important;
 }
 body.astra-ui.playing #modal.settings-modal151 .setting-copy151{text-align:left}
+/* Phone landscape: HP / ammo numerals were 11px; read them at a glance. */
+@media(max-width:920px) and (max-height:500px),(max-width:720px){
+ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #healthText,
+ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoCount{font-size:13px!important;font-weight:700}
+ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #healthText *{font-size:inherit!important}
+}
+/* XP fills the whole clock pill as a translucent brass wash instead of a thin rail. */
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #xpHud>.bar{
+ inset:0!important;left:0!important;right:0!important;top:0!important;bottom:0!important;width:auto!important;height:auto!important;
+ border-radius:inherit!important;background:transparent!important;box-shadow:none!important;overflow:hidden;z-index:0;pointer-events:none;
+}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #xpHud #xpBar{
+ display:block;height:100%;border-radius:0;background:linear-gradient(90deg,#c9a24a1f,#e8c06a4d)!important;
+ box-shadow:none!important;transition:width .35s ease-out;
+}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 :is(.time,.compact-kills,#xpHud>span,#pause){position:relative;z-index:1}
+/* Level reads first (left), so the wash reads as "progress toward the next level". */
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #xpHud{display:contents!important}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #xpHud>span{order:-1;color:var(--ho-parchment)}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #pause{order:99}
+/* Low health: the bar itself pulses slowly, not just the numerals. */
+@keyframes ho-low-pulse{0%,100%{opacity:1}50%{opacity:.45}}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .astra-low-health #healthBar{animation:ho-low-pulse 1.4s ease-in-out infinite}
+/* Level up: the clock pill's XP wash flashes once as it empties. */
+@keyframes ho-xp-levelup{0%{background:#f0cf7c80}100%{background:transparent}}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #xpHud.xp-levelup>.bar{animation:ho-xp-levelup .7s ease-out}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #xpHud.xp-levelup>span{animation:ho-beat .7s ease-out}
+/* Phone landscape: a long notice stays between the status pill and the clock pill. */
+@media(max-width:920px) and (max-height:500px){
+ body.astra-ui.playing #flightNotices151 #toast{display:block;max-width:calc(100vw - 460px);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+ body.astra-ui.playing #flightNotices151 #toast:before{display:inline-block;margin-right:7px;vertical-align:middle}
+}
+/* Phone: low health turns the bar red too (a later phone rule repainted it green). */
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .flight-survival.astra-low-health #healthBar{background:linear-gradient(90deg,#a3281c,#ff6b52)!important}
+/* Low ammo (<20%, not reloading): count turns amber so the reload can be timed. */
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud.astra-low-ammo #ammoCount{color:#f0a04a!important}
+/* Pause: brass rim on hover / keyboard focus so it reads as a button. */
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #pause:is(:hover,:focus-visible){border-color:#c9a24ab3!important;color:#f0cf7c}
+/* Hit flash: one short red blink of the status pill when health drops. */
+@keyframes ho-hit-flash{0%{box-shadow:inset 0 0 0 1px #ff6b52,0 0 18px #e0533699}100%{box-shadow:var(--ho-shadow)}}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 .flight-survival.astra-hit{animation:ho-hit-flash .28s ease-out}
+/* Reload done: R flashes brass once. */
+@keyframes ho-r-ready{0%{box-shadow:0 0 0 2px #f0cf7c,0 0 14px #f0cf7caa;color:#f0cf7c}100%{box-shadow:none}}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud.astra-reloaded #reload{animation:ho-r-ready .5s ease-out}
+/* Boss HP: thicker bar; red under 25%. */
+body.astra-ui.playing #stageBossHud .bar{height:9px!important;border-radius:5px}
+body.astra-ui.playing #stageBossHud .bar.ho-boss-low #stageBossHp{background:linear-gradient(90deg,#a3281c,#ff6b52)!important}
+/* Boss name reads first in the boss plate. */
+body.astra-ui.playing #stageBossHud #stageBossTitle{font-size:15px!important;font-weight:800;letter-spacing:.01em;color:var(--ho-parchment,#f1edd0)}
+@media(max-width:920px) and (max-height:500px){body.astra-ui.playing #stageBossHud #stageBossTitle{font-size:13px!important}}
+/* Upgrade cards (PC): the hovered card lifts and takes its rarity colour as a rim. */
+@media(hover:hover) and (pointer:fine){
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151{transition:transform .14s ease-out,box-shadow .14s ease-out}
+ body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151:is(:hover,:focus-visible){transform:translateY(-4px);outline:1px solid var(--hud191-choice-accent,#c9a24a)!important;box-shadow:0 10px 22px #0009!important}
+}
+/* Kill count pops when it goes up. */
+@keyframes ho-kill-pop{0%{transform:scale(1.45);color:#f0cf7c}100%{transform:scale(1)}}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #kills.ho-kill-pop{display:inline-block;animation:ho-kill-pop .35s ease-out}
+/* Upgrade card family label was cut to "기관…": it only has to clear the rarity chip. */
+body.astra-ui #modal.choice-modal151 #modalActions .reinforcement-card151 .effect-category151{max-width:calc(100% - 52px)!important}
+/* Boss plate: part count sits under the name, quieter. */
+body.astra-ui.playing #stageBossHud #stageBossParts{color:#a39d8f!important;font-size:11px!important}
+/* XP at 90%+: the wash glows softly so the coming level-up is visible. */
+@keyframes ho-xp-near{0%,100%{opacity:1}50%{opacity:.6}}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #xpHud.xp-near #xpBar{background:linear-gradient(90deg,#c9a24a33,#f0cf7c80)!important;animation:ho-xp-near 1.2s ease-in-out infinite}
+/* Warning notices arrive with a short nudge so they are not missed. */
+@keyframes ho-warn-in{0%{transform:translateY(-6px);opacity:0}60%{transform:translateY(1px);opacity:1}100%{transform:none}}
+body.astra-ui.playing #flightNotices151 #toast.warn:not(.hidden){animation:ho-warn-in .32s ease-out}
+/* Low ammo: the reload key takes the same amber so the fix sits next to the warning. */
+@keyframes ho-r-low{0%,100%{box-shadow:0 0 0 1px #f0a04a99}50%{box-shadow:0 0 0 2px #f0a04a,0 0 10px #f0a04a66}}
+body.astra-ui.playing:not(.coop-playing):has(#ammoHud.astra-low-ammo) #reload:not(.ho-reloading){color:#f0a04a!important;border-color:#f0a04a!important;animation:ho-r-low 1.2s ease-in-out infinite}
+/* Boss plate: name on its own line, part count under it (portrait ran them together). */
+body.astra-ui.playing #stageBossHud #stageBossTitle{display:block!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.astra-ui.playing #stageBossHud #stageBossParts{display:block!important;margin-top:1px}
+/* Combo: quiet type in the top-right margin under the clock pill, no card. Light numerals,
+   small spaced label, hairline timer that drains over the 3 s chain window. */
+body.astra-ui.playing #viewport #comboHud{
+ position:absolute;z-index:6;right:max(16px,env(safe-area-inset-right));top:calc(max(12px,env(safe-area-inset-top)) + 46px);
+ display:grid;justify-items:end;row-gap:3px;width:max-content;pointer-events:none;transform-origin:100% 0;
+ color:#efe9da;text-shadow:0 1px 3px #000c,0 0 10px #0008;
+}
+body.astra-ui.playing #viewport #comboHud[hidden]{display:none}
+body.astra-ui.playing #viewport #comboHud .combo-n{order:1;font:500 26px/1 var(--astra-numeric,inherit);letter-spacing:-.01em;color:#f3ead2;font-variant-numeric:tabular-nums}
+body.astra-ui.playing #viewport #comboHud .combo-n::before{content:"×";font-size:.6em;margin-right:2px;color:#c9b88f;vertical-align:.18em}
+body.astra-ui.playing #viewport #comboHud .combo-label{order:0;font:500 10px/1 var(--astra-type,inherit);letter-spacing:.06em;color:#d8c9a2;text-transform:uppercase}
+body.astra-ui.playing #viewport #comboHud .combo-timer{order:2;display:block;width:48px;height:2px;border-radius:1px;background:#ffffff2e;overflow:hidden;box-shadow:0 1px 2px #0008}
+body.astra-ui.playing #viewport #comboHud .combo-timer>i{display:block;height:100%;background:#e9d7a6;transform-origin:100% 50%}
+body.astra-ui.playing #viewport #comboHud.hot .combo-n{color:#ffcf8a}
+body.astra-ui.playing #viewport #comboHud.pop .combo-n{animation:ho-combo-pop .26s ease-out}
+@keyframes ho-combo-pop{0%{transform:translateY(-3px);opacity:.4}100%{transform:none;opacity:1}}
+@media(max-width:560px){body.astra-ui.playing #viewport #comboHud{right:14px}body.astra-ui.playing #viewport #comboHud .combo-n{font-size:24px}}
+/* Phones: the two-front panel folds to one line (W/E targets and distance) after its first 4 s,
+   so it stops covering the top of the battle. A new headline unfolds it again. */
+@media(max-width:560px){
+ body.astra-ui.playing #flightNotices151 #eventMissionHud.folded:not(.hidden){padding:4px 12px 5px!important;gap:0!important}
+ body.astra-ui.playing #flightNotices151 #eventMissionHud.folded :is(#eventMissionTitle,#eventMissionMeta){display:none!important}
+ body.astra-ui.playing #flightNotices151 #eventMissionHud.folded #eventMissionObjective{font:600 11px/1.3 var(--astra-type)!important;color:var(--ho-muted,#cfc6b2)!important;white-space:nowrap}
+}
+/* Ammo count keeps one width while it ticks up during a reload (no pill jitter). */
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoCount{font-variant-numeric:tabular-nums;white-space:nowrap}
+@media(max-width:560px){
+ /* 4-digit belts: shorter gauge and slightly smaller numerals keep the count inside the pill. */
+ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud[data-long="1"] .bar{width:22px!important;min-width:22px!important;flex:0 0 22px!important}
+ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 #ammoHud[data-long="1"] #ammoCount{font-size:12px!important;letter-spacing:-.02em}
+}
+/* Sortie summary figures. */
+body.astra-ui #modal.result-modal151 .result-stats151{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin:4px 0 16px;border-radius:12px;overflow:hidden;background:#e8e2d414;box-shadow:inset 0 0 0 1px #e8e2d414}
+body.astra-ui #modal.result-modal151 .result-stats151>div{display:grid;justify-items:center;gap:4px;padding:12px 4px 11px;background:#1b1a17}
+body.astra-ui #modal.result-modal151 .result-stats151 b{font:700 22px/1 var(--astra-numeric,inherit);color:#efe9da;font-variant-numeric:tabular-nums}
+body.astra-ui #modal.result-modal151 .result-stats151 small{font:500 11px/1.2 var(--astra-type,inherit);color:#a39d8f;white-space:nowrap}
+body.astra-ui #modal.result-modal151 .result-best151{grid-column:1/-1;margin:0;padding:7px 10px;background:#2a2518;color:#f0cf7c;font:700 12px/1.3 var(--astra-type,inherit);text-align:center}
+@media(max-width:560px){body.astra-ui #modal.result-modal151 .result-stats151 b{font-size:19px}body.astra-ui #modal.result-modal151 .result-stats151 small{font-size:10px}}
+/* Phones: the reload key carries its name inside like the active / maneuver keys (icon above, label below). */
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing #touch #reload:before{inset:12px 18px 24px!important}
+ body.astra-ui.playing #touch #reload:after{top:auto!important;bottom:10px!important;left:0!important;right:0!important;font-size:9.5px!important;line-height:1!important;text-align:center}
+}

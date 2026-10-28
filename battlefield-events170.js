@@ -1,11 +1,14 @@
-import {achievementMission} from './achievements.js?v=medals2';
-import {doverFlightBounds} from './dover-patrol-chart.js?v=dover3';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {JUTLAND_ROUTE} from './jutland-route.js?v=gal1';
-import {ZEEBRUGGE_ROUTE,harborRouteHalfWidth} from './stageboss-host.js?v=merge20261017&ai=1018&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cambrai=20261021&cityart=20261022&harbor=20261021&somme=20261021';
+import {TRANSPORT_CONVOY_BALANCE,transportCanSpawn,transportArtReady,spawnTransportConvoy,tickTransportConvoy,finishTransportConvoy} from './transport-convoy.js';
+import {intrusionActive} from './intrusion-bosses.js';
+import {activeFronts,tickRuralFronts} from './rural-fronts.js';
+import {achievementMission} from './achievements.js?v=headon-result339-20261028';
+import {doverFlightBounds} from './dover-patrol-chart.js?v=headon-result339-20261028';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=headon-result339-20261028&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {JUTLAND_ROUTE} from './jutland-route.js?v=headon-result339-20261028';
+import {ZEEBRUGGE_ROUTE,harborRouteHalfWidth} from './stageboss-host.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cambrai=20261021&cityart=20261022&harbor=20261021&somme=20261021&momentum=20261027';
 
 export const BATTLEFIELD_EVENT_TYPES=Object.freeze({
- HIGH_VALUE_TARGET:'HIGH_VALUE_TARGET',RESCUE:'RESCUE',BOMBER_INTERCEPT:'BOMBER_INTERCEPT',ACE_CHALLENGE:'ACE_CHALLENGE',PHOTO_RECON:'PHOTO_RECON',RECON_ESCORT:'RECON_ESCORT',SUPPLY_RECOVERY:'SUPPLY_RECOVERY'
+ HIGH_VALUE_TARGET:'HIGH_VALUE_TARGET',RESCUE:'RESCUE',BOMBER_INTERCEPT:'BOMBER_INTERCEPT',ACE_CHALLENGE:'ACE_CHALLENGE',PHOTO_RECON:'PHOTO_RECON',RECON_ESCORT:'RECON_ESCORT',SUPPLY_RECOVERY:'SUPPLY_RECOVERY',TRANSPORT_CONVOY:'TRANSPORT_CONVOY'
 });
 
 export const BATTLEFIELD_EVENT_BALANCE=Object.freeze({
@@ -19,7 +22,7 @@ const scriptedBoss=game=>game.stageBoss?.stages?.phase==='boss';
 const playerFor=game=>game.players?.find(p=>p?.hp>0&&(!p.status||p.status==='alive'))||game;
 const crossRegionSupport=key=>key==='rescue'||key==='airSupport';
 const regionKey=game=>`${game.stageCombatWindow?.loopIndex??0}:${game.stageCombatWindow?.stageIndex??game.worldRegion?.()}:${game.worldRegion?.()}`;
-const missionWindow=type=>type===P.PHOTO_RECON?28:[P.ACE_CHALLENGE,P.BOMBER_INTERCEPT].includes(type)?24:20;
+const missionWindow=type=>type===P.TRANSPORT_CONVOY?TRANSPORT_CONVOY_BALANCE.duration+TRANSPORT_CONVOY_BALANCE.bossReserve:type===P.PHOTO_RECON?28:[P.ACE_CHALLENGE,P.BOMBER_INTERCEPT].includes(type)?24:20;
 
 function reconPoint(game,p,x,y){
  const region=game.worldRegion?.(),margin=BATTLEFIELD_EVENT_BALANCE.reconRadius,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -53,6 +56,7 @@ function dangerCount(game){
 
 function canOffer(game){
  const state=eventState(game);
+ if(intrusionActive(game)||activeFronts(game).length)return false;
  if(game.mode==='campaign'||game.state!=='playing'||(game.t||0)<state.nextOfferAt||(game.t||0)<(game.battleRecoveryUntil||0)||state.current)return false;
  if(scriptedBoss(game)||liveAce(game)||game.eliteEnemies?.active)return false;
  if(game.stageCombatWindow?.approaching||game.stageCombatWindow?.ready||!availableTypes(game).length)return false;
@@ -62,7 +66,8 @@ function canOffer(game){
 
 function availableTypes(game){
  const remaining=game.stageCombatWindow?.remaining;
- return TYPES.filter(type=>(!Number.isFinite(remaining)||remaining>=missionWindow(type)+BATTLEFIELD_EVENT_BALANCE.bossReserve)&&(type!==P.ACE_CHALLENGE||!game.availableAcePilots||game.availableAcePilots().length>0));
+ transportArtReady(game);
+ return TYPES.filter(type=>(type!==P.TRANSPORT_CONVOY||(game.t||0)>=(game.battlefieldEvents?.nextConvoyAt??TRANSPORT_CONVOY_BALANCE.firstAt)&&transportCanSpawn(game))&&(!Number.isFinite(remaining)||remaining>=missionWindow(type)+BATTLEFIELD_EVENT_BALANCE.bossReserve)&&(type!==P.ACE_CHALLENGE||!game.availableAcePilots||game.availableAcePilots().length>0));
 }
 
 function chooseType(game,state,preferred){
@@ -85,6 +90,7 @@ function rescueThreatHits(threat,rescue,event,now){
 
 function spawnTargets(game,event){
  const targets=[];
+ if(event.type===P.TRANSPORT_CONVOY){spawnTransportConvoy(game,event,reconPoint);return event;}
  if(event.type===P.HIGH_VALUE_TARGET){
   const e=markTarget(game.spawnEnemy?.('hunter'),event);if(e){Object.assign(e,{eventCommander:true,hp:Math.round((e.maxHp||e.hp||30)*2.15),xpValue:(e.xpValue||1)+8});e.maxHp=e.hp;targets.push(e);const count=(game.viewWidth||960)<=BATTLEFIELD_EVENT_BALANCE.compactWidth?2:3;for(let i=0;i<count;i++){const wing=game.spawnEnemy?.('hunter');if(!wing)continue;Object.assign(wing,{eventEscort:true,battlefieldEventId:event.id,battlefieldEventType:event.type,x:e.x+(i-(count-1)/2)*72,y:e.y+70,a:e.a,formationLeader:e,formationBack:70,formationOffset:(i-(count-1)/2)*72,fire:.7})}}
  }else if(event.type===P.BOMBER_INTERCEPT){
@@ -286,17 +292,18 @@ function tickConsequences(game){
 
 function finish(game,state,outcome,reason){
  const event=state.current;if(!event)return false;
+ if(event.type===P.TRANSPORT_CONVOY){finishTransportConvoy(game,event);if(outcome==='failed')outcome='missed';}
  for(const target of event.targets||[]){target.missionTarget=false;target.eventExit=false;delete target.eventExitOrigin}
  if(outcome==='failed'){
   if(event.rescue)event.rescue.life=0;
-  if(event.supplyDrop&&!event.supplyDrop.dead)event.supplyDrop.life=0;
+  if(event.type!==P.TRANSPORT_CONVOY&&event.supplyDrop&&!event.supplyDrop.dead)event.supplyDrop.life=0;
  }
  if(outcome==='completed'&&event.type===P.HIGH_VALUE_TARGET){
   for(const wing of game.enemies||[])if(wing.hp>0&&wing.eventEscort&&wing.battlefieldEventId===event.id){
    game.breakEnemyFormation?.(wing,2.5);wing.directorFireHoldUntil=Math.max(wing.directorFireHoldUntil||0,(game.t||0)+2.5);wing.fire=Math.max(wing.fire||0,2.5);
   }
  }
- if(outcome==='completed'){
+ if(outcome==='completed'&&event.type!==P.TRANSPORT_CONVOY){
   const p=playerFor(game),reward=event.type===P.ACE_CHALLENGE?70:event.type===P.BOMBER_INTERCEPT?55:event.type===P.PHOTO_RECON?50:event.type===P.HIGH_VALUE_TARGET?45:40;
   for(let i=0;i<4;i++){(game.drops||=[]).push({x:p.x+Math.cos(i*1.7)*46,y:p.y+Math.sin(i*1.7)*46,value:i<3?Math.floor(reward/4):reward-3*Math.floor(reward/4),heal:false,battlefieldEvent:true})}
   (game.drops||=[]).push({x:p.x-60,y:p.y,value:0,heal:true,supply:true,life:16,vx:0,vy:0,battlefieldEvent:true});
@@ -311,6 +318,7 @@ function finish(game,state,outcome,reason){
    [P.RESCUE]:'아군 구출 성공 · 다음 교전 아군 5기 합류',
    [P.PHOTO_RECON]:'사진 정찰 완료 · 보스 약점 피해 +35%',
    [P.SUPPLY_RECOVERY]:'긴급 보급 회수 · 전원 완전 회복',
+   [P.TRANSPORT_CONVOY]:'수송 보급품 회수 · 수리 30% + 경험치',
    [P.ACE_CHALLENGE]:'에이스 격추 · 강화 선택'
   }[event.type];
   if(message)game.event?.('wave',message);
@@ -322,10 +330,14 @@ function finish(game,state,outcome,reason){
 function tick(game){
  tickConsequences(game);
  const state=eventState(game),event=state.current,now=game.t||0;
+ if(event?.type===P.TRANSPORT_CONVOY&&(game.state!=='playing'||game.online&&!game.host))return;
  if(event?.status==='active'){
   if(event.region!==game.worldRegion?.()||event.regionKey!==regionKey(game))return finish(game,state,'failed','regionChanged');
   if(scriptedBoss(game))return finish(game,state,'failed','bossArrived');
   const dt=Math.max(0,Math.min(.08,now-(event.lastTickAt??now)));event.lastTickAt=now;
+  if(event.type===P.TRANSPORT_CONVOY){
+   const outcome=tickTransportConvoy(game,event);if(outcome)return finish(game,state,outcome==='completed'?'completed':'missed',outcome);return;
+  }
   if(event.type===P.SUPPLY_RECOVERY){
    const drop=event.supplyDrop;if(drop?.dead)return finish(game,state,'completed');
    if(!drop||drop.life<=0||!game.drops?.includes(drop))return finish(game,state,'failed','timeExpired');
@@ -372,7 +384,8 @@ export function installBattlefieldEvents(Game){
   const event={id:++state.serial,type,region:this.worldRegion?.(),regionKey:regionKey(this),status:'active',offeredAt:this.t||0,startedAt:this.t||0,targets:[]},previous=this.battlefieldEventSpawning;
   state.current=event;
   try{this.battlefieldEventSpawning=true;spawnTargets(this,event)}finally{this.battlefieldEventSpawning=previous}
-  if([P.HIGH_VALUE_TARGET,P.BOMBER_INTERCEPT,P.ACE_CHALLENGE].includes(type)&&!event.targets.length){state.current=null;state.nextOfferAt=(this.t||0)+BATTLEFIELD_EVENT_BALANCE.retryDelay;return null}
+  if([P.HIGH_VALUE_TARGET,P.BOMBER_INTERCEPT,P.ACE_CHALLENGE,P.TRANSPORT_CONVOY].includes(type)&&!event.targets.length){state.current=null;state.nextOfferAt=(this.t||0)+BATTLEFIELD_EVENT_BALANCE.retryDelay;return null}
+  if(type===P.TRANSPORT_CONVOY)state.nextConvoyAt=(this.t||0)+TRANSPORT_CONVOY_BALANCE.interval;
   scheduleNext(this,state);return event;
  };
  Game.prototype.acceptBattlefieldEvent=function(){
@@ -399,6 +412,7 @@ export function installBattlefieldEvents(Game){
   const regionalOffer=Game.prototype.offerBattlefieldEvent;
   Game.prototype.offerBattlefieldEvent=function(preferred){
    const previous=this.battlefieldEventSpawning;let event;
+   if(!preferred&&this.canOfferBattlefieldEvent?.()&&(this.t||0)>=(this.battlefieldEvents?.nextConvoyAt??TRANSPORT_CONVOY_BALANCE.firstAt)&&availableTypes(this).includes(P.TRANSPORT_CONVOY))preferred=P.TRANSPORT_CONVOY;
    try{this.battlefieldEventSpawning=true;event=regionalOffer.call(this,preferred)}finally{this.battlefieldEventSpawning=previous}
    if(event){
     event.region=this.worldRegion?.();event.regionKey=regionKey(this);
@@ -417,8 +431,10 @@ export function installBattlefieldEvents(Game){
   };
  }
  const update=Game.prototype.update;
- Game.prototype.update=function(dt,input={}){const result=update.call(this,dt,input);this.tickBattlefieldEvents();return result};
+ Game.prototype.update=function(dt,input={}){const result=update.call(this,dt,input);tickRuralFronts(this);this.tickBattlefieldEvents();return result};
 }
+
+
 
 
 

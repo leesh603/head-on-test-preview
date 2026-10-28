@@ -28,7 +28,7 @@ export const roleArtReady=Promise.all(packs.map(pack=>{
    image.onload=image.onerror=null;resolve(valid);
   };
   image.onerror=()=>{image.onload=image.onerror=null;resolve(false)};
-  image.src=new URL('./fx-role-split/'+pack.file,import.meta.url).href;
+  image.src=new URL('./fx-role-split/'+pack.file+'?v=headon-result339-20261028',import.meta.url).href;
  });
 }));
 export function roleReady(key){return FX3&&entries.has(resolveKey(key))}

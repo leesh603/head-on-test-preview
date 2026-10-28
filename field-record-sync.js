@@ -1,13 +1,13 @@
 import {RARE_SPECIALIZATIONS,rareSpecializationFor} from './rare-specializations.js';
 // The field record uses the same final registries, artwork and descriptions as sortie selection.
-import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,pilotLoadout,UPGRADES,LEGENDARIES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026';
-import {PILOT_AIRCRAFT,PILOT_RENDER_ART} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
-import {getAircraftDisplayName,getAircraftMeta,aircraftCategoryLabel} from './aircraft-master.js?v=tame3';
-import {hangarArtSource} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
-import {portraitSources} from './portraits.js?v=crew20261024';
-import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
-import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
-import {getLocale,pilotName,upgradeName,upgradeDescription,subscribe} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {Game,PLANES,WEAPONS,PILOTS,PILOT_PLANES,pilotLoadout,UPGRADES,LEGENDARIES} from './engine.js?v=headon-result339-20261028&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
+import {PILOT_AIRCRAFT,PILOT_RENDER_ART} from './pilot-aircraft.js?v=headon-result339-20261028&art=pilot-recovery2';
+import {getAircraftDisplayName,getAircraftMeta,aircraftCategoryLabel} from './aircraft-master.js?v=headon-result339-20261028';
+import {hangarArtSource} from './hangar-art.js?v=headon-result339-20261028&art=pilot-recovery2';
+import {portraitSources} from './portraits.js?v=headon-result339-20261028';
+import {pilotIdentityCopy} from './pilot-identity-copy.js?v=headon-result339-20261028';
+import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,SPECIAL_DOCTRINES} from './tactical-doctrines.js?v=headon-result339-20261028&td4=20261026';
+import {getLocale,pilotName,upgradeName,upgradeDescription,subscribe} from './i18n.js?v=headon-result339-20261028&afc=1&art=pilot-recovery2';
 
 const NORMAL_IDS=['damage','rate','rockets','mines','explosives','command','turn','armor','regen','cooldown','wingman'];
 const UNIQUE_IDS=['bomber','fighterSupply','mercedesEngine','spread','combinedProjectiles'];

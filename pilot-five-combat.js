@@ -1,7 +1,7 @@
 // Five authored attacks on the existing shot/impact/wing hooks. No new input or FX renderer.
-import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
+import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=headon-result339-20261028';
 import {wwiWingTarget} from './wwi-equipment.js';
-import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
+import {advanceWingFlight} from './wingman-flight.js?v=headon-result339-20261028';
 const TAU=Math.PI*2;
 const IDS=new Set(['fonck','gontermann','luke','proctor','lufbery']);
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));

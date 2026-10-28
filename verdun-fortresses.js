@@ -1,7 +1,7 @@
-import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
+import {impactPulse} from './boss-raid-strikes.js?v=headon-result339-20261028&rail=40';
 import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {segmentDistance} from './alps-geometry117.js?v=tame3';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {segmentDistance} from './alps-geometry117.js?v=headon-result339-20261028';
 
 // Shared measured geometry for the authored fortress layers, hits and muzzles.
 // A fortress is one existing boss body; its core is the body's final hit route.
@@ -252,6 +252,12 @@ export class FortDouaumont extends VerdunFortress{
   if(this.dead||paused||dt<=0)return;this.tickParts(dt);
   if(this.coreVulnerable&&this.weaponsGone())return;
   if(!this.heavyActive&&(this.clock>=9||this.outerDestroyed()>=2)){this.heavyActive=true;this.batteryStep=0;this.batteryWait=.8;this.raidClock=0;this.refreshArmor();}
+  // The outer line covers the opposite approach while a heavy barrel is
+  // committed. Its own destruction still opens that physical flank.
+  if(this.heavyActive&&this.recovery<=0&&(this.patternPartId||this.lastStand)&&this.due('heavy-cover',dt,4.8)){
+   const side=this.patternPartId==='heavy-left'?'right':this.patternPartId==='heavy-right'?'left':this.batteryStep%2?'left':'right';
+   this.outerVolley(side,players,bounds);
+  }
   if(this.finalHeavy(dt,players,bounds)||this.recovery>0)return;
   if(!this.heavyActive){this.batteryWait=Math.max(0,this.batteryWait-dt);if(!this.batteryWait){this.outerVolley(this.batteryStep++%2?'right':'left',players,bounds);this.batteryWait=5.1;}return;}
   this.batteryPattern(dt,players,bounds);
@@ -329,7 +335,17 @@ export class FortSouville extends VerdunFortress{
   }
   if(!final&&!this.recovery&&!this.activePitId&&this.due('pit-open',dt,command?1.1:2.4)){
    const pits=['pit-left','pit-center','pit-right','reserve-left','reserve-right'].map(id=>this.parts.get(id)).filter(p=>p.active&&!p.destroyed);
-   if(pits.length)this.openPit(pits[this.pitCursor++%pits.length],players,bounds);
+   if(pits.length){
+    // Each surviving pit participates before the observer reuses a site.
+    // Moving pilots influence which unseen escape flank opens next; without
+    // a flight course (or observation) retain the authored battery rotation.
+    const target=players.find(p=>p.alive),observed=!this.parts.get('observer').destroyed;
+    const used=this.ambushVisited??=new Set();let available=pits.filter(p=>!used.has(p.id));
+    if(!available.length){used.clear();available=pits.slice();}
+    if(observed&&target&&Math.hypot(target.vx||0,target.vy||0)>1){const tx=target.x+(target.vx||0)*.7,ty=target.y+(target.vy||0)*.7;available.sort((a,b)=>Math.hypot(this.x+a.x-tx,this.y+a.y-ty)-Math.hypot(this.x+b.x-tx,this.y+b.y-ty));}
+    const next=observed?available[0]:pits[this.pitCursor++%pits.length];
+    if(this.openPit(next,players,bounds))used.add(next.id);
+   }
   }
   for(const p of this.parts.values()){
    if(p.kind!=='pit'||p.destroyed||!p.active)continue;
@@ -337,6 +353,8 @@ export class FortSouville extends VerdunFortress{
     if(q.remaining<=0&&Math.abs(delta(p.angle,q.angle))<.2){if(this.lastStand&&this.lastStand.index>0)impactPulse(this,{x:q.x,y:q.y,radius:75,warning:2.25,source:this.muzzle(p),partId:p.id,visual:'verdun-ambush-shell',tag:this.tag(p.id)});else this.shell(p,q,{radius:clamp(39*this.fortScale,25,39),warning:1.55,damage:1.1,visual:this.coreVulnerable?'verdun-core-shell':'verdun-ambush-shell'});p.salvo=null;p.pitState='reload';p.openRemaining=2.2;this.command('phase-change',{phase:'souville-pit-reload',partId:p.id});}}
    else if(p.pitState==='reload'){p.openRemaining=Math.max(0,p.openRemaining-dt);if(!p.openRemaining){p.revealed=false;p.hittable=false;p.pitState='hidden';if(this.activePitId===p.id)this.activePitId=null;}}
   }
+  // Keep the authored support-fire windows: changing pit choice must not
+  // add warnings that suppress the existing ordinary gun batteries.
   if(final||this.recovery>0||this.activePitId)return;
   if(!this.parts.get('observer').destroyed&&this.due('observer',dt,this.parts.get('ammo').destroyed?9.8:6.4)){this.observerBarrage(players,bounds);return;}
   if(this.due('support-fire',dt,1)){

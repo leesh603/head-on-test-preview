@@ -86,7 +86,7 @@ export function selectTactical(p,id){
   if(item.family==='GUN'){p.weaponModBurst=0;p.weaponModSweep=-1;for(const station of p.bomberTransfer?.stations||[]){station.weaponModBurst=0;station.weaponModSweep=-1;}}
   if(item.family==='FORMATION'&&p.hp>0)p.ensureWingmen?.();
  }
- p.event?.('ally',`${item.name} · 전술 적용`);return true;
+ p.event?.('tacticalAdopted',id);return true;
 }
 const equipmentFamilies=Object.freeze({...Object.fromEntries(WWI_EQUIPMENT.map(e=>[e.id,[e.family]])),amatolCharge:['EXPLOSIVE'],motorCannon:['EXPLOSIVE'],bomberTransfer:['EXPLOSIVE'],mgTransfer:['GUN'],airshipTransfer:['FORMATION'],aceWingman:['FORMATION'],lufberyCircle:['FORMATION','SURVIVAL'],goeringBaton:['FORMATION'],redScarf:['SPEED'],prancingHorse:['SPEED','SURVIVAL'],sacredCowling:['GUN','SURVIVAL'],immelmannManual:['SPEED'],flightGloves:['GUN','EXPLOSIVE'],telescope:['GUN'],quadLewis:['GUN'],maximBelt:['GUN'],rearGunner:['GUN'],sparkPlug:['SURVIVAL'],steelPlate:['SURVIVAL'],rankinShell:['EXPLOSIVE','SURVIVAL'],kaiserFog:['SURVIVAL'],fogCompass:['SURVIVAL'],mauserAceKiller:['GUN','EXPLOSIVE'],cow37:['GUN','EXPLOSIVE'],badinGauge:['SPEED','GUN'],heineckeRettungsfallschirm:['SURVIVAL'],ironCross:['SURVIVAL'],grunkreuz:['SURVIVAL'],loEmblem:['GUN','FORMATION'],boelckeDicta:[],urLeica:[]});
 export function tacticalEquipmentFamilies(id){return equipmentFamilies[id]||[];}

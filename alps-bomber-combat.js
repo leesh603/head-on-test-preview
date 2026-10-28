@@ -1,7 +1,7 @@
-import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
+import {impactPulse} from './boss-raid-strikes.js?v=headon-result339-20261028&rail=40';
 import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
-import {BaseBoss,BossPart,predictPilot} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {ALPS_BOMBER_LAYOUT,alpsAngleDelta,alpsPoint,alpsMuzzle,locateAlpsHit} from './alps-bomber-layout.js?v=gal1';
+import {BaseBoss,BossPart,predictPilot} from './headon-stageboss-core.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {ALPS_BOMBER_LAYOUT,alpsAngleDelta,alpsPoint,alpsMuzzle,locateAlpsHit} from './alps-bomber-layout.js?v=headon-result339-20261028';
 
 class AlpsBomber extends BaseBoss {
  constructor({tuning,rng=Math.random,faction,kind,...base}){
@@ -97,6 +97,19 @@ export class GIK extends AlpsBomber {
   this.cannonLock={angle,angles,seconds:1.25};this.cannonRemaining=1.25;
   for(const shot of new Set(angles))this.command('charge-warning',{...q,partId:'cannon',targetX:q.x+Math.cos(shot)*700,targetY:q.y+Math.sin(shot)*700,seconds:1.25});
  }
+ tailCover(dt,players){
+  this.tailCoverClock=Math.max(0,(this.tailCoverClock||0)-dt);
+  const gun=this.part('rearGun');if(!this.cannonLock||gun.destroyed||this.tailCoverClock>0)return;
+  const q=alpsMuzzle(this,'rearGun'),rear=this.hullYaw+Math.PI/2;
+  const target=players.find(p=>p.alive&&Math.hypot(p.x-q.x,p.y-q.y)>=95&&Math.hypot(p.x-q.x,p.y-q.y)<=920&&Math.abs(alpsAngleDelta(Math.atan2(p.y-q.y,p.x-q.x),rear))<.85);
+  if(!target)return;
+  // A short defensive burst uses the same gun, but never advances its native
+  // attack/steering clocks or steals the cannon's committed firing direction.
+  const angle=Math.atan2(target.y-q.y,target.x-q.x),speed=this.t.bulletSpeed*.8;
+  this.tailCoverClock=3.5;gun.recoil=.12;this.command('muzzle',{...q,partId:gun.id});
+  this.command('charge-warning',{...q,partId:gun.id,targetX:q.x+Math.cos(angle)*480,targetY:q.y+Math.sin(angle)*480,seconds:.55});
+  for(const offset of [-.16,0,.16])this.hazard('projectile',{...q,vx:Math.cos(angle+offset)*speed,vy:Math.sin(angle+offset)*speed,radius:4,warning:.55,duration:2.2,damage:this.t.damage*.55,visual:'alps-mg',tag:this.id+':rearGun',sourcePartId:gun.id,sourceOffsetX:q.x-this.x-gun.x,sourceOffsetY:q.y-this.y-gun.y});
+ }
  bombIntercept(players){
   const p=this.target(players);if(!p)return;
   const source=alpsPoint(this,0,25*(this.t.geometryScale||1)),speed=Math.hypot(p.vx||0,p.vy||0),moving=speed>10;
@@ -111,8 +124,9 @@ export class GIK extends AlpsBomber {
   this.cruise(dt,bounds);if(this.updateDisarmed(dt))return;this.updatePhase();
   if(this.encounter?.breathBlocks({type:'charge-warning'})){if(this.cannonLock){this.cannonLock=null;this.cannonRemaining=0;this.timers.set('alps-cannon',.2);}return;}
   this.cannon(dt,players);
-  // The rear gun cannot steal the nose-alignment order before the cannon fires.
+  // Keep the original rear-gun clock and alignment decisions unchanged.
   if(!this.cannonLock&&this.alignIntent?.id!=='cannon')this.mountFire('rearGun',players,dt,this.phase===3?1.3:1.8,true);
+  this.tailCover(dt,players);
   if(!this.cannonLock&&this.due('gik-bomb-run',dt,this.phase===3?3.6:5)){this.bombIntercept(players);this.command('phase-change',{phase:'gik-strafe-run'});}
  }
 }
@@ -149,7 +163,11 @@ export class Ca4 extends AlpsBomber {
  releaseBombRun(){
   if(this.part('bombBay').destroyed)return;
   const b=this.runBounds,source=alpsPoint(this,0,this.part('bombBay').localY),height=b.bottom-b.top;
-  for(const lane of this.laneWarnings.filter(l=>!l.safe))for(let row=0;row<8;row++)this.hazard('circle',{x:lane.x,y:b.top+height*(.24+row*.10),radius:this.runRadius,delay:0,warning:2+row*.32,duration:.3,once:true,damage:this.t.damage*.85,visual:'carpet-bomb',airborneBomb:true,sourceX:source.x,sourceY:source.y,tag:this.id+':payload'});
+  // Loading stays exposed through the final warned drop: a lateral approach
+  // can silence the ongoing corridor, rather than finding a closed bay
+  // while its bombs are still waiting to launch.
+  this.bayExpose=Math.max(this.bayExpose,5.6);
+  for(const lane of this.laneWarnings.filter(l=>!l.safe))for(let row=0;row<8;row++)this.hazard('circle',{x:lane.x,y:b.top+height*(.24+row*.10),radius:this.runRadius,delay:0,warning:2+row*.32,duration:.3,once:true,damage:this.t.damage*.85,visual:'carpet-bomb',airborneBomb:true,sourceX:source.x,sourceY:source.y,sourcePartId:'bombBay',tag:this.id+':payload'});
   const lane=this.laneWarnings.find(l=>l.safe);if(lane)impactPulse(this,{x:lane.x,y:b.top+height*.6,radius:Math.min(115,(b.right-b.left)/3*.48),warning:5,source,partId:'bombBay',visual:'carpet-bomb',tag:this.id+':payload'});this.timers.set('ca4-bombs',8);
   this.command('bomb-release',{...source});
  }

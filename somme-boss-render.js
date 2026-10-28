@@ -1,14 +1,14 @@
-import {drawSommeWeapon,drawSommeTread,sommeTreadPose,prepareSommeTreads,releaseSommeHardware} from './somme-hardware-motion.js?v=20261023';
-import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=tame3';
-import {prepareSommeDetailArt,releaseSommeDetailArt,sommeDetailReady,drawSommeDetailHull,drawSommeComponent} from './somme-component-art.js?v=20261021';
-import {fx} from './fx-art.js?v=tame3';
-import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
-import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=tame3';
-import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
-import {drawAADefense} from './aa-defense-art.js?v=gal1';
-import {clamp,sommeMuzzle,sommeMuzzles} from './somme-boss-layout.js?v=tame3&somme=20261021';
+import {drawSommeWeapon,drawSommeTread,sommeTreadPose,prepareSommeTreads,releaseSommeHardware} from './somme-hardware-motion.js?v=headon-result339-20261028';
+import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=headon-result339-20261028';
+import {prepareSommeDetailArt,releaseSommeDetailArt,sommeDetailReady,drawSommeDetailHull,drawSommeComponent} from './somme-component-art.js?v=headon-result339-20261028';
+import {fx} from './fx-art.js?v=headon-result339-20261028';
+import {drawTracerBolt} from './projectiles.js?v=headon-result339-20261028';
+import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=headon-result339-20261028';
+import {drawShellFlight} from './boss-rounds.js?v=headon-result339-20261028&ai=1018';
+import {drawAADefense} from './aa-defense-art.js?v=headon-result339-20261028';
+import {clamp,sommeMuzzle,sommeMuzzles} from './somme-boss-layout.js?v=headon-result339-20261028&somme=20261021';
 const images={},pending={};
-function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';images[key]=im;pending[key]=new Promise((resolve,reject)=>{im.addEventListener('load',()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))},{once:true});im.addEventListener('error',()=>reject(new Error('Missing Somme atlas: '+SOMME_SHEETS[key])),{once:true});});im.src='./'+SOMME_SHEETS[key]+'?v=r5';return im;}
+function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';images[key]=im;pending[key]=new Promise((resolve,reject)=>{im.addEventListener('load',()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))},{once:true});im.addEventListener('error',()=>reject(new Error('Missing Somme atlas: '+SOMME_SHEETS[key])),{once:true});});im.src='./'+SOMME_SHEETS[key]+'?v=headon-result339-20261028';return im;}
 export async function prepareSommeAssets(){await prepareSommeDetailArt();for(const key of Object.keys(SOMME_SHEETS)){if(sommeDetailReady()&&['schwaben-body','schwaben-support','mark1-hulls'].includes(key))continue;load(key);}const loaded=await Promise.all(Object.values(pending));prepareSommeTreads(images['mark1-hardware']);return loaded;}
 export function releaseSommeAssets(){releaseSommeHardware();releaseSommeDetailArt();for(const key of Object.keys(images)){delete images[key];delete pending[key];}}
 // Pivot is measured on the normal sprite's visible silhouette. Damage-state

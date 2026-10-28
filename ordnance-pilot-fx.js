@@ -1,8 +1,8 @@
 // Guynemer's actual ordnance and Bishop's existing altitude/bombing run.
 // All observations use the existing bounded signature queue; no new projectiles.
 import {signatureCue,signatureInterval} from './pilot-signature-state.js';
-import {bombFallPose} from './bomb-sprites.js?v=bomb20';
-import {combatVisualPose} from './combat-feedback.js?v=descent20261022&motion=20261022';
+import {bombFallPose} from './bomb-sprites.js?v=headon-result339-20261028';
+import {combatVisualPose} from './combat-feedback.js?v=headon-result339-20261028&motion=20261022';
 export const ORDNANCE_PILOTS=new Set(['guynemer','bishop']);
 const INSTALLED=Symbol.for('headon.ordnance-pilot-fx.v1');
 const clamp=n=>Math.max(0,Math.min(1,n));

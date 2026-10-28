@@ -1,4 +1,4 @@
-import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
 
 const freezeParts=parts=>Object.freeze(parts.map(Object.freeze));
 const freezePolys=polys=>Object.freeze(polys.map(poly=>Object.freeze(poly.map(point=>Object.freeze(point)))));
@@ -354,11 +354,23 @@ export class SupermarineNighthawk extends DoverAircraft {
     return true;
   }
   hunt(dt,players,isIlluminated){
+    // Keep the searchlight-linked guns working while the nose is acquiring a
+    // narrow cannon/bomb bearing. A failed acquisition must not consume their beat.
+    this.lockFireIn-=dt;
+    if(this.lockFireIn<=0){
+      const locked=this.partAlive('lamp')?(players||[]).find(p=>p?.alive&&isIlluminated?.(p)):null;
+      if(locked){
+        const intent=this.alignIntent,avoid=this.avoidTarget;
+        const preferred=this.beat%2?'gun-left':'gun-right',other=preferred==='gun-left'?'gun-right':'gun-left';
+        const id=this.weaponSolution(preferred,locked,false)?preferred:this.weaponSolution(other,locked,false)?other:null;
+        const fired=id&&this.machineBurst(id,locked,true);
+        this.alignIntent=intent;this.avoidTarget=avoid;this.lockFireIn=fired?1.15:.18;
+      }else this.lockFireIn=.18;
+    }
     this.phaseClock+=dt;if(!this.partAlive('lamp'))this.beat=3;if(!this.partAlive('bomb-rack'))this.lightBombed=true;
     if(this.beat<3&&this.phaseClock>=this.beat*1.65){if(this.fixedBeam(this.selectTarget(players)))this.beat++;else return;}
     if(!this.lightBombed&&this.phaseClock>=4.25){if(this.lightBombRack(this.selectTarget(players)))this.lightBombed=true;else return;}
     if(this.phaseClock>=5.35){if(!this.partAlive('davis-cannon')){this.enterRecovery();return;}if(this.cannonShot(this.selectTarget(players))){this.phase='cannon';this.phaseClock=0;this.command('phase-change',{phase:'cannon',seconds:1.9});}else return;}
-    if(this.phase!=='hunt')return;this.lockFireIn-=dt;if(this.lockFireIn<=0){let locked=null;for(const p of players||[])if(p?.alive&&isIlluminated?.(p)){locked=p;break;}if(locked&&this.machineBurst(this.beat%2?'gun-left':'gun-right',locked,true))this.lockFireIn=1.15;else this.lockFireIn=.18;}
   }
   lastStand(dt,players){
     if(!aliveCount(players))return;this.phaseClock-=dt;if(this.phaseClock>0)return;let id=null,part=null;for(let i=0;i<NIGHTHAWK_LAST_STAND.length;i++){id=NIGHTHAWK_LAST_STAND[this.lastStandSlot++%NIGHTHAWK_LAST_STAND.length];part=this.parts.get(id);if(!part.destroyed)break;}const target=this.selectTarget(players);let fired=false;
@@ -425,6 +437,24 @@ export class SiemensSchuckertRVIII extends DoverAircraft {
     if(this.beat===0&&this.phaseClock>=2.15){const target=this.selectTarget(players);let fired=false;for(let i=0;i<RVIII_GUNS.length&&!fired;i++)fired=this.turretBurst(RVIII_GUNS[(this.runSerial+1+i)%RVIII_GUNS.length],target,true,false);if(fired)this.beat=1;else{const id=RVIII_GUNS.find(id=>this.partAlive(id));if(id)this.weaponSolution(id,target);this.phaseClock=Math.min(this.phaseClock,2.2);}}
     if(this.beat&&this.phaseClock>=3.45){if(this.countKinds('payload'))this.beginBombRun(this.selectTarget(players),bounds);else this.enterRecovery();}
   }
+  bombingCover(dt,players){
+    // The bomber keeps a real surviving mount on the pilot during its committed
+    // bomb track. Do not steer the whole airframe or refill a destroyed gun arc.
+    this.coverClock=Math.max(0,(this.coverClock??.9)-dt);if(this.coverClock>0)return;
+    const target=aliveAt(players,this.coverCursor||0);if(!target)return;
+    const aft=this.phase==='bomb-exit',order=aft?['gun-tail','gun-dorsal']:['gun-dorsal','gun-tail'];
+    // At the second hull gate the nose joins the defensive rotation; each mount
+    // retains its own physical arc, so destroying it leaves a genuine approach.
+    if(this.hp<=this.maxHp*.33)order.push('gun-nose');
+    const start=(this.coverCursor||0)%order.length;
+    for(let i=0;i<order.length;i++){
+      const id=order[(start+i)%order.length];if(!this.weaponSolution(id,target,false))continue;
+      const intent=this.alignIntent;
+      if(this.turretBurst(id,target,false,false)){this.alignIntent=intent;this.coverCursor=(this.coverCursor||0)+1;this.coverClock=1.8;return;}
+      this.alignIntent=intent;
+    }
+    this.coverClock=.18;
+  }
   bombRun(dt){
     this.phaseClock+=dt;if(this.phase==='bomb-approach'&&this.phaseClock>=1.2){this.phase='bomb-run';this.phaseClock=0;this.command('phase-change',{phase:'bomb-run',angle:this.runAngle});return;}
     if(this.phase!=='bomb-run')return;while(this.runDropIndex<8&&this.phaseClock>=.18+this.runDropIndex*.25)this.releaseRunBomb(this.runDropIndex++);
@@ -446,7 +476,7 @@ export class SiemensSchuckertRVIII extends DoverAircraft {
     const bombing=this.phase==='bomb-approach'||this.phase==='bomb-run';if(bombing)this.basicHoldUntil=Math.max(this.basicHoldUntil||0,(this.combatTime||0)+.45);this.fly(dt,players,bounds,this.currentSpeed,turn,asymmetry,bombing?this.runAngle:null,bombing?this.runGroundSpeed:null,chart);
     if(disarmed){this.updateDisarmed(dt);return;}if(this.updateRecoveryReturn(bounds))return;
     if(this.phase==='last-stand'){this.lastStand(dt,players);return;}if(this.phase==='barrage'){this.barrage(dt,players,bounds);return;}
-    if(this.phase==='bomb-approach'||this.phase==='bomb-run'){this.bombRun(dt);return;}if(this.phase==='bomb-exit'){this.bombExit(dt,bounds);return;}
+    if(this.phase==='bomb-approach'||this.phase==='bomb-run'){this.bombingCover(dt,players);this.bombRun(dt);return;}if(this.phase==='bomb-exit'){this.bombingCover(dt,players);this.bombExit(dt,bounds);return;}
     this.phaseClock+=dt;const recovering=this.phase==='recovery'||this.phase==='sortie-recovery',duration=this.phase==='sortie-recovery'?4.6:4;
     if(recovering&&this.phaseClock>=duration&&this.coreInside(bounds)){if(this.phase==='recovery'&&!this.sortieDone&&this.countKinds('payload')){this.beginSortie(bounds,chart);return;}this.sortieDone=true;this.phase='barrage';this.phaseClock=0;this.beat=0;this.coreVulnerable=false;this.command('phase-change',{phase:'barrage'});}
   }

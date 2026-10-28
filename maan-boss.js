@@ -1,7 +1,7 @@
-import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
+import {impactPulse} from './boss-raid-strikes.js?v=headon-result339-20261028&rail=40';
 import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan,segmentBox,maanLocal,maanWorld,maanClearance,maanGroundBlocked,resolveMaanGround,MAAN_ESCORT_RADIUS} from './maan-layout.js?v=tame3';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan,segmentBox,maanLocal,maanWorld,maanClearance,maanGroundBlocked,resolveMaanGround,MAAN_ESCORT_RADIUS} from './maan-layout.js?v=headon-result339-20261028';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 class DesertHull extends BaseBoss {
  constructor(o,kind){
@@ -121,7 +121,7 @@ export class Wustenpanzer extends DesertHull {
   this.artilleryClearAt=this.motionTime+2.9;this.heat=clamp(this.heat+.2,0,1);this.command('heavy-gun-fired');
  }
  startPressure(runaway,aim){
-  const cooling=!this.gone('radiator');this.heavyPlan=null;this.pressureCycle={age:0,runaway,index:0,target:{...aim},stage:'vent',cooling};
+  const cooling=!this.gone('radiator');this.heavyPlan=null;this.pressureCycle={age:0,runaway,index:0,target:{...aim},axis:this.hullYaw,stage:'vent',cooling};
   this.drivePause=runaway?6.5:cooling?2.8:2.2;this.tactic(runaway?'desert-runaway':cooling?'pressure-release':'radiator-failed');
   const r=this.parts.get('radiator'),m={x:this.x+r.x,y:this.y+r.y};
   // The longitudinal lane between the two warned vents stays open.
@@ -133,7 +133,7 @@ export class Wustenpanzer extends DesertHull {
   if(s.runaway&&s.age>=2.8){
    s.stage='barrage';
    while(s.index<3&&s.age>=2.8+s.index*.48){
-    const i=s.index++,target={...s.target,y:s.target.y+(i-1)*78,vx:0,vy:0};
+    const i=s.index++,step=rotateMaan(0,(i-1)*78,s.axis??this.hullYaw),target={...s.target,x:s.target.x+step.x,y:s.target.y+step.y,vx:0,vy:0};
     if(!this.gone('heavy-gun'))this.heavyShot(target,true);
     else if(i<2&&!p.sandCover){const id=i?'sponson-right':'sponson-left',gun=this.parts.get(id);if(!gun.destroyed)this.aimed(gun,target,{side:i?1:-1,warning:1.25,visual:'wusten-impact'});}
    }
@@ -163,12 +163,12 @@ export class Wustenpanzer extends DesertHull {
   const gun=this.parts.get('heavy-gun');
   if(!gun.destroyed&&!this.heavyPlan&&this.due('heavy',dt,overheat?8.5:6.4)){
    const walking=++this.heavySerial%2===0;this.drivePause=2.4;this.tactic(walking?'walking-barrage':'siege-shot');
-   this.heavyPlan={age:0,index:0,walking,target:{...aim,x:aim.x+(overheat?(this.rng()-.5)*36:0),y:aim.y+(overheat?(this.rng()-.5)*28:0)}};
+   this.heavyPlan={age:0,index:0,walking,axis:this.hullYaw,target:{...aim,x:aim.x+(overheat?(this.rng()-.5)*36:0),y:aim.y+(overheat?(this.rng()-.5)*28:0)}};
   }
   if(this.heavyPlan){
    const s=this.heavyPlan;s.age+=dt;gun.reloadVisual=Math.max(0,.9-s.age);if(gun.reloadVisual>0){gun.recoil=Math.max(gun.recoil,gun.reloadVisual*1.5);this.syncParts();}
    if(gun.destroyed)this.heavyPlan=null;
-   else{while(s.index<(s.walking?3:1)&&s.age>=.9+s.index*.48){const i=s.index++;this.heavyShot({...s.target,x:s.target.x+(s.target.vx||0)*i*.35,y:s.target.y+(s.walking?(i-1)*78:0)},s.walking);}
+   else{while(s.index<(s.walking?3:1)&&s.age>=.9+s.index*.48){const i=s.index++,step=rotateMaan(0,s.walking?(i-1)*78:0,s.axis??this.hullYaw);this.heavyShot({...s.target,x:s.target.x+(s.target.vx||0)*i*.35+step.x,y:s.target.y+step.y},s.walking);}
     if(s.index>=(s.walking?3:1))this.heavyPlan=null;}
   }
   if(this.due('crossfire',dt,overheat?8:6.5))for(const [id,side]of [['sponson-left',-1],['sponson-right',1]]){
@@ -320,7 +320,12 @@ export class RollsRoyceEscort extends BaseBoss {
   this.hidden=false;this.coreVulnerable=true;
   // Escort orders follow the ground hull, never the moving aircraft camera.
   const b=this.leader,r=maanClearance(b),order=b.escortOrder,s=b.encirclement,escortSalvo=b.salvo?.stage==='escort'?b.salvo:null,focus=maanLocal(b,b.escortFocus?.x??b.x,b.escortFocus?.y??b.y);
-  const target=order==='screen'?maanWorld(b,this.side*95,-r.y-65):order==='withdraw'?maanWorld(b,this.side*100,r.y+100):s?{x:s.lane.x+this.side*(s.lane.width/2+90),y:s.lane.y-80}:maanWorld(b,this.side*(r.x+55),clamp(focus.y,-r.y-120,r.y+180));
+  // On the player's flank one escort leaves its screen to intercept; its
+  // partner keeps the opposite lane. Luring it outward exposes an isolated
+  // target, and destroying it leaves that side empty until native resupply.
+  const sameFlank=Math.sign(focus.x||this.side)===this.side;
+  const chase=order==='flank'&&!s&&!escortSalvo&&!b.gone('command')&&sameFlank;
+  const target=chase?maanWorld(b,this.side*Math.min(r.x+240,Math.max(r.x+55,Math.abs(focus.x))),clamp(focus.y,-r.y-180,r.y+180)):order==='screen'?maanWorld(b,this.side*95,-r.y-65):order==='withdraw'?maanWorld(b,this.side*100,r.y+100):s?{x:s.lane.x+this.side*(s.lane.width/2+90),y:s.lane.y-80}:maanWorld(b,this.side*(r.x+55),clamp(focus.y,-r.y-120,r.y+180));
   this.driveTo(dt,target,42);resolveMaanGround(this.encounter);
   if(b.serviceWindow>0)return;
   // Scouts pressure the flanks first, then yield to the hull's warned salvo.

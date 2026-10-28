@@ -1,8 +1,8 @@
-import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=merge20261017';
+import {PILOT_IDENTITY_COPY} from './pilot-identity-copy.js?v=headon-result339-20261028';
 import {installPilotFeedback} from './pilot-feedback.js';
 import {wwiWingTarget} from './wwi-equipment.js';
-import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
-import {headOnTarget} from './engagement-feedback.js?v=tame3';
+import {advanceWingFlight} from './wingman-flight.js?v=headon-result339-20261028';
+import {headOnTarget} from './engagement-feedback.js?v=headon-result339-20261028';
 // Final player-only pilot layer. Installed after every historical engine override.
 // The same methods are inherited by cooperative PlayerState and CampaignGame.
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));

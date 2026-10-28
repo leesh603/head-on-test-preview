@@ -1,8 +1,8 @@
 // Baracca: one dark charge body. Rickenbacker: cowl glints and real radial guns.
 // Presentation observers only; projectile bodies and every combat rule stay intact.
 import {signatureCue,signatureInterval} from './pilot-signature-state.js';
-import {headOnTarget} from './engagement-feedback.js?v=tame3';
-import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=ordnancefx1';
+import {headOnTarget} from './engagement-feedback.js?v=headon-result339-20261028';
+import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=headon-result339-20261028';
 export const CAVALRY_RACER_PILOTS=new Set(['baracca','rickenbacker']);
 const INSTALLED=Symbol.for('headon.cavalry-racer-fx.v1');
 const clamp=n=>Math.max(0,Math.min(1,n));
@@ -56,12 +56,12 @@ export function drawCavalryRacerLocal(c,p,tex,front=false){
  if(!alive(p))return;
  if(p.pilot==='baracca'&&!front&&p.chargeTime>0){
   const t=p.pilotSignatureState?.clock||0,strength=Math.min(1,p.chargeTime/.12),heading=(p.chargeAngle??p.a)-p.a;
-  // Three overlapping authored smoke bodies converge along one charge axis.
-  // No filled wedge, speed-line spray, ring or paired wing ribbons.
-  for(let i=0;i<3;i++){const x=32-i*34,breath=Math.sin(t*18+i)*2;
-   tex(c,'smokeOil',Math.cos(heading)*x-Math.sin(heading)*breath,Math.sin(heading)*x+Math.cos(heading)*breath,68+i*17,30+i*11,heading,.76*strength,'#303a3b');
+  // A translucent, faceted black lance envelope around the aircraft. The actual
+  // locked charge heading also owns the smoke; steering cannot bend the tip.
+  for(let i=0;i<3;i++){const x=-42-i*25,breath=Math.sin(t*18+i)*1.5;
+   tex(c,'smokeOil',Math.cos(heading)*x-Math.sin(heading)*breath,Math.sin(heading)*x+Math.cos(heading)*breath,60+i*17,28+i*9,heading,(.32-i*.06)*strength,'#171b1c');
   }
-  tex(c,'gustFront',56,0,92,98,Math.PI,.94*strength,'#dfd6b6');return;
+  c.save();try{c.globalCompositeOperation='source-over';tex(c,'baraccaLance',Math.cos(heading)*14,Math.sin(heading)*14,174,124,heading,.32*strength);}finally{c.restore();}return;
  }
  if(p.pilot==='rickenbacker'&&front){
   const pressure=racerPressure(p),active=p.skillTime>0;if(!pressure&&!active)return;
@@ -85,3 +85,4 @@ export function drawCavalryRacerCue(c,p,e,tex,front){
   }else tex(c,'armorSpark',0,0,29,15,a,.9*fade,'#d8c69e');
  }return true;
 }
+

@@ -1,9 +1,9 @@
 // Authored RGBA hull states and mechanical hardware. Positions below come from
 // live BossPart objects: they have already been scaled by PatternBoss.
 export const SKY_AIRSHIP_SOURCES=Object.freeze({
- l70:'./boss-sky-l70-states-20261020.webp?v=muted1',
- hma23:'./boss-sky-hma23-states-20261020.webp?v=muted1',
- hardware:'./boss-sky-hardware-20261020.webp?v=muted1',
+ l70:'./boss-sky-l70-states-20261020.webp?v=headon-result339-20261028',
+ hma23:'./boss-sky-hma23-states-20261020.webp?v=headon-result339-20261028',
+ hardware:'./boss-sky-hardware-20261020.webp?v=headon-result339-20261028',
  mechanics:'./boss-sky-mechanics-20261022.webp'
 });
 // The authored sheet is not a uniform grid vertically. Keep neighbouring

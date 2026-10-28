@@ -1,5 +1,7 @@
-import {pilotAircraftChoices,SORTIE_FITS} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
-import {resolveAircraftPersonalityId} from './aircraft-personality164.js?v=gal1';
+import {intrusionActive} from './intrusion-bosses.js';
+import {activeFronts} from './rural-fronts.js';
+import {pilotAircraftChoices,SORTIE_FITS} from './pilot-aircraft.js?v=headon-result339-20261028&art=pilot-recovery2';
+import {resolveAircraftPersonalityId} from './aircraft-personality164.js?v=headon-result339-20261028';
 
 export const ACE_SORTIE_BALANCE=Object.freeze({maxAces:3,recovery:8,ruralOpening:40,ruralReinforce:65});
 // These are actual model identities, independent of personal paint or sprite ID.
@@ -76,6 +78,7 @@ export function installAceSortieRhythm(Game,{PILOTS,PLANES,PILOT_PLANES,stageAce
   });
  };
  proto.availableAcePilots=function(){
+  if(intrusionActive(this))return [];
   syncAceSortie(this);const forced=this._rivalReturnPilot;
   return Object.keys(PILOTS).filter(id=>(!forced||id===forced)&&PILOTS[id].faction!==PLANES[this.plane]?.faction&&stageAceEligible(this,id)&&this.availableAceAircraft(id).length);
  };
@@ -146,6 +149,7 @@ export function installAceSortieRhythm(Game,{PILOTS,PLANES,PILOT_PLANES,stageAce
    // not the first frame of the new region (which starved its mission).
    state.openingAt=this.nextBossAt=this.t+opening;
   }
+  if(activeFronts(this).length)return; // Bounded front operation keeps the ace reservation, not a new wave.
   if(this.t<(state.openingAt||0)||this.t<this.nextBossAt&&!this.pendingAceCount)return;
   const endedAt=Math.max(state.endedAt??-Infinity,this._aceCombatEndedAt??-Infinity);
   if(state.active.size||this.t<(this.battleRecoveryUntil||0)||this.t-endedAt<ACE_SORTIE_BALANCE.recovery||this.stageCombatWindow?.ready||this.stageBoss?.stages?.phase==='boss'||(this.battlefieldEvents?.current?.status==='active'&&['ACE_CHALLENGE','MOUNTAIN_PURSUIT'].includes(this.battlefieldEvents.current.type)))return;
@@ -156,3 +160,4 @@ export function installAceSortieRhythm(Game,{PILOTS,PLANES,PILOT_PLANES,stageAce
   return result;
  };
 }
+

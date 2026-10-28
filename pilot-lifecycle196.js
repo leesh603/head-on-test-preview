@@ -1,5 +1,8 @@
+import {hitIntrusionAt} from './intrusion-bosses.js';
+import {momentumDamage} from './ace-momentum.js';
+import {pilotUnlockRun} from './pilot-unlocks.js?v=headon-result339-20261028';
 import {signatureCue} from './pilot-signature-state.js';
-import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
+import {advanceWingFlight} from './wingman-flight.js?v=headon-result339-20261028';
 // Personal pilot state is advanced per living pilot; persistent damage is advanced once per world.
 const stepTime = dt => Number.isFinite(dt) ? Math.max(0, Math.min(.04, dt)) : 0;
 const playing = p => p.state === 'playing' && p.hp > 0 && p.status !== 'downed';
@@ -96,14 +99,15 @@ export function advanceBurns1918(world, dt) {
     e.fuelFxAge=(e.fuelFxAge||0)+active;
     e.burnTime = Math.max(0, e.burnTime - step);
     if(e.gontermannBurn)e.gontermannBurn.age+=active;
-    let burnDamage = Math.max(0, e.burnDps || 0)*active;
+    let burnDamage = Math.max(0, e.burnDps || 0)*active*momentumDamage(world,{ownerId:e.burnOwnerId});
     if(e.burnAnchorSpace){const owner=(world.players||[world]).find(p=>p.id===(e.burnOwnerId||'p1'))||world;
       if(e.supportInvulnUntil>world.t||owner.canHitTarget&&!owner.canHitTarget(e,{burn:true}))burnDamage=0;
-      if(e.burnPartId&&e.stageBossBody?.parts.get(e.burnPartId)?.destroyed)burnDamage=0;
+      if(e.burnPartId&&(e.stageBossBody?.parts.get(e.burnPartId)?.destroyed||e.stageBossBody?.parts.get(e.burnPartId)?.state==='destroyed'))burnDamage=0;
       if(!e.stageBossBody&&e.bossPilot==='berthold'){if(e.hp<=e.maxHp*.5)burnDamage*=.75;if(e.ironWillUntil>world.t)burnDamage*=.35;}
     }
     // Burn goes through the boss addon so show-before-fall floors apply to it too.
-    if (e.stageBossBody) {const hit={bodyId:e.stageBossBody.id,partId:e.burnAnchorSpace?e.burnPartId:undefined,damage:burnDamage,faction:world.teamFaction};const result=world.stageBoss?.hit ? world.stageBoss.hit(hit) : e.stageBossBody.hit(hit);if(e.burnAnchorSpace&&result?.damage>0)world.stageBossLastOwner=e.burnOwnerId;}
+    if(e.intrusionBody){hitIntrusionAt(world,{x:e.x,y:e.y,partId:e.burnPartId,damage:burnDamage,ownerId:e.burnOwnerId});}
+    else if (e.stageBossBody) {const beforeParts=new Set([...e.stageBossBody.parts.values()].filter(p=>p.destroyed));const hit={bodyId:e.stageBossBody.id,partId:e.burnAnchorSpace?e.burnPartId:undefined,damage:burnDamage,faction:world.teamFaction};const result=world.stageBoss?.hit ? world.stageBoss.hit(hit) : e.stageBossBody.hit(hit);if(result?.damage>0)for(const part of e.stageBossBody.parts.values())if(part.destroyed&&!beforeParts.has(part))pilotUnlockRun(world)?.part(e.stageBossBody,part,{ownerId:e.burnOwnerId,ally:!!e.burnSupport});if(e.burnAnchorSpace&&result?.damage>0)world.stageBossLastOwner=e.burnOwnerId;}
     else e.hp -= burnDamage;
     e.burnFxTime = (e.burnFxTime || 0) - step;
     if (e.burnFxTime <= 0 && !e.gontermannBurn) {
@@ -119,3 +123,4 @@ export function advanceBurns1918(world, dt) {
   }
   return killed;
 }
+

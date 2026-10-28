@@ -1,5 +1,9 @@
-import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=gal1&airbattle=20261025';
-import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=regionalair20261018';
+import {transportConvoyActive} from './transport-convoy.js';
+import {photoReconActive} from './photo-recon-encounters.js';
+import {intrusionActive} from './intrusion-bosses.js';
+import {momentumCombatTarget} from './ace-momentum.js';
+import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=headon-result339-20261028&airbattle=20261025';
+import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=headon-result339-20261028';
 
 export const BATTLE_DIRECTOR_PATTERNS=Object.freeze({
  HEAD_ON_PASS:'HEAD_ON_PASS',CROSS_ATTACK:'CROSS_ATTACK',PINCER:'PINCER',CHASE:'CHASE',ESCORT:'ESCORT',DECOY:'DECOY',
@@ -172,6 +176,7 @@ function place(game,e,layout,index,count){
  const shape=game.battleDirector.shape,rawSlot=directorFormationSlot(shape,index,count);
  // More members must not extend an echelon/trail beyond the native cull radius
  // or leave the entire mobile wing on one side of the viewport.
+ if(intrusionActive(game))return game.mode==='coop2'?4:(game.viewWidth||960)<=720?3:4;
  const compact=(game.viewWidth||960)<=BATTLE_DIRECTOR_BALANCE.compactWidth;
  const boundShape=!compact||count>=8;
  const scale=boundShape&&['headOn','veteran','chase'].includes(layout)?Math.min(1,(compact?240:420)/(Math.max(1,count-1)*(shape==='trail'?92:64))):1;
@@ -190,6 +195,14 @@ function place(game,e,layout,index,count){
  if(!directorAircraftEligible(game,e))return;
  if(e.type==='bomber')e.dangerHeavy=true;
  joinSquadron(game,e,layout,index);
+ // The covering pair arrives ahead of its leader. A direct nose-on dive
+ // meets the escorts first; clearing one opens an actual approach lane.
+ if(layout==='headOn'&&e.directorRole==='cover'){
+  const leader=e.directorSquad.leader,lateral=-(e.x-leader.x)*Math.sin(leader.a)+(e.y-leader.y)*Math.cos(leader.a);
+  e.directorFormationSlot={back:-65,lateral};e.formationBack=-65;e.formationOffset=lateral;
+  e.x=leader.x+Math.cos(leader.a)*65-Math.sin(leader.a)*lateral;
+  e.y=leader.y+Math.sin(leader.a)*65+Math.cos(leader.a)*lateral;
+ }
  // Seed the existing pass states once. Waypoints are reused by the pass layer.
  const duration=BATTLE_DIRECTOR_BALANCE[`${layout}Intent`]||7;
  e.directorLayout=layout;e.directorAnchorHeading=a;e.directorIntentStartedAt=game.t||0;e.directorIntentUntil=(game.t||0)+duration;
@@ -257,6 +270,7 @@ function joinSquadron(game,e,layout,index){
  squad.members.push(e);e.directorSquad=squad;e.directorSlot=squad.members.length-1;e.directorTarget=squad.target;
  if(e.type==='bomber')e.directorFormation=true;
  e.isFormationCommander=squad.leader===e;e.formationCommand=e.isFormationCommander;
+ if(tactic==='headOn')e.directorRole=e.isFormationCommander?'leader':e.directorSlot<=2?'cover':'flank';
  if(!e.isFormationCommander){const slot=e.directorFormationSlot||directorFormationSlot('vic',e.directorSlot);e.formationLeader=squad.leader;e.formationBack=slot.back;e.formationOffset=slot.lateral}
  if(tactic==='veteran'){
   const paint=DIRECTOR_LIVERIES[e.faction],key=paint[e.directorSlot%paint.length],base=key==='checker_se5a'?'se5a':key==='dazzle_camel'?'camel':'fokkerd7';
@@ -300,16 +314,17 @@ function tickSquadrons(game,dt){
   }
   if(!squad.broken&&(!living.includes(squad.leader)||squad.leader.hp<=0)){
    squad.broken=true;squad.collapseUntil=now+2.5;squad.regroupAt=squad.tactic==='veteran'?now+6:Infinity;
-   for(const w of living){releaseSquadMember(w);w.fire=Math.max(w.fire||0,2.5);w.combatPassState=S.DISENGAGE;w.combatPassHeading=regionalExitHeading(game,w,w.a);w.combatPassTimer=2.5}
+   for(const w of living){breakFormation(game,w,undefined,true);releaseSquadMember(w);w.combatPassHeading=w.formationBreakHeading}
   }
   if(squad.broken){
    if(now>=squad.regroupAt&&living.length>=2){
     squad.broken=false;squad.leader=living[0];squad.startedAt=now;
-    living.forEach((w,i)=>{w.isFormationCommander=i===0;w.formationCommand=i===0;if(i)w.formationLeader=squad.leader;w.directorTarget=squad.target;w.combatPassState=S.REPOSITION;w.combatPassTimer=2;w.fire=Math.max(w.fire||0,.7)});
+    living.forEach((w,i)=>{w.directorFormation=true;w.isFormationCommander=i===0;w.formationCommand=i===0;if(i)w.formationLeader=squad.leader;w.directorTarget=squad.target;w.combatPassState=S.REPOSITION;w.combatPassTimer=2;w.fire=Math.max(w.fire||0,.7)});
    }else continue;
   }
   if(!(squad.target?.hp>0)||squad.target.status==='downed')squad.target=playerFor(game);
   for(const w of living)w.directorTarget=squad.target;
+  if(squad.tactic==='headOn')updateFighterRoles(game,squad,living,now);
   // The Director's existing pass states supply the shared attack/Break beat.
   const leader=squad.leader;
   if(!squad.passActive&&!living.some(w=>w.directorLaunchAt&&!w.directorChoreographyDone)&&['headOn','cross','veteran'].includes(squad.tactic)){
@@ -323,6 +338,41 @@ function tickSquadrons(game,dt){
    }
   }
  }
+}
+
+// Keep casualties meaningful: surviving wings keep their own lane/role rather
+// than instantly filling a dead escort's slot. Decisions share the squad clock.
+function updateFighterRoles(game,squad,living,now){
+ if(now<(squad.nextDecisionAt||0))return;squad.nextDecisionAt=now+.35;
+ const leader=squad.leader;let threat=null,best=420;
+ for(const p of game.players||[game]){
+  if(!visibleContact(p))continue;
+  const range=Math.hypot(p.x-leader.x,p.y-leader.y),bearing=Math.atan2(leader.y-p.y,leader.x-p.x);
+  if(range<best&&(Math.abs(angleDiff(bearing,p.a))<.65||range<180)){threat=p;best=range}
+ }
+ for(const w of living){
+  if(w.directorRole==='cover')w.directorRoleTarget=threat;
+ }
+}
+
+function fighterRoleSteering(game,e,contact,dt,baseTurn,result){
+ const squad=e.directorSquad,now=game.t||0;
+ if(squad?.tactic!=='headOn'||squad.broken||!visibleContact(contact)||!ordinaryFighter(e)||e.defensivePressure||tacticalRest(e,now)||(game.patrols||[]).includes(contact))return result;
+ if(e.directorBeat!=='attack'&&(!e.directorChoreographyDone||![S.APPROACH,S.REPOSITION].includes(e.combatPassState)))return result;
+ // After the first real shot, retain the pass direction. Turning out of its nose
+ // creates the existing Break/re-entry opening instead of a homing attack.
+ if(e.directorBeat==='attack'&&Number.isFinite(e.directorPassAim))return{delta:angleDiff(e.directorPassAim,e.a),turn:baseTurn};
+ let heading=fighterAim(game,e,contact);
+ if(e.directorRole==='cover'&&!e.directorRoleTarget){
+  const slot=e.directorSlot===1?-1:1;
+  return formationStationSteering(e,squad.leader,{back:-65,lateral:slot*100},dt,baseTurn,angleDiff);
+ }
+ if(e.directorRole==='flank'&&Math.hypot(contact.x-e.x,contact.y-e.y)>360){
+  const a=contact.a??0,side=e.directorEntrySide||1;
+  heading=Math.atan2(contact.y-Math.sin(a)*90+Math.cos(a)*side*170-e.y,contact.x-Math.cos(a)*90-Math.sin(a)*side*170-e.x);
+ }
+ if(e.directorBeat==='attack'&&e.directorVolleyCycle>0)e.directorPassAim=e.gunAim??e.a;
+ return{delta:angleDiff(heading,e.a),turn:result.turn};
 }
 
 const visibleContact=p=>p&&p.hp>0&&p.status!=='downed'&&!p.fogHidden&&!(p.ballCloak>0)&&!(p.kaiserFogTime>0)&&!(p.cloudConceal>0);
@@ -580,8 +630,16 @@ function breakFormation(game,e,duration=BATTLE_DIRECTOR_BALANCE.formationBreakDu
  if(e.formationCollapseUntil>now&&(!leaderLost||e.formationDeathBreak))return false;
  if(leaderLost)duration=BATTLE_DIRECTOR_BALANCE.formationBreakDuration;
  e.formationDeathBreak=leaderLost;
+ if(leaderLost)e.directorFormation=false;
  const side=Math.sign(e.formationOffset)||e.combatPassSide||(game.rng?.()<.5?-1:1);
- e.formationBreakHeading=e.directorSceneId?regionalExitHeading(game,e,e.a):e.a+side*1.05;e.formationCollapseUntil=now+duration;
+ if(e.directorSquad&&!e.directorSquad.escortTarget&&['headOn','cross','pincer'].includes(e.directorSquad.tactic)){
+  const p=e.directorSquad.target?.hp>0?e.directorSquad.target:playerFor(game),a=p.a??0;
+  // Scatter toward a fixed nearby rally point, not the offscreen exit. The
+  // player still has to turn and aim; no slow, damage bonus or longer stun.
+  const lead=Math.min(300,(p.flightSpeed||p.speed||170)*1.1);
+  e.formationBreakHeading=Math.atan2(p.y+Math.sin(a)*lead+Math.cos(a)*side*140-e.y,p.x+Math.cos(a)*lead-Math.sin(a)*side*140-e.x);
+ }else e.formationBreakHeading=e.directorSceneId?regionalExitHeading(game,e,e.a):e.a+side*1.05;
+ e.formationCollapseUntil=now+duration;
  e.formationResumeLeader=!leaderLost&&commander?.hp>0?commander:null;e.formationResumeCommand=!leaderLost&&!!(e.formationCommand||e.formationResumeCommand);
  e.formationLeader=null;e.formationReturning=false;e.formationCommand=false;e.directorIntentUntil=0;e.directorEscort=null;
  e.patrolTarget=null;e.personalityDecisionUntil=0;e.personalityManeuver=null;e.defensivePressure=false;
@@ -606,7 +664,8 @@ function maintainFormations(game){
 function directorCap(game){
  const compact=(game.viewWidth||960)<=BATTLE_DIRECTOR_BALANCE.compactWidth,coop=game.mode==='coop2';
  const cap=compact?(coop?BATTLE_DIRECTOR_BALANCE.compactCoopCap:BATTLE_DIRECTOR_BALANCE.compactSoloCap):(coop?BATTLE_DIRECTOR_BALANCE.coopCap:BATTLE_DIRECTOR_BALANCE.soloCap);
- const reserve=activeAce(game)||game.eliteEnemies?.active?4:game.battlefieldEvents?.current?.status==='active'?4:0;
+ const frontCount=(game.ruralFronts?.fronts||[]).filter(f=>f.status==='active').reduce((n,f)=>n+f.enemies.filter(e=>e.hp>0&&!e.expired).length,0);
+ const reserve=frontCount?Math.min(cap-3,frontCount):activeAce(game)||game.eliteEnemies?.active?4:game.battlefieldEvents?.current?.status==='active'?4:0;
  return cap-reserve;
 }
 
@@ -711,7 +770,7 @@ function tickDirector(game,dt){
  sceneRhythm(game,state,now);
  game.eventTimer=Math.max(game.eventTimer||0,state.endsAt-now+.5);
  if(state.pattern===P.ELITE_FORMATION&&!state.eliteRequested){
-  if(game.eliteEnemies&&!game.eliteEnemies.active&&!activeAce(game)){state.eliteRequested=!!game.eliteEnemies.spawnEncounter?.();state.hadElite=!!game.eliteEnemies.active}
+  if(!transportConvoyActive(game)&&!intrusionActive(game)&&!photoReconActive(game)&&game.eliteEnemies&&!game.eliteEnemies.active&&!activeAce(game)){state.eliteRequested=!!game.eliteEnemies.spawnEncounter?.();state.hadElite=!!game.eliteEnemies.active}
   if(!state.eliteRequested&&now-state.startedAt>.8){
    // Locked/cooling-down elite spawns return null. They must not consume a
    // whole empty scene or award the seven-second rest of an elite encounter.
@@ -744,8 +803,8 @@ function tickDirector(game,dt){
 export function directorCombatTarget(game,e,contact){
  const players=game.players||[game],chosen=e.directorRoleTarget||e.directorSquad?.target;
  // Keep ghosts, patrols, decoys, partial-cloud contacts and regional concealment.
- if(!e.directorSquad||e.directorSquad.broken||!contact||contact.fogHidden||!players.includes(contact)||!players.includes(chosen)||chosen.hp<=0||chosen.status==='downed'||chosen.ballCloak>0||chosen.kaiserFogTime>0||(chosen.cloudConceal||0)>0)return contact;
- return regionalCombatTarget(game,e,chosen);
+ if(!e.directorSquad||e.directorSquad.broken||!contact||contact.fogHidden||!players.includes(contact)||!players.includes(chosen)||chosen.hp<=0||chosen.status==='downed'||chosen.ballCloak>0||chosen.kaiserFogTime>0||(chosen.cloudConceal||0)>0)return momentumCombatTarget(game,e,contact);
+ return momentumCombatTarget(game,e,regionalCombatTarget(game,e,chosen));
 }
 
 export function installBattleDirector(Game,deps={}){
@@ -756,7 +815,7 @@ export function installBattleDirector(Game,deps={}){
  Game.prototype.maintainEnemyFormations=function(){return maintainFormations(this)};
  Game.prototype.breakEnemyFormation=function(e,duration){const world=this.combatWorld?.()||this;if(e?.eliteKind)return world.eliteEnemies?.disruptFormation?.(e,duration)||false;return breakFormation(world,e,duration)};
  const steering=Game.prototype.dogfightSteering;
- Game.prototype.dogfightSteering=function(e,contact,dt,baseTurn){if(e?.formationCollapseUntil>(this.t||0))return{delta:Math.atan2(Math.sin(e.formationBreakHeading-e.a),Math.cos(e.formationBreakHeading-e.a)),turn:baseTurn*.85};const result=tacticalRest(e,this.t||0)?{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*.8}:e?.defensivePressure||ordinaryFighter(e)&&(this.patrols||[]).includes(contact)?steering.call(this,e,contact,dt,baseTurn):circleSteering(this,e,contact,baseTurn)||escortSteering(this,e,contact,baseTurn)||choreographySteering(this,e,contact,baseTurn)||intentSteering(this,e,contact,dt,baseTurn)||squadSteering(this,e,contact,dt,baseTurn)||steering.call(this,e,contact,dt,baseTurn);return regionalSteering(this,e,contact,baseTurn,result)};
+ Game.prototype.dogfightSteering=function(e,contact,dt,baseTurn){if(e?.formationCollapseUntil>(this.t||0))return{delta:Math.atan2(Math.sin(e.formationBreakHeading-e.a),Math.cos(e.formationBreakHeading-e.a)),turn:baseTurn*.85};const result=tacticalRest(e,this.t||0)?{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*.8}:e?.defensivePressure||ordinaryFighter(e)&&(this.patrols||[]).includes(contact)?steering.call(this,e,contact,dt,baseTurn):circleSteering(this,e,contact,baseTurn)||escortSteering(this,e,contact,baseTurn)||choreographySteering(this,e,contact,baseTurn)||intentSteering(this,e,contact,dt,baseTurn)||squadSteering(this,e,contact,dt,baseTurn)||steering.call(this,e,contact,dt,baseTurn);return regionalSteering(this,e,contact,baseTurn,fighterRoleSteering(this,e,contact,dt,baseTurn,result))};
  Game.prototype.directorBomberSteering=function(e,contact,dt,baseTurn){
   if(e.type!=='bomber'||!regionalAircraftEligible(e)||!e.directorRouteOrigin||this.mode==='campaign'||scriptedBoss(this))return null;
   const heading=tacticalRest(e,this.t||0)?e.combatPassHeading:['evade','exit'].includes(e.directorBomberMode)?e.directorBomberHeading:e.directorRouteHeading;
@@ -785,3 +844,6 @@ export function installBattleDirector(Game,deps={}){
  const update=Game.prototype.update;
  Game.prototype.update=function(dt,input={}){if(this.state==='playing')maintainFormations(this);const result=update.call(this,dt,input);if(this.state==='playing')maintainFormations(this);this.tickBattleDirector(Math.min(.04,Math.max(0,dt||0)));return result};
 }
+
+
+

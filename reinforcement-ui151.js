@@ -3,10 +3,10 @@ import {RARE_SPECIALIZATIONS} from './rare-specializations.js';
 // Telescope category follows the user-requested machine-gun-only effect.
 // Presentation only. Preview uses the existing upgrade implementation on a detached copy.
 import {WWI_EQUIPMENT} from './wwi-equipment.js';
-import {getLocale,upgradeName as i18nUpgradeName} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
-import {AUGMENTATION_OVERHAUL_BALANCE} from './augmentation-overhaul150.js?v=equipment20261022&airbattle=20261025';
+import {getLocale,upgradeName as i18nUpgradeName} from './i18n.js?v=headon-result339-20261028&afc=1&art=pilot-recovery2';
+import {AUGMENTATION_OVERHAUL_BALANCE} from './augmentation-overhaul150.js?v=headon-result339-20261028&airbattle=20261025';
 import {WEAPON_MODS,WEAPON_MOD_BY_ID,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js';
-import {tacticalChoices} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
+import {tacticalChoices} from './tactical-doctrines.js?v=headon-result339-20261028&td4=20261026';
 
 export const CATEGORIES={"bomberTransfer":"폭탄","mgTransfer":"기관총","airshipTransfer":"편대","damage":"기관총","rate":"기관총","rockets":"로켓","mines":"수류탄","explosives":"폭발 피해","command":"편대","turn":"이동","armor":"내구도","regen":"내구도","cooldown":"액티브","bomber":"공통","wingman":"편대","mercedesEngine":"이동속도","spread":"기관총","combinedProjectiles":"로켓 · 수류탄","redScarf":"이동","prancingHorse":"이동 · 방어력","ironCross":"액티브","telescope":"기관총","flightGloves":"발사 · 투척 주기","amatolCharge":"폭발 피해","lufberyCircle":"편대 · 방어","fighterSupply":"편대","sparkPlug":"내구도","goeringBaton":"편대","immelmannManual":"이동","motorCannon":"특수기","loEmblem":"공통","sacredCowling":"이동","steelPlate":"내구도","mauserAceKiller":"특수기","boelckeDicta":"공통","rearGunner":"특수기","quadLewis":"기관총","cow37":"무기교체","rankinShell":"특수기","kaiserFog":"특수기","fogCompass":"특수기","maximBelt":"기관총"};
 for(const e of [...WWI_EQUIPMENT,...RARE_SPECIALIZATIONS])CATEGORIES[e.id]={GUN:'기관총',EXPLOSIVE:'폭탄',FORMATION:'편대',SPEED:'이동',SURVIVAL:'내구도'}[e.family];

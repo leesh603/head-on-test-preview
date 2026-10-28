@@ -1,13 +1,15 @@
+import {momentumTier} from './ace-momentum.js';
+import {syncPilotUnlocks} from './pilot-unlocks.js?v=headon-result339-20261028';
 import {airbrakeMovement} from './flight-equipment.js';
 import {advanceUdetReplica,udetFlightModifiers} from './udet-acrobatics.js';
-import {CoopGame} from './coop-engine.js?v=merge20261017&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&harbor=20261021&td4=20261026';
-import {BossEncounter} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {stageBossSpeed} from './stageboss-host.js?v=merge20261017&ai=1018&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cambrai=20261021&cityart=20261022&harbor=20261021&somme=20261021';
-import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFields,pose,mixAngle} from './online-coop-protocol.js?v=bomber21';
+import {CoopGame} from './coop-engine.js?v=headon-result339-20261028&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&harbor=20261021&td4=20261026&momentum=20261027';
+import {BossEncounter} from './headon-stageboss-core.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {stageBossSpeed} from './stageboss-host.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cambrai=20261021&cityart=20261022&harbor=20261021&somme=20261021&momentum=20261027';
+import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFields,pose,mixAngle} from './online-coop-protocol.js?v=headon-result339-20261028';
 
 const LANES=['enemies','drops','allies','patrols','mines','friendlyBombers','friendlyBombs','bombZones','flakBursts','hostileMinefields','gasZones','fireZones','grunkreuzPuffs','gusts','grenades','smokeZones','combatFX','revisionDecoys','enemyAirshipPasses'];
-const WORLD=['t','distance','kills','priorityKills','score','state','manualPaused','region','wave','stageStartDistance','stageStartTime','battleDirectorPattern','battleDirector','battlefieldEvents','navalRoute','jutlandRoute','gallipoliRoute','bossBuildings','bossCues','londonBattle','parisBattle','verdunBattle','maanWeather','cityDefense','activeUpgrade','pendingLevelUps','upgradeSequence'];
-const NOTICE=new Set(['tacticalActivation','aceWingmanArrival','wave','skill','downed','revived','end','kill','bossArrival','bossPhase','bossSound','regionTransition','heinecke','heineckeReturn','bombWarning']);
+const WORLD=['photoReconDirector','intrusionBoss','intrusionDirector','t','distance','kills','priorityKills','score','state','manualPaused','region','wave','stageStartDistance','stageStartTime','battleDirectorPattern','battleDirector','battlefieldEvents','navalRoute','jutlandRoute','gallipoliRoute','bossBuildings','bossCues','londonBattle','parisBattle','verdunBattle','maanWeather','cityDefense','activeUpgrade','pendingLevelUps','upgradeSequence'];
+const NOTICE=new Set(['intrusionWarning','intrusionPartDestroyed','intrusionDestroyed','intrusionRetreat','intrusionResolved','tacticalActivation','aceWingmanArrival','wave','skill','downed','revived','end','kill','bossArrival','bossPhase','bossSound','regionTransition','heinecke','heineckeReturn','bombWarning']);
 const ownWithoutPose=entity=>{const data=pack(entity);delete data.x;delete data.y;delete data.a;return data;};
 const cameraTarget=g=>g.player(g.localPlayerId)?.status==='alive'?g.player(g.localPlayerId):g.living()[0]||g.player(g.localPlayerId);
 
@@ -165,6 +167,7 @@ export class OnlineCoopGame extends CoopGame {
     else {const lead=.065;this._netCorrection={x:x+vx*lead-p.x,y:y+vy*lead-p.y,a:Math.atan2(Math.sin(a-p.a),Math.cos(a-p.a))};}
    }else this.target(p,row.pose);
   }
+  syncPilotUnlocks(this);
   const keep=new Set();for(const [lane,rows] of Object.entries(m.lanes||{})){if(!LANES.includes(lane))continue;const entities=[];
    for(const row of rows){let entity=this._netReplica.get(row.id);if(!entity){entity={};this._netReplica.set(row.id,entity);}applyFields(entity,row.data);this.target(entity,row.pose);keep.add(row.id);entities.push(entity);}this[lane]=entities;
   }
@@ -212,7 +215,7 @@ export class OnlineCoopGame extends CoopGame {
   if(this.state==='playing'){
    for(const owner of this.players)advanceUdetReplica(owner,step);
    const p=this.player(this.localPlayerId);if(p.status==='alive'){
-    const acrobat=udetFlightModifiers(p),turn=p.turn;p.turn*=acrobat.turn;try{p.flyAirframe(step,this._netInput);}finally{p.turn=turn;}const velocity=acrobat.speed*p.baseSpeed*p.healthSpeedFactor()*stageBossSpeed(p)*(p.udetBoost>0?1.7:1)*(airbrakeMovement(p,step,p.chargeTime>0?4.6:p.evadeTime>0?(p.bomberTransfer?1.12:2.35):p.airframeSpeed??1))*(p.pursuitSpeedFactor??1)*(p.vossReverse>0?2.35:1);
+    const acrobat=udetFlightModifiers(p),turn=p.turn;p.turn*=acrobat.turn;try{p.flyAirframe(step,this._netInput);}finally{p.turn=turn;}const velocity=momentumTier(p).speed*acrobat.speed*p.baseSpeed*p.healthSpeedFactor()*stageBossSpeed(p)*(p.udetBoost>0?1.7:1)*(airbrakeMovement(p,step,p.chargeTime>0?4.6:p.evadeTime>0?(p.bomberTransfer?1.12:2.35):p.airframeSpeed??1))*(p.pursuitSpeedFactor??1)*(p.vossReverse>0?2.35:1);
     const x=p.x,y=p.y;p.x+=Math.cos(p.a)*velocity*step;p.y+=Math.sin(p.a)*velocity*step;this.constrainMove(p,x,y);
     const k=1-Math.exp(-step*10),c=this._netCorrection;p.x+=c.x*k;p.y+=c.y*k;p.a+=c.a*k;c.x*=1-k;c.y*=1-k;c.a*=1-k;
    }
@@ -222,3 +225,5 @@ export class OnlineCoopGame extends CoopGame {
   this.updateCamera(step);
  }
 }
+
+

@@ -1,8 +1,8 @@
-import {NAVAL_BOSS_STATIONS} from './naval-faction-atlas.js?v=tame3';
-import {separateBossFleet} from './naval-spacing.js?v=gal1';
-import {recordShipWake} from './naval-water.js?v=tame3';
-import {BaseBoss,BossPart,BossEncounter} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {segmentDistance} from './alps-geometry117.js?v=tame3';
+import {NAVAL_BOSS_STATIONS} from './naval-faction-atlas.js?v=headon-result339-20261028';
+import {separateBossFleet} from './naval-spacing.js?v=headon-result339-20261028';
+import {recordShipWake} from './naval-water.js?v=headon-result339-20261028';
+import {BaseBoss,BossPart,BossEncounter} from './headon-stageboss-core.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {segmentDistance} from './alps-geometry117.js?v=headon-result339-20261028';
 export const JUTLAND_CYCLE=48;
 export const angleDelta=(a,b)=>Math.atan2(Math.sin(b-a),Math.cos(b-a));
 export const turnToward=(a,b,rate,dt)=>a+Math.max(-rate*dt,Math.min(rate*dt,angleDelta(a,b)));
@@ -46,7 +46,12 @@ export class JutlandVessel extends BaseBoss{
  const desired=this.entryAge<5?0:speed;this.driveVelocity+=Math.max(-10*dt,Math.min(8*dt,desired-this.driveVelocity));this.x+=Math.sin(this.hullYaw)*this.driveVelocity*dt;this.y-=Math.cos(this.hullYaw)*this.driveVelocity*dt;this.updateParts();if(!this.jutlandAirship)recordShipWake(this,dt,this.height);}
  weaponAim(p,target){const raw=Math.atan2(target.y-this.y-p.y,target.x-this.x-p.x);if(p.kind==='torpedo'){const center=this.hullYaw+(p.localX<0?Math.PI:0),delta=angleDelta(center,raw),arc=.38;return{angle:center+Math.max(-arc,Math.min(arc,delta)),reachable:Math.abs(delta)<=arc};}const center=this.hullYaw-Math.PI/2,delta=angleDelta(center,raw),arc=2.7;return{angle:center+Math.max(-arc,Math.min(arc,delta)),reachable:Math.abs(delta)<=arc};}
  plan(target,kind){const pool=[...this.parts.values()].filter(p=>!p.destroyed&&p.kind===(kind==='torpedo'?'torpedo':'gun')),weapons=pool.filter(p=>this.weaponAim(p,target).reachable);if(!weapons.length)return;const p=weapons[this.weaponCursor++%weapons.length],point={x:target.x,y:target.y};p.aimTarget=point;if(kind==='shell'&&this.fleet.phase==='crossing-fire')p.angle=this.weaponAim(p,point).angle;this.pending={partId:p.id,target:point,kind};
- if(kind==='shell'){const count=(this.fleet.phase==='crossing-fire'&&this.coordinated()?4:3)+(this.fleet.lastSalvo?1:0),lead=this.observed()?.55:0,tx=point.x+(target.vx||0)*lead,ty=point.y+(target.vy||0)*lead,m=jutlandMuzzle(this,p),length=Math.hypot(tx-m.x,ty-m.y)||1,nx=-(ty-m.y)/length,ny=(tx-m.x)/length;this.pending.shots=Array.from({length:count},(_,i)=>({x:tx+nx*(i-(count-1)/2)*88,y:ty+ny*(i-(count-1)/2)*88,radius:this.role==='battleship'?64:48,warning:this.observed()?1.35:2.1,delay:i*.48,damage:this.t.damage,tag:this.id+':'+p.id}));}}
+ if(kind==='shell'){const count=(this.fleet.phase==='crossing-fire'&&this.coordinated()?4:3)+(this.fleet.lastSalvo?1:0),lead=this.observed()?.55:0,tx=point.x+(target.vx||0)*lead,ty=point.y+(target.vy||0)*lead,m=jutlandMuzzle(this,p),length=Math.hypot(tx-m.x,ty-m.y)||1,nx=-(ty-m.y)/length,ny=(tx-m.x)/length;// Crossing fire is one fleet problem: the flagship holds the measured
+ // center, while the two cruisers close opposite sides of that same line.
+ // Preserve the physical gun lay, shot count, delays and warning/rest budget.
+ // Losing a cruiser leaves its lane open; director loss removes coordination.
+ const flagship=this.fleet.bodies.find(b=>b.role==='battleship'),crossing=this.fleet.phase==='crossing-fire'&&this.coordinated(),lane=crossing&&this.role==='cruiser'?(this.slot===1?-1:1):0,axis=flagship?.hullYaw??this.hullYaw;
+ this.pending.shots=Array.from({length:count},(_,i)=>{const step=i-(count-1)/2,offset=lane*88,side=lane?lane*step:step;return {x:tx+nx*side*88+Math.cos(axis)*offset,y:ty+ny*side*88+Math.sin(axis)*offset,radius:this.role==='battleship'?64:48,warning:this.observed()?1.35:2.1,delay:i*.48,damage:this.t.damage,tag:this.id+':'+p.id};});}}
  fire(dt){const a=this.pending;if(!a)return;const p=this.parts.get(a.partId);if(!p||p.destroyed){this.cancelPending();return;}const traverse=this.weaponAim(p,a.target);if(!traverse.reachable){this.cancelPending();return;}p.angle=turnToward(p.angle,traverse.angle,p.kind==='torpedo'?1:.85,dt);if(Math.abs(angleDelta(p.angle,traverse.angle))>.065)return;const m=jutlandMuzzle(this,p);p.recoil=.22;p.aimTarget=null;this.command('muzzle',{...m,partId:p.id});
  if(a.kind==='shell'){for(const [i,shot]of a.shots.entries())this.command('hazard',{kind:'circle',duration:.23,once:true,visual:'jutland-shell',...shot,sourceX:m.x,sourceY:m.y,sourcePartId:p.id,raidHeavy:i===a.shots.length-1,radius:i===a.shots.length-1?100:shot.radius});}
  else{const direction=p.angle;this.command('hazard',{kind:'beam',x:m.x,y:m.y,angle:direction,length:1250,thickness:22,damage:0,warning:2,duration:.05,visual:'jutland-track',tag:this.id+':'+p.id,sourcePartId:p.id});this.command('hazard',{kind:'projectile',x:m.x,y:m.y,vx:Math.cos(direction)*170,vy:Math.sin(direction)*170,radius:13,damage:this.t.damage*1.15,warning:2,duration:7,once:true,visual:'jutland-torpedo',tag:this.id+':'+p.id,sourcePartId:p.id});}this.pending=null;this.shotClock=0;}

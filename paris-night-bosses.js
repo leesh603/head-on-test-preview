@@ -1,6 +1,6 @@
-import {broadsideBreak,shellMarch} from './boss-raid-strikes.js?v=tame3&rail=40';
+import {broadsideBreak,shellMarch} from './boss-raid-strikes.js?v=headon-result339-20261028&rail=40';
 import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
-import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
 
 // These mounts are also the sprite atlas contract: source art faces north.
 export const PARIS_FORTRESS_PARTS = Object.freeze([
@@ -85,7 +85,8 @@ export class ParisSearchlightFortress extends ParisBoss {
   }
   livePart(id){return !this.parts.get(id).destroyed;}
   generators(){return ['generator-left','generator-right'].filter(id=>this.livePart(id)).length;}
-  functioningLights(){return [...this.parts.values()].filter(p=>p.kind==='searchlight'&&!p.destroyed&&(p.id!=='light-main'||this.generators()>0)).length;}
+  lightPowered(id){return id==='light-main'?this.generators()>0:this.livePart(id.endsWith('w')?'generator-left':'generator-right');}
+  functioningLights(){return [...this.parts.values()].filter(p=>p.kind==='searchlight'&&!p.destroyed&&this.lightPowered(p.id)).length;}
   openingSeconds(){return [4.8,3.8,2.8][this.generators()];}
   warningSeconds(){return 1.15;}
   beatSeconds(){return this.warningSeconds()+this.activeSeconds()+.15;}
@@ -108,6 +109,11 @@ export class ParisSearchlightFortress extends ParisBoss {
   }
   onPartDestroyed(p){
     this.command('cancel-hazards',{tag:this.id+':'+p.id});
+    if(p.kind==='power'){
+      // Each generator feeds its own flank. Destroying it opens that approach
+      // while the opposite search team and all surviving guns remain active.
+      for(const lamp of this.parts.values())if(lamp.kind==='searchlight'&&!this.lightPowered(lamp.id))this.command('cancel-hazards',{tag:this.id+':'+lamp.id});
+    }
     if(this.activeCatchPart===p.id){this.activeCatchPart=null;this.catchRemaining=Math.min(this.catchRemaining,.2);}
     if(p.kind==='gun'&&![...this.parts.values()].some(q=>q.kind==='gun'&&!q.destroyed)){
       this.hp=Math.min(this.hp,this.maxHp*.18);if(this.phase!=='last-stand')this.startLastStand();return;
@@ -139,7 +145,7 @@ export class ParisSearchlightFortress extends ParisBoss {
     return offset;
   }
   beam(id,target,escape,bounds){
-    if(!this.livePart(id)||id==='light-main'&&!this.generators())return;
+    if(!this.livePart(id)||!this.lightPowered(id))return;
     const p=this.parts.get(id),x=this.x+p.x,y=this.y+p.y;
     // Fix the approach bearing during the readable warning. Every quadrant
     // is searched; flying behind the fortress never disables its mechanics.
@@ -299,17 +305,17 @@ export class ParisStaakenRVI extends ParisBoss {
     else this.a+=clamp(change,-dt*.85,dt*.85)+this.hullYaw*dt;
     this.currentSpeed=105*this.speedRatio();this.x+=Math.cos(this.a)*this.currentSpeed*dt;this.y+=Math.sin(this.a)*this.currentSpeed*dt;this.rotateMounts();
   }
-  gunfire(dt,players){
+  gunfire(dt,players,commitHeading=true){
     const arcs={'gun-front':[0,.66,750],'gun-top':[0,1.72,510],'gun-rear':[Math.PI,.8,660],'gun-left':[-Math.PI/2,.7,620],'gun-right':[Math.PI/2,.7,620]};
     const ids=Object.keys(arcs),ready=[];for(let i=0;i<ids.length;i++){
       const id=ids[(this.gunCursor+i)%ids.length],[axis,width,range]=arcs[id],gun=this.parts.get(id);if(gun.destroyed||!this.due(id,dt,this.phase==='regroup'?5.8:4.6))continue;
       const x=this.x+gun.x,y=this.y+gun.y;
-      const p=live(players).find(p=>Math.hypot(p.x-x,p.y-y)<range&&Math.abs(wrap(Math.atan2(p.y-y,p.x-x)-this.a-axis))<width-.04);
+      const p=live(players).find(p=>Math.hypot(p.x-x,p.y-y)<range&&Math.abs(wrap(Math.atan2(p.y-y,p.x-x)-this.a-axis))<width-(commitHeading?.04:.22));
       if(p)ready.push({id,gun,p,axis,width});
     }const pick=ready[0];if(!pick)return;this.gunCursor=(ids.indexOf(pick.id)+1)%ids.length;
     const x=this.x+pick.gun.x,y=this.y+pick.gun.y,angle=Math.atan2(pick.p.y-y,pick.p.x-x),margin=pick.width-Math.abs(wrap(angle-this.a-pick.axis));
-    const duration=broadsideBreak(this,{source:{x,y},partId:pick.id,target:pick.p,angle,visual:'staaken-mg',tag:this.id+':'+pick.id,spread:Math.min(1.45,margin*2),beats:3,beat:.5,warning:1.1,speed:330});
-    if(duration){this.gunCommit={partId:pick.id,heading:this.a,left:2.2};this.gunHold=duration;}
+    const duration=broadsideBreak(this,{source:{x,y},partId:pick.id,target:pick.p,angle,visual:'staaken-mg',tag:this.id+':'+pick.id,spread:Math.min(1.45,(margin-(commitHeading?0:.18))*2),beats:3,beat:.5,warning:1.1,speed:330});
+    if(duration){if(commitHeading)this.gunCommit={partId:pick.id,heading:this.a,left:2.2};this.gunHold=duration;}
   }
   update(dt,{players=[],bounds,parisTargets=[]}){
     if(this.dead)return;
@@ -357,7 +363,18 @@ export class ParisStaakenRVI extends ParisBoss {
     // The announced city bombing route owns the hull. A covering volley may
     // commit its bearing only when it can finish before the next approach.
     const cityRunAvailable=payload>0&&parisTargets.some(target=>target.hp>0);
-    if(!this.gunHold&&!this.runTarget&&(!cityRunAvailable||this.raidWait>2.2))this.gunfire(dt,players);
+    if(!this.gunHold){
+      // Gunners cover an active bombing approach from their surviving arcs.
+      // A turret burst cannot redirect the bomber away from its city target.
+      if(this.runTarget){
+        // Only cover an established straight approach. Keep angular room for
+        // the remaining correction and let every warned row leave its real
+        // firing arc before the bomber reaches the drop/turn point.
+        const course=Math.atan2(this.runTarget.y-this.y,this.runTarget.x-this.x);
+        if(this.runRemaining>2.4&&Math.abs(wrap(course-this.a))<.12)this.gunfire(dt,players,false);
+      }
+      else if(!cityRunAvailable||this.raidWait>2.2)this.gunfire(dt,players);
+    }
   }
 }
 

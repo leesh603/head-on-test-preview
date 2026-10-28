@@ -3,22 +3,22 @@ import {combatImpactResult} from './combat-impact-result.js';
 export {equipmentTargets};
 
 export const WWI_EQUIPMENT=Object.freeze([
- Object.freeze({id:'buckinghamBelt',name:'버킹엄 소이탄 탄띠',desc:'기관총을 연속 명중시키면 적 기체에 불을 붙입니다.',family:'GUN'}),
- Object.freeze({id:'cooperRack',name:'쿠퍼 소형 폭탄 랙',desc:'전방 적을 스쳐 지나며 소형 폭탄을 연속 투하합니다.',family:'EXPLOSIVE'}),
- Object.freeze({id:'fieryGrapnel',name:'파이어리 그래프넬',desc:'스쳐 지나는 적기에 화염 갈고리를 걸어 불태웁니다.',family:'GUN'}),
- Object.freeze({id:'flechettes',name:'플레셰트 강철 화살탄',desc:'전방 적을 향해 관통 화살탄을 연속 살포합니다. 중장갑에는 위력이 감소합니다.',family:'GUN'}),
- Object.freeze({id:'veryPistol',name:'베리 신호권총',desc:'신호탄으로 전방 표적을 지정해 아군 편대의 집중 공격을 유도합니다.',family:'FORMATION'}),
- Object.freeze({id:'hytheCamera',name:'하이스 건 카메라',desc:'기관총 연속 명중으로 표적을 분석해 사격 피해를 높이고 공격 준비를 드러냅니다.',family:'GUN'})
+ Object.freeze({id:'buckinghamBelt',name:'버킹엄 소이탄 탄띠',desc:'기관총 3회 연속 명중으로 적 기체에 불을 붙입니다.',family:'GUN'}),
+ Object.freeze({id:'cooperRack',name:'쿠퍼 소형 폭탄 랙',desc:'4초마다 전방 적을 향해 소형 폭탄 2발을 연속 투하합니다.',family:'EXPLOSIVE'}),
+ Object.freeze({id:'fieryGrapnel',name:'파이어리 그래프넬',desc:'6초마다 근접 교차한 적기에 화염 갈고리를 걸어 3초간 불태웁니다.',family:'GUN'}),
+ Object.freeze({id:'flechettes',name:'플레셰트 강철 화살탄',desc:'5초마다 전방에 관통 화살탄 12발을 연속 살포합니다. 중장갑에는 위력이 감소합니다.',family:'GUN'}),
+ Object.freeze({id:'veryPistol',name:'베리 신호권총',desc:'9초마다 신호탄으로 전방 표적을 지정해 6초간 아군 편대의 집중 공격을 유도합니다.',family:'FORMATION'}),
+ Object.freeze({id:'hytheCamera',name:'하이스 건 카메라',desc:'기관총 3회 연속 명중으로 표적을 분석합니다. 6초간 기관총 피해 +30%, 공격 준비를 드러냅니다.',family:'GUN'})
 ]);
 
 export const WWI_BALANCE=Object.freeze({
- burn:Object.freeze({duration:3,grapnelDuration:1.8,dps:10,aerostatDps:18,bossDpsCap:6,aerostatBossDpsCap:10}),
- buckingham:Object.freeze({hits:5,hitGap:1.5}),
- cooper:Object.freeze({cooldown:6,stagger:.18,fuse:.55,radius:66,damage:70}),
- grapnel:Object.freeze({cooldown:15,proximity:28,maxCable:80,speed:720,life:.14,damage:28,collisionRadius:8,cableDuration:1.4}),
- flechettes:Object.freeze({cooldown:10,count:12,burst:3,stagger:.08,minDamage:12,maxDamage:16,speed:590,life:.68,spread:.06,laneWidth:24,collisionRadius:2,heavyMultiplier:.25}),
- veryPistol:Object.freeze({cooldown:18,duration:5}),
- hytheCamera:Object.freeze({hits:4,hitGap:1.5,visibility:4,damageMultiplier:1.2})
+ burn:Object.freeze({duration:3,grapnelDuration:3,dps:10,aerostatDps:18,bossDpsCap:6,aerostatBossDpsCap:10}),
+ buckingham:Object.freeze({hits:3,hitGap:1.5}),
+ cooper:Object.freeze({cooldown:4,stagger:.18,fuse:.55,radius:66,damage:70}),
+ grapnel:Object.freeze({cooldown:6,proximity:40,maxCable:110,speed:720,life:.18,damage:42,collisionRadius:8,cableDuration:2.2}),
+ flechettes:Object.freeze({cooldown:5,count:12,burst:3,stagger:.08,minDamage:12,maxDamage:16,speed:590,life:.68,spread:.06,laneWidth:24,collisionRadius:2,heavyMultiplier:.25}),
+ veryPistol:Object.freeze({cooldown:9,duration:6}),
+ hytheCamera:Object.freeze({hits:3,hitGap:1.5,visibility:6,damageMultiplier:1.3})
 });
 
 const IDS=new Set([...WWI_EQUIPMENT,...FLIGHT_EQUIPMENT].map(e=>e.id));
@@ -95,7 +95,7 @@ function igniteSharedBurn(owner,target,round,accepted){
  const starting=!(target.burnTime>0),current=starting?0:target.burnDps||0;
  if(starting){target.burnTime=round?.fieryGrapnel?WWI_BALANCE.burn.grapnelDuration:WWI_BALANCE.burn.duration;target.fuelFxAge=0;storeBurnAnchor(target,round,accepted);}
  target.burnDps=Math.max(current,dps);
- if(dps>=current)target.burnOwnerId=ownerId(owner);
+ if(dps>=current){target.burnOwnerId=ownerId(owner);target.burnSupport=false;}
 }
 
 function noteMachineGunHit(owner,round,target,now){
@@ -110,7 +110,7 @@ function noteMachineGunHit(owner,round,target,now){
   const continuing=owner.wwiHytheTargetId===id&&now-(owner.wwiHytheLastHitAt??-Infinity)<=WWI_BALANCE.hytheCamera.hitGap;
   owner.wwiHytheHits=continuing?(owner.wwiHytheHits||0)+1:1;owner.wwiHytheLastHitAt=now;
   owner.wwiHytheTargetId=id;
-  if(owner.wwiHytheHits>=WWI_BALANCE.hytheCamera.hits){owner.wwiHytheHits=0;owner.wwiHytheAnalyzedId=id;owner.wwiHytheVisible=WWI_BALANCE.hytheCamera.visibility;owner.wwiHytheShutter=.22;}
+  if(owner.wwiHytheHits>=WWI_BALANCE.hytheCamera.hits){owner.wwiHytheHits=0;owner.wwiHytheAnalyzedId=id;owner.wwiHytheVisible=WWI_BALANCE.hytheCamera.visibility;owner.wwiHytheShutter=.38;}
  }
 }
 
@@ -401,3 +401,4 @@ export function currentCameraCue(owner,world=combatWorld(owner)){
  candidates.sort((a,b)=>(a.until??Infinity)-(b.until??Infinity)||Math.hypot(finite(a.x)-owner.x,finite(a.y)-owner.y)-Math.hypot(finite(b.x)-owner.x,finite(b.y)-owner.y));
  return candidates[0];
 }
+

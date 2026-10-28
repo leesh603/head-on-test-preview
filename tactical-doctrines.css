@@ -150,12 +150,22 @@ body.astra-ui #modal.overlay.tactical-choice-modal:not(.choice-modal151):not(.bu
  grid-column:1/-1;display:block!important;width:100%;height:44px!important;min-height:44px!important;max-height:44px!important;padding:8px 12px!important;border:1px solid #736345;border-radius:7px;background:#242720;color:#d8ceba;font:inherit;font-size:13px;text-align:center;
 }
 body.astra-ui #modal.overlay.tactical-choice-modal:not(.choice-modal151):not(.build-modal151) #modalActions{grid-auto-rows:auto}
-.tactical-family-progress{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin:0 0 8px}
-.tactical-family-progress span{font-size:11px;line-height:1.4;text-align:center;padding:6px 2px;color:#a39d8f;border-bottom:1px solid #514c3d;white-space:nowrap}
-.tactical-family-progress span.committed{color:#e2c27a;border-color:#c9a24a}
+/* Family meters: a status panel, not a second tab row. */
+.tactical-family-progress{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;margin:0 0 8px;padding:0;border-radius:10px;overflow:hidden;background:#e8e2d414;box-shadow:inset 0 0 0 1px #e8e2d414}
+.tactical-family{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:2px 6px;padding:8px 10px 9px;background:#1c1b18;min-width:0}
+.tactical-family em{font-style:normal;font-size:11px;font-weight:600;color:#a39d8f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tactical-family b{font-size:11px;font-weight:700;color:#77726a;font-variant-numeric:tabular-nums}
+.tactical-family progress{grid-column:1/-1;width:100%;height:4px;margin-top:5px;border:0;border-radius:999px;overflow:hidden;background:#ffffff12;-webkit-appearance:none;appearance:none}
+.tactical-family progress::-webkit-progress-bar{background:#ffffff12;border-radius:999px}
+.tactical-family progress::-webkit-progress-value{background:#8a7a55;border-radius:999px}
+.tactical-family progress::-moz-progress-bar{background:#8a7a55;border-radius:999px}
+.tactical-family.committed em{color:#efe9da}.tactical-family.committed b{color:#e2c27a}
+.tactical-family.committed progress::-webkit-progress-value{background:#c9a24a}.tactical-family.committed progress::-moz-progress-bar{background:#c9a24a}
+.tactical-family.complete{background:#2a2518}.tactical-family.complete b{color:#f0d08a}
+.tactical-family.complete progress::-webkit-progress-value{background:#e2c27a}.tactical-family.complete progress::-moz-progress-bar{background:#e2c27a}
 #toast .tactical-activation-icon{display:inline-block;vertical-align:middle;object-fit:contain;width:24px;height:24px;margin:-3px 7px -3px 0;filter:none}
 #modal.choice-modal151 #modalText{height:38px;max-height:38px;line-height:19px;overflow:hidden}
-@media(max-width:540px){.tactical-family-progress span{font-size:10px}.effect-category151{font-size:10px}}
+@media(max-width:540px){.tactical-family{padding:7px 6px 8px;grid-template-columns:1fr}.tactical-family em,.tactical-family b{font-size:10px;text-align:center}.tactical-family b{margin-top:1px}.effect-category151{font-size:10px}}
 
 /* Explicit adoption is an action, separate from the detail back link. */
 .tactical-adopt-button{position:sticky;bottom:0;z-index:1;width:100%;margin:14px 0 4px;padding:12px 16px;border:1px solid #c9a24a;border-radius:6px;background:#c9a24a;color:#181710;font:inherit;font-weight:700;cursor:pointer}
@@ -165,3 +175,29 @@ body.astra-ui #modal.overlay.tactical-choice-modal:not(.choice-modal151):not(.bu
 /* Doctrine images share the inventory tile's existing fixed icon area. */
 body.astra-ui.playing #modal #build151 .build-tile151 .tactical-icon{display:block;width:46px;height:36px;max-width:100%;margin:0;object-fit:contain;pointer-events:none}
 html.ui423 body.astra-ui #modal.build-modal151 #build151 h4{font-family:var(--ui-font)!important;font-size:11px!important;line-height:1.3!important;letter-spacing:.06em!important}
+
+/* Codex list v2: one hint line, state chips, icon well, two-line names. */
+body.astra-ui #modal.tactical-codex-modal .tactical-index-hint{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;margin:0 0 12px;font-size:12px;line-height:1.45;color:#8f897c}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-hint b{color:#d9d3c4;font-weight:700;font-variant-numeric:tabular-nums}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-entry{height:auto;min-height:78px;align-items:center;gap:12px;padding:10px 12px 10px 10px}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-entry .tactical-icon{width:56px;height:56px;padding:4px;border-radius:10px;background:radial-gradient(circle at 50% 42%,#3a3528,#1a1916 72%);box-shadow:inset 0 0 0 1px #e8e2d414;object-fit:contain;box-sizing:border-box}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-copy{gap:4px;flex:1}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-name{display:block;min-width:0}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-meta{display:flex;align-items:center;gap:6px;min-width:0}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-meta small{min-width:0}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-name b{font-size:14px;line-height:1.3;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all}
+body.astra-ui #modal.tactical-codex-modal .tactical-chip{flex:none;padding:1px 7px;border-radius:999px;font-style:normal;font-size:10px;font-weight:700;line-height:1.5;color:#a39d8f;box-shadow:inset 0 0 0 1px #e8e2d42e;white-space:nowrap}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-copy small{font-size:11px;line-height:1.45;color:#8f897c}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-entry[data-state=locked] .tactical-icon{filter:saturate(.35) brightness(.72)}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-entry[data-state=locked] .tactical-index-name b{color:#bdb6a6}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-entry[data-state=closed]{opacity:.62}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-entry[data-state=ready]{box-shadow:inset 0 0 0 1px #c9a24a66}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-entry[data-state=ready] .tactical-chip{color:#e2c27a;box-shadow:inset 0 0 0 1px #c9a24a99}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-entry[data-state=selected] .tactical-chip{color:#1b1a17;background:#e2c27a;box-shadow:none}
+body.astra-ui #modal.tactical-codex-modal .tactical-index-entry[data-state=selected] .tactical-index-copy small{color:#bfb49d}
+@media(max-width:540px){
+ body.astra-ui #modal.tactical-codex-modal .tactical-index-entry{gap:9px;padding:9px 9px 9px 8px}
+ body.astra-ui #modal.tactical-codex-modal .tactical-index-entry .tactical-icon{width:46px;height:46px;padding:3px}
+ body.astra-ui #modal.tactical-codex-modal .tactical-index-name b{font-size:13px}
+ body.astra-ui #modal.tactical-codex-modal .tactical-index-copy small{font-size:10.5px}
+}

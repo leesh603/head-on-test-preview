@@ -1,11 +1,11 @@
 // Trim generated atlas cells by alpha once; preserve the established upgrade illustrations.
 const keys=['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','legacyExtraMagazine','cooldown','control','turn','command','damage','rate','spread','rockets','mines','armor','magnet','repair','regen'];
 export const LEGENDARY_ICON_KEYS=Object.freeze(['redScarf','prancingHorse','ironCross','telescope','flightGloves','sparkPlug','goeringBaton','immelmannManual','motorCannon','loEmblem','sacredCowling','steelPlate','mauserAceKiller','boelckeDicta','fogCompass','rearGunner','quadLewis','cow37','rankinShell','kaiserFog','grunkreuz','maximBelt','amatolCharge','lufberyCircle','urLeica','badinGauge','heineckeRettungsfallschirm','fighterSupply','mercedesEngine','combinedProjectiles','buckinghamBelt','cooperRack','fieryGrapnel','flechettes','veryPistol','hytheCamera','strutterAirbrake','wimperisSight']);
-const frames=new Map();
-function loadIconAtlas(file,columns,rows,names,smooth=false){return new Promise(resolve=>{const atlas=new Image();atlas.onload=()=>{
+const frames=new Map(),atlasIconReady=new Map();
+function loadIconAtlas(file,columns,rows,names,smooth=false){const ready=new Promise(resolve=>{const atlas=new Image();atlas.onload=()=>{
  const c=document.createElement('canvas');c.width=atlas.naturalWidth;c.height=atlas.naturalHeight;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(atlas,0,0);const d=ctx.getImageData(0,0,c.width,c.height).data;
  names.forEach((key,i)=>{const x0=Math.round(i%columns*c.width/columns),x1=Math.round((i%columns+1)*c.width/columns),y0=Math.round(Math.floor(i/columns)*c.height/rows),y1=Math.round((Math.floor(i/columns)+1)*c.height/rows);let l=x1,r=x0,t=y1,b=y0;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(d[(y*c.width+x)*4+3]>100){l=Math.min(l,x);r=Math.max(r,x);t=Math.min(t,y);b=Math.max(b,y)}if(r>=l&&b>=t&&!frames.get(key)?.direct)frames.set(key,{atlas,x:l,y:t,w:r-l+1,h:b-t+1,smooth})});resolve(true)
-};atlas.onerror=()=>resolve(false);atlas.src=file})}
+};atlas.onerror=()=>resolve(false);atlas.src=file});for(const key of names)atlasIconReady.set(key,{file,ready});return ready}
 function loadDirectIcon(file,key){return new Promise(resolve=>{const icon=new Image();icon.onload=()=>{if(key.startsWith('cooldown-')){
  const canvas=document.createElement('canvas');canvas.width=icon.naturalWidth;canvas.height=icon.naturalHeight;const c=canvas.getContext('2d',{willReadFrequently:true});c.drawImage(icon,0,0);const pixels=c.getImageData(0,0,canvas.width,canvas.height),d=pixels.data,w=canvas.width,h=canvas.height;
  // Remove only edge-connected near-black backdrop; enclosed medal details stay intact.
@@ -29,12 +29,12 @@ const DIRECT_ICONS=Object.freeze({
  urLeica:'ur_leica_camera.webp',badinGauge:'badin_gauge.webp',heineckeRettungsfallschirm:'heinecke_rettungsfallschirm.webp',bomberTransfer:'bomber_squadron_transfer_orders.webp',mgTransfer:'concentrated_firepower_refit_orders.webp',airshipTransfer:'airship_mobilization_orders.webp'
 });
 const atlasReady=Promise.all([
- loadIconAtlas('./icons51.webp?v=tame3',5,4,keys,true),
- loadIconAtlas('./controls53.webp?v=tame3',2,2,['control','turn','command','cooldown']),
- loadIconAtlas('./special-ammo-icons92.webp?v=tame3',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
- loadIconAtlas('./legendary-icons103.webp?v=tame3',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
- loadIconAtlas('./gun-atlas114.webp?v=tame3',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
- loadIconAtlas('./legendary-icons109.webp?v=tame3',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
+ loadIconAtlas('./icons51.webp?v=headon-result339-20261028',5,4,keys,true),
+ loadIconAtlas('./controls53.webp?v=headon-result339-20261028',2,2,['control','turn','command','cooldown']),
+ loadIconAtlas('./special-ammo-icons92.webp?v=headon-result339-20261028',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
+ loadIconAtlas('./legendary-icons103.webp?v=headon-result339-20261028',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
+ loadIconAtlas('./gun-atlas114.webp?v=headon-result339-20261028',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
+ loadIconAtlas('./legendary-icons109.webp?v=headon-result339-20261028',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
  loadIconAtlas('./relic-maxim-belt128.webp',1,1,['maximBelt'],true),
  loadIconAtlas('./relic-steel-plate128.webp',1,1,['steelPlate'],true),
  loadIconAtlas('./relic-immelmann-manual128.webp',1,1,['immelmannManual'],true),
@@ -44,7 +44,14 @@ const atlasReady=Promise.all([
 // The hangar only needs the atlases and the faction emblems/medals; the upgrade illustrations
 // (several MB) load behind them and are only drawn in battle.
 const HANGAR_ICONS=new Set(['cooldown-central','cooldown-entente','emblemCentral','emblemEntente']);
-const directLoads=Object.entries(DIRECT_ICONS).map(([key,file])=>loadDirectIcon('./augmentation-icons/'+file+'?v=tame3',key).then(ok=>[key,ok]));
+const directIconReady=new Map();
+const directLoads=Object.entries(DIRECT_ICONS).map(([key,file])=>{const ready=loadDirectIcon('./augmentation-icons/'+file+'?v=headon-result339-20261028',key);directIconReady.set(key,ready);return ready.then(ok=>[key,ok])});
+// A visible card must not wait for unrelated equipment downloads to repaint.
+export function gameIconReady(key){
+ const atlas=atlasIconReady.get(key),file=DIRECT_ICONS[key]?'./augmentation-icons/'+DIRECT_ICONS[key]+'?v=headon-result339-20261028':atlas?.file;
+ if(file&&typeof window!=='undefined')window.HEADON_GATE?.raise([file]);
+ return directIconReady.get(key)||atlas?.ready||atlasReady;
+}
 export const hangarIconsReady=Promise.all([atlasReady,...directLoads.filter((_,i)=>HANGAR_ICONS.has(Object.keys(DIRECT_ICONS)[i]))]).then(([results,...direct])=>results.every(Boolean)&&direct.every(([,ok])=>ok));
 export const iconsReady=atlasReady.then(async results=>{
  const direct=await Promise.all(directLoads);

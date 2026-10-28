@@ -22,7 +22,7 @@ function img(v) {
       g.drawImage(im, 0, 0, sprite.width, sprite.height);
       IMGS.set(v, sprite);
     };
-    im.src = new URL('./' + FILES[v] + '?v=bomb20', import.meta.url).href;
+    im.src = new URL('./' + FILES[v] + '?v=headon-result339-20261028', import.meta.url).href;
     IMGS.set(v, im);
   }
   return im;

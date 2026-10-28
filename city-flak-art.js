@@ -1,4 +1,4 @@
-import {CITY_FLAK_HULL_SIZE,CITY_FLAK_PIVOT_Y,CITY_FLAK_WEAPONS} from './city-flak-geometry.js?v=qf1023';
+import {CITY_FLAK_HULL_SIZE,CITY_FLAK_PIVOT_Y,CITY_FLAK_WEAPONS} from './city-flak-geometry.js?v=headon-result339-20261028';
 const frame=512;
 export function drawCityFlakStructure(c,b,atlas){
  if(!atlas?.naturalWidth)return false;

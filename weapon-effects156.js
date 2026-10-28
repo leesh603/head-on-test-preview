@@ -1,9 +1,9 @@
 import {drawProjectileTactic} from './gun-signatures.js';
-import {drawExplosionProfile} from './explosion-profiles.js?v=fx5';
-import {drawGameIcon} from './icons.js?v=buildfit1&afc=1';
-import {fx,fxReady,FX56,FX3} from './fx-art.js?v=tame3';
-import {fxsBoom} from './fx-sample-preview.js?v=pilotfx20261018';
-import {drawOrdnanceFlightTrail} from './ordnance-art.js?v=tame3';
+import {drawExplosionProfile} from './explosion-profiles.js?v=headon-result339-20261028';
+import {drawGameIcon} from './icons.js?v=headon-result339-20261028&afc=1';
+import {fx,fxReady,FX56,FX3} from './fx-art.js?v=headon-result339-20261028';
+import {fxsBoom} from './fx-sample-preview.js?v=headon-result339-20261028';
+import {drawOrdnanceFlightTrail} from './ordnance-art.js?v=headon-result339-20261028';
 
 export function grenadeVisualPose(g,out={}){
  const dx=g.targetX-g.startX,dy=g.targetY-g.startY;
@@ -133,7 +133,7 @@ function drawRoleExplosion(c,f,x,y,radius,q,frame){
 // Approved four-stage Amatol artwork. Ordinary grenade and mine effects keep
 // their existing renderer; this layer is used only by Amatol-tagged blasts.
 const amatolEffect=typeof Image==='undefined'?null:new Image();
-if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=r5';
+if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=headon-result339-20261028';
 const AMATOL_FRAMES=[[19,319,306,315],[321,261,427,427],[744,227,475,503],[1209,245,463,489]];
 export function drawAmatolBlast(c,f,x,y){
  drawAmatolBlastBase(c,f,x,y);

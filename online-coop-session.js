@@ -1,4 +1,4 @@
-import {OnlineCoopGame} from './online-coop-game.js?v=buildfit1&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022';
+import {OnlineCoopGame} from './online-coop-game.js?v=headon-result339-20261028&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&momentum=20261027';
 
 export function relayUrl(){
  const configured=globalThis.HEADON_COOP_RELAY||new URLSearchParams(location.search).get('coopRelay');
@@ -53,7 +53,7 @@ export function installOnlineLobby({getLoadout,getGame,onStart,onEnd}){
  const close=()=>{session?.leave();session=null;ready=false;panel.classList.add('hidden');mode.setAttribute('aria-pressed','false');$('onlineReady').hidden=true;$('onlineCreate').disabled=false;$('onlineJoin').disabled=false;$('onlineCode').disabled=false;$('onlineRoomCode').textContent='';$('onlinePlayers').replaceChildren();message('방을 만들거나 친구의 코드를 입력하세요.');$('onlineLeave').textContent='닫기';if(!getGame())$('onlineCoopEntry')?.focus({preventScroll:true});};
  mode.onclick=()=>{if(getGame())return;seat();panel.classList.toggle('hidden');mode.setAttribute('aria-pressed',String(!panel.classList.contains('hidden')));if(!panel.classList.contains('hidden'))$('onlineCreate').focus({preventScroll:true});};
  const open=type=>{
-  if(getGame())return;const enteredCode=$('onlineCode').value.trim().toUpperCase();if(type==='join'&&!/^[A-Z2-9]{6}$/.test(enteredCode)){message('6자리 방 코드를 확인하세요.');$('onlineCode').focus();return;}session?.leave();ready=false;
+  if(getGame())return;const config=getLoadout();if(!config){message('먼저 편대에 합류한 파일럿을 선택하세요.');return;}const enteredCode=$('onlineCode').value.trim().toUpperCase();if(type==='join'&&!/^[A-Z2-9]{6}$/.test(enteredCode)){message('6자리 방 코드를 확인하세요.');$('onlineCode').focus();return;}session?.leave();ready=false;
   let url;try{url=relayUrl();}catch(e){message(e.message);return;}
   session=new OnlineSession({url,onStatus:message,onLobby:m=>{
    $('onlineRoomCode').textContent='방 코드 · '+m.code;$('onlineCreate').disabled=true;$('onlineJoin').disabled=true;$('onlineCode').disabled=true;$('onlineLeave').textContent='방 나가기';
@@ -62,10 +62,10 @@ export function installOnlineLobby({getLoadout,getGame,onStart,onEnd}){
    $('onlineCode').value=m.code;
   },onStart:(s,data)=>{status.hidden=false;panel.classList.add('hidden');onStart(s,data);},onEnd:reason=>{message(reason);$('onlineReady').hidden=true;$('onlineCreate').disabled=false;$('onlineJoin').disabled=false;$('onlineCode').disabled=false;onEnd(reason);}});
   const code=$('onlineCode').value.trim().toUpperCase();let token;try{const saved=JSON.parse(sessionStorage.getItem('headon-online-room')||'null');if(type==='join'&&saved?.code===code&&saved.url===url)token=saved.token;}catch{}
-  session.connect({type,code,token,config:getLoadout()});
+  session.connect({type,code,token,config});
  };
  $('onlineCreate').onclick=()=>open('create');$('onlineJoin').onclick=()=>open('join');
- $('onlineReady').onclick=()=>{if(session?.send({type:'ready',ready:!ready}))ready=!ready;};
+ $('onlineReady').onclick=()=>{if(!getLoadout()){message('먼저 편대에 합류한 파일럿을 선택하세요.');return;}if(session?.send({type:'ready',ready:!ready}))ready=!ready;};
  $('onlineLeave').onclick=close;
  panel.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();close();return;}if(e.key==='Enter'&&e.target===$('onlineCode')){e.preventDefault();open('join');return;}if(e.key==='Tab'){const buttons=[...panel.querySelectorAll('button:not([hidden]):not(:disabled),input:not(:disabled)')];const first=buttons[0],last=buttons.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}};
  return {close(){close();status.hidden=true;},createGame:(s,data)=>new OnlineCoopGame(s,data),input(g,inputs,joy){return g.localInput(inputs,joy);},controls(g){

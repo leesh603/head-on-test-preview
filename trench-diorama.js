@@ -36,7 +36,7 @@ export const dioramaStats={ready:false,draws:0,zones:0,frame:0,decodedBytes:0};
 export function prepareTrenchDiorama(){
  if(loading)return loading;if(failed||typeof Image==='undefined')return Promise.resolve(false);
  const token=++generation,im=new Image();image=im;im.decoding='async';
- loading=new Promise(resolve=>{settle=resolve;im.onload=async()=>{try{await im.decode?.()}catch{}if(token!==generation){resolve(false);return}dioramaStats.ready=im.naturalWidth===1024;dioramaStats.decodedBytes=dioramaStats.ready?DIORAMA.decodedBytes:0;resolve(dioramaStats.ready)};im.onerror=()=>{failed=true;resolve(false)};im.src='./trench-diorama-20261016.webp?v=td1'});
+ loading=new Promise(resolve=>{settle=resolve;im.onload=async()=>{try{await im.decode?.()}catch{}if(token!==generation){resolve(false);return}dioramaStats.ready=im.naturalWidth===1024;dioramaStats.decodedBytes=dioramaStats.ready?DIORAMA.decodedBytes:0;resolve(dioramaStats.ready)};im.onerror=()=>{failed=true;resolve(false)};im.src='./trench-diorama-20261016.webp?v=headon-result339-20261028'});
  return loading;
 }
 export function releaseTrenchDiorama(){if(!image)return;generation++;settle?.(false);settle=null;image.onload=image.onerror=null;image.src='';image=null;loading=null;dioramaStats.ready=false;dioramaStats.decodedBytes=0;}

@@ -1,4 +1,7 @@
-import {BANK_LIVERIES,BANK_LIVERY_FAMILIES} from './aircraft-bank-liveries.js?v=bank2';
+import {configureAirship} from './air-threat-profiles.js';
+import {CONCEPT_AIRFRAMES} from './aircraft-concept-profiles.js';
+import {configureConceptEnemy,fireConceptEnemy,remapConceptVolley,steerConceptBomber,updateConceptAircraft} from './aircraft-concept-combat.js';
+import {BANK_LIVERIES,BANK_LIVERY_FAMILIES} from './aircraft-bank-liveries.js?v=headon-result339-20261028';
 // Stock-bank aircraft in ordinary encounters. Enemy-only fittings; never touch pilot loadouts.
 // Each row: id, display name, faction, WWI service year, role, existing handling archetype,
 // cruise / durability / turning / firing-interval multipliers, and sprite scale.
@@ -39,22 +42,29 @@ const rows = [
  // Match the established Zeppelin's ~368-world-unit hull; keep smaller blimps proportional.
  ['zeppelin_l30','Zeppelin L.30','central',1916,'airship','parseval',.81,1.36,.67,1.05,5.28],
  ['ss_blimp','SS Type Blimp','entente',1915,'airship','parseval',.93,.72,1.13,1.17,4.18],
- ['parseval_pl25','Parseval PL.25','central',1915,'airship','parseval',1.06,.88,.91,1.12,4.45]
+ ['parseval_pl25','Parseval PL.25','central',1915,'airship','parseval',1.06,.88,.91,1.12,4.45],
+ ['halberstadt_dii','Halberstadt D.II','central',1916,'fighter','albatros',1.01,1.10,.98,.95,1.00],
+ ['roland_cii','Roland C.II','central',1916,'recon','halberstadt_duo',.91,1.20,.85,1.26,1.09],
+ ['farman_f40','Farman F.40','entente',1915,'recon','caudron_g4',.80,2.15,.72,.93,1.52],
+ ['grigorovich_m9','Grigorovich M-9','entente',1916,'sea-recon','macchi_m3',.76,1.29,.83,1.29,1.28],
+ // Completed in 1918 but did not enter combat in the First World War.
+ ['vickers_vimy','Vickers Vimy','entente',1918,'bomber','gotha',.72,3.30,.42,1.40,1.85,false],
+ ['handley_page_v1500','Handley Page V/1500','entente',1918,'bomber','gotha',.64,3.80,.38,1.45,2.04,false]
 ];
 // Existing dogfight archetypes supply AI decisions for fits not previously playable.
 const aiBase=Object.freeze({pup:'nieuport',dolphin:'se5a',strutter:'re7',dh4:'bristol_duo',re8:'re7',pfalz_d12:'pfalz_d3a',junkers_d1:'spad12',siemens_d4:'fokkerdv',gotha:'re7',caudron_g4:'re7',phonix_d1:'albatros',hannover_cl3:'halberstadt_duo',gunbus:'airco_dh2',aviatik:'re7',be2c:'re7',ff33:'re7',macchi_m3:'re7',hb_w29:'nieuport',lohner_l:'re7',parseval:'re7'});
 const seaRoles=new Set(['sea-fighter','sea-recon','sea-bomber']);
 const seaRegions=new Set([1,7,16,17]);
 export const BANK_AIRFRAMES=Object.freeze(Object.fromEntries(rows.map(
- ([id,name,faction,year,role,base,speed,hp,turn,fire,scale])=>[
+ ([id,name,faction,year,role,base,speed,hp,turn,fire,scale,historicalCombat])=>[
   (role==='airship'?'bank_airship_':seaRoles.has(role)?'bank_sea_':'bank_plane_')+id,
-  Object.freeze({id,name,faction,year,role,base,speed,hp,turn,fire,scale})
+  Object.freeze({id,name,faction,year,role,base,speed,hp,turn,fire,scale,...historicalCombat===false?{historicalCombat:false}:{}})
  ]
 )));
 export const BANK_AIRFRAME_COUNT=rows.length;
-// Alpha-aware compositing and real renderer QA approved all 36 stock sprites.
+// Only registered stock sprites may pass the renderer's asynchronous art gate.
 export const BANK_ART_APPROVED=Object.freeze(rows.map(row=>row[0]));
-export const BANK_ENCOUNTER_AIRFRAMES=Object.freeze({...BANK_AIRFRAMES,...BANK_LIVERIES});
+export const BANK_ENCOUNTER_AIRFRAMES=Object.freeze({...BANK_AIRFRAMES,...BANK_LIVERIES,...CONCEPT_AIRFRAMES});
 // Reuse the renderer's baked sprite, never a separate Image or a placeholder.
 // Requested only at spawn time; at most two loads and a 30-second failure backoff.
 export function createBankArtGate(load,now=Date.now,isCached=null){
@@ -75,15 +85,20 @@ let aircraftRenderer,rendererModule;
 const bankArtReady=createBankArtGate(key=>{
  if(typeof window==='undefined'||typeof document==='undefined')return false;
  // Exact same module URL as app.js: no second renderer/cache or eager bank preload.
- return (aircraftRenderer??=import('./aircraft.js?v=outline2&art=pilot-recovery2')).then(art=>{rendererModule=art;return art.paintedReady(key)});
+ return (aircraftRenderer??=import('./aircraft.js?v=headon-result339-20261028&art=pilot-recovery2&pf=1027')).then(art=>{rendererModule=art;return art.paintedReady(key)});
 },Date.now,key=>rendererModule?.hasPaintedAircraft(key)===true);
 const ordinaryFits=new Set(['fokker_standard','parseval','gotha','ff33','lohner_l','macchi_m3','macchi_m5','hansa_brandenburg_cc','hb_w29','bristol_duo','re7',...Object.keys(BANK_LIVERY_FAMILIES),...Object.values(BANK_LIVERIES).map(fit=>fit.base)]);
 const regular=e=>e&&e.hp>0&&!e.bossPilot&&!e.bossPlane&&!e.bossMinion&&!e.stageBossBody&&!e.heavyBomber&&!e.missionTarget&&!e.fieldUnit&&!e.surface&&!e.stationary&&!e.navalVessel&&!e.formationLeader;
-const candidates=(faction,type,sea,time,game)=>{
+export const bankEncounterCandidates=(faction,type,sea,time,game)=>{
  const historical=Number(game?.stage?.historicalAnchorDate?.slice(0,4));
  const phase=game?.mode==='campaign'&&historical?historical:time>=210?1918:time>=45?1917:1916;
  return Object.entries(BANK_ENCOUNTER_AIRFRAMES).filter(([,v])=>{
-  if(v.faction!==faction||v.year>phase)return false;
+  const nonhistorical=game?.mode!=='campaign'&&!game?.historicalMode&&!game?.stage?.historicalAnchorDate;
+  const encounterYear=v.endlessFromYear&&nonhistorical&&time>=v.endlessAfter?v.endlessFromYear:v.year;
+  if(v.faction!==faction||encounterYear>phase)return false;
+  if(v.encounterTypes&&!v.encounterTypes.includes(type))return false;
+  if(v.conceptId&&v.historicalCombat===false&&!nonhistorical)return false;
+  if(game?.mode==='campaign'&&v.historicalCombat===false)return false;
   if(v.role==='airship')return type==='zeppelin'&&(v.id!=='ss_blimp'||sea);
   if(type==='zeppelin')return false;
   if(sea&&seaRoles.has(v.role)){
@@ -97,7 +112,7 @@ const candidates=(faction,type,sea,time,game)=>{
 };
 // Shuffle-bag, not independent random dice: eligible airframes rotate without repeating
 // until a faction / role / era pool is exhausted. No save data or extra spawn entities.
-function choose(game,pool,group){
+function chooseBag(game,pool,group){
  // Rotate families first: eight paints must not make one model eight times likelier.
  const families=new Map();
  const stockFamilies={nieuport_11_bebe:'nieuport11',nieuport_24:'nieuport24',sopwith_pup:'pup',sopwith_dolphin:'dolphin',sopwith_strutter:'strutter',sopwith_triplane:'triplane',phoenix_d1:'phonix_d1',friedrichshafen_ff33:'ff33'};
@@ -118,6 +133,19 @@ function choose(game,pool,group){
  }
  const key=paintDeck.remaining.pop();return [key,BANK_ENCOUNTER_AIRFRAMES[key]];
 }
+// Keep the director's shared RNG draw budget exactly as the pre-expansion
+// family/paint bags. New art diversity must not perturb formation scheduling.
+function choose(game,pool,group,seedRoll){
+ const legacyPool=pool.filter(([,fit])=>!fit.conceptId);
+ const legacy=legacyPool.length?chooseBag(game,legacyPool,group):null;
+ if(legacyPool.length===pool.length)return legacy;
+ let selection=game.bankConceptSelection;
+ if(!selection){
+  let state=(Math.floor((seedRoll||0)*4294967296)^0x6a09e667)>>>0;
+  selection=game.bankConceptSelection={rng:()=>((state=(Math.imul(state,1664525)+1013904223)>>>0)/4294967296)};
+ }
+ return chooseBag(selection,pool,group);
+}
 export function installAircraftBankRoster(Game,planes,attach,artReady=bankArtReady){
  if(Object.hasOwn(Game.prototype,'__aircraftBankRoster'))return;Game.prototype.__aircraftBankRoster=true;
  const prior=Game.prototype.spawnEnemy;
@@ -127,24 +155,26 @@ export function installAircraftBankRoster(Game,planes,attach,artReady=bankArtRea
   // the newly added unit, never mistake an older enemy for the current spawn.
   const e=returned||(this.enemies?.length>before?this.enemies.at(-1):null);
   if(!regular(e)||!['scout','hunter','bomber','zeppelin'].includes(e.type))return returned;
+  const threatBase=e.type==='zeppelin'?{hp:e.hp,maxHp:e.maxHp,speed:e.speed,fire:e.fire}:null;
+  const finish=()=>{if(threatBase){const candidate={...e,...threatBase};if(configureAirship(this,candidate)){for(const k of ['bankAircraft','bankHandlingBase','bankFireFactor','bankTurnFactor','escortPlane','formationLivery'])delete e[k];Object.assign(e,candidate);}}return e;};
   // Respect scripted veterans, squadron-specific art and existing airframe assignments.
-  if(this.bossMechanicSpawn||e.bossEscort||e.directorSquad?.tactic==='veteran')return e;
-  if(e.escortPlane&&!ordinaryFits.has(e.escortPlane))return e;
+  if(this.bossMechanicSpawn||e.bossEscort||e.directorSquad?.tactic==='veteran')return finish();
+  if(e.escortPlane&&!ordinaryFits.has(e.escortPlane))return finish();
   const sea=seaRegions.has(this.worldRegion?.()),roll=this.rng();
-  if(roll>(sea?.82:e.type==='zeppelin'?.92:e.type==='bomber'?.64:.72))return e;
+  if(roll>(sea?.82:e.type==='zeppelin'?.92:e.type==='bomber'?.64:.72))return finish();
   const seaPick=sea&&e.type!=='zeppelin'&&this.rng()<.78;
-  let pool=candidates(e.faction,e.type,e.type==='zeppelin'?sea:seaPick,this.t||0,this);
+  let pool=bankEncounterCandidates(e.faction,e.type,e.type==='zeppelin'?sea:seaPick,this.t||0,this);
   // Sea encounters retain their geographic role; no extra spawn entities are added.
-  if(!pool.length&&seaPick)return e;
-  if(!pool.length)return e;
+  if(!pool.length&&seaPick)return finish();
+  if(!pool.length)return finish();
   const group=e.faction+':'+e.type+':'+(seaPick?'sea':'land')+':'+(this.t>=210?'late':this.t>=45?'mid':'early');
   const waiting=this.bankRosterPending??=Object.create(null);
   const pending=waiting[group];
-  const [key,pick]=pending&&pool.some(([key])=>key===pending.key)&&Date.now()-pending.at<30000?[pending.key,BANK_ENCOUNTER_AIRFRAMES[pending.key]]:choose(this,pool,group);
+  const [key,pick]=pending&&pool.some(([key])=>key===pending.key)&&Date.now()-pending.at<30000?[pending.key,BANK_ENCOUNTER_AIRFRAMES[pending.key]]:choose(this,pool,group,roll);
   // A slow/failed image keeps this unit's original art, stats and collision.
   // A later spawn can use the ready sprite; never swap an aircraft mid-flight.
   rendererModule?.retainBankArtwork((this.enemies||[]).filter(u=>u.hp>0||u.crashing).map(u=>u.bankAircraft).filter(Boolean));
-  if(!artReady(key)){waiting[group]={key,at:pending?.key===key?pending.at:Date.now()};return e;}
+  if(!artReady(key)){waiting[group]={key,at:pending?.key===key?pending.at:Date.now()};return finish();}
   delete waiting[group];
   // This is an NPC airframe only. Existing player PLANES/WEAPONS/skills are untouched.
   e.bankAircraft=key;e.bankHandlingBase=aiBase[pick.base]||pick.base;e.escortPlane=key;e.name=pick.name;
@@ -160,12 +190,17 @@ export function installAircraftBankRoster(Game,planes,attach,artReady=bankArtRea
   e.visualScale=pick.scale;
   // The steering hook recognises bankHandlingBase and reuses the established archetype.
   attach(planes,e,e.bankHandlingBase);
-  return e;
+  if(pick.conceptId)configureConceptEnemy(e,pick);
+  return finish();
  };
  const fire=Game.prototype.fireEnemy;
- Game.prototype.fireEnemy=function(e,...args){const result=fire.call(this,e,...args);if(e?.bankAircraft&&e.escortPlane===e.bankAircraft&&e.bankFireFactor)e.fire*=e.bankFireFactor;return result};
+ Game.prototype.fireEnemy=function(e,...args){if(fireConceptEnemy(this,e))return;const result=fire.call(this,e,...args);if(e?.bankAircraft&&e.escortPlane===e.bankAircraft&&e.bankFireFactor)e.fire*=e.bankFireFactor;return result};
  const steer=Game.prototype.dogfightSteering;
  Game.prototype.dogfightSteering=function(e,...args){const result=steer.call(this,e,...args);if(result&&e?.bankAircraft&&e.escortPlane===e.bankAircraft&&e.bankTurnFactor)result.turn*=e.bankTurnFactor;return result};
+ const volley=Game.prototype.enemyVolley;
+ if(typeof volley==='function')Game.prototype.enemyVolley=function(e,...args){if(fireConceptEnemy(this,e))return;const start=this.bullets?.length||0;const result=volley.call(this,e,...args);remapConceptVolley(this,e,start);return result};
+ const bomberSteer=Game.prototype.directorBomberSteering;
+ Game.prototype.directorBomberSteering=function(e,contact,dt,baseTurn){const result=bomberSteer?.call(this,e,contact,dt,baseTurn);return steerConceptBomber(this,e,contact,dt,baseTurn,result)};
  const update=Game.prototype.update;
- Game.prototype.update=function(...args){rendererModule?.retainBankArtwork((this.enemies||[]).filter(e=>e.hp>0||e.crashing).map(e=>e.bankAircraft).filter(Boolean));return update.apply(this,args)};
+ Game.prototype.update=function(...args){updateConceptAircraft(this,args[0]);rendererModule?.retainBankArtwork((this.enemies||[]).filter(e=>e.hp>0||e.crashing).map(e=>e.bankAircraft).filter(Boolean));return update.apply(this,args)};
 }

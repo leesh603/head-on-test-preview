@@ -1,4 +1,4 @@
-import {getLocale,subscribe,t} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {getLocale,subscribe,t} from './i18n.js?v=headon-result339-20261028&afc=1&art=pilot-recovery2';
 
 
 const $=id=>document.getElementById(id);
@@ -21,7 +21,7 @@ if(hangar){
  for(const [action,key]of items){
   const control=action==='records'?document.createElement('a'):document.createElement('button');
   if(control.tagName==='BUTTON')control.type='button';
-  if(action==='records'){control.href='./field-record.html?v=buildfit1&rail=40';control.target='_blank';control.rel='noopener'}
+  if(action==='records'){control.href='./field-record.html?v=headon-result339-20261028&rail=40';control.target='_blank';control.rel='noopener'}
   control.dataset.action=action;
   if(action==='online')control.id='onlineCoopEntry';
   const full=document.createElement('span');full.className='operation-label-full';
@@ -74,4 +74,4 @@ if(hangar){
 }
 
 // Direct Astra implementation: all live controls and data bindings are preserved.
-import("./astra-interface180.js?v=buildfit1&afc=1&art=pilot-recovery2&hangar=atomic1");
+import("./astra-interface180.js?v=headon-result339-20261028&afc=1&art=pilot-recovery2&hangar=atomic1&hud=lowammo5&activeicon=canvas20261026&pf=1027");

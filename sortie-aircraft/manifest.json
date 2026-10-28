@@ -6,8 +6,8 @@
       288,
       320
     ],
-    "flightBytes": 38932,
-    "sha256": "bd1c8f4bd660b006109cac59660f870014d3dcc539f16161fb74954bfc8e6a01",
+    "flightBytes": 38812,
+    "sha256": "06a8272bfb3607edc1a181538349dfb99fc9a8d3d4be05d36f68fcc3ece4f9ca",
     "pivot": [
       144,
       152
@@ -17,7 +17,9 @@
       576,
       640
     ],
-    "sharedMaster": "source-art/airframe-families-20261023/masters/spad13.webp"
+    "sharedMaster": "source-art/airframe-families-20261023/masters/spad13.webp",
+    "preCrewSha256": "bd1c8f4bd660b006109cac59660f870014d3dcc539f16161fb74954bfc8e6a01",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "luke_spad": {
     "source": "source-art/pilot-aircraft-recovery/luke_spad.png",
@@ -26,8 +28,8 @@
       288,
       320
     ],
-    "flightBytes": 38812,
-    "sha256": "94a725155e5e448f7ff0010467992c5a525e3f898cbc30342d41fc35a7fb1c29",
+    "flightBytes": 39290,
+    "sha256": "f8b75fe3438b96944e50494f508e0f26bbea4f90dd475a72850efb3b9a7c6fb5",
     "pivot": [
       144,
       152
@@ -37,7 +39,9 @@
       576,
       640
     ],
-    "sharedMaster": "source-art/airframe-families-20261023/masters/spad13.webp"
+    "sharedMaster": "source-art/airframe-families-20261023/masters/spad13.webp",
+    "preCrewSha256": "94a725155e5e448f7ff0010467992c5a525e3f898cbc30342d41fc35a7fb1c29",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "bishop_nieuport": {
     "source": "source-art/pilot-aircraft-recovery/bishop_nieuport.png",
@@ -46,8 +50,8 @@
       288,
       320
     ],
-    "flightBytes": 28394,
-    "sha256": "7151ee37cc836b85bf66f0ad98725ea3b33889adcf5d6bff8450f20d6eb16144",
+    "flightBytes": 28400,
+    "sha256": "d74d2c5ad71aca1af0c9ecb8673a5c20c2b16d4fa3806e836b8e072c1e95e798",
     "pivot": [
       144,
       152
@@ -57,7 +61,9 @@
       576,
       640
     ],
-    "sharedMaster": "source-art/airframe-families-20261023/masters/nieuport17.png"
+    "sharedMaster": "source-art/airframe-families-20261023/masters/nieuport17.png",
+    "preCrewSha256": "7151ee37cc836b85bf66f0ad98725ea3b33889adcf5d6bff8450f20d6eb16144",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "bishop_se5a": {
     "source": "source-art/pilot-aircraft-recovery/bishop_se5a.png",
@@ -66,8 +72,8 @@
       288,
       320
     ],
-    "flightBytes": 32854,
-    "sha256": "1263fa003cfaa4c26d5f5089450c56be0994cfcc86c219a1148636a7357d6335",
+    "flightBytes": 33098,
+    "sha256": "e333d7ac78e06934e9d097c6f1239a9fdd54ad1c18d17778e9148df7e56078f2",
     "pivot": [
       144,
       152
@@ -77,7 +83,9 @@
       576,
       640
     ],
-    "sharedMaster": "source-art/airframe-families-20261023/masters/se5a.png"
+    "sharedMaster": "source-art/airframe-families-20261023/masters/se5a.png",
+    "preCrewSha256": "1263fa003cfaa4c26d5f5089450c56be0994cfcc86c219a1148636a7357d6335",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "voss_pfalz": {
     "source": "source-art/pilot-aircraft-recovery/preserved/voss_pfalz.webp",
@@ -86,8 +94,8 @@
       288,
       320
     ],
-    "flightBytes": 43414,
-    "sha256": "069dd7db740573ead4eaa5ffb605df4e0ccba86bf9b0a7ab636183f6b8a26770",
+    "flightBytes": 43692,
+    "sha256": "ac118a8db7ccba81d1de6659383e3384cb0e1d4be3aa209bb3bb23c7e3164aa7",
     "pivot": [
       144,
       152
@@ -96,7 +104,9 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "preCrewSha256": "069dd7db740573ead4eaa5ffb605df4e0ccba86bf9b0a7ab636183f6b8a26770",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "udet_dr1": {
     "source": "source-art/pilot-aircraft-recovery/udet_dr1.png",
@@ -105,8 +115,8 @@
       288,
       320
     ],
-    "flightBytes": 40862,
-    "sha256": "9b38b5af2a2a73940d96e408966042a98e87749b0968a173ef51dff5efcbe1fc",
+    "flightBytes": 32522,
+    "sha256": "35815253edd99afa442000f758026add9fe89d585d1895f77ce0a4e2796ca160",
     "pivot": [
       144,
       152
@@ -116,7 +126,9 @@
       576,
       640
     ],
-    "sharedMaster": "source-art/dr1-family-20261023/master.png"
+    "sharedMaster": "source-art/dr1-family-20261023/master.png",
+    "preCrewSha256": "9b38b5af2a2a73940d96e408966042a98e87749b0968a173ef51dff5efcbe1fc",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "goering_dr1": {
     "source": "source-art/pilot-aircraft-recovery/goering_dr1.png",
@@ -125,8 +137,8 @@
       288,
       320
     ],
-    "flightBytes": 40030,
-    "sha256": "1eeda726d1520d73d686445afcfe4a5b4a288d3f3c30f427c2d8bf9f07ef0870",
+    "flightBytes": 31266,
+    "sha256": "8404a971c53548d7b06a9ab6c158778d673d2532d568c0a37558b8cec72bb2d1",
     "pivot": [
       144,
       152
@@ -136,7 +148,9 @@
       576,
       640
     ],
-    "sharedMaster": "source-art/dr1-family-20261023/master.png"
+    "sharedMaster": "source-art/dr1-family-20261023/master.png",
+    "preCrewSha256": "1eeda726d1520d73d686445afcfe4a5b4a288d3f3c30f427c2d8bf9f07ef0870",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "berthold_d7": {
     "source": "source-art/pilot-aircraft-recovery/berthold_d7.png",
@@ -145,8 +159,8 @@
       288,
       320
     ],
-    "flightBytes": 38898,
-    "sha256": "411d52758d35f04eb51eb4f7359c2efdb44d383dbabc19c1040fdf6c80dc3ae5",
+    "flightBytes": 39010,
+    "sha256": "3143f751e80534e22c5aacfdf62c83edb69a02361d9a8a1edc631fed1efe7b03",
     "pivot": [
       144,
       152
@@ -157,7 +171,9 @@
       640
     ],
     "sharedMaster": "source-art/airframe-families-20261023/masters/fokker_d7.webp",
-    "authoredRepaint": "source-art/aircraft-repaint-20261024/berthold_d7.png"
+    "authoredRepaint": "source-art/aircraft-repaint-20261024/berthold_d7.png",
+    "preCrewSha256": "411d52758d35f04eb51eb4f7359c2efdb44d383dbabc19c1040fdf6c80dc3ae5",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "wolff_f1": {
     "source": "source-art/pilot-aircraft-recovery/preserved/wolff_f1.webp",
@@ -166,8 +182,8 @@
       288,
       320
     ],
-    "flightBytes": 40772,
-    "sha256": "114e183443d6d1eda0efefac2673a875aa95d088ffaebb6ca19dc587888b4e39",
+    "flightBytes": 31878,
+    "sha256": "a78686091bdc5417a7128a7f9e08d1965d01204c3efafcd481230ca3c409a055",
     "pivot": [
       144,
       152
@@ -177,7 +193,9 @@
       576,
       640
     ],
-    "sharedMaster": "source-art/dr1-family-20261023/master.png"
+    "sharedMaster": "source-art/dr1-family-20261023/master.png",
+    "preCrewSha256": "114e183443d6d1eda0efefac2673a875aa95d088ffaebb6ca19dc587888b4e39",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "loewenhardt_albatros": {
     "source": "imagegen: loewenhardt_albatros",
@@ -186,8 +204,10 @@
       288,
       320
     ],
-    "flightBytes": 36278,
-    "sha256": "4812d3cc94f9605517a2b062e78414436ca2b37b21f876407092aa51ae569ee4"
+    "flightBytes": 36184,
+    "sha256": "6a984be7ddd336d397889a1aaa848dd62a49248ac12580e174d0ceb0bf0de672",
+    "preCrewSha256": "4812d3cc94f9605517a2b062e78414436ca2b37b21f876407092aa51ae569ee4",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "jacobs_d7": {
     "source": "source-art/pilot-aircraft-recovery/jacobs_d7.png",
@@ -196,8 +216,8 @@
       288,
       320
     ],
-    "flightBytes": 27704,
-    "sha256": "08a6dea4c48bb632b7014e401ab22499b7075abbbfd029eee4ac1cb13bf258e4",
+    "flightBytes": 28258,
+    "sha256": "a14767df6da0f6e36cc7645871fe689e75a63ec4c5cc7ff0ac47c4f9e10afd2f",
     "pivot": [
       144,
       152
@@ -207,7 +227,9 @@
       576,
       640
     ],
-    "sharedMaster": "source-art/airframe-families-20261023/masters/fokker_d7.webp"
+    "sharedMaster": "source-art/airframe-families-20261023/masters/fokker_d7.webp",
+    "preCrewSha256": "08a6dea4c48bb632b7014e401ab22499b7075abbbfd029eee4ac1cb13bf258e4",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "lothar_albatros": {
     "source": "source-art/pilot-aircraft-recovery/lothar_albatros.png",
@@ -216,8 +238,8 @@
       288,
       320
     ],
-    "flightBytes": 37930,
-    "sha256": "e8852ce33e66977c6f72c458d8e148342f3986324b1e0bce3a02607b2de55fad",
+    "flightBytes": 37630,
+    "sha256": "ba089d24ea4aedbde984d6bdc3820eaf12b2d569bbff60a263f7852d2212a99d",
     "pivot": [
       144,
       152
@@ -227,7 +249,9 @@
       576,
       640
     ],
-    "sharedMaster": "source-art/airframe-families-20261023/masters/albatros_d3.webp"
+    "sharedMaster": "source-art/airframe-families-20261023/masters/albatros_d3.webp",
+    "preCrewSha256": "e8852ce33e66977c6f72c458d8e148342f3986324b1e0bce3a02607b2de55fad",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "sachsenberg_d7": {
     "source": "source-art/pilot-aircraft-recovery/preserved/sachsenberg_d7.webp",
@@ -236,8 +260,8 @@
       288,
       320
     ],
-    "flightBytes": 38610,
-    "sha256": "33975731cb8385d16a29b7df2498b18573ff595ea08d888d295e2dca4f363bf0",
+    "flightBytes": 39700,
+    "sha256": "2730a40f4e38da3f2004de253b19ecf97e338d480278c44c3784735826b56d74",
     "pivot": [
       144,
       152
@@ -247,7 +271,9 @@
       576,
       640
     ],
-    "sharedMaster": "source-art/airframe-families-20261023/masters/fokker_d7.webp"
+    "sharedMaster": "source-art/airframe-families-20261023/masters/fokker_d7.webp",
+    "preCrewSha256": "33975731cb8385d16a29b7df2498b18573ff595ea08d888d295e2dca4f363bf0",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "collishaw_camel": {
     "source": "source-art/pilot-aircraft-recovery/collishaw_camel.png",
@@ -256,8 +282,8 @@
       288,
       320
     ],
-    "flightBytes": 48666,
-    "sha256": "5d6c84c9beaee84ee473e1dee33112c64addc89d2d79ff731231100d07bfc951",
+    "flightBytes": 46954,
+    "sha256": "39068acb08bc8b59c796b529d4af79ef9bdb461e37235787490beac13d72011b",
     "pivot": [
       144,
       152
@@ -268,7 +294,9 @@
       640
     ],
     "sharedMaster": "source-art/airframe-families-20261023/masters/camel.webp",
-    "authoredRepaint": "source-art/aircraft-repaint-20261024/collishaw_camel.png"
+    "authoredRepaint": "source-art/aircraft-repaint-20261024/collishaw_camel.png",
+    "preCrewSha256": "5d6c84c9beaee84ee473e1dee33112c64addc89d2d79ff731231100d07bfc951",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "baracca_spad": {
     "source": "source-art/pilot-aircraft-recovery/baracca_spad.png",
@@ -277,8 +305,8 @@
       288,
       320
     ],
-    "flightBytes": 38398,
-    "sha256": "e584390851459565ecab2b13563426b5e2ac2c8fdfa5c3e301980bd7d9234a01",
+    "flightBytes": 38670,
+    "sha256": "363a735b756c446c1052d05e7a4e37f1760521b90f5c89857de293f48e7c30b5",
     "pivot": [
       144,
       152
@@ -288,7 +316,9 @@
       576,
       640
     ],
-    "sharedMaster": "source-art/airframe-families-20261023/masters/spad13.webp"
+    "sharedMaster": "source-art/airframe-families-20261023/masters/spad13.webp",
+    "preCrewSha256": "e584390851459565ecab2b13563426b5e2ac2c8fdfa5c3e301980bd7d9234a01",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "mannock_nieuport": {
     "source": "source-art/pilot-aircraft-recovery/mannock_nieuport.png",
@@ -297,8 +327,8 @@
       288,
       320
     ],
-    "flightBytes": 28596,
-    "sha256": "29daea7c373f97b721312b152c5efce04086fb3d92cab9bfe5ce7cf8e9caebd2",
+    "flightBytes": 28680,
+    "sha256": "44ddd0f818ca94a8ee468ab93bc411704bc86059ea711ba1e0f29eb2e8e0e47d",
     "pivot": [
       144,
       152
@@ -308,7 +338,9 @@
       576,
       640
     ],
-    "sharedMaster": "source-art/airframe-families-20261023/masters/nieuport17.png"
+    "sharedMaster": "source-art/airframe-families-20261023/masters/nieuport17.png",
+    "preCrewSha256": "29daea7c373f97b721312b152c5efce04086fb3d92cab9bfe5ce7cf8e9caebd2",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "rickenbacker_n28": {
     "source": "source-art/pilot-aircraft-recovery/rickenbacker_n28.png",
@@ -317,8 +349,8 @@
       288,
       320
     ],
-    "flightBytes": 35572,
-    "sha256": "7b8378dda2cf69b2548de60d28fba46f62b09fd8b8ce00a7a0085fd225f6b7de",
+    "flightBytes": 35208,
+    "sha256": "4c791c43224832bb8e0c9d6ae8925f100ed51a682db21dc3ed7fd52bd2129d7b",
     "pivot": [
       144,
       152
@@ -328,7 +360,9 @@
       576,
       640
     ],
-    "sharedMaster": "source-art/airframe-families-20261023/masters/nieuport28.webp"
+    "sharedMaster": "source-art/airframe-families-20261023/masters/nieuport28.webp",
+    "preCrewSha256": "7b8378dda2cf69b2548de60d28fba46f62b09fd8b8ce00a7a0085fd225f6b7de",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "ball_nieuport": {
     "source": "source-art/pilot-aircraft-recovery/ball_nieuport.png",
@@ -337,8 +371,8 @@
       288,
       320
     ],
-    "flightBytes": 28274,
-    "sha256": "a1aeb6a32d7d7959b2dcc7d93a6851472ef95d48d838c62e53e9b0f64d0a682e",
+    "flightBytes": 28338,
+    "sha256": "06f99e81444b888f69d5c27b94f73100b1794df65721b65f3fd45db9e87aec5e",
     "pivot": [
       144,
       152
@@ -348,7 +382,9 @@
       576,
       640
     ],
-    "sharedMaster": "source-art/airframe-families-20261023/masters/nieuport17.png"
+    "sharedMaster": "source-art/airframe-families-20261023/masters/nieuport17.png",
+    "preCrewSha256": "a1aeb6a32d7d7959b2dcc7d93a6851472ef95d48d838c62e53e9b0f64d0a682e",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "barker_re8": {
     "source": "source-art/pilot-aircraft-recovery/barker_re8.png",
@@ -357,8 +393,8 @@
       288,
       320
     ],
-    "flightBytes": 47424,
-    "sha256": "512e01ac9ae4a5b79d78b0c6760dcbfdc0af7f8ffb4d4f1c6939e62da269ad82",
+    "flightBytes": 49916,
+    "sha256": "379617b352d8a6cf786bff8e0b29ae01ea87c59e63847b56d3e937b5896456c7",
     "pivot": [
       144,
       152
@@ -368,7 +404,8 @@
       576,
       640
     ],
-    "sharedMaster": "source-art/airframe-families-20261023/masters/re8.webp"
+    "preCrewSha256": "512e01ac9ae4a5b79d78b0c6760dcbfdc0af7f8ffb4d4f1c6939e62da269ad82",
+    "postprocess": "docs/hangar-geometry-20261026/re8-crew-preservation.json"
   },
   "fonck_caudron": {
     "source": "source-art/pilot-aircraft-recovery/fonck_caudron.png",
@@ -377,8 +414,8 @@
       288,
       320
     ],
-    "flightBytes": 41150,
-    "sha256": "cc48cbb947d8d5d70bc3c3b0ab4c756028ac8d67de86d947c2d921e4d3253e3f",
+    "flightBytes": 45390,
+    "sha256": "419dc54298857f49721bb026c9d0d9621be95ffd2fa8af7e64c8dc5127ac9539",
     "pivot": [
       144,
       152
@@ -389,7 +426,9 @@
       640
     ],
     "sharedMaster": "source-art/airframe-families-20261023/masters/caudron_g4.webp",
-    "styleRevision": "fokker-albatros-bombers-20261024"
+    "styleRevision": "fokker-albatros-bombers-20261024",
+    "preCrewSha256": "cc48cbb947d8d5d70bc3c3b0ab4c756028ac8d67de86d947c2d921e4d3253e3f",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "morane_l": {
     "source": "source-art/pilot-aircraft-recovery/morane_l.png",
@@ -398,8 +437,8 @@
       288,
       320
     ],
-    "flightBytes": 54880,
-    "sha256": "8352604a8568ac9cd1b78f0e0a840d3486921666ea453f698c14fd7b7c62384e",
+    "flightBytes": 54992,
+    "sha256": "1d5483bcc20411fb89279add1aa2544325c4eb89fbc93c53edd7bd95a28ee884",
     "pivot": [
       144,
       152
@@ -409,7 +448,9 @@
       576,
       640
     ],
-    "authoredRepaint": "source-art/aircraft-repaint-20261024/morane_l.png"
+    "authoredRepaint": "source-art/aircraft-repaint-20261024/morane_l.png",
+    "preCrewSha256": "8352604a8568ac9cd1b78f0e0a840d3486921666ea453f698c14fd7b7c62384e",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "bristol_scout_c": {
     "source": "source-art/pilot-aircraft-recovery/bristol_scout_c.png",
@@ -418,8 +459,8 @@
       288,
       320
     ],
-    "flightBytes": 44290,
-    "sha256": "e064348e8de8e76f1ba503ece19a5caddb594c87b33a1dc8e48959c93658091a",
+    "flightBytes": 44274,
+    "sha256": "c5009bbb6c9ab3c925ebc3117bb1d97e5d7b0aa2bc791d186a1469bdc435af4b",
     "pivot": [
       144,
       152
@@ -428,7 +469,9 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "preCrewSha256": "e064348e8de8e76f1ba503ece19a5caddb594c87b33a1dc8e48959c93658091a",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "hansa_brandenburg_di": {
     "source": "source-art/pilot-aircraft-recovery/preserved/hansa_brandenburg_di.webp",
@@ -437,8 +480,8 @@
       288,
       320
     ],
-    "flightBytes": 43868,
-    "sha256": "95c6a1de0623caf4c636f55b15805358cd525227b17f4362f7023fc510d1589f",
+    "flightBytes": 43838,
+    "sha256": "828144585af78115db9294f41ff94c9da778085e91e225ad49c1bb23b183db0b",
     "pivot": [
       144,
       152
@@ -447,7 +490,9 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "preCrewSha256": "95c6a1de0623caf4c636f55b15805358cd525227b17f4362f7023fc510d1589f",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "voisin_iii": {
     "source": "source-art/pilot-aircraft-recovery/voisin_iii.png",
@@ -456,8 +501,8 @@
       288,
       320
     ],
-    "flightBytes": 66202,
-    "sha256": "9539c815df3a0efc3bec143ee66893b23b1f04a0f843640d6e0fb34acadf74ac",
+    "flightBytes": 66174,
+    "sha256": "b2ba90c0e1d48de744218cc23a586efe5e1daab7c0323a63f0536fdf572b28cd",
     "pivot": [
       144,
       152
@@ -467,7 +512,9 @@
       576,
       640
     ],
-    "authoredRepaint": "source-art/aircraft-repaint-20261024/voisin_iii.png"
+    "authoredRepaint": "source-art/aircraft-repaint-20261024/voisin_iii.png",
+    "preCrewSha256": "9539c815df3a0efc3bec143ee66893b23b1f04a0f843640d6e0fb34acadf74ac",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "baron_albatros_d5_redwings": {
     "source": "source-art/baron-albatros-variants-20261024/baron_albatros_d5_redwings.png",
@@ -476,8 +523,8 @@
       288,
       320
     ],
-    "flightBytes": 41308,
-    "sha256": "0b7c34e4c3bbef25653bb6c681a13d9a046788ee94a12bcfa70e8a6ad1bed350",
+    "flightBytes": 41288,
+    "sha256": "21e87ec0c535e5c536f60723a63c590e42446396503c891b7154b933026d4dd0",
     "pivot": [
       144,
       152
@@ -486,7 +533,9 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "preCrewSha256": "0b7c34e4c3bbef25653bb6c681a13d9a046788ee94a12bcfa70e8a6ad1bed350",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   },
   "baron_albatros_d5_red": {
     "source": "source-art/baron-albatros-variants-20261024/baron_albatros_d5_red.png",
@@ -495,8 +544,8 @@
       288,
       320
     ],
-    "flightBytes": 41640,
-    "sha256": "0557809a8443dcf788c1b485b528c7b7d757515c3db61aa0be87dd3fe8af01e6",
+    "flightBytes": 41602,
+    "sha256": "81aceaa8b340e5674a49ba282eddc81be7251b011d122f91786f0afe1f2fd935",
     "pivot": [
       144,
       152
@@ -505,6 +554,8 @@
     "hangarSize": [
       576,
       640
-    ]
+    ],
+    "preCrewSha256": "0557809a8443dcf788c1b485b528c7b7d757515c3db61aa0be87dd3fe8af01e6",
+    "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
   }
 }

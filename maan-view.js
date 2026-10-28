@@ -1,18 +1,18 @@
-import {maanHullFrame,drawMaanHullFrame,maanBarrelMotion,drawMaanBarrels} from './maan-hull-art.js?v=20261022';
-import {drawPartFuelFire} from './explosion-profiles.js?v=fx5';
-import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=tame3';
-import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=tame3';
-import {sandOpacity} from './maan-weather.js?v=regionalair2';
-import {drawSandVortex,prepareSandVortexArt} from './sand-vortex-art.js?v=regionalair2';
-import {fx} from './fx-art.js?v=tame3';
-import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
-import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=tame3';
-import {drawShellFlight} from './boss-rounds.js?v=tame3&ai=1018';
+import {maanHullFrame,drawMaanHullFrame,maanBarrelMotion,drawMaanBarrels} from './maan-hull-art.js?v=headon-result339-20261028';
+import {drawPartFuelFire} from './explosion-profiles.js?v=headon-result339-20261028';
+import {MAAN_LAYOUT,MAAN_ENTRY,rotateMaan} from './maan-layout.js?v=headon-result339-20261028';
+import {periodicSandPixels,maanGroundTiles} from './maan-ground.js?v=headon-result339-20261028';
+import {sandOpacity} from './maan-weather.js?v=headon-result339-20261028';
+import {drawSandVortex,prepareSandVortexArt} from './sand-vortex-art.js?v=headon-result339-20261028';
+import {fx} from './fx-art.js?v=headon-result339-20261028';
+import {drawTracerBolt} from './projectiles.js?v=headon-result339-20261028';
+import {impactMark,bandMark,aimLine,laneEdge} from './tactical-marks.js?v=headon-result339-20261028';
+import {drawShellFlight} from './boss-rounds.js?v=headon-result339-20261028&ai=1018';
 export const MAAN_ASSETS=Object.freeze({terrain:'terrain-maan-r2.webp',workshop:'maan-workshop-r2.webp',wusten:'boss-maan-wusten-r2.webp',sinai:'boss-maan-sinai-r2.webp',car:'boss-maan-rolls-royce.webp'});
 const images=new Map();let ground=null,settledWorkshop=null;
 const _filterBakes=new WeakMap();
 function bakedFiltered(img,filter){if(!img?.naturalWidth)return img;let m=_filterBakes.get(img);if(!m){m=new Map();_filterBakes.set(img,m)}let cv=m.get(filter);if(cv===undefined){cv=document.createElement('canvas');cv.width=img.naturalWidth;cv.height=img.naturalHeight;const cc=cv.getContext('2d');cc.filter=filter;cc.drawImage(img,0,0);m.set(filter,cv)}return cv}
-const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=r5';images.set(key,im);return im;};
+const load=key=>{if(images.has(key))return images.get(key);const im=new Image();im.decoding='async';im.src='./'+MAAN_ASSETS[key]+'?v=headon-result339-20261028';images.set(key,im);return im;};
 export function prepareMaanAssets(region){
  if(region!==13){images.clear();ground=null;if(settledWorkshop){settledWorkshop.canvas.width=settledWorkshop.canvas.height=1;settledWorkshop=null;}return Promise.resolve();}
  prepareSandVortexArt();

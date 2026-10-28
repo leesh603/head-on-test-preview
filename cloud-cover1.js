@@ -1,5 +1,5 @@
-import {roleReady,roleImage,roleArtReady} from './fx-role3.js?v=tame3';
-import {fxsHas,fxsImage} from './fx-sample-preview.js?v=pilotfx20261018';
+import {roleReady,roleImage,roleArtReady} from './fx-role3.js?v=headon-result339-20261028';
+import {fxsHas,fxsImage} from './fx-sample-preview.js?v=headon-result339-20261028';
 // Cloud concealment — shared tactical system across all regions (전장 개성화 패치).
 // Dense clouds break enemy tracking; wispy clouds only soften accuracy.
 export const CLOUD_TYPES=Object.freeze({
@@ -28,11 +28,11 @@ let _roleSettled=false;roleArtReady.finally(()=>_roleSettled=true);
 function cloudImg(type,seed){
  const list=CLOUD_IMGS[type]||CLOUD_IMGS.cumulus;
  const key=list[Math.floor(((seed||0)/6.283)*list.length)%list.length];
- if(fxsHas(key))return fxsImage(key);
  if(roleReady(key))return roleImage(key,true);
+ if(fxsHas(key))return fxsImage(key);
  if(!_roleSettled)return null;
  let im=_imgCache[key];
- if(im===undefined){im=new Image();im.src=`./${key}.webp?v=r5&b=345`;im.onload=()=>{_imgCache[key]=im};_imgCache[key]=im}
+ if(im===undefined){im=new Image();im.src=`./${key}.webp?v=headon-result339-20261028&b=345`;im.onload=()=>{_imgCache[key]=im};_imgCache[key]=im}
  return im;
 }
 

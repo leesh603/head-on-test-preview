@@ -1,3 +1,4 @@
+import {aaMuzzle,configureAA} from './air-threat-profiles.js';
 const heroes=g=>g.players||[g],live=g=>heroes(g).filter(p=>p.hp>0&&!p.down);
 const inLondon=g=>(g.worldRegion?.()??g.stageBoss?.stages.stageIndex)===11;
 export function londonRiverCover(x,y){const u=((x%768)+768)%768/768,v=((y%768)+768)%768/768;return v>.415+u*.15&&v<.495+u*.16;}
@@ -18,7 +19,7 @@ function spawnWave(g,b){const a=Number.isFinite(g.a)?g.a:-Math.PI/2,hx=Math.cos(
  if(g.enemies.filter(e=>e.londonOwned&&!e.londonInstallation&&e.hp>0).length<4)for(let i=0;i<2;i++){const e=g.spawnEnemy(b.role==='defend'?'bomber':'hunter');if(!e)break;
   Object.assign(e,{londonOwned:true,x:g.x+hx*480+nx*(i?65:-65),y:g.y+hy*480+ny*(i?65:-65),a:a+Math.PI,escortPlane:b.role==='defend'?'gotha_night':'camel',ace:false});b.tracked.push(e);}
  if(b.role==='attack'&&g.enemies.filter(e=>e.londonInstallation&&e.hp>0).length<3)for(const [id,offset,sprite] of [['light',-95,'fx-city-searchlight'],['gun',95,'fx-city-aagun']]){const e=g.spawnEnemy('bomber');if(!e)break;const hp=Math.round((id==='light'?115:140)*(1+g.t/600));
-  Object.assign(e,{type:'installation',londonOwned:true,londonInstallation:id,facSprite:sprite,facSize:74,x:g.x+hx*520+nx*offset,y:g.y+hy*520+ny*offset,a:0,speed:0,stationary:true,surface:true,hitRadius:30,hp,maxHp:hp,fire:Infinity,ace:false,escortPlane:undefined,hazardRegion:11,scanA:a+Math.PI,lockT:0,fireT:1.6});b.tracked.push(e);}
+  Object.assign(e,{type:'installation',londonOwned:true,londonInstallation:id,facSprite:sprite,facSize:74,x:g.x+hx*520+nx*offset,y:g.y+hy*520+ny*offset,a:0,speed:0,stationary:true,surface:true,hitRadius:30,hp,maxHp:hp,fire:Infinity,ace:false,escortPlane:undefined,hazardRegion:11,scanA:a+Math.PI,lockT:0,fireT:1.6});if(id==='gun')configureAA(g,e,74);b.tracked.push(e);}
  b.tracked=b.tracked.filter(e=>!e.londonCounted&&!e.expired).slice(-24);b.waves++;g.event('wave',b.role==='attack'?'런던 방공 순찰 · 탐조등 제압으로 포대의 조준 차단':'고타 선발대 접근 · 폭격기를 먼저 요격하세요');}
 export function tickLondonBattle(g,dt){const b=ensureLondonBattle(g);if(!b||g.state!=='playing'||dt<=0)return;b.elapsed+=dt;
  for(const e of b.tracked)if(e.hp<=0&&!e.expired&&!e.londonCounted){e.londonCounted=true;if(e.londonInstallation)b.suppressed++;else if(e.type==='bomber')b.intercepted++;}
@@ -26,7 +27,7 @@ export function tickLondonBattle(g,dt){const b=ensureLondonBattle(g);if(!b||g.st
  for(const k of ['fieldUnitTimer','regionThreat','flakTimer'])if(g[k]!==Infinity)g[k]=Math.max(g[k]||0,dt+.1)+dt;
  for(const k of ['nextHeavyAt','_zeppelinSchedule'])if(g[k]!==Infinity)g[k]=Math.max(g[k]||0,g.t+dt+.1)+dt;
  for(const e of g.enemies.filter(e=>e.londonInstallation==='light'&&e.hp>0)){e.scanA+=dt*.38;e.lockT=Math.max(0,e.lockT-dt*.5);for(const p of live(g)){const a=Math.atan2(p.y-e.y,p.x-e.x),d=Math.atan2(Math.sin(a-e.scanA),Math.cos(a-e.scanA));if(Math.abs(d)<.17&&Math.hypot(p.x-e.x,p.y-e.y)<570&&(p.cloudConceal||0)<.9){e.lockT+=dt*(londonRiverCover(p.x,p.y)?.7:1.5);if(e.lockT>1)p.londonLitUntil=g.t+1.2;}}}
- for(const e of g.enemies.filter(e=>e.londonInstallation==='gun'&&e.hp>0)){const p=live(g).find(p=>(p.londonLitUntil||0)>g.t);e.fireT-=dt;if(p&&e.fireT<=0&&Math.hypot(p.x-e.x,p.y-e.y)<720){e.fireT=1.8;const a=Math.atan2(p.y-e.y,p.x-e.x);for(let i=-1;i<=1;i++){const h=a+i*.12;g.bullets.push({x:e.x,y:e.y,vx:Math.cos(h)*235,vy:Math.sin(h)*235,life:3.5,enemy:true,hazardRegion:11,visualType:'flak',damage:12});}}}
+ for(const e of g.enemies.filter(e=>e.londonInstallation==='gun'&&e.hp>0)){const p=live(g).find(p=>(p.londonLitUntil||0)>g.t);e.fireT-=dt;if(p&&e.fireT<=0&&Math.hypot(p.x-e.x,p.y-e.y)<720){e.fireT=1.8*(e.aaFireFactor||1);const a=Math.atan2(p.y-e.y,p.x-e.x),muzzle=aaMuzzle(e,74);for(let i=-1;i<=1;i++){const h=a+i*.12;g.bullets.push({x:muzzle.x,y:muzzle.y,vx:Math.cos(h)*235,vy:Math.sin(h)*235,life:3.5,enemy:true,hazardRegion:11,visualType:'flak',damage:12*(e.aaDamageFactor||1)});}}}
  const encounter=g.stageBoss?.stages.encounter;b.warnings=b.warnings.filter(w=>{const q=encounter?.bodies.get(w.bodyId);return q&&!q.dead&&q.runTarget&&q.runId===w.runId;});
  for(const bomb of b.bombs){bomb.left-=dt;if(bomb.left>0||bomb.resolved)continue;bomb.resolved=true;const d=b.districts.find(d=>d.id===bomb.targetId);if(d&&d.hp>0){d.hp=Math.max(0,d.hp-bomb.damage);g.event('wave',d.name+' 피격 · 폭탄창을 제압하세요');}}b.bombs=b.bombs.filter(q=>!q.resolved);
  if(b.role==='defend'&&b.districts.length&&b.districts.every(d=>d.hp<=0)&&!b.cleared){g.state='lost';g.score=g.kills*100+Math.floor(g.t)*10;g.event('end','런던 방어 실패 · 도시 구역 모두 파괴');return;}

@@ -1,5 +1,5 @@
 import {wwiWingTarget} from './wwi-equipment.js';
-import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
+import {advanceWingFlight} from './wingman-flight.js?v=headon-result339-20261028';
 // Shared, bounded manoeuvres for ordinary allied aircraft. Pilot-authored
 // formations continue through their existing support poses.
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));

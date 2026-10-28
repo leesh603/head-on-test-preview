@@ -1,16 +1,16 @@
-import {portraitThumbnailSource} from './portraits.js?v=crew20261024';
+import {portraitThumbnailSource} from './portraits.js?v=headon-result339-20261028';
 /* Phone lobby (420). Presentation only: the key art and logo own the screen,
    the selected aircraft is named under them, then mode tabs, the sortie
    button and a bottom tab bar. Pilot/aircraft choice moves to the "에이스"
    tab, which simply re-shows the existing hangar rows. Every action is routed
    to the existing controls; nothing here owns game state. */
-import {aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2';
-import {hangarArt, hangarArtLayout} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
+import {aircraftKey} from './aircraft.js?v=headon-result339-20261028&art=pilot-recovery2&pf=1027';
+import {hangarArt, hangarArtLayout} from './hangar-art.js?v=headon-result339-20261028&art=pilot-recovery2';
 // Same module instances as app.js (identical URLs), read-only: locked aircraft show their real ratings.
-import {PLANES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026';
-import {aircraftFeelRatings} from './aircraft-feel174.js?v=gal1';
-import {t} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
-import {waitForLobbyIcons} from './lobby-assets-ready.js?v=lobbygate2';
+import {PLANES} from './engine.js?v=headon-result339-20261028&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
+import {aircraftFeelRatings} from './aircraft-feel174.js?v=headon-result339-20261028';
+import {t} from './i18n.js?v=headon-result339-20261028&afc=1&art=pilot-recovery2';
+import {waitForLobbyIcons} from './lobby-assets-ready.js?v=headon-result339-20261028';
 const mq = matchMedia('(max-width:720px)');
 const $ = id => document.getElementById(id);
 const en = () => document.documentElement.lang === 'en';
@@ -28,7 +28,7 @@ const putAircraftName=(node,text)=>{
  node.style.setProperty('font-size',max+'px','important');
  const size=Math.min(max,Math.floor(max*width/Math.max(width,node.scrollWidth)*10)/10);
  node.style.setProperty('font-size',size+'px','important');node.dataset.aircraftFit=key;
-};const ICON = { ranking: 'lobby-ic-ranking420.webp?v=lobby1', aces: 'lobby-ic-aces420.webp?v=lobby1', medals: 'lobby-ic-medals420.webp?v=lobby1', home: 'lobby-ic-home420.webp?v=lobby1' };
+};const ICON = { ranking: 'lobby-ic-ranking420.webp?v=headon-result339-20261028', aces: 'lobby-ic-aces420.webp?v=headon-result339-20261028', medals: 'lobby-ic-medals420.webp?v=headon-result339-20261028', home: 'lobby-ic-home420.webp?v=headon-result339-20261028' };
 const LOCK = '<svg viewBox="0 0 12 14" aria-hidden="true"><path d="M3 6V4a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="1.5" y="6" width="9" height="7" rx="1.2" fill="currentColor"/></svg>';
 
 // Roster labels identify the ace, including siblings and both crew members.
@@ -93,7 +93,7 @@ function install() {
   const chipImg = el('img'); chipImg.alt = ''; const chipCopy = el('span'); const chipName = el('b'), chipSub = el('small');
   chipCopy.append(chipName, chipSub); chip.append(chipImg, chipCopy);
   const gear = el('button', 'lobby-settings'); gear.type = 'button';
-  gear.append(Object.assign(el('img'), { src: 'lobby-ic-settings420.svg?v=lobby1', alt: '' }));
+  gear.append(Object.assign(el('img'), { src: 'lobby-ic-settings420.svg?v=headon-result339-20261028', alt: '' }));
   top.append(chip, gear);
 
 
@@ -240,6 +240,8 @@ function install() {
   let queued = false;
   const sync = () => {
     queued = false;
+    // The lobby is hidden in flight; HUD text inside #hangar would otherwise re-run this (with layout reads) every tick.
+    if (document.body.classList.contains('playing')) return;
     const L = T();
     put(mSolo, L.solo); put(mOnline, L.online); put(mLocal, L.local);
     const coopOn = document.body.classList.contains('coop-selected'); mSolo.classList.toggle('on', !coopOn); mLocal.classList.toggle('on', coopOn); mSolo.setAttribute('aria-selected', String(!coopOn)); mLocal.setAttribute('aria-selected', String(coopOn)); mLocal.hidden = $('coopMode')?.classList.contains('hidden') ?? true;

@@ -1,10 +1,10 @@
 import {combatImpactResult} from './combat-impact-result.js';
-import {queueCombatImpact,advanceReplicaImpactFx} from './explosion-profiles.js?v=fx5';
-import {playerAirframeModel} from './player-airframe-handling.js?v=handling5';
-import {drawFuelFire} from './explosion-profiles.js?v=fx5';
-import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=descent20261022';
-import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
-import {tacticalCueSound} from './tactical-combat-view.js?v=combat20261024&td4=20261026';
+import {queueCombatImpact,advanceReplicaImpactFx} from './explosion-profiles.js?v=headon-result339-20261028';
+import {playerAirframeModel} from './player-airframe-handling.js?v=headon-result339-20261028';
+import {drawFuelFire} from './explosion-profiles.js?v=headon-result339-20261028';
+import {beginAircraftCrash,advanceAircraftCrash,drawAircraftCrash,enemyCanCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=headon-result339-20261028';
+import {drawTracerBolt} from './projectiles.js?v=headon-result339-20261028';
+import {tacticalCueSound} from './tactical-combat-view.js?v=headon-result339-20261028&td4=20261026';
 // Presentation owns its own state and deterministic variation. Never consume the
 // simulation RNG or write aircraft positions, headings, damage, or rewards here.
 const worlds=new WeakMap(),poses=new WeakMap();

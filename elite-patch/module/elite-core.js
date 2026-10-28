@@ -369,6 +369,7 @@ export class EliteEnemySystem {
   damageMember(memberOrId, damage, source = {}) {
     const member = typeof memberOrId === 'string' ? this.members.find(m => m.id === memberOrId) : memberOrId;
     if (!member?.alive || !(damage > 0) || this.host.canDamageMember?.(member,source)===false) return false;
+    damage*=this.host.outgoingDamageMultiplier?.(source)??1;
     const armor = cfgFor(this.config, member.eliteKind).armorFactor;
     // Continuous fire keeps the armor factor without rounding every fraction
     // of a second up to a whole projectile hit.

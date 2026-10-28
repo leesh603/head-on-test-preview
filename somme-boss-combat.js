@@ -1,9 +1,9 @@
-import {impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
+import {impactPulse} from './boss-raid-strikes.js?v=headon-result339-20261028&rail=40';
 import {fireFanSalvo,barrageStrip} from './boss-salvo-geometry.js?boss=20261020b';
-import {driveLandship} from './somme-landship-drive.js?v=tame3&somme=20261021';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=tame3';
-import {SCHWABEN_PARTS,MARK1_PARTS,sommeScale,sommePoint,syncSommeParts,sommeMuzzle,sommeMuzzles,sponsonAim,clamp,turn,angleDelta} from './somme-boss-layout.js?v=tame3&somme=20261021';
+import {driveLandship} from './somme-landship-drive.js?v=headon-result339-20261028&somme=20261021';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=headon-result339-20261028';
+import {SCHWABEN_PARTS,MARK1_PARTS,sommeScale,sommePoint,syncSommeParts,sommeMuzzle,sommeMuzzles,sponsonAim,clamp,turn,angleDelta} from './somme-boss-layout.js?v=headon-result339-20261028&somme=20261021';
 
 class SommeBoss extends BaseBoss{
  constructor(o,layout,kind,tank=false){
@@ -86,14 +86,16 @@ export class SchwabenFortress extends SommeBoss{
   const targetX=clamp(p.x+(p.vx||0)*.35,bounds.left+radius,bounds.right-radius);
   const gate=observer?clamp(targetX+(this.wave%2?1:-1)*gap*1.3,bounds.left+gap/2+radius,bounds.right-gap/2-radius):bounds.left+w*[.3,.7,.5][this.wave%3];
   const y=observer?clamp(p.y+(p.vy||0)*.35,bounds.top+radius+20,bounds.bottom-radius-20):bounds.top+h*[.55,.72,.4][this.wave%3];
-  this.lock={x:observer?targetX:gate,gate,y,remaining:observer?1.15:.85,mode:observer?'tracked':'blind',pattern:this.wave%2?'creeping':'curtain',guns};this.lockProgress=0;this.lane={x:gate,y,width:gap,remaining:observer?3.8:4.6};this.wave++;
+  this.lock={x:observer?targetX:gate,gate,y,remaining:observer?1.15:.85,mode:observer?'tracked':'blind',pattern:this.wave%2?'creeping':'curtain',advance:observer?Math.sign(p.vy||1):(this.wave%2?1:-1),guns};this.lockProgress=0;this.lane={x:gate,y,width:gap,remaining:observer?3.8:4.6};this.wave++;
   this.lane.depth=this.lock.pattern==='creeping'?136*scale:0;this.pendingBounds={...bounds};
  }
  launchBarrage(){
   const q=this.lock;if(!q)return;const bounds=this.pendingBounds,r=clamp(48*this.sommeScale,25,48),gap=this.lane.width,starved=this.parts.get('ammo').destroyed;
   for(const [row,id] of q.guns.entries()){
    const p=this.parts.get(id);if(p.destroyed)continue;const central=id==='twin-aa';if(central&&starved)continue;
-   const rowY=clamp(q.y+(row-(q.guns.length-1)/2)*68,bounds.top+r,bounds.bottom-r);
+   // Creeping fire advances along the observed flight course; the curtain
+   // stays across it. Both retain the same guns, shells and marked side gap.
+   const rowY=clamp(q.y+(q.pattern==='creeping'?row*q.advance:row-(q.guns.length-1)/2)*68,bounds.top+r,bounds.bottom-r);
    const mouths=sommeMuzzles(this,p),m=mouths[(this.wave+row)%mouths.length];
    if(!central)for(const shot of barrageStrip({bounds,y:rowY,gate:q.gate,gap,radius:r,warning:(q.mode==='blind'?2.05:1.65)+row*.62,beat:0,damage:this.t.damage*1.35,visual:'somme-heavy-shell',tag:this.tag('barrage'),sourceX:m.x,sourceY:m.y}))this.hazard(shot.kind,{...shot,sourcePartId:id});
    else if(!starved)impactPulse(this,{x:q.gate,y:q.y,radius:Math.max(70,gap*.7),warning:(q.mode==='blind'?2.05:1.65)+row*.62,source:m,partId:p.id,visual:'somme-heavy-shell',tag:this.tag('barrage')});
@@ -107,9 +109,9 @@ export class SchwabenFortress extends SommeBoss{
   if(this.lock){this.lock.remaining-=dt;this.lockProgress=clamp(1-this.lock.remaining/1.15,0,1);if(this.lock.remaining<=0)this.launchBarrage();}
   else if(!this.salvo&&this.due('barrage',dt,this.reloadInterval()))this.planBarrage(players,bounds);
   const aa=this.parts.get('twin-aa');if(!aa.destroyed){const live=players.filter(p=>p.alive),p=live[this.cursor%live.length];if(p){const aim=Math.atan2(p.y-this.y-aa.y,p.x-this.x-aa.x);aa.angle=turn(aa.angle,aim,.75*dt);
-   if(this.due('twin-aa',dt,this.parts.get('ammo').destroyed?5.8:3.7)){const m=sommeMuzzles(this,aa)[this.cursor%2];this.cursor++;const radius=clamp(36*this.sommeScale,23,36);const observer=!this.parts.get('observer').destroyed,capturedX=observer?p.x+(p.vx||0)*.22:bounds.left+(bounds.right-bounds.left)*[.22,.78][this.wave%2],capturedY=observer?p.y+(p.vy||0)*.22:bounds.top+(bounds.bottom-bounds.top)*.6;for(const side of [-1,1]){const x=clamp(capturedX+side*(radius+34),bounds.left+radius,bounds.right-radius);if(this.lane?.remaining>0&&Math.abs(x-this.lane.x)<this.lane.width/2+radius)continue;this.hazard('circle',{x,y:clamp(capturedY,bounds.top+radius,bounds.bottom-radius),sourceX:sommeMuzzles(this,aa)[side<0?0:1].x,sourceY:sommeMuzzles(this,aa)[side<0?0:1].y,sourcePartId:aa.id,radius,warning:(observer?1.5:2.05)+(side===1?.18:0),delay:0,once:true,visual:'somme-aa-shell',tag:this.tag(aa.id)});}aa.recoil=.22;this.command('muzzle',{...m,partId:aa.id});this.aimedVolley(aa,p,this.parts.get('ammo').destroyed?4:7,1.35,.86);}}
+   if(this.due('twin-aa',dt,this.parts.get('ammo').destroyed?5.8:3.7)){const m=sommeMuzzles(this,aa)[this.cursor%2];this.cursor++;const radius=clamp(36*this.sommeScale,23,36);const observer=!this.parts.get('observer').destroyed,capturedX=observer?p.x+(p.vx||0)*.22:bounds.left+(bounds.right-bounds.left)*[.22,.78][this.wave%2],capturedY=observer?p.y+(p.vy||0)*.22:bounds.top+(bounds.bottom-bounds.top)*.6;for(const side of [-1,1]){const x=clamp(capturedX+side*(radius+34),bounds.left+radius,bounds.right-radius);if(this.lane?.remaining>0&&Math.abs(x-this.lane.x)<this.lane.width/2+radius)continue;this.hazard('circle',{x,y:clamp(capturedY,bounds.top+radius,bounds.bottom-radius),sourceX:sommeMuzzles(this,aa)[side<0?0:1].x,sourceY:sommeMuzzles(this,aa)[side<0?0:1].y,sourcePartId:aa.id,radius,warning:(observer?1.5:2.05)+(side===1?.18:0),delay:0,once:true,visual:'somme-aa-shell',tag:this.tag(aa.id)});}aa.recoil=.22;this.command('muzzle',{...m,partId:aa.id});this.aimedVolley(aa,p,this.parts.get('ammo').destroyed?4:7,1.35,.86);}}}
    const sideGuns=['gun-left','gun-right'].filter(id=>!this.parts.get(id).destroyed);if(sideGuns.length){const gid=sideGuns[this.batteryTurn%sideGuns.length],g=this.parts.get(gid),live=players.filter(q=>q.alive),p=live[this.cursor%live.length];if(p){const dx=p.x-this.x-g.x,dy=p.y-this.y-g.y,aim=Math.atan2(dy,dx);g.angle=turn(g.angle,aim,1.1*dt);
-    if(this.due('casemate-volley',dt,this.parts.get('ammo').destroyed?7.2:4.6)&&Math.abs(angleDelta(aim,g.angle))<.3){this.batteryTurn++;this.cursor++;this.aimedVolley(g,p,this.parts.get('ammo').destroyed?5:8,1.05,.72);}}}}
+    if(this.due('casemate-volley',dt,this.parts.get('ammo').destroyed?7.2:4.6)&&Math.abs(angleDelta(aim,g.angle))<.3){this.batteryTurn++;this.cursor++;this.aimedVolley(g,p,this.parts.get('ammo').destroyed?5:8,1.05,.72);}}}
    // Each side keeps one original burst budget; its two physical posts take
    // turns. Destroying either post removes that gun, not its surviving partner.
    this.coverTurn??={};
@@ -145,8 +147,9 @@ export class Mark1Landship extends SommeBoss{
   const fan=entry?.22:q?.age<2.4?0:q?.age<5.6?.18:flank?.28:.09;
   this.driveOrder={heading:Math.PI-side*fan,speed:this.tankRole==='male'?17:flank?13+this.slot:16,halt:this.recovering||!!q&&(q.age<2.4||q.age>=5.6)};
   this.phase=entry?'mark1-approach':q?(this.recovering?'mark1-counter':q.age<2.4?'mark1-regroup':'mark1-last-push'):this.parts.get('engine-deck').destroyed?'engine-disabled':this.tracks()===0?'tracks-disabled':this.tracks()===1?'track-disabled':damaged?'mark1-broken-formation':flank?'mark1-flank':'advance';
-  // Hunt instead of parking: each landship rolls for its own slot beside the pilot's course.
-  if(!entry){const p=this.huntTarget;if(p){const lead=.8,px=p.x+(p.vx||0)*lead,py=p.y+(p.vy||0)*lead,off=(this.slot-1)*170,h=Math.atan2(p.vy||0,p.vx||0)+Math.PI/2,tx=px+Math.cos(h)*off+Math.cos(h-Math.PI/2)*-220,ty=py+Math.sin(h)*off+Math.sin(h-Math.PI/2)*-220,d=Math.hypot(tx-this.x,ty-this.y);
+  // Preserve the intact cannon line. A broken wedge releases the surviving
+  // machine-gun wings into flanking lanes instead of filling the disabled slot.
+  if(!entry){const p=this.huntTarget;if(p){const lead=.8,px=p.x+(p.vx||0)*lead,py=p.y+(p.vy||0)*lead,off=damaged&&this.tankRole==='female'?side*240:(this.slot-1)*170,trail=damaged&&this.tankRole==='female'?-90:-220,h=Math.atan2(p.vy||0,p.vx||0)+Math.PI/2,tx=px+Math.cos(h)*off+Math.cos(h-Math.PI/2)*trail,ty=py+Math.sin(h)*off+Math.sin(h-Math.PI/2)*trail,d=Math.hypot(tx-this.x,ty-this.y);
    this.driveOrder={hunt:true,heading:Math.atan2(tx-this.x,-(ty-this.y)),speed:d>500?70:d>220?52:30,halt:this.recovering||!!q&&q.age<2.4};}}
   if(this.driveMoving&&this.due('engine-cue',dt,.75))this.command('armor-drive');
   return {entry,final:q,live};

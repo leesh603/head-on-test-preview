@@ -1,7 +1,10 @@
-import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js?v=wwifix20261025';
+import {intrusionActive} from '../../intrusion-bosses.js';
+import {pilotUnlockEliteDeath} from '../../pilot-unlocks.js?v=headon-result339-20261028';
+import {momentumDamage,momentumCount,recordMomentumKill} from '../../ace-momentum.js';
+import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js?v=headon-result339-20261028&momentum=20261027';
 import {recordCombatImpact} from '../../combat-impact-result.js';
 import {wwiProjectileDamageMultiplier} from '../../wwi-equipment.js';
-import {regionalSteering} from '../../regional-air-tactics.js?v=regionalair20261018';
+import {regionalSteering} from '../../regional-air-tactics.js?v=headon-result339-20261028';
 
 const INSTALL_KEY = Symbol.for('headon.eliteEnemyPatch.v1');
 
@@ -34,11 +37,12 @@ export function createHeadOnHost(game, bindings = {}) {
     random: bindings.random || game.rng || Math.random,
     getTime: () => bindings.getTime?.(game) ?? game.t ?? 0,
     getPlayer: () => bindings.getPlayer?.(game) || game,
-    steerAircraft: (member,contact,turn,result) => regionalSteering(game,member,contact,turn,result,true),
+    steerAircraft: (member,contact,turn,result) => {const steering=regionalSteering(game,member,contact,turn,result,true);if(momentumCount(contact)>=15&&!(contact.ballCloak>0)&&!(contact.cloudConceal>0)&&Math.hypot(member.x-contact.x,member.y-contact.y)<680)return {...steering,turn:steering.turn*1.12};return steering;},
+    outgoingDamageMultiplier: source => momentumDamage(game,source.projectile||source),
     getPlayerFaction: faction,
     getNormalStats: normalStats,
     getAceStats: aceStats,
-    isAceActive: () => bindings.isAceActive?.(game) ?? enemies().some(e => e.bossPilot || e.type === 'boss' || e.ace),
+    isAceActive: () => intrusionActive(game)||(bindings.isAceActive?.(game) ?? enemies().some(e => e.bossPilot || e.type === 'boss' || e.ace)),
     secondsUntilAce: () => bindings.secondsUntilAce?.(game) ?? (Number.isFinite(game.nextBossAt) ? game.nextBossAt - (game.t || 0) : Infinity),
     getProgressStage: () => bindings.getProgressStage?.(game) ?? Math.floor(Math.max(0, game.distance || 0) / 12000) + 1,
     damagePlayer: (amount, meta) => bindings.damagePlayer?.(game, amount, meta) ?? game.hit?.(amount),
@@ -55,12 +59,14 @@ export function createHeadOnHost(game, bindings = {}) {
       game.burst?.(member.x,member.y,'#ff9a3c',3,'profileOnly');
     },
     onEliteKilled: detail => {
+      pilotUnlockEliteDeath(game,detail);
       if (bindings.onEliteKilled) return bindings.onEliteKilled(game, detail);
       game.kills = (game.kills || 0) + 1;
       game.eliteKills = (game.eliteKills || 0) + 1;
       const id=detail.source?.ownerId??detail.source?.projectile?.ownerId;
       const owner=game.players?.find(p=>p.id===id);
       if(owner&&owner!==game)owner.kills=(owner.kills||0)+1;
+      if(owner||!game.players)recordMomentumKill(owner||game,detail);
       // Intentionally do not increment priorityKills: the current HEAD-ON
       // leaderboard counts aces, airships and bombers only.
       game.event?.('kill', '');
@@ -149,6 +155,7 @@ export function installHeadOnElitePatch(GameClass, bindings = {}, options = {}) 
   GameClass.prototype[INSTALL_KEY] = {uninstall, enemyType: ELITE_ENEMY_TYPE};
   return GameClass.prototype[INSTALL_KEY];
 }
+
 
 
 

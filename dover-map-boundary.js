@@ -1,4 +1,4 @@
-import {doverFlightBounds} from './dover-patrol-chart.js?v=dover3';
+import {doverFlightBounds} from './dover-patrol-chart.js?v=headon-result339-20261028';
 const inDover=g=>(g.worldRegion?.()??g.region)===17;
 export function steerDoverBoundary(game,p,dt,speed){
  if(!inDover(game))return;

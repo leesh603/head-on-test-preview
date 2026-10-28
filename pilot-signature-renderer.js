@@ -1,11 +1,11 @@
-import {DEFIANCE_PILOTS,drawDeathDefianceLocal,drawDeathDefianceCue} from './death-defiance-fx.js?v=deathdefiance1';
-import {PRESSURE_LINK_PILOTS,drawPressureLocal,drawPressureCue} from './pressure-link-fx.js?v=pressurelink1';
-import {CREW_SCAR_PILOTS,drawCrewScarLocal} from './crew-scar-fx.js?v=crew20261024';
-import {FIRE_DIVE_PILOTS,drawFireDiveWorld,drawFireDiveCue} from './fire-dive-fx.js?v=firedive1';
-import {ESCORT_PILOTS,drawEscortWorld,drawEscortCue} from './escort-command-fx.js?v=escortfx1';
-import {CAVALRY_RACER_PILOTS,drawCavalryRacerWorld,drawCavalryRacerLocal,drawCavalryRacerCue} from './cavalry-racer-fx.js?v=cavalryracer1';
-import {ORDNANCE_PILOTS,drawOrdnanceWorld,drawOrdnanceLocal,drawOrdnanceCue,ordnanceGroundShift} from './ordnance-pilot-fx.js?v=ordnancefx1';
-import {COMMAND_PILOTS,drawCommandWorld,drawCommandLocal,drawCommandCue} from './command-flight-fx.js?v=commandfx2';
+import {DEFIANCE_PILOTS,drawDeathDefianceLocal,drawDeathDefianceCue} from './death-defiance-fx.js?v=headon-result339-20261028';
+import {PRESSURE_LINK_PILOTS,drawPressureLocal,drawPressureCue} from './pressure-link-fx.js?v=headon-result339-20261028';
+import {CREW_SCAR_PILOTS,drawCrewScarLocal} from './crew-scar-fx.js?v=headon-result339-20261028';
+import {FIRE_DIVE_PILOTS,drawFireDiveWorld,drawFireDiveCue} from './fire-dive-fx.js?v=headon-result339-20261028';
+import {ESCORT_PILOTS,drawEscortWorld,drawEscortCue} from './escort-command-fx.js?v=headon-result339-20261028';
+import {CAVALRY_RACER_PILOTS,drawCavalryRacerWorld,drawCavalryRacerLocal,drawCavalryRacerCue} from './cavalry-racer-fx.js?v=headon-result339-20261028';
+import {ORDNANCE_PILOTS,drawOrdnanceWorld,drawOrdnanceLocal,drawOrdnanceCue,ordnanceGroundShift} from './ordnance-pilot-fx.js?v=headon-result339-20261028';
+import {COMMAND_PILOTS,drawCommandWorld,drawCommandLocal,drawCommandCue} from './command-flight-fx.js?v=headon-result339-20261028';
 import {isAlbatrosHunter,drawAlbatrosLocal,drawAlbatrosWorld} from './albatros-hunter-fx.js';
 import {drawFonckLocal,drawFonckCue} from './fonck-precision-fx.js';
 import {METAL_PILOTS,drawMetalWake,drawMetalLocal,drawMetalGuns,drawMetalCue} from './metal-pilot-fx.js';
@@ -13,12 +13,12 @@ import {SORTIE_PILOTS,drawSortieWake,drawSortieLocal,drawSortieCue} from './pilo
 import {drawUdetWake,drawUdetLocal,drawUdetCue} from './udet-acrobat-fx.js';
 import {drawLoewWake,drawLoewLocal,drawLoewCue} from './loewenhardt-ascent-fx.js';
 import {drawLotharWake,drawLotharGuns,drawLotharCue} from './lothar-pursuit-fx.js';
-import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=gal1';
+import {drawThreeWorld,drawThreeLocal} from './pilot-three-view.js?v=headon-result339-20261028';
 // Draw authored game textures; omit any insignia whose artwork is unavailable.
 import {PILOT_SIGNATURES,nungesserSmokeStage} from './pilot-signature-state.js';
-import {bishopFlightHeight} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026';
+import {bishopFlightHeight} from './engine.js?v=headon-result339-20261028&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
 import {signatureWingPositions} from './pilot-signature-geometry.js';
-import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
+import {drawTracerBolt} from './projectiles.js?v=headon-result339-20261028';
 const TAU=Math.PI*2;
 const _wCache=new Map();
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));

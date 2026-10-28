@@ -3830,9 +3830,9 @@
       "paint": "leader"
     },
     "bank_livery_pup__night": {
-      "path": "asset-bank/flight/livery_pup.webp",
-      "x": 216,
-      "y": 240,
+      "path": "asset-bank/flight/pup-night-style-20261027.webp",
+      "x": 0,
+      "y": 0,
       "w": 216,
       "h": 240,
       "family": "pup",
@@ -4917,6 +4917,272 @@
       "h": 320,
       "family": "voisin8",
       "paint": "usas"
+    },
+    "bank_plane_halberstadt_dii": {
+      "path": "asset-bank/flight/crew-20261026/bank_plane_halberstadt_dii.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_roland_cii": {
+      "path": "asset-bank/flight/crew-20261026/bank_plane_roland_cii.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_farman_f40": {
+      "path": "asset-bank/flight/crew-20261026/bank_plane_farman_f40.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_sea_grigorovich_m9": {
+      "path": "asset-bank/flight/crew-20261026/bank_sea_grigorovich_m9.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_vickers_vimy": {
+      "path": "asset-bank/flight/crew-20261026/bank_plane_vickers_vimy.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_handley_page_v1500": {
+      "path": "asset-bank/flight/crew-20261026/bank_plane_handley_page_v1500.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_morane_type_n": {
+      "path": "asset-bank/flight/concepts-20261026/01.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_fokker_dii": {
+      "path": "asset-bank/flight/concepts-20261026/02.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_farman_f50": {
+      "path": "asset-bank/flight/concepts-20261026/03.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_short_bomber": {
+      "path": "asset-bank/flight/concepts-20261026/04.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_ace_stark_fokkerd7": {
+      "path": "asset-bank/flight/concepts-20261026/05.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_ace_klimke_dr1": {
+      "path": "asset-bank/flight/concepts-20261026/06.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_ace_buchner_fokkerd7": {
+      "path": "asset-bank/flight/concepts-20261026/07.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_ace_cobby_camel": {
+      "path": "asset-bank/flight/concepts-20261026/08.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_spad_sa2": {
+      "path": "asset-bank/flight/concepts-20261026/09.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_sea_porte_baby": {
+      "path": "asset-bank/flight/concepts-20261026/10.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_ace_bolle_fokkerd7": {
+      "path": "asset-bank/flight/concepts-20261026/11.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_ace_slade_spad": {
+      "path": "asset-bank/flight/concepts-20261026/12.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_roland_dii": {
+      "path": "asset-bank/flight/concepts-20261026/13.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_gotha_gi": {
+      "path": "asset-bank/flight/concepts-20261026/14.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_ace_bohning_albatros": {
+      "path": "asset-bank/flight/concepts-20261026/15.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_ace_beamish_camel": {
+      "path": "asset-bank/flight/concepts-20261026/16.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_sea_hanriot_hd2": {
+      "path": "asset-bank/flight/concepts-20261026/17.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_sopwith_cuckoo": {
+      "path": "asset-bank/flight/concepts-20261026/18.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_ace_michetti_hanriot": {
+      "path": "asset-bank/flight/concepts-20261026/19.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_ace_chambers_spad": {
+      "path": "asset-bank/flight/concepts-20261026/20.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_caproni_ca5": {
+      "path": "asset-bank/flight/concepts-20261026/21.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_martinsyde_s1": {
+      "path": "asset-bank/flight/concepts-20261026/22.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_ace_hippert_fokkerd7": {
+      "path": "asset-bank/flight/concepts-20261026/23.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_ace_auffarth_fokkerd7": {
+      "path": "asset-bank/flight/concepts-20261026/24.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_farman_mf11": {
+      "path": "asset-bank/flight/concepts-20261026/25.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_phonix_dii": {
+      "path": "asset-bank/flight/concepts-20261026/26.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_ace_chavannes_spad13": {
+      "path": "asset-bank/flight/concepts-20261026/27.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_ace_konnecke_albatros": {
+      "path": "asset-bank/flight/concepts-20261026/28.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_plane_siemens_schuckert_di": {
+      "path": "asset-bank/flight/concepts-20261026/29.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_sea_donnet_denhaut_dd8": {
+      "path": "asset-bank/flight/concepts-20261026/30.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_ace_neckel_fokkerd7": {
+      "path": "asset-bank/flight/concepts-20261026/31.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
+    },
+    "bank_ace_navratil_oeffag": {
+      "path": "asset-bank/flight/concepts-20261026/32.webp",
+      "x": 0,
+      "y": 0,
+      "w": 288,
+      "h": 320
     }
   },
   "sources": {
@@ -7135,6 +7401,30 @@
     "bank_livery_voisin8__usas": {
       "source": "asset-bank/liveries/voisin8/usas.webp",
       "sha256": "32e8ddb97f5d89daf66eccb19f450828f3a764a2ad2e861bf7ce254812d6c498"
+    },
+    "bank_plane_halberstadt_dii": {
+      "source": "/workspace/scratch/b68d9304dfd9/headon-aircraft-six/Halberstadt_DII.png",
+      "sha256": "cd395f0784af77a07170f97bf9d7b3e5326b42f047c6fca73f548c13dad59c9e"
+    },
+    "bank_plane_roland_cii": {
+      "source": "/workspace/scratch/b68d9304dfd9/generated_images/exec-db1506c5-6405-400c-94e6-8b82251e1b19.png",
+      "sha256": "86df7afeab885ce0b986fb665693c93636b761a3897a5831264aaf61db4b20a4"
+    },
+    "bank_plane_farman_f40": {
+      "source": "/workspace/scratch/b68d9304dfd9/headon-aircraft-six/Farman_F40.png",
+      "sha256": "08b994f4e85ae834c9d77cc78c0069507d504d38161e6a61f58c31fae886172a"
+    },
+    "bank_sea_grigorovich_m9": {
+      "source": "/workspace/scratch/b68d9304dfd9/generated_images/exec-06e0671a-cb57-42ad-8390-8b10f417b702.png",
+      "sha256": "c36433f06b6541ff92f5a81047338746bfc3a99f10538663d29e4ba725b6e0bb"
+    },
+    "bank_plane_vickers_vimy": {
+      "source": "/workspace/scratch/b68d9304dfd9/headon-aircraft-six/Vickers_Vimy.png",
+      "sha256": "a13efef7e1e854d6208f6d5cde8404035148e48dfc7c48f53644d58ecd7c9fe4"
+    },
+    "bank_plane_handley_page_v1500": {
+      "source": "/workspace/scratch/b68d9304dfd9/headon-aircraft-six/Handley_Page_V1500.png",
+      "sha256": "3aa5e1864fe59b1f97ec8cc0be9b93497b46fea6fb987a5e586241b2fe94f904"
     }
   }
 }

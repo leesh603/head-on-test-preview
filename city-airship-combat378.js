@@ -1,6 +1,6 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=tame3';
-import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=tame3&cityart=20261022';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=headon-result339-20261028';
+import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=headon-result339-20261028&cityart=20261022';
 
 // Source-image coordinates are shared by hull hit tests, gun mounts and mines.
 export const CITY_HULLS={
@@ -74,7 +74,7 @@ class CityAirships extends BaseBoss{
   for(const q of this.gunQueue.filter(q=>q.delay<=0)){
    if(this.parts.get('airship-'+q.index).destroyed)continue;
    const from=this.point(...CITY_GUNS[this.cityArtKind][q.index],q.index),speed=Math.max(245,this.t.bulletSpeed*.95);
-   this.hazard('projectile',{...from,vx:Math.cos(q.angle)*speed,vy:Math.sin(q.angle)*speed,radius:3,damage:this.t.damage*.32,duration:4.2,visual:'city-mg',tag:'gun-'+q.index,sourcePartId:'airship-'+q.index});
+   this.hazard('projectile',{...from,vx:Math.cos(q.angle)*speed,vy:Math.sin(q.angle)*speed,radius:3,damage:this.t.damage*.32,duration:4.2,visual:'city-mg',tag:'gun-'+q.index,sourcePartId:'airship-'+q.index,sourceOffsetX:from.x-this.x-this.parts.get('airship-'+q.index).x,sourceOffsetY:from.y-this.y-this.parts.get('airship-'+q.index).y});
    this.command('muzzle',from);
   }
   this.gunQueue=this.gunQueue.filter(q=>q.delay>0);
@@ -118,6 +118,9 @@ export class LondonApron extends CityAirships{
    if(!this.apronStarted)this.hazard('net',{x:this.x,y:this.y,vertices,warning:this.apronEntryRemaining??1.5,duration:3600,tickInterval:.8,damage:this.t.damage*.5,blocks:true,visual:'apron-attached',tag});
    this.command('apron-pose',{x:this.x,y:this.y,vertices,tag});
   }this.apronStarted=true;if(this.encounter?.breath)return;
+  // Gondola guns cover the moving net independently of its searchlight;
+  // destroying a support opens its panel and removes that gun's queued rows.
+  this.guns(dt,players);
   const alive=players.filter(p=>p.alive);if(!alive.length)return;this.apronStateAge+=dt;
   if(this.apronState==='corridor-formation'&&this.apronStateAge>=2.4)this.setApronState('light-catch',players);
   else if(this.apronState==='light-catch'){
@@ -168,7 +171,10 @@ export class DrachenMineNet extends CityAirships{
   this.burstQueue=this.burstQueue.filter(q=>q.delay>0);
  }
  update(dt,{players,bounds}){
-  if(this.dead)return;this.tickCityArt(dt);this.basicHoldUntil=(this.combatTime||0)+dt+.1;if(this.cityMineLane)this.cityMineLane.remaining=Math.max(0,this.cityMineLane.remaining-dt);this.drift(dt);if(this.encounter?.breath)return;this.netStateAge+=dt;const live=this.live(),target=players.filter(p=>p.alive)[this.netWave%Math.max(1,players.filter(p=>p.alive).length)];
+  if(this.dead)return;this.tickCityArt(dt);this.basicHoldUntil=(this.combatTime||0)+dt+.1;if(this.cityMineLane)this.cityMineLane.remaining=Math.max(0,this.cityMineLane.remaining-dt);this.drift(dt);if(this.encounter?.breath)return;
+  // The existing gun crews stay engaged while another rig lays its mines.
+  // Per-rig ownership preserves the safe approach earned by support kills.
+  this.guns(dt,players);this.netStateAge+=dt;const live=this.live(),target=players.filter(p=>p.alive)[this.netWave%Math.max(1,players.filter(p=>p.alive).length)];
   if(this.netStateFresh){this.netStateFresh=false;if(this.netState==='mines')this.planMines(target,live,bounds);else if(this.netState==='support-aim')this.planSupportAim(players,bounds);else if(this.netState==='delayed-bursts')this.queueSupportBursts();}
   this.tickQueues(dt);
   if(this.netState==='mines'&&this.netStateAge>=1.65)this.setNetState('support-aim');

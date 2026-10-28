@@ -1,8 +1,8 @@
 /* Astra presentation. Move the live controls, never clone gameplay state or handlers. */
-import {getLocale,subscribe} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
-import {aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2';
-import {hangarArt,hangarArtNow,hangarKeyFile,hangarArtLayout} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
-export {hangarArt} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
+import {getLocale,subscribe} from './i18n.js?v=headon-result339-20261028&afc=1&art=pilot-recovery2';
+import {aircraftKey} from './aircraft.js?v=headon-result339-20261028&art=pilot-recovery2&pf=1027';
+import {hangarArt,hangarArtNow,hangarKeyFile,hangarArtLayout} from './hangar-art.js?v=headon-result339-20261028&art=pilot-recovery2';
+export {hangarArt} from './hangar-art.js?v=headon-result339-20261028&art=pilot-recovery2';
 
 const $=id=>document.getElementById(id);
 const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node};
@@ -131,6 +131,7 @@ function install(){
  let queued=false,lastArt='',lastPilot='',artRequest=0;
  const schedule=()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;sync()})};
  function sync(){
+  if(document.body.classList.contains('playing'))return;
   const en=getLocale()==='en',selectedButton=$('pilotTabs').querySelector('[data-pilot-id].active');
   if(!selectedButton)return;
   const pilot=selectedButton.dataset.pilotId,aircraftId=aircraftKey($('aircraftSelect103').value,false,pilot);
@@ -191,6 +192,7 @@ function install(){
   if(lastPilot!==pilot){lastPilot=pilot;const tabs=$('pilotTabs');const l=selectedButton.getBoundingClientRect().left-tabs.getBoundingClientRect().left+tabs.scrollLeft;if(l<tabs.scrollLeft||l+selectedButton.offsetWidth>tabs.scrollLeft+tabs.clientWidth)tabs.scrollLeft=Math.max(0,l-tabs.clientWidth/2+selectedButton.offsetWidth/2)}
   document.body.classList.add('boot-ready');
  }
+ new MutationObserver(schedule).observe(document.body,{attributes:true,attributeFilter:['class']});
  new MutationObserver(schedule).observe($('pilotTabs'),{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
  new MutationObserver(schedule).observe($('aircraftSelect103'),{childList:true,subtree:true,attributes:true,attributeFilter:['disabled','hidden','selected']});
  $('aircraftSelect103').addEventListener('change',schedule);
@@ -203,9 +205,13 @@ function installHud(){
  const reload=$('reload'),ammo=$('ammoHud'),survival=document.querySelector('.flight-survival');if(!reload||!survival)return;
  for(const [id,name]of [['touchSkill','active'],['touchEvade','maneuver']]){
   const button=$(id);
-  if(name==='active'){const f=$('central')?.classList.contains('active')?'central':'entente';
-   const img=el('img','astra-control-icon astra-skill-emblem');img.alt='';img.decoding='async';
-   img.src=`./augmentation-icons/emblem_bare_${f}.webp?v=r5`;button.prepend(img,ring());}
+  if(name==='active'){
+   // The authored emblem is already painted into this canvas by app.js.
+   // Reuse it instead of layering an extra <img> that can show a broken-image glyph.
+   const icon=$('skillButtonIcon');
+   if(icon){icon.classList.add('astra-control-icon');icon.style.display='block';}
+   button.prepend(ring());
+  }
   else button.prepend(interfaceIcon(name,'astra-control-icon'),ring());
  }
  const readout=el('div','astra-reload-readout'),caption=el('span'),seconds=el('b'),track=el('span','astra-reload-track'),fill=el('i');track.append(fill);readout.append(caption,seconds,track);survival.append(readout);
@@ -224,7 +230,13 @@ function installHud(){
   wasReloading=reloading;
   const counts=$('ammoCount').textContent.match(/(\d+)\s*\/\s*(\d+)/);
   if(counts&&+counts[2])ammo.style.setProperty('--astra-ammo',Math.min(100,+counts[1]/+counts[2]*100)+'%');
-  survival.classList.toggle('astra-low-health',parseFloat(health.style.width)<30);
+  // 4-digit belts (stacked belt upgrades) need a tighter layout on phones.
+  if(ammo){const long=!!counts&&counts[2].length>=4;if((ammo.dataset.long==='1')!==long)ammo.dataset.long=long?'1':''}
+  ammo?.classList.toggle('astra-low-ammo',!!counts&&+counts[2]>0&&!reloading&&+counts[1]/+counts[2]<.2);
+  const hpCur=parseFloat(document.getElementById('healthCurrent151')?.textContent),hpMax=parseFloat(document.getElementById('healthMax151')?.textContent),hpRaw=parseFloat(health.style.width),hpNow=hpMax>0&&Number.isFinite(hpCur)?hpCur/hpMax*100:Number.isFinite(hpRaw)?hpRaw:100;survival.classList.toggle('astra-low-health',hpRaw<30);
+  // Hit flash: the status pill blinks red once whenever health drops.
+  if(hpNow<(survival.hoLastHp??hpNow)-.5){survival.classList.remove('astra-hit');void survival.offsetWidth;survival.classList.add('astra-hit')}survival.hoLastHp=hpNow;
+  const bossHp=document.getElementById('stageBossHp');if(bossHp)bossHp.parentElement.classList.toggle('ho-boss-low',parseFloat(bossHp.style.width)<25);
  }
  let pending=false;const schedule=()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;syncReadout()})};
  new MutationObserver(schedule).observe(reload,{attributes:true,attributeFilter:['aria-label','disabled']});

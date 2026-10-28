@@ -1,6 +1,6 @@
 // Small cached compositions of approved painted artwork, never collision geometry.
 // Ordinary rounds remain one continuous luminous tracer, never physical ordnance.
-import {fxReady,fxTint} from './fx-art.js?v=tame3';
+import {fxReady,fxTint} from './fx-art.js?v=headon-result339-20261028';
 const P=(core,wake,shape,length=26,width=4)=>Object.freeze({core,wake,shape,length,width});
 export const GUN_SIGNATURES=Object.freeze({
  standard:P('#e8c981','#d6a551','capsule',20,2.8),

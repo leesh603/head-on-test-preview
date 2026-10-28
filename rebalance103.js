@@ -1,5 +1,5 @@
 // Excel revision 103. Unspecified numbers are explicit first-playtest tuning.
-import {WING_PLANES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026';
+import {WING_PLANES} from './engine.js?v=headon-result339-20261028&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
 
 export const REVISION_BALANCE=Object.freeze({soloCap:12,coopCap:18,soloRegular:10,coopRegular:11,interval:1.6,coopInterval:1.65,countrysideInterval:1,countrysideCoopInterval:1.15,frontReduction:.25,rearBonus:.3,compassXp:1.3});
 const pilotMachineGunRound=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.actualExplosion&&!b.blast&&!b.mauserRound;
@@ -104,7 +104,8 @@ const maneuverEase=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
  Game.prototype.beginRevisionFrame=function(dt,input={}){
   this.ensureRevisionPilot();const world=this.combatWorld();
   if(this.pilot==='immelmann'){const yaw2=Math.abs(Math.atan2(Math.sin(this.a-(this.immelmannPreviousHeading??this.a)),Math.cos(this.a-(this.immelmannPreviousHeading??this.a))));this.immelmannPreviousHeading=this.a;if(!this.immelmannTurn){this.immelmannTurnAmount=(this.immelmannTurnAmount||0)*Math.exp(-dt*.8)+yaw2;if(this.immelmannTurnAmount>=Math.PI/2){this.eagleTime=1.5;this.immelmannTurnAmount=0}}}
-  const nearby=this.enemies.filter(e=>e.hp>0&&Math.hypot(e.x-this.x,e.y-this.y)<400).length;
+  let nearby=0;
+  if(this.pilot==='voss')for(const e of this.enemies)if(e.hp>0&&Math.hypot(e.x-this.x,e.y-this.y)<400)nearby++;
   const wolf=this.pilot==='voss'?Math.min(6,nearby)*.04:0,udet=0,eagle=this.eagleTime>0?.2:0;
   this.revisionDamageMult=1+wolf+udet*.5;
   const yaw=Number.isFinite(input.angle)?Math.abs(Math.atan2(Math.sin(input.angle-this.a),Math.cos(input.angle-this.a))):Math.abs(input.steer||0);
@@ -140,8 +141,15 @@ const maneuverEase=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
   this.revisionDecoys=(this.revisionDecoys||[]).filter(d=>(d.life-=dt)>0);
   for(const b of this.bullets){
    if(!b.fonckGuided||b.life<=0)continue;const owner=this.players?.find(p=>p.id===b.ownerId)||this;
-   const targets=this.enemies.filter(e=>e.hp>0&&!b.hit?.has(e)&&Math.abs(Math.atan2(Math.sin(Math.atan2(e.y-owner.y,e.x-owner.x)-b.guidedHeading),Math.cos(Math.atan2(e.y-owner.y,e.x-owner.x)-b.guidedHeading)))<Math.PI/4);
-   targets.sort((a,c)=>Math.hypot(a.x-b.x,a.y-b.y)-Math.hypot(c.x-b.x,c.y-b.y));if(targets[0]){const a=Math.atan2(targets[0].y-b.y,targets[0].x-b.x),s=Math.hypot(b.vx,b.vy);b.vx=Math.cos(a)*s;b.vy=Math.sin(a)*s;}
+   let target=null,best=Infinity;
+   for(const e of this.enemies){
+    if(!(e.hp>0)||b.hit?.has(e))continue;
+    const heading=Math.atan2(e.y-owner.y,e.x-owner.x)-b.guidedHeading;
+    if(!(Math.abs(Math.atan2(Math.sin(heading),Math.cos(heading)))<Math.PI/4))continue;
+    const distance=Math.hypot(e.x-b.x,e.y-b.y);
+    if(!target||distance<best){target=e;best=distance;}
+   }
+   if(target){const a=Math.atan2(target.y-b.y,target.x-b.x),s=Math.hypot(b.vx,b.vy);b.vx=Math.cos(a)*s;b.vy=Math.sin(a)*s;}
   }
  };
  const aceAttack=Game.prototype.aceAttack;
@@ -209,5 +217,6 @@ const maneuverEase=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
  };
  Game.prototype.reserveEnemySlots=function(){/* Existing enemies stay on the battlefield. */};
 }
+
 
 

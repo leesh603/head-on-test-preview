@@ -1,10 +1,10 @@
-import {prepareGothaDetailArt,releaseGothaDetailArt,drawDetailedGotha} from './gotha-detail-art.js?v=20261022';
-import {prepareCityBalloonArt,releaseCityBalloonArt} from './city-balloon-art.js?v=20261022';
-import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=tame3';
-import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
-import {fx} from './fx-art.js?v=tame3';
-import {drawAttachedApron} from './london-apron369.js?v=tame3&cityart=20261022';
-const paths={gotha:'./asset-bank/outlined/native/gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=r5',apronDamage:'./boss-london-apron-registered-damage369.png?v=r5'};
+import {prepareGothaDetailArt,releaseGothaDetailArt,drawDetailedGotha} from './gotha-detail-art.js?v=headon-result339-20261028';
+import {prepareCityBalloonArt,releaseCityBalloonArt} from './city-balloon-art.js?v=headon-result339-20261028';
+import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=headon-result339-20261028';
+import {impactMark,aimLine} from './tactical-marks.js?v=headon-result339-20261028';
+import {fx} from './fx-art.js?v=headon-result339-20261028';
+import {drawAttachedApron} from './london-apron369.js?v=headon-result339-20261028&cityart=20261022';
+const paths={gotha:'./asset-bank/outlined/native/gotha-night-atlas20260930.webp',light:'./fx-city-searchlight.webp',gun:'./fx-city-aagun.webp',apron:'./boss-london-apron115.webp?v=headon-result339-20261028',apronDamage:'./boss-london-apron-registered-damage369.png?v=headon-result339-20261028'};
 let art={},artLoadP=null;
 export function releaseLondonArt(){art={};artLoadP=null;releaseGothaDetailArt();releaseCityBalloonArt();}
 export function prepareLondonArt(){return Promise.all([prepareGothaDetailArt(),prepareCityBalloonArt(),prepareGroundEnemyArt(),...Object.entries(paths).map(([key,path])=>new Promise(resolve=>{const im=new Image();art[key]=im;im.decoding='async';im.onerror=resolve;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.src=path;}))]);}

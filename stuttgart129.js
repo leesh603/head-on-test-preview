@@ -1,4 +1,4 @@
-import {steerNaval} from './adriatic-boss-layout.js?v=tame3';
+import {steerNaval} from './adriatic-boss-layout.js?v=headon-result339-20261028';
 import {FixedPool} from './support-pool129.js';
 export const HANGAR=Object.freeze({x:0,y:.213,w:.25,h:.314}); // normalized to full base image
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -36,7 +36,7 @@ export class StuttgartSupport {
   const partDamage=p?Math.min(p.hp,damage):damage,dealt=Math.min(Math.max(0,this.hp-floor),partDamage);if(p)p.hp-=partDamage;this.hp-=dealt;
   if(p&&p.hp<=0){const q=this.world(p.nx,p.ny);this.onCue({type:'part-destroyed',encounterId:this.id,partId,x:q.x,y:q.y});this.fx('burst',q.x,q.y,34,.9);
    if(partId==='fuel'&&this.hp>0){this.hp=Math.max(0,this.hp-this.maxHp*.10);this.onCue({type:'fuel-detonation',encounterId:this.id,...q});}
-   if(partId.startsWith('gun')){if(this.fireWarning?.gunIds?.includes(partId))this.fireWarning=null;this.projectiles.visit(s=>{if(s.sourcePartId===partId&&s.age<s.warning)this.projectiles.release(s.index,s.generation);});}
+   if(partId.startsWith('gun')){if(this.fireWarning?.gunIds?.includes(partId)){this.fireWarning.gunIds=this.fireWarning.gunIds.filter(id=>id!==partId);if(!this.fireWarning.gunIds.length)this.fireWarning=null;}this.projectiles.visit(s=>{if(s.sourcePartId===partId&&s.age<s.warning)this.projectiles.release(s.index,s.generation);});}
    if((partId==='hangar'||partId==='fuel')&&this.sortieState==='plane-pass')this.setSortieState('hull-turn');
    if(partId==='boiler')this.onCue({type:'phase-change',encounterId:this.id,phase:'carrier-engine-disabled'});
    if(!this.crippled&&this.liveGuns().length===0&&(this.parts.get('hangar').hp<=0||this.parts.get('fuel').hp<=0)){this.crippled=true;this.phase=4;this.phaseAge=4;this.hp=Math.min(this.hp,this.maxHp*.18);this.setSortieState('crippled');}
@@ -56,7 +56,7 @@ export class StuttgartSupport {
  shoot(x,y,angle,delay=0,heavy=false,sourcePartId=null){const p=this.projectiles.acquire();if(!p)return;p.hits.clear();Object.assign(p,{id:this.id+':shot:'+(++this.damageSerial),kind:'shell',ordnanceFamily:'ap',activated:false,sourcePartId,x,y,vx:Math.cos(angle)*this.tuning.bulletSpeed,vy:Math.sin(angle)*this.tuning.bulletSpeed,age:-delay,warning:0,life:3.1,radius:heavy?8:4,raidHeavy:heavy,damage:this.tuning.damage*(heavy?2.4:.65),applied:false});}
  flak(x,y,{delay=0,radius=30,sourcePartId=null}={}){const p=this.projectiles.acquire();if(!p)return;p.hits.clear();Object.assign(p,{id:this.id+':flak:'+(++this.damageSerial),kind:'flak',ordnanceFamily:'fragmentation',activated:false,raidHeavy:false,sourcePartId,x,y,vx:0,vy:0,age:-delay,warning:1.05,life:1.35,radius,damage:this.tuning.damage*.72,applied:false});}
  liveGuns(){return[0,1,2,3].map(i=>this.parts.get('gun'+i)).filter(p=>p.hp>0);}
- fire(players,lockedAngle=this.angle){const target=players.find(p=>p.alive);const side=this.fireSide++%2,indices=side?[1,3]:[0,2];for(const i of indices){const p=this.parts.get('gun'+i);if(p.hp<=0)continue;const q=this.world(p.nx,p.ny),a=target?Math.atan2(target.y-q.y,target.x-q.x):lockedAngle+(side?0:Math.PI);
+ fire(players,lockedAngle=this.angle,lockedGuns=null){const target=players.find(p=>p.alive);const side=this.fireSide++%2,indices=lockedGuns?lockedGuns.map(id=>Number(id.slice(3))):side?[1,3]:[0,2];for(const i of indices){const p=this.parts.get('gun'+i);if(p.hp<=0)continue;const q=this.world(p.nx,p.ny),a=target?Math.atan2(target.y-q.y,target.x-q.x):lockedAngle+(side?0:Math.PI);
    // The final sortie adds a fourth walking row before the solid heavy one.
    const n=11,rows=this.phase===4?4:3;for(let row=0;row<rows;row++)for(let j=0;j<n;j++){const gap=(side?6:2)+(side?-row:row);if(row<rows-1&&j>=gap&&j<gap+2)continue;this.shoot(q.x,q.y,a+(j/(n-1)-.5)*1.65,row*.48,row===rows-1,p.id);}this.fx('muzzle',q.x,q.y,15,.20,{angle:a});
   }
@@ -100,15 +100,18 @@ export class StuttgartSupport {
  }
  setSortieState(state,players=[]){if(this.sortieState===state)return;this.sortieState=state;this.sortieAge=0;this.rearming=state==='rearm'||state==='crippled';
   const names={'gun-lure':'carrier-gun-lure','plane-pass':'carrier-plane-pass','hull-turn':'carrier-hull-turn',rearm:'carrier-rearm',crippled:'carrier-crippled'};this.tacticalPhase=names[state]||names['gun-lure'];
-  this.fireWarning=null;if(state==='plane-pass')this.launch(players,{final:this.phase>=4});
+  // A sortie transition must not cancel a broadside already telegraphed by surviving guns.
+  if(state==='crippled')this.fireWarning=null;if(state==='plane-pass')this.launch(players,{final:this.phase>=4});
   if(state==='hull-turn'){this.turnSign=this.sortieSerial++%2?1:-1;this.turnHeading=this.angle+this.turnSign*Math.PI*.68;}
   this.onCue({type:'phase-change',encounterId:this.id,phase:this.tacticalPhase});
  }
  tickSortie(dt,players){if(this.phase<2||this.crippled)return;
   this.sortieAge+=dt;
+  // Deck operations and navigation do not stop the independent hull gun crew.
+  // Keep the existing nine-second broadside clock and authored rearm window.
+  if(this.sortieState!=='rearm'){this.fireClock-=dt;if(this.fireClock<=0&&!this.fireWarning){this.fireClock=9;this.prepareFire(players);}}
   if(this.sortieState==='gun-lure'){
    if(!this.liveGuns().length||this.sortieAge>=2.8){this.setSortieState('plane-pass',players);return;}
-   this.fireClock-=dt;if(this.fireClock<=0&&!this.fireWarning){this.fireClock=9;this.prepareFire(players);}
   }else if(this.sortieState==='plane-pass'){
    const deckLive=this.parts.get('hangar').hp>0&&this.parts.get('fuel').hp>0;if(!deckLive||this.sortieAge>=3.1)this.setSortieState('hull-turn');
   }else if(this.sortieState==='hull-turn'){
@@ -126,7 +129,7 @@ export class StuttgartSupport {
   if((this.time<4||this.phase===4)&&(this.smokeClock-=dt)<=0){this.smokeClock=.25;const q=this.world(0,-.12);this.fx('smoke',q.x,q.y,70,1.9,{vx:15,vy:25});}
   this.tickSortie(dt,players);
   if(this.cover){this.cover.age+=dt;this.cover.x+=this.cover.vx*dt;this.cover.y+=this.cover.vy*dt;this.cover.angle+=dt*1.2;if(this.cover.age>=1.8)this.cover=null;}
-  if(this.fireWarning){this.fireWarning.left-=dt;if(this.fireWarning.left<=0){const warning=this.fireWarning;this.fireWarning=null;this.fire(warning.targets,warning.angle);}}
+  if(this.fireWarning){this.fireWarning.left-=dt;if(this.fireWarning.left<=0){const warning=this.fireWarning;this.fireWarning=null;this.fire(warning.targets,warning.angle,warning.gunIds);}}
   if(this.phase===1){this.fireClock-=dt;if(this.time>=1.8&&this.fireClock<=0&&!this.fireWarning){this.fireClock=5.5*(this.tuning.fireScale||1)/(this.tuning.projectileDensity??1);this.prepareFire(players);}}
   this.projectiles.visit(p=>{if(p.age<p.warning&&p.sourcePartId&&this.parts.get(p.sourcePartId)?.hp<=0){this.projectiles.release(p.index,p.generation);return;}const ax=p.x,ay=p.y;p.age+=dt;if(p.age<p.warning)return;if(!p.activated){p.activated=true;if(p.raidHeavy)this.onCue({type:'hazard-activated',encounterId:this.id,kind:'projectile',visual:'stuttgart-flak',ordnanceFamily:p.ordnanceFamily,raidHeavy:true,sourcePartId:p.sourcePartId,x:p.x,y:p.y});}p.x+=p.vx*dt;p.y+=p.vy*dt;
    if(p.kind==='flak'&&!p.applied){p.applied=true;this.fx('burst',p.x,p.y,p.radius,.45);this.onCue({type:'flak-burst',encounterId:this.id,x:p.x,y:p.y});}

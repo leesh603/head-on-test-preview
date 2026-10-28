@@ -1,7 +1,7 @@
 import {RARE_SPECIALIZATIONS} from './rare-specializations.js';
 import {SPECIAL_DOCTRINES} from './airframe-doctrines.js';
-import {getAircraftDisplayName,getAircraftMeta} from './aircraft-master.js?v=tame3';
-import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
+import {getAircraftDisplayName,getAircraftMeta} from './aircraft-master.js?v=headon-result339-20261028';
+import {pilotIdentityCopy} from './pilot-identity-copy.js?v=headon-result339-20261028';
 import {WEAPON_MODS} from './weapon-modifications.js';
 
 const STORAGE_KEY='headon-locale';
@@ -31,6 +31,7 @@ const KO={
  'event.BOMBER_INTERCEPT.title':'폭격기 요격','event.BOMBER_INTERCEPT.text':'적 폭격 편대가 전선을 통과 중입니다.\n편대가 이탈하기 전에 격추하면 보급을 확보합니다.',
  'event.ACE_CHALLENGE.title':'에이스 도전','event.ACE_CHALLENGE.text':'적 에이스가 단독 결투를 요청합니다.\n위험한 교전이지만 가장 큰 보급을 확보할 수 있습니다.',
  'event.RECON_ESCORT.title':'정찰기 호위','event.RECON_ESCORT.text':'적의 요격을 막고 정찰기를 엄호하세요. 성공하면 폭격 지원 3회가 도착합니다.','event.reward.RECON_ESCORT':'폭격대 2기 지원 · 3교전',
+ 'event.TRANSPORT_CONVOY.title':'적 수송 편대','event.TRANSPORT_CONVOY.text':'호위를 뚫고 수송기를 격추하세요. 보급품을 회수하면 수리와 경험치를 얻습니다. 도주해도 불이익은 없습니다.','event.reward.TRANSPORT_CONVOY':'보급품: 수리 30% + 경험치','event.hud.transport':'수송기 1대 격추 · 호위 전멸 불필요','event.hud.transportCollect':'낙하 보급품 회수','event.transportEscaped':'수송 편대 이탈 · 추가 불이익 없음','event.transportCargoExpired':'보급품 회수 종료 · 추가 불이익 없음','event.transportCargoLabel':'보급품','event.transportTargetLabel':'수송기',
  'event.SUPPLY_RECOVERY.title':'긴급 보급','event.SUPPLY_RECOVERY.text':'전방의 보급품을 회수하면 HP가 완전히 회복됩니다.',
  'event.reward.HIGH_VALUE_TARGET':'적 지휘 붕괴 · 2교전','event.reward.RESCUE':'아군 5기 지원 · 3교전','event.reward.BOMBER_INTERCEPT':'폭격대 2기 지원 · 3교전','event.reward.ACE_CHALLENGE':'강화 선택 1회','event.reward.PHOTO_RECON':'다음 보스 약점 +35%','event.reward.SUPPLY_RECOVERY':'HP 100% 회복','event.hud.supply':'보급품 회수',
  'event.PHOTO_RECON.title':'정찰 촬영','event.PHOTO_RECON.text':'적진 상공의 촬영 지점을 순서대로 순회합니다.\n각 지점 상공에서 잠시 유지하면 촬영이 완료되고 보급을 확보합니다.',
@@ -63,6 +64,7 @@ const EN={
  'event.BOMBER_INTERCEPT.title':'Bomber Intercept','event.BOMBER_INTERCEPT.text':'An enemy bomber formation is crossing the front.\nDestroy it before it escapes to secure supplies.',
  'event.ACE_CHALLENGE.title':'Ace Challenge','event.ACE_CHALLENGE.text':'An enemy ace challenges you to a direct duel.\nThe risk is high, but so is the supply reward.',
  'event.RECON_ESCORT.title':'Recon Escort','event.RECON_ESCORT.text':'Protect the reconnaissance aircraft from interceptors to secure three bomber raids.','event.reward.RECON_ESCORT':'2 bombers · 3 battles',
+ 'event.TRANSPORT_CONVOY.title':'Enemy Supply Flight','event.TRANSPORT_CONVOY.text':'Break through the escorts, down the carrier and collect repair supplies and XP. Escape carries no penalty.','event.reward.TRANSPORT_CONVOY':'Cargo: 30% repair + XP','event.hud.transport':'Down 1 carrier · escorts optional','event.hud.transportCollect':'Collect the fallen cargo','event.transportEscaped':'Supply flight escaped · no extra penalty','event.transportCargoExpired':'Cargo recovery ended · no extra penalty','event.transportCargoLabel':'CARGO','event.transportTargetLabel':'CARRIER',
  'event.SUPPLY_RECOVERY.title':'Emergency Supply','event.SUPPLY_RECOVERY.text':'Collect the forward supply pickup to restore HP completely.',
  'event.reward.HIGH_VALUE_TARGET':'Enemy command disrupted · 2 battles','event.reward.RESCUE':'5 allies · 3 battles','event.reward.BOMBER_INTERCEPT':'2 bombers · 3 battles','event.reward.ACE_CHALLENGE':'Choose 1 upgrade','event.reward.PHOTO_RECON':'Next boss weak point +35%','event.reward.SUPPLY_RECOVERY':'Full HP restore','event.hud.supply':'Collect the supply',
  'event.PHOTO_RECON.title':'Recon Photography','event.PHOTO_RECON.text':'Sweep the photo points over enemy lines in order.\nHold briefly above each point to photograph it and secure supplies.',
@@ -88,12 +90,12 @@ Object.assign(UPGRADE_NAMES_EN,{
 Object.assign(UPGRADE_DESC_EN,{
  strutterAirbrake:'Turns fighter evasion into a brake turn, slowing briefly before reaccelerating. Cannot be equipped with an airframe conversion.',
  wimperisSight:'Predicts moving targets at release for rockets, grenades, Cooper bombs and bomber bombs.',
- buckinghamBelt:'Repeated machine-gun hits ignite enemy aircraft.',
- cooperRack:'Drops a pair of light bombs when passing a forward target.',
- fieryGrapnel:'Hooks and ignites an aircraft during a close flyby.',
- flechettes:'Releases piercing darts in short bursts at forward enemies. Less effective against heavy armor.',
- veryPistol:'Signals a forward target for your existing wingmen to focus on.',
- hytheCamera:'Analyzes a repeatedly hit target, boosting machine-gun damage and revealing its attack warnings.'
+ buckinghamBelt:'Three consecutive machine-gun hits ignite the target.',
+ cooperRack:'Drops two light bombs at a forward target every 4s.',
+ fieryGrapnel:'Hooks a nearby aircraft during a flyby every 6s and burns it for 3s.',
+ flechettes:'Releases 12 piercing darts at forward enemies every 5s. Less effective against heavy armor.',
+ veryPistol:'Signals a forward target every 9s for your existing wingmen to focus on for 6s.',
+ hytheCamera:'Three consecutive machine-gun hits analyze the target: +30% machine-gun damage and attack warnings for 6s.'
 });
 
 for(const mod of WEAPON_MODS){UPGRADE_NAMES_EN[mod.id]=mod.enName;UPGRADE_DESC_EN[mod.id]=mod.enDescription}
@@ -167,3 +169,4 @@ export function subscribe(listener){listeners.add(listener);return()=>listeners.
 export function applyTranslations(root=globalThis.document){if(!root)return;const doc=root.ownerDocument||root;if(doc.documentElement)doc.documentElement.lang=locale;if(doc.title!==undefined)doc.title=t('app.title');for(const [id,key] of Object.entries(STATIC_TEXT)){const el=doc.getElementById?.(id);if(el)el.textContent=t(key)}for(const [selector,key] of STATIC_SELECTORS){const el=doc.querySelector?.(selector);if(el)el.textContent=t(key)}for(const el of doc.querySelectorAll?.('[data-i18n]')||[])el.textContent=t(el.dataset.i18n);for(const el of doc.querySelectorAll?.('[data-i18n-aria-label]')||[])el.setAttribute('aria-label',t(el.dataset.i18nAriaLabel));const select=doc.getElementById?.('localeSelect');if(select)select.value=locale;return locale}
 export function setLocale(next){const normalized=SUPPORTED.has(next)?next:'ko';locale=normalized;try{globalThis.localStorage?.setItem(STORAGE_KEY,normalized)}catch{}applyTranslations();for(const listener of listeners)listener(normalized);return normalized}
 export function initLocale(){applyTranslations();return locale}
+

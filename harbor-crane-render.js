@@ -1,8 +1,8 @@
-import {drawHarborGunArt,drawHarborPivotArt} from './harbor-hardware-art.js?v=20261022';
-import {drawHarborDetailBase,drawHarborDetailComponent,drawHarborDetailWeapon} from './harbor-detail-art.js?v=20261021';
-import {HARBOR_BOOM,harborScale,harborCranePose} from './harbor-crane-layout.js?v=tame3&harbor=20261021';
-import {partMark,stripMark,arcMark} from './tactical-marks.js?v=tame3';
-import {fx} from './fx-art.js?v=tame3';
+import {drawHarborGunArt,drawHarborPivotArt} from './harbor-hardware-art.js?v=headon-result339-20261028';
+import {drawHarborDetailBase,drawHarborDetailComponent,drawHarborDetailWeapon} from './harbor-detail-art.js?v=headon-result339-20261028';
+import {HARBOR_BOOM,harborScale,harborCranePose} from './harbor-crane-layout.js?v=headon-result339-20261028&harbor=20261021';
+import {partMark,stripMark,arcMark} from './tactical-marks.js?v=headon-result339-20261028';
+import {fx} from './fx-art.js?v=headon-result339-20261028';
 
 export const HARBOR_FRAMES=Object.freeze({arm:[0,0,627,390],armBroken:[627,0,627,390],ammo:[0,390,627,458],ammoBroken:[627,390,627,458],facility:[0,848,627,406],facilityBroken:[627,848,627,406]});
 const gunCache=new WeakMap(),gunCenters=[[188,152],[196,152],[190,161],[194,161]],gunAngles=[-2.6,-.54,2.52,.57];

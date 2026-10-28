@@ -1,5 +1,5 @@
-import {updateBasicBarrage} from './boss-basic-barrage.js?v=tame3&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&harbor=20261021';
-import {separateZubianHalves} from './adriatic-boss-layout.js?v=tame3';
+import {updateBasicBarrage} from './boss-basic-barrage.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&harbor=20261021';
+import {separateZubianHalves} from './adriatic-boss-layout.js?v=headon-result339-20261028';
 // Where a pilot will be after t seconds if it keeps doing what it is doing:
 // straight flight, or the turn it is in (omega rad/s, set by the boss runtime).
 export function predictPilot(p,t){
@@ -26,7 +26,7 @@ export class BaseBoss {
       const enc=this.encounter;
       if(enc?.breath&&enc.breathBlocks(event))return;
       if(enc?.breathCfg&&event.type==='hazard')enc.noteHazard(event);
-      if(event.type==='hazard'&&event.raidHeavy){this.basicHoldUntil=Math.max(this.basicHoldUntil||0,(this.combatTime||0)+(event.delay||0)+(event.warning||0)+(event.duration||0)+.4);if(this._heavyCancelAt!==this.combatTime){this._heavyCancelAt=this.combatTime;emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':basic-fire',pendingOnly:true});}}
+      if(event.type==='hazard'&&event.raidHeavy&&this.kind!=='gallipoli-fortress'){this.basicHoldUntil=Math.max(this.basicHoldUntil||0,(this.combatTime||0)+(event.delay||0)+(event.warning||0)+(event.duration||0)+.4);if(this._heavyCancelAt!==this.combatTime){this._heavyCancelAt=this.combatTime;emit({type:'cancel-hazards',bossId:this.id,tag:this.id+':basic-fire',pendingOnly:true});}}
       // While a warned signature attack is being read (its marker or aim line
       // is up), ordinary fire waits rather than layering on top of it. Plain
       // unwarned gunfire does not hold anything.

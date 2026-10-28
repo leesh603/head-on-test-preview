@@ -103,7 +103,7 @@ export function wimperisTarget(p,{x=p.x,y=p.y,heading=p.a,range=650,cone=.3,time
  }
  return best;
 }
-function cue(p,x,y){p.wimperisCue={x,y,until:finite(worldOf(p).t)+.16};}
+function cue(p,x,y){p.wimperisCue={x,y,until:finite(worldOf(p).t)+.4};}
 export function wimperisOrdnance(p,type,heading,reach){
  if(!enabled(p))return null;
  const rocket=type==='rocket',target=wimperisTarget(p,{heading,range:rocket?650:220,time:rocket?0:1.15,speed:rocket?520:0,front:rocket?(p.bomberTransfer?.front??30):0});
@@ -131,3 +131,4 @@ export function correctWimperisBomb(p,bomb){
  if(cooper){bomb.sx=bomb.x;bomb.sy=bomb.y;}
  return bomb;
 }
+

@@ -3,11 +3,11 @@ export const portraitSources={};
 // Per-pilot load tracking so the hangar gate can wait on just the portraits it shows.
 export const portraitLoaded=new Map();
 const legacyPortraits=['baron','voss','boelcke','immelmann','udet','fonck','collishaw','baracca','guynemer','bishop','goering','mannock','mckeever','huffzky','hawker','berthold','jacobs','rickenbacker','ball','barker','luke','brumowski','gontermann'];
-for(const id of legacyPortraits){const key=id==='mckeever'?'mckeever-powell129':id;portraitSources[id]=`./portrait-${key}.webp?v=tame3&b=bust2`;}
+for(const id of legacyPortraits){const key=id==='mckeever'?'mckeever-powell129':id;portraitSources[id]=`./portrait-${key}.webp?v=headon-result339-20261028&b=bust2`;}
 
 const NEW_ACE_PORTRAITS=['wolff','loewenhardt','mccudden','nungesser','lothar','sachsenberg','proctor','schleich','lufbery'];
-for(const id of NEW_ACE_PORTRAITS)portraitSources[id]=`./portrait-${id}-field.webp?v=tame3&b=bust2`;
-for(const id of ['huffzky','mckeever'])portraitSources[id]=`./portrait-${id==='mckeever'?'mckeever-powell129':id}.webp?v=crew20261024`;
+for(const id of NEW_ACE_PORTRAITS)portraitSources[id]=`./portrait-${id}-field.webp?v=headon-result339-20261028&b=bust2`;
+for(const id of ['huffzky','mckeever'])portraitSources[id]=`./portrait-${id==='mckeever'?'mckeever-powell129':id}.webp?v=headon-result339-20261028`;
 export const portraitThumbnailSources={};
 export const portraitThumbnailSource=id=>portraitThumbnailSources[id]||portraitSources[id];
 // The lobby requests its selected/visible pilots. Reusing the promise avoids

@@ -9,7 +9,7 @@ export const NORMAL_FORMATION_LIVERIES=Object.freeze({
   nieuport:Object.freeze(['camo_nieuport','nieuport']),
   spad:Object.freeze(['hatring_spad','italian_spad','belgium_spad','spad'])
 });
-const ordinary=e=>!!e&&!e.bossPilot&&!e.bossPlane&&!e.stageBossBody&&!e.bossMinion&&!e.heavyBomber&&['hunter','scout'].includes(e.type);
+const ordinary=e=>!!e&&!e.transportCarrier&&!e.bossPilot&&!e.bossPlane&&!e.stageBossBody&&!e.bossMinion&&!e.heavyBomber&&['hunter','scout'].includes(e.type);
 export function installNormalFormationLiveries(Game,planes,attach){
  if(Game.prototype.__normalFormationLiveries)return;Game.prototype.__normalFormationLiveries=true;
  Game.prototype.assignNormalFormationLivery=function(member,leader,index=0){

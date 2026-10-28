@@ -1,5 +1,5 @@
-import {SOMME_FRAMES} from './somme-boss-atlas.js?v=tame3';
-import {TREFFAS_ART} from './cambrai-layout.js?v=20261021&cambrai=20261021';
+import {SOMME_FRAMES} from './somme-boss-atlas.js?v=headon-result339-20261028';
+import {TREFFAS_ART} from './cambrai-layout.js?v=headon-result339-20261028&cambrai=20261021';
 export const CAMBRAI_DETAIL_SOURCES=Object.freeze({hull:'./boss-cambrai-hull-20261021.webp',hardware:'./boss-cambrai-hardware-20261021.webp',cars:'./boss-cambrai-cars-20261021.webp',mg:'./boss-mark1-guns-r3.webp',aa:'./boss-schwaben-guns-r2.webp'});
 const HW=[[178,20,156,472],[102,149,308,214],[197,99,117,313]],CAR=[[71,10,114,236],[62,10,131,236],[61,10,133,236],[59,10,137,236],[53,10,150,236]];
 let images={},pending=null,wheelFrames=[];

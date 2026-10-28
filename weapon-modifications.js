@@ -1,5 +1,5 @@
 import {wimperisOrdnance} from './flight-equipment.js';
-import {TACTICAL_DOCTRINES} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
+import {TACTICAL_DOCTRINES} from './tactical-doctrines.js?v=headon-result339-20261028&td4=20261026';
 // Compatibility exports for firing and encyclopedia consumers; never upgrade cards.
 export const WEAPON_MODS=TACTICAL_DOCTRINES;
 export const WEAPON_MOD_BY_ID=Object.freeze(Object.fromEntries(WEAPON_MODS.map(mod=>[mod.id,mod])));

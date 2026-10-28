@@ -1,5 +1,5 @@
-import {DOVER_COAST_PROFILE} from './dover-terrain-profile.js?v=dover3';
-import {DOVER_MAP} from './dover-patrol-chart.js?v=dover3';
+import {DOVER_COAST_PROFILE} from './dover-terrain-profile.js?v=headon-result339-20261028';
+import {DOVER_MAP} from './dover-patrol-chart.js?v=headon-result339-20261028';
 
 // The finite coastline is geometry; the native-resolution art is its material.
 // Never stretch a complete 1024px landscape across a 6144px battlefield.

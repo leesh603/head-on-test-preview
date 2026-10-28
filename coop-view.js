@@ -1,42 +1,43 @@
+import {drawAirThreat} from './air-threat-art.js';
 import {drawProjectileTactic} from './gun-signatures.js';
 const _combatMount={x:0,y:0};
-import {drawEnemyDanger} from './enemy-danger-view.js?v=role1';
-import {defianceAirframePose} from './death-defiance-fx.js?v=deathdefiance1';
-import {pressureAirframePose,drawPressureEnemyFront} from './pressure-link-fx.js?v=pressurelink1';
-import {drawMannockWing} from './fire-dive-fx.js?v=firedive1';
-import {drawGroundEnemy} from './ground-enemy-art.js?v=tame3';
-import {impactMark} from './tactical-marks.js?v=tame3';
-import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
-import {unitNameEN} from './event-text-en.js?v=buildfit1&afc=1&art=pilot-recovery2';
-import {drawRegionalBug} from './regional-boss-view352.js?v=outline1&ai=1018&harbor=20261021';
-import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=tame3';
-import {drawGasCloud196} from './gas-cloud196.js?v=tame3';
-import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=buildfit1&afc=1';
-import {FXS,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=pilotfx20261018';
-import {fx,fxReady,fxTint} from './fx-art.js?v=tame3';
-import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=gal1';
-import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
-import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=buildfit1&art=pilot-recovery2';
-import {drawAircraftCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=descent20261022';
-import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&motion=20261022&cityart=20261022';
-import {drawStageBoss} from './stageboss-view.js?v=outline2&ai=1018&art=pilot-recovery2&livens=20261019&sig=1019&boss=20261020b&skyart=20261020tone1&alpsart=20261020tone1&somme=20261021&cambrai=20261021&phase=1021&armorart=20261022&gothaart=20261022&adriaticart=20261022&trenchart=20261022&skymechanics=20261022&doverart=1022&motion=20261022&cityart=1022&maanart=20261022&verdunhw=20261022&harborhw=20261022&alpsgun=20261022&harbor=20261021&sommehw=20261023&jutlandgun=20261023&gallipoligun=20261023';
-import {bombSprite} from './bomb-sprites.js?v=bomb20';
+import {drawEnemyDanger} from './enemy-danger-view.js?v=headon-result339-20261028';
+import {defianceAirframePose} from './death-defiance-fx.js?v=headon-result339-20261028';
+import {pressureAirframePose,drawPressureEnemyFront} from './pressure-link-fx.js?v=headon-result339-20261028';
+import {drawMannockWing} from './fire-dive-fx.js?v=headon-result339-20261028';
+import {drawGroundEnemy} from './ground-enemy-art.js?v=headon-result339-20261028';
+import {impactMark} from './tactical-marks.js?v=headon-result339-20261028';
+import {getLocale} from './i18n.js?v=headon-result339-20261028&afc=1&art=pilot-recovery2';
+import {unitNameEN} from './event-text-en.js?v=headon-result339-20261028&afc=1&art=pilot-recovery2';
+import {drawRegionalBug} from './regional-boss-view352.js?v=headon-result339-20261028&ai=1018&harbor=20261021';
+import {drawGust3,drawGasVeil3} from './atmosphere-role3.js?v=headon-result339-20261028';
+import {drawGasCloud196} from './gas-cloud196.js?v=headon-result339-20261028';
+import {drawGrenade,drawGrenadeBlast,drawAmatolBlast,drawFxExplosion} from './weapon-effects156.js?v=headon-result339-20261028&afc=1';
+import {FXS,fxsBombFall,fxsBoomTail} from './fx-sample-preview.js?v=headon-result339-20261028';
+import {fx,fxReady,fxTint} from './fx-art.js?v=headon-result339-20261028';
+import {drawAADefense,drawDrachenMine} from './aa-defense-art.js?v=headon-result339-20261028';
+import {drawPilotSignatureFront,drawMccuddenSupply} from './pilot-signature-view.js?v=headon-result339-20261028&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
+import {drawHeineckeParachute} from './heinecke-rettungsfallschirm.js?v=headon-result339-20261028&art=pilot-recovery2';
+import {drawAircraftCrash,enemyCrashScale,enemyCrashVisual} from './aircraft-crash.js?v=headon-result339-20261028';
+import {playerPose,applyPlayerAttitude,drawPlayerAura,drawPetalParticle,drawRedGhosts162,drawBomberRearGunner} from './player-effects129.js?v=headon-result339-20261028&sig=1019&boss=20261020b&phase=1021&motion=20261022&cityart=20261022&momentum=20261027';
+import {drawStageBoss} from './stageboss-view.js?v=headon-result339-20261028&ai=1018&art=pilot-recovery2&livens=20261019&sig=1019&boss=20261020b&skyart=20261020tone1&alpsart=20261020tone1&somme=20261021&cambrai=20261021&phase=1021&armorart=20261022&gothaart=20261022&adriaticart=20261022&trenchart=20261022&skymechanics=20261022&doverart=1022&motion=20261022&cityart=1022&maanart=20261022&verdunhw=20261022&harborhw=20261022&alpsgun=20261022&harbor=20261021&sommehw=20261023&jutlandgun=20261023&gallipoligun=20261023';
+import {bombSprite} from './bomb-sprites.js?v=headon-result339-20261028';
 const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};
 const NO_SKILL_RING=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','brumowski','nungesser','barker','wolff','mccudden','luke','mannock','immelmann']);
 const DUO_PILOTS=new Set(['huffzky','mckeever']);
-import {planeSprite,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2';
-import {drawEquipment} from './equipment.js?v=gal1';
-import {drawFlightRocket,drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=pilotfx20261018';
-import {drawBattlefieldSprite} from './battlefield-art.js?v=gal1';
-import {drawSpecialAmmoIcon} from './icons.js?v=buildfit1&afc=1';
-import {TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026';
-import {drawCombatFeedback,combatCameraOffset,combatVisualPose,combatMountPoint,drawFlightFlow} from './combat-feedback.js?v=descent20261022&motion=20261022';
-import {drawTacticalCombatCue} from './tactical-combat-view.js?v=combat20261024&td4=20261026';
+import {planeSprite,aircraftKey} from './aircraft.js?v=headon-result339-20261028&art=pilot-recovery2&pf=1027';
+import {drawEquipment} from './equipment.js?v=headon-result339-20261028';
+import {drawFlightRocket,drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=headon-result339-20261028';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=headon-result339-20261028';
+import {drawSpecialAmmoIcon} from './icons.js?v=headon-result339-20261028&afc=1';
+import {TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale} from './engine.js?v=headon-result339-20261028&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
+import {drawCombatFeedback,combatCameraOffset,combatVisualPose,combatMountPoint,drawFlightFlow} from './combat-feedback.js?v=headon-result339-20261028&motion=20261022';
+import {drawTacticalCombatCue} from './tactical-combat-view.js?v=headon-result339-20261028&td4=20261026';
 
 
 // Every combat layer uses the same world transform; rendering never edits the session.
-const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=gal1&b=326';
+const xpGem=null;const ballCloudSprite=new Image();ballCloudSprite.src='./fx-ball-cloud.webp?v=headon-result339-20261028&b=326';
 export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fieldArtImg,groundLayer,deferHostile=false}){
  const t=g.t,z=g.camera.zoom;c.save();c.scale(z,z);terrain(g.x,g.y,W/z,H/z);c.restore();drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});drawFlightFlow(c,g,W,H,z);c.save();const kick=combatCameraOffset(g);c.translate(W/2+kick.x,H/2+kick.y);c.scale(z,z);c.translate(-g.x,-g.y);
  groundLayer?.();drawBattlefieldFire(c,g);
@@ -54,15 +55,17 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  for(const grenade of g.grenades||[])if(!cl(grenade.x,grenade.y,80))drawGrenade(c,grenade,grenade.x,grenade.y);for(const m of g.mines){if(cl(m.x,m.y,80))continue;drawDrachenMine(c,m.x,m.y,62,62);if(m.legendary||m.arm===0)ring(m.x,m.y,22+Math.sin(t*5)*3,m.legendary?'#ffd56f99':'#ffcc6677')}
  for(const e of g.enemies){if(cl(e.x,e.y,360)||e.hp<=0)continue;
   if(e.groundEscort)drawGroundEnemy(c,e,e.x,e.y,96);
-  else if(e.fieldUnit){if(e.rail){const r=e.rail;c.save();c.translate(r.x,r.y);c.rotate(r.angle);c.strokeStyle='#bec1ab';c.lineWidth=3;for(const off of [-8,8]){c.beginPath();c.moveTo(-r.half-25,off);c.lineTo(r.half+25,off);c.stroke()}c.restore()}e.rail?drawGroundEnemy(c,e,e.x,e.y,210):drawBattlefieldSprite(c,e.fieldSprite,e.x,e.y,354,0);const offset=e.rail?125:190;c.fillStyle='#172b23';c.fillRect(e.x-42,e.y-offset,84,5);c.fillStyle='#ed9d66';c.fillRect(e.x-42,e.y-offset,84*Math.max(0,e.hp/e.maxHp),5);c.font='14px sans-serif';c.textAlign='center';c.fillStyle='#ffe3aa';c.fillText(unitNameEN(e.name||'비행선'),e.x,e.y-offset-8)}
+  else if(e.fieldUnit){if(e.rail){const r=e.rail;c.save();c.translate(r.x,r.y);c.rotate(r.angle);c.strokeStyle='#bec1ab';c.lineWidth=3;for(const off of [-8,8]){c.beginPath();c.moveTo(-r.half-25,off);c.lineTo(r.half+25,off);c.stroke()}c.restore()}e.rail?drawGroundEnemy(c,e,e.x,e.y,210):(drawAirThreat(c,e,e.x,e.y,{fx})||drawBattlefieldSprite(c,e.fieldSprite,e.x,e.y,354,0));const offset=e.rail?125:e.airThreatLength?e.airThreatLength/2+18:190;c.fillStyle='#172b23';c.fillRect(e.x-42,e.y-offset,84,5);c.fillStyle='#ed9d66';c.fillRect(e.x-42,e.y-offset,84*Math.max(0,e.hp/e.maxHp),5);c.font='14px sans-serif';c.textAlign='center';c.fillStyle='#ffe3aa';c.fillText(unitNameEN(e.name||'비행선'),e.x,e.y-offset-8)}
   else if(e.navalVessel)drawBattlefieldSprite(c,'ship',e.x,e.y,320,e.a+Math.PI/2)}
- for(const f of g.flakBursts)if(!cl(f.x,f.y,90))drawGroundEnemy(c,f,f.x,f.y,66,'mg',g.teamFaction==='central'?'entente':'central');
+ for(const f of g.flakBursts)if(!cl(f.x,f.y,90))drawGroundEnemy(c,f,f.x,f.y,66,'aa',g.teamFaction==='central'?'entente':'central');
  for(const e of g.enemies){
   if(e.stageBossBody||e.cityUnit||cl(e.x,e.y,300))continue;
+  if(e.crashing&&e.airThreatArt&&drawAirThreat(c,e,e.x,e.y,{fx})){drawAircraftCrash(c,e,e.x,e.y,t,fx);continue;}
   if(e.crashing){const key=e.formationLivery||e.escortPlane||e.bossPlane||(e.faction==='entente'?(e.type==='hunter'?'nieuport':'camel'):(e.type==='hunter'?'fokker_standard':'albatros'));drawAircraftCrash(c,e,e.x,e.y,t,fx);sprite(e,key,enemyAircraftScale(e)*enemyCrashScale(e),true);continue}
   if(e.hp<=0)continue;
   if(e.groundEscort||e.fieldUnit||e.navalVessel)continue;
-  if(e.bugDrone){drawRegionalBug(c,e);}
+  if(e.airThreatArt&&e.type==='zeppelin'&&drawAirThreat(c,e,e.x,e.y,{fx})){}
+  else if(e.bugDrone){drawRegionalBug(c,e);}
   else if(e.heavyBomber){const im=(fieldArtImg?fieldArtImg(e.airframe):fieldArt[e.airframe]),w=e.airframe==='staaken'?178:158;if(im?.naturalWidth)drawFieldArt(e.airframe,e.x,e.y,w,w*im.naturalHeight/im.naturalWidth,e.a+Math.PI/2,e.hitFlash>0?.65:1)}
   else if(e.type==='zeppelin'&&!e.bankAircraft)drawZeppelin(c,e.x,e.y,e.a,.92,e.hitFlash>0,e.faction);
   else{const key=e.formationLivery||e.escortPlane||e.bossPlane||(e.faction==='entente'?(e.type==='hunter'?'nieuport':'camel'):(e.type==='hunter'?'fokker_standard':'albatros'));sprite(e,key,enemyAircraftScale(e),true)}
@@ -118,3 +121,4 @@ export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fie
  for(const p of g.players){const isMe=g.online?p.id===g.localPlayerId:p.id==='p1';if(isMe||p.hp<=0)continue;const sx=(p.x-g.x)*z+W/2,sy=(p.y-g.y)*z+H/2;if(sx>-24&&sx<W+24&&sy>-24&&sy<H+24)continue;const ax=Math.min(Math.max(sx,30),W-30),ay=Math.min(Math.max(sy,30),H-30),ang=Math.atan2(sy-ay,sx-ax);c.save();c.translate(ax,ay);c.rotate(ang);c.fillStyle='#47d160';c.strokeStyle='#0c1f10';c.lineWidth=2;c.beginPath();c.moveTo(16,0);c.lineTo(-9,-9);c.lineTo(-4,0);c.lineTo(-9,9);c.closePath();c.fill();c.stroke();c.restore();c.save();c.font='800 10px sans-serif';c.textAlign='center';c.fillStyle='#c9ffce';c.fillText(p.id.toUpperCase(),ax,ay-14);c.restore()}
  c.font='14px sans-serif';c.textAlign='left';c.fillStyle='#f1edd0';c.fillText(((g.worldRegion?.()??g.region)===17?'도버 해협 · 해상 야간 차단선':(['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭'][g.worldRegion?.()??g.region]||'전원 지대'))+' · 팀 비행 '+(g.distance/1000).toFixed(1)+' km',14,H-14);
 }
+

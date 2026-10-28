@@ -1,5 +1,6 @@
+import {beginEquipmentLedger,recordEquipmentDoctrine} from './equipment-replacement.js';
 import {wimperisTarget,correctWimperisBomb} from './flight-equipment.js';
-import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=buildfit1&afc=1';
+import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=headon-result339-20261028&afc=1';
 // Sortie-only heavy-airframe fit. The selected plane and pilot remain authoritative.
 import {BOMBER_TRANSFER_DESCRIPTION} from './airframe-doctrines.js';
 export {BOMBER_TRANSFER_DESCRIPTION};
@@ -69,7 +70,7 @@ export function capBomberSalvoDamage(e,b,damage){
 export function detonateFriendlyBomb(w,b){
  const p=w.players?w.players.find(p=>p.id===b.ownerId):w;
  if(!p||b.bomberTransfer&&(!active(p)))return;
- p.queueExplosionDamage(b.x,b.y,b.radius,b.damage,{fxSource:'bomb',bomberSalvo:b.bomberSalvo});
+ p.queueExplosionDamage(b.x,b.y,b.radius,b.damage,{fxSource:'bomb',bomberSalvo:b.bomberSalvo,pilotSupport:!!b.pilotSupport});
  if(b.tacticalBomb){const blast=w.bullets.at(-1);if(blast?.actualExplosion&&blast.ownerId===b.ownerId){blast.tacticalRound=true;blast.projectileCombo=b.projectileCombo;}}
 }
 
@@ -136,6 +137,7 @@ export function installBomberTransfer(Game,planes,scarff){
  q.acquireAirframeTransfer=function(id='bomberTransfer'){
   if(this.bomberTransfer||this.upgrades?.strutterAirbrake||AIRFRAME_TRANSFER_IDS.some(key=>this.upgrades?.[key]))return false;
   const config=(id==='bomberTransfer'?BOMBER_TRANSFER:BUILD_TRANSFER[id])?.[planes[this.plane]?.faction];if(!config)return false;
+  beginEquipmentLedger(this);
   const ratio=this.maxHp?this.hp/this.maxHp:1;
   this.bomberTransfer={...config,id,entryTime:0,cooldown:config.period,remaining:0,drop:0,rearTimer:.2,rearAim:this.a+Math.PI,rearFlash:0,yaw:0};
   const oldHp=this.maxHp;this.maxHp=Math.min((config.hpCap??Infinity)*(this.upgrades?.loEmblem?.5:1),this.maxHp*config.hp);this.hp=this.maxHp*ratio;this.bomberTransfer.hpMultiplier=this.maxHp/oldHp;this.transferBaseRate=this.rate;
@@ -145,6 +147,7 @@ export function installBomberTransfer(Game,planes,scarff){
    const count=this.permanentWingman||0;this.bomberTransfer.escortBonus=Math.max(0,Math.min(3,7-count));
    this.permanentWingman=count+this.bomberTransfer.escortBonus;this.wingmanDamageMult=(this.wingmanDamageMult||1)*1.35;
   }
+  recordEquipmentDoctrine(this,id);
   this.airframeSpeed=1;this.event('ally',(id==='mgTransfer'?'집중화력 개조 · ':id==='airshipTransfer'?'공중함대 지휘 · ':'폭격비행대 전속 · ')+config.name);return true;
  };
  q.acquireBomberTransfer=function(){return this.acquireAirframeTransfer('bomberTransfer');};
