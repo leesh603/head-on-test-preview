@@ -1,0 +1,72 @@
+import {drawSommeWeapon,drawSommeTread,sommeTreadPose,prepareSommeTreads,releaseSommeHardware} from './somme-hardware-motion.js?v=capital-final-20261030';
+import {SOMME_FRAMES,SOMME_SHEETS} from './somme-boss-atlas.js?v=capital-final-20261030';
+import {prepareSommeDetailArt,releaseSommeDetailArt,sommeDetailReady,drawSommeDetailHull,drawSommeComponent} from './somme-component-art.js?v=capital-final-20261030';
+import {fx} from './fx-art.js?v=capital-final-20261030';
+import {drawTracerBolt} from './projectiles.js?v=capital-final-20261030';
+import {impactMark,partMark,aimLine,laneEdge,lockMark} from './tactical-marks.js?v=capital-final-20261030';
+import {drawShellFlight} from './boss-rounds.js?v=capital-final-20261030&ai=1018';
+import {drawAADefense} from './aa-defense-art.js?v=capital-final-20261030';
+import {clamp,sommeMuzzle,sommeMuzzles} from './somme-boss-layout.js?v=capital-final-20261030&somme=20261021';
+const images={},pending={};
+function load(key){if(images[key])return images[key];const im=new Image();im.decoding='async';images[key]=im;pending[key]=new Promise((resolve,reject)=>{im.addEventListener('load',()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve(im))},{once:true});im.addEventListener('error',()=>reject(new Error('Missing Somme atlas: '+SOMME_SHEETS[key])),{once:true});});im.src='./'+SOMME_SHEETS[key]+'?v=capital-final-20261030';return im;}
+export async function prepareSommeAssets(){await prepareSommeDetailArt();for(const key of Object.keys(SOMME_SHEETS)){if(sommeDetailReady()&&['schwaben-body','schwaben-support','mark1-hulls'].includes(key))continue;load(key);}const loaded=await Promise.all(Object.values(pending));prepareSommeTreads(images['mark1-hardware']);return loaded;}
+export function releaseSommeAssets(){releaseSommeHardware();releaseSommeDetailArt();for(const key of Object.keys(images)){delete images[key];delete pending[key];}}
+// Pivot is measured on the normal sprite's visible silhouette. Damage-state
+// offsets stay relative to that cell; broken barrels/debris do not move a mount.
+function sprite(c,key,state,x,y,w,h,angle=0,pivotY=.5){
+ const f=SOMME_FRAMES[key+'-'+state],n=SOMME_FRAMES[key+'-normal'];if(!f||!n)return;
+ const im=load(f.sheet);if(!(im.naturalWidth||im.width))return;
+ const [sx,sy,sw,sh]=f.rect,[nx,ny,nw,nh]=n.solid,[cx,cy]=f.cell,[ncx,ncy]=n.cell;
+ const scaleX=w/nw,scaleY=h/nh,[px,py]=f.pivot||[nx+nw*.5,ny+nh*pivotY];
+ c.save();c.translate(x,y);c.rotate(angle);c.imageSmoothingEnabled=true;c.drawImage(im,sx,sy,sw,sh,(sx-cx-px)*scaleX,(sy-cy-py)*scaleY,sw*scaleX,sh*scaleY);c.restore();
+}
+function weapon(c,key,st,p){
+ const f=SOMME_FRAMES[key+'-'+st];drawSommeWeapon(c,key,st,p,load(f.sheet));
+}
+const state=(p,dead)=>dead||p.destroyed?'wreck':p.hp<=p.maxHp*.5?'damaged':'normal';
+function warningRing(c,x,y,r,progress,heavy=false){impactMark(c,x,y,r,progress,{heavy});}
+export function drawSommeBoss(c,b){
+ const s=b.sommeScale||1,parts=b.parts||[],tank=b.assetKey==='mark4-wedge',dead=b.destroying;
+ c.save();c.translate(b.x,b.y);
+ if(tank){
+  for(const m of b.trackMarks||[]){c.save();c.translate(m.x-b.x,m.y-b.y);c.rotate(m.a);c.globalAlpha=clamp((6-m.age)/6,0,1)*.16;for(const side of [-1,1])fx(c,'dirtMix',side*49*s,0,18*s,34*s,0,.7);c.restore();}
+  c.save();c.rotate(b.hullYaw);
+  // Inner armor on the track strip is covered by the hull; only the tread edge
+  // lies outside the roof. Component destruction remains a separate overlay.
+  const treadPose=sommeTreadPose(b);
+  for(const p of parts.filter(p=>p.id.startsWith('track-'))){sprite(c,p.art,state(p,dead),p.localX*s,p.localY*s,p.drawWidth,p.drawHeight);drawSommeTread(c,b,p,load('mark1-hardware'),treadPose);}
+  if(!drawSommeDetailHull(c,b))sprite(c,b.tankRole+'-hull',dead?'wreck':b.hp<b.maxHp*.55?'damaged':'normal',0,0,84*s,230*s);
+  for(const p of parts.filter(p=>p.art==='engine-deck'))drawSommeComponent(c,p,dead,{x:p.localX*s,y:p.localY*s});
+  c.restore();
+  for(const p of parts.filter(p=>p.id.startsWith('sponson-'))){
+   sprite(c,b.tankRole+'-sponson',state(p,dead),p.x,p.y,p.drawWidth,p.drawHeight,b.hullYaw);
+   weapon(c,b.tankRole==='male'?'mark1-gun-heavy':'mark1-gun-mg',state(p,dead),p);
+  }
+  for(const p of parts.filter(p=>p.art==='hull-mg'))weapon(c,'mark1-gun-mg',state(p,dead),p);
+  if(b.driveMoving&&!dead)for(const side of [-1,1]){const a=b.hullYaw||0,x=b.x+Math.cos(a)*side*48*s-Math.sin(a)*92*s,y=b.y+Math.sin(a)*side*48*s+Math.cos(a)*92*s;fx(c,'smokeDust',x-b.x,y-b.y,24*s,32*s,a,.12);}
+  if(b.salvo&&!dead){const q=b.salvo,prog=clamp(1-q.remaining/(q.warning||1.05),0,1);const p=parts.find(p=>p.id===q.partId);if(p){const m=sommeMuzzle(b,p);aimLine(c,m.x-b.x,m.y-b.y,q.x-b.x,q.y-b.y,{alpha:.6,chevron:false,dash:[6,7]});}warningRing(c,q.x-b.x,q.y-b.y,clamp(37*s,24,37),prog);}
+ }else{
+  if(!drawSommeDetailHull(c,b))sprite(c,'body',dead?'wreck':b.coreVulnerable?'breached':b.hp<b.maxHp*.72?'damaged':'normal',0,0,680*s,340*s);
+  // Architecture is world aligned. Draw all support structures before any
+  // rotating barrels; rear observation roofs cannot cover a live weapon.
+  for(const p of parts.filter(p=>['ammo','observer'].includes(p.id)))if(!drawSommeComponent(c,p,dead))sprite(c,p.art,state(p,dead),p.x,p.y,p.drawWidth,p.drawHeight);
+  for(const p of parts.filter(p=>p.art==='mg'))drawSommeComponent(c,p,dead);
+  for(const p of parts.filter(p=>!['ammo','observer'].includes(p.id)))weapon(c,p.art==='casemate'?'gun-heavy':p.art==='mg'?'gun-mg':'gun-twin-aa',state(p,dead),p);
+  if(b.coreVulnerable&&!dead)partMark(c,0,48*s,58*s,56*s);
+  if(b.lock&&!dead){const q=b.lock;lockMark(c,q.x-b.x,q.y-b.y,17*s,b.lockProgress);const observer=parts.find(p=>p.id==='observer');if(q.mode==='tracked'&&observer)aimLine(c,observer.x,observer.y,q.x-b.x,q.y-b.y,{alpha:.45,chevron:false,dash:[4,7]});}
+  if(b.lane?.remaining>0&&!dead){const q=b.lane;for(const side of [-1,1])laneEdge(c,q.x-b.x+side*q.width/2,q.y-b.y-66,q.x-b.x+side*q.width/2,q.y-b.y+66+(q.depth||0));}
+ }
+ c.restore();
+ for(const p of parts){if(p.destroyed||dead)continue;if(p.recoil>0&&p.muzzleLength>0){for(const m of sommeMuzzles(b,p)){const recoil=Math.min(1,p.recoil/.28)*p.muzzleLength*.075;m.x-=Math.cos(p.angle)*recoil;m.y-=Math.sin(p.angle)*recoil;if(!drawAADefense(c,'aaMuzzle',m.x,m.y,28*s,28*s,0,clamp(p.recoil/.2,0,1)))fx(c,'muzzleHeavy',m.x,m.y,28*s,28*s,p.angle,clamp(p.recoil/.2,0,1));}}if(p.hitFlash>0){c.save();c.strokeStyle='#ffdcaa';c.globalAlpha=p.hitFlash/.12;c.lineWidth=2;c.beginPath();c.ellipse(b.x+p.x,b.y+p.y,p.hitRadiusX,p.hitRadiusY,b.hullYaw||0,0,Math.PI*2);c.stroke();c.restore();}}
+ if(dead){const age=b.destructionAge||0;for(const [x,y]of [[-30,-24],[24,28]]){fx(c,'fireGround',b.x+x*s,b.y+y*s,65*s,65*s,0,.58);fx(c,'smokeDark',b.x+(x+Math.sin(age)*9)*s,b.y+(y-25)*s,105*s,120*s,0,.55);}}
+}
+export function drawSommeHazard(c,h){
+ if(!h.visual?.startsWith('somme-'))return false;
+ if(h.kind==='projectile'){drawTracerBolt(c,h.x,h.y,Math.atan2(h.vy,h.vx),'#f0a85e',22,5,.95);c.save();c.fillStyle='#ffe9c4';c.beginPath();c.arc(h.x,h.y,2,0,Math.PI*2);c.fill();c.restore();return true;}
+ c.save();const warning=h.phase==='warning',q=clamp((h.age-h.delay)/Math.max(.01,h.warning),0,1);
+ if(warning){warningRing(c,h.x,h.y,h.radius,q,h.raidHeavy);drawShellFlight(c,h,q,{arc:62,size:.85});}
+ else{const age=Math.max(0,h.age-h.delay-h.warning),frame=age<h.duration*.28?'aaFlakHot':age<h.duration*.62?'aaFlakDark':'aaFlakSmoke';if(!drawAADefense(c,frame,h.x,h.y,h.radius*2.35,h.radius*2.35))fx(c,'flak',h.x,h.y,h.radius*2.35,h.radius*2.35,0,clamp(1-age/h.duration,0,1));}
+ c.restore();return true;
+}
+
+

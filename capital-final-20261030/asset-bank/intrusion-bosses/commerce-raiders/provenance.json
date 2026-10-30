@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "sourceLibraryId": "libfile_ad50fa701a0c8191911513fb247f6b14",
+  "sourcePackSha256": "343084e92c847472f3d0b5c13c940e6b59020c9ac7dab818061c6918ff1256b9",
+  "derivation": "Approved original concepts; imagegen limited deck-gun removal/open positions; exact cover crops and lossless runtime packing; existing Nachtwal independent single guns",
+  "assets": [
+    {
+      "file": "qship-cover-aft_port.webp",
+      "sha256": "e5f005025fd0d2995f2610710fbfef2ddb0be7727f2e694269ea4c18647df1da",
+      "bytes": 8184,
+      "size": [
+        49,
+        109
+      ],
+      "originalSha256": "e5f005025fd0d2995f2610710fbfef2ddb0be7727f2e694269ea4c18647df1da"
+    },
+    {
+      "file": "qship-cover-aft_starboard.webp",
+      "sha256": "18159c9ebeccebb02684e93742dc44b80eecdaa95b2e5802a227cc03c4cdad8a",
+      "bytes": 7820,
+      "size": [
+        50,
+        109
+      ],
+      "originalSha256": "18159c9ebeccebb02684e93742dc44b80eecdaa95b2e5802a227cc03c4cdad8a"
+    },
+    {
+      "file": "qship-cover-fore_port.webp",
+      "sha256": "02661f028c012fa305d6daea965290ff6c0e392d8d90de98a5dbef29e016959c",
+      "bytes": 6750,
+      "size": [
+        45,
+        96
+      ],
+      "originalSha256": "02661f028c012fa305d6daea965290ff6c0e392d8d90de98a5dbef29e016959c"
+    },
+    {
+      "file": "qship-cover-fore_starboard.webp",
+      "sha256": "66e3199a1847b3c358232c3793111dd6bf0513b98ad7d82aed0a44b7a4537168",
+      "bytes": 6740,
+      "size": [
+        46,
+        96
+      ],
+      "originalSha256": "66e3199a1847b3c358232c3793111dd6bf0513b98ad7d82aed0a44b7a4537168"
+    },
+    {
+      "file": "qship-cutin.webp",
+      "sha256": "78d22a0a7a01fd8bc01f30f6e7581a0187a122afd48bad3cb79869daba06a9d7",
+      "bytes": 216850,
+      "size": [
+        728,
+        2161
+      ],
+      "originalSha256": "240905bee2d23ea8f0dc11fdb15d1bd46f35b38695cbbf1014e5e60a3340df55"
+    },
+    {
+      "file": "qship-hull.webp",
+      "sha256": "392da026cc08b35a6911bea80d436447194b5299d665aa918296ab5a3f7502ae",
+      "bytes": 215880,
+      "size": [
+        728,
+        2161
+      ],
+      "originalSha256": "24d65806bd6d8880f0ae8a06e426a73c15192ab2ed26d1bd7a4983ef421acf00"
+    },
+    {
+      "file": "seeadler-cutin.webp",
+      "sha256": "c09d63ceca0ade8e49a15dd223341427b0153a99a2d35b95b0e9520c9cc2205f",
+      "bytes": 284248,
+      "size": [
+        724,
+        2172
+      ],
+      "originalSha256": "71b203561e8708f059a65d8023c839dbcd15446a6a33c7184fa1e88776899a37"
+    },
+    {
+      "file": "seeadler-hull.webp",
+      "sha256": "c989f7e0909abd0ea260ed15092dfbc038d9bf4084bc0eaf56e6a476d79ff6e0",
+      "bytes": 284078,
+      "size": [
+        724,
+        2172
+      ],
+      "originalSha256": "0b2d864bec39556a4d3b071c4c90f25ecb2d4af7bbe50882e4f7dfd0b7452b77"
+    }
+  ],
+  "correctedSourceLibraryId": "libfile_60f213f972ac8191a5fa8635c523baba",
+  "correctedSourcePackSha256": "326c07feb6d0d5ebca47521e644d9992480906aaebeccf56b489f4f5b93b8bb4",
+  "runtimeCompression": "WebP quality94 for four large ship hull/cutin runtime copies; original dimensions and RGBA alpha retained, originals private unchanged."
+}
