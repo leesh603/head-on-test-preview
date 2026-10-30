@@ -897,8 +897,7 @@ export function paintSky(c,cx,cy,W,H){
 export function paintCity(c,cx,cy,W,H,city='london'){
  const berlin=city==='berlin',source=cityArt[city]||cityArt.london;
  c.fillStyle=city==='berlin'?'#4a5350':'#535a56';c.fillRect(0,0,W,H);
- // A failed or released city map must not leave the stage as a flat grey field: retry it.
- if(!source.naturalWidth){if(source.complete){source.retryAt??=performance.now()+1500;if(performance.now()>source.retryAt)cityGroup.release([city]);}return;}
+ if(!source.naturalWidth)return;
  if(!source.lowDetail){const tileCanvas=document.createElement('canvas');tileCanvas.width=tileCanvas.height=berlin?source.naturalWidth:256;const tc=tileCanvas.getContext('2d');tc.imageSmoothingEnabled=true;tc.filter=berlin?'saturate(.78) contrast(.92) brightness(.88)':'saturate(.35) contrast(.55) brightness(.7)';tc.drawImage(source,0,0,tileCanvas.width,tileCanvas.height);tc.filter='none';if(!berlin){tc.fillStyle='#53605a';tc.globalAlpha=.28;tc.fillRect(0,0,256,256);}source.lowDetail=tileCanvas;}
  const image=source.lowDetail;
  const tile=berlin?1536:1024,startX=Math.floor(cx*.4/tile),startY=Math.floor(cy*.4/tile),ox=startX*tile-cx*.4,oy=startY*tile-cy*.4;
