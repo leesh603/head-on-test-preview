@@ -474,7 +474,7 @@ body.astra-ui.playing #flightNotices151 #campaignHud{
  border:1px solid var(--ho-hair)!important;border-left:1px solid var(--ho-hair)!important;border-radius:var(--ho-card-r)!important;
  background:var(--ho-glass-strong)!important;box-shadow:var(--ho-lift)!important;
 }
-body.astra-ui.playing #flightNotices151 #eventMissionTitle{display:inline-block;padding:2px 8px;border-radius:999px;background:#e8e2d415;color:var(--ho-ready)}
+body.astra-ui.playing #flightNotices151 #eventMissionTitle{display:inline-block;padding:0;background:none;color:var(--ho-ready,#e2c276);font:700 10px/1.2 var(--astra-type)!important;letter-spacing:.12em}
 body.astra-ui.playing #flightStack151 #stageBossHud{
  border:1px solid #c8513c55!important;border-top:1px solid #c8513c55!important;border-radius:var(--ho-card-r)!important;
  background:var(--ho-glass-strong)!important;box-shadow:var(--ho-lift)!important;padding:8px 14px 10px!important;
@@ -1358,4 +1358,84 @@ body.astra-ui #modal.result-modal151 .result-best151{grid-column:1/-1;margin:0;p
 @media(max-width:720px),(pointer:coarse){
  body.astra-ui.playing #touch #reload:before{inset:12px 18px 24px!important}
  body.astra-ui.playing #touch #reload:after{top:auto!important;bottom:10px!important;left:0!important;right:0!important;font-size:9.5px!important;line-height:1!important;text-align:center}
+}
+
+/* Two-front panel: a quiet kicker, W/E rows side by side with a direction chevron, muted hint. */
+body.astra-ui.playing #flightNotices151 #eventMissionHud:has(.front-row151) #eventMissionTitle{padding:0;background:none;color:var(--ho-ready,#e2c276);font:700 10px/1.2 var(--astra-type)!important;letter-spacing:.12em}
+body.astra-ui.playing #flightNotices151 #eventMissionObjective:has(.front-row151){display:flex!important;align-items:center;justify-content:center;gap:0;font:inherit!important;white-space:nowrap}
+body.astra-ui.playing #flightNotices151 .front-row151{display:inline-flex;align-items:center;gap:5px;padding:2px 10px;font-variant-numeric:tabular-nums}
+body.astra-ui.playing #flightNotices151 .front-row151+.front-row151{border-left:1px solid #e8e2d424}
+body.astra-ui.playing #flightNotices151 .front-row151 svg{width:11px;height:11px;flex:none;fill:none;stroke:#e2c276;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+body.astra-ui.playing #flightNotices151 .front-row151.protect svg{stroke:#8fd3bf}
+body.astra-ui.playing #flightNotices151 .front-row151.e svg{order:9}
+body.astra-ui.playing #flightNotices151 .front-row151 small{font:600 10px/1 var(--astra-type);color:#8f897c}
+body.astra-ui.playing #flightNotices151 .front-row151 b{font:700 13px/1.2 var(--astra-type);color:#f1ecdf}
+body.astra-ui.playing #flightNotices151 .front-row151 em{font:500 12px/1.2 var(--astra-type);font-style:normal;color:#b8b1a2}
+body.astra-ui.playing #flightNotices151 #eventMissionHud:has(.front-row151) #eventMissionMeta{font:500 11px/1.3 var(--astra-type)!important;color:#a39d8f!important}
+@media(max-width:560px){
+ body.astra-ui.playing #flightNotices151 .front-row151{gap:4px;padding:1px 8px}
+ body.astra-ui.playing #flightNotices151 .front-row151 b{font-size:12px}
+ body.astra-ui.playing #flightNotices151 .front-row151 em{font-size:11px}
+ body.astra-ui.playing #flightNotices151 #eventMissionHud.folded #eventMissionObjective:has(.front-row151){font:inherit!important}
+ body.astra-ui.playing #flightNotices151 #eventMissionHud.folded .front-row151 b{font-size:11.5px;color:#e8e2d4}
+}
+
+/* Alerts sit under the mission/front panels, so a new alert never pushes those panels down. */
+body.astra-ui.playing #flightNotices151 #toast{order:9}
+
+/* Battlefield labels (hud-tags.js): DOM text so it stays sharp over the pixel-upscaled canvas.
+   No box: outlined text on the map, so the screen does not fill up with panels. */
+.hud-tags{position:absolute;inset:0;overflow:hidden;pointer-events:none;contain:strict}
+body:not(.playing) .hud-tags{display:none}
+.hud-tag{position:absolute;left:0;top:0;display:flex;align-items:center;white-space:nowrap;will-change:transform;
+ font-family:"Noto Sans CJK KR","Noto Sans KR",Arial,sans-serif;line-height:1.15;color:#f1ecdf;-webkit-font-smoothing:antialiased;
+ text-shadow:0 0 2px #000,0 0 2px #000,0 1px 3px #000c,0 0 8px #0009}
+.hud-tag.edge{height:20px;gap:5px;padding:0 2px}
+.hud-tag.edge i{width:5px;height:5px;border-radius:50%;background:var(--tag-accent);box-shadow:0 0 0 1.5px #000a}
+.hud-tag.edge b{font-size:12.5px;font-weight:700}
+.hud-tag.edge em{font-style:normal;font-size:11.5px;font-weight:600;color:#d6cfbf}
+.hud-tag.edge small{display:none}
+.hud-tag.target{flex-direction:column;justify-content:center;gap:3px;padding:2px}
+.hud-tag.target i,.hud-tag.target em{display:none}
+.hud-tag.target b{font-size:12px;font-weight:700;color:var(--tag-accent)}
+.hud-tag.target small{font-size:11px;font-weight:500;color:#e2dccd}
+.hud-tag.target small:empty{display:none}
+
+/* Phones: avoid the special-equipment medal column during a boss fight. */
+@media(max-width:720px),(pointer:coarse){
+ body.astra-ui.playing:not(.coop-playing):has(#legendaryInventory .legendary-badge) #flightStack151 #stageBossHud{width:calc(100% - var(--ho-pill-h) - 8px)!important;max-width:calc(100% - var(--ho-pill-h) - 8px)!important}
+.hud-tag.callsign{height:16px}
+.hud-tag.callsign i,.hud-tag.callsign em,.hud-tag.callsign small{display:none}
+.hud-tag.callsign b{font-size:11.5px;font-weight:700;letter-spacing:.01em;color:var(--tag-accent)}
+
+/* Mission card: small, top-left under the survival pill, apart from the centred alerts.
+   A slim accent rule and a fading ground instead of another full glass panel. */
+body.astra-ui.playing #viewport #flightTop151>#eventMissionHud:not(.hidden){
+ position:relative!important;inset:auto!important;top:auto!important;right:auto!important;z-index:auto;
+ grid-column:1;grid-row:2;justify-self:start;align-self:start;
+ display:flex!important;flex-direction:column;align-items:flex-start;gap:2px!important;
+ width:auto!important;min-width:0!important;max-width:min(260px,100%)!important;margin:0!important;padding:3px 12px 4px 8px!important;
+ border:0!important;border-left:2px solid #e2c27699!important;border-radius:0!important;
+ background:linear-gradient(90deg,rgba(16,15,12,.46),rgba(16,15,12,0))!important;box-shadow:none!important;
+ text-align:left;pointer-events:none;color:#efe9da;text-shadow:0 0 2px #000,0 1px 3px #000c}
+body.astra-ui.playing #viewport #flightTop151>#eventMissionHud #eventMissionTitle{display:block;padding:0;background:none;color:#e2c276;font:700 9px/1.2 var(--astra-type)!important;letter-spacing:.1em}
+body.astra-ui.playing #viewport #flightTop151>#eventMissionHud #eventMissionObjective{font:700 11.5px/1.3 var(--astra-type)!important;color:#f1ecdf!important}
+body.astra-ui.playing #viewport #flightTop151>#eventMissionHud #eventMissionMeta{font:500 10.5px/1.3 var(--astra-type)!important;color:#c4bdae!important;font-variant-numeric:tabular-nums}
+body.astra-ui.playing #viewport #flightTop151>#eventMissionHud #eventMissionMeta:empty{display:none}
+/* Two fronts: one row per side, stacked. */
+body.astra-ui.playing #viewport #flightTop151>#eventMissionHud #eventMissionObjective:has(.front-row151){display:flex!important;flex-direction:column;align-items:flex-start;gap:1px;font:inherit!important;white-space:nowrap}
+body.astra-ui.playing #viewport #flightTop151>#eventMissionHud .front-row151{display:inline-flex;align-items:center;gap:5px;font-variant-numeric:tabular-nums}
+body.astra-ui.playing #viewport #flightTop151>#eventMissionHud .front-row151 svg{width:10px;height:10px;flex:none;fill:none;stroke:#e2c276;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+body.astra-ui.playing #viewport #flightTop151>#eventMissionHud .front-row151.protect svg{stroke:#8fd3bf}
+body.astra-ui.playing #viewport #flightTop151>#eventMissionHud .front-row151 small{font:600 10px/1 var(--astra-type);color:#8f897c}
+body.astra-ui.playing #viewport #flightTop151>#eventMissionHud .front-row151 b{font:700 11.5px/1.25 var(--astra-type);color:#f1ecdf}
+body.astra-ui.playing #viewport #flightTop151>#eventMissionHud .front-row151 em{font:500 10.5px/1.25 var(--astra-type);font-style:normal;color:#c4bdae}
+@media(max-width:720px),(pointer:coarse){
+ /* Phones: alerts keep their own lane right under the pills (reserved, so nothing jumps);
+    the mission card sits below that lane at the left edge and never meets an alert. */
+ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151>#flightCenter156{grid-row:2;min-height:32px}
+ body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151>#eventMissionHud:not(.hidden){grid-column:1/-1;grid-row:3;max-width:56vw!important}
+ /* After its first 4 s the card folds to the objective line only. */
+ body.astra-ui.playing #viewport #flightTop151>#eventMissionHud.folded :is(#eventMissionTitle,#eventMissionMeta){display:none!important}
+ body.astra-ui.playing #viewport #flightTop151>#eventMissionHud.folded #eventMissionObjective{font-size:11.5px!important}
 }

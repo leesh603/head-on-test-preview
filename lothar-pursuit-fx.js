@@ -32,23 +32,25 @@ export function drawLotharWake(c,p,texture){
  const wing=p.bomberTransfer?Math.min(45,(p.bomberTransfer.front||30)):24;
  for(let i=0;i<f.wake.length;i++){
   const v=f.wake[i],age=f.clock-v.at,q=clamp(age/LOTHAR_FX_LIMITS.wakeLife),fade=(1-q)*(v.turn?.72:.60),ca=Math.cos(v.a),sa=Math.sin(v.a);
-  for(const side of [-1,1]){
-   const back=18+age*70,x=v.x-p.x-ca*back-sa*side*wing,y=v.y-p.y-sa*back+ca*side*wing;
-   texture(c,'vaporTrail',x,y,34+q*28,v.turn?8-q*3:5-q*2,v.a,fade,v.turn?LOTHAR_FX_PALETTE.passive:side<0?LOTHAR_FX_PALETTE.active:LOTHAR_FX_PALETTE.activeEdge);
+  if(v.turn){const yaw=Math.sin(p.a-v.a),side=yaw<0?1:-1,back=18+age*55;
+   // Only the outside wing of the real earned turn leaves a trace.
+   texture(c,'vaporTrail',v.x-p.x-ca*back-sa*side*wing,v.y-p.y-sa*back+ca*side*wing,28+q*15,4.5,v.a,fade*.55,LOTHAR_FX_PALETTE.ivory);
   }
-  if(v.active&&i%2===0)texture(c,'engineSmoke',v.x-p.x-ca*(29+age*32),v.y-p.y-sa*(29+age*32),29+q*26,12+q*7,v.a+Math.PI,.20*(1-q),LOTHAR_FX_PALETTE.smoke);
+  if(v.active&&i%3===0)texture(c,'engineSmoke',v.x-p.x-ca*(29+age*32),v.y-p.y-sa*(29+age*32),24+q*15,9+q*4,v.a+Math.PI,.13*(1-q),LOTHAR_FX_PALETTE.smoke);
  }
 }
 export function drawLotharGuns(c,p,texture){
  const f=p.lotharFlightFx;if(!f||p.reloadTime>0||p.cow37||!(p.skillTime>0||boost(p)))return;
  const count=Math.min(8,p.weapon?.guns||1),ca=Math.cos(p.a),sa=Math.sin(p.a);
  for(let gun=0;gun<count;gun++){
-  const shot=f.muzzles[gun],age=shot?f.clock-shot.at:Infinity;if(age<0||age>.055)continue;
+  const shot=f.muzzles[gun],age=shot?f.clock-shot.at:Infinity;if(age<0||age>.14)continue;
   const a=p.gunDirection?.(gun)??p.a,offset=p.weapon?.bidirectional?0:(gun-(count-1)/2)*8;
   const mount=p.bomberGunMount?.(gun,a,offset)||{x:p.x+Math.cos(a)*23-Math.sin(a)*offset,y:p.y+Math.sin(a)*23+Math.cos(a)*offset};
   const dx=mount.x-p.x,dy=mount.y-p.y,x=dx*ca+dy*sa,y=-dx*sa+dy*ca,heading=a-p.a,pulse=1-clamp(age/.055);
+  texture(c,'metalShard0',x,y,13,2.8,heading,.55*(1-age/.14),LOTHAR_FX_PALETTE.active);
+  if(age>.055)continue;
   texture(c,'muzzle',x+Math.cos(heading)*11,y+Math.sin(heading)*11,29+6*pulse,12+3*pulse,heading,.92*pulse,p.skillTime>0?LOTHAR_FX_PALETTE.activeEdge:LOTHAR_FX_PALETTE.ivory);
-  texture(c,'gunSmoke',x+Math.cos(heading)*19,y+Math.sin(heading)*19,32,13,heading,.24*pulse,LOTHAR_FX_PALETTE.smoke);
+  texture(c,'gunSmoke',x+Math.cos(heading)*13,y+Math.sin(heading)*13,24,9,heading,.25*pulse,LOTHAR_FX_PALETTE.smoke);
  }
 }
 export function drawLotharCue(c,p,e,texture,front){
@@ -61,17 +63,17 @@ export function drawLotharCue(c,p,e,texture,front){
  }
  if(front)return true;
  if(e.kind==='lotharAttack'||e.kind==='lotharTransfer'){
-  const transfer=e.kind==='lotharTransfer',spread=transfer?1:0;
-  for(const side of [-1,1]){
-   texture(c,'windStreak',-12-q*47,side*(24+q*(transfer?15:6)),78+q*24,9+spread*3,-side*(transfer?.3:.08),fade*(transfer?.75:.66),transfer?LOTHAR_FX_PALETTE.passive:LOTHAR_FX_PALETTE.active);
-   texture(c,'vaporTrail',-43-q*41,side*(22+q*7),82,8,0,.38*fade,transfer?LOTHAR_FX_PALETTE.ivory:LOTHAR_FX_PALETTE.activeEdge);
-  }
+  const transfer=e.kind==='lotharTransfer';
+  for(const side of [-1,1])texture(c,'metalShard0',23,side*4,14,2.5,0,.55*fade,transfer?LOTHAR_FX_PALETTE.passive:LOTHAR_FX_PALETTE.activeEdge);
   if(transfer)for(const side of [-1,1])texture(c,'bulletBrass',8-q*15,side*(6+q*3),7,3,side*.1,.8*fade,LOTHAR_FX_PALETTE.brass);
  }else if(e.kind==='lotharKill'){
   texture(c,'gunSmoke',0,0,29+q*20,16+q*8,e.a-p.a,.3*fade,LOTHAR_FX_PALETTE.smoke);
  }else if(e.kind==='lotharLinkHit'){
-  texture(c,'ricochet',0,0,26+q*13,14+q*4,e.a-p.a,.65*fade,LOTHAR_FX_PALETTE.passive);
-  texture(c,'gunSmoke',-4,0,26+q*15,15,e.a-p.a,.28*fade,LOTHAR_FX_PALETTE.ivory);
+  const a=e.a-p.a;
+  texture(c,'ricochet',0,0,38+q*10,16,a,.82*fade,LOTHAR_FX_PALETTE.passive);
+  for(const side of [-1,1]){const b=a+side*.55,d=4+q*16;texture(c,side<0?'metalShard0':'metalShard1',Math.cos(b)*d,Math.sin(b)*d,9,3,b,.8*fade,LOTHAR_FX_PALETTE.ivory);}
+  texture(c,'gunSmoke',-4,0,22+q*10,12,a,.24*fade,LOTHAR_FX_PALETTE.smoke);
  }
  return true;
 }
+

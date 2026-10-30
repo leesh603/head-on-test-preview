@@ -1,8 +1,9 @@
 // Guynemer's actual ordnance and Bishop's existing altitude/bombing run.
 // All observations use the existing bounded signature queue; no new projectiles.
 import {signatureCue,signatureInterval} from './pilot-signature-state.js';
-import {bombFallPose} from './bomb-sprites.js?v=headon-result339-20261028';
-import {combatVisualPose} from './combat-feedback.js?v=headon-result339-20261028&motion=20261022';
+import {drawBishopPassive} from './pilot-passive-art.js';
+import {bombFallPose} from './bomb-sprites.js?v=bomb20&perf=1029';
+import {combatVisualPose} from './combat-feedback.js?v=descent20261022&motion=20261022';
 export const ORDNANCE_PILOTS=new Set(['guynemer','bishop']);
 const INSTALLED=Symbol.for('headon.ordnance-pilot-fx.v1');
 const clamp=n=>Math.max(0,Math.min(1,n));
@@ -10,6 +11,12 @@ const alive=p=>p.hp>0&&p.status!=='downed';
 const own=p=>p.id??'p1';
 const world=p=>p.combatWorld?.()||p;
 const personal=b=>Number.isInteger(b.gun)&&!['enemy','ally','formation','patrol','rocket','motorCannon','cow37','actualExplosion','blast','mauserRound','identityDot','identityChain'].some(k=>b[k]);
+let linen;
+export const ordnanceMaterialReady=new Promise(resolve=>{
+ if(typeof Image==='undefined'){resolve(false);return;}
+ linen=new Image();linen.onload=()=>resolve(true);linen.onerror=()=>resolve(false);
+ linen.src=new URL('./pilot-material-art/berthold-torn-skin.webp',import.meta.url).href;
+});
 export function bishopClosePower(p,b,e){
  if(!e)return 0;const origin=b.identityOrigin||p,d=Math.hypot(origin.x-e.x,origin.y-e.y),near=Math.hypot(p.x-e.x,p.y-e.y)<=300;
  return Math.max(clamp(1-d/360),near?.35:0);
@@ -50,6 +57,7 @@ export function drawOrdnanceWorld(c,p,tex){
   for(let i=0;i<2;i++)tex(c,'smokeWisp',x-ca*(34+i*16),y-sa*(34+i*16),26+i*7,14+i*4,a,.52-i*.17,'#d2c2a2');
  }
  if(p.pilot==='bishop'){
+  drawBishopDeparture(c,p,tex,shift);
   let count=0;for(const b of world(p).friendlyBombs||[]){
    if(!b.bishopBomb||(b.ownerId??'p1')!==own(p)||!(b.life>0)||!(b.maxLife>0)||![b.sx,b.sy,b.x,b.y].every(Number.isFinite))continue;
    const pose=bombFallPose(b.sx,b.sy,b.x,b.y,1-b.life/b.maxLife,b.releaseAngle);
@@ -73,10 +81,24 @@ export function drawOrdnanceLocal(c,p,tex,front=false){
  if(p.pilot==='bishop'&&!front&&p.bishopTime>0){
   const age=(p.skillDuration?.()||2.4)-p.bishopTime,entry=age<.5,returning=age>.5&&age<1.06;
   if(entry||returning){const strength=entry?Math.sin(clamp(age/.5)*Math.PI):Math.sin(clamp((age-.5)/.56)*Math.PI);
-   tex(c,'gustFront',38,0,entry?96:132,entry?58:74,Math.PI,.98*strength,'#e3dfca');
-   if(returning)tex(c,'mist',-12,0,49,29,0,.38*strength,'#8e9ea5');
+   for(const side of [-1,1]){
+    const q=entry?clamp(age/.5):clamp((age-.5)/.56);
+    tex(c,'mist',-12-q*18,side*(26+q*9),90+q*28,40+q*9,side*.18,.70*strength,'#c5cfcc');
+    tex(c,'vaporTrail',-42-q*20,side*25,entry?62:100,entry?7:10,0,(entry?.45:.70)*strength,'#dddccd');
+   }
   }
  }
+}
+// Cloud fragments stay where the real climb began, while the aircraft rises.
+// This world pass compensates for the existing visual altitude/recoil offset.
+export function drawBishopDeparture(c,p,tex,shift=ordnanceGroundShift(p)){
+ if(p.pilot!=='bishop'||!alive(p)||p.state!=='playing'||!(p.bishopTime>0))return;
+ const s=p.pilotSignatureState,point=s?.activationPoint,age=s?.activeAge;
+ if(!point||!Number.isFinite(age)||age<=0||age>=.65||![point.x,point.y].every(Number.isFinite))return;
+ const a=s.activationHeading??p.a,ca=Math.cos(a),sa=Math.sin(a),q=age/.65,fade=Math.sin(q*Math.PI);
+ const x=point.x-p.x+shift.x,y=point.y-p.y+shift.y;
+ for(const side of [-1,1])tex(c,'mist',x-ca*q*21-sa*side*(24+q*17),y-sa*q*21+ca*side*(24+q*17),150+q*45,75+q*25,a+side*.18,.82*fade,'#b9c8c9');
+ tex(c,'gustFront',x+ca*9,y+sa*9,120+q*35,70+q*20,a+Math.PI,.65*fade,'#e3dfca');
 }
 export function drawOrdnanceCue(c,p,e,tex,front){
  if(!ORDNANCE_PILOTS.has(p.pilot))return false;
@@ -85,8 +107,8 @@ export function drawOrdnanceCue(c,p,e,tex,front){
  if(front){const fade=1-clamp(e.age/e.maxLife),a=e.a-p.a;
   if(e.kind==='ordnanceGun')tex(c,'muzzleTwin',Math.cos(a)*6,Math.sin(a)*6,23,10,a,.9*fade,p.pilot==='bishop'?'#d4b385':'#e8d3ab');
   else if(e.kind==='ordnanceCloseHit'){
-   const power=clamp(e.power||0);tex(c,'ricochet',0,0,23+power*17,10+power*5,a,.95*fade,'#d9a877');
-   tex(c,'metalShard1',-e.age*30,e.age*28,8+power*4,4,a+e.age*8,.8*fade,'#a98868');
+   drawBishopPassive(c,p,e);
   }else{tex(c,'armorSpark',0,0,40,24,a,.9*fade,'#e8d1a6');tex(c,'gunSmoke',-e.age*18,0,35,23,a,.38*fade,'#989b94');}
  }return true;
 }
+

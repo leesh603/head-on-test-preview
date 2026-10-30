@@ -31,6 +31,23 @@ export function barkerStrain(p){
  // Permanent scars stay in the existing painted decals; they do not burn forever.
  return clamp(Math.max(stage/5*(.4+.6*damage),active?.2+damage*.8:0));
 }
+// A narrow, broken oil/exhaust thread follows the recorded flight path.
+// The existing engine smoke particles and painted damage remain intact.
+export function drawBarkerDamageWake(c,p,tex){
+ if(p.pilot!=='barker'||!visible(p)||p.state!=='playing')return;
+ const f=p.sortieFlightFx,strain=barkerStrain(p);if(!f||!strain||!Number.isFinite(f.clock))return;
+ const wake=f.wake||[];let drawn=0;
+ for(let i=wake.length-2;i>=0&&drawn<6;i-=2){
+  const v=wake[i],next=wake[i+1],age=f.clock-v.at;
+  if(!(v.stage>0)||!Number.isFinite(age)||age<0||age>=.48||![v.x,v.y,v.a,next.x,next.y].every(Number.isFinite))continue;
+  const dx=next.x-v.x,dy=next.y-v.y,d=Math.hypot(dx,dy);if(d<.5||d>32)continue;
+  const q=age/.48,fade=(1-q)**.7,a=Math.atan2(dy,dx),ca=Math.cos(v.a),sa=Math.sin(v.a),k=Math.min(1,v.stage/5);
+  const x=(v.x+next.x)/2-p.x+ca*(15-age*55),y=(v.y+next.y)/2-p.y+sa*(15-age*55);
+  tex(c,'smokeTrail',x,y,d+25+q*15,11+strain*10+q*4,a,(.55+k*.25)*fade,'#514d45');
+  if(v.stage>=3)tex(c,'engineSmoke',x-ca*7,y-sa*7,23+q*18,12+q*11,v.a+Math.PI,.20*strain*fade);
+  drawn++;
+ }
+}
 export function defianceAirframePose(p,base){
  const strength=barkerStrain(p);if(!strength)return base;
  const t=time(p),critical=p.skillTime>0&&p.hp<=3?1:0,hit=latest(p,'battleDamage'),kick=hit?Math.max(0,1-hit.age/.16):0;
@@ -54,7 +71,7 @@ export function drawDeathDefianceLocal(c,p,tex,front=false,insignia=()=>false){
     if(status.active){
      // Under the airframe, with no additive glow or full-screen darkening.
      const fade=Math.min(1,age/.16)*Math.min(1,p.skillTime/.3);
-     heart(c,p,insignia,-5,76,.2*fade);
+     heart(c,p,insignia,-7,44,.2*fade);
     }
     if(status.ready)heart(c,p,insignia,-37,28,.42*Math.min(1,status.readyFraction*5));
    }
@@ -69,27 +86,41 @@ export function drawDeathDefianceLocal(c,p,tex,front=false,insignia=()=>false){
  }finally{c.restore();}}
  for(let gun=0;gun<(p.weapon?.guns||1);gun++){
   const e=latest(p,'defianceGun',gun);if(!e)continue;const a=e.a-p.a,flash=clamp(e.life/.045);
-  tex(c,Math.cos(a)<0?'muzzleRear':'muzzleTwin',e.mountX+Math.cos(a)*3,e.mountY+Math.sin(a)*3,16,7,a,.9*flash);
+  const power=p.pilot==='barker'?clamp(Math.max(p.barkerStacks||0,p.barkerDamageStage||0)/5):0;
+  tex(c,Math.cos(a)<0?'muzzleRear':'muzzleTwin',e.mountX+Math.cos(a)*3,e.mountY+Math.sin(a)*3,16+power*15,7+power*5,a,.9*flash);
+  if(power){
+   const age=Number.isFinite(e.age)?e.age:Math.max(0,.085-e.life),side=gun%2?1:-1;
+   tex(c,'gunSmoke',e.mountX+Math.cos(a)*(10+age*35),e.mountY+Math.sin(a)*(10+age*35),24+power*13,12+power*6,a,.28*power*flash);
+   tex(c,'bulletBrass',e.mountX-7-age*38,e.mountY+side*(7+age*80),6,2.5,side*(.4+age*12),.8*power*flash);
+  }
  }return true;
 }
 export function drawDeathDefianceCue(c,p,e,tex,front,insignia=()=>false){
  if(!DEFIANCE_PILOTS.has(p.pilot))return false;
  if(e.ownerId!==owner(p))return true;
  if(p.pilot==='nungesser'){
-  const q=clamp(e.age/e.maxLife),fade=Math.min(1,e.age/.045)*(1-q);
-  if(!front&&e.kind==='deathKnight')heart(c,p,insignia,-5,70+22*q,.48*fade);
-  if(!front&&e.kind==='deathKnightEnd')heart(c,p,insignia,-9-q*12,76-22*q,.18*(1-q));
+  const q=clamp(e.age/e.maxLife),fade=(1-q);
+  const heading=e.a-p.a;
+  if(!front&&e.kind==='deathKnight')heart(c,p,insignia,-7,40+8*q,.28*fade);
+  if(!front&&e.kind==='deathKnightEnd')heart(c,p,insignia,-9-q*8,44-8*q,.12*(1-q));
   if(front&&e.kind==='nungesserReprisal'){
-   tex(c,'ricochet',0,0,19,5,e.a-p.a,.72*fade);
-   tex(c,'gunSmoke',-q*7,0,16+q*10,9,e.a-p.a,.2*fade);
+   // A skim is airflow along the incoming round, never a false hit spark.
+   tex(c,'windStreak',Math.cos(heading)*q*20,Math.sin(heading)*q*20,48+q*18,9,heading,.9*fade);
   }
   if(front&&e.kind==='nungesserCounterShot')for(const side of [-1,1]){
    const a=e.a-p.a+side*.11;
-   tex(c,'muzzleTwin',Math.cos(a)*7,Math.sin(a)*7,23,8,a,.85*fade);
+   // Both flashes use the real countershot origin and emitted fan angle.
+   const flash=clamp(1-e.age/.075);
+   tex(c,'muzzleTwin',Math.cos(a)*10,Math.sin(a)*10,31,12,a,.95*flash);
+   tex(c,'gunSmoke',Math.cos(a)*15,Math.sin(a)*15,24+q*12,10,a,.22*fade);
   }
   if(front&&e.kind==='nungesserIntercept'){
-   tex(c,'ricochet',0,0,18*(1-q)+4,4,e.a-p.a,.85*fade);
-   tex(c,'metalShard2',-q*9,q*5,6,3,e.a-p.a+q,.7*fade);
+   // An actual swept projectile collision: one sharp crossing flash, then chips.
+   tex(c,'ricochet',0,0,38-12*q,19-6*q,heading,.95*fade);
+   for(const side of [-1,1]){
+    const a=heading+side*.9,d=3+q*20;
+    tex(c,'metalShard2',Math.cos(a)*d,Math.sin(a)*d,7-3*q,3,a+side*q,.85*fade);
+   }
   }
  }else if(front&&e.kind==='survivalHit'){
   const q=clamp(e.age/.42);for(const side of [-1,1])tex(c,'metalShard2',-q*9,side*(2+q*7),8-q*3,3,e.a-p.a+side*q,.8*(1-q));

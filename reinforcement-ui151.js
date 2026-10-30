@@ -3,15 +3,15 @@ import {RARE_SPECIALIZATIONS} from './rare-specializations.js';
 // Telescope category follows the user-requested machine-gun-only effect.
 // Presentation only. Preview uses the existing upgrade implementation on a detached copy.
 import {WWI_EQUIPMENT} from './wwi-equipment.js';
-import {getLocale,upgradeName as i18nUpgradeName} from './i18n.js?v=headon-result339-20261028&afc=1&art=pilot-recovery2';
-import {AUGMENTATION_OVERHAUL_BALANCE} from './augmentation-overhaul150.js?v=headon-result339-20261028&airbattle=20261025';
+import {getLocale,upgradeName as i18nUpgradeName} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {AUGMENTATION_OVERHAUL_BALANCE} from './augmentation-overhaul150.js?v=equipment20261022&airbattle=20261025';
 import {WEAPON_MODS,WEAPON_MOD_BY_ID,ORDNANCE_STAGGER_DELAY} from './weapon-modifications.js';
-import {tacticalChoices} from './tactical-doctrines.js?v=headon-result339-20261028&td4=20261026';
+import {tacticalChoices} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 
-export const CATEGORIES={"bomberTransfer":"폭탄","mgTransfer":"기관총","airshipTransfer":"편대","damage":"기관총","rate":"기관총","rockets":"로켓","mines":"수류탄","explosives":"폭발 피해","command":"편대","turn":"이동","armor":"내구도","regen":"내구도","cooldown":"액티브","bomber":"공통","wingman":"편대","mercedesEngine":"이동속도","spread":"기관총","combinedProjectiles":"로켓 · 수류탄","redScarf":"이동","prancingHorse":"이동 · 방어력","ironCross":"액티브","telescope":"기관총","flightGloves":"발사 · 투척 주기","amatolCharge":"폭발 피해","lufberyCircle":"편대 · 방어","fighterSupply":"편대","sparkPlug":"내구도","goeringBaton":"편대","immelmannManual":"이동","motorCannon":"특수기","loEmblem":"공통","sacredCowling":"이동","steelPlate":"내구도","mauserAceKiller":"특수기","boelckeDicta":"공통","rearGunner":"특수기","quadLewis":"기관총","cow37":"무기교체","rankinShell":"특수기","kaiserFog":"특수기","fogCompass":"특수기","maximBelt":"기관총"};
+export const CATEGORIES={"bomberTransfer":"폭탄","mgTransfer":"기관총","airshipTransfer":"편대","damage":"기관총","rate":"기관총","rockets":"로켓","mines":"수류탄","explosives":"폭발 피해","command":"편대","turn":"이동","armor":"내구도","regen":"내구도","cooldown":"액티브","bomber":"공통","wingman":"편대","mercedesEngine":"이동속도","spread":"기관총","combinedProjectiles":"로켓 · 수류탄","redScarf":"이동","prancingHorse":"이동 · 방어력","ironCross":"액티브","telescope":"기관총","flightGloves":"주무장 · 기동","amatolCharge":"폭발 피해","lufberyCircle":"편대 · 방어","fighterSupply":"편대","sparkPlug":"내구도","goeringBaton":"편대","immelmannManual":"이동","motorCannon":"특수기","loEmblem":"공통","sacredCowling":"이동","steelPlate":"내구도","mauserAceKiller":"특수기","boelckeDicta":"공통","rearGunner":"특수기","quadLewis":"기관총","cow37":"무기교체","rankinShell":"특수기","kaiserFog":"특수기","fogCompass":"특수기","maximBelt":"기관총"};
 for(const e of [...WWI_EQUIPMENT,...RARE_SPECIALIZATIONS])CATEGORIES[e.id]={GUN:'기관총',EXPLOSIVE:'폭탄',FORMATION:'편대',SPEED:'이동',SURVIVAL:'내구도'}[e.family];
 for(const mod of WEAPON_MODS)CATEGORIES[mod.id]={GUN:'기관총',EXPLOSIVE:'로켓 · 수류탄',FORMATION:'편대',SPEED:'이동',SURVIVAL:'내구도'}[mod.family];
-const EN_CATEGORY={기관총:'Machine Gun',로켓:'Rockets',수류탄:'Grenades','폭발 피해':'Explosive Damage',편대:'Formation',이동:'Flight',내구도:'Durability',액티브:'Active',공통:'General',이동속도:'Flight Speed','로켓 · 수류탄':'Rockets · Grenades','이동 · 방어력':'Flight · Defense','발사 · 투척 주기':'Fire · Deployment Cycle','편대 · 방어':'Formation · Defense',특수기:'Special Weapon',무기교체:'Weapon Replacement',탄약:'Ammunition',폭탄:'Bombs',회복:'Repair'};
+const EN_CATEGORY={기관총:'Machine Gun',로켓:'Rockets',수류탄:'Grenades','폭발 피해':'Explosive Damage',편대:'Formation',이동:'Flight',내구도:'Durability',액티브:'Active',공통:'General',이동속도:'Flight Speed','로켓 · 수류탄':'Rockets · Grenades','이동 · 방어력':'Flight · Defense','발사 · 투척 주기':'Fire · Deployment Cycle','주무장 · 기동':'Primary · Maneuver','편대 · 방어':'Formation · Defense',특수기:'Special Weapon',무기교체:'Weapon Replacement',탄약:'Ammunition',폭탄:'Bombs',회복:'Repair'};
 const EN_LABEL={피해:'Damage',연사:'Fire Rate','발사 간격':'Firing Interval',탄띠:'Belt',재장전:'Reload',속도:'Speed',선회:'Turn',개조:'Modification','최대 체력':'Max Durability','초당 최대 체력':'Max Durability / sec','재사용 대기시간':'Cooldown','동시 발사':'Salvo Size','주기당 발사':'Rockets per Cycle','투척 개수':'Grenades per Deployment','투척 주기':'Deployment Cycle','시차 발사':'Release Delay'};
 const label=value=>getLocale()==='en'?(EN_LABEL[value]||EN_CATEGORY[value]||value):value;
 export function categoryName(id){return label(CATEGORIES[id]||'공통')}
@@ -19,39 +19,40 @@ export function reinforcementName(u,p,planes){if(u.id==='ironCross')return plane
 export function reinforcementIconId(id){return WEAPON_MOD_BY_ID[id]?.icon||id}
 // Choice cards show the decision; the engine and build popups retain full details.
 const CHOICE_COPY={
+ wimperisSight:['폭격 조준기를 각색. 로켓·수류탄·폭탄의 발사 순간 예측 조준. 발수 유지.','Adapted bombsight: predicts rocket/grenade/bomb aim at release. Projectile count unchanged.'],
  strutterAirbrake:['감속 선회 후 재가속. 기체 전환 장비와 동시 장착 불가.','Brake turn, then reaccelerate. Incompatible with airframe conversions.'],
  buckinghamBelt:['기관총 연속 명중으로 적 기체에 불을 붙입니다.','Repeated MG hits ignite enemy aircraft.'],
  cooperRack:['전방 적을 스쳐 지나며 소형 폭탄을 연속 투하합니다.','Drops a pair of light bombs when passing a forward target.'],
- fieryGrapnel:['스쳐 지나는 적기에 화염 갈고리를 걸어 불태웁니다.','Hooks and ignites an aircraft during a close flyby.'],
- flechettes:['전방 적에게 관통 화살탄을 연속 살포합니다. 중장갑에는 위력이 감소합니다.','Releases piercing darts in short bursts at forward enemies. Less effective against heavy armor.'],
- veryPistol:['신호탄으로 표적을 지정해 아군 편대의 집중 공격을 유도합니다.','Signals a forward target for your existing wingmen to focus on.'],
- hytheCamera:['연속 명중한 표적을 분석해 기관총 피해를 높이고 공격 준비를 드러냅니다.','Analyzes a repeatedly hit target, boosting MG damage and revealing its attack warnings.'],
+ fieryGrapnel:["근접 교차 갈고리·화상. 직접 피해에 기관총 강화 50% 반영 (최대 +50%).", "Close-flyby hook and fire. Direct damage inherits 50% of MG bonuses, capped at +50%."],
+ flechettes:["관통 화살탄 12발. 기관총 강화 50% 반영 (최대 +50%), 중장갑 피해 25%.", "12 piercing darts. Inherits 50% of MG bonuses up to +50%; heavy armor takes 25%."],
+ veryPistol:["최근 직접 맞힌 전방 표적 우선 지휘. 대형 유지·남은 시간 내 1회 재지정.", "Prioritizes a recently hit forward target; preserves formations and retargets once."],
+ hytheCamera:["주무장 3회 명중 → 6초 분석·피해 +30%. 망원경·퐁크 점사가 분석 표적 우선.", "3 distinct MG hits: 6s analysis, +30% damage; telescope and Fonck burst prioritize the target."],
  amatolCharge:['폭발 피해·반경 +40%. 폭발 격추 시 30% 파편 폭발 (연쇄 없음).','Blast damage/radius +40%. Explosive kills cause a 30% secondary blast; no chains.'],
- lufberyCircle:['편대기 수에 따라 받는 피해 −20~35%. 상호 엄호 대형.','Damage taken −20–35% by wing count. Mutual-cover formation.'],
- redScarf:['이동 속도 +45%. 후방 추적 거리 +25%, 포착 시간 −35%.','Speed +45%. Rear-pursuit range +25%, lock time −35%.'],
+ lufberyCircle:["260px 내 본인 상시 편대에 따라 피해 −20~35%. 300px 밖에서 엄호 해제.", "Damage taken −20–35% from own permanent wings within 260px; cover ends beyond 300px."],
+ redScarf:["속도 +20%, 후미 추적 잠금 중 총 +35%. 추적 거리 +25%, 포착 시간 −35%.", "Speed +20%, or +35% while tail-locked. Pursuit range +25%, lock time −35%."],
  prancingHorse:['이동 속도 +20%. 전방에서 받는 피해 −25%.','Speed +20%. Damage taken from the front −25%.'],
  ironCross:['파일럿 액티브 강화. 재사용 대기시간 −20%.','Stronger pilot Active. Cooldown −20%.'],
- telescope:['전방 표적 포착 시 0.8초간 기관총 조준 보정.','Corrects machine-gun aim for 0.8s after locking a forward target.'],
- flightGloves:['기관총·폭발물 발사 간격 −25%, 재장전 −35%. 보조장비·액티브 제외.','MG/ordnance firing interval −25%, reload −35%. Excludes auxiliaries and Actives.'],
- sparkPlug:['10초마다 최대 내구도의 20% 회복.','Restores 20% max durability every 10s.'],
+ telescope:['전방 표적 포착 시 0.8초간 기관총 조준 보정. 하이스 분석 표적 우선.','Corrects MG aim for 0.8s; prioritizes a forward Hythe-analyzed target.'],
+ flightGloves:['주무장 사거리 −20%. 이동 선회 후 근접 재진입: 1.5초간 발사 간격 −30% (대기 3초).','Primary range −20%. Moving turn into close re-entry: firing interval −30% for 1.5s; 3s cooldown.'],
+ sparkPlug:["10초마다 내구도 8%. 수리품 회수 시 추가 12% (대기 10초).", "Restores 8% max durability every 10s; repair pickups add 12% once per 10s."],
  goeringBaton:['상시 편대기 +3. 편대기 피해 +25%.','Permanent wingmen +3. Wingman damage +25%.'],
  immelmannManual:['선회기동 대기시간 −50%. 기동 무적 1.05초.','Maneuver cooldown −50%. Invulnerable for 1.05s during maneuvers.'],
  motorCannon:['3초마다 37mm 관통탄 자동 발사. 피해 240, 폭발물 강화 적용.','Auto-fires a piercing 37mm shell every 3s: 240 damage, scaled by ordnance upgrades.'],
  loEmblem:['최대 내구도 −50%. 전 무장 피해 +50%, 편대 연사 +30%, 속도·선회 +25%.','Max durability −50%. All weapons +50% damage, wing fire rate +30%, speed/turn +25%.'],
  sacredCowling:['근거리 피해 +25%. 가까운 적의 탄환 피해 최대 −20%.','Close-range damage +25%. Nearby enemy bullet damage taken up to −20%.'],
  steelPlate:['소구경 탄환 피해 −30%. 이동 속도·선회력 −10%.','Small-caliber damage taken −30%. Speed/turn −10%.'],
- mauserAceKiller:['0.65초마다 자동 사격. 에이스 우선, 기관총·폭발물 피해 강화 적용.','Auto-fires every 0.65s, prioritizing aces. Scales with MG and ordnance damage.'],
+ mauserAceKiller:["0.65초마다 피해 18/36/72. 직접 교전한 정예·에이스는 54/120.", "Every 0.65s: 18/36/72 damage; elites/aces recently hit by your direct weapons take 54/120."],
  boelckeDicta:['경험치 +30%. 협동에서는 본인에게만 적용.','XP +30%. Owner only in co-op.'],
- rearGunner:['기관총을 후방까지 회전 조준. 완전 후방 조준 약 2.7초.','Rotating MG aim, reaching fully behind in about 2.7s.'],
+ rearGunner:['복좌기 관측수 총좌를 각색. 기관총 후방 회전 조준 (약 2.7초).','Adapted observer mount. Rotating MG aim reaches fully behind in about 2.7s.'],
  quadLewis:['총구별 기관총 탄환 +4. 일반 발사체 상한 무시.','MG rounds +4 per muzzle, beyond the normal projectile cap.'],
- cow37:['기관총을 37mm 포로 교체. 초당 1발·피해 280. 연사·추가탄 강화 제외.','Replaces MGs with a 37mm cannon: 1 shot/s, 280 damage. No fire-rate/extra-round upgrades.'],
- rankinShell:['3.2초마다 후방 적 탄환 제거. 파편 피해 32.','Clears enemy rounds behind you every 3.2s. Shrapnel damage: 32.'],
+ cow37:['기관총을 37mm 포로 교체. 기초 초당 1발·피해 280. 연사·추가탄 강화 제외.','Replaces MGs with a 37mm cannon: base 1 shot/s, 280 damage. No fire-rate/extra-round upgrades.'],
+ rankinShell:["3.2초마다 후방 일반 탄막 제거·피해 32. 중탄·경고 공격 제외.", "Clears rear light rounds every 3.2s; damage 32. Heavy and warning attacks remain."],
  grunkreuz:['독가스 면역. 후방 가스 분출 4.5초·충전 7초. 액티브 대기 감소 적용.','Gas immunity. Rear gas vent: 4.5s; recharge: 7s. Scales with Active cooldown.'],
  kaiserFog:['12초마다 3초간 연막 은폐. 적 추적 해제.','Smoke concealment for 3s every 12s. Breaks enemy tracking.'],
- fogCompass:['경험치·수리 아이템 획득 범위 크게 증가.','Greatly increases XP and repair pickup range.'],
+ fogCompass:["경험치 반경 480px·수리품 흡입 696px. 솔로·협동 동일.", "XP radius 480px; repair attraction 696px, in solo and co-op."],
  maximBelt:['기관총 피해 +25%p, 탄띠 +75%, 재장전 −35%.','MG damage +25pp, belt capacity +75%, reload −35%.'],
  urLeica:['출격 종료 시 최종 격추 기록 +10%.','Final kill record +10% at sortie end.'],
- badinGauge:['지속 이속 강화량의 150%만큼 기관총·폭발물 피해 증가 (최대 +60%).','MG/ordnance damage gains 150% of lasting speed bonuses, up to +60%.'],
+ badinGauge:["직선 비행으로 지속 속도 강화분의 75%를 피해로 전환 (최대 +30%).", "Straight flight converts 75% of sustained speed gains into damage, up to +30%."],
  heineckeRettungsfallschirm:['치명 피해 시 예비기로 재출격. 출격당 2회·대기 180초.','Relaunch in a reserve aircraft after lethal damage. Twice per sortie; 180s cooldown.'],
  bomberTransfer:['중폭격기 전환·자동 폭격·후방 사수. 내구도↑, 속도·선회↓. 기동은 방어탄막으로 교체.','Heavy bomber: auto-bombs, rear gunner, more durability, less speed/turn. Defensive barrage replaces maneuver.'],
  mgTransfer:['중무장기 전환·기관총 2정 추가·화망 방어. 내구도 2배·정면 피해 +40%. 속도 −14%, 선회 −22%, 피탄 면적↑.','Gunship: +2 MGs, anti-bullet screen replaces maneuver. Double durability, +40% forward damage. Speed −14%, turn −22%, larger target.'],
@@ -82,7 +83,7 @@ function modName(p,family){const mod=WEAPON_MODS.find(mod=>mod.family===family&&
 const num=n=>Number(n.toFixed(1)),pct=n=>(n>=0?'+':'')+num(n*100)+'%';
 export function grenadeIntervalForDisplay(p){
  const base=3.6/(1+Math.min(5,p.mineCount||0)*.3);
- return typeof p.ordnanceInterval==='function'?p.ordnanceInterval(base):base*(p.upgrades?.flightGloves?AUGMENTATION_OVERHAUL_BALANCE.glovesInterval:1);
+ return typeof p.ordnanceInterval==='function'?p.ordnanceInterval(base):base;
 }
 export function buildStats(p){
  const b=p.buildBaseline||{rate:p.rate,maxHp:p.maxHp,speed:p.baseSpeed||p.speed,turn:p.turn};
@@ -121,4 +122,3 @@ export function cumulativeText(p,id,rarity){
  const after=buildStats(copy);return fields[id].filter(k=>before[k][2]!==after[k][2]).map(k=>before[k][1]+current+before[k][2]+' → '+after[k][2]).join('\n');
 }
 export function cleanDescription(text){return text.replace(/(?:한\s*)?출격(?:당)?\s*(?:1회|한\s*번)[^.。]*(?:[.。]|$)/g,'').replace(/1회 획득 가능[.]?/g,'').trim()}
-

@@ -1,9 +1,11 @@
-import {PILOT_AIRCRAFT as SORTIE_ROSTER,SORTIE_FITS,pilotAircraftChoices} from './pilot-aircraft.js?v=headon-result339-20261028&art=pilot-recovery2';
+import {PILOT_AIRCRAFT as SORTIE_ROSTER,SORTIE_FITS,pilotAircraftChoices} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 // Identity and display metadata only. No art paths, render geometry or combat values.
 // Catalog presence does NOT register a fit, unlock a sortie or activate a pilot.
 // Existing PLANES/PILOT_PLANES and mode-specific selection remain authoritative.
 
 const ownerLabels = {
+  "navarre": ["나바르", "Jean Navarre"],
+  "frommherz": ["프롬헤르츠", "Hermann Frommherz"],
   "boelcke": ["뵐케", "Oswald Boelcke"],
   "baron": ["리히트호펜", "Manfred von Richthofen"],
   "voss": ["베르너 포스", "Werner Voss"],
@@ -41,6 +43,8 @@ const ownerLabels = {
 // [identity, exact in-game model, faction, owner, base fit, simulation fit, usage tags]
 // Base fit describes the existing game family, not a new historical claim.
 const identityRows = [
+  ["navarre_nieuport11","Nieuport 11","entente","navarre","nieuport11","navarre_nieuport11",["sortie","livery"]],
+  ["frommherz_albatros_d3","Albatros D.III","central","frommherz","albatros","frommherz_albatros_d3",["sortie","livery"]],
   ["fokker","Fokker Dr.I","central",null,"fokker","fokker",[]],
   ["albatros","Albatros D.III","central",null,"albatros","albatros",[]],
   ["camel","Sopwith Camel","entente",null,"camel","camel",[]],

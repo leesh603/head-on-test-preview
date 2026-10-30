@@ -1,9 +1,9 @@
-import {bombFallPose} from './bomb-sprites.js?v=headon-result339-20261028';
+import {bombFallPose} from './bomb-sprites.js?v=bomb20&perf=1029';
 // HEAD-ON FX layer (painted atlas). ON by default on this branch; ?fxs=0 rolls
 // back to the previous FX (?fx=0 still disables all sprite FX). Swaps the listed FX keys for the sample atlas in
 // fx-sample/, adds tracer / rocket-trail / bomb-fall drawing hooks, and
 // otherwise leaves every renderer untouched. Remove this file and the few
-// `FXS` lines in fx-art.js / app.js?v=headon-result339-20261028 to drop the preview.
+// `FXS` lines in fx-art.js / app.js?v=tame3 to drop the preview.
 const params = typeof location === 'undefined' ? null : new URLSearchParams(location.search);
 export const FXS = params?.get('fxs') !== '0' && params?.get('fx') !== '0';
 
@@ -45,12 +45,22 @@ export function fxsHas(key) { return FXS && !!atlas && rects.has(resolve(key) ||
 export function fxsDraw(c, key, x, y, w, h = w, angle = 0, alpha = 1) {
   const k = resolve(key), r = rects.get(k);
   if (!r || !(w > 0) || !(h > 0)) return false;
-  c.save(); c.translate(x, y); if (angle) c.rotate(angle);
-  c.globalAlpha *= Math.max(0, Math.min(1, Number.isFinite(alpha) ? alpha : 1));
+  // Hot path (every particle, every frame): undo the transform by hand instead of save/restore,
+  // which copies the whole canvas state per sprite.
+  const a0 = c.globalAlpha, s0 = c.imageSmoothingEnabled;
+  if (!angle) {
+    // Unrotated sprite: no transform at all.
+    c.globalAlpha = a0 * Math.max(0, Math.min(1, Number.isFinite(alpha) ? alpha : 1)); c.imageSmoothingEnabled = true;
+    if (contain.has(k)) { const f = Math.min(w / r[2], h / r[3]); w = r[2] * f; h = r[3] * f; }
+    c.drawImage(atlas, r[0], r[1], r[2], r[3], x - w / 2, y - h / 2, w, h);
+    c.globalAlpha = a0; c.imageSmoothingEnabled = s0; return true;
+  }
+  c.translate(x, y); c.rotate(angle);
+  c.globalAlpha = a0 * Math.max(0, Math.min(1, Number.isFinite(alpha) ? alpha : 1));
   c.imageSmoothingEnabled = true;
   if (contain.has(k)) { const f = Math.min(w / r[2], h / r[3]); w = r[2] * f; h = r[3] * f; }
   c.drawImage(atlas, r[0], r[1], r[2], r[3], -w / 2, -h / 2, w, h);
-  c.restore(); return true;
+  c.rotate(-angle); c.translate(-x, -y); c.globalAlpha = a0; c.imageSmoothingEnabled = s0; return true;
 }
 
 const cellCache = new Map();
@@ -167,6 +177,8 @@ const BOOM_TIME = {
 };
 const BOOM_TAIL = new Map();
 let PUFF = null, GLOW = null, SCORCH = null;
+// Phones draw every other debris-trail sample (4 instead of 7 puffs per fragment).
+const TRAIL_STEP = typeof matchMedia === 'function' && matchMedia('(pointer:coarse)').matches ? 2 : 1;
 function boomSprites() {
   if (PUFF || typeof document === 'undefined') return;
   const mk = (stops) => { const k = document.createElement('canvas'); k.width = k.height = 64; const g = k.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
@@ -199,7 +211,7 @@ function drawBoom(c, r, x, y, age) {
     const fragments=r.fragments||(r.fragments=[]),id=k*2+(flame?1:0);
     let f=fragments[id];if(!f){const a=hash(r.wx+k*3.1,r.wy-k*1.7)*Math.PI*2,v=d0*(flame?1.25:1.0)*(.6+hash(k,r.wx)*.7);f=fragments[id]=[Math.cos(a)*v,Math.sin(a)*v];}
  const P = (t) => { const e = 1 - Math.exp(-3.2 * t); return [f[0] * e / 3.2 * 2.2, f[1] * e / 3.2 * 2.2 - (flame ? 0 : d0 * .5 * t * (1 - t / life) * 1.6)]; };
-    for (let j = 7; j >= 1; j--) { const ts = age - j * .045; if (ts < 0) continue; const [px, py] = P(ts), sz = d0 * (flame ? .08 : .07) * (1 + (age - ts) * 3.5); if (flame && px * px + py * py < d0 * d0 * .12) continue;
+    for (let j = 7; j >= 1; j -= TRAIL_STEP) { const ts = age - j * .045; if (ts < 0) continue; const [px, py] = P(ts), sz = d0 * (flame ? .08 : .07) * (1 + (age - ts) * 3.5); if (flame && px * px + py * py < d0 * d0 * .12) continue;
       c.globalAlpha = (1 - j / 8) * (1 - age / life) * (flame ? .95 : .55); c.drawImage(PUFF, px - sz, py - sz - (age - ts) * d0 * .05, sz * 2, sz * 2); }
     const [px, py] = P(age), f1 = 1 - age / life;
     if (flame) { if (px * px + py * py > d0 * d0 * .1) { c.globalCompositeOperation = 'lighter'; c.globalAlpha = f1 * .85; const g = d0 * .045 * (.6 + f1 * .6); c.drawImage(GLOW, px - g, py - g, g * 2, g * 2); c.globalCompositeOperation = 'source-over'; } }

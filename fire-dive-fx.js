@@ -2,6 +2,8 @@
 // No projectile, damage, spawn, random-number or flight-state writes.
 import {signatureCue,signatureInterval} from './pilot-signature-state.js';
 import {drawIncendiaryFire,incendiaryArtReady} from './incendiary-fire.js';
+import {drawGontermannPassive} from './pilot-passive-art.js';
+import {drawLafayetteWing} from './lufbery-circle-fx.js';
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
 const owner=p=>p.id??'p1';
 const living=p=>p?.hp>0&&p.status!=='downed'&&p.state==='playing';
@@ -58,6 +60,7 @@ export function drawLukeFlame(c,x,y,a,height,age,alpha=1){
  return drawIncendiaryFire(c,x,y,a,height,age,alpha);
 }
 export function drawFireDiveWorld(c,p,tex,front=false,shift={x:0,y:0}){
+ if(front)drawGontermannPassive(c,p,shift);
  for(const f of incendiaryBurns(p)){
   const x=f.x-p.x+shift.x,y=f.y-p.y+shift.y,growth=clamp(f.age/.32),fade=clamp(f.burn.time/.35),size=(f.large?78:54)*(.48+.52*growth),pulse=1+Math.sin(f.age*19)*.06;
   if(front){
@@ -73,6 +76,7 @@ export function mannockWingPose(w,pass=true){
  return {scale:pass?.93:.78*(w.carrierScale??1),bank:1,roll:0,kick:beat,height:pass?entry*16+exit*13:0,alpha:pass?clamp(age/.12)*clamp((4.6-age)/.28):1};
 }
 export function drawMannockWing(c,p,w,x,y,plane,tex,pass=true){
+ if(!pass&&p.pilot==='lufbery')return drawLafayetteWing(c,p,w,x,y,plane,tex);
  if(p.pilot!=='mannock'||!living(p)||!(w.ownerId===owner(p)||w.ownerId===undefined&&!p.world)||!pass&&(!(w.life>0)||w.hp<=0)||![x,y,w.a].every(Number.isFinite))return false;
  if(pass&&(!(w.age>=0)||w.age>=4.6))return false;
  const pose=mannockWingPose(w,pass),a=w.a,key=pass?'se5a':w.plane;if(!key)return false;

@@ -1,3 +1,4 @@
+import {navarreEnemySpeedMultiplier} from './navarre-frommherz-combat.js';
 // Formation stations are steering goals, never positions to interpolate toward.
 // Shared by solo, co-op, ace escorts and authored pilot formations.
 const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
@@ -12,7 +13,7 @@ export function advanceEscortFlight(world,wing,dt){
  const ca=Math.cos(leader.a),sa=Math.sin(leader.a),back=wing.formationBack||0,side=wing.formationOffset||0;
  const station={x:leader.x-ca*back-sa*side,y:leader.y-sa*back+ca*side,a:leader.a};
  wing.formationReturning=Math.hypot(wing.x-leader.x,wing.y-leader.y)>520;
- const cruise=Math.max(80,leader.speed*(leader.energySpeed??1));
+ const cruise=Math.max(80,leader.speed*(leader.energySpeed??1))*navarreEnemySpeedMultiplier(world,wing);
  return advanceWingFlight(wing,leader,station,dt,{cruiseSpeed:cruise,maxSpeed:cruise*1.65,turnRate:2.2});
 }
 export function advanceWingFlight(wing,owner,station,dt,options={}){

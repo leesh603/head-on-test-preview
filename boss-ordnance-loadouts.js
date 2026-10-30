@@ -2,10 +2,13 @@
 // retarget them, or alter their damage/timing/collision. Families follow the
 // physical attack: direct rounds, warned falling explosives, and native hazards.
 export const BOSS_LOADOUTS=Object.freeze({
+ 'berlin-drachen':['mine','mortar','machine-gun'],
+ 'final-kaiserkrone':['he','puw'],
+ 'final-leviathan':['he','cooper'],
  'supermarine-nighthawk':['machine-gun','he','iron-bomb'],
  'siemens-schuckert-r-viii':['machine-gun','iron-bomb'],
- 'paris-gun':['machine-gun','rail-shell'],
- lincomparable:['machine-gun','rail-shell','fragmentation'],
+ 'paris-gun':['machine-gun','rail-shell','fragmentation','gas'],
+ lincomparable:['machine-gun','rail-shell','fragmentation','gas'],
  'sms-stuttgart':['ap','fragmentation','machine-gun','puw'],
  'hms-zubian':['he','mortar','torpedo'],
  'a7v-flak':['machine-gun','ap','fragmentation','incendiary'],

@@ -1,4 +1,4 @@
-// Broad phase only. Exact hit tests, enemy order, damage and RNG remain in engine.js?v=headon-result339-20261028
+// Broad phase only. Exact hit tests, enemy order, damage and RNG remain in engine.js?v=bomb19
 // Buckets contain original indices; complex stage bosses always use the exact path.
 // Integer keys avoid allocating "x,y" strings in the projectile hot path.
 // The numeric domain is injective and fits 30 bits. Distant cells retain the
@@ -7,15 +7,26 @@ const CELL_OFFSET=16384,CELL_STRIDE=32768;
 const cellKey=(x,y)=>x>=-CELL_OFFSET&&x<CELL_OFFSET&&y>=-CELL_OFFSET&&y<CELL_OFFSET
  ?(x+CELL_OFFSET)*CELL_STRIDE+y+CELL_OFFSET:x+','+y;
 const byIndex=(a,b)=>a-b;
+const QUERY_CACHE_LIMIT=64;
+// Four cell bounds fit exactly in 46 bits in the common coordinate domain.
+// The span is at most 256 cells (query's existing safety limit).
+const queryKey=(x0,x1,y0,y1)=>x0>=-CELL_OFFSET&&x0<CELL_OFFSET&&y0>=-CELL_OFFSET&&y0<CELL_OFFSET
+ ?cellKey(x0,y0)*65536+(x1-x0)*256+y1-y0:x0+','+x1+','+y0+','+y1;
 export class EnemyCollisionGrid{
  constructor(radiusFor,cellSize=128){
   this.radiusFor=radiusFor;this.cellSize=cellSize;this.cells=new Map();this.bucketPool=[];
   this.global=[];this.indices=[];this.result=[];this.source=null;this.count=0;this.maxRadius=0;
+  this.scratchIndices=this.indices;this.queryCache=new Map();this.queryPool=[];this.usedQueries=0;
+  this.queryMisses=0;this.queryReuse=0;this.queryCacheEnabled=true;
   this.queries=0;this.candidates=0;this.fullCandidates=0;this.fallbacks=0;
   this.usedBuckets=0;this.cached=false;this.cacheHits=0;this.x0=this.x1=this.y0=this.y1=0;
  }
  clear(){
   this.cached=false;this.cells.clear();
+  this.queryCache.clear();
+  for(let i=0;i<this.usedQueries;i++)this.queryPool[i].length=0;
+  this.usedQueries=0;this.indices=this.scratchIndices;
+  this.queryMisses=0;this.queryReuse=0;this.queryCacheEnabled=true;
   for(let i=0;i<this.usedBuckets;i++)this.bucketPool[i].length=0;
   this.usedBuckets=0;
   this.global.length=this.indices.length=this.result.length=0;this.source=null;this.count=0;
@@ -46,15 +57,26 @@ export class EnemyCollisionGrid{
   const y0=Math.floor((b.y-r)/this.cellSize),y1=Math.floor((b.y+r)/this.cellSize);
   // Unsafe integer cell coordinates can otherwise make x++ / y++ stop advancing.
   if(!Number.isSafeInteger(x0)||!Number.isSafeInteger(x1)||!Number.isSafeInteger(y0)||!Number.isSafeInteger(y1)||(x1-x0+1)*(y1-y0+1)>256)return this.full(enemies);
-  const indices=this.indices;
+  let indices=this.indices;
   if(this.cached&&x0===this.x0&&x1===this.x1&&y0===this.y0&&y1===this.y1){this.cacheHits++;}
   else{
-   indices.length=0;
-   for(const i of this.global)indices.push(i);
-   for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){
-    const bucket=this.cells.get(cellKey(x,y));if(bucket)for(const i of bucket)indices.push(i);
+   const key=this.queryCacheEnabled?queryKey(x0,x1,y0,y1):null,saved=this.queryCacheEnabled&&this.queryCache.get(key);
+   if(saved){indices=saved;this.cacheHits++;this.queryReuse++;}
+   else{
+    // Sparse one-off queries cannot repay cache bookkeeping. Fall back to the
+    // original scratch path for the rest of this build when reuse is low.
+    if(this.queryCacheEnabled&&++this.queryMisses>=32&&this.queryReuse*4<this.queryMisses)this.queryCacheEnabled=false;
+    const slot=this.usedQueries,retain=this.queryCacheEnabled&&slot<QUERY_CACHE_LIMIT;
+    indices=retain?(this.queryPool[slot]??=[]):this.scratchIndices;
+    indices.length=0;
+    for(const i of this.global)indices.push(i);
+    for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++){
+     const bucket=this.cells.get(cellKey(x,y));if(bucket)for(const i of bucket)indices.push(i);
+    }
+    indices.sort(byIndex);
+    if(retain){this.queryCache.set(key,indices);this.usedQueries++;}
    }
-   indices.sort(byIndex);
+   this.indices=indices;
    this.x0=x0;this.x1=x1;this.y0=y0;this.y1=y1;this.cached=true;
   }
   // Cache indices, not enemy objects: preserve source replacements and rebuild

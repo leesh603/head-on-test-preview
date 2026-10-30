@@ -54,6 +54,10 @@ const trails=new WeakMap();
 export const MOMENTUM_TRAIL_LIMIT=32;
 export function drawMomentumTrail(c,p,x,y,{scale=1,roll=0,bank=1}={}){
  const now=momentumTime(p),tier=momentumTier(p);
+ // A brief confirmation on each kill, using the existing curved wingtip wake.
+ // Simulation time keeps the accent still while paused and consistent in co-op.
+ const killAge=now-(p.momentumAt??-Infinity);
+ const pulse=tier.trail&&killAge>=0?Math.max(0,1-killAge/.42)**2:0;
  let h=trails.get(p);
  if(!h){h={t:now,x:p.x,y:p.y,sampleAt:now,strength:0,points:[]};trails.set(p,h);return;}
  const dt=now-h.t,travel=Math.hypot(p.x-h.x,p.y-h.y);
@@ -63,7 +67,7 @@ export function drawMomentumTrail(c,p,x,y,{scale=1,roll=0,bank=1}={}){
   // Missing optional parachute state is normal on unmodified aircraft.
   const intensity=tier.trail&&!(p.heineckeEscape>0)?Math.min(1,ratio)*tier.trail/3:0;
   h.strength+=(intensity-h.strength)*Math.min(1,dt*9);
-  h.life=([0,.30,.53,.86][tier.trail]||h.life||.3)*Math.max(.3,Math.min(1.2,ratio));
+  h.life=([0,.34,.59,.94][tier.trail]||h.life||.3)*Math.max(.3,Math.min(1.2,ratio));
   if(now-h.sampleAt>=.025&&speed>12&&h.strength>.015){
    const a=p.a+roll,ca=Math.cos(a),sa=Math.sin(a),forward=-18*scale,side=27*scale*bank;
    h.points.push({t:now,x:p.x,y:p.y,strength:h.strength,left:{x:p.x+ca*forward-sa*side,y:p.y+sa*forward+ca*side},right:{x:p.x+ca*forward+sa*side,y:p.y+sa*forward-ca*side}});h.sampleAt=now;
@@ -79,8 +83,8 @@ export function drawMomentumTrail(c,p,x,y,{scale=1,roll=0,bank=1}={}){
   const fade=Math.max(0,1-(now-points[i].t)/(h.life||.3)),alpha=fade*fade*Math.min(h.strength,points[i].strength);
   const sx=i===1?prev.x:(prev.x+q.x)/2,sy=i===1?prev.y:(prev.y+q.y)/2,ex=i===points.length-1?q.x:(q.x+next.x)/2,ey=i===points.length-1?q.y:(q.y+next.y)/2;
   c.beginPath();c.moveTo(x+sx-p.x,y+sy-p.y);c.quadraticCurveTo(x+q.x-p.x,y+q.y-p.y,x+ex-p.x,y+ey-p.y);
-  c.globalAlpha=alpha*.18;c.strokeStyle='#62716f';c.lineWidth=(.7+1.6*fade)+1.1;c.stroke();
-  c.globalAlpha=alpha*.82;c.strokeStyle='#f0f2ed';c.lineWidth=.45+1.6*fade;c.stroke();
+  c.globalAlpha=alpha*(.21+pulse*.10);c.strokeStyle=tier.trail>=3?'#b6a477':'#62716f';c.lineWidth=(.7+1.6*fade)+1.35+pulse*1.4;c.stroke();
+  c.globalAlpha=Math.min(1,alpha*(.88+pulse*.12));c.strokeStyle=tier.trail>=3?'#fff0cb':'#f0f2ed';c.lineWidth=.55+1.7*fade+pulse*.75;c.stroke();
  }
  c.restore();
 }

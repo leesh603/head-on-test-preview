@@ -22,6 +22,9 @@ export const REGIONAL_VARIATIONS=Object.freeze({
 });
 const ace=(instrument,notes,seconds,accents)=>({instrument,notes,seconds,accents});
 export const ACE_MOTIFS=Object.freeze({
+ // New pilots reuse the native transport and voices, not new audio files.
+ navarre:ace('trumpet',[7,4,7,10,7,3],4,[.9,.5,.8,1,.7,.6]),
+ frommherz:ace('clarinet',[0,4,2,6,4,7],5,[.6,.8,.5,.7,.6,.9]),
  baron:ace('horn',[0,4,7,6,4],5,[1,.5,1,.6,.9]),fonck:ace('trumpet',[7,4,0],3,[.6,.4,.8]),
  voss:ace('spiccato',[7,9,8,11,9,7,6,8,4],4,[.7,.4,.5,.8,.5,.6,.4,.7,.9]),boelcke:ace('horn',[0,4,2,5,4,7],5,[.8,.5,.8,.5,.7,1]),
  collishaw:ace('trombone',[0,3,7,1,4,8],4,[1,.5,.8,1,.5,.8]),baracca:ace('horn',[0,2,4,7,6,9,7],5,[.6,.5,.7,1,.5,.8,1]),
@@ -43,6 +46,9 @@ export const ACE_MOTIFS=Object.freeze({
 // Individual orchestration, attack rhythm and motif for every catalog boss.
 const boss=(voice,steps,notes,mechanic,finalVoice)=>({voice,steps,notes,mechanic,finalVoice});
 export const BOSS_ARRANGEMENTS=Object.freeze({
+ 'berlin-drachen':boss('bassoon',[0,3,6],[0,3,8,6],'net','trombone'),
+ 'final-kaiserkrone':boss('trombone',[0,3,7],[0,7,3,1],'airship','cello'),
+ 'final-leviathan':boss('horn',[0,2,6],[0,12,7,15],'bomber','trumpet'),
  'supermarine-nighthawk':boss('clarinet',[0,3,6],[7,8,4,1],'searchlight','horn'),
  'siemens-schuckert-r-viii':boss('trombone',[0,2,4,7],[0,1,4,3],'bomber','cello'),
  'paris-gun':boss('horn',[0,6],[0,4,3,0],'rail','cello'),lincomparable:boss('trombone',[0,9],[0,1,4,0],'rail','bassoon'),

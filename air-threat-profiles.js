@@ -63,7 +63,7 @@ export function configureAA(g,e,size=66,ready=airThreatArtReady){
  const platform=['pedestal','lorry','position'][seq%3],id=`aa-${env}-${platform}`;
  if(!AIR_THREAT_ASSETS[id]||!ready(id))return false;
  const p=AA_PLATFORM_PROFILES[platform];
- e.airThreatAA=id;e.aaPlatform=platform;e.threatEnvironment=env;e.aaSize=size;
+ e.airThreatAA=id;e.groundArtRegion=region;e.aaPlatform=platform;e.threatEnvironment=env;e.aaSize=size;
  e.aaHpFactor=p.hp;e.aaFireFactor=p.fire;e.aaDamageFactor=p.damage;
  if(Number.isFinite(e.maxHp)&&e.maxHp>0){const maxHp=Math.max(1,Math.round(e.maxHp*p.hp));e.hp=Math.max(0,Math.min(maxHp,Math.round(e.hp*p.hp)));e.maxHp=maxHp;}
  return true;
@@ -95,3 +95,4 @@ export function airThreatMuzzles(e){
   return {x:(e.x||0)+lx*cs-ly*sn,y:(e.y||0)+lx*sn+ly*cs,angle:angle+local,index:i};
  });
 }
+

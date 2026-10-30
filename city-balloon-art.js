@@ -1,5 +1,5 @@
-import {fx} from './fx-art.js?v=headon-result339-20261028';
-import {SOMME_FRAMES} from './somme-boss-atlas.js?v=headon-result339-20261028';
+import {fx} from './fx-art.js?v=tame3';
+import {SOMME_FRAMES} from './somme-boss-atlas.js?v=tame3';
 const SOURCES={hulls:'./boss-city-balloon-hulls-20261022.webp',center:'./boss-city-drachen-center-20261021.webp',machinery:'./boss-city-balloon-machinery-20261021.webp',guns:'./boss-mark1-guns-r3.webp'};
 const FRAMES={left:{sheet:'hulls',row:0,cell:[362,362],box:[12,175,362,362]},right:{sheet:'hulls',row:1,cell:[362,362],box:[10,88,360,306]},london:{sheet:'hulls',row:2,cell:[362,362],box:[17,134,358,239]},center:{sheet:'center',row:0,cell:[724,724],box:[13,259,724,438]},pod:{sheet:'machinery',row:0,cell:[512,512],box:[43,2,500,512]},winch:{sheet:'machinery',row:1,cell:[512,512],box:[63,0,427,464]}};
 let images={},pending;

@@ -10,7 +10,7 @@ function loadCrewImage(file){
   const finish=value=>{if(settled)return;settled=true;clearTimeout(timer);image.onload=null;image.onerror=null;resolve(value)};
   const timer=setTimeout(()=>finish(null),CREW_LOAD_TIMEOUT_MS);
   image.onload=()=>finish(image);image.onerror=()=>finish(null);
-  image.src=new URL(`./crew/${file}.png?v=headon-result339-20261028`,import.meta.url).href;
+  image.src=new URL(`./crew/${file}.png?v=cockpit-placement-20261026`,import.meta.url).href;
  });
 }
 

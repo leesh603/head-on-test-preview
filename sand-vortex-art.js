@@ -1,7 +1,7 @@
 // One generated RGBA texture; no render-time particles, gradients or canvases.
 let vortex;
 export function prepareSandVortexArt(){
- if(!vortex&&typeof Image!=='undefined'){vortex=new Image();vortex.decoding='async';vortex.src='./fx-maan-sand-vortex.webp?v=headon-result339-20261028';}
+ if(!vortex&&typeof Image!=='undefined'){vortex=new Image();vortex.decoding='async';vortex.src='./fx-maan-sand-vortex.webp?v=regionalair2';}
  return vortex;
 }
 export function drawSandVortex(c,s,opacity){

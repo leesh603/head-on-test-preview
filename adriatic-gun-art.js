@@ -1,4 +1,4 @@
-import {JUTLAND_RECTS} from './jutland-atlas.js?v=headon-result339-20261028';
+import {JUTLAND_RECTS} from './jutland-atlas.js?v=tame3';
 
 // Visual metadata only. The original warning, projectile and collision
 // coordinates remain owned by the naval combat controllers.

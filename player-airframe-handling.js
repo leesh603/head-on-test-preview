@@ -31,6 +31,7 @@ export const PLAYER_HANDLING=Object.freeze({
  hansa_brandenburg_di:fit('steady',1.35,.98,.96,.9)
 });
 const aliases=Object.freeze({
+ navarre_nieuport11:'nieuport11',frommherz_albatros_d3:'albatros',
  fokker_red:'fokker',fokker_voss:'fokker',fokker_standard:'fokker',
  boelcke_albatros:'albatros_d2',baron_albatros:'albatros',brumowski_albatros:'albatros',schleich_albatros:'albatros',wolff_albatros:'albatros',
  baracca_nieuport:'nieuport',nieuport_italian:'nieuport',lufbery_nieuport17:'nieuport',nungesser_nieuport24:'nieuport24',luke_nieuport28:'nieuport28',

@@ -1,9 +1,13 @@
+import {drawArtilleryMuzzle} from './artillery-fx.js?v=20261026';
+import {weaponImpactKind} from './weapon-impact-profile.js';
+import {drawAircraftCritical} from './aircraft-critical-view.js';
+import {roleDraw} from './fx-role3.js?v=tame3&perf=1029';
 import {drawProjectileTactic} from './gun-signatures.js';
-import {drawExplosionProfile} from './explosion-profiles.js?v=headon-result339-20261028';
-import {drawGameIcon} from './icons.js?v=headon-result339-20261028&afc=1';
-import {fx,fxReady,FX56,FX3} from './fx-art.js?v=headon-result339-20261028';
-import {fxsBoom} from './fx-sample-preview.js?v=headon-result339-20261028';
-import {drawOrdnanceFlightTrail} from './ordnance-art.js?v=headon-result339-20261028';
+import {drawExplosionProfile,combatFxAge} from './explosion-profiles.js?v=fx5';
+import {drawGameIcon} from './icons.js?v=buildfit1&afc=1&opt=1';
+import {fx,fxReady,FX56,FX3} from './fx-art.js?v=tame3';
+import {fxsBoom} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029';
+import {drawOrdnanceFlightTrail} from './ordnance-art.js?v=tame3&perf=1029';
 
 export function grenadeVisualPose(g,out={}){
  const dx=g.targetX-g.startX,dy=g.targetY-g.startY;
@@ -24,6 +28,7 @@ export function drawGrenade(c,g,x,y){
 }
 export function drawGrenadeBlast(c,f,x,y){
  drawGrenadeBlastBase(c,f,x,y);
+ drawWeaponImpactTexture(c,f,x,y);
  drawOrdnanceCharge(c,f,x,y);
 }
 function drawGrenadeBlastBase(c,f,x,y){
@@ -66,14 +71,23 @@ function blastFlame(c,x,y,d,q){
 }
 export function drawFxExplosion(c,f,x,y,radius=0){
  if(f.fxHidden)return true;
+ if(f.fxProfile==='cannonMuzzle'){drawArtilleryMuzzle(c,fx,x,y,f.direction,combatFxAge(f),{heavy:f.heavy,scale:f.muzzleScale,smokeOnly:true});return true;}
  const drawn=drawFxExplosionBase(c,f,x,y,radius);
+ if(drawn)drawWeaponImpactTexture(c,f,x,y);
  drawOrdnanceCharge(c,f,x,y);
  return drawn;
 }
 function drawFxExplosionBase(c,f,x,y,radius=0){
+ if(drawAircraftCritical(c,f,x,y,fx))return true;
  if(f.fxProfile&&fxReady(f.fxProfile==='groundShell'||f.fxProfile==='heavyShell'?'mortarImpact0':f.fxProfile==='ammoCookoff'?'bossBlast0':'airblast0')&&drawExplosionProfile(c,f,x,y,fx))return true;
  if(f.fxOnly&&!FX3)return true;
  if(f.mortarOverlay&&FX3&&fxReady('mortarImpact0'))return true;
+ // COW's authored four-stage detonation must precede the generic hit flipbook.
+ if(f.fxSource==='cow'&&FX3){
+  const q=Math.max(0,Math.min(.999,combatFxAge(f)/f.maxLife)),frame=Math.min(3,Math.floor(q*4));
+  const d=Math.min(170,Math.max(65,(radius||f.radius||38)*3.4))*(.86+q*.28);
+  if(roleDraw(c,'cowImpact'+frame,x,y,d,d,0,Math.min(1,(1-q)*2.4)))return true;
+ }
  if(fxsBoom(c,f,x,y,radius))return true;
  const q=Math.max(0,Math.min(.999,1-f.life/f.maxLife)),frame=Math.min(3,Math.floor(q*4));
  if(drawRoleExplosion(c,f,x,y,radius,q,frame))return true;
@@ -133,10 +147,11 @@ function drawRoleExplosion(c,f,x,y,radius,q,frame){
 // Approved four-stage Amatol artwork. Ordinary grenade and mine effects keep
 // their existing renderer; this layer is used only by Amatol-tagged blasts.
 const amatolEffect=typeof Image==='undefined'?null:new Image();
-if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=headon-result339-20261028';
+if(amatolEffect)amatolEffect.src='./amatol_explosion_effects.webp?v=r5';
 const AMATOL_FRAMES=[[19,319,306,315],[321,261,427,427],[744,227,475,503],[1209,245,463,489]];
 export function drawAmatolBlast(c,f,x,y){
  drawAmatolBlastBase(c,f,x,y);
+ drawWeaponImpactTexture(c,f,x,y);
  drawOrdnanceCharge(c,f,x,y);
 }
 function drawAmatolBlastBase(c,f,x,y){
@@ -147,6 +162,48 @@ function drawAmatolBlastBase(c,f,x,y){
  const q=Math.max(0,Math.min(.999,1-f.life/f.maxLife)),frame=AMATOL_FRAMES[Math.min(3,Math.floor(q*4))],[sx,sy,sw,sh]=frame;
  const diameter=Math.min(f.secondaryExplosion?120:260,f.radius*2.15)*(0.82+q*.18);
  c.save();c.globalAlpha=Math.min(1,(1-q)*3);c.drawImage(amatolEffect,sx,sy,sw,sh,x-diameter/2,y-diameter/2,diameter,diameter);c.restore();
+}
+
+// Short contact choreography over the existing dedicated explosion artwork.
+// At most three sprite draws, no simulation objects, procedural rings, RNG,
+// retained trails or extension of an effect's existing lifetime.
+export function drawWeaponImpactTexture(c,f,x,y,paint=fx,ready=fxReady){
+ const weapon=weaponImpactKind(f);
+ if(!weapon||!(f.life>0)||!(f.maxLife>0))return false;
+ const age=combatFxAge(f),fade=Math.max(0,Math.min(1,(f.maxLife-age)/.12));
+ if(age>.36)return false;
+ const r=Math.min(82,Math.max(24,f.radius||40)),directed=Number.isFinite(f.direction),a=directed?f.direction:0;
+ const draw=(key,px,py,w,h,angle,alpha)=>{if(alpha>0&&ready(key))paint(c,key,px,py,w,h,angle,alpha*fade);};
+ if(weapon==='cannon'){
+  // A narrow metal strike precedes the slower smoke in the cannon's own art.
+  if(age<.09)draw('armorSpark',x,y,46,25,a,(1-age/.09)*.88);
+  if(age>.035&&age<.25)for(let i=0;i<2;i++){
+   const dir=directed?a+(i?-.38:.38):i*Math.PI+.6,travel=18+age*(i?90:125);
+   draw('metalShard'+i,x+Math.cos(dir)*travel,y+Math.sin(dir)*travel,9,7,dir+age*5,(1-age/.25)*.85);
+  }
+ }else if(weapon==='rocket'){
+  // Propellant flashes along the arriving rocket; never fake a direction when
+  // the legacy emitter supplies only a location.
+  if(age<.13)draw('fireEngine',x+(directed?Math.cos(a)*8:0),y+(directed?Math.sin(a)*8:0),directed?54:35,30,a+Math.PI/2,(1-age/.13)*.82);
+  if(age>.055&&age<.3)draw('smokePuff',x+(directed?Math.cos(a)*age*45:0),y+(directed?Math.sin(a)*age*45:0),30+age*35,26+age*20,a,(1-age/.3)*.32);
+ }else if(weapon==='grenade'){
+  if(age<.055)draw('profileFlash',x,y,28,28,0,(1-age/.055)*.78);
+  if(age>.025&&age<.24)for(let i=0;i<2;i++){
+   const dir=i*2.399+((f.x||0)+(f.y||0))*.013,travel=r*(.2+age*1.7);
+   draw('metalShard'+(i+2),x+Math.cos(dir)*travel,y+Math.sin(dir)*travel,8,8,dir+age*6,(1-age/.24)*.78);
+  }
+ }else if(weapon==='incendiary'){
+  if(age<.12)draw('fireFlash',x,y,32,32,a,(1-age/.12)*.6);
+  if(age>.04)draw('fireEngine',x,y,24,36,a+Math.PI/2,(1-age/.36)*.7);
+ }else{
+  const heavy=weapon==='puw',size=heavy?1.2:weapon==='cooper'?.82:1;
+  if(age<.075)draw('profileFlash',x,y,r*.65*size,r*.65*size,0,(1-age/.075)*.88);
+  if(age>.045&&age<.32)for(let i=0;i<2;i++){
+   const dir=(directed?a:0)+(i?Math.PI+.5:-.5),travel=r*(.12+age*(heavy?1.05:.8));
+   draw('dirtBurst',x+Math.cos(dir)*travel,y+Math.sin(dir)*travel,r*.44*size,r*.3*size,dir,(1-age/.32)*.42);
+  }
+ }
+ return true;
 }
 
 // Stronger charges keep their damage boundary and existing detonation art.
@@ -164,3 +221,4 @@ export function drawOrdnanceCharge(c,f,x,y,paint=fx,ready=fxReady){
  if(q>.38)paint(c,'smokeGray',x,y-r*q*.18,r*(.48+q*.3),r*(.4+q*.3),0,Math.sin((q-.38)/.62*Math.PI)*(.1+tier*.04));
  return true;
 }
+

@@ -1,5 +1,5 @@
-import {AchievementBook,MEDALS,MEDAL_SAVE_KEY,setAchievementBook,achievementRun,syncPilotKills} from './achievements.js?v=headon-result339-20261028';
-import {getLocale,subscribe} from './i18n.js?v=headon-result339-20261028&afc=1&art=pilot-recovery2';
+import {AchievementBook,MEDALS,MEDAL_SAVE_KEY,setAchievementBook,achievementRun,syncPilotKills,secretMedalDisclosure} from './achievements.js?v=pandemonium394r2';
+import {getLocale,subscribe} from './i18n.js?v=pandemonium394r2&afc=1&art=pilot-recovery2';
 
 export function installAchievementUI({getGame,document:doc=globalThis.document}={}){
  if(!doc?.getElementById('hangar'))return null;
@@ -7,8 +7,8 @@ export function installAchievementUI({getGame,document:doc=globalThis.document}=
  const book=new AchievementBook(storage);setAchievementBook(book);
  const en=()=>getLocale()==='en',text=(ko,eng)=>en()?eng:ko;
  const node=(tag,cls,content)=>{const e=doc.createElement(tag);if(cls)e.className=cls;if(content!==undefined)e.textContent=content;return e};
- const icon=(d,tier=0)=>{const e=node('span','service-medal-art');e.style.backgroundPosition=`${d.icon%3*50}% ${Math.floor(d.icon/3)*100}%`;e.setAttribute('aria-hidden','true');if(!tier)e.classList.add('is-locked');return e};
- const link=node('link');link.rel='stylesheet';link.href='./achievements.css?v=headon-result339-20261028';doc.head.append(link);
+ const icon=(d,tier=0)=>{const e=node('span','service-medal-art');if(d.id==='pandemonium'&&!tier){e.textContent='?';e.style.backgroundImage='none';e.setAttribute('aria-hidden','true');return e;}e.style.backgroundPosition=`${d.icon%3*50}% ${Math.floor(d.icon/3)*100}%`;e.setAttribute('aria-hidden','true');if(!tier)e.classList.add('is-locked');return e};
+ const link=node('link');link.rel='stylesheet';link.href='./achievements.css?v=pandemonium394r2';doc.head.append(link);
  const button=node('button','service-record-entry');button.type='button';button.id='serviceRecordEntry';button.dataset.action='medals';button.setAttribute('aria-haspopup','dialog');
  const entryFull=node('span','operation-label-full'),entryShort=node('span','operation-label-short');button.append(entryFull,entryShort);
  const strip=node('div','service-featured');strip.id='serviceFeatured';
@@ -41,7 +41,7 @@ export function installAchievementUI({getGame,document:doc=globalThis.document}=
   filters.replaceChildren();for(const [id,ko,eng]of groups){const b=node('button',filter===id?'active':'',text(ko,eng));b.type='button';b.dataset.filter=id;b.setAttribute('aria-pressed',String(filter===id));filters.append(b)}
   grid.replaceChildren();for(const d of MEDALS){const p=book.progress(d);if(filter==='earned'&&!p.tier||!['all','earned'].includes(filter)&&d.group!==filter)continue;
    const card=node('article','service-medal-card'+(p.tier?' is-earned':''));card.dataset.medal=d.id;card.append(icon(d,p.tier));const copy=node('div','service-medal-copy');
-   const hidden=d.hidden&&!p.tier;copy.append(node('h3',null,hidden?text('미확인 전공','Hidden Citation'):label(d)),node('p',null,hidden?text('특별한 생환 기록을 남겨보세요.','Return from an exceptional ordeal.'):en()?d.descriptionEn:d.description));
+   const hidden=d.hidden&&!p.tier,disclosure=secretMedalDisclosure(d,book);copy.append(node('h3',null,disclosure.hidden?'????':hidden?text('미확인 전공','Hidden Citation'):label(d)),node('p',null,disclosure.hidden?'????':hidden?text('특별한 생환 기록을 남겨보세요.','Return from an exceptional ordeal.'):en()?d.descriptionEn:d.description));
    const status=node('div','service-medal-meta');status.append(node('span','service-tier tier-'+p.tier,tierName(d,p.tier)));
    if(!hidden){const count=node('span',null,Math.min(p.value,p.goal).toLocaleString()+' / '+p.goal.toLocaleString()+(d.id==='circuit'&&p.goal>1?text(' 전장 · 한 출격 최고',' battlefields · best sortie'):d.id==='survivor'?text('초',' s'):''));status.append(count);const meter=node('progress');meter.max=p.goal;meter.value=Math.min(p.value,p.goal);meter.setAttribute('aria-label',label(d));copy.append(meter)}
    if(p.tier){const a=book.data.awards[d.id],date=new Date(a.firstAt);if(Number.isFinite(date.getTime()))status.append(node('time',null,date.toLocaleDateString(en()?'en-GB':'ko-KR')));const pick=node('button','service-feature-toggle',book.data.featured.includes(d.id)?text('대표 해제','Unfeature'):text('대표 선택','Feature'));pick.type='button';pick.dataset.feature=d.id;pick.setAttribute('aria-pressed',String(book.data.featured.includes(d.id)));status.append(pick)}

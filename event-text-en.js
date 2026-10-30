@@ -1,10 +1,11 @@
 // English for in-game event toasts that were only written in Korean.
 // Presentation only: wraps Game#event to swap the display text when the
 // locale is English. Short technical tokens ('balloon', 'heal', …) pass through.
-import {getLocale,activeName,pilotName} from './i18n.js?v=headon-result339-20261028&afc=1&art=pilot-recovery2';
+import {getLocale,activeName,pilotName} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 
 
 const EXACT = {
+  '블랙 플라이트 · 공격 개시': 'Black Flight · Begin assault',
   '관측기구 격추 · 적 포병 관측망 붕괴 — 12초간 관측포격 중단': 'Observation balloon down · enemy spotting net broken — no observed fire for 12s',
   '기관차 탈선 · 최종 코어 노출': 'Locomotive derailed · final core exposed',
   '기관차 폭주! · 선로에서 이탈하기 전에 추격하세요': 'Runaway locomotive! · Chase it down before it leaves the line',
@@ -31,6 +32,7 @@ const EXACT = {
   '수상기가 함대에 위치를 송신 — 지원 함대 접근 중': 'Seaplane reported your position — support fleet inbound',
   '수소 화재 · 적과 아군 모두 접근 금지': 'Hydrogen fire · keep clear, friend and foe',
   '아군 지원 편대 도착': 'Friendly support flight arrived',
+  '아군 구출 성공 · 보급 확보': 'Friendly aircraft rescued · supplies secured',
   '아군 폭격대 진입 · 폭탄 5발 투하': 'Friendly bombers inbound · five bombs released',
   '에리히 뢰벤하르트 · 수직 상승 사격': 'Erich Loewenhardt · Rising Strike',
   '열차 객차 파괴 · 기관차 방호 약화': 'Carriage destroyed · locomotive armour weakened',

@@ -1,7 +1,8 @@
-import {SituationPolicy} from './music-situation-policy.js?v=headon-result339-20261028';
-import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=headon-result339-20261028';
-import {RecordedBattleMusic} from './music-recordings.js?v=headon-result339-20261028';
-export {musicContextForGame} from './music-context.js?v=headon-result339-20261028';
+import {CAPITAL_SCORES,capitalScoreStep} from './capital-boss-score.js';
+import {SituationPolicy} from './music-situation-policy.js?v=lowhp1';
+import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=tame3';
+import {RecordedBattleMusic} from './music-recordings.js?v=lowhp1';
+export {musicContextForGame} from './music-context.js?v=situations1';
 // Original adaptive score. Map themes share no borrowed soundtrack melodies.
 // Modes: 'idle' | map regions (rural/sea/trench/city/sky/alps/zeebrugge) |
 // 'boss' (enemy ace duel) | 'boss:<family>' for stage bosses.
@@ -12,9 +13,10 @@ export function musicModeForGame(game){
   if(game.enemies.some(e=>e.hp>0&&e.type==='boss'))return 'boss';
   return MAP_KEYS[game.worldRegion()]||'rural';
 }
-const MAP_KEYS=['rural','sea','trench','trench','city','sky','alps','zeebrugge','cambrai','arras','somme','london','verdun','maan','gallipoli','paris-night','jutland','dover-night'];
+const MAP_KEYS=['rural','sea','trench','trench','city','sky','alps','zeebrugge','cambrai','arras','somme','london','verdun','maan','gallipoli','paris-night','jutland','dover-night','berlin'];
 // Stage-boss id -> score family. Related boss pairs share a family.
 const BOSS_TRACKS={
+ 'final-kaiserkrone':'kaiserkrone','final-leviathan':'leviathan','berlin-drachen':'net',
  'supermarine-nighthawk':'bomber','siemens-schuckert-r-viii':'bomber',
  'paris-gun':'railgun',lincomparable:'railgun',
  'sms-stuttgart':'naval','hms-zubian':'naval',
@@ -29,6 +31,7 @@ const BOSS_TRACKS={
 // Per-family tempo and bar-root progressions; each family also has its own
 // pattern branch in bossStep.
 const BOSS_SCORES={
+ ...CAPITAL_SCORES,
  railgun:{bpm:64,ramp:56,roots:[28,28,25,28,30,28,25,24]},
  naval:{bpm:74,ramp:44,roots:[33,30,33,35,31,30,28,27]},
  landship:{bpm:84,ramp:48,roots:[31,31,34,31,29,31,28,30]},
@@ -47,10 +50,10 @@ const THEMES={
   alps:{bpm:78,steps:8,roots:[40,40,36,38,40,43,36,33],melody:[[64,67,64,62,59,60,59,57],[64,62,60,59,57,60,62,64],[67,64,62,60,59,57,55,57],[64,62,60,59,57,55,57,59]]},
   zeebrugge:{bpm:70,steps:12,roots:[31,31,28,31,29,31,28,26],melody:[[55,58,57,55,52,50],[53,55,52,50,48,46],[55,60,58,55,52,50],[52,55,52,50,48,46]]}
 };
-const originalKey=id=>id==='trenches'?'trench':id;
-const BOSS_TEMPO={railgun:108,naval:96,landship:104,net:110,airship:92,bomber:112,fortress:98,duel:118};
+const originalKey=id=>id==='trenches'?'trench':id==='berlin'?'city':id;
+const BOSS_TEMPO={kaiserkrone:86,leviathan:112,railgun:108,naval:96,landship:104,net:110,airship:92,bomber:112,fortress:98,duel:118};
 const familyFor=id=>BOSS_TRACKS[id]||({rail:'railgun',naval:'naval',split:'naval',armor:'landship',siege:'fortress',net:'net',airship:'airship',bomber:'bomber',formation:'duel',searchlight:'net'}[BOSS_ARRANGEMENTS[id]?.mechanic])||id;
-export const MUSIC_THEME_IDS=Object.freeze([...Object.keys(THEMES).filter(k=>k!=='trench'),'trenches',...Object.keys(REGIONAL_VARIATIONS)]);
+export const MUSIC_THEME_IDS=Object.freeze([...Object.keys(THEMES).filter(k=>k!=='trench'),'trenches',...Object.keys(REGIONAL_VARIATIONS),'berlin']);
 export class BattleMusic {
   constructor(){this.mode='idle';this.muted=false;this.step=0;this.next=0;this.timer=null;this.track=null;this.positions={};this.scene=null;this.seenAces=new WeakSet();this.intensity=.2;this.signatureCount=0;this.pulseCount=0;this.volume=1;this.voices=new Set();this.noteGain=1;this.errors=[];this.situationPolicy=new SituationPolicy();this.situationAces=new Set();this.situationBoss=null;this.clearedMusicBoss=null;this.recorded=new RecordedBattleMusic({onStart:()=>this.stopVoices(()=>true,1)});}
   unlock(){try{if(!this.ctx){
@@ -240,6 +243,7 @@ export class BattleMusic {
     }
   }
   bossStep(i,t,b,elapsed){
+    if(capitalScoreStep(this,this.scene?.bossId,i,t,b))return;
     const name=this.bossTrack(),T=BOSS_SCORES[name]||BOSS_SCORES.duel;
     const p=i%16,bar=Math.floor(i/16),root=Math.max(34,Math.min(43,T.roots[bar%8]+5));
     this.scoreRoot=root;

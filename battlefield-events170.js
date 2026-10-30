@@ -1,11 +1,11 @@
 import {TRANSPORT_CONVOY_BALANCE,transportCanSpawn,transportArtReady,spawnTransportConvoy,tickTransportConvoy,finishTransportConvoy} from './transport-convoy.js';
 import {intrusionActive} from './intrusion-bosses.js';
 import {activeFronts,tickRuralFronts} from './rural-fronts.js';
-import {achievementMission} from './achievements.js?v=headon-result339-20261028';
-import {doverFlightBounds} from './dover-patrol-chart.js?v=headon-result339-20261028';
-import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=headon-result339-20261028&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {JUTLAND_ROUTE} from './jutland-route.js?v=headon-result339-20261028';
-import {ZEEBRUGGE_ROUTE,harborRouteHalfWidth} from './stageboss-host.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cambrai=20261021&cityart=20261022&harbor=20261021&somme=20261021&momentum=20261027';
+import {achievementMission} from './achievements.js?v=medals2';
+import {doverFlightBounds} from './dover-patrol-chart.js?v=dover3';
+import {GALLIPOLI_ROUTE} from './gallipoli-route.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {JUTLAND_ROUTE} from './jutland-route.js?v=gal1';
+import {ZEEBRUGGE_ROUTE,harborRouteHalfWidth} from './stageboss-host.js?v=merge20261017&ai=1018&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cambrai=20261021&cityart=20261022&harbor=20261021&somme=20261021&momentum=20261027';
 
 export const BATTLEFIELD_EVENT_TYPES=Object.freeze({
  HIGH_VALUE_TARGET:'HIGH_VALUE_TARGET',RESCUE:'RESCUE',BOMBER_INTERCEPT:'BOMBER_INTERCEPT',ACE_CHALLENGE:'ACE_CHALLENGE',PHOTO_RECON:'PHOTO_RECON',RECON_ESCORT:'RECON_ESCORT',SUPPLY_RECOVERY:'SUPPLY_RECOVERY',TRANSPORT_CONVOY:'TRANSPORT_CONVOY'
@@ -20,7 +20,7 @@ const P=BATTLEFIELD_EVENT_TYPES;
 const liveAce=game=>(game.enemies||[]).some(e=>e.hp>0&&!e.expired&&!e.rivalEscaped&&(e.bossPilot||e.type==='boss'));
 const scriptedBoss=game=>game.stageBoss?.stages?.phase==='boss';
 const playerFor=game=>game.players?.find(p=>p?.hp>0&&(!p.status||p.status==='alive'))||game;
-const crossRegionSupport=key=>key==='rescue'||key==='airSupport';
+const crossRegionSupport=key=>key==='airSupport';
 const regionKey=game=>`${game.stageCombatWindow?.loopIndex??0}:${game.stageCombatWindow?.stageIndex??game.worldRegion?.()}:${game.worldRegion?.()}`;
 const missionWindow=type=>type===P.TRANSPORT_CONVOY?TRANSPORT_CONVOY_BALANCE.duration+TRANSPORT_CONVOY_BALANCE.bossReserve:type===P.PHOTO_RECON?28:[P.ACE_CHALLENGE,P.BOMBER_INTERCEPT].includes(type)?24:20;
 
@@ -173,7 +173,7 @@ export function recordBattlefieldOutcome(game,event,outcome){
   }else if(game.state==='playing'){game.state='upgrade';game.event?.('upgrade','에이스 격추 · 강화 선택')}
  }
  if(event.type===P.RESCUE&&win&&event.rescue?.hp>0){
-  const ally=event.rescue;pending.rescue={...result,remaining:3,expiresAt:(game.t||0)+300,ally:{ownerId:ally.ownerId,plane:ally.plane,hp:ally.hp,maxHp:ally.maxHp}};ally.life=0;
+  event.rescue.life=0;
  }
  if(event.type==='AMMO_DEPOT'&&win&&region===7)pending.facility={...result,bossKind:'armored-harbor-fortress',expiresAt:(game.t||0)+120};
  return pending;
@@ -208,22 +208,15 @@ function beginEngagement(game,pattern,sceneId,endsAt){
   return item;
  };
  const consumeWave=(key,item)=>{if(--item.remaining<=0)delete pending[key]};
- const formation=wave('formation'),rescue=wave('rescue'),airSupport=wave('airSupport');
+ const formation=wave('formation'),airSupport=wave('airSupport');
+ // Discard obsolete rescue-flight rewards from a running older session.
+ delete pending.rescue;
  if(formation)consumeWave('formation',formation);
  const consequence=tactical?.regionKey===regionKey(game)?tactical:null;
  if(applicableBomber){if(bomber.value===1)pattern='BOMBER_RUN';else pattern='HEAD_ON_PASS';}
  else if(!bomber&&consequence?.outcome==='breakthrough')pattern='BOMBER_RUN';
  else if(consequence?.outcome==='intercepted'&&['BOMBER_RUN','ESCORT'].includes(pattern))pattern='CROSS_ATTACK';
  state.engagement={sceneId,region,pattern,endsAt:Math.min(endsAt??now+18,now+18),formationWeakened:!!formation||consequence?.outcome==='intercepted',tacticalOutcome:consequence?.outcome||null,artillery:artillery?.value||0,supportAt:now+3};
- if(rescue?.ally){
-  const p=playerFor(game),spec=rescue.ally;
-  if(game.allies)game.allies=game.allies.filter(a=>a.life>0);
-  const before=game.allies?.length||0;
-  for(let i=0;i<5;i++){const side=(i-2)*64,back=88+Math.abs(i-2)*32;
-   (game.allies||=[]).push({...spec,slot:i+2,eventRescueSupport:true,life:22,x:p.x-Math.cos(p.a)*back-Math.sin(p.a)*side,y:p.y-Math.sin(p.a)*back+Math.cos(p.a)*side,a:p.a,fire:.25+i*.07});
-  }
-  if(game.allies.length>before){consumeWave('rescue',rescue);game.event?.('ally','구출 편대 복귀 · 아군 전투기 5기 지원')}
- }
  if(airSupport){
   const p=playerFor(game),a=p.a||0,plane=game.teamFaction==='central'||game.allyPlane==='fokker'?'staaken':'handley-page';
   const before=game.friendlyBombers?.length||0;
@@ -271,6 +264,7 @@ function applyReconIntel(game,state,region){
 function tickConsequences(game){
  if(game.state!=='playing')return;
  const state=game.battlefieldEvents,now=game.t||0,region=game.worldRegion?.();if(!state)return;
+ if(state.pending)delete state.pending.rescue;
  applyReconIntel(game,state,region);
  for(const [key,item]of Object.entries(state.pending||{}))if(item.expiresAt<=now||!crossRegionSupport(key)&&item.region!=null&&item.region!==region)delete state.pending[key];
  const engagement=state.engagement;
@@ -315,7 +309,7 @@ function finish(game,state,outcome,reason){
    [P.HIGH_VALUE_TARGET]:'지휘관 격추 · 호위 붕괴 · 다음 2개 편대 지휘 약화',
    [P.BOMBER_INTERCEPT]:'폭격기 요격 성공 · 후속 교전 폭격 지원 확보',
    [P.RECON_ESCORT]:'정찰기 보호 성공 · 후속 교전 폭격 지원 확보',
-   [P.RESCUE]:'아군 구출 성공 · 다음 교전 아군 5기 합류',
+   [P.RESCUE]:'아군 구출 성공 · 보급 확보',
    [P.PHOTO_RECON]:'사진 정찰 완료 · 보스 약점 피해 +35%',
    [P.SUPPLY_RECOVERY]:'긴급 보급 회수 · 전원 완전 회복',
    [P.TRANSPORT_CONVOY]:'수송 보급품 회수 · 수리 30% + 경험치',
@@ -433,9 +427,3 @@ export function installBattlefieldEvents(Game){
  const update=Game.prototype.update;
  Game.prototype.update=function(dt,input={}){const result=update.call(this,dt,input);tickRuralFronts(this);this.tickBattlefieldEvents();return result};
 }
-
-
-
-
-
-

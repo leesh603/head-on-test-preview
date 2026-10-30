@@ -28,17 +28,19 @@ export const roleArtReady=Promise.all(packs.map(pack=>{
    image.onload=image.onerror=null;resolve(valid);
   };
   image.onerror=()=>{image.onload=image.onerror=null;resolve(false)};
-  image.src=new URL('./fx-role-split/'+pack.file+'?v=headon-result339-20261028',import.meta.url).href;
+  // High-quality lossy copy (exact alpha) of each lossless pack; identical cell layout.
+ image.src=new URL('./fx-role-split/'+pack.file.replace(/\.webp$/,'-q92.webp'),import.meta.url).href;
  });
 }));
 export function roleReady(key){return FX3&&entries.has(resolveKey(key))}
 export function roleDraw(c,key,x,y,w,h=w,angle=0,alpha=1){
  const entry=entries.get(resolveKey(key));if(!FX3||!entry||!(w>0)||!(h>0))return false;
  const {image,pack,index}=entry,{cell,cols}=pack;
- c.save();c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha*=Math.max(0,Math.min(1,Number.isFinite(alpha)?alpha:1));
+ // Per-particle hot path: manual transform undo instead of save/restore.
+ const a0=c.globalAlpha,s0=c.imageSmoothingEnabled;c.translate(x,y);if(angle)c.rotate(angle);c.globalAlpha=a0*Math.max(0,Math.min(1,Number.isFinite(alpha)?alpha:1));
  c.imageSmoothingEnabled=true;
  c.drawImage(image,(index%cols)*cell,Math.floor(index/cols)*cell,cell,cell,-w/2,-h/2,w,h);
- c.restore();return true;
+ if(angle)c.rotate(-angle);c.translate(-x,-y);c.globalAlpha=a0;c.imageSmoothingEnabled=s0;return true;
 }
 const cells=new Map();
 export function roleImage(key,trim=false){

@@ -1,4 +1,5 @@
 export const REGION_TRANSITION_LABELS=Object.freeze({
+ 18:Object.freeze({ko:'베를린 방어선 · 카이저크로네',en:'Berlin Defense Line · Kaiserkrone'}),
  0:Object.freeze({ko:'전원 지대 · 기뢰지대',en:'Pastoral Minefields'}),
  1:Object.freeze({ko:'아드리아해 · 적 함대',en:'Adriatic Sea Front'}),
  2:Object.freeze({ko:'참호 전선 · 대공포',en:'Trench Front'}),

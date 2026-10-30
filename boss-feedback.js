@@ -79,8 +79,9 @@ PHASES['minenwerfer-final-order']=['최후의 포격 명령','Final bombardment 
 PHASES['livens-sweep']=['연료 누출 · 좌우 화염 쓸기','Fuel leaks · alternating flame sweep'];
 PHASES['livens-unstable']=['압력 불안정 · 단속 분사와 회전','Unstable pressure · pulses and rotation'];
 PHASES['livens-depressurized']=['압력 저하 · 본체 반격 기회','Depressurized · strike the core'];
+Object.assign(PHASES,{'capital-phase-2':['제2전투 배치 · 측면 포좌를 제압하라','Phase 2 · silence the flank batteries'],'capital-phase-3':['최종 저항 · 남은 기관과 주 선체를 격파하라','Last resistance · destroy the engines and main hull'],'capital-ace-cover':['에이스 2기 난입 · 대형 보스 사격 중단','Two aces inbound · capital guns holding fire'],'capital-recovery':['재장전 · 집중 공격 기회','Reloading · concentrate fire'],'capital-vent-recovery':['기관 과열 · 폭발 범위에서 이탈','Engine vent · leave the blast area']});
 export function bossPhaseLabel(phase,locale='ko'){const words=PHASES[phase];return words?words[locale==='en'?1:0]:pair('보스 전술 변화','Boss tactics changed',locale)}
-export const BOSS_NAMES_EN=Object.freeze({'supermarine-nighthawk':'Supermarine Nighthawk','siemens-schuckert-r-viii':'Siemens-Schuckert R.VIII','jutland-grand-fleet':'Jutland Battle Squadron','paris-staaken-rvi':'Zeppelin-Staaken R.VI · Paris raid','paris-searchlight-fortress':'Paris searchlight fortress','gallipoli-fortress':'Gallipoli Grand Fortress · Siege','wustenpanzer':'Wüstenpanzer · Desert cruiser','sinai-landship':'Sinai Landship','fort-douaumont':'Fort Douaumont','fort-souville':'Fort de Souville',
+export const BOSS_NAMES_EN=Object.freeze({'final-kaiserkrone':'Kaiserkrone','final-leviathan':'Leviathan · Final Configuration','berlin-drachen':'Berlin Drachen defense','supermarine-nighthawk':'Supermarine Nighthawk','siemens-schuckert-r-viii':'Siemens-Schuckert R.VIII','jutland-grand-fleet':'Jutland Battle Squadron','paris-staaken-rvi':'Zeppelin-Staaken R.VI · Paris raid','paris-searchlight-fortress':'Paris searchlight fortress','gallipoli-fortress':'Gallipoli Grand Fortress · Siege','wustenpanzer':'Wüstenpanzer · Desert cruiser','sinai-landship':'Sinai Landship','fort-douaumont':'Fort Douaumont','fort-souville':'Fort de Souville',
  'paris-gun':'Bruno railway gun',lincomparable:"520mm L’Incomparable",'sms-stuttgart':'SMS Stuttgart','hms-zubian':'HMS Zubian',
  'a7v-flak':'A7V Flakpanzer','mark-v-cruiser':'Mark V land cruiser','livens-flame-projector':'Livens flame projector','minenwerfer-battery':'Minenwerfer crossfire battery',
  'drachen-net':'Drachen mine network','london-apron':'London balloon apron','zeppelin-l70':'Zeppelin L 70',hma23:'HMA 23 carrier',gik:'Hansa-Brandenburg G.IK',ca4:'Caproni Ca.4','armored-harbor-fortress':'Armored harbor fortress',
@@ -117,6 +118,7 @@ export function bossTactic(encounter,locale='ko'){
  return /반격|counterattack|strike now|counter window/i.test(detail)?'':detail;
 }
 function bossTacticDetail(encounter,locale='ko'){
+ if(encounter?.bossId==='final-kaiserkrone'||encounter?.bossId==='final-leviathan')return pair('기관 파괴로 기동 저하 · 포좌·갑판을 제압하고 주 선체에 집중','Break engines to slow it · silence guns and decks · strike the main hull',locale);
  // Keep existing hint visibility; Somme's new component choices need cues.
  if(!TACTIC_RAIL_ONLY.has(encounter?.bossId)&&!['mark4-wedge','morser-battery','wustenpanzer','sinai-landship','gallipoli-fortress','paris-staaken-rvi','paris-searchlight-fortress','jutland-grand-fleet','supermarine-nighthawk','siemens-schuckert-r-viii'].includes(encounter?.bossId))return '';
  const bodies=[...encounter?.bodies.values()||[]].filter(b=>!b.dead),b=bodies[0];if(!b)return '';

@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "sourceLibraryId": "libfile_ad50fa701a0c8191911513fb247f6b14",
+  "sourcePackSha256": "343084e92c847472f3d0b5c13c940e6b59020c9ac7dab818061c6918ff1256b9",
+  "derivation": "Approved original concepts; imagegen limited deck-gun removal/open positions; exact cover crops and lossless runtime packing; existing Nachtwal independent single guns",
+  "assets": [
+    {
+      "file": "qship-cover-aft_port.webp",
+      "sha256": "e5f005025fd0d2995f2610710fbfef2ddb0be7727f2e694269ea4c18647df1da",
+      "bytes": 8184,
+      "size": [
+        49,
+        109
+      ]
+    },
+    {
+      "file": "qship-cover-aft_starboard.webp",
+      "sha256": "18159c9ebeccebb02684e93742dc44b80eecdaa95b2e5802a227cc03c4cdad8a",
+      "bytes": 7820,
+      "size": [
+        50,
+        109
+      ]
+    },
+    {
+      "file": "qship-cover-fore_port.webp",
+      "sha256": "02661f028c012fa305d6daea965290ff6c0e392d8d90de98a5dbef29e016959c",
+      "bytes": 6750,
+      "size": [
+        45,
+        96
+      ]
+    },
+    {
+      "file": "qship-cover-fore_starboard.webp",
+      "sha256": "66e3199a1847b3c358232c3793111dd6bf0513b98ad7d82aed0a44b7a4537168",
+      "bytes": 6740,
+      "size": [
+        46,
+        96
+      ]
+    },
+    {
+      "file": "qship-cutin.webp",
+      "sha256": "240905bee2d23ea8f0dc11fdb15d1bd46f35b38695cbbf1014e5e60a3340df55",
+      "bytes": 813990,
+      "size": [
+        728,
+        2161
+      ]
+    },
+    {
+      "file": "qship-hull.webp",
+      "sha256": "24d65806bd6d8880f0ae8a06e426a73c15192ab2ed26d1bd7a4983ef421acf00",
+      "bytes": 811398,
+      "size": [
+        728,
+        2161
+      ]
+    },
+    {
+      "file": "seeadler-cutin.webp",
+      "sha256": "71b203561e8708f059a65d8023c839dbcd15446a6a33c7184fa1e88776899a37",
+      "bytes": 939926,
+      "size": [
+        724,
+        2172
+      ]
+    },
+    {
+      "file": "seeadler-hull.webp",
+      "sha256": "0b2d864bec39556a4d3b071c4c90f25ecb2d4af7bbe50882e4f7dfd0b7452b77",
+      "bytes": 940346,
+      "size": [
+        724,
+        2172
+      ]
+    }
+  ],
+  "correctedSourceLibraryId": "libfile_60f213f972ac8191a5fa8635c523baba",
+  "correctedSourcePackSha256": "326c07feb6d0d5ebca47521e644d9992480906aaebeccf56b489f4f5b93b8bb4"
+}

@@ -1,3 +1,4 @@
+import {normalizeCollishawSlots} from './collishaw-flight.js';
 // Ability feedback uses live combat state and existing painted aircraft/FX assets.
 // No extra damage, invulnerability, camera shake, new HUD or asset allocations.
 const own=p=>p.id||'p1';
@@ -48,7 +49,7 @@ export function installPilotFeedback(Game){
  // Never infer an owner from an unowned wing in a cooperative world.
  const normalize=p=>{if(!p.world&&!p.players)for(const a of p.allies||[])if(a.ownerId===undefined)a.ownerId=own(p)};
  const oldEnsure=Game.prototype.ensureWingmen;
- Game.prototype.ensureWingmen=function(){normalize(this);const r=oldEnsure.call(this);normalize(this);return r};
+ Game.prototype.ensureWingmen=function(){normalize(this);normalizeCollishawSlots(this);const r=oldEnsure.call(this);normalize(this);normalizeCollishawSlots(this);return r};
  Game.prototype.permanentWingCount=function(){normalize(this);return (this.combatWorld().allies||[]).filter(a=>a.permanent&&a.life>0&&a.ownerId===own(this)).length};
  const oldSkill=Game.prototype.skill;
  Game.prototype.skill=function(){this.ensureRevisionPilot();if(this.state==='playing'&&this.hp>0&&this.cooldown<=0&&['boelcke','goering','collishaw','brumowski'].includes(this.pilot)&&!this.world)this.ensureWingmen();const used=oldSkill.call(this);if(used)startFeedback(this);return used};

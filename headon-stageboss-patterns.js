@@ -1,35 +1,39 @@
-import {SupermarineNighthawk,SiemensSchuckertRVIII} from './dover-night-bosses.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {createCapitalBoss} from './capital-bosses.js';
+import {SupermarineNighthawk,SiemensSchuckertRVIII} from './dover-night-bosses.js?v=dover3&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js';
-import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=headon-result339-20261028&rail=40';
+import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
 import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
-import {ParisSearchlightFortress,ParisStaakenRVI} from './paris-night-bosses.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {GallipoliFortress} from './gallipoli-boss.js?v=headon-result339-20261028&rail=40&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {RuralRailBoss} from './rural-rail-combat.js?v=headon-result339-20261028&rail=44&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=headon-result339-20261028&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {treffasPoint,treffasGunPivot,treffasGunMuzzle,treffasMgMuzzle,fliegerGunPivot,fliegerGunMuzzle} from './cambrai-layout.js?v=headon-result339-20261028&cambrai=20261021';
-import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=headon-result339-20261028&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&phase=1021';
-import {createJutlandEncounter} from './jutland-boss.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {ParisSearchlightFortress,ParisStaakenRVI} from './paris-night-bosses.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {GallipoliFortress} from './gallipoli-boss.js?v=tame3&rail=40&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {Wustenpanzer,SinaiLandship,RollsRoyceEscort} from './maan-boss.js?v=gal1-r3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {RuralRailBoss} from './rural-rail-combat.js?v=gal1&rail=44&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {FortDouaumont,FortSouville} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {treffasPoint,treffasGunPivot,treffasGunMuzzle,treffasMgMuzzle,fliegerGunPivot,fliegerGunMuzzle} from './cambrai-layout.js?v=20261021&cambrai=20261021';
+import {Mark1Landship,SchwabenFortress} from './somme-boss-combat.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&phase=1021';
+import {createJutlandEncounter} from './jutland-boss.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
 export {Mark1Landship as Mark4Wedge,SchwabenFortress as MorserBattery};
-import {sommeScale} from './somme-boss-layout.js?v=headon-result339-20261028&somme=20261021';
-import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose,steerNaval} from './adriatic-boss-layout.js?v=headon-result339-20261028';
-import {initArmorDrive,stepArmorDrive} from './trench-armor-drive.js?v=headon-result339-20261028&ai=1018';
-import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=headon-result339-20261028&ai=1018';
-import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=headon-result339-20261028';
-import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
-import {apronPose} from './london-apron369.js?v=headon-result339-20261028&cityart=20261022';
-import {GIK,Ca4} from './alps-bomber-combat.js?v=headon-result339-20261028&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {FlakTowerNet} from './city-flak-combat.js?v=headon-result339-20261028&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {sommeScale} from './somme-boss-layout.js?v=tame3&somme=20261021';
+import {ZUBIAN_LAYOUT,navalPoint,navalSweptEllipse,zubianSize,zubianSplitPose,steerNaval} from './adriatic-boss-layout.js?v=tame3';
+import {initArmorDrive,stepArmorDrive} from './trench-armor-drive.js?v=gal1&ai=1018';
+import {TRENCH_ARMOR_LAYOUT,armorRotate,armorAngleDelta,armorGunMuzzle} from './trench-armor-layout.js?v=tame3&ai=1018';
+import {applyRegionalLayout,locateRegionalHit,regionalMuzzle,intersectsEllipse,railLocalPose,RAIL_CAR_SIZE} from './regional-boss-layout352.js?v=tame3';
+import {RailAdapter,StuttgartAdapter} from './boss-adapters129.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {BaseBoss, BossPart, BossEncounter} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {LondonApron,DrachenMineNet} from './city-airship-combat378.js?v=gal1&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
+import {apronPose} from './london-apron369.js?v=tame3&cityart=20261022';
+import {GIK,Ca4} from './alps-bomber-combat.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {FlakTowerNet} from './city-flak-combat.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 
 export {GIK,Ca4};
-import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborGunMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=headon-result339-20261028&harbor=20261021';
+import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harborGunMuzzle,harborLaunchPoint,harborSegmentHit} from './harbor-crane-layout.js?v=tame3&harbor=20261021';
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
-export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai', 'arras', 'somme', 'london', 'verdun', 'maan', 'gallipoli', 'paris-night', 'jutland', 'dover-night']);
+export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai', 'arras', 'somme', 'london', 'verdun', 'maan', 'gallipoli', 'paris-night', 'jutland', 'dover-night', 'berlin']);
 export const BOSS_CATALOG = Object.freeze({
+  'berlin-drachen': {name:'베를린 드라헨 방공망',faction:'central',stage:18},
+  'final-kaiserkrone': {name:'카이저크로네',faction:'central',stage:18,capitalFinal:true},
+  'final-leviathan': {name:'리바이어던 최종형',faction:'entente',stage:11,capitalFinal:true},
   'supermarine-nighthawk': {name:'슈퍼마린 나이트호크',faction:'entente',stage:17},
   'siemens-schuckert-r-viii': {name:'지멘스-슈쿠케르트 R.VIII',faction:'central',stage:17},
   'paris-gun': {name:'브루노 열차포', faction:'central', stage:0},
@@ -40,7 +44,7 @@ export const BOSS_CATALOG = Object.freeze({
   'mark-v-cruiser': {name:'대공 육상 전함 · 마크 V 크루이저', faction:'entente', stage:2},
   'livens-flame-projector': {name:'리벤스 대형 화염방사기', faction:'entente', stage:3},
   'minenwerfer-battery': {name:'미넨베르퍼 교차 포격 진지', faction:'central', stage:3},
-  'drachen-net': {name:'드라헨 공중 기뢰 방어망', faction:'central', stage:4},
+  'drachen-net': {name:'드라헨 공중 기뢰 방어망', faction:'central', stage:11},
   'london-apron-raid': {name:'런던 에이프런 방공망', faction:'entente', stage:11},
   'flak-tower': {name:'QF 13파운드 방공탑', faction:'entente', stage:4},
   'zeppelin-l70': {name:'슈퍼 체펠린 L 70', faction:'central', stage:5},
@@ -54,7 +58,7 @@ export const BOSS_CATALOG = Object.freeze({
   ,'naval10-black-flight': {name:'네이벌 10 — 블랙 플라이트', faction:'entente', stage:9, pilot:'collishaw', formationSize:5}
   ,'mark4-wedge': {name:'마크 I 최초 랜드십 돌파대', faction:'entente', stage:10}
   ,'morser-battery': {name:'슈바벤 보루 · 지하 방어요새', faction:'central', stage:10}
-  ,'gotha-squadron': {name:'고타 야간 폭격전대', faction:'central', stage:11}
+  ,'gotha-squadron': {name:'고타 야간 폭격전대', faction:'central', stage:4}
   ,'fort-douaumont': {name:'두오몽 요새 · Fort Douaumont', faction:'central', stage:12}
   ,'fort-souville': {name:'수빌 요새 · Fort de Souville', faction:'entente', stage:12}
   ,'wustenpanzer': {name:'사막 육상순양함 · Wüstenpanzer', faction:'central', stage:13}
@@ -1891,6 +1895,8 @@ const constructors={'supermarine-nighthawk':SupermarineNighthawk,'siemens-schuck
   fliegerzug:Fliegerzug,'treffas-wagen':TreffasWagen,'jasta11-circus':JastaCircus,'naval10-black-flight':Naval10BlackFlight,
   'mark4-wedge':Mark1Landship,'morser-battery':SchwabenFortress,'staaken-rvi':StaakenRVI,'london-searchlight':LondonSearchlight,'london-apron-raid':LondonRaidApron,'gotha-squadron':GothaRaider,'fort-douaumont':FortDouaumont,'fort-souville':FortSouville,'wustenpanzer':Wustenpanzer,'sinai-landship':SinaiLandship,'gallipoli-fortress':GallipoliFortress,'paris-staaken-rvi':ParisStaakenRVI,'paris-searchlight-fortress':ParisSearchlightFortress};
 export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
+  if(BOSS_CATALOG[bossId]?.capitalFinal)return new BossEncounter({id,bossId,bodies:[createCapitalBoss({id:id+':body',tuning,x,y,emit,rng,faction},bossId)]});
+  if(bossId==='berlin-drachen'){const encounter=new BossEncounter({id,bossId:'drachen-net',bodies:[new DrachenMineNet({id:id+':body',tuning,x,y,emit,rng,faction:'central',coreRadius:tuning.coreRadius||100})]});encounter.bossId=bossId;return encounter;}
   if(bossId==='jutland-grand-fleet')return createJutlandEncounter({id,bossId,tuning,x,y,emit,rng,faction});
   if(bossId==='mark4-wedge'){const scale=sommeScale(tuning,true),t={...tuning,maxHp:tuning.maxHp/3,sommeScale:scale};return new BossEncounter({id,bossId,bodies:[0,1,2].map(slot=>new Mark1Landship({id:id+':mark1:'+slot,slot,tuning:t,x:x+(slot===1?-155:slot===2?155:0)*scale,y:y+(tuning.sommeApproach?(slot===0?80:-110):(slot===0?-100:65))*scale,emit,rng,faction:faction||'entente'}))});}
   if(bossId==='gotha-squadron'){

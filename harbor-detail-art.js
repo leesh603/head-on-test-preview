@@ -1,4 +1,4 @@
-import {SOMME_FRAMES} from './somme-boss-atlas.js?v=headon-result339-20261028';
+import {SOMME_FRAMES} from './somme-boss-atlas.js?v=tame3';
 export const HARBOR_DETAIL_SOURCES=Object.freeze({base:'./boss-harbor-base-20261021.webp',parts:'./boss-harbor-components-20261021.webp',guns:'./boss-schwaben-guns-r2.webp',mg:'./boss-mark1-guns-r3.webp',housing:'./boss-somme-components-20261021.webp'});
 const BOXES=[[[97,86,317,340],[75,86,362,340],[90,87,331,337]],[[97,101,318,310],[83,101,346,310],[94,100,324,312]],[[108,81,296,350],[109,81,294,349],[101,68,310,376]],[[89,102,333,308],[80,103,352,306],[88,98,335,315]]];
 let images={},pending;

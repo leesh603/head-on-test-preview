@@ -1,6 +1,6 @@
-import {fx} from './fx-art.js?v=headon-result339-20261028';
-import {planeSprite} from './aircraft.js?v=headon-result339-20261028&art=pilot-recovery2&pf=1027';
-import {drawGameIcon} from './icons.js?v=headon-result339-20261028&afc=1';
+import {fx} from './fx-art.js?v=tame3';
+import {planeSprite} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1';
+import {drawGameIcon} from './icons.js?v=buildfit1&afc=1&opt=1';
 
 const clamp=n=>Math.max(0,Math.min(1,n));
 // Weapon artwork is the existing painted gun atlas, fitted onto the incoming airframe.

@@ -1,5 +1,6 @@
+import {reserveFacilitySlot} from './ground-facility-missions.js';
 import {intrusionActive} from './intrusion-bosses.js';
-import {ACE_SORTIE_BALANCE} from './ace-sortie-rhythm.js?v=headon-result339-20261028&art=pilot-recovery2';
+import {ACE_SORTIE_BALANCE} from './ace-sortie-rhythm.js?v=sortierhythm1&art=pilot-recovery2';
 // Two bounded, persistent combat groups. Aircraft always use the normal combat
 // simulation, including offscreen: no arrival respawns or second damage model.
 export const FRONT_TYPES = Object.freeze({
@@ -27,7 +28,7 @@ export function frontBrief(g,f,en=false){
  const actions=en?{intercept:`Bombers ${n}/${total}`,commander:`Leader ${n}/${total}`,elite:`Elite ${n}/${total}`,recon:`Protect recon · ${hp}%`,escort:`Protect bomber · ${hp}%`,support:`Clear attackers · ${hp}%`}:{intercept:`폭격기 ${n}/${total}기 남음`,commander:`편대장 ${n}기 남음`,elite:`정예 ${n}기 남음`,recon:`정찰기 보호 · ${hp}%`,escort:`폭격기 보호 · ${hp}%`,support:`추격기 제거 · ${hp}%`};
  return actions[f.type]+' · '+seconds+(en?'s':'초');
 }
-const effects={intercept:'후속 폭격 차단 · 다음 교전 아군 폭격',recon:'정찰 확보 · 보스 약점 노출',commander:'적 편대 붕괴 · 다음 교전 지휘 약화',escort:'폭격대 생환 · 다음 교전 폭격 지원',elite:'정예 차단 · 다음 교전 지휘 약화',support:'지원기 생환 · 다음 교전 아군 합류'};
+const effects={intercept:'후속 폭격 차단 · 다음 교전 아군 폭격',recon:'정찰 확보 · 보스 약점 노출',commander:'적 편대 붕괴 · 다음 교전 지휘 약화',escort:'폭격대 생환 · 다음 교전 폭격 지원',elite:'정예 차단 · 다음 교전 지휘 약화',support:'지원기 생환 · 보급 확보'};
 export function frontTarget(g,e){
  const f=e.ruralFront;if(!f||f.status!=='active')return null;
  if(e.frontRoute)return e.frontRoute;
@@ -66,6 +67,7 @@ function makeFront(g,state,type,side){
  return f;
 }
 export function startRuralFronts(g,forcedPair,forcedDark){
+ if(forcedPair===undefined&&reserveFacilitySlot(g))return null;
  const state=g.ruralFronts??={serial:0,fronts:[],history:[],nextAt:8,pair:0,lastDarkAt:-Infinity};
  if(g.worldRegion?.()!==0||(g.mode==='campaign'||g.mode==='coop2')||g.state!=='playing'||activeFronts(g).length||g.battlefieldEvents?.current||boss(g)||ace(g)||g.eliteEnemies?.active)return null;
  if((g.stageCombatWindow?.remaining??60)<52||(g.battleRecoveryUntil||0)>g.t)return null;
@@ -162,3 +164,4 @@ export function tickRuralFronts(g){
   if(g.t>=f.deadline){finish(g,state,f,f.type!=='escort'&&f.protected&&alive(f.protected)?'completed':'failed','deadline');}
  }
 }
+

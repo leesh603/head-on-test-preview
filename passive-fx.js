@@ -1,6 +1,6 @@
 import {isAlbatrosHunter} from './albatros-hunter-fx.js';
-import {fx as pilotTexture} from './fx-art.js?v=headon-result339-20261028';
-import {createPilotReadability} from './pilot-readability-fx.js?v=headon-result339-20261028';
+import {fx as pilotTexture} from './fx-art.js?v=tame3';
+import {createPilotReadability} from './pilot-readability-fx.js?v=gal1';
 const pilotReadability=createPilotReadability(pilotTexture);
 // Passive-state FX (sample: Richthofen "사냥 본능" / Hunting Instinct).
 // In-world effects rather than HUD marks. Purely visual: reads the engine's existing
@@ -10,7 +10,7 @@ const pilotReadability=createPilotReadability(pilotTexture);
 //   tier-up       -> a short spray of crimson sparks off the prey
 //   about to drop -> the streamer thins out over the last 0.6 s before the reset
 //   kill reward   -> crimson wingtip vapour trails off your own plane for the 4 s boost
-import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=headon-result339-20261028&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
+import {RICHTHOFEN_DRI_BALANCE as B} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
 
 
 const memo = new WeakMap();
@@ -161,8 +161,67 @@ export function drawBallLone(c, g, point, t, px, py) {
  return pilotReadability.ball(c,g,point,t,px,py);
 }
 
-// Compatibility: the shared view draws cowl readiness and actual radial gun origins.
-export function drawRickenbackerRing(c,g){return g.pilot==='rickenbacker';}
+// ---- Rickenbacker active "햇 인 더 링" / Hat in the Ring: while active, every burst also fires
+// rounds at up to 7 enemies within 780 px. Show the squadron ring on himself and stamp it on
+// each enemy the burst reaches.
+// The 94th's hoop seen in perspective: a tilted yellow tube; the far half is drawn behind the
+// plane (back layer) and the near half over it (front layer), so it reads as a ring the plane
+// sits inside, like the hat being tossed through the squadron ring.
+function hoop(c, x, y, r, a, layer, tilt = -.38, squash = .42, w = 1) {
+  const from = layer === 'back' ? Math.PI : 0, to = layer === 'back' ? Math.PI * 2 : Math.PI;
+  const arc = () => { c.beginPath(); c.ellipse(x, y, r, r * squash, tilt, from, to); };
+  c.lineCap = 'round';
+  arc(); c.globalAlpha = a * .5; c.strokeStyle = 'rgba(40,22,2,.9)'; c.lineWidth = 7.5 * w; c.stroke();     // dark bed
+  arc(); c.globalAlpha = a; c.strokeStyle = layer === 'back' ? '#c99a1c' : '#f2c230'; c.lineWidth = 5.2 * w; c.stroke(); // far side a touch darker
+  c.beginPath(); c.ellipse(x, y - 1.2 * w, r, r * squash, tilt, from + .25, to - .25);                    // tube highlight
+  c.globalAlpha = a * (layer === 'back' ? .35 : .85); c.strokeStyle = '#fff3b0'; c.lineWidth = 1.4 * w; c.stroke();
+}
+function hatGlyph(c, x, y, s) {                               // small Uncle-Sam top hat
+  c.save(); c.translate(x, y);
+  c.fillStyle = '#1f3f86'; c.fillRect(-s * .62, s * .18, s * 1.24, s * .2);           // brim
+  c.fillStyle = '#f2efe6'; c.fillRect(-s * .38, -s * .62, s * .76, s * .82);          // crown
+  c.fillStyle = '#c8332b'; for (let i = 0; i < 3; i++) c.fillRect(-s * .38 + i * s * .26, -s * .62, s * .12, s * .82);
+  c.fillStyle = '#1f3f86'; c.fillRect(-s * .38, -s * .04, s * .76, s * .16);          // band
+  c.restore();
+}
+export function drawRickenbackerRing(c, g, point, t, px, py, layer = 'back') {
+  if (g.pilot !== 'rickenbacker') return false;
+  const m = pst(g, () => ({ prev: null, sw: 0, arc: null, wing: [] }));
+  if (!(g.hp > 0) || g.status === 'downed') { delete m.ring; return true; }
+  m.ring ??= { k: 0, last: t, rounds: g.roundsFired || 0, stamps: [], pulse: -9 };
+  const R = m.ring;
+  (globalThis.__hoHoop ??= new WeakSet()).add(g);                 // the painted hoop replaces the legacy half-ring for this plane
+  if (layer === 'back') {                                       // state advances once per frame, on the back pass
+    const dt = Math.max(0, Math.min(.1, t - R.last)); R.last = t;
+    const active = g.skillTime > 0;
+    R.k = clamp(R.k + (active ? dt / .2 : -dt / .3));
+    if (active && (g.roundsFired || 0) > R.rounds) {            // a burst went out: stamp the same targets the engine picks
+      let n = 0;
+      for (const e of g.enemies || []) { if (n >= 7) break; if (!(e.hp > 0) || (e.surface && !e.stageBossBody) || Math.hypot(e.x - g.x, e.y - g.y) > 780) continue;
+        if (!R.stamps.some(s => s.e === e && t - s.t0 < .25)) R.stamps.push({ e, t0: t }); n++; }
+      if (n) R.pulse = t;
+    }
+    R.rounds = g.roundsFired || 0;
+    {const _st=R.stamps;let _w=0;for(let _i=0;_i<_st.length;_i++){const s=_st[_i];if(t-s.t0<.45&&s.e.hp>0)_st[_w++]=s}_st.length=_w}
+  }
+  if (R.k <= .01 && !R.stamps.length) return true;
+  c.save();
+  for (const s of R.stamps) {                                   // hoop drops over each struck enemy, then fades
+    const q = (t - s.t0) / .45, [x, y] = point(s.e.x, s.e.y), sz = sizeOf(s.e);
+    const r = sz * (1.05 + .9 * Math.pow(1 - Math.min(1, q / .35), 2));
+    hoop(c, x, y, r, (1 - q) * .9, layer, -.38, .42, .8);
+  }
+  if (R.k > .01) {
+    const kick = Math.max(0, 1 - (t - R.pulse) / .2), r = 42 + 5 * kick, a = R.k * (.85 + .15 * kick), tilt = -.38 + Math.sin(t * 1.4) * .05;
+    if (layer === 'front') {                                    // hat tossed through the hoop's left rim, under the near arc
+      const hx = px - r * Math.cos(tilt) * .9, hy = py - r * Math.sin(tilt) * .9 - 8 + Math.sin(t * 1.6) * 1.2;   // brim sits on the left rim
+      c.save(); c.translate(hx, hy); c.rotate(-.5 + Math.sin(t * 1.6) * .05); c.globalAlpha = R.k; hatGlyph(c, 0, 0, 17); c.restore();
+    }
+    hoop(c, px, py, r, a, layer, tilt);
+  }
+  c.restore();
+  return true;
+}
 
 // ---- Immelmann: one short, neutral slipstream follows the real attack window.
 export function drawImmelmannEagle(c,g,point,t,px,py){
@@ -310,5 +369,3 @@ export function drawPassiveFxFront(c, g, point, t, px, py) {
   else if (g.pilot === 'bishop') drawBishopClose(c, g, point, t, px, py);
   else if (g.pilot === 'boelcke') drawBoelckeDicta(c, g, point, t);
 }
-
-

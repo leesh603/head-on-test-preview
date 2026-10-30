@@ -19,7 +19,7 @@ function rearBurst(p,target,strong=false){
  const a=p.nineRearAim??bearing(p,target),mount=p.bomberTransfer?.rear??23,x=p.x-Math.cos(p.a)*mount,y=p.y-Math.sin(p.a)*mount;
  if(Math.abs(wrap(a-p.a-Math.PI))>Math.PI*.49||Math.abs(wrap(a-bearing(p,target)))>.18)return false;
  const count=Math.min(Math.max(strong?3:2,p.shots||1),p.ammo[1]);if(!p.unlimitedAmmo)p.ammo[1]-=Math.max(1,count-(p.freeVolleyShots||0));p.roundsFired+=count;
- for(let i=0;i<count;i++){const aa=a+(i-(count-1)/2)*.022;world(p).bullets.push(p.applySpecialRound({x,y,vx:Math.cos(aa)*550,vy:Math.sin(aa)*550,life:1.15,enemy:false,ownerId:p.id,gun:1,damage:p.damage*p.normalGunMultiplier()*(strong?1.45:1.1),hit:new Set(),pilotRear:true,visualType:'normal'},null));}
+ for(let i=0;i<count;i++){const aa=a+(i-(count-1)/2)*.022;world(p).bullets.push(p.applySpecialRound({x,y,vx:Math.cos(aa)*550,vy:Math.sin(aa)*550,life:1.15,enemy:false,ownerId:p.id,gun:1,damage:p.damage*p.normalGunMultiplier()*(strong?1.45:1.1),hit:new Set(),pilotRear:true,pilotRearActive:strong,visualType:'normal'},null));}
  p.nineRearFlash=.1;p.nineRearAim=a;cue(p,'rearBurst',{x,y,a,life:.18,strong});p.event('shot','');return true;
 }
 export function recordNineDamage(p,damage){
@@ -169,4 +169,3 @@ export function installNineCoop(CoopGame){
  const volley=q.enemyVolley;q.enemyVolley=function(e,...args){const start=this.bullets.length,r=volley.call(this,e,...args);wobbleSuppressedRounds(this,e,start);return r;};
  const revive=q.revive;q.revive=function(p,...args){const result=revive.call(this,p,...args);if(NINE_PILOTS.has(p.pilot)&&p.status==='alive'){for(const k of ['nineRearTarget','nineFrontTarget','whiteFocus','hawkerNext','jacobsPressureTarget'])p[k]=null;for(const k of ['heldDamage','ironActiveDamage','barkerDamageStage','barkerScarStage','fxOverheat','rearAcquire','nineRearFlash','hawkerLinkTime','jacobsPressure'])p[k]=0;p.nineRearAim=p.a+Math.PI;p.nineFrontAim=p.a;p.nineWasActive=false;p.udetRunStart=p.roundsFired;}return result;};
 }
-

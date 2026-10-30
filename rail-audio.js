@@ -6,7 +6,7 @@
 //  · 뿌우우우 — the steam whistle: three tuned pipes (A minor chord) with a pitch scoop on the
 //    attack, a little vibrato and a narrow breath *on each pipe's pitch* (tonal, never a hiss).
 // Everything sits above ~120 Hz so phone speakers carry it.
-export const RAIL_AUDIO_SECONDS=Object.freeze({trainApproach:4.2,trainWhistle:2.6,trainRoll:.5,trainBrake:.9,railBreech:.42,railGunFire:1.05});
+export const RAIL_AUDIO_SECONDS=Object.freeze({trainApproach:4.2,trainWhistle:2.6,trainRoll:.5,trainBrake:.9,railBreech:.42,railGunFire:1.45,railGunFire520:1.95});
 const TAU=Math.PI*2;
 // Deterministic white noise.
 function noiseSource(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/2147483648-1}}
@@ -88,6 +88,29 @@ function finish(data,sr,seconds,peak=.92){
 export function railAudioSamples(name,sampleRate=48000){
  if(!RAIL_AUDIO_SECONDS[name]||!Number.isFinite(sampleRate)||sampleRate<8000)throw new Error('Invalid rail audio');
  const sr=sampleRate,seconds=RAIL_AUDIO_SECONDS[name],len=Math.ceil(seconds*sr);
+ if(name==='railGunFire'||name==='railGunFire520'){
+  // A broadband muzzle crack, turbulent pressure body and distant reflections.
+  // No pitch sweep or sustained oscillator: one cached physical blast impulse.
+  const heavy=name==='railGunFire520',dry=new Float32Array(len),out=new Float32Array(len);
+  const random=noiseSource(heavy?5201918:3811918),body=lowpass1(sr,heavy?260:390),air=lowpass1(sr,2200);
+  let dc=0;
+  for(let i=0;i<len;i++){
+   const t=i/sr,n=random(),low=body(n),wide=air(n);
+   const crack=(n-wide)*Math.exp(-t/.014)*.5;
+   const pressure=low*(heavy?7:5.5)*(1-Math.exp(-t/.002))*Math.exp(-t/(heavy?.21:.14));
+   const debris=wide*.7*Math.exp(-t/.09);
+   const raw=crack+pressure+debris;dc+=(raw-dc)*(1-Math.exp(-TAU*24/sr));dry[i]=raw-dc;
+  }
+  const echoes=heavy?[[.145,.24],[.31,.14],[.53,.08]]:[[.12,.18],[.27,.1],[.46,.055]];
+  for(let i=0;i<len;i++){
+   let v=dry[i];for(const [delay,gain]of echoes){const j=i-Math.round(delay*sr);if(j>=0)v+=dry[j]*gain;}
+   out[i]=v;
+  }
+  // Normalize once without flattening the muzzle transient into a buzz.
+  let peak=0;for(const v of out)peak=Math.max(peak,Math.abs(v));
+  for(let i=0;i<len;i++)out[i]*=.92/Math.max(.001,peak)*Math.min(1,i/(sr*.0008),(len-i)/(sr*.04));
+  return out;
+ }
  if(name==='trainApproach'){
   // The train runs in from a distance: chuffs speed up from 3 to 4.6 a second and swell,
   // joints knock under them, and the whistle calls twice — a long blast and a short one.
@@ -114,11 +137,11 @@ export function railAudioSamples(name,sampleRate=48000){
   const clank=new Float32Array(len);for(let i=0;i<len;i++){const dt=i/sr-.5;if(dt>=0)clank[i]=(Math.sin(TAU*240*dt)*.5+Math.sin(TAU*610*dt)*.25)*Math.exp(-dt/.07)}
   return finish(mix(len,[cl,clank]),sr,seconds,.75);
  }
- const data=new Float32Array(len);
+ const data=new Float32Array(len),blastNoise=noiseSource(5201917),blastBody=lowpass1(sr,1700);
  for(let i=0;i<len;i++){
   const t=i/sr;let v;
   if(name==='railBreech'){const strike=Math.exp(-t*45)+.6*Math.exp(-Math.max(0,t-.16)*60)*(t>.16?1:0);v=strike*(Math.sin(TAU*390*t)*.16+Math.sin(TAU*195*t)*.1)}
-  else v=Math.sin(TAU*(68*t-13*t*t))*.5*Math.exp(-t*7)+Math.sin(TAU*340*t)*.2*Math.exp(-t*15)+Math.sin(TAU*136*t)*.3*Math.exp(-t*5);
+  else {const n=blastNoise();v=n*.6*Math.exp(-t*55)+blastBody(n)*2.4*Math.exp(-t*5)+Math.sin(TAU*(148*t-30*t*t))*.45*Math.exp(-t*6)+Math.sin(TAU*74*t)*.4*Math.exp(-t*4);}
   const edge=Math.min(1,t/.006,(seconds-t)/.04);data[i]=Math.tanh(v*1.3)*Math.max(0,edge);
  }
  return data;

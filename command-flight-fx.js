@@ -40,26 +40,19 @@ export function installCommandFlightFx(Game){
 export function commandWings(p){
  if(!COMMAND_PILOTS.has(p.pilot)||!living(p))return [];
  const owned=w=>w.ownerId===owner(p)||(w.ownerId===undefined&&!p.world&&!p.players);
- const all=(world(p).allies||[]).filter(w=>owned(w)&&w.life>0&&(w.hp===undefined||w.hp>0)&&(w.permanent||w.boelckePincer));
- if(p.pilot==='collishaw')for(const w of p.formationWings||[])if(w.alpha>0&&(w.hp===undefined||w.hp>0))all.push(w);
+ const all=(world(p).allies||[]).filter(w=>owned(w)&&w.life>0&&(w.hp===undefined||w.hp>0)&&!w.crashing&&!w.crashed&&(w.permanent||w.boelckePincer));
+ if(p.pilot==='collishaw')for(const w of p.formationWings||[])if(w.alpha>0&&(w.hp===undefined||w.hp>0)&&!w.crashing&&!w.crashed)all.push(w);
  return all.filter(w=>[w.x,w.y,w.a].every(Number.isFinite)).slice(0,10);
 }
-// Compact pressure at one inboard wing tip: no paired white ribbon.
+// A short, thin slipstream behind the actual attacking wing; never engine smoke.
 function boelckePressure(c,w,at,time,active,side){
- if(!active||!w.boelckePincer)return;
- const q=(time*1.35+(w.slot||0)*.19+10)%1;
- at('mist',7-q*12,-side*(34+q*5),44+q*12,25+q*10,side*.62,.92*(1-q*.20),COMMAND_PALETTES.boelcke.core);
- at('smokeWisp',-5-q*8,-side*33,34,22,side*.45,.60*(1-q*.25),COMMAND_PALETTES.boelcke.edge);
+ if(!active||!w.boelckePincer||!(w.flightSpeed>40))return;
+ const speed=clamp(w.flightSpeed/180);
+ for(const tip of [-1,1])at('vaporTrail',-37,tip*21,48+speed*24,8,0,.54*speed,COMMAND_PALETTES.boelcke.core);
 }
-// Separate exhaust lobes behind each real Black Flight aircraft. Slot offsets
-// disturb the smoke, not the firing schedule or the projectile positions.
-function blackExhaust(at,time,slot,active){
- const pal=COMMAND_PALETTES.collishaw,count=active?3:1;
- for(let i=0;i<count;i++){
-  const q=(time*2.1+slot*.23+i/count+10)%1;
-  at('smokeOil',-27-q*40,Math.sin(slot*1.7+q*4)*5,43+q*28,25+q*16,.12*Math.sin(slot+q*3),(.87-q*.36)*(active?1:.60),pal.smoke);
-  if(active)at('smokeWisp',-29-q*38,8+Math.sin(slot+q*3)*4,36+q*20,16+q*10,.15,.37*(1-q*.4),'#a9a293');
- }
+// Black Flight is the aircraft paint and crossing attack, not an oil-fire plume.
+function blackFlightSlipstream(at,time,slot,active){
+ if(active)at('windStreak',-31,slot%2?-23:23,24,3,0,.13,COMMAND_PALETTES.collishaw.core);
 }
 function brass(at,flash,side,count){
  const age=Math.max(0,.09-flash);
@@ -85,24 +78,24 @@ export function drawCommandWorld(c,p,tex,front=false){
   if(front){
    if(!(w.muzzleFlash>0))continue;
    const aim=w.fireHeading??w.muzzleAngle??a,fade=clamp(w.muzzleFlash/.06),collie=p.pilot==='collishaw';
-   tex(c,collie?'muzzleTwin':'muzzle',dx+Math.cos(aim)*32,dy+Math.sin(aim)*32,collie?31:19,collie?15:7,aim,.94*fade*alpha,collie?'#e5b777':palette.core);
-   if(collie){tex(c,'gunSmoke',dx+Math.cos(aim)*35,dy+Math.sin(aim)*35,30,20,aim,.40*fade*alpha,palette.smoke);brass(at,w.muzzleFlash,side,active?2:1);}
+   tex(c,collie?'muzzleTwin':'muzzle',dx+Math.cos(aim)*32,dy+Math.sin(aim)*32,collie?19:25,collie?7:9,aim,.94*fade*alpha,collie?'#e5b777':palette.impact);
+   if(collie)brass(at,w.muzzleFlash,side,active?2:1);
+   else{
+    tex(c,'gunSmoke',dx+Math.cos(aim)*18,dy+Math.sin(aim)*18,40,19,aim,.45*fade*alpha,'#c7c8b8');
+    brass(at,w.muzzleFlash,side,active&&w.boelckePincer?2:1);
+   }
    continue;
   }
   if(Math.hypot(dx,dy)<28)continue;
   if(p.pilot==='boelcke')boelckePressure(c,w,at,time,active,side);
-  else blackExhaust(at,time,w.slot||0,active);
+  else blackFlightSlipstream(at,time,w.slot||0,active);
  }
 }
 export function drawCommandLocal(c,p,tex,front=false){
  if(!living(p))return;const pal=COMMAND_PALETTES[p.pilot];if(!pal)return;
  const active=p.skillTime>0,collie=p.pilot==='collishaw';
  if(!front){
-  if(collie&&(active||commandWings(p).length>0))blackExhaust((...args)=>tex(c,...args),p.pilotSignatureState?.clock||0,-1,active);
-  // Boelcke's leader carries no permanent aura: the pincer aircraft and actual
-  // flank contacts carry the order. One short pressure breath marks activation.
-  const age=p.pilotSignatureState?.activeAge;
-  if(!collie&&active&&age>=0&&age<.42)tex(c,'mist',-4,-16,35+age*28,20+age*12,-.7,.48*(1-age/.42),pal.edge);
+  // The leader stays clean. Actual wing positions and gunfire carry the order.
   return;
  }
  if(!(p.muzzleFlash>0)||p.reloadTime>0||p.cow37)return;
@@ -111,8 +104,12 @@ export function drawCommandLocal(c,p,tex,front=false){
   const heading=p.gunDirection?.(gun)??p.a,offset=p.weapon?.bidirectional?0:(gun-(count-1)/2)*8;
   const m=p.bomberGunMount?.(gun,heading,offset)||{x:p.x+Math.cos(heading)*26,y:p.y+Math.sin(heading)*26};
   const dx=m.x-p.x,dy=m.y-p.y,a=heading-p.a,x=dx*ca+dy*sa,y=-dx*sa+dy*ca,fade=clamp(p.muzzleFlash/.055);
-  tex(c,collie?'muzzleTwin':'muzzle',x+Math.cos(a)*7,y+Math.sin(a)*7,collie?30:18,collie?14:7,a,.90*fade,collie?'#e5b777':pal.core);
+  tex(c,collie?'muzzleTwin':'muzzle',x+Math.cos(a)*7,y+Math.sin(a)*7,collie?18:24,collie?7:9,a,.90*fade,collie?'#e5b777':pal.impact);
   if(collie)brass((key,bx,by,w,h,angle,opacity,color)=>tex(c,key,x+bx-18,y+by,w,h,angle,opacity,color),p.muzzleFlash,gun%2?1:-1,1);
+  else{
+   tex(c,'gunSmoke',x-Math.cos(a)*6,y-Math.sin(a)*6,29,11,a,.30*fade,pal.smoke);
+   brass((key,bx,by,w,h,angle,opacity,color)=>tex(c,key,x+bx-18,y+by,w,h,angle,opacity,color),p.muzzleFlash,gun%2?1:-1,1);
+  }
  }
 }
 export function drawCommandCue(c,p,e,tex,front){
@@ -133,3 +130,4 @@ export function drawCommandCue(c,p,e,tex,front){
  }
  return true;
 }
+

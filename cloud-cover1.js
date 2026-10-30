@@ -1,5 +1,5 @@
-import {roleReady,roleImage,roleArtReady} from './fx-role3.js?v=headon-result339-20261028';
-import {fxsHas,fxsImage} from './fx-sample-preview.js?v=headon-result339-20261028';
+import {roleReady,roleImage,roleArtReady} from './fx-role3.js?v=tame3&perf=1029';
+import {fxsHas,fxsImage} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029';
 // Cloud concealment — shared tactical system across all regions (전장 개성화 패치).
 // Dense clouds break enemy tracking; wispy clouds only soften accuracy.
 export const CLOUD_TYPES=Object.freeze({
@@ -28,11 +28,11 @@ let _roleSettled=false;roleArtReady.finally(()=>_roleSettled=true);
 function cloudImg(type,seed){
  const list=CLOUD_IMGS[type]||CLOUD_IMGS.cumulus;
  const key=list[Math.floor(((seed||0)/6.283)*list.length)%list.length];
- if(roleReady(key))return roleImage(key,true);
  if(fxsHas(key))return fxsImage(key);
+ if(roleReady(key))return roleImage(key,true);
  if(!_roleSettled)return null;
  let im=_imgCache[key];
- if(im===undefined){im=new Image();im.src=`./${key}.webp?v=headon-result339-20261028&b=345`;im.onload=()=>{_imgCache[key]=im};_imgCache[key]=im}
+ if(im===undefined){im=new Image();im.src=`./${key}.webp?v=r5&b=345`;im.onload=()=>{_imgCache[key]=im};_imgCache[key]=im}
  return im;
 }
 
@@ -124,6 +124,14 @@ export function installCloudCover(Game){
  };
 }
 
+const cloudCache=new Map();
+function cloudBitmap(img,mirror,rot,w,h){
+ if(typeof document==='undefined')return null;
+ const key=(img.currentSrc||img.src)+'|'+mirror+'|'+rot.toFixed(3)+'|'+Math.round(w)+'|'+Math.round(h);let e=cloudCache.get(key);if(e)return e;
+ const cs=Math.abs(Math.cos(rot)),sn=Math.abs(Math.sin(rot)),bw=Math.ceil(w*cs+h*sn)+2,bh=Math.ceil(w*sn+h*cs)+2;if(bw*bh>4e6)return null;
+ const cv=document.createElement('canvas');cv.width=bw;cv.height=bh;const g=cv.getContext?.('2d');if(!g)return null;g.translate(bw/2,bh/2);if(mirror)g.scale(-1,1);g.rotate(rot);g.drawImage(img,-w/2,-h/2,w,h);
+ e={cv,w:bw,h:bh};if(cloudCache.size>24)cloudCache.delete(cloudCache.keys().next().value);cloudCache.set(key,e);return e;
+}
 export function drawCloudCover(c,game,{point,scale=1,region}){
  const cw=c.canvas.width,ch=c.canvas.height;
  for(const cl of game.clouds||[]){
@@ -133,13 +141,13 @@ export function drawCloudCover(c,game,{point,scale=1,region}){
   if(sx<-w||sx>cw+w||sy<-h||sy>ch+h)continue;
   const img=cloudImg((region===15||region===17)&&cl.type!=='wispy'?'dark':cl.type,cl.seed);
   if(!img||!img.naturalWidth)continue;
-  c.save();
-  c.translate(sx,sy);
-  if(cl.mirror)c.scale(-1,1);
-  c.rotate(Math.sin(cl.seed)*.14);
-  c.globalAlpha=t.alpha*((region===15||region===17)?.4:region===6?.62:1);
-  c.drawImage(img,-w/2,-h/2,w,h);
-  c.restore();
+  // Each cloud is pre-rotated/mirrored once at its drawn size; per frame it is a plain blit
+  // (rotated, scaled big alpha images were a heavy raster pass every frame).
+  const pre=cloudBitmap(img,!!cl.mirror,Math.sin(cl.seed)*.14,w,h),a0=c.globalAlpha;
+  c.globalAlpha=a0*t.alpha*((region===15||region===17)?.4:region===6?.62:1);
+  if(pre)c.drawImage(pre.cv,sx-pre.w/2,sy-pre.h/2,pre.w,pre.h);
+  else{c.save();c.translate(sx,sy);if(cl.mirror)c.scale(-1,1);c.rotate(Math.sin(cl.seed)*.14);c.drawImage(img,-w/2,-h/2,w,h);c.restore();}
+  c.globalAlpha=a0;
  }
  // Alpine ridge telegraphs: soft shadow marks where a squadron is about to crest.
  for(const m of game._ridgeMarks||[]){

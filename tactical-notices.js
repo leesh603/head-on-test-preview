@@ -1,4 +1,4 @@
-import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,SPECIAL_DOCTRINES,availableTacticalEntries} from './tactical-doctrines.js?v=headon-result339-20261028&td4=20261026';
+import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,SPECIAL_DOCTRINES,availableTacticalEntries} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 
 const entries=[...TACTICAL_DOCTRINES,...COMPOSITE_TACTICS,...SPECIAL_DOCTRINES];
 const selected=(p,d)=>d.specialDoctrine?!!p.upgrades?.[d.id]:d.family?p.weaponMods?.[d.family]===d.value:p.compositeTactic===d.id;

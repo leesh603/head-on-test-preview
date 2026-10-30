@@ -1,7 +1,8 @@
 // Faction-split WWI bomb sprites: Cooper-pattern (Entente/player ordnance) and
 // PuW-pattern (Central/enemy bombers). Hand-painted drafts stay in the asset bank;
 // originals point nose-right, matching the 'bomb' atlas key.
-const FILES = { cooper: 'bomb-cooper-readable.webp', puw: 'bomb-puw-readable.webp', hales: 'bomb-hales-readable.webp' };
+// High-quality lossy copies (exact alpha) of the lossless originals: same pixels layout, ~4x smaller.
+const FILES = { cooper: 'bomb-cooper-readable-q92.webp', puw: 'bomb-puw-readable-q92.webp', hales: 'bomb-hales-readable-q92.webp' };
 // Match other ordnance in length, while preserving each bomb's own proportions.
 const BOX_W = 0.7; // call w=52 -> 36px long before altitude/pitch scaling
 const IMGS = new Map();
@@ -22,7 +23,7 @@ function img(v) {
       g.drawImage(im, 0, 0, sprite.width, sprite.height);
       IMGS.set(v, sprite);
     };
-    im.src = new URL('./' + FILES[v] + '?v=headon-result339-20261028', import.meta.url).href;
+    im.src = new URL('./' + FILES[v] + '?v=bomb20', import.meta.url).href;
     IMGS.set(v, im);
   }
   return im;

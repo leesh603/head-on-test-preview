@@ -1,5 +1,5 @@
-import {DOVER_COAST_PROFILE} from './dover-terrain-profile.js?v=headon-result339-20261028';
-import {DOVER_MAP} from './dover-patrol-chart.js?v=headon-result339-20261028';
+import {DOVER_COAST_PROFILE} from './dover-terrain-profile.js?v=dover3';
+import {DOVER_MAP} from './dover-patrol-chart.js?v=dover3';
 
 // The finite coastline is geometry; the native-resolution art is its material.
 // Never stretch a complete 1024px landscape across a 6144px battlefield.
@@ -60,11 +60,15 @@ function paintShore(c,im,chart,left,top,w,h,side,first,last){
  const entry=DOVER_MAP.entryY*(N-1),row=Math.min(N-2,Math.floor(entry)),arc=q.arc[row]+(q.arc[row+1]-q.arc[row])*(entry-row);
  // Keep the reflected edge outside the normal entry view; the two shores use independent phases.
  const phase=im.naturalHeight*(.5+side*.05)-arc*density;
- for(let i=Math.max(0,first-1);i<Math.min(N-1,last+1);i++){
+ // A tilted shore extends well beyond its centre row. Cull the complete
+ // quad, otherwise scrolling removes still-visible cliff triangles.
+ const padding=Math.ceil(half/STEP)+2;
+ for(let i=Math.max(0,first-padding);i<Math.min(N-1,last+padding);i++){
   if(Math.max(q.x[i],q.x[i+1])+half<left-chart.left||Math.min(q.x[i],q.x[i+1])-half>left+w-chart.left)continue;
   const x0=chart.left+q.x[i]-left,y0=chart.top+i*STEP-top,x1=chart.left+q.x[i+1]-left,y1=y0+STEP;
   let ax=x0-q.nx[i]*half,ay=y0-q.ny[i]*half,bx=x0+q.nx[i]*half,by=y0+q.ny[i]*half;
   const cx=x1-q.nx[i+1]*half,cy=y1-q.ny[i+1]*half,dx=x1+q.nx[i+1]*half,dy=y1+q.ny[i+1]*half;
+  if(Math.max(ay,by,cy,dy)<-2||Math.min(ay,by,cy,dy)>h+2)continue;
   let at=q.arc[i]*density+phase,remaining=(q.arc[i+1]-q.arc[i])*density;
   while(remaining>.001){
    const period=Math.floor((at+1e-7)/im.naturalHeight),sy=Math.max(0,at-period*im.naturalHeight),flip=period%2!==0;
@@ -79,15 +83,24 @@ function paintShore(c,im,chart,left,top,w,h,side,first,last){
  }
 }
 
-export function paintDoverTerrain(c,chart,cx,cy,w,h,coast,renderer){
+function paintSurface(c,image,left,top,w,h,base){
+ c.fillStyle=base;c.fillRect(0,0,w,h);
+ const iw=image?.naturalWidth||image?.width,ih=image?.naturalHeight||image?.height;if(!iw||!ih)return;
+ for(let y=Math.floor(top/ih);y<=Math.floor((top+h)/ih);y++)for(let x=Math.floor(left/iw);x<=Math.floor((left+w)/iw);x++)c.drawImage(image,Math.floor(x*iw-left)-1,Math.floor(y*ih-top)-1,iw+2,ih+2);
+}
+
+export function paintDoverTerrain(c,chart,cx,cy,w,h,coast,renderer,surfaces={}){
  const left=cx-w/2,top=cy-h/2,first=Math.max(0,Math.ceil((top-chart.top)/STEP)),last=Math.min(N-1,Math.floor((top+h-chart.top)/STEP));
  c.save();c.beginPath();c.rect(0,0,w,h);c.clip();c.imageSmoothingEnabled=true;
- renderer.draw(c,{key:'sea',camera:{x:left,y:top},width:w,height:h});
+ if(surfaces.sea)paintSurface(c,surfaces.sea,left,top,w,h,'#263e4b');
+ else renderer.draw(c,{key:'sea',camera:{x:left,y:top},width:w,height:h});
  let west=false,east=false;
  for(let i=Math.max(0,first-1);i<=Math.min(N-1,last+1);i++){west||=chart.left+shore[0].x[i]>left;east||=chart.left+shore[1].x[i]<left+w;}
  if(west||east){
   c.save();c.beginPath();if(west)landPath(c,chart,left,top,w,h,0,first,last);if(east)landPath(c,chart,left,top,w,h,1,first,last);c.clip();
-  renderer.draw(c,{key:'rural',camera:{x:left,y:top},width:w,height:h});c.restore();
+  // Dover's chalk downland belongs to this coast; never expose inland farms
+  // underneath the cliff's alpha edge or while its art is loading.
+  paintSurface(c,surfaces.land,left,top,w,h,'#59604a');c.restore();
  }
  if(coast?.naturalWidth){paintShore(c,coast,chart,left,top,w,h,0,first,last);paintShore(c,coast,chart,left,top,w,h,1,first,last);}
  // One atmospheric night grade on ground only; combat and warnings draw later.

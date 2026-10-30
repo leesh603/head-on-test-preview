@@ -34,12 +34,16 @@ export const PILOT_AIRCRAFT=Object.freeze({
  ball:row('ball_se5a','ball_nieuport'),barker:row('barker_snipe','barker_re8'),
  luke:row('luke_spad',null,'Nieuport 28은 부대 보유와 개인 탑승 기록을 구분해 추가 확인 필요'),
  proctor:row('proctor_se5a',null,'대표 기체와 충분히 다른 개인 탑승 후보 검토 중'),
- lufbery:row('lufbery_nieuport17',null,'대표 기체와 충분히 다른 개인 탑승 후보 검토 중')
+ lufbery:row('lufbery_nieuport17',null,'대표 기체와 충분히 다른 개인 탑승 후보 검토 중'),
+ navarre:row('navarre_nieuport11',null,'다른 개인 탑승 기체의 고증·원화 준비 후 검토'),
+ frommherz:row('frommherz_albatros_d3',null,'다른 개인 탑승 기체의 고증·원화 준비 후 검토')
 });
 
 // Existing high-quality art is referenced by its real registered sprite ID.
 // New models use authored transparent WebPs, loaded only when selected.
 export const SORTIE_FITS=Object.freeze({
+ navarre_nieuport11:{base:'nieuport11',fallback:'nieuport',speed:130,turn:4.05,hp:80,drag:.24,recovery:1.1,guns:1,gunName:'Lewis',sprite:'navarre_nieuport11',crewBaked:true,name:'Nieuport 11 (장 나바르)',style:'nieuport11',history:'장 나바르의 개인 도장을 바탕으로 한 니외포르 11입니다.',role:'경량 선회 전투기'},
+ frommherz_albatros_d3:{base:'albatros',sprite:'frommherz_albatros_d3',crewBaked:true,name:'Albatros D.III (헤르만 프롬헤르츠)',style:'albatros',history:'헤르만 프롬헤르츠의 연청색 Blaue Maus 도장을 바탕으로 한 알바트로스 D.III입니다.',role:'쌍기관총 전투기'},
  baron_albatros_d5_redwings:{base:'baron_albatros',sprite:'baron_albatros_d5_redwings',name:'Albatros D.V · 붉은 날개 / 목재 동체',style:'baron_albatros',history:'리히트호펜의 알바트로스 D.V를 바탕으로 한 붉은 날개·목재색 동체 도장입니다.'},
  baron_albatros_d5_red:{base:'baron_albatros',sprite:'baron_albatros_d5_red',name:'Albatros D.V · 전체 붉은색',style:'baron_albatros',history:'리히트호펜의 알바트로스 D.V를 바탕으로 한 전체 붉은색 도장입니다.'},
  fonck_spad:{base:'spad',sprite:'fonck_spad',name:'SPAD XIII · 폰크',style:'rickenbacker_spad'},

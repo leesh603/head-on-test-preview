@@ -1,6 +1,6 @@
-import {cleanPilotUnlocks,setPilotUnlockBook,pilotUnlockRun,syncPilotUnlocks} from './pilot-unlocks.js?v=headon-result339-20261028';
+import {cleanPilotUnlocks,setPilotUnlockBook,pilotUnlockRun,syncPilotUnlocks} from './pilot-unlocks.js';
 // Service record also retains per-pilot aircraft unlock progress.
-import {PILOT_AIRCRAFT,PILOT_AIRCRAFT_KILLS,pilotKillMetric,setPilotKillProvider} from './pilot-aircraft.js?v=headon-result339-20261028&art=pilot-recovery2';
+import {PILOT_AIRCRAFT,PILOT_AIRCRAFT_KILLS,pilotKillMetric,setPilotKillProvider} from './pilot-aircraft.js?v=pandemonium394r2&art=pilot-recovery2';
 const medal=(id,group,icon,name,en,description,descriptionEn,metric,goals=[1],hidden=false)=>Object.freeze({id,group,icon,name,en,description,descriptionEn,metric,goals:Object.freeze(goals),hidden});
 const pilotLabels={baron:'리히트호펜',voss:'포스',boelcke:'뵐케',udet:'우데트',goering:'괴링',berthold:'베르톨트',wolff:'볼프',loewenhardt:'뢰벤하르트',jacobs:'야콥스',brumowski:'브루모프스키',lothar:'로타르',sachsenberg:'작센베르크',fonck:'폰크',collishaw:'콜리쇼',baracca:'바라카',guynemer:'기네미르',bishop:'비숍',mannock:'매녹',hawker:'호커',mccudden:'맥커든',nungesser:'넝제세르',rickenbacker:'리켄바커',ball:'볼',barker:'바커'};
 export const PILOT_AIRCRAFT_MEDALS=Object.freeze(Object.entries(PILOT_AIRCRAFT).filter(([,r])=>r.unlockAircraft).map(([id])=>medal('aircraft_'+id,'aircraft',0,pilotLabels[id]+' · 기체 전환 허가',id[0].toUpperCase()+id.slice(1)+' · Aircraft Clearance',`${pilotLabels[id]}로 누적 ${PILOT_AIRCRAFT_KILLS}기 격추 · 추가 기체 해금`,`Record ${PILOT_AIRCRAFT_KILLS} kills with ${id} to unlock the additional aircraft.`,pilotKillMetric(id),[PILOT_AIRCRAFT_KILLS])));
@@ -32,6 +32,7 @@ export const MEDALS=Object.freeze([
  medal('chronicler','boss',3,'전선의 기록자','Frontline Chronicler','서로 다른 지역 보스 10종 격파','Defeat 10 distinct regional boss types.','bossKinds',[10]),
  medal('perfect','special',4,'완벽한 공략','Flawless Assault','보스 교전 시작부터 격파까지 피격·부활 없이 승리','Clear a boss encounter without being hit or reviving.','perfect'),
  medal('legend','special',4,'전설이 된 출격','Legendary Sortie','한 출격 특수장비 4개 동시 보유','Hold 4 special equipment items at once.','equipment',[4]),
+ medal('pandemonium','special',4,'판데모니움','Pandemonium','숨겨진 최종 병기를 격파했습니다.','Defeat the hidden final war machine.','pandemoniumVictories',[1],true),
  medal('miracle','special',4,'기적의 생환','Miraculous Return','내구도 10% 이하 → 긴급 보급으로 완전 수리 → 부활 없이 다음 보스 격파','Recover from 10% hull with emergency supplies, then defeat the next boss without reviving.','miracle',[1],true),
  medal('two_wings','coop',5,'두 개의 날개','Two Wings','로컬 협동에서 두 플레이어가 생존한 채 지역 보스 격파','Clear a regional boss with both local co-op pilots alive.','twoWings'),
  ...PILOT_AIRCRAFT_MEDALS
@@ -78,6 +79,40 @@ export function syncPilotKills(g){
  }
  if(Object.keys(add).length){const earned=book.record({add});const r=runs.get(g);if(r)for(const id of earned)r.sessionAwards.add(id)}
 }
+// Persistent service-record collection is merged by the existing cloud profile UNION policy.
+// No migration from generic circuits, London/Gotha, or boss totals: these are not capital-final proof.
+export function hasBothFactionFinalClears(){const done=new Set(book?.data.collections.factionFinalClears||[]);return book?.saved===true&&done.has('central')&&done.has('entente');}
+export function factionFinalClearProgress(){return ['central','entente'].filter(f=>(book?.data.collections.factionFinalClears||[]).includes(f));}
+const factionFinalReceipts=new WeakMap();
+// Called only by the host's registered capital-final encounter adapter after completed/dead validation.
+export function recordFactionFinalClear(g,receipt){return recordTrustedFactionFinalClear(g,receipt,false);}
+// Only accepted, sequenced host capital receipts may call this transport adapter.
+export function recordReplicaFactionFinalClear(g,receipt){if(!(g?.world||g)?.online)return false;return recordTrustedFactionFinalClear(g,receipt,true);}
+function recordTrustedFactionFinalClear(g,receipt,replica){
+ g=g?.world||g;
+ if(!book||!g||g.testMode||g.mode==='campaign'||receipt?.capitalFinalVerified!==true||!['central','entente'].includes(receipt.teamFaction)||typeof receipt.runId!=='string'||!receipt.runId||typeof receipt.encounterId!=='string'||!receipt.encounterId||typeof receipt.bossId!=='string'||!receipt.bossId)return false;
+ if(g.teamFaction&&g.teamFaction!==receipt.teamFaction)return false;
+ if(g.online&&g.host!==true&&!replica)return false;
+ const currentRun=g._netEligibilityRunId||g.stageBoss?.runId||g.runId;if(currentRun&&currentRun!==receipt.runId)return false;
+ let seen=factionFinalReceipts.get(g);if(!seen){seen=new Set();factionFinalReceipts.set(g,seen)}
+ const key=receipt.runId+':'+receipt.encounterId;if(seen.has(key))return false;
+ book.record({unique:{factionFinalClears:[receipt.teamFaction]}});if(!book.saved)book.persist();if(!book.saved)return false;seen.add(key);return true;
+}
+const secretVictoryReceipts=new WeakMap();
+export function achievementPandemoniumClear(g,token){
+ g=g?.world||g;if(g?.online&&g.host!==true)return false;return recordSecretVictory(g,token);
+}
+// Only the accepted host-state transport may supply a replica victory receipt.
+export function recordReplicaPandemoniumClear(g,receipt){
+ g=g?.world||g;if(!g?.online||!receipt||receipt.runId!==(g._netEligibilityRunId||g.runId)||typeof receipt.token!=='string'||!receipt.token)return false;const observed=g.finalArena?.token||g.stageBoss?.stages?.finalArena?.lastCompletedToken;if(observed!==receipt.token)return false;return recordSecretVictory(g,receipt.token);
+}
+function recordSecretVictory(g,token){
+ if(!book||!g||g.testMode||g.mode==='campaign'||!hasBothFactionFinalClears()||token==null)return false;
+ let seen=secretVictoryReceipts.get(g);if(!seen){seen=new Set();secretVictoryReceipts.set(g,seen)}if(seen.has(String(token)))return false;
+ book.record({max:{pandemoniumVictories:1}});if(!book.saved)book.persist();if(!book.saved)return false;seen.add(String(token));return true;
+}
+export function secretMedalDisclosure(d,record){const hidden=d.id==='pandemonium'&&!record?.data.awards?.[d.id]?.tier;return hidden?{hidden:true,name:'????',en:'????',description:'????',descriptionEn:'????',icon:null}:{hidden:false,name:d.name,en:d.en,description:d.description,descriptionEn:d.descriptionEn,icon:d.icon};}
+
 export const eligibleForMedals=g=>{g=g?.world||g;return !!g&&!g.testMode&&!g.online&&g.mode!=='campaign'};
 const pilots=g=>g.players||[g],living=p=>p.hp>0&&(!p.status||p.status==='alive');
 export function achievementRun(g){g=g?.world||g;if(!book||!eligibleForMedals(g))return null;let r=runs.get(g);if(!r){r=new SortieAchievements(g,book);runs.set(g,r)}return r}

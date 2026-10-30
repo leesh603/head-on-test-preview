@@ -1,7 +1,7 @@
-// White Flight: signal and silver wing glints. Red Escort: inward copper curls.
+// Real flight positions and gunfire carry escort orders; healthy wings stay clean.
 // Observe actual owned wingmen, accepted support damage and accepted guard hits.
 import {signatureCue,signatureInterval} from './pilot-signature-state.js';
-import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=headon-result339-20261028';
+import {ordnanceGroundShift} from './ordnance-pilot-fx.js?v=ordnancefx1';
 export const ESCORT_PILOTS=new Set(['goering','brumowski']);
 const INSTALLED=Symbol.for('headon.escort-command-fx.v1');
 const clamp=n=>Math.max(0,Math.min(1,n));
@@ -12,7 +12,7 @@ const blocked=b=>['enemy','patrol','rocket','motorCannon','cow37','blast','actua
 export function escortWings(p){
  if(!ESCORT_PILOTS.has(p.pilot)||!alive(p))return [];
  const owned=w=>w.ownerId===owner(p)||(w.ownerId===undefined&&!p.world&&!p.players);
- return (world(p).allies||[]).filter(w=>owned(w)&&w.life>0&&(w.hp===undefined||w.hp>0)&&[w.x,w.y,w.a].every(Number.isFinite)).slice(0,10);
+ return (world(p).allies||[]).filter(w=>owned(w)&&w.life>0&&(w.hp===undefined||w.hp>0)&&!w.crashing&&!w.crashed&&[w.x,w.y,w.a].every(Number.isFinite)).slice(0,10);
 }
 export function escortGuardCount(p){
  return (world(p).allies||[]).filter(w=>w.ownerId===owner(p)&&w.life>0&&Math.hypot(w.x-p.x,w.y-p.y)<180).length;
@@ -47,25 +47,16 @@ export function installEscortCoopFx(CoopGame){
 }
 export function drawEscortWorld(c,p,tex,front=false){
  if(!alive(p)||!ESCORT_PILOTS.has(p.pilot))return;
- const shift=ordnanceGroundShift(p),white=p.pilot==='goering',active=p.skillTime>0,t=p.pilotSignatureState?.clock||0;
- const state=p.pilotSignatureState,age=state?.activeAge;
- if(!front&&white&&active&&age>=0&&age<.65){const q=age/.65,a=state.activationHeading,origin=state.activationPoint,x=origin.x-p.x+shift.x+Math.cos(a)*32+Math.sin(a)*46,y=origin.y-p.y+shift.y+Math.sin(a)*32-Math.cos(a)*46;
-  tex(c,'smokeWisp',x,y,55+q*20,94+q*40,a-Math.PI/2,.92*(1-q),'#e9e6cf');
-  if(age<.12)tex(c,'armorSpark',x,y,22,15,a-Math.PI/2,.8*(1-age/.12),'#f0e4c3');
- }
+ const shift=ordnanceGroundShift(p),white=p.pilot==='goering',active=p.skillTime>0;
  for(const w of escortWings(p)){
   const x=w.x-p.x+shift.x,y=w.y-p.y+shift.y,ca=Math.cos(w.a),sa=Math.sin(w.a),side=(-Math.sin(p.a)*(w.x-p.x)+Math.cos(p.a)*(w.y-p.y))<0?-1:1;
   const at=(key,dx,dy,width,height,a,alpha,color)=>tex(c,key,x+ca*dx-sa*dy,y+sa*dx+ca*dy,width,height,w.a+a,alpha,color);
   if(front){
-   if(white){const pulse=.7+.3*Math.sin(t*8+(w.slot||0))**2;at('metalShard0',-2,side*30,active?34:25,active?9:7,side*.18,(active?.94:.72)*pulse,'#91aeb8');at('metalShard2',0,side*31,20,5,side*.18,.86*pulse,'#e1e4d6');}
-   else at('metalShard0',0,-side*27,active?28:20,7,-side*.35,active?.88:.62,'#d0a17d');
    if(w.muzzleFlash>0){const a=w.fireHeading??w.muzzleAngle??w.a,fade=clamp(w.muzzleFlash/.055);
     tex(c,white?'muzzle':'muzzleTwin',x+Math.cos(a)*31,y+Math.sin(a)*31,white?25:29,white?9:13,a,.96*fade,white?'#e9e4c9':'#e1bb85');
    }
-  }else if(!white&&active){
-   // The curve sits at the actual escort's inward shoulder, not on an orbit ring.
-   const inward=Math.atan2(p.y-w.y,p.x-w.x)-w.a;
-   at('gustFront',Math.cos(inward)*38,Math.sin(inward)*38,76,57,inward+Math.PI,.83,'#d9bb95');
+  }else if(active){
+   at('windStreak',-31,side*23,24,3,0,.13,white?'#e1e4d6':'#d9bb95');
   }
  }
 }
@@ -82,3 +73,4 @@ export function drawEscortCue(c,p,e,tex,front){
   else{tex(c,'ricochet',0,0,29,13,a,.9*fade,'#d5a071');tex(c,'metalShard0',-q*11,q*9,11,5,a+q,.8*fade,'#b17e62');}
  }return true;
 }
+

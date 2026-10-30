@@ -5,6 +5,12 @@ const entry=(ko,en)=>({ko:{passive:ko[0],skill:ko[1],passiveShort:ko[2],activeSh
 // Fit the available title width; never shorten an approved name to a syllable cap.
 // Aircraft-specific entries use the existing pilot:aircraft display key.
 export const PILOT_IDENTITY_COPY={
+ navarre:entry(
+ ["열세의 사냥꾼","베르됭 봉쇄","주변 적기가 아군보다 많으면 기관총탄이 적 한 기를 추가 관통합니다.","방어 공역 안에서 직접 맞힌 적의 엔진을 손상시켜 느리게 합니다.","주변의 살아 있는 적기가 자신과 아군기보다 많으면 자신의 기관총탄이 적 한 기를 추가로 관통합니다.","발동 지점에 잠시 방어 공역을 설정합니다. 공역 안의 적을 직접 기관총으로 맞히면 엔진 손상으로 느려지며, 공역을 벗어나도 잠깐 유지됩니다."],
+ ["Outnumbered Hunter","Verdun Blockade","Your machine-gun rounds pierce one extra enemy when nearby hostiles outnumber friendlies.","Direct gun hits inside a defensive airspace damage enemy engines and slow them.","When nearby live hostile aircraft outnumber you and friendly aircraft, your own machine-gun rounds pierce one additional enemy.","Establish temporary defensive airspace at your activation position. Direct machine-gun hits on enemies inside damage their engines and slow them, briefly persisting after they leave."]),
+ frommherz:entry(
+ ["비행 교관","강제 착륙","내가 맞힌 표적을 함께 공격하는 주변 내 윙맨의 사격이 정밀해집니다.","전방 제압 사격으로 약해진 일반 적기를 강제 착륙시킵니다.","최근 내가 직접 맞힌 표적을 함께 공격하는 주변의 내 윙맨은 사격 정확도가 높아집니다. 다른 플레이어의 윙맨에는 적용되지 않습니다.","잠시 전방 제압 사격을 가합니다. 체력이 낮은 일반 적기를 직접 맞히면 공격을 멈추고 하강 이탈하며 정상 격추 보상을 한 번 지급합니다. 에이스와 보스는 강제 이탈 없이 사격 피해만 받습니다."],
+ ["Flight Instructor","Forced Landing","Nearby wingmen you own aim more accurately at a target you have hit.","Forward suppressive fire forces weakened ordinary enemies to land.","Your nearby wingmen gain accuracy while firing at the same target you recently hit directly. Other players’ wingmen do not receive this benefit.","Briefly fire forward suppressive bursts. Direct hits on low-health ordinary aircraft force a descending disengagement, stopping their attacks and granting normal kill rewards once. Aces and bosses take gunfire damage but cannot be forced out."]),
  'baron:baron_albatros':entry(
  ["붉은 날개","태양의 사냥꾼","이동속도와 선회력이 증가합니다.","전방의 적을 제압하고 후방 공격을 강화합니다.","이동속도와 선회력이 증가합니다.","4초간 전방 적을 제압합니다. 적의 바로 뒤에서 공격하면 추가 피해를 줍니다."],
  ["Red Wings","Sun Hunter","Increase flight speed and turn rate.","Suppress enemies ahead and strengthen rear attacks.","Increases flight speed and turn rate.","Suppress enemies ahead for 4 seconds. Attacks from directly behind deal extra damage."]),
@@ -66,8 +72,8 @@ export const PILOT_IDENTITY_COPY={
  ["정밀의 에이스","필살의 일제사격","같은 적을 안정적으로 조준하면 이동 방향을 앞서 겨냥합니다.","짧게 준비한 뒤 한 방향으로 강력한 관통 일제사격을 가합니다.","같은 적을 기수 정면에 안정적으로 조준하면 이동 방향을 앞서 겨냥합니다. 발사된 탄은 휘지 않습니다.","짧은 준비 후 한 방향으로 강한 관통 점사를 한 차례 가합니다. 발사 방향을 맞춰 겹친 적이나 보스 부위를 노리세요. 탄약이 필요하며 재장전 중에는 사용할 수 없습니다."],
  ["Precision Ace","Decisive Volley","Steady aim on one enemy leads its movement.","Prepare briefly, then fire a powerful piercing volley along a fixed heading.","Keep an enemy steadily in front of the nose to lead its movement. Rounds never home after firing.","After a brief preparation, fire one powerful piercing volley along a fixed heading. Line up enemies or an exposed boss part. Requires ammunition; unavailable while reloading."]),
  collishaw:entry(
- ["블랙 플라이트","블랙 마리아","검은 삼엽기 윙맨이 서로 다른 적을 견제합니다.","검은 편대가 좌우로 갈라져 적을 협공합니다.","검은 삼엽기 윙맨 2기가 서로 다른 적을 압박합니다.","6초간 검은 편대가 좌우로 갈라져 적을 협공합니다."],
- ["Black Flight","Black Maria","Black Flight wingmen pressure separate enemies.","Black Flight splits left and right to attack from different angles.","Two permanent Black Flight wingmen pressure separate enemies.","Black Flight splits left and right to attack from different angles for 6 seconds."]),
+ ["블랙 플라이트","삼연 강습","검은 삼엽기 윙맨이 서로 다른 적을 견제합니다.","지원기 두 대가 발동 방향에 종대로 진입해 시간차로 사격합니다.","검은 삼엽기 윙맨 2기가 서로 다른 적을 압박합니다.","6초간 본기는 직접 조종하고, 지원기 두 대가 발동 방향의 같은 사선에 종대로 진입해 시간차로 사격한 뒤 호위 대형으로 복귀합니다. 무적은 없습니다."],
+ ["Black Flight","Threefold Assault","Black Flight wingmen pressure separate enemies.","Two wingmen enter a column along the activation heading and fire in sequence.","Two permanent Black Flight wingmen pressure separate enemies.","For 6 seconds, keep controlling the leader while two wingmen enter one fixed attack lane, fire in sequence, then return to escort formation. Grants no invulnerability."]),
  baracca:entry(
  ["바라카의 말","카발리노 람판테","적과 정면으로 교전하면 기관총 피해가 증가합니다.","잠시 무적 상태로 돌진하며 경로상의 적에게 피해를 줍니다.","적과 정면으로 맞붙으면 기관총 피해가 증가합니다.","잠시 무적이 되어 정면으로 돌격하고 경로상의 적에게 피해를 줍니다."],
  ["Baracca's Horse","Cavallino Rampante","Head-on engagements increase machine-gun damage.","Charge while briefly invulnerable, damaging enemies in your path.","Deal more machine-gun damage in a head-on engagement.","Charge straight ahead, briefly invulnerable, damaging enemies in your path."]),
@@ -106,3 +112,4 @@ export const PILOT_IDENTITY_COPY={
  ["Balloon Buster","Chain Detonation","Increase machine-gun damage against airships and airship bosses.","Land incendiary and detonating bursts to chain explosions through burning enemies.","Deal 20% more machine-gun damage to airships, including airship bosses. Ordinary bombers and ground bosses are excluded.","Fire incendiary bursts followed by detonating bursts. A hit on a burning target triggers nearby burning enemies in sequence, up to six detonations. Targets are damaged, not automatically killed. Requires ammunition."])
 };
 export const pilotIdentityCopy=(id,locale='ko')=>PILOT_IDENTITY_COPY[id]?.[locale==='en'?'en':'ko'];
+

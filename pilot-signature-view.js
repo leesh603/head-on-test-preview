@@ -1,11 +1,12 @@
-import {drawMaterialSupply} from './petal-supply-fx.js?v=headon-result339-20261028';
-import {fx,fxTint} from './fx-art.js?v=headon-result339-20261028';
-import {drawGameIcon} from './icons.js?v=headon-result339-20261028&afc=1';
-import {createPilotSignatureRenderer} from './pilot-signature-renderer.js?v=headon-result339-20261028&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
+import {drawMaterialSupply} from './petal-supply-fx.js?v=repairparcel20261023';
+import {fx,fxTint} from './fx-art.js?v=tame3';
+import {drawProctorGunRecord} from './proctor-burst-fx.js';
+import {drawGameIcon} from './icons.js?v=buildfit1&afc=1&opt=1';
+import {createPilotSignatureRenderer} from './pilot-signature-renderer.js?v=nungesser20261020&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
 
 // Ferrari's original prancing-horse vector is used only as a small Baracca marking.
 // Source: simple-icons/simple-icons, icons/ferrari.svg (the horse only, without a shield or text).
-const files={blackHeart:'pilot-mark-nungesser-alpha2.webp',baraccaHorse:'pilot-mark-baracca-ferrari.svg',skull:'pilot-mark-brumowski-skull.webp'};
+const files={blackHeart:'pilot-mark-nungesser-alpha2.webp',baraccaHorse:'pilot-mark-baracca-ferrari.svg',skull:'pilot-mark-brumowski-skull-512.webp'};
 const images=new Map();
 export const pilotSignatureArtReady=Promise.all(Object.entries(files).map(([key,file])=>new Promise(resolve=>{
  if(typeof Image==='undefined'){resolve(false);return}
@@ -20,9 +21,12 @@ function insignia(c,key,x,y,size){
 }
 export function createSignatureView(petal){return createPilotSignatureRenderer({fx,tint:fxTint,icon:drawGameIcon,petal,insignia})}
 let foreground;
+const proctorTexture=(c,key,x,y,w,h,a,alpha,color)=>fxTint(c,key,color,x,y,w,h,a,alpha);
 export function drawPilotSignatureFront(c,p,x,y){
  foreground??=createSignatureView(()=>{});
- return foreground(c,p,x,y,'front');
+ const drawn=foreground(c,p,x,y,'front');
+ if(p.pilot==='proctor')for(const f of p.pilotIdentity?.fx||[])drawProctorGunRecord(c,p,f,proctorTexture,x,y);
+ return drawn;
 }
 
 

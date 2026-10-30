@@ -1,6 +1,6 @@
 import {beginEquipmentLedger,recordEquipmentDoctrine} from './equipment-replacement.js';
 import {wimperisTarget,correctWimperisBomb} from './flight-equipment.js';
-import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=headon-result339-20261028&afc=1';
+import {BUILD_TRANSFER,AIRFRAME_TRANSFER_IDS,tickTransferGuns,transferStationPosition} from './build-airframe-transfer.js?v=buildfit1&afc=1';
 // Sortie-only heavy-airframe fit. The selected plane and pilot remain authoritative.
 import {BOMBER_TRANSFER_DESCRIPTION} from './airframe-doctrines.js';
 export {BOMBER_TRANSFER_DESCRIPTION};
@@ -70,7 +70,9 @@ export function capBomberSalvoDamage(e,b,damage){
 export function detonateFriendlyBomb(w,b){
  const p=w.players?w.players.find(p=>p.id===b.ownerId):w;
  if(!p||b.bomberTransfer&&(!active(p)))return;
+ const previous=w.combatFX?.at(-1);
  p.queueExplosionDamage(b.x,b.y,b.radius,b.damage,{fxSource:'bomb',bomberSalvo:b.bomberSalvo,pilotSupport:!!b.pilotSupport});
+ const effect=w.combatFX?.at(-1);if(effect&&effect!==previous){effect.impactWeapon=b.cooperBomb||b.sprite==='cooper'?'cooper':b.sprite==='puw'?'puw':'bomb';if(Number.isFinite(b.releaseAngle))effect.direction=b.releaseAngle;else if(Math.hypot(b.vx||0,b.vy||0)>0)effect.direction=Math.atan2(b.vy,b.vx);}
  if(b.tacticalBomb){const blast=w.bullets.at(-1);if(blast?.actualExplosion&&blast.ownerId===b.ownerId){blast.tacticalRound=true;blast.projectileCombo=b.projectileCombo;}}
 }
 

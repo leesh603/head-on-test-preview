@@ -4,12 +4,15 @@ export const UDET_FX_PALETTE=Object.freeze({red:'#d96363',ivory:'#f3e9d2',gold:'
 const clamp=n=>Math.max(0,Math.min(1,n));
 export function drawUdetWake(c,p,tex){const f=p.udetAcrobat;if(!f)return;
  for(const v of f.wake){const q=clamp((f.clock-v.at)/.44),ca=Math.cos(v.a),sa=Math.sin(v.a);
-  for(const side of [-1,1]){const roll=v.phase==='roll',back=20+q*18;
-   tex(c,'vaporTrail',v.x-p.x-ca*back-sa*side*24,v.y-p.y-sa*back+ca*side*24,roll?58:42,roll?9:5,v.a+side*(roll?.12:0),.52*(1-q),side<0?UDET_FX_PALETTE.red:v.phase==='counter'?UDET_FX_PALETTE.gold:UDET_FX_PALETTE.ivory);
+  if(v.phase!=='roll')continue;
+  // Recorded wingtip paths cross during the actual barrel roll only.
+  const turn=clamp((v.at-(f.active?.at??v.at))/.42)*Math.PI*2,bank=Math.cos(turn),back=17+q*12;
+  for(const side of [-1,1]){const span=side*25*bank;
+   tex(c,'vaporTrail',v.x-p.x-ca*back-sa*span,v.y-p.y-sa*back+ca*span,40+q*16,6,v.a+side*Math.sin(turn)*.3,.58*(1-q),side<0?UDET_FX_PALETTE.red:UDET_FX_PALETTE.ivory);
   }
  }
 }
-export function drawUdetLocal(c,p,tex,front=false){const f=p.udetAcrobat;if(!f)return;const phase=udetPhase(p),n=udetStacks(p),t=f.clock;
+export function drawUdetLocal(c,p,tex,front=false){const f=p.udetAcrobat;if(!f)return;const phase=udetPhase(p),n=udetStacks(p);
  if(front){
   if(phase==='roll')return;
   if(p.reloadTime>0||p.cow37)return;
@@ -21,23 +24,23 @@ export function drawUdetLocal(c,p,tex,front=false){const f=p.udetAcrobat;if(!f)r
   }return;
  }
  if(phase==='roll'){
-  const q=clamp((f.clock-f.active.at)/.42),a=q*Math.PI*2;
-  for(const side of [-1,1]){const ribbon=a+side*Math.PI/2;tex(c,'windStreak',-16-Math.sin(ribbon)*10,Math.cos(ribbon)*27,76,9,Math.sin(ribbon)*.38,.70,side<0?UDET_FX_PALETTE.red:UDET_FX_PALETTE.ivory);tex(c,'mist',-9,side*(10+Math.abs(Math.cos(a))*12),43,17,side*.24,.29,UDET_FX_PALETTE.ivory);}
- }else if(phase==='counter')for(const side of [-1,1])tex(c,'vaporTrail',-30,side*25,65,8,side*.08,.45,side<0?UDET_FX_PALETTE.red:UDET_FX_PALETTE.gold);
- else if(n)for(let i=0;i<n;i++){const q=(t*1.5+i/3)%1;tex(c,'vaporTrail',-24-q*27,(i%2?1:-1)*(19+q*9),33+q*15,5,0,.35*(1-q),i%2?UDET_FX_PALETTE.ivory:UDET_FX_PALETTE.red);}
+  const q=clamp((f.clock-f.active.at)/.42),span=Math.cos(q*Math.PI*2)*25;
+  for(const side of [-1,1])tex(c,'mist',-7,side*span,24,7,side*Math.sin(q*Math.PI*2)*.3,.17,UDET_FX_PALETTE.ivory);
+ }
 }
 export function drawUdetCue(c,p,e,tex,front){const q=clamp(e.age/e.maxLife),fade=1-q,a=e.a-p.a;
  if(e.kind==='udetGraze'){
-  if(front){tex(c,'windStreak',0,0,45+q*18,8,a,.70*fade,UDET_FX_PALETTE.ivory);tex(c,'spark',0,0,21,11,a,.85*fade,UDET_FX_PALETTE.gold);tex(c,'gunSmoke',-q*14,0,24+q*12,13,a,.22*fade,UDET_FX_PALETTE.smoke);}return true;
+  if(front){tex(c,'windStreak',0,0,25+q*12,4,a,.55*fade,UDET_FX_PALETTE.ivory);tex(c,'spark',0,0,12,6,a,.75*fade,UDET_FX_PALETTE.gold);}return true;
  }
  if(e.kind==='udetBrass'){if(front)tex(c,'bulletBrass',-e.age*32,e.side*(6+e.age*62),6,2.6,a+e.age*13,.80*fade,UDET_FX_PALETTE.gold);return true;}
  if(e.kind==='counterRoll'){
   if(front)return false; // Keep the existing short, hand-lettered motto.
-  for(const side of [-1,1]){tex(c,'windStreak',-14-q*35,side*(24-q*8),74+q*15,10,side*(.4-q*.55),.70*fade,side<0?UDET_FX_PALETTE.red:UDET_FX_PALETTE.ivory);tex(c,'mist',-9,side*17,51,20,side*.2,.27*fade,UDET_FX_PALETTE.ivory);}return true;
+  tex(c,'mist',-15-q*12,0,28,12,0,.18*fade,UDET_FX_PALETTE.ivory);return true;
  }
  if(e.kind==='udetCounter'){
-  if(!front)for(const side of [-1,1])tex(c,'windStreak',-20-q*36,side*(22+q*8),76,9,-side*.1,.66*fade,side<0?UDET_FX_PALETTE.red:UDET_FX_PALETTE.gold);return true;
+  if(!front)tex(c,'gunSmoke',-23-q*12,0,28,11,0,.18*fade,UDET_FX_PALETTE.smoke);return true;
  }
  return false;
 }
 export {udetRollPose};
+

@@ -1,5 +1,5 @@
-import {updateBasicBarrage} from './boss-basic-barrage.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&harbor=20261021';
-import {separateZubianHalves} from './adriatic-boss-layout.js?v=headon-result339-20261028';
+import {updateBasicBarrage} from './boss-basic-barrage.js?v=tame3&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&harbor=20261021';
+import {separateZubianHalves} from './adriatic-boss-layout.js?v=tame3';
 // Where a pilot will be after t seconds if it keeps doing what it is doing:
 // straight flight, or the turn it is in (omega rad/s, set by the boss runtime).
 export function predictPilot(p,t){

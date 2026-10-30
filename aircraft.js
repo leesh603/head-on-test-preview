@@ -1,11 +1,16 @@
 import {configureTransportArt} from './transport-convoy.js';
 import {configurePhotoReconArt} from './photo-recon-encounters.js';
 import {PHOTO_RECON_ART,paintPhotoReconSprite} from './photo-recon-view.js';
-import {SORTIE_FITS,PILOT_RENDER_ART} from './pilot-aircraft.js?v=headon-result339-20261028&art=pilot-recovery2';
-import {clearCrewMatte} from './matte70.js?v=headon-result339-20261028';
-import {BANK_ART} from './aircraft-bank-art.js?v=headon-result339-20261028';
-import {AIRCRAFT_OUTLINE_ART,AIRCRAFT_ART_REVISION} from './aircraft-outline-art.js?v=headon-result339-20261028&art=pilot-recovery2';
-import {composeNpcCrew,npcCrewSeats} from './aircraft-crew-cache.js?v=headon-result339-20261028';
+import {SORTIE_FITS,PILOT_RENDER_ART} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {clearCrewMatte} from './matte70.js?v=gal1';
+import {BANK_ART} from './aircraft-bank-art.js?v=outline1';
+import {AIRCRAFT_OUTLINE_ART,AIRCRAFT_ART_REVISION} from './aircraft-outline-art.js?v=outline1&art=pilot-recovery2';
+import {CREW_BAKED,CREW_NONE} from './aircraft-crew-baked.js?v=crewbake1';
+// NPC crew is pre-composited offline (scripts/bake-npc-crew.mjs -> crew-baked/). The live
+// compositor and its 785 KB seat table load only for art the bake has not covered yet.
+const CREW_BAKE_MODE=typeof location!=='undefined'&&new URLSearchParams(location.search).get('crewbake')==='1';
+let crewModulePromise=null;const crewModule=()=>crewModulePromise??=import('./aircraft-crew-cache.js?v=crew-20261026');
+const crewNone=new Set(CREW_NONE);
 // Exact stock-bank paint cells; these stay outside the evictable NPC art cache.
 const BOMBER_TRANSFER_ART=Object.freeze({
  'transfer-caudron-r11':{path:'asset-bank/outlined/native/asset-bank/flight/bank_plane_caudron_r11.webp',x:0,y:0,w:288,h:320},
@@ -49,7 +54,7 @@ function setPainted(key,image){
 
 // Bound bank canvases and all derived variants; live aircraft cannot be evicted.
 const bankTouched=new Map();let bankRetained=new Set();
-export const hasPaintedAircraft=key=>painted.has(key);
+export const hasPaintedAircraft=key=>painted.has(paintedSource(key));
 export function retainBankArtwork(keys){bankRetained=new Set(keys)}
 function trimBankArtwork(){
  while(bankTouched.size>24){const key=[...bankTouched.keys()].find(k=>!bankRetained.has(k));if(!key)break;
@@ -79,7 +84,7 @@ export function clearAircraftMatte(key,data,w,h){
 }
 // Approximate real wingspans in metres; drawn width scales ~ (span/8.5)^0.8 so
 // two-seaters read larger than scouts while staying inside the 144x160 canvas.
-const WINGSPAN_M={fokker:7.19,fokker_standard:7.19,fokker_f1:7.19,fokker_jacobs:7.19,nieuport11:7.52,nieuport28:8,spad12:8,sopwith:8.08,pup:8.08,se5a:8.11,mccudden_se5a:8.11,nieuport:8.16,nieuport_italian:8.16,nieuport24:8.21,nungesser_nieuport24:8.21,spad:8.25,fokkerdv:8.34,albatros_d2:8.5,camel:8.53,airco_dh2:8.61,hanriot:8.7,fokkerd7:8.9,loewenhardt_fokkerd7:8.9,albatros:9.05,albatros_d5a:9.05,baron_albatros:9.05,wolff_albatros:9.05,hansa_brandenburg_cc:9.25,pfalz_d3a:9.4,berthold_pfalz:9.4,goering_fokkerd7:8.9,collishaw_sopwith:8.08,guynemer_spad:8.25,udet_fokkerdv:8.34,baracca_nieuport:8.16,eindecker:9.52,bristol_m1:9.8,dolphin:9.91,snipe:9.13,strutter:10.21,halberstadt_duo:10.77,gunbus:11.17,morane_ai:11.21,hannover_cl3:11.7,be2c:11.28,bristol_duo:11.96,aviatik:12.4,re8:12.98,dfw_cv:13.27,dh4:13.21,fe2b:14.55,junkers_j1:16,re7:17.45,gotha:23.7,roland_d6:9.42,siemens_d4:8.35,rickenbacker_spad:8.25,ball_se5a:8.11,barker_snipe:9.13,luke_nieuport28:8,voss_dr1:7.19,udet_fokkerd7:8.9,nungesser_nieuport:8.16,brumowski_albatros:9.05,gontermann_fokker:7.19,macchi_m5:11.9,macchi_m3:15.95,lohner_l:16.2,aeg_g4:18.4,friedrichshafen_g3:23.7,breguet14:14.36,voisin8:17.92,caudron_g4:17.2,ssw_d3:8.43,pfalz_d12:9,phonix_d1:9.75,aviatik_d1:9,junkers_d1:9,ansaldo_sva5:9.1,hb_w29:13.5,ff33:16,felixstowe_f2:29.05,shuttelanz_sl11:22.9,parseval:11.2,caquot_balloon:13.4,lothar_dr1:7.19,beaulieu_dr1:7.19,mai_dr1:7.19,hantelmann_dr1:7.19,jasta11_fokkerd7:8.9,jasta18_fokkerd7:8.9,jasta27_fokkerd7:8.9,jasta43_fokkerd7:8.9,gabriel_fokkerd7:8.9,jasta4_albatros:9.05,jasta5_albatros:9.05,jasta78b_albatros:9.05,kissenberth_albatros:9.05,allmenroder_albatros:9.05,jasta11a_albatros:9.05,jasta11b_albatros:9.05,jasta11c_albatros:9.05,jasta11d_albatros:9.05,baeumer_pfalz:9,degelow_pfalz:9,linke_crawford_phonix:9.75,kiss_phonix:9.75,arigi_aviatik:9,gotha_night:23.7,staaken_dark:42.3,brown_camel:8.53,mcelroy_camel:8.53,dazzle_camel:8.53,lufbery_nieuport17:8.16,schleich_albatros:9.05,dorme_nieuport:8.16,meulemeester_nieuport:8.16,eagle_nieuport28:8,coppens_hanriot:8.7,madon_spad:8.25,tarascon_spad:8.25,boyau_spad:8.25,hatring_spad:8.25,springs_se5a:8.11,proctor_se5a:8.11,checker_se5a:8.11,ruffo_sva5:9.1,pierozzi_macchi:11.9,udet_albatros:9.05,loerzer_albatros:9.05,frommherz_albatros:9.05,kirschstein_albatros:9.05,boelcke_albatros:9.05,woollett_camel:8.53,collett_camel:8.53,naval10_camel:8.53,belgian_camel:8.53,fonck_spad:8.25,thieffry_spad:8.25,italian_spad:8.25,deullin_spad:8.25,mannock_se5a:8.11,sqn85_se5a:8.11,collishaw_se5a:8.11,stork_nieuport:8.16,bishop_nieuport:8.16,navarre_nieuport:8.16,camo_nieuport:8.16,zebra_se5a:8.11,berthold_albatros:9.05,mueller_albatros:9.05,schoder_albatros:9.05,buttner_albatros:9.05,wolff2_albatros:9.05,nonal_camel:8.53,maclaren_camel:8.53,barker_camel:8.53,germain_spad:8.25,audemars_spad:8.25,carli_spad:8.25,belgium_spad:8.25,bishop_se5a:8.11,dallas_se5a:8.11,beauchamp_se5a:8.11,guynemer_nieuport:8.16,heurteaux_nieuport:8.16,carli_nieuport:8.16};
+const WINGSPAN_M={navarre_nieuport11:7.52,frommherz_albatros_d3:9.05,fokker:7.19,fokker_standard:7.19,fokker_f1:7.19,fokker_jacobs:7.19,nieuport11:7.52,nieuport28:8,spad12:8,sopwith:8.08,pup:8.08,se5a:8.11,mccudden_se5a:8.11,nieuport:8.16,nieuport_italian:8.16,nieuport24:8.21,nungesser_nieuport24:8.21,spad:8.25,fokkerdv:8.34,albatros_d2:8.5,camel:8.53,airco_dh2:8.61,hanriot:8.7,fokkerd7:8.9,loewenhardt_fokkerd7:8.9,albatros:9.05,albatros_d5a:9.05,baron_albatros:9.05,wolff_albatros:9.05,hansa_brandenburg_cc:9.25,pfalz_d3a:9.4,berthold_pfalz:9.4,goering_fokkerd7:8.9,collishaw_sopwith:8.08,guynemer_spad:8.25,udet_fokkerdv:8.34,baracca_nieuport:8.16,eindecker:9.52,bristol_m1:9.8,dolphin:9.91,snipe:9.13,strutter:10.21,halberstadt_duo:10.77,gunbus:11.17,morane_ai:11.21,hannover_cl3:11.7,be2c:11.28,bristol_duo:11.96,aviatik:12.4,re8:12.98,dfw_cv:13.27,dh4:13.21,fe2b:14.55,junkers_j1:16,re7:17.45,gotha:23.7,roland_d6:9.42,siemens_d4:8.35,rickenbacker_spad:8.25,ball_se5a:8.11,barker_snipe:9.13,luke_nieuport28:8,voss_dr1:7.19,udet_fokkerd7:8.9,nungesser_nieuport:8.16,brumowski_albatros:9.05,gontermann_fokker:7.19,macchi_m5:11.9,macchi_m3:15.95,lohner_l:16.2,aeg_g4:18.4,friedrichshafen_g3:23.7,breguet14:14.36,voisin8:17.92,caudron_g4:17.2,ssw_d3:8.43,pfalz_d12:9,phonix_d1:9.75,aviatik_d1:9,junkers_d1:9,ansaldo_sva5:9.1,hb_w29:13.5,ff33:16,felixstowe_f2:29.05,shuttelanz_sl11:22.9,parseval:11.2,caquot_balloon:13.4,lothar_dr1:7.19,beaulieu_dr1:7.19,mai_dr1:7.19,hantelmann_dr1:7.19,jasta11_fokkerd7:8.9,jasta18_fokkerd7:8.9,jasta27_fokkerd7:8.9,jasta43_fokkerd7:8.9,gabriel_fokkerd7:8.9,jasta4_albatros:9.05,jasta5_albatros:9.05,jasta78b_albatros:9.05,kissenberth_albatros:9.05,allmenroder_albatros:9.05,jasta11a_albatros:9.05,jasta11b_albatros:9.05,jasta11c_albatros:9.05,jasta11d_albatros:9.05,baeumer_pfalz:9,degelow_pfalz:9,linke_crawford_phonix:9.75,kiss_phonix:9.75,arigi_aviatik:9,gotha_night:23.7,staaken_dark:42.3,brown_camel:8.53,mcelroy_camel:8.53,dazzle_camel:8.53,lufbery_nieuport17:8.16,schleich_albatros:9.05,dorme_nieuport:8.16,meulemeester_nieuport:8.16,eagle_nieuport28:8,coppens_hanriot:8.7,madon_spad:8.25,tarascon_spad:8.25,boyau_spad:8.25,hatring_spad:8.25,springs_se5a:8.11,proctor_se5a:8.11,checker_se5a:8.11,ruffo_sva5:9.1,pierozzi_macchi:11.9,udet_albatros:9.05,loerzer_albatros:9.05,frommherz_albatros:9.05,kirschstein_albatros:9.05,boelcke_albatros:9.05,woollett_camel:8.53,collett_camel:8.53,naval10_camel:8.53,belgian_camel:8.53,fonck_spad:8.25,thieffry_spad:8.25,italian_spad:8.25,deullin_spad:8.25,mannock_se5a:8.11,sqn85_se5a:8.11,collishaw_se5a:8.11,stork_nieuport:8.16,bishop_nieuport:8.16,navarre_nieuport:8.16,camo_nieuport:8.16,zebra_se5a:8.11,berthold_albatros:9.05,mueller_albatros:9.05,schoder_albatros:9.05,buttner_albatros:9.05,wolff2_albatros:9.05,nonal_camel:8.53,maclaren_camel:8.53,barker_camel:8.53,germain_spad:8.25,audemars_spad:8.25,carli_spad:8.25,belgium_spad:8.25,bishop_se5a:8.11,dallas_se5a:8.11,beauchamp_se5a:8.11,guynemer_nieuport:8.16,heurteaux_nieuport:8.16,carli_nieuport:8.16};
 const spriteScale=key=>WINGSPAN_M[key]==null?1:Math.min(1.18,Math.max(.8,(WINGSPAN_M[key]/8.5)**.8));
 const PAINTED_KEYS=['fokker','fokker_standard','fokker_f1','albatros','camel','sopwith','nieuport','nieuport_italian','spad12','fokkerdv','re7','fokkerd7','eindecker','se5a','bristol_duo','halberstadt_duo','baron_albatros','albatros_d2','nieuport24','pfalz_d3a','airco_dh2','spad','be2c','aviatik','strutter','nieuport11','nieuport28','hanriot','pup','dh5','re8','dh4','albatros_d5a','fokker_jacobs','goering_fokkerd7','collishaw_sopwith','guynemer_spad','udet_fokkerdv','baracca_nieuport','berthold_pfalz','siemens_d4','roland_d6','hannover_cl3','dfw_cv','junkers_j1','gotha','bristol_m1','dolphin','snipe','fe2b','gunbus','morane_ai','rickenbacker_spad','voss_dr1','udet_fokkerd7','nungesser_nieuport','ball_se5a','barker_snipe','luke_nieuport28','brumowski_albatros','gontermann_fokker','hansa_brandenburg_cc','lohner_l','macchi_m3','macchi_m5','wolff_albatros','loewenhardt_fokkerd7','mccudden_se5a','nungesser_nieuport24','aeg_g4','friedrichshafen_g3','breguet14','voisin8','caudron_g4','ssw_d3','pfalz_d12','phonix_d1','aviatik_d1','junkers_d1','ansaldo_sva5','hb_w29','ff33','felixstowe_f2','shuttelanz_sl11','parseval','caquot_balloon','staaken','handley-page','jasta4_albatros','jasta5_albatros','jasta78b_albatros','kissenberth_albatros','allmenroder_albatros','jasta11a_albatros','jasta11b_albatros','jasta11c_albatros','jasta11d_albatros','lothar_dr1','beaulieu_dr1','mai_dr1','hantelmann_dr1','jasta11_fokkerd7','jasta18_fokkerd7','jasta43_fokkerd7','gabriel_fokkerd7','jasta27_fokkerd7','baeumer_pfalz','degelow_pfalz','linke_crawford_phonix','kiss_phonix','arigi_aviatik','gotha_night','staaken_dark','brown_camel','mcelroy_camel','dazzle_camel','lufbery_nieuport17','dorme_nieuport','meulemeester_nieuport','eagle_nieuport28','coppens_hanriot','madon_spad','tarascon_spad','boyau_spad','hatring_spad','springs_se5a','proctor_se5a','checker_se5a','ruffo_sva5','pierozzi_macchi','udet_albatros','loerzer_albatros','frommherz_albatros','kirschstein_albatros','boelcke_albatros','woollett_camel','collett_camel','naval10_camel','belgian_camel','fonck_spad','thieffry_spad','italian_spad','deullin_spad','mannock_se5a','sqn85_se5a','collishaw_se5a','stork_nieuport','bishop_nieuport','navarre_nieuport','camo_nieuport','zebra_se5a','berthold_albatros','mueller_albatros','schoder_albatros','buttner_albatros','wolff2_albatros','nonal_camel','maclaren_camel','barker_camel','germain_spad','audemars_spad','carli_spad','belgium_spad','bishop_se5a','dallas_se5a','beauchamp_se5a','guynemer_nieuport','heurteaux_nieuport','carli_nieuport','schleich_albatros'];
 const HANGAR_KEYS=['fokker','fokker_f1','fokker_standard','fokker_jacobs','baron_albatros','albatros','albatros_d2','eindecker','camel','sopwith','collishaw_sopwith','nieuport','nieuport_italian','nieuport24','baracca_nieuport','nungesser_nieuport24','luke_nieuport28','fokkerdv','udet_fokkerdv','spad','spad12','guynemer_spad','rickenbacker_spad','re7','fokkerd7','goering_fokkerd7','loewenhardt_fokkerd7','se5a','mccudden_se5a','ball_se5a','bristol_duo','halberstadt_duo','barker_snipe','brumowski_albatros','gontermann_fokker','wolff_albatros','berthold_pfalz'];
@@ -89,16 +94,38 @@ const crewJobs=[];let crewRunning=false;
 const idle=fn=>typeof requestIdleCallback==='function'?requestIdleCallback(fn,{timeout:250}):setTimeout(fn,16);
 function pumpCrew(){const job=crewJobs.shift();if(!job){crewRunning=false;return}let r;try{r=job.fn()}catch(e){r=null}Promise.resolve(r).then(job.resolve,job.resolve);idle(pumpCrew)}
 const queueCrew=fn=>new Promise(resolve=>{crewJobs.push({fn,resolve});if(!crewRunning){crewRunning=true;idle(pumpCrew)}});
-const decodePainted=key=>new Promise(resolve=>{
+// Match the established 288x320 aircraft rim once at decode, never during a frame.
+// Already baked aircraft and their approved geometry remain untouched.
+function outlineUnbakedAircraft(source){
+ const mask=document.createElement('canvas');mask.width=source.width;mask.height=source.height;
+ const mc=mask.getContext('2d');mc.drawImage(source,0,0);mc.globalCompositeOperation='source-in';mc.fillStyle='#140f08';mc.fillRect(0,0,mask.width,mask.height);
+ const out=document.createElement('canvas');out.width=source.width;out.height=source.height;const c=out.getContext('2d');
+ for(let y=-2;y<=2;y++)for(let x=-2;x<=2;x++)if(x*x+y*y<=5)c.drawImage(mask,x,y);
+ c.drawImage(source,0,0);return out;
+}
+const decodePainted=(key,skipCrew=false)=>new Promise(resolve=>{
  // resolve() is idempotent — the 45 s ceiling guarantees a stuck request or a
  // thrown decode can never hang whatever gate waits on this promise.
  let settled=false;const img=new Image();
  const finish=ok=>{if(settled)return;settled=true;clearTimeout(deadline);img.onload=null;img.onerror=null;if(!ok)img.src='';resolve(ok)};
  const deadline=setTimeout(()=>finish(false),45000);
  const afterCrew=(result,done)=>{if(!result?.then){done();return}result.then(()=>{if(settled)return;try{done()}catch{finish(false)}},()=>{if(settled)return;try{done()}catch{finish(false)}})};
+ if(key==='zero_sector_junkers_d1'){img.onload=()=>{try{const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0,288,320);setPainted(key,out);finish(true)}catch{finish(false)}};img.onerror=()=>finish(false);img.src=new URL('./asset-bank/zero-district/junkers-d1.webp',import.meta.url).href;return;}
+ // Pre-composited crewed sprite: the stored image is the final painted 288x320 canvas.
+ const crewFile=!skipCrew&&!CREW_BAKE_MODE&&CREW_BAKED[key]&&new URLSearchParams(location.search).get('mech')!=='0'?CREW_BAKED[key]:null;
+ if(crewFile){let crewTries=0;const url=new URL(`./crew-baked/${crewFile}`,import.meta.url).href;
+  img.onload=()=>{if(settled)return;try{const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0);setPainted(key,out);finish(true)}catch{finish(false)}};
+  img.onerror=()=>{if(++crewTries<4){img.src=url+'?r='+crewTries;return}img.onload=null;img.onerror=null;decodePainted(key,true).then(finish,()=>finish(false))};img.src=url;return;}
+ // Crew step for art without a baked file: decide synchronously when the bake knows the key has no
+ // crew; otherwise load the compositor lazily. Bake mode records the final painted canvas.
+ const withCrew=(canvas,path,cell,done)=>{
+  if(!CREW_BAKE_MODE&&crewNone.has(key)){done();return}
+  crewModule().then(m=>{const seats=m.npcCrewSeats(path,cell);if(!seats){if(CREW_BAKE_MODE)window.__headonCrewBake?.none.push(key);done();return}
+   afterCrew(queueCrew(()=>m.composeNpcCrew(canvas,cell?{path,cell}:{path})),()=>{done();if(CREW_BAKE_MODE)window.__headonCrewBake?.out.push({key,canvas:painted.get(key)})})},()=>done());
+ };
  img.onload=()=>{if(settled)return;try{
-  if(PHOTO_RECON_ART[key]){const out=document.createElement('canvas');out.width=288;out.height=320;paintPhotoReconSprite(out.getContext('2d'),img,key);setPainted(key,out);finish(true);return;}
-  if(bakedArt){const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0);const done=()=>{setPainted(key,out);finish(true)};if(npcCrewSeats(bakedArt)){afterCrew(queueCrew(()=>composeNpcCrew(out,{path:bakedArt})),done);return}done();return;}
+  if(PHOTO_RECON_ART[key]){const out=document.createElement('canvas');out.width=288;out.height=320;paintPhotoReconSprite(out.getContext('2d'),img,key);setPainted(key,outlineUnbakedAircraft(out));finish(true);return;}
+  if(bakedArt){const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0);const done=()=>{setPainted(key,out);finish(true)};if(!SORTIE_FITS[key]?.crewBaked){withCrew(out,bakedArt,null,done);return}done();return;}
   // Pre-cropped transparent stock-bank art needs no full image pixel readback.
   // Downsample once on first appearance; the established cache/shadow pipeline follows.
   if(key.startsWith('bank_')||BOMBER_TRANSFER_ART[key]){
@@ -107,17 +134,17 @@ const decodePainted=key=>new Promise(resolve=>{
     const art=BANK_ART[key]||BOMBER_TRANSFER_ART[key];if(!art){finish(false);return;}
     oc.drawImage(img,art.x,art.y,art.w,art.h,0,0,288,320);
     if(key==='bomber-transfer-gotha'){const pixels=oc.getImageData(0,0,288,320);clearAircraftMatte(key,pixels.data,288,320);oc.putImageData(pixels,0,0);}
-    const done=()=>{setPainted(key,out);finish(true)};if(npcCrewSeats(art.path,art)){afterCrew(queueCrew(()=>composeNpcCrew(out,{path:art.path,cell:art})),done);return}
+    const done=()=>{setPainted(key,key.startsWith('bank_')&&!art.path.startsWith('asset-bank/outlined/')?outlineUnbakedAircraft(out):out);finish(true)};if(!art.crewBaked){withCrew(out,art.path,art,done);return}
     done();return;
   }
   const scan=document.createElement('canvas');scan.width=Math.ceil(img.naturalWidth/2);scan.height=Math.ceil(img.naturalHeight/2);const sc=scan.getContext('2d',{willReadFrequently:true});sc.drawImage(img,0,0,scan.width,scan.height);const pixels=sc.getImageData(0,0,scan.width,scan.height),rgba=pixels.data;if(key==='nieuport_italian')for(let i=0;i<rgba.length;i+=4){const r=rgba[i],g=rgba[i+1],b=rgba[i+2];if(rgba[i+3]>0&&b>70&&b>r*1.18&&b>g*1.05){rgba[i]=55;rgba[i+1]=132;rgba[i+2]=78}}clearAircraftMatte(key,rgba,scan.width,scan.height);clearCrewMatte(key,rgba,scan.width,scan.height);sc.putImageData(pixels,0,0);let minX=scan.width,minY=scan.height,maxX=-1,maxY=-1;
   for(let y=0;y<scan.height;y++)for(let x=0;x<scan.width;x++)if(rgba[(y*scan.width+x)*4+3]>128){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}
-  if(maxX>=minX&&maxY>=minY){const out=document.createElement('canvas');out.width=288;out.height=320;const oc=out.getContext('2d');oc.imageSmoothingEnabled=true;oc.imageSmoothingQuality='high';const w=maxX-minX+1,h=maxY-minY+1,k=Math.min(228/w,264/h)*spriteScale(key),dw=Math.round(w*k),dh=Math.round(h*k);oc.drawImage(scan,minX,minY,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);const sil=document.createElement('canvas');sil.width=288;sil.height=320;const sx=sil.getContext('2d');sx.drawImage(out,0,0);sx.globalCompositeOperation='source-in';sx.fillStyle='#140f08';sx.fillRect(0,0,288,320);const rim=document.createElement('canvas');rim.width=288;rim.height=320;const rc=rim.getContext('2d');for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)if(dx*dx+dy*dy<=5)rc.drawImage(sil,dx,dy);rc.drawImage(out,0,0);const done=()=>{setPainted(key,rim);finish(true)},path=`${mechDir}${sourceKey}.webp`;if(npcCrewSeats(path)){afterCrew(composeNpcCrew(rim,{path}),done);return}done();return}finish(true);}catch{finish(false)}
+  if(maxX>=minX&&maxY>=minY){const out=document.createElement('canvas');out.width=288;out.height=320;const oc=out.getContext('2d');oc.imageSmoothingEnabled=true;oc.imageSmoothingQuality='high';const w=maxX-minX+1,h=maxY-minY+1,k=Math.min(228/w,264/h)*spriteScale(key),dw=Math.round(w*k),dh=Math.round(h*k);oc.drawImage(scan,minX,minY,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);const sil=document.createElement('canvas');sil.width=288;sil.height=320;const sx=sil.getContext('2d');sx.drawImage(out,0,0);sx.globalCompositeOperation='source-in';sx.fillStyle='#140f08';sx.fillRect(0,0,288,320);const rim=document.createElement('canvas');rim.width=288;rim.height=320;const rc=rim.getContext('2d');for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)if(dx*dx+dy*dy<=5)rc.drawImage(sil,dx,dy);rc.drawImage(out,0,0);const done=()=>{setPainted(key,rim);finish(true)},path=`${mechDir}${sourceKey}.webp`;withCrew(rim,path,null,done);return}finish(true);}catch{finish(false)}
  };let tries=0;const sourceKey=key==='nieuport_italian'?'nieuport':key;const mechDir=new URLSearchParams(location.search).get('mech')==='0'?'':'mech/';
  const stock=key.startsWith('bank_')||!!BOMBER_TRANSFER_ART[key],stockArt=BANK_ART[key]||BOMBER_TRANSFER_ART[key];if(stock&&!stockArt){finish(false);return;}
  const artRevision=key==='barker_snipe'&&mechDir?'barker-alpha-20261015':'347';
  const bakedArt=!stock&&(SORTIE_FITS[key]?`sortie-aircraft/flight/${key}.webp`:AIRCRAFT_OUTLINE_ART[mechDir+key]);
- const base=new URL(PHOTO_RECON_ART[key]?`./${PHOTO_RECON_ART[key].path}`:bakedArt?`./${bakedArt}?v=${AIRCRAFT_ART_REVISION}`:stock?`./${stockArt.path}?v=${AIRCRAFT_ART_REVISION}`:`./${mechDir}${sourceKey}.webp?v=headon-result339-20261028&b=${artRevision}`,import.meta.url).href;
+ const base=new URL(PHOTO_RECON_ART[key]?`./${PHOTO_RECON_ART[key].path}`:bakedArt?`./${bakedArt}?v=${AIRCRAFT_ART_REVISION}`:stock?`./${stockArt.path}?v=${AIRCRAFT_ART_REVISION}`:`./${mechDir}${sourceKey}.webp?v=gal1&b=${artRevision}`,import.meta.url).href;
  // A failed fetch must never cache the plane as permanently invisible: retry with
  // a cache-busting tag so stale error responses and flaky mobile radio recover.
  img.onerror=()=>{if(++tries<(stock?2:8)){img.src=base+'&r='+tries;return}finish(false)};img.src=base;
@@ -149,6 +176,7 @@ function ensurePainted(key){
  paintedPending.add(key);if(bank)activeBankLoads++;
  loadPainted(key).finally(()=>{if(bank)activeBankLoads--;setTimeout(()=>paintedPending.delete(key),bank?10000:4000)});
 }
+if(CREW_BAKE_MODE)window.__headonCrewBake={keys:[...new Set([...PAINTED_KEYS,...HANGAR_KEYS,...Object.keys(BANK_ART),...Object.keys(BOMBER_TRANSFER_ART)])],load:loadPainted,out:[],none:[]};
 export const hangarArtReady=Promise.all(HANGAR_KEYS.map(loadPainted));
 // Gates a single painted sprite — the hangar waits on just the shown airframe
 // instead of the whole painted set.
@@ -159,6 +187,7 @@ const paintedSource=key=>campaignSpriteAliases[key]||(key==='fokker_red'?'fokker
 // Exact same baked source as decodePainted; boot prioritization must not warm raw/foreign art.
 export function aircraftFlightSource(key){
  const source=paintedSource(key),mech=new URLSearchParams(location.search).get('mech')==='0'?'':'mech/';
+ if(!CREW_BAKE_MODE&&mech&&CREW_BAKED[source])return new URL(`./crew-baked/${CREW_BAKED[source]}`,import.meta.url).href;
  const path=PHOTO_RECON_ART[source]?.path||(SORTIE_FITS[source]?`sortie-aircraft/flight/${source}.webp`:AIRCRAFT_OUTLINE_ART[mech+source]);
  return path?new URL(`./${path}?v=${AIRCRAFT_ART_REVISION}`,import.meta.url).href:'';
 }
@@ -186,7 +215,7 @@ const newAceAircraftReady=!NEW_ACE_AIRCRAFT.length?Promise.resolve(true):new Pro
    if(maxX<minX||maxY<minY)return;const out=document.createElement('canvas');out.width=288;out.height=320;const oc=out.getContext('2d');oc.imageSmoothingEnabled=true;oc.imageSmoothingQuality='high';
    const w=maxX-minX+1,h=maxY-minY+1,k=Math.min(236/w,272/h)*spriteScale(key),dw=Math.round(w*k),dh=Math.round(h*k);oc.drawImage(scan,minX,minY,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);setPainted(key,out);
   });resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./new-aces-aircraft124.webp?v=headon-result339-20261028&b=345',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./new-aces-aircraft124.webp?v=gal1&b=345',import.meta.url).href;
 });
 // Painted battle-damage marks (bullet holes, torn canvas, scorch) applied over the
 // authored sprites once a hull drops below half durability.
@@ -202,7 +231,7 @@ const damageDecalReady=new Promise(resolve=>{
    if(!any){damageDecals.push(null);continue}
    const cell=document.createElement('canvas');cell.width=r-l+1;cell.height=b-t+1;cell.getContext('2d').drawImage(sc,l,t,r-l+1,b-t+1,0,0,r-l+1,b-t+1);damageDecals.push(cell);
   }damageCache.clear();resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./damage-decals.webp?v=headon-result339-20261028&b=345',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./damage-decals.webp?v=gal1&b=345',import.meta.url).href;
 });
 // Deterministic per-airframe mark layout so a plane's scars stay put between frames.
 function damageSeed(key){let h=2166136261;for(const ch of key){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
@@ -298,10 +327,21 @@ export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0
  c.restore();
 }
 
+// Both solo and co-op use the authored, tightly fitted cache instead of scaling
+// a whole field-art sheet (including its transparent margins) down to 150px.
+export const FRIENDLY_BOMBER_SCALE=Object.freeze({staaken:6,'handley-page':3.4});
+export function drawFriendlyBomber(c,b,x=b.x,y=b.y){
+ const key=b.airframe,scale=FRIENDLY_BOMBER_SCALE[key]||3.4;
+ planeSprite(c,x+14,y+22,b.a,key,scale,false,true);
+ planeSprite(c,x,y,b.a,key,scale,false,false,b.hitFlash||0);
+}
+
 // Campaign aircraft mostly have dedicated PNGs; only the Mark IV tank remains on
 // the atlas. The alias defaults below resolve the remaining campaign ids even when
 // registerCampaignSpriteAliases has not run in this module instance.
-const campaignSpriteAliases={'white-fokkerdv55':'goering_fokkerd7',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',albatros_d5:'albatros_d5a',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard'};
+// The smooth, dark bank D.I uses a different drawing style. Keep its flight identity,
+// but draw the existing game-native D.I artwork, including its outline and cockpit.
+const campaignSpriteAliases={'bank_livery_junkers_d1__night':'junkers_d1','white-fokkerdv55':'goering_fokkerd7',dh2:'airco_dh2',fokker_e1:'eindecker',fokker_d7_campaign:'fokkerd7',albatros_d5:'albatros_d5a',oeffag:'albatros',bristol:'bristol_duo',spad7:'spad',halberstadt:'halberstadt_duo',fokker_campaign:'fokker_standard'};
 export function registerCampaignSpriteAliases(aliases){Object.assign(campaignSpriteAliases,aliases)}
 export const campaignArtReady=new Promise(resolve=>{
  const img=new Image();img.onload=()=>{
@@ -312,7 +352,7 @@ export const campaignArtReady=new Promise(resolve=>{
    const [x,y,w,h]=boxes[i],k=Math.min(228/w,264/h),dw=Math.round(w*k),dh=Math.round(h*k);
    c.drawImage(img,cell%3*512+x,Math.floor(cell/3)*512+y,w,h,Math.round((288-dw)/2),Math.round(152-dh/2),dw,dh);setPainted(key,out);
   }resolve(true);
- };img.onerror=()=>resolve(false);img.src=new URL('./campaign-units.webp?v=headon-result339-20261028&b=345',import.meta.url).href;
+ };img.onerror=()=>resolve(false);img.src=new URL('./campaign-units.webp?v=gal1&b=345',import.meta.url).href;
 });
 
 

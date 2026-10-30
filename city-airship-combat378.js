@@ -1,6 +1,6 @@
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=headon-result339-20261028';
-import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=headon-result339-20261028&cityart=20261022';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=tame3';
+import {apronPose,apronPanelHull,netContact} from './london-apron369.js?v=tame3&cityart=20261022';
 
 // Source-image coordinates are shared by hull hit tests, gun mounts and mines.
 export const CITY_HULLS={
@@ -133,7 +133,7 @@ export class LondonApron extends CityAirships{
 
 export class DrachenMineNet extends CityAirships{
  constructor(o){super(o,'drachen-net');this.mineQueue=[];this.burstQueue=[];this.mineSerial=0;this.driftTime=0;this.cityRigOffsets=[[0,0],[0,0],[0,0]];this.netState='mines';this.netStateAge=0;this.netStateFresh=true;this.mineSupportIndex=null;this.aimSupportIndex=null;
-  this.cityArtScale=Math.max(.32,Math.min(1.62,((this.t.regionalViewWidth||960)-60)/790*1.2,((this.t.regionalViewHeight||700)-150)/720*1.2));
+  this.cityArtScale=1.5*Math.max(.32,Math.min(1.62,((this.t.regionalViewWidth||960)-60)/790*1.2,((this.t.regionalViewHeight||700)-150)/720*1.2));
   this.regionalScale=this.apronScale=this.cityArtScale;this.syncRigs();this.timers.set('mine-lay',1.0);}
  point(x,y,index=1){const o=this.cityRigOffsets?.[index]||[0,0];return{x:this.x+(x-384+o[0])*this.cityArtScale,y:this.y+(y-288+o[1])*this.cityArtScale};}
  syncRigs(){for(const [i,p] of [...this.parts.values()].entries()){if(p.destroyed)continue;const [x,y,rx,ry]=CITY_HULLS['drachen-net'][i],q=this.point(x,y,i),s=this.cityArtScale;Object.assign(p,{x:q.x-this.x,y:q.y-this.y,radius:Math.max(rx,ry)*s,hitRadiusX:rx*s,hitRadiusY:ry*s});}}
@@ -143,6 +143,7 @@ export class DrachenMineNet extends CityAirships{
  onPartDestroyed(p){super.onPartDestroyed(p);const index=Number(p.id.at(-1));this.mineQueue=this.mineQueue.filter(q=>q.index!==index);this.burstQueue=this.burstQueue.filter(q=>q.index!==index);this.command('cancel-hazards',{tag:'drachen-support-'+index});if(this.mineSupportIndex===index)this.mineSupportIndex=null;if(this.aimSupportIndex===index)this.aimSupportIndex=null;}
  setNetState(state){this.netState=state;this.netStateAge=0;this.netStateFresh=true;this.phase='drachen-'+state;this.command('phase-change',{phase:this.phase});}
  planMines(target,live,bounds){if(!target||!live.length)return;const owner=live[this.netWave%live.length],index=Number(owner.id.at(-1));this.mineSupportIndex=index;
+  this.timers.set('mine-lay',2.5/(this.t.patternMultiplier||1));
   const mode=this.netWave++%4,count=10,w=bounds.right-bounds.left,gate=bounds.left+w*[.28,.5,.72][this.netWave%3],gap=Math.min(150,w*.36);
   this.cityMineLane={x:gate,width:gap,top:bounds.top,bottom:bounds.bottom,remaining:3};this.mineQueue=this.mineQueue.filter(q=>q.index!==index&&Math.abs(q.x-gate)>=gap/2);this.command('city-mine-lane',{x:gate,width:gap});
   const cx=clamp(target.x+(target.vx||0)*.4,bounds.left+75,bounds.right-75),cy=clamp(target.y+(target.vy||0)*.4,bounds.top+90,bounds.bottom-90);
@@ -175,7 +176,12 @@ export class DrachenMineNet extends CityAirships{
   // The existing gun crews stay engaged while another rig lays its mines.
   // Per-rig ownership preserves the safe approach earned by support kills.
   this.guns(dt,players);this.netStateAge+=dt;const live=this.live(),target=players.filter(p=>p.alive)[this.netWave%Math.max(1,players.filter(p=>p.alive).length)];
+  const mineDue=this.due('mine-lay',dt,2.5),nativeMines=this.netStateFresh&&this.netState==='mines';
   if(this.netStateFresh){this.netStateFresh=false;if(this.netState==='mines')this.planMines(target,live,bounds);else if(this.netState==='support-aim')this.planSupportAim(players,bounds);else if(this.netState==='delayed-bursts')this.queueSupportBursts();}
+  if(mineDue&&!nativeMines){
+   const supports=['support-aim','delayed-bursts'].includes(this.netState)?live.filter(p=>Number(p.id.at(-1))!==this.aimSupportIndex):live;
+   this.planMines(target,supports.length?supports:live,bounds);
+  }
   this.tickQueues(dt);
   if(this.netState==='mines'&&this.netStateAge>=1.65)this.setNetState('support-aim');
   else if(this.netState==='support-aim'&&this.netStateAge>=1.15)this.setNetState('delayed-bursts');

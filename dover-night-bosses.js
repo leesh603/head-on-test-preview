@@ -1,4 +1,4 @@
-import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {BaseBoss, BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
 
 const freezeParts=parts=>Object.freeze(parts.map(Object.freeze));
 const freezePolys=polys=>Object.freeze(polys.map(poly=>Object.freeze(poly.map(point=>Object.freeze(point)))));
@@ -220,7 +220,7 @@ class DoverAircraft extends BaseBoss {
     bounds||={left:this.x-600,right:this.x+600,top:this.y-600,bottom:this.y+600};
     const oldX=this.x,oldY=this.y,oldA=this.a,oldFlightSpeed=this.flightSpeed;
     const cx=(bounds.left+bounds.right)/2,cy=(bounds.top+bounds.bottom)/2,spanX=Math.max(240,bounds.right-bounds.left),spanY=Math.max(240,bounds.bottom-bounds.top);
-    if(Number.isFinite(this.patrolCenterX)&&dt>0){const measuredX=clamp((cx-this.patrolCenterX)/dt,-260,260),measuredY=clamp((cy-this.patrolCenterY)/dt,-260,260),flowStep=55*dt;this.patrolFlowX+=clamp(measuredX-this.patrolFlowX,-flowStep,flowStep);this.patrolFlowY+=clamp(measuredY-this.patrolFlowY,-flowStep,flowStep);}this.patrolCenterX=cx;this.patrolCenterY=cy;
+    if(Number.isFinite(this.patrolCenterX)&&dt>0){const measuredX=clamp((cx-this.patrolCenterX)/dt,-600,600),measuredY=clamp((cy-this.patrolCenterY)/dt,-600,600),flowStep=55*dt;this.patrolFlowX+=clamp(measuredX-this.patrolFlowX,-flowStep,flowStep);this.patrolFlowY+=clamp(measuredY-this.patrolFlowY,-flowStep,flowStep);}this.patrolCenterX=cx;this.patrolCenterY=cy;
     // The patrol is an attack orbit around the playable airspace. Its centre
     // travels with the camera, while the aircraft adds only a modest relative
     // loop. This keeps the core in a useful firing window instead of making
@@ -237,7 +237,7 @@ class DoverAircraft extends BaseBoss {
     const correctionLimit=far?250:tightOrbit?190:105,ex=tx-this.x,ey=ty-this.y,correction=Math.min(correctionLimit,Math.hypot(ex,ey)*(far?.95:tightOrbit?.95:.48)),errorLength=Math.max(1,Math.hypot(ex,ey)),routeSpeed=far?orbitSpeed*.35:tightOrbit?orbitSpeed*.2:orbitSpeed;
     const desiredX=this.patrolFlowX+tangentX*routeSpeed+ex/errorLength*correction,desiredY=this.patrolFlowY+tangentY*routeSpeed+ey/errorLength*correction,routeGroundSpeed=Math.hypot(desiredX,desiredY);
     // Keep native acquisition aimed at the live pilot while regaining readable space.
-    let want=Number.isFinite(committedAngle)?committedAngle:Math.atan2(desiredY,desiredX),desiredSpeed=Number.isFinite(committedAngle)?Number.isFinite(committedSpeed)?committedSpeed:Math.max(speed,Math.abs(this.patrolFlowX*Math.cos(committedAngle)+this.patrolFlowY*Math.sin(committedAngle))+speed*.35):far&&flow<50?Math.min(speed,routeGroundSpeed):routeGroundSpeed;const regainView=!Number.isFinite(committedAngle)&&!!this.alignIntent&&!this.coreInside(bounds,Math.min(spanX,spanY)*.2)&&!this.phase.startsWith('sortie-');if(regainView){turn=Math.max(turn,1.2);/* A translating viewport can invalidate the escape clearance. Returning to the live target must also cancel escape speed and restore bearing tracking. A stationary view retains the physical stand-off maneuver. */if(flow>0)this.avoidTarget=null;}const attackSteer=!Number.isFinite(committedAngle)&&(regainView?Math.atan2(this.alignIntent.target.y-this.y,this.alignIntent.target.x-this.x)-this.alignIntent.offset:this.steeringAngle());if(Number.isFinite(attackSteer)){want=attackSteer;const target=this.alignIntent?.target||this.avoidTarget,distance=target?Math.hypot(target.x-this.x,target.y-this.y):Infinity;/* Reduce the turn radius while acquiring a mount bearing; full cruise speed can orbit a target forever outside a narrow cannon arc. */desiredSpeed=Math.min(Math.max(desiredSpeed,36),Math.max(36,Math.max(0,(target?.vx||0)*Math.cos(want)+(target?.vy||0)*Math.sin(want))+Math.min(speed*.82,distance*turn*.42)));}if(this.avoidTarget&&Number.isFinite(attackSteer))desiredSpeed=Math.min(260,Math.max(speed*1.3,Math.hypot(this.alignIntent?.target?.vx||0,this.alignIntent?.target?.vy||0)+45));if(recoveryOrbit)desiredSpeed=far?Math.min(220,Math.max(140,routeGroundSpeed)):Math.min(desiredSpeed,Math.max(48,flow+18));else if(attackOrbit)desiredSpeed=Math.min(desiredSpeed,Math.max(80,flow+35));if(far&&!recoveryOrbit&&!Number.isFinite(committedAngle)&&Math.abs(wrap(want-this.a))>.45)desiredSpeed=Math.min(desiredSpeed,Math.max(52,flow+28));
+    let want=Number.isFinite(committedAngle)?committedAngle:Math.atan2(desiredY,desiredX),desiredSpeed=Number.isFinite(committedAngle)?Number.isFinite(committedSpeed)?committedSpeed:Math.max(speed,Math.abs(this.patrolFlowX*Math.cos(committedAngle)+this.patrolFlowY*Math.sin(committedAngle))+speed*.35):far&&flow<50?Math.min(speed,routeGroundSpeed):routeGroundSpeed;const regainView=!Number.isFinite(committedAngle)&&!!this.alignIntent&&!this.coreInside(bounds,Math.min(spanX,spanY)*.2)&&!this.phase.startsWith('sortie-');if(regainView){turn=Math.max(turn,1.2);/* A translating viewport can invalidate the escape clearance. Returning to the live target must also cancel escape speed and restore bearing tracking. A stationary view retains the physical stand-off maneuver. */if(flow>0)this.avoidTarget=null;}const attackSteer=!Number.isFinite(committedAngle)&&(regainView?Math.atan2(this.alignIntent.target.y-this.y,this.alignIntent.target.x-this.x)-this.alignIntent.offset:this.steeringAngle());if(Number.isFinite(attackSteer)){want=attackSteer;const target=this.alignIntent?.target||this.avoidTarget,distance=target?Math.hypot(target.x-this.x,target.y-this.y):Infinity;/* Reduce the turn radius while acquiring a mount bearing; full cruise speed can orbit a target forever outside a narrow cannon arc. */desiredSpeed=Math.min(Math.max(desiredSpeed,36),Math.max(36,Math.max(0,(target?.vx||0)*Math.cos(want)+(target?.vy||0)*Math.sin(want))+Math.min(speed*.82,distance*turn*.42)));}if(this.avoidTarget&&Number.isFinite(attackSteer))desiredSpeed=Math.min(260,Math.max(speed*1.3,Math.hypot(this.alignIntent?.target?.vx||0,this.alignIntent?.target?.vy||0)+45));if(recoveryOrbit)desiredSpeed=far?Math.min(flow+180,Math.max(140,routeGroundSpeed)):Math.min(desiredSpeed,Math.max(48,flow+18));else if(attackOrbit)desiredSpeed=Math.min(desiredSpeed,Math.max(80,flow+35));if(far&&!recoveryOrbit&&!Number.isFinite(committedAngle)&&Math.abs(wrap(want-this.a))>.45)desiredSpeed=Math.min(desiredSpeed,Math.max(52,flow+28));
     if(worldBounds){const marginX=extent.x+36,marginY=extent.y+36,baseX=Number.isFinite(committedAngle)?Math.cos(want)*desiredSpeed:desiredX,baseY=Number.isFinite(committedAngle)?Math.sin(want)*desiredSpeed:desiredY;let wallX=0,wallY=0;if(this.x<worldBounds.left+marginX)wallX=180;if(this.x>worldBounds.right-marginX)wallX=-180;if(this.y<worldBounds.top+marginY)wallY=180;if(this.y>worldBounds.bottom-marginY)wallY=-180;if(wallX||wallY)want=Math.atan2(baseY+wallY,baseX+wallX);}
     this.asymmetryState+=clamp(asymmetry-this.asymmetryState,-.055*dt,.055*dt);this.hullYaw=this.asymmetryState;
     // Follow a rotating live bearing without the steady angular lag of pure pursuit.
@@ -250,7 +250,7 @@ class DoverAircraft extends BaseBoss {
     const wantedTurn=clamp(wrap(want-this.a)*(this.hidden&&this.phase==='sortie-return'?1.6:.72)+bearingRate+(Number.isFinite(committedAngle)?0:this.asymmetryState),-turn,turn),turnAccel=Math.max(.08,turn*.9);
     this.turnVelocity+=clamp(wantedTurn-this.turnVelocity,-turnAccel*dt,turnAccel*dt);this.a=wrap(this.a+this.turnVelocity*dt);
     this.bank=clamp(this.turnVelocity/Math.max(.01,turn)*.78+this.asymmetryState*1.6,-1,1);
-    if(speed<=0)this.flightSpeed=0;else{if(!(this.flightSpeed>0))this.flightSpeed=speed;this.flightSpeed+=clamp(clamp(desiredSpeed,36,285)-this.flightSpeed,-52*dt,52*dt);}
+    if(speed<=0)this.flightSpeed=0;else{if(!(this.flightSpeed>0))this.flightSpeed=speed;this.flightSpeed+=clamp(clamp(desiredSpeed,36,Math.max(285,flow+45))-this.flightSpeed,-52*dt,52*dt);}
     this.x+=Math.cos(this.a)*this.flightSpeed*dt;this.y+=Math.sin(this.a)*this.flightSpeed*dt;
     this.velocityX=(this.x-oldX)/Math.max(.001,dt);this.velocityY=(this.y-oldY)/Math.max(.001,dt);
     if(!Number.isFinite(this.x+this.y+this.a+this.turnVelocity)){this.x=Number.isFinite(oldX)?oldX:cx;this.y=Number.isFinite(oldY)?oldY:cy;this.a=Number.isFinite(oldA)?oldA:-Math.PI/2;this.flightSpeed=Number.isFinite(oldFlightSpeed)?oldFlightSpeed:0;this.turnVelocity=0;this.bank=0;this.hullYaw=0;this.patrolPhase=null;this.patrolFlowX=this.patrolFlowY=0;}
@@ -354,16 +354,17 @@ export class SupermarineNighthawk extends DoverAircraft {
     return true;
   }
   hunt(dt,players,isIlluminated){
-    // Keep the searchlight-linked guns working while the nose is acquiring a
-    // narrow cannon/bomb bearing. A failed acquisition must not consume their beat.
+    // Live forward guns cover acquisition; an illuminated pilot still triggers
+    // the stronger linked burst. Failed arcs never consume the firing beat.
     this.lockFireIn-=dt;
     if(this.lockFireIn<=0){
       const locked=this.partAlive('lamp')?(players||[]).find(p=>p?.alive&&isIlluminated?.(p)):null;
-      if(locked){
+      const target=locked||aliveAt(players,this.targetCursor);
+      if(target&&(this.combatTime||0)>=(this.basicHoldUntil||0)){
         const intent=this.alignIntent,avoid=this.avoidTarget;
         const preferred=this.beat%2?'gun-left':'gun-right',other=preferred==='gun-left'?'gun-right':'gun-left';
-        const id=this.weaponSolution(preferred,locked,false)?preferred:this.weaponSolution(other,locked,false)?other:null;
-        const fired=id&&this.machineBurst(id,locked,true);
+        const id=this.weaponSolution(preferred,target,false)?preferred:this.weaponSolution(other,target,false)?other:null;
+        const fired=id&&this.machineBurst(id,target,!!locked);
         this.alignIntent=intent;this.avoidTarget=avoid;this.lockFireIn=fired?1.15:.18;
       }else this.lockFireIn=.18;
     }

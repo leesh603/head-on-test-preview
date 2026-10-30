@@ -1,5 +1,5 @@
-import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=headon-result339-20261028&ai=1018';
-import {fx} from './fx-art.js?v=headon-result339-20261028';
+import {TRENCH_ARMOR_LAYOUT} from './trench-armor-layout.js?v=tame3&ai=1018';
+import {fx} from './fx-art.js?v=tame3';
 // Sample the actual hull's steel plates, not a separately scaled generic belt.
 // Coordinates are in the authored 640px hull. Rails and track ends stay fixed.
 export const TREAD_PROFILES=Object.freeze({

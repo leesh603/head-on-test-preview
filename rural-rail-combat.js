@@ -1,9 +1,10 @@
-import {RailAdapter} from './boss-adapters129.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {BaseBoss,predictPilot} from './headon-stageboss-core.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=headon-result339-20261028';
-import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=headon-result339-20261028';
-import {brunoSalvo} from './bruno-raid.js?v=headon-result339-20261028&rail=40';
-import {lincomparableRound} from './lincomparable-raid.js?v=headon-result339-20261028&ring=1023';
+import {RailAdapter} from './boss-adapters129.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {BaseBoss,predictPilot} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=tame3';
+import {createRailArtillery,aimRailArtillery,fireRailArtillery,updateRailArtillery} from './rural-rail-artillery.js?v=tame3';
+import {brunoSalvo} from './bruno-raid.js?v=tame3&rail=40';
+import {lincomparableRound} from './lincomparable-raid.js?v=tame3&ring=1023';
+import {railMunition,railSalvoBeat,railMunitionHazards} from './rural-rail-munitions.js';
 
 // Rural-only mechanics. The Cambrai carrier keeps its separate controller.
 export class RuralRailBoss extends RailAdapter {
@@ -153,22 +154,28 @@ export class RuralRailBoss extends RailAdapter {
  // The whole wave is laid out at once so the march reads as a domino: every
  // marker shows immediately and the shells land on the gun's firing beat.
  fireBarrage(plan){
-  const interval=plan.interval||this.t.barrageInterval||.32;
+  const interval=plan.interval||this.t.barrageInterval||.32,munition=railMunition(this.railGun.shotCount,plan.final);
   fireRailArtillery(this);
-  plan.points.forEach((p,i)=>this.emit({type:'hazard',bossId:this.id,kind:'circle',...p,warning:(plan.warning??.85)+i*interval,delay:0,duration:plan.duration??.35,once:true,radius:plan.radius??88,damage:this.t.damage*(i===plan.points.length-1?2.4:1),raidHeavy:i===plan.points.length-1,visual:'rail-shell',tag:plan.final?this.id+':iron-rain':this.kind==='paris-gun'?this.id+':bruno-salvo':null}));
+  plan.points.forEach((p,i)=>this.emit({type:'hazard',bossId:this.id,kind:'circle',...p,warning:(plan.warning??.85)+railSalvoBeat(i,plan.points.length,munition)*interval,delay:0,duration:plan.duration??.35,once:true,radius:plan.radius??88,damage:this.t.damage*(i===plan.points.length-1?2.4:1),raidHeavy:i===plan.points.length-1,visual:'rail-shell',tag:plan.final?this.id+':iron-rain':this.kind==='paris-gun'?this.id+':bruno-salvo':null}));
+  this.fireMunition(plan,munition);
   // The volley ends when the gun's last shot leaves the barrel; the trailing
   // markers still count down on their own.
   this.barrage={...plan,index:1,clock:0,total:(plan.points.length-1)*interval+.02};
  }
  fire520(plan){
-  const target={x:plan.target.x,y:plan.target.y},tag=this.id+(plan.final?':last-520':':520-round');
+  const target={x:plan.target.x,y:plan.target.y},tag=this.id+(plan.final?':last-520':':520-round'),munition=railMunition(this.railGun.shotCount,plan.final);
   const emit=spec=>this.emit({type:'hazard',bossId:this.id,kind:'circle',tag,...spec});
   emit({...target,warning:.02,delay:0,duration:plan.centerDuration,once:true,radius:plan.radius,damage:this.t.damage*2.4,raidHeavy:true,visual:'rail-shell'});
   emit({...target,warning:plan.waveWarning,delay:plan.waveDelay,duration:plan.waveDuration,once:true,radius:plan.wave,radiusStart:plan.start,radiusLimit:plan.wave,ringWidth:42,ringSpeed:(plan.wave-plan.start)/plan.waveDuration,damage:this.t.damage*1.6,raidHeavy:true,visual:'rural-rail-shock'});
-  emit({...plan.smoke,warning:plan.smokeWarning,delay:plan.smokeDelay,duration:plan.smokeDuration,once:false,tickInterval:.7,damage:this.t.damage*.22,visual:'rural-rail-smoke'});
-  // The expanding pressure front is the secondary attack. Do not add radial
-  // bullets: hiding their art would leave invisible damage beyond the wave.
+  if(munition!=='gas')emit({...plan.smoke,warning:plan.smokeWarning,delay:plan.smokeDelay,duration:plan.smokeDuration,once:false,tickInterval:.7,damage:this.t.damage*.22,visual:'rural-rail-smoke'});
+  // The native pressure front keeps its timing; alternate shells add their
+  // own visible, warned effects below.
   fireRailArtillery(this);
+  this.fireMunition(plan,munition);
+ }
+ fireMunition(plan,munition){
+  const tag=this.id+(this.kind==='paris-gun'?':bruno-salvo':':520-round');
+  for(const spec of railMunitionHazards(this.kind,plan,munition,this,this.frameBounds))this.emit({...spec,type:'hazard',bossId:this.id,tag,damage:this.t.damage*spec.damage});
  }
  onPartDestroyed(p){
   if(p.kind!=='rail-car')return;

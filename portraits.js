@@ -3,18 +3,32 @@ export const portraitSources={};
 // Per-pilot load tracking so the hangar gate can wait on just the portraits it shows.
 export const portraitLoaded=new Map();
 const legacyPortraits=['baron','voss','boelcke','immelmann','udet','fonck','collishaw','baracca','guynemer','bishop','goering','mannock','mckeever','huffzky','hawker','berthold','jacobs','rickenbacker','ball','barker','luke','brumowski','gontermann'];
-for(const id of legacyPortraits){const key=id==='mckeever'?'mckeever-powell129':id;portraitSources[id]=`./portrait-${key}.webp?v=headon-result339-20261028&b=bust2`;}
+for(const id of legacyPortraits){const key=id==='mckeever'?'mckeever-powell129':id;portraitSources[id]=`./portrait-${key}.webp?v=tame3&b=bust2`;}
 
 const NEW_ACE_PORTRAITS=['wolff','loewenhardt','mccudden','nungesser','lothar','sachsenberg','proctor','schleich','lufbery'];
-for(const id of NEW_ACE_PORTRAITS)portraitSources[id]=`./portrait-${id}-field.webp?v=headon-result339-20261028&b=bust2`;
-for(const id of ['huffzky','mckeever'])portraitSources[id]=`./portrait-${id==='mckeever'?'mckeever-powell129':id}.webp?v=headon-result339-20261028`;
+for(const id of NEW_ACE_PORTRAITS)portraitSources[id]=`./portrait-${id}-field.webp?v=tame3&b=bust2`;
+for(const id of ['huffzky','mckeever'])portraitSources[id]=`./portrait-${id==='mckeever'?'mckeever-powell129':id}.webp?v=crew20261024`;
+for(const id of ['navarre','frommherz'])portraitSources[id]=`./portrait-${id}.webp?v=navarre-frommherz-20261027`;
 export const portraitThumbnailSources={};
+// Load weight: surfaces use a 960px copy (portrait-sized/) and roster circles a 224px thumbnail
+// (portrait-thumbs/). The authored originals stay for the full-size lightbox only.
+export const portraitOriginalSources={...portraitSources};
+for(const [id,src] of Object.entries(portraitSources)){const [file,q]=src.replace(/^\.\//,'').split('?');portraitSources[id]=`./portrait-sized/${file}?${q}&opt=1`;portraitThumbnailSources[id]=`./portrait-thumbs/${file}?${q}&opt=1`;}
+// Thumbnail only: the hangar gate waits on these for the roster; the selected pilot's
+// full portrait is requested separately.
+export const portraitThumbLoaded=new Map();
+export function ensurePortraitThumb(id){
+ const src=portraitThumbnailSources[id];if(!src)return Promise.resolve(false);
+ if(!portraitThumbLoaded.has(id))portraitThumbLoaded.set(id,new Promise(resolve=>{if(typeof Image==='undefined'){resolve(true);return;}const img=new Image();img.decoding='async';img.onload=()=>resolve(true);img.onerror=()=>resolve(false);img.src=src;if(img.complete&&img.naturalWidth)resolve(true);}));
+ return portraitThumbLoaded.get(id);
+}
 export const portraitThumbnailSource=id=>portraitThumbnailSources[id]||portraitSources[id];
 // The lobby requests its selected/visible pilots. Reusing the promise avoids
 // duplicate downloads when several surfaces request the same portrait.
 export function ensurePortrait(id){
  if(!portraitSources[id])return Promise.resolve(false);
- if(!portraitLoaded.has(id))portraitLoaded.set(id,Promise.all([...new Set([portraitSources[id],portraitThumbnailSource(id)])].map(source=>new Promise(resolve=>{
+ // Full (960px) portrait only; roster thumbnails load through ensurePortraitThumb.
+ if(!portraitLoaded.has(id))portraitLoaded.set(id,Promise.all([portraitSources[id]].map(source=>new Promise(resolve=>{
   if(typeof Image==='undefined'){resolve(true);return;}
   const img=new Image();img.decoding='async';
   img.onload=()=>resolve(true);img.onerror=()=>resolve(false);img.src=source;

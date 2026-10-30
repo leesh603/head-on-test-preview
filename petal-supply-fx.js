@@ -1,7 +1,7 @@
 // Material animation only. The engine owns every petal, drop and accepted heal.
 const clamp=n=>Math.max(0,Math.min(1,n));
 const art=new Map();
-export const materialArtReady=Promise.all(['petal-0','petal-1','petal-2','petal-3','petal-4','petal-5','supply-0'].map(key=>new Promise(resolve=>{
+export const materialArtReady=Promise.all(['petal-0','petal-1','petal-2','petal-3','petal-4','petal-5','supply-0','mccudden-repair-kit-256'].map(key=>new Promise(resolve=>{
  if(typeof Image==='undefined'){resolve(false);return;}
  const im=new Image();art.set(key,im);im.onload=()=>resolve(true);im.onerror=()=>resolve(false);im.src=new URL('./pilot-material-art/'+key+'.webp',import.meta.url).href;
 })));
@@ -31,16 +31,17 @@ export function supplyMaterialPose(d){
  const fall=clamp((d.fallTime||0)/.65),q=1-fall;
  // A compact repair parcel separates from the aircraft; its centre stays on
  // the engine's actual pickup. No canopy opens over the flying aircraft.
- return {fall,q,lift:fall*10,size:30+fall*4,angle:(d.dropHeading||0)*.12+Math.sin(q*Math.PI)*.12,alpha:clamp((d.life??25)/1.2)};
+ const turn=Math.sin(q*Math.PI*1.6)*fall;
+ return {fall,q,lift:fall*24,size:30+fall*10,angle:(d.dropHeading||0)*.12+turn*.42,fold:1-Math.sin(q*Math.PI)**2*fall*.27,alpha:clamp((d.life??25)/1.2)};
 }
 export function drawMaterialSupply(c,d,x,y){
  if(d.dead)return false;
  const pose=supplyMaterialPose(d);
  sprite(c,'supply-0',x+3,y+4,pose.size*.9,pose.angle,.16*pose.alpha,[.5,.5],.8);
- return sprite(c,'supply-0',x,y-pose.lift,pose.size,pose.angle,pose.alpha);
+ return sprite(c,'supply-0',x,y-pose.lift,pose.size,pose.angle,pose.alpha,[.5,.5],pose.fold);
 }
 export function drawRepairRecovery(c,p,x,y){
  if(!(p.hp>0&&p.mccuddenRepairFlash>0))return false;
- const q=clamp(1-p.mccuddenRepairFlash/.4),a=p.a||0;
- return sprite(c,'supply-0',x-Math.cos(a)*18-Math.sin(a)*24,y-Math.sin(a)*18+Math.cos(a)*24,28*(1-q*.45),a*.12,(1-q)**.7,[.5,.5],1-q*.45);
+ const q=clamp(1-p.mccuddenRepairFlash/.4),a=p.a||0,side=30-q*9,back=14+q*7;
+ return sprite(c,'mccudden-repair-kit-256',x-Math.cos(a)*back-Math.sin(a)*side,y-Math.sin(a)*back+Math.cos(a)*side,26*(1-q*.45),a*.12,(1-q)**.7,[.5,.5],1-q*.35)||sprite(c,'supply-0',x-Math.cos(a)*back-Math.sin(a)*side,y-Math.sin(a)*back+Math.cos(a)*side,28*(1-q*.45),a*.12,(1-q)**.7);
 }

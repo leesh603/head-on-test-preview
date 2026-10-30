@@ -14,7 +14,7 @@ function loadDirectIcon(file,key){return new Promise(resolve=>{const icon=new Im
  c.putImageData(pixels,0,0);let l=w,r=0,t=h,b=0;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>0){l=Math.min(l,x);r=Math.max(r,x);t=Math.min(t,y);b=Math.max(b,y)}frames.set(key,{atlas:canvas,x:l,y:t,w:r-l+1,h:b-t+1,smooth:true,direct:true});
  }else frames.set(key,{atlas:icon,x:0,y:0,w:icon.naturalWidth,h:icon.naturalHeight,smooth:true,direct:true});resolve(true)};icon.onerror=()=>resolve(false);icon.src=file})}
 const DIRECT_ICONS=Object.freeze({
- precisionSynchronizer:'synchronization_gear.webp',directFuse:'le_prieur_rocket_launcher.webp',fragmentationFuse:'grenade_throwing_gear.webp',inertiaRetainer:'laminated_wood_propeller.webp',maneuverSpring:'co_5_17_aero_compass.webp',emergencyPlating:'j_type_armor_capsule.webp',emergencyDope:'mechanics_oil_pump.webp',
+ precisionSynchronizer:'rare_precision_synchronizer_20261029.webp',directFuse:'rare_direct_fuse_20261029.webp',fragmentationFuse:'rare_fragmentation_fuse_20261029.webp',inertiaRetainer:'rare_inertia_retainer_20261029.webp',maneuverSpring:'rare_maneuver_spring_20261029.webp',emergencyPlating:'rare_emergency_plating_20261029.webp',emergencyDope:'rare_emergency_dope_20261029.webp',
  strutterAirbrake:'strutter_airbrake.webp',wimperisSight:'wimperis_sight.webp',
  buckinghamBelt:'buckingham_belt.webp',cooperRack:'cooper_rack.webp',fieryGrapnel:'fiery_grapnel.webp',flechettes:'flechettes.webp',veryPistol:'very_pistol.webp',hytheCamera:'hythe_camera_v2.webp',
  'cooldown-central':'medal_general_central.webp','cooldown-entente':'medal_general_entente.webp',
@@ -29,12 +29,12 @@ const DIRECT_ICONS=Object.freeze({
  urLeica:'ur_leica_camera.webp',badinGauge:'badin_gauge.webp',heineckeRettungsfallschirm:'heinecke_rettungsfallschirm.webp',bomberTransfer:'bomber_squadron_transfer_orders.webp',mgTransfer:'concentrated_firepower_refit_orders.webp',airshipTransfer:'airship_mobilization_orders.webp'
 });
 const atlasReady=Promise.all([
- loadIconAtlas('./icons51.webp?v=headon-result339-20261028',5,4,keys,true),
- loadIconAtlas('./controls53.webp?v=headon-result339-20261028',2,2,['control','turn','command','cooldown']),
- loadIconAtlas('./special-ammo-icons92.webp?v=headon-result339-20261028',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
- loadIconAtlas('./legendary-icons103.webp?v=headon-result339-20261028',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
- loadIconAtlas('./gun-atlas114.webp?v=headon-result339-20261028',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
- loadIconAtlas('./legendary-icons109.webp?v=headon-result339-20261028',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
+ loadIconAtlas('./icons51.webp?v=tame3',5,4,keys,true),
+ loadIconAtlas('./controls53.webp?v=tame3',2,2,['control','turn','command','cooldown']),
+ loadIconAtlas('./special-ammo-icons92.webp?v=tame3',2,2,['ammo-incendiary','ammo-armorPiercing','ammo-tracer','ammo-explosive'],true),
+ loadIconAtlas('./legendary-icons103.webp?v=tame3',3,1,['boelckeDicta','fogCompass','rearGunner'],true),
+ loadIconAtlas('./gun-atlas114.webp?v=tame3',4,1,['gun-vickers','gun-spandau','gun-lewis','gun-parabellum'],true),
+ loadIconAtlas('./legendary-icons109.webp?v=tame3',6,1,['goeringBaton','motorCannon','quadLewis','cow37','rankinShell','kaiserFog'],true),
  loadIconAtlas('./relic-maxim-belt128.webp',1,1,['maximBelt'],true),
  loadIconAtlas('./relic-steel-plate128.webp',1,1,['steelPlate'],true),
  loadIconAtlas('./relic-immelmann-manual128.webp',1,1,['immelmannManual'],true),
@@ -45,10 +45,11 @@ const atlasReady=Promise.all([
 // (several MB) load behind them and are only drawn in battle.
 const HANGAR_ICONS=new Set(['cooldown-central','cooldown-entente','emblemCentral','emblemEntente']);
 const directIconReady=new Map();
-const directLoads=Object.entries(DIRECT_ICONS).map(([key,file])=>{const ready=loadDirectIcon('./augmentation-icons/'+file+'?v=headon-result339-20261028',key);directIconReady.set(key,ready);return ready.then(ok=>[key,ok])});
+function directIconUrl(key){const file=DIRECT_ICONS[key];return './'+(file.startsWith('rare_')?'augmentation-icons':'augmentation-icons-384')+'/'+file+'?v=tame3'}
+const directLoads=Object.keys(DIRECT_ICONS).map(key=>{const ready=loadDirectIcon(directIconUrl(key),key);directIconReady.set(key,ready);return ready.then(ok=>[key,ok])});
 // A visible card must not wait for unrelated equipment downloads to repaint.
 export function gameIconReady(key){
- const atlas=atlasIconReady.get(key),file=DIRECT_ICONS[key]?'./augmentation-icons/'+DIRECT_ICONS[key]+'?v=headon-result339-20261028':atlas?.file;
+ const atlas=atlasIconReady.get(key),file=DIRECT_ICONS[key]?directIconUrl(key):atlas?.file;
  if(file&&typeof window!=='undefined')window.HEADON_GATE?.raise([file]);
  return directIconReady.get(key)||atlas?.ready||atlasReady;
 }

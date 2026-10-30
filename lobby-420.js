@@ -1,16 +1,16 @@
-import {portraitThumbnailSource} from './portraits.js?v=headon-result339-20261028';
+import {portraitThumbnailSource} from './portraits.js?v=crew20261024&opt=1';
 /* Phone lobby (420). Presentation only: the key art and logo own the screen,
    the selected aircraft is named under them, then mode tabs, the sortie
    button and a bottom tab bar. Pilot/aircraft choice moves to the "에이스"
    tab, which simply re-shows the existing hangar rows. Every action is routed
    to the existing controls; nothing here owns game state. */
-import {aircraftKey} from './aircraft.js?v=headon-result339-20261028&art=pilot-recovery2&pf=1027';
-import {hangarArt, hangarArtLayout} from './hangar-art.js?v=headon-result339-20261028&art=pilot-recovery2';
+import {aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1';
+import {hangarArt, hangarArtLayout} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
 // Same module instances as app.js (identical URLs), read-only: locked aircraft show their real ratings.
-import {PLANES} from './engine.js?v=headon-result339-20261028&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
-import {aircraftFeelRatings} from './aircraft-feel174.js?v=headon-result339-20261028';
-import {t} from './i18n.js?v=headon-result339-20261028&afc=1&art=pilot-recovery2';
-import {waitForLobbyIcons} from './lobby-assets-ready.js?v=headon-result339-20261028';
+import {PLANES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
+import {aircraftFeelRatings} from './aircraft-feel174.js?v=gal1';
+import {t} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {waitForLobbyIcons} from './lobby-assets-ready.js?v=lobbygate2';
 const mq = matchMedia('(max-width:720px)');
 const $ = id => document.getElementById(id);
 const en = () => document.documentElement.lang === 'en';
@@ -28,7 +28,7 @@ const putAircraftName=(node,text)=>{
  node.style.setProperty('font-size',max+'px','important');
  const size=Math.min(max,Math.floor(max*width/Math.max(width,node.scrollWidth)*10)/10);
  node.style.setProperty('font-size',size+'px','important');node.dataset.aircraftFit=key;
-};const ICON = { ranking: 'lobby-ic-ranking420.webp?v=headon-result339-20261028', aces: 'lobby-ic-aces420.webp?v=headon-result339-20261028', medals: 'lobby-ic-medals420.webp?v=headon-result339-20261028', home: 'lobby-ic-home420.webp?v=headon-result339-20261028' };
+};const ICON = { ranking: 'lobby-ic-ranking420.webp?v=lobby1', aces: 'lobby-ic-aces420.webp?v=lobby1', medals: 'lobby-ic-medals420.webp?v=lobby1', home: 'lobby-ic-home420.webp?v=lobby1' };
 const LOCK = '<svg viewBox="0 0 12 14" aria-hidden="true"><path d="M3 6V4a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="1.5" y="6" width="9" height="7" rx="1.2" fill="currentColor"/></svg>';
 
 // Roster labels identify the ace, including siblings and both crew members.
@@ -93,7 +93,7 @@ function install() {
   const chipImg = el('img'); chipImg.alt = ''; const chipCopy = el('span'); const chipName = el('b'), chipSub = el('small');
   chipCopy.append(chipName, chipSub); chip.append(chipImg, chipCopy);
   const gear = el('button', 'lobby-settings'); gear.type = 'button';
-  gear.append(Object.assign(el('img'), { src: 'lobby-ic-settings420.svg?v=headon-result339-20261028', alt: '' }));
+  gear.append(Object.assign(el('img'), { src: 'lobby-ic-settings420.svg?v=lobby1', alt: '' }));
   top.append(chip, gear);
 
 
@@ -214,14 +214,25 @@ function install() {
     }
     const tabs = [...$('pilotTabs').querySelectorAll('[data-pilot-id]')];
     put(q('.lap-count'), String(tabs.length));
-    const gridKey = tabs.map(b => b.dataset.pilotId + (b.classList.contains('active') ? '*' : '') + (b.disabled ? '!' : '')).join() + document.documentElement.lang;
+    // Keep decoded thumbnail nodes when only selection/unlock state changes.
+    const gridKey = tabs.map(b => b.dataset.pilotId).join() + document.documentElement.lang;
     if (q('.lap-grid').dataset.k !== gridKey) {
       q('.lap-grid').dataset.k = gridKey;
       q('.lap-grid').replaceChildren(...tabs.map(b => { const c = el('button', (b.classList.contains('active') ? 'on' : '') + (b.disabled ? ' lock' : '')); c.type = 'button'; c.dataset.pick = b.dataset.pilotId; c.disabled = b.disabled; c.title = b.title;
         const label = b.querySelector('.pilot-tab-label')?.textContent.trim() || '';
         c.setAttribute('aria-label', label); if (!c.title) c.title = label;
-        const img = el('img'); img.alt = ''; img.src = b.querySelector('img')?.src || ''; const s = el('span'); s.textContent = mobilePilotName420(b.dataset.pilotId, label, document.documentElement.lang); c.append(img, s); return c; }));
+        const img = el('img'); img.alt = ''; img.src = b.querySelector('.pilot-tab-portrait')?.src || ''; const s = el('span'); s.textContent = mobilePilotName420(b.dataset.pilotId, label, document.documentElement.lang); c.append(img, s); return c; }));
     }
+    tabs.forEach((b,i)=>{
+      const c=q('.lap-grid').children[i];
+      const active=b.classList.contains('active');
+      if(c.classList.contains('on')!==active)c.classList.toggle('on',active);
+      if(c.classList.contains('lock')!==b.disabled)c.classList.toggle('lock',b.disabled);
+      if(c.disabled!==b.disabled)c.disabled=b.disabled;
+      const label=b.getAttribute('aria-label')||b.querySelector('.pilot-tab-label')?.textContent.trim()||'',title=b.title||label;
+      if(c.title!==title)c.title=title;
+      if(c.getAttribute('aria-label')!==label)c.setAttribute('aria-label',label);
+    });
   };
 
   const setAces = open => { document.body.classList.toggle('lobby-aces', open); tAces.classList.toggle('on', open); tAces.setAttribute('aria-pressed', String(open)); if (open) { scrollTo(0, 0); ap.scrollTop = 0; } };

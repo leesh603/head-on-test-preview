@@ -1,6 +1,6 @@
 // Small cached compositions of approved painted artwork, never collision geometry.
 // Ordinary rounds remain one continuous luminous tracer, never physical ordnance.
-import {fxReady,fxTint} from './fx-art.js?v=headon-result339-20261028';
+import {fxReady,fxTint} from './fx-art.js?v=tame3';
 const P=(core,wake,shape,length=26,width=4)=>Object.freeze({core,wake,shape,length,width});
 export const GUN_SIGNATURES=Object.freeze({
  standard:P('#e8c981','#d6a551','capsule',20,2.8),
@@ -17,21 +17,21 @@ export const GUN_SIGNATURES=Object.freeze({
  reinforcement:P('#b9d3a0','#6b9271','capsule',23,3.5),
  eliteWing:P('#b8e7d6','#78b49f','teardrop',28,4),
  scout:P('#ffd4b8','#e86d55','orb',9,5.2),
- hunter:P('#e7b8e9','#a462ad','needle',31,3.6),
+ hunter:P('#f4d9f0','#a462ad','needle',24,4.4),
  bomber:P('#fff0b0','#dfb64b','capsule',15,5.2),
  heavyBomber:P('#ffe8b4','#d3a068','orb',12,7),
  elite:P('#f1c8ff','#bf68c8','teardrop',17,6),
  boss:P('#ffd6cc','#db5268','capsule',22,5),
- groundMG:P('#c9ced5','#7b91a3','comet',28,4.8),
- groundStrong:P('#dedbc6','#a28b77','teardrop',34,6.5),
+ groundMG:P('#f8e0cb','#7b91a3','comet',22,5.4),
+ groundStrong:P('#fff0ce','#a28b77','teardrop',27,6.5),
  bossStrong:P('#fff0c4','#ed8d58','teardrop',23,7),
- zeppelin:P('#d3d8a0','#919d50','soft',27,5),
- naval:P('#c4cedd','#877b98','comet',28,5),
+ zeppelin:P('#f5ecc6','#919d50','soft',21,5.6),
+ naval:P('#f2e3d3','#877b98','comet',22,5.6),
  balloon:P('#dfbc87','#aa794c','capsule',19,5),
  flak:P('#ffe3ba','#d5996c','orb',10,6),
- acePrecision:P('#d0d5f4','#878dc1','comet',34,4),
+ acePrecision:P('#e8e8ff','#878dc1','comet',26,4.8),
  aceAssault:P('#f8bb9b','#c24e40','teardrop',30,5),
- aceDuel:P('#d8b2e9','#995ea6','soft',28,4.5),
+ aceDuel:P('#f1d2fa','#995ea6','soft',22,5.2),
  aceCommand:P('#f4f0b3','#bec45c','orb',11,6)
 });
 const precisionAces=new Set(['fonck','bishop','guynemer','mccudden']);
@@ -65,11 +65,14 @@ function compose(id,enemy,combo){
  // Same approved tracer core/glow as the original renderer, always on one axis.
  // The small bright portion overlaps the long core, so it cannot read as a
  // separate projectile. Differences are radiant profile, taper and colour.
- if(fxReady('tracerGlow'))fxTint(c,'tracerGlow',enemy?'#a94045':p.wake,-L*.5,0,L*(drop?1.18:1.08),wide*(p.shape==='soft'?2.2:1.7),0,enemy?.25:.18);
+ if(fxReady('tracerGlow'))fxTint(c,'tracerGlow',enemy?'#a94045':p.wake,-L*.5,0,L*(enemy?(drop?1.08:1.04):(drop?1.18:1.08)),wide*(enemy?(p.shape==='soft'?1.7:1.5):(p.shape==='soft'?2.2:1.7)),0,enemy?.14:.18);
  c.save();
  if(p.shape==='orb'){c.beginPath();c.ellipse(-L*.5,0,L*.5,wide*.5,0,0,Math.PI*2);c.clip();}
  else if(p.shape==='teardrop'){c.beginPath();c.moveTo(-L,0);c.bezierCurveTo(-L*.5,-wide*.24,-L*.12,-wide*.8,0,0);c.bezierCurveTo(-L*.12,wide*.8,-L*.5,wide*.24,-L,0);c.closePath();c.clip();}
- fxTint(c,'tracerCore',p.wake,-L*.5,0,L,wide*(needle?.55:drop?.8:1),0,.96);
+ // A close dark underpaint follows the authored silhouette, separating its
+ // luminous centre from bright terrain without a ring or detached danger mark.
+ if(enemy)fxTint(c,'tracerCore','#4b242a',-L*.5,0,L*1.04,wide*1.35,0,.9);
+ fxTint(c,'tracerCore',p.wake,-L*.5,0,L,wide*(needle?(enemy?.7:.55):drop?(enemy?.85:.8):1),0,.96);
  const tip=needle?L*.55:drop?L*.45:p.shape==='orb'?L*.85:L*.7;
  fxTint(c,'tracerCore',p.core,-tip*.5,0,tip,wide*(needle?.4:drop?.85:p.shape==='orb'?.78:.52),0,.98);c.restore();
  if(combo)accent(c,null,combo);
@@ -77,8 +80,10 @@ function compose(id,enemy,combo){
 }
 export function drawGunSignature(c,b,x,y,screenScale=1){
  const id=gunSignatureId(b);if(!id)return false;const cv=compose(id,!!b.enemy,b.projectileCombo);if(!cv)return false;
- const k=b.enemy&&b.visualType==='boss'?Math.max(1,1/Math.max(.65,screenScale)):1;
- c.save();c.translate(x,y);c.rotate(Math.atan2(b.vy,b.vx));c.scale(k,k);c.drawImage(cv,-54,-10,64,20);c.restore();return true;
+ // Zoom compensation widens only hostile bodies; stretching the entire wake
+ // previously made boss fire look like beams while ordinary rounds vanished.
+ const k=b.enemy?Math.max(1,1/Math.max(.65,screenScale)):1;
+ c.save();c.translate(x,y);c.rotate(Math.atan2(b.vy,b.vx));c.scale(Math.min(k,1.12),k);c.drawImage(cv,-54,-10,64,20);c.restore();return true;
 }
 // Distinct active-combination wakes. Repair/egress have no projectile entry.
 export const COMBO_WAKES=Object.freeze({

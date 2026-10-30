@@ -1,5 +1,6 @@
 // Sortie-local choices; never enter the upgrade or special-equipment pool.
 import {WWI_EQUIPMENT} from './wwi-equipment.js';
+import {FLIGHT_EQUIPMENT} from './flight-equipment.js';
 import {SPECIAL_DOCTRINES} from './airframe-doctrines.js';
 export {SPECIAL_DOCTRINES};
 export const TACTICAL_FAMILIES=Object.freeze(['GUN','SPEED','EXPLOSIVE','FORMATION','SURVIVAL']);
@@ -88,7 +89,7 @@ export function selectTactical(p,id){
  }
  p.event?.('tacticalAdopted',id);return true;
 }
-const equipmentFamilies=Object.freeze({...Object.fromEntries(WWI_EQUIPMENT.map(e=>[e.id,[e.family]])),amatolCharge:['EXPLOSIVE'],motorCannon:['EXPLOSIVE'],bomberTransfer:['EXPLOSIVE'],mgTransfer:['GUN'],airshipTransfer:['FORMATION'],aceWingman:['FORMATION'],lufberyCircle:['FORMATION','SURVIVAL'],goeringBaton:['FORMATION'],redScarf:['SPEED'],prancingHorse:['SPEED','SURVIVAL'],sacredCowling:['GUN','SURVIVAL'],immelmannManual:['SPEED'],flightGloves:['GUN','EXPLOSIVE'],telescope:['GUN'],quadLewis:['GUN'],maximBelt:['GUN'],rearGunner:['GUN'],sparkPlug:['SURVIVAL'],steelPlate:['SURVIVAL'],rankinShell:['EXPLOSIVE','SURVIVAL'],kaiserFog:['SURVIVAL'],fogCompass:['SURVIVAL'],mauserAceKiller:['GUN','EXPLOSIVE'],cow37:['GUN','EXPLOSIVE'],badinGauge:['SPEED','GUN'],heineckeRettungsfallschirm:['SURVIVAL'],ironCross:['SURVIVAL'],grunkreuz:['SURVIVAL'],loEmblem:['GUN','FORMATION'],boelckeDicta:[],urLeica:[]});
+const equipmentFamilies=Object.freeze({...Object.fromEntries([...WWI_EQUIPMENT,...FLIGHT_EQUIPMENT].map(e=>[e.id,[e.family]])),amatolCharge:['EXPLOSIVE'],motorCannon:['EXPLOSIVE'],bomberTransfer:['EXPLOSIVE'],mgTransfer:['GUN'],airshipTransfer:['FORMATION'],aceWingman:['FORMATION'],lufberyCircle:['FORMATION','SURVIVAL'],goeringBaton:['FORMATION'],redScarf:['SPEED'],prancingHorse:['SPEED','SURVIVAL'],sacredCowling:['GUN','SURVIVAL'],immelmannManual:['SPEED'],flightGloves:['GUN'],telescope:['GUN'],quadLewis:['GUN'],maximBelt:['GUN'],rearGunner:['GUN'],sparkPlug:['SURVIVAL'],steelPlate:['SURVIVAL'],rankinShell:['EXPLOSIVE','SURVIVAL'],kaiserFog:['SURVIVAL'],fogCompass:['SURVIVAL'],mauserAceKiller:['GUN','EXPLOSIVE'],cow37:['GUN','EXPLOSIVE'],badinGauge:['SPEED','GUN'],heineckeRettungsfallschirm:['SURVIVAL'],ironCross:['SURVIVAL'],grunkreuz:['SURVIVAL'],loEmblem:['GUN','FORMATION'],boelckeDicta:[],urLeica:[]});
 export function tacticalEquipmentFamilies(id){return equipmentFamilies[id]||[];}
 export function tacticalFollowupWeight(p,id,family){
  let weight=1;for(const d of TACTICAL_DOCTRINES)if(p.weaponMods?.[d.family]===d.value&&d.followups.includes(id))weight+=.22;

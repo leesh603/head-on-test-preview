@@ -557,5 +557,51 @@
     ],
     "preCrewSha256": "0557809a8443dcf788c1b485b528c7b7d757515c3db61aa0be87dd3fe8af01e6",
     "postprocess": "source-art/crew-release-20261026/baked-manifest.json"
+  },
+  "navarre_nieuport11": {
+    "source": "source-art/airframe-families-20261023/approved-20261027/navarre_nieuport11.png",
+    "sourceSha256": "cd80bc6d33c13256338d6dffebcf3d2f5d881a11c2773eff84add78866bddbbc",
+    "newArt": true,
+    "flightSize": [
+      288,
+      320
+    ],
+    "flightBytes": 28610,
+    "sha256": "6678f40ecab5833a4a5aede660787531971ae2e9940d5a7a3f1e737ded170a2d",
+    "pivot": [
+      144,
+      152
+    ],
+    "outlineBaked": true,
+    "crewBaked": true,
+    "hangarSize": [
+      288,
+      320
+    ],
+    "approvedSourceReference": "output/historical-aces-49-52/49.png",
+    "nativeHangarPixels": true
+  },
+  "frommherz_albatros_d3": {
+    "source": "source-art/airframe-families-20261023/approved-20261027/frommherz_albatros_d3.png",
+    "sourceSha256": "7ca6b2904fc15d26266c81982f464408af8611dabd54015801c073abb51505fb",
+    "newArt": true,
+    "flightSize": [
+      288,
+      320
+    ],
+    "flightBytes": 34384,
+    "sha256": "8b672922d44eb315e8c400265f7e0becad59b358ef9e60ab9e972e4ffc22939d",
+    "pivot": [
+      144,
+      152
+    ],
+    "outlineBaked": true,
+    "crewBaked": true,
+    "hangarSize": [
+      288,
+      320
+    ],
+    "approvedSourceReference": "output/historical-aces-56-57/56.png",
+    "nativeHangarPixels": true
   }
 }

@@ -4,3 +4,8 @@
   background:linear-gradient(180deg,#0b0b0a66 0,#0b0b0a00 12%,#0b0b0a00 48%,#0b0b0ab3 68%,#0b0b0a 88%),var(--ho-keyart) 50% 0/100% auto no-repeat,#0b0b0a!important;
  }
 }
+/* These two approved cutout portraits are square, not cinematic paintings.
+   Preserve the full face/shoulder silhouette instead of the legacy 138% crop. */
+body.lobby420.astra-ui:not(.playing) #hangar:is([data-pilot-keyart="navarre"],[data-pilot-keyart="frommherz"]) .astra-stage:before{
+ background:linear-gradient(180deg,#0b0b0a00 48%,#0b0b0a88 78%,#0b0b0a),var(--ho-keyart) 50% 0/contain no-repeat,#0b0b0a!important;
+}

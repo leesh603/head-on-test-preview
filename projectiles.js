@@ -1,11 +1,11 @@
 import {drawGunSignature,gunSignatureId,drawProjectileTactic} from './gun-signatures.js';
-import {drawBossOrdnance,bossOrdnanceLoaded} from './boss-ordnance-art.js?v=headon-result339-20261028&ai=1018';
+import {drawBossOrdnance,bossOrdnanceLoaded} from './boss-ordnance-art.js?v=tame3&ai=1018';
 import {hostileGunAppearance,friendlyGunAppearance} from './ordnance-appearance.js';
-import {FXS,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=headon-result339-20261028';
+import {FXS,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029';
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // (FX layer exception: hostile bolts get a crimson body + white-hot tip for dodge readability.)
 // Rendering never changes projectile movement, damage or collision.
-import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=headon-result339-20261028';
+import {fx,fxReady,fxTint,FX56,FX3} from './fx-art.js?v=tame3';
 export function projectileStyle(b){return b.hostileRocket?'rocket':b.flak?'flak':b.visualType||(b.naval?'naval':b.fieldShell?'balloon':b.heavy?'heavyBomber':'scout')}
 const TRACERS={scout:['#e7a06b',10,2],hunter:['#efb77f',14,2],bomber:['#dfbc7b',11,3],heavyBomber:['#e4ae72',15,3],boss:['#e58f7c',16,3],zeppelin:['#d8bb8b',12,3],railgun:['#efaa89',23,3],naval:['#dfaa82',16,3],balloon:['#dbbf8b',8,3],flak:['#dfac80',6,3],rocket:['#edac77',15,3]};
 // gunUpgradeBonus is the cumulative machine-gun attack bonus, not temporary
@@ -13,18 +13,24 @@ const TRACERS={scout:['#e7a06b',10,2],hunter:['#efb77f',14,2],bomber:['#dfbc7b',
 // FX layer: rounds heat up with the gun upgrades — dull orange → amber → yellow → pale → white-hot.
 const GUN_COLORS=FXS?[[0,[226,120,50]],[.3,[236,146,58]],[.6,[244,176,76]],[1,[248,206,116]],[1.6,[250,230,178]],[2.5,[255,249,236]]]
  :[[0,[248,223,135]],[.3,[245,204,145]],[.6,[238,177,132]],[1,[222,147,119]],[1.6,[199,117,123]],[2.5,[173,111,131]]];
+// Solo and co-op repeatedly paint the same upgrade levels. Keep a small exact
+// cache: no colour quantization, bullet mutation, or unbounded per-round keys.
+const gunColorCache=new Map();
 export function friendlyTracerColor(b,gunUpgradeBonus=0){
  if(b.mauserRound)return '#a98cff';
  if(b.specialColor)return b.specialColor;
  if(b.ally||b.formation)return '#d4c8a3';
  if(b.pierce)return '#f8f5cd';
  const value=Math.max(0,Math.min(2.5,Number(gunUpgradeBonus)||0));
+ const saved=gunColorCache.get(value);if(saved)return saved;
  let i=1;while(i<GUN_COLORS.length-1&&value>GUN_COLORS[i][0])i++;
  const [lo,a]=GUN_COLORS[i-1],[hi,z]=GUN_COLORS[i],t=(value-lo)/(hi-lo);
- return '#'+a.map((v,j)=>Math.round(v+(z[j]-v)*t).toString(16).padStart(2,'0')).join('');
+ const color='#'+a.map((v,j)=>Math.round(v+(z[j]-v)*t).toString(16).padStart(2,'0')).join('');
+ if(gunColorCache.size>=16)gunColorCache.delete(gunColorCache.keys().next().value);
+ gunColorCache.set(value,color);return color;
 }
 const cannonAtlas=typeof Image==='undefined'?null:new Image();
-if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.webp?v=headon-result339-20261028';
+if(cannonAtlas)cannonAtlas.src='./cannon-projectiles135.webp?v=r5';
 const ENEMY_BOLTS={scout:[17,4],hunter:[19,4],bomber:[16,4.5],heavyBomber:[21,5.5],boss:[20,4.5],zeppelin:[17,4.5],naval:[21,5],balloon:[12,5],flak:[11,5]};
 const boltCache=new Map();
 const tracerCache=new Map();
@@ -70,16 +76,19 @@ export function tacticalTracerProfile(b){
 // These are still machine-gun rounds: short painted needles with a restrained
 // warm tail, rather than the old 48–50px white capsules joining into a beam.
 const PILOT_GUN_TRACERS=Object.freeze({
+ nungesserCounter:Object.freeze({length:28,width:3.2,color:'#bdab89',core:'#f4e7c9',glow:.10}),
+ nungesserBreakthrough:Object.freeze({length:25,width:3,color:'#b9b4a6',core:'#e8e4d6',glow:.08}),
  fonck:Object.freeze({length:22,width:3.3,color:'#c8ac79',core:'#f0e3c5',glow:.18}),
  vertical:Object.freeze({length:19,width:3,color:'#bfa77a',core:'#e9d8b4',glow:.14}),
  horizontal:Object.freeze({length:19,width:3,color:'#b18d66',core:'#e4c9a3',glow:.14})
 });
 export function pilotGunTracerStyle(b){
  if(!b||b.enemy||b.rocket||b.motorCannon||b.cow37||b.actualExplosion||b.blast||!(b.life>0))return null;
- return b.mannockPass?PILOT_GUN_TRACERS[b.mannockPass]||null:(b.fonckVolley||b.fonckSeeker)?PILOT_GUN_TRACERS.fonck:null;
+ return b.mannockPass?PILOT_GUN_TRACERS[b.mannockPass]||null:(b.fonckVolley||b.fonckSeeker)?PILOT_GUN_TRACERS.fonck:(b.ally||b.formation||b.patrol)?null:b.nungesserCounter?PILOT_GUN_TRACERS.nungesserCounter:b.nungesserBreakthrough?PILOT_GUN_TRACERS.nungesserBreakthrough:null;
 }
 export function drawPilotGunTracer(c,b,x,y,paint=fxTint,ready=fxReady){
- if(['mauser','incendiary','telescope','piercing'].includes(gunSignatureId(b)))return false;
+ const signature=gunSignatureId(b);
+ if(['mauser','incendiary','telescope'].includes(signature)||signature==='piercing'&&!b.nungesserCounter&&!b.nungesserBreakthrough)return false;
  const s=pilotGunTracerStyle(b);if(!s||![x,y,b.vx,b.vy].every(Number.isFinite))return false;
  const a=Math.atan2(b.vy,b.vx),cx=x-Math.cos(a)*s.length*.5,cy=y-Math.sin(a)*s.length*.5;
  if(ready('tracerCore')){

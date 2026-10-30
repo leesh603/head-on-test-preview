@@ -1,4 +1,4 @@
-import {PILOT_CHALLENGES,pilotUnlocked,pilotUnlockProgress} from './pilot-unlocks.js?v=headon-result339-20261028';
+import {PILOT_CHALLENGES,pilotUnlocked,pilotUnlockProgress} from './pilot-unlocks.js';
 
 const challenge=id=>Array.isArray(PILOT_CHALLENGES)?PILOT_CHALLENGES.find(d=>d.id===id):PILOT_CHALLENGES[id];
 const node=(doc,tag,cls,text)=>{const el=doc.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el};
@@ -28,7 +28,7 @@ export function renderPilotUnlockDetails({id,pilots,getLocale=()=> 'ko',document
 
 export function installPilotUnlockUI({book,getGame,getSelected,pilots,getLocale=()=> 'ko',portraitSource=()=>null,onUnlock,sound,document:doc=globalThis.document}={}){
  if(!doc||!book)return null;
- const link=node(doc,'link');link.rel='stylesheet';link.href='./pilot-unlocks.css?v=headon-result339-20261028';doc.head.append(link);
+ const link=node(doc,'link');link.rel='stylesheet';link.href='./pilot-unlocks.css?v=pilotunlock8';doc.head.append(link);
  const toast=node(doc,'aside','pilot-unlock-toast');toast.id='pilotUnlockToast';toast.hidden=true;toast.setAttribute('role','status');toast.setAttribute('aria-live','polite');doc.body.append(toast);
  let queue=[],timer=0,run=null,lastResult='',pendingRender=0;const seen=new Set();
  const render=()=>{pendingRender=0;if(getSelected)renderPilotUnlockDetails({id:getSelected(),pilots,getLocale,document:doc})};

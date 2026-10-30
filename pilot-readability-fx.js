@@ -12,7 +12,7 @@ export function createPilotReadability(fx){
    // never into a bright star covering the target or a blue laser-like beam.
    c.save();c.globalAlpha*=.38+f*.5;c.lineCap='round';
    for(let pass=0;pass<2;pass++){
-    c.lineWidth=pass?1.15:3;c.strokeStyle=pass?(p.skillTime>0?'#e4c281':'#cbbd98'):'#302d26';
+    c.lineWidth=pass?(f>=.8?1.5:1.15):3;c.strokeStyle=pass?(p.skillTime>0||f>=.8?'#e4c281':'#cbbd98'):'#302d26';
     c.beginPath();for(let i=0;i<4;i++){const a=i*Math.PI/2+Math.PI/4,ca=Math.cos(a),sa=Math.sin(a),tx=x+ca*r,ty=y+sa*r;c.moveTo(tx-ca*len-sa*len*.5,ty-sa*len+ca*len*.5);c.lineTo(tx,ty);c.lineTo(tx-ca*len+sa*len*.5,ty-sa*len-ca*len*.5)}c.stroke();
    }c.restore();return true;
   },
@@ -47,3 +47,4 @@ export function createPilotReadability(fx){
   }
  };
 }
+

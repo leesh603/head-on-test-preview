@@ -1,0 +1,150 @@
+{
+  "logicalCanvas": [
+    1360,
+    1157
+  ],
+  "pivot": [
+    680,
+    578.5
+  ],
+  "body": "body.webp",
+  "parts": {
+    "mainBarrel": {
+      "file": "mainBarrel.webp",
+      "sourceRect": [
+        0,
+        0,
+        119,
+        469
+      ],
+      "pivot": [
+        59,
+        436
+      ],
+      "scale": 0.64,
+      "muzzle": [
+        59,
+        31
+      ]
+    },
+    "mainBase": {
+      "file": "mainBase.webp",
+      "sourceRect": [
+        0,
+        0,
+        305,
+        438
+      ],
+      "pivot": [
+        151,
+        221
+      ],
+      "scale": 0.38
+    },
+    "aaHead": {
+      "file": "aaHead.webp",
+      "sourceRect": [
+        0,
+        0,
+        309,
+        290
+      ],
+      "pivot": [
+        155,
+        156
+      ],
+      "scale": 0.32
+    },
+    "aaBarrel": {
+      "file": "aaBarrel.webp",
+      "sourceRect": [
+        0,
+        0,
+        115,
+        412
+      ],
+      "pivot": [
+        62,
+        377
+      ],
+      "scale": 0.25,
+      "muzzle": [
+        62,
+        17
+      ]
+    },
+    "crawlerHousing": {
+      "file": "crawlerHousing.webp",
+      "sourceRect": [
+        0,
+        0,
+        321,
+        435
+      ],
+      "pivot": [
+        161,
+        217
+      ],
+      "scale": 0.35
+    },
+    "crawlerWreck": {
+      "file": "crawlerWreck.webp",
+      "sourceRect": [
+        0,
+        0,
+        332,
+        449
+      ],
+      "pivot": [
+        165,
+        218
+      ],
+      "scale": 0.35
+    },
+    "aaWreck": {
+      "file": "aaWreck.webp",
+      "sourceRect": [
+        0,
+        0,
+        324,
+        316
+      ],
+      "pivot": [
+        161,
+        158
+      ],
+      "scale": 0.32
+    },
+    "track": {
+      "file": "track.webp",
+      "sourceRect": [
+        0,
+        0,
+        476,
+        530
+      ],
+      "pivot": [
+        238,
+        265
+      ],
+      "scale": 0.0546218487394958,
+      "repeatAxis": "y",
+      "notes": "Exact center crop of one generated link repeat; side hinge hardware excluded. Clip rendering to track bands. Native repeated height28.95."
+    },
+    "deckShutter": {
+      "file": "deckShutter.webp",
+      "sourceRect": [
+        0,
+        0,
+        1589,
+        595
+      ],
+      "pivot": [
+        794.5,
+        297.5
+      ],
+      "scale": 0.11327879169288861,
+      "notes": "Actual generated aspect2.67, uniform width180 gives height67.4; do NOT stretch to94. Secret symbol approximate motif, not exact canonical keyway."
+    }
+  }
+}

@@ -1,0 +1,536 @@
+{
+  "canvas": [
+    1024,
+    1536
+  ],
+  "bodyPivot": [
+    512,
+    768
+  ],
+  "north": "up",
+  "parts": {
+    "aaHead": {
+      "file": "aaHead-matte-r1.webp",
+      "sourceRect": [
+        0,
+        0,
+        219,
+        198
+      ],
+      "pivot": [
+        109.34687499999998,
+        98.346434888814
+      ],
+      "scale": 0.40829346092503993
+    },
+    "aaBarrel": {
+      "file": "aaBarrel-matte-r1.webp",
+      "sourceRect": [
+        0,
+        0,
+        114,
+        333
+      ],
+      "pivot": [
+        57.0,
+        277.3534312307099
+      ],
+      "scale": 0.39788145287265847,
+      "muzzle": [
+        57.0,
+        15.152217158564817
+      ],
+      "roundingCorrection": "Uniform display scale calibrated to unchanged physics reach104.325; input atlas .6 pixel-rounding yielded .05 percent discrepancy. Native image unchanged."
+    },
+    "crawlerHousing": {
+      "file": "crawlerHousing-matte-r1.webp",
+      "sourceRect": [
+        0,
+        0,
+        246,
+        361
+      ],
+      "pivot": [
+        123.0,
+        179.3671875
+      ],
+      "scale": 0.9186602870813398
+    },
+    "crawlerDamaged": {
+      "file": "crawlerDamaged-matte-r1.webp",
+      "sourceRect": [
+        0,
+        0,
+        246,
+        368
+      ],
+      "pivot": [
+        123.0,
+        179.1015625
+      ],
+      "scale": 0.9186602870813398
+    },
+    "crawlerWreck": {
+      "file": "crawlerWreck-matte-r1.webp",
+      "sourceRect": [
+        0,
+        0,
+        249,
+        371
+      ],
+      "pivot": [
+        124.591796875,
+        179.46875
+      ],
+      "scale": 0.9186602870813398
+    },
+    "track": {
+      "file": "track.webp",
+      "sourceRect": [
+        0,
+        0,
+        97,
+        47
+      ],
+      "pivot": [
+        48.5,
+        23.5
+      ],
+      "scale": 0.45
+    },
+    "mainBarrel": {
+      "file": "mainBarrel-matte-r1.webp",
+      "sourceRect": [
+        0,
+        0,
+        75,
+        330
+      ],
+      "pivot": [
+        37.591796875,
+        297.2578125
+      ],
+      "scale": 1.1432216905901118,
+      "originalBox": [
+        290,
+        1,
+        412,
+        641
+      ],
+      "muzzle": [
+        37.591796875,
+        15.59765625
+      ]
+    },
+    "mainBase": {
+      "file": "mainBase-matte-r1.webp",
+      "sourceRect": [
+        0,
+        0,
+        271,
+        251
+      ],
+      "pivot": [
+        135.591796875,
+        125.591796875
+      ],
+      "scale": 0.9186602870813398,
+      "originalBox": [
+        728,
+        172,
+        1250,
+        650
+      ]
+    },
+    "doorLeft": {
+      "file": "doorLeft.webp",
+      "sourceRect": [
+        0,
+        0,
+        318,
+        1471
+      ],
+      "pivot": [
+        159,
+        735.5
+      ],
+      "scale": 0.4214819850441876,
+      "note": "native134.03x620 including outer hinges; clip 4px overlap or margins, no nonuniform stretch"
+    },
+    "doorRight": {
+      "file": "doorRight.webp",
+      "sourceRect": [
+        0,
+        0,
+        318,
+        1471
+      ],
+      "pivot": [
+        159,
+        735.5
+      ],
+      "scale": 0.4214819850441876,
+      "note": "native134.03x620 including outer hinges; clip 4px overlap or margins, no nonuniform stretch"
+    },
+    "body": {
+      "file": "body-matte-r1.webp",
+      "sourceRect": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "pivot": [
+        512,
+        768
+      ],
+      "scale": 1
+    },
+    "craneBoom": {
+      "file": "craneBoom.webp",
+      "sourceRect": [
+        0,
+        0,
+        255,
+        600
+      ],
+      "originalCrop": [
+        365,
+        0,
+        620,
+        600
+      ],
+      "pivot": [
+        204,
+        526
+      ],
+      "scale": 0.272,
+      "cableTip": [
+        41,
+        36
+      ],
+      "neutralAngle": -0.32113818460178545,
+      "bodyPivot": [
+        166,
+        409
+      ]
+    },
+    "searchlightHead": {
+      "file": "searchlightHead.webp",
+      "sourceRect": [
+        0,
+        0,
+        445,
+        445
+      ],
+      "originalCrop": [
+        885,
+        120,
+        1330,
+        565
+      ],
+      "pivot": [
+        289,
+        224
+      ],
+      "scale": 0.16,
+      "lensCenter": [
+        289,
+        224
+      ],
+      "bodyPivot": [
+        741,
+        145
+      ]
+    },
+    "fanRotor": {
+      "file": "fanRotor.webp",
+      "sourceRect": [
+        0,
+        0,
+        385,
+        390
+      ],
+      "originalCrop": [
+        905,
+        605,
+        1290,
+        995
+      ],
+      "pivot": [
+        191,
+        197
+      ],
+      "scale": 0.105,
+      "bodySlots": [
+        [
+          832,
+          840
+        ],
+        [
+          893,
+          840
+        ],
+        [
+          950,
+          840
+        ]
+      ]
+    },
+    "flameNozzle": {
+      "file": "flameNozzle.webp",
+      "sourceRect": [
+        0,
+        0,
+        601,
+        293
+      ],
+      "sourceBox": [
+        123,
+        152,
+        724,
+        445
+      ],
+      "size": [
+        601,
+        293
+      ],
+      "pivot": [
+        50,
+        146
+      ],
+      "muzzle": [
+        584,
+        146
+      ],
+      "scale": 0.12,
+      "neutralAngle": 0
+    },
+    "mortarTube": {
+      "file": "mortarTube.webp",
+      "sourceRect": [
+        0,
+        0,
+        373,
+        511
+      ],
+      "sourceBox": [
+        987,
+        32,
+        1360,
+        543
+      ],
+      "size": [
+        373,
+        511
+      ],
+      "pivot": [
+        186,
+        400
+      ],
+      "muzzle": [
+        190,
+        144
+      ],
+      "scale": 0.2,
+      "neutralAngle": -1.570796
+    },
+    "hangarDoor": {
+      "file": "hangarDoor.webp",
+      "sourceRect": [
+        0,
+        0,
+        540,
+        515
+      ],
+      "sourceBox": [
+        134,
+        557,
+        674,
+        1072
+      ],
+      "size": [
+        540,
+        515
+      ],
+      "pivot": [
+        270,
+        257.5
+      ],
+      "scale": 0.13
+    },
+    "reserveShutter": {
+      "file": "reserveShutter.webp",
+      "sourceRect": [
+        0,
+        0,
+        479,
+        466
+      ],
+      "sourceBox": [
+        902,
+        589,
+        1381,
+        1055
+      ],
+      "size": [
+        479,
+        466
+      ],
+      "pivot": [
+        239.5,
+        233.0
+      ],
+      "scale": 0.16701461377870563
+    },
+    "flameMount": {
+      "file": "flameMount.webp",
+      "sourceRect": [
+        0,
+        0,
+        831,
+        534
+      ],
+      "originalCrop": [
+        35,
+        113,
+        866,
+        647
+      ],
+      "pivot": [
+        414,
+        250
+      ],
+      "scale": 0.125,
+      "bodySlots": [
+        [
+          106,
+          958
+        ],
+        [
+          966,
+          734
+        ]
+      ],
+      "note": "Fixed mount only. Independent flame nozzle rotates at socket pivot. Mirror geometry if needed; no national marks."
+    },
+    "mineDischarger": {
+      "file": "mineDischarger.webp",
+      "sourceRect": [
+        0,
+        0,
+        384,
+        713
+      ],
+      "originalCrop": [
+        975,
+        23,
+        1359,
+        736
+      ],
+      "pivot": [
+        193,
+        362
+      ],
+      "scale": 0.21739130434782608,
+      "dischargeTip": [
+        193,
+        687
+      ],
+      "chuteRect": [
+        115,
+        152,
+        150,
+        395
+      ],
+      "bodyPivot": [
+        308,
+        348
+      ],
+      "neutralDischargeDirection": "south",
+      "note": "Rotate clockwise 90 degrees for west-facing discharge. Native body height155, resulting width approx82; no nonuniform stretch."
+    },
+    "mineDischargerDoor": {
+      "file": "mineDischargerDoor.webp",
+      "sourceRect": [
+        0,
+        0,
+        299,
+        657
+      ],
+      "originalCrop": [
+        1626,
+        44,
+        1925,
+        701
+      ],
+      "pivot": [
+        149.5,
+        328.5
+      ],
+      "scale": 0.172,
+      "coverFaceRect": [
+        64,
+        71,
+        190,
+        510
+      ],
+      "note": "Panel face ratio matches trough near0.37, outer hinges are wider. Align coverFaceRect center to chuteRect center; uniform .172 scale suggestion, needs renderer QA."
+    },
+    "bodyCollapse": {
+      "file": "body-collapse-matte-r1.webp",
+      "sourceRect": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "pivot": [
+        512,
+        768
+      ],
+      "scale": 1
+    },
+    "bodyWreck": {
+      "file": "body-wreck-matte-r1.webp",
+      "sourceRect": [
+        0,
+        0,
+        1024,
+        1536
+      ],
+      "pivot": [
+        512,
+        768
+      ],
+      "scale": 1
+    }
+  },
+  "crawler": {
+    "housingScale": 0.45,
+    "bands": [
+      {
+        "x": -100,
+        "y": 0,
+        "width": 48,
+        "height": 300
+      },
+      {
+        "x": 100,
+        "y": 0,
+        "width": 48,
+        "height": 300
+      }
+    ],
+    "warning": "Housing still includes small front tread-looking steps; do not represent those as animated tread. External trackBands are separate. Wreck housing is torn open.",
+    "bandX": 100,
+    "bandWidth": 48,
+    "bandHeight": 300
+  },
+  "bay": [
+    408,
+    440,
+    260,
+    620
+  ]
+}

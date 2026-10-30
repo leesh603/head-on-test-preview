@@ -1,4 +1,4 @@
-import {drawEnemyProjectile} from '../../projectiles.js?v=headon-result339-20261028';
+import {drawEnemyProjectile} from '../../projectiles.js?v=pilotfx20261018';
 import {ELITE_KINDS} from './elite-config.js';
 
 const defaultCrop = {};
@@ -6,25 +6,34 @@ const defaultCrop = {};
 function loadImage(source) {
   if (!source) return null;
   if (typeof Image !== 'undefined' && typeof source === 'string') {
-    const image = new Image(); image.src = source; return image;
+    const image = new Image();
+    let retries = 0;
+    image.onerror = () => {
+      // Recover transient/stale error responses without retaining a broken sprite.
+      const retry = ++retries;
+      setTimeout(() => { image.src = source + (source.includes('?') ? '&' : '?') + 'eliteRetry=' + retry; }, Math.min(10000, 500 * 2 ** Math.min(retry - 1, 5)));
+    };
+    image.src = source; return image;
   }
   return source;
 }
 
 export function createEliteAssets(options = {}) {
-  return {
+  const assets = {
     lePrieur: loadImage(options.lePrieur || './assets/le-prieur-squadron.webp'),
     schlachtstaffel: loadImage(options.schlachtstaffel || './assets/halberstadt-cliv-squadron.webp'),
     junkers: loadImage(options.junkers || './assets/junkers-j1-squadron.webp'),
     salamander: loadImage(options.salamander || './assets/salamander-squadron.webp'),
     rocket: loadImage(options.rocket),
     crop: {...defaultCrop, ...(options.crop || {})},
-    drawPlayerRocket: options.drawPlayerRocket || null
+    drawPlayerRocket: options.drawPlayerRocket || null,
+    get ready() { return [this.lePrieur, this.schlachtstaffel, this.junkers, this.salamander].every(image => image?.complete && image.naturalWidth > 0); }
   };
+  return assets;
 }
 
 function drawAircraft(ctx, image, crop, x, y, angle, size, flash = false) {
-  if (!image?.complete && image?.naturalWidth === 0) return false;
+  if (!image?.complete || !image.naturalWidth) return false;
   const iw = crop?.sw || image.naturalWidth || image.width;
   const ih = crop?.sh || image.naturalHeight || image.height;
   if (!iw || !ih) return false;
@@ -39,14 +48,6 @@ function drawAircraft(ctx, image, crop, x, y, angle, size, flash = false) {
   return true;
 }
 
-function drawFallbackSilhouette(ctx, member, x, y) {
-  // Emergency-only diagnostic mark. Production integration should fail the
-  // asset preflight before gameplay instead of displaying this branch.
-  ctx.save(); ctx.translate(x, y); ctx.rotate(member.a + Math.PI / 2);
-  ctx.fillStyle = member.eliteKind === ELITE_KINDS.SCHLACHTSTAFFEL ? '#7d765f' : member.eliteKind === ELITE_KINDS.JUNKERS ? '#6d6a55' : member.eliteKind === ELITE_KINDS.SALAMANDER ? '#7d8a5c' : '#9cae83';
-  ctx.fillRect(-4, -20, 8, 40); ctx.fillRect(-22, -4, 44, 8); ctx.restore();
-}
-
 export function renderEliteLayer(ctx, system, camera, assets, time = 0) {
   if (!ctx || !system) return;
   const point = camera?.point || ((x, y) => [x - (camera?.x || 0), y - (camera?.y || 0)]);
@@ -58,7 +59,7 @@ export function renderEliteLayer(ctx, system, camera, assets, time = 0) {
     const size = kind === ELITE_KINDS.JUNKERS ? 86 : kind === ELITE_KINDS.SALAMANDER ? 74 : isHeavy ? 86 : 66;
     const crop = assets.crop?.[kind];
     const drawn = drawAircraft(ctx, image, crop, x, y, member.a, size, member.hitFlash > 0);
-    if (!drawn) drawFallbackSilhouette(ctx, member, x, y);
+    if (!drawn) continue;
     if (member.telegraph > 0) {
       const pulse = .55 + Math.sin(time * 18) * .2;
       ctx.save(); ctx.globalAlpha = pulse; ctx.strokeStyle = '#ff6b3d'; ctx.lineWidth = 2;

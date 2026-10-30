@@ -1,0 +1,170 @@
+{
+  "aaHead": {
+    "file": "aaHead.webp",
+    "sourceRect": [
+      0,
+      0,
+      269,
+      252
+    ],
+    "pivot": [
+      135.0,
+      134.98046875
+    ],
+    "scale": 0.3919617224880383,
+    "originalSize": [
+      309,
+      290
+    ],
+    "atlasOutputRatio": 0.81640625,
+    "nativeSize": [
+      269,
+      252
+    ],
+    "sourceFile": "aaHead-matte-r1.webp"
+  },
+  "aaBarrel": {
+    "file": "aaBarrel.webp",
+    "sourceRect": [
+      0,
+      0,
+      110,
+      352
+    ],
+    "pivot": [
+      58.265625,
+      315.60546875
+    ],
+    "scale": 0.3062200956937799,
+    "originalSize": [
+      115,
+      412
+    ],
+    "atlasOutputRatio": 0.81640625,
+    "nativeSize": [
+      110,
+      352
+    ],
+    "sourceFile": "aaBarrel-matte-r1.webp"
+  },
+  "mainBase": {
+    "file": "mainBase.webp",
+    "sourceRect": [
+      0,
+      0,
+      265,
+      374
+    ],
+    "pivot": [
+      131.3671875,
+      188.6328125
+    ],
+    "scale": 0.46545454545454545,
+    "originalSize": [
+      305,
+      438
+    ],
+    "atlasOutputRatio": 0.81640625,
+    "nativeSize": [
+      265,
+      374
+    ],
+    "sourceFile": "mainBase-matte-r1.webp"
+  },
+  "mainBarrel": {
+    "file": "mainBarrel.webp",
+    "sourceRect": [
+      0,
+      0,
+      113,
+      399
+    ],
+    "pivot": [
+      56.18359375,
+      364.09765625
+    ],
+    "scale": 0.7839234449760766,
+    "originalSize": [
+      119,
+      469
+    ],
+    "atlasOutputRatio": 0.81640625,
+    "nativeSize": [
+      113,
+      399
+    ],
+    "sourceFile": "mainBarrel-matte-r1.webp"
+  },
+  "crawlerHousing": {
+    "file": "crawlerHousing.webp",
+    "sourceRect": [
+      0,
+      0,
+      278,
+      371
+    ],
+    "pivot": [
+      139.0,
+      185.18359375
+    ],
+    "scale": 0.4287081339712918,
+    "originalSize": [
+      321,
+      435
+    ],
+    "atlasOutputRatio": 0.81640625,
+    "nativeSize": [
+      278,
+      371
+    ],
+    "sourceFile": "crawlerHousing-matte-r1.webp"
+  },
+  "crawlerWreck": {
+    "file": "crawlerWreck.webp",
+    "sourceRect": [
+      0,
+      0,
+      288,
+      383
+    ],
+    "pivot": [
+      143.18359375,
+      186.28515625
+    ],
+    "scale": 0.4287081339712918,
+    "originalSize": [
+      332,
+      449
+    ],
+    "atlasOutputRatio": 0.81640625,
+    "nativeSize": [
+      288,
+      383
+    ],
+    "sourceFile": "crawlerWreck-matte-r1.webp"
+  },
+  "aaWreck": {
+    "file": "aaWreck.webp",
+    "sourceRect": [
+      0,
+      0,
+      280,
+      274
+    ],
+    "pivot": [
+      139.18359375,
+      137.0
+    ],
+    "scale": 0.3919617224880383,
+    "originalSize": [
+      324,
+      316
+    ],
+    "atlasOutputRatio": 0.81640625,
+    "nativeSize": [
+      280,
+      274
+    ],
+    "sourceFile": "aaWreck-matte-r1.webp"
+  }
+}

@@ -1,10 +1,11 @@
+import {drawHeineckeCloth} from './equipment-finishing-fx.js?v=equipmentfinishing20261030';
 import {resetFlightEquipment} from './flight-equipment.js';
 // Heinecke Rettungsfallschirm: one independent survival insurance per sortie.
 // aircraft.js is loaded lazily: it touches DOM APIs at import time, so a static
 // import would crash the module-less test environment.
 let aircraftModule;
 const aircraftSprites=()=>{
- aircraftModule??=import('./aircraft.js?v=headon-result339-20261028&art=pilot-recovery2&pf=1027').then(m=>aircraftModule=m);
+ aircraftModule??=import('./aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1').then(m=>aircraftModule=m);
  return aircraftModule?.then?null:aircraftModule;
 };
 export const HEINECKE=Object.freeze({escape:3,returnHp:.4,invulnerability:2,cooldown:180,maxUses:2,reentryDistance:270});
@@ -67,23 +68,7 @@ export function drawHeineckeParachute(c,p,x,y){
  const py=y+elapsed*elapsed*16+elapsed*8+bob;
  c.save();c.globalAlpha=fade;
  c.translate(px,py);c.rotate(sway*.028);
- if(open>0){
-  const s=.35+.65*open;
-  c.lineJoin='round';c.lineWidth=1.6;
-  for(const lx of [-13,-4.5,4.5,13]){c.strokeStyle='#4a4237';c.lineWidth=1;c.beginPath();c.moveTo(lx*s,-9*s+2);c.lineTo(lx*.24,3);c.stroke()}
-  c.fillStyle='#ece1c4';c.strokeStyle='#2c241c';
-  c.beginPath();c.moveTo(-17*s,-9*s);
-  c.quadraticCurveTo(0,-26*s,17*s,-9*s);
-  c.quadraticCurveTo(9*s,-4*s,0,-6.5*s);
-  c.quadraticCurveTo(-9*s,-4*s,-17*s,-9*s);
-  c.closePath();c.fill();c.stroke();
-  c.fillStyle='#b8452f';c.beginPath();
-  c.moveTo(-4.5*s,-19.5*s);c.quadraticCurveTo(0,-21.5*s,4.5*s,-19.5*s);c.lineTo(4.5*s,-15.5*s);c.quadraticCurveTo(0,-17.5*s,-4.5*s,-15.5*s);c.closePath();c.fill();
- }
- if(pop>0){
-  c.fillStyle='#5a4d38';c.strokeStyle='#2c241c';c.lineWidth=1.4;
-  c.beginPath();c.ellipse(0,6.5,3.4,5,0,0,Math.PI*2);c.fill();c.stroke();
-  c.fillStyle='#d8c9a8';c.beginPath();c.arc(0,0,2.7,0,Math.PI*2);c.fill();c.stroke();
- }
+ drawHeineckeCloth(c,open,pop);
  c.restore();
 }
+

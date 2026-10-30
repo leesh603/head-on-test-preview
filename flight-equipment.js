@@ -1,7 +1,7 @@
 // Flight-time equipment: no projectile guidance and no changes to damage budgets.
 export const FLIGHT_EQUIPMENT=Object.freeze([
  Object.freeze({id:'strutterAirbrake',name:'소프위드 스트러터 에어브레이크',family:'SPEED',desc:'선회기동 중 잠시 감속해 좁게 돌아선 뒤 재가속합니다. 기체 전환 장비와 동시 장착할 수 없습니다.'}),
- Object.freeze({id:'wimperisSight',name:'윔페리스 폭격 조준기',family:'EXPLOSIVE',desc:'로켓·수류탄·투하 폭탄의 조준을 이동 표적의 예상 위치로 보정합니다.'})
+ Object.freeze({id:'wimperisSight',name:'윔페리스 폭격 조준기',family:'EXPLOSIVE',desc:'폭격 조준기를 발사 순간 예측 조준으로 각색. 로켓·수류탄·투하 폭탄을 이동 표적의 예상 위치로 보정합니다. 유도·발수 증가는 없습니다.'})
 ]);
 export const FLIGHT_EQUIPMENT_BALANCE=Object.freeze({brakeTime:.22,recoveryTime:.12,brakeSpeed:.85,evadeSpeed:2.35,turn:12*Math.PI/180,rocketAngle:.12,grenadeAngle:.16,cooperAngle:.10,bomberAngle:.14});
 const B=FLIGHT_EQUIPMENT_BALANCE;
@@ -18,7 +18,7 @@ export function equipmentTargets(w){
 
 export function flightEquipmentAllowed(p,id){
  if(p?.upgrades?.[id])return false;
- if(id==='wimperisSight')return (p.rockets||0)>0||(p.mineCount||0)>0||!!p.upgrades?.cooperRack||!!p.bomberTransfer&&p.bomberTransfer.kind!=='gunship'&&p.bomberTransfer.kind!=='airship';
+ if(id==='wimperisSight')return (p.rockets||0)>0||(p.mineCount||0)>0||!!p.upgrades?.cooperRack||['guynemer','bishop'].includes(p.pilot)||!!p.bomberTransfer&&p.bomberTransfer.kind!=='gunship'&&p.bomberTransfer.kind!=='airship';
  return id==='strutterAirbrake'&&!p.bomberTransfer&&!['bomberTransfer','mgTransfer','airshipTransfer'].some(id=>p.upgrades?.[id]);
 }
 
@@ -115,10 +115,10 @@ export function wimperisOrdnance(p,type,heading,reach){
  return {angle,distance};
 }
 export function correctWimperisBomb(p,bomb){
- if(!enabled(p)||!bomb.cooperBomb&&!bomb.bomberTransfer)return bomb;
+ if(!enabled(p)||bomb.wimperisPrepared||bomb.enemy||bomb.ownerId!=null&&bomb.ownerId!==(p.id||'p1')||!bomb.cooperBomb&&!bomb.bomberTransfer&&!bomb.bishopBomb)return bomb;
  bomb.wimperisPrepared=true;
  const cooper=!!bomb.cooperBomb,time=cooper?bomb.maxLife:bomb.maxLife||.85;
- const x=cooper?bomb.x:p.x,y=cooper?bomb.y:p.y,heading=cooper?Math.atan2(bomb.vy,bomb.vx):bomb.releaseAngle??p.a;
+ const x=cooper?bomb.x:p.x,y=cooper?bomb.y:p.y,heading=cooper?Math.atan2(bomb.vy,bomb.vx):bomb.releaseAngle??(bomb.bishopBomb?p.bishopHeading??p.a:p.a);
  const target=wimperisTarget(p,{x,y,heading,range:cooper?250:650,cone:cooper?.65:Math.PI*.55,time});
  if(!target)return bomb;
  bomb.wimperisAimed=true;
@@ -132,3 +132,15 @@ export function correctWimperisBomb(p,bomb){
  return bomb;
 }
 
+// One launch-time rotation of the complete pilot salvo. Using the shared centre
+// heading preserves its authored six-ray fan instead of pulling each ray inward.
+export function correctWimperisPilotRocket(p,round,heading=p.a){
+ if(!enabled(p)||p.pilot!=='guynemer'||!round.rocket||!round.special||round.enemy||round.wimperisPrepared||round.ownerId!=null&&round.ownerId!==(p.id||'p1'))return round;
+ round.wimperisPrepared=true;
+ const speed=Math.hypot(round.vx,round.vy);if(!(speed>0))return round;
+ const target=wimperisTarget(p,{heading,range:650,speed,front:12});if(!target)return round;
+ const correction=clamp(delta(Math.atan2(target.y-p.y,target.x-p.x),heading),-B.rocketAngle,B.rocketAngle),angle=Math.atan2(round.vy,round.vx)+correction;
+ round.vx=Math.cos(angle)*speed;round.vy=Math.sin(angle)*speed;round.wimperisAimed=true;
+ cue(p,p.x+Math.cos(heading+correction)*(12+speed*target.time),p.y+Math.sin(heading+correction)*(12+speed*target.time));
+ return round;
+}

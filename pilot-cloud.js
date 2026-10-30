@@ -1,7 +1,7 @@
-import {cleanPilotUnlocks,mergePilotUnlocks} from './pilot-unlocks.js?v=headon-result339-20261028';
+import {cleanPilotUnlocks,mergePilotUnlocks} from './pilot-unlocks.js';
 const pilotUnlockRecords={clean:cleanPilotUnlocks,merge:mergePilotUnlocks};
 // Optional account-backed copies of service records. Never stores passwords.
-import {PILOT_AIRCRAFT, AIRCRAFT_SELECTION_KEY, pilotAircraftChoices} from './pilot-aircraft.js?v=headon-result339-20261028&art=pilot-recovery2';
+import {PILOT_AIRCRAFT, AIRCRAFT_SELECTION_KEY, pilotAircraftChoices} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 
 const own=(o,k)=>Object.hasOwn(o,k),plain=o=>!!o&&typeof o==='object'&&!Array.isArray(o),safe=k=>!['__proto__','prototype','constructor'].includes(k);
 const number=n=>Number.isInteger(n)&&n>=0&&n<=1e9;
@@ -27,10 +27,10 @@ export function validatePilotProfile(raw){
  }
  if(!Array.isArray(s.featured)||s.featured.length>3||s.featured.some(id=>typeof id!=='string'||!own(out.service.awards,id)))throw new Error('invalid_profile');
  out.service.featured=[...new Set(s.featured)];
- if(s.pilotKills!==undefined){out.service.pilotKills={};for(const [id,n]of entries(s.pilotKills,32)){if(!own(PILOT_AIRCRAFT,id)||!number(n))throw new Error('invalid_profile');out.service.pilotKills[id]=n}}
+ if(s.pilotKills!==undefined){out.service.pilotKills={};for(const [id,n]of entries(s.pilotKills,Object.keys(PILOT_AIRCRAFT).length)){if(!own(PILOT_AIRCRAFT,id)||!number(n))throw new Error('invalid_profile');out.service.pilotKills[id]=n}}
  if(s.pilotUnlocks!==undefined){if(!plain(s.pilotUnlocks)||s.pilotUnlocks.version!==1||JSON.stringify(s.pilotUnlocks).length>40000)throw new Error('invalid_profile');out.service.pilotUnlocks=pilotUnlockRecords.clean(s.pilotUnlocks)}
  if(!plain(raw.aircraft)||Object.keys(raw.aircraft).some(k=>!['p1','p2'].includes(k)))throw new Error('invalid_profile');
- for(const slot of ['p1','p2'])for(const [id,choice]of entries(raw.aircraft[slot]||{},32)){
+ for(const slot of ['p1','p2'])for(const [id,choice]of entries(raw.aircraft[slot]||{},Object.keys(PILOT_AIRCRAFT).length)){
   if(!own(PILOT_AIRCRAFT,id)||!pilotAircraftChoices(id).includes(choice))throw new Error('invalid_profile');out.aircraft[slot][id]=choice;
  }
  return out;

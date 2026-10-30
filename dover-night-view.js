@@ -1,14 +1,15 @@
-import {DOVER_HARDWARE_SOURCES,DOVER_DECK_FRAMES,doverHardwarePart,doverHardwareSignals,drawDoverHardware} from './dover-hardware-art.js?v=headon-result339-20261028';
-import {paintDoverTerrain,doverCoastPoint} from './dover-terrain-render.js?v=headon-result339-20261028';
-import {DOVER_PART_CLIPS} from './dover-night-bosses.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021';
-import {fx} from './fx-art.js?v=headon-result339-20261028';
-import {drawBossOrdnance} from './boss-ordnance-art.js?v=headon-result339-20261028&ai=1018';
-import {bombArcPose} from './bomb-sprites.js?v=headon-result339-20261028';
-import {drawDressingSprite} from './background-dressing.js?v=headon-result339-20261028';
-import {doverPatrolChart} from './dover-patrol-chart.js?v=headon-result339-20261028';
-import {impactMark,aimLine,laneEdge,sectorMark,partMark,shieldMark} from './tactical-marks.js?v=headon-result339-20261028';
+import {periodicSandPixels} from './maan-ground.js?v=tame3';
+import {DOVER_HARDWARE_SOURCES,DOVER_DECK_FRAMES,doverHardwarePart,doverHardwareSignals,drawDoverHardware} from './dover-hardware-art.js?v=1022';
+import {paintDoverTerrain,doverCoastPoint} from './dover-terrain-render.js?v=dover6';
+import {DOVER_PART_CLIPS} from './dover-night-bosses.js?v=dover3&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {fx} from './fx-art.js?v=tame3';
+import {drawBossOrdnance} from './boss-ordnance-art.js?v=tame3&ai=1018';
+import {bombArcPose} from './bomb-sprites.js?v=bomb20&perf=1029';
+import {drawDressingSprite} from './background-dressing.js?v=mobileperf1';
+import {doverPatrolChart} from './dover-patrol-chart.js?v=dover3';
+import {impactMark,aimLine,laneEdge,sectorMark,partMark,shieldMark} from './tactical-marks.js?v=tame3';
 
-export const DOVER_ASSETS=Object.freeze({terrain:'terrain-dover-chalk-material-v6.webp',nighthawk:'asset-bank/outlined/native/boss-dover-nighthawk.webp',nighthawkWreck:'asset-bank/outlined/native/boss-dover-nighthawk-wreck.webp',rviii:'asset-bank/outlined/native/boss-dover-rviii.webp',rviiiWreck:'asset-bank/outlined/native/boss-dover-rviii-wreck.webp',rotor:'propeller-dover.webp'});
+export const DOVER_ASSETS=Object.freeze({terrain:'terrain-dover-chalk-material-v6.webp',nighthawk:'asset-bank/outlined/native/boss-dover-nighthawk.webp',nighthawkWreck:'asset-bank/outlined/native/boss-dover-nighthawk-wreck.webp',rviii:'asset-bank/outlined/native/boss-dover-rviii.webp',rviiiWreck:'asset-bank/outlined/native/boss-dover-rviii-wreck.webp',rotor:'propeller-dover.webp',land:'terrain-dover-downland-20261030.webp',sea:'jutland-sea.webp'});
 const images=new Map();let pending=null,generation=0;
 export const isDoverBoss=kind=>kind==='supermarine-nighthawk'||kind==='siemens-schuckert-r-viii';
 export function doverExtents(b){const a=b.a+Math.PI/2,s=b.geometryScale||1,w=b.layout.width*s/2,h=b.layout.height*s/2;return {halfWidth:Math.abs(Math.cos(a))*w+Math.abs(Math.sin(a))*h,halfHeight:Math.abs(Math.sin(a))*w+Math.abs(Math.cos(a))*h};}
@@ -18,12 +19,12 @@ export function prepareDoverAssets(region){
  pending=Promise.all(Object.entries({...DOVER_ASSETS,...DOVER_HARDWARE_SOURCES}).map(([key,path])=>new Promise(resolve=>{
   const im=new Image();im.decoding='async';images.set(key,im);
   im.onload=()=>{(im.decode?.()||Promise.resolve()).catch(()=>{}).then(()=>resolve(epoch===generation));};
-  im.onerror=()=>resolve(false);im.src='./'+path+'?v=headon-result339-20261028';
- })));return pending;
+  im.onerror=()=>resolve(false);im.src='./'+path+'?v=dover6';
+ }))).then(results=>{if(epoch===generation&&typeof document!=='undefined')for(const key of ['land','sea']){const im=images.get(key);if(!im?.naturalWidth)continue;const cv=document.createElement('canvas');cv.width=im.naturalWidth;cv.height=im.naturalHeight;const context=cv.getContext('2d');context.drawImage(im,0,0);const pixels=context.getImageData?.(0,0,cv.width,cv.height);if(pixels?.data){const tile=periodicSandPixels(pixels.data,cv.width,cv.height);cv.width=tile.width;cv.height=tile.height;const g=cv.getContext('2d'),data=g.createImageData(tile.width,tile.height);data.data.set(tile.data);g.putImageData(data,0,0);images.set(key,cv);}}return results;});return pending;
 }
 export function paintDover(c,g,cx,cy,w,h,renderer){
  const chart=doverPatrolChart(g),left=cx-w/2,top=cy-h/2;
- paintDoverTerrain(c,chart,cx,cy,w,h,images.get('terrain'),renderer);c.save();
+ paintDoverTerrain(c,chart,cx,cy,w,h,images.get('terrain'),renderer,{land:images.get('land'),sea:images.get('sea')});c.save();
  // Small, fixed cliff batteries belong to the coast, never to scrolling tile rows.
  for(const [v,side] of [[.16,-1],[.37,-1],[.61,-1],[.28,1],[.53,1],[.77,1]]){
   const point=doverCoastPoint(chart,v,side),gy=point.y,gx=point.x+side*110;

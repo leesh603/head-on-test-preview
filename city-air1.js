@@ -1,7 +1,7 @@
-import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=headon-result339-20261028';
-import {impactMark,aimLine} from './tactical-marks.js?v=headon-result339-20261028';
-import {spawnCityDefense,tickCityDefense} from './city-defense.js?v=headon-result339-20261028';
-import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=headon-result339-20261028';
+import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=tame3&perf=1029';
+import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
+import {spawnCityDefense,tickCityDefense} from './city-defense.js?v=tame3';
+import {fxsHas,fxsDraw,fxsImage} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029';
 // Region 4 searchlight network + ground fire net; region 5 wind streams.
 // Buildings stay scenery: no collision structures. Guns fire only while player is ILLUMINATED.
 export const CITY_BALANCE=Object.freeze({
@@ -51,7 +51,8 @@ export function installCityAir(Game){
     else this.windRiding='cross';
    }
    for(const e of this.enemies){
-    if(e.hp<=0||e.surface||e.stationary)continue;
+    // Boss adapters expose world coordinates as read-only getters; their controller owns motion.
+    if(e.hp<=0||e.surface||e.stationary||e.intrusionBody||e.stageBossBody)continue;
     const ew=this.inWind(e.x,e.y);
     if(ew&&Math.cos(ew.dir-e.a)>Math.cos(B.windCone)){e.x+=Math.cos(ew.dir)*(e.speed||100)*B.windPush*step;e.y+=Math.sin(ew.dir)*(e.speed||100)*B.windPush*step}
    }

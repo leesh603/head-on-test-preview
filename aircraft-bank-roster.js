@@ -1,7 +1,7 @@
 import {configureAirship} from './air-threat-profiles.js';
 import {CONCEPT_AIRFRAMES} from './aircraft-concept-profiles.js';
 import {configureConceptEnemy,fireConceptEnemy,remapConceptVolley,steerConceptBomber,updateConceptAircraft} from './aircraft-concept-combat.js';
-import {BANK_LIVERIES,BANK_LIVERY_FAMILIES} from './aircraft-bank-liveries.js?v=headon-result339-20261028';
+import {BANK_LIVERIES,BANK_LIVERY_FAMILIES} from './aircraft-bank-liveries.js?v=bank2';
 // Stock-bank aircraft in ordinary encounters. Enemy-only fittings; never touch pilot loadouts.
 // Each row: id, display name, faction, WWI service year, role, existing handling archetype,
 // cruise / durability / turning / firing-interval multipliers, and sprite scale.
@@ -85,7 +85,7 @@ let aircraftRenderer,rendererModule;
 const bankArtReady=createBankArtGate(key=>{
  if(typeof window==='undefined'||typeof document==='undefined')return false;
  // Exact same module URL as app.js: no second renderer/cache or eager bank preload.
- return (aircraftRenderer??=import('./aircraft.js?v=headon-result339-20261028&art=pilot-recovery2&pf=1027')).then(art=>{rendererModule=art;return art.paintedReady(key)});
+ return (aircraftRenderer??=import('./aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1')).then(art=>{rendererModule=art;return art.paintedReady(key)});
 },Date.now,key=>rendererModule?.hasPaintedAircraft(key)===true);
 const ordinaryFits=new Set(['fokker_standard','parseval','gotha','ff33','lohner_l','macchi_m3','macchi_m5','hansa_brandenburg_cc','hb_w29','bristol_duo','re7',...Object.keys(BANK_LIVERY_FAMILIES),...Object.values(BANK_LIVERIES).map(fit=>fit.base)]);
 const regular=e=>e&&e.hp>0&&!e.bossPilot&&!e.bossPlane&&!e.bossMinion&&!e.stageBossBody&&!e.heavyBomber&&!e.missionTarget&&!e.fieldUnit&&!e.surface&&!e.stationary&&!e.navalVessel&&!e.formationLeader;

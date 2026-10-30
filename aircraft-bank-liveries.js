@@ -1,4 +1,4 @@
-import {BANK_ART} from './aircraft-bank-art.js?v=headon-result339-20261028';
+import {BANK_ART} from './aircraft-bank-art.js?v=outline1';
 // Gallery families reuse established NPC handling; paint never grants pilot skills.
 // family, name, faction, service year, encounter role, handling base, visual scale.
 const rows=[

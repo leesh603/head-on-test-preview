@@ -1,15 +1,35 @@
+import {groundVisualSize} from './ground-perspective.js';
 import {airThreatMuzzles} from './air-threat-profiles.js';
 import {AIR_THREAT_ASSETS} from './air-threat-assets.js';
 // A small bounded cache, shared by solo/co-op and the asset-bank preview. No
 // canvas creation, pixel reads, filters, or network requests on the hot path.
 const images=new Map(),queue=[];
 let active=0;
+// These three older hulls bypass the aircraft cache. Match its painted cloth
+// and thin dark rim once at decode; keep source size, pivot and national paint.
+const softHullArt=new Set(['central-parseval-pl25','entente-british-ss','entente-forlanini-f5']);
+function prepareHullSurface(id,image){
+ if(!softHullArt.has(id))return image;
+ const w=image.naturalWidth,h=image.naturalHeight,body=document.createElement('canvas');body.width=w;body.height=h;
+ const bc=body.getContext('2d');bc.drawImage(image,0,0);const pixels=bc.getImageData(0,0,w,h),d=pixels.data;
+ for(let i=0;i<d.length;i+=4){
+  const hi=Math.max(d[i],d[i+1],d[i+2]),lo=Math.min(d[i],d[i+1],d[i+2]),light=(hi+lo)/2;
+  if(d[i+3]<128||hi-lo>40||light<=60)continue;
+  const weight=Math.min(1,(light-60)/80);
+  for(let k=0;k<3;k++)d[i+k]=Math.max(0,Math.min(255,Math.round(d[i+k]+weight*((d[i+k]-200)*.14-15))));
+ }
+ bc.putImageData(pixels,0,0);
+ const mask=document.createElement('canvas');mask.width=w;mask.height=h;const mc=mask.getContext('2d');mc.drawImage(body,0,0);mc.globalCompositeOperation='source-in';mc.fillStyle='#140f08';mc.fillRect(0,0,w,h);
+ const out=document.createElement('canvas');out.width=w;out.height=h;const c=out.getContext('2d'),rim=Math.max(1,Math.round(Math.max(w,h)/160));
+ for(let y=-rim;y<=rim;y++)for(let x=-rim;x<=rim;x++)if(x*x+y*y<=rim*rim+1)c.drawImage(mask,x,y);
+ c.drawImage(body,0,0);return out;
+}
 function pump(){
  while(active<2&&queue.length){
   const item=queue.shift();active++;
   const im=item.image;
   const finish=ok=>{item.ready=ok;item.done=true;active--;item.resolve(ok);pump()};
-  im.onload=()=>finish(im.naturalWidth>0);im.onerror=()=>finish(false);
+  im.onload=()=>{if(!im.naturalWidth){finish(false);return;}try{item.image=prepareHullSurface(item.id,im);finish(true)}catch{finish(false)}};im.onerror=()=>finish(false);
   im.crossOrigin='anonymous';im.decoding='async';im.src='./'+AIR_THREAT_ASSETS[item.id].path;
  }
 }
@@ -43,7 +63,8 @@ export function selectAAArt(e={},kind='aa'){
  const env=e.threatEnvironment||(region===6?'alpine':[1,7,14,16,17].includes(region)?'coastal':'rural');
  const id=`aa-${env}-pedestal`;return AIR_THREAT_ASSETS[id]?id:null;
 }
-export function drawThreatAA(c,e,x,y,size,kind='aa'){
+export function drawThreatAA(c,e,x,y,size,kind='aa',contextRegion){
+ size=groundVisualSize(e,size,kind,contextRegion);
  const id=selectAAArt(e,kind),item=request(id),m=AIR_THREAT_ASSETS[id];if(!item?.ready||!m)return false;
  // High-angle barrels are baked into the approved top-view art: rotating the
  // entire emplacement to aim would rotate sandbags/truck and misplace the muzzle.
@@ -51,8 +72,10 @@ export function drawThreatAA(c,e,x,y,size,kind='aa'){
  c.save();c.imageSmoothingEnabled=true;c.drawImage(item.image,x-w/2,y-h/2,w,h);c.restore();return true;
 }
 export function aaMuzzle(e,size=66,kind='aa'){
+ size=groundVisualSize(e,size,kind);
  const x=e.x||0,y=e.y||0;
  const id=selectAAArt(e,kind),m=AIR_THREAT_ASSETS[id];if(!m)return {x,y};
  const k=size/Math.max(m.width,m.height),p=m.muzzleNormalized||[.5,.5];
  return {x:x+(p[0]-.5)*m.width*k,y:y+(p[1]-.5)*m.height*k};
 }
+

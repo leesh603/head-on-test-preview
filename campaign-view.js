@@ -1,12 +1,12 @@
-import {PLANES} from './engine.js?v=headon-result339-20261028&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
-import {drawGroundEnemy} from './ground-enemy-art.js?v=headon-result339-20261028';
-import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=headon-result339-20261028&art=pilot-recovery2&pf=1027';
-import {SPRITE_ALIASES} from './campaign.js?v=headon-result339-20261028&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021';
-import {drawEquipment} from './equipment.js?v=headon-result339-20261028';
+import {PLANES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
+import {drawGroundEnemy} from './ground-enemy-art.js?v=tame3&perf=1029';
+import {planeSprite,registerCampaignSpriteAliases} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1';
+import {SPRITE_ALIASES} from './campaign.js?v=buildfit1&rail=42&afc=1&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021';
+import {drawEquipment} from './equipment.js?v=gal1&heal=orb1';
 
 registerCampaignSpriteAliases(SPRITE_ALIASES);
-import {drawBattlefieldSprite} from './battlefield-art.js?v=headon-result339-20261028';
-import {missionNavigation,navigationScreenPoint} from './navigation.js?v=headon-result339-20261028';
+import {drawBattlefieldSprite} from './battlefield-art.js?v=gal1';
+import {missionNavigation,navigationScreenPoint} from './navigation.js?v=gal1';
 const _ptShare=[0,0],_twCache=new Map();
 const _tw=(c,txt)=>{const k=c.font+'\u0000'+txt;let w=_twCache.get(k);if(w===undefined){w=c.measureText(txt).width;_twCache.set(k,w)}return w};
 export function drawCampaign(c,g,W,H){
@@ -21,9 +21,9 @@ export function drawCampaign(c,g,W,H){
  for(const z of g.zones){if(z.done)continue;const[x,y]=point(z),color=z.kind==='extract'?'#a2f8be':'#8fe5f4';c.strokeStyle=color;c.setLineDash([9,6]);c.beginPath();c.arc(x,y,z.r,0,Math.PI*2);c.stroke();c.setLineDash([]);c.lineWidth=5;c.beginPath();c.arc(x,y,z.r,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(1,z.progress/(z.required||1)));c.stroke();c.lineWidth=2;marker(z,z.kind==='extract'?'이탈':z.kind==='checkpoint'?'통과 지점':`${z.kind==='photo'?'사진정찰':'관측 유지'} ${z.progress.toFixed(1)}/${z.required}초`,color)}
  if(g.supplyZone&&!g.supplyZone.used){const z=g.supplyZone,[x,y]=point(z);c.strokeStyle='#bff2b3';c.beginPath();c.arc(x,y,z.r,0,6.283);c.stroke();marker(z,'탄띠 보급','#bff2b3')}
  const nearestConvoy=g.convoy.filter(o=>o.hp>0&&!o.escaped).sort((a,b)=>Math.hypot(a.x-g.x,a.y-g.y)-Math.hypot(b.x-g.x,b.y-g.y))[0];
- for(const unit of g.convoy){if(unit.hp<=0||unit.escaped)continue;const[x,y]=point(unit);unit.plane==='markiv'?drawGroundEnemy(c,{...unit,faction:unit.faction||g.teamFaction||PLANES[g.plane]?.faction||'entente'},x,y,78,'tank'):planeSprite(c,x,y,unit.a,unit.plane,1);c.fillStyle='#253329';c.fillRect(x-24,y+35,48,5);c.fillStyle='#9fdfbd';c.fillRect(x-24,y+35,48*unit.hp/unit.maxHp,5);if(unit===nearestConvoy)marker(unit,'호위 편대 '+g.convoy.filter(c=>c.hp>0).length+'/'+g.convoy.length,'#a3efd3')}
+ for(const unit of g.convoy){if(unit.hp<=0||unit.escaped)continue;const[x,y]=point(unit);unit.plane==='markiv'?drawGroundEnemy(c,{...unit,faction:unit.faction||g.teamFaction||PLANES[g.plane]?.faction||'entente'},x,y,78,'tank','central',g.worldRegion?.()??g.region):planeSprite(c,x,y,unit.a,unit.plane,1);c.fillStyle='#253329';c.fillRect(x-24,y+35,48,5);c.fillStyle='#9fdfbd';c.fillRect(x-24,y+35,48*unit.hp/unit.maxHp,5);if(unit===nearestConvoy)marker(unit,'호위 편대 '+g.convoy.filter(c=>c.hp>0).length+'/'+g.convoy.length,'#a3efd3')}
  const nearestTarget=g.enemies.filter(e=>e.missionTarget&&e.hp>0).sort((a,b)=>Math.hypot(a.x-g.x,a.y-g.y)-Math.hypot(b.x-g.x,b.y-g.y))[0];
- for(const e of g.enemies){const[x,y]=point(e);if(e.missionGround){drawGroundEnemy(c,e,x,y,e.missionTank?90:60);c.fillStyle='#253329';c.fillRect(x-20,y+32,40,4);c.fillStyle='#f3b675';c.fillRect(x-20,y+32,40*e.hp/e.maxHp,4)}
+ for(const e of g.enemies){const[x,y]=point(e);if(e.missionGround){drawGroundEnemy(c,e,x,y,e.missionTank?90:60,undefined,'central',g.worldRegion?.()??g.region);c.fillStyle='#253329';c.fillRect(x-20,y+32,40,4);c.fillStyle='#f3b675';c.fillRect(x-20,y+32,40*e.hp/e.maxHp,4)}
   if(e.missionTarget&&e.hp>0&&(e===nearestTarget||x>50&&x<W-50&&y>200&&y<H-140))marker(e,e.altitude===undefined?'임무 표적':['저고도 표적','중고도 표적','고고도 표적'][e.altitude],e.altitude!==undefined&&e.altitude!==g.altitude?'#c7c8ce':'#ffcc87');
   if(e.precisionWarning){const p=point(e.precisionWarning);c.strokeStyle='#ffb382';c.setLineDash([6,5]);c.beginPath();c.moveTo(x,y);c.lineTo(p[0],p[1]);c.stroke();c.setLineDash([])}
  }
@@ -33,6 +33,4 @@ export function drawCampaign(c,g,W,H){
  }
  c.restore();
 }
-
-
 

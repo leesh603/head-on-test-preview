@@ -1,7 +1,7 @@
 import {intrusionActive} from './intrusion-bosses.js';
 import {activeFronts} from './rural-fronts.js';
-import {pilotAircraftChoices,SORTIE_FITS} from './pilot-aircraft.js?v=headon-result339-20261028&art=pilot-recovery2';
-import {resolveAircraftPersonalityId} from './aircraft-personality164.js?v=headon-result339-20261028';
+import {pilotAircraftChoices,SORTIE_FITS} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
+import {resolveAircraftPersonalityId} from './aircraft-personality164.js?v=gal1';
 
 export const ACE_SORTIE_BALANCE=Object.freeze({maxAces:3,recovery:8,ruralOpening:40,ruralReinforce:65});
 // These are actual model identities, independent of personal paint or sprite ID.
@@ -80,7 +80,7 @@ export function installAceSortieRhythm(Game,{PILOTS,PLANES,PILOT_PLANES,stageAce
  proto.availableAcePilots=function(){
   if(intrusionActive(this))return [];
   syncAceSortie(this);const forced=this._rivalReturnPilot;
-  return Object.keys(PILOTS).filter(id=>(!forced||id===forced)&&PILOTS[id].faction!==PLANES[this.plane]?.faction&&stageAceEligible(this,id)&&this.availableAceAircraft(id).length);
+  return Object.keys(PILOTS).filter(id=>PILOTS[id].enemyAce!==false&&(!forced||id===forced)&&PILOTS[id].faction!==PLANES[this.plane]?.faction&&stageAceEligible(this,id)&&this.availableAceAircraft(id).length);
  };
  proto.registerSortieAce=function(e){
   const state=syncAceSortie(this);
@@ -160,4 +160,5 @@ export function installAceSortieRhythm(Game,{PILOTS,PLANES,PILOT_PLANES,stageAce
   return result;
  };
 }
+
 

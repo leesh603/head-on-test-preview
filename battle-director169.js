@@ -1,9 +1,11 @@
+import {facilityPlan} from './ground-facility-missions.js';
 import {transportConvoyActive} from './transport-convoy.js';
 import {photoReconActive} from './photo-recon-encounters.js';
 import {intrusionActive} from './intrusion-bosses.js';
 import {momentumCombatTarget} from './ace-momentum.js';
-import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=headon-result339-20261028&airbattle=20261025';
-import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=headon-result339-20261028';
+import {tickBaitAmbush,baitAmbushSteering,clearBaitAmbush} from './bait-ambush-tactics.js';
+import {ordinaryFighter,fighterAim,fighterRoundSpeed,formationStationSteering} from './dogfight-pass165.js?v=gal1&airbattle=20261025';
+import {regionalPatternPool,regionalEscortTarget,regionalScenePlacement,regionalExitHeading,regionalSteering,regionalAircraftEligible,regionalShotReady,regionalCombatTarget} from './regional-air-tactics.js?v=regionalair20261018';
 
 export const BATTLE_DIRECTOR_PATTERNS=Object.freeze({
  HEAD_ON_PASS:'HEAD_ON_PASS',CROSS_ATTACK:'CROSS_ATTACK',PINCER:'PINCER',CHASE:'CHASE',ESCORT:'ESCORT',DECOY:'DECOY',
@@ -36,6 +38,16 @@ const exclusiveEvent=game=>game.battlefieldEvents?.current?.status==='active'&&g
 const suspended=game=>scriptedBoss(game)||exclusiveEvent(game)||!!game.londonBattle;
 const regular=e=>e?.hp>0&&!e.expired&&!e.crashing&&!e.bossPilot&&!e.heavyBomber&&!e.surface&&!e.stationary&&!e.missionTarget&&['scout','hunter','bomber'].includes(e.type);
 
+function formationSignal(game,squad,order){
+ const leader=squad.leader,now=game.t||0;
+ if(!(leader?.hp>0)||leader.expired||leader.crashing||squad.broken||now-(squad.signalAt??-Infinity)<.65||squad.signalOrder===order&&now-squad.signalAt<3)return;
+ // Cosmetic orders ride the existing enemy snapshot. No particles, RNG,
+ // projectiles or simulation timers are added to the combat loop.
+ leader.directorSignals=(leader.directorSignals||[]).filter(s=>now-s.at<2.6).slice(-1);
+ leader.directorSignals.push({order,at:now,x:leader.x,y:leader.y,a:leader.a});
+ squad.signalAt=now;squad.signalOrder=order;
+}
+
 function directorState(game){
  return game.battleDirector??=(game.battleDirector={pattern:null,startedAt:0,endsAt:0,nextSceneAt:BATTLE_DIRECTOR_BALANCE.firstSceneAt,nextActionAt:Infinity,queue:[],history:[],sceneId:0,combatSinceRecovery:0,eliteRequested:false});
 }
@@ -43,7 +55,7 @@ function directorState(game){
 function weightedChoice(game,state,candidates){
  const recent=state.history.filter(p=>p!==P.RECOVERY&&p!==P.ACE_PRESSURE).slice(-BATTLE_DIRECTOR_BALANCE.recentWindow),last=recent.at(-1);
  const choices=candidates.filter(pattern=>pattern!==last),pool=choices.length?choices:candidates;
- const weighted=pool.map(pattern=>({pattern,weight:recent.includes(pattern)?.24:1}));
+ const tactics=directorTacticalWeights(game),weighted=pool.map(pattern=>({pattern,weight:(recent.includes(pattern)?.24:1)*(tactics[pattern]??1)})).filter(item=>item.weight>0);
  let roll=(game.rng?.()??Math.random())*weighted.reduce((sum,item)=>sum+item.weight,0);
  for(const item of weighted){roll-=item.weight;if(roll<=0)return item.pattern}
  return weighted.at(-1)?.pattern||P.HEAD_ON_PASS;
@@ -53,9 +65,26 @@ function choosePattern(game,state){
  if(state.combatSinceRecovery>=5&&state.clearSince!=null)return P.RECOVERY;
  const time=game.t||0;
  if(backgroundEvent(game))return weightedChoice(game,state,[P.HEAD_ON_PASS,P.CROSS_ATTACK,P.CHASE]);
- if(time>=120&&(state.scenesSinceCircle||0)>=4)return P.LUFBERY_CIRCLE;
  const candidates=time<360?[P.HEAD_ON_PASS,P.CROSS_ATTACK,P.PINCER,P.CHASE,P.BAIT,P.ESCORT,P.DECOY,P.BOMBER_RUN,P.LUFBERY_CIRCLE]:[P.HEAD_ON_PASS,P.CROSS_ATTACK,P.PINCER,P.CHASE,P.BAIT,P.ESCORT,P.DECOY,P.BOMBER_RUN,P.VETERAN_FORMATION,P.ELITE_FORMATION,P.LUFBERY_CIRCLE];
  return weightedChoice(game,state,regionalPatternPool(game,candidates));
+}
+
+// Read actual pursuit geometry once per decision, not a timed formation quota.
+function rearThreat(p,e){
+ if(!visibleContact(p)||!Number.isFinite(p.a))return false;
+ const range=Math.hypot(p.x-e.x,p.y-e.y);
+ return range>=70&&range<=420&&(p.tailLocked&&p.tailTargetId===e.tailId&&e.tailId!=null||
+  Math.abs(angleDiff(Math.atan2(e.y-p.y,e.x-p.x),p.a))<.6&&Math.abs(angleDiff(Math.atan2(p.y-e.y,p.x-e.x),e.a+Math.PI))<.95);
+}
+const supportAlive=e=>!e.expired&&!e.carrierHidden&&(e.hp>0||e.hp==null&&e.life>0);
+export function directorTacticalWeights(game){
+ const p=playerFor(game),players=(game.players||[game]).filter(visibleContact);
+ const fighters=(game.enemies||[]).filter(e=>ordinaryFighter(e)&&Math.hypot(e.x-p.x,e.y-p.y)<650);
+ const support=(game.allies||[]).filter(e=>supportAlive(e)&&Math.hypot(e.x-p.x,e.y-p.y)<650).length;
+ const pursued=fighters.some(e=>players.some(p=>rearThreat(p,e))),speed=(p.flightSpeed??p.speed??p.baseSpeed??170)*(p.airframeSpeed??1);
+ return{[P.HEAD_ON_PASS]:speed<190?1.8:1,[P.CROSS_ATTACK]:support>=2||players.length>1?2.4:1.3,
+  [P.PINCER]:players.length===1?1.8:1.3,[P.CHASE]:speed>210?2.6:.8,[P.BAIT]:pursued?2.2:1,
+  [P.LUFBERY_CIRCLE]:!players.length||(game.t||0)<20?0:pursued&&fighters.length>=3?3.5:support>=3?2:0};
 }
 
 function action(type,layout,count=1){return Array.from({length:count},(_,index)=>({type,layout,index,count}))}
@@ -93,6 +122,10 @@ export function directorFormationSlot(shape,index,count=6){
 }
 function chooseShape(game,state,pattern){
  const layout={LUFBERY_CIRCLE:'circle',HEAD_ON_PASS:'headOn',CROSS_ATTACK:'cross',PINCER:'pincer',CHASE:'chase',VETERAN_FORMATION:'veteran',BAIT:'bait',DECOY:'decoy',ESCORT:'escort',BOMBER_RUN:'bomber'}[pattern];
+ const p=playerFor(game),speed=(p.flightSpeed??p.speed??p.baseSpeed??170)*(p.airframeSpeed??1);
+ const wide=(game.players||[game]).filter(visibleContact).length>1||(game.allies||[]).some(e=>supportAlive(e)&&Math.hypot(e.x-p.x,e.y-p.y)<650);
+ const preferred=pattern===P.CHASE?(speed>210?'trail':'echelon'):pattern===P.HEAD_ON_PASS?(wide?'line':'vic'):pattern===P.VETERAN_FORMATION?(wide?'echelon':'diamond'):null;
+ if(preferred){state.lastShapes??={};state.lastShapes[pattern]=preferred;return preferred;}
  const choices=DIRECTOR_FORMATION_SHAPES[layout]||['vic'];
  state.lastShapes??={};const pool=choices.filter(v=>v!==state.lastShapes[pattern]);
  const options=pool.length?pool:choices,shape=options[Math.min(options.length-1,Math.floor((game.rng?.()??.5)*options.length))];
@@ -115,7 +148,7 @@ function beginPattern(game,state,pattern=choosePattern(game,state)){
  const rest=pattern===P.RECOVERY&&!reservedRest&&quietSince!=null?Math.max(.2,plannedRest-Math.max(0,now-quietSince)):plannedRest;state.recoveryDuration=null;
  state.endsAt=now+(pattern===P.RECOVERY?rest:pattern===P.ACE_PRESSURE?20:BATTLE_DIRECTOR_BALANCE.sceneMin+(game.rng?.()??Math.random())*(BATTLE_DIRECTOR_BALANCE.sceneMax-BATTLE_DIRECTOR_BALANCE.sceneMin));
  state.shape=chooseShape(game,state,pattern);
- state.nextActionAt=now+.35;state.queue=planFor(pattern,now,compact);
+ state.nextActionAt=now+.35;state.queue=facilityPlan(game,planFor(pattern,now,compact));
  // Crossing elements and the decoy's covering pair arrive in separate beats.
  for(const entry of state.queue)entry.delay=entry.layout==='decoyWing'?1.5:entry.layout==='cross'&&state.shape==='alternating'?Math.floor(entry.index/2)*1.15:entry.layout==='pincer'&&state.shape==='alternating'?(entry.index%2)*.35:0;state.history.push(pattern);state.history=state.history.slice(-6);
  if(pattern===P.RECOVERY)state.combatSinceRecovery=0;else if(pattern!==P.ACE_PRESSURE)state.combatSinceRecovery++;
@@ -249,6 +282,7 @@ function place(game,e,layout,index,count){
   const phase=anchor.a+index*Math.PI*2/count;e.directorCirclePhase=phase;
   e.x=squad.circle.x+Math.cos(phase)*radius;e.y=squad.circle.y+Math.sin(phase)*radius;e.a=phase+Math.PI/2;
   e.combatPassHeading=e.a;e.directorLaunchAt=e.directorReadyAt;e.directorChoreographyDone=false;
+  if(e===squad.leader)formationSignal(game,squad,'defend');
  }
 
  if(ordinaryFighter(e)&&['headOn','cross','pincer','chase','bait','veteran','decoyWing'].includes(layout)){
@@ -256,6 +290,7 @@ function place(game,e,layout,index,count){
   e.directorLaunchAt=e.directorReadyAt+stagger;e.directorFireHoldUntil=e.directorLaunchAt;
   e.directorChoreographyDone=false;e.directorBeat=null;
   if(['headOn','veteran','chase'].includes(layout)){e.a=game.battleDirector.anchor.a+(layout==='chase'?0:Math.PI);e.combatPassHeading=e.a;}
+  if(e===e.directorSquad?.leader)formationSignal(game,e.directorSquad,'attack');
  }
 
 
@@ -280,6 +315,7 @@ function joinSquadron(game,e,layout,index){
 }
 
 function releaseSquadMember(e){
+ clearBaitAmbush(e,e.directorSquad?.baitTarget);
  delete e.directorRole;delete e.directorRoleUntil;delete e.directorRoleTarget;delete e.directorBomberMode;
  if(e.formationLeader!==null)delete e.formationLeader;e.isFormationCommander=false;e.directorIntentUntil=0;e.directorEscort=null;
  e.combatPassTimer=0;e.combatPassCooldown=.6;e.personalityDecisionUntil=0;e.dogfightMode='APPROACH';
@@ -313,7 +349,7 @@ function tickSquadrons(game,dt){
    updateEscortRoles(game,squad,living,now);
   }
   if(!squad.broken&&(!living.includes(squad.leader)||squad.leader.hp<=0)){
-   squad.broken=true;squad.collapseUntil=now+2.5;squad.regroupAt=squad.tactic==='veteran'?now+6:Infinity;
+   squad.broken=true;squad.attackSignalAt=0;squad.collapseUntil=now+2.5;squad.regroupAt=squad.tactic==='veteran'?now+6:Infinity;
    for(const w of living){breakFormation(game,w,undefined,true);releaseSquadMember(w);w.combatPassHeading=w.formationBreakHeading}
   }
   if(squad.broken){
@@ -324,10 +360,18 @@ function tickSquadrons(game,dt){
   }
   if(!(squad.target?.hp>0)||squad.target.status==='downed')squad.target=playerFor(game);
   for(const w of living)w.directorTarget=squad.target;
-  if(squad.tactic==='headOn')updateFighterRoles(game,squad,living,now);
+  tickBaitAmbush(game,squad,living,now);
+  if(squad.tactic==='headOn'&&!squad.circle)updateFighterRoles(game,squad,living,now);
+  updateCircleDefense(game,squad,living,now);
+  reassembleSquad(game,squad,living,now);
+  if(squad.attackSignalAt&&now>=squad.attackSignalAt){
+   if(!squad.circle&&living.length>squad.members.length/2&&visibleContact(squad.target)&&!squad.leader.directorChoreographyDone&&
+    now-squad.leader.directorLaunchAt<1.5&&!living.some(w=>tacticalRest(w,now)||w.defensivePressure))formationSignal(game,squad,'attack');
+   squad.attackSignalAt=0;
+  }
   // The Director's existing pass states supply the shared attack/Break beat.
   const leader=squad.leader;
-  if(!squad.passActive&&!living.some(w=>w.directorLaunchAt&&!w.directorChoreographyDone)&&['headOn','cross','veteran'].includes(squad.tactic)){
+  if(!squad.circle&&!squad.passActive&&!living.some(w=>w.directorLaunchAt&&!w.directorChoreographyDone)&&['headOn','cross','veteran'].includes(squad.tactic)){
    leader.combatPassTimer=Math.max(0,(leader.combatPassTimer||0)-dt);
    if(leader.combatPassTimer===0){
     const state=leader.combatPassState;
@@ -357,7 +401,7 @@ function updateFighterRoles(game,squad,living,now){
 
 function fighterRoleSteering(game,e,contact,dt,baseTurn,result){
  const squad=e.directorSquad,now=game.t||0;
- if(squad?.tactic!=='headOn'||squad.broken||!visibleContact(contact)||!ordinaryFighter(e)||e.defensivePressure||tacticalRest(e,now)||(game.patrols||[]).includes(contact))return result;
+ if(squad?.tactic!=='headOn'||squad.circle&&!squad.passActive||squad.broken||!visibleContact(contact)||!ordinaryFighter(e)||e.defensivePressure||tacticalRest(e,now)||(game.patrols||[]).includes(contact))return result;
  if(e.directorBeat!=='attack'&&(!e.directorChoreographyDone||![S.APPROACH,S.REPOSITION].includes(e.combatPassState)))return result;
  // After the first real shot, retain the pass direction. Turning out of its nose
  // creates the existing Break/re-entry opening instead of a homing attack.
@@ -371,7 +415,7 @@ function fighterRoleSteering(game,e,contact,dt,baseTurn,result){
   const a=contact.a??0,side=e.directorEntrySide||1;
   heading=Math.atan2(contact.y-Math.sin(a)*90+Math.cos(a)*side*170-e.y,contact.x-Math.cos(a)*90-Math.sin(a)*side*170-e.x);
  }
- if(e.directorBeat==='attack'&&e.directorVolleyCycle>0)e.directorPassAim=e.gunAim??e.a;
+ if(e.directorBeat==='attack'&&e.directorVolleyCycle>(e.directorPassVolleyStart||0))e.directorPassAim=e.gunAim??e.a;
  return{delta:angleDiff(heading,e.a),turn:result.turn};
 }
 
@@ -452,29 +496,77 @@ function finishScene(game,state,interrupted=false){
  if(killed){state.endsAt=Math.min(state.endsAt,(game.t||0)+2);state.recoveryDuration=Math.max(state.recoveryDuration||0,1.2);}
 }
 
+function endCircleDefense(game,squad){
+ for(const w of squad.members){w.directorRoleTarget=null;w.directorChoreographyDone=true;w.directorIntentUntil=0;w.directorBeat='free';delete w.directorPassAim;}
+ squad.circle=null;releasePass(squad);formationSignal(game,squad,'regroup');
+}
+
+function updateCircleDefense(game,squad,living,now){
+ const players=(game.players||[game]).filter(visibleContact);
+ let circle=squad.circle;
+ if(circle&&(living.length<3&&now-circle.start>=.85||!players.length||now-circle.start>8||living.some(w=>tacticalRest(w,now)))){endCircleDefense(game,squad);return;}
+ if(now<(squad.circleDecisionAt||0))return;squad.circleDecisionAt=now+.35;
+ let victim=null,pursuer=null;
+ for(const w of living){pursuer=players.find(p=>rearThreat(p,w));if(pursuer){victim=w;break;}}
+ if(!circle){
+  // A surviving attacking flight can close into defense without moving any
+  // aircraft by hand. Missions and broken/half-destroyed flights keep priority.
+  if(!victim||squad.circleUsed||!squad.passActive||living.length<3||living.length<=squad.members.length/2||
+   !['headOn','cross','pincer','chase','veteran'].includes(squad.tactic)||squad.until-now<4||living.some(w=>tacticalRest(w,now)))return;
+  const center=living.reduce((c,w)=>({x:c.x+w.x/living.length,y:c.y+w.y/living.length}),{x:0,y:0});
+  if(Math.hypot(center.x-victim.x,center.y-victim.y)>300)return;
+  circle=squad.circle={...center,radius:(game.viewWidth||960)<=720?155:195,start:now,lastThreatAt:now};
+  squad.passActive=false;squad.circleUsed=true;
+  for(const w of living){w.directorRoleTarget=null;w.directorRallyUntil=0;w.directorIntentUntil=0;w.directorChoreographyDone=true;}
+  formationSignal(game,squad,'defend');
+ }
+ if(victim)circle.lastThreatAt=now;
+ else if(now-(circle.lastThreatAt??circle.start)>2.4){endCircleDefense(game,squad);return;}
+ if(circle.cover&&now>=circle.coverUntil){circle.cover.directorRoleTarget=null;circle.cover=null;circle.rejoinUntil=now+.7;}
+ if(circle.cover&&!visibleContact(circle.target)){circle.cover.directorRoleTarget=null;circle.cover=null;}
+ if(circle.cover||now<(circle.rejoinUntil||0)||!victim)return;
+ let cover=null,best=Infinity;
+ for(const w of living){
+  if(w===victim||w.defensivePressure||tacticalRest(w,now))continue;
+  const range=Math.hypot(pursuer.x-w.x,pursuer.y-w.y),error=Math.abs(angleDiff(fighterAim(game,w,pursuer),w.a));
+  if(range>470||error>.9)continue;
+  const score=range+error*180;if(score<best){best=score;cover=w;}
+ }
+ if(cover){circle.cover=cover;circle.target=pursuer;circle.coverUntil=now+.9;circle.coverHeading=fighterAim(game,cover,pursuer);cover.directorRoleTarget=pursuer;}
+}
+
+function reassembleSquad(game,squad,living,now){
+ if(!squad.passActive||squad.circle||squad.reattackUsed||living.length<3||living.length<=squad.members.length/2||squad.until-now<6||
+  !['headOn','cross','pincer','chase','veteran'].includes(squad.tactic)||!visibleContact(squad.target)||
+  living.some(w=>!w.directorChoreographyDone||tacticalRest(w,now)||w.defensivePressure))return;
+ const target=squad.target,range=Math.hypot(target.x-squad.leader.x,target.y-squad.leader.y);
+ if(range<240||range>650)return;
+ squad.passActive=false;squad.reattackUsed=true;
+ formationSignal(game,squad,'regroup');squad.attackSignalAt=now+.85;
+ for(const w of living){
+  w.directorEntryAnchor={x:target.x,y:target.y,a:target.a??0};
+  const side=w.directorEntrySide||1,rank=Math.floor(w.directorSlot/2);
+  const delay=squad.tactic==='cross'?(side>0?1:0)+rank*.18:squad.tactic==='pincer'?(side>0?.55:0)+rank*.18:squad.tactic==='chase'?w.directorSlot*.22:rank*.16;
+  w.directorReadyAt=now+.85;w.directorLaunchAt=w.directorReadyAt+delay;w.directorFireHoldUntil=w.directorLaunchAt;
+  w.directorAttackEndedAt=null;w.directorAttackDeadline=null;delete w.directorPassAim;w.directorPassVolleyStart=w.directorVolleyCycle||0;
+  w.directorChoreographyDone=false;w.directorBeat=null;w.directorIntentUntil=0;w.directorRallyUntil=0;
+  w.combatPassState=S.REPOSITION;w.combatPassTimer=0;w.combatPassCooldown=0;w.combatPassHeading=fighterAim(game,w,target);
+ }
+}
+
 function circleSteering(game,e,contact,baseTurn){
  const squad=e.directorSquad,circle=squad?.circle,now=game.t||0;
- if(!circle||squad.broken||squad.passActive||!contact||contact.fogHidden||contact.ballCloak>0||contact.kaiserFogTime>0||baseTurn<=0||e.directorLayout==='recovery'||e.directorBreakUntil>now)return null;
- const age=now-circle.start,living=squad.members.filter(w=>w.hp>0&&!w.expired);
- const exitDistance=Math.max(260,Math.min(360,(game.viewWidth||960)*.4));
- if(age>10||age>2&&Math.hypot(contact.x-circle.x,contact.y-circle.y)>exitDistance){
-  for(const w of living){
-   w.directorChoreographyDone=true;w.directorIntentUntil=now+3;
-   w.directorCruise??={speed:w.speed,dogfight:w.dogfightCruise,personality:w.personalityCruise,cap:w.cruiseSpeedCap};
-   w.speed=Math.min(265,Math.max(w.speed,(contact.speed||170)*1.3));w.dogfightCruise=w.speed;w.personalityCruise=w.speed;w.cruiseSpeedCap=Math.max(w.cruiseSpeedCap||0,w.speed);
-  }
-  releasePass(squad);return null;
- }
- const active=age>2?Math.floor((age-2)/1.65)%living.length:-1,peeling=living[active]===e&&(age-2)%1.65<.95;
- if(peeling&&now>=e.directorReadyAt){
-  e.directorBeat='peel';e.combatPassState=S.COMMIT;e.combatPassHeading=fighterAim(game,e,contact);
+ if(!circle||squad.broken||squad.passActive||!visibleContact(contact)||baseTurn<=0||e.directorLayout==='recovery'||e.directorBreakUntil>now)return null;
+ const age=now-circle.start;
+ if(circle.cover===e&&now<circle.coverUntil&&visibleContact(circle.target)&&now>=e.directorReadyAt){
+  e.directorBeat='peel';e.combatPassState=S.COMMIT;e.combatPassHeading=circle.coverHeading;
   return{delta:angleDiff(e.combatPassHeading,e.a),turn:baseTurn};
  }
  // Follow the next arc point. Nose-directed native fire protects the aircraft
  // ahead; nobody fires radially or gains an artificial rotating turret.
  const phase=Math.atan2(e.y-circle.y,e.x-circle.x)+.48;
  const x=circle.x+Math.cos(phase)*circle.radius,y=circle.y+Math.sin(phase)*circle.radius;
- e.directorBeat=age<.85?'assemble':active>=0?'rejoin':'circle';e.combatPassState=S.APPROACH;
+ e.directorBeat=age<.85?'assemble':'circle';e.combatPassState=S.APPROACH;
  const heading=Math.atan2(y-e.y,x-e.x);e.combatPassHeading=heading;
  return{delta:angleDiff(heading,e.a),turn:baseTurn};
 }
@@ -514,6 +606,14 @@ function choreographySteering(game,e,contact,baseTurn){
  let heading=e.a;
  if(beat==='attack'){
   heading=e.dangerAimUntil>now?e.dangerAim:fighterAim(game,e,contact);
+  // The pinning element holds the nose while the opposite wing cuts behind.
+  // Once a real volley starts, a lateral dodge can still defeat that pass.
+  if(e.directorLayout==='pincer'&&e.directorPincerRole==='flank'&&Math.hypot(contact.x-e.x,contact.y-e.y)>280){
+   const a=contact.a??0,side=e.directorEntrySide||1;
+   heading=Math.atan2(contact.y-Math.sin(a)*90+Math.cos(a)*side*140-e.y,contact.x-Math.cos(a)*90-Math.sin(a)*side*140-e.x);
+  }
+  if(e.directorVolleyCycle>(e.directorPassVolleyStart||0))e.directorPassAim??=e.gunAim??e.a;
+  if(Number.isFinite(e.directorPassAim))heading=e.directorPassAim;
   e.combatPassHeading=heading;
  }else if(beat==='break'){
   heading=e.directorBreakHeading;e.directorFireHoldUntil=Math.max(e.directorFireHoldUntil,attackEnd+1.05);
@@ -815,7 +915,7 @@ export function installBattleDirector(Game,deps={}){
  Game.prototype.maintainEnemyFormations=function(){return maintainFormations(this)};
  Game.prototype.breakEnemyFormation=function(e,duration){const world=this.combatWorld?.()||this;if(e?.eliteKind)return world.eliteEnemies?.disruptFormation?.(e,duration)||false;return breakFormation(world,e,duration)};
  const steering=Game.prototype.dogfightSteering;
- Game.prototype.dogfightSteering=function(e,contact,dt,baseTurn){if(e?.formationCollapseUntil>(this.t||0))return{delta:Math.atan2(Math.sin(e.formationBreakHeading-e.a),Math.cos(e.formationBreakHeading-e.a)),turn:baseTurn*.85};const result=tacticalRest(e,this.t||0)?{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*.8}:e?.defensivePressure||ordinaryFighter(e)&&(this.patrols||[]).includes(contact)?steering.call(this,e,contact,dt,baseTurn):circleSteering(this,e,contact,baseTurn)||escortSteering(this,e,contact,baseTurn)||choreographySteering(this,e,contact,baseTurn)||intentSteering(this,e,contact,dt,baseTurn)||squadSteering(this,e,contact,dt,baseTurn)||steering.call(this,e,contact,dt,baseTurn);return regionalSteering(this,e,contact,baseTurn,fighterRoleSteering(this,e,contact,dt,baseTurn,result))};
+  Game.prototype.dogfightSteering=function(e,contact,dt,baseTurn){if(e?.formationCollapseUntil>(this.t||0))return{delta:Math.atan2(Math.sin(e.formationBreakHeading-e.a),Math.cos(e.formationBreakHeading-e.a)),turn:baseTurn*.85};const result=tacticalRest(e,this.t||0)?{delta:angleDiff(e.combatPassHeading??e.a,e.a),turn:baseTurn*.8}:e?.defensivePressure||ordinaryFighter(e)&&(this.patrols||[]).includes(contact)?steering.call(this,e,contact,dt,baseTurn):circleSteering(this,e,contact,baseTurn)||escortSteering(this,e,contact,baseTurn)||baitAmbushSteering(this,e,contact,baseTurn,angleDiff,fighterAim)||choreographySteering(this,e,contact,baseTurn)||intentSteering(this,e,contact,dt,baseTurn)||squadSteering(this,e,contact,dt,baseTurn)||steering.call(this,e,contact,dt,baseTurn);return regionalSteering(this,e,contact,baseTurn,fighterRoleSteering(this,e,contact,dt,baseTurn,result))};
  Game.prototype.directorBomberSteering=function(e,contact,dt,baseTurn){
   if(e.type!=='bomber'||!regionalAircraftEligible(e)||!e.directorRouteOrigin||this.mode==='campaign'||scriptedBoss(this))return null;
   const heading=tacticalRest(e,this.t||0)?e.combatPassHeading:['evade','exit'].includes(e.directorBomberMode)?e.directorBomberHeading:e.directorRouteHeading;
@@ -844,6 +944,8 @@ export function installBattleDirector(Game,deps={}){
  const update=Game.prototype.update;
  Game.prototype.update=function(dt,input={}){if(this.state==='playing')maintainFormations(this);const result=update.call(this,dt,input);if(this.state==='playing')maintainFormations(this);this.tickBattleDirector(Math.min(.04,Math.max(0,dt||0)));return result};
 }
+
+
 
 
 

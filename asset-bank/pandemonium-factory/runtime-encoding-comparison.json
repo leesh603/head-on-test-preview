@@ -1,0 +1,18 @@
+{
+  "body.webp": {
+    "originalBytes": 1543084,
+    "encodedBytes": 470742,
+    "sameDimensions": true,
+    "alphaExact": true,
+    "opaqueRGBMeanAbsoluteError": 1.7169716426195012,
+    "opaqueRGBPSNR": 40.898213997782655
+  },
+  "body-wreck.webp": {
+    "originalBytes": 1621174,
+    "encodedBytes": 500868,
+    "sameDimensions": true,
+    "alphaExact": true,
+    "opaqueRGBMeanAbsoluteError": 1.7857726310477153,
+    "opaqueRGBPSNR": 40.51687226575392
+  }
+}

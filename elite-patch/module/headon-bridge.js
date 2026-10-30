@@ -1,10 +1,10 @@
 import {intrusionActive} from '../../intrusion-bosses.js';
-import {pilotUnlockEliteDeath} from '../../pilot-unlocks.js?v=headon-result339-20261028';
+import {pilotUnlockEliteDeath} from '../../pilot-unlocks.js';
 import {momentumDamage,momentumCount,recordMomentumKill} from '../../ace-momentum.js';
-import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js?v=headon-result339-20261028&momentum=20261027';
+import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js?v=wwifix20261025&momentum=20261027';
 import {recordCombatImpact} from '../../combat-impact-result.js';
 import {wwiProjectileDamageMultiplier} from '../../wwi-equipment.js';
-import {regionalSteering} from '../../regional-air-tactics.js?v=headon-result339-20261028';
+import {regionalSteering} from '../../regional-air-tactics.js?v=regionalair20261018';
 
 const INSTALL_KEY = Symbol.for('headon.eliteEnemyPatch.v1');
 

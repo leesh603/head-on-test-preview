@@ -1,3 +1,4 @@
+import {maritimeReveal} from './maritime-intrusion.js';
 import { intrusionLayout } from './intrusion-boss-layouts.js';
 export { intrusionLayout, profileLayout } from './intrusion-boss-layouts.js';
 const banks=new Map();
@@ -30,7 +31,8 @@ export function drawIntrusionBoss(ctx,encounter,point,scale){
  const radius=Math.hypot(layout.width,layout.height)*scale*.5;
  const cw=ctx.canvas?.width,ch=ctx.canvas?.height;
  if(cw&&ch&&(point.x+radius<0||point.y+radius<0||point.x-radius>cw||point.y-radius>ch))return false;
- ctx.save();ctx.translate(point.x,point.y);ctx.rotate((encounter.a??-Math.PI/2)+Math.PI/2);ctx.scale(scale,scale);
+ ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+ ctx.translate(point.x,point.y);ctx.rotate((encounter.a??-Math.PI/2)+Math.PI/2);ctx.scale(scale,scale);
  const t=encounter.visualTime??encounter.elapsed??encounter.age??0;
  for(const p of layout.parts){
   if(p.dependencies.some(d=>intrusionPartState(encounter,d)==='destroyed'))continue;
@@ -38,12 +40,18 @@ export function drawIntrusionBoss(ctx,encounter,point,scale){
   // Missing state falls back only for non-destructible fixed base. Explicit null hides a module.
   const spec=Object.hasOwn(p.states,state)?p.states[state]:p.states.intact;
   if(!spec)continue;const image=bank.images.get(spec.src);if(!image)continue;
-  let delta=(p.kind==='barrel'||p.rotatesWithTurret)?(encounter.turretAngles?.[p.group]??0):0;
+  let delta=(state!=='destroyed'||p.destroyedRotates!==false)&&(p.kind==='barrel'||p.rotatesWithTurret)?(encounter.turretAngles?.[p.group]??0):0;
   delta=Math.max(-p.arc,Math.min(p.arc,delta));
   ctx.save();ctx.translate(spec.x,spec.y);ctx.rotate(p.angle+delta);
+  if(p.revealOnly)ctx.globalAlpha*=maritimeReveal(encounter);
+  if(p.concealment){const reveal=maritimeReveal(encounter);ctx.globalAlpha*=1-reveal;ctx.translate((p.openOffset?.[0]||0)*reveal,(p.openOffset?.[1]||0)*reveal);}
   // Projected axial propeller: blade span contracts; it must not become an overhead rotor.
   if(p.kind==='propeller'&&state!=='destroyed'&&!(p.stopWhenParentDestroyed||[]).some(id=>intrusionPartState(encounter,id)==='destroyed'))ctx.scale(Math.max(.12,Math.abs(Math.cos(t*23+p.phase))),1);
-  ctx.drawImage(image,-spec.pivot[0],-spec.pivot[1]);ctx.restore();
+  if(p.spriteScale)ctx.scale(p.spriteScale,p.spriteScale);
+  if(spec.drawSize)ctx.drawImage(image,-spec.pivot[0],-spec.pivot[1],...spec.drawSize);else ctx.drawImage(image,-spec.pivot[0],-spec.pivot[1]);
+  // Hit flash: the struck module brightens for a moment (additive redraw of its own image).
+  const fl=encounter.flash?.[p.group];if(fl>0&&state!=='destroyed'){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=Math.min(1,fl/.12)*.85;if(spec.drawSize)ctx.drawImage(image,-spec.pivot[0],-spec.pivot[1],...spec.drawSize);else ctx.drawImage(image,-spec.pivot[0],-spec.pivot[1]);ctx.globalAlpha*=.6;if(spec.drawSize)ctx.drawImage(image,-spec.pivot[0],-spec.pivot[1],...spec.drawSize);else ctx.drawImage(image,-spec.pivot[0],-spec.pivot[1]);}
+  ctx.restore();
  }
  ctx.restore();return true;
 }
@@ -53,3 +61,4 @@ export function intrusionMuzzle(layoutId,group,delta=0,barrelIndex=0){
  delta=Math.max(-p.arc,Math.min(p.arc,delta));const m=p.muzzles?.[Math.abs(Math.trunc(barrelIndex))%p.muzzles.length]||p.muzzle,c=Math.cos(delta),s=Math.sin(delta),x=m.x-p.x,y=m.y-p.y;
  return {x:p.x+x*c-y*s,y:p.y+x*s+y*c,angle:m.angle+delta,arc:p.arc};
 }
+

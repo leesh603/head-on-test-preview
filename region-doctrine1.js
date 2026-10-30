@@ -1,6 +1,6 @@
 // Regional enemy doctrine weights + regional battlefield events.
 // Wraps spawnComposition (keeps time-scaling) and offerBattlefieldEvent (keeps canOffer guards).
-import {BATTLEFIELD_EVENT_BALANCE} from './battlefield-events170.js?v=headon-result339-20261028&afc=1&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
+import {BATTLEFIELD_EVENT_BALANCE} from './battlefield-events170.js?v=buildfit1&afc=1&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
 const AIR_TYPES=['scout','hunter','bomber','heavyBomber'];
 // weight = [scout,hunter,bomber,heavy,zeppelinShare]
 const DOCTRINE={
@@ -159,10 +159,10 @@ export function installRegionDoctrine(Game){
   if(!event||!Object.values(REGION_EVENTS).includes(event.type))return _tick.call(this);
   {
    this.tickBattlefieldConsequences?.();
-   const done=outcome=>{
+   const done=(outcome,reason=null)=>{
     for(const target of event.targets||[]){target.missionTarget=false;target.eventExit=false;delete target.eventExitOrigin}
     this.recordBattlefieldOutcome?.(event,outcome);
-    state.result={id:event.id,type:event.type,outcome};state.history.push({type:event.type,outcome,time:now});state.history=state.history.slice(-8);state.lastType=event.type;state.current=null;
+    state.result={id:event.id,type:event.type,outcome,reason};state.history.push({type:event.type,outcome,time:now});state.history=state.history.slice(-8);state.lastType=event.type;state.current=null;
     if(outcome==='completed'){
      const p=this;
      for(let i=0;i<4;i++)(this.drops||=[]).push({x:p.x+Math.cos(i*1.7)*46,y:p.y+Math.sin(i*1.7)*46,value:i<3?11:12,heal:false,battlefieldEvent:true});
@@ -171,10 +171,10 @@ export function installRegionDoctrine(Game){
     if(outcome==='completed'&&event.winBoost==='blackout'){this.illuminatedUntil=0;this.blackoutUntil=now+15}
    };
    if(event.ambient){if(now>=event.deadline)done('completed');return}
-   if(event.targets?.some(t=>t.hp>0&&(t.rivalEscaped||t.expired)))return done('failed');
-   if(event.type==='BOMBER_STREAM')for(const target of event.targets||[])if(target.hp>0&&target.eventExitOrigin&&Math.hypot(target.x-target.eventExitOrigin.x,target.y-target.eventExitOrigin.y)>=(target.eventExitDistance||BATTLEFIELD_EVENT_BALANCE.bomberExitDistance))return done('failed');
+   if(event.targets?.some(t=>t.hp>0&&(t.rivalEscaped||t.expired)))return done('failed','targetEscaped');
+   if(event.type==='BOMBER_STREAM')for(const target of event.targets||[])if(target.hp>0&&target.eventExitOrigin&&Math.hypot(target.x-target.eventExitOrigin.x,target.y-target.eventExitOrigin.y)>=(target.eventExitDistance||BATTLEFIELD_EVENT_BALANCE.bomberExitDistance))return done('failed','targetEscaped');
    if(event.targets?.length&&event.targets.every(t=>t.hp<=0||t.deathHandled))return done('completed');
-   if(now>=event.deadline)return done('failed');
+   if(now>=event.deadline)return done('failed','timeExpired');
    return;
   }
   return _tick.call(this);

@@ -1,0 +1,52 @@
+{
+  "revision": "navarre-frommherz-20261027",
+  "crewBaked": true,
+  "items": [
+    {
+      "pilot": "navarre",
+      "aircraft": "navarre_nieuport11",
+      "flightPath": "sortie-aircraft/flight/navarre_nieuport11.webp",
+      "hangarPath": "sortie-aircraft/navarre_nieuport11.webp",
+      "portraitPath": "portrait-navarre.webp",
+      "crewBaked": true,
+      "flightSha256": "6678f40ecab5833a4a5aede660787531971ae2e9940d5a7a3f1e737ded170a2d",
+      "portraitPngSha256": "229b45c91bf26fda2b957c5068c1f7736418d3627ca4283d9fea9a772f447217",
+      "portraitWebpSha256": "b7e8f4cf558720ba7067b9626a9a353e1d8637021351d78b3c399f250380a1af",
+      "bounds": [
+        288,
+        320,
+        39,
+        65,
+        250,
+        240
+      ],
+      "portraitDimensions": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "pilot": "frommherz",
+      "aircraft": "frommherz_albatros_d3",
+      "flightPath": "sortie-aircraft/flight/frommherz_albatros_d3.webp",
+      "hangarPath": "sortie-aircraft/frommherz_albatros_d3.webp",
+      "portraitPath": "portrait-frommherz.webp",
+      "crewBaked": true,
+      "flightSha256": "8b672922d44eb315e8c400265f7e0becad59b358ef9e60ab9e972e4ffc22939d",
+      "portraitPngSha256": "c74ebc6617908f73bb6e6ea0f2824b3118b0bd7c2c8744fd70b06593407c2dfb",
+      "portraitWebpSha256": "7037e7a621cad197791cbe36c6fbccc1c0f28bc986355f360840902a49488518",
+      "bounds": [
+        288,
+        320,
+        22,
+        56,
+        266,
+        248
+      ],
+      "portraitDimensions": [
+        1254,
+        1254
+      ]
+    }
+  ]
+}

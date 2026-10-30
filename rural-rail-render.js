@@ -1,9 +1,10 @@
-import {fx} from './fx-art.js?v=headon-result339-20261028';
-import {drawArtilleryPressure,drawArtilleryMuzzle} from './artillery-fx.js?v=headon-result339-20261028';
-import {getLocale} from './i18n.js?v=headon-result339-20261028&afc=1&art=pilot-recovery2';
-import {impactMark,bandMark,partMark,aimLine,lockMark,MARK} from './tactical-marks.js?v=headon-result339-20261028';
-import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=headon-result339-20261028';
-import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=headon-result339-20261028';
+import {fx,fxTint} from './fx-art.js?v=tame3';
+import {drawArtilleryPressure,drawArtilleryMuzzle} from './artillery-fx.js?v=20261026';
+import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
+import {impactMark,bandMark,partMark,aimLine,lockMark,MARK} from './tactical-marks.js?v=tame3';
+import {RURAL_RAIL,RURAL_CARS} from './rural-rail-layout.js?v=tame3';
+import {RAIL_GUN_RIGS,railRecoil,railSuspension,railGunMuzzle} from './rural-rail-artillery.js?v=tame3';
+import {railMunition,railSalvoBeat,railMunitionHazards} from './rural-rail-munitions.js';
 // Called with the body's translation already applied. Original RGBA car art.
 export function drawRuralRail(c,b,images,wrecks){
  c.save();c.imageSmoothingEnabled=true;
@@ -54,9 +55,10 @@ export function drawRuralRailWarnings(c,b){
  // The emitted hazards own their countdowns after firing; drawing barrage here
  // too used to stack a second, differently-sized set of circles over them.
  const pending=b.finalAim||b.aimPlan;
- if(pending){const plan=pending,heavy=b.kind==='lincomparable';
+ if(pending){const plan=pending,heavy=b.kind==='lincomparable',munition=railMunition(b.railGun?.shotCount||0,plan.final),names={fragmentation:getLocale()==='en'?'SHRAPNEL':'파편 확산탄',gas:getLocale()==='en'?'GAS SHELLS':'독가스탄',staggered:getLocale()==='en'?'STAGGERED FIRE':'시차 포격'};
   const r=b.rail129,aimP=r?.phase==='aim'?Math.min(1,r.time/Math.max(.01,r.c.aimSeconds)):1,tone=plan.blind?'blind':'warn';
   const label=(text,x,y)=>{c.font='bold 14px sans-serif';c.textAlign='center';c.lineWidth=3;c.strokeStyle=MARK.ink;c.strokeText(text,x,y);c.fillStyle='#f3dca6';c.fillText(text,x,y);};
+  if(names[munition])label(names[munition],plan.target.x,plan.target.y-70);
   if(!plan.locked){
    // Only the sight moves during the lay. The full impact pattern becomes
    // visible once committed, so turning does not drag a whole cloud of rings.
@@ -66,19 +68,23 @@ export function drawRuralRailWarnings(c,b){
   for(const [i,p]of plan.points.entries()){
    if(i<(plan.index||0))continue;
    impactMark(c,p.x,p.y,plan.radius||88,aimP*.6,{tone,heavy:heavy||i===plan.points.length-1,cross:heavy});
-   if(!heavy)label(String(i+1),p.x,p.y+5);
+   if(!heavy)label(String(railSalvoBeat(i,plan.points.length,munition)+1),p.x,p.y+5);
   }
   if(heavy){
    const p=plan.target;bandMark(c,p.x,p.y,plan.start||plan.radius,plan.wave,aimP*.6,{tone});
    c.fillStyle='#f0cf91';c.font='bold 13px sans-serif';c.textAlign='center';
    c.fillText(getLocale()==='en'?'1 IMPACT → 2 WAVE':'1 착탄 → 2 충격파',p.x,p.y-plan.radius-10);
    if(plan.final)c.fillText(getLocale()==='en'?(plan.locked?'AIM LOCKED':'AIM DRIFT'):(plan.locked?'조준 고정 · 급선회':'조준 이동 · 고정 후 이탈'),p.x,p.y+plan.radius+20);
-   if(plan.smoke&&plan.mode!=='heavy-shell'){
+   if(plan.smoke&&plan.mode!=='heavy-shell'&&munition!=='gas'){
     const smoke=plan.smoke;impactMark(c,smoke.x,smoke.y,smoke.radius,0,{tone:'blind',cross:false});
     label(getLocale()==='en'?'3 RESIDUE':'3 잔류 위험',smoke.x,smoke.y+5);
     const dx=smoke.x-p.x,dy=smoke.y-p.y,len=Math.hypot(dx,dy)||1,d=plan.start-65;
     partMark(c,p.x-dx/len*d,p.y-dy/len*d,14,14,{color:MARK.safe});
    }
+  }
+  if(munition==='gas'||munition==='staggered')for(const [i,h]of railMunitionHazards(b.kind,plan,munition,b,b.frameBounds).entries()){
+   impactMark(c,h.x,h.y,h.radius,aimP*.6,{tone:munition==='gas'?'blind':'warn',cross:false});
+   label(munition==='gas'?(getLocale()==='en'?'GAS RESIDUE':'잔류 가스'):(getLocale()==='en'?'FOLLOW-UP ':'후속 ')+(i+1),h.x,h.y+h.radius+18);
   }
   }
  }
@@ -92,9 +98,20 @@ export function drawRuralRailWarnings(c,b){
  c.restore();
 }
 export function drawRuralRailHazard(c,h,options){
- if(!['rural-rail-shock','rural-rail-smoke'].includes(h.visual))return false;
+ if(!['rural-rail-shock','rural-rail-smoke','rural-rail-gas'].includes(h.visual))return false;
  c.save();const warning=h.phase==='warning';
- if(h.visual==='rural-rail-shock'){
+ if(h.visual==='rural-rail-gas'){
+  const age=Math.max(0,h.age-h.delay-h.warning),fade=Math.min(1,(h.duration-age)/.9);
+  impactMark(c,h.x,h.y,h.radius,warning?Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)):1,{tone:'blind',cross:false,alpha:warning?1:.55*fade,fill:warning});
+  if(!warning){
+   // The painted plume fills exactly the warned/damaging disc.
+   c.beginPath();c.arc(h.x,h.y,h.radius,0,Math.PI*2);c.clip();
+   for(let i=0;i<5;i++){
+    const a=i*Math.PI/2+age*.08,r=i?h.radius*.36:0;
+    fxTint(c,i?'gasSmall':'gas',i?'#b8b46a':'#8e963e',h.x+Math.cos(a)*r,h.y+Math.sin(a)*r,h.radius*(i?2.2:3.3),h.radius*(i?2.2:3.3),a,.86*fade);
+   }
+  }
+ }else if(h.visual==='rural-rail-shock'){
   if(warning)bandMark(c,h.x,h.y,h.radiusStart,h.radiusLimit,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)),{heavy:h.raidHeavy});
   else drawArtilleryPressure(c,h,fx,options);
  }else{

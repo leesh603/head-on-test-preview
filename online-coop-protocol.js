@@ -1,8 +1,9 @@
+import {cleanNavarreFrommherzVisual} from './navarre-frommherz-view.js';
 export const NET_HZ=15;
 export const MAX_TETHER=1100;
 export function seededRandom(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296;};}
 export function cleanInput(value={}){const out={};if(Number.isFinite(value.angle))out.angle=Math.atan2(Math.sin(value.angle),Math.cos(value.angle));if(Number.isFinite(value.steer))out.steer=Math.max(-1,Math.min(1,value.steer));return out;}
-const OMIT=new Set(['world','encounter','emit','hooks','rng','formationLeader','directorSquad','directorEscort','directorRoleTarget','directorTarget','directorProtectedTarget','directorRouteOrigin','objective','target','leader','chargeHits','damageSource','collisionGrid','enemyCollisionGrid','bossDamage','bomberSalvo']);
+const OMIT=new Set(['world','encounter','emit','hooks','rng','formationLeader','directorSquad','directorEscort','directorRoleTarget','directorTarget','directorProtectedTarget','directorRouteOrigin','objective','target','focusedTarget','leader','chargeHits','damageSource','collisionGrid','enemyCollisionGrid','bossDamage','bomberSalvo']);
 const FORBIDDEN=new Set(['__proto__','prototype','constructor']);
 
 // Bounded render/state data only. Maps/Sets matter for boss parts and pilot FX.
@@ -37,7 +38,7 @@ export class FieldDelta {
  }
  retain(ids){for(const id of this.previous.keys())if(!ids.has(id))this.previous.delete(id);}
 }
-export function applyFields(target,delta){if(!delta)return;for(const key of delta.remove||[])if(!FORBIDDEN.has(key))delete target[key];for(const [key,value] of Object.entries(delta.set||{}))if(!FORBIDDEN.has(key))target[key]=unpack(value);}
+export function applyFields(target,delta){if(!delta)return;for(const key of delta.remove||[])if(!FORBIDDEN.has(key))delete target[key];for(const [key,value] of Object.entries(delta.set||{}))if(!FORBIDDEN.has(key))target[key]=key==='navarreFrommherzVisual'?cleanNavarreFrommherzVisual(value):unpack(value);}
 export function pose(entity){return [entity.x||0,entity.y||0,entity.a||0,entity.vx??Math.cos(entity.a||0)*(entity.speed||entity.baseSpeed||0),entity.vy??Math.sin(entity.a||0)*(entity.speed||entity.baseSpeed||0)].map(n=>Math.round(n*100)/100);}
 export function mixAngle(a,b,t){return a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*t;}
 

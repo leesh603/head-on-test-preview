@@ -1,8 +1,8 @@
-import {shellMarch} from './boss-raid-strikes.js?v=headon-result339-20261028&rail=40';
+import {shellMarch} from './boss-raid-strikes.js?v=tame3&rail=40';
 import {fireFanSalvo} from './boss-salvo-geometry.js?boss=20261020b';
-import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=headon-result339-20261028&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {intersectsEllipse} from './regional-boss-layout352.js?v=headon-result339-20261028';
-import {CITY_FLAK_SCALE,CITY_FLAK_WEAPONS} from './city-flak-geometry.js?v=headon-result339-20261028';
+import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
+import {intersectsEllipse} from './regional-boss-layout352.js?v=tame3';
+import {CITY_FLAK_SCALE,CITY_FLAK_WEAPONS} from './city-flak-geometry.js?v=qf1023';
 export const CITY_FLAK_PARTS=Object.freeze([
  {id:'siege',x:-73,y:-75,radius:34,fraction:.16},
  {id:'ears',x:74,y:-75,radius:32,fraction:.10},
@@ -86,7 +86,11 @@ export class CityFlakCell extends BaseBoss{
   this.basicHoldUntil=(this.combatTime||0)+dt+.1;if(this.encounter?.breath)return;const ears=this.parts.get('ears'),siege=this.parts.get('siege');this.network(dt,players,bounds);const net=this.encounter?.cityFlakState,target=list.find(p=>p.id===net?.targetId)||list[0];
   if(!ears.destroyed&&this.networkRole==='observer'&&net?.phase==='observing'){const aim=Math.atan2(target.y-this.y-ears.y,target.x-this.x-ears.x);ears.angle=turn(ears.angle,aim,1.5*dt);this.lockProgress=Math.max(0,Math.min(1.4,this.lockProgress+(Math.abs(delta(aim,ears.angle))<.35?dt:-dt*1.6)));}else this.lockProgress=Math.max(0,this.lockProgress-dt*1.6);
   if(!siege.destroyed&&this.id===net?.heavyId&&net.phase==='aiming'){const aim=Math.atan2(net.y-this.y-siege.y,net.x-this.x-siege.x);siege.angle=turn(siege.angle,aim,1.7*dt);this.fireNetworkHeavy(net);}
-  if(this.networkRole==='route-limiter'&&net?.phase==='limiting-routes')this.fireRouteLimit(net,players,dt);
+  if(net?.phase==='limiting-routes'){
+   const cells=[...this.encounter.bodies.values()].filter(c=>c.kind==='flak-tower-cell'&&!c.dead),canLimit=c=>['gun-bl','gun-br'].some(id=>!c.parts.get(id).destroyed);
+   const fallback=!cells.some(c=>c.networkRole==='route-limiter'&&canLimit(c))&&cells.find(canLimit)===this;
+   if(this.networkRole==='route-limiter'||fallback)this.fireRouteLimit(net,players,dt);
+  }
  }
 }
 export class FlakTowerNet extends BaseBoss{

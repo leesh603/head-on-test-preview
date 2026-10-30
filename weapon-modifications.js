@@ -1,5 +1,6 @@
+import {bishopGlovesInterval} from './equipment-flight-balance.js';
 import {wimperisOrdnance} from './flight-equipment.js';
-import {TACTICAL_DOCTRINES} from './tactical-doctrines.js?v=headon-result339-20261028&td4=20261026';
+import {TACTICAL_DOCTRINES} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 // Compatibility exports for firing and encyclopedia consumers; never upgrade cards.
 export const WEAPON_MODS=TACTICAL_DOCTRINES;
 export const WEAPON_MOD_BY_ID=Object.freeze(Object.fromEntries(WEAPON_MODS.map(mod=>[mod.id,mod])));
@@ -28,6 +29,7 @@ export function modGunOffset(p,index,count,fan,clock=p){
  return index<core?(index-(core-1)/2)*fan/1.65:lane*core*fan*.5;
 }
 export function modGunInterval(p,base,clock=p,count=p.shots||1,cap=10){
+ if(clock===p)base=bishopGlovesInterval(p,base);
  if(p.cow37)return base;
  if(p.weaponMods?.GUN==='precision'){
   clock.weaponModBurst=((clock.weaponModBurst||0)+1)%3;

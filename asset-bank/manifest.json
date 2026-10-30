@@ -1517,5 +1517,25 @@
       "width": 354,
       "height": 768
     }
+  },
+  "preservationArchive": {
+    "schemaVersion": 1,
+    "repositoryPath": "source-art/asset-bank-archive/catalog.json",
+    "viewerRepositoryPath": "source-art/asset-bank-archive/index.html",
+    "policy": "All statuses are retained. Source archive is not a runtime preload or spawn list. Objects remain outside dist.",
+    "counts": {
+      "libraryFilesRecovered": 289,
+      "originalObjects": 288,
+      "originalBytes": 999276722,
+      "uniqueArchiveBytes": 868321098,
+      "zipMembersIndexed": 2955,
+      "repositoryAssetsRegistered": 4683,
+      "metadataOnly": 1,
+      "remoteVerifiedFileRecords": 290,
+      "splitOriginals": 24,
+      "remoteStoredBinaryBlobs": 213,
+      "originalFileRecords": 290
+    },
+    "backupStatus": "remote-verified-recovered-originals"
   }
 }

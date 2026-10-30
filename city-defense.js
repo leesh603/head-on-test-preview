@@ -4,15 +4,17 @@ export const CITY_DEFENSE=Object.freeze({lockTime:1.2,beamHalf:.16,beamRange:520
 const delta=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
 const pilots=g=>g.players?g.players.filter(p=>p.hp>0&&p.status==='alive'):[g];
 export function spawnCityDefense(g){
- if(g.worldRegion()!==4||g.enemies.some(e=>e.cityUnit&&!e.expired&&e.hp>0))return;
+ const region=g.worldRegion();if(![4,18].includes(region)||g.enemies.some(e=>e.cityUnit&&!e.expired&&e.hp>0))return;
  const a=g.a||0,hx=Math.cos(a),hy=Math.sin(a),nx=-hy,ny=hx;
+ if(region===18&&!g.berlinDefense)g.berlinDefense={suppressed:0,tracked:[]};
  const bx=g.x+hx*420,by=g.y+hy*420,serial=(g._citySerial||0)+1;g._citySerial=serial;
  for(const [i,lat] of [-210,210].entries()){
   let light;
   for(const kind of ['light','pit']){
    const e=g.spawnEnemy('bomber');if(!e)continue;
    const hp=kind==='light'?130:110;
-   Object.assign(e,{type:'installation',heavyBomber:false,bossPilot:false,burstLeft:0,fieldSalvoLeft:0,cityUnit:kind,cityNetwork:serial,cityLink:i,facSprite:kind==='light'?'fx-city-searchlight-pit2':'fx-city-aagun',facSize:kind==='light'?76:88,name:kind==='light'?'탐조등 진지':'연동 대공포좌',x:bx+nx*lat+hx*(kind==='pit'?95:0),y:by+ny*lat+hy*(kind==='pit'?95:0),a:0,speed:0,stationary:true,surface:true,hitRadius:kind==='light'?36:34,hp,maxHp:hp,fire:9,ace:false,escortPlane:undefined,hazardRegion:4,fieldRegion:4,xpValue:10,scanA:a+Math.PI,scanBase:a+Math.PI,scanPhase:i*Math.PI,locks:new Map(),lit:new Map(),lockT:0,fireT:1+i*.8,cityShot:null});
+   Object.assign(e,{type:'installation',heavyBomber:false,bossPilot:false,burstLeft:0,fieldSalvoLeft:0,cityUnit:kind,cityNetwork:serial,cityLink:i,facSprite:kind==='light'?'fx-city-searchlight-pit2':'fx-city-aagun',facSize:kind==='light'?76:88,name:kind==='light'?'탐조등 진지':'연동 대공포좌',x:bx+nx*lat+hx*(kind==='pit'?95:0),y:by+ny*lat+hy*(kind==='pit'?95:0),a:0,speed:0,stationary:true,surface:true,hitRadius:kind==='light'?36:34,hp,maxHp:hp,fire:9,ace:false,escortPlane:undefined,hazardRegion:region,fieldRegion:region,xpValue:10,scanA:a+Math.PI,scanBase:a+Math.PI,scanPhase:i*Math.PI,locks:new Map(),lit:new Map(),lockT:0,fireT:1+i*.8,cityShot:null});
+   if(region===18)g.berlinDefense.tracked.push(e);
    if(kind==='light')light=e;else {e.cityLamp=light;configureAA(g,e,e.facSize);}
   }
  }
@@ -20,12 +22,14 @@ export function spawnCityDefense(g){
 }
 export function tickCityDefense(g,dt){
  if(g.state!=='playing'||dt<=0)return;
+ if(g.worldRegion()!==18)g.berlinDefense=null;
+ if(g.berlinDefense){for(const e of g.berlinDefense.tracked)if(e.hp<=0&&!e.expired&&!e.capitalCounted){e.capitalCounted=true;g.berlinDefense.suppressed++;}g.berlinDefense.tracked=g.berlinDefense.tracked.filter(e=>!e.expired&&!e.capitalCounted);}
  const step=Math.min(.04,dt),ps=pilots(g),B=CITY_DEFENSE;
- const active=g.worldRegion()===4&&(!g.stageBoss||g.stageBoss.stages.phase==='explore');
+ const active=[4,18].includes(g.worldRegion())&&(!g.stageBoss||g.stageBoss.stages.phase==='explore');
  if(!active){
   for(const e of g.enemies||[])if(e.cityUnit){e.cityShot=null;e.lit?.clear();e.lockT=0;}
   for(const p of ps)p.illuminatedUntil=0;
-  g._litBeam=false;if(g.worldRegion()!==4){g._citySpawned=false;g._cityRespawn=0;}return;
+  g._litBeam=false;if(![4,18].includes(g.worldRegion())){g._citySpawned=false;g._cityRespawn=0;}return;
  }
  let units=(g.enemies||[]).filter(e=>e.cityUnit&&!e.expired&&e.hp>0);
  for(const e of units)if(ps.every(p=>Math.hypot(e.x-p.x,e.y-p.y)>1800))e.expired=true;
@@ -52,7 +56,7 @@ export function tickCityDefense(g,dt){
    e.cityShot.remaining-=step;
    if(e.cityShot.remaining<=0){
     const a=Math.atan2(e.cityShot.y-e.y,e.cityShot.x-e.x),{x,y}=aaMuzzle(e,e.facSize||88);
-    for(let j=-1;j<=1;j++){const h=a+j*.095;g.bullets.push({x,y,vx:Math.cos(h)*B.speed,vy:Math.sin(h)*B.speed,life:3.5,enemy:true,fireZone:true,hazardRegion:4,visualType:'flak',damage:Math.round(9*(1+(g.t||0)/300)*(e.aaDamageFactor||1))});}
+    for(let j=-1;j<=1;j++){const h=a+j*.095;g.bullets.push({x,y,vx:Math.cos(h)*B.speed,vy:Math.sin(h)*B.speed,life:3.5,enemy:true,fireZone:true,hazardRegion:g.worldRegion(),visualType:'flak',damage:Math.round(9*(1+(g.t||0)/300)*(e.aaDamageFactor||1))});}
     g.burst?.(x,y,'#ffd9a0',4);e.muzzleFlash=.14;e.cityShot=null;e.fireT=B.reload*(e.aaFireFactor||1);
    }
   }else{

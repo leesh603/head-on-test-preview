@@ -1,0 +1,24 @@
+[
+  {
+    "id": "rumpler-civ-photo",
+    "source": "rumpler-civ-photo-recon-v3.png",
+    "path": "asset-bank/photo-recon/rumpler-civ-photo.webp",
+    "width": 1536,
+    "height": 1024,
+    "bytes": 1228480,
+    "sha256": "1fd9d0124cb75acc551ee20ec2ffd2b94e87c0d5c836d95a3132d89e689b9793",
+    "sourceSha256": "b96aa25f009e77810a2c26fdd688f7c6f354485df1c58e7af86f23b17c9a0927",
+    "pixelSha256": "142bc3e165d1b60d4cdae912415913f54345493c8faf0f5f5adcfea65d5eb889"
+  },
+  {
+    "id": "re8-photo",
+    "source": "re8-photo-recon-v4.png",
+    "path": "asset-bank/photo-recon/re8-photo.webp",
+    "width": 1536,
+    "height": 1024,
+    "bytes": 1222104,
+    "sha256": "78fe3b70109797b94beb146a7390a5a47c2ae03b7103eb31e8396fee118a7e5c",
+    "sourceSha256": "05c3084cf39e4e0cd25c428b5d517b642a368d44f0712ce72e35913a8cef5c4d",
+    "pixelSha256": "973d9485f31da97db1d12d9a9738a6a03ee74b0760b3f502a387aaa2fd028634"
+  }
+]

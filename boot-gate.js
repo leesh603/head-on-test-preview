@@ -15,11 +15,17 @@
  const pass=/^(data:|blob:)|\.svg(\?|$)|favicon|lobby-ic-(?:ranking|aces|medals|home)420\.webp(?:\?|$)/;
  const abs=u=>{try{return new URL(u,document.baseURI).href}catch{return String(u)}};
  let rank=()=>2;
+ // Selection stays urgent for newly created display images and retry URLs too.
+ // raise() can run before their src setter, or after the boot hold was released.
+ let urgency=0;
+ const urgent=new Map(),key=u=>abs(u).replace(/([?&])r=\d+$/,'').replace(/\?$/,'');
+ const priority=u=>urgent.get(key(u))??rank(u);
+ const wake=img=>{const w=waiting.get(img);if(w){waiting.delete(img);for(const f of w)f()}};
  const done=img=>{active.delete(img);pump()};let relaxed=false;
  const go=(img,immediateUrl)=>{const h=held.get(img);held.delete(img);active.set(img,h.rank);
   const end=()=>{img.removeEventListener('load',end);img.removeEventListener('error',end);done(img)};
   img.addEventListener('load',end);img.addEventListener('error',end);src.set.call(img,immediateUrl??h.url);
-  const w=waiting.get(img);if(w){waiting.delete(img);for(const f of w)f()}};
+  wake(img)};
  function pump(){
   // Strict priority: nothing less urgent starts while something more urgent is still loading.
   while(held.size&&active.size<LIMIT){
@@ -33,9 +39,13 @@
   // The supported branch review host redirects bitmaps to another origin.
   // Opt into CORS only in its explicit test session so canvas atlases can bake.
   if(typeof location!=='undefined'&&location.hostname==='raw.githack.com'&&new URLSearchParams(location.search).get('headonTest')==='1')this.crossOrigin='anonymous';
-  const url=abs(v);if(active.delete(this))queueMicrotask(pump);// a re-set aborts the load in flight
-  if(pass.test(url)){held.delete(this);src.set.call(this,v);return}
-  held.set(this,{url,n:serial++,rank:rank(url)});
+  const url=abs(v);
+  // Roster updates often assign the same URL. Restarting it loses a download
+  // slot and can repeatedly cancel the image's decode on slower phones.
+  if((held.get(this)?.url||src.get.call(this))===url&&(held.has(this)||active.has(this)||this.naturalWidth>0))return;
+  if(active.delete(this))queueMicrotask(pump);// a re-set aborts the load in flight
+  if(pass.test(url)){held.delete(this);src.set.call(this,v);wake(this);queueMicrotask(pump);return}
+  held.set(this,{url,n:serial++,rank:priority(url)});
   // Once released, preserve a native synchronous assignment when a download
   // slot is free and no older request is waiting; it still counts toward LIMIT.
   if(open&&held.size===1&&active.size<LIMIT)go(this,v);else queueMicrotask(pump);
@@ -46,9 +56,9 @@
  window.HEADON_GATE={
   get open(){return open},
   // rank(url) → 0 now, 1 soon, 2 later. Re-ranks everything still waiting.
-  setRank(fn){rank=fn;for(const h of held.values())h.rank=fn(h.url);pump()},
+  setRank(fn){rank=fn;for(const h of held.values())h.rank=priority(h.url);pump()},
   // Move these URLs to the front (a pilot the player just picked).
-  raise(urls){const want=new Set([...urls].map(abs));for(const h of held.values())if(want.has(h.url))h.rank=-1;for(const [img,r] of active)if(want.has(src.get.call(img)))active.set(img,-1);pump()},
+  raise(urls){const level=--urgency;for(const u of urls)if(u)urgent.set(key(u),level);for(const h of held.values())h.rank=priority(h.url);for(const [img,r] of active){const p=urgent.get(key(src.get.call(img)));if(p!=null)active.set(img,p)}pump()},
   // Drop the strict-priority hold but keep draining in rank order — a late
   // releaseAll would re-queue every warm behind hundreds of earlier requests.
   relax(){relaxed=true;pump()},

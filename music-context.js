@@ -1,5 +1,5 @@
 // Read-only bridge. Never advances a timer, consumes an event, or changes combat.
-export const MUSIC_REGIONS=Object.freeze(['rural','sea','trenches','trenches-hell','city','sky','alps','zeebrugge','cambrai','arras','somme','london','verdun','maan','gallipoli','paris-night','jutland','dover-night']);
+export const MUSIC_REGIONS=Object.freeze(['rural','sea','trenches','trenches-hell','city','sky','alps','zeebrugge','cambrai','arras','somme','london','verdun','maan','gallipoli','paris-night','jutland','dover-night','berlin']);
 export const CAMPAIGN_MUSIC=Object.freeze({
  'A-01':'rural','A-02':'trenches','A-03':'verdun','A-04':'somme','A-05':'arras','A-06':'trenches-hell','A-07':'cambrai','A-08':'spring-offensive','A-09':'somme','A-10':'picardy',
  'C-01':'rural','C-02':'trenches','C-03':'somme','C-04':'arras','C-05':'rural','C-06':'cambrai','C-07':'isonzo','C-08':'spring-offensive','C-09':'trenches','C-10':'argonne'

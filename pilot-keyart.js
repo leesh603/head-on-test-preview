@@ -1,7 +1,9 @@
 // One representative painting per pilot, independent of selected airframe and combat.
 const art=(id,version='pilotkey1')=>Object.freeze({mobile:`hangar-keyart/${id}.webp?v=${version}`,pc:`hangar-keyart/${id}.webp?v=${version}`});
 export const PILOT_KEYART=Object.freeze({
- baron:Object.freeze({mobile:'hangar-keyart-mobile.webp?v=headon-result339-20261028',pc:'hangar-keyart-pc.webp?v=headon-result339-20261028'}),
+ navarre:Object.freeze({mobile:'portrait-sized/portrait-navarre.webp?v=navarre-frommherz-20261027&opt=1',pc:'portrait-sized/portrait-navarre.webp?v=navarre-frommherz-20261027&opt=1'}),
+ frommherz:Object.freeze({mobile:'portrait-sized/portrait-frommherz.webp?v=navarre-frommherz-20261027&opt=1',pc:'portrait-sized/portrait-frommherz.webp?v=navarre-frommherz-20261027&opt=1'}),
+ baron:Object.freeze({mobile:'hangar-keyart-mobile.webp?v=ui5',pc:'hangar-keyart-pc.webp?v=ui5'}),
  voss:art('voss','pilotkey3'),boelcke:art('boelcke','pilotkey3'),immelmann:art('immelmann'),udet:art('udet'),goering:art('goering'),huffzky:art('huffzky'),berthold:art('berthold'),wolff:art('wolff'),loewenhardt:art('loewenhardt'),jacobs:art('jacobs','pilotkey3'),brumowski:art('brumowski','pilotkey5'),gontermann:art('gontermann','pilotkey2'),lothar:art('lothar'),sachsenberg:art('sachsenberg','pilotkey3'),schleich:art('schleich'),fonck:art('fonck'),collishaw:art('collishaw'),baracca:art('baracca'),guynemer:art('guynemer','pilotkey3'),bishop:art('bishop'),mannock:art('mannock'),mckeever:art('mckeever','pilotkey4'),hawker:art('hawker'),mccudden:art('mccudden','pilotkey2'),nungesser:art('nungesser','pilotkey2'),rickenbacker:art('rickenbacker'),ball:art('ball'),barker:art('barker','pilotkey2'),luke:art('luke'),proctor:art('proctor'),lufbery:art('lufbery')
 });
 const controllers=new WeakMap();
