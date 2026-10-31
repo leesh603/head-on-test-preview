@@ -1398,6 +1398,7 @@ body:not(.playing) .hud-tags{display:none}
 .hud-tag.target{flex-direction:column;justify-content:center;gap:3px;padding:2px}
 .hud-tag.target i,.hud-tag.target em{display:none}
 .hud-tag.target b{font-size:12px;font-weight:700;color:var(--tag-accent)}
+.hud-tag.target b::after{content:attr(data-dist);font-weight:600}
 .hud-tag.target small{font-size:11px;font-weight:500;color:#e2dccd}
 .hud-tag.target small:empty{display:none}
 
@@ -1439,3 +1440,8 @@ body.astra-ui.playing #viewport #flightTop151>#eventMissionHud .front-row151 em{
  body.astra-ui.playing #viewport #flightTop151>#eventMissionHud.folded :is(#eventMissionTitle,#eventMissionMeta){display:none!important}
  body.astra-ui.playing #viewport #flightTop151>#eventMissionHud.folded #eventMissionObjective{font-size:11.5px!important}
 }
+
+/* In flight the HUD pills sit on a canvas that changes every frame, so a backdrop blur is
+   recomputed every frame on the phone GPU. Drop it there and make the glass a touch denser. */
+body.astra-ui.playing #flightStack151 *,body.astra-ui.playing #touch,body.astra-ui.playing #touch *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+body.astra-ui.playing:not(.coop-playing) #viewport #flightTop151 :is(.flight-survival,.flight-status-panel),body.astra-ui.playing #flightTop151 #pause,body.astra-ui.playing #touch :is(#reload,#touchEvade,#touchSkill){background-color:rgba(14,13,11,.78)!important}

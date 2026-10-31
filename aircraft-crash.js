@@ -1,4 +1,13 @@
 // Shared original ace crash choreography. Callers supply their own effect host.
+// Gotha bodies retain their last heading while the existing defeat timer runs.
+// Rendering and the terminal explosion use the same pose, without moving hitboxes.
+export function gothaCrashPose(b,age=0,duration=2.65){
+ const f=Math.max(0,Math.min(1,age/Math.max(.1,duration))),fall=f*f,a=b.a||0;
+ const travel=(2*f-fall)*100,side=(String(b.id||'').charCodeAt(String(b.id||'').length-1)%2?1:-1);
+ return{x:b.x+Math.cos(a)*travel,y:b.y+Math.sin(a)*travel+fall*45,
+  angle:a+Math.PI/2+side*fall*.65,scale:1-fall*.5,bank:1-fall*.32,
+  alpha:Math.max(0,1-Math.max(0,(f-.82)/.18)),wreckMix:Math.min(1,age/.32),progress:f};
+}
 export function enemyCanCrash(e){return !e.stageBossBody&&!e.surface&&!e.stationary&&!e.fieldUnit&&!e.navalVessel&&!e.heavyBomber&&!e.missionGround&&!e.bugDrone&&!e.groundEscort&&!e.londonInstallation&&!e.cityUnit&&!e.bossMinion&&!e.expired&&(e.bossPilot||['scout','hunter','bomber','boss'].includes(e.type))}
 export function chooseEnemyDeathStyle(e,rng){if(!enemyCanCrash(e))return null;if(e.crashStyle)return e.crashStyle;const roll=rng();e.crashStyle=e.type==='bomber'?(roll<.4?'burst':'glide'):e.bossPilot||e.type==='boss'?(roll<.2?'burst':roll<.55?'glide':'spin'):(roll<.3?'burst':roll<.65?'glide':'spin');return e.crashStyle}
 export function enemyDeathBurst(e,style){if(style==='glide')return{count:7};if(style==='spin')return{count:14};const heavy=e.navalVessel||e.type==='zeppelin'||e.fieldUnit||e.heavyBomber||e.bossPilot||e.type==='boss';return{count:heavy?36:30,kind:e.navalVessel?'mineBlast':e.fieldUnit?'structure':heavy?'aircraftHeavy':e.type==='bomber'?'aircraftMedium':undefined}}

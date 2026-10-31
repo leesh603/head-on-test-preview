@@ -32,9 +32,11 @@ export function installLothar(Game){
   if(s.source&&s.source!==e&&now<s.switchUntil&&!s.killed.has(e)){
    s.source=null;s.switchUntil=0;s.turnUntil=now+LOTHAR_BALANCE.turnDuration;
    // Never bypass an underway reload or overfill an upgraded belt.
+   const ammoBefore=this.ammo.reduce((sum,n)=>sum+n,0);
    if(!(this.reloadTime>0))for(let i=0;i<this.ammo.length;i++)this.ammo[i]=Math.min(this.weapon.belt,this.ammo[i]+Math.ceil(this.weapon.belt*LOTHAR_BALANCE.ammoFraction));
+   const ammoRecovered=this.ammo.reduce((sum,n)=>sum+n,0)-ammoBefore;
    if(this.skillTime>0&&s.extended<LOTHAR_BALANCE.extensionCap){const extra=Math.min(LOTHAR_BALANCE.extension,LOTHAR_BALANCE.extensionCap-s.extended);this.skillTime+=extra;s.extended+=extra;}
-   signatureCue(this,'lotharTransfer',{life:.55,signatureStart:true});
+   signatureCue(this,'lotharTransfer',{life:.55,signatureStart:true,ammoRecovered});
    signatureCue(this,'lotharLinkHit',{x:position.x,y:position.y,a:Math.atan2(b.vy||0,b.vx||0),life:.28});
    this.event('wave','재교전');
   }

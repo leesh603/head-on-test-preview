@@ -98,7 +98,7 @@ export function drawDoverCue(c,cue){
  const dx=Math.cos(cue.angle),dy=Math.sin(cue.angle),nx=-dy,ny=dx,len=cue.length/2;
  const p=Math.max(0,Math.min(1,1-cue.life/cue.seconds));
  for(const side of [-1,1]){
-  const x=cue.x+nx*side*76,y=cue.y+ny*side*76;
+  const offset=cue.laneOffset||76,x=cue.x+nx*side*offset,y=cue.y+ny*side*offset;
   aimLine(c,x-dx*len,y-dy*len,x+dx*len,y+dy*len,{p,heavy:true,alpha:.7,chevron:false});
   const sx=cue.x+nx*side*cue.safeGap/2,sy=cue.y+ny*side*cue.safeGap/2;
   laneEdge(c,sx-dx*len,sy-dy*len,sx+dx*len,sy+dy*len,{alpha:.55});

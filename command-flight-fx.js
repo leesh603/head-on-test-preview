@@ -1,5 +1,5 @@
 // Boelcke and Collishaw: observe real owned wingmen, guns and confirmed damage.
-// Rendering stores no flight history and never creates a projectile or target.
+// Render-only air wakes observe real positions; never create a projectile or target.
 import {signatureCue,signatureInterval} from './pilot-signature-state.js';
 export const COMMAND_PILOTS=new Set(['boelcke','collishaw']);
 export const COMMAND_PALETTES=Object.freeze({
@@ -44,11 +44,42 @@ export function commandWings(p){
  if(p.pilot==='collishaw')for(const w of p.formationWings||[])if(w.alpha>0&&(w.hp===undefined||w.hp>0)&&!w.crashing&&!w.crashed)all.push(w);
  return all.filter(w=>[w.x,w.y,w.a].every(Number.isFinite)).slice(0,10);
 }
-// A short, thin slipstream behind the actual attacking wing; never engine smoke.
-function boelckePressure(c,w,at,time,active,side){
- if(!active||!w.boelckePincer||!(w.flightSpeed>40))return;
- const speed=clamp(w.flightSpeed/180);
- for(const tip of [-1,1])at('vaporTrail',-37,tip*21,48+speed*24,8,0,.54*speed,COMMAND_PALETTES.boelcke.core);
+// Weak, player-local rendering cache: no serialized state or flight mutations.
+// Sample real world-space wingtip positions, never a reconstructed flight path.
+const wakes=new WeakMap();
+export function clearBoelckeWake(p){wakes.delete(p);}
+export function boelckeWakeSegments(p){
+ const signature=p.pilotSignatureState,time=signature?.clock;
+ if(p.pilot!=='boelcke'||!living(p)||p.state!=='playing'||!(p.skillTime>0)||!Number.isFinite(time)){
+  clearBoelckeWake(p);return [];
+ }
+ let cache=wakes.get(p);
+ if(!cache||cache.signature!==signature||cache.owner!==owner(p)||time<cache.time||time-cache.time>.2){
+  cache={signature,owner:owner(p),time,wings:new Map()};wakes.set(p,cache);
+ }
+ cache.time=time;
+ const wings=commandWings(p).filter(w=>w.boelckePincer&&w.flightSpeed>40),kept=new Set(wings),segments=[];
+ for(const w of cache.wings.keys())if(!kept.has(w))cache.wings.delete(w);
+ for(const w of wings){
+  let poses=cache.wings.get(w)||[],last=poses.at(-1);
+  if(last&&Math.hypot(w.x-last.x,w.y-last.y)>Math.max(32,(time-last.t)*500))poses=[];
+  last=poses.at(-1);
+  if(!last||time-last.t>=.03){
+   const ca=Math.cos(w.a),sa=Math.sin(w.a);
+   poses.push({x:w.x,y:w.y,t:time,tips:[-1,1].map(side=>({x:w.x-ca*9-sa*side*21,y:w.y-sa*9+ca*side*21}))});
+  }
+  poses=poses.filter(v=>time-v.t<=.42).slice(-15);cache.wings.set(w,poses);
+  for(let i=1;i<poses.length;i++)for(let side=0;side<2;side++){
+   const from=poses[i-1].tips[side],to=poses[i].tips[side],dx=to.x-from.x,dy=to.y-from.y,length=Math.hypot(dx,dy);
+   if(length<.3||length>32)continue;
+   const fade=clamp(1-(time-poses[i].t)/.42),alpha=w.alpha===undefined?1:clamp(w.alpha);
+   segments.push({x:(from.x+to.x)/2-p.x,y:(from.y+to.y)/2-p.y,a:Math.atan2(dy,dx),length:length+7,width:16,opacity:.72*fade*alpha});
+  }
+ }
+ return segments;
+}
+function boelckePressure(c,p,tex){
+ for(const v of boelckeWakeSegments(p))tex(c,'vaporTrail',v.x,v.y,v.length,v.width,v.a,v.opacity,'#f3eee0');
 }
 // Black Flight is the aircraft paint and crossing attack, not an oil-fire plume.
 function blackFlightSlipstream(at,time,slot,active){
@@ -59,9 +90,10 @@ function brass(at,flash,side,count){
  for(let i=0;i<count;i++)at('bulletBrass',13-age*(66+i*18)-i*3,side*(12+age*(75+i*20)+i*4),5.5,2.5,side*(.5+age*12+i*.8),.82*(1-age/.12),'#c69a61');
 }
 export function drawCommandWorld(c,p,tex,front=false){
- if(!living(p))return;const palette=COMMAND_PALETTES[p.pilot];if(!palette)return;
+ if(!living(p)){clearBoelckeWake(p);return;}const palette=COMMAND_PALETTES[p.pilot];if(!palette){clearBoelckeWake(p);return;}
  const active=p.skillTime>0,time=p.pilotSignatureState?.clock||0;
  if(!front&&p.pilot==='boelcke'){
+  boelckePressure(c,p,tex);
   let count=0;
   for(const e of world(p).enemies||[]){
    const d=Math.hypot(e.x-p.x,e.y-p.y);
@@ -87,8 +119,7 @@ export function drawCommandWorld(c,p,tex,front=false){
    continue;
   }
   if(Math.hypot(dx,dy)<28)continue;
-  if(p.pilot==='boelcke')boelckePressure(c,w,at,time,active,side);
-  else blackFlightSlipstream(at,time,w.slot||0,active);
+  if(p.pilot==='collishaw')blackFlightSlipstream(at,time,w.slot||0,active);
  }
 }
 export function drawCommandLocal(c,p,tex,front=false){

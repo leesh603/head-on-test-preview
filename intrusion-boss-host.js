@@ -44,3 +44,8 @@ export function hitIntrusionTarget(g,target,b,damage){
  return hitIntrusionAt(g,{partId,x:b.x,y:b.y,previousX:b.previousX,previousY:b.previousY,radius:b.actualExplosion?b.explosionRadius:b.collisionRadius||0,damage,ownerId:b.ownerId});
 }
 
+/** Area hazards damage the hull, not the read-only enemy proxy or a guessed part. */
+export function hitIntrusionEnvironmentalDamage(g,target,damage){
+ if(g.online&&!g.host||!target.intrusionBody||target.encounterId!==g.intrusionBoss?.encounterId)return{damage:0,broken:[]};
+ return hitIntrusionAt(g,{partId:'core',damage});
+}

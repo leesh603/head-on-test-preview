@@ -1,6 +1,6 @@
 // Real suppression, firing and kill-link observations. No combat fields are written.
 import {signatureCue,signatureInterval} from './pilot-signature-state.js';
-import {drawHawkerPassive} from './pilot-passive-art.js';
+import {drawHawkerLinkedTarget} from './hawker-linked-view.js';
 import {drawJacobsGunGas,drawJacobsHitDust,drawJacobsSuppressedFlow} from './jacobs-close-fire-fx.js';
 export const PRESSURE_LINK_PILOTS=new Set(['jacobs','hawker']);
 const INSTALLED=Symbol.for('headon.pressure-link-fx.v1');
@@ -43,15 +43,15 @@ export function hawkerLinkStrength(w,e){
 export function drawPressureEnemyFront(c,w,e,tex,scale=1,paintTint=null){
  drawJacobsSuppressedFlow(c,w,e,tex,scale);
  const strength=hawkerLinkStrength(w,e);if(!strength)return;
- c.save();try{c.rotate(-(e.a||0));drawHawkerPassive(c,w,e,0,0,scale);}finally{c.restore();}
+ c.save();try{c.rotate(-(e.a||0));drawHawkerLinkedTarget(c,w,e,scale);}finally{c.restore();}
 }
 
 function latestGun(p,gun){const cues=p.pilotSignatureState?.effects||[];for(let i=cues.length-1;i>=0;i--){const e=cues[i];if(e.kind==='pressureGun'&&e.life>0&&e.age>=0&&e.age<.085&&e.gun===gun&&e.ownerId===owner(p))return e;}}
 export function hawkerGunPose(p){
  if(p.pilot!=='hawker'||!live(p))return null;
  const cue=latestGun(p,0),a=(cue?.a??p.gunDirection?.(0)??p.a)-p.a,scale=(p.bomberTransfer?.scale??1)*(p.aceScale129||1),reach=13*scale;
- const mx=cue?.mountX??p.bomberTransfer?.front??23,my=cue?.mountY??p.weapon?.sortieMuzzleSide??0,kick=cue?Math.sin(clamp(cue.age/.085)*Math.PI)*1.4:0;
- return {a,x:mx-Math.cos(a)*(reach+kick),y:my-Math.sin(a)*(reach+kick),mx:mx-Math.cos(a)*kick,my:my-Math.sin(a)*kick,reach,scale,kick,flash:cue?clamp((.085-cue.age)/.045):0};
+ const mx=cue?.mountX??p.bomberTransfer?.front??23,my=cue?.mountY??p.weapon?.sortieMuzzleSide??0,kick=cue?Math.sin(clamp(cue.age/.085)*Math.PI)*(cue.activeFire?2.2:1.4):0;
+ return {a,x:mx-Math.cos(a)*(reach+kick),y:my-Math.sin(a)*(reach+kick),mx:mx-Math.cos(a)*kick,my:my-Math.sin(a)*kick,reach,scale,kick,activeFire:!!cue?.activeFire,linkedFire:!!cue?.linkedFire,flash:cue?clamp((.085-cue.age)/.045):0};
 }
 // Spent powder and cases stay at the recorded shot, independent of muzzle flash.
 // A reload or the end of an active cannot erase a shot that already happened.
@@ -73,7 +73,7 @@ export function drawPressureLocal(c,p,tex){
  if(p.pilot==='hawker'){
   const pose=hawkerGunPose(p);
   if(lewisImage?.complete&&lewisImage.naturalWidth){const h=20*pose.scale,w=h*lewisImage.naturalWidth/lewisImage.naturalHeight;c.save();try{c.translate(pose.x,pose.y);c.rotate(pose.a+Math.PI/2);c.drawImage(lewisImage,-w/2,-pose.reach,w,h);}finally{c.restore();}}
-  if(pose.flash>0)tex(c,'muzzle',pose.mx+Math.cos(pose.a)*3,pose.my+Math.sin(pose.a)*3,17,7,pose.a,.9*pose.flash);
+  if(pose.flash>0)tex(c,'muzzle',pose.mx+Math.cos(pose.a)*3,pose.my+Math.sin(pose.a)*3,pose.activeFire?29:17,pose.activeFire?11:7,pose.a,.9*pose.flash);
  }else for(let gun=0;gun<(p.weapon?.guns||2);gun++){
   const cue=latestGun(p,gun);if(!cue)continue;const angles=jacobsFanAngles(p,gun);if(!angles.length)angles.push(cue.a-p.a);
   for(const a of angles)tex(c,'muzzleTwin',cue.mountX+Math.cos(a)*3,cue.mountY+Math.sin(a)*3,angles.length>1?11:17,angles.length>1?4:7,a,.78*clamp((.085-cue.age)/.045));
@@ -86,6 +86,13 @@ export function drawPressureLocal(c,p,tex){
 }
 export function drawPressureCue(c,p,e,tex,front){
  if(!PRESSURE_LINK_PILOTS.has(p.pilot))return false;
+ if(p.pilot==='jacobs'&&e.kind==='jacobsAngle'){
+  if(front){const q=clamp(e.age/e.maxLife),a=e.a-p.a,fade=(1-q)**1.3;
+   tex(c,'armorSpark',0,0,38-12*q,22-8*q,a,.96*fade);
+   tex(c,'ricochet',q*10,0,30-8*q,13,a,.85*fade);
+   tex(c,'gunSmoke',-q*13,0,34+q*22,18+q*12,a,.32*fade);
+  }return true;
+ }
  if(!front||e.kind!=='pressureHit')return true;
  const q=clamp(e.age/.24),a=e.a-p.a;
  if(p.pilot==='jacobs')for(const side of [-1,1])tex(c,'debris',-q*5,side*(2+q*8),9-q*4,4,a+side*q*.5,.8*(1-q));

@@ -74,3 +74,8 @@ export function arcMark(c,x,y,r,a0,a1,{alpha=1}={}){
  c.save();c.globalAlpha*=alpha;c.setLineDash([6,7]);inked(c,1.5,MARK.warn,()=>{c.beginPath();c.arc(x,y,r,a0,a1);});c.setLineDash([]);
  for(const a of [a0,a1])inked(c,2,MARK.warn,()=>{c.beginPath();c.moveTo(x+Math.cos(a)*(r-9),y+Math.sin(a)*(r-9));c.lineTo(x+Math.cos(a)*(r+9),y+Math.sin(a)*(r+9));});c.restore();
 }
+
+// Existing boss edge badge, shared without importing the full boss renderer.
+export function drawFormationEdgeBadge(c,x,y,a){
+ c.save();c.translate(x,y);c.fillStyle='rgba(28,10,12,.94)';c.strokeStyle='#c85b48';c.lineWidth=2.5;c.beginPath();c.arc(0,0,18,0,Math.PI*2);c.fill();c.stroke();c.fillStyle='#f0d7a4';c.font='700 8px "Arial Narrow",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('BOSS',0,0);c.rotate(a);c.fillStyle='#c85b48';c.beginPath();c.moveTo(24,0);c.lineTo(17,-5);c.lineTo(17,5);c.closePath();c.fill();c.restore();
+}

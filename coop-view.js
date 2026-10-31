@@ -1,3 +1,4 @@
+import {drawRevisionDecoys} from './voss-decoy-fx.js';
 import {drawFinalArenaBoss,finalArenaVisible} from './final-arena-view.js';
 import {drawGroundFacilities} from './ground-facility-view.js';
 import {drawNavarreFrommherz} from './navarre-frommherz-view.js';
@@ -30,7 +31,7 @@ const _twCache=new Map();
 const _tw=(c,t)=>{const k=c.font+'\u0000'+t;let w=_twCache.get(k);if(w===undefined){w=c.measureText(t).width;_twCache.set(k,w)}return w};
 const NO_SKILL_RING=new Set(['huffzky','mckeever','jacobs','hawker','berthold','udet','goering','brumowski','nungesser','barker','wolff','mccudden','luke','mannock','immelmann','navarre','frommherz']);
 const DUO_PILOTS=new Set(['huffzky','mckeever']);
-import {planeSprite,drawFriendlyBomber,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1';
+import {planeSprite,drawFriendlyBomber,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle';
 import {enemyAircraftKey} from './enemy-aircraft-art.js';
 import {drawEquipment} from './equipment.js?v=gal1&heal=orb1';
 import {drawFlightRocket,drawEnemyProjectile,drawCannonProjectile,drawBattlefieldFire,drawPilotGunTracer,drawFriendlyGunTracer} from './projectiles.js?v=pilotfx20261018';
@@ -46,12 +47,12 @@ const xpGem=null;
 export function drawCoop(c,g,W,H,{terrain,drawZeppelin,drawFieldArt,fieldArt,fieldArtImg,groundLayer,deferHostile=false}){
  const t=g.t,z=g.camera.zoom;c.save();c.scale(z,z);terrain(g.x,g.y,W/z,H/z);c.restore();if(finalArenaVisible(g))drawFinalArenaBoss(c,g,W,H);else drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer:'bodies'});drawFlightFlow(c,g,W,H,z);c.save();const kick=combatCameraOffset(g);c.translate(W/2+kick.x,H/2+kick.y);c.scale(z,z);c.translate(-g.x,-g.y);
  groundLayer?.();if(!finalArenaVisible(g))drawGroundFacilities(c,g);drawBattlefieldFire(c,g);
- for(const p of g.players)drawNavarreFrommherz(c,p,{fx,locale:getLocale(),visible:(x,y,r)=>Math.abs(x-g.x)<=W/(2*z)+r&&Math.abs(y-g.y)<=H/(2*z)+r});
+ for(const p of g.players)drawNavarreFrommherz(c,p,{fx,tint:fxTint,locale:getLocale(),visible:(x,y,r)=>Math.abs(x-g.x)<=W/(2*z)+r&&Math.abs(y-g.y)<=H/(2*z)+r});
  const cl=(x,y,m)=>x<g.x-W/(2*z)-m||x>g.x+W/(2*z)+m||y<g.y-H/(2*z)-m||y>g.y+H/(2*z)+m;
  for(const e of g.enemyAirshipPasses||[])if(!cl(e.x,e.y,320))drawZeppelin(c,e.x,e.y,e.a,.72,false,'central');
  for(const p of g.players)for(const d of p.vossAfterimages||[]){c.save();c.globalAlpha=.4*d.life/d.maxLife;planeSprite(c,d.x,d.y,d.a,p.bomberTransfer?.sprite||aircraftKey(p.plane,false,p.pilot),p.bomberTransfer?.scale??1);c.restore();}
  for(const e of g.enemies)for(const d of e.vossTrails||[]){if(cl(d.x,d.y,110))continue;c.save();c.globalAlpha=.4*d.life/d.maxLife;planeSprite(c,d.x,d.y,d.a,enemyAircraftKey(e,'fokker_voss'),enemyAircraftScale(e),true);c.restore();}
- for(const d of g.revisionDecoys||[]){c.save();c.globalAlpha=Math.min(.45,d.life*.4);planeSprite(c,d.x,d.y,d.a,aircraftKey(d.plane,false,d.pilot),1);c.restore()}
+ drawRevisionDecoys(c,g,{planeSprite,aircraftKey});
  const ring=(x,y,r,color,width=2)=>{c.strokeStyle=color;c.lineWidth=width;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.stroke()};
  const heart=(x,y,size,color)=>{const s=Math.max(1,Math.round(size/4));c.fillStyle=color;c.fillRect(x-2*s,y-s,s,s);c.fillRect(x+s,y-s,s,s);c.fillRect(x-3*s,y,6*s,s);c.fillRect(x-2*s,y+s,4*s,s);c.fillRect(x-s,y+2*s,2*s,s)};
  const sprite=(p,key,scale=1,enemy=false)=>{const q=playerPose(p,p.x,p.y),visual=defianceAirframePose(p,pressureAirframePose(p,combatVisualPose(p),t));key=q.sprite||key;q.x+=visual.x;q.y+=visual.y;q.roll=visual.roll;q.bank=visual.bank;if(p.crashing){const v=enemyCrashVisual(p);q.roll=v.roll;q.bank=v.bank;}if(!enemy){drawRedGhosts162(c,p,p.x,p.y,planeSprite,key);drawPlayerAura(c,p,q.x,q.y);}if(!enemy||p.type!=='bomber'&&p.type!=='zeppelin'){c.save();c.globalAlpha*=q.shadowAlpha;c.translate(Math.round(q.x+(p.crashing?enemyCrashVisual(p).shadowX:p.pilot==='immelmann'?q.shadowX:14)),Math.round(q.y+(p.crashing?enemyCrashVisual(p).shadowY:p.pilot==='immelmann'?q.shadowY:20)+q.height));applyPlayerAttitude(c,p,q,true);planeSprite(c,0,0,0,key,scale*q.scale*q.shadowScale,enemy,true);c.restore();}c.save();c.globalAlpha*=(p.ballCloak>0?.24:1)*(q.alpha??1);c.translate(q.x,q.y);applyPlayerAttitude(c,p,q);planeSprite(c,0,0,0,key,scale*q.scale,enemy,false,enemy&&visual.active?Math.min(.16,p.hitFlash||0):p.hitFlash||0,p.pilot==='barker'?Math.max(p.barkerDamageStage||0,p.barkerScarStage||0):p.hp<p.maxHp*.5);if(enemy)drawPressureEnemyFront(c,g,p,fx,scale*q.scale,fxTint);c.restore();if(!enemy)drawPilotSignatureFront(c,p,q.x,q.y)};

@@ -36,7 +36,7 @@ function startFeedback(p){
   case 'gontermann':case 'luke':p.identityFx('fireSmall',p.x+Math.cos(p.a)*26,p.y+Math.sin(p.a)*26,p.a,26,.32,{alpha:.85});p.identityFx('fireSmall',p.x-Math.cos(p.a)*18,p.y-Math.sin(p.a)*18,p.a+Math.PI,16,.26,{alpha:.55});muzzle(p);break;
   case 'mckeever':muzzle(p);muzzle(p,p,false,true);break;
   case 'huffzky':muzzle(p,p,false,true);wind(p,p,.6);break;
-  case 'mccudden':p.identityFx('gunSmoke',p.x,p.y,p.a,50,.5,{alpha:.6});p.identityFx('metalShard0',p.x-22,p.y,p.a,18,.35);break;
+  case 'mccudden':break; // Onboard repair stays inside the aircraft; no external smoke or shards.
   case 'ball':p.identityFx('mist',p.x,p.y,p.a,110,.65,{height:62,alpha:.55});ghost(p,p,.65);break;
   case 'hawker':muzzle(p,p,false,false,1.6);break;
   case 'barker':wind(p,p,.7);break;

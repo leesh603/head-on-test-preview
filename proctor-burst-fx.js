@@ -1,10 +1,18 @@
 // Read actual, short-lived gun records; never infer shots from skill timers.
 const clamp=n=>Math.max(0,Math.min(1,n));
 export function drawProctorGunRecord(c,p,f,tex,x=0,y=0){
- if(p.pilot!=='proctor'||!['muzzleTwin','gunSmoke'].includes(f.key))return false;
+ if(p.pilot!=='proctor'||!['muzzleTwin','gunSmoke','proctorSuppression'].includes(f.key))return false;
  if(!(p.hp>0)||p.status==='downed'||p.state!=='playing'||!(f.life>0)||!(f.maxLife>0)||![p.x,p.y,p.a,x,y,f.x,f.y,f.a,f.life,f.maxLife].every(Number.isFinite))return true;
  const age=Math.max(0,f.maxLife-f.life),fade=clamp(f.life/f.maxLife),ca=Math.cos(f.a),sa=Math.sin(f.a);
  const px=x+f.x-p.x,py=y+f.y-p.y;
+ if(f.key==='proctorSuppression'){
+  if(f.ownerId!==(p.id??'p1'))return true;
+  const q=clamp(age/.38),flash=1-clamp(age/.09);
+  if(flash>0)tex(c,'ricochet',px,py,27,17,f.a,.9*flash,'#efcf92');
+  for(const side of [-1,1]){const a=f.a+side*.75,d=5+age*48;tex(c,'debris',px+Math.cos(a)*d,py+Math.sin(a)*d,15-q*5,9-q*3,a+side*q,.88*fade,side<0?'#c8b18c':'#8b7860');}
+  tex(c,'gunSmoke',px-ca*age*19,py-sa*age*19,25+q*13,18+q*7,f.a,.38*fade,'#b6afa1');
+  return true;
+ }
  if(f.key==='muzzleTwin'){
   // The barrel moves with the aircraft; old shot records leave only falling brass.
   if(age<.045)tex(c,'muzzleTwin',x+Math.cos(p.a)*25+ca*3,y+Math.sin(p.a)*25+sa*3,32,13,f.a,.90*fade,'#e6c696');

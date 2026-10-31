@@ -45,6 +45,15 @@ PHASES['bruno-tracking']=['추적·교차 포격 · 방향을 바꿔 이탈','Tr
 PHASES['minenwerfer-reload']=['포대 재장전 · 반격 기회','Pits reloading · strike now'];
 PHASES['l70-last-raid']=['최후 폭격 · 폭탄 행진 연속','Last raid · rolling bomb marches'];
 PHASES['harbor-last-stand']=['최후 저항 · 전 포대 순차 일제사격','Last stand · every gun in a rolling salvo'];
+PHASES['sequential-cover']=['순차 엄호 · 예고 사선 이탈','Sequential cover · leave the aim line'];
+PHASES['guard-swap']=['엄호·폭격 역할 교대','Guard and bomber roles swap'];
+PHASES['parallel-bombing']=['평행 폭격 · 중앙 통로로','Parallel bombing · use the center gap'];
+PHASES['short-pass']=['단독 돌입 · 예고 후 선회','Lone pass · turn after the tell'];
+PHASES['recovery']=['편대 회복 · 공격 기회','Squadron recovery · attack now'];
+PHASES['gotha-cover']=['고타 전방 사격 · 접근 사선 회피','Gotha approach guns · dodge the line'];
+PHASES['gotha-crossfire']=['고타 후방 엄호 · 꼬리 사선 주의','Gotha rear cover · watch tail guns'];
+PHASES['gotha-bomb-run']=['고타 폭탄 투하 · 표식 이탈','Gotha bomb release · leave markers'];
+PHASES['gotha-reentry']=['다음 편대 선회 진입','Next flight turning in'];
 PHASES['formation-recovery']=['편대 재집결 · 반격 기회','Formation regrouping · strike now'];
 PHASES['red-total-assault']=['붉은 총공격 · 조준선을 피해 선회','Red total assault · turn off the aim line'];
 PHASES['black-cross-encirclement']=['검은 십자 포위 · 교차 돌입 회피','Black cross encirclement · dodge the crossing runs'];
@@ -88,7 +97,7 @@ export const BOSS_NAMES_EN=Object.freeze({'final-kaiserkrone':'Kaiserkrone','fin
  'fliegerzug':'Fliegerzug aerial torpedo carrier','treffas-wagen':'Treffas-Wagen landship',
  'jasta11-circus':'JASTA 11 · FLYING CIRCUS','naval10-black-flight':'NAVAL 10 · BLACK FLIGHT',
  'mark4-wedge':'Mark I landship breakthrough','morser-battery':'Schwaben underground fortress',
- 'gotha-squadron':'Gotha night bomber squadron','london-apron-raid':'London balloon apron raid','staaken-rvi':'Staaken R.VI giant bomber','london-searchlight':'London searchlight battery','flak-tower':'QF 13-pounder flak towers'
+ 'o400-squadron':'Handley Page O/400 squadron','gotha-squadron':'Gotha bomber squadron','london-apron-raid':'London balloon apron raid','staaken-rvi':'Staaken R.VI giant bomber','london-searchlight':'London searchlight battery','flak-tower':'QF 13-pounder flak towers'
 });
 const TACTIC_RAIL_ONLY=new Set(['paris-gun','lincomparable','a7v-flak','mark-v-cruiser','flak-tower','fliegerzug','treffas-wagen']);
 const COUNTER_PHASES=new Set(['l70-gun-reload','hma23-rearm','bomber-gunner-reload','gondola-reload','flak-resupply','schwaben-reload','staaken-gunner-reload','sinai-reload','fleet-reload','gotha-regroup','carrier-rearm','a7v-recovery','markv-recovery','verdun-recovery','flieger-recovery','treffas-recovery','gallipoli-recovery','minenwerfer-reload','formation-recovery','lincomparable-counter','livens-depressurized','mark1-counter']);
@@ -120,7 +129,7 @@ export function bossTactic(encounter,locale='ko'){
 function bossTacticDetail(encounter,locale='ko'){
  if(encounter?.bossId==='final-kaiserkrone'||encounter?.bossId==='final-leviathan')return pair('기관 파괴로 기동 저하 · 포좌·갑판을 제압하고 주 선체에 집중','Break engines to slow it · silence guns and decks · strike the main hull',locale);
  // Keep existing hint visibility; Somme's new component choices need cues.
- if(!TACTIC_RAIL_ONLY.has(encounter?.bossId)&&!['mark4-wedge','morser-battery','wustenpanzer','sinai-landship','gallipoli-fortress','paris-staaken-rvi','paris-searchlight-fortress','jutland-grand-fleet','supermarine-nighthawk','siemens-schuckert-r-viii'].includes(encounter?.bossId))return '';
+ if(!TACTIC_RAIL_ONLY.has(encounter?.bossId)&&!['o400-squadron','gotha-squadron','mark4-wedge','morser-battery','wustenpanzer','sinai-landship','gallipoli-fortress','paris-staaken-rvi','paris-searchlight-fortress','jutland-grand-fleet','supermarine-nighthawk','siemens-schuckert-r-viii'].includes(encounter?.bossId))return '';
  const bodies=[...encounter?.bodies.values()||[]].filter(b=>!b.dead),b=bodies[0];if(!b)return '';
  const text=(ko,en)=>pair(ko,en,locale),gone=id=>b.parts.get(id)?.destroyed;
  if(['supermarine-nighthawk','siemens-schuckert-r-viii'].includes(encounter.bossId)){
@@ -149,6 +158,7 @@ function bossTacticDetail(encounter,locale='ko'){
   case 'drachen-net':return text('비행선 3기를 모두 격추하세요. 남은 비행선은 계속 기뢰를 뿌립니다.','Down all three airships · survivors keep firing and laying mines');
   case 'fort-douaumont':return b.recovery>0?text('포격이 멈췄습니다. 노출된 탄약고와 중앙부를 공격하세요.','Guns reloading · attack exposed ammunition and core'):b.lastStand?text('좌우 중포가 번갈아 쏩니다. 가운데 빈 경로로 피하세요.','Alternating heavy guns · use the clear centre'):b.coreVulnerable?text('남은 포대를 피하며 노출된 중앙부를 공격하세요.','Core exposed · evade surviving batteries'):b.phase==='verdun-ammo'?text('노출된 좌우 탄약고를 부수면 해당 구역의 포격이 약해집니다.','Destroy exposed flank ammunition → weaken that sector'):text('외곽 포대부터 중포까지 부수세요. 관제부를 파괴하면 포격이 약해집니다.','Outer mounts → heavy turrets · control loss weakens salvos');
   case 'fort-souville':return b.recovery>0?text('포대가 재장전 중입니다. 노출된 지하 핵심부를 공격하세요.','Pits reloading · strike the exposed underground core'):b.lastStand?text('열리는 포대를 확인하고, 교차 포격 사이로 피하세요.','Read opening pits · evade between crossing salvos'):b.coreVulnerable?text('남은 포대를 피하며 노출된 지하 핵심부를 공격하세요.','Underground core exposed · silence remaining pits'):b.phase==='verdun-ruin-breach'?text('노출된 지하 탄약고를 부숴 내부 진지를 연쇄 폭발시키세요.','Underground ammunition exposed → interior chain blast'):text('관측소를 부수면 포격이, 지휘소를 부수면 증원이 멈춥니다.','Hit open pits · observer=artillery / command=reserves');
+  case 'o400-squadron':return text('예고된 사격을 피하고 엔진·총좌를 노리세요. 양옆 폭격 사이 중앙이 안전합니다.','Dodge warned fire · destroy engines and guns · keep the center bomb lane clear');
   case 'gotha-squadron':return text('후방 사격을 피하며 폭탄창을 부수세요. 엔진을 파괴하면 투하가 늦어집니다.','Break bomb bays to protect the city · engines delay drops · beware rear guns');
   case 'london-apron-raid':return text('비행선을 격추해 그물에 통로를 여세요. 탐조등과 포대를 부수면 공격이 줄어듭니다.','Down airships to open the net · destroy the searchlight and flak gun to ease the breakthrough');
   case 'london-apron':return text('그물을 공격해도 비행선이 피해를 받습니다. 격추하면 통로가 열립니다.','Net damage transfers to its airship · down it to open a lane and silence its gun');
@@ -230,23 +240,23 @@ export function bossSoundFor(event,kind=''){
 // Area-boss arrival: a call that suits what arrives (sfx names, with delays in ms).
 const ARRIVAL_FAMILY={
  naval:['sms-stuttgart','hms-zubian','jutland-grand-fleet'],
- airship:['zeppelin-l70','hma23'],
- bomber:['supermarine-nighthawk','siemens-schuckert-r-viii','gotha-squadron','paris-staaken-rvi','gik','ca4'],
- net:['drachen-net','flak-tower','london-apron-raid','paris-searchlight-fortress'],
+ airship:['zeppelin-l70','hma23','final-kaiserkrone'],
+ bomber:['final-leviathan','supermarine-nighthawk','siemens-schuckert-r-viii','o400-squadron','gotha-squadron','paris-staaken-rvi','gik','ca4'],
+ net:['berlin-drachen','drachen-net','flak-tower','london-apron-raid','paris-searchlight-fortress'],
  armour:['a7v-flak','mark-v-cruiser','treffas-wagen','mark4-wedge','wustenpanzer','sinai-landship'],
  squadron:['jasta11-circus','naval10-black-flight'],
  rail:['paris-gun','lincomparable'],
  railCarrier:['fliegerzug']
 };
 const ARRIVAL_CUES={
- naval:[['bossSting',0],['shipHorn',420]],
- airship:[['bossSiren',0],['airshipArrival',350]],
- bomber:[['bossSiren',0]],
+ naval:[['shipHorn',0]],
+ airship:[['airshipArrival',0]],
+ bomber:[['bomberArrival',0]],
  net:[['bossKlaxon',0]],
- armour:[['bossKlaxon',0],['armorEntry',500]],
+ armour:[['armorEntry',0]],
  squadron:[['aceSting',0]],
  rail:[['trainApproach',0]],
- railCarrier:[['bossSting',0],['trainWhistle',380]],
+ railCarrier:[['trainApproach',0]],
  fortress:[['bossSting',0]]
 };
 export function bossArrivalCues(bossId){

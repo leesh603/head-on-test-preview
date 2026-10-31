@@ -1,3 +1,5 @@
+import {O400Raider} from './o400-squadron.js?v=natural-flight20261031';
+import {updateGothaCombat} from './gotha-squadron-combat.js?v=natural-flight20261031';
 import {createCapitalBoss} from './capital-bosses.js';
 import {SupermarineNighthawk,SiemensSchuckertRVIII} from './dover-night-bosses.js?v=dover3&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js';
@@ -46,7 +48,7 @@ export const BOSS_CATALOG = Object.freeze({
   'minenwerfer-battery': {name:'미넨베르퍼 교차 포격 진지', faction:'central', stage:3},
   'drachen-net': {name:'드라헨 공중 기뢰 방어망', faction:'central', stage:11},
   'london-apron-raid': {name:'런던 에이프런 방공망', faction:'entente', stage:11},
-  'flak-tower': {name:'QF 13파운드 방공탑', faction:'entente', stage:4},
+  'o400-squadron': {name:'핸들리 페이지 O/400 편대', faction:'entente', stage:4},
   'zeppelin-l70': {name:'슈퍼 체펠린 L 70', faction:'central', stage:5},
   hma23: {name:'공중 항모 · HMA 23급', faction:'entente', stage:5},
   gik: {name:'한자-브란덴부르크 G.IK', faction:'central', stage:6},
@@ -58,7 +60,7 @@ export const BOSS_CATALOG = Object.freeze({
   ,'naval10-black-flight': {name:'네이벌 10 — 블랙 플라이트', faction:'entente', stage:9, pilot:'collishaw', formationSize:5}
   ,'mark4-wedge': {name:'마크 I 최초 랜드십 돌파대', faction:'entente', stage:10}
   ,'morser-battery': {name:'슈바벤 보루 · 지하 방어요새', faction:'central', stage:10}
-  ,'gotha-squadron': {name:'고타 야간 폭격전대', faction:'central', stage:4}
+  ,'gotha-squadron': {name:'고타 폭격전대', faction:'central', stage:4}
   ,'fort-douaumont': {name:'두오몽 요새 · Fort Douaumont', faction:'central', stage:12}
   ,'fort-souville': {name:'수빌 요새 · Fort de Souville', faction:'entente', stage:12}
   ,'wustenpanzer': {name:'사막 육상순양함 · Wüstenpanzer', faction:'central', stage:13}
@@ -1819,73 +1821,27 @@ export class LondonRaidApron extends LondonApron {
 export class GothaRaider extends PatternBoss {
  constructor({slot=0,...options}){super({...options,kind:'gotha-raider',coreRadius:34,parts:[
   {id:'engine-left',x:-23,y:-8,radius:12,maxHp:options.tuning.maxHp*.2},{id:'engine-right',x:23,y:-8,radius:12,maxHp:options.tuning.maxHp*.2},
-  {id:'bomb-bay',x:0,y:-14,radius:10,maxHp:options.tuning.maxHp*.24},{id:'rear-gun',x:0,y:9,radius:9,maxHp:options.tuning.maxHp*.14}]});
+  {id:'bomb-bay',x:0,y:-14,radius:10,maxHp:options.tuning.maxHp*.24},{id:'rear-gun',x:0,y:9,radius:9,maxHp:options.tuning.maxHp*.14},{id:'front-gun',x:0,y:-26,radius:9,maxHp:options.tuning.maxHp*.12}]});
   this.slot=slot;this.formationTotal=1;this.anchorX=this.x;this.anchorY=this.y;this.a=Math.PI/2;this.ownsMotion129=true;this.coreVulnerable=true;
   this.phase='approach';this.entryAge=0;this.y-=260+slot*110;this.raidSerial=0;this.raidWait=slot*2.4;this.runRemaining=0;this.glideAge=0;this.bayOpen=0;
   this.mounts=new Map([...this.parts].map(([id,p])=>[id,{x:p.x,y:p.y}]));this.rotateMounts();}
  suppressive(){}
  engines(){return ['engine-left','engine-right'].filter(id=>!this.parts.get(id).destroyed).length;}
  rotateMounts(){const a=this.a+Math.PI/2,c=Math.cos(a),s=Math.sin(a);for(const [id,m] of this.mounts){const p=this.parts.get(id);p.x=m.x*c-m.y*s;p.y=m.x*s+m.y*c;}}
- locateHit(attack){const hit=super.locateHit(attack);if(hit)return hit;const a=this.a+Math.PI/2,dx=attack.x-this.x,dy=attack.y-this.y,x=dx*Math.cos(a)+dy*Math.sin(a),y=-dx*Math.sin(a)+dy*Math.cos(a),r=attack.radius||0;
+ locateHit(attack){if(Number.isFinite(attack.previousX)&&Number.isFinite(attack.previousY)){const n=Math.min(64,Math.max(1,Math.ceil(Math.hypot(attack.x-attack.previousX,attack.y-attack.previousY)/Math.max(3,attack.radius||3))));for(let i=0;i<=n;i++){const h=this.locateHit({...attack,x:attack.previousX+(attack.x-attack.previousX)*i/n,y:attack.previousY+(attack.y-attack.previousY)*i/n,previousX:undefined,previousY:undefined});if(h)return h;}return null;}const hit=super.locateHit(attack);if(hit)return hit;const a=this.a+Math.PI/2,dx=attack.x-this.x,dy=attack.y-this.y,x=dx*Math.cos(a)+dy*Math.sin(a),y=-dx*Math.sin(a)+dy*Math.cos(a),r=attack.radius||0;
   return (x/(103+r))**2+((y+37)/(16+r))**2<=1||(x/(93+r))**2+((y+3)/(11+r))**2<=1||(x/(15+r))**2+(y/(87+r))**2<=1?{partId:null}:null;}
  hit(attack){const part=attack.partId&&this.parts.get(attack.partId),damage=attack.damage*(part?.id==='bomb-bay'&&this.bayOpen<.3?.5:!part&&this.engines()?.7:1),result=super.hit({...attack,damage});
   if(part&&result.damage&&!this.dead){const body=super.hit({damage:result.damage*.75});result.bodyDefeated=body.bodyDefeated;}return result;}
  abortRun(){if(this.runTarget)this.command('city-bomb-abort',{runId:this.runId});this.runTarget=null;this.runRemaining=0;this.bayOpen=0;this.bayWarned=false;this.onBombLine=false;}
  onPartDestroyed(p){if(p.id==='bomb-bay'){this.abortRun();this.phase='payload-lost';this.command('phase-change',{phase:this.phase});}
-  if(p.id==='rear-gun')this.command('cancel-hazards',{tag:this.id+'-rear'});
+  if(p.id==='rear-gun'||p.id==='front-gun'){this.gothaVolley=null;this.command('cancel-hazards',{tag:this.id+'-'+p.id,pendingOnly:true});}
   if(!this.engines()){this.abortRun();this.phase='gliding';this.glideAge=0;this.command('phase-change',{phase:this.phase});this.command('aa-effect',{x:this.x,y:this.y,kind:'aaBalloonBurst',size:100,life:.55});}
   else if(p.id.startsWith('engine-'))this.command('phase-change',{phase:'engine-damaged'});}
  fly(dt,tx,ty,speed,turn=1.05,formation=true){const goal=Math.atan2(ty-this.y,tx-this.x);let ux=Math.cos(goal),uy=Math.sin(goal);
   if(formation)for(const b of this.encounter?.bodies.values()||[]){if(b===this||b.dead||b.kind!=='gotha-raider')continue;const dx=this.x-b.x,dy=this.y-b.y,d=Math.hypot(dx,dy);if(d>0&&d<210){const w=(210-d)/120;ux+=dx/d*w;uy+=dy/d*w;}}
   const want=Math.atan2(uy,ux),d=Math.atan2(Math.sin(want-this.a),Math.cos(want-this.a));this.a+=Math.max(-turn*dt,Math.min(turn*dt,d));this.x+=Math.cos(this.a)*speed*dt;this.y+=Math.sin(this.a)*speed*dt;this.rotateMounts();}
- update(dt,{players,bounds,londonTargets=[]}){const engines=this.engines(),speed=engines===2?78:engines===1?49:38;
-  if(this.dead)return;
-  if(engines&&this.entryAge<3.4){if(this.entryAge===0&&this.slot===0)this.command('gotha-approach');this.entryAge+=dt;this.fly(dt,this.anchorX,this.anchorY+150,speed,.5,false);return;}
-  if(this.phase==='approach')this.phase='formation';
-  const flight=[...this.encounter?.bodies.values()||[this]].filter(b=>b.kind==='gotha-raider'&&!b.dead);
-  if(this.encounter&&!this.encounter.finalBombing&&(flight.length===1||flight.reduce((n,b)=>n+b.hp,0)<=this.encounter.maxHpBudget*.35)){
-   this.encounter.finalBombing=true;this.command('gotha-final-bombing');
-   for(const b of flight){b.abortRun();b.raidWait=b.slot*2.4;b.finalRun=true;}
-  }
-  if(!engines){this.glideAge+=dt;
-   const spin=(this.slot%2?1:-1)*Math.min(2.2,.55+this.glideAge*.95);
-   this.a+=spin*dt;
-   const sink=Math.min(170,30+this.glideAge*75),fwd=speed*(1-Math.min(.6,this.glideAge*.2));
-   this.x+=Math.cos(this.a)*fwd*dt;this.y+=Math.sin(this.a)*fwd*dt+sink*dt;this.rotateMounts();
-   if(this.due('glide-smoke',dt,.32))this.command('aa-effect',{x:this.x,y:this.y-18,kind:'aaWreckSmoke',size:66,life:.95});
-   if(this.glideAge>=4.6){super.hit({damage:this.hp});return;}}
-  else{const targets=londonTargets.filter(t=>t.hp>0),bay=!this.parts.get('bomb-bay').destroyed;this.raidWait-=dt;
-   if(this.runTarget?.hp<=0){this.abortRun();this.raidWait=1;}
-   if(!this.runTarget&&bay&&targets.length&&this.raidWait<=0){const preferred=targets.find(t=>t===londonTargets[this.slot]);
-    this.runTarget=preferred||targets.reduce((best,t)=>{const assigned=q=>flight.filter(b=>b!==this&&(b.runTarget===q||q.id!=null&&b.runTarget?.id===q.id)).length;return assigned(t)<assigned(best)?t:best;},targets[this.slot%targets.length]);
-    this.onBombLine=false;this.runRemaining=Math.hypot(this.x-this.runTarget.x,this.y-this.runTarget.y)/speed;this.phase='bombing-run';this.runId=this.id+':run:'+this.raidSerial++;
-    this.command('city-bomb-warning',{runId:this.runId,targetId:this.runTarget.id,x:this.runTarget.x,y:this.runTarget.y,seconds:this.runRemaining,final:!!this.finalRun});}
-   if(this.runTarget){const t=this.runTarget,entryY=t.y-240;
-    if(!this.onBombLine){this.fly(dt,t.x,entryY,speed,engines===1?.65:.95,false);this.runRemaining=(Math.hypot(t.x-this.x,entryY-this.y)+240)/speed;
-     if(this.y<entryY+20&&Math.abs(t.x-this.x)<160)this.onBombLine=true;}
-    else{this.fly(dt,t.x,this.y+140,speed,engines===1?.65:.95,false);const xTrim=t.x-(this.x+this.parts.get('bomb-bay').x);this.x+=Math.sign(xTrim)*Math.min(Math.abs(xTrim),speed*dt*.8);
-     const p=this.parts.get('bomb-bay'),sourceX=this.x+p.x,sourceY=this.y+p.y;
-     this.runRemaining=Math.max(0,(t.y-sourceY)/speed);const opening=this.runRemaining<=2.6;this.bayOpen=Math.max(0,Math.min(1,this.bayOpen+dt*(opening?1.8:-2)));
-     if(opening&&!this.bayWarned){this.bayWarned=true;this.command('gotha-bay-open',{x:sourceX,y:sourceY,runId:this.runId});}
-     if(sourceY>=t.y&&Math.abs(sourceX-t.x)<55&&Math.sin(this.a)>.5&&this.bayOpen>.9){
-      const impactWarning=2;
-      this.command('city-bomb',{runId:this.runId,targetId:t.id,x:t.x,y:t.y,sourceX,sourceY,seconds:impactWarning,damage:18});
-      this.hazard('circle',{x:t.x,y:t.y,radius:54,warning:impactWarning,duration:.35,once:true,damage:this.t.damage,visual:'carpet-bomb',airborneBomb:true,objective:true,sourceX,sourceY,tag:this.id+'-payload'});
-      for(const side of [-1,1])this.hazard('circle',{x:t.x+side*78,y:t.y-72,delay:side<0?.42:.84,radius:48,warning:2,duration:.3,once:true,visual:'carpet-bomb',airborneBomb:true,objective:true,sourceX,sourceY,tag:this.id+'-payload'});
-      // The final run empties the bays: a longer march walks after the pilot.
-      const pilot=players.find(p=>p.alive);if(pilot)shellMarch(this,{source:{x:sourceX,y:sourceY},partId:'bomb-bay',target:pilot,rows:this.finalRun?4:3,radius:55,step:78,beat:this.finalRun?.4:.48,warning:1.9,visual:'carpet-bomb',tag:this.id+'-payload'});
-      this.runTarget=null;this.phase='egress';this.raidWait=8.5+(engines===1?3:0);this.egressY=t.y+200;this.bayWarned=false;
-     }else if(sourceY>t.y+70){this.onBombLine=false;this.bayOpen=0;this.bayWarned=false;}
-    }
-   }else{this.bayOpen=Math.max(0,this.bayOpen-dt*2);
-    if(this.phase==='egress'&&this.y<this.egressY)this.fly(dt,this.x,this.egressY+100,speed,.65,false);
-    else{this.phase=bay?'regroup':'payload-lost';this.fly(dt,this.anchorX,this.anchorY-100,speed,engines===1?.65:.95);}}
-   if(engines===1){this.a+=Math.sin((this.motionTime||0)*2+this.slot)*dt*.06;this.rotateMounts();}}
-  const p=this.target(players);if(!p)return;const angle=Math.atan2(p.y-this.y,p.x-this.x),rel=Math.atan2(Math.sin(angle-this.a),Math.cos(angle-this.a));
-  if(Math.hypot(p.x-this.x,p.y-this.y)<620&&this.due('gotha-guns',dt,2.6)){const gun=this.parts.get('rear-gun');
-   if(Math.abs(rel)>2.05&&!gun.destroyed){const x=this.x+gun.x,y=this.y+gun.y;this.command('muzzle',{x,y,partId:'rear-gun'});fireFanSalvo(this,{x,y,angle,speed:this.t.bulletSpeed*.8,damage:this.t.damage*.55,visual:'gotha-mg',tag:this.id+'-rear',sourcePartId:'rear-gun',count:11,spread:1.35,beats:2,beat:.45,warning:.8,gapIndex:this.raidSerial%2?2:7,step:0});}
-   else if(Math.abs(rel)<.6){const x=this.x+Math.cos(this.a)*74,y=this.y+Math.sin(this.a)*74;this.command('muzzle',{x,y});this.fan(x,y,angle,2,.13,this.t.bulletSpeed*.75,'gotha-mg');}}
- }
+ update(dt,context){this.nativeBomberCombat=true;updateGothaCombat(this,dt,context);}
+ suppressive(){}
 }
 
 const constructors={'supermarine-nighthawk':SupermarineNighthawk,'siemens-schuckert-r-viii':SiemensSchuckertRVIII,'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttgart':Stuttgart,'hms-zubian':Zubian,
@@ -1899,6 +1855,7 @@ export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   if(bossId==='berlin-drachen'){const encounter=new BossEncounter({id,bossId:'drachen-net',bodies:[new DrachenMineNet({id:id+':body',tuning,x,y,emit,rng,faction:'central',coreRadius:tuning.coreRadius||100})]});encounter.bossId=bossId;return encounter;}
   if(bossId==='jutland-grand-fleet')return createJutlandEncounter({id,bossId,tuning,x,y,emit,rng,faction});
   if(bossId==='mark4-wedge'){const scale=sommeScale(tuning,true),t={...tuning,maxHp:tuning.maxHp/3,sommeScale:scale};return new BossEncounter({id,bossId,bodies:[0,1,2].map(slot=>new Mark1Landship({id:id+':mark1:'+slot,slot,tuning:t,x:x+(slot===1?-155:slot===2?155:0)*scale,y:y+(tuning.sommeApproach?(slot===0?80:-110):(slot===0?-100:65))*scale,emit,rng,faction:faction||'entente'}))});}
+  if(bossId==='o400-squadron'){const t={...tuning,maxHp:tuning.maxHp/3,partHp:tuning.partHp/3,geometryScale:1};return new BossEncounter({id,bossId,bodies:[0,1,2].map(slot=>new O400Raider({id:id+':o400:'+slot,slot,tuning:t,x,y,emit,faction:faction||'entente'}))});}
   if(bossId==='gotha-squadron'){
    const flightTuning={...tuning,maxHp:tuning.maxHp/9,partHp:tuning.partHp/9,geometryScale:1},bodies=[];
    for(let slot=0;slot<9;slot++){

@@ -70,7 +70,7 @@ export function constrainHarborRoute(g){
  }
 }
 // Combat classification is independent of stationary collision/render proxies.
-const AIRBORNE_BOSSES=new Set(['zeppelin-l70','hma23','gik','ca4','jasta11-circus','naval10-black-flight','gotha-squadron','gotha-raider','paris-staaken-rvi','final-kaiserkrone','final-leviathan']);
+const AIRBORNE_BOSSES=new Set(['zeppelin-l70','hma23','gik','ca4','jasta11-circus','naval10-black-flight','gotha-squadron','gotha-raider','o400-squadron','o400-raider','paris-staaken-rvi','final-kaiserkrone','final-leviathan']);
 const alive=p=>p.hp>0&&(!p.status||p.status==='alive');
 const blocked=g=>g.state!=='playing'||!!g.pendingLevelUps?.length;
 export function stageBossBounds(g){const z=g.camera?.zoom||1,w=(g.viewWidth||960)/z,h=(g.viewHeight||700)/z;return {left:g.x-w/2,right:g.x+w/2,top:g.y-h/2,bottom:g.y+h/2};}
@@ -131,6 +131,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     ,'mark4-wedge':{geometryScale:1,mobileBoss:false,coreRadius:70}
     ,'morser-battery':{geometryScale:1.1,mobileBoss:false,motionMultiplier:0,coreRadius:84}
     ,'london-apron-raid':{geometryScale:1,mobileBoss:false,motionMultiplier:0,coreRadius:64}
+    ,'o400-squadron':{geometryScale:1,mobileBoss:false,motionMultiplier:1,coreRadius:23}
     ,'gotha-squadron':{geometryScale:1,mobileBoss:false,motionMultiplier:1,coreRadius:34}
     ,'staaken-rvi':{geometryScale:1,mobileBoss:false,coreRadius:62}
     ,'london-searchlight':{geometryScale:1,mobileBoss:false,motionMultiplier:0,coreRadius:70}
@@ -173,10 +174,11 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
   formationStatus(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&e.hp>0).map(e=>({id:e.id,role:e.formationRole,pairId:e.pairId,x:e.x,y:e.y}));},
   onBuildingImpact(event){const b=g.bossBuildings.find(b=>!b.destroyed&&Math.abs(event.x-b.x)<=b.w/2+8&&Math.abs(event.y-b.y)<=b.h/2);if(!b)return false;b.destroyed=true;g.combatBlast(b.x,b.y,55,'enemy','structure');return true;},
   onCue(event){
+   if(event.type==='boss-entry-beat'){if(event.sound)g.event('bossSound',event.sound);g.shake=Math.max(g.shake||0,event.shake||0);return;}
    if(event.type==='capital-final-pending'){
     const addon=g.stageBoss;g.bullets=g.bullets.filter(b=>!b.enemy);g.bossCues=[];
     for(const p of players(g)){if(alive(p))p.invuln=Math.max(p.invuln||0,4.6);}
-    addon.startBoss({x:g.x,y:g.y-Math.min(180,(g.viewHeight||700)*.22)});
+    addon.startBoss({x:g.x,y:g.y-Math.min(180,(g.viewHeight||700)*.22),presentArrival:true});
     g.event('wave','수도 최종전 · '+BOSS_CATALOG[addon.stages.bossId].name);return;
    }
    if(event.type==='capital-ace-pair'){spawnCapitalAcePair(g,event);return;}
@@ -323,7 +325,7 @@ function pilotVelocity(p,dt){
  if(last&&dt>0){const vx=(p.x-last.x)/Math.max(dt,1/120),vy=(p.y-last.y)/Math.max(dt,1/120);if(Math.hypot(vx,vy)<900)return{vx,vy};}
  const sp=(p.speed||0)*(p.airframeSpeed??1);return{vx:Math.cos(p.a||0)*sp,vy:Math.sin(p.a||0)*sp};
 }
-export function stageBossCollision(g,e,x,y,b){if(e.intrusionBody)return !blocked(g)&&intrusionTargetCollision(g,e,x,y,b);const body=e.stageBossBody;if(!body)return null;if(blocked(g)||body.dead||g.stageBoss?.stages.encounter?.bodies.get(body.id)!==body)return false;return !!body.locateHit({x,y,previousX:b?.previousX??x,previousY:b?.previousY??y,radius:b?.collisionRadius||0});}
+export function stageBossCollision(g,e,x,y,b){if(e.intrusionBody)return !blocked(g)&&intrusionTargetCollision(g,e,x,y,b);const body=e.stageBossBody;if(!body)return null;if(blocked(g)||body.dead||body.arrivalPending||g.stageBoss?.stages.encounter?.bodies.get(body.id)!==body)return false;return !!body.locateHit({x,y,previousX:b?.previousX??x,previousY:b?.previousY??y,radius:b?.collisionRadius||0});}
 export function damageStageBoss(g,e,b,damage){
  damage*=momentumDamage(g,b);
  if(e.finalArenaTarget)return hitFinalArena(g,e,b,damage);
@@ -476,6 +478,7 @@ export function beginStageBossFrame(g,dt){
  addon.reconcile({blocked:false});
  if(addon.stages.phase==='final-arena'){beginFinalArena(g);return;}
  for(const p of players(g))for(const [id,s]of p.bossStatuses||[]){s.remaining-=dt;if(s.remaining<=0||!alive(p))p.bossStatuses.delete(id);}
+ for(const cue of g.bossCues){if(!cue.followSource)continue;const b=addon.stages.encounter?.bodies.get(cue.bossId),p=b?.parts.get(cue.partId);if(!b||b.dead||!p||p.destroyed){cue.life=0;continue;}const a=cue.lockedAngle;cue.x=b.x+p.x+Math.cos(a)*5;cue.y=b.y+p.y+Math.sin(a)*5;cue.targetX=cue.x+Math.cos(a)*460;cue.targetY=cue.y+Math.sin(a)*460;}
  g.bossCues=g.bossCues.filter(c=>(c.life-=dt)>0&&(c.type!=='bug-flight-target'||g.enemies.some(e=>e.id===c.minionId&&e.hp>0)));
  tickLondonBattle(g,dt);tickParisBattle(g,dt);tickVerdunBattle(g,dt);tickMaanWeather(g,dt);tickRegionalConditions(g,dt);if(blocked(g))return;
  // Warning-phase mines physically travel from the winch to their final slots;
@@ -533,7 +536,7 @@ export function beginStageBossFrame(g,dt){
     x=g.x+(alpine?105:(naval||rail||structure)?Math.cos(heading)*forward:0);
     y=g.y+(alpine?-Math.max(165,Math.min(180,(bounds.bottom-bounds.top)*.24)):(naval||rail||structure)?Math.sin(heading)*forward:stage===4?0:stage===10?-Math.min(90,(bounds.bottom-bounds.top)*.12):-Math.min(180,(bounds.bottom-bounds.top)*.22));
    }
-   const entered=addon.startBoss({x,y});if(stage===14&&g.gallipoliRoute.preview){const b=[...entered.bodies.values()][0];for(const p of b.parts.values())p.angle=g.gallipoliRoute.preview.parts.get(p.id).angle;addon.hazards.clear(g.gallipoliRoute.encounterId);}g.navalApproachAt=null;g._aceGateAt=null;
+   const entered=addon.startBoss({x,y,presentArrival:true});if(stage===14&&g.gallipoliRoute.preview){const b=[...entered.bodies.values()][0];for(const p of b.parts.values())p.angle=g.gallipoliRoute.preview.parts.get(p.id).angle;addon.hazards.clear(g.gallipoliRoute.encounterId);}g.navalApproachAt=null;g._aceGateAt=null;
   }
   }
  }

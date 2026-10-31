@@ -16,6 +16,14 @@ function state(p){let s=states.get(p);const t=now(p);if(!s||s.pilot!==p.pilot||t
 function active(p,s){return live(p)&&states.get(p)===s&&s.pilot===p.pilot;}
 export function navarreFrommherzState(p){if(!selected(p)||!live(p))return null;const s=state(p),t=now(p);return {zone:s.zone&&s.zone.until>t?{...s.zone}:null,suppressing:s.suppressUntil>t,focusedTarget:s.targetUntil>t&&s.target?.hp>0?s.target:null};}
 export function navarreEnemySpeedMultiplier(w,e){const entries=slows.get(e);if(!entries||!(e.hp>0))return 1;let factor=1;for(const [p,hit] of entries){if(world(p)!==w)continue;if(p.hp<=0||p.status==='downed'||p.pilot!==hit.state.pilot||states.get(p)!==hit.state||now(p)<hit.state.time||now(p)>=hit.until){entries.delete(p);continue;}factor=Math.min(factor,hit.factor);}return factor;}
+// Read-only presentation snapshot of the already-authoritative slow entries.
+export function navarreSuppressionVisual(w,e){
+ if(!(e?.hp>0)||e.expired||e.crashed)return [];
+ const out=[];for(const [p,hit] of slows.get(e)||[]){
+  if(world(p)!==w||!live(p)||p.pilot!=='navarre'||states.get(p)!==hit.state||now(p)<hit.state.time||now(p)>=hit.until)continue;
+  out.push({ownerId:p.id??'p1',until:hit.until,factor:hit.factor,started:hit.fxStarted});
+ }return out.slice(0,2);
+}
 export function navarreOutnumbered(p){if(p.pilot!=='navarre'||!live(p))return false;const w=world(p),r=NAVARRE_FROMMHERZ_BALANCE.outnumberRadius;const nearby=x=>distance(p,x)<=r;let friendly=(w.players||[p]).filter(x=>live(x)&&nearby(x)).length;friendly+=(w.allies||[]).filter(x=>x.life>0&&(x.hp==null||x.hp>0)&&nearby(x)).length;friendly+=(w.patrols||[]).filter(x=>x.hp>0&&nearby(x)).length;friendly+=(w.friendlyBombers||[]).filter(x=>x.hp>0&&nearby(x)).length;return (w.enemies||[]).filter(x=>x.hp>0&&aircraft(x)&&nearby(x)).length>friendly;}
 
 export function installNavarreFrommherzCombat(Game,PILOTS){
@@ -46,7 +54,7 @@ export function installNavarreFrommherzCombat(Game,PILOTS){
   if(!selected(this)||!live(this)||!personal(this,b)||!(combatImpactResult(b,e)?.damage>0)||!aircraft(e))return result;
   const s=state(this);if(this.pilot==='frommherz'){s.target=e;s.targetUntil=now(this)+B.instructorTargetSeconds;}
   if(this.pilot==='navarre'&&s.zone?.until>now(this)&&distance(s.zone,e)<=s.zone.radius){
-   let entries=slows.get(e);if(!entries){entries=new Map();slows.set(e,entries);}entries.set(this,{state:s,until:now(this)+B.slowSeconds,factor:e.bossPilot||e.type==='boss'||e.heavyBomber||e.type==='zeppelin'?B.aceSlowMultiplier:B.slowMultiplier});
+   let entries=slows.get(e);if(!entries){entries=new Map();slows.set(e,entries);}const prior=entries.get(this),at=now(this),fxStarted=prior?.state===s&&prior.until>at&&Number.isFinite(prior.fxStarted)&&prior.fxStarted<=at?prior.fxStarted:at;entries.set(this,{state:s,until:at+B.slowSeconds,fxStarted,factor:e.bossPilot||e.type==='boss'||e.heavyBomber||e.type==='zeppelin'?B.aceSlowMultiplier:B.slowMultiplier});
    this.identityFx?.('armorSpark',e.x,e.y,e.a||0,15,.18);
   }return result;
  };

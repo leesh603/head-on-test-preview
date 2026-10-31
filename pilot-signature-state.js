@@ -24,7 +24,7 @@ export const PILOT_SIGNATURES=Object.freeze({
  mannock:{start:'coverOrder',sustain:'cover',symbol:null,reaction:'rescueShot'},
  mckeever:{start:'gunnerHandoff',sustain:'twoSeater',symbol:null,reaction:'handoff'},
  hawker:{start:'steadySight',sustain:'gunPlatform',symbol:null,reaction:'aimedShot'},
- nungesser:{start:'deathKnight',sustain:'deathPass',symbol:'blackHeart',reaction:null},
+ nungesser:{start:'deathMark',sustain:'deathMark',symbol:null,reaction:null},
  rickenbacker:{start:'ringPass',sustain:'ringFlight',symbol:'ring94',reaction:'targetSwitch'},
  ball:{start:'cloudAmbush',sustain:'concealment',symbol:null,reaction:'ambushShot'},
  barker:{start:'lastStand',sustain:'survival',symbol:null,reaction:'escape'},
@@ -90,47 +90,9 @@ export function pilotSignatureReaction(p,event,{target,position,gun=0,damage=0}=
 // Compatibility exports remain for old render callers; low-health aim RNG is retired.
 export function nungesserSmokeStage(){return 0;}
 export function nungesserAimOffset(){return 0;}
-export const NUNGESSER_BALANCE=Object.freeze({grazeOuter:36,grazeMargin:5,readySeconds:2,rearmSeconds:1,counterAngle:.11,counterDamage:.75,entryGrace:.5,interceptRadius:9,maxShots:64});
-export function nungesserState(p){
- const s=signatureState(p);
- const n=s.nungesser??={readyUntil:0,rearmAt:0,step:.04};
- // Projectile references are local runtime caches, never co-op snapshot payload.
- if(!Object.hasOwn(n,'shots'))Object.defineProperty(n,'shots',{value:[],writable:true});
- if(!Object.hasOwn(n,'pool'))Object.defineProperty(n,'pool',{value:null,writable:true});
- return n;
-}
-export function nungesserInterception(p,b,x0,y0){
- if(p?.pilot!=='nungesser'||!alive(p)||!(p.skillTime>0)||!b.enemy||!(b.life>0)||!(b.damage>0)||b.blast||b.actualExplosion||b.rocket||b.mine)return null;
- const n=nungesserState(p),dx=b.x-x0,dy=b.y-y0;let first=Infinity;
- if(n.pool!==(p.combatWorld?.()||p).bullets)return null;
- // Only this owner's real, live MG projectiles cut a narrow path through gunfire.
- for(const shot of n.shots){
-  const f=shot.round;if(!(f.life>0))continue;
-  const rx=x0-shot.x,ry=y0-shot.y,vx=dx-f.vx*n.step,vy=dy-f.vy*n.step;
-  const radius=NUNGESSER_BALANCE.interceptRadius,c=rx*rx+ry*ry-radius*radius,length=vx*vx+vy*vy;
-  let t=0;if(c>0){if(!length)continue;const dot=rx*vx+ry*vy,disc=dot*dot-length*c;if(disc<0)continue;t=(-dot-Math.sqrt(disc))/length;if(t<0||t>1)continue;}
-  first=Math.min(first,t);
- }
- return first<Infinity?first:null;
-}
-export function consumeNungesserInterception(p,b,x0,y0,t){
- b.life=0;
- if(signatureInterval(p,'nungesserIntercept',.045))signatureCue(p,'nungesserIntercept',{x:x0+(b.x-x0)*t,y:y0+(b.y-y0)*t,a:Math.atan2(b.vy,b.vx),life:.24});
-}
-export function nungesserRoundReaction(p,b,x0,y0,maxTime=1){
- if(p?.pilot!=='nungesser'||!alive(p)||!b.enemy||!(b.life>0)||!(b.damage>0))return false;
- const s=signatureState(p),n=nungesserState(p),clip=Math.max(0,Math.min(1,maxTime)),dx=(b.x-x0)*clip,dy=(b.y-y0)*clip;
- // A direct hit is never a graze, including the wider flak collision radius.
- if(p.invuln>0||p.evadeTime>0||b.blast||b.actualExplosion||b.rocket||b.mine)return false;
- const pad=b.flak?6:0,fit=p.bomberTransfer,ca=Math.cos(p.a),sa=Math.sin(p.a),l=fit?fit.hullLength+pad:10+pad,w=fit?fit.hullWidth+pad:10+pad;
- // Measure the same hull ellipse as bomberRoundImpact, including transfer fits.
- const ox=x0-p.x,oy=y0-p.y,u=(ox*ca+oy*sa)/l,v=(-ox*sa+oy*ca)/w,du=(dx*ca+dy*sa)/l,dv=(-dx*sa+dy*ca)/w;
- const q=Math.max(0,Math.min(1,-(u*du+v*dv)/(du*du+dv*dv||1)));
- const x=x0+dx*q,y=y0+dy*q,d=Math.hypot(x-p.x,y-p.y),angle=Math.atan2(y-p.y,x-p.x)-p.a,radius=1/Math.hypot(Math.cos(angle)/l,Math.sin(angle)/w),id=owner(p);
- if(d<=radius+NUNGESSER_BALANCE.grazeMargin||d>radius+NUNGESSER_BALANCE.grazeOuter-10||b.nungesserGrazeOwners?.has(id))return false;
- (b.nungesserGrazeOwners??=new Set()).add(id);
- if(s.clock<n.rearmAt||s.clock<n.readyUntil)return false;
- n.readyUntil=s.clock+NUNGESSER_BALANCE.readySeconds;n.rearmAt=s.clock+NUNGESSER_BALANCE.rearmSeconds;
- signatureCue(p,'nungesserReprisal',{x,y,a:Math.atan2(b.vy,b.vx),life:.42});
- return false;
-}
+// Compatibility hooks retained for old hostile-round resolver imports. This kit
+// no longer rewards grazes, deletes hostile rounds or supplies invulnerability.
+export function nungesserState(p){return signatureState(p).nungesser??={markKey:null,markRemaining:0,boostKey:null,boostUntil:0};}
+export function nungesserInterception(){return null;}
+export function consumeNungesserInterception(){return false;}
+export function nungesserRoundReaction(){return false;}

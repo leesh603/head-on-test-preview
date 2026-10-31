@@ -8,3 +8,10 @@ export function pandemoniumProfile(id){const p=PANDEMONIUM_TYPES[id];if(!p)throw
 export function encounterIdentity(type,token,entityId){pandemoniumProfile(type);if(!token||!entityId)throw new TypeError('Explicit encounter token and entity ID required');return JSON.stringify([type,String(token),String(entityId)]);}
 // Converts the authoring-space module API without changing its own physics.
 export function worldPart(profile,part){return {...part,x:part.x*profile.worldScale,y:part.y*profile.worldScale,r:part.r*profile.worldScale};}
+// Three independent war machines join the same fight; no defeat-gated forms.
+export const PANDEMONIUM_DEPLOYMENT=Object.freeze([
+ Object.freeze({id:'mobile',variant:'mobile',arrivesAt:0,x:-650,y:-480}),
+ Object.freeze({id:'asymmetric',variant:'asymmetric',arrivesAt:.8,x:530,y:-480}),
+ Object.freeze({id:'factory',variant:'factory',arrivesAt:1.6,x:0,y:650})
+]);
+export function finalArenaBosses(arena){return Array.isArray(arena?.bosses)?arena.bosses:arena?.fortress?[arena]:[];}

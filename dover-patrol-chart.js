@@ -11,6 +11,15 @@ export function doverPatrolChart(game){
   chart=Object.freeze({left,top,right:left+DOVER_MAP.width,bottom:top+DOVER_MAP.height,loop,...DOVER_MAP});charts.set(game,chart);}
  return chart;
 }
+// The west chalk cliff is the shared northbound guide, in the same world
+// coordinates as the rendered shore. Look ahead through each headland.
+export function doverCliffRoute(chart,y,offshore=330,lookAhead=380){
+ const height=chart.height||chart.bottom-chart.top,width=chart.width||chart.right-chart.left;
+ const north=Math.max(chart.top+(chart.inset||320)+80,Math.min(chart.bottom-(chart.inset||320),y-lookAhead));
+ const row=clamp((north-chart.top)/height,0,1)*(DOVER_COAST_PROFILE.length-1),i=Math.min(DOVER_COAST_PROFILE.length-2,Math.floor(row)),t=row-i;
+ const shore=DOVER_COAST_PROFILE[i][0]*(1-t)+DOVER_COAST_PROFILE[i+1][0]*t;
+ return {x:chart.left+shore*width-(chart.coastInset||240)+offshore,y:north};
+}
 export function doverFlightBounds(game){
  const c=doverPatrolChart(game),z=game.camera?.zoom||1;
  const ix=Math.max(c.inset,(game.viewWidth||960)/z/2+96),iy=Math.max(c.inset,(game.viewHeight||700)/z/2+96);

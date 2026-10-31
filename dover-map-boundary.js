@@ -1,8 +1,14 @@
-import {doverFlightBounds} from './dover-patrol-chart.js?v=dover3';
+import {doverFlightBounds,doverPatrolChart,doverCliffRoute} from './dover-patrol-chart.js?v=dover3';
 const inDover=g=>(g.worldRegion?.()??g.region)===17;
-export function steerDoverBoundary(game,p,dt,speed){
+export function steerDoverBoundary(game,p,dt,speed,input){
  if(!inDover(game))return;
  const b=doverFlightBounds(game);game.doverBounds=b;
+ // Uncommanded flight follows the chalk coast north. Explicit steering, aim,
+ // evasions and scripted skills keep their own heading.
+ if(input&&!Number.isFinite(input.angle)&&!input.steer&&!input.moveX&&!input.moveY&&!(p.evadeTime>0)&&!(p.chargeTime>0)&&!p.aceRetreat129){
+  const route=doverCliffRoute(doverPatrolChart(game),p.y,330,Math.max(300,speed*2.4));
+  if(p.y>b.top+480){const delta=Math.atan2(Math.sin(Math.atan2(route.y-p.y,route.x-p.x)-p.a),Math.cos(Math.atan2(route.y-p.y,route.x-p.x)-p.a)),rate=Math.min(p.turn||1.2,1.2);p.a+=Math.max(-rate*dt,Math.min(rate*dt,delta));}
+ }
  const buffer=Math.max(360,Math.min(800,speed*2.1));
  let nx=0,ny=0;
  if(p.x<b.left+buffer)nx=(b.left+buffer-p.x)/buffer;

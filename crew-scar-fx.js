@@ -1,4 +1,5 @@
-// Real rear-fire flashes. Berthold keeps the existing airframe without fabric.
+import {drawBertholdCounterLocal} from './berthold-counter-fx.js';
+// Authored firing feedback; no fabric cover or floating weapon overlay.
 export const CREW_SCAR_PILOTS=new Set(['huffzky','berthold']);
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const visible=p=>p?.hp>0&&p.status!=='downed';
@@ -26,6 +27,7 @@ export function bertholdSkinPose(p){
 }
 export function drawCrewScarLocal(c,p,tex){
  if(!CREW_SCAR_PILOTS.has(p.pilot)||!visible(p))return false;
+ if(p.pilot==='berthold')return drawBertholdCounterLocal(c,p,tex);
  c.save();try{
  if(p.pilot==='huffzky'){
   const pose=rearGunnerPose(p);if(!pose)return true;

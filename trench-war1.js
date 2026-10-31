@@ -1,3 +1,4 @@
+import {hitIntrusionEnvironmentalDamage} from './intrusion-boss-host.js';
 // Region 2 trench creeping barrage + region 3 smoke-front concealment layer.
 // Preserves gasZones/flak systems; adds moving shell barrage and ground haze.
 export const TRENCH_BALANCE=Object.freeze({
@@ -71,7 +72,11 @@ export function installTrenchWar(Game,TAILING_BALANCE){
      for(const e of this.enemies){
       if(e.hp<=0||e.surface||e.stationary)continue;
       e._barrageHit=(e._barrageHit||0)-step;
-      if(e._barrageHit<=0&&this.inBarrageBand(e.x,e.y)){e._barrageHit=B.hitCooldown;e.hp-=(e.maxHp||e.hp)*B.enemyHit;e.hitFlash=.25}
+      if(e._barrageHit<=0&&this.inBarrageBand(e.x,e.y)){
+       e._barrageHit=B.hitCooldown;const damage=(e.maxHp||e.hp)*B.enemyHit;
+       if(e.intrusionBody)hitIntrusionEnvironmentalDamage(this,e,damage);else e.hp-=damage;
+       e.hitFlash=.25;
+      }
      }
      if(b.pos>b.travel){this.barrage=null;this._barrageT=B.barrageGapMin+this.rng()*(B.barrageGapMax-B.barrageGapMin);this._flakLullUntil=(this.t||0)+B.lullAfter}
     }

@@ -39,7 +39,26 @@ export function drawJutlandBody(c,b,deathAge=0,view=null){
  if(p.destroyed)fx(c,'smokeDark',x,y,58,90,0,.32);}
  const smoke=jutlandRotate(0,-20,b.hullYaw);if(!b.dead)for(let i=0;i<2;i++)fx(c,'smokeDark',b.x+smoke.x+25+i*42,b.y+smoke.y-45-i*50,90+i*45,130+i*30,.2,.24);}
  if(!b.dead){c.fillStyle='#ccd4cf';c.font='bold 13px sans-serif';c.textAlign='center';c.fillText(b.role==='battleship'?(b.faction==='central'?'대양함대 기함':'대함대 기함'):b.jutlandAirship?'관측 비행선':`호위 순양함 ${b.slot}`,b.x,b.y+b.height*.52+22);c.fillStyle='#12232b';c.fillRect(b.x-55,b.y+b.height*.52+31,110,5);c.fillStyle='#d6b57e';c.fillRect(b.x-55,b.y+b.height*.52+31,110*b.hp/b.maxHp,5);}else if(b.jutlandAirship)fx(c,'smokeDark',b.x,b.y,170,220,0,.45);c.restore();}
-export function drawJutlandHazard(c,h){if(!h.visual.startsWith('jutland-'))return false;const warning=h.phase==='warning';c.save();if(h.visual==='jutland-track'){if(warning)aimLine(c,h.x,h.y,h.x+Math.cos(h.angle)*h.length,h.y+Math.sin(h.angle)*h.length,{p:Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)),dash:[12,10],tone:'water'});}else if(h.visual==='jutland-torpedo'){if(!warning)drawTorpedo(c,h);}else if(warning){const q=Math.max(0,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)));impactMark(c,h.x,h.y,h.radius,q,{heavy:h.raidHeavy});if(h.visual==='jutland-shell')drawShellFlight(c,h,q);}else{fx(c,'foamRing',h.x,h.y,h.radius*2.5,h.radius*2.5,0,.85);fx(c,'waterColumn',h.x,h.y-28,h.radius*1.4,h.radius*2.8,0,.75);}c.restore();return true;}
+function hazardPointVisible(view,x,y,padding){return !view||Math.abs(x-view.x)<=view.width/2+padding&&Math.abs(y-view.y)<=view.height/2+padding;}
+export function drawJutlandHazard(c,h,view=null){
+ if(!h.visual.startsWith('jutland-'))return false;
+ const warning=h.phase==='warning';
+ // Tracks and torpedoes keep their existing long, rotated water dressing.
+ if(h.visual==='jutland-track'){c.save();if(warning)aimLine(c,h.x,h.y,h.x+Math.cos(h.angle)*h.length,h.y+Math.sin(h.angle)*h.length,{p:Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)),dash:[12,10],tone:'water'});c.restore();return true;}
+ if(h.visual==='jutland-torpedo'){c.save();if(!warning)drawTorpedo(c,h);c.restore();return true;}
+ if(warning){
+  const q=Math.max(0,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning))),impactVisible=hazardPointVisible(view,h.x,h.y,h.radius*1.28+8);
+  // A distant target can still have a shell crossing the current viewport.
+  // Match drawShellFlight's current point, including its optional mortar arc.
+  const lobbed=h.ordnanceFamily==='mortar'||h.ordnanceFamily==='rifle-grenade';
+  const flightVisible=h.visual==='jutland-shell'&&(!view||h.sourceX!=null&&q>0&&hazardPointVisible(view,h.sourceX+(h.x-h.sourceX)*q,h.sourceY+(h.y-h.sourceY)*q-(lobbed?Math.sin(q*Math.PI)*80:0),64));
+  if(!impactVisible&&!flightVisible)return true;
+  c.save();if(impactVisible)impactMark(c,h.x,h.y,h.radius,q,{heavy:h.raidHeavy});if(flightVisible)drawShellFlight(c,h,q);c.restore();
+ }else if(hazardPointVisible(view,h.x,h.y,h.radius*1.4+36)){
+  c.save();fx(c,'foamRing',h.x,h.y,h.radius*2.5,h.radius*2.5,0,.85);fx(c,'waterColumn',h.x,h.y-28,h.radius*1.4,h.radius*2.8,0,.75);c.restore();
+ }
+ return true;
+}
 export function drawJutlandGuide(c,b,g,w,h,z=1){if(b.dead||b.jutlandAirship)return;const sx=(b.x-g.x)*z+w/2,sy=(b.y-g.y)*z+h/2;if(sx>35&&sx<w-35&&sy>190&&sy<h-115)return;const x=Math.max(28,Math.min(w-28,sx)),y=Math.max(195,Math.min(h-120,sy));c.save();c.translate(x,y);c.rotate(Math.atan2(b.y-g.y,b.x-g.x));c.fillStyle='#f0c584';c.beginPath();c.moveTo(12,0);c.lineTo(-7,-7);c.lineTo(-7,7);c.fill();c.restore();c.fillStyle='#dfd9c4';c.font='bold 11px sans-serif';c.textAlign='center';c.fillText(b.role==='battleship'?'기함':`호위 ${b.slot}`,x,Math.min(h-98,y+21));}
 
 // Faction silhouettes and class-specific decks; rotating guns keep the boss material style.

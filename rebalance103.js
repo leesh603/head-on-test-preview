@@ -1,3 +1,4 @@
+import {isFinalArenaTargetProxy} from './final-arena-budget.js';
 // Excel revision 103. Unspecified numbers are explicit first-playtest tuning.
 import {WING_PLANES} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
 
@@ -188,7 +189,7 @@ const maneuverEase=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
  Game.prototype.spawnComposition=function(){const r=this.rng(),t=this.t;return t<120?(r<.85?'scout':'hunter'):t<300?(r<.35?'scout':r<.85?'hunter':'bomber'):t<480?(r<.65?'hunter':r<.95?'bomber':'zeppelin'):(r<.55?'hunter':r<.88?'bomber':r<.97?'zeppelin':'heavyBomber')};
  Game.prototype.canSpawnRevision=function(type){
   if(this.mode==='campaign')return true;
-  const live=this.enemies.filter(e=>e.hp>0);const reserved=this.stageBoss?.stages.phase==='boss'?Math.max(0,2-live.filter(e=>e.stageBossBody).length):0,aceReserve=type==='boss'?0:1;
+  const live=this.enemies.filter(e=>e.hp>0&&!isFinalArenaTargetProxy(this,e));const reserved=this.stageBoss?.stages.phase==='boss'?Math.max(0,2-live.filter(e=>e.stageBossBody).length):0,aceReserve=type==='boss'?0:1;
   // Scripted escorts have a reserved formation budget; ordinary waves retain
   // their adaptive cap and every path remains under the existing hard limit.
   if(live.length+reserved+aceReserve>=(this.bossMechanicSpawn?65:this.enemyCapacity()))return false;

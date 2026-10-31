@@ -20,16 +20,25 @@ function prepareHullSurface(id,image){
  }
  bc.putImageData(pixels,0,0);
  const mask=document.createElement('canvas');mask.width=w;mask.height=h;const mc=mask.getContext('2d');mc.drawImage(body,0,0);mc.globalCompositeOperation='source-in';mc.fillStyle='#140f08';mc.fillRect(0,0,w,h);
- const out=document.createElement('canvas');out.width=w;out.height=h;const c=out.getContext('2d'),rim=Math.max(1,Math.round(Math.max(w,h)/160));
- for(let y=-rim;y<=rim;y++)for(let x=-rim;x<=rim;x++)if(x*x+y*y<=rim*rim+1)c.drawImage(mask,x,y);
- c.drawImage(body,0,0);return out;
+ const rim=Math.max(1,Math.round(Math.max(w,h)/160));
+ // Grow the dark rim by repeated 1 px steps (alternating + and square kernels, an octagon close
+ // to the old disk) instead of ~(2r+1)^2 full-image blits: ~7 draws per pixel of radius.
+ let src=mask,dst=document.createElement('canvas'),spare=document.createElement('canvas');dst.width=spare.width=w;dst.height=spare.height=h;
+ for(let step=0;step<rim;step++){
+  const g=dst.getContext('2d');g.clearRect(0,0,w,h);const offs=step%2?[[0,0],[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]:[[0,0],[1,0],[-1,0],[0,1],[0,-1]];
+  for(const [x,y] of offs)g.drawImage(src,x,y);
+  const used=dst;dst=src===mask?spare:src;src=used;
+ }
+ const out=src===mask?document.createElement('canvas'):src;if(out!==src){out.width=w;out.height=h;}
+ const c=out.getContext('2d');if(src===mask)c.drawImage(mask,0,0);c.drawImage(body,0,0);return out;
 }
 function pump(){
  while(active<2&&queue.length){
   const item=queue.shift();active++;
   const im=item.image;
   const finish=ok=>{item.ready=ok;item.done=true;active--;item.resolve(ok);pump()};
-  im.onload=()=>{if(!im.naturalWidth){finish(false);return;}try{item.image=prepareHullSurface(item.id,im);finish(true)}catch{finish(false)}};im.onerror=()=>finish(false);
+  // Surface prep reads every pixel: run it in an idle slot, not inside the combat frame that loaded it.
+  im.onload=()=>{if(!im.naturalWidth){finish(false);return;}const run=()=>{try{item.image=prepareHullSurface(item.id,im);finish(true)}catch{finish(false)}};typeof requestIdleCallback==='function'?requestIdleCallback(run,{timeout:400}):setTimeout(run,0)};im.onerror=()=>finish(false);
   im.crossOrigin='anonymous';im.decoding='async';im.src='./'+AIR_THREAT_ASSETS[item.id].path;
  }
 }

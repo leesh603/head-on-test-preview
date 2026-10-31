@@ -62,15 +62,7 @@ function advance(p,dt){
    if(p.rearFire<=0){rearBurst(p,rear,active);p.rearBurstLeft=(p.rearBurstLeft||0)+1;p.rearFire=p.rearBurstLeft%3===0?(active?.34:.8):.13;}
   }
  }
- if(p.pilot==='jacobs'){
-  const target=pick(p,p.a,.65,300);
-  if(p.roundsFired>(p.jacobsLastRounds??p.roundsFired))p.jacobsLastShot=now;
-  p.jacobsLastRounds=p.roundsFired;
-  const shooting=p.reloadTime<=0&&p.nineFiring&&now-(p.jacobsLastShot??-Infinity)<.25;
-  p.jacobsPressure=target&&shooting?(target===p.jacobsPressureTarget?(p.jacobsPressure||0)+dt:dt):Math.max(0,(p.jacobsPressure||0)-dt*2);
-  p.jacobsPressureTarget=target;
-  if(target&&p.jacobsPressure>=.65){suppress(p,target,.85);p.jacobsPressure=.3;}
- }
+ // Jacobs' old aim-only suppression passive is replaced by accepted-hit angles.
  if(p.pilot==='hawker'){
   if((p.kills||0)>(p.hawkerSeenKills??0)){p.hawkerNext=pick(p,p.a,Math.PI,460);p.hawkerLinkTime=.85;if(p.hawkerNext)cue(p,'hawkerLink',{x:p.hawkerNext.x,y:p.hawkerNext.y,a:bearing(p,p.hawkerNext),life:.75});}
   p.hawkerSeenKills=p.kills;p.hawkerLinkTime=Math.max(0,(p.hawkerLinkTime||0)-dt);
@@ -98,7 +90,7 @@ export function installNinePilots(Game,PILOTS){
  const labels={
   huffzky:['후방 사수','후방 적을 포착·조준한 뒤 점사. 명중 시 적의 조준이 잠시 흐트러집니다.','Schlasta 15 · 역추격','3초간 좌우 기동으로 추격기를 유도하고 후방 사수가 네 차례 강한 점사를 가합니다.'],
   mckeever:['후방 사수 · 파월','전방은 직접 조준, 후방은 파월이 독립 표적을 견제합니다.','Hawk & Gnat · 교차 화망','5초간 전후방 사수가 서로 다른 적을 독립 추적·사격합니다.'],
-  jacobs:['야스타 7의 노련함','가까운 적을 계속 압박하면 적의 조준·추적 반응을 잠시 흔듭니다.','Jasta 7 · 근접 폭풍','4초간 좁은 부채꼴 사격. 초근접 정면에서는 탄도가 다시 수렴합니다.'],
+  jacobs:['야스타 7의 노련함','100px 이상 이동해 다른 사선으로 같은 적을 직접 맞히면 잠시 그 적에게 기관총 피해가 증가합니다.','Jasta 7 · 근접 폭풍','4초간 좁은 부채꼴 사격. 초근접 정면에서는 탄도가 다시 수렴합니다.'],
   hawker:['연속 공격','격추 직후 가까운 다음 적을 짧게 강조합니다.','Attack Everything','5초간 격추 후 다음 표적 방향으로 총구가 잠시 이어집니다. 조작권은 유지됩니다.'],
   berthold:['철혈의 에이스','큰 피격 일부를 버틴 피해로 기억합니다.','Iron Knight · 불굴의 의지','5초간 피탄 흔들림을 억누르고 사격을 지속합니다. 버틴 피해가 충분하면 마지막 일제사격.'],
   goering:['백색 편대장','백색 윙맨 1기와 상시 출격합니다.','White Flight · 집중 포화','백색 신호탄 후 윙맨이 좌우로 벌어져 표적에 교차 재진입하고 편대로 복귀합니다.'],

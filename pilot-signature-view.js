@@ -1,3 +1,5 @@
+import {planeSprite,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1';
+import {drawInternalRepair} from './mccudden-internal-repair.js';
 import {drawMaterialSupply} from './petal-supply-fx.js?v=repairparcel20261023';
 import {fx,fxTint} from './fx-art.js?v=tame3';
 import {drawProctorGunRecord} from './proctor-burst-fx.js';
@@ -25,6 +27,7 @@ const proctorTexture=(c,key,x,y,w,h,a,alpha,color)=>fxTint(c,key,color,x,y,w,h,a
 export function drawPilotSignatureFront(c,p,x,y){
  foreground??=createSignatureView(()=>{});
  const drawn=foreground(c,p,x,y,'front');
+ if(p.pilot==='mccudden')drawInternalRepair(c,p,x,y,planeSprite,aircraftKey(p.plane,false,p.pilot),fx);
  if(p.pilot==='proctor')for(const f of p.pilotIdentity?.fx||[])drawProctorGunRecord(c,p,f,proctorTexture,x,y);
  return drawn;
 }

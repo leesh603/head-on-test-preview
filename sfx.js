@@ -111,7 +111,7 @@ export function prepareSfx(plane,region){
  for(const name of ['hit-0','hit-1','hit-2','hit-3','hitmetal-0','hitmetal-1','flak-0','flak-1','flak-2','kill','mg-1','mg-2'])loadFileCue('sfx/'+name);
  const profile=REGION_AMBIENCE[region];if(profile?.sample)loadFileCue('sfx/'+profile.sample);
  // Prepare arrival cues during exploration, before the boss can enter.
- for(const name of ['boss-siren','boss-klaxon','boss-drums','ace-bugle'])loadFileCue('sfx/'+name);
+ for(const name of ['boss-siren','boss-klaxon','boss-drums','ace-bugle','engine-inline'])loadFileCue('sfx/'+name);
  if([1,7,16].includes(region))loadFileCue('sfx/ship-horn');
  if(region===5)loadFileCue('sfx/airship');
  if([2,3,8,10,13].includes(region))loadFileCue('sfx/armour');
@@ -347,11 +347,14 @@ const VOICES={
   pickup(){bankSample('ui-pickup',.1,()=>VOICES.pickupSynth())},
   pickupSynth(){tone(880,1320,.09,.05,'triangle',2600);tone(1320,1760,.07,.035,'sine',3200,.05)},
   // Boss arrival: low brass hit over a timpani swell.
-  bossSiren(){bankSample('boss-siren',.42,()=>VOICES.bossStingSynth())},
-  bossKlaxon(){bankSample('boss-klaxon',.42,()=>VOICES.bossStingSynth())},
-  airshipArrival(){bankSample('airship',.45)},
+  bossSiren(){bankSample('boss-siren',.42,()=>VOICES.bossSirenSynth())},
+  bossSirenSynth(){tone(150,420,.65,.065,'sawtooth',1100,0,.16);tone(420,150,.9,.055,'sawtooth',1000,.63,.15);tone(300,840,.65,.018,'sine',1800,0,.16)},
+  bossKlaxon(){bankSample('boss-klaxon',.42,()=>VOICES.bossKlaxonSynth())},
+  bossKlaxonSynth(){for(const t of [0,.38]){tone(110,104,.24,.065,'square',650,t,.025);tone(165,156,.24,.035,'sawtooth',800,t,.025);hiss(650,300,.19,.018,'bandpass',1,t)}},
+  airshipArrival(){bankSample('airship',.45,()=>{tone(43,48,1.8,.055,'sawtooth',230,0,.28);tone(46,51,1.8,.045,'sawtooth',260,0,.28);hiss(420,180,1.7,.025,'lowpass',.5,0,.25)})},
+  bomberArrival(){bankSample('engine-inline',.34,()=>VOICES.formationPass(),.72,{cut:1600,duration:1.6})},
   bossSting(){bankSample('boss-drums',.5,()=>VOICES.bossStingSynth())},
-  bossStingSynth(){tone(49,49,.9,.16,'sawtooth',500);tone(55,55,.9,.13,'sawtooth',400);tone(98,98,.7,.08,'sawtooth',800,.25)},
+  bossStingSynth(){for(const [t,f,v]of [[0,82,.13],[.24,74,.1],[.58,62,.16]]){tone(f,f*.48,.36,v,'sine',350,t,.008);hiss(420,100,.18,v*.25,'lowpass',.6,t)}},
   // Enemy ace arrival: sharp bandit snarl — rising twin brass over an engine whine.
   aceSting(){bankSample('ace-bugle',.32,()=>VOICES.aceStingSynth())},
   aceStingSynth(){tone(330,392,.16,.08,'sawtooth',2400);tone(415,494,.16,.07,'sawtooth',2400,.1);tone(220,180,.3,.09,'sawtooth',1400,.02);hiss(jit(2400),900,.35,.05,'bandpass',1.2,.04);tone(110,55,.4,.07,'sine',500,.28)},
@@ -397,7 +400,7 @@ export function sfx(name,arg){
   if(critical)lastVoices.set('critical-family',now);
   // The arrival call already carries its own chuff rhythm; rolling beats wait until it ends.
   if(name==='trainRoll'&&now-(lastVoices.get('trainApproach')??-Infinity)<RAIL_APPROACH_SECONDS-.3)return;
-  lastVoices.set(voiceKey,now);priority=arg?.tactical?0:PRIORITY[name]??2;
+  lastVoices.set(voiceKey,now);priority=arg?.tactical?0:name==='bomberArrival'?3:PRIORITY[name]??2;
   const depth=name==='hit'?.68:name==='explosion'?.84:name==='criticalPilot'?.86:.74;
   if(['hit','bossSiren','bossKlaxon','approachWarning','railGunFire','railGunFire520','explosion','criticalPilot'].includes(name)&&(now-lastDuck>(name==='explosion'?4:1.8)||depth<lastDuckDepth-.01)){
    lastDuck=now;lastDuckDepth=depth;

@@ -89,22 +89,14 @@ export function drawDesertDressing(c,cx,cy,w,h){
  }
 }
 export const PARIS_DRESSING=Object.freeze([
- ['ambulance',350,805,46,.04,'hospital-road'],['lorry',1190,627,38,-.05,'street'],
- ['supplies',1023,674,36,.2,'rail-platform'],['train',984,633,187,1.82,'rail-yard']
+ ['ambulance',-1060,330,46,.04,'hospital-road'],['lorry',1020,230,38,0,'street'],
+ ['supplies',470,338,36,0,'rail-platform'],['train',740,302,132,Math.PI/2,'rail-yard']
 ]);
 export function drawParisDressing(c,g,cx,cy,w,h){
  const origin=g?.parisBattle?.origin;if(!origin)return;
- const period=4096,left=cx-w/2-origin.x+period*601/1200,top=cy-h/2-origin.y+460+period*372/1204;
- let trains=0;
- for(let iy=Math.floor(top/period);iy<=Math.floor((top+h)/period);iy++)for(let ix=Math.floor(left/period);ix<=Math.floor((left+w)/period);ix++){
-  const mx=Math.abs(ix%2),my=Math.abs(iy%2),seed=variant(ix,iy);
-  for(let j=0;j<PARIS_DRESSING.length;j++){
-   const [kind,px,py,size,a]=PARIS_DRESSING[j];if((seed+j)%4===3&&kind!=='train')continue;
-   if(kind==='train'&&(trains||ix%3!==0||iy%3!==0))continue;
-   const u=(px-27)/1200,v=(py-25)/1204,x=(ix+(mx?1-u:u))*period-left,y=(iy+(my?1-v:v))*period-top;
-   if(x<-size||y<-size||x>w+size||y>h+size)continue;
-   if(kind==='train')trains++;
-   drawDressingSprite(c,kind,x,y,size,(mx?-a:a)*(my?-1:1)+(my?Math.PI:0),.57);
-  }
+ const left=cx-w/2-origin.x,top=cy-h/2-origin.y;
+ for(const [kind,px,py,size,a] of PARIS_DRESSING){
+  const x=px-left,y=py-top;if(x<-size||y<-size||x>w+size||y>h+size)continue;
+  drawDressingSprite(c,kind,x,y,size,a,.7);
  }
 }

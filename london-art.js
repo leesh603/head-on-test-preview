@@ -1,4 +1,5 @@
 import {prepareGothaDetailArt,releaseGothaDetailArt,drawDetailedGotha} from './gotha-detail-art.js?v=20261022';
+import {gothaCrashPose} from './aircraft-crash.js';
 import {prepareCityBalloonArt,releaseCityBalloonArt} from './city-balloon-art.js?v=20261022';
 import {drawGroundEnemy,prepareGroundEnemyArt} from './ground-enemy-art.js?v=tame3&perf=1029';
 import {impactMark,aimLine} from './tactical-marks.js?v=tame3';
@@ -10,10 +11,10 @@ export function releaseLondonArt(){art={};artLoadP=null;releaseGothaDetailArt();
 export function prepareLondonArt(){return Promise.all([prepareGothaDetailArt(),prepareCityBalloonArt(),prepareGroundEnemyArt(),...Object.entries(paths).map(([key,path])=>new Promise(resolve=>{const im=new Image();art[key]=im;im.decoding='async';im.onerror=resolve;im.onload=()=>{(im.decode?im.decode():Promise.resolve()).catch(()=>{}).finally(()=>resolve())};im.src=path;}))]);}
 const londonImage=key=>{const im=art[key];if(im?.naturalWidth)return im;if(!artLoadP)artLoadP=prepareLondonArt();return null;};
 function installation(c,key,x,y,size,ruined=false){const im=londonImage(key);if(!im)return;c.save();c.imageSmoothingEnabled=true;c.globalAlpha*=ruined?.32:1;c.drawImage(im,x-size/2,y-size/2,size,size);c.restore();if(ruined)fx(c,'smokeDark',x,y-18,50,50,0,.6);}
-export function drawGotha(c,b){const im=londonImage('gotha');if(drawDetailedGotha(c,b,im))return;if(!im)return;const f=b.destroying?Math.min(1,b.destructionAge/b.destructionDuration):0,a=(b.a||0)+Math.PI/2,cw=im.naturalWidth/2,ch=im.naturalHeight;
- c.save();c.translate(b.x,b.y+f*95);c.rotate(a+f*.22);c.imageSmoothingEnabled=true;c.globalAlpha*=1-f*.85;
+export function drawGotha(c,b){const im=londonImage('gotha');if(drawDetailedGotha(c,b,im))return;if(!im)return;const crash=b.destroying?gothaCrashPose(b,b.destructionAge,b.destructionDuration):null,a=(b.a||0)+Math.PI/2,cw=im.naturalWidth/2,ch=im.naturalHeight;
+ c.save();c.translate(crash?.x??b.x,crash?.y??b.y);c.rotate(crash?.angle??a);c.imageSmoothingEnabled=true;if(crash){c.scale(crash.scale*crash.bank,crash.scale);c.globalAlpha*=crash.alpha;}
  const cell=(wreck=false)=>c.drawImage(im,wreck?cw:0,0,cw,ch,-105,-105,210,210);
- cell(b.destroying);
+ c.save();if(crash)c.globalAlpha*=1-crash.wreckMix;cell();c.restore();if(crash){c.save();c.globalAlpha*=crash.wreckMix;cell(true);c.restore();fx(c,'fireEngine',-23,-8,30,45,0,.85);fx(c,'fireEngine',23,-8,30,45,0,.85);fx(c,'smokeTrail',0,35,45,115,Math.PI/2,.7);}
  // Reuse the painted fuselage skin for the two opening leaves, and the
  // existing bomb sprite for the exposed load. No replacement aircraft art.
  if(!b.destroying&&b.bayOpen>0&&!b.parts?.find(p=>p.id==='bomb-bay')?.destroyed){

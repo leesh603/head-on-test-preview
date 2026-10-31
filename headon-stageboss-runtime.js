@@ -1,5 +1,8 @@
+import {tickBossEntry} from './boss-entry-presentation.js';
+import {beginBossArrival,tickBossArrival} from './boss-arrival.js';
 import {createFinalArenaProgression,recordFinalArenaStage,requestFinalArenaAfterCapital,startFinalArenaProgression,completeFinalArenaProgression,resetFinalArenaRoute,snapshotFinalArena} from './final-arena-progression.js';
 import {bossOrdnanceFamily} from './boss-ordnance-loadouts.js';
+import {gothaCrashPose} from './aircraft-crash.js';
 import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=pandemonium394r2&cambrai=20261021';
 import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=pandemonium394r2&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&harbor=20261021';
 import {recordShipWake} from './naval-water.js?v=pandemonium394r2&perf=1029';
@@ -72,13 +75,13 @@ export function normalSpawnInterval(currentInterval,{bossPresent,factor=.55,alre
 }
 
 export class StageBossAddon {
-  constructor({runId,teamFaction,stageIndex=null,loopIndex=0,hooks,rng=Math.random,capacity=512,minionCap=12,showFloors=false,finalArenaEnabled=false}) {
+  constructor({runId,teamFaction,stageIndex=null,loopIndex=0,hooks,rng=Math.random,capacity=512,minionCap=12,showFloors=false,finalArenaEnabled=false,presentArrivals=false}) {
     for(const key of ['getTuning','onDamage','onStatus','onBarrierContact','spawnMinion','countMinions','onBuildingImpact','onCue','onEncounterCleared','onStageChange','clearEncounterOwned']) {
       if(typeof hooks?.[key]!=='function')throw new Error('Required host adapter: '+key);
     }
     if(finalArenaEnabled&&typeof hooks.onFinalArenaPending!=='function')throw new Error('Required final arena host adapter: onFinalArenaPending');
     if(!runId||!Number.isInteger(minionCap)||minionCap<0)throw new Error('Run ID and bounded minion budget required');
-    Object.assign(this,{runId,hooks,rng,minionCap,showFloors});this.serial=0;this.time=0;this.frameContext=null;this.defeatSequence=null;this.bodyDefeats=[];
+    Object.assign(this,{runId,hooks,rng,minionCap,showFloors,presentArrivals});this.serial=0;this.time=0;this.frameContext=null;this.defeatSequence=null;this.bodyDefeats=[];
     this.stages=new BossStages({teamFaction,stageIndex,loopIndex,rng,finalArenaEnabled,runId,canEnterFinalArena:()=>hooks.canEnterFinalArena?.()===true});this.capitalDefeatReceipts=new Map();
     // A salvo re-aimed at the pilot's flight path may land at most two rounds on one pilot.
     const onDamage=(pid,damage,h)=>{if(h?.leadAimed){const k=pid+'|'+h.bossId+'|'+h.signatureStarted,m=this.salvoHits??=new Map();const n=m.get(k)||0;if(n>=2)return;m.set(k,n+1);if(m.size>256)m.delete(m.keys().next().value);}return hooks.onDamage(pid,damage,h);};
@@ -107,7 +110,7 @@ export class StageBossAddon {
     const transition={kind:'final-arena',completedId:key,stage:stages.stage,stageIndex:stages.stageIndex,loopIndex:stages.loopIndex,finalArena:snapshotFinalArena(state)};
     this.hooks.onFinalArenaPending(transition);return transition;
   }
-  startBoss({x,y}) {
+  startBoss({x,y,presentArrival=this.presentArrivals}) {
     if(this.ended||this.stages.phase!=='explore')return null;
     if(!Number.isFinite(x)||!Number.isFinite(y))throw new Error('Current world spawn point required');
     const bossId=this.stages.bossId,id=this.runId+':stageboss:'+this.serial++;
@@ -121,7 +124,7 @@ export class StageBossAddon {
     if(bossId==='mark4-wedge')tuning={...tuning,sommeApproach:true};
     const entry=BOSS_CATALOG[bossId],faction=entry.faction==='neutral'?(this.stages.teamFaction==='central'?'entente':'central'):entry.faction;
     const encounter=createBossEncounter({id,bossId,tuning,x,y,rng:this.rng,faction,emit:event=>this.accept(event,id,tuning)});
-    for(const b of encounter.bodies.values())if(b.support129||b.formationBoss129||b.kind==='fliegerzug'||b.kind==='armored-harbor-fortress'||b.gallipoliBoss||b.jutlandBoss){b.countMinions129=()=>this.hooks.countMinions(id);b.formationStatus129=()=>this.hooks.formationStatus?.(id)||[];}this.defeatSequence=null;this.bodyDefeats=[];this.stages.attach(encounter);this.hooks.onCue({type:['jasta11-circus','naval10-black-flight'].includes(bossId)?'formation-approach':['livens-flame-projector','minenwerfer-battery'].includes(bossId)?'trench-approach':bossId==='mark4-wedge'?'somme-approach':'boss-enter',encounterId:id,bossId});return encounter;
+    for(const b of encounter.bodies.values())if(b.support129||b.formationBoss129||b.kind==='fliegerzug'||b.kind==='armored-harbor-fortress'||b.gallipoliBoss||b.jutlandBoss){b.countMinions129=()=>this.hooks.countMinions(id);b.formationStatus129=()=>this.hooks.formationStatus?.(id)||[];}this.defeatSequence=null;this.bodyDefeats=[];this.stages.attach(encounter);beginBossArrival(this,encounter,presentArrival);this.hooks.onCue({type:['jasta11-circus','naval10-black-flight'].includes(bossId)?'formation-approach':['livens-flame-projector','minenwerfer-battery'].includes(bossId)?'trench-approach':bossId==='mark4-wedge'?'somme-approach':'boss-enter',encounterId:id,bossId});return encounter;
   }
   // Boss rounds were laid at the spot a pilot occupied when the warning began.
   // Pilots never stop flying, so every warned round missed a pilot who simply
@@ -161,6 +164,7 @@ export class StageBossAddon {
   // where the pilot will meet them, in the same 2.5 s rhythm as aimed volleys; a
   // burst keeps leading for 0.8 s once it starts.
   leadShot(event){
+    if(event.lockedAim)return event;
     if(this.stages.encounter?.bodies.get(event.bossId)?.isCapitalBoss)return event;
     if(event.visual==='rail-shrapnel')return event;
     if(!this.showFloors||!(event.damage>0)||event.basicFire||event.basicMuzzle||String(event.tag||'').includes('basic'))return event;
@@ -186,6 +190,7 @@ export class StageBossAddon {
   }
   accept(event,encounterId,tuning) {
     if(this.ended)return;
+    if(this.preparingArrival){(this.arrivalQueue??=[]).push([event,encounterId,tuning]);return;}
     if(event.type==='support-damage'){this.hooks.onDamage(event.playerId,event.damage,event.source);return;}if(event.type==='support-cleanup'){this.hooks.clearEncounterOwned(encounterId);return;}
     if(event.type==='hazard'){
       const enc=this.stages.encounter,start=enc?.clock||0;event=this.leadAim(event);const body=enc?.bodies.get(event.bossId),part=body?.parts.get(event.sourcePartId||event.partId);const h=this.hazards.spawn({...event,weaponFamily:event.weaponFamily??(body?.kind==='mark4-wedge'&&body.tankRole==='female'?'machine-gun':undefined),ordnanceFamily:bossOrdnanceFamily(enc?.bossId||body?.kind,event,part),sprite:event.sprite??(event.visual==='carpet-bomb'?(body?.kind==='ca4'?'hales':body?.faction==='entente'?'cooper':'puw'):undefined),bossKind:body?.kind,sourcePartKind:event.sourcePartKind??part?.kind,sourcePartArt:event.sourcePartArt??part?.art??part?.id,encounterId,signatureStarted:start});if(h)h.leadAimed=!!event.leadAimed;
@@ -213,7 +218,7 @@ export class StageBossAddon {
       this.hooks.onCue({...event,type:'minion-launched',encounterId});
     }else if(event.type==='body-defeated') {
       const body=this.stages.encounter?.bodies.get(event.bossId),zubianHalf=body?.kind?.startsWith('hms-zubian-');
-      if((zubianHalf||body?.kind==='gotha-raider')&&!this.bodyDefeats.some(d=>d.id===body.id))this.bodyDefeats.push({id:body.id,kind:body.kind,x:body.x,y:body.y,age:0,duration:zubianHalf?3.2:2.65});
+      if((zubianHalf||['gotha-raider','o400-raider'].includes(body?.kind))&&!this.bodyDefeats.some(d=>d.id===body.id))this.bodyDefeats.push({id:body.id,kind:body.kind,x:body.x,y:body.y,a:body.a,age:0,duration:zubianHalf?3.2:2.65});
       this.hooks.onCue({...event,encounterId,x:body?.x,y:body?.y,kind:body?.kind});
     }else if(event.type==='building-impact') {
       if(!this.frameContext||!this.hooks.onBuildingImpact({...event,encounterId}))return;
@@ -225,7 +230,7 @@ export class StageBossAddon {
   hit({bodyId,partId=null,damage,faction}) {
     if(this.ended)return{damage:0,blocked:true};
     const body=this.stages.encounter?.bodies.get(bodyId);
-    if(!body||(faction&&faction===body.faction))return{damage:0,blocked:true};
+    if(!body||body.arrivalPending||(faction&&faction===body.faction))return{damage:0,blocked:true};
     // Announced counter windows (reloads, regroups) multiply pilot damage only;
     // internal explosions and scripted damage call body.hit directly.
     const counter=typeof body.counterWindow==='function'?body.counterWindow():1;
@@ -288,8 +293,15 @@ export class StageBossAddon {
     if(!Number.isFinite(dt)||dt<0)throw new Error('Invalid boss step');
     dt=Math.min(.05,dt);if(!dt)return false;
     // Bosses see copies of the pilots carrying their turn rate; the host's frame objects stay untouched.
-    frame={...frame,dt,players:(frame.players||[]).map(p=>({...p}))};this.time+=dt;this.frameContext=frame;this.recordTrail(frame);for(const b of this.stages.encounter?.bodies.values()||[])if(b.jutlandBoss&&b.dead)b.deathAge=(b.deathAge||0)+dt;for(const d of this.bodyDefeats)d.age+=dt;this.bodyDefeats=this.bodyDefeats.filter(d=>d.age<d.duration);
+    frame={...frame,dt,players:(frame.players||[]).map(p=>({...p}))};this.time+=dt;this.frameContext=frame;this.recordTrail(frame);for(const b of this.stages.encounter?.bodies.values()||[])if(b.jutlandBoss&&b.dead)b.deathAge=(b.deathAge||0)+dt;
+    for(const d of this.bodyDefeats){d.age+=dt;if(d.kind==='gotha-raider'&&!d.impacted&&d.age>=d.duration*.86){
+      d.impacted=true;const pose=gothaCrashPose(d,d.age,d.duration);
+      this.hooks.onCue({type:'boss-destruction-pulse',encounterId:this.stages.encounter?.id,bossId:'gotha-squadron',x:pose.x,y:pose.y,radius:58,final:false});
+    }}
+    this.bodyDefeats=this.bodyDefeats.filter(d=>d.age<d.duration);
     const encounter=this.stages.encounter;
+    tickBossEntry(this,encounter,dt);
+    if(tickBossArrival(this,encounter,dt,frame))return true;
     // Resolve destruction before any lingering delayed attack can fire.
     this.reconcile({blocked:true});
     if(this.defeatSequence)this.updateDefeat(dt);
@@ -321,7 +333,7 @@ export class StageBossAddon {
   }
   beginDefeat(encounter) {
     const capital=[...encounter.bodies.values()].find(b=>b.isCapitalBoss);if(capital){capital.destroying=true;capital.defeatAge=0;}
-    const bodies=[...encounter.bodies.values()].filter(b=>b.kind!=='gotha-raider'||this.bodyDefeats.some(d=>d.id===b.id)).map(b=>({id:b.id,kind:b.kind,x:b.x,y:b.y}));
+    const bodies=[...encounter.bodies.values()].filter(b=>!['gotha-raider','o400-raider'].includes(b.kind)||this.bodyDefeats.some(d=>d.id===b.id)).map(b=>({id:b.id,kind:b.kind,x:b.x,y:b.y}));
     const sinking=/^(sms-stuttgart|hms-zubian|armored-harbor-fortress|jutland-grand-fleet)$/.test(encounter.bossId);
     const fortress=[...encounter.bodies.values()].find(b=>b.fortressBoss),collapseSites=fortress?verdunFortCollapseSites(fortress):null;
     this.defeatSequence={encounterId:encounter.id,bossId:encounter.bossId,age:0,duration:capital?7:collapseSites?4.8:sinking?4.4:2.65,pulse:0,bodies,...(collapseSites?{collapseSites}:null)};
@@ -330,6 +342,8 @@ export class StageBossAddon {
   }
   updateDefeat(dt) {
     const d=this.defeatSequence;if(!d)return;d.age=Math.min(d.duration,d.age+dt);
+    // Each Gotha owns its moving crash and one impact; keep the clear delay.
+    if(d.bossId==='gotha-squadron')return;
     for(const b of this.stages.encounter?.bodies.values()||[])if(b.isCapitalBoss){b.defeatAge=d.age;b.destroying=true;for(const p of b.parts.values())if(d.age>=.4+[...b.parts.keys()].indexOf(p.id)*.11&&p.hp>0&&p.id!==(b.kind==='final-kaiserkrone'?'main-envelope':'flying-boat-hull')){p.hp=0;p.destroyedAt=d.age;}b.syncParts();}
     if(d.collapseSites){
       while(d.pulse<d.collapseSites.length&&d.age>=d.collapseSites[d.pulse].at){

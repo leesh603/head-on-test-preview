@@ -100,8 +100,10 @@ export class EliteEnemySystem {
     const count = Math.min(this.config.maxActiveMembers, squadSize(kind, this.host.getProgressStage?.() ?? 1));
     const side = this.random() < .5 ? -1 : 1;
     const entryAngle = -Math.PI / 2 + side * (.3 + this.random() * .42);
-    const centerX = player.x - Math.cos(entryAngle) * 520;
-    const centerY = player.y - Math.sin(entryAngle) * 520;
+    const view=this.host.getViewport?.(),dx=-Math.cos(entryAngle),dy=-Math.sin(entryAngle);
+    const distance=view?Math.max(520,Math.min((view.w+160)/Math.max(1e-6,Math.abs(dx)),(view.h+160)/Math.max(1e-6,Math.abs(dy)))):520;
+    const centerX = (view?.x??player.x) + dx*distance;
+    const centerY = (view?.y??player.y) + dy*distance;
     const id = `elite-squadron-${++this.serial}`;
     const slots = count === 2 ? [-.5, .5] : count === 3 ? [-1, 0, 1] : [-1.5, -.5, .5, 1.5];
     const members = slots.map((slot, index) => ({
@@ -174,7 +176,7 @@ export class EliteEnemySystem {
     }
     this.updateProjectiles(step);
     const p = this.host.getPlayer();
-    this.squadrons = this.squadrons.filter(s => s.members.some(m => m.alive) && s.members.some(m => Math.hypot(m.x - p.x, m.y - p.y) < this.config.despawnRadius));
+    this.squadrons = this.squadrons.filter(s => s.members.some(m => m.alive) && s.members.some(m => Math.hypot(m.x - p.x, m.y - p.y) < Math.max(this.config.despawnRadius,Math.hypot(this.host.getViewport?.().w||0,this.host.getViewport?.().h||0)+240)));
   }
 
   disruptFormation(member,duration=2.6) {

@@ -1,3 +1,4 @@
+import {arrivalViewport} from '../../enemy-arrivals.js';
 import {intrusionActive} from '../../intrusion-bosses.js';
 import {pilotUnlockEliteDeath} from '../../pilot-unlocks.js';
 import {momentumDamage,momentumCount,recordMomentumKill} from '../../ace-momentum.js';
@@ -36,6 +37,7 @@ export function createHeadOnHost(game, bindings = {}) {
   return {
     random: bindings.random || game.rng || Math.random,
     getTime: () => bindings.getTime?.(game) ?? game.t ?? 0,
+    getViewport: () => arrivalViewport(game),
     getPlayer: () => bindings.getPlayer?.(game) || game,
     steerAircraft: (member,contact,turn,result) => {const steering=regionalSteering(game,member,contact,turn,result,true);if(momentumCount(contact)>=15&&!(contact.ballCloak>0)&&!(contact.cloudConceal>0)&&Math.hypot(member.x-contact.x,member.y-contact.y)<680)return {...steering,turn:steering.turn*1.12};return steering;},
     outgoingDamageMultiplier: source => momentumDamage(game,source.projectile||source),

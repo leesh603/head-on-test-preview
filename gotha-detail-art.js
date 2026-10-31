@@ -1,7 +1,8 @@
 import {fx} from './fx-art.js?v=tame3';
+import {gothaCrashPose} from './aircraft-crash.js';
 import {SOMME_FRAMES} from './somme-boss-atlas.js?v=tame3';
 export const GOTHA_DETAIL_SOURCES=Object.freeze({
- hull:'./gotha-airframe-separated-20261022.webp?v=bomber-style20261024',
+ hull:'./gotha-runtime-hull-20261031.webp?v=natural-flight20261031',
  parts:'./boss-alps-hardware-20261020.webp?v=muted1',guns:'./boss-mark1-guns-r3.webp'
 });
 let images={},pending;
@@ -24,8 +25,8 @@ function tile(c,index,x,y,size,pivot=[96,96]){
  const k=size/192;
  c.drawImage(images.parts,index%3*192,Math.floor(index/3)*192,192,192,x-pivot[0]*k,y-pivot[1]*k,size,size);
 }
-function engine(c,p,x,y,time,phase){
- const state=gothaPartState(p),pivot=[[114,100],[97,100],[80,100]][state];
+function engine(c,p,x,y,time,phase,dead=false){
+ const state=gothaPartState(p,dead),pivot=[[114,100],[97,100],[80,100]][state];
  c.save();c.translate(x,y+17);
  // The pusher disc is edge-on from above. A destroyed engine holds its blade.
  if(state===2)c.rotate(.2+phase*.1);else c.scale(.2+.8*Math.abs(Math.cos(time*41+phase)),1);
@@ -43,24 +44,34 @@ function bay(c,b,p,x,y){
   c.drawImage(images.parts,sx,576+32,58,136,(sx-114-hinge)*k,(32-96)*k,58*k,136*k);c.restore();
  }
 }
-function rearGun(c,p,x,y){
+function rearGun(c,b,p,x,y){
  const f=SOMME_FRAMES['mark1-gun-mg-'+['normal','damaged','wreck'][gothaPartState(p)]],k=5/f.reach;
- c.save();c.translate(x,y);c.rotate(Math.PI);
- c.drawImage(images.guns,...f.rect,-f.tip[0]*k,-f.tip[1]*k,f.rect[2]*k,f.rect[3]*k);c.restore();
+ c.save();c.translate(x,y);c.rotate((p.aimAngle??((b.a||0)+(p.id==='front-gun'?0:Math.PI)))-(b.a||0));
+ c.drawImage(images.guns,...f.rect,-f.pivot[0]*k,-f.pivot[1]*k,f.rect[2]*k,f.rect[3]*k);c.restore();
  if(p.destroyed)fx(c,'smokeDark',x,y-15,24,29,0,.35);
 }
 export function drawDetailedGotha(c,b,legacy){
  if(!gothaDetailReady())return false;
- if(b.destroying&&!legacy?.naturalWidth)return false;
- const f=b.destroying?Math.min(1,b.destructionAge/Math.max(.1,b.destructionDuration)):0;
- c.save();c.translate(b.x,b.y+f*95);c.rotate((b.a||0)+Math.PI/2+f*.22);c.imageSmoothingEnabled=true;c.globalAlpha*=1-f*.85;
- if(b.destroying){c.drawImage(legacy,legacy.naturalWidth/2,0,legacy.naturalWidth/2,legacy.naturalHeight,-105,-105,210,210);c.restore();return true;}
+ const crash=b.destroying?gothaCrashPose(b,b.destructionAge,b.destructionDuration):null,mix=crash&&legacy?.naturalWidth?crash.wreckMix:0;
+ c.save();c.translate(crash?.x??b.x,crash?.y??b.y);c.rotate(crash?.angle??((b.a||0)+Math.PI/2));c.imageSmoothingEnabled=true;
+ if(crash){c.scale(crash.scale*crash.bank,crash.scale);c.globalAlpha*=crash.alpha;}
+ // Crossfade into the registered, authored wreck instead of swapping skins
+ // on the first defeat frame. Keep the detailed plane if that atlas is absent.
+ c.save();c.globalAlpha*=1-mix;
  c.drawImage(images.hull,-105,-105,210,210);
  for(const p of b.parts||[]){
   const {x,y}=gothaPartLocal(b,p);
-  if(p.id.startsWith('engine-'))engine(c,p,x,y,b.motionTime||0,p.id==='engine-left'?0:1.7);
+  if(p.id.startsWith('engine-'))engine(c,p,x,y,b.motionTime||0,p.id==='engine-left'?0:1.7,!!crash);
   else if(p.id==='bomb-bay')bay(c,b,p,x,y);
-  else if(p.id==='rear-gun')rearGun(c,p,x,y);
+  else if(p.id==='rear-gun'||p.id==='front-gun')rearGun(c,b,p,x,y);
  }
+ c.restore();
+ if(mix){c.save();c.globalAlpha*=mix;c.drawImage(legacy,legacy.naturalWidth/2,0,legacy.naturalWidth/2,legacy.naturalHeight,-105,-105,210,210);c.restore();}
+ if(crash)for(const p of b.parts||[])if(p.id.startsWith('engine-')){
+  const {x,y}=gothaPartLocal(b,p);
+  fx(c,'smokeTrail',x,y+36,28,100,Math.PI/2,.65);
+  fx(c,'fireEngine',x,y,30,45,0,.85);
+ }
+ if(crash&&crash.progress<.45)for(const side of [-1,1])fx(c,'debrisShard',side*(38+crash.progress*90),12+crash.progress*55,12,18,side*crash.progress*5,(1-crash.progress/.45)*.8);
  c.restore();return true;
 }

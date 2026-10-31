@@ -1,5 +1,6 @@
 // Painted textures, actual flight samples and actual gun mounts only.
 // These helpers never emit projectiles, change flight values or choose targets.
+import {drawLotharRecoveredBelt} from './lothar-transfer-art.js';
 import {signatureCue} from './pilot-signature-state.js';
 export const LOTHAR_FX_PALETTE=Object.freeze({active:'#f28e38',activeEdge:'#ffc963',passive:'#f8d878',ivory:'#fff2c6',smoke:'#d5b489',brass:'#ffd178'});
 export const LOTHAR_FX_LIMITS=Object.freeze({wake:10,wakeLife:.38,sampleInterval:.04,shotInterval:.04,brassLife:.36});
@@ -60,6 +61,17 @@ export function drawLotharCue(c,p,e,texture,front){
   if(!front)return true;
   const a=e.a-p.a,ca=Math.cos(a),sa=Math.sin(a),forward=-e.age*48,side=e.side*(5+e.age*72);
   texture(c,'bulletBrass',ca*forward-sa*side,sa*forward+ca*side,7-q*2,3-q, a+e.side*e.age*13,.82*fade,LOTHAR_FX_PALETTE.brass);return true;
+ }
+ if(e.kind==='lotharTransfer'){
+  if(front)drawLotharRecoveredBelt(c,p,e);
+  return true;
+ }
+ if(e.kind==='lotharLinkHit'){
+  if(!front)return true;
+  const a=e.a-p.a;
+  texture(c,'ricochet',0,0,42+q*8,18,a,.95*fade,LOTHAR_FX_PALETTE.passive);
+  for(const side of [-1,1]){const b=a+side*.55,d=5+q*21;texture(c,side<0?'metalShard0':'metalShard1',Math.cos(b)*d,Math.sin(b)*d,10,3,b,.9*fade,LOTHAR_FX_PALETTE.ivory);}
+  return true;
  }
  if(front)return true;
  if(e.kind==='lotharAttack'||e.kind==='lotharTransfer'){

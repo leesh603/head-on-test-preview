@@ -195,10 +195,10 @@ export function drawRickenbackerRing(c, g, point, t, px, py, layer = 'back') {
     const dt = Math.max(0, Math.min(.1, t - R.last)); R.last = t;
     const active = g.skillTime > 0;
     R.k = clamp(R.k + (active ? dt / .2 : -dt / .3));
-    if (active && (g.roundsFired || 0) > R.rounds) {            // a burst went out: stamp the same targets the engine picks
+    if (active && (g.roundsFired || 0) > R.rounds) {            // preserve the original self-hoop pulse; no automatic target stamps
       let n = 0;
       for (const e of g.enemies || []) { if (n >= 7) break; if (!(e.hp > 0) || (e.surface && !e.stageBossBody) || Math.hypot(e.x - g.x, e.y - g.y) > 780) continue;
-        if (!R.stamps.some(s => s.e === e && t - s.t0 < .25)) R.stamps.push({ e, t0: t }); n++; }
+        n++; }
       if (n) R.pulse = t;
     }
     R.rounds = g.roundsFired || 0;

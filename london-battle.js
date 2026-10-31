@@ -1,8 +1,9 @@
+import {capitalLondonRiverCover} from './capital-terrain.js';
 import {aaMuzzle,configureAA} from './air-threat-profiles.js';
 const heroes=g=>g.players||[g],live=g=>heroes(g).filter(p=>p.hp>0&&!p.down);
 const inLondon=g=>(g.worldRegion?.()??g.stageBoss?.stages.stageIndex)===11;
 const inGothaCity=g=>(g.worldRegion?.()??g.stageBoss?.stages.stageIndex)===4&&g.stageBoss?.stages.bossId==='gotha-squadron';
-export function londonRiverCover(x,y){const u=((x%768)+768)%768/768,v=((y%768)+768)%768/768;return v>.415+u*.15&&v<.495+u*.16;}
+export const londonRiverCover=capitalLondonRiverCover;
 export function ensureLondonBattle(g){if(!inLondon(g)&&!inGothaCity(g)){if(g.londonBattle){g.enemies=g.enemies.filter(e=>!e.londonOwned);g.londonBattle=null;}return null;}
  if(g.londonBattle)return g.londonBattle;return g.londonBattle={role:(g.teamFaction||g.stageBoss?.stages.teamFaction)==='central'?'attack':'defend',elapsed:0,waveClock:4,waves:0,suppressed:0,intercepted:0,tracked:[],districts:[],warnings:[],bombs:[],supportClock:5,cleared:false,cityGotha:inGothaCity(g)};}
 export function handleLondonCue(g,e){const b=ensureLondonBattle(g);if(!b)return;

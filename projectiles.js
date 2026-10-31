@@ -1,3 +1,4 @@
+import {drawWhiteFlightRound} from './goering-whiteflight-fx.js';
 import {drawGunSignature,gunSignatureId,drawProjectileTactic} from './gun-signatures.js';
 import {drawBossOrdnance,bossOrdnanceLoaded} from './boss-ordnance-art.js?v=tame3&ai=1018';
 import {hostileGunAppearance,friendlyGunAppearance} from './ordnance-appearance.js';
@@ -57,6 +58,7 @@ export function drawTracerBolt(c,x,y,angle,color,len=20,wid=5,alpha=1){
 // and a little weight, never the old 6–12px luminous capsule thickness.
 export function drawFriendlyGunTracer(c,b,x,y,gunUpgradeBonus=0){
  if(!b||b.enemy||![x,y,b.vx,b.vy].every(Number.isFinite))return false;
+ if(drawWhiteFlightRound(c,b,x,y,{tint:fxTint,ready:fxReady}))return true;
  if(drawGunSignature(c,b,x,y))return true;
  drawProjectileTactic(c,b,x,y); // Keep custom pilot paint while exposing the real active tactic.
  const color=b.mauserRound?'#a98cff':b.eagle?'#9fdcff':b.specialColor||(b.formation||b.ally?'#b9f2de':friendlyTracerColor(b,gunUpgradeBonus));

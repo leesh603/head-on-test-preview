@@ -17,7 +17,7 @@ export const BOSS_LOADOUTS=Object.freeze({
  'minenwerfer-battery':['mortar','rifle-grenade'],
  'drachen-net':['mine','mortar','machine-gun'],
  'london-apron-raid':['wire','fragmentation','machine-gun'],
- 'flak-tower':['machine-gun','fragmentation'],
+ 'o400-squadron':['machine-gun','cooper'],
  'zeppelin-l70':['ap','he','puw'],
  hma23:['ap','rocket','machine-gun'],
  gik:['machine-gun','he','puw'],

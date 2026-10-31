@@ -1,20 +1,11 @@
+import {drawFonckFocusScope} from './fonck-focus-scope.js';
 // Visual-only views of authoritative pilot states. No game mutations or extra shots.
 const clamp=n=>Math.max(0,Math.min(1,n));
 export function createPilotReadability(fx){
  const switches=new WeakMap();
  return {
   fonck(c,p,point,t,sizeOf){
-   if(p.pilot!=='fonck')return false;
-   const e=p.pilotIdentity?.target,f=clamp(p.pilotIdentity?.focus||0);
-   if(!e||!(e.hp>0)||f<=0)return false;
-   const [x,y]=point(e.x,e.y),r=sizeOf(e)*1.3+10+(1-f)*17,len=5+f*4;
-   // Open-center, worn brass sight. It converges around the aircraft silhouette,
-   // never into a bright star covering the target or a blue laser-like beam.
-   c.save();c.globalAlpha*=.38+f*.5;c.lineCap='round';
-   for(let pass=0;pass<2;pass++){
-    c.lineWidth=pass?(f>=.8?1.5:1.15):3;c.strokeStyle=pass?(p.skillTime>0||f>=.8?'#e4c281':'#cbbd98'):'#302d26';
-    c.beginPath();for(let i=0;i<4;i++){const a=i*Math.PI/2+Math.PI/4,ca=Math.cos(a),sa=Math.sin(a),tx=x+ca*r,ty=y+sa*r;c.moveTo(tx-ca*len-sa*len*.5,ty-sa*len+ca*len*.5);c.lineTo(tx,ty);c.lineTo(tx-ca*len+sa*len*.5,ty-sa*len-ca*len*.5)}c.stroke();
-   }c.restore();return true;
+   return drawFonckFocusScope(c,p,point,t,sizeOf);
   },
   rickenbacker(c,p,point,t,px,py){
    if(p.pilot!=='rickenbacker')return false;

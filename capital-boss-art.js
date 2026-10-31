@@ -10,7 +10,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
     "defaultPart": "port-engine-1",
     "images": {
       "structure": "./asset-bank/capital-bosses/kaiserkrone-structure.webp",
-      "hardware": "./asset-bank/capital-bosses/kaiserkrone-hardware.webp"
+      "hardware": "./asset-bank/capital-bosses/kaiserkrone-hardware.webp",
+      "envelopeHD": "./asset-bank/capital-bosses/kaiserkrone-envelope-hd-20261031.webp"
     },
     "illustration": "./asset-bank/capital-bosses/kaiserkrone-cutin.webp",
     "previewDamage": {
@@ -180,25 +181,25 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "radius": 92.39999999999999
       },
       {
-        "atlas": "structure",
+        "atlas": "envelopeHD",
         "frames": [
           [
-            140,
-            5,
-            220,
-            514
+            110,
+            0,
+            380,
+            1110
           ],
           [
-            519,
-            5,
-            220,
-            514
+            504,
+            0,
+            380,
+            1110
           ],
           [
-            910,
-            5,
-            220,
-            514
+            880,
+            0,
+            430,
+            1110
           ]
         ],
         "framePivots": [
@@ -212,7 +213,7 @@ export const CAPITAL_BOSS_ART=Object.freeze({
           ],
           [
             0.5,
-            0.501946
+            0.5
           ]
         ],
         "id": "main-envelope",
@@ -229,7 +230,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "angle": 0,
         "width": 378.4,
         "height": 884.08,
-        "radius": 132.44
+        "radius": 132.44,
+        "preserveAspect": false
       },
       {
         "atlas": "hardware",
@@ -880,7 +882,7 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "inheritDamage": false,
         "sourceHalf": "left",
         "side": "left",
-        "travel": 19,
+        "travel": 53.746,
         "phase": 0,
         "width": 116.84,
         "height": 98.9,
@@ -924,7 +926,7 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "inheritDamage": false,
         "sourceHalf": "right",
         "side": "right",
-        "travel": 19,
+        "travel": 53.746,
         "phase": 0,
         "width": 116.84,
         "height": 98.9,
@@ -1029,11 +1031,11 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "barrel",
         "x": -177,
         "y": -200,
-        "w": 27.900000000000002,
+        "w": 25.11,
         "h": 80.352,
         "pivot": [
-          0.5,
-          0.5
+          0.46,
+          0.82
         ],
         "angle": 0,
         "parent": "port-gun-1",
@@ -1042,10 +1044,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "phase": 0.6,
         "muzzle": [
           0,
-          -64
+          -65.88864
         ],
         "inheritRotation": true,
-        "width": 27.900000000000002,
+        "width": 25.11,
         "height": 80.352,
         "radius": 14
       },
@@ -1148,11 +1150,11 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "barrel",
         "x": -177,
         "y": 30,
-        "w": 27.900000000000002,
+        "w": 25.11,
         "h": 80.352,
         "pivot": [
-          0.5,
-          0.5
+          0.46,
+          0.82
         ],
         "angle": 0,
         "parent": "port-gun-2",
@@ -1161,10 +1163,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "phase": 0.6,
         "muzzle": [
           0,
-          -64
+          -65.88864
         ],
         "inheritRotation": true,
-        "width": 27.900000000000002,
+        "width": 25.11,
         "height": 80.352,
         "radius": 14
       },
@@ -1267,11 +1269,11 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "barrel",
         "x": -177,
         "y": 290,
-        "w": 27.900000000000002,
+        "w": 25.11,
         "h": 80.352,
         "pivot": [
-          0.5,
-          0.5
+          0.46,
+          0.82
         ],
         "angle": 0,
         "parent": "port-gun-3",
@@ -1280,10 +1282,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "phase": 0.6,
         "muzzle": [
           0,
-          -64
+          -65.88864
         ],
         "inheritRotation": true,
-        "width": 27.900000000000002,
+        "width": 25.11,
         "height": 80.352,
         "radius": 14
       },
@@ -1386,11 +1388,11 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "barrel",
         "x": 177,
         "y": -200,
-        "w": 27.900000000000002,
+        "w": 25.11,
         "h": 80.352,
         "pivot": [
-          0.5,
-          0.5
+          0.46,
+          0.82
         ],
         "angle": 0,
         "parent": "starboard-gun-1",
@@ -1399,10 +1401,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "phase": 0.6,
         "muzzle": [
           0,
-          -64
+          -65.88864
         ],
         "inheritRotation": true,
-        "width": 27.900000000000002,
+        "width": 25.11,
         "height": 80.352,
         "radius": 14
       },
@@ -1505,11 +1507,11 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "barrel",
         "x": 177,
         "y": 30,
-        "w": 27.900000000000002,
+        "w": 25.11,
         "h": 80.352,
         "pivot": [
-          0.5,
-          0.5
+          0.46,
+          0.82
         ],
         "angle": 0,
         "parent": "starboard-gun-2",
@@ -1518,10 +1520,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "phase": 0.6,
         "muzzle": [
           0,
-          -64
+          -65.88864
         ],
         "inheritRotation": true,
-        "width": 27.900000000000002,
+        "width": 25.11,
         "height": 80.352,
         "radius": 14
       },
@@ -1624,11 +1626,11 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "barrel",
         "x": 177,
         "y": 290,
-        "w": 27.900000000000002,
+        "w": 25.11,
         "h": 80.352,
         "pivot": [
-          0.5,
-          0.5
+          0.46,
+          0.82
         ],
         "angle": 0,
         "parent": "starboard-gun-3",
@@ -1637,10 +1639,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "phase": 0.6,
         "muzzle": [
           0,
-          -64
+          -65.88864
         ],
         "inheritRotation": true,
-        "width": 27.900000000000002,
+        "width": 25.11,
         "height": 80.352,
         "radius": 14
       }
@@ -1656,7 +1658,9 @@ export const CAPITAL_BOSS_ART=Object.freeze({
     "defaultPart": "port-engine-1",
     "images": {
       "structure": "./asset-bank/capital-bosses/leviathan-final-structure.webp",
-      "hardware": "./asset-bank/capital-bosses/leviathan-final-hardware.webp"
+      "hardware": "./asset-bank/capital-bosses/leviathan-final-hardware.webp",
+      "wingsHD": "./asset-bank/capital-bosses/leviathan-wings-hd-20261031.webp",
+      "hullHD": "./asset-bank/capital-bosses/leviathan-armored-hull-hd-20261031.webp"
     },
     "illustration": "./asset-bank/capital-bosses/leviathan-final-cutin.webp",
     "previewDamage": {
@@ -1711,15 +1715,15 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "structure",
         "x": -615,
         "y": 178,
-        "w": 151.84,
-        "h": 273.02,
+        "w": 210,
+        "h": 370,
         "pivot": [
           0.5,
           0.5
         ],
         "angle": 0,
-        "width": 151.84,
-        "height": 273.02,
+        "width": 210,
+        "height": 370,
         "radius": 53.144
       },
       {
@@ -1763,37 +1767,37 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "structure",
         "x": 615,
         "y": 178,
-        "w": 151.84,
-        "h": 273.02,
+        "w": 210,
+        "h": 370,
         "pivot": [
           0.5,
           0.5
         ],
         "angle": 0,
-        "width": 151.84,
-        "height": 273.02,
+        "width": 210,
+        "height": 370,
         "radius": 53.144
       },
       {
-        "atlas": "structure",
+        "atlas": "wingsHD",
         "frames": [
           [
-            16,
-            594,
-            410,
-            250
+            15,
+            15,
+            1224,
+            455
           ],
           [
-            425,
-            594,
-            410,
-            250
+            15,
+            475,
+            1224,
+            438
           ],
           [
-            830,
-            594,
-            410,
-            250
+            15,
+            913,
+            1224,
+            341
           ]
         ],
         "id": "port-wing",
@@ -1802,7 +1806,7 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "x": 0,
         "y": -35,
         "w": 1370,
-        "h": 570,
+        "h": 620,
         "pivot": [
           0.5,
           0.5
@@ -1811,29 +1815,43 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "preserveAspect": false,
         "sourceHalf": "left",
         "width": 1370,
-        "height": 570,
-        "radius": 199.5
+        "height": 620,
+        "radius": 199.5,
+        "framePivots": [
+          [
+            0.5,
+            0.5
+          ],
+          [
+            0.5,
+            0.5
+          ],
+          [
+            0.5,
+            0.5
+          ]
+        ]
       },
       {
-        "atlas": "structure",
+        "atlas": "wingsHD",
         "frames": [
           [
-            16,
-            594,
-            410,
-            250
+            15,
+            15,
+            1224,
+            455
           ],
           [
-            425,
-            594,
-            410,
-            250
+            15,
+            475,
+            1224,
+            438
           ],
           [
-            830,
-            594,
-            410,
-            250
+            15,
+            913,
+            1224,
+            341
           ]
         ],
         "id": "starboard-wing",
@@ -1842,7 +1860,7 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "x": 0,
         "y": -35,
         "w": 1370,
-        "h": 570,
+        "h": 620,
         "pivot": [
           0.5,
           0.5
@@ -1851,46 +1869,75 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "preserveAspect": false,
         "sourceHalf": "right",
         "width": 1370,
-        "height": 570,
-        "radius": 199.5
+        "height": 620,
+        "radius": 199.5,
+        "framePivots": [
+          [
+            0.5,
+            0.5
+          ],
+          [
+            0.5,
+            0.5
+          ],
+          [
+            0.5,
+            0.5
+          ]
+        ]
       },
       {
-        "atlas": "structure",
+        "atlas": "hullHD",
         "frames": [
           [
-            158,
-            5,
-            180,
-            570
+            50,
+            0,
+            410,
+            1115
           ],
           [
-            542,
-            5,
-            180,
-            570
+            490,
+            0,
+            410,
+            1115
           ],
           [
-            934,
-            5,
-            180,
-            570
+            940,
+            0,
+            410,
+            1115
           ]
         ],
         "id": "flying-boat-hull",
-        "label": "주 비행정 선체",
+        "label": "장갑 전함 선체",
         "kind": "structure",
         "x": 0,
         "y": 15,
-        "w": 270,
-        "h": 855,
+        "w": 440,
+        "h": 980,
         "pivot": [
           0.5,
           0.5
         ],
         "angle": 0,
-        "width": 270,
-        "height": 855,
-        "radius": 94.5
+        "width": 440,
+        "height": 980,
+        "radius": 94.5,
+        "framePivots": [
+          [
+            0.5,
+            0.5
+          ],
+          [
+            0.5,
+            0.5
+          ],
+          [
+            0.5,
+            0.5
+          ]
+        ],
+        "preserveAspect": false
       },
       {
         "atlas": "hardware",
@@ -1931,10 +1978,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "id": "port-engine-1",
         "label": "좌현 1번 기관",
         "kind": "engine",
-        "x": -185,
+        "x": -245,
         "y": -28,
-        "w": 79.92,
-        "h": 140.6,
+        "w": 100,
+        "h": 176,
         "pivot": [
           0.5,
           0.5
@@ -1942,8 +1989,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "angle": 0,
         "parent": "port-wing",
         "inheritDamage": false,
-        "width": 79.92,
-        "height": 140.6,
+        "width": 100,
+        "height": 176,
         "radius": 27.971999999999998
       },
       {
@@ -1985,10 +2032,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "id": "port-engine-1-propeller",
         "label": "좌현 1번 프로펠러",
         "kind": "propeller",
-        "x": -185,
-        "y": -90.9,
-        "w": 113.56,
-        "h": 31.28,
+        "x": -245,
+        "y": -107.2,
+        "w": 150,
+        "h": 41.32,
         "pivot": [
           0.5,
           0.5
@@ -1997,8 +2044,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "parent": "port-engine-1",
         "speed": 25,
         "phase": 0,
-        "width": 113.56,
-        "height": 31.28,
+        "width": 150,
+        "height": 41.32,
         "radius": 14
       },
       {
@@ -2040,10 +2087,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "id": "port-engine-2",
         "label": "좌현 2번 기관",
         "kind": "engine",
-        "x": -360,
+        "x": -410,
         "y": -28,
-        "w": 79.92,
-        "h": 140.6,
+        "w": 100,
+        "h": 176,
         "pivot": [
           0.5,
           0.5
@@ -2051,8 +2098,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "angle": 0,
         "parent": "port-wing",
         "inheritDamage": false,
-        "width": 79.92,
-        "height": 140.6,
+        "width": 100,
+        "height": 176,
         "radius": 27.971999999999998
       },
       {
@@ -2094,10 +2141,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "id": "port-engine-2-propeller",
         "label": "좌현 2번 프로펠러",
         "kind": "propeller",
-        "x": -360,
-        "y": -90.9,
-        "w": 113.56,
-        "h": 31.28,
+        "x": -410,
+        "y": -107.2,
+        "w": 150,
+        "h": 41.32,
         "pivot": [
           0.5,
           0.5
@@ -2106,8 +2153,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "parent": "port-engine-2",
         "speed": 27,
         "phase": 0,
-        "width": 113.56,
-        "height": 31.28,
+        "width": 150,
+        "height": 41.32,
         "radius": 14
       },
       {
@@ -2149,10 +2196,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "id": "port-engine-3",
         "label": "좌현 3번 기관",
         "kind": "engine",
-        "x": -525,
+        "x": -570,
         "y": -28,
-        "w": 79.92,
-        "h": 140.6,
+        "w": 100,
+        "h": 176,
         "pivot": [
           0.5,
           0.5
@@ -2160,8 +2207,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "angle": 0,
         "parent": "port-wing",
         "inheritDamage": false,
-        "width": 79.92,
-        "height": 140.6,
+        "width": 100,
+        "height": 176,
         "radius": 27.971999999999998
       },
       {
@@ -2203,10 +2250,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "id": "port-engine-3-propeller",
         "label": "좌현 3번 프로펠러",
         "kind": "propeller",
-        "x": -525,
-        "y": -90.9,
-        "w": 113.56,
-        "h": 31.28,
+        "x": -570,
+        "y": -107.2,
+        "w": 150,
+        "h": 41.32,
         "pivot": [
           0.5,
           0.5
@@ -2215,8 +2262,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "parent": "port-engine-3",
         "speed": 29,
         "phase": 0,
-        "width": 113.56,
-        "height": 31.28,
+        "width": 150,
+        "height": 41.32,
         "radius": 14
       },
       {
@@ -2258,10 +2305,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "id": "starboard-engine-1",
         "label": "우현 1번 기관",
         "kind": "engine",
-        "x": 185,
+        "x": 245,
         "y": -28,
-        "w": 79.92,
-        "h": 140.6,
+        "w": 100,
+        "h": 176,
         "pivot": [
           0.5,
           0.5
@@ -2269,8 +2316,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "angle": 0,
         "parent": "starboard-wing",
         "inheritDamage": false,
-        "width": 79.92,
-        "height": 140.6,
+        "width": 100,
+        "height": 176,
         "radius": 27.971999999999998
       },
       {
@@ -2312,10 +2359,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "id": "starboard-engine-1-propeller",
         "label": "우현 1번 프로펠러",
         "kind": "propeller",
-        "x": 185,
-        "y": -90.9,
-        "w": 113.56,
-        "h": 31.28,
+        "x": 245,
+        "y": -107.2,
+        "w": 150,
+        "h": 41.32,
         "pivot": [
           0.5,
           0.5
@@ -2324,8 +2371,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "parent": "starboard-engine-1",
         "speed": 25,
         "phase": 0,
-        "width": 113.56,
-        "height": 31.28,
+        "width": 150,
+        "height": 41.32,
         "radius": 14
       },
       {
@@ -2367,10 +2414,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "id": "starboard-engine-2",
         "label": "우현 2번 기관",
         "kind": "engine",
-        "x": 360,
+        "x": 410,
         "y": -28,
-        "w": 79.92,
-        "h": 140.6,
+        "w": 100,
+        "h": 176,
         "pivot": [
           0.5,
           0.5
@@ -2378,8 +2425,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "angle": 0,
         "parent": "starboard-wing",
         "inheritDamage": false,
-        "width": 79.92,
-        "height": 140.6,
+        "width": 100,
+        "height": 176,
         "radius": 27.971999999999998
       },
       {
@@ -2421,10 +2468,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "id": "starboard-engine-2-propeller",
         "label": "우현 2번 프로펠러",
         "kind": "propeller",
-        "x": 360,
-        "y": -90.9,
-        "w": 113.56,
-        "h": 31.28,
+        "x": 410,
+        "y": -107.2,
+        "w": 150,
+        "h": 41.32,
         "pivot": [
           0.5,
           0.5
@@ -2433,8 +2480,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "parent": "starboard-engine-2",
         "speed": 27,
         "phase": 0,
-        "width": 113.56,
-        "height": 31.28,
+        "width": 150,
+        "height": 41.32,
         "radius": 14
       },
       {
@@ -2476,10 +2523,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "id": "starboard-engine-3",
         "label": "우현 3번 기관",
         "kind": "engine",
-        "x": 525,
+        "x": 570,
         "y": -28,
-        "w": 79.92,
-        "h": 140.6,
+        "w": 100,
+        "h": 176,
         "pivot": [
           0.5,
           0.5
@@ -2487,8 +2534,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "angle": 0,
         "parent": "starboard-wing",
         "inheritDamage": false,
-        "width": 79.92,
-        "height": 140.6,
+        "width": 100,
+        "height": 176,
         "radius": 27.971999999999998
       },
       {
@@ -2530,10 +2577,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "id": "starboard-engine-3-propeller",
         "label": "우현 3번 프로펠러",
         "kind": "propeller",
-        "x": 525,
-        "y": -90.9,
-        "w": 113.56,
-        "h": 31.28,
+        "x": 570,
+        "y": -107.2,
+        "w": 150,
+        "h": 41.32,
         "pivot": [
           0.5,
           0.5
@@ -2542,8 +2589,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "parent": "starboard-engine-3",
         "speed": 29,
         "phase": 0,
-        "width": 113.56,
-        "height": 31.28,
+        "width": 150,
+        "height": 41.32,
         "radius": 14
       },
       {
@@ -2573,8 +2620,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "door",
         "x": -350,
         "y": -215,
-        "w": 132,
-        "h": 101.5,
+        "w": 180,
+        "h": 138.4,
         "pivot": [
           0.5,
           0.5
@@ -2584,10 +2631,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "inheritDamage": false,
         "sourceHalf": "left",
         "side": "left",
-        "travel": 19,
+        "travel": 82.8,
         "phase": 0,
-        "width": 132,
-        "height": 101.5,
+        "width": 180,
+        "height": 138.4,
         "radius": 35.525
       },
       {
@@ -2617,8 +2664,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "door",
         "x": -350,
         "y": -215,
-        "w": 132,
-        "h": 101.5,
+        "w": 180,
+        "h": 138.4,
         "pivot": [
           0.5,
           0.5
@@ -2628,10 +2675,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "inheritDamage": false,
         "sourceHalf": "right",
         "side": "right",
-        "travel": 19,
+        "travel": 82.8,
         "phase": 0,
-        "width": 132,
-        "height": 101.5,
+        "width": 180,
+        "height": 138.4,
         "radius": 35.525
       },
       {
@@ -2721,8 +2768,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "door",
         "x": 350,
         "y": -215,
-        "w": 132,
-        "h": 101.5,
+        "w": 180,
+        "h": 138.4,
         "pivot": [
           0.5,
           0.5
@@ -2732,10 +2779,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "inheritDamage": false,
         "sourceHalf": "left",
         "side": "left",
-        "travel": 19,
+        "travel": 82.8,
         "phase": 0,
-        "width": 132,
-        "height": 101.5,
+        "width": 180,
+        "height": 138.4,
         "radius": 35.525
       },
       {
@@ -2765,8 +2812,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "door",
         "x": 350,
         "y": -215,
-        "w": 132,
-        "h": 101.5,
+        "w": 180,
+        "h": 138.4,
         "pivot": [
           0.5,
           0.5
@@ -2776,10 +2823,10 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "inheritDamage": false,
         "sourceHalf": "right",
         "side": "right",
-        "travel": 19,
+        "travel": 82.8,
         "phase": 0,
-        "width": 132,
-        "height": 101.5,
+        "width": 180,
+        "height": 138.4,
         "radius": 35.525
       },
       {
@@ -2879,12 +2926,12 @@ export const CAPITAL_BOSS_ART=Object.freeze({
           ]
         ],
         "id": "bow-gun",
-        "label": "선수 포좌",
+        "label": "선수 쌍열 주포",
         "kind": "turret",
         "x": 0,
         "y": -345,
-        "w": 75.9,
-        "h": 67.32000000000001,
+        "w": 125,
+        "h": 110.87,
         "pivot": [
           0.5,
           0.5
@@ -2896,8 +2943,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
           -1.5,
           1.5
         ],
-        "width": 75.9,
-        "height": 67.32000000000001,
+        "width": 125,
+        "height": 110.87,
         "radius": 23.562
       },
       {
@@ -2937,15 +2984,15 @@ export const CAPITAL_BOSS_ART=Object.freeze({
           ]
         ],
         "id": "bow-gun-barrel",
-        "label": "선수 포신",
+        "label": "선수 쌍열 포신",
         "kind": "barrel",
         "x": 0,
         "y": -345,
-        "w": 26.730000000000004,
-        "h": 87.912,
+        "w": 43.17567567567568,
+        "h": 142,
         "pivot": [
           0.5,
-          0.5
+          0.82
         ],
         "angle": 0,
         "parent": "bow-gun",
@@ -2954,12 +3001,16 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "phase": 0.6,
         "muzzle": [
           0,
-          -64
+          -116.44
         ],
         "inheritRotation": true,
-        "width": 26.730000000000004,
-        "height": 87.912,
-        "radius": 14
+        "width": 43.17567567567568,
+        "height": 142,
+        "radius": 14,
+        "barrelOffsets": [
+          -10,
+          10
+        ]
       },
       {
         "atlas": "hardware",
@@ -2998,12 +3049,12 @@ export const CAPITAL_BOSS_ART=Object.freeze({
           ]
         ],
         "id": "stern-gun",
-        "label": "선미 포좌",
+        "label": "선미 쌍열 주포",
         "kind": "turret",
         "x": 0,
         "y": 337,
-        "w": 75.9,
-        "h": 67.32000000000001,
+        "w": 125,
+        "h": 110.87,
         "pivot": [
           0.5,
           0.5
@@ -3015,8 +3066,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
           -1.6,
           1.6
         ],
-        "width": 75.9,
-        "height": 67.32000000000001,
+        "width": 125,
+        "height": 110.87,
         "radius": 23.562
       },
       {
@@ -3056,15 +3107,15 @@ export const CAPITAL_BOSS_ART=Object.freeze({
           ]
         ],
         "id": "stern-gun-barrel",
-        "label": "선미 포신",
+        "label": "선미 쌍열 포신",
         "kind": "barrel",
         "x": 0,
         "y": 337,
-        "w": 26.730000000000004,
-        "h": 87.912,
+        "w": 43.17567567567568,
+        "h": 142,
         "pivot": [
           0.5,
-          0.5
+          0.82
         ],
         "angle": 0,
         "parent": "stern-gun",
@@ -3073,12 +3124,16 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "phase": 0.6,
         "muzzle": [
           0,
-          -64
+          -116.44
         ],
         "inheritRotation": true,
-        "width": 26.730000000000004,
-        "height": 87.912,
-        "radius": 14
+        "width": 43.17567567567568,
+        "height": 142,
+        "radius": 14,
+        "barrelOffsets": [
+          -10,
+          10
+        ]
       },
       {
         "atlas": "hardware",
@@ -3121,8 +3176,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "turret",
         "x": -530,
         "y": -205,
-        "w": 69,
-        "h": 61.199999999999996,
+        "w": 90,
+        "h": 79.83,
         "pivot": [
           0.5,
           0.5
@@ -3134,8 +3189,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
           -1.5,
           1.5
         ],
-        "width": 69,
-        "height": 61.199999999999996,
+        "width": 90,
+        "height": 79.83,
         "radius": 21.419999999999998
       },
       {
@@ -3179,11 +3234,11 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "barrel",
         "x": -530,
         "y": -205,
-        "w": 24.3,
-        "h": 79.92,
+        "w": 31.925675675675677,
+        "h": 105,
         "pivot": [
           0.5,
-          0.5
+          0.82
         ],
         "angle": 0,
         "parent": "port-forward-gun",
@@ -3192,11 +3247,11 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "phase": 0.6,
         "muzzle": [
           0,
-          -64
+          -86.1
         ],
         "inheritRotation": true,
-        "width": 24.3,
-        "height": 79.92,
+        "width": 31.925675675675677,
+        "height": 105,
         "radius": 14
       },
       {
@@ -3240,8 +3295,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "turret",
         "x": 530,
         "y": -205,
-        "w": 69,
-        "h": 61.199999999999996,
+        "w": 90,
+        "h": 79.83,
         "pivot": [
           0.5,
           0.5
@@ -3253,8 +3308,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
           -1.5,
           1.5
         ],
-        "width": 69,
-        "height": 61.199999999999996,
+        "width": 90,
+        "height": 79.83,
         "radius": 21.419999999999998
       },
       {
@@ -3298,11 +3353,11 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "barrel",
         "x": 530,
         "y": -205,
-        "w": 24.3,
-        "h": 79.92,
+        "w": 31.925675675675677,
+        "h": 105,
         "pivot": [
           0.5,
-          0.5
+          0.82
         ],
         "angle": 0,
         "parent": "starboard-forward-gun",
@@ -3311,11 +3366,11 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "phase": 0.6,
         "muzzle": [
           0,
-          -64
+          -86.1
         ],
         "inheritRotation": true,
-        "width": 24.3,
-        "height": 79.92,
+        "width": 31.925675675675677,
+        "height": 105,
         "radius": 14
       },
       {
@@ -3359,8 +3414,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "turret",
         "x": -285,
         "y": 183,
-        "w": 69,
-        "h": 61.199999999999996,
+        "w": 90,
+        "h": 79.83,
         "pivot": [
           0.5,
           0.5
@@ -3372,8 +3427,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
           -1.5,
           1.5
         ],
-        "width": 69,
-        "height": 61.199999999999996,
+        "width": 90,
+        "height": 79.83,
         "radius": 21.419999999999998
       },
       {
@@ -3417,11 +3472,11 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "barrel",
         "x": -285,
         "y": 183,
-        "w": 24.3,
-        "h": 79.92,
+        "w": 31.925675675675677,
+        "h": 105,
         "pivot": [
           0.5,
-          0.5
+          0.82
         ],
         "angle": 0,
         "parent": "port-aft-gun",
@@ -3430,11 +3485,11 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "phase": 0.6,
         "muzzle": [
           0,
-          -64
+          -86.1
         ],
         "inheritRotation": true,
-        "width": 24.3,
-        "height": 79.92,
+        "width": 31.925675675675677,
+        "height": 105,
         "radius": 14
       },
       {
@@ -3478,8 +3533,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "turret",
         "x": 285,
         "y": 183,
-        "w": 69,
-        "h": 61.199999999999996,
+        "w": 90,
+        "h": 79.83,
         "pivot": [
           0.5,
           0.5
@@ -3491,8 +3546,8 @@ export const CAPITAL_BOSS_ART=Object.freeze({
           -1.5,
           1.5
         ],
-        "width": 69,
-        "height": 61.199999999999996,
+        "width": 90,
+        "height": 79.83,
         "radius": 21.419999999999998
       },
       {
@@ -3536,11 +3591,11 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "kind": "barrel",
         "x": 285,
         "y": 183,
-        "w": 24.3,
-        "h": 79.92,
+        "w": 31.925675675675677,
+        "h": 105,
         "pivot": [
           0.5,
-          0.5
+          0.82
         ],
         "angle": 0,
         "parent": "starboard-aft-gun",
@@ -3549,11 +3604,11 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "phase": 0.6,
         "muzzle": [
           0,
-          -64
+          -86.1
         ],
         "inheritRotation": true,
-        "width": 24.3,
-        "height": 79.92,
+        "width": 31.925675675675677,
+        "height": 105,
         "radius": 14
       }
     ]

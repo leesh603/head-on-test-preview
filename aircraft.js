@@ -124,7 +124,7 @@ const decodePainted=(key,skipCrew=false)=>new Promise(resolve=>{
    afterCrew(queueCrew(()=>m.composeNpcCrew(canvas,cell?{path,cell}:{path})),()=>{done();if(CREW_BAKE_MODE)window.__headonCrewBake?.out.push({key,canvas:painted.get(key)})})},()=>done());
  };
  img.onload=()=>{if(settled)return;try{
-  if(PHOTO_RECON_ART[key]){const out=document.createElement('canvas');out.width=288;out.height=320;paintPhotoReconSprite(out.getContext('2d'),img,key);setPainted(key,outlineUnbakedAircraft(out));finish(true);return;}
+  if(PHOTO_RECON_ART[key]){const out=document.createElement('canvas');out.width=288;out.height=320;paintPhotoReconSprite(out.getContext('2d'),img,key);queueCrew(()=>outlineUnbakedAircraft(out)).then(o=>{if(settled)return;setPainted(key,o||out);finish(true)});return;}
   if(bakedArt){const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0);const done=()=>{setPainted(key,out);finish(true)};if(!SORTIE_FITS[key]?.crewBaked){withCrew(out,bakedArt,null,done);return}done();return;}
   // Pre-cropped transparent stock-bank art needs no full image pixel readback.
   // Downsample once on first appearance; the established cache/shadow pipeline follows.
@@ -134,7 +134,8 @@ const decodePainted=(key,skipCrew=false)=>new Promise(resolve=>{
     const art=BANK_ART[key]||BOMBER_TRANSFER_ART[key];if(!art){finish(false);return;}
     oc.drawImage(img,art.x,art.y,art.w,art.h,0,0,288,320);
     if(key==='bomber-transfer-gotha'){const pixels=oc.getImageData(0,0,288,320);clearAircraftMatte(key,pixels.data,288,320);oc.putImageData(pixels,0,0);}
-    const done=()=>{setPainted(key,key.startsWith('bank_')&&!art.path.startsWith('asset-bank/outlined/')?outlineUnbakedAircraft(out):out);finish(true)};if(!art.crewBaked){withCrew(out,art.path,art,done);return}
+    // The rim (21 full-canvas blits) runs in an idle slot, not inside a combat frame.
+    const done=()=>{if(!(key.startsWith('bank_')&&!art.path.startsWith('asset-bank/outlined/'))){setPainted(key,out);finish(true);return}queueCrew(()=>outlineUnbakedAircraft(out)).then(o=>{if(settled)return;setPainted(key,o||out);finish(true)})};if(!art.crewBaked){withCrew(out,art.path,art,done);return}
     done();return;
   }
   const scan=document.createElement('canvas');scan.width=Math.ceil(img.naturalWidth/2);scan.height=Math.ceil(img.naturalHeight/2);const sc=scan.getContext('2d',{willReadFrequently:true});sc.drawImage(img,0,0,scan.width,scan.height);const pixels=sc.getImageData(0,0,scan.width,scan.height),rgba=pixels.data;if(key==='nieuport_italian')for(let i=0;i<rgba.length;i+=4){const r=rgba[i],g=rgba[i+1],b=rgba[i+2];if(rgba[i+3]>0&&b>70&&b>r*1.18&&b>g*1.05){rgba[i]=55;rgba[i+1]=132;rgba[i+2]=78}}clearAircraftMatte(key,rgba,scan.width,scan.height);clearCrewMatte(key,rgba,scan.width,scan.height);sc.putImageData(pixels,0,0);let minX=scan.width,minY=scan.height,maxX=-1,maxY=-1;
@@ -327,11 +328,11 @@ export function planeSprite(c,x,y,a,key,scale=1,enemy=false,shadow=false,flash=0
  c.restore();
 }
 
-// Both solo and co-op use the authored, tightly fitted cache instead of scaling
-// a whole field-art sheet (including its transparent margins) down to 150px.
-export const FRIENDLY_BOMBER_SCALE=Object.freeze({staaken:6,'handley-page':3.4});
+// Restore the pre-enlargement support silhouette (about 96px Staaken / 150px
+// Handley Page) while preserving the shared solo/co-op renderer and baked crew.
+export const FRIENDLY_BOMBER_SCALE=Object.freeze({staaken:2.4,'handley-page':1.9});
 export function drawFriendlyBomber(c,b,x=b.x,y=b.y){
- const key=b.airframe,scale=FRIENDLY_BOMBER_SCALE[key]||3.4;
+ const key=b.airframe,scale=FRIENDLY_BOMBER_SCALE[key]||1.9;
  planeSprite(c,x+14,y+22,b.a,key,scale,false,true);
  planeSprite(c,x,y,b.a,key,scale,false,false,b.hitFlash||0);
 }

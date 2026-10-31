@@ -28,9 +28,13 @@
   wake(img)};
  function pump(){
   // Strict priority: nothing less urgent starts while something more urgent is still loading.
-  while(held.size&&active.size<LIMIT){
+  while(held.size){
    let best=null,bestKey=Infinity;
    for(const [img,h] of held){const key=h.rank*1e9+h.n;if(key<bestKey){bestKey=key;best=img}}
+   // Keep one extra slot for the current selection. Reordering the waiting
+   // queue alone cannot start its flight art when all six background requests
+   // are stalled. Ambient loads still use only the original six slots.
+   if(active.size>=LIMIT&&(active.size>LIMIT||held.get(best).rank!==urgency))break;
    if(!open&&!relaxed&&active.size&&held.get(best).rank>Math.min(...active.values()))break;
    go(best);
   }

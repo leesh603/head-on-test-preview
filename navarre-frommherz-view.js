@@ -1,3 +1,5 @@
+import {drawNavarreSuppression} from './navarre-blockade-fx.js';
+import {frommherzLandingEvents,cleanFrommherzLandingEvents,drawFrommherzLandingEvents} from './frommherz-landing-fx.js';
 // Native inked tactical marks and existing smoke sprites, not a luminous aura.
 import {navarreFrommherzState,NAVARRE_FROMMHERZ_BALANCE} from './navarre-frommherz-combat.js';
 import {impactMark,partMark,MARK} from './tactical-marks.js?v=tame3';
@@ -7,20 +9,23 @@ export function cleanNavarreFrommherzVisual(value){
  if(!value||typeof value!=='object')return null;
  const pos=position(value.zone),until=value.zone?.until;
  const zone=pos&&Number.isFinite(until)&&until>=0&&until<=1e9&&value.zone.radius===NAVARRE_FROMMHERZ_BALANCE.zoneRadius?{...pos,radius:NAVARRE_FROMMHERZ_BALANCE.zoneRadius,until}:null;
- return {zone,suppressing:value.suppressing===true,focus:position(value.focus)};
+ const out={zone,suppressing:value.suppressing===true,focus:position(value.focus)};
+ const landing=cleanFrommherzLandingEvents(value.landing);if(landing.length)out.landing=landing;return out;
 }
 // The combat accessor exposes an enemy reference locally; never copy it into
 // snapshots. Only these bounded numeric coordinates cross the network.
 export function captureNavarreFrommherzVisual(p){
- const s=navarreFrommherzState(p);return s?cleanNavarreFrommherzVisual({zone:s.zone,suppressing:s.suppressing,focus:position(s.focusedTarget)}):null;
+ const s=navarreFrommherzState(p);return s?cleanNavarreFrommherzVisual({zone:s.zone,suppressing:s.suppressing,focus:position(s.focusedTarget),landing:frommherzLandingEvents(p)}):null;
 }
 export function navarreFrommherzVisual(p){
  if(!p||!['navarre','frommherz'].includes(p.pilot)||p.hp<=0||p.status==='downed')return null;
  const w=p.world||p;
  return w.online&&!w.host?cleanNavarreFrommherzVisual(p.navarreFrommherzVisual):captureNavarreFrommherzVisual(p);
 }
-export function drawNavarreFrommherz(c,p,{point=(x,y)=>[x,y],fx=null,locale='ko',visible=()=>true}={}){
+export function drawNavarreFrommherz(c,p,{point=(x,y)=>[x,y],fx=null,tint=null,locale='ko',visible=()=>true}={}){
+ drawNavarreSuppression(c,p,{point,fx,visible});
  const s=navarreFrommherzVisual(p);if(!s)return;
+ if(p.pilot==='frommherz')drawFrommherzLandingEvents(c,s.landing,{point,fx,tint,visible});
  const t=(p.world||p).t||0,z=s.zone;
  if(p.pilot==='navarre'&&z&&z.until>t&&z.until-t<=10){
   const [x,y]=point(z.x,z.y),r=z.radius;if(!visible(x,y,r+35))return;

@@ -1,3 +1,4 @@
+import {drawGuynemerRocketSmoke} from './guynemer-rocket-smoke.js';
 // Guynemer's actual ordnance and Bishop's existing altitude/bombing run.
 // All observations use the existing bounded signature queue; no new projectiles.
 import {signatureCue,signatureInterval} from './pilot-signature-state.js';
@@ -51,10 +52,10 @@ export function guynemerRockets(p){
 }
 export function drawOrdnanceWorld(c,p,tex){
  if(!alive(p))return;const shift=ordnanceGroundShift(p);
+ if(p.pilot==='guynemer')drawGuynemerRocketSmoke(c,p,tex,shift);
  if(p.pilot==='guynemer')for(const b of guynemerRockets(p)){
   const a=Math.atan2(b.vy,b.vx),ca=Math.cos(a),sa=Math.sin(a),x=b.x-p.x+shift.x,y=b.y-p.y+shift.y;
   tex(c,'incendiary',x-ca*19,y-sa*19,25,8,a,.9,'#e8a15c');
-  for(let i=0;i<2;i++)tex(c,'smokeWisp',x-ca*(34+i*16),y-sa*(34+i*16),26+i*7,14+i*4,a,.52-i*.17,'#d2c2a2');
  }
  if(p.pilot==='bishop'){
   drawBishopDeparture(c,p,tex,shift);

@@ -1,5 +1,5 @@
 import {CAPITAL_BOSS_ART} from './capital-boss-art.js';
-import {capitalPartPose} from './capital-bosses.js';
+import {capitalPartPose,capitalMuzzle} from './capital-bosses.js';
 
 const images=new Map(),pending=new Map();
 export const isCapitalBoss=id=>Object.hasOwn(CAPITAL_BOSS_ART,id);
@@ -17,7 +17,9 @@ export function prepareCapitalBossAssets(region){
 }
 export function capitalBossExtents(body){
  const art=CAPITAL_BOSS_ART[body.kind||body.assetKey],scale=body.capitalScale||.6;
- return art?{halfWidth:art.width*scale/2,halfHeight:art.height*scale/2}:null;
+ if(!art)return null;
+ const x=art.width*scale/2,y=art.height*scale/2,c=Math.abs(Math.cos(body.hullYaw||0)),s=Math.abs(Math.sin(body.hullYaw||0));
+ return {halfWidth:x*c+y*s,halfHeight:x*s+y*c};
 }
 // Art, collision and muzzles consume the same live part pose. No canvas copies,
 // filters, replacement shapes or per-frame image decoding are used.
@@ -41,17 +43,20 @@ export function drawCapitalBoss(context,body,{effect=()=>false,defeat}={}){
   const fall=destroying?Math.min(1,Math.max(0,age-1.4)/4.6):0;
   context.save();context.globalAlpha*=pose.alpha??1;context.translate(pose.x,pose.y+fall*(source.kind==='structure'?38:22));context.rotate(pose.angle);
   context.scale((pose.scaleX??1)*(1-fall*.09),1-fall*.09);
-  context.drawImage(image,sx,sy,sw,sh,dx,dy,drawWidth,height);context.restore();
+  for(const offset of source.barrelOffsets||[0])context.drawImage(image,sx,sy,sw,sh,dx+offset*scale,dy,drawWidth,height);
+  context.restore();
   if(part.hitFlash>0)effect(context,'metalShard0',pose.x,pose.y,32,32,pose.angle,Math.min(.8,part.hitFlash*4));
   if(source.kind==='engine'&&state>0){
    const drift=((body.motionTime||0)*.65+index*.17)%1;
    effect(context,state===2?'smokeDark':'smokeOil',pose.x,pose.y-drift*65,24+drift*35,30+drift*50,0,(1-drift)*.44);
   }
   const recoil=source.kind==='barrel'?(parts.get(source.parent)?.recoil||0):0;
-  if(source.kind==='barrel'&&recoil>0&&!part.destroyed){
-   const muzzle=source.muzzle||[0,-64],cos=Math.cos(pose.angle),sin=Math.sin(pose.angle);
-   const x=pose.x+(muzzle[0]*cos-muzzle[1]*sin)*scale,y=pose.y+(muzzle[0]*sin+muzzle[1]*cos)*scale;
-   effect(context,'muzzle',x,y,46,36,pose.angle-Math.PI/2,Math.min(1,recoil*5));
+  if(source.kind==='barrel'&&recoil>0&&!part.destroyed&&!part.disabled){
+   const mount=parts.get(source.parent);
+   if(mount)for(const offset of source.barrelOffsets||[0]){
+    const muzzle=capitalMuzzle(body,mount,undefined,offset);
+    effect(context,'muzzle',muzzle.x,muzzle.y,46,36,muzzle.angle,Math.min(1,recoil*5));
+   }
   }
  }
  if(destroying){

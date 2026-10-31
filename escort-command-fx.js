@@ -1,3 +1,4 @@
+import {drawWhiteFlightMuzzle} from './goering-whiteflight-fx.js';
 // Real flight positions and gunfire carry escort orders; healthy wings stay clean.
 // Observe actual owned wingmen, accepted support damage and accepted guard hits.
 import {signatureCue,signatureInterval} from './pilot-signature-state.js';
@@ -52,7 +53,7 @@ export function drawEscortWorld(c,p,tex,front=false){
   const x=w.x-p.x+shift.x,y=w.y-p.y+shift.y,ca=Math.cos(w.a),sa=Math.sin(w.a),side=(-Math.sin(p.a)*(w.x-p.x)+Math.cos(p.a)*(w.y-p.y))<0?-1:1;
   const at=(key,dx,dy,width,height,a,alpha,color)=>tex(c,key,x+ca*dx-sa*dy,y+sa*dx+ca*dy,width,height,w.a+a,alpha,color);
   if(front){
-   if(w.muzzleFlash>0){const a=w.fireHeading??w.muzzleAngle??w.a,fade=clamp(w.muzzleFlash/.055);
+   if(w.muzzleFlash>0){if(white&&drawWhiteFlightMuzzle(c,p,w,x,y,tex))continue;const a=w.fireHeading??w.muzzleAngle??w.a,fade=clamp(w.muzzleFlash/.055);
     tex(c,white?'muzzle':'muzzleTwin',x+Math.cos(a)*31,y+Math.sin(a)*31,white?25:29,white?9:13,a,.96*fade,white?'#e9e4c9':'#e1bb85');
    }
   }else if(active){

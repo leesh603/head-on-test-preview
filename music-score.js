@@ -66,7 +66,7 @@ export const BOSS_ARRANGEMENTS=Object.freeze({
  'paris-staaken-rvi':boss('cello',[0,2,4,7],[0,4,1,3],'bomber','strings'),'paris-searchlight-fortress':boss('clarinet',[0,3,4,7],[7,8,4,6],'searchlight','trombone'),
  'gallipoli-fortress':boss('trombone',[0,2,6],[7,4,1,4],'siege','bassoon'),'jutland-grand-fleet':boss('horn',[0,3,6],[0,4,2,5],'naval','cello'),
  'sinai-landship':boss('trombone',[0,2,4],[0,3,4,1],'armor','horn'),wustenpanzer:boss('horn',[0,2,5],[0,1,3,1],'armor','trombone'),
- 'flak-tower':boss('trombone',[0,4,7],[0,2,4,1],'siege','bassoon'),'fort-douaumont':boss('horn',[0,3,6],[7,4,1,4],'siege','cello'),
+ 'o400-squadron':boss('trombone',[0,4,7],[0,2,4,1],'bomber','bassoon'),'fort-douaumont':boss('horn',[0,3,6],[7,4,1,4],'siege','cello'),
  'fort-souville':boss('cello',[0,2,5],[0,3,4,1],'siege','trombone')
 });
 export function scorePitch(score,degree){const oct=Math.floor(degree/7),d=((degree%7)+7)%7;return score.key+score.scale[d]+oct*12;}

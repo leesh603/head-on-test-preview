@@ -138,6 +138,7 @@ function rankMounts(b,config,target,serial,ports=config.ports,slack=.15){
 // Heavy attacks belong to each boss's physical weapon controller. Ordinary
 // gunfire must not inject a second, family-wide attack over a native phrase.
 export function updateBasicBarrage(b,dt,ctx){
+ if(b.nativeBomberCombat)return true;
  const config=BASIC_BARRAGES[b.kind];if(!config)return false;
  if(ctx.paused||dt<=0)return true;
  if(basicFirePaused(b)){if(!b.basicPaused&&b.basicSerial)emit(b,{type:'cancel-hazards',tag:b.id+':basic-fire',pendingOnly:true});b.basicPaused=true;b.basicClock=.55;return true;}

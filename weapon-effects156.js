@@ -1,3 +1,4 @@
+import {drawBishopBombImpact} from './bishop-sortie-fx.js';
 import {drawArtilleryMuzzle} from './artillery-fx.js?v=20261026';
 import {weaponImpactKind} from './weapon-impact-profile.js';
 import {drawAircraftCritical} from './aircraft-critical-view.js';
@@ -172,6 +173,7 @@ export function drawWeaponImpactTexture(c,f,x,y,paint=fx,ready=fxReady){
  if(!weapon||!(f.life>0)||!(f.maxLife>0))return false;
  const age=combatFxAge(f),fade=Math.max(0,Math.min(1,(f.maxLife-age)/.12));
  if(age>.36)return false;
+ if(drawBishopBombImpact(c,f,x,y,age,paint,ready))return true;
  const r=Math.min(82,Math.max(24,f.radius||40)),directed=Number.isFinite(f.direction),a=directed?f.direction:0;
  const draw=(key,px,py,w,h,angle,alpha)=>{if(alpha>0&&ready(key))paint(c,key,px,py,w,h,angle,alpha*fade);};
  if(weapon==='cannon'){

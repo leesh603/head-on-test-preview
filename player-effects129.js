@@ -1,3 +1,4 @@
+import {internalRepairPose} from './mccudden-internal-repair.js';
 import {drawEquipmentDecals} from './equipment-finishing-fx.js?v=equipmentfinishing20261030';
 import {equipmentArmorFeedback} from './equipment-hit-feedback.js';
 import {drawScarffMount,drawCompassPickupWisps} from './equipment-mount-fx.js?v=equipmentmount20261030';
@@ -11,7 +12,7 @@ import {nungesserCombatStatus} from './nungesser-combat.js';
 import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=buildfit1&afc=1&art=pilot-recovery2';
 import {createSignatureView} from './pilot-signature-view.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029';
 import {fx,fxTint} from './fx-art.js?v=tame3';
-import {planeSprite,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1';
+import {planeSprite,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle';
 import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';
 
 import {bishopFlightHeight} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
@@ -168,7 +169,7 @@ export function drawEquipmentDefense(c,p,x,y,options={}){
  drawEquipmentDecals(c,p);drawRedScarf(c,p,0,0,{...options,local:true});drawScarffMount(c,p,0,0,{local:true});c.restore();
  drawBrockConcealment(c,p,pose.x,pose.y,{...options,scale});
  drawRankinBurst(c,p,x,y,options);
- drawRepairStitch(c,p,pose.x,pose.y,options);
+ if(!internalRepairPose(p))drawRepairStitch(c,p,pose.x,pose.y,options);
  drawGloveCadence(c,p,pose.x,pose.y,options);
  drawTelescopeAcquisition(c,p,x,y,options);
  // Physical feed follows the same receiver scale and bank as the aircraft.

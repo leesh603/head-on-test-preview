@@ -48,8 +48,12 @@ export class SituationPolicy {
     }
     // Health changes the current score's pace, never its track or melody.
     let loop=null,state=this.lastStand?'LAST_STAND':this.critical?'CRITICAL':'NORMAL';
-    if(frame.approach==='boss'||frame.approach==='ace'){loop=frame.approach+'-approach';state='APPROACH';}
-    else if(this.barrage){loop='barrage';state='BARRAGE';}
+    // Once a boss exists, its own score leads from entry through combat.
+    // Shared approach/barrage loops must not mask every boss with the same music.
+    if(frame.encounter!=='boss'){
+      if(frame.approach==='boss'||frame.approach==='ace'){loop=frame.approach+'-approach';state='APPROACH';}
+      else if(this.barrage){loop='barrage';state='BARRAGE';}
+    }
     return {loop,stingers,state,crossfade:.9,tempoScale:this.lastStand?1.06:this.critical?1.04:1};
   }
 }

@@ -13,7 +13,7 @@ const alive=e=>e&&e.hp>0&&!e.crashed&&!e.rivalEscaped&&!e.expired;
 const own=p=>p.id||'p1';
 const personal=b=>!b.enemy&&!b.ally&&!b.formation&&!b.patrol&&!b.actualExplosion&&!b.blast&&!b.rocket&&!b.motorCannon&&!b.cow37&&!b.mauserRound;
 const commanders=new Set(['boelcke','collishaw','brumowski']);
-const durations={fonck:4,voss:2.4,boelcke:8,udet:.55,goering:5,immelmann:2.8,huffzky:5,berthold:5,jacobs:4,gontermann:5,brumowski:5,collishaw:6,bishop:3,mannock:7.2,mckeever:5,hawker:5,nungesser:3,rickenbacker:4,ball:1.5,barker:6,luke:6};
+const durations={fonck:4,voss:2.4,boelcke:8,udet:.55,goering:5,immelmann:2.8,huffzky:5,berthold:5,jacobs:4,gontermann:5,brumowski:5,collishaw:6,bishop:3,mannock:7.2,mckeever:5,hawker:5,nungesser:5,rickenbacker:4,ball:1.5,barker:6,luke:6};
 export const PILOT_IDENTITY_BALANCE=Object.freeze({durations:Object.freeze(durations),focusCone:.13,focusRange:780,focusTime:1.5,grazeInner:18,grazeOuter:42,grazeStacks:3,grazeDuration:3,delayedFraction:.4,debtSeconds:4,energySeconds:3,turnSeconds:2,switchWindow:2,switchStacks:3,igniteSeconds:3,igniteInterval:.25,chainRadius:110,chainDamage:36,fxCap:24});
 export const pilotHeadOn=(p,e)=>headOnTarget({...p,hp:1},[e])===e;
 export function installPilotIdentities(Game,PILOTS){
@@ -53,7 +53,6 @@ export function installPilotIdentities(Game,PILOTS){
   if(this.pilot==='berthold')s.debts=s.debts.map(d=>({...d,remaining:Math.max(d.remaining,6)}));
   if(this.pilot==='barker'){s.barkerReady=true;s.escape=null}
   if(this.pilot==='ball'){this.ballCloak=this.skillTime;this.ballGhost={x:this.x,y:this.y,a:this.a,speed:this.speed,hp:1};this.ballAmbush=0;this.invuln=Math.max(this.invuln,.25)}
-  if(this.pilot==='nungesser')this.invuln=Math.max(this.invuln,.5);
   this.event('skill',this.pilot==='collishaw'?'블랙 플라이트 · 공격 개시':PILOTS[this.pilot].skill);return true;
  };
  const oldGun=Game.prototype.normalGunMultiplier;
@@ -106,6 +105,8 @@ export function installPilotIdentities(Game,PILOTS){
 
   if(this.pilot==='fonck'){const target=this.identityTarget(.13);s.focus=target&&target===s.target?clamp((s.focus||0)+dt/(this.pilot==='hawker'?2:1.5)):0;s.target=target;}
 
+  // Frame-local cruise boost: endRevisionFrame restores both values in solo and co-op.
+  if(this.pilot==='rickenbacker'&&active){this.speed*=2;this.baseSpeed*=2}
   if(this.pilot==='voss'&&active){this.turn*=1.35;this.speed*=1.35;this.baseSpeed*=1.35}
 
 

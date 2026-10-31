@@ -1,3 +1,4 @@
+import {arrivalViewport} from './enemy-arrivals.js';
 import {intrusionActive} from './intrusion-bosses.js';
 import {activeFronts} from './rural-fronts.js';
 import {pilotAircraftChoices,SORTIE_FITS} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
@@ -94,9 +95,10 @@ export function installAceSortieRhythm(Game,{PILOTS,PLANES,PILOT_PLANES,stageAce
  proto.arrangeAceEntry=function(e){
   if(!e?.aceSortieManaged)return;
   const p=playerFor(this),slot=e.aceAttackSlot,side=e.aceEntrySide,a=(p.a||0)+(slot===0?0:slot===1?side*1.35:Math.PI-side*.45);
-  const zoom=this.camera?.zoom||1,dx=Math.cos(a),dy=Math.sin(a),w=(this.viewWidth||960)/2/zoom+85,h=(this.viewHeight||700)/2/zoom+85;
+  const view=arrivalViewport(this),dx=Math.cos(a),dy=Math.sin(a),w=view.w+85,h=view.h+85;
   const d=Math.min(w/(Math.abs(dx)||1e-6),h/(Math.abs(dy)||1e-6));
   e.x=p.x+dx*d;e.y=p.y+dy*d;
+  if(Math.abs(e.x-view.x)<=view.w+65&&Math.abs(e.y-view.y)<=view.h+65){const edge=Math.min((view.w+110)/(Math.abs(dx)||1e-6),(view.h+110)/(Math.abs(dy)||1e-6));e.x=view.x+dx*edge;e.y=view.y+dy*edge;}
   const ahead=slot===2?160:-80,lateral=slot===1?-side*120:0;
   const tx=p.x+Math.cos(p.a||0)*ahead-Math.sin(p.a||0)*lateral,ty=p.y+Math.sin(p.a||0)*ahead+Math.cos(p.a||0)*lateral;
   e.a=Math.atan2(ty-e.y,tx-e.x);e.combatPassHeading=e.a;e.aceEntryUntil=(this.t||0)+.75+slot*.65;
