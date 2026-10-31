@@ -1,5 +1,5 @@
-import {CAPITAL_BOSS_ART} from './capital-boss-art.js';
-import {capitalPartPose,capitalMuzzle} from './capital-bosses.js';
+import {CAPITAL_BOSS_ART} from './capital-boss-art.js?v=capital-defense-20261101';
+import {capitalPartPose,capitalMuzzle} from './capital-bosses.js?v=capital-defense-20261101';
 
 const images=new Map(),pending=new Map();
 export const isCapitalBoss=id=>Object.hasOwn(CAPITAL_BOSS_ART,id);
@@ -65,3 +65,4 @@ export function drawCapitalBoss(context,body,{effect=()=>false,defeat}={}){
  }
  context.restore();return true;
 }
+

@@ -1,6 +1,6 @@
 import {O400Raider} from './o400-squadron.js?v=natural-flight20261031';
 import {updateGothaCombat} from './gotha-squadron-combat.js?v=natural-flight20261031';
-import {createCapitalBoss} from './capital-bosses.js';
+import {createCapitalBoss} from './capital-bosses.js?v=capital-defense-20261101';
 import {SupermarineNighthawk,SiemensSchuckertRVIII} from './dover-night-bosses.js?v=dover3&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js';
 import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
@@ -46,7 +46,7 @@ export const BOSS_CATALOG = Object.freeze({
   'mark-v-cruiser': {name:'대공 육상 전함 · 마크 V 크루이저', faction:'entente', stage:2},
   'livens-flame-projector': {name:'리벤스 대형 화염방사기', faction:'entente', stage:3},
   'minenwerfer-battery': {name:'미넨베르퍼 교차 포격 진지', faction:'central', stage:3},
-  'drachen-net': {name:'드라헨 공중 기뢰 방어망', faction:'central', stage:11},
+  'drachen-net': {name:'드라헨 공중 기뢰 방어망', faction:'central', stage:18},
   'london-apron-raid': {name:'런던 에이프런 방공망', faction:'entente', stage:11},
   'o400-squadron': {name:'핸들리 페이지 O/400 편대', faction:'entente', stage:4},
   'zeppelin-l70': {name:'슈퍼 체펠린 L 70', faction:'central', stage:5},
@@ -1870,6 +1870,7 @@ export function createBossEncounter({id,bossId,tuning,x,y,emit,rng,faction}) {
   if(bossId==='sinai-landship')for(const side of [-1,1])bodies.push(new RollsRoyceEscort({id:id+':escort:'+side,leader:body,side,tuning,emit,faction:body.faction,x,y}));
   return new BossEncounter({id,bossId,bodies});
 }
+
 
 
 

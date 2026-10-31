@@ -13,7 +13,7 @@ export const CAPITAL_BOSS_ART=Object.freeze({
       "hardware": "./asset-bank/capital-bosses/kaiserkrone-hardware.webp",
       "envelopeHD": "./asset-bank/capital-bosses/kaiserkrone-envelope-hd-20261031.webp"
     },
-    "illustration": "./asset-bank/capital-bosses/kaiserkrone-cutin.webp",
+    "illustration": "./asset-bank/capital-bosses/kaiserkrone-cutin-alpha-20261101.webp",
     "previewDamage": {
       "port-envelope": "destroyed",
       "main-envelope": "damaged",
@@ -1662,7 +1662,7 @@ export const CAPITAL_BOSS_ART=Object.freeze({
       "wingsHD": "./asset-bank/capital-bosses/leviathan-wings-hd-20261031.webp",
       "hullHD": "./asset-bank/capital-bosses/leviathan-armored-hull-hd-20261031.webp"
     },
-    "illustration": "./asset-bank/capital-bosses/leviathan-final-cutin.webp",
+    "illustration": "./asset-bank/capital-bosses/leviathan-cutin-alpha-20261101.webp",
     "previewDamage": {
       "port-wing": "damaged",
       "flying-boat-hull": "damaged",
@@ -2914,15 +2914,15 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "framePivots": [
           [
             0.5,
-            0.622549
+            0.509804
           ],
           [
             0.5,
-            0.622549
+            0.509804
           ],
           [
             0.504348,
-            0.622549
+            0.509804
           ]
         ],
         "id": "bow-gun",
@@ -3037,15 +3037,15 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "framePivots": [
           [
             0.5,
-            0.622549
+            0.509804
           ],
           [
             0.5,
-            0.622549
+            0.509804
           ],
           [
             0.504348,
-            0.622549
+            0.509804
           ]
         ],
         "id": "stern-gun",
@@ -3160,15 +3160,15 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "framePivots": [
           [
             0.5,
-            0.622549
+            0.509804
           ],
           [
             0.5,
-            0.622549
+            0.509804
           ],
           [
             0.504348,
-            0.622549
+            0.509804
           ]
         ],
         "id": "port-forward-gun",
@@ -3279,15 +3279,15 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "framePivots": [
           [
             0.5,
-            0.622549
+            0.509804
           ],
           [
             0.5,
-            0.622549
+            0.509804
           ],
           [
             0.504348,
-            0.622549
+            0.509804
           ]
         ],
         "id": "starboard-forward-gun",
@@ -3398,15 +3398,15 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "framePivots": [
           [
             0.5,
-            0.622549
+            0.509804
           ],
           [
             0.5,
-            0.622549
+            0.509804
           ],
           [
             0.504348,
-            0.622549
+            0.509804
           ]
         ],
         "id": "port-aft-gun",
@@ -3517,15 +3517,15 @@ export const CAPITAL_BOSS_ART=Object.freeze({
         "framePivots": [
           [
             0.5,
-            0.622549
+            0.509804
           ],
           [
             0.5,
-            0.622549
+            0.509804
           ],
           [
             0.504348,
-            0.622549
+            0.509804
           ]
         ],
         "id": "starboard-aft-gun",
@@ -3614,3 +3614,4 @@ export const CAPITAL_BOSS_ART=Object.freeze({
     ]
   }
 });
+

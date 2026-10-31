@@ -1,5 +1,5 @@
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {CAPITAL_BOSS_ART} from './capital-boss-art.js';
+import {CAPITAL_BOSS_ART} from './capital-boss-art.js?v=capital-defense-20261101';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -142,7 +142,7 @@ export class CapitalBoss extends BaseBoss{
   const targetX=p.x+(p.vx||0)*.85,targetY=p.y+(p.vy||0)*.85,step=this.specialCursor||0;this.specialCursor=step+1;
   if(this.kind==='final-kaiserkrone'){
    const doors=[...this.parts.values()].filter(q=>q.kind==='door'&&live(q));if(!doors.length)return this.lastStand(ctx);
-   doors.forEach(q=>q.hatchOpen=1);this.hatchUntil=(this.combatTime||0)+2.9;
+   doors.forEach(q=>q.hatchOpening=true);this.hatchUntil=(this.combatTime||0)+2.9;
    const mount=doors[step%doors.length],m=capitalPartPose(this,mount);
    const speed=Math.hypot(p.vx||0,p.vy||0),a=speed>10?Math.atan2(p.vy,p.vx):this.hullYaw-Math.PI/2,ux=Math.cos(a),uy=Math.sin(a);
    if(this.capitalPhase>=2&&step%3===2){
@@ -154,7 +154,7 @@ export class CapitalBoss extends BaseBoss{
     // A stationary pilot still sees a bombing line, never four bombs stacked
     // on one pixel. The alternate stick crosses the previous approach.
     const nx=step%2?-uy:ux,ny=step%2?ux:uy;
-    for(let i=0;i<4;i++)this.emit({type:'hazard',bossId:this.id,sourcePartId:mount.id,kind:'circle',x:targetX+nx*(i-1.5)*115,y:targetY+ny*(i-1.5)*115,sourceX:m.x,sourceY:m.y,airborneBomb:true,sprite:'puw',radius:58,warning:1.65,delay:i*.3,duration:.22,once:true,damage:this.t.damage*.85,visual:'carpet-bomb',tag:this.id+':bombs'});
+    for(let i=0;i<4;i++){const cross=this.capitalPhase>=2&&step%2?(i%2?105:-105):0;this.emit({type:'hazard',bossId:this.id,sourcePartId:mount.id,kind:'circle',x:targetX+nx*(i-1.5)*115-ny*cross,y:targetY+ny*(i-1.5)*115+nx*cross,sourceX:m.x,sourceY:m.y,airborneBomb:true,sprite:'puw',radius:58,warning:1.65,delay:i*.3,duration:.22,once:true,damage:this.t.damage*.85,visual:'carpet-bomb',tag:this.id+':bombs'});}
    }
   }else{
    const decks=[...this.parts.values()].some(q=>q.kind==='fighter'&&live(q));
@@ -177,16 +177,16 @@ export class CapitalBoss extends BaseBoss{
     }
    }else{
     const mount=(main.length?main:guns)[step%(main.length||guns.length)],a=this.hullYaw+mount.angle-Math.PI/2,ux=Math.cos(a),uy=Math.sin(a);
-    mount.aimHoldUntil=(this.combatTime||0)+2.5;mount.aimHoldAngle=a;
+    mount.aimHoldUntil=(this.combatTime||0)+2.6;mount.aimHoldAngle=a;
     const barrel=this.parts.get(mount.id+'-barrel'),offsets=main.includes(mount)?(source(this,barrel)?.barrelOffsets||[-10,10]):[0];
-    const q=capitalMuzzle(this,mount,a,offsets[0]);mount.recoil=.24;mount.gunFlash=.12;
-    this.emit({type:'muzzle',bossId:this.id,partId:mount.id,x:q.x,y:q.y});
+    const q=capitalMuzzle(this,mount,a,offsets[0]);
     this.emit({type:'charge-warning',bossId:this.id,partId:mount.id,x:q.x,y:q.y,targetX,targetY,seconds:1.6});
     // Main guns bracket range with three committed impacts. Alternating
     // barrels keep the source visible without doubling overlapping damage.
     for(let i=-1;i<=1;i++){
      const offset=offsets[(i+1)%offsets.length],m=capitalMuzzle(this,mount,a,offset);
-     this.emit({type:'hazard',bossId:this.id,sourcePartId:mount.id,sourceBarrelOffset:offset,kind:'circle',x:targetX+ux*i*145,y:targetY+uy*i*145,sourceX:m.x,sourceY:m.y,radius:70,warning:1.6,delay:(i+1)*.28,duration:.2,once:true,damage:this.t.damage*.9,visual:'black-flak',ordnanceFamily:'he',tag:this.id+':salvo'});
+     const shot=a+i*.1,speed=this.t.bulletSpeed*1.25;
+     this.emit({type:'hazard',bossId:this.id,sourcePartId:mount.id,sourceAngle:a,sourceBarrelOffset:offset,kind:'projectile',x:m.x,y:m.y,vx:Math.cos(shot)*speed,vy:Math.sin(shot)*speed,radius:9,warning:1.6,delay:(i+1)*.28,duration:3.2,damage:this.t.damage*.9,visual:'aa-shell',ordnanceFamily:'he',raidHeavy:true,tag:this.id+':salvo'});
     }
    }
   }
@@ -214,16 +214,24 @@ export class CapitalBoss extends BaseBoss{
   const now=this.motionTime||0,combatNow=this.combatTime||0;
   if(power>0){
    const airship=this.kind==='final-kaiserkrone',port=engines.filter(p=>/^port/.test(p.id)&&live(p)).length,starboard=engines.filter(p=>/^starboard/.test(p.id)&&live(p)).length;
-   const heading=Math.sin(now*(airship?.12:.18))*(airship?.23:.4)+(port-starboard)*.025;
-   this.hullYaw=turn(this.hullYaw,heading,dt*(airship?.045:.075)*power);
-   const speed=(airship?30:49)*power;
+   // Fly broad, continuous return passes around the engagement. The nose
+   // leads every displacement; damaged engines reduce turn and thrust together.
+   const target=this.targetFor(ctx),follow=1-Math.exp(-dt*.025);
+   if(target){this.anchorX+=(target.x-this.anchorX)*follow;this.anchorY+=(target.y-this.anchorY)*follow;}
+   const legs=[[0,-420],[620,0],[0,420],[-620,0]],leg=this.courseLeg||0;
+   let [ox,oy]=legs[leg],dx=this.anchorX+ox-this.x,dy=this.anchorY+oy-this.y;
+   if(Math.hypot(dx,dy)<170){this.courseLeg=(leg+1)%legs.length;[ox,oy]=legs[this.courseLeg];dx=this.anchorX+ox-this.x;dy=this.anchorY+oy-this.y;}
+   const heading=Math.atan2(dy,dx)+Math.PI/2+(port-starboard)*.025;
+   const error=Math.abs(wrap(heading-this.hullYaw));
+   this.hullYaw=turn(this.hullYaw,heading,dt*(airship?.12:.23)*power);
+   const speed=(airship?36:62)*power*(.68+.32*Math.max(0,Math.cos(error)));
    this.x+=Math.sin(this.hullYaw)*speed*dt;this.y-=Math.cos(this.hullYaw)*speed*dt;
   }
   const target=this.targetFor(ctx);
   for(const p of this.parts.values()){
    p.recoil=Math.max(0,p.recoil-dt);p.gunFlash=Math.max(0,(p.gunFlash||0)-dt);
    if(p.kind==='propeller'&&live(this.parts.get(p.parent))&&!p.disabled)p.propellerAngle+=dt*(source(this,p)?.speed||24);
-   if(p.kind==='door'&&combatNow>(this.hatchUntil||0))p.hatchOpen=Math.max(0,p.hatchOpen-dt*1.8);
+   if(p.kind==='door'){if(p.hatchOpening&&combatNow<=(this.hatchUntil||0))p.hatchOpen=Math.min(1,p.hatchOpen+dt*1.6);else if(combatNow>(this.hatchUntil||0)){p.hatchOpening=false;p.hatchOpen=Math.max(0,p.hatchOpen-dt*1.8);}}
    if(p.kind==='fighter')p.launchAge=Math.min(3,(p.launchAge??3)+dt);
    if(p.kind==='turret'&&live(p)&&combatNow<(p.aimHoldUntil||0)&&Number.isFinite(p.aimHoldAngle))p.angle=p.baseAim+clamp(wrap(p.aimHoldAngle+Math.PI/2-this.hullYaw-p.baseAim),p.arc[0],p.arc[1]);
    if(p.kind==='turret'&&live(p)&&combatNow>=(p.aimHoldUntil||0)&&target){const q=capitalPartPose(this,p),aim=wrap(Math.atan2(target.y-q.y,target.x-q.x)+Math.PI/2-this.hullYaw),relative=clamp(wrap(aim-p.baseAim),p.arc[0],p.arc[1]);p.angle=turn(p.angle,p.baseAim+relative,dt*(this.parts.get('command-cabin')?.hp<=0?.38:.75));}
@@ -244,3 +252,4 @@ export class CapitalBoss extends BaseBoss{
  }
 }
 export function createCapitalBoss(options,bossId){return new CapitalBoss(options,bossId);}
+

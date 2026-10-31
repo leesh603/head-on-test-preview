@@ -1,5 +1,5 @@
 import {drawRevisionDecoys} from './voss-decoy-fx.js';
-import {paintCapitalTerrain} from './capital-terrain.js';
+import {paintCapitalTerrain} from './capital-terrain.js?v=capital-defense-20261101';
 import {requestFortressAttack,damageFortressZone} from './fortress-systems.js';
 import {createFinalArenaMusic} from './final-arena-music.js';
 import {prepareFinalArenaAssets,serviceFinalArenaAssets,drawFinalArenaTerrain,drawFinalArenaBoss,drawFinalArenaHud,finalArenaVisible} from './final-arena-view.js';
@@ -32,7 +32,7 @@ import {bossCounterActive,bossCounterPhase} from './boss-feedback.js?v=gal1&hint
 import {KEYBIND_DEFAULTS,BIND_ACTIONS,keybindConflict,restoreKeybinds} from './keybind-policy.js?v=flow20261015';
 import {updateAllyRing,hideAllyRing} from './ally-ring.js?v=gal1';
 import {hangarArt,hangarArtSource,hangarKeyFile} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
-import {bossCutinSource} from './boss-cutin-art.js?v=livingww1d&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022&opt=1';
+import {bossCutinSource} from './boss-cutin-art.js?v=capital-defense-20261101';
 import {applySeaColor} from './sea-colors.js?v=tame3';
 import {drawGroundEnemy} from './ground-enemy-art.js?v=tame3&perf=1029';
 import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
@@ -91,7 +91,7 @@ import {drawHeadOnFeedback} from './engagement-feedback.js?v=tame3';
 import {drawTacticalCombatCue} from './tactical-combat-view.js?v=combat20261024&td4=20261026';
 import {drawTailEngagement,ENGAGEMENT_TONES} from './engagement-hud410.js?v=tame3';
 import {portraitSources,portraitThumbnailSource,portraitsReady,portraitLoaded,ensurePortrait,ensurePortraitThumb,portraitOriginalSources} from './portraits.js?v=crew20261024&opt=1';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=bomb19&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=capital-defense-20261101';
 import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN,bossArrivalCues} from './boss-feedback.js?v=gal1&hints=1&rail=42&ai=1018&sig=1019';
 import {drawWWIEquipment} from './wwi-equipment-art.js?perf=1029';
 import {WWI_BALANCE} from './wwi-equipment.js';
@@ -2084,7 +2084,7 @@ function installHeadOnTestLab(){
  const testHost=globalThis.location?.hostname||'';if(!HEADON_TEST_ALLOWED_HOSTS.has(testHost))return;
  const configureRegion=(run,region)=>{
   const addon=enableStageBoss(run,{teamFaction:run.mode==='coop2'?run.teamFaction:PLANES[run.plane].faction,heavyHp:run.mode==='coop2'?COOP_BALANCE.heavyHp:1});if(!addon)return null;
-  addon.stages.stageIndex=region;addon.stages.orderPosition=addon.stages.order.indexOf(region);addon.stages.phase='explore';addon.stages.encounter=null;
+  addon.stages.stageIndex=region;addon.stages.orderPosition=addon.stages.order.indexOf(region);addon.stages.phase='explore';addon.stages.encounter=null;addon.stages.capitalRound=0;
   run.jutlandRoute=region===16?createJutlandRoute(run):null;prepareJutlandAssets(region);run.gallipoliRoute=region===14?createGallipoliRoute(run):null;prepareGallipoliAssets(region);run.region=region;run.maanStartX=run.x;prepareMaanAssets(region);run.stageStartDistance=run.distance||0;run.stageStartTime=run.t;run.clearRegionalHazards();
   run.bossBuildings=[];run.bossCues=[];run.navalRouteCues=new Set();run.navalApproachAt=null;run.parisBattle=null;
   run.navalRoute=region===7?{x:run.x,y:run.y,a:Number.isFinite(run.a)?run.a:-Math.PI/2,maxForward:0,bankAt:harborBankOffset}:null;
@@ -2415,6 +2415,7 @@ const eventsBeforeAircraftCritical=events;
 events=()=>{eventsBeforeAircraftCritical();showAircraftCriticalNotice();};
 const coopEventsBeforeAircraftCritical=coopEvents;
 coopEvents=()=>{coopEventsBeforeAircraftCritical();showAircraftCriticalNotice();};
+
 
 
 

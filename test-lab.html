@@ -28,8 +28,8 @@ body.recording header{display:none}body.recording main{padding:0;overflow:visibl
 <div class="controls">
 <label>맵<select id="region">
 <option value="0">전원 지대</option><option value="1">아드리아해</option><option value="2">참호 전선</option>
-<option value="3">포화의 참호전선</option><option value="4">도심</option><option value="5">고공 전역</option><option value="6">알프스 산맥</option><option value="7">제브뤼헤 군항</option><option value="8">캉브레 들판</option><option value="9">아라스 상공</option><option value="10">솜 강전선</option><option value="11">런던 대공습</option><option value="12">베르됭</option><option value="13">마안 전투</option><option value="14">갈리폴리 전선</option><option value="15">1918 파리 야간공습 / Paris Night Air Raid</option><option value="16">유틀란트 해전 / Jutland Fleet Battle</option><option value="17">도버 해협 · 해상 야간 차단선 / Dover Strait</option><option value="18">베를린 방어선 / Berlin Defense Line</option>
-<optgroup label="최종 결전"><option value="capital-11">런던 수도 결전 · 리바이어던 최종형 (동맹국 파일럿)</option><option value="capital-18">베를린 수도 결전 · 카이저크로네 (협상국 파일럿)</option><option value="final">최종맵 · 제로 디스트릭트</option></optgroup>
+<option value="3">포화의 참호전선</option><option value="4">도심</option><option value="5">고공 전역</option><option value="6">알프스 산맥</option><option value="7">제브뤼헤 군항</option><option value="8">캉브레 들판</option><option value="9">아라스 상공</option><option value="10">솜 강전선</option><option id="capitalOption" value="11">수도방위전 · 런던 대공습</option><option value="12">베르됭</option><option value="13">마안 전투</option><option value="14">갈리폴리 전선</option><option value="15">1918 파리 야간공습 / Paris Night Air Raid</option><option value="16">유틀란트 해전 / Jutland Fleet Battle</option><option value="17">도버 해협 · 해상 야간 차단선 / Dover Strait</option>
+<option value="final">판더모니엄 · 제로 디스트릭트</option>
 </select></label>
 <div id="maanQa" hidden><label class="check"><input id="maanOrbit" type="checkbox">보스 주변 순회</label><label class="check"><input id="maanFire" type="checkbox" checked>자동 사격</label><select id="maanPart" aria-label="마안 검사 부위"></select><button id="maanHalf" type="button">손상탄</button><button id="maanBreak" type="button">파괴탄</button><button id="maanFinal" type="button">후반 페이즈</button><span id="maanState"></span></div>
 <label>파일럿<select id="pilot"><option>게임 로딩 중…</option></select></label>
@@ -37,6 +37,7 @@ body.recording header{display:none}body.recording main{padding:0;overflow:visibl
 <label>P2 파일럿<select id="pilot2"><option>게임 로딩 중…</option></select></label>
 <label>에이스<select id="ace"><option value="">등장 안 함</option></select></label>
 <label class="check"><input id="boss" type="checkbox">보스 즉시</label>
+<label id="capitalPhaseLabel" hidden>수도 교전<select id="capitalPhase"><option value="0">방공망 → 수도 보스</option><option value="1">수도 보스부터</option></select></label>
 <label class="check"><input id="invincible" type="checkbox" checked>무적</label>
 <label class="check"><input id="qaTools" type="checkbox">QA 도구</label>
 <label>전투 장면<select id="combatScene"><option value="">일반 전투</option><option value="HEAD_ON_PASS">HEAD-ON</option><option value="CROSS_ATTACK">CROSS ATTACK</option><option value="PINCER">협공</option><option value="CHASE">CHASE</option><option value="ESCORT">폭격기 호위</option><option value="BOMBER_RUN">BOMBER RUN</option><option value="DECOY">유인 함정</option><option value="LUFBERY_CIRCLE">루프베리 서클</option><option value="VETERAN_FORMATION">베테랑 편대</option><option value="BAIT">미끼·측면 기습</option></select></label>
@@ -99,14 +100,15 @@ const presets=new URLSearchParams(location.search);
 for(const id of ['region','viewport'])if([...$(id).options].some(o=>o.value===presets.get(id)))$(id).value=presets.get(id);
 for(const id of ['boss','freeze','noFire'])if(presets.has(id))$(id).checked=presets.get(id)==='1';
 function query(){
- const sel=$('region').value,cap=/^capital-(\d+)$/.exec(sel);
+ const sel=$('region').value,cap=['11','18'].includes(sel)&&$('capitalPhase').value==='1'?[null,sel]:null;
  const p=new URLSearchParams({headonTest:'1',region:cap?cap[1]:sel==='final'?'0':sel,pilot:$('pilot').value,invincible:$('invincible').checked?'1':'0'});
  if(cap)p.set('capital','1');if(sel==='final')p.set('final','1');
  if($('boss').checked)p.set('boss','1');if($('ace').value)p.set('ace',$('ace').value);if($('fxs').checked)p.set('fxs','1');if($('coop').checked)p.set('coop',$('pilot2').value);return p;
 }
-function refreshOpen(){ $('open').href='./index.html?'+query().toString();$('fortStep').style.display=$('region').value==='12'?'':'none'; }
+function refreshOpen(){ $('capitalPhaseLabel').hidden=!['11','18'].includes($('region').value);$('open').href='./index.html?'+query().toString();$('fortStep').style.display=$('region').value==='12'?'':'none'; }
 function refreshAce(){
  const selected=api?.catalog?.pilots?.find(p=>p.id===$('pilot').value),old=$('ace').value,oldP2=$('pilot2').value;
+ const capitalSelected=['11','18'].includes($('region').value),berlin=selected?.faction==='entente';$('capitalOption').value=berlin?'18':'11';$('capitalOption').textContent='수도방위전 · '+(berlin?'베를린 방어선':'런던 대공습');if(capitalSelected)$('region').value=$('capitalOption').value;
  $('ace').replaceChildren(new Option('등장 안 함',''),new Option('랜덤 적 에이스','random'));
  $('pilot2').replaceChildren();
  for(const p of api?.catalog?.pilots||[]){if(!selected||p.faction!==selected.faction)$('ace').append(new Option(p.name,p.id));if(selected&&p.faction===selected.faction)$('pilot2').append(new Option(p.name,p.id))}
@@ -125,7 +127,7 @@ async function connect(){
  // The bridge exists before the game finishes booting; a start before the hangar is shown was
  // silently ignored (the first click did nothing). Wait for the hangar, then run a queued start.
  labReady=false;for(let i=0;i<1200&&!frame.contentWindow?.document?.body?.classList.contains('hangar-shown');i++){if(i%40===0)$('status').textContent='게임 준비 중…';await new Promise(r=>setTimeout(r,50))}
- {const sel=$('region'),keep=sel.value,fixed=new Set([...sel.querySelectorAll('option')].map(o=>o.value));for(const r of api.catalog.regions||[])if(!fixed.has(String(r.id))){const o=new Option(r.name,String(r.id));const group=sel.querySelector('optgroup');group?sel.insertBefore(o,group):sel.append(o);}sel.value=keep;}
+ {const sel=$('region'),keep=sel.value,fixed=new Set([...sel.querySelectorAll('option')].map(o=>o.value));for(const r of api.catalog.regions||[])if(![11,18].includes(Number(r.id))&&!fixed.has(String(r.id))){const o=new Option(r.name,String(r.id));const group=sel.querySelector('optgroup');group?sel.insertBefore(o,group):sel.append(o);}sel.value=keep;}
  const old=$('pilot').value;$('pilot').replaceChildren();
  for(const p of api.catalog.pilots)$('pilot').append(new Option(p.name+' · '+(p.faction==='central'?'동맹국':'협상국'),p.id));
  $('pilot').value=[...$('pilot').options].some(o=>o.value===old)?old:[...$('pilot').options].some(o=>o.value===presets.get('pilot'))?presets.get('pilot'):'baron';refreshAce();labReady=true;$('status').textContent='준비 완료';if(pendingStart){pendingStart=false;$('start').click();return}if(presets.get('diorama')==='1')$('trenchDemo').click();
@@ -134,7 +136,7 @@ frame.addEventListener('load',connect);
 let labReady=false,pendingStart=false;
 $('start').onclick=()=>{
  if(!api||!labReady){pendingStart=true;$('status').textContent='게임 준비 중… 준비되면 바로 시작합니다';return}$('status').textContent='시작 중…';
- const sel=$('region').value,cap=/^capital-(\d+)$/.exec(sel);
+ const sel=$('region').value,cap=['11','18'].includes(sel)&&$('capitalPhase').value==='1'?[null,sel]:null;
  if(cap){const want=cap[1]==='11'?'central':'entente',cur=api.catalog.pilots.find(p=>p.id===$('pilot').value);if(cur?.faction!==want){const alt=api.catalog.pilots.find(p=>p.faction===want);if(alt){$('pilot').value=alt.id;refreshAce();}}}
  if(sel==='final'){const r=api.startFinalArena({coop:$('coop').checked,pilot:$('pilot').value});$('status').textContent=r?'실행 · 최종맵 · '+r.plane:'시작 실패';$('patternStep').disabled=!r;refreshOpen();return;}
  const result=api.start({region:cap?Number(cap[1]):Number($('region').value),capital:!!cap,boss:!!cap||$('boss').checked,pilot:$('pilot').value,ace:$('ace').value,invincible:$('invincible').checked,orbit:$('maanOrbit').checked,fire:$('maanFire').checked,coop:$('coop').checked?$('pilot2').value:''});
@@ -364,12 +366,13 @@ $('maanBreak').onclick=()=>api?.maanProbe?.($('maanPart').value);
 $('maanFinal').onclick=()=>api?.maanProbe?.('hull');
 setInterval(()=>{const q=api?.maanInspect?.();$('maanQa').hidden=!q||!$('qaTools').checked;if(!q)return;const old=$('maanPart').value;$('maanPart').replaceChildren(...q.parts.map(p=>new Option(p.id+(p.destroyed?' · 파괴됨':' · '+Math.round(p.hp/p.maxHp*100)+'%'),p.id)));if(q.parts.some(p=>p.id===old))$('maanPart').value=old;$('maanState').textContent=q.phase+' · 진입 '+q.entry.toFixed(1)+'s · 파괴 '+q.parts.filter(p=>p.destroyed).length+'/'+q.parts.length+' · 호위 '+q.cars;},400);
 $('reload').onclick=()=>{api=null;$('status').textContent='새로고침 중…';frame.src='./index.html?headonTest=1&autostart=0&t='+Date.now()};
-$('pilot').onchange=refreshAce;$('region').onchange=refreshOpen;$('ace').onchange=refreshOpen;$('boss').onchange=refreshOpen;$('invincible').onchange=refreshOpen;$('viewport').onchange=applyViewport;$('coop').onchange=()=>{$('pilot2').disabled=!$('coop').checked;refreshOpen()};$('pilot2').onchange=refreshOpen;
+$('capitalPhase').onchange=refreshOpen;$('pilot').onchange=refreshAce;$('region').onchange=refreshOpen;$('ace').onchange=refreshOpen;$('boss').onchange=refreshOpen;$('invincible').onchange=refreshOpen;$('viewport').onchange=applyViewport;$('coop').onchange=()=>{$('pilot2').disabled=!$('coop').checked;refreshOpen()};$('pilot2').onchange=refreshOpen;
 $('fxs').onchange=()=>{refreshOpen();api=null;$('status').textContent='FX 시안 적용 중…';frame.src='./index.html?'+query().toString()+'&autostart=0&t='+Date.now()};
 applyViewport();if(new URLSearchParams(location.search).get('fxs')==='1'){$('fxs').checked=true;$('fxs').onchange()}refreshOpen();
 $('build').textContent='live-v'+(new URL(frame.src,location.href).searchParams.get('v')||'?');
 </script>
 </body>
 </html>
+
 
 

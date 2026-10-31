@@ -7,7 +7,7 @@ import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=pandemoniu
 import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=pandemonium394r2&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&harbor=20261021';
 import {recordShipWake} from './naval-water.js?v=pandemonium394r2&perf=1029';
 import {predictPilot} from './headon-stageboss-core.js?v=pandemonium394r2&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=pandemonium394r2&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=capital-defense-20261101';
 import {verdunFortCollapseSites} from './verdun-fortresses.js?v=pandemonium394r2&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {BossHazards} from './headon-stageboss-hazards.js?v=pandemonium394r2&cambrai=20261021&cityart=20261022';
 
@@ -40,7 +40,7 @@ export class BossStages {
   get stage(){return STAGES[this.stageIndex];}
   get capitalBossId(){return this.stage==='berlin'?'final-kaiserkrone':this.stage==='london'?'final-leviathan':null;}
   get capitalEncounter(){return !!(this.finalArena.enabled&&BOSS_CATALOG[this.capitalBossId]?.capitalFinal&&BOSS_CATALOG[this.capitalBossId].faction!==this.teamFaction);}
-  get bossId(){if(this.capitalEncounter&&this.capitalRound===1)return this.capitalBossId;return Object.keys(BOSS_CATALOG).find(id=>!BOSS_CATALOG[id].capitalFinal&&BOSS_CATALOG[id].stage===this.stageIndex&&(BOSS_CATALOG[id].faction==='neutral'||BOSS_CATALOG[id].faction!==this.teamFaction));}
+  get bossId(){if(this.capitalEncounter)return this.capitalRound===1?this.capitalBossId:this.stage==='london'?'london-apron-raid':'berlin-drachen';return Object.keys(BOSS_CATALOG).find(id=>!BOSS_CATALOG[id].capitalFinal&&BOSS_CATALOG[id].stage===this.stageIndex&&(BOSS_CATALOG[id].faction==='neutral'||BOSS_CATALOG[id].faction!==this.teamFaction));}
   attach(encounter) {
     if(this.phase!=='explore')return false;
     if(encounter.bossId!==this.bossId)throw new Error('Wrong stage/faction boss');
@@ -389,6 +389,7 @@ export class StageBossAddon {
     this.defeatSequence=null;this.bodyDefeats=[];
   }
 }
+
 
 
 

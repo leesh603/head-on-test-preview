@@ -1,5 +1,5 @@
 import {activeBossEntry,clipBossEntry,drawBossEntryWorld,drawBossEntryTitle} from './boss-entry-presentation.js';
-import {prepareCapitalTerrain} from './capital-terrain.js';
+import {prepareCapitalTerrain} from './capital-terrain.js?v=capital-defense-20261101';
 import {prepareO400Art,drawO400} from './o400-art.js?v=natural-flight20261031';
 import {prepareCapitalBossAssets,drawCapitalBoss,isCapitalBoss,capitalBossExtents} from './capital-boss-view.js';
 import {prepareNavalWater} from './naval-water.js?v=tame3&perf=1029';
@@ -16,7 +16,7 @@ import {groundShellProfile} from './explosion-profiles.js?v=fx5';
 import {prepareSkyAirshipArt,releaseSkyAirshipArt,drawSkyAirship,skyAirshipReady} from './sky-airship-art.js?v=skymechanics20261022&motion=20261022';
 import {minenMuzzleLocal} from './minenwerfer-art-layout.js';
 import {drawMinenInstallation} from './minenwerfer-art-render.js?v=gal1-r4&trenchart=20261022';
-import {prepareBossCutins} from './boss-cutin-art.js?v=livingww1d&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022&opt=1';
+import {prepareBossCutins} from './boss-cutin-art.js?v=capital-defense-20261101';
 import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide,prepareFleetShipArt} from './jutland-view.js';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=regionalair2&ai=1018&boss=20261020b&maanart=20261022';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=gal1-r10&ai=1018&sig=1019&boss=20261020b&phase=1021&gunart=20261023';
@@ -940,5 +940,6 @@ export function paintCity(c,cx,cy,W,H,city='london'){
   c.strokeStyle='#f2dda13d';c.lineWidth=1;c.beginPath();c.moveTo(ox,oy);c.lineTo(tx,ty);c.stroke();c.fillStyle='#413e35';c.fillRect(ox-12,H-18,24,18);c.fillStyle='#d9c883';c.fillRect(ox-5,H-22,10,5);}
  c.restore();
 }
+
 
 
