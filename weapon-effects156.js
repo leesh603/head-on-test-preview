@@ -74,6 +74,12 @@ export function drawFxExplosion(c,f,x,y,radius=0){
  if(f.fxHidden)return true;
  if(f.fxProfile==='cannonMuzzle'){drawArtilleryMuzzle(c,fx,x,y,f.direction,combatFxAge(f),{heavy:f.heavy,scale:f.muzzleScale,smokeOnly:true});return true;}
  const drawn=drawFxExplosionBase(c,f,x,y,radius);
+ // The cannon flipbooks can return before the generic flame pass. Keep their
+ // authored impact, then layer the existing painted ignition and flame over it.
+ if(f.fxSource==='cow'||f.fxSource==='moteur'){
+  const q=Math.max(0,Math.min(.999,combatFxAge(f)/f.maxLife)),d=Math.min(190,Math.max(80,(radius||f.radius||38)*2.7));
+  blastFlame(c,x,y,d,q);
+ }
  if(drawn)drawWeaponImpactTexture(c,f,x,y);
  drawOrdnanceCharge(c,f,x,y);
  return drawn;

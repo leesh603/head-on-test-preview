@@ -1,7 +1,7 @@
 import {DOVER_COAST_PROFILE} from './dover-terrain-profile.js?v=dover3';
-import {DOVER_MAP} from './dover-patrol-chart.js?v=dover3';
+import {DOVER_MAP,doverProfileRow} from './dover-patrol-chart.js?v=dover3';
 
-// The finite coastline is geometry; the native-resolution art is its material.
+// The continuous coastline is geometry; the native-resolution art is its material.
 // Never stretch a complete 1024px landscape across a 6144px battlefield.
 const N=DOVER_COAST_PROFILE.length,STEP=DOVER_MAP.height/(N-1),CLEARANCE=DOVER_MAP.coastInset;
 const SHORE_WIDTH=[640,560],shore=[];
@@ -10,6 +10,10 @@ for(let side=0;side<2;side++){
  for(let i=0;i<N;i++){
   const a=Math.max(0,i-1),b=Math.min(N-1,i+1),dx=x[b]-x[a],dy=(b-a)*STEP,len=Math.hypot(dx,dy);
   nx[i]=dy/len*(side?-1:1);ny[i]=-dx/len*(side?-1:1);
+ }
+ // Mirrored coast sections share a vertical tangent at the join.
+ for(let i=0;i<N;i++){
+  ny[i]*=Math.min(1,i/8,(N-1-i)/8);nx[i]=(side?-1:1)*Math.sqrt(1-ny[i]*ny[i]);
  }
  // Sample enough authored pixels for the longer edge of every curved quad.
  // Outer headland corners must never magnify or smear the cliff material.
@@ -22,14 +26,19 @@ for(let side=0;side<2;side++){
 }
 
 export function doverCoastPoint(chart,v,side){
- const q=shore[side>0?1:0],p=Math.max(0,Math.min(N-1,v*(N-1))),i=Math.min(N-2,Math.floor(p)),t=p-i;
+ const q=shore[side>0?1:0],p=doverProfileRow(v*(N-1)),i=Math.min(N-2,Math.floor(p)),t=p-i;
  return {x:chart.left+q.x[i]+(q.x[i+1]-q.x[i])*t,y:chart.top+v*chart.height};
 }
+function shoreDistance(q,i){
+ const section=Math.floor(i/(N-1)),row=doverProfileRow(i),length=q.arc[N-1];
+ return section*length+(section%2?length-q.arc[row]:q.arc[row]);
+}
+const shoreDirection=i=>Math.floor(i/(N-1))%2?-1:1;
 
 function landPath(c,chart,left,top,w,h,side,first,last){
  const q=shore[side],edge=side?w:0;
  c.moveTo(edge,0);c.lineTo(doverCoastPoint(chart,(top-chart.top)/chart.height,side?1:-1).x-left,0);
- for(let i=first;i<=last;i++)c.lineTo(chart.left+q.x[i]-left,chart.top+i*STEP-top);
+ for(let i=first;i<=last;i++)c.lineTo(chart.left+q.x[doverProfileRow(i)]-left,chart.top+i*STEP-top);
  c.lineTo(doverCoastPoint(chart,(top+h-chart.top)/chart.height,side?1:-1).x-left,h);c.lineTo(edge,h);c.closePath();
 }
 
@@ -63,13 +72,14 @@ function paintShore(c,im,chart,left,top,w,h,side,first,last){
  // A tilted shore extends well beyond its centre row. Cull the complete
  // quad, otherwise scrolling removes still-visible cliff triangles.
  const padding=Math.ceil(half/STEP)+2;
- for(let i=Math.max(0,first-padding);i<Math.min(N-1,last+padding);i++){
-  if(Math.max(q.x[i],q.x[i+1])+half<left-chart.left||Math.min(q.x[i],q.x[i+1])-half>left+w-chart.left)continue;
-  const x0=chart.left+q.x[i]-left,y0=chart.top+i*STEP-top,x1=chart.left+q.x[i+1]-left,y1=y0+STEP;
-  let ax=x0-q.nx[i]*half,ay=y0-q.ny[i]*half,bx=x0+q.nx[i]*half,by=y0+q.ny[i]*half;
-  const cx=x1-q.nx[i+1]*half,cy=y1-q.ny[i+1]*half,dx=x1+q.nx[i+1]*half,dy=y1+q.ny[i+1]*half;
+ for(let i=first-padding;i<last+padding;i++){
+  const r0=doverProfileRow(i),r1=doverProfileRow(i+1),ny0=q.ny[r0]*shoreDirection(i),ny1=q.ny[r1]*shoreDirection(i+1);
+  if(Math.max(q.x[r0],q.x[r1])+half<left-chart.left||Math.min(q.x[r0],q.x[r1])-half>left+w-chart.left)continue;
+  const x0=chart.left+q.x[r0]-left,y0=chart.top+i*STEP-top,x1=chart.left+q.x[r1]-left,y1=y0+STEP;
+  let ax=x0-q.nx[r0]*half,ay=y0-ny0*half,bx=x0+q.nx[r0]*half,by=y0+ny0*half;
+  const cx=x1-q.nx[r1]*half,cy=y1-ny1*half,dx=x1+q.nx[r1]*half,dy=y1+ny1*half;
   if(Math.max(ay,by,cy,dy)<-2||Math.min(ay,by,cy,dy)>h+2)continue;
-  let at=q.arc[i]*density+phase,remaining=(q.arc[i+1]-q.arc[i])*density;
+  let at=shoreDistance(q,i)*density+phase,remaining=(shoreDistance(q,i+1)-shoreDistance(q,i))*density;
   while(remaining>.001){
    const period=Math.floor((at+1e-7)/im.naturalHeight),sy=Math.max(0,at-period*im.naturalHeight),flip=period%2!==0;
    const sh=Math.min(remaining,im.naturalHeight-sy),t=sh/remaining;
@@ -90,12 +100,12 @@ function paintSurface(c,image,left,top,w,h,base){
 }
 
 export function paintDoverTerrain(c,chart,cx,cy,w,h,coast,renderer,surfaces={}){
- const left=cx-w/2,top=cy-h/2,first=Math.max(0,Math.ceil((top-chart.top)/STEP)),last=Math.min(N-1,Math.floor((top+h-chart.top)/STEP));
+ const left=cx-w/2,top=cy-h/2,first=Math.ceil((top-chart.top)/STEP),last=Math.floor((top+h-chart.top)/STEP);
  c.save();c.beginPath();c.rect(0,0,w,h);c.clip();c.imageSmoothingEnabled=true;
  if(surfaces.sea)paintSurface(c,surfaces.sea,left,top,w,h,'#263e4b');
  else renderer.draw(c,{key:'sea',camera:{x:left,y:top},width:w,height:h});
  let west=false,east=false;
- for(let i=Math.max(0,first-1);i<=Math.min(N-1,last+1);i++){west||=chart.left+shore[0].x[i]>left;east||=chart.left+shore[1].x[i]<left+w;}
+ for(let i=first-1;i<=last+1;i++){const row=doverProfileRow(i);west||=chart.left+shore[0].x[row]>left;east||=chart.left+shore[1].x[row]<left+w;}
  if(west||east){
   c.save();c.beginPath();if(west)landPath(c,chart,left,top,w,h,0,first,last);if(east)landPath(c,chart,left,top,w,h,1,first,last);c.clip();
   // Dover's chalk downland belongs to this coast; never expose inland farms

@@ -6,7 +6,7 @@ import {fx} from './fx-art.js?v=tame3';
 import {drawBossOrdnance} from './boss-ordnance-art.js?v=tame3&ai=1018';
 import {bombArcPose} from './bomb-sprites.js?v=bomb20&perf=1029';
 import {drawDressingSprite} from './background-dressing.js?v=mobileperf1';
-import {doverPatrolChart} from './dover-patrol-chart.js?v=dover3';
+import {doverPatrolChart,doverCliffRoute} from './dover-patrol-chart.js?v=dover3';
 import {impactMark,aimLine,laneEdge,sectorMark,partMark,shieldMark} from './tactical-marks.js?v=tame3';
 
 export const DOVER_ASSETS=Object.freeze({terrain:'terrain-dover-chalk-material-v6.webp',nighthawk:'asset-bank/outlined/native/boss-dover-nighthawk.webp',nighthawkWreck:'asset-bank/outlined/native/boss-dover-nighthawk-wreck.webp',rviii:'asset-bank/outlined/native/boss-dover-rviii.webp',rviiiWreck:'asset-bank/outlined/native/boss-dover-rviii-wreck.webp',rotor:'propeller-dover.webp',land:'terrain-dover-downland-20261030.webp',sea:'jutland-sea.webp'});
@@ -25,9 +25,21 @@ export function prepareDoverAssets(region){
 export function paintDover(c,g,cx,cy,w,h,renderer){
  const chart=doverPatrolChart(g),left=cx-w/2,top=cy-h/2;
  paintDoverTerrain(c,chart,cx,cy,w,h,images.get('terrain'),renderer,{land:images.get('land'),sea:images.get('sea')});c.save();
+ // The same quiet cyan chevrons as the harbor approach, on the real coast course.
+ // Keep them visible during the boss fight as the channel continues north.
+ const lead=doverCliffRoute(chart,g.y,330,180);
+ for(let i=0;i<4;i++){
+  const near=doverCliffRoute(chart,g.y,330,50+i*130),far=doverCliffRoute(chart,g.y,330,180+i*130);
+  aimLine(c,near.x-left,near.y-top,far.x-left,far.y-top,{tone:'safe',alpha:.58-i*.1,dash:[5,12]});
+ }
+ const tx=lead.x-left,ty=lead.y-top,edge=28;
+ if(tx<edge||tx>w-edge||ty<edge||ty>h-edge){
+  const dx=tx-w/2,dy=ty-h/2,scale=Math.min((w/2-edge)/Math.max(1,Math.abs(dx)),(h/2-edge)/Math.max(1,Math.abs(dy))),x=w/2+dx*scale,y=h/2+dy*scale,angle=Math.atan2(dy,dx);
+  aimLine(c,x-Math.cos(angle)*28,y-Math.sin(angle)*28,x,y,{tone:'safe',alpha:.85,dash:[]});
+ }
  // Small, fixed cliff batteries belong to the coast, never to scrolling tile rows.
- for(const [v,side] of [[.16,-1],[.37,-1],[.61,-1],[.28,1],[.53,1],[.77,1]]){
-  const point=doverCoastPoint(chart,v,side),gy=point.y,gx=point.x+side*110;
+ for(let section=Math.floor((top-chart.top-160)/chart.height);section<=Math.floor((top+h-chart.top+160)/chart.height);section++)for(const [v,side] of [[.16,-1],[.37,-1],[.61,-1],[.28,1],[.53,1],[.77,1]]){
+  const point=doverCoastPoint(chart,section+v,side),gy=point.y,gx=point.x+side*110;
   const x=gx-left,y=gy-top;if(x< -160||x>w+160||y< -160||y>h+160)continue;
   drawDressingSprite(c,'coastalGun',x,y,56,side<0?0:Math.PI,.7);
   const a=side<0?.12+Math.sin((g?.t||0)*.18+v*8)*.35:Math.PI-.12-Math.sin((g?.t||0)*.18+v*8)*.35;

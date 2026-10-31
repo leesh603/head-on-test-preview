@@ -497,7 +497,7 @@ export const LEGENDARIES=[
  {id:'sparkPlug',name:'맥커든의 비상수선키트',desc:'10초마다 최대 내구도의 20%를 회복합니다. 한 출격 1회.'},
  {id:'goeringBaton',name:'전투비행대 총동원령',desc:'상시 윙맨 +3, 윙맨 피해 +25%. 한 출격 1회.'},
  {id:'immelmannManual',name:'임멜만의 기동전술 교본',desc:'선회기동 재사용 대기시간 −50%, 기동 무적 1.05초. 한 출격 1회.'},
- {id:'motorCannon',name:'기네메르의 37mm 모퇴르 카농',desc:'3초마다 전방으로 피해 240의 거대한 37mm 관통탄을 발사합니다. 한 출격 1회.'},
+ {id:'motorCannon',name:'기네메르의 37mm 모퇴르 카농',desc:'3초마다 전방으로 피해 240의 37mm 포탄을 발사합니다. 명중 시 주변에 50% 화염 폭발 피해. 관통하지 않습니다. 한 출격 1회.'},
  {id:'loEmblem',name:'LO! 페인팅 엠블럼',desc:'최대 내구도 −50%, 기관총·폭발물·편대 피해 +50%, 편대 연사 +30%, 이동 속도·선회력 +25%. 한 출격 1회.'},
  {id:'sacredCowling',name:'황제의 얼굴 카울링',desc:'근거리 적에게 주는 피해 +25%. 적이 가까울수록 받는 탄환 피해가 최대 20% 감소합니다. 한 출격 1회.'},
  {id:'urLeica',name:'Ur-Leica 소형 카메라',desc:'전과를 사진으로 기록합니다. 게임 종료 시 최종 격추 기록 +10% (소수점 버림). 한 출격 1회.'}
@@ -1123,7 +1123,7 @@ Game.prototype._updLegendary=function(dt,input={}){
   if(this.motorCannonTimer<=0){
    this.motorCannonTimer+=this.ordnanceInterval(LEGENDARY_BALANCE.motorCannonInterval);
    const a=this.a,speed=460;
-   this.bullets.push({x:this.x+Math.cos(a)*(this.bomberTransfer?.front??38),y:this.y+Math.sin(a)*(this.bomberTransfer?.front??38),vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:this.longRange?this.shotLifetime(speed):2.8,enemy:false,ownerId:this.id,motorCannon:true,pierce:true,collisionRadius:22,damage:this.payloadPower(LEGENDARY_BALANCE.motorCannonDamage),hit:new Set()});
+   this.bullets.push({x:this.x+Math.cos(a)*(this.bomberTransfer?.front??38),y:this.y+Math.sin(a)*(this.bomberTransfer?.front??38),vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:this.longRange?this.shotLifetime(speed):2.8,enemy:false,ownerId:this.id,motorCannon:true,pierce:false,collisionRadius:22,damage:this.payloadPower(LEGENDARY_BALANCE.motorCannonDamage),hit:new Set()});
    this.muzzleFlash=.18;this.shake=Math.max(this.shake,7);this.burst(this.x+Math.cos(a)*34,this.y+Math.sin(a)*34,'#fff0b0',18);this.cannonMuzzleSmoke('motor');this.event('shot','');
   }
  }
@@ -1159,7 +1159,12 @@ Game.prototype.specialRoundImpact=function(b,e){
   world.combatFX??=[];if(world.combatFX.length<160){const medium=!!(b.cow37||b.motorCannon||b.heavy);world.combatFX.push({x:b.x??e.x,y:b.y??e.y,radius:medium?26:11,life:medium?.42:.24,maxLife:medium?.42:.24,fxSource:medium?'navalMedium':'navalMG',fxOnly:true})}
  }
  if(b.upgradeRocket&&!b.rocketDetonated){b.rocketDetonated=true;this.queueExplosionDamage(b.x,b.y,b.explosionBaseRadius??84,b.damage*.5*(b.ordnanceProfile?.splash??1),{exclude:e,fxSource:'lePrieur'});const effect=world.combatFX?.at(-1);if(effect?.fxSource==='lePrieur')effect.direction=Math.atan2(b.vy||0,b.vx||0);}
- if(b.cow37||b.motorCannon){world.combatBlast?.(b.x??e.x,b.y??e.y,b.cow37?38:30,'friendly','cannon');const effect=world.combatFX?.at(-1);if(effect){effect.fxSource=b.cow37?'cow':'moteur';effect.direction=Math.atan2(b.vy||0,b.vx||0)}}
+ // Heavy shells stop on the first contact; the queued blast reaches nearby targets once.
+ if((b.cow37||b.motorCannon)&&!b.cannonDetonated){
+  b.cannonDetonated=true;b.pierce=false;b.life=0;
+  this.queueExplosionDamage(b.x??e.x,b.y??e.y,b.cow37?76:64,b.damage*.5,{exclude:e,fxSource:b.cow37?'cow':'moteur'});
+  const effect=world.combatFX?.at(-1);if(effect){effect.kind='cannon';effect.direction=Math.atan2(b.vy||0,b.vx||0)}
+ }
  // Salvo rockets retain their direct damage; only the previously missing impact art is added.
  if(b.rocket&&!b.upgradeRocket){world.combatFX??=[];world.combatFX.push({x:b.x,y:b.y,radius:48,life:.45,maxLife:.45,fxSource:'lePrieur',direction:Math.atan2(b.vy||0,b.vx||0),fxOnly:true})}
  if(b.cow37){world.cannonImpacts??=[];world.cannonImpacts.push({x:b.x,y:b.y,life:.24});world.cannonImpacts=world.cannonImpacts.slice(-24);
@@ -1253,7 +1258,7 @@ Game.prototype.ensureRevisionPilot=function(){
 };
 const legendary109=[
  {id:'quadLewis',name:'쿼드 루이스 기관총',desc:'총구별 기관총 탄환 +4. 일제사격 피해 분산 공식이 적용되며 탄약도 발사 수만큼 소모합니다. 한 출격 1회.'},
- {id:'cow37',name:'COW 37mm 기관포',desc:'기존 기관총 교체. 1초마다 기본 피해 280의 중포탄 1발, 24발 탄창, 재장전 4.6초. 기관총 개조 적용. 한 출격 1회.'},
+ {id:'cow37',name:'COW 37mm 기관포',desc:'기존 기관총 교체. 1초마다 기본 피해 280의 중포탄 1발, 24발 탄창, 재장전 4.6초. 명중 시 주변에 50% 화염 폭발 피해. 관통하지 않습니다. 기관총 개조 적용. 한 출격 1회.'},
  {id:'rankinShell',name:'랭킨 대공 파편탄',desc:'3.2초마다 후방 240°·500 범위의 적 탄환을 파편 폭발로 제거합니다. 뒤에서 맞는 탄환 피해는 80% 감소합니다. 한 출격 1회.'},
  {id:'kaiserFog',name:'카이저의 안개',desc:'12초마다 3초간 안개 속에 숨습니다. 적의 사격·추적 대상에서 제외되고 어그로를 초기화합니다. 기존 탄환은 남습니다. 한 출격 1회.'},
  {id:'grunkreuz',name:'녹십자 (Grünkreuz)',desc:'독가스 피해에 면역됩니다. 비행 경로 뒤로 독가스를 계속 분출해 흩어지게 합니다. 가스에 닿은 적은 0.6초마다 최대 내구도의 4% 피해를 받습니다. 분출 간격은 액티브 재사용 감소 효과를 받습니다(최대 50%). 한 출격 1회.'},
@@ -1274,7 +1279,7 @@ export function tickLegendaryWorldEffects(world,dt,owner=world.players?.find(p=>
 }
 Game.prototype.createCow37Round=function(){
  const a=this.a,front=this.bomberTransfer?.front??38;
- return{x:this.x+Math.cos(a)*front,y:this.y+Math.sin(a)*front,vx:Math.cos(a)*COW37_BALANCE.speed,vy:Math.sin(a)*COW37_BALANCE.speed,life:bishopGlovesLifetime(this,this.longRange?this.shotLifetime(COW37_BALANCE.speed):2.5),rangeExtended:!!this.upgrades.flightGloves,enemy:false,ownerId:this.id,cow37:true,fonckVolley:false,pierce:true,collisionRadius:13,damage:this.cow37Damage(),hit:new Set()};
+ return{x:this.x+Math.cos(a)*front,y:this.y+Math.sin(a)*front,vx:Math.cos(a)*COW37_BALANCE.speed,vy:Math.sin(a)*COW37_BALANCE.speed,life:bishopGlovesLifetime(this,this.longRange?this.shotLifetime(COW37_BALANCE.speed):2.5),rangeExtended:!!this.upgrades.flightGloves,enemy:false,ownerId:this.id,cow37:true,fonckVolley:false,pierce:false,collisionRadius:13,damage:this.cow37Damage(),hit:new Set()};
 };
 Game.prototype._updLegendarySystems=function(dt,input={}){
  if(this.state!=='playing')return this._updVossReverse(dt,input);const step=Math.min(.04,Math.max(0,dt));

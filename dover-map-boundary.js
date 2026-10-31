@@ -7,14 +7,12 @@ export function steerDoverBoundary(game,p,dt,speed,input){
  // evasions and scripted skills keep their own heading.
  if(input&&!Number.isFinite(input.angle)&&!input.steer&&!input.moveX&&!input.moveY&&!(p.evadeTime>0)&&!(p.chargeTime>0)&&!p.aceRetreat129){
   const route=doverCliffRoute(doverPatrolChart(game),p.y,330,Math.max(300,speed*2.4));
-  if(p.y>b.top+480){const delta=Math.atan2(Math.sin(Math.atan2(route.y-p.y,route.x-p.x)-p.a),Math.cos(Math.atan2(route.y-p.y,route.x-p.x)-p.a)),rate=Math.min(p.turn||1.2,1.2);p.a+=Math.max(-rate*dt,Math.min(rate*dt,delta));}
+  const delta=Math.atan2(Math.sin(Math.atan2(route.y-p.y,route.x-p.x)-p.a),Math.cos(Math.atan2(route.y-p.y,route.x-p.x)-p.a)),rate=Math.min(p.turn||1.2,1.2);p.a+=Math.max(-rate*dt,Math.min(rate*dt,delta));
  }
  const buffer=Math.max(360,Math.min(800,speed*2.1));
  let nx=0,ny=0;
  if(p.x<b.left+buffer)nx=(b.left+buffer-p.x)/buffer;
  if(p.x>b.right-buffer)nx=-(p.x-b.right+buffer)/buffer;
- if(p.y<b.top+buffer)ny=(b.top+buffer-p.y)/buffer;
- if(p.y>b.bottom-buffer)ny=-(p.y-b.bottom+buffer)/buffer;
  if(!nx&&!ny)return;
  const inward=Math.atan2(ny,nx),delta=Math.atan2(Math.sin(inward-p.a),Math.cos(inward-p.a));
  // Keep normal flight through the roomy interior; turn only toward an approaching edge.

@@ -11,7 +11,7 @@ import {recordAdriaticGunCue} from './adriatic-gun-art.js?v=pandemonium394r2';
 import {capBomberSalvoDamage} from './bomber-transfer.js?v=pandemonium394r2&afc=1&td4=20261026';
 import {recordCombatImpact} from './combat-impact-result.js';
 import {achievementBossCue,achievementBossClear,awardPriorityKill,hasBothFactionFinalClears,recordFactionFinalClear} from './achievements.js?v=pandemonium394r2';
-import {doverPatrolChart} from './dover-patrol-chart.js?v=pandemonium394r2';
+import {doverWorldBounds} from './dover-patrol-chart.js?v=pandemonium394r2';
 import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=pandemonium394r2';
 import {resolveSurfaceSpacing} from './naval-spacing.js?v=pandemonium394r2';
 
@@ -590,7 +590,7 @@ export function endStageBossFrame(g,dt){
  const bounds=stageBossBounds(g),playerFrames=players(g).map(p=>{const v=pilotVelocity(p,dt);return{id:p.id||'p1',alive:alive(p),x:p.x,y:p.y,a:p.a,vx:v.vx,vy:v.vy,turn:p.turn,radius:12,cloudConceal:p.cloudConceal||0,londonRiver:addon.stages.stageIndex===11&&londonRiverCover(p.x,p.y)}});
  const defenderFrames=addon.stages.stageIndex===9?(g.patrols||[]).map(a=>formationDefenderFrame(g,a)):[];
  if(addon.stages.stageIndex===13)for(const p of playerFrames)p.sandCover=maanSandCover(g.maanWeather,p.x,p.y);
- const frame={capitalAcesAlive:g.enemies.filter(e=>e.capitalEscortToken===activeEncounter?.id&&e.hp>0&&!e.expired&&!e.crashing&&!e.crashed).length,capitalDefenseSuppressed:(g.londonBattle?.suppressed||0)>=2||(g.berlinDefense?.suppressed||0)>=2||!!g.capitalDefenseSuppressed,mapBounds:addon.stages.stageIndex===17?doverPatrolChart(g):undefined,paused:blocked(g),players:playerFrames,defenders:defenderFrames,defenderLosses:g.patrolLosses||0,bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings,londonTargets:g.londonBattle?.districts||[],parisTargets:g.parisBattle?.districts||[]};
+ const frame={capitalAcesAlive:g.enemies.filter(e=>e.capitalEscortToken===activeEncounter?.id&&e.hp>0&&!e.expired&&!e.crashing&&!e.crashed).length,capitalDefenseSuppressed:(g.londonBattle?.suppressed||0)>=2||(g.berlinDefense?.suppressed||0)>=2||!!g.capitalDefenseSuppressed,mapBounds:addon.stages.stageIndex===17?doverWorldBounds(g):undefined,paused:blocked(g),players:playerFrames,defenders:defenderFrames,defenderLosses:g.patrolLosses||0,bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings,londonTargets:g.londonBattle?.districts||[],parisTargets:g.parisBattle?.districts||[]};
  addon.tick(dt,frame);addon.reconcile({blocked:blocked(g)});separateLargeBossBodies(g);syncStageBossTargets(g);
   // No invisible composite-sized apron collision. Wire hazards and mines are
   // the actual dangerous geometry, and destroyed sections leave open air.
