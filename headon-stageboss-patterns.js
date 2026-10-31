@@ -1,6 +1,6 @@
 import {O400Raider} from './o400-squadron.js?v=natural-flight20261031';
 import {updateGothaCombat} from './gotha-squadron-combat.js?v=natural-flight20261031';
-import {createCapitalBoss} from './capital-bosses.js?v=capital-defense-20261101';
+import {createCapitalBoss} from './capital-bosses.js?v=capital-defense-20261101b';
 import {SupermarineNighthawk,SiemensSchuckertRVIII} from './dover-night-bosses.js?v=dover3&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js';
 import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';

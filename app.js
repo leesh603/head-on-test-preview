@@ -1,5 +1,5 @@
 import {drawRevisionDecoys} from './voss-decoy-fx.js';
-import {paintCapitalTerrain} from './capital-terrain.js?v=capital-defense-20261101';
+import {paintCapitalTerrain} from './capital-terrain.js?v=capital-defense-20261101b';
 import {requestFortressAttack,damageFortressZone} from './fortress-systems.js';
 import {createFinalArenaMusic} from './final-arena-music.js';
 import {prepareFinalArenaAssets,serviceFinalArenaAssets,drawFinalArenaTerrain,drawFinalArenaBoss,drawFinalArenaHud,finalArenaVisible} from './final-arena-view.js';
@@ -32,7 +32,7 @@ import {bossCounterActive,bossCounterPhase} from './boss-feedback.js?v=gal1&hint
 import {KEYBIND_DEFAULTS,BIND_ACTIONS,keybindConflict,restoreKeybinds} from './keybind-policy.js?v=flow20261015';
 import {updateAllyRing,hideAllyRing} from './ally-ring.js?v=gal1';
 import {hangarArt,hangarArtSource,hangarKeyFile} from './hangar-art.js?v=buildfit1&art=pilot-recovery2';
-import {bossCutinSource} from './boss-cutin-art.js?v=capital-defense-20261101';
+import {bossCutinSource} from './boss-cutin-art.js?v=capital-defense-20261101b';
 import {applySeaColor} from './sea-colors.js?v=tame3';
 import {drawGroundEnemy} from './ground-enemy-art.js?v=tame3&perf=1029';
 import {pilotIdentityCopy} from './pilot-identity-copy.js?v=merge20261017';
@@ -91,7 +91,7 @@ import {drawHeadOnFeedback} from './engagement-feedback.js?v=tame3';
 import {drawTacticalCombatCue} from './tactical-combat-view.js?v=combat20261024&td4=20261026';
 import {drawTailEngagement,ENGAGEMENT_TONES} from './engagement-hud410.js?v=tame3';
 import {portraitSources,portraitThumbnailSource,portraitsReady,portraitLoaded,ensurePortrait,ensurePortraitThumb,portraitOriginalSources} from './portraits.js?v=crew20261024&opt=1';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=capital-defense-20261101';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=capital-defense-20261101b';
 import {bossTactic,bossPhaseLabel,BOSS_NAMES_EN,bossArrivalCues} from './boss-feedback.js?v=gal1&hints=1&rail=42&ai=1018&sig=1019';
 import {drawWWIEquipment} from './wwi-equipment-art.js?perf=1029';
 import {WWI_BALANCE} from './wwi-equipment.js';

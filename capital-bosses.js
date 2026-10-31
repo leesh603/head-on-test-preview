@@ -1,5 +1,5 @@
 import {BaseBoss,BossPart} from './headon-stageboss-core.js?v=tame3&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {CAPITAL_BOSS_ART} from './capital-boss-art.js?v=capital-defense-20261101';
+import {CAPITAL_BOSS_ART} from './capital-boss-art.js?v=capital-defense-20261101b';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -223,7 +223,8 @@ export class CapitalBoss extends BaseBoss{
    if(Math.hypot(dx,dy)<170){this.courseLeg=(leg+1)%legs.length;[ox,oy]=legs[this.courseLeg];dx=this.anchorX+ox-this.x;dy=this.anchorY+oy-this.y;}
    const heading=Math.atan2(dy,dx)+Math.PI/2+(port-starboard)*.025;
    const error=Math.abs(wrap(heading-this.hullYaw));
-   this.hullYaw=turn(this.hullYaw,heading,dt*(airship?.12:.23)*power);
+   const braced=[...this.parts.values()].some(p=>p.kind==='turret'&&live(p)&&combatNow<(p.aimHoldUntil||0));
+   this.hullYaw=turn(this.hullYaw,heading,braced?0:dt*(airship?.12:.23)*power);
    const speed=(airship?36:62)*power*(.68+.32*Math.max(0,Math.cos(error)));
    this.x+=Math.sin(this.hullYaw)*speed*dt;this.y-=Math.cos(this.hullYaw)*speed*dt;
   }

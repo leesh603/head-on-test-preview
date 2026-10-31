@@ -97,6 +97,7 @@ body.recording header{display:none}body.recording main{padding:0;overflow:visibl
 <script>
 const $=id=>document.getElementById(id),frame=$('game');let api=null;
 const presets=new URLSearchParams(location.search);
+if(presets.get('region')==='18')$('region').value='11';if(presets.get('capital')==='1')$('capitalPhase').value='1';
 for(const id of ['region','viewport'])if([...$(id).options].some(o=>o.value===presets.get(id)))$(id).value=presets.get(id);
 for(const id of ['boss','freeze','noFire'])if(presets.has(id))$(id).checked=presets.get(id)==='1';
 function query(){

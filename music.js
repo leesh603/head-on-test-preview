@@ -1,4 +1,4 @@
-import {CAPITAL_SCORES,capitalScoreStep} from './capital-boss-score.js?v=capital-defense-20261101';
+import {CAPITAL_SCORES,capitalScoreStep} from './capital-boss-score.js?v=capital-defense-20261101b';
 import {SituationPolicy} from './music-situation-policy.js?v=lowhp1';
 import {REGIONAL_VARIATIONS,ACE_MOTIFS,BOSS_ARRANGEMENTS,scorePitch} from './music-score.js?v=tame3';
 import {RecordedBattleMusic} from './music-recordings.js?v=lowhp1';

@@ -1,4 +1,4 @@
-import {capitalLondonRiverCover} from './capital-terrain.js?v=capital-defense-20261101';
+import {capitalLondonRiverCover} from './capital-terrain.js?v=capital-defense-20261101b';
 import {aaMuzzle,configureAA} from './air-threat-profiles.js';
 const heroes=g=>g.players||[g],live=g=>heroes(g).filter(p=>p.hp>0&&!p.down);
 const inLondon=g=>(g.worldRegion?.()??g.stageBoss?.stages.stageIndex)===11;

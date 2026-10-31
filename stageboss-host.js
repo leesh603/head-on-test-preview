@@ -23,8 +23,8 @@ import {tickLondonBattle,handleLondonCue,londonRiverCover} from './london-battle
 import {isDoverBoss} from './dover-night-view.js';
 import {tickParisBattle,handleParisCue} from './paris-night-battle.js?v=pandemonium394r2';
 import {tickVerdunBattle,handleVerdunCue} from './verdun-battle.js?v=pandemonium394r2';
-import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=capital-defense-20261101';
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=capital-defense-20261101';
+import {StageBossAddon,normalSpawnInterval} from './headon-stageboss-runtime.js?v=capital-defense-20261101b';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=capital-defense-20261101b';
 import {bossSoundFor} from './boss-feedback.js?v=pandemonium394r2&hints=1&rail=42&ai=1018&sig=1019';
 import {waterBarrierDisplacement} from './headon-stageboss-render.js?v=pandemonium394r2&rail=42&skyart=20261020&alpsart=20261020&cambrai=20261021&adriaticart=20261022&skymechanics=20261022&cityart=20261022';
 import {advanceCambraiBug} from './cambrai-bug-flight.js?v=pandemonium394r2';

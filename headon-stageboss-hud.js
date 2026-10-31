@@ -1,4 +1,4 @@
-import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=capital-defense-20261101';
+import {BOSS_CATALOG} from './headon-stageboss-patterns.js?v=capital-defense-20261101b';
 
 export function bossHudModel(encounter) {
   if(!encounter||encounter.completed)return null;

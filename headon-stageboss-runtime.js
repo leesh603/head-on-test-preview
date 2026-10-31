@@ -7,7 +7,7 @@ import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=pandemoniu
 import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=pandemonium394r2&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&harbor=20261021';
 import {recordShipWake} from './naval-water.js?v=pandemonium394r2&perf=1029';
 import {predictPilot} from './headon-stageboss-core.js?v=pandemonium394r2&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=capital-defense-20261101';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=capital-defense-20261101b';
 import {verdunFortCollapseSites} from './verdun-fortresses.js?v=pandemonium394r2&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {BossHazards} from './headon-stageboss-hazards.js?v=pandemonium394r2&cambrai=20261021&cityart=20261022';
 
