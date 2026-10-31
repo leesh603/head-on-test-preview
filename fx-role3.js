@@ -23,9 +23,9 @@ export const roleArtReady=Promise.all(packs.map(pack=>{
  if(!FX3||typeof Image==='undefined')return false;
  return new Promise(resolve=>{
   const image=new Image();image.decoding='async';
-  image.onload=()=>{const valid=image.naturalWidth===pack.size&&image.naturalHeight===pack.size;
+  image.onload=()=>{image.onload=image.onerror=null;(image.decode?image.decode():Promise.resolve()).catch(()=>{}).then(()=>{const valid=image.naturalWidth===pack.size&&image.naturalHeight===pack.size;
    if(valid)pack.keys.forEach((key,index)=>entries.set(key,{image,pack,index}));
-   image.onload=image.onerror=null;resolve(valid);
+   resolve(valid);});
   };
   image.onerror=()=>{image.onload=image.onerror=null;resolve(false)};
   // High-quality lossy copy (exact alpha) of each lossless pack; identical cell layout.

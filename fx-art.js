@@ -7,9 +7,9 @@ import {fxArtReady as fx196ArtReady,fxReady as fx196Ready,fxImage as fx196Image,
 // the keys already called by the renderers. Unmapped keys stay procedural.
 // Rollback: append ?fx=0 to the URL — FX_FILES empties and every call site
 // falls back to procedural drawing exactly as before.
-import {FX3,roleArtReady,roleReady,roleDraw,roleImage} from './fx-role3.js?v=tame3&perf=1029';
+import {FX3,roleArtReady,roleReady,roleDraw,roleImage} from './fx-role3.js?v=tame3&perf=1029&decode=1';
 // FX sample preview (?fxs=1 only).
-import {FXS,fxsReady,fxsHas,fxsDraw,fxsImage,fxsTintedCanvas,fxsTint,fxsRocketTrail} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029';
+import {FXS,fxsReady,fxsHas,fxsDraw,fxsImage,fxsTintedCanvas,fxsTint,fxsRocketTrail} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1';
 export {FXS};
 
 export {FX3};

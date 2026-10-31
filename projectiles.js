@@ -2,7 +2,7 @@ import {drawWhiteFlightRound} from './goering-whiteflight-fx.js';
 import {drawGunSignature,gunSignatureId,drawProjectileTactic} from './gun-signatures.js';
 import {drawBossOrdnance,bossOrdnanceLoaded} from './boss-ordnance-art.js?v=tame3&ai=1018';
 import {hostileGunAppearance,friendlyGunAppearance} from './ordnance-appearance.js';
-import {FXS,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029';
+import {FXS,fxsFireZone,fxsTracer} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1';
 // Muted tracer families: no black borders, outlined gems, or neon rings.
 // (FX layer exception: hostile bolts get a crimson body + white-hot tip for dodge readability.)
 // Rendering never changes projectile movement, damage or collision.

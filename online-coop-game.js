@@ -5,7 +5,7 @@ import {receiveIntrusionVisual,advanceIntrusionVisual} from './intrusion-network
 import {captureNavarreFrommherzVisual} from './navarre-frommherz-view.js';
 import {equipmentCruiseMultiplier} from './equipment-flight-balance.js';
 import {momentumTier} from './ace-momentum.js';
-import {syncPilotUnlocks} from './pilot-unlocks.js';
+import {syncPilotUnlocks} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
 import {airbrakeMovement} from './flight-equipment.js';
 import {advanceUdetReplica,udetFlightModifiers} from './udet-acrobatics.js';
 import {CoopGame} from './coop-engine.js?v=pandemonium394r2&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&adriaticart=20261022&cityart=20261022&harbor=20261021&td4=20261026&momentum=20261027';
@@ -301,4 +301,5 @@ export class OnlineCoopGame extends CoopGame {
   this.updateCamera(step);
  }
 }
+
 

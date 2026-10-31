@@ -1,6 +1,6 @@
 import {hitIntrusionAt} from './intrusion-bosses.js';
 import {momentumDamage} from './ace-momentum.js';
-import {pilotUnlockRun} from './pilot-unlocks.js';
+import {pilotUnlockRun} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
 import {signatureCue} from './pilot-signature-state.js';
 import {advanceWingFlight} from './wingman-flight.js?v=flight20261023';
 // Personal pilot state is advanced per living pilot; persistent damage is advanced once per world.
@@ -109,4 +109,5 @@ export function advanceBurns1918(world, dt) {
   }
   return killed;
 }
+
 

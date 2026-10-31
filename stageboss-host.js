@@ -5,7 +5,7 @@ import {damageFacility} from './ground-facility-missions.js';
 import {flushIntrusionEquipmentRewards} from './intrusion-equipment-rewards.js';
 import {tickIntrusionHost,syncIntrusionTarget,intrusionTargetCollision,hitIntrusionTarget} from './intrusion-boss-host.js';
 import {momentumDamage} from './ace-momentum.js';
-import {pilotUnlockRun} from './pilot-unlocks.js';
+import {pilotUnlockRun} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
 import {bossOrdnanceFamily,bossStrongSound} from './boss-ordnance-loadouts.js';
 import {recordAdriaticGunCue} from './adriatic-gun-art.js?v=pandemonium394r2';
 import {capBomberSalvoDamage} from './bomber-transfer.js?v=pandemonium394r2&afc=1&td4=20261026';

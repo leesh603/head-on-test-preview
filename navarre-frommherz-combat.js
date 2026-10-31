@@ -1,4 +1,4 @@
-import {pilotUnlockDirectHit} from './pilot-unlocks.js';
+import {pilotUnlockDirectHit} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
 // Host-authoritative direct-hit mechanics. No new damage or reward pipeline.
 import {combatImpactResult} from './combat-impact-result.js';
 
@@ -81,3 +81,4 @@ export function installNavarreFrommherzCombat(Game,PILOTS){
  };
  q.resetNavarreFrommherzCombat=function(){states.delete(this);};
 }
+

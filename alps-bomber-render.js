@@ -2,7 +2,7 @@ import {drawAuthoredAlpsBomber} from './alps-bomber-art.js?v=alpsgun20261022';
 import {ALPS_BOMBER_LAYOUT,alpsMuzzle} from './alps-bomber-layout.js?v=gal1';
 import {fx} from './fx-art.js?v=tame3';
 import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
-import {fxsBombFall} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029';
+import {fxsBombFall} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1';
 import {drawTracerBolt} from './projectiles.js?v=pilotfx20261018';
 import {impactMark,partMark,aimLine,stripMark} from './tactical-marks.js?v=tame3';
 

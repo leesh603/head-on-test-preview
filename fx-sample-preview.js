@@ -34,7 +34,9 @@ let atlas = null;
 export const fxsReady = !FXS || typeof Image === 'undefined' ? Promise.resolve(false) :
   fetch(new URL('./fx-sample/fx-sample.json', import.meta.url), { cache: 'no-cache' }).then(r => r.json()).then(m => new Promise(res => {
     const im = new Image();
-    im.onload = () => { atlas = im; for (const [k, r] of Object.entries(m.rects)) rects.set(k, r); for (const k of m.contain || []) contain.add(k); res(true); };
+    // Decode off the main thread first: the first drawImage of an undecoded atlas would decode it
+    // synchronously inside a combat frame (a visible hitch).
+    im.onload = () => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { atlas = im; for (const [k, r] of Object.entries(m.rects)) rects.set(k, r); for (const k of m.contain || []) contain.add(k); res(true); });
     im.onerror = () => res(false);
     im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href;
   })).catch(() => false);
@@ -153,7 +155,7 @@ const BOOM = { atlas: null, rects: null, n: 20 };
 if (FXS && typeof Image !== 'undefined') {
   fetch(new URL('./fx-sample/fx-boom.json', import.meta.url), { cache: 'no-cache' }).then(r => r.json()).then(m => {
     const im = new Image();
-    im.onload = () => { BOOM.atlas = im; BOOM.rects = m.rects; BOOM.n = m.frames; };
+    im.onload = () => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { BOOM.atlas = im; BOOM.rects = m.rects; BOOM.n = m.frames; });
     im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href;
   }).catch(() => {});
 }
@@ -259,7 +261,7 @@ const FLAME = { atlas: null, rects: null, n: 12, v: 3 };
 if (FXS && typeof Image !== 'undefined') {
   fetch(new URL('./fx-sample/fx-flame.json', import.meta.url), { cache: 'no-cache' }).then(r => r.json()).then(m => {
     const im = new Image();
-    im.onload = () => { FLAME.atlas = im; FLAME.rects = m.rects; FLAME.n = m.frames; FLAME.v = m.variants; };
+    im.onload = () => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { FLAME.atlas = im; FLAME.rects = m.rects; FLAME.n = m.frames; FLAME.v = m.variants; });
     im.src = new URL('./fx-sample/' + m.image + '?v=' + m.version, import.meta.url).href;
   }).catch(() => {});
 }

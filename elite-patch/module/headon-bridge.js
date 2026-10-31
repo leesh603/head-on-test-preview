@@ -1,6 +1,6 @@
 import {arrivalViewport} from '../../enemy-arrivals.js';
 import {intrusionActive} from '../../intrusion-bosses.js';
-import {pilotUnlockEliteDeath} from '../../pilot-unlocks.js';
+import {pilotUnlockEliteDeath} from '../../pilot-unlocks.js?v=pilot-unlocks-shared1';
 import {momentumDamage,momentumCount,recordMomentumKill} from '../../ace-momentum.js';
 import {EliteEnemySystem, ELITE_ENEMY_TYPE} from './elite-core.js?v=wwifix20261025&momentum=20261027';
 import {recordCombatImpact} from '../../combat-impact-result.js';

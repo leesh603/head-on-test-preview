@@ -1,4 +1,4 @@
-import {cleanPilotUnlocks,setPilotUnlockBook,pilotUnlockRun,syncPilotUnlocks} from './pilot-unlocks.js';
+import {cleanPilotUnlocks,setPilotUnlockBook,pilotUnlockRun,syncPilotUnlocks} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
 // Service record also retains per-pilot aircraft unlock progress.
 import {PILOT_AIRCRAFT,PILOT_AIRCRAFT_KILLS,pilotKillMetric,setPilotKillProvider} from './pilot-aircraft.js?v=pandemonium394r2&art=pilot-recovery2';
 const medal=(id,group,icon,name,en,description,descriptionEn,metric,goals=[1],hidden=false)=>Object.freeze({id,group,icon,name,en,description,descriptionEn,metric,goals:Object.freeze(goals),hidden});

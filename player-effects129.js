@@ -12,14 +12,14 @@ import {nungesserCombatStatus} from './nungesser-combat.js';
 import {drawBuildTransferEntry,drawTransferStations} from './build-transfer-view.js?v=buildfit1&afc=1&art=pilot-recovery2';
 import {createSignatureView} from './pilot-signature-view.js?v=deathdefiance1&sig=1019&boss=20261020b&phase=1021&cityart=20261022&perf=1029';
 import {fx,fxTint} from './fx-art.js?v=tame3';
-import {planeSprite,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle';
+import {planeSprite,aircraftKey} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1';
 import {drawHorseSilhouette} from './equipment-material-fx.js?v=eqfx2';
 
 import {bishopFlightHeight} from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
 import {udetRollPose} from './udet-acrobat-fx.js';
 import {bomberEntryPose} from './bomber-transfer.js?v=buildfit1&afc=1&td4=20261026';
 import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
-import {fxsBombFall} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029';
+import {fxsBombFall} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1';
 const drawPilotSignatureLayer=createSignatureView(drawPetalParticle);
 // Shared solo/co-op aircraft presentation; combat positions remain authoritative.
 export function playerPose(p,x,y){

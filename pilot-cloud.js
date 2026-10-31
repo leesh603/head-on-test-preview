@@ -1,4 +1,4 @@
-import {cleanPilotUnlocks,mergePilotUnlocks} from './pilot-unlocks.js';
+import {cleanPilotUnlocks,mergePilotUnlocks} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
 const pilotUnlockRecords={clean:cleanPilotUnlocks,merge:mergePilotUnlocks};
 // Optional account-backed copies of service records. Never stores passwords.
 import {PILOT_AIRCRAFT, AIRCRAFT_SELECTION_KEY, pilotAircraftChoices} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';

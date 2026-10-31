@@ -45,7 +45,7 @@ import {drawSupportShip,drawSupportEffects} from './stuttgart-render129.js?v=gal
 import {renderStageBossLayer} from './headon-stageboss-render.js?v=gal1&rail=42&skyart=20261020&alpsart=20261020&cambrai=20261021&adriaticart=20261022&skymechanics=20261022&cityart=20261022';
 import {bossHudModel,bossHudDetail} from './headon-stageboss-hud.js?v=livingww1d&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
 import {bossTactic,BOSS_NAMES_EN} from './boss-feedback.js?v=gal1&hints=1&rail=42&ai=1018&sig=1019';
-import {planeSprite} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle';
+import {planeSprite} from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1';
 import {getLocale} from './i18n.js?v=buildfit1&afc=1&art=pilot-recovery2';
 import {londonStatus} from './london-battle.js?v=gal1';
 import {parisStatus} from './paris-night-battle.js?v=gal1';
@@ -56,7 +56,7 @@ import {drawAADefense,drawDrachenMine,prepareAADefenseAssets,releaseAADefenseAss
 import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=gal1';
 import {drawAlpsBomber,drawAlpsPart,drawAlpsWarnings,drawAlpsHazard} from './alps-bomber-render.js?v=bomb19&alpsart=20261020tone1&motion=20261022&gunhw=20261022';
 import {bombSprite} from './bomb-sprites.js?v=bomb20&perf=1029';
-import {fxsBombFall} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029';
+import {fxsBombFall} from './fx-sample-preview.js?v=pilotfx20261018&perf=1029&decode=1';
 import {drawHarborFortress} from './harbor-crane-render.js?v=gal1&hardware=20261022&harbor=20261021';
 
 
@@ -923,7 +923,8 @@ export function paintSky(c,cx,cy,W,H){
 export function paintCity(c,cx,cy,W,H,city='london'){
  const berlin=city==='berlin',source=cityArt[city]||cityArt.london;
  c.fillStyle=city==='berlin'?'#4a5350':'#535a56';c.fillRect(0,0,W,H);
- if(!source.naturalWidth)return;
+ // A failed or released city map must not leave the stage as a flat grey field: retry it.
+ if(!source.naturalWidth){if(source.complete){source.retryAt??=performance.now()+1500;if(performance.now()>source.retryAt)cityGroup.release([city]);}return;}
  if(!source.lowDetail){const tileCanvas=document.createElement('canvas');tileCanvas.width=tileCanvas.height=berlin?source.naturalWidth:256;const tc=tileCanvas.getContext('2d');tc.imageSmoothingEnabled=true;tc.filter=berlin?'saturate(.78) contrast(.92) brightness(.88)':'saturate(.35) contrast(.55) brightness(.7)';tc.drawImage(source,0,0,tileCanvas.width,tileCanvas.height);tc.filter='none';if(!berlin){tc.fillStyle='#53605a';tc.globalAlpha=.28;tc.fillRect(0,0,256,256);}source.lowDetail=tileCanvas;}
  const image=source.lowDetail;
  const tile=berlin?1536:1024,startX=Math.floor(cx*.4/tile),startY=Math.floor(cy*.4/tile),ox=startX*tile-cx*.4,oy=startY*tile-cy*.4;

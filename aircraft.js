@@ -114,7 +114,8 @@ const decodePainted=(key,skipCrew=false)=>new Promise(resolve=>{
  // Pre-composited crewed sprite: the stored image is the final painted 288x320 canvas.
  const crewFile=!skipCrew&&!CREW_BAKE_MODE&&CREW_BAKED[key]&&new URLSearchParams(location.search).get('mech')!=='0'?CREW_BAKED[key]:null;
  if(crewFile){let crewTries=0;const url=new URL(`./crew-baked/${crewFile}`,import.meta.url).href;
-  img.onload=()=>{if(settled)return;try{const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0);setPainted(key,out);finish(true)}catch{finish(false)}};
+  // Decode off-thread before the copy: a sync decode inside drawImage is a mid-combat hitch.
+  img.onload=()=>{if(settled)return;(img.decode?img.decode():Promise.resolve()).catch(()=>{}).then(()=>{if(settled)return;try{const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0);setPainted(key,out);finish(true)}catch{finish(false)}})};
   img.onerror=()=>{if(++crewTries<4){img.src=url+'?r='+crewTries;return}img.onload=null;img.onerror=null;decodePainted(key,true).then(finish,()=>finish(false))};img.src=url;return;}
  // Crew step for art without a baked file: decide synchronously when the bake knows the key has no
  // crew; otherwise load the compositor lazily. Bake mode records the final painted canvas.
