@@ -1,3 +1,5 @@
+import {HARBOR_PARTS} from './harbor-crane-layout.js?v=tame3&harbor=20261021';
+import {legacyProjectileTarget} from './projectile-contacts.js';
 import {queueBossArtilleryMuzzle} from './artillery-fx.js?v=pandemonium394r2';
 import {beginFinalArena,tickFinalArena,isFinalArena,hitFinalArena} from './final-arena-host.js';
 import {resolveAircraftCritical,applyAircraftCritical,tickAircraftCritical} from './aircraft-criticals.js';
@@ -329,6 +331,7 @@ function pilotVelocity(p,dt){
 }
 export function stageBossCollision(g,e,x,y,b){if(e.intrusionBody)return !blocked(g)&&intrusionTargetCollision(g,e,x,y,b);const body=e.stageBossBody;if(!body)return null;if(blocked(g)||body.dead||body.arrivalPending||g.stageBoss?.stages.encounter?.bodies.get(body.id)!==body)return false;return !!body.locateHit({x,y,previousX:b?.previousX??x,previousY:b?.previousY??y,radius:b?.collisionRadius||0});}
 export function damageStageBoss(g,e,b,damage){
+ if(legacyProjectileTarget(g,e)){(b.eliteHits??=new Set()).add(e.id);const before=e.hp;g.eliteEnemies.damageMember(e,damage,{projectile:b,ownerId:b.ownerId??g.id??'p1'});const dealt=Math.max(0,before-e.hp);recordCombatImpact(b,e,{damage:dealt,blocked:!(dealt>0)});return;}
  damage*=momentumDamage(g,b);
  if(e.finalArenaTarget)return hitFinalArena(g,e,b,damage);
  if(e.groundFacility)return damageFacility(g,e,b,damage);
@@ -497,6 +500,10 @@ export function beginStageBossFrame(g,dt){
  const stage=addon.stages.stageIndex,naval=stage===1||stage===7||stage===16;
  let route=stage===7?g.navalRoute:null;
  if(stage===7&&!route)route=g.navalRoute=createHarborRoute(g);
+ if(route&&!route.fortressPreview){
+  const hx=Math.cos(route.a),hy=Math.sin(route.a),nx=-hy,ny=hx,tuning=addon.hooks.getTuning({bossId:'armored-harbor-fortress',stageIndex:7,loopIndex:addon.stages.loopIndex});
+  route.fortressPreview={x:route.x+hx*ZEEBRUGGE_ROUTE.fortS+nx*ZEEBRUGGE_ROUTE.fortN,y:route.y+hy*ZEEBRUGGE_ROUTE.fortS+ny*ZEEBRUGGE_ROUTE.fortN,geometryScale:tuning.geometryScale||1,hp:1,maxHp:1,craneAngle:-.55,craneState:'idle',parts:HARBOR_PARTS.map(p=>({...p,localX:p.x,localY:p.y,drawWidth:p.width,drawHeight:p.height,angle:p.artAngle||0,hp:1,maxHp:1,hittable:false}))};
+ }
  if(route){const hx=Math.cos(route.a),hy=Math.sin(route.a),forward=(g.x-route.x)*hx+(g.y-route.y)*hy;route.maxForward=Math.max(route.maxForward||0,forward);}
  const travel=stage===16?g.jutlandRoute.maxForward:stage===14?g.gallipoliRoute.maxForward:stage===7?Math.max(0,route.maxForward||0):(g.distance||0)-g.stageStartDistance,stageDistance=stage===14?GALLIPOLI_ROUTE.fort:STAGE_BOSS_BALANCE.distance,progress=Math.max(0,Math.min(1,travel/stageDistance));
  if(naval&&stage!==16&&(addon.stages.phase==='explore'||stage===7&&addon.stages.phase==='boss')){
@@ -541,7 +548,7 @@ export function beginStageBossFrame(g,dt){
     x=g.x+(alpine?105:(naval||rail||structure)?Math.cos(heading)*forward:0);
     y=g.y+(alpine?-Math.max(165,Math.min(180,(bounds.bottom-bounds.top)*.24)):(naval||rail||structure)?Math.sin(heading)*forward:stage===4?0:stage===10?-Math.min(90,(bounds.bottom-bounds.top)*.12):-Math.min(180,(bounds.bottom-bounds.top)*.22));
    }
-   const entered=addon.startBoss({x,y,presentArrival:true});if(stage===14&&g.gallipoliRoute.preview){const b=[...entered.bodies.values()][0];for(const p of b.parts.values())p.angle=g.gallipoliRoute.preview.parts.get(p.id).angle;addon.hazards.clear(g.gallipoliRoute.encounterId);}g.navalApproachAt=null;g._aceGateAt=null;
+   const entered=addon.startBoss({x,y,presentArrival:true,entryBounds:bounds});if(stage===14&&g.gallipoliRoute.preview){const b=[...entered.bodies.values()][0];for(const p of b.parts.values())p.angle=g.gallipoliRoute.preview.parts.get(p.id).angle;addon.hazards.clear(g.gallipoliRoute.encounterId);}g.navalApproachAt=null;g._aceGateAt=null;
   }
   }
  }

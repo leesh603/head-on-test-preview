@@ -110,7 +110,7 @@ export class StageBossAddon {
     const transition={kind:'final-arena',completedId:key,stage:stages.stage,stageIndex:stages.stageIndex,loopIndex:stages.loopIndex,finalArena:snapshotFinalArena(state)};
     this.hooks.onFinalArenaPending(transition);return transition;
   }
-  startBoss({x,y,presentArrival=this.presentArrivals}) {
+  startBoss({x,y,presentArrival=this.presentArrivals,entryBounds=this.frameContext?.bounds}) {
     if(this.ended||this.stages.phase!=='explore')return null;
     if(!Number.isFinite(x)||!Number.isFinite(y))throw new Error('Current world spawn point required');
     const bossId=this.stages.bossId,id=this.runId+':stageboss:'+this.serial++;
@@ -124,7 +124,7 @@ export class StageBossAddon {
     if(bossId==='mark4-wedge')tuning={...tuning,sommeApproach:true};
     const entry=BOSS_CATALOG[bossId],faction=entry.faction==='neutral'?(this.stages.teamFaction==='central'?'entente':'central'):entry.faction;
     const encounter=createBossEncounter({id,bossId,tuning,x,y,rng:this.rng,faction,emit:event=>this.accept(event,id,tuning)});
-    for(const b of encounter.bodies.values())if(b.support129||b.formationBoss129||b.kind==='fliegerzug'||b.kind==='armored-harbor-fortress'||b.gallipoliBoss||b.jutlandBoss){b.countMinions129=()=>this.hooks.countMinions(id);b.formationStatus129=()=>this.hooks.formationStatus?.(id)||[];}this.defeatSequence=null;this.bodyDefeats=[];this.stages.attach(encounter);beginBossArrival(this,encounter,presentArrival);this.hooks.onCue({type:['jasta11-circus','naval10-black-flight'].includes(bossId)?'formation-approach':['livens-flame-projector','minenwerfer-battery'].includes(bossId)?'trench-approach':bossId==='mark4-wedge'?'somme-approach':'boss-enter',encounterId:id,bossId});return encounter;
+    for(const b of encounter.bodies.values())if(b.support129||b.formationBoss129||b.kind==='fliegerzug'||b.kind==='armored-harbor-fortress'||b.gallipoliBoss||b.jutlandBoss){b.countMinions129=()=>this.hooks.countMinions(id);b.formationStatus129=()=>this.hooks.formationStatus?.(id)||[];}this.defeatSequence=null;this.bodyDefeats=[];this.stages.attach(encounter);beginBossArrival(this,encounter,presentArrival,entryBounds);this.hooks.onCue({type:['jasta11-circus','naval10-black-flight'].includes(bossId)?'formation-approach':['livens-flame-projector','minenwerfer-battery'].includes(bossId)?'trench-approach':bossId==='mark4-wedge'?'somme-approach':'boss-enter',encounterId:id,bossId});return encounter;
   }
   // Boss rounds were laid at the spot a pilot occupied when the warning began.
   // Pilots never stop flying, so every warned round missed a pilot who simply

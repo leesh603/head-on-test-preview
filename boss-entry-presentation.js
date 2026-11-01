@@ -42,24 +42,9 @@ export function tickBossEntry(addon,encounter,dt){
  }
  if(scene.age>=scene.length)delete body.bossEntry;
 }
-export function bossEntryReveal(body,bounds=null){
- if(!body.arrivalPending||!body.entryFamily)return null;
- let rx=Math.max(100,body.coreRadius||0,(body.support129?.width||0)/2),ry=Math.max(130,(body.support129?.height||0)/2);
- for(const p of body.parts.values()){rx=Math.max(rx,Math.abs(p.x)+(p.drawWidth||p.radius*2||50)/2);ry=Math.max(ry,Math.abs(p.y)+(p.drawHeight||p.radius*2||50)/2);}
- if(Number.isFinite(bounds?.halfWidth))rx=Math.max(rx,bounds.halfWidth);
- if(Number.isFinite(bounds?.halfHeight))ry=Math.max(ry,bounds.halfHeight);
- return {x:body.x,y:body.y,rx:rx+50,ry:ry+70,kind:BOSS_ENTRY_PROFILES[body.entryFamily].reveal,q:clamp(((body.arrivalAge||0)-(body.arrivalHold||0))/(body.arrivalDuration||.85))};
-}
-export function clipBossEntry(c,r){
- if(!r||r.q>=1)return;
- const q=r.q*r.q*(3-2*r.q);c.beginPath();
- if(r.kind==='curtain')c.rect(r.x-r.rx*q,r.y-r.ry,r.rx*2*q,r.ry*2);
- else if(r.kind==='crossing')c.rect(r.x-r.rx,r.y-r.ry,r.rx*2*q,r.ry*2);
- else if(r.kind==='ground')c.rect(r.x-r.rx,r.y+r.ry-r.ry*2*q,r.rx*2,r.ry*2*q);
- else if(r.kind==='iris')c.arc(r.x,r.y,Math.hypot(r.rx,r.ry)*q,0,Math.PI*2);
- else c.rect(r.x-r.rx,r.y-r.ry,r.rx*2,r.ry*2*q);
- c.clip();
-}
+// Entrances move complete world bodies; never reveal slices of their geometry.
+export function bossEntryReveal(){return null;}
+export function clipBossEntry(){}
 export function drawBossEntryWorld(c,encounter,paint){
  const active=activeBossEntry(encounter);if(!active||active.scene.waitForDiscovery)return;
  const {body:b,scene:s}=active,age=s.age,fade=clamp(age/.35)*clamp((2.65-age)/.6);if(fade<=0)return;

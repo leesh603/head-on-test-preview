@@ -81,7 +81,7 @@ export function drawSkyAirship(c,b,{cloud=()=>{},effect=()=>{},mark=()=>{}}={}){
   c.moveTo(-12*scale,32*scale);c.lineTo(cut?-15*scale:capsule.x-6*scale,endY);c.moveTo(12*scale,32*scale);c.lineTo(cut?16*scale:capsule.x+6*scale,endY);c.stroke();
   c.strokeStyle='#b7ac8490';c.lineWidth=.6*scale;c.stroke();c.restore();
  }
- c.save();if(!carrier&&b.phase==='cloud')c.globalAlpha*=.35;else if(!carrier&&b.phase==='reveal')c.globalAlpha*=.7;
+ c.save(); // Cloud cover obscures a solid hull; the hull itself never fades in.
  c.drawImage(im,0,state*im.naturalHeight/3,im.naturalWidth,im.naturalHeight/3,-width/2,-height/2,width,height);c.restore();
  // Authored hardware replaces the equipment on the old flattened picture.
  // No per-frame filters, generated canvases, or persistent particle lists.
