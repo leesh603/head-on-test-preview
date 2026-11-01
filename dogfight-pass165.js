@@ -49,7 +49,7 @@ export function fighterShotReady(game,e,contact){
  const now=game.t||0;
  if(e.directorFireHoldUntil>now||e.formationCollapseUntil>now||e.directorBreakUntil>now||e.combatPassState===DOGFIGHT_PASS_STATES.DISENGAGE)return false;
  const zoom=game.camera?.zoom||1,cx=game.camera?.x??game.x,cy=game.camera?.y??game.y;
- if(Math.abs(e.x-cx)>(game.viewWidth||960)/(2*zoom)+12||Math.abs(e.y-cy)>(game.viewHeight||720)/(2*zoom)+12)return false;
+ if(!(e.doverInterceptor&&contact.doverBomber)&&(Math.abs(e.x-cx)>(game.viewWidth||960)/(2*zoom)+12||Math.abs(e.y-cy)>(game.viewHeight||720)/(2*zoom)+12))return false;
  const distance=Math.hypot(contact.x-e.x,contact.y-e.y),range=clamp((e.personality?.preferredRange||210)*1.35+100,310,470);
  if(distance<55||distance>range)return false;
  const error=fighterAim(game,e,contact)-e.a;
@@ -59,7 +59,7 @@ export function fireFighterBurst(game,e){
  if(!ordinaryFighter(e))return false;
  const contact=game.enemyCombatTarget(e),pressure=fighterPressure(game),now=game.t||0;
  // Separate independent NPC fights from the player's shared threat budget.
- const npc=(game.patrols||[]).includes(contact),budget=npc?'_npcFighterBurstAt':'_fighterBurstAt';
+ const npc=(game.patrols||[]).includes(contact)||!!(e.doverInterceptor&&contact.doverBomber),budget=npc?'_npcFighterBurstAt':'_fighterBurstAt';
  if(!fighterShotReady(game,e,contact)||(game[budget]??-Infinity)>now){e.fire=.06;return true;}
  game[budget]=now+.18-.06*pressure;
  e.fire=npc?1.25-.2*pressure:1.8-.35*pressure;

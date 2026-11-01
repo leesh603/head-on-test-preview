@@ -7,7 +7,7 @@ import {treffasMgMuzzle,fliegerGunMuzzle} from './cambrai-layout.js?v=pandemoniu
 import {basicBarrageMuzzle} from './boss-basic-barrage.js?v=pandemonium394r2&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&harbor=20261021';
 import {recordShipWake} from './naval-water.js?v=pandemonium394r2&perf=1029';
 import {predictPilot} from './headon-stageboss-core.js?v=pandemonium394r2&ai=1018&sig=1019&boss=20261020b&phase=1021&harbor=20261021';
-import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=capital-defense-20261101b';
+import {BOSS_CATALOG,STAGES,createBossEncounter} from './headon-stageboss-patterns.js?v=pandemonium394r2&rail=42&ai=1018&sig=1019&boss=20261020b&somme=20261021&cambrai=20261021&phase=1021&cityart=20261022&harbor=20261021';
 import {verdunFortCollapseSites} from './verdun-fortresses.js?v=pandemonium394r2&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {BossHazards} from './headon-stageboss-hazards.js?v=pandemonium394r2&cambrai=20261021&cityart=20261022';
 
@@ -40,7 +40,7 @@ export class BossStages {
   get stage(){return STAGES[this.stageIndex];}
   get capitalBossId(){return this.stage==='berlin'?'final-kaiserkrone':this.stage==='london'?'final-leviathan':null;}
   get capitalEncounter(){return !!(this.finalArena.enabled&&BOSS_CATALOG[this.capitalBossId]?.capitalFinal&&BOSS_CATALOG[this.capitalBossId].faction!==this.teamFaction);}
-  get bossId(){if(this.capitalEncounter)return this.capitalRound===1?this.capitalBossId:this.stage==='london'?'london-apron-raid':'berlin-drachen';return Object.keys(BOSS_CATALOG).find(id=>!BOSS_CATALOG[id].capitalFinal&&BOSS_CATALOG[id].stage===this.stageIndex&&(BOSS_CATALOG[id].faction==='neutral'||BOSS_CATALOG[id].faction!==this.teamFaction));}
+  get bossId(){if(this.capitalEncounter&&this.capitalRound===1)return this.capitalBossId;return Object.keys(BOSS_CATALOG).find(id=>!BOSS_CATALOG[id].capitalFinal&&BOSS_CATALOG[id].stage===this.stageIndex&&(BOSS_CATALOG[id].faction==='neutral'||BOSS_CATALOG[id].faction!==this.teamFaction));}
   attach(encounter) {
     if(this.phase!=='explore')return false;
     if(encounter.bossId!==this.bossId)throw new Error('Wrong stage/faction boss');
@@ -49,7 +49,7 @@ export class BossStages {
   poll() {if(this.phase==='boss'&&this.encounter.completed){this.phase='clear-pending';return true;}return false;}
   startFinalArena(token,blocked=false) {return this.canEnterFinalArena()===true&&this.phase==='final-arena'&&startFinalArenaProgression(this.finalArena,token,blocked);}
   completeFinalArena(token,blocked=false) {return this.phase==='final-arena'&&completeFinalArenaProgression(this.finalArena,token,blocked);}
-  advance(blocked=false) {
+  advance(blocked=false,{missionCompleted=false}={}) {
     if(blocked)return null;
     if(this.phase==='final-arena') {
       if(this.finalArena?.phase!=='cleared')return null;
@@ -58,7 +58,7 @@ export class BossStages {
       this.phase='explore';this.encounter=null;resetFinalArenaRoute(this.finalArena,{completed:true});
       return{completedId,stage:this.stage,stageIndex:this.stageIndex,loopIndex:this.loopIndex,finalArenaCompleted:true,finalArenaToken};
     }
-    if(this.phase!=='clear-pending'||!this.encounter?.completed)return null;
+    if(this.phase!=='clear-pending'||!this.encounter?.completed&&!missionCompleted)return null;
     if(this.capitalEncounter&&this.capitalRound===0){const completedId=this.encounter.id;this.capitalRound=1;this.phase='explore';this.encounter=null;return {kind:'capital-final',completedId,stage:this.stage,stageIndex:this.stageIndex,loopIndex:this.loopIndex,bossId:this.bossId};}
     recordFinalArenaStage(this.finalArena,{order:this.order,stageIndex:this.stageIndex,loopIndex:this.loopIndex,completedId:this.encounter.id});
     const id=this.encounter.id;const pos=this.order.indexOf(this.stageIndex);this.orderPosition=pos<0?this.order.length:pos+1;
@@ -328,7 +328,9 @@ export class StageBossAddon {
       if(!body||body.dead||!part||part.destroyed||body.isCapitalBoss&&part.disabled){this.hazards.pool.release(h.index,h.generation);return;}
       if(h.kind==='projectile'){const m=body.isCapitalBoss?body.hazardMuzzle(part,h):body.kind==='fliegerzug'?fliegerGunMuzzle(body,part,h.sourceAngle??part.shotAngle):body.kind==='treffas-wagen'&&part.id.startsWith('mg-')?treffasMgMuzzle(body,part,h.sourceAngle??part.aimAngle):null;if(m){h.x=m.x;h.y=m.y;}else{h.x=body.x+part.x+h.sourceOffsetX;h.y=body.y+part.y+h.sourceOffsetY;}}
     });
-    this.hazards.update(dt,frame);
+    // Escort bombers are physical victims of the same warned, swept attacks.
+    // They never enter the pilot prediction/trail arrays or other stages.
+    this.hazards.update(dt,frame.doverBombers?.length?{...frame,players:[...frame.players,...frame.doverBombers]}:frame);
     return true;
   }
   beginDefeat(encounter) {
@@ -365,6 +367,16 @@ export class StageBossAddon {
     if(this.ended)return null;
     if(typeof blocked!=='boolean')throw new Error('Pass current pause/upgrade/game-over block state');
     const encounter=this.stages.encounter;
+    const dover=this.stages.stageIndex===17?this.hooks.getDoverMission?.():null;
+    if(dover&&encounter?.completed)dover.bossDefeated=true;
+    const missionExit=!!(dover?.resolved&&encounter&&!encounter.completed);
+    if(missionExit&&!blocked&&this.stages.phase==='boss'){
+      // The convoy result owns the exit. A surviving boss withdraws; it is not
+      // killed, counted, or rewarded by the normal boss-clear path.
+      this.hazards.clear(encounter.id);this.hooks.clearEncounterOwned(encounter.id);
+      for(const body of encounter.bodies.values())body.dispose?.();
+      this.stages.phase='clear-pending';this.defeatSequence=null;
+    }
     if(encounter?.completed&&this.stages.phase==='boss'&&!this.defeatSequence)this.beginDefeat(encounter);
     if(this.defeatSequence&&this.defeatSequence.age<this.defeatSequence.duration)return null;
     if(this.stages.poll()) {
@@ -378,7 +390,7 @@ export class StageBossAddon {
         if(this.time<this.capitalPeerWait.until)return null;
       }
     }
-    const transition=this.stages.advance(blocked);
+    const transition=this.stages.advance(blocked||!!(dover&&!dover.resolved),{missionCompleted:missionExit});
     if(transition){if(transition.kind==='final-arena')this.hooks.onFinalArenaPending(transition);else if(transition.kind==='capital-final')this.hooks.onCue({...transition,type:'capital-final-pending'});else this.hooks.onStageChange(transition);}return transition;
   }
   // Called on host game-over/restart; it does not restart players or submit scores.
@@ -389,7 +401,6 @@ export class StageBossAddon {
     this.defeatSequence=null;this.bodyDefeats=[];
   }
 }
-
 
 
 
