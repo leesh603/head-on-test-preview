@@ -53,9 +53,9 @@ function makeFront(g,state,type,side){
  const p=players(g)[0]||g,reach=Math.max(620,Math.min(850,(p.speed||200)*3.5));
  const f={id:`front-${++state.serial}`,type,side,x:p.x+side*reach,y:p.y-100,status:'active',startedAt:g.t,deadline:g.t+48,enemies:[],patrols:[],targets:[],entered:false};
  const central=g.teamFaction==='central'||g.allyPlane==='fokker';
- const friendly=patrol(g,f,type==='recon'?(central?'dfw_cv':'re7'):type==='escort'?(central?'gotha':'handley-page'):null);
+ const friendly=patrol(g,f,type==='recon'?(central?'dfw_cv':'re7'):type==='escort'?(central?'bomber-transfer-gotha':'bomber-transfer-o400'):null);
  if(['recon','escort','support'].includes(type))f.protected=friendly;
- if(type==='escort'){friendly.frontEscortRoute={x:friendly.x-side*1800,y:friendly.y-900};friendly.waypoint=friendly.frontEscortRoute;friendly.a=Math.atan2(friendly.frontEscortRoute.y-friendly.y,friendly.frontEscortRoute.x-friendly.x);friendly.speed=125;}
+ if(type==='escort'){friendly.renderScale=1.9;friendly.frontEscortRoute={x:friendly.x-side*1800,y:friendly.y-900};friendly.waypoint=friendly.frontEscortRoute;friendly.a=Math.atan2(friendly.frontEscortRoute.y-friendly.y,friendly.frontEscortRoute.x-friendly.x);friendly.speed=125;}
  const count=type==='intercept'?2:type==='elite'?3:2;
  for(let i=0;i<count;i++){const e=spawnEnemy(g,f,type==='intercept'?'bomber':'hunter',i);if(!e)continue;
   if(type==='intercept'){e.frontRoute={x:f.x-side*2600,y:f.y-650};e.a=Math.atan2(e.frontRoute.y-e.y,e.frontRoute.x-e.x);e.speed=Math.min(e.speed,110);f.targets.push(e)}

@@ -1021,13 +1021,13 @@ drawSupport=()=>{
  _patrolSupport79();if(!game)return;
  for(const p of game.patrols||[]){
   if((p.hp<=0||p.life<=0)&&!p.crashing)continue;
-  const x=p.x-game.x+W/2,y=p.y-game.y+H/2;
-  if(p.crashing){drawAircraftCrash(ctx,p,x,y,game.t,fx);const v=enemyCrashVisual(p);ctx.save();ctx.translate(x+v.shadowX,y+v.shadowY);ctx.rotate(p.a+v.roll);ctx.scale(1,v.bank);planeSprite(ctx,0,0,0,p.plane,.9*v.scale,false,true);ctx.restore();ctx.save();ctx.translate(x,y);ctx.rotate(p.a+v.roll);ctx.scale(1,v.bank);planeSprite(ctx,0,0,0,p.plane,.9*v.scale,false,false,0,true);ctx.restore();continue;}if(x<-100||y<-100||x>W+100||y>H+100)continue;
-  ctx.save();planeSprite(ctx,x+12,y+18,p.a,p.plane,.9,false,true);planeSprite(ctx,x,y,p.a,p.plane,.9,false,false,p.hitFlash,p.hp<=p.maxHp*.5);
+  const x=p.x-game.x+W/2,y=p.y-game.y+H/2,scale=p.renderScale||.9,extent=scale/.9;
+  if(p.crashing){drawAircraftCrash(ctx,p,x,y,game.t,fx);const v=enemyCrashVisual(p);ctx.save();ctx.translate(x+v.shadowX,y+v.shadowY);ctx.rotate(p.a+v.roll);ctx.scale(1,v.bank);planeSprite(ctx,0,0,0,p.plane,scale*v.scale,false,true);ctx.restore();ctx.save();ctx.translate(x,y);ctx.rotate(p.a+v.roll);ctx.scale(1,v.bank);planeSprite(ctx,0,0,0,p.plane,scale*v.scale,false,false,0,true);ctx.restore();continue;}if(x<-100||y<-100||x>W+100||y>H+100)continue;
+  ctx.save();planeSprite(ctx,x+12*extent,y+18*extent,p.a,p.plane,scale,false,true);planeSprite(ctx,x,y,p.a,p.plane,scale,false,false,p.hitFlash,p.hp<=p.maxHp*.5);
   ctx.strokeStyle='#83dce9';ctx.lineWidth=2;
-  for(const side of [-1,1]){const sx=x-Math.sin(p.a)*side*32,sy=y+Math.cos(p.a)*side*32;ctx.beginPath();ctx.moveTo(sx-Math.cos(p.a)*5,sy-Math.sin(p.a)*5);ctx.lineTo(sx+Math.cos(p.a)*5,sy+Math.sin(p.a)*5);ctx.stroke()}
-  if(p.hp<p.maxHp){ctx.fillStyle='#182b36';ctx.fillRect(x-16,y+37,32,3);ctx.fillStyle='#83dce9';ctx.fillRect(x-16,y+37,32*p.hp/p.maxHp,3)}
-  if(p.muzzleFlash>0){const mx=x+Math.cos(p.a)*27,my=y+Math.sin(p.a)*27;if(!fx(ctx,'muzzle',mx+Math.cos(p.a)*6,my+Math.sin(p.a)*6,16,16,p.a)){ctx.fillStyle='#f2efb1';ctx.fillRect(mx-2,my-2,4,4)}}
+  for(const side of [-1,1]){const sx=x-Math.sin(p.a)*side*32*extent,sy=y+Math.cos(p.a)*side*32*extent;ctx.beginPath();ctx.moveTo(sx-Math.cos(p.a)*5,sy-Math.sin(p.a)*5);ctx.lineTo(sx+Math.cos(p.a)*5,sy+Math.sin(p.a)*5);ctx.stroke()}
+  if(p.hp<p.maxHp){ctx.fillStyle='#182b36';ctx.fillRect(x-16,y+37*extent,32,3);ctx.fillStyle='#83dce9';ctx.fillRect(x-16,y+37*extent,32*p.hp/p.maxHp,3)}
+  if(p.muzzleFlash>0){const mx=x+Math.cos(p.a)*27*extent,my=y+Math.sin(p.a)*27*extent;if(!fx(ctx,'muzzle',mx+Math.cos(p.a)*6,my+Math.sin(p.a)*6,16,16,p.a)){ctx.fillStyle='#f2efb1';ctx.fillRect(mx-2,my-2,4,4)}}
   ctx.restore();
  }
 };
