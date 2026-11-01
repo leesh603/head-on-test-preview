@@ -1,12 +1,14 @@
 import {BaseBoss,BossPart} from './headon-stageboss-core.js';
+import {O400_LAYOUT} from './o400-layout.js';
+import {segmentDistance,sweptPolygon} from './alps-geometry117.js';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
 export const O400_TURN_RATE=.85;
 export class O400Raider extends BaseBoss {
  constructor({tuning,slot=0,faction='entente',...options}){
-  const hp=tuning.maxHp,defs=[['engine-left',-23,-5,12,.24],['engine-right',23,-5,12,.24],['front-gun',0,-47,9,.13],['rear-gun',0,-10.4,9,.13],['bomb-bay',0,10,10,.22]];
+  const hp=tuning.maxHp,defs=O400_LAYOUT.parts;
   super({...options,maxHp:hp,coreRadius:23,parts:defs.map(([id,x,y,radius,k])=>new BossPart({id,x,y,radius,maxHp:hp*k}))});
   Object.assign(this,{t:tuning,slot,faction,kind:'o400-raider',formationTotal:1,ownsMotion129:true,nativeBomberCombat:true,coreVulnerable:true,a:Math.PI/2,speed:135,age:0,phase:'approach',bayOpen:0});
-  this.mounts=defs.map(([id,x,y])=>({id,x,y}));this.gunWait=.7+slot*.7;
+  this.mounts=defs.map(([id,x,y])=>({id,x,y}));this.gunWait=.7+slot*.7;this.rotateMounts();
  }
  command(type,spec={}){this.emit({...spec,type,bossId:this.id,faction:this.faction});}
  hazard(kind,spec){this.command('hazard',{kind,damage:this.t.damage,warning:0,duration:2,...spec});}
@@ -16,12 +18,24 @@ export class O400Raider extends BaseBoss {
  point(id,angle){const p=this.parts.get(id);return{x:this.x+p.x+(Number.isFinite(angle)?Math.cos(angle)*5:0),y:this.y+p.y+(Number.isFinite(angle)?Math.sin(angle)*5:0)};}
  onPartDestroyed(p){this.volley=null;this.command('cancel-hazards',{tag:this.id+'-'+p.id,pendingOnly:true});}
  hit(a){const p=a.partId&&this.parts.get(a.partId),r=super.hit(a);if(p&&r.damage&&!this.dead){const d=super.hit({damage:r.damage*.7});r.bodyDefeated=d.bodyDefeated;}return r;}
- locateHit(a){const n=Number.isFinite(a.previousX)?Math.min(64,Math.max(1,Math.ceil(Math.hypot(a.x-a.previousX,a.y-a.previousY)/Math.max(3,a.radius||3)))):1;
-  for(let i=0;i<=n;i++){const x=n===1&&!Number.isFinite(a.previousX)?a.x:a.previousX+(a.x-a.previousX)*i/n,y=n===1&&!Number.isFinite(a.previousY)?a.y:a.previousY+(a.y-a.previousY)*i/n,r=a.radius||0,h=super.locateHit({x,y,radius:r});if(h)return h;
-   const c=Math.cos(this.a+Math.PI/2),s=Math.sin(this.a+Math.PI/2),dx=x-this.x,dy=y-this.y,lx=dx*c+dy*s,ly=-dx*s+dy*c;
-   if((lx/(89+r))**2+((ly+6)/(12+r))**2<=1||(lx/(13+r))**2+(ly/(55+r))**2<=1)return{partId:null};
+ locateHit(a){
+  if(this.dead)return null;
+  const x0=Number.isFinite(a.previousX)&&Number.isFinite(a.previousY)?a.previousX:a.x,y0=Number.isFinite(a.previousX)&&Number.isFinite(a.previousY)?a.previousY:a.y,r=Math.max(0,a.radius||0);
+  // Use the existing swept geometry helper. No generic central collision disc:
+  // the empty space between the main wings and tail must remain empty.
+  const c=Math.cos(this.a+Math.PI/2),s=Math.sin(this.a+Math.PI/2),local=(x,y)=>({x:(x-this.x)*c+(y-this.y)*s,y:-(x-this.x)*s+(y-this.y)*c}),from=local(x0,y0),to=local(a.x,a.y);
+  if(Math.max(from.x,to.x)<-O400_LAYOUT.width/2-r||Math.min(from.x,to.x)>O400_LAYOUT.width/2+r||Math.max(from.y,to.y)<-O400_LAYOUT.height/2-r||Math.min(from.y,to.y)>O400_LAYOUT.height/2+r)return null;
+  const steps=Math.max(1,Math.ceil(Math.hypot(a.x-x0,a.y-y0)/3));let previous={x:x0,y:y0},localPrevious=from;
+  // Walk in travel order, as before, but sweep each short interval so a fast
+  // round cannot skip a thin tailplane or hit the far engine through a wing.
+  for(let i=0;i<=steps;i++){
+   const t=i/steps,point={x:x0+(a.x-x0)*t,y:y0+(a.y-y0)*t},localPoint={x:from.x+(to.x-from.x)*t,y:from.y+(to.y-from.y)*t};
+   for(const p of this.parts.values())if(p.hittable&&!p.destroyed&&segmentDistance(this.x+p.x,this.y+p.y,previous.x,previous.y,point.x,point.y)<=p.radius+r)return{partId:p.id};
+   if(this.coreVulnerable&&O400_LAYOUT.hulls.some(p=>sweptPolygon(localPrevious,localPoint,r,p)))return{partId:null};
+   previous=point;localPrevious=localPoint;
   }return null;
  }
+ hitAt(a){const hit=this.locateHit(a);return hit?this.hit({...a,...hit}):{damage:0,miss:true};}
  update(dt,{players=[],bounds}){
   if(this.dead||dt<=0)return;const p=players.find(p=>p.alive!==false);if(!p)return;this.age+=dt;
   const time=this.encounter?.clock??this.age,live=[...this.encounter?.bodies.values()||[this]].filter(b=>b.kind===this.kind&&!b.dead),rank=live.indexOf(this),count=live.length;

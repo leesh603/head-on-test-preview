@@ -294,9 +294,9 @@ export class StageBossAddon {
     dt=Math.min(.05,dt);if(!dt)return false;
     // Bosses see copies of the pilots carrying their turn rate; the host's frame objects stay untouched.
     frame={...frame,dt,players:(frame.players||[]).map(p=>({...p}))};this.time+=dt;this.frameContext=frame;this.recordTrail(frame);for(const b of this.stages.encounter?.bodies.values()||[])if(b.jutlandBoss&&b.dead)b.deathAge=(b.deathAge||0)+dt;
-    for(const d of this.bodyDefeats){d.age+=dt;if(d.kind==='gotha-raider'&&!d.impacted&&d.age>=d.duration*.86){
+    for(const d of this.bodyDefeats){d.age+=dt;if((d.kind==='gotha-raider'||d.kind==='o400-raider')&&!d.impacted&&d.age>=d.duration*.86){
       d.impacted=true;const pose=gothaCrashPose(d,d.age,d.duration);
-      this.hooks.onCue({type:'boss-destruction-pulse',encounterId:this.stages.encounter?.id,bossId:'gotha-squadron',x:pose.x,y:pose.y,radius:58,final:false});
+      this.hooks.onCue({type:'boss-destruction-pulse',encounterId:this.stages.encounter?.id,bossId:d.kind==='o400-raider'?'o400-squadron':'gotha-squadron',x:pose.x,y:pose.y,radius:58,final:false});
     }}
     this.bodyDefeats=this.bodyDefeats.filter(d=>d.age<d.duration);
     const encounter=this.stages.encounter;
@@ -401,7 +401,3 @@ export class StageBossAddon {
     this.defeatSequence=null;this.bodyDefeats=[];
   }
 }
-
-
-
-
