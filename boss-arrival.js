@@ -1,8 +1,8 @@
 import {attachBossEntry,bossEntryFamily} from './boss-entry-presentation.js';
 import {CAPITAL_BOSS_ART} from './capital-boss-art.js';
-import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js';
-import {verdunFortExtents} from './verdun-fortresses.js';
-import {sommeExtents} from './somme-boss-layout.js';
+import {ALPS_BOMBER_LAYOUT,alpsHullExtents} from './alps-bomber-layout.js?v=gal1';
+import {verdunFortExtents} from './verdun-fortresses.js?v=gal1&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021';
+import {sommeExtents} from './somme-boss-layout.js?v=tame3&somme=20261021';
 // Preserve authored railway, buried-weapon and formation approaches.
 const authored=new Set(['paris-gun','lincomparable','livens-flame-projector','minenwerfer-battery','mark4-wedge','treffas-wagen','fliegerzug','jasta11-circus','naval10-black-flight','london-apron-raid','sinai-landship','wustenpanzer']);
 const installed=new Set(['armored-harbor-fortress','gallipoli-fortress']);
@@ -76,7 +76,7 @@ export function tickBossArrival(addon,encounter,dt,frame){
   finally{addon.preparingArrival=false;}
   const bodies=[...encounter.bodies.values()],lead=bodies[0],family=bossEntryFamily(encounter.bossId);
   // Travel follows the painted nose/tracks instead of sliding broadside into view.
-  const heading=family==='airship'&&!lead.isCapitalBoss?0:['naval','armour'].includes(family)||lead.isCapitalBoss?(lead.hullYaw||0)-Math.PI/2:lead.a??(lead.hullYaw||0)-Math.PI/2;
+  const heading=family==='airship'&&!lead.isCapitalBoss?Math.PI:['naval','armour'].includes(family)||lead.isCapitalBoss?(lead.hullYaw||0)-Math.PI/2:lead.a??(lead.hullYaw||0)-Math.PI/2;
   const offset=outsideOffset(bodies,frame.bounds,{x:-Math.cos(heading),y:-Math.sin(heading)});
   for(const body of bodies){
    Object.assign(body,{arrivalPending:true,arrivalAge:0,arrivalHold:.25,arrivalDuration:3,arrivalPath:{x:body.x,y:body.y,dx:offset.x,dy:offset.y}});

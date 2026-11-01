@@ -1,5 +1,4 @@
 import {HARBOR_PARTS} from './harbor-crane-layout.js?v=tame3&harbor=20261021';
-import {legacyProjectileTarget} from './projectile-contacts.js';
 import {queueBossArtilleryMuzzle} from './artillery-fx.js?v=pandemonium394r2';
 import {beginFinalArena,tickFinalArena,isFinalArena,hitFinalArena} from './final-arena-host.js';
 import {resolveAircraftCritical,applyAircraftCritical,tickAircraftCritical} from './aircraft-criticals.js';
@@ -331,7 +330,6 @@ function pilotVelocity(p,dt){
 }
 export function stageBossCollision(g,e,x,y,b){if(e.intrusionBody)return !blocked(g)&&intrusionTargetCollision(g,e,x,y,b);const body=e.stageBossBody;if(!body)return null;if(blocked(g)||body.dead||body.arrivalPending||g.stageBoss?.stages.encounter?.bodies.get(body.id)!==body)return false;return !!body.locateHit({x,y,previousX:b?.previousX??x,previousY:b?.previousY??y,radius:b?.collisionRadius||0});}
 export function damageStageBoss(g,e,b,damage){
- if(legacyProjectileTarget(g,e)){(b.eliteHits??=new Set()).add(e.id);const before=e.hp;g.eliteEnemies.damageMember(e,damage,{projectile:b,ownerId:b.ownerId??g.id??'p1'});const dealt=Math.max(0,before-e.hp);recordCombatImpact(b,e,{damage:dealt,blocked:!(dealt>0)});return;}
  damage*=momentumDamage(g,b);
  if(e.finalArenaTarget)return hitFinalArena(g,e,b,damage);
  if(e.groundFacility)return damageFacility(g,e,b,damage);
