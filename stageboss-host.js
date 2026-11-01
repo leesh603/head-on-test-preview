@@ -464,6 +464,7 @@ export function aceRecoveryReady(g){return !g._aceCombatActive?.size&&(g._aceCom
 export function stageCombatWindow(g){
  const stages=g.stageBoss?.stages;if(!stages)return null;
  const stage=stages.stageIndex,route=stage===7?g.navalRoute:stage===14?g.gallipoliRoute:stage===16?g.jutlandRoute:null;
+ if(stage===17&&g.doverMission){const m=g.doverMission;return {stageIndex:17,loopIndex:stages.loopIndex||0,remaining:m.bossReady?0:Math.max(0,m.config.waveGap-(m.time-m.lastWaveAt)),progress:m.progress,approaching:true,ready:m.bossReady};}
  const distance=stage===14?GALLIPOLI_ROUTE.fort:STAGE_BOSS_BALANCE.distance;
  const target=distance*(stage===7?.78:1),travel=route?Math.max(0,route.maxForward||0):Math.max(0,(g.distance||0)-(g.stageStartDistance||0));
  const speed=Math.max(170,...players(g).filter(alive).map(p=>Math.abs(p.speed||0)));
