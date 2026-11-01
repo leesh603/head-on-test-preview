@@ -65,10 +65,12 @@ export function mergePilotUnlocks(a,b){
  for(const [id,row]of Object.entries(b.best))if(progressScore(id,row)>progressScore(id,out.best[id]))out.best[id]=row;
  out.receipts=Object.fromEntries(Object.entries(out.receipts).slice(-8));return out;
 }
-let book=null;
-export function setPilotUnlockBook(value){book=value;if(book)book.data.pilotUnlocks=cleanPilotUnlocks(book.data.pilotUnlocks)}
-export const pilotUnlocked=id=>DEFAULT_PILOTS.includes(id)||!!book?.data.pilotUnlocks?.unlocked?.[id];
-export const pilotUnlockProgress=id=>(definitions.get(id)?.goals||[]).map(g=>({...g,value:Math.min(g.goal,(definitions.get(id)?.sortie?book?.data.pilotUnlocks?.best?.[id]?.[g.key]:book?.data.pilotUnlocks?.metrics?.[g.key])||0)}));
+// Partial releases can load this module under multiple cache-busted URLs.
+// Hangar, cloud restore and sortie must observe the same live record in this realm.
+const unlockSession=globalThis[Symbol.for('headon.pilot-unlocks.v1')]??={book:null,runtimes:new WeakMap()};
+export function setPilotUnlockBook(value){unlockSession.book=value;if(unlockSession.book)unlockSession.book.data.pilotUnlocks=cleanPilotUnlocks(unlockSession.book.data.pilotUnlocks)}
+export const pilotUnlocked=id=>DEFAULT_PILOTS.includes(id)||!!unlockSession.book?.data.pilotUnlocks?.unlocked?.[id];
+export const pilotUnlockProgress=id=>(definitions.get(id)?.goals||[]).map(g=>({...g,value:Math.min(g.goal,(definitions.get(id)?.sortie?unlockSession.book?.data.pilotUnlocks?.best?.[id]?.[g.key]:unlockSession.book?.data.pilotUnlocks?.metrics?.[g.key])||0)}));
 const central=new Set(['frommherz','baron','voss','boelcke','goering','huffzky','berthold','wolff','loewenhardt','jacobs','gontermann','lothar','sachsenberg','schleich',...DEFAULT_PILOTS.slice(0,3)]);
 export function pilotUnlockFallback(id,faction){if(pilotUnlocked(id))return id;return (faction|| (central.has(id)?'central':'entente'))==='central'?'immelmann':'hawker'}
 export const eligibleForPilotUnlocks=g=>!!g&&!g.testMode&&!g.developmentMode&&!g.debugMode&&g.mode!=='campaign'&&!(typeof location!=='undefined'&&/[?&](?:\w*qa|test|debug)(?:[=&]|$)/i.test(location.search));
@@ -85,17 +87,17 @@ const night=g=>[11,15,17].includes(g.worldRegion?.()??g.region);
 const regions={1:'sea',7:'zeebrugge',16:'jutland',17:'dover-night'};
 const combatPool=g=>g.eliteEnemies?.members?.length?[...(g.enemies||[]),...g.eliteEnemies.members]:(g.enemies||[]);
 const squadFor=(g,e)=>e.directorSquad||(e.squadronId?g.eliteEnemies?.squadrons?.find(s=>s.id===e.squadronId):null);
-const runtimes=new WeakMap();
-export function pilotUnlockRun(world){const g=world?.world||world;if(!book||!eligibleForPilotUnlocks(g)||g.online&&!g.host)return null;let r=runtimes.get(g);if(!r){r=new PilotUnlockRun(g);runtimes.set(g,r)}return r}
+const runtimes=unlockSession.runtimes;
+export function pilotUnlockRun(world){const g=world?.world||world;if(!unlockSession.book||!eligibleForPilotUnlocks(g)||g.online&&!g.host)return null;let r=runtimes.get(g);if(!r){r=new PilotUnlockRun(g);runtimes.set(g,r)}return r}
 function applyPacket(g,p,packet){
- if(!book||!eligibleForPilotUnlocks(g)||g.online&&pid(p)!==g.localPlayerId||!packet||!validId(packet.id))return;
- const d=book.data.pilotUnlocks??=emptyPilotUnlocks(),old=d.receipts[packet.id]||{},next={...old};let changed=false;
+ if(!unlockSession.book||!eligibleForPilotUnlocks(g)||g.online&&pid(p)!==g.localPlayerId||!packet||!validId(packet.id))return;
+ const d=unlockSession.book.data.pilotUnlocks??=emptyPilotUnlocks(),old=d.receipts[packet.id]||{},next={...old};let changed=false;
  for(const [k,v]of Object.entries(packet.add||{}))if(keys.has(k)){const n=number(v),delta=Math.max(0,n-(old[k]||0));if(delta){d.metrics[k]=number((d.metrics[k]||0)+delta);changed=true}next[k]=Math.max(n,old[k]||0)}
  for(const [k,v]of Object.entries(packet.max||{}))if(keys.has(k)&&number(v)>(d.metrics[k]||0)){d.metrics[k]=number(v);changed=true}
  for(const [k,list]of Object.entries(packet.unique||{}))if(setKeys.has(k)&&Array.isArray(list)){const a=[...new Set([...(d.collections[k]||[]),...list.filter(validId)])].slice(0,100);if(a.length!==(d.collections[k]||[]).length){d.collections[k]=a;d.metrics[k]=a.length;changed=true}}
  for(const [id,row]of Object.entries(packet.progress||{}))if(definitions.get(id)?.sortie&&progressScore(id,row)>progressScore(id,d.best[id])){d.best[id]=Object.fromEntries(definitions.get(id).goals.map(g=>[g.key,number(row[g.key])]));changed=true}
- const earned=[];for(const def of PILOT_CHALLENGES){if(d.unlocked[def.id])continue;const passed=def.sortie?(packet.qualified||[]).includes(def.id)&&def.goals.every(g=>number(packet.progress?.[def.id]?.[g.key])>=g.goal):def.goals.every(g=>(d.metrics[g.key]||0)>=g.goal);if(passed){d.unlocked[def.id]=book.clock();earned.push(def.id);changed=true}}
- if(changed){d.receipts[packet.id]=next;d.receipts=Object.fromEntries(Object.entries(d.receipts).slice(-8));g.pilotUnlockSession??={};const list=g.pilotUnlockSession[pid(p)]??=[];for(const id of earned)if(!list.includes(id))list.push(id);book.persist([],earned)}
+ const earned=[];for(const def of PILOT_CHALLENGES){if(d.unlocked[def.id])continue;const passed=def.sortie?(packet.qualified||[]).includes(def.id)&&def.goals.every(g=>number(packet.progress?.[def.id]?.[g.key])>=g.goal):def.goals.every(g=>(d.metrics[g.key]||0)>=g.goal);if(passed){d.unlocked[def.id]=unlockSession.book.clock();earned.push(def.id);changed=true}}
+ if(changed){d.receipts[packet.id]=next;d.receipts=Object.fromEntries(Object.entries(d.receipts).slice(-8));g.pilotUnlockSession??={};const list=g.pilotUnlockSession[pid(p)]??=[];for(const id of earned)if(!list.includes(id))list.push(id);unlockSession.book.persist([],earned)}
 }
 export function pilotUnlockEliteDeath(g,detail){const member=g.eliteEnemies?.squadrons?.flatMap(s=>s.members||[]).find(e=>e.id===detail.memberId)||g.eliteEnemies?.members?.find(e=>e.id===detail.memberId);if(member)pilotUnlockRun(g)?.noteDeath(member,detail.source?.projectile||{...detail.source,pilotSupport:!!member.burnSupport})}
 export function syncPilotUnlocks(g){g=g?.world||g;if(!g||!eligibleForPilotUnlocks(g))return;for(const p of players(g))if(p.pilotChallengeRecord)applyPacket(g,p,p.pilotChallengeRecord)}
