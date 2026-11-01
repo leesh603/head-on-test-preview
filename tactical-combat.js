@@ -93,7 +93,7 @@ function burst(p,b,amount=2,style=b.tacticalStyle,combo=null,target=null){
 
 export function installTacticalCombat(Game,{PLANES={}}={}){
  if(Game.prototype.__tacticalCombat)return;Game.prototype.__tacticalCombat=true;
- Game.prototype.tacticalWingAim=function(wing,target){return wing.weaponModFormation?tacticalAimPoint(this,target,wing,470):target;};
+ Game.prototype.tacticalWingAim=function(wing,target){return wing.weaponModFormation||target?.stageBossBody?tacticalAimPoint(this,target,wing,470):target;};
  Game.prototype.tacticalWingDamage=function(wing){return wing?.permanent&&!wing.aceWingman&&wing.ownerId===(this.id||'p1')&&this.weaponMods?.FORMATION==='reinforcement'&&wing.slot>=Math.min(7,this.permanentWingman||0)?TACTICAL_COMBAT_BALANCE.reinforcementDamage:1;};
  Game.prototype.tacticalWingMode=function(){return this.weaponMods?.FORMATION||(['crossfire','formationBreakthrough','guidedBombing','mutualCover'].includes(this.compositeTactic)?'escort':null);};
  Game.prototype.tacticalWingOrder=function(wing){

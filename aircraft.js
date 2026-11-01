@@ -5,13 +5,13 @@ import {PHOTO_RECON_ART,paintPhotoReconSprite} from './photo-recon-view.js';
 import {SORTIE_FITS,PILOT_RENDER_ART} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
 import {clearCrewMatte} from './matte70.js?v=gal1';
 import {BANK_ART} from './aircraft-bank-art.js?v=outline1';
-import {AIRCRAFT_OUTLINE_ART,AIRCRAFT_ART_REVISION} from './aircraft-outline-art.js?v=outline1&art=pilot-recovery2';
+import {AIRCRAFT_OUTLINE_ART,AIRCRAFT_ART_REVISION,AIRCRAFT_RIM_REPAIR_KEYS} from './aircraft-outline-art.js?v=outline1&art=pilot-recovery2';
 import {CREW_BAKED,CREW_NONE} from './aircraft-crew-baked.js?v=crewbake1';
 // NPC crew is pre-composited offline (scripts/bake-npc-crew.mjs -> crew-baked/). The live
 // compositor and its 785 KB seat table load only for art the bake has not covered yet.
 const CREW_BAKE_MODE=typeof location!=='undefined'&&new URLSearchParams(location.search).get('crewbake')==='1';
 let crewModulePromise=null;const crewModule=()=>crewModulePromise??=import('./aircraft-crew-cache.js?v=crew-20261026');
-const crewNone=new Set(CREW_NONE);
+const crewNone=new Set(CREW_NONE),rimRepairs=new Set(AIRCRAFT_RIM_REPAIR_KEYS);
 // Exact stock-bank paint cells; these stay outside the evictable NPC art cache.
 const BOMBER_TRANSFER_ART=Object.freeze({
  'transfer-caudron-r11':{path:'asset-bank/outlined/native/asset-bank/flight/bank_plane_caudron_r11.webp',x:0,y:0,w:288,h:320},
@@ -97,7 +97,7 @@ function pumpCrew(){const job=crewJobs.shift();if(!job){crewRunning=false;return
 const queueCrew=fn=>new Promise(resolve=>{crewJobs.push({fn,resolve});if(!crewRunning){crewRunning=true;idle(pumpCrew)}});
 // Match the established 288x320 aircraft rim once at decode, never during a frame.
 // Already baked aircraft and their approved geometry remain untouched.
-function outlineUnbakedAircraft(source){
+export function outlineUnbakedAircraft(source){
  const mask=document.createElement('canvas');mask.width=source.width;mask.height=source.height;
  const mc=mask.getContext('2d');mc.drawImage(source,0,0);mc.globalCompositeOperation='source-in';mc.fillStyle='#140f08';mc.fillRect(0,0,mask.width,mask.height);
  const out=document.createElement('canvas');out.width=source.width;out.height=source.height;const c=out.getContext('2d');
@@ -110,13 +110,14 @@ const decodePainted=(key,skipCrew=false)=>new Promise(resolve=>{
  let settled=false;const img=new Image();
  const finish=ok=>{if(settled)return;settled=true;clearTimeout(deadline);img.onload=null;img.onerror=null;if(!ok)img.src='';resolve(ok)};
  const deadline=setTimeout(()=>finish(false),45000);
+ const commitPainted=out=>{if(!rimRepairs.has(key)||CREW_BAKE_MODE){setPainted(key,out);finish(true);return}queueCrew(()=>outlineUnbakedAircraft(out)).then(repaired=>{if(settled)return;if(!repaired){finish(false);return}setPainted(key,repaired);finish(true)})};
  const afterCrew=(result,done)=>{if(!result?.then){done();return}result.then(()=>{if(settled)return;try{done()}catch{finish(false)}},()=>{if(settled)return;try{done()}catch{finish(false)}})};
  if(key==='zero_sector_junkers_d1'){img.onload=()=>{try{const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0,288,320);setPainted(key,outlineZeroSectorAircraft(out));finish(true)}catch{finish(false)}};img.onerror=()=>finish(false);img.src=new URL('./asset-bank/zero-district/junkers-d1.webp',import.meta.url).href;return;}
  // Pre-composited crewed sprite: the stored image is the final painted 288x320 canvas.
  const crewFile=!skipCrew&&!CREW_BAKE_MODE&&CREW_BAKED[key]&&new URLSearchParams(location.search).get('mech')!=='0'?CREW_BAKED[key]:null;
  if(crewFile){let crewTries=0;const url=new URL(`./crew-baked/${crewFile}`,import.meta.url).href;
   // Decode off-thread before the copy: a sync decode inside drawImage is a mid-combat hitch.
-  img.onload=()=>{if(settled)return;(img.decode?img.decode():Promise.resolve()).catch(()=>{}).then(()=>{if(settled)return;try{const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0);setPainted(key,out);finish(true)}catch{finish(false)}})};
+  img.onload=()=>{if(settled)return;(img.decode?img.decode():Promise.resolve()).catch(()=>{}).then(()=>{if(settled)return;try{const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0);commitPainted(out)}catch{finish(false)}})};
   img.onerror=()=>{if(++crewTries<4){img.src=url+'?r='+crewTries;return}img.onload=null;img.onerror=null;decodePainted(key,true).then(finish,()=>finish(false))};img.src=url;return;}
  // Crew step for art without a baked file: decide synchronously when the bake knows the key has no
  // crew; otherwise load the compositor lazily. Bake mode records the final painted canvas.
@@ -127,7 +128,7 @@ const decodePainted=(key,skipCrew=false)=>new Promise(resolve=>{
  };
  img.onload=()=>{if(settled)return;try{
   if(PHOTO_RECON_ART[key]){const out=document.createElement('canvas');out.width=288;out.height=320;paintPhotoReconSprite(out.getContext('2d'),img,key);queueCrew(()=>outlineUnbakedAircraft(out)).then(o=>{if(settled)return;setPainted(key,o||out);finish(true)});return;}
-  if(bakedArt){const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0);const done=()=>{setPainted(key,out);finish(true)};if(!SORTIE_FITS[key]?.crewBaked){withCrew(out,bakedArt,null,done);return}done();return;}
+  if(bakedArt){const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0);const done=()=>{commitPainted(out)};if(!SORTIE_FITS[key]?.crewBaked){withCrew(out,bakedArt,null,done);return}done();return;}
   // Pre-cropped transparent stock-bank art needs no full image pixel readback.
   // Downsample once on first appearance; the established cache/shadow pipeline follows.
   if(key.startsWith('bank_')||BOMBER_TRANSFER_ART[key]){
@@ -137,7 +138,7 @@ const decodePainted=(key,skipCrew=false)=>new Promise(resolve=>{
     oc.drawImage(img,art.x,art.y,art.w,art.h,0,0,288,320);
     if(key==='bomber-transfer-gotha'){const pixels=oc.getImageData(0,0,288,320);clearAircraftMatte(key,pixels.data,288,320);oc.putImageData(pixels,0,0);}
     // The rim (21 full-canvas blits) runs in an idle slot, not inside a combat frame.
-    const done=()=>{if(!(key.startsWith('bank_')&&!art.path.startsWith('asset-bank/outlined/'))){setPainted(key,out);finish(true);return}queueCrew(()=>outlineUnbakedAircraft(out)).then(o=>{if(settled)return;setPainted(key,o||out);finish(true)})};if(!art.crewBaked){withCrew(out,art.path,art,done);return}
+    const done=()=>{if(!(key.startsWith('bank_')&&!art.path.startsWith('asset-bank/outlined/'))){commitPainted(out);return}queueCrew(()=>outlineUnbakedAircraft(out)).then(o=>{if(settled)return;setPainted(key,o||out);finish(true)})};if(!art.crewBaked){withCrew(out,art.path,art,done);return}
     done();return;
   }
   const scan=document.createElement('canvas');scan.width=Math.ceil(img.naturalWidth/2);scan.height=Math.ceil(img.naturalHeight/2);const sc=scan.getContext('2d',{willReadFrequently:true});sc.drawImage(img,0,0,scan.width,scan.height);const pixels=sc.getImageData(0,0,scan.width,scan.height),rgba=pixels.data;if(key==='nieuport_italian')for(let i=0;i<rgba.length;i+=4){const r=rgba[i],g=rgba[i+1],b=rgba[i+2];if(rgba[i+3]>0&&b>70&&b>r*1.18&&b>g*1.05){rgba[i]=55;rgba[i+1]=132;rgba[i+2]=78}}clearAircraftMatte(key,rgba,scan.width,scan.height);clearCrewMatte(key,rgba,scan.width,scan.height);sc.putImageData(pixels,0,0);let minX=scan.width,minY=scan.height,maxX=-1,maxY=-1;
