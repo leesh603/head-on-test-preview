@@ -85,7 +85,7 @@ Object.assign(UPGRADE_DESC_EN,{
 
 Object.assign(UPGRADE_NAMES_EN,{
  strutterAirbrake:'Sopwith Strutter Airbrake',wimperisSight:"Adapted from a bombing sight: launch-time prediction for rockets and bombs, including Guynemer and Bishop. No homing or extra projectiles.",
- buckinghamBelt:'Buckingham Incendiary Belt',cooperRack:'Cooper Light Bomb Rack',fieryGrapnel:"Close-flyby hook and fire. Direct damage inherits 50% of MG bonuses, capped at +50%.",flechettes:"Every 5s, fires 12 piercing darts in symmetric three-dart volleys with up to 12° forward aim correction. Inherits 50% of MG bonuses, capped at +50%; heavy armor takes 25%.",veryPistol:"Prioritizes a recently hit forward target; preserves formations and retargets once.",hytheCamera:"Adapted from a training camera gun. Three distinct front/rear MG hits analyze a target for 6s: MG and direct Active bursts +30%; analyzed targets guide the telescope and Fonck burst."
+ buckinghamBelt:'Buckingham Incendiary Belt',cooperRack:'Cooper Light Bomb Rack',fieryGrapnel:"Close-flyby hook and fire. Direct damage inherits 50% of MG bonuses, capped at +50%.",flechettes:"Every 4s, fires 12 piercing darts. Cockpit hits: 24% pilot kill (4% vs aces). Inherits 50% of MG bonuses, capped at +50%; heavy armor takes 25%.",veryPistol:"Prioritizes a recently hit forward target; preserves formations and retargets once.",hytheCamera:"Adapted from a training camera gun. Three distinct front/rear MG hits analyze a target for 6s: MG and direct Active bursts +30%; analyzed targets guide the telescope and Fonck burst."
 });
 Object.assign(UPGRADE_DESC_EN,{
  strutterAirbrake:'Turns fighter evasion into a brake turn, slowing briefly before reaccelerating. Cannot be equipped with an airframe conversion.',
@@ -93,7 +93,7 @@ Object.assign(UPGRADE_DESC_EN,{
  buckinghamBelt:'Three consecutive machine-gun hits ignite the target.',
  cooperRack:'Drops two light bombs at a forward target every 4s.',
  fieryGrapnel:"Close-flyby hook and fire. Direct damage inherits 50% of MG bonuses, capped at +50%.",
- flechettes:"Every 5s, fires 12 piercing darts in symmetric three-dart volleys with up to 12° forward aim correction. Inherits 50% of MG bonuses, capped at +50%; heavy armor takes 25%.",
+ flechettes:"Every 4s, fires 12 piercing darts. Cockpit hits: 24% pilot kill (4% vs aces). Inherits 50% of MG bonuses, capped at +50%; heavy armor takes 25%.",
  veryPistol:"Prioritizes a recently hit forward target; preserves formations and retargets once.",
  hytheCamera:"Adapted from a training camera gun. Three distinct front/rear MG hits analyze a target for 6s: MG and direct Active bursts +30%; analyzed targets guide the telescope and Fonck burst."
 });

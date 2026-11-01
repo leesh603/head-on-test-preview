@@ -24,7 +24,7 @@ const CHOICE_COPY={
  buckinghamBelt:['기관총 연속 명중으로 적 기체에 불을 붙입니다.','Repeated MG hits ignite enemy aircraft.'],
  cooperRack:['전방 적을 스쳐 지나며 소형 폭탄을 연속 투하합니다.','Drops a pair of light bombs when passing a forward target.'],
  fieryGrapnel:["근접 교차 갈고리·화상. 직접 피해에 기관총 강화 50% 반영 (최대 +50%).", "Close-flyby hook and fire. Direct damage inherits 50% of MG bonuses, capped at +50%."],
- flechettes:["관통 화살탄 12발. 기관총 강화 50% 반영 (최대 +50%), 중장갑 피해 25%.", "12 piercing darts. Inherits 50% of MG bonuses up to +50%; heavy armor takes 25%."],
+ flechettes:["4초마다 관통 화살탄 12발. 조종석 파일럿킬 24% (에이스 4%). 중장갑 피해 25%.", "12 piercing darts every 4s. Cockpit pilot kill: 24% (4% vs aces). Heavy armor takes 25%."],
  veryPistol:["최근 직접 맞힌 전방 표적 우선 지휘. 대형 유지·남은 시간 내 1회 재지정.", "Prioritizes a recently hit forward target; preserves formations and retargets once."],
  hytheCamera:["주무장 3회 명중 → 6초 분석·피해 +30%. 망원경·퐁크 점사가 분석 표적 우선.", "3 distinct MG hits: 6s analysis, +30% damage; telescope and Fonck burst prioritize the target."],
  amatolCharge:['폭발 피해·반경 +40%. 폭발 격추 시 30% 파편 폭발 (연쇄 없음).','Blast damage/radius +40%. Explosive kills cause a 30% secondary blast; no chains.'],

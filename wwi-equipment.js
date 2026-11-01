@@ -6,7 +6,7 @@ export const WWI_EQUIPMENT=Object.freeze([
  Object.freeze({id:'buckinghamBelt',name:'버킹엄 소이탄 탄띠',desc:'기관총 3회 연속 명중으로 적 기체에 불을 붙입니다.',family:'GUN'}),
  Object.freeze({id:'cooperRack',name:'쿠퍼 소형 폭탄 랙',desc:'4초마다 전방 적을 향해 소형 폭탄 2발을 연속 투하합니다.',family:'EXPLOSIVE'}),
  Object.freeze({id:'fieryGrapnel',name:'파이어리 그래프넬',desc:'6초마다 근접 교차한 적기에 화염 갈고리를 걸어 3초간 불태웁니다. 직접 피해는 기관총 강화의 50%를 반영합니다 (최대 +50%).',family:'GUN'}),
- Object.freeze({id:'flechettes',name:'플레셰트 강철 화살탄',desc:'5초마다 전방 표적을 최대 12° 보정 조준해 관통 화살탄 12발을 3발씩 대칭 연사합니다. 기관총 강화의 50% 반영 (최대 +50%). 중장갑 피해 25%.',family:'GUN'}),
+ Object.freeze({id:'flechettes',name:'플레셰트 강철 화살탄',desc:'4초마다 관통 화살탄 12발. 조종석 명중 시 파일럿킬 24% (에이스 4%). 기관총 강화 50% 반영 (최대 +50%), 중장갑 피해 25%.',family:'GUN'}),
  Object.freeze({id:'veryPistol',name:'베리 신호권총',desc:'9초마다 최근 직접 명중한 전방 표적을 우선 지정해 6초간 집중 공격을 유도합니다. 표적 소실 시 남은 시간 안에서 1회 재지정합니다.',family:'FORMATION'}),
  Object.freeze({id:'hytheCamera',name:'하이스 건 카메라',desc:'공중사격 훈련용 카메라의 각색. 전방·후방 주무장 각각 3회 연속 명중으로 표적을 분석합니다. 6초간 해당 표적에 기관총·직접 기관총 액티브 피해 +30%, 공격 준비를 드러내고 망원경·퐁크 점사가 분석 표적을 우선합니다.',family:'GUN'})
 ]);
@@ -16,7 +16,7 @@ export const WWI_BALANCE=Object.freeze({
  buckingham:Object.freeze({hits:3,hitGap:1.5}),
  cooper:Object.freeze({cooldown:4,stagger:.18,fuse:.55,radius:66,damage:70}),
  grapnel:Object.freeze({cooldown:6,proximity:40,maxCable:110,speed:720,life:.18,damage:42,collisionRadius:8,cableDuration:2.2}),
- flechettes:Object.freeze({cooldown:5,count:12,burst:3,stagger:.08,minDamage:12,maxDamage:16,speed:590,life:.76,spread:.06,laneWidth:24,aimCone:Math.PI/15,collisionRadius:2,heavyMultiplier:.25}),
+ flechettes:Object.freeze({cooldown:4,count:12,burst:3,stagger:.08,minDamage:14,maxDamage:18,speed:590,life:.76,spread:.06,laneWidth:24,aimCone:Math.PI/15,collisionRadius:2,heavyMultiplier:.25}),
  veryPistol:Object.freeze({cooldown:9,duration:6}),
  hytheCamera:Object.freeze({hits:3,hitGap:1.5,visibility:6,damageMultiplier:1.3})
 });

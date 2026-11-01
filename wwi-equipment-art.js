@@ -153,8 +153,9 @@ export function drawWWIEquipment(c,world,W,H,options={}){
    }
   }
   if(b.fieryGrapnel)grapnelSprite(c,'grapnelHead',sx(b.x),sy(b.y),36*z,Math.atan2(b.vy,b.vx));
-  else sprite(c,'flechetteDart',sx(b.x),sy(b.y),10*z,Math.atan2(b.vy,b.vx));
+  else sprite(c,'flechetteDart',sx(b.x),sy(b.y),18*z,Math.atan2(b.vy,b.vx));
  }
  c.restore();
 }
+
 

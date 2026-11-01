@@ -3,7 +3,7 @@
 // second hitbox. Aircraft can supply criticalLayout for exceptional arrangements.
 export const AIRCRAFT_CRITICAL_BALANCE=Object.freeze({
  attempt:.12,aceAttempt:.28,playerAttempt:.75,wingRecovery:.55,wingCooldown:1.2,
- aceOpeningProtection:12,pilotKill:.01,acePilotKill:.0015,mauserPilotKill:.08,mauserAcePilotKill:.02,
+ aceOpeningProtection:12,pilotKill:.01,acePilotKill:.0015,mauserPilotKill:.08,mauserAcePilotKill:.02,flechettePilotKill:.24,flechetteAcePilotKill:.04,
  wing:Object.freeze({chance:.52,multiplier:1.25}),
  body:Object.freeze({chance:.28,multiplier:1.5}),
  engine:Object.freeze({chance:.55,multiplier:2.3}),
@@ -32,8 +32,9 @@ const ace=e=>!!(e.bossPilot||e.ace||e.rivalAce||e.type==='boss');
 function eligible(e,b,player){
  if(!e||!b||!(e.hp>0)||e.crashing||e.crashed||e.expired||e.stageBossBody||e.intrusionBody||e.surface||e.stationary||e.fieldUnit||e.navalVessel||e.bugDrone||e.groundEscort||e.missionGround||e.londonInstallation||e.cityUnit||e.bossAirship||e.type==='zeppelin')return false;
  if(e.invuln>0||e.aceInvuln124>0)return false;
+ if(b.flechette&&(player||b.enemy))return false;
  if(!player&&!['scout','hunter','bomber','boss','fighter'].includes(e.type)&&!ace(e))return false;
- return !b.bomberSalvo&&!b.actualExplosion&&!b.explosionRadius&&!b.blast&&!b.fireZone&&!b.identityDotTarget&&!b.fieryGrapnel&&!b.flechette&&!b.patrol&&!b.gas&&!b.flak&&!b.rocket&&!b.hostileRocket&&!b.fieldShell&&!b.heavyShell&&!b.burnTick&&Number.isFinite(b.vx)&&Number.isFinite(b.vy)&&Math.hypot(b.vx,b.vy)>1;
+ return !b.bomberSalvo&&!b.actualExplosion&&!b.explosionRadius&&!b.blast&&!b.fireZone&&!b.identityDotTarget&&!b.fieryGrapnel&&!b.patrol&&!b.gas&&!b.flak&&!b.rocket&&!b.hostileRocket&&!b.fieldShell&&!b.heavyShell&&!b.burnTick&&Number.isFinite(b.vx)&&Number.isFinite(b.vy)&&Math.hypot(b.vx,b.vy)>1;
 }
 export function aircraftCriticalRegion(e,x,y,{player=false,hitRadius}={}){
  // Defaults mirror engine.enemyAircraftHitRadius exactly; injection avoids an
@@ -87,13 +88,15 @@ export function resolveAircraftCritical(world,e,b,damage,{player=false,impactX=b
   }
  }
  const region=aircraftCriticalRegion(e,sampleX,sampleY,geometry);if(!region||time<(e.criticalAttemptAt??-Infinity))return unchanged;
+ // Steel darts specialize in cockpit penetration; other regions keep base damage.
+ if(b.flechette&&region.part!=='cockpit')return unchanged;
  const isAce=!player&&ace(e),balance=AIRCRAFT_CRITICAL_BALANCE,profile=(player?PLAYER_CRITICAL_PROFILES:balance)[region.part];
  e.criticalAttemptAt=time+(player?balance.playerAttempt:isAce?balance.aceAttempt:balance.attempt);
  const random=()=>criticalRandom(world);
  const roll=random();
  // The kill roll is unconditional per cockpit attempt (not chance squared).
- const mauser=!player&&!b.enemy&&b.mauserRound===true;
- const killChance=player?0:mauser?(isAce?balance.mauserAcePilotKill:balance.mauserPilotKill):isAce?balance.acePilotKill:balance.pilotKill;
+ const mauser=!player&&!b.enemy&&b.mauserRound===true,flechette=!player&&!b.enemy&&b.flechette===true;
+ const killChance=player?0:flechette?(isAce?balance.flechetteAcePilotKill:balance.flechettePilotKill):mauser?(isAce?balance.mauserAcePilotKill:balance.mauserPilotKill):isAce?balance.acePilotKill:balance.pilotKill;
  const opening=isAce&&time-(e.aceSpawnT??0)<balance.aceOpeningProtection;
  const pilotKill=region.part==='cockpit'&&!opening&&roll<killChance;
  if(!pilotKill&&roll>=profile.chance*(player?.7:1))return unchanged;
@@ -144,4 +147,5 @@ export function tickAircraftCritical(e,dt){
  e.x+=Math.cos(s.a)*shift;e.y+=Math.sin(s.a)*shift;s.age=next;
  if(next>=s.duration-1e-9)delete e.criticalSway;
 }
+
 

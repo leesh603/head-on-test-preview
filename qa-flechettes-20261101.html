@@ -1,0 +1,28 @@
+<!doctype html><meta charset="utf-8"><title>HEAD-ON Flechette QA</title>
+<style>body{margin:0;background:#141d20;color:#eee;font:14px sans-serif}header{padding:8px}button{margin:4px;padding:8px}iframe{display:block;border:0;margin:auto;width:1280px;height:800px;max-width:100%}pre{white-space:pre-wrap}</style>
+<header><button id="pc">PC 1280×800</button><button id="mobile">모바일 390×844</button><button id="coop">협동</button><span id="status">로딩 중</span></header>
+<iframe id="game" src="./index.html?headonTest=1&autostart=0&flechetteqa=20261101"></iframe>
+<script>
+const frame=document.querySelector('#game'),status=document.querySelector('#status');let api,g,timer,maxDarts=0,errors=[];
+addEventListener('error',e=>{errors.push(e.message);status.textContent='ERROR '+errors.join(';')});
+async function start(mode='pc'){
+ clearInterval(timer);frame.style.width=mode==='mobile'?'390px':'1280px';frame.style.height=mode==='mobile'?'844px':'800px';
+ api=frame.contentWindow.__HEADON_TEST__;if(!api){status.textContent='API 로딩 중';return;}
+ await api.start({region:0,pilot:'baron',coop:mode==='coop'?'voss':undefined,invincible:true,seed:1126});g=api.debug();
+ if(!g){status.textContent='출격 대기';return;}
+ g.state='upgrade';for(const p of g.players||[g]){p.upgrade('flechettes','legendary');p.invuln=1e9;}g.state='playing';
+ g.spawn=g.nextBossAt=g.nextHeavyAt=g._zeppelinSchedule=g.eventTimer=g.flakTimer=g.supplyTimer=g.fieldUnitTimer=Infinity;g.need=Infinity;g.enemies.length=0;g.bullets.length=0;maxDarts=0;
+ let last=0;timer=setInterval(()=>{
+  if(!g)return;for(const p of g.players||[g]){p.a=0;p.speed=0;p.fire=Infinity;p.invuln=1e9;}
+  const p=g.players?.[0]||g;
+  for(const e of g.enemies){e.speed=0;e.fire=Infinity;}
+  if(g.t-last>.7&&g.enemies.filter(e=>e.hp>0&&!e.crashing).length<3){
+   last=g.t;for(let i=0;i<3;i++){const n=g.enemies.length;g.spawnEnemy('scout');const e=g.enemies[n];if(e)Object.assign(e,{x:p.x+180,y:p.y+(i-1)*12,a:Math.PI,speed:0,fire:Infinity,hp:600,maxHp:600,invuln:0,aceInvuln124:0,arrival:null,entryProtection:0});}
+  }
+  maxDarts=Math.max(maxDarts,g.bullets.filter(b=>b.flechette).length);
+  status.textContent=mode+' · '+g.state+' · '+g.t.toFixed(1)+'s · 화살 최대 '+maxDarts+' · 격추 '+g.kills;
+ },40);
+}
+document.querySelector('#pc').onclick=()=>start('pc');document.querySelector('#mobile').onclick=()=>start('mobile');document.querySelector('#coop').onclick=()=>start('coop');
+setInterval(()=>{if(!api&&frame.contentWindow.__HEADON_TEST__)start()},1000);
+</script>
