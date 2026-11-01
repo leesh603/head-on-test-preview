@@ -119,8 +119,10 @@ export function wingmanBossPass(world,owner,wing,target,home,dt,{active=false,bo
  if(state==='RETURN'&&distance(wing,home)<110){state='HOME';wing.engagementUntil=now+.35+(wing.slot||0)*.08;wing.engagementTarget=null;wing._netBossPass=false;}
  let station=home;
  if(state==='INTERCEPT'&&aim){const p=wing.engagementWaypoint||aim;station={...p,a:Math.atan2(aim.y-p.y,aim.x-p.x)};if(!wing.engagementWaypoint)station.a=Math.atan2(aim.y-wing.y,aim.x-wing.x);}
+ if(state==='INTERCEPT'&&aim&&wing.tacticalCrossfire){const offset=130*clamp((distance(wing,aim)-170)/180,0,1);station={...station,x:station.x-Math.sin(owner.a)*side*offset,y:station.y+Math.cos(owner.a)*side*offset};}
  if(state==='PASS'||state==='BREAK'){const a=wing.engagementHeading;station={x:wing.x+Math.cos(a)*240,y:wing.y+Math.sin(a)*240,a};}
- advanceWingFlight(wing,owner,station,dt,{maxSpeed:active?330:250,turnRate:active?2.8:2.2});
+ const breakthrough=wing.tacticalBreakthrough&&(state==='INTERCEPT'||state==='PASS');
+ advanceWingFlight(wing,owner,station,dt,{cruiseSpeed:breakthrough?clamp((owner.speed||170)*1.25*(wing.personality?.acceleration||1),145,260):undefined,maxSpeed:breakthrough?260:active?330:250,turnRate:active?2.8:2.2});
  wing.engagementState=state;return true;
 }
 
@@ -166,7 +168,7 @@ export function wingmanEngagementStep(world,owner,wing,home,dt){
  const now=world.t||0,active=wing.engagementTarget;
  if(active&&(!eligibleModTarget(owner,active,580)||!targetInWorld(world,active)||distance(active,wing)>700))wing.engagementTarget=null;
  if(!mod&&(wing.engagementState==='HOME'||!wing.engagementState||wing.engagementState==='RETURN'&&distance(wing,home)<110)&&!wing.engagementTarget){
-   let best=650,chosen=null;
+  let best=650,chosen=null;
   for(const enemy of wingTargets(world)){if(!eligibleModTarget(owner,enemy,520)||!offensiveWingTarget(enemy))continue;
    let assigned=0;if(world.allies)for(const other of world.allies)if(other!==wing&&other.engagementTarget===enemy)assigned++;
    const score=distance(enemy,wing)+assigned*230;
