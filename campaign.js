@@ -118,8 +118,22 @@ for(const [name,id,base,faction,guns] of fits){
 }
 // Livery variants for the flying-circus look: base sprite key -> alternate painted liveries.
 export const LIVERY_POOL={fokker:['lothar_dr1','beaulieu_dr1','mai_dr1','hantelmann_dr1','jasta11_fokkerd7','jasta18_fokkerd7','jasta27_fokkerd7','jasta43_fokkerd7','gabriel_fokkerd7','kissenberth_albatros','allmenroder_albatros','jasta4_albatros','jasta5_albatros','jasta78b_albatros','baeumer_pfalz','degelow_pfalz','linke_crawford_phonix','kiss_phonix','arigi_aviatik','steinhauser_fokkerd7','greim_fokkerd7','udet_fokkerd7','voss_dr1'],albatros:['jasta4_albatros','jasta5_albatros','jasta78b_albatros','kissenberth_albatros','allmenroder_albatros','degelow_pfalz','baeumer_pfalz','udet_albatros','loerzer_albatros','frommherz_albatros','kirschstein_albatros','berthold_albatros','mueller_albatros','schoder_albatros','buttner_albatros','wolff2_albatros','schleich_albatros'],nieuport:['dorme_nieuport','meulemeester_nieuport','lufbery_nieuport17','eagle_nieuport28','stork_nieuport','bishop_nieuport','navarre_nieuport','camo_nieuport','guynemer_nieuport','heurteaux_nieuport','carli_nieuport','lafayette_nieuport17','nungesser_nieuport'],camel:['dazzle_camel','mcelroy_camel','brown_camel','coppens_hanriot','woollett_camel','collett_camel','naval10_camel','belgian_camel','nonal_camel','maclaren_camel','barker_camel'],spad:['hatring_spad','madon_spad','tarascon_spad','boyau_spad','fonck_spad','thieffry_spad','italian_spad','deullin_spad','germain_spad','audemars_spad','carli_spad','belgium_spad','stork_spad'],se5a:['springs_se5a','proctor_se5a','checker_se5a','mannock_se5a','sqn85_se5a','collishaw_se5a','zebra_se5a','bishop_se5a','dallas_se5a','beauchamp_se5a']};
+// Endless ordinary patrols use era-appropriate models, never named ace paint.
+// Cache the choice per unit so an aircraft cannot change appearance mid-flight.
+const frontlinePaintCache=new WeakMap();
 // Deterministic per-enemy pick: wobble is a stable per-unit rng value (0..6).
-export function liveryVariant(e,base){const pool=LIVERY_POOL[base];if(!pool||e.wobble==null||e.wobble%1<.62)return base;return pool[Math.floor(e.wobble/6*pool.length)%pool.length]}
+export function liveryVariant(e,base,time){
+ if(Number.isFinite(time)&&e&&['scout','hunter'].includes(e.type)&&!e.bossPilot&&!e.escortPlane&&!e.bankAircraft){
+  if(frontlinePaintCache.has(e))return frontlinePaintCache.get(e);
+  const age=Math.max(0,time),roll=Math.max(0,Math.min(.999,(e.wobble??0)/6));
+  const central=e.faction==='central',scout=e.type==='scout';
+  const old=central?(scout?'aviatik':'eindecker'):(scout?'be2c':'airco_dh2');
+  const newModel=central?(scout?'pfalz_d12':'fokkerd7'):(scout?'se5a':'snipe');
+  const chosen=age<45?old:age<210?(roll<Math.min(1,.1+(age-45)/120*.9)?base:old):(roll<Math.min(.82,(age-210)/230*.82)?newModel:base);
+  frontlinePaintCache.set(e,chosen);return chosen;
+ }
+ const pool=LIVERY_POOL[base];if(!pool||e.wobble==null||e.wobble%1<.62)return base;return pool[Math.floor(e.wobble/6*pool.length)%pool.length];
+}
 export function historicalAircraft(stage){const id=AIRCRAFT_IDS[stage.defaultAircraft.split(' / ')[0]];if(!id)throw Error('Unknown historical aircraft: '+stage.defaultAircraft);return id}
 export function sortieAircraft(stage,pilot,free=false,cleared=false,baronAircraft='fokker'){
  if(!PILOTS[pilot]||PILOTS[pilot].faction!==stageFaction(stage))throw Error('다른 진영의 파일럿입니다.');

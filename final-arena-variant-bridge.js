@@ -61,7 +61,12 @@ export function updateVariant(type,s,dt,actualWorldPlayers=[],{paused=false}={})
  if(paused||s.paused||!Number.isFinite(dt)||dt<=0)return [];
  if(s.coreHp<=0){advanceVariantDefeat(type,s,dt);return [];}
  const players=actualWorldPlayers.filter(live).map(p=>({...p,id:p.id??p.playerId,x:p.x/scale,y:p.y/scale,...(Number.isFinite(p.r??p.radius)?{r:(p.r??p.radius)/scale,radius:(p.radius??p.r)/scale}:{})}));
- if(s.variant==='asymmetric'){const phase=s.time*Math.PI/24;s.drive=Math.cos(phase)*.45;s.turn=Math.sin(phase)*.16;}
+ if(s.variant==='asymmetric'){
+  s.arenaHome??={x:s.x,y:s.y,a:s.a};const h=s.arenaHome,dx=s.x-h.x,dy=s.y-h.y;
+  const along=dx*Math.sin(h.a)-dy*Math.cos(h.a),goal=Math.sin(s.time*Math.PI/42)*110;
+  s.drive=Math.max(-.5,Math.min(.5,(goal-along)/60));
+  const delta=Math.atan2(Math.sin(h.a-s.a),Math.cos(h.a-s.a));s.turn=Math.max(-.5,Math.min(.5,delta*2+Math.sin(s.time/20)*.14));
+ }
  const existingHazards=[...s.hazards];
  const firedUnits=new Set(existingHazards.filter(h=>h.kind==='unit'&&h.fired).map(h=>h.id));
  api.updateBoss(s,dt,{players,paused:false});

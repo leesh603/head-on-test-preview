@@ -11,7 +11,7 @@ export function worldPart(profile,part){return {...part,x:part.x*profile.worldSc
 // Three independent war machines join the same fight; no defeat-gated forms.
 export const PANDEMONIUM_DEPLOYMENT=Object.freeze([
  Object.freeze({id:'mobile',variant:'mobile',arrivesAt:0,x:-650,y:-480}),
- Object.freeze({id:'asymmetric',variant:'asymmetric',arrivesAt:.8,x:530,y:-480}),
- Object.freeze({id:'factory',variant:'factory',arrivesAt:1.6,x:0,y:650})
+ Object.freeze({id:'asymmetric',variant:'asymmetric',arrivesAt:3.2,x:530,y:-480}),
+ Object.freeze({id:'factory',variant:'factory',arrivesAt:6.4,x:0,y:650})
 ]);
 export function finalArenaBosses(arena){return Array.isArray(arena?.bosses)?arena.bosses:arena?.fortress?[arena]:[];}

@@ -1,5 +1,6 @@
+import {finalArenaHudModel} from './final-arena-view.js';
 import {activeBossEntry,clipBossEntry,drawBossEntryWorld,drawBossEntryTitle} from './boss-entry-presentation.js';
-import {prepareCapitalTerrain} from './capital-terrain.js?v=capital-defense-20261101b';
+import {prepareCapitalTerrain} from './capital-terrain.js';
 import {prepareO400Art,drawO400} from './o400-art.js?v=natural-flight20261031';
 import {prepareCapitalBossAssets,drawCapitalBoss,isCapitalBoss,capitalBossExtents} from './capital-boss-view.js';
 import {prepareNavalWater} from './naval-water.js?v=tame3&perf=1029';
@@ -16,7 +17,7 @@ import {groundShellProfile} from './explosion-profiles.js?v=fx5';
 import {prepareSkyAirshipArt,releaseSkyAirshipArt,drawSkyAirship,skyAirshipReady} from './sky-airship-art.js?v=skymechanics20261022&motion=20261022';
 import {minenMuzzleLocal} from './minenwerfer-art-layout.js';
 import {drawMinenInstallation} from './minenwerfer-art-render.js?v=gal1-r4&trenchart=20261022';
-import {prepareBossCutins} from './boss-cutin-art.js?v=capital-defense-20261101b';
+import {prepareBossCutins} from './boss-cutin-art.js?v=livingww1d&rail=42&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022&opt=1';
 import {prepareJutlandAssets,drawJutlandBody,drawJutlandHazard,drawJutlandGuide,prepareFleetShipArt} from './jutland-view.js';
 import {drawMaanBoss,prepareMaanAssets,drawMaanWeather,drawMaanHazard} from './maan-view.js?v=regionalair2&ai=1018&boss=20261020b&maanart=20261022';
 import {drawGallipoliBoss,prepareGallipoliAssets,drawGallipoliGuide,drawGallipoliHazard} from './gallipoli-view.js?v=gal1-r10&ai=1018&sig=1019&boss=20261020b&phase=1021&gunart=20261023';
@@ -526,6 +527,20 @@ function drawBossPart(c,p,ring,t=0){
 }
 let sbHudAt=0,sbHudEncounter=null,sbHudModel=null;
 export function updateStageBossHud(g){
+ if(g?.finalArena){
+  const model=finalArenaHudModel(g),slot=document.getElementById('stageBossHud');slot.classList.toggle('hidden',!model);slot.classList.remove('gate-armored');
+  slot.querySelectorAll('.gate-tick').forEach(n=>n.remove());const gate=document.getElementById('stageBossGate');if(gate)gate.textContent='';
+  document.body.classList.toggle('stageboss-playing',g.state!=='lost');
+  if(model){document.getElementById('stageBossTitle').textContent=g.finalArena.phase==='victory'?'판데모니움 · 격파':'판데모니움 · '+model.active+'기 교전';
+   document.getElementById('stageBossParts').textContent=model.detail;
+   document.getElementById('stageBossHp').style.width=model.fraction*100+'%';slot.setAttribute('aria-valuenow',String(Math.ceil(model.hp)));slot.setAttribute('aria-valuemax',String(Math.round(model.maxHp)));
+   let hint=document.getElementById('stageBossTactic');if(!hint){hint=document.createElement('small');hint.id='stageBossTactic';slot.append(hint)}hint.textContent='포격 예고 회피 · 무장과 궤도를 파괴';
+  }
+  const coop=g.mode==='coop2';document.getElementById('coopXpHud').classList.toggle('hidden',!coop);
+  if(coop)for(const p of g.players){document.getElementById(p.id+'XpLabel').textContent=p.id.toUpperCase()+' · LV. '+p.level;document.getElementById(p.id+'XpBar').style.width=Math.min(100,p.xp/p.need*100)+'%';}
+  sbHudEncounter=null;sbHudModel=null;return;
+ }
+
  const intrusion=intrusionHudModel(g,getLocale());
  if(intrusion){
   const slot=document.getElementById('stageBossHud'),en=getLocale()==='en';slot.classList.remove('hidden','gate-armored');
@@ -923,8 +938,7 @@ export function paintSky(c,cx,cy,W,H){
 export function paintCity(c,cx,cy,W,H,city='london'){
  const berlin=city==='berlin',source=cityArt[city]||cityArt.london;
  c.fillStyle=city==='berlin'?'#4a5350':'#535a56';c.fillRect(0,0,W,H);
- // A failed or released city map must not leave the stage as a flat grey field: retry it.
- if(!source.naturalWidth){if(source.complete){source.retryAt??=performance.now()+1500;if(performance.now()>source.retryAt)cityGroup.release([city]);}return;}
+ if(!source.naturalWidth)return;
  if(!source.lowDetail){const tileCanvas=document.createElement('canvas');tileCanvas.width=tileCanvas.height=berlin?source.naturalWidth:256;const tc=tileCanvas.getContext('2d');tc.imageSmoothingEnabled=true;tc.filter=berlin?'saturate(.78) contrast(.92) brightness(.88)':'saturate(.35) contrast(.55) brightness(.7)';tc.drawImage(source,0,0,tileCanvas.width,tileCanvas.height);tc.filter='none';if(!berlin){tc.fillStyle='#53605a';tc.globalAlpha=.28;tc.fillRect(0,0,256,256);}source.lowDetail=tileCanvas;}
  const image=source.lowDetail;
  const tile=berlin?1536:1024,startX=Math.floor(cx*.4/tile),startY=Math.floor(cy*.4/tile),ox=startX*tile-cx*.4,oy=startY*tile-cy*.4;

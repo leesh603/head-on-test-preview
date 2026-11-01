@@ -89,13 +89,26 @@ const bankArtReady=createBankArtGate(key=>{
 },Date.now,key=>rendererModule?.hasPaintedAircraft(key)===true);
 const ordinaryFits=new Set(['fokker_standard','parseval','gotha','ff33','lohner_l','macchi_m3','macchi_m5','hansa_brandenburg_cc','hb_w29','bristol_duo','re7',...Object.keys(BANK_LIVERY_FAMILIES),...Object.values(BANK_LIVERIES).map(fit=>fit.base)]);
 const regular=e=>e&&e.hp>0&&!e.bossPilot&&!e.bossPlane&&!e.bossMinion&&!e.stageBossBody&&!e.heavyBomber&&!e.missionTarget&&!e.fieldUnit&&!e.surface&&!e.stationary&&!e.navalVessel&&!e.formationLeader;
+// Frontline generations enter progressively; older types never disappear.
+const eraHash=id=>{let h=0;for(let i=0;i<id.length;i++)h=(Math.imul(h,31)+id.charCodeAt(i))>>>0;return h};
+export const bankEraUnlockAt=fit=>fit.year>=1918?210+eraHash(fit.family||fit.id)%10*10:fit.year===1917?45+eraHash(fit.family||fit.id)%10*10:0;
+export function bankEraWeight(year,time){
+ const clamp=x=>Math.max(0,Math.min(1,x));
+ if(time<45){const p=clamp(time/45);return year<=1915?Math.round(5-3*p):Math.round(1+3*p)}
+ if(time<210){const p=clamp((time-45)/165);return year<=1915?Math.round(2-p):year===1916?Math.round(4-2*p):Math.round(1+5*p)}
+ const p=clamp((time-210)/210);
+ return year<=1916?1:year===1917?Math.round(5-3*p):Math.round(1+7*p);
+}
 export const bankEncounterCandidates=(faction,type,sea,time,game)=>{
  const historical=Number(game?.stage?.historicalAnchorDate?.slice(0,4));
- const phase=game?.mode==='campaign'&&historical?historical:time>=210?1918:time>=45?1917:1916;
+ const anchored=game?.mode==='campaign'&&historical;
  return Object.entries(BANK_ENCOUNTER_AIRFRAMES).filter(([,v])=>{
   const nonhistorical=game?.mode!=='campaign'&&!game?.historicalMode&&!game?.stage?.historicalAnchorDate;
   const encounterYear=v.endlessFromYear&&nonhistorical&&time>=v.endlessAfter?v.endlessFromYear:v.year;
-  if(v.faction!==faction||encounterYear>phase)return false;
+  if(v.faction!==faction)return false;
+  if(anchored?encounterYear>historical:time<bankEraUnlockAt({...v,year:encounterYear}))return false;
+  // Capture and opposing-national paint belongs to the gallery, not ordinary patrols.
+  if(v.paint&&(v.paint==='captured'||v.faction!==BANK_LIVERY_FAMILIES[v.family]?.faction))return false;
   if(v.encounterTypes&&!v.encounterTypes.includes(type))return false;
   if(v.conceptId&&v.historicalCombat===false&&!nonhistorical)return false;
   if(game?.mode==='campaign'&&v.historicalCombat===false)return false;
@@ -112,19 +125,28 @@ export const bankEncounterCandidates=(faction,type,sea,time,game)=>{
 };
 // Shuffle-bag, not independent random dice: eligible airframes rotate without repeating
 // until a faction / role / era pool is exhausted. No save data or extra spawn entities.
-function chooseBag(game,pool,group){
+function chooseBag(game,pool,group,eraGame=game){
  // Rotate families first: eight paints must not make one model eight times likelier.
  const families=new Map();
  const stockFamilies={nieuport_11_bebe:'nieuport11',nieuport_24:'nieuport24',sopwith_pup:'pup',sopwith_dolphin:'dolphin',sopwith_strutter:'strutter',sopwith_triplane:'triplane',phoenix_d1:'phonix_d1',friedrichshafen_ff33:'ff33'};
  for(const [key,fit]of pool){const family=fit.family||stockFamilies[fit.id]||fit.id;const list=families.get(family)||[];list.push(key);families.set(family,list)}
- const keys=[...families.keys()],signature=pool.map(([key])=>key).join('|');
+ const keys=[...families.keys()],eraTime=eraGame?.t||0;
+ const historical=eraGame?.mode==='campaign'&&eraGame?.stage?.historicalAnchorDate;
+ const signature=pool.map(([key])=>key).join('|')+':'+(historical?'historical':Math.floor(eraTime/30));
  const state=game.bankRosterDecks??=(Object.create(null));let deck=state[group];
  if(!deck||deck.signature!==signature||!deck.remaining.length){
-  const remaining=[...keys];
+  // Extra shuffled slots weight each generation, without losing a single family.
+  const remaining=keys.flatMap(key=>{
+   const fit=BANK_ENCOUNTER_AIRFRAMES[families.get(key)[0]];
+   const year=fit.endlessFromYear&&eraTime>=fit.endlessAfter?fit.endlessFromYear:fit.year;
+   return Array(historical?1:bankEraWeight(year,eraTime)).fill(key);
+  });
   for(let i=remaining.length-1;i>0;i--){const j=Math.floor(game.rng()*(i+1));[remaining[i],remaining[j]]=[remaining[j],remaining[i]]}
-  deck=state[group]={signature,remaining};
+  deck=state[group]={signature,remaining,lastFamily:deck?.lastFamily};
  }
- const family=deck.remaining.pop(),variants=families.get(family);
+ const last=deck.remaining.length-1;
+ if(deck.remaining[last]===deck.lastFamily){const other=deck.remaining.findLastIndex(key=>key!==deck.lastFamily);if(other>=0)[deck.remaining[last],deck.remaining[other]]=[deck.remaining[other],deck.remaining[last]]}
+ const family=deck.remaining.pop(),variants=families.get(family);deck.lastFamily=family;
  const paints=game.bankPaintDecks??=Object.create(null),paintGroup=group+':'+family;
  let paintDeck=paints[paintGroup];
  if(!paintDeck||paintDeck.signature!==variants.join('|')||!paintDeck.remaining.length){
@@ -137,14 +159,14 @@ function chooseBag(game,pool,group){
 // family/paint bags. New art diversity must not perturb formation scheduling.
 function choose(game,pool,group,seedRoll){
  const legacyPool=pool.filter(([,fit])=>!fit.conceptId);
- const legacy=legacyPool.length?chooseBag(game,legacyPool,group):null;
+ const legacy=legacyPool.length?chooseBag(game,legacyPool,group,game):null;
  if(legacyPool.length===pool.length)return legacy;
  let selection=game.bankConceptSelection;
  if(!selection){
   let state=(Math.floor((seedRoll||0)*4294967296)^0x6a09e667)>>>0;
   selection=game.bankConceptSelection={rng:()=>((state=(Math.imul(state,1664525)+1013904223)>>>0)/4294967296)};
  }
- return chooseBag(selection,pool,group);
+ return chooseBag(selection,pool,group,game);
 }
 export function installAircraftBankRoster(Game,planes,attach,artReady=bankArtReady){
  if(Object.hasOwn(Game.prototype,'__aircraftBankRoster'))return;Game.prototype.__aircraftBankRoster=true;

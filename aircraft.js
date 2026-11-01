@@ -1,3 +1,4 @@
+import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js';
 import {configureTransportArt} from './transport-convoy.js';
 import {configurePhotoReconArt} from './photo-recon-encounters.js';
 import {PHOTO_RECON_ART,paintPhotoReconSprite} from './photo-recon-view.js';
@@ -110,7 +111,7 @@ const decodePainted=(key,skipCrew=false)=>new Promise(resolve=>{
  const finish=ok=>{if(settled)return;settled=true;clearTimeout(deadline);img.onload=null;img.onerror=null;if(!ok)img.src='';resolve(ok)};
  const deadline=setTimeout(()=>finish(false),45000);
  const afterCrew=(result,done)=>{if(!result?.then){done();return}result.then(()=>{if(settled)return;try{done()}catch{finish(false)}},()=>{if(settled)return;try{done()}catch{finish(false)}})};
- if(key==='zero_sector_junkers_d1'){img.onload=()=>{try{const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0,288,320);setPainted(key,out);finish(true)}catch{finish(false)}};img.onerror=()=>finish(false);img.src=new URL('./asset-bank/zero-district/junkers-d1.webp',import.meta.url).href;return;}
+ if(key==='zero_sector_junkers_d1'){img.onload=()=>{try{const out=document.createElement('canvas');out.width=288;out.height=320;out.getContext('2d').drawImage(img,0,0,288,320);setPainted(key,outlineZeroSectorAircraft(out));finish(true)}catch{finish(false)}};img.onerror=()=>finish(false);img.src=new URL('./asset-bank/zero-district/junkers-d1.webp',import.meta.url).href;return;}
  // Pre-composited crewed sprite: the stored image is the final painted 288x320 canvas.
  const crewFile=!skipCrew&&!CREW_BAKE_MODE&&CREW_BAKED[key]&&new URLSearchParams(location.search).get('mech')!=='0'?CREW_BAKED[key]:null;
  if(crewFile){let crewTries=0;const url=new URL(`./crew-baked/${crewFile}`,import.meta.url).href;

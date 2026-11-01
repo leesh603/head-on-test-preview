@@ -1,3 +1,4 @@
+import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js';
 import {factoryMuzzleLocal} from './pandemonium-factory-mechanics.js';
 // Only authored sprites: no geometry stand-ins for missing factory artwork.
 export const profile=Object.freeze({variant:'factory',label:'공장형 · 이동 군수공장',worldScale:1,width:512,height:768,pivot:{x:256,y:384},assetRoot:'./asset-bank/pandemonium-factory/'});
@@ -6,7 +7,7 @@ function load(path){return new Promise((resolve,reject)=>{const im=new Image();i
 export async function loadAssets(){
  const paths={supply:'./asset-bank/pandemonium-factory/supply.webp',bodyWreck:'./asset-bank/pandemonium-factory/body-wreck.webp',boilerDamaged:'./asset-bank/pandemonium-factory/boiler-damaged.webp',productionDamaged:'./asset-bank/pandemonium-factory/production-damaged.webp',body:'./asset-bank/pandemonium-factory/body.webp',aircraft:'./asset-bank/pandemonium-factory/aircraft.webp',fx:'./asset-bank/pandemonium-factory/fx.webp',craneBoom:'./asset-bank/pandemonium-factory/craneBoom.webp',track:'./asset-bank/pandemonium-factory/track.webp'};
  for(const k of ['aaHead','aaBarrel','aaWreck','crawlerHousing','crawlerWreck'])paths[k]='./asset-bank/pandemonium-factory/'+k+'.webp';
- return Object.fromEntries(await Promise.all(Object.entries(paths).map(async([k,v])=>[k,await load(v)])));
+ return Object.fromEntries(await Promise.all(Object.entries(paths).map(async([k,v])=>[k,k==='aircraft'?outlineZeroSectorAircraft(await load(v)):await load(v)])));
 }
 function sprite(c,assets,key,x,y,angle=0){const im=assets[key],spec=specs[key];if(!im)return;c.save();c.translate(x,y);c.rotate(angle);c.scale(spec[2],spec[2]);c.drawImage(im,-spec[0],-spec[1]);c.restore();}
 function fx(c,a,frame,x,y,size,alpha=1,angle=0){if(!a.fx)return;c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha*=Math.max(0,Math.min(1,alpha));c.drawImage(a.fx,(frame%4)*128,Math.floor(frame/4)*128,128,128,-size/2,-size/2,size,size);c.restore();}
@@ -17,6 +18,7 @@ export function drawBoss(c,s,assets,{camera={x:0,y:0},width=1280,height=900,scal
  c.save();c.translate(width/2-camera.x*scale,height/2-camera.y*scale);c.scale(scale,scale);
  if(layer!=='hazards'){c.save();c.translate(s.x,s.y);c.rotate(s.a);
  const finalWreck=!!s.defeat&&s.defeat.elapsed>=5.5;
+ if(!s.defeat)for(const p of s.parts)if(p.role==='track'&&p.hp>0){const speed=Math.abs(s.velocity||0),power=Math.min(1,speed/5);if(power>.04)for(let i=0;i<3;i++){const flow=(s.time*.75+i*.31)%1;fx(c,assets,8,p.x+Math.sign(p.x)*(22+flow*14),-190+i*195+Math.sign(s.velocity)*(flow*46),58+flow*56,.23*power*(1-flow*.6));}}
  c.drawImage(finalWreck&&assets.bodyWreck?assets.bodyWreck:assets.body,-256,-384,512,768);
  if(!finalWreck&&(s.parts.find(p=>p.id==='boiler').hp<=0||s.defeat?.elapsed>1)&&assets.boilerDamaged)c.drawImage(assets.boilerDamaged,37,-330,137.5,153);
  if(!finalWreck&&(s.parts.some(p=>p.role==='production'&&p.hp<=0)||s.defeat?.elapsed>2)&&assets.productionDamaged)c.drawImage(assets.productionDamaged,-116,-59,220.5,248);

@@ -7,7 +7,7 @@ import {localToWorld,worldToLocal,damageFortress} from './fortress-mechanics.js'
 import {disposeIntrusion} from './intrusion-bosses.js';
 import {recordCombatImpact} from './combat-impact-result.js';
 export const FINAL_ARENA_FORMS=Object.freeze(PANDEMONIUM_DEPLOYMENT.map(p=>p.variant));
-export const FINAL_ARENA=Object.freeze({size:2600,scale:.5,playerLimit:1125,bossLimit:300,intro:5,victory:FORTRESS_DEFEAT_DURATION,coreHp:8000,partHp:1000});
+export const FINAL_ARENA=Object.freeze({size:2600,scale:.5,playerLimit:1125,bossLimit:300,intro:2.2,victory:FORTRESS_DEFEAT_DURATION,coreHp:8000,partHp:1000});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const world=g=>g?.world||g;
 export const isFinalArena=g=>!!(world(g)?.finalArena&&['entry','battle','victory'].includes(world(g).finalArena.phase));
@@ -24,7 +24,7 @@ function clearArenaTraffic(g){
 export function beginFinalArena(g){
  const stages=g.stageBoss?.stages,route=stages?.finalArena;if(stages?.phase!=='final-arena'||!route?.token)return false;
  if(!g.finalArena||g.finalArena.token!==route.token){
-  const bosses=PANDEMONIUM_DEPLOYMENT.map(p=>{const formToken=String(route.token)+':boss:'+p.id,scale=p.variant==='factory'?1:.5,fortress=p.variant==='mobile'?createFortressBattle():createVariant(p.variant,{token:String(route.token),entityId:formToken,x:p.x,y:p.y});if(p.variant==='mobile'){fortress.x=p.x/scale;fortress.y=p.y/scale;fortress.systems.player.auto=false;fortress.systems.externalPlayers=[];fortress.systems.damageEvents=[];}return{...p,formToken,scale,fortress,active:false,defeated:false,elapsed:0};});
+  const bosses=PANDEMONIUM_DEPLOYMENT.map(p=>{const formToken=String(route.token)+':boss:'+p.id,scale=p.variant==='factory'?1:.5,fortress=p.variant==='mobile'?createFortressBattle():createVariant(p.variant,{token:String(route.token),entityId:formToken,x:p.x,y:p.y,a:p.variant==='asymmetric'?Math.atan2(-p.x,p.y)-Math.PI:0});if(p.variant==='mobile'){fortress.x=p.x/scale;fortress.y=p.y/scale;fortress.a=Math.atan2(-p.x,p.y);fortress.systems.player.auto=false;fortress.systems.externalPlayers=[];fortress.systems.damageEvents=[];}return{...p,formToken,scale,fortress,active:false,defeated:false,elapsed:0};});
   const scale=(1+.35*(stages.loopIndex||0))*(g.players?1.6:1);
   g.finalArena={token:route.token,variant:'trio',formToken:String(route.token)+':trio',phase:'entry',elapsed:0,bosses,hpScale:scale,nextAircraft:11,rewarded:false,previousRegion:g.region};g.zeroDistrict=true;
   clearArenaTraffic(g);pilots(g).forEach((p,i)=>{p.x=(i?1:-1)*90;p.y=0;p.a=-Math.PI/2;p.invuln=Math.max(p.invuln||0,1);});
@@ -72,11 +72,11 @@ function spawnGuardAircraft(g){if(g.enemies.filter(e=>e.zeroDistrictAircraft&&e.
 // Bounded low-speed patrol: the previous distance>230 stop latched forever.
 // Cosine legs reverse only through the existing inertial drivetrain; no position animation.
 export function steerFinalArenaFortress(s,elapsed,anchor={x:0,y:0}){
- const x=s.x-anchor.x,y=s.y-anchor.y,cycle=Math.cos(elapsed*Math.PI/24),radial=x*Math.sin(s.a)-y*Math.cos(s.a);
- let drive=Math.abs(cycle)<.18?0:cycle*.45;
- if(Math.hypot(x,y)>205&&drive*radial>0)drive=0;
- if(Math.hypot(x,y)>225)drive=-Math.sign(radial||1)*.25;
- s.drive=drive;s.turn=Math.sin(elapsed*Math.PI/24)*.16;
+ const home=Math.atan2(-anchor.x,anchor.y),x=s.x-anchor.x,y=s.y-anchor.y;
+ const along=x*Math.sin(home)-y*Math.cos(home),goal=Math.sin(elapsed*Math.PI/42)*125;
+ s.drive=Math.max(-.55,Math.min(.55,(goal-along)/65));
+ const delta=Math.atan2(Math.sin(home-s.a),Math.cos(home-s.a));
+ s.turn=Math.max(-.5,Math.min(.5,delta*2+Math.sin(elapsed/18)*.16));
 }
 function awardFinalArenaVictory(g,a){
  if(!a.rewarded){a.rewarded=true;achievementPandemoniumClear(g,a.token);if(g.online)g.publishPandemoniumVictory?.({runId:g.stageBoss.runId,token:String(a.token)});g.kills=(g.kills||0)+1;awardPriorityKill(g,{stageBossBody:true});const hero=pilots(g)[0]||g;for(const [i,value] of (g.xpGemSplits?.(36)||[36]).entries())g.drops.push({x:hero.x+Math.cos(i)*50,y:hero.y+Math.sin(i)*50,value,bossReward:true});for(const p of pilots(g)){if(p.hp>0&&(!p.status||p.status==='alive'))p.hp=Math.min(p.maxHp,p.hp+p.maxHp*.2);}g.event?.('wave','판데모니움 격파 · 다음 출격 경로 개방');}
@@ -101,7 +101,7 @@ export function tickFinalArena(g,dt){
  contain(g);if(blocked(g)||!(dt>0))return true;
  if((typeof document!=='undefined'&&g.finalArenaAssetsReady!==true)||(typeof g.finalArenaNetworkReady==='function'&&!g.finalArenaNetworkReady())){a.waitingForAssets=true;for(const p of pilots(g))p.invuln=Math.max(p.invuln||0,.2);return true;}
  a.waitingForAssets=false;a.elapsed+=dt;
- if(a.phase==='entry'){for(const b of a.bosses)b.fortress.paused=true;for(const p of pilots(g))p.invuln=Math.max(p.invuln||0,.2);if(a.elapsed>=FINAL_ARENA.intro){if(!g.stageBoss.stages.startFinalArena(a.token)){a.waitingForQualification=true;return true;}a.waitingForQualification=false;a.phase='battle';a.elapsed=0;g.event?.('wave','판데모니움 · 최종 병기 동시 가동');}return true;}
+ if(a.phase==='entry'){for(const b of a.bosses)b.fortress.paused=true;for(const p of pilots(g))p.invuln=Math.max(p.invuln||0,.2);if(a.elapsed>=FINAL_ARENA.intro){if(!g.stageBoss.stages.startFinalArena(a.token)){a.waitingForQualification=true;return true;}a.waitingForQualification=false;a.phase='battle';a.elapsed=0;g.event?.('wave','판데모니움 · 최종 병기 가동');}return true;}
  if(a.phase==='victory'){
   for(const b of a.bosses)advanceBossDefeat(b,dt);for(const p of pilots(g))p.invuln=Math.max(p.invuln||0,.2);
   if(a.elapsed>=FINAL_ARENA.victory){awardFinalArenaVictory(g,a);g.stageBoss.stages.completeFinalArena(a.token);clearArenaTraffic(g);g.zeroDistrict=false;g.finalArena=null;g.stageBoss.reconcile({blocked:false});g.spawn=3;g.nextHeavyAt=g.t+100;g._zeppelinSchedule=g.t+135;g.eventTimer=25;if(g.rivalAce?.returnAt===Infinity)g.rivalAce.returnAt=g.t+30;}return true;

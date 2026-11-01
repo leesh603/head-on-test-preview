@@ -54,16 +54,16 @@ function step(s,dt,players){
    continue;
   }
   if(!['aa','battery'].includes(p.role))continue;
-  const main=p.role==='battery',w=localToWorld(s,p.x,p.y),desired=wrap(Math.atan2(target.x-w.x,-(target.y-w.y))-s.a);
+  const main=p.role==='battery',queued=s.pending.find(q=>q.sourcePartId===p.id),w=localToWorld(s,p.x,p.y),desired=main&&Number.isFinite(queued?.worldAngle)?wrap(queued.worldAngle-s.a):wrap(Math.atan2(target.x-w.x,-(target.y-w.y))-s.a);
   const withinArc=!main||Math.abs(wrap(desired-Math.PI))<=.24;
   const goal=main?Math.PI+clamp(wrap(desired-Math.PI),-.24,.24):desired;
   const rate=(main?.24:1.15)*(.65+.35*p.hp/p.maxHp);p.angle=wrap(p.angle+clamp(wrap(goal-p.angle),-dt*rate,dt*rate));p.aimError=Math.abs(wrap(desired-p.angle));
-  const queued=s.pending.find(q=>q.sourcePartId===p.id),preparing=withinArc&&(s.time>=p.nextAttack-2.5||!!queued);
+  const preparing=withinArc&&(s.time>=p.nextAttack-2.5||!!queued);
   if(main)p.elevation+=clamp((preparing?.72:0)-p.elevation,-dt*.3,dt*.34);
   const freq=main?5.5:10,b=p.recoilV+freq*p.recoil,e=Math.exp(-freq*dt);p.recoil=(p.recoil+b*dt)*e;p.recoilV=(p.recoilV-freq*b*dt)*e;
   p.ready=withinArc&&p.aimError<(main?.035:.045)&&(!main||p.elevation>=.70)&&p.recoil<3;
   p.phase=queued?'warning':!withinArc?'arc-blocked':preparing?'aiming':'recover';p.warning=queued?clamp((s.time-queued.started)/(queued.at-queued.started),0,1):0;
-  if(s.time>=p.nextAttack&&p.ready&&!queued&&s.pending.filter(q=>q.kind!=='reload').length<3)s.pending.push({kind:main?'shell':'bullet',sourcePartId:p.id,started:s.time,at:s.time+(main?1.1:.45)});
+  if(s.time>=p.nextAttack&&p.ready&&!queued&&s.pending.filter(q=>q.kind!=='reload').length<3)s.pending.push({kind:main?'shell':'bullet',sourcePartId:p.id,worldAngle:s.a+p.angle,started:s.time,at:s.time+(main?1.1:.45)});
  }
  const due=s.pending.filter(q=>q.at<=s.time);s.pending=s.pending.filter(q=>q.at>s.time);
  for(const q of due){

@@ -1,3 +1,4 @@
+import {outlineZeroSectorAircraft} from './zero-sector-aircraft.js';
 import {drawFormationEdgeBadge} from './tactical-marks.js?v=tame3';
 import {finalArenaBosses} from './pandemonium-registry.js';
 import {drawBoss as drawAsymmetric,loadAssets as loadAsymmetric,profile as asymmetricProfile} from './pandemonium-a-render.js';
@@ -21,7 +22,7 @@ const image=url=>new Promise((resolve,reject)=>{const im=new Image(),timer=setTi
 export function prepareFinalArenaAssets({retry=false}={}){
  if(assets)return Promise.resolve(assets);if(pending)return pending;
  if(error&&!retry&&Date.now()<retryAt)return Promise.reject(error);
- let deadline;pending=Promise.race([(async()=>{await fortressFXReady;const response=await fetch(new URL('manifest.json',ROOT));if(!response.ok)throw Error('Zero Sector manifest unavailable');const manifest=await response.json();const files=[manifest.terrain,...manifest.objects.map(p=>p.file)];const [fortress,loaded,combat,cutins,seal,asymmetric,factory]=await Promise.all([loadFortressArt(FORTRESS_ROOT),Promise.all([...new Set(files)].map(async file=>[file,await image(new URL(file,ROOT).href)])),Promise.all(Object.entries({aircraft:new URL('junkers-d1.webp',ROOT).href,drone:new URL('./boss-cambrai-bug-20261021.webp',import.meta.url).href,flame2:new URL('./fx-flame-tongue-2.webp',import.meta.url).href,flame3:new URL('./fx-flame-tongue-3.webp',import.meta.url).href,drachen:new URL('./boss-drachen-parts-v2.webp',import.meta.url).href}).map(async([k,url])=>[k,await image(url)])),Promise.all(Object.entries(FINAL_ARENA_CUTINS).map(async([id,file])=>[id,await image(new URL(file,import.meta.url).href)])),image(new URL('secret-seal.png',ROOT).href),loadAsymmetric(),loadFactory()]);return{manifest,images:Object.fromEntries(loaded),fortress,asymmetric,factory,combat:Object.fromEntries(combat),cutins:Object.fromEntries(cutins),seal};})(),new Promise((_,reject)=>{deadline=setTimeout(()=>reject(Error('Final arena asset timeout')),30000);})]).then(loaded=>{assets=loaded;error=null;attempt=0;return assets}).catch(e=>{error=e;retryAt=Date.now()+Math.min(15000,1500*2**Math.min(attempt++,4));throw e}).finally(()=>{clearTimeout(deadline);pending=null});return pending;
+ let deadline;pending=Promise.race([(async()=>{await fortressFXReady;const response=await fetch(new URL('manifest.json',ROOT));if(!response.ok)throw Error('Zero Sector manifest unavailable');const manifest=await response.json();const files=[manifest.terrain,...manifest.objects.map(p=>p.file)];const [fortress,loaded,combat,cutins,seal,asymmetric,factory]=await Promise.all([loadFortressArt(FORTRESS_ROOT),Promise.all([...new Set(files)].map(async file=>[file,await image(new URL(file,ROOT).href)])),Promise.all(Object.entries({aircraft:new URL('junkers-d1.webp',ROOT).href,drone:new URL('./boss-cambrai-bug-20261021.webp',import.meta.url).href,flame2:new URL('./fx-flame-tongue-2.webp',import.meta.url).href,flame3:new URL('./fx-flame-tongue-3.webp',import.meta.url).href,drachen:new URL('./boss-drachen-parts-v2.webp',import.meta.url).href}).map(async([k,url])=>[k,k==='aircraft'?outlineZeroSectorAircraft(await image(url)):await image(url)])),Promise.all(Object.entries(FINAL_ARENA_CUTINS).map(async([id,file])=>[id,await image(new URL(file,import.meta.url).href)])),image(new URL('secret-seal.png',ROOT).href),loadAsymmetric(),loadFactory()]);return{manifest,images:Object.fromEntries(loaded),fortress,asymmetric,factory,combat:Object.fromEntries(combat),cutins:Object.fromEntries(cutins),seal};})(),new Promise((_,reject)=>{deadline=setTimeout(()=>reject(Error('Final arena asset timeout')),30000);})]).then(loaded=>{assets=loaded;error=null;attempt=0;return assets}).catch(e=>{error=e;retryAt=Date.now()+Math.min(15000,1500*2**Math.min(attempt++,4));throw e}).finally(()=>{clearTimeout(deadline);pending=null});return pending;
 }
 // Called outside draw from the frame loop. Every session gets its own readiness flag.
 export function serviceFinalArenaAssets(g){
@@ -60,35 +61,29 @@ export function drawFinalArenaBoss(c,g,W,H,{layer='body',scale=g?.mode==='coop2'
  return drawn;
 }
 function drawArenaEntry(c,a,W,H){
- const t=a.elapsed||0,im=assets.images[assets.manifest.terrain];
- c.fillStyle='#080d0e';c.fillRect(0,0,W,H);
- const pad=W<600?12:Math.max(24,W*.05),height=Math.min(H,(W-pad*2)*im.naturalHeight/im.naturalWidth),width=height*im.naturalWidth/im.naturalHeight;
- c.globalAlpha=Math.min(1,Math.max(0,t/.22));c.drawImage(im,(W-width)/2,(H-height)/2,width,height);c.globalAlpha=1;
- const y=Math.min(H-105,H*.72),font=W<600?28:42;
- c.fillStyle='#080d0ed9';c.fillRect(0,y-24,W,H-y+24);c.fillStyle='#c6a76d';c.font='12px sans-serif';c.fillText('잿빛의회 · 비밀병기공장',W/2,y);
- c.fillStyle='#eee4ca';c.font=`bold ${font}px sans-serif`;c.fillText('제로구역 · 최후의 전장',W/2,y+38);
- c.fillStyle='#d0c4ac';c.font=`${W<600?12:15}px sans-serif`;c.fillText('비밀병기공장 침투',W/2,y+72);
- const size=Math.min(72,W*.16);c.drawImage(assets.seal,W/2-size/2,Math.max(24,y-size-38),size,size);
+ const t=a.elapsed||0,mobile=W<600,x=W-24,y=H-(mobile?166:48);
+ c.save();c.globalAlpha*=Math.max(0,Math.min(1,t/.2,(2.2-t)/.35));c.textAlign='right';
+ c.font=`bold ${mobile?22:30}px sans-serif`;c.lineWidth=4;c.strokeStyle='#111710';c.fillStyle='#eee4ca';
+ c.strokeText('제로구역',x,y,W-48);c.fillText('제로구역',x,y,W-48);
+ c.font='12px sans-serif';c.lineWidth=3;c.strokeText('잿빛 의회 비밀병기공장',x,y+26,W-48);c.fillStyle='#d0c4ac';c.fillText('잿빛 의회 비밀병기공장',x,y+26,W-48);c.restore();
 }
 // One arrival portrait per independent boss, using the authoritative shared clock.
 export function finalArenaArrivalView(a){
  if(a?.phase!=='battle'||!Number.isFinite(a.elapsed))return null;
  for(const boss of finalArenaBosses(a)){
   const variant=boss.variant||boss.id,age=a.elapsed-(boss.arrivesAt||0),form=FORMS[variant];
-  if(!form||boss.active!==true||boss.defeated||boss.fortress?.coreHp<=0||age<0||age>=.72)continue;
-  return{boss,variant,label:form.label,age,alpha:Math.max(0,Math.min(1,age/.065,(.72-age)/.09))};
+  if(!form||boss.active!==true||boss.defeated||boss.fortress?.coreHp<=0||age<0||age>=2.6)continue;
+  return{boss,variant,label:form.label,age,alpha:Math.max(0,Math.min(1,age/.065,(2.6-age)/.18))};
  }
  return null;
 }
-function drawArenaArrival(c,a,W,H){
- const arrival=finalArenaArrivalView(a);if(!arrival)return;
- const im=assets.cutins[arrival.variant],mobile=W<600,cw=Math.min(W-24,980),ch=Math.min(H*.5,400),x=(W-cw)/2,y=(H-ch)/2;
- const boxW=mobile?cw-24:cw*.68,boxH=mobile?ch-84:ch-24,k=Math.min(boxW/im.naturalWidth,boxH/im.naturalHeight),iw=im.naturalWidth*k,ih=im.naturalHeight*k;
- c.save();c.globalAlpha*=arrival.alpha;c.fillStyle='#101719ed';c.fillRect(x,y,cw,ch);
- c.drawImage(im,x+12+(boxW-iw)/2,y+12+(boxH-ih)/2,iw,ih);
- const tx=mobile?W/2:x+cw*.83,ty=mobile?y+ch-53:y+ch*.44;
- c.textAlign='center';c.fillStyle='#e8ddc6';c.font=`bold ${mobile?21:30}px sans-serif`;c.fillText('판데모니움',tx,ty);
- c.fillStyle='#c6a76d';c.font=`bold ${mobile?14:18}px sans-serif`;c.fillText(arrival.label,tx,ty+30);c.restore();
+// The application presents arrivals through the existing bossCutin DOM/CSS.
+export function finalArenaHudModel(g){
+ const a=g?.finalArena;if(!a||a.phase==='entry')return null;const bosses=finalArenaBosses(a);if(!bosses.length)return null;
+ const forms=bosses.map(finalArenaFormView),fraction=forms.reduce((n,f)=>n+(f?.hpRatio||0),0)/bosses.length;
+ return{fraction,hp:fraction*8000*bosses.length*(a.hpScale||1),maxHp:8000*bosses.length*(a.hpScale||1),
+  active:bosses.filter(b=>b.active&&!b.defeated).length,broken:forms.reduce((n,f)=>n+(f?.destroyed||0),0),total:forms.reduce((n,f)=>n+(f?.partCount||0),0),
+  detail:bosses.map((b,i)=>`${forms[i]?.label||b.id} ${b.defeated?'격파':!b.active?'대기':Math.ceil(forms[i].hpRatio*100)+'%'}`).join(' · ')};
 }
 export function drawFinalArenaHud(c,g,W,H){
  if(!finalArenaVisible(g))return;
@@ -97,21 +92,12 @@ export function drawFinalArenaHud(c,g,W,H){
  if(g.finalArena.waitingForAssets){c.fillStyle='#121b20e8';c.fillRect(12,H*.37,W-24,96);c.fillStyle='#eee5d0';c.font='bold 13px sans-serif';c.fillText('다른 플레이어의 최종맵 준비를 기다리는 중',W/2,H*.37+34);c.font='12px sans-serif';c.fillText('모두 준비되면 안전하게 전투를 시작합니다',W/2,H*.37+62);c.restore();return;}
  const a=g.finalArena;
  if(a.phase==='entry'){drawArenaEntry(c,a,W,H);c.restore();return;}
- const bosses=finalArenaBosses(a),bw=Math.min(440,W-32),x=(W-bw)/2,y=H<600?48:60;
- c.fillStyle='#101719e8';c.fillRect(x,y,bw,24+bosses.length*27);c.fillStyle='#ece0c5';c.font='bold 12px sans-serif';
- c.fillText(a.phase==='victory'?'판데모니움 격파':`판데모니움 · ${bosses.filter(b=>b.active&&!b.defeated).length}기 교전`,W/2,y+12);
- for(const [i,boss] of bosses.entries()){
-  const f=finalArenaFormView(boss);if(!f)continue;const row=y+30+i*27;
-  c.textAlign='left';c.fillStyle=boss.defeated?'#9d9b8c':'#e5dbc2';c.font='11px sans-serif';c.fillText(f.label,x+10,row);
-  c.textAlign='right';c.fillStyle='#baae95';c.fillText(boss.defeated?'격파':boss.active===false?'진입 대기':f.variant==='factory'?(boss.fortress.coreExposed?'핵심 노출':'핵심 차폐'):'교전 중',x+bw-10,row);
-  c.fillStyle='#594238';c.fillRect(x+10,row+8,bw-20,4);c.fillStyle=boss.defeated?'#6f7267':'#c49b67';c.fillRect(x+10,row+8,(bw-20)*f.hpRatio,4);
- }
+ const bosses=finalArenaBosses(a);
  if(a.phase==='battle')for(const boss of bosses){
   if(boss.active===false||boss.defeated)continue;const f=finalArenaFormView(boss),z=g.mode==='coop2'?(g.camera?.zoom||1):1,dx=boss.fortress.x*f.worldScale-g.x,dy=boss.fortress.y*f.worldScale-g.y,sx=W/2+dx*z,sy=H/2+dy*z;
   if(sx>=26&&sx<=W-26&&sy>=190&&sy<=H-100)continue;
   const bx=Math.max(26,Math.min(W-26,sx)),by=Math.max(190,Math.min(H-100,sy));drawFormationEdgeBadge(c,bx,by,Math.atan2(dy,dx));
   c.font='bold 10px sans-serif';c.fillStyle='#f0d7a4';c.textAlign=bx<W/2?'left':'right';c.fillText(f.label,bx+(bx<W/2?26:-26),by);
  }
- if(a.phase==='battle')drawArenaArrival(c,a,W,H);
  c.restore();
 }
