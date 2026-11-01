@@ -1,0 +1,16 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Escort bomber / low HP layout QA</title><style>body{margin:0;background:#25251f;color:#fff;font:14px system-ui}header{padding:8px;display:flex;gap:6px;flex-wrap:wrap}button,select{padding:7px}iframe{display:block;border:0;margin:0 auto}output{white-space:pre-wrap;display:block;padding:8px}</style><header><select id="size"><option value="390x844">모바일 390×844</option><option value="360x800">모바일 360×800</option><option value="1280x800">PC 1280×800</option></select><button id="central">동맹국 호위</button><button id="entente">협상국 호위</button><button id="low">위험 체력</button><button id="normal">정상 체력</button><button id="resume">호위 비행</button><button id="pause">정지</button></header><iframe id="game" title="실제 게임 검증" src="../index.html?headonTest=1&autostart=0&escortHudQa=20261101"></iframe><output id="result">게임 준비 중</output><script type="module">
+import {startRuralFronts} from '../rural-fronts.js';
+const frame=document.querySelector('iframe'),size=document.querySelector('#size'),result=document.querySelector('#result');
+let faction='central';
+function resize(){const [w,h]=size.value.split('x');frame.style.width=w+'px';frame.style.height=h+'px'}
+resize();size.onchange=()=>{resize();setTimeout(report,250)};
+const api=()=>frame.contentWindow.__HEADON_TEST__;
+function report(){const d=frame.contentDocument,pill=d.querySelector('.flight-survival'),hp=d.querySelector('#healthText'),ammo=d.querySelector('#ammoCount');if(!pill||!hp)return;const a=pill.getBoundingClientRect(),b=hp.getBoundingClientRect(),c=ammo.getBoundingClientRect(),g=api().debug(),p=g.patrols.find(p=>p.renderScale);result.textContent=JSON.stringify({viewport:size.value,faction,airframe:p?.plane,scale:p?.renderScale,hp:g.hp,hpText:hp.textContent,pill:[a.x,a.y,a.width,a.height],healthInside:b.x>=a.x&&b.right<=a.right,ammoInside:c.x>=a.x&&c.right<=a.right,dangerPosition:getComputedStyle(hp.parentElement,':after').position,gameState:g.state},null,2)}
+async function scene(team){faction=team;const a=api();if(!a){result.textContent='로딩 중';return}a.start({region:0,pilot:team==='central'?'baron':'fonck',invincible:true,seed:1918});const g=a.debug();g.stageBoss.stages.stageStartTime=0;const state=startRuralFronts(g,1,null);const p=state.fronts.find(f=>f.type==='escort').protected;g.x=p.x+90;g.y=p.y+175;g.fire=Infinity;g.need=Infinity;g.hp=Math.max(1,Math.floor(g.maxHp*.15));setTimeout(()=>{a.freeze(true);report()},800)}
+document.querySelector('#central').onclick=()=>scene('central');document.querySelector('#entente').onclick=()=>scene('entente');
+document.querySelector('#low').onclick=()=>{const g=api().debug();g.hp=Math.max(1,Math.floor(g.maxHp*.15));setTimeout(report,200)};
+document.querySelector('#normal').onclick=()=>{const g=api().debug();g.hp=g.maxHp;setTimeout(report,200)};
+document.querySelector('#resume').onclick=()=>api().freeze(false);
+document.querySelector('#pause').onclick=()=>{api().freeze(true);setTimeout(report,200)};
+frame.onload=()=>{const wait=setInterval(()=>{if(api()){clearInterval(wait);result.textContent='준비됨 · 진영 선택'}},200)};
+</script>
