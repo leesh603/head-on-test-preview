@@ -144,7 +144,7 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
    if(resolved?.blocked){queueCombatImpact(world,b,e,{material:'metal',blocked:true});play('armorClink');return result;}
    if(!resolved||!(resolved.damage>0)||b.actualExplosion||b.blast||b.fireZone||b.identityDotTarget||b.flak||b.rocket||b.cow37||b.motorCannon)return result;
    const material=impactMaterial(e,b),index=++state.impactSerial;
-   const dx=b.x-e.x,dy=b.y-e.y,forward=clamp(dx*Math.cos(e.a)+dy*Math.sin(e.a),-30,30),side=clamp(-dx*Math.sin(e.a)+dy*Math.cos(e.a),-30,30);
+   const dx=b.x-e.x,dy=b.y-e.y,reach=e.stageBossBody?256:30,forward=clamp(dx*Math.cos(e.a)+dy*Math.sin(e.a),-reach,reach),side=clamp(-dx*Math.sin(e.a)+dy*Math.cos(e.a),-reach,reach);
    const d=state.damage.get(e)||{engine:0,structure:0,lastHit:-Infinity,streak:0,nextSmoke:0,side:1,broken:false};
    d.streak=(world.t||0)-d.lastHit<.45?Math.min(6,d.streak+1):1;d.lastHit=world.t||0;d.side=Math.sign(side)||d.side;
    if(material==='metal')d.engine++;else d.structure++;state.damage.set(e,d);
@@ -155,7 +155,7 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
    if(breakup)d.broken=true;
    if(finisher)d.finished=true;
    const cue=queueCombatImpact(world,b,e,{material,streak:d.streak,impactVariant:index%3,impactMass:b.heavy?1.16:1,incendiary:!!b.burn,piercing:!!b.pierce,breakup,finisher});
-   if(cue&&aircraft&&e.hp>0){
+   if(cue&&e.hp>0){
     state.impacts.push({effect:cue,target:e,forward,side,age:0});cap(state.impacts,COMBAT_FEEDBACK_LIMITS.compactImpacts,COMBAT_FEEDBACK_LIMITS.impacts);
     // The opening contact of a burst deserves a tiny directional confirmation.
     // No repeated MG shake, no recoil on distant targets, no simulation pause.
@@ -193,6 +193,7 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
   let strongest=null,strongestPower=0,criticalCue=null;
   for(const f of this.combatFX||[])if(!state.heard.has(f)){
    state.heard.add(f);
+   if(f.v1500Cascade||f.riiCascade)continue; // Four authored sound beats; no duplicate automatic boom/shake.
    if(f.feedbackId){if(state.heardIds.has(f.feedbackId))continue;state.heardIds.add(f.feedbackId);if(state.heardIds.size>256)state.heardIds.delete(state.heardIds.values().next().value);}
    const weapon=weaponImpactKind(f),local=this.online?players.filter(p=>p.id===this.localPlayerId):players;
    let nearest=null,distance=Infinity;for(const p of local){const d=Math.hypot(f.x-p.x,f.y-p.y);if(d<distance){nearest=p;distance=d;}}
@@ -229,7 +230,7 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
    }
   }
   for(const e of this.enemies||[])if(e.crashing){const v=enemyCrashVisual(e),q={x:0,y:0,roll:v.roll,bank:v.bank,active:true};poses.set(e,q);}
-  {let w=0;for(const f of state.impacts){f.age+=step;if(f.target.hp>0&&f.age<.085&&f.effect.life>0){[f.effect.x,f.effect.y]=localPoint(f.target,f.forward,f.side);state.impacts[w++]=f}}state.impacts.length=w}
+  {let w=0;for(const f of state.impacts){f.age+=step;if(f.target.hp>0&&f.age<(f.target.stageBossBody?.14:.085)&&f.effect.life>0){[f.effect.x,f.effect.y]=localPoint(f.target,f.forward,f.side);state.impacts[w++]=f}}state.impacts.length=w}
   {let w=0;for(const f of state.plumes){f.age+=step;if(f.age<f.life)state.plumes[w++]=f}state.plumes.length=w}cap(state.plumes,COMBAT_FEEDBACK_LIMITS.compactPlumes,COMBAT_FEEDBACK_LIMITS.plumes);
   {let w=0;for(const f of state.passes){f.life-=step;if(f.life>0)state.passes[w++]=f}state.passes.length=w}
   for(const w of state.wrecks){w.age+=step;crashEffects.wreck=w;advanceAircraftCrash(crashEffects,w,step)}
@@ -317,4 +318,5 @@ export function drawCombatFeedback(c,world,point,{fx,planeSprite,bolt=drawTracer
  // Contact anchors move the existing combatFX entries; drawing them again here
  // would double the impact budget and obscure the aircraft.
 }
+
 

@@ -17,7 +17,12 @@ function steer(b,dt,p,phase,radius,active,beat){
  // Separation changes the desired heading, never an aircraft's coordinates.
  for(const q of b.encounter?.bodies.values()||[]){if(q===b||q.dead||q.kind!=='gotha-raider')continue;const dx=b.x-q.x,dy=b.y-q.y,d=Math.hypot(dx,dy);if(d>1&&d<230){const n=(230-d)*2.5;vx+=dx/d*n;vy+=dy/d*n;}}
  const desired=Math.atan2(vy,vx),engines=b.engines(),limit=GOTHA_TURN_RATE*(engines===2?1:.8);
- const goal=clamp(Math.hypot(vx,vy),engines===2?80:65,engines===2?400:330);
+ let goal=clamp(Math.hypot(vx,vy),engines===2?80:65,engines===2?400:330);
+ // A chased bomber must be catchable: a player-centered orbit otherwise moves
+ // its destination away at the pursuer's own speed forever. Reentry still has
+ // full catch-up speed when the player is flying away or the flight is distant.
+ const dx=b.x-p.x,dy=b.y-p.y,distance=Math.hypot(dx,dy),pursuitSpeed=Math.hypot(pvx,pvy);
+ if(pursuitSpeed>80&&distance>1&&distance<750&&(pvx*dx+pvy*dy)/(pursuitSpeed*distance)>.98)goal=Math.min(goal,pursuitSpeed*.78);
  if(!b.gothaVolley)b.a+=arrivalFlightTurn(b,dt,desired,limit,b.gothaSpeed||170,goal,90,70)*dt;
  else reserveArrivalFlight(b,0);
  b.gothaSpeed??=goal;b.gothaSpeed+=clamp(goal-b.gothaSpeed,-70*dt,90*dt);

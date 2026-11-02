@@ -269,7 +269,7 @@ const VOICES={
   artilleryNavalFire(){fileSample('sfx/artillery-fire',.40,()=>VOICES.navalGun(),.94)},
   artilleryImpact(){fileSample('sfx/artillery-impact',.50,()=>VOICES.earthImpact())},
   materialImpact(hit){const material=typeof hit==='string'?hit:hit?.material,streak=Math.min(6,hit?.streak||1);
-    bankSample(material==='metal'?'hitmetal':'hit',material==='metal'?.26:.27,()=>VOICES.materialImpactSynth(hit),jit(material==='fabric'?1.12:material==='metal'?.96:1)*(1+Math.min(3,streak-1)*.012),{cut:material==='fabric'?4200:material==='metal'?9000:6400,duration:.105});},
+    bankSample(material==='metal'?'hitmetal':'hit',material==='metal'?.34:.32,()=>VOICES.materialImpactSynth(hit),jit(material==='fabric'?1.12:material==='metal'?.96:1)*(1+Math.min(3,streak-1)*.012),{cut:material==='fabric'?4200:material==='metal'?9000:6400,duration:.13});},
   materialImpactSynth(hit){const material=typeof hit==='string'?hit:hit?.material,streak=Math.min(6,hit?.streak||1);
     // A tighter body on repeated hits, not a critical-hit bell or volume ramp.
     if(streak>=3)tone(jit(150+streak*9),65,.055,.024,'triangle',650);
