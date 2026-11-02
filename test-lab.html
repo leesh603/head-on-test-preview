@@ -59,6 +59,7 @@ body.recording header{display:none}body.recording main{padding:0;overflow:visibl
 <button id="crashCompare" type="button">추락 비교</button>
 <button id="wreckSet" type="button">격추 5종 확인</button>
 <button id="damageSet" type="button">명중·손상 확인</button>
+<button id="incendiarySet" type="button">소이탄 연소 확인</button>
 <button id="stepScene" type="button">0.1초 진행</button>
 
 <label class="check"><input id="freeze" type="checkbox">관찰 일시정지</label>
@@ -210,6 +211,13 @@ $('wreckSet').onclick=()=>{
  }
  for(let i=0;i<28;i++)g.update(.02);g.state='paused';
  $('status').textContent='위부터 스핀 / 검은 연기 / 화재 / 날개 분리 / 조종불능 이탈';
+};
+$('incendiarySet').onclick=()=>{
+ const g=feedbackFixture();if(!g)return;
+ for(const [i,a] of [0,Math.PI/2].entries()){
+  const e=g.spawnEnemy('bomber');Object.assign(e,{x:g.x+(i?65:-65),y:g.y-90,a,fire:Infinity,speed:0,hp:10000,maxHp:10000,burnTime:20,burnDps:0,fuelFxAge:0,burnAnchorSpace:'entity',burnLocalX:-10,burnLocalY:3});
+ }
+ g.state='playing';$('status').textContent='소이탄 연소 20초 · 실제 게임 렌더러 · 피해량 0인 QA 표적';
 };
 $('damageSet').onclick=()=>{
  const g=feedbackFixture();if(!g)return;
