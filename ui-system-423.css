@@ -361,3 +361,39 @@ html.ui423 body.lobby423pc.lobby-aces .lobby-aces-panel>*{flex-shrink:0}
 @media(max-height:820px){
  html.ui423 body.lobby423pc:not(.playing) #hangar .astra-aircraft-figure{height:110px!important;max-height:110px!important}
 }
+
+/* ---------- Pause (build-modal151): box-less flight log ----------
+   No card: title, pilot, abilities and loadout sit straight on a dark field (left on PC, centred on phone).
+   Empty loadout groups are hidden; Continue is the one parchment pill, the rest a hairline list. */
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 h4:has(+ .build-icons151 > .empty151:only-child),
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-icons151:has(> .empty151:only-child){display:none!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #modalText{display:none!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 h4:before,html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 h4:after{display:none!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151:not(.hidden){background:linear-gradient(90deg,#0b0a09f5 0%,#0b0a09e6 50%,#0b0a0980 100%)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;padding:0!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 .modal-card{background:none!important;box-shadow:none!important;border:0!important;border-radius:0!important;width:min(440px,100%)!important;max-width:440px!important;margin:0!important;padding:28px 26px 24px!important;max-height:100%!important;overflow:auto!important;display:flex!important;flex-direction:column!important;gap:0!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #modalTag{color:#c9a24a!important;font:700 11px/1 var(--ui-font)!important;letter-spacing:.32em!important;margin:0 0 6px!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #modalTitle{font:900 30px/1.1 var(--ui-font)!important;letter-spacing:-.02em!important;margin:0 0 20px!important;color:#efe9da!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151,html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 section{background:none!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-head151{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;margin:0 0 4px!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-portrait151{width:46px!important;height:46px!important;flex:0 0 46px!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 h3{font:800 17px/1.25 var(--ui-font)!important;color:#efe9da!important;text-align:left!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-meta151{font:500 12.5px/1.4 var(--ui-font)!important;color:#a39d8f!important;margin:0 0 14px 58px!important;text-align:left!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-abilities151{display:flex!important;gap:18px!important;margin:0 0 6px!important;grid-template-columns:none!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-abilities151 .astra-ability{background:none!important;border:0!important;box-shadow:none!important;padding:0!important;min-height:0!important;width:auto!important;gap:8px!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-abilities151 .astra-ability-icon{width:30px!important;height:30px!important;flex:0 0 30px!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 h4{font:700 10.5px/1 var(--ui-font)!important;letter-spacing:.2em!important;color:#a39d8f!important;margin:18px 0 8px!important;padding:0!important;border:0!important;background:none!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-icons151{background:none!important;border:0!important;box-shadow:none!important;padding:0!important;min-height:0!important;display:flex!important;flex-wrap:wrap!important;gap:6px!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #build151 .build-tile151{width:46px!important;height:46px!important;min-width:0!important;border-radius:10px!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #modalActions{position:static!important;display:flex!important;flex-direction:column!important;gap:0!important;margin:24px 0 0!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #modalActions button{all:unset!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;height:48px!important;padding:0 2px!important;font:600 15px/1 var(--ui-font)!important;color:#efe9da!important;border-top:1px solid #e8e2d41f!important;cursor:pointer!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #modalActions button:first-child{justify-content:center!important;height:52px!important;margin:0 0 12px!important;border:0!important;border-radius:999px!important;background:#efe7d4!important;color:#1b1712!important;font:800 16px/1 var(--ui-font)!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #modalActions button:last-child{color:#d9644c!important;border-bottom:1px solid #e8e2d41f!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #modalActions button:before,html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #modalActions button:after{display:none!important;content:none!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #modalActions button:not(:first-child){background:none!important;box-shadow:none!important;border-left:0!important;border-right:0!important;border-bottom:0!important;border-radius:0!important;outline:0!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #modalActions button:last-child{border-bottom:1px solid #e8e2d41f!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151{background:linear-gradient(90deg,#0b0a09f7 0%,#0b0a09ee 60%,#0b0a09b3 100%)!important}
+@media(max-width:720px){html.ui423 body.astra-ui.playing #modal.overlay.build-modal151{background:#0b0a09eb!important}}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #modalActions button:not(:first-child){border-top:1px solid #e8e2d41f!important}
+html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 .modal-card{height:auto!important;min-height:0!important;align-self:center!important}
+@media(min-width:721px){html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 .modal-card{margin-left:clamp(24px,6vw,96px)!important}}
+

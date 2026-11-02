@@ -1479,8 +1479,11 @@ function syncStageContinueButton(){
  const launch=document.querySelector('#hangar .astra-launch');if(!launch)return;
  let button=$('continueSortie');if(!button){button=document.createElement('button');button.id='continueSortie';button.type='button';button.onclick=continueSavedSortie;launch.append(button);}
  const saved=readStageCheckpoint(),en=getLocale()==='en';button.hidden=!!game||selectedMode!=='endless'||!saved;
- button.textContent=en?'Continue Sortie':'이어하기';
- if(saved)button.title=(en?'Resume from stage entry · ':'스테이지 시작부터 재개 · ')+pilotName(saved.pilot,PILOTS[saved.pilot]?.name||saved.pilot)+' · LV. '+saved.player.level;
+ if(!saved){button.textContent=en?'Continue Sortie':'이어하기';return}
+ // Saved-run card: who and where, in the lobby's charcoal/brass language.
+ const name=pilotName(saved.pilot,PILOTS[saved.pilot]?.name||saved.pilot),meta=`${name} · LV. ${saved.player?.level??1} · ${en?'from stage entry':'스테이지 시작부터'}`;
+ if(button.dataset.meta!==meta){button.dataset.meta=meta;button.replaceChildren();const img=new Image();img.alt='';img.decoding='async';img.src=portraitSources[saved.pilot]||'';const text=document.createElement('span'),b=document.createElement('b'),small=document.createElement('small'),arrow=document.createElement('i');b.textContent=en?'Continue Sortie':'이어하기';small.textContent=meta;arrow.textContent='→';arrow.setAttribute('aria-hidden','true');text.append(b,small);button.append(img,text,arrow)}
+ button.title=(en?'Resume from stage entry · ':'스테이지 시작부터 재개 · ')+name+' · LV. '+saved.player.level;
 }
 function checkpointNotice(text){$('toast').textContent=text;show('toast');toastUntil=performance.now()+4000;}
 function continueSavedSortie(){
@@ -2545,6 +2548,7 @@ const eventsBeforeAircraftCritical=events;
 events=()=>{eventsBeforeAircraftCritical();showAircraftCriticalNotice();};
 const coopEventsBeforeAircraftCritical=coopEvents;
 coopEvents=()=>{coopEventsBeforeAircraftCritical();showAircraftCriticalNotice();};
+
 
 
 
