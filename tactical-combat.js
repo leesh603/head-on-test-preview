@@ -86,6 +86,7 @@ function followups(p,s,now){
  });
 }
 function burst(p,b,amount=2,style=b.tacticalStyle,combo=null,target=null){
+ if(b.cow37)return; // Heavy primary groups are emitted and charged by the cannon scheduler.
  const w=world(p);if((w.bullets?.length||0)>480)return;
  const speed=Math.hypot(b.vx,b.vy)||470,point=target?tacticalAimPoint(p,target,p,speed):null,heading=point?Math.atan2(point.y-p.y,point.x-p.x):Math.atan2(b.vy,b.vx),fan=p.weaponMods?.GUN==='precision'?.035:p.weaponMods?.GUN==='suppression'?.22:.12;
  for(let i=0;i<amount;i++){const a=heading+(i-(amount-1)/2)*fan*2;(w.bullets??=[]).push({...b,ownerId:p.id||'p1',enemy:false,x:p.x+Math.cos(a)*24,y:p.y+Math.sin(a)*24,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:Math.min(1.2,b.life||1.2),damage:b.damage*.32,tacticalRound:true,tacticalStyle:style,projectileDoctrine:style,...(combo?{projectileCombo:combo}:{}),hit:new Set(),pierce:style==='intercept'});}
@@ -172,7 +173,7 @@ export function installTacticalCombat(Game,{PLANES={}}={}){
  const apply=Game.prototype.applySpecialRound;
  Game.prototype.applySpecialRound=function(round,...args){return this.tacticalGunRound(apply?.call(this,round,...args)||round);};
  const cow=Game.prototype.createCow37Round;
- if(cow)Game.prototype.createCow37Round=function(...args){const b=cow.apply(this,args);if(this.weaponMods?.GUN==='precision'&&Number.isFinite(this.cow37Timer)){const s=state(this);s.cowBurst=((s.cowBurst||0)+1)%3;const interval=this.ordnanceInterval?.(1)||1;this.cow37Timer+=interval*((s.cowBurst?.25:2.5)-1);}return b;};
+ // Primary synthesis owns volley timing, including all three precision groups.
  // Both worlds call this immediately before projectile movement and collision.
  // Transform heavy equipment here because those emitters bypass applySpecialRound.
  const prepare=Game.prototype.prepareProjectileCandidates;

@@ -1,3 +1,4 @@
+import {majorEncounterBlocked} from './encounter-admission.js';
 import {newSquadronOpportunity,SQUADRON_OPPORTUNITY} from './squadron-opportunities.js';
 /** Shared admission/presentation contract for optional historical-squadron encounters. */
 export const SQUADRON_PROFILES=Object.freeze({
@@ -22,7 +23,7 @@ export function squadronDirectorState(g){return g.squadronDirector??={runId:++ru
 export function squadronAircraftPending(g,id){return !!(g.eliteEnemies?.pendingEncounter&&(!id||g.eliteEnemies.pendingEncounter.kind===id))||(g.eliteEnemies?.members||[]).some(m=>m.alive&&m.hp>0&&(!id||m.eliteKind===id))||(g.enemies||[]).some(e=>e.hp>0&&!e.expired&&(id==='cigognes'?!!e.cigognesRole:id==='hat-ring'?e.hatRingGroup!=null:id?(e.famousWingUnit===id||e.expansionWingUnit===id||e.legendWingUnit===id):!!e.cigognesRole||e.hatRingGroup!=null||e.famousWingGroup!=null||e.expansionWingGroup!=null||e.legendWingGroup!=null))||(g.patrols||[]).some(p=>p.spa65Courier&&p.hp>0&&p.life>0&&(!id||id==='spa65'));}
 export function squadronShotsPending(g,id){return (g.eliteEnemies?.projectiles||[]).some(p=>p.life>0&&(!id||p.eliteKind===id))||(g.bullets||[]).some(b=>b.life>0&&(id==='cigognes'?b.cigognesGroup!=null:id==='hat-ring'?b.hatRingGroup!=null:id?(b.famousWingUnit===id||b.expansionWingUnit===id||b.legendWingUnit===id):b.cigognesGroup!=null||b.hatRingGroup!=null||b.famousWingGroup!=null||b.expansionWingGroup!=null||b.legendWingGroup!=null));}
 export const squadronPending=(g,id)=>squadronAircraftPending(g,id)||squadronShotsPending(g,id);
-export function canAdmitSquadron(g,id){return squadronHost(g)&&!!SQUADRON_PROFILES[id]&&(!g.squadronDirector?.owner||g.squadronDirector.owner.unitId===id)&&!squadronPending(g)&&squadronPresentationReady(id);}
+export function canAdmitSquadron(g,id){return !majorEncounterBlocked(g,'squadron')&&squadronHost(g)&&!!SQUADRON_PROFILES[id]&&(!g.squadronDirector?.owner||g.squadronDirector.owner.unitId===id)&&!squadronPending(g)&&squadronPresentationReady(id);}
 export function announceSquadron(g,id,groupId){
  if(!squadronHost(g)||!SQUADRON_PROFILES[id])return null;
  const s=squadronDirectorState(g),key=`${id}:${groupId}`;if(s.announced.includes(key))return s.owner?.token||null;

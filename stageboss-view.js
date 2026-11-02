@@ -1,3 +1,5 @@
+import {prepareBossArrivalShadows,drawBossArrivalShadows} from './boss-arrival-shadow.js';
+import {prepareLaonArt,releaseLaonArt,drawLaonWorld,updateLaonBossHud} from './laon-view.js';
 import {finalArenaHudModel} from './final-arena-view.js';
 import {activeBossEntry,clipBossEntry,drawBossEntryWorld,drawBossEntryTitle} from './boss-entry-presentation.js';
 import {prepareCapitalTerrain} from './capital-terrain.js';
@@ -116,6 +118,7 @@ const BOSS_KEYS_BY_REGION=Object.freeze({
 });
 let armorLoadGeneration=0;
 export function prepareStageBossAssets(region){ qfDetailGroup.release();
+ if(region!==19)releaseLaonArt();
  const capitalAssets=prepareCapitalBossAssets(region);
  const armorGeneration=++armorLoadGeneration;releaseTrenchArmorArt();
  if(region!==6)releaseAlpsBomberArt();
@@ -123,7 +126,8 @@ export function prepareStageBossAssets(region){ qfDetailGroup.release();
  if([1,7,16,17].includes(region))prepareSinkingWater();
  // Naval stages (and Gallipoli's sea approach) warm the fleet hull atlases here.
  if([1,7,14,16,17].includes(region)){prepareFleetShipArt()?.catch?.(()=>{});prepareNavalWater();}
- const jobs=[capitalAssets,prepareCapitalTerrain(region),prepareBossCutins(region),prepareRegionalBossArt(region),prepareDoverAssets(region)];if(region===4)jobs.push(prepareO400Art());releaseSommeAssets();if(region===10)jobs.push(prepareSommeAssets());releaseLondonArt();if(region===4||region===11)jobs.push(prepareLondonArt());releaseVerdunAssets();if(region===12)jobs.push(prepareVerdunAssets());releaseParisArt();if(region===15)jobs.push(prepareParisArt());jobs.push(prepareMaanAssets(region),prepareGallipoliAssets(region),prepareJutlandAssets(region));
+ const jobs=[prepareBossArrivalShadows(region),capitalAssets,prepareCapitalTerrain(region),prepareBossCutins(region),prepareRegionalBossArt(region),prepareDoverAssets(region)];if(region===4)jobs.push(prepareO400Art());releaseSommeAssets();if(region===10)jobs.push(prepareSommeAssets());releaseLondonArt();if(region===4||region===11)jobs.push(prepareLondonArt());releaseVerdunAssets();if(region===12)jobs.push(prepareVerdunAssets());releaseParisArt();if(region===15)jobs.push(prepareParisArt());jobs.push(prepareMaanAssets(region),prepareGallipoliAssets(region),prepareJutlandAssets(region));
+ if(region===19)jobs.push(prepareLaonArt());
  bossGroup.release();alpsGroup.release();supportGroup.release();adriaticDetailGroup.release();rebuildGroup.release();armorDamageGroup.release();armorMotionGroup.release();harborGroup.release();trenchGroup.release();zubianGroup.release();cityGroup.release();buildingGroup.release();flakTowerGroup.release();
  for(const group of [...Object.values(railGroups),...Object.values(railWreckGroups)])group.release();
  const bossKeys=BOSS_KEYS_BY_REGION[region]||[];if(bossKeys.length)jobs.push(bossGroup.preload(bossKeys));
@@ -555,6 +559,7 @@ export function updateStageBossHud(g){
   if(coop)for(const p of g.players){document.getElementById(p.id+'XpLabel').textContent=p.id.toUpperCase()+' · LV. '+p.level;document.getElementById(p.id+'XpBar').style.width=Math.min(100,p.xp/p.need*100)+'%';}
   sbHudEncounter=null;sbHudModel=null;return;
  }
+ if(updateLaonBossHud(g,getLocale())){sbHudEncounter=null;sbHudModel=null;return;}
  // Solo shows photo recon in the compact mission card (app.js); co-op keeps the shared slot.
  if(g?.mode==='coop2'&&updatePhotoReconHud(g,getLocale())){sbHudEncounter=null;sbHudModel=null;return;}
  const active=!!g?.stageBoss&&g.state!=='lost'&&g.stageBoss.stages.phase!=='clear-pending';
@@ -625,6 +630,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
  drawIntrusionLayer(c,g,W,H,layer);
  const addon=g?.stageBoss;if(!addon||addon.ended)return;const z=g.camera?.zoom||1,view={x:g.x,y:g.y,width:W/z,height:H/z};
  c.save();c.translate(W/2,H/2);c.scale(z,z);c.translate(-g.x,-g.y);c.imageSmoothingEnabled=false;
+ drawLaonWorld(c,g,{layer,view,locale:getLocale()});
  if(layer!=='hazards'){drawBossBuildings(c,g);drawLondonWorld(c,g,getLocale());drawParisWorld(c,g,getLocale());}
  if(layer!=='bodies')drawMaanWeather(c,g);
  // The fixed quay is already visible during the approach, including ace/event waits.
@@ -632,10 +638,10 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
  for(const body of addon.stages.encounter?.bodies.values()||[]){if(body.rail129&&layer!=='hazards'){const r=body.rail129;c.save();drawRailTrack(c,r,bossArt.parisGun);drawRailDamage(c,r,bossArt.parisGun);if(r.phase==='aim'&&r.target&&body.kind!=='fliegerzug'&&!body.ruralRailBoss){const radius=body.kind==='lincomparable'?165:108;impactMark(c,r.target.x,r.target.y,radius,Math.min(1,r.time/Math.max(.01,r.c.aimSeconds)),{heavy:true});}c.restore();}if(body.support129?.projectiles&&layer!=='bodies')drawSupportEffects(c,body.support129,{screenScale:z});}
  const ring=(x,y,r,color)=>{c.strokeStyle=color;c.lineWidth=2;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.stroke();};
  const bodyOf=match=>{for(const _v of addon.stages.encounter?.bodies?.values?.()||[])if(match(_v))return _v;return null};
- if(layer!=='hazards')drawBossEntryWorld(c,addon.stages.encounter,fx);
+ if(layer!=='hazards'){drawBossArrivalShadows(c,addon.stages.encounter);drawBossEntryWorld(c,addon.stages.encounter,fx);}
  const arrivalDraw=draw=>spec=>{c.save();clipBossEntry(c,spec.entryReveal);c.globalAlpha*=spec.arrivalAlpha??1;try{return draw(spec);}finally{c.restore();}};
  renderStageBossLayer(addon,{layer,view,bodyBounds:bossEntryBounds,
-  drawBody:arrivalDraw(b=>{if(layer==='hazards')return;
+  drawBody:arrivalDraw(b=>{if(layer==='hazards'||['paris-geschuetz','french-counter-battery'].includes(b.assetKey))return;
    if(isCapitalBoss(b.assetKey)){const body=bodyOf(v=>v.id===b.id);if(body)drawCapitalBoss(c,body,{effect:fx,defeat:addon.defeatSequence});return;}
    if((b.assetKey==='zeppelin-l70'||b.assetKey==='hma23')&&drawSkyAirship(c,b,{cloud:(...a)=>bossSprite(c,11,...a),effect:(...a)=>fx(c,...a),mark:(...a)=>partMark(c,...a)}))return;
    if(isDoverBoss(b.assetKey)){const body=addon.stages.encounter.bodies.get(b.id);if(body)drawDoverBoss(c,body,addon.defeatSequence,addon.hazards);return;}
@@ -778,7 +784,7 @@ export function drawStageBoss(c,g,W,H,{drawZeppelin,drawFieldArt,layer='all'}){
    if(!b.coreVulnerable&&!b.destroying&&!structure&&!b.assetKey.startsWith('hms-zubian')&&!['london-apron','drachen-net'].includes(b.assetKey))shieldMark(c,0,0,76);c.restore();
 
   }),
-  drawPart:arrivalDraw(p=>{if(isCapitalBoss(p.bodyKey))return;if(p.bodyKey.startsWith('jutland-'))return;if(p.bodyKey==='gallipoli-fortress')return;if(layer==='hazards'||p.sommeBoss||p.bodyKey==='fort-douaumont'||p.bodyKey==='fort-souville')return;
+  drawPart:arrivalDraw(p=>{if(['paris-geschuetz','french-counter-battery'].includes(p.bodyKey))return;if(isCapitalBoss(p.bodyKey))return;if(p.bodyKey.startsWith('jutland-'))return;if(p.bodyKey==='gallipoli-fortress')return;if(layer==='hazards'||p.sommeBoss||p.bodyKey==='fort-douaumont'||p.bodyKey==='fort-souville')return;
    if(p.kind==='engine'&&!p.hittable&&!p.destroyed)return;
    if(p.partId==='capsule'&&!skyAirshipReady(p.bodyKey)){c.strokeStyle='#a0aa9e';c.beginPath();const body=bodyOf(()=>true);c.moveTo(body.x,body.y+30);c.lineTo(p.x,p.y);c.stroke();}
    drawBossPart(c,p,ring,g?.t||0);

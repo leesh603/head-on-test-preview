@@ -14,12 +14,13 @@ export function musicModeForGame(game){
   if(game.enemies.some(e=>e.hp>0&&e.type==='boss'))return 'boss';
   return MAP_KEYS[game.worldRegion()]||'rural';
 }
-const MAP_KEYS=['rural','sea','trench','trench','city','sky','alps','zeebrugge','cambrai','arras','somme','london','verdun','maan','gallipoli','paris-night','jutland','dover-night','berlin'];
+const MAP_KEYS=['rural','sea','trench','trench','city','sky','alps','zeebrugge','cambrai','arras','somme','london','verdun','maan','gallipoli','paris-night','jutland','dover-night','berlin','laon'];
 // Stage-boss id -> score family. Related boss pairs share a family.
 const BOSS_TRACKS={
  'final-kaiserkrone':'kaiserkrone','final-leviathan':'leviathan','berlin-drachen':'net',
  'supermarine-nighthawk':'bomber','siemens-schuckert-r-viii':'bomber',
  'paris-gun':'railgun',lincomparable:'railgun',
+ 'paris-geschuetz':'fortress','french-counter-battery':'bomber',
  'sms-stuttgart':'naval','hms-zubian':'naval',
  'a7v-flak':'landship','mark-v-cruiser':'landship',
  'drachen-net':'net','london-apron':'net',

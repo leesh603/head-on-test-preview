@@ -89,7 +89,7 @@ export function drawExplosionProfile(c,f,x,y,fx){
   const width=size*(.9+variant*.08),contactAngle=a+(variant-1)*.09;
   // A compact painted contact flash makes the first frames legible; the torn
   // fabric/sparks and directed fragments carry the rest of the impact.
-  if(!blocked&&age<.055)fx(c,'profileFlash',x,y,width*.68,size*.58,contactAngle,(1-age/.055)*(decisive?.95:.84));
+  if(!blocked&&age<.085)fx(c,'profileFlash',x,y,width*.78,size*.68,contactAngle,(1-age/.085)*(decisive?.95:.84));
   fx(c,blocked?'ricochet':metal?'armorSpark':f.material==='fabric'?'smokePuff':'debris',x,y,width*(.7+q*.5),size,contactAngle,fade*(blocked?.65:f.material==='fabric'?.76:.9));
   if(!blocked&&f.incendiary&&age<.12)fx(c,'fireEngine',x,y,18+q*12,13+q*8,a,(1-age/.12)*.65);
   if(!blocked)for(let i=0,count=decisive?5:f.piercing?3:2;i<count;i++){

@@ -396,4 +396,3 @@ html.ui423 body.astra-ui.playing #modal.overlay.build-modal151{background:linear
 html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 #modalActions button:not(:first-child){border-top:1px solid #e8e2d41f!important}
 html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 .modal-card{height:auto!important;min-height:0!important;align-self:center!important}
 @media(min-width:721px){html.ui423 body.astra-ui.playing #modal.overlay.build-modal151 .modal-card{margin-left:clamp(24px,6vw,96px)!important}}
-

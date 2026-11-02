@@ -1,4 +1,3 @@
-import {traceDirector,squadronShotCreated} from '../../squadron-elite-balance.js';
 import {arrivalViewport} from '../../enemy-arrivals.js';
 import {intrusionActive} from '../../intrusion-bosses.js';
 import {pilotUnlockEliteDeath} from '../../pilot-unlocks.js?v=pilot-unlocks-shared1';
@@ -40,8 +39,6 @@ export function createHeadOnHost(game, bindings = {}) {
     isManaged:()=>game.squadronManaged===true,
     requestEncounter:id=>game._requestLegacyEncounter?.(id)||null,
     getTime: () => bindings.getTime?.(game) ?? game.t ?? 0,
-    canAttack: (member,meta={}) => {if((game.bullets?.length||0)+(meta.projectiles||0)>=180){member.directorAttackDeniedReason='projectile-cap';return false;}return game.directorAttackAllowed?.(member)!==false;},
-    recordAttack: (type,member,detail={}) => {if(type==='shotCreated')squadronShotCreated(game,member,member.eliteKind);else traceDirector(game,type,{unit:member.eliteKind,entity:member.id,...detail});},
     getViewport: () => arrivalViewport(game),
     getPlayer: () => bindings.getPlayer?.(game) || game,
     steerAircraft: (member,contact,turn,result) => {const steering=regionalSteering(game,member,contact,turn,result,true);if(momentumCount(contact)>=15&&!(contact.ballCloak>0)&&!(contact.cloudConceal>0)&&Math.hypot(member.x-contact.x,member.y-contact.y)<680)return {...steering,turn:steering.turn*1.12};return steering;},
@@ -165,7 +162,6 @@ export function installHeadOnElitePatch(GameClass, bindings = {}, options = {}) 
   GameClass.prototype[INSTALL_KEY] = {uninstall, enemyType: ELITE_ENEMY_TYPE};
   return GameClass.prototype[INSTALL_KEY];
 }
-
 
 
 

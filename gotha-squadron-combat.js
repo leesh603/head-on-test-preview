@@ -1,3 +1,4 @@
+import {arrivalFlightTurn,reserveArrivalFlight} from './boss-arrival-flight.js';
 // City Gotha flights: guided forward flight, never slot-position interpolation.
 const TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -16,8 +17,9 @@ function steer(b,dt,p,phase,radius,active,beat){
  // Separation changes the desired heading, never an aircraft's coordinates.
  for(const q of b.encounter?.bodies.values()||[]){if(q===b||q.dead||q.kind!=='gotha-raider')continue;const dx=b.x-q.x,dy=b.y-q.y,d=Math.hypot(dx,dy);if(d>1&&d<230){const n=(230-d)*2.5;vx+=dx/d*n;vy+=dy/d*n;}}
  const desired=Math.atan2(vy,vx),engines=b.engines(),limit=GOTHA_TURN_RATE*(engines===2?1:.8);
- if(!b.gothaVolley)b.a+=clamp(wrap(desired-b.a),-limit*dt,limit*dt);
  const goal=clamp(Math.hypot(vx,vy),engines===2?80:65,engines===2?400:330);
+ if(!b.gothaVolley)b.a+=arrivalFlightTurn(b,dt,desired,limit,b.gothaSpeed||170,goal,90,70)*dt;
+ else reserveArrivalFlight(b,0);
  b.gothaSpeed??=goal;b.gothaSpeed+=clamp(goal-b.gothaSpeed,-70*dt,90*dt);
  b.x+=Math.cos(b.a)*b.gothaSpeed*dt;b.y+=Math.sin(b.a)*b.gothaSpeed*dt;
  b.rotateMounts();
@@ -103,6 +105,7 @@ export function updateGothaCombat(b,dt,{players=[],bounds,londonTargets=[]}){
  const phase=!isActive?'gotha-reentry':beat<2.5?'gotha-cover':beat<5.3?'gotha-crossfire':beat<6.5?'gotha-bomb-run':'gotha-regroup';
  b.phase=phase;
  gun(b,p,bounds,dt,fighting,beat<4.35);
+ if(b.gothaVolley)reserveArrivalFlight(b,0);
  if(!fighting)b.gothaVolley=null;
  cityPlan(b,londonTargets,bounds,time,isActive);
  bomb(b,p,bounds,time,isActive&&beat>=(engines===2?5.3:5.55)&&beat<5.8,londonTargets);

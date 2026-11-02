@@ -9,6 +9,7 @@ import {tickIntrusionHost,syncIntrusionTarget,intrusionTargetCollision,hitIntrus
 import {momentumDamage} from './ace-momentum.js';
 import {pilotUnlockRun} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
 import {bossOrdnanceFamily,bossStrongSound} from './boss-ordnance-loadouts.js';
+import {isArtilleryImpactSound} from './rural-audio.js';
 import {recordAdriaticGunCue} from './adriatic-gun-art.js?v=pandemonium394r2';
 import {capBomberSalvoDamage} from './bomber-transfer.js?v=pandemonium394r2&afc=1&td4=20261026';
 import {recordCombatImpact} from './combat-impact-result.js';
@@ -17,6 +18,7 @@ import {doverWorldBounds} from './dover-patrol-chart.js?v=pandemonium394r2';
 import {doverBomberFrames,damageDoverBomber,tickDoverMission,clearDoverMission} from './dover-breakthrough.js';
 import {groundShellProfile,initExplosionProfile,pushExplosionFx} from './explosion-profiles.js?v=pandemonium394r2';
 import {resolveSurfaceSpacing} from './naval-spacing.js?v=pandemonium394r2';
+import {LAON_STAGE,ensureLaonBattle,clearLaonBattle,tickLaonBattle,handleLaonCue,discoverLaonBattle,laonAvailableSlots} from './laon-battle.js';
 
 import {tickRegionalConditions} from './region-doctrine1.js?v=pandemonium394r2&afc=1&ai=1018&sig=1019&boss=20261020b&phase=1021&cityart=20261022';
 
@@ -36,7 +38,7 @@ import {tickMaanWeather,maanSandCover} from './maan-weather.js?v=pandemonium394r
 
 
 import {createJutlandRoute,tickJutlandRoute,jutlandPoint,JUTLAND_ROUTE} from './jutland-route.js?v=pandemonium394r2';
-export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심 공습','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭','마안 전투','갈리폴리 전선','1918 파리 야간공습','유틀란트 해전','도버 해협 · 해협 돌파전','베를린 방어선'];
+export const STAGE_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심 공습','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭','마안 전투','갈리폴리 전선','1918 파리 야간공습','유틀란트 해전','도버 해협 · 해협 돌파전','베를린 방어선','라온 포격진지 · 1918'];
 export const STAGE_BOSS_BALANCE=Object.freeze({distance:12000,deadline:90,spawnFactor:.55});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const players=g=>g.players||[g];
@@ -109,6 +111,8 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
  const hitPlayer=(id,damage,source)=>{if(blocked(g))return;if(g.doverMission?.faction==='central'&&id.startsWith('dover-bomber-')){damageDoverBomber(g,id,damage,source);return;}const defender=formationDefenders(g).find(a=>formationDefenderId(g,a)===id);if(defender){if((g.patrols||[]).includes(defender))g.hitPatrol(defender,damage);else g.hitFormationAlly?.(defender,damage);return;}const p=players(g).find(p=>(p.id||'p1')===id);if(!p||!alive(p))return;const percent=({'rail-shell':.06,'rail-shell-outer':.045,'alps-cannon':.05,'torpedo-charge':.05,'zubian-mortar':.04,'carpet-bomb':.04,'observer-shell':.04,'black-flak':.03})[source?.visual]||0,finalDamage=source?.raidHeavy?Math.max(damage,p.maxHp*.72):damage+p.maxHp*percent;const smallArms=source?.kind==='projectile'&&(/-mg$/.test(source.visual)||source.visual==='rviii-gun');const priorSource=p.damageSource;p.damageSource=source?{x:source.x-(source.vx||0),y:source.y-(source.vy||0),kind:source.kind,visual:source.visual,hazard:source,bullet:source.kind==='projectile'?{...source,flak:!smallArms,heavyShell:!smallArms,gas:false}:null}:null;try{if(g.players)g.hitPlayer(p,finalDamage);else g.hit(finalDamage);}finally{p.damageSource=priorSource;}if(source?.visual==='torpedo-charge'){g.combatBlast(p.x,p.y,54,'enemy','mineBlast');g.shake=Math.max(g.shake,10);}else if(source?.visual==='zubian-shell')g.combatBlast(p.x,p.y,24,'enemy','pop');};
  const hooks={
   getDoverMission(){return g.doverMission;},
+  getLaonMission(){return g.laonBattle;},
+  onLaonMissionCleared(){const b=g.laonBattle;if(!b||b.cleared)return;b.cleared=true;for(const value of g.xpGemSplits?.(36)||[])(g.drops??=[]).push({x:g.x,y:g.y,value,bossReward:true});g.event('wave',b.role==='attack'?'파리포 저지 완료 · 파리 공습전으로 이동':'3회 포격 완료 · 파리 공습전으로 이동');},
   canEnterFinalArena(){return g.testMode===true?true:g.online?g.finalArenaPeersQualified?.()===true:hasBothFactionFinalClears();},
   isCapitalFinalEncounter(encounter){const s=g.stageBoss?.stages;return encounter===s?.encounter&&s.capitalRound===1&&s.capitalEncounter&&encounter.bossId===s.capitalBossId&&BOSS_CATALOG[encounter.bossId]?.capitalFinal===true&&encounter.bodies instanceof Map&&encounter.bodies.size>0&&[...encounter.bodies.values()].every(b=>b.isCapitalBoss===true)||g.capitalFinalArenaAdapter?.isFinalEncounter?.(encounter)===true;},
   waitForFinalArenaEligibility(){return !!g.online&&hasBothFactionFinalClears()&&!g.finalArenaPeersQualified?.();},
@@ -123,6 +127,8 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     'supermarine-nighthawk':{geometryScale:1.2*Math.min(.55,Math.max(.26,(g.viewWidth||960)*.8/1200)),mobileBoss:false,motionMultiplier:1,coreRadius:48,partHp:maxHp*.065},
     'siemens-schuckert-r-viii':{geometryScale:1.2*Math.min(.72,Math.max(.32,(g.viewWidth||960)*.94/1200)),mobileBoss:false,motionMultiplier:1,coreRadius:50,partHp:maxHp*.055},
     'paris-gun':{warningSeconds:1.15,railCycle:5.4,railMoveSeconds:3.6,shellCount:6,barrageInterval:.26,hpScale:.72},
+    'paris-geschuetz':{geometryScale:1,mobileBoss:false,motionMultiplier:0,patternMultiplier:1,coreRadius:28,hpScale:.78},
+    'french-counter-battery':{geometryScale:1,mobileBoss:false,motionMultiplier:0,patternMultiplier:1,coreRadius:0,hpScale:.72},
     lincomparable:{warningSeconds:1.4,railCycle:5.8,railMoveSeconds:3.6,hpScale:.72},
     'sms-stuttgart':{launchInterval:1.8,fireScale:.62,suppressiveInterval:1.9},
     'hms-zubian':{broadsideInterval:.75/density,mortarInterval:1.3,chargeInterval:1.85,suppressiveInterval:1.8/density},
@@ -178,6 +184,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
   formationStatus(id){return g.enemies.filter(e=>e.encounterId===id&&e.bossMinion&&e.hp>0).map(e=>({id:e.id,role:e.formationRole,pairId:e.pairId,x:e.x,y:e.y}));},
   onBuildingImpact(event){const b=g.bossBuildings.find(b=>!b.destroyed&&Math.abs(event.x-b.x)<=b.w/2+8&&Math.abs(event.y-b.y)<=b.h/2);if(!b)return false;b.destroyed=true;g.combatBlast(b.x,b.y,55,'enemy','structure');return true;},
   onCue(event){
+   if(handleLaonCue(g,event))return;
    if(event.type==='boss-entry-beat'){if(event.sound)g.event('bossSound',event.sound);g.shake=Math.max(g.shake||0,event.shake||0);return;}
    if(event.type==='capital-final-pending'){
     const addon=g.stageBoss;g.bullets=g.bullets.filter(b=>!b.enemy);g.bossCues=[];
@@ -224,7 +231,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    }
     if(event.type==='boss-enter'){g.event('wave','지역 보스 출현! · '+BOSS_CATALOG[event.bossId].name);g.event('heavyShot','');}
     else if(event.type==='aa-effect'){(g.aaEffects??=[]).push({x:event.x,y:event.y,age:0,life:event.life||.5,size:event.size||115,kind:event.kind});}
-    else if(event.type==='hazard-activated'&&event.kind==='circle'&&(['morser-shell','mark4-shell','treffas-shell'].includes(event.visual)||groundShellProfile(event.visual)&&event.visual.startsWith('somme-'))){const profile=groundShellProfile(event.visual);pushExplosionFx(g,initExplosionProfile({x:event.x,y:event.y,radius:event.radius,side:'enemy',kind:'shell'},profile));g.shake=Math.max(g.shake,profile==='heavyShell'?5:3);}
+    else if(event.type==='hazard-activated'&&event.kind==='circle'&&(['morser-shell','mark4-shell','treffas-shell'].includes(event.visual)||groundShellProfile(event.visual)&&event.visual.startsWith('somme-'))){const profile=groundShellProfile(event.visual);pushExplosionFx(g,initExplosionProfile({x:event.x,y:event.y,radius:event.radius,side:'enemy',kind:'shell',artillerySound:isArtilleryImpactSound(sound)?sound:null},profile));g.shake=Math.max(g.shake,profile==='heavyShell'?5:3);}
     else if(event.type==='hazard-activated'&&event.kind==='circle'&&event.visual==='carpet-bomb'&&['staaken-rvi','gik','ca4'].includes(body?.kind)){g.combatBlast(event.x,event.y,event.radius,'enemy','bomb');g.shake=Math.max(g.shake,3);}
     else if(event.type==='hazard-activated'&&event.visual==='harbor-swing'){
       // The attached payload remains intact throughout the physical sweep.
@@ -238,6 +245,7 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
     else if(event.type==='hazard-activated'&&event.kind==='circle'&&event.visual!=='hull-ram'){
     const SHELL_VISUALS=new Set(['rail-shell','rail-shell-outer','observer-shell','zubian-mortar','naval-gun','alps-cannon','black-flak','zubian-shell','coastal-shell','building-debris']),sea=[1,7,17].includes(g.worldRegion?.()??-1);
     g.combatBlast(event.x,event.y,event.radius,'enemy',event.visual==='carpet-bomb'?'bomb':event.visual==='torpedo-charge'?'mineBlast':SHELL_VISUALS.has(event.visual)?(sea?'mineBlast':'shell'):'blast',sea?null:groundShellProfile(event.visual));
+    if(isArtilleryImpactSound(sound)){const effect=g.combatFX?.at(-1);if(effect)effect.artillerySound=sound;}
     if(!sea&&['rail-shell','rail-shell-outer'].includes(event.visual)){const effect=g.combatFX?.at(-1);if(effect)effect.railImpact=true;}
     if(!sea&&groundShellProfile(event.visual)==='heavyShell')g.shake=Math.max(g.shake,5);
     if(sea&&SHELL_VISUALS.has(event.visual)){const effect=g.combatFX?.at(-1);if(effect)effect.fxSource='navalShell'}
@@ -286,13 +294,13 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
    if(g.londonBattle){g.londonBattle.cleared=true;if(g.londonBattle.role==='defend')for(const d of g.londonBattle.districts.filter(d=>d.hp>0))(g.drops||=[]).push({x:d.x,y:d.y,value:24,bossReward:true});}
    if(g.parisBattle)g.parisBattle.cleared=true;
    g.kills++;awardPriorityKill(g,{stageBossBody:true});achievementBossClear(g,{id,bossId});const owner=players(g).find(p=>(p.id||'p1')===g.stageBossLastOwner);if(g.players&&owner)owner.kills++;
-   g.event('kill','');g.event('wave',BOSS_CATALOG[bossId].name+(g.doverMission?' 격파 · 폭격기 임무 계속':' 격파 · 다음 지역 진입'));
+   g.event('kill','');g.event('wave',BOSS_CATALOG[bossId].name+(g.doverMission?' 격파 · 폭격기 임무 계속':g.laonBattle?.role==='defend'?' 격파 · 파리포 방어 계속':' 격파 · 다음 지역 진입'));
    const hero=players(g)[0]||g,stages=g.stageBoss?.stages||{},stageIndex=stages.stageIndex||0,loopIndex=stages.loopIndex||0;
    const total=g.doverMission?18:Math.min(36,12+stageIndex*2+loopIndex*4),gems=g.xpGemSplits(total);
    for(let i=0;i<gems.length;i++){const a=i*.7;(g.drops||=[]).push({x:hero.x+Math.cos(a)*70,y:hero.y+Math.sin(a)*70,value:gems[i],heal:false,bossReward:true})}
    if(!g.doverMission)(g.drops||=[]).push({x:hero.x,y:hero.y,value:0,heal:true,bossReward:true})
   },
-  onStageChange({stageIndex,loopIndex}){clearDoverMission(g);if(g.gallipoliRoute)g.stageBoss.hazards.clear(g.gallipoliRoute.encounterId);g.maanStartX=g.x;g.jutlandRoute=stageIndex===16?createJutlandRoute(g):null;g.gallipoliRoute=stageIndex===14?createGallipoliRoute(g):null;g.verdunWrecks=[];g.verdunBattle=null;g.londonBattle=null;g.enemies=g.enemies.filter(e=>!e.londonOwned);const previousRegion=g.region;g.region=stageIndex;g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.clearRegionalHazards();g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=stageIndex===7?createHarborRoute(g):null;
+  onStageChange({stageIndex,loopIndex}){clearLaonBattle(g);clearDoverMission(g);if(g.gallipoliRoute)g.stageBoss.hazards.clear(g.gallipoliRoute.encounterId);g.maanStartX=g.x;g.jutlandRoute=stageIndex===16?createJutlandRoute(g):null;g.gallipoliRoute=stageIndex===14?createGallipoliRoute(g):null;g.verdunWrecks=[];g.verdunBattle=null;g.londonBattle=null;g.enemies=g.enemies.filter(e=>!e.londonOwned);const previousRegion=g.region;g.region=stageIndex;g.stageStartDistance=g.distance||0;g.stageStartTime=g.t;g.clearRegionalHazards();g.bossBuildings=[];g.bossCues=[];g.navalRouteCues=new Set();g.navalApproachAt=null;g.navalRoute=stageIndex===7?createHarborRoute(g):null;
    // A fresh map starts clean: leftover stragglers must not be sitting on top
    // of the player at the transition moment.
    g.enemies=g.enemies.filter(e=>e.missionTarget||e.stageBossBody||e.navalVessel||e.heavyBomber||e.bossPilot&&e.hp>0&&!e.expired&&!e.rivalEscaped&&!e.deathHandled&&!e.crashing&&!e.crashed);
@@ -310,13 +318,21 @@ export function enableStageBoss(g,{teamFaction,heavyHp=1}={}){
 // Thin combat targets share body state. They never run the old enemy AI or rewards.
 export function syncStageBossTargets(g){
  const encounter=g.stageBoss?.stages.encounter,bodies=encounter?.bodies;
- g.enemies=g.enemies.filter(e=>!e.stageBossBody||e.intrusionBody||bodies?.get(e.stageBossBody.id)===e.stageBossBody&&!e.stageBossBody.dead);
- const incoming=[...bodies?.values()||[]].filter(body=>!body.dead&&!g.enemies.some(e=>e.stageBossBody===body));
+ g.enemies=g.enemies.filter(e=>!e.stageBossBody||e.intrusionBody||bodies?.get(e.stageBossBody.id)===e.stageBossBody&&!e.stageBossBody.dead&&(!e.laonPlane||e.stageBossBody.parts.get(e.laonPlane)?.hp>0));
+ const incoming=[...bodies?.values()||[]].filter(body=>!body.dead&&body.kind!=='french-counter-battery'&&!g.enemies.some(e=>e.stageBossBody===body));
  if(incoming.length)g.reserveEnemySlots(incoming.length);
  for(const body of bodies?.values()||[]){if(body.dead||g.enemies.some(e=>e.stageBossBody===body))continue;
+  if(body.kind==='french-counter-battery')continue;
   const e={stageBossBody:body,encounterId:encounter.id,id:body.id,type:'stageBoss',faction:body.faction,combatLayer:body.isCapitalBoss||body.jutlandAirship||isDoverBoss(body.kind)||AIRBORNE_BOSSES.has(body.kind)?'air':'surface',stationary:!isDoverBoss(body.kind),surface:!body.isCapitalBoss&&!body.jutlandAirship&&!isDoverBoss(body.kind),missionTarget:true,a:-Math.PI/2,speed:0,fire:Infinity};
   const synced=['x','y','hp','maxHp'];if(Number.isFinite(body.a))synced.push('a');
   for(const key of synced)Object.defineProperty(e,key,{enumerable:true,get:()=>body[key]});g.enemies.push(e);
+ }
+ for(const body of bodies?.values()||[]){if(body.kind!=='french-counter-battery'||body.dead)continue;
+  for(const p of body.planes||[]){if(p.destroyed||p.mode==='pending'||p.mode==='destroyed'||g.enemies.some(e=>e.stageBossBody===body&&e.laonPlane===p.id))continue;
+   const e={stageBossBody:body,laonPlane:p.id,encounterId:encounter.id,id:body.id+':'+p.id,type:p.role==='bomber'?'bomber':p.role==='observer'?'scout':'hunter',faction:body.faction,combatLayer:'air',stationary:false,surface:false,missionTarget:true,escortPlane:p.aircraft,speed:0,fire:Infinity,hitRadius:p.radius};
+   for(const [key,get] of Object.entries({x:()=>body.x+p.x,y:()=>body.y+p.y,a:()=>p.angle,hp:()=>p.hp,maxHp:()=>p.maxHp}))Object.defineProperty(e,key,{enumerable:true,get});
+   g.enemies.push(e);
+  }
  }
 }
 // Pilot velocity for boss aiming. Planes never set previousX/previousY, so the
@@ -329,7 +345,7 @@ function pilotVelocity(p,dt){
  if(last&&dt>0){const vx=(p.x-last.x)/Math.max(dt,1/120),vy=(p.y-last.y)/Math.max(dt,1/120);if(Math.hypot(vx,vy)<900)return{vx,vy};}
  const sp=(p.speed||0)*(p.airframeSpeed??1);return{vx:Math.cos(p.a||0)*sp,vy:Math.sin(p.a||0)*sp};
 }
-export function stageBossCollision(g,e,x,y,b){if(e.intrusionBody)return !blocked(g)&&intrusionTargetCollision(g,e,x,y,b);const body=e.stageBossBody;if(!body)return null;if(blocked(g)||body.dead||body.arrivalPending||g.stageBoss?.stages.encounter?.bodies.get(body.id)!==body)return false;return !!body.locateHit({x,y,previousX:b?.previousX??x,previousY:b?.previousY??y,radius:b?.collisionRadius||0});}
+export function stageBossCollision(g,e,x,y,b){if(e.intrusionBody)return !blocked(g)&&intrusionTargetCollision(g,e,x,y,b);const body=e.stageBossBody;if(!body)return null;if(blocked(g)||body.dead||body.arrivalPending||g.stageBoss?.stages.encounter?.bodies.get(body.id)!==body)return false;const hit=body.locateHit({x,y,previousX:b?.previousX??x,previousY:b?.previousY??y,radius:b?.collisionRadius||0});return !!hit&&(!e.laonPlane||hit.partId===e.laonPlane);}
 export function damageStageBoss(g,e,b,damage){
  if(legacyProjectileTarget(g,e)){(b.eliteHits??=new Set()).add(e.id);const before=e.hp;g.eliteEnemies.damageMember(e,damage,{projectile:b,ownerId:b.ownerId??g.id??'p1'});const dealt=Math.max(0,before-e.hp);recordCombatImpact(b,e,{damage:dealt,blocked:!(dealt>0)});if(dealt>0)for(const p of g.players||[g])p.identityImpact?.(b,e,e,e);return;}
  damage*=momentumDamage(g,b);
@@ -339,10 +355,10 @@ export function damageStageBoss(g,e,b,damage){
  const notify=(target,pos)=>{for(const p of g.players||[g])p.identityImpact?.(b,e,target,pos)};
  if(b.identityDotTarget&&b.identityDotTarget!==e&&!e.stageBossBody)return;
  if(!e.stageBossBody){damage=capBomberSalvoDamage(e,b,damage);if(!(damage>0))return;if(e.bossPilot==='berthold'){if(e.hp<=e.maxHp*.5)damage*=.75;if(e.ironWillUntil>g.t)damage*=.35;}const critical=resolveAircraftCritical(g,e,b,damage);damage=critical.damage;e.hp-=damage;applyAircraftCritical(g,e,b,critical);recordCombatImpact(b,e,{damage,blocked:false,critical:critical.critical});notify(e,e);return;}
- if(blocked(g)||b.patrol)return;
+ if(blocked(g)||b.patrol&&e.stageBossBody.kind!=='french-counter-battery')return;
  if(e.intrusionBody){damage=capBomberSalvoDamage(e,b,damage);const result=hitIntrusionTarget(g,e,b,damage);recordCombatImpact(b,e,{...result,blocked:!(result.damage>0)});if(result.damage>0){notify(e.stageBossBody.parts.get(result.partId)||e.stageBossBody,{x:b.x,y:b.y});g.event?.('impact','');}return;}
  const body=e.stageBossBody;
- const hit=body.locateHit({x:b.x,y:b.y,previousX:b.previousX,previousY:b.previousY,radius:b.collisionRadius||0});if(!hit)return;
+ const hit=body.locateHit({x:b.x,y:b.y,previousX:b.previousX,previousY:b.previousY,radius:b.collisionRadius||0});if(!hit||e.laonPlane&&hit.partId!==e.laonPlane)return;
  const part=hit.partId?body.parts.get(hit.partId):null,target=part||body;if(b.identityDotTarget&&b.identityDotTarget!==target)return;
  damage=capBomberSalvoDamage(e,b,damage);if(!(damage>0))return;
  const beforeParts=new Set([...body.parts.values()].filter(p=>p.destroyed));const result=g.stageBoss.hit({bodyId:body.id,...hit,damage,faction:g.teamFaction});if(result.damage>0)for(const broken of body.parts.values())if(broken.destroyed&&!beforeParts.has(broken))pilotUnlockRun(g)?.part(body,broken,b);
@@ -479,6 +495,7 @@ export function stageCombatWindow(g){
 export function beginStageBossFrame(g,dt){
  const addon=g.stageBoss;if(!addon||blocked(g)||dt<=0)return;
  if(addon.stages.phase==='final-arena'){beginFinalArena(g);return;}
+ ensureLaonBattle(g);
  tickDoverMission(g,dt);
  tickIntrusionHost(g,dt,stageCombatWindow(g));
  updateAceRecovery(g);
@@ -488,6 +505,7 @@ export function beginStageBossFrame(g,dt){
  for(const cue of g.bossCues){if(!cue.followSource)continue;const b=addon.stages.encounter?.bodies.get(cue.bossId),p=b?.parts.get(cue.partId);if(!b||b.dead||!p||p.destroyed){cue.life=0;continue;}const a=cue.lockedAngle;cue.x=b.x+p.x+Math.cos(a)*5;cue.y=b.y+p.y+Math.sin(a)*5;cue.targetX=cue.x+Math.cos(a)*460;cue.targetY=cue.y+Math.sin(a)*460;}
  g.bossCues=g.bossCues.filter(c=>(c.life-=dt)>0&&(c.type!=='bug-flight-target'||g.enemies.some(e=>e.id===c.minionId&&e.hp>0)));
  tickLondonBattle(g,dt);tickParisBattle(g,dt);tickVerdunBattle(g,dt);tickMaanWeather(g,dt);tickRegionalConditions(g,dt);if(blocked(g))return;
+ if(addon.stages.stageIndex===LAON_STAGE){discoverLaonBattle(g);g.stageCombatWindow={stageIndex:LAON_STAGE,loopIndex:addon.stages.loopIndex,remaining:0,progress:1,approaching:true,ready:true};syncStageBossTargets(g);updateMinions(g,dt);return;}
  // Warning-phase mines physically travel from the winch to their final slots;
  // collision stays disabled until they settle, and pause freezes both clocks.
  for(const field of g.hostileMinefields||[])if(field.encounterId&&field.deploySeconds>0){
@@ -604,7 +622,7 @@ export function endStageBossFrame(g,dt){
  if(addon.stages.stageIndex===13)for(const p of playerFrames)p.sandCover=maanSandCover(g.maanWeather,p.x,p.y);
  const doverBombers=addon.stages.stageIndex===17?doverBomberFrames(g):[],doverConvoy=(addon.stages.stageIndex===17?g.doverMission?.bombers||[]:[]).filter(b=>b.hp>0&&!b.doverResult&&!b.expired&&!b.crashing&&!b.crashed).map(b=>({id:b.id,alive:true,x:b.x,y:b.y,a:b.a,vx:b.vx||0,vy:b.vy||0,radius:b.hitRadius||24,lastHitAt:b.lastHitAt}));
  const frame={doverBombers,doverConvoy,doverTime:g.t,capitalAcesAlive:g.enemies.filter(e=>e.capitalEscortToken===activeEncounter?.id&&e.hp>0&&!e.expired&&!e.crashing&&!e.crashed).length,capitalDefenseSuppressed:(g.londonBattle?.suppressed||0)>=2||(g.berlinDefense?.suppressed||0)>=2||!!g.capitalDefenseSuppressed,mapBounds:addon.stages.stageIndex===17?doverWorldBounds(g):undefined,paused:blocked(g),players:playerFrames,defenders:defenderFrames,defenderLosses:g.patrolLosses||0,bounds,peaks:g.alpsMountains?.query(bounds)||[],buildings:g.bossBuildings,londonTargets:g.londonBattle?.districts||[],parisTargets:g.parisBattle?.districts||[]};
- addon.tick(dt,frame);addon.reconcile({blocked:blocked(g)});separateLargeBossBodies(g);syncStageBossTargets(g);
+ frame.laonAvailableSlots=laonAvailableSlots(g);addon.tick(dt,frame);tickLaonBattle(g,dt,frame);addon.reconcile({blocked:blocked(g)});separateLargeBossBodies(g);syncStageBossTargets(g);
   // No invisible composite-sized apron collision. Wire hazards and mines are
   // the actual dangerous geometry, and destroyed sections leave open air.
  if(g.state==='lost')addon.dispose();

@@ -1,7 +1,7 @@
 // Concise current ability text shown only after medal enhancement.
 export const MEDAL_ACTIVE_COPY=Object.freeze({
   "baron": [
-    "5.4초간 급선회하며 사냥감을 추적합니다. 표적 후방 공격 피해 +20%(보스 +12%).",
+    "5.4초간 급선회하며 사냥감을 추적합니다. 표적 후방 공격 피해가 20%, 보스에게는 12% 증가합니다.",
     "Turn tightly and hunt your target for 5.4s. Rear hits deal +20% damage (+12% vs bosses)."
   ],
   "voss": [
@@ -29,11 +29,11 @@ export const MEDAL_ACTIVE_COPY=Object.freeze({
     "Lure pursuers and fire 5 rear bursts. Hits disrupt enemy aim for 0.9s."
   ],
   "berthold": [
-    "피격 반격 충전 +35%. 충전이 최대 내구도의 9%에 도달하면 종료 직전 공격력 2배의 관통탄 5발을 발사합니다.",
+    "피격 시 반격 충전량이 35% 증가합니다. 충전이 최대 내구도의 9%에 도달하면 종료 직전 공격력 2배의 관통탄 5발을 발사합니다.",
     "Gain 35% more charge from hits. At 9% max-durability charge, end with 5 piercing rounds at twice attack damage."
   ],
   "wolff": [
-    "3.78초간 상승 후 급강하해 속도와 화력을 높입니다. 급강하 첫 명중 피해 +30%(보스 +15%).",
+    "3.78초간 상승 후 급강하해 속도와 화력을 높입니다. 급강하 첫 명중 피해가 30%, 보스에게는 15% 증가합니다.",
     "Climb and dive for 3.78s, gaining speed and firepower. First dive hit: +30% damage (+15% vs bosses)."
   ],
   "loewenhardt": [
@@ -45,15 +45,15 @@ export const MEDAL_ACTIVE_COPY=Object.freeze({
     "Fire a fan of rounds with 50% less close-range spread and tighter medium-range fire."
   ],
   "brumowski": [
-    "편대를 재집결해 사격 간격을 10% 줄입니다. 자신과 주변 아군의 받는 피해 −15%(중첩 불가).",
+    "편대를 재집결해 사격 간격을 10% 줄입니다. 자신과 주변 아군의 받는 피해가 중첩 없이 15% 줄어듭니다.",
     "Rally your flight: firing interval −10%; damage taken by you and nearby allies −15% (does not stack)."
   ],
   "gontermann": [
-    "관통·소이 점사로 표적에 5초간 화재를 일으킵니다. 화재 피해 +20%(보스 +10%), 전염 없음.",
+    "관통·소이 점사로 표적에 5초간 화재를 일으킵니다. 화재는 번지지 않으며 피해가 20%, 보스에게는 10% 증가합니다.",
     "Land piercing and incendiary bursts to ignite a 5s fire. Burn damage +20% (+10% vs bosses); no spread."
   ],
   "lothar": [
-    "6.5초간 연사 +50%, 속도 +15%. 기관총 격추 후 3.5초 내 다른 적 명중 시 1초 연장(최대 3초).",
+    "6.5초간 연사가 50%, 속도가 15% 증가합니다. 기관총 격추 후 3.5초 내 다른 적 명중 시 1초씩, 최대 3초 연장됩니다.",
     "Gain +50% fire rate and +15% speed for 6.5s. After a gun kill, hit another within 3.5s: +1s, up to +3s."
   ],
   "sachsenberg": [
@@ -77,7 +77,7 @@ export const MEDAL_ACTIVE_COPY=Object.freeze({
     "Command Black Flight for 7.5s. Two wingmen enter one firing lane and attack in sequence for 5.4s."
   ],
   "baracca": [
-    "무적으로 돌격해 경로상의 적을 한 번씩 타격합니다. 타격 폭·피해 +12%(보스 피해 +6%).",
+    "무적으로 돌격해 경로상의 적을 한 번씩 타격합니다. 타격 폭과 피해가 12% 증가하며 보스 피해는 6% 증가합니다.",
     "Charge invulnerably, hitting each target once. Path width and damage +12% (+6% damage vs bosses)."
   ],
   "guynemer": [
@@ -93,7 +93,7 @@ export const MEDAL_ACTIVE_COPY=Object.freeze({
     "Two flights of 8 aircraft make crossing piercing attacks. The second enters after 2.65s."
   ],
   "mckeever": [
-    "6.75초간 전후방 총좌가 독립 사격합니다. 조준 선회 +40%, 후방 표적 포착 0.14초.",
+    "6.75초간 전후방 총좌가 독립 사격합니다. 조준 선회가 40% 빨라지고 후방 표적을 0.14초 만에 포착합니다.",
     "Front and rear guns fire independently for 6.75s. Aim turns 40% faster; rear target acquisition takes 0.14s."
   ],
   "hawker": [
@@ -105,15 +105,15 @@ export const MEDAL_ACTIVE_COPY=Object.freeze({
     "Instantly repair 46.7% of maximum durability."
   ],
   "nungesser": [
-    "6초간 관통 사격하며 연사 +60%, 표식 대상 피해 +60%. 기관총 격추 시 남은 표식을 다음 적에게 넘깁니다.",
+    "6초간 관통 사격하며 연사와 표식 대상 피해가 각각 60% 증가합니다. 기관총 격추 시 남은 표식을 다음 적에게 넘깁니다.",
     "Fire piercing rounds for 6s: fire rate +60%, marked-target damage +60%. A gun kill passes the remaining mark to the next target."
   ],
   "rickenbacker": [
-    "5초간 속도 2배. 그동안 다른 표적에 기관총 명중 시 0.65초간 발사탄 피해 +15%(보스 +10%).",
+    "5초간 속도가 2배가 됩니다. 그동안 다른 표적에 기관총을 맞히면 0.65초간 발사탄 피해가 15%, 보스에게는 10% 증가합니다.",
     "Double speed for 5s. Hit a different enemy with your guns: rounds fired for 0.65s deal +15% damage (+10% vs bosses)."
   ],
   "ball": [
-    "1.875초간 위장합니다. 재등장 후 단독 후방 기습의 첫 명중 피해 +25%(보스 +10%).",
+    "1.875초간 위장합니다. 재등장 후 단독 후방 기습의 첫 명중 피해가 25%, 보스에게는 10% 증가합니다.",
     "Cloak for 1.875s. The first hit of a solo rear ambush afterward deals +25% damage (+10% vs bosses)."
   ],
   "barker": [
@@ -137,7 +137,7 @@ export const MEDAL_ACTIVE_COPY=Object.freeze({
     "Direct gun hits inside the expanded defensive zone slow enemies for 2.6s. Boss slowing is limited."
   ],
   "baron:baron_albatros": [
-    "5.4초간 전방의 적을 제압합니다. 제압한 적의 후방 공격 피해 +20%(보스 +12%).",
+    "5.4초간 전방의 적을 제압합니다. 제압한 적의 후방 공격 피해가 20%, 보스에게는 12% 증가합니다.",
     "Suppress enemies ahead for 5.4s. Rear hits on suppressed targets deal +20% damage (+12% vs bosses)."
   ]
 });

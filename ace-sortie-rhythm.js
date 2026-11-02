@@ -1,5 +1,5 @@
+import {majorEncounterBlocked} from './encounter-admission.js';
 import {arrivalViewport} from './enemy-arrivals.js';
-import {ordinaryAdmissionStage,admissionState,encounterAllowed,admitEncounter,admissionTrace} from './director-admission.js';
 import {intrusionActive} from './intrusion-bosses.js';
 import {activeFronts} from './rural-fronts.js';
 import {pilotAircraftChoices,SORTIE_FITS} from './pilot-aircraft.js?v=pilotair1&art=pilot-recovery2';
@@ -20,58 +20,6 @@ const ordinary=e=>!!(e?.bossPilot&&!e.stageBossBody&&!e.bossMinion&&!e.encounter
 const living=e=>!!(e?.hp>0&&!e.expired&&!e.rivalEscaped&&!e.deathHandled&&!e.crashing&&!e.crashed);
 const loopOf=game=>Math.max(0,game.stageBoss?.stages?.loopIndex||0);
 const playerFor=game=>game.players?.find(p=>p?.hp>0&&(!p.status||p.status==='alive'))||game;
-
-function aceCoverLeader(g,e){return (g.enemies||[]).find(a=>living(a)&&a.aceSortieManaged&&a.bossPilot===e.aceCoverPilot&&a.aceGroupStartedAt===e.aceCoverStartedAt);}
-function aceCoverAttack(g,e,leader=aceCoverLeader(g,e)){
- if(!leader)return false;
- const exiting=leader.rivalEscaping||leader.aceRetreat||leader.disengageUntil>(g.t||0)||['DISENGAGE','EXTEND','RECOVER'].includes(leader.aceTacticalState||leader.combatPassState);
- return !!exiting&&((Math.floor((g.t||0)/1.4)+e.aceCoverSlot)%2===0);
-}
-export function aceCoverShotReady(g,e){return !e?.aceCoverPilot||e.aceCoverAuthored||aceCoverAttack(g,e);}
-function addAceCover(g,ace){
- if(!ordinaryAdmissionStage(g)||ace.aceCoverSpawned||ace.aceAttackSlot!==0)return;
- const time=g.t||0;ace.aceCoverDeadline??=time+8;
- if(!living(ace)||g.stageBoss?.stages?.phase!=='explore'||time>=ace.aceCoverDeadline){ace.aceCoverSpawned=true;admissionTrace(g,'supportCancelled',{kind:'ace-cover',reason:'arrival-window-expired',pilot:ace.bossPilot});return;}
- if(time<(ace.aceCoverRetryAt||0))return;ace.aceCoverRetryAt=time+.3;
- ace.aceCoverSlots??=(g.enemies||[]).filter(e=>e.aceCoverPilot===ace.bossPilot&&e.aceCoverStartedAt===ace.aceGroupStartedAt).reduce((bits,e)=>bits|(1<<e.aceCoverSlot),0);
- const a=ace.a||0;let added=0;
- // Formation specialists already own authored escort airframes and handling.
- // Link their first pair without creating extra generic hunters or retuning
- // their paint, speed, weapon, station or native firing choreography.
- const authored=(g.enemies||[]).filter(e=>living(e)&&e.formationLeader===ace);
- if(['goering','mannock','collishaw'].includes(ace.bossPilot)&&!authored.length)return;
- for(let slot=0;slot<2;slot++){
-  if(ace.aceCoverSlots&(1<<slot))continue;
-  const existing=authored.find(e=>!e.aceCoverPilot);
-  if(existing){Object.assign(existing,{aceCoverPilot:ace.bossPilot,aceCoverStartedAt:ace.aceGroupStartedAt,aceCoverSlot:slot,aceCoverAuthored:true});ace.aceCoverSlots|=1<<slot;added++;continue;}
-  if(authored.length)break;
-  const es=(g.enemies||[]).filter(living),regular=es.filter(e=>!e.bossPilot&&!e.heavyBomber&&['scout','hunter','bomber'].includes(e.type)).length;
-  if(regular>=(g.regularEnemyLimit?.()??12)||es.length>=(g.enemyCapacity?.()??65)-1)break;
-  const previous=g.directorSpawning;g.directorSpawning=true;let wing;try{wing=g.spawnEnemy?.('hunter')}finally{g.directorSpawning=previous}if(!wing)break;
-  const side=slot?1:-1;
-  Object.assign(wing,{aceCoverPilot:ace.bossPilot,aceCoverStartedAt:ace.aceGroupStartedAt,aceCoverSlot:slot,x:ace.x-Math.cos(a)*100-Math.sin(a)*side*105,y:ace.y-Math.sin(a)*100+Math.cos(a)*side*105,a,fire:1.5+slot*.5});
-  ace.aceCoverSlots|=1<<slot;added++;
- }
- ace.aceCoverSpawned=ace.aceCoverSlots===3;
- const count=(g.enemies||[]).filter(e=>living(e)&&e.aceCoverPilot===ace.bossPilot&&e.aceCoverStartedAt===ace.aceGroupStartedAt).length;
- ace.aceCoverCount=Math.max(ace.aceCoverCount||0,count);
- if(added)admissionTrace(g,'supportLinked',{kind:'ace-cover',pilot:ace.bossPilot,count});
-}
-function syncAceCover(g,ace){
- if(!ace.aceCoverSpawned)addAceCover(g,ace);
- if(!(ace.aceCoverCount>0)&&!ace.aceCoverLost)return;
- const count=(g.enemies||[]).filter(e=>living(e)&&e.aceCoverPilot===ace.bossPilot&&e.aceCoverStartedAt===ace.aceGroupStartedAt).length;
- if(ace.aceCoverCount>0&&!count){ace.aceCoverLost=true;admissionTrace(g,'supportLinkBroken',{kind:'ace-cover',pilot:ace.bossPilot,effect:'exposed-direct-reentry'});}
- ace.aceCoverCount=count;
- if(ace.aceCoverLost){
-  const s=ace.aceTactics,p=playerFor(g),time=g.t||0;
-  // Without a covering pair the ace cannot hold the long safe outer recovery.
-  // Use its existing physical exit heading/timer, exposing a predictable return
-  // instead of granting another protected loop or changing any combat stats.
-  if(s&&['DISENGAGE','RECOVER'].includes(s.state)){s.heading=Math.atan2(p.y-ace.y,p.x-ace.x);s.until=Math.min(s.until,time+.8);}
-  if(ace.disengageUntil>time)ace.disengageUntil=Math.min(ace.disengageUntil,time+.8);
- }
-}
 
 export function aceAircraftId(id,planes={}){
  const seen=new Set();
@@ -159,7 +107,6 @@ export function installAceSortieRhythm(Game,{PILOTS,PLANES,PILOT_PLANES,stageAce
  };
  proto.aceCoopFireReady=function(e){
   if(!e?.aceSortieManaged||!ordinary(e)||e.rivalEscaping||e.aceRetreat)return !e?.rivalEscaping&&!e?.aceRetreat;
-  syncAceCover(this,e);
   const now=this.t||0;if(e.aceEntryUntil>now)return false;
   if(e.aceSignatureUntil>now)return true;
   const active=[...(this.aceSortie?.active?.values()||[])].filter(living).sort((a,b)=>a.aceAttackSlot-b.aceAttackSlot);
@@ -172,18 +119,6 @@ export function installAceSortieRhythm(Game,{PILOTS,PLANES,PILOT_PLANES,stageAce
  proto.spawnEnemy=function(type,...args){const e=spawn.call(this,type,...args);if(e?.aceSortieManaged)this.arrangeAceEntry(e);return e};
  const steer=proto.dogfightSteering;
  proto.dogfightSteering=function(e,contact,dt,baseTurn){
-  // CoopGame's outer spawn wrapper assigns/scales the returned last aircraft.
-  // Attach support only after that wrapper has finished, never recursively
-  // append hunters while it is still selecting the newly spawned ace.
-  if(e?.aceSortieManaged)addAceCover(this,e);
-  if(e?.aceCoverPilot&&baseTurn>0){
-   const leader=aceCoverLeader(this,e);
-   if(!leader){admissionTrace(this,'supportLinkBroken',{kind:'ace-cover',pilot:e.aceCoverPilot});delete e.aceCoverPilot;e.directorFireHoldUntil=(this.t||0)+.8;}
-   else if(!aceCoverAttack(this,e,leader)){
-    const a=leader.a||0,side=e.aceCoverSlot?1:-1,tx=leader.x-Math.cos(a)*130-Math.sin(a)*side*110,ty=leader.y-Math.sin(a)*130+Math.cos(a)*side*110;
-    return {delta:angleDiff(Math.atan2(ty-e.y,tx-e.x),e.a),turn:baseTurn*.8};
-   }
-  }
   if(e?.aceSortieManaged&&baseTurn>0&&!e.rivalEscaping&&!e.aceRetreat&&!e.defensivePressure){
    if(e.aceEntryUntil>this.t)return{delta:angleDiff(e.combatPassHeading,e.a),turn:baseTurn*.65};
    if(contact&&!this.aceCoopFireReady(e)&&!(e.bossDash>0)){
@@ -194,16 +129,11 @@ export function installAceSortieRhythm(Game,{PILOTS,PLANES,PILOT_PLANES,stageAce
  };
  for(const name of ['fireEnemy','enemyVolley','aceAttack']){
   const attack=proto[name];proto[name]=function(e,...args){
-   if(!aceCoverShotReady(this,e)){if(name==='fireEnemy')e.fire=.18;return;}
    if(e?.aceSortieManaged&&!this.aceCoopFireReady(e)){
     if(name==='aceAttack')e.abilityTimer=.2;else if(name==='fireEnemy')e.fire=.15;
     return;
    }
-   const before=this.bullets?.length||0,result=attack.call(this,e,...args);
-   if((this.bullets?.length||0)>before&&(e?.aceCoverPilot||e?.aceSortieManaged)){
-    if(e.directorLastShotAt!==(this.t||0))admissionTrace(this,'shotCreated',{kind:e.aceCoverPilot?'ace-cover':'ace',count:this.bullets.length-before});
-    e.directorLastShotAt=this.t||0;
-   }
+   const result=attack.call(this,e,...args);
    if(name==='aceAttack'&&e?.aceSortieManaged)e.aceSignatureUntil=(this.t||0)+Math.max(.8,e.bossDash||0);
    return result;
   };
@@ -211,32 +141,27 @@ export function installAceSortieRhythm(Game,{PILOTS,PLANES,PILOT_PLANES,stageAce
  const scheduled=proto.runScheduledAces;
  proto.runScheduledAces=function(){
   const state=syncAceSortie(this);
-  for(const ace of state.active.values())addAceCover(this,ace);
   // Global 80/185s reservations can fall entirely inside boss approach/battle.
   // Give each new stage an opening slot before its existing approach cutoff.
   if(this.mode!=='campaign'&&this.stageBoss?.stages?.phase==='explore'&&Number.isFinite(this.stageStartTime)&&state.scheduleStart!==this.stageStartTime&&this.nextBossAt<=this.nextAceWaveAt(this.t)){
    state.scheduleStart=this.stageStartTime;
    // The cached window may still belong to the defeated boss (remaining=0).
    // Reserve the same opening interval instead of shortening it from stale data.
-   const opening=ordinaryAdmissionStage(this)?20:16;
+   const opening=16;
    // A reservation overdue from the boss fight belongs to this opening slot,
    // not the first frame of the new region (which starved its mission).
-   state.openingAt=this.nextBossAt=ordinaryAdmissionStage(this)?this.stageStartTime+opening:this.t+opening;
+   state.openingAt=this.nextBossAt=this.t+opening;
   }
-  if(!state.active.size&&!encounterAllowed(this,'ace',{minRemaining:27}))return;
-  if(activeFronts(this).length)return; // Bounded front operation keeps the ace reservation, not a new wave.
+  if(majorEncounterBlocked(this,'ace')||activeFronts(this).length)return; // Bounded front operation keeps the ace reservation, not a new wave.
   if(this.t<(state.openingAt||0)||this.t<this.nextBossAt&&!this.pendingAceCount)return;
   const endedAt=Math.max(state.endedAt??-Infinity,this._aceCombatEndedAt??-Infinity);
   if(state.active.size||this.t<(this.battleRecoveryUntil||0)||this.t-endedAt<ACE_SORTIE_BALANCE.recovery||this.stageCombatWindow?.ready||this.stageBoss?.stages?.phase==='boss'||(this.battlefieldEvents?.current?.status==='active'&&['ACE_CHALLENGE','MOUNTAIN_PURSUIT'].includes(this.battlefieldEvents.current.type)))return;
   this.pendingAceCount=Math.min(ACE_SORTIE_BALANCE.maxAces,this.pendingAceCount||0);
   const result=scheduled.call(this);
-  for(const ace of state.active.values())addAceCover(this,ace);
-  if(state.active.size&&this.directorAdmission?.active!=='ace')admitEncounter(this,'ace',{count:state.active.size});
   // A bounded encounter is one wave, never a backlog dripped into the next duel.
   if(state.active.size||!this.availableAcePilots().length)this.pendingAceCount=0;
   return result;
  };
 }
-
 
 

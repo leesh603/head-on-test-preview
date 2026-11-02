@@ -1,6 +1,6 @@
 import {squadronMusicForGame} from './squadron-score.js';
 // Read-only bridge. Never advances a timer, consumes an event, or changes combat.
-export const MUSIC_REGIONS=Object.freeze(['rural','sea','trenches','trenches-hell','city','sky','alps','zeebrugge','cambrai','arras','somme','london','verdun','maan','gallipoli','paris-night','jutland','dover-night','berlin']);
+export const MUSIC_REGIONS=Object.freeze(['rural','sea','trenches','trenches-hell','city','sky','alps','zeebrugge','cambrai','arras','somme','london','verdun','maan','gallipoli','paris-night','jutland','dover-night','berlin','laon']);
 export const CAMPAIGN_MUSIC=Object.freeze({
  'A-01':'rural','A-02':'trenches','A-03':'verdun','A-04':'somme','A-05':'arras','A-06':'trenches-hell','A-07':'cambrai','A-08':'spring-offensive','A-09':'somme','A-10':'picardy',
  'C-01':'rural','C-02':'trenches','C-03':'somme','C-04':'arras','C-05':'rural','C-06':'cambrai','C-07':'isonzo','C-08':'spring-offensive','C-09':'trenches','C-10':'argonne'
@@ -10,7 +10,8 @@ const terminal={
  'supermarine-nighthawk':['last-stand'],'siemens-schuckert-r-viii':['last-stand'],
  'paris-gun':['locomotive','derailed'],lincomparable:['locomotive','derailed'],fliegerzug:['locomotive','derailed'],
  'mark-v-cruiser':['final-assault'],'minenwerfer-battery':['final-assault'],'armored-harbor-fortress':['final-core'],
- 'paris-searchlight-fortress':['last-stand'],'paris-staaken-rvi':['gliding'],'gotha-squadron':['gliding']
+ 'paris-searchlight-fortress':['last-stand'],'paris-staaken-rvi':['gliding'],'gotha-squadron':['gliding'],
+ 'french-counter-battery':['final-attack']
 };
 const alive=e=>e&&e.hp>0&&!e.dead&&!e.expired&&!e.rivalEscaped&&!e.aceRetreat;
 const ratio=(value,total)=>total>0?Math.max(0,Math.min(1,value/total)):1;
@@ -19,6 +20,13 @@ export function musicContextForGame(game){
  if(!game||game.state!=='playing')return {theme,state:'IDLE',intensity:0,run:game,situation:musicSituationForGame(game)};
  const base={theme,state:'CALM',intensity:.2,run:game,parts:1,engines:1,urgency:0,locked:false,situation:musicSituationForGame(game)};
  const stages=game.stageBoss?.stages,encounter=stages?.encounter;
+ const laon=game.laonBattle;
+ // Eliminating the French force is useful progress, but the defence objective
+ // continues until the third physical gunshot. Keep its final score running.
+ if(laon?.role==='defend'&&!laon.resolved&&!laon.gun?.dead&&laon.raid?.dead){
+  return {...base,state:'BOSS_FINAL',bossId:'french-counter-battery',encounterId:encounter?.id||laon.raid.id,hp:0,parts:0,formation:0,
+   phase:laon.gun?.phase,urgency:Math.min(1,(laon.gun?.shotCount||0)/3),intensity:.65};
+ }
  if(stages?.phase==='boss'&&encounter&&!encounter.completed){
   const snapshot=encounter.snapshot(),bodies=[...encounter.bodies.values()].filter(alive);
   if(bodies.length){
@@ -36,6 +44,10 @@ export function musicContextForGame(game){
     if(b.runTarget){const seconds=(b.runRemaining||0)/(typeof b.speedRatio==='function'?b.speedRatio():b.engines?.()===1?.55:1);urgency=Math.max(urgency,1-Math.min(1,seconds/24));}
     locked||=[...(b.locks?.values()||[])].some(v=>v.remaining>0)||[...(b.illumination?.values()||[])].some(v=>v>=.55);
     if(b.rhythmBeat>0&&b.phase==='scan')pulse=`${b.id}:${b.rhythmCycle}:${b.rhythmBeat}`;
+    if(b.kind==='paris-geschuetz'){
+     urgency=Math.max(urgency,laon?.role==='attack'?1-Math.min(1,(laon.remaining??180)/180):0,b.phase==='ready'?.7:0);
+     if(b.shotCount>0)pulse=`${b.id}:strategic:${b.shotCount}`;
+    }
    }
    return {...base,state:final?'BOSS_FINAL':'BOSS',bossId,encounterId:snapshot.id,hp,
     parts:ratio(snapshot.aliveParts,snapshot.totalParts),formation:ratio(snapshot.formationAlive,snapshot.formationTotal),
@@ -70,6 +82,7 @@ export function musicContextForGame(game){
 export function musicSituationForGame(game){
  const local=game?.players?.find(p=>p.id===(game.localPlayerId||'p1'))||game?.players?.[0]||game;
  const boss=game?.stageBoss?.stages?.encounter,now=game?.t||0;
+ const laon=game?.laonBattle,defendingLaon=laon?.role==='defend'&&!laon.resolved&&!laon.gun?.dead;
  const aces=(game?.enemies||[]).filter(e=>(e.bossPilot||e.type==='boss')&&!e.stageBossBody&&alive(e));
  let nearFire=0;for(const b of game?.bullets||[])if(b.enemy&&b.life!==0&&Math.hypot(b.x-(local?.x||0),b.y-(local?.y||0))<300&&++nearFire>=6)break;
  const bossEntering=boss&&!boss.completed&&[...boss.bodies.values()].some(b=>
@@ -77,6 +90,6 @@ export function musicSituationForGame(game){
  const aceEntering=aces.some(e=>Number.isFinite(e.aceSpawnT)&&now-e.aceSpawnT>=0&&now-e.aceSpawnT<2.6);
  const approach=bossEntering||game?.stageBoss?.stages?.phase==='explore'&&Number.isFinite(game.navalApproachAt)&&game.navalApproachAt>0?'boss':aceEntering?'ace':null;
  return {now,runId:game,playing:game?.state==='playing',alive:local?.status!=='downed'&&(local?.hp==null||local.hp>0),
-  playerHp:local?.hp,playerMaxHp:local?.maxHp,underFire:nearFire>=6,approach,boss,aces,
-  encounter:boss&&!boss.completed?'boss':aces.length?'ace':'flight'};
+  playerHp:local?.hp,playerMaxHp:local?.maxHp,underFire:nearFire>=6,approach,boss:defendingLaon&&boss?.completed?{id:boss.id,completed:false}:boss,aces,
+  encounter:boss&&!boss.completed||defendingLaon?'boss':aces.length?'ace':'flight'};
 }

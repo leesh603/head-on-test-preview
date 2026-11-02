@@ -1,3 +1,4 @@
+import {tickBossArrivalBombardment,pruneBossArrivalBombardments} from './boss-arrival-bombardment.js';
 import {tickBossEntry} from './boss-entry-presentation.js';
 import {beginBossArrival,tickBossArrival} from './boss-arrival.js';
 import {createFinalArenaProgression,recordFinalArenaStage,requestFinalArenaAfterCapital,startFinalArenaProgression,completeFinalArenaProgression,resetFinalArenaRoute,snapshotFinalArena} from './final-arena-progression.js';
@@ -23,6 +24,9 @@ export const STAGE_ROUTE_POOLS=Object.freeze({
 const mix=(values,rng)=>{const a=[...values];for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 export function buildStageRoute(rng=Math.random,finalArenaEnabled=false,teamFaction=null){
   const order=[STAGE_ROUTE_POOLS.opening,...mix(STAGE_ROUTE_POOLS.early,rng),...mix(STAGE_ROUTE_POOLS.mid,rng),...mix(STAGE_ROUTE_POOLS.late,rng)];
+  // Keep the existing seeded shuffle and stable map indices. Laon and the
+  // following raid are a single historical approach, in both factions.
+  order.splice(order.indexOf(15),0,19);
   if(!finalArenaEnabled)return order;
   // Preserve the existing route ordering. This legacy city stage is NOT a
   // verified capital finale and never grants secret-boss eligibility.
@@ -300,8 +304,9 @@ export class StageBossAddon {
     }}
     this.bodyDefeats=this.bodyDefeats.filter(d=>d.age<d.duration);
     const encounter=this.stages.encounter;
+    pruneBossArrivalBombardments(this,encounter);
     tickBossEntry(this,encounter,dt);
-    if(tickBossArrival(this,encounter,dt,frame))return true;
+    if(tickBossArrival(this,encounter,dt,frame)){tickBossArrivalBombardment(this,encounter,dt,frame);return true;}
     // Resolve destruction before any lingering delayed attack can fire.
     this.reconcile({blocked:true});
     if(this.defeatSequence)this.updateDefeat(dt);
@@ -368,8 +373,10 @@ export class StageBossAddon {
     if(typeof blocked!=='boolean')throw new Error('Pass current pause/upgrade/game-over block state');
     const encounter=this.stages.encounter;
     const dover=this.stages.stageIndex===17?this.hooks.getDoverMission?.():null;
+    const laon=this.stages.stageIndex===19?this.hooks.getLaonMission?.():null;
     if(dover&&encounter?.completed)dover.bossDefeated=true;
-    const missionExit=!!(dover?.resolved&&encounter&&!encounter.completed);
+    if(laon?.role==='defend'&&encounter?.completed)laon.airGroupDefeated=true;
+    const missionExit=!!((dover?.resolved||laon?.resolved&&laon.success&&laon.exitReady)&&encounter&&!encounter.completed);
     if(missionExit&&!blocked&&this.stages.phase==='boss'){
       // The convoy result owns the exit. A surviving boss withdraws; it is not
       // killed, counted, or rewarded by the normal boss-clear path.
@@ -390,7 +397,8 @@ export class StageBossAddon {
         if(this.time<this.capitalPeerWait.until)return null;
       }
     }
-    const transition=this.stages.advance(blocked||!!(dover&&!dover.resolved),{missionCompleted:missionExit});
+    if(laon?.success&&laon.exitReady&&this.stages.phase==='clear-pending')this.hooks.onLaonMissionCleared?.();
+    const transition=this.stages.advance(blocked||!!(dover&&!dover.resolved)||!!(laon&&(!laon.success||!laon.exitReady)),{missionCompleted:missionExit});
     if(transition){if(transition.kind==='final-arena')this.hooks.onFinalArenaPending(transition);else if(transition.kind==='capital-final')this.hooks.onCue({...transition,type:'capital-final-pending'});else this.hooks.onStageChange(transition);}return transition;
   }
   // Called on host game-over/restart; it does not restart players or submit scores.

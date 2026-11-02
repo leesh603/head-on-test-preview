@@ -59,9 +59,10 @@ export class BossHazards {
       blocks:!!spec.blocks,piercing:!!spec.piercing,visual:spec.visual||spec.kind,tag:spec.tag||null,vertices:spec.vertices||null
     });return h;
   }
-  update(dt,{players,paused=false}) {
+  update(dt,{players,paused=false},filter=null) {
     if(paused||dt===0)return;if(!Number.isFinite(dt)||dt<0)throw new Error('Invalid hazard step');
     this.pool.visit(h=>{
+      if(filter&&!filter(h))return;
       const before=h.age;h.age+=dt;
       if(h.age<h.delay)return;
       if(h.lockAtWarning&&!h.locked) {

@@ -189,12 +189,16 @@ const maneuverEase=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
  Game.prototype.spawnComposition=function(){const r=this.rng(),t=this.t;return t<120?(r<.85?'scout':'hunter'):t<300?(r<.35?'scout':r<.85?'hunter':'bomber'):t<480?(r<.65?'hunter':r<.95?'bomber':'zeppelin'):(r<.55?'hunter':r<.88?'bomber':r<.97?'zeppelin':'heavyBomber')};
  Game.prototype.canSpawnRevision=function(type){
   if(this.mode==='campaign')return true;
+  const mission=this.laonBattle;
+  // Keep the finite Laon raid's future slots available from map entry. Existing
+  // aircraft stay alive; admissions wait until they leave or are shot down.
+  const laonReserve=mission?.role==='defend'&&!mission.resolved?(mission.raid?.planes||[]).filter(p=>!p.destroyed&&p.mode==='pending').length:0;
   const live=this.enemies.filter(e=>e.hp>0&&!isFinalArenaTargetProxy(this,e));const reserved=this.stageBoss?.stages.phase==='boss'?Math.max(0,2-live.filter(e=>e.stageBossBody).length):0,aceReserve=type==='boss'?0:1;
   // Scripted escorts have a reserved formation budget; ordinary waves retain
   // their adaptive cap and every path remains under the existing hard limit.
-  if(live.length+reserved+aceReserve>=(this.bossMechanicSpawn?65:this.enemyCapacity()))return false;
+  if(live.length+reserved+aceReserve+laonReserve>=(this.bossMechanicSpawn?65:this.enemyCapacity()))return false;
   const regularAircraft=live.filter(e=>!e.bossPilot&&!e.heavyBomber&&['scout','hunter','bomber'].includes(e.type));
-  if(!this.bossMechanicSpawn&&!this.battlefieldEventSpawning&&['scout','hunter','bomber'].includes(type)&&regularAircraft.length>=this.regularEnemyLimit())return false;
+  if(['scout','hunter','bomber'].includes(type)&&((!this.bossMechanicSpawn&&!this.battlefieldEventSpawning)||laonReserve>0)&&regularAircraft.length+laonReserve>=this.regularEnemyLimit())return false;
   if(type==='zeppelin'&&!this.bossMechanicSpawn&&live.some(e=>e.type==='zeppelin'))return false;
   if(type==='heavyBomber'&&live.some(e=>e.heavyBomber))return false;
   if(!this.bossMechanicSpawn&&type==='bomber'&&live.filter(e=>e.type==='bomber'&&!e.heavyBomber&&!e.surface).length>=2)return false;

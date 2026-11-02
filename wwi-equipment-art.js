@@ -54,6 +54,14 @@ export function drawWWIEquipment(c,world,W,H,options={}){
  for(const p of players){
   if(!(p.hp>0)||p.status==='downed'||p.heineckeEscape>0)continue;
   const u=p.upgrades||{},pose=playerPose(p,p.x,p.y),fit=p.bomberTransfer;
+  for(const b of p.synthesisAttachments||[])if(b.life>0&&visible(b.x,b.y)){
+   bombSprite(c,'cooper',sx(b.x),sy(b.y),34*z,(b.target?.a??0),Math.min(1,b.life*5));
+   sprite(c,'grapnelHead',sx(b.x),sy(b.y),20*z,b.target?.a??0);
+  }
+  for(const field of p.synthesisZones||[])if(field.life>0&&visible(field.x,field.y,150)){
+   if(field.payload.incendiary)drawIncendiaryFire(c,sx(field.x),sy(field.y),0,100*z,3-field.life,Math.min(1,field.life));
+   if(field.payload.smoke)sprite(c,'verySmoke',sx(field.x),sy(field.y),190*z,0,Math.min(.7,field.life));
+  }
   c.save();c.translate(sx(pose.x),sy(pose.y));c.scale(z*(pose.scale||1),z*(pose.scale||1));c.globalAlpha*=pose.alpha??1;applyPlayerAttitude(c,p,pose);
   const front=fit?Math.min(26,fit.hullLength*.2):8;
   if(u.strutterAirbrake&&!fit&&Number.isFinite(p.strutterBrakeAge)){
@@ -126,7 +134,7 @@ export function drawWWIEquipment(c,world,W,H,options={}){
  }
  for(const b of world.bullets||[]){
   if(!(b.life>0)||!visible(b.x,b.y))continue;
-  if(b.wwiIncendiary){sprite(c,'burn0',sx(b.x),sy(b.y),11*z,Math.atan2(b.vy,b.vx),.8);continue;}
+  if(b.wwiIncendiary){sprite(c,'burn0',sx(b.x),sy(b.y),11*z,Math.atan2(b.vy,b.vx),.8);if(!b.flechette)continue;}
   if(!b.flechette&&!b.fieryGrapnel)continue;
   if(b.flechette)drawFlechetteTrail(c,b,sx(b.x),sy(b.y),{...options,scale:z});
   if(b.fieryGrapnel){

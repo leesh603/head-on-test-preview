@@ -1,3 +1,4 @@
+import {arrivalFlightTurn} from './boss-arrival-flight.js';
 import {BaseBoss,BossPart} from './headon-stageboss-core.js';
 import {O400_LAYOUT} from './o400-layout.js';
 import {segmentDistance,sweptPolygon} from './alps-geometry117.js';
@@ -44,8 +45,9 @@ export class O400Raider extends BaseBoss {
   if(!this.started){this.started=true;this.x=p.x+Math.cos(angle)*radius;this.y=p.y+Math.sin(angle)*radius;this.a=angle+Math.PI/2;}
   let vx=(p.vx||0)-Math.sin(angle)*radius*.65+(p.x+Math.cos(angle)*radius-this.x)*1.35,vy=(p.vy||0)+Math.cos(angle)*radius*.65+(p.y+Math.sin(angle)*radius-this.y)*1.35;
   for(const b of live){if(b===this)continue;const dx=this.x-b.x,dy=this.y-b.y,d=Math.hypot(dx,dy);if(d>1&&d<135){vx+=dx/d*(135-d);vy+=dy/d*(135-d);}}
-  const engines=this.engines(),turn=O400_TURN_RATE*(engines?1:.75);this.a+=clamp(wrap(Math.atan2(vy,vx)-this.a),-turn*dt,turn*dt);
-  const goal=clamp(Math.hypot(vx,vy),engines?100:80,engines===2?350:300);this.speed+=clamp(goal-this.speed,-85*dt,105*dt);
+  const engines=this.engines(),turn=O400_TURN_RATE*(engines?1:.75),goal=clamp(Math.hypot(vx,vy),engines?100:80,engines===2?350:300);
+  this.a+=arrivalFlightTurn(this,dt,Math.atan2(vy,vx),turn,this.speed)*dt;
+  this.speed+=clamp(goal-this.speed,-85*dt,105*dt);
   this.x+=Math.cos(this.a)*this.speed*dt;this.y+=Math.sin(this.a)*this.speed*dt;this.rotateMounts();
   for(const part of this.parts.values())part.gunFlash=Math.max(0,(part.gunFlash||0)-dt);
   if(!engines){this.phase='gliding';this.glideAge=(this.glideAge||0)+dt;if(this.glideAge>4.6)super.hit({damage:this.hp});return;}

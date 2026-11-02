@@ -1,3 +1,4 @@
+import {prepareSynthesisBomb,detonateSynthesisPayload} from './weapon-synthesis.js';
 import {tagBishopBombImpact} from './bishop-sortie-fx.js';
 import {beginEquipmentLedger,recordEquipmentDoctrine} from './equipment-replacement.js';
 import {wimperisTarget,correctWimperisBomb} from './flight-equipment.js';
@@ -71,10 +72,13 @@ export function capBomberSalvoDamage(e,b,damage){
 export function detonateFriendlyBomb(w,b){
  const p=w.players?w.players.find(p=>p.id===b.ownerId):w;
  if(!p||b.bomberTransfer&&(!active(p)))return;
+ prepareSynthesisBomb(p,b);
  const previous=w.combatFX?.at(-1);
  p.queueExplosionDamage(b.x,b.y,b.radius,b.damage,{fxSource:'bomb',bomberSalvo:b.bomberSalvo,pilotSupport:!!b.pilotSupport});
  const effect=w.combatFX?.at(-1);if(effect&&effect!==previous){tagBishopBombImpact(p,b,effect);effect.impactWeapon=b.cooperBomb||b.sprite==='cooper'?'cooper':b.sprite==='puw'?'puw':'bomb';if(Number.isFinite(b.releaseAngle))effect.direction=b.releaseAngle;else if(Math.hypot(b.vx||0,b.vy||0)>0)effect.direction=Math.atan2(b.vy,b.vx);}
  if(b.tacticalBomb){const blast=w.bullets.at(-1);if(blast?.actualExplosion&&blast.ownerId===b.ownerId){blast.tacticalRound=true;blast.projectileCombo=b.projectileCombo;}}
+ if(b.synthesisSupport){const blast=w.bullets.at(-1);if(blast?.actualExplosion){blast.synthesisSupport=true;blast.ally=true;}}
+ detonateSynthesisPayload(p,b);
 }
 
 function bombingTarget(p){

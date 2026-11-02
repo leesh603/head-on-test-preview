@@ -7,7 +7,7 @@ export const WEAPON_MOD_BY_ID=Object.freeze(Object.fromEntries(WEAPON_MODS.map(m
 export const ORDNANCE_STAGGER_DELAY=.24;
 export function weaponModAvailable(p,mod){return !!mod&&(p.weaponModSelections?.[mod.family]||0)>=5&&!p.weaponMods?.[mod.family];}
 export function modGunRounds(p,count,cap=10){
- return !p.cow37&&p.weaponMods?.GUN==='suppression'&&count>0?Math.min(cap,count+1):count;
+ return !p.cow37&&!p.upgrades?.quadLewis&&p.weaponMods?.GUN==='suppression'&&count>0?Math.min(cap,count+1):count;
 }
 export function modGunDamage(p,count,emitted){
  if(p.cow37)return 1;

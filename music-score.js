@@ -18,7 +18,10 @@ export const REGIONAL_VARIATIONS=Object.freeze({
  argonne:theme(76,5,43,phrygian,'bassoon','spiccato',[7,4,3,1,4,3,0,1,3,2,1,0],[0,2,6,9],[0,6,9],[0,1,4,0,3,1,0,4]),
  maan:theme(96,5,52,phrygian,'oboe','cello',[7,8,7,4,5,3,1,0,4,3,1,0],[0,3,7,9],[0,7],[0,1,0,4,1,3,0,4]),
  gallipoli:theme(104,3,50,minor,'trumpet','spiccato',[7,9,8,7,4,6,4,3,7,8,4,3],[0,2,5,8],[0,5],[0,0,3,4,1,3,0,4]),
- jutland:theme(66,4,42,minor,'trombone','cello',[7,6,4,3,4,1,0,1,4,3,1,0],[0,3,7],[0,6],[0,5,3,1,0,3,1,4])
+ jutland:theme(66,4,42,minor,'trombone','cello',[7,6,4,3,4,1,0,1,4,3,1,0],[0,3,7],[0,6],[0,5,3,1,0,3,1,4]),
+ // Laon 1918: a five-beat siege pulse and restrained heavy-brass calls under
+ // the forest, separate from the mobile Bruno score and Paris night theme.
+ laon:theme(74,5,43,phrygian,'trombone','cello',[0,0,4,3,1,0,7,6,4,1,3,0],[0,4,7],[0,6],[0,1,0,4,3,0,1,4])
 });
 const ace=(instrument,notes,seconds,accents)=>({instrument,notes,seconds,accents});
 export const ACE_MOTIFS=Object.freeze({
@@ -52,6 +55,8 @@ export const BOSS_ARRANGEMENTS=Object.freeze({
  'supermarine-nighthawk':boss('clarinet',[0,3,6],[7,8,4,1],'searchlight','horn'),
  'siemens-schuckert-r-viii':boss('trombone',[0,2,4,7],[0,1,4,3],'bomber','cello'),
  'paris-gun':boss('horn',[0,6],[0,4,3,0],'rail','cello'),lincomparable:boss('trombone',[0,9],[0,1,4,0],'rail','bassoon'),
+ 'paris-geschuetz':boss('trombone',[0,5,11],[0,1,4,0],'siege','bassoon'),
+ 'french-counter-battery':boss('clarinet',[0,3,7,10],[7,4,6,1],'bomber','trombone'),
  'sms-stuttgart':boss('horn',[0,4,8],[0,4,7,5],'naval','clarinet'),'hms-zubian':boss('clarinet',[0,3,7,10],[7,4,6,3],'split','bassoon'),
  'a7v-flak':boss('trombone',[0,2,6],[0,0,3,1],'armor','trombone'),'mark-v-cruiser':boss('horn',[0,3,4],[0,4,2,7],'armor','horn'),
  'livens-flame-projector':boss('cello',[0,5,9],[0,1,3,1],'siege','bassoon'),'minenwerfer-battery':boss('bassoon',[0,3,7],[0,3,1,4],'siege','trombone'),

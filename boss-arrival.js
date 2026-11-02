@@ -48,6 +48,46 @@ function placeFixed(encounter,bounds){
  for(const b of encounter.bodies.values()){b.x+=offset.x;b.y+=offset.y;if(Number.isFinite(b.anchorX))b.anchorX+=offset.x;if(Number.isFinite(b.anchorY))b.anchorY+=offset.y;delete b.arrivalFixedPending;}
  delete encounter.arrivalFixedPending;
 }
+// The native first tick initializes orbit poses, not an inbound flight. Keep
+// that initialization (and its clocks) but enter as a rigid, nose-first flight.
+function formationArrival(encounter,bodies,frame){
+ const o400=encounter.bossId==='o400-squadron',gotha=encounter.bossId==='gotha-squadron';
+ if(!o400&&!gotha)return false;
+ const player=frame.players?.find(p=>p.alive!==false),vx=player?.vx||0,vy=player?.vy||0;
+ const heading=Math.hypot(vx,vy)>20?Math.atan2(vy,vx):Number.isFinite(player?.a)?player.a:Math.PI/2;
+ const fx=Math.cos(heading),fy=Math.sin(heading),rx=fy,ry=-fx;
+ // A single bounded prediction, never a camera lock or a moving arrival target.
+ const cx=(player?.x||0)+vx*3.25,cy=(player?.y||0)+vy*3.25;
+ const lateral=o400?108:125,trail=o400?150:240,flightGap=560;
+ for(const b of bodies){
+  const group=o400?0:Math.floor(b.slot/3),slot=b.slot%3;
+  // Lead + two trailing wings; subsequent Gotha flights follow the same lane.
+  const side=slot===0?0:slot===1?-lateral:lateral,forward=140-(slot===0?0:trail)-group*flightGap;
+  b.x=cx+rx*side+fx*forward;b.y=cy+ry*side+fy*forward;
+  b.a=heading;b.arrivalFlightGuard=true;b.rotateMounts?.();
+ }
+ return true;
+}
+// Set the flight's destination once, in the same moving airspace the player
+// will occupy at release. Translate native anchors too; never drag the camera.
+function positionAirArrival(encounter,bodies,frame){
+ const ids=['siemens-schuckert-r-viii','supermarine-nighthawk','staaken-rvi','paris-staaken-rvi','gik','ca4','zeppelin-l70','hma23'];
+ if(!ids.includes(encounter.bossId))return;
+ const p=frame.players?.find(p=>p.alive!==false);if(!p)return;
+ const vx=p.vx||0,vy=p.vy||0,speed=Math.hypot(vx,vy),scale=Math.min(1,400/Math.max(1,speed));
+ const ahead=['zeppelin-l70','hma23'].includes(encounter.bossId)&&speed>1?220/speed:0;
+ const dx=vx*(3.25*scale+ahead),dy=vy*(3.25*scale+ahead);
+ for(const b of bodies){
+  b.x+=dx;b.y+=dy;
+  for(const [key,delta]of [['anchorX',dx],['anchorY',dy],['patrolCenterX',dx],['patrolCenterY',dy],['fixedX',dx],['fixedY',dy]])if(Number.isFinite(b[key]))b[key]+=delta;
+  if(Number.isFinite(b.patrolFlowX)){b.patrolFlowX=vx*scale;b.patrolFlowY=vy*scale;}
+ }
+}
+export function bossArrivalProgress(body,age=body.arrivalAge){
+ const q=clamp((age-body.arrivalHold)/body.arrivalDuration),m=body.arrivalPath?.endSlope||0;
+ if(body.arrivalPath?.coastRamp){const ramp=body.arrivalPath.coastRamp;return q<ramp?q*q/(2*ramp*(1-ramp)):q>1-ramp?1-(1-q)**2/(2*ramp*(1-ramp)):(q-ramp/2)/(1-ramp);}
+ return q*q*((3-m)+(m-2)*q);
+}
 export function beginBossArrival(addon,encounter,enabled=addon.presentArrivals,bounds=addon.frameContext?.bounds){
  if(!enabled)return;
  attachBossEntry(encounter);
@@ -62,7 +102,11 @@ export function beginBossArrival(addon,encounter,enabled=addon.presentArrivals,b
   return;
  }
  encounter.arrivalPending=true;encounter.arrivalInitialized=false;addon.arrivalQueue=[];
- for(const body of encounter.bodies.values())Object.assign(body,{arrivalPending:true,arrivalAge:0,arrivalHold:.25,arrivalDuration:3});
+ for(const body of encounter.bodies.values()){Object.assign(body,{arrivalPending:true,arrivalAge:0,arrivalHold:.25,arrivalDuration:3});
+  // Start the existing lateral cruise on its nose-first (leftward) leg.
+  // This is a motion offset, not an attack/phase-clock advance.
+  if(['zeppelin-l70','hma23'].includes(body.kind))body.arrivalLateralPhase=Math.PI;
+ }
 }
 export function bossArrivalAlpha(body){return body.arrivalFixedPending||body.arrivalPending&&!body.arrivalPath?0:1;}
 export function tickBossArrival(addon,encounter,dt,frame){
@@ -76,10 +120,16 @@ export function tickBossArrival(addon,encounter,dt,frame){
   finally{addon.preparingArrival=false;}
   const bodies=[...encounter.bodies.values()],lead=bodies[0],family=bossEntryFamily(encounter.bossId);
   // Travel follows the painted nose/tracks instead of sliding broadside into view.
-  const heading=family==='airship'&&!lead.isCapitalBoss?Math.PI:['naval','armour'].includes(family)||lead.isCapitalBoss?(lead.hullYaw||0)-Math.PI/2:lead.a??(lead.hullYaw||0)-Math.PI/2;
+  const formation=formationArrival(encounter,bodies,frame);
+  if(!formation)positionAirArrival(encounter,bodies,frame);
+  const heading=formation?lead.a:family==='airship'&&!lead.isCapitalBoss?Math.PI:['naval','armour'].includes(family)||lead.isCapitalBoss?(lead.hullYaw||0)-Math.PI/2:lead.a??(lead.hullYaw||0)-Math.PI/2;
   const offset=outsideOffset(bodies,frame.bounds,{x:-Math.cos(heading),y:-Math.sin(heading)});
   for(const body of bodies){
-   Object.assign(body,{arrivalPending:true,arrivalAge:0,arrivalHold:.25,arrivalDuration:3,arrivalPath:{x:body.x,y:body.y,dx:offset.x,dy:offset.y}});
+   // One progress clock and offset preserve the complete flight's spacing.
+   // Retain forward speed through handoff instead of stopping then restarting.
+   const speed=formation?(encounter.bossId==='o400-squadron'?135:170):['siemens-schuckert-r-viii','supermarine-nighthawk'].includes(body.kind)?body.flightSpeed||0:body.kind==='paris-staaken-rvi'?body.currentSpeed||0:0;
+   const endSlope=Math.min(1.5,speed*3/Math.max(1,Math.hypot(offset.x,offset.y))),coastRamp=['zeppelin-l70','hma23'].includes(body.kind)?.2:0;
+   Object.assign(body,{arrivalPending:true,arrivalAge:0,arrivalHold:.25,arrivalDuration:3,arrivalPath:{x:body.x,y:body.y,dx:offset.x,dy:offset.y,...(endSlope?{endSlope}:{}),...(coastRamp?{coastRamp}:{})}});
    body.x+=offset.x;body.y+=offset.y;if(body.support129){body.support129.x=body.x;body.support129.y=body.y;}
   }
   if(scene){const first=bodies[0];if(first)first.bossEntry=scene;for(const body of bodies)body.entryFamily=scene.family;}
@@ -88,7 +138,7 @@ export function tickBossArrival(addon,encounter,dt,frame){
  let pending=false;
  for(const body of encounter.bodies.values()){
   body.arrivalAge+=dt;
-  const q=clamp((body.arrivalAge-body.arrivalHold)/body.arrivalDuration),ease=q*q*(3-2*q),path=body.arrivalPath;
+  const q=clamp((body.arrivalAge-body.arrivalHold)/body.arrivalDuration),ease=bossArrivalProgress(body),path=body.arrivalPath;
   body.x=path.x+path.dx*(1-ease);body.y=path.y+path.dy*(1-ease);
   if(body.support129){body.support129.x=body.x;body.support129.y=body.y;}
   if(q<1-1e-8)pending=true;

@@ -1,7 +1,6 @@
 import {squadronPending} from './squadron-combat-state.js';
 import {FACILITY_MAPS,FACILITY_ART} from './ground-facility-profiles.js';
 import {recordCombatImpact} from './combat-impact-result.js';
-import {encounterAllowed,admitEncounter,releaseEncounter} from './director-admission.js';
 
 export const FACILITY_BALANCE=Object.freeze({firstAt:14,duration:32,bossReserve:5,airfieldHp:84,signalHp:140,reduction:.25,minimumAirborne:3});
 export const FACILITY_TYPES=Object.freeze({airfield:'AIRFIELD_RAID',signal:'SIGNAL_HQ_RAID'});
@@ -24,7 +23,6 @@ export function ensureFacilityState(g){
 // retain the other visits and are never cancelled. Release failed art/placement
 // reservations promptly instead of starving the normal event scheduler.
 export function reserveFacilitySlot(g){
- if(!encounterAllowed(g,'mission',{minRemaining:FACILITY_BALANCE.duration+FACILITY_BALANCE.bossReserve,variant:'event'}))return false;
  if(!host(g)||g.mode==='campaign'||!g.stageBoss?.stages||!FACILITY_MAPS[region(g)])return false;
  const s=ensureFacilityState(g);s.reserved??=(g.rng?.()??.5)<.5;if(facilityMission(g.battlefieldEvents?.current))return true;
  if(!s.reserved||s.offered||(g.t||0)-s.enteredAt>FACILITY_BALANCE.firstAt+4)return false;
@@ -36,7 +34,6 @@ function ownFaction(g){return g.teamFaction||g.stageBoss?.stages?.teamFaction||g
 export function facilityFaction(g){const own=ownFaction(g);return own==='central'?'entente':own==='entente'?'central':null;}
 function eligible(g){
  const s=g.groundFacilities,stage=g.stageBoss?.stages,now=g.t||0;
- if(!encounterAllowed(g,'mission',{minRemaining:FACILITY_BALANCE.duration+FACILITY_BALANCE.bossReserve,variant:'event'}))return false;
  if(!host(g)||g.state!=='playing'||g.mode==='campaign'||!FACILITY_MAPS[region(g)]||!s||s.offered||!facilityFaction(g))return false;
  if(now-s.enteredAt<FACILITY_BALANCE.firstAt||(g.stageCombatWindow?.remaining??99)<FACILITY_BALANCE.duration+FACILITY_BALANCE.bossReserve)return false;
  if(stage&&stage.phase!=='explore'||g.stageCombatWindow?.approaching||g.stageCombatWindow?.ready||g.battlefieldEvents?.current||(g.battleRecoveryUntil||0)>now)return false;
@@ -78,7 +75,6 @@ export function startFacilityMission(g,requested){
   const targets=place.slots.map((q,i)=>{const scale=q.width/(art.nominalWidth??art.width),w=art.width*scale,h=q.height??art.height*scale;return{id:`${id}-${i}`,groundFacility:true,facilityKind:kind,facilityArt:`${map.key}-${kind}-${faction}`,faction,region:region(g),x:q.x+(art.pivot?(art.width/2-art.pivot[0])*scale:0),y:q.y+(art.pivot?(art.height/2-art.pivot[1])*scale:0),a:0,width:w,height:h,hitWidth:art.hit[2]*scale,hitHeight:art.hit[3]*h/art.height,hitOffsetX:(art.hit[0]+art.hit[2]/2-art.width/2)*scale,hitOffsetY:(art.hit[1]+art.hit[3]/2-art.height/2)*h/art.height,hp:kind==='airfield'?FACILITY_BALANCE.airfieldHp:FACILITY_BALANCE.signalHp,maxHp:kind==='airfield'?FACILITY_BALANCE.airfieldHp:FACILITY_BALANCE.signalHp,stationary:true,surface:true,missionTarget:true,battlefieldEventId:id,hitFlash:0};});
   const event={id,type:FACILITY_TYPES[kind],facilityKind:kind,status:'active',region:region(g),regionKey:state.stageKey,startedAt:g.t,deadline:g.t+FACILITY_BALANCE.duration,targets};
   state.sites.push({id,kind,placementKey:place.key,targets});state.offered=true;events.current=event;events.nextOfferAt=Math.max(events.nextOfferAt||0,event.deadline+8);
-  admitEncounter(g,'mission',{mission:event.type});
   g.event?.('wave',kind==='airfield'?'기회 목표 · 적 비행장 격파 (32초)':'기회 목표 · 적 통신본부 격파 (32초)');return event;
  }
  return null;
@@ -92,7 +88,6 @@ function finish(g,event,outcome,reason){
   g.event?.('wave',event.facilityKind==='airfield'?'비행장 격파 · 현재 지역 일반 편대 출격 감소':'통신망 파괴 · 현재 지역 폭격·특수기 출격 감소');
  }
  events.result={id:event.id,type:event.type,outcome,reason};events.history??=[];events.history.push({type:event.type,outcome,time:g.t});events.history=events.history.slice(-8);events.lastType=event.type;events.current=null;
- releaseEncounter(g,'mission',reason||outcome);
  return true;
 }
 export function tickFacilityMission(g){

@@ -207,7 +207,7 @@ export function handleMaanCue(g,event,body){
  if(event.type==='maan-damage'){g.combatBlast(event.x,event.y,42,'enemy','structure');g.shake=Math.max(g.shake,6);return true;}
  if(event.type==='maan-vent'){g.smoke?.(event.x,event.y,event.black);g.event('bossSound','flameValve');return true;}
  if(event.type==='maan-escort'){g.event('wave','롤스로이스 장갑차 · 측면 압박');return true;}
- if(event.type==='muzzle'&&['wustenpanzer','sinai-landship','maan-rolls-royce'].includes(body?.kind)){const mg=body.kind==='maan-rolls-royce'||body.parts.get(event.partId)?.kind==='mg';g.event('bossSound',mg?'enemyShot':'heavyShot');g.shake=Math.max(g.shake,mg?1:3);return true;}
+ if(event.type==='muzzle'&&['wustenpanzer','sinai-landship','maan-rolls-royce'].includes(body?.kind)){const mg=body.kind==='maan-rolls-royce'||body.parts.get(event.partId)?.kind==='mg';g.event('bossSound',mg?'enemyShot':'artilleryFire');g.shake=Math.max(g.shake,mg?1:3);return true;}
  return false;
 }
 

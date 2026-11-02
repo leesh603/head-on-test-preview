@@ -252,4 +252,3 @@ body.lobby420 .lap-air h4 .aircraft-name-part{display:inline-block;max-width:100
 #hangar #continueSortie small{font:500 12px/1.2 var(--astra-type);color:var(--ui-muted,#a39d8f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #hangar #continueSortie i{font:600 17px/1 var(--astra-type);font-style:normal;color:var(--ui-brass-hi,#e2c27a)}
 #hangar #continueSortie[hidden]{display:none!important}
-

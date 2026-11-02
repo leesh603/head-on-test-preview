@@ -1,4 +1,5 @@
 import {LegacyProjectileStream} from './legacy-projectile-stream.js';
+import {snapshotLaonBattle} from './laon-battle.js';
 import {legacySquadronSnapshot} from './legacy-squadron-adapter.js';
 import {advanceNungesserReplica} from './nungesser-combat.js';
 import {navarreSuppressionVisual} from './navarre-frommherz-combat.js';
@@ -16,9 +17,9 @@ import {stageBossSpeed} from './stageboss-host.js?v=pandemonium394r2&ai=1018&sig
 import {NET_HZ,MAX_TETHER,seededRandom,cleanInput,pack,unpack,FieldDelta,applyFields,pose,mixAngle} from './online-coop-protocol.js?v=pandemonium394r2';
 
 const LANES=['enemies','drops','allies','patrols','mines','friendlyBombers','friendlyBombs','bombZones','flakBursts','hostileMinefields','gasZones','fireZones','grunkreuzPuffs','gusts','grenades','smokeZones','combatFX','revisionDecoys','enemyAirshipPasses'];
-const WORLD=['doverMission','legacySquadronVisual','squadronArrival','zeroDistrict','finalArena','groundFacilities','photoReconDirector','intrusionBoss','intrusionDirector','t','distance','kills','priorityKills','score','state','manualPaused','region','wave','stageStartDistance','stageStartTime','battleDirectorPattern','battleDirector','battlefieldEvents','navalRoute','jutlandRoute','gallipoliRoute','bossBuildings','bossCues','londonBattle','parisBattle','verdunBattle','maanWeather','cityDefense','activeUpgrade','pendingLevelUps','upgradeSequence'];
+const WORLD=['laonBattle','doverMission','legacySquadronVisual','squadronArrival','zeroDistrict','finalArena','groundFacilities','photoReconDirector','intrusionBoss','intrusionDirector','t','distance','kills','priorityKills','score','state','manualPaused','region','wave','stageStartDistance','stageStartTime','battleDirectorPattern','battleDirector','battlefieldEvents','navalRoute','jutlandRoute','gallipoliRoute','bossBuildings','bossCues','londonBattle','parisBattle','verdunBattle','maanWeather','cityDefense','activeUpgrade','pendingLevelUps','upgradeSequence'];
 const NOTICE=new Set(['eliteWarn','squadronArrival','intrusionWarning','intrusionPartDestroyed','intrusionDestroyed','intrusionRetreat','intrusionResolved','tacticalActivation','aceWingmanArrival','wave','skill','downed','revived','end','kill','bossArrival','bossPhase','bossSound','regionTransition','heinecke','heineckeReturn','bombWarning']);
-const ownWithoutPose=entity=>{const data=pack(entity);delete data.x;delete data.y;delete data.a;return data;};
+const ownWithoutPose=entity=>{const source=entity.laonPlane&&entity.stageBossBody?{...entity,stageBossBody:{id:entity.stageBossBody.id,kind:'french-counter-battery'}}:entity;const data=pack(source);delete data.x;delete data.y;delete data.a;return data;};
 // Fortress state is an acyclic plain-data render snapshot. The generic packer
 // intentionally omits engine graph keys such as `target`; here these are actual
 // mortar/telegraph coordinates and must survive. Never transmit callbacks/assets.
@@ -210,7 +211,7 @@ export class OnlineCoopGame extends CoopGame {
   // motion tuples at 15 Hz. Ordinary projectile trajectories only at birth.
   const legacyDelta=this._netLegacyProjectileVersion===1;
   this.legacySquadronVisual=legacySquadronSnapshot(this,!legacyDelta);
-  const world={};for(const key of WORLD)if(this[key]!==undefined)world[key]=key==='finalArena'?packFinalArenaSnapshot(this[key]):pack(this[key]);
+  const world={};for(const key of WORLD)if(this[key]!==undefined)world[key]=key==='finalArena'?packFinalArenaSnapshot(this[key]):key==='laonBattle'?pack(snapshotLaonBattle(this)):pack(this[key]);
   const field=this.alpsMountains;
   world.alpsTerrain=field?pack({seed:field.seed,cellSize:field.cellSize,safeAreas:field.safeAreas,damageFraction:field.damageFraction,cooldown:field.cooldown,time:field.time}):null;
   const message={type:'state',pandemoniumVictory:this._netPandemoniumVictory,factionFinalReceipts:this._netFactionFinalReceipts,finalArenaEligibility:{runId:this._netEligibilityRunId,challenge:this._netFinalArenaEligibilityChallenge,qualified:this.finalArenaLocalQualified()},seq:++this._netLastState,full:!!this._netFull,world:this._netDelta.take('world',world),players:[],lanes:{},shots:[],shotUpdates:[],retired:[],events:this._netEvents.splice(0),upgradeResults:this._netUpgradeResults.splice(0)};this._netFull=false;

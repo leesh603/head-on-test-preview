@@ -1,5 +1,5 @@
+import {majorEncounterBlocked} from './encounter-admission.js';
 /** Enemy photographic reconnaissance: a periodic mission, not a boss or player camera objective. */
-import {encounterAllowed,admitEncounter,releaseEncounter,admissionTrace} from './director-admission.js';
 export const PHOTO_RECON_BALANCE=Object.freeze({firstMin:6,firstMax:8,intervalMin:70,intervalMax:100,deadline:18,delayMin:8,delayMax:12,dispatchWindow:9,bossReserve:6,spawnSpacing:.45});
 export const PHOTO_RECON_PROFILES=Object.freeze({
  'rumpler-civ-photo':Object.freeze({id:'rumpler-civ-photo',name:'룸플러 C.IV 사진정찰형',faction:'central',base:'rumpler_civ',hp:76,speed:142,turn:.85,fireInterval:2.8,damage:7,altitude:'고고도 정찰 · 게임에서는 동일 공중 전투층',crew:2}),
@@ -25,54 +25,38 @@ export const photoReconActive=g=>activePhases.has(g.photoReconDirector?.phase);
 const hostileFaction=g=>{const own=g.stageBoss?.stages?.teamFaction||g.teamFaction||g.faction;return own==='central'?'entente':own==='entente'?'central':null};
 function blocked(g){
  const s=g.stageBoss?.stages,e=g.battlefieldEvents?.current;
- return !!g.squadronDirector?.owner||!s||s.phase!=='explore'||g.stageCombatWindow?.ready||['warning','entering','active','retreating'].includes(g.intrusionBoss?.phase)||!!g.eliteEnemies?.active||!!g.londonBattle||!!g.parisBattle||!!g.verdunBattle||(g.bossPresentationAfter||0)>(g.t||0)||(e?.status==='active'&&!['PHOTO_RECON','SUPPLY_RECOVERY'].includes(e.type))||(g.enemies||[]).some(e=>living(e)&&(e.bossPilot||e.type==='boss'||e.stageBossBody));
+ return !!g.squadronDirector?.owner||!s||s.phase!=='explore'||g.stageCombatWindow?.ready||['warning','entering','active','retreating'].includes(g.intrusionBoss?.phase)||!!g.eliteEnemies?.active||!!g.londonBattle||!!g.parisBattle||!!g.verdunBattle||(g.bossPresentationAfter||0)>(g.t||0)||(g.battleRecoveryUntil||0)>(g.t||0)||(e?.status==='active'&&!['PHOTO_RECON','SUPPLY_RECOVERY'].includes(e.type))||(g.enemies||[]).some(e=>living(e)&&(e.bossPilot||e.type==='boss'||e.stageBossBody));
 }
 function state(g){return g.photoReconDirector??={phase:'idle',serial:0,nextIn:B.firstMin+random(g)*(B.firstMax-B.firstMin),stageKey:stageKey(g),queue:[],lastTime:g.t||0};}
 function target(g,s){return (g.enemies||[]).find(e=>e.photoReconId===s.targetId)}
-function supportTarget(g,e){return (g.enemies||[]).find(r=>r.photoReconId===e.photoReconSupport&&living(r)&&!r.photoReconRetreat);}
-function supportReady(g,e){
- const recon=supportTarget(g,e);if(!recon)return false;
- const p=player(g),phase=((g.t||0)%4+4)%4,slot=e.photoReconSupportSlot;
- return e.photoReconSupportRole==='guard'?Math.hypot(p.x-recon.x,p.y-recon.y)<260&&phase>=2.5&&Math.floor((phase-2.5)/.75)===slot:phase<2.4&&Math.floor(phase/1.2)===slot-2;
-}
-export function photoReconSupportSteering(g,e,baseTurn){
- if(!e?.photoReconSupport)return null;
- const recon=supportTarget(g,e),s=g.photoReconDirector;
- if(!recon){admissionTrace(g,'supportLinkBroken',{kind:'recon-guidance',role:e.photoReconSupportRole});delete e.photoReconSupport;delete e.photoReconSupportRole;e.directorFireHoldUntil=Math.max(e.directorFireHoldUntil||0,(g.t||0)+1.2);return null;}
- if(!(baseTurn>0))return null;
- const side=e.photoReconSupportSlot%2?1:-1,guard=e.photoReconSupportRole==='guard',p=player(g),path=s.observedPath||p,a=guard?recon.a:path.a||0;
- const x=guard?recon.x-Math.cos(a)*90-Math.sin(a)*side*85:path.x+Math.cos(a)*240-Math.sin(a)*side*190;
- const y=guard?recon.y-Math.sin(a)*90+Math.cos(a)*side*85:path.y+Math.sin(a)*240+Math.cos(a)*side*190;
- if(supportReady(g,e))return null;
- const heading=Math.atan2(y-e.y,x-e.x);return {delta:Math.atan2(Math.sin(heading-e.a),Math.cos(heading-e.a)),turn:baseTurn*.9};
-}
 function withdraw(g,s){const e=target(g,s);if(e&&living(e)){e.photoReconRetreat=true;e.missionTarget=false;e.photoReconExit=Math.atan2(e.y-player(g).y,e.x-player(g).x);e.fire=Infinity;}}
-function resolve(g,s,outcome){withdraw(g,s);s.phase='resolved';s.outcome=outcome;s.queue=[];s.remaining=0;s.reinforcementIn=0;s.noticeRemaining=4;s.nextIn=B.intervalMin+random(g)*(B.intervalMax-B.intervalMin);releaseEncounter(g,'mission',outcome);}
+function resolve(g,s,outcome){s.admissionDueAt=null;withdraw(g,s);s.phase='resolved';s.outcome=outcome;s.queue=[];s.remaining=0;s.reinforcementIn=0;s.noticeRemaining=4;s.nextIn=B.intervalMin+random(g)*(B.intervalMax-B.intervalMin);}
 export function cancelPhotoRecon(g,reason='cancelled'){const s=g.photoReconDirector;if(!s||!host(g))return;resolve(g,s,reason);}
 function spawn(g,type){const previous=g.directorSpawning,n=g.enemies.length;g.directorSpawning=true;try{const result=g.spawnEnemy?.(type);return result||(g.enemies.length>n?g.enemies.at(-1):null)}finally{g.directorSpawning=previous}}
 function begin(g,s){
- if(!encounterAllowed(g,'mission',{minRemaining:B.deadline+B.delayMax+B.bossReserve,variant:'recon'}))return false;
- if(danger(g)>=cap(g))return false;
  const faction=hostileFaction(g);if(!faction)return false;
  const profile=PHOTO_RECON_PROFILES[faction==='central'?'rumpler-civ-photo':'re8-photo'];
  if(!readyArt(profile.id))return false;
- const e=spawn(g,'scout');if(!e)return false;
+ // The primary objective uses the existing mission slot, just like its delayed
+ // reinforcement wave. Ordinary fighters must not consume its reserved slot.
+ const reserved=g.battlefieldEventSpawning;g.battlefieldEventSpawning=true;let e;
+ try{e=spawn(g,'scout')}finally{g.battlefieldEventSpawning=reserved}if(!e)return false;
  const p=player(g),a=p.a||0,side=random(g)<.5?-1:1;
  for(const k of ['bankAircraft','bankHandlingBase','bankFireFactor','bankTurnFactor','formationLivery','escortPlane','directorSquad','frontRoute','eliteKind','personalityId'])delete e[k];
  const hp=Math.round(profile.hp*(1+(g.t||0)/300));
  Object.assign(e,{type:'scout',faction:profile.faction,ace:false,photoReconProfile:profile.id,photoReconId:`photo:${++s.serial}:${s.stageKey}`,escortPlane:profile.id,visualScale:1.14,planeName:profile.name,name:profile.name,missionTarget:true,hp,maxHp:hp,speed:profile.speed,dogfightCruise:profile.speed,personalityCruise:profile.speed,cruiseSpeedCap:profile.speed,energySpeed:1,fire:profile.fireInterval,hitRadius:21,contactRadius:17,x:p.x+Math.cos(a)*220-Math.sin(a)*side*110,y:p.y+Math.sin(a)*220+Math.cos(a)*side*110,a:a+Math.PI*.65*side,photoReconSide:side,photoReconRouteAge:0});
- Object.assign(s,{phase:'active',profileId:profile.id,targetId:e.photoReconId,remaining:B.deadline,reinforcementIn:0,queue:[],outcome:null,noticeRemaining:0,deadSeen:false,observedPath:{x:p.x,y:p.y,a:p.a||0},nextObservation:(g.t||0)+.6});
- // Keep the scouting aircraft as the shared objective. Guards stay close;
- // the outer pair approaches the observed route instead of duplicating escort.
- for(let index=0;index<4&&danger(g)<cap(g);index++){
-  const wing=spawn(g,'hunter');if(!wing)break;const flank=index%2?1:-1,guard=index<2,back=guard?90:-240,offset=guard?85:260;
-  Object.assign(wing,{photoReconSupport:s.targetId,photoReconSupportRole:guard?'guard':'intercept',photoReconSupportSlot:index,x:e.x-Math.cos(e.a)*back-Math.sin(e.a)*flank*offset,y:e.y-Math.sin(e.a)*back+Math.cos(e.a)*flank*offset,a:e.a,fire:1.7+index*.35});
- }
- admitEncounter(g,'mission',{mission:'photo-recon'});admissionTrace(g,'supportLinked',{kind:'recon-guided-intercept',target:s.targetId});
+ Object.assign(s,{phase:'active',profileId:profile.id,targetId:e.photoReconId,remaining:B.deadline,reinforcementIn:0,queue:[],outcome:null,noticeRemaining:0,deadSeen:false});
  g.event?.('wave',`${profile.name} 접근 · ${B.deadline}초 안에 격추하여 증원 차단`);return true;
 }
 function plan(g){const r=random(g);return r<.40?['bomber','hunter','hunter','bomber','hunter','hunter']:r<.75?['zeppelin','hunter','hunter','hunter','hunter']:['zeppelin','bomber','hunter','hunter','hunter'];}
-function cap(g){return Math.min(g.regularEnemyLimit?.()??((g.viewWidth||960)<720?9:12),(g.enemyCapacity?.()??65)-1);}
+function cap(g){
+ const compact=(g.viewWidth||960)<=720,coop=g.mode==='coop2',native=compact?(coop?11:9):(coop?15:12);
+ const frontCount=(g.ruralFronts?.fronts||[]).filter(f=>f.status==='active').reduce((n,f)=>n+f.enemies.filter(e=>e.hp>0&&!e.expired).length,0);
+ // danger() includes front aircraft. Restore exactly the share already reserved
+ // by the Director before adding the existing three mission slots.
+ const reserved=frontCount?Math.min(native-3,frontCount):0;
+ return Math.min((g.regularEnemyLimit?.()??native)+reserved+3,(g.enemyCapacity?.()??65)-1);
+}
 function danger(g){return (g.enemies||[]).filter(e=>living(e)&&!e.surface&&!e.stationary&&!e.stageBossBody).length;}
 function dispatch(g,s,dt){
  s.dispatchRemaining-=dt;s.spawnIn-=dt;
@@ -103,7 +87,7 @@ export function tickPhotoRecon(g,dt){
  if(s.phase==='active'){
   const e=target(g,s);
   if(s.deadSeen||e&&(e.hp<=0||e.crashing)){resolve(g,s,'intercepted');g.event?.('wave','사진정찰기 격추 · 적 증원 차단');return;}
-  if(e){e.photoReconRouteAge+=dt;if(now>=s.nextObservation){const p=player(g);s.observedPath={x:p.x,y:p.y,a:p.a||0};s.nextObservation=now+.6;}}s.remaining=e?Math.max(0,s.remaining-dt):0;
+  if(e)e.photoReconRouteAge+=dt;s.remaining=e?Math.max(0,s.remaining-dt):0;
   if(s.remaining<=0){withdraw(g,s);s.phase='pending';s.outcome='reported';s.reinforcementIn=B.delayMin+random(g)*(B.delayMax-B.delayMin);s.reinforcementDelay=s.reinforcementIn;g.event?.('wave',`정찰 보고 전송! ${Math.ceil(s.reinforcementIn)}초 뒤 적 혼합 편대 접근`);}
   return;
  }
@@ -111,10 +95,10 @@ export function tickPhotoRecon(g,dt){
  if(s.phase==='dispatching'){dispatch(g,s,dt);return;}
  if(blocked(g))return;
  s.nextIn=Math.max(0,s.nextIn-dt);
- if(!encounterAllowed(g,'mission',{minRemaining:B.deadline+B.delayMax+B.bossReserve,variant:'recon'}))return;
+ if(s.nextIn<=1)s.admissionDueAt??=now;
  const faction=hostileFaction(g);if(faction)readyArt(faction==='central'?'rumpler-civ-photo':'re8-photo');
  const remaining=g.stageCombatWindow?.remaining??Infinity;
- if(s.nextIn<=0&&remaining>=B.deadline+B.delayMax+B.bossReserve)begin(g,s);
+ if(s.nextIn<=0&&!majorEncounterBlocked(g,'recon')&&remaining>=B.deadline+B.delayMax+B.bossReserve)begin(g,s);
 }
 export function photoReconSteering(g,e){
  const p=player(g),profile=PHOTO_RECON_PROFILES[e.photoReconProfile];if(!profile)return null;
@@ -135,15 +119,13 @@ function fireRecon(g,e){
  // Forward fixed MG and rear observer's defensive arc, not 360-degree fire.
  if(Math.abs(delta)>.22&&Math.abs(delta)<Math.PI-.85)return true;
  const rear=Math.abs(delta)>Math.PI/2,a=rear?aim:e.a,offset=rear?-12:20;
- const cap=(g.viewWidth||960)<=720?56:80;
- if((g.bullets||[]).filter(b=>b.enemy&&b.life>0).length>=cap||g.directorAttackAllowed?.(e)===false){e.fire=.18;admissionTrace(g,'shotDenied',{kind:'recon',reason:'budget'});return true;}
- g.bullets??=[];g.bullets.push({x:e.x+Math.cos(e.a)*offset,y:e.y+Math.sin(e.a)*offset,vx:Math.cos(a)*185,vy:Math.sin(a)*185,life:2,enemy:true,sourceX:e.x,sourceY:e.y,damage:profile.damage*(1+(g.t||0)/240),visualType:'scout'});e.directorLastShotAt=g.t||0;admissionTrace(g,'shotCreated',{kind:'recon',count:1});e.muzzleFlash=.14;e.gunAim=a;g.event?.('enemyShot','');return true;
+ g.bullets??=[];g.bullets.push({x:e.x+Math.cos(e.a)*offset,y:e.y+Math.sin(e.a)*offset,vx:Math.cos(a)*185,vy:Math.sin(a)*185,life:2,enemy:true,sourceX:e.x,sourceY:e.y,damage:profile.damage*(1+(g.t||0)/240),visualType:'scout'});e.muzzleFlash=.14;e.gunAim=a;g.event?.('enemyShot','');return true;
 }
 export function installPhotoReconEncounters(Game){
  const p=Game.prototype;if(Object.hasOwn(p,'__photoReconEncounters'))return;p.__photoReconEncounters=true;
  const update=p.update;p.update=function(dt,...args){const s=this.photoReconDirector,e=s&&target(this,s);const result=update.call(this,dt,...args);if(e&&(e.hp<=0||e.crashing)&&s===this.photoReconDirector)s.deadSeen=true;tickPhotoRecon(this,dt);return result;};
- const steer=p.dogfightSteering;p.dogfightSteering=function(e,...args){return photoReconSupportSteering(this,e,args[2])||photoReconSteering(this,e)||steer.call(this,e,...args);};
- const fire=p.fireEnemy;p.fireEnemy=function(e,...args){if(e?.photoReconSupport&&!supportReady(this,e)){e.fire=.18;return;}if(!fireRecon(this,e))return fire.call(this,e,...args);};
+ const steer=p.dogfightSteering;p.dogfightSteering=function(e,...args){return photoReconSteering(this,e)||steer.call(this,e,...args);};
+ const fire=p.fireEnemy;p.fireEnemy=function(e,...args){if(!fireRecon(this,e))return fire.call(this,e,...args);};
  // Defer the scheduler itself: returning an empty pilot pool alone consumes
  // nextBossAt/pendingAceCount in the legacy wave loop and loses the reservation.
  const scheduled=p.runScheduledAces;if(scheduled)p.runScheduledAces=function(...args){if(photoReconActive(this))return;return scheduled.apply(this,args);};
@@ -151,4 +133,3 @@ export function installPhotoReconEncounters(Game){
  const director=p.tickBattleDirector;p.tickBattleDirector=function(dt){if(host(this)&&['pending','dispatching'].includes(this.photoReconDirector?.phase))return;return director?.call(this,dt);};
  for(const name of ['mobSpawnsSuppressed','directorMobSpawnsSuppressed']){const suppression=p[name];p[name]=function(){return ['pending','dispatching'].includes(this.photoReconDirector?.phase)||suppression?.call(this);};}
 }
-

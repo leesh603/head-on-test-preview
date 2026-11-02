@@ -1,3 +1,4 @@
+import {synthesisDescription} from './weapon-synthesis.js';
 import {saveStageCheckpoint,readStageCheckpoint,restoreStageCheckpoint,persistStageCheckpoint,clearStageCheckpoint} from './stage-checkpoint.js';
 import {createChoiceTransaction} from './choice-transaction.js';
 import {waitForStartup} from './startup-readiness.js';
@@ -17,6 +18,8 @@ import {criticalNotice} from './aircraft-critical-view.js';
 import {drawGroundFacilities} from './ground-facility-view.js';
 import {createHudTags} from './hud-tags.js';
 import {photoReconHudModel} from './photo-recon-view.js';
+import {laonMissionCard} from './laon-view.js';
+import {paintLaonTerrain} from './laon-terrain.js';
 import {facilityMission} from './ground-facility-missions.js';
 import {drawNavarreFrommherz} from './navarre-frommherz-view.js';
 import {collishawWingArt,drawCollishawWingNames} from './collishaw-flight.js';
@@ -112,7 +115,7 @@ import {installHeadOnElitePatch,createEliteAssets,renderEliteLayer} from './elit
 import{planeSprite,drawFriendlyBomber,aircraftReady,aircraftKey,aircraftFlightSource,hangarArtReady,paintedReady}from './aircraft.js?v=outline2&art=pilot-recovery2&pf=1027&crewbake=1&rim=idle&decode=1';
 import {enemyAircraftKey} from './enemy-aircraft-art.js';
 import{Game,PLANES,PILOTS,UPGRADES,WEAPONS,PILOT_PLANES,upgradeDescription,pilotLoadout,pilotAircraftName,TAILING_BALANCE,SPECIAL_AMMO,enemyAircraftScale,LEGENDARY_DEFENSE_BALANCE,LEGENDARY_BALANCE}from './engine.js?v=merge20261017&airbattle=20261025&ai=1018&art=pilot-recovery2&sig=1019&boss=20261020b&phase=1021&cityart=20261022&harbor=20261021&td4=20261026&kfb=1027&momentum=20261027';
-import {AUGMENTATION_OVERHAUL_BALANCE,buildIdentityFor,BUILD_IDENTITY_LIMIT}from'./augmentation-overhaul150.js?v=equipment20261022&airbattle=20261025';
+import {AUGMENTATION_OVERHAUL_BALANCE,buildIdentityFor,committedIdentities,BUILD_IDENTITY_LIMIT}from'./augmentation-overhaul150.js?v=equipment20261022&airbattle=20261025';
 import {TACTICAL_DOCTRINES,COMPOSITE_TACTICS,SPECIAL_DOCTRINES,availableTacticalEntries,tacticalChoices,selectTactical,tacticalEquipmentFamilies,TACTICAL_DEFER_ID} from './tactical-doctrines.js?v=tactics20261023&td4=20261026';
 import {createTacticalNoticeTracker} from './tactical-notices.js?v=unlock20261026';
 import {drawCloudCover}from'./cloud-cover1.js?v=gal1&perf=1029';
@@ -888,6 +891,7 @@ function paintRegion(region,cx,cy,width=W,height=H){
  const W=width,H=height;
  if(drawFinalArenaTerrain(ctx,game,cx,cy,W,H))return;
  if(region!==2)releaseTrenchDiorama();
+ if(region===19){paintLaonTerrain(ctx,game,cx,cy,W,H);return;}
  if(region===11||region===18){paintCapitalTerrain(ctx,region,cx,cy,W,H);return;}
  if(region===17){paintDover(ctx,game,cx,cy,W,H,terrainAlpsRenderer);return;}
  if(region===12){paintVerdun(ctx,game,cx,cy,W,H);return;}
@@ -931,7 +935,7 @@ function drawCaptionText(text,x,y,font,align,color){
 const _worldDraw=draw;
 draw=t=>{
  _worldDraw(t);if(!game)return;
- ctx.save();const ui423=document.documentElement.classList.contains('ui423'),capW=canvasCssWidth||innerWidth;const capFont=ui423?'600 11px "Noto Sans CJK KR","Noto Sans KR",sans-serif':'600 12px monospace',capAlign=ui423&&capW<600?'center':ui423?'right':'left';{const capKey=(finalArenaVisible(game)?'f':game.mode==='campaign'?'c'+game.stage.region:'r'+(game.region||0))+'|'+getLocale()+'|'+Math.floor((game.distance||0)/100);if(captionTextMemo.key!==capKey){captionTextMemo.key=capKey;captionTextMemo.text=(finalArenaVisible(game)?(getLocale()==='en'?'Zero District':'제로 구역'):game.mode==='campaign'?game.stage.region:(getLocale()==='en'?['Pastoral Minefields','Adriatic Sea Front','Trench Front','Saturated Trench Front','Urban Front','High Altitude Front','Alpine Front','Zeebrugge Harbor Front','Cambrai Fields','Arras Sky','Somme Front','London Raid','Verdun Front','Ma’an Front','Gallipoli Front','Paris Night Raid','Jutland Fleet Battle','Dover Breakthrough']:['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭 전선','마안 전선','갈리폴리 전선','1918 파리 야간공습','유틀란트 해전','도버 해협 · 해협 돌파전'])[game.region||0])+(getLocale()==='en'?' · Flown ':' · 비행 ')+((game.distance||0)/1000).toFixed(1)+' km';}const capText=captionTextMemo.text,capX=ui423&&capW<600?capW/2:ui423?capW-14:14;// Offset dark copy instead of shadowBlur (a blur pass every frame; it also leaked onto the labels below).
+ ctx.save();const ui423=document.documentElement.classList.contains('ui423'),capW=canvasCssWidth||innerWidth;const capFont=ui423?'600 11px "Noto Sans CJK KR","Noto Sans KR",sans-serif':'600 12px monospace',capAlign=ui423&&capW<600?'center':ui423?'right':'left';{const capKey=(finalArenaVisible(game)?'f':game.mode==='campaign'?'c'+game.stage.region:'r'+(game.region||0))+'|'+getLocale()+'|'+Math.floor((game.distance||0)/100);if(captionTextMemo.key!==capKey){captionTextMemo.key=capKey;captionTextMemo.text=(finalArenaVisible(game)?(getLocale()==='en'?'Zero District':'제로 구역'):game.mode==='campaign'?game.stage.region:(getLocale()==='en'?['Pastoral Minefields','Adriatic Sea Front','Trench Front','Saturated Trench Front','Urban Front','High Altitude Front','Alpine Front','Zeebrugge Harbor Front','Cambrai Fields','Arras Sky','Somme Front','London Raid','Verdun Front','Ma’an Front','Gallipoli Front','Paris Night Raid','Jutland Fleet Battle','Dover Breakthrough','Berlin Defense Line','Laon Artillery Position · 1918']:['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭 전선','마안 전선','갈리폴리 전선','1918 파리 야간공습','유틀란트 해전','도버 해협 · 해협 돌파전','베를린 방어선','라온 포격진지 · 1918'])[game.region||0])+(getLocale()==='en'?' · Flown ':' · 비행 ')+((game.distance||0)/1000).toFixed(1)+' km';}const capText=captionTextMemo.text,capX=ui423&&capW<600?capW/2:ui423?capW-14:14;// Offset dark copy instead of shadowBlur (a blur pass every frame; it also leaked onto the labels below).
  drawCaptionText(capText,capX,H-14,capFont,capAlign,ui423?'rgba(241,237,208,.62)':'#f1edd0');}
  for(const e of game.enemies){const label=e.bossPilot?pilotName(e.bossPilot,e.name):e.bossMinion?(getLocale()==='en'?(e.callSign||e.callSignKo):(e.callSignKo||e.callSign)):null;if(!label)continue;const x=e.x-game.x+W/2,y=e.y-game.y+H/2,oy=e.bossPilot?58:48;if(x<-80||x>W+80||y<-80||y>H+80)continue;const kk=W/(canvasCssWidth||innerWidth);hudTags.tag(e,{kind:'callsign',name:label,accent:e.bossPilot?'#f0d7a4':'#e6c3a8',x:x/kk,y:(y-oy)/kk,maxX:W/kk-4,minX:4})}
  if(game.wingBoost>0&&game.pilot!=='goering'){ctx.strokeStyle='#f5e7ad';for(const a of game.allies){const x=a.x-game.x+W/2,y=a.y-game.y+H/2;ctx.beginPath();ctx.arc(x,y,28,0,Math.PI*2);ctx.stroke()}}
@@ -1035,12 +1039,12 @@ function finalArenaCutinCheck(){
  setBossCutin(FINAL_ARENA_CUTINS[arrival.variant],'판데모니움 · '+arrival.label,'최종 보스',arrival.variant==='mobile'?'중포격 · 화염 돌파':arrival.variant==='asymmetric'?'장거리 포격 · 항공기 발진':'군수 생산 · 포대 엄호');
  beginBossWarning('판데모니움 · '+arrival.label,'FINAL BOSS');sfx('bossSting');
 }
-function stageBossCutinCheck(){if(game?.finalArena){finalArenaCutinCheck();return;}const sb=game?.stageBoss?.stages;if(sb&&game.t>=(game.bossPresentationAfter||0)&&(performance.now()>=bossCutinUntil||bossCutinKind==='squadron')&&sb.phase==='boss'&&sb.bossId&&sb.bossId!==lastStageBossId&&(!['livens-flame-projector','minenwerfer-battery','mark4-wedge'].includes(sb.bossId)||[...sb.encounter.bodies.values()].some(b=>b.discovered))){lastStageBossId=sb.bossId;const nm=(getLocale()==='en'?BOSS_NAMES_EN[sb.bossId]:BOSS_CATALOG[sb.bossId]?.name)||sb.bossId;setBossCutin(bossCutinSource(sb.bossId),nm,BOSS_CATALOG[sb.bossId]?.capitalFinal?(getLocale()==='en'?'CAPITAL DEFENSE · FINAL BOSS':'수도 방위전 · 최종 보스'):(getLocale()==='en'?'AREA BOSS':'지역 보스'),bossTactic(sb.encounter,getLocale()));beginBossWarning(nm,BOSS_CATALOG[sb.bossId]?.capitalFinal?'FINAL BOSS':'AREA BOSS');{const run=game,encounter=sb.encounter;const later=(name,delay)=>setTimeout(()=>{if(game===run&&run.stageBoss?.stages.encounter===encounter&&run.state==='playing'&&!regionTransitionUntil&&!document.hidden)sfx(name)},delay);
+function stageBossCutinCheck(){if(game?.stageBoss?.stages.stageIndex===19){lastStageBossId=game.stageBoss.stages.bossId;return;}if(game?.finalArena){finalArenaCutinCheck();return;}const sb=game?.stageBoss?.stages;if(sb&&game.t>=(game.bossPresentationAfter||0)&&(performance.now()>=bossCutinUntil||bossCutinKind==='squadron')&&sb.phase==='boss'&&sb.bossId&&sb.bossId!==lastStageBossId&&(!['livens-flame-projector','minenwerfer-battery','mark4-wedge'].includes(sb.bossId)||[...sb.encounter.bodies.values()].some(b=>b.discovered))){lastStageBossId=sb.bossId;const nm=(getLocale()==='en'?BOSS_NAMES_EN[sb.bossId]:BOSS_CATALOG[sb.bossId]?.name)||sb.bossId;setBossCutin(bossCutinSource(sb.bossId),nm,BOSS_CATALOG[sb.bossId]?.capitalFinal?(getLocale()==='en'?'CAPITAL DEFENSE · FINAL BOSS':'수도 방위전 · 최종 보스'):(getLocale()==='en'?'AREA BOSS':'지역 보스'),bossTactic(sb.encounter,getLocale()));beginBossWarning(nm,BOSS_CATALOG[sb.bossId]?.capitalFinal?'FINAL BOSS':'AREA BOSS');{const run=game,encounter=sb.encounter;const later=(name,delay)=>setTimeout(()=>{if(game===run&&run.stageBoss?.stages.encounter===encounter&&run.state==='playing'&&!regionTransitionUntil&&!document.hidden)sfx(name)},delay);
  // Each boss family has its own arrival call (boss-feedback.js bossArrivalCues).
  for(const [name,delay] of bossArrivalCues(sb.bossId))delay?later(name,delay):sfx(name)}}}
 function paintRelicBadge(rb){const c=rb.ctx,spec=RELIC_COOLDOWNS[rb.id],owner=rb.owner();let prog=1;if(spec&&owner){const iv=spec.iv(owner)||1;prog=Math.max(0,Math.min(1,1-Math.max(0,spec.rem(owner))/iv))}c.clearRect(0,0,48,48);if(prog>=1){drawGameIcon(c,rb.key,24,24,42);return}c.globalAlpha=.32;drawGameIcon(c,rb.key,24,24,42);c.globalAlpha=1;c.save();c.beginPath();c.moveTo(24,24);c.arc(24,24,26,-Math.PI/2,-Math.PI/2+prog*Math.PI*2);c.closePath();c.clip();drawGameIcon(c,rb.key,24,24,42);c.restore();if(prog>0&&prog<1){c.save();c.strokeStyle='#ffe9a8';c.lineWidth=2;c.beginPath();c.arc(24,24,21,-Math.PI/2,-Math.PI/2+prog*Math.PI*2);c.stroke();c.restore()}}
 function relicCooldownTick(){for(const rb of soloRelicRefs)if(RELIC_COOLDOWNS[rb.id])paintRelicBadge(rb);for(const arr of Object.values(coopRelicRefs))for(const rb of arr)if(RELIC_COOLDOWNS[rb.id])paintRelicBadge(rb)}
-hud=()=>{_hud51();const g=hudPlayer();relicCooldownTick();const held=UPGRADES.filter(u=>u.legendary&&g.upgrades[u.id]);const signature=getLocale()+':'+held.map(u=>u.id).join(',');if(signature!==legendarySignature){legendarySignature=signature;$('legendaryInventory').replaceChildren();soloRelicRefs.length=0;for(const u of held){const item=document.createElement('button');item.type='button';item.className='legendary-badge';item.setAttribute('aria-label',reinforcementName(u,g,PLANES)+' · '+(u.id==='ironCross'?choiceDescription(u.id,u.desc,g):translatedUpgradeDescription(u.id,cleanDescription(u.desc))));const tip=document.createElement('span');tip.className='legendary-tip156';tip.textContent=reinforcementName(u,g,PLANES)+' · '+(u.id==='ironCross'?choiceDescription(u.id,u.desc,g):translatedUpgradeDescription(u.id,cleanDescription(u.desc)));const c=document.createElement('canvas');c.width=48;c.height=48;const key=u.id==='passiveMedal'?'passiveMedal-'+passiveMedalFaction(g,PLANES):u.id==='ironCross'?'ironCross-'+(PLANES[g.plane]?.faction==='entente'?'entente':'central'):u.id;soloRelicRefs.push({id:u.id,key,ctx:c.getContext('2d'),owner:()=>hudPlayer()});paintRelicBadge(soloRelicRefs[soloRelicRefs.length-1]);item.append(c,tip);item.onclick=e=>{e.preventDefault();item.classList.toggle('tip156')};item.onblur=()=>item.classList.remove('tip156');$('legendaryInventory').append(item)}}};
+hud=()=>{_hud51();const g=hudPlayer();relicCooldownTick();const held=UPGRADES.filter(u=>u.legendary&&g.upgrades[u.id]);const signature=getLocale()+':'+held.map(u=>u.id).join(',')+':'+[g.shots,g.weapon.guns,g.weapon.belt,g.weaponMods?.GUN].join(',');if(signature!==legendarySignature){legendarySignature=signature;$('legendaryInventory').replaceChildren();soloRelicRefs.length=0;for(const u of held){const item=document.createElement('button');item.type='button';item.className='legendary-badge';item.setAttribute('aria-label',reinforcementName(u,g,PLANES)+' · '+(synthesisDescription(g,u.id,getLocale())||(u.id==='ironCross'?choiceDescription(u.id,u.desc,g):translatedUpgradeDescription(u.id,cleanDescription(u.desc)))));const tip=document.createElement('span');tip.className='legendary-tip156';tip.textContent=reinforcementName(u,g,PLANES)+' · '+(synthesisDescription(g,u.id,getLocale())||(u.id==='ironCross'?choiceDescription(u.id,u.desc,g):translatedUpgradeDescription(u.id,cleanDescription(u.desc))));const c=document.createElement('canvas');c.width=48;c.height=48;const key=u.id==='passiveMedal'?'passiveMedal-'+passiveMedalFaction(g,PLANES):u.id==='ironCross'?'ironCross-'+(PLANES[g.plane]?.faction==='entente'?'entente':'central'):u.id;soloRelicRefs.push({id:u.id,key,ctx:c.getContext('2d'),owner:()=>hudPlayer()});paintRelicBadge(soloRelicRefs[soloRelicRefs.length-1]);item.append(c,tip);item.onclick=e=>{e.preventDefault();item.classList.toggle('tip156')};item.onblur=()=>item.classList.remove('tip156');$('legendaryInventory').append(item)}}};
 const _draw51=draw;
 draw=t=>{_draw51(t);if(!game)return;ctx.save();
  for(const w of game.divingSquadron||[]){const x=w.x-game.x+W/2,y=w.y-game.y+H/2;drawMannockWing(ctx,game,w,x,y,planeSprite,fx)}
@@ -1170,7 +1174,7 @@ function coopHud(){const _hn=performance.now();if(_hn-coopHudAt<90)return;coopHu
  for(const p of game.players){const sig=p.cow37?'cow37':'gun-'+p.weapon.gunProfile;if(coopGunSig[p.id]===sig)continue;coopGunSig[p.id]=sig;const c=$(p.id+'Gun113');c.title=p.weapon.name;c.getContext('2d').clearRect(0,0,72,44);drawGameIcon(c.getContext('2d'),sig,36,22,70);}
  const g=game;$('coopClock').textContent=String(Math.floor(g.t/60)).padStart(2,'0')+':'+String(Math.floor(g.t%60)).padStart(2,'0');$('coopKills').textContent=t('coop.kills',{priority:g.priorityKills});let localBest=0;try{localBest=Number(localStorage.getItem(COOP_RECORD_KEYS.best))||0}catch{}$('coopBest').textContent=t('coop.best',{score:Math.max(localBest,g.priorityKills)});
  for(const p of g.players){const id=p.id,down=p.status==='downed';$(id+'HudName').textContent=id.toUpperCase()+' · '+p.nickname+' / '+pilotName(p.pilot,PILOTS[p.pilot].name);const ammo=p.unlimitedAmmo?'∞':p.ammo.join(' / '),cooldown=p.cooldown>0?p.cooldown.toFixed(1)+'s':t('coop.ready'),special=p.specialAmmoStatus?.();$(id+'HudStats').textContent=down?t('coop.downed',{seconds:p.respawnRemaining.toFixed(1),level:p.level}):t('coop.stats',{hp:Math.ceil(p.hp),maxHp:Math.round(p.maxHp),level:p.level,ammo,reload:p.reloadTime>0?t('coop.reload',{seconds:p.reloadTime.toFixed(1)}):'',special:special?t('coop.special',{name:special.name,count:special.count}):'',active:cooldown,maneuver:p.evadeCooldown>0?p.evadeCooldown.toFixed(1)+'s':t('coop.ready')});$(id+'HpBar').style.width=100*p.hp/p.maxHp+'%';if(g.online&&id!==g.localPlayerId)$(id+'HudStats').textContent=down?(getLocale()==='en'?'Return ':'복귀 ')+Math.ceil(p.respawnRemaining)+(getLocale()==='en'?'s':'초'):'HP '+Math.ceil(p.hp)+' / '+Math.round(p.maxHp);
-  const held=UPGRADES.filter(u=>u.legendary&&p.upgrades[u.id]),signature=getLocale()+':'+g.runId+':'+held.map(u=>u.id).join(',');if(coopRelicSignatures[id]!==signature){coopRelicSignatures[id]=signature;coopRelicRefs[id].length=0;$(id+'Relics').replaceChildren();for(const u of held){const icon=document.createElement('canvas');icon.width=48;icon.height=48;icon.title=reinforcementName(u,p,PLANES)+' · '+(u.id==='ironCross'?choiceDescription(u.id,u.desc,p):translatedUpgradeDescription(u.id,cleanDescription(u.desc)));icon.setAttribute('aria-label',reinforcementName(u,p,PLANES));const key=u.id==='passiveMedal'?'passiveMedal-'+passiveMedalFaction(p,PLANES):u.id==='ironCross'?'ironCross-'+(PLANES[p.plane]?.faction==='entente'?'entente':'central'):u.id;coopRelicRefs[id].push({id:u.id,key,ctx:icon.getContext('2d'),owner:()=>p});paintRelicBadge(coopRelicRefs[id][coopRelicRefs[id].length-1]);$(id+'Relics').append(icon)}}
+  const held=UPGRADES.filter(u=>u.legendary&&p.upgrades[u.id]),signature=getLocale()+':'+g.runId+':'+held.map(u=>u.id).join(',')+':'+[p.shots,p.weapon.guns,p.weapon.belt,p.weaponMods?.GUN].join(',');if(coopRelicSignatures[id]!==signature){coopRelicSignatures[id]=signature;coopRelicRefs[id].length=0;$(id+'Relics').replaceChildren();for(const u of held){const icon=document.createElement('canvas');icon.width=48;icon.height=48;icon.title=reinforcementName(u,p,PLANES)+' · '+(synthesisDescription(p,u.id,getLocale())||(u.id==='ironCross'?choiceDescription(u.id,u.desc,p):translatedUpgradeDescription(u.id,cleanDescription(u.desc))));icon.setAttribute('aria-label',reinforcementName(u,p,PLANES));const key=u.id==='passiveMedal'?'passiveMedal-'+passiveMedalFaction(p,PLANES):u.id==='ironCross'?'ironCross-'+(PLANES[p.plane]?.faction==='entente'?'entente':'central'):u.id;coopRelicRefs[id].push({id:u.id,key,ctx:icon.getContext('2d'),owner:()=>p});paintRelicBadge(coopRelicRefs[id][coopRelicRefs[id].length-1]);$(id+'Relics').append(icon)}}
   show(id+'Cutin',!down&&g.state!=='lost'&&g.t<coopCutinEnds[id]);
  }
  if(g.t>coopToastUntil||g.state==='lost')show('toast',false);
@@ -1534,7 +1538,7 @@ const modalBefore151=modal;
 modal=(tag,title,text,buttons)=>{
  document.getElementById('build151')?.remove();$('modal').classList.remove('build-modal151');
  const isChoice=buttons.some(b=>b.upgradeId);$('modal').classList.toggle('choice-modal151',isChoice);
- if(isChoice){title=t('upgrade.title');text=game?.mode==='coop2'?text:t('upgrade.prompt');buttons=buttons.map(b=>{if(!b.upgradeId)return b;const u=UPGRADES.find(u=>u.id===b.upgradeId),detailDesc=b.upgradeId==='ironCross'?choiceDescription(b.upgradeId,b.desc,b.owner||game):translatedUpgradeDescription(b.upgradeId,cleanDescription(b.desc));return {...b,weaponMod:!!u.weaponMod,label:reinforcementName(u,b.owner||game,PLANES),detailDesc,desc:choiceDescription(b.upgradeId,detailDesc,b.owner||game)}})}
+ if(isChoice){title=t('upgrade.title');text=game?.mode==='coop2'?text:t('upgrade.prompt');buttons=buttons.map(b=>{if(!b.upgradeId)return b;const u=UPGRADES.find(u=>u.id===b.upgradeId),detailDesc=synthesisDescription(b.owner||game,b.upgradeId,getLocale())||(b.upgradeId==='ironCross'?choiceDescription(b.upgradeId,b.desc,b.owner||game):translatedUpgradeDescription(b.upgradeId,cleanDescription(b.desc)));return {...b,weaponMod:!!u.weaponMod,label:reinforcementName(u,b.owner||game,PLANES),detailDesc,desc:choiceDescription(b.upgradeId,detailDesc,b.owner||game)}})}
  $('modal').classList.toggle('weapon-mod-draft151',isChoice&&buttons.some(b=>b.weaponMod));
  modalBefore151(tag,title,text,buttons);
  if(!isChoice)return;
@@ -1553,9 +1557,9 @@ modal=(tag,title,text,buttons)=>{
  $('modal').classList.toggle('special-draft156',buttons.some(b=>b.rarity==='legendary'));
  if(buttons.some(b=>b.rarity==='legendary'))$('modalText').textContent=t('special.prompt');
  const owner=buttons.find(b=>b.upgradeId)?.owner||game;
- if(owner){const families=[...new Set(Object.keys(owner.upgrades||{}).filter(id=>owner.upgrades[id]).map(buildIdentityFor).filter(Boolean))],en=getLocale()==='en';
+ if(owner){const families=[...committedIdentities(owner)],en=getLocale()==='en';
   $('modalText').textContent=(en?'Build families ':'선택 계열 ')+families.length+'/'+BUILD_IDENTITY_LIMIT+' · '+(families.map(tacticalFamilyName).join(' / ')||(en?'None':'없음'))+(families.length>=BUILD_IDENTITY_LIMIT?(en?' · new families locked':' · 새 계열 선택 제한'):'');
-  $('modalText').title=en?'Special equipment may commit a build family, but only applied normal upgrades count toward doctrines. See Tactical Codex for conditions.':'특수장비도 계열 제한에 포함될 수 있지만 교리 횟수는 일반 강화만 누적됩니다. 상세 조건은 전술 도감에서 확인하세요.';
+  $('modalText').title=en?'Only normal upgrades commit a build family and advance doctrines. Equipment uses equipment slots.':'일반 강화만 계열 제한과 교리 횟수에 반영됩니다. 특수장비는 장비 슬롯을 사용합니다.';
  }
 };
 function closeBuildPop151(){document.querySelector('#build151 .build-pop151')?.remove();for(const t of document.querySelectorAll('#build151 .build-tile151[aria-expanded="true"]'))t.setAttribute('aria-expanded','false')}
@@ -1631,7 +1635,7 @@ function showBuildPause151(){
    let icon;if(doctrine){icon=tacticalIcon(u,p);tile.dataset.tacticalId=u.id;}else{icon=document.createElement('canvas');icon.width=112;icon.height=88;choiceIconRefs.push({canvas:icon,id:u.id,owner:p});drawUpgradeIcon(icon,u.id,p);}
    icon.setAttribute('aria-hidden','true');tile.append(icon);
    if(count>1)tile.append(el('b','×'+count,'build-count151'));
-   tile.onclick=e=>{e.stopPropagation();const open=tile.getAttribute('aria-expanded')!=='true';closeBuildPop151();if(open)openBuildPop151(tile,{name,rarity:doctrine?'':rarity,count,category:doctrine?heading:categoryName(u.id),stats:doctrine?[]:heldStats(p,u.id),desc:doctrine?tacticalText(u,'description'):u.id==='ironCross'?choiceDescription(u.id,u.desc,p):translatedUpgradeDescription(u.id,upgradeDescription(u.id,rarity,p)||u.desc),en})};
+   tile.onclick=e=>{e.stopPropagation();const open=tile.getAttribute('aria-expanded')!=='true';closeBuildPop151();if(open)openBuildPop151(tile,{name,rarity:doctrine?'':rarity,count,category:doctrine?heading:categoryName(u.id),stats:doctrine?[]:heldStats(p,u.id),desc:doctrine?tacticalText(u,'description'):synthesisDescription(p,u.id,getLocale())||(u.id==='ironCross'?choiceDescription(u.id,u.desc,p):translatedUpgradeDescription(u.id,upgradeDescription(u.id,rarity,p)||u.desc)),en})};
    tiles.append(tile);
   }
   section.append(tiles);
@@ -1912,12 +1916,12 @@ function renderTacticalCodex(anchor){
    const record=tacticalElement('a',en?'Official Battle Record':'공식 전장 기록','tactical-record-link');record.href=fieldRecordLink.href;record.target='_blank';record.rel='noopener';content.append(record);return;
   }
   const equipment=category==='equipment',entries=equipment?UPGRADES.filter(u=>u.legendary):category==='composites'?COMPOSITE_TACTICS:category==='special'?SPECIAL_DOCTRINES:TACTICAL_DOCTRINES;
-  const committed=[...new Set(Object.keys(owner.upgrades||{}).filter(id=>owner.upgrades[id]).map(buildIdentityFor).filter(Boolean))];
+  const committed=[...committedIdentities(owner)];
   const progress=tacticalElement('div',undefined,'tactical-family-progress');
   // Family meters: name, count and a 5-step bar per build family.
   for(const family of Object.keys(tacticalFamilies)){const n=Math.min(5,tacticalCount(owner,family)),label=tacticalElement('span');label.className='tactical-family'+(committed.includes(family)?' committed':'')+(n>=5?' complete':'');
    const meter=document.createElement('progress');meter.max=5;meter.value=n;label.append(tacticalElement('em',tacticalFamilyName(family)),tacticalElement('b',n+'/5'),meter);progress.append(label)}
-  const rule=equipment?(en?'Equipment can take a family slot; only normal upgrades count toward doctrines.':'특수장비도 계열 슬롯을 차지 · 교리 횟수는 일반 강화만 누적'):category==='composites'?(en?'Primary 5 + secondary 3 · one per sortie':'주력 5회 + 다른 계열 3회 · 출격당 하나'):(en?'5 selections in a family unlock it · adopt any time':'같은 계열 강화 5회 → 해금 · 원하는 때 채택');
+  const rule=equipment?(en?'Only normal upgrades take family slots and count toward doctrines.':'일반 강화만 계열 슬롯과 교리 횟수에 반영'):category==='composites'?(en?'Primary 5 + secondary 3 · one per sortie':'주력 5회 + 다른 계열 3회 · 출격당 하나'):(en?'5 selections in a family unlock it · adopt any time':'같은 계열 강화 5회 → 해금 · 원하는 때 채택');
   const hint=tacticalElement('p',undefined,'tactical-index-hint');hint.append(tacticalElement('b',(en?'Families ':'계열 ')+committed.length+'/'+BUILD_IDENTITY_LIMIT),tacticalElement('span',rule));
   content.append(progress,hint);
   if(category==='composites'&&owner.compositeTactic)content.append(tacticalElement('p',(en?'Selected · ':'채택 전술 · ')+tacticalText(tacticalEntry(owner.compositeTactic),'name'),'tactical-progress'));
@@ -2121,6 +2125,7 @@ function sideMissionCard(en){
 }
 function syncBattlefieldMissionHud(){
  const event=game?.battlefieldEvents?.current,panel=$('eventMissionHud'),state=game?.battlefieldEvents,now=game?.t||0,en=getLocale()==='en',rewards=[];
+ const laon=laonMissionCard(game,en);if(laon){panel.classList.remove('folded');__txt($('eventMissionTitle'),laon.title);__txt($('eventMissionObjective'),laon.objective);__txt($('eventMissionMeta'),laon.meta);show('eventMissionHud');return;}
  const dover=doverMissionCard(game,en);if(dover){panel.classList.remove('folded');__txt($('eventMissionTitle'),dover.title);__txt($('eventMissionObjective'),dover.objective);__txt($('eventMissionMeta'),dover.meta);show('eventMissionHud');return;}
  for(const [key,label]of [['airSupport',en?'Bombing support':'폭격 지원']]){const item=state?.pending?.[key];if(item?.remaining>0&&item.expiresAt>now)rewards.push(label+' '+item.remaining+(en?' uses · carries over':'회 · 이월'));}
  if(state?.bossIntel)rewards.push(en?'Boss intel · this area':'보스 약점 · 현재 지역');
@@ -2211,7 +2216,7 @@ draw=frameTime=>{battlefieldMissionDraw(frameTime);drawMissionReconWeakpoint();c
 
 // HEAD-ON Test Lab bridge. It is inert on production and only activates on the
 // repository's public GitHub Pages preview or local development hosts.
-const HEADON_TEST_REGION_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭 전투','마안 전투','갈리폴리 전선','1918 파리 야간공습 / Paris Night Air Raid','유틀란트 해전 / Jutland Fleet Battle','도버 해협 · 해협 돌파전 / Dover Breakthrough','베를린 방어선 / Berlin Defense Line'];
+const HEADON_TEST_REGION_NAMES=['전원 지대','아드리아해','참호 전선','포화의 참호전선','도심','고공 전역','알프스 산맥','제브뤼헤 군항','캉브레 들판','아라스 상공','솜 강전선','런던 대공습','베르됭 전투','마안 전투','갈리폴리 전선','1918 파리 야간공습 / Paris Night Air Raid','유틀란트 해전 / Jutland Fleet Battle','도버 해협 · 해협 돌파전 / Dover Breakthrough','베를린 방어선 / Berlin Defense Line','라온 포격진지 · 1918 / Laon Artillery Position'];
 const HEADON_TEST_ALLOWED_HOSTS=new Set(['localhost','127.0.0.1','terminal.local','leesh603.github.io','raw.githack.com']);
 function installHeadOnTestLab(){
  const testHost=globalThis.location?.hostname||'';if(!HEADON_TEST_ALLOWED_HOSTS.has(testHost))return;
@@ -2375,7 +2380,7 @@ function installHeadOnTestLab(){
  }));
 }
 setSfxDuckingListener(depth=>music?.duck(depth));
-setInterval(()=>{if(game?.state==='playing'&&!muted&&!sfxOff&&!document.hidden&&!regionTransitionUntil){const flight=combatFlightSound(game,PLANES);sfx('engineTick',flight);prepareSfx(flight.plane,game.worldRegion());sfx('environmentWind',{world:game,flight})}},170);
+setInterval(()=>{if(game?.state==='playing'&&!muted&&!sfxOff&&!document.hidden&&!regionTransitionUntil){const flight=combatFlightSound(game,PLANES);prepareSfx(flight.plane,game.worldRegion());sfx('engineTick',flight);sfx('environmentWind',{world:game,flight})}},170);
 installHeadOnTestLab();
 
 const onlineLobby=installOnlineLobby({getLoadout:()=>pilotUnlocked(pilot)?({pilot,plane:pilotPlane(pilot),faction,nickname:pilotName(pilot,PILOTS[pilot].name)}):null,getGame:()=>game,onStart:(session,data)=>{void prepareBossOrdnance();battleReady.then(()=>{if(!session.closed)start(session,data)}).catch(error=>{session.leave();modal('ONLINE CO-OP',getLocale()==='en'?'Sortie unavailable':'출격 실패',getLocale()==='en'?'Could not prepare the sortie. Please try again shortly.':'출격 준비를 마치지 못했습니다. 잠시 후 다시 시도해 주세요.',[{label:getLocale()==='en'?'Hangar':'출격 화면',run:returnHangar}]);});},onEnd:reason=>{if(!game?.online)return;game._netEnded=true;game.state='paused';game.disposeOnline();modal('ONLINE CO-OP','연결 종료',reason,[{label:'출격 화면',run:returnHangar}]);}});
@@ -2548,7 +2553,6 @@ const eventsBeforeAircraftCritical=events;
 events=()=>{eventsBeforeAircraftCritical();showAircraftCriticalNotice();};
 const coopEventsBeforeAircraftCritical=coopEvents;
 coopEvents=()=>{coopEventsBeforeAircraftCritical();showAircraftCriticalNotice();};
-
 
 
 

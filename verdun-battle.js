@@ -36,12 +36,12 @@ const dust=(g,x,y,radius=55)=>{const v=g.verdunBattle;if(v){v.dust.push({x,y,rad
 export function handleVerdunCue(g,event){
  const body=g.stageBoss?.stages.encounter?.bodies.get(event.bossId),fort=body?.fortressBoss;
  if(event.type==='hazard-activated'&&event.visual?.startsWith('verdun-')){
-  const profile=groundShellProfile(event.visual);if(profile)pushExplosionFx(g,initExplosionProfile({x:event.x,y:event.y,radius:event.radius,side:'enemy',kind:'shell'},profile));
-  dust(g,event.x,event.y,event.radius*1.55);g.burst?.(event.x,event.y,'#c6af86',10,profile?'profileOnly':'shell');g.smoke?.(event.x,event.y,true,!!profile);g.shake=Math.max(g.shake||0,profile==='heavyShell'?5:3);g.event('heavyShot','');return true;
+  const profile=groundShellProfile(event.visual);if(profile)pushExplosionFx(g,initExplosionProfile({x:event.x,y:event.y,radius:event.radius,side:'enemy',kind:'shell',artillerySound:'artilleryImpact'},profile));
+  dust(g,event.x,event.y,event.radius*1.55);g.burst?.(event.x,event.y,'#c6af86',10,profile?'profileOnly':'shell');g.smoke?.(event.x,event.y,true,!!profile);g.shake=Math.max(g.shake||0,profile==='heavyShell'?5:3);g.event('bossSound','artilleryImpact');return true;
  }
  if(!fort)return false;
  if(event.type==='muzzle'){
-  g.verdunBattle?.muzzles.push({x:event.x,y:event.y,a:body.parts.get(event.partId)?.angle||0,age:0});g.event('heavyShot','');return true;
+  const part=body.parts.get(event.partId);g.verdunBattle?.muzzles.push({x:event.x,y:event.y,a:part?.angle||0,age:0});g.event('bossSound',part?.kind==='mg'?'enemyShot':'artilleryFire');return true;
  }
  if(event.type==='fort-aa-repairing'){g.event('wave','외곽 대공포 정비 · 곧 재가동');return true;}
  if(event.type==='fort-aa-restored'){dust(g,event.x,event.y,28);g.event('wave','외곽 대공포 수리 완료');return true;}

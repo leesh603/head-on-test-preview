@@ -45,6 +45,26 @@ export function tickBossEntry(addon,encounter,dt){
 // Entrances move complete world bodies; never reveal slices of their geometry.
 export function bossEntryReveal(){return null;}
 export function clipBossEntry(){}
+const entryEngines={
+ 'siemens-schuckert-r-viii':['drive-outer-left','drive-inner-left','drive-inner-right','drive-outer-right'],
+ 'supermarine-nighthawk':['engine-left','engine-right'],
+ 'staaken-rvi':['eng-0','eng-1','eng-2','eng-3'],
+ 'paris-staaken-rvi':['engine-0','engine-1','engine-2','engine-3'],
+ 'o400-raider':['engine-left','engine-right'],'gotha-raider':['engine-left','engine-right'],
+ gik:['leftEngine','rightEngine'],ca4:['leftEngine','centerEngine','rightEngine']
+};
+export function bossEntryEngineTrails(encounter){
+ const trails=[];
+ for(const b of encounter?.bodies.values()||[]){
+  if(b.dead)continue;const ids=entryEngines[b.kind];if(!ids)continue;
+  const a=b.a??(b.hullYaw||0)-Math.PI/2,formation=['o400-raider','gotha-raider'].includes(b.kind);
+  const length=formation?86:b.kind==='siemens-schuckert-r-viii'?240:180;
+  for(const id of ids){const p=b.parts.get(id);if(!p||p.destroyed)continue;
+   trails.push({x:b.x+p.x-Math.cos(a)*length*.5,y:b.y+p.y-Math.sin(a)*length*.5,a:a+Math.PI/2,w:formation?18:27,h:length,alpha:formation?.16:.22,partId:id});
+  }
+ }
+ return trails;
+}
 export function drawBossEntryWorld(c,encounter,paint){
  const active=activeBossEntry(encounter);if(!active||active.scene.waitForDiscovery)return;
  const {body:b,scene:s}=active,age=s.age,fade=clamp(age/.35)*clamp((2.65-age)/.6);if(fade<=0)return;
@@ -55,7 +75,8 @@ export function drawBossEntryWorld(c,encounter,paint){
   case 'naval':draw('shipBow3',x,y-r.ry*.8,Math.min(360,r.rx*2),210,0,.7);draw('shipWake3',x,y+r.ry*.6,Math.min(220,r.rx*1.2),Math.min(600,r.ry*1.3),0,.5);break;
   case 'rail':case 'railCarrier':for(let i=0;i<3;i++)draw(i%2?'gunSmoke':'smokeGray',x+(i-1)*65-age*15,y-r.ry*.6+i*75,140+age*35,210+age*32,-.15,.38);break;
   case 'airship':draw('fx-cloud-bank-0',x-r.rx*.6-age*16,y-r.ry*.22,440,230,0,.6);draw('fx-cloud-bank-1',x+r.rx*.5+age*16,y+r.ry*.2,420,200,.1,.5);break;
-  case 'bomber':case 'squadron':for(const side of [-1,1])draw('vaporTrail',x+side*r.rx*.65,y+r.ry*.4,62,Math.min(470,r.ry*2),0,.35);break;
+  case 'bomber':{const trails=bossEntryEngineTrails(encounter);if(trails.length){for(const t of trails)draw('vaporTrail',t.x,t.y,t.w,t.h,t.a,t.alpha);break;}for(const side of [-1,1])draw('vaporTrail',x+side*r.rx*.65,y+r.ry*.4,62,Math.min(470,r.ry*2),0,.35);break;}
+  case 'squadron':for(const side of [-1,1])draw('vaporTrail',x+side*r.rx*.65,y+r.ry*.4,62,Math.min(470,r.ry*2),0,.35);break;
   case 'armour':for(const side of [-1,1])draw('smokeDust',x+side*(r.rx*.85+age*18),y+r.ry*.6,170+age*24,110+age*20,side*.2,.6);break;
   case 'artillery':draw('smokeDust',x-r.rx*.45,y+r.ry*.3,240,130,0,.45);draw('gunSmoke',x+r.rx*.4,y,160,210,-.2,.4);break;
   case 'net':draw('searchlight',x-r.rx*.5,y,220,440,-.35,.35);draw('searchlight',x+r.rx*.5,y,220,440,.35,.35);break;

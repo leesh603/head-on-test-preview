@@ -112,7 +112,6 @@ export class EliteEnemySystem {
       enemyType: ELITE_ENEMY_TYPE,
       eliteKind: kind,
       squadronId: id,
-      squadronSpawnAt: now,
       faction: this.host.getPlayerFaction() === 'central' ? 'entente' : 'central',
       x: centerX + slot * 64,
       y: centerY + Math.abs(slot) * 24,
@@ -196,7 +195,7 @@ export class EliteEnemySystem {
     if(squadron.breakUntil>now&&(!leaderLost||squadron.formationDeathBreak))return false;
     if(leaderLost)duration=2.6;
     squadron.formationResumeLeader=!leaderLost&&commander?.alive?commander:null;
-    squadron.formationDeathBreak=leaderLost;squadron.breakUntil=now+duration;this.host.recordAttack?.('formationBreak',commander||squadron.members[0],{reason:leaderLost?'leader-dead':'disrupted',duration});
+    squadron.formationDeathBreak=leaderLost;squadron.breakUntil=now+duration;
     if(leaderLost)squadron.regroupAt=(this.host.getProgressStage?.()??1)>=7?now+9:Infinity;
     squadron.leader=null;
     for(const m of squadron.members)if(m.alive){
@@ -269,7 +268,7 @@ export class EliteEnemySystem {
       const flight=this.flightSpeed(m,player);m.x+=Math.cos(m.a)*flight*dt;m.y+=Math.sin(m.a)*flight*dt;
       if(!this.memberVisible(m))continue;
       m.fireTimer-=dt;
-      if(m.fireTimer<=0&&Math.abs(angleDiff(this.rocketIntercept(m,player),m.a))<.18){const fired=this.fireTracer(m,m.a,194,Math.max(1,Math.round(m.damage*.58)),'eliteFrontTracer');m.fireTimer=fired?cfg.forwardGunCooldown/squadron.stats.patternScale+this.random()*.45:.12;}
+      if(m.fireTimer<=0&&Math.abs(angleDiff(this.rocketIntercept(m,player),m.a))<.18){m.fireTimer=cfg.forwardGunCooldown/squadron.stats.patternScale+this.random()*.45;this.fireTracer(m,m.a,194,Math.max(1,Math.round(m.damage*.58)),'eliteFrontTracer');}
       if(!preparing){m.rocketTimer=Math.max(cfg.aimTime+cfg.warningTime,m.rocketTimer-dt);m.telegraph=0;continue;}
       const aligned=(m.rocketLocked||!m.formationAvoid)&&Math.abs(angleDiff(m.rocketAim??m.a,m.a))<.10;
       if(m.rocketTimer>cfg.warningTime&&m.rocketTimer-dt<=cfg.warningTime&&!aligned)m.rocketTimer=cfg.warningTime+dt;
@@ -279,7 +278,7 @@ export class EliteEnemySystem {
         else{m.telegraph=1-m.rocketTimer/cfg.warningTime;m.gunAim=m.rocketAim;}
       }else m.telegraph=0;
       if(m.rocketTimer<=0){
-        if(aligned){const rockets=this.host.getTime()>=300?3:2;let created=0;for(let i=0;i<rockets;i++)if(this.fireRocket(m,m.a+(i-(rockets-1)/2)*cfg.rocketSpacing))created++;if(created){m.rocketTimer=Math.max(5.6,cfg.rocketCooldown/squadron.stats.patternScale)+this.random()*.8;delete m.rocketAim;delete m.rocketLocked;squadron.rocketShooter=null;this.host.emitEvent?.('eliteRocketSalvo',{memberId:m.id,count:created});this.host.playSound?.('eliteRocket');}else m.rocketTimer=.12;}
+        if(aligned){const rockets=this.host.getTime()>=300?3:2;for(let i=0;i<rockets;i++)this.fireRocket(m,m.a+(i-(rockets-1)/2)*cfg.rocketSpacing);m.rocketTimer=Math.max(5.6,cfg.rocketCooldown/squadron.stats.patternScale)+this.random()*.8;delete m.rocketAim;delete m.rocketLocked;squadron.rocketShooter=null;this.host.emitEvent?.('eliteRocketSalvo',{memberId:m.id,count:rockets});this.host.playSound?.('eliteRocket');}
         else m.rocketTimer=cfg.warningTime+dt;
       }
     }
@@ -300,12 +299,11 @@ export class EliteEnemySystem {
       if(!this.memberVisible(m))continue;
       m.fireTimer -= dt;
       if (m.fireTimer <= 0) {
-        let fired=false;
+        m.fireTimer = cfg.frontCooldown / squadron.stats.patternScale + this.random() * .3;
         if (cfg.twinFront) {
-          fired=this.fireTracer(m, m.a + m.slot * .055 - .038, 218, Math.max(1, Math.round(m.damage * .62)), 'eliteFrontTracer');
-          fired=this.fireTracer(m, m.a + m.slot * .055 + .038, 218, Math.max(1, Math.round(m.damage * .62)), 'eliteFrontTracer')||fired;
-        } else fired=this.fireTracer(m, m.a + m.slot * .055, 218, m.damage, 'eliteFrontTracer');
-        m.fireTimer=fired?cfg.frontCooldown / squadron.stats.patternScale + this.random() * .3:.12;
+          this.fireTracer(m, m.a + m.slot * .055 - .038, 218, Math.max(1, Math.round(m.damage * .62)), 'eliteFrontTracer');
+          this.fireTracer(m, m.a + m.slot * .055 + .038, 218, Math.max(1, Math.round(m.damage * .62)), 'eliteFrontTracer');
+        } else this.fireTracer(m, m.a + m.slot * .055, 218, m.damage, 'eliteFrontTracer');
       }
       if (cfg.noRearGun) continue;
       m.rearTimer -= dt;
@@ -313,22 +311,17 @@ export class EliteEnemySystem {
       const rearA = m.a + Math.PI;
       const inRearArc = Math.abs(angleDiff(aim, rearA)) <= cfg.rearHalfArc;
       if (m.rearTimer <= 0 && inRearArc && range >= cfg.rearMinRange && range <= cfg.rearMaxRange) {
+        m.rearTimer = cfg.rearCooldown / squadron.stats.patternScale + this.random() * .34;
         m.gunAim = this.rocketIntercept(m,player,204);
-        const fired=this.fireTracer(m, m.gunAim, 204, Math.max(1, Math.round(m.damage * .82)), 'eliteRearTracer', -22);
-        m.rearTimer=fired?cfg.rearCooldown / squadron.stats.patternScale + this.random() * .34:.12;
-        if(fired){this.host.emitEvent?.('eliteRearGun', {memberId: m.id});this.host.playSound?.('eliteRearGun');}
+        this.fireTracer(m, m.gunAim, 204, Math.max(1, Math.round(m.damage * .82)), 'eliteRearTracer', -22);
+        this.host.emitEvent?.('eliteRearGun', {memberId: m.id});
+        this.host.playSound?.('eliteRearGun');
       }
     }
   }
 
-  admitShot(member) {
-    this.host.recordAttack?.('shotAttempt',member);
-    if(!this.memberVisible(member)||this.projectiles.length>=180||this.host.canAttack?.(member,{projectiles:this.projectiles.length})===false){this.host.recordAttack?.('shotDenied',member,{reason:this.projectiles.length>=180?'projectile-cap':member.directorAttackDeniedReason||'offscreen'});return false;}
-    return true;
-  }
-
   fireRocket(member, angle) {
-    if(!this.admitShot(member))return false;
+    if(!this.memberVisible(member))return;
     const cfg = this.config.lePrieur;
     const speed = cfg.rocketSpeed * eliteScale(this.host.getTime()).projectileSpeed;
     this.projectiles.push({
@@ -346,11 +339,10 @@ export class EliteEnemySystem {
       radius: 12,
       hostileRocket: true
     });
-    this.host.recordAttack?.('shotCreated',member);return true;
   }
 
   fireTracer(member, angle, speed, damage, kind, muzzleOffset = 24) {
-    if(!this.admitShot(member))return false;
+    if(!this.memberVisible(member))return;
     this.projectiles.push({
       id: `elite-projectile-${++this.serial}`,
       enemy: true,
@@ -366,7 +358,6 @@ export class EliteEnemySystem {
       radius: 7
     });
     this.host.emitEvent?.('eliteGunfire', {kind, memberId: member.id});
-    this.host.recordAttack?.('shotCreated',member);return true;
   }
 
   updateProjectiles(dt) {
@@ -409,11 +400,11 @@ export class EliteEnemySystem {
     // Continuous fire keeps the armor factor without rounding every fraction
     // of a second up to a whole projectile hit.
     if (armor && armor < 1) damage = source.burn?damage*armor:Math.max(1, Math.round(damage * armor));
-    if(member.hp===member.maxHp)this.host.recordAttack?.('firstHit',member,{damage});member.hp -= damage;
+    member.hp -= damage;
     if(!source.burn)member.hitFlash = .16;
     if (member.hp > 0) return true;
     member.alive = false;
-    member.hp = 0;this.host.recordAttack?.('memberDead',member);
+    member.hp = 0;
     const squadron = this.squadrons.find(s => s.id === member.squadronId);
     if (squadron) {
       const living = squadron.members.filter(m => m.alive);
@@ -465,5 +456,4 @@ export class EliteEnemySystem {
 }
 
 export {ELITE_ENEMY_TYPE, ELITE_KINDS};
-
 

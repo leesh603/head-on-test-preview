@@ -30,6 +30,7 @@ const quads=new Set(['staaken','staaken_r6','ilya_muromets']);
 const heavyLayout=Object.freeze({engine:null,fuel:0,cockpit:.64});
 const ace=e=>!!(e.bossPilot||e.ace||e.rivalAce||e.type==='boss');
 function eligible(e,b,player){
+ if(b?.synthesisSupport)return false;
  if(!e||!b||!(e.hp>0)||e.crashing||e.crashed||e.expired||e.stageBossBody||e.intrusionBody||e.surface||e.stationary||e.fieldUnit||e.navalVessel||e.bugDrone||e.groundEscort||e.missionGround||e.londonInstallation||e.cityUnit||e.bossAirship||e.type==='zeppelin')return false;
  if(e.invuln>0||e.aceInvuln124>0)return false;
  if(b.flechette&&(player||b.enemy))return false;
@@ -90,13 +91,14 @@ export function resolveAircraftCritical(world,e,b,damage,{player=false,impactX=b
  const region=aircraftCriticalRegion(e,sampleX,sampleY,geometry);if(!region||time<(e.criticalAttemptAt??-Infinity))return unchanged;
  // Steel darts specialize in cockpit penetration; other regions keep base damage.
  if(b.flechette&&region.part!=='cockpit')return unchanged;
+ if(b.synthesisDart){if(time<(e.synthesisDartAttemptAt??-Infinity)||b.synthesisGroup?.attempts.has(e))return unchanged;e.synthesisDartAttemptAt=time+.6;b.synthesisGroup?.attempts.add(e);}
  const isAce=!player&&ace(e),balance=AIRCRAFT_CRITICAL_BALANCE,profile=(player?PLAYER_CRITICAL_PROFILES:balance)[region.part];
  e.criticalAttemptAt=time+(player?balance.playerAttempt:isAce?balance.aceAttempt:balance.attempt);
  const random=()=>criticalRandom(world);
  const roll=random();
  // The kill roll is unconditional per cockpit attempt (not chance squared).
  const mauser=!player&&!b.enemy&&b.mauserRound===true,flechette=!player&&!b.enemy&&b.flechette===true;
- const killChance=player?0:flechette?(isAce?balance.flechetteAcePilotKill:balance.flechettePilotKill):mauser?(isAce?balance.mauserAcePilotKill:balance.mauserPilotKill):isAce?balance.acePilotKill:balance.pilotKill;
+ const killChance=player?0:b.synthesisDart?(isAce?.004:.025):flechette?(isAce?balance.flechetteAcePilotKill:balance.flechettePilotKill):mauser?(isAce?balance.mauserAcePilotKill:balance.mauserPilotKill):isAce?balance.acePilotKill:balance.pilotKill;
  const opening=isAce&&time-(e.aceSpawnT??0)<balance.aceOpeningProtection;
  const pilotKill=region.part==='cockpit'&&!opening&&roll<killChance;
  if(!pilotKill&&roll>=profile.chance*(player?.7:1))return unchanged;

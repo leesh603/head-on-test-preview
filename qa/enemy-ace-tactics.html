@@ -1,0 +1,52 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HEAD-ON 적 에이스 엔진 검증</title>
+<style>body{margin:0;background:#171d1d;color:#eee2c6;font:14px sans-serif}header{padding:12px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}button,select,a{font:inherit;padding:8px;background:#303c3a;color:#eee2c6;border:1px solid #8a7752}canvas{display:block;max-width:100%;height:auto;margin:auto}p{margin:8px 12px}#status{white-space:pre-wrap}</style>
+<header><b>HEAD-ON · 실제 엔진 검증</b><select id="pilot"><option value="baron">리히트호펜</option><option value="voss">포스</option><option value="fonck">폰크</option><option value="boelcke">뵐케</option><option value="udet">우데트</option></select><button id="start">교전 시작</button><button id="pressure">후방 추격 상황</button><button id="record">30초 녹화</button><button id="mobile">모바일 390×844</button><button id="pause">일시정지</button><span id="download"></span></header>
+<p>Game.update와 현재 기체·탄환 렌더러를 사용하는 격리 시험장입니다. 본게임 HUD·맵 전체 검증과 구분합니다. 시험 플레이어만 무적으로 보호하며 적 수치·기동·사격 판정은 유지합니다. 방향키로 조종하고 Space로 실제 기총을 발사합니다.</p>
+<canvas id="view" width="1280" height="800"></canvas><p id="status">현재 기체 원화를 불러오는 중…</p>
+<script type="module">
+import {Game,PILOTS,PILOT_PLANES} from '../engine.js';
+import {planeSprite,paintedReady,hasPaintedAircraft,aircraftKey} from '../aircraft.js';
+import {enemyAircraftKey} from '../enemy-aircraft-art.js';
+import {drawEnemyProjectile} from '../projectiles.js';
+const canvas=document.querySelector('#view'),ctx=canvas.getContext('2d'),status=document.querySelector('#status'),keys=new Set(),ground=new Image();ground.src='../terrain-rural359.webp';
+let g,e,last=performance.now(),paused=false,recorder=null,elapsed=0,frames=0,rounds=0,seen=new WeakSet(),states=new Set(),errors=[];
+addEventListener('error',ev=>errors.push(ev.message));addEventListener('unhandledrejection',ev=>errors.push(String(ev.reason)));
+addEventListener('keydown',ev=>{keys.add(ev.code);if(['Space','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(ev.code))ev.preventDefault()});addEventListener('keyup',ev=>keys.delete(ev.code));
+const spriteKey=p=>aircraftKey(p.plane,false,p.pilot);
+async function begin(){
+ let seed=29;const rng=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296),id=document.querySelector('#pilot').value,pilot=PILOTS[id].faction==='central'?'fonck':'baron';
+ g=new Game(PILOT_PLANES[pilot],pilot,rng);g.update(.02,{steer:0,inputMode:'gamepad',fireHeld:false});g.t=200;g.viewWidth=canvas.width;g.viewHeight=canvas.height;
+ for(const key of ['spawn','eventTimer','nextBossAt','nextHeavyAt','_zeppelinSchedule','flakTimer','fieldUnitTimer','gasTimer','patrolTimer','regionThreat','supplyTimer'])g[key]=Infinity;
+ g.runScheduledAces=()=>{};g.mobSpawnsSuppressed=()=>true;g.need=Infinity;g.invuln=1e6;g.bossDeck=[id];e=g.spawnEnemy('boss');Object.assign(e,{x:g.x-280,y:g.y,a:0,aceEntryUntil:0});
+ const ready=await Promise.all([paintedReady(spriteKey(g)),paintedReady(enemyAircraftKey(e))]);
+ if(!ready.every(Boolean))throw Error('현재 기체 원화 누락: 임시 기체로 대체하지 않습니다');
+ elapsed=0;frames=0;rounds=0;seen=new WeakSet();states=new Set();paused=false;last=performance.now();
+}
+document.querySelector('#start').onclick=()=>begin().catch(err=>{status.textContent=err.message;g=null});
+document.querySelector('#pressure').onclick=()=>{if(g&&e?.hp>0)Object.assign(e,{x:g.x+Math.cos(g.a)*170,y:g.y+Math.sin(g.a)*170,a:g.a})};
+document.querySelector('#pause').onclick=()=>paused=!paused;
+document.querySelector('#mobile').onclick=()=>{const mobile=canvas.width!==390;canvas.width=mobile?390:1280;canvas.height=mobile?844:800;if(g){g.viewWidth=canvas.width;g.viewHeight=canvas.height}};
+document.querySelector('#record').onclick=()=>{
+ if(!g||recorder?.state==='recording')return;
+ const stream=canvas.captureStream(30),mime=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].find(t=>MediaRecorder.isTypeSupported(t)),chunks=[];
+ recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:6000000});recorder.ondataavailable=ev=>{if(ev.data.size)chunks.push(ev.data)};
+ recorder.onstop=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(chunks,{type:mime}));a.download=`HEADON-${e.bossPilot}-${canvas.width}-engine.webm`;a.textContent='녹화 다운로드';document.querySelector('#download').replaceChildren(a);stream.getTracks().forEach(t=>t.stop())};recorder.start(250);setTimeout(()=>{if(recorder.state==='recording')recorder.stop()},30000);
+};
+function frame(now){
+ try{
+  const dt=Math.min(.04,Math.max(0,(now-last)/1000));last=now;
+  if(g&&!paused){const steer=keys.has('ArrowLeft')?-1:keys.has('ArrowRight')?1:Math.sin(elapsed*.25)*.55;g.update(dt,{steer,inputMode:'gamepad',moveX:1,moveY:0,fireHeld:keys.has('Space')});elapsed+=dt;frames++;for(const b of g.bullets)if(b.enemy&&b.sourcePilot===e.bossPilot&&!seen.has(b)){seen.add(b);rounds++}states.add(e.aceTactics?.state)}
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(ground.complete&&ground.naturalWidth){ctx.save();ctx.fillStyle=ctx.createPattern(ground,'repeat');ctx.translate(g?-g.x%ground.width:0,g?-g.y%ground.height:0);ctx.fillRect(-ground.width,-ground.height,canvas.width+2*ground.width,canvas.height+2*ground.height);ctx.restore()}
+  if(g){
+   const point=p=>[p.x-g.x+canvas.width/2,p.y-g.y+canvas.height/2];
+   for(const p of [g,...g.enemies]){if(p!==g&&p.hp<=0)continue;const key=p===g?spriteKey(g):enemyAircraftKey(p);if(!hasPaintedAircraft(key)){paintedReady(key);continue}const[x,y]=point(p);planeSprite(ctx,x+12,y+20,p.a,key,1,false,true);planeSprite(ctx,x,y,p.a,key,1,false,false,p.hitFlash||0,p.hp<p.maxHp*.5)}
+   for(const b of g.bullets){const[x,y]=point(b);if(b.enemy)drawEnemyProjectile(ctx,b,x,y,g.t,1)}
+   status.textContent=`${PILOTS[e.bossPilot].name} · ${e.bossPlane} · ${e.aceTactics?.state}\n실제 시뮬레이션 ${elapsed.toFixed(1)}초 / ${frames}프레임 · 실제 적탄 ${rounds} · 스킬 시작 ${e.aceTactics?.signatureAt??'대기'}\n관측 상태: ${[...states].join(' → ')}\n런타임 오류 ${errors.length}${errors.length?': '+errors.join('; '):''} · ${canvas.width}×${canvas.height}`;
+  }
+ }catch(err){errors.push(err.message);status.textContent='실행 오류: '+err.message;paused=true}
+ requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+begin().catch(err=>{status.textContent=err.message;g=null});
+</script></html>

@@ -181,6 +181,8 @@ function bossTacticDetail(encounter,locale='ko'){
 }
 export function bossSoundFor(event,kind=''){
  const type=event.type,visual=event.visual||'';
+ if(type==='muzzle'&&(event.weapon==='mg'||kind==='flak-tower-cell'&&/^gun-/.test(event.partId||'')))return 'enemyShot';
+ if(type==='hazard-activated'&&event.kind==='circle'&&/zubian|naval|harbor|coastal|jutland/.test(visual))return 'waterImpact';
  if(type==='hazard-activated'&&event.raidHeavy){const sound=bossStrongSound(event.ordnanceFamily,event.kind);if(sound)return sound;}
  if(type==='gotha-approach')return 'formationPass';
  if(type==='gotha-bay-open')return 'armorOpen';
@@ -215,9 +217,9 @@ export function bossSoundFor(event,kind=''){
  if(type==='charge-warning'||type==='reentry-warning')return 'approachWarning';
  if(type==='aa-volley')return 'navalGun';
  if(type==='flak-burst')return 'flak';
- if(type==='muzzle'&&kind==='mark4-wedge')return event.weapon==='mg'?'enemyShot':'heavyShot';
- if(type==='muzzle')return ['gik','ca4'].includes(kind)?'enemyShot':/stuttgart|zubian|harbor/.test(kind)?'navalGun':kind==='minenwerfer-battery'?null:'heavyShot';
- if(type==='heavy-gun-fired')return event.railArtillery?(event.heavy||kind==='lincomparable'?'railGunFire520':'railGunFire'):'heavyShot';
+ if(type==='muzzle'&&kind==='mark4-wedge')return event.weapon==='mg'?'enemyShot':'artilleryFire';
+ if(type==='muzzle')return ['gik','ca4'].includes(kind)?'enemyShot':/stuttgart|zubian|harbor/.test(kind)?'artilleryNavalFire':kind==='minenwerfer-battery'?null:'artilleryFire';
+ if(type==='heavy-gun-fired')return event.railArtillery?(event.heavy||kind==='lincomparable'?'railGunFire520':'railGunFire'):'artilleryFire';
  // Rail shells: a falling whistle while the marker shows, then the train-gun impact.
  if(type==='hazard'&&event.kind==='circle'&&event.visual==='rail-shell'&&(event.warning??0)>=.4)return kind==='lincomparable'?'railShellIncoming520':'railShellIncoming';
  if(type==='boss-destruction-start')return /stuttgart|zubian/.test(kind)?'shipBreak':'metalBreak';
@@ -226,9 +228,9 @@ export function bossSoundFor(event,kind=''){
   if(event.kind==='projectile')return ['alps-cannon','alps-mg'].includes(visual)?null:'enemyShot';
   if(event.kind!=='circle')return null;
   if(visual==='rail-shell')return kind==='lincomparable'?'railShellImpact520':'railShellImpact';
-  if(/minenwerfer|observer-shell/.test(visual))return 'earthImpact';
+  if(/minenwerfer|observer-shell|morser-shell|mark4-shell|treffas-shell/.test(visual))return 'artilleryImpact';
   if(/zubian|naval|harbor/.test(visual))return 'waterImpact';
-  if(visual==='somme-landship-shell')return 'earthImpact';
+  if(visual==='somme-landship-shell')return 'artilleryImpact';
   if(/flak/.test(visual))return 'flak';
   if(visual==='carpet-bomb')return 'earthImpact';
  }

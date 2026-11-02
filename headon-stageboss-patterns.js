@@ -1,6 +1,8 @@
 import {O400Raider} from './o400-squadron.js?v=natural-flight20261031';
 import {updateGothaCombat} from './gotha-squadron-combat.js?v=natural-flight20261031';
 import {createCapitalBoss} from './capital-bosses.js';
+import {ParisGeschuetz} from './laon-gun.js';
+import {FrenchCounterBatteryAirGroup} from './laon-air-group.js';
 import {SupermarineNighthawk,SiemensSchuckertRVIII} from './dover-night-bosses.js?v=dover3&ai=1018&sig=1019&boss=20261020b&phase=1021';
 import {MINEN_ART,MINEN_TUBES} from './minenwerfer-art-layout.js';
 import {shellMarch,broadsideBreak,impactPulse} from './boss-raid-strikes.js?v=tame3&rail=40';
@@ -31,8 +33,10 @@ import {HARBOR_PARTS,harborScale,harborPoint,harborCranePose,harborMuzzle,harbor
 
 // Trench II is an independent battlefield between the original trenches and
 // later theaters. Stable stage IDs keep both trench maps in the endless loop.
-export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai', 'arras', 'somme', 'london', 'verdun', 'maan', 'gallipoli', 'paris-night', 'jutland', 'dover-night', 'berlin']);
+export const STAGES = Object.freeze(['rural', 'sea', 'trenches', 'trenches-hell', 'city', 'sky', 'alps', 'zeebrugge', 'cambrai', 'arras', 'somme', 'london', 'verdun', 'maan', 'gallipoli', 'paris-night', 'jutland', 'dover-night', 'berlin', 'laon']);
 export const BOSS_CATALOG = Object.freeze({
+  'paris-geschuetz': {name:'파리포 · Paris-Geschütz',faction:'central',stage:19},
+  'french-counter-battery': {name:'프랑스 대포대 공습편대',faction:'entente',stage:19},
   'berlin-drachen': {name:'베를린 드라헨 방공망',faction:'central',stage:18},
   'final-kaiserkrone': {name:'카이저크로네',faction:'central',stage:18,capitalFinal:true},
   'final-leviathan': {name:'리바이어던 최종형',faction:'entente',stage:11,capitalFinal:true},
@@ -296,7 +300,7 @@ export class ZeppelinL70 extends PatternBoss {
     // shorten that run instead of sharing the generic mobile-boss wobble.
     this.cruiseSpan+=(span-this.cruiseSpan)*(1-Math.exp(-Math.max(0,dt)*1.8));
     shadowAnchor(this,dt,players,{dist:290,speed:this.phase==='cloud'?40:52*(.35+.65*engines.length/7)});
-    this.x=this.anchorX+Math.sin(mt*.3)*this.cruiseSpan;this.y=this.anchorY+Math.sin(mt*.19+1.1)*70;
+    this.x=this.anchorX+Math.sin(mt*.3+(this.arrivalLateralPhase||0))*this.cruiseSpan;this.y=this.anchorY+Math.sin(mt*.19+1.1)*70;
     if(!this.lastStand&&this.hp<=this.maxHp*.35){this.lastStand=true;this.command('phase-change',{phase:'bomb-surge'});this.timers.set('bombline',Math.min(this.timers.get('bombline')??Infinity,.5));}
     if(this.phase==='cloud') {
       const live=living(players),p=live[this.cursor%Math.max(1,live.length)],c=this.parts.get('capsule');
@@ -360,7 +364,7 @@ export class HMA23 extends PatternBoss {
   }
   suppressive(){/* carrier fire is handled by the capped carrierFan pattern */}
   update(dt,{players,bounds}) {
-    const mt=this.motionTime||0;shadowAnchor(this,dt,players,{dist:320,speed:48});this.x=this.anchorX+Math.sin(mt*.34)*150;this.y=this.anchorY+Math.sin(mt*.23+2)*60;
+    const mt=this.motionTime||0;shadowAnchor(this,dt,players,{dist:320,speed:48});this.x=this.anchorX+Math.sin(mt*.34+(this.arrivalLateralPhase||0))*150;this.y=this.anchorY+Math.sin(mt*.23+2)*60;
     this._escortTiers??=[.7,.45,.25];this._escortCount??=0;
     if(this._escortTiers.length&&this.hp<=this.maxHp*this._escortTiers[0]){this._escortTiers.shift();const ox=[-170,170,0][this._escortCount%3];this.command('spawn-minion',{minion:'airship',faction:this.faction,x:this.x+ox,y:this.y-150-(this._escortCount%2)*40});this._escortCount++;}
     if(this.reserveReady){this.reserveReady=false;const target=this.target(players);for(let i=0;i<4;i++){const ox=(i-1.5)*60,side=ox<0?-1:1;
@@ -1708,7 +1712,7 @@ export class StaakenRVI extends RegionalPatternBoss {
     if(this.due('para',dt,(this.t.suppressiveInterval||2.7)*.88)){
       const p=this.target(players);
       if(p&&Math.hypot(p.x-this.x,p.y-this.y)<780){const gy=((this.gunSide*=-1)>0?58:-83)*(this.regionalScale||1),mx=this.x,my=this.y+gy,a=Math.atan2(p.y-my,p.x-mx);
-        this.command('muzzle',{x:mx,y:my});this.fan(mx,my,a,3,.24,this.t.bulletSpeed*.92,'staaken-mg');}
+        this.command('muzzle',{x:mx,y:my,weapon:'mg'});this.fan(mx,my,a,3,.24,this.t.bulletSpeed*.92,'staaken-mg');}
     }
     if(doomed&&this.due('dump',dt,6.5)){
       const p=this.target(players),cx=p?p.x:this.x,cy=p?p.y:this.y+200;
@@ -1814,7 +1818,7 @@ export class LondonRaidApron extends LondonApron {
    const pts=[0,1,2,3,4,5].map(()=>({x:Math.min(bounds.right-30,Math.max(bounds.left+30,bounds.left+30+this.rng()*(w-60))),y:this.y+120+this.rng()*Math.max(120,bounds.bottom-this.y-160)}));
    this.command('spawn-minefield',{points:pts,warning:1.15,life:11,maxMines:14,sourceX:this.x,sourceY:this.y+60});}
   if(this.finalBlockade&&!gun.destroyed&&this.due('raid-final',dt,4.3)){const p=players.find(p=>p.alive);if(p){const x=this.x+gun.x,y=this.y+gun.y,a=Math.atan2(p.y-y,p.x-x),speed=this.t.bulletSpeed*.8;
-   this.command('muzzle',{x,y,partId:'gun'});for(let i=-1;i<=1;i++)this.hazard('projectile',{x,y,vx:Math.cos(a+i*.15)*speed,vy:Math.sin(a+i*.15)*speed,radius:5,warning:.8,visual:'london-mg',tag:'raid-gun'});}}
+   this.command('muzzle',{x,y,partId:'gun',weapon:'mg'});for(let i=-1;i<=1;i++)this.hazard('projectile',{x,y,vx:Math.cos(a+i*.15)*speed,vy:Math.sin(a+i*.15)*speed,radius:5,warning:.8,visual:'london-mg',tag:'raid-gun'});}}
  }
 }
 
@@ -1844,7 +1848,7 @@ export class GothaRaider extends PatternBoss {
  suppressive(){}
 }
 
-const constructors={'supermarine-nighthawk':SupermarineNighthawk,'siemens-schuckert-r-viii':SiemensSchuckertRVIII,'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttgart':Stuttgart,'hms-zubian':Zubian,
+const constructors={'paris-geschuetz':ParisGeschuetz,'french-counter-battery':FrenchCounterBatteryAirGroup,'supermarine-nighthawk':SupermarineNighthawk,'siemens-schuckert-r-viii':SiemensSchuckertRVIII,'paris-gun':ParisGun,lincomparable:LIncomparable,'sms-stuttgart':Stuttgart,'hms-zubian':Zubian,
   'zeppelin-l70':ZeppelinL70,hma23:HMA23,'a7v-flak':A7VFlak,'mark-v-cruiser':MarkVCruiser,
   'livens-flame-projector':LivensFlameProjector,'minenwerfer-battery':MinenwerferBattery,
   'london-apron':LondonApron,'drachen-net':DrachenMineNet,gik:GIK,ca4:Ca4,'armored-harbor-fortress':ArmoredHarborFortress,'flak-tower':FlakTowerNet,

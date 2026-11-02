@@ -1,11 +1,13 @@
 // Existing sample bank with procedural fallbacks; bounded, on-demand decoding.
 import {railAudioSamples} from './rail-audio.js?v=tame3';
+import {ruralSamplePath} from './rural-audio.js';
 const RAIL_APPROACH_SECONDS=4.2;// rail-audio.js RAIL_AUDIO_SECONDS.trainApproach
 let ctx=null,bus=null,ambienceBus=null,compressor=null,noise=null,muted=false,paused=false,master=1,priority=0,resuming=null;
 const railBuffers=new Map();
 const sources=new Map(),lastVoices=new Map();
-const PRIORITY={detonation:1.5,criticalCockpit:2,weaponImpact:1.5,criticalWing:2,criticalBody:2,criticalEngine:2,criticalFuel:2,criticalPilot:3,bossSiren:3,bossKlaxon:3,airshipArrival:3,railGunFire520:2,railShellIncoming:1,railShellIncoming520:1,railShellImpact:1,railShellImpact520:2,trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1.5,armorClink:2,whizz:1,closePass:2,airframeBreak:1.5,engineTick:0,enemyShot:0,shot:1,impact:1.5,kill:1.5,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0,environmentWind:0};
-const INTERVAL={detonation:.16,criticalCockpit:.25,hit:.09,weaponImpact:.12,criticalWing:.25,criticalBody:.25,criticalEngine:.4,criticalFuel:.5,criticalPilot:.6,upgradeChosen:.3,pickup:.09,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,rocketHeavy:.24,dartSalvo:.18,gunSalvo:.18,grenadeLaunch:.22,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
+let activeRegion=-1;
+const PRIORITY={artilleryFire:2,artilleryNavalFire:2,artilleryImpact:2,detonation:1.5,criticalCockpit:2,weaponImpact:1.5,criticalWing:2,criticalBody:2,criticalEngine:2,criticalFuel:2,criticalPilot:3,bossSiren:3,bossKlaxon:3,airshipArrival:3,railGunFire520:2,railShellIncoming:1,railShellIncoming520:1,railShellImpact:2,railShellImpact520:2,trainApproach:3,trainRoll:0,trainBrake:1,railBreech:1,railGunFire:2,materialImpact:1.5,armorClink:2,whizz:1,closePass:2,airframeBreak:1.5,engineTick:0,enemyShot:0,shot:1,impact:1.5,kill:1.5,explosion:1,headOn:2,hit:3,bossSting:3,aceSting:3,trainWhistle:3,shipHorn:3,skill:3,flameValve:3,approachWarning:3,environment:0,environmentWind:0};
+const INTERVAL={artilleryFire:.3,artilleryNavalFire:.3,artilleryImpact:.22,detonation:.16,criticalCockpit:.25,hit:.09,weaponImpact:.12,criticalWing:.25,criticalBody:.25,criticalEngine:.4,criticalFuel:.5,criticalPilot:.6,upgradeChosen:.3,pickup:.09,bossSiren:2,bossKlaxon:2,airshipArrival:3,railGunFire520:.5,railShellIncoming:.3,railShellIncoming520:.5,railShellImpact:.18,railShellImpact520:.3,trainWhistle:2.4,armorDrive:.55,armorEntry:3,armorBrake:.7,trainApproach:4,trainRoll:.25,trainBrake:.8,railBreech:.6,railGunFire:.16,materialImpact:.045,whizz:.17,closePass:.65,airframeBreak:.1,engineTick:.12,enemyShot:.065,shot:.045,impact:.055,kill:.08,explosion:.12,flak:.1,headOn:1,heavyShot:.18,rocketHeavy:.24,dartSalvo:.18,gunSalvo:.18,grenadeLaunch:.22,mortarLaunch:.5,earthImpact:.14,waterImpact:.18,navalGun:.3,armorOpen:.8,metalBreak:.25,armorClink:.05,winchRelease:.6,railClatter:1,flameValve:1,flameBurn:1,formationPass:1,approachWarning:1,shipBreak:1,uiSelect:.08,environment:6};
 let inputMedia=null;
 const sourceLimit=()=>{if(!inputMedia&&typeof window!=='undefined')inputMedia=window.matchMedia?.('(pointer:coarse)');return inputMedia?.matches?24:44};
 let duckListener=()=>{},lastDuck=-Infinity,lastDuckDepth=1,ambientVoice=false;
@@ -108,8 +110,11 @@ function loadFileCue(name){
 export function engineSampleKind(plane=''){return ROTARY.test(plane)?'engine-rotary':'engine-inline'}
 // Called during flight, never creates an AudioContext or waits for decoding.
 export function prepareSfx(plane,region){
+ activeRegion=region;
  if(!ctx||muted||paused)return;
  loadFileCue('sfx/'+engineSampleKind(plane));
+ for(const key of ['mg','hit','kill',engineSampleKind(plane)]){const original='sfx/'+key;const name=ruralSamplePath(key,original,region);if(name!==original)loadFileCue(name);}
+ for(const name of ['artillery-fire','artillery-impact','rail-fire','rail-impact'])loadFileCue('sfx/'+name);
  for(const name of ['hit-0','hit-1','hit-2','hit-3','hitmetal-0','hitmetal-1','flak-0','flak-1','flak-2','kill','mg-1','mg-2'])loadFileCue('sfx/'+name);
  const profile=REGION_AMBIENCE[region];if(profile?.sample)loadFileCue('sfx/'+profile.sample);
  // Prepare arrival cues during exploration, before the boss can enter.
@@ -181,17 +186,19 @@ export function flightAudioProfile(p={}){
 }
 export function closePassAudioProfile(speed=350){const rush=Math.max(0,Math.min(1,(speed-150)/400));return {pitch:125+65*rush,duration:.4-.13*rush,level:.055+.025*rush,air:1150+1100*rush};}
 function engineLoop(p){
- const kind=engineSampleKind(p.plane),buffer=cachedFile('sfx/'+kind);
- if(!buffer){loadFileCue('sfx/'+kind);return false}
+ const kind=engineSampleKind(p.plane),original='sfx/'+kind,name=ruralSamplePath(kind,original,activeRegion);
+ const candidate=cachedFile(name),sampleName=candidate?name:original,buffer=candidate||cachedFile(original);
+ if(!candidate)loadFileCue(name);
+ if(!buffer){loadFileCue(original);return false}
  const now=ctx.currentTime,flight=flightAudioProfile({...p,audioTime:now}),{damage}=flight;
- if(!engine||engine.kind!==kind){
+ if(!engine||engine.kind!==kind||engine.sampleName!==sampleName){
   if(engine)try{clearTimeout(engine.idle);engine.gain.gain.setTargetAtTime(0,now,.08);engine.src.stop(now+.4)}catch{}
   if(!reserve())return false;
   const src=ctx.createBufferSource(),gain=ctx.createGain(),f=ctx.createBiquadFilter();
   if(buffer.loopEndAt==null){const d=buffer.getChannelData(0);let e=d.length-1;while(e>0&&Math.abs(d[e])<.01)e--;buffer.loopEndAt=(e+1)/buffer.sampleRate}
   src.buffer=buffer;src.loop=true;src.loopStart=0;src.loopEnd=buffer.loopEndAt;f.type='lowpass';f.frequency.value=2400;gain.gain.value=0;
   src.connect(f);f.connect(gain);gain.connect(bus);src.start();
-  engine={kind,src,gain,f};track(src,f,gain);
+  engine={kind,sampleName,src,gain,f};track(src,f,gain);
  }
  const level=flight.level*master*.26;
  engine.src.playbackRate.setTargetAtTime(flight.rate*(1+damage*.008*Math.sin(now*31)),now,.12);
@@ -203,17 +210,18 @@ function engineLoop(p){
 
 function bankSample(key,level,fallback,rate=1,shape=null){
  const n=BANK[key],i=n?(bankTurn.get(key)||0)%n:0;if(n)bankTurn.set(key,i+1);
- const name=n?`sfx/${key}-${i}`:`sfx/${key}`,buffer=cachedFile(name);
- if(!buffer){loadFileCue(name);fallback?.();return}
+ const original=n?`sfx/${key}-${i}`:`sfx/${key}`,name=ruralSamplePath(key,original,activeRegion),candidate=cachedFile(name),buffer=candidate||cachedFile(original);
+ if(!candidate)loadFileCue(name);
+ if(!buffer){if(name!==original)loadFileCue(original);fallback?.();return}
  if(!reserve())return;
  const src=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();src.buffer=buffer;src.playbackRate.value=rate;f.type='lowpass';f.frequency.value=shape?.cut||16000;g.gain.value=level*master;
  src.connect(f);f.connect(g);g.connect(ambientVoice?ambienceBus:bus);track(src,f,g);src.start();
  if(shape?.duration){const now=ctx.currentTime,end=now+shape.duration;g.gain.setValueAtTime(level*master,now);g.gain.setTargetAtTime(.0001,end-.035,.012);src.stop(end+.025);}
 }
-function fileSample(name,level,fallback){
+function fileSample(name,level,fallback,rate=1){
  const buffer=cachedFile(name);if(!buffer){loadFileCue(name);fallback?.();return}
  if(!reserve())return;
- const n=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();n.buffer=buffer;f.type='lowpass';f.frequency.value=16000;g.gain.value=level*master;
+ const n=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();n.buffer=buffer;n.playbackRate.value=rate;f.type='lowpass';f.frequency.value=16000;g.gain.value=level*master;
  n.connect(f);f.connect(g);g.connect(ambientVoice?ambienceBus:bus);track(n,f,g);n.start();
 }
 // Each entry corresponds to the authoritative 18-region order.
@@ -251,14 +259,17 @@ const VOICES={
   trainRoll(){railSample('trainRoll',.28)},
   trainBrake(){railSample('trainBrake',.34)},
   railBreech(){railSample('railBreech',.38)},
-  railGunFire(){railSample('railGunFire',.95)},
-  railGunFire520(){railSample('railGunFire520',1)},
+  railGunFire(){fileSample('sfx/rail-fire',.55,()=>railSample('railGunFire',.95))},
+  railGunFire520(){fileSample('sfx/rail-fire',.64,()=>railSample('railGunFire520',1),.85)},
   railShellIncoming(){fileSample('rail-incoming-bruno',.38)},
   railShellIncoming520(){fileSample('rail-incoming-520',.42)},
-  railShellImpact(){fileSample('rail-impact-bruno',.7,()=>VOICES.earthImpact())},
-  railShellImpact520(){fileSample('rail-impact-520',.8,()=>VOICES.earthImpact())},
+  railShellImpact(){fileSample('sfx/rail-impact',.50,()=>fileSample('rail-impact-bruno',.7,()=>VOICES.earthImpact()))},
+  railShellImpact520(){fileSample('sfx/rail-impact',.60,()=>fileSample('rail-impact-520',.8,()=>VOICES.earthImpact()),.88)},
+  artilleryFire(){fileSample('sfx/artillery-fire',.42,()=>VOICES.heavyShot())},
+  artilleryNavalFire(){fileSample('sfx/artillery-fire',.40,()=>VOICES.navalGun(),.94)},
+  artilleryImpact(){fileSample('sfx/artillery-impact',.50,()=>VOICES.earthImpact())},
   materialImpact(hit){const material=typeof hit==='string'?hit:hit?.material,streak=Math.min(6,hit?.streak||1);
-    bankSample(material==='metal'?'hitmetal':'hit',material==='metal'?.23:.24,()=>VOICES.materialImpactSynth(hit),jit(material==='fabric'?1.12:material==='metal'?.96:1)*(1+Math.min(3,streak-1)*.012),{cut:material==='fabric'?4200:material==='metal'?9000:6400,duration:.10});},
+    bankSample(material==='metal'?'hitmetal':'hit',material==='metal'?.26:.27,()=>VOICES.materialImpactSynth(hit),jit(material==='fabric'?1.12:material==='metal'?.96:1)*(1+Math.min(3,streak-1)*.012),{cut:material==='fabric'?4200:material==='metal'?9000:6400,duration:.105});},
   materialImpactSynth(hit){const material=typeof hit==='string'?hit:hit?.material,streak=Math.min(6,hit?.streak||1);
     // A tighter body on repeated hits, not a critical-hit bell or volume ramp.
     if(streak>=3)tone(jit(150+streak*9),65,.055,.024,'triangle',650);
@@ -412,7 +423,7 @@ export function sfx(name,arg){
   if(name==='trainRoll'&&now-(lastVoices.get('trainApproach')??-Infinity)<RAIL_APPROACH_SECONDS-.3)return;
   lastVoices.set(voiceKey,now);priority=arg?.tactical?0:critical&&arg?.player||name==='bomberArrival'?3:PRIORITY[name]??2;
   const depth=name==='hit'?.68:name==='explosion'?.84:name==='criticalPilot'?.86:.74;
-  if(['hit','bossSiren','bossKlaxon','approachWarning','railGunFire','railGunFire520','explosion','criticalPilot'].includes(name)&&(now-lastDuck>(name==='explosion'?4:1.8)||depth<lastDuckDepth-.01)){
+  if(['artilleryFire','artilleryNavalFire','artilleryImpact','hit','bossSiren','bossKlaxon','approachWarning','railGunFire','railGunFire520','railShellImpact','railShellImpact520','explosion','criticalPilot'].includes(name)&&(now-lastDuck>(name==='explosion'?4:1.8)||depth<lastDuckDepth-.01)){
    lastDuck=now;lastDuckDepth=depth;
    ambienceBus.gain.cancelScheduledValues(now);ambienceBus.gain.setTargetAtTime(.45,now,.035);ambienceBus.gain.setTargetAtTime(1,now+.32,.38);
    try{duckListener(depth)}catch{}

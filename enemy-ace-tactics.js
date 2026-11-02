@@ -381,7 +381,7 @@ export function installEnemyAceTactics(Game,{PILOTS,PLANES,WEAPONS}){
   // Keep the sortie owner's exact reservation/retry behavior outside our slot.
   if(!readySlot(this,e))return attack.call(this,e,...args);
   const s=stateFor(this,e),p=ENEMY_ACE_PROFILES[e.bossPilot],contact=this.enemyCombatTarget(e),now=nowOf(this);
-  if(!aceShotReady(this,e,contact,{signature:true})||!['mccudden','berthold','nungesser'].includes(e.bossPilot)&&this.directorAttackAllowed?.(e)===false){
+  if(!aceShotReady(this,e,contact,{signature:true})){
    s.pendingCooldown??=e.abilityTimer;e.abilityTimer=.25;s.skillReady=true;return;
   }
   if(s.pendingCooldown!=null){e.abilityTimer=s.pendingCooldown;s.pendingCooldown=null}

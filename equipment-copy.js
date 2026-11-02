@@ -4,10 +4,7 @@ export const EQUIPMENT_COPY={
   "상시 편대기 1기가 합류합니다. 출격당 2회, 전체 편대는 최대 7기까지 가능합니다.",
   "Permanent wingmen +1. At most 2 selections per sortie; 7 permanent wingmen total."
  ],
- "spread": [
-  "기관총 발사체가 최대 5발까지 1발 늘어납니다. 추가 탄약은 소모하지 않습니다.",
-  "Add one machine-gun projectile, up to five, without consuming extra ammunition."
- ],
+ "spread": ["주무장의 추가탄이 1발 늘어납니다(최대 5발). 발사한 탄환마다 탄약을 소모합니다.", "Adds one primary round, up to five extra rounds. Each fired round consumes ammunition."],
  "precisionSynchronizer": [
   "1.5초 간격 안에 같은 적에게 기관총을 6회 연속 맞히면 다음 탄환 피해가 25% 증가합니다. 재발동 대기시간은 3초입니다.",
   "Hit the same target 6 times with your machine guns, with at most 1.5s between hits. The next MG round deals +25% damage. 3s cooldown."
@@ -36,26 +33,14 @@ export const EQUIPMENT_COPY={
   "내구도가 처음 25% 이하가 되면 최대 내구도의 12%를 회복합니다. 출격당 1회이며 치명 피해에는 발동하지 않습니다.",
   "The first time durability drops to 25% or less, immediately restore 12% max durability. Once per sortie; cannot prevent lethal damage."
  ],
- "fighterSupply": [
-  "현재와 이후 합류하는 상시 편대기의 피해가 35% 증가하고 발사 간격이 20% 줄어듭니다. 기체 수는 변하지 않습니다.",
-  "Upgrades current and future permanent wingmen. Damage +35%, firing interval −20%; formation size unchanged."
- ],
+ "fighterSupply": ["상시 편대의 피해가 35% 증가하고 발사 간격이 20% 줄어듭니다. 특수무장 편대기가 보유 장비로 엄호하며 에이스 윙맨은 제외됩니다.", "Permanent wing damage increases by 35% and firing intervals decrease by 20%. Specialist wingmen use your equipment; ace wingmen are excluded."],
  "mercedesEngine": [
   "기본 속도가 20% 증가하며 1.2초간 직진하면 총 55%까지 증가합니다. 급선회하면 0.75초에 걸쳐 추가 출력이 줄어듭니다.",
   "Base flight speed +20%; 1.2s straight flight raises total speed to +55%. Hard turns reduce output over 0.75s."
  ],
- "combinedProjectiles": [
-  "로켓·수류탄을 총수 그대로 0.24초 간격으로 나누어 발사합니다. 두 번째 공격의 피해는 25%, 반경은 10% 늘어나며 단발은 피해가 15% 늘어납니다.",
-  "Splits rockets/grenades into packets 0.24s apart without increasing their total. Second packet: damage +25%, blast radius +10%. Single projectile: damage +15%."
- ],
- "amatolCharge": [
-  "폭발 피해와 반경이 40% 증가합니다. 폭발로 격추하면 원 피해의 30%로 추가 폭발하며 연쇄하지 않습니다.",
-  "Explosive damage and effective blast radius +40%. Explosive kills trigger a secondary fragmentation blast at 30% of the original damage; secondary blasts do not chain."
- ],
- "lufberyCircle": [
-  "가까운 상시 편대기 1/2/3/4기 이상의 엄호로 받는 피해가 20/25/30/35% 감소합니다. 편대와 멀어지면 해제됩니다.",
-  "Damage taken −20/25/30/35% with 1/2/3/4 or more of your permanent wingmen providing nearby cover. Cover ends when you fly too far from them."
- ],
+ "combinedProjectiles": ["주무장과 쿠퍼 폭탄을 한꺼번에 쏘지 않고 시간차로 발사합니다. 각 탄환은 발사 순간의 기체 위치와 조준 방향을 따릅니다.", "Fires primary volleys and Cooper bombs in staggered bursts. Each shot uses your position and aim when it fires."],
+ "amatolCharge": ["폭발 피해와 반경이 40% 증가합니다. 폭발하지 않는 주무장 탄환에도 작은 착탄 폭발을 추가합니다.", "Increases explosion damage and radius by 40%. Adds a small impact explosion to non-explosive primary rounds."],
+ "lufberyCircle": ["가까운 상시 편대기가 본기를 엄호해 피해를 줄입니다. 특수무장 편대기는 표적을 돌며 공격하고, 멀어지면 엄호 효과가 줄어듭니다.", "Nearby permanent wingmen reduce your damage taken. Specialist wingmen circle their targets and provide less cover at a distance."],
  "redScarf": [
   "속도가 20%, 후방 추적 중에는 총 35% 증가합니다. 추적 거리는 25% 늘고 포착 시간은 35% 줄어듭니다.",
   "Speed +20%, or +35% while tail-locked. Pursuit range +25%, lock time −35%."
@@ -88,10 +73,7 @@ export const EQUIPMENT_COPY={
   "선회기동 쿨타임이 50% 줄고 기동 중 1.05초간 무적이 됩니다.",
   "Maneuver cooldown −50% and maneuver invulnerability lasts 1.05 seconds."
  ],
- "motorCannon": [
-  "3초마다 피해 240의 비관통 37mm 포탄을 자동 발사합니다. 명중 시 50% 화염 폭발을 일으키며 폭발물 강화가 적용됩니다.",
-  "Automatically fires a 37 mm shell forward every 3s: 240 damage plus a 50% fiery blast on impact. Does not pierce. Ordnance damage upgrades apply."
- ],
+ "motorCannon": ["3초마다 피해 240의 비관통 37mm 포탄을 자동 발사합니다. 명중하면 주변 적에게 직격 피해의 50%만큼 폭발 피해를 주며 폭발물 강화가 적용됩니다.", "Automatically fires a non-piercing 37mm shell every 3 seconds for 240 damage. On impact, nearby enemies take 50% of its direct damage as blast damage; explosive upgrades apply."],
  "loEmblem": [
   "최대 내구도가 50% 줄고 기관총·폭발물·편대 피해가 50% 증가합니다. 편대 연사는 30%, 속도와 선회력은 25% 증가합니다.",
   "Maximum durability −50%; machine-gun, explosive, and formation damage +50%; formation fire rate +30%; flight speed and turn rate +25%."
@@ -112,22 +94,10 @@ export const EQUIPMENT_COPY={
   "경험치 획득량이 30% 증가합니다. 협동에서는 본인에게만 적용됩니다.",
   "Experience gain +30%, applied only to its owner in co-op."
  ],
- "rearGunner": [
-  "기관총 조준이 초당 약 66° 회전해 2.7초 후 후방을 향합니다. 총기 수와 탄약 소모는 변하지 않습니다.",
-  "Rotates machine-gun aim by about 66° per second, reaching fully behind in about 2.7s. Gun count and ammunition consumption are unchanged."
- ],
- "quadLewis": [
-  "일반 추가탄 상한과 별개로 총구마다 기관총 탄환이 4발 늘어납니다.",
-  "Adds four machine-gun rounds per muzzle beyond the normal projectile cap."
- ],
- "cow37": [
-  "기관총을 초당 1발·피해 280·탄창 24발·재장전 4.6초의 비관통 37mm 포로 바꾸며 명중 시 50% 화염 폭발을 일으킵니다. 기관총·폭발물 피해와 비행장갑 보정은 적용되지만 기관총 연사·추가탄 강화는 적용되지 않습니다.",
-  "Replace machine guns with a non-piercing 37mm cannon: 280 damage, 1 shot/s, 24 rounds, 4.6s reload and a 50% fire blast on impact. Gun/explosive damage and flight-glove bonuses apply; gun fire-rate and extra-projectile upgrades do not."
- ],
- "rankinShell": [
-  "3.2초마다 후방 220°의 일반 탄환을 제거하고 피해 32를 줍니다. 중탄과 보스 경고 공격은 제거하지 못합니다.",
-  "Every 3.2 s, clear ordinary bullets across the rear 220° and deal 32 damage. Heavy rounds and boss warning attacks remain."
- ],
+ "rearGunner": ["주무장 총좌가 초당 약 66°씩 회전합니다. COW 포와 쿼드 루이스에도 적용됩니다.", "Rotates the primary turret at about 66° per second. Also applies to COW and Quad Lewis."],
+ "quadLewis": ["주무장 발사 갈래가 3개 늘어납니다. 발사한 탄환마다 탄약을 소모합니다.", "Adds three firing lanes to the primary weapon. Each fired round consumes ammunition."],
+ "cow37": ["기관총을 비관통 37mm 포로 교체합니다. 포탄은 명중하면 폭발하며 발사할 때마다 탄약을 소모합니다.", "Replaces the machine guns with a non-piercing 37mm cannon. Shells explode on impact and consume ammunition when fired."],
+ "rankinShell": ["후방이나 COW·쿠퍼·갈고리에서 파편을 퍼뜨려 공격하고 적탄을 제거합니다. 중탄과 보스 경고 공격은 제거하지 못합니다.","Releases shrapnel behind you or through COW, Cooper or hooks to damage enemies and clear bullets. Heavy and warned boss attacks cannot be cleared."],
  "grunkreuz": [
   "독가스에 면역이 되고 4.5초간 0.35초마다 후방으로 가스를 분출하며, 가스는 3초간 남아 0.6초마다 최대 내구도의 9% 피해를 줍니다. 충전은 7초이며 분출·충전시간에 액티브 쿨타임 감소가 최대 50% 적용됩니다.",
   "Become gas-immune and vent gas every 0.35s for 4.5s; clouds last 3s and deal 9% of your maximum durability every 0.6s. Recharge: 7s; Active cooldown reductions shorten venting and recharge by up to 50%."
@@ -144,10 +114,7 @@ export const EQUIPMENT_COPY={
   "기관총 피해 증가량이 25%p, 탄띠 용량이 75% 늘어납니다. 재장전 시간은 35% 줄어듭니다.",
   "Machine-gun damage bonus +25 percentage points, belt capacity +75% and reload time −35%."
  ],
- "urLeica": [
-  "출격 종료 시 최종 격추 기록이 10% 증가합니다. 소수점은 버리며 출격당 한 번 획득합니다.",
-  "Records your combat record on film. Final kill record +10% at the end of the sortie, rounded down."
- ],
+ "urLeica": ["출격 종료 시 격추 기록이 10% 증가합니다.", "Increases the final kill record by 10% at the end of the sortie."],
  "badinGauge": [
   "직진 1.2초로 지속 속도 증가분의 75%를 기관총·폭발물 피해로 전환하며 최대 30% 증가합니다. 급선회 시 0.75초에 감소하고 메르세데스 출력은 반영하지만 회피·돌진·순간가속은 제외합니다.",
   "After 1.2s of straight flight, convert 75% of sustained speed gains into gun/explosive damage, up to +30%. This fades over 0.75s during hard turns; Mercedes output counts, but dodges, charges and brief boosts do not."
@@ -160,22 +127,10 @@ export const EQUIPMENT_COPY={
   "아군 에이스 1명이 무작위로 합류합니다. 주력 무장과 반대 계열로 엄호하며 기체 성장에 따라 강해집니다.",
   "One random allied ace joins, covering you with machine guns or rockets opposite your main weapon and growing stronger with your aircraft."
  ],
- "buckinghamBelt": [
-  "기관총을 3회 연속 명중시키면 적 기체에 불을 붙입니다.",
-  "Three consecutive machine-gun hits ignite the target."
- ],
- "cooperRack": [
-  "4초마다 전방 표적에 소형 폭탄 2발을 연속 투하합니다.",
-  "Drops two light bombs at a forward target every 4s."
- ],
- "fieryGrapnel": [
-  "3.5초마다 근접 교차한 적을 갈고리로 타격해 3초간 불태웁니다. 기관총 강화의 절반을 직접 피해에 반영하며 최대 50%까지 증가합니다.",
-  "Every 3.5 s, hook a close-flyby target and burn it for 3 s. Direct damage inherits half of gun damage upgrades, capped at 50%."
- ],
- "flechettes": [
-  "3초마다 관통 화살탄 12발을 발사하며 조종석 격추확률은 24%(에이스 4%)입니다. 기관총 강화의 50%를 반영해 피해가 최대 50% 증가하고 중장갑에는 40% 피해를 줍니다.",
-  "Fire 12 piercing darts every 3s; cockpit kill chance is 24% (4% against aces). Inherits 50% of gun upgrades, capped at +50% damage; deals 40% damage to heavy armor."
- ],
+ "buckinghamBelt": ["기관총을 3회 맞히면 적에게 불을 붙입니다. 화살탄·포탄·폭탄·갈고리에도 적용되며 화상은 중첩되지 않습니다.", "Three machine-gun hits ignite the target. Darts, shells, bombs and hooks also carry fire; burns do not stack."],
+ "cooperRack": ["4초마다 전방 표적에 폭탄 2발을 투하합니다. 보유한 소이·화살·가스·연막·파편 장비의 효과도 전달합니다.", "Drops two bombs at forward targets every 4 seconds. Carries the effects of equipped fire, dart, gas, smoke and shrapnel equipment."],
+ "fieryGrapnel": ["적과 가까이 스치며 맞히면 화염 갈고리를 부착합니다. 준비된 쿠퍼 폭탄 1발이나 파편·가스도 함께 전달합니다.", "A close flyby hit attaches a burning hook. It also delivers one ready Cooper bomb or a ready shrapnel or gas charge."],
+ "flechettes": ["주무장을 적을 관통하는 화살탄으로 바꿉니다. COW 포탄과 쿠퍼 폭탄은 관통 화살 12발을 퍼뜨립니다.", "Replaces primary rounds with piercing darts. COW shells and Cooper bombs release 12 piercing darts each."],
  "veryPistol": [
   "9초마다 최근 맞힌 전방 표적을 우선 지정해 6초간 집중 공격합니다. 표적이 사라지면 남은 시간에 한 번 재지정합니다.",
   "Every 9 s, prioritize a recently hit forward target for 6 s of focused fire. If it is lost, retarget once within the remaining duration."
@@ -223,7 +178,7 @@ export function conciseEquipmentDescription(id,raw,locale='ko',translated=raw){
  case 'explosives':{const m=text.match(/피해 \+([\d.]+)%p/);if(!m)return translated;return en?`Explosive damage increases by ${m[1]} percentage points.`:`폭발물 피해 증가량이 ${m[1]}%p 늘어납니다.`;}
  case 'command':return en?`Wingman and formation Active damage +${n[0]} percentage points; fire rate +${n[1]} percentage points. Total manual bonuses are capped at +150% damage and +50% fire rate.`:`윙맨·편대 액티브의 피해 증가량이 ${n[0]}%p, 연사 증가량이 ${n[1]}%p 늘어납니다. 교범 누적 증가량은 각각 150%, 50%까지 적용됩니다.`;
  case 'turn':return en?`Turn rate +${n[0]}%, speed +${n[1]}%, straight-flight recovery +${n[2]}%. Total bonuses are capped at +150%, +40% and +60%, respectively.`:`선회력 ${n[0]}%, 속도 ${n[1]}%, 직선 비행 회복이 ${n[2]}% 증가합니다. 누적 증가량은 각각 150%, 40%, 60%까지 적용됩니다.`;
- case 'armor':return en?`Maximum durability increases by ${first}; restore the actual increase immediately. Total hull bonus is capped at +180; bomber multipliers/caps and LO reductions apply.`:`최대 내구도가 ${first} 증가하고 실제 증가량만큼 회복합니다. 동체 강화는 누적 +180까지이며 폭격기 배율·상한과 LO 감소가 적용됩니다.`;
+ case 'armor':return en?`Maximum durability increases by ${first}; restore the actual increase immediately. Hull upgrades add at most 180 durability.`:`최대 내구도가 ${first} 증가하고 실제 증가량만큼 회복합니다. 동체 강화로 얻는 내구도는 최대 180입니다.`;
  case 'regen':return en?`Restore an extra ${first}% of maximum durability per second, up to 4% total.`:`초당 최대 내구도 회복량이 ${first}%p 증가합니다(누적 최대 4%).`;
  case 'cooldown':return en?`Active cooldown decreases by ${first}%, down to 50% of its base duration.`:`액티브 쿨타임이 ${first}% 줄어듭니다(기본의 50%까지).`;
  case 'bomber':return en?`1 bomber drops 5 bombs every ${first}s. Each repeat reduces the interval by 2s, down to 10s.`:`${first}초마다 폭격기 1대가 폭탄 5발을 투하합니다. 중복 획득 시 주기가 2초 줄어듭니다(최소 10초).`;
@@ -232,7 +187,9 @@ export function conciseEquipmentDescription(id,raw,locale='ko',translated=raw){
 }
 // Selection summaries prioritize the decision and its main cost, not a full parameter sheet.
 export const EQUIPMENT_CHOICE_COPY={
- "spread": ["기관총 탄환 +1(최대 5). 추가 탄약 소모는 없습니다.","MG projectiles +1 (max 5), no extra ammo."],
+ "cooperRack": ["4초마다 폭탄 2발을 투하하며 보유한 탄두 효과도 전달합니다.", "Drops 2 bombs every 4s, carrying equipped payloads."],
+ "buckinghamBelt": ["기관총 3회 명중 시 불을 붙입니다. 화상은 중첩되지 않습니다.", "Three gun hits ignite the target. Burns do not stack."],
+ "spread": ["추가탄이 1발 늘어납니다(최대 5발). 탄약도 소모합니다.", "Adds 1 extra round (max 5), consuming extra ammo."],
  "flightGloves": [
   "고속 급선회 후 근접 연사가 빨라집니다. 사거리는 20% 줄어듭니다.",
   "Fast turns boost close fire. Primary range −20%."
@@ -241,10 +198,7 @@ export const EQUIPMENT_CHOICE_COPY={
   "에이스·정예를 우선 쏩니다. 최근 맞힌 적에게 더 강합니다.",
   "Auto-fires at aces first; stronger after your hits."
  ],
- "cow37": [
-  "비관통 37mm 포로 바뀝니다. 연사·추가탄 강화는 제외됩니다.",
-  "Non-piercing 37mm gun; no MG rate/extra-round upgrades."
- ],
+ "cow37": ["기관총을 탄약을 소모하는 비관통 37mm 포로 바꿉니다.", "Replaces guns with an ammo-consuming, non-piercing 37mm cannon."],
  "grunkreuz": [
   "독가스에 면역이 되고 후방에 가스를 분출합니다.",
   "Gas immunity and rear gas bursts, then recharge."
@@ -253,122 +207,44 @@ export const EQUIPMENT_CHOICE_COPY={
   "직진 시 지속 속도 증가분만 피해로 바꿉니다(최대 30%).",
   "Straight flight: speed gains add damage, up to 30%. No brief boosts."
  ],
- "flechettes": [
-  "3초마다 관통탄 12발을 쏩니다. 중장갑 피해는 40%입니다.",
-  "12 piercing darts every 3s; heavy-armor damage 40%."
- ],
+ "flechettes": ["주무장을 관통 화살탄으로 바꿉니다. 포탄·폭탄은 화살 12발을 퍼뜨립니다.", "Fires piercing darts. COW shells and Cooper bombs release 12 darts."],
  "hytheCamera": [
   "3연속 명중한 적에게 6초간 사격 피해가 30% 증가합니다.",
   "3 gun hits in a row: +30% gun damage for 6s."
  ],
- "bomberTransfer": [
-  "느린 중폭격기로 바뀝니다. 다른 전환과 중복되지 않습니다.",
-  "Slower bomber: bombs/rear gun. No other conversions."
- ],
- "mgTransfer": [
-  "속도가 줄고 기관총 2정을 더합니다. 다른 전환과 중복되지 않습니다.",
-  "Slower gunship: +2 MGs. No other conversions."
- ],
- "airshipTransfer": [
-  "느린 비행선·호위기 3기를 얻습니다. 다른 전환과 중복 불가입니다.",
-  "Slower airship: 3 escorts. No other conversions."
- ],
- "wingman": [
-  "상시 편대기 +1. 출격당 2회, 전체 최대 7기입니다.",
-  "Permanent wing +1; twice per sortie, 7 total."
- ],
- "precisionSynchronizer": [
-  "같은 적 6연속 명중(간격 1.5초): 다음 탄 +25%, 대기 3초.",
-  "6 same-target hits (<1.5s): next +25%; cooldown 3s."
- ],
- "directFuse": [
-  "로켓·수류탄 직접 피해 +25%, 주변 폭발 피해 −15%.",
-  "Rocket/grenade direct damage +25%; splash −15%."
- ],
- "fragmentationFuse": [
-  "로켓·수류탄 반경 +20%, 직접 피해 −10%.",
-  "Rocket/grenade radius +20%; direct damage −10%."
- ],
+ "bomberTransfer": ["느린 중폭격기로 바뀌어 폭격·후방 사격을 합니다(다른 기체 전환 불가).", "Becomes a slow bomber with bombs and rear fire. No other conversions."],
+ "mgTransfer": ["느린 중무장기로 바뀌어 추적 기관총 2정을 씁니다(다른 기체 전환 불가).", "Becomes a slow gunship with two tracking guns. No other conversions."],
+ "airshipTransfer": ["느린 비행선으로 바뀌고 호위기 3기가 합류합니다(다른 기체 전환 불가).", "Becomes a slow airship with three escorts. No other conversions."],
+ "wingman": ["상시 편대기 1기가 합류합니다(출격당 2회, 전체 최대 7기).", "Adds 1 wingman, twice per sortie (7 total max)."],
+ "precisionSynchronizer": ["같은 적을 연속 6회 맞히면 다음 탄 피해가 25% 증가합니다.", "Six consecutive same-target hits boost the next round 25%."],
+ "directFuse": ["로켓·수류탄 직격은 25% 강해지고 폭발은 15% 약해집니다.", "Rocket/grenade hits deal 25% more; splash deals 15% less."],
+ "fragmentationFuse": ["로켓·수류탄 반경이 20% 늘고 직격 피해는 10% 줄어듭니다.", "Rocket/grenade blast radius +20%; direct-hit damage −10%."],
  "inertiaRetainer": [
   "1초 직진 후 급선회하면 0.6초간 속도 손실이 절반으로 줄어듭니다.",
   "1s straight, then turn: half speed loss for 0.6s."
  ],
- "emergencyPlating": [
-  "2초 내 연속 피격: 1.5초간 탄환 피해 −18%(대기 12초).",
-  "Hits within 2s: bullet damage −18% for 1.5s. CD 12s."
- ],
- "emergencyDope": [
-  "내구도 25% 이하: 12% 회복(출격 1회, 치명 피해 제외).",
-  "At 25% HP: repair 12%, once per sortie. Not lethal."
- ],
- "fighterSupply": [
-  "상시 편대 피해 +35%, 발사 간격 −20%. 기체 수는 그대로입니다.",
-  "Permanent wings: damage +35%, interval −20%."
- ],
- "mercedesEngine": [
-  "기본 속도 +20%, 직진 시 +55%까지. 급선회하면 줄어듭니다.",
-  "Speed +20%, up to +55% straight; fades in turns."
- ],
- "combinedProjectiles": [
-  "시차 발사: 2차 피해 +25%·반경 +10%, 단발 피해 +15%. 총수는 같습니다.",
-  "Staggered fire: 2nd hit +25%, radius +10%; solo +15%."
- ],
- "amatolCharge": [
-  "폭발 피해·반경 +40%. 격추 시 30% 추가 폭발(연쇄 없음).",
-  "Blast damage/radius +40%; kill blast 30%, no chain."
- ],
- "lufberyCircle": [
-  "편대 1~4기 근접 엄호: 피해 −20~35%. 이탈하면 해제됩니다.",
-  "1–4 nearby wings: damage taken −20–35%. Stay close."
- ],
- "redScarf": [
-  "속도 +20%, 후방 추적 시 +35%. 추적 거리·포착도 개선됩니다.",
-  "Speed +20%, or +35% tailing; easier tail lock."
- ],
- "prancingHorse": [
-  "속도 +20%, 전방에서 받는 피해 −25%.",
-  "Speed +20%; front damage taken −25%."
- ],
+ "emergencyPlating": ["연속 피격 시 1.5초간 탄환 피해가 18% 줄어듭니다.", "Repeated hits cut bullet damage 18% for 1.5s."],
+ "emergencyDope": ["내구도 25% 이하에서 12% 회복합니다(출격당 1회, 치명 피해 제외).", "Once a sortie, repairs 12% at 25% HP unless lethal."],
+ "fighterSupply": ["상시 편대 피해가 35% 늘고 사격 간격이 20% 줄어듭니다(에이스 제외).", "Wing damage rises 35%; fire intervals drop 20%. Excludes aces."],
+ "mercedesEngine": ["속도가 20%, 직진 시 총 55%까지 증가합니다.", "Speed rises 20%, reaching 55% in straight flight."],
+ "combinedProjectiles": ["주무장과 쿠퍼 폭탄을 시간차로 나누어 발사합니다.", "Fires primary volleys and Cooper bombs in staggered bursts."],
+ "amatolCharge": ["폭발 피해·반경이 40% 늘고 일반탄에도 착탄 폭발이 생깁니다.", "Blast damage and radius rise 40%. Ordinary rounds also explode."],
+ "lufberyCircle": ["가까운 상시 편대기가 본기를 엄호해 피해를 줄입니다.", "Nearby permanent wingmen reduce your damage taken."],
+ "redScarf": ["속도가 20%, 후방 추적 중 35% 늘고 포착이 빨라집니다.", "Speed +20%, or +35% tailing; easier tail lock."],
+ "prancingHorse": ["속도가 20% 늘고 전방에서 받는 피해가 25% 줄어듭니다.", "Speed rises 20%; damage taken from the front drops 25%."],
  "telescope": [
   "전방 표적을 짧게 조준 보정합니다. 분석 표적을 우선합니다.",
   "Brief forward aim correction; analyzed targets first."
  ],
- "sparkPlug": [
-  "10초마다 내구도 8% 회복, 수리품으로 12% 추가 회복(대기 10초).",
-  "Repair 8% / 10s; pickups add 12% (10s cooldown)."
- ],
- "immelmannManual": [
-  "기동 쿨타임 −50%, 기동 중 1.05초간 무적입니다.",
-  "Maneuver cooldown −50%; invulnerable for 1.05s."
- ],
- "motorCannon": [
-  "3초마다 비관통 37mm 포탄을 쏩니다. 명중 시 화염 폭발합니다.",
-  "Non-piercing 37mm shot every 3s; fiery impact."
- ],
- "loEmblem": [
-  "내구도 −50%, 피해 +50%, 편대 연사 +30%, 속도·선회 +25%.",
-  "HP −50%; damage +50%, wing rate +30%, flight +25%."
- ],
- "sacredCowling": [
-  "근거리 공격 +25%, 받는 근거리 탄환 피해 최대 −20%.",
-  "Close damage +25%; close bullet damage up to −20%."
- ],
- "steelPlate": [
-  "기관총·소구경 피해 −30%, 속도·선회 −10%.",
-  "Small-caliber damage taken −30%; speed/turn −10%."
- ],
- "rearGunner": [
-  "주기관총 조준이 후방까지 회전합니다. 총기·탄약 수는 그대로입니다.",
-  "MG aim rotates to the rear; same guns and ammo."
- ],
- "quadLewis": [
-  "총구마다 기관총 탄환 4발을 추가합니다(일반 상한과 별도).",
-  "Adds 4 MG rounds per muzzle beyond the normal cap."
- ],
- "rankinShell": [
-  "3.2초마다 후방 탄막을 지웁니다. 중탄·보스 경고탄은 제외됩니다.",
-  "Clears rear bullets every 3.2s; not heavy/boss shots."
- ],
+ "sparkPlug": ["10초마다 8% 수리하고 수리품은 12% 더 회복합니다(대기 10초).", "Repairs 8% every 10s. Pickups repair 12% extra, once per 10s."],
+ "immelmannManual": ["선회기동 쿨타임이 50% 줄고 기동 중 1.05초간 무적이 됩니다.", "Halves maneuver cooldown; grants 1.05s invulnerability."],
+ "motorCannon": ["3초마다 비관통 포탄을 쏴 주변까지 폭발 피해를 줍니다.", "Fires blast shells every 3s. Does not pierce."],
+ "loEmblem": ["내구도가 50% 줄고 피해·편대 연사·속도·선회력이 증가합니다.", "Halves HP; boosts damage, wing fire rate and agility."],
+ "sacredCowling": ["근거리 피해가 25% 늘고 받는 근거리 탄환 피해는 최대 20% 줄어듭니다.", "Close damage rises 25%; nearby bullet damage taken drops up to 20%."],
+ "steelPlate": ["소구경 탄환 피해가 30%, 속도·선회력이 10% 줄어듭니다.", "Small-caliber damage taken drops 30%; speed and turning drop 10%."],
+ "rearGunner": ["주무장 총좌가 회전합니다. COW 포와 쿼드에도 적용됩니다.", "Rotates the primary turret, including COW and Quad Lewis."],
+ "quadLewis": ["주무장 발사 갈래가 3개 늘며 탄환마다 탄약을 소모합니다.", "Adds three primary firing lanes. Each round consumes ammunition."],
+ "rankinShell": ["파편으로 공격하고 경량 적탄을 지웁니다(보스 경고 공격 제외).", "Shrapnel clears light rounds, not boss warning attacks."],
  "kaiserFog": [
   "12초마다 3초간 연막에 숨어 적 추적을 끊습니다.",
   "Break enemy tracking for 3s every 12s."
@@ -377,26 +253,14 @@ export const EQUIPMENT_CHOICE_COPY={
   "경험치와 수리품을 멀리서 회수합니다. 수리품은 더 멀리 끌어옵니다.",
   "Attracts distant XP and repairs; repairs reach farther."
  ],
- "maximBelt": [
-  "기관총 피해 +25%p, 탄띠 +75%, 재장전 −35%.",
-  "MG damage +25pp, belt +75%, reload −35%."
- ],
- "urLeica": [
-  "출격 종료 시 격추 기록 +10%(소수점 버림). 출격당 한 번입니다.",
-  "Final kill record +10%, rounded down; once per sortie."
- ],
- "heineckeRettungsfallschirm": [
-  "치명 피해 시 재출격합니다(출격당 2회, 대기 180초).",
-  "Survive lethal damage: 2 relaunches, 180s cooldown."
- ],
+ "maximBelt": ["기관총 피해·탄띠 용량이 늘고 재장전이 35% 빨라집니다.", "Boosts gun damage and belt capacity; cuts reload time by 35%."],
+ "urLeica": ["출격 종료 시 격추 기록이 10% 증가합니다.", "Increases the final kill record by 10% at the end of the sortie."],
+ "heineckeRettungsfallschirm": ["치명 피해 시 재출격합니다(출격당 2회, 대기 180초).", "Escapes lethal damage: two relaunches per sortie, 180s cooldown."],
  "aceWingman": [
   "무작위 에이스 1명이 주력 무장과 반대 계열로 엄호합니다.",
   "A random allied ace covers the opposite weapon family."
  ],
- "fieryGrapnel": [
-  "3.5초마다 근접 갈고리로 공격하고 3초간 불태웁니다.",
-  "Close-flyby hook every 3.5s; burns for 3s."
- ],
+ "fieryGrapnel": ["근접 교차 사격으로 적에게 화염 갈고리를 부착합니다.", "A close flyby hit attaches a burning hook to the enemy."],
  "veryPistol": [
   "9초마다 6초간 집중 공격합니다. 표적 소실 시 한 번 재지정합니다.",
   "Focus fire for 6s every 9s; retarget once if lost."
@@ -411,18 +275,15 @@ export const EQUIPMENT_CHOICE_COPY={
  ]
 };
 export function conciseEquipmentChoice(id,description,locale='ko'){
- const en=locale==='en',full=conciseEquipmentDescription(id,description,locale,description);
- const n=[...String(description||'').matchAll(/\d+(?:\.\d+)?/g)].map(m=>m[0]);
- if(n.length){switch(id){
- case 'rockets':case 'mines':{const bonus=String(description).match(/(?:증가량이 |damage \+)([\d.]+)(?:%p| percentage points)/);return en?`${id==='rockets'?'Rockets':'Grenades'} +1 (max 5)${bonus?`; explosive damage +${bonus[1]}pp`:''}.`:`${id==='rockets'?'로켓 +1단계':'수류탄 +1개'}(최대 5)${bonus?`, 폭발 피해 +${bonus[1]}%p`:''}.`;}
- case 'bomber':{const interval=en?(String(description).match(/every ([\d.]+)s/)?.[1]||n[0]):n[0];return en?`1 bomber / 5 bombs every ${interval}s. Repeats: −2s (min 10s).`:`폭격기 1대·5발/${interval}초. 중복 주기 −2초(최소 10초).`;}
- case 'spread':return en?'MG rounds +1 (max 5). No extra ammo.':'기관총 탄환 +1(최대 5). 추가 탄약 소모는 없습니다.';
- case 'armor':return en?`Durability +${n[0]}; repairs the gain. Hull cap: +180.`:`내구도 +${n[0]}, 증가량만큼 회복합니다. 강화 누적 상한은 +180입니다.`;
- case 'regen':return en?`Repair +${n[0]}% of max durability per second (cap 4%).`:`초당 최대 내구도 회복이 ${n[0]}%p 늘어납니다(최대 4%).`;
- case 'command':return en?`Wing damage +${n[0]}pp / rate +${n[1]}pp (caps +150% / +50%).`:`편대 피해 +${n[0]}%p·연사 +${n[1]}%p. 누적 상한은 +150%·+50%입니다.`;
- case 'turn':return en?`Turn +${n[0]}%, speed +${n[1]}%, recovery +${n[2]}% (caps 150/40/60%).`:`선회 +${n[0]}%·속도 +${n[1]}%·회복 +${n[2]}%(상한 150/40/60%).`;
- case 'rate':return en?`Firing interval −${n[0]}% (minimum 0.045s).`:`발사 간격이 ${n[0]}% 줄어듭니다(최소 0.045초).`;
- case 'cooldown':return en?`Active cooldown −${n[0]}% (minimum 50% of base).`:`액티브 쿨타임이 ${n[0]}% 줄어듭니다(기본의 50%까지).`;
- }}
- return EQUIPMENT_CHOICE_COPY[id]?.[en?1:0]||full;
+ const en=locale==='en',n=[...String(description||'').matchAll(/\d+(?:\.\d+)?/g)].map(m=>m[0]);
+ if(n.length)switch(id){
+ case 'armor':return en?`Adds ${n[0]} max durability and repairs the gain.`:`최대 내구도가 ${n[0]} 늘고 증가량만큼 회복합니다.`;
+ case 'command':return en?`Wing damage gains ${n[0]}pp and fire rate gains ${n[1]}pp.`:`편대 피해 증가량이 ${n[0]}%p, 연사 증가량이 ${n[1]}%p 늘어납니다.`;
+ case 'turn':return en?`Turning rises ${n[0]}%, speed ${n[1]}%, speed recovery ${n[2]}%.`:`선회력이 ${n[0]}%, 속도가 ${n[1]}%, 속도 회복이 ${n[2]}% 증가합니다.`;
+ case 'regen':return en?`Repairs ${n[0]}% more max HP per second, up to 4%.`:`초당 내구도 회복량이 ${n[0]}%p 늘어납니다(최대 4%).`;
+ case 'cooldown':return en?`Cuts Active cooldown by ${n[0]}%, to half its base at most.`:`액티브 쿨타임이 ${n[0]}% 줄어듭니다(기본의 50%까지).`;
+ case 'bomber':{const t=en?(String(description).match(/every ([\d.]+)s/)?.[1]||n[0]):n[0];return en?`1 bomber drops 5 bombs every ${t}s.`:`${t}초마다 폭격기 1대가 폭탄 5발을 투하합니다.`;}
+ case 'rockets':case 'mines':{const bonus=String(description).match(/(?:증가량이 |damage \+|damage increases by )([\d.]+)(?:%p| percentage points)/);return en?`${id==='rockets'?'Adds 1 rocket level':'Adds 1 grenade'} (max 5).${bonus?` Blast damage gains ${bonus[1]}pp.`:''}`:`${id==='rockets'?'로켓이 1단계 강화됩니다':'수류탄이 1개 늘어납니다'}(최대 5).${bonus?` 폭발 피해가 ${bonus[1]}%p 늘어납니다.`:''}`;}
+ }
+ return EQUIPMENT_CHOICE_COPY[id]?.[en?1:0]||conciseEquipmentDescription(id,description,locale,description);
 }

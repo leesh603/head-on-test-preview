@@ -1,3 +1,4 @@
+import {synthesisDescription} from './weapon-synthesis.js';
 import {conciseEquipmentChoice} from './equipment-copy.js';
 import {medalDisplayName} from './equipment-names.js';
 import {passiveMedalFaction,passiveMedalName,passiveMedalDescription} from './passive-medal-copy.js';
@@ -21,6 +22,7 @@ export function categoryName(id){return label(CATEGORIES[id]||'공통')}
 export function reinforcementName(u,p,planes){if(u.id==='passiveMedal')return passiveMedalName(passiveMedalFaction(p,planes),getLocale());if(u.id==='ironCross')return medalDisplayName(planes[p?.plane]?.faction,getLocale());return i18nUpgradeName(u.id,u.name)}
 export function reinforcementIconId(id){return WEAPON_MOD_BY_ID[id]?.icon||id}
 export function choiceDescription(id,description,owner){
+ const composed=synthesisDescription(owner,id,getLocale(),true);if(composed)return composed;
  if(id==='passiveMedal')return getLocale()==='en'?"Enhances the pilot’s unique Passive.":'파일럿 고유 패시브를 강화합니다.';
  // Cards state the key effect and cost; held/codex text retains exact parameters.
  return cleanDescription(conciseEquipmentChoice(id,description,getLocale()));

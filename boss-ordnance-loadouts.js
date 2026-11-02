@@ -8,6 +8,8 @@ export const BOSS_LOADOUTS=Object.freeze({
  'supermarine-nighthawk':['machine-gun','he','iron-bomb'],
  'siemens-schuckert-r-viii':['machine-gun','iron-bomb'],
  'paris-gun':['machine-gun','rail-shell','fragmentation','gas'],
+ 'paris-geschuetz':['machine-gun','strategic-artillery'],
+ 'french-counter-battery':['machine-gun','air-bomb','counterbattery'],
  lincomparable:['machine-gun','rail-shell','fragmentation','gas'],
  'sms-stuttgart':['ap','fragmentation','machine-gun','puw'],
  'hms-zubian':['he','mortar','torpedo'],
@@ -43,12 +45,18 @@ export const ORDNANCE_NAMES=Object.freeze({
  'machine-gun':'기관총',ap:'대공 철갑탄',he:'고폭탄',mortar:'박격포탄',fragmentation:'파편탄',
  'rail-shell':'열차포탄',rocket:'르프리외르 로켓',dart:'강철 화살탄','rifle-grenade':'소총유탄',
  cooper:'쿠퍼 폭탄',puw:'PuW 폭탄',hales:'헤일스 폭탄','iron-bomb':'철제 낙하폭탄',
- 'drone-bomb':'무인폭탄기',torpedo:'어뢰',mine:'기뢰',wire:'방공 와이어',flame:'화염 분사',incendiary:'소이탄',gas:'가스',debris:'파편'
+ 'drone-bomb':'무인폭탄기',torpedo:'어뢰',mine:'기뢰',wire:'방공 와이어',flame:'화염 분사',incendiary:'소이탄',gas:'가스',debris:'파편',
+ 'strategic-artillery':'초장거리 전략 포격','air-bomb':'항공폭탄',counterbattery:'대포대 포격'
 });
 const MG=/-mg$|armor-tracer|rviii-gun/;
 export function bossOrdnanceFamily(boss,event,part){
  const v=event.visual||'',mount=(event.sourcePartKind||part?.kind||'')+' '+(event.sourcePartArt||part?.art||part?.id||'');
  if(event.ordnanceFamily)return event.ordnanceFamily;
+ // Strategic fire and objective ordnance use their real mechanical events,
+ // not a dummy local projectile just to satisfy a generic damage classifier.
+ if(boss==='paris-geschuetz'&&event.type==='laon-shot')return 'strategic-artillery';
+ if(boss==='french-counter-battery'&&/^laon-bomb-(release|impact)$/.test(event.type||''))return 'air-bomb';
+ if(boss==='french-counter-battery'&&/^laon-counterbattery-(warning|impact)$/.test(event.type||''))return 'counterbattery';
  if(event.type==='formation-shot')return event.raidHeavy&&boss==='jasta11-circus'?'rocket':event.raidHeavy&&boss==='naval10-black-flight'?'dart':'machine-gun';
  if(v==='carpet-bomb')return event.sprite|| (boss==='ca4'?'hales':event.faction==='entente'?'cooper':'puw');
  if(/rviii-bomb|nighthawk-light-bomb/.test(v))return 'iron-bomb';
@@ -76,6 +84,11 @@ export function bossOrdnanceFamily(boss,event,part){
  return event.kind==='projectile'?'machine-gun':null;
 }
 export function bossStrongSound(family,kind){
+ if(family==='strategic-artillery')return null; // The gun owns its firing sample.
+ if(family==='air-bomb')return 'explosion';
+ if(family==='counterbattery')return 'artilleryImpact';
+ if(family==='he'||family==='ap')return kind==='projectile'?'artilleryFire':'artilleryImpact';
+ if(kind!=='projectile'&&family==='mortar')return 'artilleryImpact';
  if(kind==='projectile')return family==='rocket'?'rocketHeavy':family==='dart'?'dartSalvo':family==='machine-gun'?'gunSalvo':family==='rifle-grenade'?'grenadeLaunch':family==='mortar'?'mortarLaunch':'heavyShot';
  return /cooper|puw|hales|iron-bomb/.test(family||'')?'explosion':family==='rail-shell'?null:family==='fragmentation'?'flak':family==='flame'||family==='incendiary'?'flameBurn':family==='torpedo'?'waterImpact':family==='mortar'||family==='rifle-grenade'?'earthImpact':null;
 }

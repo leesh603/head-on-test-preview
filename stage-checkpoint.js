@@ -1,6 +1,7 @@
 // Solo checkpoints contain entry-time pilot/build data, never a live battlefield.
 import {achievementRun,syncPilotKills,primePilotKills} from './achievements.js?v=pandemonium394r2';
 import {pilotUnlockRun} from './pilot-unlocks.js?v=pilot-unlocks-shared1';
+import {STAGES} from './headon-stageboss-patterns.js?v=pandemonium394r2';
 export const STAGE_CHECKPOINT_KEY='headon.stage-checkpoint.v1';
 const VERSION=1,MAX_BYTES=512*1024,cache=new WeakMap();
 const unsafe=new Set(['__proto__','prototype','constructor','g','p','world','book','target','leader','members','_netCarrierFocus','_netCarrierGuard']);
@@ -41,7 +42,11 @@ export function readStageCheckpoint(storage=checkpointStorage()){
   const raw=storage?.getItem(STAGE_CHECKPOINT_KEY);if(!raw||raw.length>MAX_BYTES)return null;
   const s=JSON.parse(raw),stage=s.stage,p=s.player;
   if(s.version!==VERSION||typeof s.pilot!=='string'||typeof s.plane!=='string'||!p||p.pilot!==s.pilot||p.plane!==s.plane||!(p.hp>0)||!(p.maxHp>=p.hp)||!Number.isFinite(p.t)||p.t<0)return null;
-  if(!stage||!['explore','final-arena'].includes(stage.phase)||!Number.isInteger(stage.stageIndex)||stage.stageIndex<0||stage.stageIndex>18||!Number.isInteger(stage.loopIndex)||stage.loopIndex<0||![0,1].includes(stage.capitalRound)||!Array.isArray(stage.order)||!stage.order.length||stage.order.some(n=>!Number.isInteger(n)||n<0||n>18)||new Set(stage.order).size!==stage.order.length||!stage.order.includes(stage.stageIndex))return null;
+  if(!stage||!['explore','final-arena'].includes(stage.phase)||!Number.isInteger(stage.stageIndex)||stage.stageIndex<0||stage.stageIndex>=STAGES.length||!Number.isInteger(stage.loopIndex)||stage.loopIndex<0||![0,1].includes(stage.capitalRound)||!Array.isArray(stage.order)||!stage.order.length||stage.order.some(n=>!Number.isInteger(n)||n<0||n>=STAGES.length)||new Set(stage.order).size!==stage.order.length||!stage.order.includes(stage.stageIndex))return null;
+  // Existing entry checkpoints retain their current stage. An older route gains
+  // Laon before Paris without replaying any region already behind the pilot.
+  const laon=STAGES.indexOf('laon'),paris=stage.order.indexOf(STAGES.indexOf('paris-night'));
+  if(laon>=0&&paris>=0&&!stage.order.includes(laon)){stage.order.splice(paris,0,laon);stage.orderPosition=stage.order.indexOf(stage.stageIndex);}
   if(typeof s.runId!=='string'||!s.runId||!s.addon||!Number.isFinite(s.addon.time)||!Number.isInteger(s.addon.serial)||s.addon.serial<0)return null;
   if(stage.phase==='final-arena'&&(!stage.finalArena?.token||stage.finalArena.phase!=='pending'))return null;
   unpack(s.player);return s;
@@ -69,6 +74,7 @@ export function restoreStageCheckpoint(g,s){
   // optional pilot/build fields before restoring the saved computed values.
   for(const[k,v]of Object.entries(g))if(!unsafe.has(k)&&!excluded.has(k)&&!k.startsWith('_')&&(scalar(v)||objects.has(k))&&!Object.hasOwn(s.player,k))delete g[k];
   restoreFields(g,s.player,objects);
+  g.synthesisPending=[];g.synthesisGunPending=[];g.synthesisActivePending=[];g.synthesisAttachments=[];g.synthesisZones=[];g.synthesisBurst=0;g.synthesisSignature=null;
   if(g.aceSortie){g.aceSortie.active=new Map();g.aceSortie.pending=[];}
   if(g.rivalAce){g.rivalAce.active=null;if(g.rivalAce.phase!=='DEFEATED'){g.rivalAce.phase='ESCAPED';g.rivalAce.returnAt=g.t+5;}}
   const addon=g.stageBoss,stages=addon.stages;addon.runId=s.runId;addon.time=s.addon.time;addon.serial=s.addon.serial;

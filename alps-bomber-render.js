@@ -44,6 +44,21 @@ export function drawAlpsPart(c,p,ring){
  // the original art without permanent bright circles covering every engine.
  partMark(c,p.x,p.y,p.radius,p.radius,{brackets:p.kind==='payload'||p.hitFlash>0,hp:p.hp<p.maxHp?p.hp/p.maxHp:null});
 }
+// Arrival-only painted impact layers. Cosmetic extent does not alter the locked
+// warning/damage circle; flame ends quickly, then harmless smoke clears by 3s.
+export function arrivalBombardmentImpactLayers(h){
+ if(!h.encounterId||h.tag!==h.encounterId+':arrival-salvo'||h.phase==='warning')return null;
+ const age=Math.max(0,h.age-h.delay-h.warning),life=Math.max(.01,h.duration),p=Math.min(1,age/life),r=h.radius;
+ const layers=[];
+ if(age<.46){const q=age/.46;layers.push({key:'profileEarth'+Math.min(3,Math.floor(q*4)),x:h.x,y:h.y,size:r*(2.45+.3*q),alpha:Math.min(1,(1-q)*3)});}
+ const smokeIn=Math.min(1,age/.16),smokeOut=Math.min(1,(1-p)/.4);
+ layers.push({key:'smokeDark',x:h.x,y:h.y-age*18,size:r*(1.9+.65*p),alpha:.68*smokeIn*smokeOut});
+ // profileFlash selects the approved full-resolution painted cell, not the
+ // sample alias. Its visible hull spans about half the cell: 4.4r gives a
+ // roughly 1.9r visible flash, matching the warning diameter without changing damage.
+ if(age<.32)layers.push({key:'profileFlash',x:h.x,y:h.y,size:r*4.4,alpha:Math.min(1,(.32-age)/.14)});
+ return layers;
+}
 export function drawAlpsHazard(c,h,ring){
  if(!['alps-cannon','alps-mg'].includes(h.visual)&&h.visual!=='carpet-bomb')return false;
  const warning=h.phase==='warning',progress=Math.max(0,Math.min(1,(h.age-h.delay)/Math.max(.01,h.warning)));
@@ -54,6 +69,8 @@ export function drawAlpsHazard(c,h,ring){
  if(warning){impactMark(c,h.x,h.y,h.radius,progress,{heavy:h.raidHeavy});
   const sx=Number.isFinite(h.sourceX)?h.sourceX:h.x,sy=Number.isFinite(h.sourceY)?h.sourceY:h.y-560;
   fxsBombFall(c,(X,Y,k,a,pitch)=>bombSprite(c,h.sprite||'puw',X,Y,52*k,a,.95,pitch)||fx(c,'bomb',X,Y,36*k*pitch,16*k,a,.95),sx,sy,h.x,h.y,progress,h.releaseAngle);
+ }else if(h.encounterId&&h.tag===h.encounterId+':arrival-salvo'){
+  for(const layer of arrivalBombardmentImpactLayers(h))fx(c,layer.key,layer.x,layer.y,layer.size,layer.size,0,layer.alpha);
  }else{const age=h.age-h.delay-h.warning;fx(c,'explosion0',h.x,h.y,h.radius*2.1,h.radius*2.1,0,Math.max(0,1-age/h.duration));fx(c,'smokeDark',h.x,h.y-age*24,h.radius*(1.5+age),h.radius*(1.5+age),0,.6);}
  return true;
 }

@@ -155,7 +155,16 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
    if(breakup)d.broken=true;
    if(finisher)d.finished=true;
    const cue=queueCombatImpact(world,b,e,{material,streak:d.streak,impactVariant:index%3,impactMass:b.heavy?1.16:1,incendiary:!!b.burn,piercing:!!b.pierce,breakup,finisher});
-   if(cue&&aircraft&&e.hp>0){state.impacts.push({effect:cue,target:e,forward,side,age:0});cap(state.impacts,COMBAT_FEEDBACK_LIMITS.compactImpacts,COMBAT_FEEDBACK_LIMITS.impacts)}
+   if(cue&&aircraft&&e.hp>0){
+    state.impacts.push({effect:cue,target:e,forward,side,age:0});cap(state.impacts,COMBAT_FEEDBACK_LIMITS.compactImpacts,COMBAT_FEEDBACK_LIMITS.impacts);
+    // The opening contact of a burst deserves a tiny directional confirmation.
+    // No repeated MG shake, no recoil on distant targets, no simulation pause.
+    if(d.streak===1&&state.punchAge>.16){
+     const local=world.online?(world.players||[]).filter(p=>p.id===world.localPlayerId):(world.players||[world]);
+     const nearby=local.find(p=>p.hp>0&&Math.hypot(e.x-p.x,e.y-p.y)<Math.min(480,(world.viewWidth||960)/Math.max(.7,world.camera?.zoom||1)*.55));
+     if(nearby){state.punch=compact()?.26:.36;state.punchX=Math.cos(d.direction);state.punchY=Math.sin(d.direction);state.punchAge=0;}
+    }
+   }
    // Only the decisive local hit gets a short camera/pad accent. Continuous MG
    // fire and distant kills must not shake the screen or drown incoming warnings.
    if(cue&&(breakup||finisher)){
@@ -188,14 +197,17 @@ export function attachCombatFeedback(world,{play=()=>{},pulse=()=>{},key=e=>e.es
    const weapon=weaponImpactKind(f),local=this.online?players.filter(p=>p.id===this.localPlayerId):players;
    let nearest=null,distance=Infinity;for(const p of local){const d=Math.hypot(f.x-p.x,f.y-p.y);if(d<distance){nearest=p;distance=d;}}
    const audible=distance<Math.max(480,(this.viewWidth||960)/(this.camera?.zoom||1)*.65);
-   if(weapon&&audible){play('weaponImpact',{weapon});for(const event of this.events||[])if(f.feedbackId&&event.combatFeedbackId===f.feedbackId)event.combatWeapon=true;}
+   // Dedicated artillery owns the matching app-level explosion event even
+   // when the native blast has no optional FX profile (for example Laon).
+   if(f.artillerySound)for(const event of this.events||[])if(f.feedbackId&&event.combatFeedbackId===f.feedbackId)event.combatWeapon=true;
+   if(weapon&&audible&&!f.artillerySound){play('weaponImpact',{weapon});for(const event of this.events||[])if(f.feedbackId&&event.combatFeedbackId===f.feedbackId)event.combatWeapon=true;}
    const power=blastFeedbackStrength(f)*clamp(1-distance/480);
    if(nearest&&power>strongestPower){strongest={effect:f,player:nearest};strongestPower=power;}
    if(f.fxProfile==='aircraftCritical'&&audible){
     const rank=f.player?4:f.pilotKill?3:f.ignite?2:1;if(!criticalCue||rank>criticalCue.rank)criticalCue={f,rank};
     if(f.player||f.ignite||f.pilotKill){state.duckUntil=(this.t||0)+.22;if(f.player)pulse('hit');}
    }
-   else if(audible&&['groundShell','heavyShell','ammoCookoff'].includes(f.fxProfile)){play('detonation',{profile:f.fxProfile});for(const event of this.events||[])if(f.feedbackId&&event.combatFeedbackId===f.feedbackId)event.combatWeapon=true;}
+   else if(audible&&['groundShell','heavyShell','ammoCookoff'].includes(f.fxProfile)){if(!f.artillerySound)play('detonation',{profile:f.fxProfile});for(const event of this.events||[])if(f.feedbackId&&event.combatFeedbackId===f.feedbackId)event.combatWeapon=true;}
    else if(f.fxProfile==='tactical'){const cue=tacticalCueSound(f.tacticalCue);if(cue)play(cue,{tactical:true});}
    else if(f.fxProfile==='bulletImpact'&&replica)play(f.blocked?'armorClink':f.finisher||f.breakup?'airframeBreak':'materialImpact',{material:f.material,streak:f.streak});
    else if(audible&&['armorBreak','engineBreak','navalBreak'].includes(f.fxProfile)){play(f.fxProfile==='navalBreak'?'shipBreak':f.fxProfile==='engineBreak'?'airframeBreak':'metalBreak');pulse('explosion');}

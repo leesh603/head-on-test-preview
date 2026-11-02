@@ -55,6 +55,7 @@ export function removeEquipment(p,id,Game,PLANES){
  for(const key of TIMERS[id]||[])delete p[key];
  delete p.upgrades[id];if(p.upgradeRarities)delete p.upgradeRarities[id];
  for(const e of p.equipmentLedger.history)if(e.id===id&&e.rarity==='legendary')e.active=false;
+ p.synthesisPending=[];p.synthesisGunPending=[];p.synthesisActivePending=[];p.synthesisBurst=0;p.synthesisSignature=null;p.synthesisAttachments=[];
  p._buildRankAt=undefined;return true;
 }
 
