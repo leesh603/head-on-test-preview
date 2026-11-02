@@ -39,8 +39,14 @@ export function applyTerrainAtmosphere(ctx,key,width,height){
 const profileImages=new Map(),profileImageLoads=new Map();
 function profileImage(key){
  const p=TERRAIN_PROFILES[key];if(!p?.src)return null;
- if(!profileImages.has(key)&&typeof Image!=='undefined'){const image=new Image();image.decoding='async';image.src=p.src;profileImages.set(key,image);}
- return profileImages.get(key)||null;
+ let image=profileImages.get(key);
+ if(image){profileImages.delete(key);profileImages.set(key,image);return image;}
+ if(typeof Image==='undefined')return null;
+ image=new Image();image.decoding='async';image.src=p.src;profileImages.set(key,image);
+ // The current field and its incoming neighbour cover transitions; visited
+ // source bitmaps must not outlive the already bounded rendered tile cache.
+ while(profileImages.size>2){const oldest=profileImages.keys().next().value;profileImages.delete(oldest);profileImageLoads.delete(oldest);}
+ return image;
 }
 // Warm a profile texture ahead of a region transition so the first tile never
 // flashes the bare base color while the image is still decoding. Resolves true

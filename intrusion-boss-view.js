@@ -24,7 +24,9 @@ export const INTRUSION_COPY=Object.freeze({
 const requested=new Set();
 export function releaseIntrusionView(){requested.clear();releaseIntrusionArt();}
 export function prepareIntrusionView(e){
- if(!e||!INTRUSION_COPY[e.profileId]||requested.has(e.profileId))return;
+ if(!e||e.phase==='resolved'){releaseIntrusionView();return;}
+ if(!INTRUSION_COPY[e.profileId]||requested.has(e.profileId))return;
+ releaseIntrusionArt(e.profileId);requested.clear();
  requested.add(e.profileId);
  prepareIntrusionArt(e.profileId).catch(error=>{console.error('[headon] intrusion asset unavailable',e.profileId,error);});
 }
@@ -97,8 +99,8 @@ function drawMaritimeGuide(c,g,W,H){
  c.strokeText(label,x,y);c.fillText(label,x,y);c.restore();
 }
 export function drawIntrusionLayer(c,g,W,H,layer='bodies'){
- const e=g?.intrusionBoss;if(!e)return;
- prepareIntrusionView(e);if(!intrusionVisible(g))return;
+ const e=g?.intrusionBoss;prepareIntrusionView(e);
+ if(!e||!intrusionVisible(g))return;
  const z=g.camera?.zoom||1,point=(x,y)=>({x:(x-g.x)*z+W/2,y:(y-g.y)*z+H/2});
  if(layer!=='hazards'&&intrusionArtReady(e.profileId)){
   c.save();

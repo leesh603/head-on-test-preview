@@ -4,20 +4,20 @@ import {maritimeReveal} from './maritime-intrusion.js';
 import { intrusionLayout } from './intrusion-boss-layouts.js';
 export { intrusionLayout, profileLayout } from './intrusion-boss-layouts.js';
 const banks=new Map();
-let generation=0;
 function browserLoader(src){return new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=()=>reject(new Error(`Intrusion texture failed: ${src}`));i.src=src;});}
 /** One decoded image per unique lossless texture. Reject failures; never draw a placeholder. */
 export function prepareIntrusionArt(id,options={}){
  const layout=intrusionLayout(id);if(!layout)return Promise.reject(new Error(`Unknown intrusion boss: ${id}`));
  if(banks.has(layout.id))return banks.get(layout.id).promise;
- const epoch=generation,entry={images:new Map(),ready:false,promise:null};banks.set(layout.id,entry);
+ const entry={images:new Map(),ready:false,promise:null};banks.set(layout.id,entry);
  const paths=new Set(layout.parts.flatMap(p=>Object.values(p.states).filter(Boolean).map(s=>s.src)));
  for(const src of layout.extraAssets||[])paths.add(src);
  if(layout.profileArt)paths.add(layout.profileArt);
  if(layout.cutin)paths.add(layout.cutin);
- entry.promise=Promise.all([...paths].map(async src=>{const im=await(options.loadImage||browserLoader)((options.baseUrl||'')+src);if(epoch===generation)entry.images.set(src,im);})).then(()=>{if(epoch===generation)entry.ready=true;return entry;}).catch(error=>{if(banks.get(layout.id)===entry)banks.delete(layout.id);throw error;});return entry.promise;
+ entry.promise=Promise.all([...paths].map(async src=>{const im=await(options.loadImage||browserLoader)((options.baseUrl||'')+src);if(banks.get(layout.id)===entry)entry.images.set(src,im);else im.close?.();})).then(()=>{if(banks.get(layout.id)===entry)entry.ready=true;return entry;}).catch(error=>{if(banks.get(layout.id)===entry)banks.delete(layout.id);throw error;});return entry.promise;
 }
-export function releaseIntrusionArt(){generation++;for(const e of banks.values())for(const im of e.images.values())if(typeof im.close==='function')im.close();banks.clear();}
+// Preserve a bank already warming in the host while retiring the previous encounter.
+export function releaseIntrusionArt(keepId){const keep=intrusionLayout(keepId)?.id;for(const [id,e] of banks){if(id===keep)continue;banks.delete(id);for(const im of e.images.values())im.close?.();e.images.clear();e.ready=false;}}
 export function intrusionArtReady(id){return !!banks.get(intrusionLayout(id)?.id)?.ready;}
 export function intrusionPartState(encounter,group){
  const v=encounter.damage?.[group]??encounter.parts?.[group];

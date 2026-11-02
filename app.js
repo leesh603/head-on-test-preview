@@ -861,7 +861,11 @@ function drawTerrainBuffered(key,cx,cy,W,H){
  const M=192,bw=W+2*M,bh=H+2*M;
  const source=terrainAlpsRenderer.tile?.(key);
  let b=_terrBufs.get(key);
- if(!b){if(_terrBufs.size>=4)_terrBufs.delete(_terrBufs.keys().next().value);b={cv:document.createElement('canvas'),ax:NaN,ay:NaN};_terrBufs.set(key,b)}
+ if(!b){
+  const limit=game?.stageBoss||game?.mode==='campaign'?1:2;
+  while(_terrBufs.size>=limit){const oldKey=_terrBufs.keys().next().value,old=_terrBufs.get(oldKey);old.cv.width=old.cv.height=0;if(old.back)old.back.width=old.back.height=0;old.source=null;_terrBufs.delete(oldKey);}
+  b={cv:document.createElement('canvas'),ax:NaN,ay:NaN};_terrBufs.set(key,b);
+ }else{_terrBufs.delete(key);_terrBufs.set(key,b)}
  if(b.cv.width!==bw||b.cv.height!==bh){b.cv.width=bw;b.cv.height=bh;b.ax=NaN}
  if(b.source!==source){b.source=source;b.ax=NaN}
  const vx=cx-W/2,vy=cy-H/2,inner=M*.5;
