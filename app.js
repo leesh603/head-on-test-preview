@@ -184,7 +184,7 @@ installHeadOnElitePatch(Game,legacyEliteBindings);
 configureLegacySquadrons({bindings:legacyEliteBindings,ready:()=>eliteAssets.ready,render:(c,system,point,t)=>renderEliteLayer(c,system,{point},eliteAssets,t)});
 const $=id=>document.getElementById(id);const hudTags=createHudTags($('viewport'));
 // Per-frame HUD writers: skip DOM writes whose value is unchanged (same DOM, no style/layout invalidation).
-const __txt=(el,v)=>{v=String(v);if(el.textContent!==v)el.textContent=v},__attr=(el,k,v)=>{v=String(v);if(el.getAttribute(k)!==v)el.setAttribute(k,v)},__data=(el,k,v)=>{v=String(v);if(el.dataset[k]!==v)el.dataset[k]=v};const transitionAssetPrep=region=>{const jobs=[];if(region===2&&!batterySaver&&renderScale>=.7)jobs.push(prepareTrenchDiorama());try{if(region!==11)jobs.push(preloadTerrainProfile(terrainKeys[region]))}catch(_){}if(typeof prepareStageBossAssets==='function')jobs.push(Promise.resolve(prepareStageBossAssets(region)));return Promise.all(jobs).then(()=>{const key=terrainKeys[region];_terrBufs.delete(key);if(game&&[0,1,2,3,4,5,6,8,9,10].includes(region))drawTerrainBuffered(key,game.x,game.y,W,H)}).catch(()=>{})};const transitionTipPick=(region,locale,excludeId)=>typeof chooseTransitionTip==='function'?chooseTransitionTip(region,locale,Math.random,excludeId):{id:'',text:''};const transitionLabelPick=(region,locale,fallback)=>typeof transitionRegionLabel==='function'?transitionRegionLabel(region,locale,fallback):fallback;const canvas=$('game'),ctx=canvas.getContext('2d');let W=600,H=500,game=null,plane='eindecker',pilot='immelmann',faction='central',keys={},joy=null,muted=true,sfxOff=false,bgmOff=false,audio=null,last=0,ambient=0,toastUntil=0,choices=[],lastFocus=null,cutinUntil=0,lastImpactSound=0,lastShotSound=0,lastPickupSound=0;const choiceTransaction=createChoiceTransaction({getGame:()=>game});const choiceIconRefs=[];function clearChoiceIconRefs(){choiceIconRefs.length=0}let regionTransitionUntil=0,regionTransitionAssetsReady=true,lastTransitionTipId='',regionTransitionSerial=0,renderStamp=-1e9;const mobileDisplay=window.matchMedia('(max-width:720px), (pointer:coarse) and (max-height:600px)').matches;let hiFpsMode=false;try{hiFpsMode=localStorage.getItem('headon.hiFps')==='1'}catch(_){}window.addEventListener('headon:hifps',e=>{hiFpsMode=e.detail===true});let batterySaver=false;try{batterySaver=localStorage.getItem('headon.saver')==='1'}catch(_){}let userZoom=1;try{userZoom=Math.min(1.4,Math.max(.8,parseFloat(localStorage.getItem('headon.zoom.v2'))||1))}catch(_){}const KEYBINDS={...KEYBIND_DEFAULTS};try{const saved=JSON.parse(localStorage.getItem('headon.keybinds')||'{}');Object.assign(KEYBINDS,restoreKeybinds(saved));if(BIND_ACTIONS.some(a=>saved[a]!==undefined&&saved[a]!==KEYBINDS[a]))localStorage.setItem('headon.keybinds',JSON.stringify(KEYBINDS))}catch(_){}let mouseSteering=false,mouseAngle=null;
+const __txt=(el,v)=>{v=String(v);if(el.textContent!==v)el.textContent=v},__attr=(el,k,v)=>{v=String(v);if(el.getAttribute(k)!==v)el.setAttribute(k,v)},__data=(el,k,v)=>{v=String(v);if(el.dataset[k]!==v)el.dataset[k]=v};const transitionAssetPrep=region=>{const run=game,serial=regionTransitionSerial,jobs=[];if(region===2&&!batterySaver&&renderScale>=.7)jobs.push(prepareTrenchDiorama());try{if(region!==11)jobs.push(preloadTerrainProfile(terrainKeys[region]))}catch(_){}if(typeof prepareStageBossAssets==='function')jobs.push(Promise.resolve(prepareStageBossAssets(region)));return Promise.all(jobs).then(()=>{if(game!==run||regionTransitionSerial!==serial||region>=0&&run?.worldRegion?.()!==region)return;const key=terrainKeys[region];releaseTerrainBuffer(key);if(game&&[0,1,2,3,4,5,6,8,9,10].includes(region))drawTerrainBuffered(key,game.x,game.y,W,H)}).catch(()=>{})};const transitionTipPick=(region,locale,excludeId)=>typeof chooseTransitionTip==='function'?chooseTransitionTip(region,locale,Math.random,excludeId):{id:'',text:''};const transitionLabelPick=(region,locale,fallback)=>typeof transitionRegionLabel==='function'?transitionRegionLabel(region,locale,fallback):fallback;const canvas=$('game'),ctx=canvas.getContext('2d');let W=600,H=500,game=null,plane='eindecker',pilot='immelmann',faction='central',keys={},joy=null,muted=true,sfxOff=false,bgmOff=false,audio=null,last=0,ambient=0,toastUntil=0,choices=[],lastFocus=null,cutinUntil=0,lastImpactSound=0,lastShotSound=0,lastPickupSound=0;const choiceTransaction=createChoiceTransaction({getGame:()=>game});const choiceIconRefs=[];function clearChoiceIconRefs(){choiceIconRefs.length=0}let regionTransitionUntil=0,regionTransitionAssetsReady=true,lastTransitionTipId='',regionTransitionSerial=0,renderStamp=-1e9;const mobileDisplay=window.matchMedia('(max-width:720px), (pointer:coarse) and (max-height:600px)').matches;let hiFpsMode=false;try{hiFpsMode=localStorage.getItem('headon.hiFps')==='1'}catch(_){}window.addEventListener('headon:hifps',e=>{hiFpsMode=e.detail===true});let batterySaver=false;try{batterySaver=localStorage.getItem('headon.saver')==='1'}catch(_){}let userZoom=1;try{userZoom=Math.min(1.4,Math.max(.8,parseFloat(localStorage.getItem('headon.zoom.v2'))||1))}catch(_){}const KEYBINDS={...KEYBIND_DEFAULTS};try{const saved=JSON.parse(localStorage.getItem('headon.keybinds')||'{}');Object.assign(KEYBINDS,restoreKeybinds(saved));if(BIND_ACTIONS.some(a=>saved[a]!==undefined&&saved[a]!==KEYBINDS[a]))localStorage.setItem('headon.keybinds',JSON.stringify(KEYBINDS))}catch(_){}let mouseSteering=false,mouseAngle=null;
 try{mouseSteering=localStorage.getItem('headon.mouseSteering')==='1'}catch(_){}
 const mouseSteeringSupported=matchMedia('(pointer:fine)').matches;
 // Fine-pointer PCs retain their existing automatic keyboard/mouse/gamepad selection.
@@ -856,14 +856,19 @@ function paintTrenchHellOverlay(cx,cy,W,H){
 // integer-aligned slice instead of re-rasterizing every 768px tile + transform.
 // The buffer only repaints when the camera crosses its inner margin.
 const _terrBufs=new Map();
-backgroundDressingReady.then(()=>{_terrBufs.clear();zeebruggeHarborBlend=null;});
+backgroundDressingReady.then(()=>{releaseTerrainBuffers();zeebruggeHarborBlend=null;});
+function releaseTerrainBuffer(key){
+ const old=_terrBufs.get(key);if(!old)return;
+ old.cv.width=old.cv.height=0;if(old.back)old.back.width=old.back.height=0;old.source=null;_terrBufs.delete(key);
+}
+function releaseTerrainBuffers(){for(const key of _terrBufs.keys())releaseTerrainBuffer(key);}
 function drawTerrainBuffered(key,cx,cy,W,H){
  const M=192,bw=W+2*M,bh=H+2*M;
  const source=terrainAlpsRenderer.tile?.(key);
  let b=_terrBufs.get(key);
  if(!b){
   const limit=game?.stageBoss||game?.mode==='campaign'?1:2;
-  while(_terrBufs.size>=limit){const oldKey=_terrBufs.keys().next().value,old=_terrBufs.get(oldKey);old.cv.width=old.cv.height=0;if(old.back)old.back.width=old.back.height=0;old.source=null;_terrBufs.delete(oldKey);}
+  while(_terrBufs.size>=limit)releaseTerrainBuffer(_terrBufs.keys().next().value);
   b={cv:document.createElement('canvas'),ax:NaN,ay:NaN};_terrBufs.set(key,b);
  }else{_terrBufs.delete(key);_terrBufs.set(key,b)}
  if(b.cv.width!==bw||b.cv.height!==bh){b.cv.width=bw;b.cv.height=bh;b.ax=NaN}
@@ -1317,12 +1322,12 @@ function tickAlpsTerrain(g,dt){
  if(!g||g.state!=='playing'||g.worldRegion?.()!==6)return;
  if(g.online&&!g.host){
   const data=g.alpsTerrain;if(!data)return;
-  if(!g.alpsMountains||typeof g.alpsMountains.draw!=='function'||g.alpsMountains.seed!==data.seed||g.alpsMountains.cellSize!==data.cellSize){g.alpsMountains=new MountainFieldSafe({...data,onDamage:()=>{},onImpact:()=>{}});_terrBufs.delete('alps');}
+  if(!g.alpsMountains||typeof g.alpsMountains.draw!=='function'||g.alpsMountains.seed!==data.seed||g.alpsMountains.cellSize!==data.cellSize){g.alpsMountains=new MountainFieldSafe({...data,onDamage:()=>{},onImpact:()=>{}});releaseTerrainBuffer('alps');}
   Object.assign(g.alpsMountains,{safeAreas:data.safeAreas||[],time:data.time||0});return;
  }
  const roster=g.players||[g];
  if(!g.alpsMountains){
-  _terrBufs.delete('alps');
+  releaseTerrainBuffer('alps');
   g.alpsMountains=new MountainFieldSafe({seed:Math.floor((g.runSeed||g.t||17)*97)+17,
    safeAreas:roster.map(p=>({x:p.x,y:p.y,radius:130})),damageFraction:.30,cooldown:1.25,
    onDamage:(id,amount)=>{const p=roster.find(q=>(q.id||'p1')===id);if(!p||p.hp<=0)return;if(g.players)g.hitPlayer(p,amount);else g.hit(amount);},
@@ -1392,7 +1397,7 @@ const rosterWithoutPilotMedal=roster;roster=()=>{rosterWithoutPilotMedal();$('pi
 
 // Revision 120 — a map image may finish loading after the first draw.  Never
 // keep that temporary flat tile in the countryside cache for the whole sortie.
-const refreshTerrainAtlas120=()=>{terrainAlpsRenderer.tiles?.clear?.();_terrBufs.clear()};
+const refreshTerrainAtlas120=()=>{terrainAlpsRenderer.tiles?.clear?.();releaseTerrainBuffers()};
 terrainAlpsAtlas.onload=refreshTerrainAtlas120;if(terrainAlpsAtlas.naturalWidth)refreshTerrainAtlas120();
 terrainAlpsRenderer.tileSize=768;
 
